@@ -9,3 +9,4 @@ void RGB2Grayscale(const YARPImageOf<YarpPixelRGB> &in, YARPImageOf<YarpPixelMon
 
 
 #endif
+

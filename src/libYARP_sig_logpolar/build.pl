@@ -28,7 +28,7 @@ if (!defined($yarp_root))
 
 require "$yarp_root/conf/configure.template.pl" or die "Can't find template file $yarp_root/conf/configure.template.pl\n";
 
-check_os();
+my $exp_os = check_os();
 
 print "Ready to start...\n";
 
@@ -59,6 +59,11 @@ load_config_file (\%options, $config_file);
 
 my $os = $options{"Architecture<-OS"};
 
+if ($os ne $exp_os)
+{
+        die "The auto-detected OS differs from the configured OS: $exp_os vs. %os\n";
+}
+
 #
 # override.
 unless ($force)
@@ -75,29 +80,62 @@ unless ($force)
 if ($clean)
 {
 	print "\nCleaning...\n";
-	chdir "./src" or die "Cannot chdir to src: $!";
+	if ($os eq "winnt")
+	{
+		chdir "./src" or die "Cannot chdir to src: $!";
 
-	call_msdev_and_print ("libYARP_sig_logpolar", "Debug", "CLEAN");
-	call_msdev_and_print ("libYARP_sig_logpolar", "Release", "CLEAN");
+		call_msdev_and_print ("libYARP_sig_logpolar", "Debug", "CLEAN");
+		call_msdev_and_print ("libYARP_sig_logpolar", "Release", "CLEAN");
 	
-	print "\n";
-	chdir "../" or die "Cannot chdir to ..: $!";
+		print "\n";
+		chdir "../" or die "Cannot chdir to ..: $!";
+	}
+	elsif ($os eq "linux")
+	{
+                call_make_and_print ('', "clean");
+	}
+	elsif ($os eq "qnx6")
+	{
+                call_make_and_print ('', "clean");
+	}
 }
 
 if ($debug)
 {
 	print "\nCompiling debug\n";
-	chdir "./src" or die "Cannot chdir to src: $!";
-	call_msdev_and_print ("libYARP_sig_logpolar", "Debug", "BUILD");
-	chdir "../" or die "Cannot chdir to ..: $!";
+	if ($os eq "winnt")
+	{
+		chdir "./src" or die "Cannot chdir to src: $!";
+		call_msdev_and_print ("libYARP_sig_logpolar", "Debug", "BUILD");
+		chdir "../" or die "Cannot chdir to ..: $!";
+	}
+	elsif ($os eq "linux")
+	{
+                call_make_and_print ('', "CFAST=-g");
+	}
+	elsif ($os eq "qnx6")
+	{
+                call_make_and_print ('', "CFAST=-g");
+	}
 }
 
 if ($release)
 {
 	print "\nCompiling optimized\n";
-	chdir "./src" or die "Cannot chdir to src: $!";
-	call_msdev_and_print ("libYARP_sig_logpolar", "Release", "BUILD");
-	chdir ".." or die "Cannot chdir to ..: $!";
+	if ($os eq "winnt")
+	{
+		chdir "./src" or die "Cannot chdir to src: $!";
+		call_msdev_and_print ("libYARP_sig_logpolar", "Release", "BUILD");
+		chdir ".." or die "Cannot chdir to ..: $!";
+	}
+	elsif ($os eq "linux")
+	{
+                call_make_and_print ('', "CFAST=-O3");
+	}
+	elsif ($os eq "qnx6")
+	{
+                call_make_and_print ('', "CFAST=-O3");
+	}
 }
 
 if ($install)
