@@ -1,43 +1,39 @@
 include $(YARP_ROOT)/conf/Makefile.template
 
-SYSDIR = linux
+SYSDIR = qnx6
 
-OBJS = $(patsubst %.cpp, %.o, $(wildcard *.cpp)) $(patsubst %.c, %.o, $(wildcard *.c))
-CC = g++ $(CFAST)
-CC1 = gcc $(CFAST)
-CFLAGS = -I../include -I/usr/include
-
-OUTDIR = ../obj/$(SYSDIR)
-VPATH += $(OUTDIR)
+OBJS = $(patsubst %.cpp, %.o, $(wildcard *.cpp))
+CC = g++
+#CFLAGS = -g -I../include -I../sys_include -I$(YARP_ROOT)/include
+CFLAGS = $(CFAST) $(CDEFS) -I../include -I../sys_include -I$(YARP_ROOT)/include
 
 SUBDIRS =
 
-#CODELIB = os_services.lib
+CODELIB = os_services.lib
+
+OUTDIR = ../obj/$(SYSDIR)
+
+# VPATH += $(OUTDIR)
+
+%.o: %.cpp
+	$(CC) $(CFLAGS) -c $^ -o $@
+	cp $@ $(OUTDIR)
 
 all: target
 
-target: subtarget $(OBJS)
+target: local subtarget
 
-#local: $(CODELIB)
-
-%.o: %.cpp
-	$(CC) $(CFLAGS) -c $^ -o $(OUTDIR)/$@
-
-%.o: %.c
-	$(CC1) $(CFLAGS) -c $^ -o $(OUTDIR)/$@
-
-$(CODELIB): $(OBJS)
-	$(AR) crsv $(CODELIB) $(OBJS)
-	cp $(CODELIB) ../lib/$(SYSDIR)
-
-dummy: $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ -lpthread
+local: $(OBJS)
 
 w:
 	@echo -n
 
+$(CODELIB): $(OBJS)
+	$(AR) $(ARFLAGS) $(CODELIB) $(OBJS)
+	cp $(CODELIB) ../lib/$(SYSDIR)
+
 clean: subclean
-	rm -f *.o $(CODELIB) 
+	rm -f $(OUTDIR)/*.o *.o $(CODELIB) 
 
 install: subinstall target
 #	@echo Doing nothing as yet

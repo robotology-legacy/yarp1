@@ -1,75 +1,155 @@
-#include <assert.h>
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
+///                                                                   ///
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, /// 
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
 
+///
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPMultipartMessage.cpp,v 1.2 2003-08-12 16:07:28 gmetta Exp $
+///
+///
+
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+#include <ace/Synch.h>
+
+///
+///
 #include "YARPMultipartMessage.h"
 
+///
+/// a block of the multipart message (buffer).
 class Block
 {
 public:
-  char *buffer;
-  int len;
+	char *buffer;
+	int len;
 
-  Block() { buffer = NULL;  len = 0; }
+	Block () 
+	{ 
+		buffer = NULL; 
+		len = 0; 
+	}
 
-  Block(char *n_buffer, int n_len)
-    {
-      Set(n_buffer,n_len);
-    }
+	Block (char *n_buffer, int n_len)
+	{
+		Set(n_buffer, n_len);
+	}
 
-  void Set(char *n_buffer, int n_len)
-    {
-      buffer = n_buffer;
-      len = n_len;
-    }
+	void Set (char *n_buffer, int n_len)
+	{
+		buffer = n_buffer;
+		len = n_len;
+	}
 };
 
 /*** BEGIN MULTIPART ***/
 /* Identical to QNX version */
 
-YARPMultipartMessage::~YARPMultipartMessage()
+YARPMultipartMessage::~YARPMultipartMessage ()
 {
-  if (owned)
-    {
-      if (system_resource!=NULL)
+	if (owned)
 	{
-	  delete[] ((Block*)system_resource);
-	  system_resource = NULL;
+		if (system_resource != NULL)
+		{
+			delete[] ((Block*)system_resource);
+			system_resource = NULL;
+		}
 	}
-    }
 }
 
-void YARPMultipartMessage::Resize(int n_length)
+void YARPMultipartMessage::Resize (int n_length)
 {
-  if (n_length>length)
-    {
-      if (owned)
+	if (n_length>length)
 	{
-	  if (system_resource!=NULL)
-	    {
-	      delete[] ((Block*)system_resource);
-	      system_resource = NULL;
-	    }
+		if (owned)
+		{
+			if (system_resource != NULL)
+			{
+				delete[] ((Block*)system_resource);
+				system_resource = NULL;
+			}
+		}
+
+		system_resource = new Block[n_length];
+		ACE_ASSERT (system_resource != NULL);
+		length = n_length;
 	}
-      system_resource = new Block[n_length];
-      assert(system_resource!=NULL);
-      length = n_length;
-    }
-  top_index = -1;
-  owned = 1;
+	top_index = -1;
+	owned = 1;
 }
 
-void YARPMultipartMessage::Set(int index, char *buffer, int buffer_length)
+void YARPMultipartMessage::Set (int index, char *buffer, int buffer_length)
 {
-  assert(index<length);
-  ((Block*)system_resource)[index].Set(buffer,buffer_length);
-  if (index>top_index)
-    {
-      top_index = index;
-    }
+	ACE_ASSERT (index < length);
+	((Block*)system_resource)[index].Set(buffer,buffer_length);
+
+	if (index > top_index)
+	{
+		top_index = index;
+	}
 }
 
-void YARPMultipartMessage::Reset()
+void YARPMultipartMessage::Reset ()
 {
-  top_index = -1;
+	top_index = -1;
 }
 
 
@@ -78,14 +158,14 @@ void YARPMultipartMessage::Reset()
 
 char *YARPMultipartMessage::GetBuffer(int index)
 {
-  assert(index<=top_index);
-  return ((Block*)system_resource)[index].buffer;
+	ACE_ASSERT(index <= top_index);
+	return ((Block*)system_resource)[index].buffer;
 }
 
 
 int YARPMultipartMessage::GetBufferLength(int index)
 {
-  assert(index<=top_index);
-  return ((Block*)system_resource)[index].len;
+	ACE_ASSERT(index <= top_index);
+	return ((Block*)system_resource)[index].len;
 }
 
