@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.4 2003-10-24 14:52:48 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.5 2003-11-14 13:56:34 babybot Exp $
 ///
 ///
 
@@ -73,7 +73,7 @@
 #include <YARPSemaphore.h>
 
 #include <math.h>
-#include <vector>
+#include <YARPRobotMath.h>
 #include <YARPString.h>
 
 #define YARP_GEN_CB_VERBOSE
@@ -386,8 +386,11 @@ int YARPGenericControlBoard<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *
 	double steps = (double) s;
 	ACE_Time_Value sleep_period (0, 40*1000);
 	
-	std::vector<LowLevelPID> actualPIDs(_parameters._nj);
-	std::vector<LowLevelPID> deltaPIDs(_parameters._nj);
+	LowLevelPID *actualPIDs;
+	LowLevelPID *deltaPIDs;
+	actualPIDs = new LowLevelPID [_parameters._nj];
+	deltaPIDs = new LowLevelPID [_parameters._nj];
+
 	double *shift;
 	double *currentPos;
 	shift = new double[_parameters._nj];
@@ -439,6 +442,8 @@ int YARPGenericControlBoard<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *
 	}
 	ACE_OS::printf("done !\n");
 
+	delete [] actualPIDs;
+	delete [] deltaPIDs;
 	delete [] shift;
 	delete [] currentPos; 
 	return -1;

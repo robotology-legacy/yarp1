@@ -1,12 +1,11 @@
 // by nat
-// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.7 2003-10-28 18:01:28 babybot Exp $
+// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.8 2003-11-14 13:56:34 babybot Exp $
 
 #ifndef __MEIONBABYBOTHEAD__
 #define __MEIONBABYBOTHEAD__
 
 #include <ace/log_msg.h>
 #include <YARPMeiDeviceDriver.h>
-#include <string>
 #include <YARPConfigFile.h>
 
 #include <YARPBabybotInertialSensor.h>

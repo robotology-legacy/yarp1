@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPBabybotArm.h,v 1.12 2003-10-24 14:52:48 babybot Exp $
+// $Id: YARPBabybotArm.h,v 1.13 2003-11-14 13:56:34 babybot Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -11,6 +11,7 @@
 #endif
 
 #include <conf/YARPConfig.h>
+#include <YARPRobotMath.h>
 #include <YARPGenericControlBoard.h>
 #include "YARPMEIOnBabybotArmAdapter.h"
 

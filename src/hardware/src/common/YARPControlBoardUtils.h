@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 
 
-// $Id: YARPControlBoardUtils.h,v 1.15 2003-10-17 16:34:40 babybot Exp $
+// $Id: YARPControlBoardUtils.h,v 1.16 2003-11-14 13:56:34 babybot Exp $
 
 #include <conf/YARPConfig.h>
 
@@ -14,7 +14,7 @@
 #ifndef __YARP_CONTROL_BOARD_UTILS__
 #define __YARP_CONTROL_BOARD_UTILS__
 
-#define pi 3.14159265358
+// #define pi 3.14159265358
 
 // command list
 enum ControlBoardCmd
