@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottleContent.h,v 1.1 2003-07-22 15:23:54 natta Exp $
+/// $Id: YARPBottleContent.h,v 1.2 2003-07-23 17:18:57 babybot Exp $
 ///
 ///
 
@@ -75,6 +75,7 @@
 #	pragma once
 #endif
 
+#include "YARPBottle.h"
 #include "YARPPort.h"
 #include "YARPPortContent.h"
 

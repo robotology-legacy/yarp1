@@ -35,12 +35,12 @@ int main(int argc, char* argv[])
 
 	// file.get("[RANDOMTHREAD]", "Rate", &_random_thread_rate, 1);
 	
-	ArmBehaviorData arm_thread(_arm_thread_rate,
-								"arm thread",
-								"Y:\\conf\\babybot\\arm.ini",
-								"/armcontrol/o");
+	ArmThread arm_thread(_arm_thread_rate,
+						"arm thread",
+						"Y:\\conf\\babybot\\arm.ini");
 
-	ArmBehavior _arm(&arm_thread, YBLabelMotor, "/armcontrol/i");
+	ArmBehavior _arm(&arm_thread, YBLabelMotor, "/armcontrol/behavior/i");
+	arm_thread.start();
 
 	ABWaitIdle waitIdle;
 	ABWaitMotion waitMotion;
@@ -48,11 +48,16 @@ int main(int argc, char* argv[])
 	ABCheckMotionDone checkMotionDone;
 	ABOutputCommand outputCmd;
 	
+	_arm.setInitialState(&waitIdle);
+	_arm.Begin();
 	_arm.add(&inputCmd, &waitIdle, &waitMotion, &outputCmd);
 	_arm.add(&checkMotionDone, &waitMotion, &waitIdle);
 
 	_arm.loop();
 
+	_arm.End();
+	// stop arm
+	arm_thread.terminate(false);	// no timeout here, important !
 	return 0;
 }
 

@@ -23,6 +23,8 @@ enum {
 enum {
 	YBVArmNewCmd,
 	YBVArmDone,
+	YBVArmRndStart,
+	YBVArmRndStop,
 	YBVExit
 };
 
@@ -30,6 +32,10 @@ template <class T>
 const char *ybc_label(T x) {
   switch (x) {
     case YBVExit: return "exit";
+	case YBVArmNewCmd: return "armnewcmd";
+	case YBVArmDone: return "armdone";
+	case YBVArmRndStart: return "armrndstart";
+	case YBVArmRndStop: return "armrndstop";
   }
   return "UNKNOWN";
 };

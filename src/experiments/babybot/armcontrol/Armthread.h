@@ -36,7 +36,9 @@
 #else  ARM_THREAD_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
-class ArmThread: public YARPRateThread
+#include "ArmBehavior.h"
+
+class ArmThread: public YARPRateThread, public YARPBehaviorSharedData
 {
 public:
 	ArmThread(int rate,

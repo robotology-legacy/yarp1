@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPRepeater.h,v 1.2 2003-07-23 12:07:14 babybot Exp $
+/// $Id: YARPRepeater.h,v 1.3 2003-07-23 17:18:57 babybot Exp $
 ///  
 /// very simple class to handle config files... by nat May 2003
 //
@@ -68,6 +68,7 @@
 #define __YARPREPEATER__
 
 #include <YARPThread.h>
+#include <YARPBottleContent.h>
 #include <YARPPort.h>
 #include <string>
 
@@ -82,22 +83,24 @@ public:
 		_inputPort.Register(inPortName.c_str());
 		_outputPort.Register(outPortName.c_str());
 
-		YARPThread::Begin();
+	//	YARPThread::Begin();
 	}
 
 	~YARPRepeater()
 	{
-		YARPThread::End();
+	//	YARPThread::End();
 	}
 
 	virtual void Body(void)
 	{
+		YARPBottle tmp;
 		while(!IsTerminated())
 		{
 			_inputPort.Read();
-
-			_outputPort.Content() = _inputPort.Content();		
-
+			_inputPort.Content().display();
+			tmp = _inputPort.Content();
+			_outputPort.Content() = tmp;
+			
 			_outputPort.Write();
 		}
 	}

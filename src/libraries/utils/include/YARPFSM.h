@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPFSM.h,v 1.6 2003-07-15 13:21:17 natta Exp $
+/// $Id: YARPFSM.h,v 1.7 2003-07-23 17:18:57 babybot Exp $
 ///  
 /// Finite State Machine class -- by nat July 2003
 //
@@ -116,6 +116,7 @@ protected:
 	{
 		_default = this;
 		_as = true;
+		_defaultOut = NULL;
 	}
 	virtual ~YARPFSMStateBase(){}
 

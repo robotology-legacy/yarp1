@@ -13,6 +13,7 @@
 
 ArmThread::ArmThread(int rate, const char *name, const char *ini_file):
 YARPRateThread(name, rate),
+YARPBehaviorSharedData(YBLabelMotor, "/armcontrol/behavior/o"),
 _tirednessControl(23000.0, 10000.0, rate, 0.5),
 _arm_status(ini_file),
 _wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)

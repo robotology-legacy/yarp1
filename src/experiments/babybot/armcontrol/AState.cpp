@@ -96,7 +96,10 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 				////////////////////
 			}
 
-			changeState(t, ASWaitForHand::instance()); //ASDirectCommand::instance());
+			// signal end of motion
+			t->_data.writeVocab(YBVArmDone);
+			t->send();
+			changeState(t,t->_init_state);
 		}
 	}
 }

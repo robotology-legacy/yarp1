@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.7 2003-07-23 12:07:14 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.8 2003-07-23 17:18:57 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -77,7 +77,7 @@
 
 const int __exitCode = -1;
 
-class YARPBehaviorSharedDataTmpl
+class YARPBehaviorSharedData
 {
 	public:
 		YARPBehaviorSharedData(int ID, std::string portName):
@@ -153,7 +153,6 @@ public:
 	{
 		_key = k;
 		_init(pName);
-		YARPThread::Begin();
 	}
 
 	~YARPBehavior()
@@ -314,12 +313,11 @@ Body(void)
 		// wait, if not asyncrhonous
 		if (!currentState()->isAs())
 		{
-			printf("Body: waiting...\n");
 			_stopEvent.wait();
 		}
 		else 
 		{
-			printf("Body: state is AS\n");
+			// state is AS, just loop !
 		}
 		// switch state
 		state->decideState((MY_BEHAVIOR *)this, _data);
