@@ -13,17 +13,26 @@ OS = qnx6
 all: $(OBJS) bttvx blit
 
 bttvx: $(OBJS)
-	   #$(CC) $(LDFLAGS) $(OBJS) -o $@
-	   $(AR) $(ARFLAGS) $@.lib $@.o
+	@echo
+	@echo ---------------Creating bttvx.lib --------------
+	@echo
+	#$(CC) $(LDFLAGS) $(OBJS) -o $@
+	$(AR) $(ARFLAGS) $@.lib $@.o
 
 blit:  $(OBJS2)
-	   $(CC) $(LDFLAGS) $(OBJS2) bttvx.lib -o $@ -lph
+	$(CC) $(LDFLAGS) $(OBJS2) bttvx.lib -o $@ -lph
 	   
 install:
+	@echo
+	@echo ---------------Instaling bttvx --------------
+	@echo
 	cp *.h $(YARP_ROOT)/include 
 	cp *.lib $(YARP_ROOT)/lib/$(OS)
 
 clean:
+	@echo
+	@echo ---------------Cleaning bttvx --------------
+	@echo
 	rm -f bttvx
 	rm -f ${DIST}.tgz
 	rm -rf *.o
