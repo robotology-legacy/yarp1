@@ -76,6 +76,8 @@
 #include <YARPScheduler.h>
 #include <YARPTime.h>
 
+#include <YARPParseParameters.h>
+
 #include <YARPImages.h>
 #include <YARPLogpolar.h>
 
@@ -153,12 +155,6 @@ void mainthread::Body (void)
 	//temp_16.Resize(_stheta, _srho, -2);
 
 	//YARPConvKernelFile::Write("./prewitt.yck\0",prewitt);
-	
-	ACE_OS::sprintf(_name1, "/bremen/va/o:img");
-	ACE_OS::sprintf(_name2, "/bremen/va/i:img");
-	ACE_OS::sprintf(_name3, "/bremen/va/o:img2");
-	//ACE_OS::sprintf(_name, "/%s/o:img", argv[0]);
-	ACE_OS::sprintf(_netname, "Net1");
 	
 	outport.Register(_name1, _netname);
 	inport.Register(_name2, _netname);
@@ -272,6 +268,15 @@ void mainthread::Body (void)
 
 int main (int argc, char *argv[])
 {
+	char basename[80];
+	YARPParseParameters::parse(argc, argv, "name", basename);
+
+	ACE_OS::sprintf(_name1, "/visualattention%s/o:img",basename);
+	ACE_OS::sprintf(_name2, "/visualattention%s/i:img", basename);
+	ACE_OS::sprintf(_name3, "/visualattention%s/o:img2", basename);
+	//ACE_OS::sprintf(_name, "/%s/o:img", argv[0]);
+	ACE_OS::sprintf(_netname, "Net1");
+
 	YARPScheduler::setHighResScheduling();
 
 	mainthread _thread;
