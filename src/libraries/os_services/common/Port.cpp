@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.16 2003-05-16 21:57:08 gmetta Exp $
+/// $Id: Port.cpp,v 1.17 2003-05-18 00:52:18 gmetta Exp $
 ///
 ///
 
@@ -93,6 +93,9 @@
 #include "YARPScheduler.h"
 #include "YARPTime.h"
 
+#ifdef __QNX6__
+#include <signal.h>
+#endif
 
 #ifdef __WIN32__
 /// library initialization.
@@ -161,6 +164,9 @@ int Port::SayServer (const YARPNameID& pid, const char *buf)
 ///
 void OutputTarget::Body ()
 {
+#ifdef __QNX6__
+	signal (SIGPIPE, SIG_IGN);
+#endif
 	int success;
 	NewFragmentHeader header;
 	BlockSender sender;

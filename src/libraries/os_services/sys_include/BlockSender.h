@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.h,v 1.4 2003-05-13 22:14:16 gmetta Exp $
+/// $Id: BlockSender.h,v 1.5 2003-05-18 00:52:19 gmetta Exp $
 ///
 ///
 
@@ -119,6 +119,12 @@ public:
 		_setmx(this, buffer, len);
 	}
 };
+
+///
+/// handling of large messages is happy here.
+/// it might require a better handling of the multipart stuff.
+/// I simplified Add by neglecting the need to send a full packet...
+///
 
 ///
 ///

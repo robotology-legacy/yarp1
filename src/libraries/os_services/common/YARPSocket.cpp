@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.12 2003-05-01 22:51:19 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.13 2003-05-18 00:52:19 gmetta Exp $
 ///
 ///
 
@@ -544,21 +544,31 @@ void _SocketThread::Body (void)
 
 				while (_read_more)
 				{
+					ACE_DEBUG ((LM_DEBUG, "*** entering the _read_more\n"));
+
 					/// this was r too, a bit confusing.
 					///ACE_ASSERT (_extern_reply_length != 0);
 					int rr = 0;
 					if (_extern_reply_length == 0)
 					{
+						ACE_DEBUG ((LM_DEBUG, "*** before select\n"));
+
 						/// then do a select.
 						ACE_Handle_Set set;
 						set.reset ();
 						set.set_bit (_stream->get_handle());
-						ACE_OS::select (1, set);
+						ACE_OS::select (int(_stream->get_handle())+1, set);
 						/// wait here until next valid chunck of data.
+
+						ACE_DEBUG ((LM_DEBUG, "*** after select\n"));
 					}
 					else
 					{
+						ACE_DEBUG ((LM_DEBUG, "*** before recvn\n"));
+
 						rr = _stream->recv_n (_extern_reply_buffer, _extern_reply_length, 0); 
+
+						ACE_DEBUG ((LM_DEBUG, "*** after recvn\n"));
 					}
 
 					_extern_reply_length = rr;
@@ -570,8 +580,11 @@ void _SocketThread::Body (void)
 
 				int was_preamble = 0;
 
+				ACE_DEBUG ((LM_DEBUG, "*** about to reply...\n"));
 				do
 				{
+					ACE_DEBUG ((LM_DEBUG, "*** within reply...\n"));
+
 					if (_reply_preamble)
 					{
 						rep = 1;
