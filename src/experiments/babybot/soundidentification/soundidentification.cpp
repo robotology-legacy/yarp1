@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: soundidentification.cpp,v 1.19 2004-10-18 17:56:40 beltran Exp $
+/// $Id: soundidentification.cpp,v 1.20 2004-10-28 10:55:12 beltran Exp $
 ///
 
 /** 
@@ -55,6 +55,7 @@
 #include <yarp/YARPBottleContent.h>
 #include <yarp/YARPThread.h>
 #include <yarp/YARPRobotHardware.h>
+#include <yarp/YARPLogpolar.h>
 
 #include "YARPSoundTemplate.h"
 #include "soundidentificationprocessing.h"
@@ -70,6 +71,7 @@
 #define MIXELTHRESHOLD 180
 
 using namespace std;
+using namespace _logpolarParams;
 
 int calculateMixel(YARPCovMatrix &, 
 			   YARPImageOf<YarpPixelBGR>*,int,int,int); 
@@ -79,8 +81,10 @@ int calculateMixel2(double *,
 const int   __outSize    = 5;
 const char *__baseName   = "/soundidentification/";
 const char *__configFile = "sound.ini";
-int _sizex = 250;
-int _sizey = 270; /** @todo Put this as an external parameter?. */
+//int _sizex = 250;
+//int _sizey = 270; /** @todo Put this as an external parameter?. */
+int _sizex = 256;
+int _sizey = 256; 
 int _histoWidth    = 250;
 int _histoHeigth   = 100;
 int _hsHistoWidth  = 360;
@@ -104,11 +108,14 @@ private:
 	double _dDecayValue;						   /** Decay value for the temporal images decay.				  */
 	YARPSemaphore _sema;						   /** Semaphore to synchronize access to class data.			  */
 	YARPSoundTemplate _soundTemplate;			   /** The sound template containing the mfcc parametrized sound. */
-	YARPImageOf<YarpPixelBGR>  _imgMixelgram;	   /** The mixelgram image.										  */
+	YARPImageOf<YarpPixelMono> _imgMixelgram;	   /** The mixelgram image.										  */
 	YARPImageOf<YarpPixelBGR>  _imgInput;		   /** The normal input image.									  */
 	YARPImageOf<YarpPixelMono> _imgSoundHistogram; /** The Sound histogram.										  */
 	YARPImageOf<YarpPixelMono> _imgHSHistogram;    /** The HS histogram.										  */
-	YARPImageOf<YarpPixelBGR>  newimg;			   /** The image with the segmented object.						  */
+	YARPImageOf<YarpPixelMono> _newLogPolarImage ;			   /** The image with the segmented object.						  */
+	YARPImageOf<YarpPixelMono> _inputLogPolarImage;
+	YARPImageOf<YarpPixelBGR> _coloredImage;
+	YARPLogpolar _logPolarMapper;
 
 public:
 	/** 
@@ -278,6 +285,63 @@ public:
 	}
 
 	/** 
+	  * Computes the segmented image segmenting those pixels that 
+	  * have a significant mutual information value.
+	  * The segmented pixels are calculated computing the mean of
+	  * that pixel in the images buffer.
+	  * 
+	  * @param vImagesVector The vector with mono images. 
+	  * @param mixelGramImage The mixelgram image.
+	  * @param width The width of the images in the buffer.
+	  * @param height The height of the images in the buffer.
+	  * @param numberOfSamples The number of samples in the images buffer.
+	  * @param memoryFactor How much remembers and object.
+	  * @param decaingFactor How much decay in the new images.
+	  * @param segmentedImage The output segmented image.
+	  * 
+	  * @return YARP_OK 
+	  */
+	int GetSegmentedImage (
+		YARPImageOf<YarpPixelMono> *vImagesVector, 
+		YARPImageOf<YarpPixelMono> &mixelGramImage,
+		const int width,
+		const int height,
+		const int numberOfSamples,
+		const int memoryFactor,
+		const double decaingFactor,
+		YARPImageOf<YarpPixelMono> &segmentedImage
+		) {
+
+		int i = 0;
+		int j = 0;
+		int pixelValue = 0;
+		double pixelMeanValue = 0.0;
+		double pixelsSum      = 0.0;
+		 
+		for(i = 2; i < width-2; i++ )
+			for( j = 2; j < height-3; j++) {
+				pixelValue = mixelGramImage(i,j);
+				if ( pixelValue > MIXELTHRESHOLD) {
+					for (int z = 1; z <= numberOfSamples; z++) {
+						YARPImageOf<YarpPixelMono>& pimg = vImagesVector[z-1];
+						pixelsSum += pimg(i,j);
+					}
+					pixelMeanValue = pixelsSum / (double) numberOfSamples;
+					segmentedImage(i,j) = pixelMeanValue;
+				}
+				else {
+					if ( memoryFactor > MEMORYMAX) {
+						segmentedImage(i,j) = 0;
+					}
+					else {
+						segmentedImage(i,j) = decaingFactor * segmentedImage(i,j);
+					}
+				}
+			}
+		return YARP_OK;
+	}
+
+	/** 
 	  * The main body of the thread.
 	  */
 	virtual void Body (void)
@@ -293,20 +357,22 @@ public:
 		double period  = 0.0;
 		YarpPixelBGR _auxpix(0,0,0); /** Temporal pixel.  */
 		char * ppixel;
-        YARPBottle _botActions;            // This bottle is used to control externally the
-                                           // action to be taken.
-        YVector _vOutMfcc(L_VECTOR_MFCC);  // The vector for the MFCC coefficients
+        YARPBottle _botActions;            
+                                           
+        YVector _vOutMfcc(L_VECTOR_MFCC);
 		YARPCovMatrix _mSoundCov;
 		YMatrix _mLocVar;
 
         /** Vector of pointers to images. */
 		//YARPImageOf<YarpPixelBGR> ** _vImages = new YARPImageOf<YarpPixelBGR> *[_soundTemplate.Size()]; 
 		YARPImageOf<YarpPixelBGR> _vImages[ARRAY_MAX]; 
+		YARPImageOf<YarpPixelMono> _vLogPolarImages[ARRAY_MAX]; 
 
 		//----------------------------------------------------------------------
 		//  Resize some of the images.
 		//----------------------------------------------------------------------
-        _imgInput.Resize(_sizex,_sizey);
+        _imgInput.Resize(_stheta,_srho);
+		_coloredImage.Resize(_stheta, _srho);
 		_imgSoundHistogram.Resize(_histoWidth, _histoHeigth);
 		_imgHSHistogram.Resize(_hsHistoWidth, _hsHistoHeigth);
 
@@ -416,7 +482,14 @@ public:
 			//LOCAL_TRACE("SoundIdentification: Reading from ports");
             _inpSound.Read(1); 
             _inpImg.Read(1);  
-            _imgInput.Refer(_inpImg.Content()); 
+            //_imgInput.Refer(_inpImg.Content()); 
+			_inputLogPolarImage.Refer(_inpImg.Content());
+			_logPolarMapper.ReconstructColor (
+				(const YARPImageOf<YarpPixelMono>&)_inputLogPolarImage, 
+				_imgInput
+				);
+			
+
 
 			//----------------------------------------------------------------------
 			//  Get acquisition time for the image. This double is travelling in the 
@@ -470,30 +543,50 @@ public:
 			//----------------------------------------------------------------------
 			//  Check size correctness.
 			//----------------------------------------------------------------------
-			if ( _imgInput.GetWidth() != _imgMixelgram.GetWidth() || _imgInput.GetHeight() != _imgMixelgram.GetHeight()) {
-				_imgMixelgram.Resize(_imgInput.GetWidth(),_imgInput.GetHeight());
+			if ( _inputLogPolarImage.GetWidth() != _imgMixelgram.GetWidth() || 
+				_inputLogPolarImage.GetHeight() != _imgMixelgram.GetHeight()) {
+
+				_imgMixelgram.Resize(
+					_inputLogPolarImage.GetWidth(),
+					_inputLogPolarImage.GetHeight()
+					);
 			}
 
 			if (_first) {
-				newimg.Resize(_imgInput.GetWidth(), _imgInput.GetHeight());
+				_newLogPolarImage.Resize(
+					_inputLogPolarImage.GetWidth(),
+					_inputLogPolarImage.GetHeight()
+					); 
+
 				_first = false;
 			}
 
 			//----------------------------------------------------------------------
-			//  Introduce image into the images vector.
+			//  Introduce image into the images vectors.
 			//----------------------------------------------------------------------
 			///@todo study how to do this operation more eficiently.
 			YARPImageOf<YarpPixelBGR>& tmpimg4 = _vImages[_soundTemplate.Length()-1];
+			YARPImageOf<YarpPixelMono>& tempLogPolarImage = _vLogPolarImages[_soundTemplate.Length()-1];
 			tmpimg4.CastCopy(_imgInput);
+			tempLogPolarImage.CastCopy(_inputLogPolarImage);
+
 			_vRms[_soundTemplate.Length()-1] = _dSoundRms;
 
 			if( _soundTemplate.isFull()) 
 			{ 
 				for (i = 1; i < _soundTemplate.Length();i++)
 				{
+					//Get color images shift to make room for the new arrival
 					YARPImageOf<YarpPixelBGR>& tmpimg  = _vImages[i-1];
 					YARPImageOf<YarpPixelBGR>& tmpimg2 = _vImages[i];
 					tmpimg.CastCopy(tmpimg2);
+
+					// Get Log Polar mono images make room for the new image
+					YARPImageOf<YarpPixelMono>& previousImage = _vLogPolarImages[i-1];
+					YARPImageOf<YarpPixelMono>& currentImage  = _vLogPolarImages[i];
+					previousImage.CastCopy(currentImage);
+
+					// Get the space for the new sound sample
 					_vRms[i-1] = _vRms[i];
 				}
 			}
@@ -508,18 +601,12 @@ public:
 				
 				int w = _imgInput.GetWidth();
 				int h = _imgInput.GetHeight();
-				int wstart = w - (w * 2/3);
-				int wend   = w - (w * 1/3);
-				int hstart = h - (h * 2/3);
-				int hend   = h - (h * 1/3);
 				int numberMixels = 0;
 				//----------------------------------------------------------------------
 				//  Navigate through the pixels and calculate the Mixel for each one. 
 				//----------------------------------------------------------------------
-				//for(i = wstart; i < wend; i++ )
-				//	for( j = hstart; j < hend; j++)
-				for(i = 0; i < w; i+=3 )
-					for( j = 0; j < h; j+=3)
+				for(i = 2; i < w-2; i+=4 )
+					for( j = 2; j < h-2; j+=4)
 					{
 						///////_dMixelValue = calculateMixel(_mSoundCov, _vImages,_soundTemplate.Length(), i, j);
 						_dMixelValue = calculateMixel2(_vRms, _vImages,_soundTemplate.Length(), i, j, _rmsmean);
@@ -530,17 +617,16 @@ public:
 							//----------------------------------------------------------------------
 							for ( int ni = i-2; ni < i+2; ni++ )
 								for (int nj = j-2; nj < j+2; nj++)
-									_imgMixelgram.SafePixel(ni,nj).r = _dMixelValue;
+									_imgMixelgram(ni,nj) = _dMixelValue;
+
 							numberMixels++;
 						}
 						else
 						{
 							for ( int ni = i-2; ni < i+2; ni++ )
 								for (int nj = j-2; nj < j+2; nj++)
-									_imgMixelgram.SafePixel(ni,nj).r = 0;
+									_imgMixelgram(ni,nj) = 0;
 						}
-						_imgMixelgram.SafePixel(i,j).g = 0;
-						_imgMixelgram.SafePixel(i,j).b = 0;
 					}
 
 				_rmsmeansum += _rmsmean;
@@ -552,8 +638,11 @@ public:
 				//  Compute the normalized and truncated sound wave form. 
 				//----------------------------------------------------------------------
 				YVector _vNormalizedSoundSamples;
-				_soundIndprocessor.NormalizeSoundArray(32000);
-				_soundIndprocessor.TruncateSoundToVector(_histoWidth, _vNormalizedSoundSamples);
+				_soundIndprocessor.NormalizeSoundArray ( 32000 );
+				_soundIndprocessor.TruncateSoundToVector (
+					_histoWidth, 
+					_vNormalizedSoundSamples
+					);
 
 				//----------------------------------------------------------------------
 				//  Paint the sound wave form. 
@@ -577,52 +666,41 @@ public:
 				//  that an object has been detected.
 				//----------------------------------------------------------------------
 				if ( _iMemoryFactor > MEMORYMAX)
-					newimg.Zero();
+					_newLogPolarImage.Zero();
 				_iMemoryFactor++;
-				double alpha = _dDecayValue; 
 
 				if (numberMixels > MIXELSMAX)
 				{
-					YARPImageOf<YarpPixelBGR>& tmpimg2 = _vImages[_soundTemplate.Length()-1];
-	
-					for(i = 0; i < w; i++ )
-						for( j = 0; j < h; j++)
-							if ( _imgMixelgram.SafePixel(i,j).r > MIXELTHRESHOLD)
-								newimg.SafePixel(i,j) = tmpimg2.SafePixel(i,j);
-							else
-							{
-								if ( _iMemoryFactor > MEMORYMAX)
-								{
-									newimg.SafePixel(i,j).r = 0;
-									newimg.SafePixel(i,j).g = 0;
-									newimg.SafePixel(i,j).b = 0;
-								}
-								else
-								{
-									newimg.SafePixel(i,j).r = alpha * newimg.SafePixel(i,j).r;
-									newimg.SafePixel(i,j).g = alpha * newimg.SafePixel(i,j).g;
-									newimg.SafePixel(i,j).b = alpha * newimg.SafePixel(i,j).b;
-								}
-							}
+					GetSegmentedImage (
+						_vLogPolarImages, 
+						_imgMixelgram,
+						w,
+						h,
+						_soundTemplate.Length(),
+						_iMemoryFactor,
+						_dDecayValue,
+						_newLogPolarImage
+						);
+
 					_iMemoryFactor = 0;
-					 
 				}
 
 				//----------------------------------------------------------------------
 				//  Compute the HS histogram.
 				//----------------------------------------------------------------------
 				if ( numberMixels > MIXELSMAX || _iMemoryFactor < MEMORYMAX) {
-					ComputeHSHistogram( newimg, _imgHSHistogram);
+					_logPolarMapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)_newLogPolarImage, 
+						_coloredImage);
+					ComputeHSHistogram( _coloredImage, _imgHSHistogram);
 				}
 				else {
-					YARPImageOf<YarpPixelBGR>& tmpimg2 = _vImages[_soundTemplate.Length()-1];
-				   ComputeHSHistogram( tmpimg2, _imgHSHistogram); 	
+				   ComputeHSHistogram( _imgInput, _imgHSHistogram); 	
 				}
 
 				//----------------------------------------------------------------------
 				//  Send the mixelgram image into the network
 				//----------------------------------------------------------------------
-				_outpImg.Content().SetID(YARP_PIXEL_BGR);
+				_outpImg.Content().SetID(YARP_PIXEL_MONO);
 				_outpImg.Content().Refer(_imgMixelgram);
 				_outpImg.Write(1);
 				
@@ -632,14 +710,13 @@ public:
 				//----------------------------------------------------------------------
 				if ( numberMixels > MIXELSMAX || _iMemoryFactor < MEMORYMAX)
 				{
-					_outprecImg.Content().SetID(YARP_PIXEL_BGR);
-					_outprecImg.Content().Refer(newimg);
+					_outprecImg.Content().SetID(YARP_PIXEL_MONO);
+					_outprecImg.Content().Refer(_newLogPolarImage); ////Here I have to send logpolar
 					_outprecImg.Write(1);
 				}
 				else {
-					YARPImageOf<YarpPixelBGR>& tempp = _vImages[_soundTemplate.Length()-1];
-					_outprecImg.Content().SetID(YARP_PIXEL_BGR);
-					_outprecImg.Content().Refer(tempp);
+					_outprecImg.Content().SetID(YARP_PIXEL_MONO);
+					_outprecImg.Content().Refer(_inputLogPolarImage); ////Here I have to sent orig logpolar
 					_outprecImg.Write(1);
 				}
 
@@ -654,7 +731,7 @@ public:
 				//  Send the HS histogram to the network
 				//----------------------------------------------------------------------
 				YARPImageOf<YarpPixelMono> scaledimage;	
-				scaledimage.ScaledCopy( _imgHSHistogram, _imgInput.GetWidth(), 100);
+				scaledimage.ScaledCopy( _imgHSHistogram, 200, 100);
 				_outHSHistogramPort.Content().SetID(YARP_PIXEL_MONO);
 				_outHSHistogramPort.Content().Refer(scaledimage);
 				_outHSHistogramPort.Write();
