@@ -4,7 +4,7 @@
 //
 // feb 2003 -- by nat and pasa
 
-// $Id: YARPControlBoardUtils.h,v 1.11 2003-07-01 21:29:43 babybot Exp $
+// $Id: YARPControlBoardUtils.h,v 1.12 2003-07-30 14:54:05 beltran Exp $
 #include <conf/YARPConfig.h>
 
 #ifndef __YARP_CONTROL_BOARD_UTILS__
@@ -96,7 +96,8 @@ enum ControlBoardCmd
 	CMDAbortAxes			= 61,	// abort motion, Galil
 
 	CMDDummy 				= 62,	// dummy command for debug purpose
-	CBNCmds 				= 63 	// required! tells the total number of commands
+	CMDMotorType			= 63,	// Used to set the motor type
+	CBNCmds 				= 64 	// required! tells the total number of commands
 };
 
 enum ControlBoardEvents

@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.4 2003-07-01 21:29:43 babybot Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.5 2003-07-30 14:54:05 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -103,7 +103,9 @@ public:
 		
 	int set_positive_limit(void * input);
 	int set_negative_limit(void * input);
-	
+
+	int motor_type(void * input);
+		
 	int check_motion_done(void *flag);
 
 	int dummy(void *d);	// dummy function, for debug purpose

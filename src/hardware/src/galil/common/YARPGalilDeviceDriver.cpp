@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.6 2003-07-30 09:23:26 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.7 2003-07-30 14:54:05 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -70,7 +70,9 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetPositiveLimit] = &YARPGalilDeviceDriver::set_positive_limit;
 	m_cmds[CMDSetNegativeLimit]	= &YARPGalilDeviceDriver::set_negative_limit;
 	m_cmds[CMDAbortAxes]		= &YARPGalilDeviceDriver::abort_axes;
-			
+	
+	m_cmds[CMDMotorType]		= &YARPGalilDeviceDriver::motor_type;
+
 	m_cmds[CMDDummy] 			= &YARPGalilDeviceDriver::dummy;
 	
 	m_question_marks = NULL;
@@ -1313,6 +1315,36 @@ YARPGalilDeviceDriver::set_negative_limit(void *par)
 							(unsigned char *) m_buffer_out, 8,
 							m_buffer_in, buff_length);
 	
+	return rc;
+}
+
+int 
+YARPGalilDeviceDriver::motor_type(void * cmd)
+{
+	long rc = 0;
+
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	double *type = (double *) tmp->parameters;
+
+	char *buff = m_buffer_out;
+
+	///////////////////////////////////////////////////////////////////
+	// set MT
+	buff = _append_cmd((char) 0x8B, buff);		//MT
+	buff = _append_cmd((char) 0x04, buff);		//04 long format
+	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
+
+	// axis
+	unsigned char dummy = 0x01;	//bit
+	dummy <<= tmp->axis;
+	// axis
+	buff = _append_cmd((char) dummy, buff);
+	// PID value
+	buff = _append_cmd_as_int(*type, buff);
+
+	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+							(unsigned char *) m_buffer_out, 8,
+							m_buffer_in, buff_length);
 	return rc;
 }
 
