@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: ImgTrack.cpp,v 1.7 2003-11-07 12:36:59 babybot Exp $
+/// $Id: ImgTrack.cpp,v 1.8 2003-11-11 21:34:28 babybot Exp $
 ///
 ///
 
@@ -694,8 +694,9 @@ void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<
 		int predx = 0, predy = 0;
 		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT, _prevRay, predx, predy);
 
-		predx += ISIZE/2;
-		predy += ISIZE/2;
+		///predx += ISIZE/2;
+		///predy += ISIZE/2;
+
 
 		///
 		YarpPixelBGR green (0, 255, 0);
@@ -847,7 +848,7 @@ void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<
 	///
 	///
 	/// computes the ray for the kin estimation.
-	_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT, _prevRay, x-ISIZE/2, y-ISIZE/2);
+	_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT, _prevRay, x, y); ///-ISIZE/2, y-ISIZE/2);
 	_prev_gaze_x = x;
 	_prev_gaze_y = y;
 
