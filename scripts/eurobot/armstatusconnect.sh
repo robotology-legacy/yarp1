@@ -4,4 +4,4 @@
 #
 #
 
-porter /armcontrol/o:status /armstatus/i
+yarp-connect /armcontrol/o:status /armstatus/i

@@ -6,4 +6,4 @@
 
 pterm ./repeater.sh &
 pterm ./sendCmd.sh &
-pterm ./armrun.sh &
+# pterm ./armrun.sh &

@@ -3,5 +3,5 @@
 #
 #
 #
-porter /repeater/o /armrandom/behavior/i
-porter /armrandom/behavior/o /repeater/i
+yarp-connect /repeater/o /armrandom/behavior/i
+yarp-connect /armrandom/behavior/o /repeater/i

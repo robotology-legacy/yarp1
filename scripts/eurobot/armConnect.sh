@@ -4,6 +4,6 @@
 #
 #
 
-porter /motorcmd/o /repeater/i
-porter /repeater/o /armcontrol/behavior/i
-porter /armcontrol/behavior/o /repeater/i
+yarp-connect /motorcmd/o /repeater/i
+yarp-connect /repeater/o /armcontrol/behavior/i
+yarp-connect /armcontrol/behavior/o /repeater/i
