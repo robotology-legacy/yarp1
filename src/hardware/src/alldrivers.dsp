@@ -167,5 +167,9 @@ SOURCE=.\nidaq\winnt\YARPNIDAQDeviceDriver.h
 SOURCE=.\picolo\winnt\YARPPicoloDeviceDriver.h
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=.\howto.txt
+# End Source File
 # End Target
 # End Project
