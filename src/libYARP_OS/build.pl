@@ -92,6 +92,7 @@ if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
 	{
 		print "Looking for ACE...\n";
 		$options{"Compile_OS<-ACE_PATH"} =~ s/\$YARP_ROOT/$yarp_root/;
+		$options{"Compile_OS<-ACE_PATH"} =~ s#\\#/#g;
 		if (-e $options{"Compile_OS<-ACE_PATH"} &&
 			-e "$yarp_root/include/$os/ace" )
 		{

@@ -50,7 +50,7 @@ GetOptions ('debug' => \$debug,
 			'libonly' => \$libonly);
 
 print "Compiling libraries first. ";
-print "Assuming a standard format wiht /src /include directories\n";
+print "Assuming a standard format with /src and /include directories\n";
 
 if ($ipl && -d "ipl")
 {
