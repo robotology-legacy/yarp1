@@ -53,7 +53,7 @@ then
 elif [ "$1" == "debug" ]
 then
 	echo "debug"
-	MODE="debug"
+	MODE="YARP_DEBUG=-g CFAST="
 	PHRASE="Building (debug)"
 	#install option
 	INSTALL="make install"
