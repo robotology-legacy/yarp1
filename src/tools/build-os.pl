@@ -116,7 +116,7 @@ if ($release)
 			chdir "..";
 		}
 	}
-	elsif ($os eq "linux" || $os eq "qnx6" || $os eq "darwin")
+	elsif ($os eq "linux" || $os eq "qnx6")
 	{
 		foreach my $project (@projects)
 		{
@@ -125,6 +125,24 @@ if ($release)
 			chdir "..";
 		}
 	}
+        elsif ($os eq "darwin")
+        {
+                foreach my $project (@projects)
+                {
+                        chdir "./$project";
+                        call_make_and_print ('', "CFAST=-O2 EXEC_TARGET=../bin/$os/$project");
+                        chdir "..";
+                }
+        }
+        elsif ($os eq "darwin")
+        {
+                foreach my $project (@projects)
+                {
+                        chdir "./$project";
+                        call_make_and_print ('', "CFAST=-O2 EXEC_TARGET=../bin/$os/$project");
+                        chdir "..";
+                }
+        }
 }
 
 if ($install)
