@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.19 2003-11-20 17:15:06 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.20 2003-11-25 13:53:19 fberton Exp $
 ///
 ///
 
@@ -1495,7 +1495,129 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 				MIN = corr_val[k];
 				minindex = k;
 			}
-	//		printf("%03d     %2.5f\n",k-SParam.Resolution/2,corr_val);
+//		printf("%03d     %2.5f\n",k-SParam.Resolution/2,corr_val);
+		}
+
+	return minindex;
+}
+
+
+int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val)
+{
+	int i,j,k,k1;
+	int iR,iL;
+	int count;
+	double d_1;
+	double d_2;
+	double MIN = 10000;
+	int minindex;
+//aggiungere il check sul fatto che si sia in fovea o fuori (step function)
+	unsigned char * Lptr,* Rptr;
+
+	Lptr = Left;
+	Rptr = Right;
+
+	int AddedPadSize = computePadSize(Par->Size_Theta*Par->LP_Planes,Par->padding) - Par->Size_Theta*Par->LP_Planes;
+
+	for (k=0; k<Steps; k++)
+	{
+		double average_Lr = 0;
+		double average_Lg = 0;
+		double average_Lb = 0;
+		double average_Rr = 0;
+		double average_Rg = 0;
+		double average_Rb = 0;
+
+		k1 = k * 1 * Par->Size_LP; //Positioning on the table
+		Lptr = Left;
+
+		count = 0;
+
+		for (j=0; j<Par->Size_Fovea; j++)
+		{
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+				iR = ShiftMap[k1 + j*Par->Size_Theta+i];
+				iL = 3 * (j*Par->Size_Theta+i);
+				if (iR > 0)
+				{
+					average_Lr += *Lptr++;//Left [iL];
+					average_Rr += Right[iR];
+					average_Lg += *Lptr++;//Left [iL+1];
+					average_Rg += Right[iR+1];
+					average_Lb += *Lptr++;//Left [iL+2];
+					average_Rb += Right[iR+2];
+					count++;
+				}
+				else Lptr +=3;
+			}
+			Lptr += AddedPadSize;
+		}
+		
+		if (count != 0)
+			{
+				average_Lr /= count;
+				average_Rr /= count;
+				average_Lg /= count;
+				average_Rg /= count;
+				average_Lb /= count;
+				average_Rb /= count;
+			}
+
+			double numr   = 0;
+			double den_1r = 0;
+			double den_2r = 0;
+			double numg   = 0;
+			double den_1g = 0;
+			double den_2g = 0;
+			double numb   = 0;
+			double den_1b = 0;
+			double den_2b = 0;
+
+			Lptr = Left;
+
+		for (j=0; j<Par->Size_Fovea; j++)
+		{
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+					iR = ShiftMap[k1 + 3 * i];
+					iL = 3 * i;
+					iR = ShiftMap[k1 + j*Par->Size_Theta+i];
+					iL = 3 * (j*Par->Size_Theta+i);
+
+					if (iR > 0)
+					{
+						d_1 = *Lptr++ - average_Lr;
+						d_2 = Right[iR] - average_Rr;
+						numr   += (d_1 * d_2);
+						den_1r += (d_1 * d_1);
+						den_2r += (d_2 * d_2);
+
+						d_1 = *Lptr++ - average_Lg;
+						d_2 = Right[iR+1] - average_Rg;
+						numg   += (d_1 * d_2);
+						den_1g += (d_1 * d_1);
+						den_2g += (d_2 * d_2);
+
+						d_1 = *Lptr++ - average_Lb;
+						d_2 = Right[iR+2] - average_Rb;
+						numb   += (d_1 * d_2);
+						den_1b += (d_1 * d_1);
+						den_2b += (d_2 * d_2);
+					}
+					else Lptr +=3;
+				}
+			Lptr += AddedPadSize;
+		}
+			corr_val[k]  = (1.0 - (numr * numr) / (den_1r * den_2r + 0.00001));	
+			corr_val[k] += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
+			corr_val[k] += (1.0 - (numb * numb) / (den_1b * den_2b + 0.00001));	
+
+			if (corr_val[k]<MIN)
+			{
+				MIN = corr_val[k];
+				minindex = k;
+			}
 		}
 
 	return minindex;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.18 2003-11-20 17:15:06 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.19 2003-11-25 13:53:20 fberton Exp $
 ///
 ///
 
@@ -296,6 +296,7 @@ void Remap_Mono(unsigned char * Out_Image,
 		   int * Rem_LUT);
 
 void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Param, float Ratio,IntNeighborhood * IntDownSampleTable);
+void DownSampleFovea(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Param, float Ratio,IntNeighborhood * IntDownSampleTable);
 
 long Get_Time();
 
@@ -366,6 +367,7 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 					   int Pix_Numb);
 
 int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val);
+int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val);
 int computePadSize(int width,int padding);
 
 //Functions defined in TableGeneration.cpp

@@ -216,7 +216,7 @@ void main()
 		printf("%d\n",(Tables.DownSampleMap[j*SParam.Size_Theta+l].position[k]%759)/4);
 	}
 */
-	DownSample(Left.ColorPad,Left.DSPad,Path,&LParam,4.00,Tables.DownSampleMap);
+	DownSampleFovea(Left.ColorPad,Left.DSPad,Path,&LParam,4.00,Tables.DownSampleMap);
 	DownSample(Right.ColorPad,Right.DSPad,Path,&LParam,4.00,Tables.DownSampleMap);
 //	DownSample(ColRight,DSRight,Path,&LParam,4.00,Tables.DownSampleMap);
 
@@ -240,8 +240,8 @@ void main()
 //	Build_Step_Function(Path,&SParam);
 
 	Load_Tables(&SParam,&Tables,Path,1024);
-
-	retval = Shift_and_Corr(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMap);
+	double * cv;
+	retval = Shift_and_Corr(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMap,cv);
 
 	unsigned char * Shiftedptr = Right.ShiftPad;
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.27 2003-11-21 13:02:28 babybot Exp $
+/// $Id: TableGeneration.cpp,v 1.28 2003-11-25 13:53:20 fberton Exp $
 ///
 ///
 
@@ -2495,6 +2495,48 @@ void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, 
 
 }
 
+void DownSampleFovea(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Par, float Ratio,IntNeighborhood * IntDownSampleTable)
+{	
+	int i,j,k,l;
+
+	const int SizeLP = (int)(Par->Size_LP / (Ratio*Ratio));
+	const int FOV = (int)(Par->Size_Fovea / (Ratio));
+	const int THETA = (int)(Par->Size_Theta / (Ratio));
+	const int div = (int)(Ratio);
+	
+	int i_SumR,i_SumG,i_SumB;
+	unsigned int position;
+	unsigned char shift; 
+	int AddedPadSize = (Par->Size_Theta * 3) % Par->padding;
+	int PadSizeSmall = ((THETA * 3) % Par->padding)+3*THETA;
+
+	PadSizeSmall = computePadSize(3*THETA,Par->padding);
+	AddedPadSize = PadSizeSmall - 3*THETA;
+	unsigned char * SmallImgPtr = OutImage;
+
+	for (j=0; j<FOV; j++)
+	{
+		for (l=0; l<THETA; l++)
+		{
+			i_SumR = 0;
+			i_SumG = 0;
+			i_SumB = 0;
+			for (i=0; i<IntDownSampleTable[j*THETA+l].NofPixels; i++)
+			{
+				position = IntDownSampleTable[j*THETA+l].position[i];
+				shift    = IntDownSampleTable[j*THETA+l].weight[i];
+				i_SumR += InImage [position+0]>>shift;
+				i_SumG += InImage [position+1]>>shift;
+				i_SumB += InImage [position+2]>>shift;
+			}
+			*SmallImgPtr++ = (unsigned char) (i_SumR>>div);
+			*SmallImgPtr++ = (unsigned char) (i_SumG>>div);
+			*SmallImgPtr++ = (unsigned char) (i_SumB>>div);
+		}
+		SmallImgPtr += AddedPadSize;
+	}
+
+}
 
 void Build_Step_Function(char * Path, Image_Data * Par)
 {

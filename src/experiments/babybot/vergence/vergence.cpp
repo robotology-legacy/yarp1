@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.4 2003-11-25 10:37:24 babybot Exp $
+/// $Id: vergence.cpp,v 1.5 2003-11-25 13:53:19 fberton Exp $
 ///
 ///
 
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
 		disparityval(1) = (double)disparity.computeDisparity (sub_left, sub_right);
 
 		out_img.Content().SetID (YARP_PIXEL_MONO);
-		out_img.Content().Resize (128, 64);
+		out_img.Content().Resize (256, 64);
 		out.Refer (out_img.Content());
 
 		disparity.makeHistogram (out);

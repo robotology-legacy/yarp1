@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.4 2003-11-25 10:37:25 babybot Exp $
+/// $Id: YARPDisparity.cpp,v 1.5 2003-11-25 13:53:19 fberton Exp $
 ///
 ///
 
@@ -233,24 +233,52 @@ Image_Data YARPDisparityTool::lpInfo(int SXR, int SYR, int rho, int theta, int f
 
 void YARPDisparityTool::downSample(YARPImageOf<YarpPixelBGR> & inImg, YARPImageOf<YarpPixelBGR> & outImg)
 {
-	DownSample(	(unsigned char*)inImg.GetRawBuffer(),
-				(unsigned char*)outImg.GetRawBuffer(),
-				_path,
-				&_imgL,
-				_imgS.Ratio,
-				_dsTable);
+	if (outImg.GetHeight() == _imgS.Size_Rho)
+		DownSample(	(unsigned char*)inImg.GetRawBuffer(),
+					(unsigned char*)outImg.GetRawBuffer(),
+					_path,
+					&_imgL,
+					_imgS.Ratio,
+					_dsTable);
+	else
+		DownSampleFovea((unsigned char*)inImg.GetRawBuffer(),
+						(unsigned char*)outImg.GetRawBuffer(),
+						_path,
+						&_imgL,
+						_imgS.Ratio,
+						_dsTable);
 }
 
 int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
 										 YARPImageOf<YarpPixelBGR> & inRImg)
 {
 	int disparity;
+<<<<<<< YARPDisparity.cpp
+
+	_corrFunct = new double [_shiftLevels];
+
+	if (inLImg.GetHeight() == _imgS.Size_Rho)
+		disparity = Shift_and_Corr(	(unsigned char*)inLImg.GetRawBuffer(),
+									(unsigned char*)inRImg.GetRawBuffer(),
+									&_imgS,
+									_shiftLevels,
+									_shiftMap,
+									_corrFunct);
+	else
+		disparity = shiftnCorrFovea((unsigned char*)inLImg.GetRawBuffer(),
+									(unsigned char*)inRImg.GetRawBuffer(),
+									&_imgS,
+									_shiftLevels,
+									_shiftMap,
+									_corrFunct);
+=======
 	disparity = Shift_and_Corr(	(unsigned char*)inLImg.GetRawBuffer(),
 								(unsigned char*)inRImg.GetRawBuffer(),
 								&_imgS,
 								_shiftLevels,
 								_shiftMap,
 								_corrFunct);
+>>>>>>> 1.4
 
 	disparity = _shiftFunction[disparity];
 	return disparity;
@@ -260,7 +288,7 @@ void YARPDisparityTool::makeHistogram(YARPImageOf<YarpPixelMono>& hImg)
 {
 	int i,j;
 	int height = 64;
-	int width = 128;
+	int width = 256;
 	unsigned char * hist = (unsigned char *)hImg.GetRawBuffer();
 
 	int offset = (width-_shiftLevels+1)/2;
