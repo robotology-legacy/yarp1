@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.11 2003-04-18 09:41:45 gmetta Exp $
+$Id: README.txt,v 1.12 2003-04-18 16:06:02 gmetta Exp $
 
 Before you do anything else.
 YARP assumes you have correctly set up the following variables (ALSO WINNT):
@@ -46,6 +46,11 @@ In WIN32 project wide definitions like __WIN32__ is done by including
 <conf/YARPConfig.h>, this in turn includes conf/YARPConfigWin32.h.
 YARPConfig.h is not in the repository but simply obtained from 
 $YARP_ROOT/conf/YARPConfigTemplate.h, copy it and modify.
+- Added YARPConfig.h in the repository. it's intended as example.
+
+Don't forget:
+-- MSVC, always use libc as Multithreaded DLL. This is required since ACE is
+generally compiled as DLL to avoid conflicts.
 
 
 pasa Jul 2001. Directory tree description.
