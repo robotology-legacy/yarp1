@@ -303,6 +303,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "soundgrab"=.\soundgrab\soundgrab.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "teststereomatch"=.\teststereomatch\teststereomatch.dsp - Package Owner=<4>
 
 Package=<5>

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.16 2004-08-30 17:01:31 beltran Exp $
+/// $Id: main.cpp,v 1.1 2004-09-10 22:05:48 gmetta Exp $
 ///
 
 #include <yarp/YARPConfig.h>
@@ -222,7 +222,6 @@ ParseParams (int argc, char *argv[], int visualize = 0)
 	return YARP_OK; 
 }
 
-#if !defined(__LinuxTest__)
 /** 
   * Extends the YARPPort in order to implement the OnRead callback function.
   * It receives a bottle with information adjust the sound. To be used with fgadjuster photon 
@@ -267,7 +266,6 @@ void FgNetDataPort::OnRead(void)
 	
 	//m_gb->setDithFrame(m_dithf);
 }
-#endif
 
 /** 
   * The main thread.
@@ -291,13 +289,11 @@ public:
 			_runAsSimulation ();
 			return;
 		}
-#if !defined(__LinuxTest__)
 		else
 		{
 			_runAsNormally ();
 			return;
 		}
-#endif
 	}
 
 	int _runAsClient(void);
