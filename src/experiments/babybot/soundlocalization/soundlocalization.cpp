@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: soundlocalization.cpp,v 1.12 2004-08-30 17:51:44 beltran Exp $
+/// $Id: soundlocalization.cpp,v 1.13 2004-09-14 08:41:42 beltran Exp $
 ///
 
 /** @todo Fix compilation warning */
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
 	YARPInputPortOf<YARPSoundBuffer> _inPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP); 	
 	YARPOutputPortOf<YVector> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 	YARPOutputPortOf<YVector> _outPort_srm(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-	YARPOutputPortOf<YARPGenericImage> _slimageoutPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
+	YARPOutputPortOf<YARPGenericImage> _slimageoutPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
 	SoundProcessing _soundprocessor(__configFile,  __outSize);
 	
