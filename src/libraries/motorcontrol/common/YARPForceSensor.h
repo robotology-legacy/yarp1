@@ -34,7 +34,7 @@ class YARPForceSensor
 			{
 				f[i] = (double) _reading[j];
 				t[i] = (double) _reading[j+3];
-				j++
+				j++;
 			}
 			return YARP_OK;
 		}
