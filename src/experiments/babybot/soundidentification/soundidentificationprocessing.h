@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.6 2004-07-28 13:46:12 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.7 2004-08-24 13:32:43 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -21,15 +21,16 @@
 #ifndef __soundidentificationprocessinghh__
 #define __soundidentificationprocessinghh__
 
-#include <conf/YARPConfig.h>
-#include <YARPConfigFile.h>
-#include <YARPMatrix.h>
-#include <YARPPidFilter.h>
-#include <YARPString.h>
-#include <YARPSound.h>
-#include <YARPImages.h>
-#include <YARPLogPolar.h>
-#include <YARPFft.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPConfigRobot.h>
+#include <yarp/YARPConfigFile.h>
+#include <yarp/YARPMatrix.h>
+#include <yarp/YARPPidFilter.h>
+#include <yarp/YARPString.h>
+#include <yarp/YARPSound.h>
+#include <yarp/YARPImages.h>
+#include <yarp/YARPLogPolar.h>
+#include <yarp/YARPFft.h>
 
 
 #define FREQ_T 10000     // up cutting filter frequency

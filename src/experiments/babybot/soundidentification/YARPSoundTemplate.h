@@ -10,7 +10,7 @@
 // 
 //     Description:  This class implements a sound template.  
 // 
-//         Version:  $Id: YARPSoundTemplate.h,v 1.1 2004-08-24 10:51:21 beltran Exp $
+//         Version:  $Id: YARPSoundTemplate.h,v 1.2 2004-08-24 13:32:43 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -19,9 +19,9 @@
 #ifndef __YARPSoundTemplateh__
 #define __YARPSoundTemplateh__
 
-#include <conf/YARPConfig.h>
-#include <YARPConfigFile.h>
-#include <YARPMatrix.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPConfigFile.h>
+#include <yarp/YARPMatrix.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -55,6 +55,10 @@ private:
     YVector ** m_parray;  // This is the actual pointer to the array of vectors
 
 public:
+	YARPSoundTemplate()
+	{
+		YARPSoundTemplate(ARRAY_MAX);
+	}
 	YARPSoundTemplate(int size)
 	{
 		m_currentsize    = 0;

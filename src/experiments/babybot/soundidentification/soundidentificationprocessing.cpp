@@ -12,7 +12,7 @@
 //     This implementatin is partially based in the sound software used by Lorenzo Natale
 //     is his master thesis.
 // 
-//         Version:  $Id: soundidentificationprocessing.cpp,v 1.6 2004-07-28 13:46:12 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.cpp,v 1.7 2004-08-24 13:32:43 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -20,7 +20,6 @@
 // =====================================================================================
 
 #include "soundidentificationprocessing.h"
-#include <YARPConfigFile.h>
 
 const double __soundgain = 0.01;
 //--------------------------------------------------------------------------------------

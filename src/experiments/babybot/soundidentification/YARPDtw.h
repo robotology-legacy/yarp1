@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPDtw.h,v 1.1 2004-07-30 17:11:19 beltran Exp $
+//         Version:  $Id: YARPDtw.h,v 1.2 2004-08-24 13:32:43 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -23,9 +23,9 @@
 	#define	HUGE	1e30
 #endif
 
-#include <conf/YARPConfig.h>
-#include <YARPConfigFile.h>
-#include <YARPMatrix.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPConfigFile.h>
+#include <yarp/YARPMatrix.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>

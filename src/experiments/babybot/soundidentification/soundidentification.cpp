@@ -14,29 +14,33 @@
 //					 is implemeted to provide a sound representation with a parameter reducted
 //					 representation.
 // 
-//         Version:  $Id: soundidentification.cpp,v 1.7 2004-08-24 10:51:21 beltran Exp $
+//         Version:  $Id: soundidentification.cpp,v 1.8 2004-08-24 13:32:43 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
 // 
 // =====================================================================================
 
-#include <YARPScheduler.h>
-#include <YARPRobotMath.h>
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
-#include <YARPString.h>
-#include <YARPTime.h>
-#include <YARPSound.h>
-#include <YARPSoundPortContent.h>
-#include <YARPImageDraw.h>
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
+#include <iostream>
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPRobotMath.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPVectorPortContent.h>
+#include <yarp/YARPString.h>
+#include <yarp/YARPTime.h>
+#include <yarp/YARPSound.h>
+#include <yarp/YARPSoundPortContent.h>
+#include <yarp/YARPImageDraw.h>
+#include <yarp/YARPBottle.h>
+#include <yarp/YARPBottleContent.h>
+#include <yarp/YARPThread.h>
 
 #include "YARPDtw.h"
 //#include "YARPVectorBuffer.h"
 #include "YARPSoundTemplate.h"
 #include "soundidentificationprocessing.h"
+
+using namespace std;
 
 const int   __outSize    = 5;
 const char *__baseName   = "/soundidentification/";
