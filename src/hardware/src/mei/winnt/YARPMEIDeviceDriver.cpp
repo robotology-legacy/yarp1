@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.13 2003-05-21 13:27:22 natta Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.14 2003-05-30 14:26:18 natta Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -100,7 +100,6 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
 	_events[CBStopEvent] = STOP_EVENT;
 	_events[CBEStopEvent] = E_STOP_EVENT;
 	_events[CBAbortEvent] = ABORT_EVENT;
-
 }
 
 YARPMEIDeviceDriver::~YARPMEIDeviceDriver()
