@@ -1,9 +1,8 @@
-localhost 10000
+ip_addr port_number
 
 // start network description, don't forget to separate "Node=" and names with space
+// Node= name	local nic ip	default nic ip	NetId1 nic ip	NetId2 nic ip ... NetIdN nic ip
 [NETWORK_DESCRIPTION]
-Node= leto	Net0 130.251.43.134 Net1 10.0.1.1
-Node= euterpe	Net0 130.251.43.135 Net1 10.0.1.2
-Node= oceanus	Net0 130.251.43.136 Net1 10.0.1.3
-Node= calliope 	Net0 130.251.43.137 Net1 10.0.1.4
+Node= leto		local 127.0.0.1 127.0.0.1	default 130.251.43.134 130.251.43.134	Net0 130.251.43.134 130.251.43.134	Net1 10.0.1.134 10.0.1.134
+Node= hades		local lo0 127.0.0.1		default en0 130.251.43.130			Net0 en0 130.251.43.130			Net1 en1 10.0.1.130
 [END]
