@@ -40,8 +40,8 @@ install:
 	@echo
 	@echo ---------------Instaling bttvx --------------
 	@echo
-	cp *.h $(YARP_ROOT)/include 
-	cp *.lib $(YARP_ROOT)/lib/$(OS)
+	mkdir -p ../lib
+	cp *.lib ../lib/
 
 clean:
 	@echo
