@@ -10,6 +10,7 @@
 
 include $(YARP_ROOT)/conf/Makefile.template
 CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS) $(CFAST)
+#CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS)
 
 BIN     = YARPNameService
 	
