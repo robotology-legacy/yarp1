@@ -30,14 +30,27 @@ int main(int argc, char* argv[])
 	int _random_thread_rate;
 
 	YARPConfigFile file;
-	file.set("Y:\\conf\\babybot\\", "arm.ini");
+
+	char *root = GetYarpRoot();
+	char path[256];
+	char filename[256];
+
+#if defined(__WIN32__)
+	ACE_OS::sprintf (path, "%s\\conf\\babybot\\\0", root); 
+	ACE_OS::sprintf (filename, "%s\\conf\\babybot\\arm.ini\0", root); 
+#elif defined (__QNX6__)
+	ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
+	ACE_OS::sprintf (filename, "%s/conf/babybot/arm.ini\0", root); 
+#endif
+
+	file.set(path, "arm.ini");
 	file.get("[THREAD]", "Rate", &_arm_thread_rate, 1);
 
 	// file.get("[RANDOMTHREAD]", "Rate", &_random_thread_rate, 1);
 	
 	ArmThread arm_thread(_arm_thread_rate,
 						"arm thread",
-						"Y:\\conf\\babybot\\arm.ini");
+						filename);
 
 	ArmBehavior _arm(&arm_thread, YBLabelMotor, "/armcontrol/behavior/i");
 	arm_thread.start();
