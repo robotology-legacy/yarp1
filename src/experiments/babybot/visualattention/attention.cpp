@@ -163,6 +163,7 @@ void mainthread::Body (void)
 	YARPImageOf<YarpPixelMono> img;
 	YARPImageOf<YarpPixelMono> imgOld;
 	YARPImageOf<YarpPixelMono> tmp;
+	YARPImageOf<YarpPixelMono> tmp2;
 
 	YARPImageOf<YarpPixelMono> out;
 	YARPImageOf<YarpPixelMono> out2;
@@ -210,6 +211,7 @@ void mainthread::Body (void)
 	colored_s.Resize(_stheta, _srho);
 	colored_u.Resize(_stheta, _srho);
 	tmp.Resize(_stheta, _srho);
+	tmp2.Resize(_stheta, _srho);
 	out.Resize(_stheta, _srho);
 	out2.Resize(_stheta, _srho);
 	out3.Resize(_xsize, _ysize);
@@ -228,8 +230,7 @@ void mainthread::Body (void)
 	int frame_no = 0;
 
 	if (!inImage.Read())
-		ACE_OS::printf(">>> ERROR: frame not read\n"); // to skip the first frame and to clean the screen
-
+		ACE_OS::printf(">>> ERROR: frame not read\n"); // to stop the execution on this instruction
 	YARPTime::DelayInSeconds(0.5);
 
 testDiff:
@@ -260,14 +261,18 @@ testDiff:
 		imgOld.Refer(img);
 	}
 	if (maxDiff>127) {
-		ACE_OS::printf("Warning! Max=%d, it is too high!\n I'll recalculate it.", maxDiff);
+		ACE_OS::printf("Warning! Max=%d, it is too high!\nI'm going to recalculate it.\n", maxDiff);
 		goto testDiff;
 	} else
-		ACE_OS::printf("done! Max=%d", maxDiff);
+		ACE_OS::printf("done! Max=%d\n", maxDiff);
 	
 	//att_mod.setParameters(109, 0, 18, 0, 1);
 	start = YARPTime::GetTimeAsSeconds();
 	bool isStarted = true;
+	
+	if (!inImage.Read())
+		ACE_OS::printf(">>> ERROR: frame not read\n");
+	imgOld.Refer(inImage.Content());			
 	
 	while (!IsTerminated())	{
 		YARPTime::DelayInSeconds(0.010);
@@ -349,8 +354,8 @@ testDiff:
 			iplAdd(tmp, imgOld, imgOld);*/
 
 			iplSubtract(img, imgOld, tmp);
-			iplSubtract(imgOld, img, imgOld);
-			iplAdd(imgOld, tmp, tmp);
+			iplSubtract(imgOld, img, tmp2);
+			iplAdd(tmp2, tmp, tmp);
 		
 			// Posso
 			//1) mettere a 1 tutti i pixel > di maxDiff, taggare
@@ -359,18 +364,25 @@ testDiff:
 
 			// filtro a mediana x eliminare i pixel isolati? Ma è lento...
 			
-			out.Zero();
-
-			inVector.Read();
-			YVector &checkFix = inVector.Content();
+			//inVector.Read();
+			//YVector &checkFix = inVector.Content();
 			
-			if (checkFix(1)==1) {
+			//if (checkFix(1)==1) {
+			if (1) {
+				frame_no++;
+				
 				for (int y=0; y<_srho; y++)
 					for (int x=0; x<_stheta; x++)
 						// points near the fovea are privileged?
 						// should I calculare the center of mass of the variations and the area?
 						if (tmp(x,y)>maxDiff) {
+							ACE_OS::printf("Difference detected at (%d,%d)=%d\n",x,y,tmp(x,y));
+							out.Zero();
 							out(x,y)=255;
+							out.SafePixel(x+1,y)=255;
+							out.SafePixel(x-1,y)=255;
+							out.SafePixel(x,y-1)=255;
+							out.SafePixel(x,y+1)=255;
 							tmpBottle.writeInt(x);
 							tmpBottle.writeInt(y);
 							tmpBottle.writeInt(-1);
@@ -381,14 +393,12 @@ testDiff:
 							imgOld.Refer(img);
 							goto printFrame;
 						}
-			} else {
+			
 				// 0.25*current frame + 0.75*previous frame
 				iplRShiftS(imgOld, tmp, 2);
 				iplSubtract(imgOld, tmp, tmp);
 				iplRShiftS(img, imgOld, 2);
 				iplAdd(tmp, imgOld, img);
-
-				frame_no++;
 
 				DBGPF1 ACE_OS::printf(">>> reconstruct colors\n");
 				//mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)imgOld, colored_s);
@@ -472,6 +482,7 @@ testDiff:
 			}
 
 printFrame:
+
 			outImage.Content().Refer(out);
 			outImage.Write();
 

@@ -1017,8 +1017,6 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 		}
 	}	
 	
-	
-	
 	//blobFov=edge;
 	//rain.tags2Watershed(tagged, blobFov);
 
