@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.14 2004-02-23 11:12:34 fberton Exp $
+/// $Id: AuxFunctions.cpp,v 1.15 2004-05-04 09:26:53 orfra Exp $
 ///
 ///
 
@@ -545,12 +545,16 @@ void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data 
 	}
 	
 //Remaining Lines (non Fovea)
-	for (j=PadLine * par->Size_Fovea; j<PadLine * par->Size_Rho; j++)
+	memcpy(outImage+PadLine * par->Size_Fovea,
+		inImage+PadLine * par->Size_Fovea,
+		PadLine * (par->Size_Fovea-par->Size_Rho) * 3 * sizeof(unsigned char));
+	
+	/*for (j=PadLine * par->Size_Fovea; j<PadLine * par->Size_Rho; j++)
 	{
 		outImage[j] = inImage[j];
 		outImage[j+1] = inImage[j+1];
 		outImage[j+2] = inImage[j+2];
-	}
+	}*/
 
 	free (oneLine);
 }
@@ -656,12 +660,16 @@ void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data 
 	
 
 //Remaining Lines (non Fovea)
-	for (j=PadLine * par->Size_Fovea; j<PadLine * par->Size_Rho; j++)
+	memcpy(outImage+PadLine * par->Size_Fovea,
+		inImage+PadLine * par->Size_Fovea,
+		PadLine * (par->Size_Fovea-par->Size_Rho) * 3 * sizeof(unsigned char));
+	
+	/*for (j=PadLine * par->Size_Fovea; j<PadLine * par->Size_Rho; j++)
 	{
 		outImage[j]   = inImage[j];
 		outImage[j+1] = inImage[j+1];
 		outImage[j+2] = inImage[j+2];
-	}
+	}*/
 
 	free (oneLine);
 	free (Fovea);
