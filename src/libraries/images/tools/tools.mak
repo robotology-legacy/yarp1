@@ -43,9 +43,11 @@ ALL : "$(OUTDIR)\tools.lib"
 
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
+	-@erase "$(INTDIR)\YARP3DHistogram.obj"
 	-@erase "$(INTDIR)\YARPBlobDetector.obj"
 	-@erase "$(INTDIR)\YARPColorConverter.obj"
 	-@erase "$(INTDIR)\YARPDIBConverter.obj"
+	-@erase "$(INTDIR)\YARPHistoSegmentation.obj"
 	-@erase "$(INTDIR)\YARPImageFile.obj"
 	-@erase "$(INTDIR)\YARPIntegralImage.obj"
 	-@erase "$(INTDIR)\YARPLogpolar.obj"
@@ -69,7 +71,9 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPLogpolar.obj"
+	"$(INTDIR)\YARPLogpolar.obj" \
+	"$(INTDIR)\YARPHistoSegmentation.obj" \
+	"$(INTDIR)\YARP3DHistogram.obj"
 
 "$(OUTDIR)\tools.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -106,9 +110,11 @@ ALL : "$(OUTDIR)\toolsDB.lib"
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
+	-@erase "$(INTDIR)\YARP3DHistogram.obj"
 	-@erase "$(INTDIR)\YARPBlobDetector.obj"
 	-@erase "$(INTDIR)\YARPColorConverter.obj"
 	-@erase "$(INTDIR)\YARPDIBConverter.obj"
+	-@erase "$(INTDIR)\YARPHistoSegmentation.obj"
 	-@erase "$(INTDIR)\YARPImageFile.obj"
 	-@erase "$(INTDIR)\YARPIntegralImage.obj"
 	-@erase "$(INTDIR)\YARPLogpolar.obj"
@@ -132,7 +138,9 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPLogpolar.obj"
+	"$(INTDIR)\YARPLogpolar.obj" \
+	"$(INTDIR)\YARPHistoSegmentation.obj" \
+	"$(INTDIR)\YARP3DHistogram.obj"
 
 "$(OUTDIR)\toolsDB.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -169,9 +177,11 @@ ALL : "$(OUTDIR)\toolsDBf.lib"
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
+	-@erase "$(INTDIR)\YARP3DHistogram.obj"
 	-@erase "$(INTDIR)\YARPBlobDetector.obj"
 	-@erase "$(INTDIR)\YARPColorConverter.obj"
 	-@erase "$(INTDIR)\YARPDIBConverter.obj"
+	-@erase "$(INTDIR)\YARPHistoSegmentation.obj"
 	-@erase "$(INTDIR)\YARPImageFile.obj"
 	-@erase "$(INTDIR)\YARPIntegralImage.obj"
 	-@erase "$(INTDIR)\YARPLogpolar.obj"
@@ -195,7 +205,9 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPLogpolar.obj"
+	"$(INTDIR)\YARPLogpolar.obj" \
+	"$(INTDIR)\YARPHistoSegmentation.obj" \
+	"$(INTDIR)\YARP3DHistogram.obj"
 
 "$(OUTDIR)\toolsDBf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -231,9 +243,11 @@ ALL : "$(OUTDIR)\toolsf.lib"
 
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
+	-@erase "$(INTDIR)\YARP3DHistogram.obj"
 	-@erase "$(INTDIR)\YARPBlobDetector.obj"
 	-@erase "$(INTDIR)\YARPColorConverter.obj"
 	-@erase "$(INTDIR)\YARPDIBConverter.obj"
+	-@erase "$(INTDIR)\YARPHistoSegmentation.obj"
 	-@erase "$(INTDIR)\YARPImageFile.obj"
 	-@erase "$(INTDIR)\YARPIntegralImage.obj"
 	-@erase "$(INTDIR)\YARPLogpolar.obj"
@@ -257,7 +271,9 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPLogpolar.obj"
+	"$(INTDIR)\YARPLogpolar.obj" \
+	"$(INTDIR)\YARPHistoSegmentation.obj" \
+	"$(INTDIR)\YARP3DHistogram.obj"
 
 "$(OUTDIR)\toolsf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -323,6 +339,11 @@ $(DS_POSTBUILD_DEP) : "$(OUTDIR)\toolsf.lib"
 
 
 !IF "$(CFG)" == "tools - Win32 Release" || "$(CFG)" == "tools - Win32 Debug" || "$(CFG)" == "tools - Win32 FakeIpl Debug" || "$(CFG)" == "tools - Win32 FakeIpl Release"
+SOURCE=.\YARP3DHistogram.cpp
+
+"$(INTDIR)\YARP3DHistogram.obj" : $(SOURCE) "$(INTDIR)"
+
+
 SOURCE=.\YARPBlobDetector.cpp
 
 "$(INTDIR)\YARPBlobDetector.obj" : $(SOURCE) "$(INTDIR)"
@@ -336,6 +357,11 @@ SOURCE=.\YARPColorConverter.cpp
 SOURCE=.\YARPDIBConverter.cpp
 
 "$(INTDIR)\YARPDIBConverter.obj" : $(SOURCE) "$(INTDIR)"
+
+
+SOURCE=.\YARPHistoSegmentation.cpp
+
+"$(INTDIR)\YARPHistoSegmentation.obj" : $(SOURCE) "$(INTDIR)"
 
 
 SOURCE=.\YARPImageFile.cpp

@@ -10,7 +10,6 @@
 #include <YARPLogpolar.h>
 
 #include "YARPHistoSegmentation.h"
-#include "YARP3DHistogram.h"
 
 using namespace _logpolarParams;
 

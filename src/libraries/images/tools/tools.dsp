@@ -169,6 +169,10 @@ PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\imagesf.lib ..\
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\YARP3DHistogram.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPBlobDetector.cpp
 # End Source File
 # Begin Source File
@@ -178,6 +182,10 @@ SOURCE=.\YARPColorConverter.cpp
 # Begin Source File
 
 SOURCE=.\YARPDIBConverter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPHistoSegmentation.cpp
 # End Source File
 # Begin Source File
 
@@ -197,6 +205,10 @@ SOURCE=.\YARPLogpolar.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\YARP3DHistogram.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPBlobDetector.h
 # End Source File
 # Begin Source File
@@ -206,6 +218,10 @@ SOURCE=.\YARPColorConverter.h
 # Begin Source File
 
 SOURCE=.\YARPDIBConverter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPHistoSegmentation.h
 # End Source File
 # Begin Source File
 
