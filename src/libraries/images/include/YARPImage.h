@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.5 2003-06-22 11:35:24 gmetta Exp $
+/// $Id: YARPImage.h,v 1.6 2003-06-22 11:39:27 gmetta Exp $
 ///
 ///
 
@@ -147,11 +147,9 @@ class YARPRefCount;
 
 ///
 /// alignment required for IP, MMX, optimized stuff.
-#ifdef __QNX__
+/// same alignment is required across platforms for communication issues.
 const int YarpImageAlign = 8;
-#else
-const int YarpImageAlign = 8;
-#endif
+
 
 // Note on IPL alignment stuff:
 //	- initial address is aligned on a QUADWORD boundary (allocation).

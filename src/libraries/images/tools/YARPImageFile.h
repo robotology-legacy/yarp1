@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageFile.h,v 1.2 2003-06-05 10:51:10 gmetta Exp $
+/// $Id: YARPImageFile.h,v 1.1 2003-06-22 11:35:25 gmetta Exp $
 ///
 ///
 

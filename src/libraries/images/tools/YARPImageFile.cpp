@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageFile.cpp,v 1.3 2003-06-17 20:20:36 babybot Exp $
+/// $Id: YARPImageFile.cpp,v 1.1 2003-06-22 11:35:24 gmetta Exp $
 ///
 ///
 

@@ -105,6 +105,10 @@ SOURCE=.\YARPDIBConverter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPImageFile.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPLogpolar.cpp
 # End Source File
 # End Group
@@ -114,6 +118,10 @@ SOURCE=.\YARPLogpolar.cpp
 # Begin Source File
 
 SOURCE=.\YARPDIBConverter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPImageFile.h
 # End Source File
 # Begin Source File
 
