@@ -249,6 +249,35 @@ void YARPArrayConvKernel::Set(int cols, int rows, int anchorX, int anchorY, int*
 }
 
 
+void YARPArrayConvKernel::SetGaussianRow(int radius, double variance, double norm, int shiftR, int pos)
+{
+	ACE_ASSERT(kernels[pos] == NULL);
+	ACE_ASSERT(norm <= 1);
+	
+	double sum=0;
+
+	double *decimals = new double [2*radius+1];
+	int *values = new int [2*radius+1];
+
+	for (int i=0; i<2*radius+1; i++) {
+		decimals[i]=exp(-(i-radius)*(i-radius)/(2*variance*variance));
+		sum+=decimals[i];
+	}
+
+	for (i=0; i<2*radius+1; i++)
+		values[i]=decimals[i]/sum*norm*(1<<shiftR)+.5;
+		
+	YARPConvKernel *tmp = new YARPConvKernel(2*radius+1, 1, radius, 0, values, shiftR);
+
+	ipl_array[pos]=tmp->GetPointer();
+
+	kernels[pos]=tmp;
+
+	delete [] decimals;
+	delete [] values;
+}
+
+
 void YARPArrayConvKernel::InitFixBorder()
 {
 	// somme parziali
@@ -381,7 +410,7 @@ void YARPArrayConvKernel::ConvolveSep2D(const YARPGenericImage &srcImage,
 	//iplConvolveSep2D(IplImage* srcImage,IplImage* dstImage, IplConvKernel* xKernel,IplConvKernel* yKernel);
 	//iplConvolveSep2D((IplImage *)srcImage, (IplImage *)dstImage, ipl_array[0], ipl_array[1]);
 
-	// in quest modo evito il problema di prima, ma dovrebbe essere più lento
+	// in questo modo evito il problema di prima, ma dovrebbe essere più lento
 	iplConvolveSep2D((IplImage *)srcImage, (IplImage *)tmp, ipl_array[0], NULL);
 	iplConvolveSep2D((IplImage *)tmp, (IplImage *)dstImage, NULL, ipl_array[1]);
 

@@ -192,7 +192,8 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	sobel.Set(3,3,1,1,sobel6,2,6);
 	sobel.Set(3,3,1,1,sobel7,2,7);
 
-	gauss_c_s.Set(5,1,2,0,g_c,11,0);
+	//gauss_c_s.Set(5,1,2,0,g_c,11,0);
+	gauss_c_s.SetGaussianRow(2,1,1/sqrt(1.5),11,0);
 	gauss_c_s.Set(1,5,0,2,g_c,11,1);
 	gauss_c_s.InitFixBorder();
 
