@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.3 2003-05-17 14:22:55 beltran Exp $
+#$Id: Makefile,v 1.4 2003-06-09 15:15:57 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -25,6 +25,7 @@ clean:
 install:
 	cp *.lib $(YARP_ROOT)/src/hardware/lib
 	cp *.h	 $(YARP_ROOT)/src/hardware/include
+	cp *.h 	 $(YARP_ROOT)/include
 	cp ./dd_orig/lib/*.lib $(YARP_ROOT)/src/hardware/lib
 
 
