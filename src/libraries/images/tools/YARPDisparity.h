@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.h,v 1.13 2004-06-11 17:37:56 babybot Exp $
+/// $Id: YARPDisparity.h,v 1.14 2004-06-29 08:43:31 babybot Exp $
 ///
 ///
 // disparity.h: interface for the YARPDisparityTool class.
@@ -165,9 +165,15 @@ public:
 						 YARPImageOf<YarpPixelBGR> & inLImg, 
 						 double *value);
 
+	int computeSSDRGBUN (YARPImageOf<YarpPixelBGR> & inRImg,
+   						YARPImageOf<YarpPixelBGR> & inLImg, double *value);
+
 	int computeSSDRGBxVar (YARPImageOf<YarpPixelBGR> & inRImg,
 						  YARPImageOf<YarpPixelBGR> & inLImg, 
 						  double *value);
+	
+	int computeSSDRGBxVar2 (YARPImageOf<YarpPixelBGR> & inRImg,
+   							YARPImageOf<YarpPixelBGR> & inLImg, double *value);
 
 	int computeSSDRGBVar (YARPImageOf<YarpPixelBGR> & inRImg,
 						  YARPImageOf<YarpPixelBGR> & inLImg, 
@@ -196,6 +202,15 @@ public:
 	int computeRGBAv (YARPImageOf<YarpPixelBGR> & inRImg,
 				     YARPImageOf<YarpPixelBGR> & inLImg, 
 					 double *value);
+
+	int computeRGBVar2 (YARPImageOf<YarpPixelBGR> & inRImg,
+   						YARPImageOf<YarpPixelBGR> & inLImg, double *value);
+	
+	int computeRGBChainVar (YARPImageOf<YarpPixelBGR> & inRImg,
+   						YARPImageOf<YarpPixelBGR> & inLImg, double *value);
+
+	int computeRGBChain (YARPImageOf<YarpPixelBGR> & inRImg,
+   						  YARPImageOf<YarpPixelBGR> & inLImg, double *value);
 
 	double computeSNRatio(int disparity);
 

@@ -10,6 +10,7 @@ _inPortPosition (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 	_inPorts[SinkChTracker] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 	_inPorts[SinkChVergence] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 	_inPorts[SinkChSaccades] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	_inPorts[SinkChSmoothPursuit] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
 	_iniFile = YARPString(ini_file);
 
@@ -74,8 +75,7 @@ void Sink::doLoop()
 	_globalInhibition = SINK_INHIBIT_NONE;
 	for(i = 0; i < SinkChN; i++)
 	{
-		_polPort(*(_inPorts[i]), _inVectors[i], _inhibitions[i]);
-
+		bool ret = _polPort(*(_inPorts[i]), _inVectors[i], _inhibitions[i]);
 		_globalInhibition = _globalInhibition | _inhibitions[i];
 	}
 
@@ -106,6 +106,11 @@ void Sink::doLoop()
 		const YVector &neck = _neckControl->apply(_position);
 		_outCmd = _outCmd + neck;
 	}
+
+	// add smooth pursuit
+	if (!(_globalInhibition & SINK_INHIBIT_SMOOTHPURSUIT))
+		_outCmd = _outCmd + _inVectors[SinkChSmoothPursuit];
+
 
 	// add saccades
 	if (!(_globalInhibition & SINK_INHIBIT_SACCADES))

@@ -21,7 +21,19 @@ public:
 		apply(in, _cmd);
 		out.reset();
 		out.writeYVector(_cmd);
-		out.writeInt(SINK_INHIBIT_NONE);
+		if (_inhibitNeck)
+		{
+			if ( (in(1) == 0) && 
+				(in(2) == 0) )
+			{
+				// inhibit yourself
+				out.writeInt(SINK_INHIBIT_SMOOTHPURSUIT);
+			}
+			else
+			    out.writeInt(SINK_INHIBIT_SMOOTH);
+		}
+		else
+			out.writeInt(SINK_INHIBIT_NONE);
 	}
 
 	void apply(const YVector &in, YVector &out)
@@ -40,6 +52,9 @@ public:
 		out(4) = -out(5);
 	}
 
+	void inhibitNeck()
+	{ _inhibitNeck = true; }
+
 private:
 	void _threshold(double *v, double th)
 	{
@@ -53,6 +68,7 @@ private:
 	int _inSize;
 	int _outSize;
 	int _nPids;
+	bool _inhibitNeck;
 	YARPPidFilter *_pids;
 
 	YARPString _iniFile;

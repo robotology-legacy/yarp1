@@ -30,7 +30,8 @@ SmoothControl::SmoothControl(const YARPString &iniFile, int insize, int outsize)
 		file.get("[SMOOTH]", tmpField, temp, 3);
 		_pids[i].setKs(temp[0], temp[1], temp[2]);
 	}
-	
+
+	_inhibitNeck = false;
 }
 
 SmoothControl::~SmoothControl()

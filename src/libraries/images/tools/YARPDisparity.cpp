@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.24 2004-06-16 14:34:41 emmebi75 Exp $
+/// $Id: YARPDisparity.cpp,v 1.25 2004-06-29 08:43:31 babybot Exp $
 ///
 ///
 
@@ -1104,6 +1104,90 @@ int YARPDisparityTool::computeSSDRGB (YARPImageOf<YarpPixelBGR> & inRImg,
 	return _shiftToDisparity(_shift);
 }
 
+int YARPDisparityTool::computeSSDRGBUN (YARPImageOf<YarpPixelBGR> & inRImg,
+   												YARPImageOf<YarpPixelBGR> & inLImg, double *value)
+{
+	int i,j,k,k1;
+	int i2,i1;//iR,iL
+
+	double ssd;
+	double den1,den2;
+	int nElem;
+	YarpPixelRGBFloat first, second;
+	
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+	fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(_imgS.Size_Theta*_imgS.LP_Planes,_imgS.padding) - _imgS.Size_Theta*_imgS.LP_Planes;
+
+	for (k=0; k<_shiftLevels; k++)
+	{
+
+		k1 = k * _imgS.Size_LP; //Positioning on the table
+
+		ssd = 0.0;
+		den1 = 0.0;
+		den2 = 0.0;
+		nElem = 0;
+		fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+		fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+		if (_count[k] == _maxCount)
+		{
+			for (j=0; j< _actRings; j++)
+			{
+				tIndex = j*_imgS.Size_Theta;
+				for (i=0; i<_imgS.Size_Theta; i++)
+				{
+					i2 = _shiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+
+					if (i2 > 0)
+					{
+						first.r = fovPtr[0];
+						first.g = fovPtr[1];
+						first.b = fovPtr[2];
+					
+						second.r = fullPtr[i2];
+						second.g = fullPtr[i2+1];
+						second.b = fullPtr[i2+2];
+						
+						ssd += (first.r-second.r)*(first.r-second.r);
+						ssd += (first.g-second.g)*(first.g-second.g);
+						ssd += (first.b-second.b)*(first.b-second.b);
+
+						den1 += (255/2*255/2);
+						den1 += (255/2*255/2);
+						den1 += (255/2*255/2);
+
+						den2 += (second.r*second.r);
+						den2 += (second.g*second.g);
+						den2 += (second.b*second.b);
+
+						nElem++;
+						fovPtr+=3;
+					}
+					else fovPtr +=3;
+				}
+				fovPtr+=AddedPadSize;
+			}
+			_corrFunct[k] = 1-ssd/sqrt(den1*den1);
+		}
+		else
+		_corrFunct[k] = 0;
+
+	}
+	
+	_shift = _findShift(_corrFunct, _shiftLevels);
+	*value = (double) _corrFunct[_shift];
+	
+	return _shiftToDisparity(_shift);
+}
+
 int YARPDisparityTool::computeSSDRGBxVar (YARPImageOf<YarpPixelBGR> & inRImg,
    										  YARPImageOf<YarpPixelBGR> & inLImg, double *value)
 {
@@ -1245,7 +1329,8 @@ int YARPDisparityTool::computeSSDRGBxVar (YARPImageOf<YarpPixelBGR> & inRImg,
 				_ssdFunct[k] = 0;
 			if (_ssdFunct[k] > 1)
 				_ssdFunct[k] = 1;
-			_corrFunct[k] = sqrt(_varFunct[k]*_ssdFunct[k]);
+			//_corrFunct[k] = sqrt(_varFunct[k]*_ssdFunct[k]);
+			_corrFunct[k] = _varFunct[k]*_ssdFunct[k];
 		}
 		else
 		{
@@ -1256,6 +1341,197 @@ int YARPDisparityTool::computeSSDRGBxVar (YARPImageOf<YarpPixelBGR> & inRImg,
 		}
 	}
 
+	_shift = _findShift(_corrFunct, _shiftLevels);
+	*value = (double) _corrFunct[_shift];
+	
+	return _shiftToDisparity(_shift);
+}
+
+int YARPDisparityTool::computeSSDRGBxVar2 (YARPImageOf<YarpPixelBGR> & inRImg,
+   										  YARPImageOf<YarpPixelBGR> & inLImg, double *value)
+{
+	int i,j,k,k1;
+	int i2,i1;//iR,iL
+
+	float var;
+	float ssd;
+	float ssdDen1;
+	float ssdDen2;
+	float varDen1;
+	float varDen2;
+
+	float nElem;
+	YarpPixelRGBFloat first, second;
+	float deltaR;
+	float deltaG;
+	float deltaB;
+
+	float phase;
+	float normFact;
+	
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+	fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(_imgS.Size_Theta*_imgS.LP_Planes,_imgS.padding) - _imgS.Size_Theta*_imgS.LP_Planes;
+
+	for (k=0; k<_shiftLevels; k++)
+	{
+
+		k1 = k * _imgS.Size_LP; //Positioning on the table
+
+		var = 0;
+		varDen1 = 0.0;
+		varDen2 = 0.0;
+		ssd = 0.0;
+		ssdDen1 = 0.0;
+		ssdDen2 = 0.0;
+		phase = 0.0;
+		normFact = 0.0;
+		nElem = 0;
+		fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+		fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+		if (_count[k] == _maxCount)
+		{
+			for (j=0; j< _actRings; j++)
+			{
+				tIndex = j*_imgS.Size_Theta;
+				for (i=0; i<_imgS.Size_Theta; i++)
+				{
+					i2 = _shiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+
+					if (i2 > 0)
+					{
+						first.r = fovPtr[0];
+						first.g = fovPtr[1];
+						first.b = fovPtr[2];
+					
+						second.r = fullPtr[i2];
+						second.g = fullPtr[i2+1];
+						second.b = fullPtr[i2+2];
+
+						deltaR = first.r - second.r;
+						deltaG = first.g - second.g;
+						deltaB = first.b - second.b;
+						
+						float tmp;
+						var += (deltaR*deltaR + deltaG*deltaG + deltaB*deltaB)/3;
+						tmp = (deltaR + deltaG + deltaB)/3;
+						var -= tmp*tmp;
+
+						////////// varDen1
+						varDen1 += ((first.r)*(first.r) + (first.g)*(first.g) + (first.b)*(first.b))/3.0;
+						varDen1 -= ( (first.r + first.g + first.b) * (first.r + first.g + first.b))/9.0;
+						////////////////////
+
+						////////// varDen2
+						varDen2 += ((second.r)*(second.r) + (second.g)*(second.g) + (second.b)*(second.b))/3.0;
+						varDen2 -= ( (second.r + second.g + second.b) * (second.r + second.g + second.b))/9.0;
+						////////////////////
+
+						//////// SSD
+						ssd += deltaR*deltaR + deltaG*deltaG + deltaB*deltaB;
+						
+						ssdDen1 += (first.r*first.r);
+						ssdDen1 += (first.g*first.g);
+						ssdDen1 += (first.b*first.b);
+
+						ssdDen2 += (second.r*second.r);
+						ssdDen2 += (second.g*second.g);
+						ssdDen2 += (second.b*second.b);
+
+						//// gray phase
+						// float u = sqrt(3)/3;
+						// float absvalue = sqrt(deltaR*deltaR + deltaG*deltaG + deltaB*deltaB);
+
+						phase += colorToSaturation(deltaR, deltaG, deltaB);
+
+						// tmp = (deltaR + deltaG + deltaB)*u/absvalue;
+						// phase += fabs(tmp); // acos(tmp)/PI);
+												
+						nElem++;
+						fovPtr+=3;
+					}
+					else fovPtr +=3;
+				}
+				fovPtr+=AddedPadSize;
+			}
+			
+		/*	if (var > _varMax)
+			{
+				_varMax = var;
+				ACE_OS::printf("Aggiornati max: %lf\tmin: %lf\t %lf\n", _varMax, _varMin, nElem);			
+			}
+			if (var<_varMin)
+			{
+				_varMin = var;
+				ACE_OS::printf("Aggiornati max: %lf\tmin: %lf\t %lf\n", _varMax, _varMin, nElem);			
+			}*/
+			
+			_phase[k] = 1-(phase/nElem);
+
+			// _varFunct[k] = 1 - var/sqrt(varDen1*varDen2);
+			_varFunct[k] = sqrt(var/_maxCount);
+			_ssdFunct[k] = ssd/ssdDen1;
+		}
+		else
+		{
+			_ssdFunct[k] = 0;
+			_varFunct[k] = 0;
+			_phase[k] = 0;
+		}
+	}
+
+	
+	double varFunctMean=0, ssdFunctMean=0;
+	int shiftLevelsTrue=0;
+	for (k=0; k<_shiftLevels; k++)
+	{
+		if (_count[k] == _maxCount)
+		{
+			shiftLevelsTrue++;
+			varFunctMean+=_varFunct[k];
+			ssdFunctMean+=_ssdFunct[k];
+		}
+	}
+	varFunctMean/=shiftLevelsTrue;
+	ssdFunctMean/=shiftLevelsTrue;
+
+	for (k=0; k<_shiftLevels; k++)
+	{
+		_varFunct[k]=1-0.5*_varFunct[k]/varFunctMean;
+		_ssdFunct[k]=1-0.5*_ssdFunct[k]/ssdFunctMean;
+		if (_varFunct[k] < 0)
+			_varFunct[k] = 0;
+		if (_varFunct[k] > 1)
+			_varFunct[k] = 1;
+		
+		if (_ssdFunct[k] < 0)
+			_ssdFunct[k] = 0;
+		if (_ssdFunct[k] > 1)
+			_ssdFunct[k] = 1;
+	}
+	
+	for (k=0; k<_shiftLevels; k++)
+	{
+		if (_count[k] == _maxCount)
+		{
+			double a;
+			if (_varFunct[k]>=0.5 && _ssdFunct[k]>=0.5) {
+				a=_varFunct[k]<_ssdFunct[k]?_varFunct[k]:_ssdFunct[k];
+				a-=0.5;
+			} else
+				a=0;
+			_corrFunct[k] = pow(_varFunct[k]*_ssdFunct[k],1/(3*a+1));
+		} else
+			_corrFunct[k] = 0;
+	}
+	
 	_shift = _findShift(_corrFunct, _shiftLevels);
 	*value = (double) _corrFunct[_shift];
 	
@@ -2072,6 +2348,269 @@ int YARPDisparityTool::computeSSDMono (YARPImageOf<YarpPixelBGR> & inRImg,
 	}
 
 	// search max
+	_shift = _findShift(_corrFunct, _shiftLevels);
+	*value = (double) _corrFunct[_shift];
+	
+	return _shiftToDisparity(_shift);
+}
+
+int YARPDisparityTool::computeRGBVar2 (YARPImageOf<YarpPixelBGR> & inRImg,
+   									  YARPImageOf<YarpPixelBGR> & inLImg, double *value)
+{
+	int i,j,k,k1;
+	int i2,i1;//iR,iL
+
+	double tmp;
+	double delta_mean;
+	double absdelta_mean;
+	double tot;
+	int nElem;
+	YarpPixelRGBFloat first, second, delta;
+	
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+	fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(_imgS.Size_Theta*_imgS.LP_Planes,_imgS.padding) - _imgS.Size_Theta*_imgS.LP_Planes;
+
+	for (k=0; k<_shiftLevels; k++)
+	{
+
+		k1 = k * _imgS.Size_LP; //Positioning on the table
+
+		nElem = 0;
+		fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+		fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+		if (_count[k] == _maxCount)
+		{
+			
+			tot = 0;
+
+			for (j=0; j< _actRings; j++)
+			{
+				tIndex = j*_imgS.Size_Theta;
+				for (i=0; i<_imgS.Size_Theta; i++)
+				{
+					i2 = _shiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+
+					if (i2 > 0)
+					{
+						first.r = fovPtr[0];
+						first.g = fovPtr[1];
+						first.b = fovPtr[2];
+					
+						second.r = fullPtr[i2];
+						second.g = fullPtr[i2+1];
+						second.b = fullPtr[i2+2];
+						
+						delta.r = first.r-second.r;
+						delta.g = first.g-second.g;
+						delta.b = first.b-second.b;
+						
+						delta_mean = (delta.r+delta.g+delta.b)/3;
+						absdelta_mean = (fabs(delta.r)+fabs(delta.g)+fabs(delta.b))/3;
+						tmp = (delta.r*delta.r+delta.g*delta.g+delta.b*delta.b)/3;
+						tmp -= (delta_mean*delta_mean);
+
+						if (tmp<0) tmp=0;
+
+						tot += (sqrt(tmp) + absdelta_mean)/2;
+
+						nElem++;
+						fovPtr+=3;
+					}
+					else fovPtr +=3;
+				}
+				fovPtr+=AddedPadSize;
+			}
+			_corrFunct[k] = 1-tot/(64*_maxCount);
+		}
+		else
+		_corrFunct[k] = 0;
+
+	}
+	
+	_shift = _findShift(_corrFunct, _shiftLevels);
+	*value = (double) _corrFunct[_shift];
+	
+	return _shiftToDisparity(_shift);
+}
+
+int YARPDisparityTool::computeRGBChainVar (YARPImageOf<YarpPixelBGR> & inRImg,
+   									  YARPImageOf<YarpPixelBGR> & inLImg, double *value)
+{
+	int i,j,k,k1;
+	int i2,i1;//iR,iL
+
+	double tot;
+	double tot2;
+	double tmp;
+	int nElem;
+	YarpPixelRGBFloat first, second, delta;
+	
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+	fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(_imgS.Size_Theta*_imgS.LP_Planes,_imgS.padding) - _imgS.Size_Theta*_imgS.LP_Planes;
+
+	for (k=0; k<_shiftLevels; k++)
+	{
+
+		k1 = k * _imgS.Size_LP; //Positioning on the table
+
+		nElem = 0;
+		fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+		fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+		if (_count[k] == _maxCount)
+		{
+			
+			tot = 0;
+			tot2 = 0;
+
+			for (j=0; j< _actRings; j++)
+			{
+				tIndex = j*_imgS.Size_Theta;
+				for (i=0; i<_imgS.Size_Theta; i++)
+				{
+					i2 = _shiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+
+					if (i2 > 0)
+					{
+						first.r = fovPtr[0];
+						first.g = fovPtr[1];
+						first.b = fovPtr[2];
+					
+						second.r = fullPtr[i2];
+						second.g = fullPtr[i2+1];
+						second.b = fullPtr[i2+2];
+						
+						delta.r = first.r-second.r;
+						delta.g = first.g-second.g;
+						delta.b = first.b-second.b;
+						
+						tmp=(fabs(delta.r)+fabs(delta.r-delta.g)+fabs(delta.g-delta.b)+fabs(delta.b))/2;
+						tot+=tmp;
+						tot2+=tmp*tmp;
+
+						nElem++;
+						fovPtr+=3;
+					}
+					else fovPtr +=3;
+				}
+				fovPtr+=AddedPadSize;
+			}
+			_corrFunct[k] = 1-sqrt(tot2/_maxCount-tot*tot/(_maxCount*_maxCount))/64;
+		}
+		else
+		_corrFunct[k] = 0;
+
+	}
+	
+	_shift = _findShift(_corrFunct, _shiftLevels);
+	*value = (double) _corrFunct[_shift];
+	
+	return _shiftToDisparity(_shift);
+}
+
+int YARPDisparityTool::computeRGBChain (YARPImageOf<YarpPixelBGR> & inRImg,
+   									  YARPImageOf<YarpPixelBGR> & inLImg, double *value)
+{
+	int i,j,k,k1;
+	int i2,i1;//iR,iL
+
+	double tot;
+	int nElem;
+	YarpPixelRGBFloat first, second, delta;
+	
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+	fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(_imgS.Size_Theta*_imgS.LP_Planes,_imgS.padding) - _imgS.Size_Theta*_imgS.LP_Planes;
+
+	for (k=0; k<_shiftLevels; k++)
+	{
+
+		k1 = k * _imgS.Size_LP; //Positioning on the table
+
+		nElem = 0;
+		fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+		fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+		if (_count[k] == _maxCount)
+		{
+			
+			tot = 0;
+
+			for (j=0; j< _actRings; j++)
+			{
+				tIndex = j*_imgS.Size_Theta;
+				for (i=0; i<_imgS.Size_Theta; i++)
+				{
+					i2 = _shiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+
+					if (i2 > 0)
+					{
+						double maxC, minC;
+						
+						first.r = fovPtr[0];
+						first.g = fovPtr[1];
+						first.b = fovPtr[2];
+					
+						second.r = fullPtr[i2];
+						second.g = fullPtr[i2+1];
+						second.b = fullPtr[i2+2];
+						
+						delta.r = first.r-second.r;
+						delta.g = first.g-second.g;
+						delta.b = first.b-second.b;
+
+						maxC=delta.r;
+						if (maxC<delta.g)
+							maxC=delta.g;
+						else if (maxC<delta.b)
+							maxC=delta.b;
+
+						minC=delta.r;
+						if (minC>delta.g)
+							minC=delta.g;
+						else if (maxC>delta.b)
+							minC=delta.b;
+						
+						if (fabs(maxC-minC)/2>fabs(maxC))
+							tot += fabs(maxC-minC)/2;
+						else
+							tot += fabs(maxC);
+
+						nElem++;
+						fovPtr+=3;
+					}
+					else fovPtr +=3;
+				}
+				fovPtr+=AddedPadSize;
+			}
+			_corrFunct[k] = 1-tot/(64*_maxCount);
+		}
+		else
+		_corrFunct[k] = 0;
+
+	}
+	
 	_shift = _findShift(_corrFunct, _shiftLevels);
 	*value = (double) _corrFunct[_shift];
 	

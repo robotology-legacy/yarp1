@@ -26,7 +26,8 @@ enum __SinkCh
 	SinkChTracker = 1,
 	SinkChVergence = 2,
 	SinkChSaccades= 3,
-	SinkChN = 4,
+	SinkChSmoothPursuit= 4,
+	SinkChN = 5,
 };
 
 const char __portPositionNameSuffix[] = "position/i";
@@ -35,6 +36,7 @@ const char __portNameSuffixes[SinkChN][255] = {
 										"track/i",
 										"vergence/i",
 										"saccades/i",
+										"smoothpursuit/i"
 										};
 
 class Sink: public YARPRateThread
@@ -66,7 +68,7 @@ private:
 	inline void _restoreInhibition()
 	{ _manualInhibition = _storedInhibition; }
 
-	inline void _polPort(YARPInputPortOf<YARPBottle> &port, YVector &v, int &inhibition)
+	inline bool _polPort(YARPInputPortOf<YARPBottle> &port, YVector &v, int &inhibition)
 	{
 		if (port.Read(0))
 		{
@@ -74,10 +76,12 @@ private:
 			YARPBottle &tmp = port.Content();
 			tmp.readYVector(v);
 			tmp.readInt(&inhibition);
+			return true;
 		}
+		return false;
 	}
 
-	inline void _polPort(YARPInputPortOf<YVector> &port, YVector &v)
+	inline bool _polPort(YARPInputPortOf<YVector> &port, YVector &v)
 	{
 		if (port.Read(0))
 		{

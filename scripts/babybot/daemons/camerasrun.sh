@@ -11,18 +11,18 @@
 
 Left()
 {
-	pterm su -c "framegrab -b 0 +left -l -f" &
+	pterm su -c "framegrab -b 0 -name left -l -f" &
 }
 
 Right()
 {
-	pterm su -c "framegrab -b 1 +right -l -f" &
+	pterm su -c "framegrab -b 1 -name right -l -f" &
 }
 
 All()
 {
-	pterm su -c "framegrab -b 0 +left -l -f -o 4" &
-	pterm su -c "framegrab -b 1 +right -l -f -o -4" &
+	pterm su -c "framegrab -b 0 -name left -l -f -o 4" &
+	pterm su -c "framegrab -b 1 -name right -l -f -o -4" &
 }
 
 if [ "$1" ==  "" ]
