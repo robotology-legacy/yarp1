@@ -47,11 +47,9 @@ CLEAN :
 	-@erase "$(INTDIR)\YARPFft.obj"
 	-@erase "$(INTDIR)\YARPLogFile.obj"
 	-@erase "$(INTDIR)\YARPLowPassFilter.obj"
-	-@erase "$(INTDIR)\YARPLU.obj"
 	-@erase "$(INTDIR)\YARPParseParameters.obj"
 	-@erase "$(INTDIR)\YARPPidFilter.obj"
 	-@erase "$(INTDIR)\YARPRecursiveLS.obj"
-	-@erase "$(INTDIR)\YARPSVD.obj"
 	-@erase "$(INTDIR)\YARPTwoDKalmanFilter.obj"
 	-@erase ".\lib\winnt\utils.lib"
 
@@ -74,11 +72,9 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPFft.obj" \
 	"$(INTDIR)\YARPLogFile.obj" \
 	"$(INTDIR)\YARPLowPassFilter.obj" \
-	"$(INTDIR)\YARPLU.obj" \
 	"$(INTDIR)\YARPParseParameters.obj" \
 	"$(INTDIR)\YARPPidFilter.obj" \
 	"$(INTDIR)\YARPRecursiveLS.obj" \
-	"$(INTDIR)\YARPSVD.obj" \
 	"$(INTDIR)\YARPTwoDKalmanFilter.obj" \
 	"$(INTDIR)\mbp.obj" \
 	"$(INTDIR)\Mm.obj" \
@@ -120,11 +116,9 @@ CLEAN :
 	-@erase "$(INTDIR)\YARPFft.obj"
 	-@erase "$(INTDIR)\YARPLogFile.obj"
 	-@erase "$(INTDIR)\YARPLowPassFilter.obj"
-	-@erase "$(INTDIR)\YARPLU.obj"
 	-@erase "$(INTDIR)\YARPParseParameters.obj"
 	-@erase "$(INTDIR)\YARPPidFilter.obj"
 	-@erase "$(INTDIR)\YARPRecursiveLS.obj"
-	-@erase "$(INTDIR)\YARPSVD.obj"
 	-@erase "$(INTDIR)\YARPTwoDKalmanFilter.obj"
 	-@erase ".\lib\winnt\utilsdb.lib"
 
@@ -147,11 +141,9 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPFft.obj" \
 	"$(INTDIR)\YARPLogFile.obj" \
 	"$(INTDIR)\YARPLowPassFilter.obj" \
-	"$(INTDIR)\YARPLU.obj" \
 	"$(INTDIR)\YARPParseParameters.obj" \
 	"$(INTDIR)\YARPPidFilter.obj" \
 	"$(INTDIR)\YARPRecursiveLS.obj" \
-	"$(INTDIR)\YARPSVD.obj" \
 	"$(INTDIR)\YARPTwoDKalmanFilter.obj" \
 	"$(INTDIR)\mbp.obj" \
 	"$(INTDIR)\Mm.obj" \
@@ -251,12 +243,6 @@ SOURCE=.\src\YARPLowPassFilter.cpp
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE=.\src\YARPLU.cpp
-
-"$(INTDIR)\YARPLU.obj" : $(SOURCE) "$(INTDIR)"
-	$(CPP) $(CPP_PROJ) $(SOURCE)
-
-
 SOURCE=.\src\YARPParseParameters.cpp
 
 "$(INTDIR)\YARPParseParameters.obj" : $(SOURCE) "$(INTDIR)"
@@ -272,12 +258,6 @@ SOURCE=.\src\YARPPidFilter.cpp
 SOURCE=.\src\YARPRecursiveLS.cpp
 
 "$(INTDIR)\YARPRecursiveLS.obj" : $(SOURCE) "$(INTDIR)"
-	$(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-SOURCE=.\src\YARPSVD.cpp
-
-"$(INTDIR)\YARPSVD.obj" : $(SOURCE) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 

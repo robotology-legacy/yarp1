@@ -101,11 +101,19 @@ PostBuild_Cmds=copy *.h ..\..\..\include	copy *.inl ..\..\..\include
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\YARPLU.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPMatrix.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\YARPRobotMath.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPSVD.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

@@ -38,8 +38,10 @@ ALL : "..\..\..\lib\winnt\math.lib"
 
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
+	-@erase "$(INTDIR)\YARPLU.obj"
 	-@erase "$(INTDIR)\YARPMatrix.obj"
 	-@erase "$(INTDIR)\YARPRobotMath.obj"
+	-@erase "$(INTDIR)\YARPSVD.obj"
 	-@erase "..\..\..\lib\winnt\math.lib"
 
 "$(OUTDIR)" :
@@ -56,7 +58,9 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"..\..\..\lib\winnt\math.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPMatrix.obj" \
-	"$(INTDIR)\YARPRobotMath.obj"
+	"$(INTDIR)\YARPRobotMath.obj" \
+	"$(INTDIR)\YARPSVD.obj" \
+	"$(INTDIR)\YARPLU.obj"
 
 "..\..\..\lib\winnt\math.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -85,8 +89,10 @@ ALL : "..\..\..\lib\winnt\mathDB.lib"
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
+	-@erase "$(INTDIR)\YARPLU.obj"
 	-@erase "$(INTDIR)\YARPMatrix.obj"
 	-@erase "$(INTDIR)\YARPRobotMath.obj"
+	-@erase "$(INTDIR)\YARPSVD.obj"
 	-@erase "..\..\..\lib\winnt\mathDB.lib"
 
 "$(OUTDIR)" :
@@ -103,7 +109,9 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"..\..\..\lib\winnt\mathDB.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPMatrix.obj" \
-	"$(INTDIR)\YARPRobotMath.obj"
+	"$(INTDIR)\YARPRobotMath.obj" \
+	"$(INTDIR)\YARPSVD.obj" \
+	"$(INTDIR)\YARPLU.obj"
 
 "..\..\..\lib\winnt\mathDB.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -164,6 +172,11 @@ $(DS_POSTBUILD_DEP) : "..\..\..\lib\winnt\mathDB.lib"
 
 
 !IF "$(CFG)" == "math - Win32 Release" || "$(CFG)" == "math - Win32 Debug"
+SOURCE=.\YARPLU.cpp
+
+"$(INTDIR)\YARPLU.obj" : $(SOURCE) "$(INTDIR)"
+
+
 SOURCE=.\YARPMatrix.cpp
 
 "$(INTDIR)\YARPMatrix.obj" : $(SOURCE) "$(INTDIR)"
@@ -172,6 +185,11 @@ SOURCE=.\YARPMatrix.cpp
 SOURCE=.\YARPRobotMath.cpp
 
 "$(INTDIR)\YARPRobotMath.obj" : $(SOURCE) "$(INTDIR)"
+
+
+SOURCE=.\YARPSVD.cpp
+
+"$(INTDIR)\YARPSVD.obj" : $(SOURCE) "$(INTDIR)"
 
 
 

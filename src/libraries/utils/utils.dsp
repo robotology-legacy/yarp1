@@ -124,10 +124,6 @@ SOURCE=.\src\YARPLowPassFilter.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\YARPLU.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\YARPParseParameters.cpp
 # End Source File
 # Begin Source File
@@ -137,10 +133,6 @@ SOURCE=.\src\YARPPidFilter.cpp
 # Begin Source File
 
 SOURCE=.\src\YARPRecursiveLS.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\YARPSVD.cpp
 # End Source File
 # Begin Source File
 

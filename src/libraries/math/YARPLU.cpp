@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLU.cpp,v 1.2 2003-11-13 14:17:31 beltran Exp $
+/// $Id: YARPLU.cpp,v 1.4 2003-11-13 14:31:16 babybot Exp $
 ///
 ///
 
@@ -76,7 +76,7 @@
 //
 ///////////////////////////////////////////////////////////////////////////
 
-#include <YARPMatrix.h>
+#include "YARPMatrix.h"
 
 #ifdef WIN32
 
