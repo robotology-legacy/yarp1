@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.1 2004-07-29 13:09:13 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.2 2004-07-30 09:56:28 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -73,6 +73,7 @@
 
 #include <yarp/YARPBottle.h>
 #include <yarp/YARPBottleContent.h>
+#include <yarp/YARPBabyBottle.h>
 
 #define YARP_BEHAVIOR_VERBOSE
 
@@ -112,16 +113,16 @@ class YARPBehaviorSharedData
 			  send();
 		  }
 
-	YARPBottle _data;
+	YARPBabyBottle _data;
 protected:
-	YARPOutputPortOf<YARPBottle> _outPort;
+	YARPOutputPortOf<YARPBabyBottle> _outPort;
 };
 
 template<class MY_SHARED_DATA>
 class YARPBaseBehaviorInput
 {
 public:
-	virtual bool input(YARPBottle *, MY_SHARED_DATA *) = 0; 
+	virtual bool input(YARPBabyBottle *, MY_SHARED_DATA *) = 0; 
 };
 
 template <class MY_SHARED_DATA>
@@ -229,7 +230,7 @@ public:
 
 private:
 	// parse message
-	int _parse(YARPBottle &bottle);
+	int _parse(YARPBabyBottle &bottle);
 	// handle exit message
 	void _quit()
 	{
@@ -254,8 +255,8 @@ private:
 	ACE_Auto_Event	_stopEvent;
 	
 	YBVocab			_tmpVocab;				// temp variable to avoid using a local var within _parse method
-	YARPBottle		_bottle;				// ths is the bottle used for the communication
-	YARPInputPortOf<YARPBottle> _inport;	// input port
+	YARPBabyBottle		_bottle;				// ths is the bottle used for the communication
+	YARPInputPortOf<YARPBabyBottle> _inport;	// input port
 	YARPSemaphore	_mutex;
 	inline void _lock(){ _mutex.Wait(); }
 	inline void _unlock(){ _mutex.Post(); }
@@ -297,7 +298,7 @@ add(BaseBehaviorInput *in, BaseBehaviorOutput *out)
 
 template <class MY_BEHAVIOR, class MY_SHARED_DATA>
 int YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
-_parse(YARPBottle &bottle)
+_parse(YARPBabyBottle &bottle)
 {
 	if (bottle.getID() != _key)
 	{
@@ -369,7 +370,7 @@ handleMsg()
 
 	_lock();
 
-	YARPBottle tmp;
+	YARPBabyBottle tmp;
 	tmp = _inport.Content();
 
 	//ACE_OS::printf("Received:\n");

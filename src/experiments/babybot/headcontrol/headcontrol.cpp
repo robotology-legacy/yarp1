@@ -1,6 +1,6 @@
 // headcontrol.cpp : Defines the entry point for the console application.
 //
-#include <YARPScheduler.h>
+#include <yarp/YARPScheduler.h>
 #include "HeadBehavior.h"
 
 #include <iostream>

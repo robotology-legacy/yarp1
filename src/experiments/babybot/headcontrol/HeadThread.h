@@ -5,9 +5,10 @@
 
 #ifndef __headthreadh__
 #define __headthreadh__
-#include <conf/YARPConfig.h>
-#include <YARPRobotMath.h>	// useful stuff, like degToRad, pi and radToDeg include also VisDMatrix.h
-#include <YARPRateThread.h>
+
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPRobotMath.h>	// useful stuff, like degToRad, pi and radToDeg include also VisDMatrix.h
+#include <yarp/YARPRateThread.h>
 
 #if defined(__QNXEurobot__)
 
@@ -18,9 +19,9 @@
 	#include <YARPBabybotHead.h>
 
 #endif
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
-#include <YARPString.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPVectorPortContent.h>
+#include <yarp/YARPString.h>
 
 #define HEAD_THREAD_VERBOSE
 

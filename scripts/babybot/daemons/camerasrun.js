@@ -1,6 +1,6 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
-WshShell.Run ("on -d -n hades \"framegrab.exe -b 0 -name left -l -net Net1 -o 4\"", 7, true);
-WshShell.Run ("on -d -n hades \"framegrab.exe -b 1 -name right -l -net Net1 -o -4\"", 7, true);
+WshShell.Run ("on -d -n hades \"grabber-logpolar.exe --b 0 --name /left --l --net Net1 --o 4\"", 7, true);
+WshShell.Run ("on -d -n hades \"grabber-logpolar.exe --b 1 --name /right --l --net Net1 --o -4\"", 7, true);
 
 WshShell.Run ("on -d -n euterpe \"camview.exe -name view001/i:img -l -x 1 -y 1 -net Net1 -p 100\"", 7, true);
 WshShell.Run ("on -d -n euterpe \"camview.exe -name view002/i:img -l -x 250 -y 1 -net Net1 -p 100\"", 7, true);

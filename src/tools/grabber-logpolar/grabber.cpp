@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: grabber.cpp,v 1.2 2004-07-29 12:26:16 babybot Exp $
+/// $Id: grabber.cpp,v 1.3 2004-07-30 09:56:28 babybot Exp $
 ///
 ///
 
@@ -160,6 +160,7 @@ int ParseParams (int argc, char *argv[])
 	}
 			
 	YARPParseParameters::parse(argc, argv, "-o", &_yoffset);
+	ACE_OS::fprintf(stdout, "Read offset parameter %d\n", _yoffset);
 
 	if (_sizex == -1 && _sizey != -1)
 		_sizex = _sizey;

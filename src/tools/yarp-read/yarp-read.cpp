@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-read.cpp,v 1.5 2004-07-09 16:42:59 eshuy Exp $
+/// $Id: yarp-read.cpp,v 1.6 2004-07-30 09:56:29 babybot Exp $
 ///
 ///
 
@@ -60,6 +60,8 @@
 #include <ace/config.h>
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBottleContent.h>
+
+#include <yarp/debug.h>
 
 #include <iostream>
 using namespace std;
@@ -69,6 +71,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
   //__debug_level = 100;
+	set_yarp_debug(100,100);
 
   argc--;
   argv++;

@@ -1,9 +1,9 @@
 #ifndef __HEAD_BEHAVIOR__
 #define __HEAD_BEHAVIOR__
 
-#include <YARPBehavior.h>
-#include <YARPBottle.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPBottle.h>
+#include <yarp/YARPVocab.h>
 #include "HeadThread.h"
 
 class HeadBehavior: public YARPBehavior<HeadBehavior, HeadThread>
