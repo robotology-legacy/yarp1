@@ -1,7 +1,7 @@
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.9 2003-05-13 17:49:42 natta Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.10 2003-05-13 20:13:24 natta Exp $
 
 #include <ace/log_msg.h>
 #include <YarpMeiDeviceDriver.h>
@@ -29,12 +29,13 @@ namespace _BabybotArm
 	
 	const LowLevelPID _lowPIDs[_nj] = 
 	{
-		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),		//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
+		// LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),		//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
+		LowLevelPID(-310.0, -1500.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -30.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
 		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
 		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
-		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
-		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
-		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
+		LowLevelPID(-320.0, -600.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
+		LowLevelPID(-300.0, -900.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -100.0),	
+		LowLevelPID(-300.0, -600.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
 	};
 
 	const double _zeros[_nj] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -43,7 +44,7 @@ namespace _BabybotArm
 	const double _encWheels[_nj] = {1000.0, 1000.0, 1000.0, 800.0, 800.0, 800.0};
 	const double _encoders[_nj] = {-46.72, 69.9733, -42.9867, 43.5111, 39.3846, 31.7692};
 	const double _fwdCouple[_nj] = {0.0, 0.0, 0.0, -9.8462*_encWheels[3], 1.0*_encWheels[4], -5.5999886532*_encWheels[5]};
-	// const double _invCouple[_nj] = {0.0, 0.0, 0.0, 1/_fwdCouple[3], 1/_fwdCouple[4], 1/_fwdCouple[5]};
+	const int _stiffPID[_nj] = {1, 0, 0, 1, 1, 1};
 }; // namespace
 
 class YARPBabybotArmParameters
@@ -60,6 +61,7 @@ public:
 			_signs[i] = _BabybotArm::_signs[i];
 			_encoderToAngles[i] = _BabybotArm::_encoders[i]*_BabybotArm::_encWheels[i];
 			_fwdCouple[i] = _BabybotArm::_fwdCouple[i];
+			_stiffPID[i] = _BabybotArm::_stiffPID[i];
 		}
 
 		// compute inv couple
@@ -85,6 +87,7 @@ public:
 	double _encoderToAngles[_BabybotArm::_nj];
 	double _fwdCouple[_BabybotArm::_nj];
 	double _invCouple[_BabybotArm::_nj];
+	int _stiffPID[_BabybotArm::_nj];
 	int _nj;
 };
 

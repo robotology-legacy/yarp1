@@ -98,6 +98,10 @@ PostBuild_Cmds=copy .\common\*.h ..\..\..\include	copy .\babybot\*.h ..\..\..\in
 
 SOURCE=.\babybot\YARPBabybotArm.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\common\YARPTrajectoryGen.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -121,6 +125,10 @@ SOURCE=.\babybot\YARPMEIOnBabybotArmAdapter.h
 # Begin Source File
 
 SOURCE=.\babybot\YARPMEIOnBabybotHeadAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\common\YARPTrajectoryGen.h
 # End Source File
 # End Group
 # End Target

@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPBabybotArm.h,v 1.5 2003-05-04 18:10:43 natta Exp $
+// $Id: YARPBabybotArm.h,v 1.6 2003-05-13 20:13:24 natta Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -41,6 +41,7 @@ public:
 	}
 	// overrides basic methods -> add coupling
 	int setPositions(double *pos);
+	int setPositionsAll(double *pos);
 	int setVelocities(double *vel);
 	int setAccs(double *acc);
 	int velocityMove(double *vel);
