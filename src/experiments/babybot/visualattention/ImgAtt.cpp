@@ -73,7 +73,7 @@
 
 
 YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
-	rain(x, y, x+x%8, 15)
+	rain(x, y, x+x%8, 13)
 {
 	int i;
 
@@ -1322,20 +1322,19 @@ void YARPImgAtt::findBlobs()
 	// - faster
 	// - it considers also "lateral" pixels
 	// - it doesn't add pixels iteratively
-	rain.findNeighborhood(tagged, 0, 0, blobList, max_tag);
-	rain.fuseFoveaBlob2(tagged, blobList, max_tag);
+	//rain.findNeighborhood(tagged, 0, 0, blobList, max_tag);
+	//rain.fuseFoveaBlob2(tagged, blobList, max_tag);
 
 	// alternative method
 	//rain.fuseFoveaBlob(tagged, blobList, max_tag);
 	
-	blobList[1]=false;
-	rain.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
+	/*blobList[1]=false;
+	rain.drawBlobList(blobFov, tagged, blobList, max_tag, 127);*/
 	/*ACE_OS::sprintf(savename, "./blob_fov2.ppm");
 	YARPImageFile::Write(savename, blobFov);*/
-	rain.statBlobList(tagged, blobList, max_tag, fovBox);
+	/*rain.statBlobList(tagged, blobList, max_tag, fovBox);
+	rain.removeBlobList(blobList, max_tag);*/
 	
-
-	rain.removeBlobList(blobList, max_tag);
 	//rain.removeFoveaBlob(tagged);
 	//rain.RemoveNonValid(max_tag, 3800, 100);
 	rain.ComputeSalienceAll(max_tag, max_tag);

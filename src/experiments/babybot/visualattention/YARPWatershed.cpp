@@ -1935,7 +1935,7 @@ void YARPWatershed::fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, bool *blobL
 			if (r==height) break;
 			seed=tagged(c, r);
 			//if (abs(m_boxes[seed].meanRG-rg0)+abs(m_boxes[seed].meanGR-gr0)+abs(m_boxes[seed].meanBY-by0)<13 )
-			if ((m_boxes[seed].meanRG-rg0)*(m_boxes[seed].meanRG-rg0)+(m_boxes[seed].meanGR-gr0)*(m_boxes[seed].meanGR-gr0)+(m_boxes[seed].meanBY-by0)*(m_boxes[seed].meanBY-by0)<150 )
+			if ((m_boxes[seed].meanRG-rg0)*(m_boxes[seed].meanRG-rg0)+(m_boxes[seed].meanGR-gr0)*(m_boxes[seed].meanGR-gr0)+(m_boxes[seed].meanBY-by0)*(m_boxes[seed].meanBY-by0)<50 )
 				blobList[seed]=true;
 			else
 				break;
@@ -1954,7 +1954,7 @@ void YARPWatershed::fuseFoveaBlob2(YARPImageOf<YarpPixelInt>& tagged, bool *blob
 	
 	for (int i=0; i<max_tag; i++) {
 		if (blobList[i])
-			if ((m_boxes[i].meanRG-rg0)*(m_boxes[i].meanRG-rg0)+(m_boxes[i].meanGR-gr0)*(m_boxes[i].meanGR-gr0)+(m_boxes[i].meanBY-by0)*(m_boxes[i].meanBY-by0)>=110 )
+			if ((m_boxes[i].meanRG-rg0)*(m_boxes[i].meanRG-rg0)+(m_boxes[i].meanGR-gr0)*(m_boxes[i].meanGR-gr0)+(m_boxes[i].meanBY-by0)*(m_boxes[i].meanBY-by0)>=50 )
 				blobList[i]=false;
 	}
 }

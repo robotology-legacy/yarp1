@@ -238,7 +238,7 @@ void mainthread::Body (void)
 	while (!IsTerminated())
 	{
 		
-		YARPTime::DelayInSeconds(0.020);
+		YARPTime::DelayInSeconds(0.010);
 		////////// HANDLE MESSAGES
 		////// wait untill start message is received
 		if (inBottle.Read(0))
