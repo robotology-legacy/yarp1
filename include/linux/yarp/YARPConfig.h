@@ -1,6 +1,6 @@
 
 //
-// $Id: YARPConfig.h,v 1.1 2004-07-09 14:21:52 eshuy Exp $
+// $Id: YARPConfig.h,v 1.2 2004-09-24 19:24:36 eshuy Exp $
 // YARP config file (template).
 //
 //
@@ -26,7 +26,11 @@
 #ifdef YARP_OS_CONFIG
 #define YARP_OS_CONFIG_FILE YARP_FORCE_EVAL_CONCAT(YARP_OS_CONFIG)
 #else
+#ifdef __linux__
+#define YARP_OS_CONFIG_FILE YARP_OS_CONFIG_FILE_LINUX
+#else
 #define YARP_OS_CONFIG_FILE YARP_OS_CONFIG_FILE_WIN32
+#endif
 #endif
 
 #include YARP_OS_CONFIG_FILE
