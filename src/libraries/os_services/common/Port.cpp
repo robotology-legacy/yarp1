@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Port.cpp,v 1.5 2003-04-18 15:51:46 gmetta Exp $
+/// $Id: Port.cpp,v 1.6 2003-04-19 21:04:49 gmetta Exp $
 ///
 ///
 
@@ -124,46 +124,45 @@ YARPUniqueNameID MakeServer(const char *name)
 }
 #endif
 
+///
+/// prepares the connect command. the header is NewFragmentHeader. a sender is
+/// a <vector>. The sender contains the YARPNameID of the destination. This is called
+/// by Connect eventually. <pid> is the id of the port itself (self_id). the header
+/// contains a NULL tag, the <buf> being the name of the destination (this triggers
+/// the creation of a new OutputTarget). sender.End calls Fire and then the actual
+///	send.
+///
 int Port::SendHelper(const YARPNameID& pid, const char *buf, int len, int tag)
 {
 	NewFragmentHeader *p_hdr;
-	sender.Begin(pid);
-	p_hdr = sender.AddHeader();
+	sender.Begin (pid);
+	p_hdr = sender.AddHeader ();
 	p_hdr->tag = tag;
 	p_hdr->length = len;
 	p_hdr->more = 0;
 	p_hdr->first = 1;
-	sender.Add((char*)buf,len);
-	return sender.End();
+	sender.Add ((char*)buf, len);
+	return sender.End ();
 }
 
-int Port::SayServer(const YARPNameID& pid, const char *buf)
+///
+/// just calls SendHelper to prepare the buffer.
+/// 
+int Port::SayServer (const YARPNameID& pid, const char *buf)
 {
 	int result = YARP_FAIL;
 	if (pid.isValid())
 	{
-		result = SendHelper(pid, buf, strlen(buf)+1);
+		result = SendHelper (pid, buf, strlen(buf)+1, MSG_ID_NULL);
 	}
 	return result;
 }
 
-#if 0
-////
-//// changed return type
-YARPUniqueNameID Port::GetServer(const char *name)
-{
-	return ::GetServer(name);
-}
-#endif
-
-#if 0
-YARPUniqueNameID Port::MakeServer(const char *name)
-{
-	return ::MakeServer(name);
-}
-#endif
-
-void OutputTarget::Body()
+///
+///
+/// this is the thread which manages a single output connection.
+///
+void OutputTarget::Body ()
 {
 	int success;
 	NewFragmentHeader header;
@@ -171,7 +170,7 @@ void OutputTarget::Body()
 	CountedPtr<Sendable> p_local_sendable;
 
 	///YARPUniqueNameID target_pid = GetServer(GetLabel().c_str());
-	YARPUniqueNameID target_pid = YARPNameService::LocateName(GetLabel().c_str());
+	YARPUniqueNameID target_pid = YARPNameService::LocateName (GetLabel().c_str());
 	YARPEndpointManager::CreateOutputEndpoint (target_pid);
 	YARPEndpointManager::ConnectEndpoints (target_pid);
 
@@ -217,7 +216,7 @@ void OutputTarget::Body()
 		
 		if (add_header)
 		{
-			sender.Add((char*)(&header), sizeof(header));
+			sender.Add ((char*)(&header), sizeof(header));
 		}
 
 		success = p_local_sendable.Ptr()->Write(sender);
@@ -250,7 +249,160 @@ void OutputTarget::Body()
 	}
 }
 
+///
+///
+///
+/// hopefully an improvement. a thread that handles the fact that we can't wake up
+/// Port::Body both on a socket and a mutex/semaphore.
+///
+/// this thread takes care of sending stuff to the list of output threads. 
+/// it is simply activated by the Share method instead of the MSG_ID_GO command.
+///
+///
+void _strange_select::Body ()
+{
+	OutputTarget *target, *next;
 
+	while (!_terminate)
+	{
+		_ready_to_go.Wait ();
+
+		ACE_DEBUG ((LM_DEBUG, "Go! --- from a new thread --- \n"));
+
+		/// access to targets must be protected, in case, the port
+		/// thread decides to delete a link ;)
+		/// this should only (on average) just cause a delay in receiving
+		///	a command, while operations in the port thread should take less.
+		///
+		_owner->list_mutex.Wait ();
+
+		int scanned = 0;
+		if (!scanned)
+		{
+			double now = YARPTime::GetTimeAsSeconds ();
+			target = _owner->targets.GetRoot ();
+			while (target != NULL)
+			{
+				next = target->GetMeshNext ();
+
+				target->WaitMutex ();
+				
+				int active = target->active;
+				int deactivated = target->deactivated;
+				int ticking = target->ticking;
+				double started = target->check_tick;
+				
+				target->PostMutex ();
+				
+				int timeout = 0;
+				
+				if (ticking && now - started > 5)
+				{
+					active = 0;
+					timeout = 1;
+				}
+
+				if (!active)
+				{
+					ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s (%s%s)\n",
+						_owner->name.c_str(), target->GetLabel().c_str(),
+						deactivated ? "as requested" : "target stopped responding",
+						timeout?"/timeout":""));
+					delete target;
+				}
+				
+				target = next;
+			}
+			scanned = 1;
+		}
+
+		// Send message to all listeners
+		if (!scanned)
+		{
+			target = _owner->targets.GetRoot ();
+			while (target != NULL)
+			{
+				next = target->GetMeshNext ();
+				
+				target->WaitMutex ();
+				int active = target->active;
+				int deactivated = target->deactivated;
+				target->PostMutex ();
+
+				if (!active)
+				{
+					ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s (%s)\n", 
+						_owner->name.c_str(), target->GetLabel().c_str(),
+						deactivated ? "as requested" : "target stopped responding"));
+					delete target;
+				}
+				target = next;
+			}
+		}
+
+		ACE_DEBUG ((LM_DEBUG, "Sending a message from %s\n", _owner->name.c_str()));
+		target = _owner->targets.GetRoot ();
+
+		_owner->out_mutex.Wait ();
+
+		while (target!=NULL)
+		{
+			ACE_DEBUG ((LM_DEBUG, "Sending a message from %s to target %s\n", _owner->name.c_str(), target->GetLabel().c_str()));
+			if (_owner->p_sendable.Ptr() != NULL)
+			{
+#ifdef UPDATED_PORT
+				if (_owner->require_complete_send)
+				{
+					target->space_available.Wait ();
+					target->space_available.Post ();
+				}
+
+				target->Share (_owner->p_sendable.Ptr());
+				target->add_header = _owner->add_header;
+#else
+				target->Share (_owner->p_sendable.Ptr());
+				target->add_header = _owner->add_header;
+#endif
+			}
+			else
+			{
+				ACE_DEBUG ((LM_DEBUG, "Delayed message skipped\n"));
+			}
+			
+			target = target->GetMeshNext ();
+		}
+
+		/// releases the list only here
+		/// 
+		_owner->p_sendable.Reset ();
+		
+		_owner->out_mutex.Post ();
+		_owner->pending = 0;
+		_owner->okay_to_send.Post ();
+
+		_owner->list_mutex.Post ();
+
+	}	/// exit on _terminate == true
+
+	_owner = NULL;
+	_terminate = 0;
+}
+
+
+///
+/// this is the main port thread, it instantiates an input socket for receiving
+///	both commands and data (in case it is input). it manages a list (mesh) of threads
+/// (OutputTarget) for dealing with multiple targets output connections.
+/// it synchro with other threads (the calling Read/Write - user level) by means of sema
+///	it uses sema too for synchro with output threads. further the input socket
+///	generates at least onother thread dealing with the acceptance of incoming connections
+/// and a list of connected threads internally dealing with the actual stream.
+/// data channels are represented by Sendables, object that derive from RefCounted.
+/// the idea being that a particular Sendable must not be destroyed before the
+/// communication layer has sent them. Data is never copied, only pointers (ref counted)
+///	travel from the user layer to the comm layer. The only one copy is done at
+/// the level of send/recv.
+///
 void Port::Body()
 {
 	int failed = 0;
@@ -276,6 +428,10 @@ void Port::Body()
 
 	YARPEndpointManager::CreateInputEndpoint (pid);
 	
+	/// ok, ready to create the sending thread (_strange_select).
+	/// all this to avoid sending a message through the port socket.
+	tsender.Begin ();
+
 /// QNX6?
 ///	m_pid.raw_id = MakeServer(name.c_str());
 ///	m_pid.mode = 2;
@@ -295,7 +451,7 @@ void Port::Body()
 ///      receiver.pid.raw_id = m_pid.raw_id;
 ///#endif
 
-		receiver.Get();
+		receiver.Get();		/// the original version.
 		out_mutex.Wait();
 		assume_data = !expect_header;
 		out_mutex.Post();
@@ -358,12 +514,12 @@ void Port::Body()
 		// What was this for?
 		//pid = 0;
 
-		if (tag!=MSG_ID_DATA)
+		if (tag != MSG_ID_DATA)
 		{
 			receiver.End();
 		}
 
-      
+		list_mutex.Wait ();
 		int scanned = 0;
 		if (!scanned)
 		{
@@ -398,15 +554,18 @@ void Port::Body()
 			}
 			scanned = 1;
 		}
-            
+        list_mutex.Post ();
+
 		if (pid.isValid())
 		{
 			switch(tag)
 			{
 			case MSG_ID_ATTACH:
 				{
-					target = targets.GetByLabel(buf);
-					if (target==NULL)
+					list_mutex.Wait ();
+
+					target = targets.GetByLabel (buf);
+					if (target == NULL)
 					{
 						dbg_fprintf(40)(stderr, "Starting connection between %s and %s\n", name.c_str(), buf);
 
@@ -421,18 +580,25 @@ void Port::Body()
 					{
 						dbg_printf(45)("Ignoring %s, already connected\n", buf);
 					}
+
+					list_mutex.Post ();
 				}
 				break;
 
 			case MSG_ID_DETACH:
 				{
 					dbg_printf(70)("Received detach request for %s\n", buf+1);
+
+					list_mutex.Wait ();
+
 					target = targets.GetByLabel(buf+1);
 					if (target!=NULL)
 					{
 						dbg_printf(70)("Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str());
 						target->Deactivate();
 					}
+
+					list_mutex.Post ();
 				}
 				break;
 
@@ -486,70 +652,16 @@ void Port::Body()
 
 			case MSG_ID_GO:
 				{
-					// Send message to all listeners
-					if (!scanned)
-					{
-						target = targets.GetRoot();
-						while (target!=NULL)
-						{
-							next = target->GetMeshNext();
-							target->WaitMutex();
-							int active = target->active;
-							int deactivated = target->deactivated;
-							target->PostMutex();
-							if (!active)
-							{
-								dbg_printf(40)("Removing connection between %s and %s (%s)\n", 
-									name.c_str(), target->GetLabel().c_str(),
-									deactivated ? "as requested" : "target stopped responding");
-								delete target;
-							}
-							target = next;
-						}
-					}
-
-					dbg_printf(95)("Sending a message from %s\n", name.c_str());
-					target = targets.GetRoot();
-					out_mutex.Wait();
-
-					while (target!=NULL)
-					{
-						dbg_printf(80)("Sending a message from %s to target %s\n",
-						name.c_str(), target->GetLabel().c_str());
-						if (p_sendable.Ptr() != NULL)
-						{
-	#ifdef UPDATED_PORT
-							if (require_complete_send)
-							{
-								target->space_available.Wait();
-								target->space_available.Post();
-							}
-
-							target->Share(p_sendable.Ptr());
-							target->add_header = add_header;
-	#else
-							target->Share(p_sendable.Ptr());
-							target->add_header = add_header;
-	#endif
-						}
-						else
-						{
-							dbg_printf(45)("Delayed message skipped\n");
-						}
-						
-						target = target->GetMeshNext();
-					}
-
-					p_sendable.Reset();
-					out_mutex.Post();
-					pending = 0;
-					okay_to_send.Post();
+					ACE_DEBUG ((LM_DEBUG, "this shouldn't get here, the new version don't accept MSG_ID_GO\n"));
 				}
 				break;
 
 			case MSG_ID_DETACH_ALL:
 				{
 					dbg_printf(70)("Received detach_all request (%s)\n", name.c_str());
+
+					list_mutex.Wait ();
+
 					target = targets.GetRoot();
 
 					while (target!=NULL)
@@ -559,6 +671,8 @@ void Port::Body()
 						target->Deactivate();
 						target = next;
 					}
+
+					list_mutex.Post ();
 				}
 				break;
 
@@ -583,22 +697,29 @@ void Port::Body()
 }
 
 
-
+///
+/// this is called from YARPPort::Write to actually send something.
+/// Currently it wakes the Port thread up through a socket connection that
+///	Paul believes to be responsible for poor performance on Linux/NT.
+///
 void Port::Share(Sendable *nsendable)
 {
 #ifdef UPDATED_PORT
-	//printf("*** debug 1\n");
 	okay_to_send.Wait();
-	//printf("*** debug 2\n");
 	out_mutex.Wait();
-	//printf("*** debug 3\n");
 	p_sendable.Set(nsendable);
-	//printf("*** debug 4\n");
 	out_mutex.Post();
-	//printf("*** debug 5\n");
-	char buf[2] = {MSG_ID_GO, 0};
-	//printf("*** debug 6\n");
+
+#if 0
+	char buf[2] = { MSG_ID_GO, 0 };
 	Say(buf);
+#endif
+
+	/// this simply pulses the mutex on the sender thread.
+	/// costed an additional thread but hopefully saves a costly message
+	/// through the port socket.
+	tsender.pulseGo ();
+
 	//printf("*** debug 7\n");
 #else
 	out_mutex.Wait();
@@ -634,6 +755,11 @@ void Port::TakeReceiverIncoming(Receivable *nreceiver)
 	out_mutex.Post();
 }
 
+///
+/// this together with Relinquish is part of the Read process.
+///
+///
+///
 Sendable *Port::Acquire(int wait)
 {
 	int go = 0;
@@ -712,10 +838,12 @@ void Port::Relinquish()
 
 Port::~Port()
 {
+	tsender.End ();
+
 	OutputTarget *target, *next;
 	target = targets.GetRoot();
 
-	while (target!=NULL)
+	while (target != NULL)
 	{
 		next = target->GetMeshNext();
 		target->End();
@@ -727,14 +855,14 @@ Port::~Port()
 }
 
 
-int Port::IsSending()
+int Port::IsSending ()
 {
 	//printf("sending?? pending=%d\n", pending);
 	int sending = pending;
 	OutputTarget *target; //, *next;
 	target = targets.GetRoot();
 
-	while (target!=NULL && !sending)
+	while (target != NULL && !sending)
 	{
 		target->WaitMutex();
 		//printf(">>> sending?? %s->sending=%d\n", target->GetLabel().c_str(), target->sending);
@@ -747,7 +875,7 @@ int Port::IsSending()
 }
 
 
-void Port::FinishSend()
+void Port::FinishSend ()
 {
 	int sending = 0;
 	OutputTarget *target; //, *next;

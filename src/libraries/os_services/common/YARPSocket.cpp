@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocket.cpp,v 1.3 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.4 2003-04-19 21:04:50 gmetta Exp $
 ///
 ///
 
@@ -485,6 +485,11 @@ void _SocketThread::Body (void)
 		if (len < 0)
 		{
 			ACE_DEBUG ((LM_DEBUG, "{{}} Corrupt/empty header received\n"));
+
+			ACE_DEBUG ((LM_DEBUG, "*** closing\n", r));
+			_stream->close ();
+			//socket.Close();
+			finished = 1;
 		}
 
 		if (len >= 0)
@@ -527,9 +532,10 @@ void _SocketThread::Body (void)
 
 				while (_read_more)
 				{
-					int r = _stream->recv_n (_extern_reply_buffer, _extern_reply_length, 0); 
+					/// this was r too, a bit confusing.
+					int rr = _stream->recv_n (_extern_reply_buffer, _extern_reply_length, 0); 
 					//socket.Read(extern_reply_buffer, extern_reply_length,1);
-					_extern_reply_length = r;
+					_extern_reply_length = rr;
 					_read_more = 0;
 					_reply_made.Post();
 					_wakeup.Wait();
@@ -605,6 +611,8 @@ void _SocketThread::Body (void)
 	}	///
 
 	_mutex.Wait ();
+	delete _stream;
+	_stream = NULL;
 	_available = 1;
 	_mutex.Post ();
 
@@ -696,7 +704,17 @@ int newsock;
 	ACE_INET_Addr incoming;
 	ACE_SOCK_Stream *newstream = new ACE_SOCK_Stream;
 
-	_acceptor.accept (*newstream, &incoming, 0);		/// wait forever.
+	int ra = -1;
+	do
+	{
+		ra = _acceptor.accept (*newstream, &incoming, 0);		/// wait forever.
+		if (ra == -1)
+		{
+			ACE_DEBUG ((LM_DEBUG, "-------->>>>> accept got garbage, trying again\n"));
+		}
+	}
+	while (ra == -1);
+
 	/// check accept return value.
 	ACE_DEBUG ((LM_DEBUG, ">>> accepting a new socket %d (from in %s)\n", newstream->get_handle(), incoming.get_host_name()));
 	ACE_DEBUG ((LM_DEBUG, "888888 post accept %d\n", errno));
@@ -759,7 +777,7 @@ if (count>=0)
 	}
 	else
 	{
-		(*it_avail)->End();		/// stops the thread first? Closes the stream too.
+		///(*it_avail)->End();		/// stops the thread first? Closes the stream too.
 		(*it_avail)->Begin();
 		//(*it_avail).wakeup.Post();
 	}
@@ -875,6 +893,7 @@ int _SocketThreadList::read(char *buf, int len, ACE_HANDLE *reply_pid)
 		list<_SocketThread *>::iterator it_avail;
 		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 		{
+			/// WARNING: isAvailable is read here without mut exclusion!
 			if (!((*it_avail)->isAvailable()))
 			{
 				int work = 0, in_len = 0;

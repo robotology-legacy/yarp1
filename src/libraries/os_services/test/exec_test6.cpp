@@ -1,5 +1,5 @@
 ///
-/// $Id: exec_test6.cpp,v 1.2 2003-04-18 09:25:49 gmetta Exp $
+/// $Id: exec_test6.cpp,v 1.3 2003-04-19 21:04:52 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -9,7 +9,9 @@
 #include <stdio.h>
 
 #include "YARPThread.h"
+#include "YARPRateThread.h"
 #include "YARPTime.h"
+#include "YARPScheduler.h"
 
 ///
 ///
@@ -37,9 +39,30 @@ public:
 	}
 };
 
+///
+class MyThreadRated : public YARPRateThread
+{
+public:
+	virtual void doInit () { _cnt = 0; }
+	virtual void doLoop () 
+	{
+		_cnt += 10;
+		printf ("RateThread at count %d\n", _cnt);
+	}
+	virtual void doRelease () {}
+
+	MyThreadRated () : YARPRateThread ("test thread", 1000) {}
+
+	int _cnt;
+};
+
+///
+///
+///
 int main(int argc, char *argv[])
 {
-///	data->PrepareChunk (100);
+	YARPScheduler::setHighResScheduling ();
+	///	data->PrepareChunk (100);
 
 	MyThread t1(1), t2(2), t3(3);
 	t1.Begin();
@@ -51,6 +74,11 @@ int main(int argc, char *argv[])
 	t3.End();
 	t2.End();
 	t1.End();
+
+	MyThreadRated t4;
+	t4.start ();
+	YARPTime::DelayInSeconds(5.5);
+	t4.terminate ();
 
 	return 0;
 }

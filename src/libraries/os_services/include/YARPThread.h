@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.3 2003-04-18 09:25:48 gmetta Exp $
+///	$Id: YARPThread.h,v 1.4 2003-04-19 21:04:51 gmetta Exp $
 ///
 ///
 /*
@@ -117,6 +117,7 @@ public:
 
 	static void PrepareForDeath();
 	static int IsDying();
+	friend static unsigned __stdcall ExecuteThread (void *args);
 };
 
 

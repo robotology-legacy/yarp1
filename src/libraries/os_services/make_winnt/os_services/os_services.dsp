@@ -152,6 +152,10 @@ SOURCE=..\..\include\YARPErrorCodes.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\YARPIterativeStats.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\YARPMultipartMessage.h
 # End Source File
 # Begin Source File
@@ -261,6 +265,10 @@ SOURCE=..\..\common\Sendable.cpp
 # Begin Source File
 
 SOURCE=..\..\common\YARPAll.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\common\YARPIterativeStats.cpp
 # End Source File
 # Begin Source File
 

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPThread.cpp,v 1.3 2003-04-18 09:25:49 gmetta Exp $
+/// $Id: YARPThread.cpp,v 1.4 2003-04-19 21:04:52 gmetta Exp $
 ///
 ///
 
@@ -91,11 +91,15 @@ static unsigned __stdcall ExecuteThread (void *args)
 	thread->Body();
 	
 	//_endthreadex( 0 );
+	thread->system_resource = NULL;
+	thread->identifier = -1;
 
 	return 0;
 }
 
-
+///
+/// WARNING: this requires a mutex for start/end and system_resources variable.
+///
 YARPThread::YARPThread ()
 {
 	system_resource = NULL;

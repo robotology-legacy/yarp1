@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Port.h,v 1.4 2003-04-18 15:51:46 gmetta Exp $
+/// $Id: Port.h,v 1.5 2003-04-19 21:04:51 gmetta Exp $
 ///
 ///
 
@@ -173,10 +173,44 @@ public:
 } PACKED_FOR_NET;
 #include "end_pack_for_net.h"
 
+///
+///
+///
+///
+///
+class Port;
+
+class _strange_select : public YARPThread
+{
+protected:
+	YARPSemaphore _ready_to_go;
+	Port *_owner;
+	bool _terminate;
+
+public:
+	_strange_select (Port *o) : YARPThread (), _ready_to_go(0) 
+	{
+		_owner = o;
+		_terminate = false;
+		ACE_ASSERT (o != NULL); 
+	}
+
+	_strange_select () : YARPThread (), _ready_to_go(0) { _owner = NULL; _terminate = false; }
+
+	virtual ~_strange_select () {}
+	virtual void Body ();
+	void terminate () { _terminate = true; }
+	void setOwner (Port *o) { _owner = o; }
+	void pulseGo (void) { _ready_to_go.Post (); }
+};
+
 
 class Port : public Thread
 {
 public:
+	friend class _strange_select;
+	_strange_select tsender;
+
 	int name_set;
 	int add_header;
 	int expect_header;
@@ -185,6 +219,9 @@ public:
 	Sema something_to_read;
 	Sema okay_to_send;
 	Sema wakeup;
+	Sema list_mutex;
+	Sema out_mutex;
+
 	string name;
 	HeaderedBlockSender<NewFragmentHeader> sender;
 	YARPUniqueNameID self_id;
@@ -200,18 +237,17 @@ public:
     {
 		int ct = 0;
 		MeshLink *ptr;
+		list_mutex.Wait();
 		ptr = targets.GetRoot();
 		while(ptr!=NULL)
 		{
 			ct++;
 			ptr = ptr->BaseGetMeshNext();
 		}
+		list_mutex.Post();
 		return ct;
     }
 #endif
-  
-	//Sema in_mutex;
-	Sema out_mutex;
 
 	CountedPtr<Sendable> p_sendable;
 
@@ -233,9 +269,10 @@ public:
 		something_to_read(0),
 		wakeup(0),
 		okay_to_send(1),
-	  //in_mutex(1),
 		out_mutex(1),
-		name(nname)
+		list_mutex(1),
+		name(nname),
+		tsender(this)
     { 
 		skip=1; has_input = 0; asleep=0; name_set=1; accessing = 0; receiving=0;  
 		add_header = 1;
@@ -246,20 +283,21 @@ public:
 		if (autostart) Begin(); 
 	}
 
-	virtual ~Port();
-
 	Port () : 
 		something_to_send(0), 
 		something_to_read(0),
 		wakeup(0),
 		okay_to_send(1),
-		//in_mutex(1),
-		out_mutex(1)
+		out_mutex(1),
+		list_mutex(1),
+		tsender(this)
 	{
 		skip=1; has_input = 0; asleep=0; name_set=1; accessing = 0; receiving=0;  
 		add_header = 1;
 		expect_header = 1;
 	}
+
+	virtual ~Port();
 
 	int SetName(const char *nname)
 	{
@@ -275,7 +313,7 @@ public:
 		return ret;
 	}
   
-	int SendHelper(const YARPNameID& pid, const char *buf, int len, int tag=MSG_ID_NULL);
+	int SendHelper(const YARPNameID& pid, const char *buf, int len, int tag = MSG_ID_NULL);
 	int SayServer(const YARPNameID& pid, const char *buf);
 
 ///	YARPUniqueNameID MakeServer(const char *name);
@@ -302,7 +340,11 @@ public:
 
 	virtual void OnRead() {}
 
-	//maddog  void Say(const char *buf)
+	///
+	/// this is called by YARPPort::Connect, and <buf> contains the
+	/// destination name, the self_is is the destination socket, being this
+	/// a command to the port.
+	///
 	int Say(const char *buf)
     {
 		int result = YARP_FAIL;
@@ -323,12 +365,13 @@ public:
 
 	void Fire()
     {
-		char buf[2] = {MSG_ID_GO, 0};
+		///char buf[2] = { MSG_ID_GO, 0 };
 		okay_to_send.Wait(); 
 		out_mutex.Wait();
 		pending = 1;
 		out_mutex.Post();
-		Say(buf);
+		///Say(buf);
+		tsender.pulseGo ();
     }
 
 	void Deactivate()

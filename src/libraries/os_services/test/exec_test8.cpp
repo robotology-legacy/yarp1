@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: exec_test8.cpp,v 1.3 2003-04-18 15:51:46 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.4 2003-04-19 21:04:52 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -89,7 +89,7 @@ public:
 		{
 			printf("Waiting for input\n");
 			in.Read();
-			printf("Read %d\n", in.Content());
+			printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$Read %d\n", in.Content());
 		}
 	}
 };
@@ -105,7 +105,7 @@ public:
 
 		YARPTime::DelayInSeconds(2);
 		printf("Step1\n");
-		out.Connect("/foo/the/rampaging/frog");
+///		out.Connect("/foo/the/rampaging/frog");
 		printf("Step1.5\n");
 		YARPTime::DelayInSeconds(2);
 		int ct = 1;
@@ -115,7 +115,7 @@ public:
 			out.Content() = ct;
 			printf("Step3\n");
 			ct++;
-			printf("Writing %d\n", out.Content());
+			printf("$$$$$$$$$$$$$$$$$$$$$$$$$Writing %d\n", out.Content());
 			out.Write();
 			YARPTime::DelayInSeconds(4);
 		}
