@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: grabber.cpp,v 1.4 2004-07-30 13:39:48 babybot Exp $
+/// $Id: grabber.cpp,v 1.5 2004-12-13 11:32:58 gmetta Exp $
 ///
 ///
 
@@ -56,9 +56,7 @@
 #include <yarp/YARPBottle.h>
 #include <yarp/YARPBottleContent.h>
 #include <yarp/YARPParseParameters.h>
-
 #include <yarp/YARPRobotHardware.h>
-#define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #include <iostream>
 
@@ -321,8 +319,7 @@ int mainthread::_runAsSimulation (void)
 	img.Resize (_sizex, _sizey);
 	img.Zero ();
 
-	DeclareOutport(outport);
-
+	YARPOutputPortOf<YARPGenericImage> outport(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
 	outport.Register (_name, _netname);
 
 	int frame_no = 0;
@@ -371,8 +368,7 @@ int mainthread::_runAsLogpolarSimulation (void)
 	img.Resize (_xsize, _ysize);
 	lp.Resize (_stheta, _srho);
 
-	DeclareOutport(out);
-
+	YARPOutputPortOf<YARPGenericImage> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
 	out.Register (_name, _netname);
 	int frame_no = 0;
 
@@ -435,7 +431,7 @@ int mainthread::_runAsLogpolar (void)
 	img.Resize (_xsize, _ysize);
 	lp.Resize (_stheta, _srho);
 
-	DeclareOutport(out);
+	YARPOutputPortOf<YARPGenericImage> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
 	out.Register (_name, _netname);
 
 	/// params to be passed from the command line.
@@ -512,8 +508,7 @@ int mainthread::_runAsCartesian (void)
 	YARPImageOf<YarpPixelBGR> img;
 	img.Resize (_sizex, _sizey);
 
-	DeclareOutport(outport);
-
+	YARPOutputPortOf<YARPGenericImage> outport(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
 	outport.Register (_name, _netname);
 
 	/// params to be passed from the command line.
