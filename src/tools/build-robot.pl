@@ -44,7 +44,7 @@ if ($os ne "winnt")
 	die "This script is not yet tuned for OSes apart \"winnt\"\n";
 }
 
-my @projects = qw/ grabber grabber-logpolar camview-winnt /;
+my @projects = qw/ grabber grabber-logpolar camview-winnt vectview-winnt /;
 
 select STDERR;
 
