@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.11 2003-05-31 06:31:38 gmetta Exp $
+$Id: README.txt,v 1.12 2003-06-07 00:24:54 gmetta Exp $
 
 
 =============
@@ -18,7 +18,11 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 =============
 Things under development:
 
-1- remove old grabber stuff.
+1- troubles when disconnecting/reconnecting mcast ports, grabber, etc.
+1.1- check proper termination of connections/threads - too many complaints.
+	- at least when the main thread is closing gracefully.
+	- it might need to call an extra termination function and wait...
+	- see also point 9.
 
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating
 	the sender. USE test12 to see this condition.
