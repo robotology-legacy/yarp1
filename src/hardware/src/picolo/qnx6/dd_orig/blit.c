@@ -32,6 +32,9 @@
 #include <devctl.h>
 #include <sys/dcmd_chr.h>
 
+#define m_W 256
+#define m_H 256
+
 
 // we'll be testing three different types of blits, defaulting to the first
 static long blittype=0;
@@ -128,8 +131,8 @@ inline void BlitBuffer(PtWidget_t *win,CoolImage *i)
 		PhDim_t size;
 		
 		//size.w = 768;
-		size.w = W;
-		size.h = H;
+		size.w = m_W;
+		size.h = m_H;
 		//size.h = 576;
 
 		PgSetRegion(PtWidgetRid(win)); 
@@ -153,14 +156,21 @@ inline void SaveImage(int cnt, CoolImage *i)
 	char file_name[100] = "image";
 	char temp[100];
 	int fd;
+	int size;
+	int localw = m_W;
+	int localh = m_H;
 	
 	strcat(file_name,itoa(cnt,temp,10));
 	strcat(file_name,".raw");
 	fd = open(file_name,O_WRONLY | O_CREAT | O_APPEND,
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP
         | S_IROTH | S_IWOTH );
-        
-	write(fd, i->buffer, W*H*3);
+     
+    size = localw * localh * 3;
+               
+               
+               
+	write(fd, i->buffer,size);
 	close(fd);
 }
 
@@ -176,7 +186,7 @@ inline void LoadImage(int cnt, CoolImage *i)
         S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP
         | S_IROTH | S_IWOTH );
         
-	read(fd, i->buffer, W*H*3);
+	read(fd, i->buffer, m_W*m_H*3);
 	printf("%s\n",file_name);
 	fflush(stdout);
 	close(fd);
@@ -189,7 +199,7 @@ main(int argc,char *argv[])
 	int i,j;
 	PtWidget_t *win;
 	PtArg_t args[3];
-	PhDim_t dim={W,H};
+	PhDim_t dim={m_W,m_H};
 	PhPoint_t pos={50,50};
 	int fd; //Bt878 driver file descriptor
 	int fd_temp;
@@ -229,12 +239,12 @@ main(int argc,char *argv[])
     tv.tv_sec = 5;
     tv.tv_usec = 0;
 
-	image = AllocBuffer(W,H,fd);	
+	image = AllocBuffer(m_W,m_H,fd);	
 	assert(image!=0);
 	
 	if (file != 2)
 	{
-	init_bttvx(0,0);
+	init_bttvx(0,0, m_W,m_H);
 	open_bttvx();
 	
 	BttvxSetImageBuffer(0, image->buffer);

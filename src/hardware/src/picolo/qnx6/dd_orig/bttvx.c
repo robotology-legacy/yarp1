@@ -58,6 +58,9 @@ int flag = 1;
 volatile uint8_t	 *regbase8;
 volatile uint32_t    *regbase;    /* device has 32-bit registers */
 
+int width=0;
+int height=0;
+
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t condvar = PTHREAD_COND_INITIALIZER;
@@ -578,17 +581,17 @@ void InterruptEvent()
 		{
 		case 1:
 			if (res == EOK)
-				memcpy(btv->image_buffer,btv->imagebuf_1, W*H*deep);
+				memcpy(btv->image_buffer,btv->imagebuf_1, width*height*deep);
 			flag = 2;
 			break;
 		case 2:
 			if (res == EOK)
-				memcpy(btv->image_buffer,btv->imagebuf_2, W*H*deep);
+				memcpy(btv->image_buffer,btv->imagebuf_2, width*height*deep);
 			flag = 3;
 			break;
 		case 3:
 			if (res == EOK)
-				memcpy(btv->image_buffer,btv->imagebuf_3, W*H*deep);
+				memcpy(btv->image_buffer,btv->imagebuf_3, width*height*deep);
 			flag = 1;
 			break;
 		};
@@ -952,8 +955,8 @@ init_bt848(struct bttv * btv, int video_format)
   switch(btv->win.norm)
   {
   case 0:case 2:
-	  btv->win.width=W; /* 640 */
-	  btv->win.height=H; /* 480 */
+	  btv->win.width=width; /* 640 */
+	  btv->win.height=height; /* 480 */
 	  //btv->win.width = 384;					/* DIM */
 	  //btv->win.height = 288;
 	  btv->win.cropwidth=768; /* 640 */
@@ -1016,29 +1019,29 @@ init_bt848(struct bttv * btv, int video_format)
   */
 
   btv->imagebuf_1 =   (unchar *) mmap(0,
-					VBIBUF_SIZE,
+					btv->win.width * btv->win.height * deep,
 					PROT_READ|PROT_WRITE|PROT_NOCACHE,
 					MAP_PHYS|MAP_ANON | MAP_BELOW16M ,
 					NOFD,
 					0);
-  memset(btv->imagebuf_1, 1,VBIBUF_SIZE);
+  memset(btv->imagebuf_1, 1,btv->win.width * btv->win.height * deep);
 
 
   btv->imagebuf_2 =   (unchar *) mmap(0,
-					VBIBUF_SIZE,
+					btv->win.width * btv->win.height * deep,
 					PROT_READ|PROT_WRITE|PROT_NOCACHE,
 					MAP_PHYS|MAP_ANON | MAP_BELOW16M ,
 					NOFD,
 					0);
-  memset(btv->imagebuf_2, 1,VBIBUF_SIZE);
+  memset(btv->imagebuf_2, 1,btv->win.width * btv->win.height * deep);
   
   btv->imagebuf_3 = (unchar *) mmap(0,
-					VBIBUF_SIZE,
+					btv->win.width * btv->win.height * deep,
 					PROT_READ|PROT_WRITE|PROT_NOCACHE,
 					MAP_PHYS|MAP_ANON | MAP_BELOW16M ,
 					NOFD,
 					0);
-  memset(btv->imagebuf_3, 1,VBIBUF_SIZE);
+  memset(btv->imagebuf_3, 1,btv->win.width * btv->win.height * deep);
 
   //bt848_muxsel(btv, 1);
   
@@ -1126,7 +1129,7 @@ init_bt848(struct bttv * btv, int video_format)
  *
  *************************************************************************/
 
-int init_bttvx(int argc1, int argc2) //Video format, device id
+int init_bttvx(int video_mode, int device_number, int w, int h) //Video format, device id, width and height
 {
 	int i; 
 	/* declare variables we'll be using */
@@ -1157,17 +1160,17 @@ int init_bttvx(int argc1, int argc2) //Video format, device id
 
 	//Get video format
 	//video_format = atoi(argv[1]);
-	video_format = argc1;
+	video_format = video_mode;
 
 	//Check driver index
-	if (argc2 != NULL)
+	if (device_number != NULL)
 	{
 		if (device_id < 0 || device_id > BTTV_MAX)
 		{
 			printf("bttvx: Sorry!, the device id overcomes the maximum number of devices allowed\n");
 			exit(0);
 		}
-		device_id = argc2;
+		device_id = device_number;
 	}
 	else	//If not specified check for other cards
 	{
@@ -1193,8 +1196,17 @@ int init_bttvx(int argc1, int argc2) //Video format, device id
 		pci_detach(0);
 	}
 
+	//Filling passed width and height
 
-
+	if (w != NULL)
+		width = w; //Passed width
+	else
+		width = W; //Fixed width	
+	if (h != NULL)
+		height = h; //Passed
+	else
+		height = H; //Fixed
+	
 	///strcpy(device_name,"/dev/bttvx");
 	///strcat(device_name,itoa(device_id,buffer,10)); //Complete the name
 

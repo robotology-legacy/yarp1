@@ -53,9 +53,9 @@
 #endif
 
 #define W 128
-//#define W 384
+//#define W 256
 #define H 128
-//#define H 288
+//#define H 256
 #define deep 3
 
 #define MAX_GBUFFERS	2
@@ -72,7 +72,7 @@ inline int BttvxAcquireBuffer(unsigned char *);
 inline int BttvxReleaseBuffer();
 int BttvxSetImageBuffer(int,unsigned char *);
 int BttvxWaitEvent();
-int init_bttvx(int, int);
+int init_bttvx(int, int, int, int);
 /* maximum needed buffer size for extended VBI frame mode capturing */
 /*#define BTTV_MAX_FBUF	0x190000*/
 /* maximum buffer size 922x576 with 32bpp for grabbing display mode */

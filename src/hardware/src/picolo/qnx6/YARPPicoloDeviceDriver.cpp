@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.8 2003-07-01 09:00:53 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.9 2003-07-03 09:27:20 beltran Exp $
 ///
 ///
 
@@ -222,7 +222,7 @@ inline int PicoloResources::_init (const PicoloOpenParameters& params)
 	
 	//Attention: the size must me dinamic in the driver!!! TODO
 	
-	init_bttvx(params._video_type,params._unit_number);
+	init_bttvx(params._video_type,params._unit_number,_nWidth,_nHeight);
 	/// starts board up.
 	////PICOLOHANDLE ret = PicoloStart(params._unit_number);
 	////if (ret < 0)

@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.11 2003-07-02 10:55:50 beltran Exp $
+#$Id: Makefile,v 1.12 2003-07-03 09:27:20 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -6,7 +6,7 @@ include $(YARP_ROOT)/conf/Makefile.template
 
 OBJS =
 CC = g++
-CFLAGS = -g -I $(YARP_ROOT)/include -I ../../common -I ./dd_orig
+CFLAGS = -g -I ./dd_orig -I $(YARP_ROOT)/include -I ../../common 
 #LIBS = $(YARP_ROOT)/lib/$(OS)/bttvx.lib
 
 SUBDIRS =
