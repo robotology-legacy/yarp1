@@ -27,6 +27,7 @@ public:
 	int m_period;
 	int m_x;
 	int m_y;
+	bool m_lp;
 
 // Overrides
 	// ClassWizard generated virtual function overrides

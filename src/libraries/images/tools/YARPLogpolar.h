@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.4 2003-06-13 12:45:39 gmetta Exp $
+/// $Id: YARPLogpolar.h,v 1.5 2003-06-17 20:20:36 babybot Exp $
 ///
 ///
 
@@ -101,6 +101,8 @@ protected:
 	Cart2LPInterp * _cart2LP_Map;
 	int * _remapMap;
 	unsigned char * _outimage;
+	char * _colormap;
+	int _padb;
 
 public:
 	YARPLogpolarSampler (void);

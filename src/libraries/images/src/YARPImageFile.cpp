@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageFile.cpp,v 1.2 2003-06-05 10:51:11 gmetta Exp $
+/// $Id: YARPImageFile.cpp,v 1.3 2003-06-17 20:20:36 babybot Exp $
 ///
 ///
 
@@ -70,7 +70,7 @@
 ///#include <ctype.h>
 
 #include "YARPImageFile.h"
-
+#include "YARPSimpleOperations.h"
 
 // The PGM/PPM code is old code from a long forgotten source.
 
@@ -95,8 +95,15 @@ static int SavePGM(char *src, const char *filename, int h, int w)
 	}
 	else
 	{
+		const int inc = YARPSimpleOperation::ComputePadding (w, YarpImageAlign) + w;
+
 		ACE_OS::fprintf(fp, "P5\n%d %d\n%d\n", w, h, 255);
-		ACE_OS::fwrite((void *) src, 1, (size_t) (h*w), fp);
+		for (int i = 0; i < h; i++)
+		{
+			ACE_OS::fwrite((void *) src, 1, (size_t) w, fp);
+			src += inc;
+		}
+
 		ACE_OS::fclose(fp);
 	}
 
@@ -113,8 +120,16 @@ static int SavePPM(char *src, const char *filename, int h, int w)
 	}
 	else
 	{
+		const int inc = YARPSimpleOperation::ComputePadding (w*3, YarpImageAlign) + w * 3;
+
 		ACE_OS::fprintf(fp, "P6\n%d %d\n%d\n", w, h, 255);
-		ACE_OS::fwrite((void *) src, 1, (size_t) (h*w*3), fp);
+		for (int i = 0; i < h; i++)
+		{
+			ACE_OS::fwrite((void *) src, 1, (size_t) (w*3), fp);
+			src += inc;
+		}
+
+		///ACE_OS::fwrite((void *) src, 1, (size_t) (h*w*3), fp);
 		ACE_OS::fclose(fp);
 	}
 
@@ -183,7 +198,7 @@ static int ReadHeader(FILE *fp, int *height, int *width, int *color)
 	return 0;
 }
 
-
+/// LATER: this is NOT tested.
 static int ImageRead(YARPGenericImage& img, const char *filename)
 {
 	int width, height, color, num, size;
@@ -208,9 +223,19 @@ static int ImageRead(YARPGenericImage& img, const char *filename)
 		img.Resize(width,height);
 		ACE_ASSERT(img.GetPadding() == 0);
 		ACE_ASSERT(img.GetRawBuffer()!=NULL);
-		size = img.GetHeight()*img.GetWidth()*img.GetPixelSize();
 
-		num = ACE_OS::fread((void *) img.GetRawBuffer(), 1, (size_t) size, fp);
+		const int w = img.GetWidth() * img.GetPixelSize();
+		const int h = img.GetHeight();
+		const int pad = img.GetPadding() + w;
+		char *dst = img.GetRawBuffer ();
+		size = w * h;
+
+		num = 0;
+		for (int i = 0; i < h; i++)
+		{
+			num += ACE_OS::fread((void *) dst, 1, (size_t) w, fp);
+			dst += pad;
+		}
 	}
 	else
 	{
@@ -218,12 +243,22 @@ static int ImageRead(YARPGenericImage& img, const char *filename)
 		img.Resize(width,height);
 		ACE_ASSERT(img.GetPadding() == 0);
 		ACE_ASSERT(img.GetRawBuffer()!=NULL);
-		size = img.GetHeight()*img.GetWidth()*img.GetPixelSize();
+
+		const int w = img.GetWidth() * img.GetPixelSize();
+		const int h = img.GetHeight();
+		const int pad = img.GetPadding() + w;
+		size = w * h;
 
 		YARPImageOf<YarpPixelRGB> img2;
 		img2.Resize (width,height);
+		char *dst = img2.GetRawBuffer ();
 
-		num = ACE_OS::fread((void *) img2.GetRawBuffer(), 1, (size_t) size, fp);
+		num = 0;
+		for (int i = 0; i < h; i++)
+		{
+			num += ACE_OS::fread((void *) dst, 1, (size_t) w, fp);
+			dst += pad;
+		}
 
 		img.CastCopy(img2);
 	}
@@ -244,7 +279,7 @@ static int ImageRead(YARPGenericImage& img, const char *filename)
 
 static int ImageWrite(YARPGenericImage& img, const char *filename)
 {
-	ACE_ASSERT(img.GetPadding()==0);
+	///ACE_ASSERT(img.GetPadding()==0);
 	if (img.GetID()==YARP_PIXEL_MONO)
 	{
 		SavePGM((char*)img.GetRawBuffer(), filename, img.GetHeight(), img.GetWidth());

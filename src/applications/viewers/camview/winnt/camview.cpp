@@ -72,6 +72,8 @@ BOOL CCamviewApp::InitInstance()
 	else
 		m_y = -1;
 
+	m_lp = (cmdInfo.GetOption("l")) ? true : false;
+
 	/// not really needed.
 	AfxEnableControlContainer();
 

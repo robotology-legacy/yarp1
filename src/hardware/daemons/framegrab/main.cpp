@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.16 2003-06-16 16:48:24 babybot Exp $
+/// $Id: main.cpp,v 1.17 2003-06-17 20:20:35 babybot Exp $
 ///
 ///
 
@@ -253,7 +253,7 @@ int _runAsSimulation (void)
 	double cur = start;
 
 	while (!finished)
-	///for (int i = 0; i < 10; i++)
+	///for (int i = 0; i < 500; i++)
 	{
 		YARPTime::DelayInSeconds (0.04);
 	
@@ -343,12 +343,10 @@ int _runAsLogpolar (void)
 {
 	using namespace _logpolarParams;
 
-///	__debug_level = 100;
-
 	YARPBabybotGrabber grabber;
 	YARPImageOf<YarpPixelBGR> img;
 	YARPImageOf<YarpPixelBGR> fovea;
-	YARPImageOf<YarpPixelBGR> periphery;
+	YARPImageOf<YarpPixelMono> periphery;
 	
 	YARPLogpolarSampler sampler;
 
@@ -406,7 +404,7 @@ int _runAsLogpolar (void)
 		out_fovea.Content().Refer (fovea);
 		out_fovea.Write();
 
-		out_periphery.Content().Refer (fovea);
+		out_periphery.Content().Refer (periphery);
 		out_periphery.Write();
 
 		frame_no++;

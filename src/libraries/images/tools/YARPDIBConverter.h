@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDIBConverter.h,v 1.2 2003-06-06 22:50:22 gmetta Exp $
+/// $Id: YARPDIBConverter.h,v 1.3 2003-06-17 20:20:36 babybot Exp $
 ///
 ///
 
@@ -90,6 +90,11 @@
 
 #include "YARPImage.h"
 #include "sys/iplwind.h"
+
+
+////
+////
+/// LATER: troubles in converting from a generic DIB size.
 
 ///
 ///

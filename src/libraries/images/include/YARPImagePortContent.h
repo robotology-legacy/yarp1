@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImagePortContent.h,v 1.2 2003-06-05 10:51:10 gmetta Exp $
+/// $Id: YARPImagePortContent.h,v 1.3 2003-06-17 20:20:36 babybot Exp $
 ///
 ///
 
@@ -98,6 +98,10 @@ class YARPImagePortContent : public YARPGenericImage, public YARPPortContent
 {
 public:
 	YARPImagePortContentHeader header;
+	virtual ~YARPImagePortContent () 
+	{
+		ACE_DEBUG ((LM_DEBUG, "destroying a YARPImagePortContent\n"));
+	}
 
 	virtual int Read(YARPPortReader& reader)
 	{
@@ -129,7 +133,7 @@ public:
 		header.w = GetWidth();
 		header.depth = GetPixelSize();
 		header.id = GetID();
-		header.len = header.h*header.w*header.depth;      
+		header.len = header.h*(header.w*header.depth+GetPadding());      
 		header.timestamp = 0;
 		writer.Write((char*)(&header),sizeof(header));
 		char *mem = GetRawBuffer();

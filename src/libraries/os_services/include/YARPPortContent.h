@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPortContent.h,v 1.3 2003-04-22 09:06:35 gmetta Exp $
+/// $Id: YARPPortContent.h,v 1.4 2003-06-17 20:20:36 babybot Exp $
 ///
 ///
 /*
@@ -111,6 +111,8 @@ struct HierarchyRoot
 class YARPPortContent : public HierarchyRoot<YARPPortContent>
 {
 public:
+	virtual ~YARPPortContent () { ACE_DEBUG ((LM_DEBUG, "destroying a YARPPortContent\n")); }
+
 	virtual int Read(YARPPortReader& reader) = 0;
 	virtual int Write(YARPPortWriter& writer) = 0;
 
@@ -128,6 +130,7 @@ public:
 	T datum;
 
 	T& Content() { return datum; }
+	virtual ~YARPPortContentOf<T> () { ACE_DEBUG ((LM_DEBUG, "destroying a YARPPortContentOf\n")); }
 	virtual int Read(YARPPortReader& reader) { return reader.Read((char*)(&datum),sizeof(datum)); }
 	virtual int Write(YARPPortWriter& writer) { return writer.Write((char*)(&datum),sizeof(datum)); }
 	virtual int Recycle() { return 0; }

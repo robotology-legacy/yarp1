@@ -29,27 +29,64 @@ void CRecv::Body (void)
 	while (1)
 	{
 		m_inport.Read();
-
 		m_img.Refer (m_inport.Content());
-		if (m_flipped.GetWidth() != m_img.GetWidth() || m_flipped.GetHeight() != m_img.GetHeight())
+
+		/// cartesian.
+		if (!m_logp)
 		{
-			m_flipped.Resize (m_img.GetWidth(), m_img.GetHeight());
+			if (m_flipped.GetWidth() != m_img.GetWidth() || m_flipped.GetHeight() != m_img.GetHeight())
+			{
+				m_flipped.Resize (m_img.GetWidth(), m_img.GetHeight(), m_img.GetID());
+				///YARPImageFile::Write ("pippo.pgm", m_img);
+			}
+
+			YARPSimpleOperation::Flip (m_img, m_flipped);
+
+			m_mutex.Wait();
+			if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
+			{
+				m_converter.Resize (m_flipped);
+				m_x = m_flipped.GetWidth ();
+				m_y = m_flipped.GetHeight ();
+			}
+
+			if (!m_frozen)
+			{
+				/// prepare the DIB to display.
+				m_converter.ConvertToDIB (m_flipped);
+			}
 		}
-
-		YARPSimpleOperation::Flip (m_img, m_flipped);
-
-		m_mutex.Wait();
-		if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
+		/// or logpolar.
+		else
 		{
-			m_converter.Resize (m_flipped);
-			m_x = m_flipped.GetWidth ();
-			m_y = m_flipped.GetHeight ();
-		}
+			if (m_remapped.GetWidth() != 256 || m_remapped.GetHeight() != 256)
+			{
+				m_remapped.Resize (256, 256, YARP_PIXEL_BGR);
+			}
 
-		if (!m_frozen)
-		{
-			/// prepare the DIB to display.
-			m_converter.ConvertToDIB (m_flipped);
+			if (m_flipped.GetWidth() != m_remapped.GetWidth() || m_flipped.GetHeight() != m_remapped.GetHeight())
+			{
+				m_flipped.Resize (m_remapped.GetWidth(), m_remapped.GetHeight(), m_remapped.GetID());
+				///m_flipped.PeerCopy(m_img);
+			}
+
+			m_xxx.CastCopy (m_img);
+			m_mapper.Logpolar2Cartesian (m_xxx, m_remapped);
+			YARPSimpleOperation::Flip (m_remapped, m_flipped);
+
+			m_mutex.Wait();
+			if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
+			{
+				m_converter.Resize (m_flipped);
+				m_x = m_flipped.GetWidth ();
+				m_y = m_flipped.GetHeight ();
+			}
+
+			if (!m_frozen)
+			{
+				/// prepare the DIB to display.
+				m_converter.ConvertToDIB (m_flipped);
+			}
 		}
 
 		frame_no ++;
@@ -65,10 +102,10 @@ void CRecv::Body (void)
 			start = cur;
 		}
 
-		m_mutex.Post();
-
 		/// copy it somewhere and fire a WM_PAINT event.
-		m_owner->InvalidateRect (NULL, FALSE);
+		m_owner->InvalidateRect (m_rect, FALSE);
+
+		m_mutex.Post();
 
 		if (m_period != 0)
 		{
@@ -203,6 +240,8 @@ BOOL CCamviewDlg::OnInitDialog()
 	// TODO: Add extra initialization here
 	CCamviewApp *p = ((CCamviewApp *)AfxGetApp());
 	m_connection_name = p->m_portname;
+	if (p->m_lp) m_receiver.AssumeLogpolar();
+
 	UpdateData(FALSE);
 
 	m_receiver.SetOwner (this);
@@ -256,16 +295,31 @@ void CopyToScreen(HDRAWDIB hDD, HDC hDC, unsigned char *img, int destX, int dest
 	int sizeX = int(X * zoomX);
 	int sizeY = int(Y * zoomY);
 	
-	/// needs an extra case for mono images.
-	DrawDibDraw(
-	  hDD, hDC,
-	  destX, destY,
-	  sizeX, sizeY,
-	  (BITMAPINFOHEADER *)img,
-	  img + sizeof(BITMAPINFOHEADER),
-	  0, 0,                 
-	  X, Y,
-	  0);
+	/// LATER: it should be a bit more generic.
+	if (dibhdr->biBitCount == 8)
+	{
+		DrawDibDraw(
+		  hDD, hDC,
+		  destX, destY,
+		  sizeX, sizeY,
+		  (BITMAPINFOHEADER *)img,
+		  img + sizeof(RGBQUAD) * 256 + sizeof(BITMAPINFOHEADER),
+		  0, 0,                 
+		  X, Y,
+		  0);
+	}
+	else
+	{
+		DrawDibDraw(
+		  hDD, hDC,
+		  destX, destY,
+		  sizeX, sizeY,
+		  (BITMAPINFOHEADER *)img,
+		  img + sizeof(BITMAPINFOHEADER),
+		  0, 0,                 
+		  X, Y,
+		  0);
+	}
 }
 
 #define _BORDER 10
@@ -336,6 +390,8 @@ void CCamviewDlg::OnPaint()
 		}
 		
 		m_receiver.ReleaseBuffer();
+
+		m_receiver.SetPaintRectangle (x, y, x+fx, y+fy);
 
 		CDialog::OnPaint();
 	}

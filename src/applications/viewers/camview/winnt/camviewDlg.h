@@ -10,6 +10,7 @@
 
 ////
 #include <YARPDIBConverter.h>
+#include <YARPLogpolar.h>
 #include <Vfw.h>
 
 /////////////////////////////////////////////////////////////////////////////
@@ -27,12 +28,18 @@ public:
 	int m_x;
 	int m_y;
 	bool m_frozen;
+	bool m_logp;
 	int m_period;
 	double m_est_interval;
+	CRect m_rect;
 
 	YARPInputPortOf<YARPGenericImage> m_inport;
-	YARPImageOf<YarpPixelBGR> m_img;
-	YARPImageOf<YarpPixelBGR> m_flipped;
+	YARPGenericImage m_img;
+	YARPGenericImage m_flipped;
+	YARPGenericImage m_remapped;
+	YARPImageOf<YarpPixelBGR> m_xxx;	/// temporary.
+	YARPLogpolar m_mapper;
+
 	YARPDIBConverter m_converter;
 	YARPSemaphore m_mutex;
 
@@ -44,16 +51,23 @@ public:
 		m_frozen = false;
 		m_period = 0;
 		m_est_interval = 0;
+		m_logp = false;
+
+		m_rect.left = -1;
+		m_rect.top = -1;
+		m_rect.right = -1;
+		m_rect.bottom = -1;
 	}
 
 	~CRecv () {}
 
-	void SetOwner (CCamviewDlg *owner) { m_owner = owner; }
-	void SetName (const char * name) { strcpy (m_name, name); }
+	inline void SetOwner (CCamviewDlg *owner) { m_owner = owner; }
+	inline void SetName (const char * name) { strcpy (m_name, name); }
 	inline int GetWidth (void) const { return m_x; }
 	inline int GetHeight (void) const { return m_y; }
 	inline void SetPeriod (int newvalue) { m_period = newvalue; }
 	inline int GetPeriod (void) const { return m_period; }
+	inline void AssumeLogpolar (void) { m_logp = true; }
 
 	unsigned char * AcquireBuffer (void)
 	{
@@ -82,6 +96,16 @@ public:
 		double ret = m_est_interval;
 		m_mutex.Post();
 		return ret;
+	}
+
+	void SetPaintRectangle (int l, int t, int r, int b)
+	{
+		m_mutex.Wait();
+		m_rect.left = l;
+		m_rect.top = t;
+		m_rect.right = r;
+		m_rect.bottom = b;
+		m_mutex.Post();
 	}
 };
 

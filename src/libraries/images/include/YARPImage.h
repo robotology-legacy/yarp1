@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.2 2003-06-05 10:51:10 gmetta Exp $
+/// $Id: YARPImage.h,v 1.3 2003-06-17 20:20:35 babybot Exp $
 ///
 ///
 
@@ -144,6 +144,10 @@ typedef struct { float h,s,v; } YarpPixelHSVFloat;
 #include "end_pack_for_net.h"
 
 class YARPRefCount;
+
+///
+/// alignment required for IPL, MMX, optimized stuff.
+const int YarpImageAlign = 8;
 
 // Note on IPL alignment stuff:
 //	- initial address is aligned on a QUADWORD boundary (allocation).
@@ -282,7 +286,7 @@ public:
 	inline int GetAllocatedLineSize(void) const { return pImage->widthStep; }
 
 	// LATER: take into account pixel size also!
-	inline int GetPadding() const { return _pad_bytes (pImage->width * pImage->nChannels, 8); }
+	inline int GetPadding() const { return _pad_bytes (pImage->width * pImage->nChannels, YarpImageAlign); }
 	inline char *RawPixel(int x, int y) const { return (Data[y] + x*GetPixelSize()); }
 };
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.h,v 1.3 2003-06-09 12:11:13 gmetta Exp $
+/// $Id: YARPSimpleOperations.h,v 1.4 2003-06-17 20:20:36 babybot Exp $
 ///
 ///
 
@@ -109,6 +109,12 @@ public:
 
 		for(int i = -2; i <= 2; i++) img.Pixel(x+i,y) = pixel;
 		for (int j = -2; j <= 2; j++) img.Pixel(x,y+j) = pixel;
+	}
+
+	inline static int ComputePadding (int linesize, int align)
+	{
+		int rem = linesize % align;
+		return (rem != 0) ? (align - rem) : rem;
 	}
 };
 

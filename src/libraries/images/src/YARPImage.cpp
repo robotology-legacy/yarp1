@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.cpp,v 1.3 2003-06-05 12:40:03 gmetta Exp $
+/// $Id: YARPImage.cpp,v 1.4 2003-06-17 20:20:36 babybot Exp $
 ///
 ///
 
@@ -326,27 +326,43 @@ SPECIAL_COPY(YARP_PIXEL_INT,YARP_PIXEL_MONO)
 
 SPECIAL_COPY_END
 
-
-template <class T1, class T2>
-void CopyPixels(const T1 *src, T2 *dest, int len)
+inline int PAD_BYTES (int len, int pad)
 {
-	for (int i=0; i<len; i++)
+	const int rem = len % pad;
+	return (rem != 0) ? (pad - rem) : rem;
+}
+
+///
+///
+template <class T1, class T2>
+void CopyPixels(const T1 *src, T2 *dest, int w, int h)
+{
+	const int p1 = PAD_BYTES (w * sizeof(T1), YarpImageAlign);
+	const int p2 = PAD_BYTES (w * sizeof(T2), YarpImageAlign);
+
+	for (int i=0; i<h; i++)
 	{
-		CopyPixel(src,dest);
-		src++;
-		dest++;
+		for (int j = 0; j < w; j++)
+		{
+			CopyPixel(src,dest);
+			src++;
+			dest++;
+		}
+
+		src = (const T1*)(((char *)src) + p1);
+		dest = (T2*)(((char *)dest) + p2);
 	}
 }
 
 
 #define HASH(id1,id2) ((id1)*256+(id2))
-#define HANDLE_CASE(len,x1,T1,x2,T2) CopyPixels((T1*)x1,(T2*)x2,len);
+#define HANDLE_CASE(len,x1,T1,x2,T2) CopyPixels((T1*)x1,(T2*)x2,w,h);
 #define MAKE_CASE(id1,id2) case HASH(id1,id2): HANDLE_CASE(len,src,Def_##id1,dest,Def_##id2); break;
 #define MAKE_2CASE(id1,id2) MAKE_CASE(id1,id2); MAKE_CASE(id2,id1);
 
 // More elegant ways to do this, but needs to be efficient at pixel level
 void YARPPixelCopier(const char *src, int id1, 
-		 char *dest, int id2, int len)
+		 char *dest, int id2, int w, int h)
 {
   switch(HASH(id1,id2))
     {
@@ -684,7 +700,7 @@ void YARPGenericImage::_free_data (void)
 // LATER: implement for LINUX.
 int YARPGenericImage::_pad_bytes (int linesize, int align) const
 {
-#ifdef __QNX__
+#ifdef __QNX4__
 	return 0;
 #else
 	int rem = linesize % align;
@@ -1076,9 +1092,9 @@ void YARPGenericImage::CastCopy(const YARPGenericImage& img)
 	{
 		const char *src = img.GetRawBuffer();
 		char *dest = GetRawBuffer();
-		const int len = pImage->height * pImage->width;
+		///const int len = pImage->height * pImage->width;
 		ACE_ASSERT(src!=NULL && dest!=NULL);
-		YARPPixelCopier (src, other_id, dest, my_id, len);
+		YARPPixelCopier (src, other_id, dest, my_id, pImage->width, pImage->height);
 	}
 	else
 	{

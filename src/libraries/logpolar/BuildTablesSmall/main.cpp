@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.4 2003-06-17 13:01:16 babybot Exp $
+/// $Id: main.cpp,v 1.5 2003-06-17 20:20:36 babybot Exp $
 ///
 ///
 
@@ -79,6 +79,7 @@ namespace _logpolarParams
 	const int _srho = 152;
 	const int _stheta = 252;
 	const int _sfovea = 42;
+	const int _salign = 8;
 };
 
 ///
@@ -106,7 +107,7 @@ int main (int argc, char *argv[])
 		CUSTOM,
 		256.0/1090.0);
 	
-	Param.padding = 8;
+	Param.padding = _salign;
 
 	Build_Ang_Shift_Map(&Param, Path);
 	Build_Pad_Map(&Param, Path);
@@ -119,13 +120,17 @@ int main (int argc, char *argv[])
 		_srho, _stheta, _sfovea,
 		1090,
 		CUSTOM,
-		256.0/1090.0);
+		1.0); ///256.0/1090.0);
 
-	Param.padding = 8;
+	Param.padding = _salign;
 
 	Build_Remap_Map(&Param, Path);
 	Crop_Remap_Map(&Param, Path);
 	Build_Color_Map(Path);
+
+	Build_XY_Map(&Param,Path);
+	Build_Neighborhood_Map(&Param,Path);
+	Build_Weights_Map(&Param,Path);	
 
 	return 0;
 }
