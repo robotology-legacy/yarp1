@@ -168,8 +168,8 @@ bool FindHand::_segmentation()
 	_armData.reset();
 	_armData.writeYVector(_motorStatus._current_position);
 	_armData.writeYVector(head);
-	_armData.writeInt(t0);
 	_armData.writeInt(r0);
+	_armData.writeInt(t0);
 	_armData.writeFloat(a11);
 	_armData.writeFloat(a12);
 	_armData.writeFloat(a22);

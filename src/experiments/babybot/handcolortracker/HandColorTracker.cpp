@@ -13,186 +13,13 @@
 
 #include <YARPHistoSegmentation.h>
 #include <YARPControlBoardNetworkData.h>
-#include <YARPConicFitter.h>
 
 #include <YARPLogFile.h>
+#include <nnet.h>
 
 using namespace _logpolarParams;
 
 YARPLogpolar _mapper;
-
-class YARPHandSegmentation
-{
-public:
-	YARPHandSegmentation (double lumaTh, double satTh, unsigned char max, unsigned char min, unsigned char n):
-	  histo(max, min, n)
-	  {}
-	  YARPHandSegmentation (double lumaTh, double satTh, unsigned char max, unsigned char min, unsigned char *n):
-	  histo(max, min, n)
-	  {}
-
-	void search(YARPImageOf<YarpPixelHSV> &src, YARPImageOf<YarpPixelMono> &backpr, YARPImageOf<YarpPixelMono> &out, YARPLpHistoSegmentation &target, double R)
-	{
-		// perform complete search over the image
-		// just plot image
-		int r;
-		int t;
-		for(r = 0; r<_srho; r++)
-			for(t = 0; t<_stheta; t++)
-			{
-				if ( backpr(t,r) > 250)
-				{
-					_fitter.findCircle(t, r, R, points);
-					cumulateRegion(src, points);
-					// now histo is the histogram of the current circle
-					double p = intersect(target);
-					out(t,r) = unsigned char (p*255 + 0.5);
-				}
-				else
-					out(t,r) = 0;
-
-			}
-	}
-		
-	void cumulateRegion(YARPImageOf<YarpPixelHSV> &src, circle &points)
-	{
-		int m;
-		histo.clean();
-		for(m = 0; m < points.n; m++)
-		{
-			YarpPixelHSV pixel = src(points.t[m], points.r[m]);
-			// later check weight
-			histo.Apply(pixel.h, pixel.s, 0, 1);
-		}
-	}
-
-	double intersect(YARPLpHistoSegmentation &target)
-	{
-		HistoEntry tmpG;
-		HistoEntry tmpH;
-			
-		int it = 0;
-		double sumG = 0.0;
-		double sumH = 0.0;
-		double sum = 0.0;
-		while  ( (target.find(it, tmpG)!=-1) && (histo.find(it, tmpH)!=-1) )
-		{
-			double g = tmpG.value()/target.maximum();
-			double h = tmpH.value()/histo.maximum();
-			
-			sum += (g-h)*(g-h);
-			it++;
-		}
-
-		return sum;
-	}
-
-	circle points;
-	YARP3DHistogram histo;
-	YARPLpConicFitter _fitter;
-};
-
-class HandLocalization
-{
-public:
-	HandLocalization():
-	_armPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
-	{
-		_armPort.Register("/handtracker/i:arm");
-		_armPosition.Resize(6);
-		_headPosition.Resize(2);
-		_r0 = 0;
-		_t0 = 0;
-		_a11 = 0;
-		_a12 = 0;
-		_a22 = 0;
-
-		
- 		char *root = GetYarpRoot();
-		char filename[256];
-
-		#if defined(__WIN32__)
-			ACE_OS::sprintf (filename, "%s\\conf\\babybot\\handforward.dat\0", root);
-		#elif defined (__QNX6__)
-			ACE_OS::sprintf (path, "%s/conf\babybot\\0", root);
-			ACE_OS::sprintf (filename, "%s/conf/babybot/handforward.dat\0", root);
-		#endif
-		_log.append(filename);
-		_npoints = 0;
-
-	}
-	~HandLocalization()
-	{
-		_log.close();
-	}
-
-	void learn(YARPBottle &newPoint)
-	{
-		newPoint.readYVector(_armPosition);
-		newPoint.readYVector(_headPosition);
-		newPoint.readInt(&_t0);
-		newPoint.readInt(&_r0);
-		newPoint.readFloat(&_a11);
-		newPoint.readFloat(&_a12);
-		newPoint.readFloat(&_a22);
-
-		_dumpToDisk();
-	}
-
-	void query(YARPImageOf<YarpPixelMono> &in)
-	{
-		if (_armPort.Read(0))
-		{
-			_armPosition = _armPort.Content()._current_position;
-		}
-		int r, t;
-		double a11, a12, a22;
-		_query(_armPosition, &t, &r, &a11, &a12, &a22);
-		_fitter.plotEllipse(t, r, a11, a12, a22, in);
-	}
-	void _query(const YVector &position, int *t0, int *r0, double *a11, double *a12, double *a22)
-	{
-		*r0 = _r0;
-		*t0 = _t0;
-		*a11 = _a11;
-		*a12 = _a12;
-		*a22 = _a22;
-	}
-
-	void _dumpToDisk()
-	{
-		_log.dump(_armPosition);
-		_log.dump(_headPosition);
-		_log.dump(_r0);
-		_log.dump(_t0);
-		_log.dump(_a11);
-		_log.dump(_a12);
-		_log.dump(_a22);
-		_log.newLine();
-
-		_npoints++;
-
-		printf("#%d got a new point\n", _npoints);
-		if ((_npoints%10) == 0)
-		{
-			printf("#%d flushing points to disk\n", _npoints);
-			_log.flush();
-		}
-	}
-
-	YARPInputPortOf<YARPControlBoardNetworkData>  _armPort;
-	YVector _armPosition;
-	YVector _headPosition;
-	YARPLpConicFitter _fitter;
-	YARPLogFile		  _log;
-	int _r0;
-	int _t0;
-	double _a11;
-	double _a12;
-	double _a22;
-
-	int _npoints;
-};
 
 using namespace _logpolarParams;
 
@@ -239,8 +66,8 @@ int main(int argc, char* argv[])
 	// _blobs.Resize(_stheta, _srho);
 
 	char tmp[128];
-	sprintf(tmp, "%s%d", "y:\\zgarbage\\exp10\\histo", 37);
-//	_histo.load(YARPString(tmp));
+	sprintf(tmp, "%s%d", "y:\\zgarbage\\exp19\\histo", 90);
+	_histo.load(YARPString(tmp));
 
 	YARPLogpolar _mapper;
 
