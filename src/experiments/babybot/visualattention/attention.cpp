@@ -170,7 +170,8 @@ void secondthread::Body(void)
 
 		/*if (changed)
 			cout<<diffJoints<<endl;*/
-		if (diffJoints<0.0005)
+		if (diffJoints<0.001)
+		//if (diffJoints<0.0005)
 		//if (diffJoints<0.0001)
 			isMoving=false;
 		else
@@ -387,15 +388,28 @@ void mainthread::Body (void)
 					} else if (message == YBVKFStart) {
 						ACE_OS::printf("KF Starting...\n");
 						noOutput=true;
+						searching = false;
+						exploring = true;
 						att_mod.resetObject();
-					} else if (message == YBVKFTrain) {
+					} else if (message == YBVKFTrainStart) {
 						ACE_OS::printf("KF Training starting...\n");
 						toMem=4;
+					} else if (message == YBVKFTrainStop) {
+						ACE_OS::printf("KF Training stopping...\n");
+						toMem=0;
 					} else if (message == YBVKFStop) {
 						ACE_OS::printf("KF Stopping...\n");
-						toMem=0;
-						noOutput=(boxesMem==0);
 						mustMove=true;
+						if (learnHand) {
+							learnHand=false;
+							att_mod.dumpLearnHand();
+							att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
+							searching=false;
+							exploring=true;
+						} else {
+							noOutput=(boxesMem==0);
+							att_mod.dumpLearnObject();
+						}
 					} else if (message == YBVVAMove) {
 						ACE_OS::printf("Moving to a new target\n");
 						mustMove=true;
@@ -418,6 +432,7 @@ void mainthread::Body (void)
 							(mBY-att_mod.fovBox.meanBY)*(mBY-att_mod.fovBox.meanBY));
 						att_mod.checkObject(img);
 						att_mod.dumpLearnObject();
+						att_mod.dumpLearnHand();
 					}
 					/*else
 						ACE_OS::printf("nothing done\n");*/
@@ -543,15 +558,7 @@ endDiffCheck:
 				
 				if (!diffFoundValid) {
 					if (moved<=0 && toMem>0) {
-						if (learnHand) {
-							double tmpScore;
-							//do {
-								att_mod.learnHand();
-								//tmpScore=att_mod.checkObject(img);
-							//} while (tmpScore<0.5);
-							att_mod.dumpLearnObject();
-							learnHand=false;
-						} else {
+						if (found | !searching) { // I'm searching and found or this is the first time
 							mRG=att_mod.fovBox.meanRG;
 							mGR=att_mod.fovBox.meanGR;
 							mBY=att_mod.fovBox.meanBY;
@@ -563,22 +570,30 @@ endDiffCheck:
 							cout<<"mRG:"<<(int)mRG<<", mGR:"<<(int)mGR<<", mBY:"<<(int)mBY<<endl;
 							cout<<"CMP:"<<cmp<<", ECT:"<<ect<<endl;
 							att_mod.setParameters(mRG, mGR, mBY, cmp, ect, 0, 1);
-							//boxesMem=att_mod.learnObject();
-							//att_mod.checkObject(img);
-							double tmpScore;
-							//do {
-								boxesMem=att_mod.learnObject();
-								tmpScore=att_mod.checkObject(img);
-							//} while (tmpScore<0.4);
+							if (learnHand) {
+								//double tmpScore;
+								//do {
+									att_mod.learnHand();
+									//tmpScore=att_mod.checkObject(img);
+								//} while (tmpScore<0.5);
+							} else {
+								//boxesMem=att_mod.learnObject();
+								//att_mod.checkObject(img);
+								//double tmpScore;
+								//do {
+									boxesMem=att_mod.learnObject();
+									att_mod.checkObject(img);
+								//} while (tmpScore<0.4);
+							}
+							toMem--;
+							searching=true;
+							targetFound = true;
+							exploring = false;
+							moved = 2;
 						}
-						toMem--;
-						searching=true;
-						targetFound = true;
-						exploring = false;
-						moved = 2;
 					} else if (moved==0) {
 						if (found) {
-							mustMove=att_mod.checkObject(img)<0.5?true:false;
+							mustMove=!att_mod.checkObject(img);
 							att_mod.dumpLearnObject();
 							if (!mustMove) {
 								if (!noOutput) {
@@ -619,10 +634,10 @@ endDiffCheck:
 						// Point already sended or not sended if target found
 						if (found) {
 							if (learnObject) {
-								double tmpScore;
+								//double tmpScore;
 								//do {
 									att_mod.learnObject();
-									tmpScore=att_mod.checkObject(img);
+									att_mod.checkObject(img);
 								//} while (tmpScore<0.4);
 								att_mod.dumpLearnObject();
 								learnObject=false;

@@ -95,6 +95,7 @@
 
 
 const int range = 256;
+const int maxError=1000;
 
 typedef struct { int x; int y; } Vett;
 
@@ -343,8 +344,9 @@ public:
 	
 	void resetObject();
 	int learnObject();
-	double checkObject(YARPImageOf<YarpPixelMono> &src);
+	bool checkObject(YARPImageOf<YarpPixelMono> &src);
 	void dumpLearnObject();
+	void dumpLearnHand();
 	void learnBackground();
 	int learnHand();
 	bool isHand(YARPBox &box);
