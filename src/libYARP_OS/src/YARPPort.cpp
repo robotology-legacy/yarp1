@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPPort.cpp,v 1.3 2004-07-06 18:38:29 eshuy Exp $
 ///
 ///
 
@@ -265,6 +265,7 @@ int YARPPort::Register(const char *name, const char *net_name /* = YARP_DEFAULT_
 
 int YARPPort::Unregister(void)
 {
+  printf("Unregister called\n");
 	PD.End ();
 	return YARP_OK;
 }

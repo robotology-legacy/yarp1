@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPThread.cpp,v 1.3 2004-07-06 18:38:29 eshuy Exp $
 ///
 ///
 
@@ -167,20 +167,29 @@ void YARPBareThread::Begin (int stack_size)
 
 int YARPBareThread::Join (int timeout)
 {
+  printf("XXXXXX %d\n", __LINE__);
 	sema.Wait();
+  printf("XXXXXX %d\n", __LINE__);
 	if (shutdown_state == YT_AskedEnd)
 		shutdown_state = YT_Joining;
+  printf("XXXXXX %d\n", __LINE__);
 	sema.Post();
+  printf("XXXXXX %d\n", __LINE__);
 
 	ACE_UNUSED_ARG (timeout);
+  printf("XXXXXX %d\n", __LINE__);
 	int r = ACE_Thread::join ((ACE_hthread_t)system_resource);
+  printf("XXXXXX %d\n", __LINE__);
 
 	/// if joined (otherwise hung!)
+  printf("XXXXXX %d\n", __LINE__);
 	sema.Wait();
 	system_resource = NULL;
 	identifier = -1;
 	shutdown_state = YT_None;
+  printf("XXXXXX %d\n", __LINE__);
 	sema.Post();
+  printf("XXXXXX %d\n", __LINE__);
 
 	return r;
 }

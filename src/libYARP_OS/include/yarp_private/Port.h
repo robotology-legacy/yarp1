@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: Port.h,v 1.3 2004-07-06 18:38:29 eshuy Exp $
 ///
 ///
 
@@ -417,7 +417,6 @@ public:
 		{
 			_started = true;
 			list_mutex.Post();
-
 			YARPBareThread::Begin (stack_size);
 		}
 		else
@@ -427,19 +426,24 @@ public:
 	virtual void End(int dontkill = -1)
 	{
 		ACE_UNUSED_ARG(dontkill);
-
+	  printf(">>> %d\n", __LINE__);
 		list_mutex.Wait();
+	  printf(">>> %d\n", __LINE__);
 		if (_started)
 		{
+	  printf(">>> %d\n", __LINE__);
 			_started = false;
 			list_mutex.Post();
+	  printf(">>> %d\n", __LINE__);
 
 			/// sends a message to unblock the thread from the read and close connections.
 			/// SaySelfEnd does the AskForEnd/Join calls.
 			SaySelfEnd ();
+	  printf(">>> %d\n", __LINE__);
 		}
 		else
 			list_mutex.Post();
+	  printf(">>> %d\n", __LINE__);
 	}
 
 	inline int& GetProtocolTypeRef() { return protocol_type; }

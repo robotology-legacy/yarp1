@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.3 2004-07-06 09:15:24 eshuy Exp $
+/// $Id: YARPNameClient.cpp,v 1.4 2004-07-06 18:38:29 eshuy Exp $
 ///
 ///
 
@@ -239,7 +239,10 @@ int YARPNameClient::query_nic(const YARPString &inIp, const YARPString &netId, Y
 
 int YARPNameClient::check_out (const YARPString &s)
 {
+  printf("1 Check out %s\n", s.c_str()); fflush(stdout);
+
 	mutex_.Wait();
+  printf("2 Check out %s\n", s.c_str()); fflush(stdout);
 	// send data to server
 	YARPNameServiceCmd tmpCmd;
 	YARPNameTCP tmpRqst;
