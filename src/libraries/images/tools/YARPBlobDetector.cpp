@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.cpp,v 1.5 2003-08-21 09:43:06 natta Exp $
+/// $Id: YARPBlobDetector.cpp,v 1.6 2003-08-21 12:28:40 natta Exp $
 ///
 ///
 
@@ -172,12 +172,13 @@ void YARPBlobDetector::filterLp(YARPImageOf<YarpPixelMono> &in)
 				int maxY = r+_filterSizeRho[f];
 				int minY = r-_filterSizeRho[f];*/
 
-				int delta = int (_filterSizeCart[f]/pSize(c,r,_nfovea) + 0.5);
+				int deltaT = int (_filterSizeTheta[f]/pSize(c,r,_nfovea) + 0.5);
+				int deltaR = int (_filterSizeRho[f]/pSize(c,r,_nfovea) + 0.5);
 
-				int maxX = c+delta;
-				int minX = c-delta;
-				int maxY = r+delta;
-				int minY = r-delta;
+				int maxX = c+deltaR;
+				int minX = c-deltaR;
+				int maxY = r+deltaT;
+				int minY = r-deltaT;
 				
 				_filtered[f](c,r) = _integralImg.getSaliencyLp(maxX, minX, maxY, minY);
 				tmp += _filtered[f](c,r)*255/_nfilters;
