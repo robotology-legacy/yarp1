@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.41 2003-10-31 10:31:16 babybot Exp $
+/// $Id: main.cpp,v 1.42 2003-10-31 11:12:44 babybot Exp $
 ///
 ///
 
@@ -237,7 +237,10 @@ int _grabber2rgb (const unsigned char *in, unsigned char *out, int szx, int szy)
 	return YARP_OK;
 }
 
-
+///
+///
+///
+#if 0
 #include <signal.h>
 
 bool finished = false;
@@ -249,9 +252,58 @@ void _hh (int sig)
 	finished = true;
 	ACE_OS::signal (SIGINT, _hh);
 }
+#endif
+
+///
+///
+///
+///
+class mainthread : public YARPThread
+{
+public:
+	virtual void Body (void)
+	{
+		if (_client)
+		{
+			_runAsClient ();
+			return;
+		}
+		else
+		if (_simu && !_logp)
+		{
+			_runAsSimulation ();
+			return;
+		}
+		else
+		if (_simu && _logp)
+		{
+			_runAsLogpolarSimulation ();
+			return;
+		}
+#if !defined(__LinuxTest__)
+		else
+		if (_logp)
+		{
+			_runAsLogpolar ();
+			return;
+		}
+		else
+		{
+			_runAsCartesian ();
+			return;
+		}
+#endif
+	}
+
+	int _runAsClient(void);
+	int _runAsSimulation (void);
+	int _runAsLogpolarSimulation (void);
+	int _runAsLogpolar (void);
+	int _runAsCartesian (void);
+};
 
 
-int _runAsClient (void)
+int mainthread::_runAsClient (void)
 {
 #if !defined(__LinuxTest__)
 	YARPImageOf<YarpPixelMono> img;
@@ -266,7 +318,7 @@ int _runAsClient (void)
 	char savename[512];
 	memset (savename, 0, 512);
 
-	while (!finished)
+	while (!IsTerminated())
 	{
 		inport.Read ();
 		img.Refer (inport.Content());
@@ -278,10 +330,10 @@ int _runAsClient (void)
 		ACE_OS::sprintf (savename, "./grab_test%04d.ppm\0", frame_no);
 		YARPImageFile::Write (savename, img);
 
-		if (frame_no > 10)
-		{
-			finished = true;
-		}
+///		if (frame_no > 10)
+///		{
+///			finished = true;
+///		}
 	}
 
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
@@ -289,7 +341,7 @@ int _runAsClient (void)
 }
 
 
-int _runAsSimulation (void)
+int mainthread::_runAsSimulation (void)
 {
 	YARPImageOf<YarpPixelBGR> img;
 	img.Resize (_sizex, _sizey);
@@ -307,7 +359,7 @@ int _runAsSimulation (void)
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
 
-	while (!finished)
+	while (!IsTerminated())
 	{
 		YARPTime::DelayInSeconds (0.04);
 	
@@ -332,7 +384,7 @@ int _runAsSimulation (void)
 }
 
 
-int _runAsLogpolarSimulation (void)
+int mainthread::_runAsLogpolarSimulation (void)
 {
 	using namespace _logpolarParams;
 
@@ -368,7 +420,7 @@ int _runAsLogpolarSimulation (void)
 #endif
 	YARPImageFile::Read (filename, img);
 
-	while (!finished)
+	while (!!IsTerminated())
 	{
 		YARPTime::DelayInSeconds (0.04);
 		
@@ -399,7 +451,7 @@ int _runAsLogpolarSimulation (void)
 }
 
 #if !defined(__LinuxTest__)
-int _runAsLogpolar (void)
+int mainthread::_runAsLogpolar (void)
 {
 	using namespace _logpolarParams;
 
@@ -436,7 +488,7 @@ int _runAsLogpolar (void)
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
 
-	while (!finished)
+	while (!IsTerminated())
 	{
 		grabber.waitOnNewFrame ();
 		grabber.acquireBuffer (&buffer);
@@ -468,7 +520,7 @@ int _runAsLogpolar (void)
 	return YARP_OK;
 }
 
-int _runAsCartesian (void)
+int mainthread::_runAsCartesian (void)
 {
 	Grabber grabber;
 	YARPImageOf<YarpPixelBGR> img;
@@ -495,7 +547,7 @@ int _runAsCartesian (void)
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
 
-	while (!finished)
+	while (!IsTerminated())
 	{
 		grabber.waitOnNewFrame ();
 		grabber.acquireBuffer(&buffer);
@@ -525,6 +577,7 @@ int _runAsCartesian (void)
 }
 #endif
 
+
 ///
 ///
 ///
@@ -536,33 +589,22 @@ int main (int argc, char *argv[])
 
 	ParseParams (argc, argv);
 
-	ACE_OS::signal (SIGINT, _hh);
+///	ACE_OS::signal (SIGINT, _hh);
 
-	if (_client)
+	mainthread _thread;
+	_thread.Begin();
+
+	char c = 0;
+
+	do
 	{
-		return _runAsClient ();
+		cout << "Type q+return to quit" << endl;
+		cin >> c;
 	}
-	else
-	if (_simu && !_logp)
-	{
-		return _runAsSimulation ();
-	}
-	else
-	if (_simu && _logp)
-	{
-		return _runAsLogpolarSimulation ();
-	}
-#if !defined(__LinuxTest__)
-	else
-	if (_logp)
-	{
-		return _runAsLogpolar ();
-	}
-	else
-	{
-		return _runAsCartesian ();
-	}
-#endif
+	while (c != 'q');
+
+	_thread.End(-1);
+
 	return YARP_OK;
 }
 
