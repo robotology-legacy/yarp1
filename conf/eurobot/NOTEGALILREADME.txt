@@ -14,4 +14,4 @@ BL-3300 - This set the backward limit for the first joint to -3300- To avoid hit
 
 This could be considered paranoic, but by having these parameters burn in the card some extra security can be obtain.
 The motor control software should have to initialize these parameter to the adequate value in order to be able to move the arm. i.e. by using the SH (servo here) in order to activare the motor amplifiers. Also the PID values should be programed with the correct values.
-The limits have been calculated empirically (by moving the arm manually), and they are valid only for the first joint. The other joint have not limits.
+The limits have been calculated empirically (by moving the arm manually), and they are valid only for the first joint. The other joint have not limits. The initial position is marked with a red marker in the arm base.
