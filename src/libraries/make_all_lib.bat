@@ -8,6 +8,7 @@ rem		<debug> compile DEBUG
 rem		<release> compile RELEASE, optimization ON
 rem		<clean>	clean everything, be careful.
 rem
+rem             %2 == <full> clean ACE and copies IPL libs.
 rem
 rem
 
@@ -20,11 +21,15 @@ if "%1"=="release" goto release
 
 :clean 
 
+if not "%2"=="full" goto skipace
+
 echo Cleaning ACE DLL.
 cd .\ACE_wrappers\ace\
 nmake /f ace_dll.mak CFG="ACE DLL - Win32 Debug" clean
 nmake /f ace_dll.mak CFG="ACE DLL - Win32 Release" clean
 cd ..\..\
+
+:skipace
 echo Cleaning Math.
 cd .\math\
 nmake /f math.mak CFG="math - Win32 Debug" clean
@@ -75,10 +80,15 @@ goto end
 
 echo Compiling DEBUG...
 
+if not "%2"=="full" goto skipaced
+ 
 echo Building ACE DLL.
 cd .\ACE_wrappers\ace\
 nmake /f ace_dll.mak CFG="ACE DLL - Win32 Debug"
 cd ..\..\
+
+:skipaced
+
 echo Building Math.
 cd .\math\
 nmake /f math.mak CFG="math - Win32 Debug"
@@ -96,9 +106,15 @@ cd .\os_services\make_winnt\os_services\
 nmake /f os_services.mak CFG="os_services - Win32 Debug"
 cd ..\..\..\
 echo Building images libraries.
+
+if not "%2"=="full" goto skipipld
+
 cd .\ipl\
 call install_ipl.bat
 cd ..\
+
+:skipipld
+
 cd .\images\tools\
 nmake /f tools.mak CFG="tools - Win32 Debug"
 cd ..\..\
@@ -125,10 +141,15 @@ goto end
 
 echo Compiling RELEASE...
 
+if not "%2"=="full" goto skipacer
+
 echo Building ACE DLL.
 cd .\ACE_wrappers\ace\
 nmake /f ace_dll.mak CFG="ACE DLL - Win32 Release"
 cd ..\..\
+
+:skipacer
+
 echo Building Math.
 cd .\math\
 nmake /f math.mak CFG="math - Win32 Release"
@@ -146,9 +167,15 @@ cd .\os_services\make_winnt\os_services\
 nmake /f os_services.mak CFG="os_services - Win32 Release"
 cd ..\..\..\
 echo Building images libraries.
+
+if not "%2"=="full" goto skipiplr
+
 cd .\ipl\
 call install_ipl.bat
 cd ..\
+
+:skipiplr
+
 cd .\images\tools\
 nmake /f tools.mak CFG="tools - Win32 Release"
 cd ..\..\

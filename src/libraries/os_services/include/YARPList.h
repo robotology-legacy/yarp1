@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPList.h,v 1.1 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: YARPList.h,v 1.2 2003-08-08 01:07:26 gmetta Exp $
 ///
 ///
 
@@ -108,5 +108,75 @@ public:
 
 	typedef YARPListIterator<T> iterator;
 };
+
+template <class T> class YARPVector;
+
+/// simpler iterator for vector (simpler than ACE version).
+/// not safe after resize, need at least a call to go_head().
+/// not safe iterator anyway...
+template <class T>
+class YARPVectorIterator 
+{
+private:
+	const YARPVector<T>& _owner;
+	int _it;
+
+public:
+	YARPVectorIterator(YARPVector<T>& i) : _owner(i) { _it = 0; }
+	YARPVectorIterator(ACE_Array<T>& i) : _owner(i) { _it = 0; }
+	YARPVectorIterator(const YARPVectorIterator<T>& i) : _owner(i._owner) { _it = i._it; }
+	~YARPVectorIterator() {}
+
+	int go_head(void) { _it = 0; return _it; }
+	int go_tail(void) { _it = _owner.size(); return _it; }
+
+	T& operator *() const { ACE_ASSERT (_owner.size() != 0 && _it >= 0 && _it < _owner.size()); return _onwer[_it]; }
+
+	int operator ++() { _it++; return _it; }
+	int operator --() { _it--; return _it; }
+
+	bool operator== (int i) { return (_it == i) ? true : false; }
+	bool operator== (const YARPVectorIterator<T>& i) { return (_it == i._it) ? true : false; }
+
+	operator int() { return _it; }
+	int operator= (int i) { _it = i; return _it; } 
+};
+
+
+template <class T>
+class YARPVector : public ACE_Array<T>
+{
+public:
+	friend class YARPVectorIterator<T>;
+	typedef YARPVectorIterator<T> iterator;
+
+	YARPVector(size_t size = 0) : ACE_Array<T>(size) {}
+	YARPVector(size_t size, const T& default_value) : ACE_Array<T>(size, default_value) {}
+	YARPVector(const YARPVector<T>& s) : ACE_Array<T>(s) {}
+	YARPVector(const ACE_Array<T>& s) : ACE_Array<T>(s) {}
+	
+	~YARPVector() {}
+
+	void operator= (const ACE_Array<T> &s) { ACE_Array<T>::operator= (s); }
+	void operator= (const YARPVector<T> &s) { ACE_Array<T>::operator= (s); }
+
+	int resize (size_t sz) 
+	{ 
+		int old_size = ACE_Array<T>::size();
+		ACE_Array<T>::size (sz);
+		return old_size;
+	}
+
+	int add_tail (const T& element)
+	{
+		int old_size = resize (ACE_Array<T>::size()+1);
+		ACE_Array<T>::operator[] (old_size) = element;
+		return old_size+1;
+	}
+};
+
+
+
+
 
 #endif

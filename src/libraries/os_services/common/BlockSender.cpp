@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.cpp,v 1.9 2003-08-02 07:46:13 gmetta Exp $
+/// $Id: BlockSender.cpp,v 1.10 2003-08-08 01:07:26 gmetta Exp $
 ///
 ///
 
@@ -90,11 +90,14 @@ int BlockSender::Fire()
 		//char buf[100];
 		reply_msg.Set(0, _buf, sizeof(_buf));
 		result = YARPSyncComm::Send(pid, msg, reply_msg);
-		pieces = 0;
+
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Sent %d pieces\n", pieces));
+		pieces = 0;
 	}
 	///cursor = entries.begin();
-	cursor = 0;
+	/// cursor = 0;
+	cursor.go_head();
+
 	if (result == YARP_FAIL)
 	{
 		failed = 1;
@@ -112,7 +115,7 @@ int BlockSender::AddPiece(char *buffer, int len)
 	if (cursor == cursz)
 	{
 		cursz++;
-		entries.size (cursz);
+		entries.resize (cursz);
 		entries[cursor] = BlockUnit(buffer,len);
 	}
 	else
@@ -132,7 +135,7 @@ int BlockSender::AddPiece(char *buffer, int len)
 #endif
 
 	pieces++;
-	cursor++;
+	++cursor;
 	return 1;
 }
 

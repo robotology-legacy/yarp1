@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.h,v 1.8 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: BlockSender.h,v 1.9 2003-08-08 01:07:26 gmetta Exp $
 ///
 ///
 
@@ -78,6 +78,7 @@
 #include "YARPNameID.h"
 #include "YARPNameID_defs.h"
 #include "YARPPortContent.h"
+#include "YARPList.h"
 
 extern int __debug_level;
 
@@ -143,10 +144,13 @@ public:
 	int failed;
 	///vector<BlockUnit> entries;
 	///vector<BlockUnit>::iterator cursor;
-	ACE_Array<BlockUnit> entries;
-	int cursor;
 
-	BlockSender()
+	///ACE_Array<BlockUnit> entries;
+	YARPVector<BlockUnit> entries;
+	///int cursor;
+	YARPVectorIterator<BlockUnit> cursor;
+
+	BlockSender() : cursor(entries)
 	{
 		max_packet = MAX_PACKET;
 		Begin (YARPNameID (YARP_NO_SERVICE_AVAILABLE, ACE_INVALID_HANDLE));
@@ -165,7 +169,8 @@ public:
 	{
 		pid = npid;
 		///cursor = entries.begin();
-		cursor = 0;
+		/// cursor = 0;
+		cursor.go_head();
 		available = max_packet;
 		pieces = 0;
 		failed = 0;
@@ -196,10 +201,12 @@ public:
 	int add_header;
 	///vector<T> headers;
 	///vector<T>::iterator header_cursor;
-	ACE_Array<T> headers;
-	int header_cursor;
+	///ACE_Array<T> headers;
+	YARPVector<T> headers;
+	///int header_cursor;
+	YARPVectorIterator<T> header_cursor;
 
-	HeaderedBlockSender()
+	HeaderedBlockSender() : header_cursor(headers)
 	{
 		add_header = 0;
 		///header_cursor = headers.begin();
@@ -238,7 +245,7 @@ public:
 			///BlockSender::Add((char*)(header_cursor),sizeof(T));
 			BlockSender::Add((char*)(&headers[header_cursor]),sizeof(T));
 			add_header = 0;
-			header_cursor++;
+			++header_cursor;
 		}
 	}
   
