@@ -94,7 +94,7 @@ public:
 	void UpdateAxisParams (int axis);
 
 	char						m_buffer[256];
-	double						m_vmove[CANBUS_MAXCARDS*4];
+	double						m_vmove[CANBUS_MAXCARDS*2];
 	double						m_current_displayed_position;
 
 	CTestAxisDlg				m_testaxisdlg;
@@ -148,6 +148,7 @@ protected:
 	afx_msg void OnFileSaveconfiguration();
 	afx_msg void OnUpdateFileLoadconfiguration(CCmdUI* pCmdUI);
 	afx_msg void OnUpdateFileSaveconfiguration(CCmdUI* pCmdUI);
+	afx_msg void OnDestroy();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

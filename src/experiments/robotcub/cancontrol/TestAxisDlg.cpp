@@ -102,15 +102,16 @@ void CTestAxisDlg::OnButtonStartm()
 		/// go to start.
 		SingleAxisParameters x;
 		x.axis = m_index;				
-		double params[2] = { 0, 0 };
-		x.parameters = (void *)params;
+		double param = 0;
+		x.parameters = &param;
 
-		params[0] = m_startposition;
-		params[1] = m_speed;
+		if (m_speed < 1)
+			m_speed = 1;
 
-		if (params[1] < 1)
-			params[1] = 1;
+		param = m_speed;
+		p.m_driver.IOCtl(CMDSetSpeed, (void *)&x);
 
+		param = m_startposition;
 		p.m_driver.IOCtl(CMDSetPosition, (void *)&x);
 	
 		SetTimer (TIMER2_ID, duration+MARGIN, NULL); 
@@ -146,15 +147,16 @@ void CTestAxisDlg::OnTimer(UINT nIDEvent)
 			/// go to start.
 			SingleAxisParameters x;
 			x.axis = m_index;				
-			double params[2] = { 0, 0 };
-			x.parameters = (void *)params;
+			double param = 0;
+			x.parameters = &param;
 
-			params[0] = m_startposition;
-			params[1] = m_speed;
+			if (m_speed < 1)
+				m_speed = 1;
 
-			if (params[1] < 1)
-				params[1] = 1;
+			param = m_speed;
+			p.m_driver.IOCtl(CMDSetSpeed, (void *)&x);
 
+			param = m_startposition;
 			p.m_driver.IOCtl(CMDSetPosition, (void *)&x);
 		}
 		else
@@ -165,15 +167,16 @@ void CTestAxisDlg::OnTimer(UINT nIDEvent)
 			/// go to start.
 			SingleAxisParameters x;
 			x.axis = m_index;				
-			double params[2] = { 0, 0 };
-			x.parameters = (void *)params;
+			double param = 0;
+			x.parameters = &param;
 
-			params[0] = m_stopposition;
-			params[1] = m_speed;
+			if (m_speed < 1)
+				m_speed = 1;
 
-			if (params[1] < 1)
-				params[1] = 1;
+			param = m_speed;
+			p.m_driver.IOCtl(CMDSetSpeed, (void *)&x);
 
+			param = m_stopposition;
 			p.m_driver.IOCtl(CMDSetPosition, (void *)&x);
 		}
 

@@ -243,6 +243,7 @@ BEGIN_MESSAGE_MAP(CCanControlDlg, CDialog)
 	ON_COMMAND(ID_FILE_SAVECONFIGURATION, OnFileSaveconfiguration)
 	ON_UPDATE_COMMAND_UI(ID_FILE_LOADCONFIGURATION, OnUpdateFileLoadconfiguration)
 	ON_UPDATE_COMMAND_UI(ID_FILE_SAVECONFIGURATION, OnUpdateFileSaveconfiguration)
+	ON_WM_DESTROY()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -285,7 +286,7 @@ BOOL CCanControlDlg::OnInitDialog()
 	m_destinations[CANBUS_MAXCARDS-1] = CANBUS_MY_ADDRESS;		/// shouldn't be used anyway
 	m_driverok = false;
 
-	memset (m_vmove, 0, sizeof(double) * CANBUS_MAXCARDS * 4);
+	memset (m_vmove, 0, sizeof(double) * CANBUS_MAXCARDS * 2);
 
 	m_current_displayed_position = 0;
 
@@ -767,9 +768,9 @@ void CCanControlDlg::OnButtonGo()
 		case 0:
 			{
 				SingleAxisParameters x;
-				x.axis = index;				
-				double params[2] = { 0, 0 };
-				x.parameters = (void *)params;
+				x.axis = index;	
+				double param = 0;
+				x.parameters = &param;
 
 				double d = fabs(m_desired_position - m_current_displayed_position);
 				d /= m_desired_speed;
@@ -781,23 +782,30 @@ void CCanControlDlg::OnButtonGo()
 					break;
 				}
 
-				params[0] = m_desired_position;
-				params[1] = m_desired_speed;
+				if (m_desired_speed < 1)
+					m_desired_speed = 1;
+				param = m_desired_speed;
+				m_driver.IOCtl(CMDSetSpeed, (void *)&x);
 
-				if (params[1] < 1)
-					params[1] = 1;
-
+				param = m_desired_position;
 				m_driver.IOCtl(CMDSetPosition, (void *)&x);
 			}
 			break;
 
 		case 1:
 			{
-				m_vmove[index*2] = m_desired_speed;
-				m_vmove[index*2+1] = m_desired_acceleration;
-				if (m_vmove[index*2+1] < 1)
-					m_vmove[index*2+1] = 1;
+				SingleAxisParameters x;
+				x.axis = index;	
+				double param = m_desired_acceleration;
+				x.parameters = &param;
 
+				if (param < 1)
+					param = 1;
+
+				ACE_OS::memset (m_vmove, 0, sizeof(double) * CANBUS_MAXCARDS * 2);
+				m_vmove[index] = m_desired_speed;
+
+				m_driver.IOCtl(CMDSetAcceleration, (void *)&x);
 				m_driver.IOCtl(CMDVMove, (void *)m_vmove);
 			}
 			break;
@@ -841,13 +849,14 @@ void CCanControlDlg::OnButtonStop()
 
 		case 1:
 			{
-				int i;
-				for (i = 0; i < CANBUS_MAXCARDS * 4; i += 2)
-				{
-					m_vmove[i] = 0;
-					m_vmove[i+1] = 1;
-				}
+				SingleAxisParameters x;
+				x.axis = index;	
+				double param = 1;
+				x.parameters = &param;
 
+				ACE_OS::memset (m_vmove, 0, sizeof(double) * CANBUS_MAXCARDS * 2);
+
+				m_driver.IOCtl(CMDSetAcceleration, (void *)&x);
 				m_driver.IOCtl(CMDVMove, (void *)m_vmove);
 			}
 			break;
@@ -896,10 +905,10 @@ void CCanControlDlg::OnButtonSetminmax()
 		SingleAxisParameters x;
 		x.axis = index;
 		x.parameters = &m_min_position;
-		m_driver.IOCtl(CMDSetNegativeLimit, (void *)&x);
+		m_driver.IOCtl(CMDSetSWNegativeLimit, (void *)&x);
 
 		x.parameters = &m_max_position;
-		m_driver.IOCtl(CMDSetPositiveLimit, (void *)&x);
+		m_driver.IOCtl(CMDSetSWPositiveLimit, (void *)&x);
 	}
 }
 
@@ -1020,4 +1029,17 @@ void CCanControlDlg::OnUpdateFileLoadconfiguration(CCmdUI* pCmdUI)
 void CCanControlDlg::OnUpdateFileSaveconfiguration(CCmdUI* pCmdUI) 
 {
 	pCmdUI->Enable (m_driverok);
+}
+
+void CCanControlDlg::OnDestroy() 
+{
+	if (m_driverok)
+	{
+		m_driver.close ();
+		m_driverok = false;
+
+		///DeactivateGUI ();
+	}
+
+	CDialog::OnDestroy();	
 }

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.1 2004-07-12 23:40:29 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.2 2004-08-04 07:50:38 babybot Exp $
 ///
 ///
 
@@ -184,8 +184,13 @@ int ValueCanResources::_closeAndRelease (void)
 	if (_dllLoaded)
 	{
 		int nOfErrors = 0;
-		canClosePort (_portHandle, &nOfErrors);
-		canFreeObject (_portHandle);
+		if (_portHandle)
+		{
+			canClosePort (_portHandle, &nOfErrors);
+			canFreeObject (_portHandle);
+			_portHandle = 0;
+		}
+
 		canReleaseLibrary();
 
 		_dllLoaded = false;
