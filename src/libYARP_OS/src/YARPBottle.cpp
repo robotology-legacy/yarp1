@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBottle.cpp,v 1.2 2004-07-09 16:10:13 eshuy Exp $
+///  $Id: YARPBottle.cpp,v 1.3 2004-07-12 08:23:41 eshuy Exp $
 ///
 ///
 
@@ -126,6 +126,7 @@ void YARPBottle::display()
 	      printf("(%s)", str);
 		  _moveOn(strlen(str)+1+sizeof(int));
 	      break;
+	      /*
 		case YBTypeYVector:
 		{
 		  index = index-sizeof(int);
@@ -141,6 +142,7 @@ void YARPBottle::display()
 		  moveOn();
 		  break;
 		}
+	      */
 	    default:
 	      printf("???");
 	      break;

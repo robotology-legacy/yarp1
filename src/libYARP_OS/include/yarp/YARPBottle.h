@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.2 2004-07-09 16:10:13 eshuy Exp $
+/// $Id: YARPBottle.h,v 1.3 2004-07-12 08:23:41 eshuy Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -83,7 +83,7 @@
 #include <yarp/YARPPort.h>
 #include <yarp/YARPPortContent.h>
 #include <yarp/YARPBottleCodes.h>
-#include <yarp/YARPVector.h>
+//#include <yarp/YARPVector.h>
 #include <yarp/YARPString.h>
 #include <yarp/YARPList.h>
 #include <yarp/YARPNetworkTypes.h>
@@ -156,7 +156,7 @@ public:
 	  return *this;
 	}
    
-    YARPVector<char>& getBuffer() { return text; }
+	YARPVector<char>& getBuffer() { return text; }
 
 	void setID(const YBVocab &l) { id.set(l.c_str()); }
 	const BottleId &getID() const { return id; }
@@ -179,12 +179,14 @@ public:
 		writeRawText(result.c_str());
 	}
 
+	/*
 	void writeYVector(const YVector &in)
 	{
 		writeRawInt(YBTypeYVector);
 		writeRawInt(in.Length());
 		writeRawBlock((char *) in.data(), sizeof(double)*in.Length() );
 	}
+	*/
   
 	// "try" functions; The rationale is: return true if the type of the next 
 	// variable in the bottle matches the one of the function you call, 
@@ -203,6 +205,7 @@ public:
 		return true;
 	}
 
+	/*
 	bool tryReadYVector(YVector &v)
 	{
 		int oldIndex = index;
@@ -217,6 +220,7 @@ public:
 		index = oldIndex;
 		return true;
 	}
+	*/
 
 	bool tryReadFloat(double *f)
 	{
@@ -269,11 +273,13 @@ public:
 		return true;
 	}
 
+	/*
 	void readYVector(YVector &v)
 	{
 		if (tryReadYVector(v))
 			moveOn();
 	}
+	*/
   
 	void readInt(int *v)
 	{

@@ -167,8 +167,8 @@ depend:
 ../obj/linux/YARPBottle.o: ../include/yarp/YARPNameID_defs.h
 ../obj/linux/YARPBottle.o: ../include/yarp/YARPString.h
 ../obj/linux/YARPBottle.o: ../include/yarp/YARPBottleCodes.h
-../obj/linux/YARPBottle.o: ../include/yarp/YARPVector.h
 ../obj/linux/YARPBottle.o: ../include/yarp/YARPList.h
+../obj/linux/YARPBottle.o: ../include/yarp/YARPNetworkTypes.h
 ../obj/linux/YARPBottle.o: ../include/yarp/YARPBottleContent.h
 ../obj/linux/YARPIterativeStats.o: ../include/yarp/YARPIterativeStats.h
 ../obj/linux/YARPIterativeStats.o: ../../../include/linux/yarp/YARPConfig.h
@@ -408,11 +408,18 @@ depend:
 ../obj/linux/YARPTime.o: ../include/yarp/YARPAll.h
 ../obj/linux/YARPTime.o: ../include/yarp/YARPErrorCodes.h
 ../obj/linux/YARPTime.o: ../include/yarp/debug.h
-../obj/linux/YARPVector.o: ../include/yarp/YARPVector.h
-../obj/linux/YARPVector.o: ../../../include/linux/yarp/YARPConfig.h
 ../obj/linux/mesh.o: ../include/yarp/YARPString.h
 ../obj/linux/mesh.o: ../../../include/linux/yarp/YARPConfig.h
 ../obj/linux/mesh.o: ../include/yarp/YARPAll.h
 ../obj/linux/mesh.o: ../include/yarp/YARPErrorCodes.h ../include/yarp/debug.h
 ../obj/linux/mesh.o: ../include/yarp_private/mesh.h
 ../obj/linux/wide_nameloc.o: ../../../include/linux/yarp/YARPConfig.h
+../obj/linux/wide_nameloc.o: ../include/yarp/wide_nameloc.h
+../obj/linux/wide_nameloc.o: ../include/yarp/YARPNetworkTypes.h
+../obj/linux/wide_nameloc.o: ../include/yarp/YARPAll.h
+../obj/linux/wide_nameloc.o: ../include/yarp/YARPErrorCodes.h
+../obj/linux/wide_nameloc.o: ../include/yarp/debug.h
+../obj/linux/wide_nameloc.o: ../include/yarp/YARPNameID_defs.h
+../obj/linux/wide_nameloc.o: ../include/yarp/YARPString.h
+../obj/linux/wide_nameloc.o: ../include/yarp/begin_pack_for_net.h
+../obj/linux/wide_nameloc.o: ../include/yarp/end_pack_for_net.h
