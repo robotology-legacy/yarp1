@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.12 2004-01-21 17:37:31 fberton Exp $
+/// $Id: AuxFunctions.cpp,v 1.13 2004-01-23 10:32:36 fberton Exp $
 ///
 ///
 
@@ -558,11 +558,12 @@ void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data 
 	float k;
 	unsigned char * Fovea;
 	unsigned char * oneLine;
+	int PadLine = computePadSize(par->Size_Theta * 3, par->padding);
 
-	Fovea = (unsigned char *) malloc (par->Size_Fovea * par->Size_Theta * 3 * sizeof (unsigned char));
-	oneLine = (unsigned char *) malloc (par->Size_Theta * 3 * sizeof (unsigned char));
+	Fovea = (unsigned char *) malloc (par->Size_Fovea * PadLine * sizeof (unsigned char));
+	oneLine = (unsigned char *) malloc (PadLine * sizeof (unsigned char));
 
-	for (j = 0; j<par->Size_Fovea * par->Size_Theta * 3; j++)
+	for (j = 0; j<par->Size_Fovea * PadLine; j++)
 		Fovea[j] = 0;
 
 
@@ -574,21 +575,21 @@ void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data 
 		{
 			if (1)
 			{
-				oneLine[3*(i*j/par->Size_Fovea)] = inImage[3*(i*par->Size_Theta+j)] ;
-				oneLine[3*(i*j/par->Size_Fovea)+1] = inImage[3*(i*par->Size_Theta+j)+1] ;
-				oneLine[3*(i*j/par->Size_Fovea)+2] = inImage[3*(i*par->Size_Theta+j)+2] ;
+				oneLine[3*((i*j)/par->Size_Fovea)] = inImage[(i*PadLine+3*j)] ;
+				oneLine[3*(i*j/par->Size_Fovea)+1] = inImage[(i*PadLine+3*j)+1] ;
+				oneLine[3*(i*j/par->Size_Fovea)+2] = inImage[(i*PadLine+3*j)+2] ;
 			}
 			else
 			{
-				outImage[3*(i*par->Size_Theta+j)]   = 0;
-				outImage[3*(i*par->Size_Theta+j)+1] = 0;
-				outImage[3*(i*par->Size_Theta+j)+2] = 0;
+				outImage[(i*PadLine+3*j)]   = 0;
+				outImage[(i*PadLine+3*j)+1] = 0;
+				outImage[(i*PadLine+3*j)+2] = 0;
 			}
 
 		}
 		//copy of one line
 		for (j=0; j<3*par->Size_Theta; j++)
-			outImage[i*3*par->Size_Theta+j]= oneLine[j];
+			outImage[i*PadLine+j]= oneLine[j];
 	}
 
 	for (i=1; i<par->Size_Fovea; i+=2)
@@ -603,22 +604,22 @@ void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data 
 				k+=i*6;
 			if (1)
 			{
-				oneLine[3*((int)k)]   = inImage[3*(i*par->Size_Theta+j)];
-				oneLine[3*((int)k)+1] = inImage[3*(i*par->Size_Theta+j)+1];
-				oneLine[3*((int)k)+2] = inImage[3*(i*par->Size_Theta+j)+2];
+				oneLine[3*((int)k)]   = inImage[(i*PadLine+3*j)];
+				oneLine[3*((int)k)+1] = inImage[(i*PadLine+3*j)+1];
+				oneLine[3*((int)k)+2] = inImage[(i*PadLine+3*j)+2];
 //				outImage[3*(i*par->Size_Theta+j)+1] = oneLine[3*((int)k)+1];
 //				outImage[3*(i*par->Size_Theta+j)+2] = oneLine[3*((int)k)+2];
 			}
 			else
 			{
-				outImage[3*(i*par->Size_Theta+j)]   = 0;
-				outImage[3*(i*par->Size_Theta+j)+1] = 0;
-				outImage[3*(i*par->Size_Theta+j)+2] = 0;
+				outImage[(i*PadLine+3*j)]   = 0;
+				outImage[(i*PadLine+3*j)+1] = 0;
+				outImage[(i*PadLine+3*j)+2] = 0;
 			}
 		}
 		//copy of one line
 		for (j=0; j<3*par->Size_Theta; j++)
-			outImage[i*3*par->Size_Theta+j] = oneLine[j];
+			outImage[i*PadLine+j] = oneLine[j];
 	}
 
 //Dereplication of the first pixel
@@ -631,31 +632,32 @@ void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data 
 
 //From triangular to sawtooth
 	
-	for (j=0; j<  par->Size_Theta * par->Size_Fovea; j++)
+	for (i=0; i<par->Size_Fovea; i++)
+		for (j=0; j<par->Size_Theta*3; j++)
 	{
 //		//copy of one line
 //		for (j=0; j<3*par->Size_Theta; j++)
 //			oneLine[j] = outImage[i*3*par->Size_Theta+j];
-		Fovea[3*padMap[j]] = outImage[3*j];
-		Fovea[3*padMap[j]+1] = outImage[3*j+1];
-		Fovea[3*padMap[j]+2] = outImage[3*j+2];
+		if (padMap[i*252+j/3] != 1)
+			Fovea[3*padMap[i*252+j/3]+4*i+j%3] = outImage[i*PadLine+j];
+		else
+			outImage[i*PadLine+j]=0;
+//		Fovea[3*padMap[j]+1] = outImage[3*j+1];
+//		Fovea[3*padMap[j]+2] = outImage[3*j+2];
 	}
 
-	for (j=0; j< 3* par->Size_Theta * par->Size_Fovea; j++)
+	for (j=0; j<  PadLine * par->Size_Fovea; j++)
 	{
 		outImage[j] = Fovea[j];
 	}
 	
 
-
-/*	
-*/	
 //Remaining Lines (non Fovea)
-	for (j=par->Size_Theta * par->Size_Fovea; j<par->Size_LP; j++)
+	for (j=PadLine * par->Size_Fovea; j<PadLine * par->Size_Rho; j++)
 	{
-		outImage[3*j] = inImage[3*j];
-		outImage[3*j+1] = inImage[3*j+1];
-		outImage[3*j+2] = inImage[3*j+2];
+		outImage[j]   = inImage[j];
+		outImage[j+1] = inImage[j+1];
+		outImage[j+2] = inImage[j+2];
 	}
 
 	free (oneLine);
