@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID_defs.h,v 1.6 2003-08-02 07:46:15 gmetta Exp $
+/// $Id: YARPNameID_defs.h,v 1.7 2004-07-01 00:17:29 gmetta Exp $
 ///
 ///
 
@@ -74,16 +74,64 @@
 #	pragma once
 #endif
 
-/// service type.
-enum
+/**
+ * \file YARPNameID_defs.h Definition of the protocols used by the port.
+ * Certain protocols are not selected by the user but rather managed internally by ports.
+ * Also, an imput port can have multiple input connections with different protocols.
+ * Valid user choices are limited to: UDP, TCP, MCAST, QNET.
+ */
+
+/**
+ * All possible protocols in a port.
+ */
+enum YARPProtocols
 {
+	/**
+	* The port is not connected or it reported a serious network error.
+	*/
 	YARP_NO_SERVICE_AVAILABLE = -1,
+
+	/**
+	* The UDP protocol, a connectionless efficient protocol, The maximum
+	* message size is limited to 64Kbytes.
+	*/
 	YARP_UDP = 0,
+
+	/**
+	* TCP protocol, 
+	* Reliable connection-oriented, There's no limit on the 
+	* message size.
+	*/
 	YARP_TCP = 1,
+
+	/**
+	* MCAST protocol,
+	* Like UDP but the same message is automatically dispatched
+	* to multiple targets (network efficient).
+	*/
 	YARP_MCAST = 2,
+
+	/**
+	* QNET is the proprietary QNX version 6 network protocol, Very efficient but
+	* doesn't mix with the IP based protocols.
+	*/
 	YARP_QNET = 3,
+
+	/**
+	* QNX4 protocol is deprecated and no longer supported/implemented.
+	*/
 	YARP_QNX4 = 4,
+
+	/**
+	* SHMEM protocol will activate automatically if both ends of a connection
+	* are on the same machine and network, It is connection oriented and
+	* doesn't have any limit on the size of the messages.
+	*/
 	YARP_SHMEM = 5,
+
+	/**
+	* The port is an input port with multiple protocol abilities.
+	*/
 	YARP_MULTI = 6,
 };
 
@@ -93,6 +141,11 @@ const char __mcastString[] = "MCAST";
 const char __qnxString[] = "QNX";
 const char __noServiceString[] = "NO_SVC";
 
+/**
+ * Converts the protocol type enumerator into a string.
+ * @param type the protocol type.
+ * @return the converted string.
+ */
 inline const char *servicetypeConverter(int type)
 {
 	if (type == YARP_UDP)

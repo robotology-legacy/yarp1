@@ -61,9 +61,15 @@
 ///
 
 ///
-/// $Id: end_pack_for_net.h,v 1.7 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: end_pack_for_net.h,v 1.8 2004-07-01 00:17:29 gmetta Exp $
 ///
 ///
+
+/**
+ * \file end_pack_for_net.h Ends 1 byte packing for structs/classes.
+ * Instructs the compiler that the default packing can be reinstated.
+ * @see begin_pack_for_net.h
+ */
 
 #include <conf/YARPConfig.h>
 

@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPortContent.h,v 1.7 2004-06-30 16:24:57 eshuy Exp $
+/// $Id: YARPPortContent.h,v 1.8 2004-07-01 00:17:29 gmetta Exp $
 ///
 ///
 /*
@@ -77,6 +77,10 @@
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
+
+/**
+ * \file YARPPortContent.h definition of the "port content" helper classes.
+ */
 
 /**
  * Helper for reading raw data from a port.

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPTime.h,v 1.3 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPTime.h,v 1.4 2004-07-01 00:17:29 gmetta Exp $
 ///
 ///
 /*
@@ -69,16 +69,23 @@
 #	pragma once
 #endif
 
-///
-///
-///
-///
+/**
+ * A simple class that implements time-related operations.
+ */
 class YARPTime
 {
 public:
+	/**
+	 * Gets the current system time.
+	 * @return the current system time as a double precision value.
+	 */
 	static double GetTimeAsSeconds (void);
 
-	// Assertion fails if insufficient resources
+	/**
+	 * Suspend current thread for a certain number of seconds. This 
+	 * method allows for millisecond precision waits.
+	 * @param delay_in_seconds is the requested wait time.
+	 */
 	static void DelayInSeconds (double delay_in_seconds);
 };
 

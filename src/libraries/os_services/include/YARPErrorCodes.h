@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPErrorCodes.h,v 1.3 2004-06-30 13:40:21 eshuy Exp $
+/// $Id: YARPErrorCodes.h,v 1.4 2004-07-01 00:17:29 gmetta Exp $
 ///
 ///
 
@@ -65,7 +65,9 @@
 #	pragma once
 #endif
 
-
+/**
+ * \file YARPErrorCodes.h contains definitions of the YARP return types.
+ */
 
 /**
  * Generic YARP library error codes.

@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.14 2004-06-30 16:24:57 eshuy Exp $
+/// $Id: YARPPort.h,v 1.15 2004-07-01 00:17:29 gmetta Exp $
 ///
 ///
 
@@ -70,6 +70,10 @@
 	paulfitz Sat May 26 22:34:44 EDT 2001
 */
 
+/**
+ * \file YARPPort.h contains the definition of the YARPPort type hierarchy.
+ * 
+ */
 
 #ifndef YARPPort_INC
 #define YARPPort_INC
@@ -119,17 +123,22 @@ public:
 
   /**
    * Destructor.
-   * It is good practice to Unregister() before destroying a port.
+   * Although the destructor tries to close the connection and unregister the port, 
+   * it is good practice to Unregister() before destroying a port.
    */
 	virtual ~YARPPort();
 
   /**
     * Gives the port a name, and registers it.
-    * The name should be unique, but there are no constraints on its form.
-    * The name server needs to be told about the port ("registration").
+    * The name should be unique, the only constraint on name is that they 
+	* must start with a leading / which is interpreted internally in a special
+	* way.
+    * The name server needs to be told about the port ("registration"). It knows
+	* about the specific network environment from the configuration file
+	* $YARP_ROOT/conf/namer.conf
     *
     * @param name the name for the port
-    * @param net_name the name of the network the name server is on
+    * @param net_name the name of the network the port is created on
     * @return YARP_OK if registration was successful.
    */
 	virtual int Register (const char *name, const char *net_name = YARP_DEFAULT_NET);
@@ -320,6 +329,7 @@ public:
  * An output port.
  * Objects in this class can send messages to YARPInputPort objects
  * ("input ports").  
+ * @see ::YARPProtocols for the allowed protocols.
  */
 
 class YARPOutputPort : public YARPPort

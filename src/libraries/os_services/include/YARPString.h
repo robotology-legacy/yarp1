@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPString.h,v 1.4 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: YARPString.h,v 1.5 2004-07-01 00:17:29 gmetta Exp $
 ///
 ///
 
@@ -79,29 +79,118 @@
 #include <ace/OS.h>
 #include <ace/String_Base.h>
 
+/**
+ * \file YARPString.h
+ * Definition of a simple stl-like string class.
+ */
+
+/**
+ * A simple stl-like string class.
+ * This is an stl-like string class built on ACE string that assures a 
+ * better portability across compiler if compared with stl string.
+ */
 class YARPString : public ACE_String_Base<char>
 {
 public:
+	/**
+	 * Constructor.
+	 */
 	YARPString () : ACE_String_Base<char> () {}
+
+	/**
+	 * Constructor.
+	 * @param s a pointer to a null terminated string.
+	 */
 	YARPString (const char *s) : ACE_String_Base<char> (s) {}
+
+	/**
+	 * Constructor.
+	 * @param s a pointer to an array of a certain maximum len.
+	 * @param len the length of the array.
+	 */
 	YARPString (const char *s, size_t len) : ACE_String_Base<char> (s, len) {}
+
+	/**
+	 * Constructor.
+	 * @param s an ACE array of <char>.
+	 */
 	YARPString (const ACE_String_Base<char>& s) : ACE_String_Base<char> (s) {}
+
+	/**
+	 * Constructor: this is the copy constructor of YARPString.
+	 * @param s the source string to copy from.
+	 */
 	YARPString (const YARPString& s) : ACE_String_Base<char> (s) {}
+
+	/**
+	 * Constructor: fills the string with the char in <c>.
+	 * @param c char to fill the string with.
+	 */
 	YARPString (char c) : ACE_String_Base<char> (c) {}
+
+	/**
+	 * Constructor.
+	 * @param len length of the string.
+	 * @param c initial value.
+	 */
 	YARPString (size_t len, char c = 0) : ACE_String_Base<char> (len, c) {}
 
+	/**
+	 * Destructor.
+	 * Destroys and deallocates the memory associated with the string.
+	 */
 	~YARPString () { clear(1); }
 
+	/**
+	 * Copies a YARPString into another.
+	 * @param s the source string.
+	 * @return a reference to the destination string.
+	 */
 	YARPString& operator= (const YARPString& s) { ACE_String_Base<char>::operator= (s); return *this; }
 	
+	/**
+	 * Appends an char array (null terminated) to a string.
+	 * @param s the source string.
+	 * @return the new string.
+	 */
 	YARPString& append(const char *s) { ACE_String_Base<char>::operator+=(s); return *this; }
+
+	/**
+	 * Appends a string to another.
+	 * @param s the string to be appended.
+	 * @return the new string.
+	 */
 	YARPString& append(const YARPString& s) { ACE_String_Base<char>::operator+=(s); return *this; }
+
+	/**
+	 * Checks whether the string is empty.
+	 * @return true or false.
+	 */
 	bool empty (void) { return (length() == 0) ? true : false; }
 };
 
-///
+/**
+ * Prints a string.
+ * @param os the iostream to print into.
+ * @param s the string to be printed.
+ * @return the printed string (to allow chaining).
+ */
 inline std::ostream& operator<< (std::ostream& os, YARPString& s) { os << s.c_str(); return os; }
+
+/**
+ * Prints a string.
+ * @param os the iostream to print into.
+ * @param s the string to be printed (const).
+ * @return the printed string (to allow chaining).
+ */
 inline std::ostream& operator<< (std::ostream& os, const YARPString& s) { os << s.c_str(); return os; }
+
+/**
+ * Accepts (input) a string.
+ * @param is the iostream to receive from.
+ * @param s the string to be filled with the incoming data.
+ * @return the destination string (to allow chaining).
+ */
 inline std::istream& operator>> (std::istream& is, YARPString& s) 
 {
 	char _buf[1024]; memset (_buf, 0, 1024);
