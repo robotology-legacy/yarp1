@@ -69,6 +69,8 @@ BOOL CCamviewApp::InitInstance()
 
 	m_netname = "default";
 	cmdInfo.GetOption("net", m_netname);
+	m_out_netname = "default";
+	cmdInfo.GetOption("neto", m_out_netname);
 
 	CString speriod;
 	if (cmdInfo.GetOption("p", speriod))

@@ -26,6 +26,7 @@ public:
 	CString m_portname;
 	CString m_netname;
 	CString m_out_portname;
+	CString m_out_netname;
 	int m_period;
 	int m_x;
 	int m_y;

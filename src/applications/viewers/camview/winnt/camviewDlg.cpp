@@ -321,14 +321,15 @@ BOOL CCamviewDlg::OnInitDialog()
 	m_receiver.SetOwner (this);
 	m_receiver.SetName ((LPCSTR)m_connection_name);
 	m_receiver.SetNetworkName ((LPCSTR)p->m_netname);
+	m_receiver.SetNetworkNameOut((LPCSTR)p->m_out_netname);
 	m_receiver.Begin ();
 
 	/// not particularly smart to copy all the variables from app but convenient.
 	m_enable_output = p->m_enable_output;
 	if (p->m_enable_output)
 	{
-		m_outPort = new YARPOutputPortOf<int [2]>(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-		m_outPort->Register(m_output_connection, (LPCSTR)p->m_netname);
+		m_outPort = new YARPOutputPortOf<YARPBottle>(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+		m_outPort->Register(m_output_connection, (LPCSTR)p->m_out_netname);
 	}
 	else
 		m_outPort = NULL;
@@ -677,12 +678,15 @@ void CCamviewDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 		if (m_image_y < 0) m_image_y = 0;
 		if (m_image_y > m_receiver.GetHeight()) m_image_y = m_receiver.GetHeight();
 
-		m_outPort->Content()[0] = m_image_x;
-		m_outPort->Content()[1] = m_image_y;
+		m_outBottle.writeInt(m_image_x);
+		m_outBottle.writeInt(m_image_y);
+		m_outPort->Content() = m_outBottle;
 		m_outPort->Write();
 
 		UpdateData(FALSE);
 	}
+
+	m_outBottle.reset();
 
 	CDialog::OnLButtonDblClk(nFlags, point);
 }

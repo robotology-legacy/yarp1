@@ -11,6 +11,7 @@
 ////
 #include <YARPDIBConverter.h>
 #include <YARPLogpolar.h>
+#include <YARPBottleContent.h>
 #include <Vfw.h>
 
 /////////////////////////////////////////////////////////////////////////////
@@ -26,6 +27,7 @@ public:
 	CCamviewDlg *m_owner;
 	char m_name[512];
 	char m_netname[512];
+	char m_out_netname[512];
 	int m_x;
 	int m_y;
 	bool m_frozen;
@@ -51,7 +53,8 @@ public:
 	{
 		m_owner = owner;
 		memset (m_name, 0, 512);
-		sprintf (m_netname, "default\0");
+		sprintf (m_netname, "default");
+		sprintf(m_out_netname, "default");
 		
 		m_x = m_y = 256;
 		m_frozen = false;
@@ -78,6 +81,7 @@ public:
 	inline void AssumeDisplayFovea (void) { m_fov = true; }
 	inline bool TablesOk (void) const { return m_mapper.TablesOk(); }
 	inline void SetNetworkName (const char * net) { strcpy (m_netname, net); }
+	inline void SetNetworkNameOut(const char * net) { strcpy (m_out_netname, net); }
 
 	unsigned char * AcquireBuffer (void)
 	{
@@ -136,7 +140,8 @@ public:
 	HDRAWDIB m_drawdib;
 
 	bool m_enable_output;
-	YARPOutputPortOf<int [2]> *m_outPort;
+	YARPOutputPortOf<YARPBottle> *m_outPort;
+	YARPBottle m_outBottle;
 	CString	m_output_connection;
 
 	double m_zx;
