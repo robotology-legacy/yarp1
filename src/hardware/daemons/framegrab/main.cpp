@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.39 2003-09-09 10:25:11 babybot Exp $
+/// $Id: main.cpp,v 1.40 2003-09-09 11:02:05 babybot Exp $
 ///
 ///
 
@@ -435,18 +435,7 @@ int _runAsLogpolar (void)
 		grabber.acquireBuffer (&buffer);
 	
 		/// fills the actual image buffer.
-
-		/// LATER:
-		/// this is not particularly nice because it introduce a conditional compile
-		/// that should be actually within the device driver.
-		/// need to be fixed!
-#ifdef __QNX6__
-		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _xsize*_xsize*3);
-#else
-		/// fills the actual image buffer.
-		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _xsize*_xsize*3);
-///		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _xsize, _xsize);
-#endif
+		memcpy((unsigned char *)img.GetRawBuffer(), buffer, _xsize * _xsize * 3);
 		
 		grabber.releaseBuffer ();
 
@@ -503,13 +492,10 @@ int _runAsCartesian (void)
 	{
 		grabber.waitOnNewFrame ();
 		grabber.acquireBuffer(&buffer);
-#ifdef __QNX6__
-		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _sizex*_sizey*3);
-#else
-		/// fills the actual image buffer.
-		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _sizex*_sizey*3);
-		///_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _sizex, _sizey);
-#endif
+
+		memcpy((unsigned char *)img.GetRawBuffer(), buffer, _sizex * _sizey * 3);
+
+		grabber.releaseBuffer ();
 
 		/// sends the buffer.
 		outport.Content().Refer (img);
@@ -523,8 +509,6 @@ int _runAsCartesian (void)
 			// ACE_OS::fprintf (stdout, "frame number %d acquired\r", frame_no);
 			start = cur;
 		}
-
-		grabber.releaseBuffer ();
 	}
 
 	grabber.uninitialize ();
