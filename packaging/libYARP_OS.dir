@@ -3,6 +3,9 @@ package libYARP_OS
 copy dir include/linux
 copy dir include/winnt
 copy file conf/Makefile.template
+copy file conf/Makefile.recursive.template
+copy file conf/Makefile.src.template
+copy file conf/Makefile.tool.template
 copy dir src/libYARP_OS
 copy dir src/tools/yarp-connect
 copy dir src/tools/yarp-read
