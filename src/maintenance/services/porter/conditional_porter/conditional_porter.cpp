@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: conditional_porter.cpp,v 1.2 2003-04-18 16:34:00 gmetta Exp $
+/// $Id: conditional_porter.cpp,v 1.3 2003-04-18 16:56:57 gmetta Exp $
 ///
 ///
 
@@ -69,14 +69,14 @@ void main(int argc, char *argv[])
 	if (argc == 3)
 	{
 		YARPUniqueNameID r1 = YARPNameService::LocateName(argv[1]);
-		if (r1.isValid())
+		if (r1.getServiceType() != YARP_NO_SERVICE_AVAILABLE)
 		{
 			if (argv[2][0] == '/')
 			{
 				YARPUniqueNameID r2 = YARPNameService::LocateName(argv[2]);
-				if (r2.isValid())
+				if (r2.getServiceType() != YARP_NO_SERVICE_AVAILABLE)
 				{
-					YARPPort::Connect(argv[1],argv[2]);
+					YARPPort::Connect(argv[1], argv[2]);
 				}
 				else
 				{
