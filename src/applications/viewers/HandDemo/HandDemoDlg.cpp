@@ -60,6 +60,7 @@ CHandDemoDlg::CHandDemoDlg(CWnd* pParent /*=NULL*/)
 	m_gain_int4 = 0.0;
 	m_gain_int5 = 0.0;
 	m_gain_int6 = 0.0;
+	m_shake_delay = 0;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -105,6 +106,7 @@ void CHandDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_GAIN_INT4, m_gain_int4);
 	DDX_Text(pDX, IDC_GAIN_INT5, m_gain_int5);
 	DDX_Text(pDX, IDC_GAIN_INT6, m_gain_int6);
+	DDX_Text(pDX, IDC_DELAY, m_shake_delay);
 	//}}AFX_DATA_MAP
 }
 
@@ -119,6 +121,9 @@ BEGIN_MESSAGE_MAP(CHandDemoDlg, CDialog)
 	ON_BN_CLICKED(IDUPDATEGAINS, OnUpdategains)
 	ON_BN_CLICKED(IDUPDATESPEEDS, OnUpdatespeeds)
 	ON_BN_CLICKED(IDVMOVE, OnVmove)
+	ON_BN_CLICKED(IDC_GO_HOME, OnGoHome)
+	ON_BN_CLICKED(IDC_SHAKE_START, OnShakeStart)
+	ON_BN_CLICKED(IDC_SHAKE_STOP, OnShakeStop)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -438,4 +443,41 @@ void CHandDemoDlg::OnVmove()
 	_hand_thread._hand.velocityMoves(command);
 
 
+}
+
+void CHandDemoDlg::OnGoHome() 
+{
+	command[0] = 0;
+	command[1] = 0;
+	command[2] = 0;
+	command[3] = 0;
+	command[4] = 0;
+	command[5] = 0;
+
+	_hand_thread._hand.setPositionsRaw(command);
+
+}
+
+void CHandDemoDlg::OnShakeStart() 
+{
+	UpdateData(TRUE);
+	double command1[6];
+	for(int i = 0; i < 6; i++)
+		command1[i] = 0.0;
+
+	command[0] = m_pos1;
+	command[1] = m_pos2;
+	command[2] = m_pos3;
+	command[3] = m_pos4;
+	command[4] = m_pos5;
+	command[5] = m_pos6;
+
+	_hand_thread.startShake(command1, command, m_shake_delay);
+	
+}
+
+void CHandDemoDlg::OnShakeStop() 
+{
+	_hand_thread.stopShake();
+	
 }

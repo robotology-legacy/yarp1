@@ -24,6 +24,7 @@ class CCamviewApp : public CWinApp
 public:
 	CCamviewApp();
 	CString m_portname;
+	CString m_out_portname;
 	int m_period;
 	int m_x;
 	int m_y;

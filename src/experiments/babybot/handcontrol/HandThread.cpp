@@ -9,7 +9,7 @@ _handStatusOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 
 	_fsm = new HandFSM(&_hand);
 
-	int n = 10;
+	int n = 16;
 	_shakeMove = new InitMoveState[n];
 	_shakeWait = new IdleState[n];
 
@@ -25,16 +25,16 @@ _handStatusOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	}
 	_fsm->add(NULL, &_shakeMove[n-1], &_shakeWait[n-1]);
 	_fsm->add(&_wait1, &_shakeWait[n-1], &_endMotion);
-	_fsm->add(NULL, &_endMotion, &_waitState);
-
+	_fsm->add(NULL, &_endMotion, &_waitState, &_endShakeOutput);
+	
 	////////////////////////
 	YVector tmp1(6),tmp2(6);
-	tmp1(1) = 0.0;
+	tmp1(1) = 2000;
 	tmp1(2) = 0.0;
 	tmp1(3) = 1500;
-	tmp1(4) = 1500;
+	tmp1(4) = 0;
 	tmp1(5) = -1500;
-	tmp1(6) = -1500;
+	tmp1(6) = 0;
 	tmp2 = 0.0;
 	for(i = 0; i<=(n-1);)
 	{
@@ -57,8 +57,9 @@ _handStatusOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	_cmd = 0.0;
 	/////////////
 	_handStatusOut.Register("/handcontrol/o:status");
-	_status.Resize(12);
+	_status.Resize(7);
 
+	_hand._shaking = false;
 }
 
 HandThread::~HandThread()
@@ -85,8 +86,14 @@ void HandThread::doLoop()
 
 	_fsm->doYourDuty();
 
-	_hand.getPositionsRaw(_status.data());
-	_hand.getSpeedsRaw(_status.data()+6);
+	// _hand.getPositionsRaw(_status.data());
+	_hand.getSpeedsRaw(_status.data());
+	if (_hand._shaking)
+	{
+		_status(7) = 1;
+	}
+	else
+		_status(7) = 0;
 
 	_handStatusOut.Content() = _status;
 	_handStatusOut.Write();
@@ -111,5 +118,6 @@ void HandThread::singleMove(const YVector &pos, int time)
 
 void HandThread::shake()
 {
+	_hand._shaking = true;
 	_startShake.set();
 }

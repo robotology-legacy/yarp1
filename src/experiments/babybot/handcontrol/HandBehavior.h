@@ -60,6 +60,19 @@ public:
 	int key;
 };
 
+
+class HBInputReset: public HandBehaviorBaseInput
+{
+public:
+	HBInputReset()
+	{
+		key = YBVHandResetEncoders;
+	}
+	bool input(YARPBottle *in, HandBehaviorData *d);
+	
+	int key;
+};
+
 class HBShakeCmdInput: public HandBehaviorBaseInput
 {
 public:

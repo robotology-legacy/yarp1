@@ -223,10 +223,14 @@ END_MESSAGE_MAP()
 // CCamviewDlg dialog
 
 CCamviewDlg::CCamviewDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CCamviewDlg::IDD, pParent)
+	: CDialog(CCamviewDlg::IDD, pParent),
+	m_outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 {
 	//{{AFX_DATA_INIT(CCamviewDlg)
 	m_connection_name = _T("");
+	m_image_x = 0;
+	m_image_y = 0;
+	m_output_connection = _T("");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -236,9 +240,10 @@ void CCamviewDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCamviewDlg)
-	DDX_Control(pDX, IDOK, m_ctrl_quit);
-	DDX_Control(pDX, IDC_NAME, m_ctrl_name);
+	//DDX_Control(pDX, IDC_NAME, m_ctrl_name);
 	DDX_Text(pDX, IDC_NAME, m_connection_name);
+	DDX_Text(pDX, IDC_X, m_image_x);
+	DDX_Text(pDX, IDC_Y, m_image_y);
 	//}}AFX_DATA_MAP
 }
 
@@ -259,6 +264,7 @@ BEGIN_MESSAGE_MAP(CCamviewDlg, CDialog)
 	ON_COMMAND(ID_FILE_SAVEIMAGE, OnFileSaveimage)
 	ON_UPDATE_COMMAND_UI(ID_FILE_SAVEIMAGE, OnUpdateFileSaveimage)
 	ON_COMMAND(ID_IMAGE_SHOWINTERVAL, OnImageShowinterval)
+	ON_WM_LBUTTONDBLCLK()
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -295,6 +301,7 @@ BOOL CCamviewDlg::OnInitDialog()
 	// TODO: Add extra initialization here
 	CCamviewApp *p = ((CCamviewApp *)AfxGetApp());
 	m_connection_name = p->m_portname;
+	m_output_connection = p->m_out_portname;
 	if (p->m_lp) m_receiver.AssumeLogpolar();
 	if (p->m_fov) m_receiver.AssumeDisplayFovea();
 
@@ -304,6 +311,8 @@ BOOL CCamviewDlg::OnInitDialog()
 	m_receiver.SetName ((LPCSTR)m_connection_name);
 	
 	m_receiver.Begin ();
+
+	m_outPort.Register(m_output_connection);
 
 	m_frozen = false;
 
@@ -405,6 +414,12 @@ void CCamviewDlg::OnPaint()
 
 		// Draw the icon
 		dc.DrawIcon(x, y, m_hIcon);
+		m_zx = 1;
+		m_zy = 1;
+		m_x = x;
+		m_y = x;
+		m_fx = 0;
+		m_fy = 0;
 	}
 	else
 	{
@@ -418,11 +433,13 @@ void CCamviewDlg::OnPaint()
 		/// is this needed?
 		dc.LPtoDP (&rect);
 
-		if (m_ctrl_quit.m_hWnd != NULL)
+		GetDlgItem(IDC_NAME)->GetWindowRect(&rect2);
+		/*
+		if (m_connection_name.m_hWnd != NULL)
 		{
-			m_ctrl_quit.GetWindowRect (&rect2);
-		}
-
+			m_connection_name.GetWindowRect (&rect2);
+		}*/
+		
 		double zx = double(rect.Width() - 2 * _BORDER) / double(m_receiver.GetWidth());
 		double zy = double(rect.Height() - 2 * _BORDER - rect2.Height() - 2) / double(m_receiver.GetHeight());
 
@@ -449,6 +466,13 @@ void CCamviewDlg::OnPaint()
 		m_receiver.ReleaseBuffer();
 
 		m_receiver.SetPaintRectangle (x, y, x+fx, y+fy);
+
+		m_x = x;
+		m_y = y;
+		m_zx = zx;
+		m_zy = zx;	// should be zy but we use zx
+		m_fx = fx;
+		m_fy = fy;
 
 		CDialog::OnPaint();
 	}
@@ -532,16 +556,18 @@ void CCamviewDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
 
-	if (m_ctrl_name.m_hWnd != NULL && m_ctrl_quit.m_hWnd != NULL)
+	if (GetDlgItem(IDC_NAME)!= NULL)
 	{
-		CRect rect, rect2;
-		m_ctrl_name.GetWindowRect (&rect);
-		m_ctrl_quit.GetWindowRect (&rect2);
+		CRect rect, rect2, rect3;
+		GetDlgItem(IDC_NAME)->GetWindowRect (&rect);
+		GetDlgItem(IDC_X)->GetWindowRect (&rect2);
+		GetDlgItem(IDC_Y)->GetWindowRect (&rect3);
 
-		const int name_w = cx - 2*_BORDER - rect2.Width() - 2;
+		const int name_w = cx - 2*_BORDER - rect2.Width() - rect3.Width() - 4;
 
-		m_ctrl_name.MoveWindow (_BORDER+1, cy-_BORDER-rect.Height()-1, name_w, rect.Height(), FALSE);
-		m_ctrl_quit.MoveWindow (_BORDER+1 + name_w+1, cy-_BORDER-rect2.Height()-1, rect2.Width(), rect2.Height(), FALSE);
+		GetDlgItem(IDC_NAME)->MoveWindow (_BORDER+1, cy-_BORDER-rect.Height()-1, name_w, rect.Height(), FALSE);
+		GetDlgItem(IDC_X)->MoveWindow (_BORDER+1 + name_w+1, cy-_BORDER-rect2.Height()-1, rect2.Width(), rect2.Height(), FALSE);
+		GetDlgItem(IDC_Y)->MoveWindow (_BORDER+1 + name_w+1 + rect2.Height() + 8, cy-_BORDER-rect3.Height()-1, rect3.Width(), rect3.Height(), FALSE);
 
 		InvalidateRect (NULL, TRUE);
 	}
@@ -604,4 +630,24 @@ void CCamviewDlg::OnImageShowinterval()
 	CString string;
 	string.Format ("Estimated interval during last %d cycles: %.3f\0", _AVE, m_receiver.GetEstimatedInterval());
 	MessageBox (string);
+}
+
+void CCamviewDlg::OnLButtonDblClk(UINT nFlags, CPoint point) 
+{
+	// TODO: Add your message handler code here and/or call default
+	m_image_x = (point.x - m_x)/m_zx;
+	m_image_y = (point.y - m_y)/m_zy;
+
+	if (m_image_x < 0) m_image_x = 0;
+	if (m_image_x > m_receiver.GetWidth()) m_image_x = m_receiver.GetWidth();
+	
+	if (m_image_y < 0) m_image_y = 0;
+	if (m_image_y > m_receiver.GetHeight()) m_image_y = m_receiver.GetHeight();
+
+	m_outPort.Content()[0] = m_image_x;
+	m_outPort.Content()[1] = m_image_y;
+	m_outPort.Write();
+
+	UpdateData(FALSE);
+	CDialog::OnLButtonDblClk(nFlags, point);
 }

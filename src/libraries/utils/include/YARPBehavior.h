@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.9 2003-07-24 17:28:32 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.10 2003-07-31 16:36:40 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -211,7 +211,7 @@ private:
 	void _quit()
 	{
 		// put here your code to handle quit
-		YARPThread::End();
+		YARPThread::End(-1);
 		// signal event so that the thread can exit
 		_stopEvent.signal();
 		// LATER: add wait		

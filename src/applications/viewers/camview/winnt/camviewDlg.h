@@ -126,13 +126,23 @@ public:
 	CRecv m_receiver;
 	bool m_frozen;
 	HDRAWDIB m_drawdib;
+	YARPOutputPortOf<int [2]> m_outPort;
+	CString	m_output_connection;
+
+	double m_zx;
+	double m_zy;
+	int m_x;
+	int m_y;
+	int m_fx;
+	int m_fy;
 
 // Dialog Data
 	//{{AFX_DATA(CCamviewDlg)
 	enum { IDD = IDD_CAMVIEW_DIALOG };
-	CButton	m_ctrl_quit;
 	CStatic	m_ctrl_name;
 	CString	m_connection_name;
+	int		m_image_x;
+	int		m_image_y;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -163,6 +173,7 @@ protected:
 	afx_msg void OnFileSaveimage();
 	afx_msg void OnUpdateFileSaveimage(CCmdUI* pCmdUI);
 	afx_msg void OnImageShowinterval();
+	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -56,6 +56,7 @@ public:
 	InitMoveState *_shakeMove;
 	IdleState *_shakeWait;
 	EndMotion _endMotion;
+	EndMotionOutput _endShakeOutput;
 	
 	// inputs
 	WaitNSteps _wait1;
@@ -72,6 +73,8 @@ public:
 	YVector _cmd;
 	YARPOutputPortOf<YVector> _handStatusOut;
 	YVector _status;
+
+	bool _shaking;
 };
 
 #endif // .h

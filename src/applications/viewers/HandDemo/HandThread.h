@@ -28,7 +28,7 @@ public:
 		_hand.initialize("Y:\\conf\\babybot\\hand.ini");
 		_hand.idleMode();
 		_hand.resetEncoders();
-
+		
 		_nit = 0;
 
 	}
@@ -38,6 +38,24 @@ public:
 		_nit++;
 		timer.start_incr();
 		_hand.input();
+
+		if (_shake)
+		{
+			if (_nit > _freq)
+			{
+				_nit = 0;
+				if (_forward)
+				{
+					_forward = false;
+					_hand.setPositionsRaw(_tempPos2);
+				}
+				else
+				{
+					_forward = true;
+					_hand.setPositionsRaw(_tempPos1);
+				}
+			}
+		}
 
 		// do nothing !
 
@@ -51,9 +69,9 @@ public:
 
 		timer.elapsed_time_incr(period);
 
-		ofstream tmp("q:\\Ini Files\\thread_stats.txt");
-		tmp << period.usec()/(1000.0*_nit); 
-		tmp.close();
+	//	ofstream tmp("q:\\Ini Files\\thread_stats.txt");
+	//	tmp << period.usec()/(1000.0*_nit); 
+	//	tmp.close();
 	}
 
 	void synchro()
@@ -61,6 +79,26 @@ public:
 		_hand.activatePID();
 	}
 
+	void startShake(double *pos1, double *pos2, int freq)
+	{
+		memcpy(_tempPos1, pos1, sizeof(double)*6);
+		memcpy(_tempPos2, pos2, sizeof(double)*6);
+		_shake = true;
+		_forward = true;
+		_nit = 0;
+		_freq = freq;
+	}
+	void stopShake()
+	{
+		_shake = false;
+	}
+
+	double *_tempPos1;
+	double *_tempPos2;
+	bool _shake;
+	bool _forward;
+	int _freq;
+	
 	YARPBabybotHand _hand;
 
 	unsigned int _nit;

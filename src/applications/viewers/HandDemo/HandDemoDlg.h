@@ -65,6 +65,7 @@ public:
 	double		m_gain_int6;
 	int		m_joint;
 	int		m_hall;
+	int		m_shake_delay;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -101,6 +102,9 @@ protected:
 	afx_msg void OnUpdatespeeds();
 	afx_msg void OnUpdatetransmission();
 	afx_msg void OnVmove();
+	afx_msg void OnGoHome();
+	afx_msg void OnShakeStart();
+	afx_msg void OnShakeStop();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

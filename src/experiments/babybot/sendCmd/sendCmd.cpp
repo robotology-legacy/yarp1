@@ -55,6 +55,11 @@ int main(int argc, char* argv[])
 			tmp.writeVocab(YBVHandShake);
 			send = true;
 		}
+		else if (c == "reset")
+		{
+			tmp.writeVocab(YBVHandResetEncoders);
+			send = true;
+		}
 		else 
 		{
 			send = false;

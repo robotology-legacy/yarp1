@@ -8,6 +8,8 @@ class HandSharedData: public YARPBabybotHand, public YARPBehaviorSharedData
 {
 public:
 	HandSharedData():YARPBehaviorSharedData(YBLabelMotor, "/handcontrol/behavior/o"){};
+
+	bool _shaking;
 };
 
 

@@ -37,6 +37,7 @@ int main(int argc, char* argv[])
 	HBWaitIdle waitIdle;
 	HBWaitMotion waitMotion;
 	HBInputCommand inputCmd;
+	HBInputReset inputRst;
 	HBShakeCmdInput shakeInput;
 	HBShakeCmdOutput shakeCmd;
 	HBCheckMotionDone checkMotionDone;
@@ -44,13 +45,15 @@ int main(int argc, char* argv[])
 	
 	_hand.setInitialState(&waitIdle);
 	
+	// reset encoders
+	_hand.add(&inputRst, &waitIdle, &waitIdle);
 	// single command sequence
 	_hand.add(&inputCmd, &waitIdle, &waitMotion, &outputCmd);
 	_hand.add(&checkMotionDone, &waitMotion, &waitIdle);
 	// multiple command (shake) sequence
 	_hand.add(&shakeInput, &waitIdle, &waitMotion, &shakeCmd);
 	_hand.add(&checkMotionDone, &waitMotion, &waitIdle);
-
+	
 	// start
 	_hand.Begin();
 	// blocking loop

@@ -16,6 +16,7 @@ public:
 
 typedef YARPFSMStateBase<HandFSM, HandSharedData> HandFSMStates;
 typedef YARPFSMInput<HandSharedData> HandFSMInputs;
+typedef YARPFSMOutput<HandSharedData> HandFSMOutputs;
 
 #endif
 

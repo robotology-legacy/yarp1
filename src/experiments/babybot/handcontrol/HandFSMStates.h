@@ -62,6 +62,15 @@ public:
 	bool _do;
 };
 
+class EndMotionOutput: public HandFSMOutputs
+{
+public:
+	void output (HandSharedData *t)
+	{
+		t->_shaking = false;
+	}
+
+};
 
 class IdleState: public HandFSMStates
 {

@@ -66,6 +66,7 @@
 #define IDC_TORQUE_3                    1035
 #define IDC_MOVING6                     1036
 #define IDC_TORQUE_4                    1036
+#define IDC_DELAY                       1036
 #define IDC_DSP_1                       1037
 #define IDC_TORQUE_5                    1037
 #define IDC_DSP_2                       1038
@@ -88,9 +89,13 @@
 #define IDC_IPHALLS                     1045
 #define IDC_POS8                        1046
 #define IDC_PORTHALL                    1046
+#define IDC_GO_HOME                     1046
 #define IDC_POS9                        1047
+#define IDC_SHAKE_START                 1047
 #define IDC_POS10                       1048
+#define IDC_SHAKE_STOP                  1048
 #define IDC_POS11                       1049
+#define IDC_SHAKE                       1049
 #define IDC_POS12                       1050
 #define IDC_POS13                       1051
 #define IDC_POS14                       1052
@@ -102,7 +107,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        133
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1046
+#define _APS_NEXT_CONTROL_VALUE         1050
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

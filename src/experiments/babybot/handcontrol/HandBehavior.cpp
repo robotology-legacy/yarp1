@@ -32,6 +32,23 @@ bool HBInputCommand::input(YARPBottle *in, HandBehaviorData *d)
 	return true;
 }
 
+bool HBInputReset::input(YARPBottle *in, HandBehaviorData *d)
+{
+	int k;
+	if (!in->tryReadVocab(&k))
+		return false;
+	
+	if (k != key)
+		return false;
+
+	in->moveOn();
+
+	// reset encoders
+	d->_hand.resetEncoders();
+
+	return true;
+}
+
 bool HBShakeCmdInput::input(YARPBottle *in, HandBehaviorData *d)
 {
 	int k;
