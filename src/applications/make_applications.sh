@@ -50,7 +50,7 @@ then
 elif [ "$1" == "debug" ]
 then
 	echo "debug"
-	MODE="debug"
+	MODE="DEBUG='-g'"
 	PHRASE="Building (debug)"
 	#install option
 	INSTALL="make install"
@@ -58,7 +58,7 @@ then
 elif [ "$1" == "release" ]
 then
 	echo "release"
-	MODE=""
+	MODE="DEBUG=''"
 	PHRASE="Building (release)"
 	#install
 	INSTALL="make install"
