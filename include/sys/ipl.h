@@ -409,7 +409,8 @@ typedef void  (__STDCALL *IplUserFuncPixel)(IplImage* srcImage, void* srcPixel,
 #define IPL_SIDE_BOTTOM     (1<<IPL_SIDE_BOTTOM_INDEX)
 #define IPL_SIDE_LEFT       (1<<IPL_SIDE_LEFT_INDEX)
 #define IPL_SIDE_RIGHT      (1<<IPL_SIDE_RIGHT_INDEX)
-#define IPL_SIDE_ALL      (IPL_SIDE_RIGHT | IPL_SIDE_TOP | IPL_SIDE_LEFT | IPL_SIDE_BOTTOM)
+#define IPL_SIDE_ALL \
+     (IPL_SIDE_RIGHT | IPL_SIDE_TOP | IPL_SIDE_LEFT | IPL_SIDE_BOTTOM)
 
 
 /* /////////////////////////////////////////////////////////////////////////
@@ -583,8 +584,10 @@ IPLAPI(void, iplDeallocateImage,(IplImage* image))
 #define IPL_IMAGE_ROI    4
 #define IPL_IMAGE_TILE   8
 #define IPL_IMAGE_MASK  16
-#define IPL_IMAGE_ALL (IPL_IMAGE_HEADER|IPL_IMAGE_DATA|                       IPL_IMAGE_TILE|IPL_IMAGE_ROI|IPL_IMAGE_MASK)
-#define IPL_IMAGE_ALL_WITHOUT_MASK (IPL_IMAGE_HEADER|IPL_IMAGE_DATA|                       IPL_IMAGE_TILE|IPL_IMAGE_ROI)
+#define IPL_IMAGE_ALL (IPL_IMAGE_HEADER|IPL_IMAGE_DATA|\
+                       IPL_IMAGE_TILE|IPL_IMAGE_ROI|IPL_IMAGE_MASK)
+#define IPL_IMAGE_ALL_WITHOUT_MASK (IPL_IMAGE_HEADER|IPL_IMAGE_DATA|\
+                       IPL_IMAGE_TILE|IPL_IMAGE_ROI)
 
 /* /////////////////////////////////////////////////////////////////////////
 // Name:       iplDeallocate

@@ -193,11 +193,16 @@ IPLAPI(IPLStatus, iplGuiBoxReport,(IPLStatus   status, const char *funcname,
 
 
 /*-------------------------------  Macros  --------------------------------*/
-#define IPL_ERROR(status,func,context)                iplError((status),(func),(context),__FILE__,__LINE__)
+#define IPL_ERROR(status,func,context)\
+                iplError((status),(func),(context),__FILE__,__LINE__)
 
-#define IPL_ERRCHK(func,context)                ((iplGetErrStatus() >= 0) ? IPL_StsOk                 : IPL_ERROR(IPL_StsBackTrace,(func),(context)))
+#define IPL_ERRCHK(func,context)\
+                ((iplGetErrStatus() >= 0) ? IPL_StsOk \
+                : IPL_ERROR(IPL_StsBackTrace,(func),(context)))
 
-#define IPL_ASSERT(expr,func,context)                ((expr) ? IPL_StsOk                 : IPL_ERROR(IPL_StsInternal,(func),(context)))
+#define IPL_ASSERT(expr,func,context)\
+                ((expr) ? IPL_StsOk \
+                : IPL_ERROR(IPL_StsInternal,(func),(context)))
 
 #define IPL_RSTERR() (iplSetErrStatus(IPL_StsOk))
 

@@ -172,7 +172,8 @@ extern "C" {
        BYTE rgbtRed;
     } RGBTRIPLE; 
     
-#define RGB(r,g,b) ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
+#define RGB(r,g,b)     \
+    ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
     
 #define  BI_RGB           0
 #define  BI_RLE8          1

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPFrameGrabberUtils.h,v 1.1 2003-05-31 07:31:20 gmetta Exp $
+/// $Id: YARPFrameGrabberUtils.h,v 1.2 2003-06-05 12:40:03 gmetta Exp $
 ///
 ///
 
@@ -75,8 +75,10 @@ enum FrameGrabberCmd
 	FCMDAcquireBuffer = 1,
 	FCMDReleaseBuffer = 2,
 	FCMDWaitNewFrame = 3,
+	FCMDGetSizeX = 4,
+	FCMDGetSizeY = 5,
 
-	FCMDNCmds = 4
+	FCMDNCmds = 6
 };
 
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.3 2003-05-31 07:22:00 gmetta Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.4 2003-06-05 12:40:03 gmetta Exp $
 ///
 ///
 
@@ -112,6 +112,8 @@ public:
 	virtual int acquireBuffer(void *);
 	virtual int releaseBuffer(void *);
 	virtual int waitOnNewFrame (void *cmd);
+	virtual int getWidth(void *cmd);
+	virtual int getHeight(void *cmd);
 
 protected:
 	void *system_resources;

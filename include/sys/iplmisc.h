@@ -83,18 +83,36 @@ IPLAPI(void, iplFree, (void* ptr))
 #endif
 
 
-#define IPL_COPY_IMAGE_HEADER(src,dst,depth) dst = iplCreateImageHeader( src->nChannels, src->alphaChannel, depth, src->colorModel, src->channelSeq, src->dataOrder, src->origin, src->align, src->width, src->height, NULL, NULL, NULL, NULL)
+#define IPL_COPY_IMAGE_HEADER(src,dst,depth)\
+    dst = iplCreateImageHeader( src->nChannels, src->alphaChannel, \
+    depth, src->colorModel, src->channelSeq, src->dataOrder, \
+    src->origin, src->align, src->width, src->height, NULL, NULL, NULL, NULL)
 
 /*
    Notes: If you use macro definitions iplDecimateFit, 
    iplZoomFit, or iplResizeFit, Please make sure that SRC 
    and DST parameters aren't NULL
 */
-#define iplResizeFit(SRC,DST,INTER) iplResize( SRC, DST, DST->roi ? DST->roi->width : DST->width,     SRC->roi ? SRC->roi->width : SRC->width,     DST->roi ? DST->roi->height : DST->height,     SRC->roi ? SRC->roi->height : SRC->height, INTER )
+#define iplResizeFit(SRC,DST,INTER)\
+    iplResize( SRC, DST, \
+    DST->roi ? DST->roi->width : DST->width, \
+    SRC->roi ? SRC->roi->width : SRC->width, \
+    DST->roi ? DST->roi->height : DST->height, \
+    SRC->roi ? SRC->roi->height : SRC->height, INTER )
 
-#define iplDecimateFit(SRC,DST,INTER)    iplDecimate( SRC, DST,     DST->roi ? DST->roi->width : DST->width,     SRC->roi ? SRC->roi->width : SRC->width,     DST->roi ? DST->roi->height : DST->height,     SRC->roi ? SRC->roi->height : SRC->height, INTER )
+#define iplDecimateFit(SRC,DST,INTER)\
+    iplDecimate( SRC, DST, \
+    DST->roi ? DST->roi->width : DST->width, \
+    SRC->roi ? SRC->roi->width : SRC->width, \
+    DST->roi ? DST->roi->height : DST->height, \
+    SRC->roi ? SRC->roi->height : SRC->height, INTER )
 
-#define iplZoomFit(SRC,DST,INTER)    iplZoom( SRC, DST,     DST->roi ? DST->roi->width : DST->width,     SRC->roi ? SRC->roi->width : SRC->width,     DST->roi ? DST->roi->height : DST->height,     SRC->roi ? SRC->roi->height : SRC->height, INTER )
+#define iplZoomFit(SRC,DST,INTER)\
+    iplZoom( SRC, DST, \
+    DST->roi ? DST->roi->width : DST->width, \
+    SRC->roi ? SRC->roi->width : SRC->width, \
+    DST->roi ? DST->roi->height : DST->height, \
+    SRC->roi ? SRC->roi->height : SRC->height, INTER )
 
 
 
@@ -120,7 +138,13 @@ IPLAPI(void, iplFree, (void* ptr))
 //  Notes:
 *F*/
 
-#define iplRotateCenter(srcImage, dstImage, angle,xCenter, yCenter, interpolate)                 {                                                                          double xShift = 0, yShift = 0;                                         iplGetRotateShift(xCenter, yCenter, angle, &xShift, &yShift);          iplRotate(srcImage, dstImage, angle, xShift, yShift, interpolate); }
+#define iplRotateCenter(srcImage, dstImage, angle,                     \
+                        xCenter, yCenter, interpolate)                 \
+{                                                                      \
+    double xShift = 0, yShift = 0;                                     \
+    iplGetRotateShift(xCenter, yCenter, angle, &xShift, &yShift);      \
+    iplRotate(srcImage, dstImage, angle, xShift, yShift, interpolate); \
+}
 
 
 /*----------------------  Code for channel sequence  ----------------------*/

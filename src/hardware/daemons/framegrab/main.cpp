@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.3 2003-05-31 09:43:03 babybot Exp $
+/// $Id: main.cpp,v 1.4 2003-06-05 12:40:03 gmetta Exp $
 ///
 ///
 
@@ -77,11 +77,43 @@
 
 #include <YARPBabybotGrabber.h>
 
+#include <YARPImages.h>
 
 /// LATER: used to parse command line options.
 int ParseParams (int argc, char *argv[]) { return YARP_OK; }
 
-///YARPOutputPortOf<YARPGenericImage> output;
+const int size = 256;
+
+int _grabber2rgb (const unsigned char *in, unsigned char *out, int sz)
+{
+///	int AlignBytesRGB;
+///	if (sz * 3 % 8)
+///		AlignBytesRGB = 8 - (sz * 3 % 8);
+///	else 
+///		AlignBytesRGB = 0;	
+
+	unsigned char * first_pix = (unsigned char *)in;
+	unsigned char * ptr = first_pix;
+
+	for (int r = sz - 1; r >= 0; r--, r--)
+	{
+		ptr = first_pix + (sz * r);
+
+		/// needed to remove the extra byte of the 32 bit representation.
+		for (int c = 0; c < sz; c++)
+		{
+			*out++ = unsigned char((*ptr & 0x00ff0000) >> 16);
+			*out++ = unsigned char((*ptr & 0x0000ff00) >> 8);
+			*out++ = unsigned char((*ptr & 0x000000ff));
+
+			out++;
+		}
+
+///		out += AlignBytesRGB;
+	}
+	
+	return YARP_OK;
+}
 
 ///
 ///
@@ -93,23 +125,34 @@ int main (int argc, char *argv[])
 	ParseParams (argc, argv);
 
 	YARPBabybotGrabber grabber;
+	YARPImageOf<YarpPixelBGR> img;
+	img.Resize (size, size);
+	YARPOutputPortOf<YARPGenericImage> output;
 	bool finished = false;
 
 	/// params to be passed from the command line.
-	grabber.initialize (0, 256);
+	grabber.initialize (0, size);
+
+	int w = -1, h = -1;
+	grabber.getWidth (&w);
+	grabber.getHeight (&h);
+
+///	ACE_ASSERT (w == size && h == size);
 
 	unsigned char *buffer = NULL;
 	int frame_no = 0;
 
 	ACE_OS::fprintf (stderr, "starting up grabber...\n");
+	ACE_OS::fprintf (stderr, "acq size: w=%d h=%d\n", w, h);
 
 	while (!finished)
 	{
 		grabber.waitOnNewFrame ();
 		grabber.acquireBuffer (&buffer);
 	
+		/// fills the actual image buffer.
+
 		frame_no++;
-		/// transforms the buffer.
 		if ((frame_no % 250) == 0)
 			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.4 2003-05-31 09:43:03 babybot Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.5 2003-06-05 12:40:03 gmetta Exp $
 ///
 ///
 
@@ -276,7 +276,7 @@ inline void PicoloResources::_prepareBuffers(void)
 									_nImageSize, 
 									PICOLO_FRAME_ANY, 
 									(PVOID*) &_aligned[i]);
-		_ASSERT (_bufHandles[i] >= 0);
+		ACE_ASSERT (_bufHandles[i] >= 0);
 		memset(_aligned[i], 0, _nImageSize);
 	}
 }
@@ -294,6 +294,8 @@ YARPPicoloDeviceDriver::YARPPicoloDeviceDriver(void) : YARPDeviceDriver<YARPNull
 	m_cmds[FCMDAcquireBuffer] = &YARPPicoloDeviceDriver::acquireBuffer;
 	m_cmds[FCMDReleaseBuffer] = &YARPPicoloDeviceDriver::releaseBuffer;
 	m_cmds[FCMDWaitNewFrame] = &YARPPicoloDeviceDriver::waitOnNewFrame;
+	m_cmds[FCMDGetSizeX] = &YARPPicoloDeviceDriver::getWidth;
+	m_cmds[FCMDGetSizeY] = &YARPPicoloDeviceDriver::getHeight;
 }
 
 YARPPicoloDeviceDriver::~YARPPicoloDeviceDriver()
@@ -406,6 +408,18 @@ int YARPPicoloDeviceDriver::waitOnNewFrame (void *cmd)
 	PicoloResources& d = RES(system_resources);
 	d._new_frame.Wait ();
 
+	return YARP_OK;
+}
+
+int YARPPicoloDeviceDriver::getWidth (void *cmd)
+{
+	*(int *)cmd = RES(system_resources)._nWidth;
+	return YARP_OK;
+}
+
+int YARPPicoloDeviceDriver::getHeight (void *cmd)
+{
+	*(int *)cmd = RES(system_resources)._nHeight;
 	return YARP_OK;
 }
 

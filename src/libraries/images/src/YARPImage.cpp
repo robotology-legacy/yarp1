@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.cpp,v 1.2 2003-06-05 10:51:10 gmetta Exp $
+/// $Id: YARPImage.cpp,v 1.3 2003-06-05 12:40:03 gmetta Exp $
 ///
 ///
 
@@ -401,7 +401,7 @@ void YARPPixelCopier(const char *src, int id1,
 
     default:
 		ACE_OS::printf("*** Tried to copy type %d to %d\n", id1, id2);
-      exit(1);
+		ACE_OS::exit(1);
     }
 }
 
@@ -855,7 +855,7 @@ void YARPGenericImage::_set_ipl_header(int x, int y, int pixel_type)
 	case YARP_PIXEL_INVALID:
 		// not a type!
 		ACE_OS::printf ("*** Trying to allocate an invalid pixel type image\n");
-		exit(1);
+		ACE_OS::exit(1);
 		break;
 	  
 	case -2:
@@ -1001,7 +1001,7 @@ void YARPGenericImage::Refer(YARPGenericImage& src)
 	{
 		ACE_OS::printf("*** Tried to Refer() to an incompatible image type.\n");
 		ACE_OS::printf("*** Please copy instead, using CastCopy().\n");
-		exit(1);
+		ACE_OS::exit(1);
 	}
 
 	DBGPF1 cout << "HIT Starting refer" << endl;
@@ -1051,7 +1051,7 @@ void YARPGenericImage::PeerCopy(const YARPGenericImage& img)
 	{
 		ACE_OS::printf("*** Tried to copy between incompatible image types.\n");
 		ACE_OS::printf("*** Please use CastCopy() to do this.\n");
-		exit(1);
+		ACE_OS::exit(1);
 	}
 
 	Resize(img.pImage->width, img.pImage->height, my_id);

@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.5 2003-05-31 06:31:34 gmetta Exp $
+$Id: install.txt,v 1.6 2003-06-05 12:40:02 gmetta Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -93,7 +93,12 @@ REQUIRES:
 	=== these two projects do also install the libraries and DLLs.
 
 	images
-		- NOT DEFINED YET!
+		- go to $YARP_ROOT\src\libraries\ipl and run script to install
+			include files, DLL's and libs.
+		- compile the fakeipl first. even if you don't use it, just in case.
+		- compile the main img processing lib.
+		- compile the tools.
+		- ?? run the lib command ??
 
 	===
 
@@ -104,10 +109,10 @@ REQUIRES:
 		- dsw in: %YARP_ROOT%\src\libraries\utils\utils.dsw
 
 	hardware
+		- run the install_orig_dd.bat. it copies the libraries+includes 
+			in the correct directories.
 		- dsw project in: %YARP_ROOT%\src\hardware\src\alldrivers.dsw
 			it does the install but...
-		- run then install_orig_dd.bat that copies the libraries+includes 
-			in the correct directories.
 
 	motorcontrol
 		- dsw in: %YARP_ROOT%\src\libraries\motorcontrol\motorcontrol.dsw
