@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPVectorPortContent.h,v 1.4 2003-07-03 14:43:41 babybot Exp $
+/// $Id: YARPVectorPortContent.h,v 1.5 2003-07-17 15:59:10 gmetta Exp $
 ///
 ///
 
@@ -101,10 +101,7 @@ class YARPVectorPortContent : public YVector, public YARPPortContent
 public:
 	YARPVectorPortContentHeader header;
 
-	virtual ~YARPVectorPortContent () 
-	{
-		ACE_DEBUG ((LM_DEBUG, "destroying a YARPVectorPortContent\n"));
-	}
+	virtual ~YARPVectorPortContent () {}
 
 	//// of course this only works on machines w/ the same floating point representation.
 	virtual int Read (YARPPortReader& reader)
@@ -146,6 +143,8 @@ class YARPInputPortOf<YVector> : public YARPBasicInputPort<YARPVectorPortContent
 public:
 	YARPInputPortOf<YVector>(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicInputPort<YARPVectorPortContent> (n_service_type, n_protocol_type) {}
+
+	virtual ~YARPInputPortOf<YVector> () { ((Port *)system_resource)->End(); }
 };
 
 class YARPOutputPortOf<YVector> : public YARPBasicOutputPort<YARPVectorPortContent>
@@ -153,6 +152,8 @@ class YARPOutputPortOf<YVector> : public YARPBasicOutputPort<YARPVectorPortConte
 public:
 	YARPOutputPortOf<YVector>(int n_service_type = DEFAULT_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicOutputPort<YARPVectorPortContent> (n_service_type, n_protocol_type) {}
+
+	virtual ~YARPInputPortOf<YVector> () { ((Port *)system_resource)->End(); }
 };
 
 class YARPMatrixPortContent : public YMatrix, public YARPPortContent
@@ -160,10 +161,7 @@ class YARPMatrixPortContent : public YMatrix, public YARPPortContent
 public:
 	YARPMatrixPortContentHeader header;
 
-	virtual ~YARPMatrixPortContent () 
-	{
-		ACE_DEBUG ((LM_DEBUG, "destroying a YARPMatrixPortContent\n"));
-	}
+	virtual ~YARPMatrixPortContent () {}
 
 	//// of course this only works on machines w/ the same floating point representation.
 	virtual int Read (YARPPortReader& reader)
@@ -206,6 +204,8 @@ class YARPInputPortOf<YMatrix> : public YARPBasicInputPort<YARPMatrixPortContent
 public:
 	YARPInputPortOf<YMatrix>(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicInputPort<YARPMatrixPortContent> (n_service_type, n_protocol_type) {}
+
+	virtual ~YARPInputPortOf<YMatrix> () { ((Port *)system_resource)->End(); }
 };
 
 class YARPOutputPortOf<YMatrix> : public YARPBasicOutputPort<YARPMatrixPortContent>
@@ -213,6 +213,8 @@ class YARPOutputPortOf<YMatrix> : public YARPBasicOutputPort<YARPMatrixPortConte
 public:
 	YARPOutputPortOf<YMatrix>(int n_service_type = DEFAULT_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicOutputPort<YARPMatrixPortContent> (n_service_type, n_protocol_type) {}
+
+	virtual ~YARPInputPortOf<YMatrix> () { ((Port *)system_resource)->End(); }
 };
 
 
