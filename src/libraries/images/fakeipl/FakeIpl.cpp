@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: FakeIpl.cpp,v 1.5 2003-08-07 04:23:43 gmetta Exp $
+/// $Id: FakeIpl.cpp,v 1.6 2004-07-01 22:51:21 gmetta Exp $
 ///
 ///
 
@@ -117,9 +117,12 @@ T* AllocAligned (int size)
 {
 	T *ptr = new T[size + YARP_IMAGE_ALIGN];
 	const int rem = (((int)ptr) % YARP_IMAGE_ALIGN);
-	const char addbytes = ((rem != 0) ? (YARP_IMAGE_ALIGN - rem) : 0); 
-	*(((char *)ptr) - 1) = addbytes;
-	return (T*) (((char *)ptr) + addbytes);
+	const char addbytes = YARP_IMAGE_ALIGN - rem; 
+	///((rem != 0) ? (YARP_IMAGE_ALIGN - rem) : 0); 
+
+	char *p = ((char *)ptr) + addbytes; 
+	*(p - 1) = addbytes;
+	return (T*)p;
 }
 
 template <class T>
