@@ -55,99 +55,69 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #fberton, pasa#
+///                    #Add our name(s) here#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: main.cpp,v 1.11 2003-11-20 17:46:58 babybot Exp $
+/// $Id: YARPDisparity.h,v 1.1 2003-11-20 17:46:58 babybot Exp $
 ///
 ///
+// disparity.h: interface for the YARPDisparityTool class.
+//
+//////////////////////////////////////////////////////////////////////
 
+#if !defined(AFX_DISPARITY_H__E3019D2A_4BC3_4AD0_8355_AAA601391249__INCLUDED_)
+#define AFX_DISPARITY_H__E3019D2A_4BC3_4AD0_8355_AAA601391249__INCLUDED_
 
-#include <stdio.h>
-#include "LogPolarSDK.h"
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
 
-/// as copied from YARPLogpolar.h
+#include <YARPAll.h>
+#include <YARPImage.h>
+#include <YARPImageDraw.h>
+#include <YARPSemaphore.h>
+#include <YARPTime.h>
+#include <YARPImages.h>
+///#include <YARPLogpolar.h>
+
+#include <LogPolarSDK.h>
+
+///
+///
 ///
 
-namespace _logpolarParams
+class YARPDisparityTool
 {
-	const int _xsize = 256;
-	const int _ysize = 256;
-	const int _srho = 152;
-	const int _stheta = 252;
-	const int _sfovea = 42;
-	const int _salign = 8;
+private:
+
+public:
+	Image_Data _imgL,_imgS;
+
+	Image_Data lpInfo (int SXR, int SYR, int rho, int theta, int fovea, int res, double ratio, int pad);
+
+	int   _shiftLevels;
+	int * _shiftMap;
+	int * _shiftFunction;
+	IntNeighborhood * _dsTable;
+	double * _corrFunct;
+
+	int loadShiftTable(Image_Data* Par);
+	int loadDSTable(Image_Data* Par);
+
+	void downSample(YARPImageOf<YarpPixelRGB> & inImg, YARPImageOf<YarpPixelRGB> & outImg);
+	int computeDisparity (YARPImageOf<YarpPixelRGB> & inLImg,
+						 YARPImageOf<YarpPixelRGB> & inRImg);
+
+	void makeHistogram(YARPImageOf<YarpPixelMono> & hImg);
+
+	YARPDisparityTool();
+	virtual ~YARPDisparityTool();
+
+protected:
+	char _path[256];
 };
 
-///
-///
-int main (int argc, char *argv[])
-{
-	using namespace _logpolarParams;
-
-	char Path[512];
-
-	if (argc < 2)
-	{
-		printf ("Use %s <path> (with trailing backslash!)\n", argv[0]);
-		return -1;
-	}
-
-	sprintf (Path, "%s\0", argv[1]);
-	printf ("Creating maps in : %s\n", Path);
-
-	Image_Data Param = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho, _stheta, _sfovea,
-		1090,
-		CUST,
-		256.0/1090.0);
-	
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-
-	printf ("Creating Ang_Shift_Map map \n");
-	Build_Ang_Shift_Map(&Param, Path);
-	printf ("Creating Pad map \n");
-	Build_Pad_Map(&Param, Path);
-	printf ("Creating Remap_Map map for the whole image\n", Path);
-	Build_Remap_Map (&Param, Path);
-	printf ("Creating Cart2LP map \n", Path);
-	Build_Cart2LP_Map(&Param, Path);
-
-	Param = Set_Param(
-		_xsize, _ysize,
-		128, 128,
-		_srho, _stheta, _sfovea,
-		1090,
-		CUST,
-		512.0/1090.0);
-
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-
-	printf ("Creating Build_Remap map \n");
-	Build_Remap_Map(&Param, Path);
-	///printf ("Creating Crop_Remap map \n");
-	///Crop_Remap_Map(&Param, Path);
-	printf ("Creating Color map \n");
-	Build_Color_Map(&Param,Path);
-
-	///
-	Param.Pix_Numb = 2;
-
-	printf ("Creating XY map \n");
-	Build_XY_Map(&Param, Path);
-	printf ("Creating Neigbothood map \n");
-	Build_Neighborhood_Map(&Param, Path);
-	printf ("Creating Weights map \n");
-	Build_Weights_Map(&Param, Path);	
-	printf("Finish\n");
-
-	return 0;
-}
-
+#endif // !defined(AFX_DISPARITY_H__E3019D2A_4BC3_4AD0_8355_AAA601391249__INCLUDED_)

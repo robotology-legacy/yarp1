@@ -4,50 +4,21 @@
 	"..\..\..\include\ace\ace_export.h"\
 	"..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\include\ace\ace_wchar.inl"\
-	"..\..\..\include\ace\argv.h"\
-	"..\..\..\include\ace\argv.i"\
-	"..\..\..\include\ace\argv_type_converter.h"\
-	"..\..\..\include\ace\argv_type_converter.inl"\
 	"..\..\..\include\ace\base_thread_adapter.h"\
 	"..\..\..\include\ace\base_thread_adapter.inl"\
 	"..\..\..\include\ace\basic_types.h"\
 	"..\..\..\include\ace\basic_types.i"\
 	"..\..\..\include\ace\config-all.h"\
-	"..\..\..\include\ace\config-borland-common.h"\
-	"..\..\..\include\ace\config-g++-common.h"\
-	"..\..\..\include\ace\config-ghs-common.h"\
-	"..\..\..\include\ace\config-qnx-rtp.h"\
-	"..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\include\ace\config-win32-ghs.h"\
-	"..\..\..\include\ace\config-win32-mingw.h"\
-	"..\..\..\include\ace\config-win32-msvc-5.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\include\ace\config-win32-msvc-7.h"\
 	"..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\include\ace\config-win32-visualage.h"\
 	"..\..\..\include\ace\config-win32.h"\
-	"..\..\..\include\ace\config-WinCE.h"\
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\default_constants.h"\
-	"..\..\..\include\ace\event_handler.h"\
-	"..\..\..\include\ace\event_handler.i"\
-	"..\..\..\include\ace\file_lock.h"\
-	"..\..\..\include\ace\file_lock.inl"\
 	"..\..\..\include\ace\global_macros.h"\
-	"..\..\..\include\ace\iosfwd.h"\
 	"..\..\..\include\ace\log_msg.h"\
-	"..\..\..\include\ace\log_msg_callback.h"\
 	"..\..\..\include\ace\log_priority.h"\
-	"..\..\..\include\ace\malloc_base.h"\
-	"..\..\..\include\ace\managed_object.cpp"\
-	"..\..\..\include\ace\managed_object.h"\
-	"..\..\..\include\ace\managed_object.i"\
 	"..\..\..\include\ace\min_max.h"\
-	"..\..\..\include\ace\node.cpp"\
-	"..\..\..\include\ace\node.h"\
-	"..\..\..\include\ace\object_manager.h"\
-	"..\..\..\include\ace\object_manager.i"\
 	"..\..\..\include\ace\os.h"\
 	"..\..\..\include\ace\os.i"\
 	"..\..\..\include\ace\os_dirent.h"\
@@ -65,102 +36,52 @@
 	"..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\ace\process_mutex.h"\
-	"..\..\..\include\ace\process_mutex.inl"\
-	"..\..\..\include\ace\process_semaphore.h"\
-	"..\..\..\include\ace\process_semaphore.inl"\
-	"..\..\..\include\ace\rw_process_mutex.h"\
-	"..\..\..\include\ace\rw_process_mutex.inl"\
 	"..\..\..\include\ace\streams.h"\
-	"..\..\..\include\ace\sv_semaphore_complex.h"\
-	"..\..\..\include\ace\sv_semaphore_complex.i"\
-	"..\..\..\include\ace\sv_semaphore_simple.h"\
-	"..\..\..\include\ace\sv_semaphore_simple.i"\
 	"..\..\..\include\ace\synch.h"\
 	"..\..\..\include\ace\synch.i"\
 	"..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\include\ace\synch_t.h"\
 	"..\..\..\include\ace\synch_t.i"\
-	"..\..\..\include\ace\test_and_set.cpp"\
-	"..\..\..\include\ace\test_and_set.h"\
-	"..\..\..\include\ace\Test_and_Set.i"\
 	"..\..\..\include\ace\thread.h"\
 	"..\..\..\include\ace\thread.i"\
 	"..\..\..\include\ace\thread_adapter.h"\
 	"..\..\..\include\ace\thread_adapter.inl"\
-	"..\..\..\include\ace\thread_control.h"\
-	"..\..\..\include\ace\thread_control.inl"\
-	"..\..\..\include\ace\thread_exit.h"\
-	"..\..\..\include\ace\thread_hook.h"\
 	"..\..\..\include\ace\time_value.h"\
 	"..\..\..\include\ace\time_value.inl"\
-	"..\..\..\include\ace\trace.h"\
-	"..\..\..\include\ace\unbounded_queue.cpp"\
-	"..\..\..\include\ace\unbounded_queue.h"\
-	"..\..\..\include\ace\unbounded_queue.inl"\
 	"..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\include\conf\yarpconfigwin32.h"\
 	"..\..\..\include\debug.h"\
 	"..\..\..\include\end_pack_for_net.h"\
-	"..\..\..\include\FakeIpl.h"\
 	"..\..\..\include\sys\ipl.h"\
 	"..\..\..\include\sys\iplerror.h"\
 	"..\..\..\include\sys\iplmisc.h"\
-	"..\..\..\include\sys\iplwind.h"\
-	"..\..\..\include\YARPAll.h"\
-	"..\..\..\include\YARPBool.h"\
-	"..\..\..\include\YARPErrorCodes.h"\
-	"..\..\..\include\YARPNetworkTypes.h"\
-	"..\..\..\include\YARPRefCount.h"\
-	"..\..\..\include\YARPTime.h"\
+	"..\..\..\include\yarpall.h"\
+	"..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\include\yarpnetworktypes.h"\
+	"..\..\..\include\yarprefcount.h"\
+	"..\..\..\include\yarptime.h"\
 	".\include\YARPImage.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\src\YARPImageUtils.cpp : \
 	"..\..\..\include\ace\ace_export.h"\
 	"..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\include\ace\ace_wchar.inl"\
-	"..\..\..\include\ace\argv.h"\
-	"..\..\..\include\ace\argv.i"\
-	"..\..\..\include\ace\argv_type_converter.h"\
-	"..\..\..\include\ace\argv_type_converter.inl"\
-	"..\..\..\include\ace\base_thread_adapter.h"\
-	"..\..\..\include\ace\base_thread_adapter.inl"\
 	"..\..\..\include\ace\basic_types.h"\
 	"..\..\..\include\ace\basic_types.i"\
 	"..\..\..\include\ace\config-all.h"\
-	"..\..\..\include\ace\config-borland-common.h"\
-	"..\..\..\include\ace\config-g++-common.h"\
-	"..\..\..\include\ace\config-ghs-common.h"\
-	"..\..\..\include\ace\config-qnx-rtp.h"\
-	"..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\include\ace\config-win32-ghs.h"\
-	"..\..\..\include\ace\config-win32-mingw.h"\
-	"..\..\..\include\ace\config-win32-msvc-5.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\include\ace\config-win32-msvc-7.h"\
 	"..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\include\ace\config-win32-visualage.h"\
 	"..\..\..\include\ace\config-win32.h"\
-	"..\..\..\include\ace\config-WinCE.h"\
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\default_constants.h"\
 	"..\..\..\include\ace\global_macros.h"\
-	"..\..\..\include\ace\iosfwd.h"\
 	"..\..\..\include\ace\log_msg.h"\
-	"..\..\..\include\ace\log_msg_callback.h"\
 	"..\..\..\include\ace\log_priority.h"\
-	"..\..\..\include\ace\malloc_base.h"\
-	"..\..\..\include\ace\managed_object.cpp"\
-	"..\..\..\include\ace\managed_object.h"\
-	"..\..\..\include\ace\managed_object.i"\
 	"..\..\..\include\ace\min_max.h"\
-	"..\..\..\include\ace\node.cpp"\
-	"..\..\..\include\ace\node.h"\
-	"..\..\..\include\ace\object_manager.h"\
-	"..\..\..\include\ace\object_manager.i"\
 	"..\..\..\include\ace\os.h"\
 	"..\..\..\include\ace\os.i"\
 	"..\..\..\include\ace\os_dirent.h"\
@@ -179,32 +100,20 @@
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
 	"..\..\..\include\ace\streams.h"\
-	"..\..\..\include\ace\thread_adapter.h"\
-	"..\..\..\include\ace\thread_adapter.inl"\
-	"..\..\..\include\ace\thread_control.h"\
-	"..\..\..\include\ace\thread_control.inl"\
-	"..\..\..\include\ace\thread_exit.h"\
-	"..\..\..\include\ace\thread_hook.h"\
 	"..\..\..\include\ace\time_value.h"\
 	"..\..\..\include\ace\time_value.inl"\
-	"..\..\..\include\ace\trace.h"\
-	"..\..\..\include\ace\unbounded_queue.cpp"\
-	"..\..\..\include\ace\unbounded_queue.h"\
-	"..\..\..\include\ace\unbounded_queue.inl"\
 	"..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\include\conf\yarpconfigwin32.h"\
 	"..\..\..\include\debug.h"\
 	"..\..\..\include\end_pack_for_net.h"\
-	"..\..\..\include\FakeIpl.h"\
 	"..\..\..\include\sys\ipl.h"\
 	"..\..\..\include\sys\iplerror.h"\
 	"..\..\..\include\sys\iplmisc.h"\
-	"..\..\..\include\sys\iplwind.h"\
-	"..\..\..\include\YARPAll.h"\
-	"..\..\..\include\YARPBool.h"\
-	"..\..\..\include\YARPErrorCodes.h"\
-	"..\..\..\include\YARPNetworkTypes.h"\
+	"..\..\..\include\yarpall.h"\
+	"..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\include\yarpnetworktypes.h"\
 	".\include\YARPImage.h"\
 	".\include\YARPImageUtils.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	

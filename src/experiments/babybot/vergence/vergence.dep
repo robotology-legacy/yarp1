@@ -1,6 +1,6 @@
-# Microsoft Developer Studio Generated Dependency File, included by tools.mak
+# Microsoft Developer Studio Generated Dependency File, included by vergence.mak
 
-.\YARPDisparity.cpp : \
+.\attn_vergence.cpp : \
 	"..\..\..\..\include\ace\ace.h"\
 	"..\..\..\..\include\ace\ace.i"\
 	"..\..\..\..\include\ace\ace_export.h"\
@@ -134,28 +134,38 @@
 	"..\..\..\..\include\sys\iplerror.h"\
 	"..\..\..\..\include\sys\iplmisc.h"\
 	"..\..\..\..\include\yarpall.h"\
+	"..\..\..\..\include\yarpbabybotheadkin.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\..\include\yarpfft.h"\
+	"..\..\..\..\include\yarpfilters.h"\
 	"..\..\..\..\include\yarpfragments.h"\
+	"..\..\..\..\include\yarpimage.h"\
+	"..\..\..\..\include\yarpimagedraw.h"\
+	"..\..\..\..\include\yarpimagefile.h"\
+	"..\..\..\..\include\yarpimageport.h"\
+	"..\..\..\..\include\yarpimageportcontent.h"\
+	"..\..\..\..\include\yarpimages.h"\
+	"..\..\..\..\include\yarpimageutils.h"\
+	"..\..\..\..\include\yarpkinematics.h"\
 	"..\..\..\..\include\yarplist.h"\
+	"..\..\..\..\include\yarplogpolar.h"\
+	"..\..\..\..\include\yarpmath.h"\
+	"..\..\..\..\include\yarpmatrix.h"\
+	"..\..\..\..\include\yarpmatrix.inl"\
 	"..\..\..\..\include\yarpnameid.h"\
 	"..\..\..\..\include\yarpnameid_defs.h"\
 	"..\..\..\..\include\yarpnameservice.h"\
 	"..\..\..\..\include\yarpnetworktypes.h"\
+	"..\..\..\..\include\yarpparseparameters.h"\
 	"..\..\..\..\include\yarpport.h"\
 	"..\..\..\..\include\yarpportcontent.h"\
+	"..\..\..\..\include\yarprobotmath.h"\
+	"..\..\..\..\include\yarprobotmath.inl"\
 	"..\..\..\..\include\yarpsemaphore.h"\
+	"..\..\..\..\include\yarpsimpleoperations.h"\
 	"..\..\..\..\include\yarpstring.h"\
 	"..\..\..\..\include\yarpthread.h"\
 	"..\..\..\..\include\yarptime.h"\
-	"..\include\YARPFilters.h"\
-	"..\include\YARPImage.h"\
-	"..\include\YARPImageDraw.h"\
-	"..\include\YARPImagePort.h"\
-	"..\include\YARPImagePortContent.h"\
-	"..\include\yarpimages.h"\
-	"..\include\YARPImageUtils.h"\
-	".\YARPDisparity.h"\
-	".\YARPImageFile.h"\
-	".\YARPSimpleOperations.h"\
+	"..\..\..\..\include\yarpvectorportcontent.h"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	

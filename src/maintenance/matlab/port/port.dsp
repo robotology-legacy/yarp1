@@ -104,17 +104,7 @@ PostBuild_Cmds=copy .\port.dll ..\..\..\..\bin\winnt	copy .\*.m ..\..\..\..\bin\
 # Begin Source File
 
 SOURCE=.\global.cpp
-
-!IF  "$(CFG)" == "port - Win32 Release"
-
 # SUBTRACT CPP /D "__STDC__"
-
-!ELSEIF  "$(CFG)" == "port - Win32 Debug"
-
-# SUBTRACT CPP /D "__STDC__"
-
-!ENDIF 
-
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -134,7 +124,7 @@ SOURCE=.\global.h
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE="D:\Users\pasa\Repository\yarp\src\maintenance\matlab\port\port.c"
+SOURCE=.\port.c
 # End Source File
 # End Group
 # Begin Group "Matlab Files"

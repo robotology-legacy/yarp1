@@ -189,6 +189,10 @@ SOURCE=.\YARPDIBConverter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPDisparity.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPHistoSegmentation.cpp
 # End Source File
 # Begin Source File
@@ -234,6 +238,10 @@ SOURCE=.\YARPConicFitter.h
 # Begin Source File
 
 SOURCE=.\YARPDIBConverter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPDisparity.h
 # End Source File
 # Begin Source File
 

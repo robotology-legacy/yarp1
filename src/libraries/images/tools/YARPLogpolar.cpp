@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.22 2003-11-12 17:14:27 babybot Exp $
+/// $Id: YARPLogpolar.cpp,v 1.23 2003-11-20 17:46:58 babybot Exp $
 ///
 ///
 
@@ -84,7 +84,7 @@ YARPLogpolarSampler::YARPLogpolarSampler (void)
 		256, 256,
 		_srho, _stheta, _sfovea,
 		1090,
-		CUSTOM,
+		CUST,
 		256.0/1090.0);
 
 	_img.padding = YarpImageAlign;
@@ -187,7 +187,7 @@ YARPLogpolar::YARPLogpolar (void)
 				256, 256,
 				_srho, _stheta, _sfovea,
 				1090,
-				CUSTOM,
+				CUST,
 				256.0/1090.0);
 
 			_img.padding = YarpImageAlign;
@@ -263,7 +263,7 @@ YARPLogpolar::YARPLogpolar (void)
 				_xsizefovea, _ysizefovea,
 				_srho, _stheta, _sfovea,
 				1090,
-				CUSTOM,
+				CUST,
 				512.0/1090.0);
 
 			_img.padding = YarpImageAlign;
@@ -291,7 +291,7 @@ YARPLogpolar::YARPLogpolar (void)
 				256, 256,
 				_srho, _stheta, _sfovea,
 				1090,
-				CUSTOM,
+				CUST,
 				256.0/1090.0);
 	
 			_img.padding = YarpImageAlign;
