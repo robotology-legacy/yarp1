@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPRndUtils.h,v 1.1 2004-02-07 17:20:54 natta Exp $
+/// $Id: YARPRndUtils.h,v 1.2 2004-07-27 13:17:22 babybot Exp $
 ///
 ///
 /// Useful classes for random number generations.
@@ -138,6 +138,8 @@ public:
 	YARPRndGaussVector(const YVector &av, const YVector &std)
 	{ resize(av, std); }
 
+	void resize(int s, double av, double std)
+	{ resize(YVector(1, &av), YVector(1, &std)); }
 	void resize(int s, const double *av, const double *std)
 	{ resize(YVector(s, av), YVector(s, std)); }
 

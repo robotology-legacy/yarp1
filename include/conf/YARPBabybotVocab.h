@@ -131,6 +131,7 @@ const char *const YBVVAResetIORTable = "VAResetIORTable";
 // saccade control messages
 const char *const YBVSaccadeSetTarget = "SaccadeSetTarget";
 const char *const YBVSaccadeNewTarget = "SaccadeNewTarget";
+const char *const YBVSaccadeNewImpTarget = "SaccadeNewImpTarget";
 const char *const YBVSaccadeFixated = "SaccadeFixated";
 
 // misc

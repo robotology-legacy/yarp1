@@ -29,6 +29,7 @@ class SBSharedData: public YARPInputPortOf<YARPBottle>
 			targetY = 128;
 
 			_newTarget = false;
+			_isImportant = false;
 		}
 		~SBSharedData()
 		{}
@@ -40,6 +41,12 @@ class SBSharedData: public YARPInputPortOf<YARPBottle>
 			YARPInputPortOf<YARPBottle>::Read();
 			YARPInputPortOf<YARPBottle>::Content().readInt(&x);
 			YARPInputPortOf<YARPBottle>::Content().readInt(&y);
+
+			int dummy;
+			if (YARPInputPortOf<YARPBottle>::Content().tryReadInt(&dummy))
+				_isImportant = true;
+			else 
+				_isImportant = false;
 			
 			if ( (x<=0) || (y<=0) )
 			{
@@ -64,7 +71,12 @@ class SBSharedData: public YARPInputPortOf<YARPBottle>
 		{
 			_outBehavior.Content().reset();
 			_outBehavior.Content().setID(YBVMotorLabel);
-			_outBehavior.Content().writeVocab(YBVSaccadeNewTarget);
+			
+			if (_isImportant)
+				_outBehavior.Content().writeVocab(YBVSaccadeNewImpTarget);
+			else
+				_outBehavior.Content().writeVocab(YBVSaccadeNewTarget);
+			
 			_outBehavior.Write();
 		}
 
@@ -96,6 +108,7 @@ class SBSharedData: public YARPInputPortOf<YARPBottle>
 	int targetX;
 	int targetY;
 	bool _newTarget;
+	bool _isImportant;
 	SaccadeControl _saccade;
 };
 
