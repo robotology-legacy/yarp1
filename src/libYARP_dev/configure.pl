@@ -9,16 +9,16 @@ use File::Copy;
 
 print "Entering configure process of YARP device drivers...\n";
 
-#chomp ($ver = `ver`);
-#chomp ($uname = `uname`);
-#if (index ($ver, "Windows") < 0 && index ($uname, "uname") < 0)
-#{
-#	print "This is a Windows 2000/XP specific script\n";
-#	print "Perhaps this procedure can be simply extended to\n"; 
-#	print "other OSes but for now, this is all experimental...\n";
-#	
-#	die "This script is specific to Windows 2000/XP and Cygwin\n";
-#}
+chomp ($ver = `ver`);
+chomp ($uname = `uname`);
+if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
+{
+	print "This is a Windows 2000/XP specific script\n";
+	print "Perhaps this procedure can be simply extended to\n"; 
+	print "other OSes but for now, this is all experimental...\n";
+	
+	die "This script is specific to Windows 2000/XP and Cygwin\n";
+}
 
 $yarp_root = $ENV{'YARP_ROOT'};
 if (!defined($yarp_root))
@@ -43,13 +43,17 @@ if (-e $config_file)
 	while (<CONFIG>)
 	{
 		chomp;
-		if (/^\[(\w+)\]$/)
+		if (/^\[(\w+)\]\s?/)
 		{
 			$contextual = $1;
 		}
 		elsif (/^([A-Za-z0-9_]+)= ?/)
 		{
-			$options{$contextual."<-".$1} = $';
+			my $word = $1;
+			if ($' =~ /((\w|\/)+)\s?/)
+			{
+				$options{$contextual."<-".$word} = $1;
+			}
 		}
 	}
 

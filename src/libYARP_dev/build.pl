@@ -65,13 +65,17 @@ my $contextual;
 while (<CONFIG>)
 {
 	chomp;
-	if (/^\[(\w+)\]$/)
+	if (/^\[(\w+)\]\s?/)
 	{
 		$contextual = $1;
 	}
 	elsif (/^([A-Za-z0-9_]+)= ?/)
 	{
-		$options{$contextual."<-".$1} = $';
+		my $word = $1;
+		if ($' =~ /((\w|\/)+)\s?/)
+		{
+			$options{$contextual."<-".$word} = $1;
+		}
 	}
 }
 
@@ -161,8 +165,12 @@ if ($install)
 
 	print "\nNow building libraries...\n";
 
-	print `lib .\\lib\\$os\\libYARP_dev_x.lib $libraries /out:.\\lib\\$os\\libYARP_dev.lib`;
-	print `lib .\\lib\\$os\\libYARP_devd_x.lib $libraries /out:.\\lib\\$os\\libYARP_devd.lib`;
+	$libraries =~ s# #\"#;
+	$libraries =~ s# #\" \"#g;
+	$libraries = "$libraries"."\"";
+	
+	print `lib \".\\lib\\$os\\libYARP_dev_x.lib\" $libraries /out:\".\\lib\\$os\\libYARP_dev.lib\"`;
+	print `lib \".\\lib\\$os\\libYARP_devd_x.lib\" $libraries /out:\".\\lib\\$os\\libYARP_devd.lib\"`;
 
 	copy ("./lib/$os/libYARP_dev.lib", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_dev.lib\"\n";
 	copy ("./lib/$os/libYARP_devd.lib", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_devd.lib\"\n";

@@ -45,13 +45,17 @@ if (-e $config_file)
 	while (<CONFIG>)
 	{
 		chomp;
-		if (/^\[(\w+)\]$/)
+		if (/^\[(\w+)\]\s?/)
 		{
 			$contextual = $1;
 		}
 		elsif (/^([A-Za-z0-9_]+)= ?/)
 		{
-			$options{$contextual."<-".$1} = $';
+			my $word = $1;
+			if ($' =~ /([A-Za-z0-9_\/]+)\s?/)
+			{
+				$options{$contextual."<-".$word} = $1;
+			}
 		}
 	}
 
@@ -72,7 +76,7 @@ print "Now I'm going to ask a few questions that I need for configuring the devi
 print "Your \$YARP_ROOT is: \"$yarp_root\"\n\n";
 print "Please, use always the forward slash as a separator when indicating pathnames!\n";
 
-print "I determined already that you're running on Windows. ";
+print "I determined already that you're running on Windows. \n";
 die "But, your config file doesn't report so\n" unless ($os eq "winnt");
 
 print "I also imagine you've compiled YARP_OS, YARP_sig, YARP_dev, YARP_math, I'm not checking for it so please ";

@@ -44,7 +44,7 @@ if ($os ne "winnt")
 	die "This script is not yet tuned for OSes apart \"winnt\"\n";
 }
 
-my @projects = qw/ yarp-connect yarp-read yarp-service yarp-write /;
+my @projects = qw/ yarp-connect yarp-read yarp-service yarp-write yarp-names /;
 
 select STDERR;
 

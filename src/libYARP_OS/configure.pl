@@ -43,14 +43,17 @@ if (-e $config_file)
 	while (<CONFIG>)
 	{
 		chomp;
-		if (/^\[(\w+)\]$/)
+		if (/^\[(\w+)\]\s?/)
 		{
-	#		print "Matched: $`<$&>$'\n";
 			$contextual = $1;
 		}
 		elsif (/^([A-Za-z0-9_]+)= ?/)
 		{
-			$options{$contextual."<-".$1} = $';
+			my $word = $1;
+			if ($' =~ /([A-Za-z0-9_\/]+)\s?/)
+			{
+				$options{$contextual."<-".$word} = $1;
+			}
 		}
 	}
 
