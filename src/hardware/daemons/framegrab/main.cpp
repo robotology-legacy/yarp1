@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.30 2003-07-24 07:56:52 gmetta Exp $
+/// $Id: main.cpp,v 1.31 2003-07-26 22:27:10 gmetta Exp $
 ///
 ///
 
@@ -90,7 +90,7 @@
 
 #	include <YARPBabybotGrabber.h>
 #	define Grabber YARPBabybotGrabber
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #elif defined(__QNXBabybot__)
 
