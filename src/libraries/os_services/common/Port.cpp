@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.15 2003-05-15 21:16:49 gmetta Exp $
+/// $Id: Port.cpp,v 1.16 2003-05-16 21:57:08 gmetta Exp $
 ///
 ///
 
@@ -947,6 +947,8 @@ Port::~Port()
 	}
 
 	End();
+
+	/// if I knew the pid of the connection, I should probably close down the channel properly.
 }
 
 

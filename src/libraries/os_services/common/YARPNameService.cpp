@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.11 2003-05-15 16:57:45 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.12 2003-05-16 21:57:08 gmetta Exp $
 ///
 ///
 
@@ -109,7 +109,6 @@ static YARPNameService _justtoinitialize;
 char * GetYarpRoot (void)
 {
 	char * ret = getenv ("YARP_ROOT");
-	///ACE_DEBUG ((LM_DEBUG, "getenv returned: %s\n", ret));
 
 	if (ret == NULL)
 	{
@@ -504,7 +503,7 @@ int YARPEndpointManager::Close(const YARPNameID& endp)
 		return YARPSocketEndpointManager::Close ();
 
 	case YARP_QNET:
-		return YARPNativeEndpointManager::Close ();
+		return YARPNativeEndpointManager::Close (endp);
 	}
 
 	return YARP_FAIL;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.cpp,v 1.4 2003-05-01 22:51:20 gmetta Exp $
+/// $Id: YARPNativeNameService.cpp,v 1.5 2003-05-16 21:57:08 gmetta Exp $
 ///
 ///
 //// #include <ace/OS.h>
@@ -86,6 +86,7 @@ int YARPNativeEndpointManager::CreateQnetChannel (void)
 ///
 YARPNameID YARPNativeEndpointManager::CreateInputEndpoint (YARPUniqueNameID& name)
 {
+	ACE_UNUSED_ARG(name);
 	return YARPNameID();
 }
 
@@ -93,6 +94,7 @@ YARPNameID YARPNativeEndpointManager::CreateInputEndpoint (YARPUniqueNameID& nam
 
 YARPNameID YARPNativeEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
 {
+	ACE_UNUSED_ARG(name);
 	return YARPNameID();
 }
 
@@ -101,8 +103,9 @@ int YARPNativeEndpointManager::ConnectEndpoints(YARPNameID& dest)
 	return YARP_FAIL;
 }
 
-int YARPNativeEndpointManager::Close(void)
+int YARPNativeEndpointManager::Close(const YARPNameID& id)
 {
+	ACE_UNUSED_ARG(id);
 	return YARP_FAIL;
 }
 
@@ -111,11 +114,13 @@ int YARPNativeEndpointManager::Close(void)
 ///
 int YARPNativeNameService::RegisterName(const char *name)
 {
+	ACE_UNUSED_ARG(name);
 	return -1;
 }
 
 YARPNameID YARPNativeNameService::LocateName(const char *name)
 {
+	ACE_UNUSED_ARG(name);
 	return YARPNameID();
 }
 

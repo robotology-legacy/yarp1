@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.h,v 1.3 2003-05-01 22:51:19 gmetta Exp $
+/// $Id: YARPNativeNameService.h,v 1.4 2003-05-16 21:57:08 gmetta Exp $
 ///
 ///
 /*
@@ -101,7 +101,7 @@ public:
 	static YARPNameID CreateInputEndpoint(YARPUniqueNameID& name);
 	static YARPNameID CreateOutputEndpoint(YARPUniqueNameID& name);
 	static int ConnectEndpoints(YARPNameID& dest);
-	static int Close(void);
+	static int Close(const YARPNameID& id);
 };
 
 #endif

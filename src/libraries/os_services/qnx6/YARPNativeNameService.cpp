@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.cpp,v 1.4 2003-05-15 16:57:46 gmetta Exp $
+/// $Id: YARPNativeNameService.cpp,v 1.5 2003-05-16 21:57:08 gmetta Exp $
 ///
 ///
 
@@ -131,10 +131,9 @@ int YARPNativeEndpointManager::ConnectEndpoints(YARPNameID& dest)
 	return YARP_OK;
 }
 
-int YARPNativeEndpointManager::Close(void)
+int YARPNativeEndpointManager::Close(const YARPNameID& id)
 {
-	ACE_DEBUG ((LM_DEBUG, "Close not implemented yet for QNX-QNET\n"));
-	return YARP_OK;
+	return ConnectDetach (id.getRawIdentifier());
 }
 
 ///
@@ -155,49 +154,3 @@ int YARPNativeNameService::IsNonTrivial()
 	return 1;
 }
 
-/*
-int register_name(const char * name, int chid)
-{
-	char hostname[250];
-	YARPRegisteredName frname;
-	YARPNameManager  * namemanager;
-		
-	namemanager = new YARPNameManager(FILE_NAME);
-	
-	assert(namemanager != NULL);
-	
-	gethostname(hostname,256);
-	YARPRegisteredName	rname(name,
-						  hostname,
-						  getpid(),
-						  chid);
-	
-	namemanager->Add(rname);		
-	//namemanager->List();	
-	delete namemanager;		
-	
-}
-
-int name_search(const char * name)
-{
-	YARPNameManager  * namemanager;
-	YARPRegisteredName rname;
-	int coid = 0;
-	   
-	namemanager = new YARPNameManager(FILE_NAME);
-  	
-  	if(namemanager->FindName((char *)name,rname))
-  	{
-  		coid = ConnectAttach( netmgr_strtond(rname.GetNode(),NULL),
-  					   rname.GetProcId(),
-  					   rname.GetChId(),
-  					   0,
-  					   0);
- 		//cout << "I have found: "<< coid << " " << rname ;
-  	}      
-       
-    delete namemanager;   
-    return coid;
-}
-
-*/

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.12 2003-05-16 00:04:51 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.13 2003-05-16 21:57:08 gmetta Exp $
 ///
 ///
 
@@ -74,10 +74,6 @@
 #ifdef __WIN_MSVC__
 #	include <windows.h>
 #endif
-
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <assert.h>
 
 #include "YARPSocketNameService.h"
 #include "YARPSocket.h"
@@ -445,6 +441,7 @@ int YARPSocketEndpointManager::SetTCPNoDelay (void)
 	return YARP_FAIL;
 }
 
+
 /// implementation of YARPSocketNameService.
 ///
 ///
@@ -539,7 +536,7 @@ YARPUniqueNameID YARPSocketNameService::RegisterName(YARPNameClient& namer, cons
 	return n;
 }
 
-//YARPNameID YARPSocketNameService::LocateName(const char *name)
+
 YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const char *name, int name_type)
 {
 	/// handle the connection w/ the remote name server.
