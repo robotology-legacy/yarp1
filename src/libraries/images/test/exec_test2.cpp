@@ -55,113 +55,86 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #pasa, paulfitz#
+///                    #pasa#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: YARPImagePortContent.h,v 1.4 2003-06-22 22:22:36 babybot Exp $
+/// $Id: exec_test2.cpp,v 1.3 2003-06-22 22:22:36 babybot Exp $
 ///
 ///
 
-#ifndef YARPIMAGEPORTCONTENT_INC
-#define YARPIMAGEPORTCONTENT_INC
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
+#include <ace/OS.h>
 
-#ifdef YARP_HAS_PRAGMA_ONCE
-#	pragma once
-#endif
+#include <YARPPort.h>
+#include <YARPImages.h>
+#include <iostream>
 
-#include "YARPImage.h"
-#include "YARPPort.h"
-#include "YARPPortContent.h"
+int _num_img = 1;
+char _name[512];
 
-#include "begin_pack_for_net.h"
-
-class YARPImagePortContentHeader
+/// LATER: used to parse command line options.
+int ParseParams (int argc, char *argv[]) 
 {
-public:
-  NetInt32 len;
-  NetInt32 w;
-  NetInt32 id;
-  NetInt32 h;
-  NetInt32 depth;
-  double timestamp;
-} PACKED_FOR_NET;
+	ACE_OS::sprintf (_name, "/%s/o:img\0", argv[0]);
+	int i;
 
-#include "end_pack_for_net.h"
-
-class YARPImagePortContent : public YARPGenericImage, public YARPPortContent
-{
-public:
-	YARPImagePortContentHeader header;
-	virtual ~YARPImagePortContent () 
+	for (i = 1; i < argc; i++)
 	{
-		ACE_DEBUG ((LM_DEBUG, "destroying a YARPImagePortContent\n"));
-	}
-
-	virtual int Read(YARPPortReader& reader)
-	{
-		if (reader.Read((char*)(&header),sizeof(header)))
+		if (argv[i][0] == '+')
 		{
-			//	  cout.flush();
-			SetID(header.id);
-			//SetPixelSize(header.depth);
-			///int r = GetWidth();
-			if (GetWidth()!=header.w || GetHeight()!=header.h)
-			{
-				//	      cout << "CREATING!! " << header.w << " " << GetWidth() << endl;
-				Resize(header.w,header.h);
-			}
-
-			char *mem = GetRawBuffer();
-			ACE_ASSERT(mem!=NULL);
-			ACE_ASSERT(GetWidth()==header.w && GetHeight()==header.h && GetPixelSize()==header.depth);
-			reader.Read(mem,header.len);
-			//timestamp = header.timestamp;
+			ACE_OS::sprintf (_name, "/%s/o:img\0", argv[i]+1);
 		}
-		return 1;
+		else
+		if (argv[i][0] == '-')
+		{
+			switch (argv[i][1])
+			{
+			case 'n':
+				_num_img = ACE_OS::atoi (argv[i+1]);
+				ACE_OS::printf ("reading %d frames\n", _num_img);
+				i++;
+				break;
+			}
+		}
+		else
+		{
+			ACE_OS::fprintf (stderr, "unrecognized parameter %d:%s\n", i, argv[i]);
+		}
 	}
 
-	virtual int Write(YARPPortWriter& writer)
+	return YARP_OK; 
+}
+
+
+int main(int argc, char *argv[])
+{
+	ParseParams (argc, argv);
+
+	YARPImageOf<YarpPixelBGR> img;
+	YARPInputPortOf<YARPGenericImage> inport (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+
+	inport.Register (_name);
+	int frame_no = 0;
+
+	char savename[512];
+	memset (savename, 0, 512);
+
+	for (frame_no = 0; frame_no < _num_img; frame_no++)
 	{
-		//      cout << "HIT Write called" << endl;
-		header.h = GetHeight();
-		header.w = GetWidth();
-		header.depth = GetPixelSize();
-		header.id = GetID();
-		header.len = header.h*(header.w*header.depth+GetPadding());      
-		header.timestamp = 0;
-		writer.Write((char*)(&header),sizeof(header));
-		char *mem = GetRawBuffer();
-		ACE_ASSERT(mem!=NULL);
-		writer.Write(mem,header.len);
-		return 1;
+		inport.Read ();
+		img.Refer (inport.Content());
+
+		ACE_OS::printf (">>> got a frame\n");
+
+		ACE_OS::sprintf (savename, "test2_out%04d.ppm", frame_no);
+		YARPImageFile::Write (savename, img);
 	}
 
-	// Called when communications code is finished with the object, and
-	// it will be passed back to the user.
-	// Often fine to do nothing here.
-	virtual int Recycle() { return 0; }
-};
+	return 0;
+}
 
-
-// The following has not been tested yet 
-
-class YARPInputPortOf<YARPGenericImage> : public YARPBasicInputPort<YARPImagePortContent>
-{
-public:
-	YARPInputPortOf<YARPGenericImage>(int n_service_type = DEFAULT_BUFFERS, 
-					  int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
-		YARPBasicInputPort<YARPImagePortContent> (n_service_type, n_protocol_type) {}
-};
-
-class YARPOutputPortOf<YARPGenericImage> : public YARPBasicOutputPort<YARPImagePortContent>
-{
-};
-
-
-#endif

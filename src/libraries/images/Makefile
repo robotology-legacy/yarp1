@@ -9,7 +9,7 @@ VPATH += $(OUT_SYS)
 VPATH += $(YARP_ROOT)/lib/$(SYSDIR)
 
 OBJS = $(OUT_SYS)/*.o
-FAKEIPL = ./fakeipl/fakeipl.a
+FAKEIPL = ./fakeipl/FakeIpl.o
 
 CODELIB = images.lib
 

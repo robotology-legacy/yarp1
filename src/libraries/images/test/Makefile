@@ -1,64 +1,35 @@
-ifeq ($(shell uname),QNX)
-  CC = cc -l socket -l unix -D__QNX__ -D__QNX4__
-  SYSDIR = qnx
-  SYSLIB = 
-else
-  ifeq ($(shell uname),Linux)
-    CC = g++ -D__LINUX__
-    SYSDIR = linux
-    SYSLIB = -lpthread
-  else
-    CC = g++ -D__WINNT__
-    SYSDIR = winnt
-    SYSLIB = 
-  endif
-endif
+#----------------------------------------------------------------------------
+#       Makefile,v 1.27 2002/11/16 15:37:16 bala Exp
+#
+#----------------------------------------------------------------------------
 
-TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp))
-EXEC_TARGETS = $(patsubst %.cpp, $(GENDIR)/%, $(wildcard exec_*.cpp))
-CFLAGS = -g -I../include -I../../include -I$(YARP_ROOT)/include -I$(YARP_ROOT)/include/sys -I../include -I/home/cog/include/cpp -I/usr/include
-#cpp is just there for the stl in qnx
-LIBS = -L$(YARP_ROOT)/lib/$(SYSDIR) $(YARP_ROOT)/lib/$(SYSDIR)/images.lib $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib $(YARP_ROOT)/lib/$(SYSDIR)/fakeipl.lib $(YARP_ROOT)/lib/$(SYSDIR)/math.lib $(YARP_ROOT)/lib/$(SYSDIR)/models.lib $(SYSLIB)
+#----------------------------------------------------------------------------
+#       Local macros
+#----------------------------------------------------------------------------
 
-SUBDIRS =
+include $(YARP_ROOT)/conf/Makefile.template
 
-GENDIR = obj/$(SYSDIR)
+#TARGETS = $(patsubst %.cpp, %, $(wildcard *.cpp)) 
+TARGETS = exec_test1 exec_test2
 
-VPATH += $(GENDIR)
+# For make depend.
+#SRC = $(addsuffix .cpp, $(TARGETS))
+#OBJ = $(addsuffix .o, $(TARGETS))
 
-all: target
+all: 
+	@for d in $(TARGETS) ; do \
+	( $(MAKE) $(MAKEFLAGS) -f Makefile.ace BIN=$$d ) ; done
 
-test: target
-	@for f in $(EXEC_TARGETS); do \
-	echo "# Executing $$f ################################"; \
-	$$f; \
-	done
+clean:
+	@for d in $(TARGETS) ; do \
+	( $(MAKE) $(MAKEFLAGS) -f Makefile.ace BIN=$$d clean ) ; done
 
-target: $(TARGETS) $(EXEC_TARGETS) subtarget
+#----------------------------------------------------------------------------
+#       Dependencies
+#----------------------------------------------------------------------------
 
-$(GENDIR)/%.o: %.cpp
-	$(CC) $(CFLAGS) -c $^ -o $@
-
-$(GENDIR)/%: %.o
-	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
-
-clean: subclean
-	rm -f $(TARGETS) $(EXEC_TARGETS)
-	rm -f *_out.ppm
-
-install: subinstall
-	@echo Doing nothing as yet
-
-subtarget :
-	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) $(MAKEFLAGS) target ) ; done
-
-subclean :
-	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) $(MAKEFLAGS) clean ) ; done
-
-subinstall :
-	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) $(MAKEFLAGS) install ) ; done
+# DO NOT DELETE THIS LINE -- g++dep uses it.
+# DO NOT PUT ANYTHING AFTER THIS LINE, IT WILL GO AWAY.
 
 
+# IF YOU PUT ANYTHING HERE IT WILL GO AWAY

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test1.cpp,v 1.2 2003-06-05 12:40:04 gmetta Exp $
+/// $Id: exec_test1.cpp,v 1.3 2003-06-22 22:22:36 babybot Exp $
 ///
 ///
 
@@ -74,9 +74,13 @@
 
 int main(int argc, char *argv[])
 {
+	ACE_UNUSED_ARG(argc);
+	ACE_UNUSED_ARG(argv);
+
 	YARPImageOf<YarpPixelRGB> img, img2;
 	
-	YARPImageFile::Read("test1.ppm", img);
+	if (YARPImageFile::Read("test1.ppm", img) < 0)
+		return -1;
 
 	img2.ScaledCopy(img,64,64);
 

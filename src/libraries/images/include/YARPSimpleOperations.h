@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.h,v 1.5 2003-06-18 08:22:27 babybot Exp $
+/// $Id: YARPSimpleOperations.h,v 1.6 2003-06-22 22:22:36 babybot Exp $
 ///
 ///
 
@@ -113,13 +113,8 @@ public:
 
 	inline static int ComputePadding (int linesize, int align)
 	{
-#ifdef __QNX__
-		/// note: there's no padding on QNX images.
-		return 0;
-#else
 		int rem = linesize % align;
 		return (rem != 0) ? (align - rem) : rem;
-#endif
 	}
 };
 
