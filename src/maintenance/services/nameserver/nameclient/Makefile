@@ -12,7 +12,7 @@ include $(YARP_ROOT)/conf/Makefile.template
 CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS) $(CFAST)
 
 BIN     = main
-TBIN	= nclient
+TBIN	= nc
 	
 FILES 	= 
 
