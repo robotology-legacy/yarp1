@@ -1,7 +1,7 @@
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.7 2003-05-04 18:10:44 natta Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.8 2003-05-05 17:18:18 natta Exp $
 
 #include <ace/log_msg.h>
 #include <YarpMeiDeviceDriver.h>
@@ -42,8 +42,8 @@ namespace _BabybotArm
 	const int _signs[_nj] = {0, 0, 0, 0, 0, 0};
 	const double _encWheels[_nj] = {1000.0, 1000.0, 1000.0, 800.0, 800.0, 800.0};
 	const double _encoders[_nj] = {-46.72, 69.9733, -42.9867, 43.5111, 39.3846, 31.7692};
-	const double _fwdCouple[_nj] = {0.0, 0.0, 0.0, -9.8462, 1.0, -5.5999886532};
-	const double _invCouple[_nj] = {0.0, 0.0, 0.0, 1/_fwdCouple[3], 1/_fwdCouple[4], 1/_fwdCouple[5]};
+	const double _fwdCouple[_nj] = {0.0, 0.0, 0.0, -9.8462*_encWheels[3], 1.0*_encWheels[4], -5.5999886532*_encWheels[5]};
+	// const double _invCouple[_nj] = {0.0, 0.0, 0.0, 1/_fwdCouple[3], 1/_fwdCouple[4], 1/_fwdCouple[5]};
 }; // namespace
 
 class YARPBabybotArmParameters
@@ -60,8 +60,15 @@ public:
 			_signs[i] = _BabybotArm::_signs[i];
 			_encoderToAngles[i] = _BabybotArm::_encoders[i]*_BabybotArm::_encWheels[i];
 			_fwdCouple[i] = _BabybotArm::_fwdCouple[i];
-			_invCouple[i] = _BabybotArm::_invCouple[i];
 		}
+
+		// compute inv couple
+		for (i = 0; i < 3; i++)
+			_invCouple[i] = 0.0;	// first 3 joints are not coupled
+
+		_invCouple[3] = -_fwdCouple[3] / (_encoderToAngles[3] * _encoderToAngles[4]);
+		_invCouple[4] = -_fwdCouple[4] / (_encoderToAngles[3] * _encoderToAngles[5]) + (_fwdCouple[3] * _fwdCouple[5]) / (_encoderToAngles[3] * _encoderToAngles[4] * _encoderToAngles[5]);
+		_invCouple[5] = -_fwdCouple[5] / (_encoderToAngles[4] * _encoderToAngles[5]);
 	}
 
 	int load(const std::string &init_file)
