@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.3 2003-04-22 09:06:34 gmetta Exp $
+/// $Id: YARPNameService.h,v 1.4 2003-04-22 17:01:19 gmetta Exp $
 ///
 ///
 /*
@@ -101,7 +101,7 @@ public:
 	///// OLD: if native flag set, register with native name service only
 	/// YARP_QNX4 flag is used to ask a name to the native QNX4 name service.
 	/// static int RegisterName(const char *name, int native=1);
-	static YARPUniqueNameID RegisterName (const char *name, int reg_type = YARP_TCP);
+	static YARPUniqueNameID RegisterName (const char *name, int reg_type = YARP_TCP, int num_ports_needed = 1);
 	/// reg_type is one of the enumeration in YARPNameID_defs.h
 
 	/// recover the name ID assigned by the server.

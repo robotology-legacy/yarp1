@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.3 2003-04-22 09:06:30 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.4 2003-04-22 17:01:16 gmetta Exp $
 ///
 ///
 
@@ -273,7 +273,7 @@ int YARPNameService::Finalize (void)
 }
 
 
-YARPUniqueNameID YARPNameService::RegisterName(const char *name, int reg_type)
+YARPUniqueNameID YARPNameService::RegisterName(const char *name, int reg_type, int num_ports_needed)
 {
 	switch (reg_type)
 	{
@@ -283,7 +283,7 @@ YARPUniqueNameID YARPNameService::RegisterName(const char *name, int reg_type)
 	case YARP_TCP:
 	case YARP_UDP:
 		{
-			return YARPSocketNameService::RegisterName (*_namer, name, reg_type);
+			return YARPSocketNameService::RegisterName (*_namer, name, reg_type, num_ports_needed);
 		}		
 		break;
 
@@ -358,8 +358,7 @@ YARPUniqueNameID YARPNameService::LocateName(const char *name)
 #ifdef __QNX4__
 #endif
 
-		return YARPSocketNameService::LocateName (*_namer, name);
-
+	return YARPSocketNameService::LocateName (*_namer, name);
 
 #if 0
   YARPNameID all_result;
@@ -434,6 +433,7 @@ YARPNameID YARPEndpointManager::CreateInputEndpoint(YARPUniqueNameID& name)
 	switch (name.getServiceType())
 	{
 	case YARP_TCP:
+	case YARP_UDP:
 		return YARPSocketEndpointManager::CreateInputEndpoint (name);
 
 	case YARP_QNET:
@@ -449,6 +449,7 @@ YARPNameID YARPEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
 	switch (name.getServiceType())
 	{
 	case YARP_TCP:
+	case YARP_UDP:
 		return YARPSocketEndpointManager::CreateOutputEndpoint (name);
 
 	case YARP_QNET:
@@ -464,6 +465,7 @@ int YARPEndpointManager::ConnectEndpoints(YARPNameID& dest)
 	switch (dest.getServiceType())
 	{
 	case YARP_TCP:
+	case YARP_UDP:
 		return YARPSocketEndpointManager::ConnectEndpoints (dest);
 
 	case YARP_QNET:
@@ -479,6 +481,7 @@ int YARPEndpointManager::Close(const YARPNameID& endp)
 	switch (endp.getServiceType())
 	{
 	case YARP_TCP:
+	case YARP_UDP:
 		return YARPSocketEndpointManager::Close ();
 
 	case YARP_QNET:

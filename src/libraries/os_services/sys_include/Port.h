@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.6 2003-04-22 09:06:39 gmetta Exp $
+/// $Id: Port.h,v 1.7 2003-04-22 17:01:22 gmetta Exp $
 ///
 ///
 
@@ -76,6 +76,7 @@
 #endif
 
 #include "YARPString.h"
+#include "YARPNameID.h"
 
 ///#include <assert.h>
 #include "mesh.h"
@@ -123,6 +124,7 @@ public:
 	int add_header;
 	int deactivate;
 	int deactivated;
+	int port_number;
 	Sema something_to_send;
 	Sema mutex;
 #ifdef UPDATED_PORT
@@ -139,6 +141,7 @@ public:
 		target_pid.invalidate(); add_header = 1;  active = 1; sending = 0; 
 		deactivate = 0;  deactivated = 0;
 		check_tick = 0;  ticking = 0;
+		port_number = 0;
     }
 
 	virtual ~OutputTarget() 
@@ -153,6 +156,9 @@ public:
 	void PostMutex() { mutex.Post(); }
 
 	virtual void OnSend() {}
+
+	void AssignPortNo (int port) { port_number = port; }
+	int GetAssignedPortNo (void) const { return port_number; }
 
 	/// passes a new Sendable to the thread.
 	void Share(Sendable *nsendable)
@@ -234,6 +240,64 @@ public:
 };
 
 ///
+///
+/// simple array of UDP/TCP port numbers.
+class PortPool 
+{
+protected:
+	int _first, _size;
+	bool *_used;
+
+public:
+	PortPool () 
+	{
+		_used = NULL;
+		_first = _size = 0;
+	}
+
+	~PortPool () { if (_used != NULL) delete[] _used; }
+
+	void resize (int first, int size) 
+	{ 
+		_first = first; 
+		_size = size;
+		_used = new bool[size];
+		ACE_ASSERT (_used != NULL);
+		memset (_used, 0, sizeof(bool) * size);
+	}
+
+	int getOne (void)
+	{
+		ACE_ASSERT (_used != NULL);
+
+		int i;
+		for (i = 0; i < _size; i++)
+		{
+			if (_used[i] == false)
+			{
+				_used[i] = true;
+				return _first + i;
+			}
+		}
+
+		/// no port avail.
+		return YARP_FAIL;
+	}
+
+	int freeOne (int port)
+	{
+		ACE_ASSERT (_used != NULL);
+		ACE_ASSERT (port >= _first && port < _first + _size);
+
+		if (_used[port-_first] == false)
+			return YARP_FAIL;
+
+		_used[port-_first] = true;
+		return YARP_OK;
+	}
+};
+
+///
 /// this is the main port thread.
 ///	- starts an input channel for receiving commands.
 /// - manages the list of output targets.
@@ -251,6 +315,9 @@ public:
 	friend class _strange_select;
 	_strange_select tsender;
 
+	/// the protocol type UDP, TCP, etc.
+	int protocol_type;
+
 	int name_set;
 	int add_header;
 	int expect_header;
@@ -265,6 +332,8 @@ public:
 	string name;
 	HeaderedBlockSender<NewFragmentHeader> sender;
 	YARPUniqueNameID self_id;
+
+	PortPool output_pool;
 
 #ifdef UPDATED_PORT
 	int require_complete_send;
@@ -304,7 +373,7 @@ public:
 	///
 	virtual void Body();
 
-	Port (const char *nname, int autostart = 1) : 
+	Port (const char *nname, int autostart = 1, int n_protocol_type = YARP_NO_SERVICE_AVAILABLE) : 
 		something_to_send(0), 
 		something_to_read(0),
 		wakeup(0),
@@ -312,7 +381,8 @@ public:
 		out_mutex(1),
 		list_mutex(1),
 		name(nname),
-		tsender(this)
+		tsender(this),
+		protocol_type(n_protocol_type)
     { 
 		skip=1; has_input = 0; asleep=0; name_set=1; accessing = 0; receiving=0;  
 		add_header = 1;
@@ -320,6 +390,7 @@ public:
 #ifdef UPDATED_PORT
 		require_complete_send = 0;
 #endif
+		ACE_ASSERT (n_protocol_type != YARP_NO_SERVICE_AVAILABLE);
 		if (autostart) Begin(); 
 	}
 
@@ -335,9 +406,12 @@ public:
 		skip=1; has_input = 0; asleep=0; name_set=1; accessing = 0; receiving=0;  
 		add_header = 1;
 		expect_header = 1;
+		protocol_type = YARP_NO_SERVICE_AVAILABLE;
 	}
 
 	virtual ~Port();
+
+	inline int& GetProtocolTypeRef() { return protocol_type; }
 
 	int SetName(const char *nname)
 	{
@@ -346,6 +420,7 @@ public:
 		name = nname;
 		asleep = 1;
 		okay_to_send.Wait();
+		ACE_ASSERT (protocol_type != YARP_NO_SERVICE_AVAILABLE);
 		Begin();
 		okay_to_send.Wait();
 		if (!name_set) { ret = YARP_FAIL; }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.7 2003-04-22 09:06:30 gmetta Exp $
+/// $Id: Port.cpp,v 1.8 2003-04-22 17:01:13 gmetta Exp $
 ///
 ///
 
@@ -166,6 +166,11 @@ void OutputTarget::Body ()
 	CountedPtr<Sendable> p_local_sendable;
 
 	target_pid = YARPNameService::LocateName (GetLabel().c_str());
+
+	/// local port number into P1 param.
+	target_pid.getP1Ref() = port_number;
+	target_pid.getP2Ref() = 0;
+
 	YARPEndpointManager::CreateOutputEndpoint (target_pid);
 	YARPEndpointManager::ConnectEndpoints (target_pid.getNameID());
 
@@ -313,6 +318,10 @@ void _strange_select::Body ()
 						_owner->name.c_str(), target->GetLabel().c_str(),
 						deactivated ? "as requested" : "target stopped responding",
 						timeout?"/timeout":""));
+
+					if (_owner->protocol_type == YARP_UDP || _owner->protocol_type == YARP_MCAST)
+						_owner->output_pool.freeOne (target->GetAssignedPortNo ());
+
 					delete target;
 				}
 				
@@ -339,6 +348,10 @@ void _strange_select::Body ()
 					ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s (%s)\n", 
 						_owner->name.c_str(), target->GetLabel().c_str(),
 						deactivated ? "as requested" : "target stopped responding"));
+
+					if (_owner->protocol_type == YARP_UDP || _owner->protocol_type == YARP_MCAST)
+						_owner->output_pool.freeOne (target->GetAssignedPortNo ());
+
 					delete target;
 				}
 				target = next;
@@ -422,13 +435,42 @@ void Port::Body()
 	int call_on_read = 0;
 
 	///MakeServer(name.c_str());
-	YARPUniqueNameID pid = YARPNameService::RegisterName(name.c_str()); 
-	if (pid.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+	YARPUniqueNameID pid;
+
+	switch (protocol_type)
 	{
-		ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
-		name_set = 0;
-		okay_to_send.Post();
-		return;
+	case YARP_TCP:
+		{
+			pid = YARPNameService::RegisterName(name.c_str(), YARP_TCP); 
+			if (pid.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+			{
+				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
+				name_set = 0;
+				okay_to_send.Post();
+				return;
+			}
+		}
+		break;
+
+	case YARP_UDP:
+		{
+			pid = YARPNameService::RegisterName(name.c_str(), YARP_UDP, 21); 
+			if (pid.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+			{
+				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
+				name_set = 0;
+				okay_to_send.Post();
+				return;
+			}
+
+			pid.getP2Ref() = 10;
+			output_pool.resize (pid.getP1Ref() + 11, 10);
+		}
+		break;
+
+	default:
+		ACE_DEBUG ((LM_DEBUG, "troubles in acquiring ports (?)\n"));
+		break;
 	}
 
 	YARPEndpointManager::CreateInputEndpoint (pid);
@@ -530,7 +572,7 @@ void Port::Body()
 		{
 			double now = YARPTime::GetTimeAsSeconds();
 			target = targets.GetRoot();
-			while (target!=NULL)
+			while (target != NULL)
 			{
 				next = target->GetMeshNext();
 				target->WaitMutex();
@@ -553,6 +595,10 @@ void Port::Body()
 						name.c_str(), target->GetLabel().c_str(),
 						deactivated ? "as requested" : "target stopped responding",
 						timeout?"/timeout":""));
+					/// remove the port no, from the list of used ports.
+
+					if (protocol_type == YARP_UDP || protocol_type == YARP_MCAST)
+						output_pool.freeOne (target->GetAssignedPortNo ());
 					delete target;
 				}
 				target = next;
@@ -576,9 +622,13 @@ void Port::Body()
 
 						target = targets.NewLink(buf);
 						
-						ACE_ASSERT(target!=NULL);
+						ACE_ASSERT(target != NULL);
 						
 						target->target_pid.invalidate();
+						
+						if (protocol_type == YARP_UDP || protocol_type == YARP_MCAST)
+							target->AssignPortNo (output_pool.getOne ());
+
 						target->Begin();
 					}
 					else
@@ -597,7 +647,7 @@ void Port::Body()
 					list_mutex.Wait ();
 
 					target = targets.GetByLabel(buf+1);
-					if (target!=NULL)
+					if (target != NULL)
 					{
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
 						target->Deactivate();

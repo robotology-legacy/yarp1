@@ -52,7 +52,15 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.3 2003-04-22 09:06:32 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+///
+/// $Id: YARPSocketSyncComm.cpp,v 1.4 2003-04-22 17:01:18 gmetta Exp $
 ///
 ///
 
@@ -66,6 +74,7 @@
 
 #include "YARPSocketSyncComm.h"
 #include "YARPSocket.h"
+#include "YARPSocketDgram.h"
 #include "YARPSocketNameService.h"
 
 ///#include "ThreadInput.h"
@@ -84,8 +93,8 @@
 
 int YARPSocketSyncComm::Send(const YARPNameID& dest, char *buffer, int buffer_length, char *return_buffer, int return_buffer_length)
 {
-	YARPOutputSocket *os = (YARPOutputSocket *)YARPSocketEndpointManager::GetThreadSocket ();
-	ACE_ASSERT (dest.isConsistent(YARP_TCP));	/// maybe test for consistence with all socket based protocols.
+	YARPNetworkObject *os = YARPSocketEndpointManager::GetThreadSocket ();
+	ACE_ASSERT (!dest.isConsistent(YARP_NO_SERVICE_AVAILABLE));
 	ACE_ASSERT (os != NULL);
 
 	///os.SetIdentifier(dest.GetRawIdentifier());
@@ -116,8 +125,8 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, char *buffer, int buffer_le
 
 YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, char *buffer, int buffer_length)
 {
-	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
-	ACE_ASSERT(src.isConsistent(YARP_TCP));
+	YARPNetworkObject *ts = YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
 	ACE_ASSERT(ts != NULL);
 
 	//int id = -1;
@@ -147,14 +156,14 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, char *buff
 		id = ACE_INVALID_HANDLE;
 	}
 
-	return YARPNameID (YARP_TCP, id);
+	return YARPNameID (src.getServiceType(), id);
 }
 
 
 YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, char *buffer, int buffer_length)
 {
-	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
-	ACE_ASSERT (src.isConsistent(YARP_TCP));
+	YARPNetworkObject *ts = YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
 	ACE_ASSERT (ts != NULL);
 
 	//int id = -1;
@@ -179,14 +188,14 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, char *buffe
 	
 	if (ct < 0) id = ACE_INVALID_HANDLE;
 
-	return YARPNameID (YARP_TCP, id);
+	return YARPNameID (src.getServiceType(), id);
 }
 
 
 int YARPSocketSyncComm::ContinuedReceive(const YARPNameID& src, char *buffer, int buffer_length)
 {
-	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
-	ACE_ASSERT (src.isConsistent(YARP_TCP));
+	YARPNetworkObject *ts = (YARPNetworkObject *)YARPSocketEndpointManager::GetThreadSocket();
+	///ACE_ASSERT (src.isConsistent(YARP_TCP));
 	ACE_ASSERT (ts != NULL);
 
 	int ct = -1;
@@ -200,8 +209,8 @@ int YARPSocketSyncComm::ContinuedReceive(const YARPNameID& src, char *buffer, in
 
 int YARPSocketSyncComm::Reply(const YARPNameID& src, char *buffer, int buffer_length)
 {
-	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
-	ACE_ASSERT (src.isConsistent(YARP_TCP));
+	YARPNetworkObject *ts = (YARPNetworkObject *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
 	ACE_ASSERT (ts != NULL);
 
 	char ch = 0;
@@ -212,8 +221,8 @@ int YARPSocketSyncComm::Reply(const YARPNameID& src, char *buffer, int buffer_le
 
 int YARPSocketSyncComm::InvalidReply(const YARPNameID& src)
 {
-	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
-	ACE_ASSERT (src.isConsistent(YARP_TCP));
+	YARPNetworkObject *ts = (YARPNetworkObject *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
 	ACE_ASSERT (ts != NULL);
 
 	char ch = 0;
@@ -223,8 +232,9 @@ int YARPSocketSyncComm::InvalidReply(const YARPNameID& src)
 
 int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, YARPMultipartMessage& return_msg)
 {
-	YARPOutputSocket *os = (YARPOutputSocket *)YARPSocketEndpointManager::GetThreadSocket();
-	ACE_ASSERT (dest.isConsistent(YARP_TCP));
+	YARPNetworkObject *os = (YARPNetworkObject *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!dest.isConsistent(YARP_NO_SERVICE_AVAILABLE));
+	ACE_ASSERT (os != NULL);
 
 	//os->SetIdentifier(dest.GetRawIdentifier());
 	//os->InhibitDisconnect();
@@ -286,9 +296,9 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 
 YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultipartMessage& msg)
 {
-	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
+	YARPNetworkObject *ts = YARPSocketEndpointManager::GetThreadSocket();
 	ACE_ASSERT (ts != NULL);
-	ACE_ASSERT (src.isConsistent(YARP_TCP));
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
 
 	ACE_HANDLE id = ACE_INVALID_HANDLE;
 	int receive_parts = msg.GetParts();
@@ -329,15 +339,15 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultip
 		}
 	}
 
-	return YARPNameID (YARP_TCP,id);
+	return YARPNameID (src.getServiceType(),id);
 }
 
 
 YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, YARPMultipartMessage& msg)
 {
-	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
-	ACE_ASSERT(src.isConsistent(YARP_TCP));
-	ACE_ASSERT(ts!=NULL);
+	YARPNetworkObject *ts = (YARPNetworkObject *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
+	ACE_ASSERT (ts != NULL);
 
 	ACE_HANDLE id = ACE_INVALID_HANDLE;
 	int receive_parts = msg.GetParts();
@@ -378,20 +388,20 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, YARPMultipa
 		}
 	}
 
-	return YARPNameID (YARP_TCP,id);
+	return YARPNameID (src.getServiceType(),id);
 }
 
 
 
 int YARPSocketSyncComm::Reply(const YARPNameID& src, YARPMultipartMessage& msg)
 {
-	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
+	YARPNetworkObject *ts = (YARPNetworkObject *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
 	ACE_ASSERT (ts != NULL);
 
 	int reply_parts = msg.GetParts();
 	ACE_ASSERT (reply_parts >= 1);
 
-	ACE_ASSERT (src.isConsistent(YARP_TCP));
 	char ch = 0;
 
 	ts->ReceiveReplying (src.getRawIdentifier(), &ch, 1);

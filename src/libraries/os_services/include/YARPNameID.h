@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameID.h,v 1.3 2003-04-22 09:06:34 gmetta Exp $
+/// $Id: YARPNameID.h,v 1.4 2003-04-22 17:01:18 gmetta Exp $
 ///
 ///
 /*
@@ -113,21 +113,27 @@ class YARPUniqueNameID : public YARPNameID
 {
 protected:
 	ACE_INET_Addr _address;
-	
+	int _p1, _p2;
+
 public:
-	YARPUniqueNameID () : YARPNameID(), _address(1111, "localhost") {}
-	YARPUniqueNameID (int service, int port, char *hostname) : YARPNameID(service, ACE_INVALID_HANDLE), _address (port, hostname) {}
-	YARPUniqueNameID (int service, const ACE_INET_Addr& addr) : YARPNameID(service, ACE_INVALID_HANDLE), _address (addr) {}
+	YARPUniqueNameID () : YARPNameID(), _address(1111, "localhost") { _p1 = _p2 = 0; }
+	YARPUniqueNameID (int service, int port, char *hostname) : YARPNameID(service, ACE_INVALID_HANDLE), _address (port, hostname) { _p1 = _p2 = 0; }
+	YARPUniqueNameID (int service, const ACE_INET_Addr& addr) : YARPNameID(service, ACE_INVALID_HANDLE), _address (addr) { _p1 = _p2 = 0; }
 
 	inline ACE_INET_Addr& getAddressRef (void) { return _address; }
-//	inline int isValid (void) const { return (_mode != YARP_NO_SERVICE_AVAILABLE) ? 1 : 0; }
 	inline YARPNameID& getNameID(void) { return (YARPNameID &)(*this); }
+	inline int& getP1Ref (void) { return _p1; }
+	inline int& getP2Ref (void) { return _p2; }
 
 	YARPUniqueNameID& operator= (const YARPUniqueNameID& other) 
 	{ 
 		_address = other._address; 
 		_mode = other._mode;
 		_raw_id = other._raw_id;
+
+		_p1 = other._p1;
+		_p2 = other._p2;
+
 		return (*this);
 	}
 };

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.h,v 1.1 2003-04-22 09:06:36 gmetta Exp $
+/// $Id: YARPSocketDgram.h,v 1.2 2003-04-22 17:01:20 gmetta Exp $
 ///
 ///
 
@@ -132,6 +132,7 @@ public:
 
 	ACE_HANDLE GetIdentifier(void) const;		/// { return identifier; }
 	int GetAssignedPort(void) const;	/// { return assigned_port; }
+	int GetServiceType (void) { return YARP_UDP; }
 };
 
 
@@ -148,7 +149,7 @@ public:
 	YARPOutputSocketDgram();
 	virtual ~YARPOutputSocketDgram();
 
-	int Prepare (int local_port, const YARPUniqueNameID& name);
+	int Prepare (const YARPUniqueNameID& name, int local_port);
 	int Close(void);
 	int Connect(void);
 	
@@ -158,8 +159,9 @@ public:
 	int SendEnd(char *reply_buffer, int reply_buffer_length);
 
 	/// what is it for?
-	ACE_HANDLE GetIdentifier();
-	void SetIdentifier(int n_identifier);
+	ACE_HANDLE GetIdentifier(void) const;
+
+	int GetServiceType (void) { return YARP_UDP; }
 };
 
 #endif

@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.5 2003-04-22 09:06:31 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.6 2003-04-22 17:01:17 gmetta Exp $
 ///
 ///
 
@@ -251,6 +251,8 @@ YARPPort::YARPPort()
 	PD.out_owner = NULL;
 	PD.Attach(*this);
 	AddPort(this);
+
+	PD.GetProtocolTypeRef() = YARP_NO_SERVICE_AVAILABLE;
 }
 
 
@@ -316,7 +318,7 @@ YARPPortContent& YARPPort::Content()
 		ACE_OS::exit (1);
 	}
 
-	ACE_ASSERT(content!=NULL);
+	ACE_ASSERT (content != NULL);
 	return *content;
 }
 
@@ -339,9 +341,10 @@ void YARPPort::DeactivateAll()
 
 
 
-YARPInputPort::YARPInputPort(int n_service_type)
+YARPInputPort::YARPInputPort(int n_service_type, int n_protocol_type)
 {
 	PD.service_type = n_service_type;
+	PD.protocol_type = n_protocol_type;
 	PD.in_owner = this;
 }
 
@@ -369,10 +372,10 @@ int YARPInputPort::Register(const char *name)
 
 bool YARPInputPort::Read(bool wait)
 {
-	PD.Relinquish();
+	PD.Relinquish ();
 	content = NULL;
-	YARPSendable *ptr = (YARPSendable *)PD.Acquire(wait);
-	if (ptr!=NULL)
+	YARPSendable *ptr = (YARPSendable *)PD.Acquire (wait);
+	if (ptr != NULL)
 	{
 		content = ptr->Content();
 	}
@@ -380,9 +383,10 @@ bool YARPInputPort::Read(bool wait)
 }
 
 
-YARPOutputPort::YARPOutputPort(int n_service_type)
+YARPOutputPort::YARPOutputPort(int n_service_type, int n_protocol_type)
 {
 	PD.service_type = n_service_type;
+	PD.GetProtocolTypeRef() = n_protocol_type;
 	PD.out_owner = this;
 }
 

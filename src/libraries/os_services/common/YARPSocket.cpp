@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.5 2003-04-22 09:06:31 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.6 2003-04-22 17:01:17 gmetta Exp $
 ///
 ///
 
@@ -100,7 +100,7 @@ using namespace std;
 #include "YARPSemaphore.h"
 #include "YARPNameID.h"
 #include "YARPScheduler.h"
-
+#include "YARPTime.h"
 
 ///int TINY_VERBOSE = 0;
 ///#define DBG if (TINY_VERBOSE)
@@ -723,6 +723,7 @@ int newsock;
 		if (ra == -1)
 		{
 			ACE_DEBUG ((LM_DEBUG, "-------->>>>> accept got garbage, trying again\n"));
+			YARPTime::DelayInSeconds (1);
 		}
 	}
 	while (ra == -1);
@@ -1382,88 +1383,11 @@ void YARPOutputSocket::InhibitDisconnect()
 }
 */
 
-ACE_HANDLE YARPOutputSocket::GetIdentifier()
+ACE_HANDLE YARPOutputSocket::GetIdentifier(void) const
 {
 	return identifier;
 	///return _connector.get_handle ();
 	//return OSDATA(system_resources).sock.GetSocketPID();
 }
 
-void YARPOutputSocket::SetIdentifier(int n_identifier)
-{
-	int notimplemented = 1;
-	ACE_ASSERT (notimplemented != 1);
-
-	/// I doubt this can be done.
-	/// OSDATA(system_resources).sock.ForcePID(n_identifier);
-	/// identifier = n_identifier;
-}
-
-
-//#include "YARPTime.h"
-
-/*
-void server(const char *name)
-{
-  YARPInputSocket s;
-  s.Register(name);
-  while (1)
-    {
-      char buf[1000] = "not set";
-      int reply_id = -1;
-      int len = s.ReceiveBegin(buf,sizeof(buf),&reply_id);
-      printf("Get data (%d): %s\n", len, buf);
-      char reply[1000];
-      sprintf(reply,"I acknowledge --> %s", buf);
-      s.ReceiveEnd(reply_id,reply,strlen(reply)+1);
-    }
-}
-
-void client(const char *name)
-{
-  YARPOutputSocket s;
-  s.Connect(name);
-
-  char buf[1000];
-  char buf2[1000];
-
-  for (int i=1; i<=20; i++)
-    {
-      sprintf(buf, "hello there time #%d", i);
-      int len = strlen(buf)+1;
-      //int len2 = Send(c,buf,len,buf2,sizeof(buf2));
-      s.SendBegin(buf,len);
-      int len2 = s.SendEnd(buf2,sizeof(buf2));
-      if (len2>0)
-	{
-	  printf("Got response (%d): %s\n", len2, buf2);
-	}
-      else
-	{
-	  printf("Got response (%d)\n", len2);
-	}
-      YARPTime::DelayInSeconds(2.0);
-    }
-}
-*/
-/*
-int main(int argc, char *argv[])
-{
-  //    TinySocket::Verbose();
-
-    if (argc == 2)
-      {
-	if (argv[1][0] == '+')
-	  {
-	    server(argv[1]+1);
-	  }
-	else
-	  {
-	    client(argv[1]);
-	  }
-      }
-    return 0;
-}
-
-*/
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.1 2003-04-22 09:06:32 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.2 2003-04-22 17:01:17 gmetta Exp $
 ///
 ///
 
@@ -1066,16 +1066,16 @@ int _SocketThreadListDgram::receiveMore(ACE_HANDLE reply_pid, char *buf, int len
 ///
 ///
 ///
-class ISData
+class ISDataDgram
 {
 public:
 	_SocketThreadListDgram _list;
 };
 
-static ISData& ISDATA(void *x)
+static ISDataDgram& ISDATA(void *x)
 {
 	ACE_ASSERT (x != NULL);
-	return *((ISData*)x);
+	return *((ISDataDgram*)x);
 }
 
 ///
@@ -1084,7 +1084,7 @@ static ISData& ISDATA(void *x)
 YARPInputSocketDgram::YARPInputSocketDgram (void)
 { 
 	system_resources = NULL; 
-	system_resources = new ISData;
+	system_resources = new ISDataDgram;
 	ACE_ASSERT (system_resources!=NULL);
 	
 	_socktype = YARP_I_SOCKET;
@@ -1096,14 +1096,14 @@ YARPInputSocketDgram::~YARPInputSocketDgram (void)
 
 	if (system_resources!=NULL)
 	{
-		delete ((ISData*)system_resources);
+		delete ((ISDataDgram*)system_resources);
 		system_resources = NULL;
 	}
 }
 
 int YARPInputSocketDgram::Prepare (const YARPUniqueNameID& name, int port1, int number_o_ports)
 {
-	ISData& d = ISDATA(system_resources);
+	ISDataDgram& d = ISDATA(system_resources);
 	ACE_ASSERT (((YARPUniqueNameID&)name).getAddressRef().get_port_number() == port1);
 
 	d._list.connect (name);
@@ -1176,7 +1176,7 @@ int YARPInputSocketDgram::GetAssignedPort(void) const
 /// Output socket + stream incapsulation.
 ///
 ///
-class OSData
+class OSDataDgram
 {
 public:
 	ACE_INET_Addr _remote_addr;
@@ -1184,17 +1184,17 @@ public:
 	ACE_SOCK_Dgram _connector_socket;
 };
 
-static OSData& OSDATA(void *x)
+static OSDataDgram& OSDATA(void *x)
 {
 	ACE_ASSERT (x != NULL);
-	return *((OSData*)x);
+	return *((OSDataDgram*)x);
 }
 
 YARPOutputSocketDgram::YARPOutputSocketDgram (void)
 { 
 	system_resources = NULL;
 	identifier = ACE_INVALID_HANDLE;
-	system_resources = new OSData;
+	system_resources = new OSDataDgram;
 	ACE_ASSERT(system_resources!=NULL);
 
 	_socktype = YARP_O_SOCKET;
@@ -1206,7 +1206,7 @@ YARPOutputSocketDgram::~YARPOutputSocketDgram (void)
 
 	if (system_resources != NULL)
 	{
-		delete ((OSData*)system_resources);
+		delete ((OSDataDgram*)system_resources);
 		system_resources = NULL;
 	}
 }
@@ -1218,7 +1218,7 @@ int YARPOutputSocketDgram::Close (void)
 }
 
 
-int YARPOutputSocketDgram::Prepare (int local_port, const YARPUniqueNameID& name)
+int YARPOutputSocketDgram::Prepare (const YARPUniqueNameID& name, int local_port)
 {
 	OSDATA(system_resources)._local_addr.set (local_port, "localhost");
 	OSDATA(system_resources)._remote_addr = ((YARPUniqueNameID&)name).getAddressRef();
@@ -1229,7 +1229,7 @@ int YARPOutputSocketDgram::Prepare (int local_port, const YARPUniqueNameID& name
 /// pretend a connection.
 int YARPOutputSocketDgram::Connect (void)
 {
-	OSData& d = OSDATA(system_resources);
+	OSDataDgram& d = OSDATA(system_resources);
 	ACE_DEBUG ((LM_DEBUG, "Pretending a connecting to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 
 		d._remote_addr.get_host_name()));
@@ -1348,20 +1348,9 @@ int YARPOutputSocketDgram::SendEnd(char *reply_buffer, int reply_buffer_length)
 }
 
 
-ACE_HANDLE YARPOutputSocketDgram::GetIdentifier()
+ACE_HANDLE YARPOutputSocketDgram::GetIdentifier(void) const
 {
 	return identifier;
 	///return _connector.get_handle ();
 	//return OSDATA(system_resources).sock.GetSocketPID();
 }
-
-void YARPOutputSocketDgram::SetIdentifier(int n_identifier)
-{
-	int notimplemented = 1;
-	ACE_ASSERT (notimplemented != 1);
-
-	/// I doubt this can be done.
-	/// OSDATA(system_resources).sock.ForcePID(n_identifier);
-	/// identifier = n_identifier;
-}
-

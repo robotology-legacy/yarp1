@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.3 2003-04-22 09:06:34 gmetta Exp $
+/// $Id: YARPPort.h,v 1.4 2003-04-22 17:01:19 gmetta Exp $
 ///
 ///
 
@@ -122,7 +122,7 @@ public:
 		DEFAULT_BUFFERS = TRIPLE_BUFFERS
 	};
 
-	YARPInputPort(int n_service_type = DEFAULT_BUFFERS);
+	YARPInputPort(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_UDP);
 	virtual ~YARPInputPort();
 
 	virtual int Register(const char *name);
@@ -142,7 +142,7 @@ public:
 		DEFAULT_OUTPUTS = MANY_OUTPUTS
 	};
 
-	YARPOutputPort(int n_service_type = MANY_OUTPUTS);
+	YARPOutputPort(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_UDP);
 	virtual ~YARPOutputPort();
 
 	virtual int Register(const char *name);
@@ -156,8 +156,8 @@ template <class T>
 class YARPInputPortOf : public YARPInputPort
 {
 public:
-	YARPInputPortOf(int n_service_type = DEFAULT_BUFFERS) :
-	YARPInputPort(n_service_type) {}
+	YARPInputPortOf(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_UDP) 
+		: YARPInputPort(n_service_type, n_protocol_type) {}
   
 	virtual YARPPortContent *CreateContent() { return new YARPPortContentOf<T>; }
 
@@ -172,6 +172,9 @@ template <class T>
 class YARPOutputPortOf : public YARPOutputPort
 {
 public:
+	YARPOutputPortOf(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_UDP) 
+		: YARPOutputPort(n_service_type, n_protocol_type) {}
+
 	virtual YARPPortContent *CreateContent() { return new YARPPortContentOf<T>; }
 
 	T& Content()
@@ -186,7 +189,8 @@ template <class T>
 class YARPBasicInputPort : public YARPInputPort
 {
 public:
-	YARPBasicInputPort(int n_service_type = DEFAULT_BUFFERS) : YARPInputPort(n_service_type) {}
+	YARPBasicInputPort(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_UDP) 
+		: YARPInputPort(n_service_type, n_protocol_type) {}
 
 	virtual YARPPortContent *CreateContent() { return new T; }
 
@@ -197,7 +201,8 @@ template <class T>
 class YARPBasicOutputPort : public YARPOutputPort
 {
 public:
-	YARPBasicOutputPort(int n_service_type = MANY_OUTPUTS) : YARPOutputPort(n_service_type) {}
+	YARPBasicOutputPort(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_UDP) 
+		: YARPOutputPort(n_service_type, n_protocol_type) {}
 
 	virtual YARPPortContent *CreateContent() { return new T; }
 
