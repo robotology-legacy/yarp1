@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTHEAD__
 #define __YARPBABYBOTHEAD__
 
-// $Id: YARPBabybotHead.h,v 1.7 2003-10-30 09:41:43 babybot Exp $
+// $Id: YARPBabybotHead.h,v 1.8 2003-11-13 18:04:20 babybot Exp $
 
 #include <conf/YARPConfig.h>
 #include <YARPGenericControlBoard.h>
@@ -28,7 +28,7 @@ namespace _joints
 class YARPBabybotHead: public YARPGenericControlBoard<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters>
 {
 public:
-	inline double vergence(double *pos)
+ 	inline double vergence(double *pos)
 	{
 		return -( pos[_joints::rightEye] + pos[_joints::leftEye] );
 	}

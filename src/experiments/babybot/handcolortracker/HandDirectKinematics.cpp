@@ -24,7 +24,11 @@ _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMa
 		ACE_OS::printf("Error, cannot read neural network file");
 		exit(-1);
 	}
-	_parameters.load(filename2);
+	if (_parameters.load(filename2)!=YARP_OK)
+	{
+		ACE_OS::printf("Error, cannot read neural network file");
+		exit(-1);
+	}
 }
 
 HandKinematics::~HandKinematics()

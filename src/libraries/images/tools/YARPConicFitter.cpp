@@ -113,6 +113,12 @@ void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, doub
 	int rho;
 	int r0;
 
+	if ( !_checkDet(a11, a12, a22) )
+	{
+		// sorry, not an ellipse...
+		return;
+	}
+	
 	r0 = _moments.CsiToRo(R0);
 	double c0 = cos((T0)/_q);
 	double s0 = sin((T0)/_q);
@@ -152,7 +158,61 @@ void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, doub
 
 	}
 	// plot center
-	output(T0, R0) = 255;
+	output.SafePixel(T0, R0) = 255;
+}
+
+void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, double a22, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR &v)
+{
+	int theta;
+	int rho;
+	int r0;
+
+	if ( !_checkDet(a11, a12, a22) )
+	{
+		// sorry, not an ellipse...
+		return;
+	}
+
+	r0 = _moments.CsiToRo(R0);
+	double c0 = cos((T0)/_q);
+	double s0 = sin((T0)/_q);
+
+	for(theta = 0; theta < _logpolarParams::_stheta; theta++)
+	{
+		double c = cos((theta)/_q);
+		double s = sin((theta)/_q);
+
+		double A;
+		double B;
+		double C;
+	
+		A = a11*c*c + 2*a12*c*s + a22*s*s;
+		B = r0*(a11*c*c0 + a12*c*s0 + a12*c0*s + a22*s*s0);
+		C = r0*r0*(2*a12*c0*s0 + a22*s0*s0 + a11*c0*c0)-1;
+
+		double DELTA = B*B-A*C;
+		if (DELTA >= 0)
+		{
+			int r = (B+sqrt(DELTA))/A + 0.5;
+			if (r > 0)
+			{
+				rho = _moments.RoToCsi(r);
+				if ( (rho<=(_logpolarParams::_srho-1)) && (rho>0) )
+					output(theta,rho) = v;
+			}
+			
+			r = (B-sqrt(DELTA))/A + 0.5;
+			if (r > 0)
+			{
+				rho = _moments.RoToCsi(r);
+				if ( (rho<=(_logpolarParams::_srho-1)) && (rho>0) )
+						output(theta,rho) = v;
+			}
+		}
+
+	}
+	// plot center
+	output.SafePixel(T0, R0) = v;
 }
 
 void YARPLpConicFitter::plotCircle(int T0, int R0, double R, YARPImageOf<YarpPixelMono> &output)
@@ -185,7 +245,40 @@ void YARPLpConicFitter::plotCircle(int T0, int R0, double R, YARPImageOf<YarpPix
 		}
 	}
 	// plot center
-	output(T0, R0) = 255;
+	output.SafePixel(T0, R0) = 255;
+}
+
+void YARPLpConicFitter::plotCircle(int T0, int R0, double R, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR &v)
+{
+	int theta;
+	int rho;
+	int r0;
+	r0 = _moments.CsiToRo(R0);
+	for(theta = 0; theta < _logpolarParams::_stheta; theta++)
+	{
+		double c = cos((theta-T0)/_q);
+		double DELTA = (r0*r0*(c*c-1) + R*R);
+		if (DELTA>=0)
+		{
+			int r = (r0*c+sqrt(DELTA)) + 0.5;
+			if (r > 0)
+			{
+				rho = _moments.RoToCsi(r);
+				if ( (rho<=(_logpolarParams::_srho-1)) && (rho>0) )
+					output(theta,rho) = v;
+			}
+			
+			r = (r0*c-sqrt(DELTA)) + 0.5;
+			if (r > 0)
+			{
+				rho = _moments.RoToCsi(r);
+				if ( (rho<=(_logpolarParams::_srho-1)) && (rho>0) )
+						output(theta,rho) = v;
+			}
+		}
+	}
+	// plot center
+	output.SafePixel(T0, R0) = v;
 }
 
 void YARPLpConicFitter::findCircle(int T0, int R0, double R, YARPShapeRegion &out)
@@ -236,6 +329,12 @@ void YARPLpConicFitter::findEllipse(int T0, int R0, double a11, double a12, doub
 	int rho2;
 	int rho1;
 	int r0;
+
+	if ( !_checkDet(a11, a12, a22) )
+	{
+		// sorry, not an ellipse...
+		return;
+	}
 
 	r0 = _moments.CsiToRo(R0);
 	double c0 = cos((T0)/_q);
