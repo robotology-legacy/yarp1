@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "obj\Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /Ob2 /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /Ob2 /I "..\..\..\include" /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -53,7 +53,7 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo /out:"..\..\..\lib\winnt\math.lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Desc=Installing library
+PostBuild_Desc=Installing library...
 PostBuild_Cmds=copy *.h ..\..\..\include	copy *.inl ..\..\..\include
 # End Special Build Tool
 
@@ -70,7 +70,7 @@ PostBuild_Cmds=copy *.h ..\..\..\include	copy *.inl ..\..\..\include
 # PROP Intermediate_Dir "obj\Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\..\..\include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -82,7 +82,7 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo /out:"..\..\..\lib\winnt\mathDB.lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Desc=Installing library
+PostBuild_Desc=Installing library...
 PostBuild_Cmds=copy *.h ..\..\..\include	copy *.inl ..\..\..\include
 # End Special Build Tool
 
@@ -97,23 +97,23 @@ PostBuild_Cmds=copy *.h ..\..\..\include	copy *.inl ..\..\..\include
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\PasaLU.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\PasaSVD.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RobotMath.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\VisDMatrix.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\YARPFft.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPLU.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPMatrix.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPRobotMath.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPSVD.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -121,27 +121,27 @@ SOURCE=.\YARPFft.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\RobotMath.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\RobotMath.inl
-# End Source File
-# Begin Source File
-
-SOURCE=.\VisDMatrix.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\VisDMatrix.inl
-# End Source File
-# Begin Source File
-
-SOURCE=.\VisMatrix.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\YARPFft.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPMath.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPMatrix.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPMatrix.inl
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPRobotMath.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPRobotMath.inl
 # End Source File
 # End Group
 # End Target

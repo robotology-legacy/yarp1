@@ -1,15 +1,82 @@
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
+///                                                                   ///
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+
+///
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPMatrix.cpp,v 1.2 2003-05-31 06:02:58 gmetta Exp $
+///
+///
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // NAME
 //  VisMatrix.cpp -- implementation of matrix/vector ops
 //
 // DESCRIPTION
-//  The CVisDMatrix class provides some basic matrix operations, using calls
+//  The YMatrix class provides some basic matrix operations, using calls
 //  to external software (IMSL for the moment) to perform the more
 //  complicated operations.
 //
 // SEE ALSO
-//  CVisDMatrix.h        more complete description
+//  YMatrix.h        more complete description
 //
 // BUGS
 //  I sure hope that the IMSL routines don't modify their input
@@ -35,7 +102,7 @@
 // 
 ///////////////////////////////////////////////////////////////////////////
 
-#include "VisDMatrix.h"
+#include "YARPMatrix.h"
 
 
 //  IMSL routines used (double precision)
@@ -43,7 +110,7 @@
 #ifdef VIS_USE_IMSL
 #include "..\VisXIMSL\VisXIMSL.h"
 #else // VIS_USE_IMSL
-static void VisGaussJordanSolveDMatrix(CVisDMatrix& A);
+static void VisGaussJordanSolveDMatrix(YMatrix& A);
 #endif // VIS_USE_IMSL
 
 // LATER:  The vector and matrix arithmetic operators assume that both
@@ -58,10 +125,10 @@ static void VisGaussJordanSolveDMatrix(CVisDMatrix& A);
 
 ////////////////////////////////////////////////////////////////////////////
 //  
-//  FUNCTION:        CVisDVector::CVisDVector
+//  FUNCTION:        YVector::YVector
 //  
 //  DECLARATION:
-//          CVisDVector::CVisDVector(int length, double *storage);
+//          YVector::YVector(int length, double *storage);
 //  
 //  INPUT:
 //      length (int) - length of vector
@@ -73,7 +140,7 @@ static void VisGaussJordanSolveDMatrix(CVisDMatrix& A);
 //      Create a dynamically sized double precision vector
 //  
 ////////////////////////////////////////////////////////////////////////////
-void CVisDVector::Resize(int length, double *storage)
+void YVector::Resize(int length, double *storage)
 {
     m_length = length;
 	if (m_data != NULL)
@@ -90,23 +157,23 @@ void CVisDVector::Resize(int length, double *storage)
 	}
 }
 
-CVisDVector::CVisDVector(int length, double *storage) :  m_length(0), m_data(0)
+YVector::YVector(int length, double *storage) :  m_length(0), m_data(0)
 {
     Resize(length, storage);
 }
 
-CVisDVector::CVisDVector(void)
+YVector::YVector(void)
   : m_length(0), m_data(0)
 {
 }
 
-CVisDVector::CVisDVector(const CVisDVector &refvector) :  m_length(0), m_data(0)
+YVector::YVector(const YVector &refvector) :  m_length(0), m_data(0)
 {
     //Resize(refvector.Length());
 	*this = refvector;
 }
 
-CVisDVector::~CVisDVector ()
+YVector::~YVector ()
 {
 	if (m_data != NULL)
 		delete[] m_data;
@@ -114,10 +181,10 @@ CVisDVector::~CVisDVector ()
 
 ////////////////////////////////////////////////////////////////////////////
 //  
-//  FUNCTION:        CVisDMatrix::CVisDMatrix
+//  FUNCTION:        YMatrix::YMatrix
 //  
 //  DECLARATION:
-//          CVisDMatrix::CVisDMatrix(int rows, int cols, double *storage);
+//          YMatrix::YMatrix(int rows, int cols, double *storage);
 //  
 //  INPUT:
 //      rows (int) - number of rows in matrix
@@ -131,7 +198,7 @@ CVisDVector::~CVisDVector ()
 //      Create a dynamically sized double precision matrix
 //  
 ////////////////////////////////////////////////////////////////////////////
-void CVisDMatrix::Resize(int rows, int cols, double *storage)
+void YMatrix::Resize(int rows, int cols, double *storage)
 {
 	if (m_nRows != rows || m_nCols != cols)
 	{
@@ -173,22 +240,22 @@ void CVisDMatrix::Resize(int rows, int cols, double *storage)
 		memset (m_data[0], 0, sizeof(double) * rows * cols);
 }
 
-CVisDMatrix::CVisDMatrix(int rows, int cols, double *storage) : m_nRows(0), m_nCols(0), m_data(0)
+YMatrix::YMatrix(int rows, int cols, double *storage) : m_nRows(0), m_nCols(0), m_data(0)
 {
     Resize(rows, cols, storage);
 }
 
-CVisDMatrix::CVisDMatrix(void) : m_nRows(0), m_nCols(0), m_data(0)
+YMatrix::YMatrix(void) : m_nRows(0), m_nCols(0), m_data(0)
 {
 }
 
-CVisDMatrix::CVisDMatrix(const CVisDMatrix &refmatrix) : m_nRows(0), m_nCols(0), m_data(0)
+YMatrix::YMatrix(const YMatrix &refmatrix) : m_nRows(0), m_nCols(0), m_data(0)
 {
     //Resize(refmatrix.NRows(), refmatrix.NCols());
 	*this = refmatrix;
 }
 
-CVisDMatrix::~CVisDMatrix ()
+YMatrix::~YMatrix ()
 {
 	if (m_data != NULL)
 	{
@@ -206,18 +273,18 @@ CVisDMatrix::~CVisDMatrix ()
 //  FUNCTION:        operator=
 //  
 //  DECLARATION:
-//          CVisDVector& CVisDVector::operator=(const CVisDVector &vec);
+//          YVector& YVector::operator=(const YVector &vec);
 //  
 //  RETURN VALUE:
 //      vector being copied
 //  INPUT:
-//      &vec (const CVisDVector) - vector being copied
+//      &vec (const YVector) - vector being copied
 //  
 //  DISCRIPTION:
 //      assignment operator
 //  
 ////////////////////////////////////////////////////////////////////////////
-CVisDVector& CVisDVector::operator=(const CVisDVector &vec)
+YVector& YVector::operator=(const YVector &vec)
 {
 	if (Length() != vec.Length())
 		Resize(vec.Length());
@@ -230,7 +297,7 @@ CVisDVector& CVisDVector::operator=(const CVisDVector &vec)
 //  FUNCTION:        operator=
 //  
 //  DECLARATION:
-//          CVisDVector& CVisDVector::operator=(double value);
+//          YVector& YVector::operator=(double value);
 //  
 //  RETURN VALUE:
 //      reference to l.h.s.
@@ -241,7 +308,7 @@ CVisDVector& CVisDVector::operator=(const CVisDVector &vec)
 //      Fill vector with constant value
 //  
 ////////////////////////////////////////////////////////////////////////////
-CVisDVector& CVisDVector::operator=(double value)
+YVector& YVector::operator=(double value)
 {
 	assert (Length() != 0);
     if (value == 0.0)   // IEEE float
@@ -257,18 +324,18 @@ CVisDVector& CVisDVector::operator=(double value)
 //  FUNCTION:        operator=
 //  
 //  DECLARATION:
-//          CVisDMatrix& CVisDMatrix::operator=(const CVisDMatrix &mat);
+//          YMatrix& YMatrix::operator=(const YMatrix &mat);
 //  
 //  RETURN VALUE:
 //      reference to l.h.s.
 //  INPUT:
-//      &mat (const CVisDMatrix) - matrix being copied
+//      &mat (const YMatrix) - matrix being copied
 //  
 //  DISCRIPTION:
 //      Assignment operator
 //  
 ////////////////////////////////////////////////////////////////////////////
-CVisDMatrix& CVisDMatrix::operator=(const CVisDMatrix &mat)
+YMatrix& YMatrix::operator=(const YMatrix &mat)
 {
 	if (NRows() != mat.NRows() || NCols() != mat.NCols())
 		Resize(mat.m_nRows,mat.m_nCols);
@@ -281,7 +348,7 @@ CVisDMatrix& CVisDMatrix::operator=(const CVisDMatrix &mat)
 //  FUNCTION:        operator=
 //  
 //  DECLARATION:
-//          CVisDMatrix& CVisDMatrix::operator=(double value);
+//          YMatrix& YMatrix::operator=(double value);
 //  
 //  RETURN VALUE:
 //      reference to l.h.s.
@@ -292,7 +359,7 @@ CVisDMatrix& CVisDMatrix::operator=(const CVisDMatrix &mat)
 //      Assignment operator
 //  
 ////////////////////////////////////////////////////////////////////////////
-CVisDMatrix& CVisDMatrix::operator=(double value)
+YMatrix& YMatrix::operator=(double value)
 {
 	assert (m_nRows != 0 && m_nCols != 0);
     if (value == 0.0)   // IEEE float
@@ -310,7 +377,7 @@ CVisDMatrix& CVisDMatrix::operator=(double value)
 //  Comparison operators
 //
 
-bool CVisDVector::operator==(const CVisDVector& refvector) const
+bool YVector::operator==(const YVector& refvector) const
 {
     if (Length() == refvector.Length())
 	{
@@ -324,7 +391,7 @@ bool CVisDVector::operator==(const CVisDVector& refvector) const
     return false; 
 }
 
-bool CVisDMatrix::operator==(const CVisDMatrix& refmatrix) const
+bool YMatrix::operator==(const YMatrix& refmatrix) const
 {
     if ((NRows() == refmatrix.NRows())
 			&& (NCols() == refmatrix.NCols()))
@@ -351,8 +418,8 @@ bool CVisDMatrix::operator==(const CVisDMatrix& refmatrix) const
 //  FUNCTION:        operator==
 //  
 //  DECLARATION:
-//          bool CVisDVector::operator==(double dbl) const;
-//			bool CVisDMatrix::operator==(double dbl) const;
+//          bool YVector::operator==(double dbl) const;
+//			bool YMatrix::operator==(double dbl) const;
 //
 //  RETURN VALUE:
 //      bool
@@ -364,7 +431,7 @@ bool CVisDMatrix::operator==(const CVisDMatrix& refmatrix) const
 //      Compare operator(s)
 //  
 ////////////////////////////////////////////////////////////////////////////
-bool CVisDVector::operator==(double dbl) const
+bool YVector::operator==(double dbl) const
 {
 	int n=Length();
 	if (n == 0)
@@ -379,7 +446,7 @@ bool CVisDVector::operator==(double dbl) const
     return retflag; 
 }
 
-bool CVisDMatrix::operator==(double dbl) const
+bool YMatrix::operator==(double dbl) const
 {
 	int n=NRows();
 	int m=NCols();
@@ -394,7 +461,7 @@ bool CVisDMatrix::operator==(double dbl) const
 	return retflag;
 }
 
-bool CVisDVector::operator<(const CVisDVector& refvector) const
+bool YVector::operator<(const YVector& refvector) const
 {
     if (Length() == refvector.Length())
 	{
@@ -408,7 +475,7 @@ bool CVisDVector::operator<(const CVisDVector& refvector) const
     return (Length() < refvector.Length()); 
 }
 
-bool CVisDMatrix::operator<(const CVisDMatrix& refmatrix) const
+bool YMatrix::operator<(const YMatrix& refmatrix) const
 {
     if (NRows() == refmatrix.NRows())
 	{
@@ -439,7 +506,7 @@ bool CVisDMatrix::operator<(const CVisDMatrix& refmatrix) const
 //  Matrix / vector products, dot product
 //
 
-CVisDVector& CVisDVector::operator+=(const CVisDVector& refvector)
+YVector& YVector::operator+=(const YVector& refvector)
 {
     int n = refvector.Length(); 
     assert(n == Length()); 
@@ -455,7 +522,7 @@ CVisDVector& CVisDVector::operator+=(const CVisDVector& refvector)
 //  FUNCTION:        operator+=
 //  
 //  DECLARATION:
-//          CVisDVector& CVisDVector::operator+=(double dbl);
+//          YVector& YVector::operator+=(double dbl);
 //  
 //  RETURN VALUE:
 //      reference to l.h.s.
@@ -467,7 +534,7 @@ CVisDVector& CVisDVector::operator+=(const CVisDVector& refvector)
 //      Sum and assign operator
 //  
 ////////////////////////////////////////////////////////////////////////////
-CVisDVector& CVisDVector::operator+=(double dbl)
+YVector& YVector::operator+=(double dbl)
 {
 	int n = Length();
     assert(n != 0); 
@@ -478,7 +545,7 @@ CVisDVector& CVisDVector::operator+=(double dbl)
     return *this; 
 }
 
-CVisDVector& CVisDVector::operator-=(const CVisDVector& refvector)
+YVector& YVector::operator-=(const YVector& refvector)
 {
     int n = refvector.Length(); 
     assert(n == Length()); 
@@ -494,7 +561,7 @@ CVisDVector& CVisDVector::operator-=(const CVisDVector& refvector)
 //  FUNCTION:        operator-=
 //  
 //  DECLARATION:
-//          CVisDVector& CVisDVector::operator-=(double dbl);
+//          YVector& YVector::operator-=(double dbl);
 //  
 //  RETURN VALUE:
 //      reference to l.h.s.
@@ -506,7 +573,7 @@ CVisDVector& CVisDVector::operator-=(const CVisDVector& refvector)
 //      Subtract and assign operator
 //  
 ////////////////////////////////////////////////////////////////////////////
-CVisDVector& CVisDVector::operator-=(double dbl)
+YVector& YVector::operator-=(double dbl)
 {
 	int n = Length();
     assert(n != 0); 
@@ -517,7 +584,7 @@ CVisDVector& CVisDVector::operator-=(double dbl)
     return *this; 
 }
 
-CVisDVector& CVisDVector::operator*=(double dbl)
+YVector& YVector::operator*=(double dbl)
 {
     for (int i=0; i<Length(); i++)
         (*this)[i] *= dbl;
@@ -525,7 +592,7 @@ CVisDVector& CVisDVector::operator*=(double dbl)
     return *this; 
 }
 
-CVisDVector& CVisDVector::operator/=(double dbl)
+YVector& YVector::operator/=(double dbl)
 {
 	assert(dbl != 0);
 
@@ -535,10 +602,10 @@ CVisDVector& CVisDVector::operator/=(double dbl)
     return *this; 
 }
 
-CVisDVector CVisDVector::operator+(const CVisDVector& refvector) const
+YVector YVector::operator+(const YVector& refvector) const
 {
     assert(Length() == refvector.Length()); 
-    CVisDVector vectorRet(*this);
+    YVector vectorRet(*this);
 
     return (vectorRet += refvector); 
 }
@@ -548,7 +615,7 @@ CVisDVector CVisDVector::operator+(const CVisDVector& refvector) const
 //  FUNCTION:        operator+
 //  
 //  DECLARATION:
-//          CVisDVector CVisDVector::operator+(double dbl) const;
+//          YVector YVector::operator+(double dbl) const;
 //  
 //  RETURN VALUE:
 //		ret = v + dbl;     
@@ -560,17 +627,17 @@ CVisDVector CVisDVector::operator+(const CVisDVector& refvector) const
 //      Sum operator
 //  
 ////////////////////////////////////////////////////////////////////////////
-CVisDVector CVisDVector::operator+(double dbl) const
+YVector YVector::operator+(double dbl) const
 {
     assert(Length() != 0); 
-    CVisDVector vectorRet(*this);
+    YVector vectorRet(*this);
 
     return (vectorRet += dbl); 
 }
 
-CVisDVector CVisDVector::operator-(void) const
+YVector YVector::operator-(void) const
 {
-    CVisDVector vectorRet(Length());
+    YVector vectorRet(Length());
 
     for (int i=0; i < Length(); i++)
         vectorRet[i] = - (*this)[i];
@@ -578,10 +645,10 @@ CVisDVector CVisDVector::operator-(void) const
     return vectorRet; 
 }
 
-CVisDVector CVisDVector::operator-(const CVisDVector& refvector) const
+YVector YVector::operator-(const YVector& refvector) const
 {
     assert(Length() == refvector.Length()); 
-    CVisDVector vectorRet(*this);
+    YVector vectorRet(*this);
 
     return (vectorRet -= refvector); 
 }
@@ -591,7 +658,7 @@ CVisDVector CVisDVector::operator-(const CVisDVector& refvector) const
 //  FUNCTION:        operator-
 //  
 //  DECLARATION:
-//          CVisDVector CVisDVector::operator-(double dbl) const;
+//          YVector YVector::operator-(double dbl) const;
 //  
 //  RETURN VALUE:
 //		ret = v - dbl;     
@@ -603,26 +670,26 @@ CVisDVector CVisDVector::operator-(const CVisDVector& refvector) const
 //      Subtract operator
 //  
 ////////////////////////////////////////////////////////////////////////////
-CVisDVector CVisDVector::operator-(double dbl) const
+YVector YVector::operator-(double dbl) const
 {
     assert(Length() != 0); 
-    CVisDVector vectorRet(*this);
+    YVector vectorRet(*this);
 
     return (vectorRet -= dbl); 
 }
 
-CVisDVector CVisDVector::operator*(double dbl) const
+YVector YVector::operator*(double dbl) const
 {
-    CVisDVector vectorRet(*this);
+    YVector vectorRet(*this);
 
     return (vectorRet *= dbl); 
 }
 
-CVisDVector CVisDVector::operator/(double dbl) const
+YVector YVector::operator/(double dbl) const
 {
 	assert(dbl != 0);
 
-    CVisDVector vectorRet(*this);
+    YVector vectorRet(*this);
 
     return (vectorRet /= dbl); 
 }
@@ -632,7 +699,7 @@ CVisDVector CVisDVector::operator/(double dbl) const
 //  FUNCTION:        operator*
 //  
 //  DECLARATION:
-//          double CVisDVector::operator*(const CVisDVector& refvector) const;
+//          double YVector::operator*(const YVector& refvector) const;
 //  
 //  RETURN VALUE:
 //		scalar product
@@ -644,7 +711,7 @@ CVisDVector CVisDVector::operator/(double dbl) const
 //      Scalar product
 //  
 ////////////////////////////////////////////////////////////////////////////
-double CVisDVector::operator*(const CVisDVector& refvector) const
+double YVector::operator*(const YVector& refvector) const
 {
     double sum = 0.0;
     assert(Length() == refvector.Length());
@@ -660,8 +727,8 @@ double CVisDVector::operator*(const CVisDVector& refvector) const
 //  FUNCTION:        norm2, norm2square
 //  
 //  DECLARATION:
-//          double CVisDVector::norm2(void) const;
-//          double CVisDVector::norm2square(void) const;
+//          double YVector::norm2(void) const;
+//          double YVector::norm2square(void) const;
 //  
 //  RETURN VALUE:
 //		norm 2.
@@ -673,7 +740,7 @@ double CVisDVector::operator*(const CVisDVector& refvector) const
 //      Compute the 2 norm of the vector.
 //  
 ////////////////////////////////////////////////////////////////////////////
-double CVisDVector::norm2(void) const
+double YVector::norm2(void) const
 {
 	int n = Length();
 	assert(n != 0);
@@ -685,7 +752,7 @@ double CVisDVector::norm2(void) const
     return sqrt(sum);
 }
 
-double CVisDVector::norm2square(void) const
+double YVector::norm2square(void) const
 {
 	int n = Length();
 	assert(n != 0);
@@ -702,8 +769,8 @@ double CVisDVector::norm2square(void) const
 //  FUNCTION:        sin,cos
 //  
 //  DECLARATION:
-//          CVisDVector& CVisDVector::cos(void);
-//          CVisDVector& CVisDVector::sin(void);
+//          YVector& YVector::cos(void);
+//          YVector& YVector::sin(void);
 //  
 //  RETURN VALUE:
 //		reference to l.h.s.
@@ -715,7 +782,7 @@ double CVisDVector::norm2square(void) const
 //      Compute the sin (cos) of the vector.
 //  
 ////////////////////////////////////////////////////////////////////////////
-CVisDVector& CVisDVector::cos(void)
+YVector& YVector::cos(void)
 {
 	int n=Length();
 	assert(n != 0);
@@ -726,7 +793,7 @@ CVisDVector& CVisDVector::cos(void)
 	return *this;
 }
 
-CVisDVector& CVisDVector::sin(void)
+YVector& YVector::sin(void)
 {
 	int n=Length();
 	assert(n != 0);
@@ -740,7 +807,7 @@ CVisDVector& CVisDVector::sin(void)
 //
 // Specific Matrix code starts here (??).
 //
-CVisDMatrix& CVisDMatrix::operator+=(const CVisDMatrix& refmatrix)
+YMatrix& YMatrix::operator+=(const YMatrix& refmatrix)
 {
 	assert((NRows() == refmatrix.NRows())
 			&& (NCols() == refmatrix.NCols()));
@@ -752,7 +819,7 @@ CVisDMatrix& CVisDMatrix::operator+=(const CVisDMatrix& refmatrix)
     return *this;
 }
 
-CVisDMatrix& CVisDMatrix::operator-=(const CVisDMatrix& refmatrix)
+YMatrix& YMatrix::operator-=(const YMatrix& refmatrix)
 {
 	assert((NRows() == refmatrix.NRows())
 			&& (NCols() == refmatrix.NCols()));
@@ -769,8 +836,8 @@ CVisDMatrix& CVisDMatrix::operator-=(const CVisDMatrix& refmatrix)
 //  FUNCTION:        operator+=, operator-=
 //  
 //  DECLARATION:
-//          CVisDMatrix& CVisDMatrix::operator+=(double dbl);
-//          CVisDMatrix& CVisDMatrix::operator-=(double dbl);
+//          YMatrix& YMatrix::operator+=(double dbl);
+//          YMatrix& YMatrix::operator-=(double dbl);
 //  
 //  RETURN VALUE:
 //		reference to l.h.s.
@@ -782,7 +849,7 @@ CVisDMatrix& CVisDMatrix::operator-=(const CVisDMatrix& refmatrix)
 //      Sum or subtract dbl.
 //  
 ////////////////////////////////////////////////////////////////////////////
-CVisDMatrix& CVisDMatrix::operator+=(double dbl)
+YMatrix& YMatrix::operator+=(double dbl)
 {
 	assert((NRows() != 0) && (NCols() != 0));
 
@@ -793,7 +860,7 @@ CVisDMatrix& CVisDMatrix::operator+=(double dbl)
     return *this;
 }
 
-CVisDMatrix& CVisDMatrix::operator-=(double dbl)
+YMatrix& YMatrix::operator-=(double dbl)
 {
 	assert((NRows() != 0) && (NCols() != 0));
 
@@ -804,16 +871,16 @@ CVisDMatrix& CVisDMatrix::operator-=(double dbl)
     return *this;
 }
 
-CVisDMatrix& CVisDMatrix::operator*=(const CVisDMatrix& refmatrix)
+YMatrix& YMatrix::operator*=(const YMatrix& refmatrix)
 {
-    CVisDMatrix matrixT(*this);
+    YMatrix matrixT(*this);
 
     // Note that operator= requires that the LHS and RHS have the same
 	// dimensions.
 	return (*this = (matrixT * refmatrix));
 }
 
-CVisDMatrix& CVisDMatrix::operator*=(double dbl)
+YMatrix& YMatrix::operator*=(double dbl)
 {
     for (int i = 0; i < NRows(); i++)
         for (int j = 0; j < NCols(); j++)
@@ -822,7 +889,7 @@ CVisDMatrix& CVisDMatrix::operator*=(double dbl)
     return *this;
 }
 
-CVisDMatrix& CVisDMatrix::operator/=(double dbl)
+YMatrix& YMatrix::operator/=(double dbl)
 {
 	assert(dbl != 0);
 
@@ -833,9 +900,9 @@ CVisDMatrix& CVisDMatrix::operator/=(double dbl)
     return *this;
 }
 
-CVisDMatrix CVisDMatrix::operator-(void) const
+YMatrix YMatrix::operator-(void) const
 {
-    CVisDMatrix matrixRet(NRows(), NCols());
+    YMatrix matrixRet(NRows(), NCols());
 
     for (int i = 0; i < NRows(); i++)
         for (int j = 0; j < NCols(); j++)
@@ -844,16 +911,16 @@ CVisDMatrix CVisDMatrix::operator-(void) const
     return matrixRet;
 }
 
-CVisDMatrix CVisDMatrix::operator+(const CVisDMatrix& refmatrix) const
+YMatrix YMatrix::operator+(const YMatrix& refmatrix) const
 {
-    CVisDMatrix matrixRet(*this);
+    YMatrix matrixRet(*this);
 
     return (matrixRet += refmatrix);
 }
 
-CVisDMatrix CVisDMatrix::operator-(const CVisDMatrix& refmatrix) const
+YMatrix YMatrix::operator-(const YMatrix& refmatrix) const
 {
-    CVisDMatrix matrixRet(*this);
+    YMatrix matrixRet(*this);
 
     return (matrixRet -= refmatrix);
 }
@@ -863,8 +930,8 @@ CVisDMatrix CVisDMatrix::operator-(const CVisDMatrix& refmatrix) const
 //  FUNCTION:        operator+, operator-
 //  
 //  DECLARATION:
-//          CVisDMatrix CVisDMatrix::operator+(double dbl) const;
-//          CVisDMatrix CVisDMatrix::operator-(double dbl) const;
+//          YMatrix YMatrix::operator+(double dbl) const;
+//          YMatrix YMatrix::operator-(double dbl) const;
 //  
 //  RETURN VALUE:
 //		A new matrix (Sum or difference).
@@ -876,37 +943,37 @@ CVisDMatrix CVisDMatrix::operator-(const CVisDMatrix& refmatrix) const
 //      Sum or subtract dbl.
 //  
 ////////////////////////////////////////////////////////////////////////////
-CVisDMatrix CVisDMatrix::operator+(double dbl) const
+YMatrix YMatrix::operator+(double dbl) const
 {
-    CVisDMatrix matrixRet(*this);
+    YMatrix matrixRet(*this);
 
     return (matrixRet += dbl);
 }
 
-CVisDMatrix CVisDMatrix::operator-(double dbl) const
+YMatrix YMatrix::operator-(double dbl) const
 {
-    CVisDMatrix matrixRet(*this);
+    YMatrix matrixRet(*this);
 
     return (matrixRet -= dbl);
 }
 
-CVisDMatrix CVisDMatrix::operator*(double dbl) const
+YMatrix YMatrix::operator*(double dbl) const
 {
-    CVisDMatrix matrixRet(*this);
+    YMatrix matrixRet(*this);
 
     return (matrixRet *= dbl);
 }
 
-CVisDMatrix CVisDMatrix::operator/(double dbl) const
+YMatrix YMatrix::operator/(double dbl) const
 {
-    CVisDMatrix matrixRet(*this);
+    YMatrix matrixRet(*this);
 
     return (matrixRet /= dbl);
 }
 
-CVisDVector CVisDMatrix::operator*(const CVisDVector& refvector) const
+YVector YMatrix::operator*(const YVector& refvector) const
 {
-    CVisDVector vectorRet(NRows());
+    YVector vectorRet(NRows());
 
     assert(NRows() == vectorRet.Length()
 			&& NCols() == refvector.Length());
@@ -921,9 +988,9 @@ CVisDVector CVisDMatrix::operator*(const CVisDVector& refvector) const
 	return vectorRet;
 }
 
-CVisDMatrix CVisDMatrix::operator*(const CVisDMatrix& refmatrix) const
+YMatrix YMatrix::operator*(const YMatrix& refmatrix) const
 {
-    CVisDMatrix matrixRet(NRows(), refmatrix.NCols());
+    YMatrix matrixRet(NRows(), refmatrix.NCols());
 
     assert(NCols() == refmatrix.NRows() &&
            NRows() == matrixRet.NRows() &&
@@ -946,9 +1013,9 @@ CVisDMatrix CVisDMatrix::operator*(const CVisDMatrix& refmatrix) const
 //  Matrix inverse
 //
 
-CVisDMatrix CVisDMatrix::Inverted(void) const
+YMatrix YMatrix::Inverted(void) const
 {
-    CVisDMatrix matrixInverse(NRows(), NCols());
+    YMatrix matrixInverse(NRows(), NCols());
 
 #ifdef VIS_USE_IMSL
 
@@ -959,7 +1026,7 @@ CVisDMatrix CVisDMatrix::Inverted(void) const
 
     // Use Gauss-Jordan elimination
     int i, j, n = NRows();
-    CVisDMatrix matrixT(n, 2*n);
+    YMatrix matrixT(n, 2*n);
     for (i = 0; i < n; i++)       // copy into a single system
         for (j = 0; j < n; j++)
             matrixT[i][j] = (*this)[i][j], matrixT[i][j+n] = (i == j);
@@ -973,10 +1040,10 @@ CVisDMatrix CVisDMatrix::Inverted(void) const
 	return matrixInverse;
 }
 
-CVisDMatrix CVisDMatrix::Transposed(void) const
+YMatrix YMatrix::Transposed(void) const
 {
     int i, j, n = NRows(), m = NCols();
-    CVisDMatrix matrixTranspose(m, n);
+    YMatrix matrixTranspose(m, n);
 
     assert(m > 0 && n > 0);
 
@@ -987,7 +1054,7 @@ CVisDMatrix CVisDMatrix::Transposed(void) const
 	return matrixTranspose;
 }
 
-bool CVisDMatrix::IsSymmetric(void) const
+bool YMatrix::IsSymmetric(void) const
 {
     if (NRows() != NCols())
         return false;
@@ -1011,20 +1078,20 @@ bool CVisDMatrix::IsSymmetric(void) const
 //  FUNCTION:        VisDMatrixSqrtInverse
 //  
 //  DECLARATION:
-//          CVisDMatrix VisDMatrixSqrtInverse(const CVisDMatrix& A);
+//          YMatrix VisDMatrixSqrtInverse(const YMatrix& A);
 //  
 //  RETURN VALUE:
 //      result matrix
 //  INPUT:
-//      A (const CVisDMatrix&) - input matrix
+//      A (const YMatrix&) - input matrix
 //  
 //  DISCRIPTION:
 //      Matrix square root inverse
 //  
 ////////////////////////////////////////////////////////////////////////////
-VisMatrixExport CVisDMatrix VISAPI VisDMatrixSqrtInverse(const CVisDMatrix& A)
+VisMatrixExport YMatrix VISAPI VisDMatrixSqrtInverse(const YMatrix& A)
 {
-    CVisDMatrix result(A.NRows(), A.NCols());
+    YMatrix result(A.NRows(), A.NCols());
     VisDMatrixSqrtInverse(A, result);
     return result;
 }
@@ -1034,19 +1101,19 @@ VisMatrixExport CVisDMatrix VISAPI VisDMatrixSqrtInverse(const CVisDMatrix& A)
 //  FUNCTION:        VisDMatrixSqrtInverse
 //  
 //  DECLARATION:
-//     void VisDMatrixSqrtInverse(const CVisDMatrix& A, CVisDMatrix &AsqrtInv);
+//     void VisDMatrixSqrtInverse(const YMatrix& A, YMatrix &AsqrtInv);
 //  
 //  INPUT:
-//      A (const CVisDMatrix&) - input matrix
+//      A (const YMatrix&) - input matrix
 //  
-//      &AsqrtInv (CVisDMatrix) - result matrix
+//      &AsqrtInv (YMatrix) - result matrix
 //  
 //  DISCRIPTION:
 //      Matrix t
 //  
 ////////////////////////////////////////////////////////////////////////////
-VisMatrixExport void VISAPI VisDMatrixSqrtInverse(const CVisDMatrix& A,
-		CVisDMatrix &AsqrtInv)
+VisMatrixExport void VISAPI VisDMatrixSqrtInverse(const YMatrix& A,
+		YMatrix &AsqrtInv)
 {
 #ifdef VIS_USE_IMSL
 
@@ -1055,12 +1122,12 @@ VisMatrixExport void VISAPI VisDMatrixSqrtInverse(const CVisDMatrix& A,
     assert(A.NCols() == AsqrtInv.NCols());
 
     int i, j, n = A.NRows();
-    CVisDMatrix B(n, n);
+    YMatrix B(n, n);
 
 	B = A.Transposed() * A;
 
-    CVisDVector Eval(n);
-    CVisDMatrix Evec(n,n);
+    YVector Eval(n);
+    YMatrix Evec(n,n);
 
     VisIMSL_devcsf(n, B[0], n, &Eval[0], Evec[0], n);
 
@@ -1099,26 +1166,26 @@ VisMatrixExport void VISAPI VisDMatrixSqrtInverse(const CVisDMatrix& A,
 //  FUNCTION:        VisDMatrixSolve
 //  
 //  DECLARATION:
-//          CVisDVector VisDMatrixSolve(const CVisDMatrix& A,
-//                        const CVisDVector& b);
+//          YVector VisDMatrixSolve(const YMatrix& A,
+//                        const YVector& b);
 //  
 //  RETURN VALUE:
 //      result vector
 //  INPUT:
-//      A (const CVisDMatrix&) - input matrix (l.h.s. of linear system)
+//      A (const YMatrix&) - input matrix (l.h.s. of linear system)
 //                  
 //  
-//      b (const CVisDVector&) - input vector (r.h.s. of linear system)
+//      b (const YVector&) - input vector (r.h.s. of linear system)
 //                  
 //  
 //  DISCRIPTION:
 //      Linear system solution
 //  
 ////////////////////////////////////////////////////////////////////////////
-VisMatrixExport CVisDVector VISAPI VisDMatrixSolve(const CVisDMatrix& A,
-		const CVisDVector& b)
+VisMatrixExport YVector VISAPI VisDMatrixSolve(const YMatrix& A,
+		const YVector& b)
 {
-    CVisDVector result(b.Length());
+    YVector result(b.Length());
     VisDMatrixSolve(A, b, result);
     return result;
 }
@@ -1128,25 +1195,25 @@ VisMatrixExport CVisDVector VISAPI VisDMatrixSolve(const CVisDMatrix& A,
 //  FUNCTION:        VisDMatrixSolve
 //  
 //  DECLARATION:
-//          void VisDMatrixSolve(const CVisDMatrix& A, const CVisDVector& b,
-//                        CVisDVector& x);
+//          void VisDMatrixSolve(const YMatrix& A, const YVector& b,
+//                        YVector& x);
 //  
 //  INPUT:
-//      A (const CVisDMatrix&) - input matrix (l.h.s. of linear system)
+//      A (const YMatrix&) - input matrix (l.h.s. of linear system)
 //                  
 //  
-//      b (const CVisDVector&) - input vector (r.h.s. of linear system)
+//      b (const YVector&) - input vector (r.h.s. of linear system)
 //                  
 //  
-//      x (CVisDVector&) - output vector (solution to linear system)
+//      x (YVector&) - output vector (solution to linear system)
 //                  
 //  
 //  DISCRIPTION:
 //      Linear system solution
 //  
 ////////////////////////////////////////////////////////////////////////////
-VisMatrixExport void VISAPI VisDMatrixSolve(const CVisDMatrix& A,
-		const CVisDVector& b, CVisDVector& x)
+VisMatrixExport void VISAPI VisDMatrixSolve(const YMatrix& A,
+		const YVector& b, YVector& x)
 {
     assert(A.NRows() == A.NCols() && A.NRows() > 0);
     assert(A.NRows() == b.Length());
@@ -1159,7 +1226,7 @@ VisMatrixExport void VISAPI VisDMatrixSolve(const CVisDMatrix& A,
 
     // Use Gauss-Jordan elimination
     int i, j, n = A.NRows();
-    CVisDMatrix B(n, n+1);
+    YMatrix B(n, n+1);
     for (i = 0; i < n; i++) {       // copy into a single system
         for (j = 0; j < n; j++)
             B[i][j] = A[i][j];
@@ -1179,15 +1246,15 @@ VisMatrixExport void VISAPI VisDMatrixSolve(const CVisDMatrix& A,
 //  FUNCTION:        VisDMatrixSolveSPD
 //  
 //  DECLARATION:
-//          CVisDVector VisDMatrixSolveSPD(const CVisDMatrix& A,
-//                        const CVisDVector& b);
+//          YVector VisDMatrixSolveSPD(const YMatrix& A,
+//                        const YVector& b);
 //  
 //  RETURN VALUE:
 //      result of linear system solution
 //  INPUT:
-//      A (const CVisDMatrix&) - input matrix
+//      A (const YMatrix&) - input matrix
 //  
-//      b (const CVisDVector&) - input vector (r.h.s. of linear system)
+//      b (const YVector&) - input vector (r.h.s. of linear system)
 //                  
 //  
 //  DISCRIPTION:
@@ -1195,10 +1262,10 @@ VisMatrixExport void VISAPI VisDMatrixSolve(const CVisDMatrix& A,
 //      
 //  
 ////////////////////////////////////////////////////////////////////////////
-VisMatrixExport CVisDVector VISAPI VisDMatrixSolveSPD(const CVisDMatrix& A,
-		const CVisDVector& b)
+VisMatrixExport YVector VISAPI VisDMatrixSolveSPD(const YMatrix& A,
+		const YVector& b)
 {
-    CVisDVector result(b.Length());
+    YVector result(b.Length());
     VisDMatrixSolveSPD(A, b, result);
     return result;
 }
@@ -1208,17 +1275,17 @@ VisMatrixExport CVisDVector VISAPI VisDMatrixSolveSPD(const CVisDMatrix& A,
 //  FUNCTION:        VisDMatrixSolveSPD
 //  
 //  DECLARATION:
-//          void VisDMatrixSolveSPD(const CVisDMatrix& A, const CVisDVector& b,
-//                      CVisDVector& x, int n);
+//          void VisDMatrixSolveSPD(const YMatrix& A, const YVector& b,
+//                      YVector& x, int n);
 //  
 //  INPUT:
-//      A (const CVisDMatrix&) - input matrix (l.h.s. of linear system)
+//      A (const YMatrix&) - input matrix (l.h.s. of linear system)
 //                  
 //  
-//      b (const CVisDVector&) - input vector (r.h.s. of linear system)
+//      b (const YVector&) - input vector (r.h.s. of linear system)
 //                  
 //  
-//      x (CVisDVector&) - output vector (solution to linear system)
+//      x (YVector&) - output vector (solution to linear system)
 //                  
 //  
 //      n (int) - size of linear system (may be smaller than size of A)
@@ -1229,8 +1296,8 @@ VisMatrixExport CVisDVector VISAPI VisDMatrixSolveSPD(const CVisDMatrix& A,
 //      
 //  
 ////////////////////////////////////////////////////////////////////////////
-VisMatrixExport void VISAPI VisDMatrixSolveSPD(const CVisDMatrix& A,
-		const CVisDVector& b, CVisDVector& x, int n)
+VisMatrixExport void VISAPI VisDMatrixSolveSPD(const YMatrix& A,
+		const YVector& b, YVector& x, int n)
 {
     if (n < 1)      // optionally solve a sub-system (faster)
         n = A.NRows();
@@ -1241,7 +1308,7 @@ VisMatrixExport void VISAPI VisDMatrixSolveSPD(const CVisDMatrix& A,
 
     // Before solving, check for all positive eigenvalues
     assert(A.IsSymmetric());
-    CVisDVector eigenvalues(b.Length());
+    YVector eigenvalues(b.Length());
     VisIMSL_devlsf(n, A[0], A.NCols(), &eigenvalues[0]);
     for (int i = 0; i < n; i++)
         assert(eigenvalues[i] > 0.0);
@@ -1258,7 +1325,7 @@ VisMatrixExport void VISAPI VisDMatrixSolveSPD(const CVisDMatrix& A,
 
     // Use Gauss-Jordan elimination
     int i, j;
-    CVisDMatrix B(n, n+1);
+    YMatrix B(n, n+1);
     for (i = 0; i < n; i++) {       // copy into a single system
         for (j = 0; j < n; j++)
             B[i][j] = A[i][j];
@@ -1278,25 +1345,25 @@ VisMatrixExport void VISAPI VisDMatrixSolveSPD(const CVisDMatrix& A,
 //  FUNCTION:        VisDMatrixLeastSquares
 //  
 //  DECLARATION:
-//      CVisDMatrix VisDMatrixLeastSquares(const CVisDMatrix& A,
-//                        const CVisDMatrix& B);
-//      void VisDMatrixLeastSquares(const CVisDMatrix& A,
-//                        const CVisDMatrix& B, CVisDMatrix& X);
-//      CVisDVector VisDMatrixLeastSquares(const CVisDMatrix& A,
+//      YMatrix VisDMatrixLeastSquares(const YMatrix& A,
+//                        const YMatrix& B);
+//      void VisDMatrixLeastSquares(const YMatrix& A,
+//                        const YMatrix& B, YMatrix& X);
+//      YVector VisDMatrixLeastSquares(const YMatrix& A,
 //                        const CVisDVectir& b);
-//      void VisDMatrixLeastSquares(const CVisDMatrix& A,
-//                        const CVisDVector& b, CVisDVector& x);
+//      void VisDMatrixLeastSquares(const YMatrix& A,
+//                        const YVector& b, YVector& x);
 //  
 //  INPUT:
-//      A (const CVisDMatrix&) - input matrix (l.h.s. of linear system)
+//      A (const YMatrix&) - input matrix (l.h.s. of linear system)
 //                  
-//      B (const CVisDMatrix&) - input matrix (r.h.s. of linear system)
+//      B (const YMatrix&) - input matrix (r.h.s. of linear system)
 //  
-//      X (CVisDMatrix&) - output matrix (solution to linear system)
+//      X (YMatrix&) - output matrix (solution to linear system)
 //
-//      b (const CVisDVector&) - input vector (r.h.s. of linear system)
+//      b (const YVector&) - input vector (r.h.s. of linear system)
 //                  
-//      x (CVisDVector&) - output vector (solution to linear system)
+//      x (YVector&) - output vector (solution to linear system)
 //  
 //  DISCRIPTION:
 //      Least squares system solution using Householder transforms
@@ -1304,23 +1371,23 @@ VisMatrixExport void VISAPI VisDMatrixSolveSPD(const CVisDMatrix& A,
 //      
 //  
 ////////////////////////////////////////////////////////////////////////////
-VisMatrixExport CVisDMatrix VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
-		const CVisDMatrix& B)
+VisMatrixExport YMatrix VISAPI VisDMatrixLeastSquares(const YMatrix& A,
+		const YMatrix& B)
 {
-    CVisDMatrix result(B.NRows(), B.NCols());
+    YMatrix result(B.NRows(), B.NCols());
     VisDMatrixLeastSquares(A, B, result);
     return result;
 }
 
-VisMatrixExport void VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
-		const CVisDMatrix& B, CVisDMatrix& X)
+VisMatrixExport void VISAPI VisDMatrixLeastSquares(const YMatrix& A,
+		const YMatrix& B, YMatrix& X)
 {
     assert(A.NRows() == B.NRows() && A.NRows() > 0);
 
 #ifdef VIS_USE_IMSL
 
     // Transpose the matrices and form into one
-    CVisDMatrix M(A.NCols() + B.NCols(), A.NRows());
+    YMatrix M(A.NCols() + B.NCols(), A.NRows());
     for (int i = 0; i < A.NRows(); i++) {
         for (int j = 0; j < A.NCols(); j++)
             M[j][i] = A[i][j];
@@ -1329,7 +1396,7 @@ VisMatrixExport void VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
     }
 
     // Use the IMSL least squares solver (Householder QR decomposition)
-    CVisDMatrix N(X.NCols(), X.NRows());
+    YMatrix N(X.NCols(), X.NRows());
     VisIMSL_dlqrrv(A.NRows(), A.NCols(), B.NCols(), &M[0][0], A.NRows(),
                    &N[0][0], X.NRows());
 
@@ -1342,7 +1409,7 @@ VisMatrixExport void VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
 #else // VIS_USE_IMSL
 
     // Form the normal equations
-    CVisDMatrix An(A.NCols(), A.NCols()), Bn(B.NCols(), A.NCols());
+    YMatrix An(A.NCols(), A.NCols()), Bn(B.NCols(), A.NCols());
     An = 0.0, Bn = 0.0;
     for (int i = 0; i < A.NRows(); i++) {
         for (int j = 0; j < A.NCols(); j++) {
@@ -1354,14 +1421,14 @@ VisMatrixExport void VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
     }
 
     // Solve for each column of X independently
-    CVisDVector b(X.NRows());
+    YVector b(X.NRows());
     for (int j = 0; j < X.NCols(); j++) {
         // Copy the input (rhs)
         for (int i = 0; i < X.NRows(); i++)
             b[i] = Bn[i][j];
 
         // Solve the system
-        CVisDVector x = VisDMatrixSolveSPD(An, b);
+        YVector x = VisDMatrixSolveSPD(An, b);
         
         // Copy to the output (solution)
         for (i = 0; i < X.NRows(); i++)
@@ -1371,19 +1438,19 @@ VisMatrixExport void VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
 #endif // VIS_USE_IMSL
 }
 
-VisMatrixExport CVisDVector VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
-		const CVisDVector& b)
+VisMatrixExport YVector VISAPI VisDMatrixLeastSquares(const YMatrix& A,
+		const YVector& b)
 {
-    CVisDVector result(A.NCols());
+    YVector result(A.NCols());
     VisDMatrixLeastSquares(A, b, result);
     return result;
 }
 
-VisMatrixExport void VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
-		const CVisDVector& b, CVisDVector& x)
+VisMatrixExport void VISAPI VisDMatrixLeastSquares(const YMatrix& A,
+		const YVector& b, YVector& x)
 {
-    CVisDMatrix B(b.Length(), 1, (double *) &b[0]);
-    CVisDMatrix X(x.Length(), 1, &x[0]);
+    YMatrix B(b.Length(), 1, (double *) &b[0]);
+    YMatrix X(x.Length(), 1, &x[0]);
     VisDMatrixLeastSquares(A, B, X);
 }
 
@@ -1392,10 +1459,10 @@ VisMatrixExport void VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
 //  FUNCTION:     VisGaussJordanSolveDMatrix   
 //  
 //  DECLARATION:
-//          static void VisGaussJordanSolveDMatrix(CVisDMatrix& A)
+//          static void VisGaussJordanSolveDMatrix(YMatrix& A)
 //  
 //  INPUT:
-//    CVisDMatrix& A - a matrix of coefficients.
+//    YMatrix& A - a matrix of coefficients.
 //  
 //  DISCRIPTION:
 //
@@ -1405,7 +1472,7 @@ VisMatrixExport void VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
 ////////////////////////////////////////////////////////////////////////////
 
 
-static void VisGaussJordanSolveDMatrix(CVisDMatrix& A)
+static void VisGaussJordanSolveDMatrix(YMatrix& A)
 {
     int n = A.NRows(), m = A.NCols(), i, j, k;
     
@@ -1454,15 +1521,15 @@ static void VisGaussJordanSolveDMatrix(CVisDMatrix& A)
 
 
 // QR factorization related functions
-VisMatrixExport CVisDVector VISAPI VisDMatrixSolveQR(const CVisDMatrix& A,
-		const CVisDVector& b)
+VisMatrixExport YVector VISAPI VisDMatrixSolveQR(const YMatrix& A,
+		const YVector& b)
 {
     int nr = A.NRows(); 
     int nc = A.NCols(); 
     assert(nr >= nc && nc > 0);
     assert(nr == b.Length());
 
-    CVisDVector result(nc);
+    YVector result(nc);
     VisDMatrixSolveQR(A, b, result);
     return result;
 }
@@ -1471,8 +1538,8 @@ VisMatrixExport CVisDVector VISAPI VisDMatrixSolveQR(const CVisDMatrix& A,
 // indexing
 // This is why transpose of A is used 
 // unlike SPD solver, QR solver doesn't require A to be square
-VisMatrixExport void VISAPI VisDMatrixSolveQR(const CVisDMatrix& A,
-		const CVisDVector& b, CVisDVector& x)
+VisMatrixExport void VISAPI VisDMatrixSolveQR(const YMatrix& A,
+		const YVector& b, YVector& x)
 {
     int nr = A.NRows(); 
     int nc = A.NCols(); 
@@ -1480,7 +1547,7 @@ VisMatrixExport void VISAPI VisDMatrixSolveQR(const CVisDMatrix& A,
     assert(nr == b.Length());
 
     // Transpose the matrice
-    CVisDMatrix M = A.Transposed(); 
+    YMatrix M = A.Transposed(); 
 
     x = 0.0; 
     //VisIMSL_SolveQR(nr, nc, A[0], &b[0], &x[0]);
@@ -1499,18 +1566,18 @@ VisMatrixExport void VISAPI VisDMatrixSolveQR(const CVisDMatrix& A,
 //  FUNCTION:        VisDMatrixSVD
 //  
 //  DECLARATION:
-//      void VisDMatrixSVD(const CVisDMatrix& A, CVisDVector& s,
-//                        CVisDMatrix& U, CVisDMatrix& V,
+//      void VisDMatrixSVD(const YMatrix& A, YVector& s,
+//                        YMatrix& U, YMatrix& V,
 //                        int compute_left = 1, compute_right = 1);
 //  
 //  INPUT:
-//      A (const CVisDMatrix&) - input matrix
+//      A (const YMatrix&) - input matrix
 //                  
-//      s (CVisDVector&) - singular values (output vector)
+//      s (YVector&) - singular values (output vector)
 //
-//      U (CVisDMatrix&) - left singular vectors
+//      U (YMatrix&) - left singular vectors
 //  
-//      V (CVisDMatrix&) - right singular vectors
+//      V (YMatrix&) - right singular vectors
 //
 //      compute_left (int) - compute the left singular vectors
 //  
@@ -1526,17 +1593,17 @@ VisMatrixExport void VISAPI VisDMatrixSolveQR(const CVisDMatrix& A,
 //  
 ////////////////////////////////////////////////////////////////////////////
 
-VisMatrixExport void VISAPI VisDMatrixSVD(const CVisDMatrix& A, CVisDVector& s, 
-                  CVisDMatrix& U, CVisDMatrix& V,
+VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& A, YVector& s, 
+                  YMatrix& U, YMatrix& V,
                   int compute_left, int compute_right)
 {
 #ifdef VIS_USE_IMSL
     long nr = A.NRows(); 
     long nc = A.NCols();
-    CVisDVector s2(__min(nr+1, nc));    // required by LSVRR
-    CVisDMatrix AT(nc, nr);             // A^T
-    CVisDMatrix UT(compute_left ? nc : 1, compute_left ? nr : 1);
-    CVisDMatrix VT(compute_right ? nc : 1, compute_right ? nc : 1);
+    YVector s2(__min(nr+1, nc));    // required by LSVRR
+    YMatrix AT(nc, nr);             // A^T
+    YMatrix UT(compute_left ? nc : 1, compute_left ? nr : 1);
+    YMatrix VT(compute_right ? nc : 1, compute_right ? nc : 1);
     double eps = 0.0;       // ignored
     long rank_a;             // ignored
     long iPath = compute_left * 20 + compute_right;
@@ -1581,25 +1648,25 @@ VisMatrixExport void VISAPI VisDMatrixSVD(const CVisDMatrix& A, CVisDVector& s,
 //  FUNCTION:        VisDMatrixSVD
 //  
 //  DECLARATION:
-//      void VisDMatrixSVD(CVisDMatrix& a, CVisDVector& w, CVisDMatrix& v);
-//      void VisDMatrixSVD(const CVisDMatrix& a,
-//						   CVisDMatrix& u, 
-//						   CVisDVector& w, 
-//						   CVisDMatrix& v);
-//      void VisDMatrixSVD(const CVisDMatrix& a, 
-//                         const CVisDVector& b, 
-//                         CVisDMatrix& x);
+//      void VisDMatrixSVD(YMatrix& a, YVector& w, YMatrix& v);
+//      void VisDMatrixSVD(const YMatrix& a,
+//						   YMatrix& u, 
+//						   YVector& w, 
+//						   YMatrix& v);
+//      void VisDMatrixSVD(const YMatrix& a, 
+//                         const YVector& b, 
+//                         YMatrix& x);
 //  
 //  INPUT:
-//      a (const CVisDMatrix&) - input matrix and U on exit!
+//      a (const YMatrix&) - input matrix and U on exit!
 //                  
-//      w (CVisDVector&) - singular values (output vector)
+//      w (YVector&) - singular values (output vector)
 //
-//      v (CVisDMatrix&) - right singular vectors (output matrix)
+//      v (YMatrix&) - right singular vectors (output matrix)
 //  
-//		x (CVisDVector&) - solution of the LS problem using SVD
+//		x (YVector&) - solution of the LS problem using SVD
 //
-//		b (CVisDVector&) - r.h.s. of the linear equation to be solved
+//		b (YVector&) - r.h.s. of the linear equation to be solved
 //
 //  DISCRIPTION:
 //      Singular value decomposition (SVD), using NR routine.
@@ -1610,28 +1677,28 @@ VisMatrixExport void VISAPI VisDMatrixSVD(const CVisDMatrix& A, CVisDVector& s,
 //      U is of course M x N, and V must be N x N.
 //  
 ////////////////////////////////////////////////////////////////////////////
-VisMatrixExport void VISAPI VisDMatrixSVD(CVisDMatrix& a, CVisDVector& w, CVisDMatrix& v)
+VisMatrixExport void VISAPI VisDMatrixSVD(YMatrix& a, YVector& w, YMatrix& v)
 {
 	SVD(a,w,v);	
 }
 
-VisMatrixExport void VISAPI VisDMatrixSVD(const CVisDMatrix& a,
-										  CVisDMatrix& u,
-										  CVisDVector& w,
-										  CVisDMatrix& v)
+VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& a,
+										  YMatrix& u,
+										  YVector& w,
+										  YMatrix& v)
 {
 	u = a;
 	SVD(u,w,v);
 }
 
-VisMatrixExport void VISAPI VisDMatrixSVD(const CVisDMatrix& a,
-										  const CVisDVector& b,
-										  CVisDVector& x)
+VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& a,
+										  const YVector& b,
+										  YVector& x)
 {
 	const double Tolerance=1e-6;
-	CVisDMatrix u = a;
-	CVisDMatrix v(a.NCols(),a.NCols());
-	CVisDVector w(a.NCols());
+	YMatrix u = a;
+	YMatrix v(a.NCols(),a.NCols());
+	YVector w(a.NCols());
 
 	SVD(u,w,v);
 
@@ -1653,17 +1720,17 @@ VisMatrixExport void VISAPI VisDMatrixSVD(const CVisDMatrix& a,
 //  FUNCTION:        VisDMatrixLU
 //  
 //  DECLARATION:
-//      void VisDMatrixLU(CVisDMatrix& a, CVisDVector& indx, double& d);
-//      void VisDMatrixLU(const CVisDMatrix& a,
-//						  const CVisDVector& b, 
-//						  CVisDVector& x);
+//      void VisDMatrixLU(YMatrix& a, YVector& indx, double& d);
+//      void VisDMatrixLU(const YMatrix& a,
+//						  const YVector& b, 
+//						  YVector& x);
 //  
 //  INPUT:
-//      a (const CVisDMatrix&) - input matrix and U on exit!
+//      a (const YMatrix&) - input matrix and U on exit!
 //                  
-//		x (CVisDVector&) - solution of the LS problem using LU
+//		x (YVector&) - solution of the LS problem using LU
 //
-//		b (CVisDVector&) - r.h.s. of the linear equation to be solved
+//		b (YVector&) - r.h.s. of the linear equation to be solved
 //
 //  DISCRIPTION:
 //      LU decomposition, using NR routine.
@@ -1671,18 +1738,18 @@ VisMatrixExport void VISAPI VisDMatrixSVD(const CVisDMatrix& a,
 //      A must be square. 
 //  
 ////////////////////////////////////////////////////////////////////////////
-VisMatrixExport void VISAPI VisDMatrixLU(CVisDMatrix& a, CVisDVector& indx, double& d)
+VisMatrixExport void VISAPI VisDMatrixLU(YMatrix& a, YVector& indx, double& d)
 {
 	LU (a,indx,d);
 }
 
-VisMatrixExport void VISAPI VisDMatrixLU(const CVisDMatrix& a,
-										 const CVisDVector& b,
-										 CVisDVector& x)
+VisMatrixExport void VISAPI VisDMatrixLU(const YMatrix& a,
+										 const YVector& b,
+										 YVector& x)
 {
-	CVisDMatrix acopy(a);
-	CVisDVector bcopy(b);
-	CVisDVector indx(b.Length());
+	YMatrix acopy(a);
+	YVector bcopy(b);
+	YVector indx(b.Length());
 	double d;
 
 	LU (acopy,indx,d);
@@ -1690,13 +1757,13 @@ VisMatrixExport void VISAPI VisDMatrixLU(const CVisDMatrix& a,
 	x=bcopy;
 }
 
-VisMatrixExport void VISAPI VisMinEigenValue(CVisDMatrix& A, CVisDVector& x)
+VisMatrixExport void VISAPI VisMinEigenValue(YMatrix& A, YVector& x)
 {
 #ifdef OLDANDSLOW
 	int N = A.NRows();
 
-	CVisDVector Eval(N);
-	CVisDMatrix Evec(N, N);
+	YVector Eval(N);
+	YMatrix Evec(N, N);
 
 	VisIMSL_devcsf(N, A[0], N, &Eval[0], Evec[0], N);
 	for (int i = 0; i < N; i++)
@@ -1706,13 +1773,13 @@ VisMatrixExport void VISAPI VisMinEigenValue(CVisDMatrix& A, CVisDVector& x)
 #endif // OLDANDSLOW
 }
 
-VisMatrixExport void VISAPI VisMaxEigenValue(CVisDMatrix& A, CVisDVector& x)
+VisMatrixExport void VISAPI VisMaxEigenValue(YMatrix& A, YVector& x)
 {
 #ifdef OLDANDSLOW
 	int N = A.NRows();
 
-	CVisDVector Eval(N);
-	CVisDMatrix Evec(N, N);
+	YVector Eval(N);
+	YMatrix Evec(N, N);
 
 	VisIMSL_devcsf(N, A[0], N, &Eval[0], Evec[0], N);
 	for (int i = 0; i < N; i++)
@@ -1722,7 +1789,7 @@ VisMatrixExport void VISAPI VisMaxEigenValue(CVisDMatrix& A, CVisDVector& x)
 #endif // OLDANDSLOW
 }
 
-VisMatrixExport double VISAPI VisMinMaxEigenValue(CVisDMatrix& A, CVisDVector& x,
+VisMatrixExport double VISAPI VisMinMaxEigenValue(YMatrix& A, YVector& x,
 		bool fMin)
 {
 	int n = A.NRows();
@@ -1746,8 +1813,8 @@ VisMatrixExport double VISAPI VisMinMaxEigenValue(CVisDMatrix& A, CVisDVector& x
 // Van Loan also see MSR-TR-97-23
 // current implementation assumes rank(A) = n and rank(B) = p -> user's
 // responsibility
-VisMatrixExport void VISAPI VisDMatrixEQConstrainedLS(CVisDMatrix& A, CVisDVector& b,
-		CVisDMatrix& C, CVisDVector& d, CVisDVector& x)
+VisMatrixExport void VISAPI VisDMatrixEQConstrainedLS(YMatrix& A, YVector& b,
+		YMatrix& C, YVector& d, YVector& x)
 {
 #ifdef VIS_USE_IMSL
     int m = A.NRows(); 
@@ -1759,20 +1826,20 @@ VisMatrixExport void VISAPI VisDMatrixEQConstrainedLS(CVisDMatrix& A, CVisDVecto
     assert(x.Length() == n); 
     assert(d.Length() == p); 
 
-    CVisDVector x1(p); 
-    CVisDVector x2(n-p); 
+    YVector x1(p); 
+    YVector x2(n-p); 
 
     x1 = 0.0; x2 = 0.0; 
 
     // QR factorization of C^T, i.e., C^T = Q [R | 0]^T
-    // CVisDMatrix QR(n, p); 
-    CVisDMatrix Q(n, n); 
-    CVisDMatrix RT(p, p); 
+    // YMatrix QR(n, p); 
+    YMatrix Q(n, n); 
+    YMatrix RT(p, p); 
     long* ipvt = new long[p]; 
     long pivot = 1; 
 
-    CVisDMatrix QRTrans(p, n); 
-    CVisDMatrix QTrans(n, n); 
+    YMatrix QRTrans(p, n); 
+    YMatrix QTrans(n, n); 
 
     VisIMSL_GetQR(n, p, C[0], QTrans[0], QRTrans[0], ipvt, pivot); 
 
@@ -1791,13 +1858,13 @@ VisMatrixExport void VISAPI VisDMatrixEQConstrainedLS(CVisDMatrix& A, CVisDVecto
     // permute d by P^{-1} d = dPermu
     // this step is necessary: see RoomBuilder paper
     // double* dPermu = new double[p]; 
-    CVisDVector dPermu(p); 
+    YVector dPermu(p); 
     VisIMSL_DPERMU(p, &d[0], ipvt, 1, &dPermu[0]);
 
     // AQ = [A1, A2]
-    CVisDMatrix AQ = A * Q; 
-    CVisDMatrix A1(m, p); 
-    CVisDMatrix A2(m, n-p); 
+    YMatrix AQ = A * Q; 
+    YMatrix A1(m, p); 
+    YMatrix A2(m, n-p); 
 
     for (i = 0; i < m; i++)
     {
@@ -1824,12 +1891,12 @@ VisMatrixExport void VISAPI VisDMatrixEQConstrainedLS(CVisDMatrix& A, CVisDVecto
     }
 
     // solve x2; unconstrained LS
-    CVisDVector b1 = A1 * x1; 
-    CVisDVector b2 = b - b1; 
+    YVector b1 = A1 * x1; 
+    YVector b2 = b - b1; 
     VisDMatrixLeastSquares(A2, b2, x2); 
 
     // get x
-    CVisDVector z(n); 
+    YVector z(n); 
     for (j = 0; j < p; j++)
         z[j] = x1[j];
     for (j = p; j < n; j++)
@@ -1852,8 +1919,8 @@ VisMatrixExport void VISAPI VisDMatrixEQConstrainedLS(CVisDMatrix& A, CVisDVecto
 //  Standard library Input/output (for debugging, mostly)
 //
 
-bool CVisDVector::s_fVerboseOutput = true;
-bool CVisDMatrix::s_fVerboseOutput = true;
+bool YVector::s_fVerboseOutput = true;
+bool YMatrix::s_fVerboseOutput = true;
 
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1861,36 +1928,36 @@ bool CVisDMatrix::s_fVerboseOutput = true;
 //  FUNCTION:        operator<<
 //  
 //  DECLARATION:
-//          ostream& operator<<(ostream& os, const CVisDVector& v);
+//          ostream& operator<<(ostream& os, const YVector& v);
 //  
 //  RETURN VALUE:
 //      reference to output stream
 //  INPUT:
 //      os (ostream&) - output stream
 //  
-//      v (CVisDVector&) - vector being printed
+//      v (YVector&) - vector being printed
 //  
 //  DISCRIPTION:
 //      Print vector on output stream
 //  
 ////////////////////////////////////////////////////////////////////////////
 #ifndef __QNX__
-VisMatrixExport std::ostream& VISAPI operator<<(std::ostream& os, const CVisDVector& v)
+VisMatrixExport std::ostream& VISAPI operator<<(std::ostream& os, const YVector& v)
 #else
-VisMatrixExport ostream& VISAPI operator<<(ostream& os, const CVisDVector& v)
+VisMatrixExport ostream& VISAPI operator<<(ostream& os, const YVector& v)
 #endif
 {
-    if (CVisDVector::s_fVerboseOutput)
-        os << "# CVisDVector<" << v.Length() << "> = {";
+    if (YVector::s_fVerboseOutput)
+        os << "# YVector<" << v.Length() << "> = {";
     else
         os << "{";
     for (int i = 0; i < v.Length(); i++)
         os << v[i] << ((i == v.Length()-1) ? "}" : ", ");
 #ifndef __QNX__
-    if (CVisDVector::s_fVerboseOutput)
+    if (YVector::s_fVerboseOutput)
         os << std::endl;
 #else
-    if (CVisDVector::s_fVerboseOutput)
+    if (YVector::s_fVerboseOutput)
         os << endl;
 #endif
 
@@ -1902,14 +1969,14 @@ VisMatrixExport ostream& VISAPI operator<<(ostream& os, const CVisDVector& v)
 //  FUNCTION:        operator<<
 //  
 //  DECLARATION:
-//          ostream& operator<<(ostream& os, const CVisDMatrix& mat );
+//          ostream& operator<<(ostream& os, const YMatrix& mat );
 //  
 //  RETURN VALUE:
 //      reference to output stream
 //  INPUT:
 //      os (ostream&) - output stream
 //  
-//      v (CVisDVector&) - matrix being printed
+//      v (YVector&) - matrix being printed
 //  
 //  DISCRIPTION:
 //      Print matrix on output stream
@@ -1917,18 +1984,18 @@ VisMatrixExport ostream& VISAPI operator<<(ostream& os, const CVisDVector& v)
 ////////////////////////////////////////////////////////////////////////////
 
 #ifndef __QNX__
-VisMatrixExport std::ostream& VISAPI operator<<(std::ostream& os, const CVisDMatrix& mat)
+VisMatrixExport std::ostream& VISAPI operator<<(std::ostream& os, const YMatrix& mat)
 #else
-VisMatrixExport ostream& VISAPI operator<<(ostream& os, const CVisDMatrix& mat)
+VisMatrixExport ostream& VISAPI operator<<(ostream& os, const YMatrix& mat)
 #endif
 {
 #ifndef __QNX__
-    if (CVisDMatrix::s_fVerboseOutput)
-        os << "# CVisDMatrix<" << mat.NRows() << "," << 
+    if (YMatrix::s_fVerboseOutput)
+        os << "# YMatrix<" << mat.NRows() << "," << 
                               mat.NCols() << "> =" << std::endl;
 #else
-    if (CVisDMatrix::s_fVerboseOutput)
-        os << "# CVisDMatrix<" << mat.NRows() << "," << 
+    if (YMatrix::s_fVerboseOutput)
+        os << "# YMatrix<" << mat.NRows() << "," << 
                               mat.NCols() << "> =" << endl;
 #endif
     for (int i = 0; i < mat.NRows(); i++) {
@@ -1938,10 +2005,10 @@ VisMatrixExport ostream& VISAPI operator<<(ostream& os, const CVisDMatrix& mat)
         os << ((i == mat.NRows()-1) ? "}" : ",\n");
     }
 #ifndef __QNX__
-    if (CVisDMatrix::s_fVerboseOutput)
+    if (YMatrix::s_fVerboseOutput)
         os << std::endl;
 #else
-    if (CVisDMatrix::s_fVerboseOutput)
+    if (YMatrix::s_fVerboseOutput)
         os << endl;
 #endif
 
@@ -1960,18 +2027,18 @@ VisMatrixExport ostream& VISAPI operator<<(ostream& os, const CVisDMatrix& mat)
 // Global variables used with self-describing streams.
 // LATER:  Find a way to avoid using these global variables.
 #ifdef VIS_INCLUDE_SDSTREAM
-VisMatrixExport CVisSDObject<CVisDVector> g_visdvectorExemplar;
-VisMatrixExport CVisSDObject<CVisDMatrix> g_visdmatrixExemplar;
+VisMatrixExport CVisSDObject<YVector> g_visdvectorExemplar;
+VisMatrixExport CVisSDObject<YMatrix> g_visdmatrixExemplar;
 #endif
 
 #if 0 // REMOVED
-const char *CVisDVector::ReadWriteField(CVisSDStream& s, int field_id)
+const char *YVector::ReadWriteField(CVisSDStream& s, int field_id)
 {
 #ifdef VIS_INCLUDE_SDSTREAM
     switch (FieldType(field_id))
 	{
     case eftName:
-        return "class CVisDVector {";
+        return "class YVector {";
 
     case eftLength:
 		if (s.Status() == CVisSDStream::Read)
@@ -2008,13 +2075,13 @@ const char *CVisDVector::ReadWriteField(CVisSDStream& s, int field_id)
 }
 
 
-const char *CVisDMatrix::ReadWriteField(CVisSDStream& s, int field_id)
+const char *YMatrix::ReadWriteField(CVisSDStream& s, int field_id)
 {
 #ifdef VIS_INCLUDE_SDSTREAM
     switch (FieldType(field_id))
 	{
     case eftName:
-        return "class CVisDMatrix {";
+        return "class YMatrix {";
 
     case eftDims:
 		s.OpenParen();
@@ -2073,44 +2140,44 @@ const char *CVisDMatrix::ReadWriteField(CVisSDStream& s, int field_id)
 // New operator(s) by pasa.
 //
 
-VisMatrixExport CVisDVector VISAPI operator*(double d,const CVisDVector& A)
+VisMatrixExport YVector VISAPI operator*(double d,const YVector& A)
 {
-    CVisDVector vectorRet(A);
+    YVector vectorRet(A);
 
     return (vectorRet *= d); 
 }
 
-VisMatrixExport CVisDMatrix VISAPI operator*(double d,const CVisDMatrix& A)
+VisMatrixExport YMatrix VISAPI operator*(double d,const YMatrix& A)
 {
-    CVisDMatrix matrixRet(A);
+    YMatrix matrixRet(A);
 
     return (matrixRet *= d);
 }
 
-VisMatrixExport CVisDVector VISAPI operator+(double d,const CVisDVector& A)
+VisMatrixExport YVector VISAPI operator+(double d,const YVector& A)
 {
-	CVisDVector vectorRet(A);
+	YVector vectorRet(A);
 
 	return (vectorRet += d);
 }
 
-VisMatrixExport CVisDVector VISAPI operator-(double d,const CVisDVector& A)
+VisMatrixExport YVector VISAPI operator-(double d,const YVector& A)
 {
-	CVisDVector vectorRet(A);
+	YVector vectorRet(A);
 
 	return (vectorRet -= d);
 }
 
-VisMatrixExport CVisDMatrix VISAPI operator+(double d,const CVisDMatrix& A)
+VisMatrixExport YMatrix VISAPI operator+(double d,const YMatrix& A)
 {
-	CVisDMatrix matrixRet(A);
+	YMatrix matrixRet(A);
 
 	return (matrixRet += d);
 }
 
-VisMatrixExport CVisDMatrix VISAPI operator-(double d,const CVisDMatrix& A)
+VisMatrixExport YMatrix VISAPI operator-(double d,const YMatrix& A)
 {
-	CVisDMatrix matrixRet(A);
+	YMatrix matrixRet(A);
 
 	return (matrixRet -= d);
 }
@@ -2120,8 +2187,8 @@ VisMatrixExport CVisDMatrix VISAPI operator-(double d,const CVisDMatrix& A)
 //  FUNCTION:        sin,cos
 //  
 //  DECLARATION:
-//          CVisDVector CVisDVector::cos(const CVisDVector &A);
-//          CVisDVector CVisDVector::sin(const CVisDvector &A);
+//          YVector YVector::cos(const YVector &A);
+//          YVector YVector::sin(const YVector &A);
 //  
 //  RETURN VALUE:
 //		reference to l.h.s.
@@ -2133,16 +2200,16 @@ VisMatrixExport CVisDMatrix VISAPI operator-(double d,const CVisDMatrix& A)
 //      Compute the sin (cos) of the vector.
 //  
 ////////////////////////////////////////////////////////////////////////////
-VisMatrixExport CVisDVector VISAPI cos(const CVisDVector &A)
+VisMatrixExport YVector VISAPI cos(const YVector &A)
 {
-	CVisDVector vectorRet(A);
+	YVector vectorRet(A);
 
 	return vectorRet.cos();
 }
 
-VisMatrixExport CVisDVector VISAPI sin(const CVisDVector &A)
+VisMatrixExport YVector VISAPI sin(const YVector &A)
 {
-	CVisDVector vectorRet(A);
+	YVector vectorRet(A);
 
 	return vectorRet.sin();
 }

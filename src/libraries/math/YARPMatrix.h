@@ -1,10 +1,77 @@
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
+///                                                                   ///
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+
+///
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPMatrix.h,v 1.2 2003-05-31 06:02:58 gmetta Exp $
+///
+///
+
 ///////////////////////////////////////////////////////////////////////////
 //
 // NAME
-//  VisDMatrix.h -- double precision matrix/vector operations
+//  YARPMatrix.h -- double precision matrix/vector operations
 //
 // DESCRIPTION
-//  The CVisDMatrix class provides some basic matrix operations, using calls
+//  The YMatrix class provides some basic matrix operations, using calls
 //  to external software (IMSL for the moment) to perform the more
 //  complicated operations.
 //
@@ -45,6 +112,8 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
+#include <conf/YARPConfig.h>
+
 #include <iostream>
 
 #include <math.h>
@@ -70,7 +139,7 @@
 
 
 // QNX Specific.
-#ifdef __QNX__
+#ifdef __QNX4__
 #include "YARPSafeNew.h"
 #include "YARPBool.h"
 #endif
@@ -78,17 +147,17 @@
 ////////////////////////////////////////////////////////////////////////////
 //  
 //  CLASS:
-//      CVisDVector
+//      YVector
 //  
 ////////////////////////////////////////////////////////////////////////////
-class CVisDVector
+class YVector
 {
 public:
     // Constructors (default destructor and copy constructor)
-    CVisDVector(void);
-    CVisDVector(int length, double *storage = 0);
-    CVisDVector(const CVisDVector &vec);
-	virtual ~CVisDVector ();
+    YVector(void);
+    YVector(int length, double *storage = 0);
+    YVector(const YVector &vec);
+	virtual ~YVector ();
 
     // Vector length
     int Length(void) const { return m_length; }
@@ -102,46 +171,46 @@ public:
 	const double& operator()(int i) const { return m_data[--i]; }
 
     // Assignment
-    CVisDVector& operator=(const CVisDVector &vec);
-    CVisDVector& operator=(double value);
+    YVector& operator=(const YVector &vec);
+    YVector& operator=(double value);
 
 	// We define operator < so that this class can be used in STL containers.
-	bool operator==(const CVisDVector& refvector) const;
-	bool operator!=(const CVisDVector& refvector) const;
+	bool operator==(const YVector& refvector) const;
+	bool operator!=(const YVector& refvector) const;
 	bool operator==(double dbl) const;
 	bool operator!=(double dbl) const;
-	bool operator<(const CVisDVector& refvector) const;
+	bool operator<(const YVector& refvector) const;
 	
-	CVisDVector operator+(const CVisDVector &b) const;
+	YVector operator+(const YVector &b) const;
 
-	CVisDVector operator-(void) const;
-	CVisDVector operator-(const CVisDVector &b) const;
+	YVector operator-(void) const;
+	YVector operator-(const YVector &b) const;
 
-	CVisDVector operator*(double dbl) const;
-	double operator*(const CVisDVector &b) const;   // dot product
+	YVector operator*(double dbl) const;
+	double operator*(const YVector &b) const;   // dot product
 
 	// norm 2.
 	double norm2(void) const;
 	double norm2square(void) const;
 
 	// assume vector is row and multiply.
-	//CVisDVector operator*(const CVisDMatrix &A) const;
+	//YVector operator*(const YMatrix &A) const;
 
-	CVisDVector operator/(double dbl) const;
+	YVector operator/(double dbl) const;
 
-	CVisDVector& operator+=(const CVisDVector &b);
-	CVisDVector& operator-=(const CVisDVector &b);
+	YVector& operator+=(const YVector &b);
+	YVector& operator-=(const YVector &b);
 
-	CVisDVector& operator+=(double dbl);
-	CVisDVector& operator-=(double dbl);
-	CVisDVector operator+(double dbl) const;
-	CVisDVector operator-(double dbl) const;
+	YVector& operator+=(double dbl);
+	YVector& operator-=(double dbl);
+	YVector operator+(double dbl) const;
+	YVector operator-(double dbl) const;
 
-	CVisDVector& operator*=(double dbl);
-	CVisDVector& operator/=(double dbl);
+	YVector& operator*=(double dbl);
+	YVector& operator/=(double dbl);
 
-	CVisDVector& cos(void);
-	CVisDVector& sin(void);
+	YVector& cos(void);
+	YVector& sin(void);
 
     // Self-describing input/output format
     //enum FieldType { eftName, eftLength, eftData, eftEnd};
@@ -165,17 +234,17 @@ private:
 ////////////////////////////////////////////////////////////////////////////
 //  
 //  CLASS:
-//      CVisDMatrix
+//      YMatrix
 //  
 ////////////////////////////////////////////////////////////////////////////
-class CVisDMatrix
+class YMatrix
 {
 public:
     // Constructors (default destructor and copy constructor)
-    CVisDMatrix(void);
-    CVisDMatrix(int rows, int cols, double *storage = 0);
-    CVisDMatrix(const CVisDMatrix &mat);
-	virtual ~CVisDMatrix ();
+    YMatrix(void);
+    YMatrix(int rows, int cols, double *storage = 0);
+    YMatrix(const YMatrix &mat);
+	virtual ~YMatrix ();
 
     // Matrix shape
     int NRows(void) const { return m_nRows; }
@@ -190,44 +259,44 @@ public:
 	const double& operator()(int i,int j) const { return m_data[--i][--j]; }
 
     // Assignment
-    CVisDMatrix& operator=(const CVisDMatrix &mat);
-    CVisDMatrix& operator=(double value);
+    YMatrix& operator=(const YMatrix &mat);
+    YMatrix& operator=(double value);
 
 	// We define operator < so that this class can be used in STL containers.
-	bool operator==(const CVisDMatrix& refmatrix) const;
-	bool operator!=(const CVisDMatrix& refmatrix) const;
+	bool operator==(const YMatrix& refmatrix) const;
+	bool operator!=(const YMatrix& refmatrix) const;
 	bool operator==(double dbl) const;
 	bool operator!=(double dbl) const;
-	bool operator<(const CVisDMatrix& refmatrix) const;
+	bool operator<(const YMatrix& refmatrix) const;
 
-	CVisDMatrix operator+(double dbl) const;
-	CVisDMatrix operator-(double dbl) const;
-	CVisDMatrix operator+(const CVisDMatrix& A) const;
+	YMatrix operator+(double dbl) const;
+	YMatrix operator-(double dbl) const;
+	YMatrix operator+(const YMatrix& A) const;
 
-	CVisDMatrix operator-(void) const;
-	CVisDMatrix operator-(const CVisDMatrix& A) const;
+	YMatrix operator-(void) const;
+	YMatrix operator-(const YMatrix& A) const;
 
-	CVisDMatrix operator*(double dbl) const;
-	CVisDMatrix operator*(const CVisDMatrix& refmatrix) const;
-	CVisDVector operator*(const CVisDVector& refvector) const;
+	YMatrix operator*(double dbl) const;
+	YMatrix operator*(const YMatrix& refmatrix) const;
+	YVector operator*(const YVector& refvector) const;
 
-	CVisDMatrix operator/(double dbl) const;
+	YMatrix operator/(double dbl) const;
 
-	CVisDMatrix& operator+=(const CVisDMatrix& A);
-	CVisDMatrix& operator-=(const CVisDMatrix& A);
-	CVisDMatrix& operator+=(double dbl);
-	CVisDMatrix& operator-=(double dbl);
-	CVisDMatrix& operator*=(double dbl);
-	CVisDMatrix& operator*=(const CVisDMatrix& A);
-	CVisDMatrix& operator/=(double dbl);
+	YMatrix& operator+=(const YMatrix& A);
+	YMatrix& operator-=(const YMatrix& A);
+	YMatrix& operator+=(double dbl);
+	YMatrix& operator-=(double dbl);
+	YMatrix& operator*=(double dbl);
+	YMatrix& operator*=(const YMatrix& A);
+	YMatrix& operator/=(double dbl);
 	
 	bool IsSymmetric(void) const;
 
-	CVisDMatrix Inverted(void) const;
-	CVisDMatrix& Invert(void);
+	YMatrix Inverted(void) const;
+	YMatrix& Invert(void);
 
-	CVisDMatrix Transposed(void) const;
-	CVisDMatrix& Transpose(void);
+	YMatrix Transposed(void) const;
+	YMatrix& Transpose(void);
 
     // Self-describing input/output format
     //enum FieldType { eftName, eftDims, eftData, eftEnd};
@@ -255,100 +324,100 @@ private:
 //
 // New pasa operator(s).
 //
-VisMatrixExport CVisDVector VISAPI operator*(double d,const CVisDVector& A);
-VisMatrixExport CVisDMatrix VISAPI operator*(double d,const CVisDMatrix& A);
+VisMatrixExport YVector VISAPI operator*(double d,const YVector& A);
+VisMatrixExport YMatrix VISAPI operator*(double d,const YMatrix& A);
 
-VisMatrixExport CVisDVector VISAPI operator+(double d,const CVisDVector& A);
-VisMatrixExport CVisDVector VISAPI operator-(double d,const CVisDVector& A);
-VisMatrixExport CVisDMatrix VISAPI operator+(double d,const CVisDMatrix& A);
-VisMatrixExport CVisDMatrix VISAPI operator-(double d,const CVisDMatrix& A);
+VisMatrixExport YVector VISAPI operator+(double d,const YVector& A);
+VisMatrixExport YVector VISAPI operator-(double d,const YVector& A);
+VisMatrixExport YMatrix VISAPI operator+(double d,const YMatrix& A);
+VisMatrixExport YMatrix VISAPI operator-(double d,const YMatrix& A);
 
-VisMatrixExport CVisDVector VISAPI cos(const CVisDVector& A);
-VisMatrixExport CVisDVector VISAPI sin(const CVisDVector& A);
+VisMatrixExport YVector VISAPI cos(const YVector& A);
+VisMatrixExport YVector VISAPI sin(const YVector& A);
 
 // LATER:  Add these and fns to work with other exponents.
-// VisMatrixExport CVisDMatrix VISAPI VisMatrixSqrt(const CVisDMatrix& A);
-// VisMatrixExport void VISAPI VisMatrixSqrt(const CVisDMatrix& A, CVisDMatrix &Asqrt);
+// VisMatrixExport YMatrix VISAPI VisMatrixSqrt(const YMatrix& A);
+// VisMatrixExport void VISAPI VisMatrixSqrt(const YMatrix& A, YMatrix &Asqrt);
 
-VisMatrixExport CVisDMatrix VISAPI VisDMatrixSqrtInverse(const CVisDMatrix& A);
-VisMatrixExport void VISAPI VisDMatrixSqrtInverse(const CVisDMatrix& A,
-		CVisDMatrix &AsqrtInv);
+VisMatrixExport YMatrix VISAPI VisDMatrixSqrtInverse(const YMatrix& A);
+VisMatrixExport void VISAPI VisDMatrixSqrtInverse(const YMatrix& A,
+		YMatrix &AsqrtInv);
 
-VisMatrixExport CVisDVector VISAPI VisDMatrixSolve(const CVisDMatrix& A,
-		const CVisDVector& b);
-VisMatrixExport void VISAPI VisDMatrixSolve(const CVisDMatrix& A,
-		const CVisDVector& b, CVisDVector& x);
+VisMatrixExport YVector VISAPI VisDMatrixSolve(const YMatrix& A,
+		const YVector& b);
+VisMatrixExport void VISAPI VisDMatrixSolve(const YMatrix& A,
+		const YVector& b, YVector& x);
 
 
 
 // A is symmetric positive definite
-VisMatrixExport CVisDVector VISAPI VisDMatrixSolveSPD(const CVisDMatrix& A,
-		const CVisDVector& b);
-VisMatrixExport void VISAPI VisDMatrixSolveSPD(const CVisDMatrix& A,
-		const CVisDVector& b, CVisDVector& x, int n = -1);
+VisMatrixExport YVector VISAPI VisDMatrixSolveSPD(const YMatrix& A,
+		const YVector& b);
+VisMatrixExport void VISAPI VisDMatrixSolveSPD(const YMatrix& A,
+		const YVector& b, YVector& x, int n = -1);
 
-VisMatrixExport CVisDMatrix VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
-		const CVisDMatrix& B);
-VisMatrixExport void VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
-		const CVisDMatrix& B,
-                           CVisDMatrix& X);
-VisMatrixExport CVisDVector VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
-		const CVisDVector& b);
-VisMatrixExport void VISAPI VisDMatrixLeastSquares(const CVisDMatrix& A,
-		const CVisDVector& b,
-                           CVisDVector& x);
+VisMatrixExport YMatrix VISAPI VisDMatrixLeastSquares(const YMatrix& A,
+		const YMatrix& B);
+VisMatrixExport void VISAPI VisDMatrixLeastSquares(const YMatrix& A,
+		const YMatrix& B,
+                           YMatrix& X);
+VisMatrixExport YVector VISAPI VisDMatrixLeastSquares(const YMatrix& A,
+		const YVector& b);
+VisMatrixExport void VISAPI VisDMatrixLeastSquares(const YMatrix& A,
+		const YVector& b,
+                           YVector& x);
 
 
 
 // QR factorization related functions
-VisMatrixExport CVisDVector VISAPI VisDMatrixSolveQR(const CVisDMatrix& A,
-		const CVisDVector& b);
-VisMatrixExport void VISAPI VisDMatrixSolveQR(const CVisDMatrix& A,
-		const CVisDVector& b, CVisDVector& x);
-VisMatrixExport void VISAPI VisDMatrixEQConstrainedLS(CVisDMatrix& A,
-		CVisDVector& b, CVisDMatrix& C, CVisDVector& d, CVisDVector& x); 
+VisMatrixExport YVector VISAPI VisDMatrixSolveQR(const YMatrix& A,
+		const YVector& b);
+VisMatrixExport void VISAPI VisDMatrixSolveQR(const YMatrix& A,
+		const YVector& b, YVector& x);
+VisMatrixExport void VISAPI VisDMatrixEQConstrainedLS(YMatrix& A,
+		YVector& b, YMatrix& C, YVector& d, YVector& x); 
 
 
 // Singular Value Decomposition (SVD)
-VisMatrixExport void VISAPI VisDMatrixSVD(const CVisDMatrix& A, CVisDVector& s, 
-		CVisDMatrix& U, CVisDMatrix& V, int compute_left = 1,
+VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& A, YVector& s, 
+		YMatrix& U, YMatrix& V, int compute_left = 1,
 		int compute_right = 1);
 
 //
 // SVD decomposition.
 //
-void SVD(CVisDMatrix& a, CVisDVector& w, CVisDMatrix& v);
-void SvdSolve(const CVisDMatrix& u,
-			  const CVisDVector& w, 
-              const CVisDMatrix& v,
-			  const CVisDVector& b,
-			  CVisDVector& x);
+void SVD(YMatrix& a, YVector& w, YMatrix& v);
+void SvdSolve(const YMatrix& u,
+			  const YVector& w, 
+              const YMatrix& v,
+			  const YVector& b,
+			  YVector& x);
  
-VisMatrixExport void VISAPI VisDMatrixSVD(CVisDMatrix& a, CVisDVector& w, CVisDMatrix& v);
-VisMatrixExport void VISAPI VisDMatrixSVD(const CVisDMatrix& a, 
-										  CVisDMatrix& u, 
-										  CVisDVector& w, 
-										  CVisDMatrix& v);
-VisMatrixExport void VISAPI VisDMatrixSVD(const CVisDMatrix& a,
-										  const CVisDVector& b,
-										  CVisDVector& x);
+VisMatrixExport void VISAPI VisDMatrixSVD(YMatrix& a, YVector& w, YMatrix& v);
+VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& a, 
+										  YMatrix& u, 
+										  YVector& w, 
+										  YMatrix& v);
+VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& a,
+										  const YVector& b,
+										  YVector& x);
 //
 // LU decomposition.
 //
-void LU(CVisDMatrix& a, CVisDVector& indx, double& d);
-void LuSolve(CVisDMatrix& a, CVisDVector& indx, CVisDVector& b);
+void LU(YMatrix& a, YVector& indx, double& d);
+void LuSolve(YMatrix& a, YVector& indx, YVector& b);
 
-VisMatrixExport void VISAPI VisDMatrixLU(CVisDMatrix& a, CVisDVector& indx, double& d);
-VisMatrixExport void VISAPI VisDMatrixLU(const CVisDMatrix& a,
-										 const CVisDVector& b,
-										 CVisDVector& x);
+VisMatrixExport void VISAPI VisDMatrixLU(YMatrix& a, YVector& indx, double& d);
+VisMatrixExport void VISAPI VisDMatrixLU(const YMatrix& a,
+										 const YVector& b,
+										 YVector& x);
 
 // LATER:  Variations that don't find the eigenvector.
-VisMatrixExport void VISAPI VisMinEigenValue(CVisDMatrix& A, CVisDVector& x);
-VisMatrixExport void VISAPI VisMaxEigenValue(CVisDMatrix& A, CVisDVector& x);
+VisMatrixExport void VISAPI VisMinEigenValue(YMatrix& A, YVector& x);
+VisMatrixExport void VISAPI VisMaxEigenValue(YMatrix& A, YVector& x);
 
 // min = 1 -> minimum eigenvalue problem; min = 0 -> maximum eigenvalue
-VisMatrixExport double VISAPI VisMinMaxEigenValue(CVisDMatrix& A, CVisDVector& x,
+VisMatrixExport double VISAPI VisMinMaxEigenValue(YMatrix& A, YVector& x,
 		bool fMin); 
 
 
@@ -356,30 +425,30 @@ VisMatrixExport double VISAPI VisMinMaxEigenValue(CVisDMatrix& A, CVisDVector& x
 #ifndef __QNX__
 //  Rudimentary output for debugging
 // This may not be supported in future releases.
-std::ostream& VISAPI operator<<(std::ostream& os, const CVisDVector& v);
-// VisMatrixExport istream& operator>>(istream& os, CVisDVector& v);
+std::ostream& VISAPI operator<<(std::ostream& os, const YVector& v);
+// VisMatrixExport istream& operator>>(istream& os, YVector& v);
 // This may not be supported in future releases.
-std::ostream& VISAPI operator<<(std::ostream& os, const CVisDMatrix& mat);
-// VisMatrixExport istream& operator>>(istream& os, CVisDVector& v);
+std::ostream& VISAPI operator<<(std::ostream& os, const YMatrix& mat);
+// VisMatrixExport istream& operator>>(istream& os, YVector& v);
 
 #else
 
 //  Rudimentary output for debugging
 // This may not be supported in future releases.
-ostream& VISAPI operator<<(ostream& os, const CVisDVector& v);
-// VisMatrixExport istream& operator>>(istream& os, CVisDVector& v);
+ostream& VISAPI operator<<(ostream& os, const YVector& v);
+// VisMatrixExport istream& operator>>(istream& os, YVector& v);
 // This may not be supported in future releases.
-ostream& VISAPI operator<<(ostream& os, const CVisDMatrix& mat);
-// VisMatrixExport istream& operator>>(istream& os, CVisDVector& v);
+ostream& VISAPI operator<<(ostream& os, const YMatrix& mat);
+// VisMatrixExport istream& operator>>(istream& os, YVector& v);
 #endif
 
 
 // Self-describing stream I/O
-//inline CVisSDStream& operator<<(CVisSDStream& s, CVisDVector& o);
-//inline CVisSDStream& operator<<(CVisSDStream& s, CVisDMatrix& o);
+//inline CVisSDStream& operator<<(CVisSDStream& s, YVector& o);
+//inline CVisSDStream& operator<<(CVisSDStream& s, YMatrix& o);
 
 
-#include "VisDMatrix.inl"
+#include "YARPMatrix.inl"
 
 
 #endif // __VIS_MATRIX_DMATRIX_H__
