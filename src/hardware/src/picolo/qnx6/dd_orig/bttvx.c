@@ -64,40 +64,6 @@ static inline void bt848_sat_u(struct bttv *btv, ulong data);
 static inline void bt848_sat_v(struct bttv *btv, ulong data);
 static void bt848_cap(struct bttv * btv,int state);
 
-/********************************************************************************
-	The read function.
-*********************************************************************************/
-inline int 
-BttvxAcquireBuffer(unsigned char * buf)
-{
-	struct bttv * btv = &bttvs[0];
-	
-	pthread_mutex_lock(&buf_mutex);
-	//buf = btv->image_buffer;
-}	
-
-inline int
-BttvxReleaseBuffer()
-{
-	struct bttv * btv = &bttvs[0];
-	
-	pthread_mutex_unlock(&buf_mutex);
-}
-
-int
-BttvxSetImageBuffer(int dev,unsigned char * buff)
-{
-	struct bttv * btv = &bttvs[dev];
-	
-	btv->image_buffer = buff;
-}
-
-int 
-BttvxWaitEvent()
-{
-	pthread_mutex_lock(&mutex);
-	pthread_cond_wait(&condvar, &mutex);
-}
 
 
 
@@ -177,6 +143,41 @@ BttvxWaitEvent()
            780, 135, 754, 0x16, 144},   
  };   
  #define TVNORMS (sizeof(tvnorms)/sizeof(tvnorm)) 
+
+/********************************************************************************
+	The read function.
+*********************************************************************************/
+inline int 
+BttvxAcquireBuffer(unsigned char * buf)
+{
+	struct bttv * btv = &bttvs[0];
+	
+	pthread_mutex_lock(&buf_mutex);
+	//buf = btv->image_buffer;
+}	
+
+inline int
+BttvxReleaseBuffer()
+{
+	struct bttv * btv = &bttvs[0];
+	
+	pthread_mutex_unlock(&buf_mutex);
+}
+
+int
+BttvxSetImageBuffer(int dev,unsigned char * buff)
+{
+	struct bttv * btv = &bttvs[dev];
+	
+	btv->image_buffer = buff;
+}
+
+int 
+BttvxWaitEvent()
+{
+	pthread_mutex_lock(&mutex);
+	pthread_cond_wait(&condvar, &mutex);
+}
 
 
 /********************************************************************************

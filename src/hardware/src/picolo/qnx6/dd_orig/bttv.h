@@ -222,31 +222,7 @@ struct bttv
 	int i2c_command;
 	int triton1;
 };
-#endif
-
-/*The following should be done in more portable way. It depends on define
-  of _ALPHA_BTTV in the Makefile.*/
-
-#if defined(__powerpc__) /* big-endian */
-extern __inline__ void io_st_le32(volatile unsigned *addr, unsigned val)
-{
-        __asm__ __volatile__ ("stwbrx %1,0,%2" : \
-                            "=m" (*addr) : "r" (val), "r" (addr));
-      __asm__ __volatile__ ("eieio" : : : "memory");
-}
-
-/*
-#define btwrite(dat,adr)  io_st_le32((unsigned *)(btv->bt848_mem+(adr)),(dat))
-#define btread(adr)       ld_le32((unsigned *)(btv->bt848_mem+(adr)))
-#else
-#ifdef _ALPHA_BTTV
-#define btwrite(dat,adr)    writel((dat),(char *) (btv->bt848_adr+(adr)))
-#define btread(adr)         readl(btv->bt848_adr+(adr))
-#else
-#define btwrite(dat,adr)    writel((dat), (char *) (btv->bt848_mem+(adr)))
-#define btread(adr)         readl(btv->bt848_mem+(adr))
-#endif*/
-#endif
+//#endif
 
 
 #define btwrite(dat,adr)  regbase8[adr] = dat
@@ -347,4 +323,4 @@ extern __inline__ void io_st_le32(volatile unsigned *addr, unsigned val)
 #define TEA6300_TR         0x03		/* treble control */
 #define TEA6300_FA         0x04		/* fader control */
 #define TEA6300_SW         0x05		/* mute and source switch */
-
+#endif

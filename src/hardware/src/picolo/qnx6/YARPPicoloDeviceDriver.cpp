@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.3 2003-06-26 13:09:40 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.4 2003-06-26 16:47:32 beltran Exp $
 ///
 ///
 
@@ -74,7 +74,7 @@
 #include <YARPFrameGrabberUtils.h>
 
 #define _QNX
-#include <bttv.h>
+//#include <bttv.h>
 
 typedef unsigned long UINT32;
 

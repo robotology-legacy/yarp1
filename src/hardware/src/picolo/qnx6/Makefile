@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.6 2003-06-26 16:01:36 beltran Exp $
+#$Id: Makefile,v 1.7 2003-06-26 16:46:39 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -7,6 +7,7 @@ include $(YARP_ROOT)/conf/Makefile.template
 OBJS =
 CC = g++
 CFLAGS = -g -I $(YARP_ROOT)/include -I ../../common -I ./dd_orig/include
+LIBS = $(YARP_ROOT)/lib/$(OS)/bttvx.lib
 
 SUBDIRS =
 
@@ -16,7 +17,7 @@ YARPPicoloDeviceDriver.o: YARPPicoloDeviceDriver.h
 	$(CC) $(CFLAGS) -c -o YARPPicoloDeviceDriver.o YARPPicoloDeviceDriver.cpp
 
 YARPPicoloDeviceDriver.lib : YARPPicoloDeviceDriver.o
-	$(AR) $(ARFLAGS) YARPPicoloDeviceDriver.lib YARPPicoloDeviceDriver.o ./dd_orig/bttvx.lib
+	$(AR) $(ARFLAGS) YARPPicoloDeviceDriver.lib YARPPicoloDeviceDriver.o $(LIBS)
 	
 clean:
 	rm *.o

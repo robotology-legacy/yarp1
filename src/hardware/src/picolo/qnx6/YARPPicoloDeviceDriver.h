@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.3 2003-06-19 15:20:19 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.4 2003-06-26 16:47:32 beltran Exp $
 ///
 ///
 
@@ -78,6 +78,7 @@
 #include <string.h>
 
 ///#include <sys/Picolo32.h>	maybe only in cpp file.
+#include <bttv.h>
 
 struct PicoloOpenParameters
 {
