@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPEurobotGrabber.h,v 1.1 2003-06-19 18:05:07 beltran Exp $
+/// $Id: YARPEurobotGrabber.h,v 1.2 2003-12-12 14:08:39 beltran Exp $
 ///
 ///
 
@@ -71,6 +71,51 @@
 #include <YARPGenericGrabber.h>
 #include <YARPPicoloOnEurobotAdapter.h>
 
-typedef YARPGenericGrabber<YARPPicoloOnEurobotAdapter, YARPEurobotGrabberParams> YARPEurobotGrabber;
+//typedef YARPGenericGrabber<YARPPicoloOnEurobotAdapter, YARPEurobotGrabberParams> YARPEurobotGrabber;
 
+class YARPEurobotGrabber: public YARPGenericGrabber<YARPPicoloOnEurobotAdapter, YARPEurobotGrabberParams>
+{
+	public:
+		int setBright(unsigned int);
+		int setHue(unsigned int);
+		int setContrast(unsigned int);
+		int setSatU(unsigned int);
+		int setSatV(unsigned int);
+};
+
+int
+YARPEurobotGrabber::setBright(unsigned int bright)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetBright, &bright);
+	return ret;
+}
+int
+YARPEurobotGrabber::setHue(unsigned int hue)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetHue, &hue);
+	return ret; 	
+}
+int
+YARPEurobotGrabber::setContrast(unsigned int contrast)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetContrast, &contrast);
+	return ret;
+}
+int
+YARPEurobotGrabber::setSatU(unsigned int satu)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetSatU, &satu);
+	return ret;
+}
+int
+YARPEurobotGrabber::setSatV(unsigned int satv)
+{
+	int ret;
+	_adapter.IOCtl(FCMDSetSatV,&satv);
+	return ret;
+}
 #endif
