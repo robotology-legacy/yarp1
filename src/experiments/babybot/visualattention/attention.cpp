@@ -149,7 +149,7 @@ void secondthread::Body(void)
 	while (!IsTerminated()) {
 		inVector.Read();
 		YVector &joints = inVector.Content();
-		//cout<<joints(1)<<" "<<joints(2)<<" "<<joints(3)<<joints(4)<<" "<<joints(5)<<endl;
+		//cout<<joints(1)<<" "<<joints(2)<<" "<<joints(3)<<" "<<joints(4)<<" "<<joints(5)<<endl;
 		_lock();
 		att_mod.setPosition(joints);
 		_unlock();
@@ -442,8 +442,14 @@ int main (int argc, char *argv[])
 			cout<<"Resetting IOR table"<<endl;
 			att_mod.resetIORTable();
 		} else if (c=='s') {
+			YarpPixelMono mRG=att_mod.fovBox.meanRG;
+			YarpPixelMono mGR=att_mod.fovBox.meanGR;
+			YarpPixelMono mBY=att_mod.fovBox.meanBY;
+
 			cout<<"Searching for blobs similar to that in the fovea in this moment"<<endl;
-			att_mod.setParameters(att_mod.fovBox.meanRG, att_mod.fovBox.meanGR, att_mod.fovBox.meanBY, 0, 1);
+			cout<<"mRG: "<<(int)mRG<<", mGR: "<<(int)mGR<<", mBY: "<<(int)mBY<<endl;
+			att_mod.setParameters(mRG, mGR, mBY, 0, 1);
+
 		} else if (c=='e') {
 			cout<<"Exploring the scene"<<endl;
 			att_mod.setParameters(0, 0, 0, 1, 0);

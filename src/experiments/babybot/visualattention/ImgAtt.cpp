@@ -317,6 +317,7 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num)
 	tmp2s.Resize(x, y);
 
 	meanOppCol.Resize(x, y);
+	meanCol.Resize(x, y);
 	
 	tmpBGR1.Resize(x, y);
 	//tmpBGR2.Resize(x, y);
@@ -375,7 +376,7 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num)
 	YARPImageFile::Write(savename, map[3]);*/
 
 	//colorVQ.Resize(x, y, fovea);
-	//imgVQ.Resize(x, y);
+	imgVQ.Resize(x, y);
 
 	//blob.resize(x, y, fovea);
 	/*integralRG.resize(x, y, fovea);
@@ -1302,41 +1303,6 @@ void YARPImgAtt::findBlobs()
 	//rain.setThreshold(5);
 	max_tag=rain.apply(edge, tagged);
 	rain.blobCatalog(tagged, rg, gr, by, r1, g1, b1, max_tag);
-	rain.removeFoveaBlob(tagged);
-	//rain.RemoveNonValid(max_tag, 3800, 100);
-	rain.RemoveNonValid(max_tag, 3800, 200);
-	//rain.ComputeSalience(max_tag, max_tag);
-	rain.ComputeSalienceAll(max_tag, max_tag);
-	//rain.SortAndComputeSalience(200, max_tag);
-	//rain.SortAndComputeSalience(100, max_tag);
-	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
-	//rain.IOR(tagged, boxes, num_boxes);
-	
-	rain.DrawContrastLP2(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
-	//rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
-	//pOldZdi=((IplImage *)tmp1)->roi;
-	//((IplImage *)tmp1)->roi=&zdi;
-	//MinMax((IplImage *)tmp1, mn[0], mx[0]);
-	//((IplImage *)tmp1)->roi=pOldZdi;
-	//FullRange((IplImage *)tmp1, (IplImage *)out, mn[0], mx[0]);
-	//iplThreshold(out, out, 200);
-	//ZeroLow(out, 230);
-
-	
-	/*tmpBGR1.Zero();
-	rain.ComputeMeanColors(max_tag);
-	rain.DrawMeanColorsLP(tmpBGR1, tagged);
-	ACE_OS::sprintf(savename, "./meancol.ppm");
-	YARPImageFile::Write(savename, tmpBGR1);*/
-
-	
-	/*meanOppCol.Zero();
-	rain.DrawMeanOpponentColorsLP(meanOppCol, tagged);*/
-
-
-	/*blobFinder.DrawGrayLP(tmp1, tagged, 200);
-	//ACE_OS::sprintf(savename, "./rain.ppm");
-	//YARPImageFile::Write(savename, tmp1);*/
 
 
 	//rain.setThreshold(3);
@@ -1349,22 +1315,61 @@ void YARPImgAtt::findBlobs()
 	//fit.fitEllipse(blobFov, &bfX0, &bfY0, &bfA11, &bfA12, &bfA22);
 	//fit.plotEllipse(bfX0, bfY0, bfA11, bfA12, bfA22, blobFov, 127);
 
-
 	// - faster
 	// - it considers also "lateral" pixels
 	// - it doesn't add pixels iteratively
 	rain.findNeighborhood(tagged, 0, 0, blobList, max_tag);
 	rain.fuseFoveaBlob2(tagged, blobList, max_tag);
-	
+
+	// alternative method
 	//rain.fuseFoveaBlob(tagged, blobList, max_tag);
-	
 	
 	blobList[1]=false;
 	rain.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
 	/*ACE_OS::sprintf(savename, "./blob_fov2.ppm");
 	YARPImageFile::Write(savename, blobFov);*/
-
 	rain.statBlobList(tagged, blobList, max_tag, fovBox);
+	
+
+	rain.removeBlobList(blobList, max_tag);
+	//rain.removeFoveaBlob(tagged);
+	//rain.RemoveNonValid(max_tag, 3800, 100);
+	rain.RemoveNonValid(max_tag, 3800, 200);
+
+	
+	//rain.ComputeSalience(max_tag, max_tag);
+	rain.ComputeSalienceAll(max_tag, max_tag);
+	//rain.SortAndComputeSalience(200, max_tag);
+	//rain.SortAndComputeSalience(100, max_tag);
+	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
+	//rain.IOR(tagged, boxes, num_boxes);
+	
+
+	rain.DrawContrastLP2(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
+	//rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
+	//pOldZdi=((IplImage *)tmp1)->roi;
+	//((IplImage *)tmp1)->roi=&zdi;
+	//MinMax((IplImage *)tmp1, mn[0], mx[0]);
+	//((IplImage *)tmp1)->roi=pOldZdi;
+	//FullRange((IplImage *)tmp1, (IplImage *)out, mn[0], mx[0]);
+	//iplThreshold(out, out, 200);
+	//ZeroLow(out, 230);
+
+	
+	tmpBGR1.Zero();
+	rain.ComputeMeanColors(max_tag);
+	rain.DrawMeanColorsLP(tmpBGR1, tagged);
+	/*ACE_OS::sprintf(savename, "./meancol.ppm");
+	YARPImageFile::Write(savename, tmpBGR1);*/
+
+	
+	/*meanOppCol.Zero();
+	rain.DrawMeanOpponentColorsLP(meanOppCol, tagged);*/
+
+
+	/*blobFinder.DrawGrayLP(tmp1, tagged, 200);
+	//ACE_OS::sprintf(savename, "./rain.ppm");
+	//YARPImageFile::Write(savename, tmp1);*/
 
 	//rain.tags2Watershed(tagged, oldWshed);
 }
@@ -1378,13 +1383,13 @@ void YARPImgAtt::drawIORTable()
 
 void YARPImgAtt::quantizeColors()
 {
-	//colorVQ.DominantQuantization(src, tmpBGR1, 0.3*255);
-	/*DBGPF1 ACE_OS::printf(">>> color quantization\n");
-	colorVQ.Variance(rg, imgVQ, 3);
-	FindMax(imgVQ, pos2);
+	//colorVQ.DominantQuantization(meanCol, imgVQ, 0.3*255);
+	DBGPF1 ACE_OS::printf(">>> color quantization\n");
+	//colorVQ.Variance(rg, imgVQ, 3);
+	//FindMax(imgVQ, pos2);
 	//iplSubtractS(imgVQ, imgVQ, , false);
-	MultiplyFloat(imgVQ, imgVQ, 255./imgVQ(pos2.x, pos2.y));
-	iplConvert((IplImage*) imgVQ, (IplImage*) tmp1);*/
+	//MultiplyFloat(imgVQ, imgVQ, 255./imgVQ(pos2.x, pos2.y));
+	//iplConvert((IplImage*) imgVQ, (IplImage*) tmp1);*/
 	//ACE_OS::sprintf(savename, "./imgvq.ppm");
 	//YARPImageFile::Write(savename, tmpBGR1);
 }
@@ -1424,8 +1429,8 @@ void YARPImgAtt::saveImages(YARPImageOf<YarpPixelBGR> &src)
 	YARPImageFile::Write(savename, g1);
 	ACE_OS::sprintf(savename, "%sb.ppm", path);
 	YARPImageFile::Write(savename, b1);
-	ACE_OS::sprintf(savename, "%si.ppm", path);
-	YARPImageFile::Write(savename, i1);
+	//ACE_OS::sprintf(savename, "%si.ppm", path);
+	//YARPImageFile::Write(savename, i1);
 
 	ACE_OS::sprintf(savename, "%src.ppm", path);
 	YARPImageFile::Write(savename, r1_g_c);
@@ -1479,6 +1484,8 @@ void YARPImgAtt::saveImages(YARPImageOf<YarpPixelBGR> &src)
 
 	ACE_OS::sprintf(savename, "%smeanocol.ppm", path);
 	YARPImageFile::Write(savename, meanOppCol);
+	ACE_OS::sprintf(savename, "%smeancol.ppm", path);
+	YARPImageFile::Write(savename, meanCol);
 	
 	/*ACE_OS::sprintf(savename, "./comb.ppm");
 	YARPImageFile::Write(savename, comb);*/

@@ -28,7 +28,7 @@ public:
 	void Variance(YARPImageOf<YarpPixelMono> &src, YARPImageOf<YarpPixelInt> &dst, int size);
 	void Compactness(YARPImageOf<YarpPixelMono> &src, int fovea, int val, int eps);
 	void DominantQuantization(YARPImageOf<YarpPixelBGR> &src, YARPImageOf<YarpPixelBGR> &dst, unsigned char t);
-
+	void DominantQuantization(YarpPixelBGR src, YarpPixelBGR &dst, unsigned char t);
 };
 
 

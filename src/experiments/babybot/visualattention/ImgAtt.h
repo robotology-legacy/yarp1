@@ -161,6 +161,7 @@ protected:
 	//YARPImageOf<YarpPixelMonoSigned> tmpScale;
 	
 	YARPImageOf<YarpPixelBGR> meanOppCol;
+	YARPImageOf<YarpPixelBGR> meanCol;
 
 	YARPImageOf<YarpPixelBGR> tmpBGR1;
 	//YARPImageOf<YarpPixelBGR> tmpBGR2;
@@ -191,7 +192,7 @@ protected:
 
 	IplConvKernel* scala;
 
-	//YARPImageOf<YarpPixelInt> imgVQ;
+	YARPImageOf<YarpPixelBGR> imgVQ;
 	//YARPColorVQ colorVQ;
 		
 	//YARPBlobDetector blob;

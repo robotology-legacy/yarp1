@@ -216,3 +216,67 @@ void YARPColorVQ::DominantQuantization(YARPImageOf<YarpPixelBGR> &src, YARPImage
 			dst(c,r).b=qb;
 		}
 }
+
+
+void YARPColorVQ::DominantQuantization(YarpPixelBGR src, YarpPixelBGR &dst, unsigned char t)
+{
+	unsigned int qr,qg,qb;
+	
+	unsigned char or=src.r;
+	unsigned char og=src.g;
+	unsigned char ob=src.b;
+
+	if ( 0.25*255<or && or<0.75*255 &&
+		 0.25*255<og && og<0.75*255 &&
+		 0.25*255<ob && ob<0.75*255) {
+		int dr=abs(or-og)+abs(or-ob);
+		int dg=abs(or-og)+abs(og-ob);
+		int db=abs(og-ob)+abs(ob-or);
+
+		if (dr>dg+t && dr>db+t) {
+			if (or>og && or>ob)
+				qr=255;
+			else if (or<og && or<ob)
+				qr=0;
+			else
+				qr=127;
+		} else
+			qr=127;
+		
+		if (dg>dr+t && dg>db+t) {
+			if (og>or && og>ob)
+				qg=255;
+			else if (og<or && og<ob)
+				qg=0;
+			else
+				qg=127;
+		} else
+			qg=127;
+
+		if (db>dg+t && db>dr+t) {
+			if (ob>og && ob>or)
+				qb=255;
+			else if (ob<og && ob<or)
+				qb=0;
+			else
+				qb=127;
+		} else
+			qb=127;
+	} else {
+		if (or>0.75*255) qr=255;
+		else if (or<0.25*255) qr=0;
+		else qr=127;
+
+		if (og>0.75*255) qg=255;
+		else if (og<0.25*255) qg=0;
+		else qg=127;
+
+		if (ob>0.75*255) qb=255;
+		else if (ob<0.25*255) qb=0;
+		else qb=127;
+	}
+	
+	dst.r=qr;
+	dst.g=qg;
+	dst.b=qb;
+}

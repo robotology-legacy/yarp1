@@ -6,6 +6,7 @@
 #include <YARPBabybotHeadKin.h>
 #include <YARPMath.h>
 #include <YARPIntegralImage.h>
+#include "YARPColorVQ.h"
 
 
 class YARPBox {
@@ -111,6 +112,8 @@ class YARPWatershed {
 	YARPIntegralImage integralGR;
 	YARPIntegralImage integralBY;
 
+	YARPColorVQ colorVQ;
+
 	YARPBabybotHeadKin _gaze;
 
     void createNeighborhood(const int widthStep, const bool neigh8);
@@ -138,7 +141,8 @@ public:
 	void tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPImageOf<YarpPixelMono>& dest);
 
 	void blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<YarpPixelMono> &rg, YARPImageOf<YarpPixelMono> &gr, YARPImageOf<YarpPixelMono> &by, YARPImageOf<YarpPixelMono> &r1, YARPImageOf<YarpPixelMono> &g1, YARPImageOf<YarpPixelMono> &b1, int last_tag);
-	void removeFoveaBlob(YARPImageOf<YarpPixelInt>& tagged) {m_boxes[tagged(0, 0)].valid=false;}
+	inline void removeFoveaBlob(YARPImageOf<YarpPixelInt>& tagged) {m_boxes[tagged(0, 0)].valid=false;}
+	void removeBlobList(bool *blobList, int max_tag);
 	void SortAndComputeSalience(int num_tag, int last_tag);
 	void ComputeSalience(int num_blob, int last_tag);
 	void ComputeSalienceAll(int num_blob, int last_tag);
@@ -147,6 +151,7 @@ public:
 	void RemoveNonValid(int last_tag, const int max_size, const int min_size);
 	int DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
 	int DrawMeanOpponentColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
+	int DrawVQColor(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
 	int DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
 	int DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
 	int DrawGrayLP(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, int numBlob);

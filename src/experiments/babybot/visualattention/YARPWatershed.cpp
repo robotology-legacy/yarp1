@@ -1059,7 +1059,6 @@ void YARPWatershed::blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<Y
 	m_boxes[0].valid = true;
 
 	// pixels are logpolar, averaging is done in cartesian.
-	//unsigned char *source = (unsigned char *)img.GetArray();
 	//short *tmp = tagged;
 	for(int r = 0; r < height; r++)
 		for(int c = 0; c < width; c++) {
@@ -1326,6 +1325,19 @@ void YARPWatershed::RemoveNonValid(int last_tag, const int max_size, const int m
 	}*/
 }
 
+
+void YARPWatershed::removeBlobList(bool *blobList, int max_tag)
+{
+	//ARRONZAMENTO
+	m_boxes[1].valid=false;
+	
+	for (int i=0; i<max_tag; i++) {
+		if (blobList[i])
+			m_boxes[i].valid=false;		
+	}
+}
+
+
 int YARPWatershed::DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged)
 {
 	/*if (last_tag<numBlob || numBlob==-1) numBlob=last_tag;
@@ -1427,16 +1439,21 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 			m_attn[i].cBY=abs(tmp(m_attn[i].cmin, m_attn[i].rmin)-m_attn[i].meanBY);
 			//m_attn[i].cBY=min(tmp(m_attn[i].cmin, m_attn[i].rmin), m_attn[i].meanBY)*pby;
 
-			// con il max se un blob è rosso e verde nn va molto bene (????)
-			salienceBU=m_attn[i].cRG;
+			salienceBU=sqrt(m_attn[i].cRG*m_attn[i].cRG+
+			                m_attn[i].cGR*m_attn[i].cGR+
+			                m_attn[i].cBY*m_attn[i].cBY);
+			salienceBU=salienceBU/sqrt(3);
+
+			/*salienceBU=m_attn[i].cRG;
 
 			if (salienceBU<m_attn[i].cGR)
 				salienceBU=m_attn[i].cGR;
 
 			if (salienceBU<m_attn[i].cBY)
-				salienceBU=m_attn[i].cBY;
+				salienceBU=m_attn[i].cBY;*/
 
 			//salienceBU=m_attn[i].cRG+m_attn[i].cGR+m_attn[i].cBY;
+
 
 			/*salienceTD=abs(m_attn[i].meanRG-prg);
 							
@@ -1453,8 +1470,8 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 			                (m_attn[i].meanBY-pby)*(m_attn[i].meanBY-pby));
 			salienceTD=255-salienceTD/sqrt(3);
 
-
-			//if (salienceTD<230) salienceTD=0;
+			// if the color is too different it isn't in the scene!
+			if (salienceTD<200) salienceTD=0;
 
 			//if (salienceTD<0) salienceTD=0;
 			
@@ -1570,18 +1587,28 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 				m_attn[i].rmin-rdim)/(rdim*cdim);
 			m_attn[i].cBY=abs(tmp-m_attn[i].meanBY);
 
-			// con il max se un blob è rosso e verde nn va molto bene (????)
-			salienceBU=m_attn[i].cRG;
+			salienceBU=sqrt(m_attn[i].cRG*m_attn[i].cRG+
+			                m_attn[i].cGR*m_attn[i].cGR+
+			                m_attn[i].cBY*m_attn[i].cBY);
+			salienceBU=salienceBU/sqrt(3); // it is < 256?????
+
+			/*salienceBU=m_attn[i].cRG;
 
 			if (salienceBU<m_attn[i].cGR)
 				salienceBU=m_attn[i].cGR;
 
 			if (salienceBU<m_attn[i].cBY)
-				salienceBU=m_attn[i].cBY;
+				salienceBU=m_attn[i].cBY;*/
 
 			//salienceBU=m_attn[i].cRG+m_attn[i].cGR+m_attn[i].cBY;
 
-			salienceTD=abs(m_attn[i].meanRG-prg);
+
+			salienceTD=sqrt((m_attn[i].meanRG-prg)*(m_attn[i].meanRG-prg)+
+			                (m_attn[i].meanGR-pgr)*(m_attn[i].meanGR-pgr)+
+			                (m_attn[i].meanBY-pby)*(m_attn[i].meanBY-pby));
+			salienceTD=255-salienceTD/sqrt(3);
+			
+			/*salienceTD=abs(m_attn[i].meanRG-prg);
 							
 			if (salienceTD<abs(m_attn[i].meanGR-pgr))
 				salienceTD=abs(m_attn[i].meanGR-pgr);
@@ -1589,9 +1616,10 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 			if (salienceTD<abs(m_attn[i].meanBY-pby))
 				salienceTD=abs(m_attn[i].meanBY-pby);
 
-			salienceTD=255-salienceTD;
+			salienceTD=255-salienceTD;*/
 
-			//if (salienceTD<230) salienceTD=0;
+			//if the color is too different it isn't in the scene!
+			if (salienceTD<200) salienceTD=0;
 
 			//if (salienceTD<0) salienceTD=0;
 			
@@ -1943,4 +1971,20 @@ void YARPWatershed::maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_t
 
 	box=m_attn[max];
 	_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, box.v , (int)box.centroid_x, (int)box.centroid_y);
+}
+
+
+int YARPWatershed::DrawVQColor(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged)
+{
+	for (int r=0; r<height; r++)
+		for (int c=0; c<width; c++)
+			if (m_boxes[tagged(c, r)].valid) {
+				YarpPixelBGR src;
+				src.r=m_attn[tagged(c, r)].meanRG;
+				src.g=m_attn[tagged(c, r)].meanGR;
+				src.b=m_attn[tagged(c, r)].meanBY;
+				colorVQ.DominantQuantization(src, id(c,r), 0.3*255);
+			}
+	
+	return 1;
 }
