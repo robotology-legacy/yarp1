@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.cpp,v 1.3 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: YARPIntegralImage.cpp,v 1.4 2003-08-21 09:43:06 natta Exp $
 ///
 ///
 
@@ -159,12 +159,12 @@ int YARPIntegralImage::computeLp(YARPImageOf<YarpPixelMono> &input)
 	for(r = _nfovea; r < _nRows; r++)
 	{
 		// first col
-		_rowSum(0,r) = input(0,r);
+		_rowSum(0,r) = input(0,r)*pSize(c,r,_nfovea) ;
 		_integralImg(0, r) = _integralImg(0, r-1) + _rowSum(0,r);
 		
 		for(c = 1; c < _nCols; c++)
 		{
-			_rowSum(c,r) = _rowSum(c-1,r) + input(c,r);
+			_rowSum(c,r) = _rowSum(c-1,r) + input(c,r)*pSize(c,r,_nfovea);
 			_integralImg(c,r) = _integralImg(c, r-1) + _rowSum(c,r);
 		}
 	}

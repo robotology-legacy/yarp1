@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.h,v 1.4 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: YARPIntegralImage.h,v 1.5 2003-08-21 09:43:06 natta Exp $
 ///
 /// August 2003 -- by nat
 
@@ -69,6 +69,22 @@
 #define __YARPINTEGRALIMAGE__
 
 #include <YARPImage.h>
+
+const double _alfa = 0.0130;
+const double _beta = 0.91;
+
+#include <math.h>
+
+inline double pSize(int c, int r, int nf)
+{
+	double ret;
+	ret = _beta*exp(_alfa*(r-nf));
+	// ret = _alfa*(r-nf) + _beta;
+	if (ret < 1)
+		ret = 1;
+	
+	return ret;
+}
 
 class YARPIntegralImage
 {
