@@ -1,10 +1,12 @@
-#ifndef __MEIONBABYBOTARMADAPTER__
-#define __MEIONBABYBOTARMADAPTER__
+// -- by carlos
 
-// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.1 2003-05-21 14:55:54 beltran Exp $
+#ifndef __GALILONEUROBOTARMADAPTER__
+#define __GALILONEUROBOTARMADAPTER__
+
+// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.2 2003-07-30 14:18:39 beltran Exp $
 
 #include <ace/log_msg.h>
-#include <YarpMeiDeviceDriver.h>
+#include <YARPGalilDeviceDriver.h>
 #include <string>
 
 #define YARP_BABYBOT_ARM_ADAPTER_VERBOSE
@@ -14,23 +16,25 @@
 #else  YARP_BABYBOT_ARM_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
-namespace _BabybotArm
+#include <YARPConfigFile.h>
+
+namespace _EurobotArm
 {
 	const int _nj = 6;
 	const LowLevelPID _highPIDs[_nj] =
 	{
-		LowLevelPID(-310.0, -1500.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -30.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
-		LowLevelPID(-270.0, -500.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
-		LowLevelPID(-290.0, -700.0, 0.0, 0.0, -150.0, 32767.0, 0.0, 32767.0, 0.0, -100),	
-		LowLevelPID(-320.0, -600.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
-		LowLevelPID(-300.0, -900.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -100.0),	
-		LowLevelPID(-300.0, -600.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
+		LowLevelPID(320.63, 2509.63, 85.71, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -30.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
+		LowLevelPID(104.38, 2726.88, 5.41.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
+		LowLevelPID(192.0, 2694.13, 20.63, 0.0, -150.0, 32767.0, 0.0, 32767.0, 0.0, -100),	
+		LowLevelPID(179.50, 1341.25, 69.10, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
+		LowLevelPID(238.63, 1782.63.0, 91.85, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -100.0),	
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
 	};
 	
 	const LowLevelPID _lowPIDs[_nj] = 
 	{
-		// LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),		//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
-		LowLevelPID(-310.0, -1500.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -30.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
+		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),		//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
+		// LowLevelPID(-310.0, -1500.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -30.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
 		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
 		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
 		LowLevelPID(-320.0, -600.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
@@ -44,24 +48,40 @@ namespace _BabybotArm
 	const double _encWheels[_nj] = {1000.0, 1000.0, 1000.0, 800.0, 800.0, 800.0};
 	const double _encoders[_nj] = {-46.72, 69.9733, -42.9867, 43.5111, 39.3846, 31.7692};
 	const double _fwdCouple[_nj] = {0.0, 0.0, 0.0, -9.8462*_encWheels[3], 1.0*_encWheels[4], -5.5999886532*_encWheels[5]};
-	const int _stiffPID[_nj] = {1, 0, 0, 1, 1, 1};
+	const int _stiffPID[_nj] = {0, 0, 0, 1, 1, 1};
+	const double _maxDAC[_nj] = {32767.0, 32767.0, 32767.0, 32767.0, 32767.0, 32767.0};
 }; // namespace
 
-class YARPBabybotArmParameters
+class YARPEuorbotArmParameters
 {
 public:
-	YARPBabybotArmParameters()
+	YARPEurobotArmParameters()
 	{
-		_nj = _BabybotArm::_nj;
-		for(int i = 0; i<_nj; i++) {
-			_highPIDs[i] = _BabybotArm::_highPIDs[i];
-			_lowPIDs[i] = _BabybotArm::_lowPIDs[i];
-			_zeros[i] = _BabybotArm::_zeros[i];
-			_axis_map[i] = _BabybotArm::_axis_map[i];
-			_signs[i] = _BabybotArm::_signs[i];
-			_encoderToAngles[i] = _BabybotArm::_encoders[i]*_BabybotArm::_encWheels[i];
-			_fwdCouple[i] = _BabybotArm::_fwdCouple[i];
-			_stiffPID[i] = _BabybotArm::_stiffPID[i];
+		_highPIDs = NULL;
+		_lowPIDs = NULL;
+		_zeros = NULL;
+		_signs = NULL;
+		_axis_map = NULL;
+		_encoderToAngles = NULL;
+		_fwdCouple = NULL;
+		_invCouple = NULL;
+		_stiffPID = NULL;
+		_maxDAC = NULL;
+		_nj = 0;
+		
+		_nj = _EurobotArm::_nj;
+		_realloc(_nj);
+		int i;
+		for(i = 0; i<_nj; i++) {
+			_highPIDs[i] = _EurobotArm::_highPIDs[i];
+			_lowPIDs[i] = _EurobotArm::_lowPIDs[i];
+			_zeros[i] = _EurobotArm::_zeros[i];
+			_axis_map[i] = _EurobotArm::_axis_map[i];
+			_signs[i] = _EurobotArm::_signs[i];
+			_encoderToAngles[i] = _EurobotArm::_encoders[i]*_BabybotArm::_encWheels[i];
+			_fwdCouple[i] = _EurobotArm::_fwdCouple[i];
+			_stiffPID[i] = _EurobotArm::_stiffPID[i];
+			_maxDAC[i] = _EurobotArm::_maxDAC[i];
 		}
 
 		// compute inv couple
@@ -74,51 +94,178 @@ public:
 		_invCouple[5] = -_fwdCouple[5] / (_encoderToAngles[4] * _encoderToAngles[5]);
 	}
 
-	int load(const std::string &init_file)
+	~YARPBEurobotArmParameters()
 	{
-		ACE_ASSERT(0);	//not implemented yet !
+		if (_highPIDs != NULL)
+			delete [] _highPIDs;
+		if (_lowPIDs != NULL)
+			delete [] _lowPIDs;
+		if (_zeros != NULL)
+			delete [] _zeros;
+		if (_signs != NULL)
+			delete [] _signs;
+		if (_axis_map != NULL)
+			delete [] _axis_map;
+		if (_encoderToAngles != NULL)
+			delete [] _encoderToAngles;
+		if (_fwdCouple != NULL)
+			delete [] _fwdCouple;
+		if (_invCouple != NULL)
+			delete [] _invCouple;
+		if (_stiffPID != NULL)
+			delete [] _stiffPID;
+		if (_maxDAC != NULL)
+			delete [] _maxDAC;
 	}
 
-	LowLevelPID _highPIDs[_BabybotArm::_nj];
-	LowLevelPID _lowPIDs[_BabybotArm::_nj];
-	double _zeros[_BabybotArm::_nj];
-	double _signs[_BabybotArm::_nj];
-	int _axis_map[_BabybotArm::_nj];
-	double _encoderToAngles[_BabybotArm::_nj];
-	double _fwdCouple[_BabybotArm::_nj];
-	double _invCouple[_BabybotArm::_nj];
-	int _stiffPID[_BabybotArm::_nj];
+	int load(const std::string &path, const std::string &init_file)
+	{
+		YARPConfigFile cfgFile;
+		// set path and filename
+		cfgFile.set(path.c_str(),init_file.c_str());
+		
+		// get number of joints
+		if (cfgFile.get("[GENERAL]", "Joints", &_nj, 1) == YARP_FAIL)
+			return YARP_FAIL;
+
+		// delete and allocate new memory
+		_realloc(_nj);
+		
+		int i;
+		for(i = 0; i<_nj; i++)
+		{
+			char dummy[80];
+			double tmp[12];
+			sprintf(dummy, "%s%d", "Pid", i);
+			if (cfgFile.get("[HIGHPID]", dummy, tmp, 12) == YARP_FAIL)
+				return YARP_FAIL;
+			_highPIDs[i] = LowLevelPID(tmp);
+			
+			if (cfgFile.get("[LOWPID]", dummy, tmp, 12) == YARP_FAIL)
+				return YARP_FAIL;
+			_lowPIDs[i] = LowLevelPID(tmp);
+		}
+		
+		if (cfgFile.get("[GENERAL]", "Zeros", _zeros, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+		if (cfgFile.get("[GENERAL]", "AxisMap", _axis_map, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+		if (cfgFile.get("[GENERAL]", "Signs", _signs, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+		if (cfgFile.get("[GENERAL]", "FwdCouple", _fwdCouple, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+		if (cfgFile.get("[GENERAL]", "MaxDAC", _maxDAC, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+
+		// build encoder to angles
+		double *encoders = new double [_nj];
+		double *encWheels = new double [_nj];
+		if (cfgFile.get("[GENERAL]", "Encoder", encoders, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+		if (cfgFile.get("[GENERAL]", "EncWheel", encWheels, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+		for(i = 0; i< _nj; i++)
+			_encoderToAngles[i] = encoders[i]*encWheels[i];
+		delete [] encoders;
+		delete [] encWheels;
+		///////////////////////////////////////////////////
+
+		// build _invCouple
+		for (i = 0; i < 3; i++)
+			_invCouple[i] = 0.0;	// first 3 joints are not coupled
+
+		_invCouple[3] = -_fwdCouple[3] / (_encoderToAngles[3] * _encoderToAngles[4]);
+		_invCouple[4] = -_fwdCouple[4] / (_encoderToAngles[3] * _encoderToAngles[5]) +
+						(_fwdCouple[3] * _fwdCouple[5]) / (_encoderToAngles[3] * _encoderToAngles[4] * _encoderToAngles[5]);
+		_invCouple[5] = -_fwdCouple[5] / (_encoderToAngles[4] * _encoderToAngles[5]);
+		////////////////////////////////////////
+
+		return YARP_OK;
+	}
+
+private:
+	void _realloc(int nj)
+	{
+		if (_highPIDs != NULL)
+			delete [] _highPIDs;
+		if (_lowPIDs != NULL)
+			delete [] _lowPIDs;
+		if (_zeros != NULL)
+			delete [] _zeros;
+		if (_signs != NULL)
+			delete [] _signs;
+		if (_axis_map != NULL)
+			delete [] _axis_map;
+		if (_encoderToAngles != NULL)
+			delete [] _encoderToAngles;
+		if (_fwdCouple != NULL)
+			delete [] _fwdCouple;
+		if (_invCouple != NULL)
+			delete [] _invCouple;
+		if (_stiffPID != NULL)
+			delete [] _stiffPID;
+		if (_maxDAC != NULL)
+			delete [] _maxDAC;
+		
+		_highPIDs = new LowLevelPID [nj];
+		_lowPIDs = new LowLevelPID [nj];
+		_zeros = new double [nj];
+		_signs = new double [nj];
+		_axis_map = new int [nj];
+		_encoderToAngles = new double [nj];
+		_fwdCouple = new double [nj];
+		_invCouple = new double [nj];
+		_stiffPID = new int [nj];
+		_maxDAC = new double [nj];
+	}
+
+public:
+	LowLevelPID *_highPIDs;
+	LowLevelPID *_lowPIDs;
+	double *_zeros;
+	double *_signs;
+	int *_axis_map;
+	double *_encoderToAngles;
+	double *_fwdCouple;
+	double *_invCouple;
+	int *_stiffPID;
 	int _nj;
+	double *_maxDAC;
 };
 
-class YARPMEIOnBabybotArmAdapter : public YARPMEIDeviceDriver
+class YARPGALILOnEurobotArmAdapter : public YARPGALILDeviceDriver
 {
 public:
-	YARPMEIOnBabybotArmAdapter()
+	YARPGALILOnEurobotArmAdapter()
 	{
 		_initialized = false;
 		_amplifiers = false;
 		_softwareLimits = false;
 	}
 	
-	~YARPMEIOnBabybotArmAdapter()
+	~YARPGALILOnEurobotArmAdapter()
 	{
 		if (_initialized)
 			uninitialize();
 	}
 
-	int initialize(const YARPBabybotArmParameters &par)
+	int initialize(YARPEurobotArmParameters *par)
 	{
 		//// open device
 		_parameters = par;
-		MEIOpenParameters op_par;
-		op_par.nj= _parameters._nj; 
-		if (YARPMEIDeviceDriver::open(&op_par) != 0)
+		GAlilOpenParameters op_par;
+		op_par.nj= _parameters->_nj; 
+		if (YARPGalilDeviceDriver::open(&op_par) != 0)
 			return YARP_FAIL;
 
+		/* First the card needs to be reseted */
+		IOCtl(CMDResetController, NULL);
+
 		// amp level and limits
-		for(int i=0; i < _parameters._nj; i++)
+		for(int i=0; i < _parameters->_nj; i++)
 		{
+
+			/************
 			SingleAxisParameters cmd;
 			cmd.axis=i;
 			// amp enable
@@ -126,6 +273,25 @@ public:
 			cmd.parameters=&level;
 			IOCtl(CMDSetAmpEnableLevel, &cmd);
 			IOCtl(CMDSetAmpEnable, &cmd);
+			*************/
+
+			///pid a cero
+			///motors type MT -1,-1,-1,-1,-1,-1,-1,-1
+			///activate outputport OP 255
+
+			SingleAxisParameters cmd;
+			cmd.axis=i;
+			
+			int error = 2000;
+			cmd.parameters=&error;
+			
+			///Set the error limit
+			IOCtl(CMDErrorLimit, &cmd);
+			
+			int value = 1;
+			cmd.parameters=&value;
+			///set the off_on error
+			IOCtl(CMDOffOnError,&cmd); 
 			
 			// PUMA has no hw limits
 			// set limit events-> none
@@ -135,28 +301,25 @@ public:
 			IOCtl(CMDSetPositiveLimit, &cmd);
 			IOCtl(CMDSetNegativeLimit, &cmd);
 		}
-
-		/////////////// set ports
-		int port;
-		port = 0;
-		IOCtl(CMDInitPortAsInput, &port);	// port 0 is INPUT
-		port = 1;
-		IOCtl(CMDInitPortAsOutput, &port);	// port 1 is OUTPUT
-		//////////////////
-
+		
+		/*****************
 		// amp enable off
 		IOParameters cmd;
 		cmd.port = 1;
 		cmd.value = (short) 0x01;
+		******************/
+		idleMode();
 		_amplifiers = false;
 		/////////////////////////
-
+		
+	
 		_initialized = true;
 		return YARP_OK;
 	}
 
 	int uninitialize()
 	{
+		/**************************
 		/// disable amplifiers
 		IOParameters cmd;
 		cmd.port = 1;
@@ -164,6 +327,7 @@ public:
 		IOCtl(CMDSetOutputPort, &cmd);
 		_amplifiers = false;
 		//////////////////////////
+		****************************/
 
 		if (YARPMEIDeviceDriver::close() != 0)
 			return YARP_FAIL;
@@ -173,7 +337,7 @@ public:
 	}
 	int idleMode()
 	{
-		for(int i = 0; i < _parameters._nj; i++)
+		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			IOCtl(CMDControllerIdle, &i);
 		}
@@ -182,27 +346,29 @@ public:
 
 	int activatePID()
 	{
-		for(int i = 0; i < _parameters._nj; i++)
+		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			IOCtl(CMDControllerIdle, &i);
 			SingleAxisParameters cmd;
 			cmd.axis = i;
-			cmd.parameters = &_parameters._highPIDs[i];
+			cmd.parameters = &_parameters->_highPIDs[i];
 			IOCtl(CMDSetPID, &cmd);
 			double pos = 0.0;
 			cmd.parameters = &pos;
 			IOCtl(CMDDefinePosition, &cmd);
-			IOCtl(CMDControllerRun, &i);
-			// IOCtl(CMDEnableAmp, &i);	// this is not required
+			IOCtl(CMDServoHere,NULL); //Start the motors
+			_amplifiers = true;
 		}
-		_setHomeConfig(CBNoEvent);
-		_clearStop();
+		/////_setHomeConfig(CBNoEvent);
+		/////_clearStop();
 		/// activate amplifiers
+		/********
 		IOParameters cmd;
 		cmd.port = 1;
 		cmd.value = (short) 0x00;
 		IOCtl(CMDSetOutputPort, &cmd);
-		_amplifiers = true;
+		****************/
+		
 		//////////////////////////
 
 		return YARP_OK;
@@ -229,6 +395,14 @@ public:
 		_softwareLimits = true;
 		// LATER enable software limit check (encoders)
 		return YARP_OK;
+	}
+
+	// returns max torque on axis; note: this is not the current value, this is
+	// the maximum possible value for the board (i.e. MEI = 32767.0, Galil 9.99)
+	double getMaxTorque(int axis)
+	{
+		int tmp = _parameters->_axis_map[axis];
+		return _parameters->_maxDAC[tmp];
 	}
 
 	int calibrate() {
@@ -288,7 +462,7 @@ public:
 		////////////////////////////
 
 		// compute new home position
-		for(int i = 0; i < _parameters._nj; i++)
+		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			newHome[i] = (pos1[i]+pos2[i])/2;
 		}
@@ -321,7 +495,7 @@ private:
 
 	void _setHomeConfig(int event)
 	{
-		for (int i = 0; i < _parameters._nj; i++)
+		for (int i = 0; i < _parameters->_nj; i++)
 		{
 			SingleAxisParameters cmd;
 			int ipar;
@@ -342,14 +516,15 @@ private:
 	}
 
 	void _clearStop() {
-		for (int i = 0; i < _parameters._nj; i++)
+		for (int i = 0; i < _parameters->_nj; i++)
 			IOCtl(CMDClearStop, &i);	// clear stop event
 	}
 
 	bool _initialized;
 	bool _amplifiers;
 	bool _softwareLimits;
-	YARPBabybotArmParameters _parameters;
+	YARPBabybotArmParameters *_parameters;
+
 };
 
 #endif
