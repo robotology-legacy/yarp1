@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.6 2003-10-08 17:13:12 fberton Exp $
+/// $Id: AuxFunctions.cpp,v 1.7 2003-11-20 17:15:06 fberton Exp $
 ///
 ///
 
@@ -415,3 +415,16 @@ int Get_Theta(double x,
 
 	return theta;
 }
+
+int computePadSize(int width,int padding)
+{
+	int AddedPad;
+
+	if (width % padding == 0)
+		AddedPad = 0;
+	else
+		AddedPad = padding - width % padding;
+
+	return (width + AddedPad);
+}
+

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.17 2003-10-17 14:25:23 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.18 2003-11-20 17:15:06 fberton Exp $
 ///
 ///
 
@@ -71,7 +71,7 @@
 
 #define Giotto1 0
 #define Giotto2 1
-#define CUSTOM 20
+#define CUST 20
 #define FITIN   99
 #define FITOUT 101
 
@@ -155,7 +155,7 @@ struct Neighborhood{
 
 struct IntNeighborhood{
 	unsigned short NofPixels;
-	unsigned short * position;
+	unsigned int * position;
 	unsigned char * weight;
 };
 
@@ -365,7 +365,8 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 					   IntNeighborhood * WeightsMap,
 					   int Pix_Numb);
 
-int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap);
+int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val);
+int computePadSize(int width,int padding);
 
 //Functions defined in TableGeneration.cpp
 

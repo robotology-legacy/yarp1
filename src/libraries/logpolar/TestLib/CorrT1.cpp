@@ -6,24 +6,78 @@
 
 #include "LogPolarSDK.h"
 
+struct Images{
+	unsigned char * BW;
+	unsigned char * BWPad;
+	unsigned char * Color;
+	unsigned char * ColorPad;
+	unsigned char * Rem;
+	unsigned char * RemPad;
+	unsigned char * RemSh;
+	unsigned char * RemShPad;
+	unsigned char * DS;
+	unsigned char * DSPad;
+	unsigned char * Shift;
+	unsigned char * ShiftPad;
+};
 
+void addPad(unsigned char * out,unsigned char * in, Image_Data * LParam, int PadSize)
+{
+	int i,j;
+
+	for (j=0; j<LParam->Size_Rho; j++)
+		for (i=0; i<LParam->LP_Planes*LParam->Size_Theta; i++)
+			out[j*PadSize+i] = in[LParam->LP_Planes*j*LParam->Size_Theta+i];
+}
+
+void removePad(unsigned char * out,unsigned char * in, int width, int height, int planes, int PadSize)
+{
+	int i,j;
+
+	for (j=0; j<height; j++)
+		for (i=0; i<planes*width; i++)
+			out[j*planes*width+i] = in[j*PadSize+i];
+}
+
+void allocateImages(Images * img, Image_Data * LPar, Image_Data * SPar)
+{
+	img->BWPad    = (unsigned char *) malloc (computePadSize(LPar->Size_Theta,LPar->padding) * LPar->Size_Rho * sizeof(unsigned char));
+	img->Color    = (unsigned char *) malloc (LPar->Size_LP * 3 * sizeof(unsigned char));
+	img->ColorPad = (unsigned char *) malloc (computePadSize(3 * LPar->Size_Theta,LPar->padding) * LPar->Size_Rho * sizeof(unsigned char));
+	img->RemSh	  = (unsigned char *) malloc (SPar->Size_Img_Remap * 3 * sizeof(unsigned char));
+	img->RemShPad = (unsigned char *) malloc (computePadSize(3 * SPar->Size_X_Remap,SPar->padding) * LPar->Size_Y_Remap * sizeof(unsigned char));
+	img->Rem	  = (unsigned char *) malloc (SPar->Size_Img_Remap * 3 * sizeof(unsigned char));
+	img->RemPad	  = (unsigned char *) malloc (computePadSize(3 * SPar->Size_X_Remap,SPar->padding) * LPar->Size_Y_Remap * sizeof(unsigned char));
+	img->DS		  = (unsigned char *) malloc (SPar->Size_LP * 3 * sizeof(unsigned char));
+	img->DSPad	  = (unsigned char *) malloc (computePadSize(3 * SPar->Size_Theta,SPar->padding) * SPar->Size_Rho * sizeof(unsigned char));
+	img->Shift	  = (unsigned char *) malloc (SPar->Size_LP * 3 * sizeof(unsigned char));
+	img->ShiftPad = (unsigned char *) malloc (computePadSize(3 * SPar->Size_Theta,SPar->padding) * SPar->Size_Rho * sizeof(unsigned char));
+}
+
+void RBSwap(unsigned char * Image, Image_Data * Par)
+{
+	int i,j;
+	unsigned char a;
+	int PadSize = computePadSize(3 * Par->Size_Theta,Par->padding);
+
+	for (j=0; j<Par->Size_Rho; j++)
+		for (i=0; i<3 * Par->Size_Theta; i+=3)
+		{
+			a = Image[j*PadSize+i];
+			Image[j*PadSize+i] = Image [j*PadSize+i+2];
+			Image [j*PadSize+i+2] = a;
+		}
+}
 
 void main()
 {
 	int XSize,YSize,planes;
 
-	unsigned char * BWLeft;
-	unsigned char * BWRight;
-	unsigned char * ColLeft;
-	unsigned char * ColRight;
-	unsigned char * RemLeft;
-	unsigned char * RemRight;
-	unsigned char * DSLeft;
-	unsigned char * DSRight;
+
+	Images Left,Right;
+
 	unsigned char * Shifted;
 	int i,j,k;
-
-	unsigned char a;
 
 	int retval;
 
@@ -34,109 +88,234 @@ void main()
 	char File_Name [256];
 	char Path [256];
 
-
 	//Loads BW images
-	sprintf(File_Name,"%s","c:/temp/images/a1.bmp");
-	BWLeft = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
-	sprintf(File_Name,"%s","c:/temp/images/right.bmp");
-	BWRight = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
+	sprintf(File_Name,"%s","c:/temp/images/testpad/right.bmp");
+	Left.BW = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
+
+
+	sprintf(File_Name,"%s","c:/temp/images/testpad/left.bmp");
+	Right.BW = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
 
 	//Sets Small and Large Params
 	LParam = Set_Param(1090,1090,256,256,
 						YSize,XSize,42,
 						1090,
-						CUSTOM,256.0/1090.0);
+						CUST,256.0/1090.0);
+
 	SParam = Set_Param(256,256,256,256,
 						YSize/4,XSize/4,42/4,
 						1090/4,
-						CUSTOM,4*256.0/1090.0);
+						CUST,4*256.0/1090.0);
 
 	SParam.Ratio = 4.00;
 
+	LParam.padding = 8;
+	SParam.padding = LParam.padding;
+
+	LParam.LP_Planes = planes;
+	SParam.LP_Planes = planes;
+
+	allocateImages( &Left, &LParam, &SParam);
+	allocateImages(&Right, &LParam, &SParam);
+	addPad( Left.BWPad, Left.BW,&LParam,computePadSize(LParam.Size_Theta,LParam.padding));
+	addPad(Right.BWPad,Right.BW,&LParam,computePadSize(LParam.Size_Theta,LParam.padding));
+
+	removePad(Left.BW,Left.BWPad,LParam.Size_Theta,LParam.Size_Rho,LParam.LP_Planes,computePadSize(LParam.Size_Theta,LParam.padding));
+	removePad(Right.BW,Right.BWPad,LParam.Size_Theta,LParam.Size_Rho,LParam.LP_Planes,computePadSize(LParam.Size_Theta,LParam.padding));
+
+	Save_Bitmap(Left.BW,LParam.Size_Theta,LParam.Size_Rho,LParam.LP_Planes,
+				"c:/temp/images/TestPad/LeftBWLP.bmp");
+	Save_Bitmap(Right.BW,LParam.Size_Theta,LParam.Size_Rho,LParam.LP_Planes,
+				"c:/temp/images/TestPad/RightBWLP.bmp");
+	Save_Bitmap(Left.BWPad,computePadSize(LParam.Size_Theta,LParam.padding),LParam.Size_Rho,LParam.LP_Planes,
+				"c:/temp/images/TestPad/LeftPadBWLP.bmp");
+	Save_Bitmap(Right.BWPad,computePadSize(LParam.Size_Theta,LParam.padding),LParam.Size_Rho,LParam.LP_Planes,
+				"c:/temp/images/TestPad/RightPadBWLP.bmp");
+
+	LParam.LP_Planes = 3;
+	SParam.LP_Planes = 3;
 
 	sprintf(Path,"%s","c:/temp/tables/prefix/");
-	Build_Tables(&LParam,&Tables,Path,WEIGHTS|REMAP|DS4);
-	Load_Tables(&LParam,&Tables,Path,WEIGHTS|REMAP|DS4);
+//	Build_Tables(&LParam,&Tables,Path,WEIGHTS|REMAP|DS4);
+//	Build_Tables(&LParam,&Tables,Path,DS4);
+	Load_Tables(&LParam,&Tables,Path,WEIGHTS|REMAP);
+	Load_Tables(&LParam,&Tables,Path,DS4);
 //	Build_Tables(&SParam,&Tables,Path,SHIFT);
 	Load_Tables(&SParam,&Tables,Path,SHIFT|ANGSHIFT|PAD);
 
-	ColLeft = (unsigned char *) malloc (LParam.Size_LP * 3 * sizeof(unsigned char));
-	ColRight = (unsigned char *) malloc (LParam.Size_LP * 3 * sizeof(unsigned char));
-	RemLeft = (unsigned char *) malloc (SParam.Size_Img_Remap * 3 * sizeof(unsigned char));
-	RemRight = (unsigned char *) malloc (SParam.Size_Img_Remap * 3 * sizeof(unsigned char));
-	DSLeft = (unsigned char *) malloc ((SParam.Size_LP) * 3 * sizeof(unsigned char));
-	DSRight = (unsigned char *) malloc ((SParam.Size_LP) * 3 * sizeof(unsigned char));
-	Shifted = (unsigned char *) malloc ((LParam.Size_LP/16) * 3 * sizeof(unsigned char));
+	Reconstruct_Color(Left.ColorPad,Left.BWPad,LParam.Size_Rho,LParam.Size_Theta,LParam.padding,Tables.WeightsMap,LParam.Pix_Numb);
+	Reconstruct_Color(Right.ColorPad,Right.BWPad,LParam.Size_Rho,LParam.Size_Theta,LParam.padding,Tables.WeightsMap,LParam.Pix_Numb);
+	RBSwap(Left.ColorPad,&LParam);
+	RBSwap(Right.ColorPad,&LParam);
 
-	Reconstruct_Color(ColLeft,BWLeft,LParam.Size_Rho,LParam.Size_Theta,1,Tables.WeightsMap,LParam.Pix_Numb);
-	Reconstruct_Color(ColRight,BWRight,LParam.Size_Rho,LParam.Size_Theta,1,Tables.WeightsMap,LParam.Pix_Numb);
+	removePad( Left.Color, Left.ColorPad,LParam.Size_Theta,LParam.Size_Rho,LParam.LP_Planes,computePadSize(3*LParam.Size_Theta,LParam.padding));
+	removePad(Right.Color,Right.ColorPad,LParam.Size_Theta,LParam.Size_Rho,LParam.LP_Planes,computePadSize(3*LParam.Size_Theta,LParam.padding));
 
-	//Swaps Red and Blue
-	for (j=0; j<LParam.Size_LP; j++)
+	Save_Bitmap(Left.ColorPad,computePadSize(3 * LParam.Size_Theta,LParam.padding),LParam.Size_Rho,1,
+				"c:/temp/images/TestPad/PaddedColLP.bmp");
+	Save_Bitmap( Left.Color,LParam.Size_Theta,LParam.Size_Rho,3,
+				"c:/temp/images/TestPad/LeftColLP.bmp");
+	Save_Bitmap(Right.Color,LParam.Size_Theta,LParam.Size_Rho,3,
+				"c:/temp/images/TestPad/RightColLP.bmp");
+
+//	allocateImages(&Right,&LParam, &SParam);
+//	Shifted = (unsigned char *) malloc ((SParam.Size_LP) * 3 * sizeof(unsigned char));
+
+//	addPad(Right.BWPad,Right.BW,&LParam,computePaddingSize(LParam.Size_Theta,LParam.padding));
+
+
+
+//	Reconstruct_Color(Right.ColorPad,Right.BWPad,LParam.Size_Rho,LParam.Size_Theta,8,Tables.WeightsMap,LParam.Pix_Numb);
+
+
+//	free (BWLeft);
+//	BWLeft = (unsigned char *) malloc (LParam.Size_LP * 3 * sizeof(unsigned char));
+//
+//	for (j=0; j<LParam.Size_Rho; j++)
+//		for (i=0; i<LParam.LP_Planes*LParam.Size_Theta; i++)
+//		{
+//			BWLeft[LParam.LP_Planes*j*LParam.Size_Theta+i] = ColLeft[j*PadSizeTheta+i];
+//		}
+
+//	sprintf(File_Name,"%s","c:/temp/images/Nopad.bmp");
+//	Save_Bitmap(BWLeft,LParam.LP_Planes*LParam.Size_Theta,LParam.Size_Rho,1,File_Name);
+//	sprintf(File_Name,"%s","c:/temp/images/Yespad.bmp");
+
+	
+ //	sprintf(File_Name,"%s","c:/temp/images/02_colleft.bmp");
+//	Save_Bitmap(ColLeft,LParam.Size_Theta,LParam.Size_Rho,3,File_Name);
+//	sprintf(File_Name,"%s","c:/temp/images/02_colright.bmp");
+//	Save_Bitmap(ColRight,LParam.Size_Theta,LParam.Size_Rho,3,File_Name);
+
+	Remap(Left.RemPad,Left.ColorPad,&LParam,Tables.RemapMap);
+	Remap(Right.RemPad,Right.ColorPad,&LParam,Tables.RemapMap);
+//	Remap(RemRight,ColRight,&LParam,Tables.RemapMap);
+	
+//	sprintf(File_Name,"%s","c:/temp/images/02_remleft.bmp");
+	Save_Bitmap(Left.RemPad,computePadSize(3*LParam.Size_X_Remap,LParam.padding),LParam.Size_Y_Remap,1,"c:/temp/images/TestPad/PaddedRemap.bmp");
+//	sprintf(File_Name,"%s","c:/temp/images/02_remright.bmp");
+//	Save_Bitmap(RemRight,LParam.Size_X_Remap,LParam.Size_Y_Remap,3,File_Name);
+
+	
+	removePad(Left.Rem,Left.RemPad,LParam.Size_X_Remap,LParam.Size_Y_Remap,LParam.Remap_Planes,computePadSize(3*LParam.Size_X_Remap,LParam.padding));
+	removePad(Right.Rem,Right.RemPad,LParam.Size_X_Remap,LParam.Size_Y_Remap,LParam.Remap_Planes,computePadSize(3*LParam.Size_X_Remap,LParam.padding));
+
+	Save_Bitmap(Left.Rem,LParam.Size_X_Remap,LParam.Size_Y_Remap,3,
+				"c:/temp/images/TestPad/LeftRemap.bmp");
+	Save_Bitmap(Right.Rem,LParam.Size_X_Remap,LParam.Size_Y_Remap,3,
+				"c:/temp/images/TestPad/RightRemap.bmp");
+
+/*	j=8;
+	int l=21;
+	for (k=0; k<Tables.DownSampleMap[j*SParam.Size_Theta+l].NofPixels; k++)
 	{
-		a = ColLeft[3*j];
-		ColLeft[3*j] = ColLeft [3*j+2];
-		ColLeft [3*j+2] = a;
-		a = ColRight[3*j];
-		ColRight[3*j] = ColRight [3*j+2];
-		ColRight [3*j+2] = a;
+		printf("%d   ",Tables.DownSampleMap[j*SParam.Size_Theta+l].position[k]);
+		printf("%d   ",Tables.DownSampleMap[j*SParam.Size_Theta+l].position[k]/759);
+		printf("%d   ",Tables.DownSampleMap[j*SParam.Size_Theta+l].position[k]%759);
+		printf("%d   ",(Tables.DownSampleMap[j*SParam.Size_Theta+l].position[k]/759)/4);
+		printf("%d\n",(Tables.DownSampleMap[j*SParam.Size_Theta+l].position[k]%759)/4);
 	}
-	
-	sprintf(File_Name,"%s","c:/temp/images/02_colleft.bmp");
-	Save_Bitmap(ColLeft,LParam.Size_Theta,LParam.Size_Rho,3,File_Name);
-	sprintf(File_Name,"%s","c:/temp/images/02_colright.bmp");
-	Save_Bitmap(ColRight,LParam.Size_Theta,LParam.Size_Rho,3,File_Name);
+*/
+	DownSample(Left.ColorPad,Left.DSPad,Path,&LParam,4.00,Tables.DownSampleMap);
+	DownSample(Right.ColorPad,Right.DSPad,Path,&LParam,4.00,Tables.DownSampleMap);
+//	DownSample(ColRight,DSRight,Path,&LParam,4.00,Tables.DownSampleMap);
 
-	Remap(RemLeft,ColLeft,&LParam,Tables.RemapMap);
-	Remap(RemRight,ColRight,&LParam,Tables.RemapMap);
-	
-	sprintf(File_Name,"%s","c:/temp/images/02_remleft.bmp");
-	Save_Bitmap(RemLeft,LParam.Size_X_Remap,LParam.Size_Y_Remap,3,File_Name);
-	sprintf(File_Name,"%s","c:/temp/images/02_remright.bmp");
-	Save_Bitmap(RemRight,LParam.Size_X_Remap,LParam.Size_Y_Remap,3,File_Name);
+	removePad( Left.DS, Left.DSPad,SParam.Size_Theta,SParam.Size_Rho,3,computePadSize(3*SParam.Size_Theta,SParam.padding));
+	removePad(Right.DS,Right.DSPad,SParam.Size_Theta,SParam.Size_Rho,3,computePadSize(3*SParam.Size_Theta,SParam.padding));
 
-	DownSample(ColLeft,DSLeft,Path,&LParam,4.00,Tables.DownSampleMap);
-	DownSample(ColRight,DSRight,Path,&LParam,4.00,Tables.DownSampleMap);
+	Save_Bitmap(Left.DSPad,computePadSize(3*SParam.Size_Theta,SParam.padding),SParam.Size_Rho,1,
+				"c:/temp/images/TestPad/PaddedDS.bmp");
 
-	sprintf(File_Name,"%s","c:/temp/images/02_dsleft.bmp");
-	Save_Bitmap(DSLeft,LParam.Size_Theta/4,LParam.Size_Rho/4,3,File_Name);
-	sprintf(File_Name,"%s","c:/temp/images/02_dsright.bmp");
-	Save_Bitmap(DSRight,LParam.Size_Theta/4,LParam.Size_Rho/4,3,File_Name);
+	Save_Bitmap(Left.DS,SParam.Size_Theta,SParam.Size_Rho,3,
+				"c:/temp/images/TestPad/LeftDS.bmp");
 
-	Build_Step_Function(Path,&SParam);
+	Save_Bitmap(Right.DS,SParam.Size_Theta,SParam.Size_Rho,3,
+				"c:/temp/images/TestPad/RightDS.bmp");
+
+//	sprintf(File_Name,"%s","c:/temp/images/02_dsleft.bmp");
+//	Save_Bitmap(DSLeft,LParam.Size_Theta/4,LParam.Size_Rho/4,3,File_Name);
+//	sprintf(File_Name,"%s","c:/temp/images/02_dsright.bmp");
+//	Save_Bitmap(DSRight,LParam.Size_Theta/4,LParam.Size_Rho/4,3,File_Name);
+
+//	Build_Step_Function(Path,&SParam);
 
 	Load_Tables(&SParam,&Tables,Path,1024);
 
-	retval = Shift_and_Corr(DSLeft,DSRight,&SParam,Tables.ShiftLevels,Tables.ShiftMap);
+	retval = Shift_and_Corr(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMap);
 
+	unsigned char * Shiftedptr = Right.ShiftPad;
+
+	int APS = (computePadSize(3*SParam.Size_Theta,SParam.padding)-3*SParam.Size_Theta);
+ 	for (j=0; j<SParam.Size_Rho; j++)
+	{
+ 		for (i=0; i<SParam.Size_Theta; i++)
+		{
+//			Left.Shift[3*(j*SParam.Size_Theta+i)]   = Left.DSPad[Tables.ShiftMap[(100)*1*SParam.Size_LP+(j*SParam.Size_Theta+i)]];
+//			Left.Shift[3*(j*SParam.Size_Theta+i)+1] = Left.DSPad[Tables.ShiftMap[(100)*1*SParam.Size_LP+(j*SParam.Size_Theta+i)]+1];
+//			Left.Shift[3*(j*SParam.Size_Theta+i)+2] = Left.DSPad[Tables.ShiftMap[(100)*1*SParam.Size_LP+(j*SParam.Size_Theta+i)]+2];
+			* Shiftedptr++   = Right.DSPad[Tables.ShiftMap[(retval)*1*SParam.Size_LP+(j*SParam.Size_Theta+i)]];
+			* Shiftedptr++   = Right.DSPad[Tables.ShiftMap[(retval)*1*SParam.Size_LP+(j*SParam.Size_Theta+i)]+1];
+			* Shiftedptr++   = Right.DSPad[Tables.ShiftMap[(retval)*1*SParam.Size_LP+(j*SParam.Size_Theta+i)]+2];
+		}
+		Shiftedptr+=APS;
+	}
+
+
+	removePad(Right.Shift,Right.ShiftPad,SParam.Size_Theta,SParam.Size_Rho,3,computePadSize(3*SParam.Size_Theta,SParam.padding));
+
+	Save_Bitmap(Right.ShiftPad,computePadSize(3*SParam.Size_Theta,SParam.padding),SParam.Size_Rho,1,
+				"c:/temp/images/TestPad/PaddedShift.bmp");
+
+	Save_Bitmap(Right.Shift,SParam.Size_Theta,SParam.Size_Rho,3,
+				"c:/temp/images/TestPad/RightShift.bmp");
+
+	free(Tables.RemapMap);
+
+	Build_Tables(&SParam,&Tables,Path,REMAP);
+	Load_Tables(&SParam,&Tables,Path,REMAP);
+
+	Remap( Left.RemShPad,Left.DSPad,&SParam,Tables.RemapMap);
+	Remap(Right.RemShPad,Right.ShiftPad,&SParam,Tables.RemapMap);
+
+	removePad( Left.RemSh, Left.RemShPad,SParam.Size_X_Remap,SParam.Size_Y_Remap,SParam.Remap_Planes,computePadSize(3*SParam.Size_X_Remap,SParam.padding));
+	removePad(Right.RemSh,Right.RemShPad,SParam.Size_X_Remap,SParam.Size_Y_Remap,SParam.Remap_Planes,computePadSize(3*SParam.Size_X_Remap,SParam.padding));
+
+	Save_Bitmap(Left.RemSh,SParam.Size_X_Remap,SParam.Size_Y_Remap,3,
+				"c:/temp/images/TestPad/FinalLeft.bmp");
+	Save_Bitmap(Right.RemSh,SParam.Size_X_Remap,SParam.Size_Y_Remap,3,
+				"c:/temp/images/TestPad/FinalRight.bmp");
+
+	Remap(Right.RemShPad,Right.DSPad,&SParam,Tables.RemapMap);
+	removePad(Right.RemSh,Right.RemShPad,SParam.Size_X_Remap,SParam.Size_Y_Remap,SParam.Remap_Planes,computePadSize(3*SParam.Size_X_Remap,SParam.padding));
+	Save_Bitmap(Right.RemSh,SParam.Size_X_Remap,SParam.Size_Y_Remap,3,
+				"c:/temp/images/TestPad/FinalRight2.bmp");
+	
 	SParam.Zoom_Level = 4.0*256.0/1090.0;
 	
 	
-//	TimeI = Get_Time()-TimeI;
-//	printf("Time to shift: %f ms\n", TimeI/100.0);
 	
  	for (j=0; j<3*SParam.Size_LP; j++)
-		Shifted[j] = DSRight[Tables.ShiftMap[(retval)*3*SParam.Size_LP+j]];
+		Shifted[j] = Right.DSPad[Tables.ShiftMap[(retval)*3*SParam.Size_LP+j]];
 
 	sprintf(File_Name,"%s","c:/temp/images/02_RDSSh.bmp");
 	Save_Bitmap(Shifted,LParam.Size_Theta/4,LParam.Size_Rho/4,3,File_Name);
 
 	Load_Tables(&SParam,&Tables,Path,REMAP);
 
-	Remap(RemLeft,DSLeft,&SParam,Tables.RemapMap);
-	Remap(RemRight,Shifted,&SParam,Tables.RemapMap);
+//	Remap(RemLeft,DSLeft,&SParam,Tables.RemapMap);
+//	Remap(RemRight,Shifted,&SParam,Tables.RemapMap);
 
-	sprintf(File_Name,"%s","c:/temp/images/02_remrightsh.bmp");
-	Save_Bitmap(RemRight,SParam.Size_X_Remap,SParam.Size_Y_Remap,3,File_Name);
-	sprintf(File_Name,"%s","c:/temp/images/02_remleftsh.bmp");
-	Save_Bitmap(RemLeft,LParam.Size_X_Remap,LParam.Size_Y_Remap,3,File_Name);
+//	sprintf(File_Name,"%s","c:/temp/images/02_remrightsh.bmp");
+//	Save_Bitmap(RemRight,SParam.Size_X_Remap,SParam.Size_Y_Remap,3,File_Name);
+//	sprintf(File_Name,"%s","c:/temp/images/02_remleftsh.bmp");
+//	Save_Bitmap(RemLeft,LParam.Size_X_Remap,LParam.Size_Y_Remap,3,File_Name);
 
 	unsigned char * shiftimage = (unsigned char *) malloc (3*3*SParam.Size_Img_Remap* sizeof(unsigned char));
 
 	for (j=0; j<SParam.Size_Y_Remap; j++)
 		for (i=0; i<SParam.Size_X_Remap; i++)
 			for (k=0; k<3; k++)
-				shiftimage[3*((j)*(SParam.Size_X_Remap*3)+i+SParam.Size_X_Remap)+k] = RemLeft[3*(j*SParam.Size_X_Remap+i)+k];
+				shiftimage[3*((j)*(SParam.Size_X_Remap*3)+i+SParam.Size_X_Remap)+k] = Left.RemPad[3*(j*SParam.Size_X_Remap+i)+k];
 
 	double jf;
 	int maxind;

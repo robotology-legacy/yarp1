@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableLoading.cpp,v 1.14 2003-10-17 14:25:23 fberton Exp $
+/// $Id: TableLoading.cpp,v 1.15 2003-11-20 17:15:07 fberton Exp $
 ///
 ///
 
@@ -145,17 +145,17 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 
 	if ((List&4)==4)
 	{
-		sprintf(File_Name,"%s%s%1.2f%s",Path,"DSMap_",4.00,".gio");
+		sprintf(File_Name,"%s%s%1.2f_P%d%s",Path,"DSMap_",4.00,Par->padding,".gio");
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			Tables->DownSampleMap = (IntNeighborhood *) malloc ((Par->Size_LP / 16) * sizeof(IntNeighborhood));
 			fread(&k,sizeof(int),1,fin);
-			Tables->DownSampleMap[0].position = (unsigned short *) malloc (k * (Par->Size_LP/16) * sizeof(unsigned short));
+			Tables->DownSampleMap[0].position = (unsigned int *) malloc (k * (Par->Size_LP/16) * sizeof(unsigned int));
 			Tables->DownSampleMap[0].weight   = (unsigned char  *) malloc (k * (Par->Size_LP/16) * sizeof(unsigned char ));
 			for (j=0; j<Par->Size_LP/16; j++)
 				fread(&(Tables->DownSampleMap[j].NofPixels) ,sizeof(unsigned short),1,fin);
 
-			fread((Tables->DownSampleMap[0].position) ,sizeof(unsigned short),k * (Par->Size_LP/16),fin);
+			fread((Tables->DownSampleMap[0].position) ,sizeof(unsigned int),k * (Par->Size_LP/16),fin);
 			fread((Tables->DownSampleMap[0].weight)   ,sizeof(unsigned char) ,k * (Par->Size_LP/16),fin);
 
 			for (j=0; j<Par->Size_LP/16; j++)
@@ -210,14 +210,15 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 	if ((List&32)==32)
 	{
 		if (Par->Ratio == 1.00)
-			sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",Path,"RemapMap",Par->Zoom_Level,Par->Size_X_Remap,Par->Size_Y_Remap,".gio");
+			sprintf(File_Name,"%s%s_%2.3f_%dx%d_P%d%s",Path,"RemapMap",Par->Zoom_Level,Par->Size_X_Remap,Par->Size_Y_Remap,Par->padding,".gio");
 		else
-			sprintf(File_Name,"%s%1.2f_%s_%2.3f_%dx%d%s",Path,Par->Ratio,"RemapMap",Par->Zoom_Level,Par->Size_X_Remap,Par->Size_Y_Remap,".gio");
+			sprintf(File_Name,"%s%1.2f_%s_%2.3f_%dx%d_P%d%s",Path,Par->Ratio,"RemapMap",Par->Zoom_Level,Par->Size_X_Remap,Par->Size_Y_Remap,Par->padding,".gio");
 
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
-			Tables->RemapMap = (int *) malloc (Par->Size_Img_Remap * sizeof(int));
-			fread(Tables->RemapMap,sizeof(int),Par->Size_Img_Remap,fin);
+
+			Tables->RemapMap = (int *) malloc (computePadSize(Par->Size_X_Remap * 3,Par->padding) * Par->Size_X_Remap * sizeof(int));
+			fread(Tables->RemapMap,sizeof(int),computePadSize(Par->Size_X_Remap * 3,Par->padding) * Par->Size_X_Remap,fin);
 			fclose (fin);
 			retval = retval | 32;
 		}
@@ -228,9 +229,9 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 	if ((List&64)==64)
 	{
 		if (Par->Ratio == 1.00)
-			sprintf(File_Name,"%s%s%02d%s",Path,"WeightsMap",Par->Pix_Numb,".gio");
+			sprintf(File_Name,"%s%s%02d_P%d%s",Path,"WeightsMap",Par->Pix_Numb,Par->padding,".gio");
 		else
-			sprintf(File_Name,"%s%1.2f_%s%02d%s",Path,Par->Ratio,"WeightsMap",Par->Pix_Numb,".gio");
+			sprintf(File_Name,"%s%1.2f_%s%02d_P%d%s",Path,Par->Ratio,"WeightsMap",Par->Pix_Numb,Par->padding,".gio");
 
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
@@ -267,12 +268,12 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 		{
 			Tables->DownSampleMap = (IntNeighborhood *) malloc ((Par->Size_LP / 4) * sizeof(IntNeighborhood));
 			fread(&k,sizeof(int),1,fin);
-			Tables->DownSampleMap[0].position = (unsigned short *) malloc (k * (Par->Size_LP/4) * sizeof(unsigned short));
+			Tables->DownSampleMap[0].position = (unsigned int *) malloc (k * (Par->Size_LP/4) * sizeof(unsigned int));
 			Tables->DownSampleMap[0].weight   = (unsigned char  *) malloc (k * (Par->Size_LP/4) * sizeof(unsigned char ));
 			for (j=0; j<Par->Size_LP/4; j++)
 				fread(&(Tables->DownSampleMap[j].NofPixels) ,sizeof(unsigned short),1,fin);
 
-			fread((Tables->DownSampleMap[0].position) ,sizeof(unsigned short),k * (Par->Size_LP/4),fin);
+			fread((Tables->DownSampleMap[0].position) ,sizeof(unsigned int),k * (Par->Size_LP/4),fin);
 			fread((Tables->DownSampleMap[0].weight)   ,sizeof(unsigned char) ,k * (Par->Size_LP/4),fin);
 
 			for (j=0; j<Par->Size_LP/4; j++)
@@ -319,7 +320,7 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 	if ((List&1024)==1024)
 	{
 		if (Par->Ratio == 1.00)
-			sprintf(File_Name,"%s",Path,"StepList.gio");
+			sprintf(File_Name,"%s%s",Path,"StepList.gio");
 		else
 			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"StepList.gio");
 
@@ -329,33 +330,41 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 			SList = (int *) malloc (Tables->ShiftLevels * sizeof (int));
 			fread (SList,sizeof(int),Tables->ShiftLevels,fin); //List
 			fclose(fin);
-
-			if (Par->Ratio == 1.00)
-				sprintf(File_Name,"%s",Path,"ShiftMap.gio");
-			else
-				sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"ShiftMap.gio");
-
-			if ((fin = fopen(File_Name,"rb")) != NULL)
-			{
-				Tables->ShiftMap = (int *) malloc ((Tables->ShiftLevels)*3*Par->Size_LP * sizeof(int));
-
-				k = 0;
-
-				for(j=0; j<1+3*Par->Resolution/2; j++)
-				{
-					if (k<Tables->ShiftLevels)
-					{
-						fread(&Tables->ShiftMap[k*3*Par->Size_LP],sizeof(int),3*Par->Size_LP,fin);
-
-						if (SList[k]+3*Par->Resolution/4 == j)
-							k++;
-					}
-				}
-
-				fclose (fin);
-				retval = retval | 1024;
-			}
 		}
+		else
+		{
+			Tables->ShiftLevels = 1+6*Par->Resolution/4;
+			SList = (int *) malloc (Tables->ShiftLevels * sizeof (int));
+			for (j=0; j<Tables->ShiftLevels; j++)
+				SList[j] = j-Tables->ShiftLevels/2;
+		}
+
+		if (Par->Ratio == 1.00)
+			sprintf(File_Name,"%s%s_P%d%s",Path,"ShiftMap",Par->padding,".gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%s_P%d%s",Path,Par->Ratio,"ShiftMap",Par->padding,".gio");
+
+		if ((fin = fopen(File_Name,"rb")) != NULL)
+		{
+			Tables->ShiftMap = (int *) malloc ((Tables->ShiftLevels)*1*Par->Size_LP * sizeof(int));
+
+			k = 0;
+
+			for(j=0; j<1+3*Par->Resolution/2; j++)
+			{
+				if (k<Tables->ShiftLevels)
+				{
+					fread(&Tables->ShiftMap[k*1*Par->Size_LP],sizeof(int),1*Par->Size_LP,fin);
+
+					if (SList[k]+3*Par->Resolution/4 == j)
+						k++;
+				}
+			}
+
+			fclose (fin);
+			retval = retval | 1024;
+		}
+		
 
 		else
 			Tables->ShiftMap = NULL;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.24 2003-10-17 14:25:23 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.25 2003-11-20 17:15:07 fberton Exp $
 ///
 ///
 
@@ -740,11 +740,13 @@ int Build_Remap_Map (Image_Data * Par, char * Path)
 	unsigned short * Pad_Map;
 	int      * Remap_Map;
 
+	int AddedPad;
+	int PadSizeTheta;
+
 	int startX,startY;
 	int endX,endY;
 
 	int retval;
-	int PadSizeTheta;
 	LUT_Ptrs Tables;
 
 	FILE * fout;
@@ -775,12 +777,26 @@ int Build_Remap_Map (Image_Data * Par, char * Path)
 		Ang_Shift_Map = Tables.AngShiftMap;
 		Pad_Map = Tables.PadMap;
 
-		PadSizeTheta = (((Par->Size_Theta * Par->LP_Planes) % Par->padding) + (Par->Size_Theta * Par->LP_Planes));
+		if ((Par->Size_Theta * Par->LP_Planes) % Par->padding == 0)
+			AddedPad = 0;
+		else
+			AddedPad = Par->padding - (Par->Size_Theta * Par->LP_Planes) % Par->padding;
+
+		PadSizeTheta = Par->Size_Theta * Par->LP_Planes + AddedPad;
+
+//		if ((Par->Size_X_Remap * Par->Remap_Planes) % Par->padding == 0)
+//			AddedPad = 0;
+//		else
+//			AddedPad = Par->padding - (Par->Size_X_Remap * Par->Remap_Planes) % Par->padding;
+
+//		PadSizeX = Par->Size_X_Remap * Par->Remap_Planes + AddedPad;
+
 		XSize = (int)(Par->Resolution * Par->Zoom_Level + 0.5);
 		YSize = XSize;
 
 //		Remap_Map = (int *)malloc(XSize * YSize * sizeof(int));
-		Remap_Map = (int *)malloc(Par->Size_Img_Remap * sizeof(int));
+//		Remap_Map = (int *)calloc(PadSizeX * Par->Size_Y_Remap , sizeof(int));
+		Remap_Map = (int *)calloc(Par->Size_Img_Remap , sizeof(int));
 
 		startX = (XSize/2)-Par->Size_X_Remap/2;
 		startY = (YSize/2)-Par->Size_Y_Remap/2;
@@ -797,23 +813,33 @@ int Build_Remap_Map (Image_Data * Par, char * Path)
 					rho   = (int)(Get_Rho  (i-XSize/2,YSize/2-j,Par));
 					theta = (int)(Get_Theta(i-XSize/2,YSize/2-j,rho,Par,Ang_Shift_Map,Pad_Map));
 					if ((rho<Par->Size_Rho)&&(rho>=0)&&(theta<Par->Size_Theta)&&(theta>=0))
+					{
 //						Remap_Map[j*XSize+i] = 3*(rho*Par->Size_Theta+theta);
 //						Remap_Map[j*XSize+i] = (rho*PadSizeTheta+3*theta);
 						Remap_Map[(j-startY)*Par->Size_X_Remap+i-startX] = (rho*PadSizeTheta+3*theta);
+//						Remap_Map[(j-startY)*PadSizeX+3*(i-startX)] = (rho*PadSizeTheta+3*theta);
+//						Remap_Map[(j-startY)*PadSizeX+3*(i-startX)+1] = (rho*PadSizeTheta+3*theta+1);
+//						Remap_Map[(j-startY)*PadSizeX+3*(i-startX)+2] = (rho*PadSizeTheta+3*theta+2);
+					}
 					else
+					{
 						Remap_Map[(j-startY)*Par->Size_X_Remap+i-startX] = 0;
+//						Remap_Map[(j-startY)*PadSizeX+3*(i-startX)+1] = 0;
+//						Remap_Map[(j-startY)*PadSizeX+3*(i-startX)+2] = 0;
+					}
 				}
 
 		}
 
 //		sprintf(File_Name,"%s%s_%2.3f%s",Path,"RemapMap",Par->Zoom_Level,".gio");
 		if (Par->Ratio == 1.00)
-			sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",Path,"RemapMap",Par->Zoom_Level,Par->Size_X_Remap,Par->Size_Y_Remap,".gio");
+			sprintf(File_Name,"%s%s_%2.3f_%dx%d_P%d%s",Path,"RemapMap",Par->Zoom_Level,Par->Size_X_Remap,Par->Size_Y_Remap,Par->padding,".gio");
 		else
-			sprintf(File_Name,"%s%1.2f_%s_%2.3f_%dx%d%s",Path,Par->Ratio,"RemapMap",Par->Zoom_Level,Par->Size_X_Remap,Par->Size_Y_Remap,".gio");
+			sprintf(File_Name,"%s%1.2f_%s_%2.3f_%dx%d_P%d%s",Path,Par->Ratio,"RemapMap",Par->Zoom_Level,Par->Size_X_Remap,Par->Size_Y_Remap,Par->padding,".gio");
 		
 		fout = fopen(File_Name,"wb");
 //		fwrite(Remap_Map,sizeof(int),XSize * YSize,fout);
+//		fwrite(Remap_Map,sizeof(int),PadSizeX * Par->Size_Y_Remap,fout);
 		fwrite(Remap_Map,sizeof(int),Par->Size_Img_Remap,fout);
 		fclose (fout);
 
@@ -841,12 +867,20 @@ int Build_Weights_Map(Image_Data * Par,
 	Neighborhood * Neighbor_Map_RGB;
 	char File_Name [256];
 
+	int AddedPad;
+
 	int retval;
 	LUT_Ptrs Tables;
 
 	FILE * fout;
 		
-	int PadSizeTheta = ((Par->Size_Theta * 1) % Par->padding);
+//	int PadSizeTheta = ((Par->Size_Theta * 1) % Par->padding);
+	if ((Par->Size_Theta * 1) % Par->padding == 0)
+		AddedPad = 0;
+	else
+		AddedPad = Par->padding - (Par->Size_Theta * 1) % Par->padding;
+
+	int PadSizeTheta = Par->Size_Theta * 1 + AddedPad;
 
 	retval = Load_Tables(Par,&Tables,Path,8);
 
@@ -927,15 +961,15 @@ int Build_Weights_Map(Image_Data * Par,
 		{
 			i = Weights_Map[k].position % Par->Size_Theta;				
 			j = Weights_Map[k].position / Par->Size_Theta;	
-			Weights_Map[k].position = j*(Par->Size_Theta+PadSizeTheta)+i;
+			Weights_Map[k].position = j*(PadSizeTheta)+i;
 		}
 
 
 
 		if (Par->Ratio == 1.00)
-			sprintf(File_Name,"%s%s%02d%s",Path,"WeightsMap",Par->Pix_Numb,".gio");
+			sprintf(File_Name,"%s%s%02d_P%d%s",Path,"WeightsMap",Par->Pix_Numb,Par->padding,".gio");
 		else
-			sprintf(File_Name,"%s%1.2f_%s%02d%s",Path,Par->Ratio,"WeightsMap",Par->Pix_Numb,".gio");
+			sprintf(File_Name,"%s%1.2f_%s%02d_P%d%s",Path,Par->Ratio,"WeightsMap",Par->Pix_Numb,Par->padding,".gio");
 
 		fout = fopen(File_Name,"wb");
 		fwrite(Weights_Map,sizeof(Neighborhood),Par->Size_LP * Par->Pix_Numb * 3,fout);
@@ -1746,7 +1780,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	int rho,theta;
 	int rhosmall, thetasmall, valid;
 	int x,y;
-	int i,j,k;
+	int i,j,k,l;
 	int step;
 	int retval;
 
@@ -1760,9 +1794,9 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 //	char SearchString [] = ".00";
 //	char * pointer = NULL;
 	bool modsize = false;
-	int oldsize;
+	int oldsize,oldpad;
 	double oldzoom;
-	
+
 //	pointer = strstr(Path,SearchString);
 
 //	if (pointer != NULL)
@@ -1783,9 +1817,11 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 
 	oldsize = LParam->Size_X_Remap;
 	oldzoom = LParam->Zoom_Level;
+	oldpad  = LParam->padding;
 	LParam->Size_X_Remap = LParam->Resolution;
 	LParam->Size_Y_Remap = LParam->Resolution;
 	LParam->Size_Img_Remap = LParam->Size_X_Remap * LParam->Size_Y_Remap;
+	LParam->padding = 1;
 	
 	LParam->Zoom_Level = 1090.0/83.0; //83 is (SizeFovea*2)-1
 
@@ -1793,13 +1829,16 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 						(int)(1090),(int)(1090),
 						(int)(152/Ratio),(int)(252/Ratio),(int)(42/Ratio),
 						(int)(1090/Ratio),
-						CUSTOM,
+						CUST,
 						LParam->Zoom_Level*Ratio);
 
 	LParam->Fovea_Type = 2;
 	SParam.padding = LParam->padding;
 	SParam.Fovea_Type = 0;
 	SParam.Ratio = Ratio;
+
+//	int PadSizeThetaL = (((LParam->Size_Theta * LParam->LP_Planes) % LParam->padding) + (LParam->Size_Theta * LParam->LP_Planes));
+//	int PadSizeThetaS = (((SParam.Size_Theta * SParam.LP_Planes) % SParam.padding) + (SParam.Size_Theta * SParam.LP_Planes));
 
 	int ListSize = (int)((Ratio + 2) * (Ratio + 2));
 
@@ -1953,7 +1992,16 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 //				SRemapMap = NULL;
 //		}
 
+
 		Remap(SRem,SLP,&SParam,STables.RemapMap);
+		if (step == 2)
+			for (y = 0; y<SParam.Size_Y_Remap; y++)
+				for (x=0; x<SParam.Size_X_Remap; x++)
+					if ((SRem[3*(y*SParam.Size_X_Remap+x)+0]==0)&&(SRem[3*(y*SParam.Size_X_Remap+x)+1]==0))
+						SRem[3*(y*SParam.Size_X_Remap+x)+2] = 255;
+
+		Save_Bitmap(SRem,1090,1090,3,"c:/temp/images/testpad/srem.bmp");
+		Save_Bitmap(LRem,1090,1090,3,"c:/temp/images/testpad/lrem.bmp");
 
 		for (y = 0; y<LParam->Size_Y_Remap; y++)
 			for (x=0; x<LParam->Size_X_Remap; x++)
@@ -1964,15 +2012,18 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 				rhosmall   = SRem[3*(y*SParam.Size_X_Remap+x)+0];
 				thetasmall = SRem[3*(y*SParam.Size_X_Remap+x)+1];
 				valid      =!SRem[3*(y*SParam.Size_X_Remap+x)+2];
+				if ((rhosmall == 0)&&(thetasmall==0))
+					rhosmall = rhosmall;
+
 
 				if (valid)
 				{
 					i = 0;
 					while((DownSampleTable[rhosmall*STheta+thetasmall][i].position!=LParam->Size_LP)&&
-						(DownSampleTable[rhosmall*STheta+thetasmall][i].position!=rho*LTheta+theta))
+						(DownSampleTable[rhosmall*STheta+thetasmall][i].position!=(rho*LTheta+theta)))
 							i++;
 					
-					DownSampleTable[rhosmall*STheta+thetasmall][i].position = rho*LTheta+theta;
+					DownSampleTable[rhosmall*STheta+thetasmall][i].position = (rho*LTheta+theta);
 					DownSampleTable[rhosmall*STheta+thetasmall][i].weight ++;
 				}
 			}
@@ -1987,7 +2038,6 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	for (j=0; j<SParam.Size_LP; j++)
 	{
 		Sum = 0;
-
 		for (i=0; i<ListSize; i++)
 			Sum += DownSampleTable[j][i].weight;
 
@@ -2003,7 +2053,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	float MAX;
 	int MAXIndex;
 	float TempW;
-	unsigned short TempP;
+	unsigned int TempP;
 
 	for (j=0; j<SParam.Size_LP; j++)
 	{
@@ -2084,6 +2134,23 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 					}
 				}
 			}
+
+			Sum = 0;
+			for (i=0; i<ListSize; i++)
+				Sum += DownSampleTable[j][i].weight;
+			if ((Sum < Ratio * Ratio)&&(Sum != 0.0))
+			{
+				CheckSum = (float)((Ratio * Ratio)-Sum);
+				Sum = 0;
+				for (i=0; i<ListSize-1; i++)
+				{
+					if ((DownSampleTable[j][i].weight == 1.0)&&(DownSampleTable[j][i].weight<=CheckSum-Sum)&&(DownSampleTable[j][i+1].weight == 0.0))
+					{
+						DownSampleTable[j][i+1].weight = 1.0;
+						break;
+					}
+				}
+			}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 			Sum = 0;
 			for (i=0; i<ListSize; i++)
@@ -2128,40 +2195,114 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 		IntDownSampleTable[j].NofPixels = i;
 		if (i!=0)
 		{
-			IntDownSampleTable[j].position = (unsigned short *) malloc (i * sizeof(unsigned short));
+			IntDownSampleTable[j].position = (unsigned int *) malloc (i * sizeof(unsigned int));
 			IntDownSampleTable[j].weight   = (unsigned char *)  malloc (i * sizeof(unsigned  char));
 		}
 
 		for (i=0; i<IntDownSampleTable[j].NofPixels; i++)
 			if(DownSampleTable[j][i].position!=LParam->Size_LP)
 			{
-				IntDownSampleTable[j].position[i] = DownSampleTable[j][i].position;
+				IntDownSampleTable[j].position[i] = 3*DownSampleTable[j][i].position;
 				IntDownSampleTable[j].weight[i] = (unsigned char)(-log10((double)DownSampleTable[j][i].weight)/log10((double)2));
 			}
 	}
+	LParam->padding = oldpad;
+	SParam.padding = oldpad;
 	
-	sprintf(File_Name,"%s%s%1.2f%s",Path,"DSMap_",Ratio,".gio");
+	sprintf(File_Name,"%s%s%1.2f_P%d%s",Path,"DSMap_",Ratio,LParam->padding,".gio");
 
 
 	MAXIndex = 0;
 	unsigned short a = 0;
 	unsigned char  b = 0;
 
+//	int AddedPadSize = (SParam.Size_Theta * 3) % SParam.padding;
+
+	//Finds the max number of pixels per location
 	for (j=0; j<SParam.Size_LP; j++)
 		if (IntDownSampleTable[j].NofPixels>MAXIndex)
 			MAXIndex = IntDownSampleTable[j].NofPixels;
 
 	fout = fopen(File_Name,"wb");
 	fwrite(&MAXIndex,sizeof(int),1,fout);
+
+
+	int AddedPadSize = computePadSize(3*LParam->Size_Theta,LParam->padding) - 3 * LParam->Size_Theta;
+
+	for (j=0; j<SParam.Size_Rho; j++)
+		for (i=0; i<SParam.Size_Theta; i++)
+			for (k=0; k<IntDownSampleTable[j*SParam.Size_Theta+i].NofPixels; k++)
+				IntDownSampleTable[j*SParam.Size_Theta+i].position[k] += (IntDownSampleTable[j*SParam.Size_Theta+i].position[k]/(LParam->LP_Planes*LParam->Size_Theta))*AddedPadSize;
+
+/*
+PADDING				
+	for (j=0; j<SParam.Size_Rho; j++)
+	{
+		for (i=0; i<SParam.Size_Theta; i++)
+		{
+			fwrite(&IntDownSampleTable[j*SParam.Size_Theta+i].NofPixels	,sizeof(unsigned short),1,fout);
+			fwrite(&IntDownSampleTable[j*SParam.Size_Theta+i].NofPixels	,sizeof(unsigned short),1,fout);
+			fwrite(&IntDownSampleTable[j*SParam.Size_Theta+i].NofPixels	,sizeof(unsigned short),1,fout);
+		}
+		for (k=0; k<AddedPadSize; k++)
+			fwrite(&a,sizeof(unsigned short),1,fout);
+	}
+
+	for (j=0; j<SParam.Size_Rho; j++)
+	{
+		for (i=0; i<SParam.Size_Theta; i++)
+		{
+			for (l=0; l<IntDownSampleTable[j*SParam.Size_Theta+i].NofPixels; l++)
+			{
+				fwrite(IntDownSampleTable[j*SParam.Size_Theta+i].position+l,sizeof(unsigned short),1,fout);
+				fwrite(IntDownSampleTable[j*SParam.Size_Theta+i].position+l,sizeof(unsigned short),1,fout);
+				fwrite(IntDownSampleTable[j*SParam.Size_Theta+i].position+l,sizeof(unsigned short),1,fout);
+			}
+			for (k=IntDownSampleTable[j*SParam.Size_Theta+i].NofPixels; k<MAXIndex; k++)
+			{
+				fwrite(&a,sizeof(unsigned short),1,fout);
+				fwrite(&a,sizeof(unsigned short),1,fout);
+				fwrite(&a,sizeof(unsigned short),1,fout);
+			}
+		}
+		for (i=0; i<AddedPadSize; i++)
+			for (k=0; k<MAXIndex; k++)
+				fwrite(&a,sizeof(unsigned short),1,fout);
+	}
+
+	for (j=0; j<SParam.Size_Rho; j++)
+	{
+		for (i=0; i<SParam.Size_Theta; i++)
+		{
+			for (l=0; l<IntDownSampleTable[j*SParam.Size_Theta+i].NofPixels; l++)
+			{
+				fwrite(IntDownSampleTable[j*SParam.Size_Theta+i].weight+l,sizeof(unsigned char) ,1,fout);
+				fwrite(IntDownSampleTable[j*SParam.Size_Theta+i].weight+l,sizeof(unsigned char) ,1,fout);
+				fwrite(IntDownSampleTable[j*SParam.Size_Theta+i].weight+l,sizeof(unsigned char) ,1,fout);
+			}
+			for (k=IntDownSampleTable[j*SParam.Size_Theta+i].NofPixels; k<MAXIndex; k++)
+			{
+				fwrite(&b,sizeof(unsigned char),1,fout);
+				fwrite(&b,sizeof(unsigned char),1,fout);
+				fwrite(&b,sizeof(unsigned char),1,fout);
+			}
+		}
+		for (i=0; i<AddedPadSize; i++)
+			for (k=0; k<MAXIndex; k++)
+				fwrite(&b,sizeof(unsigned short),1,fout);
+	}
+
+*/	
 	for (j=0; j<SParam.Size_LP; j++)
 	{
 		fwrite(&IntDownSampleTable[j].NofPixels	,sizeof(unsigned short),1,fout);
 	}
+	
 	for (j=0; j<SParam.Size_LP; j++)
 	{
-		fwrite(IntDownSampleTable[j].position	,sizeof(unsigned short),IntDownSampleTable[j].NofPixels ,fout);
+		fwrite(IntDownSampleTable[j].position	,sizeof(unsigned int),IntDownSampleTable[j].NofPixels ,fout);
 		for (i=IntDownSampleTable[j].NofPixels; i<MAXIndex; i++)
-			fwrite(&a,sizeof(unsigned short),1,fout);
+			fwrite(&a,sizeof(unsigned int),1,fout);
 	}
 	for (j=0; j<SParam.Size_LP; j++)
 	{
@@ -2169,6 +2310,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 		for (i=IntDownSampleTable[j].NofPixels; i<MAXIndex; i++)
 			fwrite(&b,sizeof(unsigned char),1,fout);
 	}
+	
 	fclose (fout);	
 		
 	free (SLP);
@@ -2203,11 +2345,13 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 	FILE * fout;
 	int steps;
 
+	int AddedPad = computePadSize(Par->LP_Planes * Par->Size_Theta,Par->padding) - (Par->LP_Planes * Par->Size_Theta);
+
 	steps = 3*Par->Resolution/4;
 
-	unsigned short retval = Load_Tables(Par,&Tables,Path,17);
+	ShiftMap = (int*) malloc((1+3*Par->Resolution/2)*1*Par->Size_LP*sizeof(int));
 
-	ShiftMap = (int*) malloc((1+3*Par->Resolution/2)*3*Par->Size_LP*sizeof(int));
+	unsigned short retval = Load_Tables(Par,&Tables,Path,17);
 
 	if (retval != 17)
 	{
@@ -2230,7 +2374,7 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 	}
 	else
 	{
-		for (k=0; k<=2*steps*Par->Size_LP*3; k++)
+		for (k=0; k<(2*steps+1)*Par->Size_LP*1; k++)
 			ShiftMap[k] = 0;
 
 		for (l = -steps; l<=-steps+(3*Par->Resolution/2); l++)
@@ -2253,8 +2397,8 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 							if ((newRho>=0)&&(newRho<Par->Size_Rho))
 								if ((newTheta>=0)&&(newTheta<Par->Size_Theta))
 								{
-									for (k=0; k<3; k++)
-										ShiftMap[(l+steps)*(3*Par->Size_LP)+3*(j*Par->Size_Theta+i)+k] = 3*(newRho*Par->Size_Theta+newTheta)+k;
+//									for (k=0; k<3; k++)
+										ShiftMap[(l+steps)*(1*Par->Size_LP)+1*(j*Par->Size_Theta+i)] = 3*(newRho*Par->Size_Theta+newTheta)+newRho * AddedPad;
 	//								New_LP_Image[3*(j*Par->Size_Theta+i)] = LP_Image[3*(newRho*Par->Size_Theta+newTheta)];
 	//								New_LP_Image[3*(j*Par->Size_Theta+i)+1] = LP_Image[3*(newRho*Par->Size_Theta+newTheta)+1];
 	//								New_LP_Image[3*(j*Par->Size_Theta+i)+2] = LP_Image[3*(newRho*Par->Size_Theta+newTheta)+2];
@@ -2265,14 +2409,14 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 		}
 
 		if (Par->Ratio == 1.00)
-			sprintf(File_Name,"%s",Path,"ShiftMap.gio");
+			sprintf(File_Name,"%s_P%d%s",Path,"ShiftMap",Par->padding,".gio");
 //			sprintf(File_Name,"%s%s_%d",Path,"ShiftMap",Par->Resolution,".gio");
 		else
-			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"ShiftMap.gio");
+			sprintf(File_Name,"%s%1.2f_%s_P%d%s",Path,Par->Ratio,"ShiftMap",Par->padding,".gio");
 //			sprintf(File_Name,"%s%1.2f_%s_%d%s",Path,Par->Ratio,"ShiftMap",Par->Resolution,".gio");
 
 		fout = fopen(File_Name,"wb");
-		fwrite(ShiftMap,sizeof(int),(1+3*Par->Resolution/2)*3*Par->Size_LP,fout);
+		fwrite(ShiftMap,sizeof(int),(1+3*Par->Resolution/2)*1*Par->Size_LP,fout);
 		fclose (fout);
 
 		free (Tables.PadMap);
@@ -2283,34 +2427,76 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 }
 void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Par, float Ratio,IntNeighborhood * IntDownSampleTable)
 {	
-	int i,j,k;
+	int i,j,k,l;
 
 	const int SizeLP = (int)(Par->Size_LP / (Ratio*Ratio));
+	const int RHO = (int)(Par->Size_Rho / (Ratio));
+	const int THETA = (int)(Par->Size_Theta / (Ratio));
 	const int div = (int)(Ratio);
 	
 	int i_SumR,i_SumG,i_SumB;
-	int position;
+	unsigned int position;
 	unsigned char shift; 
+	int AddedPadSize = (Par->Size_Theta * 3) % Par->padding;
+	int PadSizeSmall = ((THETA * 3) % Par->padding)+3*THETA;
 
-	for (j=0; j<SizeLP; j++)
-	{
-		i_SumR = 0;
-		i_SumG = 0;
-		i_SumB = 0;
-		k=j*3;
-		for (i=0; i<IntDownSampleTable[j].NofPixels; i++)
+	PadSizeSmall = computePadSize(3*THETA,Par->padding);
+	AddedPadSize = PadSizeSmall - 3*THETA;
+/*
+	for (j=0; j<RHO; j++)
+		for (l=0; l<THETA; l++)
 		{
-			position = 3*IntDownSampleTable[j].position[i];
-			shift = IntDownSampleTable[j].weight[i];
-			i_SumR += InImage [position+0]>>shift;
-			i_SumG += InImage [position+1]>>shift;
-			i_SumB += InImage [position+2]>>shift;
+			i_SumR = 0;
+			i_SumG = 0;
+			i_SumB = 0;
+			k=PadSizeSmall*j+3*l;
+
+//			for (i=0; i<IntDownSampleTable[j*(PadSizeSmall)+3*l].NofPixels; i++)
+			for (i=0; i<IntDownSampleTable[j*(PadSizeSmall)+3*l].NofPixels; i++)
+			{
+				position = 3*IntDownSampleTable[j*(PadSizeSmall)+3*l].position[i]+AddedPadSize*j;
+				shift = IntDownSampleTable[j*(PadSizeSmall)+3*l].weight[i];
+				i_SumR += InImage [position+0]>>shift;
+				i_SumG += InImage [position+1]>>shift;
+				i_SumB += InImage [position+2]>>shift;
+			}
+
+			OutImage[k+0] = (unsigned char) (i_SumR>>div);
+			OutImage[k+1] = (unsigned char) (i_SumG>>div);
+			OutImage[k+2] = (unsigned char) (i_SumB>>div);
 		}
-		OutImage[k+0] = (unsigned char) (i_SumR>>div);
-		OutImage[k+1] = (unsigned char) (i_SumG>>div);
-		OutImage[k+2] = (unsigned char) (i_SumB>>div);
+*/
+	unsigned char * SmallImgPtr = OutImage;
+//	int * LPImgPtr = Rem_LUT;
+
+	for (j=0; j<RHO; j++)
+	{
+		for (l=0; l<THETA; l++)
+		{
+//			for (i=0; i<IntDownSampleTable[j*(PadSizeSmall)+3*l].NofPixels; i++)
+			i_SumR = 0;
+			i_SumG = 0;
+			i_SumB = 0;
+			for (i=0; i<IntDownSampleTable[j*THETA+l].NofPixels; i++)
+//			if (IntDownSampleTable[j*THETA+l].NofPixels)
+			{
+				position = IntDownSampleTable[j*THETA+l].position[i];
+				shift    = IntDownSampleTable[j*THETA+l].weight[i];
+				i_SumR += InImage [position+0]>>shift;
+				i_SumG += InImage [position+1]>>shift;
+				i_SumB += InImage [position+2]>>shift;
+			}
+			*SmallImgPtr++ = (unsigned char) (i_SumR>>div);
+			*SmallImgPtr++ = (unsigned char) (i_SumG>>div);
+			*SmallImgPtr++ = (unsigned char) (i_SumB>>div);
+//			if (!IntDownSampleTable[j*THETA+l].NofPixels)
+//				SmallImgPtr+=3;
+		}
+		SmallImgPtr += AddedPadSize;
 	}
+
 }
+
 
 void Build_Step_Function(char * Path, Image_Data * Par)
 {

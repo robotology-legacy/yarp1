@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.18 2003-10-24 14:52:48 babybot Exp $
+/// $Id: LogPolarSDK.cpp,v 1.19 2003-11-20 17:15:06 fberton Exp $
 ///
 ///
 
@@ -119,7 +119,7 @@ Image_Data Set_Param(int SXO,
 		image.Resolution = 1090;
 		break;
 
-	case CUSTOM:
+	case CUST:
 
 		image.Size_Rho = rho;
 		image.Size_Theta = theta;
@@ -241,8 +241,8 @@ int Get_Rho(double x,
 	radius = sqrt(x*x + y*y)/par->Zoom_Level;
 
 	if (radius>par->Size_Fovea)
-		rho = (int)(log((radius-par->Size_Fovea+0.5)*(par->Log_Index-1)+par->Log_Index) 
-					* logar + par->Size_Fovea-1);
+		rho = (int)((log((radius-par->Size_Fovea+0.5)*(par->Log_Index-1)+par->Log_Index) 
+					* logar + par->Size_Fovea-1)-0.0);
 	else 
 		rho = (int)(radius+0.5);
 
@@ -450,7 +450,14 @@ void Reconstruct_Color(unsigned char * Out_Image,
 	Neighborhood * Weights_Map_G = &Weights_Map[shiftPN];
 	Neighborhood * Weights_Map_B = &Weights_Map[2*shiftPN];
 
-	int PadShift = (3*width)%padding;
+	int PadShift;
+
+	if ((width * 3) % padding == 0)
+		PadShift = 0;
+	else
+		PadShift = padding - (width * 3) % padding;
+
+
 
 	if (Pix_Numb == 1)
 	{
@@ -500,7 +507,12 @@ void Reconstruct_Color(unsigned char * Out_Image,
 	Neighborhood * Weights_Map_G = &Weights_Map[shiftPN];
 	Neighborhood * Weights_Map_B = &Weights_Map[2*shiftPN];
 
-	const int PadShift = (3*width)%padding;
+	int PadShift;
+
+	if ((width * 3) % padding == 0)
+		PadShift = 0;
+	else
+		PadShift = padding - (width * 3) % padding;
 
 	if (Pix_Numb == 1)
 	{
@@ -531,6 +543,7 @@ void Reconstruct_Color(unsigned char * Out_Image,
 				*buffer++ = (unsigned char)SumB;
 			}
 			buffer+=PadShift;
+//			buffer+=1;
 		}
 	}
 #endif
@@ -605,12 +618,12 @@ void Remap(unsigned char * Out_Image,
 		   Image_Data * Par,
 		   int * Rem_LUT)
 {
-	int j;
+	int i,j;
 //	int max;
-
-	//const int SizeRemapX = Par->Size_X_Remap;
-	//const int SizeRemapY = Par->Size_Y_Remap;
-	const int SizeRemap  = Par->Size_Img_Remap;
+	const int SizeRemapX = Par->Size_X_Remap;
+	const int SizeRemapY = Par->Size_Y_Remap;
+	int PadSize = computePadSize(Par->Size_X_Remap * 3,Par->padding) - 3 * SizeRemapX;
+//	const int SizeRemap  = PadSize * Par->Size_Y_Remap;
 
 	In_Image[0] = 0; // 192;
 	In_Image[1] = 0; // 192;
@@ -628,18 +641,23 @@ void Remap(unsigned char * Out_Image,
 	int * LPImgPtr = Rem_LUT;
 
 ///	for (j=0; j<SizeRemapY; j++)
-	for (j=0; j<SizeRemap; j++)
+//	for (j=0; j<SizeRemap; j++)
+	for (j=0; j<SizeRemapY; j++)
 	{
 //		LPImgPtr = &Rem_LUT[(j+startj)*Par->Resolution+starti];
-///		for (i=0; i<SizeRemapX; i++)
+		for (i=0; i<SizeRemapX; i++)
 ///		{
 //			if (*LPImgPtr>max)
 //				max = *LPImgPtr;
 ///			if (*LPImgPtr!=-1)
 ///			{
+//				*RemImgPtr++ = In_Image[*LPImgPtr++];
+		{
 				*RemImgPtr++ = In_Image[*LPImgPtr];
 				*RemImgPtr++ = In_Image[(*LPImgPtr)+1];
 				*RemImgPtr++ = In_Image[(*LPImgPtr++)+2];
+		}
+		RemImgPtr += PadSize;
 //			}
 //			else
 //			{
@@ -1356,17 +1374,24 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 }
 
 
-int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap)
+int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val)
 {
-	int i,k,k1;
+	int i,j,k,k1;
 	int iR,iL;
 //	int ShiftLev;
 	int count;
 	double d_1;
 	double d_2;
-	double corr_val;
+//	double corr_val;
 	double MIN = 10000;
 	int minindex;
+
+	unsigned char * Lptr,* Rptr;
+
+	Lptr = Left;
+	Rptr = Right;
+
+	int AddedPadSize = computePadSize(Par->Size_Theta*Par->LP_Planes,Par->padding) - Par->Size_Theta*Par->LP_Planes;
 
 	for (k=0; k<Steps; k++)
 	{
@@ -1378,24 +1403,32 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 		double average_Rb = 0;
 
 //		ShiftLev = StepFunct[k+1] + 3 * Par->Resolution/4; // = 75% of the image
-		k1 = k * 3 * Par->Size_LP; //Positioning on the table
+//old		k1 = k * 3 * Par->Size_LP; //Positioning on the table
+		k1 = k * 1 * Par->Size_LP; //Positioning on the table
+		Lptr = Left;
 
 		count = 0;
 
-		for (i=0; i<Par->Size_LP; i++)
+		for (j=0; j<Par->Size_Rho; j++)
 		{
-			iR = ShiftMap[k1 + 3 * i];
-			iL = 3 * i;
-			if (iR > 0)
+			for (i=0; i<Par->Size_Theta; i++)
 			{
-				average_Lr += Left [iL];
-				average_Rr += Right[iR];
-				average_Lg += Left [iL+1];
-				average_Rg += Right[iR+1];
-				average_Lb += Left [iL+2];
-				average_Rb += Right[iR+2];
-				count++;
+//old			iR = ShiftMap[k1 + 3 * i];
+				iR = ShiftMap[k1 + j*Par->Size_Theta+i];
+				iL = 3 * (j*Par->Size_Theta+i);
+				if (iR > 0)
+				{
+					average_Lr += *Lptr++;//Left [iL];
+					average_Rr += Right[iR];
+					average_Lg += *Lptr++;//Left [iL+1];
+					average_Rg += Right[iR+1];
+					average_Lb += *Lptr++;//Left [iL+2];
+					average_Rb += Right[iR+2];
+					count++;
+				}
+				else Lptr +=3;
 			}
+			Lptr += AddedPadSize;
 		}
 		
 		if (count != 0)
@@ -1418,39 +1451,48 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 			double den_1b = 0;
 			double den_2b = 0;
 
-			for(i = 0; i < Par->Size_LP; i++)
-				{
+			Lptr = Left;
+
+		for (j=0; j<Par->Size_Rho; j++)
+		{
+			for (i=0; i<Par->Size_Theta; i++)
+			{
 					iR = ShiftMap[k1 + 3 * i];
 					iL = 3 * i;
+					iR = ShiftMap[k1 + j*Par->Size_Theta+i];
+					iL = 3 * (j*Par->Size_Theta+i);
 
 					if (iR > 0)
 					{
-						d_1 = Left [iL] - average_Lr;
+						d_1 = *Lptr++ - average_Lr;
 						d_2 = Right[iR] - average_Rr;
 						numr   += (d_1 * d_2);
 						den_1r += (d_1 * d_1);
 						den_2r += (d_2 * d_2);
 
-						d_1 = Left [iL+1] - average_Lg;
+						d_1 = *Lptr++ - average_Lg;
 						d_2 = Right[iR+1] - average_Rg;
 						numg   += (d_1 * d_2);
 						den_1g += (d_1 * d_1);
 						den_2g += (d_2 * d_2);
 
-						d_1 = Left [iL+2] - average_Lb;
+						d_1 = *Lptr++ - average_Lb;
 						d_2 = Right[iR+2] - average_Rb;
 						numb   += (d_1 * d_2);
 						den_1b += (d_1 * d_1);
 						den_2b += (d_2 * d_2);
 					}
+					else Lptr +=3;
 				}
-			corr_val  = (1.0 - (numr * numr) / (den_1r * den_2r + 0.00001));	
-			corr_val += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
-			corr_val += (1.0 - (numb * numb) / (den_1b * den_2b + 0.00001));	
+			Lptr += AddedPadSize;
+		}
+			corr_val[k]  = (1.0 - (numr * numr) / (den_1r * den_2r + 0.00001));	
+			corr_val[k] += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
+			corr_val[k] += (1.0 - (numb * numb) / (den_1b * den_2b + 0.00001));	
 
-			if (corr_val<MIN)
+			if (corr_val[k]<MIN)
 			{
-				MIN = corr_val;
+				MIN = corr_val[k];
 				minindex = k;
 			}
 	//		printf("%03d     %2.5f\n",k-SParam.Resolution/2,corr_val);
