@@ -52,10 +52,12 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: porter.cpp,v 1.2 2003-04-18 15:52:03 gmetta Exp $
+/// $Id: porter.cpp,v 1.3 2003-04-18 16:34:15 gmetta Exp $
 ///
 ///
 
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
 #include "YARPPort.h"
 
 extern int __debug_level;
@@ -65,7 +67,7 @@ void main(int argc, char *argv[])
 //  __debug_level = 100;
 	if (argc == 3)
 	{
-		YARPPort::Connect(argv[1],argv[2]);
+		YARPPort::Connect (argv[1], argv[2]);
 		//int pid = p.GetServer(argv[1]);
 		//p.SayServer(pid,argv[2]);
 	}
