@@ -6,7 +6,7 @@ LIBS = Acquisition.o AuxFunctions.o LogPolarSDK.o TableGeneration.o TableLoading
 CODELIB = LogPolarSmallSDK
 OS = $(SYSDIR)
 
-CFLAGS = $(CFAST) -I. -I$(YARP_ROOT)/include $(CDEFS) -D__QNX__ -D__QNX6__
+CFLAGS = -g $(CFAST) -I. -I$(YARP_ROOT)/include $(CDEFS) -D__QNX__ -D__QNX6__
 SRC = ../LogPolarSDKLib
 
 all: $(CODELIB).a
@@ -24,3 +24,4 @@ clean:
 install: $(CODELIB).a
 	$(CP) $(CODELIB).a $(YARP_ROOT)/lib/$(OS)/$(CODELIB).lib
 	$(CP) $(SRC)/*.h $(YARP_ROOT)/include
+	$(CP) ../Tables/ReferenceImage.bmp $(YARP_ROOT)/conf

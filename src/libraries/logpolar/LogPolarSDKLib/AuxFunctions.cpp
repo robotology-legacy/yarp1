@@ -61,11 +61,13 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.3 2003-06-20 19:09:24 gmetta Exp $
+/// $Id: AuxFunctions.cpp,v 1.4 2003-07-02 21:36:29 babybot Exp $
 ///
 ///
+
 #include <stdio.h>
 #include <math.h>
+#include <malloc.h>
 
 #if !defined(__QNX__) && !defined(__LINUX__)
 #include <windows.h>
@@ -91,7 +93,69 @@ unsigned char * Read_Bitmap(int *X_Size,
 							int *planes,
 							char * filename)
 {
-#if !defined(__QNX__) && !defined(__LINUX__)
+#if defined(__QNX__) || defined(__LINUX__)
+
+#define WORD short
+#define DWORD int
+#define LONG long
+#define BYTE char
+
+#ifdef __LINUX__
+#pragma align 1
+#endif
+
+#ifdef __QNX4__
+#pragma  pack (push) ;
+#pragma  pack (1) ;
+#endif
+
+#ifdef __QNX6__
+#pragma pack(1)
+#endif
+
+	typedef struct tagBITMAPFILEHEADER { 
+	  WORD    bfType; 
+	  DWORD   bfSize; 
+	  WORD    bfReserved1; 
+	  WORD    bfReserved2; 
+	  DWORD   bfOffBits; 
+	} BITMAPFILEHEADER, *PBITMAPFILEHEADER;
+
+	typedef struct tagBITMAPINFOHEADER{
+	  DWORD  biSize; 
+	  LONG   biWidth; 
+	  LONG   biHeight; 
+	  WORD   biPlanes; 
+	  WORD   biBitCount; 
+	  DWORD  biCompression; 
+	  DWORD  biSizeImage; 
+	  LONG   biXPelsPerMeter; 
+	  LONG   biYPelsPerMeter; 
+	  DWORD  biClrUsed; 
+	  DWORD  biClrImportant; 
+	} BITMAPINFOHEADER, *PBITMAPINFOHEADER; 
+
+	typedef struct tagRGBQUAD {
+	  BYTE    rgbBlue; 
+	  BYTE    rgbGreen; 
+	  BYTE    rgbRed; 
+	  BYTE    rgbReserved; 
+	} RGBQUAD; 
+
+#ifdef __LINUX__
+#pragma align 0
+#endif
+
+#ifdef __QNX4__
+#pragma  pack (pop) ;
+#endif
+
+#ifdef __QNX6__
+#pragma pack()
+#endif
+
+#endif
+
 	unsigned char *image;	
 	unsigned char c=0;
 	int x,y,z;
@@ -131,9 +195,6 @@ unsigned char * Read_Bitmap(int *X_Size,
 		image = NULL;
 	
 	return image;
-#else
-	return NULL;
-#endif
 }
 
 
