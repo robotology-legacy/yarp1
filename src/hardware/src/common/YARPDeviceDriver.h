@@ -53,10 +53,10 @@ protected:
 	}
 
 	inline void lock(void)
-	{m_mutex.acquire();}	// add timeout ?
+	{m_mutex.Wait();}	// add timeout ?
 
 	inline void unlock(void)
-	{m_mutex.release();}
+	{m_mutex.Post();}
 
 	SYNC m_mutex;
 

@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing library
-PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include
+PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	make_lib.bat
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "alldrivers - Win32 Debug"
@@ -82,7 +82,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing library
-PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include
+PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	make_lib_db.bat
 # End Special Build Tool
 
 !ENDIF 
