@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.10 2004-05-26 17:02:31 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.11 2004-05-27 23:44:48 babybot Exp $
 ///
 ///
 
@@ -85,6 +85,9 @@ public:
 	icsSpyMessage _cmdBuffer;					/// write buffer (one element only).
 	long _arbitrationID;
 
+	int (*_p) (char *fmt, ...);					///	pointer to a printf type function
+												/// used to spy on can messages.
+
 public:
 	int _initialize (const ValueCanOpenParameters& params);
 	inline int _uninitialize (void) { return _closeAndRelease(); }
@@ -107,6 +110,7 @@ public:
 		_arbitrationID = 0;
 		_timeout = 1;
 		_njoints = 0;
+		_p = NULL;
 	}
 
 	~ValueCanResources () { _uninitialize(); }
@@ -250,6 +254,9 @@ int ValueCanResources::_initialize (const ValueCanOpenParameters& params)
 	_timeout = params._timeout;
 	_njoints = params._njoints;
 
+	_p = params._p;
+	if (_p) (*_p)("CAN: spy is on!");
+
 	return 0;
 }
 
@@ -347,6 +354,35 @@ int YARPValueCanDeviceDriver::close (void)
 
 ///
 ///
+/// decode messages from CAN to device driver protocol.
+void YARPValueCanDeviceDriver::_debugMsg (int n, void *msg, int (*p) (char *fmt, ...))
+{
+	icsSpyMessage *m = (icsSpyMessage *)msg;
+	int i;
+
+	if (p)
+	{
+		/// minimal debug, actual debug would require interpreting messages.
+		for (i = 0; i < n; i++)
+		{
+			(*p) 
+				("s: %2x d: %2x c: %1d msg: %3d x: %x %x %x %x %x %x\n", 
+				  (m[i].Data[0] & 0xf0) >> 4, 
+				   m[i].Data[0] & 0x0f, 
+				 ((m[i].Data[1] & 0x80)==0)?0:1,
+				  (m[i].Data[1] & 0x7f),
+				   m[i].Data[2],
+				   m[i].Data[3],
+				   m[i].Data[4],
+				   m[i].Data[5],
+				   m[i].Data[6],
+				   m[i].Data[7]);
+		}
+	}
+}
+
+///
+///
 /// OS scheduler should possibly go into hi-res mode (winnt).
 void YARPValueCanDeviceDriver::Body(void)
 {
@@ -368,7 +404,12 @@ void YARPValueCanDeviceDriver::Body(void)
 		int n = r._read_np (err);
 
 		if (err != 0)
-			ACE_DEBUG ((LM_DEBUG, "got %d errors\n", err));
+			///ACE_DEBUG ((LM_DEBUG, "got %d errors\n", err));
+			if (r._p) (*r._p)("got %d errors\n", err);
+
+		/// debug/print messages to console.
+		if (n > 0 && r._p)
+			_debugMsg (n, (void *)r._canMsg, r._p);
 
 		/// filters messages, no buffering allowed here.
 		if (pending)
@@ -378,11 +419,13 @@ void YARPValueCanDeviceDriver::Body(void)
 			{
 				icsSpyMessage& m = r._canMsg[i];
 				if (m.StatusBitField & SPY_STATUS_GLOBAL_ERR)
-					ACE_DEBUG ((LM_DEBUG, "CAN: troubles w/ message %x\n", m.StatusBitField));
+					///ACE_DEBUG ((LM_DEBUG, "CAN: troubles w/ message %x\n", m.StatusBitField));
+					if (r._p) (*r._p)("CAN: troubles w/ message %x\n", m.StatusBitField);
 
 				if (r._error (m))
 				{	
-					ACE_DEBUG ((LM_DEBUG, "CAN: skipped a message for error\n"));
+					///ACE_DEBUG ((LM_DEBUG, "CAN: skipped a message for error\n"));
+					if (r._p) (*r._p)("CAN: skipped a message for error\n");
 					continue;		/// skip this message.
 				}
 
@@ -415,7 +458,8 @@ void YARPValueCanDeviceDriver::Body(void)
 			cyclecount++;
 			if (cyclecount >= r._timeout)
 			{
-				ACE_DEBUG ((LM_DEBUG, "CAN: board %d timed out [msg type %d channel %d]\n", (r._cmdBuffer.Data[0] & 0x0f), messagetype & 0x7f, (messagetype & 0x80)?1:0));
+				///ACE_DEBUG ((LM_DEBUG, "CAN: board %d timed out [msg type %d channel %d]\n", (r._cmdBuffer.Data[0] & 0x0f), messagetype & 0x7f, (messagetype & 0x80)?1:0));
+				if (r._p) (*r._p)("CAN: board %d timed out [msg type %d channel %d]\n", (r._cmdBuffer.Data[0] & 0x0f), messagetype & 0x7f, (messagetype & 0x80)?1:0);
 				r._cmdBuffer.Data[0] = 0;
 				r._cmdBuffer.Data[1] = CAN_NO_MESSAGE;
 				pending = false;
@@ -444,7 +488,8 @@ void YARPValueCanDeviceDriver::Body(void)
 		}
 		else 
 		{
-			ACE_DEBUG ((LM_DEBUG, "CAN: thread can't poll fast enough\n"));
+			///ACE_DEBUG ((LM_DEBUG, "CAN: thread can't poll fast enough\n"));
+			if (r._p) (*r._p)("CAN: thread can't poll fast enough\n");
 		}
 		before = now;
 	}

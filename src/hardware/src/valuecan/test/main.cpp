@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.6 2004-05-09 00:30:14 babybot Exp $
+/// $Id: main.cpp,v 1.7 2004-05-27 23:44:48 babybot Exp $
 ///
 ///
 
@@ -52,8 +52,8 @@ int main (int argc, char *argv[])
 
 	params._port_number = 0;
 	params._arbitrationID = 0;
-	params._destinations[0] = 1;				/// card 1.
-	params._my_address = 5;						/// my address.
+	params._destinations[0] = 0xf;				/// card 15.
+	params._my_address = 0;						/// my address.
 	params._polling_interval = 2;				/// thread polling interval [ms].
 	params._timeout = 10;						/// approx this value times the polling interval [ms].
 	params._njoints = NJOINTS;					/// number of joints.

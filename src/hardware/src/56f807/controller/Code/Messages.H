@@ -331,6 +331,8 @@
 			if (_set_point[i] > _max_position[i]) \
 				_set_point[i] = _max_position[i]; \
 			_set_vel[i] = BYTE_W(CAN_DATA[6], CAN_DATA[7]); \
+			if (_set_vel[i] < 1) \
+				_set_vel[i] = 1; \
 			/* _set_vel needs to be checked */ \
 			_set_acc[i] = 0; \
 			init_trajectory (i, _position[i], _set_point[i], _set_vel[i]); \

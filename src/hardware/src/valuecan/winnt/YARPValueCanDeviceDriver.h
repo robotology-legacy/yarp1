@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.9 2004-05-25 22:58:55 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.10 2004-05-27 23:44:48 babybot Exp $
 ///
 ///
 
@@ -55,6 +55,7 @@ struct ValueCanOpenParameters
 		_polling_interval = 10;
 		_timeout = 2;
 		_njoints = 0;
+		_p = NULL;
 	}
 
 	int _port_number;							/// which of the many CAN interfaces to connect to
@@ -64,6 +65,7 @@ struct ValueCanOpenParameters
 	unsigned char _my_address;					/// my address
 	int _polling_interval;						/// thread polling interval [ms]
 	int _timeout;								/// number of cycles before timing out
+	int (*_p) (char *fmt, ...);					/// printf-like function for spying messages
 };
 
 ///
@@ -165,6 +167,8 @@ protected:
 		else
 			return int(x + .5);
 	}
+
+	void _debugMsg (int n, void *msg, int (*p) (char *fmt, ...));
 };
 
 

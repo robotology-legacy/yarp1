@@ -320,20 +320,6 @@ void generatePwm (byte i)
 		{
 		case MODE_POSITION:
 			_desired[i] = step_trajectory (i);
-			
-			/* IT DOESN'T WORK LIKE THIS
-			if (_desired[i] < _min_position[i] && (_desired[i] - cd) < 0) 
-			{
-				_desired[i] = _min_position[i];
-				abort_trajectory (i, _min_position[i]);
-			}
-			else
-			if (_desired[i] > _max_position[i] && (_desired[i] - cd) > 0)
-			{
-				_desired[i] = _max_position[i];
-				abort_trajectory (i, _max_position[i]);
-			}
-			*/
 			break;
 			
 		case MODE_VELOCITY:
@@ -420,6 +406,10 @@ void main(void)
 	calibrate(0);
 	calibrate(1);
 
+	/* reset trajectory generation */
+	abort_trajectory (0, 0);
+	abort_trajectory (1, 0);
+	
 	/* main control loop */
 	for(;;) 
 	{

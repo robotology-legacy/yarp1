@@ -20,6 +20,16 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CCanControlDlg)
 	enum { IDD = IDD_CANCONTROL_DIALOG };
+	CButton	m_spy_ctrl;
+	CStatic	m_status_ctrl;
+	CButton	m_flash_read_ctrl;
+	CEdit	m_max_ctrl;
+	CEdit	m_min_ctrl;
+	CButton	m_setminmax_ctrl;
+	CButton	m_prepare_ctrl;
+	CButton	m_stop_ctrl;
+	CEdit	m_desired_acceleration_ctrl;
+	CComboBox	m_mode_ctrl;
 	CEdit	m_desired_speed_ctrl;
 	CEdit	m_desired_position_ctrl;
 	CButton	m_go_ctrl;
@@ -49,6 +59,9 @@ public:
 	double	m_tlimit;
 	double	m_desired_position;
 	double	m_desired_speed;
+	double	m_desired_acceleration;
+	double	m_min_position;
+	double	m_max_position;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -102,6 +115,18 @@ protected:
 	afx_msg void OnButtonPwmDis();
 	afx_msg void OnButtonPwmEn();
 	afx_msg void OnButtonGo();
+	afx_msg void OnSelendokComboMode();
+	afx_msg void OnButtonStop();
+	afx_msg void OnUpdateParametersAddressofcards(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateParametersNumberofcards(CCmdUI* pCmdUI);
+	afx_msg void OnButtonPrepare();
+	afx_msg void OnButtonSetminmax();
+	afx_msg void OnFlashRead();
+	afx_msg void OnButtonSpy();
+	afx_msg void OnFileOpenconsole();
+	afx_msg void OnUpdateFileOpenconsole(CCmdUI* pCmdUI);
+	afx_msg void OnFileCloseconsole();
+	afx_msg void OnUpdateFileCloseconsole(CCmdUI* pCmdUI);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
