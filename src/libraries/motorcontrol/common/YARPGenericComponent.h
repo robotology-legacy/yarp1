@@ -11,7 +11,7 @@
 
 #define YARP_GEN_COMPONENT_VERBOSE
 
-#ifdef YARP_GEN_COMPONENT_DEBUG
+#ifdef YARP_GEN_COMPONENT_VERBOSE
 #define YARP_GEN_COMPONENT_DEBUG(string) YARP_DEBUG("GEN_COMPONENT_DEBUG :", string)
 #else YARP_GEN_COMPONENT_DEBUG(string) YARP_NULL_DEBUG
 #endif
@@ -179,10 +179,10 @@ public:
 
 private:
 	inline void _lock(void)
-	{_mutex.acquire();}	// add timeout ?
+	{_mutex.Wait();}	// add timeout ?
 
 	inline void _unlock(void)
-	{_mutex.release();}
+	{_mutex.Post();}
 
 	int _initialize()
 	{
