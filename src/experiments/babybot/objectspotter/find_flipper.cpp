@@ -179,7 +179,7 @@ int flipper_main(int argc, char *argv[])
 #endif
 
   char buffer[256];
-  sprintf (buffer, "%s/conf/babybot/object_model/declare.txt", GetYarpRoot());
+  sprintf (buffer, "%s/conf/babybot/declare.txt", GetYarpRoot());
   ///spot.AddItems("y:/conf/babybot/object_model/declare.txt");
   spot.AddItems(buffer);
 
