@@ -365,48 +365,48 @@ SOURCE=.\YARPLogpolar.cpp
 !IF  "$(CFG)" == "tools - Win32 Release"
 
 "images - Win32 Release" : 
-   cd "\Users\pasa\Repository\yarp\src\libraries\images"
+   cd ".."
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 Release" 
    cd ".\tools"
 
 "images - Win32 ReleaseCLEAN" : 
-   cd "\Users\pasa\Repository\yarp\src\libraries\images"
+   cd ".."
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 Release" RECURSE=1 CLEAN 
    cd ".\tools"
 
 !ELSEIF  "$(CFG)" == "tools - Win32 Debug"
 
 "images - Win32 Debug" : 
-   cd "\Users\pasa\Repository\yarp\src\libraries\images"
+   cd ".."
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 Debug" 
    cd ".\tools"
 
 "images - Win32 DebugCLEAN" : 
-   cd "\Users\pasa\Repository\yarp\src\libraries\images"
+   cd ".."
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 Debug" RECURSE=1 CLEAN 
    cd ".\tools"
 
 !ELSEIF  "$(CFG)" == "tools - Win32 FakeIpl Debug"
 
 "images - Win32 FakeIpl Debug" : 
-   cd "\Users\pasa\Repository\yarp\src\libraries\images"
+   cd ".."
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 FakeIpl Debug" 
    cd ".\tools"
 
 "images - Win32 FakeIpl DebugCLEAN" : 
-   cd "\Users\pasa\Repository\yarp\src\libraries\images"
+   cd ".."
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 FakeIpl Debug" RECURSE=1 CLEAN 
    cd ".\tools"
 
 !ELSEIF  "$(CFG)" == "tools - Win32 FakeIpl Release"
 
 "images - Win32 FakeIpl Release" : 
-   cd "\Users\pasa\Repository\yarp\src\libraries\images"
+   cd ".."
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 FakeIpl Release" 
    cd ".\tools"
 
 "images - Win32 FakeIpl ReleaseCLEAN" : 
-   cd "\Users\pasa\Repository\yarp\src\libraries\images"
+   cd ".."
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 FakeIpl Release" RECURSE=1 CLEAN 
    cd ".\tools"
 
