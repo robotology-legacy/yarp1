@@ -493,8 +493,8 @@ void CCanControlDlg::ActivateGUI ()
 void CCanControlDlg::DeactivateGUI ()
 {
 	KillTimer (TIMER_ID);
-	//close_console ();
-	close_log();
+	close_console ();
+	//close_log();
 
 	m_update_ctrl.EnableWindow(FALSE);
 	m_axis_ctrl.EnableWindow(FALSE);
@@ -549,8 +549,8 @@ void CCanControlDlg::OnDriverRun()
 	m_params._timeout = CANBUS_TIMEOUT;							/// approx this value times the polling interval [ms].
 
 	m_params._njoints = m_njoints;
-	//m_params._p = xprintf;
-	m_params._p = xfprintf;
+	m_params._p = xprintf;
+	//m_params._p = xfprintf;
 
 	if (m_driver.open ((void *)&m_params) < 0)
 	{
@@ -966,14 +966,14 @@ void CCanControlDlg::OnButtonSetminmax()
 
 void CCanControlDlg::OnButtonSpy() 
 {
-	//init_console();
-	init_log();
+	init_console();
+	//init_log();
 }
 
 void CCanControlDlg::OnFileOpenconsole() 
 {
-	//init_console();
-	init_log();
+	init_console();
+	//init_log();
 }
 
 void CCanControlDlg::OnUpdateFileOpenconsole(CCmdUI* pCmdUI) 
@@ -983,8 +983,8 @@ void CCanControlDlg::OnUpdateFileOpenconsole(CCmdUI* pCmdUI)
 
 void CCanControlDlg::OnFileCloseconsole() 
 {
-	//close_console();
-	close_log();
+	close_console();
+	//close_log();
 }
 
 void CCanControlDlg::OnUpdateFileCloseconsole(CCmdUI* pCmdUI) 
