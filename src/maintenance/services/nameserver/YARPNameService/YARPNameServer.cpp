@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.10 2003-06-23 16:39:57 babybot Exp $
+/// $Id: YARPNameServer.cpp,v 1.11 2003-06-25 12:23:08 babybot Exp $
 ///
 ///
 
@@ -80,14 +80,8 @@ char * GetYarpRoot (void)
 
 int YARPNameServer::accept_connection()
 {
-	///ACE_Time_Value timeout (5, 0);
-	int ret = peer_acceptor_.accept (*new_stream_, &client_addr_);
-
-	ACE_OS::printf ("incoming connection: %s:%d\n", client_addr_.get_host_name(), client_addr_.get_port_number());
-	ACE_OS::fflush (stdout);
-
-	return ret;
-	///return peer_acceptor_.accept(new_stream_, &client_addr_);	///, &timeout);
+	ACE_Time_Value timeout (5, 0);
+	return peer_acceptor_.accept (new_stream_, &client_addr_, &timeout);
 }
 
 void YARPNameServer::dump_statics()
@@ -243,7 +237,7 @@ void YARPNameServer::_handle_reply(const std::string &ip, int type, int port)
 	iov[0].iov_len = rplCmd.length+sizeof(YARPNameServiceCmd);
 
 	///int sent = new_stream_.sendv_n (iov, 1);
-	new_stream_->sendv_n (iov, 1);
+	new_stream_.sendv_n (iov, 1);
 }
 
 void YARPNameServer::_handle_reply(const std::string &ip, int type, const PORT_LIST &ports)
@@ -271,7 +265,7 @@ void YARPNameServer::_handle_reply(const std::string &ip, int type, const PORT_L
 	iov[0].iov_len = rplCmd.length+sizeof(YARPNameServiceCmd);
 
 	///int sent = new_stream_.sendv_n (iov, 1);
-	new_stream_->sendv_n (iov, 1);
+	new_stream_.sendv_n (iov, 1);
 }
 
 void YARPNameServer::_handle_reply(const YARPNameQnx &entry, int type)
@@ -291,7 +285,7 @@ void YARPNameServer::_handle_reply(const YARPNameQnx &entry, int type)
 	iov[0].iov_len = rplCmd.length+sizeof(YARPNameServiceCmd);
 
 	///int sent = new_stream_.sendv_n (iov, 1);
-	new_stream_->sendv_n (iov, 1);
+	new_stream_.sendv_n (iov, 1);
 }
 
 void YARPNameServer::query_dbg(const std::string &service_name)
@@ -326,13 +320,13 @@ int YARPNameServer::handle_connection()
 
 	iov[0].iov_base = data_buf_;
 	iov[0].iov_len = sizeof(YARPNameServiceCmd);
-	res = new_stream_->recvv_n(iov, 1, 0, &byte_count);
+	res = new_stream_.recvv_n(iov, 1, 0, &byte_count);
 	
 	tmpCmd = *(YARPNameServiceCmd *) (data_buf_);
 
 	iov[0].iov_base = data_buf_;
 	iov[0].iov_len = tmpCmd.length;	//message length
-	res = new_stream_->recvv_n(iov, 1, 0, &byte_count);
+	res = new_stream_.recvv_n(iov, 1, 0, &byte_count);
 
 	if ( (tmpCmd.cmd == YARPNSQuery) &&
 		((tmpCmd.type == YARP_UDP) || (tmpCmd.type == YARP_TCP) || (tmpCmd.type == YARP_MCAST)))
@@ -391,13 +385,8 @@ int YARPNameServer::handle_connection()
 	else
 		NAME_SERVER_DEBUG(("Sorry: command not recognized\n"));
 
-	///int ret = ACE_OS::shutdown (new_stream_.get_handle(), ACE_SHUTDOWN_BOTH);
-	///ACE_OS::printf ("shutdonw called: %d\n", ret);
-
-	new_stream_->close_reader();
-
 	// close new endpoint
-	if (new_stream_->close() == -1)
+	if (new_stream_.close() == -1)
 		ACE_ERROR ((LM_ERROR, "%p\n", "close"));
 	return 0;
 }

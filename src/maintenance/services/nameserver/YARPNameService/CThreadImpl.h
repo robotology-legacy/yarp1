@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: CThreadImpl.h,v 1.4 2003-06-23 16:39:57 babybot Exp $
+/// $Id: CThreadImpl.h,v 1.5 2003-06-25 12:23:08 babybot Exp $
 ///
 ///
 //////////////////////////////////////////////////////////////////////////
@@ -67,20 +67,6 @@
 // models.lib
 // ace.lib
 //
-// WIN32: see SystemUtils::set_high_res_scheduling() if you want to do precise 
-// scheduling (< 10/15 ms depening on the machine) --> link winmm.lib
-//
-// THREAD_STATS if you want to test scheduling statistics 
-// 
-// September 2002 -- by nat
-// 
-// September 2002 -- by nat -- modified release flag, added timeout
-//
-// TODO: check thread priorities
-
-// define this if you want scheduling statistics
-// #define THREAD_STATS
-
 
 #ifndef __CThreadImpl__
 #define __CThreadImpl__
@@ -93,18 +79,9 @@
 #include <ace/Time_Value.h>
 #include <ace/High_Res_Timer.h>
 
-///#include "IterativeStats.h" //from models lib link models.lib/modelsdb.lib
 #include <string>
 
 const ACE_Time_Value _timeout_value(20,0);	// (20 sec) timeout value for the release (20 sec)
-
-/*
-typedef struct thr_stts
-{
-	IterativeStats period;
-	IterativeStats time;
-} thread_statistics;
-*/
 
 class CThreadImpl {
 
@@ -124,10 +101,7 @@ protected:
 	virtual void doLoop() =0;
 	virtual void doRelease() =0;
 
-//	thread_statistics thread_stats;
-
 	ACE_Lock_Adapter<ACE_Thread_Mutex> mutex;
-
 
 public:
 	CThreadImpl(const char *c, int r): name(c)
@@ -290,9 +264,6 @@ public:
 		lock();
 		ACE_Thread_Manager::instance ()->suspend_grp(thread_id);
 		isSuspendedF = true;
-
-//		thread_stats.period.reset();
-//		thread_stats.time.reset();
 		unlock();
 	}
 
@@ -328,71 +299,41 @@ public:
 	static unsigned long * __cdecl real_thread(void *p_arg)
 #else
 	static unsigned long * real_thread(void *p_arg)
-	//static void * real_thread (void *p_arg)
 #endif
-//   static void * real_thread (void *p_arg)
 	{
 		CThreadImpl *context = (CThreadImpl *) p_arg;
 
 		ACE_High_Res_Timer	begin_timer;	// timer to estimate period
 		ACE_High_Res_Timer	thread_timer;	// timer to estimate thread time
 		ACE_Time_Value		est_time;		// thread time
-		///ACE_Time_Value		est_period;		// thread period
 		ACE_Time_Value		sleep_period;	// thread sleep
 
 		context->end = false;		
 		ACE_Thread_Manager::instance()->thr_self(context->handle);	//get thread os handle
 		
-		/*
-		char buffer[255];
-		HANDLE w32timer;
-		sprintf (buffer, "Periodic timer%s%u\0", context->name.c_str());
-		w32timer = CreateWaitableTimer (NULL, FALSE, buffer);
-		LARGE_INTEGER tm;
-		tm.LowPart = 0;
-		tm.HighPart = 0;
-		BOOL ret = SetWaitableTimer(w32timer, &tm, context->period.msec(), NULL, NULL, TRUE);
-		*/
-		
 		context->doInit();
-		#ifdef THREAD_STATS
-				begin_timer.start();
-		#endif /* THREAD_STATS */
 		context->synchro.signal();
+
 		// set synchro event
 		// this first sleep in principle is not needed; it is to avoid checking the
 		// first "est_period" value
 		ACE_OS::sleep(context->period);
 		while (!context->end)
 		{
-			#ifdef THREAD_STATS
-				// est period
-				begin_timer.stop();
-				begin_timer.elapsed_time(est_period);
-				begin_timer.start();
-				// context->thread_stats.period+=est_period.msec();
-				context->thread_stats.period+=est_period.usec()/1000.0;
-			#endif /* THREAD_STATS */
-
 			// loop
 			thread_timer.start();
 			context->doLoop ();
 			thread_timer.stop();
 			thread_timer.elapsed_time(est_time);
-			
-			#ifdef THREAD_STATS
-				// context->thread_stats.time+=est_time.msec();
-				context->thread_stats.time+=est_time.usec()/1000.0;
-			#endif /* THREAD_STATS */
 
 			// compute sleep time
-			sleep_period = context->period-est_time;
+			sleep_period = context->period - est_time;
 			
-			if (sleep_period.usec() < 0)
-				sleep_period.set(0,0);
-
-			ACE_OS::sleep(sleep_period);
-			// WaitForSingleObject(w32timer, INFINITE);
+			if (sleep_period.usec() > 0 && sleep_period.sec() > 0)
+			{
+				////ACE_DEBUG ((LM_DEBUG, "waiting %d %d\n", sleep_period.usec(), sleep_period.sec()));
+				ACE_OS::sleep(sleep_period);
+			}
 		}
 
 		context->doRelease ();

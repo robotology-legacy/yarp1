@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.11 2003-06-25 10:03:38 babybot Exp $
+/// $Id: LocalNameServer.h,v 1.12 2003-06-25 12:23:08 babybot Exp $
 ///
 ///
 
@@ -239,6 +239,7 @@ public:
 	// operator + int has no effect on ip; this is here only for compatibility
 	IpEntry operator+(int l)
 	{		
+		ACE_UNUSED_ARG(l);
 		return *this;
 	}
 	const IpEntry &operator = (const IpEntry &i)
