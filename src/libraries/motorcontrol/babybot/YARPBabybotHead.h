@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotHead.h,v 1.10 2004-03-12 16:12:41 gmetta Exp $
+///  $Id: YARPBabybotHead.h,v 1.11 2004-07-01 17:13:54 babybot Exp $
 ///
 ///
 
@@ -172,7 +172,6 @@ public:
 				return false;
 		}
 	}
-
 };
 
 #endif

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.23 2004-05-28 17:36:35 babybot Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.24 2004-07-01 17:11:56 babybot Exp $
 ///
 ///
 
@@ -103,10 +103,10 @@ enum ControlBoardCmd
 	CMDControllerRun 		= 41,	// see MEI
 	CMDClearStop 			= 42,	// on MEI -> clear_status
 
-	CMDSetPositiveLimit 	= 43,
-	CMDSetNegativeLimit 	= 44,
-	CMDSetPositiveLevel 	= 45,
-	CMDSetNegativeLevel 	= 46,
+	CMDSetPositiveLimit 	= 43,	// sets positive limit event
+	CMDSetNegativeLimit 	= 44,	// sets negative limit event
+	CMDSetPositiveLevel 	= 45,	// sets level signal for limit switch
+	CMDSetNegativeLevel 	= 46,	// sets level signal for limit switch
 	CMDVMove 				= 47,	// set move vel mode (begin motion)
 	CMDCheckMotionDone 		= 48,	// check for motion done
 	CMDWaitForMotionDone 	= 49,	// wait (loop with sleep)
@@ -150,10 +150,13 @@ enum ControlBoardCmd
 
 	CMDSetDebugMessageFilter = 77,	// sets the debug message filter.
 	CMDSetDebugPrintFunction = 78,	// sets the debug print function.
-	CMDGetPositiveLimit 	 = 79,	// gets positive limit value.
-	CMDGetNegativeLimit 	 = 80,	// sets positive limit value.
 
-	CBNCmds 				= 81 	// required! tells the total number of commands
+	CMDGetSWPositiveLimit 	 = 79,	// gets positive limit value.
+	CMDGetSWNegativeLimit 	 = 80,	// gets negative limit value.
+	CMDSetSWPositiveLimit 	 = 81,	// sets positive limit value.
+	CMDSetSWNegativeLimit 	 = 82,	// sets negative limit value.
+	
+	CBNCmds 				= 83 	// required! tells the total number of commands
 };
 
 enum ControlBoardEvents

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.3 2004-07-01 10:02:23 gmetta Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.4 2004-07-01 17:13:54 babybot Exp $
 ///
 ///
 
@@ -169,7 +169,7 @@ public:
 			return YARP_FAIL;
 		}
 
-		ACE_ASSERT (_nj == 8);
+		ACE_ASSERT (_nj == 4);
 
 		// delete and allocate new memory
 		_realloc(_nj);
@@ -307,14 +307,17 @@ public:
 		op_par._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
 
 		op_par._njoints = _parameters->_nj;
-		op_par._p = NULL;
-
+		op_par._p = (int (*) (char *fmt, ...))(ACE_OS::printf);
 
 		if (YARPValueCanDeviceDriver::open ((void *)&op_par) < 0)
 		{
 			YARPValueCanDeviceDriver::close();
 			return YARP_FAIL;
 		}
+
+		/// filters out certain messages.
+		/// int msg = 20;
+		/// YARPValueCanDeviceDriver::IOCtl(CMDSetDebugMessageFilter, (void *)&msg);
 
 		for(int i=0; i < _parameters->_nj; i++)
 		{

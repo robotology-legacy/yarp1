@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.15 2004-06-28 16:42:05 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.16 2004-07-01 17:11:56 babybot Exp $
 ///
 ///
 
@@ -199,7 +199,7 @@ int ValueCanResources::_initialize (const ValueCanOpenParameters& params)
 		return -1;
 	}
 
-	bool _dllLoaded = canInitLibrary();
+	_dllLoaded = canInitLibrary();
 	if (!_dllLoaded)
 	{
 		ACE_DEBUG ((LM_DEBUG, "CAN: Can't load the CAN DLL\n"));
@@ -314,10 +314,10 @@ YARPValueCanDeviceDriver::YARPValueCanDeviceDriver(void)
 	m_cmds[CMDLoadBootMemory] = &YARPValueCanDeviceDriver::readBootMemory;
 	m_cmds[CMDSaveBootMemory] = &YARPValueCanDeviceDriver::writeBootMemory;
 
-	m_cmds[CMDSetPositiveLimit] = &YARPValueCanDeviceDriver::setPositiveLimit;
-	m_cmds[CMDSetNegativeLimit] = &YARPValueCanDeviceDriver::setNegativeLimit;
-	m_cmds[CMDGetPositiveLimit] = &YARPValueCanDeviceDriver::getPositiveLimit;
-	m_cmds[CMDGetNegativeLimit] = &YARPValueCanDeviceDriver::getNegativeLimit;
+	m_cmds[CMDSetSWPositiveLimit] = &YARPValueCanDeviceDriver::setSwPositiveLimit;
+	m_cmds[CMDSetSWNegativeLimit] = &YARPValueCanDeviceDriver::setSwNegativeLimit;
+	m_cmds[CMDGetSWPositiveLimit] = &YARPValueCanDeviceDriver::getSwPositiveLimit;
+	m_cmds[CMDGetSWNegativeLimit] = &YARPValueCanDeviceDriver::getSwNegativeLimit;
 	
 	m_cmds[CMDGetTorqueLimit] = &YARPValueCanDeviceDriver::getTorqueLimit;
 	m_cmds[CMDGetTorqueLimits] = &YARPValueCanDeviceDriver::getTorqueLimits;
@@ -1022,7 +1022,7 @@ int YARPValueCanDeviceDriver::writeBootMemory (void *cmd)
 }
 
 /// cmd is a pointer to an integer (axis number).
-int YARPValueCanDeviceDriver::setPositiveLimit (void *cmd)
+int YARPValueCanDeviceDriver::setSwPositiveLimit (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
@@ -1032,7 +1032,7 @@ int YARPValueCanDeviceDriver::setPositiveLimit (void *cmd)
 }
 
 /// cmd is a pointer to SingleAxisParameters struct with a single double arg.
-int YARPValueCanDeviceDriver::setNegativeLimit (void *cmd)
+int YARPValueCanDeviceDriver::setSwNegativeLimit (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
@@ -1042,7 +1042,7 @@ int YARPValueCanDeviceDriver::setNegativeLimit (void *cmd)
 }
 
 /// cmd is a SingleAxis pointer with double arg
-int YARPValueCanDeviceDriver::getNegativeLimit (void *cmd)
+int YARPValueCanDeviceDriver::getSwNegativeLimit (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
@@ -1056,7 +1056,7 @@ int YARPValueCanDeviceDriver::getNegativeLimit (void *cmd)
 }
 
 /// cmd is a SingleAxis pointer with double arg
-int YARPValueCanDeviceDriver::getPositiveLimit (void *cmd)
+int YARPValueCanDeviceDriver::getSwPositiveLimit (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;

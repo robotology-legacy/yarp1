@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: headtest.cpp,v 1.1 2004-07-01 10:15:55 gmetta Exp $
+/// $Id: headtest.cpp,v 1.2 2004-07-01 17:13:16 babybot Exp $
 ///
 ///
 
@@ -73,13 +73,16 @@ int main(int argc, char *argv[])
 	char *root = GetYarpRoot();
 	char path[256];
 
-	ACE_OS::sprintf (path, "%s/%s\0", root, ConfigFilePath); 
+	ACE_OS::sprintf (path, "%s/%s/\0", root, ConfigFilePath); 
 
 	head.initialize(YARPString(path), YARPString(INI_FILE));
 	YVector v(head.nj());
+	int i;
 
+	ACE_OS::printf ("[type h for help]\n");
 	while(1)
 	{
+		ACE_OS::printf ("-> ");
 		char c;
 		c = ACE_OS::fgetc(stdin);
 
@@ -96,10 +99,30 @@ int main(int argc, char *argv[])
 			ACE_OS::printf ("e: reads encoders\n");
 			break;
 
+		case 'g':
+			{
+				int j;
+				double where;
+				ACE_OS::printf ("axis: ");
+				scanf ("%d", &j);
+				ACE_OS::printf ("go to: ");
+				scanf ("%lf", &where);
+				ACE_OS::printf ("moving joint %d to %f\n", j, where);
+
+			}
+			break;
+
 		case 'e':
 			head.getPositions(v.data());
+			for (i = 1; i <= head.nj(); i++)
+			{
+				ACE_OS::printf ("%f ", v(i));
+			}
+			ACE_OS::printf ("\n");
 			break;
 		}
+
+		while (ACE_OS::fgetc(stdin) != '\n');
 	}
 
 CleanExit:
