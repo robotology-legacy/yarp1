@@ -22,7 +22,7 @@ local: $(CODELIB)
 $(CODELIB): $(OBJS)
 	echo Making $(CODELIB) for $(OBJS)
 	$(AR) $(ARFLAGS) $(CODELIB) $(OBJS)
-	mv $(CODELIB) lib/$(SYSDIR)
+	mv $(CODELIB) lib/$(SYSDIR)/
 
 
 install: subinstall
