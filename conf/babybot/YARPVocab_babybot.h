@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPVocab_babybot.h,v 1.7 2004-09-07 20:56:37 babybot Exp $
+/// $Id: YARPVocab_babybot.h,v 1.8 2004-09-07 21:30:01 babybot Exp $
 ///
 ///
 
@@ -153,6 +153,7 @@ const char *const YBVRLBatchSize = "RLBatchSize";
 // Key frames messages
 const char *const YBVKFStart = "KFStart";
 const char *const YBVKFTrain = "KFTrain";
+const char *const YBVKFTrainStop = "KFTrainStop";
 const char *const YBVKFStop = "KFStop";
 const char *const YBVKFSetRefModel = "KFSetRefModel";
 const char *const YBVKFCheckAgainst = "KFCheckAgainst";
