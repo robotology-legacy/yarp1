@@ -157,7 +157,14 @@ int main(int argc, char* argv[])
 
 		// reconstruct color
 		_mapper.ReconstructColor (_left, _leftColored);
+
+		YARPLpConicFitter _fitter;
+
+		_fitter.plotEllipse(0, 0, 1000, 0, 1000, _outSeg);
+		// _fitter.plotCircle(0, 0, 20, _outSeg);
 		
+
+		/* back here
 		YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
 		_histo.backProjection(_leftHSV, _outSeg);
 
@@ -165,9 +172,10 @@ int main(int argc, char* argv[])
 
 		// _hand.search(_leftHSV, _outSeg, _outSeg2, _histo, 20);
 				
-		// _outPortSeg.Content().Refer(_outSeg2);
+		// _outPortSeg.Content().Refer(_outSeg2);*/
 		_outPortSeg.Content().Refer(_outSeg);
 		_outPortSeg.Write();
+		
 
 		/*_nHistos++;
 		if ((_frame%100)==0)

@@ -96,6 +96,10 @@ BEGIN_MESSAGE_MAP(CVectViewerDlg, CDialog)
 	ON_WM_TIMER()
 	ON_WM_DESTROY()
 	ON_WM_CAPTURECHANGED()
+	ON_WM_INITMENUPOPUP()
+	ON_COMMAND(ID_FILE_SAVE, OnFileSave)
+	ON_COMMAND(ID_IMAGE_FREEZE, OnImageFreeze)
+	ON_UPDATE_COMMAND_UI(ID_IMAGE_FREEZE, OnUpdateImageFreeze)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -123,6 +127,11 @@ BOOL CVectViewerDlg::OnInitDialog()
 			pSysMenu->AppendMenu(MF_STRING, IDM_ABOUTBOX, strAboutMenu);
 		}
 	}
+
+	// fottuto menu
+	_menu.LoadMenu(IDR_MENUMAIN);
+	SetMenu(&_menu);
+	/////////////////
 
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
@@ -155,11 +164,12 @@ BOOL CVectViewerDlg::OnInitDialog()
 
 	_nRows = _size;
 	_nColumns = 1;
+		
+	_displayRect.SetRect(__dispYPos, __dispXPos, __dispXPos+(_xSize+__xDist)*_nColumns, __dispYPos+(_ySize+__yDist)*_nRows);
 
-	_displayRect.SetRect(__dispYPos, __dispXPos, (_xSize+__xDist)*_nColumns, (_ySize+__yDist)*_nRows);
-
+	int MENU_HEIGHT = 54; // LATER: GET MENU HEIGHT
 	// resize window
-	this->SetWindowPos(&wndTop, 0, 0, (_xSize+__xDist)*_nColumns, (_ySize+__yDist)*_nRows+34, SWP_HIDEWINDOW);
+	this->SetWindowPos(&wndTop, 0, 0, __dispXPos+(_xSize+__xDist)*_nColumns, __dispYPos+(_ySize+__yDist)*_nRows + MENU_HEIGHT, SWP_HIDEWINDOW);
 	
 	// zoom factors
 	_zoom = new double [_size];
@@ -196,7 +206,10 @@ BOOL CVectViewerDlg::OnInitDialog()
 
 	MoveWindow (p->_posX, p->_posY, p->_width, p->_height, TRUE);
 	//////////////
-	
+
+	// 
+	_freeze = FALSE;
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -231,8 +244,8 @@ void CVectViewerDlg::OnPaint()
 	for (int i = 0; i < _size; i++)
 	{
 		// compute display position
-		xPos = (_xSize + __xDist)*(c-1);
-		yPos = (_ySize + __yDist)*(r-1);
+		xPos = __dispXPos+(_xSize + __xDist)*(c-1);
+		yPos = __dispYPos+(_ySize + __yDist)*(r-1);
 
 		dc.BitBlt(xPos, yPos, _xSize, _ySize, &_dcMem[i], 0, 0, SRCCOPY);
 
@@ -304,4 +317,95 @@ void CVectViewerDlg::OnCaptureChanged(CWnd *pWnd)
 	// TODO: Add your message handler code here
 	
 	CDialog::OnCaptureChanged(pWnd);
+}
+
+void CVectViewerDlg::OnFileSave() 
+{
+	_freeze = TRUE;
+	CFileDialog fileDlg(FALSE,
+						"txt",
+						NULL,
+						OFN_OVERWRITEPROMPT,
+						NULL,
+						this);
+
+	int nResponse = fileDlg.DoModal();
+	if (nResponse == IDOK)
+	{
+		SaveCurrentFrame (fileDlg.m_ofn.lpstrFile);
+	}
+
+	_freeze = FALSE;
+}
+
+void CVectViewerDlg::SaveCurrentFrame(const char *filename)
+{
+	// save frames
+	FILE *fp;
+	fp = fopen(filename,"w");
+
+	int i = 0;
+	int v = 0;
+	for(i = 0; i<_xSize; i++)
+	{
+		for(v = 0; v<_size; v++)
+		{
+			fprintf(fp, "%lf\t", _history[v][i]);
+		}
+		fprintf(fp, "\n");
+	}
+	fclose(fp);
+}
+
+void CVectViewerDlg::OnImageFreeze() 
+{
+	_freeze = !_freeze;
+}
+
+void CVectViewerDlg::OnUpdateImageFreeze(CCmdUI* pCmdUI) 
+{
+	// TODO: Add your command update UI handler code here
+	
+}
+void CVectViewerDlg::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu) 
+{
+	CDialog::OnInitMenuPopup(pPopupMenu, nIndex, bSysMenu);
+	
+	if (!bSysMenu)
+	{
+		ASSERT(pPopupMenu != NULL);
+		// check the enabled state of various menu items
+		CCmdUI state;
+		state.m_pMenu = pPopupMenu;
+		ASSERT(state.m_pOther == NULL);
+		state.m_nIndexMax = pPopupMenu->GetMenuItemCount();
+
+		for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax; state.m_nIndex++)
+		{
+			state.m_nID = pPopupMenu->GetMenuItemID(state.m_nIndex);
+			if (state.m_nID == 0)
+				continue; // menu separator or invalid cmd - ignore it
+			ASSERT(state.m_pOther == NULL);
+			ASSERT(state.m_pMenu != NULL);
+			if (state.m_nID == (UINT)-1)
+			{
+				// possibly a popup menu, route to first item of that popup
+				state.m_pSubMenu = pPopupMenu->GetSubMenu(state.m_nIndex);
+				if (state.m_pSubMenu == NULL || 
+					(state.m_nID = state.m_pSubMenu->GetMenuItemID(0)) == 0 ||
+					state.m_nID == (UINT)-1)
+				{
+					continue; // first item of popup can't be routed to
+				}
+				state.DoUpdate(this, FALSE);  // popups are never auto disabled
+			}
+			else
+			{
+				// normal menu item
+				// Auto enable/disable if command is _not_ a system command
+				state.m_pSubMenu = NULL;
+				state.DoUpdate(this, state.m_nID < 0xF000);
+			}
+		}
+	}	
 }

@@ -42,7 +42,7 @@ IDD_VECTVIEWER_DIALOG DIALOGEX 0, 0, 320, 200
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "VectViewer"
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
 END
 
@@ -186,6 +186,24 @@ END
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON    DISCARDABLE     "res\\VectViewer.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENUMAIN MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Save",                       ID_FILE_SAVE
+    END
+    POPUP "&Image"
+    BEGIN
+        MENUITEM "&Freeze",                     ID_IMAGE_FREEZE
+    END
+END
+
 #endif    // Italian (Italy) resources
 /////////////////////////////////////////////////////////////////////////////
 

@@ -91,8 +91,9 @@ private:
 	void _sendSegmentation()
 	{
 		// display
-		// segmentedImagePort.Content().Refer(_actualLp);
-		_segmentedImagePort.Content().Refer(_blob);
+		_segmentedImagePort.Content().Refer(_actualLp);
+		//_segmentedImagePort.Content().Refer(_blob);
+		// _segmentedImagePort.Content().Refer(_detected);
 		_segmentedImagePort.Write();
 	}
 
@@ -108,6 +109,8 @@ private:
 
 			if (_x > (_logpolarParams::_stheta-1) ) _x = (_logpolarParams::_stheta-1);
 			if (_y > (_logpolarParams::_srho-1) ) _y = (_logpolarParams::_srho-1);
+
+			cout << _x << '\t' << _y << endl;
 		}
 
 		///////////////// read hand status
@@ -117,8 +120,8 @@ private:
 
 	void _writeOutputPorts()
 	{
-	//	_outPixelPort.Content() = _pixelOut;
-	//	_outPixelPort.Write();
+		_outPixelPort.Content() = _pixelOut;
+		_outPixelPort.Write();
 		_outPort.Content().Refer(_motion);
 		_outPort.Write();
 	}

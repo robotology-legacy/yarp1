@@ -38,7 +38,6 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CVectViewerDlg)
 	enum { IDD = IDD_VECTVIEWER_DIALOG };
-		// NOTE: the ClassWizard will add data members here
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -51,6 +50,8 @@ public:
 	void update(double *nVal)
 	{
 		// _mutex.Wait();
+		if (_freeze)
+			return;
 		
 		///////////// compute/apply scale
 		if (_aScale) {
@@ -172,10 +173,15 @@ protected:
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnDestroy();
 	afx_msg void OnCaptureChanged(CWnd *pWnd);
+	afx_msg void OnFileSave();
+	afx_msg void OnImageFreeze();
+	afx_msg void OnUpdateImageFreeze(CCmdUI* pCmdUI);
+	afx_msg void OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 
-
+	void SaveCurrentFrame(const char *filename);
+	
 	double *_current;
 	double *_previous;
 
@@ -202,6 +208,9 @@ protected:
 	int _xSize;
 
 	int _counter;
+
+	CMenu _menu;
+	BOOL _freeze;
 
 	YARPSemaphore _mutex;
 

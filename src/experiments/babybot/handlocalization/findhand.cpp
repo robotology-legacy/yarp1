@@ -117,12 +117,14 @@ void FindHand::Body()
 	
 
 	_pixelOut(1) = _motion(_x, _y)/255.0;
-	_pixelOut(3) = fabs(_handSpeed(4));
+	_pixelOut(2) = 0.0;
+	_pixelOut(3) = fabs(_handSpeed(5));
+	_pixelOut(4) = 0.0;
 
 	_computePeriodicity();
-		
+
 	// prepare motion for display
-	iplMultiplyS(_motion, _motion, 4/*_threshold*/);
+//	iplMultiplyS(_motion, _motion, 4/*_threshold*/);
 	
 	_writeOutputPorts();
 
@@ -133,7 +135,7 @@ void FindHand::Body()
 		printf("frame #%5d\r", _frame);
 	}
 }
-/*
+
 void FindHand::_segmentation()
 {
 	char detected[128];
@@ -171,8 +173,8 @@ void FindHand::_segmentation()
 	}
 	
 	YARPImageFile::Write(segmented, _actualLp);
-}*/
-
+}
+/*
 void FindHand::_segmentation()
 {
 	char detected[128];
@@ -212,7 +214,7 @@ void FindHand::_segmentation()
 	}
 		
 	YARPImageFile::Write(segmented, _blob);
-}
+}*/
 
 void FindHand::_dumpDetection()
 {
