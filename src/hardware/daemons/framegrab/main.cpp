@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.12 2003-06-13 12:45:39 gmetta Exp $
+/// $Id: main.cpp,v 1.13 2003-06-13 15:30:17 babybot Exp $
 ///
 ///
 
@@ -289,7 +289,7 @@ int _runAsLogpolar (void)
 
 	img.Resize (_xsize, _ysize);
 	fovea.Resize (128, 128);
-	periphery.Resize (_srho - _sfovea, _stheta);
+	periphery.Resize (_stheta, _srho - _sfovea);
 
 	YARPOutputPortOf<YARPGenericImage> outport;
 	bool finished = false;
@@ -326,7 +326,9 @@ int _runAsLogpolar (void)
 		/// fills the actual image buffer.
 		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _xsize);
 
-		sampler.Cartesian2Logpolar (img, fovea, periphery);
+		grabber.releaseBuffer ();
+
+///		sampler.Cartesian2Logpolar (img, fovea, periphery);
 
 		/// sends the buffer.
 		outport.Content().Refer (fovea);
@@ -340,8 +342,6 @@ int _runAsLogpolar (void)
 			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
-
-		grabber.releaseBuffer ();
 	}
 
 	grabber.uninitialize ();

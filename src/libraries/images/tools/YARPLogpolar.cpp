@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.4 2003-06-13 12:51:03 gmetta Exp $
+/// $Id: YARPLogpolar.cpp,v 1.5 2003-06-13 15:30:17 babybot Exp $
 ///
 ///
 
@@ -84,12 +84,13 @@ YARPLogpolarSampler::YARPLogpolarSampler (void)
 	_fovea.padding = 8;
 
 	char *path = GetYarpRoot ();
+	char filename[256];
 
+	ACE_OS::sprintf(filename, "%s\\conf\\\0", path);
 	/// loads cart to logpolar lookup table.
-	_cart2LP_Map = Load_Cart2LP_Map(&_fovea, path);
+	_cart2LP_Map = Load_Cart2LP_Map(&_fovea, filename);
 
 	/// logpolar to cartesian lookup table for the fovea.
-	char filename[256];
 	ACE_OS::sprintf(filename, "%s\\conf\\%s_%2.3f_%dx%d%s", path, "RemapMap", _fovea.Zoom_Level, _fovea.Size_X_Remap, _fovea.Size_Y_Remap, ".gio");
 
 	FILE *fin;
@@ -119,7 +120,7 @@ int YARPLogpolarSampler::Cartesian2Logpolar (const YARPGenericImage& in, YARPGen
 	using namespace _logpolarParams;
 	ACE_ASSERT (in.GetWidth() == _xsize && in.GetHeight() == _ysize);
 	ACE_ASSERT (fovea.GetWidth() == 128 && fovea.GetHeight() == 128);
-	ACE_ASSERT (periphery.GetWidth() == _stheta && fovea.GetHeight() == (_srho - _sfovea));
+	ACE_ASSERT (periphery.GetWidth() == _stheta && periphery.GetHeight() == (_srho - _sfovea));
 
 	Make_LP_Real (_outimage, (unsigned char *)in.GetRawBuffer(), &_fovea, _cart2LP_Map);
 	

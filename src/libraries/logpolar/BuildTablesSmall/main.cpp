@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2003-06-13 12:46:41 gmetta Exp $
+/// $Id: main.cpp,v 1.2 2003-06-13 15:30:18 babybot Exp $
 ///
 ///
 
@@ -124,6 +124,7 @@ int main (int argc, char *argv[])
 	Param.padding = 8;
 
 	Build_Remap_Map(&Param, Path);
+	Crop_Remap_Map(&Param, Path);
 
 	return 0;
 }
