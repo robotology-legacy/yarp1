@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.1 2004-07-12 23:40:29 babybot Exp $
+//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.2 2004-07-13 13:21:10 babybot Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -19,11 +19,15 @@
 
 #define _WINDOWS
 
-#include <YARPSoundCardUtils.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPSoundCardUtils.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Sched_Params.h>
+
 #include "YARPSoundDeviceDriver.h"
+
+#include <mmsystem.h>
 
 // =====================================================================================
 //        Class: SoundResources 

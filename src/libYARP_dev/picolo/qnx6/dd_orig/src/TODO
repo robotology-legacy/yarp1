@@ -1,0 +1,15 @@
+Preliminary TODO list
+---------------------
+
+-Interrupt programming.
+-RISC programming better.
+-NTSC.
+-Sound.
+-TV tunner.
+-I2C.
+-S-Video (done)
+-Video signal resyncronitation. When one disconects the video signal and conects it again, 
+the driver is not abled to present the image again
+-Double buffer.
+-Multithread syncronization.
+ 

@@ -27,79 +27,70 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.cpp,v 1.2 2004-07-13 13:21:10 babybot Exp $
+/// $Id: YARPJR3DeviceDriver.cpp,v 1.1 2004-07-13 13:21:07 babybot Exp $
 ///
-///
 
-#include <yarp/YARPControlBoardUtils.h>
+#include "YARPJR3DeviceDriver.h"
 
-// operator overload for the LowLevelPID class. These are used only within 
-// the "setGainsSmoothly" functions (see code). SHIFT is not
-// considered (it should be both 0 as set by the constructor).
-LowLevelPID operator -(const LowLevelPID &l, const LowLevelPID &r)
+#include "../dd_orig/include/jr3pci_ft.h"
+
+int YARPJR3DeviceDriver::open(void *d)
 {
-	LowLevelPID tmp;
+	JR3OpenParameters *tmp = (JR3OpenParameters *) d;
 
-	tmp.KP = l.KP - r.KP;
-	tmp.KD = l.KD - r.KD;
-	tmp.KI = l.KI - r.KI;
-	tmp.AC_FF = l.AC_FF - r.AC_FF;
-	tmp.VEL_FF = l.VEL_FF - r.VEL_FF;
-	tmp.FRICT_FF = l.FRICT_FF - r.FRICT_FF;
-	tmp.I_LIMIT = l.I_LIMIT - r.I_LIMIT;
-	tmp.T_LIMIT = l.T_LIMIT - r.T_LIMIT;
-	tmp.OFFSET = l.OFFSET - r.OFFSET;
-
-	return tmp;
+	p_num = (tmp->_nump-1);
+	
+	int a = init_jr3(tmp->_vendorID, tmp->_deviceID, 1, tmp->_nump, 1);
+	return a;
 }
 
-LowLevelPID operator +(const LowLevelPID &l, const LowLevelPID &r)
+int YARPJR3DeviceDriver::close(void)
 {
-	LowLevelPID tmp;
+	close_jr3();
 
-	tmp.KP = l.KP + r.KP;
-	tmp.KD = l.KD + r.KD;
-	tmp.KI = l.KI + r.KI;
-	tmp.AC_FF = l.AC_FF + r.AC_FF;
-	tmp.VEL_FF = l.VEL_FF + r.VEL_FF;
-	tmp.FRICT_FF = l.FRICT_FF + r.FRICT_FF;
-	tmp.I_LIMIT = l.I_LIMIT + r.I_LIMIT;
-	tmp.T_LIMIT = l.T_LIMIT + r.T_LIMIT;
-	tmp.OFFSET = l.OFFSET + r.OFFSET;
-
-	return tmp;
+	return 0;	// no error
 }
 
-LowLevelPID operator /(const LowLevelPID &l, const double v)
+int YARPJR3DeviceDriver::resetOffsets(void *d)
 {
-	LowLevelPID tmp;
-
-	tmp.KP = l.KP/v;
-	tmp.KD = l.KD/v;
-	tmp.KI = l.KI/v;
-	tmp.AC_FF = l.AC_FF/v;
-	tmp.VEL_FF = l.VEL_FF/v;
-	tmp.FRICT_FF = l.FRICT_FF/v;
-	tmp.I_LIMIT = l.I_LIMIT/v;
-	tmp.T_LIMIT = l.T_LIMIT/v;
-	tmp.OFFSET = l.OFFSET/v;
-
-	return tmp;
+	int ret = reset_offsets (p_num);
+	return ret;
 }
 
-LowLevelPID operator *(const LowLevelPID &l, const double v)
+int YARPJR3DeviceDriver::setActualFullScales(void *f)
 {
-	LowLevelPID tmp;
+	six_axis_array *fs = (six_axis_array *) f;
+	int ret = set_full_scales(*fs, p_num);
+	return ret;
+}
 
-	tmp.KP = l.KP*v;
-	tmp.KD = l.KD*v;
-	tmp.KI = l.KI*v;
-	tmp.AC_FF = l.AC_FF*v;
-	tmp.VEL_FF = l.VEL_FF*v;
-	tmp.FRICT_FF = l.FRICT_FF*v;
-	tmp.I_LIMIT = l.I_LIMIT*v;
-	tmp.T_LIMIT = l.T_LIMIT*v;
-	tmp.OFFSET = l.OFFSET*v;
+int YARPJR3DeviceDriver::setMinFullScales(void *d)
+{
+	six_axis_array fs = get_recommended_full_scales(MIN_F_S, p_num);
+	int ret = set_full_scales(fs,p_num);
+	return ret;
+}
 
-	return tmp;
+int YARPJR3DeviceDriver::setMaxFullScales(void *d)
+{
+	six_axis_array fs = get_recommended_full_scales(MAX_F_S, p_num);
+	int ret = set_full_scales(fs,p_num);
+	return ret;
+}
+
+int YARPJR3DeviceDriver::readData(void *d)
+{
+	force_array forces = read_ftdata(FILTER3, p_num);
+
+	short *tmp = (short *)d;
+
+	tmp[0] = forces.fx;
+	tmp[1] = forces.fy;
+	tmp[2] = forces.fz;
+
+	tmp[3] = forces.mx;
+	tmp[4] = forces.my;
+	tmp[5] = forces.mz;
+
+	return 0;
 }

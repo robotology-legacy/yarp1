@@ -26,80 +26,91 @@
 ///                                                                   ///
 /////////////////////////////////////////////////////////////////////////
 
-///
-/// $Id: YARPControlBoardUtils.cpp,v 1.2 2004-07-13 13:21:10 babybot Exp $
-///
-///
+//
+//
+// Interface for the NIDAQ device driver.
+//
+// Feb 2003 -- by nat
+//
+// win32: link nidaq32.lib
+// $Id: YARPNIDAQDeviceDriver.h,v 1.1 2004-07-13 13:21:10 babybot Exp $
 
-#include <yarp/YARPControlBoardUtils.h>
+#ifndef __YARPNIDAQDeviceDriver__
+#define __YARPNIDAQDeviceDriver__
 
-// operator overload for the LowLevelPID class. These are used only within 
-// the "setGainsSmoothly" functions (see code). SHIFT is not
-// considered (it should be both 0 as set by the constructor).
-LowLevelPID operator -(const LowLevelPID &l, const LowLevelPID &r)
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPDeviceDriver.h>
+#include <yarp/YARPADCUtils.h>
+
+#ifndef _NIDAQ_Header_
+typedef char           i8;
+typedef unsigned char  u8;
+typedef short          i16;
+typedef unsigned short u16;
+typedef long           i32;
+typedef unsigned long  u32;
+typedef float          f32;
+typedef double         f64;
+#endif
+
+struct NIDAQOpenParameters
 {
-	LowLevelPID tmp;
+	int device_id;
+};
 
-	tmp.KP = l.KP - r.KP;
-	tmp.KD = l.KD - r.KD;
-	tmp.KI = l.KI - r.KI;
-	tmp.AC_FF = l.AC_FF - r.AC_FF;
-	tmp.VEL_FF = l.VEL_FF - r.VEL_FF;
-	tmp.FRICT_FF = l.FRICT_FF - r.FRICT_FF;
-	tmp.I_LIMIT = l.I_LIMIT - r.I_LIMIT;
-	tmp.T_LIMIT = l.T_LIMIT - r.T_LIMIT;
-	tmp.OFFSET = l.OFFSET - r.OFFSET;
-
-	return tmp;
-}
-
-LowLevelPID operator +(const LowLevelPID &l, const LowLevelPID &r)
+struct NIDAQAIConfigureParameters 
 {
-	LowLevelPID tmp;
+	NIDAQAIConfigureParameters()
+	{
+		chan = -1;			// affect all channels
+		inputMode = 1;		// Referenced Single-Ended
+		inputRange = 10;	// input range, it is ignored
+		polarity = 1;		// unipolar
+		driveAIS = 0;		// ignored
+	};
 
-	tmp.KP = l.KP + r.KP;
-	tmp.KD = l.KD + r.KD;
-	tmp.KI = l.KI + r.KI;
-	tmp.AC_FF = l.AC_FF + r.AC_FF;
-	tmp.VEL_FF = l.VEL_FF + r.VEL_FF;
-	tmp.FRICT_FF = l.FRICT_FF + r.FRICT_FF;
-	tmp.I_LIMIT = l.I_LIMIT + r.I_LIMIT;
-	tmp.T_LIMIT = l.T_LIMIT + r.T_LIMIT;
-	tmp.OFFSET = l.OFFSET + r.OFFSET;
+	i16 chan;
+	i16 inputMode;
+	i16 inputRange;
+	i16 polarity;
+	i16 driveAIS;
+};
 
-	return tmp;
-}
-
-LowLevelPID operator /(const LowLevelPID &l, const double v)
+struct NIDAQScanSetupParameters
 {
-	LowLevelPID tmp;
+	NIDAQScanSetupParameters()
+	{
+		nCh = 0;
+		ch_sequence = 0;
+		ch_gains = 0;
+	};
 
-	tmp.KP = l.KP/v;
-	tmp.KD = l.KD/v;
-	tmp.KI = l.KI/v;
-	tmp.AC_FF = l.AC_FF/v;
-	tmp.VEL_FF = l.VEL_FF/v;
-	tmp.FRICT_FF = l.FRICT_FF/v;
-	tmp.I_LIMIT = l.I_LIMIT/v;
-	tmp.T_LIMIT = l.T_LIMIT/v;
-	tmp.OFFSET = l.OFFSET/v;
+	i16	nCh;				// # of channels
+	i16 *ch_sequence;		// channel sequence
+	i16	*ch_gains;			// channel gains
+};
 
-	return tmp;
-}
-
-LowLevelPID operator *(const LowLevelPID &l, const double v)
+class YARPNIDAQDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPNIDAQDeviceDriver> 
 {
-	LowLevelPID tmp;
+public:
+	YARPNIDAQDeviceDriver() : YARPDeviceDriver<YARPNullSemaphore, YARPNIDAQDeviceDriver>(ADCCmds)
+	{
+		m_cmds[CMDAIConfigure] = YARPNIDAQDeviceDriver::ai_configure;
+		m_cmds[CMDScanSetup] = YARPNIDAQDeviceDriver::scan_setup;
+		m_cmds[CMDAIVReadScan] = YARPNIDAQDeviceDriver::ai_vread_scan;
+		m_cmds[CMDAIReadScan] = YARPNIDAQDeviceDriver::ai_read_scan;
+	}
 
-	tmp.KP = l.KP*v;
-	tmp.KD = l.KD*v;
-	tmp.KI = l.KI*v;
-	tmp.AC_FF = l.AC_FF*v;
-	tmp.VEL_FF = l.VEL_FF*v;
-	tmp.FRICT_FF = l.FRICT_FF*v;
-	tmp.I_LIMIT = l.I_LIMIT*v;
-	tmp.T_LIMIT = l.T_LIMIT*v;
-	tmp.OFFSET = l.OFFSET*v;
+	// overload Open, Close
+	virtual int open(void *d);
+	virtual int close(void);
 
-	return tmp;
-}
+private:
+	int ai_configure(void *p);
+	int scan_setup(void *p);
+	int ai_vread_scan(void *p);
+	int ai_read_scan(void *p);
+};
+
+#endif //.h

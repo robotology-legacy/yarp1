@@ -47,39 +47,43 @@ goto end
 
 :install
 echo Installing YARP device driver library to default install directory.
-echo *
-echo *
-echo *
+echo.
+echo.
+echo.
 
-if NOT EXIST .\lib\winnt\libYARP_dev.lib goto notcompiled
-if NOT EXIST .\lib\winnt\libYARP_devd.lib goto notcompiled
+if NOT EXIST .\lib\winnt\libYARP_dev_x.lib goto notcompiled
+if NOT EXIST .\lib\winnt\libYARP_devd_x.lib goto notcompiled
 
-echo *
+echo.
 echo Now entering subdirectories...
-echo *
-echo *
+echo.
+echo.
 
 for /D %%i in (*) do if EXIST %%i\winnt\build.bat call %%i\winnt\build.bat %1 %YARP_ROOT%
 
-echo *
+echo.
 echo Now copying common inclue files...
-echo *
-echo *
+echo.
+echo.
 
 copy .\include\yarp\*.h %YARP_ROOT%\include\yarp\
 
-echo *
+echo.
 echo Now preparing the libraries...
-echo *
-echo *
+echo.
+echo.
 
 echo make library...
 
-lib .\lib\winnt\libYARP_dev.lib .\valuecan\winnt\dd_orig\lib\mCan.lib /out:.\lib\winnt\libYARP_dev_x.lib
-lib .\lib\winnt\libYARP_devd.lib .\valuecan\winnt\dd_orig\lib\mCand.lib /out:.\lib\winnt\libYARP_devd_x.lib
+lib  .\lib\winnt\libYARP_dev_x.lib .\galil\winnt\dd_orig\lib\*.lib .\mei\winnt\dd_orig\lib\*.lib .\nidaq\winnt\dd_orig\lib\*.lib .\picolo\winnt\dd_orig\lib\*.lib .\jr3\winnt\dd_orig\lib\*.lib .\valuecan\winnt\dd_orig\lib\mCan.lib /out:.\lib\winnt\libYARP_dev.lib
+lib  .\lib\winnt\libYARP_devd_x.lib .\galil\winnt\dd_orig\lib\*.lib .\mei\winnt\dd_orig\lib\*.lib .\nidaq\winnt\dd_orig\lib\*.lib .\picolo\winnt\dd_orig\lib\*.lib .\jr3\winnt\dd_orig\lib\*.lib .\valuecan\winnt\dd_orig\lib\mCand.lib /out:.\lib\winnt\libYARP_devd.lib
 
-copy .\lib\winnt\libYARP_dev_x.lib %YARP_ROOT%\lib\winnt\libYARP_dev.lib
-copy .\lib\winnt\libYARP_devd_x.lib %YARP_ROOT%\lib\winnt\libYARP_devd.lib
+copy .\lib\winnt\libYARP_dev.lib %YARP_ROOT%\lib\winnt\libYARP_dev.lib
+copy .\lib\winnt\libYARP_devd.lib %YARP_ROOT%\lib\winnt\libYARP_devd.lib
+
+echo installing DLL's...
+
+for /D %%j in (*) do if EXIST %%j\winnt\dd_orig\bin\ copy %%j\winnt\dd_orig\bin\*.dll %YARP_ROOT%\bin\winnt\
 
 goto end
 

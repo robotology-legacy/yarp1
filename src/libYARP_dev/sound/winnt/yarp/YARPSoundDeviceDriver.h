@@ -10,25 +10,26 @@
 // 
 //     Description: 
 // 
-//         Version:  $Id: YARPSoundDeviceDriver.h,v 1.1 2004-07-12 23:40:29 babybot Exp $
+//         Version:  $Id: YARPSoundDeviceDriver.h,v 1.2 2004-07-13 13:21:10 babybot Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
 //           Email:  cbeltran@dist.unige.it
 // 
 // =====================================================================================
+
 #ifndef __YARPSoundDeviceDriverh__
 #define __YARPSoundDeviceDriverh__
 
-#include <conf/YARPConfig.h>
-#include <YARPThread.h>
-#include <YARPSemaphore.h>
-#include <YARPDeviceDriver.h>
-#include <YARPSemaphore.h>
-#include <mmsystem.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPThread.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPDeviceDriver.h>
+#include <yarp/YARPSemaphore.h>
 
 #include <stdlib.h>
 #include <string.h>
+
 // =====================================================================================
 //        Class:  SoundOpenParamenters
 // 
@@ -85,8 +86,8 @@ public:
 	//----------------------------------------------------------------------
 	//  These functions should be implemented using the IOCtl mechanism
 	//----------------------------------------------------------------------
-	virtual int acquireBuffer(void *);
-	virtual int releaseBuffer(void *);
+	virtual int acquireBuffer(void *cmd);
+	virtual int releaseBuffer(void *cmd);
 	virtual int waitOnNewFrame (void *cmd);
 	virtual int set_mute(void *cmd);
 	virtual int set_volume(void *cmd);

@@ -50,7 +50,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo
+# ADD LIB32 /nologo /out:"../lib/winnt/libYARP_dev_x.lib"
 
 !ELSEIF  "$(CFG)" == "libYARP_dev - Win32 Debug"
 
@@ -74,7 +74,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"../lib/winnt/libYARP_devd.lib"
+# ADD LIB32 /nologo /out:"../lib/winnt/libYARP_devd_x.lib"
 
 !ENDIF 
 
@@ -95,11 +95,23 @@ SOURCE=.\YARPControlBoardUtils.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=..\include\yarp\YARPADCUtils.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\YARPControlBoardUtils.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\include\yarp\YARPDeviceDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPFrameGrabberUtils.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPNullDeviceDriver.h
 # End Source File
 # Begin Source File
 
@@ -116,6 +128,90 @@ SOURCE=..\valuecan\winnt\yarp\YARPValueCanDeviceDriver.cpp
 # Begin Source File
 
 SOURCE=..\valuecan\winnt\yarp\YARPValueCanDeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "androidworld"
+
+# PROP Default_Filter "h;cpp"
+# Begin Source File
+
+SOURCE=..\androidworld\winnt\yarp\YARPAndroidDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\androidworld\winnt\yarp\YARPAndroidDeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "galil"
+
+# PROP Default_Filter "h;cpp"
+# Begin Source File
+
+SOURCE=..\galil\winnt\yarp\YARPGalilDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\galil\winnt\yarp\YARPGalilDeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "jr3"
+
+# PROP Default_Filter "h;cpp"
+# Begin Source File
+
+SOURCE=..\jr3\winnt\yarp\YARPJR3DeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\jr3\winnt\yarp\YARPJR3DeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "mei"
+
+# PROP Default_Filter "h;cpp"
+# Begin Source File
+
+SOURCE=..\mei\winnt\yarp\YARPMEIDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\mei\winnt\yarp\YARPMEIDeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "nidaq"
+
+# PROP Default_Filter "h;cpp"
+# Begin Source File
+
+SOURCE=..\nidaq\winnt\yarp\YARPNIDAQDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\nidaq\winnt\yarp\YARPNIDAQDeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "picolo"
+
+# PROP Default_Filter "h;cpp"
+# Begin Source File
+
+SOURCE=..\picolo\winnt\yarp\YARPPicoloDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\picolo\winnt\yarp\YARPPicoloDeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "sound"
+
+# PROP Default_Filter "h;cpp"
+# Begin Source File
+
+SOURCE=..\sound\winnt\yarp\YARPSoundDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\sound\winnt\yarp\YARPSoundDeviceDriver.h
 # End Source File
 # End Group
 # End Target

@@ -27,79 +27,22 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.cpp,v 1.2 2004-07-13 13:21:10 babybot Exp $
+/// $Id: YARPADCUtils.h,v 1.1 2004-07-13 13:21:07 babybot Exp $
 ///
 ///
 
-#include <yarp/YARPControlBoardUtils.h>
+#ifndef __YARP_ADC_UTILS__
+#define __YARP_ADC_UTILS__
 
-// operator overload for the LowLevelPID class. These are used only within 
-// the "setGainsSmoothly" functions (see code). SHIFT is not
-// considered (it should be both 0 as set by the constructor).
-LowLevelPID operator -(const LowLevelPID &l, const LowLevelPID &r)
+// command list
+enum ADCCmd
 {
-	LowLevelPID tmp;
+	CMDAIConfigure = 0,
+	CMDScanSetup = 1,
+	CMDAIVReadScan = 2,
+	CMDAIReadScan = 3,
+	CMDAIReadChannel = 4,
+	ADCCmds = 5, // required! tells the total number of commands
+};
 
-	tmp.KP = l.KP - r.KP;
-	tmp.KD = l.KD - r.KD;
-	tmp.KI = l.KI - r.KI;
-	tmp.AC_FF = l.AC_FF - r.AC_FF;
-	tmp.VEL_FF = l.VEL_FF - r.VEL_FF;
-	tmp.FRICT_FF = l.FRICT_FF - r.FRICT_FF;
-	tmp.I_LIMIT = l.I_LIMIT - r.I_LIMIT;
-	tmp.T_LIMIT = l.T_LIMIT - r.T_LIMIT;
-	tmp.OFFSET = l.OFFSET - r.OFFSET;
-
-	return tmp;
-}
-
-LowLevelPID operator +(const LowLevelPID &l, const LowLevelPID &r)
-{
-	LowLevelPID tmp;
-
-	tmp.KP = l.KP + r.KP;
-	tmp.KD = l.KD + r.KD;
-	tmp.KI = l.KI + r.KI;
-	tmp.AC_FF = l.AC_FF + r.AC_FF;
-	tmp.VEL_FF = l.VEL_FF + r.VEL_FF;
-	tmp.FRICT_FF = l.FRICT_FF + r.FRICT_FF;
-	tmp.I_LIMIT = l.I_LIMIT + r.I_LIMIT;
-	tmp.T_LIMIT = l.T_LIMIT + r.T_LIMIT;
-	tmp.OFFSET = l.OFFSET + r.OFFSET;
-
-	return tmp;
-}
-
-LowLevelPID operator /(const LowLevelPID &l, const double v)
-{
-	LowLevelPID tmp;
-
-	tmp.KP = l.KP/v;
-	tmp.KD = l.KD/v;
-	tmp.KI = l.KI/v;
-	tmp.AC_FF = l.AC_FF/v;
-	tmp.VEL_FF = l.VEL_FF/v;
-	tmp.FRICT_FF = l.FRICT_FF/v;
-	tmp.I_LIMIT = l.I_LIMIT/v;
-	tmp.T_LIMIT = l.T_LIMIT/v;
-	tmp.OFFSET = l.OFFSET/v;
-
-	return tmp;
-}
-
-LowLevelPID operator *(const LowLevelPID &l, const double v)
-{
-	LowLevelPID tmp;
-
-	tmp.KP = l.KP*v;
-	tmp.KD = l.KD*v;
-	tmp.KI = l.KI*v;
-	tmp.AC_FF = l.AC_FF*v;
-	tmp.VEL_FF = l.VEL_FF*v;
-	tmp.FRICT_FF = l.FRICT_FF*v;
-	tmp.I_LIMIT = l.I_LIMIT*v;
-	tmp.T_LIMIT = l.T_LIMIT*v;
-	tmp.OFFSET = l.OFFSET*v;
-
-	return tmp;
-}
+#endif

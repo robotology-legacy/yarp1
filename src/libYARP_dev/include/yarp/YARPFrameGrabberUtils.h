@@ -27,79 +27,48 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.cpp,v 1.2 2004-07-13 13:21:10 babybot Exp $
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPFrameGrabberUtils.h,v 1.1 2004-07-13 13:21:07 babybot Exp $
 ///
 ///
 
-#include <yarp/YARPControlBoardUtils.h>
+#ifndef __YARPFrameGrabberUtilsh__
+#define __YARPFrameGrabberUtilsh__
 
-// operator overload for the LowLevelPID class. These are used only within 
-// the "setGainsSmoothly" functions (see code). SHIFT is not
-// considered (it should be both 0 as set by the constructor).
-LowLevelPID operator -(const LowLevelPID &l, const LowLevelPID &r)
+#include <yarp/YARPConfig.h>
+
+enum FrameGrabberCmd
 {
-	LowLevelPID tmp;
+	FCMDAcquireBuffer = 1,
+	FCMDReleaseBuffer = 2,
+	FCMDWaitNewFrame = 3,
+	FCMDGetSizeX = 4,
+	FCMDGetSizeY = 5,
+	FCMDSetBright = 6,
+	FCMDSetHue = 7,
+	FCMDSetContrast = 8,
+	FCMDSetSatU = 9,
+	FCMDSetSatV = 10,
+	FCMDSetLNotch = 11,
+	FCMDSetLDec = 12,
+	FCMDSetPeak = 13,
+	FCMDSetCagc = 14,
+	FCMDSetCkill = 15,
+	FCMDSetRange = 16,
+	FCMDSetYsleep = 17,
+	FCMDSetCsleep = 18,
+	FCMDSetCrush = 19,
+	FCMDSetGamma = 20,
+	FCMDSetDithFrame = 21,
 
-	tmp.KP = l.KP - r.KP;
-	tmp.KD = l.KD - r.KD;
-	tmp.KI = l.KI - r.KI;
-	tmp.AC_FF = l.AC_FF - r.AC_FF;
-	tmp.VEL_FF = l.VEL_FF - r.VEL_FF;
-	tmp.FRICT_FF = l.FRICT_FF - r.FRICT_FF;
-	tmp.I_LIMIT = l.I_LIMIT - r.I_LIMIT;
-	tmp.T_LIMIT = l.T_LIMIT - r.T_LIMIT;
-	tmp.OFFSET = l.OFFSET - r.OFFSET;
+	FCMDNCmds = 22
+};
 
-	return tmp;
-}
-
-LowLevelPID operator +(const LowLevelPID &l, const LowLevelPID &r)
-{
-	LowLevelPID tmp;
-
-	tmp.KP = l.KP + r.KP;
-	tmp.KD = l.KD + r.KD;
-	tmp.KI = l.KI + r.KI;
-	tmp.AC_FF = l.AC_FF + r.AC_FF;
-	tmp.VEL_FF = l.VEL_FF + r.VEL_FF;
-	tmp.FRICT_FF = l.FRICT_FF + r.FRICT_FF;
-	tmp.I_LIMIT = l.I_LIMIT + r.I_LIMIT;
-	tmp.T_LIMIT = l.T_LIMIT + r.T_LIMIT;
-	tmp.OFFSET = l.OFFSET + r.OFFSET;
-
-	return tmp;
-}
-
-LowLevelPID operator /(const LowLevelPID &l, const double v)
-{
-	LowLevelPID tmp;
-
-	tmp.KP = l.KP/v;
-	tmp.KD = l.KD/v;
-	tmp.KI = l.KI/v;
-	tmp.AC_FF = l.AC_FF/v;
-	tmp.VEL_FF = l.VEL_FF/v;
-	tmp.FRICT_FF = l.FRICT_FF/v;
-	tmp.I_LIMIT = l.I_LIMIT/v;
-	tmp.T_LIMIT = l.T_LIMIT/v;
-	tmp.OFFSET = l.OFFSET/v;
-
-	return tmp;
-}
-
-LowLevelPID operator *(const LowLevelPID &l, const double v)
-{
-	LowLevelPID tmp;
-
-	tmp.KP = l.KP*v;
-	tmp.KD = l.KD*v;
-	tmp.KI = l.KI*v;
-	tmp.AC_FF = l.AC_FF*v;
-	tmp.VEL_FF = l.VEL_FF*v;
-	tmp.FRICT_FF = l.FRICT_FF*v;
-	tmp.I_LIMIT = l.I_LIMIT*v;
-	tmp.T_LIMIT = l.T_LIMIT*v;
-	tmp.OFFSET = l.OFFSET*v;
-
-	return tmp;
-}
+#endif

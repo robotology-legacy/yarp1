@@ -10,7 +10,7 @@
 // 
 //     Description:  Commands for the sound card IOCtrl interface
 // 
-//         Version:  $Id: YARPSoundCardUtils.h,v 1.1 2004-07-12 23:40:29 babybot Exp $
+//         Version:  $Id: YARPSoundCardUtils.h,v 1.2 2004-07-13 13:21:07 babybot Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -21,7 +21,7 @@
 #ifndef __YARPSoundCardUtilsh__
 #define __YARPSoundCardUtilsh__
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 
 enum SoundCardCmd
 {
