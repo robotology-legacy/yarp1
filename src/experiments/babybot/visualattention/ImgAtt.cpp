@@ -394,26 +394,6 @@ YARPImgAtt::~YARPImgAtt()
 
 void YARPImgAtt::LineMax(YARPImageOf<YarpPixelMono> &src, YARPImageOf<YarpPixelMono> &dst)
 {
-	/*for (int i=0; i<height; i+=numlin) {
-		YarpPixelMono max=0;
-		YarpPixelMono min=255;
-		for (int y=i; y<i+numlin; y++) {		
-			for (int x=0; x<width; x++)	{
-				if (src(x,y)>max) max=src(x,y);
-				else if (src(x,y)<min) min=src(x,y);
-			
-			}
-		}
-		for (int y=i; y<i+numlin; y++) {		
-			for (int x=0; x<width; x++)	{
-				if (src(x,y)>max) max=src(x,y);
-				else if (src(x,y)<min) min=src(x,y);
-			
-			}
-		}
-
-	}*/
-	
 	for (int y=0; y<fovHeight; y++)
 		for (int x=0; x<width; x++)
 			dst(x,y)=src(x,y)*2.5; //con soglia 4
@@ -617,7 +597,6 @@ void YARPImgAtt::FullRange(IplImage* img, IplImage* out, const int mn, const int
 		iplSubtractS(img, out, mn, false);
 		
 		iplConvolve2D(out, out, &scala, 1, IPL_SUM);
-		//iplConvolveSep2D(tmpScale, out, scala, NULL);
 		
 		/// compute histogram and find min and max values again
 		/*lut.num = 257;
@@ -1145,11 +1124,6 @@ void YARPImgAtt::normalize()
 	//IplROI *pOldZdi;
 
 
-	/*DBGPF1 ACE_OS::printf(">>> color quantization\n");
-	colorVQ.Variance(rg, imgVQ, 3);
-	FindMax(imgVQ, pos2);*/
-	
-	
 	DBGPF1 ACE_OS::printf(">>> search min and max\n");
 	//pOldZdi=((IplImage *)rg)->roi;
 	//((IplImage *)rg)->roi=&zdi;
@@ -1314,6 +1288,8 @@ void YARPImgAtt::findBlobs(int num, YARPBox* boxes)
 	//rain.SortAndComputeSalience(200, max_tag);
 	//rain.SortAndComputeSalience(100, max_tag);
 	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
+	rain.IOR(tagged, boxes, num);
+	
 	rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
 	//pOldZdi=((IplImage *)tmp1)->roi;
 	//((IplImage *)tmp1)->roi=&zdi;
@@ -1375,7 +1351,8 @@ void YARPImgAtt::findBlobs(int num, YARPBox* boxes)
 void YARPImgAtt::quantizeColors()
 {
 	//colorVQ.DominantQuantization(src, tmpBGR1, 0.3*255);
-	/*colorVQ.Variance(rg, imgVQ, 3);
+	/*DBGPF1 ACE_OS::printf(">>> color quantization\n");
+	colorVQ.Variance(rg, imgVQ, 3);
 	FindMax(imgVQ, pos2);
 	//iplSubtractS(imgVQ, imgVQ, , false);
 	MultiplyFloat(imgVQ, imgVQ, 255./imgVQ(pos2.x, pos2.y));

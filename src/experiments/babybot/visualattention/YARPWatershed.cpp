@@ -1098,6 +1098,21 @@ void YARPWatershed::ComputeSalienceAll(int num_blob, int last_tag)
 	}
 }
 
+
+void YARPWatershed::IOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num)
+{
+	for (int i=0; i<num; i++) {
+		if (boxes[i].valid) {
+			//trasform to "local" axis
+			YarpPixelInt index=tagged.Pixel(boxes[i].centroid_x, boxes[i].centroid_y);
+			cout<<"RG diff: "<<(m_attn[index].meanRG==boxes[i].meanRG)<<endl;
+			cout<<"GR diff: "<<(m_attn[index].meanGR==boxes[i].meanGR)<<endl;
+			cout<<"BY diff: "<<(m_attn[index].meanBY==boxes[i].meanBY)<<endl;
+		}
+	}
+}
+
+
 void YARPWatershed::ComputeMeanColors(int last_tag)
 {	
 	// create the subset of attentional boxes.

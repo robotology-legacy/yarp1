@@ -193,11 +193,11 @@ void mainthread::Body (void)
 
 	//start = YARPTime::GetTimeAsSeconds();
 	
+	bool isStarted = true;
+	
 	while (!IsTerminated())
 	{
 		
-		bool isStarted = true;
-
 		////////// HANDLE MESSAGES
 		////// wait untill start message is received
 		if (_controlPort.Read(0))
@@ -346,7 +346,7 @@ void mainthread::Body (void)
 
 			start = start + (YARPTime::GetTimeAsSeconds() - cur);
 
-			if ((frame_no % 10) == 0) {
+			if ((frame_no % 100) == 0) {
 				cur = YARPTime::GetTimeAsSeconds();
 				//ACE_OS::fprintf(stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/frame_no, frame_no);
 				ACE_OS::fprintf(stdout, "average frame time: %f frame #%d acquired\r", start/frame_no, frame_no);

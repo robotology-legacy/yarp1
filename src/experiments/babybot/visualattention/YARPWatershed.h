@@ -133,6 +133,7 @@ public:
 	void SortAndComputeSalience(int num_tag, int last_tag);
 	void ComputeSalience(int num_blob, int last_tag);
 	void ComputeSalienceAll(int num_blob, int last_tag);
+	void IOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num);
 	void ComputeMeanColors(int last_tag);
 	void RemoveNonValid(int last_tag, const int max_size, const int min_size);
 	int DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
