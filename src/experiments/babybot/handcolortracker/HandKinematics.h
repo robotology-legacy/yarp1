@@ -1,9 +1,17 @@
+#ifndef __HANDKINEMATICS__
+#define __HANDKINEMATICS__
+
 #include <YARPLogFile.h>
 #include <YARPConicFitter.h>
-class HandLocalization
+#include <YARPBottle.h>
+#include <YARPBottleContent.h>
+#include <YARPControlBoardNetworkData.h>
+#include <nnet.h>
+
+class HandKinematics
 {
 public:
-	HandLocalization():
+	HandKinematics():
 	_armPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 	{
 		_armPort.Register("/handtracker/i:arm");
@@ -39,7 +47,7 @@ public:
 		parameters.load(filename2);
 
 	}
-	~HandLocalization()
+	~HandKinematics()
 	{
 		_log.close();
 	}
@@ -135,3 +143,5 @@ public:
 
 	int _npoints;
 };
+
+#endif

@@ -8,14 +8,10 @@
 #include <YARPBlobDetector.h>
 #include <YARPImageFile.h>
 #include <YARPLogpolar.h>
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
 
 #include <YARPHistoSegmentation.h>
-#include <YARPControlBoardNetworkData.h>
 
-#include <YARPLogFile.h>
-#include <nnet.h>
+#include "HandKinematics.h"
 
 using namespace _logpolarParams;
 
@@ -26,7 +22,7 @@ using namespace _logpolarParams;
 int main(int argc, char* argv[])
 {
 	YARPLpHistoSegmentation _histo(65, 50, 255, 0, 15);
-	YARPHandSegmentation _hand(65, 50, 255, 0, 15);
+//	YARPHandSegmentation _hand(65, 50, 255, 0, 15);
 
 	YARPInputPortOf<YARPGenericImage> _inPortImage(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 	YARPInputPortOf<YARPGenericImage> _inPortSeg(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
