@@ -105,6 +105,10 @@ SOURCE=.\headsink.cpp
 
 SOURCE=.\sink.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\sinkbehavior.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -112,6 +116,10 @@ SOURCE=.\sink.cpp
 # Begin Source File
 
 SOURCE=.\sink.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sinkbehavior.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

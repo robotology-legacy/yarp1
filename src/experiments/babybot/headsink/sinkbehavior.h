@@ -10,7 +10,7 @@ class SinkBehavior: public YARPBehavior<SinkBehavior, Sink>
 {
 public:
 	SinkBehavior(Sink *d):
-	YARPBehavior<SinkBehavior, Sink>(d, "/sink/behavior/i", YBVMotorLabel, YBVSinkQuit){}
+	YARPBehavior<SinkBehavior, Sink>(d, "/headsink/behavior/i", YBVMotorLabel, YBVSinkQuit){}
 };
 
 typedef YARPFSMStateBase<SinkBehavior, Sink> SinkBehaviorStateBase;
