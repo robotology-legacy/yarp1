@@ -32,8 +32,8 @@
 #include <devctl.h>
 #include <sys/dcmd_chr.h>
 
-#define m_W 50 
-#define m_H 50 
+#define m_W 128 
+#define m_H 128 
 
 
 // we'll be testing three different types of blits, defaulting to the first
@@ -244,7 +244,7 @@ main(int argc,char *argv[])
 	
 	if (file != 2)
 	{
-	init_bttvx(0,0, m_W,m_H);
+	init_bttvx(2,0, m_W,m_H);
 	open_bttvx();
 	
 	BttvxSetImageBuffer(0, image->buffer);
