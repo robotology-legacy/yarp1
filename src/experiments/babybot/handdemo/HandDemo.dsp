@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 libYARP_OSd.lib libYARP_robotd.lib libYARP_devd.lib utilsd.lib libYARP_mathd.lib aced.lib /nologo /subsystem:windows /machine:I386 /libpath:"..\..\..\..\lib\winnt"
+# ADD LINK32 libYARP_OSd.lib libYARP_robotd.lib libYARP_devd.lib utils.lib libYARP_mathd.lib aced.lib /nologo /subsystem:windows /machine:I386 /libpath:"..\..\..\..\lib\winnt"
 
 !ELSEIF  "$(CFG)" == "HandDemo - Win32 Debug"
 
