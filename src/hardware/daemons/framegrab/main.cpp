@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.25 2003-07-15 16:01:18 babybot Exp $
+/// $Id: main.cpp,v 1.26 2003-07-16 17:11:24 beltran Exp $
 ///
 ///
 
@@ -84,7 +84,7 @@
 
 #	include <YARPEurobotGrabber.h>
 #	define Grabber YARPEurobotGrabber
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
+#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x
 
 #elif defined(__WIN32Babybot__)
 
