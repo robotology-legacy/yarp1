@@ -2,8 +2,8 @@
 #include <YARPControlBoardUtils.h>
 
 // operator overload for the LowLevelPID class. These are used only within 
-// the "setGainsSmoothly" functions (see code). SHIFT and OFFSET are not
-// considered (they should be both 0 as set by the constructor).
+// the "setGainsSmoothly" functions (see code). SHIFT is not
+// considered (it should be both 0 as set by the constructor).
 LowLevelPID operator -(const LowLevelPID &l, const LowLevelPID &r)
 {
 	LowLevelPID tmp;
@@ -16,6 +16,7 @@ LowLevelPID operator -(const LowLevelPID &l, const LowLevelPID &r)
 	tmp.FRICT_FF = l.FRICT_FF - r.FRICT_FF;
 	tmp.I_LIMIT = l.I_LIMIT - r.I_LIMIT;
 	tmp.T_LIMIT = l.T_LIMIT - r.T_LIMIT;
+	tmp.OFFSET = l.OFFSET - r.OFFSET;
 
 	return tmp;
 }
@@ -32,6 +33,7 @@ LowLevelPID operator +(const LowLevelPID &l, const LowLevelPID &r)
 	tmp.FRICT_FF = l.FRICT_FF + r.FRICT_FF;
 	tmp.I_LIMIT = l.I_LIMIT + r.I_LIMIT;
 	tmp.T_LIMIT = l.T_LIMIT + r.T_LIMIT;
+	tmp.OFFSET = l.OFFSET + r.OFFSET;
 
 	return tmp;
 }
@@ -48,6 +50,7 @@ LowLevelPID operator /(const LowLevelPID &l, const double v)
 	tmp.FRICT_FF = l.FRICT_FF/v;
 	tmp.I_LIMIT = l.I_LIMIT/v;
 	tmp.T_LIMIT = l.T_LIMIT/v;
+	tmp.OFFSET = l.OFFSET/v;
 
 	return tmp;
 }
@@ -64,6 +67,7 @@ LowLevelPID operator *(const LowLevelPID &l, const double v)
 	tmp.FRICT_FF = l.FRICT_FF*v;
 	tmp.I_LIMIT = l.I_LIMIT*v;
 	tmp.T_LIMIT = l.T_LIMIT*v;
+	tmp.OFFSET = l.OFFSET*v;
 
 	return tmp;
 }
