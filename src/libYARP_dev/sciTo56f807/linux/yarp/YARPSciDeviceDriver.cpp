@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.cpp,v 1.7 2005-03-03 03:36:08 natta Exp $
+/// $Id: YARPSciDeviceDriver.cpp,v 1.8 2005-03-03 23:07:33 natta Exp $
 ///
 ///
 
@@ -39,6 +39,7 @@
 #include "YARPSciDeviceDriver.h"
 #include "sci_messages.h"
 const int MAX_ADC = 15;
+const int __nj = 6;
 #include <yarp/YARPTime.h>
 
 /// get the message types from the DSP code.
@@ -48,7 +49,9 @@ const int MAX_ADC = 15;
 YARPSciDeviceDriver::YARPSciDeviceDriver(void) 
 	: YARPDeviceDriver<YARPNullSemaphore, YARPSciDeviceDriver>(CBNCmds), _mutex(1)
 {
+		
 	m_cmds[CMDGetPosition] = &YARPSciDeviceDriver::getPosition;
+	m_cmds[CMDGetPositions] = &YARPSciDeviceDriver::getPositions;
 	m_cmds[CMDSetPositionControlMode] = &YARPSciDeviceDriver::setPositionMode;
 	m_cmds[CMDSetPosition] = &YARPSciDeviceDriver::setPosition;
 }
@@ -97,6 +100,19 @@ int YARPSciDeviceDriver::getPosition(void *cmd)
 	return ret;
 }
 
+int YARPSciDeviceDriver::getPositions(void *cmd)
+{
+	int ret;
+	ACE_ASSERT (cmd!=NULL);
+	double *tmp = (double *) cmd;
+	ret = _readVector(SCI_READ_POSITIONS_0TO3, tmp, 4);
+
+//	YARPTime::DelayInSeconds(0.3);
+	
+	ret = _readVector(SCI_READ_POSITIONS_4TO5, tmp+4, 2);
+	return ret;
+}
+
 int YARPSciDeviceDriver::setPositionMode(void *cmd)
 {
 	int ret;
@@ -128,6 +144,41 @@ int YARPSciDeviceDriver::setPosition(void *cmd)
 
 	ret = _writeWord(SCI_SET_POSITION, axis, (int)(value));
 	return ret;
+}
+
+int YARPSciDeviceDriver::_readVector(char msg, double *v, int n)
+{
+	int ret;
+
+	_serialPort._rawData2Send[0] = msg;
+
+	ret = _serialPort.writeFormat2bytes();
+
+	if (ret != YARP_OK)
+	{
+		for (int i = 0; i <n; i++)
+			v[i] = -1.0;
+		return ret;
+	}
+
+	ret = _serialPort.readFormat2bytes();
+
+	if (ret != YARP_OK)
+	{
+		for (int i = 0; i <n; i++)
+			v[i] = -1.0;
+		return YARP_FAIL;
+	}
+	else
+	{
+		int jj = 0;
+		for (int i = 0; i <n; i++)
+		{
+			v[i] = _serialPort._dataIn[jj]+_serialPort._dataIn[jj+1]*256;
+			jj+=2;
+		}
+		return YARP_OK;
+	}
 }
 
 int YARPSciDeviceDriver::_readWord(char msg, char joint, int &value)
@@ -175,7 +226,6 @@ int YARPSciDeviceDriver::_writeWord(char msg, char joint, int value)
 {
 	int ret;
 
-	ACE_OS::printf("sending:%d\n", value);
 	_serialPort._rawData2Send[0] = msg;
 	_serialPort._rawData2Send[1] = joint;
 	_serialPort._rawData2Send[2] = value;
@@ -197,15 +247,6 @@ void YARPSciDeviceDriver::readDebugger()
 
 	tmp[0]='\0';
 	pTmp = tmp;
-
-/*	unsigned char local;
-	while(true)
-	{
-		byte = _serialPort.readRaw();
-		local = byte;
-		//printf("*");
-		printf("%x\n", byte); 
-	}*/
 
 	while(!done)
 	{

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.h,v 1.8 2005-03-03 03:36:08 natta Exp $
+/// $Id: YARPSciDeviceDriver.h,v 1.9 2005-03-03 23:07:34 natta Exp $
 ///
 ///
 
@@ -103,8 +103,9 @@ public: //later private:
 	int setPosition(void *cmd);
 	int setPositionMode(void *cmd);
 	int setForceMode(void *cmd);
-	/*
+	
 	int getPositions(void *cmd);
+	/*
 	int getRefPosition (void *cmd);
 	int getRefPositions(void *cmd);
 	int setPosition(void *cmd);
@@ -156,6 +157,7 @@ public: //later private:
 	
 	// LATER: inline
 	int _readWord(char msg, char joint, int &value);
+	int _readVector(char msg, double *v, int n);
 	int _writeWord(char msg, char joint, int value);
 	int _writeWord(char msg, char joint);
 
