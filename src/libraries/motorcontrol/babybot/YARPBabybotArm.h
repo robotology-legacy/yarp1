@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPBabybotArm.h,v 1.2 2003-04-29 17:47:18 natta Exp $
+// $Id: YARPBabybotArm.h,v 1.3 2003-04-30 08:16:13 natta Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -16,6 +16,7 @@
 class YARPBabybotArm : public YARPGenericComponent<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters>
 {
 public:
+	// override activatePID
 	int activatePID()
 	{
 		int ret;
@@ -56,3 +57,4 @@ public:
 };
 
 #endif
+
