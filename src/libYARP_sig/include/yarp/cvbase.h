@@ -139,6 +139,7 @@ typedef unsigned char uchar;
  * is an extract from IPL headers.
  * Copyright (c) 1995 Intel Corporation.
  */
+
 #define IPL_DEPTH_SIGN 0x80000000
 
 #define IPL_DEPTH_1U     1
@@ -257,7 +258,12 @@ IplConvKernelFP;
 //typedef int HDC;
 //typedef char _TCHAR;
 
-// my (pasa's?) personal prototypes
+/**
+ * Computes the ipl image padding.
+ * @param lineSize the total length in bytes of the row of the image.
+ * @param align is the alignment bytes (e.g. typically 8).
+ * @return the number of bytes to add to the line to round with modulo 8.
+ */
 int _iplCalcPadding (int lineSize, int align);
 
 
@@ -363,8 +369,7 @@ IPLAPIIMPL(void, iplRGB2HSV,(IplImage* rgbImage, IplImage* hsvImage));
 IPLAPIIMPL(void, iplHSV2RGB,(IplImage* hsvImage, IplImage* rgbImage));
 
 
-IPLAPIIMPL(void, iplXorS,(IplImage* srcImage, IplImage* dstImage,
-			  unsigned int value));
+IPLAPIIMPL(void, iplXorS,(IplImage* srcImage, IplImage* dstImage, unsigned int value));
 
 
 #define IPL_BORDER_CONSTANT 0
@@ -390,6 +395,12 @@ IPLAPIIMPL(void, iplXorS,(IplImage* srcImage, IplImage* dstImage,
                        IPL_IMAGE_TILE|IPL_IMAGE_ROI|IPL_IMAGE_MASK)
 #define IPL_IMAGE_ALL_WITHOUT_MASK (IPL_IMAGE_HEADER|IPL_IMAGE_DATA|\
                        IPL_IMAGE_TILE|IPL_IMAGE_ROI)
+
+#define IPL_INTER_NN          0
+#define IPL_INTER_LINEAR      1
+#define IPL_INTER_CUBIC       2
+#define IPL_INTER_SUPER       3
+#define IPL_SMOOTH_EDGE      16
 
 #endif /*YARP_CVTYPES_H_*/
 

@@ -50,7 +50,7 @@ echo Installing YARP signal processing libraries to default install directory.
 echo.
 copy .\include\yarp\*.h %YARP_ROOT%\include\yarp\
 copy .\lib\winnt\*.lib %YARP_ROOT%\lib\winnt\
-copy.
+echo.
 goto end
 
 
