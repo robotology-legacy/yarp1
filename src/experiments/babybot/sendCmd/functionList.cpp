@@ -76,3 +76,14 @@ bool sendHandKinematicsView(const YBVocab &vocab, YARPBottle &bottle)
 	bottle.writeYVector(cmd);
 	return true;
 }
+
+bool sendString(const YBVocab &vocab, YARPBottle &bottle)
+{
+	bottle.writeVocab(vocab);
+	cout << "Command now requires a string\n";
+	YARPString tmp;
+	cin >> tmp;
+
+	bottle.writeText(tmp.c_str());
+	return true;
+}

@@ -45,7 +45,7 @@ qtouch = zeros(1,17);
 
 % loop
 i = 0;
-az = -45;
+az = 45;
 el = 45;
 exit = 0;
 freeze = 0;
@@ -80,6 +80,10 @@ while(~exit)
                     disp('Freezing display');
                     freeze = 1;
                 end
+            end
+            if (strcmp(bottle(2), 'HandKinSavePosture'))
+                filename = bottle{3};
+                savePosture(filename, qh, qtouch);
             end
             if(strcmp(bottle{2}, 'HandKinQuit'))
                 disp('Quit message received, goodbye');

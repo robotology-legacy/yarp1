@@ -54,6 +54,7 @@ const char *const YBVHandLocQuit = "HandLocQuit";
 const char *const YBVHandKinQuit = "HandKinQuit";
 const char *const YBVHandKinView = "HandKinView";
 const char *const YBVHandKinFreeze = "HandKinFreeze";
+const char *const YBVHandKinSavePosture = "HandKinSavePosture";
 
 // general
 const char *const YBVExit = "GeneralExit";
