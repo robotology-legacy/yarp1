@@ -27,12 +27,12 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.10 2004-09-03 22:34:12 gmetta Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.1 2004-09-03 22:34:12 gmetta Exp $
 ///
 ///
 
-#ifndef __CanOnRobotcubHeadAdapterh__
-#define __CanOnRobotcubHeadAdapterh__
+#ifndef __CanOnRobotcubArmAdapterh__
+#define __CanOnRobotcubArmAdapterh__
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
@@ -42,27 +42,34 @@
 #include <yarp/YARPConfigFile.h>
 #include <yarp/YARPRobotMath.h>
 
-#define YARP_ROBOTCUB_HEAD_ADAPTER_VERBOSE
+#define YARP_ROBOTCUB_ARM_ADAPTER_VERBOSE
 
-#ifdef YARP_ROBOTCUB_HEAD_ADAPTER_VERBOSE
-#define YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_DEBUG("ROBOTCUB_HEAD_ADAPTER_DEBUG:", string)
-#else  YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
+#ifdef YARP_ROBOTCUB_ARM_ADAPTER_VERBOSE
+#define YARP_ROBOTCUB_ARM_ADAPTER_DEBUG(string) YARP_DEBUG("ROBOTCUB_ARM_ADAPTER_DEBUG:", string)
+#else  YARP_ROBOTCUB_ARM_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 /**
- * \file YARPCanOnRobotcubHeadAdapter.h This file contains definitions of the control classes
- * for the RobotCub head acoording to the YARP device driver model.
+ * \file YARPCanOnRobotcubArmAdapter.h This file contains definitions of the control classes
+ * for the RobotCub arm and hand according to the YARP device driver model.
  */
 
 /**
- * _RobotcubHead contains the default parameters of the RobotCub head control card(s).
+ * _RobotcubArm contains the default parameters of the RobotCub arm control cards.
  */
-namespace _RobotcubHead
+namespace _RobotcubArm
 {
-	const int _nj = 8;
+	const int _nj = 15;
 	const LowLevelPID _highPIDs[_nj] =
 	{
 		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),	
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),	
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
 		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),	
 		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
 		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
@@ -81,15 +88,22 @@ namespace _RobotcubHead
 		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),	
 		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
 		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),	
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),	
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
 		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0)
 	};
 
-	const double _zeros[_nj]			= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	const int _axis_map[_nj]			= { 0, 1, 2, 3, 4, 5, 6, 7 };
-	const int _signs[_nj]				= { 0, 0, 0, 0, 0, 0, 0, 0 };
-	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1 };
-	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
+	const double _zeros[_nj]			= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	const int _axis_map[_nj]			= { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+	const int _signs[_nj]				= { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
 
 	const int CANBUS_DEVICE_NUM			= 0;
 	const int CANBUS_ARBITRATION_ID		= 0;
@@ -106,10 +120,10 @@ namespace _RobotcubHead
 
 
 /**
- * YARPRobotcubHeadParameters is one of the components required to
+ * YARPRobotcubArmParameters is one of the components required to
  * specialize the YARPGenericControlBoard template to do something useful.
  * This class contains parameters that are used during initialization to
- * bring the head up into a decent state.
+ * bring the arm up into a decent state.
  *
  * A note on the use of the axis map:
  * - Each map's entry represents a name of a joint (imagine it as a label).
@@ -120,14 +134,14 @@ namespace _RobotcubHead
  * the user.
  *
  */
-class YARPRobotcubHeadParameters
+class YARPRobotcubArmParameters
 {
 public:
 	/**
 	 * Default constructor.
 	 * Allocates memory and sets parameters to suitable default values.
 	 */
-	YARPRobotcubHeadParameters()
+	YARPRobotcubArmParameters()
 	{
 		_highPIDs = NULL;
 		_lowPIDs = NULL;
@@ -141,19 +155,19 @@ public:
 		_limitsMin = NULL;
 		//_nj = 0;
 		
-		_nj = _RobotcubHead::_nj;
+		_nj = _RobotcubArm::_nj;
 		_realloc(_nj);
 		int i;
 		for(i = 0; i < _nj; i++) 
 		{
-			_highPIDs[i] = _RobotcubHead::_highPIDs[i];
-			_lowPIDs[i] = _RobotcubHead::_lowPIDs[i];
-			_zeros[i] = _RobotcubHead::_zeros[i];
-			_axis_map[i] = _RobotcubHead::_axis_map[i];
-			_signs[i] = _RobotcubHead::_signs[i];
-			_encoderToAngles[i] = _RobotcubHead::_encoderToAngles[i];
-			_stiffPID[i] = _RobotcubHead::_stiffPID[i];
-			_maxDAC[i] = _RobotcubHead::_maxDAC[i];
+			_highPIDs[i] = _RobotcubArm::_highPIDs[i];
+			_lowPIDs[i] = _RobotcubArm::_lowPIDs[i];
+			_zeros[i] = _RobotcubArm::_zeros[i];
+			_axis_map[i] = _RobotcubArm::_axis_map[i];
+			_signs[i] = _RobotcubArm::_signs[i];
+			_encoderToAngles[i] = _RobotcubArm::_encoderToAngles[i];
+			_stiffPID[i] = _RobotcubArm::_stiffPID[i];
+			_maxDAC[i] = _RobotcubArm::_maxDAC[i];
 		}
 
 		_p = NULL;
@@ -163,7 +177,7 @@ public:
 	/**
 	 * Destructor.
 	 */
-	~YARPRobotcubHeadParameters()
+	~YARPRobotcubArmParameters()
 	{
 		if (_highPIDs != NULL)
 			delete [] _highPIDs;
@@ -262,7 +276,7 @@ public:
 	 * @param peer is the reference to the object to copy in.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
-	int copy (const YARPRobotcubHeadParameters& peer)
+	int copy (const YARPRobotcubArmParameters& peer)
 	{
 		_nj = peer._nj;
 
@@ -376,18 +390,18 @@ public:
 
 
 /**
- * YARPCanOnRobotcubHeadAdapter is a specialization of the Can device driver
- * to control the RobotCub head. This class especially implements initialize and
+ * YARPCanOnRobotcubArmAdapter is a specialization of the Can device driver
+ * to control the RobotCub arm. This class especially implements initialize and
  * uninitialize while it leaves much of the burden of calling the device driver
  * to a generic template class called YARPGenericControlBoard.
  */
-class YARPCanOnRobotcubHeadAdapter : public YARPValueCanDeviceDriver
+class YARPCanOnRobotcubArmAdapter : public YARPValueCanDeviceDriver
 {
 public:
 	/**
 	 * Default constructor.
 	 */
-	YARPCanOnRobotcubHeadAdapter()
+	YARPCanOnRobotcubArmAdapter()
 	{
 		_initialized = false;
 	}
@@ -395,7 +409,7 @@ public:
 	/**
 	 * Destructor.
 	 */
-	~YARPCanOnRobotcubHeadAdapter()
+	~YARPCanOnRobotcubArmAdapter()
 	{
 		if (_initialized)
 			uninitialize();
@@ -403,7 +417,7 @@ public:
 
 	/**
 	 * Initializes the adapter and opens the device driver.
-	 * This is a specific initialization for the RobotCub head. NOTE: that the parameter
+	 * This is a specific initialization for the RobotCub arm. NOTE: that the parameter
 	 * here is not copied and references to it could still be made by the code. Until
 	 * this behavior is correct, the user has to make sure the pointer doesn't become
 	 * invalid during the lifetime of the adapter class (this one). Generally this is true
@@ -411,12 +425,12 @@ public:
 	 * internally (and their lifetime is related to that of the adapter).
 	 *
 	 * @param par is a pointer to the class containing the parameters that has
-	 * to be exactly YARPRobotcubHeadParameters.
+	 * to be exactly YARPRobotcubArmParameters.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
-	int initialize(YARPRobotcubHeadParameters *par)
+	int initialize(YARPRobotcubArmParameters *par)
 	{
-		using namespace _RobotcubHead;
+		using namespace _RobotcubArm;
 
 		_parameters = par;
 		
@@ -714,7 +728,7 @@ public:
 		switch (joint)
 		{
 		case -1:
-			YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
+			YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(("Starting arm calibration routine"));
 			ACE_OS::printf("..done!\n");
 			return YARP_OK;
 		
@@ -749,7 +763,7 @@ private:
 	bool _initialized;
 
 	/** Allocation and management of this object is typically done by the generic template. */
-	YARPRobotcubHeadParameters *_parameters;
+	YARPRobotcubArmParameters *_parameters;
 };
 
 #endif	// .h

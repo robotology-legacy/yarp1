@@ -206,6 +206,10 @@ SOURCE=..\babybot\yarp\YARPTouchBoardParameters.h
 # PROP Default_Filter "cpp;h"
 # Begin Source File
 
+SOURCE=..\robotcub\yarp\YARPCanOnRobotcubArmAdapter.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\robotcub\yarp\YARPCanOnRobotcubHeadAdapter.h
 
 !IF  "$(CFG)" == "libYARP_robot - Win32 Release"
@@ -220,6 +224,10 @@ SOURCE=..\robotcub\yarp\YARPCanOnRobotcubHeadAdapter.h
 # Begin Source File
 
 SOURCE=..\robotcub\yarp\YARPNullGrabberOnRobotcubAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\robotcub\yarp\YARPRobotcubArm.h
 # End Source File
 # Begin Source File
 
