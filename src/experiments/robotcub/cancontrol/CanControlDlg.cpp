@@ -536,7 +536,10 @@ void CCanControlDlg::OnParametersAddressofcards()
 	int i;
 
 	for (i = 0; i < CANBUS_MAXCARDS; i++)
-		dlgAddress.m_address[i] = m_destinations[i];
+	{
+		dlgAddress.m_address[i] = m_destinations[i] & 0x0f;
+		dlgAddress.m_disabled[i] = (m_destinations[i] & 0x80) ? TRUE : FALSE;
+	}
 
 	int nResponse = dlgAddress.DoModal();
 
@@ -544,7 +547,7 @@ void CCanControlDlg::OnParametersAddressofcards()
 	{
 		for (i = 0; i < CANBUS_MAXCARDS-1; i++)
 		{
-			m_destinations[i] = dlgAddress.m_address[i];
+			m_destinations[i] = (dlgAddress.m_address[i] & 0x0f) + ((dlgAddress.m_disabled[i] == TRUE) ? 0x80 : 0x00);
 		}
 	}	
 }
@@ -984,11 +987,11 @@ void CCanControlDlg::OnFileLoadconfiguration()
 		}
 
 		int dest[CANBUS_MAXCARDS];
-		for (i = 0; i < CANBUS_MAXCARDS; i++) dest[i] = 16;
+		for (i = 0; i < CANBUS_MAXCARDS; i++) dest[i] = 16+128;
 
 		file.get("[GENERAL]", "Destinations", dest, m_njoints/2);
 		for (i = 0; i < m_njoints/2; i++)
-			m_destinations[i] = dest[i] & 0x0f;
+			m_destinations[i] = (dest[i] & 0x0f) + (dest[i] & 0x80);
 	}
 	else
 	{

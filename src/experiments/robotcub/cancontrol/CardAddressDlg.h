@@ -21,9 +21,10 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CCardAddressDlg)
 	enum { IDD = IDD_ADDRESS_DIALOG };
-	int		m_address[CANBUS_MAXCARDS];
 	//}}AFX_DATA
 
+	int		m_address[CANBUS_MAXCARDS];
+	BOOL	m_disabled[CANBUS_MAXCARDS];
 
 // Overrides
 	// ClassWizard generated virtual function overrides

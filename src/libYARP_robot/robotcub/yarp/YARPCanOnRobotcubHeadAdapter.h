@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.12 2004-09-04 22:01:31 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.13 2004-09-05 14:47:56 babybot Exp $
 ///
 ///
 
@@ -48,6 +48,10 @@
 #define YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_DEBUG("ROBOTCUB_HEAD_ADAPTER_DEBUG:", string)
 #else  YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
+
+#define MY_DEBUG \
+	if (_parameters->_p != NULL) \
+		(*_parameters->_p)
 
 /**
  * \file YARPCanOnRobotcubHeadAdapter.h This file contains definitions of the control classes
@@ -86,7 +90,7 @@ namespace _RobotcubHead
 
 	const double _zeros[_nj]			= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	const int _axis_map[_nj]			= { 5, 6, 4, 7, 3, 2, 1, 0 };
-	const int _signs[_nj]				= { 0, 0, 0, 0, 0, 0, 0, 0 };
+	const double _signs[_nj]			= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1 };
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
@@ -98,19 +102,15 @@ namespace _RobotcubHead
 	const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
 	const int CANBUS_MAXCARDS			= MAX_CARDS;
 
-	const char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 
-												  0x7f, 0x7f, 0x7f, 0x7f,
-												  0x7f, 0x7f, 0x7f, 0x7f,
-												  0x7f, 0x7f, 0x7f, 0x7f };
+	const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 
+														   0x80, 0x80, 0x80, 0x80,
+														   0x80, 0x80, 0x80, 0x80,
+														   0x80, 0x80, 0x80, 0x80 };
 }; // namespace
 
 
 // InvAxisMap	6 7 5 4 2 0 1 3
 // AxisMap		5 6 4 7 3 2 0 1
-
-//
-// LATER: Add loading of card addresses (destinations) from the head config file.
-//
 
 /**
  * YARPRobotcubHeadParameters is one of the components required to
@@ -125,6 +125,15 @@ namespace _RobotcubHead
  * think of an axis number is used.
  * - Since the axis map is only used internally this should be of no concern for
  * the user.
+ *
+ * NOTE: programmatically angles are always in radians here. Conversely in 
+ * configuration files the angles and conversion factors are expressed in 
+ * degrees. Please make sure you convert to radians before commanding 
+ * postion, speed, etc.
+ *
+ * NOTE: to disable a joint control at the driver level replace the address
+ * of the card with itself+128. This will tell the driver to behave normally but
+ * to drop the request to that card altogether.
  *
  */
 class YARPRobotcubHeadParameters
@@ -147,22 +156,25 @@ public:
 		_maxDAC = NULL;
 		_limitsMax = NULL;
 		_limitsMin = NULL;
-		
+		_destinations = NULL;
+
 		_nj = _RobotcubHead::_nj;
 		_realloc(_nj);
-		int i;
-		for(i = 0; i < _nj; i++) 
-		{
-			_highPIDs[i] = _RobotcubHead::_highPIDs[i];
-			_lowPIDs[i] = _RobotcubHead::_lowPIDs[i];
-			_zeros[i] = _RobotcubHead::_zeros[i];
-			_axis_map[i] = _RobotcubHead::_axis_map[i];
-			_signs[i] = _RobotcubHead::_signs[i];
-			_encoderToAngles[i] = _RobotcubHead::_encoderToAngles[i];
-			_stiffPID[i] = _RobotcubHead::_stiffPID[i];
-			_maxDAC[i] = _RobotcubHead::_maxDAC[i];
-		}
 
+		ACE_OS::memcpy (_highPIDs, _RobotcubHead::_highPIDs, sizeof(LowLevelPID) * _nj);
+		ACE_OS::memcpy (_lowPIDs, _RobotcubHead::_lowPIDs, sizeof(LowLevelPID) * _nj);
+		ACE_OS::memcpy (_zeros, _RobotcubHead::_zeros, sizeof(double) * _nj);
+		ACE_OS::memcpy (_axis_map, _RobotcubHead::_axis_map, sizeof(int) * _nj);
+		ACE_OS::memcpy (_signs, _RobotcubHead::_signs, sizeof(double) * _nj);
+		ACE_OS::memcpy (_encoderToAngles, _RobotcubHead::_encoderToAngles, sizeof(double) * _nj);
+		ACE_OS::memcpy (_stiffPID, _RobotcubHead::_stiffPID, sizeof(int) * _nj);
+		ACE_OS::memcpy (_maxDAC, _RobotcubHead::_maxDAC, sizeof(double) * _nj);
+		ACE_OS::memcpy (_destinations, _RobotcubHead::_destinations, sizeof(unsigned char) * _RobotcubHead::CANBUS_MAXCARDS);
+
+		ACE_OS::memset (_limitsMax, 0, sizeof(double) * _nj);
+		ACE_OS::memset (_limitsMin, 0, sizeof(double) * _nj);
+
+		int i;
 		// invert the axis map.
 		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
 		for (i = 0; i < _nj; i++)
@@ -187,33 +199,23 @@ public:
 	 */
 	~YARPRobotcubHeadParameters()
 	{
-		if (_highPIDs != NULL)
-			delete [] _highPIDs;
-		if (_lowPIDs != NULL)
-			delete [] _lowPIDs;
-		if (_zeros != NULL)
-			delete [] _zeros;
-		if (_signs != NULL)
-			delete [] _signs;
-		if (_axis_map != NULL)
-			delete [] _axis_map;
-		if (_inv_axis_map != NULL)
-			delete [] _inv_axis_map;
-		if (_encoderToAngles != NULL)
-			delete [] _encoderToAngles;
-		if (_stiffPID != NULL)
-			delete [] _stiffPID;
-		if (_maxDAC != NULL)
-			delete [] _maxDAC;
-		if (_limitsMax != NULL)
-			delete [] _limitsMax;
-		if (_limitsMin != NULL)
-			delete [] _limitsMin;
+		if (_highPIDs != NULL) delete [] _highPIDs;
+		if (_lowPIDs != NULL) delete [] _lowPIDs;
+		if (_zeros != NULL)	delete [] _zeros;
+		if (_signs != NULL)	delete [] _signs;
+		if (_axis_map != NULL) delete [] _axis_map;
+		if (_inv_axis_map != NULL) delete [] _inv_axis_map;
+		if (_encoderToAngles != NULL) delete [] _encoderToAngles;
+		if (_stiffPID != NULL) delete [] _stiffPID;
+		if (_maxDAC != NULL) delete [] _maxDAC;
+		if (_limitsMax != NULL)	delete [] _limitsMax;
+		if (_limitsMin != NULL)	delete [] _limitsMin;
+		if (_destinations != NULL) delete[] _destinations;
 	}
 
 	/**
 	 * Loads the paramters from a configuration file and allocates memory
-	 * if necessary.
+	 * if necessary. Error handling is not particularly smart here!
 	 * @param path is the path where the initialization file is located.
 	 * @param init_file is the intitialization file name.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
@@ -275,6 +277,13 @@ public:
 		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 
+		int tmp[_RobotcubHead::CANBUS_MAXCARDS];
+		if (cfgFile.get("[GENERAL]", "CanAddresses", tmp, _RobotcubHead::CANBUS_MAXCARDS) == YARP_FAIL)
+			return YARP_FAIL;
+
+		for (i = 0; i < _RobotcubHead::CANBUS_MAXCARDS; i++)
+			_destinations[i] = (tmp[i] & 0xff);
+
 		///////////////// HEAD LIMITS
 		if (cfgFile.get("[LIMITS]", "Max", _limitsMax, _nj) == YARP_FAIL)
 			return YARP_FAIL;
@@ -321,6 +330,7 @@ public:
 			memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
 			memcpy (_limitsMax, peer._limitsMax, sizeof(double) * _nj);
 			memcpy (_limitsMin, peer._limitsMin, sizeof(double) * _nj);
+			memcpy (_destinations, peer._destinations, sizeof(char) * _RobotcubHead::CANBUS_MAXCARDS);
 
 			_p = peer._p;
 			_message_filter = peer._message_filter;
@@ -338,6 +348,7 @@ public:
 			if (_maxDAC != NULL) delete [] _maxDAC;
 			if (_limitsMax != NULL) delete [] _limitsMax;
 			if (_limitsMin != NULL) delete [] _limitsMin;
+			if (_destinations != NULL) delete[] _destinations;
 
 			_highPIDs = NULL;
 			_lowPIDs = NULL;
@@ -350,6 +361,7 @@ public:
 			_maxDAC = NULL;
 			_limitsMax = NULL;
 			_limitsMin = NULL;
+			_destinations = NULL;
 
 			_p = peer._p;
 			_message_filter = peer._message_filter;
@@ -365,29 +377,19 @@ private:
 	 */
 	void _realloc(int nj)
 	{
-		if (_highPIDs != NULL)
-			delete [] _highPIDs;
-		if (_lowPIDs != NULL)
-			delete [] _lowPIDs;
-		if (_zeros != NULL)
-			delete [] _zeros;
-		if (_signs != NULL)
-			delete [] _signs;
-		if (_axis_map != NULL)
-			delete [] _axis_map;
-		if (_inv_axis_map != NULL)
-			delete [] _inv_axis_map;
-		if (_encoderToAngles != NULL)
-			delete [] _encoderToAngles;
-		if (_stiffPID != NULL)
-			delete [] _stiffPID;
-		if (_maxDAC != NULL)
-			delete [] _maxDAC;
-		if (_limitsMax != NULL)
-			delete [] _limitsMax;
-		if (_limitsMin != NULL)
-			delete [] _limitsMin;
-		
+		if (_highPIDs != NULL) delete [] _highPIDs;
+		if (_lowPIDs != NULL) delete [] _lowPIDs;
+		if (_zeros != NULL)	delete [] _zeros;
+		if (_signs != NULL)	delete [] _signs;
+		if (_axis_map != NULL) delete [] _axis_map;
+		if (_inv_axis_map != NULL) delete [] _inv_axis_map;
+		if (_encoderToAngles != NULL) delete [] _encoderToAngles;
+		if (_stiffPID != NULL) delete [] _stiffPID;
+		if (_maxDAC != NULL) delete [] _maxDAC;
+		if (_limitsMax != NULL)	delete [] _limitsMax;
+		if (_limitsMin != NULL)	delete [] _limitsMin;
+		if (_destinations != NULL) delete[] _destinations;
+
 		_highPIDs = new LowLevelPID [nj];
 		_lowPIDs = new LowLevelPID [nj];
 		_zeros = new double [nj];
@@ -399,6 +401,8 @@ private:
 		_limitsMin = new double [nj];
 		_stiffPID = new int [nj];
 		_maxDAC = new double [nj];
+		_destinations = new unsigned char[_RobotcubHead::CANBUS_MAXCARDS];
+		// !NULL not checked!
 	}
 
 public:
@@ -415,6 +419,7 @@ public:
 	double			*_maxDAC;
 	double			*_limitsMax;
 	double			*_limitsMin;
+	unsigned char	*_destinations;
 
 	int (* _p) (char *fmt, ...);
 	int _message_filter;
@@ -470,7 +475,10 @@ public:
 		ValueCanOpenParameters op_par;
 		op_par._port_number = CANBUS_DEVICE_NUM;
 		op_par._arbitrationID = CANBUS_ARBITRATION_ID;
-		memcpy (op_par._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
+
+		// using addresses from file now!
+		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
+
 		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
 		op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
 		op_par._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
@@ -529,6 +537,7 @@ public:
 			double pos = 0.0;
 			cmd.parameters = &pos;
 			IOCtl(CMDDefinePosition, &cmd);
+			IOCtl(CMDSetCommand, &cmd);
 
 			// and set the limits too from the data in the initialization file.
 			double min, max;
@@ -660,6 +669,8 @@ public:
 	 */
 	double speedMove (int joint, double speed, double accel, double threshold)
 	{
+		MY_DEBUG("Starting motion: vel %.2f acc %.2f thr %.2f\n", speed, accel, threshold);
+
 		double *tmpv = new double[_parameters->_nj];
 		ACE_ASSERT (tmpv != NULL);
 		ACE_OS::memset (tmpv, 0, sizeof(double) * _parameters->_nj);
@@ -675,14 +686,17 @@ public:
 		SingleAxisParameters s;
 		s.axis = joint;
 		s.parameters = &error;
+
 		int ret = YARP_FAIL;
+		MY_DEBUG("In the loop...\n");
 		do 
 		{
-			// gets error.
-			ret = IOCtl(CMDGetTorque, &s);
+			ret = IOCtl(CMDGetPIDError, &s);
+
 			YARPTime::DelayInSeconds(0.01);
+			MY_DEBUG ("error: %f ret: %d\n", error, ret);
 		}
-		while (fabs(error) < threshold && ret != YARP_FAIL);
+		while (((speed > 0) ? (error < threshold) : (error > -threshold)) && ret != YARP_FAIL);
 
 		// stop motion.
 		ACE_OS::memset (tmpv, 0, sizeof(double) * _parameters->_nj);
@@ -705,24 +719,44 @@ public:
 	}
 
 	/**
+	 *
+	 */
+	int servoToPos (int joint, double pos)
+	{
+		SingleAxisParameters cmd;
+		cmd.axis = joint;
+		cmd.parameters = &pos;
+
+		IOCtl(CMDSetCommand, &cmd);
+
+		return YARP_OK;
+	}
+
+	/**
 	 * Just a generic calibration helper function. WARNING: errors are not handled!
 	 * @param joint is the joint to be calibrated.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
 	int genericCalibrate (int joint)
 	{
-		const double DESIRED_ACC = 2;
-		const double DESIRED_SPEED = 40;
-		const double THRESHOLD = 20;
+		MY_DEBUG("Starting calibration for axis: %d\n", joint);
+
+		const double DESIRED_ACC = 4;
+		const double DESIRED_SPEED = 10;
+		const double THRESHOLD = 10000;
 		const double MARGIN = 500;
 
 		double max_position = 0;
 		double min_position = 0;
 
 		max_position = speedMove (joint, DESIRED_SPEED, DESIRED_ACC, THRESHOLD);
+		servoToPos (joint, max_position);
+
 		min_position = speedMove (joint, -DESIRED_SPEED, DESIRED_ACC, THRESHOLD);
+		servoToPos (joint, min_position);
 
 		const double center = (max_position+min_position)/2;
+		MY_DEBUG("Determined max: %f min: %f center: %f\n", max_position, min_position, center);
 
 		SingleAxisParameters cmd;
 		cmd.axis = joint;
@@ -736,17 +770,20 @@ public:
 		IOCtl(CMDSetPosition, &cmd);
 		
 		// should wait for movement completion instead.
-		YARPTime::DelayInSeconds (0.5);
+		YARPTime::DelayInSeconds (2.0);
 
 		// zero encoder here.
 		tmp = 0;
 		IOCtl(CMDDefinePosition, &cmd);
+		IOCtl(CMDSetCommand, &cmd);
 
 		// can set limits, right?
 		tmp = (max_position-min_position)/2 - MARGIN;
 		IOCtl(CMDSetSWPositiveLimit, &cmd);
 		tmp = -(max_position-min_position)/2 + MARGIN;
 		IOCtl(CMDSetSWNegativeLimit, &cmd);
+
+		MY_DEBUG("New limits are: min %f max %f\n", (max_position-min_position)/2 - MARGIN, -(max_position-min_position)/2 + MARGIN);
 
 		return YARP_OK;
 	}
@@ -801,5 +838,6 @@ private:
 	/** Allocation and management of this object is typically done by the generic template. */
 	YARPRobotcubHeadParameters *_parameters;
 };
+
 
 #endif	// .h

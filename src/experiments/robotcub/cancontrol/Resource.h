@@ -12,7 +12,6 @@
 #define IDD_CARDS_DIALOG                132
 #define IDD_SETADDR_DIALOG              134
 #define IDD_TEST_DIALOG                 135
-#define IDC_EDIT_ADDRESS0               1000
 #define IDC_EDIT1                       1001
 #define IDC_BUTTON_UPDATE               1002
 #define IDC_COMBO_AXIS                  1003
@@ -21,6 +20,7 @@
 #define IDC_EDIT_IGAIN                  1006
 #define IDC_EDIT_ILIMIT                 1007
 #define IDC_EDIT_SHIFT                  1008
+#define IDC_EDIT_ADDRESS0               1008
 #define IDC_EDIT_ADDRESS1               1009
 #define IDC_EDIT_OFFSET                 1009
 #define IDC_EDIT_ADDRESS2               1010
@@ -70,6 +70,22 @@
 #define IDC_EDIT_VELOCITY               1042
 #define IDC_BUTTON_STOPM                1043
 #define IDC_BUTTON_STARTM               1045
+#define IDC_CHECK1                      1046
+#define IDC_CHECK2                      1047
+#define IDC_CHECK3                      1048
+#define IDC_CHECK4                      1049
+#define IDC_CHECK5                      1050
+#define IDC_CHECK6                      1051
+#define IDC_CHECK7                      1052
+#define IDC_CHECK8                      1053
+#define IDC_CHECK9                      1054
+#define IDC_CHECK10                     1055
+#define IDC_CHECK11                     1056
+#define IDC_CHECK12                     1057
+#define IDC_CHECK13                     1058
+#define IDC_CHECK14                     1059
+#define IDC_CHECK15                     1060
+#define IDC_CHECK16                     1061
 #define ID_FILE_EXIT                    32771
 #define ID_HELP_ABOUT                   32772
 #define ID_PARAMETERS_NUMBEROFCARDS     32773
@@ -90,7 +106,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        136
 #define _APS_NEXT_COMMAND_VALUE         32784
-#define _APS_NEXT_CONTROL_VALUE         1046
+#define _APS_NEXT_CONTROL_VALUE         1047
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

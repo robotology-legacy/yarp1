@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.2 2004-09-02 22:05:45 gmetta Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.3 2004-09-05 14:47:56 babybot Exp $
 ///
 ///
 
@@ -68,7 +68,10 @@ enum ControlBoardCmd
 	CMDSetAcceleration 		= 2,	// reference acceleration for position and velocity control.
 	CMDSetAccelerations 	= 7,	// see above, all axes.
 
+	CMDGetRefPosition		= 84,	// get the reference (commanded) position for a single axis.
 	CMDGetRefPositions 		= 24,	// get reference position (commanded).
+	CMDGetPIDError			= 85,	// get the PID error.
+
 	CMDGetRefSpeeds 		= 22,	// get reference speed.
 	CMDGetRefAccelerations 	= 23,	// get reference acceleration.
 
@@ -186,7 +189,7 @@ enum ControlBoardCmd
 	// Make sure the CBNCmds is always up to date.
 	//
 	CMDDummy 				= 63,	// dummy command for debug purposes.
-	CBNCmds 				= 84 	// required! tells the total number of commands
+	CBNCmds 				= 86 	// required! tells the total number of commands
 };
 
 

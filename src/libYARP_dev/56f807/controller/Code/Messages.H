@@ -460,6 +460,23 @@
 		_general_board_error = ERROR_SEND; \
 }
 
+#define CAN_GET_PID_ERROR_HANDLER(x) \
+{ \
+	CAN_DATA[0] = CAN_DATA[0] >> 4; \
+	CAN_DATA[0] |= (_board_ID << 4); \
+	if (CAN1_GetStateTX () != 0) \
+	{ \
+		int i = CHANNEL(CAN_DATA[1]); \
+		CAN_LEN = 4; \
+		CAN_DATA[2] = BYTE_H(_error[i]); \
+		CAN_DATA[3] = BYTE_L(_error[i]); \
+		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
+	} \
+	else \
+		_general_board_error = ERROR_SEND; \
+}
+
 #define CAN_SET_P_GAIN_HANDLER(x) \
 { \
 	int i = CHANNEL(CAN_DATA[1]); \

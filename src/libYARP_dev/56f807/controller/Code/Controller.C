@@ -154,7 +154,7 @@ int u0, u1, ud;
 	u0 = (ud & 0x00ff); \
 	u1 *= _kd[j]; \
 	_pid[j] += __shl (u1, 8-_kr[j]); \
-	u0 *= _kd[0]; \
+	u0 *= _kd[j]; \
 	_pid[j] += __shr (u0, _kr[j]); \
 	\
 	_pid[j] += _ko[j]; \
@@ -420,7 +420,7 @@ void main(void)
 
 	/* initialization */
 	DSP_SendDataEx ("\r\n\n");
-	DSP_SendDataEx ("Firmware - ver 1.0\r\n");
+	DSP_SendDataEx ("Firmware - ver 1.1\r\n");
 	
 	PWMC1_Enable ();
 	PWMC2_Enable ();  
@@ -642,6 +642,7 @@ byte can_interface (void)
 		HANDLE_MSG (CAN_VELOCITY_MOVE, CAN_VELOCITY_MOVE_HANDLER)
 	
 		HANDLE_MSG (CAN_GET_PID_OUTPUT, CAN_GET_PID_OUTPUT_HANDLER)
+		HANDLE_MSG (CAN_GET_PID_ERROR, CAN_GET_PID_ERROR_HANDLER)
 		
 		HANDLE_MSG (CAN_SET_MIN_POSITION, CAN_SET_MIN_POSITION_HANDLER)
 		HANDLE_MSG (CAN_GET_MIN_POSITION, CAN_GET_MIN_POSITION_HANDLER)

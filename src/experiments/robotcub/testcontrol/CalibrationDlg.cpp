@@ -85,12 +85,12 @@ void CCalibrationDlg::OnButtonJ1()
 
 void CCalibrationDlg::OnButtonJ2() 
 {
-	head.calibrate (1);
+	head.calibrate (2);
 }
 
 void CCalibrationDlg::OnButtonJ3() 
 {
-	head.calibrate (2);
+	head.calibrate (1);
 }
 
 void CCalibrationDlg::OnButtonJ4() 

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.4 2004-09-03 21:22:54 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.5 2004-09-05 14:47:56 babybot Exp $
 ///
 ///
 
@@ -288,9 +288,12 @@ YARPValueCanDeviceDriver::YARPValueCanDeviceDriver(void)
 	/// for the IOCtl call.
 	m_cmds[CMDGetPosition] = &YARPValueCanDeviceDriver::getPosition;
 	m_cmds[CMDGetPositions] = &YARPValueCanDeviceDriver::getPositions;
+	m_cmds[CMDGetRefPosition] = &YARPValueCanDeviceDriver::getRefPosition;
 	m_cmds[CMDGetRefPositions] = &YARPValueCanDeviceDriver::getRefPositions;
 	m_cmds[CMDSetPosition] = &YARPValueCanDeviceDriver::setPosition;
 	m_cmds[CMDSetPositions] = &YARPValueCanDeviceDriver::setPositions;
+	m_cmds[CMDGetPIDError] = &YARPValueCanDeviceDriver::getError;
+
 	m_cmds[CMDSetSpeed] = &YARPValueCanDeviceDriver::setSpeed;
 	m_cmds[CMDSetSpeeds] = &YARPValueCanDeviceDriver::setSpeeds;
 	m_cmds[CMDGetSpeeds] = &YARPValueCanDeviceDriver::getSpeeds;
@@ -639,6 +642,15 @@ int YARPValueCanDeviceDriver::setPositions (void *cmd)
 	return YARP_OK;
 }
 
+inline bool YARPValueCanDeviceDriver::ENABLED (int axis)
+{
+	ValueCanResources& r = RES(system_resources);
+	if (r._destinations[axis/2] & CAN_SKIP_ADDR)
+		return false;
+
+	return true;
+}
+
 ///
 ///
 /// cmd is a SingleAxisParameters pointer to a double argument
@@ -646,11 +658,17 @@ int YARPValueCanDeviceDriver::setPosition (void *cmd)
 {
 	/// prepare can message.
 	ValueCanResources& r = RES(system_resources);
-
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
-	
+
+	if (!ENABLED (axis))
+	{
+		// still fills the _ref_position structure.
+		_ref_positions[axis] = *((double *)tmp->parameters);
+		return YARP_OK;
+	}
+
 	_mutex.Wait();
 
 	/// four bits are mapped into four bit addresses through _destinations[].
@@ -689,28 +707,35 @@ int YARPValueCanDeviceDriver::velocityMove (void *cmd)
 
 	for (i = 0; i < r._njoints; i++)
 	{
-		_mutex.Wait();
+		if (ENABLED (i))
+		{
+			_mutex.Wait();
 
-		/// four bits are mapped into four bit addresses through _destinations[].
-		r._cmdBuffer.Data[0] = ((r._my_address << 4) & 0xf0);
-		r._cmdBuffer.Data[0] += (r._destinations[i/2] & 0x0f); 
-		r._cmdBuffer.Data[1] = CAN_VELOCITY_MOVE | ((i % 2) << 7);
+			/// four bits are mapped into four bit addresses through _destinations[].
+			r._cmdBuffer.Data[0] = ((r._my_address << 4) & 0xf0);
+			r._cmdBuffer.Data[0] += (r._destinations[i/2] & 0x0f); 
+			r._cmdBuffer.Data[1] = CAN_VELOCITY_MOVE | ((i % 2) << 7);
 
-		_ref_speeds[i] = tmp[i];
-		*((short*)(r._cmdBuffer.Data+2)) = S_16(_ref_speeds[i]);		/// speed
-		*((short*)(r._cmdBuffer.Data+4)) = S_16(_ref_accs[i]);			/// accel
-		///*((short*)(r._cmdBuffer.Data+4)) = S_16(*(tmp+i*2+1));		/// accel
+			_ref_speeds[i] = tmp[i];
+			*((short*)(r._cmdBuffer.Data+2)) = S_16(_ref_speeds[i]);		/// speed
+			*((short*)(r._cmdBuffer.Data+4)) = S_16(_ref_accs[i]);			/// accel
+			///*((short*)(r._cmdBuffer.Data+4)) = S_16(*(tmp+i*2+1));		/// accel
 
-		r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
-		r._cmdBuffer.NumberBytesData = 6;
-		
-		_request = true;
-		_noreply = true;
-		
-		_mutex.Post();
+			r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
+			r._cmdBuffer.NumberBytesData = 6;
+			
+			_request = true;
+			_noreply = true;
+			
+			_mutex.Post();
 
-		/// syncing.
-		_ev.Wait();
+			/// syncing.
+			_ev.Wait();
+		}
+		else
+		{
+			_ref_speeds[i] = tmp[i];
+		}
 	}
 
 	return YARP_OK;
@@ -784,6 +809,22 @@ int YARPValueCanDeviceDriver::getRefPositions (void *cmd)
 		else
 			return YARP_FAIL;
 	}
+
+	return YARP_OK;
+}
+
+/// cmd is a SingleAxis pointer with double arg
+int YARPValueCanDeviceDriver::getRefPosition (void *cmd)
+{
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	
+	int value = 0;
+	if (_readDWord (CAN_GET_DESIRED_POSITION, axis, value) == YARP_OK)
+		*((double *)(tmp->parameters)) = double (value);
+	else
+		return YARP_FAIL;
 
 	return YARP_OK;
 }
@@ -1071,6 +1112,25 @@ int YARPValueCanDeviceDriver::getTorque (void *cmd)
 }
 
 
+/// cmd is a SingleAxisParameters struct with a double argument.
+int YARPValueCanDeviceDriver::getError (void *cmd)
+{
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	short value;
+
+	if (_readWord16 (CAN_GET_PID_ERROR, axis, value) != YARP_OK)
+	{
+		*((double *)tmp->parameters) = 0;
+		return YARP_FAIL;
+	}
+
+	*((double *)tmp->parameters) = double(value);
+	return YARP_OK;
+}
+
+
 /// cmd is a pointer to SingleAxisParameters struct with no argument.
 int YARPValueCanDeviceDriver::readBootMemory (void *cmd)
 {
@@ -1225,6 +1285,13 @@ int YARPValueCanDeviceDriver::getErrorStatus (void *cmd)
 int YARPValueCanDeviceDriver::_writeNone (int msg, int axis)
 {
 	ValueCanResources& r = RES(system_resources);
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+
+	if (!ENABLED(axis))
+	{
+		return YARP_OK;
+	}
+
 	_mutex.Wait();
 
 	/// four bits are mapped into four bit addresses through _destinations[].
@@ -1250,6 +1317,13 @@ int YARPValueCanDeviceDriver::_writeNone (int msg, int axis)
 int YARPValueCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 {
 	ValueCanResources& r = RES(system_resources);
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+
+	if (!ENABLED(axis))
+	{
+		value = short(0);
+		return YARP_OK;
+	}
 
 	/// prepare Can message.
 	_mutex.Wait();
@@ -1284,9 +1358,11 @@ int YARPValueCanDeviceDriver::_writeWord16 (int msg, int axis, short s)
 {
 	/// prepare Can message.
 	ValueCanResources& r = RES(system_resources);
-
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
 	
+	if (!ENABLED(axis))
+		return YARP_OK;
+
 	_mutex.Wait();
 
 	/// four bits are mapped into four bit addresses through _destinations[].
@@ -1316,6 +1392,10 @@ int YARPValueCanDeviceDriver::_writeWord16 (int msg, int axis, short s)
 int YARPValueCanDeviceDriver::_writeDWord (int msg, int axis, int value)
 {
 	ValueCanResources& r = RES(system_resources);
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+
+	if (!ENABLED(axis))
+		return YARP_OK;
 
 	_mutex.Wait();
 
@@ -1350,6 +1430,9 @@ int YARPValueCanDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
 	ACE_ASSERT ((axis % 2) == 0);	/// axis is even.
 
+	if (!ENABLED(axis))
+		return YARP_OK;
+
 	_mutex.Wait();
 
 	/// four bits are mapped into four bit addresses through _destinations[].
@@ -1382,6 +1465,13 @@ int YARPValueCanDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short
 int YARPValueCanDeviceDriver::_readDWord (int msg, int axis, int& value)
 {
 	ValueCanResources& r = RES(system_resources);
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+
+	if (!ENABLED(axis))
+	{
+		value = 0;
+		return YARP_OK;
+	}
 
 	/// prepare Can message.
 	_mutex.Wait();

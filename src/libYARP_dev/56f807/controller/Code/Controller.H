@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.1 2004-07-12 23:40:29 babybot Exp $
+/// $Id: Controller.H,v 1.2 2004-09-05 14:47:56 babybot Exp $
 ///
 ///
 
@@ -150,6 +150,7 @@ long BYTE_C(byte x4, byte x3, byte x2, byte x1);
 #define CAN_GET_ERROR_STATUS		60
 
 #define CAN_GET_PID_OUTPUT			63
+#define CAN_GET_PID_ERROR			55
 
 #define CAN_SET_MIN_POSITION		64
 #define CAN_GET_MIN_POSITION		65

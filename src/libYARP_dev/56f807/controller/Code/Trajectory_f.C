@@ -24,7 +24,7 @@ float _curtf[JN] = { 0., 0. };
 long _curstepf[JN] = { 0, 0 };
 
 int _period = CONTROLLER_PERIOD;	/* in ms */
-float _stepf = 0;
+float _stepf[JN] = { 0., 0. };
 
 bool _ended[JN] = { true, true };
 
@@ -61,7 +61,7 @@ int init_trajectory (byte jj, long current, long final, int speed)
 	_distance[jj] = _xf[jj] - _x0[jj];
 	_tf[jj] = __labs (_distance[jj]) / speedf;
 	_tf[jj] /= (float)_period;
-	_stepf = 1 / _tf[jj];
+	_stepf[jj] = 1 / _tf[jj];
 	
 	if (_tf[jj] < 1)
 	{
@@ -106,12 +106,12 @@ long step_trajectory (byte jj)
 		
 	if (_curtf[jj] == 0)
 	{
-		_curtf[jj] += _stepf;
+		_curtf[jj] += _stepf[jj];
 		_curstepf[jj] ++;
 		return _x0[jj];
 	}
 	else
-	if (_curtf[jj] < 1.-_stepf)
+	if (_curtf[jj] < 1.-_stepf[jj])
 	{
 		/* calculate the power factors */
 		a = p5f (_curtf[jj]);
@@ -119,7 +119,7 @@ long step_trajectory (byte jj)
 		a += _x0[jj];
 		
 		/* time */
-		_curtf[jj] += _stepf;
+		_curtf[jj] += _stepf[jj];
 		_curstepf[jj] ++;
 
 		return (long)a;

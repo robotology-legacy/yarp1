@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.3 2004-09-03 21:22:54 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.4 2004-09-05 14:47:56 babybot Exp $
 ///
 ///
 
@@ -49,6 +49,12 @@
  * Max number of addressable cards in this implementation.
  */
 const int MAX_CARDS		= 16;
+
+/**
+ * A flag used to disable a card (commands with this flag on
+ * are silently ignored).
+ */
+const unsigned char CAN_SKIP_ADDR = 0x80;
 
 /**
  * The open parameter class containing the initialization values.
@@ -127,9 +133,11 @@ public:
 protected:
 	int getPosition(void *cmd);
 	int getPositions(void *cmd);
+	int getRefPosition (void *cmd);
 	int getRefPositions(void *cmd);
 	int setPosition(void *cmd);
 	int setPositions(void *cmd);
+	int getError(void *cmd);
 	int setSpeed(void *cmd);
 	int setSpeeds(void *cmd);
 	int getSpeeds(void *cmd);
@@ -165,7 +173,7 @@ protected:
 	int getTorqueLimit (void *cmd);
 	int getTorqueLimits (void *cmd);
 	int getErrorStatus(void *cmd);
-
+	
 	int setDebugMessageFilter (void *cmd);
 	int setDebugPrintFunction (void *cmd);
 
@@ -191,6 +199,14 @@ protected:
 	 * filter for recurrent messages.
 	 */
 	int _filter;
+
+	/**
+	 * helper function to check whether the enabled flag is on or off.
+	 * @param axis is the axis to check for.
+	 * @return true if the axis is enabled and processing of the message
+	 * can in fact continue.
+	 */
+	inline bool ENABLED (int axis);
 
 	virtual void Body(void);
 
