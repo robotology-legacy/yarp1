@@ -175,6 +175,8 @@ public:
 
 	void resetEncoders(const double *pos);
 
+	void setStiffness(int joint, double k);
+
 private:
 	friend class	AState;
 	friend class	ASRestingInit;
@@ -249,6 +251,10 @@ public: //later: make it private
 	YVector _gravityTerms;
 
 	YVector _shakeCmd; //this is used only by AB
+
+	double	_newGain;
+	int		_newGainJoint;
+
 };
 
 #endif //.h

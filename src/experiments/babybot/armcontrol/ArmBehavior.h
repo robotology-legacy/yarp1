@@ -44,6 +44,12 @@ public:
 	void output(ArmBehaviorData *d);
 };
 
+class ABSetStiffness: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
 class ABForceOutputCommand: public ArmBehaviorBaseOutput
 {
 public:
@@ -169,6 +175,26 @@ public:
 	
 	YBVocab key;
 	YBVocab tmpK;
+};
+
+class ABInputSetStiffness: public ArmBehaviorBaseInput
+{
+public:
+	ABInputSetStiffness(const YBVocab &k)
+	{
+		key = k;
+	}
+	bool input(YARPBabyBottle *in, ArmBehaviorData *d);
+	
+	YBVocab key;
+	YBVocab tmpK;
+
+};
+
+class ABSetStiffnessState:public ArmBehaviorStateBase
+{
+public:
+	void handle(ArmBehaviorData *d);
 };
 
 #endif

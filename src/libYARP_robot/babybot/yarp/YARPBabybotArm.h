@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotArm.h,v 1.2 2004-07-30 10:33:24 babybot Exp $
+///  $Id: YARPBabybotArm.h,v 1.3 2004-10-01 12:53:39 babybot Exp $
 ///
 ///
 
@@ -80,9 +80,16 @@
 #include <yarp/YARPGenericControlBoard.h>
 #include <yarp/YARPMEIOnBabybotArmAdapter.h>
 
-class YARPBabybotArm : public YARPGenericControlBoard<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters>
+typedef YARPGenericControlBoard<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters> MyGenericControlBoard;
+
+class YARPBabybotArm : public MyGenericControlBoard
 {
 public:
+	YARPBabybotArm():MyGenericControlBoard()
+	{
+		_pidSigns = NULL;
+	}
+
 	// override activatePID
 	int activatePID()
 	{
@@ -107,6 +114,8 @@ public:
 	int setCommands(const double *pos);
 	int getPositions(double *pos);
 	int getVelocities(double *vel);
+
+	int setStiffness(int i, double s);
 	
 	// set offset to i-th joint
 	int setG(int i, double g);
@@ -128,10 +137,41 @@ public:
 		double zeros[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 		_angleToEncoders(enc, ang, _parameters, zeros);
 	}
+	
+	/**
+	 * Overloaded method: initializes the control card (with default parameters).
+	 * @return YARP_OK on success.
+	 */
+	int initialize();
+	/**
+	 * Overloaded method: initializes the control card (reading paramters values from a file).
+	 * @param path is the path of the config file.
+	 * @param init_file is the initialization file. This file contains many
+	 * head specific parameters that are then used to initialize the robot
+	 * properly.
+	 * @return YARP_OK on success.
+	 */
+	int initialize(const YARPString &path, const YARPString &init_file);
+	/**
+	 * Overloaded method: Initializes the control card.
+	 * @param par is the reference to the parameter type structure (one of
+	 * the arguments of the template).
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int initialize(YARPBabybotArmParameters &par);
+	/**
+	 * Uninitializes the control board and frees memory.
+	 * This function does all what the destructor has to do.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int uninitialize();
 
 private:
 	inline void _angleToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters, const double *zeros);
 	inline void _encoderToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters, const double *zeros);
+	int _initialize();
+
+	int *_pidSigns;
 };
 
 inline void YARPBabybotArm::_angleToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters, const double *zeros)

@@ -122,3 +122,27 @@ void ABStopZeroG::output(ArmBehaviorData *d)
 {
 	d->directCommandMode();
 }
+
+bool ABInputSetStiffness::input(YARPBabyBottle *in, ArmBehaviorData *d)
+{
+	if (!in->tryReadVocab(tmpK))
+		return false;
+	
+	if (key != tmpK)
+		return false;
+
+	in->moveOn();
+
+	if (!in->readInt(&d->_newGainJoint))
+		return false;
+	
+	if (!in->readFloat(&d->_newGain))
+		return false;
+
+	return true;
+}
+
+void ABSetStiffnessState::handle(ArmBehaviorData *d)
+{
+	d->setStiffness(d->_newGainJoint, d->_newGain);
+}

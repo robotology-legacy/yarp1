@@ -55,13 +55,13 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #Add our name(s) here#
+///                    #nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: YARPBabybotArm.cpp,v 1.1 2004-07-28 17:17:35 babybot Exp $
+/// $Id: YARPBabybotArm.cpp,v 1.2 2004-10-01 12:53:39 babybot Exp $
 ///
 ///
 
@@ -180,4 +180,73 @@ int YARPBabybotArm::setGs(double *g)
 	_adapter.IOCtl(CMDSetOffsets, _temp_double);
 	_unlock();
 	return -1;
+}
+
+int YARPBabybotArm::setStiffness(int j, double stiff)
+{
+	int axes = _parameters._axis_map[j];
+	LowLevelPID pid = _parameters._lowPIDs[axes];
+	pid.KD = 0.0;
+	pid.KI = 0.0;
+	pid.AC_FF = 0.0;
+	pid.VEL_FF = 0.0;
+	pid.FRICT_FF = 0.0;
+	// don't touch I_LIMIT, OFFSET, T_LIMIT, SHIFT
+	pid.KP = fabs(stiff)*_pidSigns[axes];
+	return MyGenericControlBoard::setPID(j, pid, false);		//setPID internally lock and unlock
+}
+
+int YARPBabybotArm::_initialize()
+{
+	_pidSigns = new int [_parameters._nj];
+	int j = 0;
+	for(j = 0; j<_parameters._nj; j++)
+	{
+		if (_parameters._highPIDs[j].KP > 0)
+			_pidSigns[j] = 1;
+		else if(_parameters._highPIDs[j].KP < 0)
+			_pidSigns[j] = -1;
+		else
+			_pidSigns[j] = 0;
+	}
+
+	return MyGenericControlBoard::_initialize();
+}
+
+int YARPBabybotArm::initialize()
+{
+	_lock();
+	int ret = _initialize();
+	_unlock();
+	return ret;
+}
+
+int YARPBabybotArm::initialize(const YARPString &path, const YARPString &init_file)
+{
+	_lock();
+	_parameters.load(path, init_file);
+	int ret = _initialize();
+	_unlock();
+	return ret;
+}
+
+int YARPBabybotArm::initialize(YARPBabybotArmParameters &par)
+{
+	_lock();
+	_parameters.copy (par);
+	int ret = _initialize();
+	_unlock();
+	return ret;
+}
+
+int YARPBabybotArm::uninitialize()
+{
+	_lock();
+	if (_pidSigns != NULL)
+		delete [] _pidSigns;
+
+	_pidSigns = NULL;
+
+	_unlock();
+	return MyGenericControlBoard::uninitialize();
 }

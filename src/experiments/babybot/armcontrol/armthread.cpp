@@ -220,8 +220,8 @@ inline void ArmThread::send_commands()
 	_gravity2.computeG(_arm_status._current_position, &g[1]);
 	_gravity3.computeG(_arm_status._current_position, &g[2]);
 
-	// check if gravity is enable
-	for(int j = 0; j < 0; j++) {
+	// check if gravity is enabled
+	for(int j = 0; j < _nj; j++) {
 		if (!_gravityFlags[j])
 			g[j] = 0.0;
 	}
@@ -346,4 +346,17 @@ bool ArmThread::_checkLimits(const YVector &inCmd, YVector &outCmd)
 	}
 
 	return ret;
+}
+
+void ArmThread::setStiffness(int joint, double k)
+{
+	LowLevelPID pid;
+	_arm.getPID(joint, pid, false);
+	std::cout << "PID on " << joint << " IS NOW: " << pid.KP << "\n"; //  = k;
+
+	std::cout << "YOU're trying to set it to: " << k << "\n";
+	_arm.setStiffness(joint, k);
+
+	_arm.getPID(joint, pid, false);
+	std::cout << "PID on " << joint << " IS NOW: " << pid.KP << "\n"; //  = k;
 }

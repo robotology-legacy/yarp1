@@ -67,6 +67,10 @@ int main(int argc, char* argv[])
 	ABSimpleInput hibernateCmd(YBVArmHibernate);
 	ABSimpleInput resumeCmd(YBVArmResume);
 
+	ABInputSetStiffness setStiffness(YBVArmSetStiffness);
+	ABSetStiffnessState setStiffnessState1;
+	ABSetStiffnessState setStiffnessState2;
+
 	ABSimpleInput inputForceRest(YBVArmForceResting);
 	ABSimpleInput inputInhibitRest(YBVArmInhibitResting);
 	ABSimpleInput inputInhibitRestTrue(YBVArmInhibitRestingTrue);
@@ -102,6 +106,12 @@ int main(int argc, char* argv[])
 	_arm.add(&checkRestDone, &waitRest, &waitIdle);
 	_arm.add(&inputCmd, &waitRest, &waitRest, &outputArmIsBusy);
 	_arm.add(&forceCmd, &waitRest, &waitInhibition , &outputInhibitRestTrue);
+	
+	// set stiffness
+	_arm.add(&setStiffness, &waitIdle, &setStiffnessState1);
+	_arm.add(NULL, &setStiffnessState1, &waitIdle);
+	_arm.add(&setStiffness, &waitRest, &setStiffnessState2);
+	_arm.add(NULL, &setStiffnessState2, &waitRest);
 	////////////////////
 
 	// zero G cycle

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.6 2004-09-04 15:20:41 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.7 2004-10-01 12:53:39 babybot Exp $
 ///
 ///
 
@@ -329,14 +329,19 @@ public:
 	int setPID(int axis, LowLevelPID& pid, bool sync = true)
 	{
 		_lock();
-		SingleAxisParameters cmd;
-		cmd.axis = _parameters._axis_map[axis];
-		cmd.parameters = &pid;
-		int ret = _adapter.IOCtl(CMDSetPID, &cmd);
-		if (sync && ret == YARP_OK)
-			memcpy (&(_parameters._highPIDs[axis]), &pid, sizeof(LowLevelPID));
+		if (axis >= 0 && axis < _parameters._nj)
+		{
+			SingleAxisParameters cmd;
+			cmd.axis = _parameters._axis_map[axis];
+			cmd.parameters = &pid;
+			int ret = _adapter.IOCtl(CMDSetPID, &cmd);
+			if (sync && ret == YARP_OK)
+				memcpy (&(_parameters._highPIDs[axis]), &pid, sizeof(LowLevelPID));
+			_unlock();
+			return ret;
+		}
 		_unlock();
-		return ret;
+		return YARP_FAIL;
 	}
 
 	/**
@@ -350,14 +355,19 @@ public:
 	int getPID(int axis, LowLevelPID& pid, bool sync = true)
 	{
 		_lock();
-		SingleAxisParameters cmd;
-		cmd.axis = _parameters._axis_map[axis];
-		cmd.parameters = &pid;
-		int ret = _adapter.IOCtl(CMDGetPID, &cmd);
-		if (sync && ret == YARP_OK)
-			memcpy (&(_parameters._highPIDs[axis]), &pid, sizeof(LowLevelPID));
+		if (axis >= 0 && axis < _parameters._nj)
+		{
+			SingleAxisParameters cmd;
+			cmd.axis = _parameters._axis_map[axis];
+			cmd.parameters = &pid;
+			int ret = _adapter.IOCtl(CMDGetPID, &cmd);
+			if (sync && ret == YARP_OK)
+				memcpy (&(_parameters._highPIDs[axis]), &pid, sizeof(LowLevelPID));
+			_unlock();
+			return ret;
+		}
 		_unlock();
-		return ret;
+		return YARP_FAIL;
 	}
 
 	/**

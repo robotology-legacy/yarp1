@@ -55,13 +55,13 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #Add our name(s) here#
+///                    #nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: YARPTrajectoryGen.cpp,v 1.2 2004-08-02 17:06:00 babybot Exp $
+/// $Id: YARPTrajectoryGen.cpp,v 1.3 2004-10-01 12:53:39 babybot Exp $
 ///
 ///
 
