@@ -421,7 +421,7 @@ void receiveTrajectory(YARPInputPortOf<YARPBabyBottle> &port,  Trajectories &tr)
 	for(i = 0; i < tr.length; )
 	{
 		// dump trajectory
-		YARPDebugUtils::print(tr.arm[i]);
+		YARPDebugUtils::print(tr.arm[i]*radToDeg);
 		i+=2;
 	}
 }

@@ -57,7 +57,7 @@ ArmMap::~ArmMap()
 void ArmMap::query(const YVector &arm, const YVector &head)
 {
 	_headKinematics.update(head);
-	_fkinematics.update(arm, head);
+	// _fkinematics.update(arm, head);
 
 	const Y3DVector &cart = _headKinematics.fixationPolar();
 	Y3DVector tmp;
@@ -66,7 +66,7 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 //	tmp(2) = tmp(2) + __elevationOffset;
 //	tmp(3) = tmp(3) + __distanceOffset;
 
-	int x, y;	//retinal position (for closed loo)
+	int x, y;	//retinal position (for closed loop)
 	x = 114;
 	y = 134;
 
@@ -81,18 +81,22 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 	else
 	{
 		_nnet.sim(tmp.data(), _command.data());
+		_fkinematics.update(arm, _command);
 		_fkinematics.computeJacobian(x,y);		// compute from center
 		YVector tmpArm(6);
-		tmpArm(1) = _command(1);	 	//copy 1 joint from map
-		tmpArm(2) = arm(2);
-		tmpArm(3) = arm(3);
-		tmpArm(4) = arm(4);
-		tmpArm(5) = arm(5);
-		tmpArm(6) = arm(6);
+		tmpArm(1) = _command(1);
+		tmpArm(2) = _command(2);
+		tmpArm(3) = _command(3);
+	//	tmpArm(1) = _command(1);	 	//copy 1 joint from map
+	//	tmpArm(2) = arm(2);
+	//	tmpArm(3) = arm(3);
+	//	tmpArm(4) = arm(4);
+	//	tmpArm(5) = arm(5);
+	//	tmpArm(6) = arm(6);
 
 		_command = _fkinematics.computeCommandThreshold(tmpArm , x, y);	// to center
 		_sendTrajectory();
-
+		
 		_formTrajectory(_command);
 	}
 }

@@ -17,7 +17,7 @@ use Getopt::Long;
 use File::Copy;
 use Cwd;
 
-print "Entering compile process of YARP log-polar libraries...\n";
+print "Entering compile process of YARP math library...\n";
 
 $yarp_root = $ENV{'YARP_ROOT'};
 if (!defined($yarp_root))

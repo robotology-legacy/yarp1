@@ -30,6 +30,8 @@ int main(int argc, char* argv[])
 	file.set(path, __filename);
 	file.get("[THREAD]", "Rate", &_head_thread_rate);
 
+	ACE_OS::printf("Rate: %d\n", _head_thread_rate);
+
 	// create thread and behavior SM
 	HeadThread thread(_head_thread_rate,
 						"head thread",

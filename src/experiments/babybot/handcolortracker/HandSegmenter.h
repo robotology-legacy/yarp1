@@ -21,9 +21,19 @@ public:
 		scale = __scale;
 	}
 
-	double mergeColor(YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelMono> &seg, const YARPShapeEllipse &el)
+	double mergeColor(YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelMono> &seg, YARPShapeEllipse el)
 	{
 		YARPLpShapeEllipse tmp;
+		if (el.x > _logpolarParams::_xsize)
+			el.x = _logpolarParams::_xsize;
+		if (el.y > _logpolarParams::_ysize)
+			el.y = _logpolarParams::_ysize;
+
+		if (el.x < 0)
+			el.x = 0;
+		if (el.y < 0)
+			el.y = 0;
+
 		mapper.Cartesian2Logpolar((int) el.x, (int) el.y, (int) tmp.rho, (int) tmp.theta);
 		tmp.a11 = el.a11; // 0.005;
 		tmp.a12 = el.a12; // 0;
@@ -40,9 +50,19 @@ public:
 		return v;
 	}
 
-	void mergeColor(YARPImageOf<YarpPixelBGR> &in, const YARPShapeEllipse &el)
+	void mergeColor(YARPImageOf<YarpPixelBGR> &in, YARPShapeEllipse el)
 	{
 		YARPLpShapeEllipse tmp;
+		if (el.x > _logpolarParams::_xsize)
+			el.x = _logpolarParams::_xsize;
+		if (el.y > _logpolarParams::_ysize)
+			el.y = _logpolarParams::_ysize;
+
+		if (el.x < 0)
+			el.x = 0;
+		if (el.y < 0)
+			el.y = 0;
+
 		mapper.Cartesian2Logpolar((int) el.x, (int) el.y, (int) tmp.rho, (int) tmp.theta);
 		tmp.a11 = el.a11;
 		tmp.a12 = el.a12;

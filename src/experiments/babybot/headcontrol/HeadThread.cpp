@@ -173,7 +173,7 @@ void HeadThread::doLoop()
 	/////////// check _inPort delay
 	if (_inPortCounter>=__inPortDelay)
 	{
-		HEAD_THREAD_DEBUG(("#%u Input port timed out !\n", _threadCounter));
+	//	HEAD_THREAD_DEBUG(("#%u Input port timed out !\n", _threadCounter));
 		_stopFlag = true;
 	}
 	else

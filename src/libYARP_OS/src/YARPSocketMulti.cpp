@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.24 2004-08-21 17:53:46 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.25 2004-08-24 17:22:55 babybot Exp $
 ///
 ///
 
@@ -2231,43 +2231,23 @@ void _SocketThreadMultiShmem::Body (void)
 		MyMessageHeader hdr;
 
 		r = 0;
-		while (r == 0) 
+		double now = YARPTime::GetTimeAsSeconds();
+		double prev = now - 1000;
+		while (r == 0 && (now-prev > YARP_SHORT_SOCK_TIMEOUT/2.0)) 
 		{
+			// repeat loop so long as it is willing to block.
 			ACE_Time_Value timeout (YARP_SHORT_SOCK_TIMEOUT, 0);
-
-			ACE_Handle_Set set;
-			set.reset ();
-			set.set_bit (stream.get_handle());
-			const int rr = ACE_OS::select ((int)stream.get_handle() + 1, set, 0, 0, &timeout);
-			if (rr < 0)
+			prev = now;
+			r = stream.recv (&hdr, sizeof(hdr), &timeout);
+			now = YARPTime::GetTimeAsSeconds();
+			if (r == -1 && errno == ETIME && !IsTerminated()) 
 			{
-				// a plain error!
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing (select returned %d)\n", rr));
-
-				AskForEnd();
-				goto ShmemSocketMsgSkip;
-			}
-			else
-			if (rr == 0)
-			{
-				if (IsTerminated())
-				{
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing (select returned %d)\n", rr));
-
-					AskForEnd();
-					goto ShmemSocketMsgSkip;
-				}
-				else
-					r = 0;
-			}
-			else
-			if (rr == 1)
-			{
-				// it won't block!
-				r = stream.recv (&hdr, sizeof(hdr), 0);
+				r = 0;  
+				prev = now - 1000;
 			}
 		}
-
+		//r = stream.recv_n (&hdr, sizeof(hdr), 0);
+		
 		// this is supposed to read the header, r must be > 0
 		if (r <= 0)
 		{

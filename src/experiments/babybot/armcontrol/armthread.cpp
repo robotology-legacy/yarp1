@@ -291,7 +291,11 @@ void ArmThread::_directCommand(const YVector &cmd, int nst)
 		for(j = 1; j <= _nj; j++)
 			ACE_OS::printf("%.1lf\t", cmd(j)*radToDeg);
 
-		ACE_OS::printf("\n");
+		ARM_THREAD_DEBUG(("Sending:\n"));
+		for(j = 1; j <= _nj; j++)
+			ACE_OS::printf("%.1lf\t", tmpCmd(j)*radToDeg);
+		
+		ACE_OS::printf("instead\n");
 	}
 		
 	_trajectory.stop();
