@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableLoading.cpp,v 1.6 2003-09-24 11:03:31 fberton Exp $
+/// $Id: TableLoading.cpp,v 1.7 2003-09-30 17:21:44 fberton Exp $
 ///
 ///
 
@@ -99,10 +99,11 @@
 *																			*
 ****************************************************************************/	
 
-unsigned char Load_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,unsigned char List)
+unsigned short Load_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,unsigned short List)
 {
 	char File_Name [256];
-	unsigned char retval = 0;
+	unsigned short retval = 0;
+	int j;
 	FILE * fin;
 	
 	if (List&1==1)
@@ -131,20 +132,6 @@ unsigned char Load_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,unsi
 		}
 		else
 			Tables->ColorMap = NULL;
-	}
-
-	if ((List&4)==4)
-	{
-		sprintf(File_Name,"%s%s",Path,"DownSampleMap.gio");
-		if ((fin = fopen(File_Name,"rb")) != NULL)
-		{
-			Tables->DownSampleMap = (unsigned short *) malloc (Param->Size_LP * 4 * sizeof(unsigned short));
-			fread(Tables->DownSampleMap,sizeof(unsigned short),Param->Size_LP * 4,fin);
-			fclose (fin);
-			retval = retval | 4;
-		}
-		else
-			Tables->DownSampleMap = NULL;
 	}
 
 	if ((List&8)==8)
@@ -216,6 +203,51 @@ unsigned char Load_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,unsi
 		else
 			Tables->XYMap = NULL;
 	}
+
+	if ((List&4)==4)
+	{
+		sprintf(File_Name,"%s%s%1.2f%s",Path,"DSMap_",4.00,".gio");
+		if ((fin = fopen(File_Name,"rb")) != NULL)
+		{
+			Tables->DownSampleMap = (IntNeighborhood *) malloc ((Param->Size_LP / 16) * sizeof(unsigned short));
+			for (j=0; j<Param->Size_LP/16; j++)
+			{
+				fread(&(Tables->DownSampleMap[j].NofPixels) ,sizeof(unsigned short),1,fin);
+				Tables->DownSampleMap[j].position = (unsigned short *) malloc (Tables->DownSampleMap[j].NofPixels*sizeof(unsigned short));
+				Tables->DownSampleMap[j].weight = (unsigned char *) malloc (Tables->DownSampleMap[j].NofPixels*sizeof(unsigned char));
+				fread(&(Tables->DownSampleMap[j].position) ,sizeof(unsigned short),Tables->DownSampleMap[j].NofPixels,fin);
+				fread(&(Tables->DownSampleMap[j].weight) ,sizeof(unsigned char),Tables->DownSampleMap[j].NofPixels,fin);
+			}
+			
+			fclose (fin);
+			retval = retval | 4;
+		}
+		else
+			Tables->DownSampleMap = NULL;
+	}
+
+	if ((List&256)==256)
+	{
+		sprintf(File_Name,"%s%s%1.2f%s",Path,"DSMap_",2.00,".gio");
+		if ((fin = fopen(File_Name,"rb")) != NULL)
+		{
+			Tables->DownSampleMap = (IntNeighborhood *) malloc ((Param->Size_LP / 4) * sizeof(unsigned short));
+			for (j=0; j<Param->Size_LP/4; j++)
+			{
+				fread(&(Tables->DownSampleMap[j].NofPixels) ,sizeof(unsigned short),1,fin);
+				Tables->DownSampleMap[j].position = (unsigned short *) malloc (Tables->DownSampleMap[j].NofPixels*sizeof(unsigned short));
+				Tables->DownSampleMap[j].weight = (unsigned char *) malloc (Tables->DownSampleMap[j].NofPixels*sizeof(unsigned char));
+				fread(&(Tables->DownSampleMap[j].position) ,sizeof(unsigned short),Tables->DownSampleMap[j].NofPixels,fin);
+				fread(&(Tables->DownSampleMap[j].weight) ,sizeof(unsigned char),Tables->DownSampleMap[j].NofPixels,fin);
+			}
+			
+			fclose (fin);
+			retval = retval | 256;
+		}
+		else
+			Tables->DownSampleMap = NULL;
+	}
+
 
 	return retval;
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.10 2003-09-29 17:02:23 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.11 2003-09-30 17:21:44 fberton Exp $
 ///
 ///
 
@@ -156,7 +156,7 @@ struct Cart2LPInterp{
 struct LUT_Ptrs{
 	double			* AngShiftMap;
 	char			* ColorMap;
-	unsigned short	* DownSampleMap;
+	IntNeighborhood	* DownSampleMap;
 	Neighborhood	* NeighborMap;
 	unsigned short	* PadMap;
 	int				* RemapMap;
@@ -294,8 +294,8 @@ long Get_Time();
 
 double Compute_Index(int Resolution, int Fovea, int SizeRho);
 
-int Build_DownSample_Map (Image_Data * Parameters, char * Path);
-void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio);
+//int Build_DownSample_Map (Image_Data * Parameters, char * Path);
+int  Build_DS_Map(Image_Data * LParam,char * Path, float Ratio);
 
 void RGB_2_YUV(unsigned char * OutImageYUV,
 			   unsigned char * InImageRGB,
@@ -322,7 +322,7 @@ char * Load_Color_Map (Image_Data * Param, char * Path);
 Neighborhood * Load_Weights_Map (int PixNumb, Image_Data * Param, char * Path);
 
 double *  TestLoad(void * testptr);
-unsigned char Load_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,unsigned char List);
+unsigned short Load_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,unsigned short List);
 
 int Get_Rho(double x,
 			double y,

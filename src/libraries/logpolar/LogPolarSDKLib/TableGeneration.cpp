@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.15 2003-09-29 17:02:23 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.16 2003-09-30 17:21:44 fberton Exp $
 ///
 ///
 
@@ -89,12 +89,14 @@
 *																			*
 * 				1	AngShiftMap.gio											*
 *				2	ColorMap.gio 											*
-*				4	DownsampleMap.gio 										*
+*				4	DownsampleMap.gio, ratio = 4							*
 *				8	NeighborhoodMap.gio 									*
 *			   16	PadMap.gio 												*
 *			   32	RemMap_X.XX_YYxYY.gio 									*
 *			   64	WeightsMap.gio 											*
 *			  128	XYMap.gio												*
+*			  256	DownsampleMap.gio, ratio = 2							*
+*			  512	ShiftMap												*
 *																			*
 *		The values have to be summed when building more than one table.		*
 *		Use the ALLMAPS value to build all the LUT's.						*
@@ -118,13 +120,6 @@ unsigned char Build_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,uns
 		testval = Build_Color_Map(Path);
 		if (testval)
 			retval = retval | 2;
-	}
-
-	if ((List&4)==4)
-	{
-		testval = Build_DownSample_Map(Param,Path);
-		if (testval)
-			retval = retval | 4;
 	}
 
 	if ((List&16)==16)
@@ -162,6 +157,20 @@ unsigned char Build_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,uns
 		testval = Build_Weights_Map(Param,Path);
 		if (testval)
 			retval = retval | 64;
+	}
+
+	if ((List&256)==256)
+	{
+		testval = Build_DS_Map(Param,Path,2.00);
+		if (testval)
+			retval = retval | 256;
+	}
+
+	if ((List&4)==4)
+	{
+		testval = Build_DS_Map(Param,Path,4.00);
+		if (testval)
+			retval = retval | 4;
 	}
 
 	return retval;
@@ -293,7 +302,7 @@ int Build_Color_Map (char * Path)
 * 		 Percorso della directory di lavoro								*
 * 																		*
 ************************************************************************/	
-
+/*
 int Build_DownSample_Map (Image_Data * Parameters, char * Path)
 {
 	int i,j;
@@ -349,7 +358,7 @@ int Build_DownSample_Map (Image_Data * Parameters, char * Path)
 	}
 
 }
-
+*/
 /************************************************************************
 * Build_Neighborhood_Map  												*
 *																		*
@@ -1544,20 +1553,18 @@ IntNeighborhood * Build_Fast_Weights_Map(Image_Data * Par,
 	}
 }
 	
-void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
+int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 {
-//NB: il path che mi aspetto qui e'del tipo c:\tables, e non del tipo c:\tables\1.00
-	
 	Image_Data SParam;
 
-	int * LRemapMap;
-	int * SRemapMap;
-
-	unsigned char * LRem;
-	unsigned char * SRem;
-
+	//Tables
 	double * FakeAngShift;
 	unsigned short FakePadMap;
+	int * LRemapMap,* SRemapMap;
+	unsigned char * LRem, * SRem;
+	Neighborhood ** DownSampleTable;
+	IntNeighborhood * IntDownSampleTable;
+
 
 	int rho,theta;
 	int rhosmall, thetasmall, valid;
@@ -1570,7 +1577,15 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 
 	char LocalPath [256]; 
 	char File_Name [256]; 
-	FILE* fin;
+	FILE * fin, * fout;
+
+	char SearchString [] = ".00";
+	char * pointer = NULL;
+	
+	pointer = strstr(Path,SearchString);
+
+	if (pointer != NULL)
+		*(--pointer) = 0;
 
 //Loads the Reference Images
 
@@ -1582,8 +1597,6 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 
 //Sets the parameters
 	
-	sprintf(LocalPath,"%s%2.2f\\",Path,1.0);
-
 	LParam->Zoom_Level = 1090.0/83.0;
 
 	SParam = Set_Param( (int)(1090/Ratio),(int)(1090/Ratio),
@@ -1597,10 +1610,16 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	SParam.padding = LParam->padding;
 	SParam.Fovea_Type = 0;
 
+	int ListSize = (int)((Ratio + 2) * (Ratio + 2));
+
+//Memory Allocation
+
+	FakeAngShift = (double *) calloc (LParam->Size_Rho,sizeof(double)); //Not Actually used
+	DownSampleTable = (Neighborhood **) malloc (SParam.Size_LP * sizeof(Neighborhood *));
+	* DownSampleTable = (Neighborhood *) malloc (SParam.Size_LP * ListSize * sizeof(Neighborhood));
 	LRem = (unsigned char *) malloc (LParam->Size_Img_Remap * 3 * sizeof(unsigned char));
 	SRem = (unsigned char *) malloc (SParam.Size_Img_Remap * 3 * sizeof(unsigned char));
-
-	FakeAngShift = (double *) calloc (LParam->Size_Rho,sizeof(double));
+	IntDownSampleTable = (IntNeighborhood *) malloc (SParam.Size_LP * sizeof(IntNeighborhood));
 
 	double MidZoomLevel;
 
@@ -1610,25 +1629,16 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	LParam->Fovea_Type = 0;
 
 //Labels the reference images
+	for (j=0; j<LRho*LTheta; j++)
+	{
+		LLP[3*j+0] = j/LTheta;	//rho
+		LLP[3*j+1] = j%LTheta;	//theta;
 
-	for (rho=0; rho<LRho; rho++)
-		for (theta = 0; theta<LTheta; theta++)
-		{
-			if (LLP[3*(rho*LTheta+theta)+0]!=128)
-			{
-				LLP[3*(rho*LTheta+theta)+0] = rho;
-				LLP[3*(rho*LTheta+theta)+1] = theta;
-				LLP[3*(rho*LTheta+theta)+2] = 0;
-			}
-			else
-			{
-				LLP[3*(rho*LTheta+theta)+0] = rho;
-				LLP[3*(rho*LTheta+theta)+1] = theta;
-				LLP[3*(rho*LTheta+theta)+2] = 255;
-			}
-		}
-
-	printf(" Done\n");
+		if (LLP[3*j]!=128)
+			LLP[3*j+2] = 0;
+		else
+			LLP[3*j+2] = 255;
+	}
 
 	int Limit[4];
 
@@ -1636,14 +1646,6 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	Limit[1] = SParam.Size_Fovea;
 	Limit[2] = (SParam.Size_Rho + SParam.Size_Fovea)/2;
 	Limit[3] = SParam.Size_Rho;
-	int ListSize = (int)((Ratio + 2) * (Ratio + 2));
-
-	printf("DownSample Table Init:");
-
-	Neighborhood ** DownSampleTable;
-
-	DownSampleTable = (Neighborhood **) malloc (SParam.Size_LP * sizeof(Neighborhood *));
-	* DownSampleTable = (Neighborhood *) malloc (SParam.Size_LP * ListSize * sizeof(Neighborhood));
 
 	for (j=0; j<SParam.Size_LP; j++)
 		DownSampleTable[j] = DownSampleTable[0]+(ListSize*j); 
@@ -1654,12 +1656,8 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 		(*(DownSampleTable[0]+j)).weight   = 0;
 	}
 
-	printf(" Done\n");
-
 	for (step = 0; step < 3; step++)
 	{
-		printf("Step %d:",step);
-
 		if (step == 1)
 		{
 			LParam->Zoom_Level /= MidZoomLevel;
@@ -1675,25 +1673,25 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			SParam.Valid_Log_Index = false;
 		}
 
-		for (rho=0; rho<SRho; rho++)
-			for (theta = 0; theta<STheta; theta++)
-			{
-				if ((SLP[3*(rho*STheta+theta)+0]!=128)&&(rho>=Limit[step])&&(rho<Limit[step+1]))
-				{
-					SLP[3*(rho*STheta+theta)+0] = rho;
-					SLP[3*(rho*STheta+theta)+1] = theta;
-					SLP[3*(rho*STheta+theta)+2] = 0;
-				}
-				else
-				{
-					SLP[3*(rho*STheta+theta)+0] = rho;
-					SLP[3*(rho*STheta+theta)+1] = theta;
-					SLP[3*(rho*STheta+theta)+2] = 255;
-				}
-			}
+		for (j=0; j<SRho*STheta; j++)
+		{
+			rho = j/LTheta;
+			SLP[3*j+0] = rho;		//rho
+			SLP[3*j+1] = j%LTheta;	//theta
+			
+			if ((SLP[3*j+0]!=128)&&(rho>=Limit[step])&&(rho<Limit[step+1]))
+				SLP[3*j+2] = 0;
+			else
+				SLP[3*j+2] = 255;
+		}
 
 		sprintf(LocalPath,"%s%2.2f\\",Path,1.00);
-		sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",LocalPath,"RemapMap",LParam->Zoom_Level,LParam->Size_X_Remap,LParam->Size_Y_Remap,".gio");
+		sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",	LocalPath,
+												"RemapMap",
+												LParam->Zoom_Level,
+												LParam->Size_X_Remap,
+												LParam->Size_Y_Remap,
+												".gio");
 
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
@@ -1702,13 +1700,27 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			fclose (fin);
 		}
 		else
-			LRemapMap = NULL;
+		{
+			Build_Remap_Map(LParam,LocalPath);
+			if ((fin = fopen(File_Name,"rb")) != NULL)
+			{
+				LRemapMap = (int *) malloc (LParam->Size_Img_Remap * sizeof(int));
+				fread(LRemapMap,sizeof(int),LParam->Size_Img_Remap,fin);
+				fclose (fin);
+			}
+			else
+				LRemapMap = NULL;
+		}
 
 		Remap(LRem,LLP,LParam,LRemapMap);
 
 		sprintf(LocalPath,"%s%2.2f\\",Path,Ratio);
-
-		sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",LocalPath,"RemapMap",SParam.Zoom_Level,SParam.Size_X_Remap,SParam.Size_Y_Remap,".gio");
+		sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",	LocalPath,
+												"RemapMap",
+												SParam.Zoom_Level,
+												SParam.Size_X_Remap,
+												SParam.Size_Y_Remap,
+												".gio");
 
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
@@ -1717,44 +1729,43 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			fclose (fin);
 		}
 		else
-			SRemapMap = NULL;
+		{
+			Build_Remap_Map(&SParam,LocalPath);
+			if ((fin = fopen(File_Name,"rb")) != NULL)
+			{
+				SRemapMap = (int *) malloc (SParam.Size_Img_Remap * sizeof(int));
+				fread(SRemapMap,sizeof(int),SParam.Size_Img_Remap,fin);
+				fclose (fin);
+			}
+			else
+				SRemapMap = NULL;
+		}
 
 		Remap(SRem,SLP,&SParam,SRemapMap);
 
-	for (y = 0; y<LParam->Size_Y_Remap; y++)
-		for (x=0; x<LParam->Size_X_Remap; x++)
-		{
-			rho   = LRem[3*(y*LParam->Size_X_Remap+x)+0];
-			theta = LRem[3*(y*LParam->Size_X_Remap+x)+1];
-
-			rhosmall = SRem[3*(y*SParam.Size_X_Remap+x)+0];
-			thetasmall = SRem[3*(y*SParam.Size_X_Remap+x)+1];
-			valid = !SRem[3*(y*SParam.Size_X_Remap+x)+2];
-
-			if (valid)
+		for (y = 0; y<LParam->Size_Y_Remap; y++)
+			for (x=0; x<LParam->Size_X_Remap; x++)
 			{
-				i = 0;
-				while((DownSampleTable[rhosmall*STheta+thetasmall][i].position!=LParam->Size_LP)&&
-					(DownSampleTable[rhosmall*STheta+thetasmall][i].position!=rho*LTheta+theta))
+				rho   = LRem[3*(y*LParam->Size_X_Remap+x)+0];
+				theta = LRem[3*(y*LParam->Size_X_Remap+x)+1];
+
+				rhosmall   = SRem[3*(y*SParam.Size_X_Remap+x)+0];
+				thetasmall = SRem[3*(y*SParam.Size_X_Remap+x)+1];
+				valid      =!SRem[3*(y*SParam.Size_X_Remap+x)+2];
+
+				if (valid)
 				{
-					i++;				
-					if (i>ListSize)
-						i=i;
-				}
+					i = 0;
+					while((DownSampleTable[rhosmall*STheta+thetasmall][i].position!=LParam->Size_LP)&&
+						(DownSampleTable[rhosmall*STheta+thetasmall][i].position!=rho*LTheta+theta))
+							i++;
+					
 					DownSampleTable[rhosmall*STheta+thetasmall][i].position = rho*LTheta+theta;
 					DownSampleTable[rhosmall*STheta+thetasmall][i].weight ++;
-		
+				}
 			}
-
-		}
-
-		if (step<2)
-		{
-			free(LRemapMap);
-			free(SRemapMap);
-		}
-		printf(" Done\n");
-
+		free(LRemapMap);
+		free(SRemapMap);
 	}
 
 //Now "weight" stores the number of pixels for each position
@@ -1820,8 +1831,6 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			else for (k=1; k<256; k*=2)
 				if ((DownSampleTable[j][i].weight<=(1/sqrt(k*(k*2))))&&(DownSampleTable[j][i].weight>(1/sqrt((k*2)*(k*4)))))
 					DownSampleTable[j][i].weight = (float)(1.0)/(k*2);
-//			else if ((DownSampleTable[j][i].weight<=(1/sqrt(2)))&&(DownSampleTable[j][i].weight>(1/sqrt(8))))
-//				DownSampleTable[j][i].weight = 0.5;
 
 	for (j=0; j<SParam.Size_LP; j++)
 	{
@@ -1847,9 +1856,7 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 		{
 			Sum = 0;
 			for (i=0; i<ListSize; i++)
-			{
 				Sum += DownSampleTable[j][i].weight;
-			}
 			if ((Sum != 16.0)&&(Sum != 0.0))
 			{
 				CheckSum = (float)(16.0-Sum);
@@ -1864,8 +1871,6 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 							break;
 					}
 				}
-
-	//			printf("%f\n",Sum - 16.0);
 			}
 		}
 
@@ -1873,21 +1878,12 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 		{
 			Sum = 0;
 			for (i=0; i<ListSize; i++)
-			{
 				Sum += DownSampleTable[j][i].weight;
-			}
 			if ((Sum != 16.0)&&(Sum != 0.0))
-			{
-	//			printf("error %d, %f\n",counter,Sum - 16.0);
 				counter ++;
-			}
 		}
-		printf("%d\n",counter);
 	}
 	while (counter != 0);
-
-	IntNeighborhood * IntDownSampleTable;
-	IntDownSampleTable = (IntNeighborhood *) malloc (SParam.Size_LP * sizeof(IntNeighborhood));
 
 	for (j=0; j<SParam.Size_LP; j++)
 	{
@@ -1909,52 +1905,58 @@ void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			}
 	}
 	
-	for (j=0; j<3*SParam.Size_LP; j++)
-		SLP[j] = 0;
+	sprintf(File_Name,"%s%s%1.2f%s",Path,"DSMap_",Ratio,".gio");
 
-	int i_SumR,i_SumG,i_SumB;
-	int position;
-	unsigned char shift; 
-
-	unsigned char * TestLP = Read_Bitmap(&LTheta,&LRho,&LPlanes,"c:\\Temp\\Test_Rem_Large_Image.bmp");
-
-	for (k=0; k<1; k++)
+	fout = fopen(File_Name,"wb");
+	for (j=0; j<SParam.Size_LP; j++)
 	{
-		for (x=0; x<1000; x++)
-		{
-			for (j=0; j<SParam.Size_LP; j++)
-			{
-				i_SumR = 0;
-				i_SumG = 0;
-				i_SumB = 0;
-				y=j*3;
-				for (i=0; i<IntDownSampleTable[j].NofPixels; i++)
-				{
-					position = 3*IntDownSampleTable[j].position[i];
-					shift = IntDownSampleTable[j].weight[i];
-					i_SumR += TestLP [position+0]>>shift;
-					i_SumG += TestLP [position+1]>>shift;
-					i_SumB += TestLP [position+2]>>shift;
-				}
-				SLP[y+0] = (unsigned char) (i_SumR>>4);
-				SLP[y+1] = (unsigned char) (i_SumG>>4);
-				SLP[y+2] = (unsigned char) (i_SumB>>4);
-			}
-		}
+		fwrite(&IntDownSampleTable[j].NofPixels	,sizeof(unsigned short),1								,fout);
+		fwrite(IntDownSampleTable[j].position	,sizeof(unsigned short),IntDownSampleTable[j].NofPixels ,fout);
+		fwrite(IntDownSampleTable[j].weight		,sizeof(unsigned char) ,IntDownSampleTable[j].NofPixels ,fout);
 	}
-
-	Save_Bitmap(SLP,STheta,SRho,3,"C:\\Temp\\TestFoveaSInt.bmp");
-
+	fclose (fout);	
+		
 	free (SLP);
 	free (LLP);
 	free (SRem);
 	free (LRem);
-	free (TestLP);
 	free (FakeAngShift);
 	free (LRemapMap);
 	free (SRemapMap);
 	free (*DownSampleTable);
 	free (DownSampleTable);
+
+	return 1;
+}
 	
 
+
+void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Param, float Ratio,IntNeighborhood * IntDownSampleTable)
+{	
+	int i,j,k;
+
+	const int SizeLP = (int)(Param->Size_LP / Ratio);
+	
+	int i_SumR,i_SumG,i_SumB;
+	int position;
+	unsigned char shift; 
+
+	for (j=0; j<SizeLP; j++)
+	{
+		i_SumR = 0;
+		i_SumG = 0;
+		i_SumB = 0;
+		k=j*3;
+		for (i=0; i<IntDownSampleTable[j].NofPixels; i++)
+		{
+			position = 3*IntDownSampleTable[j].position[i];
+			shift = IntDownSampleTable[j].weight[i];
+			i_SumR += InImage [position+0]>>shift;
+			i_SumG += InImage [position+1]>>shift;
+			i_SumB += InImage [position+2]>>shift;
+		}
+		OutImage[k+0] = (unsigned char) (i_SumR>>4);
+		OutImage[k+1] = (unsigned char) (i_SumG>>4);
+		OutImage[k+2] = (unsigned char) (i_SumB>>4);
+	}
 }
