@@ -25,7 +25,7 @@ All()
 		Check $?
 		$INSTALL
 		Check $?
-		cd ../../
+		cd $YARP_ROOT/src/maintenance/services/
 	done
 }
 
