@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.8 2003-07-10 13:33:47 babybot Exp $
+/// $Id: main.cpp,v 1.9 2003-07-10 20:53:56 gmetta Exp $
 ///
 ///
 
@@ -69,18 +69,24 @@
 //
 
 #define NAME_CLIENT_VERBOSE
-#include <YarpNameClient.h>
+
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+
+#include <YARPAll.h>
+#include <YARPNameService.h>
+#include <YARPNameClient.h>
 #include <YARPParseParameters.h>
 
 #include <string>
 
 using namespace std;
 
-void interactive();
-void printHelp();
-void commandLine(int argc, char* argv[]);
+void printHelp (void);
+void interactive(YARPNameClient& nc);
+void commandLine(YARPNameClient& nc, int argc, char* argv[]);
 
-void print_menu()
+void print_menu (void)
 {
 	cout << "\n-----------------------\n";
 	cout << "\nName client menu\n";
@@ -129,34 +135,57 @@ int parse(const std::string &str)
 		return -1;
 }
 
-YARPNameClient nc("130.251.43.254", 10000);
-
+///
+///
+///
 int main(int argc, char* argv[])
 {
+	char buf[YARP_STRING_LEN];
+	ACE_ASSERT (GetYarpRoot() != NULL);
+#ifdef __WIN32__
+	ACE_OS::sprintf (buf, "%s\\%s\0", GetYarpRoot(), NAMER_CONFIG_FILE);
+#else
+	ACE_OS::sprintf (buf, "%s/%s\0", GetYarpRoot(), NAMER_CONFIG_FILE);
+#endif
+
+	ifstream fin(buf);
+	if (fin.eof() || fin.fail())
+	{
+		return YARP_FAIL;
+	}
+
+	char hostname[YARP_STRING_LEN];
+	ACE_OS::memset (hostname, 0, YARP_STRING_LEN);
+	int portnumber = -1;
+
+	fin >> hostname >> portnumber;
+	fin.close ();
+
+	YARPNameClient nc(hostname, portnumber);
+
 	if (YARPParseParameters::parse(argc, argv, "i"))
-		interactive();
+		interactive(nc);
 	else
-		commandLine(argc, argv);
+		commandLine(nc, argc, argv);
 		
-	return 0;
+	return YARP_OK;
 }
-void commandLine(int argc, char* argv[])
+
+void commandLine(YARPNameClient& nc, int argc, char* argv[])
 {
 	bool ok = false;
 	if (YARPParseParameters::parse(argc, argv, "d"))
 	{
-		cout << "--Starting name server short dump\n";
 		cout << nc.dump();
-		cout << "--end\n";
 		ok = true;
 	}
+	
 	if (YARPParseParameters::parse(argc, argv, "dx") || YARPParseParameters::parse(argc, argv, "xd"))
 	{
-		cout << "--Starting name server extended dump\n";
 		cout << nc.dump(1);
-		cout << "--end\n";
 		ok = true;
 	}
+	
 	std::string str;
 	if (YARPParseParameters::parse(argc, argv, "rel", str))
 	{
@@ -165,12 +194,11 @@ void commandLine(int argc, char* argv[])
 		ok = true;
 	}
 	
-	
 	if (!ok)
 		printHelp();
 }
 
-void interactive()
+void interactive(YARPNameClient& nc)
 {
 	string str;
 	print_menu();
@@ -273,7 +301,7 @@ void interactive()
 void printHelp()
 {
 	cout << "Use: \n";
-	cout << " -i (interactive mode)\n";
+	cout << "-i (interactive mode)\n";
 	cout << "-d (dump) -xd (extended dump)\n";
 	cout << "-rel name (release name)\n";
 }
