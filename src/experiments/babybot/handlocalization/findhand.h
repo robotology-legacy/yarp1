@@ -91,7 +91,8 @@ private:
 	void _sendSegmentation()
 	{
 		// display
-		_segmentedImagePort.Content().Refer(_actualLp);
+		// segmentedImagePort.Content().Refer(_actualLp);
+		_segmentedImagePort.Content().Refer(_blob);
 		_segmentedImagePort.Write();
 	}
 

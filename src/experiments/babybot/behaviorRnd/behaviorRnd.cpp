@@ -3,7 +3,7 @@
 
 #include "rndBehavior.h"
 
-const double __wrist[] = {0,6*degToRad, 0, 0, 0, 0};
+const double __wrist[] = {0, 0, 0, 7*degToRad, 0, 0};
 const double __forearm[] = {0,0,15*degToRad,0,0,0};
 const double __arm[] = {0,6*degToRad,0,0,0,0};
 
@@ -45,16 +45,15 @@ int main(int argc, char* argv[])
 	_rnd.add(NULL, &initMotion, &waitMotion);
 
 	// no shake
-	_rnd.add(&motionDone, &waitMotion, &waitIdle);
+	// _rnd.add(&motionDone, &waitMotion, &waitIdle);
 	
-	/*
 	// shake sequences
 	// wrist only
 	_rnd.add(&motionDone, &waitMotion, &initShakeWrist, &inhibitRest);
 	_rnd.add(&rest, &waitMotion, &waitRest);
 	_rnd.add(NULL, &initShakeWrist, &waitShakeWrist);
 	_rnd.add(&motionDone, &waitShakeWrist, &initMotion, &inhibitRest);
-	*/
+	
 
 	/* other joints
 	_rnd.add(&motionDone, &waitShakeWrist, &waitDeltaT1);

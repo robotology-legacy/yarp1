@@ -266,7 +266,7 @@ void YARPLpConicFitter::findEllipse(int T0, int R0, double a11, double a12, doub
 
 		if (DELTA>=0)
 		{
-			int r = (r0*c+sqrt(DELTA)) + 0.5;
+			int r = (B+sqrt(DELTA))/A + 0.5;
 			if (r > 0)
 			{
 				rho2 = _moments.RoToCsi(r);
@@ -282,7 +282,7 @@ void YARPLpConicFitter::findEllipse(int T0, int R0, double a11, double a12, doub
 					out.add(theta, p);
 			}
 			
-			r = (r0*c-sqrt(DELTA)) + 0.5;
+			r = (B-sqrt(DELTA))/A + 0.5;
 			if (r > 0)
 			{
 				rho1 = _moments.RoToCsi(r);

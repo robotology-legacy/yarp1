@@ -179,6 +179,8 @@ void FindHand::_segmentation()
 	char blob[128];
 	char segmented[128];
 	char complete[128];
+	_blob.Zero();
+
 	_nSegmentations++;
 	sprintf(detected, "%s%d.ppm", "y:\\zgarbage\\detected",_nSegmentations);
 	sprintf(blob, "%s%d.ppm", "y:\\zgarbage\\blob", _nSegmentations);
@@ -193,20 +195,19 @@ void FindHand::_segmentation()
 	int r0, t0;
 	double a11, a12, a22;
 	_fit.fitEllipse(_detected, &t0,  &r0, &a11, &a12, &a22);
+	_fit.plotEllipse(t0, r0, a11, a12, a22, _blob);
 	_fit.findEllipse(t0, r0, a11, a12, a22, _pointsBlob);
 
-	// YARPImageFile::Write(blob, tmp);
-	
+	YARPImageFile::Write(blob, _blob);
 	YARPImageFile::Write(complete, _actualLp);
-	_blob.Zero();
-
+	
 	int k = 0;
 	while(k<_pointsBlob.n)
 	{
 		int r,t;
 		r = _pointsBlob.r[k];
 		t = _pointsBlob.t[k];
-		_blob(r,t) = _actualLp(r,t);
+		_blob(t,r) = _actualLp(t,r);
 		k++;
 	}
 		
