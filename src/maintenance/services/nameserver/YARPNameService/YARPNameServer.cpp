@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.21 2003-08-20 08:26:25 natta Exp $
+/// $Id: YARPNameServer.cpp,v 1.22 2003-08-22 12:31:36 beltran Exp $
 ///
 ///
 
@@ -382,7 +382,7 @@ void YARPNameServer::_handle_reply(const YARPString &ip, int type, const PORT_LI
 	YARPNameUDP rpl;
 
 	int j = 0;
-	PORT_LIST &tmp = PORT_LIST (ports);
+	PORT_LIST &tmp = const_cast<PORT_LIST &> (ports);
 	PORT_IT i (tmp);
 	for(; !i.done(); i++)
 	{
