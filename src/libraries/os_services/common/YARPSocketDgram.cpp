@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.7 2003-04-30 13:22:41 beltran Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.8 2003-05-01 22:51:19 gmetta Exp $
 ///
 ///
 
@@ -87,7 +87,7 @@
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
-
+#include <ace/Handle_Set.h>
 
 #ifndef __QNX__
 /// WIN32, Linux
@@ -616,10 +616,20 @@ void _SocketThreadDgram::Body (void)
 					/// this was r too, a bit confusing.
 					ACE_DEBUG ((LM_DEBUG, "??? about to read more data\n"));
 
-					/// len = 0 is no longer allowed, change in protocol. send a single byte if you
-					///	need to wake up the recv (UDP doesn't like reading 0 bytes).
-					ACE_ASSERT (_extern_reply_length != 0);
-					int rr = _local_socket.recv (_extern_reply_buffer, _extern_reply_length, incoming); 
+					int rr = 0;
+					if (_extern_reply_length == 0)
+					{
+						/// then do a select.
+						ACE_Handle_Set set;
+						set.reset ();
+						set.set_bit (_local_socket.get_handle());
+						ACE_OS::select (1, set);
+						/// wait here until next valid chunck of data.
+					}
+					else
+					{
+						rr = _local_socket.recv (_extern_reply_buffer, _extern_reply_length, incoming); 
+					}
 
 					if (incoming != _remote_endpoint.getAddressRef())
 					{

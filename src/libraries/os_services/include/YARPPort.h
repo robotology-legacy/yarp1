@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.4 2003-04-22 17:01:19 gmetta Exp $
+/// $Id: YARPPort.h,v 1.5 2003-05-01 22:51:19 gmetta Exp $
 ///
 ///
 
@@ -122,7 +122,7 @@ public:
 		DEFAULT_BUFFERS = TRIPLE_BUFFERS
 	};
 
-	YARPInputPort(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_UDP);
+	YARPInputPort(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL);
 	virtual ~YARPInputPort();
 
 	virtual int Register(const char *name);
@@ -142,7 +142,7 @@ public:
 		DEFAULT_OUTPUTS = MANY_OUTPUTS
 	};
 
-	YARPOutputPort(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_UDP);
+	YARPOutputPort(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL);
 	virtual ~YARPOutputPort();
 
 	virtual int Register(const char *name);
@@ -156,7 +156,7 @@ template <class T>
 class YARPInputPortOf : public YARPInputPort
 {
 public:
-	YARPInputPortOf(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_UDP) 
+	YARPInputPortOf(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
 		: YARPInputPort(n_service_type, n_protocol_type) {}
   
 	virtual YARPPortContent *CreateContent() { return new YARPPortContentOf<T>; }
@@ -172,7 +172,7 @@ template <class T>
 class YARPOutputPortOf : public YARPOutputPort
 {
 public:
-	YARPOutputPortOf(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_UDP) 
+	YARPOutputPortOf(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
 		: YARPOutputPort(n_service_type, n_protocol_type) {}
 
 	virtual YARPPortContent *CreateContent() { return new YARPPortContentOf<T>; }
@@ -189,7 +189,7 @@ template <class T>
 class YARPBasicInputPort : public YARPInputPort
 {
 public:
-	YARPBasicInputPort(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_UDP) 
+	YARPBasicInputPort(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
 		: YARPInputPort(n_service_type, n_protocol_type) {}
 
 	virtual YARPPortContent *CreateContent() { return new T; }
@@ -201,7 +201,7 @@ template <class T>
 class YARPBasicOutputPort : public YARPOutputPort
 {
 public:
-	YARPBasicOutputPort(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_UDP) 
+	YARPBasicOutputPort(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
 		: YARPOutputPort(n_service_type, n_protocol_type) {}
 
 	virtual YARPPortContent *CreateContent() { return new T; }

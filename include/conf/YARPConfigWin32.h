@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.4 2003-04-22 09:06:29 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.5 2003-05-01 22:51:19 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -35,6 +35,9 @@
 
 /// disable TCP Nagle's algorithm (experimental).
 #define YARP_TCP_NO_DELAY		1
+
+/// set the default protocol in port creation.
+#define YARP_DEFAULT_PROTOCOL	YARP_UDP
 
 /// disables warning for init_seg(lib) very legitimate use of directive.
 #pragma warning (disable:4073)

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.6 2003-04-27 21:57:41 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.7 2003-05-01 22:51:19 gmetta Exp $
 ///
 ///
 
@@ -275,6 +275,12 @@ int YARPNameService::Finalize (void)
 
 YARPUniqueNameID YARPNameService::RegisterName(const char *name, int reg_type, int num_ports_needed)
 {
+	if (reg_type == YARP_QNET && !YARPNativeNameService::IsNonTrivial())
+	{
+		ACE_DEBUG ((LM_DEBUG, "YARPNameService: asked QNX under !QNX OS, of course, it failed\n"));
+		return YARPUniqueNameID();
+	}
+
 	switch (reg_type)
 	{
 	case YARP_NO_SERVICE_AVAILABLE:
@@ -285,6 +291,13 @@ YARPUniqueNameID YARPNameService::RegisterName(const char *name, int reg_type, i
 		{
 			return YARPSocketNameService::RegisterName (*_namer, name, reg_type, num_ports_needed);
 		}		
+		break;
+
+	case YARP_QNET:
+		{
+			/// num_ports_needed is the channel ID here (somehow returned by the QNX channel creation proc).
+			return YARPSocketNameService::RegisterName (*_namer, name, YARP_QNET, num_ports_needed);
+		}
 		break;
 
 	case YARP_QNX4:
@@ -350,15 +363,18 @@ YARPUniqueNameID YARPNameService::RegisterName(const char *name, int reg_type, i
 	return YARPUniqueNameID ();
 }
 
-YARPUniqueNameID YARPNameService::LocateName(const char *name)
+YARPUniqueNameID YARPNameService::LocateName(const char *name, int name_type)
 {
 	/// goes through a sequence asking to the QNX native (if inside QNX)
 	/// or otherwise it goes global.
+	if (name_type == YARP_QNET && !YARPNativeNameService::IsNonTrivial())
+	{
+		ACE_DEBUG ((LM_DEBUG, "YARPNameService: asked QNX under !QNX OS, of course, it failed\n"));
+		return YARPUniqueNameID();
+	}
 
-#ifdef __QNX4__
-#endif
-
-	return YARPSocketNameService::LocateName (*_namer, name);
+	/// search mode.
+	return YARPSocketNameService::LocateName (*_namer, name, name_type);
 
 #if 0
   YARPNameID all_result;
@@ -437,8 +453,7 @@ YARPNameID YARPEndpointManager::CreateInputEndpoint(YARPUniqueNameID& name)
 		return YARPSocketEndpointManager::CreateInputEndpoint (name);
 
 	case YARP_QNET:
-		/// LATER: need a class for the native QNX protocol.
-		return YARPNameID();
+		return YARPNativeEndpointManager::CreateInputEndpoint (name);
 	}
 
 	return YARPNameID();
@@ -453,8 +468,7 @@ YARPNameID YARPEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
 		return YARPSocketEndpointManager::CreateOutputEndpoint (name);
 
 	case YARP_QNET:
-		/// LATER: need a class for the native QNX protocol.
-		return YARPNameID();
+		return YARPNativeEndpointManager::CreateOutputEndpoint (name);
 	}
 
 	return YARPNameID();
@@ -469,8 +483,7 @@ int YARPEndpointManager::ConnectEndpoints(YARPNameID& dest)
 		return YARPSocketEndpointManager::ConnectEndpoints (dest);
 
 	case YARP_QNET:
-		/// LATER: need a class for the native QNX protocol.
-		return YARP_FAIL;
+		return YARPNativeEndpointManager::ConnectEndpoints (dest);
 	}
 
 	return YARP_FAIL;
@@ -485,8 +498,7 @@ int YARPEndpointManager::Close(const YARPNameID& endp)
 		return YARPSocketEndpointManager::Close ();
 
 	case YARP_QNET:
-		/// LATER: need a class for the native QNX protocol.
-		return YARP_FAIL;
+		return YARPNativeEndpointManager::Close ();
 	}
 
 	return YARP_FAIL;

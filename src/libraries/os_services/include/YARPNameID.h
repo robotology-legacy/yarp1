@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.6 2003-04-27 21:57:41 gmetta Exp $
+/// $Id: YARPNameID.h,v 1.7 2003-05-01 22:51:19 gmetta Exp $
 ///
 ///
 /*
@@ -108,7 +108,8 @@ public:
 	inline int isValid(void) const { return (_raw_id != ACE_INVALID_HANDLE) ? 1 : 0; }
 	///int IsGeneric() { return raw_id == 0; } buggy maybe never used
 	inline int isError(void) const { return (_raw_id == ACE_INVALID_HANDLE); }
-	inline int isConsistent(int n_mode) const { return (_mode == n_mode) || (_mode == YARP_NO_SERVICE_AVAILABLE); }
+	//inline int isConsistent(int n_mode) const { return (_mode == n_mode) || (_mode == YARP_NO_SERVICE_AVAILABLE); }
+	inline int isConsistent(int n_mode) const { return (_mode == n_mode); }
 	void invalidate() { _raw_id = ACE_INVALID_HANDLE;  _mode = YARP_NO_SERVICE_AVAILABLE; }
 };
 
@@ -118,6 +119,9 @@ public:
 /// contains the assigned port/IP address.
 ///	a bit more generic than the address/port pair only.
 ///
+/// <_p1> is used to store the number of ports managed by the ID.
+/// <_p2> is the array of ports managed by the ID.
+/// 
 class YARPUniqueNameID : public YARPNameID
 {
 protected:

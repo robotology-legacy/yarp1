@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.11 2003-04-30 13:22:42 beltran Exp $
+/// $Id: YARPSocket.cpp,v 1.12 2003-05-01 22:51:19 gmetta Exp $
 ///
 ///
 
@@ -77,7 +77,7 @@
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
-
+#include <ace/Handle_Set.h>
 
 #ifndef __QNX__
 #include <string>
@@ -545,9 +545,21 @@ void _SocketThread::Body (void)
 				while (_read_more)
 				{
 					/// this was r too, a bit confusing.
-					ACE_ASSERT (_extern_reply_length != 0);
-					
-					int rr = _stream->recv_n (_extern_reply_buffer, _extern_reply_length, 0); 
+					///ACE_ASSERT (_extern_reply_length != 0);
+					int rr = 0;
+					if (_extern_reply_length == 0)
+					{
+						/// then do a select.
+						ACE_Handle_Set set;
+						set.reset ();
+						set.set_bit (_stream->get_handle());
+						ACE_OS::select (1, set);
+						/// wait here until next valid chunck of data.
+					}
+					else
+					{
+						rr = _stream->recv_n (_extern_reply_buffer, _extern_reply_length, 0); 
+					}
 
 					_extern_reply_length = rr;
 					_read_more = 0;
@@ -942,7 +954,7 @@ int _SocketThreadList::read(char *buf, int len, ACE_HANDLE *reply_pid)
 					save_pid = (*it_avail)->getID();
 					ACE_DEBUG ((LM_DEBUG, "@@@ got data %d/%d\n", in_len, len));
 					result = in_len;
-					finished = -1;
+					finished = 1;
 					break;
 				}
 			}

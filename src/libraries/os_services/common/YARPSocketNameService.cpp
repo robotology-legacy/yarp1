@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.8 2003-04-30 13:22:41 beltran Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.9 2003-05-01 22:51:19 gmetta Exp $
 ///
 ///
 
@@ -86,6 +86,7 @@
 #include "ThreadInput.h"
 #include "YARPNameID_defs.h"
 #include "YARPNameService.h"
+#include "YARPNativeNameService.h"
 #include "debug.h"
 
 
@@ -95,124 +96,6 @@
 #endif
 
 #define THIS_DBG 50
-
-///
-///
-/// Linux implementation.
-///
-#ifdef __LINUX__			/////// LINUX
-
-#include <pthread.h>
-
-class ISHolder
-{
-public:
-  YARPInputSocket sock;
-  int offset;
-
-  ISHolder() { offset = 0; }
-};  
-
-pthread_key_t registry_key;
-pthread_once_t once_control = PTHREAD_ONCE_INIT;
-
-static void destroy_from_key(void *ptr)
-{
-  if (ptr!=NULL)
-    {
-      delete ((ISHolder*)ptr);
-    }
-  DBG(5) ACE_OS::printf("^^^^^^^^ Destroyed an input socket handler\n");
-}
-   
-static void init_registry_key(void)
-{
-  int status = pthread_key_create(&registry_key, destroy_from_key);
-  DBG(5) ACE_OS::printf("^^^^^^^^ Initialized a key\n");
-}
-
-ISHolder *GetThreadData()
-{
-  void *key = pthread_getspecific(registry_key);
-  return (ISHolder *) key;
-}
-
-YARPInputSocket *GetThreadSocket()
-{
-  ISHolder *data = GetThreadData();
-  if (data!=NULL)
-    {
-      return &(data->sock);
-    }
-  return NULL;
-}
-
-int YARPSocketNameService::GetAssignedPort()
-{
-  int result = -1;
-  YARPInputSocket *is = GetThreadSocket();
-  if (is!=NULL)
-    {
-      result = is->GetAssignedPort();
-    }
-  return result;
-}
-
-/*  
-int YARPNameService::ReadOffset(int delta, int absolute)
-{
-  // only one receiver possible per thread a-la qnx, so okay to do:
-  int offset = 0;
-  ISHolder *holder = GetThreadData();
-  if (holder!=NULL)
-    {
-      int offset = holder->offset;
-      if (absolute) { offset = deta; }
-      else { offset += delta; }
-      holder->offset = offset;
-    }
-  return delta;
-}
-*/
-
-int YARPSocketNameService::RegisterName(const char *name)
-{
-
-  int name_status = -1;
-  int result = -1;
-  pthread_once(&once_control, &init_registry_key);
-
-  void *key = pthread_getspecific(registry_key);
-  assert(key==NULL);
-  if (key==NULL)
-    {
-      ISHolder *holder = new ISHolder;
-      assert(holder!=NULL);
-      holder->sock.Register(name);
-      result = holder->sock.GetAssignedPort();
-      pthread_setspecific(registry_key, (void *)holder);
-      DBG(5) ACE_OS::printf("^^^^^^^^ Made an input socket handler\n");
-    } 
-
-  return result;
-}
-
-YARPNameID YARPSocketNameService::LocateName(const char *name)
-{
-  YARPOutputSocket os;
-  os.Connect(name);
-  os.InhibitDisconnect();
-
-  return YARPNameID(YARP_NAME_MODE_SOCKET,os.GetIdentifier());
-}
-
-
-#else				/////// NOT LINUX
-
-
-/**************************************************************************
- qnx, cygwin, and NT version follows
- **************************************************************************/
 
 #include <sys/types.h>
 
@@ -452,7 +335,8 @@ YARPNameID YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& na
 				// prepare the socket for the connection (bind).
 				/// uses the first port as port of the sender socket.
 				///ACE_ASSERT (name.getP1Ref() == 1);
-				((YARPOutputSocketDgram *)no)->Prepare (name); ///, name.getP2Ptr()[0]);
+				///((YARPOutputSocketDgram *)no)->Prepare (name); ///, name.getP2Ptr()[0]);
+				no->Prepare (name); ///, name.getP2Ptr()[0]);
 			break;
 
 		default:
@@ -572,6 +456,32 @@ YARPUniqueNameID YARPSocketNameService::RegisterName(YARPNameClient& namer, cons
 
 	switch (reg_type)
 	{
+	case YARP_QNET:
+		{
+			/// hostname is used as usual, or rather the IP address?
+			/// <name> is the name to be registered.
+			/// <reg_type> self explaining
+			/// <num_ports_needed> is used (recycled) as channel ID number.
+			int chid = num_ports_needed;
+			
+			YARPNameQnx tmp;
+			tmp.setName(name);
+			tmp.setAddr(string(reg_addr.get_host_addr()), my_getpid(), chid);
+			if (namer.check_in_qnx (tmp) != YARP_OK)
+			{
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems registering %s\n", name));
+				return YARPUniqueNameID ();	/// invalid name id.
+			}
+
+			// _p2[0] = mypid, _p2[1] = chid.
+			n.allocP2 (2);
+			n.getP2Ptr()[0] = (NetInt32)my_getpid();
+			n.getP2Ptr()[1] = (NetInt32)chid;
+			n.getAddressRef() = reg_addr;	/// can't do anything better.
+			n.setRawIdentifier((ACE_HANDLE)chid);
+		}
+		break;
+
 	case YARP_TCP:
 		{
 			if (namer.check_in (tname, reg_addr, addr) != YARP_OK)
@@ -620,26 +530,113 @@ YARPUniqueNameID YARPSocketNameService::RegisterName(YARPNameClient& namer, cons
 }
 
 //YARPNameID YARPSocketNameService::LocateName(const char *name)
-YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const char *name)
+YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const char *name, int name_type)
 {
 	/// handle the connection w/ the remote name server.
 	///
 	ACE_INET_Addr addr;
 
-	///
-	int reg_type = YARP_NO_SERVICE_AVAILABLE;
-	if (namer.query (name, addr, &reg_type) != YARP_OK)
+	switch (name_type)
 	{
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s\n", name));
-		return YARPUniqueNameID ();	/// invalid name id.
+	case YARP_QNET:
+		{
+			YARPNameQnx tmp;
+			int reg_type = YARP_NO_SERVICE_AVAILABLE;
+			if (namer.query_qnx (name, tmp, &reg_type) != YARP_OK)
+			{
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s\n", name));
+				return YARPUniqueNameID ();	/// invalid name id.
+			}
+
+			if (reg_type != name_type)
+			{
+				ACE_DEBUG ((LM_DEBUG, ">>>>The requested type differs from the actual one %s\n", name));
+				return YARPUniqueNameID ();
+			}
+
+			YARPUniqueNameID n(YARP_QNET, addr);
+			n.allocP2 (2);
+			n.getP2Ptr()[0] = (NetInt32)tmp.getPid();
+			n.getP2Ptr()[1] = (NetInt32)tmp.getChan();
+			n.getAddressRef().set ((u_short)0, tmp.getNode());	/// can't do anything better.
+			n.setRawIdentifier((ACE_HANDLE)tmp.getChan());
+
+			return n;
+		}
+		break;
+
+	case YARP_TCP:
+	case YARP_UDP:
+		{
+			///
+			int reg_type = YARP_NO_SERVICE_AVAILABLE;
+			if (namer.query (name, addr, &reg_type) != YARP_OK)
+			{
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s\n", name));
+				return YARPUniqueNameID ();	/// invalid name id.
+			}
+
+			if (reg_type != name_type)
+			{
+				ACE_DEBUG ((LM_DEBUG, ">>>The requested type differs from the actual one %s\n", name));
+				return YARPUniqueNameID ();
+			}
+			
+			/// query must return also the registration type.
+			///
+			return YARPUniqueNameID (reg_type, addr);
+		}
+		break;
+
+	case YARP_NO_SERVICE_AVAILABLE:
+		{
+			/// doing a search...
+			/// QNET first.
+			YARPNameQnx tmp;
+			int reg_type = YARP_NO_SERVICE_AVAILABLE;
+			
+			if (YARPNativeNameService::IsNonTrivial())
+			{
+				if (namer.query_qnx (name, tmp, &reg_type) != YARP_OK)
+				{
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s, perhaps the name service is not running\n", name));
+					return YARPUniqueNameID ();	/// invalid name id.
+				}
+
+				/// found a legitimate QNET name.
+				if (reg_type == YARP_QNET)
+				{
+					YARPUniqueNameID n(YARP_QNET, addr);
+					n.allocP2 (2);
+					n.getP2Ptr()[0] = (NetInt32)tmp.getPid();
+					n.getP2Ptr()[1] = (NetInt32)tmp.getChan();
+					n.getAddressRef().set ((u_short)0, tmp.getNode());	/// can't do anything better.
+					n.setRawIdentifier((ACE_HANDLE)tmp.getChan());
+					return n;
+				}
+
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s in QNET protocol\n", name));
+			}
+
+			reg_type = YARP_NO_SERVICE_AVAILABLE;
+			if (namer.query (name, addr, &reg_type) != YARP_OK)
+			{
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s also in TCP/UPD protocol\n", name));
+				return YARPUniqueNameID ();	/// invalid name id.
+			}
+			
+			/// query must return also the registration type.
+			///
+			return YARPUniqueNameID (reg_type, addr);
+		}
+		break;
+
+	default:
+		ACE_DEBUG ((LM_DEBUG, "troubles locating name: %s\n", name));
+		break;
 	}
-	
-	/// query must return also the registration type.
-	///
-	return YARPUniqueNameID (reg_type, addr);
+
+	return YARPUniqueNameID();
 }
-
-#endif
-
 
 #undef THIS_DBG

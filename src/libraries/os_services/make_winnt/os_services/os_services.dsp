@@ -102,22 +102,6 @@ SOURCE=..\..\winnt\YARPMultipartMessage.cpp
 
 SOURCE=..\..\winnt\YARPNativeNameService.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=..\..\winnt\YARPScheduler.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\winnt\YARPSemaphore.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\winnt\YARPThread.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\winnt\YARPTime.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -292,6 +276,14 @@ SOURCE=..\..\common\YARPRefCount.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\common\YARPScheduler.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\common\YARPSemaphore.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\common\YARPSocket.cpp
 # End Source File
 # Begin Source File
@@ -312,7 +304,15 @@ SOURCE=..\..\common\YARPSyncComm.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\common\YARPThread.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\common\YARPThreadAux.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\common\YARPTime.cpp
 # End Source File
 # End Group
 # Begin Group "Sys_include"

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.4 2003-04-22 17:01:19 gmetta Exp $
+/// $Id: YARPNameService.h,v 1.5 2003-05-01 22:51:19 gmetta Exp $
 ///
 ///
 /*
@@ -108,7 +108,8 @@ public:
 	/// static YARPUniqueNameID GetRegistration (void);
 
 	// if native flag set, search native name service first, then global
-	static YARPUniqueNameID LocateName(const char *name); ///, int native=1);
+	/// it does a search on various protocols instead asking for a type.
+	static YARPUniqueNameID LocateName(const char *name, int name_type = YARP_NO_SERVICE_AVAILABLE);
 };
 
 

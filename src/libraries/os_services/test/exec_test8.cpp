@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.7 2003-04-29 21:50:34 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.8 2003-05-01 22:51:20 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -80,8 +80,10 @@
 
 NetInt32 foo;
 
-YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+///YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+///YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+YARPInputPortOf<NetInt32> in;
+YARPOutputPortOf<NetInt32> out;
 
 class Thread1 : public YARPThread
 {

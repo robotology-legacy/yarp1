@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.11 2003-04-30 16:54:59 gmetta Exp $
+/// $Id: Port.cpp,v 1.12 2003-05-01 22:51:19 gmetta Exp $
 ///
 ///
 
@@ -88,6 +88,7 @@
 #include "RefCounted.h"
 
 #include "YARPNameService.h"
+#include "YARPNativeNameService.h"
 #include "YARPSyncComm.h"
 #include "YARPScheduler.h"
 #include "YARPTime.h"
@@ -167,9 +168,14 @@ void OutputTarget::Body ()
 
 	target_pid = YARPNameService::LocateName (GetLabel().c_str());
 
-	/// local port number into P2[0] param.
-	target_pid.allocP2 (1);
-	target_pid.getP2Ptr()[0] = port_number;
+	/// needed because the port changes from that of the incoming call
+	/// it is used to accept data (pretend a connection to the remote).
+	if (target_pid.getServiceType() == YARP_UDP)
+	{
+		/// local port number into P2[0] param.
+		target_pid.allocP2 (1);
+		target_pid.getP2Ptr()[0] = port_number;
+	}
 
 	YARPEndpointManager::CreateOutputEndpoint (target_pid);
 	YARPEndpointManager::ConnectEndpoints (target_pid.getNameID());
@@ -439,6 +445,19 @@ void Port::Body()
 
 	switch (protocol_type)
 	{
+	case YARP_QNET:
+		{
+			pid = YARPNameService::RegisterName(name.c_str(), YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel()); 
+			if (pid.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+			{
+				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
+				name_set = 0;
+				okay_to_send.Post();
+				return;
+			}
+		}
+		break;
+
 	case YARP_TCP:
 		{
 			pid = YARPNameService::RegisterName(name.c_str(), YARP_TCP); 
@@ -454,10 +473,9 @@ void Port::Body()
 
 	case YARP_UDP:
 		{
-			/// ask 21 ports overall:
+			/// ask 11 ports overall:
 			/// 1 as in channel for asking connections
-			/// 10 for possible in connections
-			/// and 10 for output.
+			/// 10 for incoming connections
 			/// there's a bit of messy handling of the numbers here to allocate the
 			/// right things to the right places.
 			///

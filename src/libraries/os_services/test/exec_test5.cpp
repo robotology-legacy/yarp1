@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.4 2003-04-24 16:54:46 gmetta Exp $
+/// $Id: exec_test5.cpp,v 1.5 2003-05-01 22:51:20 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -244,10 +244,10 @@ int main(int argc, char *argv[])
 
 	if (!s)
 	{
-		YARPTime::DelayInSeconds(10000.0);
+		YARPTime::DelayInSeconds(10.0);
 	}
 	
-	YARPTime::DelayInSeconds(20.0);
+	YARPTime::DelayInSeconds(20000.0);
 	t2.End();
 	t1.End();
 	return 0;

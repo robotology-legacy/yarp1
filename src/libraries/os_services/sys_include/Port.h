@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.8 2003-04-24 08:49:33 gmetta Exp $
+/// $Id: Port.h,v 1.9 2003-05-01 22:51:20 gmetta Exp $
 ///
 ///
 
@@ -477,7 +477,7 @@ public:
 		if (!self_id.isValid())
 		{
 			///self_id = GetServer(name.c_str());
-			self_id = YARPNameService::LocateName(name.c_str());
+			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
 			YARPEndpointManager::CreateOutputEndpoint (self_id);
 			YARPEndpointManager::ConnectEndpoints (self_id);
 		}

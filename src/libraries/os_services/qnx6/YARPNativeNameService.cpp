@@ -1,97 +1,151 @@
-#include <stdlib.h>
-//#include <sys/name.h>
-#include <sys/dispatch.h> //+QNX6+
-#include <errno.h>
-#include <string.h>
-#include <sys/iofunc.h>
-#include <sys/dispatch.h>
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
+///                                                                   ///
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, /// 
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
+///
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa, carlos#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPNativeNameService.cpp,v 1.2 2003-05-01 22:51:20 gmetta Exp $
+///
+///
+
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+
+#include <sys/dispatch.h> //+QNX6+
 #include <sys/iofunc.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <assert.h>
 
 #include "YARPTime.h"
 #include "YARPNativeNameService.h"
 #include "YARPNameID_defs.h"
 #include "YARPSemaphore.h"
-#include "YARPNameManager.h"
 
-/*************************PRINCIPAL******************************************/
+///
+/// need to create a channel first, then register into the name server.
+///
+int YARPNativeEndpointManager::CreateQnetChannel (void)
+{
+	int chid;
+	if ((chid = ChannelCreate(NULL)) != -1)
+		return chid;
+	
+	return YARP_FAIL;
+}
 
-int register_name(const char *,int);
-int name_search(const char *);
+///
+///
+///
+YARPNameID YARPNativeEndpointManager::CreateInputEndpoint (YARPUniqueNameID& name)
+{
+	return name.getNameID();
+}
 
-YARPSemaphore namer(1);
 
+
+YARPNameID YARPNativeEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
+{
+	return name.getNameID();
+}
+
+int YARPNativeEndpointManager::ConnectEndpoints(YARPNameID& dest)
+{
+	coid = ConnectAttach( 
+						netmgr_strtond (dest.getAddressRef().get_addr(),NULL),
+						(int)dest.getP2Ptr()[0],
+						(int)dest.getRawIdentifier(),
+						0,
+						0);
+	if (coid != -1)
+	{
+		dest.setRawIdentifier(coid);
+		return coid;
+	}
+
+	return YARP_FAIL;
+}
+
+int YARPNativeEndpointManager::Close(void)
+{
+	ACE_DEBUG ((LM_DEBUG, "Close not implemented yet for QNX-QNET\n"));
+	return YARP_OK;
+}
+
+///
+///
+///
 int YARPNativeNameService::RegisterName(const char *name)
 {
-  int name_status = -1;
-  name_attach_t *attach;//+QNX6+
-  int retries = 0;
-  int merr = 0;
-  char buf[256];
-  int chid;
-  
-  if (name != NULL)
-    {
-      strncpy(buf,name,sizeof(buf));
-      do
-	{
-	  namer.Wait();
-
-	  if ((chid = ChannelCreate(NULL)) != -1)
-	  {
-		 register_name(name,chid);	
-		 name_status = chid;	
-	  }
-	  merr = errno;
-	  YARPTime::DelayInSeconds(0.05);
-	  namer.Post();
-	  if (name_status==-1)
-	    {
-	      YARPTime::DelayInSeconds(0.2);
-	      fprintf(stderr, "Getting hassle while registering name %s\n", buf, merr);
-//	      sprintf(buf,"%s-%d", name, retries);
-	    }
-	  retries++;
-	} while (name_status == -1 && (merr == EBUSY || retries<20));
-      if (name_status == -1)
-	{
-	  fprintf(stderr, "Problem registering name %s [%d, %d]\n",
-		  buf, name_status, errno);
-	}
-      else
-	{
-//	  name_status = 0;
-	}
-    }
-  return name_status;
+	return YARP_OK;
 }
 
 YARPNameID YARPNativeNameService::LocateName(const char *name)
 {
-  pid_t pid_server = -1;
-  int attempt_count = 0;
-  
-  if (name!=NULL)
-    {
-     
-	  int fd = name_search(name);
-	  pid_server = fd;
-    }
-  return YARPNameID(YARP_NAME_MODE_NATIVE,pid_server);
+	return YARPNameID();
 }
-
 
 int YARPNativeNameService::IsNonTrivial()
 {
-  return 1;
+	return 1;
 }
 
+/*
 int register_name(const char * name, int chid)
 {
 	char hostname[250];
@@ -136,4 +190,4 @@ int name_search(const char * name)
     return coid;
 }
 
-
+*/

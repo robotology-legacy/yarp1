@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketNameService.h,v 1.5 2003-04-24 16:54:45 gmetta Exp $
+/// $Id: YARPSocketNameService.h,v 1.6 2003-05-01 22:51:19 gmetta Exp $
 ///
 ///
 
@@ -97,7 +97,7 @@ public:
 	static YARPUniqueNameID RegisterName (YARPNameClient& namer, const char *name, int reg_type = YARP_TCP, int num_ports_needed = 1);
 
 	/// get a remote port and ID of a given channel.
-	static YARPUniqueNameID LocateName (YARPNameClient& namer, const char *name);
+	static YARPUniqueNameID LocateName (YARPNameClient& namer, const char *name, int reg_type);
 
 	// static int GetAssignedPort();
 	// static YARPNameID LocateName(const char *name);

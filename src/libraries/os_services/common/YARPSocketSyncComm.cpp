@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.5 2003-04-24 16:54:44 gmetta Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.6 2003-05-01 22:51:19 gmetta Exp $
 ///
 ///
 
@@ -149,6 +149,7 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, char *buff
 
 		///
 		/// workaround needed for UDP, let's compile for TCP too and see what happens.
+#if 0
 		if (buffer_length <= 0)
 		{
 			char c = 0;
@@ -158,6 +159,8 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, char *buff
 		{
 			ct = ts->ReceiveContinue (id, buffer, buffer_length);
 		}
+#endif
+		ct = ts->ReceiveContinue (id, buffer, buffer_length);
 	}
 
 	if (ct < 0) 
@@ -194,8 +197,6 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, char *buffe
 			}
 		}
 
-		///
-		ACE_ASSERT (buffer_length != 0);
 		ct = ts->ReceiveContinue (id, buffer, buffer_length);
 	}
 	
@@ -282,8 +283,8 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 
 	///
 	/// just a wakeup required by the protocol under UDP.
-	char c = 0;
-	os->SendContinue (&c, 1);
+	///char c = 0;
+	///os->SendContinue (&c, 1);
 
 	os->SendContinue (msg.GetBuffer(0), msg.GetBufferLength(0));
 	/* preamble code ends */

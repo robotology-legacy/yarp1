@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.2 2003-04-30 16:54:58 gmetta Exp $
+$Id: README.txt,v 1.3 2003-05-01 22:51:19 gmetta Exp $
 
 
 =============
@@ -17,6 +17,13 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 
 =============
 Things under development:
+
+0- QNET close (detach) channel, close endpoint is not implemented.
+
+0.1- QNET complete test under QNX.
+
+0.5- implement check_out from name server.
+
 
 1- UDP, MCAST code?
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.cpp,v 1.3 2003-04-27 21:57:42 gmetta Exp $
+/// $Id: YARPNativeNameService.cpp,v 1.4 2003-05-01 22:51:20 gmetta Exp $
 ///
 ///
 //// #include <ace/OS.h>
@@ -73,6 +73,42 @@
 #include "YARPNativeNameService.h"
 
 
+///
+/// need to create a channel first, then register into the name server.
+///
+int YARPNativeEndpointManager::CreateQnetChannel (void)
+{
+	return YARP_FAIL;
+}
+
+///
+///
+///
+YARPNameID YARPNativeEndpointManager::CreateInputEndpoint (YARPUniqueNameID& name)
+{
+	return YARPNameID();
+}
+
+
+
+YARPNameID YARPNativeEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
+{
+	return YARPNameID();
+}
+
+int YARPNativeEndpointManager::ConnectEndpoints(YARPNameID& dest)
+{
+	return YARP_FAIL;
+}
+
+int YARPNativeEndpointManager::Close(void)
+{
+	return YARP_FAIL;
+}
+
+///
+///
+///
 int YARPNativeNameService::RegisterName(const char *name)
 {
 	return -1;

@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNativeNameService.h,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPNativeNameService.h,v 1.3 2003-05-01 22:51:19 gmetta Exp $
 ///
 ///
 /*
@@ -71,6 +80,7 @@
 #include "YARPAll.h"
 #include "YARPNameID.h"
 
+/// no longer used in QNX6
 class YARPNativeNameService
 {
 public:
@@ -78,6 +88,20 @@ public:
 	static int RegisterName(const char *name);
 	static YARPNameID LocateName(const char *name);
 	static int IsNonTrivial();
+};
+
+///
+///
+///
+class YARPNativeEndpointManager
+{
+public:
+	/// allocates comm channel (in and out).
+	static int CreateQnetChannel(void); 
+	static YARPNameID CreateInputEndpoint(YARPUniqueNameID& name);
+	static YARPNameID CreateOutputEndpoint(YARPUniqueNameID& name);
+	static int ConnectEndpoints(YARPNameID& dest);
+	static int Close(void);
 };
 
 #endif
