@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.53 2004-06-02 22:18:59 gmetta Exp $
+/// $Id: main.cpp,v 1.54 2004-06-16 16:54:42 emmebi75 Exp $
 ///
 ///
 
@@ -162,8 +162,8 @@ int ParseParams (int argc, char *argv[])
 
 	if (YARPParseParameters::parse(argc, argv, "name", tmps))
 	{
-		ACE_OS::sprintf (_name, "/%s/o:img", tmps.c_str());
-		ACE_OS::sprintf (_fgdataname,"/%s/i:fgdata", tmps.c_str());
+		ACE_OS::sprintf (_name, "%s/o:img", tmps.c_str());
+		ACE_OS::sprintf (_fgdataname,"%s/i:fgdata", tmps.c_str());
 	}
 
 	if (YARPParseParameters::parse(argc, argv, "w", &_sizex))
