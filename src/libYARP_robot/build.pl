@@ -120,15 +120,15 @@ if ($install)
 {
 	print "\nInstalling YARP_robot libraries to default install directory.\n";
 
-	@my_headers = glob "./include/yarp/*.h";
+	@my_headers = glob "./include/yarp/*.h ./$options{\"Architecture<-Hardware_Name\"}/yarp/*.h";
 	foreach my $file (@my_headers) 
 	{
 		print "Copying $file\n";
 		copy ($file, "$yarp_root/include/yarp/") or warn "Can't copy .h files\n"; 
 	}
 
-	copy ("./lib/$os/libYARP_robot.lib", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_robot.lib\"\n";
-	copy ("./lib/$os/libYARP_robotd.lib", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_robotd.lib\"\n";
+	copy ("./lib/$os/$project_name.lib", "$yarp_root/lib/$os/libYARP_robot.lib") or warn "Can't copy \"./lib/$os/libYARP_robot.lib\"\n";
+	copy ("./lib/$os/$project_name"."d.lib", "$yarp_root/lib/$os/libYARP_robotd.lib") or warn "Can't copy \"./lib/$os/libYARP_robotd.lib\"\n";
 	print "\nLibraries installed in $yarp_root/lib/$os\n";
 }
 

@@ -205,9 +205,9 @@ foreach my $device (glob "*")
 		{
 			my $answer = '';
 			print "My best algorithm suggests the following addition:\n\n";
-			print "#include <yarp/$filename>\n";
-			print "#ifndef $searchfor{$best_match}\n";
-			print "#define $searchfor{$best_match} $app_class_name\n";
+			print "#include <yarp/$filename.h>\n";
+			print "#ifndef $app_class_name\n";
+			print "#define $app_class_name $searchfor{$best_match}\n";
 			print "#endif\n\n\n";
 
 			print "Confirm addition to YARPRobotHardware.h, type SKIP to skip this definition or NO to enter a new one [YES]? ";
@@ -215,9 +215,9 @@ foreach my $device (glob "*")
 			if ($answer eq '' || $answer eq "YES")
 			{
 				print CONFIG "/// #define for device driver \"$device\" in context \"$robotname\"\n";
-				print CONFIG "#include <yarp/$filename>\n";
-				print CONFIG "#ifndef $searchfor{$best_match}\n";
-				print CONFIG "#define $searchfor{$best_match} $app_class_name\n";
+				print CONFIG "#include <yarp/$filename.h>\n";
+				print CONFIG "#ifndef $app_class_name\n";
+				print CONFIG "#define $app_class_name $searchfor{$best_match}\n";
 				print CONFIG "#endif\n\n\n";
 			}
 			elsif ($answer eq "SKIP")
@@ -242,14 +242,14 @@ foreach my $device (glob "*")
 						print CONFIG "#include <yarp/$ans2>\n";
 					}
 
-					print CONFIG "#ifndef $answer\n";
-					print CONFIG "#define $answer\n";
+					print CONFIG "#ifndef $app_class_name\n";
+					print CONFIG "#define $app_class_name $answer\n";
 					print CONFIG "#endif\n\n\n";
 
 					print "Added:\n\n";
 					print "#include <yarp/$ans2>\n";
-					print "#ifndef $answer\n";
-					print "#define $answer\n";
+					print "#ifndef $app_class_name\n";
+					print "#define $app_class_name $answer\n";
 					print "#endif\n\n\n";
 				}
 				else

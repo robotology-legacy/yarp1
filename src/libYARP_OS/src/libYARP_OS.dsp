@@ -123,6 +123,10 @@ SOURCE=.\YARPBottle.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPConfigFile.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPIterativeStats.cpp
 # End Source File
 # Begin Source File
@@ -244,6 +248,10 @@ SOURCE=..\include\yarp\YARPBottleCodes.h
 # Begin Source File
 
 SOURCE=..\include\yarp\YARPBottleContent.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPConfigFile.h
 # End Source File
 # Begin Source File
 
