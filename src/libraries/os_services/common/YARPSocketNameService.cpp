@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.11 2003-05-16 00:02:31 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.12 2003-05-16 00:04:51 gmetta Exp $
 ///
 ///
 
@@ -164,6 +164,8 @@ static int my_getpid()
 	return getpid();
 #endif
 }
+
+static inline int my_gettid() { return my_getpid(); }
 
 #endif
 
