@@ -77,6 +77,7 @@ private:
 
 	//
 	YARPOutputPortOf<YVector> _handStatusOut;
+	YARPOutputPortOf<YVector> _handForceOut;
 	YVector _posture;
 	YVector _motorJoints;
 	YVector _hallEncodersRaw;

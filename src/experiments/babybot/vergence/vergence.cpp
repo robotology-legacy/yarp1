@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.10 2004-02-05 07:16:25 babybot Exp $
+/// $Id: vergence.cpp,v 1.11 2004-03-09 09:27:03 babybot Exp $
 ///
 ///
 
@@ -161,15 +161,9 @@ int main(int argc, char *argv[])
 	disparity.loadShiftTable (&disparity._imgS);
 	disparity.loadDSTable (&disparity._imgL);
 
-	// DEBUG 
-	/*
-	YARPImageOf<YarpPixelMono> previousLeft;
-	YARPImageOf<YarpPixelMono> previousRight;
-	previousLeft.Resize(_stheta, _srho);
-	previousRight.Resize(_stheta, _srho);
-	int counter = 0;
-	char tmpName[255];
-*/	
+	FILE *fp = fopen ("Y:/conf/vergence_bugs.txt", "w");
+	ACE_ASSERT (fp != NULL);
+
 	while (1)
 	{
 		in_left.Read();
@@ -177,13 +171,6 @@ int main(int argc, char *argv[])
 
 		inl.Refer (in_left.Content());
 		inr.Refer (in_right.Content());
-
-		// const char *LEFT_NAME = "y:/DEBUG_VERGENZA/R2/leftC2373.ppm";
-		// const char *RIGHT_NAME = "y:/DEBUG_VERGENZA/R2/rightC2373.ppm";
-
-		// YARPImageFile::Read(LEFT_NAME, inl);
-		// YARPImageFile::Read(RIGHT_NAME, inr);
-
 
 		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)inl, col_left);
 		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)inr, col_right);
@@ -199,6 +186,18 @@ int main(int argc, char *argv[])
 		// disparityval(1) = -(double)disparity.computeDisparity (sub_left, sub_right);
 		disparityval(1) = (double)disparity.computeDisparity (sub_right, sub_left);
 
+		///
+		printf ("xm: %f s: %f a: %f err: %f s/n: %f\n", 
+			disparity._gMean, disparity._gSigma, disparity._gMagn, 
+			disparity._squareError, disparity._snRatio);
+
+		/// temporary.
+		if (disparity._gSigma > 1000)
+		{
+			fwrite (disparity._corrFunct, sizeof(double)*141, 1, fp);
+			fflush (fp);
+		}
+
 		out_img.Content().SetID (YARP_PIXEL_MONO);
 		out_img.Content().Resize (256, 64);
 		out.Refer (out_img.Content());
@@ -209,29 +208,6 @@ int main(int argc, char *argv[])
 		printf ("d = %d\n", int(disparityval(1)+.5));
 		out_disp.Content() = disparityval;
 		out_disp.Write();
-
-	/*	// DEBUG
-		if (disparityval == 185)
-		{
-			// previous images
-			sprintf(tmpName, "C:\\leftP%d.ppm", counter);
-				YARPImageFile::Write(tmpName, previousLeft);
-			sprintf(tmpName, "C:\\rightP%d.ppm", counter);
-				YARPImageFile::Write(tmpName, previousRight);
-
-			// current images
-			sprintf(tmpName, "C:\\leftC%d.ppm", counter);
-				YARPImageFile::Write(tmpName, inl);
-			sprintf(tmpName, "C:\\rightC%d.ppm", counter);
-				YARPImageFile::Write(tmpName, inr);
-
-		}
-
-		previousLeft = inl;
-		previousRight = inr;
-
-		counter++;
-		*/
 	}
 
 	return 0;

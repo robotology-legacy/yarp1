@@ -3,7 +3,8 @@
 
 HandThread::HandThread(int rate, const char *name, const char *cfgF):
 YARPRateThread(name, rate),
-_handStatusOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+_handStatusOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
+_handForceOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 {
 	char *root = GetYarpRoot();
 	char path[256];
@@ -64,11 +65,12 @@ _handStatusOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	_cmd = 0.0;
 	/////////////
 	_handStatusOut.Register("/handcontrol/o:status");
+	_handForceOut.Register("/handcontrol/o:force");
 	_posture.Resize(16);
 	_motorJoints.Resize(6);
 	_hallEncodersRaw.Resize(15);
 	_hallDeltaTheta.Resize(15);
-
+	
 	///////
 	for(i = 0; i < 15; i++)
 		_hallPoly[i].setParameters(__hallParameters[i]);
@@ -107,7 +109,10 @@ void HandThread::doLoop()
 
 	_handStatusOut.Content() = _posture;
 	_handStatusOut.Write();
-	
+
+	_handForceOut.Content() = _hallDeltaTheta;
+	_handForceOut.Write();
+
 	_hand.output();
 }
 	

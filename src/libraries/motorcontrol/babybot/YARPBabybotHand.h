@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotHand.h,v 1.7 2004-01-17 00:15:15 gmetta Exp $
+///  $Id: YARPBabybotHand.h,v 1.8 2004-03-09 09:27:03 babybot Exp $
 ///
 ///
 
@@ -294,6 +294,7 @@ public:
 		lock();
 		if (_torqueControl.update(_motor_torques, _max_torques))
 		{
+			ACE_OS::printf("Torque limits applied\n");
 			_convert_input_raw(_max_torques, _tmp_command_double);
 			_control_board.IOCtl(CMDSetTorqueLimits, _tmp_command_double);
 		}

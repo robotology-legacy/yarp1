@@ -14,6 +14,18 @@ if (e == -1)
     return;
 end
 
+idForce = port('create', 'vector', 0, 'mcast');
+if (idForce == -1)
+    disp('cannot create force input port');
+    return;
+end
+
+e = port('register', idForce, '/handkinematics/force/i', 'default');
+if (e == -1)
+    disp('cannot register hand force input port');
+    return;
+end
+
 idTouch = port('create', 'vector', 0, 'mcast');
 if (idTouch == -1)
     disp('cannot create touch port');
@@ -40,15 +52,17 @@ end
 porter ('/handcontrol/o:status', '!/handkinematics/i');
 porter ('/repeater/o', '!/handkinematics/behavior/i');
 porter ('/touch/o', '!/handkinematics/touch/i');
-
+porter ('/handcontrol/o:force', '!/handkinematics/force/i');
 
 %%%% connect
 porter('/handcontrol/o:status', '/handkinematics/i');
+porter ('/handcontrol/o:force', '/handkinematics/force/i');
 porter('/repeater/o', '/handkinematics/behavior/i');
 porter('/touch/o', '/handkinematics/touch/i');
 
 qh = zeros(1,16);
 qtouch = zeros(1,17);
+qforce = zeros(1,15);
 
 % loop
 i = 0;
@@ -57,6 +71,7 @@ el = 45;
 exit = 0;
 freeze = 0;
 filename = '';
+filename2 = '';
 while(~exit)
     [qh err1] = port('read', idVector, 0);
     [qtouch err2] = port('read', idTouch, 0);
@@ -65,6 +80,11 @@ while(~exit)
     end
     if ( (err1 >= 0) && (~freeze))
       computeHandKin(qh, qtouch, az, el);
+    end
+    
+    [qforce err3] = port('read', idForce, 0);
+    if (err3 < 0)
+        qforce(1:15) = 0;
     end
     
     %% bottle
@@ -91,10 +111,14 @@ while(~exit)
             end
             if ( (strcmp(bottle{2}, 'HandKinSavePosture')) || (strcmp(bottle{2}, 'GraspRflxClutch')))
                 savePosture(filename, qh, qtouch);
+                saveTouchForce(filename2, qforce, qtouch);
             end
             if (strcmp(bottle{2}, 'HandKinSetFile'))
-               filename = bottle{3};
+               filename = sprintf('%s%s', bottle{3}, '.txt');
+               filename2 = sprintf('%s%s', bottle{3}, 'TF.txt');
                tmp = strcat ('Future posture will be saved to:', filename);
+               disp(tmp);
+               tmp = strcat ('Future touch-force couple will be saved to:', filename2);
                disp(tmp);
             end
             if(strcmp(bottle{2}, 'HandKinQuit'))
@@ -103,12 +127,16 @@ while(~exit)
             end
         end
     end
-    pause(0.5);
+    pause(0.1);
 end
 
 porter ('/handcontrol/o:status', '!/handkinematics/i');
 port('unregister', idVector);
 port('destroy', idVector);
+
+porter ('/handcontrol/o:force', '!/handkinematics/force/i');
+port('unregister', idForce);
+port('destroy', idForce);
 
 porter ('/repeater/o', '!/handkinematics/behavior/i');
 port('unregister', idBottle);

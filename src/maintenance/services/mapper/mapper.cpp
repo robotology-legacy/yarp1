@@ -7,10 +7,13 @@
 #include <YARPImageFile.h>
 #include <YARPParseParameters.h>
 #include <YARPColorConverter.h>
+#include <YARPSimpleOperations.h>
+#include <YARPDIBConverter.h>
 
 using namespace _logpolarParams;
 
 YARPLogpolar _mapper;
+YARPDIBConverter _converter;
 
 int _findName(const char *in, YARPString &out)
 {
@@ -58,23 +61,40 @@ int _grayscale(const YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelMono> &
 	return 0;
 }
 
+void _saveImage(YARPGenericImage &im, const YARPString &inName, bool bmp = false)
+{
+	if (!bmp)
+	{
+		// save ppm
+		YARPImageFile::Write(inName.c_str(), im);
+	}
+	else
+	{
+		_converter.Resize(im);
+		_converter.ConvertToDIB(im);
+		_converter.SaveDIB(inName.c_str());
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	if (argc < 2)
 	{
-		cout << "Use: " << argv[0] << " inputfile outputfile [-mono] [-norm] [-lp]\n";
+		cout << "Use: " << argv[0] << " inputfile outputfile [-mono] [-norm] [-lp] [-bmp]\n";
 		return 0;
 	}
 
 	YARPImageOf<YarpPixelMono> _input;
 	YARPImageOf<YarpPixelBGR> _tmp1;
+	YARPImageOf<YarpPixelBGR> _flipped;
 	YARPImageOf<YarpPixelBGR> _outputColor;
 	YARPImageOf<YarpPixelMono> _outputMono;
 
 	bool grayscale = false;
 	bool normalized = false;
 	bool lp = false;
-
+	bool bmp = false;
+	
 	if (YARPParseParameters::parse(argc, argv, "mono"))
 	{
 		grayscale = true;
@@ -86,6 +106,10 @@ int main(int argc, char* argv[])
 	if (YARPParseParameters::parse(argc, argv, "lp"))
 	{
 		lp = true;
+	}
+	if (YARPParseParameters::parse(argc, argv, "bmp"))
+	{
+		bmp = true;
 	}
 		
 	YARPString name;
@@ -105,22 +129,32 @@ int main(int argc, char* argv[])
 		_cartesian(_input, _tmp1);
 	
 
+	if (bmp)
+	{
+		_flipped.Resize(_tmp1.GetWidth(), _tmp1.GetHeight());
+		YARPSimpleOperation::Flip(_tmp1, _flipped);
+		_tmp1 = _flipped;
+	}
+
+
 	if (grayscale)
 	{
 		_grayscale(_tmp1, _outputMono);
-		YARPImageFile::Write(outName.c_str(), _outputMono);
+		_saveImage(_outputMono, outName, bmp);
+		// YARPImageFile::Write(outName.c_str(), _outputMono);
 	}
 	else if (normalized)
 	{
 		_normalize(_tmp1, _outputColor);
-		YARPImageFile::Write(outName.c_str(), _outputColor);
+		_saveImage(_outputColor, outName, bmp);
+		// YARPImageFile::Write(outName.c_str(), _outputColor);
 	}
 	else
 	{
 		_outputColor = _tmp1;
-		YARPImageFile::Write(outName.c_str(), _outputColor);
+		_saveImage(_outputColor, outName, bmp);
+		// YARPImageFile::Write(outName.c_str(), _outputColor);
 	}
-
 
 	return 0;
 }
