@@ -1,6 +1,6 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.8 2003-07-01 08:58:59 beltran Exp $
+$Id: install.txt,v 1.9 2003-07-02 12:22:59 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
@@ -87,16 +87,10 @@ REQUIRES:
 		- use "make" from: %YARP_ROOT%\src\libraries\os_services\
 		- use "make install"
 		
-	*** we will unify later all the compilations (for the moment like this)
-	hardware galil
-		- use "make" from: %YARP_ROOT%\src\hardware\src\galil\qnx6\
-		- use "make install" from: %YARP_ROOT%\src\hardware\src\galil\qnx6\
-	
-	hardware picolo
-		- use "make" from %YARP_ROOT%/src/libraries/src/picolo/qnx6/dd_orig
-		- use "make intall" %YARP_ROOT%/src/libraries/src/picolo/qnx6/dd_orig
-		- the same in %YARP_ROOT%/src/libraries/src/picolo/qnx6/
-		 
+	hardware
+		-use "make" from %YARP_ROOT%/src/hardware/src
+		(this makes also the installation)
+				 
 	images
 		* Install fake ipl
 			- by running %YARP_ROOT/src/libraries/ipl/install_fake_ipl script.
@@ -109,29 +103,17 @@ REQUIRES:
 			- ## should a tables directory be created?? not clear where the table should go.
 		* Install images
 			- use "make" in %YARP_ROOT%/src/libraries/images
+			
+	motorcontrol
+		* for the moment
+			- use "make install" in %YARP_ROOT/src/libraries/motorcontrol
+			- use "make install" in %YARP_ROOT/src/libraries/motorcontrol/eurobot
 	===
 
-	utils
-		- dsw in: %YARP_ROOT%\src\libraries\utils\utils.dsw
+	//utils
+	//	- dsw in: %YARP_ROOT%\src\libraries\utils\utils.dsw
 
-	hardware
 	
-	/******
-	#	- dsw project in: %YARP_ROOT%\src\hardware\src\alldrivers.dsw
-	#		it does the install but...
-	#	- run then install_orig_dd.bat that copies the libraries+includes 
-	#		in the correct directories.
-	*****/
-		hardware galil
-		- use "make" from: %YARP_ROOT%\src\hardware\src\galil\qnx6\
-		- use "make install" from: %YARP_ROOT%\src\hardware\src\galil\qnx6\
-
-	motorcontrol
-	/*************
-	#	- dsw in: %YARP_ROOT%\src\libraries\motorcontrol\motorcontrol.dsw
-	#		compile and install automatically.
-	**************/
-		In qnx6 must be finished.
 
 3) What to include/link for building an application is YARP.
 	TO BE COMPLETED, templates?
