@@ -1,4 +1,6 @@
-#include <YARPBottle.h>
+
+
+#include <yarp/YARPBabyBottle.h>
 
 typedef bool (*myFunction)(YARPBottle &bottle);
 
@@ -20,12 +22,12 @@ typedef COMMAND_TABLE::iterator COMMAND_TABLE_IT;
 													_commands.push_back(tmp);}
 
 // function list
-bool addYVector(YARPBottle &bottle);
-bool addYVocab(YARPBottle &bottle);
-bool addText(YARPBottle &bottle);
-bool addInt(YARPBottle &bottle);
-bool addFloat(YARPBottle &bottle);
-bool display(YARPBottle &bottle);
-bool reset(YARPBottle &bottle);
-bool send(YARPBottle &bottle);
-bool addID(YARPBottle &bottle);
+bool addYVector(YARPBabyBottle &bottle);
+bool addYVocab(YARPBabyBottle &bottle);
+bool addText(YARPBabyBottle &bottle);
+bool addInt(YARPBabyBottle &bottle);
+bool addFloat(YARPBabyBottle &bottle);
+bool display(YARPBabyBottle &bottle);
+bool reset(YARPBabyBottle &bottle);
+bool send(YARPBabyBottle &bottle);
+bool addID(YARPBabyBottle &bottle);

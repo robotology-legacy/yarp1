@@ -1,4 +1,4 @@
-#include "triggerbehavior.h"
+#include "triggerBehavior.h"
 
 const int N = 200;
 

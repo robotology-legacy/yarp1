@@ -1,9 +1,11 @@
 #include "functionList.h"
+#include <iostream>
+using namespace std;
 
-extern YARPOutputPortOf<YARPBottle> _outPort;/*(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);*/
+extern YARPOutputPortOf<YARPBabyBottle> _outPort;/*(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);*/
 
 // function list
-bool addYVector(YARPBottle &bottle)
+bool addYVector(YARPBabyBottle &bottle)
 {
 	YVector tmp;
 	int n;
@@ -21,7 +23,7 @@ bool addYVector(YARPBottle &bottle)
 	return true;
 }
 
-bool addYVocab(YARPBottle &bottle)
+bool addYVocab(YARPBabyBottle &bottle)
 {
 	YBVocab tmp;
 	YARPString tmpString;
@@ -35,7 +37,7 @@ bool addYVocab(YARPBottle &bottle)
 	return true;
 }
 
-bool addID(YARPBottle &bottle)
+bool addID(YARPBabyBottle &bottle)
 {
 	YBVocab tmp;
 	YARPString tmpString;
@@ -50,7 +52,7 @@ bool addID(YARPBottle &bottle)
 
 }
 
-bool display(YARPBottle &bottle)
+bool display(YARPBabyBottle &bottle)
 {
 	cout << "Current bottle is: ";
 	bottle.display();
@@ -58,7 +60,7 @@ bool display(YARPBottle &bottle)
 	return true;
 }
 
-bool reset(YARPBottle &bottle)
+bool reset(YARPBabyBottle &bottle)
 {
 	cout << "Resetting bottle";
 	bottle.reset();
@@ -67,7 +69,7 @@ bool reset(YARPBottle &bottle)
 	return true;
 }
 
-bool send(YARPBottle &bottle)
+bool send(YARPBabyBottle &bottle)
 {
 	cout << "Sending current bottle:";
 	bottle.display();
@@ -78,7 +80,7 @@ bool send(YARPBottle &bottle)
 	return true;
 }
 
-bool addInt(YARPBottle &bottle)
+bool addInt(YARPBabyBottle &bottle)
 {
 	int itmp;
 	cout << "Adding an integer\n";
@@ -88,7 +90,7 @@ bool addInt(YARPBottle &bottle)
 	return true;
 }
 
-bool addFloat(YARPBottle &bottle)
+bool addFloat(YARPBabyBottle &bottle)
 {
 	double ftmp;
 	cout << "Adding a float\n";
@@ -98,7 +100,7 @@ bool addFloat(YARPBottle &bottle)
 	return true;
 }
 
-bool addText(YARPBottle &bottle)
+bool addText(YARPBabyBottle &bottle)
 {
 	YBVocab tmp;
 	YARPString tmpString;

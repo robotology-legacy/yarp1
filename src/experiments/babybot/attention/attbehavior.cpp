@@ -48,7 +48,7 @@ void AttBEgoMap::handle(AttSharedData *d)
 	d->_out.Write();
 }
 
-bool AttBSimpleInput::input(YARPBottle *in, AttSharedData *d)
+bool AttBSimpleInput::input(YARPBabyBottle *in, AttSharedData *d)
 {
 	if (!in->tryReadVocab(newK))
 		return false;

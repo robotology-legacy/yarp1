@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.h,v 1.1 2004-07-27 10:52:35 babybot Exp $
+/// $Id: YARPMatrix.h,v 1.2 2004-07-30 14:55:46 babybot Exp $
 ///
 ///
 
@@ -416,6 +416,6 @@ ostream& VISAPI operator<<(ostream& os, const YMatrix& mat);
 
 
 #include "YARPMatrix.inl"
-
+#include "YARPVectorPortContent.h"
 
 #endif // __VIS_MATRIX_DMATRIX_H__

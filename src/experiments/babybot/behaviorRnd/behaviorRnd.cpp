@@ -2,7 +2,7 @@
 //
 
 #include "rndBehavior.h"
-#include <YARPParseParameters.h>
+#include <yarp/YARPParseParameters.h>
 
 const double __wrist[] = {0, 0, 0, 7*degToRad, 0, 0};
 const double __forearm[] = {0,0,15*degToRad,0,0,0};

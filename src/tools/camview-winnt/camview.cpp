@@ -7,6 +7,8 @@
 
 #include "CommandLineInfoEx.h"
 
+#include <yarp/YARPParseParameters.h>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -46,21 +48,21 @@ BOOL CCamviewApp::InitInstance()
 	CCommandLineInfoEx cmdInfo; 
 	ParseCommandLine (cmdInfo);
 
-	const char *cmdLine = LPCTSTR(m_lpCmdLine);
+	int argc = __argc;
+	char **argv = __argv;
 
 	m_portname = "/view/i:img";
-	YARPString dummy;
-	if (cmdInfo.GetOption("--name", m_portname)) 
+	char dummy[255];
+	if(YARPParseParameters::parse(argc, argv, "-name", dummy))
 	{ 
-		/// adds the leading /
-		m_portname = "/" + m_portname;
+		m_portname = dummy;
 	}
 	
 	m_out_portname = "/view/o:point";
-	if (cmdInfo.GetOption("out", m_out_portname )) 
+	if (YARPParseParameters::parse(argc, argv, "--out", dummy)) 
 	{ 
 		/// adds the leading /
-		m_out_portname = "/" + m_out_portname ;
+		m_out_portname = dummy;
 		m_enable_output = true;
 	}
 	else
@@ -70,18 +72,23 @@ BOOL CCamviewApp::InitInstance()
 		m_enable_output = false;
 	}
 
-	m_netname = "default";
-	cmdInfo.GetOption("net", m_netname);
-	m_out_netname = "default";
-	cmdInfo.GetOption("neto", m_out_netname);
+	if (YARPParseParameters::parse(argc, argv, "--net", dummy))
+		m_netname = dummy;
+	else
+		m_netname = "default";
 
-	CString speriod;
-	if (cmdInfo.GetOption("p", speriod))
+	if (YARPParseParameters::parse(argc, argv, "--neto", dummy);
+		m_out_netname = dummy;
+	else
+		m_out_netname = "default";
+
+	int speriod;
+	if (YARPParseParameters::parse(argc, argv, "-p", &speriod))
 	{
-		m_period = atoi(speriod);
+		m_period = speriod;
 	}
 	else
-		m_period = 0;
+		m_period = speriod;
 
 	CString tmp;
 	if (cmdInfo.GetOption("x", tmp))

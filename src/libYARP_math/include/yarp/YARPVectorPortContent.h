@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPVectorPortContent.h,v 1.2 2004-07-29 12:42:33 babybot Exp $
+/// $Id: YARPVectorPortContent.h,v 1.3 2004-07-30 14:55:46 babybot Exp $
 ///
 ///
 
@@ -50,11 +50,11 @@
 #	pragma once
 #endif
 
-#include "YARPMath.h"
-#include "YARPPort.h"
-#include "YARPPortContent.h"
+#include <yarp/YARPMath.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPPortContent.h>
 
-#include "begin_pack_for_net.h"
+#include <yarp/begin_pack_for_net.h>
 
 class YARPVectorPortContentHeader
 {
@@ -69,7 +69,7 @@ public:
   NetInt32 c;
 } PACKED_FOR_NET;
 
-#include "end_pack_for_net.h"
+#include <yarp/end_pack_for_net.h>
 
 class YARPVectorPortContent : public YVector, public YARPPortContent
 {

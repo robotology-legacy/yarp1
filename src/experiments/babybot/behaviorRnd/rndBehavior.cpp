@@ -1,5 +1,6 @@
 #include "rndBehavior.h"
-
+#include <iostream>
+using namespace std;
 
 void RndSharedData::getRand(const double *max, const double *min, double *rnd, int nj)
 {

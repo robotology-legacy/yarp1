@@ -1,12 +1,11 @@
 #ifndef __ARMTRIGGER__
 #define __ARMTRIGGER__
 
-#include <YARPFSM.h>
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
-#include <YARPBottleContent.h>
-#include <YARPBehavior.h>
-#include <./conf/YARPBabybotVocab.h>
+#include <yarp/YARPFSM.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPConfigRobot.h>
 
 class TBSharedData
 {
@@ -18,7 +17,7 @@ class TBSharedData
 	bool checkTarget();
 	bool checkHand();
 
-	YARPOutputPortOf<YARPBottle> _outBottlePort;
+	YARPOutputPortOf<YARPBabyBottle> _outBottlePort;
 	
 	// YARPInputPortOf<YVector> _handTrackingPort;
 	// YARPInputPortOf<YVector> _targetTrackingPort;
@@ -86,7 +85,7 @@ public:
 		key = k;
 	}
 
-	bool input(YARPBottle *b, TBSharedData *d)
+	bool input(YARPBabyBottle *b, TBSharedData *d)
 	{
 		YBVocab tmpVocab;
 		if (b->tryReadVocab(tmpVocab))
@@ -112,9 +111,10 @@ public:
 class TBCheckAlmostFixated: public TBBaseInput
 {
 public:
-	bool input(YARPBottle *b, TBSharedData *d)
+	bool input(YARPBabyBottle *b, TBSharedData *d)
 	{
-		ACE_OS::printf("WARNING: This was not suppesed to be called\n");
+		ACE_OS::printf("WARNING: This was not supposed to be called\n");
+		return false;
 	}
 
 };
@@ -122,7 +122,7 @@ public:
 class TBCheckFixated: public TBBaseInput
 {
 public:
-	bool input(YARPBottle *b, TBSharedData *d)
+	bool input(YARPBabyBottle *b, TBSharedData *d)
 	{
 		YBVocab tmpVocab;
 		if (b->tryReadVocab(tmpVocab))

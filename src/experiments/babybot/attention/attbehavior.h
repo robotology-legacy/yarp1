@@ -1,11 +1,10 @@
 #ifndef __ATT_BEHAVIOR__
 #define __ATT_BEHAVIOR__
 
-#include <YARPBehavior.h>
-#include <YARPBottle.h>
-#include <./conf/YARPVocab.h>
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPConfigRobot.h>
+#include <yarp/YARPPort.h>
 
 class AttSharedData
 {
@@ -62,7 +61,7 @@ public:
 	{
 		key = k;
 	}
-	bool input(YARPBottle *in, AttSharedData *d);
+	bool input(YARPBabyBottle *in, AttSharedData *d);
 	
 	YBVocab key;
 	YBVocab newK;

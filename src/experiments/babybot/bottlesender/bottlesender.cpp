@@ -1,12 +1,16 @@
 // bottlesender.cpp : Defines the entry point for the console application.
 //
 
-#include <YARPPort.h>
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
-#include <YARPParseParameters.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBottle.h>
+#include <yarp/YARPBottleContent.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPConfigRobot.h>
+
 #include "functionList.h"
+
+#include <iostream>
+using namespace std;
 
 const char *DEFAULT_NAME = "/bottlesender";
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.4 2004-07-27 16:51:43 babybot Exp $
+/// $Id: YARPBottle.h,v 1.5 2004-07-30 14:55:46 babybot Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -146,6 +146,8 @@ class YARPBottle
 
 public:
 	YARPBottle();
+
+	virtual ~YARPBottle() {}
 
 	YARPBottle& operator = (const YARPBottle& bottle)
 	{
@@ -348,7 +350,7 @@ public:
 	}
 	
 	void dump();
-	void display();
+	virtual void display();
 
 protected:
 	char *readRawBlock(int len)

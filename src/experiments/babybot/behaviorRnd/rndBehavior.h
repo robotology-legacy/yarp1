@@ -1,14 +1,12 @@
-#include <YARPBehavior.h>
-
 #ifndef __ARM_BEHAVIOR__
 #define __ARM_BEHAVIOR__
 
-#include <YARPBehavior.h>
-#include <YARPBottle.h>
-#include <YARPConfigFile.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPConfigFile.h>
+#include <yarp/YARPConfigRobot.h>
 
-#include <YARPRndUtils.h>
+#include <yarp/YARPRndUtils.h>
 
 class RndSharedData: public YARPBehaviorSharedData
 {
@@ -135,7 +133,7 @@ public:
 		key = k;
 	}
 
-	bool input(YARPBottle *in, RndSharedData *d)
+	bool input(YARPBabyBottle *in, RndSharedData *d)
 	{
 		if (!in->tryReadVocab(tmpK))
 			return false;
