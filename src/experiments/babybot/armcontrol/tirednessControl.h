@@ -22,6 +22,7 @@ public:
 		_min = 0.0;
 
 		_forcedResting = false;
+		_inhibit = false;
 	}
 
 	~TirednessControl(){}
@@ -45,10 +46,10 @@ public:
 	}
 
 	inline bool low()
-	{ return (!_heated && !_forcedResting); }
+	{ return (!_heated && !_forcedResting) || (_inhibit); }
 
 	inline bool high()
-	{ return (_heated || _forcedResting); }
+	{ return ( (_heated && !_inhibit) || _forcedResting); }
 
 	inline int getTime()
 	{ return _time; }
@@ -57,9 +58,16 @@ public:
 	{ return _tiredness; }
 
 	inline void forceResting(bool f=true)
-	{
-		_forcedResting = f;
-	}
+	{ _forcedResting = f; }
+
+	inline void inhibit(bool f=true)
+	{ _inhibit = f; }
+
+	inline bool forced()
+	{ return _forcedResting; }
+
+	inline bool inhibited()
+	{ return _inhibit; }
 
 	void start()
 	{ _on = true; }
@@ -87,6 +95,7 @@ private:
 	int _time;
 	bool _on;
 	bool _forcedResting;
+	bool _inhibit;
 };
 
 #endif

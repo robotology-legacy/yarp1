@@ -94,13 +94,24 @@ public:
 
 	// zero g mode
 	void zeroGMode()
-	{
-		changeInitState(ASZeroGInit::instance());
+	{ changeInitState(ASZeroGInit::instance()); }
+
+	void forceResting()
+	{ 
+		_tirednessControl.inhibit(false);
+		if (_tirednessControl.forced() )
+			_tirednessControl.forceResting(false);
+		else
+			_tirednessControl.forceResting(true);
 	}
 
-	void forceResting(bool flag)
+	void inhibitResting()
 	{
-		_tirednessControl.forceResting(flag);
+		_tirednessControl.forceResting(false);
+		if (_tirednessControl.inhibited())
+			_tirednessControl.inhibit(false);
+		else
+			_tirednessControl.inhibit(true);
 	}
 
 	void park(int index);	// park arm

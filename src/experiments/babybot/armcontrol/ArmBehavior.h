@@ -43,6 +43,17 @@ public:
 	void output(ArmBehaviorData *d);
 };
 
+class ABForceResting: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
+class ABInhibitResting: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
 
 class ABOutputShakeCmd: public ArmBehaviorBaseOutput
 {

@@ -13,6 +13,18 @@ void ABOutputShakeCmd::output(ArmBehaviorData *d)
 	d->shake();
 }
 
+void ABForceResting:: output(ArmBehaviorData *d)
+{
+	cout << "Force resting!\n";
+	d->forceResting();
+}
+
+void ABInhibitResting:: output(ArmBehaviorData *d)
+{
+	cout << "Resting inhibited!\n";
+	d->inhibitResting();
+}
+
 bool ABInputCommand::input(YARPBottle *in, ArmBehaviorData *d)
 {
 	int k;
