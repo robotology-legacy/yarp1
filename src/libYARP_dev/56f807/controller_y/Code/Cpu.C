@@ -6,7 +6,7 @@
 **     Beantype  : 56F807
 **     Version   : Bean 01.002, Driver 01.05, CPU db: 2.71.191
 **     Compiler  : Metrowerks DSP C Compiler
-**     Date/Time : 1/19/2005, 3:32 PM
+**     Date/Time : 1/20/2005, 12:49 PM
 **     Abstract  :
 **
 **     Settings  :
@@ -200,6 +200,7 @@ void _EntryPoint(void)
 
   asm(JMP init_56800_);                /* Jump to C startup code */
 }
+
 #endif
 
 /*

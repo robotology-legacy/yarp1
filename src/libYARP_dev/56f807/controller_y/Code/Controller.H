@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.7 2005-01-19 17:26:57 babybot Exp $
+/// $Id: Controller.H,v 1.8 2005-01-20 17:30:26 babybot Exp $
 ///
 ///
 
@@ -47,12 +47,12 @@
 #endif
 
 //#define VERSION 0x0111				/* standard/basic implementation */
-#define VERSION 0x0112				/* decouples shoulder first two joints */
-//#define VERSION 0x0113				/* decouples the third joint of the shoulder */
+//#define VERSION 0x0112				/* decouples shoulder first two joints */
+#define VERSION 0x0113				/* decouples the third joint of the shoulder */
 
-#define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
+//#define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
 //#define DEBUG_CONTROL_RATE	1 		/* for debugging control cycle rate */
-//#define DEBUG_TRAJECTORY 		1		/* print encoder/joint position */
+#define DEBUG_TRAJECTORY 		1		/* print encoder/joint position */
 
 #define DEFAULT_BOARD_ID	15		/* default ID for receiving messages (4 bit field) */
 #define SMALL_BUFFER_SIZE 	10		/* for serial I/O */
@@ -91,7 +91,7 @@ dword BYTE_C(byte x4, byte x3, byte x2, byte x1);
 /* can bus message structure */
 typedef struct canmsg_tag 
 {
-	byte 	CAN_data[8];					/* CAN bus message */
+	byte 	CAN_data[16];					/* CAN bus message */
 	dword 	CAN_messID;						/* message ID - arbitration */
 	byte 	CAN_frameType;					/* data or remote frame */
 	byte 	CAN_frameFormat;				/* standard or extended frame */
@@ -100,6 +100,11 @@ typedef struct canmsg_tag
 
 #define CAN_FIFO_LEN	10					/* length of the fifo buffer */
 
+#define CAN_EI		setRegBit(CANRIER, RXFIE)
+#define CAN_DI		clrRegBit(CANRIER, RXFIE)      
+/* clrRegBit(CANRIER, RXFIE), setRegBit(CANRIER, RXFIE) */
+
+#define CAN_SYNCHRO_STEPS 4
 #endif
 
 /* CAN bus messages (our protocol) */

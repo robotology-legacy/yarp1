@@ -85,19 +85,42 @@ void TI1_OnInterrupt(void)
 void CAN1_OnFullRxBuffer(void)
 {
   canmsg_t *p;
-  write_p = ((write_p + 1) % CAN_FIFO_LEN);
+  CAN_DI;
+  write_p ++;
+  if (write_p >= CAN_FIFO_LEN)
+  	write_p = 0;
   // check here for buffer full.
   p = can_fifo + write_p;
-  CAN1_ReadFrame (&p->CAN_messID, 
-  				  &p->CAN_frameType, 
-  				  &p->CAN_frameFormat, 
-  				  &p->CAN_length, 
+  CAN1_ReadFrame (&(p->CAN_messID), 
+  				  &(p->CAN_frameType), 
+  				  &(p->CAN_frameFormat), 
+  				  &(p->CAN_length), 
   				  p->CAN_data);
+  if (read_p != -1)
+  {
+  	if (read_p < write_p)
+  	{
+  		DSP_SendWord16AsChars(write_p - read_p);
+  		DSP_SendDataEx ("\r\n");
+  	}
+  	else if (read_p == write_p)
+  	{
+  		DSP_SendDataEx ("Bad\r\n");
+  	}
+  	else if (read_p > write_p)
+  	{
+  		DSP_SendWord16AsChars(CAN_FIFO_LEN - read_p + write_p);
+  		DSP_SendDataEx ("\r\n");
+  	}
+  }
+  else
   if (read_p == -1)
   {
   	read_p = write_p;
 	//DSP_SendDataEx ("^\r\n");
   }
+  setReg(CANRFLG, CANRFLG_RXF_MASK);
+  CAN_EI;
 }
 
 /* END Events */

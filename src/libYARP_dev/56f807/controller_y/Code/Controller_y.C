@@ -89,7 +89,6 @@ Int16  _kr[JN] = { 3, 3 };				/* scale factor (negative power of two) */
 
 Int16 _counter = 0;						/* used to count cycles, it resets now and then */
 										/* to generate periodic events */
-const byte _step = 4;					/* event generation period, counter reset */
 
 /*
  * version specifi global variables.
@@ -101,13 +100,13 @@ Int32  _delta_adj[JN] = { 0, 0 };		/* velocity over the adjustment */
 
 bool _pending_request = false;			/* whether a request to another card is pending */
 Int16  _timeout = 0;					/* used to timeout requests */
-canmsg_t _canmsg;
 #endif
 
 /* CAN bus communication global vars */
 canmsg_t can_fifo[CAN_FIFO_LEN];
 Int16 write_p = 0;
 Int16 read_p = -1;					/* -1 means empty, last_read == fifo_ptr means full */
+canmsg_t _canmsg;					/* buffer to prepare messages for send */
 
 byte	_board_ID = DEFAULT_BOARD_ID;	/* */
 byte	_general_board_error = ERROR_NONE;
@@ -439,11 +438,12 @@ void can_send_request(void)
 			_canmsg.CAN_messID |= CAN_GET_ACTIVE_ENCODER_POSITION;
 			_canmsg.CAN_data[0] = _board_ID;
 			
-			while (CAN1_GetStateTX () == 0) ;
+			//while (CAN1_GetStateTX () == 0) ;
 			
 			_canmsg.CAN_length = 1;
 			_canmsg.CAN_frameType = DATA_FRAME;
-			CAN1_SendFrame (0, _canmsg.CAN_messID, _canmsg.CAN_frameType, _canmsg.CAN_length, _canmsg.CAN_data);
+			while (CAN1_SendFrame (1, _canmsg.CAN_messID, _canmsg.CAN_frameType, _canmsg.CAN_length, _canmsg.CAN_data) != ERR_OK)
+				DSP_SendDataEx("send err\r\n");
 			_pending_request = true;
 		}
 	}
@@ -453,7 +453,7 @@ void can_send_request(void)
 	{
 		_timeout = 0;
 		_pending_request = false;
-		if (_verbose) 
+		//if (_verbose) 
 			DSP_SendDataEx ("timeout\r\n");
 	}
 }
@@ -476,7 +476,7 @@ void main(void)
 	/*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
 	PE_low_level_init();
 	/*** End of Processor Expert internal initialization.                    ***/
-
+	
 	print_version ();
 	
 	/* initialization */
@@ -492,7 +492,7 @@ void main(void)
 	CAN1_SetAcceptanceMask (0xffffff0f);
 	acceptance_code = L_deposit_l (_board_ID) << 4;
 	CAN1_SetAcceptanceCode (acceptance_code);
-		
+	
 	/* reset encoders, LATER: should do something more than this */
 	calibrate(0);
 	calibrate(1);
@@ -502,8 +502,9 @@ void main(void)
 	abort_trajectory (1, 0);
 	
 	/* main control loop */
-	for(_counter = 0;; _counter = ((_counter + 1) % _step)) 
+	for(_counter = 0;; _counter ++) 
 	{
+		if (_counter >= CAN_SYNCHRO_STEPS) _counter = 0;
 		while (_wait) ;
 		
 		/* read commands from CAN or serial board */
@@ -542,6 +543,7 @@ void main(void)
 #endif
 
 #elif VERSION == 0x0113
+#ifdef DEBUG_TRAJECTORY
 		if (_verbose && _counter == 0)
 		{
 			DSP_SendDWordAsCharsDec (_position[0]);
@@ -551,6 +553,7 @@ void main(void)
 			DSP_SendDWordAsCharsDec (_adjustment[1]);
 			DSP_SendDataEx ("\r\n");
 		}
+#endif
 		
 		/* beware of the first cycle when _old has no meaning */		
 		_position[0] = L_add(_position[0], _adjustment[0] >> 1);
@@ -684,12 +687,32 @@ CAN1_TError err;
 byte can_interface (void)
 {
 	bool done = false;
+	int i;
 	
+	CAN_DI;
 	if (read_p != -1)
 	{
+		CAN_EI;
 		while (!done)
 		{
-			canmsg_t *p = &can_fifo[read_p];
+			canmsg_t *p;
+			CAN_DI;	
+			p = can_fifo + read_p;
+			
+			/* makes a private copy of the message */
+			_canmsg.CAN_data[0] = p->CAN_data[0];
+			_canmsg.CAN_data[1] = p->CAN_data[1];
+			_canmsg.CAN_data[2] = p->CAN_data[2];
+			_canmsg.CAN_data[3] = p->CAN_data[3];
+			_canmsg.CAN_data[4] = p->CAN_data[4];
+			_canmsg.CAN_data[5] = p->CAN_data[5];
+			_canmsg.CAN_data[6] = p->CAN_data[6];
+			_canmsg.CAN_data[7] = p->CAN_data[7];
+			_canmsg.CAN_messID = p->CAN_messID;
+			_canmsg.CAN_frameType = p->CAN_frameType;
+			_canmsg.CAN_frameFormat = p->CAN_frameFormat;
+			_canmsg.CAN_length = p->CAN_length;
+			
 			if (read_p == write_p)
 			{
 				read_p = -1;	/* empty */
@@ -697,36 +720,39 @@ byte can_interface (void)
 			}
 			else
 			{
-				read_p = (read_p + 1) % CAN_FIFO_LEN;
-				done = true;
+				read_p ++;
+				if (read_p >= CAN_FIFO_LEN)
+					read_p = 0;
+				//done = true;
 			}
-				
+			CAN_EI;
+			
 #ifdef DEBUG_CAN_MSG
 		if (_verbose)
 		{
 			DSP_SendDataEx ("id: ");
 			DSP_SendWord16AsChars (read_p);
 			DSP_SendDataEx (" ");
-			DSP_SendDWordAsChars (p->CAN_messID);
+			DSP_SendDWordAsChars (_canmsg.CAN_messID);
 			DSP_SendDataEx (" ");
-			print_can (p->CAN_data, p->CAN_length, 'i');
+			print_can (_canmsg.CAN_data, _canmsg.CAN_length, 'i');
 			CAN1_GetError (&err);
 			print_can_error (&err);
 		}
 #endif
 
-#define CAN_DATA p->CAN_data
-#define CAN_FRAME_TYPE p->CAN_frameType
-#define CAN_FRAME_FMT p->CAN_frameFormat
-#define CAN_LEN p->CAN_length
-#define CAN_ID p->CAN_messID
+#define CAN_DATA _canmsg.CAN_data
+#define CAN_FRAME_TYPE _canmsg.CAN_frameType
+#define CAN_FRAME_FMT _canmsg.CAN_frameFormat
+#define CAN_LEN _canmsg.CAN_length
+#define CAN_ID _canmsg.CAN_messID
 
 			/* interpret the messages */
 			//BEGIN_SPECIAL_MSG_TABLE (CAN_data)
 			//HANDLE_MSG (CAN_SET_BOARD_ID, CAN_SET_BOARD_ID_HANDLER)
 			//END_SPECIAL_MSG_TABLE
 			
-			BEGIN_MSG_TABLE (p->CAN_messID)
+			BEGIN_MSG_TABLE (_canmsg.CAN_messID)
 			HANDLE_MSG (CAN_NO_MESSAGE, CAN_NO_MESSAGE_HANDLER)
 			HANDLE_MSG (CAN_CONTROLLER_RUN, CAN_CONTROLLER_RUN_HANDLER)
 			HANDLE_MSG (CAN_CONTROLLER_IDLE, CAN_CONTROLLER_IDLE_HANDLER)
@@ -783,24 +809,28 @@ byte can_interface (void)
 			HANDLE_MSG (CAN_GET_ERROR_STATUS, CAN_GET_ERROR_STATUS_HANDLER)
 			
 			HANDLE_MSG (CAN_GET_ACTIVE_ENCODER_POSITION, CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER)
-	#if VERSION == 0x0113
+#if VERSION == 0x0113
 			HANDLE_MSG (CAN_SET_ACTIVE_ENCODER_POSITION, CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER)
-	#endif
+#endif
 			END_MSG_TABLE		
 
-	#ifdef DEBUG_CAN_MSG
+#ifdef DEBUG_CAN_MSG
 			if (_verbose)
 			{
 				DSP_SendDataEx ("id: ");
-				DSP_SendDWordAsChars (p->CAN_messID);
+				DSP_SendDWordAsChars (_canmsg.CAN_messID);
 				DSP_SendDataEx (" ");
-				print_can (p->CAN_data, p->CAN_length, 'o'); 
+				print_can (_canmsg.CAN_data, _canmsg.CAN_length, 'o'); 
 			}
-	#endif
+#endif
 	
 		} /* end of while() */
 		
 	} /* end of if () */
+	else
+	{
+		CAN_EI;
+	}
 			
 	return ERR_OK;
 }

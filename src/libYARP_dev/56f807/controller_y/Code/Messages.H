@@ -185,11 +185,15 @@
 		CAN_DATA[5] = BYTE_3(_position[1]); \
 		CAN_DATA[6] = BYTE_2(_position[1]); \
 		CAN_DATA[7] = BYTE_1(_position[1]); \
-		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		if (CAN1_SendFrame (1, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA) != ERR_OK) \
+			DSP_SendDataEx ("err 70\r\n"); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
+	{ \
 		_general_board_error = ERROR_SEND; \
+		DSP_SendDataEx ("err 70 - no msg\r\n"); \
+	} \
 }
 
 /* 
@@ -214,6 +218,7 @@
 		_other_position[1] = value; \
 		\
 		_pending_request = false; \
+		_timeout = 0; \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -235,7 +240,8 @@
 		CAN_DATA[4] = BYTE_1(_position[i]); \
 		CAN_DATA[5] = BYTE_2(_speed[i]); \
 		CAN_DATA[6] = BYTE_1(_speed[i]); \
-		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		if (CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA) != ERR_OK) \
+			DSP_SendDataEx ("err 20\r\n"); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
