@@ -301,8 +301,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotmotorvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpmotorvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\logpolarsdk.h"\
@@ -484,8 +486,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotmotorvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpmotorvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\logpolarsdk.h"\

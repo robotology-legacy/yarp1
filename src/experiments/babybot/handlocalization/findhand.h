@@ -79,9 +79,9 @@ public:
 	}
 
 private:
-	inline _lock()
+	inline void _lock()
 	{ _mutex.Wait(); }
-	inline _unlock()
+	inline void _unlock()
 	{ _mutex.Post(); }
 
 	int _frame;
