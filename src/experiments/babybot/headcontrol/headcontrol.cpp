@@ -6,7 +6,7 @@
 #include <iostream>
 
 // #include "..\..\visualprocessing\parameters.h"
-#include "headthread.h"
+#include "HeadThread.h"
 
 using namespace std;
 

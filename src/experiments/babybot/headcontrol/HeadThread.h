@@ -8,7 +8,11 @@
 #include <conf/YARPConfig.h>
 #include <YARPRobotMath.h>	// useful stuff, like degToRad, pi and radToDeg include also VisDMatrix.h
 #include <YARPRateThread.h>
-#include <YARPBabybotHead.h>
+#if defined(__QNXEurobot__)
+	#include <YARPEurobotHead.h>
+#else
+	#include <YARPBabybotHead.h>
+#endif
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
 #include <YARPString.h>

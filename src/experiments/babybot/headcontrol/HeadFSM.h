@@ -3,7 +3,14 @@
 
 #include <YARPFSM.h>
 #include <YARPRobotMath.h>
-#include <YARPBabybotHead.h>
+
+#if defined(__QNXEurobot__)
+	#include <YARPEurobotHead.h>
+#else
+	#include <YARPBabybotHead.h>
+#endif
+
+
 
 #include "HeadSharedData.h"
 
