@@ -50,11 +50,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"..\..\..\lib\winnt\alldrivers.lib"
+# ADD LIB32 /nologo /out:".\release\alldrivers.lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Desc=installing library
-PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include
+PostBuild_Desc=installing library and build library
+PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	make_lib.bat
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "alldrivers - Win32 Debug"
@@ -78,11 +78,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"..\..\..\lib\winnt\alldriversdb.lib"
+# ADD LIB32 /nologo /out:".\debug\alldriversdb.lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing library
-PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include
+PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	make_lib_db.bat
 # End Special Build Tool
 
 !ENDIF 
