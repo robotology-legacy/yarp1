@@ -59,7 +59,7 @@ BOOL CCamviewApp::InitInstance()
 	}
 	
 	m_out_portname = "/view/o:point";
-	if (YARPParseParameters::parse(argc, argv, "--out", dummy)) 
+	if (YARPParseParameters::parse(argc, argv, "-out", dummy)) 
 	{ 
 		/// adds the leading /
 		m_out_portname = dummy;
@@ -72,47 +72,53 @@ BOOL CCamviewApp::InitInstance()
 		m_enable_output = false;
 	}
 
-	if (YARPParseParameters::parse(argc, argv, "--net", dummy))
+	if (YARPParseParameters::parse(argc, argv, "-net", dummy))
 		m_netname = dummy;
 	else
 		m_netname = "default";
 
-	if (YARPParseParameters::parse(argc, argv, "--neto", dummy);
+	if (YARPParseParameters::parse(argc, argv, "-neto", dummy))
 		m_out_netname = dummy;
 	else
 		m_out_netname = "default";
 
-	int speriod;
-	if (YARPParseParameters::parse(argc, argv, "-p", &speriod))
+	int itmp;
+	if (YARPParseParameters::parse(argc, argv, "-p", &itmp))
 	{
-		m_period = speriod;
+		m_period = itmp;
 	}
 	else
-		m_period = speriod;
+		m_period = itmp;
 
-	CString tmp;
-	if (cmdInfo.GetOption("x", tmp))
-		m_x = atoi(tmp);
+	if (YARPParseParameters::parse(argc, argv, "-x", &itmp))
+		m_x = itmp;
 	else
 		m_x = -1;
 
-	if (cmdInfo.GetOption("y", tmp))
-		m_y = atoi(tmp);
+	if (YARPParseParameters::parse(argc, argv, "-y", &itmp))
+		m_y = itmp;
 	else
 		m_y = -1;
 
-	if (cmdInfo.GetOption("w", tmp))
-		m_width = atoi(tmp);
+	if (YARPParseParameters::parse(argc, argv, "-w", &itmp))
+		m_width = itmp;
 	else
 		m_width = -1;
 
-	if (cmdInfo.GetOption("h", tmp))
-		m_height = atoi(tmp);
+	if (YARPParseParameters::parse(argc, argv, "-h", &itmp))
+		m_height = itmp;
 	else
 		m_height = -1;
+
+	if (YARPParseParameters::parse(argc, argv, "-l"))
+		m_lp = true;
+	else 
+		m_lp = false;
 	
-	m_lp = (cmdInfo.GetOption("l")) ? true : false;
-	m_fov = (cmdInfo.GetOption("f")) ? true : false;
+	if (YARPParseParameters::parse(argc, argv, "-f"))
+		m_fov = true;
+	else 
+		m_fov = false;
 
 	/// not really needed.
 	AfxEnableControlContainer();

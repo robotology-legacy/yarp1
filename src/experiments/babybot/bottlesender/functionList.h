@@ -2,7 +2,7 @@
 
 #include <yarp/YARPBabyBottle.h>
 
-typedef bool (*myFunction)(YARPBottle &bottle);
+typedef bool (*myFunction)(YARPBabyBottle &bottle);
 
 struct COMMAND_TABLE_ENTRY
 {

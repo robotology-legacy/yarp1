@@ -2,8 +2,7 @@
 //
 
 #include <yarp/YARPPort.h>
-#include <yarp/YARPBottle.h>
-#include <yarp/YARPBottleContent.h>
+#include <yarp/YARPBabyBottle.h>
 #include <yarp/YARPParseParameters.h>
 #include <yarp/YARPConfigRobot.h>
 
@@ -14,7 +13,7 @@ using namespace std;
 
 const char *DEFAULT_NAME = "/bottlesender";
 
-/*static */ YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+/*static */ YARPOutputPortOf<YARPBabyBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 COMMAND_TABLE _commands;
 
 void _fillTable()
@@ -47,7 +46,7 @@ void _help()
 	cout << "------------------------\n";
 }
 
-bool _parse(const YARPString &c, YARPBottle &b)
+bool _parse(const YARPString &c, YARPBabyBottle &b)
 {
 	COMMAND_TABLE_IT it(_commands);
 	while(!it.done())
@@ -76,7 +75,7 @@ int main(int argc, char* argv[])
 	else
 		_outPort.Register(name.append("/o").c_str());
 	
-	YARPBottle tmp;
+	YARPBabyBottle tmp;
 	YARPString c;
 	bool quit = false;
 	

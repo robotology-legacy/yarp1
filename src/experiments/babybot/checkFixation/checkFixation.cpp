@@ -61,17 +61,17 @@
 ///
 
 ///
-/// $Id: checkFixation.cpp,v 1.3 2004-07-21 12:36:53 babybot Exp $
+/// $Id: checkFixation.cpp,v 1.4 2004-07-30 15:05:23 babybot Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
-#include <YARPMath.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPMath.h>
+#include <yarp/YARPConfigRobot.h>
 
-#include <YARPParseParameters.h>
-#include <YARPVectorPortContent.h>
-#include <YARPBottleContent.h>
-#include <YARPRateThread.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPRateThread.h>
 
 ///
 YARPInputPortOf<YVector> _inDisp (YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
@@ -140,8 +140,8 @@ public:
 
 
 private:
-	YARPOutputPortOf<YARPBottle> _outPort;
-	YARPBottle _bottle;
+	YARPOutputPortOf<YARPBabyBottle> _outPort;
+	YARPBabyBottle _bottle;
 	__State _currentState;
 };
 
