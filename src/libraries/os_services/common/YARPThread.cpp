@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.8 2003-07-01 12:49:57 gmetta Exp $
+/// $Id: YARPThread.cpp,v 1.9 2003-07-01 21:58:59 babybot Exp $
 ///
 ///
 
@@ -202,10 +202,10 @@ YARPThread::YARPThread (void) : sema(0)
 	size = -1;
 }
 
-YARPThread::YARPThread (const YARPThread& yt) : sema(0)
+YARPThread::YARPThread (const YARPThread& yt) : YARPBareThread(yt), sema(0)
 {
-	system_resource = NULL;
-	identifier = yt.identifier;
+	///system_resource = NULL;
+	///identifier = yt.identifier;
 }
 
 YARPThread::~YARPThread (void)

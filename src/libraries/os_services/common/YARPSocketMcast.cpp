@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.19 2003-07-01 21:26:19 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.20 2003-07-01 21:58:59 babybot Exp $
 ///
 ///
 
@@ -526,6 +526,8 @@ int _SocketThreadMcast::reuse(const YARPUniqueNameID& remid, const YARPUniqueNam
 
 void _SocketThreadMcast::End (int dontkill /* = 0 */)
 {
+	ACE_UNUSED_ARG (dontkill);
+
 	YARPBareThread::End ();
 	_mutex.Wait ();
 	

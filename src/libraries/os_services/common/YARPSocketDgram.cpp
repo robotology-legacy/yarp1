@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.31 2003-07-01 21:26:19 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.32 2003-07-01 21:58:58 babybot Exp $
 ///
 ///
 
@@ -511,6 +511,8 @@ int _SocketThreadDgram::reuse(const YARPUniqueNameID& remid, int port)
 
 void _SocketThreadDgram::End (int dontkill /* = 0 */)
 {
+	ACE_UNUSED_ARG (dontkill);
+
 	YARPBareThread::End ();
 	_mutex.Wait ();
 	if (_local_socket.get_handle() != ACE_INVALID_HANDLE)
@@ -530,7 +532,7 @@ void _SocketThreadDgram::Body (void)
 #ifdef __QNX6__
 	signal (SIGPIPE, SIG_IGN);
 #endif
-	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	///ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 
 #if 0
 	int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
@@ -1539,7 +1541,7 @@ int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buff
 		if (r > 0)
 		{
 			MyMessageHeader *hdr2 = (MyMessageHeader *)(d._iov[0].iov_base);
-			d._iov[0].iov_base += sizeof(MyMessageHeader);
+			d._iov[0].iov_base = ((char *)d._iov[0].iov_base) + sizeof(MyMessageHeader);
 
 			int len2 = hdr2->GetLength();
 			if (len2 > 0)
@@ -1550,7 +1552,7 @@ int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buff
 				}
 
 				memcpy (reply_buffer, d._iov[0].iov_base, reply_buffer_length);
-				d._iov[0].iov_base += reply_buffer_length;
+				d._iov[0].iov_base = ((char *)d._iov[0].iov_base) + reply_buffer_length;
 				result = reply_buffer_length;
 			}
 			else
@@ -1567,7 +1569,7 @@ int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buff
 	else
 	{
 		MyMessageHeader *hdr2 = (MyMessageHeader *)(d._iov[0].iov_base);
-		d._iov[0].iov_base += sizeof(MyMessageHeader);
+		d._iov[0].iov_base = ((char *)d._iov[0].iov_base) + sizeof(MyMessageHeader);
 
 		int len2 = hdr2->GetLength();
 		if (len2 > 0)
@@ -1578,7 +1580,7 @@ int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buff
 			}
 
 			memcpy (reply_buffer, d._iov[0].iov_base, reply_buffer_length);
-			d._iov[0].iov_base += reply_buffer_length;
+			d._iov[0].iov_base = ((char *)d._iov[0].iov_base) + reply_buffer_length;
 			result = reply_buffer_length;
 		}
 		else
