@@ -99,10 +99,22 @@ PostBuild_Cmds=copy .\debug\handcolortracker.exe ..\..\..\..\bin\winnt\handcolor
 
 SOURCE=.\HandColorTracker.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\YARP3DHistogram.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\YARP3DHistogram.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPHistoSegmentation.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
