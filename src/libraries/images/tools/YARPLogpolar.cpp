@@ -61,13 +61,13 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.16 2003-09-02 16:36:23 natta Exp $
+/// $Id: YARPLogpolar.cpp,v 1.17 2003-09-08 16:23:09 beltran Exp $
 ///
 ///
 
 #include "YARPLogpolar.h"
 #include "YARPAll.h"
-#include <ace/synch.h>
+#include <ace/Synch.h>
 
 #ifdef __WIN32__
 /// library initialization.
