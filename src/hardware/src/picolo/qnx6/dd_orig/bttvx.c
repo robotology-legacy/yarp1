@@ -980,7 +980,13 @@ close_bttvx()
 	struct bttv *btv;
 	btv = &bttvs[0];
 
+	BttvxAcquireBuffer(NULL);
+
+	bt848_cap(btv, 0);
+	bt848_dma(btv,0);
 	InterruptDetach(btv->id);
+
+	BttvxReleaseBuffer();
 	
 	return 1;
 }
@@ -1103,7 +1109,7 @@ init_bt848(struct bttv * btv, int video_format)
   //bt848_muxsel(btv, 1);
   
 
-  btwrite(0x10, BT848_COLOR_CTL);
+  //btwrite(0x10, BT848_COLOR_CTL);
 
   btwrite(0x00, BT848_CAP_CTL);
 
@@ -1137,10 +1143,14 @@ init_bt848(struct bttv * btv, int video_format)
 
   bt848_set_size(btv);
 
-  bt848_bright(btv, 0x10);
-  bt848_sat_u(btv,511);
-  bt848_sat_v(btv,511);	
+  //bt848_bright(btv, 0x10);
+  //bt848_bright(btv, 0x80);
+  //bt848_sat_u(btv,511);
+  //bt848_sat_v(btv,511);	
   btwrite(0xd8, BT848_CONTRAST_LO);
+  //btwrite(0xE0,BT848_OFORM);
+
+
 
   ////btwrite(0x60,BT848_E_VSCALE_HI); //This was creating problems with the scalling
   ////btwrite(0x60,BT848_O_VSCALE_HI);
@@ -1159,8 +1169,6 @@ init_bt848(struct bttv * btv, int video_format)
   btwrite(0x00, BT848_E_SCLOOP);
   btwrite(0x00, BT848_O_SCLOOP);
 
-  //btwrite(0x40, BT848_E_SCLOOP);
-  //btwrite(0x40, BT848_O_SCLOOP);
 
   //This is the interrupt part, It blocks the QNX system. ??
 
