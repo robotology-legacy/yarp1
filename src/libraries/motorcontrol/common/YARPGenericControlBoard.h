@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.10 2004-06-29 15:21:49 gmetta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.11 2004-06-30 11:03:11 gmetta Exp $
 ///
 ///
 
@@ -197,7 +197,8 @@ public:
 		_currentLimits = NULL;
 		_newLimits = NULL;
 
-		if (_adapter.uninitialize() == YARP_FAIL) {
+		if (_adapter.uninitialize() == YARP_FAIL) 
+		{
 			YARP_GEN_CB_DEBUG(("Error un-initializing control board!\n"));
 			_unlock();
 			return YARP_FAIL;
@@ -224,7 +225,8 @@ public:
 	int setVelocities(const double *vel)
 	{
 		_lock();
-		for (int i = 0; i < _parameters._nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) 
+		{
 			_temp_double[i] = angleToEncoder(vel[_parameters._axis_map[i]],
 											_parameters._encoderToAngles[i],
 											0.0,
@@ -239,7 +241,8 @@ public:
 	int setAccs(const double *acc)
 	{
 		_lock();
-		for (int i = 0; i < _parameters._nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) 
+		{
 			_temp_double[i] = angleToEncoder(acc[_parameters._axis_map[i]],
 											_parameters._encoderToAngles[i],
 											0.0,
@@ -254,7 +257,8 @@ public:
 	int velocityMove(const double *vel)
 	{
 		_lock();
-		for (int i = 0; i < _parameters._nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) 
+		{
 			_temp_double[i] = angleToEncoder(vel[_parameters._axis_map[i]],
 											_parameters._encoderToAngles[i],
 											0.0,
@@ -269,7 +273,8 @@ public:
 	int safeVelocityMove(const double *vel)
 	{
 		_lock();
-		for (int i = 0; i < _parameters._nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) 
+		{
 			_temp_double[i] = angleToEncoder(vel[_parameters._axis_map[i]],
 											_parameters._encoderToAngles[i],
 											0.0,
@@ -284,7 +289,8 @@ public:
 	int setCommands(const double *pos)
 	{
 		_lock();
-		for (int i = 0; i < _parameters._nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) 
+		{
 			_temp_double[i] = angleToEncoder(pos[_parameters._axis_map[i]],
 											_parameters._encoderToAngles[i],
 											0.0,
@@ -318,7 +324,8 @@ public:
 	{
 		_lock();
 		_adapter.IOCtl(CMDGetPositions, _temp_double);
-		for (int i = 0; i < _parameters._nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) 
+		{
 			pos[_parameters._axis_map[i]] = encoderToAngle(_temp_double[i],
 												_parameters._encoderToAngles[i],
 												_parameters._zeros[i],
@@ -333,7 +340,8 @@ public:
 	{
 		_lock();
 		_adapter.IOCtl(CMDGetSpeeds, _temp_double);
-		for (int i = 0; i < _parameters._nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) 
+		{
 			vel[_parameters._axis_map[i]] = encoderToAngle(_temp_double[i],
 												_parameters._encoderToAngles[i],
 												0.0,
@@ -348,7 +356,8 @@ public:
 	{
 		_lock();
 		_adapter.IOCtl(CMDGetRefAccelerations, _temp_double);
-		for (int i = 0; i < _parameters._nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) 
+		{
 			accs[_parameters._axis_map[i]] = encoderToAngle(_temp_double[i],
 												_parameters._encoderToAngles[i],
 												0.0,
@@ -364,7 +373,8 @@ public:
 	{
 		_lock();
 		_adapter.IOCtl(CMDGetTorques, _temp_double);
-		for (int i = 0; i < _parameters._nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) 
+		{
 			t[_parameters._axis_map[i]] = _temp_double[i];		
 		}
 		_unlock();
@@ -571,7 +581,7 @@ template <class ADAPTER, class PARAMETERS>
 inline bool YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 incMaxTorque(int axis, double delta, double value)
 {
-	double maxTorque = _parameters._maxDAC[_parameters._axis_map[axis]];
+	const double maxTorque = _parameters._maxDAC[_parameters._axis_map[axis]];
 
 	bool ret = false;
 	double currentLimit, newLimit;

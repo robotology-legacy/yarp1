@@ -1,33 +1,15 @@
 /////////////////////////////////////////////////////////////////////////
 ///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-/// This Academic Free License applies to any software and associated ///
-/// documentation (the "Software") whose owner (the "Licensor") has   ///
-/// placed the statement "Licensed under the Academic Free License    ///
-/// Version 1.0" immediately after the copyright notice that applies  ///
-/// to the Software.                                                  ///
-/// Permission is hereby granted, free of charge, to any person       ///
-/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
-/// publish, perform, distribute, sublicense, and/or sell copies of   ///
-/// the Software, and to permit persons to whom the Software is       ///
-/// furnished to do so, and (2) under patent claims owned or          ///
-/// controlled by the Licensor that are embodied in the Software as   ///
-/// furnished by the Licensor, to make, use, sell and offer for sale  ///
-/// the Software and derivative works thereof, subject to the         ///
-/// following conditions:                                             ///
-/// Redistributions of the Software in source code form must retain   ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers. ///
-/// Redistributions of the Software in executable form must reproduce ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers  ///
-/// in the documentation and/or other materials provided with the     ///
-/// distribution.                                                     ///
+///                    #pasa#				                          ///
 ///                                                                   ///
-/// Neither the names of Licensor, nor the names of any contributors  ///
-/// to the Software, nor any of their trademarks or service marks,    ///
-/// may be used to endorse or promote products derived from this      ///
-/// Software without express prior written permission of the Licensor.///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
 ///                                                                   ///
 /// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
 /// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
@@ -42,81 +24,72 @@
 /// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
 /// CONNECTION WITH THE SOFTWARE.                                     ///
 ///                                                                   ///
-/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
-/// reserved. Permission is hereby granted to copy and distribute     ///
-/// this license without modification. This license may not be        ///
-/// modified without the express written permission of its copyright  ///
-/// owner.                                                            ///
-///                                                                   ///
-///                                                                   ///
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///
-///       YARP - Yet Another Robotic Platform (c) 2001-2003 
-///
-///                    #Add our name(s) here#
-///
-///     "Licensed under the Academic Free License Version 1.0"
-///
-
-///
-///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.12 2004-06-30 11:03:11 gmetta Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.1 2004-06-30 11:03:11 gmetta Exp $
 ///
 ///
 
-// by nat
+#ifndef __CanOnRobotcubHeadAdapterh__
+#define __CanOnRobotcubHeadAdapterh__
 
-#ifndef __MEIONBABYBOTHEAD__
-#define __MEIONBABYBOTHEAD__
-
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
 #include <ace/log_msg.h>
-#include <YARPMeiDeviceDriver.h>
+
+#include <YARPValueCanDeviceDriver.h>
 #include <YARPConfigFile.h>
 
-#include <YARPBabybotInertialSensor.h>
 
-#define YARP_BABYBOT_HEAD_ADAPTER_VERBOSE
+#define YARP_ROBOTCUB_HEAD_ADAPTER_VERBOSE
 
-#ifdef YARP_BABYBOT_HEAD_ADAPTER_VERBOSE
-#define YARP_BABYBOT_HEAD_ADAPTER_DEBUG(string) YARP_DEBUG("BABYBOT_HEAD_ADAPTER_DEBUG:", string)
-#else  YARP_BABYBOT_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
+#ifdef YARP_ROBOTCUB_HEAD_ADAPTER_VERBOSE
+#define YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_DEBUG("ROBOTCUB_HEAD_ADAPTER_DEBUG:", string)
+#else  YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
-namespace _BabybotHead
+
+namespace _RobotcubHead
 {
-	const int _nj = 5;
+	const int _nj = 8;
 	const LowLevelPID _highPIDs[_nj] =
 	{
-		LowLevelPID(150.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
-		LowLevelPID(150.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
-		LowLevelPID(100.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
-		LowLevelPID(100.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
-		LowLevelPID(300.0, 1200.0, 1.0, 100.0, 200.0, 32767.0, 0.0, 32767.0, 0.0, 0.0)
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),	
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),	
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0)
 	};
 	
 	const LowLevelPID _lowPIDs[_nj] = 
 	{
-		LowLevelPID(1.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),		//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
-		LowLevelPID(1.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
-		LowLevelPID(1.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
-		LowLevelPID(1.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
-		LowLevelPID(1.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0)
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),		//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),	
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),	
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0),
+		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 8.0, 0.0)
 	};
 
-	const double _zeros[_nj] = { 0.0, 0.0, 0.0, 0.0, 0.0 };
-	const int _axis_map[_nj] = { 4, 3, 2, 1, 0 };
-	const int _signs[_nj] = { 0, 1, 0, 1, 0 };
-	const double _encoderToAngles[_nj] = { 116000.0, 116000.0, 72000.0, 164000.0, 128000.0 };
-	const int _stiffPID[_nj] = { 1, 1, 1, 1, 1 };
-	const double _maxDAC[_nj] = { 32767.0, 32767.0, 32767.0, 32767.0, 32767.0 };
-		
+	const double _zeros[_nj]			= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	const int _axis_map[_nj]			= { 0, 1, 2, 3, 4, 5, 6, 7 };
+	const int _signs[_nj]				= { 0, 0, 0, 0, 0, 0, 0, 0 };
+	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1 };
+	const double _maxDAC[_nj]			= { 32767.0, 32767.0, 32767.0, 32767.0, 32767.0, 32767.0, 32767.0, 32767.0 };
 }; // namespace
 
-class YARPBabybotHeadParameters
+
+class YARPRobotcubHeadParameters
 {
 public:
-	YARPBabybotHeadParameters()
+	YARPRobotcubHeadParameters()
 	{
 		_highPIDs = NULL;
 		_lowPIDs = NULL;
@@ -130,23 +103,23 @@ public:
 		_limitsMin = NULL;
 		_nj = 0;
 		
-		_nj = _BabybotHead::_nj;
+		_nj = _RobotcubHead::_nj;
 		_realloc(_nj);
 		int i;
 		for(i = 0; i<_nj; i++) 
 		{
-			_highPIDs[i] = _BabybotHead::_highPIDs[i];
-			_lowPIDs[i] = _BabybotHead::_lowPIDs[i];
-			_zeros[i] = _BabybotHead::_zeros[i];
-			_axis_map[i] = _BabybotHead::_axis_map[i];
-			_signs[i] = _BabybotHead::_signs[i];
-			_encoderToAngles[i] = _BabybotHead::_encoderToAngles[i];
-			_stiffPID[i] = _BabybotHead::_stiffPID[i];
-			_maxDAC[i] = _BabybotHead::_maxDAC[i];
+			_highPIDs[i] = _RobotcubHead::_highPIDs[i];
+			_lowPIDs[i] = _RobotcubHead::_lowPIDs[i];
+			_zeros[i] = _RobotcubHead::_zeros[i];
+			_axis_map[i] = _RobotcubHead::_axis_map[i];
+			_signs[i] = _RobotcubHead::_signs[i];
+			_encoderToAngles[i] = _RobotcubHead::_encoderToAngles[i];
+			_stiffPID[i] = _RobotcubHead::_stiffPID[i];
+			_maxDAC[i] = _RobotcubHead::_maxDAC[i];
 		}
 	}
 
-	~YARPBabybotHeadParameters()
+	~YARPRobotcubHeadParameters()
 	{
 		if (_highPIDs != NULL)
 			delete [] _highPIDs;
@@ -170,6 +143,8 @@ public:
 			delete [] _limitsMin;
 	}
 
+	///
+	///
 	int load(const YARPString &path, const YARPString &init_file)
 	{
 		YARPConfigFile cfgFile;
@@ -178,20 +153,17 @@ public:
 		
 		// get number of joints
 		if (cfgFile.get("[GENERAL]", "Joints", &_nj, 1) == YARP_FAIL)
+		{
 			return YARP_FAIL;
+		}
 
-		YARPString tmp;
-		if (cfgFile.getString("[GENERAL]", "InertialFile", tmp) == YARP_FAIL)
-			return YARP_FAIL;
-
-		_inertialConfig = path;
-		_inertialConfig.append(tmp);
+		ACE_ASSERT (_nj == 8);
 
 		// delete and allocate new memory
 		_realloc(_nj);
 		
 		int i;
-		for(i = 0; i<_nj; i++)
+		for(i = 0; i < _nj; i++)
 		{
 			char dummy[80];
 			double tmp[12];
@@ -275,35 +247,42 @@ private:
 	}
 
 public:
-	LowLevelPID *_highPIDs;
-	LowLevelPID *_lowPIDs;
-	double *_zeros;
-	double *_signs;
-	int *_axis_map;
-	double *_encoderToAngles;
-	int *_stiffPID;
-	int _nj;
-	double *_maxDAC;
-	YARPString _inertialConfig;
-	double *_limitsMax;
-	double *_limitsMin;
+	int				_nj;
+
+	LowLevelPID		*_highPIDs;
+	LowLevelPID		*_lowPIDs;
+	double			*_zeros;
+	double			*_signs;
+	int				*_axis_map;
+	double			*_encoderToAngles;
+	int				*_stiffPID;
+	double			*_maxDAC;
+	double			*_limitsMax;
+	double			*_limitsMin;
 };
 
-class YARPMEIOnBabybotHeadAdapter : public YARPMEIDeviceDriver
+
+
+///
+///
+///
+class YARPCanOnRobotcubHeadAdapter : public YARPValueCanDeviceDriver
 {
 public:
-	YARPMEIOnBabybotHeadAdapter()
+	YARPCanOnRobotcubHeadAdapter()
 	{
 		_initialized = false;
 	}
 	
-	~YARPMEIOnBabybotHeadAdapter()
+	~YARPCanOnRobotcubHeadAdapter()
 	{
 		if (_initialized)
 			uninitialize();
 	}
 
-	int initialize(YARPBabybotHeadParameters *par)
+	/// LATER:
+	/// requires some different initialization.
+	int initialize(YARPRobotcubHeadParameters *par)
 	{
 		_parameters = par;
 		MEIOpenParameters op_par;
@@ -358,6 +337,9 @@ public:
 		return YARP_OK;
 	}
 
+	///
+	///
+	///
 	int idleMode()
 	{
 		for(int i = 0; i < _parameters->_nj; i++)
@@ -444,6 +426,7 @@ public:
 			}
 
 			cal = _inertial->calibrate(_tmpShort, &p);
+
 			ACE_OS::printf("%d\r",p);
 			ACE_OS::sleep(ACE_Time_Value(0,40000));
 		}
@@ -455,7 +438,7 @@ private:
 	bool _initialized;
 	short *_tmpShort;
 	YARPBabybotHeadParameters *_parameters;
-	YARPBabybotInertialSensor *_inertial;
+	///YARPBabybotInertialSensor *_inertial;
 };
 
 #endif	// .h
