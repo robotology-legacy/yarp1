@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPConfig_null.h,v 1.1 2004-08-02 10:58:30 babybot Exp $
+/// $Id: YARPConfig_null.h,v 1.2 2004-12-13 10:45:40 gmetta Exp $
 ///
 ///
 
@@ -38,4 +38,7 @@
 #define __NULL__ 1
 #endif
 
+const char *const ConfigFilePath = "conf/null/";
+
 #endif
+
