@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDIBConverter.h,v 1.3 2003-06-17 20:20:36 babybot Exp $
+/// $Id: YARPDIBConverter.h,v 1.4 2004-03-15 13:15:22 natta Exp $
 ///
 ///
 
@@ -114,6 +114,17 @@ public:
 		ACE_ASSERT (img.GetIplPointer != NULL);
 
 		_refresh_dib(img);
+		return bufDIB;
+	};
+
+	// flip and convert image to DIB.
+	// check the convertion, it may not work for all data type
+	// (tested on YarpPixelBGR)
+	inline const unsigned char *ConvertAndFlipToDIB (const YARPGenericImage& img)
+	{
+		ACE_ASSERT (img.GetIplPointer != NULL);
+
+		_refresh_flip_dib(img);
 		return bufDIB;
 	};
 
@@ -241,10 +252,33 @@ private:
 			int addedBytesDIB = _pad_bytes(dimX*3,4);
 			int numBytes = (dimX*3+addedBytesDIB)*dimY;
 
-			memcpy(src, dest, numBytes);
+			memcpy(dest, src, numBytes);
 		}
 		else
 			iplConvertToDIB((IplImage *)img, (BITMAPINFOHEADER*)bufDIB, IPL_DITHER_NONE, IPL_PALCONV_NONE);
+	}
+
+	inline void _refresh_flip_dib (const YARPGenericImage& img) 
+	{
+		// prepare internal dib
+		// TODO need the whole data area be prepared ?
+		
+		if (dimX != img.GetWidth() || dimY != img.GetHeight() || pixelType != img.GetID())
+			Resize(img);
+		if (bufDIB  == NULL)
+			_alloc_dib ();
+
+		int i = 0;
+		int h = img.GetHeight()-1;
+		char *out = (char *) dataAreaDIB;
+		for (i= h ; i >= 0; i--)
+		{
+			const char *array = img.GetArray()[i];
+			int addedBytesDIB = _pad_bytes(dimX*3,4);
+				
+			memcpy(out, array, dimX*3);
+			out += (addedBytesDIB+dimX*3);
+		}
 	}
 
 	inline int _pad_bytes(int linesize, int align)
