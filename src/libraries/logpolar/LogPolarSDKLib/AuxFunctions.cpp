@@ -1,6 +1,12 @@
+////
+
 #include <stdio.h>
 #include <math.h>
-#include <Windows.h>
+
+#if !defined(__QNX__) && !defined(__LINUX__)
+#include <windows.h>
+#endif	/// __WIN32__
+
 #include "LogPolarSDK.h"
 
 void Set_Path()
@@ -21,6 +27,7 @@ unsigned char * Read_Bitmap(int *X_Size,
 							int *planes,
 							char * filename)
 {
+#if !defined(__QNX__) && !defined(__LINUX__)
 	unsigned char *image;	
 	unsigned char c=0;
 	int x,y,z;
@@ -60,6 +67,9 @@ unsigned char * Read_Bitmap(int *X_Size,
 		image = NULL;
 	
 	return image;
+#else
+	return NULL;
+#endif
 }
 
 
@@ -74,6 +84,8 @@ void Save_Bitmap(unsigned char *image,
 				 int planes,
 				 char * filename)
 {
+#if !defined(__QNX__) && !defined(__LINUX__)
+
 	FILE* fout;
 	int size = X_Size * Y_Size * planes;
 	int x,y,z;
@@ -132,8 +144,9 @@ void Save_Bitmap(unsigned char *image,
 	}
 
 	fclose(fout);
-
+#endif
 }
+
 /************************************************************************
 * Get_Theta		  														*
 ************************************************************************/	

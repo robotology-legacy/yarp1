@@ -1,11 +1,20 @@
+////
+
+
 #include <stdio.h>
 #include <stdlib.h>
+
+#if !defined(__QNX__) && !defined(__QNX6__)
+
 #include <conio.h>
 #include <io.h>
+#include <windows.h>
+
+#endif
+
 #include <math.h>
 #include <time.h>
 #include <fcntl.h>
-#include <Windows.h>
 
 #include "LogPolarSDK.h"
 
@@ -459,6 +468,8 @@ void Remap(unsigned char * Out_Image,
 
 long Get_Time()
 {
+#if !defined(__QNX__) && !defined(__LINUX__)
+
 	LARGE_INTEGER perfTime;
 	LARGE_INTEGER perfFreq;
 	long l_tempo;
@@ -472,14 +483,18 @@ long Get_Time()
 		l_tempo = (long)(d_tempo * 1000.0);//(msecs from boot)
 
 		return l_tempo;
-    
+#else
+		return -1;
+#endif    
 }
 
 void Set_Calibration(Image_Data * Par, int PortAddress)
 {
+#if !defined(__QNX__) && !defined(__LINUX__)
+
 	const int NUM_IMG = 10;
 	int i,j,k,val;
-    unsigned char *cl[NUM_IMG];
+	unsigned char *cl[NUM_IMG];
 	int * CalibImage;
 	unsigned char * buffer;
 	struct timeval elap_time;
@@ -524,7 +539,11 @@ void Set_Calibration(Image_Data * Par, int PortAddress)
 	}
 
 	for(i=0;i<NUM_IMG;i++)
-		free(cl[i]);}
+		free(cl[i]);
+#else
+	//// QNX, Unimplemented.
+#endif
+}
 
 /************************************************************************
 * RGB_2_YUV																*

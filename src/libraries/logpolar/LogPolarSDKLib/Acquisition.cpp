@@ -1,3 +1,9 @@
+///
+
+
+#if !defined(__QNX__) && !defined(__LINUX__)
+
+
 #include <stdio.h>
 #include <stdlib.h> 
 #include <conio.h>
@@ -262,3 +268,18 @@ void Giotto_Close_Wrapper(int *vdesc)
 	else
 		_close(vchannel.grab_fd);
 }
+
+
+#else
+
+/// defined(__QNX__)
+
+int Giotto_Init(int) { return -1; }
+int Giotto_Init_Wrapper(int, int, char *, int, int, int, int *) { return -1; }
+int Giotto_Acq(unsigned char *, int, int, int) { return -1; }
+int Giotto_Acq_Wrapper(unsigned char *, struct timeval *, int *, int *, int) { return -1; }
+void Giotto_Close() { }
+void Giotto_Close_Wrapper(int *) { }
+
+
+#endif
