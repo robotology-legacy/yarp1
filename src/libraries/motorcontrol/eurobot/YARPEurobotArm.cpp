@@ -1,4 +1,15 @@
-// $Id: YARPEurobotArm.cpp,v 1.8 2003-12-18 16:37:25 beltran Exp $
+///
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #carlos#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+//
+// $Id: YARPEurobotArm.cpp,v 1.9 2003-12-18 16:41:20 beltran Exp $
+//
 
 #include "YARPEurobotArm.h"
 

@@ -1,7 +1,17 @@
+///
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #Add our name(s) here#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+//
+// $Id: YARPEurobotArm.h,v 1.8 2003-12-18 16:41:20 beltran Exp $
+//
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
-
-// $Id: YARPEurobotArm.h,v 1.7 2003-12-18 16:37:25 beltran Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
