@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: wide_nameloc.h,v 1.2 2003-04-18 09:25:49 gmetta Exp $
+/// $Id: wide_nameloc.h,v 1.3 2003-04-22 16:22:04 natta Exp $
 ///
 ///
 
@@ -79,6 +79,7 @@
 ///
 ///
 #define __YARP_NAMESERVICE_STRING_LEN 256
+#define __YARP_NAMESERVICE_UDP_MAX_PORTS 20
 
 ///
 ///
@@ -201,6 +202,61 @@ public:
 } PACKED_FOR_NET;
 #include "end_pack_for_net.h"
 
+class YARPNameUDP
+{
+public:
+	void set(const std::string &str, const ACE_INET_Addr &addr)
+	{
+		setName(str);
+		setAddr(addr);
+	}
+
+	void setName(const std::string &str)
+	{
+		strncpy(_name, str.c_str(), __YARP_NAMESERVICE_STRING_LEN);
+	}
+
+	void setAddr(const ACE_INET_Addr &addr)
+	{
+		setIp(addr.get_host_addr());
+		setPorts(0, addr.get_port_number());
+	}
+
+	void setIp(const std::string &ip)
+	{
+		strncpy(_ip, ip.c_str(), __YARP_NAMESERVICE_STRING_LEN);
+	}
+
+	void setPorts(NetInt32 index, NetInt32 p)
+	{
+		ACE_ASSERT( (index>0) && (index<=__YARP_NAMESERVICE_UDP_MAX_PORTS) );
+		_port[index] = p;
+	}
+
+	void getAddr(ACE_INET_Addr &addr)
+	{
+		addr.set(_port, _ip);
+	}
+
+	char *getName()
+	{return _name;}
+
+	char *getIp()
+	{return _ip;}
+
+	NetInt32 getPorts(NetInt32 index) {
+		ACE_ASSERT( (index>0) && (index<=__YARP_NAMESERVICE_UDP_MAX_PORTS) );
+		return _port[index];
+	}
+
+	int length()
+	{return sizeof(YARPNameUDP);}
+
+	char _name[__YARP_NAMESERVICE_STRING_LEN];
+	char _ip[__YARP_NAMESERVICE_STRING_LEN];
+	NetInt32 _ports[__YARP_NAMESERVICE_UDP_MAX_PORTS+1];
+} PACKED_FOR_NET;
+#include "end_pack_for_net.h"
 
 ///
 ///
