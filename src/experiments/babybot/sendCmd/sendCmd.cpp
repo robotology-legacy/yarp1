@@ -41,6 +41,12 @@ void _fillTable()
 	// sink
 	REG_VOCAB(sendSimpleVocab, YBVSinkQuit, "quit sink behavior");
 	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitAll, "inhibit ALL sink input");
+	REG_VOCAB(sendSimpleVocab, YBVSinkEnableAll, "enable ALL sink input");
+	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitVor, "inhibit VOR sink input");
+	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitTracker, "inhibit TRACKER sink input");
+	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitArm, "inhibit ARM sink input");
+	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitVergence, "inhibit VERGENCE sink input");
+	REG_VOCAB(sendSimpleVocab, YBVSinkDisplayStatus, "display channel status");
 }
 
 void _help()

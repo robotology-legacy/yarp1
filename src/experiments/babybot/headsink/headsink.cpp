@@ -20,10 +20,29 @@ int main(int argc, char* argv[])
 
 	SBWaitIdle waitIdle("idle state");
 	SBSimpleInput inhibitAllInput(YBVSinkInhibitAll);
-	SBOutputInhibitAll inhibitAllCmd;
+	SBSimpleInput enableAllInput(YBVSinkEnableAll);
+	SBSimpleInput inhibitVorInput(YBVSinkInhibitVor);
+	SBSimpleInput inhibitTrackerInput(YBVSinkInhibitTracker);
+	SBSimpleInput inhibitArmInput(YBVSinkInhibitArm);
+	SBSimpleInput inhibitVergenceInput(YBVSinkInhibitVergence);
+	SBSimpleInput displayStatusInput(YBVSinkDisplayStatus);
+	
+	SBOutputInhibitAll			inhibitAllCmd;
+	SBOutputEnableAll			enableAllCmd;
+	SBOutputInhibitVor			inhibitVorCmd;
+	SBOutputInhibitTracker		inhibitTrackerCmd;
+	SBOutputInhibitArm			inhibitArmCmd;
+	SBOutputInhibitVergence		inhibitVergenceCmd;
+	SBOutputDisplayStatus		displayStatusCmd;
 
 	behavior.setInitialState(&waitIdle);
-	behavior.add(&inhibitAllInput, &waitIdle, &waitIdle, &inhibitAllCmd);
+	behavior.add(&inhibitAllInput, &inhibitAllCmd);
+	behavior.add(&enableAllInput, &enableAllCmd);
+	behavior.add(&inhibitTrackerInput, &inhibitTrackerCmd);
+	behavior.add(&inhibitVorInput, &inhibitVorCmd);
+	behavior.add(&inhibitArmInput, &inhibitArmCmd);
+	behavior.add(&inhibitVergenceInput, &inhibitVergenceCmd);
+	behavior.add(&displayStatusInput, &displayStatusCmd);
 	
 	// start sink thread
 	headSink.start();

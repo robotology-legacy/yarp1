@@ -18,6 +18,24 @@ class NeckControl;
 const int __nJoints = 5;
 const YARPString __baseName = "/headsink/";
 
+enum __SinkCh
+{
+	SinkChVor = 0,
+	SinkChPosition = 1,
+	SinkChTracker = 2,
+	SinkChArm = 3,
+	SinkChVergence = 4,
+	SinkChN = 5,
+};
+
+const char const __portNameSuffixes[SinkChN][255] = {
+										"vor/i",
+										"position/i",
+										"track/i",
+										"arm/i",
+										"vergence/i"
+										};
+
 class Sink: public YARPRateThread
 {
 public:
@@ -28,11 +46,17 @@ public:
 	void doLoop();
 	void doRelease();
 
+	// inhibit channel
+	void inhibitChannel(int n);
 	// inhibit all inputs
 	void inhibitAll();
+	// enable all channels
+	void enableAll();
+
+	void printChannelsStatus();
 
 private:
-	void _polPort(YARPInputPortOf<YVector> &port, YVector &v)
+	inline void _polPort(YARPInputPortOf<YVector> &port, YVector &v)
 	{
 		if (port.Read(0))
 			v = port.Content();
@@ -40,23 +64,19 @@ private:
 
 	NeckControl *_neckControl;
 	
+	// output port
 	YARPOutputPortOf<YVector>  _outPort;
-	YARPInputPortOf<YVector>   _inPortPosition;
-	YARPInputPortOf<YVector>   _inPortVor;
-	YARPInputPortOf<YVector>   _inPortTrack;
-	YARPInputPortOf<YVector>   _inPortVergence;
+	YVector _outCmd;
+	
+	// input channels
+	YARPInputPortOf<YVector>  *_inPorts[SinkChN];
+	YVector _inVectors[SinkChN];
+	int _enableVector[SinkChN];
 
 	YARPString _iniFile;
 	YARPString _path;
 	
-	YVector _inVor;
-	YVector _inPosition;
-	YVector _inTrack;
-	YVector _outCmd;
-	YVector _inVergence;
 	int _nj;
-
-	int _inhibitAll;
 };
 
 #include <YARPPidFilter.h>

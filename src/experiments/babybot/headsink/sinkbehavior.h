@@ -17,6 +17,8 @@ typedef YARPFSMStateBase<SinkBehavior, Sink> SinkBehaviorStateBase;
 typedef YARPFSMOutput<Sink> SinkBehaviorBaseOutput;
 typedef YARPBaseBehaviorInput<Sink> SinkBehaviorBaseInput;
 
+#define DECLARE_OUTPUT_STATE(CLASS_NAME) class CLASS_NAME: public SinkBehaviorBaseOutput { public: void output(Sink *d); }
+
 class SBWaitIdle: public SinkBehaviorStateBase
 {
 public:
@@ -30,11 +32,14 @@ public:
 	YARPString _message;
 };
 
-class SBOutputInhibitAll: public SinkBehaviorBaseOutput
-{
-public:
-	void output(Sink *d);
-};
+DECLARE_OUTPUT_STATE(SBOutputInhibitAll);
+DECLARE_OUTPUT_STATE(SBOutputEnableAll);
+DECLARE_OUTPUT_STATE(SBOutputInhibitVor);
+DECLARE_OUTPUT_STATE(SBOutputInhibitTracker);
+DECLARE_OUTPUT_STATE(SBOutputInhibitArm);
+DECLARE_OUTPUT_STATE(SBOutputInhibitVergence);
+
+DECLARE_OUTPUT_STATE(SBOutputDisplayStatus);
 
 class SBSimpleInput: public SinkBehaviorBaseInput
 {
