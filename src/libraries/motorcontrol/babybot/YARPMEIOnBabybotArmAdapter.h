@@ -1,7 +1,7 @@
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.5 2003-05-01 15:06:06 natta Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.6 2003-05-02 17:03:57 natta Exp $
 
 #include <ace/log_msg.h>
 #include <YarpMeiDeviceDriver.h>
@@ -19,22 +19,22 @@ namespace _BabybotArm
 	const int _nj = 6;
 	const LowLevelPID _highPIDs[_nj] =
 	{
-		LowLevelPID(-310.0, -1500.0, -2.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -30.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
-		LowLevelPID(-270.0, -500.0, -2.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
-		LowLevelPID(-290.0, -700.0, -2.0, 0.0, -150.0, 32767.0, 0.0, 32767.0, 0.0, -100),	
-		LowLevelPID(-320.0, -600.0, -2.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
-		LowLevelPID(-300.0, -900.0, -2.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -100.0),	
-		LowLevelPID(-300.0, -600.0, -2.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
+		LowLevelPID(-310.0, -1500.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -30.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
+		LowLevelPID(-270.0, -500.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
+		LowLevelPID(-290.0, -700.0, 0.0, 0.0, -150.0, 32767.0, 0.0, 32767.0, 0.0, -100),	
+		LowLevelPID(-320.0, -600.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
+		LowLevelPID(-300.0, -900.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -100.0),	
+		LowLevelPID(-300.0, -600.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
 	};
 	
 	const LowLevelPID _lowPIDs[_nj] = 
 	{
-		LowLevelPID(1.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),		//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
-		LowLevelPID(1.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
-		LowLevelPID(1.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
-		LowLevelPID(1.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
-		LowLevelPID(1.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
-		LowLevelPID(1.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
+		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),		//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
+		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
+		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
+		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
+		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
+		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
 	};
 
 	const double _zeros[_nj] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};

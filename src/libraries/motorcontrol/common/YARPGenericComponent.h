@@ -171,6 +171,18 @@ public:
 		return -1;
 	}
 
+	// read dac output
+	int getTorques(double *t)
+	{
+		_lock();
+		_adapter.IOCtl(CMDGetTorques, _temp_double);
+		for (int i = 0; i < _parameters._nj; i++) {
+			t[_parameters._axis_map[i]] = _temp_double[i];		
+		}
+		_unlock();
+		return -1;
+	}
+
 	inline int nj(){ return _parameters._nj;}
 	int setGainsSmoothly(LowLevelPID *finalPIDs, int s = 150);
 	
