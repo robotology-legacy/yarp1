@@ -122,6 +122,14 @@ SOURCE=.\nidaq\winnt\YARPNIDAQDeviceDriver.cpp
 
 SOURCE=.\picolo\winnt\YARPPicoloDeviceDriver.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\sound\winnt\YARPSoundDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\sound\winnt\YARPSoundResources.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -165,6 +173,14 @@ SOURCE=.\nidaq\winnt\YARPNIDAQDeviceDriver.h
 # Begin Source File
 
 SOURCE=.\picolo\winnt\YARPPicoloDeviceDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sound\winnt\YARPSoundDeviceDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\sound\winnt\YARPSoundResources.h
 # End Source File
 # End Group
 # Begin Source File

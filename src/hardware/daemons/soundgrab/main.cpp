@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: main.cpp,v 1.2 2004-02-26 18:12:11 beltran Exp $
+//         Version:  $Id: main.cpp,v 1.3 2004-03-03 10:19:14 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -30,6 +30,7 @@
 #include <YARPLogpolar.h>
 #include <YARPBottle.h>
 #include <YARPBottleContent.h>
+#include <YARPConfigFile.h>
 
 #if defined(__QNXEurobot__)
 
@@ -66,6 +67,7 @@ bool	_client		= false;
 bool	_simu		= false;
 bool	_fgnetdata	= false;
 int		_board_no	= 0;
+char    __filename[256] = "sound.ini";
 
 extern int __debug_level;
 
@@ -277,13 +279,10 @@ int
 mainthread::_runAsSimulation (void)
 {
 	YARPImageOf<YarpPixelBGR> img;
-
 	DeclareOutport(outport);
 
 	outport.Register (_name, _netname);
-
 	int frame_no = 0;
-
 	ACE_OS::fprintf (stdout, "starting up simulation of a soundgrabber...\n");
 
 	double start = YARPTime::GetTimeAsSeconds ();
@@ -317,37 +316,106 @@ mainthread::_runAsSimulation (void)
 //--------------------------------------------------------------------------------------
 //       Class:  mainthread
 //      Method:  _runAsNormally
-// Description:  This method normally instanciates and access to the low level driver.
+// Description:  This method normally instanciates an access to the low level driver.
 // It gets the sound data and sends it to the network
 //--------------------------------------------------------------------------------------
 int 
 mainthread::_runAsNormally (void)
 {
+	int _Channels = 0;
+	int _SamplesPerSec= 0;
+	int _BitsPerSample = 0;
+	int _BufferLength = 0;
+
+	HMMIO hmmio;
+	MMCKINFO ckRIFF;
+	MMCKINFO ck;
+	WAVEFORMATEX waveFormat;
+
+	unsigned char *buffer = NULL;
+	int frame_no = 0;
+
 	YARPSoundGrabber soundgrabber;
 	YARPImageOf<YarpPixelBGR> img;
 
 	DeclareOutport(outport);
-
 	outport.Register (_name, _netname);
 
-	/// params to be passed from the command line.
+	//----------------------------------------------------------------------
+	//  Get sound information from ini file
+	//----------------------------------------------------------------------
+	YARPConfigFile file;
+	char *root = GetYarpRoot();
+	char path[256];
+
+#if defined(__QNXEurobot__)
+	ACE_OS::sprintf (path, "%s/conf/eurobot/\0", root); 
+#else
+	ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
+#endif
+
+	file.set(path, __filename);
+	file.get("[GENERAL]", "Channels", &_Channels, 1);
+	file.get("[GENERAL]", "SamplesPerSec", &_SamplesPerSec, 1);
+	file.get("[GENERAL]", "BitsPerSample", &_BitsPerSample, 1);
+	file.get("[GENERAL]", "BufferLength", &_BufferLength, 1);
+
+	//----------------------------------------------------------------------
+	//  Initialize the grabber
+	//----------------------------------------------------------------------
 	soundgrabber.initialize (_board_no);
 	
+	//----------------------------------------------------------------------
+	//  Start the data reception port in the case the option is active
+	//----------------------------------------------------------------------
 	FgNetDataPort  * m_fg_net_data;
 	if (_fgnetdata)
 	{
 		m_fg_net_data = new FgNetDataPort(&soundgrabber);
 		m_fg_net_data->Register (_fgdataname,_netname);
-	}
-
-	unsigned char *buffer = NULL;
-	int frame_no = 0;
+	} 
 
 	ACE_OS::fprintf (stdout, "starting up soundgrabber...\n");
 
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
 
+	//----------------------------------------------------------------------
+	//  Initialize the WAVEFORMATEX ini sound file data
+	//----------------------------------------------------------------------
+	waveFormat.wFormatTag = WAVE_FORMAT_PCM;
+	waveFormat.nChannels = _Channels;
+	waveFormat.nSamplesPerSec = _SamplesPerSec;
+	waveFormat.wBitsPerSample = _BitsPerSample;
+	waveFormat.nBlockAlign = waveFormat.nChannels * (waveFormat.wBitsPerSample/8);
+	waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
+	waveFormat.cbSize = 0;
+	//----------------------------------------------------------------------
+	//  Open and initialize a WAVE file
+	//----------------------------------------------------------------------
+	hmmio = mmioOpen("dest.wav",
+					 NULL,
+					 MMIO_CREATE | MMIO_WRITE | MMIO_EXCLUSIVE |
+					 MMIO_ALLOCBUF);
+
+	ckRIFF.fccType = mmioFOURCC('W', 'A', 'V', 'E');
+	ckRIFF.cksize  = 0;
+	mmioCreateChunk(hmmio, &ckRIFF, MMIO_CREATERIFF);
+
+	ck.ckid   = mmioFOURCC('f', 'm', 't', ' ');
+	ck.cksize = 0L;
+	mmioCreateChunk(hmmio, &ck, 0);
+
+	mmioWrite(hmmio, (HPSTR)&waveFormat, sizeof(WAVEFORMATEX));
+	mmioAscend(hmmio, &ck, 0);
+
+	ck.ckid   = mmioFOURCC('d', 'a', 't', 'a');
+	ck.cksize = 0;
+	mmioCreateChunk(hmmio, &ck, 0);	
+
+	//----------------------------------------------------------------------
+	// Main loop 
+	//----------------------------------------------------------------------
 	while (!IsTerminated())
 	{
 		soundgrabber.waitOnNewFrame ();
@@ -360,6 +428,10 @@ mainthread::_runAsNormally (void)
 		///outport.Content().Refer (buffer); //is this correct? do I pass the pointer to the buffer?
 		//outport.Write();
 
+		mmioWrite(hmmio, 
+				  (const char *)buffer,
+				  _BufferLength);
+
 		soundgrabber.releaseBuffer ();
 
 		frame_no++;
@@ -371,6 +443,10 @@ mainthread::_runAsNormally (void)
 			start = cur;
 		}
 	}
+	
+	mmioAscend(hmmio, &ck, 0);
+	mmioAscend(hmmio, &ckRIFF, 0);
+	mmioClose(hmmio, 0);
 
 	//destroy fg_net_data port
 	if (_fgnetdata)

@@ -10,7 +10,7 @@
 // 
 //     Description:  This files implements the SoundResources methods
 // 
-//         Version:  $Id: YARPSoundResources.cpp,v 1.7 2004-03-02 10:32:00 beltran Exp $
+//         Version:  $Id: YARPSoundResources.cpp,v 1.8 2004-03-03 10:19:14 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -54,8 +54,10 @@ SoundResources::_uninitialize (void)
 	mixerClose(m_MixerHandle);
 	//Reset the wave input device
 	waveInReset(m_WaveInHandle);
-	if(_rawBuffer != NULL)
+	if(_rawBuffer != NULL){
 		delete[] _rawBuffer; // Delete the shared buffer
+		_rawBuffer = NULL;
+	}
 	_bmutex.Post ();
 
 	return YARP_OK;
