@@ -1,0 +1,9 @@
+(
+while true; do
+	tail -n 500 /plot/draw > /plot/fragment
+	echo "set data style lp"
+	echo "set yrange [0:10]"
+	echo 'plot "/plot/fragment"'
+	sleep 1
+done
+) | gnuplot
