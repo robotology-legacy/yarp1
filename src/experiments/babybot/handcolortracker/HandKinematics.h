@@ -6,6 +6,7 @@
 #include <yarp/YARPBabyBottle.h>
 #include <yarp/YARPControlBoardNetworkData.h>
 #include <yarp/YARPBPNNet.h>
+#include <yarp/RFNet.h>
 #include <yarp/YARPBabybotHeadKin.h>
 
 #include <yarp/YARPPort.h>
@@ -77,9 +78,17 @@ public:
 		YARPShapeEllipse el;
 		_center.sim(_armPredictionPort._position.data(), _v.data());
 
+		YVector tmp(3);
+		tmp(1) = _armPredictionPort._position(1);
+		tmp(2) = _armPredictionPort._position(2);
+		tmp(3) = _armPredictionPort._position(3);
+//		_rfnet.Simulate(tmp, 0.001, _v);
+
 		// compute retinal position
 		int predx = 0, predy = 0;
 		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v, predx, predy);
+		// predx+=10;
+		// predy+=10;
 
 		double p[3];
 		_ellipse.sim(_armPredictionPort._position.data(), p);
@@ -96,7 +105,7 @@ public:
 	void loadCenter(YARPBPNNetState &p)
 	{
 		ACE_OS::printf("Loading center nnet from memory:");
-		_center.load(p);
+//		_center.load(p);
 	}
 
 	void loadEllipse(YARPBPNNetState &p)
@@ -114,10 +123,17 @@ private:
 		// compute _v()
 		_center.sim(arm.data(),	// uses only the first 3 joints
 				    _v.data());
+	/*	YVector tmp(3);
+		tmp(1) = arm(1);
+		tmp(2) = arm(2);
+		tmp(3) = arm(3);*/
+//		_rfnet.Simulate(tmp, 0.001, _v);
 
 		// compute retinal position
 		int predx = 0, predy = 0;
 		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v, predx, predy);
+	//	predx+=10;
+	//	predy+=10;
 
 		//////////////////////////////////////
 
@@ -138,6 +154,8 @@ private:
 	
 	YARPBPNNet _center;
 	YARPBPNNet _ellipse;
+
+//	RFNet	   _rfnet;
 
 	ArmPredictionPort _armPredictionPort;
 

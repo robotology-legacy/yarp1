@@ -1,6 +1,8 @@
 #ifndef __ARMMAP__
 #define __ARMMAP__
 
+// #define TEST_REACHING
+
 #include <yarp/YARPBabybotHead.h>
 #include <yarp/YARPRndUtils.h>
 #include <time.h>
@@ -38,29 +40,53 @@ const double __minRnd[] = {-5.0*degToRad, -5.0*degToRad, -5.0*degToRad, 0.0, 0.0
 // const double __preparePosition[] = { 15*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*degToRad};
 const double __preparePosition[] = { 5*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*degToRad};
 
-// offset in the shoulder to fix offset in the reaching
-// (tappullo)
-const double __armOffset1 = 0*degToRad;
-const double __armOffset2 = 0*degToRad;
-const double __foreArmOffset1 = -8*degToRad;
-const double __foreArmOffset2 = -8*degToRad;
-// offset in the shoulder to reach "from above"
-const double __shoulderOffset1 = 40*degToRad;
-const double __shoulderOffset2 = 30*degToRad;
+
+#ifndef TEST_REACHING
+	// offset in the shoulder to reach "from above"
+	const double __shoulderOffset1 = 40*degToRad;
+	const double __shoulderOffset2 = 30*degToRad;
+	// offset in the shoulder to fix offset in the reaching
+	// (tappullo)
+	const double __armOffset1 = 0*degToRad;
+	const double __armOffset2 = 0*degToRad;
+	const double __foreArmOffset1 = -8*degToRad;
+	const double __foreArmOffset2 = -8*degToRad;
+
+	const double __wrist1a = 0*degToRad;	
+	const double __wrist2a = 0*degToRad;
+	const double __wrist3a = -170*degToRad;
+	// const double __wrist3 = 0*degToRad;
+
+	const double __wrist1b = 0*degToRad;	
+	const double __wrist2b = -45*degToRad;
+	const double __wrist3b = -170*degToRad;
+#else 
+	// offset in the shoulder to reach "from above"
+	const double __shoulderOffset1 = 10*degToRad;
+	const double __shoulderOffset2 = 0*degToRad;
+	// offset in the shoulder to fix offset in the reaching
+	// (tappullo)
+	const double __armOffset1 = 0*degToRad;
+	const double __armOffset2 = 0*degToRad;
+	const double __foreArmOffset1 = 0*degToRad;
+	const double __foreArmOffset2 = 0*degToRad;
+
+	const double __wrist1a = 0*degToRad;	
+	const double __wrist2a = 0*degToRad;
+	const double __wrist3a = 0*degToRad;
+	// const double __wrist3 = 0*degToRad;
+
+	const double __wrist1b = 0*degToRad;	
+	const double __wrist2b = 0*degToRad;
+	const double __wrist3b = 0*degToRad;
+#endif
 
 // to turn the hand downwardly
 // const double __wrist1 = -10*degToRad;	
 // const double __wrist2 = -30*degToRad;
 // const double __wrist3 = -170*degToRad;
 
-const double __wrist1a = 0*degToRad;	
-const double __wrist2a = 0*degToRad;
-const double __wrist3a = -170*degToRad;
-// const double __wrist3 = 0*degToRad;
 
-const double __wrist1b = 0*degToRad;	
-const double __wrist2b = -45*degToRad;
-const double __wrist3b = -170*degToRad;
 
 // offset in the head space, for reaching
 const double __azimuthOffset = -6*degToRad;
@@ -128,7 +154,7 @@ public:
 	void load(YARPBPNNetState &p)
 	{
 		ACE_OS::printf("Loading reaching map from memory:");
-		_nnet.load(p);
+//		_nnet.load(p);
 	}
 
 	bool query(const YVector &arm, const YVector &head);
@@ -146,6 +172,7 @@ private:
 	void _formTrajectory(const YVector &cmd);
 	void _sendTrajectory();
 	bool _checkReachability(const Y3DVector &cart);
+
 
 	YARPBPNNet _nnet;
 //	RFNet	   _rfnet;

@@ -28,6 +28,13 @@ _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMa
 		ACE_OS::printf("Error, cannot read neural network file %s", filename1);
 		exit(-1);
 	}
+
+/*	if (_rfnet.LoadNet("handfk.rfwr","y:/conf/babybot/")!=YARP_OK)
+	{
+		ACE_OS::printf("Error, cannot read rfwr ini file %s", "handfk.rfwr");
+		exit(-1);
+	}*/
+
 	
 	ACE_OS::sprintf (filename2, "%s/conf/babybot/%s", root, f2);
 	if (_ellipse.load(filename2)!=YARP_OK)

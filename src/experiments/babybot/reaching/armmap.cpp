@@ -17,13 +17,14 @@ _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 		ACE_OS::printf("Error, cannot read neural network file %s", filename);
 		exit(-1);
 	}
-	/*	
-	if (_rfnet.LoadNet("reachingRFWR.ini","y:/conf/babybot/")!=YARP_OK)
+	
+	/*
+	if (_rfnet.LoadNet("reaching.rfwr","y:/conf/babybot/")!=YARP_OK)
 	{
-		ACE_OS::printf("Error, cannot read rfwr ini file %s", "reachingRFWR.ini");
+		ACE_OS::printf("Error, cannot read rfwr ini file %s", "reaching.rfwr");
 		exit(-1);
-	}*/
-
+	}
+*/
 	ACE_OS::printf("Read neural network from %s\n", filename);
 
 	ACE_OS::sprintf (filename, "%s/conf/babybot/%s", root, handlocNNet);
@@ -93,12 +94,13 @@ bool ArmMap::query(const YVector &arm, const YVector &head)
 	else
 	{
 		_nnet.sim(tmp.data(), _command.data());
-		YVector tmpY(3);
-	//	_rfnet.Simulate(tmp, 0.001, tmpY);
-	//	_command(1) = tmpY(1);
-	//	_command(2) = tmpY(2);
-	//	_command(3) = tmpY(3);
-
+	/*	YVector tmpY(3);
+		_rfnet.Simulate(tmp, 0.001, tmpY);
+		_command = 0.0;
+		_command(1) = tmpY(1);
+		_command(2) = tmpY(2);
+		_command(3) = tmpY(3);
+/*
 		_fkinematics.update(_command, head);
 		_fkinematics.computeJacobian(x,y);		// compute from center
 		YVector tmpArm(6);
@@ -114,7 +116,7 @@ bool ArmMap::query(const YVector &arm, const YVector &head)
 
 	//	_command = _fkinematics.computeCommandThreshold(tmpArm , x, y);	// to center
 	//	_sendTrajectory();
-		
+		*/
 		_formTrajectory(_command);
 	}
 

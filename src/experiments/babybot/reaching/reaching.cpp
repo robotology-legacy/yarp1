@@ -1,6 +1,6 @@
 // reaching.cpp : Defines the entry point for the console application.
 //
-//#define __INHIBITGRASPING__
+// #define TEST_REACHING
 
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBabyBottle.h>
@@ -125,20 +125,32 @@ int main(int argc, char* argv[])
 	_behavior.add(&armDone, &reachingSeq31, &reachingSeq32, &reachingOutput2);
 	_behavior.add(&armIsBusy, &reachingSeq31, &waitIdle, &enableAll);
 	
+#ifndef TEST_REACHING
 	_behavior.add(&armDone, &reachingSeq32, &waitDeltaT1, &handClose);
+#else
+	_behavior.add(&armDone, &reachingSeq32, &waitDeltaT1);
+#endif
+
 	_behavior.add(&armIsBusy, &reachingSeq32, &waitIdle, &enableAll);
 	// wait
 	
-	// NO HAND
+#ifndef TEST_REACHING
 	_behavior.add(&handDone, &waitDeltaT1, &reachingSeq33, &reachingOutput3);
-	_behavior.add(&armRest, &waitDeltaT1, &waitIdle, &enableAll);
-	// end NO HAND
-
 	_behavior.add(&armDone, &reachingSeq33, &checkReaching, &checkReachingOutput);
+	_behavior.add(&armIsBusy, &reachingSeq33, &waitIdle, &enableAll);
+	_behavior.add(&armRest, &waitDeltaT1, &waitIdle, &enableAll);
+#else 
+	_behavior.add(NULL, &waitDeltaT1, &reachingSeq33, &reachingOutput3);
+	_behavior.add(NULL, &reachingSeq33, &checkReaching, &checkReachingOutput);
+#endif
+
 	// add here instead of NULL message back from SOM
-	// _behavior.add(NULL, &checkReaching, &reachingDrop/*&reachingSeq5*/, &reachingBack);
+#ifndef TEST_REACHING
 	_behavior.add(&graspSuccess, &checkReaching, &signalReachSuccess, &reachingDropOut);
 	_behavior.add(&graspFailure, &checkReaching, &signalReachFailure, &reachingBack);
+#else
+	_behavior.add(NULL, &checkReaching, &reachingSeq5, &reachingBack);
+#endif
 
 	_behavior.add(NULL, &signalReachFailure, &reachingSeq5, &reachingFailed);
 	_behavior.add(NULL, &signalReachSuccess, &reachingDropState1, &reachingSuccess);
@@ -148,13 +160,13 @@ int main(int argc, char* argv[])
 	// _behavior.add(NULL, &waitDeltaT1, &reachingSeq33, &reachingOutput3); // NO HAND
 	//_behavior.add(NULL, &waitDeltaT1, &reachingSeq33);
 	// _behavior.add(&armDone, &reachingSeq33, &reachingSeq5, &reachingBack);
-	_behavior.add(&armIsBusy, &reachingSeq33, &waitIdle, &enableAll);
+	
 	
 
 	//_behavior.add(&armIsBusy, &reachingSeq3, &waitIdle, &enableHead);
 	//_behavior.add(&armRest, &reachingSeq3, &waitIdle, &enableHead);
 	// _behavior.add(NULL, &reachingSeq4, &reachingSeq5, &reachingBack);
-	
+#ifndef TEST_REACHING
 	_behavior.add(&armDone, &reachingSeq5, &reachingSeq6, &handOpen);
 	_behavior.add(&handDone, &reachingSeq6, &waitIdle, &enableAll);
 	_behavior.add(&handDone, &waitHandDone, &waitIdle, &enableAll);
@@ -163,14 +175,16 @@ int main(int argc, char* argv[])
 	_behavior.add(&handDone, &reachingDropState3, &finalDropState1, &armForceRest);
 	_behavior.add(NULL, &finalDropState1, &finalDropState2, &enableSaccade);
 	_behavior.add(NULL, &finalDropState2, &waitIdle, &enableAll);
-		
-	//// end NO AUTO
-	
 	_behavior.add(&armIsBusy, &reachingSeq5, &waitIdle, &enableAll);
 	_behavior.add(&armRest, &reachingSeq31, &waitIdle, &enableAll);
 	_behavior.add(&armRest, &reachingSeq32, &waitIdle, &enableAll);
 	_behavior.add(&armRest, &reachingSeq33, &waitIdle, &enableAll);
-	
+#else
+	_behavior.add(&armDone, &reachingSeq5, &reachingSeq6);
+	_behavior.add(NULL, &reachingSeq6, &waitIdle, &enableAll);
+#endif
+
+		
 	_behavior.Begin();
 	_behavior.loop();
 

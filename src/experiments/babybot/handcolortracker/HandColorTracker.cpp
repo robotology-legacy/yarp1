@@ -248,9 +248,9 @@ int main(int argc, char* argv[])
 			tmpEl.scale(__scale);
 
 			int intensity = 255 * (v/__threshold);
-
-			// if (v > __threshold)
-			// {
+/*
+			if (v > __threshold)
+			{*/
 				_segmenter.drawCross(tmpEl.x, tmpEl.y, YarpPixelBGR(255, 0, 0), 5, 1);
 				_segmenter.plotEllipse(tmpEl, YarpPixelBGR(255, 0, 0));
 			// }
