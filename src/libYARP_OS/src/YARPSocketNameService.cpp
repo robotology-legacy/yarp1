@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.10 2004-08-02 12:31:55 eshuy Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.11 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 
@@ -341,7 +341,7 @@ int YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& name)
 ///
 ///
 ///
-int YARPSocketEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest)
+int YARPSocketEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest, const YARPString& own_name)
 {
 	YARPNetworkOutputObject *sock = (YARPNetworkOutputObject *)GetThreadSocket();
 	if (sock == NULL)
@@ -359,11 +359,11 @@ int YARPSocketEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest)
 	ACE_ASSERT (dest.getServiceType() == sock->GetServiceType() ||
 			    (dest.getServiceType() == YARP_UDP && sock->GetServiceType() == YARP_MCAST));
 
-	sock->Connect (dest);
-
+	int ret = YARP_OK;
+	ret = sock->Connect (dest, own_name);
 	dest.setRawIdentifier (sock->GetIdentifier ());
 
-	return YARP_OK;
+	return ret;
 }
 
 int YARPSocketEndpointManager::CloseMcastAll (void)
@@ -440,7 +440,18 @@ int YARPSocketEndpointManager::Close (YARPUniqueNameID& dest)
 
 	case YARP_I_SOCKET:
 		{
-			((YARPNetworkInputObject *)sock)->CloseAll ();
+			/// __All__ means close all connections (termination), otherwise
+			/// assumes the name contains the symbolic name of the connection
+			/// to be closed.
+			///
+			if (ACE_OS::strncmp (dest.getName().c_str(), "__All__", 7) == 0)
+			{
+				((YARPNetworkInputObject *)sock)->CloseAll ();
+			}
+			else
+			{
+				((YARPNetworkInputObject *)sock)->CloseByName (dest.getName());
+			}
 			break;
 		}
 	}

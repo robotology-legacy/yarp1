@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.cpp,v 1.1 2004-07-02 09:13:16 eshuy Exp $
+/// $Id: YARPNativeNameService.cpp,v 1.2 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 //// #include <ace/OS.h>
@@ -137,9 +137,10 @@ int YARPNativeEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
 #endif
 }
 
-int YARPNativeEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest)
+int YARPNativeEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest, const YARPString& own_name)
 {
 	ACE_UNUSED_ARG(dest);
+	ACE_UNUSED_ARG(own_name);
 #ifndef __QNX6__
 	return YARP_FAIL;
 #else

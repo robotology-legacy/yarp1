@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketNameService.h,v 1.4 2004-07-09 16:10:13 eshuy Exp $
+/// $Id: YARPSocketNameService.h,v 1.5 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 
@@ -121,7 +121,7 @@ public:
 	/// allocates socket (either in or out).
 	static int CreateInputEndpoint(YARPUniqueNameID& name);
 	static int CreateOutputEndpoint(YARPUniqueNameID& name);
-	static int ConnectEndpoints(YARPUniqueNameID& dest);
+	static int ConnectEndpoints(YARPUniqueNameID& dest, const YARPString& own_name);
 	static int Close(YARPUniqueNameID& dest);
 	static int CloseMcastAll(void);
 	static int GetNumberOfClients(void);

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.6 2004-08-05 17:11:56 babybot Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.7 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 
@@ -328,7 +328,7 @@ int YARPOutputSocketDgram::Prepare (const YARPUniqueNameID& name)
 
 ///
 /// pretend a connection.
-int YARPOutputSocketDgram::Connect (const YARPUniqueNameID& name)
+int YARPOutputSocketDgram::Connect (const YARPUniqueNameID& name, const YARPString& own_name)
 {
 	ACE_UNUSED_ARG (name);
 
@@ -353,6 +353,11 @@ int YARPOutputSocketDgram::Connect (const YARPUniqueNameID& name)
 	hdr.SetGood ();
 	hdr.SetLength (YARP_MAGIC_NUMBER + 128*name.getRequireAck());
 	stream.send_n (&hdr, sizeof(hdr), 0);
+
+	/// fine, now send the name of the connection.
+	NetInt32 name_len = own_name.length();
+	stream.send_n (&name_len, sizeof(NetInt32), 0);
+	stream.send_n (own_name.c_str(), name_len, 0);
 
 	/// wait response.
 	hdr.SetBad ();

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.9 2004-08-05 17:11:56 babybot Exp $
+/// $Id: YARPSocket.cpp,v 1.10 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 
@@ -286,7 +286,7 @@ int YARPOutputSocket::SetTCPNoDelay (void)
 	return d._stream.set_option (ACE_IPPROTO_TCP, TCP_NODELAY, &one, sizeof(int));
 }
 
-int YARPOutputSocket::Connect (const YARPUniqueNameID& name)
+int YARPOutputSocket::Connect (const YARPUniqueNameID& name, const YARPString& own_name)
 {
 	ACE_UNUSED_ARG (name);
 
@@ -303,6 +303,12 @@ int YARPOutputSocket::Connect (const YARPUniqueNameID& name)
 
 	d._stream.send_n (&hdr, sizeof(hdr), 0);
 
+	/// fine, now send the name of the connection.
+	NetInt32 name_len = own_name.length();
+	d._stream.send_n (&name_len, sizeof(NetInt32), 0);
+	d._stream.send_n (own_name.c_str(), name_len, 0);
+
+	/// ...and wait for a reply.
 	hdr.SetBad();
 	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 	int r = d._stream.recv_n (&hdr, sizeof(hdr), 0, &timeout);

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.6 2004-08-02 12:31:55 eshuy Exp $
+/// $Id: YARPNameID.h,v 1.7 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 /*
@@ -100,9 +100,9 @@
 class YARPNameID
 {
 protected:
-  /**
-   * Type of connection.
-   */
+	/**
+	 * Type of connection.
+	 */
 	int _mode;			// mode socket, Qnet, etc.
 
 	/**
@@ -115,6 +115,16 @@ public:
 	 * Default constructor.
 	 */
 	YARPNameID () { _raw_id = ACE_INVALID_HANDLE;  _mode = YARP_NO_SERVICE_AVAILABLE; }
+
+	/**
+	 * Copy contructor.
+	 * @param other is the YARPNameID to copy from.
+	 */
+	YARPNameID (const YARPNameID& other)
+	{
+		_mode = other._mode;
+		_raw_id = other._raw_id;
+	}
 
 	/**
 	 * Constructor.
@@ -158,6 +168,7 @@ protected:
 public:
 	YARPUniqueNameID (void) : YARPNameID() { _symbolic_name = "__null"; }
 	YARPUniqueNameID (int service) : YARPNameID(service, ACE_INVALID_HANDLE) { _symbolic_name = "__null"; }
+	YARPUniqueNameID (const YARPUniqueNameID& other) : YARPNameID(other) { _symbolic_name = other._symbolic_name; }
 	virtual ~YARPUniqueNameID() {}
 
 	inline YARPNameID& getNameID(void) { return (YARPNameID &)(*this); }
@@ -200,6 +211,13 @@ public:
 		_pid = pid;
 		_channel_id = channel;
 		_node = node;
+	}
+
+	YARPUniqueNameQnx (const YARPUniqueNameQnx& other) : YARPUniqueNameID(other) 
+	{
+		_pid = other._pid;
+		_channel_id = other._channel_id;
+		_node = other._node;
 	}
 
 	virtual ~YARPUniqueNameQnx() {}
@@ -247,10 +265,18 @@ public:
 		_ports = NULL;
 	}
 
-	YARPUniqueNameSock (const YARPUniqueNameSock *other) : YARPUniqueNameID (other->getServiceType()), _address (other->_address)
+	YARPUniqueNameSock (const YARPUniqueNameSock& other) : YARPUniqueNameID(other) ///YARPUniqueNameID (other->getServiceType()), _address (other->_address)
 	{
+		_address = other._address;
+		_ifname = other._ifname;
+		
 		_nports = -1;
 		_ports = NULL;
+
+		if (other._nports > 0 && other._ports != NULL)
+		{
+			setPorts (other._ports, other._nports);
+		}
 	}
 
 	virtual ~YARPUniqueNameSock() 
@@ -328,7 +354,15 @@ public:
 	YARPUniqueNameMem (int service = YARP_SHMEM) : YARPUniqueNameID(service), _address() {}
 	YARPUniqueNameMem (int service, int port) : YARPUniqueNameID(service), _address (port) {  }
 	YARPUniqueNameMem (int service, const ACE_MEM_Addr& addr) : YARPUniqueNameID(service), _address (addr) {}
-	YARPUniqueNameMem (const YARPUniqueNameMem *other) : YARPUniqueNameID(YARP_SHMEM), _address(other->_address) {}
+
+	YARPUniqueNameMem (const YARPUniqueNameMem& other) 
+		///: YARPUniqueNameID(YARP_SHMEM), _address(other->_address) {}
+		: YARPUniqueNameID (other)
+	{
+		/// make sure is SHMEM.
+		setServiceType (YARP_SHMEM);
+		_address = other._address;
+	}
 	
 	virtual ~YARPUniqueNameMem() {}
 

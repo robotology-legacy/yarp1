@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.19 2004-08-05 09:55:07 eshuy Exp $
+/// $Id: Port.cpp,v 1.20 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 
@@ -220,7 +220,6 @@ void OutputTarget::End (int dontkill /* =-1 */)
 ///
 void OutputTarget::Body ()
 {
-  //printf("OUTPUT TARGET REQ ACK %d\n", GetRequireAck());
 	/// implicit wait mutex for this thread.
 	/// see overridden Begin()
 
@@ -254,8 +253,6 @@ void OutputTarget::Body ()
 				YARPNameService::DeleteName(target_pid);
 				target_pid = NULL;
 
-				///target_pid->invalidate();
-				
 				active = 0;
 				deactivated = 1;
 				PostMutex ();
@@ -263,7 +260,7 @@ void OutputTarget::Body ()
 			}
 
 			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
-			YARPEndpointManager::ConnectEndpoints (*target_pid);
+			YARPEndpointManager::ConnectEndpoints (*target_pid, own_name);
 		}
 		break;
 
@@ -347,7 +344,7 @@ void OutputTarget::Body ()
 			}
 
 			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
-			YARPEndpointManager::ConnectEndpoints (*target_pid);
+			YARPEndpointManager::ConnectEndpoints (*target_pid, own_name);
 
 #ifdef DEBUG_DISABLE_SHMEM
 #	ifdef YARP_TCP_NO_DELAY
@@ -446,7 +443,7 @@ void OutputTarget::Body ()
 #endif
 
 			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
-			YARPEndpointManager::ConnectEndpoints (*target_pid);
+			YARPEndpointManager::ConnectEndpoints (*target_pid, own_name);
 		}
 		break;
 
@@ -540,7 +537,7 @@ void OutputTarget::Body ()
 
 		///
 		/// MCAST commands follow: 
-		///		- these are sent and processed by contacting the UDP channel of the port.
+		///		- these are sent and processed by contacting the TCP channel of the port.
 		if (protocol_type == YARP_MCAST)
 		{
 			/// LATER: need to figure out whether this is always ok.
@@ -555,7 +552,7 @@ void OutputTarget::Body ()
 				{
 					/// connect
 					YARPUniqueNameID* udp_channel = YARPNameService::LocateName(cmdname, network_name.c_str(), YARP_UDP);
-					YARPEndpointManager::ConnectEndpoints (*udp_channel);
+					YARPEndpointManager::ConnectEndpoints (*udp_channel, own_name);
 					YARPNameService::DeleteName (udp_channel);
 				}
 				break;
@@ -1090,7 +1087,8 @@ void Port::Body()
 							target->target_pid = NULL;
 							target->protocol_type = protocol_type;
 							//printf("SET REQ ACK %d\n", GetRequireAck());
-							target->SetRequireAck(GetRequireAck());
+							target->SetRequireAck (GetRequireAck());
+							target->SetOwnName (name);
 
 							target->Begin();
 						}
@@ -1140,7 +1138,7 @@ void Port::Body()
 								target = targets.GetByLabel (buf);
 								if (target == NULL)
 								{
-									ACE_DEBUG ((LM_DEBUG, "Starting (possibly SHMEM) connection between %s and %s\n", name.c_str(), buf));
+									ACE_DEBUG ((LM_INFO, "*** starting (possibly SHMEM) connection between %s and %s\n", name.c_str(), buf));
 
 									target = targets.NewLink(buf);
 									ACE_ASSERT(target != NULL);
@@ -1148,6 +1146,7 @@ void Port::Body()
 									target->network_name = network_name;
 									target->target_pid = NULL;
 									target->protocol_type = YARP_UDP;
+									target->SetOwnName (name);
 
 									target->Begin();
 								}
@@ -1163,13 +1162,14 @@ void Port::Body()
 								target = targets.GetByLabel ("mcast-thread");
 								if (target == NULL)
 								{
-									ACE_DEBUG ((LM_DEBUG, "Starting MCAST singleton thread\n"));
+									ACE_DEBUG ((LM_INFO, "*** starting MCAST transmission thread\n"));
 									target = targets.NewLink("mcast-thread");
 
 									ACE_ASSERT(target != NULL);
 									target->network_name = network_name;
 									target->target_pid = NULL;
 									target->protocol_type = protocol_type;
+									target->SetOwnName (name);
 
 									target->Begin();
 
@@ -1274,27 +1274,28 @@ void Port::Body()
 					out_mutex.Wait();
 					receiving = 1;
 					
-					if (!ignore_data) {
-					  while (p_receiver_incoming.Ptr() == NULL)
+					if (!ignore_data) 
+					{
+						while (p_receiver_incoming.Ptr() == NULL)
 					    {
-					      YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& Waiting for incoming space\n"));
-					      // HIT - should have way to convey back skip
-					      // request to sender
-					      // (can't just ignore, don't know how many)
-					      // (components message has)
-					      
-					      asleep = 1;
-					      out_mutex.Post();
-					      wakeup.Wait();
-					      out_mutex.Wait();
+							YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& Waiting for incoming space\n"));
+							// HIT - should have way to convey back skip
+							// request to sender
+							// (can't just ignore, don't know how many)
+							// (components message has)
+
+							asleep = 1;
+							out_mutex.Post();
+							wakeup.Wait();
+							out_mutex.Wait();
 					    }
 
-					  asleep = 0;
-					  p_receiver_incoming.Ptr()->AddRef();
-					  out_mutex.Post();
-					  
-					  p_receiver_incoming.Ptr()->Read(receiver);
-					  p_receiver_incoming.Ptr()->RemoveRef();
+						asleep = 0;
+						p_receiver_incoming.Ptr()->AddRef();
+						out_mutex.Post();
+
+						p_receiver_incoming.Ptr()->Read(receiver);
+						p_receiver_incoming.Ptr()->RemoveRef();
 					}
 
 					receiver.End();
@@ -1302,28 +1303,30 @@ void Port::Body()
 					out_mutex.Wait();
 					receiving = 0;
 					
-					if (!ignore_data) {
-					  YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& Received. Switching with latest space\n"));
-					  p_receiver_latest.Switch(p_receiver_incoming);
-					  
-					  if (!has_input)
-					    {
-					      has_input = 1;
-					      something_to_read.Post();
-					    }
+					if (!ignore_data) 
+					{
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& Received. Switching with latest space\n"));
+						p_receiver_latest.Switch(p_receiver_incoming);
+
+						if (!has_input)
+						{
+							has_input = 1;
+							something_to_read.Post();
+						}
 					}
 
 					out_mutex.Post();
 
-					if (!ignore_data) {
-					  call_on_read = 1;
+					if (!ignore_data) 
+					{
+						call_on_read = 1;
 					}
 				}
 				break;
 
 			case MSG_ID_GO:
 				{
-					ACE_DEBUG ((LM_ERROR, "this shouldn't get here, the new version doesn't accept MSG_ID_GO\n"));
+					ACE_DEBUG ((LM_ERROR, "this shouldn't happen, the new version doesn't accept MSG_ID_GO\n"));
 				}
 				break;
 
@@ -1340,7 +1343,7 @@ void Port::Body()
 						while (target != NULL)
 						{
 							next = target->GetMeshNext();
-							ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
+							ACE_DEBUG ((LM_INFO, "*** removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
 							target->Deactivate();
 							target = next;
 						}
@@ -1355,7 +1358,7 @@ void Port::Body()
 						while (target != NULL)
 						{
 							next = target->GetMeshNext();
-							ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
+							ACE_DEBUG ((LM_INFO, "*** removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
 							if (target != mtarget && mtarget != NULL)
 								target->Deactivate();
 							target = next;
@@ -1365,7 +1368,7 @@ void Port::Body()
 						/// mcast
 						if (mtarget != NULL)
 						{
-							ACE_DEBUG ((LM_DEBUG, "Removing all mcast connections\n"));
+							ACE_DEBUG ((LM_INFO, "*** removing all MCAST connections\n"));
 							mtarget->DeactivateMcastAll();
 						}
 					}
@@ -1381,6 +1384,17 @@ void Port::Body()
 
 					/// only now asks for End.
 					AskForEnd ();
+				}
+				break;
+
+			case MSG_ID_DETACH_IN:
+				{
+					ACE_DEBUG ((LM_DEBUG, "*** received detach request for %s\n", buf+1));
+
+					YARPUniqueNameID needclose;
+					needclose = *pid;
+					needclose.setName (buf+1);
+					YARPEndpointManager::Close (needclose);
 				}
 				break;
 
@@ -1408,8 +1422,15 @@ void Port::Body()
 	tsender.pulseGo();
 	tsender.Join();
 
+	///
 	/// tries to shut down the input socket threads.
-	YARPEndpointManager::Close (*pid);
+	/// uses the special request for closing all input threads at once.
+	///
+	///
+	YARPUniqueNameID needcloseall;
+	needcloseall = *pid;
+	needcloseall.setName ("__All__");
+	YARPEndpointManager::Close (needcloseall);
 
 	/// unregister the port name here.
 	YARPNameService::UnregisterName (pid);
@@ -1617,7 +1638,7 @@ int Port::Say(const char *buf)
 			self_id->setServiceType (YARP_TCP);
 			self_id->setRequireAck(require_ack);
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
-			YARPEndpointManager::ConnectEndpoints (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id, name);
 		}
 		else
 		{
@@ -1627,7 +1648,7 @@ int Port::Say(const char *buf)
 			self_id->setRequireAck(require_ack);
 
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
-			YARPEndpointManager::ConnectEndpoints (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id, name);
 		}
 	}
 	else
@@ -1640,7 +1661,7 @@ int Port::Say(const char *buf)
 			self_id->setServiceType (YARP_TCP);
 			self_id->setRequireAck(require_ack);
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
-			YARPEndpointManager::ConnectEndpoints (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id, name);
 		}
 		else
 		{
@@ -1650,7 +1671,7 @@ int Port::Say(const char *buf)
 			self_id->setRequireAck(require_ack);
 
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
-			YARPEndpointManager::ConnectEndpoints (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id, name);
 		}
 	}
 
@@ -1683,7 +1704,7 @@ int Port::SaySelfEnd(void)
 			self_id->setServiceType (YARP_TCP);
 
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
-			YARPEndpointManager::ConnectEndpoints (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id, name);
 		}
 		else
 		{
@@ -1693,7 +1714,7 @@ int Port::SaySelfEnd(void)
 				self_id->setServiceType (YARP_TCP);
 
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
-			YARPEndpointManager::ConnectEndpoints (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id, name);
 		}
 	}
 	else
@@ -1708,7 +1729,7 @@ int Port::SaySelfEnd(void)
 			self_id->setServiceType (YARP_TCP);
 
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
-			YARPEndpointManager::ConnectEndpoints (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id, name);
 		}
 		else
 		{
@@ -1718,7 +1739,7 @@ int Port::SaySelfEnd(void)
 				self_id->setServiceType (YARP_TCP);
 
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
-			YARPEndpointManager::ConnectEndpoints (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id, name);
 		}
 	}
 

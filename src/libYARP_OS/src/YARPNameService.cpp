@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.7 2004-07-13 00:49:02 babybot Exp $
+/// $Id: YARPNameService.cpp,v 1.8 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 
@@ -331,7 +331,7 @@ int YARPEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
 	return YARP_FAIL;
 }
 
-int YARPEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest)
+int YARPEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest, const YARPString& own_name)
 {
 	switch (dest.getServiceType())
 	{
@@ -339,10 +339,10 @@ int YARPEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest)
 	case YARP_UDP:
 	case YARP_MCAST:
 	case YARP_SHMEM:
-		return YARPSocketEndpointManager::ConnectEndpoints (dest);
+		return YARPSocketEndpointManager::ConnectEndpoints (dest, own_name);
 
 	case YARP_QNET:
-		return YARPNativeEndpointManager::ConnectEndpoints (dest);
+		return YARPNativeEndpointManager::ConnectEndpoints (dest, own_name);
 	}
 
 	return YARP_FAIL;

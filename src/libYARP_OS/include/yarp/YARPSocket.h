@@ -35,7 +35,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.h,v 1.5 2004-08-02 12:31:55 eshuy Exp $
+/// $Id: YARPSocket.h,v 1.6 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 
@@ -88,8 +88,14 @@ enum
 	 */
 	YARP_O_SOCKET = 2,
 
+	/**
+	 * The masks to &'ing when reading the socket type bits.
+	 */
 	YARP_X_SOCKET_MASK = 3,
 
+	/**
+	 * Require acknowledge flag for messages (YARP reply messages flag).
+	 */
 	YARP_SOCK_REQUIRE_ACK = 128,
 };
 
@@ -140,12 +146,21 @@ public:
 
 	/**
 	 * Gets the service type.
-	 * @return the protocol type or any other service descriptot.
+	 * @return the protocol type or any other service descriptor.
 	 */
 	virtual int GetServiceType (void) = 0;
 
+	/**
+	 * Gets the RequireAck flag that tells whether reply messages are enabled
+	 * for this connection.
+	 * @return the require ack flag.
+	 */
 	int getRequireAck (void) const { return (_socktype & YARP_SOCK_REQUIRE_ACK)!=0; }
 
+	/**
+	 * Sets the RequireAck flag for this connection.
+	 * @param flag 1 means that reply messages are required, 0 that they're not.
+	 */
 	void setRequireAck(int flag) { _socktype = (_socktype&YARP_X_SOCKET_MASK)|(flag?YARP_SOCK_REQUIRE_ACK:0); }
 };
 
@@ -190,6 +205,13 @@ public:
 	 * @return YARP_OK on success.
 	 */
 	virtual int Close(ACE_HANDLE reply_id) = 0;
+
+	/**
+	 * Should close the input socket identified by the argument.
+	 * @param name is the symbolic name of the socket to be closed.
+	 * @return YARP_OK on success.
+	 */
+	virtual int CloseByName(const YARPString& name) = 0;
 
 	/**
 	 * Should close all the input channels associated with the class.
@@ -279,8 +301,11 @@ public:
 	 * Connects to the remote endpoint (an input object).
 	 * @param name is the YARPUniqueNameID which contains the information
 	 * on the remote endpoint of the channel.
+	 * @param own_name is the symbolic name (as registered in the name server) of 
+	 * the port owning the connection, it is sent during connection to the remote
+	 * to allow identifying the specific connection being created.
 	 */
-	virtual int Connect (const YARPUniqueNameID& name) = 0;
+	virtual int Connect (const YARPUniqueNameID& name, const YARPString& own_name) = 0;
 
 	/**
 	 * Begins sending a message.
@@ -339,7 +364,17 @@ public:
 	virtual ~YARPOutputSocket();
 
 	int Close(const YARPUniqueNameID& name);
-	int Connect(const YARPUniqueNameID& name);
+
+	/**
+	 * Connects to the remote endpoint (an input object).
+	 * @param name is the YARPUniqueNameID which contains the information
+	 * on the remote endpoint of the channel.
+	 * @param own_name is the symbolic name (as registered in the name server) of 
+	 * the port owning the connection, it is sent during connection to the remote
+	 * to allow identifying the specific connection being created.
+	 * @see YARPNetworkOutputObject for details.
+	 */
+	int Connect(const YARPUniqueNameID& name, const YARPString& own_name);
 	
 	int SendBegin(char *buffer, int buffer_length);
 	int SendContinue(char *buffer, int buffer_length);

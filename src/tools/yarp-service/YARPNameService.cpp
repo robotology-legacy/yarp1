@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.6 2004-07-12 10:08:36 eshuy Exp $
+/// $Id: YARPNameService.cpp,v 1.7 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -70,18 +70,15 @@
 #include <fstream>
 using namespace std;
 
+
 // need to be able to make directories
 // check how to do this in a portable way...
 #include <ace/OS.h>
 #include <ace/OS_NS_unistd.h>
 #include <ace/INET_Addr.h>
 
-#ifdef __WIN32__
-const char *_name_file_path = "conf\\namer.conf";
-#else
-const char *_name_file_path = "conf/namer.conf";
-#endif
 
+const char *_name_file_path = "conf/namer.conf";
 static int _server_port = 1000;
 
 void print_menu(int ok=0)

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.4 2004-07-13 00:48:36 babybot Exp $
+/// $Id: YARPNameService.h,v 1.5 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 /*
@@ -215,9 +215,11 @@ public:
 	 * Some more details can be found on the documentation of YARPSocket.
 	 * @param dest is the unique name of the destination endpoint (this is queried from the 
 	 * name server).
+	 * @param own_name is the symbolic name of the owner of the connection. The name is sent 
+	 * to the remote to allow identifying the specific connection being created.
 	 * @return YARP_OK on success.
 	 */
-	static int ConnectEndpoints(YARPUniqueNameID& dest);
+	static int ConnectEndpoints(YARPUniqueNameID& dest, const YARPString& own_name);
 
 	/**
 	 * Closes an endpoint.

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.6 2004-08-05 17:11:56 babybot Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.7 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 
@@ -457,7 +457,7 @@ int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name)
 ///
 /// this can be called many many times to ask receivers to join to mcast group.
 /// name is the remote we're asking to join.
-int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
+int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name, const YARPString& own_name)
 {
 	OSDataMcast& d = OSDATA(system_resources);
 
@@ -506,7 +506,12 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 
 	/// ask for a connection.
 	stream.send_n (&hdr, sizeof(hdr), 0);
-	
+
+	/// fine, now send the name of the connection.
+	NetInt32 name_len = own_name.length();
+	stream.send_n (&name_len, sizeof(NetInt32), 0);
+	stream.send_n (own_name.c_str(), name_len, 0);
+
 	/// send mcast ip and port #.
 	/// exactly 6 bytes.
 	char buf[6];
@@ -613,8 +618,8 @@ int YARPOutputSocketMcast::SendEnd(char *reply_buffer, int reply_buffer_length)
 
 	if (d._overall_msg_size > MAX_PACKET)
 	{
-		ACE_DEBUG ((LM_DEBUG, "Implementation limit, pls, you should refrain from sending big MCAST packets\n"));
-		ACE_DEBUG ((LM_DEBUG, "Actual size is %d, allowed %d\n", d._overall_msg_size, MAX_PACKET));
+		ACE_DEBUG ((LM_ERROR, "Implementation limit, pls, you should refrain from sending big MCAST packets\n"));
+		ACE_DEBUG ((LM_ERROR, "Actual size is %d, allowed %d\n", d._overall_msg_size, MAX_PACKET));
 		ACE_ASSERT (1 == 0);
 	}
 

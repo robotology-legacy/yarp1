@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.5 2004-07-09 13:45:59 eshuy Exp $
+///	$Id: YARPThread.h,v 1.6 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 /*
@@ -296,14 +296,12 @@ public:
 	 * Constructor.
 	 */
 	YARPThreadSpecific() : ACE_TSS<ACE_TSS_Type_Adapter <T> >() {}
-///	T& Content() { return (this->ts_object ()->operator T& ()); } 
 
 	/*
 	 * Access to the data.
 	 * @return a reference to the thread local storage data.
 	 */
 	T& Content() { return ((*((ACE_TSS<ACE_TSS_Type_Adapter <T> > *)this))->operator T& ()); } 
-	///**(ACE_TSS<ACE_TSS_Type_Adapter <T> > *)(this); } ///return (T&)(*this); }
 };
 
 #endif

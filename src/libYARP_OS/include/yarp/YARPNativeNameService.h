@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
+/// $Id: YARPNativeNameService.h,v 1.4 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 /*
@@ -100,7 +100,7 @@ public:
 	static int CreateQnetChannel(void); 
 	static int CreateInputEndpoint(YARPUniqueNameID& name);
 	static int CreateOutputEndpoint(YARPUniqueNameID& name);
-	static int ConnectEndpoints(YARPUniqueNameID& dest);
+	static int ConnectEndpoints(YARPUniqueNameID& dest, const YARPString& own_name);
 	static int Close(YARPUniqueNameID& id);
 };
 

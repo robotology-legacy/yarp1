@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
+/// $Id: YARPSocketMcast.h,v 1.4 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 
@@ -107,7 +107,7 @@ public:
 
 	/// virtual override.
 	int Close(const YARPUniqueNameID& name);
-	int Connect(const YARPUniqueNameID& name);
+	int Connect(const YARPUniqueNameID& name, const YARPString& own_name);
 	
 	int SendBegin(char *buffer, int buffer_length);
 	int SendContinue(char *buffer, int buffer_length);

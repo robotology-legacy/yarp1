@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.10 2004-08-05 10:16:02 eshuy Exp $
+/// $Id: Port.h,v 1.11 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 
@@ -104,6 +104,7 @@ enum
 	MSG_ID_NACK         = 'n',
 	MSG_ID_ATTACH       = '/',
 	MSG_ID_DETACH_ALL   = 'k',		/// can only be used by SaySelfEnd --- WARNING.
+	MSG_ID_DETACH_IN	= '~',
 	MSG_ID_ERROR        = -1
 };
 
@@ -142,14 +143,17 @@ public:
 	char cmdname[2*YARP_STRING_LEN];
 
 	YARPString network_name;
+	YARPString own_name;
 
 	OutputTarget() : something_to_send(0), 
 #ifdef UPDATED_PORT
 					space_available(1),
 #endif
 					mutex(1),
-	  require_ack(0),
-					network_name(YARP_DEFAULT_NET)
+					require_ack(0),
+					network_name(YARP_DEFAULT_NET),
+					own_name("__null")
+
     {
 		target_pid = NULL;
 		add_header = 1;  active = 1; sending = 0; 
@@ -223,13 +227,10 @@ public:
 	int DeactivateMcast (const char *name);
 	int DeactivateMcastAll (void);
 
-	void SetRequireAck(int flag) {
-	  require_ack = flag;
-	}
+	void SetRequireAck (int flag) { require_ack = flag; }
+	int GetRequireAck (void) const { return require_ack; }
 
-	int GetRequireAck() {
-	  return require_ack;
-	}
+	void SetOwnName (const YARPString& s) { own_name = s; }
 };
 
 

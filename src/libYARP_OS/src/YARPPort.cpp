@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.7 2004-08-02 12:31:55 eshuy Exp $
+/// $Id: YARPPort.cpp,v 1.8 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 
@@ -305,8 +305,8 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 {
 	if (strcmp (src_name, dest_name) == 0)
 	{
-	  ACE_DEBUG ((LM_ERROR, "Silly you, you tried it, didn't you?\n"));
-	  return YARP_FAIL;
+		ACE_DEBUG ((LM_ERROR, "Silly you, you tried it, didn't you?\n"));
+		return YARP_FAIL;
 	}
 
 	/// NULL 2nd param means no net specified, only IP addr.
@@ -320,16 +320,62 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 	}
 
 	YARPEndpointManager::CreateOutputEndpoint (*id);
-	YARPEndpointManager::ConnectEndpoints (*id);
+	int ret = YARP_OK;
+	ret = YARPEndpointManager::ConnectEndpoints (*id, "explicit_connect");
 
-	if (id->isValid())
+	if (ret == YARP_OK)
 	{
-		Port p;
-		p.SayServer (id->getNameID(), dest_name);
+		if (id->isValid())
+		{
+			Port p;
+			p.SayServer (id->getNameID(), dest_name);
+		}
+
+		YARPEndpointManager::Close (*id);
+		YARPNameService::DeleteName (id);
+	}
+	else if (dest_name[0] == '!')
+	{
+		ACE_DEBUG ((LM_INFO, "trying again with direct connection\n"));
+
+		YARPEndpointManager::Close (*id);
+		YARPNameService::DeleteName (id);
+
+		/// tries again...
+		id = YARPNameService::LocateName (dest_name+1, NULL);
+
+		if (id->getServiceType() != YARP_QNET) id->setServiceType (YARP_TCP);
+
+		YARPEndpointManager::CreateOutputEndpoint (*id);
+		ret = YARP_OK;
+		ret = YARPEndpointManager::ConnectEndpoints (*id, "explicit_connect");
+		if (ret == YARP_OK)
+		{
+			if (id->isValid())
+			{
+				Port p;
+				const int len = ACE_OS::strlen(src_name);
+				char *tmp_name = new char[len+2];
+				ACE_ASSERT (tmp_name != NULL);
+				
+				tmp_name[len+1] = 0;
+				ACE_OS::strcpy (tmp_name+1, src_name);
+				tmp_name[0] = '~';
+				p.SayServer (id->getNameID(), tmp_name);
+
+				delete[] tmp_name;
+			}
+		}
+
+		YARPEndpointManager::Close (*id);
+		YARPNameService::DeleteName (id);
+	}
+	else
+	{
+		YARPEndpointManager::Close (*id);
+		YARPNameService::DeleteName (id);
 	}
 
-	YARPEndpointManager::Close (*id);
-	YARPNameService::DeleteName (id);
 	return YARP_OK;
 }
 

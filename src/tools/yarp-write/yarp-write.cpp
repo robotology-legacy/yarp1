@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-write.cpp,v 1.7 2004-07-30 14:44:16 eshuy Exp $
+/// $Id: yarp-write.cpp,v 1.8 2004-08-09 23:29:44 gmetta Exp $
 ///
 ///
 
@@ -72,8 +72,7 @@ extern int __debug_level;
 int main(int argc, char *argv[])
 {
   //__debug_level = 100;
-
-  set_yarp_debug(100,100);
+  //set_yarp_debug(100,100);
 
   argc--;
   argv++;
