@@ -176,6 +176,21 @@ BOOL CVectViewerDlg::OnInitDialog()
 	_pReceiver->Begin();
 
 	_counter = 0;
+
+	///// window size and pos
+	CVectViewerApp *p = ((CVectViewerApp *)AfxGetApp());
+
+	CRect wpos;
+	GetWindowRect (&wpos);
+	ClientToScreen (&wpos);
+
+	if (p->_posX < 0) p->_posX = wpos.left;
+	if (p->_posY < 0) p->_posY = wpos.top;
+	if (p->_width < 0) p->_width = wpos.Width();
+	if (p->_height < 0) p->_height = wpos.Height();
+
+	MoveWindow (p->_posX, p->_posY, p->_width, p->_height, TRUE);
+	//////////////
 	
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -247,15 +262,6 @@ void CVectViewerDlg::OnCancelMode()
 void CVectViewerDlg::OnTimer(UINT nIDEvent) 
 {
 	// TODO: Add your message handler code here and/or call default
-
-	_mutex.Wait();
-	// scroll
-	for (int i = 0; i < _size; i++)
-	{	
-		ScrollAndPaint(_dcMem[i], _current[i], _previous[i]);
-		_previous[i] = _current[i];
-	}
-	_mutex.Post();
 
 	if (IsWindowVisible())
 		InvalidateRect(_displayRect, FALSE);

@@ -57,7 +57,7 @@ BOOL CVectViewerApp::InitInstance()
 	int iWindow;
 	double *dScale;
 	bool aScale;
-	CString dummy,name, period, size, window, scale;
+	CString dummy,name, period, size, window, scale, x, y, w, h;
 	name = "/";
 	cmdInfo.GetOption("name", dummy);
 	name += dummy;
@@ -82,6 +82,26 @@ BOOL CVectViewerApp::InitInstance()
 	for(int i = 0; i < iSize; i++)
 		dScale[i] = 1.0;
 	aScale = true;
+
+	if (cmdInfo.GetOption("x", x))
+		_posX = atoi(x);
+	else
+		_posX = -1;
+
+	if (cmdInfo.GetOption("y", y))
+		_posY = atoi(y);
+	else
+		_posY = -1;
+
+	if (cmdInfo.GetOption("w", w))
+		_width = atoi(w);
+	else
+		_width = -1;
+
+	if (cmdInfo.GetOption("h", h))
+		_height = atoi(h);
+	else
+		_height = -1;
 
 #ifdef _AFXDLL
 	Enable3dControls();			// Call this when using MFC in a shared DLL

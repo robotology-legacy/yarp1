@@ -50,26 +50,30 @@ public:
 public:
 	void update(double *nVal)
 	{
-		_mutex.Wait();
+		// _mutex.Wait();
 		
-		_counter++;
-		if (_counter > _window)
-		{
-			// change scale
-			// erase window
-			eraseHistory();
-			for(int i = 0; i < _size; i++)
+		///////////// compute/apply scale
+		if (_aScale) {
+			_counter++;
+			if (_counter > _window)
 			{
-				if (_max[i] > 0)
-					_scale[i] = 0.5*1/_max[i];
-				else
-					_scale[i] = 0.0;
+				// change scale
+				for(int i = 0; i < _size; i++)
+				{
+					if (_max[i] > 0)
+						_scale[i] = 0.5*1/_max[i];
+					else
+						_scale[i] = 0.0;
 
-				_max[i] = 0.0;
+					_max[i] = 0.0;
+				}
+				_counter = 0;
+				// erase window
+				eraseHistory();
+				refreshHistory();
 			}
-			_counter = 0;
-			refreshHistory();
 		}
+		///////////////////////////////////////
 
 		int i = 0;
 		for(i = 0; i < _size; i++)
@@ -99,7 +103,14 @@ public:
 			// keep new val
 			_history[i][_window-1] = nVal[i];
 		}
-		_mutex.Post();
+		
+		for (i = 0; i < _size; i++)
+		{	
+			ScrollAndPaint(_dcMem[i], _current[i], _previous[i]);
+			_previous[i] = _current[i];
+		}
+
+		// _mutex.Post();
 	}
 
 	void eraseHistory()
@@ -128,6 +139,7 @@ public:
 				tmp = __ySize * 0.5 * (1 - _zoom[i] * _history[i][j]*_scale[i]);
 				_dcMem[i].SetPixel(j, tmp, RGB(255, 0, 0));
 			}
+			_previous[i] = tmp;	//store last value
 		}
 	}
 
