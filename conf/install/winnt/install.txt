@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.12 2003-09-02 14:09:02 babybot Exp $
+$Id: install.txt,v 1.13 2003-09-02 15:18:08 babybot Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -101,10 +101,16 @@ REQUIRES:
 		Copy the template into: %YARP_ROOT%/include/conf/YARPConfig.h
 
 2) Compile:
-	See makefile (make_all_lib.bat) for simplified compilation FIRST! And only
-	if you're particularly skilled the std procedure. To compile everything type:
-	make_all_lib.bat debug[release] full. 
+	2.1) Install separately IPL and original device drivers files FIRST.
+		RUN:
+		%YARP_ROOT%\src\hardware\src\install_orig_dd.bat
+		%YARP_ROOT%\src\libraries\ipl\install_ipl.bat
 
+	2.2) See makefile (make_all_lib.bat) for simplified compilation! And only
+		if you're particularly skilled the std procedure. To compile everything type:
+		make_all_lib.bat debug[release] full. 
+
+	===
 	ACE, this copies also the .h, .i, and .cpp files into %YARP_ROOT%\include
 		- use dsw from: %YARP_ROOT%\src\libraries\ACE_wrappers\ace
 	os_services
@@ -121,7 +127,6 @@ REQUIRES:
 		- compile the fakeipl first. even if you don't use it, just in case.
 		- compile the main img processing lib.
 		- compile the tools.
-		- ?? run the lib command ??
 
 	===
 
