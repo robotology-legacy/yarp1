@@ -1,7 +1,7 @@
 include $(YARP_ROOT)/conf/Makefile.template
 
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))
-CFLAGS = -O2 $(CDEFS) -I. -I../include -I$(YARP_ROOT)/include
+CFLAGS = $(CFAST) $(CDEFS) -I. -I../include -I$(YARP_ROOT)/include
 
 SUBDIRS =
 
