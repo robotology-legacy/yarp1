@@ -37,12 +37,11 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "..\obj\winnt"
-# PROP Intermediate_Dir "..\obj\winnt\release"
+# PROP Output_Dir "..\obj\release"
+# PROP Intermediate_Dir "..\obj\release"
 # PROP Target_Dir ""
-MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "../include" /I "../../../include" /I "../../../include/winnt" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\..\include" /I "..\..\..\include\winnt" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -62,12 +61,11 @@ LIB32=link.exe -lib
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "..\obj\winnt"
-# PROP Intermediate_Dir "..\obj\winnt\debug"
+# PROP Output_Dir "..\obj\debug"
+# PROP Intermediate_Dir "..\obj\debug"
 # PROP Target_Dir ""
-MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../libYARP_OS/include" /I "../../../include" /I "../../../include/winnt" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\include" /I "..\..\..\include\winnt" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -89,10 +87,6 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\build.bat
-# End Source File
-# Begin Source File
-
 SOURCE=.\cvbase.cpp
 # End Source File
 # Begin Source File
@@ -110,6 +104,62 @@ SOURCE=.\YARPImageUtils.cpp
 # Begin Source File
 
 SOURCE=.\YARPSimpleOperations.cpp
+# End Source File
+# End Group
+# Begin Group "Header Files"
+
+# PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\include\yarp\cvbase.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPFilters.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPImage.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPImageDraw.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPImageFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPImagePort.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPImagePortContent.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPImages.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPImageUtils.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPSimpleOperations.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPSound.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPSoundPortContent.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPVisMap.h
 # End Source File
 # End Group
 # End Target
