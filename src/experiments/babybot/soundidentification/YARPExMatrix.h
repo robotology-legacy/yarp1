@@ -27,13 +27,17 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPExMatrix.h,v 1.1 2004-09-08 17:28:47 beltran Exp $
+/// $Id: YARPExMatrix.h,v 1.2 2004-09-13 17:54:25 beltran Exp $
 ///
 #ifndef __YARPExMatrixh__
 #define __YARPExMatrixh__
 
+#include "YARPQRFactorization.h"
+
 /**
- * @class YARPCovMatrix Extents the YMatrix to implement a covariance matrix.
+ * @class YARPCovMatrix 
+ * @brief Extents the YMatrix to implement a covariance matrix.
+ * 
  * @todo Put this class in a coherent position; discuss whether this is the
  * better way to implemtent this.
  */
@@ -44,6 +48,12 @@ private:
     YMatrix _mA; /** The original variances matrix used to calculate the covariance
 				   matrix if this is the case. In other words, the A matrix in the
 				   C = A'A calculation. */
+	YMatrix _mR; /** This is the R matrix in the QR factorization. This is used to 
+				   factorize A = QR and caculate the determinant of the covariance
+				   matrix as det(C) = det(R)^2 */
+
+	YVector _vTau;
+	YARPQRFactorization _Qr;
 public:
 	/** 
 	  * Constructor.
@@ -55,9 +65,9 @@ public:
 	  * 
 	  * @param refmatrix The reference to the matrix to copy.
 	  */
-	YARPCovMatrix(const YCovMatrix &refmatrix):YMatrix(refMatrix)
+	YARPCovMatrix(YARPCovMatrix &refmatrix):YMatrix(refmatrix)
 	{
-		_mA = refmatrix.getLocalVariancesMatrix();
+		refmatrix.getOriginalVariancesMatrix(_mA);
 	}
 
 	/** 
@@ -82,9 +92,9 @@ public:
 			return YARP_FAIL;
 		else
 			if (flag)
-				*this = (_mA.Transposed() * _mA) / (_mA.NRows()); 
+				(*this) = (_mA.Transposed() * _mA) / (_mA.NRows()); 
 			else
-				*this = (_mA.Transposed() * _mA) / (_mA.NRows() - 1);
+				(*this) = (_mA.Transposed() * _mA) / (_mA.NRows() - 1);
 
 		return YARP_OK;
 	}
@@ -100,10 +110,10 @@ public:
 	  */
 	int setOriginalVariancesMatrix(const YMatrix &mA) 
 	{ 
-		if (getIsCovariance())
-			_mA = mA; 
-		else
-			return YARP_FAIL;
+		_mA = mA; 	
+		_vTau.Resize(_mA.NCols());
+		_mR = _mA; // The _mR matrix will contain the right data well the determinant calculation is called
+		calculateR();
 		
 		return YARP_OK;
 	}
@@ -117,13 +127,89 @@ public:
 	  */
 	int getOriginalVariancesMatrix(YMatrix &mA) 
 	{ 
-		if(getIsCovariance())
-			mA = _mA; 
-		else
-			return YARP_FAIL;
+		mA = _mA; 
+		return YARP_OK;
+	}
+
+	/** 
+	  * Calculate internal R matrix (from QR factorization).
+	  * 
+	  * @return YARP_OK 
+	  */
+	int calculateR()
+	{
+		_Qr.QRFactorization(_mR.data(),
+							 _mR.NRows(),
+							 _mR.NCols(),
+							 _vTau.data());
+
+		return YARP_OK;
+	}
+
+	/** 
+	  * Function to get the internal R.
+	  * 
+	  * @param R The reference to the external R to fill.
+	  * 
+	  * @return YARP_OK
+	  */
+	int getR(YMatrix &R)
+	{
+		R = _mR;
+		return(YARP_OK);
+	}
+
+	/** 
+	  * Returns the value of the local vector Tau.
+	  * 
+	  * @param v A reference to the external vector to fill.
+	  * 
+	  * @return YARP_OK
+	  */
+	int getTau(YVector &v)
+	{
+		v = _vTau;
+		return (YARP_OK);
+	}
+
+	/** 
+	  * Calculates the determinant of the covariance matrix.
+	  * 
+	  * @param det A reference to a variable where to store the value of the determinant.
+	  * 
+	  * @return YARP_OK
+	  */
+	int determinant(double &det)
+	{
+		int i;
+		double determinant = 1.0;
+
+		for( i = 1; i <= _mR.NCols(); i++)
+			determinant *= _mR(i,i);
+
+		det = pow(determinant,2);
 		
 		return YARP_OK;
 	}
+
+	YARPCovMatrix& operator=(YARPCovMatrix& refmatrix)
+	{
+		refmatrix.getR(_mR);
+		refmatrix.getOriginalVariancesMatrix(_mA);
+		refmatrix.getTau(_vTau);
+	}
+	
+	YARPCovMatrix& operator=(YMatrix& refmatrix)
+	{
+		double ** refdata = refmatrix.data();
+		double ** ldata = data();
+
+		if (NRows() != refmatrix.NRows() || NCols() != refmatrix.NCols())
+			Resize(refmatrix.NRows(),refmatrix.NCols());
+		memcpy(ldata[0], refdata[0], NRows()*NCols()*sizeof(double));
+		return *this;
+	}
+
 
 };
 
@@ -165,10 +251,10 @@ public:
 	  * 
 	  * @param refmatrix The reference to the matrix to copy.
 	  */
-	YARPExMatrix(const YMatrix &refmatrix):YMatrix(refMatrix)
+	YARPExMatrix(const YMatrix &refmatrix):YMatrix(refmatrix)
 	{
 		_vMeans.Resize(YMatrix::NRows());
-		_mLocalVariaces.Resize(YMatrix::NRows,YMatrix::NCols);
+		_mLocalVariances.Resize(NRows(),NCols());
 	}
 
 	/** 
@@ -207,7 +293,7 @@ public:
 		for ( c = 1; c <= YMatrix::NCols(); c++)
 		{
 			for( r = 1; r <= YMatrix::NRows(); r++)
-				_vMeans(c) += (*this(r,c));
+				_vMeans(c) += ((*this)(r,c));
 
 			_vMeans(c) /= YMatrix::NRows();
 		}
@@ -217,15 +303,15 @@ public:
 		//----------------------------------------------------------------------
 		for ( r = 1; r <= YMatrix::NRows(); r++)
 			for( c = 1; c <= YMatrix::NCols(); c++)
-				_mLocalVariances(r,c) = (*this(r,c)) - _vMeans(c);
+				_mLocalVariances(r,c) = ((*this)(r,c)) - _vMeans(c);
 
 		//----------------------------------------------------------------------
 		//  Calculate the final covariance matrix
 		//----------------------------------------------------------------------
 		if (flag)
-			mCov = (_mLocalVariances.Transposed() * _mLocalVariances) / (YMatrix::NRows); 
+			mCov = (_mLocalVariances.Transposed() * _mLocalVariances) / (NRows()); 
 		else
-			mCov = (_mLocalVariances.Transposed() * _mLocalVariances) / (YMatrix::NRows-1);
+			mCov = (_mLocalVariances.Transposed() * _mLocalVariances) / (NRows()-1);
 
 		mCov.setOriginalVariancesMatrix(_mLocalVariances);
 

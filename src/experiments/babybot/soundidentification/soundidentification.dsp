@@ -112,6 +112,18 @@ SOURCE=.\soundidentificationprocessing.cpp
 
 SOURCE=.\soundidentificationprocessing.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\YARPExMatrix.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPQRFactorization.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPSoundTemplate.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
