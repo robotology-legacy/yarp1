@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.4 2003-04-22 17:01:16 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.5 2003-04-24 16:54:44 gmetta Exp $
 ///
 ///
 
@@ -96,7 +96,7 @@ static YARPSemaphore mutex(1);
 /// not very elegant, legacy of old impl.
 /// LATER: do it differently.
 static bool _init_nameserver = true;
-static NameClient * _namer = NULL;
+static YARPNameClient * _namer = NULL;
 static YARPNameService _justtoinitialize;
 
 ///static int is_connected = 0, tried_to_connect = 0;
@@ -252,7 +252,7 @@ int YARPNameService::Initialize (void)
 	fin >> hostname >> portnumber;
 	ACE_DEBUG ((LM_DEBUG, "name server at %s port %d\n", hostname, portnumber));
 
-	_namer = new NameClient (hostname, portnumber);
+	_namer = new YARPNameClient (hostname, portnumber);
 	ACE_ASSERT (_namer != NULL);
 
 	_init_nameserver = false;

@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.6 2003-04-22 17:01:17 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.7 2003-04-24 16:54:44 gmetta Exp $
 ///
 ///
 
@@ -304,6 +304,8 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 		Port p;
 		p.SayServer (id.getNameID(), dest_name);
 	}
+
+	YARPEndpointManager::Close (id);
 
 	return YARP_OK;
 }

@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.4 2003-04-22 17:01:18 gmetta Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.5 2003-04-24 16:54:44 gmetta Exp $
 ///
 ///
 
@@ -147,7 +147,17 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, char *buff
 			}
 		}
 
-		ct = ts->ReceiveContinue (id, buffer, buffer_length);
+		///
+		/// workaround needed for UDP, let's compile for TCP too and see what happens.
+		if (buffer_length <= 0)
+		{
+			char c = 0;
+			ct = ts->ReceiveContinue (id, &c, 1);
+		}
+		else
+		{
+			ct = ts->ReceiveContinue (id, buffer, buffer_length);
+		}
 	}
 
 	if (ct < 0) 
@@ -183,6 +193,9 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, char *buffe
 				ct = ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
 			}
 		}
+
+		///
+		ACE_ASSERT (buffer_length != 0);
 		ct = ts->ReceiveContinue (id, buffer, buffer_length);
 	}
 	
@@ -198,7 +211,7 @@ int YARPSocketSyncComm::ContinuedReceive(const YARPNameID& src, char *buffer, in
 	///ACE_ASSERT (src.isConsistent(YARP_TCP));
 	ACE_ASSERT (ts != NULL);
 
-	int ct = -1;
+	int ct = YARP_FAIL;
 	if (src.isValid())
 	{
 		ct = ts->ReceiveContinue (src.getRawIdentifier(), buffer, buffer_length);
@@ -267,6 +280,11 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 		os->SendContinue ((char*)(&x), sizeof(x));
 	}
 
+	///
+	/// just a wakeup required by the protocol under UDP.
+	char c = 0;
+	os->SendContinue (&c, 1);
+
 	os->SendContinue (msg.GetBuffer(0), msg.GetBufferLength(0));
 	/* preamble code ends */
 
@@ -328,6 +346,8 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultip
 		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
 	}
 	/* preamble code ends */
+
+	/// no proper error check/handling here.
 
 	//  int ct = ts->ReceiveBegin(msg.GetBuffer(0),msg.GetBufferLength(0), &id);
 	if (id != ACE_INVALID_HANDLE)

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.6 2003-04-24 08:49:32 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.7 2003-04-24 16:54:44 gmetta Exp $
 ///
 ///
 
@@ -555,7 +555,7 @@ int YARPSocketEndpointManager::SetTCPNoDelay (void)
 /// implementation of YARPSocketNameService.
 ///
 ///
-YARPUniqueNameID YARPSocketNameService::RegisterName(NameClient& namer, const char *name, int reg_type, int num_ports_needed)
+YARPUniqueNameID YARPSocketNameService::RegisterName(YARPNameClient& namer, const char *name, int reg_type, int num_ports_needed)
 {
 	/// remote registration.
 	///
@@ -620,7 +620,7 @@ YARPUniqueNameID YARPSocketNameService::RegisterName(NameClient& namer, const ch
 }
 
 //YARPNameID YARPSocketNameService::LocateName(const char *name)
-YARPUniqueNameID YARPSocketNameService::LocateName(NameClient& namer, const char *name)
+YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const char *name)
 {
 	/// handle the connection w/ the remote name server.
 	///

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.3 2003-04-24 08:49:32 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.4 2003-04-24 16:54:44 gmetta Exp $
 ///
 ///
 
@@ -252,6 +252,7 @@ public:
 	/// call it reconnect (recycle the thread).
 	/// the thread shouldn't be running.
 	int reuse(const YARPUniqueNameID *remid, int port);
+	YARPUniqueNameID& getRemoteID(void) { return _remote_endpoint; }
 
 	ACE_HANDLE getID () const
     {
@@ -518,21 +519,31 @@ void _SocketThreadDgram::Body (void)
 
 		MyMessageHeader hdr;
 		hdr.SetBad();
-		int r = -1;
+		int r = YARP_FAIL;
 
 		r = _local_socket.recv (&hdr, sizeof(hdr), incoming);
 		
 		ACE_DEBUG ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_name(), incoming.get_port_number()));
 
+		/// this is supposed to read the header, r must be > 0
 		if (r < 0 || incoming != _remote_endpoint.getAddressRef())
 		{
 			ACE_DEBUG ((LM_DEBUG, "??? closing (recv returned %d)\n", r));
 			if (incoming != _remote_endpoint.getAddressRef())
 			{
 				ACE_DEBUG ((LM_DEBUG, "returning because incoming diffs from remote addr\n"));
+
+				if (hdr.GetLength() == (_MAGIC_NUMBER + 1))
+				{
+					/// a legitimate close message.
+					hdr.SetGood ();
+					hdr.SetLength (0);
+					_local_socket.send (&hdr, sizeof(hdr), incoming);
+				}
 			}
 			_local_socket.close ();
 			finished = 1;
+			continue;
 		}
 
 		ACE_DEBUG ((LM_DEBUG, "??? received header _SocketThreadDgram, len = %d\n", hdr.GetLength()));
@@ -575,13 +586,9 @@ void _SocketThreadDgram::Body (void)
 				ACE_DEBUG ((LM_DEBUG, "??? about to read the data buffer\n"));
 
 				r = _local_socket.recv (_extern_buffer, len , incoming);
-				if (r < 0 || incoming != _remote_endpoint.getAddressRef())
+				if (incoming != _remote_endpoint.getAddressRef())
 				{
-					ACE_DEBUG ((LM_DEBUG, "??? read failed closing %d\n", r));
-					if (incoming != _remote_endpoint.getAddressRef())
-					{
-						ACE_DEBUG ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
-					}
+					ACE_DEBUG ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
 					_local_socket.close ();
 					finished = 1;
 				}
@@ -605,20 +612,19 @@ void _SocketThreadDgram::Body (void)
 					/// this was r too, a bit confusing.
 					ACE_DEBUG ((LM_DEBUG, "??? about to read more data\n"));
 
+					/// len = 0 is no longer allowed, change in protocol. send a single byte if you
+					///	need to wake up the recv (UDP doesn't like reading 0 bytes).
+					ACE_ASSERT (_extern_reply_length != 0);
 					int rr = _local_socket.recv (_extern_reply_buffer, _extern_reply_length, incoming); 
-					ACE_DEBUG ((LM_DEBUG, "error %P, errno %d\n", errno));
-					if (rr < 0 || incoming != _remote_endpoint.getAddressRef())
+
+					if (incoming != _remote_endpoint.getAddressRef())
 					{
 						ACE_DEBUG ((LM_DEBUG, "??? closing %d\n", rr));
-						if (incoming != _remote_endpoint.getAddressRef())
-						{
-							ACE_DEBUG ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
-						}
+						ACE_DEBUG ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
 						_local_socket.close ();
 						finished = 1;
 					}
 
-					_extern_reply_length = rr;
 					_read_more = 0;
 					_reply_made.Post();
 					_wakeup.Wait();
@@ -787,72 +793,131 @@ void _SocketThreadListDgram::addSocket (void)
 			ACE_DEBUG ((LM_DEBUG, "-------->>>>> acceptor_socket got garbage, trying again\n"));
 			YARPTime::DelayInSeconds(1);
 		}
-		else
-		{
-			int len = hdr.GetLength ();
-			if (len != _MAGIC_NUMBER)
-			{
-				ACE_DEBUG ((LM_DEBUG, "corrupted header received, abort connection attempt, listening\n"));
-			}
-		}
 
 		ACE_DEBUG ((LM_DEBUG, "got something on acceptor socket...\n"));
-		/// LATER: must check whether incoming already tried a connection
-		///		and it is still connected.
 	}
 	while (ra == -1);
 
-	/// check accept return value.
-	ACE_DEBUG ((LM_DEBUG, ">>> accepting a new socket from %s\n", incoming.get_host_name()));
-	ACE_DEBUG ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
-
-	/// get a new available port number associated to this IP.
-	/// recycle thread and port # if possible.
-	list<_SocketThreadDgram *>::iterator it_avail;
-	int reusing = 0;
-	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+	switch (hdr.GetLength () - _MAGIC_NUMBER)
 	{
-		if ((*it_avail)->isAvailable ())
+	case 0:
 		{
-			reusing = 1;
-			port_number = (*it_avail)->getOldPortNumber (); 
-			break;
+			/// checks whether <incoming> already tried a connection
+			///		and it is still connected.
+			list<_SocketThreadDgram *>::iterator it_avail;
+			for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+			{
+				if (!(*it_avail)->isAvailable ())
+				{
+					if ((*it_avail)->getRemoteID().getAddressRef() == incoming)
+					{
+						ACE_DEBUG ((LM_DEBUG, "thread already connected %s:%d\n", incoming.get_host_name(), incoming.get_port_number()));
+
+						/// needs to recycle the thread, and stop it first.
+						/// reconnecting!
+
+						///(*it_avail)->End ();
+						///(*it_avail)->setAvailable (1);
+						break;
+					}
+				}
+			}
+
+			/// check accept return value.
+			ACE_DEBUG ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_name(), incoming.get_port_number()));
+			ACE_DEBUG ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
+
+			/// get a new available port number associated to this IP.
+			/// recycle thread and port # if possible.
+			int reusing = 0;
+			for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+			{
+				if ((*it_avail)->isAvailable ())
+				{
+					reusing = 1;
+					port_number = (*it_avail)->getOldPortNumber (); 
+					break;
+				}
+			}
+
+			if (!reusing)
+				port_number = getNewPortNumberFromPool ();
+
+			if (port_number == 0)
+			{
+				///
+				hdr.SetBad ();
+				_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
+			}
+			else
+			{
+				if (it_avail == _list.end())
+				{
+					_list.push_back(new _SocketThreadDgram());
+					it_avail = _list.end();
+					it_avail--;
+				}
+
+				ACE_DEBUG ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
+				(*it_avail)->setAvailable (0);
+				(*it_avail)->setOwner (*this);
+				(*it_avail)->reuse (&YARPUniqueNameID(YARP_UDP, incoming), port_number);
+
+				/// send reply to incoming socket.
+				/// LATER: to refuse the connection simply send back a SetBad() header.
+				hdr.SetGood ();
+				hdr.SetLength (port_number);
+				_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
+
+				ACE_DEBUG ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
+				if (!reusing)
+				{
+					(*it_avail)->Begin();
+				}
+				else
+				{
+					(*it_avail)->End();
+					(*it_avail)->Begin();
+				}
+
+				ACE_DEBUG ((LM_DEBUG, "777777 post postbegin %d\n", errno));
+			}
 		}
+		break;
+
+	case 1:
+		{
+			/// determines who's asking to terminate the connection.
+			list<_SocketThreadDgram *>::iterator it_avail;
+			for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+			{
+				if (!(*it_avail)->isAvailable ())
+				{
+					if ((*it_avail)->getRemoteID().getAddressRef() == incoming)
+					{
+						/// kill the thread.
+						/// (*it_avail)->End ();
+
+						/// must signal properly to thread...
+
+						(*it_avail)->setAvailable (1);
+						ACE_DEBUG ((LM_DEBUG, "thread terminated on remote request %s:%d\n", incoming.get_host_name(), incoming.get_port_number()));
+						break;
+					}
+				}
+			}
+
+			/// sends reply to incoming socket.
+			hdr.SetGood ();
+			hdr.SetLength (0);
+			_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
+		}
+		break;
+
+	default:
+		ACE_DEBUG ((LM_DEBUG, "corrupted header received, abort connection attempt, listening\n"));
+		break;
 	}
-
-	if (!reusing)
-		port_number = getNewPortNumberFromPool ();
-
-	if (it_avail == _list.end())
-	{
-		_list.push_back(new _SocketThreadDgram());
-		it_avail = _list.end();
-		it_avail--;
-	}
-
-	ACE_DEBUG ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
-	(*it_avail)->setAvailable (0);
-	(*it_avail)->setOwner (*this);
-	(*it_avail)->reuse (&YARPUniqueNameID(YARP_UDP, incoming), port_number);
-
-	/// send reply to incoming socket.
-	/// LATER: to refuse the connection simply send back a SetBad() header.
-	hdr.SetGood ();
-	hdr.SetLength (port_number);
-	_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
-
-	ACE_DEBUG ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
-	if (!reusing)
-	{
-		(*it_avail)->Begin();
-	}
-	else
-	{
-		(*it_avail)->End();
-		(*it_avail)->Begin();
-	}
-
-	ACE_DEBUG ((LM_DEBUG, "777777 post postbegin %d\n", errno));
 }
 
 /// closes everything.
@@ -917,8 +982,8 @@ void _SocketThreadListDgram::declareDataWritten (void)
 }
 
 
-/// return the ACE_HANDLE as id for further reply.
-///
+/// returns the ACE_HANDLE as id for further reply.
+///	returns also the number of bytes read.
 int _SocketThreadListDgram::read(char *buf, int len, ACE_HANDLE *reply_pid)
 {
 	ACE_ASSERT (_initialized != 0);
@@ -930,7 +995,7 @@ int _SocketThreadListDgram::read(char *buf, int len, ACE_HANDLE *reply_pid)
 #endif
 
 	int finished = 0;
-	int result = -1;
+	int result = YARP_FAIL;
 
 	while (!finished)
 	{
@@ -1226,6 +1291,7 @@ int YARPInputSocketDgram::GetAssignedPort(void) const
 class OSDataDgram
 {
 public:
+	ACE_INET_Addr _remote_acceptor_store;
 	ACE_INET_Addr _remote_addr;
 	ACE_INET_Addr _local_addr;
 	ACE_SOCK_Dgram _connector_socket;
@@ -1261,7 +1327,33 @@ YARPOutputSocketDgram::~YARPOutputSocketDgram (void)
 
 int YARPOutputSocketDgram::Close (void)
 {
-	return OSDATA(system_resources)._connector_socket.close ();
+	OSDataDgram& d = OSDATA(system_resources);
+	ACE_DEBUG ((LM_DEBUG, "Pretending to close a connection to port %d on %s\n", 
+		d._remote_addr.get_port_number(), 
+		d._remote_addr.get_host_name()));
+
+	/// send the header.
+	MyMessageHeader hdr;
+	hdr.SetGood ();
+	hdr.SetLength (_MAGIC_NUMBER + 1);
+	d._connector_socket.send (&hdr, sizeof(hdr), d._remote_addr);
+
+	/// wait response.
+	hdr.SetBad ();
+	ACE_INET_Addr incoming;
+	int r = d._connector_socket.recv (&hdr, sizeof(hdr), incoming);
+	if (r < 0)
+	{
+		d._connector_socket.close ();
+		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_name(), d._remote_addr.get_port_number()));
+		return YARP_FAIL;
+	}
+
+	int dummy = hdr.GetLength();
+	d._remote_addr.set ((u_short)0);
+	d._remote_acceptor_store.set ((u_short)0);
+
+	return d._connector_socket.close ();
 }
 
 
@@ -1280,7 +1372,7 @@ int YARPOutputSocketDgram::Prepare (const YARPUniqueNameID& name) ///, int local
 int YARPOutputSocketDgram::Connect (void)
 {
 	OSDataDgram& d = OSDATA(system_resources);
-	ACE_DEBUG ((LM_DEBUG, "Pretending a connecting to port %d on %s\n", 
+	ACE_DEBUG ((LM_DEBUG, "Pretending a connection to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 
 		d._remote_addr.get_host_name()));
 
@@ -1308,6 +1400,9 @@ int YARPOutputSocketDgram::Connect (void)
 		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_name(), d._remote_addr.get_port_number()));
 		return YARP_FAIL;
 	}
+
+	/// stores the remote acceptor address for future use (e.g. closing the connection).
+	d._remote_acceptor_store = d._remote_addr;
 
 	port_number = hdr.GetLength();
 	if (port_number == -1)

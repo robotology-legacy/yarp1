@@ -61,11 +61,11 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.2 2003-04-24 08:49:32 gmetta Exp $
+/// $Id: YARPNameClient.cpp,v 1.3 2003-04-24 16:54:44 gmetta Exp $
 ///
 ///
 
-// NameClient.cpp: implementation of the NameClient class.
+// YARPNameClient.cpp: implementation of the YARPNameClient class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -75,17 +75,17 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-NameClient::NameClient(const std::string server, int port) : remote_addr_(port, server.c_str())
+YARPNameClient::YARPNameClient(const std::string server, int port) : remote_addr_(port, server.c_str())
 {
 	data_buf_ = new char [SIZE_BUF];
 }
 
-NameClient::NameClient(const ACE_INET_Addr &addr) : remote_addr_(addr)
+YARPNameClient::YARPNameClient(const ACE_INET_Addr &addr) : remote_addr_(addr)
 {
 	data_buf_ = new char [SIZE_BUF];
 }
 
-NameClient::~NameClient()
+YARPNameClient::~YARPNameClient()
 {
 	delete [] data_buf_;
 }

@@ -61,11 +61,11 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.4 2003-04-24 08:49:32 gmetta Exp $
+/// $Id: YARPNameClient.h,v 1.5 2003-04-24 16:54:45 gmetta Exp $
 ///
 ///
 
-// NameClient.h: interface for the NameClient class.
+// YARPNameClient.h: interface for the YARPNameClient class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -103,12 +103,12 @@
 	#define SIZE_BUF 4096
 #endif
 
-class NameClient  
+class YARPNameClient  
 {
 public:
-	NameClient(const std::string server, int port);
-	NameClient(const ACE_INET_Addr &addr);
-	virtual ~NameClient();
+	YARPNameClient(const std::string server, int port);
+	YARPNameClient(const ACE_INET_Addr &addr);
+	virtual ~YARPNameClient();
 
 	int check_in_mcast(const std::string &s, ACE_INET_Addr &addr)
 	{

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.7 2003-04-24 08:49:32 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.8 2003-04-24 16:54:44 gmetta Exp $
 ///
 ///
 
@@ -545,8 +545,10 @@ void _SocketThread::Body (void)
 				while (_read_more)
 				{
 					/// this was r too, a bit confusing.
+					ACE_ASSERT (_extern_reply_length != 0);
+					
 					int rr = _stream->recv_n (_extern_reply_buffer, _extern_reply_length, 0); 
-					//socket.Read(extern_reply_buffer, extern_reply_length,1);
+
 					_extern_reply_length = rr;
 					_read_more = 0;
 					_reply_made.Post();

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.3 2003-04-24 08:49:34 gmetta Exp $
+/// $Id: exec_test5.cpp,v 1.4 2003-04-24 16:54:46 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -85,6 +85,8 @@
 #define REG_LOCATE_NAME "localhost|1111"
 //#define REG_TEST_NAME "/test/exec_test2"
 //#define REG_LOCATE_NAME "/test/exec_test2"
+
+#define __UDP
 
 YARPSemaphore out(1);
 
@@ -170,7 +172,11 @@ public:
 		int ct = 0;
 		YARPTime::DelayInSeconds(0.01);
 		
+#ifdef __UDP
+		id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
+#else
 		id = YARPNameService::RegisterName(REG_TEST_NAME);
+#endif
 		YARPEndpointManager::CreateInputEndpoint (id);
 
 		out.Wait();
