@@ -35,7 +35,7 @@ else
 	CC = g++
 	CC1 = gcc
 #	SYSLIB = -lpthread
-	CDEFS = $(EXTRA_OPTS) -D__LINUX__ -I/usr/include/g++/
+	CDEFS = $(EXTRA_OPTS) -D__LINUX__ -DYARP_OS_CONFIG=LINUX -I/usr/include/g++/
 	CFAST = -O3
 	LIBADD = -lpthread
   else
