@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.2 2004-11-23 17:12:31 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.3 2004-12-07 15:44:53 babybot Exp $
 ///
 ///
 
@@ -72,6 +72,7 @@
 
 #include "YARPPicoloDeviceDriver.h"
 #include <yarp/YARPFrameGrabberUtils.h>
+#include <bttv.h>
 
 typedef unsigned long UINT32;
 

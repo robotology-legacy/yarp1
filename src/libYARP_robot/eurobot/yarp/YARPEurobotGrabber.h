@@ -61,15 +61,16 @@
 ///
 
 ///
-/// $Id: YARPEurobotGrabber.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+/// $Id: YARPEurobotGrabber.h,v 1.2 2004-12-07 15:44:53 babybot Exp $
 ///
 ///
 
 #ifndef __YARPEurobotGrabberh__
 #define __YARPEurobotGrabberh__
 
-#include <YARPGenericGrabber.h>
-#include <YARPPicoloOnEurobotAdapter.h>
+#include <yarp/YARPGenericGrabber.h>
+#include <yarp/YARPPicoloOnEurobotAdapter.h>
 
 typedef YARPGenericGrabber<YARPPicoloOnEurobotAdapter, YARPEurobotGrabberParams> YARPEurobotGrabber;
+
 #endif

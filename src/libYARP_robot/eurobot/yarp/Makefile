@@ -1,8 +1,7 @@
 #
-# $Id: Makefile,v 1.2 2004-12-07 13:34:42 babybot Exp $
+# $Id: Makefile,v 1.3 2004-12-07 15:44:53 babybot Exp $
 #
 
 include $(YARP_ROOT)/conf/Makefile.template
-include $(YARP_ROOT)/conf/Makefile.driver.template
+include $(YARP_ROOT)/conf/Makefile.robot.template
 
-CFLAGS += -I ../../include

@@ -78,29 +78,62 @@ unless ($force)
 if ($clean)
 {
 	print "\nCleaning...\n";
-	chdir "./src" or die "Cannot chdir to src: $!";
+	if ($os eq "winnt")
+	{
+		chdir "./src" or die "Cannot chdir to src: $!";
 
-	call_msdev_and_print ($project_name, "Debug", "CLEAN");
-	call_msdev_and_print ($project_name, "Release", "CLEAN");
+		call_msdev_and_print ($project_name, "Debug", "CLEAN");
+		call_msdev_and_print ($project_name, "Release", "CLEAN");
 	
-	print "\n";
-	chdir "../" or die "Cannot chdir to ..: $!";
+		print "\n";
+		chdir "../" or die "Cannot chdir to ..: $!";
+	}
+	elsif ($os eq "linux")
+	{
+                call_make_and_print ('', "clean");
+	}
+	elsif ($os eq "qnx6")
+	{
+                call_make_and_print ('', "clean");
+	}
 }
 
 if ($debug)
 {
 	print "\nCompiling debug\n";
-	chdir "./src" or die "Cannot chdir to src: $!";
-	call_msdev_and_print ($project_name, "Debug", "BUILD");
-	chdir "../" or die "Cannot chdir to ..: $!";
+	if ($os eq "winnt")
+	{
+		chdir "./src" or die "Cannot chdir to src: $!";
+		call_msdev_and_print ($project_name, "Debug", "BUILD");
+		chdir "../" or die "Cannot chdir to ..: $!";
+	}
+	elsif ($os eq "linux")
+	{
+		call_make_and_print ('', "CFAST=-g");
+	}
+	elsif ($os eq "qnx6")
+	{
+		call_make_and_print ('', "CFAST=-g");
+	}
 }
 
 if ($release)
 {
 	print "\nCompiling optimized\n";
-	chdir "./src" or die "Cannot chdir to src: $!";
-	call_msdev_and_print ($project_name, "Release", "BUILD");
-	chdir ".." or die "Cannot chdir to ..: $!";
+	if ($os eq "winnt")
+	{
+		chdir "./src" or die "Cannot chdir to src: $!";
+		call_msdev_and_print ($project_name, "Release", "BUILD");
+		chdir ".." or die "Cannot chdir to ..: $!";
+	}
+	elsif ($os eq "linux")
+	{
+		call_make_and_print ('', "CFAST=-O3");
+	}
+	elsif ($os eq "qnx6")
+	{
+		call_make_and_print ('', "CFAST=-O3");
+	}
 }
 
 if ($install)
@@ -114,8 +147,20 @@ if ($install)
 		copy ($file, "$yarp_root/include/yarp/") or warn "Can't copy $file\n"; 
 	}
 
-	copy ("./lib/$os/$project_name.lib", "$yarp_root/lib/$os/libYARP_robot.lib") or warn "Can't copy \"./lib/$os/libYARP_robot.lib\"\n";
-	copy ("./lib/$os/$project_name"."d.lib", "$yarp_root/lib/$os/libYARP_robotd.lib") or warn "Can't copy \"./lib/$os/libYARP_robotd.lib\"\n";
+	if ($os eq "winnt")
+	{
+		copy ("./lib/$os/$project_name.lib", "$yarp_root/lib/$os/libYARP_robot.lib") or warn "Can't copy \"./lib/$os/libYARP_robot.lib\"\n";
+		copy ("./lib/$os/$project_name"."d.lib", "$yarp_root/lib/$os/libYARP_robotd.lib") or warn "Can't copy \"./lib/$os/libYARP_robotd.lib\"\n";
+	}
+	elsif ($os eq "linux")
+	{
+		copy ("./lib/$os/libYARP_robot.a", "$yarp_root/lib/$os");
+	}
+	elsif ($os eq "qnx6")
+	{
+		copy ("./lib/$os/libYARP_robot.a", "$yarp_root/lib/$os");
+	}
+
 	print "\nLibraries installed in $yarp_root/lib/$os\n";
 }
 

@@ -61,16 +61,16 @@
 ///
 
 ///
-/// $Id: YARPEurobotHead.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+/// $Id: YARPEurobotHead.h,v 1.2 2004-12-07 15:44:53 babybot Exp $
 ///
 ///
 
 #ifndef __YARPEUROBOTHEAD__
 #define __YARPEUROBOTHEAD__
 
-#include <conf/YARPConfig.h>
-#include <YARPGenericControlBoard.h>
-#include "YARPGALILOnEurobotHeadAdapter.h"
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPGenericControlBoard.h>
+#include <yarp/YARPGALILOnEurobotHeadAdapter.h>
 
 namespace _limits
 {

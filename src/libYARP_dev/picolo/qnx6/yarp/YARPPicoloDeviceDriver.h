@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.2 2004-11-23 17:12:32 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.3 2004-12-07 15:44:53 babybot Exp $
 ///
 ///
 
@@ -76,7 +76,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <bttv.h>
+//#include <bttv.h>
 
 struct PicoloOpenParameters
 {
@@ -138,4 +138,6 @@ class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPi
 	protected:
 		void *system_resources;
 };
+
 #endif
+

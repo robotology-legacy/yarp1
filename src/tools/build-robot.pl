@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# compiling libYARP_robot tools
+# compiling libYARP_sig_logpolar tools
 #
 # options --debug compile the DEBUG version
 #		  --release to compile optimized
@@ -13,20 +13,19 @@
 use Getopt::Long;
 use File::Copy;
 
-print "Entering build process of YARP_robot library tools...\n";
+print "Entering build process of YARP_sig_logpolar library tools...\n";
 chomp ($ver = `ver`);
 chomp ($uname = `uname`);
-
-if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
-{
-	die "This script is specific to Windows 2000/XP or Cygwin\n";
-}
 
 $yarp_root = $ENV{'YARP_ROOT'};
 if (!defined($yarp_root))
 {
 	die "YARP_ROOT env var must be defined!\n";
 }
+
+require "$yarp_root/conf/configure.template.pl" or die "Can't find template file $yarp_root/conf/configure.template.pl\n"; 
+
+my $exp_os = check_os();
 
 my $debug = '';
 my $release = '';
@@ -39,9 +38,9 @@ GetOptions ('debug' => sub { $debug = '1'; $release = '' },
 			'install' => \$install,
 			'os=s' => \$os );
 
-if ($os ne "winnt")
+if ($os ne $exp_os)
 {
-	die "This script is not yet tuned for OSes apart \"winnt\"\n";
+        die "The script has been called for $os but the environemnt report to be on $exp_os\n";
 }
 
 my @projects = qw/ grabber grabber-logpolar camview-winnt vectview-winnt /;
@@ -51,65 +50,107 @@ select STDERR;
 if ($clean)
 {
 	print "\nCleaning...\n";
-	foreach my $project (@projects)
-	{
-		chdir "./$project";
-		call_msdev_and_print ("Debug", "CLEAN");
-		call_msdev_and_print ("Release", "CLEAN");
-		chdir "..";
+	if ($os eq "winnt")
+	{	
+		foreach my $project (@projects)
+		{
+                        chdir "./$project";
+                        my @dsps = glob "*.dsp";
+                        $dsps[0] =~ /([\w\d-]+).dsp/;
+                        my $name = $1;
+                        call_msdev_and_print ($name, "Debug", "CLEAN");
+                        call_msdev_and_print ($name, "Release", "CLEAN");
+                        chdir "..";
+		}
 	}
+	elsif ($os eq "linux" || $os eq "qnx6")
+	{
+                foreach my $project (@projects)
+                {
+                        chdir "./$project";
+                        call_make_and_print ('', "clean");
+                        chdir "..";
+                }
+	}
+
 	print "\n";
 }
 
 if ($debug)
 {
 	print "\nCompiling debug\n";
-	foreach my $project (@projects)
-	{
-		chdir "./$project";
-		call_msdev_and_print ("Debug", "BUILD");
-		chdir "..";
-	}
+        if ($os eq "winnt")
+        {
+                foreach my $project (@projects)
+                {
+                        chdir "./$project";
+                        my @dsps = glob "*.dsp";
+                        $dsps[0] =~ /([\w\d-]+).dsp/;
+                        my $name = $1;
+                        call_msdev_and_print ($name, "Debug", "BUILD");
+                        chdir "..";
+                }
+        }
+        elsif ($os eq "linux" || $os eq "qnx6")
+        {
+                foreach my $project (@projects)
+                {
+                        chdir "./$project";
+                        call_make_and_print ('', "CFAST=-g EXEC_TARGET=../bin/$os/$project");
+                        chdir "..";
+                }
+        }
 }
 
 if ($release)
 {
 	print "\nCompiling optimized\n";
-	foreach my $project (@projects)
-	{
-		chdir "./$project";
-		call_msdev_and_print ("Release", "BUILD");
-		chdir "..";
-	}
+        if ($os eq "winnt")
+        {
+                foreach my $project (@projects)
+                {
+                        chdir "./$project";
+                        my @dsps = glob "*.dsp";
+                        $dsps[0] =~ /([\w\d-]+).dsp/;
+                        my $name = $1;
+                        call_msdev_and_print ($name, "Release", "BUILD");
+                        chdir "..";
+                }
+        }
+        elsif ($os eq "linux" || $os eq "qnx6")
+        {
+                foreach my $project (@projects)
+                {
+                        chdir "./$project";
+                        call_make_and_print ('', "CFAST=-O3 EXEC_TARGET=../bin/$os/$project");
+                        chdir "..";
+                }
+        }
 }
 
 if ($install)
 {
-	print "\nInstalling YARP_robot tools to default install directory.\n";
+	print "\nInstalling YARP_sig_logpolar tools to default install directory.\n";
 
-	foreach my $project (@projects)
-	{
-		foreach my $file (glob "./$project/obj/$os/*.exe")
-		{
-			print "Copying $file\n";
-			copy "$file", "$yarp_root/bin/$os";
-		}
-	}
+        if ($os eq "winnt")
+        {
+                foreach my $project (@projects)
+                {
+                        foreach my $file (glob "./$project/obj/$os/*.exe")
+                        {
+                                print "Copying $file\n";
+                                copy "$file", "$yarp_root/bin/$os" or warn "Can't copy: $file\n";
+                        }
+                }
+        }
+        elsif ($os eq "linux" || $os eq "qnx6")
+        {
+                foreach my $file (@projects)
+                {
+                        print "Copying $file\n";
+                        copy "./bin/$os/$file", "$yarp_root/bin/$os" or warn "Can't copy: $file\n";
+                }
+        }
 }
 
 select STDOUT;
-
-sub call_msdev_and_print
-{
-	my ($version, $operation) = @_;
-	my @dsps = glob "*.dsp";
-
-	$dsps[0] =~ /.dsp/;
-
-	open MSDEV, "msdev $dsps[0] /MAKE \"$` - Win32 ".$version."\" /".$operation."|";
-	while (<MSDEV>)
-	{
-		print;
-	}
-	close MSDEV;	
-}

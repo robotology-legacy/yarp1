@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.src.template,v 1.5 2004-12-06 22:54:04 babybot Exp $
+# $Id: Makefile.src.template,v 1.6 2004-12-07 15:44:53 babybot Exp $
 #
 
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))
@@ -43,7 +43,7 @@ $(LIBGENDIR)/$(CODELIB): $(TARGETS)
 	$(AR) $(ARFLAGS) $(LIBGENDIR)/$(CODELIB) $(TARGETS)
 
 clean: subclean
-	rm -f $(TARGETS) $(EXEC_TARGETS) $(CODE_LIB)
+	rm -f $(TARGETS) $(EXEC_TARGETS) $(CODE_LIB) $(LIBGENDIR)/$(CODELIB)
 	rm -f *.o
 
 # install to top dir

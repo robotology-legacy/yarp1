@@ -1,3 +1,6 @@
+#
+# $Id: Makefile.tool.template,v 1.6 2004-12-07 15:44:53 babybot Exp $
+#
 
 EXECDIR = ../bin/$(SYSDIR)
 EXEC_TARGET = $(EXECDIR)/$(notdir $(PWD))

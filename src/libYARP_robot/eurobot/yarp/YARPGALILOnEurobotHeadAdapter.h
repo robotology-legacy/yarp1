@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.2 2004-12-07 15:44:53 babybot Exp $
 ///
 ///
 
@@ -70,9 +70,9 @@
 #define __GALILONEUROBOTHEAD__
 
 #include <ace/Log_Msg.h>
-#include <YARPGalilDeviceDriver.h>
-#include <string>
-#include <YARPConfigFile.h>
+#include <yarp/YARPGalilDeviceDriver.h>
+#include <string> /// deprecated by YARP, use YARPString instead!
+#include <yarp/YARPConfigFile.h>
 
 #define YARP_BABYBOT_HEAD_ADAPTER_VERBOSE
 

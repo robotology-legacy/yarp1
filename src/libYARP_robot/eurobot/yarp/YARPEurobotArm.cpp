@@ -8,10 +8,10 @@
 ///
 
 //
-// $Id: YARPEurobotArm.cpp,v 1.1 2004-07-28 17:17:35 babybot Exp $
+// $Id: YARPEurobotArm.cpp,v 1.2 2004-12-07 15:44:53 babybot Exp $
 //
 
-#include "YARPEurobotArm.h"
+#include <yarp/YARPEurobotArm.h>
 
 int YARPEurobotArm::setPositions(const double *pos)
 {

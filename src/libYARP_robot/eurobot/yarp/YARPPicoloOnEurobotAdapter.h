@@ -61,18 +61,18 @@
 ///
 
 ///
-/// $Id: YARPPicoloOnEurobotAdapter.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+/// $Id: YARPPicoloOnEurobotAdapter.h,v 1.2 2004-12-07 15:44:53 babybot Exp $
 ///
 ///
 
 #ifndef __YARPPicoloOnEurobotAdapter__
 #define __YARPPicoloOnEurobotAdapter__
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
-#include <YARPPicoloDeviceDriver.h>
+#include <yarp/YARPPicoloDeviceDriver.h>
 
 /// don't need anything fancier.
 typedef PicoloOpenParameters YARPEurobotGrabberParams;

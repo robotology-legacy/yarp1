@@ -295,12 +295,65 @@ save_config_file (\%options, $config_file);
 
 print "Done!\n";
 
+
 #
 #
 #
 sub create_project_generic
 {
+	#
+	# create the local Makefile first.
 
+        open MODEL, "Makefile.model" or die "Can't open model Makefile: $!\n";
+        open PROJECT, ">Makefile" or die "Can't open destination project Makefile: $!\n";
+
+        while (<MODEL>)
+        {
+                if (/SUBDIRS =/)
+                {
+                        print PROJECT "SUBDIRS = $robotname/yarp src\n";
+                }
+                else
+                {
+                        print PROJECT $_;
+                }
+        }
+
+        close MODEL;
+        close PROJECT;
+
+	#
+	# then create the src Makefile.
+
+        open MODEL, "./src/Makefile.model" or die "Can't open model src/Makefile: $!\n";
+        open PROJECT, ">./src/Makefile" or die "Can't open destination project src/Makefile: $!\n";
+
+        while (<MODEL>)
+        {
+                if (/TARGETS \+=/)
+                {
+                        print PROJECT "TARGETS += ";
+
+			foreach my $filename (glob "$robotname/yarp/*.cpp")
+                        {
+				if ($filename =~ /(YARP[\w\s_]+.)cpp/)
+				{
+					print PROJECT "../obj/$os/$1o ";
+				}
+                        }
+                        
+                        print PROJECT "\n";
+                }
+                else
+                {
+                        print PROJECT $_;
+                }
+        }
+
+        close MODEL;
+        close PROJECT;
+
+	0;
 }
 
 

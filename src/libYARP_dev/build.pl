@@ -175,10 +175,22 @@ sub install_libs_generic
 				copy($file, "$yarp_root/include/yarp/") or warn "Can't copy $file\n";
 			}
 
-			foreach my $file (glob "./$device/$os/dd_orig/lib/*.a ./$device/$os/dd_orig/lib/*.lib")
+			chdir "./$device/$os/dd_orig/lib/";
+			foreach my $file (glob "*.a *.lib")
 			{
-				$libraries = "$libraries $file";
+				# unpack libraries.
+	        		open MK, "ar -x $file"."|";
+			        while (<MK>)
+				{
+					print;
+				}
+
+				foreach my $filex (glob "*.o")
+				{ 
+					$libraries = "$libraries ./$device/$os/dd_orig/lib/$filex";
+				}
 			}
+			chdir "../../../../";
 
 			foreach my $file (glob "./$device/$os/dd_orig/bin/*.so")
 			{
