@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.3 2003-07-11 16:45:12 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.4 2003-07-16 08:48:14 natta Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -71,6 +71,8 @@
 #include <YARPPort.h>
 #include <YARPThread.h>
 #include <string>
+
+const int __exitCode = -1;
 
 template <class OUT_DATA>
 class YARPBehaviorSharedData
@@ -92,152 +94,216 @@ class YARPBehaviorSharedData
 	YARPOutputPortOf<OUT_DATA> _outPort;
 };
 
-template <class MY_BEHAVIOR, class SHARED_DATA>
-class YARPBehavior: public YARPThread , public YARPFSM<MY_BEHAVIOR, SHARED_DATA>
+class YARPBaseBehaviorInput
 {
 public:
-	YARPBehavior(SHARED_DATA *s): YARPThread(), YARPFSM<MY_BEHAVIOR, SHARED_DATA>(s)
+	virtual bool input(void *) = 0; 
+};
+
+template <class MY_SHARED_DATA>
+class YARPPulseState: public YARPFSMInput<MY_SHARED_DATA>
+{
+	public:
+		YARPPulseState()
+		{ signaled = false;	}
+
+		bool input(MY_SHARED_DATA *)
+		{
+			bool ret = signaled ;
+			signaled = false;
+			return ret;
+		}
+	
+		void post()
+		{ signaled = true; }
+
+	bool signaled;
+};
+
+template <class MY_BEHAVIOR, class MY_SHARED_DATA>
+class YARPBehavior: public YARPThread, public YARPFSM<MY_BEHAVIOR, MY_SHARED_DATA>
+{
+public:
+	typedef YARPPulseState<MY_SHARED_DATA> PulseStates;
+	typedef YARPFSMStateBase<MY_BEHAVIOR, MY_SHARED_DATA> MyBaseStates;
+	typedef YARPFSMOutput<MY_SHARED_DATA> BaseBehaviorOutput;
+
+	struct BTableEntry
 	{
+		YARPBaseBehaviorInput *input;		
+		MyBaseStates *s;
+		PulseStates *activation;
+	};
+
+	typedef std::list<BTableEntry> BEHAVIOR_TABLE;
+	typedef std::list<PulseStates *> PULSE_TABLE;
+	typedef BEHAVIOR_TABLE::iterator BEHAVIOR_TABLE_IT;
+	typedef PULSE_TABLE::iterator PULSE_TABLE_IT;
+
+	YARPBehavior(MY_SHARED_DATA *d, int k, std::string pName):
+	YARPFSM<MY_BEHAVIOR, MY_SHARED_DATA>(d),
+	_inport(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
+	{
+		_key = k;
+		_init(pName);
 		YARPThread::Begin();
 	}
 
 	~YARPBehavior()
 	{
-		YARPThread::End();	// check this
-	}
-
-	virtual void Body(void)
-	{
-		while(!IsTerminated())
+		// destroy pulse states
+		PULSE_TABLE_IT it;
+		it = _pulse_table.begin();
+		while(it != _pulse_table.end())
 		{
-			// handle stuff
-			if (!currentState()->isAs())
-				_stopEvent.wait();
-			doYourDuty();
+			delete (*it);
+			it++;
 		}
 	}
-	
-	void pulse(YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *s)
+
+	// thread body
+	virtual void Body(void);
+
+	void pulse(MyBaseStates *s)
 	{
 		// signal pulse event
 		if (checkState(s))
+		{
 			_stopEvent.signal();
+		}
 	}
 
+	// handle messages
+	int handleMsg();
+	// add a transition
+	void add(YARPBaseBehaviorInput *in, MyBaseStates *s1, MyBaseStates *s2, BaseBehaviorOutput *out = NULL);
+	
+	void updateTable(BTableEntry entry)
+	{ _table.push_back(entry); }
 
+private:
+	// parse message
+	int _parse(int *d);
+	// handle exit message
+	void _quit()
+	{
+		// put here your code to handle quit
+		YARPThread::End();
+		// signal event so that the thread can exit
+		_stopEvent.signal();
+		// LATER: add wait		
+	}
+	// init class
+	void _init(std::string name)
+	{ 
+		_inport.Register(name.c_str());	// register port
+	}
 
+	BEHAVIOR_TABLE _table;
+	PULSE_TABLE _pulse_table;		//keep track of the input states created, so that we can delete them later
+
+	YARPInputPortOf<int [2]> _inport;
+	int _key;
 	ACE_Auto_Event _stopEvent;
 };
 
-template <class MY_BEHAVIOR, class SHARED_DATA>
-class YARPBehaviorMsgHandler
+template <class MY_BEHAVIOR, class MY_SHARED_DATA> 
+void YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
+add(YARPBaseBehaviorInput *in, MyBaseStates *s1, MyBaseStates *s2, BaseBehaviorOutput *out)
 {
-public:
-	YARPBehaviorMsgHandler(MY_BEHAVIOR *fsm, int k, std::string pName):
-	_inport(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
+	PulseStates *tmp = new PulseStates;
+	_pulse_table.push_back(tmp);	// keep track of the state so that later we can delete them
+	if (in != NULL)
 	{
-		_fsm = fsm;
-		_key = k;
-		init(pName);
+		s1->_as = false;
+		YARPFSM<MY_BEHAVIOR, MY_SHARED_DATA>::add(tmp, s1, s2, out);	// add transition
 	}
-
-	void init(std::string name)
+	else
 	{
-		_inport.Register(name.c_str());	// register port
+		s1->_as = true;
+		YARPFSM<MY_BEHAVIOR, MY_SHARED_DATA>::add(NULL, s1, s2, out);	// add transition
 	}
-	
-	void handle()
-	{
-		_inport.Read();
-		// read some data
-		memcpy(_data, _inport.Content(), sizeof(int) * 2);
+		
+	BTableEntry tmpEntry;
+	tmpEntry.input = in;
+	tmpEntry.activation = tmp;
+	tmpEntry.s = s1;
+	updateTable(tmpEntry);
+}
 
-		_parse(_data);
-	}
-
-	void _parse(int *d)
-	{
-		if (d[0] != _key)
-		{
-			// this is not for you, return
-			return;
-		}
-		// handle message
-		ENTRY_HANDLER_IT it;
-		it = _table.begin();
-		while(it != _table.end())
-		{
-			if (it->key == d[1])
-				it->function(_fsm);
-			it++;
-		}
-
-		// handle signals
-		ENTRY_SIGNALS_IT is;
-		is = _signals.begin();
-		while(is != _signals.end())
-		{
-			if (is->key == d[1])
-				is->function(_fsm, is->state);
-			is++;
-		}
-	}
-
-
-	void add(int k, void (*f)(MY_BEHAVIOR *fsm))
-	{
-		entryHandler tmp;
-		tmp.function = f;
-		tmp.key = k;
-
-		_table.push_back(tmp);
-	}
-	
-	void add(int k, void (*f)(MY_BEHAVIOR * , YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *), YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *s)
-	{
-		s->_as = false;
-		sigHandler tmp;
-		tmp.function = f;
-		tmp.state = s;
-		tmp.key = k;
-
-		_signals.push_back(tmp);
-	}
-
-
-	MY_BEHAVIOR *_fsm;
-	YARPInputPortOf<int [2]> _inport;
-	int _data[2];
-
-	struct entryHandler
-	{
-		int key;
-		void (*function)(MY_BEHAVIOR *);
-	};
-
-	struct sigHandler
-	{
-		int key;
-		YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *state;
-		void (*function)(MY_BEHAVIOR *, YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *);
-	};
-	
-	typedef std::list<entryHandler> ENTRY_HANDLER_LIST;
-	typedef ENTRY_HANDLER_LIST::iterator ENTRY_HANDLER_IT;
-
-	typedef std::list<sigHandler> ENTRY_SIGNALS;
-	typedef ENTRY_SIGNALS::iterator ENTRY_SIGNALS_IT;
-
-	ENTRY_HANDLER_LIST _table;
-	ENTRY_SIGNALS	   _signals;
-
-	int _key;
-};
-
-template <class MY_BEHAVIOR, class SHARED_DATA>
-void sigFunction(YARPBehavior<MY_BEHAVIOR, SHARED_DATA> *fsm, YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *s)
+template <class MY_BEHAVIOR, class MY_SHARED_DATA>
+int YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
+_parse(int *d)
 {
-	fsm->pulse(s);
-};
+	if (d[0] != _key)
+	{
+		// this is not for you, return
+		return 0;
+	}
+
+	if (d[1] == __exitCode)
+	{
+		_quit();
+		return -1;
+	}
+		
+	// handle signals
+	BEHAVIOR_TABLE_IT is;
+	is = _table.begin();
+	while(is != _table.end())
+	{
+		if (checkState(is->s))
+			if (is->input == NULL)
+			{
+				// as state, return without executing anything
+				return 1;
+			}
+			else  if (is->input->input(d))
+			{
+				is->activation->post();	// enable input
+				pulse(is->s);
+				return 1;
+			}
+		is++;
+	}
+	return 1;
+}
+
+template <class MY_BEHAVIOR, class MY_SHARED_DATA>
+int YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
+handleMsg()
+{
+	_inport.Read();
+
+	int tmp[2];
+	memcpy(tmp, _inport.Content(), sizeof(tmp));
+
+	// printf("->HandleMsg: received %d %d\n", tmp[0], tmp[1]);
+		
+	return _parse(tmp);
+}
+
+template <class MY_BEHAVIOR, class MY_SHARED_DATA>
+void YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
+Body(void)
+{
+	while(!IsTerminated())
+	{
+		// handle state
+		state->handle(_data);
+		// wait, if not asyncrhonous
+		if (!currentState()->isAs())
+		{
+			printf("Body: waiting...\n");
+			_stopEvent.wait();
+		}
+		else 
+		{
+			printf("Body: state is AS\n");
+		}
+		// switch state
+		state->decideState((MY_BEHAVIOR *)this, _data);
+	}
+}
 
 #endif
