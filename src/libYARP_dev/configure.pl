@@ -64,7 +64,7 @@ my $os = $options{"Architecture<-OS"};
 #
 #
 #
-print "Now I'm going to ask a few questions to help that I need for configuring the device drivers.\n";
+print "Now I'm going to ask a few questions that I need for configuring the device drivers.\n";
 print "For pathnames you can use (type) the pre-defined value \$YARP_ROOT ";
 print "that I've verified as: \"$yarp_root\"\n\n";
 print "Please, use always the forward slash as a separator!\n";
