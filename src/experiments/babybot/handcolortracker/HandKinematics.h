@@ -41,6 +41,9 @@ public:
 		_ellipse.load(p);
 	}
 
+	void prepareRemoteTrainData(YARPBottle &input, YARPBottle &out1, YARPBottle &out2);
+	void update(const YVector &arm, const YVector &head);
+	
 private:
 	void _query(const YVector &arm, const YVector &head, YARPShapeEllipse &el)
 	{
@@ -77,6 +80,8 @@ private:
 
 	YARPBabybotHeadKin _gaze;
 	YVector _v;
+	YVector _head;
+	YVector _arm;
 	int _npoints;
 };
 

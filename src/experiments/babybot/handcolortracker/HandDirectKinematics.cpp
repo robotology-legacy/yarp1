@@ -61,3 +61,45 @@ void HandKinematics::learn(YVector &arm, YVector &head, YARPBottle &newPoint)
 	newPoint.readFloat(&ellipse.a12);
 	newPoint.readFloat(&ellipse.a22);
 }
+
+void HandKinematics::update(const YVector &arm, const YVector &head)
+{
+	_head = head;	// store current head and arm position
+	_arm = arm;		// 
+
+	_gaze.update(_head);
+}
+
+void HandKinematics::prepareRemoteTrainData(YARPBottle &input, YARPBottle &out1, YARPBottle &out2)
+{
+	out1.reset();
+	out2.reset();
+
+	int ix, iy;
+	double a11,a12,a22;
+
+	input.readInt(&ix);
+	input.readInt(&iy);
+	input.readFloat(&a11);
+	input.readFloat(&a12);
+	input.readFloat(&a22);
+
+	// convert head position + (x,y) coordinates into head centered ref frame
+	_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v, (double) ix, (double) iy);
+
+	///////// out1
+	out1.writeFloat(_arm(1));
+	out1.writeFloat(_arm(2));
+	out1.writeFloat(_arm(3));
+	out1.writeFloat(_v(1));
+	out1.writeFloat(_v(2));
+	out1.writeFloat(_v(3));
+	
+	///////// out2
+	out2.writeFloat(_arm(1));
+	out2.writeFloat(_arm(2));
+	out2.writeFloat(_arm(3));
+	out2.writeFloat(a11);
+	out2.writeFloat(a12);
+	out2.writeFloat(a22);
+}

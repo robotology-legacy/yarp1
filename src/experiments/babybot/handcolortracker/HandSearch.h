@@ -2,7 +2,7 @@
 #define __YARPHANDSEGMENTATION__
 
 #ifndef NO_COMPILE
-class YARPHandSegmentation
+//class YARPHandSegmentation
 {
 public:
 	YARPHandSegmentation (double lumaTh, double satTh, unsigned char max, unsigned char min, unsigned char n):

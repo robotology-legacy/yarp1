@@ -83,9 +83,9 @@ int main(int argc, char* argv[])
 
 	YARPInputPortOf<YARPBottle>	_armSegmentationPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
 
-	YARPInputPortOf<YARPBottle>	_outputPortTrain1(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+	YARPOutputPortOf<YARPBottle>	_outputPortTrain1(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 	YARPInputPortOf<YARPBottle>	_inputPortTrain1(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-	YARPInputPortOf<YARPBottle>	_outputPortTrain2(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+	YARPOutputPortOf<YARPBottle>	_outputPortTrain2(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 	YARPInputPortOf<YARPBottle>	_inputPortTrain2(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
 
 	YARPBottle _outputTrainBottle1;
@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
 	int _nFrames = 0;
 	while (true)
 	{
-		// blocking on ports
+		// blocking on image port
 		_inPortImage.Read();
 
 		/////////////////////////// segmentation
@@ -159,17 +159,21 @@ int main(int argc, char* argv[])
 		pollPort(_armPort, _arm, &__armCounter);
 		pollPort(_headPort, _head, &__headCounter);
 
+		// poll arm segmentation data
 		if(_armSegmentationPort.Read(0))
 		{
 			_armSegmentationPort.Content().display();
-			_outputTrainBottle1.reset();
-			_outputTrainBottle2.reset();
 			// _handLocalization.learn(_arm, _head,  _armSegmentationPort.Content());
-			prepareBottle1(_armSegmentation.Content(), _outputTrainBottle1);
-			prepareBottle2(_armSegmentation.Content(), _outputTrainBottle2);
-		}
+			_handLocalization.update(_arm, _head);
+			_handLocalization.prepareRemoteTrainData(_armSegmentationPort.Content(), _outputTrainBottle1, _outputTrainBottle2);
 
+			_outputPortTrain1.Content() = _outputTrainBottle1;
+			_outputPortTrain2.Content() = _outputTrainBottle2;
+			_outputPortTrain1.Write(1);
+			_outputPortTrain2.Write(1);
+		}
 		
+		////////////////////////////////////
 		_left.Refer (_inPortImage.Content());
 		// reconstruct color
 		_mapper.ReconstructColor (_left, _leftColored);
