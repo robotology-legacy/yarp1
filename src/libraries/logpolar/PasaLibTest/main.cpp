@@ -35,23 +35,33 @@ void main ()
 						1090,
 						CUSTOM,256.0/1090.0);
 
+	Param.padding = 21;
+
 	Rem_Fovea = (unsigned char *) malloc (3*Param.Size_Img_Remap * sizeof(unsigned char));	
 	
+	int PadSizeLP;
+
+	PadSizeLP = (((Param.Size_Theta * Param.LP_Planes) % Param.padding) + (Param.Size_Theta * Param.LP_Planes))*Param.Size_Rho;
+	LP_Image = (unsigned char *) malloc (PadSizeLP * sizeof (unsigned char));
+
 	Build_Pad_Map(&Param,Path );
+
 	
 	Build_Cart2LP_Map(&Param,Path);
 	
 	Cart2LP_Map = Load_Cart2LP_Map(&Param,Path);
 	int time = Get_Time();
-	for (int y=0; y<1000; y++)
-	{
-		LP_Image = Make_LP_Real(Orig_Image,&Param,Cart2LP_Map);
-		free(LP_Image);
-	}
+//	for (int y=0; y<1000; y++)
+//	{
+		Make_LP_Real(LP_Image,Orig_Image,&Param,Cart2LP_Map);
+//		free(LP_Image);
+//	}
 	time = Get_Time()-time;
 
-	sprintf(File_Name,"%s","C:\\Temp\\Test2.bmp");
-	Save_Bitmap(LP_Image+252*42*3,252,110,3,File_Name);
+//	sprintf(File_Name,"%s","C:\\Temp\\Test2.bmp");
+//	Save_Bitmap(LP_Image+252*42*3,252,110,3,File_Name);
+	sprintf(File_Name,"%s","C:\\Temp\\TestPad.bmp");
+	Save_Bitmap(LP_Image,252,152,3,File_Name);
 
 //	Param.Zoom_Level *= 2.0; 
 	Build_Remap_Map(&Param,Path);

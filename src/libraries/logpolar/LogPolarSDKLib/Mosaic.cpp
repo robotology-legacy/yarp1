@@ -189,14 +189,18 @@ unsigned char * Get_LP_from_Large_Image(unsigned char * Large_Img, Image_Data * 
 	char File_Name [256]; 
 	unsigned char * Cropped_Img;
 	unsigned char * LP_Img;
+	int PadSizeLP;
+
+	PadSizeLP = (((Par->Size_Theta * Par->LP_Planes) % Par->padding) + (Par->Size_Theta * Par->LP_Planes))*Par->Size_Rho;
 
 	Cropped_Img = Crop_Image(Large_Img,Par,Large_Img_Size,Par->Resolution);
+	LP_Img = (unsigned char *) malloc (PadSizeLP * sizeof (unsigned char));
 
 	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Mosaic\\Cropped Image.bmp");
 
 	Save_Bitmap(Cropped_Img,Par->Resolution,Par->Resolution,3,File_Name);
 
-	LP_Img = Make_LP_Real(Cropped_Img,Par,Cart2LP_Map);
+	Make_LP_Real(LP_Img,Cropped_Img,Par,Cart2LP_Map);
 
 	free(Cropped_Img);
 

@@ -839,6 +839,7 @@ int Build_Cart2LP_Map(Image_Data * Par,
 		 			  char * Path)
 {
 	int i,j,k,l;
+//	int PadSizeTheta;
 	int x,y; 
 	int rho,theta;
 	int retval;
@@ -866,6 +867,8 @@ int Build_Cart2LP_Map(Image_Data * Par,
 	}
 	else
 	{
+//		PadSizeTheta = (((Par->Size_Theta * Par->LP_Planes) % Par->padding) + (Par->Size_Theta * Par->LP_Planes));
+//		offset = (Par->Size_Theta * Par->LP_Planes) % Par->padding;
 		Temp_Array = (Cart2LPInterp *)malloc(Par->Size_LP * sizeof(Cart2LPInterp));
 		Cart2LP_Map = (Cart2LPInterp *)malloc(Par->Size_LP * sizeof(Cart2LPInterp));
 		for (j=0; j<Par->Size_LP; j++)
@@ -878,58 +881,70 @@ int Build_Cart2LP_Map(Image_Data * Par,
 		Ang_Shift_Map = Tables.AngShiftMap;
 		Pad_Map = Tables.PadMap;
 
-		for (j=0; j<Par->Size_Fovea*Par->Size_Theta; j++)
+		for (k=0; k<Par->Size_Fovea; k++)
 		{
-			k = j/Par->Size_Theta;
-			l = j%Par->Size_Theta;
-			x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map));
-			y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map));
-			Temp_Array[Pad_Map[k*Par->Size_Theta+l]].position[0] = (Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2;
+			for (l=0; l<Par->Size_Theta; l++)
+			{
+//			for (j=0; j<Par->Size_Fovea*Par->Size_Theta; j++)
+//			{
+//				k = j/Par->Size_Theta;
+//				l = j%Par->Size_Theta;
+				x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map));
+				y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map));
+				Temp_Array[Pad_Map[k*Par->Size_Theta+l]].position[0] = 3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2);
+			}
 		}
 
 		for (j=0; j<Par->Size_Y_Orig; j++)
 			for (i=0; i<Par->Size_X_Orig; i++)
 			{
 				rho = Get_Rho(i-Par->Size_X_Orig/2,Par->Size_Y_Orig/2-j,Par);
-				if (rho==30)
-					rho = 30;
 				if ((rho>=0)&&(rho<Par->Size_Rho))
 				{
 					theta = Get_Theta(i-Par->Size_X_Orig/2,Par->Size_Y_Orig/2-j,rho,Par,Ang_Shift_Map,Pad_Map);
-					Temp_Array[rho*Par->Size_Theta+theta].position[Temp_Array[rho*Par->Size_Theta+theta].NofPixels] = j*Par->Size_X_Orig+i;
+					Temp_Array[rho*Par->Size_Theta+theta].position[Temp_Array[rho*Par->Size_Theta+theta].NofPixels] = 3*(j*Par->Size_X_Orig+i);
 					Temp_Array[rho*Par->Size_Theta+theta].NofPixels ++;
 //					ImageArray[3*(rho*Par->Size_Theta+theta)+0].value += InCartImage[3*((j)*Par->Size_X_Orig+(i))+0];
 //					ImageArray[3*(rho*Par->Size_Theta+theta)+0].counter ++;
 				}
 			}
-		for (j=0; j<Par->Size_LP; j++)
+//		for (j=0; j<Par->Size_LP; j++)
+		for (k=0; k<Par->Size_Rho; k++)
 		{
-			k = j/Par->Size_Theta;
-			l = j%Par->Size_Theta;
-			if (Temp_Array[j].NofPixels == 0)
+			for (l=0; l<Par->Size_Theta; l++)
 			{
-				Temp_Array[j].NofPixels = 1;
-				if (j>=Par->Size_Fovea*Par->Size_Theta)
+//				k = j/Par->Size_Theta;
+//				l = j%Par->Size_Theta;
+				if (Temp_Array[k*Par->Size_Theta+l].NofPixels == 0)
 				{
-					x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map));
-					y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map));
-					Temp_Array[j].position[0] = (Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2;
+					Temp_Array[k*Par->Size_Theta+l].NofPixels = 1;
+					if (k>=Par->Size_Fovea)
+					{
+						x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map));
+						y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map));
+						Temp_Array[k*Par->Size_Theta+l].position[0] = 3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2);
+					}
 				}
+				Cart2LP_Map[k*Par->Size_Theta+l].position = (unsigned int *)malloc(Temp_Array[k*Par->Size_Theta+l].NofPixels * sizeof(unsigned int));
+				Cart2LP_Map[k*Par->Size_Theta+l].NofPixels = Temp_Array[k*Par->Size_Theta+l].NofPixels;
+				Total_Size += Temp_Array[k*Par->Size_Theta+l].NofPixels;			
+				for (i=0; i<Temp_Array[k*Par->Size_Theta+l].NofPixels; i++)
+					Cart2LP_Map[k*Par->Size_Theta+l].position[i] = Temp_Array[k*Par->Size_Theta+l].position[i];
 			}
-			Cart2LP_Map[j].position = (unsigned int *)malloc(Temp_Array[j].NofPixels * sizeof(unsigned int));
-			Cart2LP_Map[j].NofPixels = Temp_Array[j].NofPixels;
-			Total_Size += Temp_Array[j].NofPixels;			
-			for (i=0; i<Temp_Array[j].NofPixels; i++)
-				Cart2LP_Map[j].position[i] = Temp_Array[j].position[i];
 		}
 
 		sprintf(File_Name,"%s%s",Path,"Cart2LPMap.gio");
 
 		fout = fopen(File_Name,"wb");
-		for (j=0; j<Par->Size_LP; j++)
+//		for (j=0; j<Par->Size_LP; j++)
+//		{
+		for (k=0; k<Par->Size_Rho; k++)
 		{
-			fwrite(&Cart2LP_Map[j].NofPixels,sizeof(unsigned char),1,fout);
-			fwrite(Cart2LP_Map[j].position  ,sizeof(unsigned  int),Cart2LP_Map[j].NofPixels,fout);
+			for (l=0; l<Par->Size_Theta; l++)
+			{
+				fwrite(&Cart2LP_Map[k*Par->Size_Theta+l].NofPixels,sizeof(unsigned char),1,fout);
+				fwrite(Cart2LP_Map[k*Par->Size_Theta+l].position  ,sizeof(unsigned  int),Cart2LP_Map[k*Par->Size_Theta+l].NofPixels,fout);
+			}
 		}
 		fclose (fout);
 		Par->Zoom_Level = Temp_ZoomLev;
@@ -945,23 +960,36 @@ int Build_Cart2LP_Map(Image_Data * Par,
 
 int Make_LP_Real (unsigned char * Output_Image, unsigned char * Input_Image, Image_Data * Par, Cart2LPInterp * Cart2LP_Map)
 {
-	int i,j;
+	int i,j,k,l;
 	int sumR,sumG,sumB;
-
-	for (j=0; j<Par->Size_LP; j++)
+	Cart2LPInterp * TablePtr = Cart2LP_Map;	
+	int PadSizeTheta = (((Par->Size_Theta * Par->LP_Planes) % Par->padding) + (Par->Size_Theta * Par->LP_Planes));
+	int index = 0;
+	for (k=0; k<Par->Size_Rho; k++)
 	{
-		sumR = 0;
-		sumG = 0;
-		sumB = 0;
-		for (i=0; i<Cart2LP_Map[j].NofPixels; i++)
+		for (l=0; l<Par->Size_Theta; l++)
 		{
-			sumR += Input_Image[3*Cart2LP_Map[j].position[i]];
-			sumG += Input_Image[3*Cart2LP_Map[j].position[i]+1];
-			sumB += Input_Image[3*Cart2LP_Map[j].position[i]+2];
+			sumR = 0;
+			sumG = 0;
+			sumB = 0;
+			if ((k==40)&&(l==33))
+				l=33;
+			for (i=0; i<TablePtr[0].NofPixels; i++)
+			{
+//				sumR += Input_Image[Cart2LP_Map[k*PadSizeTheta+3*l].position[i]];
+//				sumG += Input_Image[Cart2LP_Map[k*PadSizeTheta+3*l].position[i]+1];
+//				sumB += Input_Image[Cart2LP_Map[k*PadSizeTheta+3*l].position[i]+2];
+				sumR += Input_Image[TablePtr[0].position[i]];
+				sumG += Input_Image[TablePtr[0].position[i]+1];
+				sumB += Input_Image[TablePtr[0].position[i]+2];
+//				TablePtr[0].position++;
+			}
+			Output_Image[index++] = sumR/TablePtr[0].NofPixels;
+			Output_Image[index++] = sumG/TablePtr[0].NofPixels;
+			Output_Image[index++] = sumB/TablePtr[0].NofPixels;
+			TablePtr++;
 		}
-		Output_Image[3*j]   = sumR/Cart2LP_Map[j].NofPixels;
-		Output_Image[3*j+1] = sumG/Cart2LP_Map[j].NofPixels;
-		Output_Image[3*j+2] = sumB/Cart2LP_Map[j].NofPixels;
+		index += (Par->Size_Theta * Par->LP_Planes) % Par->padding;
 	}
 	
 	Output_Image[0] = 0;

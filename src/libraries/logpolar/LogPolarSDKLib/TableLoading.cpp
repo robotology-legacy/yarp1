@@ -159,6 +159,8 @@ Cart2LPInterp * Load_Cart2LP_Map(Image_Data * Param, char * Path)
 	int j;
 	FILE * fin;
 	Cart2LPInterp * Cart2LP_Map;
+		
+//	int PadSizeTheta = (((Param->Size_Theta * Param->LP_Planes) % Param->padding) + (Param->Size_Theta * Param->LP_Planes));
 	
 	sprintf(File_Name,"%s%s",Path,"Cart2LPMap.gio");
 
