@@ -14,10 +14,10 @@ class ReflexShared: public YARPBehaviorSharedData
 public:
 	ReflexShared():
 	  YARPBehaviorSharedData("/graspreflex/o", YBVMotorLabel),
-	  _touchPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
+	  _touchPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 	{
 		_touchPort.Register(__inputPortName.c_str());
-		_touch.Resize(32);
+		_touch.Resize(17);
 
 		_openCmds = NULL;
 		_closeCmds = NULL;

@@ -1,4 +1,4 @@
-function computeHandKin (qh,el,az)
+function computeHandKin (qh, qt, el, az)
 %
 % q is motor joints
 %
@@ -27,10 +27,10 @@ q(18:20) = -qh(14:16);
 % q(21) is a virtual joint
 
 % prepare a sphere
-[X, Y, Z] = sphere(20);
-X = X*0.03;
-Y = Y*0.03;
-Z = Z*0.03;
+[X, Y, Z] = sphere(10);
+X = X*0.4;
+Y = Y*0.4;
+Z = Z*0.4;
 
 figure(1), CLF;
 figure(1), hold on;
@@ -173,6 +173,63 @@ for f=2:n_fingers
    H = line(LXH, LYH, LZH, 'color', [0, 0, 0]);
    set(H,'LineWidth',width);
 end
+%%% %%% %%% %%% %%% 
+% plot touch sensors
+% 1:5 -> palm
+sizeT = 400;
+P1 = R0*[1.3 0 7 1]';
+color = [qt(5)/255, 0 0];
+figure(1), scatter3(P1(1), P1(2), P1(3), sizeT, color, 'filled');
+
+P1 = R0*[-2 0 7 1]';
+color = [qt(3)/255, 0 0];
+figure(1), scatter3(P1(1), P1(2), P1(3), sizeT, color, 'filled');
+
+P1 = R0*[-0.5 0 4.5 1]';
+color = [qt(2)/255, 0 0];
+figure(1), scatter3(P1(1), P1(2), P1(3), sizeT, color, 'filled');
+
+P1 = R0*[-3.2 0 4.5 1]';
+color = [qt(4)/255, 0 0];
+figure(1), scatter3(P1(1), P1(2), P1(3), sizeT, color, 'filled');
+
+P1 = R0*[-3 0 1.8 1]';
+color = [qt(1)/255, 0 0];
+figure(1), scatter3(P1(1), P1(2), P1(3), sizeT, color, 'filled');
+
+%%%%%%%%%%%%%%%%%
+%% FINGERS
+sizeT = 50;
+ts = 6;
+dh_index = 3;
+for ph = 2:n_phalanxes
+    color = [qt(ts)/255, 0 0];
+    tmp = PF0(:,:,ph,1)*[DH(dh_index,1)/2 0 0 1]';
+    TSX = tmp(1);
+    tmp = PF0(:,:,ph,1)*[DH(dh_index,1)/2 0 0 1]';
+    TSY = tmp(2);
+    tmp = PF0(:,:,ph,1)*[DH(dh_index,1)/2 0 0 1]';
+    TSZ = tmp(3);
+    ts = ts+1;
+    dh_index = dh_index + 1;
+    figure(1), scatter3(TSX,TSY,TSZ, sizeT, color, 'filled');
+end
+
+for f = 2:(n_fingers-1) % small finger has no sensors
+    dh_index = dh_index+1;    % skip last phalanx
+    for ph = 1:(n_phalanxes-1)
+        color = [qt(ts)/255, 0 0];
+        tmp = PF0(:,:,ph,f)*[DH(dh_index,1)/2 0 0 1]';
+        TSX = tmp(1);
+        tmp = PF0(:,:,ph,f)*[DH(dh_index,1)/2 0 0 1]';
+        TSY = tmp(2);
+        tmp = PF0(:,:,ph,f)*[DH(dh_index,1)/2 0 0 1]';
+        TSZ = tmp(3);
+        ts = ts+1;
+        dh_index = dh_index+1;
+        figure(1), scatter3(TSX,TSY,TSZ, sizeT, color, 'filled');
+    end
+end
 
 % plot <0> ref frame
 plot_ref_frame(R0, 0.5, [0,0,1]);
@@ -182,15 +239,6 @@ for f = 1:n_fingers
         plot_ref_frame(PF0(:,:,ph, f), 0.5, [1, 0, 0]);
     end
 end
-
-% head sketch
-% H = line(LXL, LYL, LZL);
-% set(H,'LineWidth',width);
-% H = line(LXR, LYR, LZR);
-% set(H,'LineWidth',width);
-
-% origin
-% plot_ref_frame (eye(4,4), 30, [1, 0, 0]);
 
 figure(1), hold off;
 drawnow;
@@ -203,7 +251,7 @@ global Z;
 
 [tmpX, tmpY, tmpZ] = lineax(T, size);
 line(tmpX, tmpY, tmpZ, 'Color', color);
-surf(X+T(1,4), Y+T(2,4), Z+T(3,4), Z+T(3,4));
+surf(X+T(1,4), Y+T(2,4), Z+T(3,4), Z);
 
 % pz = T*[0 0 size 1]';
 % px = T*[size 0 0 1]';

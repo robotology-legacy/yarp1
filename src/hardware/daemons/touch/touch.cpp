@@ -23,15 +23,16 @@ using namespace std;
 
 const int __defaultRate = 40;
 const YARPString __defaultName = "/touch/o";
+const int __nSensors = 17;
 
 class MyThread : public YARPRateThread
 {
 public:
 	MyThread (const char *name, int rate) : YARPRateThread(name, rate),
-	_outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+	_outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	{
 		_name = YARPString(name);
-		_readings.Resize(32);
+		_readings.Resize(__nSensors);
 		_readings = 0.0;
 	}
 	~MyThread()

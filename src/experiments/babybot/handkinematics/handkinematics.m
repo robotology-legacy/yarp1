@@ -14,6 +14,17 @@ if (e == -1)
     return;
 end
 
+idTouch = port('create', 'vector', 0, 'mcast');
+if (idTouch == -1)
+    disp('cannot create touch port');
+    return;
+end
+e = port('register', idTouch, '/handkinematics/touch/i', 'default');
+if (e == -1)
+    disp('cannot register touch input port');
+    return;
+end
+
 idBottle = port('create', 'bottle', 0, 'udp');
 if (idBottle == -1)
     disp('cannot create behavior input port');
@@ -27,8 +38,10 @@ end
 
 porter('/handcontrol/o:status', '/handkinematics/i');
 porter('/repeater/o', '/handkinematics/behavior/i');
+porter('/touch/o', '/handkinematics/touch/i');
 
 qh = zeros(1,16);
+qtouch = zeros(1,17);
 
 % loop
 i = 0;
@@ -38,13 +51,17 @@ exit = 0;
 freeze = 0;
 while(~exit)
     [qh err1] = port('read', idVector, 0);
+    [qtouch err2] = port('read', idTouch, 0);
+    if (err2 < 0)
+        qtouch(1:17) = 0;
+    end
     if ( (err1 >= 0) && (~freeze))
-      computeHandKin(qh, az, el);
+      computeHandKin(qh, qtouch, az, el);
     end
     
     %% bottle
-    [bottle err2] = port('read', idBottle, 0);
-    if (err2 >= 0)
+    [bottle err3] = port('read', idBottle, 0);
+    if (err3 >= 0)
         % received a bottle
         if (strcmp(bottle{1},'Motor'))
             if(strcmp(bottle{2}, 'IsAlive'))
@@ -80,4 +97,9 @@ port('destroy', idVector);
 porter ('/repeater/o', '!/handkinematics/behavior/i');
 port('unregister', idBottle);
 port('destroy', idBottle);
+
+porter ('/touch/o', '!/handkinematics/touch/i');
+port('unregister', idTouch);
+port('destroy', idTouch);
+
 clear port;
