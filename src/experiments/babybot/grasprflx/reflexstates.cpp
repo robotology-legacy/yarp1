@@ -22,6 +22,15 @@ void GRBCloseOutputCommand::output (ReflexShared *d)
 	d->send();
 }
 
+void GRBOutputSignal::output (ReflexShared *d)
+{
+	// send command
+	ACE_OS::printf("GRASPREFLEX: sending signal %s\n", _signal.c_str());
+	
+	d->_data.writeVocab(_signal);;
+	d->send();
+}
+
 bool GRBInit::input(YARPBottle *in, ReflexShared *d)
 {
 	return (d->checkPalmTouch());

@@ -36,6 +36,13 @@ if (e == -1)
     return;
 end
 
+%%%% disconnect (if needed) before
+porter ('/handcontrol/o:status', '!/handkinematics/i');
+porter ('/repeater/o', '!/handkinematics/behavior/i');
+porter ('/touch/o', '!/handkinematics/touch/i');
+
+
+%%%% connect
 porter('/handcontrol/o:status', '/handkinematics/i');
 porter('/repeater/o', '/handkinematics/behavior/i');
 porter('/touch/o', '/handkinematics/touch/i');
@@ -49,6 +56,7 @@ az = 45;
 el = 45;
 exit = 0;
 freeze = 0;
+filename = '';
 while(~exit)
     [qh err1] = port('read', idVector, 0);
     [qtouch err2] = port('read', idTouch, 0);
@@ -81,9 +89,13 @@ while(~exit)
                     freeze = 1;
                 end
             end
-            if (strcmp(bottle(2), 'HandKinSavePosture'))
-                filename = bottle{3};
+            if ( (strcmp(bottle{2}, 'HandKinSavePosture')) || (strcmp(bottle{2}, 'GraspRflxClutch')))
                 savePosture(filename, qh, qtouch);
+            end
+            if (strcmp(bottle{2}, 'HandKinSetFile'))
+               filename = bottle{3};
+               tmp = strcat ('Future posture will be saved to:', filename);
+               disp(tmp);
             end
             if(strcmp(bottle{2}, 'HandKinQuit'))
                 disp('Quit message received, goodbye');
@@ -107,3 +119,4 @@ port('unregister', idTouch);
 port('destroy', idTouch);
 
 clear port;
+

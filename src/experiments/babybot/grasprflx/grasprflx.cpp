@@ -67,6 +67,7 @@ int main(int argc, char* argv[])
 	GRBGrasp grasp;
 	GRBCloseOutputCommand closeCmd;
 	GRBOpenOutputCommand openCmd;
+	GRBOutputSignal	sendClutching(YBVGraspRflxClutch);
 	GRBInit init;
 	GRBSimpleInput motionDone(YBVHandDone);
 
@@ -78,7 +79,7 @@ int main(int argc, char* argv[])
 	behavior.add(NULL, &pickRnd, &waitOpen1, &openCmd);
 	behavior.add(&motionDone, &waitOpen1, &grasp, &closeCmd);
 	behavior.add(NULL, &grasp, &waitClose1);
-	behavior.add(&motionDone, &waitClose1, &waitT[0]);
+	behavior.add(&motionDone, &waitClose1, &waitT[0], &sendClutching);
 	for(int i = 0; i<(N-1); i++)
 		behavior.add(NULL, &waitT[i], &waitT[i+1]);
 

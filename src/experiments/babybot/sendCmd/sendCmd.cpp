@@ -55,7 +55,8 @@ void _fillTable()
 	REG_VOCAB(sendSimpleVocab, YBVHandKinQuit, "quit handkinematics.m");
 	REG_VOCAB(sendHandKinematicsView, YBVHandKinView, "handkinematics.m change viewpoint");
 	REG_VOCAB(sendSimpleVocab, YBVHandKinFreeze, "freeze/resume handkinematics.m");
-	REG_VOCAB(sendString, YBVHandKinSavePosture, "handkinematics.m save current hand posture");
+	REG_VOCAB(sendString, YBVHandKinSetFile, "handkinematics.m set filename");
+	REG_VOCAB(sendSimpleVocab, YBVHandKinSavePosture, "handkinematics.m save current posture");
 }
 
 void _help()

@@ -10,7 +10,7 @@ WshShell.Run ("porter /left/o:img !/handtracker/i:img", 7, true);
 WshShell.Run ("porter /handtracker/segmentation/o:img !/view008/i:img", 7, true);
 WshShell.Run ("porter /handtracker/backprojection/o:img !/view009/i:img", 7, true);
 
-WshShell.Run ("slay -n leto handcolortracke", 7, true);
-WshShell.Run ("slay -n leto camview.exe", 7, true);
+WshShell.Run ("slay -n oceanus handcolortracke", 7, true);
+WshShell.Run ("slay -n oceanus camview.exe", 7, true);
 
 WshShell.Run ("slay -n calliope remotelearn.exe", 7, true);

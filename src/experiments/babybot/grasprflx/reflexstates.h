@@ -227,6 +227,15 @@ public:
 	YVector cmd;
 };
 
+class GRBOutputSignal: public GRBehaviorBaseOutputState
+{
+public:
+	GRBOutputSignal(const YBVocab &k){ _signal = k; };
+		
+	void output(ReflexShared *d);
+	YBVocab _signal;
+};
+
 class GRBInit: public GRBehaviorBaseInputState
 {
 public:
