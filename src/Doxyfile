@@ -79,7 +79,7 @@ INPUT                  = libYARP_OS/include/yarp/YARPPort.h \
                          libYARP_OS/include/yarp/YARPSemaphore.h \
                          libYARP_OS/include/yarp/YARPScheduler.h \
                          libYARP_OS/include/yarp/YARPList.h \
-                         libYARP_sig/include/yarp/YARPImage.h
+			 libYARP_sig/include/yarp/YARPImage.h
 FILE_PATTERNS          = 
 RECURSIVE              = NO
 EXCLUDE                = 

@@ -18,7 +18,7 @@ SUBDIRS =
 GENDIR = ../obj/$(SYSDIR)
 
 # library suffix should actually be system dependent
-CODELIB = libYARP_OS.a
+CODELIB = libYARP_sig.a
 
 LIBGENDIR = ../lib/$(SYSDIR)
 
