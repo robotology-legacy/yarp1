@@ -130,6 +130,10 @@ SOURCE=.\sound\winnt\YARPSoundDeviceDriver.cpp
 
 SOURCE=.\sound\winnt\YARPSoundResources.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\valuecan\winnt\YARPValueCanDeviceDriver.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -181,6 +185,10 @@ SOURCE=.\sound\winnt\YARPSoundDeviceDriver.h
 # Begin Source File
 
 SOURCE=.\sound\winnt\YARPSoundResources.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\valuecan\winnt\YARPValueCanDeviceDriver.h
 # End Source File
 # End Group
 # Begin Source File
