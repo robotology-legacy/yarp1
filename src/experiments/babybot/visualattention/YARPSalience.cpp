@@ -450,8 +450,8 @@ void YARPSalience::RemoveNonValid(int last_tag, const int max_size, const int mi
 			//if ( area < min_size) {
 				m_boxes[i].valid=false;
 			} else {
-				//if ( !isWithinRange((int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y, m_boxes[i].elev, m_boxes[i].az) )
-				//	m_boxes[i].valid=false;
+				if ( !isWithinRange((int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y, m_boxes[i].elev, m_boxes[i].az) )
+					m_boxes[i].valid=false;
 			}
 		}
 	}
@@ -1038,7 +1038,7 @@ void YARPSalience::fuseFoveaBlob3(YARPImageOf<YarpPixelInt>& tagged, char *blobL
 }
 
 
-int YARPSalience::checkSmallBlobs(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag, int min_size)
+int YARPSalience::countSmallBlobs(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag, int min_size)
 {
 	int num=0;
 	

@@ -76,7 +76,7 @@
 
 
 YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
-	rain(x, y, x+x%8, 15),
+	rain(x, y, x+x%8, 13),
 	salience(x, y)
 {
 	int i;
@@ -203,8 +203,10 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	
 	//gauss_c_s.Set(5,1,2,0,g_c,11,0);
 	//gauss_c_s.Set(1,5,0,2,g_c,11,1);
-	gauss_c_s.SetGaussianRow(2,1,1/sqrt(1.5),11,0);
-	gauss_c_s.SetGaussianCol(2,1,1/sqrt(1.5),11,1);
+	//gauss_c_s.SetGaussianRow(2,1,1/sqrt(1.5),11,0);
+	//gauss_c_s.SetGaussianCol(2,1,1/sqrt(1.5),11,1);
+	gauss_c_s.SetGaussianRow(1,0.5,1/sqrt(1.5),11,0);
+	gauss_c_s.SetGaussianCol(1,0.5,1/sqrt(1.5),11,1);
 	gauss_c_s.InitFixBorder();
 
 	//gauss_s_s.Set(15,1,7,0,g_s,11,0);
@@ -414,6 +416,7 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 
 	blobList = new char [x*y+1];
 	blobListObject = new char [x*y+1];
+	blobListBack = new char [x*y+1];
 
 	searchRG=searchGR=searchBY=0;
 	cmp=ect=0;
@@ -430,6 +433,12 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	ACE_ASSERT(neighBoxes != NULL);
 	neighProb = new double[x*y];
 	ACE_ASSERT(neighProb != NULL);
+	neighProb2 = new double[x*y];
+	ACE_ASSERT(neighProb2 != NULL);
+	//neighEpoch = new unsigned long int[x*y];
+	//ACE_ASSERT(neighEpoch != NULL);
+	//neighFounded = new unsigned long int[x*y];
+	//ACE_ASSERT(neighFounded != NULL);
 	neighTaken = new bool[x*y];
 	ACE_ASSERT(neighTaken != NULL);
 }
@@ -447,6 +456,8 @@ YARPImgAtt::~YARPImgAtt()
 	delete [] max_boxes;
 	delete [] neighBoxes;
 	delete [] neighProb;
+	//delete [] neighFounded;
+	//delete [] neighEpoch;
 	delete [] neighTaken;
 }
 
@@ -1083,7 +1094,8 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, bool stable)
 		ACE_OS::printf("Diff: %d\n", crg*crg+cgr*cgr+cby*cby);
 		ACE_OS::printf("Area: %lf\n", fovBox.areaCart);*/
 
-		if (fovBox.areaCart>150 && crg*crg+cgr*cgr+cby*cby<500)
+		//if (fovBox.areaCart>150 && crg*crg+cgr*cgr+cby*cby<500)
+		if (fovBox.areaCart>150 && crg*crg+cgr*cgr+cby*cby<1323)
 			found=true;
 	}	
 	
@@ -1096,7 +1108,13 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, bool stable)
 }
 
 
-bool YARPImgAtt::learnObject()
+void YARPImgAtt::resetObject()
+{
+	numNeighBoxes=0;
+}
+
+
+int YARPImgAtt::learnObject()
 {
 	memset(blobList, 0, sizeof(char)*(max_tag+1));
 	rain.findNeighborhood(tagged, 0, 0, blobList);
@@ -1108,9 +1126,13 @@ bool YARPImgAtt::learnObject()
 			/*if (salience.getBlobNum(i).valid &&
 				(salience.getBlobNum(i).centroid_x-fovBox.centroid_x)*(salience.getBlobNum(i).centroid_x-fovBox.centroid_x)+
 				(salience.getBlobNum(i).centroid_y-fovBox.centroid_y)*(salience.getBlobNum(i).centroid_y-fovBox.centroid_y)<2*fovBox.areaCart) {*/
-			if (blobList[i]==1 && salience.getBlobNum(i).valid) {
+			//if (blobList[i]==1 && salience.getBlobNum(i).valid) {
+			if (blobList[i]==1 && salience.getBlobNum(i).areaCart>100 && salience.getBlobNum(i).areaCart<6000) {
 				neighBoxes[numNeighBoxes]=salience.getBlobNum(i);
+				//neighProb[numNeighBoxes]=0.5;
 				neighProb[numNeighBoxes]=1;
+				//neighEpoch[numNeighBoxes]=1;
+				//neighFounded[numNeighBoxes]=1;
 				numNeighBoxes++;
 			}
 		}
@@ -1118,42 +1140,70 @@ bool YARPImgAtt::learnObject()
 		epoch=1;
 	} else {
 		memset(neighTaken, false, sizeof(bool)*(max_tag+1));
+		memset(blobListObject, 0, sizeof(char)*(max_tag+1));
 		epoch++;
 		int recognized=0;
-		for (int n=0; n<numNeighBoxes; n++) {
-			int min=1000;
-			int minb=0;
-			for (int b=2; b<=max_tag; b++) {
-				/*if (salience.getBlobNum(b).valid &&
-					(salience.getBlobNum(b).centroid_x-fovBox.centroid_x)*(salience.getBlobNum(b).centroid_x-fovBox.centroid_x)+
-					(salience.getBlobNum(b).centroid_y-fovBox.centroid_y)*(salience.getBlobNum(b).centroid_y-fovBox.centroid_y)<2*fovBox.areaCart) {*/
-				if (blobList[b]==1 && salience.getBlobNum(b).valid) {
-					YARPBox tmp;
-					salience.getBlobNum(b, tmp);
-					int crg=neighBoxes[n].meanRG-tmp.meanRG;
-					int cgr=neighBoxes[n].meanGR-tmp.meanGR;
-					int cby=neighBoxes[n].meanBY-tmp.meanBY;
 
-					if (crg*crg+cgr*cgr+cby*cby<min) {
-						min=crg*crg+cgr*cgr+cby*cby;
-						minb=b;
+		for (int j=0; j<numNeighBoxes; j++) {
+			int minModelBlob=0;
+			int min=10000;
+			int minBlob=0;
+			for (int n=0; n<numNeighBoxes; n++) {
+				if (!neighTaken[n]) {
+					for (int b=2; b<=max_tag; b++) {
+						//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
+						if (blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000) {
+							YARPBox tmp;
+							salience.getBlobNum(b, tmp);
+			
+							int crg=neighBoxes[n].meanRG-tmp.meanRG;
+							int cgr=neighBoxes[n].meanGR-tmp.meanGR;
+							int cby=neighBoxes[n].meanBY-tmp.meanBY;
+
+							if (crg*crg+cgr*cgr+cby*cby<min) {
+								min=crg*crg+cgr*cgr+cby*cby;
+								minBlob=b;
+								minModelBlob=n;
+							}
+						}
 					}
 				}
 			}
-			if (min<500) {
-				neighProb[n]=neighProb[n]*(epoch-1)/epoch+1./epoch;
-				neighTaken[minb]=true;
+			if (min<1323) {
+				neighTaken[minModelBlob]=true;
+				blobListObject[minBlob]=2;
 				recognized++;
-			} else {
-				neighProb[n]=neighProb[n]*(epoch-1)/epoch;
-			}
+			} else
+				break;
 		}
+		
+		for (int n=0; n<numNeighBoxes; n++) {
+			if (neighTaken[n]) neighProb[n]=neighProb[n]*(epoch-1)/epoch+1./epoch;
+			else neighProb[n]=neighProb[n]*(epoch-1)/epoch;
+			//neighEpoch[n]++;
+			//if (neighTaken[n]) neighFounded[n]++;
+		}
+		
 		if (numNeighBoxes<width*height) {
 			int added=0;
 			for (int b=2; b<=max_tag; b++) {
-				if (!neighTaken[b] && blobList[b]==1 && salience.getBlobNum(b).valid) {
+				/*if (!neighTaken[b] && blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000) {
 					neighBoxes[numNeighBoxes]=salience.getBlobNum(b);
+					// più ke altro potrei stabilire ke un box è buono se è utilizzato
+					// da almeno tot sessioni di addestramento
+					//neighProb[numNeighBoxes]=1./epoch;
+					neighProb[numNeighBoxes]=1;
+					numNeighBoxes++;
+					added++;
+				}*/
+				if (blobListObject[b]==0 && blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000) {
+					neighBoxes[numNeighBoxes]=salience.getBlobNum(b);
+					// più ke altro potrei stabilire ke un box è buono se è utilizzato
+					// da almeno tot sessioni di addestramento
 					neighProb[numNeighBoxes]=1./epoch;
+					//neighProb[numNeighBoxes]=0.5;
+					//neighEpoch[numNeighBoxes]=1;
+					//neighFounded[numNeighBoxes]=1;
 					numNeighBoxes++;
 					added++;
 				}
@@ -1164,7 +1214,9 @@ bool YARPImgAtt::learnObject()
 		ACE_OS::printf("%d boxes recognized\n", recognized);
 	}
 	
-	return true;
+	learnBackground();
+
+	return numNeighBoxes;
 }
 
 
@@ -1172,58 +1224,171 @@ double YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src)
 {
 	if (numNeighBoxes!=0) {
 		double totalScore=0;
+		double totalScore2=0;
+		//double totalScore3=0;
+		double totalScore4=1;
+		double totalScore5=1;
+		double confidence=1;
 		int k=0;
+		//int kk=0;
 
 		memset(blobList, 0, sizeof(char)*(max_tag+1));
 		rain.findNeighborhood(tagged, 0, 0, blobList);
 		
 		memset(blobListObject, 0, sizeof(char)*(max_tag+1));
+		memset(neighTaken, false, sizeof(bool)*(max_tag+1));
 
-		for (int n=0; n<numNeighBoxes; n++) {
-			if (neighProb[n]>0.75) {
-				k++;
-				int min=1000;
-				int minBlob=0;
-				for (int b=2; b<=max_tag; b++) {
-					/*if (salience.getBlobNum(b).valid &&
-						(salience.getBlobNum(b).centroid_x-fovBox.centroid_x)*(salience.getBlobNum(b).centroid_x-fovBox.centroid_x)+
-						(salience.getBlobNum(b).centroid_y-fovBox.centroid_y)*(salience.getBlobNum(b).centroid_y-fovBox.centroid_y)<2*fovBox.areaCart) {*/
-					if (blobList[b]==1 && salience.getBlobNum(b).valid) {
-						YARPBox tmp;
-						salience.getBlobNum(b, tmp);
-						int crg=neighBoxes[n].meanRG-tmp.meanRG;
-						int cgr=neighBoxes[n].meanGR-tmp.meanGR;
-						int cby=neighBoxes[n].meanBY-tmp.meanBY;
+		for (int j=0; j<numNeighBoxes; j++) {
+			int minModelBlob=0;
+			int min=10000;
+			int minBlob=0;
+			for (int n=0; n<numNeighBoxes; n++) {
+				if (!neighTaken[n]) {
+					for (int b=2; b<=max_tag; b++) {
+						//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
+						if (blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000) {
+							YARPBox tmp;
+							salience.getBlobNum(b, tmp);
+			
+							int crg=neighBoxes[n].meanRG-tmp.meanRG;
+							int cgr=neighBoxes[n].meanGR-tmp.meanGR;
+							int cby=neighBoxes[n].meanBY-tmp.meanBY;
 
-						if (crg*crg+cgr*cgr+cby*cby<min) {
-							min=crg*crg+cgr*cgr+cby*cby;
-							//minBlob=b;
+							if (crg*crg+cgr*cgr+cby*cby<min) {
+								min=crg*crg+cgr*cgr+cby*cby;
+								minBlob=b;
+								minModelBlob=n;
+							}
 						}
-						if (crg*crg+cgr*cgr+cby*cby<500)
-							blobListObject[b]=2;
 					}
 				}
-				if (min<500) {
-					totalScore+=neighProb[n];
-					//blobListObject[minBlob]=2;
+			}
+			if (min<1323) {
+				neighTaken[minModelBlob]=true;
+				if (neighProb[minModelBlob]>0.75) blobListObject[minBlob]=2;
+				//if ((double)neighFounded[minModelBlob]/neighEpoch[minModelBlob]>=0.75) blobListObject[minBlob]=2;
+				else blobListObject[minBlob]=1;
+			} else
+				break;
+		}
+			
+		bool atLeastOne=false;
+		for (int n=0; n<numNeighBoxes; n++) {
+			// se il punteggio è basso il fatto ke nn ci sia nn dovrebbe influire
+			// altrimenti 2000 blob con prob 0.1 di esserci ke nn ci sono mi abbassa tantissimo
+			// il punteggio!
+			if (neighProb[n]>=.75 || neighProb[n]<=0.25) {
+			//if ((double)neighFounded[n]/neighEpoch[n]>=0.75 || (double)neighFounded[n]/neighEpoch[n]<=0.25) {
+				k++;
+				atLeastOne=true;
+				totalScore5*=neighProb2[n];
+				if (neighTaken[n]) {
+					totalScore+=(neighProb[n]>=0.75);
+					//totalScore+=((double)neighFounded[n]/neighEpoch[n]>=0.75);
+					if (neighProb[n]>=0.75) totalScore2+=((neighProb[n]-0.75)*4);
+					//if ((double)neighFounded[n]/neighEpoch[n]>=0.75) totalScore2+=(((double)neighFounded[n]/neighEpoch[n]-0.75)*4);
+					/*double tmp;
+					if ((tmp=pow(neighEpoch[n], neighEpoch[n])/(pow(2, neighEpoch[n])*pow(neighFounded[n], neighFounded[n])*pow(neighEpoch[n]-neighFounded[n], neighEpoch[n]-neighFounded[n]))) < 0.25 ) {
+						totalScore3+=((double)neighFounded[n]/neighEpoch[n]>=0.75);
+						kk++;
+					}*/
+					confidence*=neighProb[n];
+					//confidence*=(double)neighFounded[n]/neighEpoch[n];
+					totalScore4*=neighProb[n];
+				} else {
+					totalScore+=(neighProb[n]<=0.25);
+					//totalScore+=((double)neighFounded[n]/neighEpoch[n]<=0.25);
+					if (neighProb[n]<=0.25) totalScore2+=((0.25-neighProb[n])*4);
+					//if ((double)neighFounded[n]/neighEpoch[n]<=0.25) totalScore2+=((0.25-(double)neighFounded[n]/neighEpoch[n])*4);
+					/*if (pow(neighEpoch[n], neighEpoch[n])/(pow(2, neighEpoch[n])*pow(neighFounded[n], neighFounded[n])*pow(neighEpoch[n]-neighFounded[n], neighEpoch[n]-neighFounded[n])) < 0.25 ) {
+						totalScore3+=((double)neighFounded[n]/neighEpoch[n]<=0.25);
+						kk++;
+					}*/
+					confidence*=(1-neighProb[n]);
+					//confidence*=(1-(double)neighFounded[n]/neighEpoch[n]);
+					totalScore4*=(1-neighProb[n]);
 				}
 			}
 		}
 		
+		totalScore/=k;
+		totalScore2/=k;
+		//totalScore3/=kk;
+		totalScore4=totalScore4/(totalScore4+totalScore5);
+
+
+		if (!atLeastOne) {
+			totalScore=0.5;
+			totalScore2=0.5;
+			confidence=0;
+		}
+
 		objectFov.Zero();
 		blobListObject[1]=2;
-		//salience.drawBlobListRandom(objectFov, tagged, blobListObject, max_tag);
-		salience.drawBlobListMask(src, objectFov, tagged, blobListObject, max_tag);
+		salience.drawBlobListRandom(objectFov, tagged, blobListObject, max_tag);
+		//salience.drawBlobListMask(src, objectFov, tagged, blobListObject, max_tag);
 
-		totalScore/=k;
+		//totalScore/=k;
 		ACE_OS::printf("Total Score: %lf\n", totalScore);
+		ACE_OS::printf("Total Score2: %lf\n", totalScore2);
+		//ACE_OS::printf("Total Score3: %lf\n", totalScore3);
+		ACE_OS::printf("Total Score4: %lf\n", totalScore4);
+		ACE_OS::printf("Confidence: %lf\n", confidence);
 		/*if (totalScore<.8) ACE_OS::printf(" too low, moving\n");
 		else ACE_OS::printf("\n");*/
 		//return (totalScore<.8 && epoch>30);
 		return totalScore;
 	}
 	
-	return 0;
+	return 1;
+}
+
+
+void YARPImgAtt::learnBackground()
+{
+	memset(neighTaken, false, sizeof(bool)*(max_tag+1));
+	memset(blobListBack, 0, sizeof(char)*(max_tag+1));
+	int recognized=0;
+
+	for (int j=0; j<numNeighBoxes; j++) {
+		int minModelBlob=0;
+		int min=10000;
+		int minBlob=0;
+		for (int n=0; n<numNeighBoxes; n++) {
+			if (!neighTaken[n]) {
+				for (int b=2; b<=max_tag; b++) {
+					//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
+					if (blobList[b]!=1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000 && blobListBack[b]==0) {
+						YARPBox tmp;
+						salience.getBlobNum(b, tmp);
+		
+						int crg=neighBoxes[n].meanRG-tmp.meanRG;
+						int cgr=neighBoxes[n].meanGR-tmp.meanGR;
+						int cby=neighBoxes[n].meanBY-tmp.meanBY;
+
+						if (crg*crg+cgr*cgr+cby*cby<min) {
+							min=crg*crg+cgr*cgr+cby*cby;
+							minBlob=b;
+							minModelBlob=n;
+						}
+					}
+				}
+			}
+		}
+		if (min<1323) {
+			neighTaken[minModelBlob]=true;
+			blobListBack[minBlob]=2;
+			//recognized++;
+		} else
+			break;
+	}
+
+	for (int n=0; n<numNeighBoxes; n++) {
+		if (neighTaken[n]) neighProb2[n]=neighProb2[n]*(epoch-1)/epoch+1./epoch;
+		else neighProb2[n]=neighProb2[n]*(epoch-1)/epoch;
+		//neighEpoch[n]++;
+		//if (neighTaken[n]) neighFounded[n]++;
+	}
 }
 
 
@@ -1232,7 +1397,11 @@ void YARPImgAtt::dumpLearnObject()
 	ACE_OS::printf("Epochs: %lu\n", epoch);
 	ACE_OS::printf("Boxes: %d\n", numNeighBoxes);
 	for (int i=0; i<numNeighBoxes; i++) {
-		ACE_OS::printf("Box #%d: %lf\n", i, neighProb[i]);
+		ACE_OS::printf("Box #%d: %lf RG:%d  GR:%d  BY:%d  %lf ", i, neighProb[i], neighBoxes[i].meanRG, neighBoxes[i].meanGR, neighBoxes[i].meanBY, neighProb2[i]);
+		//ACE_OS::printf("Box #%d: %lf RG:%d  GR:%d  BY:%d ", i, (double)neighFounded[i]/neighEpoch[i], neighBoxes[i].meanRG, neighBoxes[i].meanGR, neighBoxes[i].meanBY);
+		if (neighTaken[i])
+			ACE_OS::printf("found");
+		ACE_OS::printf("\n");
 	}
 }
 
@@ -1529,7 +1698,7 @@ void YARPImgAtt::drawBlobs(bool stable)
 	if (stable) {
 		memset(blobList, 0, sizeof(char)*(max_tag+1));
 		rain.findNeighborhood(tagged, 0, 0, blobList);
-		int num = salience.checkSmallBlobs(tagged, blobList, max_tag, 100);
+		int num = salience.countSmallBlobs(tagged, blobList, max_tag, 100);
 		blobList[1]=0;
 		salience.mergeBlobs(tagged, blobList, max_tag, 1);
 

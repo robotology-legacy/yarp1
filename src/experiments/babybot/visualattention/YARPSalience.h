@@ -140,7 +140,7 @@ public:
 	void fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag);
 	void fuseFoveaBlob2(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag);
 	void fuseFoveaBlob3(YARPImageOf<YarpPixelInt>& tagged, char *blobList, YarpPixelBGR var, int max_tag);
-	int checkSmallBlobs(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag, int min_size);
+	int countSmallBlobs(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag, int min_size);
 	void mergeBlobs(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag, int numBlob);
 	YarpPixelBGR varBlob(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<YarpPixelMono> &rg, YARPImageOf<YarpPixelMono> &gr, YARPImageOf<YarpPixelMono> &by, int tag);
 	void statBlobList(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag, YARPBox &blob);
@@ -165,7 +165,8 @@ public:
 	inline bool isWithinRange(int x, int y, double &elev, double &az)
 	{
 		_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, elev, az , x, y);
-		if (elev<2.*PI*(-65.)/360. || elev>2.*PI*(-20.)/360. || az<2.*PI*(-40.)/360. || az>2.*PI*50./360.)
+		//if (elev<2.*PI*(-65.)/360. || elev>2.*PI*(-20.)/360. || az<2.*PI*(-40.)/360. || az>2.*PI*50./360.)
+		if (elev<2.*PI*(-65.)/360. || elev>2.*PI*(-30.)/360. || az<2.*PI*(-40.)/360. || az>2.*PI*50./360.)
 			return false;
 		else
 			return true;

@@ -218,6 +218,7 @@ protected:
 
 	char* blobList;
 	char* blobListObject;
+	char* blobListBack;
 
 	YarpPixelMono searchRG;
 	YarpPixelMono searchGR;
@@ -238,6 +239,9 @@ protected:
 	int numNeighBoxes;
 	YARPBox *neighBoxes;
 	double *neighProb;
+	double *neighProb2;
+	//unsigned long int *neighEpoch;
+	//unsigned long int *neighFounded;
 	bool *neighTaken;
 	long unsigned int epoch;
 
@@ -328,9 +332,11 @@ public:
 		((IplImage *)meanCol)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;
 	}
 	
-	bool learnObject();
+	void resetObject();
+	int learnObject();
 	double checkObject(YARPImageOf<YarpPixelMono> &src);
 	void dumpLearnObject();
+	void learnBackground();
 	
 	YARPBox* IORBoxes;
 	YARPBox* max_boxes;
