@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.5 2003-05-21 14:30:05 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.6 2003-05-26 09:24:00 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -295,7 +295,8 @@ int YARPGalilDeviceDriver::get_positions(void *j)
 {
 	long rc = 0;
 
-	int *output = (int *) j;
+	//int *output = (int *) j;
+	double *output = (double *) j;
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -319,7 +320,8 @@ int YARPGalilDeviceDriver::get_ref_positions(void *j)
 {
 	long rc = 0;
 
-	int *output = (int *) j;
+	//int *output = (int *) j;
+	double *output = (double *) j;
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -343,7 +345,8 @@ int YARPGalilDeviceDriver::get_errors(void *errs)
 {
 	long rc = 0;
 
-	int *output = (int *) errs;
+	//int *output = (int *) errs;
+	double *output = (double *) errs;
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -392,7 +395,8 @@ int YARPGalilDeviceDriver::get_speeds(void *spds)
 {
 	long rc = 0;
 
-	int *output = (int *) spds;
+	//int *output = (int *) spds;
+	double *output = (double *) spds;
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -491,6 +495,7 @@ int YARPGalilDeviceDriver::set_positions (void *param)
 	return rc;
 }
 
+//TODO: int to double transformation
 int YARPGalilDeviceDriver::define_positions (void *param) 
 {
 	long rc = 0;
@@ -1273,6 +1278,34 @@ YARPGalilDeviceDriver::set_negative_limit(void *par)
 							(unsigned char *) m_buffer_out, 8,
 							m_buffer_in, buff_length);
 	
+	return rc;
+}
+
+// FIX: This must be improved! The axes added to the _BG Operand should be variable
+int YARPGalilDeviceDriver::check_motion_done(void *flag)
+{
+	long rc = 0;
+
+	bool *tmp = (bool *) flag;
+	
+	char cmd[] = "MG _BGABCD";
+	char *buff = m_buffer_out;
+
+	memcpy(buff, cmd, sizeof(cmd)-1);
+	buff+=(sizeof(cmd)-1);
+
+	// close command
+	buff = _append_cmd('\0', buff);
+	
+	rc = DMCCommand((HANDLEDMC) m_handle,
+					m_buffer_out,
+					m_buffer_in, buff_length);
+
+	if (atoi(m_buffer_in))
+		*tmp = false;
+	else	*tmp = true;
+	//_ascii_to_binary(m_buffer_in, tmp);
+
 	return rc;
 }
 
