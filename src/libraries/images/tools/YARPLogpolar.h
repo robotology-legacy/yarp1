@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.12 2003-09-02 14:27:55 natta Exp $
+/// $Id: YARPLogpolar.h,v 1.13 2003-09-02 16:36:23 natta Exp $
 ///
 ///
 
@@ -134,6 +134,7 @@ public:
 class YARPLogpolar : public YARPFilter
 {
 protected:
+	static ACE_Thread_Mutex _mutex;
 	static Image_Data _img;
 	static int * _remapMap;
 	static int * _remapMapFovea;
