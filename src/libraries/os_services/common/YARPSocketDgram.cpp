@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.38 2003-07-30 22:43:06 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.39 2003-07-31 22:06:59 gmetta Exp $
 ///
 ///
 
@@ -418,6 +418,10 @@ int YARPOutputSocketDgram::SendContinue(char *buffer, int buffer_length)
 /// I'm afraid the reply might end up being costly to streaming communication.
 int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buffer_length)
 {
+	memset (reply_buffer, 0, reply_buffer_length);
+	return reply_buffer_length;
+
+#if 0
 	OSDataDgram& d = OSDATA(system_resources);
 	int result = YARP_FAIL;
 
@@ -497,12 +501,33 @@ int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buff
 	}
 
 	return result;
+#endif
 }
 
 
 int YARPOutputSocketDgram::SendEnd(char *reply_buffer, int reply_buffer_length)
 {
-	return SendReceivingReply (reply_buffer, reply_buffer_length);
+	OSDataDgram& d = OSDATA(system_resources);
+
+	/// it needs to send the message first.
+	if (d._overall_msg_size > MAX_PACKET)
+	{
+		ACE_DEBUG ((LM_DEBUG, "Implementation limit, pls, you should refrain from sending big MCAST packets\n"));
+		ACE_DEBUG ((LM_DEBUG, "Actual size is %d, allowed %d\n", d._overall_msg_size, MAX_PACKET));
+		ACE_ASSERT (1 == 0);
+	}
+
+	int sent = d._connector_socket.send (d._iov, d._num_elements, d._remote_addr, 0);
+	if (sent < 0)
+	{
+		ACE_DEBUG ((LM_DEBUG, "Actual send to %s:%d failed\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
+		return YARP_FAIL;
+	}
+
+	memset (reply_buffer, 0, reply_buffer_length);
+	return reply_buffer_length;
+	
+	////return SendReceivingReply (reply_buffer, reply_buffer_length);
 }
 
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.10 2003-07-31 21:40:08 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.11 2003-07-31 22:06:59 gmetta Exp $
 ///
 ///
 
@@ -1420,9 +1420,9 @@ void _SocketThreadMulti::BodyUdp (void)
 			iov[0].iov_len = MAX_PACKET;
 
 			r = dgram_socket.recv (iov, 1, incoming, 0);
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
-
 			_local_buffer_counter = sizeof(MyMessageHeader);
+
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
 
 			/// this is supposed to read the header, r must be > 0
 			if (r < 0 || incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
@@ -1525,8 +1525,10 @@ void _SocketThreadMulti::BodyUdp (void)
 						_needs_reply = 0;
 					}
 
-					was_preamble = 0;
+					_local_buffer_counter = 0;
 
+#if 0
+					was_preamble = 0;
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to go into sending reply\n"));
 
 					/// creates a local buffer and sends it.
@@ -1587,6 +1589,8 @@ void _SocketThreadMulti::BodyUdp (void)
 					iov.iov_len = _local_buffer_counter;
 
 					dgram_socket.send (&iov, 1, _remote_endpoint.getAddressRef(), 0);
+
+#endif
 				}
 				else
 				{
@@ -2418,7 +2422,8 @@ int _SocketThreadListMulti::beginReply(ACE_HANDLE reply_pid, char *buf, int len)
 		{
 			if ((*it_avail)->getID() == reply_pid)
 			{
-				if ((*it_avail)->getServiceType () != YARP_MCAST)
+				if ((*it_avail)->getServiceType () != YARP_MCAST &&
+					(*it_avail)->getServiceType () != YARP_UDP)
 				{
 					(*it_avail)->waitOnMutex ();					///mutex.Wait();
 
@@ -2457,7 +2462,8 @@ int _SocketThreadListMulti::reply(ACE_HANDLE reply_pid, char *buf, int len)
 		{
 			if ((*it_avail)->getID() == reply_pid)
 			{
-				if ((*it_avail)->getServiceType() != YARP_MCAST)
+				if ((*it_avail)->getServiceType() != YARP_MCAST &&
+					(*it_avail)->getServiceType () != YARP_UDP)
 				{
 					(*it_avail)->waitOnMutex ();				///mutex.Wait();
 					(*it_avail)->setExternalReplyBuffer (buf);	///extern_reply_buffer = buf;

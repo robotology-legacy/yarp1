@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.50 2003-07-31 21:40:08 gmetta Exp $
+/// $Id: Port.cpp,v 1.51 2003-07-31 22:06:59 gmetta Exp $
 ///
 ///
 
@@ -127,7 +127,7 @@ void safe_printf(char *format,...)
 
 ///
 /// for testing only (possibly remove it completely).
-///#define DEBUG_DISABLE_SHMEM 1
+/// #define DEBUG_DISABLE_SHMEM 1
 
 /// this is because SHMEM alloc is not implemented in ACE for QNX6.
 #ifdef __QNX6__
