@@ -47,10 +47,10 @@ if (-e $config_file)
 		{
 			$contextual = $1;
 		}
-		elsif (/^([A-Za-z0-9_]+)= ?/)
+		elsif (/^([A-Za-z0-9_\$\/]+)= ?/)
 		{
 			my $word = $1;
-			if ($' =~ /([A-Za-z0-9_\/]+)\s?/)
+			if ($' =~ /([A-Za-z0-9_\/\$]+)\s?/)
 			{
 				$options{$contextual."<-".$word} = $1;
 			}
