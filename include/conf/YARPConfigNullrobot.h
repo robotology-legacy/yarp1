@@ -27,20 +27,11 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPConfigRobotTemplate.h,v 1.2 2004-06-01 13:02:45 babybot Exp $
+/// $Id: YARPConfigNullrobot.h,v 1.1 2004-06-01 13:02:06 babybot Exp $
 ///
 ///
 
-///
-/// this file contains robot specific configuration variables.
-///
-
-#ifndef __YARPConfigRoboth__
-#define __YARPConfigRoboth__
-
-///
-///
-/// use this as example.
-#include <conf/YARPConfigNullrobot.h>
+#ifndef __YARPConfigNullroboth__
+#define __YARPConfigNullroboth__
 
 #endif
