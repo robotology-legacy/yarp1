@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: soundidentification.cpp,v 1.18 2004-10-15 14:35:28 beltran Exp $
+/// $Id: soundidentification.cpp,v 1.19 2004-10-18 17:56:40 beltran Exp $
 ///
 
 /** 
@@ -62,6 +62,8 @@
 
 #define MIN(a,b) (a>b ? b : a)
 #define MAX(a,b) (a>b ? a : b)
+#define MIN3(a,b,c) MIN(MIN(a,b),c)
+#define MAX3(a,b,c) MAX(MAX(a,b),c)
 
 #define MEMORYMAX 60
 #define MIXELSMAX 40
@@ -79,8 +81,10 @@ const char *__baseName   = "/soundidentification/";
 const char *__configFile = "sound.ini";
 int _sizex = 250;
 int _sizey = 270; /** @todo Put this as an external parameter?. */
-int _histoWidth  = 250;
-int _histoHeigth = 100;
+int _histoWidth    = 250;
+int _histoHeigth   = 100;
+int _hsHistoWidth  = 360;
+int _hsHistoHeigth = 10;
 int _iSoundHistogramHeight = 100;
 const double __rmsthreshold = 300.0;
 
@@ -93,15 +97,35 @@ int  _protocol  = YARP_MCAST;
 /** 
  * Runs the main processing loop. 
  */
-class mainthread : public YARPThread
+class MainThread : public YARPThread
 {
 private:
-	int _iSValue;					  /** Contains the time samples used for the time buffers.		 */
-	double _dDecayValue;			  /** Decay value for the temporal images decay.				 */
-	YARPSemaphore _sema;			  /** Semaphore to synchronize access to class data.			 */
-	YARPSoundTemplate _soundTemplate; /** The sound template containing the mfcc parametrized sound. */
+	int _iSValue;								   /** Contains the time samples used for the time buffers.		  */
+	double _dDecayValue;						   /** Decay value for the temporal images decay.				  */
+	YARPSemaphore _sema;						   /** Semaphore to synchronize access to class data.			  */
+	YARPSoundTemplate _soundTemplate;			   /** The sound template containing the mfcc parametrized sound. */
+	YARPImageOf<YarpPixelBGR>  _imgMixelgram;	   /** The mixelgram image.										  */
+	YARPImageOf<YarpPixelBGR>  _imgInput;		   /** The normal input image.									  */
+	YARPImageOf<YarpPixelMono> _imgSoundHistogram; /** The Sound histogram.										  */
+	YARPImageOf<YarpPixelMono> _imgHSHistogram;    /** The HS histogram.										  */
+	YARPImageOf<YarpPixelBGR>  newimg;			   /** The image with the segmented object.						  */
 
 public:
+	/** 
+	  * Constructor.
+	  */
+	MainThread()
+	{
+		_iSValue = 15;
+		_dDecayValue = 0.98;
+	}
+
+	/** 
+	  * Set the value of S (the temporal memory of the sound
+	  * identification).
+	  * 
+	  * @param svalue The new value.
+	  */
 	void setSValue(const int &svalue)
 	{
 		LOCAL_TRACE("SoundIdenfication: Entering setSValue");
@@ -114,6 +138,12 @@ public:
 		}_sema.Post();
 	}
 
+	/** 
+	  * Set the segmented image decaing factor; this is, the factor
+	  * of forgivness.
+	  * 
+	  * @param dfactor The factor. 
+	  */
 	void setDecaingFactor(const double &dfactor)
 	{
 		LOCAL_TRACE("SoundIdentification: Entering setDecaingFactor");
@@ -126,25 +156,135 @@ public:
 		 }_sema.Post();
 	}
 
+	/** 
+	  * Returns the S value.
+	  * 
+	  * @return The S value.
+	  */
 	int getSValue() 
 	{ 
 		LOCAL_TRACE("SoundIdentification: Entering getSValue");
 		return _iSValue;
    	}
 
+	/** 
+	  * Returns the Decaing factor.
+	  * 
+	  * @return The decaing factor.
+	  */
 	double getDecaingFactor()
 	{ 
 		LOCAL_TRACE("SoundIdentification: Entering getDecaingFactor");
 		return _dDecayValue; 
 	}
 
+	/** 
+	  * Transforms the RGB values into HSV values.
+	  * 
+	  * @param r Red. Range [0-1]
+	  * @param g Green. Range [0-1]
+	  * @param b Blue. Range [0-1]
+	  * @param h Hue. Range [0-360]
+	  * @param s Saturation. Range [0-1]
+	  * @param v Value. Range [0-1]
+	  */
+	void RGBtoHSV( 
+		float r, 
+		float g, 
+		float b, 
+		float &h, 
+		float &s, 
+		float &v 
+		) {
+		float min = MIN3( r, g, b);
+		float max = MAX3( r, g, b);
+		float delta = max - min;
+
+		v = max;			
+
+		if( max != 0 ) {
+			s = delta / max;		
+		}
+		else {
+			// r = g = b = 0		// s = 0, v is undefined
+			s = 0;
+			h = -1;
+			return;
+		}
+		if( r == max )
+			h = ( g - b ) / delta;		// between yellow & magenta
+		else if( g == max )
+			h = 2 + ( b - r ) / delta;	// between cyan & yellow
+		else
+			h = 4 + ( r - g ) / delta;	// between magenta & cyan
+		h *= 60;				// degrees
+		if( h < 0 )
+			h += 360;
+	}
+
+	/** 
+	  * Computes the histogram. 
+	  * 
+	  * @param originalImage The original image.
+	  * @param _imgHSHistogram The histogram to be filled.
+	  * 
+	  * @return YARP_OK
+	  */
+	int ComputeHSHistogram(
+		YARPImageOf<YarpPixelBGR> &inputImage,
+		YARPImageOf<YarpPixelMono> &imageHSHistogram
+		) {
+		
+		int imageWidth  = inputImage.GetWidth();
+		int imageHeight = inputImage.GetHeight();
+		int histogramHeight = imageHSHistogram.GetHeight();
+		int iHueWidthCoordinate = 0;
+		int iSaturationHeightCoordinate = 0;
+		float dHue        = 0.0;
+		float dSaturation = 0.0;
+		float dValue      = 0.0;
+		double integerPart    = 0.0;
+		double fractionalPart = 0.0;
+		YarpPixelBGR pixelBGR;
+
+		imageHSHistogram.Zero();
+
+		for( int i = 1; i <= imageWidth; i++) {
+			for ( int j = 1; j <= imageHeight; j++){
+
+				pixelBGR.b = inputImage.SafePixel(i,j).b;
+				pixelBGR.g = inputImage.SafePixel(i,j).g;
+				pixelBGR.r = inputImage.SafePixel(i,j).r;
+
+				RGBtoHSV(
+					pixelBGR.r / (float) 255,
+					pixelBGR.g / (float) 255,
+					pixelBGR.b / (float) 255,
+					dHue,
+					dSaturation,
+					dValue
+					);
+
+				iHueWidthCoordinate = dHue;
+				dSaturation *= 10.0f;
+				fractionalPart = modf( dSaturation, &integerPart);
+				iSaturationHeightCoordinate = ( fractionalPart < 0.5) ? integerPart : integerPart +1;
+
+				imageHSHistogram.SafePixel( iHueWidthCoordinate, 
+					histogramHeight - iSaturationHeightCoordinate)++; 
+			}
+		}
+		return YARP_OK;
+	}
+
+	/** 
+	  * The main body of the thread.
+	  */
 	virtual void Body (void)
 	{
 		//LOCAL_TRACE("SoundIdenfication: Entering Body");
 		const int N  = 200;
 		const int N2 = 10 ;
-		_iSValue = 15;
-		_dDecayValue = 0.98;
 
 		int    counter = 0;
 		int    size    = 0;
@@ -153,29 +293,28 @@ public:
 		double period  = 0.0;
 		YarpPixelBGR _auxpix(0,0,0); /** Temporal pixel.  */
 		char * ppixel;
-		//YARPVectorBuffer vector_buff;
         YARPBottle _botActions;            // This bottle is used to control externally the
                                            // action to be taken.
         YVector _vOutMfcc(L_VECTOR_MFCC);  // The vector for the MFCC coefficients
 		YARPCovMatrix _mSoundCov;
 		YMatrix _mLocVar;
 
-		YARPImageOf<YarpPixelBGR> _imgMixelgram;  /** The mixelgram image.	  */
-		YARPImageOf<YarpPixelBGR> _imgInput;	  /** The normal input image. */
-		YARPImageOf<YarpPixelMono> _imgHistogram; /** The Sound histogram.	  */
-
         /** Vector of pointers to images. */
 		//YARPImageOf<YarpPixelBGR> ** _vImages = new YARPImageOf<YarpPixelBGR> *[_soundTemplate.Size()]; 
 		YARPImageOf<YarpPixelBGR> _vImages[ARRAY_MAX]; 
 
+		//----------------------------------------------------------------------
+		//  Resize some of the images.
+		//----------------------------------------------------------------------
         _imgInput.Resize(_sizex,_sizey);
-		_imgHistogram.Resize(_histoWidth, _histoHeigth);
+		_imgSoundHistogram.Resize(_histoWidth, _histoHeigth);
+		_imgHSHistogram.Resize(_hsHistoWidth, _hsHistoHeigth);
 
 		YARPScheduler::setHighResScheduling();
 
-		//
-		// Initialize sound template.
-		//
+		//----------------------------------------------------------------------
+		//  Initialize sound template.
+		//----------------------------------------------------------------------
 		_soundTemplate.Resize(_iSValue);
 		
 		//----------------------------------------------------------------------
@@ -188,7 +327,8 @@ public:
         //YARPOutputPortOf<YVector>          _outpMfcc (YARPOutputPort::DEFAULT_OUTPUTS,YARP_UDP);
         YARPOutputPortOf<YARPGenericImage> _outpImg;
         YARPOutputPortOf<YARPGenericImage> _outprecImg;
-		YARPOutputPortOf<YARPGenericImage> _outHistogramPort;
+		YARPOutputPortOf<YARPGenericImage> _outSoundHistogramPort;
+		YARPOutputPortOf<YARPGenericImage> _outHSHistogramPort;
 
         //_inpSound.SetAllowShmem (_sharedmem);
         //_inpAction.SetAllowShmem(_sharedmem);
@@ -196,16 +336,20 @@ public:
         //_outpMfcc.SetAllowShmem (_sharedmem);
         _outpImg.SetAllowShmem  (_sharedmem);
         _outprecImg.SetAllowShmem(_sharedmem);
-		_outHistogramPort.SetAllowShmem(_sharedmem);
+		_outSoundHistogramPort.SetAllowShmem(_sharedmem);
+		_outHSHistogramPort.SetAllowShmem(_sharedmem);
 
 		SoundIdentificationProcessing _soundIndprocessor(__configFile,  __outSize);
 		size = _soundIndprocessor.GetSize();
 
+		//----------------------------------------------------------------------
+		//  Register ports.
+		//----------------------------------------------------------------------
 		YARPString file_name("mfcc.txt"); // Name of the file where to save the mfcc if necessary
 		YARPString base1(__baseName); YARPString base2(__baseName);
 		YARPString base3(__baseName); YARPString base4(__baseName); 
 		YARPString base5(__baseName); YARPString base6(__baseName);
-		YARPString base7(__baseName);
+		YARPString base7(__baseName); YARPString base8(__baseName);
 
 		//LOCAL_TRACE("SoundIdentification: Registering ports");
         _inpSound.Register (base1.append("i"     ).c_str());
@@ -214,7 +358,8 @@ public:
         //_outpMfcc.Register (base4.append("mfcc"  ).c_str());
         _outpImg.Register  (base5.append("o:img"  ).c_str());
         _outprecImg.Register(base6.append("o:img2"  ).c_str());
-        _outHistogramPort.Register(base7.append("o:histo"  ).c_str());
+        _outSoundHistogramPort.Register(base7.append("o:soundhisto"  ).c_str());
+        _outHSHistogramPort.Register(base8.append("o:hshisto"  ).c_str());
 
 		time1 = YARPTime::GetTimeAsSeconds();
 		
@@ -257,7 +402,6 @@ public:
         double _soundtimeacquisition = 0.0;
 		double _imgtimeacquisitionold = 0.0;
 		double _soundtimeacquisitionold = 0.0;
-		YARPImageOf<YarpPixelBGR> newimg;
 
 		while(!IsTerminated())
 		{
@@ -270,8 +414,8 @@ public:
 			//  Read sound stream  and image from the network.
 			//----------------------------------------------------------------------
 			//LOCAL_TRACE("SoundIdentification: Reading from ports");
-            _inpSound.Read(1); // Read sound stream
-            _inpImg.Read(1);   // Read the image
+            _inpSound.Read(1); 
+            _inpImg.Read(1);  
             _imgInput.Refer(_inpImg.Content()); 
 
 			//----------------------------------------------------------------------
@@ -323,15 +467,17 @@ public:
 				_first = false;
 			}
 			*/
-			if ( _imgInput.GetWidth() != _imgMixelgram.GetWidth() || _imgInput.GetHeight() != _imgMixelgram.GetHeight())
+			//----------------------------------------------------------------------
+			//  Check size correctness.
+			//----------------------------------------------------------------------
+			if ( _imgInput.GetWidth() != _imgMixelgram.GetWidth() || _imgInput.GetHeight() != _imgMixelgram.GetHeight()) {
 				_imgMixelgram.Resize(_imgInput.GetWidth(),_imgInput.GetHeight());
+			}
 
-			if (_first)
-			{
+			if (_first) {
 				newimg.Resize(_imgInput.GetWidth(), _imgInput.GetHeight());
 				_first = false;
 			}
-
 
 			//----------------------------------------------------------------------
 			//  Introduce image into the images vector.
@@ -357,9 +503,7 @@ public:
 			//----------------------------------------------------------------------
 			if (_soundTemplate.Length() > 3)
 			{
-				//----------------------------------------------------------------------
 				//  Calculate sound covariance matrix.
-				//----------------------------------------------------------------------
 				_soundTemplate.CovarianceMatrix(_mSoundCov,0); 
 				
 				int w = _imgInput.GetWidth();
@@ -402,28 +546,29 @@ public:
 				_rmsmeansum += _rmsmean;
 
 				//  Clean histogram
-				_imgHistogram.Zero();
+				_imgSoundHistogram.Zero();
 
 				//----------------------------------------------------------------------
-				//  Calculate the sound histogram. 
+				//  Compute the normalized and truncated sound wave form. 
 				//----------------------------------------------------------------------
 				YVector _vNormalizedSoundSamples;
 				_soundIndprocessor.NormalizeSoundArray(32000);
-				//_soundIndprocessor.NormalizeSoundArray(16000.0);
 				_soundIndprocessor.TruncateSoundToVector(_histoWidth, _vNormalizedSoundSamples);
 
 				//----------------------------------------------------------------------
-				//  Paint the sound image.
+				//  Paint the sound wave form. 
 				//----------------------------------------------------------------------
 				for( i = 1; i <= _vNormalizedSoundSamples.Length(); i++){
-					 int value = _vNormalizedSoundSamples[i] * _imgHistogram.GetHeight();
+					 int value = _vNormalizedSoundSamples[i] * _imgSoundHistogram.GetHeight();
 					 value = fabs(value);
-					 int valuerawmaxposition = _imgHistogram.GetHeight() - value;
-					 if ( valuerawmaxposition < 0)
+					 int valuerawmaxposition = _imgSoundHistogram.GetHeight() - value;
+					 if ( valuerawmaxposition < 0){
 						 valuerawmaxposition = 0;
+					 }
 					 // Fill all the pixels in the column until the value
-					 for( int j = valuerawmaxposition; j < _imgHistogram.GetHeight(); j++)
-						 _imgHistogram.SafePixel(i,j) = 200;
+					 for( int j = valuerawmaxposition; j < _imgSoundHistogram.GetHeight(); j++){
+						 _imgSoundHistogram.SafePixel(i,j) = 100;
+					 }
 				}
 
 				//----------------------------------------------------------------------
@@ -464,20 +609,16 @@ public:
 				}
 
 				//----------------------------------------------------------------------
-				//  Paint a little circle mark to see that images are being received.
+				//  Compute the HS histogram.
 				//----------------------------------------------------------------------
-				/*
-				if (counter == N2)
-				{
-					int r = _imgInput.GetHeight() - 5;
-					int c = _imgInput.GetWidth() - 5;
-					YarpPixelBGR _apix(0,255,0); 
-					AddCircle(_imgMixelgram,_apix,r,c,_circleradius++);
-
-					if (_circleradius > 5) _circleradius = 0; 
+				if ( numberMixels > MIXELSMAX || _iMemoryFactor < MEMORYMAX) {
+					ComputeHSHistogram( newimg, _imgHSHistogram);
 				}
-				*/
-				
+				else {
+					YARPImageOf<YarpPixelBGR>& tmpimg2 = _vImages[_soundTemplate.Length()-1];
+				   ComputeHSHistogram( tmpimg2, _imgHSHistogram); 	
+				}
+
 				//----------------------------------------------------------------------
 				//  Send the mixelgram image into the network
 				//----------------------------------------------------------------------
@@ -494,8 +635,8 @@ public:
 					_outprecImg.Content().SetID(YARP_PIXEL_BGR);
 					_outprecImg.Content().Refer(newimg);
 					_outprecImg.Write(1);
-				}else
-				{
+				}
+				else {
 					YARPImageOf<YarpPixelBGR>& tempp = _vImages[_soundTemplate.Length()-1];
 					_outprecImg.Content().SetID(YARP_PIXEL_BGR);
 					_outprecImg.Content().Refer(tempp);
@@ -503,11 +644,20 @@ public:
 				}
 
 				//----------------------------------------------------------------------
-				//  Send the histogram to the network
+				//  Send sound the histogram to the network
 				//----------------------------------------------------------------------
-				_outHistogramPort.Content().SetID(YARP_PIXEL_MONO);
-				_outHistogramPort.Content().Refer(_imgHistogram); 
-				_outHistogramPort.Write();
+				_outSoundHistogramPort.Content().SetID(YARP_PIXEL_MONO);
+				_outSoundHistogramPort.Content().Refer(_imgSoundHistogram); 
+				_outSoundHistogramPort.Write();
+
+				//----------------------------------------------------------------------
+				//  Send the HS histogram to the network
+				//----------------------------------------------------------------------
+				YARPImageOf<YarpPixelMono> scaledimage;	
+				scaledimage.ScaledCopy( _imgHSHistogram, _imgInput.GetWidth(), 100);
+				_outHSHistogramPort.Content().SetID(YARP_PIXEL_MONO);
+				_outHSHistogramPort.Content().Refer(scaledimage);
+				_outHSHistogramPort.Write();
 			}
 			/*
 			//----------------------------------------------------------------------
@@ -799,7 +949,7 @@ main(int argc, char* argv[])
 	int iSValue = 15;
 	double dDecayFactor = 0.99;
 	YARPString c;
-	mainthread _thread;
+	MainThread _thread;
 	_thread.Begin();
 
 	do {
