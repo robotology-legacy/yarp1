@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_egomap.cpp,v 1.5 2004-01-26 13:16:22 babybot Exp $
+/// $Id: attn_egomap.cpp,v 1.6 2004-04-28 14:44:43 babybot Exp $
 ///
 ///
 
@@ -235,7 +235,7 @@ public:
 			it++;
 		}
 
-		YARPSimpleOperation::Decimate (_remappedImg, _outImg, DECIMATE, DECIMATE);
+		YARPSimpleOperations::Decimate (_remappedImg, _outImg, DECIMATE, DECIMATE);
 
 		YVector v(3);
 		_objList.getCurrent(v);

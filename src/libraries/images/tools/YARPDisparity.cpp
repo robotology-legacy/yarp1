@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.19 2004-04-26 10:26:29 babybot Exp $
+/// $Id: YARPDisparity.cpp,v 1.20 2004-04-28 14:44:43 babybot Exp $
 ///
 ///
 
@@ -405,7 +405,6 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
 int YARPDisparityTool::computeDisparityRGB (YARPImageOf<YarpPixelBGR> & inRImg,
 											YARPImageOf<YarpPixelBGR> & inLImg)
 {
-	int k;
 	int disparity;
 
 	rgbPixel avgLeft,avgRight;

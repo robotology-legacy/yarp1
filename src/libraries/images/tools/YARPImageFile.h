@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageFile.h,v 1.1 2003-06-22 11:35:25 gmetta Exp $
+/// $Id: YARPImageFile.h,v 1.2 2004-04-28 14:44:44 babybot Exp $
 ///
 ///
 
@@ -85,9 +85,8 @@ pasa: June 2002, don't exit on open failure (gracefully returns -1, 0 if OK).
 
 #include "YARPImage.h"
 
-class YARPImageFile
+namespace YARPImageFile
 {
-public:
 	enum
 	{
 		FORMAT_NULL,
@@ -96,8 +95,8 @@ public:
 		FORMAT_PPM,
 	};
 
-	static int Read(const char *src, YARPGenericImage& dest, int format=FORMAT_ANY);
-	static int Write(const char *dest, YARPGenericImage& src, int format=FORMAT_ANY);
+	int Read(const char *src, YARPGenericImage& dest, int format=FORMAT_ANY);
+	int Write(const char *dest, YARPGenericImage& src, int format=FORMAT_ANY);
 };
 
 #endif

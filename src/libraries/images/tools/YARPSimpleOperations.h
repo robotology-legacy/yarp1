@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.h,v 1.6 2004-04-26 10:26:29 babybot Exp $
+/// $Id: YARPSimpleOperations.h,v 1.7 2004-04-28 14:44:44 babybot Exp $
 ///
 ///
 
@@ -89,13 +89,13 @@
 const double __crossLength = 2.0;
 const double __crossThickness = 1.0;
 
-class YARPSimpleOperation
+namespace YARPSimpleOperations
 {
-public:
-	static void Scale (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out, double scale);
-	static void Threshold (const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelMono> &out, unsigned char threshold);
-	static void Flip (const YARPGenericImage& in, YARPGenericImage& out);
-	inline static void Fill (YARPGenericImage &img, int value)
+
+	void Scale (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out, double scale);
+	void Threshold (const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelMono> &out, unsigned char threshold);
+	void Flip (const YARPGenericImage& in, YARPGenericImage& out);
+	inline void Fill (YARPGenericImage &img, int value)
 	{
 		// image type is not checked!
 		char *pointer = img.GetRawBuffer();
@@ -107,85 +107,80 @@ public:
 	// decimate or shrinks an image
 	// scaleX/scaleY is the actor by which the input image is shrunken (>= 1)
 	template <class T>
-		static void Decimate (const YARPImageOf<T> &in, YARPImageOf<T> &out, double scaleX, double scaleY, int interpolate = IPL_INTER_NN);
+		void Decimate (const YARPImageOf<T> &in, YARPImageOf<T> &out, double scaleX, double scaleY, int interpolate = IPL_INTER_NN)
+		{
+			ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
+			ACE_ASSERT ( (scaleX >= 1) && (scaleY >= 1) );
+			ACE_ASSERT (in.GetWidth() == (int ) out.GetWidth()*scaleX);
+			ACE_ASSERT (in.GetHeight() == (int ) out.GetHeight()*scaleY);
+			
+			iplDecimate(in, out, 1, (int)scaleX, 1, (int)scaleY, interpolate);
+		}
 
 	template <class T>
-		inline static void DrawLine (YARPImageOf<T>& dest, int xstart, int ystart, int xend, int yend, const T& pixel);
+		void DrawLine (YARPImageOf<T>& dest, int xstart, int ystart, int xend, int yend, const T& pixel)
+		{
+			const int width = dest.GetWidth();
+			const int height = dest.GetHeight();
+
+			for(int i = 0; i < 2; i++)
+			{
+				if(xstart +i < width)
+				{
+					for(int j=0; j<2; j++)
+						if(ystart +j < height)
+							dest.Pixel(xstart +i, ystart +j) = pixel;
+				}
+			}
+
+			const int dx = xend - xstart;
+			const int dy = yend - ystart;
+			int d = 2 * dy - dx;
+			const int incrE = 2 * dy;
+			const int incrNE = 2 * (dy - dx);
+
+			while(xstart < xend)
+			{
+				if (d <= 0)
+				{
+					d += incrE;
+					xstart++;
+				}
+				else
+				{
+					d += incrNE;
+					xstart++;
+					ystart++;
+				}
+				dest.Pixel(xstart, ystart) = pixel;
+			} 
+		}
+
 	template <class T>
-		inline static void  DrawCross(YARPImageOf<T> &img, double dx, double dy, const T &pixel, int length = 2, int thick = 1);
+		void  DrawCross(YARPImageOf<T> &img, double dx, double dy, const T &pixel, int length = 2, int thick = 1)
+	{
+		int x = (int) (dx + 0.5);
+		int y = (int) (dy + 0.5);
+
+		int i,j,t;
+		
+		for(t = -thick; t <= thick; t++)
+		{
+			for(i = -length; i <= length; i++)
+				img.SafePixel(x+i,y+t) = pixel;
+			for (j = -length; j <= length; j++)
+				img.SafePixel(x+t,y+j) = pixel;
+		}
+	}
 	
-	inline static int ComputePadding (int linesize, int align)
+	inline int ComputePadding (int linesize, int align)
 	{
 		int rem = linesize % align;
 		return (rem != 0) ? (align - rem) : rem;
 	}
 };
 
-template <class T>
-inline static void YARPSimpleOperation::DrawCross(YARPImageOf<T> &img, double dx, double dy, const T &pixel, int length, int thick)
-{
-	int x = (int) (dx + 0.5);
-	int y = (int) (dy + 0.5);
-
-	int i,j,t;
-		
-	for(t = -thick; t <= thick; t++)
-	{
-		for(i = -length; i <= length; i++)
-			img.SafePixel(x+i,y+t) = pixel;
-		for (j = -length; j <= length; j++)
-			img.SafePixel(x+t,y+j) = pixel;
-	}
-}
-
-template <class T>
-inline static void YARPSimpleOperation::DrawLine (YARPImageOf<T>& dest, int xstart, int ystart, int xend, int yend, const T& pixel)
-{
-	const int width = dest.GetWidth();
-	const int height = dest.GetHeight();
-
-	for(int i = 0; i < 2; i++)
-	{
-		if(xstart +i < width)
-		{
-			for(int j=0; j<2; j++)
-				if(ystart +j < height)
-					dest.Pixel(xstart +i, ystart +j) = pixel;
-		}
-	}
-
-	const int dx = xend - xstart;
-	const int dy = yend - ystart;
-	int d = 2 * dy - dx;
-	const int incrE = 2 * dy;
-	const int incrNE = 2 * (dy - dx);
-
-	while(xstart < xend)
-	{
-		if (d <= 0)
-		{
-			d += incrE;
-			xstart++;
-		}
-		else
-		{
-			d += incrNE;
-			xstart++;
-			ystart++;
-		}
-		dest.Pixel(xstart, ystart) = pixel;
-	} 
-}
-
-template <class T>
-static void YARPSimpleOperation::Decimate (const YARPImageOf<T> &in, YARPImageOf<T> &out, double scaleX, double scaleY, int interpolate)
-{
-	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
-	ACE_ASSERT ( (scaleX >= 1) && (scaleY >= 1) );
-	ACE_ASSERT (in.GetWidth() == (int ) out.GetWidth()*scaleX);
-	ACE_ASSERT (in.GetHeight() == (int ) out.GetHeight()*scaleY);
-	
-	iplDecimate(in, out, 1, (int)scaleX, 1, (int)scaleY, interpolate);
-}
+// keep backward compatibility with old code (YARPSimpleOperations was previously misspelled)
+#define YARPSimpleOperation YARPSimpleOperations
 
 #endif
