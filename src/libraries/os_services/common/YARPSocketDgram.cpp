@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.37 2003-07-29 02:26:52 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.38 2003-07-30 22:43:06 gmetta Exp $
 ///
 ///
 
@@ -191,8 +191,11 @@ class OSDataDgram
 public:
 	ACE_INET_Addr _remote_acceptor_store;
 	ACE_INET_Addr _remote_addr;
+
 	ACE_INET_Addr _local_addr;
 	ACE_SOCK_Dgram _connector_socket;
+
+	ACE_SOCK_Connector _service_socket;
 
 	MyMessageHeader _hdr;
 
@@ -257,15 +260,25 @@ int YARPOutputSocketDgram::Close (const YARPUniqueNameID& name)
 	MyMessageHeader hdr;
 	hdr.SetGood ();
 	hdr.SetLength (YARP_MAGIC_NUMBER + 1);
-	d._connector_socket.send (&hdr, sizeof(hdr), d._remote_addr);
+
+	ACE_SOCK_Stream stream;
+	int r = d._service_socket.connect (stream, d._remote_addr, &timeout);
+	if (r < 0)
+	{
+		ACE_DEBUG ((LM_DEBUG, "cannot connect to remote peer %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
+		return YARP_FAIL;
+	}
+
+	r = stream.send_n (&hdr, sizeof(hdr), 0);
 
 	/// wait response.
 	/// need a timeout here!
 	hdr.SetBad ();
-	ACE_INET_Addr incoming;
-	int r = d._connector_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
+
+	r = stream.recv (&hdr, sizeof(hdr), 0, &timeout);
 	if (r < 0)
 	{
+		stream.close ();
 		d._connector_socket.close ();
 		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 		return YARP_FAIL;
@@ -275,17 +288,40 @@ int YARPOutputSocketDgram::Close (const YARPUniqueNameID& name)
 	d._remote_addr.set ((u_short)0);
 	d._remote_acceptor_store.set ((u_short)0);
 
-	return d._connector_socket.close ();
+	stream.close ();
+	d._connector_socket.close ();
+
+	return YARP_OK;
 }
 
 
 int YARPOutputSocketDgram::Prepare (const YARPUniqueNameID& name)
 {
+	OSDataDgram& d = OSDATA(system_resources);
+
 	/// local_port might not be needed by the socket layer.
 	char buf[YARP_STRING_LEN];
 	getHostname (buf, YARP_STRING_LEN);
-	OSDATA(system_resources)._local_addr.set ((u_short)0, buf);
-	OSDATA(system_resources)._remote_addr = ((YARPUniqueNameSock&)name).getAddressRef();
+	d._local_addr.set ((u_short)0, buf);
+	d._remote_addr = ((YARPUniqueNameSock&)name).getAddressRef();
+
+	int r = d._connector_socket.open (d._local_addr, ACE_PROTOCOL_FAMILY_INET, 0, 1);
+	if (r < 0)
+	{
+		identifier = ACE_INVALID_HANDLE;
+		return YARP_FAIL;
+	}
+
+	r = YARPNetworkObject::setSocketBufSize (d._connector_socket, MAX_PACKET);
+	if (r < 0)
+	{
+		d._connector_socket.close();
+		ACE_DEBUG ((LM_DEBUG, "cannot set buffer size to %d\n", MAX_PACKET));
+		return YARP_FAIL;
+	}
+
+	identifier = d._connector_socket.get_handle();
+
 	return YARP_OK;
 }
 
@@ -300,10 +336,13 @@ int YARPOutputSocketDgram::Connect (const YARPUniqueNameID& name)
 		d._remote_addr.get_port_number(), 
 		d._remote_addr.get_host_addr()));
 
-	int r = d._connector_socket.open (d._local_addr, ACE_PROTOCOL_FAMILY_INET, 0, 1);
-	if (r == -1)
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	ACE_SOCK_Stream stream;
+
+	int r = d._service_socket.connect (stream, d._remote_addr, &timeout);
+	if (r < 0)
 	{
-		ACE_DEBUG ((LM_DEBUG, "cannot open dgram socket %s:%d\n", d._local_addr.get_host_addr(), d._local_addr.get_port_number()));
+		ACE_DEBUG ((LM_DEBUG, "cannot connect to remote peer %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 		return YARP_FAIL;
 	}
 
@@ -312,16 +351,14 @@ int YARPOutputSocketDgram::Connect (const YARPUniqueNameID& name)
 	MyMessageHeader hdr;
 	hdr.SetGood ();
 	hdr.SetLength (YARP_MAGIC_NUMBER);
-	d._connector_socket.send (&hdr, sizeof(hdr), d._remote_addr);
+	stream.send_n (&hdr, sizeof(hdr), 0);
 
 	/// wait response.
 	hdr.SetBad ();
-	ACE_INET_Addr incoming;
-	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
-	r = d._connector_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
+	r = stream.recv (&hdr, sizeof(hdr), 0, &timeout);
 	if (r < 0)
 	{
-		d._connector_socket.close ();
+		stream.close ();
 		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 		return YARP_FAIL;
 	}
@@ -333,16 +370,14 @@ int YARPOutputSocketDgram::Connect (const YARPUniqueNameID& name)
 	if (port_number == -1)
 	{
 		/// there might be a real -1 port number -> 65535.
-		d._connector_socket.close ();
+		stream.close ();
 		ACE_DEBUG ((LM_DEBUG, "got garbage back from remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 		return YARP_FAIL;
 	}
 
 	/// the connect changes the remote port number to the actual assigned channel.
 	d._remote_addr.set_port_number (port_number);
-	identifier = d._connector_socket.get_handle ();
-
-	YARPNetworkObject::setSocketBufSize (d._connector_socket, MAX_PACKET);
+	stream.close ();
 
 	return YARP_OK;
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.7 2003-07-29 02:26:52 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.8 2003-07-30 22:43:06 gmetta Exp $
 ///
 ///
 
@@ -174,15 +174,19 @@ class _SocketThreadMulti : public YARPBareThread
 {
 protected:
 	int _available;
-	int _port;								/// udp port of the incoming udp "connection".
-	ACE_SOCK_Dgram _local_socket;			/// a generic dgram socket used for service 
+	int _port;								/// port of the incoming "connection".
+	
+	ACE_SOCK_Acceptor _local_acceptor;		/// a generic TCP socket used for service 
 											///		communication (control messages).
-											/// this is UDP protocol.
-	YARPUniqueNameSock _local_addr;			/// UDP local addr.
-	YARPUniqueNameSock _remote_endpoint;	/// remote peer for UDP communication.
+											/// this is TCP protocol.
 
-	void *_socket;							/// a general purpose connector.
+	YARPUniqueNameSock _local_addr;			/// local addr.
+	YARPUniqueNameSock _remote_endpoint;	/// remote peer for TCP communication (is it needed?).
+
+	void *_socket;							/// a general purpose acceptor (server socket).
 	YARPUniqueNameID *_socket_addr;			/// general socket address description.
+
+	ACE_SOCK_Stream *_stream;				/// for connected sockets.
 
 	_SocketThreadListMulti *_owner;
 
@@ -191,10 +195,6 @@ protected:
 	char *_extern_reply_buffer;
 	int _extern_reply_length;
 
-	/// unfortunately to avoid multiple packet send/recv in MCAST/UDP requires
-	/// a buffer copy. Multiple mcast/udp packets is deleterious in terms of bandwidth
-	/// consumption.
-	///	LATER: Shared memory might not need this extra copy.
 	char _local_buffer[MAX_PACKET];
 	int _local_buffer_counter;
 
@@ -204,16 +204,18 @@ protected:
 	int _reply_preamble;
 	YARPSemaphore _wakeup, _mutex, _reply_made;
 
-	/// <remid> is the UDP connection address.
-	/// <socket> is the generic connection address (is UniqueNameSock ok?).
+	/// <remid> is the TCP connection address.
+	/// <socket> is the generic connection address.
 	int _begin (const YARPUniqueNameSock *remid, const YARPUniqueNameID *socket, int port);
 
 public:
 	/// ctors.
+#if 0
 	_SocketThreadMulti (const YARPUniqueNameSock *remid, const YARPUniqueNameID *socket, int port) : _wakeup(0), _mutex(1), _reply_made(0)
     {
 		_begin (remid, socket, port);
     }
+#endif
 
 	_SocketThreadMulti (void) : _wakeup(0), _mutex(1), _reply_made(0)
     {
@@ -227,6 +229,12 @@ public:
 
 		switch (_socket_addr->getServiceType())
 		{
+		case YARP_TCP:
+			{
+				ACE_DEBUG ((LM_DEBUG, "TCP not implemented yet (~SocketThreadMulti)\n"));
+			}
+			break;
+
 		case YARP_MCAST:
 			{
 				if (_socket != NULL)
@@ -238,6 +246,13 @@ public:
 			break;
 
 		case YARP_UDP:
+			{
+				if (_socket != NULL)
+				{
+					ACE_SOCK_Dgram& dgram = *((ACE_SOCK_Dgram *)_socket);
+					delete &dgram;
+				}
+			}
 			break;
 
 		case YARP_SHMEM:
@@ -268,23 +283,28 @@ public:
 
 	/// call it reconnect (recycle the thread).
 	/// the thread shouldn't be running.
+	void setTCPStream (ACE_SOCK_Stream *stream);
+	void clearOldAddr (void);
 	int reuse(const YARPUniqueNameSock* remid, const YARPUniqueNameID* socket, int port);
 
 	YARPUniqueNameSock& getRemoteID(void) { return _remote_endpoint; }
-	ACE_HANDLE getID () const {	return  _local_socket.get_handle (); }
+	ACE_HANDLE getID () const {	return  _local_acceptor.get_handle (); }
 	int getServiceType (void) const { return (_socket_addr != NULL) ? _socket_addr->getServiceType() : YARP_NO_SERVICE_AVAILABLE; }
 
 	virtual void End (int dontkill = 0);
 
 	/// thread Body.
 	virtual void Body (void);
+
+	/// protocol thread body.
+	void BodyTcp (void);
 	void BodyUdp (void);
 	void BodyMcast (void);
 	void BodyShmem (void);
 
 	/// returns the last used port number for this thread.
 	/// the thread might have been assigned a port number out of a pool
-	///		this is done to manage UDP connections.
+	///		this is done to manage connections [each is assigned a port].
 	int getOldPortNumber (void) { return _port; } 
 
 	/// ----> state flags
@@ -322,7 +342,7 @@ class _SocketThreadListMulti : public YARPBareThread
 {
 private:
 	ACE_INET_Addr _local_addr;						/// local address of the acceptor.
-	ACE_SOCK_Dgram _acceptor_socket;				/// the acceptor UDP socket.
+	ACE_SOCK_Acceptor _acceptor_socket;				/// the acceptor TCP socket.
 
 	list<_SocketThreadMulti *> _list;				/// managed list of threads.
 	YARPSemaphore _new_data, _new_data_written;
@@ -368,14 +388,6 @@ public:
 
 	virtual void Body (void)
 	{
-#if 0
-		int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, "acceptor thread at priority %d -> %d\n", GetPriority(), prio));
-		if (SetPriority(prio) == YARP_FAIL)
-		{
-			ACE_DEBUG ((LM_DEBUG, "can't raise priority of acceptor thread, potential source of troubles\n"));
-		}
-#endif
 		while (1)
 		{
 			addSocket();
@@ -435,10 +447,14 @@ int _SocketThreadMulti::_begin (const YARPUniqueNameSock *remid, const YARPUniqu
 	_local_buffer_counter = 0;
 
 	_port = port;
+
+#if 0
 	if (port != 0)
 	{
+		ACE_ASSERT (1 == 0);
+
 		ACE_ASSERT (remid != NULL && socket != NULL);
-		ACE_ASSERT (remid->getServiceType() == YARP_UDP);
+		ACE_ASSERT (remid->getServiceType() == YARP_TCP);
 
 		_remote_endpoint = *remid;
 
@@ -446,12 +462,19 @@ int _SocketThreadMulti::_begin (const YARPUniqueNameSock *remid, const YARPUniqu
 		char myhostname[YARP_STRING_LEN];
 		getHostname (myhostname, YARP_STRING_LEN);
 		_local_addr.getAddressRef().set (port, myhostname);
-		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
-		
-		YARPNetworkObject::setSocketBufSize (_local_socket, MAX_PACKET);
+
+		_local_acceptor.open(_local_addr.getAddressRef(), 1);	/// reuse addr enabled.
 
 		switch (socket->getServiceType())
 		{
+		case YARP_TCP:
+			{
+				///
+				ACE_DEBUG ((LM_DEBUG, "SocketThreadMulti::_begin: TCP not implemented\n"));
+				_socket = NULL;
+			}
+			break;
+
 		case YARP_MCAST:
 			{
 				_socket_addr = new YARPUniqueNameSock ((YARPUniqueNameSock*)socket);
@@ -479,7 +502,21 @@ int _SocketThreadMulti::_begin (const YARPUniqueNameSock *remid, const YARPUniqu
 			{
 				_socket_addr = new YARPUniqueNameSock ((YARPUniqueNameSock*)socket);
 				ACE_ASSERT (_socket_addr != NULL);
-				_socket = NULL;
+
+				/// build the DGRAM socket.
+				_socket = (void *)new ACE_SOCK_Dgram;
+				ACE_ASSERT (_socket != NULL);
+				
+				ACE_SOCK_Dgram& dgram = *((ACE_SOCK_Dgram *)_socket);
+				
+				if (_socket_addr != NULL)
+				{
+					dgram.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
+					YARPNetworkObject::setSocketBufSize (dgram, MAX_PACKET);
+
+					if (dgram.get_handle() == ACE_INVALID_HANDLE)
+						return YARP_FAIL;
+				}
 			}
 			break;
 
@@ -499,16 +536,17 @@ int _SocketThreadMulti::_begin (const YARPUniqueNameSock *remid, const YARPUniqu
 			break;
 		}
 
-		_local_addr.setServiceType (YARP_UDP);
-		_local_addr.setRawIdentifier (_local_socket.get_handle());
+		_local_addr.setServiceType (YARP_TCP);
+		_local_addr.setRawIdentifier (_local_acceptor.get_handle());
 
-		if (_local_socket.get_handle() == ACE_INVALID_HANDLE)
+		if (_local_acceptor.get_handle() == ACE_INVALID_HANDLE)
 		{
 			return YARP_FAIL;
 		}
 		_available = 0;
 	}
 	else
+#endif
 	{
 		_available = 1;
 		_socket = NULL;
@@ -518,6 +556,7 @@ int _SocketThreadMulti::_begin (const YARPUniqueNameSock *remid, const YARPUniqu
 
 	_read_more = 0;
 	_reply_preamble = 0;
+	_stream = NULL;
 
 	return YARP_OK;
 }
@@ -527,62 +566,115 @@ void _SocketThreadMulti::setOwner(const _SocketThreadListMulti& n_owner)
 	_owner = (_SocketThreadListMulti *)(&n_owner);
 }
 
+void _SocketThreadMulti::setTCPStream (ACE_SOCK_Stream *stream)
+{
+	ACE_ASSERT (stream != NULL);
+
+	if (_stream != NULL)
+	{
+		_stream->close();
+		delete _stream;
+	}
+
+	_stream = stream;
+}
+
+void _SocketThreadMulti::clearOldAddr (void)
+{
+	/// test the old address first and clean up the socket addr and objects.
+	if (_socket_addr != NULL)
+	{
+		switch (_socket_addr->getServiceType())
+		{
+		case YARP_TCP:
+			{
+				_socket = NULL;
+
+				/// do not change _stream, this has been taken care by setTCPStream().
+
+				if (_socket_addr != NULL) 
+				{
+					delete _socket_addr;
+					_socket_addr = NULL;
+				}
+			}
+			break;
+
+		case YARP_MCAST:
+			{
+				if (_socket != NULL)
+				{
+					((ACE_SOCK_Dgram_Mcast *)_socket)->close ();
+					delete (ACE_SOCK_Dgram_Mcast *)_socket;
+					_socket = NULL;
+				}
+
+				if (_socket_addr != NULL) 
+				{
+					delete _socket_addr;
+					_socket_addr = NULL;
+				}
+			}
+			break;
+
+		case YARP_UDP:
+			{
+				if (_socket != NULL)
+				{
+					((ACE_SOCK_Dgram *)_socket)->close ();
+					delete (ACE_SOCK_Dgram *)_socket;
+					_socket = NULL;
+				}
+
+				if (_socket_addr != NULL) 
+				{
+					delete _socket_addr;
+					_socket_addr = NULL;
+				}
+			}
+			break;
+
+		case YARP_SHMEM:
+			{
+				if (_socket != NULL)
+				{
+					((ACE_MEM_Acceptor *)_socket)->close ();
+					delete (ACE_MEM_Acceptor *)_socket;
+					_socket = NULL;
+				}
+
+				if (_socket_addr != NULL) 
+				{
+					delete _socket_addr;
+					_socket_addr = NULL;
+				}
+			}
+			break;
+
+		default:
+			break;
+		}
+	}
+}
+
 /// call it reconnect (recycle the thread).
 /// the thread shouldn't be running.
 int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueNameID* socket, int port)
 {
-	/// remid is always UDP.
-	ACE_ASSERT (remid->getServiceType() == YARP_UDP);
+	/// remid must be always TCP.
+	ACE_ASSERT (remid->getServiceType() == YARP_TCP);
 
-	/// test the old address first.
-	switch (socket->getServiceType())
-	{
-	case YARP_MCAST:
-		{
-			if (_socket != NULL)
-			{
-				((ACE_SOCK_Dgram_Mcast *)_socket)->close ();
-				delete (ACE_SOCK_Dgram_Mcast *)_socket;
-				_socket = NULL;
-			}
-
-			if (_socket_addr != NULL) 
-			{
-				delete _socket_addr;
-				_socket_addr = NULL;
-			}
-		}
-		break;
-
-	case YARP_UDP:
-		break;
-
-	case YARP_SHMEM:
-		{
-			if (_socket != NULL)
-			{
-				((ACE_MEM_Acceptor *)_socket)->close ();
-				delete (ACE_MEM_Acceptor *)_socket;
-				_socket = NULL;
-			}
-
-			if (_socket_addr != NULL) 
-			{
-				delete _socket_addr;
-				_socket_addr = NULL;
-			}
-		}
-		break;
-
-	default:
-		break;
-	}
+	clearOldAddr ();
 
 	if (port != 0)
 	{
+		/// this is fine but the actual remote is the TCP here and not the UDP.
+		/// this gets the right value only after the first recv, no alternatives.
 		_remote_endpoint = *remid;
 
-		_local_socket.close ();
+		///
+		/// LATER: is this needed, shouldn't be already closed.
+		_local_acceptor.close ();
 
 		_port = port;
 
@@ -590,11 +682,22 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 		char myhostname[YARP_STRING_LEN];
 		getHostname (myhostname, YARP_STRING_LEN);
 		_local_addr.getAddressRef().set (port, myhostname);
-		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
-		YARPNetworkObject::setSocketBufSize (_local_socket, MAX_PACKET);
+		_local_acceptor.open (_local_addr.getAddressRef(), 1);
 
 		switch (socket->getServiceType())
 		{
+		case YARP_TCP:
+			{
+				_socket = NULL;
+
+				/// not quite needed for the addr itself (just stores the protocol -TCP-).
+				_socket_addr = new YARPUniqueNameSock ((YARPUniqueNameSock*)socket);
+				ACE_ASSERT (_socket_addr != NULL);
+
+				ACE_ASSERT (_stream != NULL);
+			}
+			break;
+
 		case YARP_MCAST:
 			{
 				_socket_addr = new YARPUniqueNameSock ((YARPUniqueNameSock*)socket);
@@ -614,12 +717,25 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 			break;
 
 		case YARP_UDP:
-			_socket_addr = new YARPUniqueNameSock ((YARPUniqueNameSock*)socket);
-			ACE_ASSERT (_socket_addr != NULL);
+			{			
+				_socket_addr = new YARPUniqueNameSock ((YARPUniqueNameSock*)socket);
+				ACE_ASSERT (_socket_addr != NULL);
 
-			_socket = NULL;
-			/// it doesn't require an extra socket because the protocol is the same of the
-			///		service channel.
+				/// build the DGRAM socket.
+				_socket = (void *)new ACE_SOCK_Dgram;
+				ACE_ASSERT (_socket != NULL);
+				
+				ACE_SOCK_Dgram& dgram = *((ACE_SOCK_Dgram *)_socket);
+				
+				if (_socket_addr != NULL)
+				{
+					dgram.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
+					YARPNetworkObject::setSocketBufSize (dgram, MAX_PACKET);
+
+					if (dgram.get_handle() == ACE_INVALID_HANDLE)
+						return YARP_FAIL;
+				}
+			}
 			break;
 
 		case YARP_SHMEM:
@@ -638,9 +754,9 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 			break;
 		}
 
-		_local_addr.getNameID() = YARPNameID (YARP_UDP, _local_socket.get_handle());
+		_local_addr.getNameID() = YARPNameID (YARP_TCP, _local_acceptor.get_handle());
 
-		if (_local_socket.get_handle() == ACE_INVALID_HANDLE)
+		if (_local_acceptor.get_handle() == ACE_INVALID_HANDLE)
 		{
 			return YARP_FAIL;
 		}
@@ -652,6 +768,13 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 		_socket = NULL;
 		_remote_endpoint.invalidate();
 		_socket_addr = NULL;
+
+		if (_stream != NULL)
+		{
+			_stream->close ();
+			delete _stream;
+			_stream = NULL;
+		}
 	}
 
 	return YARP_OK;
@@ -664,11 +787,30 @@ void _SocketThreadMulti::End (int dontkill /* = 0 */)
 	YARPBareThread::End ();
 	_mutex.Wait ();
 	
-	if (_local_socket.get_handle() != ACE_INVALID_HANDLE)
-		_local_socket.close();
+	if (_local_acceptor.get_handle() != ACE_INVALID_HANDLE)
+		_local_acceptor.close();
 
 	switch (_socket_addr->getServiceType())
 	{
+	case YARP_TCP:
+		{
+			_socket = NULL;
+
+			if (_stream != NULL)
+			{
+				_stream->close ();
+				delete _stream;
+				_stream = NULL;
+			}
+
+			if (_socket_addr != NULL)
+			{
+				delete _socket_addr;
+				_socket_addr = NULL;
+			}
+		}
+		break;
+
 	case YARP_MCAST:
 		{
 			if (_socket != NULL)
@@ -690,15 +832,20 @@ void _SocketThreadMulti::End (int dontkill /* = 0 */)
 
 	case YARP_UDP:
 		{
+			if (_socket != NULL)
+			{
+				ACE_SOCK_Dgram& dgram = *((ACE_SOCK_Dgram *)_socket);
+				if (dgram.get_handle() != ACE_INVALID_HANDLE)
+					dgram.close();
+				delete &dgram;
+				_socket = NULL;
+			}
+
 			if (_socket_addr != NULL)
 			{
 				delete _socket_addr;
 				_socket_addr = NULL;
 			}
-
-			/// it doesn't require an extra socket because the protocol is the same of the
-			///		service channel.
-			_socket = NULL;
 		}
 		break;
 
@@ -723,7 +870,7 @@ void _SocketThreadMulti::End (int dontkill /* = 0 */)
 
 	default:
 		{
-			ACE_DEBUG ((LM_DEBUG, "SocketThreadMulti::End : protocol not implemented\n"));
+			ACE_DEBUG ((LM_DEBUG, "_SocketThreadMulti::End : protocol not implemented\n"));
 			_socket = NULL;
 		}
 		break;
@@ -742,15 +889,6 @@ void _SocketThreadMulti::Body (void)
 	signal (SIGPIPE, SIG_IGN);
 #endif
 
-#if 0
-	int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
-	if (SetPriority(prio) == YARP_FAIL)
-	{
-		ACE_DEBUG ((LM_DEBUG, "can't raise priority of reader thread, potential source of troubles\n"));
-	}
-#endif
-
 	_extern_buffer = NULL;
 	_extern_length = 0;
 	_waiting = 0;
@@ -760,16 +898,20 @@ void _SocketThreadMulti::Body (void)
 
 	switch (_socket_addr->getServiceType())
 	{
+	case YARP_TCP:
+		BodyTcp ();			/// tcp only connection.
+		break;
+
 	case YARP_UDP:
-		BodyUdp ();			/// udp only connection.
+		BodyUdp ();			/// udp + tcp channel for service.
 		break;
 
 	case YARP_MCAST:
-		BodyMcast ();		/// mcast + udp channel for service.
+		BodyMcast ();		/// mcast + tcp channel for service.
 		break;
 
 	case YARP_SHMEM:
-		BodyShmem ();		/// shmem + udp channel for service.
+		BodyShmem ();		/// shmem + tcp channel for service.
 		break;
 
 	default:
@@ -788,7 +930,6 @@ void _SocketThreadMulti::Body (void)
 #ifdef __WIN32__
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? comms thread bailed out\n"));
 #else
-	/// what is this for?
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? comms thread %d bailed out\n", getpid()));
 #endif
 }
@@ -797,10 +938,192 @@ void _SocketThreadMulti::Body (void)
 ///
 ///
 ///
+void _SocketThreadMulti::BodyTcp (void)
+{
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	int finished = 0;
+	int r = YARP_FAIL;
+	int was_preamble = 0;
+	int len = 0;	
+
+	memset (_local_buffer, 0, MAX_PACKET);
+	_local_buffer_counter = 0;
+
+	ACE_ASSERT (_socket == NULL);
+	ACE_ASSERT (_stream != NULL);
+
+	while (!finished)
+	{
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** listener %d waiting\n", _remote_endpoint.getAddressRef().get_port_number()));
+
+		MyMessageHeader hdr;
+		hdr.SetBad();
+
+		/// I wonder whether this can be made to read the current packet instead of...
+		/// better packing all the sends in a single send_n - what about the NODELAY option?.
+		r = _stream->recv_n (&hdr, sizeof(hdr), 0);
+		
+		if (r < 0)
+		{
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** closing %d\n", r));
+			if (_stream != NULL)
+			{
+				_stream->close ();
+				delete _stream;
+				_stream = NULL;
+			}
+			finished = 1;
+		}
+
+		len = hdr.GetLength();
+		if (len < 0)
+		{
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "{{}} Corrupt/empty header received\n"));
+
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** closing\n", r));
+			if (_stream != NULL)
+			{
+				_stream->close ();
+				delete _stream;
+				_stream = NULL;
+			}
+			finished = 1;
+		}
+
+		if (len >= 0)
+		{
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** got a header\n"));
+			if (_owner != NULL)
+			{
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** and i am owned\n"));
+				_mutex.Wait();
+				_extern_buffer = NULL;
+				_extern_length = len;
+
+				/// ???
+				_owner->declareDataAvailable();
+
+				_waiting = 1;
+				_mutex.Post();
+				_wakeup.Wait();
+
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** woken up!\n"));
+			}
+
+			if (_extern_buffer != NULL)
+			{
+				if (len > _extern_length)
+				{
+					len = _extern_length;
+				}
+
+				r = _stream->recv_n (_extern_buffer, len , 0);
+				_extern_length = r;
+				int rep = _needs_reply;
+				
+				_owner->declareDataWritten();
+				if (rep)
+				{
+					_wakeup.Wait();
+					_needs_reply = 0;
+				}
+
+				while (_read_more)
+				{
+					int rr = 0;
+					if (_extern_reply_length == 0)
+					{
+						/// then do a select.
+						ACE_Handle_Set set;
+						set.reset ();
+						set.set_bit (_stream->get_handle());
+						ACE_OS::select (int(_stream->get_handle())+1, set);
+						/// wait here until next valid chunck of data.
+					}
+					else
+					{
+						rr = _stream->recv_n (_extern_reply_buffer, _extern_reply_length, 0); 
+					}
+
+					_extern_reply_length = rr;
+					_read_more = 0;
+					_reply_made.Post();
+					_wakeup.Wait();
+					_needs_reply = 0;
+				}
+
+				int was_preamble = 0;
+
+				do
+				{
+					if (_reply_preamble)
+					{
+						rep = 1;
+					}
+
+					MyMessageHeader hdr2;
+					hdr2.SetGood();
+					char bufack[] = "acknowledged";
+					char *buf3 = bufack;
+					int reply_len = 0; //strlen(bufack)+1;
+					if (rep)
+					{
+						buf3 = _extern_reply_buffer;
+						reply_len = _extern_reply_length;
+					}
+
+					hdr2.SetLength(reply_len);
+					_stream->send_n (&hdr2, sizeof(hdr2), 0);
+
+					if (reply_len > 0)
+					{
+						_stream->send_n (buf3, reply_len);
+					}
+
+					int curr_preamble = _reply_preamble;
+					if (rep)
+					{
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** POSTING reply made %d\n", curr_preamble));
+						_reply_made.Post();
+					}
+
+					/// dubious code?
+					if (r >= 0)
+					{
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** listener got %d bytes\n", r));
+					}
+
+					if (r < 0)
+					{
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** closing\n", r));
+						_stream->close ();
+						finished = 1;
+					}
+
+					was_preamble = 0;
+					if (curr_preamble)
+					{
+						was_preamble = 1;
+
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** WAITING for post-preamble wakeup\n", r));
+						_wakeup.Wait();
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** DONE WAITING for post-preamble wakeup\n", r));
+						rep = 1;
+					}
+				}
+				while (was_preamble);
+			}
+		}
+
+	}	/// while (!finished)
+}
+
+///
+///
+///
+///
 void _SocketThreadMulti::BodyShmem (void)
 {
-	///ACE_Time_Value long_timeout (YARP_STALE_TIMEOUT, 0);
-
 	int finished = 0;
 	int r = YARP_FAIL;
 	int was_preamble = 0;
@@ -828,7 +1151,7 @@ void _SocketThreadMulti::BodyShmem (void)
 		{
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing (recv returned %d)\n", r));
 
-			_local_socket.close ();
+			_local_acceptor.close ();
 			finished = 1;
 			goto ShmemSocketMsgSkip;
 		}
@@ -841,7 +1164,7 @@ void _SocketThreadMulti::BodyShmem (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "{{}} Corrupt/empty header received\n"));
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing thread\n"));
 			
-			_local_socket.close ();
+			_local_acceptor.close ();
 			finished = 1;
 			goto ShmemSocketMsgSkip;
 		}
@@ -980,11 +1303,10 @@ ShmemSocketMsgSkip:
 
 void _SocketThreadMulti::BodyUdp (void)
 {
-	///ACE_Time_Value long_timeout (YARP_STALE_TIMEOUT, 0);
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	ACE_INET_Addr incoming;
 
 	int finished = 0;
-	
-	ACE_INET_Addr incoming;
 
 	int r = YARP_FAIL;
 	int was_preamble = 0;
@@ -996,6 +1318,9 @@ void _SocketThreadMulti::BodyUdp (void)
 	memset (_local_buffer, 0, MAX_PACKET);
 	_local_buffer_counter = 0;
 
+	ACE_ASSERT (_socket != NULL);
+	ACE_SOCK_Dgram& dgram_socket = *((ACE_SOCK_Dgram *)_socket);
+
 	while (!finished)
 	{
 		MyMessageHeader& hdr = *((MyMessageHeader *)_local_buffer);
@@ -1005,8 +1330,10 @@ void _SocketThreadMulti::BodyUdp (void)
 
 		ACE_Handle_Set set;
 		set.reset ();
-		set.set_bit (_local_socket.get_handle());
-		int max = (int)_local_socket.get_handle();
+		set.set_bit (_local_acceptor.get_handle());
+		set.set_bit (dgram_socket.get_handle());
+		int max = ((int)_local_acceptor.get_handle() > (int)dgram_socket.get_handle()) 
+			? (int)_local_acceptor.get_handle() : (int)dgram_socket.get_handle();
 
 		int rr = ACE_OS::select (max + 1, set, 0, 0, NULL); ///&long_timeout);
 
@@ -1014,206 +1341,240 @@ void _SocketThreadMulti::BodyUdp (void)
 		{
 			if (rr == 0)
 			{
-				ACE_DEBUG ((LM_DEBUG, "select on MCAST-UDP reader timed out, perhaps this is a stale connection, closing down\n"));
+				ACE_DEBUG ((LM_DEBUG, "select on UDP reader timed out, perhaps this is a stale connection, closing down\n"));
 			}
 			else
 			{
-				ACE_DEBUG ((LM_DEBUG, "this is shouldn't happen, a bug???\n"));
+				ACE_DEBUG ((LM_DEBUG, "this is ok if the thread is closing down\n"));
 			}
 
-			_local_socket.close ();
+			_local_acceptor.close ();
+			dgram_socket.close();
 
 			finished = 1;
 			goto DgramSocketMsgSkip;
 		}
 
-		iovec iov[1];
-		iov[0].iov_base = _local_buffer;
-		iov[0].iov_len = MAX_PACKET;
-
-		r = _local_socket.recv (iov, 1, incoming, 0);
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
-
-		_local_buffer_counter = sizeof(MyMessageHeader);
-
-		if (r >= 0 && hdr.GetLength() == (YARP_MAGIC_NUMBER + 1))
+		///
+		if (rr >= 1 && set.is_set (_local_acceptor.get_handle()))
 		{
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "received a message to close the thread\n"));
-			/// a legitimate message to close down the thread.
-			/// sends reply to caller.
-			hdr.SetGood ();
-			hdr.SetLength (0);
-			_local_socket.send (&hdr, sizeof(hdr), incoming);
+			/// accept the new TCP service connection.
+			ACE_SOCK_Stream stream;
+			_local_acceptor.accept (stream, &incoming);
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something on service channel from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
 
-			_local_socket.close ();
-			finished = 1;
-			goto DgramSocketMsgSkip;
-		}
+			r = stream.recv_n (&hdr, sizeof(hdr), 0, &timeout);
 
-		/// this is supposed to read the header, r must be > 0
-		if (r < 0 || incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
-		{
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing (recv returned %d)\n", r));
-			if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
+			if (r >= 0 && hdr.GetLength() == (YARP_MAGIC_NUMBER + 1))
 			{
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "returning because incoming diffs from remote addr\n"));
-			}
-
-			_local_socket.close ();
-			finished = 1;
-			goto DgramSocketMsgSkip;
-		}
-
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? received header _SocketThreadMulti, len = %d\n", hdr.GetLength()));
-
-		len = hdr.GetLength();
-		if (len < 0)
-		{
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "{{}} Corrupt/empty header received\n"));
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing thread\n"));
-			
-			_local_socket.close ();
-			finished = 1;
-			goto DgramSocketMsgSkip;
-		}
-
-		if (len >= 0)
-		{
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got a header\n"));
-			if (_owner != NULL)
-			{
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? and i am owned\n"));
-				_mutex.Wait();
-				_extern_buffer = NULL;
-				_extern_length = len;
-
-				/// ???
-				_owner->declareDataAvailable();
-
-				_waiting = 1;
-				_mutex.Post();
-				_wakeup.Wait();
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? woken up! (it means I can read more data from channel)\n"));
-			}
-
-			if (_extern_buffer != NULL)
-			{
-				if (len > _extern_length)
-				{
-					len = _extern_length;
-				}
-
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read the data buffer\n"));
-
-				memcpy (_extern_buffer, _local_buffer+_local_buffer_counter, len); 
-				_local_buffer_counter += len;
-				r = len;
-			
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? received a buffer _SocketThreadMulti\n"));
-
-				_extern_length = r;
-				int rep = _needs_reply;
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "received a message to close the thread\n"));
 				
-				_owner->declareDataWritten();
-				if (rep)
+				/// a legitimate message to close down the thread.
+				/// sends reply to caller.
+				hdr.SetGood ();
+				hdr.SetLength (0);
+				stream.send_n (&hdr, sizeof(hdr), 0, &timeout);
+				stream.close();
+				
+				_local_acceptor.close ();
+
+				/// need to close (properly) also the dgram socket.
+				dgram_socket.close ();
+	
+				finished = 1;
+				goto DgramSocketMsgSkip;
+			}
+
+			if (rr == 1)
+				goto DgramSocketMsgSkip;
+				///continue;
+		}
+
+		if (set.is_set (dgram_socket.get_handle()))
+		{
+			iovec iov[1];
+			iov[0].iov_base = _local_buffer;
+			iov[0].iov_len = MAX_PACKET;
+
+			r = dgram_socket.recv (iov, 1, incoming, 0);
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
+
+			_local_buffer_counter = sizeof(MyMessageHeader);
+
+			/// this is supposed to read the header, r must be > 0
+			if (r < 0 || incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
+			{
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing (recv returned %d)\n", r));
+				if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
 				{
-					_wakeup.Wait();
-					_needs_reply = 0;
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "returning because incoming diffs from remote addr\n"));
 				}
 
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? read more =>>>> %d\n", _read_more));
+				_local_acceptor.close ();
+				dgram_socket.close ();
 
-				while (_read_more)
+				finished = 1;
+				goto DgramSocketMsgSkip;
+			}
+
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? received header _SocketThreadMulti, len = %d\n", hdr.GetLength()));
+
+			len = hdr.GetLength();
+			if (len < 0)
+			{
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "{{}} Corrupt/empty header received\n"));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing thread\n"));
+				
+				_local_acceptor.close ();
+				dgram_socket.close ();
+
+				finished = 1;
+				goto DgramSocketMsgSkip;
+			}
+
+			if (len >= 0)
+			{
+				/// set the new reply port.
+				_remote_endpoint.getAddressRef() = incoming;
+
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got a header\n"));
+				if (_owner != NULL)
 				{
-					/// this was r too, a bit confusing.
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read more data\n"));
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? and i am owned\n"));
+					_mutex.Wait();
+					_extern_buffer = NULL;
+					_extern_length = len;
 
-					if (_extern_reply_length == 0)
-					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? read 0 len buffer, not waiting\n"));
-					}
-					else
-					{
-						memcpy (_extern_reply_buffer, _local_buffer+_local_buffer_counter, _extern_reply_length);
-						_local_buffer_counter += _extern_reply_length;
-					}
+					/// ???
+					_owner->declareDataAvailable();
 
-					_read_more = 0;
-					_reply_made.Post();
+					_waiting = 1;
+					_mutex.Post();
 					_wakeup.Wait();
-					_needs_reply = 0;
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? woken up! (it means I can read more data from channel)\n"));
 				}
 
-				was_preamble = 0;
-
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to go into sending reply\n"));
-
-				/// creates a local buffer and sends it.
-				_local_buffer_counter = 0;
-
-				do
+				if (_extern_buffer != NULL)
 				{
-					if (_reply_preamble)
+					if (len > _extern_length)
 					{
-						rep = 1;
+						len = _extern_length;
 					}
 
-					MyMessageHeader hdr2;
-					hdr2.SetGood();
-					buf3 = bufack;
-					int reply_len = 0;
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read the data buffer\n"));
+
+					memcpy (_extern_buffer, _local_buffer+_local_buffer_counter, len); 
+					_local_buffer_counter += len;
+					r = len;
+				
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? received a buffer _SocketThreadMulti\n"));
+
+					_extern_length = r;
+					int rep = _needs_reply;
+					
+					_owner->declareDataWritten();
 					if (rep)
 					{
-						buf3 = _extern_reply_buffer;
-						reply_len = _extern_reply_length;
+						_wakeup.Wait();
+						_needs_reply = 0;
 					}
 
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? sending reply _SocketThreadMulti\n"));
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? read more =>>>> %d\n", _read_more));
 
-					hdr2.SetLength(reply_len);
-					memcpy (_local_buffer + _local_buffer_counter, &hdr2, sizeof(hdr2));
-					_local_buffer_counter += sizeof(hdr2);
-
-					if (reply_len > 0)
+					while (_read_more)
 					{
-						memcpy (_local_buffer + _local_buffer_counter, buf3, reply_len);
-						_local_buffer_counter += reply_len;
-					}
+						/// this was r too, a bit confusing.
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read more data\n"));
 
-					int curr_preamble = _reply_preamble;
-					if (rep)
-					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? POSTING reply made %d\n", curr_preamble));
+						if (_extern_reply_length == 0)
+						{
+							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? read 0 len buffer, not waiting\n"));
+						}
+						else
+						{
+							memcpy (_extern_reply_buffer, _local_buffer+_local_buffer_counter, _extern_reply_length);
+							_local_buffer_counter += _extern_reply_length;
+						}
+
+						_read_more = 0;
 						_reply_made.Post();
+						_wakeup.Wait();
+						_needs_reply = 0;
 					}
 
 					was_preamble = 0;
-					if (curr_preamble)
+
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to go into sending reply\n"));
+
+					/// creates a local buffer and sends it.
+					_local_buffer_counter = 0;
+
+					do
 					{
-						was_preamble = 1;
+						if (_reply_preamble)
+						{
+							rep = 1;
+						}
 
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? WAITING for post-preamble wakeup\n", r));
-						_wakeup.Wait();
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? DONE WAITING for post-preamble wakeup\n", r));
-						rep = 1;
+						MyMessageHeader hdr2;
+						hdr2.SetGood();
+						buf3 = bufack;
+						int reply_len = 0;
+						if (rep)
+						{
+							buf3 = _extern_reply_buffer;
+							reply_len = _extern_reply_length;
+						}
+
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? sending reply _SocketThreadMulti\n"));
+
+						hdr2.SetLength(reply_len);
+						memcpy (_local_buffer + _local_buffer_counter, &hdr2, sizeof(hdr2));
+						_local_buffer_counter += sizeof(hdr2);
+
+						if (reply_len > 0)
+						{
+							memcpy (_local_buffer + _local_buffer_counter, buf3, reply_len);
+							_local_buffer_counter += reply_len;
+						}
+
+						int curr_preamble = _reply_preamble;
+						if (rep)
+						{
+							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? POSTING reply made %d\n", curr_preamble));
+							_reply_made.Post();
+						}
+
+						was_preamble = 0;
+						if (curr_preamble)
+						{
+							was_preamble = 1;
+
+							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? WAITING for post-preamble wakeup\n", r));
+							_wakeup.Wait();
+							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? DONE WAITING for post-preamble wakeup\n", r));
+							rep = 1;
+						}
 					}
+					while (was_preamble);
+
+					/// sends reply as a single packet.
+					iovec iov;
+					iov.iov_base = _local_buffer;
+					iov.iov_len = _local_buffer_counter;
+
+					dgram_socket.send (&iov, 1, _remote_endpoint.getAddressRef(), 0);
 				}
-				while (was_preamble);
-
-				/// sends reply as a single packet.
-				iovec iov;
-				iov.iov_base = _local_buffer;
-				iov.iov_len = _local_buffer_counter;
-
-				_local_socket.send (&iov, 1, _remote_endpoint.getAddressRef(), 0);
+				else
+				{
+					/// LATER:
+					/// need to send a reply even if the extern_buffer == NULL
+					/// otherwise the connection times out.
+					ACE_DEBUG ((LM_DEBUG, "THIS IS A BUG ---> pls, tell Giorgio about it\n"));
+				}
 			}
-			else
-			{
-				/// LATER:
-				/// need to send a reply even if the extern_buffer == NULL
-				/// otherwise the connection times out.
-			}
-		}
+
+		}	/// if received on UDP socket.
 
 DgramSocketMsgSkip:
 		/// this is to skip the rest of the message.
@@ -1227,8 +1588,6 @@ DgramSocketMsgSkip:
 void _SocketThreadMulti::BodyMcast (void)
 {
 	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
-	///ACE_Time_Value long_timeout (YARP_STALE_TIMEOUT, 0);
-
 	ACE_INET_Addr incoming;
 	
 	int finished = 0;
@@ -1238,10 +1597,10 @@ void _SocketThreadMulti::BodyMcast (void)
 	ACE_ASSERT (_socket != NULL);
 	ACE_SOCK_Dgram_Mcast& mcast_socket = *((ACE_SOCK_Dgram_Mcast *)_socket);
 
-	YARPUniqueNameSock& addr = *((YARPUniqueNameSock *)_socket_addr);
 	///
 	while (!finished)
 	{
+		YARPUniqueNameSock& addr = *((YARPUniqueNameSock *)_socket_addr);
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread of group %s:%d waiting\n", addr.getAddressRef().get_host_addr(), addr.getAddressRef().get_port_number()));
 
 		MyMessageHeader hdr;
@@ -1250,10 +1609,10 @@ void _SocketThreadMulti::BodyMcast (void)
 
 		ACE_Handle_Set set;
 		set.reset ();
-		set.set_bit (_local_socket.get_handle());
+		set.set_bit (_local_acceptor.get_handle());
 		set.set_bit (mcast_socket.get_handle());
-		int max = ((int)_local_socket.get_handle() > (int)mcast_socket.get_handle()) 
-			? (int)_local_socket.get_handle() : (int)mcast_socket.get_handle();
+		int max = ((int)_local_acceptor.get_handle() > (int)mcast_socket.get_handle()) 
+			? (int)_local_acceptor.get_handle() : (int)mcast_socket.get_handle();
 
 		int rr = ACE_OS::select (max + 1, set, 0, 0, NULL); ///&long_timeout);
 
@@ -1265,10 +1624,10 @@ void _SocketThreadMulti::BodyMcast (void)
 			}
 			else
 			{
-				ACE_DEBUG ((LM_DEBUG, "this is shouldn't happen, a bug???\n"));
+				ACE_DEBUG ((LM_DEBUG, "this is ok if the thread is closing down\n"));
 			}
 
-			_local_socket.close ();
+			_local_acceptor.close ();
 			mcast_socket.close ();
 
 			finished = 1;
@@ -1276,10 +1635,14 @@ void _SocketThreadMulti::BodyMcast (void)
 		}
 		
 		///
-		if (rr >= 1 && set.is_set (_local_socket.get_handle()))
+		if (rr >= 1 && set.is_set (_local_acceptor.get_handle()))
 		{
-			r = _local_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
+			/// accept the new TCP service connection.
+			ACE_SOCK_Stream stream;
+			_local_acceptor.accept (stream, &incoming);
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something on service channel from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
+
+			r = stream.recv_n (&hdr, sizeof(hdr), 0, &timeout);
 
 			if (r >= 0 && hdr.GetLength() == (YARP_MAGIC_NUMBER + 1))
 			{
@@ -1288,8 +1651,10 @@ void _SocketThreadMulti::BodyMcast (void)
 				/// sends reply to caller.
 				hdr.SetGood ();
 				hdr.SetLength (0);
-				_local_socket.send (&hdr, sizeof(hdr), incoming);
-				_local_socket.close ();
+				stream.send_n (&hdr, sizeof(hdr), 0, &timeout);
+				stream.close();
+				
+				_local_acceptor.close ();
 
 				/// need to close (properly) also the mcast socket.
 				mcast_socket.close ();
@@ -1316,7 +1681,7 @@ void _SocketThreadMulti::BodyMcast (void)
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing thread\n"));
 
 				/// close down sockets.
-				_local_socket.close ();
+				_local_acceptor.close ();
 				mcast_socket.close ();
 				finished = 1;
 			}
@@ -1334,7 +1699,7 @@ void _SocketThreadMulti::BodyMcast (void)
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing thread\n"));
 
 				/// close down sockets.
-				_local_socket.close ();
+				_local_acceptor.close ();
 				mcast_socket.close ();
 				finished = 1;
 			}
@@ -1444,11 +1809,11 @@ _SocketThreadListMulti::~_SocketThreadListMulti (void)
 ACE_HANDLE _SocketThreadListMulti::connect (const YARPUniqueNameSock& id)
 {
 	_local_addr = ((YARPUniqueNameSock&)id).getAddressRef();
-	_acceptor_socket.open (_local_addr, ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
+	_acceptor_socket.open (_local_addr, 1);	/// reuse addr enabled.
 
 	if (_acceptor_socket.get_handle() == ACE_INVALID_HANDLE)
 	{
-		ACE_DEBUG ((LM_DEBUG, ">>>>> problems with opening receiving UDP at %s:%d\n", _local_addr.get_host_addr(), _local_addr.get_port_number()));
+		ACE_DEBUG ((LM_DEBUG, ">>>>> problems with opening receiving TCP at %s:%d\n", _local_addr.get_host_addr(), _local_addr.get_port_number()));
 		return ACE_INVALID_HANDLE;
 
 		/// and the thread is not started.
@@ -1474,12 +1839,11 @@ void _SocketThreadListMulti::addSocket (void)
 	signal( SIGCHLD, SIG_IGN );     /* Ignore condition */
 #endif
 
-	/// need to assert that _acceptor_socket is actually created and connected.
-	/// ACE_ASSERT (_acceptor_socket != NULL);
-
 	YARPScheduler::yield();
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "7777777 pre accept %d\n", errno));
 
+	ACE_SOCK_Stream *stream = new ACE_SOCK_Stream;
+	ACE_ASSERT (stream != NULL);
 	ACE_INET_Addr incoming;
 	int port_number = 0;
 	MyMessageHeader hdr;
@@ -1489,7 +1853,8 @@ void _SocketThreadListMulti::addSocket (void)
 	int ra = -1;
 	do
 	{
-		ra = _acceptor_socket.recv (&hdr, sizeof(hdr), incoming);		/// wait forever.
+		ra = _acceptor_socket.accept (*stream, &incoming);
+
 		if (ra < 0)
 		{
 			ACE_DEBUG ((LM_DEBUG, "-------->>>>> acceptor_socket got garbage, trying again\n"));
@@ -1497,19 +1862,37 @@ void _SocketThreadListMulti::addSocket (void)
 		}
 
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "got something on acceptor socket...\n"));
+
+		ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+		ra = stream->recv_n (&hdr, sizeof(hdr), 0, &timeout);
+
+		if (ra <= 0)
+		{
+			ACE_DEBUG ((LM_DEBUG, "---- something weird happened while receiving header, trying again\n"));
+			ra = -1;
+		}
 	}
 	while (ra == -1);
 
 	/// MAGIC_NUMBER	-> UDP
 	/// MAGIC_NUMBER+1	-> MCAST
 	/// MAGIC_NUMBER+2	-> SHMEM
+	/// MAGIC_NUMBER+3  -> TCP
 	///
+
 	///
+	/// LATER: checks for already connected thread are plainly wrong since the
+	///			port # of the actual connection not necessarily is the same
+	///			for successive connection attempts (as in TCP).
+	///	---> For Ports is fine because the check is made at a higher level
+	///		 then this check here no longer makes much sense.
+
 	if (hdr.GetLength() == YARP_MAGIC_NUMBER)
 	{
 		/// checks whether <incoming> already tried a connection
 		///		and it is still connected.
 		list<_SocketThreadMulti *>::iterator it_avail;
+#if 0
 		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 		{
 			if (!(*it_avail)->isAvailable ())
@@ -1522,7 +1905,7 @@ void _SocketThreadListMulti::addSocket (void)
 				}
 			}
 		}
-
+#endif
 		/// check accept return value.
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
@@ -1548,7 +1931,7 @@ void _SocketThreadListMulti::addSocket (void)
 			/// failed connection, for any reason (likely too many connections).
 			ACE_DEBUG ((LM_DEBUG, "777777 can't get a port, too many connections\n"));
 			hdr.SetBad ();
-			_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
+			stream->send_n (&hdr, sizeof(hdr), 0);
 		}
 		else
 		{
@@ -1566,13 +1949,13 @@ void _SocketThreadListMulti::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_UDP, incoming), &YARPUniqueNameSock(YARP_UDP), port_number);
+				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameSock(YARP_UDP, ACE_INET_Addr(port_number)), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
 				(*it_avail)->End();
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_UDP, incoming), &YARPUniqueNameSock(YARP_UDP), port_number);
+				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameSock(YARP_UDP, ACE_INET_Addr(port_number)), port_number);
 				(*it_avail)->Begin();
 			}
 
@@ -1580,10 +1963,13 @@ void _SocketThreadListMulti::addSocket (void)
 			/// LATER: to refuse the connection simply send back a SetBad() header.
 			hdr.SetGood ();
 			hdr.SetLength (port_number);
-			_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
+			stream->send_n (&hdr, sizeof(hdr), 0);
 
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post postbegin %d\n", errno));
 		}
+
+		stream->close ();
+		delete stream;
 	}
 	else
 	if (hdr.GetLength() == (YARP_MAGIC_NUMBER + 1))
@@ -1594,25 +1980,29 @@ void _SocketThreadListMulti::addSocket (void)
 		/// gets 4 bytes w/ ip addr and 2 more bytes w/ port number.
 		unsigned char smallbuf[6];
 		ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
-		int r = _acceptor_socket.recv ((void *)smallbuf, 6, incoming, 0, &timeout);
+		int r = stream->recv_n ((void *)smallbuf, 6, 0, &timeout);
+
 		if (r < 0)
 		{
 			ACE_DEBUG ((LM_DEBUG, "777777 connection failed\n"));
 
 			/// didn't get the ip and port #.
 			hdr.SetBad ();
-			_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
+			stream->send_n (&hdr, sizeof(hdr), 0);
+			stream->close ();
+			delete stream;
 			return;
 		}
 
 		char ip[24];
 		int port = smallbuf[4] * 256 + smallbuf[5];
 		ACE_OS::sprintf (ip, "%u.%u.%u.%u:%u\0", smallbuf[0], smallbuf[1], smallbuf[2], smallbuf[3], port);
-		ACE_INET_Addr group (ip);	/// problems here!!!!!!!!
+		ACE_INET_Addr group (ip);
 
 		/// checks whether <incoming> already tried a connection
 		///		and it is still connected.
 		list<_SocketThreadMulti *>::iterator it_avail;
+#if 0
 		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 		{
 			if (!(*it_avail)->isAvailable ())
@@ -1625,7 +2015,7 @@ void _SocketThreadListMulti::addSocket (void)
 				}
 			}
 		}
-
+#endif
 		/// check accept return value.
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
@@ -1650,7 +2040,7 @@ void _SocketThreadListMulti::addSocket (void)
 		{
 			///
 			hdr.SetBad ();
-			_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
+			stream->send_n (&hdr, sizeof(hdr), 0);
 		}
 		else
 		{
@@ -1668,13 +2058,13 @@ void _SocketThreadListMulti::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_UDP, incoming), &YARPUniqueNameSock(YARP_MCAST, group), port_number);
+				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameSock(YARP_MCAST, group), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
 				(*it_avail)->End();
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_UDP, incoming), &YARPUniqueNameSock(YARP_MCAST, group), port_number);
+				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameSock(YARP_MCAST, group), port_number);
 				(*it_avail)->Begin();
 			}
 
@@ -1682,10 +2072,13 @@ void _SocketThreadListMulti::addSocket (void)
 			/// LATER: to refuse the connection simply send back a SetBad() header.
 			hdr.SetGood ();
 			hdr.SetLength (port_number);
-			_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
+			stream->send_n (&hdr, sizeof(hdr), 0);
 
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post postbegin %d\n", errno));
 		}
+
+		stream->close();
+		delete stream;
 	}
 	else
 	if (hdr.GetLength() == (YARP_MAGIC_NUMBER + 2))
@@ -1697,6 +2090,7 @@ void _SocketThreadListMulti::addSocket (void)
 		/// checks whether <incoming> already tried a connection
 		///		and it is still connected.
 		list<_SocketThreadMulti *>::iterator it_avail;
+#if 0
 		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 		{
 			if (!(*it_avail)->isAvailable ())
@@ -1709,6 +2103,82 @@ void _SocketThreadListMulti::addSocket (void)
 				}
 			}
 		}
+#endif
+		/// check accept return value.
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
+
+		/// get a new available port number associated to this IP.
+		/// recycle thread and port # if possible.
+		int reusing = 0;
+		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+		{
+			if ((*it_avail)->isAvailable ())
+			{
+				reusing = 1;
+				port_number = (*it_avail)->getOldPortNumber (); 
+				break;
+			}
+		}
+
+		if (!reusing)
+			port_number = getNewPortNumberFromPool ();
+
+		if (port_number == 0)
+		{
+			/// failed connection, for any reason (likely too many connections).
+			ACE_DEBUG ((LM_DEBUG, "777777 can't get a port, too many connections\n"));
+			hdr.SetBad ();
+			stream->send_n (&hdr, sizeof(hdr), 0);
+		}
+		else
+		{
+			if (it_avail == _list.end())
+			{
+				_list.push_back(new _SocketThreadMulti());
+				it_avail = _list.end();
+				it_avail--;
+			}
+
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
+			(*it_avail)->setAvailable (0);
+			(*it_avail)->setOwner (*this);
+
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
+			if (!reusing)
+			{
+				/// need a port number for SHMEM? or can I recycle the same as UDP, 'cause SHMEM messaging is TCP?
+				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
+				(*it_avail)->Begin();
+			}
+			else
+			{
+				(*it_avail)->End();
+				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
+				(*it_avail)->Begin();
+			}
+
+			/// send reply to incoming socket.
+			/// LATER: to refuse the connection simply send back a SetBad() header.
+			hdr.SetGood ();
+			hdr.SetLength (port_number);
+			stream->send_n (&hdr, sizeof(hdr), 0);
+
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post postbegin %d\n", errno));
+		}
+
+		stream->close ();
+		delete stream;
+	}
+	else
+	if (hdr.GetLength() == (YARP_MAGIC_NUMBER + 3))
+	{
+		/// 
+		/// LATER: optimize port # usage. the TCP connection is actually keeping a 
+		/// fictious port use although it's not really used since the SOCK_Stream is 
+		/// already connected. Optimize by freeing the port number.
+		///
+		list<_SocketThreadMulti *>::iterator it_avail;
 
 		/// check accept return value.
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
@@ -1735,7 +2205,9 @@ void _SocketThreadListMulti::addSocket (void)
 			/// failed connection, for any reason (likely too many connections).
 			ACE_DEBUG ((LM_DEBUG, "777777 can't get a port, too many connections\n"));
 			hdr.SetBad ();
-			_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
+			stream->send_n (&hdr, sizeof(hdr), 0);
+			stream->close ();
+			delete stream;
 		}
 		else
 		{
@@ -1750,25 +2222,27 @@ void _SocketThreadListMulti::addSocket (void)
 			(*it_avail)->setAvailable (0);
 			(*it_avail)->setOwner (*this);
 
+			/// send reply to incoming socket.
+			/// LATER: to refuse the connection simply send back a SetBad() header.
+			hdr.SetGood ();
+			hdr.SetLength (port_number);
+			stream->send_n (&hdr, sizeof(hdr), 0);
+
+			/// passes control of stream to the communication thread.
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				/// need a port number for SHMEM? or can I recycle the same as UDP, 'cause SHMEM messaging is TCP?
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_UDP, incoming), &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
+				(*it_avail)->setTCPStream (stream);
+				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameSock(YARP_TCP, ACE_INET_Addr(port_number)), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
 				(*it_avail)->End();
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_UDP, incoming), &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
+				(*it_avail)->setTCPStream (stream);
+				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameSock(YARP_TCP, ACE_INET_Addr(port_number)), port_number);
 				(*it_avail)->Begin();
 			}
-
-			/// send reply to incoming socket.
-			/// LATER: to refuse the connection simply send back a SetBad() header.
-			hdr.SetGood ();
-			hdr.SetLength (port_number);
-			_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
 
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post postbegin %d\n", errno));
 		}
@@ -1776,6 +2250,9 @@ void _SocketThreadListMulti::addSocket (void)
 	else
 	{
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "corrupted header received, abort connection attempt, listening\n"));
+
+		stream->close ();
+		delete stream;
 	}
 }
 
@@ -2169,7 +2646,8 @@ public:
 	ACE_MEM_Connector _connector_socket;
 	ACE_MEM_Stream _stream;
 	
-	ACE_SOCK_Dgram _udp_socket;
+	ACE_SOCK_Connector _service_socket;
+
 	ACE_INET_Addr _remote_addr;
 	ACE_INET_Addr _local_addr;
 };
@@ -2215,26 +2693,38 @@ int YARPOutputSocketMulti::Close (const YARPUniqueNameID& name)
 
 	if (name.getServiceType() != YARP_SHMEM)
 	{
+		ACE_ASSERT (1 == 0);
+
 		/// send the header.
 		MyMessageHeader hdr;
 		hdr.SetGood ();
 		hdr.SetLength (YARP_MAGIC_NUMBER + 1);
+		
+		ACE_SOCK_Stream stream;
+		ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 
-		d._udp_socket.open (d._local_addr, ACE_PROTOCOL_FAMILY_INET, 0, 1);
-		d._udp_socket.send (&hdr, sizeof(hdr), d._remote_addr);
+		int r = d._service_socket.connect (stream, d._remote_addr, &timeout);
+		if (r < 0)
+		{
+			ACE_DEBUG ((LM_DEBUG, "cannot connect to remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
+			identifier = ACE_INVALID_HANDLE;
+			return YARP_FAIL;
+		}
+
+		stream.send_n (&hdr, sizeof(hdr), 0);
 
 		/// wait response.
 		hdr.SetBad ();
-		ACE_INET_Addr incoming;
-		ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
-
-		int r = d._udp_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
+		r = stream.recv_n (&hdr, sizeof(hdr), 0, &timeout);
 		if (r < 0)
 		{
 			ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
+			identifier = ACE_INVALID_HANDLE;
+			stream.close ();
+			return YARP_FAIL;
 		}
 
-		d._udp_socket.close ();
+		stream.close ();
 	}
 	else
 	{
@@ -2247,7 +2737,7 @@ int YARPOutputSocketMulti::Close (const YARPUniqueNameID& name)
 }
 
 
-/// this is called only once to create the group.
+/// this is called only once to prepare the socket and addr.
 int YARPOutputSocketMulti::Prepare (const YARPUniqueNameID& name)
 {
 	OSDataMulti& d = OSDATA(system_resources);
@@ -2268,6 +2758,7 @@ int YARPOutputSocketMulti::Prepare (const YARPUniqueNameID& name)
 int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 {
 	OSDataMulti& d = OSDATA(system_resources);
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 
 	/// send the header.
 	int port_number = 0;
@@ -2277,19 +2768,24 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 
 	/// verifies it's a new connection.
 	ACE_INET_Addr nm = ((YARPUniqueNameSock&)name).getAddressRef();
+	ACE_SOCK_Stream stream;
 
-	d._udp_socket.open (d._local_addr, ACE_PROTOCOL_FAMILY_INET, 0, 1);
-	d._udp_socket.send (&hdr, sizeof(hdr), nm);
+	int r = d._service_socket.connect (stream, nm, &timeout);
+	if (r < 0)
+	{
+		ACE_DEBUG ((LM_DEBUG, "cannot connect to remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
+		return YARP_FAIL;
+	}
+
+	stream.send_n (&hdr, sizeof(hdr), 0);
 	
 	/// wait response.
 	hdr.SetBad ();
-	ACE_INET_Addr incoming;
-	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
-	int r = d._udp_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
+	r = stream.recv_n (&hdr, sizeof(hdr), 0, &timeout);
 	if (r < 0)
 	{
-		d._udp_socket.close ();
 		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
+		stream.close ();
 		return YARP_FAIL;
 	}
 
@@ -2297,12 +2793,12 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 	if (port_number == -1)
 	{
 		/// there might be a real -1 port number -> 65535.
-		d._udp_socket.close ();
 		ACE_DEBUG ((LM_DEBUG, "got garbage back from remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
+		stream.close ();
 		return YARP_FAIL;
 	}
 
-	d._udp_socket.close ();
+	stream.close ();
 
 	/// the connect changes the remote port number to the actual assigned channel.
 	/// should close on this address.

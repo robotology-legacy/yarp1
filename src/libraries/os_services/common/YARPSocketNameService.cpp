@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.24 2003-07-29 02:26:52 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.25 2003-07-30 22:43:06 gmetta Exp $
 ///
 ///
 
@@ -181,15 +181,10 @@ public:
 	typedef map<int, PYARPNetworkObject, less<int> > SMap;
 
 	SMap _map;
-	YARPInputSocket *test_global;
 
 public:
 	////
-	_yarp_endpoint () : mutex (1)
-	{
-		test_global = NULL;
-	}
-
+	_yarp_endpoint () : mutex (1) {}
 	~_yarp_endpoint () {}
 
 
@@ -263,12 +258,12 @@ int YARPSocketEndpointManager::CreateInputEndpoint (YARPUniqueNameID& name)
 		{
 		case YARP_TCP:
 			{
-				_endpointmanager._map[pid] = new YARPInputSocket;
+				_endpointmanager._map[pid] = new YARPInputSocketMulti;
 				no = _endpointmanager._map[pid];
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing input socket\n"));
 
 				// prepare the socket for the connection (bind).
-				((YARPInputSocket *)no)->Prepare (sname);
+				((YARPInputSocketMulti *)no)->Prepare (sname, sname.getPorts(), sname.getNPorts());
 			}
 			break;
 
@@ -559,6 +554,7 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 		}
 		break;
 
+#if 0
 	case YARP_TCP:
 		{
 			if (namer.check_in (tname, reg_addr, addr) != YARP_OK)
@@ -582,8 +578,11 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 			return (YARPUniqueNameID *)n;
 		}		
 		break;
+#endif
 
+		/// always does the check_in_udp to ask for a pool a ports and not simply for 1.
 	case YARP_UDP:
+	case YARP_TCP:
 	case YARP_MCAST:
 		{
 			NetInt32 *ports = new NetInt32[extra_param];
@@ -684,11 +683,13 @@ YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const
 				return NAMER_FAIL;	/// invalid name id.
 			}
 
+#if 0
 			if (reg_type != name_type)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>>> the requested type differs from the actual one %s\n", sname.c_str()));
 				return NAMER_FAIL;
 			}
+#endif
 
 			YARPUniqueNameSock *n = new YARPUniqueNameSock (reg_type);
 			

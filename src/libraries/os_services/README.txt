@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.25 2003-07-29 02:26:52 gmetta Exp $
+$Id: README.txt,v 1.26 2003-07-30 22:43:06 gmetta Exp $
 
 
 =============
@@ -18,19 +18,16 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 =============
 Things under development:
 
-1- troubles when disconnecting/reconnecting mcast ports, grabber, etc. LORENZO!
+1.1- remove reply from UDP (TEST).
+1.2- Troubles with shared memory (crashes badly).
+1.3- IMPORTANT! specify the nic, for multiple parallel connections in MCAST.
 
-1.1- remove long_timeout. Dangerous.
+1.4- use temp buffer on TCP communication, check efficiency (see UDP/MCAST model).
 
-1.2- use temp buffer on socket communication, check efficiency (see UDP/MCAST model).
-
-*****************>>>>>>>
--> Still problems on returning, many different issues.
--> Troubles with shared memory (crashes badly). 
+1.5- proper shutdown of extra port threads.
 
 
-1.3- proper shutdown of extra port threads.
-
+-------------> 
 
 3- initialization MFC+os_services might fail under some circumstances
 	- solution: do explicit init and fini
@@ -41,8 +38,6 @@ Things under development:
 9- release version crashes on exit. USE test 13 to show this problem, and close the 
 	receiver first.
 
-10- IMPORTANT! specify the nic, for multiple parallel connections in MCAST.
-
 11- missing htons here and there in the udp communication (fine w/ intel architecture).
 
 13- noted a sigsegv on exit of the grabber application, perhaps while closing down the Port threads?
@@ -51,8 +46,6 @@ Things under development:
 ===
 0- QNET
 	Destroying channel is not implemented (where? destructor?).
-
-3- what to do with the QNX4 code.
 
 6- add windows DLL to the repository (these are the DLL's installed by visual C++).
 	- ok, still need to check whether everything is there.

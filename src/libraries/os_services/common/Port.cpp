@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.47 2003-07-27 05:47:17 gmetta Exp $
+/// $Id: Port.cpp,v 1.48 2003-07-30 22:43:06 gmetta Exp $
 ///
 ///
 
@@ -220,20 +220,10 @@ void OutputTarget::Body ()
 	memset (cmdname, 0, 2*YARP_STRING_LEN);
 	msg_type = 0;
 
-#if 0
-	int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
-	if (SetPriority(prio) == YARP_FAIL)
-	{
-		ACE_DEBUG ((LM_DEBUG, "can't raise priority of OutputTarget thread, potential source of troubles\n"));
-	}
-#endif
-
 	/// needs to know what is the protocol of the owner.
 	switch (protocol_type)
 	{
 	case YARP_QNET:
-	case YARP_TCP:
 		{
 			/// LATER: must do proper bailout if locate fails.
 			///
@@ -247,10 +237,54 @@ void OutputTarget::Body ()
 
 			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
 			YARPEndpointManager::ConnectEndpoints (*target_pid);
+		}
+		break;
 
-#ifdef YARP_TCP_NO_DELAY
-			/// disables Nagle's algorithm... 
-			YARPEndpointManager::SetTCPNoDelay (*target_pid);
+	case YARP_TCP:
+		{
+			target_pid = YARPNameService::LocateName (GetLabel().c_str());
+
+			/// requires a query to dns unfortunately (maybe not?).
+			char myhostname[YARP_STRING_LEN];
+			getHostname (myhostname, YARP_STRING_LEN);
+			ACE_INET_Addr local ((u_short)0, myhostname);
+
+#ifndef DEBUG_DISABLE_SHMEM
+			if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
+			{
+				/// going into SHMEM mode.
+				protocol_type = YARP_SHMEM;
+				target_pid->setServiceType (YARP_SHMEM);
+
+				/// 
+				ACE_DEBUG ((LM_DEBUG, "$$$$ this goes into SHMEM mode\n"));
+			}
+			else
+#endif
+			{
+				/// LATER: must do proper bailout if locate fails.
+				///
+				if (target_pid->getServiceType() != protocol_type &&
+					target_pid->getServiceType() != YARP_UDP)
+				{
+					/// problems.
+					ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
+					target_pid->invalidate();
+				}
+
+				protocol_type = YARP_TCP;
+				target_pid->setServiceType (YARP_TCP);
+			}
+
+			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
+			YARPEndpointManager::ConnectEndpoints (*target_pid);
+
+#ifdef DEBUG_DISABLE_SHMEM
+#	ifdef YARP_TCP_NO_DELAY
+			/// disables Nagle's algorithm...
+			if (protocol_type == YARP_TCP)
+				YARPEndpointManager::SetTCPNoDelay (*target_pid);
+#	endif
 #endif
 		}
 		break;
@@ -682,7 +716,7 @@ void Port::Body()
 
 	case YARP_TCP:
 		{
-			pid = YARPNameService::RegisterName(name.c_str(), YARP_TCP); 
+			pid = YARPNameService::RegisterName(name.c_str(), YARP_TCP, YARP_UDP_REGPORTS); 
 			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
@@ -699,10 +733,6 @@ void Port::Body()
 
 	case YARP_UDP:
 		{
-			/// ask 11 ports overall:
-			/// 1 as in channel for asking connections
-			/// 10 for incoming connections
-			///
 			pid = YARPNameService::RegisterName(name.c_str(), YARP_UDP, YARP_UDP_REGPORTS); 
 			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
@@ -937,7 +967,7 @@ void Port::Body()
 							target = targets.GetByLabel ("mcast-thread");
 							if (target == NULL)
 							{
-								ACE_DEBUG ((LM_DEBUG, "Starting MCAST singleton (to be verified) thread\n"));
+								ACE_DEBUG ((LM_DEBUG, "Starting MCAST singleton thread\n"));
 								target = targets.NewLink("mcast-thread");
 
 								ACE_ASSERT(target != NULL);
@@ -1051,7 +1081,7 @@ void Port::Body()
 
 			case MSG_ID_GO:
 				{
-					ACE_DEBUG ((LM_ERROR, "this shouldn't get here, the new version don't accept MSG_ID_GO\n"));
+					ACE_DEBUG ((LM_ERROR, "this shouldn't get here, the new version doesn't accept MSG_ID_GO\n"));
 				}
 				break;
 
@@ -1276,25 +1306,6 @@ void Port::Relinquish()
 
 Port::~Port()
 {
-	///tsender.End ();
-
-#if 0
-	OutputTarget *target, *next;
-	target = targets.GetRoot();
-
-	while (target != NULL)
-	{
-		next = target->GetMeshNext();
-		target->End();
-		delete target;
-		target = next;
-	}
-#endif
-
-	///if (GetIdentifier() != -1)
-	///	End();
-
-	/// if I knew the pid of the connection, I should probably close down the channel properly.
 }
 
 

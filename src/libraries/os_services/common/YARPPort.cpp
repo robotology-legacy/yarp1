@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.11 2003-07-24 07:56:52 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.12 2003-07-30 22:43:06 gmetta Exp $
 ///
 ///
 
@@ -306,6 +306,8 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 	}
 
 	YARPUniqueNameID* id = YARPNameService::LocateName (src_name);
+	/// go always in TCP mode for the connection creation procedure.
+	id->setServiceType (YARP_TCP);
 	YARPEndpointManager::CreateOutputEndpoint (*id);
 	YARPEndpointManager::ConnectEndpoints (*id);
 

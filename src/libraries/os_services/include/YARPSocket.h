@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.h,v 1.10 2003-07-08 22:04:20 gmetta Exp $
+/// $Id: YARPSocket.h,v 1.11 2003-07-30 22:43:06 gmetta Exp $
 ///
 ///
 
@@ -143,34 +143,6 @@ public:
 	virtual int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length) = 0;
 };
 
-///
-///
-///
-class YARPInputSocket : public YARPNetworkInputObject
-{
-protected:
-	void *system_resources;
-
-public:
-	YARPInputSocket();
-	virtual ~YARPInputSocket();
-
-	/// virtual override.
-	int Close(ACE_HANDLE reply_id);
-	int CloseAll(void);
-
-	int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
-	int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
-	int ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length);
-	int ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
-	int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
-	ACE_HANDLE GetIdentifier(void) const;
-	int GetServiceType (void) { return YARP_TCP; }
-
-	/// other.
-	int Prepare (const YARPUniqueNameID& name);
-	int GetAssignedPort(void) const;
-};
 
 class YARPNetworkOutputObject : public YARPNetworkObject
 {

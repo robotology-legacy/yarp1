@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.26 2003-07-29 02:26:52 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.27 2003-07-30 22:43:06 gmetta Exp $
 ///
 ///
 
@@ -186,7 +186,7 @@ public:
 	ACE_INET_Addr _mcast_addr;
 	ACE_SOCK_Dgram_Mcast _connector_socket;
 	
-	ACE_SOCK_Dgram _udp_socket;
+	ACE_SOCK_Connector _service_socket;
 
 	enum { _max_num_clients = 256 };
 	ACE_INET_Addr _clients[_max_num_clients];
@@ -260,32 +260,36 @@ int YARPOutputSocketMcast::CloseMcastAll (void)
 	hdr.SetGood ();
 	hdr.SetLength (YARP_MAGIC_NUMBER + 1);
 
-	/// calling gethostname is not required since I can use INET_ADDR_ANY
-	char buf[YARP_STRING_LEN];
-	getHostname (buf, YARP_STRING_LEN);
-	ACE_INET_Addr local ((u_short)0, buf);
-	d._udp_socket.open (local, ACE_PROTOCOL_FAMILY_INET, 0, 1);
+	ACE_SOCK_Stream stream;
 
 	int i;
 	for (i = 0; i < d._max_num_clients; i++)
 	{
 		if (d._clients[i].get_port_number() != 0)
 		{
-			d._udp_socket.send (&hdr, sizeof(hdr), d._clients[i]);
+			int r = d._service_socket.connect (stream, d._clients[i], &timeout);
+			if (r < 0)
+			{
+				ACE_DEBUG ((LM_DEBUG, "cannot connect to remote %s:%d\n", d._clients[i].get_host_addr(), d._clients[i].get_port_number()));
+			}
+
+			stream.send_n (&hdr, sizeof(hdr), 0);
 			
 			/// wait response.
 			hdr.SetBad ();
-			ACE_INET_Addr incoming;
-			int r = d._udp_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
+			r = stream.recv (&hdr, sizeof(hdr), 0, &timeout);
+
 			if (r < 0)
 			{
 				ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._clients[i].get_host_addr(), d._clients[i].get_port_number()));
 			}
 			d._clients[i].set ((u_short)0, INADDR_ANY);
+
+			stream.close ();
 		}
 	}
 
-	d._udp_socket.close ();
+	d._connector_socket.close ();
 	d._num_connected_clients = 0;
 
 	return YARP_OK;
@@ -301,16 +305,10 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	hdr.SetGood ();
 	hdr.SetLength (YARP_MAGIC_NUMBER + 1);
 
-	/// calling gethostname is not required since I can use INET_ADDR_ANY
-	char buf[YARP_STRING_LEN];
-	getHostname (buf, YARP_STRING_LEN);
-	ACE_INET_Addr local ((u_short)0, buf);
-	d._udp_socket.open (local, ACE_PROTOCOL_FAMILY_INET, 0, 1);
-
 	int i;
 	int j = -1;
-	ACE_INET_Addr& nm = ((YARPUniqueNameSock &)name).getAddressRef();
 	const char *sname = ((YARPUniqueNameSock&)name).getName().c_str();
+	ACE_INET_Addr& nm = ((YARPUniqueNameSock &)name).getAddressRef();
 
 	for (i = 0; i < d._max_num_clients; i++)
 	{
@@ -325,28 +323,48 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 
 	if (j == -1)
 	{
-		d._udp_socket.close ();
 		ACE_DEBUG ((LM_DEBUG, "the specific name is not connected %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
 		return YARP_FAIL;
 	}
 
-	d._udp_socket.send (&hdr, sizeof(hdr), d._clients[j]);
+	ACE_SOCK_Stream stream;
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+
+	int r = d._service_socket.connect (stream, d._clients[j], &timeout);
+
+	if (r < 0)
+	{
+		ACE_DEBUG ((LM_DEBUG, "cannot connect to %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
+
+		d._clients[j].set ((u_short)0, INADDR_ANY);
+		d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
+	
+		d._num_connected_clients --;
+
+		/// closes down the socket.
+		if (d._num_connected_clients <= 0)
+		{
+			d._connector_socket.close ();
+			identifier = ACE_INVALID_HANDLE;
+		}
+
+		return YARP_FAIL;
+	}
+
+	stream.send_n (&hdr, sizeof(hdr), 0);
 
 	/// wait response.
 	hdr.SetBad ();
-	ACE_INET_Addr incoming;
-	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	r = stream.recv_n (&hdr, sizeof(hdr), 0, &timeout);
 
-	int r = d._udp_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
 	if (r < 0)
 	{
 		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._clients[j].get_host_addr(), d._clients[j].get_port_number()));
 
 		d._clients[j].set ((u_short)0, INADDR_ANY);
 		d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
-	
-		d._udp_socket.close ();
 
+		stream.close ();
 		d._num_connected_clients --;
 
 		/// closes down the socket.
@@ -362,7 +380,7 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	d._clients[j].set ((u_short)0, INADDR_ANY);
 	d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
 
-	d._udp_socket.close ();
+	stream.close ();
 	d._num_connected_clients --;
 
 	/// closes down the socket.
@@ -396,24 +414,36 @@ int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name)
 	int ret = YARPNetworkObject::setSocketBufSize (d._connector_socket, MAX_PACKET);
 	if (ret != YARP_OK)
 	{
+		d._connector_socket.close();
 		ACE_DEBUG ((LM_DEBUG, "cannot set buffer size to %d\n", MAX_PACKET));
 		return YARP_FAIL;
 	}
-
-	/// no loopback?
-#if 0
-	r = d._connector_socket.join (d._mcast_addr, 1, 0);
-	if (r == -1)
-	{
-		ACE_DEBUG ((LM_DEBUG, "cannot joint mcast group %s:%d\n", d._mcast_addr.get_host_addr(), d._mcast_addr.get_port_number()));
-		return YARP_FAIL;
-	}
-#endif
 
 	identifier = d._connector_socket.get_handle ();
 
 	return YARP_OK;
 }
+
+#if 0
+	/// momentarily raise the connection count to prevent closing the thread.
+	d._num_connected_clients ++;
+
+	/// tries to shut down the connection first.
+	if (Close (name) == YARP_FAIL)
+	{
+		ACE_DEBUG ((LM_DEBUG, "can't close the mcast connection, it can happen if the server died unexpectedly\n"));
+
+		/// erases the client entry anyway.
+		d._clients[i].set ((u_short)0, INADDR_ANY);
+		d._client_names[i].erase(d._client_names[i].begin(), d._client_names[i].end());
+	}
+
+	/// see comment above.
+	d._num_connected_clients --;
+
+	/// 250 ms delay.
+	YARPTime::DelayInSeconds (.25);
+#endif
 
 ///
 /// this can be called many many times to ask receivers to join to mcast group.
@@ -421,12 +451,6 @@ int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name)
 int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 {
 	OSDataMcast& d = OSDATA(system_resources);
-
-	/// send the header.
-	int port_number = 0;
-	MyMessageHeader hdr;
-	hdr.SetGood ();
-	hdr.SetLength (YARP_MAGIC_NUMBER + 1);
 
 	/// verifies it's a new connection.
 	ACE_INET_Addr nm = ((YARPUniqueNameSock&)name).getAddressRef();
@@ -444,30 +468,8 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 		{
 			/// it's already there...
 			ACE_DEBUG ((LM_DEBUG, "the specific client is already connected %s:%d\n", d._clients[i].get_host_addr(), d._clients[i].get_port_number()));
-
-#if 0
-			/// momentarily raise the connection count to prevent closing the thread.
-			d._num_connected_clients ++;
-
-			/// tries to shut down the connection first.
-			if (Close (name) == YARP_FAIL)
-			{
-				ACE_DEBUG ((LM_DEBUG, "can't close the mcast connection, it can happen if the server died unexpectedly\n"));
-
-				/// erases the client entry anyway.
-				d._clients[i].set ((u_short)0, INADDR_ANY);
-				d._client_names[i].erase(d._client_names[i].begin(), d._client_names[i].end());
-			}
-
-			/// see comment above.
-			d._num_connected_clients --;
-
-			/// 250 ms delay.
-			YARPTime::DelayInSeconds (.25);
-#else
-			d._udp_socket.close();
+			///d._service_socket.close();
 			return YARP_FAIL;
-#endif
 		}
 
 		if (d._clients[i].get_port_number() == 0 && firstempty < 0)
@@ -476,13 +478,27 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 		}
 	}
 
+	/// send the header.
+	int port_number = 0;
+	MyMessageHeader hdr;
+	hdr.SetGood ();
+	hdr.SetLength (YARP_MAGIC_NUMBER + 1);
+
 	char myhostname[YARP_STRING_LEN];
 	getHostname (myhostname, YARP_STRING_LEN);
 	ACE_INET_Addr local ((u_short)0, myhostname);
-	d._udp_socket.open (local, ACE_PROTOCOL_FAMILY_INET, 0, 1);
+	ACE_SOCK_Stream stream;
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+
+	int r = d._service_socket.connect (stream, nm, &timeout);
+	if (r < 0)
+	{
+		ACE_DEBUG ((LM_DEBUG, "cannot connect to remote service\n"));
+		return YARP_FAIL;
+	}
 
 	/// ask for a connection.
-	d._udp_socket.send (&hdr, sizeof(hdr), nm);
+	stream.send_n (&hdr, sizeof(hdr), 0);
 	
 	/// send mcast ip and port #.
 	/// exactly 6 bytes.
@@ -495,17 +511,16 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	short portn = d._mcast_addr.get_port_number();
 	buf[4] = (portn & 0xff00) >> 8;
 	buf[5] = (portn & 0x00ff);
-	d._udp_socket.send (buf, 6, nm);
+	stream.send_n (buf, 6, 0);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "supposedly sent %s:%d\n", d._mcast_addr.get_host_addr(), d._mcast_addr.get_port_number()));
 
 	/// wait response.
 	hdr.SetBad ();
-	ACE_INET_Addr incoming;
-	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
-	int r = d._udp_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
+	r = stream.recv_n (&hdr, sizeof(hdr), 0, &timeout);
+
 	if (r < 0)
 	{
-		d._udp_socket.close ();
+		stream.close ();
 		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
 		return YARP_FAIL;
 	}
@@ -519,7 +534,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 		d._client_names[firstempty].erase(d._client_names[firstempty].begin(), d._client_names[firstempty].end());
 
 		/// there might be a real -1 port number -> 65535.
-		d._udp_socket.close ();
+		stream.close ();
 		ACE_DEBUG ((LM_DEBUG, "got garbage back from remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
 		return YARP_FAIL;
 	}
@@ -532,7 +547,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	std::string& s = d._client_names[firstempty];
 	s = sname;
 
-	d._udp_socket.close ();
+	stream.close ();
 	d._num_connected_clients ++;
 
 	return YARP_OK;

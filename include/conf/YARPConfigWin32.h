@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.28 2003-07-29 02:26:52 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.29 2003-07-30 22:43:06 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -39,7 +39,7 @@
 #define YARP_TCP_NO_DELAY		1
 
 /// set the default protocol in port creation.
-#define YARP_DEFAULT_PROTOCOL	YARP_UDP
+#define YARP_DEFAULT_PROTOCOL	YARP_TCP
 
 /// set here how many ports are requested by the def protocol.
 #define YARP_PROTOCOL_REGPORTS  11
