@@ -8,6 +8,13 @@
 
 YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
+struct COMMAND_TABLE_ENTRY
+{
+	YARPString verbose;
+	void *param;
+
+};
+
 int main(int argc, char* argv[])
 {
 	_outPort.Register("/motorcmd/o");
