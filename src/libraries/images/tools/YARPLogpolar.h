@@ -55,13 +55,13 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #Add our name(s) here#
+///                    #pasa & nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.19 2004-01-03 16:29:13 natta Exp $
+/// $Id: YARPLogpolar.h,v 1.20 2004-01-08 14:57:14 natta Exp $
 ///
 ///
 
@@ -84,14 +84,14 @@
 ///		of one of the latest logpolar CMOS chips.
 ///
 
-// Some parameters were computed to fit the log polar
-// transformation as implemented by the CMOS chip according
-// to the following equations:
+// Logpolar trans -- Notational conventions:
 // x = ro*cos(eta/q)
 // y = ro*sin(eta/q)
-// ro = _alfa*exp(_beta*csi)
-// jacobian(csi, eta) = _jacob1 * exp(2*_beta*csi);
-// September 2003 -- by nat
+// ro = k1 + k2*lambda^(csi) csi > F
+// r0 = csi					 csi <= F
+// J(csi, eta) = lambda^csi * ln(lambda)/q (k1+k2*lambda^csi) outside the fovea
+// J(csi, eta) = J(F, eta)							  within the fovea
+// Jan 2004 -- by nat
 
 namespace _logpolarParams
 {
@@ -103,17 +103,36 @@ namespace _logpolarParams
 	
 	const int _xsizefovea = 128;
 	const int _ysizefovea = 128;
+	// this is the ratio between the full size cartesian image and the actual one
+	const double _ratio = 0.25;		// 1/4
+	
+	// OBSOLETE
+	// Parameters were computed to fit the log polar
+	// transformation as implemented by the CMOS chip according
+	// to the following equations:
+	// x = ro*cos(eta/q)
+	// y = ro*sin(eta/q)
+	// ro = _alfa*exp(_beta*csi)
+	// jacobian(csi, eta) = _jacob1 * exp(2*_beta*csi);
+	// September 2003 -- by nat
 
-	const double _alfa = 3.76;	
-	const double _beta = 0.0233;
-	const double _alfa_inv = 1/_alfa;
-	const double _beta_inv = 1/_beta;
+	// const double _alfa = 3.76;	
+	// const double _beta = 0.0233;
+	// const double _alfa_inv = 1/_alfa;
+	// const double _beta_inv = 1/_beta;
+	// const double _alfasquare = _alfa*_alfa;
+	// const double _betasquare = _beta*_beta;
+	// const double _jacob1 = _alfasquare*_beta/_q;
+
+	// parameter of the transformation
 	const double _q = _stheta/(2*PI);
-	const double _alfasquare = _alfa*_alfa;
-	const double _betasquare = _beta*_beta;
-	const double _jacob1 = _alfasquare*_beta/_q;
+	const double _lambda = 1.02314422608633;
+	const double _logLambda = log(_lambda);
+	const double _k1 = (_sfovea - 0.5)+(_lambda)/(1-_lambda);
+	const double _k2 = _lambda/(pow(_lambda,_sfovea)*(_lambda-1));
 };
 
+// NOTE: this function was determined empirically and it is far from being correct
 inline double pSize(int c, int r, int nf = _logpolarParams::_sfovea)
 {
 	c;	// keep the compiler happy
@@ -179,34 +198,101 @@ public:
 	inline int GetCWidth (void) const { return _logpolarParams::_xsize; }
 	inline int GetCHeight (void) const { return _logpolarParams::_ysize; }
 
-	inline double CsiToRo(double csi)
-	{
-		return (_logpolarParams::_alfa*(exp(_logpolarParams::_beta*csi)-1));
-	}
-
-	inline int RoToCsi(double r)
-	{
-		double tmp = _logpolarParams::_alfa_inv*r;
-		if (tmp >= 1)
-			return (int) (_logpolarParams::_beta_inv*log(tmp)+0.5);
-		else
-			return 0;
-	}
-
-	inline double Jacobian(int csi, int eta)
-	{
-		eta;	// keep the compiler happy
-		double ret;
-		if (csi >= _logpolarParams::_sfovea)
-			ret = _logpolarParams::_jacob1 * (exp(2*_logpolarParams::_beta*csi));
-		else
-			ret = _logpolarParams::_jacob1 * (exp(2*_logpolarParams::_beta*_logpolarParams::_sfovea));
-		return ret;
-	}
-
+	inline double CsiToRo(double csi);
+	inline int RoToCsi(double r);
+	inline double Jacobian(int csi, int eta);
+	
 	bool TablesOk(void) const { return _mapsLoaded; }
 };
 
+inline double YARPLogpolar::CsiToRo(double csi)
+{
+	const double k1 = _logpolarParams::_k1;
+	const double k2 = _logpolarParams::_k2;
+	const double lambda = _logpolarParams::_lambda;
+
+	double r;
+
+	if (csi <= _logpolarParams::_sfovea)
+		r = (csi-0.5);
+	else
+		r = (k1+k2*pow(lambda, csi));
+			
+	return r*_logpolarParams::_ratio;
+}
+
+inline int YARPLogpolar::RoToCsi(double r)
+{
+	const double k1 = _logpolarParams::_k1;
+	const double k2 = _logpolarParams::_k2;
+	const double lambda = _logpolarParams::_lambda;
+
+	double csi;
+	double tmpR = r/_logpolarParams::_ratio;
+
+	if (tmpR <= _logpolarParams::_sfovea)
+		csi = tmpR;
+	else
+	{
+		double tmp1 = (tmpR-k1)/k2;	// always > 1 out of the fovea
+		csi = (1/log(lambda))*log(tmp1);
+	}	
+	
+	return csi;
+}
+
+// compute the jacobian of the transformation
+inline double YARPLogpolar::Jacobian(int csi, int eta)
+{
+	eta;	// keep the compiler happy
+	const double logLambda = _logpolarParams::_logLambda;
+	const double lambda = _logpolarParams::_lambda;
+	const double q = _logpolarParams::_q;
+	const double k1 = _logpolarParams::_k1;
+	const double k2 = _logpolarParams::_k2;
+	
+	double ret = 0.0;
+	double c;
+
+	if (csi >= _logpolarParams::_sfovea)
+		c = csi;
+	else
+		c = _logpolarParams::_sfovea;
+	
+	double tmpPow = pow(lambda, c);
+	ret = logLambda*tmpPow*(k1 + k2*tmpPow)/q;
+
+	//return the approximation by excess 
+	// (this was empirically determined)
+	return (int) (ret + 1);
+}
+
+// OBSOLETE functions, with old parameters
+/*
+inline double CsiToRo(double csi)
+{
+	return (_logpolarParams::_alfa*(exp(_logpolarParams::_beta*csi)-1));
+}
+
+inline int RoToCsi(double r)
+{
+	double tmp = _logpolarParams::_alfa_inv*r;
+	if (tmp >= 1)
+		return (int) (_logpolarParams::_beta_inv*log(tmp)+0.5);
+	else
+		return 0;
+}
+
+inline double Jacobian(int csi, int eta)
+{
+	eta;	// keep the compiler happy
+	double ret;
+	if (csi >= _logpolarParams::_sfovea)
+		ret = _logpolarParams::_jacob1 * (exp(2*_logpolarParams::_beta*csi));
+	else
+		ret = _logpolarParams::_jacob1 * (exp(2*_logpolarParams::_beta*_logpolarParams::_sfovea));
+	return (int) ret+1;
+}*/
 
 #endif
 
