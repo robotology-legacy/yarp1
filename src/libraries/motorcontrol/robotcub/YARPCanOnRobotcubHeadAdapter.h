@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.2 2004-06-30 13:37:51 gmetta Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.3 2004-07-01 10:02:23 gmetta Exp $
 ///
 ///
 
@@ -294,12 +294,14 @@ public:
 
 	int initialize(YARPRobotcubHeadParameters *par)
 	{
+		using namespace _RobotcubHead;
+
 		_parameters = par;
 		
 		ValueCanOpenParameters op_par;
 		op_par._port_number = CANBUS_DEVICE_NUM;
 		op_par._arbitrationID = CANBUS_ARBITRATION_ID;
-		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
+		memcpy (op_par._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
 		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
 		op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
 		op_par._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
@@ -348,7 +350,7 @@ public:
 
 	int uninitialize()
 	{
-		if (YARPMEIDeviceDriver::close() != 0)
+		if (YARPValueCanDeviceDriver::close() != 0)
 			return YARP_FAIL;
 
 		_initialized = false;
@@ -417,7 +419,7 @@ public:
 
 private:
 	bool _initialized;
-	YARPBabybotHeadParameters *_parameters;
+	YARPRobotcubHeadParameters *_parameters;
 };
 
 #endif	// .h
