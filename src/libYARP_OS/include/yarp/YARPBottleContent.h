@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottleContent.h,v 1.3 2004-07-09 16:10:13 eshuy Exp $
+/// $Id: YARPBottleContent.h,v 1.4 2004-07-30 10:31:38 eshuy Exp $
 ///
 ///
 
@@ -112,12 +112,11 @@ public:
       
       writer.Write((char*)(&len),sizeof(len));
       int r = writer.Write((char*)(&text[0]),len);
-      reset();
       return r;
     }
   
   virtual int Recycle()
-    { top = 0; return 0; }
+    { reset(); top = 0; return 0; }
 
     YARPBottle& operator=(const YARPBottle &vec) { return YARPBottle::operator= (vec); }
 };
