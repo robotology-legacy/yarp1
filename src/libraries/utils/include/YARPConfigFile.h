@@ -5,7 +5,7 @@
 
 // by nat May 2003
 //
-// $Id: YARPConfigFile.h,v 1.2 2003-06-20 12:46:09 babybot Exp $
+// $Id: YARPConfigFile.h,v 1.3 2003-06-30 21:14:23 babybot Exp $
 
 #ifndef __YARPCONFIGFILE__
 #define __YARPCONFIGFILE__
@@ -41,6 +41,8 @@ public:
 
 	int get(const char *section, const char *name, double *out, int n = 1);
 	int get(const char *section, const char *name, int *out, int n = 1);
+	int get(const char *section, const char *name, short *out, int n = 1);
+	int get(const char *section, const char *name, char *out, int n = 1);
 
 	void set(const char *path, const char *name)
 	{

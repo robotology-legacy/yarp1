@@ -1,6 +1,6 @@
 //
 // YARPIniFile.cpp
-// $Id: YARPConfigFile.cpp,v 1.1 2003-05-23 17:09:18 natta Exp $
+// $Id: YARPConfigFile.cpp,v 1.2 2003-06-30 21:14:23 babybot Exp $
 
 #include "YARPConfigFile.h"
 
@@ -29,6 +29,40 @@ int YARPConfigFile::get(const char *section, const char *name, double *out, int 
 
 	int i = 0;
 	while ( (i<n) && (fscanf(_pFile, "%lf", out++) != EOF) )
+		i++;
+			
+	_close();
+	
+	if (i == n)
+		return YARP_OK;		// found all the values
+	else	
+		return YARP_FAIL;	
+}
+
+int YARPConfigFile::get(const char *section, const char *name, short *out, int n)
+{
+	if (_get(section, name) == YARP_FAIL)
+		return YARP_FAIL;
+
+	int i = 0;
+	while ( (i<n) && (fscanf(_pFile, "%hd", out++) != EOF) )
+		i++;
+			
+	_close();
+	
+	if (i == n)
+		return YARP_OK;		// found all the values
+	else	
+		return YARP_FAIL;	
+}
+
+int YARPConfigFile::get(const char *section, const char *name, char *out, int n)
+{
+	if (_get(section, name) == YARP_FAIL)
+		return YARP_FAIL;
+
+	int i = 0;
+	while ( (i<n) && (fscanf(_pFile, "%x", out++) != EOF) )
 		i++;
 			
 	_close();
