@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableLoading.cpp,v 1.13 2003-10-08 17:13:12 fberton Exp $
+/// $Id: TableLoading.cpp,v 1.14 2003-10-17 14:25:23 fberton Exp $
 ///
 ///
 
@@ -104,6 +104,7 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 	char File_Name [256];
 	unsigned short retval = 0;
 	int j,k;
+	int *SList;
 	FILE * fin;
 	
 	if ((List&1)==1)
@@ -306,11 +307,56 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
-			Tables->ShiftMap = (int *) malloc ((Par->Resolution)*3*Par->Size_LP * sizeof(int));
-			fread(Tables->ShiftMap,sizeof(int),(Par->Resolution)*3*Par->Size_LP,fin);
+			Tables->ShiftMap = (int *) malloc ((1+3*Par->Resolution/2)*3*Par->Size_LP * sizeof(int));
+			fread(Tables->ShiftMap,sizeof(int),(1+3*Par->Resolution/2)*3*Par->Size_LP,fin);
 			fclose (fin);
 			retval = retval | 512;
 		}
+		else
+			Tables->ShiftMap = NULL;
+	}
+
+	if ((List&1024)==1024)
+	{
+		if (Par->Ratio == 1.00)
+			sprintf(File_Name,"%s",Path,"StepList.gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"StepList.gio");
+
+		if ((fin = fopen(File_Name,"rb")) != NULL)
+		{
+			fread (&Tables->ShiftLevels,sizeof(int),1,fin); //Lenght of the list
+			SList = (int *) malloc (Tables->ShiftLevels * sizeof (int));
+			fread (SList,sizeof(int),Tables->ShiftLevels,fin); //List
+			fclose(fin);
+
+			if (Par->Ratio == 1.00)
+				sprintf(File_Name,"%s",Path,"ShiftMap.gio");
+			else
+				sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"ShiftMap.gio");
+
+			if ((fin = fopen(File_Name,"rb")) != NULL)
+			{
+				Tables->ShiftMap = (int *) malloc ((Tables->ShiftLevels)*3*Par->Size_LP * sizeof(int));
+
+				k = 0;
+
+				for(j=0; j<1+3*Par->Resolution/2; j++)
+				{
+					if (k<Tables->ShiftLevels)
+					{
+						fread(&Tables->ShiftMap[k*3*Par->Size_LP],sizeof(int),3*Par->Size_LP,fin);
+
+						if (SList[k]+3*Par->Resolution/4 == j)
+							k++;
+					}
+				}
+
+				fclose (fin);
+				retval = retval | 1024;
+			}
+		}
+
 		else
 			Tables->ShiftMap = NULL;
 	}

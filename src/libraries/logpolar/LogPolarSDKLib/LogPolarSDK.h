@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.16 2003-10-08 17:13:12 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.17 2003-10-17 14:25:23 fberton Exp $
 ///
 ///
 
@@ -94,6 +94,7 @@
 #define ANGSHIFT	  1
 #define COL			  2
 #define DS4			  4
+#define PAD		 16
 #define REMAP		 32
 #define WEIGHTS		 64
 #define DS2			256
@@ -173,6 +174,7 @@ struct LUT_Ptrs{
 	Neighborhood	* WeightsMap;
 	double			* XYMap;
 	int				* ShiftMap;
+	int				  ShiftLevels;
 };
 
 typedef struct tag_vchannel 
@@ -288,6 +290,11 @@ void Remap(unsigned char * Out_Image,
 		   Image_Data * Par,
 		   int * Rem_LUT);
 
+void Remap_Mono(unsigned char * Out_Image,
+		   unsigned char * In_Image,
+		   Image_Data * Par,
+		   int * Rem_LUT);
+
 void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Param, float Ratio,IntNeighborhood * IntDownSampleTable);
 
 long Get_Time();
@@ -358,6 +365,8 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 					   IntNeighborhood * WeightsMap,
 					   int Pix_Numb);
 
+int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap);
+
 //Functions defined in TableGeneration.cpp
 
 unsigned short Build_Tables (Image_Data * Param, LUT_Ptrs * Tables,char * Path, unsigned short List);
@@ -383,5 +392,7 @@ int Build_Weights_Map(Image_Data * Par, char * Path);
 int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio);
 
 int Build_Shift_Map(Image_Data * Par, char * Path);
+
+void Build_Step_Function(char * Path, Image_Data * Par);
 
 #endif

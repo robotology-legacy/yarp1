@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.23 2003-10-08 17:13:12 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.24 2003-10-17 14:25:23 fberton Exp $
 ///
 ///
 
@@ -2196,18 +2196,18 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 	int i,j,k,l;
 	double tempX,tempY;
 	int newRho, newTheta;
-	float shiftlev = 1.0/Par->Resolution;
+	double shiftlev = 1.0/Par->Resolution;
 	int * ShiftMap;
 	LUT_Ptrs Tables;
 	char File_Name [256];
 	FILE * fout;
 	int steps;
 
-	steps = Par->Resolution/2;
+	steps = 3*Par->Resolution/4;
 
 	unsigned short retval = Load_Tables(Par,&Tables,Path,17);
 
-	ShiftMap = (int*) malloc((Par->Resolution)*3*Par->Size_LP*sizeof(int));
+	ShiftMap = (int*) malloc((1+3*Par->Resolution/2)*3*Par->Size_LP*sizeof(int));
 
 	if (retval != 17)
 	{
@@ -2230,12 +2230,12 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 	}
 	else
 	{
-		for (k=0; k<2*steps*Par->Size_LP*3; k++)
+		for (k=0; k<=2*steps*Par->Size_LP*3; k++)
 			ShiftMap[k] = 0;
 
-		for (l = -steps; l<-steps+Par->Resolution; l++)
+		for (l = -steps; l<=-steps+(3*Par->Resolution/2); l++)
 		{
-			printf("%d\n",l);
+//			printf("%d\n",l);
 			for(j=0; j<Par->Size_Rho; j++)
 				for(i=0; i<Par->Size_Theta; i++)
 				{
@@ -2270,9 +2270,9 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 		else
 			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"ShiftMap.gio");
 //			sprintf(File_Name,"%s%1.2f_%s_%d%s",Path,Par->Ratio,"ShiftMap",Par->Resolution,".gio");
-		
+
 		fout = fopen(File_Name,"wb");
-		fwrite(ShiftMap,sizeof(int),(Par->Resolution)*3*Par->Size_LP,fout);
+		fwrite(ShiftMap,sizeof(int),(1+3*Par->Resolution/2)*3*Par->Size_LP,fout);
 		fclose (fout);
 
 		free (Tables.PadMap);
@@ -2312,6 +2312,101 @@ void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, 
 	}
 }
 
+void Build_Step_Function(char * Path, Image_Data * Par)
+{
+	int i,j,k;
+
+	int MAX = -1000;
+	int maxind;
+
+	FILE * fout;
+	char File_Name [256];
+
+	double oldzoom = Par->Zoom_Level;
+	int oldft = Par->Fovea_Type;
+
+	Par->Zoom_Level = 1.00;
+	Par->Fovea_Type = 2;
+
+	double * FakeAngShiftMap = (double*)malloc(4*Par->Size_Rho*sizeof(double));
+	unsigned short * FakePadMap = NULL;
+	int * StepFunct = (int*)malloc(8*Par->Size_Rho * sizeof(int));
+
+	for (j=0; j<4*Par->Size_Rho; j++)
+		FakeAngShiftMap[j] = 0.0;
+	
+	for (j=0; j<4*Par->Size_Rho; j++) //generates values
+	{
+		StepFunct[j] = -(int)Get_X_Center(2.0*Par->Size_Rho-(j/2.0)-0.5,0,Par,FakeAngShiftMap,FakePadMap);
+		StepFunct[8*Par->Size_Rho-j-1] = (int)Get_X_Center(2*Par->Size_Rho-(j/2.0)-0.5,0,Par,FakeAngShiftMap,FakePadMap);
+	}
+
+	for (j=0; j<8*Par->Size_Rho; j++)//deletes out of bounds values
+		if (abs(StepFunct[j])>3*Par->Resolution/4)
+		{
+			for (i=j; i<8*Par->Size_Rho-1; i++)
+				StepFunct[i] = StepFunct[i+1];
+			StepFunct [8*Par->Size_Rho-1] = -1;
+			j --;
+		}
+
+	for (k=0; k<8*Par->Size_Rho; k++)//computes max value
+		if (StepFunct[k]>MAX)
+		{
+			MAX = StepFunct[k];
+			maxind = k;
+		}
+
+
+	bool found;
+	do//search for duplicate values
+	{
+		found = false;
+		for (j=0; j<maxind+1; j++)
+			if (StepFunct[j]==StepFunct[j+1])
+			{
+				for (i=j; i<maxind; i++)
+					StepFunct[i] = StepFunct[i+1];
+				StepFunct[maxind] = 0;
+				maxind --;
+				found = true;
+			}
+	}
+	while (found);
+
+	//writes the StepFunction
+
+//	for (k=0; k<8*Param->Size_Rho; k++)
+//		if (StepFunct[k]>MAX)
+//		{
+//			MAX = StepFunct[k];
+//			maxind = k;
+//		}
+
+	for (j=maxind+1; j<8*Par->Size_Rho; j++)
+		StepFunct[j] = 4*Par->Size_Rho;
+
+//	for (k=0; k<16; k++)
+//		for (j=k*Par->Size_Rho/2; j<(k+1)*Par->Size_Rho/2; j++)
+//			printf("%d   %d\n",j,StepFunct[j]);
+	
+	maxind++;
+	if (Par->Ratio == 1.00)
+		sprintf(File_Name,"%s%s",Path,"StepList.gio");
+	else
+		sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"StepList.gio");
+
+	fout = fopen(File_Name,"wb");
+	fwrite(&maxind,sizeof(int),1,fout);
+	fwrite(StepFunct,sizeof(int),maxind,fout);
+	fclose (fout);
+
+	free (StepFunct);
+
+	Par->Zoom_Level = oldzoom;
+	Par->Fovea_Type = oldft;
+
+}
 
 /************************************************************************
 * Build_DownSample_Map	(Not used)										*

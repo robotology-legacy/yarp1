@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.16 2003-10-03 17:09:52 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.17 2003-10-17 14:25:23 fberton Exp $
 ///
 ///
 
@@ -651,7 +651,25 @@ void Remap(unsigned char * Out_Image,
 //		}
 	}
 }
+/************************************************************************
+* Remap					  												*
+************************************************************************/
+	
+void Remap_Mono(unsigned char * Out_Image,
+		   unsigned char * In_Image,
+		   Image_Data * Par,
+		   int * Rem_LUT)
+{
+	int j;
+	const int SizeRemap  = Par->Size_Img_Remap;
 
+	In_Image[0] = 192;
+	unsigned char * RemImgPtr = Out_Image;
+	int * LPImgPtr = Rem_LUT;
+
+	for (j=0; j<SizeRemap; j++)
+		*RemImgPtr++ = In_Image[(*LPImgPtr++)/3];
+}
 long Get_Time()
 {
 #if !defined(__QNX__) && !defined(__LINUX__)
@@ -1163,7 +1181,7 @@ double Get_X_Center(double rho, double theta, Image_Data *par, double *Ang_Shift
 			}
 
 			Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * (int)rho;
-			
+
 			if ((int)rho<1)
 			{
 				Temp_Size_Theta = 1;
@@ -1335,4 +1353,108 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 		*OI++ = Sum;
 
 	}
+}
+
+
+int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap)
+{
+	int i,k,k1;
+	int iR,iL;
+//	int ShiftLev;
+	int count;
+	double d_1;
+	double d_2;
+	double corr_val;
+	double MIN = 10000;
+	int minindex;
+
+	for (k=0; k<Steps; k++)
+	{
+		double average_Lr = 0;
+		double average_Lg = 0;
+		double average_Lb = 0;
+		double average_Rr = 0;
+		double average_Rg = 0;
+		double average_Rb = 0;
+
+//		ShiftLev = StepFunct[k+1] + 3 * Par->Resolution/4; // = 75% of the image
+		k1 = k * 3 * Par->Size_LP; //Positioning on the table
+
+		count = 0;
+
+		for (i=0; i<Par->Size_LP; i++)
+		{
+			iR = ShiftMap[k1 + 3 * i];
+			iL = 3 * i;
+			if (iR > 0)
+			{
+				average_Lr += Left [iL];
+				average_Rr += Right[iR];
+				average_Lg += Left [iL+1];
+				average_Rg += Right[iR+1];
+				average_Lb += Left [iL+2];
+				average_Rb += Right[iR+2];
+				count++;
+			}
+		}
+		
+		if (count != 0)
+			{
+				average_Lr /= count;
+				average_Rr /= count;
+				average_Lg /= count;
+				average_Rg /= count;
+				average_Lb /= count;
+				average_Rb /= count;
+			}
+
+			double numr   = 0;
+			double den_1r = 0;
+			double den_2r = 0;
+			double numg   = 0;
+			double den_1g = 0;
+			double den_2g = 0;
+			double numb   = 0;
+			double den_1b = 0;
+			double den_2b = 0;
+
+			for(i = 0; i < Par->Size_LP; i++)
+				{
+					iR = ShiftMap[k1 + 3 * i];
+					iL = 3 * i;
+
+					if (iR > 0)
+					{
+						d_1 = Left [iL] - average_Lr;
+						d_2 = Right[iR] - average_Rr;
+						numr   += (d_1 * d_2);
+						den_1r += (d_1 * d_1);
+						den_2r += (d_2 * d_2);
+
+						d_1 = Left [iL+1] - average_Lg;
+						d_2 = Right[iR+1] - average_Rg;
+						numg   += (d_1 * d_2);
+						den_1g += (d_1 * d_1);
+						den_2g += (d_2 * d_2);
+
+						d_1 = Left [iL+2] - average_Lb;
+						d_2 = Right[iR+2] - average_Rb;
+						numb   += (d_1 * d_2);
+						den_1b += (d_1 * d_1);
+						den_2b += (d_2 * d_2);
+					}
+				}
+			corr_val  = (1.0 - (numr * numr) / (den_1r * den_2r + 0.00001));	
+			corr_val += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
+			corr_val += (1.0 - (numb * numb) / (den_1b * den_2b + 0.00001));	
+
+			if (corr_val<MIN)
+			{
+				MIN = corr_val;
+				minindex = k;
+			}
+	//		printf("%03d     %2.5f\n",k-SParam.Resolution/2,corr_val);
+		}
+
+	return minindex;
 }
