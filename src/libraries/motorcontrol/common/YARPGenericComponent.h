@@ -1,6 +1,7 @@
 #ifndef __YARPGENERICCOMPONENTHH__
 #define __YARPGENERICCOMPONENTHH__
 
+#include <conf/YARPConfig.h>
 #include <YARPControlBoardUtils.h> // required for LowLevelPID class
 #include <YARPSemaphore.h>
 
@@ -183,8 +184,18 @@ public:
 		return -1;
 	}
 
-	inline int nj(){ return _parameters._nj;}
+	// return max torque for the control board (i.e. MEI is 32767.0, Galil 9.999(
+	double getMaxTorque(int axis)
+	{ return _adapter.getMaxTorque(axis); }
+
+	inline int nj()
+	{ return _parameters._nj; }
+
 	int setGainsSmoothly(LowLevelPID *finalPIDs, int s = 150);
+	// reduce max torque on axis of delta; returns true if current limit is equal to or less than value
+	bool decMaxTorque(int axis, double delta, double value);
+	// increase max torque on axis of delta; returns true if current limit is equal to or more than value
+	bool incMaxTorque(int axis, double delta, double value);
 
 	inline double angleToEncoder(double angle, double encParam, int zero, int sign);
 	inline double encoderToAngle(double encoder, double encParam, int zero, int sign);
@@ -216,6 +227,7 @@ protected:
 	int *_tmp_int;
 	ADAPTER _adapter;
 	double *_temp_double;
+
 };
 
 // This procedure set new gains smoothly in 's' steps.
@@ -266,7 +278,7 @@ int YARPGenericComponent<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *fin
 	
 	for(int t = 0; t < (int) steps; t++)
 	{
-		for(i = 0; i < _parameters._nj; i++)
+		for(int i = 0; i < _parameters._nj; i++)
 		{
 			actualPIDs[i] = actualPIDs[i] + deltaPIDs[i];
 			actualPIDs[i].SHIFT = shift[i];
@@ -303,6 +315,72 @@ encoderToAngle(double encoder, double encParam, int zero, int sign)
 		return (-encoder - zero) * 2.0 * pi / encParam;
 	else
 		return (encoder - zero) * 2.0 * pi / encParam;
+}
+
+template <class ADAPTER, class PARAMETERS>
+inline bool YARPGenericComponent<ADAPTER, PARAMETERS>::
+decMaxTorque(int axis, double delta, double value)
+{
+	bool ret = false;
+	double currentLimit, newLimit;
+	SingleAxisParameters cmd;
+	cmd.axis = _parameters._axis_map[axis];
+	cmd.parameters = &currentLimit;
+	_adapter.IOCtl(CMDGetTorqueLimit, &cmd);
+
+	newLimit = currentLimit - (fabs(delta));
+	
+	// check newLimit to see it we are done
+	if (newLimit <= value)
+	{
+		newLimit = value;
+		ret = true;
+	}
+	// be sure we are not going below zero
+	if (newLimit < 0.0)
+	{
+		newLimit = 0.0;
+		ret = true;
+	}
+
+	cmd.parameters = &newLimit;
+	_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
+
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+inline bool YARPGenericComponent<ADAPTER, PARAMETERS>::
+incMaxTorque(int axis, double delta, double value)
+{
+	double maxTorque = _parameters._max_dac[_parameters._axis_map[axis]];
+
+	bool ret = false;
+	double currentLimit, newLimit;
+	SingleAxisParameters cmd;
+	cmd.axis = _parameters._axis_map[axis];
+	cmd.parameters = &currentLimit;
+	_adapter.IOCtl(CMDGetTorqueLimit, &cmd);
+
+	newLimit = currentLimit + (fabs(delta));
+	
+	// check newLimit to see it we are done
+	if (newLimit >= value)
+	{
+		newLimit = value;
+		ret = true;
+	}
+	// be sure we are not going above max torque...
+	if (newLimit >= maxTorque);
+	{
+		newLimit = maxTorque;
+		ret = true;
+	}
+
+	cmd.parameters = &newLimit;
+	_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
+
+	return ret;
 }
 
 #endif // h

@@ -2,10 +2,10 @@
 #define __MEIONBABYBOTHEAD__
 
 #include <ace/log_msg.h>
-#include <YarpMeiDeviceDriver.h>
+#include <YARPMeiDeviceDriver.h>
 #include <string>
 
-// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.1 2003-04-26 11:10:26 natta Exp $
+// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.2 2003-05-21 13:29:11 natta Exp $
 
 namespace _BabybotHead
 {

@@ -1,10 +1,10 @@
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.14 2003-05-21 08:25:03 natta Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.15 2003-05-21 13:29:10 natta Exp $
 
 #include <ace/log_msg.h>
-#include <YarpMeiDeviceDriver.h>
+#include <YARPMeiDeviceDriver.h>
 #include <string>
 
 #define YARP_BABYBOT_ARM_ADAPTER_VERBOSE
@@ -45,6 +45,7 @@ namespace _BabybotArm
 	const double _encoders[_nj] = {-46.72, 69.9733, -42.9867, 43.5111, 39.3846, 31.7692};
 	const double _fwdCouple[_nj] = {0.0, 0.0, 0.0, -9.8462*_encWheels[3], 1.0*_encWheels[4], -5.5999886532*_encWheels[5]};
 	const int _stiffPID[_nj] = {0, 0, 0, 1, 1, 1};
+	const double _maxDAC[_nj] = {32767.0, 32767.0, 32767.0, 32767.0, 32767.0, 32767.0};
 }; // namespace
 
 class YARPBabybotArmParameters
@@ -53,7 +54,8 @@ public:
 	YARPBabybotArmParameters()
 	{
 		_nj = _BabybotArm::_nj;
-		for(int i = 0; i<_nj; i++) {
+		int i;
+		for(i = 0; i<_nj; i++) {
 			_highPIDs[i] = _BabybotArm::_highPIDs[i];
 			_lowPIDs[i] = _BabybotArm::_lowPIDs[i];
 			_zeros[i] = _BabybotArm::_zeros[i];
@@ -62,10 +64,11 @@ public:
 			_encoderToAngles[i] = _BabybotArm::_encoders[i]*_BabybotArm::_encWheels[i];
 			_fwdCouple[i] = _BabybotArm::_fwdCouple[i];
 			_stiffPID[i] = _BabybotArm::_stiffPID[i];
+			_maxDAC[i] = _BabybotArm::_maxDAC[i];
 		}
 
 		// compute inv couple
-		for (int i = 0; i < 3; i++)
+		for (i = 0; i < 3; i++)
 			_invCouple[i] = 0.0;	// first 3 joints are not coupled
 
 		_invCouple[3] = -_fwdCouple[3] / (_encoderToAngles[3] * _encoderToAngles[4]);
@@ -89,6 +92,7 @@ public:
 	double _invCouple[_BabybotArm::_nj];
 	int _stiffPID[_BabybotArm::_nj];
 	int _nj;
+	double _maxDAC[_BabybotArm::_nj];
 };
 
 class YARPMEIOnBabybotArmAdapter : public YARPMEIDeviceDriver
@@ -231,6 +235,14 @@ public:
 		return YARP_OK;
 	}
 
+	// returns max torque on axis; note: this is not the current value, this is
+	// the maximum possible value for the board (i.e. MEI = 32767.0, Galil 9.99)
+	double getMaxTorque(int axis)
+	{
+		int tmp = _parameters._axis_map[axis];
+		return _parameters._maxDAC[tmp];
+	}
+
 	int calibrate() {
 		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Starting calibration routine...\n"));
 		if (! (_initialized && _amplifiers) )
@@ -350,6 +362,7 @@ private:
 	bool _amplifiers;
 	bool _softwareLimits;
 	YARPBabybotArmParameters _parameters;
+
 };
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPBabybotArm.h,v 1.7 2003-05-15 18:44:19 natta Exp $
+// $Id: YARPBabybotArm.h,v 1.8 2003-05-21 13:29:10 natta Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -10,6 +10,7 @@
 #else YARP_BABYBOT_ARM_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
+#include <conf/YARPConfig.h>
 #include <YarpGenericComponent.h>
 #include "YARPMEIOnBabybotArmAdapter.h"
 
