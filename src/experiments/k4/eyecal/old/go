@@ -1,0 +1,6 @@
+(
+ sleep 1
+ porter /cam /camcal/i:img
+ porter /camcal/o:img /cogcam
+) &
+on -n14 ./camcal

@@ -1,0 +1,6 @@
+(
+sleep 1
+porter /cam /yarp/camcal/fixed/i:img
+porter /yarp/left/wide1 /yarp/camcal/moving/i:img
+) &
+./camcal
