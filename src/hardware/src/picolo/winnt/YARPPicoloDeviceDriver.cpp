@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.5 2003-06-05 12:40:03 gmetta Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.6 2003-06-05 17:48:13 babybot Exp $
 ///
 ///
 
@@ -92,6 +92,7 @@ public:
 		memset (_aligned, 0, sizeof(PUINT8) * _num_buffers);
 
 		_rawBuffer = NULL;
+		_canpost = true;
 	}
 
 	~PicoloResources () { _uninitialize (); }
@@ -102,6 +103,7 @@ public:
 
 	YARPSemaphore _bmutex;
 	YARPSemaphore _new_frame;
+	///ACE_Mutex _new_frame;
 
 	// Img size are determined partially by the HW.
 	UINT32 _nRequestedSize;
@@ -112,6 +114,8 @@ public:
 	PICOLOHANDLE _bufHandles[_num_buffers];
 	PUINT8 _buffer[_num_buffers];
 	PUINT8 _aligned[_num_buffers];
+
+	bool _canpost;
 
 	unsigned char *_rawBuffer;
 
@@ -163,6 +167,11 @@ inline int PicoloResources::_uninitialize (void)
 {
 	_bmutex.Wait ();
 	
+	/// LATER:
+	/// need to release the buffers.
+	/// call PicoloStop at least.
+	/// and then release the buffers allocated in _initialize.
+
 	if (_rawBuffer != NULL) delete[] _rawBuffer;
 	_rawBuffer = NULL;
 	
@@ -343,24 +352,34 @@ void YARPPicoloDeviceDriver::Body (void)
 	PicoloStatus = PicoloSetWaitTimeout (d._picoloHandle, 500);		/// timeout 120 ms.
 	bool finished = false;
 
+	d._canpost = true;
+
 	/// strategy, waits, copy into lockable buffer.
 	while (!finished)	
 	{
 		PicoloStatus = PicoloWaitEvent (d._picoloHandle, PICOLO_EV_END_ACQUISITION);
 		if (PicoloStatus == PICOLO_OK)
 		{
-			d._new_frame.Post();
+			///d._new_frame.Post();
+			///d._new_frame.release();
 
 			if (d._bmutex.PollingWait () == 1)
 			{
+				if (d._canpost)
+				{
+					d._canpost = false;
+					d._new_frame.Post();
+				}
+
 				/// buffer acquired.
 				/// read from buffer
 				unsigned int bufno = 0;
 				PicoloStatus = PicoloGetCurrentBuffer (d._picoloHandle, &bufno);
 				if (PicoloStatus == PICOLO_OK)
 				{
-					const int readfro = (bufno - 1 >= 0) ? (bufno - 1) : (d._num_buffers - 1);
+					const unsigned int readfro = ((bufno - 1) >= 0) ? (bufno - 1) : (d._num_buffers - 1);
 					memcpy (d._rawBuffer, d._aligned[readfro], d._nImageSize);
+					ACE_OS::printf ("%d ", readfro);
 					d._bmutex.Post ();
 				}
 				else
@@ -398,6 +417,7 @@ int YARPPicoloDeviceDriver::acquireBuffer (void *buffer)
 int YARPPicoloDeviceDriver::releaseBuffer (void *cmd)
 {
 	PicoloResources& d = RES(system_resources);
+	d._canpost = true;
 	d._bmutex.Post ();
 
 	return YARP_OK;
@@ -407,6 +427,7 @@ int YARPPicoloDeviceDriver::waitOnNewFrame (void *cmd)
 {
 	PicoloResources& d = RES(system_resources);
 	d._new_frame.Wait ();
+	///d._new_frame.acquire ();
 
 	return YARP_OK;
 }

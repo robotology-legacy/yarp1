@@ -6,17 +6,26 @@
 --------------------Configuration: fakeipl - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP2FA0.tmp" with contents
+Creating temporary file "C:\DOCUME~1\babybot\LOCALS~1\Temp\RSP135.tmp" with contents
 [
 /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\..\..\..\include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /Fo"..\obj\Debug/" /Fd"..\obj\Debug/" /FD /GZ /c 
-"D:\Users\pasa\Repository\yarp\src\libraries\images\fakeipl\FakeIpl.cpp"
+"E:\yarp\src\libraries\images\fakeipl\FakeIpl.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP2FA0.tmp" 
-Creating command line "link.exe -lib /nologo /out:".\fakeiplDB.lib"  \Users\pasa\Repository\yarp\src\libraries\images\obj\Debug\FakeIpl.obj "
+Creating command line "cl.exe @C:\DOCUME~1\babybot\LOCALS~1\Temp\RSP135.tmp" 
+Creating command line "link.exe -lib /nologo /out:".\fakeiplDB.lib"  \yarp\src\libraries\images\obj\Debug\FakeIpl.obj "
 <h3>Output Window</h3>
 Compiling...
 FakeIpl.cpp
 Creating library...
+Creating temporary file "C:\DOCUME~1\babybot\LOCALS~1\Temp\RSP136.bat" with contents
+[
+@echo off
+copy *.h ..\..\..\..\include
+]
+Creating command line "C:\DOCUME~1\babybot\LOCALS~1\Temp\RSP136.bat"
+Installing...
+FakeIpl.h
+        1 file(s) copied.
 
 
 

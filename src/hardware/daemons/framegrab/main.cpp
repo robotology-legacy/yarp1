@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.5 2003-06-05 13:08:09 gmetta Exp $
+/// $Id: main.cpp,v 1.6 2003-06-05 17:48:13 babybot Exp $
 ///
 ///
 
@@ -79,17 +79,62 @@
 
 #include <YARPImages.h>
 
+const int size = 128;
+char _name[512];
+bool _client = false;
+
 /// LATER: used to parse command line options.
-int ParseParams (int argc, char *argv[]) { return YARP_OK; }
+int ParseParams (int argc, char *argv[]) 
+{
+	ACE_OS::sprintf (_name, "/%s/o:img\0", argv[0]);
+	int i;
 
-const int size = 256;
+	for (i = 1; i < argc; i++)
+	{
+		if (argv[i][0] == '+')
+		{
+			memcpy (_name, &argv[i][1], strlen (&argv[i][1]));
+		}
+		else
+		if (argv[i][0] == '-')
+		{
+			switch (argv[i][1])
+			{
+			case 'w':
+				i++;
+				break;
 
+			case 'h':
+				i++;
+				break;
+
+			case 't':
+				ACE_OS::fprintf (stdout, "grabber acting as a receiver client...\n");
+				ACE_OS::sprintf (_name, "%s\0", argv[i+1]);
+				_client = true;
+				i++;
+				break;
+			}
+		}
+		else
+		{
+			ACE_OS::fprintf (stderr, "unrecognized parameter %d:%s\n", i, argv[i]);
+		}
+	}
+
+	return YARP_OK; 
+}
+
+///
+///
+///
 int _grabber2rgb (const unsigned char *in, unsigned char *out, int sz)
 {
-	unsigned char * first_pix = (unsigned char *)in;
-	unsigned char * ptr = first_pix;
+	int * first_pix = (int *)in;
+	int * ptr = first_pix;
 
-	for (int r = sz - 1; r >= 0; r--, r--)
+	///for (int r = 2 * sz - 1; r >= 0; r--, r--)
+	for (int r = 0; r < 2 * sz; r++, r++)
 	{
 		ptr = first_pix + (sz * r);
 
@@ -100,10 +145,47 @@ int _grabber2rgb (const unsigned char *in, unsigned char *out, int sz)
 			*out++ = unsigned char((*ptr & 0x0000ff00) >> 8);
 			*out++ = unsigned char((*ptr & 0x000000ff));
 
-			out++;
+			ptr ++;
 		}
 	}
 	
+	return YARP_OK;
+}
+
+int _runAsClient (void)
+{
+	YARPImageOf<YarpPixelBGR> img;
+	///img.Resize (size, size);
+
+	YARPInputPortOf<YARPGenericImage> inport;
+	bool finished = false;
+
+	inport.Register (_name);
+	int frame_no = 0;
+
+	char savename[512];
+	memset (savename, 0, 512);
+
+	while (!finished)
+	{
+		ACE_OS::printf (">>> before read\n");
+
+		inport.Read ();
+		img.Refer (inport.Content());
+
+		ACE_OS::printf (">>> got a frame\n");
+
+		frame_no++;
+
+		ACE_OS::sprintf (savename, "./grab_test%d.ppm\0", frame_no);
+		YARPImageFile::Write (savename, img);
+
+		if (frame_no > 10)
+		{
+			finished = true;
+		}
+	}
+
 	return YARP_OK;
 }
 
@@ -116,11 +198,19 @@ int main (int argc, char *argv[])
 
 	ParseParams (argc, argv);
 
+	if (_client)
+	{
+		return _runAsClient();
+	}
+
 	YARPBabybotGrabber grabber;
 	YARPImageOf<YarpPixelBGR> img;
 	img.Resize (size, size);
-	YARPOutputPortOf<YARPGenericImage> output;
+
+	YARPOutputPortOf<YARPGenericImage> outport;
 	bool finished = false;
+
+	outport.Register (_name);
 
 	/// params to be passed from the command line.
 	grabber.initialize (0, size);
@@ -147,6 +237,9 @@ int main (int argc, char *argv[])
 		grabber.acquireBuffer (&buffer);
 	
 		/// fills the actual image buffer.
+		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), size);
+		outport.Content().Refer (img);
+		outport.Write();
 
 		frame_no++;
 		if ((frame_no % 250) == 0)
