@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.12 2003-05-21 11:13:09 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.13 2003-05-21 13:08:37 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -138,7 +138,7 @@ public:
 			ct++;
 			printf("$$$$$$$$$$$$$$$$$$$$$$$$$Writing %d\n", (int)out.Content());
 			out.Write();
-			YARPTime::DelayInSeconds(4);
+			YARPTime::DelayInSeconds(.5);
 		}
 	}
 };
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 	ACE_UNUSED_ARG (argc);
 	ACE_UNUSED_ARG (argv);
 
-///	__debug_level = 100;
+	__debug_level = 80;
 
 	Thread1 t1;
 	Thread2 t2;
