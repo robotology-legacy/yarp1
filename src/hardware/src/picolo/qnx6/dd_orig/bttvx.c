@@ -430,6 +430,12 @@ bt848_set_size(struct bttv *btv)
   ushort inter;
   unchar crop;
   struct tvnorm *tvn;
+  float scalex; 
+  float scaley; 
+  float scale; 
+	
+  float xSize; 
+  float ySize; 
 
   if (!btv->win.width)
     return;
@@ -501,9 +507,20 @@ bt848_set_size(struct bttv *btv)
       btwrite(0x72, BT848_BDELAY);
       btaor(BT848_IFORM_PAL_BDGHI, ~BT848_IFORM_NORM, BT848_IFORM);
     }
+	
+	scalex = 768.0/btv->win.width;
+	scaley = 576.0/btv->win.height;
+	scale = (scalex < scaley) ? scalex : scaley;
+	scalex = scale;
+	//scaley = scale / 2.0;
+	scaley = scale;
+	xSize = 768.0/scalex;
+	ySize = 576.0/scaley;
+
     btaor(BT848_IFORM_XT1, ~0x18, BT848_IFORM);
     //xsf = ((btv->win.width)*36875UL)/30000UL;
-	xsf = ((341)*36875UL)/30000UL;
+	
+	xsf = ((xSize)*36875UL)/30000UL;
     hscale = ((1135UL*4096UL)/xsf-4096);
 	/////hscale = 0x29A0; //256
 	/////hscale = (((922UL/256UL)-1)*4096UL);
@@ -518,8 +535,8 @@ bt848_set_size(struct bttv *btv)
   }
     
 
-  sr=((btv->win.cropheight>>inter)*512)/btv->win.height-512;
-  ///sr=(((btv->win.cropheight>>inter)/btv->win.height)-1)*512;
+  ///sr=((btv->win.cropheight>>inter)*512)/btv->win.height-512;
+  sr=(((btv->win.cropheight>>inter)/ySize)-1)*512;
   vscale=(0x10000UL-sr)&0x1fff;
   //vscale = 0x1600;
 
