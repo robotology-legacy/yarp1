@@ -219,6 +219,10 @@ SOURCE=..\include\yarp\end_pack_for_net.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\wide_nameloc.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\YARPAll.h
 # End Source File
 # Begin Source File
@@ -384,10 +388,6 @@ SOURCE=..\include\yarp_private\Sendable.h
 # Begin Source File
 
 SOURCE=..\include\yarp_private\Sendables.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp_private\wide_nameloc.h
 # End Source File
 # Begin Source File
 

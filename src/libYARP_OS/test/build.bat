@@ -14,9 +14,12 @@ rem
 
 echo Entering build process of YARP libraries...
 
-if "%1"=="" goto end
+if "%1"=="" goto error
+if NOT DEFINED YARP_ROOT goto error_not_defined 
+
 if "%1"=="debug" goto debug
 if "%1"=="release" goto release
+if "%1"=="install" goto install
 
 
 :clean 
@@ -37,6 +40,21 @@ goto end
 :release
 msdev test.dsw /MAKE "demo00 - Win32 Release" /BUILD
 msdev test.dsw /MAKE "demo01 - Win32 Release" /BUILD
+goto end
+
+
+:install
+echo Doing nothing as yet
+goto end
+
+
+:error_not_defined
+echo YARP_ROOT is not defined, exiting
+goto end
+
+
+:error
+echo Syntax error: please make sure you know how this script works!
 goto end
 
 
