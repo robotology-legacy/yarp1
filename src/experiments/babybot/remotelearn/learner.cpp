@@ -10,10 +10,13 @@ BatchDataSample::BatchDataSample()
 	_outData = NULL;
 }
 
-BatchDataSample::BatchDataSample(double *in, double *out, int inS, int outS)
+BatchDataSample::BatchDataSample(const double *in, const double *out, int inS, int outS)
 {
 	_inData = new double [inS];
 	_outData = new double [outS];
+
+	memcpy(_inData, in, sizeof(double)*inS);
+	memcpy(_outData, out, sizeof(double)*inS);
 }
 	
 BatchDataSample::~BatchDataSample()
@@ -116,14 +119,18 @@ void BatchData::get(double **input, double **output, int *ns)
 
 	YARPList<BatchDataSample *>::iterator it(*this);
 
+	int counter = 0;
 	while (!it.done())
 	{
-		memcpy(tmpOut, (*it)->_inData, sizeof(double)*_inSize);
-		memcpy(tmpIn, (*it)->_outData, sizeof(double)*_outSize);
+		double *tmpVectIn = (*it)->_inData;
+		double *tmpVectOut = (*it)->_outData;
+		memcpy(tmpIn, (*it)->_inData, sizeof(double)*_inSize);
+		memcpy(tmpOut, (*it)->_outData, sizeof(double)*_outSize);
 		
 		tmpIn+=_inSize;
 		tmpOut+=_outSize;
 		it++;
+		counter++;
 	}
 
 	*ns = _nSamples;

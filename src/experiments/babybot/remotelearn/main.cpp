@@ -3,6 +3,7 @@
 
 #include "lbehavior.h"
 #include <YARPBottle.h>
+#include <YARPBottleContent.h>
 #include <YARPPort.h>
 
 const char __filename[] = "test.ini";
@@ -18,7 +19,7 @@ int main(int argc, char* argv[])
 	
 	Learner _learner(filename);
 
-	YARPInputPortOf<YARPBottle> _inputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	YARPInputPortOf<YARPBottle> _inputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
 	_inputPort.Register(__inputPort);
 
 
@@ -26,6 +27,7 @@ int main(int argc, char* argv[])
 	{
 		_inputPort.Read();
 		_learner.add(_inputPort.Content());
+		_inputPort.Content().display();
 
 		ACE_OS::printf("Received new sample:#%d\n", _learner.howMany());
 

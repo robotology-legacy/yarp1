@@ -14,7 +14,7 @@ class BatchDataSample
 {
 public:
 	BatchDataSample();
-	BatchDataSample(double *in, double *out, int inS, int outS);
+	BatchDataSample(const double *in, const double *out, int inS, int outS);
 		
 	~BatchDataSample();
 

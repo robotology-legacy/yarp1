@@ -12,6 +12,7 @@
 #include <YARPParseParameters.h>
 #include <YARPConfigFile.h>
 #include <YARPBottle.h>
+#include <YARPBottleContent.h>
 #include <YARPPort.h>
 
 #include <YARPBabybotHeadKin.h>
@@ -39,7 +40,7 @@ int main(int argc, char* argv[])
 void train(int argc, char *argv[])
 {
 	char trainFile[255];
-	YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+	YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 	_outPort.Register(__portName);
 		
 	YARPParseParameters::parse(argc, argv, "set", trainFile);
@@ -68,6 +69,8 @@ void train(int argc, char *argv[])
 	double *tmpTarget = target_train_set;
 	for(i = 0; i < nPatterns; i++)
 	{
+		tmpBottle.setID("TrainSample");
+		tmpBottle.reset();
 		// input
 		for(j = 0; j < 3; j++)
 		{
@@ -81,11 +84,12 @@ void train(int argc, char *argv[])
 			tmpBottle.writeFloat(*tmpTarget);
 			tmpTarget++;
 		}
-
+		
 		_outPort.Content() = tmpBottle;
 		ACE_OS::printf("Sending train sample #%d...", i);
-		_outPort.Write(0);	// blocking send
+		_outPort.Write();	// blocking send
 		ACE_OS::printf("done !\n");
+		Sleep(100);
 	}
 
 	delete [] input_train_set;
