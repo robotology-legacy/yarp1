@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-connect.cpp,v 1.4 2004-08-10 13:42:07 babybot Exp $
+/// $Id: yarp-connect.cpp,v 1.5 2005-03-17 17:23:28 eshuy Exp $
 ///
 ///
 
@@ -64,8 +64,22 @@ extern int __debug_level;
 
 int main(int argc, char *argv[])
 {
+  int reconnect = 0;
+  if (argc>1) {
+    if (strcmp(argv[1],"-f")==0) {
+      reconnect = 1;
+      argc--;
+      argv++;
+    }
+  }
 	if (argc == 3)
 	{
+	  if (reconnect) {
+	    // try to disconnect first
+	    char buf[256];
+	    sprintf(buf,"!%s",argv[2]);
+	    YARPPort::Connect (argv[1], buf);
+	  }
 		YARPPort::Connect (argv[1], argv[2]);
 	}
 	else
@@ -79,6 +93,8 @@ int main(int argc, char *argv[])
 		ACE_DEBUG ((LM_INFO, "where <name1> is an output port name (source of messages)\n"));
 		ACE_DEBUG ((LM_INFO, "and <name2> is an input port name (destination of messages)\n"));
 		ACE_DEBUG ((LM_INFO, "prefix <name2> with '!' to detach port <name2> from <name1>\n"));
+		ACE_DEBUG ((LM_INFO, "Use: yarp-connect -f <name1> <name2>\n"));
+		ACE_DEBUG ((LM_INFO, "to refresh a connection when the target is restarted.\n"));
 		ACE_DEBUG ((LM_INFO, "prefix <name1> with '*' to ask the port to display its connections\n"));
 		ACE_DEBUG ((LM_INFO, "note that the display is simply made on the stdout of the port\n"));
 		ACE_DEBUG ((LM_INFO, "that receives the request and not on the terminal where \nyarp-connect is called.\n"));
