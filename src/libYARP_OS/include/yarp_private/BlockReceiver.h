@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockReceiver.h,v 1.3 2004-07-09 13:46:02 eshuy Exp $
+/// $Id: BlockReceiver.h,v 1.4 2004-08-11 17:34:58 babybot Exp $
 ///
 ///
 
@@ -66,12 +66,18 @@
 #	pragma once
 #endif
 
+/**
+ * \file BlockReceiver.h Classes that define a port reader: i.e. a class that knows how
+ * to receive a buffer.
+ */
+
 #include <yarp/YARPNameService.h>
 #include <yarp/YARPPortContent.h>
 
-///
-///
-///
+/**
+ * This class knows how to read from a socket and store incoming data in a multi-part
+ * message.
+ */
 class BlockReceiver : public YARPPortReader
 {
 protected:
@@ -82,18 +88,56 @@ protected:
 	int failed;
 
 public:
+	/**
+	 * Constructor.
+	 */
 	BlockReceiver() { Begin(); }
-	/// added only to fight annoying gcc warning!
+
+	/**
+	 * Destructor.
+	 * Added only to fight annoying gcc warning!
+	 */
 	virtual ~BlockReceiver() {}
-	
+
+	/**
+	 * Starts using this instance for receiving. This method just initializes to
+	 * null values.
+	 */
 	void Begin() { failed = 0; pid.invalidate(); has_msg = 0; offset = 0; reply_pending = 0; }
+
+	/**
+	 * Starts using this instance for receiving from a destination.
+	 * @param id is the ID of the remote endpoint.
+	 */
 	void Begin(const YARPNameID& id) { failed = 0; pid = id; has_msg = 0; offset = 0; reply_pending = 0; }
 
+	/**
+	 * Wait for a new message to be available.
+	 * @return 1 if something can be read.
+	 */
 	int Get();
+
+	/**
+	 * Wait for a new message to be available and copies it into the buffer.
+	 * @param buffer is the pointer to the buffer.
+	 * @len is the length of the buffer in bytes.
+	 * @return 1 if something has been read.
+	 */
 	int Get(char *buffer, int len);
-	//void UnGet(int delta);
+
+	/**
+	 * Finishes using this class, and sends a reply to the remote peer if
+	 * needed.
+	 * @return 1 if successful.
+	 */
 	int End();
 
+	/**
+	 * Equivalent to Get() but virtual. Reads a buffer from the channel.
+	 * @param buffer is the pointer to the buffer.
+	 * @length is the length of the buffer in bytes.
+	 * @return 1 if something has been read.
+	 */
 	virtual int Read(char *buffer, int length) { return Get(buffer,length);	}
 };
 

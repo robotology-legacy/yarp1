@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockPrefix.h,v 1.3 2004-07-09 13:46:02 eshuy Exp $
+/// $Id: BlockPrefix.h,v 1.4 2004-08-11 17:34:58 babybot Exp $
 ///
 ///
 
@@ -66,12 +66,19 @@
 #	pragma once
 #endif
 
+/**
+ * \file BlockPrefix.h contains a class used as prefix to message blocks.
+ */
 #include <yarp/begin_pack_for_net.h>
+
+/**
+ * This is a trivial class used as prefix to message blocks.
+ */
 class BlockPrefix
 {
 public:
-	unsigned char total_blocks, reply_blocks;
-	NetInt32 size, reply_size;
+	unsigned char total_blocks, reply_blocks;	/** the number of blocks */
+	NetInt32 size, reply_size;					/** the size of the message */
 } PACKED_FOR_NET;
 #include <yarp/end_pack_for_net.h>
 

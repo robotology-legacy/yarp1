@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.h,v 1.4 2004-07-09 16:10:13 eshuy Exp $
+/// $Id: BlockSender.h,v 1.5 2004-08-11 17:34:58 babybot Exp $
 ///
 ///
 
@@ -67,9 +67,6 @@
 #	pragma once
 #endif
 
-/// LATER: Need remove this -- use ACE equivalent.
-///#include <vector>
-
 ///
 /// STILL under testing especially for efficiency.
 #include <ace/Containers_T.h>
@@ -82,20 +79,32 @@
 
 extern int __debug_level;
 
-// Should find out exactly what this is
+/**
+ * \file BlockSender.h these classes are part of the multi-part message 
+ * implementation.
+ */
 
 #ifdef __QNX4__
-#include <sys/sendmx.h>
+#	include <sys/sendmx.h>
 #else
+
 using namespace std;
 
-/* must match Block class in YARPMultipartMessage implementation */
+/**
+ * must match Block class in YARPMultipartMessage implementation 
+ */
 class _mxfer_entry
 {
 public:
 	void *buffer;
 	int len;
 
+	/**
+	 * Sets a buffer into the class.
+	 * @param n_buffer is the pointer to the buffer. The memory block
+	 * is not copied.
+	 * @param n_len is the size of the buffer.
+	 */
 	void _set(void *n_buffer, int n_len)
 	{ 
 		buffer = n_buffer;  
@@ -106,16 +115,33 @@ public:
 #define _setmx(p,b,l) (p)->_set((b),(l))
 #endif
 
+/**
+ * Wraps over the block entry type.
+ */
 class BlockUnit : public _mxfer_entry
 {
 public:
+
+	/**
+	 * Contructor.
+	 */
 	BlockUnit() {}
 
+	/**
+	 * Contructor. Adds a buffer to the unit.
+	 * @param buffer is the pointer to the buffer.
+	 * @param len is the len of the buffer.
+	 */
 	BlockUnit(char *buffer, int len)
 	{
 		Set(buffer, len);
 	}
 
+	/**
+	 * Sets a buffer into the unit.
+	 * @param buffer is the pointer to the buffer.
+	 * @param len is the len of the buffer.
+	 */
 	void Set(char *buffer, int len)
 	{
 		_setmx(this, buffer, len);
@@ -128,9 +154,11 @@ public:
 /// I simplified Add by neglecting the need to send a full packet...
 ///
 
-///
-///
-///
+/**
+ * This is a sender class for a message block. This class 
+ * knows how to send a buffer to a remote endpoint. The blocks
+ * are stored into a vector of BlockUnit classes.
+ */
 class BlockSender : public YARPPortWriter
 {
 protected:
@@ -145,14 +173,25 @@ public:
 	YARPVector<BlockUnit> entries;
 	YARPVectorIterator<BlockUnit> cursor;
 
+	/**
+	 * Constructor.
+	 */
 	BlockSender() : cursor(entries)
 	{
 		max_packet = MAX_PACKET;
 		Begin (YARPNameID (YARP_NO_SERVICE_AVAILABLE, ACE_INVALID_HANDLE));
 	}
 
+	/**
+	 * Destructor.
+	 */
 	virtual ~BlockSender() {}
 
+	/**
+	 * Sets the maximum size of a packet. Messages are forced to
+	 * comply with this constraint.
+	 * @param n_max_packet is the packet size in bytes.
+	 */
 	void SetMaxPacket(int n_max_packet)
 	{
 		ACE_UNUSED_ARG (n_max_packet);
@@ -160,6 +199,10 @@ public:
 		max_packet = n_max_packet;
 	}
 
+	/**
+	 * Starts using the sender for a specific destination.
+	 * @param npid is the destination identifier.
+	 */
 	void Begin(const YARPNameID& npid)
 	{
 		pid = npid;
@@ -169,13 +212,30 @@ public:
 		failed = 0;
 	}
 
+	/**
+	 * Adds a new chunk to the message.
+	 * @param buffer is the pointer to the buffer.
+	 * @param len is the length of the buffer.
+	 * @return 1 if successful.
+	 */
 	int Add(char *buffer, int len);
 
+	/**
+	 * Calls Add().
+	 * @param buffer is a pointer to the buffer.
+	 * @param length is the length of the buffer.
+	 * @return 1 if successful.
+	 */
 	virtual int Write(char *buffer, int length)
 	{
 		return Add (buffer, length);
 	}
 
+	/**
+	 * Terminates the composition of this message and sends it
+	 * to destination.
+	 * @return 1 if successful.
+	 */
 	int End()
 	{
 		Fire();
@@ -183,10 +243,17 @@ public:
 		return !failed;
 	}
 
+	/**
+	 * Sends the message to destination.
+	 * @return 1 if successful.
+	 */
 	int Fire();
 };
 
-
+/**
+ * A template class for multipart messages where the units are of
+ * generic type.
+ */
 template <class T>
 class HeaderedBlockSender : public BlockSender
 {
@@ -195,12 +262,19 @@ public:
 	YARPVector<T> headers;
 	YARPVectorIterator<T> header_cursor;
 
+	/**
+	 * Constructor.
+	 */
 	HeaderedBlockSender() : header_cursor(headers)
 	{
 		add_header = 0;
 		header_cursor = 0;
 	}
 
+	/**
+	 * Starts using the sender for a specific destination.
+	 * @param pid is the destination identifier.
+	 */
 	void Begin(const YARPNameID& pid)
 	{
 		add_header = 0;
@@ -208,23 +282,43 @@ public:
 		BlockSender::Begin(pid);
 	}
 
+	/**
+	 * Adds a new chunk to the message.
+	 * @param buffer is the pointer to the buffer.
+	 * @param len is the length of the buffer.
+	 * @return 1 if successful.
+	 */
 	int Add(char *buffer, int len)
 	{
 		Check();
 		return BlockSender::Add(buffer,len);
 	}
   
+	/**
+	 * Calls Add().
+	 * @param buffer is a pointer to the buffer.
+	 * @param length is the length of the buffer.
+	 * @return 1 if successful.
+	 */
 	virtual int Write(char *buffer, int length)
 	{
 		return Add(buffer,length);
 	}
 
+	/**
+	 * Terminates the composition of this message and sends it
+	 * to destination.
+	 * @return 1 if successful.
+	 */
 	int End()
 	{
 		Check();
 		return BlockSender::End();
 	}
 
+	/**
+	 * Add the header to the message if needed.
+	 */
 	void Check()
 	{
 		if (add_header)
@@ -235,6 +329,10 @@ public:
 		}
 	}
   
+	/**
+	 * Adds a new header and returns a pointer to it.
+	 * @return a pointer to the newly added header of type T.
+	 */
 	T *AddHeader()
 	{
 		Check();

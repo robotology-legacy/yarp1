@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.22 2004-08-11 13:29:20 babybot Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.23 2004-08-11 17:34:58 babybot Exp $
 ///
 ///
 
@@ -251,7 +251,7 @@ public:
 	{
 		if (_socket_addr == NULL)
 		{
-			ACE_DEBUG ((LM_INFO, "socket is NULL\n"));
+			ACE_DEBUG ((LM_INFO, "socket is NULL %d ", isAvailable()));
 		}
 		else
 		{
@@ -263,18 +263,20 @@ public:
 			case YARP_MCAST:
 				{
 					YARPUniqueNameSock *a = (YARPUniqueNameSock *)_socket_addr;
-					ACE_DEBUG ((LM_INFO, "%s:%d ", 
-						a->getAddressRef().get_host_addr(),
-						a->getAddressRef().get_port_number() ));
+					ACE_DEBUG ((LM_INFO, "%s:%d %d ", 
+						_remote_endpoint.getAddressRef().get_host_addr(),
+						a->getAddressRef().get_port_number(),
+						isAvailable() ));
 				}
 				break;
 
 			case YARP_SHMEM:
 				{
 					YARPUniqueNameMem *a = (YARPUniqueNameMem *)_socket_addr;
-					ACE_DEBUG ((LM_INFO, "%s:%d ", 
-						a->getAddressRef().get_local_addr().get_host_addr(),
-						a->getAddressRef().get_local_addr().get_port_number() ));
+					ACE_DEBUG ((LM_INFO, "%s:%d %d ", 
+						_remote_endpoint.getAddressRef().get_host_addr(),
+						a->getAddressRef().get_local_addr().get_port_number(),
+						isAvailable() ));
 				}
 				break;
 
@@ -935,7 +937,6 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 				/// not quite needed for the addr itself (just stores the protocol -TCP-).
 				_socket_addr = new YARPUniqueNameSock (*(YARPUniqueNameSock*)socket);
 				ACE_ASSERT (_socket_addr != NULL);
-
 				ACE_ASSERT (_stream != NULL);
 
 				/// since socket is NULL use the _stream ID.
@@ -1032,14 +1033,8 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 		case YARP_SHMEM:
 			{
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 %d setting up shared memory\n", __LINE__));
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 11 SHMEM on port %d (%s) num %d\n", ((YARPUniqueNameMem *)socket)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)socket)->getAddressRef().get_host_addr(),port));
-
 				_socket_addr = new YARPUniqueNameMem (*(YARPUniqueNameMem*)socket);
-
 				((YARPUniqueNameMem*)_socket_addr)->getAddressRef().set(port); // just in case 
-
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 12 SHMEM on port %d (%s)\n", ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_host_addr()));
 
 				ACE_ASSERT (_socket_addr != NULL);
 
@@ -1051,8 +1046,6 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 				((ACE_MEM_Acceptor *)_socket)->preferred_strategy (ACE_MEM_IO::Reactive);
 
 				_socket_addr->setRawIdentifier (((ACE_MEM_Acceptor *)_socket)->get_handle());
-
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 15 SHMEM on port %d (%s)\n", ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_host_addr()));
 			}
 			break;
 
@@ -1291,8 +1284,8 @@ void _SocketThreadMulti::Body (void)
 		break;
 	}
 
-	if (_owner != NULL && 
-		ACE_OS::strncmp (ownname.c_str(), "explicit_connect", 16) != 0)
+	if (_owner != NULL)/// && 
+		///ACE_OS::strncmp (ownname.c_str(), "explicit_connect", 16) != 0)
 	{
 		ACE_DEBUG ((LM_INFO, "*** detaching %s from %s [me being %s]\n", 
 			ownname.c_str(), 
@@ -2766,15 +2759,21 @@ int _SocketThreadListMulti::closeByName (const YARPString& name)
 	int result = YARP_FAIL;
 	YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
 
+	ACE_OS::printf ("close by name called\n");
+
 	for (; !it_avail.done(); it_avail++)
 	{
 		if (!((*it_avail)->isAvailable ()))
 		{
 			if (ACE_OS::strcmp((*it_avail)->getRemoteName().c_str(), name.c_str()) == 0)
 			{
+				ACE_OS::printf ("terminating %s\n", (*it_avail)->getRemoteName().c_str());
+
 				(*it_avail)->End ();
 				(*it_avail)->setAvailable (1);
 				result = YARP_OK;
+
+				ACE_OS::printf ("terminated\n");
 			}
 		}
 	}

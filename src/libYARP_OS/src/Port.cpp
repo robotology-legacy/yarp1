@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.23 2004-08-11 13:29:20 babybot Exp $
+/// $Id: Port.cpp,v 1.24 2004-08-11 17:34:58 babybot Exp $
 ///
 ///
 
@@ -1365,6 +1365,8 @@ void Port::Body()
 			case MSG_ID_DETACH_IN:
 				{
 					ACE_DEBUG ((LM_DEBUG, "*** received detach request for %s\n", buf+1));
+
+					ACE_OS::printf ("DETACH_IN received\n");
 
 					YARPUniqueNameID needclose;
 					needclose = *pid;

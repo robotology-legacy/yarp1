@@ -32,7 +32,7 @@ int __headCounter = 0;
 
 using std::vector;
 
-void plotTrajectory(const Trajectories &tr, YARPImageOf<YarpPixelBGR> &img);
+void plotTrajectory(const Trajectories &tr, YARPImageOf<YarpPixelBGR> &img, YarpPixelBGR color);
 void receiveTrajectory(YARPInputPortOf<YARPBabyBottle> &port,  Trajectories &tr);
 
 inline bool pollPort(YARPInputPortOf<YVector> &port, YVector &out, int *counter)
@@ -292,8 +292,8 @@ int main(int argc, char* argv[])
 			_armCommand.Write(1);
 		}
 		
-		plotTrajectory(_armJacobian.getTrajectory(), _outSeg2);
-		plotTrajectory(_trajectory, _outSeg2);
+		plotTrajectory(_armJacobian.getTrajectory(), _outSeg2, YarpPixelBGR(0,49,130));
+		plotTrajectory(_trajectory, _outSeg2, YarpPixelBGR(130,0,25));
 		_outPortColor.Content().Refer(_outSeg2);
 		_outPortColor.Write();
 			
@@ -338,7 +338,7 @@ void printFrameStatus(int n)
 		ACE_OS::printf("HeadFrame# %d\tArmFrame# %d\n", __headCounter, __armCounter);
 }
 
-void plotTrajectory(const Trajectories &v, YARPImageOf<YarpPixelBGR> &img)
+void plotTrajectory(const Trajectories &v, YARPImageOf<YarpPixelBGR> &img, YarpPixelBGR color)
 {
 	YARPShapeEllipse tmpEl;
 
@@ -346,14 +346,23 @@ void plotTrajectory(const Trajectories &v, YARPImageOf<YarpPixelBGR> &img)
 	{
 		tmpEl.x = v.pixels[i][0];
 		tmpEl.y = v.pixels[i][1];
-		YARPSimpleOperation::DrawCross(img, tmpEl.x, tmpEl.y, YarpPixelBGR(255, 128, 0), 5, 1);
+		YARPSimpleOperation::DrawCross(img, tmpEl.x, tmpEl.y, color, 5, 1);
 
 //		YARPDebugUtils::print(v.arm[i]*radToDeg);
 
 	}
 
 	// the last one
-	YARPSimpleOperation::DrawCross(img, tmpEl.x, tmpEl.y, YarpPixelBGR(255, 255, 0), 5, 1);
+	color.r+=color.r*0.5;
+	if (color.r >255)
+		color.r = 255;
+	color.g+=color.g*0.5;
+	if (color.g >255)
+		color.g = 255;
+	color.b+=color.b*0.5;
+	if (color.b >255)
+		color.b = 255;
+	YARPSimpleOperation::DrawCross(img, tmpEl.x, tmpEl.y, color, 5, 1);
 }
 
 
@@ -361,8 +370,6 @@ void receiveTrajectory(YARPInputPortOf<YARPBabyBottle> &port,  Trajectories &tr)
 {
 	if (!port.Read(0))
 		return;
-
-	printf("Received new trajectory\n");
 
 	int size;
 	int length;
@@ -374,11 +381,14 @@ void receiveTrajectory(YARPInputPortOf<YARPBabyBottle> &port,  Trajectories &tr)
 	tr.resize(size);
 	tr.length = length;
 
+	printf("Received a trajectory of %d elem\n", length);
+
 	bool ret;
 	int x;
 	int y;
 	YVector arm;
-	for(int i = 0; i < (length-1); i++)
+	int i;
+	for(i = 0; i < (length-1); i++)
 	{
 		ret = content.readInt(&x);
 		ret = ret && content.readInt(&y);
@@ -406,4 +416,12 @@ void receiveTrajectory(YARPInputPortOf<YARPBabyBottle> &port,  Trajectories &tr)
 	}
 	else
 		printf("Error reading bottle; check sender\n");
+
+	// dump arm command
+	for(i = 0; i < tr.length; )
+	{
+		// dump trajectory
+		YARPDebugUtils::print(tr.arm[i]);
+		i+=2;
+	}
 }
