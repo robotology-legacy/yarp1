@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.11 2004-01-28 15:05:54 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.12 2004-01-29 10:02:26 beltran Exp $
 ///
 ///
 
@@ -72,6 +72,8 @@
 #include <YARPThread.h>
 #include <YARPSemaphore.h>
 #include <YARPDeviceDriver.h>
+#include <YARPSemaphore.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <bttv.h>
@@ -82,15 +84,19 @@ struct PicoloOpenParameters
 	PicoloOpenParameters()
 	{
 		_unit_number = 0;
-		_video_type = 2;
-		_size_x = 256; 
-		_size_y = 256; 
+		_video_type = 0;
+		_size_x = 256;
+		_size_y = 256;
+		_offset_y = 0;
+		_offset_x = 0;
 	}
 
-	int _unit_number;	/// board number 0, 1, 2, etc.
-	int _video_type;		/// 0 composite(PAL), 1 composite(NTSC), 2 svideo 
-	int _size_x;      /// requested size x. 
-	int _size_y;      /// requested size y. 
+	int _unit_number;		/// board number 0, 1, 2, etc.
+	int _video_type;		/// 0 composite, 1 svideo.
+	int _size_x;			/// requested size x.
+	int _size_y;			/// requested size y.
+	int _offset_y;			/// y offset, with respect to the center 
+	int _offset_x;			/// x offset, with respect to the center
 };
 
 class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>
