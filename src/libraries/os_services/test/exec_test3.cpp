@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test3.cpp,v 1.3 2003-04-24 08:49:34 gmetta Exp $
+/// $Id: exec_test3.cpp,v 1.4 2003-05-15 21:10:51 gmetta Exp $
 ///
 ///
 
@@ -76,7 +76,7 @@
 #include "YARPTime.h"
 #include "YARPSyncComm.h"
 #include "YARPNameService.h"
-
+#include "YARPNativeNameService.h"
 
 #define REG_TEST_NAME "localhost|1111"
 #define REG_LOCATE_NAME "localhost|1111"
@@ -158,7 +158,11 @@ public:
 		int ct = 0;
 
 		YARPTime::DelayInSeconds(0.01);
+#ifdef __QNX6__
+		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel());
+#else
 		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME);
+#endif
 		YARPEndpointManager::CreateInputEndpoint (id);
 
 		while (1)
@@ -174,6 +178,7 @@ public:
 			imsg.Set(1,(char*)(&x),sizeof(x));
 
 			YARPNameID idd = YARPSyncComm::BlockingReceive (id.getNameID(), imsg);
+			ACE_UNUSED_ARG(idd);
 
 			out.Wait();
 			
@@ -185,8 +190,10 @@ public:
 			YARPMultipartMessage omsg(2);
 			omsg.Set(0,reply,sizeof(reply));
 			omsg.Set(1,(char*)(&y),sizeof(y));
-			
-			YARPSyncComm::Reply(id.getNameID(),omsg);
+		
+	
+		///	YARPSyncComm::Reply(id.getNameID(),omsg);
+			YARPSyncComm::Reply(idd, omsg);
 			
 			//YARPTime::DelayInSeconds(1.0);
 			ct++;
@@ -196,12 +203,15 @@ public:
 
 int main(int argc, char *argv[])
 {
+	ACE_UNUSED_ARG (argc);
+	ACE_UNUSED_ARG (argv);
+
 	MyThread1 t1;
 	MyThread2 t2;
 	t2.Begin();
 	YARPTime::DelayInSeconds(1.0);
 	t1.Begin();
-	YARPTime::DelayInSeconds(2.0);
+	YARPTime::DelayInSeconds(10.0);
 	t1.End();
 	cout << "t1 ended" << endl;
 	YARPTime::DelayInSeconds(2.0);
