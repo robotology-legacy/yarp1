@@ -1,21 +1,48 @@
+#----------------------------------------------------------------------------
+#       Makefile,v 1.27 2002/11/16 15:37:16 bala Exp
+#
+#       Makefile for tests of the miscellaneous ACE performance tests
+#----------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------
+#       Local macros
+#----------------------------------------------------------------------------
+
 include $(YARP_ROOT)/conf/Makefile.template
+CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS) -g
 
-OBJS = $(patsubst %.cpp, %.o, $(wildcard *.cpp)) 
-MAIN = conditional_porter
+BIN     = conditional_porter
+LDLIBS  = $(MATHLIB) $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib
 
-CFLAGS = $(CFAST) $(CDEFS) -I$(YARP_ROOT)/src/hardware/include/cpp -L$(YARP_ROOT)/src/hardware/lib -I$(YARP_ROOT)/include -L$(YARP_ROOT)/lib/$(SYSDIR)
+BUILD = $(VBIN)
 
-all: $(MAIN)
+# For make depend.
+SRC = $(addsuffix .cpp, $(BIN))
 
-$(MAIN): $(MAIN).o $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ os_services.lib
+#----------------------------------------------------------------------------
+#       Include macros and targets
+#----------------------------------------------------------------------------
 
-%.o: %.cpp
-	$(CC) $(CFLAGS) -c $^ -o $@
+include $(ACE_ROOT)/include/makeinclude/wrapper_macros.GNU
+include $(ACE_ROOT)/include/makeinclude/macros.GNU
+include $(ACE_ROOT)/include/makeinclude/rules.common.GNU
+include $(ACE_ROOT)/include/makeinclude/rules.nonested.GNU
+include $(ACE_ROOT)/include/makeinclude/rules.bin.GNU
+include $(ACE_ROOT)/include/makeinclude/rules.local.GNU
 
-clean:
-	rm -f *.o
-	rm -f $(MAIN)
-	
-install: $(MAIN)
-	$(CP) $(MAIN) $(YARP_ROOT)/bin/$(OS)/
+#----------------------------------------------------------------------------
+#       Local targets
+#----------------------------------------------------------------------------
+
+install:
+	cp $(BIN) $(YARP_ROOT)/bin/$(OS)
+
+#----------------------------------------------------------------------------
+#       Dependencies
+#----------------------------------------------------------------------------
+
+# DO NOT DELETE THIS LINE -- g++dep uses it.
+# DO NOT PUT ANYTHING AFTER THIS LINE, IT WILL GO AWAY.
+
+
+# IF YOU PUT ANYTHING HERE IT WILL GO AWAY

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: conditional_porter.cpp,v 1.3 2003-04-18 16:56:57 gmetta Exp $
+/// $Id: conditional_porter.cpp,v 1.4 2003-06-30 11:26:34 babybot Exp $
 ///
 ///
 
@@ -64,7 +64,7 @@
 
 extern int __debug_level;
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	if (argc == 3)
 	{
@@ -93,4 +93,6 @@ void main(int argc, char *argv[])
 			printf("Skipping <%s>\n", argv[1]);
 		}
 	}
+
+	return 0;
 }
