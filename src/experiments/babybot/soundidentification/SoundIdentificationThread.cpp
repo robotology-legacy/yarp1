@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.cpp,v 1.3 2004-10-29 08:29:01 beltran Exp $
+/// $Id: SoundIdentificationThread.cpp,v 1.4 2004-10-29 13:25:59 beltran Exp $
 ///
 
 /** 
@@ -41,6 +41,7 @@
  */
 
 #include "SoundIdentificationThread.h"
+
 
 //----------------------------------------------------------------------
 //  Constructor.
@@ -185,7 +186,8 @@ int SoundIdentificationThread::ComputeHSHistogram (
 //  GetSegmentedImage
 //----------------------------------------------------------------------
 int SoundIdentificationThread::GetSegmentedImage (
-	YARPImageOf<YarpPixelMono> *vImagesVector, 
+	//YARPImageOf<YarpPixelMono> *vImagesVector, 
+	YARPListIterator<MonoImage> &imagesIterator,
 	YARPImageOf<YarpPixelMono> &mixelGramImage,
 	const int width,
 	const int height,
@@ -200,13 +202,17 @@ int SoundIdentificationThread::GetSegmentedImage (
 	int mixelValue        = 0;
 	double pixelsSum      = 0.0;
 
+
 	for(i = 2; i < width-2; i++ )
 		for( j = 2; j < height-3; j++) {
 			mixelValue = mixelGramImage(i,j);
 			if ( mixelValue > MIXELTHRESHOLD) {
+				imagesIterator.go_head();
 				for (int z = 1; z <= numberOfSamples; z++) {
-					YARPImageOf<YarpPixelMono>& pimg = vImagesVector[z-1];
+					//YARPImageOf<YarpPixelMono>& pimg = vImagesVector[z-1];
+					YARPImageOf<YarpPixelMono>& pimg = *imagesIterator;
 					pixelsSum += pimg(i,j);
+					imagesIterator++;
 				}
 				segmentedImage(i,j) = pixelsSum / (double) numberOfSamples;
 				pixelsSum = 0.0;
@@ -326,7 +332,7 @@ int SoundIdentificationThread::calculateMixel (
 //----------------------------------------------------------------------
 int SoundIdentificationThread::calculateMixel2 (
 	double * vRms, 
-	YARPImageOf<YarpPixelBGR> * vImgs, 
+	YARPListIterator<ColorImage> &imagesIterator,
 	int iSamples,
 	int i, 
 	int j,
@@ -352,6 +358,7 @@ int SoundIdentificationThread::calculateMixel2 (
 
     _vV.Resize(iSamples);
 	
+	imagesIterator.go_head();
 	//----------------------------------------------------------------------
 	//  Fill PixelSamples matrix
 	//----------------------------------------------------------------------
@@ -368,8 +375,15 @@ int SoundIdentificationThread::calculateMixel2 (
 		//----------------------------------------------------------------------
 		//  Compute image associated values.
 		//----------------------------------------------------------------------
-		YARPImageOf<YarpPixelBGR>& pimg = vImgs[z-1];
-		_vV(z) = 0.299 * pimg.SafePixel(i,j).r + 0.587 * pimg.SafePixel(i,j).g + 0.114 * pimg.SafePixel(i,j).b;
+		//YARPImageOf<YarpPixelBGR>& pimg = vImgs[z-1];
+		//_vV(z) = 0.299 * pimg.SafePixel(i,j).r + 0.587 * pimg.SafePixel(i,j).g + 0.114 * pimg.SafePixel(i,j).b;
+		YARPImageOf<YarpPixelBGR>& pimg = *imagesIterator;
+
+		_vV(z) = 0.299 * pimg.SafePixel(i,j).r 
+			+ 0.587 * pimg.SafePixel(i,j).g 
+			+ 0.114 * pimg.SafePixel(i,j).b;
+
+		imagesIterator++;
 		_dSY  += _vV(z);
 		_dSY2 += powf(_vV(z),2);
 
@@ -423,8 +437,13 @@ void SoundIdentificationThread::Body (void)
 
 	/** Vector of pointers to images. */
 	//YARPImageOf<YarpPixelBGR> ** _vImages = new YARPImageOf<YarpPixelBGR> *[_soundTemplate.Size()]; 
-	YARPImageOf<YarpPixelBGR> _vImages[ARRAY_MAX]; 
-	YARPImageOf<YarpPixelMono> _vLogPolarImages[ARRAY_MAX]; 
+	//YARPImageOf<YarpPixelBGR> _vImages[ARRAY_MAX]; 
+	//YARPImageOf<YarpPixelMono> _vLogPolarImages[ARRAY_MAX]; 
+
+	YARPList<ColorImage> _imagesList;
+	YARPList<MonoImage> _logPolarImagesList;
+	YARPListIterator<ColorImage> _imagesListIterator(_imagesList);
+	YARPListIterator<MonoImage> _logPolarImagesListIterator(_logPolarImagesList);
 
 	//----------------------------------------------------------------------
 	//  Resize some of the images.
@@ -621,28 +640,18 @@ void SoundIdentificationThread::Body (void)
 		//  Introduce image into the images vectors.
 		//----------------------------------------------------------------------
 		///@todo study how to do this operation more eficiently.
-		YARPImageOf<YarpPixelBGR>& tmpimg4 = _vImages[_soundTemplate.Length()-1];
-		YARPImageOf<YarpPixelMono>& tempLogPolarImage = _vLogPolarImages[_soundTemplate.Length()-1];
-		tmpimg4.CastCopy(_imgInput);
-		tempLogPolarImage.CastCopy(_inputLogPolarImage);
+		_imagesList.push_back(_imgInput);
+		_logPolarImagesList.push_back(_inputLogPolarImage);
 
 		_vRms[_soundTemplate.Length()-1] = _dSoundRms;
 
-		if( _soundTemplate.isFull()) 
-		{ 
-			for (i = 1; i < _soundTemplate.Length();i++)
-			{
-				//Get color images shift to make room for the new arrival
-				YARPImageOf<YarpPixelBGR>& tmpimg  = _vImages[i-1];
-				YARPImageOf<YarpPixelBGR>& tmpimg2 = _vImages[i];
-				tmpimg.CastCopy(tmpimg2);
+		if ( _imagesList.size() > _soundTemplate.Length() ) {
+			_imagesList.pop_front(); 
+			_logPolarImagesList.pop_front();
+		}
 
-				// Get Log Polar mono images make room for the new image
-				YARPImageOf<YarpPixelMono>& previousImage = _vLogPolarImages[i-1];
-				YARPImageOf<YarpPixelMono>& currentImage  = _vLogPolarImages[i];
-				previousImage.CastCopy(currentImage);
-
-				// Get the space for the new sound sample
+		if ( _soundTemplate.isFull()) {
+			for (i = 1; i < _soundTemplate.Length();i++) {
 				_vRms[i-1] = _vRms[i];
 			}
 		}
@@ -665,7 +674,15 @@ void SoundIdentificationThread::Body (void)
 				for( j = 2; j < h-2; j+=4)
 				{
 					///////_dMixelValue = calculateMixel(_mSoundCov, _vImages,_soundTemplate.Length(), i, j);
-					_dMixelValue = calculateMixel2(_vRms, _vImages,_soundTemplate.Length(), i, j, _rmsmean);
+					_dMixelValue = calculateMixel2 (
+						_vRms, 
+						_imagesListIterator,
+						_soundTemplate.Length(), 
+						i, 
+						j, 
+						_rmsmean
+						);
+
 					if (_dMixelValue > MIXELTHRESHOLD) 
 					{
 						//----------------------------------------------------------------------
@@ -728,7 +745,7 @@ void SoundIdentificationThread::Body (void)
 			if (numberMixels > MIXELSMAX)
 			{
 				GetSegmentedImage (
-					_vLogPolarImages, 
+					_logPolarImagesListIterator, 
 					_imgMixelgram,
 					w,
 					h,
@@ -792,18 +809,19 @@ void SoundIdentificationThread::Body (void)
 			_outHSHistogramPort.Content().Refer(scaledimage);
 			_outHSHistogramPort.Write();
 		}
-
 		
 		//----------------------------------------------------------------------
 		//  This just resends the received images with some delay.
 		//----------------------------------------------------------------------
+		
 		/*
 		if (_soundTemplate.Length() > 10)
 		{
-		YARPImageOf<YarpPixelMono>& tempp = _vLogPolarImages[0];
-		_outpImg.Content().SetID(YARP_PIXEL_MONO);
-		_outpImg.Content().Refer(tempp);
-		_outpImg.Write();
+			_logPolarImagesListIterator.go_head();
+			MonoImage& tempp = *_logPolarImagesListIterator;
+			_outpImg.Content().SetID(YARP_PIXEL_MONO);
+			_outpImg.Content().Refer(tempp);
+			_outpImg.Write();
 		}
 		*/
 #if 0

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.h,v 1.2 2004-10-29 08:29:01 beltran Exp $
+/// $Id: SoundIdentificationThread.h,v 1.3 2004-10-29 13:25:59 beltran Exp $
 ///
 
 /** 
@@ -58,6 +58,7 @@
 #include <yarp/YARPThread.h>
 #include <yarp/YARPRobotHardware.h>
 #include <yarp/YARPLogpolar.h>
+#include <yarp/YARPList.h>
 
 #include "YARPSoundTemplate.h"
 #include "soundidentificationprocessing.h"
@@ -87,6 +88,9 @@ extern int  _protocol;
 class SoundIdentificationThread: public YARPThread
 {
 private:
+	
+	typedef YARPImageOf<YarpPixelBGR> ColorImage ;
+	typedef YARPImageOf<YarpPixelMono> MonoImage;
 	int _iSValue;								   /** Contains the time samples used for the time buffers.		  */
 	double _dDecayValue;						   /** Decay value for the temporal images decay.				  */
 	YARPSemaphore _sema;						   /** Semaphore to synchronize access to class data.			  */
@@ -199,7 +203,7 @@ private:
 	  * @return YARP_OK 
 	  */
 	int GetSegmentedImage (
-		YARPImageOf<YarpPixelMono> *vImagesVector, 
+		YARPListIterator<MonoImage> &imagesIterator,
 		YARPImageOf<YarpPixelMono> &mixelGramImage,
 		const int width,
 		const int height,
@@ -240,8 +244,9 @@ private:
 	 * @return The value of the mixel using the mutual information formula between the sound
 	 * and the image.
 	 */
-	int calculateMixel2(double * vRms, 
-		YARPImageOf<YarpPixelBGR> * vImgs, 
+	int calculateMixel2(
+		double * vRms, 
+		YARPListIterator<ColorImage> &imagesIterator,
 		int iSamples,
 		int i, int j,
 		double &rmsmean);
