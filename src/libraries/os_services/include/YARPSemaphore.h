@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPSemaphore.h,v 1.6 2003-05-02 22:56:10 gmetta Exp $
+///	$Id: YARPSemaphore.h,v 1.7 2003-05-23 10:14:25 gmetta Exp $
 ///
 ///
 /*
@@ -126,6 +126,21 @@ public:
 	}
 
 	void Post();
+};
+
+///
+///
+///
+template <class OBJ> class YARPProtect : public OBJ
+{
+public:
+	YARPSemaphore _sema;
+
+	YARPProtect () : _sema(1) {}
+	~YARPProtect () {}
+
+	int lock (int blocking = 1) { return _sema.Wait(blocking); }
+	void unlock (void) { _sema.Post(); }
 };
 
 #endif
