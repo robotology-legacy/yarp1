@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.34 2004-01-21 14:48:22 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.35 2004-01-30 16:50:33 fberton Exp $
 ///
 ///
 
@@ -285,10 +285,10 @@ int Build_Cart2LP_Map(Image_Data * Par, char * Path)
 
 	if (retval != 17)
 	{
-		if ((retval&&1)==0)
+		if ((retval&1)==0)
 			Build_Ang_Shift_Map(Par,Path);
 
-		if ((retval&&16)==0)
+		if ((retval&16)==0)
 			Build_Pad_Map(Par,Path);
 
 		retval = Load_Tables(Par,&Tables,Path,17);
@@ -531,10 +531,10 @@ int Build_Neighborhood_Map(Image_Data * Par, char * Path)
 
 	if (retval != 130)
 	{
-		if ((retval&&128)==0)
+		if ((retval&128)==0)
 			Build_XY_Map(Par,Path);
 
-		if ((retval&&2)==0)
+		if ((retval&2)==0)
 			Build_Color_Map(Par,Path);
 
 		retval = Load_Tables(Par,&Tables,Path,130);
@@ -763,10 +763,10 @@ int Build_Remap_Map (Image_Data * Par, char * Path)
 
 	if (retval != 17)
 	{
-		if ((retval&&1)==0)
+		if ((retval&1)==0)
 			Build_Ang_Shift_Map(Par,Path);
 
-		if ((retval&&16)==0)
+		if ((retval&16)==0)
 			Build_Pad_Map(Par,Path);
 
 		retval = Load_Tables(Par,&Tables,Path,17);
@@ -1016,10 +1016,10 @@ int Build_XY_Map (Image_Data * Par, char * Path)
 
 	if (retval != 17)
 	{
-		if ((retval&&1)==0)
+		if ((retval&1)==0)
 			Build_Ang_Shift_Map(Par,Path);
 
-		if ((retval&&16)==0)
+		if ((retval&16)==0)
 			Build_Pad_Map(Par,Path);
 
 		retval = Load_Tables(Par,&Tables,Path,17);
@@ -2347,10 +2347,18 @@ PADDING
 
 int Build_Shift_Map(Image_Data * Par, char * Path)
 {
+
+#define FLOATRES
 	int i,j,k,l;
 	double tempX,tempY;
 	int newRho, newTheta;
+
+#ifdef FLOATRES
+	double shiftlev = 1.0/Par->dres;
+#else
 	double shiftlev = 1.0/Par->Resolution;
+#endif
+
 	int * ShiftMap;
 	LUT_Ptrs Tables;
 	char File_Name [256];
@@ -2362,7 +2370,11 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 	int AddedPad = computePadSize(Par->LP_Planes * Par->Size_Theta,Par->padding) - (Par->LP_Planes * Par->Size_Theta);
 
 //	steps = 3*Par->Resolution/4;
+#ifdef FLOATRES
+	steps = (int)(0.5+3*Par->dres/4);
+#else
 	steps = (int)(0.5+3*Par->Resolution/4);
+#endif
 
 //	ShiftMap = (int*) malloc((1+3*Par->Resolution/2)*1*Par->Size_LP*sizeof(int));
 	ShiftMap = (int*) malloc((1+2*steps)*1*Par->Size_LP*sizeof(int));
@@ -2371,10 +2383,10 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 
 	if (retval != 17)
 	{
-		if ((retval&&1)==0)
+		if ((retval&1)==0)
 			Build_Ang_Shift_Map(Par,Path);
 
-		if ((retval&&16)==0)
+		if ((retval&16)==0)
 			Build_Pad_Map(Par,Path);
 
 		retval = Load_Tables(Par,&Tables,Path,17);
@@ -2412,12 +2424,22 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 					}
 */
 //					tempX = l*Par->Size_X_Remap*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+//					tempX = l*Par->Resolution*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+#ifdef FLOATRES
+					tempX = l*Par->dres*shiftlev + getXfloatRes(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+					tempY = getYfloatRes(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+					if ((tempX<Par->Zoom_Level*Par->dres/2)&&(tempY<Par->Zoom_Level*Par->dres/2))
+//					if ((tempX<Par->Size_X_Remap/2)&&(tempY<Par->Size_Y_Remap/2))
+					{
+						if ((tempX>=-Par->Zoom_Level*Par->dres/2)&&(tempY>=-Par->Zoom_Level*Par->dres/2))
+#else
 					tempX = l*Par->Resolution*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
 					tempY = Get_Y_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
 					if ((tempX<Par->Zoom_Level*Par->Resolution/2)&&(tempY<Par->Zoom_Level*Par->Resolution/2))
 //					if ((tempX<Par->Size_X_Remap/2)&&(tempY<Par->Size_Y_Remap/2))
 					{
 						if ((tempX>=-Par->Zoom_Level*Par->Resolution/2)&&(tempY>=-Par->Zoom_Level*Par->Resolution/2))
+#endif
 //						if ((tempX>=-Par->Size_X_Remap/2)&&(tempY>=-Par->Size_Y_Remap/2))
 						{
 							newRho = Get_Rho(tempX,tempY,Par);
@@ -2484,10 +2506,10 @@ int Build_Shift_Map_Fovea(Image_Data * Par, char * Path)
 
 	if (retval != 17)
 	{
-		if ((retval&&1)==0)
+		if ((retval&1)==0)
 			Build_Ang_Shift_Map(Par,Path);
 
-		if ((retval&&16)==0)
+		if ((retval&16)==0)
 			Build_Pad_Map(Par,Path);
 
 		retval = Load_Tables(Par,&Tables,Path,17);

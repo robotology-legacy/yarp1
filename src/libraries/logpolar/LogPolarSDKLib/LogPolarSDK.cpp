@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.29 2004-01-21 14:48:22 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.30 2004-01-30 16:50:33 fberton Exp $
 ///
 ///
 
@@ -1249,7 +1249,107 @@ double Get_X_Center(double rho, double theta, Image_Data *par, double *Ang_Shift
 	else return 2*par->Size_X_Remap;
 
 
-}/************************************************************************
+}
+/************************************************************************
+* getXfloatRes  														*
+************************************************************************/	
+
+double getXfloatRes(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap)
+{
+
+	double scalefactor;
+	int Temp_Size_Theta;
+	double x,A,B;
+	double mod;
+//	int intmod;
+	bool found = true;
+
+	int j;
+
+	
+//	if ((int)(rho) != 0)
+	if (rho>=0.5)
+	{
+		rho   += 0.5;
+		theta += 0.5;
+	}
+
+	if (!par->Valid_Log_Index){
+		par->Log_Index = Compute_Index(par->dres,par->Size_Fovea,par->Size_Rho);
+		par->Valid_Log_Index = true;
+	}
+
+	scalefactor = par->Zoom_Level;
+	B = par->Log_Index/(par->Log_Index-1);
+	A = par->Size_Fovea - B - 0.5;
+
+	if (rho<par->Size_Fovea)
+	{
+		if (par->Fovea_Type == 0)
+		{
+			found = false;
+			for (j=0; j<par->Size_Theta;j++)
+			{
+				if (PadMap[(int)(rho)*par->Size_Theta+j]%par->Size_Theta == (int) (theta))
+					if (PadMap[(int)(rho)*par->Size_Theta+j]!=1) //Non Valid Pixel
+					{
+						theta = j+0.5;
+						found = true;
+						break;
+					}
+
+			}
+
+			Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * (int)rho;
+
+			if ((int)rho<1)
+			{
+				Temp_Size_Theta = 1;
+				mod = 0;
+			}
+			else 
+				mod = rho-0.5;
+		}
+		else if (par->Fovea_Type == 1)
+		{
+			if (PadMap[(int)(rho)*par->Size_Theta+(int)theta]!=1)
+				Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * (int)rho;
+			else found = false;
+
+			if ((int)rho<1)
+			{
+				Temp_Size_Theta = 1;
+				mod = 0;
+			}
+			else
+				mod = rho - 0.5;
+		}
+		else //if (par->Fovea_Type == 2)
+		{
+			Temp_Size_Theta = par->Size_Theta;
+			found = true;
+			if ((int)rho<1)
+				mod = 0;
+			else mod = rho-0.5;
+		}
+	}
+	else
+	{
+		Temp_Size_Theta = par->Size_Theta;
+		mod = A+B*pow(par->Log_Index,rho-par->Size_Fovea);
+	}
+	if (Temp_Size_Theta>par->Size_Theta)
+		Temp_Size_Theta = par->Size_Theta;
+
+	x = mod * cos(+Ang_Shift[(int)rho]+theta*PI/(Temp_Size_Theta/2.0));
+
+	if (found)
+		return x*scalefactor;
+	else return 2*par->Size_X_Remap;
+
+
+}
+/************************************************************************
 * Get_Y_Center  														*
 ************************************************************************/	
 
@@ -1275,6 +1375,103 @@ double Get_Y_Center(double rho, double theta, Image_Data *par, double *Ang_Shift
 
 	if (!par->Valid_Log_Index){
 		par->Log_Index = Compute_Index(par->Resolution,par->Size_Fovea,par->Size_Rho);
+		par->Valid_Log_Index = true;
+	}
+
+	scalefactor = par->Zoom_Level;
+	B = par->Log_Index/(par->Log_Index-1);
+	A = par->Size_Fovea - B - 0.5;
+
+	if (rho<par->Size_Fovea)
+	{
+		if (par->Fovea_Type == 0)
+		{
+			found = false;
+			for (j=0; j<par->Size_Theta;j++)
+			{
+				if (PadMap[(int)(rho)*par->Size_Theta+j]%par->Size_Theta == (int) (theta))
+					if (PadMap[(int)(rho)*par->Size_Theta+j]!=1)
+					{
+						theta = j+0.5;
+						found = true;
+						break;
+					}
+
+			}
+
+			Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * (int)rho;
+			
+			if ((int)rho<1)
+			{
+				Temp_Size_Theta = 1;
+				mod = 0;
+			}
+			else 
+				mod = rho-0.5;
+		}
+		else if (par->Fovea_Type == 1)
+		{
+			if (PadMap[(int)(rho)*par->Size_Theta+(int)theta]!=1)
+				Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * (int)rho;
+			else found = false;
+
+			if ((int)rho<1)
+			{
+				Temp_Size_Theta = 1;
+				mod = 0;
+			}
+			else
+				mod = rho - 0.5;
+		}
+		else //if (par->Fovea_Type == 2)
+		{
+			Temp_Size_Theta = par->Size_Theta;
+			found = true;
+			if ((int)rho<1)
+				mod = 0;
+			else mod = rho-0.5;
+		}
+	}
+	else
+	{
+		Temp_Size_Theta = par->Size_Theta;
+		mod = A+B*pow(par->Log_Index,rho-par->Size_Fovea);
+	}
+	if (Temp_Size_Theta>par->Size_Theta)
+		Temp_Size_Theta = par->Size_Theta;
+
+	y = mod * sin(+Ang_Shift[(int)rho]+theta*PI/(Temp_Size_Theta/2.0));
+
+	if (found)
+		return y*scalefactor;
+	else return 2*par->Size_Y_Remap;
+}
+/************************************************************************
+* getYfloatRes  														*
+************************************************************************/	
+
+double getYfloatRes(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap)
+{
+
+	double scalefactor;
+	int Temp_Size_Theta;
+	double y,A,B;
+	double mod;
+//	int intmod;
+	bool found = true;
+
+	int j;
+
+	
+//	if ((int)(rho) != 0)
+	if (rho>=0.5)
+	{
+		rho   += 0.5;
+		theta += 0.5;
+	}
+
+	if (!par->Valid_Log_Index){
+		par->Log_Index = Compute_Index(par->dres,par->Size_Fovea,par->Size_Rho);
 		par->Valid_Log_Index = true;
 	}
 
@@ -1381,7 +1578,7 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR)//, int * pixCount)
 {
 	int i,j,k,k1;
-	int iR,iL;
+	int i2,i1;
 //	int ShiftLev;
 	double d_1;
 	double d_2;
@@ -1392,10 +1589,10 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 	int count;
 
 
-	unsigned char * Lptr,* Rptr;
+	unsigned char * img1ptr,* img2ptr;
 
-	Lptr = Left;
-	Rptr = Right;
+	img1ptr = Right;
+	img2ptr = Left;
 
 	int AddedPadSize = computePadSize(Par->Size_Theta*Par->LP_Planes,Par->padding) - Par->Size_Theta*Par->LP_Planes;
 
@@ -1411,7 +1608,7 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 //		ShiftLev = StepFunct[k+1] + 3 * Par->Resolution/4; // = 75% of the image
 //old		k1 = k * 3 * Par->Size_LP; //Positioning on the table
 		k1 = k * 1 * Par->Size_LP; //Positioning on the table
-		Lptr = Left;
+		img1ptr = Left;
 
 		count = 0;
 
@@ -1419,22 +1616,22 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 		{
 			for (i=0; i<Par->Size_Theta; i++)
 			{
-//old			iR = ShiftMap[k1 + 3 * i];
-				iR = ShiftMap[k1 + j*Par->Size_Theta+i];
-				iL = 3 * (j*Par->Size_Theta+i);
-				if (iR > 0)
+//old			i2 = ShiftMap[k1 + 3 * i];
+				i2 = ShiftMap[k1 + j*Par->Size_Theta+i];
+				i1 = 3 * (j*Par->Size_Theta+i);
+				if (i2 > 0)
 				{
-					average_Lr += *Lptr++;//Left [iL];
-					average_Rr += Right[iR];
-					average_Lg += *Lptr++;//Left [iL+1];
-					average_Rg += Right[iR+1];
-					average_Lb += *Lptr++;//Left [iL+2];
-					average_Rb += Right[iR+2];
+					average_Lr += *img1ptr++;//Left [i1];
+					average_Rr += Right[i2];
+					average_Lg += *img1ptr++;//Left [i1+1];
+					average_Rg += Right[i2+1];
+					average_Lb += *img1ptr++;//Left [i1+2];
+					average_Rb += Right[i2+2];
 					count++;
 				}
-				else Lptr +=3;
+				else img1ptr +=3;
 			}
-			Lptr += AddedPadSize;
+			img1ptr += AddedPadSize;
 		}
 		
 //		if (pixCount[k] != 0)
@@ -1458,42 +1655,42 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 			double den_1b = 0;
 			double den_2b = 0;
 
-			Lptr = Left;
+			img1ptr = Left;
 
 		for (j=0; j<Par->Size_Rho; j++)
 		{
 			for (i=0; i<Par->Size_Theta; i++)
 			{
-					iR = ShiftMap[k1 + 3 * i];
-					iL = 3 * i;
-					iR = ShiftMap[k1 + j*Par->Size_Theta+i];
-					iL = 3 * (j*Par->Size_Theta+i);
+					i2 = ShiftMap[k1 + 3 * i];
+					i1 = 3 * i;
+					i2 = ShiftMap[k1 + j*Par->Size_Theta+i];
+					i1 = 3 * (j*Par->Size_Theta+i);
 
-					if (iR > 0)
+					if (i2 > 0)
 					{
-//						d_1 = *Lptr++ - average_Lr;
-//						d_2 = Right[iR] - average_Rr;
-						d_1 = *Lptr++ - aL.Red;
-						d_2 = Right[iR] - aR.Red;
+//						d_1 = *img1ptr++ - average_Lr;
+//						d_2 = Right[i2] - average_Rr;
+						d_1 = *img1ptr++ - aL.Red;
+						d_2 = Right[i2] - aR.Red;
 						numr   += (d_1 * d_2);
 						den_1r += (d_1 * d_1);
 						den_2r += (d_2 * d_2);
 
-						d_1 = *Lptr++ - aL.Gre;
-						d_2 = Right[iR+1] - aR.Gre;
+						d_1 = *img1ptr++ - aL.Gre;
+						d_2 = Right[i2+1] - aR.Gre;
 						numg   += (d_1 * d_2);
 						den_1g += (d_1 * d_1);
 						den_2g += (d_2 * d_2);
 
-						d_1 = *Lptr++ - aL.Blu;
-						d_2 = Right[iR+2] - aR.Blu;
+						d_1 = *img1ptr++ - aL.Blu;
+						d_2 = Right[i2+2] - aR.Blu;
 						numb   += (d_1 * d_2);
 						den_1b += (d_1 * d_1);
 						den_2b += (d_2 * d_2);
 					}
-					else Lptr +=3;
+					else img1ptr +=3;
 				}
-			Lptr += AddedPadSize;
+			img1ptr += AddedPadSize;
 		}
 			corr_val[k]  = (1.0 - (numr * numr) / (den_1r * den_2r + 0.00001));	
 			corr_val[k] += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
@@ -1526,126 +1723,121 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 }
 
 
-int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR,int Rows)
+int shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aFull, rgbPixel aFov,int Rows, double treshold)
 {
 	int i,j,k,k1;
-	int iR,iL;
+	int i2,i1;//iR,iL
 	int *count;
 	double d_1;
 	double d_2;
 	double MIN = 10000;
 	int MAX = 0;
 	int minindex;
-//aggiungere il check sul fatto che si sia in fovea o fuori (step function)
-	unsigned char * Lptr,* Rptr;
 
-	count = (int*) malloc (Steps*sizeof(int));
+	double numr   = 0;
+	double den_1r = 0;
+	double den_2r = 0;
+	double numg   = 0;
+	double den_1g = 0;
+	double den_2g = 0;
+	double numb   = 0;
+	double den_1b = 0;
+	double den_2b = 0;
 
-	Lptr = Left;
-	Rptr = Right;
+	unsigned char * fullPtr,* fovPtr;
+
+	count = (int*) malloc (Steps * sizeof(int));
+
+	fullPtr = fullImg;
+	fovPtr = fovImg;
+
+	int tIndex;
 
 	int AddedPadSize = computePadSize(Par->Size_Theta*Par->LP_Planes,Par->padding) - Par->Size_Theta*Par->LP_Planes;
 
 	for (k=0; k<Steps; k++)
 	{
-//		double average_Lr = 0;
-//		double average_Lg = 0;
-//		double average_Lb = 0;
-//		double average_Rr = 0;
-//		double average_Rg = 0;
-//		double average_Rb = 0;
 
 //		k1 = k * 1 * Par->Size_Theta * Par->Size_Fovea; //Positioning on the table
-		k1 = k * 1 * Par->Size_LP; //Positioning on the table
-		Rptr = Right;
+		k1 = k * Par->Size_LP; //Positioning on the table
 
 		count[k] = 0;
 
 		for (j=0; j<Rows; j++)
 		{
+			tIndex = j*Par->Size_Theta;
 			for (i=0; i<Par->Size_Theta; i++)
 			{
-				iL = ShiftMap[k1 + j*Par->Size_Theta+i];
-				iR = 3 * (j*Par->Size_Theta+i);
-				if (iL > 0)
-				{
-//					average_Rr += *Rptr++;//Right [iR];
-//					average_Lr += Left[iL];
-//					average_Rg += *Rptr++;//Right [iR+1];
-//					average_Lg += Left[iL+1];
-//					average_Rb += *Rptr++;//Right [iR+2];
-//					average_Lb += Left[iL+2];
+				i2 = ShiftMap[k1 + tIndex+i];
+//				i1 = 3 * (tIndex+i);
+				if (i2 > 0)
 					count[k]++;
-				}
-				else Rptr +=3;
+//				else 
+//					img2ptr +=3;
 			}
-			Rptr += AddedPadSize;
+//			img2ptr += AddedPadSize;
 		}
-		
-//		if (count != 0)
-//			{
-//				average_Rr /= count;
-//				average_Lr /= count;
-//				average_Rg /= count;
-//				average_Lg /= count;
-//				average_Rb /= count;
-//				average_Lb /= count;
-//			}
+//		if (ShiftMap[k1]!=0)
+//			count[k] -=1;
 
-			double numr   = 0;
-			double den_1r = 0;
-			double den_2r = 0;
-			double numg   = 0;
-			double den_1g = 0;
-			double den_2g = 0;
-			double numb   = 0;
-			double den_1b = 0;
-			double den_2b = 0;
+		numr   = 0;
+		den_1r = 0;
+		den_2r = 0;
+		numg   = 0;
+		den_1g = 0;
+		den_2g = 0;
+		numb   = 0;
+		den_1b = 0;
+		den_2b = 0;
 
-			Rptr = Right;
+		fovPtr = fovImg;
+		fullPtr = fullImg;
 
 //		for (j=0; j<Par->Size_Fovea; j++)
 		for (j=0; j<Rows; j++)
 		{
+			tIndex = j*Par->Size_Theta;
 			for (i=0; i<Par->Size_Theta; i++)
 			{
-					iL = ShiftMap[k1 + 3 * i];
-					iR = 3 * i;
-					iL = ShiftMap[k1 + j*Par->Size_Theta+i];
-					iR = 3 * (j*Par->Size_Theta+i);
+//					i2 = ShiftMap[k1 + 3 * i];
+//					i1 = 3 * i;
+					i2 = ShiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
 
-					if (iL > 0)
+					if (i2 > 0)
 					{
-//						d_1 = *Rptr++ - average_Rr;
-//						d_2 = Left[iL] - average_Lr;
-						d_1 = *Rptr++ - aR.Red;
-						d_2 = Left[iL] - aL.Red;
+//						d_1 = *img2ptr++ - average_Rr;
+//						d_2 = Left[i1] - average_Lr;
+						d_1 = *fovPtr++ - aFov.Red;
+						d_2 = fullPtr[i2] - aFull.Red;
 						numr   += (d_1 * d_2);
 						den_1r += (d_1 * d_1);
 						den_2r += (d_2 * d_2);
 
-						d_1 = *Rptr++ - aR.Gre;
-						d_2 = Left[iL+1] - aL.Gre;
+						d_1 = *fovPtr++ - aFov.Gre;
+						d_2 = fullPtr[i2+1] - aFull.Gre;
 						numg   += (d_1 * d_2);
 						den_1g += (d_1 * d_1);
 						den_2g += (d_2 * d_2);
 
-						d_1 = *Rptr++ - aR.Blu;
-						d_2 = Left[iL+2] - aL.Blu;
+						d_1 = *fovPtr++ - aFov.Blu;
+						d_2 = fullPtr[i2+2] - aFull.Blu;
 						numb   += (d_1 * d_2);
 						den_1b += (d_1 * d_1);
 						den_2b += (d_2 * d_2);
 					}
-					else Rptr +=3;
+					else fovPtr +=3;
 				}
-			Rptr += AddedPadSize;
+			fovPtr += AddedPadSize;
 		}
-			corr_val[k]  = (1.0 - (numr * numr) / (den_1r * den_2r + 0.00001));	
-			corr_val[k] += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
-			corr_val[k] += (1.0 - (numb * numb) / (den_1b * den_2b + 0.00001));	
 
-			if (count[k]>MAX)
-				MAX = count[k];
+		corr_val[k]  = (1.0 - (numr * numr) / (den_1r * den_2r + 0.00001));	
+		corr_val[k] += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
+		corr_val[k] += (1.0 - (numb * numb) / (den_1b * den_2b + 0.00001));	
+
+		if (count[k]>MAX)
+			MAX = count[k];
+
 //		printf("%03d     %2.5f\n",k-SParam.Resolution/2,corr_val);
 //			corr_val[k] = (3-corr_val[k])*count;
 			corr_val[k] = (3-corr_val[k]);
@@ -1656,7 +1848,7 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 		if (count[k]!=MAX)
 			corr_val[k] = 3.0;
 		else
-		corr_val[k] = 3-(corr_val[k]);
+			corr_val[k] = 3-(corr_val[k]);
 
 //		corr_val[k] = 1.0-(corr_val[k]/(double)MAX);
 	}
@@ -1669,9 +1861,56 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 			MIN = corr_val[k];
 			minindex = k;
 		}
-	free(count);
 
-	
+	double avg = 0.0;
+	for (k=0; k<Steps; k++)
+		avg += (3.0-corr_val[k]);
+
+	avg /= Steps;
+
+	for (k=0; k<Steps; k++)
+		corr_val[k] = 3-((3.0-corr_val[k])/(avg+0.00001));
+
+	double min = corr_val [minindex];
+
+	for (k=0; k<Steps; k++)
+//		corr_val[k] = 3.0-(3.0*((3.0-corr_val[k])/(3.0-corr_val[minindex])));
+		corr_val[k] = 3.0*(corr_val[k]-min)/(3.0-min);
+
+
+	avg = 0.0;
+	for (k=0; k<Steps; k++)
+		avg += (3.0-corr_val[k]);
+
+	avg /= Steps;
+/*	int counter = 0;
+
+	{
+		if (count[k]==MAX)
+		{
+			counter ++;
+		}
+	}
+
+	avg = 1-(avg / (3 * counter));
+
+	for (k=0; k<Steps; k++)
+	{
+		if (count[k]==MAX)
+		{
+			corr_val[k]	= corr_val[k] / avg;
+//			corr_val[k]	= (3.0 - corr_val[k])	/ avg;
+//			corr_val[k]	= 3.0 - corr_val[k];
+		}
+	}
+*/
+	free(count);
+	if (avg>treshold)
+		minindex = -1;
+
+/*	if (corr_val[minindex] > treshold)
+		minindex = -1;
+*/	
 	return minindex;
 }
 

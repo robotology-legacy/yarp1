@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.26 2004-01-21 17:37:31 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.27 2004-01-30 16:50:33 fberton Exp $
 ///
 ///
 
@@ -112,6 +112,7 @@ struct Image_Data{
 
 	// Ratio between the diameter of the image and the size of the smallest pixel
 	int Resolution;
+	double dres;
 
 	int Fovea_Display_Mode; //0 Sawtooth (Raw); 1 Triangular; 2 Complete
 
@@ -357,8 +358,10 @@ int Get_Theta(double x,
 			  unsigned short *Pad_Map);
 
 double Get_X_Center(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap);
+double getXfloatRes(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap);
 
 double Get_Y_Center(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap);
+double getYfloatRes(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap);
 
 int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, double *Ang_Shift);
 
@@ -385,7 +388,7 @@ int computePadSize(int width,int padding);
 
 rgbPixel computeAvg(int SizeRho,int SizeTheta, int padding, unsigned char * image);
 int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR);
-int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR, int Rows);
+int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR, int Rows, double treshold);
 void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data * par, unsigned short * padMap);
 void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data * par, unsigned short * padMap);
 
