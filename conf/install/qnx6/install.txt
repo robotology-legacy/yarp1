@@ -1,6 +1,6 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.5 2003-06-18 23:49:05 babybot Exp $
+$Id: install.txt,v 1.6 2003-06-20 12:50:06 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
@@ -67,7 +67,7 @@ REQUIRES:
 1) before compiling:
 	- Check out from cvs on sourceforge: www.sourceforge.net
 	- unzip ACE on top of ACE_wrappers under %YARP_ROOT%\src\libraries\
-		NOTE for WINCVS: and UNCHECK the option to overwrite the files (this leaves
+		NOTE for UNZIP: and UNCHECK the option to overwrite the files (this leaves
 		the modified files from the repository inplace)
 	  *** check out the correct ACE files from the repository ***
 	- use the %YARP_ROOT%/conf/YARPConfigTemplate.h and include the correct 
