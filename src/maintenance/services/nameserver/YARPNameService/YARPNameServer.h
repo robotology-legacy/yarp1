@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.1 2003-04-18 08:52:33 gmetta Exp $
+/// $Id: YARPNameServer.h,v 1.2 2003-04-20 22:18:31 natta Exp $
 ///
 ///
 
@@ -98,27 +98,99 @@
 #endif
 
 
-const int _start_port = 1001;
-const int _end_port = 1999;
+const int __startPoolPorts = 1001;
+const int __endPoolPorts = 1999;
 
 const int _max_ref = 9999;
 
 const int __portNotFound = 0;
 
-struct PortEntry
+class PortEntry
 {
+public:
+	PortEntry()
+	{
+		port = __portNotFound;
+		flag = false;
+	}
+	PortEntry(int p)
+	{
+		port = p;
+		flag = false;
+	}
+
+	bool operator == (const PortEntry &item)
+	{
+		if (port == item.port)
+			return true;
+		else
+			return false;
+	}
+	PortEntry operator++()
+	{
+		port++;
+		flag = false;
+		return *this;
+	}
+	const PortEntry &operator = (PortEntry &i)
+	{
+		port = i.port;
+		flag = i.flag;
+		return *this;
+	}
+	
 	int port;
 	int flag;
-
 };
 
 typedef std::list<PortEntry> PORT_LIST;
 typedef PORT_LIST::iterator PORT_IT;
 
-struct IpEntry
+template <class T, class T_LIST, class T_IT>
+class pool
 {
+public:
+	bool findFree(T_LIST &l, T &item)
+	{
+		T tmp = _min;
+		while (! (tmp==_max))
+		{
+			if (!_check(l,tmp))
+			{
+				item = tmp;
+				return true;
+			}
+			++tmp;
+		}
+		return false;
+	}
+private:
+	bool _check(T_LIST &l, T &item)
+	{
+		for(T_IT i = l.begin(); i != l.end(); i++)
+		{
+			if ((*i) == item)
+				return true;
+		}
+		return false;
+	}
+public:
+	T _min;
+	T _max;
+};
+
+class IpEntry
+{
+public:
+	IpEntry()
+	{
+		_portPool._min = PortEntry(__startPoolPorts);
+		_portPool._max = PortEntry(__endPoolPorts);
+	}
+
 	std::string	ip;
 	PORT_LIST ports;
+	pool<PortEntry, PORT_LIST, PORT_IT> _portPool;
 
 	PortEntry ask_new_port();
 	bool check_port(PortEntry p);

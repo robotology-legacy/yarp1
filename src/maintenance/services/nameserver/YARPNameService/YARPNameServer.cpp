@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.1 2003-04-18 08:52:33 gmetta Exp $
+/// $Id: YARPNameServer.cpp,v 1.2 2003-04-20 22:18:31 natta Exp $
 ///
 ///
 
@@ -84,15 +84,19 @@ PortEntry IpEntry::ask_new_port()
 {
 	PortEntry new_port;
 
+	if (!_portPool.findFree(ports, new_port))
+		NAME_SERVER_DEBUG(("%s : no more ports available\n", ip.c_str()));
+	
+	/*
 	if (ports.empty())
 	{
 		new_port.port = _start_port;
-		new_port.flag = 1;	//port is used
+		new_port.flag = true;	//port is used
 	}
 	else
 	{
 		PortEntry &last_port = ports.back();
-		new_port.flag = false;
+		new_port.flag = true;
 		new_port.port = last_port.port+1;
 		if (new_port.port > _end_port)
 		{
@@ -100,7 +104,7 @@ PortEntry IpEntry::ask_new_port()
 			// to do: handle this situation
 		}
 	}
-
+	*/
 	ports.push_back(new_port);
 	return new_port;
 }
