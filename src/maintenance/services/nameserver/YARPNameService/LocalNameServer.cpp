@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.6 2003-06-18 10:03:14 beltran Exp $
+/// $Id: LocalNameServer.cpp,v 1.7 2003-06-18 21:45:00 gmetta Exp $
 ///
 
 #include "LocalNameServer.h"
@@ -611,8 +611,9 @@ int LocalNameServer::_registerName(const std::string &name, const IpEntry &entry
 		// get new resources
 		addresses.ask_new(tmp_ip, ports, nPorts);
 	
-		//if ((ports.begin()) !=__portNotFound){
-		if ((ports.begin()) == NULL){
+		if ((ports.begin()) != __portNotFound)
+		{
+		///if ((ports.begin()) == NULL){ /// wrong!
 			// register new resource
 			names.check_in(name, tmp_ip, type, ports, max_ref);
 			return -1;

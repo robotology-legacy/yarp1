@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: CThreadImpl.h,v 1.2 2003-06-18 10:03:14 beltran Exp $
+/// $Id: CThreadImpl.h,v 1.3 2003-06-18 21:45:00 gmetta Exp $
 ///
 ///
 //////////////////////////////////////////////////////////////////////////
@@ -167,7 +167,7 @@ public:
 		lock ();
 
 		// create suspended.
-#ifdef __WIN__
+#ifdef __WIN32__
 		thread_id = ACE_Thread_Manager::instance ()->spawn((unsigned long (__cdecl *)(void *))real_thread, //thread function
 														   this,		//thread parameter
 														   THR_NEW_LWP||THR_SUSPENDED,
@@ -322,7 +322,7 @@ public:
 
 	const int getThreadID(void) const { return thread_id; }
 
-#ifdef __WIN__
+#ifdef __WIN32__
 	static unsigned long * __cdecl real_thread(void *p_arg)
 #else
 	static unsigned long * real_thread(void *p_arg)
