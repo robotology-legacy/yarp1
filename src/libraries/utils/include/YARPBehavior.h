@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.6 2003-07-22 17:33:42 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.7 2003-07-23 12:07:14 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -77,24 +77,26 @@
 
 const int __exitCode = -1;
 
-template <class OUT_DATA>
-class YARPBehaviorSharedData
+class YARPBehaviorSharedDataTmpl
 {
 	public:
-		YARPBehaviorSharedData(std::string portName):
+		YARPBehaviorSharedData(int ID, std::string portName):
 		  _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
-		  {
+		  {	
+			  _data.setID(ID);
 			  _outPort.Register(portName.c_str());
 		  }
 
-		  void send(OUT_DATA &d)
+		  void send()
 		  {
 			  printf("Sending data\n");
-			  memcpy(_outPort.Content(), d, sizeof(int)*2);
+			  _outPort.Content() = _data;
 			  _outPort.Write();
 		  }
 
-	YARPOutputPortOf<OUT_DATA> _outPort;
+	YARPBottle _data;
+protected:
+	YARPOutputPortOf<YARPBottle> _outPort;
 };
 
 template<class MY_SHARED_DATA>

@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPRepeater.h,v 1.1 2003-07-09 17:55:14 babybot Exp $
+/// $Id: YARPRepeater.h,v 1.2 2003-07-23 12:07:14 babybot Exp $
 ///  
 /// very simple class to handle config files... by nat May 2003
 //
@@ -96,11 +96,7 @@ public:
 		{
 			_inputPort.Read();
 
-
-			// later make this general !
-			memcpy(_tmp, _inputPort.Content(), sizeof(_tmp));
-			memcpy(_outputPort.Content(), _tmp, sizeof(_tmp));
-			////////////////////////////////////
+			_outputPort.Content() = _inputPort.Content();		
 
 			_outputPort.Write();
 		}
