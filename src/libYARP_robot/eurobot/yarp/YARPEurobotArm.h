@@ -8,7 +8,7 @@
 ///
 
 //
-// $Id: YARPEurobotArm.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+// $Id: YARPEurobotArm.h,v 1.2 2004-07-30 21:56:20 gmetta Exp $
 //
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
@@ -20,9 +20,9 @@
 #else YARP_BABYBOT_ARM_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
-#include <conf/YARPConfig.h>
-#include <YARPGenericControlBoard.h>
-#include "YARPGALILOnEurobotArmAdapter.h"
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPGenericControlBoard.h>
+#include <yarp/YARPGALILOnEurobotArmAdapter.h>
 
 class YARPEurobotArm : public YARPGenericControlBoard<YARPGALILOnEurobotArmAdapter, YARPEurobotArmParameters>
 {

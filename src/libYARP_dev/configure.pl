@@ -163,19 +163,19 @@ foreach my $device (glob "*")
 		if ($answer eq "YES" || $answer eq '')
 		{
 			$options{"Compile_Dev<-DD_$device"} = "YES";
-			print MYPROJECT "# Begin Group \"$device\"\n\n";
-			print MYPROJECT "# PROP Default_Filter \"cpp;h\"\n";
+			print MYPROJECT "# Begin Group \"$device\"\r\n\r\n";
+			print MYPROJECT "# PROP Default_Filter \"h;cpp\"\r\n";
 			
 			foreach my $file (glob "$device/$os/yarp/*.cpp $device/$os/yarp/*.h")
 			{
-				print MYPROJECT "# Begin Source File\n\n";
+				print MYPROJECT "# Begin Source File\r\n\r\n";
 				$file =~ s#/#\\#g;
-				my $line = "SOURCE=..\\$file\n";
+				my $line = "SOURCE=..\\$file\r\n";
 				print MYPROJECT "$line";
-				print MYPROJECT "# End Source File\n";
+				print MYPROJECT "# End Source File\r\n";
 			}
 
-			print MYPROJECT "# End Group\n";
+			print MYPROJECT "# End Group\r\n";
 		}
 		else
 		{
@@ -184,7 +184,7 @@ foreach my $device (glob "*")
 	}
 }
 
-print MYPROJECT "# End Target\n# End Project\n";
+print MYPROJECT "# End Target\n\r# End Project\r\n";
 
 close MYPROJECT;
 close PROJECT;

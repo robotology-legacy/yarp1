@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "..\obj\winnt\release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\..\include" /I "..\..\..\include\winnt" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\babybot" /I "..\robotcub" /I "..\..\..\include" /I "..\..\..\include\winnt" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -65,7 +65,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\obj\winnt\debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\include" /I "..\..\..\include\winnt" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\babybot" /I "..\robotcub" /I "..\..\..\include" /I "..\..\..\include\winnt" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -207,18 +207,54 @@ SOURCE=..\babybot\yarp\YARPTouchBoardParameters.h
 # Begin Source File
 
 SOURCE=..\robotcub\yarp\YARPCanOnRobotcubHeadAdapter.h
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\robotcub\yarp\YARPNullOnRobotcubAdapter.h
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\robotcub\yarp\YARPRobotcubGrabber.h
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\robotcub\yarp\YARPRobotcubHead.h
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # End Group
 # Begin Group "null"
@@ -231,38 +267,119 @@ SOURCE=..\robotcub\yarp\YARPRobotcubHead.h
 # Begin Source File
 
 SOURCE=..\eurobot\yarp\YARPEurobotArm.cpp
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\eurobot\yarp\YARPEurobotArm.h
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\eurobot\yarp\YARPEurobotGrabber.h
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\eurobot\yarp\YARPEurobotHead.h
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\eurobot\yarp\YARPEurobotHeadKin.cpp
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\eurobot\yarp\YARPEurobotHeadKin.h
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\eurobot\yarp\YARPGALILOnEurobotArmAdapter.h
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\eurobot\yarp\YARPGALILOnEurobotHeadAdapter.h
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 
 SOURCE=..\eurobot\yarp\YARPPicoloOnEurobotAdapter.h
+
+!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
+
+# PROP Exclude_From_Build 1
+
+!ENDIF 
+
 # End Source File
 # End Group
 # End Group
