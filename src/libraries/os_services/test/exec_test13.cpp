@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test13.cpp,v 1.3 2003-05-18 22:34:44 gmetta Exp $
+/// $Id: exec_test13.cpp,v 1.4 2003-05-19 16:41:09 gmetta Exp $
 ///
 ///
 
@@ -79,15 +79,15 @@
 
 NetInt32 foo;
 
-#define LEN 60000
+#define LEN 600000
 class Msg
 {
 public:
 	char msg[LEN];
 };
 
-YARPInputPortOf<Msg> in(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-YARPOutputPortOf<Msg> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPInputPortOf<Msg> in(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+YARPOutputPortOf<Msg> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 ///YARPInputPortOf<Msg> in;
 ///YARPOutputPortOf<Msg> out;
 

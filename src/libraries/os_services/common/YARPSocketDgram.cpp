@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.13 2003-05-18 23:10:56 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.14 2003-05-19 16:41:09 gmetta Exp $
 ///
 ///
 
@@ -644,7 +644,20 @@ void _SocketThreadDgram::Body (void)
 					}
 					else
 					{
-						rr = _local_socket.recv (_extern_reply_buffer, _extern_reply_length, incoming, 0, &timeout); 
+						///
+						int remaining = _extern_reply_length;
+						char *tmp = _extern_reply_buffer;
+						do 
+						{
+							rr = _local_socket.recv (tmp, remaining, incoming, 0, &timeout);
+							remaining -= rr;
+							tmp += rr;
+							int ack = 0x01020304;
+							int sent = _local_socket.send (&ack, sizeof(int), incoming);
+						}
+						while (rr >= 0 && remaining > 0);
+
+						///rr = _local_socket.recv (_extern_reply_buffer, _extern_reply_length, incoming, 0, &timeout); 
 					}
 
 					if (incoming != _remote_endpoint.getAddressRef())
@@ -1483,11 +1496,19 @@ int YARPOutputSocketDgram::SendContinue(char *buffer, int buffer_length)
 {
 	OSDataDgram& d = OSDATA(system_resources);
 	/// without header.
-	ACE_DEBUG ((LM_DEBUG, "sending continue to: %s:%d\n", d._remote_addr.get_host_name(), d._remote_addr.get_port_number()));
-	
 	int sent = d._connector_socket.send (buffer, buffer_length, d._remote_addr);
 	if (sent != buffer_length)
 		return YARP_FAIL;
+
+	int ack = 0;
+	ACE_INET_Addr incoming;
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	int recvd = d._connector_socket.recv ((void *)&ack, sizeof(int), incoming, 0, &timeout); 
+	if (recvd != sizeof(int) || ack != 0x01020304)
+	{
+		ACE_DEBUG ((LM_DEBUG, "UDP dropped a packet, need abort...\n"));
+		return YARP_FAIL;
+	}
 
 	return YARP_OK;
 }

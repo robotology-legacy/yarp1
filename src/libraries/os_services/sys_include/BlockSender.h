@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.h,v 1.5 2003-05-18 00:52:19 gmetta Exp $
+/// $Id: BlockSender.h,v 1.6 2003-05-19 16:41:09 gmetta Exp $
 ///
 ///
 
@@ -132,12 +132,12 @@ public:
 class BlockSender : public YARPPortWriter
 {
 protected:
-	///int max_packet;
+	int max_packet;
 	int AddPiece(char *buffer, int len);
 
 public:
 	YARPNameID pid;
-	///int available;
+	int available;
 	int pieces;
 	int failed;
 	vector<BlockUnit> entries;
@@ -145,22 +145,22 @@ public:
 
 	BlockSender()
 	{
-		///max_packet = MAX_PACKET;
+		max_packet = MAX_PACKET;
 		Begin (YARPNameID (YARP_NO_SERVICE_AVAILABLE, ACE_INVALID_HANDLE));
 	}
 
 	void SetMaxPacket(int n_max_packet)
 	{
 		ACE_UNUSED_ARG (n_max_packet);
-		///available += (n_max_packet-max_packet);
-		///max_packet = n_max_packet;
+		available += (n_max_packet-max_packet);
+		max_packet = n_max_packet;
 	}
 
 	void Begin(const YARPNameID& npid)
 	{
 		pid = npid;
 		cursor = entries.begin();
-		///available = max_packet;
+		available = max_packet;
 		pieces = 0;
 		failed = 0;
 	}

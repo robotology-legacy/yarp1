@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.18 2003-05-18 22:34:43 gmetta Exp $
+/// $Id: Port.cpp,v 1.19 2003-05-19 16:41:09 gmetta Exp $
 ///
 ///
 
@@ -209,7 +209,7 @@ void OutputTarget::Body ()
 		}
 	}
 
-	while(!deactivated)
+	while (!deactivated)
 	{
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Waiting for sema to send\n"));
 		something_to_send.Wait();

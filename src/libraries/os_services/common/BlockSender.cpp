@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.cpp,v 1.6 2003-05-13 22:14:16 gmetta Exp $
+/// $Id: BlockSender.cpp,v 1.7 2003-05-19 16:41:09 gmetta Exp $
 ///
 ///
 
@@ -114,7 +114,8 @@ int BlockSender::Fire()
 
 int BlockSender::AddPiece(char *buffer, int len)
 {
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Adding piece, length %d (avail -infinite-)\n", len)); ///available));
+	///YARP_DBG(THIS_DBG) ((LM_DEBUG, "Adding piece, length %d (avail -infinite-)\n", len)); ///available));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Adding piece, length %d (avail %d)\n", len, available));
 	if (cursor == entries.end ())
 	{
 		///YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** NEW stl %s : %s\n", __FILE__, __LINE__));
@@ -138,10 +139,9 @@ int BlockSender::AddPiece(char *buffer, int len)
 ///
 int BlockSender::Add(char *buffer, int len)
 {
-	AddPiece (buffer, len);
-	return 1;
+///	AddPiece (buffer, len);
+///	return 1;
 
-	/*
 	while (len > 0)
 	{
 		if (len > available)
@@ -149,7 +149,7 @@ int BlockSender::Add(char *buffer, int len)
 			AddPiece(buffer, available);
 			len -= available;
 			buffer += available;
-			Fire();
+			///Fire();
 			available = max_packet;
 		}
 		else
@@ -158,14 +158,13 @@ int BlockSender::Add(char *buffer, int len)
 			available -= len;
 			if (available == 0)
 			{
-				Fire();
+				///Fire();
 				available = max_packet;
 			}
 			len = 0;
 		}
 	}
 	return 1;
-	*/
 }
 
 #undef THIS_DBG

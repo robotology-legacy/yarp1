@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.6 2003-05-01 22:51:19 gmetta Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.7 2003-05-19 16:41:09 gmetta Exp $
 ///
 ///
 
@@ -76,6 +76,7 @@
 #include "YARPSocket.h"
 #include "YARPSocketDgram.h"
 #include "YARPSocketNameService.h"
+#include "YARPScheduler.h"
 
 ///#include "ThreadInput.h"
 #include "YARPNameID_defs.h"
@@ -294,6 +295,7 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 	for (i = 1; i < send_parts; i++)
 	{
 		os->SendContinue (msg.GetBuffer(i), msg.GetBufferLength(i));      
+		YARPScheduler::yield();
 	}
 	
 	char ch = -1;
