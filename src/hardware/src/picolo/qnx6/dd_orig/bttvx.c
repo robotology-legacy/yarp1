@@ -600,7 +600,7 @@ extern "C" {
 		printf("bttvx: Interrupt thread activated\n");
 		ThreadCtl( _NTO_TCTL_IO, 0 );
 		SIGEV_INTR_INIT(&event);
-		btv->id =InterruptAttachEvent(btv->irq, &event,0);
+		btv->id =InterruptAttachEvent(btv->irq, &event,_NTO_INTR_FLAGS_END | _NTO_INTR_FLAGS_TRK_MSK);
 
 		while (!m_exit)
 		{
