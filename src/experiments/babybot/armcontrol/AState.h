@@ -71,9 +71,16 @@ public:
 		_learn = 0;
 		_j5Ls.Resize(2);
 
+#if defined(__QNXEurobot__)
 		_errorFile.open("Y:\\conf\\babybot\\errors.txt");
 		_lsFile.open("Y:\\conf\\babybot\\leastSquares.txt");
 		_pointsFile.open("Y:\\conf\\babybot\\points.txt");
+		
+#else
+		_errorFile.open("Y:\\conf\\babybot\\errors.txt");
+		_lsFile.open("Y:\\conf\\babybot\\leastSquares.txt");
+		_pointsFile.open("Y:\\conf\\babybot\\points.txt");
+#endif
 	}
 	~ASDirectCommandMove()
 	{

@@ -3,7 +3,12 @@
 
 #include <YARPFSM.h>
 #include <YARPRobotMath.h>
+
+#if defined(__QNXEurobot__)
+#include <YARPEurobotbotArm.h>
+#else
 #include <YARPBabybotArm.h>
+#endif
 
 #include "Armthread.h"
 
