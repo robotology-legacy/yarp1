@@ -52,12 +52,19 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+///	$Id: YARPThread.h,v 1.2 2004-07-01 22:06:22 gmetta Exp $
 ///
 ///
 /*
 	paulfitz Mon May 21 13:42:24 EDT 2001
 */
+
+/**
+ * \file YARPThread.h A simple class to wrap OS thread management.
+ * Very convenient but simple wrapper to encapsulate a thread. Derive
+ * from this abstract class and implement Body() to make your own thread
+ * code.
+ */
 
 #ifndef YARPThread_INC
 #define YARPThread_INC
@@ -73,42 +80,118 @@
 #	pragma once
 #endif
 
-///
-/// base class can be used where the extra termination sema is not required
-///	optimize resources consumption.
-///
+/**
+ * The base class of thread creation/destruction and management.
+ * This class contains a fairly intricate procedure for terminating
+ * a thread without memory leaks or worse the generation of an exception.
+ */
 class YARPBareThread
 {
 protected:
 	YARPBareThread(const YARPBareThread& yt);
 
 protected:
+	/**
+	 * This is the actual thread implementation the user shouldn't be
+	 * concerned with.
+	 */
 	void *system_resource;
+
+	/**
+	 * Thread id.
+	 * Each thread in the system is assigned an identifier.
+	 */
 	int identifier;
+
 	int size;
 
+	/**
+	 * A semaphore for protecting certain operations.
+	 * It can be used within the thread body to protect the thread
+	 * from unexpected termination requests.
+	 */
 	YARPSemaphore sema;
+
+	/**
+	 * Whether Begin() has been called succesfully.
+	 */
 	bool running;
 
+	/**
+	 * The internal state of the thread.
+	 * This is especially used to maintain the state of the thread
+	 * during termination.
+	 */
 	enum 
 	{ 
+		/**
+		 * The thread is healthy.
+		 */
 		YT_None = 0, 
+		
+		/**
+		 * The thread is terminated.
+		 */
 		YT_End = 1,
+
+		/**
+		 * The thread has been requested to terminate.
+		 */
 		YT_AskedEnd = 2,
+
+		/**
+		 * The thread is joining its parent.
+		 */
 		YT_Joining = 3,
 	};
 
+	/**
+	 * The state of the last shutdown request.
+	 */
 	int shutdown_state;
 
 public:
+	/**
+	 * Constructor.
+	 */
 	YARPBareThread(void);
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPBareThread(void);
 
-	/// Begin and End are now virtual, overridable.
+	/**
+	 * Begin thread.
+	 * Creates a new thread with a certain stack size and 
+	 * starts the thread execution from Body().
+	 * @param stack_size is the thread stack size.
+	 */
 	virtual void Begin(int stack_size=0);
-	virtual void End(int dontkill = -1);
-	virtual void Body() = 0; // this is the body of the thread
 
+	/**
+	 * Asks for thread termination.
+	 * It changes the state of the thread termination sequence depending on the value of the
+	 * parameter. The procedure for terminating a thread requires the active cooperation of
+	 * the thread. The thread should be polling termination requests by calling IsTerminated
+	 * periodically.
+	 * @param dontkill can have various values that affect the behavior at termination. 
+	 * If dontkill is equal to -1 then the method changes the shutdown state and waits for the 
+	 * thread to exit (join). If dontkill is equal to 0 then the thread is terminated 
+	 * immediately. If dontkill is greater than 0 then the thread goes in wait state for 
+	 * dontkill milliseconds before being terminated.
+	 */
+	virtual void End(int dontkill = -1);
+
+	/**
+	 * The thread body.
+	 */
+	virtual void Body() = 0;
+
+	/**
+	 * Get the thread internal (OS dependent) id.
+	 * @return the identifier.
+	 */
 	int GetIdentifier() { return identifier; }
 
 #ifdef __WIN32__
@@ -117,57 +200,97 @@ public:
 	friend unsigned ExecuteThread (void *args);
 #endif
 
+	/**
+	 * Gets the current thread priority.
+	 * @return the current thread priority (OS dependent).
+	 */
 	int GetPriority (void);
+
+	/**
+	 * Sets the thread priority.
+	 * ACE suggests not to use the priority values directly but rather
+	 * using some OS independent methods.
+	 * @return non-negative on success.
+	 */
 	int SetPriority (int prio);
 
-	/// it doesn't really timeout unfortunately.
+	/**
+	 * Waits for the thread to complete.
+	 * @param timeout [NOT IMPLEMENTED].
+	 * @return non-negative on success.
+	 */
 	int Join (int timeout = 0);
 
-	/// it can be used intead of End() to ask for termination.
-	/// follow this call by a Join() to wait for thread exit.
+	/**
+	 * Post a request of termination.
+	 * It can be used intead of End() to ask for termination.
+	 * Follow this call by a Join() to wait for thread exit.
+	 */
 	void AskForEnd (void);
 
-	///
-	/// allows recycling of the thread after unclean exit.
+	/**
+	 * Allows recycling of the thread after unclean exit.
+	 * Call this function to reset the thread shutdown state and
+	 * recycle the class.
+	 */
 	void CleanState (void);
 
-	// If you are in __WIN32__, you should call this
-	// every now and then, and leave Body() if the result
-	// is non-zero.  If you don't, you may be terminated
-	// forceably with loss of memory and resources you are
-	// holding.	
+	/**
+	 * Checks whether a request for termination has been posted.
+	 * This method should be called periodically from within the 
+	 * thread body, in case it returns true the thread should return
+	 * from the body. The parent would typically be waiting
+	 * for the child to exit cleanly.
+	 * @return true if a request is pending.
+	 */
 	int IsTerminated(void);
 };
 
-///
-///
-///
-///
+/**
+ * A simple wrapper with a few additions around YARPBareThread.
+ */
 class YARPThread : public YARPBareThread
 {
 private:
 	YARPThread(const YARPThread& yt) : YARPBareThread(yt) {}
 
 public:
+	/**
+	 * Contructor.
+	 */
 	YARPThread (void) : YARPBareThread() {}
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPThread(void) {}
 
-	// Forcibly halt all threads (late addition, just in QNX(4) implementation)
+	// obsolete: QNX4 stuff, still here for sentimental reasons.
 	static void TerminateAll(void);
 	static void PrepareForDeath(void);
 	static int IsDying(void);
 };
 
 
-///
-/// ACE_TSS_Type_Adapter<int>
+/**
+ * A template class for the thread local storage.
+ * Use this template to declare a thread local storage of type T. The actual
+ * data could be accessed through the Content() method.
+ */
 template <class T>
 class YARPThreadSpecific : public ACE_TSS<ACE_TSS_Type_Adapter <T> >
 {
 public:
+	/**
+	 * Constructor.
+	 */
 	YARPThreadSpecific() : ACE_TSS<ACE_TSS_Type_Adapter <T> >() {}
 ///	T& Content() { return (this->ts_object ()->operator T& ()); } 
-	
+
+	/*
+	 * Access to the data.
+	 * @return a reference to the thread local storage data.
+	 */
 	T& Content() { return ((*((ACE_TSS<ACE_TSS_Type_Adapter <T> > *)this))->operator T& ()); } 
 	///**(ACE_TSS<ACE_TSS_Type_Adapter <T> > *)(this); } ///return (T&)(*this); }
 };
