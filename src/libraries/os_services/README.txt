@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.15 2003-06-11 16:40:03 gmetta Exp $
+$Id: README.txt,v 1.16 2003-06-20 12:31:04 gmetta Exp $
 
 
 =============
@@ -27,7 +27,10 @@ Things under development:
 	down over time (if connecting and disconnecting many times).
 
 2- extra commands for the name server.
-3- prepare default params for remote shutdown from command line.
+
+
+3- image transmission across different architectures - e.g. padding differences 
+	between QNX and WIN. Solution: pad everything to the same amount (8 bytes).
 
 
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating
@@ -39,6 +42,8 @@ Things under development:
 10- IMPORTANT! specify the nic, for multiple parallel connections in MCAST.
 
 11- missing htons here and there in the udp communication (fine w/ intel architecture).
+
+
 
 ===
 0- QNET
