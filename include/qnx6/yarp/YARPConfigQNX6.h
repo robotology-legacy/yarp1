@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigQNX6.h,v 1.1 2004-07-09 14:21:52 eshuy Exp $
+// $Id: YARPConfigQNX6.h,v 1.1 2004-07-10 23:17:34 gmetta Exp $
 // YARP config file QNX6.
 //
 //
