@@ -30,6 +30,7 @@ public:
 	int m_y;
 	bool m_lp;
 	bool m_fov;
+	bool m_enable_output;
 	int m_width;
 	int m_height;
 

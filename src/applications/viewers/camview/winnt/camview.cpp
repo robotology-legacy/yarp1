@@ -58,10 +58,13 @@ BOOL CCamviewApp::InitInstance()
 	{ 
 		/// adds the leading /
 		m_out_portname = "/" + m_out_portname ;
+		m_enable_output = true;
 	}
 	else
 	{
+		/// default value if not specified, outport is actually disabled.
 		m_out_portname = m_portname + "/out";
+		m_enable_output = false;
 	}
 
 	CString speriod;

@@ -88,7 +88,7 @@ OutDir=.\..\obj\Release
 
 $(DS_POSTBUILD_DEP) : "$(OUTDIR)\tools.lib"
    copy .\*.h ..\..\..\..\include
-	lib ..\obj\Release\imagesx.lib ..\..\ipl\lib\ipl.lib ..\obj\Release\tools.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Release\images.lib
+	lib ..\obj\Release\imagesx.lib ..\..\ipl\lib\ipl.lib ..\obj\Release\tools.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\images.lib
 	copy ..\obj\Release\images.lib ..\..\..\..\lib\winnt
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 

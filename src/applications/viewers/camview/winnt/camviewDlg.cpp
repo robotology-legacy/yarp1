@@ -231,8 +231,7 @@ END_MESSAGE_MAP()
 // CCamviewDlg dialog
 
 CCamviewDlg::CCamviewDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CCamviewDlg::IDD, pParent),
-	m_outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+	: CDialog(CCamviewDlg::IDD, pParent)	
 {
 	//{{AFX_DATA_INIT(CCamviewDlg)
 	m_connection_name = _T("");
@@ -242,6 +241,8 @@ CCamviewDlg::CCamviewDlg(CWnd* pParent /*=NULL*/)
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	m_outPort = NULL;
 }
 
 void CCamviewDlg::DoDataExchange(CDataExchange* pDX)
@@ -308,8 +309,10 @@ BOOL CCamviewDlg::OnInitDialog()
 	
 	// TODO: Add extra initialization here
 	CCamviewApp *p = ((CCamviewApp *)AfxGetApp());
+	
 	m_connection_name = p->m_portname;
 	m_output_connection = p->m_out_portname;
+	
 	if (p->m_lp && m_receiver.TablesOk()) m_receiver.AssumeLogpolar();
 	if (p->m_fov) m_receiver.AssumeDisplayFovea();
 
@@ -320,7 +323,15 @@ BOOL CCamviewDlg::OnInitDialog()
 	
 	m_receiver.Begin ();
 
-	m_outPort.Register(m_output_connection);
+	/// not particularly smart to copy all the variables from app but convenient.
+	m_enable_output = p->m_enable_output;
+	if (p->m_enable_output)
+	{
+		m_outPort = new YARPOutputPortOf<int [2]>(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+		m_outPort->Register(m_output_connection);
+	}
+	else
+		m_outPort = NULL;
 
 	m_frozen = false;
 
@@ -544,7 +555,11 @@ void CCamviewDlg::OnClose()
 	m_receiver.TryClosePort ();
 	m_receiver.Join ();
 
-	m_outPort.Unregister ();
+	if (m_enable_output)
+	{
+		m_outPort->Unregister ();
+		delete m_outPort;
+	}
 
 	CDialog::OnClose ();
 }
@@ -647,20 +662,24 @@ void CCamviewDlg::OnImageShowinterval()
 
 void CCamviewDlg::OnLButtonDblClk(UINT nFlags, CPoint point) 
 {
-	// TODO: Add your message handler code here and/or call default
-	m_image_x = (point.x - m_x)/m_zx;
-	m_image_y = (point.y - m_y)/m_zy;
+	if (m_enable_output)
+	{
+		// TODO: Add your message handler code here and/or call default
+		m_image_x = (point.x - m_x)/m_zx;
+		m_image_y = (point.y - m_y)/m_zy;
 
-	if (m_image_x < 0) m_image_x = 0;
-	if (m_image_x > m_receiver.GetWidth()) m_image_x = m_receiver.GetWidth();
-	
-	if (m_image_y < 0) m_image_y = 0;
-	if (m_image_y > m_receiver.GetHeight()) m_image_y = m_receiver.GetHeight();
+		if (m_image_x < 0) m_image_x = 0;
+		if (m_image_x > m_receiver.GetWidth()) m_image_x = m_receiver.GetWidth();
+		
+		if (m_image_y < 0) m_image_y = 0;
+		if (m_image_y > m_receiver.GetHeight()) m_image_y = m_receiver.GetHeight();
 
-	m_outPort.Content()[0] = m_image_x;
-	m_outPort.Content()[1] = m_image_y;
-	m_outPort.Write();
+		m_outPort->Content()[0] = m_image_x;
+		m_outPort->Content()[1] = m_image_y;
+		m_outPort->Write();
 
-	UpdateData(FALSE);
+		UpdateData(FALSE);
+	}
+
 	CDialog::OnLButtonDblClk(nFlags, point);
 }

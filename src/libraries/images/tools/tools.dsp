@@ -58,7 +58,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\imagesx.lib ..\..\ipl\lib\ipl.lib ..\obj\Release\tools.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Release\images.lib	copy ..\obj\Release\images.lib ..\..\..\..\lib\winnt
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\imagesx.lib ..\..\ipl\lib\ipl.lib ..\obj\Release\tools.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\images.lib	copy ..\obj\Release\images.lib ..\..\..\..\lib\winnt
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "tools - Win32 Debug"

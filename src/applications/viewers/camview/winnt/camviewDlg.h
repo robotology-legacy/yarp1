@@ -129,7 +129,9 @@ public:
 	CRecv m_receiver;
 	bool m_frozen;
 	HDRAWDIB m_drawdib;
-	YARPOutputPortOf<int [2]> m_outPort;
+
+	bool m_enable_output;
+	YARPOutputPortOf<int [2]> *m_outPort;
 	CString	m_output_connection;
 
 	double m_zx;
