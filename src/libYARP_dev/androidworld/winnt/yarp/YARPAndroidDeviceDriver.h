@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPAndroidDeviceDriver.h,v 1.1 2004-07-13 13:21:07 babybot Exp $
+/// $Id: YARPAndroidDeviceDriver.h,v 1.2 2004-07-27 10:04:56 babybot Exp $
 ///
 ///
 
@@ -43,6 +43,7 @@
 const int __AndroidNInput = 32;	// 8x4
 const int __AndroidNChips = 4;
 const int __AndroidNChannels = 8;
+const int __trials = 1;
 
 struct AndroidOpenParameters
 {
@@ -71,7 +72,6 @@ struct AndroidSingleChannel
 	unsigned char *data;
 };
 
-const int __trials = 1;
 
 class YARPAndroidDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPAndroidDeviceDriver > 
 {
@@ -102,7 +102,10 @@ private:
 
 	unsigned char readMSB()
 	{
-		int c = _inp(_pport+1);
+		int c;
+		int trials = __trials;
+		while(trials--)
+			c = _inp(_pport+1);
 		if (c&0x8)
 			return 1;	// msb only
 		else 
