@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.9 2003-07-03 09:27:20 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.10 2003-09-12 16:52:21 beltran Exp $
 ///
 ///
 
@@ -86,12 +86,7 @@ public:
 		_nWidth = 0;
 		_nHeight = 0;
 		_nImageSize = 0;
-		//_picoloHandle = 0;
-
-		//memset (_bufHandles, 0, sizeof(PICOLOHANDLE) * _num_buffers);
-		//memset (_buffer, 0, sizeof(PUINT8) * _num_buffers);
-		//memset (_aligned, 0, sizeof(PUINT8) * _num_buffers);
-
+		
 		_rawBuffer = NULL;
 		_canpost = true;
 	}
@@ -99,8 +94,6 @@ public:
 	~PicoloResources () { _uninitialize (); }
 
 	enum { _num_buffers = 3 };
-
-	//PICOLOHANDLE _picoloHandle;	
 
 	YARPSemaphore _bmutex;
 	YARPSemaphore _new_frame;
@@ -110,10 +103,6 @@ public:
 	UINT32 _nWidth;
 	UINT32 _nHeight;
 	UINT32 _nImageSize;
-
-	///PICOLOHANDLE _bufHandles[_num_buffers];
-	///PUINT8 _buffer[_num_buffers];
-	///PUINT8 _aligned[_num_buffers];
 
 	bool _canpost;
 
@@ -151,29 +140,6 @@ inline int PicoloResources::_intialize (const PicoloOpenParameters& params)
 	_init (params);
 	open_bttvx();
 	BttvxSetImageBuffer(params._unit_number,_rawBuffer);
-	//_prepareBuffers ();
-
-	// n-part buffering.
-	///PICOLOHANDLE BufferList[_num_buffers];
-	////PICOLOSTATUS PicoloStatus;
-
-	//
-	///int i;
-	////for (i = 0; i < _num_buffers; i++)
-	///{
-	///	BufferList[i] = _bufHandles[i];
-	///}
-
-	////PicoloStatus = PicoloSetBufferList (_picoloHandle, BufferList, _num_buffers);
-	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
-
-	// select initial buffer.
-	////PicoloStatus = PicoloSelectBuffer(_picoloHandle, 0);
-
-	// starts continuous acquisition.
-	///PicoloStatus = PicoloAcquire (_picoloHandle, PICOLO_ACQUIRE_CONTINUOUS | PICOLO_ACQUIRE_INC, 1);
-	///ACE_ASSERT (PicoloStatus == PICOLO_OK);
-
 	return YARP_OK;
 }
 
@@ -215,82 +181,13 @@ inline int PicoloResources::_init (const PicoloOpenParameters& params)
 {
 	/// copy params.
 	int ret;
-	_nRequestedSize = params._size;
-	_nWidth = params._size;
-	_nHeight = params._size;
-	_nImageSize = params._size * params._size * 3;
-	
-	//Attention: the size must me dinamic in the driver!!! TODO
+	_nRequestedSize = params._size_x;
+	_nWidth = params._size_x;
+	_nHeight = params._size_y;
+	_nImageSize = params._size_x * params._size_y * 3;
 	
 	init_bttvx(params._video_type,params._unit_number,_nWidth,_nHeight);
-	/// starts board up.
-	////PICOLOHANDLE ret = PicoloStart(params._unit_number);
-	////if (ret < 0)
-	///{
-	///	ACE_DEBUG ((LM_DEBUG, "troubles opening the grabber number %d\n", params._unit_number));
-	///	return YARP_FAIL;
-	///}
-
-	// video input.
-	////PICOLOSTATUS PicoloStatus;
-	////ACE_ASSERT (params._video_type == 0 || params._video_type == 1);
-
-	/// it might require more params (e.g. ntsc, etc.)
-	////if (params._video_type == 0)
-	////{
-	////	PicoloStatus = PicoloSelectVideoInput(ret, PICOLO_INPUT_COMPOSITE_BNC, PICOLO_IFORM_STD_PAL);
-	////}
-	////else
-	////{
-	////	PicoloStatus = PicoloSelectVideoInput(ret, PICOLO_INPUT_SVIDEO_MINIDIN4, PICOLO_IFORM_625LINES);
-	////}
-
-	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
-
-	// image type. Color only?
-	////PicoloStatus = PicoloSelectImageFormat(ret, PICOLO_COLOR_RGB32);
-	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
-
-	// assume we want a square image
-	////float scalex = 576.0/_nRequestedSize;
-	////float scaley = scalex / 2.0;
-	////float xSize = 768.0/scalex;
-	////float offsetX = (xSize-_nRequestedSize) / 2;
-
-	// adjust size and scaling. 
-	////PicoloStatus = PicoloSetControlFloat(ret,
-	////									 PICOLO_CID_ADJUST_SCALEX,
-	////									 scalex);
-	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
-
-	// img height is twice the requested size.
-	////PicoloStatus = PicoloSetControlFloat(ret,
-	////									 PICOLO_CID_ADJUST_SCALEY,
-	////									 scaley);
-	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
-	////PicoloStatus = PicoloSetControlValue(ret,
-	////									 PICOLO_CID_ADJUST_SIZEX,
-	////									 _nRequestedSize);
-	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
-	////PicoloStatus = PicoloSetControlValue(ret,
-	////									 PICOLO_CID_ADJUST_SIZEY,
-	////									 2 * _nRequestedSize);
-	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
-
-	////PicoloStatus = PicoloSetControlValue(ret,
-	////									 PICOLO_CID_ADJUST_OFFSETX,
-	////									 offsetX);
-	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
-
-	// re-get size (to be sure!)
-	////PicoloStatus = PicoloGetImageSize(ret, 
-	////								  &_nWidth, 
-	////								  &_nHeight);
-	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
-
-	////PicoloStatus = PicoloGetImageBufferSize(ret, &_nImageSize); 
-	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
-
+	
 	_bmutex.Wait ();
 	_rawBuffer = new unsigned char [_nImageSize];
 	ACE_ASSERT (_rawBuffer != NULL);
@@ -342,84 +239,10 @@ int YARPPicoloDeviceDriver::close (void)
 {
 	PicoloResources& d = RES(system_resources);
 
-	////End ();	/// stops the thread first.
-
 	int ret = d._uninitialize ();
 
 	return ret;
 }
-
-///
-///
-/// acquisition thread for real!
-/***
-void YARPPicoloDeviceDriver::Body (void)
-{
-	PICOLOSTATUS PicoloStatus;
-	PicoloResources& d = RES(system_resources);
-
-	const int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
-	SetPriority (prio);
-
-	PicoloStatus = PicoloSetWaitTimeout (d._picoloHandle, 500);		/// timeout 120 ms.
-	bool finished = false;
-
-	d._canpost = true;
-
-	int i = 0;
-
-	unsigned int bufno = 0;
-	PicoloStatus = PicoloGetCurrentBuffer (d._picoloHandle, &bufno);
-	ACE_ASSERT (PicoloStatus == PICOLO_OK);
-	const unsigned int startbuf = (bufno > 0) ? (bufno - 1) : (d._num_buffers - 1);
-	unsigned int readfro = startbuf;
-
-	/// strategy, waits, copy into lockable buffer.
-	while (!finished)	
-	{
-		PicoloStatus = PicoloWaitEvent (d._picoloHandle, PICOLO_EV_END_ACQUISITION);
-		if (PicoloStatus != PICOLO_OK)
-		{
-			ACE_DEBUG ((LM_DEBUG, "it's likely that the acquisition timed out, returning\n"));
-			finished = true;
-		}
-
-		readfro = startbuf;
-
-		for (i = 0; i < d._num_buffers; i++)
-		{
-			if (d._bmutex.PollingWait () == 1)
-			{
-				/// buffer acquired.
-				/// read from buffer
-				memcpy (d._rawBuffer, d._aligned[readfro], d._nImageSize);
-					
-				if (d._canpost)
-				{
-					d._canpost = false;
-					d._new_frame.Post();
-				}
-
-				d._bmutex.Post ();
-			}
-			else
-			{
-				/// can't acquire, it means the buffer is still in use.
-				/// silently ignores this condition.
-				ACE_DEBUG ((LM_DEBUG, "lost a frame, acq thread\n"));
-			}
-
-			readfro = ((readfro + 1) % d._num_buffers);
-
-			/// 40 ms delay
-			if (i < d._num_buffers-1)
-				DelayInSeconds (0.040);
-		} /// end for
-	}
-
-	ACE_DEBUG ((LM_DEBUG, "acquisition thread returning...\n"));
-}
-*/
 
 int YARPPicoloDeviceDriver::acquireBuffer (void *buffer)
 {

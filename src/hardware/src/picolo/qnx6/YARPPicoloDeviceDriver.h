@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.7 2003-06-30 16:49:52 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.8 2003-09-12 16:52:45 beltran Exp $
 ///
 ///
 
@@ -88,12 +88,16 @@ struct PicoloOpenParameters
 	{
 		_unit_number = 0;
 		_video_type = 2;
-		_size = 256;
+		_size_x = 256; 
+        _size_y = 256; 
+
 	}
 
 	int _unit_number;		/// board number 0, 1, 2, etc.
 	int _video_type;		/// 0 composite(PAL), 1 composite(NTSC), 2 svideo 
-	int _size;				/// requested size.
+	int _size_x;                    /// requested size x. 
+    int _size_y;                    /// requested size y. 
+
 };
 
 
