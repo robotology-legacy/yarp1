@@ -7,6 +7,7 @@
 #define __headthreadh__
 
 #include <yarp/YARPConfig.h>
+#include <yarp/YARPConfigRobot.h>
 #include <yarp/YARPRobotMath.h>	// useful stuff, like degToRad, pi and radToDeg include also VisDMatrix.h
 #include <yarp/YARPRateThread.h>
 

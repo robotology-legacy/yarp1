@@ -418,9 +418,5 @@ SOURCE=..\include\yarp_private\YARPFragments.h
 SOURCE=..\include\yarp_private\YARPNameID_defs.h
 # End Source File
 # End Group
-# Begin Source File
-
-SOURCE=..\build.pl
-# End Source File
 # End Target
 # End Project

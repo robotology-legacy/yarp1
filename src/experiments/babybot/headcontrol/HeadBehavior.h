@@ -49,7 +49,7 @@ public:
 	{
 		key = k;
 	}
-	bool input(YARPBottle *in, HeadThread *d);
+	bool input(YARPBabyBottle *in, HeadThread *d);
 	
 	YBVocab key;
 	YBVocab newK;
@@ -62,7 +62,7 @@ public:
 	{
 		key = k;
 	}
-	bool input(YARPBottle *in, HeadThread *d);
+	bool input(YARPBabyBottle *in, HeadThread *d);
 	
 	YBVocab key;
 	YBVocab newK;
@@ -76,7 +76,7 @@ public:
 	{
 		key = k;
 	}
-	bool input(YARPBottle *in, HeadThread *d);
+	bool input(YARPBabyBottle *in, HeadThread *d);
 	
 	YBVocab key;
 	YBVocab newK;

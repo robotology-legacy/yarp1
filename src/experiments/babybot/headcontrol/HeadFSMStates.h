@@ -2,7 +2,7 @@
 #define __HEADFSMSTATES__
 
 #include "HeadFSM.h"
-#include <YARPPidFilter.h>
+#include <yarp/YARPPidFilter.h>
 
 #include <math.h>
 

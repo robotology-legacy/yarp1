@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPControlBoardNetworkData.h,v 1.1 2004-07-30 10:33:24 babybot Exp $
+/// $Id: YARPControlBoardNetworkData.h,v 1.2 2004-07-30 12:33:36 babybot Exp $
 ///
 ///
 // ArmStatus class
@@ -274,7 +274,7 @@ public:
 	YARPInputPortOf<YARPControlBoardNetworkData>(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicInputPort<YARPControlBoardNetworkPortContent> (n_service_type, n_protocol_type) {}
 
-	virtual ~YARPInputPortOf<YARPControlBoardNetworkData> () { ((Port *)system_resource)->End(); }
+	virtual ~YARPInputPortOf<YARPControlBoardNetworkData> () { YARPPort::End(); }
 };
 
 class YARPOutputPortOf<YARPControlBoardNetworkData> : public YARPBasicOutputPort<YARPControlBoardNetworkPortContent>
@@ -283,7 +283,7 @@ public:
 	YARPOutputPortOf<YARPControlBoardNetworkData>(int n_service_type = DEFAULT_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicOutputPort<YARPControlBoardNetworkPortContent> (n_service_type, n_protocol_type) {}
 
-	virtual ~YARPOutputPortOf<YARPControlBoardNetworkData> () { ((Port *)system_resource)->End(); }
+	virtual ~YARPOutputPortOf<YARPControlBoardNetworkData> () { YARPPort::End(); }
 };
 
 #endif //.h

@@ -40,8 +40,8 @@ RSC=rc.exe
 # PROP Output_Dir ".\obj\winnt\release"
 # PROP Intermediate_Dir ".\obj\winnt\release"
 # PROP Target_Dir ""
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I ".\include" /I "..\..\..\..\include" /I "..\..\..\..\include\winnt" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
 # ADD BASE RSC /l 0x410 /d "NDEBUG"
@@ -53,10 +53,6 @@ LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /out:".\lib\winnt\utils.lib"
 # SUBTRACT LIB32 /nologo
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Cmds=copy  .\include\yarp\*.h  y:\include\yarp\ 	copy  .\lib\winnt\*.lib  y:\lib\winnt\ 
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "utils - Win32 Debug"
 
@@ -70,8 +66,8 @@ PostBuild_Cmds=copy  .\include\yarp\*.h  y:\include\yarp\ 	copy  .\lib\winnt\*.l
 # PROP Output_Dir ".\obj\winnt\debug"
 # PROP Intermediate_Dir ".\obj\winnt\debug"
 # PROP Target_Dir ""
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\include" /I "..\..\..\..\include" /I "..\..\..\..\include\winnt" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -83,10 +79,6 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:".\lib\winnt\utilsd.lib"
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Cmds=copy  .\include\yarp\*.h  y:\include\yarp\ 	copy  .\lib\winnt\*.lib  y:\lib\winnt\ 
-# End Special Build Tool
 
 !ENDIF 
 

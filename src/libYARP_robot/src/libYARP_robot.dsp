@@ -162,6 +162,10 @@ SOURCE=..\babybot\yarp\YARPBabybotSoundGrabber.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\babybot\yarp\YARPControlBoardNetworkData.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\babybot\yarp\YARPGalilOnBabybotHandAdapter.h
 # End Source File
 # Begin Source File
