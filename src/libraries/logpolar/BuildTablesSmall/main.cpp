@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.3 2003-06-16 16:48:24 babybot Exp $
+/// $Id: main.cpp,v 1.4 2003-06-17 13:01:16 babybot Exp $
 ///
 ///
 
@@ -106,7 +106,7 @@ int main (int argc, char *argv[])
 		CUSTOM,
 		256.0/1090.0);
 	
-	Param.padding = 4;
+	Param.padding = 8;
 
 	Build_Ang_Shift_Map(&Param, Path);
 	Build_Pad_Map(&Param, Path);
@@ -121,10 +121,11 @@ int main (int argc, char *argv[])
 		CUSTOM,
 		256.0/1090.0);
 
-	Param.padding = 4;
+	Param.padding = 8;
 
 	Build_Remap_Map(&Param, Path);
 	Crop_Remap_Map(&Param, Path);
+	Build_Color_Map(Path);
 
 	return 0;
 }
