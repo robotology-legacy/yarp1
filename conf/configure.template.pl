@@ -216,9 +216,10 @@ sub do_ext_compile
 {
 	my ($exe) = @_;
 
-	unless (-x $exe)
+	$exe =~ /(^[\w\d\-\.]+)/;
+	unless (-x $1)
 	{
-		chmod 0755, $exe;
+		chmod 0755, $1;
 	}
 	
 	open TOOLS, "$exe|";

@@ -124,11 +124,17 @@ if ($install)
 
 	foreach my $project (@projects)
 	{
-		foreach my $file (glob "./$project/obj/$os/*.exe ./$project/obj/$os/$project")
+		foreach my $file (glob "./$project/obj/$os/*.exe")
 		{
 			print "Copying $file\n";
 			copy "$file", "$yarp_root/bin/$os" or warn "Can't copy: $file\n";
 		}
+	}
+
+	foreach my $file (@projects)
+	{
+		print "Copying $file\n";
+		copy "./bin/$os/$file", "$yarp_root/bin/$os" or warn "Can't copy: $file\n";
 	}
 }
 
