@@ -153,12 +153,12 @@ void main()
 	char Path [256];
 
 	//Loads BW images
-//	sprintf(File_Name,"%s","c:/temp/images/testpad2/Sim_BWLP_R.bmp");
-	sprintf(File_Name,"%s","c:/temp/images/testpad2/right.bmp");
+	sprintf(File_Name,"%s","c:/temp/images/testpad2/Sim_BWLP_R.bmp");
+//	sprintf(File_Name,"%s","c:/temp/images/testpad2/Test2_BWLP_L.bmp");
 	Right.BW = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
 
-//	sprintf(File_Name,"%s","c:/temp/images/testpad2/Sim_BWLP_L.bmp");
-	sprintf(File_Name,"%s","c:/temp/images/testpad2/left.bmp");
+	sprintf(File_Name,"%s","c:/temp/images/testpad2/Sim_BWLP_L.bmp");
+//	sprintf(File_Name,"%s","c:/temp/images/testpad2/Test2_BWLP_L.bmp");
 	Left.BW = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
 
 	paramInit(&SParam,&LParam,XSize,YSize,planes);
@@ -184,10 +184,11 @@ void main()
 //	Build_Tables(&LParam,&Tables,Path,DS4);
 	Load_Tables(&LParam,&Tables,Path,WEIGHTS|REMAP);
 	Load_Tables(&LParam,&Tables,Path,DS4);
-	Build_Tables(&SParam,&Tables,Path,SHIFT);
+//	Build_Tables(&SParam,&Tables,Path,SHIFT);
 //	Build_Tables(&SParam,&Tables,Path,2048);
 //	Build_Step_Function(Path,&SParam);
 	Load_Tables(&SParam,&Tables,Path,SHIFT|ANGSHIFT|PAD);
+
 
 //Color Reconstruction
 	
@@ -218,13 +219,22 @@ void main()
 	DownSample( Left.ColorPad, Left.DSPad,Path,&LParam,SParam.Ratio,Tables.DownSampleMap);
 	DownSample(Right.ColorPad,Right.DSPad,Path,&LParam,SParam.Ratio,Tables.DownSampleMap);
 
+	for (int j = 0; j<SParam.Size_Rho; j++)
+		for (int i = 0; i<192; i++)
+			if (i == 20)
+			{
+				Right.DSPad[j*192+i] = 255;
+				Left.DSPad[j*192+i] = 255;
+			}
+
+
 	removePad( Left.DS, Left.DSPad,SParam.Size_Theta,SParam.Size_Rho,3,computePadSize(3 * SParam.Size_Theta,SParam.padding));
 	removePad(Right.DS,Right.DSPad,SParam.Size_Theta,SParam.Size_Rho,3,computePadSize(3 * SParam.Size_Theta,SParam.padding));
 
 	Save_Bitmap(Left.DS,SParam.Size_Theta,SParam.Size_Rho,3, "c:/temp/images/testpad2/DS_L.bmp");
 	Save_Bitmap(Right.DS,SParam.Size_Theta,SParam.Size_Rho,3,"c:/temp/images/testpad2/DS_R.bmp");
 	Save_Bitmap(Left.DSPad,computePadSize(3*SParam.Size_Theta,SParam.padding),SParam.Size_Rho,1,"c:/temp/images/testpad2/DS_L_Pad.bmp");
-	Save_Bitmap(Left.DSPad,computePadSize(3*SParam.Size_Theta,SParam.padding),SParam.Size_Rho,1,"c:/temp/images/testpad2/DS_R_Pad.bmp");
+	Save_Bitmap(Right.DSPad,computePadSize(3*SParam.Size_Theta,SParam.padding),SParam.Size_Rho,1,"c:/temp/images/testpad2/DS_R_Pad.bmp");
 
 	retval = Shift_and_Corr(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMap,Tables.CorrLevels);
 //	retval = shiftnCorrFovea(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMapF,Tables.CorrLevels);

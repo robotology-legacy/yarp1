@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.31 2003-12-02 18:03:12 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.32 2003-12-03 14:53:39 fberton Exp $
 ///
 ///
 
@@ -391,7 +391,7 @@ int Build_Cart2LP_Map(Image_Data * Par, char * Path)
 			}
 		}
 
-		if (Par->Ratio= 1.00)
+		if (Par->Ratio== 1.00)
 			sprintf(File_Name,"%s%s",Path,"Cart2LPMap.gio");
 		else
 			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"Cart2LPMap.gio");
@@ -2393,8 +2393,19 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 			for(j=0; j<Par->Size_Rho; j++)
 				for(i=0; i<Par->Size_Theta; i++)
 				{
-					tempX = l*Par->Resolution*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+/*					if (j==0)
+					{
+						tempX = l*Par->Resolution*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+						tempY = Get_Y_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+					}
+					else
+					{
+						tempX = l*Par->Resolution*shiftlev + Get_X_Center(j-0.5,i-0.5,Par,Tables.AngShiftMap,Tables.PadMap);
+						tempY = Get_Y_Center(j-0.5,i-0.5,Par,Tables.AngShiftMap,Tables.PadMap);
+					}
+*/
 //					tempX = l*Par->Size_X_Remap*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+					tempX = l*Par->Resolution*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
 					tempY = Get_Y_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
 					if ((tempX<Par->Zoom_Level*Par->Resolution/2)&&(tempY<Par->Zoom_Level*Par->Resolution/2))
 //					if ((tempX<Par->Size_X_Remap/2)&&(tempY<Par->Size_Y_Remap/2))

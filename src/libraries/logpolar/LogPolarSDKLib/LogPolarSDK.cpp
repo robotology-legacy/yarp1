@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.25 2003-12-02 18:03:12 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.26 2003-12-03 14:53:39 fberton Exp $
 ///
 ///
 
@@ -244,7 +244,7 @@ int Get_Rho(double x,
 		rho = (int)((log((radius-par->Size_Fovea+0.5)*(par->Log_Index-1)+par->Log_Index) 
 					* logar + par->Size_Fovea-1)-0.0);
 	else 
-		rho = (int)(radius+0.5);
+		rho = (int)(radius+0.51);
 
 	return rho;
 }
@@ -1166,7 +1166,8 @@ double Get_X_Center(double rho, double theta, Image_Data *par, double *Ang_Shift
 	int j;
 
 	
-	if ((int)(rho) != 0)
+//	if ((int)(rho) != 0)
+	if (rho>=0.5)
 	{
 		rho   += 0.5;
 		theta += 0.5;
@@ -1263,7 +1264,8 @@ double Get_Y_Center(double rho, double theta, Image_Data *par, double *Ang_Shift
 	int j;
 
 	
-	if ((int)(rho) != 0)
+//	if ((int)(rho) != 0)
+	if (rho>=0.5)
 	{
 		rho   += 0.5;
 		theta += 0.5;

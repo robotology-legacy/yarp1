@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.8 2003-11-26 13:43:39 fberton Exp $
+/// $Id: AuxFunctions.cpp,v 1.9 2003-12-03 14:53:39 fberton Exp $
 ///
 ///
 
@@ -344,11 +344,12 @@ int Get_Theta(double x,
 	
 	int theta;
 	double temp;
+	float castval = 0.01;
 //	int jj;
 //	int counter;
 
-	int halfth = par->Size_Theta/2;
-	double thmult = (par->Size_Theta/2.0)/PI;
+//	int halfth = par->Size_Theta/2;
+//	double thmult = (par->Size_Theta/2.0)/PI;
 
 //	tmpth  = (halfth-atan2(y,-x)*thmult);
 //	theta = (int)((tmpth) + .5 * ((rho)%2)) ;
@@ -368,12 +369,12 @@ int Get_Theta(double x,
 			if (rho != 0)
 			{
 				temp = temp * (3*rho) / PI;
-				theta = Pad_Map [(unsigned short)(temp)+par->Size_Theta*rho]%par->Size_Theta;
+				theta = Pad_Map [(unsigned short)(temp+castval)+par->Size_Theta*rho]%par->Size_Theta;
 			}
 			else 
 			{
 				temp = temp / (2*PI);
-				theta = Pad_Map [(unsigned short)(temp)+par->Size_Theta*rho]%par->Size_Theta;
+				theta = Pad_Map [(unsigned short)(temp+castval)+par->Size_Theta*rho]%par->Size_Theta;
 			}
 		}
 		else if (par->Fovea_Type == 1)
@@ -381,18 +382,18 @@ int Get_Theta(double x,
 			if (rho != 0)
 			{
 				temp = temp * (3*rho) / PI;
-				theta = (int)(temp+0.5);
+				theta = (int)(temp+castval);
 			}
 			else 
 			{
 				temp = temp / (2*PI);
-				theta = (int)(temp+0.5);
+				theta = (int)(temp+castval);
 			}
 		}
 		else //if (par->Fovea_Type == 2)
 		{
 			temp = temp * (par->Size_Theta) / (2*PI);
-			theta = (int)(temp+0.5);
+			theta = (int)(temp+castval);
 		}
 //		counter = 0;
 //		for(jj=0; jj<par->Size_Theta; jj++)
@@ -405,7 +406,7 @@ int Get_Theta(double x,
 	else 
 	{
 		temp = temp * (par->Size_Theta/2.0) / PI;
-		theta = (int) (temp+0.49);	
+		theta = (int) (temp+castval);	
 	}
 	
 	if (theta<0)
