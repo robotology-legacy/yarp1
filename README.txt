@@ -1,6 +1,12 @@
-$Id: README.txt,v 1.13 2003-04-30 16:54:58 gmetta Exp $
+$Id: README.txt,v 1.14 2003-05-22 15:21:57 gmetta Exp $
 
 Before you do anything else.
+
+HAVE A LOOK AT THE $YARP_ROOT\conf\install\winnt or \qnx6 for instructions
+about installing YARP on your architecture.
+
+
+--------------------------------
 YARP assumes you have correctly set up the following variables (ALSO WINNT):
 
 YARP_ROOT=the complete path of the directory this file is in
