@@ -19,7 +19,14 @@ All()
 	do
 		echo "$PHRASE $execut"
 		cd $execut
-		make $MODE $1
+
+		if [ "$MODE" == "YARP_DEBUG=-g CFAST=" ]
+		then
+			make $MODE debug=1 optimize=0 $1
+		else
+			make $MODE debug=0 optimize=1 $1
+		fi
+
 		Check $?
 		$INSTALL
 		Check $?
@@ -47,28 +54,36 @@ echo "Entering build process of YARP libraries..."
 
 if [ "$1" ==  "" ]
 then
+
 	Nothing
+
 elif [ "$1" == "debug" ]
 then
+
 	echo "debug"
 	MODE="YARP_DEBUG=-g CFAST="
 	PHRASE="Building (debug)"
 	#install option
 	INSTALL="make install"
 	All $2
+
 elif [ "$1" == "release" ]
 then
+
 	echo "release"
 	MODE=""
 	PHRASE="Building (release)"
 	#install
 	INSTALL="make install"
 	All $2 
+
 elif [ "$1" == "clean" ]
 then
+
 	echo "clean"
 	MODE="clean"
 	PHRASE="Cleaning"
 	INSTALL=""
 	All 
+
 fi

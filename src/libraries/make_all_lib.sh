@@ -7,7 +7,7 @@
 #		<release> compile RELEASE, optimization ON
 #		<clean>	clean everything, be careful.
 #
-#             %2 == <full> clean ACE and copies IPL libs.
+#               %2 == <full> clean/build ACE.
 #
 #
 
@@ -17,11 +17,23 @@ if [ "$1" == "full" ]
 then
 	echo "$PHRASE ACE DLL."
 	cd ./ACE_wrappers/ace/
-	make $MODE 
-	make yarpize
+
+	if [ "$MODE" == "YARP_DEBUG=-g CFAST=" ]
+	then
+		make debug=1 optimize=0
+		make yarpize
+	elif [ "$MODE" == "clean" ]
+	then
+		make clean
+	else
+		make optimize=1 debug=0
+		make yarpize
+	fi
+
 # SPECIAL for ACE
 	cd ../../
 fi
+
 echo "$PHRASE Math."
 cd ./math/
 make $MODE
@@ -61,11 +73,6 @@ Check $?
 $INSTALL
 cd ../
 
-#is this already done in the images makefile?
-#cd ./images/tools/
-#make $MODE
-#cd ../../
-
 echo "$PHRASE utils library."
 cd ./utils/
 make $MODE
@@ -87,6 +94,7 @@ $INSTALL
 cd ../
 }
 
+
 Check()
 {
 if [ $1 -eq 0 ]         # Test exit status of "cmp" command.
@@ -100,16 +108,19 @@ fi
 
 Nothing()
 {
-echo "A parameter is needed (debug, release, clean)"
+echo "Use:" $0 "(debug, release, clean) [full]"
 }
 
 echo "Entering build process of YARP libraries..."
 
 if [ "$1" ==  "" ]
 then
+
         Nothing
+
 elif [ "$1" == "debug" ]
 then
+
         echo "debug"
         MODE="YARP_DEBUG=-g CFAST="
         PHRASE="Building (debug)"
@@ -118,8 +129,10 @@ then
         INSTALL_IPL="./install_fake_ipl"
         RUN_BUILD_TABLES="./BuildTablesSmall $YARP_ROOT/conf/"
         All $2
+
 elif [ "$1" == "release" ]
 then
+
         echo "release"
         MODE=""
         PHRASE="Building (release)"
@@ -128,8 +141,10 @@ then
         INSTALL_IPL="./install_fake_ipl"
         RUN_BUILD_TABLES="./BuildTablesSmall $YARP_ROOT/conf/"
         All $2
+
 elif [ "$1" == "clean" ]
 then
+
         echo "clean"
         MODE="clean"
         PHRASE="Cleaning"
@@ -137,4 +152,6 @@ then
         INSTALL_IPL=""
         RUN_BUILD_TABLES=""
         All $2
+
 fi
+
