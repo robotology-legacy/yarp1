@@ -63,6 +63,12 @@ int init_trajectory (byte jj, long current, long final, int speed)
 	_t[jj] = __labs (_distance[jj]) / speed;	/* expressed in ms */
 	_t[jj] /= _period; 							/* number of steps to complete the trajectory */
 	
+	if (_t[jj] < 1)
+	{
+		abort_trajectory (jj, final);
+		return -1;
+	}
+	
 	n = 0x8000 / _t[jj]; 
 	_step = __int2fixed (n); 
 		

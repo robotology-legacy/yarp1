@@ -144,6 +144,10 @@ protected:
 	afx_msg void OnButtonRemoveFilter();
 	afx_msg void OnParametersTestaxis();
 	afx_msg void OnUpdateParametersTestaxis(CCmdUI* pCmdUI);
+	afx_msg void OnFileLoadconfiguration();
+	afx_msg void OnFileSaveconfiguration();
+	afx_msg void OnUpdateFileLoadconfiguration(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateFileSaveconfiguration(CCmdUI* pCmdUI);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

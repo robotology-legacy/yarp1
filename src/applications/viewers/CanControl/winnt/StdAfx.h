@@ -27,6 +27,7 @@
 #include <YARPScheduler.h>
 #include <YARPValueCanDeviceDriver.h>
 #include <YARPControlBoardUtils.h>
+#include <YARPConfigFile.h>
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

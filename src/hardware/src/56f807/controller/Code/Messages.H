@@ -162,7 +162,7 @@
 #define CAN_SET_ENCODER_POSITION_HANDLER(x) \
 { \
 	int i = CHANNEL(CAN_DATA[1]); \
-	int value; \
+	long value; \
 	if (CAN_LEN == 6) \
 	{ \
 		value = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \

@@ -128,7 +128,7 @@ CCanControlDlg::CCanControlDlg(CWnd* pParent /*=NULL*/)
 	m_desired_acceleration = 0.0;
 	m_min_position = 0.0;
 	m_max_position = 0.0;
-	m_msg_filter = 0;
+	m_msg_filter = 20;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -187,7 +187,7 @@ void CCanControlDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxDouble(pDX, m_tlimit, 0., 32767.);
 	DDX_Text(pDX, IDC_EDIT_POSITION, m_desired_position);
 	DDX_Text(pDX, IDC_EDIT_SPEED, m_desired_speed);
-	DDV_MinMaxDouble(pDX, m_desired_speed, -100., 100.);
+	DDV_MinMaxDouble(pDX, m_desired_speed, -500., 500.);
 	DDX_Text(pDX, IDC_EDIT_ACCELERATION, m_desired_acceleration);
 	DDV_MinMaxDouble(pDX, m_desired_acceleration, 0., 100.);
 	DDX_Text(pDX, IDC_EDIT_MIN, m_min_position);
@@ -239,6 +239,10 @@ BEGIN_MESSAGE_MAP(CCanControlDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_REMOVE_FILTER, OnButtonRemoveFilter)
 	ON_COMMAND(ID_PARAMETERS_TESTAXIS, OnParametersTestaxis)
 	ON_UPDATE_COMMAND_UI(ID_PARAMETERS_TESTAXIS, OnUpdateParametersTestaxis)
+	ON_COMMAND(ID_FILE_LOADCONFIGURATION, OnFileLoadconfiguration)
+	ON_COMMAND(ID_FILE_SAVECONFIGURATION, OnFileSaveconfiguration)
+	ON_UPDATE_COMMAND_UI(ID_FILE_LOADCONFIGURATION, OnUpdateFileLoadconfiguration)
+	ON_UPDATE_COMMAND_UI(ID_FILE_SAVECONFIGURATION, OnUpdateFileSaveconfiguration)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -935,6 +939,77 @@ void CCanControlDlg::OnParametersTestaxis()
 }
 
 void CCanControlDlg::OnUpdateParametersTestaxis(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable (m_driverok);
+}
+
+void CCanControlDlg::OnFileLoadconfiguration() 
+{
+	YARPConfigFile file;
+	int i;
+
+	char *root = GetYarpRoot();
+	char path[256];
+	ACE_OS::sprintf (path, "%s/%s/", root, ConfigFilePath); 
+
+	file.set(path, CANBUS_INIFILE);
+
+	if (!m_driverok)
+	{
+		int ret = file.get("[GENERAL]", "Joints", &m_njoints);
+		if (ret != YARP_OK)
+		{
+			MessageBox ("Can't load configuration file", "Error!");
+			return;
+		}
+
+		int dest[CANBUS_MAXCARDS];
+		for (i = 0; i < CANBUS_MAXCARDS; i++) dest[i] = 16;
+
+		file.get("[GENERAL]", "Destinations", dest, m_njoints/2);
+		for (i = 0; i < m_njoints/2; i++)
+			m_destinations[i] = dest[i] & 0x0f;
+	}
+	else
+	{
+		int index = m_axis_ctrl.GetCurSel();
+		if (index != CB_ERR)
+		{	
+			memset (path, 0, 256);
+			ACE_OS::sprintf (path, "[AXIS_%d]", index);
+
+			/// driver is running, load the current joint values only.
+			file.get (path, "Kp", &m_pgain);
+			file.get (path, "Kd", &m_dgain);
+			file.get (path, "Shift", &m_shift);
+			file.get (path, "Offset", &m_offset);
+			file.get (path, "Ilimit", &m_ilimit);
+			file.get (path, "Ki", &m_igain);
+			file.get (path, "Tlimit", &m_tlimit);
+			file.get (path, "Max", &m_max_position);
+			file.get (path, "Min", &m_min_position);
+
+			UpdateData(FALSE);
+
+			m_axis_ctrl.SetCurSel(index);
+
+			OnButtonUpdate();
+			OnButtonSetminmax();
+		}
+	}
+}
+
+void CCanControlDlg::OnFileSaveconfiguration() 
+{
+	MessageBox ("Not implemented yet, please edit the ini file directly", "Info");
+}
+
+void CCanControlDlg::OnUpdateFileLoadconfiguration(CCmdUI* pCmdUI) 
+{
+	///pCmdUI->Enable (!m_driverok);
+}
+
+void CCanControlDlg::OnUpdateFileSaveconfiguration(CCmdUI* pCmdUI) 
 {
 	pCmdUI->Enable (m_driverok);
 }

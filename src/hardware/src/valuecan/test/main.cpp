@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.7 2004-05-27 23:44:48 babybot Exp $
+/// $Id: main.cpp,v 1.8 2004-06-01 18:06:15 babybot Exp $
 ///
 ///
 
@@ -93,13 +93,13 @@ int main (int argc, char *argv[])
 			ACE_OS::printf ("x: set PID control params\n");
 			ACE_OS::printf ("y: display PID control params\n");
 
-			ACE_OS::printf ("i: controlled idle\n");
+			ACE_OS::printf ("i: controller idle\n");
 			ACE_OS::printf ("r: controller run\n");
 			ACE_OS::printf ("w: enable PWM generation [amp enable]\n");
 			ACE_OS::printf ("d: disable PWM generation [amp disable]\n");
 
 			ACE_OS::printf ("1: read boot data from flash mem\n");
-			ACE_OS::printf ("2: save boot dato to flash mem\n");
+			ACE_OS::printf ("2: save boot data to flash mem\n");
 
 			ACE_OS::printf ("m: set max position\n");
 			ACE_OS::printf ("n: set min position\n");
