@@ -31,6 +31,7 @@ clean: subclean
 
 install: subinstall
 	@echo Doing nothing as yet
+	cp *.h $(YARP_ROOT)/include
 
 subtarget :
 	@for d in $(SUBDIRS) ; do \
