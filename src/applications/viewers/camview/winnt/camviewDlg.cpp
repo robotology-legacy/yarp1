@@ -628,7 +628,9 @@ void CCamviewDlg::OnImageNewrate()
 
 void CCamviewDlg::OnFileSaveimage() 
 {
-	OnImageFreeze ();
+	bool was_frozen = m_frozen;
+	if (!m_frozen)
+		OnImageFreeze ();
 
 	CFileDialog fileDlg(FALSE,		/// save as dialog
 						"bmp",		/// default ext
@@ -643,7 +645,8 @@ void CCamviewDlg::OnFileSaveimage()
 		m_receiver.SaveCurrentFrame (fileDlg.m_ofn.lpstrFile);
 	}
 
-	OnImageFreeze ();
+	if (!was_frozen)
+		OnImageFreeze ();
 }
 
 void CCamviewDlg::OnUpdateFileSaveimage(CCmdUI* pCmdUI) 
