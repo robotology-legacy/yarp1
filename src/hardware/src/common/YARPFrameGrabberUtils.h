@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPFrameGrabberUtils.h,v 1.4 2003-12-17 09:55:04 beltran Exp $
+/// $Id: YARPFrameGrabberUtils.h,v 1.5 2004-01-29 10:06:08 beltran Exp $
 ///
 ///
 
@@ -84,9 +84,17 @@ enum FrameGrabberCmd
 	FCMDSetSatV = 10,
 	FCMDSetLNotch = 11,
 	FCMDSetLDec = 12,
-	FCMDSetCrush = 13,
+	FCMDSetPeak = 13,
+	FCMDSetCagc = 14,
+	FCMDSetCkill = 15,
+	FCMDSetRange = 16,
+	FCMDSetYsleep = 17,
+	FCMDSetCsleep = 18,
+	FCMDSetCrush = 19,
+	FCMDSetGamma = 20,
+	FCMDSetDithFrame = 21,
 
-	FCMDNCmds = 14
+	FCMDNCmds = 22
 };
 
 #endif
