@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.10 2003-06-20 19:09:24 gmetta Exp $
+/// $Id: LogPolarSDK.cpp,v 1.11 2003-08-06 16:48:47 babybot Exp $
 ///
 ///
 
@@ -474,6 +474,66 @@ void Reconstruct_Color(unsigned char * Out_Image,
 				for (i=0; i<Pix_Numb; i++)
 					Sum += Weights_Map_B[j*Pix_Numb*width+k  +i].weight*In_Image[Weights_Map_B[j*Pix_Numb*width+k  +i].position];
 				*buffer++ = (unsigned char)Sum;
+			}
+			buffer+=PadShift;
+		}
+	}
+}
+
+/************************************************************************
+* Reconstruct_Grays
+************************************************************************/	
+
+void Reconstruct_Grays(unsigned char * Out_Image,
+					   unsigned char * In_Image,
+					   int height,
+					   int width,
+					   int padding,
+					   Neighborhood * Weights_Map,
+					   int Pix_Numb)
+{
+	int i,j,k,plane;
+	int Size = height * width;
+	int shiftPN = Size * Pix_Numb;
+	double Sum;
+	int step = Size;
+	int end = 3*Size;
+	unsigned char * buffer = Out_Image;
+	Neighborhood * Weights_Map_R = Weights_Map;
+	Neighborhood * Weights_Map_G = &Weights_Map[shiftPN];
+	Neighborhood * Weights_Map_B = &Weights_Map[2*shiftPN];
+
+	int PadShift = (3*width)%padding;
+
+	if (Pix_Numb == 1)
+	{
+		for (j=0; j<Size; j++)
+			for (plane = 0; plane < end; plane +=step)
+				*buffer++ = In_Image[Weights_Map[plane+j].position];
+	}
+	else
+	{
+//		for (j=0; j<Pix_Numb*Size; j+=Pix_Numb)
+		for (j=0; j<height; j++)
+		{
+			for (k=0; k<Pix_Numb*width; k+=Pix_Numb)
+			{
+				Sum = 0.0;
+				for (i=0; i<Pix_Numb; i++)
+					Sum += Weights_Map_R[j*Pix_Numb*width+k  +i].weight*In_Image[Weights_Map_R[j*Pix_Numb*width+k  +i].position];
+				*buffer = (unsigned char)(Sum*0.212671);
+
+				Sum = 0.0;
+				for (i=0; i<Pix_Numb; i++)
+					Sum += Weights_Map_G[j*Pix_Numb*width+k  +i].weight*In_Image[Weights_Map_G[j*Pix_Numb*width+k  +i].position];
+				*buffer += (unsigned char)(Sum*0.715160);
+
+				Sum = 0.0;
+				for (i=0; i<Pix_Numb; i++)
+					Sum += Weights_Map_B[j*Pix_Numb*width+k  +i].weight*In_Image[Weights_Map_B[j*Pix_Numb*width+k  +i].position];
+				*buffer += (unsigned char)(Sum*0.072169);
+
+				buffer++;
 			}
 			buffer+=PadShift;
 		}

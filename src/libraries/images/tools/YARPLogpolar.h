@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.7 2003-07-17 15:50:22 gmetta Exp $
+/// $Id: YARPLogpolar.h,v 1.8 2003-08-06 16:48:47 babybot Exp $
 ///
 ///
 
@@ -136,6 +136,7 @@ public:
 	int Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy);
 	int Cartesian2Logpolar (int ix, int iy, int& orho, int& otheta);
 	int ReconstructColor (const YARPImageOf<YarpPixelMono>& in, YARPGenericImage& out);
+	int ReconstructGrays (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out);
 
 	inline int GetCWidth (void) const { return _logpolarParams::_xsize; }
 	inline int GetCHeight (void) const { return _logpolarParams::_ysize; }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.6 2003-06-20 19:09:24 gmetta Exp $
+/// $Id: LogPolarSDK.h,v 1.7 2003-08-06 16:48:47 babybot Exp $
 ///
 ///
 
@@ -242,6 +242,14 @@ int Build_XY_Map (Image_Data * Parameters,
 
 
 void Reconstruct_Color(unsigned char * Out_Image,
+					   unsigned char * In_Image,
+					   int height,
+					   int width,
+					   int padding,
+					   Neighborhood * Weights_Map,
+					   int Pix_Numb);
+
+void Reconstruct_Grays(unsigned char * Out_Image,
 					   unsigned char * In_Image,
 					   int height,
 					   int width,

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.11 2003-07-17 15:50:22 gmetta Exp $
+/// $Id: YARPLogpolar.cpp,v 1.12 2003-08-06 16:48:47 babybot Exp $
 ///
 ///
 
@@ -336,5 +336,13 @@ int YARPLogpolar::ReconstructColor (const YARPImageOf<YarpPixelMono>& in, YARPGe
 	using namespace _logpolarParams;
 
 	Reconstruct_Color((unsigned char *)out.GetRawBuffer(), (unsigned char *)in.GetRawBuffer(), _srho, _stheta, _img.padding, _weightsMap, _img.Pix_Numb);
+	return YARP_OK;
+}
+
+int YARPLogpolar::ReconstructGrays (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out)
+{
+	using namespace _logpolarParams;
+
+	Reconstruct_Grays((unsigned char *)out.GetRawBuffer(), (unsigned char *)in.GetRawBuffer(), _srho, _stheta, _img.padding, _weightsMap, _img.Pix_Numb);
 	return YARP_OK;
 }
