@@ -15,7 +15,9 @@ setconf CS_HOSTNAME morpheus
 setconf CS_DOMAIN lira.dist.unige.it
 waitfor /dev/pci
 #put in your actual IP,netmask and gateway
-io-net -del900 -pttcpip if=en0:130.251.43.12:255.255.255.0 default=130.251.43.126 
+io-net -del900 -ptcpip 
+ifconfig en0 130.251.43.12 netmask 255.255.255.0
+route add default 130.251.43.126 
 #io-net -dvia-rhine
 mount -Tio-net npm-qnet.so
 waitfor /net
@@ -42,7 +44,7 @@ libsocket.so
 #libstdc++.so
 # required for ssh
 #libz.so
-npm-ttcpip.so
+npm-tcpip.so
 npm-qnet.so
 #devn-via-rhine.so
 #devn-tulip.so
