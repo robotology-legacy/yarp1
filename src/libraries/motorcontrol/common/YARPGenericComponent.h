@@ -35,7 +35,7 @@ public:
 	int initialize(const std::string &init_file)
 	{
 		_lock();
-		_parameters.load(init_file);
+		_parameters.load(std::string(""),init_file);
 		int ret = _initialize();
 		_unlock();
 		return ret;
@@ -66,7 +66,7 @@ public:
 		_temp_double = NULL;
 
 		if (_adapter.uninitialize() == YARP_FAIL) {
-			YARP_GEN_COMPONENT_DEBUG(("Error un-initializing Control board!\n"));
+			YARP_GEN_COMPONENT_DEBUG(("Error un-initializing control board!\n"));
 			_unlock();
 			return YARP_FAIL;
 		}
@@ -184,7 +184,23 @@ public:
 		return -1;
 	}
 
-	// return max torque for the control board (i.e. MEI is 32767.0, Galil 9.999(
+	// reset encoders to a specified value; NULL (default) means reset to 0.0s
+	int resetEncoders(double *pos = NULL)
+	{
+		_lock();
+		for(int i = 0; i < _parameters._nj; i++)
+		{
+			if (pos == NULL)
+				_temp_double[i] = 0.0;
+			else
+				_temp_double[i] = pos[i];
+		}
+		_adapter.IOCtl(CMDDefinePositions, _temp_double);
+		_unlock();
+		return -1;
+	}
+
+	// return max torque for the control board (i.e. MEI is 32767.0, Galil 9.999)
 	double getMaxTorque(int axis)
 	{ return _adapter.getMaxTorque(axis); }
 
@@ -213,7 +229,7 @@ protected:
 	int _initialize()
 	{
 		_temp_double = new double [_parameters._nj];
-		if (_adapter.initialize(_parameters) == YARP_FAIL) {
+		if (_adapter.initialize(&_parameters) == YARP_FAIL) {
 			YARP_GEN_COMPONENT_DEBUG(("Error initializing Control board!\n"));
 			_unlock();
 			return YARP_FAIL;
@@ -353,7 +369,7 @@ template <class ADAPTER, class PARAMETERS>
 inline bool YARPGenericComponent<ADAPTER, PARAMETERS>::
 incMaxTorque(int axis, double delta, double value)
 {
-	double maxTorque = _parameters._max_dac[_parameters._axis_map[axis]];
+	double maxTorque = _parameters._maxDAC[_parameters._axis_map[axis]];
 
 	bool ret = false;
 	double currentLimit, newLimit;
@@ -371,7 +387,7 @@ incMaxTorque(int axis, double delta, double value)
 		ret = true;
 	}
 	// be sure we are not going above max torque...
-	if (newLimit >= maxTorque);
+	if (newLimit >= maxTorque)
 	{
 		newLimit = maxTorque;
 		ret = true;

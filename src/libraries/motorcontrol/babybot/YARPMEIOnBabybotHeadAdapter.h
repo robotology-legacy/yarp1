@@ -5,7 +5,7 @@
 #include <YARPMeiDeviceDriver.h>
 #include <string>
 
-// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.2 2003-05-21 13:29:11 natta Exp $
+// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.3 2003-05-23 17:11:05 natta Exp $
 
 namespace _BabybotHead
 {
@@ -79,15 +79,15 @@ public:
 			uninitialize();
 	}
 
-	int initialize(const YARPBabybotHeadParameters &par)
+	int initialize(YARPBabybotHeadParameters *par)
 	{
 		_parameters = par;
 		MEIOpenParameters op_par;
-		op_par.nj= _parameters._nj; 
+		op_par.nj= _parameters->_nj; 
 		if (YARPMEIDeviceDriver::open(&op_par) != 0)
 			return YARP_FAIL;
 
-		for(int i=0; i < _parameters._nj; i++)
+		for(int i=0; i < _parameters->_nj; i++)
 		{
 			SingleAxisParameters cmd;
 			cmd.axis=i;
@@ -121,7 +121,7 @@ public:
 	}
 	int idleMode()
 	{
-		for(int i = 0; i < _parameters._nj; i++)
+		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			IOCtl(CMDControllerIdle, &i);
 			SingleAxisParameters cmd;
@@ -135,12 +135,12 @@ public:
 
 	int activatePID()
 	{
-		for(int i = 0; i < _parameters._nj; i++)
+		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			IOCtl(CMDControllerIdle, &i);
 			SingleAxisParameters cmd;
 			cmd.axis = i;
-			cmd.parameters = &_parameters._highPIDs[i];
+			cmd.parameters = &_parameters->_highPIDs[i];
 			IOCtl(CMDSetPID, &cmd);
 			double pos = 0.0;
 			cmd.parameters = &pos;
@@ -154,7 +154,7 @@ public:
 
 private:
 	bool _initialized;
-	YARPBabybotHeadParameters _parameters;
+	YARPBabybotHeadParameters *_parameters;
 };
 
 #endif	// .h
