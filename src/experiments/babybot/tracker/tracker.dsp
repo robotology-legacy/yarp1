@@ -108,10 +108,6 @@ SOURCE=.\ImgTrack.cpp
 
 SOURCE=.\YARPBabybotHeadKin.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\YARPKinematics.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -123,10 +119,6 @@ SOURCE=.\ImgTrack.h
 # Begin Source File
 
 SOURCE=.\YARPBabybotHeadKin.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPKinematics.h
 # End Source File
 # End Group
 # End Target
