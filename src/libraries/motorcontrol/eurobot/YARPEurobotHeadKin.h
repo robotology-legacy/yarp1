@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPEurobotHeadKin.h,v 1.2 2004-01-12 17:16:30 beltran Exp $
+/// $Id: YARPEurobotHeadKin.h,v 1.3 2004-01-13 15:53:58 beltran Exp $
 ///
 ///
 
@@ -87,29 +87,35 @@
 ///
 ///
 /// things to be moved into the head configuration file
-const int _dh_nrf = 5; //denervit-haderbert numer reference frame (coincidence with joint number)
+const int _dh_nrf = 4; //denervit-haderbert numer reference frame (coincidence with joint number)
 
+//----------------------------------------------------------------------
+//  Denervit-Haderbert parameters
+//  di, alphai, ai, zetai
+//  	di->translation along x axis
+//  	alphai->rotations arount x axis
+//  	ai->transtation along z axis
+//  	zetai->rotation arount z axis
+//----------------------------------------------------------------------
 const double DH_left[_dh_nrf][5] = {
-	{0, 0, 0, 0, -1},
-	{0, -pi/2, 0, -pi/2, 1},
-	{125, 0, 0, pi/2, 1},
-	{0, pi/2, 0, pi/2, 0},	// zero in the fifth position means it's a convenience trsf.
-	{-71.5, 0, 0, pi/2, 1}, //measurement in mm
+	{0, 0, 0, 0, -1},			//pan frame
+	{0, -pi/2, 0, -pi/2, 1},	//tilt frame
+	{0, 0, 0, -pi/2, 0}, 		//zero in the fifth position means it's a convenience trsf.
+	{-95, -pi/2, 0, 0, 1}, 		//measurement in mm
 };
 
 const double DH_right[_dh_nrf][5] = {
 	{0, 0, 0, 0, -1},
 	{0, -pi/2, 0, -pi/2, 1},
-	{125, 0, 0, pi/2, 1},
-	{0, pi/2, 0, pi/2, 0},
-	{71.5, 0, 0, pi/2, -1},
+	{0, 0, 0, -pi/2, 0},
+	{95, -pi/2, 0, 0, -1},
 };
 
 /// maybe not needed now. Height of the neck?
 const double TBaseline[4][4] = {
 	{1, 0, 0, 0},
 	{0, 1, 0, 0},
-	{0, 0, 1, 133},
+	{0, 0, 1, 110},	//measured from the black head platform 
 	{0, 0 ,0, 1},
 };
 

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2003-12-22 17:24:16 beltran Exp $
+# $Id: Makefile,v 1.10 2004-01-13 15:53:58 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -38,7 +38,8 @@ target: local
 local: $(OBJS)
 	$(CC) $(CFLAGS)  -c YARPEurobotArm.cpp
 	$(CP) -c YARPEurobotArm.o $(OUTDIR)/
-
+	$(CC) $(CFLAGS)  -c YARPEurobotHeadKin.cpp
+	$(CP) -c YARPEurobotHeadKin.o $(OUTDIR)/
 
 w:
 	@echo -n
@@ -49,4 +50,3 @@ clean:
 
 install:
 	cp *.h $(YARP_ROOT)/include
-
