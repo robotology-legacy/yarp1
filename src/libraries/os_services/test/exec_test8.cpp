@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.8 2003-05-01 22:51:20 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.9 2003-05-16 22:24:04 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -80,10 +80,10 @@
 
 NetInt32 foo;
 
-///YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-///YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-YARPInputPortOf<NetInt32> in;
-YARPOutputPortOf<NetInt32> out;
+YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+///YARPInputPortOf<NetInt32> in;
+///YARPOutputPortOf<NetInt32> out;
 
 class Thread1 : public YARPThread
 {
@@ -104,7 +104,7 @@ public:
 		{
 			printf("Waiting for input\n");
 			in.Read();
-			ACE_OS::printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$Read %d\n", in.Content());
+			ACE_OS::printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$Read %d\n", (int)in.Content());
 		}
 	}
 };
@@ -134,7 +134,7 @@ public:
 			out.Content() = ct;
 			printf("Step3\n");
 			ct++;
-			printf("$$$$$$$$$$$$$$$$$$$$$$$$$Writing %d\n", out.Content());
+			printf("$$$$$$$$$$$$$$$$$$$$$$$$$Writing %d\n", (int)out.Content());
 			out.Write();
 			YARPTime::DelayInSeconds(4);
 		}
@@ -143,6 +143,9 @@ public:
 
 int main(int argc, char *argv[])
 {
+	ACE_UNUSED_ARG (argc);
+	ACE_UNUSED_ARG (argv);
+
 	Thread1 t1;
 	Thread2 t2;
 	int s = 1, c = 1;

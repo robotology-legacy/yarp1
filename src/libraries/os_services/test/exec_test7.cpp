@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test7.cpp,v 1.2 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: exec_test7.cpp,v 1.3 2003-05-16 22:24:04 gmetta Exp $
 ///
 ///
 
@@ -119,7 +119,7 @@ public:
 		{
 			printf("Waiting for input\n");
 			in.Read();
-			printf("Read %d\n", ((MyC*)(&in.Content()))->datum);
+			printf("Read %d\n", (int)((MyC*)(&in.Content()))->datum);
 		}
 	}
 };
@@ -142,7 +142,7 @@ public:
 			((MyC*)(&out.Content()))->datum = ct;
 			printf("Step3\n");
 			ct++;
-			printf("Writing %d\n", ((MyC*)(&out.Content()))->datum);
+			printf("Writing %d\n", (int)((MyC*)(&out.Content()))->datum);
 			out.Write();
 			YARPTime::DelayInSeconds(4);
 		}
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
 	if (argc>=2)
 	{
 		s = c = 0;
-		for (int i=0; i<strlen(argv[1]); i++)
+		for (int i=0; i<(int)strlen(argv[1]); i++)
 		{
 			if (argv[1][i] == 's') s=1;
 			if (argv[1][i] == 'c') c=1;

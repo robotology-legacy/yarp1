@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: porter.cpp,v 1.3 2003-04-18 16:34:15 gmetta Exp $
+/// $Id: porter.cpp,v 1.4 2003-05-16 22:24:04 gmetta Exp $
 ///
 ///
 
@@ -62,7 +62,7 @@
 
 extern int __debug_level;
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 //  __debug_level = 100;
 	if (argc == 3)
@@ -71,4 +71,6 @@ void main(int argc, char *argv[])
 		//int pid = p.GetServer(argv[1]);
 		//p.SayServer(pid,argv[2]);
 	}
+
+	return YARP_OK;
 }
