@@ -4,6 +4,9 @@
 #include <math.h>
 #include <time.h>
 #include"LogPolarSDK.h"
+#ifndef __WIN__
+#include <assert.h>
+#endif
 
 void main()
 {
@@ -33,7 +36,13 @@ void main()
 
 	Par.padding = 8;
 
+#ifndef __WIN__
+	assert(getenv("YARP_ROOT") != NULL);
+	sprintf(Path,"%s/%s",getenv("YARP_ROOT"),"conf/Tables/");
+#else
 	sprintf(Path,"%s","C:\\Temp\\Tables\\");
+#endif
+
 
 	printf("Building Color Map for Giotto 2.0\n");
 
