@@ -412,7 +412,7 @@ SOURCE=..\include\yarp_private\YARPNameID_defs.h
 # End Group
 # Begin Source File
 
-SOURCE=..\build.bat
+SOURCE=..\build.pl
 # End Source File
 # End Target
 # End Project
