@@ -5,15 +5,15 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.1 2004-07-13 13:21:07 babybot Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.2 2004-11-23 17:38:31 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
 
-#include <conf/YARPConfig.h>
-#include <YARPDeviceDriver.h>
-#include <YARPControlBoardUtils.h>
-#include <YARPSemaphore.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPDeviceDriver.h>
+#include <yarp/YARPControlBoardUtils.h>
+#include <yarp/YARPSemaphore.h>
 
 #include <stdlib.h>
 #include <string.h>
