@@ -117,11 +117,6 @@ SOURCE=.\RandomThread.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StdAfx.cpp
-# ADD CPP /Yc"stdafx.h"
-# End Source File
-# Begin Source File
-
 SOURCE=.\YARPGravityEstimator.cpp
 # End Source File
 # End Group
@@ -147,10 +142,6 @@ SOURCE=.\AState.h
 # Begin Source File
 
 SOURCE=.\RandomThread.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\StdAfx.h
 # End Source File
 # Begin Source File
 
