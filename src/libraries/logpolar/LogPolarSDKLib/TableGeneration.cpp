@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.29 2003-11-25 16:58:37 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.30 2003-11-26 13:43:39 fberton Exp $
 ///
 ///
 
@@ -2384,10 +2384,10 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 					tempX = l*Par->Resolution*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
 //					tempX = l*Par->Size_X_Remap*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
 					tempY = Get_Y_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
-					if ((tempX<Par->Resolution/2)&&(tempY<Par->Resolution/2))
+					if ((tempX<Par->Zoom_Level*Par->Resolution/2)&&(tempY<Par->Zoom_Level*Par->Resolution/2))
 //					if ((tempX<Par->Size_X_Remap/2)&&(tempY<Par->Size_Y_Remap/2))
 					{
-						if ((tempX>=-Par->Resolution/2)&&(tempY>=-Par->Resolution/2))
+						if ((tempX>=-Par->Zoom_Level*Par->Resolution/2)&&(tempY>=-Par->Zoom_Level*Par->Resolution/2))
 //						if ((tempX>=-Par->Size_X_Remap/2)&&(tempY>=-Par->Size_Y_Remap/2))
 						{
 							newRho = Get_Rho(tempX,tempY,Par);
@@ -2420,6 +2420,7 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 		free (Tables.PadMap);
 		free (Tables.AngShiftMap);
 		free (ShiftMap);
+
 		return 1;
 	}
 }

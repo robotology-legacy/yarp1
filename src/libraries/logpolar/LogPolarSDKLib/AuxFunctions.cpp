@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.7 2003-11-20 17:15:06 fberton Exp $
+/// $Id: AuxFunctions.cpp,v 1.8 2003-11-26 13:43:39 fberton Exp $
 ///
 ///
 
@@ -348,7 +348,7 @@ int Get_Theta(double x,
 //	int counter;
 
 	int halfth = par->Size_Theta/2;
-	double thmult = (par->Size_Theta/2)/PI;
+	double thmult = (par->Size_Theta/2.0)/PI;
 
 //	tmpth  = (halfth-atan2(y,-x)*thmult);
 //	theta = (int)((tmpth) + .5 * ((rho)%2)) ;
@@ -405,7 +405,7 @@ int Get_Theta(double x,
 	else 
 	{
 		temp = temp * (par->Size_Theta/2.0) / PI;
-		theta = (int) (temp+0.5);	
+		theta = (int) (temp+0.49);	
 	}
 	
 	if (theta<0)

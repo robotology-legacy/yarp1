@@ -20,6 +20,7 @@ struct Images{
 	unsigned char * Shift;
 	unsigned char * ShiftPad;
 	unsigned char * Histogram;
+	unsigned char * TestImg;
 };
 
 void addPad(unsigned char * out,unsigned char * in, Image_Data * LParam, int PadSize)
@@ -54,6 +55,7 @@ void allocateImages(Images * img, Image_Data * LPar, Image_Data * SPar)
 	img->Shift	  = (unsigned char *) malloc (SPar->Size_LP * 3 * sizeof(unsigned char));
 	img->ShiftPad = (unsigned char *) malloc (computePadSize(3 * SPar->Size_Theta,SPar->padding) * SPar->Size_Rho * sizeof(unsigned char));
 	img->Histogram= (unsigned char *) malloc (128 * 512 * sizeof(unsigned char));
+	img->TestImg  = (unsigned char *) calloc (SPar->Size_LP , sizeof(unsigned char));
 }
 
 void RBSwap(unsigned char * Image, Image_Data * Par)
@@ -91,12 +93,12 @@ void main()
 	char Path [256];
 
 	//Loads BW images
-	sprintf(File_Name,"%s","c:/temp/images/testpad/right.bmp");
-	Left.BW = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
-
-
 	sprintf(File_Name,"%s","c:/temp/images/testpad/left.bmp");
 	Right.BW = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
+
+
+	sprintf(File_Name,"%s","c:/temp/images/testpad/right.bmp");
+	Left.BW = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
 
 	//Sets Small and Large Params
 	LParam = Set_Param(1090,1090,256,256,
@@ -218,7 +220,7 @@ void main()
 		printf("%d\n",(Tables.DownSampleMap[j*SParam.Size_Theta+l].position[k]%759)/4);
 	}
 */
-	DownSampleFovea(Left.ColorPad,Left.DSPad,Path,&LParam,4.00,Tables.DownSampleMap);
+	DownSample(Left.ColorPad,Left.DSPad,Path,&LParam,4.00,Tables.DownSampleMap);
 	DownSample(Right.ColorPad,Right.DSPad,Path,&LParam,4.00,Tables.DownSampleMap);
 //	DownSample(ColRight,DSRight,Path,&LParam,4.00,Tables.DownSampleMap);
 
@@ -240,8 +242,8 @@ void main()
 //	Save_Bitmap(DSRight,LParam.Size_Theta/4,LParam.Size_Rho/4,3,File_Name);
 
 //	Build_Step_Function(Path,&SParam);
-
 	Load_Tables(&SParam,&Tables,Path,1024);
+
 
 	retval = Shift_and_Corr(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMap,Tables.CorrLevels,Tables.PixelCount);
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.22 2003-11-25 17:25:37 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.23 2003-11-26 13:43:39 fberton Exp $
 ///
 ///
 
@@ -1643,7 +1643,7 @@ void Make_Disp_Histogram(unsigned char * hist,int height, int width, int shiftLe
 
 	for (i=0; i<shiftLevels-1; i++)
 		if ((i+offset >=0)&&(i+offset<width))
-			for (j=height-(int)(height/2*(3-corrFunct[i])); j<height; j++)
+			for (j=height-(int)(height/3.0*(3-corrFunct[i])); j<height; j++)
 //			for (j=0;j<height*(corrFunct[i]-2); j++)
 					hist[(j*width+i+offset)] = 128;
 		
