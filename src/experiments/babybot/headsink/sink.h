@@ -23,16 +23,14 @@ enum __SinkCh
 	SinkChVor = 0,
 	SinkChPosition = 1,
 	SinkChTracker = 2,
-	SinkChArm = 3,
-	SinkChVergence = 4,
-	SinkChN = 5,
+	SinkChVergence = 3,
+	SinkChN = 4,
 };
 
 const char const __portNameSuffixes[SinkChN][255] = {
 										"vor/i",
 										"position/i",
 										"track/i",
-										"arm/i",
 										"vergence/i"
 										};
 

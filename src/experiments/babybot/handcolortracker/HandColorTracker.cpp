@@ -84,6 +84,8 @@ int main(int argc, char* argv[])
 	DECLARE_INPUT_PORT (YARPGenericImage, _inPortImage, YARP_MCAST);
 	DECLARE_INPUT_PORT (YARPGenericImage, _inPortSeg, YARP_UDP);
 	DECLARE_OUTPUT_PORT (YARPGenericImage, _outPortBackprojection, YARP_UDP);
+
+	DECLARE_OUTPUT_PORT (YVector, _outputPortHandPosition, YARP_UDP);
 	
 	DECLARE_INPUT_PORT (YARPControlBoardNetworkData, _armPort, YARP_UDP);
 	DECLARE_INPUT_PORT (YVector, _headPort, YARP_UDP);
@@ -111,7 +113,8 @@ int main(int argc, char* argv[])
 	_outputPortTrain1.Register("/handtracker/nnet1/o");
 	_inputPortTrain2.Register("/handtracker/nnet2/i");
 	_outputPortTrain2.Register("/handtracker/nnet2/o");
-	
+	_outputPortHandPosition.Register("/handtracker/position/o");
+
 	YARPImageOf<YarpPixelMono> _left;
 	YARPImageOf<YarpPixelMono> _leftSeg;
 	YARPImageOf<YarpPixelBGR> _leftColored;
@@ -127,6 +130,7 @@ int main(int argc, char* argv[])
 
 	YVector _arm(6);
 	YVector _head(5);
+	YVector _handPosition(2);
 
 	YARPImageOf<YarpPixelMono> _outSeg;
 	YARPImageOf<YarpPixelMono> _outSeg2;
@@ -170,7 +174,6 @@ int main(int argc, char* argv[])
 		if(_armSegmentationPort.Read(0))
 		{
 			_armSegmentationPort.Content().display();
-			// _handLocalization.learn(_arm, _head,  _armSegmentationPort.Content());
 			_handLocalization.update(_arm, _head);
 			_handLocalization.prepareRemoteTrainData(_armSegmentationPort.Content(), _outputTrainBottle1, _outputTrainBottle2);
 
@@ -186,19 +189,22 @@ int main(int argc, char* argv[])
 		_mapper.ReconstructColor (_left, _leftColored);
 		YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
 		_histo.backProjection(_leftHSV, _outSeg);
-
-		// _blobber.filterLp(_outSeg);
-		// YARPImageOf<YarpPixelMono> &tmp = _blobber.getSegmented();
-
-		// _segmenter.merge(tmp, _handLocalization.query());
-		// _segmenter.merge(_outSeg, _handLocalization.query());
-		_segmenter.mergeColor(_leftColored, _handLocalization.query(_arm, _head));
-		// _segmenter.merge(_outSeg, _handLocalization.query());
-		//_segmenter.search(_leftHSV, _histo, _handLocalization.query());
-
+		
+		YARPShapeEllipse tmpEl;
+		tmpEl = _handLocalization.query(_arm, _head);
+		_segmenter.mergeColor(_leftColored, tmpEl);
+		_handPosition(1) = (tmpEl.rho - 128);
+		_handPosition(2) = (tmpEl.theta - 128);
+		
+		// histo backprojection
 		_outPortBackprojection.Content().Refer(_outSeg);
 		_outPortBackprojection.Write();
 
+		// send hand position
+		_outputPortHandPosition.Content() = _handPosition;
+		_outputPortHandPosition.Write();
+
+		// poll remote learning ports
 		if (_inputPortTrain1.Read(0))
 		{
 			ACE_OS::printf("Loading new trained nnet1");

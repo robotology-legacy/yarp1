@@ -22,18 +22,24 @@ public:
 		mask.Resize(_logpolarParams::_stheta, _logpolarParams::_srho);
 	}
 
-	void merge(const YARPImageOf<YarpPixelMono> &in, const YARPShapeEllipse &el)
+	void mergeColor(YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelMono> &seg, const YARPShapeEllipse &el)
 	{
-		mapper.ReconstructColor(mask, tmpLp);
-		mapper.Logpolar2Cartesian(tmpLp, tmpImage);
-
+		YARPShapeEllipse tmp;
+		mapper.Cartesian2Logpolar((int) el.rho, (int) el.theta, (int) tmp.rho, (int) tmp.theta);
+		tmp.a11 = el.a11; // 0.005;
+		tmp.a12 = el.a12; // 0;
+		tmp.a22 = el.a22; // 0.005;
+		
+		conicFitter.plotEllipse(tmp, in);
+		mapper.Logpolar2Cartesian(in, tmpImage);
+		YARPSimpleOperation::Decimate(tmpImage, outImage, __scale, __scale);
 		int x,y;
-		mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
-		///x = (x + _logpolarParams::_xsize/2)/__scale;
-		///y = (_logpolarParams::_ysize/2-y)/__scale;
-		x /= __scale;
-		y /= __scale;
-		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(255, 0, 0));
+		x = el.rho/__scale;
+		y = el.theta/__scale;
+		// mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
+		// x = (x + _logpolarParams::_xsize/2)/__scale;
+		// y = (_logpolarParams::_ysize/2-y)/__scale;
+		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(0, 255, 0), 10, 2);
 		_send();
 	}
 

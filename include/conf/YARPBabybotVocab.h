@@ -37,7 +37,6 @@ const char *const YBVSinkInhibitAll = "SinkInhibitAll";
 const char *const YBVSinkEnableAll = "SinkEnableAll";
 const char *const YBVSinkInhibitVor = "SinkInhibitVor";
 const char *const YBVSinkInhibitTracker = "SinkInhibitTracker";
-const char *const YBVSinkInhibitArm = "SinkInhibitArm";
 const char *const YBVSinkInhibitVergence = "SinkInhibitVergence";
 const char *const YBVSinkDisplayStatus = "SinkDisplayStatus";
 

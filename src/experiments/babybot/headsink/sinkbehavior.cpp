@@ -42,12 +42,6 @@ void SBOutputInhibitTracker::output(Sink *d)
 	d->inhibitChannel(SinkChTracker);
 }
 
-void SBOutputInhibitArm::output(Sink *d)
-{
-	ACE_OS::printf("SinkBehavior: inhibit/enable ARM channel\n");
-	d->inhibitChannel(SinkChArm);
-}
-
 void SBOutputInhibitVergence::output(Sink *d)
 {
 	ACE_OS::printf("SinkBehavior: inhibit/enable VERGENCE channel\n");

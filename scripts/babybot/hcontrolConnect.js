@@ -1,6 +1,5 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
 WshShell.Run ("porter.exe /headcontrol/inertial/o /vor/inertial/i", 7, true);
-WshShell.Run ("porter.exe /tracker/o:vect /headsmooth/i", 7, true);
 WshShell.Run ("porter.exe /vergence/o:disparity /headvergence/i", 7, true);
 
 WshShell.Run ("porter.exe /vor/o /headsink/vor/i", 7, true);

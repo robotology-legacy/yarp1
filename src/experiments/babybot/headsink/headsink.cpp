@@ -23,7 +23,6 @@ int main(int argc, char* argv[])
 	SBSimpleInput enableAllInput(YBVSinkEnableAll);
 	SBSimpleInput inhibitVorInput(YBVSinkInhibitVor);
 	SBSimpleInput inhibitTrackerInput(YBVSinkInhibitTracker);
-	SBSimpleInput inhibitArmInput(YBVSinkInhibitArm);
 	SBSimpleInput inhibitVergenceInput(YBVSinkInhibitVergence);
 	SBSimpleInput displayStatusInput(YBVSinkDisplayStatus);
 	
@@ -31,7 +30,6 @@ int main(int argc, char* argv[])
 	SBOutputEnableAll			enableAllCmd;
 	SBOutputInhibitVor			inhibitVorCmd;
 	SBOutputInhibitTracker		inhibitTrackerCmd;
-	SBOutputInhibitArm			inhibitArmCmd;
 	SBOutputInhibitVergence		inhibitVergenceCmd;
 	SBOutputDisplayStatus		displayStatusCmd;
 
@@ -40,7 +38,6 @@ int main(int argc, char* argv[])
 	behavior.add(&enableAllInput, &enableAllCmd);
 	behavior.add(&inhibitTrackerInput, &inhibitTrackerCmd);
 	behavior.add(&inhibitVorInput, &inhibitVorCmd);
-	behavior.add(&inhibitArmInput, &inhibitArmCmd);
 	behavior.add(&inhibitVergenceInput, &inhibitVergenceCmd);
 	behavior.add(&displayStatusInput, &displayStatusCmd);
 	
