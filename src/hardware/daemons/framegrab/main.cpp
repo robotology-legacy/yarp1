@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.43 2003-10-31 15:55:27 fberton Exp $
+/// $Id: main.cpp,v 1.44 2003-12-17 09:54:10 beltran Exp $
 ///
 ///
 
@@ -79,12 +79,14 @@
 #include <YARPImages.h>
 #include <YARPLogpolar.h>
 
-
 #if defined(__QNXEurobot__)
 
+# include <YARPBottle.h>
+# include <YARPBottleContent.h>
 #	include <YARPEurobotGrabber.h>
 #	define Grabber YARPEurobotGrabber
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x
+//#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x
+#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #elif defined(__WIN32Babybot__)
 
@@ -114,12 +116,13 @@
 int		_sizex		= -1;
 int		_sizey		= -1;
 char	_name[512];
+char	_fgdataname[512];
 char	_netname[512];
 bool	_client		= false;
 bool	_simu		= false;
 bool	_logp		= false;
 int		_board_no	= 0;
-
+bool	_fgnetdata	= false;
 
 extern int __debug_level;
 
@@ -128,6 +131,7 @@ extern int __debug_level;
 int ParseParams (int argc, char *argv[]) 
 {
 	ACE_OS::sprintf (_name, "/%s/o:img\0", argv[0]);
+	ACE_OS::sprintf (_fgdataname,"/%s/i:fgdata\0", argv[0]);
 	ACE_OS::sprintf (_netname, "default\0");
 	int i;
 
@@ -136,6 +140,7 @@ int ParseParams (int argc, char *argv[])
 		if (argv[i][0] == '+')
 		{
 			ACE_OS::sprintf (_name, "/%s/o:img\0", argv[i]+1);
+			ACE_OS::sprintf (_fgdataname,"/%s/i:fgdata\0", argv[i]+1);
 		}
 		else
 		if (argv[i][0] == '-')
@@ -183,6 +188,11 @@ int ParseParams (int argc, char *argv[])
 				ACE_OS::fprintf (stdout, "sending to network : %s\n", argv[i+1]);
 				ACE_OS::sprintf (_netname, "%s\0", argv[i+1]);
 				i++;
+				break;
+
+			case 'f':
+				ACE_OS::fprintf(stdout, "grabber receiving data from network mode...\n");
+				_fgnetdata = true;
 				break;
 			}
 		}
@@ -235,6 +245,62 @@ int _grabber2rgb (const unsigned char *in, unsigned char *out, int szx, int szy)
 	}
 	
 	return YARP_OK;
+}
+
+//
+// This class extends a YARPPort in order to implement the OnRead callback function
+// It receives a bottle with information to adjust the images in the framegrabber
+//
+
+class FgNetDataPort : public YARPInputPortOf<YARPBottle>
+{
+	protected:
+		YARPBottle m_bottle;
+		Grabber * m_gb;
+		unsigned int m_bright;
+		unsigned int m_hue;
+		unsigned int m_contrast;
+		unsigned int m_satu;
+		unsigned int m_satv;
+		int m_lnotch;
+		int m_ldec;
+		int m_crush;
+
+	public:
+		FgNetDataPort (Grabber * gb):YARPInputPortOf<YARPBottle>(YARPInputPort::DOUBLE_BUFFERS, YARP_UDP) 
+		{ 
+			m_gb = gb;
+			m_bottle.reset();
+		}
+
+		virtual void OnRead(void);
+};
+
+void FgNetDataPort::OnRead(void)
+{
+	printf("Accesing OnRead\n");
+	Read ();
+	//printf ("RECEIVED a message in HighLevelPortReply\n");
+	m_bottle = Content();
+	m_bottle.readInt((int *)&m_bright);
+	m_bottle.readInt((int *)&m_hue);
+	m_bottle.readInt((int *)&m_contrast);
+	m_bottle.readInt((int *)&m_satu);
+	m_bottle.readInt((int *)&m_satv);
+	m_bottle.readInt((int *)&m_lnotch);
+	m_bottle.readInt((int *)&m_ldec);
+	m_bottle.readInt((int *)&m_crush);
+
+	m_bottle.display();
+
+	m_gb->setBright((unsigned int)m_bright);
+	m_gb->setHue((unsigned int)m_hue);
+	m_gb->setContrast((unsigned int)m_contrast);
+	m_gb->setSatU((unsigned int)m_satu);
+	m_gb->setSatV((unsigned int)m_satv);
+	m_gb->setLNotch(m_lnotch);
+	m_gb->setLDec(m_ldec);
+	m_gb->setCrush(m_crush);
 }
 
 ///
@@ -474,6 +540,14 @@ int mainthread::_runAsLogpolar (void)
 	/// params to be passed from the command line.
 	grabber.initialize (_board_no, _xsize);
 
+	//Activate port to receive image adjustment data
+	FgNetDataPort  * m_fg_net_data;
+	if (_fgnetdata)
+	{
+		m_fg_net_data = new FgNetDataPort(&grabber);
+		m_fg_net_data->Register (_fgdataname,_netname);
+	}
+
 	int w = -1, h = -1;
 	grabber.getWidth (&w);
 	grabber.getHeight (&h);
@@ -514,6 +588,12 @@ int mainthread::_runAsLogpolar (void)
 		}
 	}
 
+	if (_fgnetdata)
+	{
+		if (m_fg_net_data != NULL)
+			delete m_fg_net_data; //can this be done better? (closind the port?)
+	}
+
 	grabber.uninitialize ();
 	
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
@@ -532,6 +612,13 @@ int mainthread::_runAsCartesian (void)
 
 	/// params to be passed from the command line.
 	grabber.initialize (_board_no, _sizex, _sizey);
+	
+	FgNetDataPort  * m_fg_net_data;
+	if (_fgnetdata)
+	{
+		m_fg_net_data = new FgNetDataPort(&grabber);
+		m_fg_net_data->Register (_fgdataname,_netname);
+	}
 
 	int w = -1, h = -1;
 	grabber.getWidth (&w);
@@ -570,13 +657,19 @@ int mainthread::_runAsCartesian (void)
 		}
 	}
 
+	//destroy fg_net_data port
+	if (_fgnetdata)
+	{
+		if (m_fg_net_data != NULL)
+			delete m_fg_net_data; //can this be done better? (closind the port?)
+	}
+
 	grabber.uninitialize ();
 
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
 	return YARP_OK;
 }
 #endif
-
 
 ///
 ///
