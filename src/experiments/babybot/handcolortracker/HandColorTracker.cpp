@@ -8,9 +8,14 @@
 #include <YARPBlobDetector.h>
 #include <YARPImageFile.h>
 #include <YARPLogpolar.h>
+#include <YARPBottle.h>
+#include <YARPBottleContent.h>
 
 #include <YARPHistoSegmentation.h>
+#include <YARPControlBoardNetworkData.h>
 #include <YARPConicFitter.h>
+
+#include <YARPLogFile.h>
 
 using namespace _logpolarParams;
 
@@ -19,10 +24,10 @@ YARPLogpolar _mapper;
 class YARPHandSegmentation
 {
 public:
-	YARPHandSegmentation (double lumaTh, unsigned char max, unsigned char min, unsigned char n):
+	YARPHandSegmentation (double lumaTh, double satTh, unsigned char max, unsigned char min, unsigned char n):
 	  histo(max, min, n)
 	  {}
-	  YARPHandSegmentation (double lumaTh, unsigned char max, unsigned char min, unsigned char *n):
+	  YARPHandSegmentation (double lumaTh, double satTh, unsigned char max, unsigned char min, unsigned char *n):
 	  histo(max, min, n)
 	  {}
 
@@ -87,23 +92,128 @@ public:
 	YARPLpConicFitter _fitter;
 };
 
+class HandLocalization
+{
+public:
+	HandLocalization():
+	_armPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
+	{
+		_armPort.Register("/handtracker/i:arm");
+		_armPosition.Resize(6);
+		_headPosition.Resize(2);
+		_r0 = 0;
+		_t0 = 0;
+		_a11 = 0;
+		_a12 = 0;
+		_a22 = 0;
+
+		
+ 		char *root = GetYarpRoot();
+		char filename[256];
+
+		#if defined(__WIN32__)
+			ACE_OS::sprintf (filename, "%s\\conf\\babybot\\handforward.dat\0", root);
+		#elif defined (__QNX6__)
+			ACE_OS::sprintf (path, "%s/conf\babybot\\0", root);
+			ACE_OS::sprintf (filename, "%s/conf/babybot/handforward.dat\0", root);
+		#endif
+		_log.append(filename);
+		_npoints = 0;
+
+	}
+	~HandLocalization()
+	{
+		_log.close();
+	}
+
+	void learn(YARPBottle &newPoint)
+	{
+		newPoint.readYVector(_armPosition);
+		newPoint.readYVector(_headPosition);
+		newPoint.readInt(&_t0);
+		newPoint.readInt(&_r0);
+		newPoint.readFloat(&_a11);
+		newPoint.readFloat(&_a12);
+		newPoint.readFloat(&_a22);
+
+		_dumpToDisk();
+	}
+
+	void query(YARPImageOf<YarpPixelMono> &in)
+	{
+		if (_armPort.Read(0))
+		{
+			_armPosition = _armPort.Content()._current_position;
+		}
+		int r, t;
+		double a11, a12, a22;
+		_query(_armPosition, &t, &r, &a11, &a12, &a22);
+		_fitter.plotEllipse(t, r, a11, a12, a22, in);
+	}
+	void _query(const YVector &position, int *t0, int *r0, double *a11, double *a12, double *a22)
+	{
+		*r0 = _r0;
+		*t0 = _t0;
+		*a11 = _a11;
+		*a12 = _a12;
+		*a22 = _a22;
+	}
+
+	void _dumpToDisk()
+	{
+		_log.dump(_armPosition);
+		_log.dump(_headPosition);
+		_log.dump(_r0);
+		_log.dump(_t0);
+		_log.dump(_a11);
+		_log.dump(_a12);
+		_log.dump(_a22);
+		_log.newLine();
+
+		_npoints++;
+
+		printf("#%d got a new point\n", _npoints);
+		if ((_npoints%10) == 0)
+		{
+			printf("#%d flushing points to disk\n", _npoints);
+			_log.flush();
+		}
+	}
+
+	YARPInputPortOf<YARPControlBoardNetworkData>  _armPort;
+	YVector _armPosition;
+	YVector _headPosition;
+	YARPLpConicFitter _fitter;
+	YARPLogFile		  _log;
+	int _r0;
+	int _t0;
+	double _a11;
+	double _a12;
+	double _a22;
+
+	int _npoints;
+};
+
 using namespace _logpolarParams;
 
 int main(int argc, char* argv[])
 {
-	YARPLpHistoSegmentation _histo(5, 255, 0, 10);
-	YARPHandSegmentation _hand(5, 255, 0, 10);
+	YARPLpHistoSegmentation _histo(65, 50, 255, 0, 15);
+	YARPHandSegmentation _hand(65, 50, 255, 0, 15);
 
 	YARPInputPortOf<YARPGenericImage> _inPortImage(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 	YARPInputPortOf<YARPGenericImage> _inPortSeg(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
 	YARPOutputPortOf<YARPGenericImage> _outPortSeg(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+	YARPInputPortOf<YARPBottle>  _armSegmentationPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 	YARPBlobDetector _blobber(5.0);
 	_blobber.resize(_stheta, _srho, _sfovea);
 	
 	_inPortImage.Register("/handtracker/i:img", "Net1");
 	_inPortSeg.Register("/handtracker/segmentation/i:img");
 	_outPortSeg.Register("/handtracker/segmentation/o:img");
+	_armSegmentationPort.Register("/handtracker/segmentation/i:armdata");
+	
 
 	YARPImageOf<YarpPixelMono> _left;
 	YARPImageOf<YarpPixelMono> _leftSeg;
@@ -123,6 +233,8 @@ int main(int argc, char* argv[])
 	// YARPImageOf<YarpPixelMono> _blobs;
 	_outSeg.Resize(_stheta, _srho);
 	_outSeg2.Resize(_stheta, _srho);
+
+	HandLocalization _handLocalization;
 
 	// _blobs.Resize(_stheta, _srho);
 
@@ -153,26 +265,23 @@ int main(int argc, char* argv[])
 			_histo.dump(YARPString(tmp));
 		}
 
+		if(_armSegmentationPort.Read(0))
+		{
+			_armSegmentationPort.Content().display();
+			_handLocalization.learn(_armSegmentationPort.Content());
+		}
+
 		_left.Refer (_inPortImage.Content());
 
 		// reconstruct color
 		_mapper.ReconstructColor (_left, _leftColored);
 
-		YARPLpConicFitter _fitter;
 
-		_fitter.plotEllipse(0, 0, 1000, 0, 1000, _outSeg);
-		// _fitter.plotCircle(0, 0, 20, _outSeg);
-		
-
-		/* back here
 		YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
 		_histo.backProjection(_leftHSV, _outSeg);
 
-		// _outSeg.Zero();
+		_handLocalization.query(_outSeg);
 
-		// _hand.search(_leftHSV, _outSeg, _outSeg2, _histo, 20);
-				
-		// _outPortSeg.Content().Refer(_outSeg2);*/
 		_outPortSeg.Content().Refer(_outSeg);
 		_outPortSeg.Write();
 		

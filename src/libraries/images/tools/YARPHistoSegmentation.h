@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPHistoSegmentation.h,v 1.2 2003-09-04 16:57:40 babybot Exp $ 
+/// $Id: YARPHistoSegmentation.h,v 1.3 2003-10-03 16:50:37 babybot Exp $ 
 ///
 /// August 2003 -- by nat
 
@@ -73,8 +73,8 @@
 class YARPHistoSegmentation: public YARP3DHistogram
 {
 public:
-	YARPHistoSegmentation(double lumaTh, unsigned char max, unsigned char min, unsigned char n);
-	YARPHistoSegmentation(double lumaTh, unsigned char max, unsigned char min, unsigned char *n);
+	YARPHistoSegmentation(double lumaTh, double satTh, unsigned char max, unsigned char min, unsigned char n);
+	YARPHistoSegmentation(double lumaTh, double satTh, unsigned char max, unsigned char min, unsigned char *n);
 		
 	// cumulate histogram
 	void Apply(YARPImageOf<YarpPixelBGR> &src);
@@ -94,18 +94,26 @@ protected:
 
 	inline void _normalize (const YarpPixelBGR &in, YarpPixelRGB &out)
 	{ _normalize(in.r, in.g, in.b, &out.r, &out.g, &out.b); }
+
+	inline bool _checkThresholds(unsigned char h, unsigned char s, unsigned char v)
+	{
+		if ( (v>_lumaThreshold) && (s>_satThreshold) )
+			return true;
+		else
+			return false;
+	}
 	
-private:
 	double _lumaThreshold;
+	double _satThreshold;
 };
 
 class YARPLpHistoSegmentation: public YARPHistoSegmentation
 {
 public:
-	YARPLpHistoSegmentation(double lumaTh, unsigned char max, unsigned char min, unsigned char n):
-	  YARPHistoSegmentation(lumaTh, max, min, n){}
-	YARPLpHistoSegmentation(double lumaTh, unsigned char max, unsigned char min, unsigned char *n):
-	  YARPHistoSegmentation(lumaTh, max, min, n){}
+	YARPLpHistoSegmentation(double lumaTh, double satTh, unsigned char max, unsigned char min, unsigned char n):
+	  YARPHistoSegmentation(lumaTh, satTh, max, min, n){}
+	YARPLpHistoSegmentation(double lumaTh, double satTh, unsigned char max, unsigned char min, unsigned char *n):
+	  YARPHistoSegmentation(lumaTh, satTh, max, min, n){}
 
 	// cumulate, lp version (use different weights for different eccentricities)
 	void Apply(YARPImageOf<YarpPixelBGR> &src);

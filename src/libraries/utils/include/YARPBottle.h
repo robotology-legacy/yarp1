@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.3 2003-09-19 15:37:20 babybot Exp $
+/// $Id: YARPBottle.h,v 1.4 2003-10-03 16:50:38 babybot Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -193,7 +193,31 @@ public:
 		index = oldIndex;
 		return true;
 	}
+
+	void readYVector(YVector &v)
+	{
+		if (tryReadYVector(v))
+			moveOn();
+	}
   
+	void readInt(int *v)
+	{
+		if (tryReadInt(v))
+			moveOn();
+	}
+
+	void readFloat(double *v)
+	{
+		if (tryReadFloat(v))
+			moveOn();
+	}
+	
+	void readText(const char *s)
+	{
+		if (tryReadText(s))
+			moveOn();
+	}
+
 	void rewind()
 	{ index = 0;}
 

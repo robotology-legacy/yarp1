@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARP3DHistogram.h,v 1.5 2003-09-09 17:26:20 babybot Exp $ 
+/// $Id: YARP3DHistogram.h,v 1.6 2003-10-03 16:50:37 babybot Exp $ 
 ///
 /// August 2003 -- by nat
 
@@ -150,7 +150,7 @@ public:
 
 	unsigned char _max[3];
 	unsigned char _min[3];
-	unsigned char _delta[3];
+	float _delta[3];
 	unsigned char _size[3];
 
 	// return first element

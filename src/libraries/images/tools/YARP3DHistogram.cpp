@@ -66,9 +66,10 @@ void Histo3D::resize(unsigned char *max, unsigned char *min, unsigned char *size
 		_max[i] = max[i];
 		_min[i] = min[i];
 		_size[i] = size[i];
-		_delta[i] = (_max[i]-_min[i])/_size[i];
-		if (((_max[i]-_min[i])%_size[i]) != 0)
-			_delta[i] += 1;
+		_delta[i] = (_max[i]+1-_min[i])/(float) _size[i];
+
+		/*if (((_max[i]-_min[i])%_size[i]) != 0)
+			_delta[i] += 1;*/
 		
 	}
 
@@ -77,6 +78,8 @@ void Histo3D::resize(unsigned char *max, unsigned char *min, unsigned char *size
 		delete [] _lut;
 
 	_lut = new HistoEntry[_nElem];
+
+	printf("Elementi: %d %lf %lf %lf\n", _nElem, _delta[0], _delta[1], _delta[2]);
 }
 
 /////////////
@@ -338,10 +341,6 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b, d
 {
 	HistoEntry *tmpEntryP = NULL;
 	unsigned int it;
-
-	// check int threshold
-	if ((r+g+b) < 5)
-		return;
 
 	_pixelToKey(r, g, b, &it);
 

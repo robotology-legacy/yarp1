@@ -83,7 +83,7 @@ void RandomThread::doRelease()
 
 void RandomThread::doLoop()
 {
-	if (pArmThread->_arm_status._state._thread == _armThread::directCommand)
+	if (pArmThread->_arm_status._state == _armThread::directCommand)
 	{
 		cout << "New random move\n";
 		int ns = pArmThread->_gravity1.getSteps();

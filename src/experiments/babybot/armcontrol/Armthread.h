@@ -78,11 +78,10 @@ public:
 		// first = 0.0;
 		second = 0.0;
 
-		first = delta; // = 7*degToRad;
+		first = delta; 
 		_trajectory.getCurrent(pos.data());
 		tmp->setActualPosition(pos);
 		tmp->setTrajectory(first, second);
-		// tmp->setActualPosition(_arm_status._current_position);
 		changeInitState(tmp);
 	}
 
@@ -174,7 +173,7 @@ private:
 	YARPInputPortOf<YVector> _wristPort;
 
 	////////
-	YARPOutputPortOf<YVector> _armStatusPort;
+	YARPOutputPortOf<YARPControlBoardNetworkData> _armStatusPort;
 	
 	bool _restingInhibited;
 
@@ -189,7 +188,7 @@ private:
 	char _iniFile[80];						// config file
 
 public: //later: make it private
-	ArmStatus _arm_status;
+	YARPControlBoardNetworkData _arm_status;
 
 #if defined(__QNXEurobot__)
 	YARPEurobotArm _arm;

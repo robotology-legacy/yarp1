@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPLogFile.h,v 1.5 2003-09-02 16:35:39 natta Exp $
+/// $Id: YARPLogFile.h,v 1.6 2003-10-03 16:50:38 babybot Exp $
 ///  
 /// very simple class to handle dump files...  -- May 2003 by nat
 
@@ -100,6 +100,28 @@ public:
 			return YARP_FAIL;
 	}
 
+	int append(const char *filename)
+	{
+		if (filename == NULL)
+			return YARP_FAIL;
+
+		int n = strlen(filename);
+		close();
+					
+		_name = new char [n+1];
+		strcpy(_name, filename);
+
+		_fp = fopen(filename,"a");
+
+		if (_fp != NULL)
+		{
+			_freeze = false;
+			return YARP_OK;
+		}
+		else
+			return YARP_FAIL;
+	}
+
 	int close()
 	{
 		if (_fp != NULL)
@@ -112,6 +134,28 @@ public:
 
 		_freeze = true;
 		return YARP_OK;
+	}
+
+	int flush()
+	{
+		if (_name == NULL)
+			return YARP_FAIL;
+
+		_freeze = true;
+
+		if (_fp != NULL)
+			fclose(_fp);
+
+		_fp = fopen(_name,"a");
+
+		if (_fp != NULL)
+		{
+			_freeze = false;
+			return YARP_OK;
+		}
+		else
+			return YARP_FAIL;
+		
 	}
 
 	inline int newLine()

@@ -1,16 +1,18 @@
 #include "YARPHistoSegmentation.h"
 #include "YARPLogpolar.h"
 
-YARPHistoSegmentation::YARPHistoSegmentation(double lumaTh, unsigned char max, unsigned char min, unsigned char n):
+YARPHistoSegmentation::YARPHistoSegmentation(double lumaTh, double satTh, unsigned char max, unsigned char min, unsigned char n):
  YARP3DHistogram(max, min, n)
 {
 	_lumaThreshold = lumaTh;
+	_satThreshold = satTh;
 }
 
-YARPHistoSegmentation::YARPHistoSegmentation(double lumaTh, unsigned char max, unsigned char min, unsigned char *n):
+YARPHistoSegmentation::YARPHistoSegmentation(double lumaTh, double satTh, unsigned char max, unsigned char min, unsigned char *n):
 YARP3DHistogram(max, min, n)
 {
 	_lumaThreshold = lumaTh;
+	_satThreshold = satTh;
 }
 
 void YARPHistoSegmentation::Apply(YARPImageOf<YarpPixelBGR> &src)
@@ -149,9 +151,14 @@ void YARPHistoSegmentation::backProjection(YARPImageOf<YarpPixelHSV> &in, YARPIm
 	{
 		src = (YarpPixelHSV *) in.GetArray()[j];
 		dst = (YarpPixelMono *) out.GetArray()[j];
+
 		for(i = 0; i < in.GetWidth(); i++)
 		{
-			*dst = YARP3DHistogram::backProjection(src->h, src->s, 0)*255 + 0.5;
+			if (_checkThresholds(src->h, src->s, src->v))
+				*dst = YARP3DHistogram::backProjection(src->h, src->s, 0)*255 + 0.5;
+			else
+				*dst = 0;
+			
 			src++;
 			dst++;
 		}
@@ -229,12 +236,13 @@ void YARPLpHistoSegmentation::Apply(YARPImageOf<YarpPixelHSV> &src)
 		h = (unsigned char *) src.GetArray()[i];
 		s = h+1;
 		v = h+2;
-		
+
 		double w = pSize(1, i);
 		for(j = 0; j < src.GetWidth(); j++)
 		{
-			YARP3DHistogram::Apply(*h, *s, 0, w);
-			
+			if (_checkThresholds(*h,*s,*v))
+				YARP3DHistogram::Apply(*h, *s, 0, w);
+						
 			h += 3;
 			s += 3;
 			v += 3;

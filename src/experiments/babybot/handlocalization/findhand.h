@@ -4,11 +4,14 @@
 #include <YARPLogpolar.h>
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
+#include <YARPControlBoardNetworkData.h>
 #include <YARPImages.h>
 #include <YARPBlobDetector.h>
 #include <YARPSemaphore.h>
 #include <YARPConicFitter.h>
 #include "zerocrossing.h"
+#include <YARPBottle.h>
+#include <YARPBottleContent.h>
 
 class FindHand: public YARPThread
 {
@@ -22,8 +25,8 @@ public:
 	YARPOutputPortOf<YARPGenericImage> _segmentedImagePort;
 	YARPOutputPortOf<YVector> _outPixelPort;
 	YARPInputPortOf<int[2]> _inPixelCoord;
-	YARPInputPortOf<YVector> _handStatusPort;
-	YARPInputPortOf<YVector> _armStatusPort;
+	YARPOutputPortOf<YARPBottle> _armDataPort;
+	YARPInputPortOf<YARPControlBoardNetworkData> _motorStatusPort;
 
 	YARPImageOf<YarpPixelMono> _actualLp;
 	YARPImageOf<YarpPixelMono> _blob;
@@ -45,8 +48,8 @@ public:
 
 	unsigned char _threshold;
 	
-	YVector _handSpeed;
-	YVector _armSpeed;
+	YARPControlBoardNetworkData _motorStatus;
+	YARPBottle _armData;
 	YVector _pixelOut;
 	YVector _zeros;
 	void Body();
@@ -87,14 +90,51 @@ private:
 	YARPSemaphore _mutex;
 
 	void _dumpDetection();
-	void _segmentation();
+	bool _segmentation();
 	void _sendSegmentation()
 	{
 		// display
-		_segmentedImagePort.Content().Refer(_actualLp);
-		//_segmentedImagePort.Content().Refer(_blob);
+		// _segmentedImagePort.Content().Refer(_actualLp);
+		_segmentedImagePort.Content().Refer(_blob);
 		// _segmentedImagePort.Content().Refer(_detected);
 		_segmentedImagePort.Write();
+
+		_armDataPort.Content() = _armData;
+		_armDataPort.Content().display();
+		_armDataPort.Write();
+	}
+
+	void _mask(YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelMono> &out)
+	{
+		int rho;
+		int theta;
+		unsigned char *tmpIn;
+		unsigned char *tmpOut;
+		for(rho = 0; rho<_logpolarParams::_srho; rho++)
+		{
+			tmpIn = (unsigned char *) in.GetArray()[rho];
+			tmpOut = (unsigned char *) out.GetArray()[rho];
+			for(theta = 0; theta<_logpolarParams::_stheta; theta++)
+			{
+				if (*tmpIn == 0)
+					*tmpOut = 0;
+				tmpIn++;
+				tmpOut++;
+			}
+		}
+	}
+
+	void _mask(YARPImageOf<YarpPixelMono> &in, const region &mask, YARPImageOf<YarpPixelMono> &out)
+	{
+		int k = 0;
+		while(k<mask.n)
+		{
+			int r,t;
+			r = mask.r[k];
+			t = mask.t[k];
+			out(t,r) = in(t,r);
+			k++;
+		}
 	}
 
 	void _readInputPorts()
@@ -114,8 +154,10 @@ private:
 		}
 
 		///////////////// read hand status
-		if (_handStatusPort.Read(0))
-			memcpy(_handSpeed.data(), _handStatusPort.Content().data(), 6*sizeof(double));
+		if (_motorStatusPort.Read(0))
+		{
+			_motorStatus = _motorStatusPort.Content();
+		}
 	}
 
 	void _writeOutputPorts()
@@ -136,12 +178,12 @@ private:
 		int j = 0;
 		double dummy;
 
-		_zeroCrossingHand[0].find(fabs(_handSpeed(1)), &dummy);
-		_zeroCrossingHand[1].find(fabs(_handSpeed(2)), &dummy);
-		_zeroCrossingHand[2].find(fabs(_handSpeed(3)), &dummy);
-		_zeroCrossingHand[3].find(fabs(_handSpeed(4)), &dummy);
-		_zeroCrossingHand[4].find(fabs(_handSpeed(5)), _pixelOut.data()+3);//_pixelOut.data()+1);
-		_zeroCrossingHand[5].find(fabs(_handSpeed(6)), &dummy);
+		_zeroCrossingHand[0].find(fabs(_motorStatus._velocity(1)), &dummy);
+		_zeroCrossingHand[1].find(fabs(_motorStatus._velocity(2)), &dummy);
+		_zeroCrossingHand[2].find(fabs(_motorStatus._velocity(3)), &dummy);
+		_zeroCrossingHand[3].find(fabs(_motorStatus._velocity(4)), _pixelOut.data()+3);
+		_zeroCrossingHand[4].find(fabs(_motorStatus._velocity(5)), &dummy); //_pixelOut.data()+3);//_pixelOut.data()+1);
+		_zeroCrossingHand[5].find(fabs(_motorStatus._velocity(6)), &dummy);
 
 		unsigned char *motion;
 		for(y = 0/*_logpolarParams::_sfovea*/; y<_logpolarParams::_srho; y++)

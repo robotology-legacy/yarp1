@@ -68,6 +68,7 @@ public:
 			_lsparameters[i] = 0.0;
 		}
 
+		_learn = 0;
 		_j5Ls.Resize(2);
 
 		_errorFile.open("Y:\\conf\\babybot\\errors.txt");
@@ -101,6 +102,8 @@ public:
 	YVector _j5Ls;
 	int _nSteps;
 	int _steps;
+
+	int _learn;
 
 	// dump
 	YARPLogFile _errorFile;

@@ -13,18 +13,19 @@ FindHand::FindHand(const YARPString &portName):
 _inPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
 _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
 _outPixelPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
-_handStatusPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
+_motorStatusPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
 _inPixelCoord(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 _segmentedImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
-_blobDetector(0.5)
+_armDataPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
+_blobDetector((float) 0.35)
 {
 	_inPort.Register((portName+"/i:img").c_str(), "Net1");
 	_outPort.Register((portName+"/o:img").c_str());
 	_outPixelPort.Register((portName+"/o:pixel").c_str());
-	_handStatusPort.Register((portName+"/i:hand").c_str());
-	_armStatusPort.Register((portName+"/i:arm").c_str());
+	_motorStatusPort.Register((portName+"/i:motor").c_str(), "Net0");
 	_inPixelCoord.Register((portName+"/i:point").c_str());
 	_segmentedImagePort.Register((portName+"/segmentation/o:img").c_str());
+	_armDataPort.Register((portName+"/segmentation/o:armdata").c_str());
 
 	_actualColored.Resize (_stheta, _srho);
 	_detected.Resize(_stheta, _srho);
@@ -41,8 +42,8 @@ _blobDetector(0.5)
 	_detectedCart.Resize(_xsize, _ysize);
 	_detectedCartGrayscale.Resize(_xsize, _ysize);
 
-	_handSpeed.Resize(6);
-	_armSpeed.Resize(6);
+	_motorStatus.resize(40, 6);
+
 	_pixelOut.Resize(4);
 	
 	_frame = 0;
@@ -92,10 +93,7 @@ void FindHand::Body()
 
 	// reconstruct color
 	_mapper.ReconstructGrays (_actualLp, _actualGrayscale); //Colored);
-	// iplColorToGray(_actualColored, _actualGrayscale);
-	// iplSubtract(_actualGrayscale, _background, _motion);
-	// iplAbs(_motion, _motion);
-	
+		
 	// background
 	int i;
 	unsigned char *bck = (unsigned char *) _background.GetAllocatedArray();
@@ -109,22 +107,16 @@ void FindHand::Body()
 		img++;
 		motion++;
 	}
-	// store old img
-	/*
-	iplMultiplySScale(_actualGrayscale, _actualGrayscale, int (255*_alpha+0.5));
-	iplMultiplySScale(_background, _background, int (255*(1-_alpha)+0.5));
-	iplAdd(_background, _actualGrayscale, _background);*/
-	
 
 	_pixelOut(1) = _motion(_x, _y)/255.0;
 	_pixelOut(2) = 0.0;
-	_pixelOut(3) = fabs(_handSpeed(5));
+	_pixelOut(3) = fabs(_motorStatus._velocity(4));
 	_pixelOut(4) = 0.0;
 
 	_computePeriodicity();
 
-	// prepare motion for display
-//	iplMultiplyS(_motion, _motion, 4/*_threshold*/);
+	//  prepare motion for display
+	//	iplMultiplyS(_motion, _motion, 4/*_threshold*/);
 	
 	_writeOutputPorts();
 
@@ -136,12 +128,14 @@ void FindHand::Body()
 	}
 }
 
-void FindHand::_segmentation()
+bool FindHand::_segmentation()
 {
+	_blob.Zero();
 	char detected[128];
 	char blob[128];
 	char segmented[128];
 	char complete[128];
+	bool valid;
 	_nSegmentations++;
 	sprintf(detected, "%s%d.ppm", "y:\\zgarbage\\detected",_nSegmentations);
 	sprintf(blob, "%s%d.ppm", "y:\\zgarbage\\blob", _nSegmentations);
@@ -150,29 +144,39 @@ void FindHand::_segmentation()
 	
 	_blobDetector.filterLp(_detected);
 	YARPImageFile::Write(detected, _detected);
-	YARPImageOf<YarpPixelMono> &tmp = _blobDetector.getSegmented();
-	YARPImageFile::Write(blob, tmp);
+	YARPImageOf<YarpPixelMono> &blobbed = _blobDetector.getSegmented();
+	YARPImageFile::Write(blob, blobbed);
 	
 	YARPImageFile::Write(complete, _actualLp);
 
-	int rho;
-	int theta;
-	unsigned char *tmpLp;
-	unsigned char *tmpP;
-	for(rho = 0; rho<_srho; rho++)
-	{
-		tmpLp = (unsigned char *) _actualLp.GetArray()[rho];
-		tmpP = (unsigned char *) tmp.GetArray()[rho];
-		for(theta = 0; theta<_stheta; theta++)
-		{
-			if (*tmpP < 255)
-				*tmpLp= 0;
-			tmpP++;
-			tmpLp++;
-		}
-	}
+	_mask(blobbed, _detected);
+	int t0;
+	int r0;
+	double a11, a12, a22;
+	YVector head(2);
+	head(1) = 0.0;
+	head(2) = 0.0;
 	
-	YARPImageFile::Write(segmented, _actualLp);
+	_fit.fitEllipse(_detected, &t0, &r0, &a11, &a12, &a22);
+	_fit.findEllipse(t0, r0, a11, a12, a22, _pointsBlob);
+	if (_pointsBlob.n > 3)
+		valid = true;
+	else 
+		valid = false;
+
+	_mask(_actualLp, _pointsBlob, _blob);
+	_armData.reset();
+	_armData.writeYVector(_motorStatus._current_position);
+	_armData.writeYVector(head);
+	_armData.writeInt(t0);
+	_armData.writeInt(r0);
+	_armData.writeFloat(a11);
+	_armData.writeFloat(a12);
+	_armData.writeFloat(a22);
+	
+	YARPImageFile::Write(segmented, _blob);
+
+	return valid; 
 }
 /*
 void FindHand::_segmentation()
@@ -264,7 +268,11 @@ void FindHand::_dumpDetection()
 				double motorStd;
 				int nMotor;
 				nMotor = _zeroCrossingHand[m].result(&motorMean, &motorStd);
-				if ( (fabs(motionMean-motorMean) < 0.3) && (abs(nMotor-n) < 3) && (nMotor > 0) )
+				if ( (fabs(motionMean-motorMean) < 0.3) &&
+					(abs(nMotor-n) < 4) &&
+					(nMotor > 3) /* &&
+					(motorStd>2) &&
+					(motionStd>1.5)*/ )
 				{
 					// segmented image, B/N
 					_detected(x,y) = 255; //_actualLp(x,y);
@@ -280,7 +288,6 @@ void FindHand::_dumpDetection()
 		_zeroCrossingHand[m].reset();
 
 	}
-
-	_segmentation();
-	_sendSegmentation();
+	if (_segmentation())
+		_sendSegmentation();
 }

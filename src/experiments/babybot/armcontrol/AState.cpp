@@ -23,7 +23,7 @@ void AState::changeState (ArmThread *t, AState *s)
 
 void ASDirectCommand:: handle(ArmThread *t)
 {
-	t->_arm_status._state._thread = _armThread::directCommand;
+	t->_arm_status._state = _armThread::directCommand;
 		
 	if (t->checkMotionDone() && newCmdFlag)
 	{
@@ -46,14 +46,15 @@ void ASDirectCommand:: handle(ArmThread *t)
 
 void ASDirectCommandMove:: handle(ArmThread *t)
 {
-	t->_arm_status._state._thread = _armThread::directCommandMove;
+	t->_arm_status._state = _armThread::directCommandMove;
 	if (t->checkMotionDone())
 	{
 		_steps--;
 		// wait other few steps
 		if (_steps <= 0) {
 			// check whether the arm is on the table or not
-			if (t->_arm_status._current_position(1)*radToDeg > -5.0)
+			if ( (t->_arm_status._current_position(1)*radToDeg > -5.0) &&
+				_learn)
 			{
 				ARM_STATE_DEBUG(("Learnt a new position!\n"));
 				_steps = _nSteps;
@@ -132,7 +133,7 @@ void ASWaitForHand:: handle(ArmThread *t)
 
 void ASRestingInit:: handle(ArmThread *t)
 {
-	t->_arm_status._state._thread = _armThread::restingInit;
+	t->_arm_status._state = _armThread::restingInit;
 
 	ARM_STATE_DEBUG(("ASRestingInit\n"));
 	t->_restingInhibited = true;
@@ -156,7 +157,7 @@ void ASRestingInit:: handle(ArmThread *t)
 
 void ASMove:: handle(ArmThread *t)
 {
-	t->_arm_status._state._thread = _armThread::move;
+	t->_arm_status._state = _armThread::move;
 
 	ARM_STATE_DEBUG(("ASMove\n"));
 	t->_directCommand(cmd);
@@ -167,7 +168,7 @@ void ASMove:: handle(ArmThread *t)
 
 void ASWaitForMotion:: handle(ArmThread *t)
 {
-	t->_arm_status._state._thread = _armThread::waitForMotion;
+	t->_arm_status._state = _armThread::waitForMotion;
 		
 	if (t->checkMotionDone()) 
 	{
@@ -178,7 +179,7 @@ void ASWaitForMotion:: handle(ArmThread *t)
 
 void ASRestingLowerGains:: handle(ArmThread *t)
 {
-	t->_arm_status._state._thread = _armThread::restingLowerGains;
+	t->_arm_status._state = _armThread::restingLowerGains;
 		
 	double max = t->_arm.getMaxTorque(0);
 	double delta = max/60.0;
@@ -194,13 +195,13 @@ void ASRestingLowerGains:: handle(ArmThread *t)
 	{
 		// lower gains smoothly
 		changeState(t, ASRestingWaitIdle::instance());
-		t->_arm_status._pidStatus = _armThread::low;
+		t->_arm_status._pidStatus = 0;
 	}
 }
 
 void ASRestingWaitIdle:: handle(ArmThread *t)
 {
-	t->_arm_status._state._thread = _armThread::restingWaitIdle;
+	t->_arm_status._state = _armThread::restingWaitIdle;
 		
 	// stay here untill rested
 	if (t->_tirednessControl.low())
@@ -212,7 +213,7 @@ void ASRestingWaitIdle:: handle(ArmThread *t)
 
 void ASRestingRaiseGains:: handle(ArmThread *t)
 {
-	t->_arm_status._state._thread = _armThread::restingRaiseGains;
+	t->_arm_status._state = _armThread::restingRaiseGains;
 		
 	double max = t->_arm.getMaxTorque(0);
 	double delta = max/60.0;
@@ -231,7 +232,7 @@ void ASRestingRaiseGains:: handle(ArmThread *t)
 		t->_restingInhibited = false;
 		t->directCommandMode();
 		changeState(t, t->_init_state);
-		t->_arm_status._pidStatus = _armThread::high;
+		t->_arm_status._pidStatus = 1;
 		t->writeAndSend(YBVArmRestDone);
 	}
 }
@@ -239,7 +240,7 @@ void ASRestingRaiseGains:: handle(ArmThread *t)
 /// ZERO G states
 void ASZeroGInit:: handle(ArmThread *t)
 {
-	t->_arm_status._state._thread = _armThread::zeroGInit;
+	t->_arm_status._state = _armThread::zeroGInit;
 		
 	double max = t->_arm.getMaxTorque(0);
 	double delta = max/60.0;
@@ -251,7 +252,7 @@ void ASZeroGInit:: handle(ArmThread *t)
 		{
 			ARM_STATE_DEBUG(("Zero G!\n"));
 			t->_restingInhibited = false;
-			t->_arm_status._pidStatus = _armThread::low;
+			t->_arm_status._pidStatus = 0;
 		}
 	}
 	else
@@ -266,7 +267,7 @@ void ASZeroGWait:: handle(ArmThread *t)
 
 void ASZeroGEnd:: handle(ArmThread *t)
 {
-	t->_arm_status._state._thread = _armThread::zeroGEnd;
+	t->_arm_status._state = _armThread::zeroGEnd;
 		
 	double max = t->_arm.getMaxTorque(0);
 	double delta = max/60.0;
@@ -279,7 +280,7 @@ void ASZeroGEnd:: handle(ArmThread *t)
 			// raise gains smoothly
 			ARM_STATE_DEBUG(("PIDs active again !\n"));
 			t->_restingInhibited = false;
-			t->_arm_status._pidStatus = _armThread::high;
+			t->_arm_status._pidStatus = 1;
 			changeState(t, t->_init_state);
 		}
 	}

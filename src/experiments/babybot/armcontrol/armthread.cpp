@@ -17,7 +17,7 @@ YARPBehaviorSharedData(YBLabelMotor, "/armcontrol/behavior/o"),
 _tirednessControl(23000.0, 10000.0, rate, 0.5),
 _arm_status(ini_file),
 _wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
-_armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+_armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 {
 	strncpy(_iniFile, ini_file, 80);
 
@@ -60,10 +60,15 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	_wristF = 0.0;
 	///////////////////
 
+	// GRAVITY
+	int learn;
+	file.get("[GRAVITY]", "Learn", &learn);
+	ASDirectCommandMove::instance()->_learn = learn;
+
 	//////////////////////
 	char armStatusPortname[255];
 	file.getString("[THREAD]", "ArmStatusPortName", armStatusPortname);
-	_armStatusPort.Register(armStatusPortname);
+	_armStatusPort.Register(armStatusPortname, "Net0");
 	///////////////////////
 	
 	changeInitState(ASDirectCommand::instance());
@@ -118,7 +123,7 @@ void ArmThread::doInit()
 	_arm._parameters._lowPIDs[0].KD = -600.0;
 	// _arm._parameters._lowPIDs[0].OFFSET = g[0];	//the first value for g has to be applied smoothly
 	_arm.setGainsSmoothly(_arm._parameters._lowPIDs,200);
-	_arm_status._pidStatus = _armThread::high;
+	_arm_status._pidStatus = 1;
 	_arm.getPositions(_arm_status._current_position.data());
 
 	_trajectory.setFinal(_arm_status._current_position.data(), _arm_status._current_position.data(), _nSteps);
@@ -215,7 +220,7 @@ inline void ArmThread::send_commands()
 
 	/*if (_shaking)
 	{*/
-		_armStatusPort.Content() = _arm_status._velocity*radToDeg/10;
+		_armStatusPort.Content() = _arm_status;
 		_armStatusPort.Write();
 	/*}*/
 
@@ -227,7 +232,9 @@ inline void ArmThread::read_status()
 	/// get arm
 	_arm.getPositions(_arm_status._current_position.data());
 	_arm.getVelocities(_arm_status._velocity.data());
+	_arm_status._velocity*=radToDeg/10;		//normalize
 	_arm.getTorques(_arm_status._torques.data());
+	///
 	_tirednessControl.add(_arm_status._torques(1));
 	// get from wrist
 	if (_wristPort.Read(0))
