@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.12 2004-05-04 09:15:32 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.13 2004-05-04 18:07:23 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -153,10 +153,7 @@ public:
 		}
 		else
 		{
-			// rimuovere PutItem ...
-			// itd.PutItem(newITD);
 			itd.SetGlobals(0,0.0);
-			// ild.PutItem(newILD);
 			ild.SetGlobals(0);
 		}
 
@@ -171,7 +168,7 @@ public:
 	//--------------------------------------------------------------------------------------
 	inline void GetILD(double &ild, double &left, double &right)
 	{
-		// Return the value of teh ILD and the energy of the right and left channels
+		// Return the value of the ILD and the energy of the right and left channels
 		left = squareMiddleValLeft;
 		right= squareMiddleValRight;
 		ild = (10 * log10(left/right));
@@ -192,6 +189,7 @@ public:
 
 	inline int GetShift() { return (corrShift-shift);}
 	inline double GetCorrMax() { return corrMax;}
+
 	inline double * GetCrossCorrelationBuffer(int tag) 
 	{ 
         if ( !tag ) return corrVect; // Return correlation calculated in the time space
