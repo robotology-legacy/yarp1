@@ -37,6 +37,8 @@ int main(int argc, char* argv[])
 	
 	// input states
 	RBSimpleInput motionDone(YBVArmDone);
+	RBSimpleInput armStarted(YBVArmIssuedCmd);
+	RBSimpleInput armBusy(YBVArmIsBusy);
 	RBSimpleInput start(YBVArmRndStart);
 	RBSimpleInput stop(YBVArmRndStop);
 	RBSimpleInput rest(YBVArmRest);
@@ -61,7 +63,8 @@ int main(int argc, char* argv[])
 	_rnd.add(&rest, &initMotion, &waitRest, &resetRnd);
 	_rnd.add(&rest, &waitMotion, &waitRest, &resetRnd);
 	_rnd.add(&stop, &waitMotion, &stopped);
-	_rnd.add(NULL, &initMotion, &waitMotion);
+	_rnd.add(&armStarted, &initMotion, &waitMotion);
+	_rnd.add(&armBusy, &initMotion, &waitRest, &resetRnd);
 
 	// no shake
 	if (!_shake)
