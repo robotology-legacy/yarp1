@@ -1,6 +1,6 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.6 2003-06-20 12:50:06 beltran Exp $
+$Id: install.txt,v 1.7 2003-06-20 12:52:27 babybot Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
@@ -33,16 +33,16 @@ It is important to notice that YARP needs to configure manually the next files:
 #
 127.1           localhost.localdomain localhost
 ::1             localhost.localdomain localhost
-130.251.43.15   europa.lira.dist.unige.it       europa
+130.251.43.15   YOURMACHINE.YOURDOMAIN      YOURMACHINE 
 
 -/etc/resolv.conf-
 
 #domain Berkeley.Edu
 #nameserver 128.32.0.4
 #nameserver 128.32.0.10
-domain lira.dist.unige.it
-nameserver 130.251.4.31
-lookup 130.251.4.31
+domain YOURDOMAINNAME
+nameserver NAMESERVER_IPADDR
+lookup NAMESERVER_IPADDR
 
 
 It is unknown why Qnx needs these files to be configured manually but if it is not done this way YARP fails using some 
@@ -82,6 +82,7 @@ REQUIRES:
 	ACE, this copies also the .h, .i, and .cpp files into %YARP_ROOT%\include
 		- use "make" from: %YARP_ROOT%\src\libraries\ACE_wrappers\ace (this can take several minutes)
 		- do "make yarpize" from the same place (it copies all necesary things..etc)
+
 	os_services
 		- use "make" from: %YARP_ROOT%\src\libraries\os_services\
 		- use "make install"
