@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.15 2003-08-20 08:23:31 natta Exp $
+/// $Id: LocalNameServer.cpp,v 1.16 2004-02-04 16:45:31 babybot Exp $
 ///
 
 #include "LocalNameServer.h"
@@ -518,6 +518,8 @@ int LocalNameServer::queryName(const YARPString &name, YARPString &ip, int *type
 		*type = YARP_NO_SERVICE_AVAILABLE;
 		return 0;
 	}
+
+	return 0;
 }
 
 int LocalNameServer::queryNameQnx(const YARPString &name, YARPNameQnx &entry, int *type)
@@ -666,6 +668,8 @@ int LocalNameServer::_registerName(const YARPString &name, const IpEntry &entry,
 		ports = tmp_ports;
 		return 0;
 	}
+
+	return 0;
 }
 
 // service must not exist
