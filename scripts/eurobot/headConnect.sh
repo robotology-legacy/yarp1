@@ -4,6 +4,6 @@
 #
 #
 
-porter /motorcmd/o /repeater/i
-porter /repeater/o /headcontrol/behavior/i
-porter /headcontrol/behavior/o /repeater/i
+yarp-connect /motorcmd/o /repeater/i
+yarp-connect /repeater/o /headcontrol/behavior/i
+yarp-connect /headcontrol/behavior/o /repeater/i

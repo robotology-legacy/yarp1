@@ -4,4 +4,4 @@
 #
 #
 
-repeater -name repeater/
+repeater --name /repeater --protocol tcp
