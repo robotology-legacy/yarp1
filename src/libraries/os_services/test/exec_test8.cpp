@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.20 2003-05-29 15:45:35 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.21 2003-05-29 15:57:38 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -139,7 +139,7 @@ public:
 			ct++;
 			printf("$$$$$$$$$$$$$$$$$$$$$$$$$Writing %d\n", (int)out.Content());
 			out.Write();
-			YARPTime::DelayInSeconds(1);
+			YARPTime::DelayInSeconds(3);
 		}
 	}
 };

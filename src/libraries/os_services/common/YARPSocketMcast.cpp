@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.8 2003-05-29 15:45:35 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.9 2003-05-29 15:57:37 gmetta Exp $
 ///
 ///
 
@@ -1854,7 +1854,9 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	/// wait response.
 	hdr.SetBad ();
 	ACE_INET_Addr incoming;
-	int r = d._udp_socket.recv (&hdr, sizeof(hdr), incoming);
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+
+	int r = d._udp_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
 	if (r < 0)
 	{
 		d._clients[j].set ((u_short)0, INADDR_ANY);

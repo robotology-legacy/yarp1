@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.18 2003-05-29 13:50:49 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.19 2003-05-29 15:57:37 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -48,7 +48,10 @@
 #define YARP_UDP_REGPORTS       11
 
 /// read timeout on socket transport (in seconds).
-#define YARP_SOCK_TIMEOUT       20
+#define YARP_SOCK_TIMEOUT       2
+
+/// read short timeout on socket transport (in seconds). - used for waiting short latency delay.
+#define YARP_SHORT_SOCK_TIMEOUT	1
 
 /// disables warning for init_seg(lib) very legitimate use of directive.
 #pragma warning (disable:4073)

@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigQNX6.h,v 1.12 2003-05-29 15:45:34 gmetta Exp $
+// $Id: YARPConfigQNX6.h,v 1.13 2003-05-29 15:57:37 gmetta Exp $
 // YARP config file QNX6.
 //
 //
@@ -32,11 +32,11 @@
 /// set the number of ports used by UDP for a single port.
 #define YARP_UDP_REGPORTS       11
 
-/// fix compiler idiosyncrasy
-#define for if(1)for
-
 /// read timeout on socket transport (in seconds).
-#define YARP_SOCK_TIMEOUT	20
+#define YARP_SOCK_TIMEOUT	2
+
+/// read short timeout on socket transport (in seconds). - used for waiting short latency delay.
+#define YARP_SHORT_SOCK_TIMEOUT	1
 
 #include <ace/config.h>
 
