@@ -16,6 +16,10 @@ static char THIS_FILE[] = __FILE__;
 extern YARPHead head;
 extern YARPArm arm;
 
+// CAN bus numbers.
+#define HEAD 0
+#define ARM 1
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CGainControlDlg dialog
@@ -158,12 +162,14 @@ void CGainControlDlg::OnButtonUpdate()
 
 		switch (bus)
 		{
-		case 0:
+		case HEAD:
 			head.setPID(index, pid);
 			head.setSoftwareLimits (index, m_min, m_max);
 			break;
 
-		case 1:
+		case ARM:
+			arm.setPID(index, pid);
+			arm.setSoftwareLimits (index, m_min, m_max);
 			break;
 		}
 	}	
@@ -178,8 +184,8 @@ void CGainControlDlg::OnButtonSetminmax()
 
 	if (index >= MAX_HEAD_JNTS || 
 		index == CB_ERR || 
-		bus < 0 || 
-		bus > 1 || 
+		bus < HEAD || 
+		bus > ARM || 
 		bus == CB_ERR)
 	{
 		return;
@@ -187,11 +193,12 @@ void CGainControlDlg::OnButtonSetminmax()
 	
 	switch (bus)
 	{
-	case 0:	
+	case HEAD:	
 		head.setSoftwareLimits (index, m_min, m_max);
 		break;
 
 	case 1:
+		arm.setSoftwareLimits (index, m_min, m_max);
 		break;
 	}
 }
@@ -204,7 +211,7 @@ void CGainControlDlg::UpdateAxisParams (int bus, int axis)
 
 	switch (bus)
 	{
-	case 0:
+	case HEAD:
 		{
 			// head.
 			memset (&pid, 0, sizeof(LowLevelPID));
@@ -220,10 +227,20 @@ void CGainControlDlg::UpdateAxisParams (int bus, int axis)
 				m_max = int(tmax - .5);
 		}
 		break;
-	case 1:
+	case ARM:
 		{
 			// arm and hand.
 			memset (&pid, 0, sizeof(LowLevelPID));
+			arm.getPID (axis, pid);
+			arm.getSoftwareLimits (axis, tmin, tmax);
+			if (tmin > 0)
+				m_min = int(tmin + .5);
+			else
+				m_min = int(tmin - .5);
+			if (tmax > 0) 
+				m_max = int(tmax + .5);
+			else
+				m_max = int(tmax - .5);
 		}
 		break;
 
@@ -248,15 +265,15 @@ void CGainControlDlg::OnSelendokComboAxis()
 	const int index = m_axis_combo.GetCurSel();
 	const int bus = m_bus_combo.GetCurSel();
 
-	if ((bus == 0 && index >= MAX_HEAD_JNTS) || 
-		(bus == 1 && index >= MAX_ARM_JNTS) ||
+	if ((bus == HEAD && index >= MAX_HEAD_JNTS) || 
+		(bus == ARM && index >= MAX_ARM_JNTS) ||
 		index == CB_ERR || 
-		bus < 0 
-		|| bus > 1 
+		bus < HEAD 
+		|| bus > ARM 
 		|| bus == CB_ERR)
 	{
 		m_axis_combo.SetCurSel(-1);
-		m_bus_combo.SetCurSel(0);
+		m_bus_combo.SetCurSel(HEAD);
 	}
 	else
 	{
@@ -272,14 +289,14 @@ void CGainControlDlg::OnShowWindow(BOOL bShow, UINT nStatus)
 	
 	if (bShow)
 	{
-		m_bus_combo.SetCurSel(0);
+		m_bus_combo.SetCurSel(HEAD);
 	}
 }
 
 void CGainControlDlg::OnSelendokComboBus() 
 {
 	const int bus = m_bus_combo.GetCurSel();
-	if (bus == CB_ERR || bus < 0 || bus > 1)
+	if (bus == CB_ERR || bus < HEAD || bus > ARM)
 	{
 		m_axis_combo.SetCurSel(-1);
 		m_bus_combo.SetCurSel(-1);
@@ -301,11 +318,12 @@ void CGainControlDlg::OnButtonReadflash()
 
 	switch (bus)
 	{
-	case 0:
+	case HEAD:
 		head.loadFromBootMemory(axis);
 		break;
 
-	case 1:
+	case ARM:
+		arm.loadFromBootMemory(axis);
 		break;
 	}
 }
@@ -320,11 +338,12 @@ void CGainControlDlg::OnButtonWriteflash()
 
 	switch (bus)
 	{
-	case 0:
+	case HEAD:
 		head.saveToBootMemory(axis);
 		break;
 
-	case 1:
+	case ARM:
+		arm.saveToBootMemory(axis);
 		break;
 	}
 }

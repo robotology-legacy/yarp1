@@ -1076,6 +1076,7 @@ void CTestControlDlg::OnButton0encoders()
 	// safely disables amplifiers first!
 	head.idleMode ();
 	head.resetEncoders ();
+	_headrunning = false;
 	ACE_OS::memset (_headjointstore, 0, sizeof(double) * MAX_HEAD_JNTS);
 	head.setCommands (_headjointstore);
 }
@@ -1085,6 +1086,7 @@ void CTestControlDlg::OnButton0encodersArm()
 	// safely disables amplifiers first!
 	arm.idleMode ();
 	arm.resetEncoders ();
+	_armrunning = false;
 	ACE_OS::memset (_armjointstore, 0, sizeof(double) * MAX_ARM_JNTS);
 	arm.setCommands (_armjointstore);
 }
