@@ -55,13 +55,13 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #nat
+///                    #nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: YARPBlobDetector.h,v 1.2 2003-08-10 14:56:56 natta Exp $
+/// $Id: YARPBlobDetector.h,v 1.3 2003-08-12 00:01:56 gmetta Exp $
 ///
 /// August 2003 -- by nat
 

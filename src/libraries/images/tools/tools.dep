@@ -45,6 +45,51 @@
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
+.\YARPColorConverter.cpp : \
+	"..\..\..\..\include\ace\ace_export.h"\
+	"..\..\..\..\include\ace\ace_wchar.h"\
+	"..\..\..\..\include\ace\ace_wchar.inl"\
+	"..\..\..\..\include\ace\basic_types.h"\
+	"..\..\..\..\include\ace\config-all.h"\
+	"..\..\..\..\include\ace\config-win32-common.h"\
+	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
+	"..\..\..\..\include\ace\config-win32-msvc.h"\
+	"..\..\..\..\include\ace\config-win32.h"\
+	"..\..\..\..\include\ace\config.h"\
+	"..\..\..\..\include\ace\default_constants.h"\
+	"..\..\..\..\include\ace\global_macros.h"\
+	"..\..\..\..\include\ace\log_msg.h"\
+	"..\..\..\..\include\ace\log_priority.h"\
+	"..\..\..\..\include\ace\min_max.h"\
+	"..\..\..\..\include\ace\os.h"\
+	"..\..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\..\include\ace\os_errno.h"\
+	"..\..\..\..\include\ace\os_export.h"\
+	"..\..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\..\include\ace\os_memory.h"\
+	"..\..\..\..\include\ace\os_string.h"\
+	"..\..\..\..\include\ace\os_tli.h"\
+	"..\..\..\..\include\ace\post.h"\
+	"..\..\..\..\include\ace\pre.h"\
+	"..\..\..\..\include\ace\streams.h"\
+	"..\..\..\..\include\ace\time_value.h"\
+	"..\..\..\..\include\begin_pack_for_net.h"\
+	"..\..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\debug.h"\
+	"..\..\..\..\include\end_pack_for_net.h"\
+	"..\..\..\..\include\sys\ipl.h"\
+	"..\..\..\..\include\sys\iplerror.h"\
+	"..\..\..\..\include\sys\iplmisc.h"\
+	"..\..\..\..\include\yarpall.h"\
+	"..\..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\..\include\yarpnetworktypes.h"\
+	"..\include\YARPFilters.h"\
+	"..\include\YARPImage.h"\
+	".\YARPColorConverter.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	
+
 .\YARPDIBConverter.cpp : \
 	"..\..\..\..\include\ace\ace_export.h"\
 	"..\..\..\..\include\ace\ace_wchar.h"\

@@ -65,11 +65,11 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\tools.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPBlobDetector.obj" \
+	"$(INTDIR)\YARPColorConverter.obj" \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPLogpolar.obj" \
-	"$(INTDIR)\YARPColorConverter.obj"
+	"$(INTDIR)\YARPLogpolar.obj"
 
 "$(OUTDIR)\tools.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -88,7 +88,7 @@ OutDir=.\..\obj\Release
 
 $(DS_POSTBUILD_DEP) : "$(OUTDIR)\tools.lib"
    copy .\*.h ..\..\..\..\include
-	lib ..\obj\Release\images.lib ..\obj\Release\tools.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\images.lib
+	lib ..\obj\Release\imagesx.lib ..\..\ipl\lib\ipl.lib ..\obj\Release\tools.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Release\images.lib
 	copy ..\obj\Release\images.lib ..\..\..\..\lib\winnt
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 
@@ -128,11 +128,11 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\toolsDB.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPBlobDetector.obj" \
+	"$(INTDIR)\YARPColorConverter.obj" \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPLogpolar.obj" \
-	"$(INTDIR)\YARPColorConverter.obj"
+	"$(INTDIR)\YARPLogpolar.obj"
 
 "$(OUTDIR)\toolsDB.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -151,7 +151,7 @@ OutDir=.\..\obj\Debug
 
 $(DS_POSTBUILD_DEP) : "$(OUTDIR)\toolsDB.lib"
    copy .\*.h ..\..\..\..\include
-	lib ..\obj\Debug\imagesDB.lib ..\obj\Debug\toolsDB.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Debug\imagesDB.lib
+	lib ..\obj\Debug\imagesDBx.lib ..\..\ipl\lib\ipl.lib ..\obj\Debug\toolsDB.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Debug\imagesDB.lib
 	copy ..\obj\Debug\imagesDB.lib ..\..\..\..\lib\winnt
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 
@@ -191,11 +191,11 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\toolsDBf.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPBlobDetector.obj" \
+	"$(INTDIR)\YARPColorConverter.obj" \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPLogpolar.obj" \
-	"$(INTDIR)\YARPColorConverter.obj"
+	"$(INTDIR)\YARPLogpolar.obj"
 
 "$(OUTDIR)\toolsDBf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -214,7 +214,7 @@ OutDir=.\..\obj\Debug
 
 $(DS_POSTBUILD_DEP) : "$(OUTDIR)\toolsDBf.lib"
    copy .\*.h ..\..\..\..\include
-	lib ..\obj\Debug\imagesDBf.lib ..\obj\Debug\toolsDBf.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Debug\imagesDBf.lib
+	lib ..\obj\Debug\imagesDBf.lib ..\..\ipl\ipl.lib ..\obj\Debug\toolsDBf.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Debug\imagesDBf.lib
 	copy ..\obj\Debug\imagesDBf.lib ..\..\..\..\lib\winnt
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 
@@ -253,11 +253,11 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\toolsf.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPBlobDetector.obj" \
+	"$(INTDIR)\YARPColorConverter.obj" \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPLogpolar.obj" \
-	"$(INTDIR)\YARPColorConverter.obj"
+	"$(INTDIR)\YARPLogpolar.obj"
 
 "$(OUTDIR)\toolsf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -276,7 +276,7 @@ OutDir=.\..\obj\Release
 
 $(DS_POSTBUILD_DEP) : "$(OUTDIR)\toolsf.lib"
    copy .\*.h ..\..\..\..\include
-	lib ..\obj\Release\imagesf.lib ..\obj\Release\toolsf.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\imagesf.lib
+	lib ..\obj\Release\imagesf.lib ..\..\ipl\ipl.lib ..\obj\Release\toolsf.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\imagesf.lib
 	copy ..\obj\Release\imagesf.lib ..\..\..\..\lib\winnt
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 

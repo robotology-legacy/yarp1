@@ -1,0 +1,1 @@
+this is the place where rkill must go. You should get it from the Win2K resource kit CD.
