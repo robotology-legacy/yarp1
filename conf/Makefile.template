@@ -2,13 +2,25 @@
 # Template to be included by all YARP makefiles.
 #
 
+QNX_VER = 6.1.0 6.2.0 6.2.1
+
 ifeq ($(shell uname),QNX)
-  CC = cc
-  SYSDIR = qnx
+  
   SYSLIB = 
-  CDEFS = -D__QNX__ -D__QNX4__
-  CFASTSTRUCT = -zp4
-  CFAST = -Oneaxt $(CFASTSTRUCT)
+  ifneq (,$(findstring $(shell uname -r),$(QNX_VER)))
+	 SYSDIR = qnx6
+     CC = g++
+     CDEFS = -D__QNX6__
+     CFASTSTRUCT =
+	 CFAST =
+  else
+     SYSDIR = qnx
+	 CC = cc
+     CDEFS = -D__QNX__ -D__QNX4__
+     CFASTSTRUCT = -zp4
+	 CFAST = -Oneaxt $(CFASTSTRUCT)
+  endif
+  
   LIBADD = 
 else
   ifeq ($(shell uname),Linux)
