@@ -1,0 +1,1 @@
+ABOBJ = abmain.o commands.o encoder.o mycommands.o position_commands.o reset_commands.o trend1.o trend2.o trend3.o trend4.o trend5.o 

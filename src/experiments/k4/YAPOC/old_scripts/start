@@ -1,0 +1,8 @@
+on -n8 YAPOCControl &
+
+sleep 1
+
+$YARP_ROOT/bin/qnx/porter /TestGUI/out/command /yapoc/in/command  
+$YARP_ROOT/bin/qnx/porter /YAPOC/out/position /TestGUI/in/position
+
+

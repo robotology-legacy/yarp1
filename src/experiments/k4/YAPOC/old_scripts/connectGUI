@@ -1,0 +1,2 @@
+on -n10 /home/lijin/YARP/bin/qnx/porter /TestGUI/out/command /yapoc/in/command
+on -n11 /home/lijin/YARP/bin/qnx/porter /YAPOC/out/position /TestGUI/in/position
