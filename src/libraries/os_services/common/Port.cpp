@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.59 2003-09-04 16:57:40 babybot Exp $
+/// $Id: Port.cpp,v 1.60 2004-01-27 15:38:38 babybot Exp $
 ///
 ///
 
@@ -537,15 +537,17 @@ void OutputTarget::Body ()
 					YARPUniqueNameID* udp_channel = YARPNameService::LocateName(cmdname, network_name.c_str(), YARP_UDP);
 					if (udp_channel->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 						udp_channel->setName(cmdname);
-					
-					/// test for thread termination.
-					if (YARPEndpointManager::GetNumberOfClients () <= 1)
+
+					/// first tries a Close of the endpoint.
+					YARPEndpointManager::Close (*udp_channel);
+
+					/// tests whether a thread termination is required.
+					if (YARPEndpointManager::GetNumberOfClients () < 1)
 					{
 						active = 0;
 						deactivated = 1;
 					}
 
-					YARPEndpointManager::Close (*udp_channel);
 					YARPNameService::DeleteName (udp_channel);
 				}
 				break;
