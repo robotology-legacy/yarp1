@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPConfigFile.h,v 1.6 2003-07-11 14:12:03 babybot Exp $
+/// $Id: YARPConfigFile.h,v 1.7 2003-09-02 16:35:39 natta Exp $
 ///  
 /// very simple class to handle config files... by nat May 2003
 //
@@ -70,8 +70,7 @@
 #include <conf/YARPConfig.h>
 #include <stdio.h>
 #include <YARPErrorCodes.h>
-#include <string>
-
+#include <YARPString.h>
 ////////////////////////////////////////////////////////////////////////////
 //
 class YARPConfigFile
@@ -83,13 +82,13 @@ public:
 
 	YARPConfigFile(const char *path) {
 		_openFlag = false;
-		_path = std::string(path);
+		_path = YARPString(path);
 	}
 
 	YARPConfigFile(const char *path, const char *filename)
 	{
-		_path = std::string(path);
-		_filename = std::string(filename);
+		_path = YARPString(path);
+		_filename = YARPString(filename);
 		_openFlag = false;
 	}
 	
@@ -111,14 +110,14 @@ public:
 	}
 
 	void setName(const char *name)
-	{ _filename = std::string(name); }
+	{ _filename = YARPString(name); }
 	
 	void setPath(const char *path)
-	{ _path = std::string(path); }
+	{ _path = YARPString(path); }
 
 private:
-	std::string _path;
-	std::string _filename;
+	YARPString _path;
+	YARPString _filename;
 
 	bool _open(const char *path, const char *filename);
 	void _close()

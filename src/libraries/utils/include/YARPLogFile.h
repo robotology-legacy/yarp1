@@ -59,9 +59,9 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPLogFile.h,v 1.4 2003-07-04 12:27:00 babybot Exp $
+/// $Id: YARPLogFile.h,v 1.5 2003-09-02 16:35:39 natta Exp $
 ///  
-/// very simple class to handle dump files...  -- May 2003
+/// very simple class to handle dump files...  -- May 2003 by nat
 
 #ifndef __YARPDUMPFILE__
 #define __YARPDUMPFILE__

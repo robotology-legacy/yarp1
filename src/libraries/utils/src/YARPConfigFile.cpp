@@ -1,6 +1,6 @@
 //
 // YARPIniFile.cpp
-// $Id: YARPConfigFile.cpp,v 1.4 2003-07-11 14:12:03 babybot Exp $
+// $Id: YARPConfigFile.cpp,v 1.5 2003-09-02 16:35:39 natta Exp $
 
 #include "YARPConfigFile.h"
 
@@ -11,7 +11,8 @@ using namespace std;
 
 bool YARPConfigFile::_open(const char *path, const char *filename)
 {
-	std::string tmp = std::string(path) + std::string(filename);
+	YARPString tmp = YARPString(path);
+	tmp.append(YARPString(filename));
 	_pFile = fopen(tmp.c_str(), "r");
 	if (_pFile != NULL)
 	{
