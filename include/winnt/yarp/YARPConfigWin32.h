@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.1 2004-07-09 13:42:55 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.2 2004-07-09 16:42:32 gmetta Exp $
 // YARP config file WIN32.
 //
 //

@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPList.h,v 1.4 2004-07-09 13:45:58 eshuy Exp $
+/// $Id: YARPList.h,v 1.5 2004-07-09 16:42:32 gmetta Exp $
 ///
 ///
 
@@ -168,27 +168,54 @@ public:
 	 */
 	~YARPList() { reset(); }
 
+	/**
+	 * Adds a new item to the tail of the list.
+	 * @param new_item is a reference to the element type of the list.
+	 */
 	void push_back (const T& new_item) { T* el = new T; *el = new_item; insert_tail(el); }
+
+	/**
+	 * Adds a new item to the head of the list.
+	 * @param new_item is a reference to the element type of the list.
+	 */
 	void push_front (const T& new_item) { T* el = new T; *el = new_item; insert_head(el); }
+
+	/**
+	 * Removes the last element of the list. 
+	 */
 	void pop_back (void) { T* el = delete_tail(); delete el; }
+
+	/**
+	 * Removes the first element of the list.
+	 */
 	void pop_front (void) { T* el = delete_head(); delete el; }
 
-	int erase(iterator &it)
-	{ return it.remove(); }
+	/**
+	 * Erases the element pointed by the iterator.
+	 * @param it is the iterator pointing to the element to be removed.
+	 & @return negative on failure.
+	 */
+	int erase(iterator &it)	{ return it.remove(); }
 
-	bool empty()
-	{ return (size() == 0); }
+	/**
+	 * Checks whether the list is empty.
+	 * @return true if it's empty.
+	 */
+	bool empty() { return (size() == 0); }
 
-	void clear()
-	{ reset(); }
-
+	/**
+	 * Clears the list and frees memory.
+	 */
+	void clear() { reset(); }
 };
 
 template <class T> class YARPVector;
 
-/// simpler iterator for vector (simpler than ACE version).
-/// not safe after resize, need at least a call to go_head().
-/// not safe iterator anyway...
+/**
+ * simpler iterator for vector (simpler than ACE version).
+ * not safe after resize, need at least a call to go_head().
+ * not safe iterator anyway...
+*/
 template <class T>
 class YARPVectorIterator 
 {
@@ -197,14 +224,45 @@ private:
 	int _it;
 
 public:
+	/**
+	 * Constructor. Builds the iterator and links it to an existing vector.
+	 * @param i is a reference to an instance of another YARPVector.
+	 */
 	YARPVectorIterator(YARPVector<T>& i) : _owner(i) { _it = 0; }
+
+	/**
+	 * Constructor. Builds the iterator and links it to an existing vector.
+	 * @param i is a reference to an instance of another ACEArray.
+	 */
 	YARPVectorIterator(ACE_Array<T>& i) : _owner(i) { _it = 0; }
+
+	/**
+	 * Copy constructor. Copies the iterator from an existing one.
+	 * @param i is a reference to an instance of another iterator.
+	 */
 	YARPVectorIterator(const YARPVectorIterator<T>& i) : _owner(i._owner) { _it = i._it; }
+
+	/**
+	 * Destructor.
+	 */
 	~YARPVectorIterator() {}
 
+	/**
+	 * Moves the iterator to the first element of the vector.
+	 * @return zero.
+	 */
 	int go_head(void) { _it = 0; return _it; }
+
+	/**
+	 * Moves the iterator to the last element of the vector.
+	 * @return the position in the array.
+	 */
 	int go_tail(void) { _it = _owner.size(); return _it; }
 
+	/**
+	 * Tells whether the iterator is at the end of the vector.
+	 * @return true if the end is reached.
+	 */
 	bool done()
 	{
 		if (_it == _owner.size() )
@@ -213,11 +271,28 @@ public:
 			return false;
 	}
 
+	/**
+	 * De-references the iterator.
+	 * @return a reference to the item pointed by the iterator.
+	 */
 	const T& operator *() const { ACE_ASSERT (_owner.size() != 0 && _it >= 0 && _it < _owner.size()); return _owner[_it]; }
 
+	/**
+	 * Increment operator.
+	 * @return the new position reached by the iterator.
+	 */
 	int operator ++() { _it++; return _it; }
+
+	/**
+	 * Decrement operator.
+	 * @return the new position reached by the iterator.
+	 */
 	int operator --() { _it--; return _it; }
 
+	/**
+	 * Increment operator.
+	 * @return the new position reached by the iterator.
+	 */
 	int operator ++(int)
 	{
 		int tmp = _it;
@@ -225,6 +300,10 @@ public:
 		return tmp;
 	}
 
+	/**
+	 * Decrement operator.
+	 * @return the new position reached by the iterator.
+	 */
 	int operator --(int)
 	{
 		int tmp = _it;
@@ -232,14 +311,37 @@ public:
 		return tmp;
 	}
 
+	/**
+	 * Compares the iterator with an integer.
+	 * @param i is the number to check with.
+	 * @return true if the iterator points to the i-th element.
+	 */
 	bool operator== (int i) { return (_it == i) ? true : false; }
+
+	/**
+	 * Compares the iterator with another interator.
+	 * @param i is the iterator to compare with.
+	 * @return true if the iterator points to the same element as the argument.
+	 */
 	bool operator== (const YARPVectorIterator<T>& i) { return (_it == i._it) ? true : false; }
 
+	/*
+	 * Cast operator. Transforms the iterator into an integer.
+	 * @return an integer.
+	 */
 	operator int() { return _it; }
+
+	/*
+	 * Assign a value to the iterator.
+	 * @param i is the value to assign.
+	 * @return the value of the iterator after assignment.
+	 */
 	int operator= (int i) { _it = i; return _it; } 
 };
 
-
+/**
+ * A simple vector class derived from the ACE_Array class.
+ */
 template <class T>
 class YARPVector : public ACE_Array<T>
 {
@@ -247,16 +349,53 @@ public:
 	friend class YARPVectorIterator<T>;
 	typedef YARPVectorIterator<T> iterator;
 
+	/**
+	 * Constructor.
+	 * @param size is the size of the array at construction time.
+	 */
 	YARPVector(size_t size = 0) : ACE_Array<T>(size) {}
+
+	/**
+	 * Constructor.
+	 * @param size is the size of the array.
+	 * @param default_value is the value to assign the element of the array to.
+	 */
 	YARPVector(size_t size, const T& default_value) : ACE_Array<T>(size, default_value) {}
+
+	/**
+	 * Copy constructor.
+	 * @param s is a reference to an instance of a YARPVector.
+	 */
 	YARPVector(const YARPVector<T>& s) : ACE_Array<T>(s) {}
+
+	/**
+	 * Constructor.
+	 * @param s is a reference to an instance of an ACE_Array.
+	 */
 	YARPVector(const ACE_Array<T>& s) : ACE_Array<T>(s) {}
 	
+	/**
+	 * Destructor.
+	 */
 	~YARPVector() {}
 
+	/**
+	 * Copy operator.
+	 * @param s is a reference to an instance of a YARPVector.
+	 */
 	void operator= (const ACE_Array<T> &s) { ACE_Array<T>::operator= (s); }
+
+	/**
+	 * Copy operator.
+	 * @param s is a reference to an instance of an ACE_Array.
+	 */
 	void operator= (const YARPVector<T> &s) { ACE_Array<T>::operator= (s); }
 
+	/**
+	 * Resizes the array to a new length.
+	 * @param sz is the new size.
+	 * @return the old size of the array.
+	 */
 	int resize (size_t sz) 
 	{ 
 		int old_size = ACE_Array<T>::size();
@@ -264,6 +403,11 @@ public:
 		return old_size;
 	}
 
+	/**
+	 * Adds an element to the end of the array.
+	 * @param element is the item to be added.
+	 * @return the new size of the array.
+	 */
 	int add_tail (const T& element)
 	{
 		int old_size = resize (ACE_Array<T>::size()+1);
@@ -271,6 +415,11 @@ public:
 		return old_size+1;
 	}
 
+	/**
+	 * Reserves a certain number of elements by pre-allocating memory.
+	 * @param sz is the number of elements to reserve.
+	 * @return the old reserved size of the array.
+	 */
 	int reserve (size_t sz)
 	{
 		int old_size = ACE_Array<T>::max_size();
