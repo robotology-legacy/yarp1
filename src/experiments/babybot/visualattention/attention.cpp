@@ -603,6 +603,7 @@ endDiffCheck:
 							}
 							targetFound = !mustMove;
 						} else {
+							out3.Zero();
 							if (!noOutput) {
 								ACE_OS::printf("Sending point: blob# %ld @ (%d,%d)\n", att_mod.max_boxes[0].id, (int)att_mod.max_boxes[0].centroid_x, (int)att_mod.max_boxes[0].centroid_y);
 								if (exploring) {

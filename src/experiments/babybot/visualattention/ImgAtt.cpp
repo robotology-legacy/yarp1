@@ -1788,7 +1788,7 @@ void YARPImgAtt::drawBlobs(bool stable)
 
 	YarpPixelBGR varFoveaBlob = salience.varBlob(tagged, rg, gr, by, 1);
 
-	//salience.drawFoveaBlob(blobFov, tagged);
+	salience.drawFoveaBlob(blobFov, tagged);
 	//salience.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
 	
 	//blobFov.Zero();
@@ -1835,7 +1835,7 @@ void YARPImgAtt::drawBlobs(bool stable)
 		}*/
 	}
 		
-	salience.drawFoveaBlob(blobFov, tagged);
+	//salience.drawFoveaBlob(blobFov, tagged);
 	//salience.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
 	
 	// Comment the following line to disable the elimination of non valid blob
