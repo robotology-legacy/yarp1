@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.5 2005-03-19 23:41:44 natta Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.6 2005-03-23 13:34:24 babybot Exp $
 ///
 ///
 
@@ -59,16 +59,14 @@ enum ControlBoardCmd
 	CMDDefinePosition 		= 16,	// set encoder value, single axis.
 	CMDDefinePositions 		= 17,	// set encoder values, all axes simultaneously.
 
-	CMDSetPositionControlMode = 86,   // set position mode
-	CMDSetForceControlMode	  = 87,	  // set force control mode
-
 	CMDGetPosition 			= 4,	// read actual encoder position.
 	CMDGetPositions 		= 8,	// see above, all axes.
 	
 	CMDSetSpeed				= 0,	// set the reference speed for position control.
 	CMDSetSpeeds 			= 5,	// see above, all axes.
-	CMDGetSpeeds			= 21,	// istantaneous speed, read from encoders.
 	CMDGetSpeed				= 87,	// istantaneous speed, read from encoder (single joint)
+	CMDGetSpeeds			= 21,	// istantaneous speed, read from encoders.
+
 	CMDGetAccelerations		= 90,   // istantaneous acc, from encoders
 	CMDSetAcceleration 		= 2,	// reference acceleration for position and velocity control.
 	CMDSetAccelerations 	= 7,	// see above, all axes.
@@ -110,6 +108,7 @@ enum ControlBoardCmd
 	CMDSetTorqueLimits 		= 28,	// torque limit, all axes.
 	CMDGetTorqueLimit		= 60,   // get torque limit, single joint
 	CMDGetTorqueLimits		= 61,   // get torque limit, multiple joints
+
 	CMDGetPWM				= 88,	// get pwm output
 	CMDGetPWMs				= 89,	// get pwm output multiple joints
 
@@ -139,15 +138,15 @@ enum ControlBoardCmd
 	CMDSetOutputBit 		= 10,	// set single bit to 1.
 	CMDClearOutputBit 		= 11,	// set single bit to 0.
 	
-	CMDReadSwitches 		= 19,	// read switched (Galil).
+	CMDReadSwitches 		= 19,	// read switches (Galil).
 	
 	CMDReadAnalog			= 66,	// read analog input.
 	CMDSetAxisAnalog		= 67,	// configure axis analog.
 
 	CMDReadInput 			= 32,	// read all ? (not yet impl)
-	CMDInitPortAsInput 		= 33,	// I/O
-	CMDInitPortAsOutput 	= 34,	// I/O
-	CMDGetOutputPort 		= 35,	// I/O
+	CMDInitPortAsInput 		= 33,	// digital I/O 
+	CMDInitPortAsOutput 	= 34,	// digital I/O
+	CMDGetOutputPort 		= 35,	// digital I/O
 
 	CMDGetErrors 			= 31,	// read current error.
 	CMDAbortAxes			= 62,	// abort motion, Galil
@@ -170,6 +169,9 @@ enum ControlBoardCmd
 	//
 	// Miscellaneous.
 	//
+	CMDSetPositionControlMode = 86,   // set position mode
+	CMDSetForceControlMode	  = 87,	  // set force control mode
+
 	CMDResetController 		= 57,	// used to reset the Galil Controller
 	CMDErrorLimit			= 58,	// Error limit
 	CMDOffOnError			= 59,	// This command causes the controller to shut off

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.11 2005-03-19 23:41:44 natta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.12 2005-03-23 13:34:24 babybot Exp $
 ///
 ///
 
@@ -74,7 +74,9 @@
  */
 
 template <class ADAPTER, class PARAMETERS>
+
 class YARPGenericControlBoard
+
 {
 public:
 	/**
@@ -165,12 +167,14 @@ public:
 	int initialize(const YARPString &path, const YARPString &init_file)
 	{
 		_lock();
+
 		int ret = _parameters.load(path, init_file);
 		if (ret==YARP_FAIL)
 		{
 			_unlock();
 			return ret;
 		}
+
 		ret = _initialize();
 		_unlock();
 		return ret;
@@ -417,6 +421,7 @@ public:
 		return ret;
 	}
 
+
 	/**
 	 * Reads the analog input of the card.
 	 * @param index is the analog input number
@@ -430,6 +435,7 @@ public:
 		_unlock();
 		return ret;
 	}
+
 
 	/**
 	 * Uninitializes the control board and frees memory.
@@ -494,12 +500,14 @@ public:
 		{
 			SingleAxisParameters cmd;
 			cmd.axis = _parameters._axis_map[i];
+
 			pos = angleToEncoder(pos,
 		 						 _parameters._encoderToAngles[i],
 								 _parameters._zeros[i],
 								 (int) _parameters._signs[i]);
 			cmd.parameters = &pos;
 			
+
 			_adapter.IOCtl(CMDSetPosition, &cmd);
 			_unlock();
 
@@ -570,6 +578,7 @@ public:
 	int setAccs(const double *acc)
 	{
 		_lock();
+
 		int ret;
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
@@ -619,6 +628,7 @@ public:
 	 */
 	int safeVelocityMove(const double *vel)
 	{
+
 		int ret;
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) 
@@ -659,11 +669,15 @@ public:
 		return ret;
 	}
 
+	/**
+	 *
+	 *
+	 */
 	int stopMotion()
 	{
 		int ret;
 		_lock();
-			ret = _adapter.IOCtl(CMDServoHere, NULL);
+		ret = _adapter.IOCtl(CMDServoHere, NULL);
 		_unlock();
 		return ret;
 	}
@@ -705,15 +719,16 @@ public:
 	 * in degrees.
 	 * @return -1 always.
 	 */
-
 	int getPositions(double *pos)
 	{
 		int ret;
 		_lock();
 		ret = _adapter.IOCtl(CMDGetPositions, _temp_double);
+
 		int j;
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
+
 			j = _parameters._inv_axis_map[i];
 			pos[j] = encoderToAngle(_temp_double[i],
 									_parameters._encoderToAngles[j],
@@ -733,6 +748,7 @@ public:
 	{
 		int ret;
 		_lock();
+
 		ret = _adapter.IOCtl(CMDGetSpeeds, _temp_double);
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
@@ -762,7 +778,6 @@ public:
 												_parameters._encoderToAngles[i],
 												0.0,
 												(int) _parameters._signs[i]);
-		
 		}
 		_unlock();
 		return ret;
@@ -784,7 +799,6 @@ public:
 												_parameters._encoderToAngles[i],
 												0.0,
 												(int) _parameters._signs[i]);
-		
 		}
 		_unlock();
 		return ret;
@@ -800,6 +814,7 @@ public:
 	 */
 	int getTorques(double *t)
 	{
+
 		int ret;
 		_lock();
 		ret = _adapter.IOCtl(CMDGetTorques, _temp_double);
@@ -821,7 +836,9 @@ public:
 	int resetEncoders(const double *pos = NULL)
 	{
 	    int ret;
+
 		_lock();
+
 		for(int i = 0; i < _parameters._nj; i++)
 		{
 			if (pos == NULL)
@@ -1019,16 +1036,19 @@ template <class ADAPTER, class PARAMETERS>
 inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 angleToEncoder(double angle, double encParam, double zero, int sign)
 {
+
 	if (sign == 1)
 		return -(angle * encParam) / (360) + zero;
 	else
 		return angle * encParam / (360) + zero;
 }
 
+
 template <class ADAPTER, class PARAMETERS>
 inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 encoderToAngle(double encoder, double encParam, double zero, int sign)
 {
+
 	if (sign == 1)
 		return (zero-encoder) * 360 / encParam;
 	else
