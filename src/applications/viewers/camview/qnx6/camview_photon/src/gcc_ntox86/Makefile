@@ -112,7 +112,8 @@ clean:
 		rm -f -r .obj/
 
 install:
-	-cp -vnf test /usr/photon/bin
+	#-cp -vnf test /usr/photon/bin
+	cp ./abmain $(YARP_ROOT)/bin/$(OS)/camview
 ##################################################
 
 # IF YOU PUT ANYTHING HERE IT WILL GO AWAY
