@@ -4,7 +4,7 @@ PtWindow
 base
 1005
 dim
-394,533
+338,360
 2002
 crgb
 0xd9d9d9
@@ -48,7 +48,7 @@ short
 2
 1007
 pos
-27,11
+-1,0
 1005
 dim
 323,281
@@ -101,10 +101,10 @@ pos
 0,0
 41001
 short
-20
+40
 41000
 short
-20
+40
 1004
 data
 2
@@ -117,7 +117,7 @@ PtMenuBar
 base_MenuBar
 1005
 dim
-395,23
+339,23
 1007
 pos
 -1,0

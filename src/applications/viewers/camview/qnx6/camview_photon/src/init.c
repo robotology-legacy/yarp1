@@ -124,6 +124,8 @@ init( int argc, char *argv[] )
 
 	//t1.End(0);
 	ParseParams (argc, argv);
+	_Ap_.Ap_winsize.y = H+(H*20/100)+50; 
+	_Ap_.Ap_winsize.x = W+20;
 
 	return( Pt_CONTINUE );
 
