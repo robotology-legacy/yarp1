@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.19 2003-08-26 07:40:49 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.20 2003-08-28 21:23:02 babybot Exp $
 ///
 ///
 
@@ -92,6 +92,7 @@
 #include "YARPList.h"
 #include "YARPSocket.h"
 #include "YARPSocketMulti.h"
+#include "YARPSocketNameService.h"
 #include "YARPThread.h"
 #include "YARPSemaphore.h"
 #include "YARPNameID.h"
@@ -577,9 +578,12 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 		case YARP_MCAST:
 			{
-				char myhostname[YARP_STRING_LEN];
-				getHostname (myhostname, YARP_STRING_LEN);
-				ACE_INET_Addr local (port, myhostname);
+				YARPString myhostip = _remote_endpoint.getInterfaceName();
+				YARPSocketNameService::CONVERT_FORMAT (myhostip);
+				ACE_INET_Addr local (port, myhostip.c_str());
+
+				///char myhostname[YARP_STRING_LEN];
+				///getHostname (myhostname, YARP_STRING_LEN);
 
 				/// opens the local socket (for termination).
 				if (_local_acceptor.open (local, 1))
@@ -612,9 +616,13 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 		case YARP_UDP:
 			{
-				char myhostname[YARP_STRING_LEN];
-				getHostname (myhostname, YARP_STRING_LEN);
-				ACE_INET_Addr local (port, myhostname);
+				YARPString myhostip = _remote_endpoint.getInterfaceName();
+				YARPSocketNameService::CONVERT_FORMAT (myhostip);
+				ACE_INET_Addr local (port, myhostip.c_str());
+
+				///char myhostname[YARP_STRING_LEN];
+				///getHostname (myhostname, YARP_STRING_LEN);
+				///ACE_INET_Addr local (port, myhostname);
 
 				/// opens the local socket (for termination).
 				if (_local_acceptor.open (local, 1) < 0)
@@ -1837,13 +1845,19 @@ void _SocketThreadListMulti::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameSock(YARP_UDP, ACE_INET_Addr(port_number)), port_number);
+				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				temp.setInterfaceName (_interface);
+
+				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_UDP, ACE_INET_Addr(port_number)), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
+				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				temp.setInterfaceName (_interface);
+
 				(*it_avail)->CleanState ();
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameSock(YARP_UDP, ACE_INET_Addr(port_number)), port_number);
+				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_UDP, ACE_INET_Addr(port_number)), port_number);
 				(*it_avail)->Begin();
 			}
 
@@ -2015,14 +2029,20 @@ void _SocketThreadListMulti::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
+				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				temp.setInterfaceName (_interface);
+
 				/// need a port number for SHMEM? or can I recycle the same as UDP, 'cause SHMEM messaging is TCP?
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
+				(*it_avail)->reuse (&temp, &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
+				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				temp.setInterfaceName (_interface);
+
 				(*it_avail)->CleanState ();
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
+				(*it_avail)->reuse (&temp, &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
 				(*it_avail)->Begin();
 			}
 
@@ -2099,15 +2119,21 @@ void _SocketThreadListMulti::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
+				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				temp.setInterfaceName (_interface);
+
 				(*it_avail)->setTCPStream (stream);
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameSock(YARP_TCP, ACE_INET_Addr(port_number)), port_number);
+				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_TCP, ACE_INET_Addr(port_number)), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
+				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				temp.setInterfaceName (_interface);
+
 				(*it_avail)->CleanState ();
 				(*it_avail)->setTCPStream (stream);
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameSock(YARP_TCP, ACE_INET_Addr(port_number)), port_number);
+				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_TCP, ACE_INET_Addr(port_number)), port_number);
 				(*it_avail)->Begin();
 			}
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.31 2003-08-27 16:37:32 babybot Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.32 2003-08-28 21:23:02 babybot Exp $
 ///
 ///
 
@@ -393,6 +393,28 @@ int YARPSocketEndpointManager::CloseMcastAll (void)
 	_endpointmanager.mutex.Post();
 
 	return YARP_OK;
+}
+
+int YARPSocketEndpointManager::GetNumberOfClients (void)
+{
+	YARPNetworkObject *sock = GetThreadSocket();
+	if (sock == NULL)
+	{
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "GetNumberOfClients: no socket associated with current thread\n"));
+		return YARP_FAIL;
+	}
+
+	if (sock->getSocketType() == YARP_O_SOCKET)
+	{
+		/// need to test it's an MCAST socket for real. it might crash otherwise.
+		return ((YARPOutputSocketMcast *)sock)->GetNumberOfClients();
+	}
+	else
+	{
+		return YARP_FAIL;
+	}
+
+	return YARP_FAIL;
 }
 
 int YARPSocketEndpointManager::Close (YARPUniqueNameID& dest)

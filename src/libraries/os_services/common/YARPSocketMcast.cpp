@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.30 2003-08-26 07:40:49 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.31 2003-08-28 21:23:02 babybot Exp $
 ///
 ///
 
@@ -239,6 +239,12 @@ YARPOutputSocketMcast::~YARPOutputSocketMcast (void)
 		delete ((OSDataMcast*)system_resources);
 		system_resources = NULL;
 	}
+}
+
+int YARPOutputSocketMcast::GetNumberOfClients (void)
+{
+	OSDataMcast& d = OSDATA(system_resources);
+	return d._num_connected_clients;
 }
 
 int YARPOutputSocketMcast::CloseMcastAll (void)

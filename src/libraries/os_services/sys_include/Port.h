@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.26 2003-08-27 16:37:32 babybot Exp $
+/// $Id: Port.h,v 1.27 2003-08-28 21:23:03 babybot Exp $
 ///
 ///
 
@@ -207,7 +207,12 @@ public:
 	{
 		WaitMutex();
 		deactivate = 1;
+		/// added to help close connection quickly.
+		something_to_send.Post();
 		PostMutex();
+
+		/// actually terminating the thread, then join.
+		Join();
 	}
 
 	/// special extra commands for MCAST protocol.

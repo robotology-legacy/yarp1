@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.h,v 1.6 2003-07-29 02:26:52 gmetta Exp $
+/// $Id: YARPSocketMcast.h,v 1.7 2003-08-28 21:23:03 babybot Exp $
 ///
 ///
 
@@ -120,6 +120,7 @@ public:
 	/// specific.
 	int Prepare (const YARPUniqueNameID& name);
 	int CloseMcastAll (void);
+	int GetNumberOfClients (void);
 };
 
 #endif

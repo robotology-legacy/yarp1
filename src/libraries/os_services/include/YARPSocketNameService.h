@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketNameService.h,v 1.13 2003-08-27 16:37:32 babybot Exp $
+/// $Id: YARPSocketNameService.h,v 1.14 2003-08-28 21:23:03 babybot Exp $
 ///
 ///
 
@@ -130,6 +130,7 @@ public:
 	static int ConnectEndpoints(YARPUniqueNameID& dest);
 	static int Close(YARPUniqueNameID& dest);
 	static int CloseMcastAll(void);
+	static int GetNumberOfClients(void);
 	static int SetTCPNoDelay(void);
 };
 

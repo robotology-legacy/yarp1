@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.24 2003-08-27 16:37:31 babybot Exp $
+/// $Id: YARPNameService.cpp,v 1.25 2003-08-28 21:23:02 babybot Exp $
 ///
 ///
 
@@ -341,4 +341,10 @@ int YARPEndpointManager::SetTCPNoDelay(const YARPUniqueNameID& endp)
 int YARPEndpointManager::CloseMcastAll(void)
 {
 	return YARPSocketEndpointManager::CloseMcastAll();
+}
+
+///
+int YARPEndpointManager::GetNumberOfClients(void)
+{
+	return YARPSocketEndpointManager::GetNumberOfClients();
 }

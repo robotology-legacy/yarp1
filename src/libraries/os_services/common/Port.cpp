@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.57 2003-08-27 16:37:31 babybot Exp $
+/// $Id: Port.cpp,v 1.58 2003-08-28 21:23:02 babybot Exp $
 ///
 ///
 
@@ -172,7 +172,10 @@ int OutputTarget::ConnectMcast (const char *name)
 	memcpy (cmdname, name, strlen(name));
 	cmdname[strlen(name)] = 0;
 	msg_type = 1;
+	something_to_send.Post();
 	PostMutex ();
+
+	YARPScheduler::yield();
 
 	return YARP_OK;
 }
@@ -183,7 +186,10 @@ int OutputTarget::DeactivateMcast (const char *name)
 	memcpy (cmdname, name, strlen(name));
 	cmdname[strlen(name)] = 0;
 	msg_type = 2;
+	something_to_send.Post();
 	PostMutex ();
+
+	YARPScheduler::yield();
 
 	return YARP_OK;
 }
@@ -192,8 +198,12 @@ int OutputTarget::DeactivateMcastAll (void)
 {
 	WaitMutex ();
 	msg_type = 3;
+	something_to_send.Post();
 	PostMutex ();
 
+	/// I may actually join here!
+	YARPScheduler::yield();
+	
 	return YARP_OK;
 }
 
@@ -494,6 +504,14 @@ void OutputTarget::Body ()
 					YARPUniqueNameID* udp_channel = YARPNameService::LocateName(cmdname, network_name.c_str(), YARP_UDP);
 					if (udp_channel->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 						udp_channel->setName(cmdname);
+					
+					/// test for thread termination.
+					if (YARPEndpointManager::GetNumberOfClients () <= 1)
+					{
+						active = 0;
+						deactivated = 1;
+					}
+
 					YARPEndpointManager::Close (*udp_channel);
 					YARPNameService::DeleteName (udp_channel);
 				}
@@ -504,12 +522,19 @@ void OutputTarget::Body ()
 					/// disconnect all
 					YARPEndpointManager::CloseMcastAll ();
 					active = 0;
-					deactivate = 1;	/// perhaps deactivate = 1;
+					deactivated = 1;	/// perhaps deactivate = 1;
 				}
 				break;
 			}
 
-			msg_type = 0;
+			/// if a message has been processed jump to the end of thread cycle.
+			if (msg_type != 0)
+			{
+				msg_type = 0;
+				PostMutex();
+				continue;
+			}
+
 		}	/// end of if (protocol_type).
 
 
@@ -608,8 +633,6 @@ void _strange_select::Body ()
 		
 		/// hopefully in wait on the sema, it returns from here.
 		if (IsTerminated()) continue;
-
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Go! --- from a new thread --- \n"));
 
 		/// access to targets must be protected, in case, the port
 		/// thread decides to delete a link ;)
@@ -1135,6 +1158,42 @@ void Port::Body()
 								target->DeactivateMcast(buf+1);
 							}
 						}
+					}
+
+					/// scan the list of outputs to delete disconnected ones!
+
+					///
+					/// don't I need a wait for completion of the Deactivate procedure here?
+
+					double now = YARPTime::GetTimeAsSeconds();
+					target = targets.GetRoot();
+					while (target != NULL)
+					{
+						next = target->GetMeshNext();
+						target->WaitMutex();
+						int active = target->active;
+						int deactivated = target->deactivated;
+						int ticking = target->ticking;
+						double started = target->check_tick;
+						target->PostMutex();
+						int timeout = 0;
+						
+						if (ticking && now-started > 5)
+						{
+							active = 0;
+							timeout = 1;
+						}
+
+						if (!active)
+						{
+							ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s (%s%s)\n",
+								name.c_str(), target->GetLabel().c_str(),
+								deactivated ? "as requested" : "target stopped responding",
+								timeout?"/timeout":""));
+
+							delete target;
+						}
+						target = next;
 					}
 
 					list_mutex.Post ();
