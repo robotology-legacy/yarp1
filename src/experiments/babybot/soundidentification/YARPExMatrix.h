@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPExMatrix.h,v 1.4 2004-09-21 17:21:52 beltran Exp $
+/// $Id: YARPExMatrix.h,v 1.5 2004-10-04 12:41:50 beltran Exp $
 ///
 #ifndef __YARPExMatrixh__
 #define __YARPExMatrixh__
@@ -54,11 +54,14 @@ private:
 
 	YVector _vTau;
 	YARPQRFactorization _Qr;
+	bool _fullcov; /** Indicates whether the complete covariance matrix has been calculated
+					or only the variance matrix has been calculated (true = calculated)(false =
+					not calculated). */
 public:
 	/** 
 	  * Constructor.
 	  */
-	YARPCovMatrix(){}
+	YARPCovMatrix():_fullcov(false){}
 	
 	/** 
 	  * Overloaded constructor with a initialization matrix. 
@@ -67,7 +70,8 @@ public:
 	  */
 	YARPCovMatrix(YARPCovMatrix &refmatrix):YMatrix(refmatrix)
 	{
-		refmatrix.getOriginalVariancesMatrix(_mA);
+		YMatrix& tempA = refmatrix.getOriginalVariancesMatrix();
+		_mA = tempA;
 	}
 
 	/** 
@@ -96,6 +100,8 @@ public:
 			else
 				(*this) = (_mA.Transposed() * _mA) / (_mA.NRows() - 1);
 
+		_fullcov = true;
+
 		return YARP_OK;
 	}
 
@@ -119,17 +125,12 @@ public:
 	}
 
 	/** 
-	  * Gets the A matrix in the case this is a covariance matrix.
+	  * Gets a reference to the internal variances matrix.
 	  * 
-	  * @param mA The external matrix to fill.
-	  * @return YARP_FAIL This is not a covariance matrix.
-	  * 		YARP_OK
+	  * @return A reference to _mA.
+	  * 	
 	  */
-	int getOriginalVariancesMatrix(YMatrix &mA) 
-	{ 
-		mA = _mA; 
-		return YARP_OK;
-	}
+	YMatrix& getOriginalVariancesMatrix() { return _mA; }
 
 	/** 
 	  * Calculate internal R matrix (from QR factorization).
@@ -173,6 +174,18 @@ public:
 	}
 
 	/** 
+	  * Get the state of the convariance matrix.
+	  * 
+	  * @return The value of the _fullcov boolean.
+	  * 	-# True the covariance matrix has been calculated.
+	  * 	-# The covariance matrix has NOT been calculated.
+	  */
+	bool getFullCov()
+	{
+		return _fullcov;
+	}
+
+	/** 
 	  * Calculates the determinant of the covariance matrix.
 	  * 
 	  * @param det A reference to a variable where to store the value of the determinant.
@@ -192,13 +205,30 @@ public:
 		return YARP_OK;
 	}
 
+	/** 
+	  * The actual matrix gets copies of the internal R,A matrixes and the Tau vector.
+	  * The actual ref matrix internal covariance matrix is not copied. Calculate cov
+	  * must be called after is one wants the convariance matrix to be calculated.
+	  * 
+	  * @param refmatrix The reference matrix to be copied
+	  * 
+	  * @return 
+	  */
 	YARPCovMatrix& operator=(YARPCovMatrix& refmatrix)
 	{
 		refmatrix.getR(_mR);
-		refmatrix.getOriginalVariancesMatrix(_mA);
+		YMatrix& tempA = refmatrix.getOriginalVariancesMatrix();
+		_mA = tempA;
 		refmatrix.getTau(_vTau);
 	}
 	
+	/** 
+	  * The internal YMatrix is copied from the refmatrix.
+	  * 
+	  * @param refmatrix The reference to the matrix to be copied.
+	  * 
+	  * @return 
+	  */
 	YARPCovMatrix& operator=(YMatrix& refmatrix)
 	{
 		
@@ -283,10 +313,18 @@ public:
 
 	/** 
 	  * Calculates the covariance matrix.
+	  *
+	  * @param mCov The covariance matrix to fill with the result.
+	  * @param fullcov Controls whether the covariance matrix if fully calculated or not.
+	  * 	-# 0 Calculates only the variances matrix.
+	  * 	-# 1 Calculates the full covariance matrix.
+	  *	@param flag Controls whether the covariance is divide by N or by N-1.
+	  *		-# 0 N-1
+	  *		-# 1 N
 	  * 
 	  * @return The covariance matrix.
 	  */
-	inline int covarianceMatrix(YARPCovMatrix &mCov, int flag = 0)
+	inline int covarianceMatrix(YARPCovMatrix &mCov,int fullcov, int flag = 0)
 	{
 		int c;
 		int r;
@@ -312,10 +350,13 @@ public:
 		//----------------------------------------------------------------------
 		//  Calculate the final covariance matrix
 		//----------------------------------------------------------------------
-		if (flag)
-			mCov = (_mLocalVariances.Transposed() * _mLocalVariances) / (double)(NRows()); 
-		else
-			mCov = (_mLocalVariances.Transposed() * _mLocalVariances) / (double)(NRows()-1);
+		if (fullcov)
+		{
+			if (flag)
+				mCov = (_mLocalVariances.Transposed() * _mLocalVariances) / (double)(NRows()); 
+			else
+				mCov = (_mLocalVariances.Transposed() * _mLocalVariances) / (double)(NRows()-1);
+		}
 
 		mCov.setOriginalVariancesMatrix(_mLocalVariances);
 

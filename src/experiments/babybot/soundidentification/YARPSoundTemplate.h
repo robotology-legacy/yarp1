@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.10 2004-09-21 17:21:52 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.11 2004-10-04 12:41:50 beltran Exp $
 ///
 
 /** 
@@ -389,6 +389,9 @@ public:
 	  * Calculates the covariance matrix of the sound template.
 	  * 
 	  * @param mCov A reference to an external matrix to put the covariance data.
+	  * @param fullcov 
+	  * 	-# 0 Calculates only the variance matrix A
+	  * 	-# 1 Calculates the full covariance doint also A'A
 	  * @param flag Determinates if the data in normalized with N or N-1
 	  * 	-# 0 N-1 is used
 	  * 	-# 1 N is used
@@ -398,7 +401,7 @@ public:
 	  * 	-# YARP_FAIL
 	  */
 	int
-	CovarianceMatrix(YARPCovMatrix &mCov, int flag = 0)
+	CovarianceMatrix(YARPCovMatrix &mCov, int fullcov, int flag = 0)
 	{
 		int i;
 		int j;
@@ -444,15 +447,22 @@ public:
 				_xvars(i,j) = (*pvector)(j) - _means(j);
 		}
 
-		_xvarst = _xvars.Transposed();
-		_mcov   = _xvarst * _xvars;
-		mCov    = _mcov;
 
-		// Calculate the final covariance matrix
-		if (flag)
-			mCov /= (double)(m_currentsize); 
-		else
-			mCov /= (double)(m_currentsize-1);
+		//----------------------------------------------------------------------
+		//  Calculate the full covariance matrix (A'A / m_currentsize)
+		//----------------------------------------------------------------------
+		if (fullcov)
+		{
+			_xvarst = _xvars.Transposed();
+			_mcov   = _xvarst * _xvars;
+			mCov    = _mcov;
+
+			// Calculate the final covariance matrix
+			if (flag)
+				mCov /= (double)(m_currentsize); 
+			else
+				mCov /= (double)(m_currentsize-1);
+		}
 
 		mCov.setOriginalVariancesMatrix(_xvars);
 

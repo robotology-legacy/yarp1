@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.7 2004-08-24 13:32:43 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.8 2004-10-04 12:41:50 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -36,6 +36,7 @@
 #define FREQ_T 10000     // up cutting filter frequency
 #define ILD_LOW_FREQ 1   // down cutting frequency for ILD calculation
 #define L_VECTOR_MFCC 13 // Lengh of the MFCC coefficients vector
+#define L_VECTOR_MFCC2 6 // Length of the sorter version of the MFCC coefficients vector
 
 class SoundIdentificationProcessing
 {
