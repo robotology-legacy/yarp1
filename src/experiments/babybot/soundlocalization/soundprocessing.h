@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.14 2004-05-05 15:03:57 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.15 2004-05-24 13:33:11 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -160,6 +160,14 @@ public:
 
 		itd_filtered = itd.GetSimpleMedia();
 		ild_filtered = ild.GetMedia();
+
+		//----------------------------------------------------------------------
+		//  Calculate the vector with the motor commands
+		//----------------------------------------------------------------------
+		/*
+		 * out(1) = (itd_filtered * _k_gain(1)) * degToRad; //This should be the pan
+		 * out(2) = (ild_filtered * _k_gain(2)) * degToRad; //This should be the tilt
+		 */
 	}
 
 	//--------------------------------------------------------------------------------------
@@ -202,6 +210,8 @@ public:
 
 	int GetThresholds(Thresholds *);
 	int SetThresholds(Thresholds *);
+
+	void SetGain(double gain){ _k_gains = gain;}
 
 private:
 	int CrossCorrelation(double *, double *);
@@ -247,21 +257,21 @@ private:
 
     double * Re;
     double * Im;
-    double * crosscorrelation_Re;     // The correlation buffer (it is also used to store the spectrum when calculating the fft)
-    double * crosscorrelation_Im;     // Well, really, the crosscorralation has not an imaginary part
-                                      // this is just used to store the imaginary part of the fft that is later used
-                                      // to obtain the crosscorrelation using the inverse fft
-    double * leftcorrelation_Re;      // This is for the auto correlation of the left audio signal
-    double * leftcorrelation_Im;      // Here applies the same discusion than in the crosscorrelation case
-    double * rightcorrelation_Re;     // The same but for the right audio signal
+    double * crosscorrelation_Re;      // The correlation buffer (it is also used to store the spectrum when calculating the fft)
+    double * crosscorrelation_Im;      // Well, really, the crosscorralation has not an imaginary part
+                                       // this is just used to store the imaginary part of the fft that is later used
+                                       // to obtain the crosscorrelation using the inverse fft
+    double * leftcorrelation_Re;       // This is for the auto correlation of the left audio signal
+    double * leftcorrelation_Im;       // Here applies the same discusion than in the crosscorrelation case
+    double * rightcorrelation_Re;      // The same but for the right audio signal
     double * rightcorrelation_Im;
-	double * middleSampleRight;
-	double * middleSampleLeft;
-    double * SCOToperator_Re;        // The buffer for the SCOToperator
+    double * middleSampleRight;
+    double * middleSampleLeft;
+    double * SCOToperator_Re;          // The buffer for the SCOToperator
     double * SCOToperator_Im;
-	double * corrVect;
-	double * corrVectFreq;
-    double corrMax;                  // Maximum value in the correlation vector
+    double * corrVect;
+    double * corrVectFreq;
+    double corrMax;                    // Maximum value in the correlation vector
 
     int numSamples;     // number of samples for channel
     int numFreqSamples; // length of the trasformations (N/2 + 1??)
@@ -275,5 +285,6 @@ private:
 
 	YARPString _iniFile;
 	YARPString _path;
+	YVector _k_gains;
 };
 #endif

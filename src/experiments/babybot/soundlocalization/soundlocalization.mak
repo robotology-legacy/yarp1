@@ -1,20 +1,20 @@
-# Microsoft Developer Studio Generated NMAKE File, Based on headsmooth.dsp
+# Microsoft Developer Studio Generated NMAKE File, Based on soundlocalization.dsp
 !IF "$(CFG)" == ""
-CFG=headsmooth - Win32 Debug
-!MESSAGE No configuration specified. Defaulting to headsmooth - Win32 Debug.
+CFG=soundlocalization - Win32 Debug
+!MESSAGE No configuration specified. Defaulting to soundlocalization - Win32 Debug.
 !ENDIF 
 
-!IF "$(CFG)" != "headsmooth - Win32 Release" && "$(CFG)" != "headsmooth - Win32 Debug"
+!IF "$(CFG)" != "soundlocalization - Win32 Release" && "$(CFG)" != "soundlocalization - Win32 Debug"
 !MESSAGE Invalid configuration "$(CFG)" specified.
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "headsmooth.mak" CFG="headsmooth - Win32 Debug"
+!MESSAGE NMAKE /f "soundlocalization.mak" CFG="soundlocalization - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "headsmooth - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "headsmooth - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "soundlocalization - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "soundlocalization - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 !ERROR An invalid configuration is specified.
 !ENDIF 
@@ -25,7 +25,7 @@ NULL=
 NULL=nul
 !ENDIF 
 
-!IF  "$(CFG)" == "headsmooth - Win32 Release"
+!IF  "$(CFG)" == "soundlocalization - Win32 Release"
 
 OUTDIR=.\Release
 INTDIR=.\Release
@@ -33,14 +33,16 @@ INTDIR=.\Release
 OutDir=.\Release
 # End Custom Macros
 
-ALL : "$(OUTDIR)\headsmooth.exe"
+ALL : "$(OUTDIR)\soundlocalization.exe"
 
 
 CLEAN :
-	-@erase "$(INTDIR)\headsmooth.obj"
-	-@erase "$(INTDIR)\smoothcontrol.obj"
+	-@erase "$(INTDIR)\ILDBuffer.obj"
+	-@erase "$(INTDIR)\ITDBuffer.obj"
+	-@erase "$(INTDIR)\soundlocalization.obj"
+	-@erase "$(INTDIR)\soundprocessing.obj"
 	-@erase "$(INTDIR)\vc60.idb"
-	-@erase "$(OUTDIR)\headsmooth.exe"
+	-@erase "$(OUTDIR)\soundlocalization.exe"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -80,16 +82,18 @@ CPP_PROJ=/nologo /MD /W3 /GX /O2 /I "..\..\..\..\include" /D "WIN32" /D "NDEBUG"
 
 RSC=rc.exe
 BSC32=bscmake.exe
-BSC32_FLAGS=/nologo /o"$(OUTDIR)\headsmooth.bsc" 
+BSC32_FLAGS=/nologo /o"$(OUTDIR)\soundlocalization.bsc" 
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=math.lib utils.lib winmm.lib os_services.lib ace.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\headsmooth.pdb" /machine:I386 /out:"$(OUTDIR)\headsmooth.exe" /libpath:"..\..\..\..\lib\winnt" 
+LINK32_FLAGS=math.lib utils.lib winmm.lib os_services.lib ace.lib images.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\soundlocalization.pdb" /machine:I386 /out:"$(OUTDIR)\soundlocalization.exe" /libpath:"..\..\..\..\lib\winnt" 
 LINK32_OBJS= \
-	"$(INTDIR)\headsmooth.obj" \
-	"$(INTDIR)\smoothcontrol.obj"
+	"$(INTDIR)\ILDBuffer.obj" \
+	"$(INTDIR)\ITDBuffer.obj" \
+	"$(INTDIR)\soundlocalization.obj" \
+	"$(INTDIR)\soundprocessing.obj"
 
-"$(OUTDIR)\headsmooth.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+"$(OUTDIR)\soundlocalization.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
   $(LINK32_FLAGS) $(LINK32_OBJS)
 <<
@@ -104,11 +108,11 @@ ALL : $(DS_POSTBUILD_DEP)
 OutDir=.\Release
 # End Custom Macros
 
-$(DS_POSTBUILD_DEP) : "$(OUTDIR)\headsmooth.exe"
-   copy .\Release\headsmooth.exe ..\..\..\..\bin\winnt
+$(DS_POSTBUILD_DEP) : "$(OUTDIR)\soundlocalization.exe"
+   copy .\Release\soundlocalization.exe ..\..\..\..\bin\winnt
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 
-!ELSEIF  "$(CFG)" == "headsmooth - Win32 Debug"
+!ELSEIF  "$(CFG)" == "soundlocalization - Win32 Debug"
 
 OUTDIR=.\Debug
 INTDIR=.\Debug
@@ -116,17 +120,19 @@ INTDIR=.\Debug
 OutDir=.\Debug
 # End Custom Macros
 
-ALL : "$(OUTDIR)\headsmooth.exe"
+ALL : "$(OUTDIR)\soundlocalization.exe"
 
 
 CLEAN :
-	-@erase "$(INTDIR)\headsmooth.obj"
-	-@erase "$(INTDIR)\smoothcontrol.obj"
+	-@erase "$(INTDIR)\ILDBuffer.obj"
+	-@erase "$(INTDIR)\ITDBuffer.obj"
+	-@erase "$(INTDIR)\soundlocalization.obj"
+	-@erase "$(INTDIR)\soundprocessing.obj"
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
-	-@erase "$(OUTDIR)\headsmooth.exe"
-	-@erase "$(OUTDIR)\headsmooth.ilk"
-	-@erase "$(OUTDIR)\headsmooth.pdb"
+	-@erase "$(OUTDIR)\soundlocalization.exe"
+	-@erase "$(OUTDIR)\soundlocalization.ilk"
+	-@erase "$(OUTDIR)\soundlocalization.pdb"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -166,16 +172,18 @@ CPP_PROJ=/nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\..\..\..\include" /D "WIN32" /D
 
 RSC=rc.exe
 BSC32=bscmake.exe
-BSC32_FLAGS=/nologo /o"$(OUTDIR)\headsmooth.bsc" 
+BSC32_FLAGS=/nologo /o"$(OUTDIR)\soundlocalization.bsc" 
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=aced.lib motorcontroldb.lib mathdb.lib utilsdb.lib alldriversdb.lib winmm.lib os_servicesDB.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"$(OUTDIR)\headsmooth.pdb" /debug /machine:I386 /out:"$(OUTDIR)\headsmooth.exe" /pdbtype:sept /libpath:"..\..\..\..\lib\winnt" 
+LINK32_FLAGS=aced.lib motorcontroldb.lib mathdb.lib imagesdb.lib utilsdb.lib alldriversdb.lib winmm.lib os_servicesDB.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"$(OUTDIR)\soundlocalization.pdb" /debug /machine:I386 /out:"$(OUTDIR)\soundlocalization.exe" /pdbtype:sept /libpath:"..\..\..\..\lib\winnt" 
 LINK32_OBJS= \
-	"$(INTDIR)\headsmooth.obj" \
-	"$(INTDIR)\smoothcontrol.obj"
+	"$(INTDIR)\ILDBuffer.obj" \
+	"$(INTDIR)\ITDBuffer.obj" \
+	"$(INTDIR)\soundlocalization.obj" \
+	"$(INTDIR)\soundprocessing.obj"
 
-"$(OUTDIR)\headsmooth.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+"$(OUTDIR)\soundlocalization.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
   $(LINK32_FLAGS) $(LINK32_OBJS)
 <<
@@ -190,31 +198,41 @@ ALL : $(DS_POSTBUILD_DEP)
 OutDir=.\Debug
 # End Custom Macros
 
-$(DS_POSTBUILD_DEP) : "$(OUTDIR)\headsmooth.exe"
-   copy .\Debug\headsmooth.exe ..\..\..\..\bin\winnt
+$(DS_POSTBUILD_DEP) : "$(OUTDIR)\soundlocalization.exe"
+   copy .\Debug\soundlocalization.exe ..\..\..\..\bin\winnt
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 
 !ENDIF 
 
 
 !IF "$(NO_EXTERNAL_DEPS)" != "1"
-!IF EXISTS("headsmooth.dep")
-!INCLUDE "headsmooth.dep"
+!IF EXISTS("soundlocalization.dep")
+!INCLUDE "soundlocalization.dep"
 !ELSE 
-!MESSAGE Warning: cannot find "headsmooth.dep"
+!MESSAGE Warning: cannot find "soundlocalization.dep"
 !ENDIF 
 !ENDIF 
 
 
-!IF "$(CFG)" == "headsmooth - Win32 Release" || "$(CFG)" == "headsmooth - Win32 Debug"
-SOURCE=.\headsmooth.cpp
+!IF "$(CFG)" == "soundlocalization - Win32 Release" || "$(CFG)" == "soundlocalization - Win32 Debug"
+SOURCE=.\ILDBuffer.cpp
 
-"$(INTDIR)\headsmooth.obj" : $(SOURCE) "$(INTDIR)"
+"$(INTDIR)\ILDBuffer.obj" : $(SOURCE) "$(INTDIR)"
 
 
-SOURCE=.\smoothcontrol.cpp
+SOURCE=.\ITDBuffer.cpp
 
-"$(INTDIR)\smoothcontrol.obj" : $(SOURCE) "$(INTDIR)"
+"$(INTDIR)\ITDBuffer.obj" : $(SOURCE) "$(INTDIR)"
+
+
+SOURCE=.\soundlocalization.cpp
+
+"$(INTDIR)\soundlocalization.obj" : $(SOURCE) "$(INTDIR)"
+
+
+SOURCE=.\soundprocessing.cpp
+
+"$(INTDIR)\soundprocessing.obj" : $(SOURCE) "$(INTDIR)"
 
 
 

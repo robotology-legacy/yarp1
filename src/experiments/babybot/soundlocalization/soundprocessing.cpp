@@ -12,7 +12,7 @@
 //     This implementatin is partially based in the sound software used by Lorenzo Natale
 //     is his master thesis.
 // 
-//         Version:  $Id: soundprocessing.cpp,v 1.12 2004-04-30 16:43:18 beltran Exp $
+//         Version:  $Id: soundprocessing.cpp,v 1.13 2004-05-24 13:33:11 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -22,6 +22,7 @@
 #include "soundprocessing.h"
 #include <YARPConfigFile.h>
 
+const double __soundgain = 0.01;
 //--------------------------------------------------------------------------------------
 //       Class: SoundProcessing
 //      Method: SoundProcessing
@@ -47,6 +48,9 @@ ild(NUM_ILD), itd(NUM_ITD)
 
 	_path.append(root);
 	_path.append("/conf/babybot/"); 
+
+	_k_gains.Resize(2); //This is the gain vector for the tilt and the pan
+	_k_gains = __soundgain;
 
 	//----------------------------------------------------------------------
 	//  Just recover from the configuration file the real sound parameters the user
