@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPBabybotArm.h,v 1.6 2003-05-13 20:13:24 natta Exp $
+// $Id: YARPBabybotArm.h,v 1.7 2003-05-15 18:44:19 natta Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -40,13 +40,16 @@ public:
 		return ret;
 	}
 	// overrides basic methods -> add coupling
-	int setPositions(double *pos);
-	int setPositionsAll(double *pos);
-	int setVelocities(double *vel);
-	int setAccs(double *acc);
-	int velocityMove(double *vel);
-	int setCommands(double *pos);
+	int setPositions(const double *pos);
+	int setPositionsAll(const double *pos);
+	int setVelocities(const double *vel);
+	int setAccs(const double *acc);
+	int velocityMove(const double *vel);
+	int setCommands(const double *pos);
 	int getPositions(double *pos);
+	
+	// set offset to i-th joint
+	int setG(int i, double g);
 
 	// very specific functions... 6 dof only!
 	inline void angleToEncoders(const double *ang, double *enc)
