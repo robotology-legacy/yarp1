@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.14 2003-06-30 09:30:06 babybot Exp $
+/// $Id: LocalNameServer.h,v 1.15 2003-07-01 09:48:44 babybot Exp $
 ///
 ///
 
@@ -380,7 +380,7 @@ public:
 		}
 		else
 		{
-			NAME_SERVER_DEBUG(("Sorry, cannot find: %s\n", name.c_str()));
+			NAME_SERVER_DEBUG(("TCP/UDP/MCAST name %s not found\n", name.c_str()));
 			return -1;		// error: resource not found
 		}
 	}
@@ -407,12 +407,13 @@ public:
 		QNXSVC_IT it;
 		if (find_service(name, it) != -1)
 		{
+			NAME_SERVER_DEBUG(("QNX name %s no longer used, releasing\n", name.c_str()));
 			erase(it);
 			return 1;		// resource destroyed
 		}
 		else
 		{
-			NAME_SERVER_DEBUG(("Sorry, cannot find: %s\n", name.c_str()));
+			NAME_SERVER_DEBUG(("QNX name %s not found\n", name.c_str()));
 			return -1;		// error: resource not found
 		}
 	}

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.11 2003-06-25 12:23:08 babybot Exp $
+/// $Id: YARPNameServer.cpp,v 1.12 2003-07-01 09:48:44 babybot Exp $
 ///
 ///
 
@@ -215,7 +215,7 @@ void YARPNameServer::handle_registration_qnx(const YARPNameQnx &entry)
 
 void YARPNameServer::handle_release_qnx(const string &name)
 {
-	NAME_SERVER_DEBUG(("%s no longer used, releasing\n", name.c_str()));
+	NAME_SERVER_DEBUG(("QNX name %s no longer used, releasing\n", name.c_str()));
 	ns.check_out_qnx(name);
 	// _handle_reply(entry, type);
 }

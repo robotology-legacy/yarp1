@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.6 2003-04-27 16:54:36 natta Exp $
+/// $Id: main.cpp,v 1.7 2003-07-01 09:48:44 babybot Exp $
 ///
 ///
 
@@ -121,6 +121,7 @@ int main(int argc, char* argv[])
 {
 	// NameClient nc("130.251.43.254", 1000);
 	YARPNameClient nc("localhost", 1000);
+	// YARPNameClient nc("130.251.43.254", 10000);
 		
 	string str;
 	print_menu();

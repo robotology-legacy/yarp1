@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.11 2003-06-25 12:53:23 babybot Exp $
+/// $Id: LocalNameServer.cpp,v 1.12 2003-07-01 09:48:44 babybot Exp $
 ///
 
 #include "LocalNameServer.h"
@@ -190,7 +190,7 @@ void resources::release(const std::string &ip, int port)
 			erase(it);
 	}
 	else
-		NAME_SERVER_DEBUG(("Sorry, cannot find: %s\n", ip.c_str()));
+		NAME_SERVER_DEBUG(("%s not found\n", ip.c_str()));
 }
 
 bool resources::check_port(const std::string &ip, int port)
@@ -206,7 +206,7 @@ bool resources::check_port(const std::string &ip, int port)
 	}
 	else
 	{
-		NAME_SERVER_DEBUG(("Sorry, cannot find: %s\n", ip.c_str()));
+		NAME_SERVER_DEBUG(("%s not found\n", ip.c_str()));
 		return false;
 	}
 }
@@ -240,7 +240,7 @@ int resources::ask_new(const std::string &ip, int *port)
 	}
 	else
 	{
-		NAME_SERVER_DEBUG(("Sorry, cannot find: %s\n", ip.c_str()));
+		NAME_SERVER_DEBUG(("%s not found\n", ip.c_str()));
 		return -1;
 	}
 }
@@ -268,7 +268,7 @@ int resources::ask_new(const std::string &ip, PORT_LIST &ports, int n)
 	}
 	else
 	{
-		NAME_SERVER_DEBUG(("Sorry, cannot find: %s\n", ip.c_str()));
+		NAME_SERVER_DEBUG(("%s not found\n", ip.c_str()));
 		return -1;
 	}
 }
@@ -327,7 +327,7 @@ int services::check_out(const std::string &name, std::string &ip, PORT_LIST &por
 	}
 	else
 	{
-		NAME_SERVER_DEBUG(("Sorry, cannot find: %s\n", name.c_str()));
+		NAME_SERVER_DEBUG(("TCP/UDP/MCAST name %s not found\n", name.c_str()));
 		return -1;		// error: resource not found
 	}
 }
@@ -339,7 +339,7 @@ void services::check_in(const std::string &name, const std::string &ip, int type
 	SVC_IT it;
 	if (find_service(name, it) != -1)
 	{
-		NAME_SERVER_DEBUG(("Error, %s already registered\n", name.c_str()));
+		NAME_SERVER_DEBUG(("TCP/UDP/MCAST name %s already registered\n", name.c_str()));
 	}
 	else
 	{
@@ -368,7 +368,7 @@ bool services::check(const std::string &name, std::string &ip, int *type, PORT_L
 	else
 	{
 		ports.push_back(PortEntry(__portNotFound));	//port not found !
-		NAME_SERVER_DEBUG(("%s not found\n", name.c_str()));
+		NAME_SERVER_DEBUG(("TCP/UDP/MCAST name %s not found\n", name.c_str()));
 		return false;
 	}
 
@@ -537,6 +537,8 @@ int LocalNameServer::registerName(const std::string &name, const IpEntry &entry,
 {
 	PORT_LIST new_ports;
 	int ret;
+	// check if name is already reg as QNX and remove it
+	_checkAndRemoveQnx(name);
 	//  if name is already registered
 	_checkAndRemove(name);
 	ret = _registerName(name, entry, type, new_ports, 1);
@@ -547,6 +549,8 @@ int LocalNameServer::registerName(const std::string &name, const IpEntry &entry,
 int LocalNameServer::registerName(const std::string &name, const IpEntry &entry, int type, PORT_LIST &ports, int n)
 {
 	int ret;
+	// check if name is already reg as QNX and remove it
+	_checkAndRemoveQnx(name);
 	//  if name is already registered
 	_checkAndRemove(name);
 	ret = _registerName(name, entry, type, ports, n);
@@ -555,6 +559,9 @@ int LocalNameServer::registerName(const std::string &name, const IpEntry &entry,
 
 int LocalNameServer::registerNameDIp(const std::string &name, std::string &ip, int type, int *port)
 {
+	// firstly check if name is already reg as QNX and remove it
+	_checkAndRemoveQnx(name);
+	//
 	_checkAndRemove(name);
 
 	IpEntry new_ip;
@@ -577,6 +584,9 @@ int LocalNameServer::registerNameDIp(const std::string &name, std::string &ip, i
 
 int LocalNameServer::registerNameQnx(const YARPNameQnx &entry)
 {
+	// first of all check and remove name if already registered as TCP/UDP/MCAST
+	_checkAndRemove(std::string(entry.getName()));
+	// now check anc remove QNX names
 	_checkAndRemoveQnx(std::string(entry.getName()));
 
 	return _registerNameQnx(entry);
