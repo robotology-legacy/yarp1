@@ -11,7 +11,7 @@
 //     Description:  This is the main loop receiving the sound streams. Another class called
 //     soundprocessing is used to perform all the analysis.
 // 
-//         Version:  $Id: soundlocalization.cpp,v 1.7 2004-04-29 15:12:14 beltran Exp $
+//         Version:  $Id: soundlocalization.cpp,v 1.8 2004-04-30 16:43:17 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 	double sccvector[100]; // scaled cross correlation vector
 	double sccvector2[100]; // scaled cross correlation vector
 	char * ppixel;
-	int x, y;
+	int _x, _y;
 	YARPImageOf<YarpPixelBGR> _sl_img; // Image to create the sound localization map
 	//_sl_img.Resize (100, 255);
 	_sl_img.Resize (imgsizex, imgsizey);
@@ -100,21 +100,18 @@ int main(int argc, char* argv[])
 		_inPort.Read();
         _soundprocessor.apply(_inPort.Content(), v); // This is the sound buffer
 
-		x = _soundprocessor.GetITD();
-		_soundprocessor.GetILD(ild, left, right);
-		y = ild;
-
-		//x *= 10;
-		//y *= 10;
+		_x = _soundprocessor.GetFilteredITD();
+		_y = _soundprocessor.GetFilteredILD();
 
 		// Move the origin to the center of the image
-		x = (imgsizex/2 + functionx) - x;
-		y = (imgsizey/2) - y;
+		_x = (imgsizex/2 + functionx) - _x;
+		_y = (imgsizey/2) - _y;
 
 		_sl_img.Zero(); // clear the image 
 
-		AddCircle(_sl_img,pixr,x,y,10);
+		AddCircle(_sl_img,pixr,_x,_y,10);
 		AddCrossHair(_sl_img,pixg, (imgsizex/2 + functionx), (imgsizey/2), 5);
+
 		//----------------------------------------------------------------------
 		// crosscorrelation painting in the image 
 		//----------------------------------------------------------------------
@@ -126,22 +123,24 @@ int main(int argc, char* argv[])
 		for ( i = 0; i < functionx; i++)
 		{
 			// maping the crosscorrelation vector in the scaled crosscorrelation vector
-            sccvector[i]  = (0.5 * sccvector[i])  + (0.5 * _pcrosscorrelation[i]);
-            sccvector2[i] = (0.5 * sccvector2[i]) + (0.5 * _pfreccrosscorrelation[i]);
+            ///sccvector[i]  = (0.5 * sccvector[i])  + (0.5 * _pcrosscorrelation[i]);
+            ///sccvector2[i] = (0.5 * sccvector2[i]) + (0.5 * _pfreccrosscorrelation[i]);
+            sccvector[i]  = _pcrosscorrelation[i];
+            sccvector2[i] = _pfreccrosscorrelation[i];
 			
 			if (sccvector[i] > max)
 				max = sccvector[i];
 			if (sccvector2[i] > max2)
 				max2 = sccvector2[i];
 		}
-	
-		//sl_img.Zero(); // clear the image 
 
-		// Paint the scaled crosscorrelation function in the image
+		//----------------------------------------------------------------------
+		//  Paint the crosscorrelation functions in the left part of the image
+		//----------------------------------------------------------------------
 		for ( i = 0; i < functionx; i++)
 		{
-			int y  = (int)((double)(sccvector[i]*125)/(double)max);
-			int y2 = (int)((double)(sccvector2[i]*125)/(double)max2);
+			int y  = (int)(sccvector[i]*125);
+			int y2 = (int)(sccvector2[i]*125);
 
 			y  = 250 - y;  // invert coordinates system. Painting in the lower-half part of the image
 			y2 = 125 - y2; // invert coordinates system. Painting in the upper-half part of the image

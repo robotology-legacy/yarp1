@@ -9,8 +9,10 @@
 //        Filename:  soundprocessing.cpp
 // 
 //     Description:  Implements all the sound processing algorithms.
+//     This implementatin is partially based in the sound software used by Lorenzo Natale
+//     is his master thesis.
 // 
-//         Version:  $Id: soundprocessing.cpp,v 1.11 2004-04-30 12:51:57 beltran Exp $
+//         Version:  $Id: soundprocessing.cpp,v 1.12 2004-04-30 16:43:18 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -106,8 +108,6 @@ ild(NUM_ILD), itd(NUM_ITD)
 	thresholds.max_right    = 32000;
 	thresholds.min_left     = 1000;
 	thresholds.min_right    = 1000;
-	
-
 }
 
 //--------------------------------------------------------------------------------------
@@ -168,8 +168,8 @@ SoundProcessing::CrossCorrelation(double *lChannel, double *rChannel)
 		}
 	}
 
-    corrMax=tempCorr; // correlation peak
-    corrShift=ind;    // shift between the two waves (itd)
+    corrMax   = tempCorr; // correlation peak
+    corrShift = ind;      // shift between the two waves (itd)
 	
 	return 1;
 }
@@ -185,6 +185,15 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 	int i = 0;
 	int dim[1] = {numSamples};
 
+	//----------------------------------------------------------------------
+	//  Filter the signals
+	//----------------------------------------------------------------------
+	filter(left_Re  , left_Im  , 0 , FREQ_T);
+	filter(right_Re , right_Im , 0 , FREQ_T);
+
+	//----------------------------------------------------------------------
+	//  Compute the complex conjugate multiplications
+	//----------------------------------------------------------------------
 	ConjComplexMultiplication(left_Re, left_Im,
 							  right_Re, right_Im,
 							  crosscorrelation_Re,
@@ -199,7 +208,8 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 							  rightcorrelation_Im);
 	
 	//----------------------------------------------------------------------
-	//  Consider here to apply the SCOT filtering
+	//  Appling SCOT filter is selected by the user. ( option in the 
+	//  sound.ini file) 
 	//----------------------------------------------------------------------
 	if ( _SCOTfiltering )
 	{
@@ -221,7 +231,7 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 	
 	//----------------------------------------------------------------------
 	//  Calculate the inverse Fast Fourier Transform
-	//  At the end the crosscorrelation vector should contain the crosscorre-
+	//  At the end the crosscorrelation_Re vector should contain the crosscorre-
 	//  lation data
 	//----------------------------------------------------------------------
 	fft->Fft(1, dim, crosscorrelation_Re, crosscorrelation_Im, -1, -1);
@@ -231,7 +241,6 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 	//  the crosscorrelation. Assign the corrVectFreq to the correct position
 	//  inside crosscorrelation_Re
 	//----------------------------------------------------------------------
-	
 	for (i = 0; i < numSamples; i++)
 		crosscorrelation_Re[i + numSamples] = crosscorrelation_Re[i];
 
@@ -254,6 +263,13 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 
 	corrMax   = tempCorr;
 	corrShift = ind;
+
+	//----------------------------------------------------------------------
+	//  Forcing the vector to be between +/- 1
+	//----------------------------------------------------------------------
+	if ( corrMax > 0)
+		for ( i = 0; i < windowMax; i++)
+			corrVectFreq[i] *= 1/corrMax;
 
 	return 0;
 }
@@ -285,7 +301,9 @@ SoundProcessing::ComputeLevels()
 //       Class: SoundProcessing 
 //      Method: ConjComplexMultiplication 
 // Description: Multiplication between the spectrum of the first signal and the complex
-// conjugation of the spectrum of the second (discrete correlation theorem) 
+// conjugation of the spectrum of the second (discrete correlation theorem). To find ins-
+// piration have a look at Numerical Recipies book. Chapter "Correlation and Autocorrelation
+// using the FFT (pag 545). 
 // (a+ib)(c-id)=(ac+bd)+i(bc-ad)
 //--------------------------------------------------------------------------------------
 int 
@@ -396,6 +414,7 @@ SoundProcessing::GetThresholds(Thresholds *actual_thresholds)
 //       Class:  SoundProcessing
 //      Method:  SetThresholds(new_thresholds)
 // Description:  Set the new thresholds values. If they are valid a 1 is returned
+//--------------------------------------------------------------------------------------
 int 
 SoundProcessing::SetThresholds(Thresholds *new_thresholds)
 {
@@ -414,3 +433,54 @@ SoundProcessing::SetThresholds(Thresholds *new_thresholds)
 	}
 	return 0;
 }
+
+//--------------------------------------------------------------------------------------
+//       Class:  SoundProcessing
+//      Method:  filter(input, lowFreq, highFreq)
+// Description:  filters the spectrum with the low and hight frequencies passed as para
+// meters. It is a generic filter. It cuts all the frequencies between the interval
+// [lowFreq, highFreq]
+// input - pointer to the frequencies vector. The fucntion modifies this input vector
+//--------------------------------------------------------------------------------------
+void SoundProcessing::filter(double *input_Re, double *input_Im,
+							 double lowFreq, double highFreq)
+{
+	int i = 0;
+	int lowIndex  = int ((lowFreq  / _SamplesPerSec)*numSamples);
+	int highIndex = int ((highFreq / _SamplesPerSec)*numSamples);
+
+	ACE_ASSERT(highIndex < numFreqSamples);
+	ACE_ASSERT(lowIndex  < highIndex);
+	
+	//----------------------------------------------------------------------
+	//  Setting to cero the frequencies over the highindex
+	//----------------------------------------------------------------------
+	for ( i = highIndex; i < numFreqSamples - highIndex; i++ )
+	{
+		input_Re[i] = 0.0;
+		input_Im[i] = 0.0;
+	}
+	// Original code
+	/*************************************************************************
+	 * nspzbZero(input+highIndex,numFreqSamples-highIndex); 				 *
+	 *************************************************************************/
+	
+	//----------------------------------------------------------------------
+	//  Setting to cero the frequencies under the lowIndex
+	//  Note: is it sure this is correct???????
+	//----------------------------------------------------------------------
+#if 0
+	if (lowIndex>0)
+		for ( i = lowIndex; i < lowIndex; i++)
+		{
+			input_Re[i] = 0.0;
+			input_Im[i] = 0.0;
+		}
+#endif
+	//Original code
+	/***************************************
+	 * if (lowIndex>0)                     *
+	 * nspzbZero(input+lowIndex,lowIndex); *
+	 ***************************************/
+}
+

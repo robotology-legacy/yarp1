@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.10 2004-04-30 12:51:57 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.11 2004-04-30 16:43:18 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -213,6 +213,8 @@ private:
 	int ComputeLevels();
 	double scalarProduct(double *, double *, int);
 	double correlation(double *, double *, int);
+	void filter(double *, double *,double, double);
+	
 	void _threshold(double *v, double th)
 	{
 		// Surely, this is not necessary
@@ -241,18 +243,18 @@ private:
 	int _TempCC;
 	double _microphonesdistance;
 
-    double squareMiddleValLeft;  // E{l-E{l}^2}
-    double squareMiddleValRight; // E{r-E{r}^2}
+    double squareMiddleValLeft;       // E{l-E{l}^2}
+    double squareMiddleValRight;      // E{r-E{r}^2}
 
-	double * Re;
-	double * Im;
-    double * crosscorrelation_Re;    // The correlation buffer (it is also used to store the spectrum when calculating the fft)
-    double * crosscorrelation_Im;    // Well, really, the crosscorralation has not an imaginary part
-                                     // this is just used to store the imaginary part of the fft that is later used
-                                     // to obtain the crosscorrelation using the inverse fft
-    double * leftcorrelation_Re;     // This is for the auto correlation of the left audio signal
-    double * leftcorrelation_Im;     // Here applies the same discusion than in the crosscorrelation case
-    double * rightcorrelation_Re;    // The same but for the right audio signal
+    double * Re;
+    double * Im;
+    double * crosscorrelation_Re;     // The correlation buffer (it is also used to store the spectrum when calculating the fft)
+    double * crosscorrelation_Im;     // Well, really, the crosscorralation has not an imaginary part
+                                      // this is just used to store the imaginary part of the fft that is later used
+                                      // to obtain the crosscorrelation using the inverse fft
+    double * leftcorrelation_Re;      // This is for the auto correlation of the left audio signal
+    double * leftcorrelation_Im;      // Here applies the same discusion than in the crosscorrelation case
+    double * rightcorrelation_Re;     // The same but for the right audio signal
     double * rightcorrelation_Im;
 	double * middleSampleRight;
 	double * middleSampleLeft;
