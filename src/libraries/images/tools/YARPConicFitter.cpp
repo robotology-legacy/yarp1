@@ -188,7 +188,7 @@ void YARPLpConicFitter::plotCircle(int T0, int R0, double R, YARPImageOf<YarpPix
 	output(T0, R0) = 255;
 }
 
-void YARPLpConicFitter::findCircle(int T0, int R0, double R, circle &out)
+void YARPLpConicFitter::findCircle(int T0, int R0, double R, YARPShapeRegion &out)
 {
 	out.reset();
 	int theta;
@@ -229,7 +229,7 @@ void YARPLpConicFitter::findCircle(int T0, int R0, double R, circle &out)
 	}
 }
 
-void YARPLpConicFitter::findEllipse(int T0, int R0, double a11, double a12, double a22, region &out)
+void YARPLpConicFitter::findEllipse(int T0, int R0, double a11, double a12, double a22, YARPShapeRegion &out)
 {
 	out.reset();
 	int theta;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.h,v 1.1 2003-09-11 14:54:43 gmetta Exp $
+/// $Id: YARPSimpleOperations.h,v 1.2 2003-10-14 12:09:33 babybot Exp $
 ///
 ///
 
@@ -90,6 +90,12 @@ class YARPSimpleOperation
 {
 public:
 	static void Scale (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out, double scale);
+	// decimate or shrinks an image
+	// scaleX/scaleY is the actor by which the input image is shrunken (>= 1)
+	static void Decimate (const YARPImageOf<YarpPixelRGB> &in, YARPImageOf<YarpPixelRGB> &out, double scaleX, double scaleY, int interpolate = IPL_INTER_NN);
+	static void Decimate (const YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelBGR> &out, double scaleX, double scaleY, int interpolate = IPL_INTER_NN);
+	static void Decimate (const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelMono> &out, double scaleX, double scaleY, int interpolate = IPL_INTER_NN);
+	
 	static void Flip (const YARPGenericImage& in, YARPGenericImage& out);
 
 	inline static void Fill (YARPGenericImage &img, int value)
@@ -106,6 +112,26 @@ public:
 	static void DrawLine (YARPImageOf<YarpPixelRGB>& dest, int xstart, int ystart, int xend, int yend, const YarpPixelRGB& pixel);
 
 	inline static void DrawCross(YARPImageOf<YarpPixelRGB> &img, double dx, double dy, const YarpPixelRGB &pixel)
+	{
+		// coordinate center is top-left
+		int x = (int) (dx + 0.5);
+		int y = (int) (dy + 0.5);
+
+		for(int i = -2; i <= 2; i++) img.Pixel(x+i,y) = pixel;
+		for (int j = -2; j <= 2; j++) img.Pixel(x,y+j) = pixel;
+	}
+
+	inline static void DrawCross(YARPImageOf<YarpPixelMono> &img, double dx, double dy, unsigned char pixel)
+	{
+		// coordinate center is top-left
+		int x = (int) (dx + 0.5);
+		int y = (int) (dy + 0.5);
+
+		for(int i = -2; i <= 2; i++) img.Pixel(x+i,y) = pixel;
+		for (int j = -2; j <= 2; j++) img.Pixel(x,y+j) = pixel;
+	}
+
+	inline static void DrawCross(YARPImageOf<YarpPixelBGR> &img, double dx, double dy, const YarpPixelBGR &pixel)
 	{
 		// coordinate center is top-left
 		int x = (int) (dx + 0.5);

@@ -61,12 +61,13 @@
 ///
 
 ///
-/// $Id: YARPConicFitter.h,v 1.5 2003-10-10 17:38:53 babybot Exp $
+/// $Id: YARPConicFitter.h,v 1.6 2003-10-14 12:09:33 babybot Exp $
 ///
 /// Fit simple conics to a segmented region. Logpolar version.
 /// September 2003 -- by nat
 
 #ifndef __YARPCONICFITTER__
+#define __YARPCONICFITTER__
 
 #include "YARPLogpolar.h"
 #include "YARPImageMoments.h"
@@ -97,14 +98,15 @@ public:
 	double a12;
 };
 
-struct circle
+class YARPShapeRegion
 {
-	circle()
+public:
+	YARPShapeRegion()
 	{
 		r = new int [_logpolarParams::_srho*_logpolarParams::_stheta];
 		t = new int [_logpolarParams::_srho*_logpolarParams::_stheta];
 	}
-	~circle()
+	~YARPShapeRegion()
 	{
 		delete [] r;
 		delete [] t;
@@ -125,8 +127,6 @@ struct circle
 	int n;
 };
 
-typedef circle region;
-
 class YARPLpConicFitter
 {
 public:
@@ -143,11 +143,11 @@ public:
 	inline void fitEllipse(YARPImageOf<YarpPixelMono> &in, YARPShapeEllipse &el);
 
 	// returns points within a circle of center T0,R0 radius R0
-	void findCircle(int T0, int R0, double R, circle &out);
-	inline void findCircle(const YARPShapeCircle &c, circle &out);
+	void findCircle(int T0, int R0, double R, YARPShapeRegion &out);
+	inline void findCircle(const YARPShapeCircle &c, YARPShapeRegion &out);
 	// returns points within an ellipse
-	void findEllipse(int T0, int R0, double a11, double a12, double a22, region &out);
-	inline void findEllipse(const YARPShapeEllipse &el, region &out);
+	void findEllipse(int T0, int R0, double a11, double a12, double a22, YARPShapeRegion &out);
+	inline void findEllipse(const YARPShapeEllipse &el, YARPShapeRegion &out);
 
 	// plot a circle; 
 	// (T0, R0) is the center (logpolar coordinates), R is the radius (cartesian coordinates)
@@ -190,6 +190,16 @@ inline void YARPLpConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, YARPSha
 inline void YARPLpConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, YARPShapeEllipse &el)
 {
 	fitEllipse(in, &el.theta, &el.rho, &el.a11, &el.a12, &el.a22);
+}
+
+inline void YARPLpConicFitter::findCircle(const YARPShapeCircle &circle, YARPShapeRegion &out)
+{
+	findCircle(circle.theta, circle.rho, circle.radius, out);
+}
+
+inline void YARPLpConicFitter::findEllipse(const YARPShapeEllipse &el, YARPShapeRegion &out)
+{
+	findEllipse(el.theta, el.rho, el.a11, el.a12, el.a22, out);
 }
 
 #endif

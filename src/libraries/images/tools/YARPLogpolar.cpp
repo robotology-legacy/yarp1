@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.19 2003-10-02 14:40:29 beltran Exp $
+/// $Id: YARPLogpolar.cpp,v 1.20 2003-10-14 12:09:33 babybot Exp $
 ///
 ///
 
@@ -351,7 +351,7 @@ int YARPLogpolar::Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy)
 
 /// out -> 256 x 256, in 152 x 256.
 ///
-int YARPLogpolar::Logpolar2Cartesian (const YARPGenericImage& in, YARPGenericImage& out)
+int YARPLogpolar::Logpolar2Cartesian (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out)
 {
 	using namespace _logpolarParams;
 	ACE_ASSERT (in.GetWidth() == _stheta && in.GetHeight() == _srho);
@@ -361,7 +361,7 @@ int YARPLogpolar::Logpolar2Cartesian (const YARPGenericImage& in, YARPGenericIma
 	return YARP_OK;
 }
 
-int YARPLogpolar::Logpolar2CartesianFovea (const YARPGenericImage& in, YARPGenericImage& out)
+int YARPLogpolar::Logpolar2CartesianFovea (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out)
 {
 	using namespace _logpolarParams;
 	ACE_ASSERT (in.GetWidth() == _stheta && in.GetHeight() == _srho);
@@ -390,7 +390,7 @@ int YARPLogpolar::Cartesian2Logpolar (int ix, int iy, int& orho, int& otheta)
 	return YARP_OK;
 }
 
-int YARPLogpolar::ReconstructColor (const YARPImageOf<YarpPixelMono>& in, YARPGenericImage& out)
+int YARPLogpolar::ReconstructColor (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelBGR> & out)
 {
 	using namespace _logpolarParams;
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageMoments.h,v 1.1 2003-09-02 13:57:29 natta Exp $
+/// $Id: YARPImageMoments.h,v 1.2 2003-10-14 12:09:33 babybot Exp $
 ///
 /// Computes moments and central moments; according to the following eqs:
 /// mpq = SUM (x^p)*(y^q)*f(x,y)
@@ -74,6 +74,7 @@
 
 
 #ifndef __YARPIMAGEMOMENTS__
+#define __YARPIMAGEMOMENTS__
 
 #include "YARPLogpolar.h"
 

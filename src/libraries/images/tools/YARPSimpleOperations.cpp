@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.cpp,v 1.1 2003-09-11 14:54:43 gmetta Exp $
+/// $Id: YARPSimpleOperations.cpp,v 1.2 2003-10-14 12:09:33 babybot Exp $
 ///
 ///
 
@@ -86,6 +86,36 @@ void YARPSimpleOperation::Scale (const YARPImageOf<YarpPixelMono>& in, YARPImage
 	{
 		*tmpo = char(*tmpi * scale);
 	}
+}
+
+void YARPSimpleOperation::Decimate (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out, double scaleX, double scaleY, int interpolate)
+{
+	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
+	ACE_ASSERT ( (scaleX >= 1) && (scaleY >= 1) );
+	ACE_ASSERT (in.GetWidth() == (int ) out.GetWidth()*scaleX);
+	ACE_ASSERT (in.GetHeight() == (int ) out.GetHeight()*scaleY);
+	
+	iplDecimate(in, out, 1, scaleX, 1, scaleY, interpolate);
+}
+
+void YARPSimpleOperation::Decimate (const YARPImageOf<YarpPixelRGB>& in, YARPImageOf<YarpPixelRGB>& out, double scaleX, double scaleY, int interpolate)
+{
+	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
+	ACE_ASSERT ( (scaleX >= 1) && (scaleY >= 1) );
+	ACE_ASSERT (in.GetWidth() == (int ) out.GetWidth()*scaleX);
+	ACE_ASSERT (in.GetHeight() == (int ) out.GetHeight()*scaleY);
+	
+	iplDecimate(in, out, 1, scaleX, 1, scaleY, interpolate);
+}
+
+void YARPSimpleOperation::Decimate (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out, double scaleX, double scaleY, int interpolate)
+{
+	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
+	ACE_ASSERT ( (scaleX >= 1) && (scaleY >= 1) );
+	ACE_ASSERT (in.GetWidth() == (int ) out.GetWidth()*scaleX);
+	ACE_ASSERT (in.GetHeight() == (int ) out.GetHeight()*scaleY);
+	
+	iplDecimate(in, out, 1, scaleX, 1, scaleY, interpolate);
 }
 
 void YARPSimpleOperation::Flip (const YARPGenericImage& in, YARPGenericImage& out)

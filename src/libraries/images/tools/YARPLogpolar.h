@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.15 2003-09-24 16:10:47 babybot Exp $
+/// $Id: YARPLogpolar.h,v 1.16 2003-10-14 12:09:33 babybot Exp $
 ///
 ///
 
@@ -165,11 +165,11 @@ public:
 	virtual void Cleanup () {}
 	virtual bool InPlace () const { return false; }
 
-	int Logpolar2Cartesian (const YARPGenericImage& in, YARPGenericImage& out);
-	int Logpolar2CartesianFovea (const YARPGenericImage& in, YARPGenericImage& out);
+	int Logpolar2Cartesian (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out);
+	int Logpolar2CartesianFovea (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out);
 	int Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy);
 	int Cartesian2Logpolar (int ix, int iy, int& orho, int& otheta);
-	int ReconstructColor (const YARPImageOf<YarpPixelMono>& in, YARPGenericImage& out);
+	int ReconstructColor (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelBGR>& out);
 	int ReconstructGrays (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out);
 
 	inline int GetCWidth (void) const { return _logpolarParams::_xsize; }
