@@ -5,8 +5,6 @@
 #include "camview.h"
 #include "camviewDlg.h"
 
-#include "CommandLineInfoEx.h"
-
 #include <yarp/YARPParseParameters.h>
 
 #ifdef _DEBUG
@@ -45,9 +43,6 @@ CCamviewApp theApp;
 
 BOOL CCamviewApp::InitInstance()
 {
-	CCommandLineInfoEx cmdInfo; 
-	ParseCommandLine (cmdInfo);
-
 	int argc = __argc;
 	char **argv = __argv;
 

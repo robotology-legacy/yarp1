@@ -1,6 +1,7 @@
 // Generic viewer for vectors
 //
 // June 2003, nat
+// July 2004, use argc and argv + YARPParseParameters::parse
 
 #if !defined(AFX_VECTVIEWERDLG_H__01C7084B_343A_41E6_AA1E_66CF15B285F0__INCLUDED_)
 #define AFX_VECTVIEWERDLG_H__01C7084B_343A_41E6_AA1E_66CF15B285F0__INCLUDED_

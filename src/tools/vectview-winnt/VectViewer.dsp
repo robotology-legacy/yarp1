@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 libYARP_math.lib libYARP_sig.lib libYARP_sig_logpolar.lib libYARP_OS.lib ace.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /machine:I386 /out:".\obj\winnt/vectview.exe" /libpath:"..\..\..\lib\winnt"
+# ADD LINK32 libYARP_math.lib libYARP_sig.lib libYARP_sig_logpolar.lib libYARP_OS.lib ace.lib winmm.lib /nologo /subsystem:windows /machine:I386 /out:".\obj\winnt/vectview.exe" /libpath:"..\..\..\lib\winnt"
 
 !ELSEIF  "$(CFG)" == "VectViewer - Win32 Debug"
 
@@ -81,7 +81,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 libYARP_mathd.lib libYARP_sigd.lib libYARP_sig_logpolard.lib libYARP_OS.lib aced.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\obj\winnt/vectview.exe" /pdbtype:sept /libpath:"..\..\..\lib\winnt"
+# ADD LINK32 libYARP_mathd.lib libYARP_sigd.lib libYARP_sig_logpolard.lib libYARP_OS.lib aced.lib winmm.lib /nologo /subsystem:windows /debug /machine:I386 /out:".\obj\winnt/vectview.exe" /pdbtype:sept /libpath:"..\..\..\lib\winnt"
 
 !ENDIF 
 
@@ -92,10 +92,6 @@ LINK32=link.exe
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
-# Begin Source File
-
-SOURCE=.\CommandLineInfoEx.cpp
-# End Source File
 # Begin Source File
 
 SOURCE=.\StdAfx.cpp
@@ -117,10 +113,6 @@ SOURCE=.\VectViewerDlg.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
-# Begin Source File
-
-SOURCE=.\CommandLineInfoEx.h
-# End Source File
 # Begin Source File
 
 SOURCE=.\Resource.h

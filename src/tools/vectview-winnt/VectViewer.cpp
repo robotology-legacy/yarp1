@@ -5,7 +5,8 @@
 #include "VectViewer.h"
 #include "VectViewerDlg.h"
 
-#include "CommandLineInfoEx.h"
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPString.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -51,53 +52,39 @@ BOOL CVectViewerApp::InitInstance()
 {
 	// parse command line
 
-	CCommandLineInfoEx cmdInfo;
-	ParseCommandLine(cmdInfo);
-
 	int iPeriod;
 	int iSize;
 	int iLength;
 	int iHeight;
 	double *dScale;
 	bool aScale;
-	CString dummy, name, period, size;
-	CString length, height, scale, x, y, w, h;
-	CString network;
+	YARPString name, network;
+	
+	if (!YARPParseParameters::parse(__argc, __argv, "-name", name))
+		name = "/defaultVectorViewer";
 
-	name = "/default_vector_viewer";
-	if (cmdInfo.GetOption("name", dummy))
-		name = "/" + dummy;
+	if (!YARPParseParameters::parse(__argc, __argv, "-net", network))
+		network = "default";
 
-	network = "default";
-	if (cmdInfo.GetOption("net", dummy))
-		network = dummy;
-
-	if (cmdInfo.GetOption("p", period))
-		iPeriod = atoi(period);
-	else
+	if (!YARPParseParameters::parse(__argc, __argv, "-p", &iPeriod))
 		iPeriod = __defaultPeriod;
 
-	if (cmdInfo.GetOption("size", size))
-		iSize = atoi(size);
-	else
+	if (!YARPParseParameters::parse(__argc, __argv, "-size", &iSize))
 		iSize = __defaultSize;
 
 	dScale = new double[iSize];
 
-	if (cmdInfo.GetOption("length", length))
-		iLength = atoi(length);
-	else
+	if (!YARPParseParameters::parse(__argc, __argv, "-length", &iLength))
 		iLength = __defaultWindowLength;
 
-	if (cmdInfo.GetOption("height", height))
-		iHeight = atoi(height);
-	else
+	if (!YARPParseParameters::parse(__argc, __argv, "-height", &iHeight))
 		iHeight = __defaultWindowHeight;
 
 	double sc;
-	if (cmdInfo.GetOption("scale", scale))
+	double dTmp;
+	if (YARPParseParameters::parse(__argc, __argv, "-scale", &dTmp))
 	{
-		sc = 1/atof(scale);
+		sc = 1/dTmp;
 		aScale = false;
 	}
 	else
@@ -112,33 +99,25 @@ BOOL CVectViewerApp::InitInstance()
 
 	// window
 	///////////////////////////////////////////
-	if (cmdInfo.GetOption("x", x))
-		_posX = atoi(x);
-	else
+	if (!YARPParseParameters::parse(__argc, __argv, "-x", &_posX))
 		_posX = -1;
 
-	if (cmdInfo.GetOption("y", y))
-		_posY = atoi(y);
-	else
+	if (!YARPParseParameters::parse(__argc, __argv, "-y", &_posY))
 		_posY = -1;
 
-	if (cmdInfo.GetOption("w", w))
-		_width = atoi(w);
-	else
+	if (!YARPParseParameters::parse(__argc, __argv, "-w", &_width))
 		_width = -1;
 
-	if (cmdInfo.GetOption("h", h))
-		_height = atoi(h);
-	else
+	if (!YARPParseParameters::parse(__argc, __argv, "-h", &_height))
 		_height = -1;
-
+	
 #ifdef _AFXDLL
 	Enable3dControls();			// Call this when using MFC in a shared DLL
 #else
 	Enable3dControlsStatic();	// Call this when linking to MFC statically
 #endif
 
-	CVectViewerDlg dlg(name, network, iPeriod, iSize, iLength, iHeight);
+	CVectViewerDlg dlg(name.c_str(), network.c_str(), iPeriod, iSize, iLength, iHeight);
 	m_pMainWnd = &dlg;
 	
 	dlg._aScale = aScale;

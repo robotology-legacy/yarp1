@@ -44,7 +44,7 @@ if ($os ne "winnt")
 	die "This script is not yet tuned for OSes apart \"winnt\"\n";
 }
 
-my @projects = qw/ logpolar-table-builder /;
+my @projects = qw/ logpolar-table-builder logpolar-mapper /;
 
 select STDERR;
 

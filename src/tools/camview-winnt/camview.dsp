@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 libYARP_math.lib libYARP_sig.lib libYARP_sig_logpolar.lib libYARP_OS.lib ace.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /machine:I386 /libpath:"..\..\..\lib\winnt"
+# ADD LINK32 libYARP_math.lib libYARP_sig.lib libYARP_sig_logpolar.lib libYARP_OS.lib ace.lib winmm.lib /nologo /subsystem:windows /machine:I386 /libpath:"..\..\..\lib\winnt"
 
 !ELSEIF  "$(CFG)" == "camview - Win32 Debug"
 
@@ -106,10 +106,6 @@ SOURCE=.\camviewDlg.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\CommandLineInfoEx.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\DIBConverter.cpp
 # End Source File
 # Begin Source File
@@ -132,10 +128,6 @@ SOURCE=.\camview.h
 # Begin Source File
 
 SOURCE=.\camviewDlg.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\CommandLineInfoEx.h
 # End Source File
 # Begin Source File
 

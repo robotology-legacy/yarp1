@@ -1,5 +1,8 @@
 // camviewDlg.h : header file
+// Generic viewer for vectors
 //
+// June 2003, nat
+// July 2004, use argc and argv + YARPParseParameters::parse
 
 #if !defined(AFX_CAMVIEWDLG_H__23BF774D_13B8_425B_8BA1_05E121A6000C__INCLUDED_)
 #define AFX_CAMVIEWDLG_H__23BF774D_13B8_425B_8BA1_05E121A6000C__INCLUDED_

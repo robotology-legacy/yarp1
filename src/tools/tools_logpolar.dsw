@@ -3,6 +3,18 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "logpolar_mapper"=".\logpolar-mapper\logpolar_mapper.dsp" - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "logpolar_table_builder"=".\logpolar-table-builder\logpolar_table_builder.dsp" - Package Owner=<4>
 
 Package=<5>
