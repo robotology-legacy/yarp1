@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPAll.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPAll.h,v 1.2 2004-07-01 22:31:33 gmetta Exp $
 ///
 ///
 
@@ -65,6 +65,10 @@
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
+
+/**
+ * \file YARPAll.h a few global functions prototypes.
+ */
 
 #ifdef __QNX4__
 // sorry about this, but necessary for QNX compatible user code using the STL
@@ -89,11 +93,20 @@ void YARP_output_post();
 #endif
 #endif
 
-///
-///	some general purpose global stuff.
-///
-///
+/**
+ * Gets the value of the YARP_ROOT symbol from the environment.
+ * @return the YARP_ROOT as a null-terminated string or NULL on failure. Note
+ * that the space required by the string is allocated by the OS and this function
+ * is not reentrant (although it probably won't matter much).
+ */
 extern char * GetYarpRoot (void);
+
+/**
+ * Gets the network host name.
+ * @param the buffer where the name is to be stored.
+ * @param the maximum length of the buffer.
+ * @return a non-negative value if successful.
+ */
 extern int getHostname(char *buffer, int buffer_length);
 
 #endif

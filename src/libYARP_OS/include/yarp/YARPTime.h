@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPTime.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPTime.h,v 1.2 2004-07-01 22:31:33 gmetta Exp $
 ///
 ///
 /*
@@ -68,6 +68,10 @@
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
+
+/**
+ * \file YARPTime.h definitions for time-related operations.
+ */
 
 /**
  * A simple class that implements time-related operations.
