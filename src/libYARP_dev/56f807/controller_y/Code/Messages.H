@@ -204,11 +204,16 @@
 
 #define CAN_GET_ENCODER_POSITION_HANDLER(x) \
 { \
-	CAN_DATA[0] = CAN_DATA[0] >> 4; \
-	CAN_DATA[0] |= (_board_ID << 4); \
+	/* (CAN_ID & 0x00007800 >> 7) */ \
+	/* CAN_DATA[0] = CAN_DATA[0] >> 4; */ \
+	/* CAN_DATA[0] |= (_board_ID << 4); */ \
+	CAN_ID &= 0xfffff87f; \
+	CAN_ID |= (CAN_DATA[0] & 0x78) << 4; \
+	CAN_DATA[0] |= (_board_ID << 3); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(CAN_DATA[1]); \
+		/* int i = CHANNEL(CAN_DATA[1]); */ \
+		int i = CHANNEL(CAN_DATA[0]); \
 		CAN_LEN = 8; \
 		CAN_DATA[2] = BYTE_4(_position[i]); \
 		CAN_DATA[3] = BYTE_3(_position[i]); \

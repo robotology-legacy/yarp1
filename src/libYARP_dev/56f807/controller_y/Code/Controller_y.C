@@ -599,9 +599,9 @@ void main(void)
 	readFromFlash ();
 
 	/* CAN masks/filters init */
-	CAN1_SetAcceptanceMask (0xfffff0ff);
-	acceptance_code = L_deposit_l (_board_ID);
-	CAN1_SetAcceptanceCode (acceptance_code << 8);
+	CAN1_SetAcceptanceMask (0xffffffff);
+	//acceptance_code = L_deposit_l (_board_ID);
+	CAN1_SetAcceptanceCode (0x780); // (acceptance_code << 7);
 		
 	/* reset encoders, LATER: should do something more than this */
 	calibrate(0);
@@ -714,12 +714,12 @@ byte calibrate (byte jnt)
 	
 /* message table macros */
 #define BEGIN_MSG_TABLE(x) \
-	if ((x & 0x00000f00) != _board_ID) \
+	if (((x & 0x00000780) >> 7) != _board_ID) \
 	{ \
-		DSP_SendDataEx ("it wasn't my message\r\n"); \
+	/*	DSP_SendDataEx ("it wasn't my message\r\n"); */ \
 		return ERR_OK; \
 	} \
-	switch (x & 0x7F) \
+	switch (x & 0x7f) \
 	{ \
 		default: \
 			return ERR_OK; \
@@ -774,6 +774,9 @@ byte can_interface (void)
 		CAN1_ReadFrame (&CAN_messID, &CAN_frameType, &CAN_frameFormat, &CAN_length, CAN_data);
 		if (_verbose)
 		{
+			DSP_SendDataEx ("id: ");
+			DSP_SendDWordAsChars (CAN_messID);
+			DSP_SendDataEx (" ");
 			print_can (CAN_data, CAN_length, 'i');
 			CAN1_GetError (&err);
 			print_can_error (&err);
@@ -854,7 +857,10 @@ byte can_interface (void)
 
 		if (_verbose)
 		{
-			//print_can (CAN_data, CAN_length, 'o'); 
+			DSP_SendDataEx ("id: ");
+			DSP_SendDWordAsChars (CAN_messID);
+			DSP_SendDataEx (" ");
+			print_can (CAN_data, CAN_length, 'o'); 
 		}
 
 ///		if (_general_board_error != ERROR_NONE)
