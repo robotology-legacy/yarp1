@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.11 2003-06-11 16:40:08 gmetta Exp $
+/// $Id: Port.h,v 1.12 2003-06-13 12:45:40 gmetta Exp $
 ///
 ///
 
@@ -520,6 +520,34 @@ public:
 		}
 		return result;
     }
+
+	int SaySelfEnd(void)
+	{
+		int result = YARP_FAIL;
+		if (!self_id.isValid())
+		{
+			///self_id = GetServer(name.c_str());
+			if (protocol_type == YARP_MCAST)
+			{
+				self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+				YARPEndpointManager::CreateOutputEndpoint (self_id);
+				YARPEndpointManager::ConnectEndpoints (self_id);
+			}
+			else
+			{
+				self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+				YARPEndpointManager::CreateOutputEndpoint (self_id);
+				YARPEndpointManager::ConnectEndpoints (self_id);
+			}
+		}
+
+		if (self_id.isValid())
+		{
+			///result = SayServer(self_id, buf);
+			result = SendHelper (self_id, NULL, 0, MSG_ID_DETACH_ALL);
+		}
+		return result;
+	}
 
 	void Fire()
     {

@@ -27,6 +27,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "BuildTablesSmall"=.\logpolar\BuildTablesSmall\BuildTablesSmall.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "LogPolarSDKLib"=.\logpolar\LogPolarSDKLib\LogPolarSDKLib.dsp - Package Owner=<4>
 
 Package=<5>

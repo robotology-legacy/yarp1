@@ -40,6 +40,8 @@ RSC=rc.exe
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
@@ -54,7 +56,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\Release\LogPolarSmallSDK.lib ..\..\..\..\lib\winnt	copy ..\LogPolarSDKLib\LogPolarSDK.h ..\..\..\..\include	copy ..\Tables\ReferenceImage.bmp ..\..\..\..\conf\babybot
+PostBuild_Cmds=copy .\Release\LogPolarSmallSDK.lib ..\..\..\..\lib\winnt	copy ..\LogPolarSDKLib\LogPolarSDK.h ..\..\..\..\include	copy ..\Tables\ReferenceImage.bmp ..\..\..\..\conf
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "LogPolarSmallSDK - Win32 Debug"
@@ -69,6 +71,8 @@ PostBuild_Cmds=copy .\Release\LogPolarSmallSDK.lib ..\..\..\..\lib\winnt	copy ..
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -83,7 +87,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\Debug\LogPolarSmallSDKDB.lib ..\..\..\..\lib\winnt	copy ..\LogPolarSDKLib\LogPolarSDK.h ..\..\..\..\include	copy ..\Tables\ReferenceImage.bmp ..\..\..\..\conf\babybot
+PostBuild_Cmds=copy .\Debug\LogPolarSmallSDKDB.lib ..\..\..\..\lib\winnt	copy ..\LogPolarSDKLib\LogPolarSDK.h ..\..\..\..\include	copy ..\Tables\ReferenceImage.bmp ..\..\..\..\conf
 # End Special Build Tool
 
 !ENDIF 

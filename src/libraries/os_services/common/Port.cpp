@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.28 2003-06-11 16:40:05 gmetta Exp $
+/// $Id: Port.cpp,v 1.29 2003-06-13 12:45:40 gmetta Exp $
 ///
 ///
 
@@ -604,6 +604,7 @@ void _strange_select::Body ()
 void Port::End()
 {
 	end_thread.Post();
+	SaySelfEnd ();
 
 	YARPThread::End(true);	
 }
@@ -1032,6 +1033,7 @@ void Port::Body()
 	} /// if it's valid
 
 
+#if 0
 	ACE_DEBUG ((LM_DEBUG, "port thread closing all...\n"));
 	ACE_DEBUG ((LM_DEBUG, "Running detach_all request (%s)\n", name.c_str()));
 
@@ -1062,6 +1064,7 @@ void Port::Body()
 	}
 
 	list_mutex.Post ();
+#endif
 
 	ACE_DEBUG ((LM_DEBUG, "port thread returning\n"));
 }
