@@ -76,7 +76,8 @@ void AS1_init(void)
 {
 	SerFlag = 0;                        /* Reset flags */
 	setReg(SCI0_SCICR, 0);				/* clear */
-	setReg(SCI0_SCIBR, 22);				/* 115200 */
+//	setReg(SCI0_SCIBR, 22);				/* 115200 */
+	setReg(SCI0_SCIBR, 260);				/* 9600 */
 	HWEnDi();                           /* Enable/disable device according to status flags */
 }
 

@@ -44,7 +44,7 @@ M56807_intDef:
 	jmp M56807_intRoutine    ; reserved		            ($14)
 	jmp M56807_intRoutine    ; boot flash interface     ($16)
 	jmp M56807_intRoutine    ; program flash interface  ($18)
-	jmp M56807_intRoutine    ; data flash interface     ($1A)
+	jsr FIFsh1_interrupt     ; data flash interface     ($1A)
 	jsr FCAN1_interruptTx    ; mscan transmitter ready  ($1C)
 	jsr FCAN1_interruptRx    ; mscan receiver full      ($1E)
 	jmp M56807_intRoutine    ; mscan error              ($20)

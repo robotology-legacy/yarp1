@@ -11,6 +11,7 @@
 #include "pwmc0.h"
 #include "pwmc1.h"
 #include "ti1.h"
+#include "ifsh1.h"
 
 #include "controller.h"
 #include "messages.h"
@@ -73,6 +74,7 @@ Int16  _kr[JN] = { 3, 3 };				/* scale factor (negative power of two) */
 
 Int16 _counter = 0;						/* used to count cycles, it resets now and then */
 										/* to generate periodic events */
+Int16 _flash_addr = 0;
 
 /*
  * version specifi global variables.
@@ -199,99 +201,98 @@ Int32 step_velocity (byte jj)
 	return u0;
 }
 
-#if 0
+
 /*
  * flash memory functions.
  * LATER: add all relevant variables.
  */
-byte writeToFlash (void)
+byte writeToFlash (word addr)
 {
-	dword ptr = FLASH_END_ADDR;
+	dword ptr = (dword)addr;
 	byte i, err;
 	word tmp;
 	bool gerr = false;
 	
 	for (i = 0; i < JN; i++)
 	{
-		err = IFsh1_SetWordFlash(ptr, _kp[i]);
+		err = IFsh1_setWordFlash(ptr, _kp[i]);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,2);
-		err = IFsh1_SetWordFlash(ptr, _kd[i]);
+		err = IFsh1_setWordFlash(ptr, _kd[i]);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,2);
 //		err = IFsh1_SetWordFlash(ptr, _ki[i]);
-		err = IFsh1_SetWordFlash(ptr, 0);
+		err = IFsh1_setWordFlash(ptr, 0);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,2);
-		err = IFsh1_SetWordFlash(ptr, _ko[i]);
+		err = IFsh1_setWordFlash(ptr, _ko[i]);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,2);
-		err = IFsh1_SetWordFlash(ptr, _kr[i]);
+		err = IFsh1_setWordFlash(ptr, _kr[i]);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,2);
 //		err = IFsh1_SetWordFlash(ptr, _integral_limit[i]);
-		err = IFsh1_SetWordFlash(ptr, 0);
+		err = IFsh1_setWordFlash(ptr, 0);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,2);
-		err = IFsh1_SetWordFlash(ptr, _pid_limit[i]);
+		err = IFsh1_setWordFlash(ptr, _pid_limit[i]);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,2);
 		
-		err = IFsh1_SetLongFlash(ptr, _min_position[i]);
+		err = IFsh1_setLongFlash(ptr, _min_position[i]);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,4);
-		err = IFsh1_SetLongFlash(ptr, _max_position[i]);
+		err = IFsh1_setLongFlash(ptr, _max_position[i]);
 		gerr |= (err != ERR_OK);
 		ADP(ptr,4);
 	}
 
 	tmp = BYTE_W(_board_ID, 0);
-	err = IFsh1_SetWordFlash(ptr, tmp);
+	err = IFsh1_setWordFlash(ptr, tmp);
 	gerr |= (err != ERR_OK);
 	//ptr ++;		
 
 	if (gerr)
 		AS1_printStringEx ("Error while writing to flash memory, pls try again\r\n");
-			
+	
 	return ERR_OK;
 }
 
-byte readFromFlash (void)
+byte readFromFlash (word addr)
 {
-	dword ptr = FLASH_END_ADDR;
+	dword ptr = (dword)addr;
 	word tmp;
 	int i;
 
 	for (i = 0; i < JN; i++)
 	{
-		IFsh1_GetWordFlash(ptr, (word *)(_kp+i));
+		IFsh1_getWordFlash(ptr, (word *)(_kp+i));
 		ADP(ptr,2);
-		IFsh1_GetWordFlash(ptr, (word *)(_kd+i));
+		IFsh1_getWordFlash(ptr, (word *)(_kd+i));
 		ADP(ptr,2);
-		IFsh1_GetWordFlash(ptr, (word *)(_ki+i));
+		IFsh1_getWordFlash(ptr, (word *)(_ki+i));
 		ADP(ptr,2);
-		IFsh1_GetWordFlash(ptr, (word *)(_ko+i));
+		IFsh1_getWordFlash(ptr, (word *)(_ko+i));
 		ADP(ptr,2);
-		IFsh1_GetWordFlash(ptr, (word *)(_kr+i));
+		IFsh1_getWordFlash(ptr, (word *)(_kr+i));
 		ADP(ptr,2);
-		IFsh1_GetWordFlash(ptr, (word *)(_integral_limit+i));
+		IFsh1_getWordFlash(ptr, (word *)(_integral_limit+i));
 		ADP(ptr,2);
-		IFsh1_GetWordFlash(ptr, (word *)(_pid_limit+i));
+		IFsh1_getWordFlash(ptr, (word *)(_pid_limit+i));
 		ADP(ptr,2);
 		
-		IFsh1_GetLongFlash(ptr, (dword *)(_min_position+i));
+		IFsh1_getLongFlash(ptr, (dword *)(_min_position+i));
 		ADP(ptr,4);
-		IFsh1_GetLongFlash(ptr, (dword *)(_max_position+i));
+		IFsh1_getLongFlash(ptr, (dword *)(_max_position+i));
 		ADP(ptr,4);
 	}
 
-	IFsh1_GetWordFlash(ptr, &tmp);
+	IFsh1_getWordFlash(ptr, &tmp);
 	_board_ID = BYTE_H(tmp);
 	//ptr ++;
 	
 	return ERR_OK;
 }
-#endif
 
 
 dword BYTE_C(byte x4, byte x3, byte x2, byte x1)
@@ -460,7 +461,9 @@ asm int get_flash_addr (void)
 void main(void)
 {
 	Int32 acceptance_code = 0x0;
-	Int16 flash_addr = get_flash_addr();	
+	
+	/* gets the address of flash memory from the linker */
+	_flash_addr = get_flash_addr();	
 	
 	/* enable interrupts */
 	setReg(SYS_CNTL, 0);
@@ -469,6 +472,7 @@ void main(void)
 	__ENIGROUP (53, 4);
 	__ENIGROUP (50, 4);
 	__ENIGROUP (51, 4);
+	__ENIGROUP (13, 4);
 	__ENIGROUP (14, 4);
 	__ENIGROUP (15, 4);
 	__ENIGROUP (42, 4);
@@ -493,7 +497,7 @@ void main(void)
 	QD1_initPosition ();
 
 	/* reads the PID parameters from flash memory */
-	//readFromFlash ();
+	readFromFlash (_flash_addr);
 
 	/* CAN masks/filters init */
 	CAN1_setAcceptanceMask (0xffffff0f);
@@ -583,7 +587,7 @@ void main(void)
 		generatePwm (0);
 		generatePwm (1);
 
-		if (_verbose)
+		if (_verbose && _counter == 0)
 		{
 			AS1_printDWordAsCharsDec (_desired[0]);
 			AS1_printStringEx (" ");
@@ -1067,14 +1071,14 @@ byte serial_interface (void)
 				if (d == '2')
 				{
 					AS1_printStringEx ("writing to FLASH mem\r\n");
-					//writeToFlash ();
+					writeToFlash (_flash_addr);
 					AS1_printStringEx ("done!\r\n");
 				}
 				else
 				if (d == '3')
 				{
 					AS1_printStringEx ("reading from FLASH mem\r\n");
-					//readFromFlash ();
+					readFromFlash (_flash_addr);
 					AS1_printStringEx ("done!\r\n");
 				}
 

@@ -156,26 +156,6 @@ byte PWMC1_setDutyPercent(byte channel,byte duty)
 	return ERR_OK;
 }
 
-/*
-** ===================================================================
-**     Method      :  PWMC1_SetOutput (bean PWMMC)
-**
-**     Description :
-**         PWM Output control.  This method is not available for
-**         MC68HC08LB8 CPU type.
-**     Parameters  :
-**         NAME            - DESCRIPTION
-**         OutCTL          - If TRUE, output control is set to
-**                           manual and parameter Outputs has sense. 
-**         Outputs         - Output pads are set/cleared
-**                           according to values in Outputs structure.
-**                           Parameter has sense only if OutCTL is
-**                           TRUE.
-**     Returns     :
-**         ---             - Error code, possible codes:
-**                           ERR_OK - OK
-** ===================================================================
-*/
 /**
  * sets output.
  * @param OutCTL, if TRUE sets the output channels pad (on/off).

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.2 2005-01-28 22:22:48 babybot Exp $
+/// $Id: controller.h,v 1.3 2005-02-01 15:32:34 gmetta Exp $
 ///
 ///
 
@@ -73,9 +73,7 @@
 #define DEFAULT_MAX_POSITION 5000
 #define DEFAULT_MAX_VELOCITY 0x7fff
 
-#define FLASH_START_ADDR 0x2000
-#define FLASH_END_ADDR 0x3ffc		/* leaves an empty word at end */
-#define ADP(x,amount) x-=amount
+#define ADP(x,amount) x+=amount
 
 #ifndef __ONLY_DEF
 /* deals with the endianism - byte 4 is the MSB on the Pentium */
@@ -210,8 +208,8 @@ Int16 abort_trajectory (byte jj, Int32 limit);
 byte serial_interface (void);
 byte can_interface (void);
 byte calibrate (byte jnt);
-byte writeToFlash (void);
-byte readFromFlash (void);
+byte writeToFlash (word addr);
+byte readFromFlash (word addr);
 void generatePwm (byte i);
 Int32 step_velocity (byte jj);
 

@@ -41,12 +41,12 @@ extern volatile word __dummy;
 /* set or get a register */ 
 #define setReg(addr, value) 		(((*(word *)addr)) = (word)value)
 #define touchReg(addr) 				(__dummy = *(char *)addr)
-#define getReg(addr) 				(*(char *)addr)
+#define getReg(addr) 				(__dummy = *(char *)addr)
 
 /* set/clr a bit by name */
 #define setRegBit(addr, mask)		((*(char *)addr) |= addr##_##mask##_MASK)
 #define clrRegBit(addr, mask)		((*(char *)addr) &= ~addr##_##mask##_MASK)
-#define getRegBit(addr, mask)		(((*(char *)addr) & addr##_##mask##_MASK)?1:0)
+#define getRegBit(addr, mask)		(((__dummy = *(char *)addr) & addr##_##mask##_MASK)?1:0)
 
 /* set/clr bits by mask */
 #define setRegBits(addr, mask)		((*(char *)addr) |= mask)
@@ -846,6 +846,41 @@ extern volatile word SR_lock;
 #define SCI0_SCIDR				(SCI0_BASE+3)	/* data reg */
 #define SCI0_SCIDR_DATA			0x01ff
 
+#define DFIU_BASE				0x1360
+
+#define DFIU_CNTL				(DFIU_BASE)
+#define DFIU_CNTL_BUSY_MASK		0x8000
+#define DFIU_CNTL_IFREN_MASK	0x0040
+#define DFIU_CNTL_XE_MASK		0x0020
+#define DFIU_CNTL_YE_MASK		0x0010
+#define DFIU_CNTL_PROG_MASK		0x0008
+#define DFIU_CNTL_ERASE_MASK	0x0004
+#define DFIU_CNTL_MAS1_MASK		0x0002
+#define DFIU_CNTL_NVSTR_MASK	0x0001
+
+#define DFIU_PE					(DFIU_BASE+0x1)
+#define DFIU_PE_DPE_MASK		0x8000
+#define DFIU_PE_IPE_MASK		0x4000
+
+#define DFIU_EE					(DFIU_BASE+0x2)
+#define DFIU_EE_DEE_MASK		0x8000
+#define DFIU_EE_IEE_MASK		0x4000
+
+#define DFIU_ADDR				(DFIU_BASE+0x3)
+#define DFIU_DATA				(DFIU_BASE+0x4)
+#define DFIU_IE					(DFIU_BASE+0x5)
+#define DFIU_IS					(DFIU_BASE+0x6)
+#define DFIU_IP					(DFIU_BASE+0x7)
+#define DFIU_CKDIVISOR			(DFIU_BASE+0x8)
+#define DFIU_TERASEL			(DFIU_BASE+0x9)
+#define DFIU_TMEL				(DFIU_BASE+0xA)
+#define DFIU_TNVSL				(DFIU_BASE+0xB)
+#define DFIU_TPGSL				(DFIU_BASE+0xC)
+#define DFIU_TPROGL				(DFIU_BASE+0xD)
+#define DFIU_TNVHL				(DFIU_BASE+0xE)
+#define DFIU_TNVHL1				(DFIU_BASE+0xF)
+#define DFIU_TRCVL				(DFIU_BASE+0x10)
+
 
 /*
  * error types.
@@ -858,5 +893,7 @@ extern volatile word SR_lock;
 #define ERR_VALUE				-4
 #define ERR_RANGE				-5
 #define ERR_SPEED				-6
+#define ERR_BUSY				-7
+#define ERR_NOTAVAIL			-8
 
 #endif
