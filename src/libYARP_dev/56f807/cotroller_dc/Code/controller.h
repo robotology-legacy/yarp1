@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.5 2005-02-09 09:33:58 babybot Exp $
+/// $Id: controller.h,v 1.6 2005-04-04 23:04:06 babybot Exp $
 ///
 ///
 
@@ -55,9 +55,9 @@
 //#define VERSION 0x0112				/* decouples shoulder first two joints */
 //#define VERSION 0x0113				/* decouples the third joint of the shoulder */
 
-//#define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
+#define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
 //#define DEBUG_CONTROL_RATE	1 		/* for debugging control cycle rate */
-#define DEBUG_TRAJECTORY 		1		/* print encoder/joint position */
+//#define DEBUG_TRAJECTORY 		1		/* print encoder/joint position */
 #define DEBUG_SERIAL			1		/* for debugging through terminal */
 
 #define DEFAULT_BOARD_ID	15		/* default ID for receiving messages (4 bit field) */

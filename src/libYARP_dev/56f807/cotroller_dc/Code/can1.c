@@ -409,7 +409,7 @@ void CAN1_interruptRx (void)
 	CAN_DI;
 	write_p ++;
 	if (write_p >= CAN_FIFO_LEN)
-	write_p = 0;
+		write_p = 0;
 
 	// check here for buffer full.
 	p = can_fifo + write_p;

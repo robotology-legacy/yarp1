@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.11 2005-02-03 17:45:44 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.12 2005-04-04 23:04:06 babybot Exp $
 ///
 ///
 
@@ -420,18 +420,24 @@ void YARPValueCanDeviceDriver::_debugMsg (int n, void *msg, int (*p) (char *fmt,
 				((m[i].ArbIDOrHeader & 0x780) >> 7) == r._my_address)
 			{
 				(*p) 
-					("s: %2x d: %2x c: %1d msg: %3d x: %x %x %x %x %x %x id: %x\n", 
+					("s: %2x d: %2x c: %1d msg: %3d (%x) ",
 					  (m[i].Data[0] & 0x0f), 
-					   (m[i].ArbIDOrHeader & 0x780) >> 7, 
-					 ((m[i].Data[0] & 0x80)==0)?0:1,
+					  (m[i].ArbIDOrHeader & 0x780) >> 7, 
+					  ((m[i].Data[0] & 0x80)==0)?0:1,
 					  (m[i].ArbIDOrHeader & 0x7f),
-					   m[i].Data[2],
-					   m[i].Data[3],
-					   m[i].Data[4],
-					   m[i].Data[5],
-					   m[i].Data[6],
-					   m[i].Data[7],
-					   m[i].ArbIDOrHeader);
+					  (m[i].ArbIDOrHeader & 0x7f));
+				if (m[i].NumberBytesData > 1)
+				{
+					(*p)("x: "); 
+				}
+
+				int j;
+				for (j = 1; j < m[i].NumberBytesData; j++)
+				{
+					(*p)("%x ", m[i].Data[j]);
+				}
+
+				(*p)("id: %x\n", m[i].ArbIDOrHeader);
 			}
 		}
 	}
