@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.9 2003-06-09 09:56:46 gmetta Exp $
+/// $Id: main.cpp,v 1.10 2003-06-10 08:12:11 gmetta Exp $
 ///
 ///
 
@@ -204,9 +204,25 @@ int _runAsClient (void)
 	return YARP_OK;
 }
 
+#include <signal.h>
+
+void _handler (void)
+{
+	ACE_OS::fprintf (stderr, "atexit...\n");
+
+	return;
+}
+
+void _hh (int)
+{
+	exit(1);
+}
 
 int _runAsSimulation (void)
 {
+	signal (SIGINT, _hh);
+	atexit (_handler);
+
 	YARPImageOf<YarpPixelBGR> img;
 	img.Resize (_size, _size);
 	img.Zero ();
