@@ -43,9 +43,10 @@ void RndSharedData::sendNext()
 	send();
 }
 
-void RndSharedData::sendShake()
+void RndSharedData::sendShake(const YVector &cmd)
 {
 	_data.reset();
 	_data.writeVocab(YBVArmShake);
+	_data.writeYVector(cmd);
 	send();
 }

@@ -85,6 +85,16 @@ int main(int argc, char* argv[])
 			tmp.writeVocab(YBVHandResetEncoders);
 			send = true;
 		}
+		else if (c == "armrest")
+		{
+			tmp.writeVocab(YBVArmForceResting);
+			send = true;
+		}
+		else if (c == "arminhibit")
+		{
+			tmp.writeVocab(YBVArmInhibitResting);
+			send = true;
+		}
 		else 
 		{
 			send = false;

@@ -20,7 +20,7 @@
 using namespace std;
 
 const int __defaultRate = 40;
-const YARPString __defaultName = "/force/o:1";
+const YARPString __defaultName = "/wristforce/o";
 
 class MyThread : public YARPRateThread
 {
@@ -48,11 +48,6 @@ public:
 	
 		fs.read(_forces);
 
-		// for(int i = 0; i < 3; i++)
-		//	printf("%.3lf\t",_torques[i]);
-
-		//	cout << "\n";
-		
 		_outPort.Content() = _forces;
 				
 		_outPort.Write();

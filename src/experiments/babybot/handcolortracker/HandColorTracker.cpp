@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
 
 	char tmp[128];
 	sprintf(tmp, "%s%d", "y:\\zgarbage\\exp10\\histo", 37);
-	_histo.load(YARPString(tmp));
+//	_histo.load(YARPString(tmp));
 
 	YARPLogpolar _mapper;
 
@@ -163,9 +163,10 @@ int main(int argc, char* argv[])
 
 		// _outSeg.Zero();
 
-		_hand.search(_leftHSV, _outSeg, _outSeg2, _histo, 20);
+		// _hand.search(_leftHSV, _outSeg, _outSeg2, _histo, 20);
 				
-		_outPortSeg.Content().Refer(_outSeg2);
+		// _outPortSeg.Content().Refer(_outSeg2);
+		_outPortSeg.Content().Refer(_outSeg);
 		_outPortSeg.Write();
 
 		/*_nHistos++;

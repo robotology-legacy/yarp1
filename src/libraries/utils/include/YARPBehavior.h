@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.15 2003-09-18 15:35:12 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.16 2003-09-19 14:24:20 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -162,10 +162,18 @@ public:
 		PulseStates *activation;
 	};
 
+	struct FunctionTableEntry
+	{
+		BaseBehaviorInput *input;		
+		BaseBehaviorOutput *output;
+	};
+
 	typedef YARPList<BTableEntry> BEHAVIOR_TABLE;
+	typedef YARPList<FunctionTableEntry> FUNCTION_TABLE;
 	typedef YARPList<PulseStates *> PULSE_TABLE;
 	typedef BEHAVIOR_TABLE::iterator BEHAVIOR_TABLE_IT;
 	typedef PULSE_TABLE::iterator PULSE_TABLE_IT;
+	typedef FUNCTION_TABLE::iterator FUNCTION_TABLE_IT;
 
 	YARPBehavior(MY_SHARED_DATA *d, int k, std::string pName):
 	YARPFSM<MY_BEHAVIOR, MY_SHARED_DATA>(d),
@@ -211,9 +219,13 @@ public:
 	}
 	// add a transition
 	void add(BaseBehaviorInput *in, MyBaseStates *s1, MyBaseStates *s2, BaseBehaviorOutput *out = NULL);
+	void add(BaseBehaviorInput *in, BaseBehaviorOutput *out);
 	
 	void updateTable(BTableEntry entry)
 	{ _table.push_back(entry); }
+
+	void updateFunctionTable(FunctionTableEntry entry)
+	{ _functions.push_back(entry); }
 
 private:
 	// parse message
@@ -234,6 +246,7 @@ private:
 	}
 
 	BEHAVIOR_TABLE _table;
+	FUNCTION_TABLE _functions;
 	PULSE_TABLE _pulse_table;		//keep track of the input states created, so that we can delete them later
 
 	YARPInputPortOf<YARPBottle> _inport;
@@ -265,6 +278,16 @@ add(BaseBehaviorInput *in, MyBaseStates *s1, MyBaseStates *s2, BaseBehaviorOutpu
 	updateTable(tmpEntry);
 }
 
+template <class MY_BEHAVIOR, class MY_SHARED_DATA> 
+void YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
+add(BaseBehaviorInput *in, BaseBehaviorOutput *out)
+{
+	FunctionTableEntry tmpEntry;
+	tmpEntry.input = in;
+	tmpEntry.output = out;
+	updateFunctionTable(tmpEntry);
+}
+
 template <class MY_BEHAVIOR, class MY_SHARED_DATA>
 int YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
 _parse(YARPBottle &bottle)
@@ -289,7 +312,20 @@ _parse(YARPBottle &bottle)
 			YARP_BEHAVIOR_DEBUG(("I'm Alive!\n"));
 		}
 	}
-			
+
+	// handle signals, global functions
+	FUNCTION_TABLE_IT itf(_functions);
+	while(!itf.done())
+	{
+		if ((*itf).input->input(&bottle, _data))
+		{
+			(*itf).output->output(_data);
+			return 1;
+		}
+		itf++;
+	}
+	////////////////////////////////////////
+				
 	// handle signals
 	BEHAVIOR_TABLE_IT is(_table);
 	while(!is.done())
@@ -308,6 +344,7 @@ _parse(YARPBottle &bottle)
 			}
 		is++;
 	}
+	/////////////////////////////////////////
 	return 1;
 }
 

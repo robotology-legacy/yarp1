@@ -82,7 +82,7 @@ public:
 	void getRand(const double *, const double *, double *, int);
 
 	void sendNext();
-	void sendShake();
+	void sendShake(const YVector &cmd);
 };
 
 class RndBehavior: public YARPBehavior<RndBehavior, RndSharedData>
@@ -159,10 +159,18 @@ public:
 class RBInitShake: public RndBehaviorStateBase
 {
 public:
+	RBInitShake(const YVector cmd, const YARPString &msg)
+	{
+		command = cmd;
+		message = msg;
+	}
 	void handle(RndSharedData *d)
 	{
-		printf("RBInitShake: starting shake sequence\n");
-		d->sendShake();
+		printf("RBInitShake: %s\n", message.c_str());
+		d->sendShake(command);
 	}
+
+	YARPString message;
+	YVector command;
 };
 #endif

@@ -43,7 +43,7 @@ nmake /f sendCmd.mak CFG="sendCmd - Win32 Release" clean
 cd ..\grasprflx\
 nmake /f grasprflx.mak CFG="grasprflx - Win32 Debug" clean
 nmake /f grasprflx.mak CFG="grasprflx - Win32 Release" clean
-cd ..\
+cd ..
 
 goto end
 
@@ -64,7 +64,7 @@ nmake /f handlocalization.mak CFG="handlocalization - Win32 Debug"
 cd ..\sendCmd\
 nmake /f sendCmd.mak CFG="sendCmd - Win32 Debug"
 cd ..\grasprflx\
-nmake /f grasprflx.mak CFG="grasprflx - win32 Debug"
+nmake /f grasprflx.mak CFG="grasprflx - Win32 Debug"
 cd ..
 
 goto end
@@ -86,7 +86,7 @@ nmake /f handlocalization.mak CFG="handlocalization - Win32 Release"
 cd ..\sendCmd\
 nmake /f sendCmd.mak CFG="sendCmd - Win32 Release"
 cd ..\grasprflx\
-nmake /f grasprflx.mak CFG="grasprflx - win32 Release"
+nmake /f grasprflx.mak CFG="grasprflx - Win32 Release"
 cd ..
 
 goto end
