@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigQNX6.h,v 1.4 2003-05-13 22:38:04 gmetta Exp $
+// $Id: YARPConfigQNX6.h,v 1.5 2003-05-14 17:34:56 gmetta Exp $
 // YARP config file QNX6.
 //
 //
@@ -30,6 +30,10 @@
 
 /// set the number of ports used by UDP for a single port.
 #define YARP_UDP_REGPORTS       11
+
+/// define the priority of creation of library globals.
+/// g++ dependant.
+#define YARP_REQUIRE_ATTR (__attribute__ ((init_priority (101)))
 
 #include <ace/config.h>
 

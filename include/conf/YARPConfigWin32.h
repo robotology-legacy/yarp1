@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.6 2003-05-13 22:14:16 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.7 2003-05-14 17:34:56 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -28,7 +28,7 @@
 ///
 #define SINGLE_MUTEX_FOR_REFCOUNTED 1
 #define UPDATED_PORT 1
-#define MAX_PACKET (128*128*3+100)
+#define MAX_PACKET (128*128*3+100)	/// shouldn't be required
 
 /// MSVC has pragma once directive.
 #define YARP_HAS_PRAGMA_ONCE	1
@@ -47,6 +47,9 @@
 
 /// disables warning for init_seg(lib) very legitimate use of directive.
 #pragma warning (disable:4073)
+
+/// a null define (actually used in QNX) - can't be removed.
+#define YARP_REQUIRE_ATTR 
 
 ///
 /// ACE inclusion

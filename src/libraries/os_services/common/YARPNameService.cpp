@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.8 2003-05-14 17:20:17 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.9 2003-05-14 17:34:56 gmetta Exp $
 ///
 ///
 
@@ -91,13 +91,13 @@ using namespace std;
 #pragma init_seg(lib)
 #endif
 
-static YARPSemaphore mutex(1);
+static YARPSemaphore mutex(1) YARP_REQUIRE_ATTR;
 
 /// not very elegant, legacy of old impl.
 /// LATER: do it differently.
-static bool _init_nameserver = true;
-static YARPNameClient * _namer = NULL;
-static YARPNameService _justtoinitialize;
+static bool _init_nameserver = true YARP_REQUIRE_ATTR;
+static YARPNameClient * _namer = NULL YARP_REQUIRE_ATTR;
+static YARPNameService _justtoinitialize YARP_REQUIRE_ATTR;
 
 ///static int is_connected = 0, tried_to_connect = 0;
 ///static int registration_mode = YARP_NO_SERVICE_AVAILABLE;
