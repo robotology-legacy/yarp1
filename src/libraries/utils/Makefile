@@ -25,8 +25,8 @@ $(CODELIB): subtarget
 	$(AR) $(ARFLAGS) ./lib/$(OS)/$(CODELIB) $(OBJS)
 
 install : subinstall
-	$(CP) ./lib/$(OS)/$(CODELIB) $(YARP_ROOT)/lib/$(SYSDIR)
 	$(CP) include/*.h $(YARP_ROOT)/include
+	$(CP) ./lib/$(OS)/$(CODELIB) $(YARP_ROOT)/lib/$(SYSDIR)
 
 clean: subclean
 	rm -f $(CODELIB) 
