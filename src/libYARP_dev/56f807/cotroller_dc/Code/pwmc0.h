@@ -40,8 +40,6 @@
 #endif
 
 
-void PWMC0_setHigh (void);
-void PWMC0_interruptOnReload (void);
 void PWMC0_init (void);
 byte PWMC0_setPeriod (word period);
 byte PWMC0_setDuty (byte channel, int duty);

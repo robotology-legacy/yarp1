@@ -447,6 +447,8 @@ asm int get_flash_addr (void)
 	rts
 }
 
+/* used only for displaying on the terminal */
+byte channel = 0;
 
 /* 
 	This is the main controller loop.
@@ -589,9 +591,9 @@ void main(void)
 
 		if (_verbose && _counter == 0)
 		{
-			AS1_printDWordAsCharsDec (_desired[0]);
+			AS1_printDWordAsCharsDec (_desired[channel]);
 			AS1_printStringEx (" ");
-			AS1_printWord16AsChars (_pid[0]);
+			AS1_printWord16AsChars (_pid[channel]);
 			AS1_printStringEx ("\r\n");
 		}
 		
@@ -851,6 +853,24 @@ byte can_interface (void)
 
 byte c = 0;
 
+#define ASK_PARM(msg, var1) \
+	AS1_printStringEx (msg); \
+	AS1_printStringEx (" ["); \
+	AS1_printWord16AsChars (*var1); \
+	AS1_printStringEx ("] : "); \
+	AS1_getStringEx (buffer, SMALL_BUFFER_SIZE, true); \
+	iretval = AS1_atoi (buffer, AS1_strlen(buffer, SMALL_BUFFER_SIZE)); \
+	*var1 = iretval;
+
+#define ASK_PARM_32(msg, var1) \
+	AS1_printStringEx (msg); \
+	AS1_printStringEx (" ["); \
+	AS1_printDWordAsChars (*var1); \
+	AS1_printStringEx ("] : "); \
+	AS1_getStringEx (buffer, SMALL_BUFFER_SIZE, true); \
+	iretval = AS1_atoi (buffer, AS1_strlen(buffer, SMALL_BUFFER_SIZE)); \
+	*var1 = (dword)iretval;
+
 /* test/debug serial port interface (on AS1) */
 byte serial_interface (void)
 {
@@ -879,41 +899,49 @@ byte serial_interface (void)
 			AS1_printStringEx ("w3, read control params from FLASH mem\r\n");
 			AS1_printStringEx ("v, toggle verbose flag\r\n");
 			
-			AS1_printStringEx ("e, enable controller\r\n");
+			AS1_printStringEx ("e, enable controller channel\r\n");
 			AS1_printStringEx ("g, set pid gain\r\n");
 			AS1_printStringEx ("s, show pid gain\r\n");
 			AS1_printStringEx ("x1, start trajectory generation\r\n");
 			AS1_printStringEx ("x2, stop trajectory generation\r\n");
 			AS1_printStringEx ("x3, enable/disable PWM\r\n");
-						
+			AS1_printStringEx ("c, toggle channel 0/1\r\n");
+			
 			c = 0;
 			break;
-
-		case 's':
-			AS1_printStringEx ("gain, p= ");
-			AS1_printWord16AsChars (_kp[0]);
-			AS1_printStringEx (" d= ");
-			AS1_printWord16AsChars (_kd[0]);
-			AS1_printStringEx (" scale= ");
-			AS1_printWord16AsChars (_kr[0]);
-			AS1_printStringEx ("\r\n");
+	
+		case 'c':
+			if (channel == 0)
+			{
+				channel = 1;
+				AS1_printStringEx ("channel = 1\r\n");
+			}
+			else
+			{
+				channel = 0;
+				AS1_printStringEx ("channel = 0\r\n");
+			}			
 			c = 0;
 			break;
 			
 		case 'e':
-			if (_control_mode[0] == MODE_IDLE)
+			if (channel == 0)
+				AS1_printStringEx ("channel = 0\r\n");
+			else
+				AS1_printStringEx ("channel = 1\r\n");
+				
+			if (_control_mode[channel] == MODE_IDLE)
 			{
-				_control_mode[0] = MODE_POSITION;
-				_calibrated[0] = true;
+				_control_mode[channel] = MODE_POSITION;
+				_calibrated[channel] = true;
 				AS1_printStringEx ("mode = position\r\n");
 			}
 			else
 			{
-				_control_mode[0] = MODE_IDLE;
-				_calibrated[0] = false;
+				_control_mode[channel] = MODE_IDLE;
+				_calibrated[channel] = false;
 				AS1_printStringEx ("mode = idle\r\n");
 			}
-			
 			c = 0;
 			break;
 			
@@ -922,34 +950,56 @@ byte serial_interface (void)
 			{
 				if (d == '1')
 				{
+					if (channel == 0)
+						AS1_printStringEx ("channel = 0\r\n");
+					else
+						AS1_printStringEx ("channel = 1\r\n");
+						
 					AS1_printStringEx ("position: ");
 					AS1_getStringEx (buffer, SMALL_BUFFER_SIZE, true);
 					iretval = AS1_atoi (buffer, AS1_strlen(buffer, SMALL_BUFFER_SIZE)); 
 					
 					AS1_printStringEx ("move: ");
-					_set_point[0] = 0;
-					_set_point[0] = L_deposit_l(iretval);
+					_set_point[channel] = 0;
+					_set_point[channel] = L_deposit_l(iretval);
 					AS1_printDWordAsCharsDec (iretval);
-					_set_vel[0] = 10;
-					_set_acc[0] = 0;
+					_set_vel[channel] = 10;
+					_set_acc[channel] = 0;
 					AS1_printStringEx (" 10\r\n");
-					init_trajectory (0, _position[0], _set_point[0], _set_vel[0]);
+					init_trajectory (channel, _position[channel], _set_point[channel], _set_vel[channel]);
 				}
 				else
 				if (d == '2')
 				{
-					abort_trajectory (0, _position[0]);
+					if (channel == 0)
+						AS1_printStringEx ("channel = 0\r\n");
+					else
+						AS1_printStringEx ("channel = 1\r\n");
+						
+					abort_trajectory (channel, _position[channel]);
 					AS1_printStringEx ("trajectory aborted\r\n");
 				}
 				else
 				if (d == '3')
 				{
-					if (_pad_enabled[0] == true)
-						PWMC0_outputPadDisable();
+					if (channel == 0)
+					{
+						AS1_printStringEx ("channel = 0\r\n");
+						if (_pad_enabled[channel] == true)
+							PWMC0_outputPadDisable();
+						else
+							PWMC0_outputPadEnable();
+					}
 					else
-						PWMC0_outputPadEnable();
+					{
+						AS1_printStringEx ("channel = 1\r\n");
+						if (_pad_enabled[channel] == true)
+							PWMC1_outputPadDisable();
+						else
+							PWMC1_outputPadEnable();
+					}
 						
-					_pad_enabled[0] = !_pad_enabled[0];
+					_pad_enabled[channel] = !_pad_enabled[channel];
 				}
 
 				c = 0;
@@ -958,34 +1008,47 @@ byte serial_interface (void)
 			break;
 			
 		case 'g':
-			AS1_printStringEx ("p gain [");
-			AS1_printWord16AsChars (_kp[0]);
-			AS1_printStringEx ("] : ");
-			AS1_getStringEx (buffer, SMALL_BUFFER_SIZE, true);
-			iretval = AS1_atoi (buffer, AS1_strlen(buffer, SMALL_BUFFER_SIZE)); 
+			if (channel == 0)
+				AS1_printStringEx ("channel = 0\r\n");
+			else
+				AS1_printStringEx ("channel = 1\r\n");
+		
+			ASK_PARM("p gain", &_kp[channel]);
+			ASK_PARM("d gain", &_kd[channel]);
+			ASK_PARM("scale factor", &_kr[channel]);
+			ASK_PARM("offset", &_ko[channel]);
+			ASK_PARM("limit", &_pid_limit[channel]);
 			
-			_kp[0] = iretval;
-			
-			AS1_printStringEx ("d gain [");
-			AS1_printWord16AsChars (_kd[0]);
-			AS1_printStringEx ("] : ");
-			AS1_getStringEx (buffer, SMALL_BUFFER_SIZE, true);
-			iretval = AS1_atoi (buffer, AS1_strlen(buffer, SMALL_BUFFER_SIZE)); 
-
-			_kd[0] = iretval;
-
-			AS1_printStringEx ("scale factor [");
-			AS1_printWord16AsChars (_kr[0]);
-			AS1_printStringEx ("] : ");
-			
-			AS1_getStringEx (buffer, SMALL_BUFFER_SIZE, true);
-			iretval = AS1_atoi (buffer, AS1_strlen(buffer, SMALL_BUFFER_SIZE)); 
-
-			_kr[0] = iretval;
-			
+			ASK_PARM("max position", &_max_position[channel]);
+			_min_position[channel] = -_max_position[channel];
+					
 			c = 0;
 			break;
 			
+		case 's':
+			if (channel == 0)
+				AS1_printStringEx ("channel = 0\r\n");
+			else
+				AS1_printStringEx ("channel = 1\r\n");
+			AS1_printStringEx ("gain, p= ");
+			AS1_printWord16AsChars (_kp[channel]);
+			AS1_printStringEx (" d= ");
+			AS1_printWord16AsChars (_kd[channel]);
+			AS1_printStringEx (" scale= ");
+			AS1_printWord16AsChars (_kr[channel]);
+			AS1_printStringEx (" offset= ");
+			AS1_printWord16AsChars (_ko[channel]);
+			AS1_printStringEx (" limit= ");
+			AS1_printWord16AsChars (_pid_limit[channel]);
+			AS1_printStringEx ("\r\n");
+
+			AS1_printStringEx ("max position= ");
+			AS1_printDWordAsChars (_max_position[channel]);
+			AS1_printStringEx ("\r\n");
+						
+			c = 0;
+			break;
+
 		case 'v':
 			_verbose = !_verbose;
 			if (_verbose)
@@ -1028,46 +1091,6 @@ byte serial_interface (void)
 		case 'w':
 			if (AS1_recvChar(&d) == ERR_OK)
 			{
-				if (d == '0')
-				{
-					if (_calibrated[0])
-					{
-						if (!_pad_enabled[0])
-						{
-							PWMC0_outputPadEnable();
-							AS1_printStringEx ("pad channel 0 enabled\r\n");
-						}
-						else
-						{
-							PWMC0_outputPadDisable();
-							AS1_printStringEx ("pad channel 0 disabled\r\n");
-						}
-						_pad_enabled[0] = !_pad_enabled[0];
-					}
-					else
-						AS1_printStringEx ("need to calibrate channel 0 first\r\n");
-				}
-				else
-				if (d == '1')
-				{
-					if (_calibrated[1])
-					{
-						if (!_pad_enabled[1])
-						{
-							PWMC1_outputPadEnable();
-							AS1_printStringEx ("pad channel 1 enabled\r\n");
-						}
-						else
-						{
-							PWMC1_outputPadDisable();
-							AS1_printStringEx ("pad channel 1 disabled\r\n");
-						}
-						_pad_enabled[1] = !_pad_enabled[1];
-					}
-					else
-						AS1_printStringEx ("need to calibrate channel 1 first\r\n");
-				}
-				else
 				if (d == '2')
 				{
 					AS1_printStringEx ("writing to FLASH mem\r\n");
