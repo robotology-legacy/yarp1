@@ -414,10 +414,6 @@ int Build_Neighborhood_Map(Image_Data * Par,
 				}
 		}
 
-		int ww;
-		for (ww=0; ww<20; ww++)
-			printf("%d,%d\n",Neighbor_Map_RGB[10*(49*252+2)+ww].position%252,Neighbor_Map_RGB[10*(49*252+2)+ww].position/252);
-
 
 		sprintf(File_Name,"%s%s",Path,"NeighborhoodMap.gio");
 
@@ -924,3 +920,140 @@ int Build_Remap_Map_No_Fov (Image_Data * Parameters,
 	}
 
 }
+
+
+/************************************************************************
+* Build_Neighborhood_Map_No_Fov											*
+*																		*
+* Input: Pix_Numb														*
+* 		 Path															*
+* 																		*
+************************************************************************/	
+
+int Build_Neighborhood_Map_NoFov(Image_Data * Par,
+							char * Path)
+{
+	int j,k;
+	int ii,jj,kk;
+	int plane;
+	int rho,theta;
+	int bottomrho,bottomtheta;
+	int toprho,toptheta;
+	int CurrPix,TestPix;
+	double distX,distY, distXY;
+	char File_Name [256];
+	int Pix_Numb = MAX_PIX;
+
+	Neighborhood * Neighbor_Map_RGB;
+	double		 * X_Map;
+	double		 * Y_Map;
+	char		 * Color_Map;
+
+	int retval;
+	LUT_Ptrs Tables;
+
+	FILE * fout;
+
+	retval = Load_Tables(Par,&Tables,Path,130);
+
+	
+	Neighbor_Map_RGB = (Neighborhood *)malloc(Par->Size_Rho * Par->Size_Fovea * Pix_Numb * 3 * sizeof(Neighborhood));
+
+	if (retval != 130)
+	{
+		if (Tables.ColorMap!=NULL)
+			free(Tables.ColorMap);
+		if (Tables.XYMap!=NULL)
+			free(Tables.XYMap);
+		return 0;
+	}
+	else
+	{
+		Color_Map = Tables.ColorMap;
+		X_Map = Tables.XYMap;
+		Y_Map = Tables.XYMap+Par->Size_LP;
+
+
+		for (j=0; j<Par->Size_LP * Pix_Numb * 3; j++)
+		{
+			Neighbor_Map_RGB [j].weight = (float)(Par->Size_Img_Remap);
+			Neighbor_Map_RGB [j].position = 0;
+		}
+
+		for (rho=Par->Size_Fovea; rho<Par->Size_Rho; rho++)
+		{
+			if (rho-(Pix_Numb+1)/2>Par->Size_Fovea)
+				bottomrho = rho-(Pix_Numb+1)/2;
+			else bottomrho = Par->Size_Fovea;
+
+			if (1+rho+(Pix_Numb+1)/2<Par->Size_Rho)
+				toprho = 1+rho+(Pix_Numb+1)/2;
+			else toprho = Par->Size_Rho;
+
+			for (theta=0; theta<Par->Size_Theta; theta++)
+				if (Color_Map[rho*Par->Size_Theta+theta]!=-1)
+				{
+					CurrPix = rho*Par->Size_Theta+theta;
+
+					if ((theta-(Pix_Numb+1)/2>0)&&(1+theta+(Pix_Numb+1)/2<Par->Size_Theta))
+					{
+						bottomtheta = theta-(Pix_Numb+1)/2;
+						toptheta = 1+theta+(Pix_Numb+1)/2;
+					}
+					else
+					{
+						bottomtheta = 0;
+						toptheta	= Par->Size_Theta;
+					}
+					if (rho<Par->Size_Fovea)
+					{
+						bottomtheta = 0;
+						toptheta	= Par->Size_Theta;
+					}
+					for (jj=bottomrho; jj<toprho; jj++)
+						for (ii=bottomtheta; ii<toptheta; ii++)
+						{
+							TestPix = jj*Par->Size_Theta+ii;
+							distX = X_Map[CurrPix]-X_Map[TestPix];
+							distX = distX*distX;
+							distY = Y_Map[CurrPix]-Y_Map[TestPix];
+							distY = distY*distY;
+							distXY  = distX+distY;
+
+							for (plane = RED; plane <= BLUE; plane ++)
+								for (k=0; k<Pix_Numb; k++)
+									if ((distXY < Neighbor_Map_RGB[(plane*Par->Size_Rho*Par->Size_Fovea * Pix_Numb)+Pix_Numb*((rho-Par->Size_Fovea)*Par->Size_Theta+theta)+k].weight)&&(Color_Map[jj*Par->Size_Theta+ii] == plane))
+									{
+										if (Pix_Numb >1)
+											for (kk=Pix_Numb-2; kk>=k; kk--)
+											{
+//fino qui												Neighbor_Map_RGB[(plane*Par->Size_LP * Pix_Numb)+Pix_Numb*(rho*Par->Size_Theta+theta)+kk+1].weight  = Neighbor_Map_RGB[(plane*Par->Size_LP * Pix_Numb)+Pix_Numb*(rho*Par->Size_Theta+theta)+kk].weight;
+												Neighbor_Map_RGB[(plane*Par->Size_LP * Pix_Numb)+Pix_Numb*(rho*Par->Size_Theta+theta)+kk+1].position  = Neighbor_Map_RGB[(plane*Par->Size_LP * Pix_Numb)+Pix_Numb*(rho*Par->Size_Theta+theta)+kk].position;
+											}
+										Neighbor_Map_RGB[(plane*Par->Size_LP * Pix_Numb)+Pix_Numb*(rho*Par->Size_Theta+theta)+k].weight = (float)(distXY);
+										Neighbor_Map_RGB[(plane*Par->Size_LP * Pix_Numb)+Pix_Numb*(rho*Par->Size_Theta+theta)+k].position = jj*Par->Size_Theta+ii;
+										break;
+									}
+						}
+				}
+		}
+
+
+		sprintf(File_Name,"%s%s",Path,"NeighborhoodMap.gio");
+
+		fout = fopen(File_Name,"wb");
+		fwrite(Neighbor_Map_RGB,sizeof(Neighborhood),Par->Size_LP * Pix_Numb * 3,fout);
+		fclose (fout);
+
+		free(Neighbor_Map_RGB);
+		free(Tables.XYMap);
+//		free(X_Map);
+//		free(Y_Map);
+
+		free(Color_Map);
+		return 1;
+	}
+
+
+}
+	
