@@ -1,2 +1,0 @@
-porter /foveal_egomap/o:img /yarp/view/speculate
-conditional_porter /yarp/shlc/o:img /foveal_egomap/i:img

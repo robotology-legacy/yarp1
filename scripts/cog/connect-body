@@ -1,4 +1,0 @@
-#!/bin/sh
-#conditional_porter /attn_tracker/o:pos /yarp/arm_thread/att_in
-conditional_porter /yarp/closed_loop/p_out /yarp/arm_thread/head_in
-conditional_porter /yarp/arm_thread/p_out /yarp/closed_loop/in/arm

@@ -1,4 +1,0 @@
-on -n7 /ai/ai/mb/cdp/src/YARP/bin/qnx/K4GUI &
-sleep 2
-porter /TestGUI/out/command /yapoc/in/command
-porter /YAPOC/out/position /TestGUI/in/position

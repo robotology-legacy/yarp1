@@ -1,6 +1,0 @@
-
-deploy_porter /yarp/attention/out /yarp/closed_loop/in/color_segm_data
-deploy_porter /yarp/disparity/out/disparity /yarp/closed_loop/in/disparity_data
-
-deploy_porter /yarp/closed_loop/c_out /yarp/optic_flow/left/in/velocity
-deploy_porter /yarp/closed_loop/c_out /yarp/optic_flow/right/in/velocity

@@ -1,9 +1,0 @@
-#!/bin/sh
-
-conditional_porter /yarp/msg/o:msg /yarp/color_segm2/i:bottle
-conditional_porter /yarp/right/fovea2 /yarp/color_segm2/i:img
-conditional_porter /yarp/right/wide2 /yarp/color_segm2/i:wide
-
-conditional_porter /yarp/color_segm2/o:img /yarp/viewer/segm2
-conditional_porter /yarp/color_segm2/o:wide /yarp/viewer/segm2_wide
-conditional_porter /yarp/color_segm2/o:bottle /attn_tracker/i:bot
