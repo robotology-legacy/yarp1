@@ -13,7 +13,7 @@ CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS)
 
 BIN     = main
 
-CDEFS += -D__QNXEurobot__
+CDEFS += -D$(ROBOT)
 
 FILES 	=
 	  
@@ -35,6 +35,9 @@ VLDLIBS = $(LDLIBS:%=%$(VAR))
 
 BUILD = $(VBIN)
 
+eurobot:
+	@make ROBOT=__QNXEurobot__ all
+	
 # For make depend.
 SRC = $(addsuffix .cpp, $(BIN))
 
