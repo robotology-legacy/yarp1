@@ -116,6 +116,10 @@ SOURCE=.\include\YARPConfigFile.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\YARPFSM.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\YARPLogFile.h
 # End Source File
 # End Group

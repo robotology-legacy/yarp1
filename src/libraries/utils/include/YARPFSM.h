@@ -59,79 +59,151 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPConfigFile.h,v 1.4 2003-07-04 12:27:00 babybot Exp $
+/// $Id: YARPFSM.h,v 1.1 2003-07-04 12:27:00 babybot Exp $
 ///  
-/// very simple class to handle config files... by nat May 2003
+/// Finite State Machine class -- by nat July 2003
 //
 
-#ifndef __YARPCONFIGFILE__
-#define __YARPCONFIGFILE__
+#ifndef __YARPFSMH__
+#define __YARPFSMH__
 
-#include <conf/YARPConfig.h>
-#include <stdio.h>
-#include <YARPErrorCodes.h>
-#include <string>
+#include <list>
 
-////////////////////////////////////////////////////////////////////////////
-//
-class YARPConfigFile
+template <class FSM_SHARED_DATA>
+class YARPFSMInput
+{	
+	public:
+		virtual bool input(FSM_SHARED_DATA *input) = 0;
+};
+
+// forward
+template <class MYFSM, class FSM_SHARED_DATA>
+class YARPFSMState;
+
+template <class MYFSM, class FSM_SHARED_DATA>
+class YARPFSMTableEntry
+{
+	public:
+	YARPFSMState<MYFSM, FSM_SHARED_DATA> *state;
+	YARPFSMInput<FSM_SHARED_DATA> *function;
+
+	// operator == used by <list> to remove entries
+	bool operator == (const YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> &i)
+	{
+		if ( (function == i.function) &&
+			(state == i.state) )
+			return true;
+		else
+			return false;
+	}
+
+};
+
+template <class MYFSM, class FSM_SHARED_DATA>
+class YARPFSMState
+{
+protected:
+	YARPFSMState()
+	{ _default = this; }
+	virtual ~YARPFSMState(){}
+
+	typedef YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> FSM_TABLE_ENTRY;
+	typedef std::list<FSM_TABLE_ENTRY> FSM_TABLE;
+	typedef FSM_TABLE::iterator FSM_TABLE_IT;
+
+public:
+	void decideState(MYFSM *t, FSM_SHARED_DATA *d)
+	{
+		FSM_TABLE_IT it;
+		// if table is empty use default value
+		if (_table.empty())
+		{
+			t->changeState(_default);
+			return;
+		}
+
+		// else
+		bool flag = false;
+		it = _table.begin();
+	
+		while (it != _table.end())
+		{
+			flag = it->function->input(d);
+	
+			if (flag)
+			{
+				t->changeState(it->state);
+				return;
+			}
+			it++;
+		}
+		// none of the input were valid, use default
+		t->changeState(_default);
+	}
+
+	// virtual function
+	virtual void handle(void *) = 0;
+
+	void setDefault(BaseState<MYFSM, SHARED_DATA> *n)
+	{ _default = n; }
+
+	FSM_TABLE _table;
+	BaseState<MYFSM, SHARED_DATA> *_default;
+};
+
+template <class MYFSM, class FSM_SHARED_DATA>
+class YARPFSM
 {
 public:
-	YARPConfigFile() {
-		_openFlag = false;
-	}
-
-	YARPConfigFile(const char *path) {
-		_openFlag = false;
-		_path = std::string(path);
-	}
-
-	YARPConfigFile(const char *path, const char *filename)
+	YARPFSM (FSM_SHARED_DATA *s)
 	{
-		_path = std::string(path);
-		_filename = std::string(filename);
-		_openFlag = false;
-	}
-	
-	virtual ~YARPConfigFile(void)
-	{ _close(); };
-
-	int get(const char *section, const char *name, double *out, int n = 1);
-	int get(const char *section, const char *name, int *out, int n = 1);
-	int get(const char *section, const char *name, short *out, int n = 1);
-	int get(const char *section, const char *name, char *out, int n = 1);
-
-	void set(const char *path, const char *name)
-	{
-		setName(name);
-		setPath(path);
+		_data = s;
 	}
 
-	void setName(const char *name)
-	{ _filename = std::string(name); }
-	
-	void setPath(const char *path)
-	{ _path = std::string(path); }
+	YARPFSMState<MYFSM, FSM_SHARED_DATA> *state;
 
-private:
-	std::string _path;
-	std::string _filename;
-
-	bool _open(const char *path, const char *filename);
-	void _close()
+	void doYourDuty()
 	{
-		if (_openFlag) {
-			fclose(_pFile);
-			_openFlag = false;
+		state->decideState((MYFSM *) this, _data);
+		state->handle(NULL);
+	}
+
+	void add(YARPFSMInput<FSM_SHARED_DATA> *in,  YARPFSMState<MYFSM, FSM_SHARED_DATA> *s1, YARPFSMState<MYFSM, FSM_SHARED_DATA> *s2)
+	{
+		if (in == NULL)
+		{
+			s1->setDefault(s2);
+			s1->_table.clear();
+		}
+		else
+		{
+			YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> tmp;
+			tmp.function = in;
+			tmp.state = s2;
+			s1->_table.push_back(tmp);
 		}
 	}
 
-	int _get(const char *section, const char *name);
-	bool _findString(const char *str);
-	bool _findSection(const char *sec);
+	void remove(YARPFSMInput<FSM_SHARED_DATA> *in,  YARPFSMState<MYFSM, FSM_SHARED_DATA> *s1, YARPFSMState<MYFSM, FSM_SHARED_DATA> *s2)
+	{
+		if (in == NULL)
+			return;
 
-	FILE *_pFile;
-	bool _openFlag;
+		YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> tmp;
+		tmp.function = in;
+		tmp.state = s2;
+	
+		s1->_table.remove(tmp);
+		
+	}
+
+	void changeState(YARPFSMState<MYFSM, FSM_SHARED_DATA> *n)
+	{ state = n; }
+
+	void setInitialState(YARPFSMState<MYFSM, FSM_SHARED_DATA> *n)
+	{ changeState(n); }
+	
+	FSM_SHARED_DATA *_data;
 };
 
 #endif
