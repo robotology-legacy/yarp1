@@ -25,12 +25,12 @@ _inPortPosition (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 		_inVectors[i] = 0.0;
 
 		_inhibitions[i] = SINK_INHIBIT_NONE;
-
-		_enableVector[i] = 0;		// initially inhibit all channels
-
 		// register port
 		_inPorts[i]->Register(YARPString(base).append(__portNameSuffixes[i]).c_str());
 	}
+
+	_globalInhibition = SINK_INHIBIT_NONE;
+	_manualInhibition = SINK_INHIBIT_ALL;
 
 	// position port
 	_inPortPosition.Register(YARPString(base).append(__portPositionNameSuffix).c_str());
@@ -66,10 +66,15 @@ void Sink::doLoop()
 {
 	/// polls all ports.
 	int i;
+	_globalInhibition = SINK_INHIBIT_NONE;
 	for(i = 0; i < SinkChN; i++)
 	{
 		_polPort(*(_inPorts[i]), _inVectors[i], _inhibitions[i]);
+
+		_globalInhibition = _globalInhibition | _inhibitions[i];
 	}
+
+	_globalInhibition = _globalInhibition | _manualInhibition;
 
 	_polPort(_inPortPosition, _position);
 
@@ -81,24 +86,27 @@ void Sink::doLoop()
 	tmp = sqrt((_inVectors[SinkChTracker](4)*_inVectors[SinkChTracker](4))/(0.007*0.007));
 
 	// form command
-	_outCmd = _outCmd + _enableVector[SinkChVor]*_inVectors[SinkChVor];
-	_outCmd = _outCmd + _enableVector[SinkChTracker]*_inVectors[SinkChTracker];
+	if (!(_globalInhibition & SINK_INHIBIT_VOR))
+		_outCmd = _outCmd + _inVectors[SinkChVor];
 
-	if (tmp<10)
-		_outCmd = _outCmd + _enableVector[SinkChVergence]*_inVectors[SinkChVergence];
+	if (!(_globalInhibition & SINK_INHIBIT_SMOOTH))
+		_outCmd = _outCmd + _inVectors[SinkChTracker];
+
+	if (!(_globalInhibition & SINK_INHIBIT_VERGENCE))
+		_outCmd = _outCmd + _inVectors[SinkChVergence];
 	
 	// finally compute neck
-	const YVector &neck = _neckControl->apply(_position);
-	_outCmd = _outCmd + neck;
-
-/*	for(int k = 1; k <= 5; k++)
+	if (!(_globalInhibition & SINK_INHIBIT_NECK))
 	{
-		printf("%lf/t", neck(k));
+		const YVector &neck = _neckControl->apply(_position);
+		_outCmd = _outCmd + neck;
 	}
-	printf("\n");*/
 
 	// add saccades
-	_outCmd = _outCmd + _inVectors[SinkChSaccades];
+	if (!(_globalInhibition & SINK_INHIBIT_SACCADES))
+	{
+		_outCmd = _outCmd + _inVectors[SinkChSaccades];
+	}
 
 	_outPort.Content() = _outCmd;
 	_outPort.Write();
@@ -111,34 +119,28 @@ void Sink::doRelease()
 
 void Sink::inhibitAll()
 {
-	int i;
-	for(i = 0; i < SinkChN; i++)
-		_enableVector[i] = 0;
+	_manualInhibition = SINK_INHIBIT_ALL;
+	ACE_OS::printf("Manual inhibition set to %d\n", _manualInhibition);
 }
 
 void Sink::enableAll()
 {
-	int i;
-	for(i = 0; i < SinkChN; i++)
-		_enableVector[i] = 1;
+	_manualInhibition = SINK_INHIBIT_NONE;
+	ACE_OS::printf("Manual inhibition set to %d\n", _manualInhibition);
 }
 
 void Sink::inhibitChannel(int n)
 {
-	ACE_ASSERT( (n >= 0) && (n<SinkChN) );
-
-	if (_enableVector[n])
-		_enableVector[n] = 0;
-	else
-		_enableVector[n] = 1;
+	_manualInhibition = _manualInhibition | n;
 }
 
 void Sink::printChannelsStatus()
 {
-	int i;
+	/*int i;
 	for (i = 0; i < SinkChN; i++)
 		ACE_OS::printf("%d\t", _enableVector[i]);
+		
+	ACE_OS::printf("\n");*/
 
-	ACE_OS::printf("\n");
-
+	ACE_OS::printf("Manual inhibition set to %d\n", _manualInhibition);
 }

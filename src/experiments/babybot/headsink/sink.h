@@ -85,9 +85,10 @@ private:
 	YARPInputPortOf<YARPBottle>  *_inPorts[SinkChN];
 	YARPInputPortOf<YVector> _inPortPosition;
 	YVector _inVectors[SinkChN];
-	int _inhibitions[SinkChN];
+	int _inhibitions[SinkChN];	// these are received from channels
+	int _manualInhibition;		// this is set manually from external commands
+	int _globalInhibition;		// global vector which is computed at each frame
 	YVector _position;
-	int _enableVector[SinkChN];
 
 	YARPString _iniFile;
 	YARPString _path;

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.24 2004-02-04 17:20:24 babybot Exp $
+/// $Id: YARPNameServer.cpp,v 1.25 2004-05-20 18:28:32 babybot Exp $
 ///
 ///
 
@@ -465,6 +465,12 @@ int YARPNameServer::handle_connection()
 	iov[0].iov_base = data_buf_;
 	iov[0].iov_len = sizeof(YARPNameServiceCmd);
 	res = new_stream_.recvv_n(iov, 1, 0, &byte_count);
+	if (res != sizeof(YARPNameServiceCmd))
+	{
+		NAME_SERVER_DEBUG(("Warning, error while receiving command: I expected %d bytes but received %d\n", sizeof(YARPNameServiceCmd), res));
+		NAME_SERVER_DEBUG(("Ingoring command\n"));
+		return 0;
+	}
 		
 	tmpCmd = *(YARPNameServiceCmd *) (data_buf_);
 
@@ -484,8 +490,14 @@ int YARPNameServer::handle_connection()
 	///////////////////////
 
 	iov[0].iov_base = data_buf_;
-	iov[0].iov_len = tmpCmd.length;	//message length
+	iov[0].iov_len = tmpCmd.length;		//message length
 	res = new_stream_.recvv_n(iov, 1, 0, &byte_count);
+	if (res != tmpCmd.length)
+	{
+		NAME_SERVER_DEBUG(("Warning, error while receiving command: I expected %d bytes but received %d\n", tmpCmd.length, res));
+		NAME_SERVER_DEBUG(("Command ignored\n"));
+		return 0;
+	}
 
 	if ( (tmpCmd.cmd == YARPNSQuery) &&
 		((tmpCmd.type == YARP_UDP) || (tmpCmd.type == YARP_TCP) || (tmpCmd.type == YARP_MCAST)))
@@ -547,7 +559,6 @@ int YARPNameServer::handle_connection()
 		handle_nic_query(YARPString(tmpRqs->_ip), YARPString(tmpRqs->_netId));
 	}
 	else
-
 		NAME_SERVER_DEBUG(("Sorry: command not recognized\n"));
 	
 	// close new endpoint

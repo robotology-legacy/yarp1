@@ -1,4 +1,5 @@
 #include "sinkbehavior.h"
+#include "sinkconstants.h"
 
 void SBWaitIdle::handle(Sink *d)
 {
@@ -33,19 +34,19 @@ void SBOutputEnableAll::output(Sink *d)
 void SBOutputInhibitVor::output(Sink *d)
 {
 	ACE_OS::printf("SinkBehavior: inhibit/enable VOR channel\n");
-	d->inhibitChannel(SinkChVor);
+	d->inhibitChannel(SINK_INHIBIT_VOR);
 }
 
 void SBOutputInhibitTracker::output(Sink *d)
 {
 	ACE_OS::printf("SinkBehavior: inhibit/enable TRACKER channel\n");
-	d->inhibitChannel(SinkChTracker);
+	d->inhibitChannel(SINK_INHIBIT_SMOOTH);
 }
 
 void SBOutputInhibitVergence::output(Sink *d)
 {
 	ACE_OS::printf("SinkBehavior: inhibit/enable VERGENCE channel\n");
-	d->inhibitChannel(SinkChVergence);
+	d->inhibitChannel(SINK_INHIBIT_VERGENCE);
 }
 
 void SBOutputDisplayStatus::output(Sink *d)
