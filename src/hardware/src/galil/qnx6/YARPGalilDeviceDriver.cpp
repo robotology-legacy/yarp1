@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.11 2003-11-17 11:14:59 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.12 2003-12-17 09:55:48 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -26,7 +26,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 
 	m_cmds[CMDSetOffset] 		= &YARPGalilDeviceDriver::set_offset;
 	m_cmds[CMDSetOffsets] 		= &YARPGalilDeviceDriver::set_offsets;
-		
+
 	m_cmds[CMDSetSpeeds] 		= &YARPGalilDeviceDriver::set_speeds;
 	m_cmds[CMDSetAccelerations] = &YARPGalilDeviceDriver::set_accelerations;
 	m_cmds[CMDSetPositions] 	= &YARPGalilDeviceDriver::set_positions;
@@ -58,20 +58,20 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDGetErrors] 		= &YARPGalilDeviceDriver::get_errors;
 
 	m_cmds[CMDReadInput] 		= &YARPGalilDeviceDriver::read_input;
-	
+
 	m_cmds[CMDResetController] 	= &YARPGalilDeviceDriver::reset_controller;
 	m_cmds[CMDErrorLimit]		= &YARPGalilDeviceDriver::error_limit;
 	m_cmds[CMDOffOnError]		= &YARPGalilDeviceDriver::off_on_error; 
-	
+
 	m_cmds[CMDVMove] 			= &YARPGalilDeviceDriver::set_jogs;
 	m_cmds[CMDCheckMotionDone]	= &YARPGalilDeviceDriver::check_motion_done;
-	
+
 	m_cmds[CMDControllerIdle]	= &YARPGalilDeviceDriver::controller_idle;
-	
+
 	m_cmds[CMDSetPositiveLimit] = &YARPGalilDeviceDriver::set_positive_limit;
 	m_cmds[CMDSetNegativeLimit]	= &YARPGalilDeviceDriver::set_negative_limit;
 	m_cmds[CMDAbortAxes]		= &YARPGalilDeviceDriver::abort_axes;
-	
+
 	m_cmds[CMDMotorType]		= &YARPGalilDeviceDriver::motor_type;
 	m_cmds[CMDGetMotorType]		= &YARPGalilDeviceDriver::get_motor_type;
 
@@ -81,7 +81,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetDR]			= &YARPGalilDeviceDriver::set_dr;
 
 	m_cmds[CMDDummy] 			= &YARPGalilDeviceDriver::dummy;
-	
+
 	m_question_marks = NULL;
 	m_temp_int_array = NULL;
 	m_temp_double_array = NULL;
@@ -91,30 +91,30 @@ int YARPGalilDeviceDriver::open(void *d)
 {
 	// temporarly removed
 	long rc = 0;
-	
+
 #ifdef __QNX6__
 	CONTROLLERINFO controllerinfo;
-	
+
 	memset(&controllerinfo, '\0', sizeof(controllerinfo));
 
 	controllerinfo.cbSize = sizeof(controllerinfo);
 	controllerinfo.usModelID = MODEL_1800;
 	controllerinfo.fControllerType = ControllerTypePCIBus;
 	controllerinfo.ulTimeout = 2000;
-	 controllerinfo.ulDelay = 0;
+	controllerinfo.ulDelay = 0;
 
-   /* If you have more than 1 Galil PCI bus controller, use the serial
-      number to identify the controller you wish to connect to */
-	
+	/* If you have more than 1 Galil PCI bus controller, use the serial
+	   number to identify the controller you wish to connect to */
+
 	controllerinfo.ulSerialNumber = 0;
 	controllerinfo.pid = getpid();
 	//This is needed to use the second FIFO
 	controllerinfo.hardwareinfo.businfo.fDataRecordAccess = DataRecordAccessFIFO; 
-	
+
 	DMCInitLibrary();
 
 	DMCDiagnosticsOn((HANDLEDMC) m_handle, "TETS.LOG", 0); //This is necesary for the 2 FIFO to work
-														   //Why is so, it is a nice mistery.
+	//Why is so, it is a nice mistery.
 
 #endif
 	GalilOpenParameters *p = (GalilOpenParameters *)d;
@@ -174,7 +174,7 @@ int YARPGalilDeviceDriver::close(void)
 	if (data != NULL)
 		delete [] data;
 
-	
+
 
 	if (_last_ordered_positions != NULL)
 		delete [] _last_ordered_positions;
@@ -185,14 +185,14 @@ int YARPGalilDeviceDriver::close(void)
 		delete [] _current_vel;
 	if (_current_accel != NULL)
 		delete [] _current_accel;
-	
+
 	return rc;
 }
 
 int YARPGalilDeviceDriver::set_speed(void *cmd) 
 {
 	long rc = 0;
-	
+
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	// int *speed = (int *) tmp->parameters;
 	double *speed = (double *) tmp->parameters;
@@ -214,9 +214,9 @@ int YARPGalilDeviceDriver::set_speed(void *cmd)
 	buff = _append_cmd_as_int(*speed, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 8,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, 8,
+						  m_buffer_in, buff_length);
+
 	return rc;
 
 }
@@ -224,10 +224,10 @@ int YARPGalilDeviceDriver::set_speed(void *cmd)
 int YARPGalilDeviceDriver::set_acceleration(void *cmd) 
 {
 	long rc = 0;
-	
+
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	double *acceleration = (double *) tmp->parameters;
-	
+
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -245,9 +245,9 @@ int YARPGalilDeviceDriver::set_acceleration(void *cmd)
 	buff = _append_cmd_as_int(*acceleration, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 8,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, 8,
+						  m_buffer_in, buff_length);
+
 	return rc;
 
 }
@@ -276,8 +276,8 @@ int YARPGalilDeviceDriver::set_position(void *cmd)
 	buff = _append_cmd_as_int(*position, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 8,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, 8,
+						  m_buffer_in, buff_length);
 	begin_motion(NULL);
 	return rc;
 }
@@ -335,7 +335,7 @@ int YARPGalilDeviceDriver::set_pid(void *cmd)
 	LowLevelPID *pid = (LowLevelPID *) tmp->parameters;
 
 	char *buff = m_buffer_out;
-	
+
 	///////////////////////////////////////////////////////////////////
 	// set KP
 	buff = _append_cmd((char) 0x81, buff);		//KP
@@ -351,8 +351,8 @@ int YARPGalilDeviceDriver::set_pid(void *cmd)
 	buff = _append_cmd(pid->KP, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 10,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, 10,
+						  m_buffer_in, buff_length);
 
 	///////////////////////////////////////////////////////////////////
 	// set KI
@@ -368,8 +368,8 @@ int YARPGalilDeviceDriver::set_pid(void *cmd)
 	buff = _append_cmd(pid->KI, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 10,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, 10,
+						  m_buffer_in, buff_length);
 
 	///////////////////////////////////////////////////////////////////
 	// set KD
@@ -385,13 +385,13 @@ int YARPGalilDeviceDriver::set_pid(void *cmd)
 	buff = _append_cmd(pid->KD, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 10,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, 10,
+						  m_buffer_in, buff_length);
 
 
 	return rc;
 }
-	
+
 int YARPGalilDeviceDriver::get_positions(void *j)
 {
 	long rc = 0;
@@ -403,14 +403,14 @@ int YARPGalilDeviceDriver::get_positions(void *j)
 
 	for (int i = 0; i < m_njoints; i++)
 	{
-			DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisMotorPosition,i+1,&data_type,data + i);
-			*(output+i) = *(data+i);
+		DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisMotorPosition,i+1,&data_type,data + i);
+		*(output+i) = *(data+i);
 	}
 
 	/*
 
-	double *output = (double *) j;
-	char *buff = m_buffer_out;
+	   double *output = (double *) j;
+	   char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
 	// tell position
@@ -419,11 +419,11 @@ int YARPGalilDeviceDriver::get_positions(void *j)
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
 
 	buff = _append_cmd((char) 0x00, buff);		
-	
+
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 4,
-							m_buffer_in, buff_length);
-	
+	(unsigned char *) m_buffer_out, 4,
+	m_buffer_in, buff_length);
+
 	_ascii_to_binary(m_buffer_in, output);
 	*/
 
@@ -442,13 +442,13 @@ int YARPGalilDeviceDriver::get_ref_positions(void *j)
 
 	for (int i = 0; i < m_njoints; i++)
 	{
-			DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisReferencePosition,i+1,&data_type,data + i);
-			*(output+i) = *(data+i);
+		DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisReferencePosition,i+1,&data_type,data + i);
+		*(output+i) = *(data+i);
 	}
 
 
 	/*
-	char *buff = m_buffer_out;
+	   char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
 	// reference position
@@ -457,11 +457,11 @@ int YARPGalilDeviceDriver::get_ref_positions(void *j)
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
 
 	buff = _append_cmd((char) 0x00, buff);		
-	
+
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 4,
-							m_buffer_in, buff_length);
-	
+	(unsigned char *) m_buffer_out, 4,
+	m_buffer_in, buff_length);
+
 	_ascii_to_binary(m_buffer_in, output);
 	*/
 
@@ -479,12 +479,12 @@ int YARPGalilDeviceDriver::get_errors(void *errs)
 
 	for (int i = 0; i < m_njoints; i++)
 	{
-			DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisPositionError,i+1,&data_type,data + i);
-			*(output+i) = *(data+i);
+		DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisPositionError,i+1,&data_type,data + i);
+		*(output+i) = *(data+i);
 	}
 
 	/*
-	char *buff = m_buffer_out;
+	   char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
 	// tell error
@@ -493,11 +493,11 @@ int YARPGalilDeviceDriver::get_errors(void *errs)
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
 
 	buff = _append_cmd((char) 0x00, buff);		
-	
+
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 4,
-							m_buffer_in, buff_length);
-	
+	(unsigned char *) m_buffer_out, 4,
+	m_buffer_in, buff_length);
+
 	_ascii_to_binary(m_buffer_in, output);
 	*/
 
@@ -515,14 +515,14 @@ int YARPGalilDeviceDriver::get_torques(void *trqs)
 
 	for (int i = 0; i < m_njoints; i++)
 	{
-			DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisTorque,i+1,&data_type,data + i);
-			*(output+i) = *(data+i);
-			//This is to transform in the 0.0 - 9.9 format. 
-			*(output+i) *= 0.000307;
+		DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisTorque,i+1,&data_type,data + i);
+		*(output+i) = *(data+i);
+		//This is to transform in the 0.0 - 9.9 format. 
+		*(output+i) *= 0.000307;
 	}
 
 	/*
-	char *buff = m_buffer_out;
+	   char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
 	// set TT
@@ -531,11 +531,11 @@ int YARPGalilDeviceDriver::get_torques(void *trqs)
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
 
 	buff = _append_cmd((char) 0x00, buff);		
-	
+
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 4,
-							m_buffer_in, buff_length);
-	
+	(unsigned char *) m_buffer_out, 4,
+	m_buffer_in, buff_length);
+
 	_ascii_to_binary(m_buffer_in, output);
 	*/
 
@@ -554,12 +554,12 @@ int YARPGalilDeviceDriver::get_speeds(void *spds)
 
 	for (int i = 0; i < m_njoints; i++)
 	{
-			DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisVelocity,i+1,&data_type,data + i);
-			*(output+i) = *(data+i);
+		DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisVelocity,i+1,&data_type,data + i);
+		*(output+i) = *(data+i);
 	}
 
 	/*
-	char *buff = m_buffer_out;
+	   char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
 	// set SP
@@ -568,11 +568,11 @@ int YARPGalilDeviceDriver::get_speeds(void *spds)
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
 
 	buff = _append_cmd((char) 0x00, buff);		
-	
+
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 4,
-							m_buffer_in, buff_length);
-	
+	(unsigned char *) m_buffer_out, 4,
+	m_buffer_in, buff_length);
+
 	_ascii_to_binary(m_buffer_in, output);
 	*/
 
@@ -595,9 +595,9 @@ int YARPGalilDeviceDriver::set_speeds (void *spds)
 	long rc = 0;
 
 	int cmd_length = 0;
-	
+
 	double * speeds_double = (double *) spds;	
-		
+
 	double_to_int(m_temp_int_array, speeds_double);
 
 	char *buff = m_buffer_out;
@@ -607,20 +607,20 @@ int YARPGalilDeviceDriver::set_speeds (void *spds)
 	buff = _append_cmd((char) 0x92, buff);		//SP
 	buff = _append_cmd((char) 0x04, buff);		//4 byte format
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
-	
+
 	// axes
 	buff = _append_cmd((char) m_all_axes, buff);
-	
+
 	// values
 	int n = _append_values (m_temp_int_array, buff);
 	cmd_length = 4 + 4*n;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
 	return rc;
 }
-	
+
 int YARPGalilDeviceDriver::set_positions (void *param) 
 {
 	long rc = 0;
@@ -628,9 +628,9 @@ int YARPGalilDeviceDriver::set_positions (void *param)
 	int cmd_length = 0;
 
 	double * positions_double = (double *) param;	
-	
+
 	double_to_int(m_temp_int_array, positions_double);
-	
+
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -638,18 +638,18 @@ int YARPGalilDeviceDriver::set_positions (void *param)
 	buff = _append_cmd((char) 0xA6, buff);		//
 	buff = _append_cmd((char) 0x04, buff);		//04 long format
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
-	
+
 	// axes
 	buff = _append_cmd((char) m_all_axes, buff);
-	
+
 	// values
 	int n = _append_values(m_temp_int_array, buff);
 
 	cmd_length = 4 + 4*n;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
 	rc = begin_motion(NULL);							
 	return rc;
 }
@@ -669,61 +669,61 @@ int YARPGalilDeviceDriver::set_commands (void *param)
 	}
 
 	return set_positions (param); 
-	
+
 }
 
 /*
 
-int YARPGalilDeviceDriver::set_commands (void *param) 
-{
-	long rc = 0;
+   int YARPGalilDeviceDriver::set_commands (void *param) 
+   {
+   long rc = 0;
 
-	int cmd_length = 0;
+   int cmd_length = 0;
 
-	double max_speeds[6] = {1000000,1000000,1000000,2000,2000,2000}; 
-	double max_accel[6]  = {1000000,1000000,1000000,2000,2000,2000};
+   double max_speeds[6] = {1000000,1000000,1000000,2000,2000,2000}; 
+   double max_accel[6]  = {1000000,1000000,1000000,2000,2000,2000};
 
-	//bool motion_done = false;
+//bool motion_done = false;
 
-	///double _jog_vels[6] = {0,0,0,0,0,0};
+///double _jog_vels[6] = {0,0,0,0,0,0};
 
-	double * positions_double = (double *) param;	
+double * positions_double = (double *) param;	
 
-	///set_speeds(max_speeds);
-	///set_accelerations(max_accel);
+///set_speeds(max_speeds);
+///set_accelerations(max_accel);
 
-	///set_jogs(_jog_vels);
+///set_jogs(_jog_vels);
 
-	///check_motion_done(&motion_done);
+///check_motion_done(&motion_done);
 
-	///get_ref_positions(_current_positions);
-	///get_positions(_current_positions);
+///get_ref_positions(_current_positions);
+///get_positions(_current_positions);
 
-	///for (int i = 0; i <  m_njoints; i++)
-	///			m_temp_double_array[i] = positions_double[i] - _current_positions[i];
-		
-	//		if (m_temp_double_array[i] > 0)
-	//			_jog_vels[i] = 1;
-	//		else
-	//			_jog_vels[i] = -1;
+///for (int i = 0; i <  m_njoints; i++)
+///			m_temp_double_array[i] = positions_double[i] - _current_positions[i];
 
-	
-	double_to_int(m_temp_int_array, m_temp_double_array);
-	
-	sprintf(m_buffer_out,"IP%d,%d,%d,%d,%d,%d",m_temp_int_array[0]
-											  ,m_temp_int_array[1]
-											  ,m_temp_int_array[2]
-											  ,m_temp_int_array[3]
-											  ,m_temp_int_array[4]
-											  ,m_temp_int_array[5]);
+//		if (m_temp_double_array[i] > 0)
+//			_jog_vels[i] = 1;
+//		else
+//			_jog_vels[i] = -1;
 
 
-	rc = DMCCommand((HANDLEDMC) m_handle,
-					m_buffer_out,
-					m_buffer_in, buff_length);
-	
+double_to_int(m_temp_int_array, m_temp_double_array);
 
-	return set_positions(param);
+sprintf(m_buffer_out,"IP%d,%d,%d,%d,%d,%d",m_temp_int_array[0]
+,m_temp_int_array[1]
+,m_temp_int_array[2]
+,m_temp_int_array[3]
+,m_temp_int_array[4]
+,m_temp_int_array[5]);
+
+
+rc = DMCCommand((HANDLEDMC) m_handle,
+m_buffer_out,
+m_buffer_in, buff_length);
+
+
+return set_positions(param);
 
 }
 */
@@ -734,7 +734,7 @@ int YARPGalilDeviceDriver::define_positions (void *param)
 	long rc = 0;
 
 	int cmd_length = 0;
-	
+
 	double *positions = (double *) param;
 
 	char *buff = m_buffer_out;
@@ -744,18 +744,18 @@ int YARPGalilDeviceDriver::define_positions (void *param)
 	buff = _append_cmd((char) 0x97, buff);		//DP
 	buff = _append_cmd((char) 0x04, buff);		//04 long format
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
-	
+
 	// axes
 	buff = _append_cmd((char) m_all_axes, buff);
-	
+
 	// values
 	int n = _append_values_as_int(positions, buff);
 
 	cmd_length = 4 + 4*n;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
 	return rc;
 }
 
@@ -783,9 +783,9 @@ int YARPGalilDeviceDriver::define_position (void *cmd)
 	buff = _append_cmd_as_int(*position, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 8,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, 8,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
@@ -794,9 +794,9 @@ int YARPGalilDeviceDriver::set_accelerations (void *param)
 	long rc = 0;
 
 	int cmd_length = 0;
-	
+
 	double * accelerations_double = (double *) param;	
-		
+
 	double_to_int(m_temp_int_array, accelerations_double);
 
 	char *buff = m_buffer_out;
@@ -806,18 +806,18 @@ int YARPGalilDeviceDriver::set_accelerations (void *param)
 	buff = _append_cmd((char) 0x90, buff);		//AC
 	buff = _append_cmd((char) 0x04, buff);		//4 byte format
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
-	
+
 	// axes
 	buff = _append_cmd((char) m_all_axes, buff);
-	
+
 	// values
 	int n = _append_values(m_temp_int_array, buff);
 
 	cmd_length = 4 + 4*n;
-	
+
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
 	return rc;
 }
 
@@ -848,12 +848,12 @@ int YARPGalilDeviceDriver::set_output_port(void *cmd)
 
 	buff = _append_cmd((short) 0, buff);	// first word
 	buff = _append_cmd(sTmp, buff);			// output value
-	
+
 	cmd_length = 8;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
 
 	return rc;
 }
@@ -880,13 +880,13 @@ int YARPGalilDeviceDriver::set_output_bit(void *n)
 	buff = _append_cmd((char) 0x01, buff);
 
 	buff = _append_cmd(*cTmp, buff);	// output value
-	
+
 	cmd_length = 5;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
@@ -912,13 +912,13 @@ int YARPGalilDeviceDriver::clear_output_bit(void *n)
 	buff = _append_cmd((char) 0x01, buff);
 
 	buff = _append_cmd(*cTmp, buff);	// output value
-	
+
 	cmd_length = 5;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
@@ -926,7 +926,7 @@ int YARPGalilDeviceDriver::set_offset(void *cmd)
 {
 	long rc = 0;
 	int cmd_length = 0;
-	
+
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	double *off = (double *) tmp->parameters;
 
@@ -949,15 +949,15 @@ int YARPGalilDeviceDriver::set_offset(void *cmd)
 	cmd_length = 10;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
 int YARPGalilDeviceDriver::set_offsets(void *offs)
 {
-	
+
 	long rc = 0;
 	int cmd_length = 0;
 	double *offsets = (double *) offs;
@@ -972,16 +972,16 @@ int YARPGalilDeviceDriver::set_offsets(void *offs)
 
 	// axes
 	buff = _append_cmd((char) m_all_axes, buff);
-	
+
 	// values
 	int n = _append_values(offsets, buff);
-	
+
 	cmd_length = 4 + 6*n;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
@@ -1001,15 +1001,15 @@ int YARPGalilDeviceDriver::set_torque_limits(void *trqs)
 
 	// axes
 	buff = _append_cmd((char) m_all_axes, buff);
-	
+
 	// values
 	int n = _append_values(torques, buff);
-	
+
 	cmd_length = 4 + 6*n;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
 	return rc;
 }
 
@@ -1025,7 +1025,7 @@ int YARPGalilDeviceDriver::set_int_limits(void *lmts)
 	long rc = 0;
 	int cmd_length = 0;
 	double *int_limits= (double *) lmts;
-	
+
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -1036,15 +1036,15 @@ int YARPGalilDeviceDriver::set_int_limits(void *lmts)
 
 	// axes
 	buff = _append_cmd((char) m_all_axes, buff);
-	
+
 	// values
 	int n = _append_values(int_limits, buff);
-	
+
 	cmd_length = 4 + 6*n;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
 	return rc;
 }
 
@@ -1052,13 +1052,13 @@ int YARPGalilDeviceDriver::read_input(void *input)
 {
 	long rc = 0;	
 	/*
-	long *in = (long *) input;
-	USHORT usDataType;
-	rc = DMCRefreshDataRecord((HANDLEDMC) m_handle,0);
-	rc = DMCGetDataRecordByItemId((HANDLEDMC) m_handle,
-									DRIdGeneralInput0, 0,
-									&usDataType, in);
-	*/
+	   long *in = (long *) input;
+	   USHORT usDataType;
+	   rc = DMCRefreshDataRecord((HANDLEDMC) m_handle,0);
+	   rc = DMCGetDataRecordByItemId((HANDLEDMC) m_handle,
+	   DRIdGeneralInput0, 0,
+	   &usDataType, in);
+	   */
 	return rc;
 }
 
@@ -1071,31 +1071,31 @@ int YARPGalilDeviceDriver::dummy(void *d)
 	memcpy(m_buffer_out, command, cmd_length);
 
 	// unsigned long l;
-	
-	/*
-	DMCDATARECORDQR MyDataRecordQR;
-	USHORT RecordSize;
-	rc = DMCGetDataRecordSize((HANDLEDMC) m_handle, &RecordSize);
 
-	USHORT tmp;
-	tmp = sizeof(MyDataRecordQR);
-
-	if (sizeof(MyDataRecordQR) >= RecordSize)
-		 rc = DMCCommand((HANDLEDMC) m_handle,
-					"QR\r",
-					(char *) &MyDataRecordQR,
-					sizeof(MyDataRecordQR));
-*/
 	/*
-		
-	rc = DMCCommand_AsciiToBinary((HANDLEDMC) m_handle,
-								  (char *) m_buffer_out, cmd_length,
-								  (unsigned char *) m_buffer_in, buff_length, &l);
-	
-	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_in, l ,
-							m_buffer_out, buff_length);
-							*/
+	   DMCDATARECORDQR MyDataRecordQR;
+	   USHORT RecordSize;
+	   rc = DMCGetDataRecordSize((HANDLEDMC) m_handle, &RecordSize);
+
+	   USHORT tmp;
+	   tmp = sizeof(MyDataRecordQR);
+
+	   if (sizeof(MyDataRecordQR) >= RecordSize)
+	   rc = DMCCommand((HANDLEDMC) m_handle,
+	   "QR\r",
+	   (char *) &MyDataRecordQR,
+	   sizeof(MyDataRecordQR));
+	   */
+	/*
+
+	   rc = DMCCommand_AsciiToBinary((HANDLEDMC) m_handle,
+	   (char *) m_buffer_out, cmd_length,
+	   (unsigned char *) m_buffer_in, buff_length, &l);
+
+	   rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+	   (unsigned char *) m_buffer_in, l ,
+	   m_buffer_out, buff_length);
+	   */
 
 	return rc;
 }
@@ -1108,7 +1108,7 @@ int YARPGalilDeviceDriver::begin_motion(void *cmd)
 int YARPGalilDeviceDriver::begin_motions(void *cmd)
 {
 	long rc = 0;
-	
+
 	int cmd_length = 0;
 
 	char *buff = m_buffer_out;
@@ -1123,9 +1123,9 @@ int YARPGalilDeviceDriver::begin_motions(void *cmd)
 	cmd_length = 4;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
@@ -1133,7 +1133,7 @@ int YARPGalilDeviceDriver::begin_motions(void *cmd)
 int YARPGalilDeviceDriver::stop_axes(void *par)
 {
 	long rc = 0;
-	
+
 	int cmd_length = 0;
 
 	char *buff = m_buffer_out;
@@ -1148,9 +1148,9 @@ int YARPGalilDeviceDriver::stop_axes(void *par)
 	cmd_length = 4;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
@@ -1158,7 +1158,7 @@ int YARPGalilDeviceDriver::stop_axes(void *par)
 int YARPGalilDeviceDriver::abort_axes(void *par)
 {
 	long rc = 0;
-	
+
 	int cmd_length = 0;
 
 	char *buff = m_buffer_out;
@@ -1173,9 +1173,9 @@ int YARPGalilDeviceDriver::abort_axes(void *par)
 	cmd_length = 4;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
@@ -1184,7 +1184,7 @@ int YARPGalilDeviceDriver::abort_axes(void *par)
 int YARPGalilDeviceDriver::read_switches(void *switches)
 {
 	long rc = 0;
-	
+
 	int cmd_length = 0;
 
 	char *buff = m_buffer_out;
@@ -1201,18 +1201,18 @@ int YARPGalilDeviceDriver::read_switches(void *switches)
 	cmd_length = 4;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
 
 	_ascii_to_binary(m_buffer_in, output);
-	
+
 	return rc;
 }
 
 int YARPGalilDeviceDriver::servo_here(void *par)
 {
 	long rc = 0;
-	
+
 	int cmd_length = 0;
 
 	char *buff = m_buffer_out;
@@ -1227,8 +1227,8 @@ int YARPGalilDeviceDriver::servo_here(void *par)
 	cmd_length = 4;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
 
 	return rc;
 }
@@ -1242,7 +1242,7 @@ int YARPGalilDeviceDriver::get_ref_speeds(void *spds)
 
 	// int *output = (int *) spds;
 	double *output = (double *) spds;
-	
+
 	char cmd[] = "SP";
 	char *buff = m_buffer_out;
 
@@ -1250,10 +1250,10 @@ int YARPGalilDeviceDriver::get_ref_speeds(void *spds)
 	buff+=(sizeof(cmd)-1);
 
 	buff = _append_question_marks(buff);
-	
+
 	// close command
 	buff = _append_cmd('\0', buff);
-	
+
 	rc = DMCCommand((HANDLEDMC) m_handle,
 					m_buffer_out,
 					m_buffer_in, buff_length);
@@ -1270,7 +1270,7 @@ int YARPGalilDeviceDriver::get_ref_accelerations(void *accs)
 	long rc = 0;
 
 	double *output = (double *) accs;
-	
+
 	char cmd[] = "AC";
 	char *buff = m_buffer_out;
 
@@ -1281,7 +1281,7 @@ int YARPGalilDeviceDriver::get_ref_accelerations(void *accs)
 
 	// close command
 	buff = _append_cmd('\0', buff);
-	
+
 	rc = DMCCommand((HANDLEDMC) m_handle,
 					m_buffer_out,
 					m_buffer_in, buff_length);
@@ -1299,13 +1299,13 @@ int YARPGalilDeviceDriver::get_pid(void *par)
 	LowLevelPID *pid = (LowLevelPID *) tmp->parameters;
 
 	char *buff;
-	
+
 	////////////////////////////////////////
 	// KP
 	buff = _append_cmd("KP", m_buffer_out);
 	buff = _append_question_mark(buff, tmp->axis);
 	buff = _append_cmd('\0', buff);
-	
+
 	rc = DMCCommand((HANDLEDMC) m_handle,
 					m_buffer_out,
 					m_buffer_in, buff_length);
@@ -1318,7 +1318,7 @@ int YARPGalilDeviceDriver::get_pid(void *par)
 	buff = _append_cmd("KD", m_buffer_out);
 	buff = _append_question_mark(buff, tmp->axis);
 	buff = _append_cmd('\0', buff);
-	
+
 	rc = DMCCommand((HANDLEDMC) m_handle,
 					m_buffer_out,
 					m_buffer_in, buff_length);
@@ -1331,7 +1331,7 @@ int YARPGalilDeviceDriver::get_pid(void *par)
 	buff = _append_cmd("KI", m_buffer_out);
 	buff = _append_question_mark(buff, tmp->axis);
 	buff = _append_cmd('\0', buff);
-	
+
 	rc = DMCCommand((HANDLEDMC) m_handle,
 					m_buffer_out,
 					m_buffer_in, buff_length);
@@ -1346,7 +1346,7 @@ int
 YARPGalilDeviceDriver::reset_controller(void *par)
 {
 	long rc = 0;
-	
+
 	char cmd[] = "RS";
 	char *buff = m_buffer_out;
 
@@ -1355,7 +1355,7 @@ YARPGalilDeviceDriver::reset_controller(void *par)
 
 	// close command
 	buff = _append_cmd('\0', buff);
-	
+
 	rc = DMCCommand((HANDLEDMC) m_handle,
 					m_buffer_out,
 					m_buffer_in, buff_length);
@@ -1372,7 +1372,7 @@ YARPGalilDeviceDriver::error_limit(void *par)
 
 	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
 	double *error = (double *) tmp->parameters;
-	
+
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -1390,9 +1390,9 @@ YARPGalilDeviceDriver::error_limit(void *par)
 	buff = _append_cmd_as_int(*error, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 8,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, 8,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
@@ -1400,10 +1400,10 @@ int
 YARPGalilDeviceDriver::off_on_error(void *par)
 {
 	long rc = 0;
-	
+
 	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
 	double *value = (double *) tmp->parameters;
-	
+
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -1421,9 +1421,9 @@ YARPGalilDeviceDriver::off_on_error(void *par)
 	buff = _append_cmd_as_int(*value, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 8,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, 8,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
@@ -1433,7 +1433,7 @@ int YARPGalilDeviceDriver::set_jog_mode()
 	long rc = 0;
 
 	int cmd_length = 0;
-	
+
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -1442,12 +1442,12 @@ int YARPGalilDeviceDriver::set_jog_mode()
 	buff = _append_cmd((char) 0x00, buff);		//0 byte format
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
 	buff = _append_cmd((char) 0x00, buff);		//00 no axis
-	
+
 	cmd_length = 4;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
 
 	return rc;
 
@@ -1458,9 +1458,9 @@ int YARPGalilDeviceDriver::set_jogs (void *spds)
 	long rc = 0;
 
 	int cmd_length = 0;
-	
+
 	double * speeds_double = (double *) spds;	
-		
+
 	double_to_int(m_temp_int_array, speeds_double);
 
 	char *buff = m_buffer_out;
@@ -1470,17 +1470,17 @@ int YARPGalilDeviceDriver::set_jogs (void *spds)
 	buff = _append_cmd((char) 0xA8, buff);		//JG
 	buff = _append_cmd((char) 0x04, buff);		//4 byte format
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
-	
+
 	// axes
 	buff = _append_cmd((char) m_all_axes, buff);
-	
+
 	// values
 	int n = _append_values (m_temp_int_array, buff);
 	cmd_length = 4 + 4*n;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, cmd_length ,
+						  m_buffer_in, buff_length);
 	rc = begin_motion(NULL);
 	return rc;
 }
@@ -1489,9 +1489,9 @@ int
 YARPGalilDeviceDriver::controller_idle(void *j)
 {
 	long rc = 0;
-	
+
 	int *axis = (int *) j;
-	
+
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -1507,9 +1507,9 @@ YARPGalilDeviceDriver::controller_idle(void *j)
 	buff = _append_cmd((char) dummy, buff);
 	// value
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 8,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, 8,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
@@ -1517,10 +1517,10 @@ int
 YARPGalilDeviceDriver::set_positive_limit(void *par)
 {
 	long rc = 0;
-	
+
 	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
 	double *value = (double *) tmp->parameters;
-	
+
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -1538,9 +1538,9 @@ YARPGalilDeviceDriver::set_positive_limit(void *par)
 	buff = _append_cmd_as_int(*value, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 8,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, 8,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
@@ -1548,10 +1548,10 @@ int
 YARPGalilDeviceDriver::set_negative_limit(void *par)
 {
 	long rc = 0;
-	
+
 	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
 	double *value = (double *) tmp->parameters;
-	
+
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -1569,9 +1569,9 @@ YARPGalilDeviceDriver::set_negative_limit(void *par)
 	buff = _append_cmd_as_int(*value, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 8,
-							m_buffer_in, buff_length);
-	
+						  (unsigned char *) m_buffer_out, 8,
+						  m_buffer_in, buff_length);
+
 	return rc;
 }
 
@@ -1600,8 +1600,8 @@ YARPGalilDeviceDriver::motor_type(void * cmd)
 	buff = _append_cmd_as_int(*type, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 8,
-							m_buffer_in, buff_length);
+						  (unsigned char *) m_buffer_out, 8,
+						  m_buffer_in, buff_length);
 	return rc;
 }
 
@@ -1613,13 +1613,13 @@ int YARPGalilDeviceDriver::get_motor_type(void *par)
 	double *type = (double *) tmp->parameters;
 
 	char *buff;
-	
+
 	////////////////////////////////////////
 	// KP
 	buff = _append_cmd("MT", m_buffer_out);
 	buff = _append_question_mark(buff, tmp->axis);
 	buff = _append_cmd('\0', buff);
-	
+
 	rc = DMCCommand((HANDLEDMC) m_handle,
 					m_buffer_out,
 					m_buffer_in, buff_length);
@@ -1627,7 +1627,7 @@ int YARPGalilDeviceDriver::get_motor_type(void *par)
 	// output should be just one value here
 	*type = atof(m_buffer_in);
 
-	
+
 	return rc;
 }
 
@@ -1656,45 +1656,45 @@ int YARPGalilDeviceDriver::check_motion_done(void *flag)
 		}
 	}
 
-/*
-	long rc = 0;
+	/*
+	   long rc = 0;
 
-	bool *tmp = (bool *)flag;
-	*tmp = true;
-	bool subflag = false;
+	   bool *tmp = (bool *)flag;
+	 *tmp = true;
+	 bool subflag = false;
 
-	for (int i = 0; i < m_njoints; i++)
-	{
-		rc = check_motion_done(&subflag,i);
-		*tmp = *tmp && subflag;
-	}
-*/
+	 for (int i = 0; i < m_njoints; i++)
+	 {
+	 rc = check_motion_done(&subflag,i);
+	 *tmp = *tmp && subflag;
+	 }
+	 */
 	return rc;
-/*
-	long rc = 0;
+	/*
+	   long rc = 0;
 
-	bool *tmp = (bool *) flag;
-	
-	char cmd[] = "MG _BGABCDEFGH";
-	char *buff = m_buffer_out;
+	   bool *tmp = (bool *) flag;
 
-	memcpy(buff, cmd, sizeof(cmd)-1);
-	buff+=(sizeof(cmd)-1);
+	   char cmd[] = "MG _BGABCDEFGH";
+	   char *buff = m_buffer_out;
+
+	   memcpy(buff, cmd, sizeof(cmd)-1);
+	   buff+=(sizeof(cmd)-1);
 
 	// close command
 	buff = _append_cmd('\0', buff);
-	
+
 	rc = DMCCommand((HANDLEDMC) m_handle,
-					m_buffer_out,
-					m_buffer_in, buff_length);
+	m_buffer_out,
+	m_buffer_in, buff_length);
 
 	if (atoi(m_buffer_in))
-		*tmp = false;
-	else	*tmp = true;
+	 *tmp = false;
+	 else	*tmp = true;
 	//_ascii_to_binary(m_buffer_in, tmp);
 
 	return rc;
-*/
+	*/
 }
 
 int YARPGalilDeviceDriver::check_motion_done(void *flag, int axis)
@@ -1713,31 +1713,31 @@ int YARPGalilDeviceDriver::check_motion_done(void *flag, int axis)
 	else							//Motion in progress
 		*tmp = false;
 	/*
-	char axis_names[] = "ABCDEFGH";
-	long rc = 0;
+	   char axis_names[] = "ABCDEFGH";
+	   long rc = 0;
 
-	bool *tmp = (bool *) flag;
-	
-	char cmd[] = "MG _BG ";		//<-- an space left for the axis
-	cmd[6] = axis_names[axis];	//Adding the axis letter.
+	   bool *tmp = (bool *) flag;
 
-	char *buff = m_buffer_out;
+	   char cmd[] = "MG _BG ";		//<-- an space left for the axis
+	   cmd[6] = axis_names[axis];	//Adding the axis letter.
 
-	memcpy(buff, cmd, sizeof(cmd)); //we include also the \0 in cmd 
-	buff+=(sizeof(cmd));
+	   char *buff = m_buffer_out;
+
+	   memcpy(buff, cmd, sizeof(cmd)); //we include also the \0 in cmd 
+	   buff+=(sizeof(cmd));
 
 	// close command
 	//buff = _append_cmd('\0', buff);
-	
+
 	rc = DMCCommand((HANDLEDMC) m_handle,
-					m_buffer_out,
-					m_buffer_in, buff_length);
+	m_buffer_out,
+	m_buffer_in, buff_length);
 
 	if (atoi(m_buffer_in))	//a '1' from the card means motion running
-		*tmp = false;
-	else	*tmp = true;	//a '0' means motion complete
+	 *tmp = false;
+	 else	*tmp = true;	//a '0' means motion complete
 
-	*/
+*/
 
 	return rc;
 }
@@ -1748,16 +1748,16 @@ int YARPGalilDeviceDriver::set_dr(void * value)
 	int * _value = (int *) value;
 
 	/*
-	char *buff = m_buffer_out;
+	   char *buff = m_buffer_out;
 
-	buff = _append_cmd("DR",buff);
-	buff = _append_cmd(itoa((int)(* _value),m_aux_buffer,10),buff);
-	buff = _append_cmd('\0', buff);
-	
-	rc = DMCCommand((HANDLEDMC) m_handle,
-					m_buffer_out,
-					m_buffer_in, buff_length);
-	*/
+	   buff = _append_cmd("DR",buff);
+	   buff = _append_cmd(itoa((int)(* _value),m_aux_buffer,10),buff);
+	   buff = _append_cmd('\0', buff);
+
+	   rc = DMCCommand((HANDLEDMC) m_handle,
+	   m_buffer_out,
+	   m_buffer_in, buff_length);
+	   */
 	char cmd[] = "DR-3";		//<-- an space left for the axis
 
 	char *buff = m_buffer_out;
@@ -1767,7 +1767,7 @@ int YARPGalilDeviceDriver::set_dr(void * value)
 
 	// close command
 	//buff = _append_cmd('\0', buff);
-	
+
 	rc = DMCCommand((HANDLEDMC) m_handle,
 					m_buffer_out,
 					m_buffer_in, buff_length);
