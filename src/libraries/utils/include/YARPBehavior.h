@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.4 2003-07-16 08:48:14 natta Exp $
+/// $Id: YARPBehavior.h,v 1.5 2003-07-18 16:14:06 natta Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -71,6 +71,9 @@
 #include <YARPPort.h>
 #include <YARPThread.h>
 #include <string>
+
+#include "YARPBottle.h"
+#include "YARPBottleContent.h"
 
 const int __exitCode = -1;
 
@@ -97,7 +100,7 @@ class YARPBehaviorSharedData
 class YARPBaseBehaviorInput
 {
 public:
-	virtual bool input(void *) = 0; 
+	virtual bool input(YARPBottle &) = 0; 
 };
 
 template <class MY_SHARED_DATA>
@@ -183,7 +186,7 @@ public:
 
 private:
 	// parse message
-	int _parse(int *d);
+	int _parse(YARPBottle &bottle);
 	// handle exit message
 	void _quit()
 	{
@@ -202,7 +205,7 @@ private:
 	BEHAVIOR_TABLE _table;
 	PULSE_TABLE _pulse_table;		//keep track of the input states created, so that we can delete them later
 
-	YARPInputPortOf<int [2]> _inport;
+	YARPInputPortOf<YARPBottle> _inport;
 	int _key;
 	ACE_Auto_Event _stopEvent;
 };
@@ -233,20 +236,23 @@ add(YARPBaseBehaviorInput *in, MyBaseStates *s1, MyBaseStates *s2, BaseBehaviorO
 
 template <class MY_BEHAVIOR, class MY_SHARED_DATA>
 int YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
-_parse(int *d)
+_parse(YARPBottle &bottle)
 {
-	if (d[0] != _key)
+	if (bottle.getID() != _key)
 	{
 		// this is not for you, return
 		return 0;
 	}
 
-	if (d[1] == __exitCode)
+	// handle exit code
+	int vocab = -1;
+	if ( bottle.tryReadVocab(&vocab) &&
+		(vocab == YBVExit) )
 	{
 		_quit();
 		return -1;
 	}
-		
+			
 	// handle signals
 	BEHAVIOR_TABLE_IT is;
 	is = _table.begin();
@@ -258,7 +264,7 @@ _parse(int *d)
 				// as state, return without executing anything
 				return 1;
 			}
-			else  if (is->input->input(d))
+			else  if (is->input->input(bottle))
 			{
 				is->activation->post();	// enable input
 				pulse(is->s);
@@ -275,9 +281,10 @@ handleMsg()
 {
 	_inport.Read();
 
-	int tmp[2];
-	memcpy(tmp, _inport.Content(), sizeof(tmp));
+	YARPBottle tmp;
+	tmp = _inport.Content();
 
+	tmp.display();
 	// printf("->HandleMsg: received %d %d\n", tmp[0], tmp[1]);
 		
 	return _parse(tmp);

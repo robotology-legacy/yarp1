@@ -100,6 +100,10 @@ PostBuild_Cmds=copy .\include\*.h ..\..\..\include	copy .\lib\winnt\utilsdb.lib 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\src\YARPBottle.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\YARPConfigFile.cpp
 # End Source File
 # Begin Source File
@@ -117,6 +121,18 @@ SOURCE=.\src\YARPParseParameters.cpp
 # Begin Source File
 
 SOURCE=.\include\YARPBehavior.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\YARPBottle.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\YARPBottleCodes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\YARPBottleContent.h
 # End Source File
 # Begin Source File
 
