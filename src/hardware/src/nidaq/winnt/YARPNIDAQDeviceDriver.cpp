@@ -1,8 +1,9 @@
 // YARPNIDAQDeviceDriver impl file
+// $ID$
 
 #include "YARPNIDAQDeviceDriver.h"
 
-#include "nidaqex.h"
+#include <sys/nidaqex.h>
 
 
 int YARPNIDAQDeviceDriver::open(void *d)

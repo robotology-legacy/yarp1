@@ -4,6 +4,9 @@
 //
 // feb 2003 -- by nat and pasa
 
+// $ID$
+#include <conf/YARPConfig.h>
+
 #ifndef __YARP_CONTROL_BOARD_UTILS__
 #define __YARP_CONTROL_BOARD_UTILS__
 

@@ -3,11 +3,12 @@
 //
 // 
 // feb 2003 -- by nat and pasa
+// $ID$
 
 #ifndef __YARP_DEVICE_DRIVER__
 #define __YARP_DEVICE_DRIVER__
 
-#include "YARPSupport.h"
+#include <conf/YARPConfig.h>
 
 //
 // .h must be compilable across multiple architectures (NT, Linux, QNX) with minimal

@@ -5,12 +5,14 @@
 // Feb 2003 -- by nat
 //
 // win32: link nidaq32.lib
+// $ID$
 
 #ifndef __YARPNIDAQDeviceDriver__
 #define __YARPNIDAQDeviceDriver__
 
-#include "YARPDeviceDriver.h"
+#include <conf/YARPConfig.h>
 #include "YARPSemaphore.h"
+#include "YARPDeviceDriver.h"
 
 #ifndef _NIDAQ_Header_
 typedef char           i8;
@@ -71,10 +73,10 @@ struct NIDAQScanSetupParameters
 
 };
 
-class YARPNIDAQDeviceDriver : public YARPDeviceDriver<YARPNULLSempahore, YARPNIDAQDeviceDriver> 
+class YARPNIDAQDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPNIDAQDeviceDriver> 
 {
 public:
-	YARPNIDAQDeviceDriver() : YARPDeviceDriver<YARPNULLSempahore, YARPNIDAQDeviceDriver>(NIDAQNCmds)
+	YARPNIDAQDeviceDriver() : YARPDeviceDriver<YARPNullSemaphore, YARPNIDAQDeviceDriver>(NIDAQNCmds)
 	{
 		m_cmds[CMDAIConfigure] = YARPNIDAQDeviceDriver::ai_configure;
 		m_cmds[CMDScanSetup] = YARPNIDAQDeviceDriver::scan_setup;
