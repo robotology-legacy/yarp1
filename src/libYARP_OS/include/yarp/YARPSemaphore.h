@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPSemaphore.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+///	$Id: YARPSemaphore.h,v 1.3 2004-07-02 09:47:04 eshuy Exp $
 ///
 ///
 /*
@@ -73,13 +73,23 @@
 #	pragma once
 #endif
 
+
+/**
+ * \file YARPSemaphore.h Resources for synchronizing threads.
+ */
+
 /*
 Ideally, would use POSIX semaphores, threads etc.
  */
 
-///
-/// the Null sema can be used in place of a real sema where synchro is not needed.
-/// 
+/**
+ * Fake semaphore that does nothing.  Useful as a drop-in replacement
+ * for a real semaphore where synchronization is not needed; this can
+ * save resources.
+ *
+ * @see YARPSemaphore
+ */
+
 class YARPNullSemaphore
 {
 private:
@@ -97,9 +107,10 @@ public:
 	void Post() {}
 };
 
-///
-///
-///
+/**
+ * Semaphores for synchronizing and sharing resources across threads.
+ */
+
 class YARPSemaphore
 {
 private:
@@ -107,14 +118,55 @@ private:
 
 public:
 	// Assertion fails if insufficient resources at initialization
+
+	/**
+	 * Constructor.
+	 *
+	 * @param initial_count the initial value of the semaphore,
+	 * defaults to 1 (suitable for mutual exclusion).
+	 */
 	YARPSemaphore(int initial_count=1);
+
+	/**
+	 * Copy constructor.
+	 *
+	 * @param yt the target semaphore to copy.
+	 */
 	YARPSemaphore(const YARPSemaphore& yt);
 
 	virtual ~YARPSemaphore();
 
+	/**
+	 * Waits for the semaphore to have a non-zero value.  If at
+	 * the time the method is called the semaphore is zero, the
+	 * method will "block" and wait until another thread
+	 * increments the semaphore.  When that occurs, the method
+	 * will reduce the semaphore value by one and return to the
+	 * caller.
+	 */
 	void BlockingWait();
-	int PollingWait();  // returns true if Wait() occurred
 
+	/**
+	 * Checks if the semaphore has a non-zero value.  If it does,
+	 * the method will reduce the semaphore value by one.  The method
+	 * always returns immediately, and never waits for the semaphore
+	 * to change value.
+	 *
+	 * @return true (non-zero) iff at the time the method is called
+	 * the semaphore is non-zero.
+	 */
+	int PollingWait();
+
+	/**
+	 * Checks if the semaphore has a non-zero value, and
+	 * optionally waits if it does not.  When the semaphore is non-zero,
+	 * this method reduces it by one.
+	 *
+	 * @param blocking if this is true (non-zero), then the method
+	 * will behave like BlockingWait().
+	 *
+	 * @return true (non-zero) if the semaphore was reduced by this method.
+	 */
 	int Wait(int blocking = 1)
 	{
 		if (blocking) 
@@ -128,6 +180,9 @@ public:
 		} 
 	}
 
+	/**
+	 * Increments the semaphore by 1.
+	 */
 	void Post();
 };
 

@@ -75,7 +75,8 @@ INPUT                  = include/yarp/YARPPort.h \
                          include/yarp/begin_pack_for_net.h \
                          include/yarp/end_pack_for_net.h \
                          include/yarp/YARPString.h \
-			 include/yarp/YARPThread.h
+			 include/yarp/YARPThread.h \
+			 include/yarp/YARPSemaphore.h
 FILE_PATTERNS          = 
 RECURSIVE              = NO
 EXCLUDE                = 
@@ -217,4 +218,4 @@ DOT_CLEANUP            = YES
 #---------------------------------------------------------------------------
 # Configuration::additions related to the search engine   
 #---------------------------------------------------------------------------
-SEARCHENGINE           = NO
+SEARCHENGINE           = YES
