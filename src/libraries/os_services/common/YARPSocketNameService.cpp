@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.14 2003-05-27 22:37:30 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.15 2003-05-28 17:42:00 gmetta Exp $
 ///
 ///
 
@@ -411,11 +411,12 @@ int YARPSocketEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest)
 		return YARP_FAIL;
 	}
 
-	ACE_ASSERT (dest.getServiceType() == sock->GetServiceType());
+	ACE_ASSERT (dest.getServiceType() == sock->GetServiceType() ||
+			    (dest.getServiceType() == YARP_UDP && sock->GetServiceType() == YARP_MCAST));
 
 	/// I've got a socket!
 	///YARPOutputSocket *os = (YARPOutputSocket *)sock;
-	if (dest.getServiceType() == YARP_MCAST)
+	if (sock->GetServiceType() == YARP_MCAST && dest.getServiceType() == YARP_UDP)
 	{
 		sock->Connect (dest);
 	}
@@ -635,15 +636,43 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 
 	case YARP_MCAST:
 		{
-			/// 1. use the query name to register an MCAST entry (ip + port # returned).
-			/// - use the query name + a postfix (is this a suitable strategy?) + a rnd number.
+			/// 1. use the queried name to register an MCAST entry (ip + port # returned).
+			/// - use the queried name + a postfix (is this a suitable strategy?) + a rnd number.
 			/// - if it exists generate a new rnd number.
 
 			/// 2. return it. This is used to call the CreateOutputEndpoint().
 
 			/// 3. the corresponding UDP entry is queried separately and used in the 
 			///		ConnectEndpoint().
+			ACE_OS::srand (ACE_OS::time(NULL));
 
+			ACE_INET_Addr addr;
+			char fullname[256];
+			int ret = YARP_FAIL;
+			int reg_type = YARP_NO_SERVICE_AVAILABLE;
+
+			do
+			{
+				ACE_OS::sprintf (fullname, "%s_mcast_%d\0", name, ACE_OS::rand());
+				ret = namer.query (fullname, addr, &reg_type);
+				if (ret != YARP_OK)
+				{
+					ACE_DEBUG ((LM_DEBUG, "troubles registering %s\n", fullname));
+					return YARPUniqueNameID();
+				}
+			}
+			while (addr.get_port_number() != 0);
+
+			/// can't locate a name -> it's a new one.
+			string tname (fullname);
+			if (namer.check_in_mcast(tname, addr) != YARP_OK)
+			{
+				ACE_DEBUG ((LM_DEBUG, "can't get an MCAST group for %s\n", name));
+				return YARPUniqueNameID();
+			}
+
+			ACE_DEBUG((LM_DEBUG, "Registering group name - hostname in addr : %s\n", addr.get_host_addr()));
+			return YARPUniqueNameID(YARP_MCAST, addr);
 		}
 		break;
 

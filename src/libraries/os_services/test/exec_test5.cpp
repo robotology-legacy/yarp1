@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.13 2003-05-23 23:31:32 gmetta Exp $
+/// $Id: exec_test5.cpp,v 1.14 2003-05-28 17:42:01 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -87,7 +87,8 @@
 //#define REG_TEST_NAME "/test/exec_test2"
 //#define REG_LOCATE_NAME "/test/exec_test2"
 
-#define __UDP
+///#define __UDP
+#define __MCAST
 #define __PRINT
 
 YARPSemaphore out(1);
@@ -104,6 +105,7 @@ public:
 		char reply[128] = "Not set";
 
 		YARPUniqueNameID id;
+		YARPUniqueNameID idc;
 
 		do 
 		{
@@ -111,16 +113,18 @@ public:
 			cout << "Looking up name" << endl;
 			cout.flush();
 			out.Post();
-			id = YARPNameService::LocateName(REG_LOCATE_NAME);
+			id = YARPNameService::LocateName(REG_LOCATE_NAME, YARP_MCAST);
 			YARPEndpointManager::CreateOutputEndpoint (id);
-			YARPEndpointManager::ConnectEndpoints (id);
 
-			if (!id.isValid())
+			idc = YARPNameService::LocateName(REG_LOCATE_NAME, YARP_UDP);
+			YARPEndpointManager::ConnectEndpoints (idc);
+
+			if (!id.isValid() || !idc.isValid())
 			{
 				YARPTime::DelayInSeconds(1);
 			}
 		} 
-		while (!id.isValid());
+		while (!id.isValid() || !idc.isValid());
 
 		int x = 42;
 		while (1)
@@ -140,7 +144,7 @@ public:
 			rmsg.Set(0,reply,sizeof(reply));
 			rmsg.Set(1,(char*)(&y),sizeof(y));
 #ifdef __PRINT
-			cout << "***sending: " << txt << endl;
+			cout << "*** sending: " << txt << " and number " << x << endl;
 			cout.flush();
 #endif
 			int result = YARPSyncComm::Send(id.getNameID(),smsg,rmsg);
@@ -167,7 +171,7 @@ public:
 				cout << "connection is dead" << endl;
 			}
 
-			YARPTime::DelayInSeconds(0.5);
+			YARPTime::DelayInSeconds(0.01);
 
 			ct++;
 			sprintf(txt, "And a-%d", ct);
@@ -187,8 +191,10 @@ public:
 		int ct = 0;
 		YARPTime::DelayInSeconds(0.01);
 		
-#ifdef __UDP
+#if defined(__UDP)
 		id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
+#elif defined(__MCAST)
+		id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_MCAST, 11);
 #else
 		id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_TCP, 1);
 #endif

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.14 2003-05-27 22:37:30 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.15 2003-05-28 17:42:00 gmetta Exp $
 ///
 ///
 
@@ -197,6 +197,7 @@ YARPUniqueNameID YARPNameService::RegisterName(const char *name, int reg_type, i
 
 	case YARP_TCP:
 	case YARP_UDP:
+	case YARP_MCAST:
 		{
 			return YARPSocketNameService::RegisterName (*_namer, name, reg_type, num_ports_needed);
 		}		

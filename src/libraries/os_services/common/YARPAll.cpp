@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPAll.cpp,v 1.4 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: YARPAll.cpp,v 1.5 2003-05-28 17:42:00 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -87,7 +87,7 @@ static YARPSemaphore services_sema(1);
 class YARPFooInitializer
 {
 public:
-	YARPFooInitializer () { ACE::init(); }
+	YARPFooInitializer () { ACE::init(); ACE_OS::srand(ACE_OS::time(0)); }
 	~YARPFooInitializer () { ACE::fini(); }
 } _fooinitializer;
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketSyncComm.h,v 1.5 2003-05-27 22:37:32 gmetta Exp $
+/// $Id: YARPSocketSyncComm.h,v 1.6 2003-05-28 17:42:01 gmetta Exp $
 ///
 ///
 /*
@@ -96,32 +96,6 @@ public:
 	static YARPNameID PollingReceive(const YARPNameID& src, YARPMultipartMessage& msg);
 	static int Reply(const YARPNameID& src, YARPMultipartMessage& msg);
 };
-
-
-
-#if 0
-///
-///
-///
-class YARPMcastAsyncComm
-{
-protected:
-	static NetInt32 _buffer[256];	/// this is only used to send part lengths.
-
-public:
-	static int Send(const YARPNameID& dest, char *buffer, int buffer_length);
-	static YARPNameID BlockingReceive(const YARPNameID& src, char *buffer, int buffer_length);
-	static YARPNameID PollingReceive(const YARPNameID& src, char *buffer, int buffer_length);
-	static int ContinuedReceive(const YARPNameID& src, char *buffer, int buffer_length);
-	static int Reply(const YARPNameID& src, char *buffer, int buffer_length);
-	static int InvalidReply(const YARPNameID& src);
-	///static int Send(const YARPNameID& dest, YARPMultipartMessage& msg, YARPMultipartMessage& return_msg);
-	static int Send(const YARPNameID& dest, YARPMultipartMessage& msg);
-	static YARPNameID BlockingReceive(const YARPNameID& src, YARPMultipartMessage& msg);
-	static YARPNameID PollingReceive(const YARPNameID& src, YARPMultipartMessage& msg);
-	static int Reply(const YARPNameID& src, YARPMultipartMessage& msg);
-};
-#endif
 
 
 #endif

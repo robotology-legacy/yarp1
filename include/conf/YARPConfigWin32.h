@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.15 2003-05-21 13:20:51 natta Exp $
+// $Id: YARPConfigWin32.h,v 1.16 2003-05-28 17:42:00 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -38,7 +38,7 @@
 #define YARP_TCP_NO_DELAY		1
 
 /// set the default protocol in port creation.
-#define YARP_DEFAULT_PROTOCOL	YARP_UDP
+#define YARP_DEFAULT_PROTOCOL	YARP_MCAST
 
 /// set here how many ports are requested by the def protocol.
 #define YARP_PROTOCOL_REGPORTS  11
@@ -47,7 +47,7 @@
 #define YARP_UDP_REGPORTS       11
 
 /// read timeout on socket transport (in seconds).
-#define YARP_SOCK_TIMEOUT       20
+#define YARP_SOCK_TIMEOUT       2000
 
 /// disables warning for init_seg(lib) very legitimate use of directive.
 #pragma warning (disable:4073)

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.9 2003-05-01 22:51:20 gmetta Exp $
+/// $Id: Port.h,v 1.10 2003-05-28 17:42:01 gmetta Exp $
 ///
 ///
 
@@ -116,7 +116,7 @@ enum
 class OutputTarget : public BasedLink<OutputTarget>, public Thread
 {
 public:
-	YARPUniqueNameID target_pid;
+	YARPUniqueNameID target_pid;		/// for MCAST this is the MCAST group.
 	double check_tick;
 	int ticking;
 	int active;
@@ -125,12 +125,15 @@ public:
 	int deactivate;
 	int deactivated;
 	int port_number;
+	int protocol_type;
 	Sema something_to_send;
 	Sema mutex;
 #ifdef UPDATED_PORT
 	Sema space_available;
 #endif
 	CountedPtr<Sendable> p_sendable;
+	int msg_type;
+	char cmdname[512];
 
 	OutputTarget() : something_to_send(0), 
 #ifdef UPDATED_PORT
@@ -142,6 +145,9 @@ public:
 		deactivate = 0;  deactivated = 0;
 		check_tick = 0;  ticking = 0;
 		port_number = 0;
+		protocol_type = YARP_NO_SERVICE_AVAILABLE;
+		memset (cmdname, 0, 512);
+		msg_type = 0;
     }
 
 	virtual ~OutputTarget() 
@@ -151,6 +157,14 @@ public:
 		/// supposedly closes the actual connection.
 	}
 	virtual void Body();
+	
+	///
+	virtual void Begin(int stack_size=0)
+	{
+		/// protect thread code at startup.
+		WaitMutex ();
+		YARPThread::Begin(stack_size);
+	}
 
 	void WaitMutex() { mutex.Wait(); }
 	void PostMutex() { mutex.Post(); }
@@ -183,6 +197,10 @@ public:
 		deactivate = 1;
 		PostMutex();
 	}
+
+	int ConnectMcast (const char *name);
+	int DeactivateMcast (const char *name);
+	int DeactivateMcastAll (void);
 };
 
 
@@ -477,9 +495,18 @@ public:
 		if (!self_id.isValid())
 		{
 			///self_id = GetServer(name.c_str());
-			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
-			YARPEndpointManager::CreateOutputEndpoint (self_id);
-			YARPEndpointManager::ConnectEndpoints (self_id);
+			if (protocol_type == YARP_MCAST)
+			{
+				self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+				YARPEndpointManager::CreateOutputEndpoint (self_id);
+				YARPEndpointManager::ConnectEndpoints (self_id);
+			}
+			else
+			{
+				self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+				YARPEndpointManager::CreateOutputEndpoint (self_id);
+				YARPEndpointManager::ConnectEndpoints (self_id);
+			}
 		}
 
 		if (self_id.isValid())

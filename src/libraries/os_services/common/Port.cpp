@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.24 2003-05-27 22:37:30 gmetta Exp $
+/// $Id: Port.cpp,v 1.25 2003-05-28 17:42:00 gmetta Exp $
 ///
 ///
 
@@ -159,19 +159,55 @@ int Port::SayServer (const YARPNameID& pid, const char *buf)
 	return result;
 }
 
+
+int OutputTarget::ConnectMcast (const char *name)
+{
+	WaitMutex ();
+	memcpy (cmdname, name, strlen(name));
+	msg_type = 1;
+	PostMutex ();
+
+	return YARP_OK;
+}
+
+int OutputTarget::DeactivateMcast (const char *name)
+{
+	WaitMutex ();
+	memcpy (cmdname, name, strlen(name));
+	msg_type = 2;
+	PostMutex ();
+
+	return YARP_OK;
+}
+
+int OutputTarget::DeactivateMcastAll (void)
+{
+	WaitMutex ();
+	msg_type = 3;
+	PostMutex ();
+
+	return YARP_OK;
+}
+
 ///
 ///
 /// this is the thread which manages a single output connection.
 ///
 void OutputTarget::Body ()
 {
+	/// implicit wait mutex for this thread.
+	/// see overridden Begin()
+
 #ifdef __QNX6__
 	signal (SIGPIPE, SIG_IGN);
 #endif
-	int success;
+	int success = YARP_OK;
 	NewFragmentHeader header;
 	BlockSender sender;
 	CountedPtr<Sendable> p_local_sendable;
+
+	memset (cmdname, 0, 512);
+	msg_type = 0;
 
 	int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
@@ -180,24 +216,72 @@ void OutputTarget::Body ()
 		ACE_DEBUG ((LM_DEBUG, "can't raise priority of OutputTarget thread, potential source of troubles\n"));
 	}
 
-	target_pid = YARPNameService::LocateName (GetLabel().c_str());
+	/// need to know what is the protocol of the owner.
 
-	/// needed because the port changes from that of the incoming call
-	/// it is used to accept data (pretend a connection to the remote).
-	if (target_pid.getServiceType() == YARP_UDP)
+	switch (protocol_type)
 	{
-		/// local port number into P2[0] param.
-		target_pid.allocP2 (1);
-		target_pid.getP2Ptr()[0] = port_number;
-	}
+	case YARP_QNET:
+	case YARP_TCP:
+		{
+			target_pid = YARPNameService::LocateName (GetLabel().c_str());
+			if (target_pid.getServiceType() != protocol_type)
+			{
+				/// problems.
+				ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
+				target_pid.invalidate();
+			}
 
-	YARPEndpointManager::CreateOutputEndpoint (target_pid);
-	YARPEndpointManager::ConnectEndpoints (target_pid); ///.getNameID());
+			YARPEndpointManager::CreateOutputEndpoint (target_pid);
+			YARPEndpointManager::ConnectEndpoints (target_pid); ///.getNameID());
 
 #ifdef YARP_TCP_NO_DELAY
-	/// disables Nagle's algorithm... 
-	YARPEndpointManager::SetTCPNoDelay (target_pid); ///.getNameID());
+			/// disables Nagle's algorithm... 
+			YARPEndpointManager::SetTCPNoDelay (target_pid); ///.getNameID());
 #endif
+		}
+		break;
+
+	case YARP_UDP:
+		{
+			target_pid = YARPNameService::LocateName (GetLabel().c_str());
+
+			/// needed because the port changes from that of the incoming call
+			/// it is used to accept data (pretend a connection to the remote).
+			if (target_pid.getServiceType() != YARP_UDP)
+			{
+				/// problems.
+				ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
+				target_pid.invalidate();
+			}
+
+			/// local port number into P2[0] param.
+			target_pid.allocP2 (1);
+			target_pid.getP2Ptr()[0] = port_number;
+
+			YARPEndpointManager::CreateOutputEndpoint (target_pid);
+			YARPEndpointManager::ConnectEndpoints (target_pid); ///.getNameID());
+		}
+		break;
+
+	case YARP_MCAST:
+		{
+			/// this is crazy!
+			target_pid = YARPNameService::LocateName(GetLabel().c_str(), YARP_MCAST);
+			YARPEndpointManager::CreateOutputEndpoint (target_pid);
+
+			if (target_pid.getServiceType() != YARP_MCAST)
+			{
+				/// problems.
+				ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
+				target_pid.invalidate();
+			}
+		}
+		break;
+	}
+
+	/// this wait for intialization.
+	PostMutex ();
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Output target after initialization section\n"));
 
 	/// MUST complain if connection fails.
 	///
@@ -226,6 +310,46 @@ void OutputTarget::Body ()
 
 		WaitMutex();
 
+		if (protocol_type == YARP_MCAST)
+		{
+			/// LATER: need to figure out whether this is always ok.
+			/// multiple connection requests might overlap?
+
+			/// process connect/disconnect messages.
+			switch (msg_type)
+			{
+			case 1:
+				{
+					/// connect
+					YARPUniqueNameID udp_channel;
+					udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
+					YARPEndpointManager::ConnectEndpoints (udp_channel);
+				}
+				break;
+
+			case 2:
+				{
+					/// disconnect
+					YARPUniqueNameID udp_channel;
+					udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
+					YARPEndpointManager::Close (udp_channel);
+				}
+				break;
+
+			case 3:
+				{
+					/// disconnect all
+					//// YARPEndpointManager::CloseMcastAll ();
+				}
+				break;
+			}
+
+			msg_type = 0;
+		}	/// end of if (protocol_type).
+
+
+		///
+		///
 		check_tick = YARPTime::GetTimeAsSeconds();
 		ticking = 1;
 		p_local_sendable.Set(p_sendable.Ptr());
@@ -275,7 +399,16 @@ void OutputTarget::Body ()
 		OnSend();
 	}
 
-	YARPEndpointManager::Close (target_pid); ///.getNameID());	
+	//// LATER: must handle close depending on protocol.
+	if (protocol_type == YARP_MCAST)
+	{
+		/// YARPEndpointManager::CloseMcastAll ();
+	}
+	else
+	{
+		YARPEndpointManager::Close (target_pid); ///.getNameID());	
+	}
+
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "thread %d bailing out\n", GetIdentifier()));
 }
 
@@ -354,9 +487,6 @@ void _strange_select::Body ()
 						deactivated ? "as requested" : "target stopped responding",
 						timeout?"/timeout":""));
 
-///					if (_owner->protocol_type == YARP_UDP || _owner->protocol_type == YARP_MCAST)
-///						_owner->output_pool.freeOne (target->GetAssignedPortNo ());
-
 					delete target;
 				}
 				
@@ -383,9 +513,6 @@ void _strange_select::Body ()
 					ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s (%s)\n", 
 						_owner->name.c_str(), target->GetLabel().c_str(),
 						deactivated ? "as requested" : "target stopped responding"));
-
-///					if (_owner->protocol_type == YARP_UDP || _owner->protocol_type == YARP_MCAST)
-///						_owner->output_pool.freeOne (target->GetAssignedPortNo ());
 
 					delete target;
 				}
@@ -534,9 +661,23 @@ void Port::Body()
 				}
 				return;
 			}
+		}
+		break;
 
-///			pid.getP1Ref() = 11;	// resize the in array of ports to 1 + 10.
-///			output_pool.resize (pid.getP2Ptr() + 11, 10);	// dim the out array to the last 10 ports.
+	case YARP_MCAST:
+		{
+			pid = YARPNameService::RegisterName(name.c_str(), YARP_MCAST, YARP_UDP_REGPORTS);
+			if (pid.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+			{
+				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
+				name_set = 0;
+				if (asleep)
+				{
+					asleep = 0;
+					okay_to_send.Post();
+				}
+				return;
+			}
 		}
 		break;
 
@@ -551,10 +692,6 @@ void Port::Body()
 	/// all this to avoid sending a message through the port socket.
 	tsender.Begin ();
 
-/// QNX6?
-///	m_pid.raw_id = MakeServer(name.c_str());
-///	m_pid.mode = 2;
-  
 	if (asleep)
 	{
 		asleep = 0;
@@ -565,12 +702,7 @@ void Port::Body()
     {
 		receiver.Begin(pid.getNameID());
 
-///#ifdef __QNX6__     
-///      receiver.pid.mode = m_pid.mode; //Carlos
-///      receiver.pid.raw_id = m_pid.raw_id;
-///#endif
-
-		receiver.Get();		/// the original version.
+		receiver.Get();
 		out_mutex.Wait();
 		assume_data = !expect_header;
 		out_mutex.Post();
@@ -655,7 +787,7 @@ void Port::Body()
 				target->PostMutex();
 				int timeout = 0;
 				
-				if (ticking && now-started>5)
+				if (ticking && now-started > 5)
 				{
 					active = 0;
 					timeout = 1;
@@ -669,8 +801,6 @@ void Port::Body()
 						timeout?"/timeout":""));
 					/// remove the port no, from the list of used ports.
 
-///					if (protocol_type == YARP_UDP || protocol_type == YARP_MCAST)
-///						output_pool.freeOne (target->GetAssignedPortNo ());
 					delete target;
 				}
 				target = next;
@@ -686,28 +816,52 @@ void Port::Body()
 			case MSG_ID_ATTACH:
 				{
 					list_mutex.Wait ();
-
-					target = targets.GetByLabel (buf);
-					if (target == NULL)
+					
+					/// mcast is handled differently.
+					if (protocol_type != YARP_MCAST)
 					{
-						ACE_DEBUG ((LM_DEBUG, "Starting connection between %s and %s\n", name.c_str(), buf));
+						target = targets.GetByLabel (buf);
+						if (target == NULL)
+						{
+							ACE_DEBUG ((LM_DEBUG, "Starting connection between %s and %s\n", name.c_str(), buf));
 
-						target = targets.NewLink(buf);
-						
-						ACE_ASSERT(target != NULL);
-						
-						target->target_pid.invalidate();
-						
-///						if (protocol_type == YARP_UDP || protocol_type == YARP_MCAST)
-///						{
-///							target->AssignPortNo (output_pool.getOne ());
-///						}
+							target = targets.NewLink(buf);
+							
+							ACE_ASSERT(target != NULL);
+							
+							target->target_pid.invalidate();
+							target->protocol_type = protocol_type;
 
-						target->Begin();
+							target->Begin();
+						}
+						else
+						{
+							ACE_DEBUG ((LM_DEBUG, "Ignoring %s, already connected\n", buf));
+						}
 					}
 					else
 					{
-						ACE_DEBUG ((LM_DEBUG, "Ignoring %s, already connected\n", buf));
+						/// mcast out port thread.
+						target = targets.GetByLabel ("mcast-thread\0");
+						if (target == NULL)
+						{
+							ACE_DEBUG ((LM_DEBUG, "Starting MCAST singleton (hopefully) thread\n"));
+							target = targets.NewLink("mcast-thread\0");
+
+							ACE_ASSERT(target != NULL);
+							target->target_pid.invalidate();
+							target->protocol_type = protocol_type;
+
+							target->Begin();
+
+							target->ConnectMcast (buf);
+						}
+						else
+						{
+							ACE_DEBUG ((LM_DEBUG, "MCAST: Starting connection between %s and %s\n", name.c_str(), buf));
+							
+							target->ConnectMcast (buf);
+						}
 					}
 
 					list_mutex.Post ();
@@ -720,11 +874,25 @@ void Port::Body()
 
 					list_mutex.Wait ();
 
-					target = targets.GetByLabel(buf+1);
-					if (target != NULL)
+					if (protocol_type != YARP_MCAST)
 					{
-						ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
-						target->Deactivate();
+						target = targets.GetByLabel(buf+1);
+						if (target != NULL)
+						{
+							ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
+							target->Deactivate();
+						}
+					}
+					else
+					{
+						/// mcast
+						target = targets.GetByLabel("mcast-thread\0"); ///buf+1);
+						if (target != NULL)
+						{
+							ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
+							
+							target->DeactivateMcast(buf+1);
+						}
 					}
 
 					list_mutex.Post ();
@@ -791,14 +959,28 @@ void Port::Body()
 
 					list_mutex.Wait ();
 
-					target = targets.GetRoot();
-
-					while (target!=NULL)
+					if (protocol_type != YARP_MCAST)
 					{
-						next = target->GetMeshNext();
-						ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
-						target->Deactivate();
-						target = next;
+						target = targets.GetRoot();
+
+						while (target != NULL)
+						{
+							next = target->GetMeshNext();
+							ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
+							target->Deactivate();
+							target = next;
+						}
+					}
+					else
+					{
+						/// mcast
+						target = targets.GetByLabel("mcast-thread\0"); ///buf+1);
+						if (target != NULL)
+						{
+							ACE_DEBUG ((LM_DEBUG, "Removing all mcast connections\n"));
+							
+							target->DeactivateMcastAll();
+						}
 					}
 
 					list_mutex.Post ();
