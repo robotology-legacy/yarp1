@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.12 2003-08-11 16:06:30 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.13 2003-09-02 16:59:50 natta Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -150,8 +150,8 @@ public:
 		PulseStates *activation;
 	};
 
-	typedef std::list<BTableEntry> BEHAVIOR_TABLE;
-	typedef std::list<PulseStates *> PULSE_TABLE;
+	typedef YARPList<BTableEntry> BEHAVIOR_TABLE;
+	typedef YARPList<PulseStates *> PULSE_TABLE;
 	typedef BEHAVIOR_TABLE::iterator BEHAVIOR_TABLE_IT;
 	typedef PULSE_TABLE::iterator PULSE_TABLE_IT;
 
@@ -166,9 +166,8 @@ public:
 	~YARPBehavior()
 	{
 		// destroy pulse states
-		PULSE_TABLE_IT it;
-		it = _pulse_table.begin();
-		while(it != _pulse_table.end())
+		PULSE_TABLE_IT it(_pulse_table);;
+		while(!it.done())
 		{
 			delete (*it);
 			it++;
@@ -280,20 +279,19 @@ _parse(YARPBottle &bottle)
 	}
 			
 	// handle signals
-	BEHAVIOR_TABLE_IT is;
-	is = _table.begin();
-	while(is != _table.end())
+	BEHAVIOR_TABLE_IT is(_table);
+	while(!is.done())
 	{
-		if (checkState(is->s))
-			if (is->input == NULL)
+		if (checkState((*is).s))
+			if ((*is).input == NULL)
 			{
 				// as state, return without executing anything
 				return 1;
 			}
-			else  if (is->input->input(&bottle, _data))
+			else  if ((*is).input->input(&bottle, _data))
 			{
-				is->activation->post();	// enable input
-				pulse(is->s);
+				(*is).activation->post();	// enable input
+				pulse((*is).s);
 				return 1;
 			}
 		is++;

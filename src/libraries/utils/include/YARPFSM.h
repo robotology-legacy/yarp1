@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPFSM.h,v 1.7 2003-07-23 17:18:57 babybot Exp $
+/// $Id: YARPFSM.h,v 1.8 2003-09-02 16:59:50 natta Exp $
 ///  
 /// Finite State Machine class -- by nat July 2003
 //
@@ -67,7 +67,7 @@
 #ifndef __YARPFSMH__
 #define __YARPFSMH__
 
-#include <list>
+#include <YARPList.h>
 
 template <class FSM_SHARED_DATA>
 class YARPFSMInput
@@ -121,13 +121,12 @@ protected:
 	virtual ~YARPFSMStateBase(){}
 
 	typedef YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> FSM_TABLE_ENTRY;
-	typedef std::list<FSM_TABLE_ENTRY> FSM_TABLE;
+	typedef YARPList<FSM_TABLE_ENTRY> FSM_TABLE;
 	typedef FSM_TABLE::iterator FSM_TABLE_IT;
 
 public:
 	bool decideState(MYFSM *t, FSM_SHARED_DATA *d)
 	{
-		FSM_TABLE_IT it;
 		// if table is empty use default value
 		if (_table.empty())
 		{
@@ -139,18 +138,18 @@ public:
 
 		// else
 		bool flag = false;
-		it = _table.begin();
+		FSM_TABLE_IT it(_table);
 	
-		while (it != _table.end())
+		while (!it.done())
 		{
-			flag = it->inFunction->input(d);
+			flag = (*it).inFunction->input(d);
 	
 			if (flag)
 			{
-				if (it->outFunction != NULL)
-					it->outFunction->output(d);
+				if ((*it).outFunction != NULL)
+					(*it).outFunction->output(d);
 
-				t->changeState(it->state);
+				t->changeState((*it).state);
 				return true;;
 			}
 			it++;
