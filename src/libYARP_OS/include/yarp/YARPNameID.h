@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.4 2004-07-09 16:10:13 eshuy Exp $
+/// $Id: YARPNameID.h,v 1.5 2004-07-30 06:51:26 eshuy Exp $
 ///
 ///
 /*
@@ -323,7 +323,7 @@ protected:
 
 public:
 	YARPUniqueNameMem (int service = YARP_SHMEM) : YARPUniqueNameID(service), _address() {}
-	YARPUniqueNameMem (int service, int port) : YARPUniqueNameID(service), _address (port) {}
+	YARPUniqueNameMem (int service, int port) : YARPUniqueNameID(service), _address (port) {  }
 	YARPUniqueNameMem (int service, const ACE_MEM_Addr& addr) : YARPUniqueNameID(service), _address (addr) {}
 	YARPUniqueNameMem (const YARPUniqueNameMem *other) : YARPUniqueNameID(YARP_SHMEM), _address(other->_address) {}
 	

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.9 2004-07-29 23:24:01 babybot Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.10 2004-07-30 06:51:26 eshuy Exp $
 ///
 ///
 
@@ -576,6 +576,7 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 	{
 		/// this is fine but the actual remote is the TCP here and not the UDP.
 		/// this gets the right value only after the first recv, no alternatives.
+
 		_remote_endpoint = *remid;
 
 		///
@@ -675,7 +676,16 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 		case YARP_SHMEM:
 			{
-				_socket_addr = new YARPUniqueNameMem ((YARPUniqueNameMem*)socket);
+			  YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 %d setting up shared memory\n", __LINE__));
+
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 11 SHMEM on port %d (%s) num %d\n", ((YARPUniqueNameMem *)socket)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)socket)->getAddressRef().get_host_addr(),port));
+
+	_socket_addr = new YARPUniqueNameMem ((YARPUniqueNameMem*)socket);
+	
+	((YARPUniqueNameMem*)_socket_addr)->getAddressRef().set(port); // just in case 
+
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 12 SHMEM on port %d (%s)\n", ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_host_addr()));
+
 				ACE_ASSERT (_socket_addr != NULL);
 
 				_socket = (void *)new ACE_MEM_Acceptor (((YARPUniqueNameMem&)*_socket_addr).getAddressRef(), 1);
@@ -688,6 +698,9 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 				///((ACE_MEM_Acceptor *)_socket)->preferred_strategy (ACE_MEM_IO::MT);
 
 				_socket_addr->setRawIdentifier (((ACE_MEM_Acceptor *)_socket)->get_handle());
+
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 15 SHMEM on port %d (%s)\n", ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_host_addr()));
+
 			}
 			break;
 
@@ -1147,7 +1160,7 @@ void _SocketThreadMulti::BodyShmem (void)
 	char bufack[] = "acknowledged";
 	char *buf3 = bufack;
 
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread about to accept SHMEM on port %d\n", ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_port_number()));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread about to accept SHMEM on port %d (%s)\n", ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_host_addr()));
 	ACE_MEM_Acceptor& a = *((ACE_MEM_Acceptor *)_socket);
 	ACE_MEM_Stream stream;
 	a.accept (stream);
@@ -1906,7 +1919,7 @@ void _SocketThreadListMulti::addSocket (void)
 				it_avail.go_tail();
 			}
 
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "1777777 new thread ready to go on port %d\n", port_number));
 			(*it_avail)->setAvailable (0);
 			(*it_avail)->setOwner (*this);
 
@@ -2012,7 +2025,7 @@ void _SocketThreadListMulti::addSocket (void)
 				it_avail.go_tail();
 			}
 
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "2777777 new thread ready to go on port %d\n", port_number));
 			(*it_avail)->setAvailable (0);
 			(*it_avail)->setOwner (*this);
 
@@ -2098,7 +2111,7 @@ void _SocketThreadListMulti::addSocket (void)
 				it_avail.go_tail();
 			}
 
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "3777777 new thread ready to go on port %d\n", port_number));
 			(*it_avail)->setAvailable (0);
 			(*it_avail)->setOwner (*this);
 
@@ -2112,6 +2125,7 @@ void _SocketThreadListMulti::addSocket (void)
 				/// need a port number for SHMEM? or can I recycle the same as UDP, 'cause SHMEM messaging is TCP?
 				(*it_avail)->reuse (&temp, &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
 				(*it_avail)->Begin();
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "3777777 Begin %d new thread ready to go on port %d\n", __LINE__, port_number));
 			}
 			else
 			{
@@ -2122,6 +2136,7 @@ void _SocketThreadListMulti::addSocket (void)
 				(*it_avail)->CleanState ();
 				(*it_avail)->reuse (&temp, &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
 				(*it_avail)->Begin();
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "3777777 Begin %d new thread ready to go on port %d\n", __LINE__, port_number));
 			}
 
 			/// send reply to incoming socket.
@@ -2185,7 +2200,7 @@ void _SocketThreadListMulti::addSocket (void)
 				it_avail.go_tail();
 			}
 
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "4777777 new thread ready to go on port %d\n", port_number));
 			(*it_avail)->setAvailable (0);
 			(*it_avail)->setOwner (*this);
 
@@ -2734,6 +2749,7 @@ int YARPOutputSocketMulti::Prepare (const YARPUniqueNameID& name)
 /// name is the remote we're asking to join.
 int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 {
+
 	OSDataMulti& d = OSDATA(system_resources);
 	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 
@@ -2784,9 +2800,11 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 	//d._mem_addr.set(d._local_addr);
 	//d._mem_addr.set_port_number(port_number);
 	
-	d._mem_addr.set (port_number, d._local_addr.get_host_addr());
+	d._mem_addr.set (port_number, d._local_addr.get_host_addr()); //PFHIT
+
 
 	/// at this point the remote should be listening on port_number
+
 	r = d._connector_socket.connect (d._stream, d._mem_addr);
 
 	if (r == -1)
@@ -2794,8 +2812,9 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 	  ACE_DEBUG ((LM_ERROR, "*** CHECK that your machine's domain name is configured\n"));
 	  ACE_DEBUG ((LM_ERROR, "*** A lack of domain name can make the two sides of a connection seem ...\n"));
 	  ACE_DEBUG ((LM_ERROR, "*** ... to be on different machines, and prevent shared memory from kicking in\n"));
-		ACE_DEBUG ((LM_DEBUG, "cannot connect shmem socket %s:%d\n", d._mem_addr.get_host_addr(), d._mem_addr.get_port_number()));
-		identifier = ACE_INVALID_HANDLE;
+	  ACE_DEBUG ((LM_DEBUG, "cannot connect shmem socket %s:%d, error code is %d\n", d._mem_addr.get_host_addr(), d._mem_addr.get_port_number(),r));
+
+	  identifier = ACE_INVALID_HANDLE;
 		return YARP_FAIL;
 	}
 

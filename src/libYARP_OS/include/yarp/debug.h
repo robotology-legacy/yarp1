@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: debug.h,v 1.1 2004-07-09 16:10:13 eshuy Exp $
+/// $Id: debug.h,v 1.2 2004-07-30 06:51:26 eshuy Exp $
 ///
 ///
 /// WARNING. this file name is looking for a name clash.
@@ -69,6 +69,8 @@
 #endif
 
 extern int __debug_level;
+
+extern void set_yarp_debug(int yarp, int ace = -1);
 
 #define DEBUG_LEVEL (__debug_level)
 #define YARP_DBG(x) if(DEBUG_LEVEL>=x) ACE_DEBUG

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPAll.cpp,v 1.4 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPAll.cpp,v 1.5 2004-07-30 06:51:26 eshuy Exp $
 ///
 ///
 #include <yarp/YARPConfig.h>
@@ -104,6 +104,15 @@ static YARPNameService _justtoinitialize;
 
 /// -1 = disabled.
 int __debug_level = -1;
+
+void set_yarp_debug(int yarp, int ace) {
+  if (yarp>=0) __debug_level = yarp;
+  if (ace>0) {
+    ACE_LOG_MSG->priority_mask (((ACE_LOG_MSG->priority_mask(ACE_Log_Msg::PROCESS))|(LM_DEBUG))|LM_WARNING, ACE_Log_Msg::PROCESS);
+  } else {
+    ACE_LOG_MSG->priority_mask (((ACE_LOG_MSG->priority_mask(ACE_Log_Msg::PROCESS))&(~LM_DEBUG))|LM_WARNING, ACE_Log_Msg::PROCESS);
+  }
+}
 
 
 // thread-safe version of printf
