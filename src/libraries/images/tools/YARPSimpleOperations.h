@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.h,v 1.2 2003-10-14 12:09:33 babybot Exp $
+/// $Id: YARPSimpleOperations.h,v 1.3 2003-11-11 21:36:05 babybot Exp $
 ///
 ///
 
@@ -117,8 +117,10 @@ public:
 		int x = (int) (dx + 0.5);
 		int y = (int) (dy + 0.5);
 
-		for(int i = -2; i <= 2; i++) img.Pixel(x+i,y) = pixel;
-		for (int j = -2; j <= 2; j++) img.Pixel(x,y+j) = pixel;
+		for(int i = -2; i <= 2; i++)
+			img.SafePixel(x+i,y) = pixel;
+		for (int j = -2; j <= 2; j++)
+			img.SafePixel(x,y+j) = pixel;
 	}
 
 	inline static void DrawCross(YARPImageOf<YarpPixelMono> &img, double dx, double dy, unsigned char pixel)
@@ -127,8 +129,10 @@ public:
 		int x = (int) (dx + 0.5);
 		int y = (int) (dy + 0.5);
 
-		for(int i = -2; i <= 2; i++) img.Pixel(x+i,y) = pixel;
-		for (int j = -2; j <= 2; j++) img.Pixel(x,y+j) = pixel;
+		for(int i = -2; i <= 2; i++) 
+			img.SafePixel(x+i,y) = pixel;
+		for (int j = -2; j <= 2; j++)
+			img.SafePixel(x,y+j) = pixel;
 	}
 
 	inline static void DrawCross(YARPImageOf<YarpPixelBGR> &img, double dx, double dy, const YarpPixelBGR &pixel)
@@ -137,8 +141,10 @@ public:
 		int x = (int) (dx + 0.5);
 		int y = (int) (dy + 0.5);
 
-		for(int i = -2; i <= 2; i++) img.Pixel(x+i,y) = pixel;
-		for (int j = -2; j <= 2; j++) img.Pixel(x,y+j) = pixel;
+		for(int i = -2; i <= 2; i++)
+			img.SafePixel(x+i,y) = pixel;
+		for (int j = -2; j <= 2; j++)
+			img.SafePixel(x,y+j) = pixel;
 	}
 
 	inline static int ComputePadding (int linesize, int align)

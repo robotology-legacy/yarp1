@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.20 2003-10-14 12:09:33 babybot Exp $
+/// $Id: YARPLogpolar.cpp,v 1.21 2003-11-11 21:36:05 babybot Exp $
 ///
 ///
 
@@ -260,7 +260,7 @@ YARPLogpolar::YARPLogpolar (void)
 
 			_img = Set_Param(
 				_xsize, _ysize,
-				128, 128,
+				_xsizefovea, _ysizefovea,
 				_srho, _stheta, _sfovea,
 				1090,
 				CUSTOM,
@@ -365,18 +365,18 @@ int YARPLogpolar::Logpolar2CartesianFovea (const YARPImageOf<YarpPixelBGR>& in, 
 {
 	using namespace _logpolarParams;
 	ACE_ASSERT (in.GetWidth() == _stheta && in.GetHeight() == _srho);
-	ACE_ASSERT (out.GetWidth() == 128 && out.GetHeight() == 128);
+	ACE_ASSERT (out.GetWidth() == _xsizefovea && out.GetHeight() == _ysizefovea);
 
-	_img.Size_X_Remap = 128;
-	_img.Size_Y_Remap = 128;
-	_img.Size_Img_Remap = 128 * 128;
+	_img.Size_X_Remap = _xsizefovea;
+	_img.Size_Y_Remap = _ysizefovea;
+	_img.Size_Img_Remap = _xsizefovea * _ysizefovea;
 	_img.Zoom_Level = 512.0/1090.0;
 		
 	Remap ((unsigned char *)out.GetRawBuffer(), (unsigned char *)in.GetRawBuffer(), &_img, _remapMapFovea);
 
-	_img.Size_X_Remap = 256;
-	_img.Size_Y_Remap = 256;
-	_img.Size_Img_Remap = 256 * 256;
+	_img.Size_X_Remap = _xsize;
+	_img.Size_Y_Remap = _ysize;
+	_img.Size_Img_Remap = _xsize * _ysize;
 	_img.Zoom_Level = 256.0/1090.0;
 
 	return YARP_OK;

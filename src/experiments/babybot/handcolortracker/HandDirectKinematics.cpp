@@ -1,28 +1,30 @@
 #include "HandKinematics.h"
 
-HandKinematics::HandKinematics()
+HandKinematics::HandKinematics():
+_gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
 {
 	char *root = GetYarpRoot();
 	char filename[256];
 	char filename1[256];
 	char filename2[256];
 
-	#if defined(__WIN32__)
-		ACE_OS::sprintf (filename, "%s\\conf\\babybot\\handforward.dat\0", root);
-		ACE_OS::sprintf (filename1, "%s\\conf\\babybot\\netc.ini\0", root);
-		ACE_OS::sprintf (filename2, "%s\\conf\\babybot\\netp.ini\0", root);
-	#elif defined (__QNX6__)
-		ACE_OS::sprintf (path, "%s/conf\babybot\\0", root);
-		ACE_OS::sprintf (filename, "%s/conf/babybot/handforward.dat\0", root);
-		ACE_OS::sprintf (filename1, "%s/conf/babybot/netc.ini\0", root);
-		ACE_OS::sprintf (filename2, "%s/conf/babybot/netp.ini\0", root);
-	#endif
+	// ACE_OS::sprintf (path, "%s/conf\babybot\\0", root);
+	ACE_OS::sprintf (filename, "%s/conf/babybot/handforward.dat\0", root);
+	ACE_OS::sprintf (filename1, "%s/conf/babybot/handfk.ini\0", root);
+	ACE_OS::sprintf (filename2, "%s/conf/babybot/netp.ini\0", root);
+	
 	_log.append(filename);
 	_npoints = 0;
 
+	// 
+	_v.Resize(3);
 	// nnets
-	center.load(filename1);
-	parameters.load(filename2);
+	if (_center.load(filename1)!=YARP_OK)
+	{
+		ACE_OS::printf("Error, cannot read neural network file");
+		exit(-1);
+	}
+	_parameters.load(filename2);
 }
 
 HandKinematics::~HandKinematics()

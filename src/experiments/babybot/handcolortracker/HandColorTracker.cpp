@@ -114,8 +114,8 @@ int main(int argc, char* argv[])
 	_outSeg2.Resize(_stheta, _srho);
 
 	char tmp[128];
-	sprintf(tmp, "%s%d", "y:\\zgarbage\\exp19\\histo", 100);
-	// _histo.load(YARPString(tmp));
+	sprintf(tmp, "%s%d", "y:\\zgarbage\\exp20\\histo", 59);
+	_histo.load(YARPString(tmp));
 
 	YARPLogpolar _mapper;
 

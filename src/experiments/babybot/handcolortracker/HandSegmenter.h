@@ -40,9 +40,11 @@ public:
 		mapper.Logpolar2Cartesian(in, tmpImage);
 		YARPSimpleOperation::Decimate(tmpImage, outImage, __scale, __scale);
 		int x,y;
-		mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
-		x = (x + _logpolarParams::_xsize/2)/__scale;
-		y = (_logpolarParams::_ysize/2-y)/__scale;
+		x = el.rho/__scale;
+		y = el.theta/__scale;
+		// mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
+		// x = (x + _logpolarParams::_xsize/2)/__scale;
+		// y = (_logpolarParams::_ysize/2-y)/__scale;
 		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(255, 0, 0));
 		_send();
 	}

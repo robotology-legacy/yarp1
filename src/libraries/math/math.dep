@@ -27,7 +27,6 @@
 	"..\..\..\include\conf\yarpconfigwin32.h"\
 	".\YARPMatrix.h"\
 	".\YARPMatrix.inl"\
-	".\YARPRecursiveLS.h"\
 	".\YARPRobotMath.h"\
 	".\YARPRobotMath.inl"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.16 2003-10-14 12:09:33 babybot Exp $
+/// $Id: YARPLogpolar.h,v 1.17 2003-11-11 21:36:05 babybot Exp $
 ///
 ///
 
@@ -100,6 +100,9 @@ namespace _logpolarParams
 	const int _srho = 152;
 	const int _stheta = 252;
 	const int _sfovea = 42;
+	
+	const int _xsizefovea = 128;
+	const int _ysizefovea = 128;
 
 	const double _alfa = 3.76;	
 	const double _beta = 0.0233;

@@ -7,6 +7,9 @@
 #include <YARPBottleContent.h>
 #include <YARPControlBoardNetworkData.h>
 #include <YARPBPNNet.h>
+#include <YARPBabybotHeadKin.h>
+
+#define FULL_SIZE 256
 
 class HandKinematics
 {
@@ -38,19 +41,38 @@ public:
 	}
 
 private:
-	void _query(const YVector &arm, const YVector &hand, YARPShapeEllipse &el)
+	void _query(const YVector &arm, const YVector &head, YARPShapeEllipse &el)
 	{
-		double tmp[3];
-		double c[2];
-		double p[3];
-		tmp[0] = arm(1);
-		tmp[1] = arm(2);
-		tmp[2] = arm(3);
-		center.sim(tmp, c);
-		parameters.sim(tmp, p);
-	
-		el.rho = c[0];
-		el.theta = c[1];
+		// update head kinematics
+		_gaze.update(head);
+
+		// compute _v()
+		_center.sim(arm.data(),	// uses only the first 3 joints
+				    _v.data());
+
+		/*
+		double tmp = 1 - _v(1)*_v(1) - _v(2)*_v(2);
+		if (tmp>0)
+			_v(3) =sqrt(tmp);
+		else
+			_v(3) = 0.0;
+		*/
+
+		// compute retinal position
+		int predx = 0, predy = 0;
+		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v, predx, predy);
+
+		// predx += FULL_SIZE/2;
+		// predy += FULL_SIZE/2;
+
+		printf("%d\t%d\n", predx, predy);
+
+		//////////////////////////////////////
+
+		// parameters.sim(tmp, p);
+
+		el.rho = predx;		//c[0];
+		el.theta = predy;	//c[1];
 		el.a11 = /*p[0];*/ 0.005;
 		el.a12 = /*p[1];*/ 0;
 		el.a22 = /*p[2];*/ 0.005;
@@ -61,9 +83,11 @@ private:
 	YARPLpConicFitter _fitter;
 	YARPLogFile		  _log;
 	
-	YARPBPNNet center;
-	YARPBPNNet parameters;
+	YARPBPNNet _center;
+	YARPBPNNet _parameters;
 
+	YARPBabybotHeadKin _gaze;
+	YVector _v;
 	int _npoints;
 };
 
