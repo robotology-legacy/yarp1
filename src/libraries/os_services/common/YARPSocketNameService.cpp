@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.32 2003-08-28 21:23:02 babybot Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.33 2003-08-29 10:35:10 babybot Exp $
 ///
 ///
 
@@ -475,52 +475,6 @@ int YARPSocketEndpointManager::SetTCPNoDelay (void)
 
 #define NAMER_FAIL (new YARPUniqueNameID())
 
-///
-///
-///
-///
-bool YARPSocketNameService::CONVERT_FORMAT (YARPString& name)
-{
-#if defined(__WIN32__)
-
-	return false;
-
-#elif defined(__QNX6__)
-
-#error "the CONVERT_FORMAT function has not been implemented yet!"
-	return false;
-
-#elif defined(__LINUX__)
-
-#error "the CONVERT_FORMAT function has not been implemented yet!"
-	return false;
-
-#endif
-}
-
-///
-///
-///
-///
-bool YARPSocketNameService::CONVERT_FORMAT_INVERSE (YARPString& name)
-{
-#if defined(__WIN32__)
-
-	return false;
-
-#elif defined(__QNX6__)
-
-#error "the CONVERT_FORMAT function has not been implemented yet!"
-	return false;
-
-#elif defined(__LINUX__)
-
-#error "the CONVERT_FORMAT function has not been implemented yet!"
-	return false;
-
-#endif
-}
-
 /// implementation of YARPSocketNameService.
 ///	namer is the global istance of the name service interface class.
 ///	always allocates the output object.
@@ -584,9 +538,9 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 			memset (ports, 0, sizeof(int) * extra_param);
 
 			/// uses the new IP for registration in the name server.
-			YARPString new_ip;
+			YARPString new_ip, new_nic;
 			YARPUniqueNameSock *n = new YARPUniqueNameSock (reg_type);
-			namer.query_nic (reg_addr.get_host_addr(), network_name, new_ip);
+			namer.query_nic (reg_addr.get_host_addr(), network_name, new_nic, new_ip);
 			
 			if (strcmp (new_ip.c_str(), "0.0.0.0") == 0)
 			{
@@ -596,9 +550,7 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 				return NAMER_FAIL;	/// invalid name id.
 			}
 
-			n->setInterfaceName (new_ip);
-			
-			CONVERT_FORMAT (new_ip);
+			n->setInterfaceName (new_nic);
 			reg_addr.set((u_short)0, new_ip.c_str());
 
 			ACE_DEBUG((LM_DEBUG, "registering name %s of (%s) protocol %s\n", name, reg_addr.get_host_addr(), servicetypeConverter(reg_type)));
@@ -635,10 +587,9 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 ///	same machine.
 bool YARPSocketNameService::VerifySame (YARPNameClient& namer, const char *ip, const char *netname, YARPString& if_name)
 {
-	YARPString new_ip;
-	namer.query_nic (ip, netname, new_ip);
-	if_name = new_ip;
-	CONVERT_FORMAT(new_ip);
+	YARPString new_ip, new_nic;
+	namer.query_nic (ip, netname, new_nic, new_ip);
+	if_name = new_nic;
 	if (strcmp (new_ip.c_str(), ip) == 0)
 		return true;
 
@@ -647,12 +598,10 @@ bool YARPSocketNameService::VerifySame (YARPNameClient& namer, const char *ip, c
 
 bool YARPSocketNameService::VerifyLocal (YARPNameClient& namer, const char *rem_ip, const char *loc_ip, const char *netname)
 {
-	YARPString ip1;
-	YARPString ip2;
-	namer.query_nic (rem_ip, netname, ip1);
-	namer.query_nic (loc_ip, netname, ip2);
-	CONVERT_FORMAT(ip1);
-	CONVERT_FORMAT(ip2);
+	YARPString ip1, nic1;
+	YARPString ip2, nic2;
+	namer.query_nic (rem_ip, netname, nic1, ip1);
+	namer.query_nic (loc_ip, netname, nic2, ip2);
 
 	if (strcmp (ip1.c_str(), ip2.c_str()) == 0 && strcmp (ip1.c_str(), "0.0.0.0") != 0)
 		return true;
@@ -791,13 +740,13 @@ YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const
 			char myhostname[YARP_STRING_LEN];
 			getHostname (myhostname, YARP_STRING_LEN);
 			reg_addr.set((u_short)0, myhostname);
-			YARPString new_ip;
-			namer.query_nic (reg_addr.get_host_addr(), network_name, new_ip);
+			YARPString new_ip, new_nic;
+			namer.query_nic (reg_addr.get_host_addr(), network_name, new_nic, new_ip);
 
 			YARPUniqueNameSock *n = new YARPUniqueNameSock (YARP_MCAST);
 
 			n->setName (fullname);
-			n->setInterfaceName (new_ip);
+			n->setInterfaceName (new_nic);
 			n->getAddressRef() = addr;
 
 			return (YARPUniqueNameID *)n;

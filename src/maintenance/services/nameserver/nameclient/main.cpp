@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.12 2003-08-02 07:46:15 gmetta Exp $
+/// $Id: main.cpp,v 1.13 2003-08-29 10:35:10 babybot Exp $
 ///
 ///
 
@@ -203,10 +203,11 @@ void commandLine(YARPNameClient& nc, int argc, char* argv[])
 		 (YARPParseParameters::parse(argc, argv, "ip", ip)) )
 	{
 		YARPString outIp;
-		if (nc.query_nic(ip, netId, outIp) != 0)
+		YARPString outNic;
+		if (nc.query_nic(ip, netId, outNic, outIp) != 0)
 			cout << "Error connecting to the server\n";
 		else
-			cout << ip << " on " << netId << " is " << outIp << endl;
+			cout << ip << " on " << netId << " is " << outNic <<"(" << outIp << ")" << endl;
 
 		ok = true;
 	}
@@ -315,10 +316,11 @@ void interactive(YARPNameClient& nc)
 			YARPString ip;
 			YARPString netId;
 			YARPString outIp;
+			YARPString outNic;
 			cin >> ip;
 			cin >> netId;
-			nc.query_nic(ip, netId, outIp);
-			cout << "Reply:" << outIp;
+			nc.query_nic(ip, netId, outNic, outIp);
+			ACE_OS::printf("Reply: %s(%s)", outNic, outIp);
 			cout << endl;
 		}
 		print_menu();

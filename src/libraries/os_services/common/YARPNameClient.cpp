@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.10 2003-08-12 16:50:52 gmetta Exp $
+/// $Id: YARPNameClient.cpp,v 1.11 2003-08-29 10:35:09 babybot Exp $
 ///
 ///
 
@@ -224,13 +224,13 @@ int YARPNameClient::query_qnx (const YARPString &s, YARPNameQnx &entry, int *typ
 	return ret;
 }
 
-int YARPNameClient::query_nic(const YARPString &inIp, const YARPString &netId, YARPString &outIp)
+int YARPNameClient::query_nic(const YARPString &inIp, const YARPString &netId, YARPString &outNic, YARPString &outIp)
 {
 	int ret = YARP_FAIL;
 	mutex_.Wait();
 	YARPNSNic tmp;
 	tmp.set(inIp, netId);
-	ret = _query_nic(tmp, outIp);
+	ret = _query_nic(tmp, outNic, outIp);
 	mutex_.Post();
 	return ret;
 }
@@ -571,8 +571,9 @@ int YARPNameClient::_query(const YARPString &s, ACE_INET_Addr &addr, int *type)
 	return YARP_OK;
 }
 
-int YARPNameClient::_query_nic(const YARPNSNic &in, YARPString &outIp)
+int YARPNameClient::_query_nic(const YARPNSNic &in, YARPString &outNic, YARPString &outIp)
 {
+	YARPString reply;
 	YARPNameServiceCmd tmpCmd;
 	if (connect_to_server()!=0)
 		return YARP_FAIL;
@@ -595,7 +596,13 @@ int YARPNameClient::_query_nic(const YARPNSNic &in, YARPString &outIp)
 
 	//////////////////////////////////////////
 			
-	_handle_reply(outIp);
+	_handle_reply(reply);
+
+	char tmp1[255];
+	char tmp2[255];
+	sscanf(reply.c_str(), "%s\n%s", tmp1, tmp2);
+	outNic = YARPString(tmp1);
+	outIp = YARPString(tmp2);
 
 	// close the connection
 	close();

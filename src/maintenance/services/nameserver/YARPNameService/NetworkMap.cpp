@@ -31,6 +31,7 @@ int NetworkMap::_load(const YARPString &filename)
 	char row[255];
 	char row1[255];
 	char row2[255];
+	char row3[255];
 
 	while (strcmp(row, "[NETWORK_DESCRIPTION]") != 0)
 	{
@@ -60,6 +61,7 @@ int NetworkMap::_load(const YARPString &filename)
 		{
 			tableEntry tmpTableEntry;
 
+			// network name
 			chk = _readAndCheck(fp, row1);
 			if (chk == -1) // [END], OEF
 			{
@@ -69,6 +71,7 @@ int NetworkMap::_load(const YARPString &filename)
 			else if (chk == 1) // new node
 				break;
 		
+			// nic
 			chk = _readAndCheck(fp, row2);
 			if (chk == -1) // [END], OEF
 			{
@@ -78,8 +81,19 @@ int NetworkMap::_load(const YARPString &filename)
 			else if (chk == 1) // new node
 				break;
 
+			// ip
+			chk = _readAndCheck(fp, row3);
+			if (chk == -1) // [END], OEF
+			{
+				read = false;
+				break;
+			}
+			else if (chk == 1) // new node
+				break;
+
 			tmpTableEntry.netID = YARPString(row1);
-			tmpTableEntry.ip = YARPString(row2);
+			tmpTableEntry.nic = YARPString(row2);
+			tmpTableEntry.ip = YARPString(row3);
 
 			tmpMapEntry.table.push_back(tmpTableEntry);
 		}
@@ -144,7 +158,7 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 	if ( !(foundNode && foundNet) )
 	{
 		outIp = "0.0.0.0";		// nothing was found, return 0.0.0.0
-		outNic = "not found";	// nothing was found, return "not found"
+		outNic = "not_found";	// nothing was found, return "not found"
 	}
 	else
 	{

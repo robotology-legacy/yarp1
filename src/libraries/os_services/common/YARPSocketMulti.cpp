@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.20 2003-08-28 21:23:02 babybot Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.21 2003-08-29 10:35:10 babybot Exp $
 ///
 ///
 
@@ -290,7 +290,9 @@ class _SocketThreadListMulti : public YARPThread
 private:
 	ACE_INET_Addr _local_addr;						/// local address of the acceptor.
 	ACE_SOCK_Acceptor _acceptor_socket;				/// the acceptor TCP socket.
+	
 	YARPString _interface;							/// name of the interface (IP or symbolic).
+///	YARPString _ipaddr;								/// ip address of the <_interface>.
 
 	YARPList<_SocketThreadMulti *> _list;				/// managed list of threads.
 	YARPSemaphore _new_data, _new_data_written;
@@ -407,6 +409,7 @@ public:
 	}
 
 	void setInterfaceName (const YARPString& name) { _interface = name; }
+///	void setIpAddress (const YARPString& ip) { _ipaddr = ip; }
 };
 
 
@@ -578,8 +581,7 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 		case YARP_MCAST:
 			{
-				YARPString myhostip = _remote_endpoint.getInterfaceName();
-				YARPSocketNameService::CONVERT_FORMAT (myhostip);
+				YARPString myhostip = _remote_endpoint.getAddressRef().get_host_addr();
 				ACE_INET_Addr local (port, myhostip.c_str());
 
 				///char myhostname[YARP_STRING_LEN];
@@ -616,8 +618,7 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 		case YARP_UDP:
 			{
-				YARPString myhostip = _remote_endpoint.getInterfaceName();
-				YARPSocketNameService::CONVERT_FORMAT (myhostip);
+				YARPString myhostip = _remote_endpoint.getAddressRef().get_host_addr();
 				ACE_INET_Addr local (port, myhostip.c_str());
 
 				///char myhostname[YARP_STRING_LEN];
@@ -1845,16 +1846,18 @@ void _SocketThreadListMulti::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				YARPUniqueNameSock temp(YARP_TCP); ///, incoming);
 				temp.setInterfaceName (_interface);
+				temp.getAddressRef().set ((u_short)0, _local_addr.get_host_addr());
 
 				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_UDP, ACE_INET_Addr(port_number)), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
-				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				YARPUniqueNameSock temp(YARP_TCP); ///, incoming);
 				temp.setInterfaceName (_interface);
+				temp.getAddressRef().set ((u_short)0, _local_addr.get_host_addr());
 
 				(*it_avail)->CleanState ();
 				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_UDP, ACE_INET_Addr(port_number)), port_number);
@@ -1947,16 +1950,18 @@ void _SocketThreadListMulti::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				YARPUniqueNameSock temp(YARP_TCP); ///, incoming);
 				temp.setInterfaceName (_interface);
+				temp.getAddressRef().set ((u_short)0, _local_addr.get_host_addr());
 
 				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_MCAST, group), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
-				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				YARPUniqueNameSock temp(YARP_TCP); ///, incoming);
 				temp.setInterfaceName (_interface);
+				temp.getAddressRef().set ((u_short)0, _local_addr.get_host_addr());
 
 				(*it_avail)->CleanState ();
 				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_MCAST, group), port_number);
@@ -2029,8 +2034,9 @@ void _SocketThreadListMulti::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				YARPUniqueNameSock temp(YARP_TCP); ///, incoming);
 				temp.setInterfaceName (_interface);
+				temp.getAddressRef().set ((u_short)0, _local_addr.get_host_addr());
 
 				/// need a port number for SHMEM? or can I recycle the same as UDP, 'cause SHMEM messaging is TCP?
 				(*it_avail)->reuse (&temp, &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
@@ -2038,8 +2044,9 @@ void _SocketThreadListMulti::addSocket (void)
 			}
 			else
 			{
-				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				YARPUniqueNameSock temp(YARP_TCP); ///, incoming);
 				temp.setInterfaceName (_interface);
+				temp.getAddressRef().set ((u_short)0, _local_addr.get_host_addr());
 
 				(*it_avail)->CleanState ();
 				(*it_avail)->reuse (&temp, &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
@@ -2119,8 +2126,9 @@ void _SocketThreadListMulti::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				YARPUniqueNameSock temp(YARP_TCP); ///, incoming);
 				temp.setInterfaceName (_interface);
+				temp.getAddressRef().set ((u_short)0, _local_addr.get_host_addr());
 
 				(*it_avail)->setTCPStream (stream);
 				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_TCP, ACE_INET_Addr(port_number)), port_number);
@@ -2128,8 +2136,9 @@ void _SocketThreadListMulti::addSocket (void)
 			}
 			else
 			{
-				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				YARPUniqueNameSock temp(YARP_TCP); ///, incoming);
 				temp.setInterfaceName (_interface);
+				temp.getAddressRef().set ((u_short)0, _local_addr.get_host_addr());
 
 				(*it_avail)->CleanState ();
 				(*it_avail)->setTCPStream (stream);

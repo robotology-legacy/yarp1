@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketNameService.h,v 1.14 2003-08-28 21:23:03 babybot Exp $
+/// $Id: YARPSocketNameService.h,v 1.15 2003-08-29 10:35:10 babybot Exp $
 ///
 ///
 
@@ -106,12 +106,6 @@ public:
 
 	/// verifies <rem_ip> and <loc_ip> belong to the same machine.
 	static bool VerifyLocal (YARPNameClient& namer, const char *rem_ip, const char *loc_ip, const char *netname);
-
-	/// convert interfaces (ifname -> IP).
-	static bool CONVERT_FORMAT (YARPString& name);
-
-	/// convert inverse (IP -> ifname).
-	static bool CONVERT_FORMAT_INVERSE (YARPString& name);
 };
 
 

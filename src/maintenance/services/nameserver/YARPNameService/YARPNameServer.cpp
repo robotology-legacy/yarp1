@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.22 2003-08-22 12:31:36 beltran Exp $
+/// $Id: YARPNameServer.cpp,v 1.23 2003-08-29 10:35:10 babybot Exp $
 ///
 ///
 
@@ -263,8 +263,13 @@ void YARPNameServer::handle_query_qnx(const YARPString &name)
 void YARPNameServer::handle_nic_query(const YARPString &ip, const YARPString &netId)
 {
 	YARPString reply;
-	nmap.findIp(ip, netId, reply);
-	NAME_SERVER_DEBUG(("Reply: %s on %s is %s\n", ip.c_str(), netId.c_str(), reply.c_str()));
+	YARPString outIp;
+	YARPString nic;
+	nmap.findIp(ip, netId, nic, outIp);
+	NAME_SERVER_DEBUG(("Reply: %s on %s is %s(%s)\n", ip.c_str(), netId.c_str(), nic.c_str(), outIp.c_str()));
+	reply = nic;
+	reply.append("\n");
+	reply.append(outIp);
 	_handle_reply(reply);
 }
 
