@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.cpp,v 1.2 2003-06-05 10:51:11 gmetta Exp $
+/// $Id: YARPSimpleOperations.cpp,v 1.3 2003-06-09 12:11:13 gmetta Exp $
 ///
 ///
 
@@ -73,9 +73,9 @@
 
 void YARPSimpleOperation::Scale (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out, double scale)
 {
-	assert (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
-	assert (in.GetWidth() == out.GetWidth() && in.GetHeight() == out.GetHeight());
-	assert (scale <= 1 && scale >= 0);
+	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
+	ACE_ASSERT (in.GetWidth() == out.GetWidth() && in.GetHeight() == out.GetHeight());
+	ACE_ASSERT (scale <= 1 && scale >= 0);
 
 	const int csize = out.GetIplPointer()->imageSize;
 	char *tmpo = out.GetIplPointer()->imageData;
@@ -87,3 +87,22 @@ void YARPSimpleOperation::Scale (const YARPImageOf<YarpPixelMono>& in, YARPImage
 		*tmpo = char(*tmpi * scale);
 	}
 }
+
+void YARPSimpleOperation::Flip (const YARPGenericImage& in, YARPGenericImage& out)
+{
+	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
+	ACE_ASSERT (in.GetWidth() == out.GetWidth() && in.GetHeight() == out.GetHeight());
+
+	const int w = out.GetAllocatedLineSize();
+	const int h = out.GetHeight();
+	
+	char *tmpo = out.GetIplPointer()->imageData + out.GetAllocatedDataSize() - w;
+	char *tmpi = in.GetIplPointer()->imageData;
+
+	int i;
+	for (i = 0; i < h; i++, tmpi += w, tmpo -= w)
+	{
+		memcpy (tmpo, tmpi, w);
+	}
+}
+

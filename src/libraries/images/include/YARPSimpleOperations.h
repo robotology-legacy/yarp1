@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.h,v 1.2 2003-06-05 10:51:10 gmetta Exp $
+/// $Id: YARPSimpleOperations.h,v 1.3 2003-06-09 12:11:13 gmetta Exp $
 ///
 ///
 
@@ -90,7 +90,8 @@ class YARPSimpleOperation
 {
 public:
 	static void Scale (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out, double scale);
-	
+	static void Flip (const YARPGenericImage& in, YARPGenericImage& out);
+
 	inline static void Fill (YARPGenericImage &img, int value)
 	{
 		// image type is not checked!
