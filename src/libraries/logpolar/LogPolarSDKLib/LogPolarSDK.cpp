@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.34 2004-02-04 16:10:22 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.35 2004-02-04 17:44:27 fberton Exp $
 ///
 ///
 
@@ -158,7 +158,7 @@ Image_Data Set_Param(int SXO,
 	image.Fovea_Type = 0;
 	image.Ratio = 1.00;
 	image.dres = (double) image.Resolution;
-
+	image.Fovea_Display_Mode = 0;
 
 	return image;
 }
@@ -251,7 +251,7 @@ int Get_Rho(double x,
 
 /************************************************************************
 * Get_XY_Center  														*
-***********************************************************************	
+************************************************************************/
 int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, double *Ang_Shift)
 {
 	double scalefactor;
@@ -306,7 +306,7 @@ int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, d
 	return 0;
 }
 
-*/
+
 
 /************************************************************************
 * Get_X_Center  														*

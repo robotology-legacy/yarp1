@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.29 2004-02-04 16:10:22 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.30 2004-02-04 17:44:28 fberton Exp $
 ///
 ///
 
@@ -123,6 +123,7 @@ struct Image_Data{
 	int Size_LP;
 	int Fovea_Type; //0->3 Giotto 2.0; 4->7 Giotto 2.1 //0;4 Sawtooth (Raw); 1;5 Triangular; 2;6 Complete
 	int Pix_Numb;
+	int Fovea_Display_Mode;
 
 	// Remapped Cartesian Metrics
 	int Size_X_Remap;
