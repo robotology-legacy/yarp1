@@ -150,6 +150,8 @@ public:
 
 	void ready()
 	{
+		if (readyF)
+			return;
 		_setPositions(startPosition);
 		YARPTime::DelayInSeconds(3.0);
 		readyF = true;
@@ -186,15 +188,17 @@ public:
 			return;
 
 		inhibit();
+		readyF=false;
 		arm->stopMotion();
 	}
 
 	void park()
 	{
+		stopArm();
 		readyF = false;
 		printf("Parking arm...");
 		_setPositions(startPosition);
-		YARPTime::DelayInSeconds(3.0);
+		YARPTime::DelayInSeconds(4.0);
 		_setPositions(homePosition);
 		YARPTime::DelayInSeconds(3.0);
 		printf("done!\n");
@@ -305,7 +309,7 @@ int main()
 	arm.activatePID();
 	YARPTime::DelayInSeconds(2.0);
 
-	controller.ready();
+	// controller.ready();
 
 	printf("Listening...\n");
 
@@ -337,12 +341,18 @@ int main()
 					else if (iTmp==1)
 					{
 						// start arm
+						controller.ready();
 						controller.start();	// wait
 					}
 					else if (iTmp==3)
 					{
-						// exit
-						exit = true;
+						controller.stopArm();
+						controller.ready();
+						
+					}
+					else if (iTmp==4)
+					{
+						controller.park();
 					}
 				}
 				else

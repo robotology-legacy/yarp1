@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.4 2005-03-03 03:36:08 natta Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.5 2005-03-19 23:41:44 natta Exp $
 ///
 ///
 
@@ -68,6 +68,8 @@ enum ControlBoardCmd
 	CMDSetSpeed				= 0,	// set the reference speed for position control.
 	CMDSetSpeeds 			= 5,	// see above, all axes.
 	CMDGetSpeeds			= 21,	// istantaneous speed, read from encoders.
+	CMDGetSpeed				= 87,	// istantaneous speed, read from encoder (single joint)
+	CMDGetAccelerations		= 90,   // istantaneous acc, from encoders
 	CMDSetAcceleration 		= 2,	// reference acceleration for position and velocity control.
 	CMDSetAccelerations 	= 7,	// see above, all axes.
 
@@ -108,6 +110,8 @@ enum ControlBoardCmd
 	CMDSetTorqueLimits 		= 28,	// torque limit, all axes.
 	CMDGetTorqueLimit		= 60,   // get torque limit, single joint
 	CMDGetTorqueLimits		= 61,   // get torque limit, multiple joints
+	CMDGetPWM				= 88,	// get pwm output
+	CMDGetPWMs				= 89,	// get pwm output multiple joints
 
 	//
 	// actual motion commands.
@@ -192,7 +196,7 @@ enum ControlBoardCmd
 	// Make sure the CBNCmds is always up to date.
 	//
 	CMDDummy 				= 63,	// dummy command for debug purposes.
-	CBNCmds 				= 87 	// required! tells the total number of commands
+	CBNCmds 				= 91 	// required! tells the total number of commands
 };
 
 

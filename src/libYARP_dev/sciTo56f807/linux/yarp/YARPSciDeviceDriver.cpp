@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.cpp,v 1.8 2005-03-03 23:07:33 natta Exp $
+/// $Id: YARPSciDeviceDriver.cpp,v 1.9 2005-03-19 23:41:44 natta Exp $
 ///
 ///
 
@@ -54,11 +54,25 @@ YARPSciDeviceDriver::YARPSciDeviceDriver(void)
 	m_cmds[CMDGetPositions] = &YARPSciDeviceDriver::getPositions;
 	m_cmds[CMDSetPositionControlMode] = &YARPSciDeviceDriver::setPositionMode;
 	m_cmds[CMDSetPosition] = &YARPSciDeviceDriver::setPosition;
+	m_cmds[CMDGetSpeeds] = &YARPSciDeviceDriver::getSpeeds;
+	m_cmds[CMDGetAccelerations] = &YARPSciDeviceDriver::getAccelerations;
+	m_cmds[CMDGetSpeed] = &YARPSciDeviceDriver::getSpeed;
+	m_cmds[CMDGetTorque] = &YARPSciDeviceDriver::getTorque;
+	m_cmds[CMDGetTorques] = &YARPSciDeviceDriver::getTorques;
+	m_cmds[CMDGetPWMs] = &YARPSciDeviceDriver::getPWMs;
+	m_cmds[CMDGetPWM] = &YARPSciDeviceDriver::getPWM;
+	m_cmds[CMDReadAnalog] = &YARPSciDeviceDriver::readAnalog;
+	m_cmds[CMDServoHere] = &YARPSciDeviceDriver::servoHere;
+
+	_nj = 0;
+
+	_tmpDouble = NULL;
 }
 
 YARPSciDeviceDriver::~YARPSciDeviceDriver ()
 {
-	
+	if (_tmpDouble != NULL)
+		delete [] _tmpDouble;
 }
 
 int YARPSciDeviceDriver::open (void *res)
@@ -66,8 +80,15 @@ int YARPSciDeviceDriver::open (void *res)
 	_mutex.Wait();
 
 	SciOpenParameters *par = (SciOpenParameters *)(res);
+	_nj = par->_njoints;
 	int ret = _serialPort.open(par->_portname);
 
+	ACE_ASSERT (_nj==__nj);	// LATER: remove this and __nj
+	
+	if (_tmpDouble != NULL)
+		delete [] _tmpDouble;
+	_tmpDouble = new double[_nj];
+	
 	_mutex.Post();
 
 	return ret;
@@ -79,8 +100,12 @@ int YARPSciDeviceDriver::close (void)
 
 	int ret = _serialPort.close();
 	
-	_mutex.Post();
+	if (_tmpDouble != NULL)
+		delete [] _tmpDouble;
 
+	_tmpDouble = NULL;
+
+	_mutex.Post();
 	return ret;
 }
 
@@ -93,7 +118,7 @@ int YARPSciDeviceDriver::getPosition(void *cmd)
 
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_ADC));
 
-	ret = _readWord(SCI_READ_POTENTIOMETERS, axis, value);
+	ret = _readUWord(SCI_READ_ANALOG, axis, value);
 	// if ret != YARP_OK value == 0, so no need to check ret
 	*((double *)tmp->parameters) = (double) (value);
 	
@@ -105,11 +130,11 @@ int YARPSciDeviceDriver::getPositions(void *cmd)
 	int ret;
 	ACE_ASSERT (cmd!=NULL);
 	double *tmp = (double *) cmd;
-	ret = _readVector(SCI_READ_POSITIONS_0TO3, tmp, 4);
+	ret = _readU16Vector(SCI_READ_POSITIONS_0TO3, tmp, 4);
+	if (ret == YARP_FAIL)
+		return YARP_FAIL;
 
-//	YARPTime::DelayInSeconds(0.3);
-	
-	ret = _readVector(SCI_READ_POSITIONS_4TO5, tmp+4, 2);
+	ret = _readU16Vector(SCI_READ_POSITIONS_4TO5, tmp+4, 2);
 	return ret;
 }
 
@@ -146,7 +171,187 @@ int YARPSciDeviceDriver::setPosition(void *cmd)
 	return ret;
 }
 
-int YARPSciDeviceDriver::_readVector(char msg, double *v, int n)
+int YARPSciDeviceDriver::getPWM(void *cmd)
+{
+	int ret;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+
+	ACE_ASSERT (axis >= 0 && axis <= __nj);
+
+	ret = _readPWMGroup(SCI_READ_PWMS_0TO2, _tmpDouble, 3);
+	if (ret == YARP_FAIL)
+		return YARP_FAIL;
+
+	ret = _readPWMGroup(SCI_READ_PWMS_3TO5, _tmpDouble+3, 3);
+	// if ret != YARP_OK _tmpDouble[..] = 0, so no need to check ret
+	*((double *)tmp->parameters) = _tmpDouble[axis];
+	return ret;
+}
+
+int YARPSciDeviceDriver::getPWMs(void *cmd)
+{	
+	int ret;
+	double * tmp = (double *) cmd;
+
+	ret = _readPWMGroup(SCI_READ_PWMS_0TO2, tmp, 3);
+	if (ret == YARP_FAIL)
+		return YARP_FAIL;
+
+	ret = _readPWMGroup(SCI_READ_PWMS_3TO5, tmp+3, 3);
+
+	// if ret != YARP_OK tmp[..] = 0, so no need to check ret
+	return ret;
+}
+
+
+int YARPSciDeviceDriver::getTorque(void *cmd)
+{
+	int ret;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+
+	ACE_ASSERT (axis >= 0 && axis <= __nj);
+
+	ret = _readS16Vector(SCI_READ_TORQUES_0TO3, _tmpDouble, 4);
+	if (ret == YARP_FAIL)
+		return YARP_FAIL;
+
+	ret = _readS16Vector(SCI_READ_TORQUES_4TO5, _tmpDouble+4, 2);
+	
+	*((double *)tmp->parameters) = _tmpDouble[axis];
+	
+	return YARP_OK;
+}
+
+
+int YARPSciDeviceDriver::getTorques(void *cmd)
+{
+	int ret;
+	ACE_ASSERT (cmd!=NULL);
+	double *tmp = (double *) cmd;
+
+	ret = _readS16Vector(SCI_READ_TORQUES_0TO3, tmp, 4);
+	if (ret == YARP_FAIL)
+		return YARP_FAIL;
+
+	ret = _readS16Vector(SCI_READ_TORQUES_4TO5, tmp+4, 2);
+
+	return YARP_OK;
+}
+
+int YARPSciDeviceDriver::readAnalog(void *cmd)
+{
+	int ret;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	int value;
+
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_ADC));
+
+	ret = _readUWord(SCI_READ_ANALOG, axis, value);
+	// if ret != YARP_OK value == 0, so no need to check ret
+	*((double *)tmp->parameters) = (double) (value);
+	return ret;
+}
+
+int YARPSciDeviceDriver::getSpeed(void *cmd)
+{
+	int ret;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+
+	ret = _readS16Vector(SCI_READ_SPEEDS_0TO3, _tmpDouble, 4);
+	if (ret == YARP_FAIL)
+		return YARP_FAIL;
+
+	ret = _readS16Vector(SCI_READ_SPEEDS_4TO5, _tmpDouble+4, 2);
+
+	*((double *)tmp->parameters) = (double) _tmpDouble[axis];
+	return ret;
+}
+
+int YARPSciDeviceDriver::getSpeeds(void *cmd)
+{
+	int ret;
+	ACE_ASSERT (cmd!=NULL);
+	double *tmp = (double *) cmd;
+	ret = _readS16Vector(SCI_READ_SPEEDS_0TO3, tmp, 4);
+	if (ret == YARP_FAIL)
+		return YARP_FAIL;
+
+	ret = _readS16Vector(SCI_READ_SPEEDS_4TO5, tmp+4, 2);
+	return YARP_OK;
+}
+
+int YARPSciDeviceDriver::getAccelerations(void *cmd)
+{
+	int ret;
+	ACE_ASSERT (cmd!=NULL);
+	double *tmp = (double *) cmd;
+
+	ret = _readS16Vector(SCI_READ_ACCS_0TO3, tmp, 4);
+	if (ret == YARP_FAIL)
+		return YARP_FAIL;
+
+	ret = _readS16Vector(SCI_READ_ACCS_4TO5, tmp+4, 2);
+
+	return YARP_OK;
+}
+
+int YARPSciDeviceDriver::servoHere(void *cmd)
+{
+	int ret;
+
+	ret = _writeWord(SCI_STOP);
+
+	return ret;
+}
+
+int YARPSciDeviceDriver::_readPWMGroup(char msg, double *v, int n)
+{
+	int ret;
+	
+	_serialPort._rawData2Send[0] = msg;
+	ret = _serialPort.writeFormat2bytes();
+
+	if (ret != YARP_OK)
+	{
+		for (int i = 0; i < n; i++)
+			v[i] = 0.0;
+		return ret;
+	}
+
+	ret = _serialPort.readFormat2bytes();
+
+	if (ret != YARP_OK)
+	{
+		for (int i = 0; i <n; i++)
+			v[i] = 0.0;
+		return YARP_FAIL;
+	}
+	else
+	{
+		// ok read pwms
+		int jj;	// we skip the first byte, which is always 0
+		char signs = _serialPort._dataIn[1];
+		jj = 2;
+		char mask = 0x04;
+		for (int i = 0; i < n; i++)
+		{	
+			if (signs&mask) 
+				v[i] = _serialPort._dataIn[jj]+_serialPort._dataIn[jj+1]*256;
+			else
+				v[i] = -(_serialPort._dataIn[jj]+_serialPort._dataIn[jj+1]*256);
+			
+			jj+=2;
+		}
+		
+		return YARP_OK;
+	}
+}
+
+int YARPSciDeviceDriver::_readS16Vector(char msg, double *v, int n)
 {
 	int ret;
 
@@ -174,14 +379,49 @@ int YARPSciDeviceDriver::_readVector(char msg, double *v, int n)
 		int jj = 0;
 		for (int i = 0; i <n; i++)
 		{
-			v[i] = _serialPort._dataIn[jj]+_serialPort._dataIn[jj+1]*256;
+			v[i] = (short)(_serialPort._dataIn[jj]+_serialPort._dataIn[jj+1]*256);
 			jj+=2;
 		}
 		return YARP_OK;
 	}
 }
 
-int YARPSciDeviceDriver::_readWord(char msg, char joint, int &value)
+int YARPSciDeviceDriver::_readU16Vector(char msg, double *v, int n)
+{
+	int ret;
+
+	_serialPort._rawData2Send[0] = msg;
+
+	ret = _serialPort.writeFormat2bytes();
+
+	if (ret != YARP_OK)
+	{
+		for (int i = 0; i <n; i++)
+			v[i] = -1.0;
+		return ret;
+	}
+
+	ret = _serialPort.readFormat2bytes();
+
+	if (ret != YARP_OK)
+	{
+		for (int i = 0; i <n; i++)
+			v[i] = -1.0;
+		return YARP_FAIL;
+	}
+	else
+	{
+		int jj = 0;
+		for (int i = 0; i <n; i++)
+		{
+			v[i] = (_serialPort._dataIn[jj]+_serialPort._dataIn[jj+1]*256);
+			jj+=2;
+		}
+		return YARP_OK;
+	}
+}
+
+int YARPSciDeviceDriver::_readSWord(char msg, char joint, int &value)
 {
 	int ret;
 
@@ -205,7 +445,36 @@ int YARPSciDeviceDriver::_readWord(char msg, char joint, int &value)
 	}
 	else
 	{
-		value = _serialPort._dataIn[0]+_serialPort._dataIn[1]*256;
+		value = (short)(_serialPort._dataIn[0]+_serialPort._dataIn[1]*256);
+		return YARP_OK;
+	}
+}
+
+int YARPSciDeviceDriver::_readUWord(char msg, char joint, int &value)
+{
+	int ret;
+
+	_serialPort._rawData2Send[0] = msg;
+	_serialPort._rawData2Send[1] = joint;
+
+	ret = _serialPort.writeFormat2bytes();
+
+	if (ret != YARP_OK)
+	{
+		value = -1;
+		return ret;
+	}
+
+	ret = _serialPort.readFormat2bytes();
+
+	if (ret != YARP_OK)
+	{
+		value = 0;
+		return YARP_FAIL;
+	}
+	else
+	{
+		value = (_serialPort._dataIn[0]+_serialPort._dataIn[1]*256);
 		return YARP_OK;
 	}
 }
@@ -218,6 +487,9 @@ int YARPSciDeviceDriver::_writeWord(char msg, char joint)
 	_serialPort._rawData2Send[1] = joint;
 
 	ret = _serialPort.writeFormat2bytes();
+
+	// given the protocol for each write we have a read back
+	ret = _serialPort.readFormat2bytes();
 
 	return ret;
 }
@@ -232,6 +504,21 @@ int YARPSciDeviceDriver::_writeWord(char msg, char joint, int value)
 	_serialPort._rawData2Send[3] = (value>>8);
 
 	ret = _serialPort.writeFormat2bytes();
+	// given the protocol for each write we have a read back
+	ret = _serialPort.readFormat2bytes();
+
+	return ret;
+}
+
+int YARPSciDeviceDriver::_writeWord(char msg)
+{
+	int ret;
+
+	_serialPort._rawData2Send[0] = msg;
+	
+	ret = _serialPort.writeFormat2bytes();
+	// given the protocol for each write we have a read back
+	ret = _serialPort.readFormat2bytes();
 
 	return ret;
 }

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.10 2005-03-10 21:37:48 natta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.11 2005-03-19 23:41:44 natta Exp $
 ///
 ///
 
@@ -165,8 +165,13 @@ public:
 	int initialize(const YARPString &path, const YARPString &init_file)
 	{
 		_lock();
-		_parameters.load(path, init_file);
-		int ret = _initialize();
+		int ret = _parameters.load(path, init_file);
+		if (ret==YARP_FAIL)
+		{
+			_unlock();
+			return ret;
+		}
+		ret = _initialize();
 		_unlock();
 		return ret;
 	}
@@ -230,8 +235,8 @@ public:
 	 * Sets the software limits for a given axis: many control cards allow for 
 	 * checking limits directly inside the PID loop.
 	 * @param axis is axis to change/set the limits for.
-	 * @param min is the minimum value of the joint position in radians.
-	 * @param max is the maximum value of the joint position in radians.
+	 * @param min is the minimum value of the joint position in degrees.
+	 * @param max is the maximum value of the joint position in degrees.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
 	int setSoftwareLimits (int axis, double min, double max)
@@ -269,8 +274,8 @@ public:
 	 * Gets the software limits for a given axis: many control cards allow for 
 	 * checking limits directly inside the PID loop.
 	 * @param axis is axis to change/set the limits for.
-	 * @param min is the minimum value of the joint position in radians.
-	 * @param max is the maximum value of the joint position in radians.
+	 * @param min is the minimum value of the joint position in degrees.
+	 * @param max is the maximum value of the joint position in degrees.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
 	int getSoftwareLimits (int axis, double& min, double& max)
@@ -413,6 +418,20 @@ public:
 	}
 
 	/**
+	 * Reads the analog input of the card.
+	 * @param index is the analog input number
+ 	 * @param val is the return value
+	 * @return YARP_OK on success.
+	 */
+	int readAnalog(int index, double *val)
+	{
+		_lock();
+		int ret = _adapter.readAnalog(index, val);
+		_unlock();
+		return ret;
+	}
+
+	/**
 	 * Uninitializes the control board and frees memory.
 	 * This function does all what the destructor has to do.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
@@ -444,7 +463,7 @@ public:
 
 	/**
 	 * Moves all axes to a certain position.
-	 * @param pos an array of double precision number specifying the position in radians.
+	 * @param pos an array of double precision number specifying the position in degrees.
 	 * @return YARP_OK on success.
 	 */
 	int setPositions(const double *pos)
@@ -465,7 +484,7 @@ public:
 	 * Moves a specific joint to a certain position by employing some
 	 * predefined trajectory profile (trapezoidal typically).
 	 * @param i the axis to be moved.
-	 * @param pos the final position in radians.
+	 * @param pos the final position in degrees.
 	 * @return YARP_OK on success.
 	 */
 	int setPosition(int i, double pos)
@@ -480,7 +499,7 @@ public:
 								 _parameters._zeros[i],
 								 (int) _parameters._signs[i]);
 			cmd.parameters = &pos;
-
+			
 			_adapter.IOCtl(CMDSetPosition, &cmd);
 			_unlock();
 
@@ -515,7 +534,7 @@ public:
 	/**
 	 * Sets the speed for successive position movements: single axis version.
 	 * @param i is the axis to be controlled.
-	 * @param vel is the joint speed expressed in radians/s.
+	 * @param vel is the joint speed expressed in degrees/s.
 	 * @return YARP_OK on success.
 	 */
 	int setVelocity(int i, double vel)
@@ -551,6 +570,7 @@ public:
 	int setAccs(const double *acc)
 	{
 		_lock();
+		int ret;
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
 			_temp_double[_parameters._axis_map[i]] = angleToEncoder(acc[i],
@@ -559,19 +579,20 @@ public:
 											(int) _parameters._signs[i]);
 		}
 
-		_adapter.IOCtl(CMDSetAccelerations, _temp_double);
+		ret = _adapter.IOCtl(CMDSetAccelerations, _temp_double);
 		_unlock();
-		return -1;
+		return ret;
 	}
 
 	/**
 	 * Starts a velocity motion of all joints.
 	 * @param vel is an array of double precision values representing
-	 * the speed of each joint. Speed is in radians/s.
+	 * the speed of each joint. Speed is in degrees/s.
 	 * @return -1 always (I wonder why). 
 	 */
 	int velocityMove(const double *vel)
 	{
+		int ret;
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
@@ -581,9 +602,9 @@ public:
 											(int) _parameters._signs[i]);
 		}
 
-		_adapter.IOCtl(CMDVMove, _temp_double);
+		ret = _adapter.IOCtl(CMDVMove, _temp_double);
 		_unlock();
-		return -1;
+		return ret;
 	}
 
 
@@ -593,11 +614,12 @@ public:
 	 * control card although it's safe to be called, it'll revert to a velocityMove()
 	 * if this feature is not supported.
 	 * @param vel is an array of double precision values representing
-	 * the speed of each joint. Speed is in radians/s.
+	 * the speed of each joint. Speed is in degrees/s.
 	 * @return -1 always (I wonder why). 
 	 */
 	int safeVelocityMove(const double *vel)
 	{
+		int ret;
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
@@ -607,9 +629,9 @@ public:
 											(int) _parameters._signs[i]);
 		}
 
-		_adapter.IOCtl(CMDSafeVMove, _temp_double);
+		ret = _adapter.IOCtl(CMDSafeVMove, _temp_double);
 		_unlock();
-		return -1;
+		return ret;
 	}
 
 	/**
@@ -617,11 +639,12 @@ public:
 	 * the commanded position abruptly will generate a possibly fast and high-acceleration
 	 * movement of the joint. Make sure you know the value of the
 	 * new reference position with respect to the actual position of the axis.
-	 * @param pos is the array containing the position values in radians.
+	 * @param pos is the array containing the position values in degrees.
 	 * @return -1 always.
 	 */
 	int setCommands(const double *pos)
 	{
+		int ret;
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
@@ -631,9 +654,18 @@ public:
 											(int) _parameters._signs[i]);
 		}
 
-		_adapter.IOCtl(CMDSetCommands, _temp_double);
+		ret = _adapter.IOCtl(CMDSetCommands, _temp_double);
 		_unlock();
-		return -1;
+		return ret;
+	}
+
+	int stopMotion()
+	{
+		int ret;
+		_lock();
+			ret = _adapter.IOCtl(CMDServoHere, NULL);
+		_unlock();
+		return ret;
 	}
 
 	/**
@@ -670,23 +702,26 @@ public:
 	/**
 	 * Gets the position (angle) of all joints.
 	 * @param pos is an array to contain the joint angles. Joint angles are measured
-	 * in radians.
+	 * in degrees.
 	 * @return -1 always.
 	 */
+
 	int getPositions(double *pos)
 	{
+		int ret;
 		_lock();
-		_adapter.IOCtl(CMDGetPositions, _temp_double);
+		ret = _adapter.IOCtl(CMDGetPositions, _temp_double);
+		int j;
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
-			pos[_parameters._inv_axis_map[i]] = encoderToAngle(_temp_double[i],
-												_parameters._encoderToAngles[i],
-												_parameters._zeros[i],
-												(int) _parameters._signs[i]);
-		
+			j = _parameters._inv_axis_map[i];
+			pos[j] = encoderToAngle(_temp_double[i],
+									_parameters._encoderToAngles[j],
+									_parameters._zeros[j],
+									(int) _parameters._signs[j]);
 		}
 		_unlock();
-		return -1;
+		return ret;
 	}
 
 	/**
@@ -696,8 +731,9 @@ public:
 	 */
 	int getVelocities(double *vel)
 	{
+		int ret;
 		_lock();
-		_adapter.IOCtl(CMDGetSpeeds, _temp_double);
+		ret = _adapter.IOCtl(CMDGetSpeeds, _temp_double);
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
 			vel[_parameters._inv_axis_map[i]] = encoderToAngle(_temp_double[i],
@@ -707,18 +743,19 @@ public:
 		
 		}
 		_unlock();
-		return -1;
+		return ret;
 	}
 
 	/**
 	 * Gets the acceleration set point for all joints.
-	 * @param accs is an array to receive the acceleration values (radians/s^2).
+	 * @param accs is an array to receive the acceleration values (degrees/s^2).
 	 * @return -1 always.
 	 */
 	int getAccs(double *accs)
 	{
+		int ret;
 		_lock();
-		_adapter.IOCtl(CMDGetRefAccelerations, _temp_double);
+		ret = _adapter.IOCtl(CMDGetRefAccelerations, _temp_double);
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
 			accs[_parameters._inv_axis_map[i]] = encoderToAngle(_temp_double[i],
@@ -728,7 +765,29 @@ public:
 		
 		}
 		_unlock();
-		return -1;
+		return ret;
+	}
+
+	/**
+	 * Gets istantaneous acceleration set point for all joints.
+	 * @param accs is an array to receive the acceleration values (degrees/s^2).
+	 * @return -1 always.
+	 */
+	int getIstAccs(double *accs)
+	{
+		int ret;
+		_lock();
+		ret = _adapter.IOCtl(CMDGetAccelerations, _temp_double);
+		for (int i = 0; i < _parameters._nj; i++) 
+		{
+			accs[_parameters._inv_axis_map[i]] = encoderToAngle(_temp_double[i],
+												_parameters._encoderToAngles[i],
+												0.0,
+												(int) _parameters._signs[i]);
+		
+		}
+		_unlock();
+		return ret;
 	}
 
 	/**
@@ -741,14 +800,15 @@ public:
 	 */
 	int getTorques(double *t)
 	{
+		int ret;
 		_lock();
-		_adapter.IOCtl(CMDGetTorques, _temp_double);
+		ret = _adapter.IOCtl(CMDGetTorques, _temp_double);
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
 			t[_parameters._inv_axis_map[i]] = _temp_double[i];		
 		}
 		_unlock();
-		return -1;
+		return ret;
 	}
 
 	/**
@@ -760,7 +820,8 @@ public:
 	 */
 	int resetEncoders(const double *pos = NULL)
 	{
-	    _lock();
+	    int ret;
+		_lock();
 		for(int i = 0; i < _parameters._nj; i++)
 		{
 			if (pos == NULL)
@@ -768,9 +829,9 @@ public:
 			else
 				_temp_double[_parameters._axis_map[i]] = pos[i];
 		}
-		_adapter.IOCtl(CMDDefinePositions, _temp_double);
+		ret = _adapter.IOCtl(CMDDefinePositions, _temp_double);
 		_unlock();
-		return -1;
+		return ret;
 	}
 
 	/**
@@ -806,7 +867,7 @@ public:
 	bool incMaxTorques(double delta, double value, int nj);
 
 	/**
-	 * Converts angles in radians into encoder values in ticks.
+	 * Converts angles in degrees into encoder values in ticks.
 	 * @param angle is the angle to be converted.
 	 * @param encParam is the multiplication factor (linear).
 	 * @param zero is the encoder's zero value (i.e. a value in ticks to
@@ -818,14 +879,14 @@ public:
 	inline double angleToEncoder(double angle, double encParam, double zero, int sign);
 
 	/**
-	 * Converts encoder values into angles in radians.
+	 * Converts encoder values into angles in degrees.
 	 * @param encoder is the angle measured in encoder ticks.
 	 * @param encParam is the multiplication factor (linear).
 	 * @param zero is the encoder's zero value (i.e. a value in ticks to
 	 * align the encoder's zero with the actual angular zero.
 	 * @param sign tells whether the encoder counts on the same direction
 	 * as the angle.
-	 * @return the converted value of the angle in radians.
+	 * @return the converted value of the angle in degrees.
 	 */
 	inline double encoderToAngle(double encoder, double encParam, double zero, int sign);
 
@@ -959,9 +1020,9 @@ inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 angleToEncoder(double angle, double encParam, double zero, int sign)
 {
 	if (sign == 1)
-		return -(angle * encParam) / (2.0 * pi) + zero;
+		return -(angle * encParam) / (360) + zero;
 	else
-		return angle * encParam / (2.0 * pi) + zero;
+		return angle * encParam / (360) + zero;
 }
 
 template <class ADAPTER, class PARAMETERS>
@@ -969,9 +1030,9 @@ inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 encoderToAngle(double encoder, double encParam, double zero, int sign)
 {
 	if (sign == 1)
-		return (-encoder - zero) * 2.0 * pi / encParam;
+		return (zero-encoder) * 360 / encParam;
 	else
-		return (encoder - zero) * 2.0 * pi / encParam;
+		return (encoder - zero) * 360 / encParam;
 }
 
 template <class ADAPTER, class PARAMETERS>

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSCIOnObreroArmAdapter.h,v 1.1 2005-03-10 21:37:48 natta Exp $
+/// $Id: YARPSCIOnObreroArmAdapter.h,v 1.2 2005-03-19 23:41:45 natta Exp $
 ///
 ///
 
@@ -88,7 +88,7 @@ namespace _ObreroArm
 	const double _zeros[_nj]			= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 	const int _axis_map[_nj]			= { 4, 5, 0, 3, 1, 2};
 	const double _signs[_nj]			= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+	const double _encoderToAngles[_nj]	= { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
 	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1};
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0};
 	const char   _portNameLength		= 80;
@@ -208,15 +208,16 @@ public:
 	 */
 	int load(const YARPString &path, const YARPString &init_file)
 	{
+		printf("entering YARPObreroArm load\n");
+		
 		YARPConfigFile cfgFile;
+		
 		// set path and filename
 		cfgFile.set(path.c_str(), init_file.c_str());
-		
+
 		// get number of joints
 		if (cfgFile.get("[GENERAL]", "Joints", &_nj, 1) == YARP_FAIL)
-		{
 			return YARP_FAIL;
-		}
 
 		// delete and allocate new memory
 		_realloc(_nj);
@@ -240,7 +241,7 @@ public:
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "AxisMap", _axis_map, _nj) == YARP_FAIL)
 			return YARP_FAIL;
-
+		
 		// invert the axis map.
 		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
 		for (i = 0; i < _nj; i++)
@@ -263,15 +264,14 @@ public:
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "MaxDAC", _maxDAC, _nj) == YARP_FAIL)
 			return YARP_FAIL;
-		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
-			return YARP_FAIL;
-
+	//	if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
+	//		return YARP_FAIL;
 		///////////////// ARM LIMITS
 		if (cfgFile.get("[LIMITS]", "Max", _limitsMax, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 		if (cfgFile.get("[LIMITS]", "Min", _limitsMin, _nj) == YARP_FAIL)
 			return YARP_FAIL;
-
+	
 		// convert limits to radiants
 		for(i = 0; i < _nj; i++)
 		{
@@ -282,7 +282,8 @@ public:
 
 		// build encoder to angles
 		if (cfgFile.get("[GENERAL]", "Encoder", _encoderToAngles, _nj) == YARP_FAIL)
-			return YARP_FAIL;
+				return YARP_FAIL;
+
 		///////////////////////////////////////////////////
 
 		return YARP_OK;
@@ -431,7 +432,7 @@ public:
 
 	/**
 	 * Initializes the adapter and opens the device driver.
-	 * This is a specific initialization for the RobotCub head. NOTE: that the parameter
+	 * This is a specific initialization for the Obrero arm. NOTE: that the parameter
 	 * here is not copied and references to it could still be made by the code. Until
 	 * this behavior is correct, the user has to make sure the pointer doesn't become
 	 * invalid during the lifetime of the adapter class (this one). Generally this is true
@@ -439,7 +440,7 @@ public:
 	 * internally (and their lifetime is related to that of the adapter).
 	 *
 	 * @param par is a pointer to the class containing the parameters that has
-	 * to be exactly YARPRobotcubHeadParameters.
+	 * to be exactly YARPObreroArmParameters.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
 	int initialize(YARPObreroArmParameters *par)
@@ -475,40 +476,41 @@ public:
 	}
 
 	/**
-	 * Disables simultaneously the controller and the amplifier (these are
-	 * usually two separate commands on control cards).
+	 * In the Obrero arm this disables the position controller and enables the zero
+	 * force mode. As a result the arm can be passively controlled.
 	 * @return YARP_OK always.
 	 */
 	int idleMode()
-	{
-		/*
+	{ 
+		int actual_axis;
 		for(int i = 0; i < _parameters->_nj; i++)
 		{
-			int j = _parameters->_axis_map[i];
-			IOCtl(CMDControllerIdle, &j);
-			IOCtl(CMDDisableAmp, &j);
-		}*/
-		return YARP_OK;
+			actual_axis = _parameters->_axis_map[i];
+			SingleAxisParameters cmd;
+			cmd.axis = actual_axis;
+		
+			IOCtl(CMDSetForceControlMode, &cmd);
+		}	
+		return YARP_OK; 
 	}
 
 	/**
 	 * Sets the PID values specified in a second set of parameters 
 	 * typically read from the intialization file.
+	 * Not available on Obrero Arm
 	 * @param reset if true resets the encoders.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
 	int activateLowPID(bool reset = true)
-	{
-		return YARP_OK; //activatePID(reset, _parameters->_lowPIDs);
-	}
+	{ return YARP_OK; }
 
 	/**
-	 * Sets the PID values.
+	 * Sets the PID values. On Obrero this activates the position control
 	 * @param reset if true resets the encoder values to zero.
 	 * @param pids is an array of PID data structures. If NULL the values
 	 * contained into an internal variable are used (presumably read from the
 	 * initialization file) otherwise the actual argument is used.
-	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 * @return YARP_OK always.
 	 */
 	int activatePID(bool reset, LowLevelPID *pids = NULL)
 	{
@@ -526,59 +528,38 @@ public:
 
 	/**
 	 * Reads the analog value from the control card.
-	 * This method is not implemented at the moment.
+	 * This method is not implemented yet
 	 * @return YARP_FAIL always.
 	 */
 	int readAnalogs(double *val)
 	{
-		ACE_UNUSED_ARG(val);
 		return YARP_FAIL;
 	}
 
 	/**
-	 * Moves with constant speed until an obstacle is encountered.
-	 * @param joint is the axis to move.
-	 * @param speed is the desired speed.
-	 * @param accel is the desired accel.
-	 * @return the position of the encoder reached at the moment of impact.
-	 */
-	double speedMove (int joint, double speed, double accel, double threshold)
-	{
-		return 0;
-	}
-
-	/**
-	 * Servos to the position specified.
-	 * @param joint is the joint required.
-	 * @param pos is the position to set the reference to.
-	 * @return YARP_OK always (which doesn't mean it always succeed).
-	 */
-	int servoToPos (int joint, double pos)
-	{
-	   return YARP_FAIL;
-	}
-
-	/**
-	 * Just a generic calibration helper function. WARNING: errors are not handled!
-	 * @param joint is the joint to be calibrated.
-	 * @param offset is the offset with respect to the zero. 
+	 * Reads the analog value from the control card.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
-	int genericCalibrate (int joint, double offset)
+	int readAnalog(int axis, double *val)
 	{
-		return YARP_OK;
+		int ret;
+		SingleAxisParameters cmd;
+		cmd.axis = axis;
+		cmd.parameters = val;
+		
+		ret = IOCtl(CMDReadAnalog, &cmd);
+		return ret;
 	}
 
 	/**
 	 * Calibrates the control card if needed.
+	 * No calibration for the Obrero Arm
 	 * @param joint is the joint number/function requested to the calibrate method. 
 	 * The default value -1 does nothing.
 	 * @return YARP_OK always.
 	 */
 	int calibrate(int joint = -1)
-	{
-		return YARP_OK;
-	}
+	{ return YARP_OK; }
 
 	/**
 	 * Gets the maximum torque reference.

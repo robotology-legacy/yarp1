@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.h,v 1.10 2005-03-10 21:37:48 natta Exp $
+/// $Id: YARPSciDeviceDriver.h,v 1.11 2005-03-19 23:41:44 natta Exp $
 ///
 ///
 
@@ -106,6 +106,16 @@ public: //later private:
 	int setForceMode(void *cmd);
 	
 	int getPositions(void *cmd);
+	int getSpeeds(void *cmd);
+	int getAccelerations(void *cmd);
+	int getSpeed(void *cmd);
+	int getPWM(void *cmd);
+	int getPWMs(void *cmd);
+	int getTorques(void *cmd);
+	int getTorque(void *cmd);
+	int readAnalog(void *cmd);
+	int servoHere(void *cmd);
+
 	/*
 	int getRefPosition (void *cmd);
 	int getRefPositions(void *cmd);
@@ -114,7 +124,6 @@ public: //later private:
 	int getError(void *cmd);
 	int setSpeed(void *cmd);
 	int setSpeeds(void *cmd);
-	int getSpeeds(void *cmd);
 	int getRefSpeeds(void *cmd);
 	int setAcceleration(void *cmd);
 	int setAccelerations(void *cmd);
@@ -134,8 +143,7 @@ public: //later private:
 	int velocityMove(void *cmd);
 	int setCommand(void *cmd);
 	int setCommands(void *cmd);
-	int getTorque(void *cmd);
-	int getTorques(void *cmd);
+
 	int readBootMemory(void *cmd);
 	int writeBootMemory(void *cmd);
 	int setSwPositiveLimit(void *cmd);
@@ -157,16 +165,24 @@ public: //later private:
 	*/
 	
 	// LATER: inline
-	int _readWord(char msg, char joint, int &value);
-	int _readVector(char msg, double *v, int n);
+	int _readUWord(char msg, char joint, int &value);
+	int _readSWord(char msg, char joint, int &value);
+
+	int _readU16Vector(char msg, double *v, int n);
+	int _readS16Vector(char msg, double *v, int n);
+
 	int _writeWord(char msg, char joint, int value);
 	int _writeWord(char msg, char joint);
+	int _writeWord(char msg);
+	int _readPWMGroup(char msg, double *v, int n);
 
 	void readDebugger();
 	
 protected:
 	YARPSemaphore _mutex;
 	SerialProtocol _serialPort;
+	double *_tmpDouble;
+	int _nj;
 };
 
 #endif
