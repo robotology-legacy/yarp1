@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+//         Version:  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.2 2004-12-07 13:34:42 babybot Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -22,8 +22,8 @@
 #define __GALILONEUROBOTARMADAPTER__
 
 #include <ace/Log_Msg.h>
-#include <YARPGalilDeviceDriver.h>
-#include <string>
+#include <yarp/YARPGalilDeviceDriver.h>
+#include <string> /// deprecated! Use YARPString pls.
 
 #define YARP_BABYBOT_ARM_ADAPTER_VERBOSE
 
@@ -32,7 +32,7 @@
 #else  YARP_BABYBOT_ARM_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
-#include <YARPConfigFile.h>
+#include <yarp/YARPConfigFile.h>
 
 namespace _EurobotArm
 {

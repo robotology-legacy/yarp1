@@ -8,7 +8,7 @@
 ///
 
 //
-// $Id: YARPEurobotArm.h,v 1.2 2004-07-30 21:56:20 gmetta Exp $
+// $Id: YARPEurobotArm.h,v 1.3 2004-12-07 13:34:42 babybot Exp $
 //
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
@@ -23,6 +23,8 @@
 #include <yarp/YARPConfig.h>
 #include <yarp/YARPGenericControlBoard.h>
 #include <yarp/YARPGALILOnEurobotArmAdapter.h>
+#include <yarp/YARPRobotMath.h>
+
 
 class YARPEurobotArm : public YARPGenericControlBoard<YARPGALILOnEurobotArmAdapter, YARPEurobotArmParameters>
 {

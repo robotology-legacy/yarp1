@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPEurobotHeadKin.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+/// $Id: YARPEurobotHeadKin.h,v 1.2 2004-12-07 13:34:42 babybot Exp $
 ///
 ///
 
@@ -74,14 +74,14 @@
 #ifndef __YARPEurobotHeadKinh__
 #define __YARPEurobotHeadKinh__
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Synch.h>
 
-#include <YARPMath.h>
-#include <YARPKinematics.h>
-#include <YARPLogpolar.h>
+#include <yarp/YARPMath.h>
+#include <yarp/YARPKinematics.h>
+#include <yarp/YARPLogpolar.h>
 
 ///
 ///

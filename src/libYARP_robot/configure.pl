@@ -18,7 +18,8 @@ if (!defined($yarp_root))
 }
 
 require "$yarp_root/conf/configure.template.pl" or die "Can't find template file $yarp_root/conf/configure.template.pl\n";
-check_os();
+
+my $exp_os = check_os();
 
 #
 # Need to generate the appropriate newline!
@@ -69,8 +70,8 @@ print "Now I'm going to ask a few questions that I need for configuring the devi
 print "Your \$YARP_ROOT is: \"$yarp_root\"\n\n";
 print "Please, use always the forward slash as a separator when indicating pathnames!\n";
 
-print "I determined already that you're running on Windows. \n";
-die "But, your config file doesn't report so\n" unless ($os eq "winnt");
+print "I determined already that you're running on a supported OS: $exp_os\n";
+die "Cross-compile is not supported, the auto-detected OS must be also selected\n" if ($os ne $exp_os);
 
 print "I also imagine you've compiled YARP_OS, YARP_sig, YARP_dev, YARP_math, I'm not checking for it so please ";
 print "make sure you've run \"configure.pl\" and \"build.pl\" for YARP_OS, YARP_sig, YARP_dev, and YARP_math.\n\n";
@@ -274,66 +275,18 @@ print "Type \"build.pl\" later to start the build process\n\n";
 
 print "I'm going to create a new project file for \"$robotname\"\n";
 
-#
-#
-#
-#
-open PROJECT, "./src/libYARP_robot.dsp" or die "Can't open project file: $!\n";
-$newname = "libYARP_robot_$robotname";
-open MYPROJECT, "> ./src/$newname.dsp" or die "Can't open output project file: $!\n";
-
-while (<PROJECT>)
+if ($os eq "winnt")
 {
-	s/libYARP_robot/$newname/g;
-	if (/# Begin Group "robots"/)
-	{
-		print MYPROJECT $_;
-		print MYPROJECT "\r\n# PROP Default_Filter \"\"\r\n";
-		print MYPROJECT "# Begin Group \"$robotname\"\r\n\r\n";
-		print MYPROJECT "# PROP Default_Filter \"h;cpp\"\r\n";
-		last;
-	}
-	elsif (/# Begin Group "Header Files"/)
-	{
-		print MYPROJECT $_;
-		while (<PROJECT>)
-		{
-			s/libYARP_robot/$newname/g;
-			if (/# Begin Source File/)
-			{
-				# add the new file.
-				print MYPROJECT "$_\r\n";
-				if (-e "./include/yarp/YARPRobotHardware.h")
-				{
-					print MYPROJECT "SOURCE=..\\include\\yarp\\YARPRobotHardware.h\r\n";
-					print MYPROJECT "# End Source File\r\n";
-					print MYPROJECT "# Begin Source File\r\n";
-					last;
-				}
-			}			
-		}
-	}
-	else
-	{
-		print MYPROJECT $_;
-	}
+	create_project_dsp();
 }
-
-foreach my $file (glob "$robotname/yarp/*.cpp $robotname/yarp/*.h")
+elsif ($os eq "linux")
 {
-	print MYPROJECT "# Begin Source File\r\n\r\n";
-	$file =~ s#/#\\#g;
-	my $line = "SOURCE=..\\$file\r\n";
-	print MYPROJECT "$line";
-	print MYPROJECT "# End Source File\r\n";
+	create_project_generic();
 }
-
-print MYPROJECT "# End Group\r\n";
-print MYPROJECT "# End Group\r\n";
-print MYPROJECT "# End Target\r\n# End Project\r\n";
-
-close MYPROJECT;
-close PROJECT;
+elsif ($os eq "qnx6")
+{
+	create_project_generic();
+}
 
 #
 # creating a new config file.
@@ -341,6 +294,81 @@ close PROJECT;
 save_config_file (\%options, $config_file);
 
 print "Done!\n";
+
+#
+#
+#
+sub create_project_generic
+{
+
+}
+
+
+#
+#
+#
+sub create_project_dsp
+{
+	open PROJECT, "./src/libYARP_robot.dsp" or die "Can't open project file: $!\n";
+	$newname = "libYARP_robot_$robotname";
+	open MYPROJECT, "> ./src/$newname.dsp" or die "Can't open output project file: $!\n";
+
+	while (<PROJECT>)
+	{
+		s/libYARP_robot/$newname/g;
+		if (/# Begin Group "robots"/)
+		{
+			print MYPROJECT $_;
+			print MYPROJECT "\r\n# PROP Default_Filter \"\"\r\n";
+			print MYPROJECT "# Begin Group \"$robotname\"\r\n\r\n";
+			print MYPROJECT "# PROP Default_Filter \"h;cpp\"\r\n";
+			last;
+		}
+		elsif (/# Begin Group "Header Files"/)
+		{
+			print MYPROJECT $_;
+			while (<PROJECT>)
+			{
+				s/libYARP_robot/$newname/g;
+				if (/# Begin Source File/)
+				{
+					# add the new file.
+					print MYPROJECT "$_\r\n";
+					if (-e "./include/yarp/YARPRobotHardware.h")
+					{
+						print MYPROJECT "SOURCE=..\\include\\yarp\\YARPRobotHardware.h\r\n";
+						print MYPROJECT "# End Source File\r\n";
+						print MYPROJECT "# Begin Source File\r\n";
+						last;
+					}
+				}			
+			}
+		}
+		else
+		{
+			print MYPROJECT $_;
+		}
+	}
+
+	foreach my $file (glob "$robotname/yarp/*.cpp $robotname/yarp/*.h")
+	{
+		print MYPROJECT "# Begin Source File\r\n\r\n";
+		$file =~ s#/#\\#g;
+		my $line = "SOURCE=..\\$file\r\n";
+		print MYPROJECT "$line";
+		print MYPROJECT "# End Source File\r\n";
+	}
+
+	print MYPROJECT "# End Group\r\n";
+	print MYPROJECT "# End Group\r\n";
+	print MYPROJECT "# End Target\r\n# End Project\r\n";
+
+	close MYPROJECT;
+	close PROJECT;
+
+	0;
+}
+
 
 #
 #
