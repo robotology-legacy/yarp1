@@ -1268,14 +1268,14 @@ void YARPWatershed::checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, 
 			}
 			YarpPixelInt index=tagged(c, r);
 			
-			cout<<"RG : "<<(int)m_boxes[index].meanRG<<endl;
-			cout<<"GR : "<<(int)m_boxes[index].meanGR<<endl;
-			cout<<"BY : "<<(int)m_boxes[index].meanBY<<endl;
-			cout<<"RG diff: "<<abs((int)m_boxes[index].meanRG-(int)boxes[i].meanRG)<<endl;
-			cout<<"GR diff: "<<abs((int)m_boxes[index].meanGR-(int)boxes[i].meanGR)<<endl;
-			cout<<"BY diff: "<<abs((int)m_boxes[index].meanBY-(int)boxes[i].meanBY)<<endl;
+			//cout<<"RG : "<<(int)m_boxes[index].meanRG<<endl;
+			//cout<<"GR : "<<(int)m_boxes[index].meanGR<<endl;
+			//cout<<"BY : "<<(int)m_boxes[index].meanBY<<endl;
+			cout<<"RG diff:"<<abs((int)m_boxes[index].meanRG-(int)boxes[i].meanRG);
+			cout<<" GR diff:"<<abs((int)m_boxes[index].meanGR-(int)boxes[i].meanGR);
+			cout<<" BY diff:"<<abs((int)m_boxes[index].meanBY-(int)boxes[i].meanBY)<<endl;
 			// the log area changes due to log polar mapping and distance
-			cout<<"areaLP diff: "<<abs(m_boxes[index].areaLP-boxes[i].areaLP)<<endl;
+			//cout<<"areaLP diff: "<<abs(m_boxes[index].areaLP-boxes[i].areaLP)<<endl;
 			cout<<endl;
 		}
 	}
@@ -1291,8 +1291,8 @@ void YARPWatershed::doIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int
 			
 			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].elev, boxes[i].az, x, y);
 			m_lp.Cartesian2Logpolar(x, y, r1, c1);
-			for (int i=-1; i<=1; i++)
-				for (int j=-1; j<=1; j++) {
+			for (int i=-3; i<=3; i++)
+				for (int j=-3; j<=3; j++) {
 					r=r1+i;
 					c=c1+j;
 					if (r<height && r>=0) {
@@ -1303,7 +1303,7 @@ void YARPWatershed::doIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int
 						int cgr=m_boxes[index].meanGR-boxes[i].meanGR;
 						int cby=m_boxes[index].meanBY-boxes[i].meanBY;
 
-						if (crg*crg+cgr*cgr+cby*cby<150) {
+						if (crg*crg+cgr*cgr+cby*cby<500) {
 							m_boxes[index].valid=false;
 						}
 					}
@@ -1359,8 +1359,8 @@ void YARPWatershed::RemoveNonValid(int last_tag, const int max_size, const int m
 			m_boxes[i].valid=false;
 		} else {
 			_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, m_boxes[i].elev, m_boxes[i].az , (int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y);
-			if (m_boxes[i].elev<2*PI*(-65)/360 || m_boxes[i].elev>2*PI*(-20)/360 ||
-				m_boxes[i].az<2*PI*(-50)/360 || m_boxes[i].az>2*PI*50/360)
+			if (m_boxes[i].elev<2*PI*(-65.)/360 || m_boxes[i].elev>2*PI*(-20.)/360 ||
+				m_boxes[i].az<2*PI*(-40.)/360 || m_boxes[i].az>2*PI*50./360)
 				m_boxes[i].valid=false;
 		}
 	}
@@ -1431,12 +1431,13 @@ int YARPWatershed::DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<Y
 int YARPWatershed::DrawMeanOpponentColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged)
 {
 	for (int r=0; r<height; r++)
-		for (int c=0; c<width; c++)
-			if (m_boxes[tagged(c, r)].valid) {
+		for (int c=0; c<width; c++) {
+			//if (m_boxes[tagged(c, r)].valid) {
 				id(c ,r).r=m_boxes[tagged(c, r)].meanRG;
 				id(c ,r).g=m_boxes[tagged(c, r)].meanGR;
 				id(c ,r).b=m_boxes[tagged(c, r)].meanBY;
-			}
+			//}
+		}
 	
 	return 1;
 }

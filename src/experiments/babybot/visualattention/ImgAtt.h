@@ -76,6 +76,7 @@
 //#include <YARPBlobDetector.h>
 //#include <YARPIntegralImage.h>
 #include <YARPConicFitter.h>
+#include <YARPImageMoments.h>
 #include "YARPConvKernel.h"
 #include "YARPConvKernelFile.h"
 //#include "YARPColorVQ.h"
@@ -214,7 +215,11 @@ protected:
 	float salienceBU;
 	float salienceTD;
 
+	double ect;
+	double cmp;
+
 	YARPLpConicFitter fit;
+	YARPLpImageMoments moments;
 
 	int num_IORBoxes;
 
@@ -250,7 +255,7 @@ public:
 	YARPImgAtt(int x, int y, int fovea, int num);
 	~YARPImgAtt();
 	
-	void Apply(YARPImageOf<YarpPixelBGR> &src);
+	bool Apply(YARPImageOf<YarpPixelBGR> &src);
 	void FindNMax(int num, Vett* pos);
 	void FindMax(YARPImageOf<YarpPixelMono> &src, Vett &pos);
 	void FindMax(YARPImageOf<YarpPixelInt> &src, Vett &pos);
@@ -260,12 +265,15 @@ public:
 	void saveImages(YARPImageOf<YarpPixelBGR> &src);
 	void setWatershedTh(YarpPixelMono th) { rain.setThreshold(th); }
 
-	inline void setParameters(const YarpPixelMono sRG, const YarpPixelMono sGR, const YarpPixelMono sBY, const float sBU, const float sTD)
+	inline void setParameters(const YarpPixelMono sRG, const YarpPixelMono sGR, const YarpPixelMono sBY, const double sCMP, const double sECT, const float sBU, const float sTD)
 	{
 		searchRG=sRG;
 		searchGR=sGR;
 		searchBY=sBY;
 
+		cmp=sCMP;
+		ect=sECT;
+		
 		salienceBU=sBU;
 		salienceTD=sTD;
 	}

@@ -107,6 +107,7 @@ using namespace _logpolarParams;
 char _inName1[512];
 char _inName2[512];
 char _inName3[512];
+char _inName4[512];
 char _outName1[512];
 char _outName2[512];
 char _outName3[512];
@@ -171,7 +172,7 @@ void mainthread::Body (void)
 	YARPImageOf<YarpPixelBGR> col_cart;
 	YARPInputPortOf<YARPGenericImage> inImage(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 	YARPInputPortOf<YARPBottle> inBottle(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-	//YARPInputPortOf<YVector> inVector;
+	YARPInputPortOf<YVector> inVector;
 	DeclareOutport(outImage);
 	DeclareOutport(outImage2);
 	YARPOutputPortOf<YARPBottle> outBottle(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
@@ -200,10 +201,12 @@ void mainthread::Body (void)
 	int searchGR;
 	int searchBY;
 
-	double salienceBU;
-	double salienceTD;
-	
-	
+	double cmp, ect;
+
+	double salienceBU, salienceTD;
+
+
+
 	colored_s.Resize(_stheta, _srho);
 	colored_u.Resize(_stheta, _srho);
 	tmp.Resize(_stheta, _srho);
@@ -216,7 +219,8 @@ void mainthread::Body (void)
 	
 	inImage.Register(_inName1, _netname1);
 	inBottle.Register(_inName2, _netname0);
-	//inVector.Register(_inName3, _netname0);
+	inVector.Register(_inName4, _netname0);
+	
 	outImage.Register(_outName1, _netname1);
 	outImage2.Register(_outName2, _netname1);
 	outBottle.Register(_outName3, _netname0);
@@ -229,7 +233,7 @@ void mainthread::Body (void)
 	imgOld.Refer(inImage.Content());
 	//iplRShiftS(imgOld, imgOld, 1);
 
-	//start = YARPTime::GetTimeAsSeconds();
+	start = YARPTime::GetTimeAsSeconds();
 	
 	bool isStarted = true;
 	
@@ -268,10 +272,13 @@ void mainthread::Body (void)
 					bottle.readInt(&searchGR);
 					bottle.readInt(&searchBY);
 					
+					bottle.readFloat(&cmp);
+					bottle.readFloat(&ect);
+					
 					bottle.readFloat(&salienceBU);
 					bottle.readFloat(&salienceTD);
 
-					att_mod.setParameters(searchRG, searchGR, searchBY, salienceBU, salienceTD);
+					att_mod.setParameters(searchRG, searchGR, searchBY, salienceBU, cmp, ect, salienceTD);
 				}
 				else if (message == YBVVAUpdateIORTable)
 				{
@@ -296,6 +303,8 @@ void mainthread::Body (void)
 		//////// MAIN LOOP
 		if (isStarted)
 		{
+			bool found;
+			
 			tmpBottle.reset();
 
 			/*inVector.Read();
@@ -303,9 +312,9 @@ void mainthread::Body (void)
 			//cout<<joints(1)<<" "<<joints(2)<<" "<<joints(3)<<joints(4)<<" "<<joints(5)<<endl;
 			att_mod.setPosition(joints);*/
 			
-			if (inImage.Read())
-				cur = YARPTime::GetTimeAsSeconds();
-			else
+			if (!inImage.Read())
+				//cur = YARPTime::GetTimeAsSeconds();
+			//else
 				ACE_OS::printf(">>> ERROR: frame not read\n");
 		
 			img.Refer(inImage.Content());
@@ -344,7 +353,33 @@ void mainthread::Body (void)
 			//mapper.Sawt2TriCentral(colored_s, colored_u);
 			
 			DBGPF1 ACE_OS::printf(">>> call attention module\n");
-			att_mod.Apply(colored_u);
+			inVector.Read();
+			YVector &checkFix = inVector.Content();
+			found=att_mod.Apply(colored_u);
+			//if (checkFix(1)==1 && found) {
+			if (found) {
+				// no next target
+				tmpBottle.writeInt(-1);
+				tmpBottle.writeInt(-1);
+				tmpBottle.writeInt(-1);
+				tmpBottle.writeInt(-1);
+				tmpBottle.writeInt(-1);
+			} else {
+				// next target
+				tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
+				tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
+				tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
+				tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
+				tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);
+			}
+			// blob in fovea
+			tmpBottle.writeInt(att_mod.fovBox.meanRG);
+			tmpBottle.writeInt(att_mod.fovBox.meanGR);
+			tmpBottle.writeInt(att_mod.fovBox.meanBY);
+
+			outBottle.Content() = tmpBottle;
+			outBottle.Write();
+				
 			out.Refer(att_mod.Saliency());
 			out2.Refer(att_mod.BlobFov());
 		
@@ -383,30 +418,17 @@ void mainthread::Body (void)
 			outImage2.Content().Refer(out2);
 			outImage2.Write();
 			
-			// next target
-			tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
-			tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
-			tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
-			tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
-			tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);
-			// blob in fovea
-			tmpBottle.writeInt(att_mod.fovBox.meanRG);
-			tmpBottle.writeInt(att_mod.fovBox.meanGR);
-			tmpBottle.writeInt(att_mod.fovBox.meanBY);
-			outBottle.Content() = tmpBottle;
-			outBottle.Write();
-
 			//v(1) = pos_max[0].centroid_x;
 			//v(2) = pos_max[0].centroid_y;
 			//out_point.Content() = v;
 			//out_point.Write();
 
-			start = start + (YARPTime::GetTimeAsSeconds() - cur);
+			//start = start + (YARPTime::GetTimeAsSeconds() - cur);
 
 			if ((frame_no % 100) == 0) {
 				cur = YARPTime::GetTimeAsSeconds();
-				//ACE_OS::fprintf(stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/frame_no, frame_no);
-				ACE_OS::fprintf(stdout, "average frame time: %f frame #%d acquired\r", start/frame_no, frame_no);
+				ACE_OS::fprintf(stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/frame_no, frame_no);
+				//ACE_OS::fprintf(stdout, "average frame time: %f frame #%d acquired\r", start/frame_no, frame_no);
 				//start = cur;
 			}
 		}
@@ -422,8 +444,9 @@ int main (int argc, char *argv[])
 	YARPParseParameters::parse(argc, argv, "name", basename);
 
 	ACE_OS::sprintf(_inName1, "/visualattention%s/i:img",basename);
-	ACE_OS::sprintf(_inName2, "/visualattention%s/i:bot", basename);
-	ACE_OS::sprintf(_inName3, "/visualattention%s/i:vec", basename);
+	ACE_OS::sprintf(_inName2, "/visualattention%s/i:bot", basename);	//input commands
+	ACE_OS::sprintf(_inName3, "/visualattention%s/i:vec", basename);	//motor 
+	ACE_OS::sprintf(_inName4, "/visualattention%s/i:vec2", basename);	//checkfixation
 	ACE_OS::sprintf(_outName1, "/visualattention%s/o:img", basename);
 	ACE_OS::sprintf(_outName2, "/visualattention%s/o:img2", basename);
 	ACE_OS::sprintf(_outName3, "/visualattention%s/o:bot", basename);
@@ -452,12 +475,16 @@ int main (int argc, char *argv[])
 			YarpPixelMono mGR=att_mod.fovBox.meanGR;
 			YarpPixelMono mBY=att_mod.fovBox.meanBY;
 
+			double cmp=att_mod.fovBox.cmp;
+			double ect=att_mod.fovBox.ect;
+
 			cout<<"Searching for blobs similar to that in the fovea in this moment"<<endl;
-			cout<<"mRG: "<<(int)mRG<<", mGR: "<<(int)mGR<<", mBY: "<<(int)mBY<<endl;
-			att_mod.setParameters(mRG, mGR, mBY, 0, 1);
+			cout<<"mRG:"<<(int)mRG<<", mGR:"<<(int)mGR<<", mBY:"<<(int)mBY<<endl;
+			cout<<"CMP:"<<cmp<<", ECT:"<<ect<<endl;
+			att_mod.setParameters(mRG, mGR, mBY, cmp, ect, 0, 1);
 		} else if (c=='e') {
 			cout<<"Exploring the scene"<<endl;
-			att_mod.setParameters(0, 0, 0, 1, 0);
+			att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
 		} else if (c=='u') {
 			ACE_OS::printf("updating IOR table\n");
 			att_mod.updateIORTable();

@@ -75,6 +75,9 @@ public:
 
 	double elev;
 	double az;
+
+	double cmp;
+	double ect;
 };
 
 

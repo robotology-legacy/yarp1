@@ -392,6 +392,7 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	blobList = new bool [x*y+1];
 
 	searchRG=searchGR=searchBY=0;
+	cmp=ect=0;
 	salienceBU=1.0;
 	salienceTD=0;
 
@@ -958,10 +959,11 @@ void YARPImgAtt::GetTarget(int &x, int &y)
 }
 
 
-void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
+bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 {
 	int mn;
 	int mx;
+	bool found=false;
 	
 	// dovrei farlo una sola volta nn ogni frame e poi dovrei salvare lo stato
 	// precedente del borderMode
@@ -995,6 +997,24 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 
 	rain.maxSalienceBlobs(tagged, max_tag, max_boxes, 3);
 
+	if (salienceTD>0) {
+		//cout<<fovBox.cmp;
+		//cout<<fovBox.ect;
+		int crg=fovBox.meanRG-searchRG;
+		int cgr=fovBox.meanGR-searchGR;
+		int cby=fovBox.meanBY-searchBY;
+
+		//cout<<"CMP DELTA %:"<<(fovBox.cmp-cmp)/cmp*100;
+		//cout<<"  ECT DELTA %:"<<(fovBox.ect-ect)/ect*100<<endl;
+
+		if (crg*crg+cgr*cgr+cby*cby<150) {
+			cout<<"Maybe I've found the target..."<<endl;
+			found=true;
+		}
+	}	
+	
+	
+	
 	//blobFov=edge;
 	//rain.tags2Watershed(tagged, blobFov);
 
@@ -1003,6 +1023,8 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 	/*MinMax(edge, mn, mx);
 	FullRange(edge, edge, mn, mx);
 	out=edge;*/
+
+	return found;
 }
 
 
@@ -1319,6 +1341,7 @@ void YARPImgAtt::findBlobs()
 	//fit.fitEllipse(blobFov, &bfX0, &bfY0, &bfA11, &bfA12, &bfA22);
 	//fit.plotEllipse(bfX0, bfY0, bfA11, bfA12, bfA22, blobFov, 127);
 
+	memset(blobList, false, sizeof(bool)*max_tag);
 	// - faster
 	// - it considers also "lateral" pixels
 	// - it doesn't add pixels iteratively
@@ -1332,13 +1355,32 @@ void YARPImgAtt::findBlobs()
 	rain.drawBlobList(blobFov, tagged, blobList, max_tag, 127);*/
 	/*ACE_OS::sprintf(savename, "./blob_fov2.ppm");
 	YARPImageFile::Write(savename, blobFov);*/
-	/*rain.statBlobList(tagged, blobList, max_tag, fovBox);
-	rain.removeBlobList(blobList, max_tag);*/
+	blobList[1]=true;
+	rain.statBlobList(tagged, blobList, max_tag, fovBox);
+	rain.removeBlobList(blobList, max_tag);
+
+	/*int CoMX, CoMY;
+	double u00, u11, u20, u02;
+
+	moments.centerOfMassAndMass(blobFov, &CoMX, &CoMY, &u00);
+	moments.centralMomentsOrder2(blobFov, CoMX, CoMY, &u11, &u20, &u02);*/
+	
+	/*moments.centerOfMass(blobFov, &CoMX, &CoMY);
+	u00=moments.centralMoments(blobFov, CoMX, CoMY, 0, 0);
+	u11=moments.centralMoments(blobFov, CoMX, CoMY, 1, 1);
+	u20=moments.centralMoments(blobFov, CoMX, CoMY, 2, 0);
+	u02=moments.centralMoments(blobFov, CoMX, CoMY, 0, 2);*/
+
+	/*fovBox.cmp=(u20+u02)/(u00*u00);
+	fovBox.ect=((u20-u02)*(u20-u02)+4*u11*u11)/(u00*u00*u00*u00);*/
+	//fovBox.cmp=(u20+u02)/(u00*u00);
+	//fovBox.ect=sqrt((u20-u02)*(u20-u02)+4*u11*u11)/(u20+u02);
+
 	
 	//rain.removeFoveaBlob(tagged);
 	//rain.RemoveNonValid(max_tag, 3800, 100);
 	rain.ComputeSalienceAll(max_tag, max_tag);
-	rain.RemoveNonValid(max_tag, 4000, 200);
+	rain.RemoveNonValid(max_tag, 6000, 200);
 
 	
 	//rain.ComputeSalience(max_tag, max_tag);
@@ -1346,7 +1388,7 @@ void YARPImgAtt::findBlobs()
 	//rain.SortAndComputeSalience(200, max_tag);
 	//rain.SortAndComputeSalience(100, max_tag);
 	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
-	rain.checkIOR(tagged, IORBoxes, num_IORBoxes);
+	//rain.checkIOR(tagged, IORBoxes, num_IORBoxes);
 	rain.doIOR(tagged, IORBoxes, num_IORBoxes);
 
 
@@ -1368,8 +1410,8 @@ void YARPImgAtt::findBlobs()
 	YARPImageFile::Write(savename, tmpBGR1);*/
 
 	
-	/*meanOppCol.Zero();
-	rain.DrawMeanOpponentColorsLP(meanOppCol, tagged);*/
+	meanOppCol.Zero();
+	rain.DrawMeanOpponentColorsLP(meanOppCol, tagged);
 
 
 	/*blobFinder.DrawGrayLP(tmp1, tagged, 200);
