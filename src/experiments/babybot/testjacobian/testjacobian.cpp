@@ -164,6 +164,7 @@ int main(int argc, char* argv[])
 	{
 		// blocking on image port
 		_inPortImage.Read();
+		
 		///// poll head and arm positions
 		pollPort(_armPort, _arm, &__armCounter);
 		pollPort(_headPort, _head, &__headCounter);		

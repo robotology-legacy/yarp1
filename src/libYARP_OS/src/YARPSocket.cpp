@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.8 2004-08-02 12:31:55 eshuy Exp $
+/// $Id: YARPSocket.cpp,v 1.9 2004-08-05 17:11:56 babybot Exp $
 ///
 ///
 
@@ -309,7 +309,7 @@ int YARPOutputSocket::Connect (const YARPUniqueNameID& name)
 	if (r < 0)
 	{
 		///
-		ACE_DEBUG ((LM_DEBUG, "troubles connecting to TCP, this shouldn't really happen, maybe a bug?\n"));
+		ACE_DEBUG ((LM_ERROR, "troubles connecting to TCP, this shouldn't really happen, maybe a bug?\n"));
 
 		d._stream.close();
 		identifier = ACE_INVALID_HANDLE;

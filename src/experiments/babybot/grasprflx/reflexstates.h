@@ -1,5 +1,3 @@
-#define YARP_BEHAVIOR_EXTRA_DEBUG
-
 #include <yarp/YARPBehavior.h>
 #include <yarp/YARPConfigRobot.h>
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.5 2004-08-02 12:31:55 eshuy Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.6 2004-08-05 17:11:56 babybot Exp $
 ///
 ///
 
@@ -474,7 +474,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 		if (d._client_names[i] == ((YARPUniqueNameSock&)name).getName())
 		{
 			/// it's already there...
-			ACE_DEBUG ((LM_DEBUG, "the specific client is already connected %s:%d\n", d._clients[i].get_host_addr(), d._clients[i].get_port_number()));
+			ACE_DEBUG ((LM_ERROR, "the specific client is already connected %s:%d\n", d._clients[i].get_host_addr(), d._clients[i].get_port_number()));
 			///d._service_socket.close();
 			return YARP_FAIL;
 		}
@@ -500,7 +500,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	int r = d._service_socket.connect (stream, nm, &timeout);
 	if (r < 0)
 	{
-		ACE_DEBUG ((LM_DEBUG, "cannot connect to remote service\n"));
+		ACE_DEBUG ((LM_ERROR, "cannot connect to remote service\n"));
 		return YARP_FAIL;
 	}
 
@@ -528,7 +528,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	if (r < 0)
 	{
 		stream.close ();
-		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
+		ACE_DEBUG ((LM_ERROR, "cannot handshake with remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
 		return YARP_FAIL;
 	}
 
@@ -543,7 +543,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 
 		/// there might be a real -1 port number -> 65535.
 		stream.close ();
-		ACE_DEBUG ((LM_DEBUG, "got garbage back from remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
+		ACE_DEBUG ((LM_ERROR, "got garbage back from remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
 		return YARP_FAIL;
 	}
 

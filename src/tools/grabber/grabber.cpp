@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: grabber.cpp,v 1.6 2004-07-30 13:39:48 babybot Exp $
+/// $Id: grabber.cpp,v 1.7 2004-08-05 17:11:56 babybot Exp $
 ///
 ///
 
@@ -336,6 +336,7 @@ int mainthread::_runAsCartesian (void)
 	DeclareOutport(outport);
 
 	outport.Register (_name, _netname);
+	outport.SetRequireAck(1);
 
 	/// params to be passed from the command line.
 	grabber.initialize (_board_no, _sizex, _sizey);

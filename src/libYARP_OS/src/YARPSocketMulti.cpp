@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.14 2004-08-04 15:38:15 eshuy Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.15 2004-08-05 17:11:56 babybot Exp $
 ///
 ///
 
@@ -220,12 +220,12 @@ public:
 	{
 		if (_socket_addr == NULL)
 		{
-			ACE_DEBUG ((LM_DEBUG, "The socket is NULL\n"));
+			ACE_DEBUG ((LM_ERROR, "The socket is NULL\n"));
 		}
 		else
 		{
-			ACE_DEBUG ((LM_DEBUG, "Socket name: %s\n", _socket_addr->getName().c_str()));
-			ACE_DEBUG ((LM_DEBUG, "Service type: %d\n", _socket_addr->getServiceType()));
+			ACE_DEBUG ((LM_ERROR, "Socket name: %s\n", _socket_addr->getName().c_str()));
+			ACE_DEBUG ((LM_ERROR, "Service type: %d\n", _socket_addr->getServiceType()));
 		}
 	}
 
@@ -431,7 +431,7 @@ public:
 		_last_assigned ++;
 		if (_last_assigned >= _number_o_ports || _last_assigned < 0)
 		{
-			ACE_DEBUG ((LM_DEBUG, "this shouldn't happen, _last_assigned port out of range!\n"));
+			ACE_DEBUG ((LM_ERROR, "this shouldn't happen, _last_assigned port out of range!\n"));
 			return 0;
 		}
 
@@ -1836,16 +1836,17 @@ inline void _printList (YARPList<_SocketThreadMulti *>& _list, const char *c)
 	YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
 	it_avail.go_head();
 
-	ACE_DEBUG ((LM_DEBUG, "Attempted connection: %s\n", c));
-	ACE_DEBUG ((LM_DEBUG, "Thread table:\n"));
+	ACE_DEBUG ((LM_ERROR, "Attempted connection: %s\n", c));
+	ACE_DEBUG ((LM_ERROR, "Thread table:\n"));
 	int i = 0;
 
 	for (; !it_avail.done(); it_avail++)
 	{
-		ACE_DEBUG ((LM_DEBUG, "Thread no: %d\n", i));
-		ACE_DEBUG ((LM_DEBUG, "Available: %d\n", ((*it_avail)->isAvailable ())));
-		ACE_DEBUG ((LM_DEBUG, "Port number: %d\n", (*it_avail)->getOldPortNumber ()));
+		ACE_DEBUG ((LM_ERROR, "Thread no: %d\n", i));
+		ACE_DEBUG ((LM_ERROR, "Available: %d\n", ((*it_avail)->isAvailable ())));
+		ACE_DEBUG ((LM_ERROR, "Port number: %d\n", (*it_avail)->getOldPortNumber ()));
 		(*it_avail)->_printSocket ();
+		i++;
 	}
 }
 
@@ -2050,6 +2051,7 @@ void _SocketThreadListMulti::addSocket (void)
 			_printList (_list, "MCAST");
 
 			///
+			ACE_DEBUG ((LM_ERROR, "*** error, can't get a port, too many connections\n"));
 			hdr.SetBad ();
 			stream->send_n (&hdr, sizeof(hdr), 0);
 		}

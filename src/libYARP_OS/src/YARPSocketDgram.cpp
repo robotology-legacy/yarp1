@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.5 2004-08-04 15:38:15 eshuy Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.6 2004-08-05 17:11:56 babybot Exp $
 ///
 ///
 
@@ -343,7 +343,7 @@ int YARPOutputSocketDgram::Connect (const YARPUniqueNameID& name)
 	int r = d._service_socket.connect (stream, d._remote_addr, &timeout);
 	if (r < 0)
 	{
-		ACE_DEBUG ((LM_DEBUG, "cannot connect to remote peer %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
+		ACE_DEBUG ((LM_ERROR, "cannot connect to remote peer %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 		return YARP_FAIL;
 	}
 
@@ -360,7 +360,7 @@ int YARPOutputSocketDgram::Connect (const YARPUniqueNameID& name)
 	if (r < 0)
 	{
 		stream.close ();
-		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
+		ACE_DEBUG ((LM_ERROR, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 		return YARP_FAIL;
 	}
 
