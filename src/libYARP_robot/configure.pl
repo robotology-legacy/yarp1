@@ -13,7 +13,7 @@ print "This is possibly the most intricate piece of configuration in YARP.\n\n";
 
 chomp ($ver = `ver`);
 chomp ($uname = `uname`);
-if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
+if (!($ver =~ /Windows/) && !($uname =~ /CYGWIN/))
 {
 	print "This is a Windows 2000/XP specific script\n";
 	print "Perhaps this procedure can be simply extended to\n"; 
@@ -23,11 +23,11 @@ if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
 }
 
 my $nline = '';
-if (index($uname, "CYGWIN"))
+if ($uname =~ /CYGWIN/)
 {
 	$nline = "\r\n";
 }
-elsif (index($ver, "Windows"))
+elsif ($ver =~ /Windows/)
 {
 	$nline = "\n";
 }

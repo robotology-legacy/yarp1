@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.3 2004-07-29 22:11:46 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.4 2004-08-04 22:17:06 babybot Exp $
 ///
 ///
 
@@ -93,8 +93,10 @@ namespace _RobotcubHead
 	const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
 	const int CANBUS_MAXCARDS			= MAX_CARDS;
 
-	const char _destinations[_nj]		= { 0xf, 0xe, 0xd, 0xc, 0xb, 0xa, 0x9, 0x8 };
-
+	const char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 
+												  0xff, 0xff, 0xff, 0xff,
+												  0xff, 0xff, 0xff, 0xff,
+												  0xff, 0xff, 0xff, 0xff };
 }; // namespace
 
 
@@ -394,7 +396,8 @@ public:
 			IOCtl(CMDSetPID, &cmd);
 
 			// reset encoders
-			if (reset) {
+			if (reset) 
+			{
 				double pos = 0.0;
 				cmd.parameters = &pos;
 				IOCtl(CMDDefinePosition, &cmd);

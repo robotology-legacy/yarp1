@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.1 2004-07-29 22:11:46 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.2 2004-08-04 22:17:06 babybot Exp $
 ///
 ///
 
@@ -61,6 +61,15 @@
  * This class is a template with two class arguments: the adapter which contains
  * the actual device driver amd a parameter class which contains certain hardware 
  * specific parameters.
+ * This class is part of a robot library that can be used as templates and allows
+ * specialization to create useful robot control abstractions. It is worth mentioning
+ * that this library is very much biased toward humanoid robots hence the name
+ * head, arm, etc. This is not perhaps the right abstraction for wheeled robots.
+ * Note that the adapter is the device driver controlling the hardware. The generic
+ * control board class expects certain methods/messages to be available as in 
+ * YARPControlBoardUtils.h. The parameters class allows adding some further specialization
+ * without changing the device driver. This class also allows multithread access.
+ *
  */
 
 template <class ADAPTER, class PARAMETERS>
@@ -90,8 +99,11 @@ public:
 			delete [] _currentLimits;
 	}
 
-	// blocking wait on motion; poll on sleep(time)
-	// time is ms, 0 = busy wait
+	/**
+	 * Blocking wait on motion.
+	 * @param time is the polling interval in ms, 0 means busy wait.
+	 * @return YARP_OK on success.
+	 */
 	int waitForMotionDone(int time = 0)
 	{
 		int ret;
@@ -101,6 +113,11 @@ public:
 		return ret;
 	}
 
+	/**
+	 * Waits for frames (commands) left to be zero.
+	 * @param time is the polling interval in ms, 0 means busy wait.
+	 * @return YARP_OK on success.
+	 */
 	int waitForFramesLeft(int time = 0)
 	{
 		int ret;
@@ -110,6 +127,10 @@ public:
 		return ret;
 	}
 
+	/**
+	 * Device driver specific calibration routine.
+	 * @return YARP_OK on success.
+	 */
 	int calibrate()
 	{
 		int ret;
@@ -119,6 +140,10 @@ public:
 		return ret;
 	}
 
+	/**
+	 * Initializes the control card (with default parameters).
+	 * @return YARP_OK on success.
+	 */
 	int initialize()
 	{
 		_lock();
@@ -128,7 +153,12 @@ public:
 	}
 
 	/**
-	 * initialize the control card.
+	 * Initializes the control card.
+	 * @param path is the path of the config file.
+	 * @param init_file is the initialization file. This file contains many
+	 * head specific parameters that are then used to initialize the robot
+	 * properly.
+	 * @return YARP_OK on success.
 	 */
 	int initialize(const YARPString &path, const YARPString &init_file)
 	{
@@ -139,6 +169,10 @@ public:
 		return ret;
 	}
 
+	/**
+	 * Disables all control amplifiers.
+	 * @return YARP_OK on success.
+	 */
 	int idleMode()
 	{	
 		int ret;
@@ -167,7 +201,7 @@ public:
 	int readAnalogs(double *val)
 	{
 		_lock();
-			int ret = _adapter.readAnalogs(val);
+		int ret = _adapter.readAnalogs(val);
 		_unlock();
 		return ret;
 	}
