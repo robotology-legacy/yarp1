@@ -9,15 +9,15 @@ use File::Copy;
 
 print "Entering configure process of YARP environment...\n";
 
-chomp ($tmp = `ver`);
-chomp ($tmp2 = `uname`);
-if (index ($tmp, "Windows") < 0 && index ($tmp2, "CYGWIN") < 0)
+chomp ($ver = `ver`);
+chomp ($uname = `uname`);
+if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
 {
 	print "This is a Windows 2000/XP specific script\n";
 	print "Perhaps this procedure can be simply extended to\n"; 
 	print "other OSes but for now, this is all experimental...\n";
 	
-	die "This script is specific to Windows 2000/XP [version check reported: $tmp]\n";
+	die "This script is specific to Windows 2000/XP\n";
 }
 
 $yarp_root = $ENV{'YARP_ROOT'};
@@ -82,21 +82,21 @@ get_option_hash ("Compile_OS<-Tools_Rebuild", "YES", "Would you like to rebuild 
 get_option_hash ("Compile_OS<-Tools_Debug", "FALSE", "Would you like to compile the tools for debugging?");
 
 # consistency check.
-if ($options{"Compile_OS<-Debug"} eq "FALSE" && 
-	$options{"Compile_OS<-Release"} eq "FALSE" && 
-	$options{"Compile_OS<-Clean"} eq "TRUE")
+if ($options{"Compile_OS<-Lib_Debug"} eq "FALSE" && 
+	$options{"Compile_OS<-Lib_Release"} eq "FALSE" && 
+	$options{"Compile_OS<-Lib_Clean"} eq "TRUE")
 {
 	print "Since you're rebuilding, you should at least select between debug and release\n";
 	print "I'm assuming you wanted to compile debug\n";
-	$options{"Compile_OS<-Debug"} = "TRUE";
+	$options{"Compile_OS<-Lib_Debug"} = "TRUE";
 }
 
-if ($options{"Compile_OS<-Install"} eq "TRUE" &&
-	$options{"Compile_OS<-Rebuild"} eq "FALSE")
+if ($options{"Compile_OS<-Lib_Install"} eq "TRUE" &&
+	$options{"Compile_OS<-Tools_Rebuild"} eq "NO")
 {
 	print "You need to recompile the tools since you're installing a new build of the libraries\n";
 	print "I'm adding the tools compilation flag for you\n";
-	$options{"Compile_OS<-Rebuild"} = "TRUE";
+	$options{"Compile_OS<-Tools_Rebuild"} = "TRUE";
 }
 
 print "We're done for now, the context file is being created: \"$config_file\"\n";
