@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.29 2003-06-13 12:45:40 gmetta Exp $
+/// $Id: Port.cpp,v 1.30 2003-06-16 16:48:24 babybot Exp $
 ///
 ///
 
@@ -357,7 +357,7 @@ void OutputTarget::Body ()
 					/// disconnect all
 					YARPEndpointManager::CloseMcastAll ();
 					active = 0;
-					deactivated = 1;
+					deactivated = 1;	/// perhaps deactivate = 1;
 				}
 				break;
 			}

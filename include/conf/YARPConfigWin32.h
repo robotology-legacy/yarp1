@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.23 2003-06-13 12:45:38 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.24 2003-06-16 16:48:24 babybot Exp $
 // YARP config file WIN32.
 //
 //
@@ -28,7 +28,7 @@
 ///
 #define SINGLE_MUTEX_FOR_REFCOUNTED 1
 #define UPDATED_PORT 1
-#define MAX_PACKET (128*128*3+100)		
+#define MAX_PACKET (110*252*3+100)		
 ///8192
 ///(128*128*3+100)	/// shouldn't be required
 

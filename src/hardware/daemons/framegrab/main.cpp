@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.15 2003-06-15 20:28:36 babybot Exp $
+/// $Id: main.cpp,v 1.16 2003-06-16 16:48:24 babybot Exp $
 ///
 ///
 
@@ -89,6 +89,8 @@ bool _client = false;
 bool _simu = false;
 bool _logp = false;
 int _board_no = 0;
+
+extern int __debug_level;
 
 /// LATER: used to parse command line options.
 int ParseParams (int argc, char *argv[]) 
@@ -279,7 +281,6 @@ int _runAsLogpolarSimulation (void)
 {
 	using namespace _logpolarParams;
 
-///	YARPBabybotGrabber grabber;
 	YARPImageOf<YarpPixelBGR> img;
 	YARPImageOf<YarpPixelBGR> fovea;
 	YARPImageOf<YarpPixelBGR> periphery;
@@ -342,6 +343,8 @@ int _runAsLogpolar (void)
 {
 	using namespace _logpolarParams;
 
+///	__debug_level = 100;
+
 	YARPBabybotGrabber grabber;
 	YARPImageOf<YarpPixelBGR> img;
 	YARPImageOf<YarpPixelBGR> fovea;
@@ -355,10 +358,15 @@ int _runAsLogpolar (void)
 	fovea.Resize (128, 128);
 	periphery.Resize (_stheta, _srho - _sfovea);
 
-	YARPOutputPortOf<YARPGenericImage> outport;
+	YARPOutputPortOf<YARPGenericImage> out_fovea;
+	YARPOutputPortOf<YARPGenericImage> out_periphery;
 	bool finished = false;
 
-	outport.Register (_name);
+	out_fovea.Register (_name);
+
+	char name_p[512];
+	sprintf (name_p, "%sp\0", _name);
+	out_periphery.Register (name_p);
 
 	/// params to be passed from the command line.
 	grabber.initialize (_board_no, _xsize);
@@ -395,8 +403,11 @@ int _runAsLogpolar (void)
 		sampler.Cartesian2Logpolar (img, fovea, periphery);
 
 		/// sends the buffer.
-		outport.Content().Refer (fovea);
-		outport.Write();
+		out_fovea.Content().Refer (fovea);
+		out_fovea.Write();
+
+		out_periphery.Content().Refer (fovea);
+		out_periphery.Write();
 
 		frame_no++;
 		if ((frame_no % 250) == 0)
@@ -406,6 +417,8 @@ int _runAsLogpolar (void)
 			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
+
+		///YARPTime::DelayInSeconds(10);
 	}
 
 	grabber.uninitialize ();

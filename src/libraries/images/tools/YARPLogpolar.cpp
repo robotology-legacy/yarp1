@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.5 2003-06-13 15:30:17 babybot Exp $
+/// $Id: YARPLogpolar.cpp,v 1.6 2003-06-16 16:48:24 babybot Exp $
 ///
 ///
 
@@ -81,7 +81,7 @@ YARPLogpolarSampler::YARPLogpolarSampler (void)
 		CUSTOM,
 		256.0/1090.0);
 
-	_fovea.padding = 8;
+	_fovea.padding = 4;
 
 	char *path = GetYarpRoot ();
 	char filename[256];
@@ -124,7 +124,7 @@ int YARPLogpolarSampler::Cartesian2Logpolar (const YARPGenericImage& in, YARPGen
 
 	Make_LP_Real (_outimage, (unsigned char *)in.GetRawBuffer(), &_fovea, _cart2LP_Map);
 	
-	memcpy (periphery.GetRawBuffer(), _outimage + _sfovea * _stheta * 3, (_srho - _sfovea) * _stheta * 3);
+	memcpy (periphery.GetRawBuffer(), _outimage + _sfovea * periphery.GetAllocatedLineSize(), (_srho - _sfovea) * periphery.GetAllocatedLineSize());
 
 	Remap ((unsigned char *)fovea.GetRawBuffer(), _outimage, &_fovea, _remapMap);
 
@@ -146,7 +146,7 @@ YARPLogpolar::YARPLogpolar (void)
 		CUSTOM,
 		256.0/1090.0);
 
-	_periphery.padding = 8;
+	_periphery.padding = 4;
 
 	char *path = GetYarpRoot ();
 

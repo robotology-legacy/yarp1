@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.10 2003-06-09 09:56:46 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.11 2003-06-16 16:48:24 babybot Exp $
 ///
 ///
 
@@ -1890,13 +1890,19 @@ int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name) ///, int local
 		d._mcast_addr.get_host_addr()));
 
 	int r = d._connector_socket.open (d._mcast_addr, 0, 1);		/// reuse addr on, netif = 0.
-	YARPNetworkObject::setSocketBufSize (d._connector_socket, MAX_PACKET);
-
 	if (r == -1)
 	{
 		ACE_DEBUG ((LM_DEBUG, "cannot open mcast socket %s:%d\n", d._mcast_addr.get_host_addr(), d._mcast_addr.get_port_number()));
 		return YARP_FAIL;
 	}
+
+	int ret = YARPNetworkObject::setSocketBufSize (d._connector_socket, MAX_PACKET);
+	if (ret != YARP_OK)
+	{
+		ACE_DEBUG ((LM_DEBUG, "cannot set buffer size to %d\n", MAX_PACKET));
+		return YARP_FAIL;
+	}
+
 
 	/// no loopback?
 #if 0
