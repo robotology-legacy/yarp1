@@ -5,7 +5,7 @@
 #include <YARPPidFilter.h>
 #include <YARPString.h>
 
-#include <YARPLogPolar.h>
+#include <YARPLogpolar.h>
 
 class SmoothControl
 {
