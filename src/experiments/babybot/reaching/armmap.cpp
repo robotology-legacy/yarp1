@@ -65,8 +65,8 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 //	tmp(3) = tmp(3) + __distanceOffset;
 
 	int x, y;	//retinal position (for closed loo)
-	x = 128;
-	y = 128;
+	x = 114;
+	y = 134;
 
 
 	if (_mode == atnr)

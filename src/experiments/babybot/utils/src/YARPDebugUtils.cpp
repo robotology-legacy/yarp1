@@ -18,9 +18,9 @@ void YARPDebugUtils::print(const YVector &v, const char *prefix)
 	{
 		for(int k = 1; k <= n-1; k++)
 		{
-			ACE_OS::printf("(%.3lf)\t", v(k));
+			ACE_OS::printf("(%.3lf) ", v(k));
 		}
-		ACE_OS::printf("(%.3lf)", v(k+1));
+		ACE_OS::printf("(%.3lf)", v(k));
 	}
 	ACE_OS::printf(">\n");
 }
