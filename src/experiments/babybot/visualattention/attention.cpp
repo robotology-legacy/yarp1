@@ -211,8 +211,6 @@ void mainthread::Body (void)
 	out3.Resize(_xsize, _ysize);
 	col_cart.Resize(_xsize, _ysize);
 
-	//temp_16.Resize(_stheta, _srho, -2);
-
 	//YARPConvKernelFile::Write("./prewitt.yck\0",prewitt);
 	
 	inImage.Register(_inName1, _netname1);
@@ -444,6 +442,7 @@ int main (int argc, char *argv[])
 	while (c != 'q');
 
 	_thread.End(-1);
+	_thread2.End(-1);
 
 	return YARP_OK;
 }

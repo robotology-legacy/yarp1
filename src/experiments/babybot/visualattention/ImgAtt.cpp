@@ -384,8 +384,8 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num)
 	salienceBU=1.0;
 	salienceTD=0;
 
-	boxes = new YARPBox[num];
-	num_boxes=num;
+	IORBoxes = new YARPBox[num];
+	num_IORBoxes=num;
 
 	max_boxes = new YARPBox[3];
 }
@@ -398,7 +398,7 @@ YARPImgAtt::~YARPImgAtt()
 	delete [] lut.key;
 
 	delete [] blobList;
-	delete [] boxes;
+	delete [] IORBoxes;
 	delete [] max_boxes;
 }
 
@@ -1364,7 +1364,7 @@ void YARPImgAtt::findBlobs()
 
 void YARPImgAtt::drawIORTable()
 {
-	rain.drawIOR(out, boxes, num_boxes);
+	rain.drawIOR(out, IORBoxes, num_IORBoxes);
 }
 
 
@@ -1384,7 +1384,7 @@ void YARPImgAtt::quantizeColors()
 
 void YARPImgAtt::resetIORTable()
 {
-	rain.maxSalienceBlobs(tagged, max_tag, boxes, num_boxes);
+	rain.maxSalienceBlobs(tagged, max_tag, IORBoxes, num_IORBoxes);
 }
 
 
@@ -1393,9 +1393,9 @@ void YARPImgAtt::updateIORTable()
 	YARPBox tmpBox;
 	rain.maxSalienceBlob(tagged, max_tag, tmpBox);
 
-	for (int j=num_boxes-1; j>0; j--)
-		boxes[j]=boxes[j-1];
-	boxes[0]=tmpBox;
+	for (int j=num_IORBoxes-1; j>0; j--)
+		IORBoxes[j]=IORBoxes[j-1];
+	IORBoxes[0]=tmpBox;
 
 }
 

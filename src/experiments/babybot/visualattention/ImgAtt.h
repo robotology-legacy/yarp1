@@ -213,7 +213,7 @@ protected:
 
 	YARPLpConicFitter fit;
 
-	int num_boxes;
+	int num_IORBoxes;
 
 	char savename[512];
 	
@@ -272,7 +272,7 @@ public:
 	void updateIORTable();
 	void resetIORTable();
 
-	YARPBox* boxes;
+	YARPBox* IORBoxes;
 	YARPBox* max_boxes;
 };
 
