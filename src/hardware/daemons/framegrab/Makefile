@@ -15,13 +15,19 @@ BIN     = main
 
 FILES 	=
 	  
-LDLIBS  = $(MATHLIB) $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib
+LDLIBS  =	$(YARP_ROOT)/lib/$(SYSDIR)/YARPPicoloDeviceDriver.lib	\
+	$(YARP_ROOT)/lib/$(OS)/bttvx.lib	\
+	$(MATHLIB) $(YARP_ROOT)/lib/$(SYSDIR)/images.lib	\
+	$(YARP_ROOT)/lib/$(OS)/LogPolarSmallSDK.lib	\
+	$(YARP_ROOT)/lib/$(SYSDIR)/fakeipl.lib	\
+	$(YARP_ROOT)/lib/$(OS)/os_services.lib
+	
 
 LSRC    = $(addsuffix .cpp,$(FILES))
 LOBJ    = $(addsuffix .o,$(FILES))
 SHOBJ   = $(addsuffix .so,$(FILES))
 
-LDLIBS  =  $(addprefix .shobj/,$(SHOBJ))
+LDLIBS  +=  $(addprefix .shobj/,$(SHOBJ))
 
 VLDLIBS = $(LDLIBS:%=%$(VAR))
 
@@ -52,8 +58,6 @@ include	$(ACE_ROOT)/include/makeinclude/rules.local.GNU
 # DO NOT DELETE THIS LINE -- g++dep uses it.
 # DO NOT PUT ANYTHING AFTER THIS LINE, IT WILL GO AWAY.
 
-.obj/main.o .shobj/main.so: main.cpp 
+main.o: main.cpp
 
-
-
-
+# IF YOU PUT ANYTHING HERE IT WILL GO AWAY
