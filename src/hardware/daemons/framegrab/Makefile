@@ -16,15 +16,16 @@ BIN     = main
 CDEFS += -D$(ROBOT)
 
 FILES 	=
-	  
+
 LDLIBS  =	$(YARP_ROOT)/lib/$(SYSDIR)/YARPPicoloDeviceDriver.lib	\
-		$(YARP_ROOT)/lib/$(OS)/bttvx.lib	\
-		$(MATHLIB) 	\
-		$(YARP_ROOT)/lib/$(SYSDIR)/images.lib	\
-		$(YARP_ROOT)/lib/$(OS)/LogPolarSmallSDK.lib	\
-		$(YARP_ROOT)/lib/$(SYSDIR)/fakeipl.lib	\
-		$(YARP_ROOT)/lib/$(OS)/os_services.lib
-	
+			$(YARP_ROOT)/lib/$(OS)/bttvx.lib	\
+			$(YARP_ROOT)/lib/$(SYSDIR)/images.lib	\
+			$(YARP_ROOT)/lib/$(OS)/LogPolarSmallSDK.lib	\
+			$(YARP_ROOT)/lib/$(SYSDIR)/fakeipl.lib	\
+			$(YARP_ROOT)/lib/$(OS)/os_services.lib	\
+			$(YARP_ROOT)/lib/$(OS)/utils.lib	\
+			$(YARP_ROOT)/lib/$(OS)/math.lib	
+
 LSRC    = $(addsuffix .cpp,$(FILES))
 LOBJ    = $(addsuffix .o,$(FILES))
 SHOBJ   = $(addsuffix .so,$(FILES))
