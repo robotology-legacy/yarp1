@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.cpp,v 1.9 2003-08-07 04:23:43 gmetta Exp $
+/// $Id: YARPImage.cpp,v 1.10 2004-03-26 14:49:58 orfra Exp $
 ///
 ///
 
@@ -982,8 +982,11 @@ void YARPGenericImage::Resize(int x, int y, int pixel_type)
 	{
 		if (x == pImage->width && y == pImage->height)
 		{
-			if (x == pImage->width && y == pImage->height &&
+			/*if (x == pImage->width && y == pImage->height &&
 				pImage->imageSize == x * y * _GetPixelSize(pixel_type) &&
+				pImage->imageData != NULL && Data != NULL)
+			{*/
+			if (pImage->imageSize == (x+GetPadding()) * y * _GetPixelSize(pixel_type) &&
 				pImage->imageData != NULL && Data != NULL)
 			{
 				need_recreation = 0;
