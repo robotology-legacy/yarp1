@@ -63,7 +63,7 @@ int ParseParams (int argc, char *argv[])
 	{
 		if (argv[i][0] == '+')
 		{
-			ACE_OS::sprintf (_name, "/%s/o:img\0", argv[i]+1);
+			ACE_OS::sprintf (_name, "/%s/i:img\0", argv[i]+1);
 		}
 		else if (argv[i][0] == '-')
 		{
