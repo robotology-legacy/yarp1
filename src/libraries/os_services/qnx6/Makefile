@@ -1,6 +1,6 @@
 include $(YARP_ROOT)/conf/Makefile.template
 
-SYSDIR = qnx
+SYSDIR = qnx6
 
 OBJS = $(patsubst %.cpp, %.o, $(wildcard *.cpp))
 CC = g++
