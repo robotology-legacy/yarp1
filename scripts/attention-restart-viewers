@@ -1,0 +1,96 @@
+#!/bin/sh
+
+###
+### Switches and globals
+###
+###. switches
+
+echo "Hello?"
+
+VERBOSE=0
+# TIMING='-timing 120'
+TIMING=''
+GOTIME='-timing 120'
+
+DNODE=21
+
+
+if [ -w //$DNODE/dev/photon ]; then
+  echo "Photon detected on node $DNODE, using it"
+else
+  echo "Using photon on node $NODE instead of $DNODE"
+  DNODE=$NODE
+fi
+
+cogcam="on -n$DNODE -d cogcam -s //$DNODE/dev/photon"
+
+###
+### kill anything else around
+###
+slay -f -n$DNODE cogcam
+
+DELAY=2
+
+let x0=10
+let y0=10
+let xstep=150
+let ystep=300
+
+let x=x0
+let y=y0
+
+$cogcam -x $x -y $y +/yarp/view/color_segm/left &
+sleep $DELAY
+let x=x+xstep
+$cogcam -x $x -y $y +/yarp/view/color_segm/right &
+sleep $DELAY
+let x=x+xstep
+$cogcam -x $x -y $y +/yarp/view/color_segm/histo &
+sleep $DELAY
+let x=x+xstep
+
+$cogcam -x $x -y $y +/yarp/view/disparity/img &
+sleep $DELAY
+let x=x+xstep
+$cogcam -x $x -y $y +/yarp/view/disparity/histo &
+sleep $DELAY
+let x=x+xstep
+
+$cogcam -x $x -y $y +/yarp/view/saliency &
+sleep $DELAY
+let x=x+xstep
+
+let x=x0
+let y=y+ystep
+
+if $START_LEFT_VIEWER
+  then
+    $cogcam -x $x -y $y +/yarp/view/visual_attn/left &
+   sleep $DELAY
+    let x=x+xstep
+    $cogcam -x $x -y $y +/yarp/view/skin/left &
+   sleep $DELAY
+    let x=x+xstep
+    $cogcam -x $x -y $y +/yarp/view/motion/left &
+   sleep $DELAY
+    let x=x+xstep
+  fi
+
+###
+### Right eye attention block
+###
+#exit 1
+if $START_RIGHT_VIEWER
+  then
+    $cogcam -x $x -y $y +/yarp/view/visual_attn/right &
+   sleep $DELAY
+    let x=x+xstep
+    $cogcam -x $x -y $y +/yarp/view/skin/right &
+   sleep $DELAY
+    let x=x+xstep
+    $cogcam -x $x -y $y +/yarp/view/motion/right &
+   sleep $DELAY
+    let x=x+xstep
+  fi
+
+echo '>>>>>>>>>>>>>>>>>>STARTUP DONE'

@@ -1,0 +1,2 @@
+sin -n8 | grep -q boo || missing=" boo"
+echo $missing

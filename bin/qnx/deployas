@@ -1,0 +1,9 @@
+node=$1
+exec=$2
+shift
+shift
+key=$KEY
+echo ">>> DEPLOY on -n$node -d $*"
+on -n$node -d $* &
+isdeploy $node $exec
+undeploy $node $exec

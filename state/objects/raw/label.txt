@@ -1,0 +1,10 @@
+orange 1
+red 2
+purple 3
+yellow 4
+blue 5
+reddish_ball 6
+purple_ball 7
+rugby_ball 8
+veg_bottle 9
+car 10

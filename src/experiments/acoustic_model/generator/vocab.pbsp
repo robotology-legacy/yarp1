@@ -1,0 +1,3872 @@
+phn_l_ae_f_t	L AE F T
+phn_r_ay_t	R AY T
+phn_y_ae_l_ow	Y AE L OW
+phn_b	B
+phn_ch	CH
+phn_d	D
+phn_dh	DH
+phn_dx	DX
+phn_f	F
+phn_g	G
+phn_hh	HH
+phn_jh	JH
+phn_k	K
+phn_l	L
+phn_m	M
+phn_n	N
+phn_ng	NG
+phn_p	P
+phn_r	R
+phn_s	S
+phn_sh	SH
+phn_t	T
+phn_th	TH
+phn_v	V
+phn_w	W
+phn_y	Y
+phn_z	Z
+phn_zh	ZH
+phn_b_l	B L
+phn_b_r	B R
+phn_k_l	K L
+phn_k_r	K R
+phn_d_r	D R
+phn_d_w	D W
+phn_f_l	F L
+phn_f_r	F R
+phn_g_l	G L
+phn_g_r	G R
+phn_p_l	P L
+phn_p_r	P R
+phn_s_ch	S CH
+phn_s_k	S K
+phn_s_l	S L
+phn_s_m	S M
+phn_s_n	S N
+phn_s_p	S P
+phn_s_t	S T
+phn_s_w	S W
+phn_s_k_r	S K R
+phn_s_t_r	S T R
+phn_s_p_r	S P R
+phn_t_r	T R
+phn_t_w	T W
+phn_aa_	AA 
+phn_b_aa	B AA
+phn_b_aa_n	B AA N
+phn_b_aa_d	B AA D
+phn_b_aa_s	B AA S
+phn_ch_aa	CH AA
+phn_ch_aa_n	CH AA N
+phn_ch_aa_d	CH AA D
+phn_ch_aa_s	CH AA S
+phn_d_aa	D AA
+phn_d_aa_n	D AA N
+phn_d_aa_d	D AA D
+phn_d_aa_s	D AA S
+phn_dh_aa	DH AA
+phn_dh_aa_n	DH AA N
+phn_dh_aa_d	DH AA D
+phn_dh_aa_s	DH AA S
+phn_dx_aa	DX AA
+phn_dx_aa_n	DX AA N
+phn_dx_aa_d	DX AA D
+phn_dx_aa_s	DX AA S
+phn_f_aa	F AA
+phn_f_aa_n	F AA N
+phn_f_aa_d	F AA D
+phn_f_aa_s	F AA S
+phn_g_aa	G AA
+phn_g_aa_n	G AA N
+phn_g_aa_d	G AA D
+phn_g_aa_s	G AA S
+phn_hh_aa	HH AA
+phn_hh_aa_n	HH AA N
+phn_hh_aa_d	HH AA D
+phn_hh_aa_s	HH AA S
+phn_jh_aa	JH AA
+phn_jh_aa_n	JH AA N
+phn_jh_aa_d	JH AA D
+phn_jh_aa_s	JH AA S
+phn_k_aa	K AA
+phn_k_aa_n	K AA N
+phn_k_aa_d	K AA D
+phn_k_aa_s	K AA S
+phn_l_aa	L AA
+phn_l_aa_n	L AA N
+phn_l_aa_d	L AA D
+phn_l_aa_s	L AA S
+phn_m_aa	M AA
+phn_m_aa_n	M AA N
+phn_m_aa_d	M AA D
+phn_m_aa_s	M AA S
+phn_n_aa	N AA
+phn_n_aa_n	N AA N
+phn_n_aa_d	N AA D
+phn_n_aa_s	N AA S
+phn_ng_aa	NG AA
+phn_ng_aa_n	NG AA N
+phn_ng_aa_d	NG AA D
+phn_ng_aa_s	NG AA S
+phn_p_aa	P AA
+phn_p_aa_n	P AA N
+phn_p_aa_d	P AA D
+phn_p_aa_s	P AA S
+phn_r_aa	R AA
+phn_r_aa_n	R AA N
+phn_r_aa_d	R AA D
+phn_r_aa_s	R AA S
+phn_s_aa	S AA
+phn_s_aa_n	S AA N
+phn_s_aa_d	S AA D
+phn_s_aa_s	S AA S
+phn_sh_aa	SH AA
+phn_sh_aa_n	SH AA N
+phn_sh_aa_d	SH AA D
+phn_sh_aa_s	SH AA S
+phn_t_aa	T AA
+phn_t_aa_n	T AA N
+phn_t_aa_d	T AA D
+phn_t_aa_s	T AA S
+phn_th_aa	TH AA
+phn_th_aa_n	TH AA N
+phn_th_aa_d	TH AA D
+phn_th_aa_s	TH AA S
+phn_v_aa	V AA
+phn_v_aa_n	V AA N
+phn_v_aa_d	V AA D
+phn_v_aa_s	V AA S
+phn_w_aa	W AA
+phn_w_aa_n	W AA N
+phn_w_aa_d	W AA D
+phn_w_aa_s	W AA S
+phn_y_aa	Y AA
+phn_y_aa_n	Y AA N
+phn_y_aa_d	Y AA D
+phn_y_aa_s	Y AA S
+phn_z_aa	Z AA
+phn_z_aa_n	Z AA N
+phn_z_aa_d	Z AA D
+phn_z_aa_s	Z AA S
+phn_zh_aa	ZH AA
+phn_zh_aa_n	ZH AA N
+phn_zh_aa_d	ZH AA D
+phn_zh_aa_s	ZH AA S
+phn_b_l_aa	B L AA
+phn_b_l_aa_n	B L AA N
+phn_b_l_aa_d	B L AA D
+phn_b_l_aa_s	B L AA S
+phn_b_r_aa	B R AA
+phn_b_r_aa_n	B R AA N
+phn_b_r_aa_d	B R AA D
+phn_b_r_aa_s	B R AA S
+phn_k_l_aa	K L AA
+phn_k_l_aa_n	K L AA N
+phn_k_l_aa_d	K L AA D
+phn_k_l_aa_s	K L AA S
+phn_k_r_aa	K R AA
+phn_k_r_aa_n	K R AA N
+phn_k_r_aa_d	K R AA D
+phn_k_r_aa_s	K R AA S
+phn_d_r_aa	D R AA
+phn_d_r_aa_n	D R AA N
+phn_d_r_aa_d	D R AA D
+phn_d_r_aa_s	D R AA S
+phn_d_w_aa	D W AA
+phn_d_w_aa_n	D W AA N
+phn_d_w_aa_d	D W AA D
+phn_d_w_aa_s	D W AA S
+phn_f_l_aa	F L AA
+phn_f_l_aa_n	F L AA N
+phn_f_l_aa_d	F L AA D
+phn_f_l_aa_s	F L AA S
+phn_f_r_aa	F R AA
+phn_f_r_aa_n	F R AA N
+phn_f_r_aa_d	F R AA D
+phn_f_r_aa_s	F R AA S
+phn_g_l_aa	G L AA
+phn_g_l_aa_n	G L AA N
+phn_g_l_aa_d	G L AA D
+phn_g_l_aa_s	G L AA S
+phn_g_r_aa	G R AA
+phn_g_r_aa_n	G R AA N
+phn_g_r_aa_d	G R AA D
+phn_g_r_aa_s	G R AA S
+phn_p_l_aa	P L AA
+phn_p_l_aa_n	P L AA N
+phn_p_l_aa_d	P L AA D
+phn_p_l_aa_s	P L AA S
+phn_p_r_aa	P R AA
+phn_p_r_aa_n	P R AA N
+phn_p_r_aa_d	P R AA D
+phn_p_r_aa_s	P R AA S
+phn_s_ch_aa	S CH AA
+phn_s_ch_aa_n	S CH AA N
+phn_s_ch_aa_d	S CH AA D
+phn_s_ch_aa_s	S CH AA S
+phn_s_k_aa	S K AA
+phn_s_k_aa_n	S K AA N
+phn_s_k_aa_d	S K AA D
+phn_s_k_aa_s	S K AA S
+phn_s_l_aa	S L AA
+phn_s_l_aa_n	S L AA N
+phn_s_l_aa_d	S L AA D
+phn_s_l_aa_s	S L AA S
+phn_s_m_aa	S M AA
+phn_s_m_aa_n	S M AA N
+phn_s_m_aa_d	S M AA D
+phn_s_m_aa_s	S M AA S
+phn_s_n_aa	S N AA
+phn_s_n_aa_n	S N AA N
+phn_s_n_aa_d	S N AA D
+phn_s_n_aa_s	S N AA S
+phn_s_p_aa	S P AA
+phn_s_p_aa_n	S P AA N
+phn_s_p_aa_d	S P AA D
+phn_s_p_aa_s	S P AA S
+phn_s_t_aa	S T AA
+phn_s_t_aa_n	S T AA N
+phn_s_t_aa_d	S T AA D
+phn_s_t_aa_s	S T AA S
+phn_s_w_aa	S W AA
+phn_s_w_aa_n	S W AA N
+phn_s_w_aa_d	S W AA D
+phn_s_w_aa_s	S W AA S
+phn_s_k_r_aa	S K R AA
+phn_s_k_r_aa_n	S K R AA N
+phn_s_k_r_aa_d	S K R AA D
+phn_s_k_r_aa_s	S K R AA S
+phn_s_t_r_aa	S T R AA
+phn_s_t_r_aa_n	S T R AA N
+phn_s_t_r_aa_d	S T R AA D
+phn_s_t_r_aa_s	S T R AA S
+phn_s_p_r_aa	S P R AA
+phn_s_p_r_aa_n	S P R AA N
+phn_s_p_r_aa_d	S P R AA D
+phn_s_p_r_aa_s	S P R AA S
+phn_t_r_aa	T R AA
+phn_t_r_aa_n	T R AA N
+phn_t_r_aa_d	T R AA D
+phn_t_r_aa_s	T R AA S
+phn_t_w_aa	T W AA
+phn_t_w_aa_n	T W AA N
+phn_t_w_aa_d	T W AA D
+phn_t_w_aa_s	T W AA S
+phn_ae_	AE 
+phn_b_ae	B AE
+phn_b_ae_n	B AE N
+phn_b_ae_d	B AE D
+phn_b_ae_s	B AE S
+phn_ch_ae	CH AE
+phn_ch_ae_n	CH AE N
+phn_ch_ae_d	CH AE D
+phn_ch_ae_s	CH AE S
+phn_d_ae	D AE
+phn_d_ae_n	D AE N
+phn_d_ae_d	D AE D
+phn_d_ae_s	D AE S
+phn_dh_ae	DH AE
+phn_dh_ae_n	DH AE N
+phn_dh_ae_d	DH AE D
+phn_dh_ae_s	DH AE S
+phn_dx_ae	DX AE
+phn_dx_ae_n	DX AE N
+phn_dx_ae_d	DX AE D
+phn_dx_ae_s	DX AE S
+phn_f_ae	F AE
+phn_f_ae_n	F AE N
+phn_f_ae_d	F AE D
+phn_f_ae_s	F AE S
+phn_g_ae	G AE
+phn_g_ae_n	G AE N
+phn_g_ae_d	G AE D
+phn_g_ae_s	G AE S
+phn_hh_ae	HH AE
+phn_hh_ae_n	HH AE N
+phn_hh_ae_d	HH AE D
+phn_hh_ae_s	HH AE S
+phn_jh_ae	JH AE
+phn_jh_ae_n	JH AE N
+phn_jh_ae_d	JH AE D
+phn_jh_ae_s	JH AE S
+phn_k_ae	K AE
+phn_k_ae_n	K AE N
+phn_k_ae_d	K AE D
+phn_k_ae_s	K AE S
+phn_l_ae	L AE
+phn_l_ae_n	L AE N
+phn_l_ae_d	L AE D
+phn_l_ae_s	L AE S
+phn_m_ae	M AE
+phn_m_ae_n	M AE N
+phn_m_ae_d	M AE D
+phn_m_ae_s	M AE S
+phn_n_ae	N AE
+phn_n_ae_n	N AE N
+phn_n_ae_d	N AE D
+phn_n_ae_s	N AE S
+phn_ng_ae	NG AE
+phn_ng_ae_n	NG AE N
+phn_ng_ae_d	NG AE D
+phn_ng_ae_s	NG AE S
+phn_p_ae	P AE
+phn_p_ae_n	P AE N
+phn_p_ae_d	P AE D
+phn_p_ae_s	P AE S
+phn_r_ae	R AE
+phn_r_ae_n	R AE N
+phn_r_ae_d	R AE D
+phn_r_ae_s	R AE S
+phn_s_ae	S AE
+phn_s_ae_n	S AE N
+phn_s_ae_d	S AE D
+phn_s_ae_s	S AE S
+phn_sh_ae	SH AE
+phn_sh_ae_n	SH AE N
+phn_sh_ae_d	SH AE D
+phn_sh_ae_s	SH AE S
+phn_t_ae	T AE
+phn_t_ae_n	T AE N
+phn_t_ae_d	T AE D
+phn_t_ae_s	T AE S
+phn_th_ae	TH AE
+phn_th_ae_n	TH AE N
+phn_th_ae_d	TH AE D
+phn_th_ae_s	TH AE S
+phn_v_ae	V AE
+phn_v_ae_n	V AE N
+phn_v_ae_d	V AE D
+phn_v_ae_s	V AE S
+phn_w_ae	W AE
+phn_w_ae_n	W AE N
+phn_w_ae_d	W AE D
+phn_w_ae_s	W AE S
+phn_y_ae	Y AE
+phn_y_ae_n	Y AE N
+phn_y_ae_d	Y AE D
+phn_y_ae_s	Y AE S
+phn_z_ae	Z AE
+phn_z_ae_n	Z AE N
+phn_z_ae_d	Z AE D
+phn_z_ae_s	Z AE S
+phn_zh_ae	ZH AE
+phn_zh_ae_n	ZH AE N
+phn_zh_ae_d	ZH AE D
+phn_zh_ae_s	ZH AE S
+phn_b_l_ae	B L AE
+phn_b_l_ae_n	B L AE N
+phn_b_l_ae_d	B L AE D
+phn_b_l_ae_s	B L AE S
+phn_b_r_ae	B R AE
+phn_b_r_ae_n	B R AE N
+phn_b_r_ae_d	B R AE D
+phn_b_r_ae_s	B R AE S
+phn_k_l_ae	K L AE
+phn_k_l_ae_n	K L AE N
+phn_k_l_ae_d	K L AE D
+phn_k_l_ae_s	K L AE S
+phn_k_r_ae	K R AE
+phn_k_r_ae_n	K R AE N
+phn_k_r_ae_d	K R AE D
+phn_k_r_ae_s	K R AE S
+phn_d_r_ae	D R AE
+phn_d_r_ae_n	D R AE N
+phn_d_r_ae_d	D R AE D
+phn_d_r_ae_s	D R AE S
+phn_d_w_ae	D W AE
+phn_d_w_ae_n	D W AE N
+phn_d_w_ae_d	D W AE D
+phn_d_w_ae_s	D W AE S
+phn_f_l_ae	F L AE
+phn_f_l_ae_n	F L AE N
+phn_f_l_ae_d	F L AE D
+phn_f_l_ae_s	F L AE S
+phn_f_r_ae	F R AE
+phn_f_r_ae_n	F R AE N
+phn_f_r_ae_d	F R AE D
+phn_f_r_ae_s	F R AE S
+phn_g_l_ae	G L AE
+phn_g_l_ae_n	G L AE N
+phn_g_l_ae_d	G L AE D
+phn_g_l_ae_s	G L AE S
+phn_g_r_ae	G R AE
+phn_g_r_ae_n	G R AE N
+phn_g_r_ae_d	G R AE D
+phn_g_r_ae_s	G R AE S
+phn_p_l_ae	P L AE
+phn_p_l_ae_n	P L AE N
+phn_p_l_ae_d	P L AE D
+phn_p_l_ae_s	P L AE S
+phn_p_r_ae	P R AE
+phn_p_r_ae_n	P R AE N
+phn_p_r_ae_d	P R AE D
+phn_p_r_ae_s	P R AE S
+phn_s_ch_ae	S CH AE
+phn_s_ch_ae_n	S CH AE N
+phn_s_ch_ae_d	S CH AE D
+phn_s_ch_ae_s	S CH AE S
+phn_s_k_ae	S K AE
+phn_s_k_ae_n	S K AE N
+phn_s_k_ae_d	S K AE D
+phn_s_k_ae_s	S K AE S
+phn_s_l_ae	S L AE
+phn_s_l_ae_n	S L AE N
+phn_s_l_ae_d	S L AE D
+phn_s_l_ae_s	S L AE S
+phn_s_m_ae	S M AE
+phn_s_m_ae_n	S M AE N
+phn_s_m_ae_d	S M AE D
+phn_s_m_ae_s	S M AE S
+phn_s_n_ae	S N AE
+phn_s_n_ae_n	S N AE N
+phn_s_n_ae_d	S N AE D
+phn_s_n_ae_s	S N AE S
+phn_s_p_ae	S P AE
+phn_s_p_ae_n	S P AE N
+phn_s_p_ae_d	S P AE D
+phn_s_p_ae_s	S P AE S
+phn_s_t_ae	S T AE
+phn_s_t_ae_n	S T AE N
+phn_s_t_ae_d	S T AE D
+phn_s_t_ae_s	S T AE S
+phn_s_w_ae	S W AE
+phn_s_w_ae_n	S W AE N
+phn_s_w_ae_d	S W AE D
+phn_s_w_ae_s	S W AE S
+phn_s_k_r_ae	S K R AE
+phn_s_k_r_ae_n	S K R AE N
+phn_s_k_r_ae_d	S K R AE D
+phn_s_k_r_ae_s	S K R AE S
+phn_s_t_r_ae	S T R AE
+phn_s_t_r_ae_n	S T R AE N
+phn_s_t_r_ae_d	S T R AE D
+phn_s_t_r_ae_s	S T R AE S
+phn_s_p_r_ae	S P R AE
+phn_s_p_r_ae_n	S P R AE N
+phn_s_p_r_ae_d	S P R AE D
+phn_s_p_r_ae_s	S P R AE S
+phn_t_r_ae	T R AE
+phn_t_r_ae_n	T R AE N
+phn_t_r_ae_d	T R AE D
+phn_t_r_ae_s	T R AE S
+phn_t_w_ae	T W AE
+phn_t_w_ae_n	T W AE N
+phn_t_w_ae_d	T W AE D
+phn_t_w_ae_s	T W AE S
+phn_ah_	AH 
+phn_b_ah	B AH
+phn_b_ah_n	B AH N
+phn_b_ah_d	B AH D
+phn_b_ah_s	B AH S
+phn_ch_ah	CH AH
+phn_ch_ah_n	CH AH N
+phn_ch_ah_d	CH AH D
+phn_ch_ah_s	CH AH S
+phn_d_ah	D AH
+phn_d_ah_n	D AH N
+phn_d_ah_d	D AH D
+phn_d_ah_s	D AH S
+phn_dh_ah	DH AH
+phn_dh_ah_n	DH AH N
+phn_dh_ah_d	DH AH D
+phn_dh_ah_s	DH AH S
+phn_dx_ah	DX AH
+phn_dx_ah_n	DX AH N
+phn_dx_ah_d	DX AH D
+phn_dx_ah_s	DX AH S
+phn_f_ah	F AH
+phn_f_ah_n	F AH N
+phn_f_ah_d	F AH D
+phn_f_ah_s	F AH S
+phn_g_ah	G AH
+phn_g_ah_n	G AH N
+phn_g_ah_d	G AH D
+phn_g_ah_s	G AH S
+phn_hh_ah	HH AH
+phn_hh_ah_n	HH AH N
+phn_hh_ah_d	HH AH D
+phn_hh_ah_s	HH AH S
+phn_jh_ah	JH AH
+phn_jh_ah_n	JH AH N
+phn_jh_ah_d	JH AH D
+phn_jh_ah_s	JH AH S
+phn_k_ah	K AH
+phn_k_ah_n	K AH N
+phn_k_ah_d	K AH D
+phn_k_ah_s	K AH S
+phn_l_ah	L AH
+phn_l_ah_n	L AH N
+phn_l_ah_d	L AH D
+phn_l_ah_s	L AH S
+phn_m_ah	M AH
+phn_m_ah_n	M AH N
+phn_m_ah_d	M AH D
+phn_m_ah_s	M AH S
+phn_n_ah	N AH
+phn_n_ah_n	N AH N
+phn_n_ah_d	N AH D
+phn_n_ah_s	N AH S
+phn_ng_ah	NG AH
+phn_ng_ah_n	NG AH N
+phn_ng_ah_d	NG AH D
+phn_ng_ah_s	NG AH S
+phn_p_ah	P AH
+phn_p_ah_n	P AH N
+phn_p_ah_d	P AH D
+phn_p_ah_s	P AH S
+phn_r_ah	R AH
+phn_r_ah_n	R AH N
+phn_r_ah_d	R AH D
+phn_r_ah_s	R AH S
+phn_s_ah	S AH
+phn_s_ah_n	S AH N
+phn_s_ah_d	S AH D
+phn_s_ah_s	S AH S
+phn_sh_ah	SH AH
+phn_sh_ah_n	SH AH N
+phn_sh_ah_d	SH AH D
+phn_sh_ah_s	SH AH S
+phn_t_ah	T AH
+phn_t_ah_n	T AH N
+phn_t_ah_d	T AH D
+phn_t_ah_s	T AH S
+phn_th_ah	TH AH
+phn_th_ah_n	TH AH N
+phn_th_ah_d	TH AH D
+phn_th_ah_s	TH AH S
+phn_v_ah	V AH
+phn_v_ah_n	V AH N
+phn_v_ah_d	V AH D
+phn_v_ah_s	V AH S
+phn_w_ah	W AH
+phn_w_ah_n	W AH N
+phn_w_ah_d	W AH D
+phn_w_ah_s	W AH S
+phn_y_ah	Y AH
+phn_y_ah_n	Y AH N
+phn_y_ah_d	Y AH D
+phn_y_ah_s	Y AH S
+phn_z_ah	Z AH
+phn_z_ah_n	Z AH N
+phn_z_ah_d	Z AH D
+phn_z_ah_s	Z AH S
+phn_zh_ah	ZH AH
+phn_zh_ah_n	ZH AH N
+phn_zh_ah_d	ZH AH D
+phn_zh_ah_s	ZH AH S
+phn_b_l_ah	B L AH
+phn_b_l_ah_n	B L AH N
+phn_b_l_ah_d	B L AH D
+phn_b_l_ah_s	B L AH S
+phn_b_r_ah	B R AH
+phn_b_r_ah_n	B R AH N
+phn_b_r_ah_d	B R AH D
+phn_b_r_ah_s	B R AH S
+phn_k_l_ah	K L AH
+phn_k_l_ah_n	K L AH N
+phn_k_l_ah_d	K L AH D
+phn_k_l_ah_s	K L AH S
+phn_k_r_ah	K R AH
+phn_k_r_ah_n	K R AH N
+phn_k_r_ah_d	K R AH D
+phn_k_r_ah_s	K R AH S
+phn_d_r_ah	D R AH
+phn_d_r_ah_n	D R AH N
+phn_d_r_ah_d	D R AH D
+phn_d_r_ah_s	D R AH S
+phn_d_w_ah	D W AH
+phn_d_w_ah_n	D W AH N
+phn_d_w_ah_d	D W AH D
+phn_d_w_ah_s	D W AH S
+phn_f_l_ah	F L AH
+phn_f_l_ah_n	F L AH N
+phn_f_l_ah_d	F L AH D
+phn_f_l_ah_s	F L AH S
+phn_f_r_ah	F R AH
+phn_f_r_ah_n	F R AH N
+phn_f_r_ah_d	F R AH D
+phn_f_r_ah_s	F R AH S
+phn_g_l_ah	G L AH
+phn_g_l_ah_n	G L AH N
+phn_g_l_ah_d	G L AH D
+phn_g_l_ah_s	G L AH S
+phn_g_r_ah	G R AH
+phn_g_r_ah_n	G R AH N
+phn_g_r_ah_d	G R AH D
+phn_g_r_ah_s	G R AH S
+phn_p_l_ah	P L AH
+phn_p_l_ah_n	P L AH N
+phn_p_l_ah_d	P L AH D
+phn_p_l_ah_s	P L AH S
+phn_p_r_ah	P R AH
+phn_p_r_ah_n	P R AH N
+phn_p_r_ah_d	P R AH D
+phn_p_r_ah_s	P R AH S
+phn_s_ch_ah	S CH AH
+phn_s_ch_ah_n	S CH AH N
+phn_s_ch_ah_d	S CH AH D
+phn_s_ch_ah_s	S CH AH S
+phn_s_k_ah	S K AH
+phn_s_k_ah_n	S K AH N
+phn_s_k_ah_d	S K AH D
+phn_s_k_ah_s	S K AH S
+phn_s_l_ah	S L AH
+phn_s_l_ah_n	S L AH N
+phn_s_l_ah_d	S L AH D
+phn_s_l_ah_s	S L AH S
+phn_s_m_ah	S M AH
+phn_s_m_ah_n	S M AH N
+phn_s_m_ah_d	S M AH D
+phn_s_m_ah_s	S M AH S
+phn_s_n_ah	S N AH
+phn_s_n_ah_n	S N AH N
+phn_s_n_ah_d	S N AH D
+phn_s_n_ah_s	S N AH S
+phn_s_p_ah	S P AH
+phn_s_p_ah_n	S P AH N
+phn_s_p_ah_d	S P AH D
+phn_s_p_ah_s	S P AH S
+phn_s_t_ah	S T AH
+phn_s_t_ah_n	S T AH N
+phn_s_t_ah_d	S T AH D
+phn_s_t_ah_s	S T AH S
+phn_s_w_ah	S W AH
+phn_s_w_ah_n	S W AH N
+phn_s_w_ah_d	S W AH D
+phn_s_w_ah_s	S W AH S
+phn_s_k_r_ah	S K R AH
+phn_s_k_r_ah_n	S K R AH N
+phn_s_k_r_ah_d	S K R AH D
+phn_s_k_r_ah_s	S K R AH S
+phn_s_t_r_ah	S T R AH
+phn_s_t_r_ah_n	S T R AH N
+phn_s_t_r_ah_d	S T R AH D
+phn_s_t_r_ah_s	S T R AH S
+phn_s_p_r_ah	S P R AH
+phn_s_p_r_ah_n	S P R AH N
+phn_s_p_r_ah_d	S P R AH D
+phn_s_p_r_ah_s	S P R AH S
+phn_t_r_ah	T R AH
+phn_t_r_ah_n	T R AH N
+phn_t_r_ah_d	T R AH D
+phn_t_r_ah_s	T R AH S
+phn_t_w_ah	T W AH
+phn_t_w_ah_n	T W AH N
+phn_t_w_ah_d	T W AH D
+phn_t_w_ah_s	T W AH S
+phn_ao_	AO 
+phn_b_ao	B AO
+phn_b_ao_n	B AO N
+phn_b_ao_d	B AO D
+phn_b_ao_s	B AO S
+phn_ch_ao	CH AO
+phn_ch_ao_n	CH AO N
+phn_ch_ao_d	CH AO D
+phn_ch_ao_s	CH AO S
+phn_d_ao	D AO
+phn_d_ao_n	D AO N
+phn_d_ao_d	D AO D
+phn_d_ao_s	D AO S
+phn_dh_ao	DH AO
+phn_dh_ao_n	DH AO N
+phn_dh_ao_d	DH AO D
+phn_dh_ao_s	DH AO S
+phn_dx_ao	DX AO
+phn_dx_ao_n	DX AO N
+phn_dx_ao_d	DX AO D
+phn_dx_ao_s	DX AO S
+phn_f_ao	F AO
+phn_f_ao_n	F AO N
+phn_f_ao_d	F AO D
+phn_f_ao_s	F AO S
+phn_g_ao	G AO
+phn_g_ao_n	G AO N
+phn_g_ao_d	G AO D
+phn_g_ao_s	G AO S
+phn_hh_ao	HH AO
+phn_hh_ao_n	HH AO N
+phn_hh_ao_d	HH AO D
+phn_hh_ao_s	HH AO S
+phn_jh_ao	JH AO
+phn_jh_ao_n	JH AO N
+phn_jh_ao_d	JH AO D
+phn_jh_ao_s	JH AO S
+phn_k_ao	K AO
+phn_k_ao_n	K AO N
+phn_k_ao_d	K AO D
+phn_k_ao_s	K AO S
+phn_l_ao	L AO
+phn_l_ao_n	L AO N
+phn_l_ao_d	L AO D
+phn_l_ao_s	L AO S
+phn_m_ao	M AO
+phn_m_ao_n	M AO N
+phn_m_ao_d	M AO D
+phn_m_ao_s	M AO S
+phn_n_ao	N AO
+phn_n_ao_n	N AO N
+phn_n_ao_d	N AO D
+phn_n_ao_s	N AO S
+phn_ng_ao	NG AO
+phn_ng_ao_n	NG AO N
+phn_ng_ao_d	NG AO D
+phn_ng_ao_s	NG AO S
+phn_p_ao	P AO
+phn_p_ao_n	P AO N
+phn_p_ao_d	P AO D
+phn_p_ao_s	P AO S
+phn_r_ao	R AO
+phn_r_ao_n	R AO N
+phn_r_ao_d	R AO D
+phn_r_ao_s	R AO S
+phn_s_ao	S AO
+phn_s_ao_n	S AO N
+phn_s_ao_d	S AO D
+phn_s_ao_s	S AO S
+phn_sh_ao	SH AO
+phn_sh_ao_n	SH AO N
+phn_sh_ao_d	SH AO D
+phn_sh_ao_s	SH AO S
+phn_t_ao	T AO
+phn_t_ao_n	T AO N
+phn_t_ao_d	T AO D
+phn_t_ao_s	T AO S
+phn_th_ao	TH AO
+phn_th_ao_n	TH AO N
+phn_th_ao_d	TH AO D
+phn_th_ao_s	TH AO S
+phn_v_ao	V AO
+phn_v_ao_n	V AO N
+phn_v_ao_d	V AO D
+phn_v_ao_s	V AO S
+phn_w_ao	W AO
+phn_w_ao_n	W AO N
+phn_w_ao_d	W AO D
+phn_w_ao_s	W AO S
+phn_y_ao	Y AO
+phn_y_ao_n	Y AO N
+phn_y_ao_d	Y AO D
+phn_y_ao_s	Y AO S
+phn_z_ao	Z AO
+phn_z_ao_n	Z AO N
+phn_z_ao_d	Z AO D
+phn_z_ao_s	Z AO S
+phn_zh_ao	ZH AO
+phn_zh_ao_n	ZH AO N
+phn_zh_ao_d	ZH AO D
+phn_zh_ao_s	ZH AO S
+phn_b_l_ao	B L AO
+phn_b_l_ao_n	B L AO N
+phn_b_l_ao_d	B L AO D
+phn_b_l_ao_s	B L AO S
+phn_b_r_ao	B R AO
+phn_b_r_ao_n	B R AO N
+phn_b_r_ao_d	B R AO D
+phn_b_r_ao_s	B R AO S
+phn_k_l_ao	K L AO
+phn_k_l_ao_n	K L AO N
+phn_k_l_ao_d	K L AO D
+phn_k_l_ao_s	K L AO S
+phn_k_r_ao	K R AO
+phn_k_r_ao_n	K R AO N
+phn_k_r_ao_d	K R AO D
+phn_k_r_ao_s	K R AO S
+phn_d_r_ao	D R AO
+phn_d_r_ao_n	D R AO N
+phn_d_r_ao_d	D R AO D
+phn_d_r_ao_s	D R AO S
+phn_d_w_ao	D W AO
+phn_d_w_ao_n	D W AO N
+phn_d_w_ao_d	D W AO D
+phn_d_w_ao_s	D W AO S
+phn_f_l_ao	F L AO
+phn_f_l_ao_n	F L AO N
+phn_f_l_ao_d	F L AO D
+phn_f_l_ao_s	F L AO S
+phn_f_r_ao	F R AO
+phn_f_r_ao_n	F R AO N
+phn_f_r_ao_d	F R AO D
+phn_f_r_ao_s	F R AO S
+phn_g_l_ao	G L AO
+phn_g_l_ao_n	G L AO N
+phn_g_l_ao_d	G L AO D
+phn_g_l_ao_s	G L AO S
+phn_g_r_ao	G R AO
+phn_g_r_ao_n	G R AO N
+phn_g_r_ao_d	G R AO D
+phn_g_r_ao_s	G R AO S
+phn_p_l_ao	P L AO
+phn_p_l_ao_n	P L AO N
+phn_p_l_ao_d	P L AO D
+phn_p_l_ao_s	P L AO S
+phn_p_r_ao	P R AO
+phn_p_r_ao_n	P R AO N
+phn_p_r_ao_d	P R AO D
+phn_p_r_ao_s	P R AO S
+phn_s_ch_ao	S CH AO
+phn_s_ch_ao_n	S CH AO N
+phn_s_ch_ao_d	S CH AO D
+phn_s_ch_ao_s	S CH AO S
+phn_s_k_ao	S K AO
+phn_s_k_ao_n	S K AO N
+phn_s_k_ao_d	S K AO D
+phn_s_k_ao_s	S K AO S
+phn_s_l_ao	S L AO
+phn_s_l_ao_n	S L AO N
+phn_s_l_ao_d	S L AO D
+phn_s_l_ao_s	S L AO S
+phn_s_m_ao	S M AO
+phn_s_m_ao_n	S M AO N
+phn_s_m_ao_d	S M AO D
+phn_s_m_ao_s	S M AO S
+phn_s_n_ao	S N AO
+phn_s_n_ao_n	S N AO N
+phn_s_n_ao_d	S N AO D
+phn_s_n_ao_s	S N AO S
+phn_s_p_ao	S P AO
+phn_s_p_ao_n	S P AO N
+phn_s_p_ao_d	S P AO D
+phn_s_p_ao_s	S P AO S
+phn_s_t_ao	S T AO
+phn_s_t_ao_n	S T AO N
+phn_s_t_ao_d	S T AO D
+phn_s_t_ao_s	S T AO S
+phn_s_w_ao	S W AO
+phn_s_w_ao_n	S W AO N
+phn_s_w_ao_d	S W AO D
+phn_s_w_ao_s	S W AO S
+phn_s_k_r_ao	S K R AO
+phn_s_k_r_ao_n	S K R AO N
+phn_s_k_r_ao_d	S K R AO D
+phn_s_k_r_ao_s	S K R AO S
+phn_s_t_r_ao	S T R AO
+phn_s_t_r_ao_n	S T R AO N
+phn_s_t_r_ao_d	S T R AO D
+phn_s_t_r_ao_s	S T R AO S
+phn_s_p_r_ao	S P R AO
+phn_s_p_r_ao_n	S P R AO N
+phn_s_p_r_ao_d	S P R AO D
+phn_s_p_r_ao_s	S P R AO S
+phn_t_r_ao	T R AO
+phn_t_r_ao_n	T R AO N
+phn_t_r_ao_d	T R AO D
+phn_t_r_ao_s	T R AO S
+phn_t_w_ao	T W AO
+phn_t_w_ao_n	T W AO N
+phn_t_w_ao_d	T W AO D
+phn_t_w_ao_s	T W AO S
+phn_aw_	AW 
+phn_b_aw	B AW
+phn_b_aw_n	B AW N
+phn_b_aw_d	B AW D
+phn_b_aw_s	B AW S
+phn_ch_aw	CH AW
+phn_ch_aw_n	CH AW N
+phn_ch_aw_d	CH AW D
+phn_ch_aw_s	CH AW S
+phn_d_aw	D AW
+phn_d_aw_n	D AW N
+phn_d_aw_d	D AW D
+phn_d_aw_s	D AW S
+phn_dh_aw	DH AW
+phn_dh_aw_n	DH AW N
+phn_dh_aw_d	DH AW D
+phn_dh_aw_s	DH AW S
+phn_dx_aw	DX AW
+phn_dx_aw_n	DX AW N
+phn_dx_aw_d	DX AW D
+phn_dx_aw_s	DX AW S
+phn_f_aw	F AW
+phn_f_aw_n	F AW N
+phn_f_aw_d	F AW D
+phn_f_aw_s	F AW S
+phn_g_aw	G AW
+phn_g_aw_n	G AW N
+phn_g_aw_d	G AW D
+phn_g_aw_s	G AW S
+phn_hh_aw	HH AW
+phn_hh_aw_n	HH AW N
+phn_hh_aw_d	HH AW D
+phn_hh_aw_s	HH AW S
+phn_jh_aw	JH AW
+phn_jh_aw_n	JH AW N
+phn_jh_aw_d	JH AW D
+phn_jh_aw_s	JH AW S
+phn_k_aw	K AW
+phn_k_aw_n	K AW N
+phn_k_aw_d	K AW D
+phn_k_aw_s	K AW S
+phn_l_aw	L AW
+phn_l_aw_n	L AW N
+phn_l_aw_d	L AW D
+phn_l_aw_s	L AW S
+phn_m_aw	M AW
+phn_m_aw_n	M AW N
+phn_m_aw_d	M AW D
+phn_m_aw_s	M AW S
+phn_n_aw	N AW
+phn_n_aw_n	N AW N
+phn_n_aw_d	N AW D
+phn_n_aw_s	N AW S
+phn_ng_aw	NG AW
+phn_ng_aw_n	NG AW N
+phn_ng_aw_d	NG AW D
+phn_ng_aw_s	NG AW S
+phn_p_aw	P AW
+phn_p_aw_n	P AW N
+phn_p_aw_d	P AW D
+phn_p_aw_s	P AW S
+phn_r_aw	R AW
+phn_r_aw_n	R AW N
+phn_r_aw_d	R AW D
+phn_r_aw_s	R AW S
+phn_s_aw	S AW
+phn_s_aw_n	S AW N
+phn_s_aw_d	S AW D
+phn_s_aw_s	S AW S
+phn_sh_aw	SH AW
+phn_sh_aw_n	SH AW N
+phn_sh_aw_d	SH AW D
+phn_sh_aw_s	SH AW S
+phn_t_aw	T AW
+phn_t_aw_n	T AW N
+phn_t_aw_d	T AW D
+phn_t_aw_s	T AW S
+phn_th_aw	TH AW
+phn_th_aw_n	TH AW N
+phn_th_aw_d	TH AW D
+phn_th_aw_s	TH AW S
+phn_v_aw	V AW
+phn_v_aw_n	V AW N
+phn_v_aw_d	V AW D
+phn_v_aw_s	V AW S
+phn_w_aw	W AW
+phn_w_aw_n	W AW N
+phn_w_aw_d	W AW D
+phn_w_aw_s	W AW S
+phn_y_aw	Y AW
+phn_y_aw_n	Y AW N
+phn_y_aw_d	Y AW D
+phn_y_aw_s	Y AW S
+phn_z_aw	Z AW
+phn_z_aw_n	Z AW N
+phn_z_aw_d	Z AW D
+phn_z_aw_s	Z AW S
+phn_zh_aw	ZH AW
+phn_zh_aw_n	ZH AW N
+phn_zh_aw_d	ZH AW D
+phn_zh_aw_s	ZH AW S
+phn_b_l_aw	B L AW
+phn_b_l_aw_n	B L AW N
+phn_b_l_aw_d	B L AW D
+phn_b_l_aw_s	B L AW S
+phn_b_r_aw	B R AW
+phn_b_r_aw_n	B R AW N
+phn_b_r_aw_d	B R AW D
+phn_b_r_aw_s	B R AW S
+phn_k_l_aw	K L AW
+phn_k_l_aw_n	K L AW N
+phn_k_l_aw_d	K L AW D
+phn_k_l_aw_s	K L AW S
+phn_k_r_aw	K R AW
+phn_k_r_aw_n	K R AW N
+phn_k_r_aw_d	K R AW D
+phn_k_r_aw_s	K R AW S
+phn_d_r_aw	D R AW
+phn_d_r_aw_n	D R AW N
+phn_d_r_aw_d	D R AW D
+phn_d_r_aw_s	D R AW S
+phn_d_w_aw	D W AW
+phn_d_w_aw_n	D W AW N
+phn_d_w_aw_d	D W AW D
+phn_d_w_aw_s	D W AW S
+phn_f_l_aw	F L AW
+phn_f_l_aw_n	F L AW N
+phn_f_l_aw_d	F L AW D
+phn_f_l_aw_s	F L AW S
+phn_f_r_aw	F R AW
+phn_f_r_aw_n	F R AW N
+phn_f_r_aw_d	F R AW D
+phn_f_r_aw_s	F R AW S
+phn_g_l_aw	G L AW
+phn_g_l_aw_n	G L AW N
+phn_g_l_aw_d	G L AW D
+phn_g_l_aw_s	G L AW S
+phn_g_r_aw	G R AW
+phn_g_r_aw_n	G R AW N
+phn_g_r_aw_d	G R AW D
+phn_g_r_aw_s	G R AW S
+phn_p_l_aw	P L AW
+phn_p_l_aw_n	P L AW N
+phn_p_l_aw_d	P L AW D
+phn_p_l_aw_s	P L AW S
+phn_p_r_aw	P R AW
+phn_p_r_aw_n	P R AW N
+phn_p_r_aw_d	P R AW D
+phn_p_r_aw_s	P R AW S
+phn_s_ch_aw	S CH AW
+phn_s_ch_aw_n	S CH AW N
+phn_s_ch_aw_d	S CH AW D
+phn_s_ch_aw_s	S CH AW S
+phn_s_k_aw	S K AW
+phn_s_k_aw_n	S K AW N
+phn_s_k_aw_d	S K AW D
+phn_s_k_aw_s	S K AW S
+phn_s_l_aw	S L AW
+phn_s_l_aw_n	S L AW N
+phn_s_l_aw_d	S L AW D
+phn_s_l_aw_s	S L AW S
+phn_s_m_aw	S M AW
+phn_s_m_aw_n	S M AW N
+phn_s_m_aw_d	S M AW D
+phn_s_m_aw_s	S M AW S
+phn_s_n_aw	S N AW
+phn_s_n_aw_n	S N AW N
+phn_s_n_aw_d	S N AW D
+phn_s_n_aw_s	S N AW S
+phn_s_p_aw	S P AW
+phn_s_p_aw_n	S P AW N
+phn_s_p_aw_d	S P AW D
+phn_s_p_aw_s	S P AW S
+phn_s_t_aw	S T AW
+phn_s_t_aw_n	S T AW N
+phn_s_t_aw_d	S T AW D
+phn_s_t_aw_s	S T AW S
+phn_s_w_aw	S W AW
+phn_s_w_aw_n	S W AW N
+phn_s_w_aw_d	S W AW D
+phn_s_w_aw_s	S W AW S
+phn_s_k_r_aw	S K R AW
+phn_s_k_r_aw_n	S K R AW N
+phn_s_k_r_aw_d	S K R AW D
+phn_s_k_r_aw_s	S K R AW S
+phn_s_t_r_aw	S T R AW
+phn_s_t_r_aw_n	S T R AW N
+phn_s_t_r_aw_d	S T R AW D
+phn_s_t_r_aw_s	S T R AW S
+phn_s_p_r_aw	S P R AW
+phn_s_p_r_aw_n	S P R AW N
+phn_s_p_r_aw_d	S P R AW D
+phn_s_p_r_aw_s	S P R AW S
+phn_t_r_aw	T R AW
+phn_t_r_aw_n	T R AW N
+phn_t_r_aw_d	T R AW D
+phn_t_r_aw_s	T R AW S
+phn_t_w_aw	T W AW
+phn_t_w_aw_n	T W AW N
+phn_t_w_aw_d	T W AW D
+phn_t_w_aw_s	T W AW S
+phn_ax_	AX 
+phn_b_ax	B AX
+phn_b_ax_n	B AX N
+phn_b_ax_d	B AX D
+phn_b_ax_s	B AX S
+phn_ch_ax	CH AX
+phn_ch_ax_n	CH AX N
+phn_ch_ax_d	CH AX D
+phn_ch_ax_s	CH AX S
+phn_d_ax	D AX
+phn_d_ax_n	D AX N
+phn_d_ax_d	D AX D
+phn_d_ax_s	D AX S
+phn_dh_ax	DH AX
+phn_dh_ax_n	DH AX N
+phn_dh_ax_d	DH AX D
+phn_dh_ax_s	DH AX S
+phn_dx_ax	DX AX
+phn_dx_ax_n	DX AX N
+phn_dx_ax_d	DX AX D
+phn_dx_ax_s	DX AX S
+phn_f_ax	F AX
+phn_f_ax_n	F AX N
+phn_f_ax_d	F AX D
+phn_f_ax_s	F AX S
+phn_g_ax	G AX
+phn_g_ax_n	G AX N
+phn_g_ax_d	G AX D
+phn_g_ax_s	G AX S
+phn_hh_ax	HH AX
+phn_hh_ax_n	HH AX N
+phn_hh_ax_d	HH AX D
+phn_hh_ax_s	HH AX S
+phn_jh_ax	JH AX
+phn_jh_ax_n	JH AX N
+phn_jh_ax_d	JH AX D
+phn_jh_ax_s	JH AX S
+phn_k_ax	K AX
+phn_k_ax_n	K AX N
+phn_k_ax_d	K AX D
+phn_k_ax_s	K AX S
+phn_l_ax	L AX
+phn_l_ax_n	L AX N
+phn_l_ax_d	L AX D
+phn_l_ax_s	L AX S
+phn_m_ax	M AX
+phn_m_ax_n	M AX N
+phn_m_ax_d	M AX D
+phn_m_ax_s	M AX S
+phn_n_ax	N AX
+phn_n_ax_n	N AX N
+phn_n_ax_d	N AX D
+phn_n_ax_s	N AX S
+phn_ng_ax	NG AX
+phn_ng_ax_n	NG AX N
+phn_ng_ax_d	NG AX D
+phn_ng_ax_s	NG AX S
+phn_p_ax	P AX
+phn_p_ax_n	P AX N
+phn_p_ax_d	P AX D
+phn_p_ax_s	P AX S
+phn_r_ax	R AX
+phn_r_ax_n	R AX N
+phn_r_ax_d	R AX D
+phn_r_ax_s	R AX S
+phn_s_ax	S AX
+phn_s_ax_n	S AX N
+phn_s_ax_d	S AX D
+phn_s_ax_s	S AX S
+phn_sh_ax	SH AX
+phn_sh_ax_n	SH AX N
+phn_sh_ax_d	SH AX D
+phn_sh_ax_s	SH AX S
+phn_t_ax	T AX
+phn_t_ax_n	T AX N
+phn_t_ax_d	T AX D
+phn_t_ax_s	T AX S
+phn_th_ax	TH AX
+phn_th_ax_n	TH AX N
+phn_th_ax_d	TH AX D
+phn_th_ax_s	TH AX S
+phn_v_ax	V AX
+phn_v_ax_n	V AX N
+phn_v_ax_d	V AX D
+phn_v_ax_s	V AX S
+phn_w_ax	W AX
+phn_w_ax_n	W AX N
+phn_w_ax_d	W AX D
+phn_w_ax_s	W AX S
+phn_y_ax	Y AX
+phn_y_ax_n	Y AX N
+phn_y_ax_d	Y AX D
+phn_y_ax_s	Y AX S
+phn_z_ax	Z AX
+phn_z_ax_n	Z AX N
+phn_z_ax_d	Z AX D
+phn_z_ax_s	Z AX S
+phn_zh_ax	ZH AX
+phn_zh_ax_n	ZH AX N
+phn_zh_ax_d	ZH AX D
+phn_zh_ax_s	ZH AX S
+phn_b_l_ax	B L AX
+phn_b_l_ax_n	B L AX N
+phn_b_l_ax_d	B L AX D
+phn_b_l_ax_s	B L AX S
+phn_b_r_ax	B R AX
+phn_b_r_ax_n	B R AX N
+phn_b_r_ax_d	B R AX D
+phn_b_r_ax_s	B R AX S
+phn_k_l_ax	K L AX
+phn_k_l_ax_n	K L AX N
+phn_k_l_ax_d	K L AX D
+phn_k_l_ax_s	K L AX S
+phn_k_r_ax	K R AX
+phn_k_r_ax_n	K R AX N
+phn_k_r_ax_d	K R AX D
+phn_k_r_ax_s	K R AX S
+phn_d_r_ax	D R AX
+phn_d_r_ax_n	D R AX N
+phn_d_r_ax_d	D R AX D
+phn_d_r_ax_s	D R AX S
+phn_d_w_ax	D W AX
+phn_d_w_ax_n	D W AX N
+phn_d_w_ax_d	D W AX D
+phn_d_w_ax_s	D W AX S
+phn_f_l_ax	F L AX
+phn_f_l_ax_n	F L AX N
+phn_f_l_ax_d	F L AX D
+phn_f_l_ax_s	F L AX S
+phn_f_r_ax	F R AX
+phn_f_r_ax_n	F R AX N
+phn_f_r_ax_d	F R AX D
+phn_f_r_ax_s	F R AX S
+phn_g_l_ax	G L AX
+phn_g_l_ax_n	G L AX N
+phn_g_l_ax_d	G L AX D
+phn_g_l_ax_s	G L AX S
+phn_g_r_ax	G R AX
+phn_g_r_ax_n	G R AX N
+phn_g_r_ax_d	G R AX D
+phn_g_r_ax_s	G R AX S
+phn_p_l_ax	P L AX
+phn_p_l_ax_n	P L AX N
+phn_p_l_ax_d	P L AX D
+phn_p_l_ax_s	P L AX S
+phn_p_r_ax	P R AX
+phn_p_r_ax_n	P R AX N
+phn_p_r_ax_d	P R AX D
+phn_p_r_ax_s	P R AX S
+phn_s_ch_ax	S CH AX
+phn_s_ch_ax_n	S CH AX N
+phn_s_ch_ax_d	S CH AX D
+phn_s_ch_ax_s	S CH AX S
+phn_s_k_ax	S K AX
+phn_s_k_ax_n	S K AX N
+phn_s_k_ax_d	S K AX D
+phn_s_k_ax_s	S K AX S
+phn_s_l_ax	S L AX
+phn_s_l_ax_n	S L AX N
+phn_s_l_ax_d	S L AX D
+phn_s_l_ax_s	S L AX S
+phn_s_m_ax	S M AX
+phn_s_m_ax_n	S M AX N
+phn_s_m_ax_d	S M AX D
+phn_s_m_ax_s	S M AX S
+phn_s_n_ax	S N AX
+phn_s_n_ax_n	S N AX N
+phn_s_n_ax_d	S N AX D
+phn_s_n_ax_s	S N AX S
+phn_s_p_ax	S P AX
+phn_s_p_ax_n	S P AX N
+phn_s_p_ax_d	S P AX D
+phn_s_p_ax_s	S P AX S
+phn_s_t_ax	S T AX
+phn_s_t_ax_n	S T AX N
+phn_s_t_ax_d	S T AX D
+phn_s_t_ax_s	S T AX S
+phn_s_w_ax	S W AX
+phn_s_w_ax_n	S W AX N
+phn_s_w_ax_d	S W AX D
+phn_s_w_ax_s	S W AX S
+phn_s_k_r_ax	S K R AX
+phn_s_k_r_ax_n	S K R AX N
+phn_s_k_r_ax_d	S K R AX D
+phn_s_k_r_ax_s	S K R AX S
+phn_s_t_r_ax	S T R AX
+phn_s_t_r_ax_n	S T R AX N
+phn_s_t_r_ax_d	S T R AX D
+phn_s_t_r_ax_s	S T R AX S
+phn_s_p_r_ax	S P R AX
+phn_s_p_r_ax_n	S P R AX N
+phn_s_p_r_ax_d	S P R AX D
+phn_s_p_r_ax_s	S P R AX S
+phn_t_r_ax	T R AX
+phn_t_r_ax_n	T R AX N
+phn_t_r_ax_d	T R AX D
+phn_t_r_ax_s	T R AX S
+phn_t_w_ax	T W AX
+phn_t_w_ax_n	T W AX N
+phn_t_w_ax_d	T W AX D
+phn_t_w_ax_s	T W AX S
+phn_axr_	AXR 
+phn_b_axr	B AXR
+phn_b_axr_n	B AXR N
+phn_b_axr_d	B AXR D
+phn_b_axr_s	B AXR S
+phn_ch_axr	CH AXR
+phn_ch_axr_n	CH AXR N
+phn_ch_axr_d	CH AXR D
+phn_ch_axr_s	CH AXR S
+phn_d_axr	D AXR
+phn_d_axr_n	D AXR N
+phn_d_axr_d	D AXR D
+phn_d_axr_s	D AXR S
+phn_dh_axr	DH AXR
+phn_dh_axr_n	DH AXR N
+phn_dh_axr_d	DH AXR D
+phn_dh_axr_s	DH AXR S
+phn_dx_axr	DX AXR
+phn_dx_axr_n	DX AXR N
+phn_dx_axr_d	DX AXR D
+phn_dx_axr_s	DX AXR S
+phn_f_axr	F AXR
+phn_f_axr_n	F AXR N
+phn_f_axr_d	F AXR D
+phn_f_axr_s	F AXR S
+phn_g_axr	G AXR
+phn_g_axr_n	G AXR N
+phn_g_axr_d	G AXR D
+phn_g_axr_s	G AXR S
+phn_hh_axr	HH AXR
+phn_hh_axr_n	HH AXR N
+phn_hh_axr_d	HH AXR D
+phn_hh_axr_s	HH AXR S
+phn_jh_axr	JH AXR
+phn_jh_axr_n	JH AXR N
+phn_jh_axr_d	JH AXR D
+phn_jh_axr_s	JH AXR S
+phn_k_axr	K AXR
+phn_k_axr_n	K AXR N
+phn_k_axr_d	K AXR D
+phn_k_axr_s	K AXR S
+phn_l_axr	L AXR
+phn_l_axr_n	L AXR N
+phn_l_axr_d	L AXR D
+phn_l_axr_s	L AXR S
+phn_m_axr	M AXR
+phn_m_axr_n	M AXR N
+phn_m_axr_d	M AXR D
+phn_m_axr_s	M AXR S
+phn_n_axr	N AXR
+phn_n_axr_n	N AXR N
+phn_n_axr_d	N AXR D
+phn_n_axr_s	N AXR S
+phn_ng_axr	NG AXR
+phn_ng_axr_n	NG AXR N
+phn_ng_axr_d	NG AXR D
+phn_ng_axr_s	NG AXR S
+phn_p_axr	P AXR
+phn_p_axr_n	P AXR N
+phn_p_axr_d	P AXR D
+phn_p_axr_s	P AXR S
+phn_r_axr	R AXR
+phn_r_axr_n	R AXR N
+phn_r_axr_d	R AXR D
+phn_r_axr_s	R AXR S
+phn_s_axr	S AXR
+phn_s_axr_n	S AXR N
+phn_s_axr_d	S AXR D
+phn_s_axr_s	S AXR S
+phn_sh_axr	SH AXR
+phn_sh_axr_n	SH AXR N
+phn_sh_axr_d	SH AXR D
+phn_sh_axr_s	SH AXR S
+phn_t_axr	T AXR
+phn_t_axr_n	T AXR N
+phn_t_axr_d	T AXR D
+phn_t_axr_s	T AXR S
+phn_th_axr	TH AXR
+phn_th_axr_n	TH AXR N
+phn_th_axr_d	TH AXR D
+phn_th_axr_s	TH AXR S
+phn_v_axr	V AXR
+phn_v_axr_n	V AXR N
+phn_v_axr_d	V AXR D
+phn_v_axr_s	V AXR S
+phn_w_axr	W AXR
+phn_w_axr_n	W AXR N
+phn_w_axr_d	W AXR D
+phn_w_axr_s	W AXR S
+phn_y_axr	Y AXR
+phn_y_axr_n	Y AXR N
+phn_y_axr_d	Y AXR D
+phn_y_axr_s	Y AXR S
+phn_z_axr	Z AXR
+phn_z_axr_n	Z AXR N
+phn_z_axr_d	Z AXR D
+phn_z_axr_s	Z AXR S
+phn_zh_axr	ZH AXR
+phn_zh_axr_n	ZH AXR N
+phn_zh_axr_d	ZH AXR D
+phn_zh_axr_s	ZH AXR S
+phn_b_l_axr	B L AXR
+phn_b_l_axr_n	B L AXR N
+phn_b_l_axr_d	B L AXR D
+phn_b_l_axr_s	B L AXR S
+phn_b_r_axr	B R AXR
+phn_b_r_axr_n	B R AXR N
+phn_b_r_axr_d	B R AXR D
+phn_b_r_axr_s	B R AXR S
+phn_k_l_axr	K L AXR
+phn_k_l_axr_n	K L AXR N
+phn_k_l_axr_d	K L AXR D
+phn_k_l_axr_s	K L AXR S
+phn_k_r_axr	K R AXR
+phn_k_r_axr_n	K R AXR N
+phn_k_r_axr_d	K R AXR D
+phn_k_r_axr_s	K R AXR S
+phn_d_r_axr	D R AXR
+phn_d_r_axr_n	D R AXR N
+phn_d_r_axr_d	D R AXR D
+phn_d_r_axr_s	D R AXR S
+phn_d_w_axr	D W AXR
+phn_d_w_axr_n	D W AXR N
+phn_d_w_axr_d	D W AXR D
+phn_d_w_axr_s	D W AXR S
+phn_f_l_axr	F L AXR
+phn_f_l_axr_n	F L AXR N
+phn_f_l_axr_d	F L AXR D
+phn_f_l_axr_s	F L AXR S
+phn_f_r_axr	F R AXR
+phn_f_r_axr_n	F R AXR N
+phn_f_r_axr_d	F R AXR D
+phn_f_r_axr_s	F R AXR S
+phn_g_l_axr	G L AXR
+phn_g_l_axr_n	G L AXR N
+phn_g_l_axr_d	G L AXR D
+phn_g_l_axr_s	G L AXR S
+phn_g_r_axr	G R AXR
+phn_g_r_axr_n	G R AXR N
+phn_g_r_axr_d	G R AXR D
+phn_g_r_axr_s	G R AXR S
+phn_p_l_axr	P L AXR
+phn_p_l_axr_n	P L AXR N
+phn_p_l_axr_d	P L AXR D
+phn_p_l_axr_s	P L AXR S
+phn_p_r_axr	P R AXR
+phn_p_r_axr_n	P R AXR N
+phn_p_r_axr_d	P R AXR D
+phn_p_r_axr_s	P R AXR S
+phn_s_ch_axr	S CH AXR
+phn_s_ch_axr_n	S CH AXR N
+phn_s_ch_axr_d	S CH AXR D
+phn_s_ch_axr_s	S CH AXR S
+phn_s_k_axr	S K AXR
+phn_s_k_axr_n	S K AXR N
+phn_s_k_axr_d	S K AXR D
+phn_s_k_axr_s	S K AXR S
+phn_s_l_axr	S L AXR
+phn_s_l_axr_n	S L AXR N
+phn_s_l_axr_d	S L AXR D
+phn_s_l_axr_s	S L AXR S
+phn_s_m_axr	S M AXR
+phn_s_m_axr_n	S M AXR N
+phn_s_m_axr_d	S M AXR D
+phn_s_m_axr_s	S M AXR S
+phn_s_n_axr	S N AXR
+phn_s_n_axr_n	S N AXR N
+phn_s_n_axr_d	S N AXR D
+phn_s_n_axr_s	S N AXR S
+phn_s_p_axr	S P AXR
+phn_s_p_axr_n	S P AXR N
+phn_s_p_axr_d	S P AXR D
+phn_s_p_axr_s	S P AXR S
+phn_s_t_axr	S T AXR
+phn_s_t_axr_n	S T AXR N
+phn_s_t_axr_d	S T AXR D
+phn_s_t_axr_s	S T AXR S
+phn_s_w_axr	S W AXR
+phn_s_w_axr_n	S W AXR N
+phn_s_w_axr_d	S W AXR D
+phn_s_w_axr_s	S W AXR S
+phn_s_k_r_axr	S K R AXR
+phn_s_k_r_axr_n	S K R AXR N
+phn_s_k_r_axr_d	S K R AXR D
+phn_s_k_r_axr_s	S K R AXR S
+phn_s_t_r_axr	S T R AXR
+phn_s_t_r_axr_n	S T R AXR N
+phn_s_t_r_axr_d	S T R AXR D
+phn_s_t_r_axr_s	S T R AXR S
+phn_s_p_r_axr	S P R AXR
+phn_s_p_r_axr_n	S P R AXR N
+phn_s_p_r_axr_d	S P R AXR D
+phn_s_p_r_axr_s	S P R AXR S
+phn_t_r_axr	T R AXR
+phn_t_r_axr_n	T R AXR N
+phn_t_r_axr_d	T R AXR D
+phn_t_r_axr_s	T R AXR S
+phn_t_w_axr	T W AXR
+phn_t_w_axr_n	T W AXR N
+phn_t_w_axr_d	T W AXR D
+phn_t_w_axr_s	T W AXR S
+phn_ay_	AY 
+phn_b_ay	B AY
+phn_b_ay_n	B AY N
+phn_b_ay_d	B AY D
+phn_b_ay_s	B AY S
+phn_ch_ay	CH AY
+phn_ch_ay_n	CH AY N
+phn_ch_ay_d	CH AY D
+phn_ch_ay_s	CH AY S
+phn_d_ay	D AY
+phn_d_ay_n	D AY N
+phn_d_ay_d	D AY D
+phn_d_ay_s	D AY S
+phn_dh_ay	DH AY
+phn_dh_ay_n	DH AY N
+phn_dh_ay_d	DH AY D
+phn_dh_ay_s	DH AY S
+phn_dx_ay	DX AY
+phn_dx_ay_n	DX AY N
+phn_dx_ay_d	DX AY D
+phn_dx_ay_s	DX AY S
+phn_f_ay	F AY
+phn_f_ay_n	F AY N
+phn_f_ay_d	F AY D
+phn_f_ay_s	F AY S
+phn_g_ay	G AY
+phn_g_ay_n	G AY N
+phn_g_ay_d	G AY D
+phn_g_ay_s	G AY S
+phn_hh_ay	HH AY
+phn_hh_ay_n	HH AY N
+phn_hh_ay_d	HH AY D
+phn_hh_ay_s	HH AY S
+phn_jh_ay	JH AY
+phn_jh_ay_n	JH AY N
+phn_jh_ay_d	JH AY D
+phn_jh_ay_s	JH AY S
+phn_k_ay	K AY
+phn_k_ay_n	K AY N
+phn_k_ay_d	K AY D
+phn_k_ay_s	K AY S
+phn_l_ay	L AY
+phn_l_ay_n	L AY N
+phn_l_ay_d	L AY D
+phn_l_ay_s	L AY S
+phn_m_ay	M AY
+phn_m_ay_n	M AY N
+phn_m_ay_d	M AY D
+phn_m_ay_s	M AY S
+phn_n_ay	N AY
+phn_n_ay_n	N AY N
+phn_n_ay_d	N AY D
+phn_n_ay_s	N AY S
+phn_ng_ay	NG AY
+phn_ng_ay_n	NG AY N
+phn_ng_ay_d	NG AY D
+phn_ng_ay_s	NG AY S
+phn_p_ay	P AY
+phn_p_ay_n	P AY N
+phn_p_ay_d	P AY D
+phn_p_ay_s	P AY S
+phn_r_ay	R AY
+phn_r_ay_n	R AY N
+phn_r_ay_d	R AY D
+phn_r_ay_s	R AY S
+phn_s_ay	S AY
+phn_s_ay_n	S AY N
+phn_s_ay_d	S AY D
+phn_s_ay_s	S AY S
+phn_sh_ay	SH AY
+phn_sh_ay_n	SH AY N
+phn_sh_ay_d	SH AY D
+phn_sh_ay_s	SH AY S
+phn_t_ay	T AY
+phn_t_ay_n	T AY N
+phn_t_ay_d	T AY D
+phn_t_ay_s	T AY S
+phn_th_ay	TH AY
+phn_th_ay_n	TH AY N
+phn_th_ay_d	TH AY D
+phn_th_ay_s	TH AY S
+phn_v_ay	V AY
+phn_v_ay_n	V AY N
+phn_v_ay_d	V AY D
+phn_v_ay_s	V AY S
+phn_w_ay	W AY
+phn_w_ay_n	W AY N
+phn_w_ay_d	W AY D
+phn_w_ay_s	W AY S
+phn_y_ay	Y AY
+phn_y_ay_n	Y AY N
+phn_y_ay_d	Y AY D
+phn_y_ay_s	Y AY S
+phn_z_ay	Z AY
+phn_z_ay_n	Z AY N
+phn_z_ay_d	Z AY D
+phn_z_ay_s	Z AY S
+phn_zh_ay	ZH AY
+phn_zh_ay_n	ZH AY N
+phn_zh_ay_d	ZH AY D
+phn_zh_ay_s	ZH AY S
+phn_b_l_ay	B L AY
+phn_b_l_ay_n	B L AY N
+phn_b_l_ay_d	B L AY D
+phn_b_l_ay_s	B L AY S
+phn_b_r_ay	B R AY
+phn_b_r_ay_n	B R AY N
+phn_b_r_ay_d	B R AY D
+phn_b_r_ay_s	B R AY S
+phn_k_l_ay	K L AY
+phn_k_l_ay_n	K L AY N
+phn_k_l_ay_d	K L AY D
+phn_k_l_ay_s	K L AY S
+phn_k_r_ay	K R AY
+phn_k_r_ay_n	K R AY N
+phn_k_r_ay_d	K R AY D
+phn_k_r_ay_s	K R AY S
+phn_d_r_ay	D R AY
+phn_d_r_ay_n	D R AY N
+phn_d_r_ay_d	D R AY D
+phn_d_r_ay_s	D R AY S
+phn_d_w_ay	D W AY
+phn_d_w_ay_n	D W AY N
+phn_d_w_ay_d	D W AY D
+phn_d_w_ay_s	D W AY S
+phn_f_l_ay	F L AY
+phn_f_l_ay_n	F L AY N
+phn_f_l_ay_d	F L AY D
+phn_f_l_ay_s	F L AY S
+phn_f_r_ay	F R AY
+phn_f_r_ay_n	F R AY N
+phn_f_r_ay_d	F R AY D
+phn_f_r_ay_s	F R AY S
+phn_g_l_ay	G L AY
+phn_g_l_ay_n	G L AY N
+phn_g_l_ay_d	G L AY D
+phn_g_l_ay_s	G L AY S
+phn_g_r_ay	G R AY
+phn_g_r_ay_n	G R AY N
+phn_g_r_ay_d	G R AY D
+phn_g_r_ay_s	G R AY S
+phn_p_l_ay	P L AY
+phn_p_l_ay_n	P L AY N
+phn_p_l_ay_d	P L AY D
+phn_p_l_ay_s	P L AY S
+phn_p_r_ay	P R AY
+phn_p_r_ay_n	P R AY N
+phn_p_r_ay_d	P R AY D
+phn_p_r_ay_s	P R AY S
+phn_s_ch_ay	S CH AY
+phn_s_ch_ay_n	S CH AY N
+phn_s_ch_ay_d	S CH AY D
+phn_s_ch_ay_s	S CH AY S
+phn_s_k_ay	S K AY
+phn_s_k_ay_n	S K AY N
+phn_s_k_ay_d	S K AY D
+phn_s_k_ay_s	S K AY S
+phn_s_l_ay	S L AY
+phn_s_l_ay_n	S L AY N
+phn_s_l_ay_d	S L AY D
+phn_s_l_ay_s	S L AY S
+phn_s_m_ay	S M AY
+phn_s_m_ay_n	S M AY N
+phn_s_m_ay_d	S M AY D
+phn_s_m_ay_s	S M AY S
+phn_s_n_ay	S N AY
+phn_s_n_ay_n	S N AY N
+phn_s_n_ay_d	S N AY D
+phn_s_n_ay_s	S N AY S
+phn_s_p_ay	S P AY
+phn_s_p_ay_n	S P AY N
+phn_s_p_ay_d	S P AY D
+phn_s_p_ay_s	S P AY S
+phn_s_t_ay	S T AY
+phn_s_t_ay_n	S T AY N
+phn_s_t_ay_d	S T AY D
+phn_s_t_ay_s	S T AY S
+phn_s_w_ay	S W AY
+phn_s_w_ay_n	S W AY N
+phn_s_w_ay_d	S W AY D
+phn_s_w_ay_s	S W AY S
+phn_s_k_r_ay	S K R AY
+phn_s_k_r_ay_n	S K R AY N
+phn_s_k_r_ay_d	S K R AY D
+phn_s_k_r_ay_s	S K R AY S
+phn_s_t_r_ay	S T R AY
+phn_s_t_r_ay_n	S T R AY N
+phn_s_t_r_ay_d	S T R AY D
+phn_s_t_r_ay_s	S T R AY S
+phn_s_p_r_ay	S P R AY
+phn_s_p_r_ay_n	S P R AY N
+phn_s_p_r_ay_d	S P R AY D
+phn_s_p_r_ay_s	S P R AY S
+phn_t_r_ay	T R AY
+phn_t_r_ay_n	T R AY N
+phn_t_r_ay_d	T R AY D
+phn_t_r_ay_s	T R AY S
+phn_t_w_ay	T W AY
+phn_t_w_ay_n	T W AY N
+phn_t_w_ay_d	T W AY D
+phn_t_w_ay_s	T W AY S
+phn_eh_	EH 
+phn_b_eh	B EH
+phn_b_eh_n	B EH N
+phn_b_eh_d	B EH D
+phn_b_eh_s	B EH S
+phn_ch_eh	CH EH
+phn_ch_eh_n	CH EH N
+phn_ch_eh_d	CH EH D
+phn_ch_eh_s	CH EH S
+phn_d_eh	D EH
+phn_d_eh_n	D EH N
+phn_d_eh_d	D EH D
+phn_d_eh_s	D EH S
+phn_dh_eh	DH EH
+phn_dh_eh_n	DH EH N
+phn_dh_eh_d	DH EH D
+phn_dh_eh_s	DH EH S
+phn_dx_eh	DX EH
+phn_dx_eh_n	DX EH N
+phn_dx_eh_d	DX EH D
+phn_dx_eh_s	DX EH S
+phn_f_eh	F EH
+phn_f_eh_n	F EH N
+phn_f_eh_d	F EH D
+phn_f_eh_s	F EH S
+phn_g_eh	G EH
+phn_g_eh_n	G EH N
+phn_g_eh_d	G EH D
+phn_g_eh_s	G EH S
+phn_hh_eh	HH EH
+phn_hh_eh_n	HH EH N
+phn_hh_eh_d	HH EH D
+phn_hh_eh_s	HH EH S
+phn_jh_eh	JH EH
+phn_jh_eh_n	JH EH N
+phn_jh_eh_d	JH EH D
+phn_jh_eh_s	JH EH S
+phn_k_eh	K EH
+phn_k_eh_n	K EH N
+phn_k_eh_d	K EH D
+phn_k_eh_s	K EH S
+phn_l_eh	L EH
+phn_l_eh_n	L EH N
+phn_l_eh_d	L EH D
+phn_l_eh_s	L EH S
+phn_m_eh	M EH
+phn_m_eh_n	M EH N
+phn_m_eh_d	M EH D
+phn_m_eh_s	M EH S
+phn_n_eh	N EH
+phn_n_eh_n	N EH N
+phn_n_eh_d	N EH D
+phn_n_eh_s	N EH S
+phn_ng_eh	NG EH
+phn_ng_eh_n	NG EH N
+phn_ng_eh_d	NG EH D
+phn_ng_eh_s	NG EH S
+phn_p_eh	P EH
+phn_p_eh_n	P EH N
+phn_p_eh_d	P EH D
+phn_p_eh_s	P EH S
+phn_r_eh	R EH
+phn_r_eh_n	R EH N
+phn_r_eh_d	R EH D
+phn_r_eh_s	R EH S
+phn_s_eh	S EH
+phn_s_eh_n	S EH N
+phn_s_eh_d	S EH D
+phn_s_eh_s	S EH S
+phn_sh_eh	SH EH
+phn_sh_eh_n	SH EH N
+phn_sh_eh_d	SH EH D
+phn_sh_eh_s	SH EH S
+phn_t_eh	T EH
+phn_t_eh_n	T EH N
+phn_t_eh_d	T EH D
+phn_t_eh_s	T EH S
+phn_th_eh	TH EH
+phn_th_eh_n	TH EH N
+phn_th_eh_d	TH EH D
+phn_th_eh_s	TH EH S
+phn_v_eh	V EH
+phn_v_eh_n	V EH N
+phn_v_eh_d	V EH D
+phn_v_eh_s	V EH S
+phn_w_eh	W EH
+phn_w_eh_n	W EH N
+phn_w_eh_d	W EH D
+phn_w_eh_s	W EH S
+phn_y_eh	Y EH
+phn_y_eh_n	Y EH N
+phn_y_eh_d	Y EH D
+phn_y_eh_s	Y EH S
+phn_z_eh	Z EH
+phn_z_eh_n	Z EH N
+phn_z_eh_d	Z EH D
+phn_z_eh_s	Z EH S
+phn_zh_eh	ZH EH
+phn_zh_eh_n	ZH EH N
+phn_zh_eh_d	ZH EH D
+phn_zh_eh_s	ZH EH S
+phn_b_l_eh	B L EH
+phn_b_l_eh_n	B L EH N
+phn_b_l_eh_d	B L EH D
+phn_b_l_eh_s	B L EH S
+phn_b_r_eh	B R EH
+phn_b_r_eh_n	B R EH N
+phn_b_r_eh_d	B R EH D
+phn_b_r_eh_s	B R EH S
+phn_k_l_eh	K L EH
+phn_k_l_eh_n	K L EH N
+phn_k_l_eh_d	K L EH D
+phn_k_l_eh_s	K L EH S
+phn_k_r_eh	K R EH
+phn_k_r_eh_n	K R EH N
+phn_k_r_eh_d	K R EH D
+phn_k_r_eh_s	K R EH S
+phn_d_r_eh	D R EH
+phn_d_r_eh_n	D R EH N
+phn_d_r_eh_d	D R EH D
+phn_d_r_eh_s	D R EH S
+phn_d_w_eh	D W EH
+phn_d_w_eh_n	D W EH N
+phn_d_w_eh_d	D W EH D
+phn_d_w_eh_s	D W EH S
+phn_f_l_eh	F L EH
+phn_f_l_eh_n	F L EH N
+phn_f_l_eh_d	F L EH D
+phn_f_l_eh_s	F L EH S
+phn_f_r_eh	F R EH
+phn_f_r_eh_n	F R EH N
+phn_f_r_eh_d	F R EH D
+phn_f_r_eh_s	F R EH S
+phn_g_l_eh	G L EH
+phn_g_l_eh_n	G L EH N
+phn_g_l_eh_d	G L EH D
+phn_g_l_eh_s	G L EH S
+phn_g_r_eh	G R EH
+phn_g_r_eh_n	G R EH N
+phn_g_r_eh_d	G R EH D
+phn_g_r_eh_s	G R EH S
+phn_p_l_eh	P L EH
+phn_p_l_eh_n	P L EH N
+phn_p_l_eh_d	P L EH D
+phn_p_l_eh_s	P L EH S
+phn_p_r_eh	P R EH
+phn_p_r_eh_n	P R EH N
+phn_p_r_eh_d	P R EH D
+phn_p_r_eh_s	P R EH S
+phn_s_ch_eh	S CH EH
+phn_s_ch_eh_n	S CH EH N
+phn_s_ch_eh_d	S CH EH D
+phn_s_ch_eh_s	S CH EH S
+phn_s_k_eh	S K EH
+phn_s_k_eh_n	S K EH N
+phn_s_k_eh_d	S K EH D
+phn_s_k_eh_s	S K EH S
+phn_s_l_eh	S L EH
+phn_s_l_eh_n	S L EH N
+phn_s_l_eh_d	S L EH D
+phn_s_l_eh_s	S L EH S
+phn_s_m_eh	S M EH
+phn_s_m_eh_n	S M EH N
+phn_s_m_eh_d	S M EH D
+phn_s_m_eh_s	S M EH S
+phn_s_n_eh	S N EH
+phn_s_n_eh_n	S N EH N
+phn_s_n_eh_d	S N EH D
+phn_s_n_eh_s	S N EH S
+phn_s_p_eh	S P EH
+phn_s_p_eh_n	S P EH N
+phn_s_p_eh_d	S P EH D
+phn_s_p_eh_s	S P EH S
+phn_s_t_eh	S T EH
+phn_s_t_eh_n	S T EH N
+phn_s_t_eh_d	S T EH D
+phn_s_t_eh_s	S T EH S
+phn_s_w_eh	S W EH
+phn_s_w_eh_n	S W EH N
+phn_s_w_eh_d	S W EH D
+phn_s_w_eh_s	S W EH S
+phn_s_k_r_eh	S K R EH
+phn_s_k_r_eh_n	S K R EH N
+phn_s_k_r_eh_d	S K R EH D
+phn_s_k_r_eh_s	S K R EH S
+phn_s_t_r_eh	S T R EH
+phn_s_t_r_eh_n	S T R EH N
+phn_s_t_r_eh_d	S T R EH D
+phn_s_t_r_eh_s	S T R EH S
+phn_s_p_r_eh	S P R EH
+phn_s_p_r_eh_n	S P R EH N
+phn_s_p_r_eh_d	S P R EH D
+phn_s_p_r_eh_s	S P R EH S
+phn_t_r_eh	T R EH
+phn_t_r_eh_n	T R EH N
+phn_t_r_eh_d	T R EH D
+phn_t_r_eh_s	T R EH S
+phn_t_w_eh	T W EH
+phn_t_w_eh_n	T W EH N
+phn_t_w_eh_d	T W EH D
+phn_t_w_eh_s	T W EH S
+phn_er_	ER 
+phn_b_er	B ER
+phn_b_er_n	B ER N
+phn_b_er_d	B ER D
+phn_b_er_s	B ER S
+phn_ch_er	CH ER
+phn_ch_er_n	CH ER N
+phn_ch_er_d	CH ER D
+phn_ch_er_s	CH ER S
+phn_d_er	D ER
+phn_d_er_n	D ER N
+phn_d_er_d	D ER D
+phn_d_er_s	D ER S
+phn_dh_er	DH ER
+phn_dh_er_n	DH ER N
+phn_dh_er_d	DH ER D
+phn_dh_er_s	DH ER S
+phn_dx_er	DX ER
+phn_dx_er_n	DX ER N
+phn_dx_er_d	DX ER D
+phn_dx_er_s	DX ER S
+phn_f_er	F ER
+phn_f_er_n	F ER N
+phn_f_er_d	F ER D
+phn_f_er_s	F ER S
+phn_g_er	G ER
+phn_g_er_n	G ER N
+phn_g_er_d	G ER D
+phn_g_er_s	G ER S
+phn_hh_er	HH ER
+phn_hh_er_n	HH ER N
+phn_hh_er_d	HH ER D
+phn_hh_er_s	HH ER S
+phn_jh_er	JH ER
+phn_jh_er_n	JH ER N
+phn_jh_er_d	JH ER D
+phn_jh_er_s	JH ER S
+phn_k_er	K ER
+phn_k_er_n	K ER N
+phn_k_er_d	K ER D
+phn_k_er_s	K ER S
+phn_l_er	L ER
+phn_l_er_n	L ER N
+phn_l_er_d	L ER D
+phn_l_er_s	L ER S
+phn_m_er	M ER
+phn_m_er_n	M ER N
+phn_m_er_d	M ER D
+phn_m_er_s	M ER S
+phn_n_er	N ER
+phn_n_er_n	N ER N
+phn_n_er_d	N ER D
+phn_n_er_s	N ER S
+phn_ng_er	NG ER
+phn_ng_er_n	NG ER N
+phn_ng_er_d	NG ER D
+phn_ng_er_s	NG ER S
+phn_p_er	P ER
+phn_p_er_n	P ER N
+phn_p_er_d	P ER D
+phn_p_er_s	P ER S
+phn_r_er	R ER
+phn_r_er_n	R ER N
+phn_r_er_d	R ER D
+phn_r_er_s	R ER S
+phn_s_er	S ER
+phn_s_er_n	S ER N
+phn_s_er_d	S ER D
+phn_s_er_s	S ER S
+phn_sh_er	SH ER
+phn_sh_er_n	SH ER N
+phn_sh_er_d	SH ER D
+phn_sh_er_s	SH ER S
+phn_t_er	T ER
+phn_t_er_n	T ER N
+phn_t_er_d	T ER D
+phn_t_er_s	T ER S
+phn_th_er	TH ER
+phn_th_er_n	TH ER N
+phn_th_er_d	TH ER D
+phn_th_er_s	TH ER S
+phn_v_er	V ER
+phn_v_er_n	V ER N
+phn_v_er_d	V ER D
+phn_v_er_s	V ER S
+phn_w_er	W ER
+phn_w_er_n	W ER N
+phn_w_er_d	W ER D
+phn_w_er_s	W ER S
+phn_y_er	Y ER
+phn_y_er_n	Y ER N
+phn_y_er_d	Y ER D
+phn_y_er_s	Y ER S
+phn_z_er	Z ER
+phn_z_er_n	Z ER N
+phn_z_er_d	Z ER D
+phn_z_er_s	Z ER S
+phn_zh_er	ZH ER
+phn_zh_er_n	ZH ER N
+phn_zh_er_d	ZH ER D
+phn_zh_er_s	ZH ER S
+phn_b_l_er	B L ER
+phn_b_l_er_n	B L ER N
+phn_b_l_er_d	B L ER D
+phn_b_l_er_s	B L ER S
+phn_b_r_er	B R ER
+phn_b_r_er_n	B R ER N
+phn_b_r_er_d	B R ER D
+phn_b_r_er_s	B R ER S
+phn_k_l_er	K L ER
+phn_k_l_er_n	K L ER N
+phn_k_l_er_d	K L ER D
+phn_k_l_er_s	K L ER S
+phn_k_r_er	K R ER
+phn_k_r_er_n	K R ER N
+phn_k_r_er_d	K R ER D
+phn_k_r_er_s	K R ER S
+phn_d_r_er	D R ER
+phn_d_r_er_n	D R ER N
+phn_d_r_er_d	D R ER D
+phn_d_r_er_s	D R ER S
+phn_d_w_er	D W ER
+phn_d_w_er_n	D W ER N
+phn_d_w_er_d	D W ER D
+phn_d_w_er_s	D W ER S
+phn_f_l_er	F L ER
+phn_f_l_er_n	F L ER N
+phn_f_l_er_d	F L ER D
+phn_f_l_er_s	F L ER S
+phn_f_r_er	F R ER
+phn_f_r_er_n	F R ER N
+phn_f_r_er_d	F R ER D
+phn_f_r_er_s	F R ER S
+phn_g_l_er	G L ER
+phn_g_l_er_n	G L ER N
+phn_g_l_er_d	G L ER D
+phn_g_l_er_s	G L ER S
+phn_g_r_er	G R ER
+phn_g_r_er_n	G R ER N
+phn_g_r_er_d	G R ER D
+phn_g_r_er_s	G R ER S
+phn_p_l_er	P L ER
+phn_p_l_er_n	P L ER N
+phn_p_l_er_d	P L ER D
+phn_p_l_er_s	P L ER S
+phn_p_r_er	P R ER
+phn_p_r_er_n	P R ER N
+phn_p_r_er_d	P R ER D
+phn_p_r_er_s	P R ER S
+phn_s_ch_er	S CH ER
+phn_s_ch_er_n	S CH ER N
+phn_s_ch_er_d	S CH ER D
+phn_s_ch_er_s	S CH ER S
+phn_s_k_er	S K ER
+phn_s_k_er_n	S K ER N
+phn_s_k_er_d	S K ER D
+phn_s_k_er_s	S K ER S
+phn_s_l_er	S L ER
+phn_s_l_er_n	S L ER N
+phn_s_l_er_d	S L ER D
+phn_s_l_er_s	S L ER S
+phn_s_m_er	S M ER
+phn_s_m_er_n	S M ER N
+phn_s_m_er_d	S M ER D
+phn_s_m_er_s	S M ER S
+phn_s_n_er	S N ER
+phn_s_n_er_n	S N ER N
+phn_s_n_er_d	S N ER D
+phn_s_n_er_s	S N ER S
+phn_s_p_er	S P ER
+phn_s_p_er_n	S P ER N
+phn_s_p_er_d	S P ER D
+phn_s_p_er_s	S P ER S
+phn_s_t_er	S T ER
+phn_s_t_er_n	S T ER N
+phn_s_t_er_d	S T ER D
+phn_s_t_er_s	S T ER S
+phn_s_w_er	S W ER
+phn_s_w_er_n	S W ER N
+phn_s_w_er_d	S W ER D
+phn_s_w_er_s	S W ER S
+phn_s_k_r_er	S K R ER
+phn_s_k_r_er_n	S K R ER N
+phn_s_k_r_er_d	S K R ER D
+phn_s_k_r_er_s	S K R ER S
+phn_s_t_r_er	S T R ER
+phn_s_t_r_er_n	S T R ER N
+phn_s_t_r_er_d	S T R ER D
+phn_s_t_r_er_s	S T R ER S
+phn_s_p_r_er	S P R ER
+phn_s_p_r_er_n	S P R ER N
+phn_s_p_r_er_d	S P R ER D
+phn_s_p_r_er_s	S P R ER S
+phn_t_r_er	T R ER
+phn_t_r_er_n	T R ER N
+phn_t_r_er_d	T R ER D
+phn_t_r_er_s	T R ER S
+phn_t_w_er	T W ER
+phn_t_w_er_n	T W ER N
+phn_t_w_er_d	T W ER D
+phn_t_w_er_s	T W ER S
+phn_ey_	EY 
+phn_b_ey	B EY
+phn_b_ey_n	B EY N
+phn_b_ey_d	B EY D
+phn_b_ey_s	B EY S
+phn_ch_ey	CH EY
+phn_ch_ey_n	CH EY N
+phn_ch_ey_d	CH EY D
+phn_ch_ey_s	CH EY S
+phn_d_ey	D EY
+phn_d_ey_n	D EY N
+phn_d_ey_d	D EY D
+phn_d_ey_s	D EY S
+phn_dh_ey	DH EY
+phn_dh_ey_n	DH EY N
+phn_dh_ey_d	DH EY D
+phn_dh_ey_s	DH EY S
+phn_dx_ey	DX EY
+phn_dx_ey_n	DX EY N
+phn_dx_ey_d	DX EY D
+phn_dx_ey_s	DX EY S
+phn_f_ey	F EY
+phn_f_ey_n	F EY N
+phn_f_ey_d	F EY D
+phn_f_ey_s	F EY S
+phn_g_ey	G EY
+phn_g_ey_n	G EY N
+phn_g_ey_d	G EY D
+phn_g_ey_s	G EY S
+phn_hh_ey	HH EY
+phn_hh_ey_n	HH EY N
+phn_hh_ey_d	HH EY D
+phn_hh_ey_s	HH EY S
+phn_jh_ey	JH EY
+phn_jh_ey_n	JH EY N
+phn_jh_ey_d	JH EY D
+phn_jh_ey_s	JH EY S
+phn_k_ey	K EY
+phn_k_ey_n	K EY N
+phn_k_ey_d	K EY D
+phn_k_ey_s	K EY S
+phn_l_ey	L EY
+phn_l_ey_n	L EY N
+phn_l_ey_d	L EY D
+phn_l_ey_s	L EY S
+phn_m_ey	M EY
+phn_m_ey_n	M EY N
+phn_m_ey_d	M EY D
+phn_m_ey_s	M EY S
+phn_n_ey	N EY
+phn_n_ey_n	N EY N
+phn_n_ey_d	N EY D
+phn_n_ey_s	N EY S
+phn_ng_ey	NG EY
+phn_ng_ey_n	NG EY N
+phn_ng_ey_d	NG EY D
+phn_ng_ey_s	NG EY S
+phn_p_ey	P EY
+phn_p_ey_n	P EY N
+phn_p_ey_d	P EY D
+phn_p_ey_s	P EY S
+phn_r_ey	R EY
+phn_r_ey_n	R EY N
+phn_r_ey_d	R EY D
+phn_r_ey_s	R EY S
+phn_s_ey	S EY
+phn_s_ey_n	S EY N
+phn_s_ey_d	S EY D
+phn_s_ey_s	S EY S
+phn_sh_ey	SH EY
+phn_sh_ey_n	SH EY N
+phn_sh_ey_d	SH EY D
+phn_sh_ey_s	SH EY S
+phn_t_ey	T EY
+phn_t_ey_n	T EY N
+phn_t_ey_d	T EY D
+phn_t_ey_s	T EY S
+phn_th_ey	TH EY
+phn_th_ey_n	TH EY N
+phn_th_ey_d	TH EY D
+phn_th_ey_s	TH EY S
+phn_v_ey	V EY
+phn_v_ey_n	V EY N
+phn_v_ey_d	V EY D
+phn_v_ey_s	V EY S
+phn_w_ey	W EY
+phn_w_ey_n	W EY N
+phn_w_ey_d	W EY D
+phn_w_ey_s	W EY S
+phn_y_ey	Y EY
+phn_y_ey_n	Y EY N
+phn_y_ey_d	Y EY D
+phn_y_ey_s	Y EY S
+phn_z_ey	Z EY
+phn_z_ey_n	Z EY N
+phn_z_ey_d	Z EY D
+phn_z_ey_s	Z EY S
+phn_zh_ey	ZH EY
+phn_zh_ey_n	ZH EY N
+phn_zh_ey_d	ZH EY D
+phn_zh_ey_s	ZH EY S
+phn_b_l_ey	B L EY
+phn_b_l_ey_n	B L EY N
+phn_b_l_ey_d	B L EY D
+phn_b_l_ey_s	B L EY S
+phn_b_r_ey	B R EY
+phn_b_r_ey_n	B R EY N
+phn_b_r_ey_d	B R EY D
+phn_b_r_ey_s	B R EY S
+phn_k_l_ey	K L EY
+phn_k_l_ey_n	K L EY N
+phn_k_l_ey_d	K L EY D
+phn_k_l_ey_s	K L EY S
+phn_k_r_ey	K R EY
+phn_k_r_ey_n	K R EY N
+phn_k_r_ey_d	K R EY D
+phn_k_r_ey_s	K R EY S
+phn_d_r_ey	D R EY
+phn_d_r_ey_n	D R EY N
+phn_d_r_ey_d	D R EY D
+phn_d_r_ey_s	D R EY S
+phn_d_w_ey	D W EY
+phn_d_w_ey_n	D W EY N
+phn_d_w_ey_d	D W EY D
+phn_d_w_ey_s	D W EY S
+phn_f_l_ey	F L EY
+phn_f_l_ey_n	F L EY N
+phn_f_l_ey_d	F L EY D
+phn_f_l_ey_s	F L EY S
+phn_f_r_ey	F R EY
+phn_f_r_ey_n	F R EY N
+phn_f_r_ey_d	F R EY D
+phn_f_r_ey_s	F R EY S
+phn_g_l_ey	G L EY
+phn_g_l_ey_n	G L EY N
+phn_g_l_ey_d	G L EY D
+phn_g_l_ey_s	G L EY S
+phn_g_r_ey	G R EY
+phn_g_r_ey_n	G R EY N
+phn_g_r_ey_d	G R EY D
+phn_g_r_ey_s	G R EY S
+phn_p_l_ey	P L EY
+phn_p_l_ey_n	P L EY N
+phn_p_l_ey_d	P L EY D
+phn_p_l_ey_s	P L EY S
+phn_p_r_ey	P R EY
+phn_p_r_ey_n	P R EY N
+phn_p_r_ey_d	P R EY D
+phn_p_r_ey_s	P R EY S
+phn_s_ch_ey	S CH EY
+phn_s_ch_ey_n	S CH EY N
+phn_s_ch_ey_d	S CH EY D
+phn_s_ch_ey_s	S CH EY S
+phn_s_k_ey	S K EY
+phn_s_k_ey_n	S K EY N
+phn_s_k_ey_d	S K EY D
+phn_s_k_ey_s	S K EY S
+phn_s_l_ey	S L EY
+phn_s_l_ey_n	S L EY N
+phn_s_l_ey_d	S L EY D
+phn_s_l_ey_s	S L EY S
+phn_s_m_ey	S M EY
+phn_s_m_ey_n	S M EY N
+phn_s_m_ey_d	S M EY D
+phn_s_m_ey_s	S M EY S
+phn_s_n_ey	S N EY
+phn_s_n_ey_n	S N EY N
+phn_s_n_ey_d	S N EY D
+phn_s_n_ey_s	S N EY S
+phn_s_p_ey	S P EY
+phn_s_p_ey_n	S P EY N
+phn_s_p_ey_d	S P EY D
+phn_s_p_ey_s	S P EY S
+phn_s_t_ey	S T EY
+phn_s_t_ey_n	S T EY N
+phn_s_t_ey_d	S T EY D
+phn_s_t_ey_s	S T EY S
+phn_s_w_ey	S W EY
+phn_s_w_ey_n	S W EY N
+phn_s_w_ey_d	S W EY D
+phn_s_w_ey_s	S W EY S
+phn_s_k_r_ey	S K R EY
+phn_s_k_r_ey_n	S K R EY N
+phn_s_k_r_ey_d	S K R EY D
+phn_s_k_r_ey_s	S K R EY S
+phn_s_t_r_ey	S T R EY
+phn_s_t_r_ey_n	S T R EY N
+phn_s_t_r_ey_d	S T R EY D
+phn_s_t_r_ey_s	S T R EY S
+phn_s_p_r_ey	S P R EY
+phn_s_p_r_ey_n	S P R EY N
+phn_s_p_r_ey_d	S P R EY D
+phn_s_p_r_ey_s	S P R EY S
+phn_t_r_ey	T R EY
+phn_t_r_ey_n	T R EY N
+phn_t_r_ey_d	T R EY D
+phn_t_r_ey_s	T R EY S
+phn_t_w_ey	T W EY
+phn_t_w_ey_n	T W EY N
+phn_t_w_ey_d	T W EY D
+phn_t_w_ey_s	T W EY S
+phn_ih_	IH 
+phn_b_ih	B IH
+phn_b_ih_n	B IH N
+phn_b_ih_d	B IH D
+phn_b_ih_s	B IH S
+phn_ch_ih	CH IH
+phn_ch_ih_n	CH IH N
+phn_ch_ih_d	CH IH D
+phn_ch_ih_s	CH IH S
+phn_d_ih	D IH
+phn_d_ih_n	D IH N
+phn_d_ih_d	D IH D
+phn_d_ih_s	D IH S
+phn_dh_ih	DH IH
+phn_dh_ih_n	DH IH N
+phn_dh_ih_d	DH IH D
+phn_dh_ih_s	DH IH S
+phn_dx_ih	DX IH
+phn_dx_ih_n	DX IH N
+phn_dx_ih_d	DX IH D
+phn_dx_ih_s	DX IH S
+phn_f_ih	F IH
+phn_f_ih_n	F IH N
+phn_f_ih_d	F IH D
+phn_f_ih_s	F IH S
+phn_g_ih	G IH
+phn_g_ih_n	G IH N
+phn_g_ih_d	G IH D
+phn_g_ih_s	G IH S
+phn_hh_ih	HH IH
+phn_hh_ih_n	HH IH N
+phn_hh_ih_d	HH IH D
+phn_hh_ih_s	HH IH S
+phn_jh_ih	JH IH
+phn_jh_ih_n	JH IH N
+phn_jh_ih_d	JH IH D
+phn_jh_ih_s	JH IH S
+phn_k_ih	K IH
+phn_k_ih_n	K IH N
+phn_k_ih_d	K IH D
+phn_k_ih_s	K IH S
+phn_l_ih	L IH
+phn_l_ih_n	L IH N
+phn_l_ih_d	L IH D
+phn_l_ih_s	L IH S
+phn_m_ih	M IH
+phn_m_ih_n	M IH N
+phn_m_ih_d	M IH D
+phn_m_ih_s	M IH S
+phn_n_ih	N IH
+phn_n_ih_n	N IH N
+phn_n_ih_d	N IH D
+phn_n_ih_s	N IH S
+phn_ng_ih	NG IH
+phn_ng_ih_n	NG IH N
+phn_ng_ih_d	NG IH D
+phn_ng_ih_s	NG IH S
+phn_p_ih	P IH
+phn_p_ih_n	P IH N
+phn_p_ih_d	P IH D
+phn_p_ih_s	P IH S
+phn_r_ih	R IH
+phn_r_ih_n	R IH N
+phn_r_ih_d	R IH D
+phn_r_ih_s	R IH S
+phn_s_ih	S IH
+phn_s_ih_n	S IH N
+phn_s_ih_d	S IH D
+phn_s_ih_s	S IH S
+phn_sh_ih	SH IH
+phn_sh_ih_n	SH IH N
+phn_sh_ih_d	SH IH D
+phn_sh_ih_s	SH IH S
+phn_t_ih	T IH
+phn_t_ih_n	T IH N
+phn_t_ih_d	T IH D
+phn_t_ih_s	T IH S
+phn_th_ih	TH IH
+phn_th_ih_n	TH IH N
+phn_th_ih_d	TH IH D
+phn_th_ih_s	TH IH S
+phn_v_ih	V IH
+phn_v_ih_n	V IH N
+phn_v_ih_d	V IH D
+phn_v_ih_s	V IH S
+phn_w_ih	W IH
+phn_w_ih_n	W IH N
+phn_w_ih_d	W IH D
+phn_w_ih_s	W IH S
+phn_y_ih	Y IH
+phn_y_ih_n	Y IH N
+phn_y_ih_d	Y IH D
+phn_y_ih_s	Y IH S
+phn_z_ih	Z IH
+phn_z_ih_n	Z IH N
+phn_z_ih_d	Z IH D
+phn_z_ih_s	Z IH S
+phn_zh_ih	ZH IH
+phn_zh_ih_n	ZH IH N
+phn_zh_ih_d	ZH IH D
+phn_zh_ih_s	ZH IH S
+phn_b_l_ih	B L IH
+phn_b_l_ih_n	B L IH N
+phn_b_l_ih_d	B L IH D
+phn_b_l_ih_s	B L IH S
+phn_b_r_ih	B R IH
+phn_b_r_ih_n	B R IH N
+phn_b_r_ih_d	B R IH D
+phn_b_r_ih_s	B R IH S
+phn_k_l_ih	K L IH
+phn_k_l_ih_n	K L IH N
+phn_k_l_ih_d	K L IH D
+phn_k_l_ih_s	K L IH S
+phn_k_r_ih	K R IH
+phn_k_r_ih_n	K R IH N
+phn_k_r_ih_d	K R IH D
+phn_k_r_ih_s	K R IH S
+phn_d_r_ih	D R IH
+phn_d_r_ih_n	D R IH N
+phn_d_r_ih_d	D R IH D
+phn_d_r_ih_s	D R IH S
+phn_d_w_ih	D W IH
+phn_d_w_ih_n	D W IH N
+phn_d_w_ih_d	D W IH D
+phn_d_w_ih_s	D W IH S
+phn_f_l_ih	F L IH
+phn_f_l_ih_n	F L IH N
+phn_f_l_ih_d	F L IH D
+phn_f_l_ih_s	F L IH S
+phn_f_r_ih	F R IH
+phn_f_r_ih_n	F R IH N
+phn_f_r_ih_d	F R IH D
+phn_f_r_ih_s	F R IH S
+phn_g_l_ih	G L IH
+phn_g_l_ih_n	G L IH N
+phn_g_l_ih_d	G L IH D
+phn_g_l_ih_s	G L IH S
+phn_g_r_ih	G R IH
+phn_g_r_ih_n	G R IH N
+phn_g_r_ih_d	G R IH D
+phn_g_r_ih_s	G R IH S
+phn_p_l_ih	P L IH
+phn_p_l_ih_n	P L IH N
+phn_p_l_ih_d	P L IH D
+phn_p_l_ih_s	P L IH S
+phn_p_r_ih	P R IH
+phn_p_r_ih_n	P R IH N
+phn_p_r_ih_d	P R IH D
+phn_p_r_ih_s	P R IH S
+phn_s_ch_ih	S CH IH
+phn_s_ch_ih_n	S CH IH N
+phn_s_ch_ih_d	S CH IH D
+phn_s_ch_ih_s	S CH IH S
+phn_s_k_ih	S K IH
+phn_s_k_ih_n	S K IH N
+phn_s_k_ih_d	S K IH D
+phn_s_k_ih_s	S K IH S
+phn_s_l_ih	S L IH
+phn_s_l_ih_n	S L IH N
+phn_s_l_ih_d	S L IH D
+phn_s_l_ih_s	S L IH S
+phn_s_m_ih	S M IH
+phn_s_m_ih_n	S M IH N
+phn_s_m_ih_d	S M IH D
+phn_s_m_ih_s	S M IH S
+phn_s_n_ih	S N IH
+phn_s_n_ih_n	S N IH N
+phn_s_n_ih_d	S N IH D
+phn_s_n_ih_s	S N IH S
+phn_s_p_ih	S P IH
+phn_s_p_ih_n	S P IH N
+phn_s_p_ih_d	S P IH D
+phn_s_p_ih_s	S P IH S
+phn_s_t_ih	S T IH
+phn_s_t_ih_n	S T IH N
+phn_s_t_ih_d	S T IH D
+phn_s_t_ih_s	S T IH S
+phn_s_w_ih	S W IH
+phn_s_w_ih_n	S W IH N
+phn_s_w_ih_d	S W IH D
+phn_s_w_ih_s	S W IH S
+phn_s_k_r_ih	S K R IH
+phn_s_k_r_ih_n	S K R IH N
+phn_s_k_r_ih_d	S K R IH D
+phn_s_k_r_ih_s	S K R IH S
+phn_s_t_r_ih	S T R IH
+phn_s_t_r_ih_n	S T R IH N
+phn_s_t_r_ih_d	S T R IH D
+phn_s_t_r_ih_s	S T R IH S
+phn_s_p_r_ih	S P R IH
+phn_s_p_r_ih_n	S P R IH N
+phn_s_p_r_ih_d	S P R IH D
+phn_s_p_r_ih_s	S P R IH S
+phn_t_r_ih	T R IH
+phn_t_r_ih_n	T R IH N
+phn_t_r_ih_d	T R IH D
+phn_t_r_ih_s	T R IH S
+phn_t_w_ih	T W IH
+phn_t_w_ih_n	T W IH N
+phn_t_w_ih_d	T W IH D
+phn_t_w_ih_s	T W IH S
+phn_ix_	IX 
+phn_b_ix	B IX
+phn_b_ix_n	B IX N
+phn_b_ix_d	B IX D
+phn_b_ix_s	B IX S
+phn_ch_ix	CH IX
+phn_ch_ix_n	CH IX N
+phn_ch_ix_d	CH IX D
+phn_ch_ix_s	CH IX S
+phn_d_ix	D IX
+phn_d_ix_n	D IX N
+phn_d_ix_d	D IX D
+phn_d_ix_s	D IX S
+phn_dh_ix	DH IX
+phn_dh_ix_n	DH IX N
+phn_dh_ix_d	DH IX D
+phn_dh_ix_s	DH IX S
+phn_dx_ix	DX IX
+phn_dx_ix_n	DX IX N
+phn_dx_ix_d	DX IX D
+phn_dx_ix_s	DX IX S
+phn_f_ix	F IX
+phn_f_ix_n	F IX N
+phn_f_ix_d	F IX D
+phn_f_ix_s	F IX S
+phn_g_ix	G IX
+phn_g_ix_n	G IX N
+phn_g_ix_d	G IX D
+phn_g_ix_s	G IX S
+phn_hh_ix	HH IX
+phn_hh_ix_n	HH IX N
+phn_hh_ix_d	HH IX D
+phn_hh_ix_s	HH IX S
+phn_jh_ix	JH IX
+phn_jh_ix_n	JH IX N
+phn_jh_ix_d	JH IX D
+phn_jh_ix_s	JH IX S
+phn_k_ix	K IX
+phn_k_ix_n	K IX N
+phn_k_ix_d	K IX D
+phn_k_ix_s	K IX S
+phn_l_ix	L IX
+phn_l_ix_n	L IX N
+phn_l_ix_d	L IX D
+phn_l_ix_s	L IX S
+phn_m_ix	M IX
+phn_m_ix_n	M IX N
+phn_m_ix_d	M IX D
+phn_m_ix_s	M IX S
+phn_n_ix	N IX
+phn_n_ix_n	N IX N
+phn_n_ix_d	N IX D
+phn_n_ix_s	N IX S
+phn_ng_ix	NG IX
+phn_ng_ix_n	NG IX N
+phn_ng_ix_d	NG IX D
+phn_ng_ix_s	NG IX S
+phn_p_ix	P IX
+phn_p_ix_n	P IX N
+phn_p_ix_d	P IX D
+phn_p_ix_s	P IX S
+phn_r_ix	R IX
+phn_r_ix_n	R IX N
+phn_r_ix_d	R IX D
+phn_r_ix_s	R IX S
+phn_s_ix	S IX
+phn_s_ix_n	S IX N
+phn_s_ix_d	S IX D
+phn_s_ix_s	S IX S
+phn_sh_ix	SH IX
+phn_sh_ix_n	SH IX N
+phn_sh_ix_d	SH IX D
+phn_sh_ix_s	SH IX S
+phn_t_ix	T IX
+phn_t_ix_n	T IX N
+phn_t_ix_d	T IX D
+phn_t_ix_s	T IX S
+phn_th_ix	TH IX
+phn_th_ix_n	TH IX N
+phn_th_ix_d	TH IX D
+phn_th_ix_s	TH IX S
+phn_v_ix	V IX
+phn_v_ix_n	V IX N
+phn_v_ix_d	V IX D
+phn_v_ix_s	V IX S
+phn_w_ix	W IX
+phn_w_ix_n	W IX N
+phn_w_ix_d	W IX D
+phn_w_ix_s	W IX S
+phn_y_ix	Y IX
+phn_y_ix_n	Y IX N
+phn_y_ix_d	Y IX D
+phn_y_ix_s	Y IX S
+phn_z_ix	Z IX
+phn_z_ix_n	Z IX N
+phn_z_ix_d	Z IX D
+phn_z_ix_s	Z IX S
+phn_zh_ix	ZH IX
+phn_zh_ix_n	ZH IX N
+phn_zh_ix_d	ZH IX D
+phn_zh_ix_s	ZH IX S
+phn_b_l_ix	B L IX
+phn_b_l_ix_n	B L IX N
+phn_b_l_ix_d	B L IX D
+phn_b_l_ix_s	B L IX S
+phn_b_r_ix	B R IX
+phn_b_r_ix_n	B R IX N
+phn_b_r_ix_d	B R IX D
+phn_b_r_ix_s	B R IX S
+phn_k_l_ix	K L IX
+phn_k_l_ix_n	K L IX N
+phn_k_l_ix_d	K L IX D
+phn_k_l_ix_s	K L IX S
+phn_k_r_ix	K R IX
+phn_k_r_ix_n	K R IX N
+phn_k_r_ix_d	K R IX D
+phn_k_r_ix_s	K R IX S
+phn_d_r_ix	D R IX
+phn_d_r_ix_n	D R IX N
+phn_d_r_ix_d	D R IX D
+phn_d_r_ix_s	D R IX S
+phn_d_w_ix	D W IX
+phn_d_w_ix_n	D W IX N
+phn_d_w_ix_d	D W IX D
+phn_d_w_ix_s	D W IX S
+phn_f_l_ix	F L IX
+phn_f_l_ix_n	F L IX N
+phn_f_l_ix_d	F L IX D
+phn_f_l_ix_s	F L IX S
+phn_f_r_ix	F R IX
+phn_f_r_ix_n	F R IX N
+phn_f_r_ix_d	F R IX D
+phn_f_r_ix_s	F R IX S
+phn_g_l_ix	G L IX
+phn_g_l_ix_n	G L IX N
+phn_g_l_ix_d	G L IX D
+phn_g_l_ix_s	G L IX S
+phn_g_r_ix	G R IX
+phn_g_r_ix_n	G R IX N
+phn_g_r_ix_d	G R IX D
+phn_g_r_ix_s	G R IX S
+phn_p_l_ix	P L IX
+phn_p_l_ix_n	P L IX N
+phn_p_l_ix_d	P L IX D
+phn_p_l_ix_s	P L IX S
+phn_p_r_ix	P R IX
+phn_p_r_ix_n	P R IX N
+phn_p_r_ix_d	P R IX D
+phn_p_r_ix_s	P R IX S
+phn_s_ch_ix	S CH IX
+phn_s_ch_ix_n	S CH IX N
+phn_s_ch_ix_d	S CH IX D
+phn_s_ch_ix_s	S CH IX S
+phn_s_k_ix	S K IX
+phn_s_k_ix_n	S K IX N
+phn_s_k_ix_d	S K IX D
+phn_s_k_ix_s	S K IX S
+phn_s_l_ix	S L IX
+phn_s_l_ix_n	S L IX N
+phn_s_l_ix_d	S L IX D
+phn_s_l_ix_s	S L IX S
+phn_s_m_ix	S M IX
+phn_s_m_ix_n	S M IX N
+phn_s_m_ix_d	S M IX D
+phn_s_m_ix_s	S M IX S
+phn_s_n_ix	S N IX
+phn_s_n_ix_n	S N IX N
+phn_s_n_ix_d	S N IX D
+phn_s_n_ix_s	S N IX S
+phn_s_p_ix	S P IX
+phn_s_p_ix_n	S P IX N
+phn_s_p_ix_d	S P IX D
+phn_s_p_ix_s	S P IX S
+phn_s_t_ix	S T IX
+phn_s_t_ix_n	S T IX N
+phn_s_t_ix_d	S T IX D
+phn_s_t_ix_s	S T IX S
+phn_s_w_ix	S W IX
+phn_s_w_ix_n	S W IX N
+phn_s_w_ix_d	S W IX D
+phn_s_w_ix_s	S W IX S
+phn_s_k_r_ix	S K R IX
+phn_s_k_r_ix_n	S K R IX N
+phn_s_k_r_ix_d	S K R IX D
+phn_s_k_r_ix_s	S K R IX S
+phn_s_t_r_ix	S T R IX
+phn_s_t_r_ix_n	S T R IX N
+phn_s_t_r_ix_d	S T R IX D
+phn_s_t_r_ix_s	S T R IX S
+phn_s_p_r_ix	S P R IX
+phn_s_p_r_ix_n	S P R IX N
+phn_s_p_r_ix_d	S P R IX D
+phn_s_p_r_ix_s	S P R IX S
+phn_t_r_ix	T R IX
+phn_t_r_ix_n	T R IX N
+phn_t_r_ix_d	T R IX D
+phn_t_r_ix_s	T R IX S
+phn_t_w_ix	T W IX
+phn_t_w_ix_n	T W IX N
+phn_t_w_ix_d	T W IX D
+phn_t_w_ix_s	T W IX S
+phn_iy_	IY 
+phn_b_iy	B IY
+phn_b_iy_n	B IY N
+phn_b_iy_d	B IY D
+phn_b_iy_s	B IY S
+phn_ch_iy	CH IY
+phn_ch_iy_n	CH IY N
+phn_ch_iy_d	CH IY D
+phn_ch_iy_s	CH IY S
+phn_d_iy	D IY
+phn_d_iy_n	D IY N
+phn_d_iy_d	D IY D
+phn_d_iy_s	D IY S
+phn_dh_iy	DH IY
+phn_dh_iy_n	DH IY N
+phn_dh_iy_d	DH IY D
+phn_dh_iy_s	DH IY S
+phn_dx_iy	DX IY
+phn_dx_iy_n	DX IY N
+phn_dx_iy_d	DX IY D
+phn_dx_iy_s	DX IY S
+phn_f_iy	F IY
+phn_f_iy_n	F IY N
+phn_f_iy_d	F IY D
+phn_f_iy_s	F IY S
+phn_g_iy	G IY
+phn_g_iy_n	G IY N
+phn_g_iy_d	G IY D
+phn_g_iy_s	G IY S
+phn_hh_iy	HH IY
+phn_hh_iy_n	HH IY N
+phn_hh_iy_d	HH IY D
+phn_hh_iy_s	HH IY S
+phn_jh_iy	JH IY
+phn_jh_iy_n	JH IY N
+phn_jh_iy_d	JH IY D
+phn_jh_iy_s	JH IY S
+phn_k_iy	K IY
+phn_k_iy_n	K IY N
+phn_k_iy_d	K IY D
+phn_k_iy_s	K IY S
+phn_l_iy	L IY
+phn_l_iy_n	L IY N
+phn_l_iy_d	L IY D
+phn_l_iy_s	L IY S
+phn_m_iy	M IY
+phn_m_iy_n	M IY N
+phn_m_iy_d	M IY D
+phn_m_iy_s	M IY S
+phn_n_iy	N IY
+phn_n_iy_n	N IY N
+phn_n_iy_d	N IY D
+phn_n_iy_s	N IY S
+phn_ng_iy	NG IY
+phn_ng_iy_n	NG IY N
+phn_ng_iy_d	NG IY D
+phn_ng_iy_s	NG IY S
+phn_p_iy	P IY
+phn_p_iy_n	P IY N
+phn_p_iy_d	P IY D
+phn_p_iy_s	P IY S
+phn_r_iy	R IY
+phn_r_iy_n	R IY N
+phn_r_iy_d	R IY D
+phn_r_iy_s	R IY S
+phn_s_iy	S IY
+phn_s_iy_n	S IY N
+phn_s_iy_d	S IY D
+phn_s_iy_s	S IY S
+phn_sh_iy	SH IY
+phn_sh_iy_n	SH IY N
+phn_sh_iy_d	SH IY D
+phn_sh_iy_s	SH IY S
+phn_t_iy	T IY
+phn_t_iy_n	T IY N
+phn_t_iy_d	T IY D
+phn_t_iy_s	T IY S
+phn_th_iy	TH IY
+phn_th_iy_n	TH IY N
+phn_th_iy_d	TH IY D
+phn_th_iy_s	TH IY S
+phn_v_iy	V IY
+phn_v_iy_n	V IY N
+phn_v_iy_d	V IY D
+phn_v_iy_s	V IY S
+phn_w_iy	W IY
+phn_w_iy_n	W IY N
+phn_w_iy_d	W IY D
+phn_w_iy_s	W IY S
+phn_y_iy	Y IY
+phn_y_iy_n	Y IY N
+phn_y_iy_d	Y IY D
+phn_y_iy_s	Y IY S
+phn_z_iy	Z IY
+phn_z_iy_n	Z IY N
+phn_z_iy_d	Z IY D
+phn_z_iy_s	Z IY S
+phn_zh_iy	ZH IY
+phn_zh_iy_n	ZH IY N
+phn_zh_iy_d	ZH IY D
+phn_zh_iy_s	ZH IY S
+phn_b_l_iy	B L IY
+phn_b_l_iy_n	B L IY N
+phn_b_l_iy_d	B L IY D
+phn_b_l_iy_s	B L IY S
+phn_b_r_iy	B R IY
+phn_b_r_iy_n	B R IY N
+phn_b_r_iy_d	B R IY D
+phn_b_r_iy_s	B R IY S
+phn_k_l_iy	K L IY
+phn_k_l_iy_n	K L IY N
+phn_k_l_iy_d	K L IY D
+phn_k_l_iy_s	K L IY S
+phn_k_r_iy	K R IY
+phn_k_r_iy_n	K R IY N
+phn_k_r_iy_d	K R IY D
+phn_k_r_iy_s	K R IY S
+phn_d_r_iy	D R IY
+phn_d_r_iy_n	D R IY N
+phn_d_r_iy_d	D R IY D
+phn_d_r_iy_s	D R IY S
+phn_d_w_iy	D W IY
+phn_d_w_iy_n	D W IY N
+phn_d_w_iy_d	D W IY D
+phn_d_w_iy_s	D W IY S
+phn_f_l_iy	F L IY
+phn_f_l_iy_n	F L IY N
+phn_f_l_iy_d	F L IY D
+phn_f_l_iy_s	F L IY S
+phn_f_r_iy	F R IY
+phn_f_r_iy_n	F R IY N
+phn_f_r_iy_d	F R IY D
+phn_f_r_iy_s	F R IY S
+phn_g_l_iy	G L IY
+phn_g_l_iy_n	G L IY N
+phn_g_l_iy_d	G L IY D
+phn_g_l_iy_s	G L IY S
+phn_g_r_iy	G R IY
+phn_g_r_iy_n	G R IY N
+phn_g_r_iy_d	G R IY D
+phn_g_r_iy_s	G R IY S
+phn_p_l_iy	P L IY
+phn_p_l_iy_n	P L IY N
+phn_p_l_iy_d	P L IY D
+phn_p_l_iy_s	P L IY S
+phn_p_r_iy	P R IY
+phn_p_r_iy_n	P R IY N
+phn_p_r_iy_d	P R IY D
+phn_p_r_iy_s	P R IY S
+phn_s_ch_iy	S CH IY
+phn_s_ch_iy_n	S CH IY N
+phn_s_ch_iy_d	S CH IY D
+phn_s_ch_iy_s	S CH IY S
+phn_s_k_iy	S K IY
+phn_s_k_iy_n	S K IY N
+phn_s_k_iy_d	S K IY D
+phn_s_k_iy_s	S K IY S
+phn_s_l_iy	S L IY
+phn_s_l_iy_n	S L IY N
+phn_s_l_iy_d	S L IY D
+phn_s_l_iy_s	S L IY S
+phn_s_m_iy	S M IY
+phn_s_m_iy_n	S M IY N
+phn_s_m_iy_d	S M IY D
+phn_s_m_iy_s	S M IY S
+phn_s_n_iy	S N IY
+phn_s_n_iy_n	S N IY N
+phn_s_n_iy_d	S N IY D
+phn_s_n_iy_s	S N IY S
+phn_s_p_iy	S P IY
+phn_s_p_iy_n	S P IY N
+phn_s_p_iy_d	S P IY D
+phn_s_p_iy_s	S P IY S
+phn_s_t_iy	S T IY
+phn_s_t_iy_n	S T IY N
+phn_s_t_iy_d	S T IY D
+phn_s_t_iy_s	S T IY S
+phn_s_w_iy	S W IY
+phn_s_w_iy_n	S W IY N
+phn_s_w_iy_d	S W IY D
+phn_s_w_iy_s	S W IY S
+phn_s_k_r_iy	S K R IY
+phn_s_k_r_iy_n	S K R IY N
+phn_s_k_r_iy_d	S K R IY D
+phn_s_k_r_iy_s	S K R IY S
+phn_s_t_r_iy	S T R IY
+phn_s_t_r_iy_n	S T R IY N
+phn_s_t_r_iy_d	S T R IY D
+phn_s_t_r_iy_s	S T R IY S
+phn_s_p_r_iy	S P R IY
+phn_s_p_r_iy_n	S P R IY N
+phn_s_p_r_iy_d	S P R IY D
+phn_s_p_r_iy_s	S P R IY S
+phn_t_r_iy	T R IY
+phn_t_r_iy_n	T R IY N
+phn_t_r_iy_d	T R IY D
+phn_t_r_iy_s	T R IY S
+phn_t_w_iy	T W IY
+phn_t_w_iy_n	T W IY N
+phn_t_w_iy_d	T W IY D
+phn_t_w_iy_s	T W IY S
+phn_ow_	OW 
+phn_b_ow	B OW
+phn_b_ow_n	B OW N
+phn_b_ow_d	B OW D
+phn_b_ow_s	B OW S
+phn_ch_ow	CH OW
+phn_ch_ow_n	CH OW N
+phn_ch_ow_d	CH OW D
+phn_ch_ow_s	CH OW S
+phn_d_ow	D OW
+phn_d_ow_n	D OW N
+phn_d_ow_d	D OW D
+phn_d_ow_s	D OW S
+phn_dh_ow	DH OW
+phn_dh_ow_n	DH OW N
+phn_dh_ow_d	DH OW D
+phn_dh_ow_s	DH OW S
+phn_dx_ow	DX OW
+phn_dx_ow_n	DX OW N
+phn_dx_ow_d	DX OW D
+phn_dx_ow_s	DX OW S
+phn_f_ow	F OW
+phn_f_ow_n	F OW N
+phn_f_ow_d	F OW D
+phn_f_ow_s	F OW S
+phn_g_ow	G OW
+phn_g_ow_n	G OW N
+phn_g_ow_d	G OW D
+phn_g_ow_s	G OW S
+phn_hh_ow	HH OW
+phn_hh_ow_n	HH OW N
+phn_hh_ow_d	HH OW D
+phn_hh_ow_s	HH OW S
+phn_jh_ow	JH OW
+phn_jh_ow_n	JH OW N
+phn_jh_ow_d	JH OW D
+phn_jh_ow_s	JH OW S
+phn_k_ow	K OW
+phn_k_ow_n	K OW N
+phn_k_ow_d	K OW D
+phn_k_ow_s	K OW S
+phn_l_ow	L OW
+phn_l_ow_n	L OW N
+phn_l_ow_d	L OW D
+phn_l_ow_s	L OW S
+phn_m_ow	M OW
+phn_m_ow_n	M OW N
+phn_m_ow_d	M OW D
+phn_m_ow_s	M OW S
+phn_n_ow	N OW
+phn_n_ow_n	N OW N
+phn_n_ow_d	N OW D
+phn_n_ow_s	N OW S
+phn_ng_ow	NG OW
+phn_ng_ow_n	NG OW N
+phn_ng_ow_d	NG OW D
+phn_ng_ow_s	NG OW S
+phn_p_ow	P OW
+phn_p_ow_n	P OW N
+phn_p_ow_d	P OW D
+phn_p_ow_s	P OW S
+phn_r_ow	R OW
+phn_r_ow_n	R OW N
+phn_r_ow_d	R OW D
+phn_r_ow_s	R OW S
+phn_s_ow	S OW
+phn_s_ow_n	S OW N
+phn_s_ow_d	S OW D
+phn_s_ow_s	S OW S
+phn_sh_ow	SH OW
+phn_sh_ow_n	SH OW N
+phn_sh_ow_d	SH OW D
+phn_sh_ow_s	SH OW S
+phn_t_ow	T OW
+phn_t_ow_n	T OW N
+phn_t_ow_d	T OW D
+phn_t_ow_s	T OW S
+phn_th_ow	TH OW
+phn_th_ow_n	TH OW N
+phn_th_ow_d	TH OW D
+phn_th_ow_s	TH OW S
+phn_v_ow	V OW
+phn_v_ow_n	V OW N
+phn_v_ow_d	V OW D
+phn_v_ow_s	V OW S
+phn_w_ow	W OW
+phn_w_ow_n	W OW N
+phn_w_ow_d	W OW D
+phn_w_ow_s	W OW S
+phn_y_ow	Y OW
+phn_y_ow_n	Y OW N
+phn_y_ow_d	Y OW D
+phn_y_ow_s	Y OW S
+phn_z_ow	Z OW
+phn_z_ow_n	Z OW N
+phn_z_ow_d	Z OW D
+phn_z_ow_s	Z OW S
+phn_zh_ow	ZH OW
+phn_zh_ow_n	ZH OW N
+phn_zh_ow_d	ZH OW D
+phn_zh_ow_s	ZH OW S
+phn_b_l_ow	B L OW
+phn_b_l_ow_n	B L OW N
+phn_b_l_ow_d	B L OW D
+phn_b_l_ow_s	B L OW S
+phn_b_r_ow	B R OW
+phn_b_r_ow_n	B R OW N
+phn_b_r_ow_d	B R OW D
+phn_b_r_ow_s	B R OW S
+phn_k_l_ow	K L OW
+phn_k_l_ow_n	K L OW N
+phn_k_l_ow_d	K L OW D
+phn_k_l_ow_s	K L OW S
+phn_k_r_ow	K R OW
+phn_k_r_ow_n	K R OW N
+phn_k_r_ow_d	K R OW D
+phn_k_r_ow_s	K R OW S
+phn_d_r_ow	D R OW
+phn_d_r_ow_n	D R OW N
+phn_d_r_ow_d	D R OW D
+phn_d_r_ow_s	D R OW S
+phn_d_w_ow	D W OW
+phn_d_w_ow_n	D W OW N
+phn_d_w_ow_d	D W OW D
+phn_d_w_ow_s	D W OW S
+phn_f_l_ow	F L OW
+phn_f_l_ow_n	F L OW N
+phn_f_l_ow_d	F L OW D
+phn_f_l_ow_s	F L OW S
+phn_f_r_ow	F R OW
+phn_f_r_ow_n	F R OW N
+phn_f_r_ow_d	F R OW D
+phn_f_r_ow_s	F R OW S
+phn_g_l_ow	G L OW
+phn_g_l_ow_n	G L OW N
+phn_g_l_ow_d	G L OW D
+phn_g_l_ow_s	G L OW S
+phn_g_r_ow	G R OW
+phn_g_r_ow_n	G R OW N
+phn_g_r_ow_d	G R OW D
+phn_g_r_ow_s	G R OW S
+phn_p_l_ow	P L OW
+phn_p_l_ow_n	P L OW N
+phn_p_l_ow_d	P L OW D
+phn_p_l_ow_s	P L OW S
+phn_p_r_ow	P R OW
+phn_p_r_ow_n	P R OW N
+phn_p_r_ow_d	P R OW D
+phn_p_r_ow_s	P R OW S
+phn_s_ch_ow	S CH OW
+phn_s_ch_ow_n	S CH OW N
+phn_s_ch_ow_d	S CH OW D
+phn_s_ch_ow_s	S CH OW S
+phn_s_k_ow	S K OW
+phn_s_k_ow_n	S K OW N
+phn_s_k_ow_d	S K OW D
+phn_s_k_ow_s	S K OW S
+phn_s_l_ow	S L OW
+phn_s_l_ow_n	S L OW N
+phn_s_l_ow_d	S L OW D
+phn_s_l_ow_s	S L OW S
+phn_s_m_ow	S M OW
+phn_s_m_ow_n	S M OW N
+phn_s_m_ow_d	S M OW D
+phn_s_m_ow_s	S M OW S
+phn_s_n_ow	S N OW
+phn_s_n_ow_n	S N OW N
+phn_s_n_ow_d	S N OW D
+phn_s_n_ow_s	S N OW S
+phn_s_p_ow	S P OW
+phn_s_p_ow_n	S P OW N
+phn_s_p_ow_d	S P OW D
+phn_s_p_ow_s	S P OW S
+phn_s_t_ow	S T OW
+phn_s_t_ow_n	S T OW N
+phn_s_t_ow_d	S T OW D
+phn_s_t_ow_s	S T OW S
+phn_s_w_ow	S W OW
+phn_s_w_ow_n	S W OW N
+phn_s_w_ow_d	S W OW D
+phn_s_w_ow_s	S W OW S
+phn_s_k_r_ow	S K R OW
+phn_s_k_r_ow_n	S K R OW N
+phn_s_k_r_ow_d	S K R OW D
+phn_s_k_r_ow_s	S K R OW S
+phn_s_t_r_ow	S T R OW
+phn_s_t_r_ow_n	S T R OW N
+phn_s_t_r_ow_d	S T R OW D
+phn_s_t_r_ow_s	S T R OW S
+phn_s_p_r_ow	S P R OW
+phn_s_p_r_ow_n	S P R OW N
+phn_s_p_r_ow_d	S P R OW D
+phn_s_p_r_ow_s	S P R OW S
+phn_t_r_ow	T R OW
+phn_t_r_ow_n	T R OW N
+phn_t_r_ow_d	T R OW D
+phn_t_r_ow_s	T R OW S
+phn_t_w_ow	T W OW
+phn_t_w_ow_n	T W OW N
+phn_t_w_ow_d	T W OW D
+phn_t_w_ow_s	T W OW S
+phn_oy_	OY 
+phn_b_oy	B OY
+phn_b_oy_n	B OY N
+phn_b_oy_d	B OY D
+phn_b_oy_s	B OY S
+phn_ch_oy	CH OY
+phn_ch_oy_n	CH OY N
+phn_ch_oy_d	CH OY D
+phn_ch_oy_s	CH OY S
+phn_d_oy	D OY
+phn_d_oy_n	D OY N
+phn_d_oy_d	D OY D
+phn_d_oy_s	D OY S
+phn_dh_oy	DH OY
+phn_dh_oy_n	DH OY N
+phn_dh_oy_d	DH OY D
+phn_dh_oy_s	DH OY S
+phn_dx_oy	DX OY
+phn_dx_oy_n	DX OY N
+phn_dx_oy_d	DX OY D
+phn_dx_oy_s	DX OY S
+phn_f_oy	F OY
+phn_f_oy_n	F OY N
+phn_f_oy_d	F OY D
+phn_f_oy_s	F OY S
+phn_g_oy	G OY
+phn_g_oy_n	G OY N
+phn_g_oy_d	G OY D
+phn_g_oy_s	G OY S
+phn_hh_oy	HH OY
+phn_hh_oy_n	HH OY N
+phn_hh_oy_d	HH OY D
+phn_hh_oy_s	HH OY S
+phn_jh_oy	JH OY
+phn_jh_oy_n	JH OY N
+phn_jh_oy_d	JH OY D
+phn_jh_oy_s	JH OY S
+phn_k_oy	K OY
+phn_k_oy_n	K OY N
+phn_k_oy_d	K OY D
+phn_k_oy_s	K OY S
+phn_l_oy	L OY
+phn_l_oy_n	L OY N
+phn_l_oy_d	L OY D
+phn_l_oy_s	L OY S
+phn_m_oy	M OY
+phn_m_oy_n	M OY N
+phn_m_oy_d	M OY D
+phn_m_oy_s	M OY S
+phn_n_oy	N OY
+phn_n_oy_n	N OY N
+phn_n_oy_d	N OY D
+phn_n_oy_s	N OY S
+phn_ng_oy	NG OY
+phn_ng_oy_n	NG OY N
+phn_ng_oy_d	NG OY D
+phn_ng_oy_s	NG OY S
+phn_p_oy	P OY
+phn_p_oy_n	P OY N
+phn_p_oy_d	P OY D
+phn_p_oy_s	P OY S
+phn_r_oy	R OY
+phn_r_oy_n	R OY N
+phn_r_oy_d	R OY D
+phn_r_oy_s	R OY S
+phn_s_oy	S OY
+phn_s_oy_n	S OY N
+phn_s_oy_d	S OY D
+phn_s_oy_s	S OY S
+phn_sh_oy	SH OY
+phn_sh_oy_n	SH OY N
+phn_sh_oy_d	SH OY D
+phn_sh_oy_s	SH OY S
+phn_t_oy	T OY
+phn_t_oy_n	T OY N
+phn_t_oy_d	T OY D
+phn_t_oy_s	T OY S
+phn_th_oy	TH OY
+phn_th_oy_n	TH OY N
+phn_th_oy_d	TH OY D
+phn_th_oy_s	TH OY S
+phn_v_oy	V OY
+phn_v_oy_n	V OY N
+phn_v_oy_d	V OY D
+phn_v_oy_s	V OY S
+phn_w_oy	W OY
+phn_w_oy_n	W OY N
+phn_w_oy_d	W OY D
+phn_w_oy_s	W OY S
+phn_y_oy	Y OY
+phn_y_oy_n	Y OY N
+phn_y_oy_d	Y OY D
+phn_y_oy_s	Y OY S
+phn_z_oy	Z OY
+phn_z_oy_n	Z OY N
+phn_z_oy_d	Z OY D
+phn_z_oy_s	Z OY S
+phn_zh_oy	ZH OY
+phn_zh_oy_n	ZH OY N
+phn_zh_oy_d	ZH OY D
+phn_zh_oy_s	ZH OY S
+phn_b_l_oy	B L OY
+phn_b_l_oy_n	B L OY N
+phn_b_l_oy_d	B L OY D
+phn_b_l_oy_s	B L OY S
+phn_b_r_oy	B R OY
+phn_b_r_oy_n	B R OY N
+phn_b_r_oy_d	B R OY D
+phn_b_r_oy_s	B R OY S
+phn_k_l_oy	K L OY
+phn_k_l_oy_n	K L OY N
+phn_k_l_oy_d	K L OY D
+phn_k_l_oy_s	K L OY S
+phn_k_r_oy	K R OY
+phn_k_r_oy_n	K R OY N
+phn_k_r_oy_d	K R OY D
+phn_k_r_oy_s	K R OY S
+phn_d_r_oy	D R OY
+phn_d_r_oy_n	D R OY N
+phn_d_r_oy_d	D R OY D
+phn_d_r_oy_s	D R OY S
+phn_d_w_oy	D W OY
+phn_d_w_oy_n	D W OY N
+phn_d_w_oy_d	D W OY D
+phn_d_w_oy_s	D W OY S
+phn_f_l_oy	F L OY
+phn_f_l_oy_n	F L OY N
+phn_f_l_oy_d	F L OY D
+phn_f_l_oy_s	F L OY S
+phn_f_r_oy	F R OY
+phn_f_r_oy_n	F R OY N
+phn_f_r_oy_d	F R OY D
+phn_f_r_oy_s	F R OY S
+phn_g_l_oy	G L OY
+phn_g_l_oy_n	G L OY N
+phn_g_l_oy_d	G L OY D
+phn_g_l_oy_s	G L OY S
+phn_g_r_oy	G R OY
+phn_g_r_oy_n	G R OY N
+phn_g_r_oy_d	G R OY D
+phn_g_r_oy_s	G R OY S
+phn_p_l_oy	P L OY
+phn_p_l_oy_n	P L OY N
+phn_p_l_oy_d	P L OY D
+phn_p_l_oy_s	P L OY S
+phn_p_r_oy	P R OY
+phn_p_r_oy_n	P R OY N
+phn_p_r_oy_d	P R OY D
+phn_p_r_oy_s	P R OY S
+phn_s_ch_oy	S CH OY
+phn_s_ch_oy_n	S CH OY N
+phn_s_ch_oy_d	S CH OY D
+phn_s_ch_oy_s	S CH OY S
+phn_s_k_oy	S K OY
+phn_s_k_oy_n	S K OY N
+phn_s_k_oy_d	S K OY D
+phn_s_k_oy_s	S K OY S
+phn_s_l_oy	S L OY
+phn_s_l_oy_n	S L OY N
+phn_s_l_oy_d	S L OY D
+phn_s_l_oy_s	S L OY S
+phn_s_m_oy	S M OY
+phn_s_m_oy_n	S M OY N
+phn_s_m_oy_d	S M OY D
+phn_s_m_oy_s	S M OY S
+phn_s_n_oy	S N OY
+phn_s_n_oy_n	S N OY N
+phn_s_n_oy_d	S N OY D
+phn_s_n_oy_s	S N OY S
+phn_s_p_oy	S P OY
+phn_s_p_oy_n	S P OY N
+phn_s_p_oy_d	S P OY D
+phn_s_p_oy_s	S P OY S
+phn_s_t_oy	S T OY
+phn_s_t_oy_n	S T OY N
+phn_s_t_oy_d	S T OY D
+phn_s_t_oy_s	S T OY S
+phn_s_w_oy	S W OY
+phn_s_w_oy_n	S W OY N
+phn_s_w_oy_d	S W OY D
+phn_s_w_oy_s	S W OY S
+phn_s_k_r_oy	S K R OY
+phn_s_k_r_oy_n	S K R OY N
+phn_s_k_r_oy_d	S K R OY D
+phn_s_k_r_oy_s	S K R OY S
+phn_s_t_r_oy	S T R OY
+phn_s_t_r_oy_n	S T R OY N
+phn_s_t_r_oy_d	S T R OY D
+phn_s_t_r_oy_s	S T R OY S
+phn_s_p_r_oy	S P R OY
+phn_s_p_r_oy_n	S P R OY N
+phn_s_p_r_oy_d	S P R OY D
+phn_s_p_r_oy_s	S P R OY S
+phn_t_r_oy	T R OY
+phn_t_r_oy_n	T R OY N
+phn_t_r_oy_d	T R OY D
+phn_t_r_oy_s	T R OY S
+phn_t_w_oy	T W OY
+phn_t_w_oy_n	T W OY N
+phn_t_w_oy_d	T W OY D
+phn_t_w_oy_s	T W OY S
+phn_uh_	UH 
+phn_b_uh	B UH
+phn_b_uh_n	B UH N
+phn_b_uh_d	B UH D
+phn_b_uh_s	B UH S
+phn_ch_uh	CH UH
+phn_ch_uh_n	CH UH N
+phn_ch_uh_d	CH UH D
+phn_ch_uh_s	CH UH S
+phn_d_uh	D UH
+phn_d_uh_n	D UH N
+phn_d_uh_d	D UH D
+phn_d_uh_s	D UH S
+phn_dh_uh	DH UH
+phn_dh_uh_n	DH UH N
+phn_dh_uh_d	DH UH D
+phn_dh_uh_s	DH UH S
+phn_dx_uh	DX UH
+phn_dx_uh_n	DX UH N
+phn_dx_uh_d	DX UH D
+phn_dx_uh_s	DX UH S
+phn_f_uh	F UH
+phn_f_uh_n	F UH N
+phn_f_uh_d	F UH D
+phn_f_uh_s	F UH S
+phn_g_uh	G UH
+phn_g_uh_n	G UH N
+phn_g_uh_d	G UH D
+phn_g_uh_s	G UH S
+phn_hh_uh	HH UH
+phn_hh_uh_n	HH UH N
+phn_hh_uh_d	HH UH D
+phn_hh_uh_s	HH UH S
+phn_jh_uh	JH UH
+phn_jh_uh_n	JH UH N
+phn_jh_uh_d	JH UH D
+phn_jh_uh_s	JH UH S
+phn_k_uh	K UH
+phn_k_uh_n	K UH N
+phn_k_uh_d	K UH D
+phn_k_uh_s	K UH S
+phn_l_uh	L UH
+phn_l_uh_n	L UH N
+phn_l_uh_d	L UH D
+phn_l_uh_s	L UH S
+phn_m_uh	M UH
+phn_m_uh_n	M UH N
+phn_m_uh_d	M UH D
+phn_m_uh_s	M UH S
+phn_n_uh	N UH
+phn_n_uh_n	N UH N
+phn_n_uh_d	N UH D
+phn_n_uh_s	N UH S
+phn_ng_uh	NG UH
+phn_ng_uh_n	NG UH N
+phn_ng_uh_d	NG UH D
+phn_ng_uh_s	NG UH S
+phn_p_uh	P UH
+phn_p_uh_n	P UH N
+phn_p_uh_d	P UH D
+phn_p_uh_s	P UH S
+phn_r_uh	R UH
+phn_r_uh_n	R UH N
+phn_r_uh_d	R UH D
+phn_r_uh_s	R UH S
+phn_s_uh	S UH
+phn_s_uh_n	S UH N
+phn_s_uh_d	S UH D
+phn_s_uh_s	S UH S
+phn_sh_uh	SH UH
+phn_sh_uh_n	SH UH N
+phn_sh_uh_d	SH UH D
+phn_sh_uh_s	SH UH S
+phn_t_uh	T UH
+phn_t_uh_n	T UH N
+phn_t_uh_d	T UH D
+phn_t_uh_s	T UH S
+phn_th_uh	TH UH
+phn_th_uh_n	TH UH N
+phn_th_uh_d	TH UH D
+phn_th_uh_s	TH UH S
+phn_v_uh	V UH
+phn_v_uh_n	V UH N
+phn_v_uh_d	V UH D
+phn_v_uh_s	V UH S
+phn_w_uh	W UH
+phn_w_uh_n	W UH N
+phn_w_uh_d	W UH D
+phn_w_uh_s	W UH S
+phn_y_uh	Y UH
+phn_y_uh_n	Y UH N
+phn_y_uh_d	Y UH D
+phn_y_uh_s	Y UH S
+phn_z_uh	Z UH
+phn_z_uh_n	Z UH N
+phn_z_uh_d	Z UH D
+phn_z_uh_s	Z UH S
+phn_zh_uh	ZH UH
+phn_zh_uh_n	ZH UH N
+phn_zh_uh_d	ZH UH D
+phn_zh_uh_s	ZH UH S
+phn_b_l_uh	B L UH
+phn_b_l_uh_n	B L UH N
+phn_b_l_uh_d	B L UH D
+phn_b_l_uh_s	B L UH S
+phn_b_r_uh	B R UH
+phn_b_r_uh_n	B R UH N
+phn_b_r_uh_d	B R UH D
+phn_b_r_uh_s	B R UH S
+phn_k_l_uh	K L UH
+phn_k_l_uh_n	K L UH N
+phn_k_l_uh_d	K L UH D
+phn_k_l_uh_s	K L UH S
+phn_k_r_uh	K R UH
+phn_k_r_uh_n	K R UH N
+phn_k_r_uh_d	K R UH D
+phn_k_r_uh_s	K R UH S
+phn_d_r_uh	D R UH
+phn_d_r_uh_n	D R UH N
+phn_d_r_uh_d	D R UH D
+phn_d_r_uh_s	D R UH S
+phn_d_w_uh	D W UH
+phn_d_w_uh_n	D W UH N
+phn_d_w_uh_d	D W UH D
+phn_d_w_uh_s	D W UH S
+phn_f_l_uh	F L UH
+phn_f_l_uh_n	F L UH N
+phn_f_l_uh_d	F L UH D
+phn_f_l_uh_s	F L UH S
+phn_f_r_uh	F R UH
+phn_f_r_uh_n	F R UH N
+phn_f_r_uh_d	F R UH D
+phn_f_r_uh_s	F R UH S
+phn_g_l_uh	G L UH
+phn_g_l_uh_n	G L UH N
+phn_g_l_uh_d	G L UH D
+phn_g_l_uh_s	G L UH S
+phn_g_r_uh	G R UH
+phn_g_r_uh_n	G R UH N
+phn_g_r_uh_d	G R UH D
+phn_g_r_uh_s	G R UH S
+phn_p_l_uh	P L UH
+phn_p_l_uh_n	P L UH N
+phn_p_l_uh_d	P L UH D
+phn_p_l_uh_s	P L UH S
+phn_p_r_uh	P R UH
+phn_p_r_uh_n	P R UH N
+phn_p_r_uh_d	P R UH D
+phn_p_r_uh_s	P R UH S
+phn_s_ch_uh	S CH UH
+phn_s_ch_uh_n	S CH UH N
+phn_s_ch_uh_d	S CH UH D
+phn_s_ch_uh_s	S CH UH S
+phn_s_k_uh	S K UH
+phn_s_k_uh_n	S K UH N
+phn_s_k_uh_d	S K UH D
+phn_s_k_uh_s	S K UH S
+phn_s_l_uh	S L UH
+phn_s_l_uh_n	S L UH N
+phn_s_l_uh_d	S L UH D
+phn_s_l_uh_s	S L UH S
+phn_s_m_uh	S M UH
+phn_s_m_uh_n	S M UH N
+phn_s_m_uh_d	S M UH D
+phn_s_m_uh_s	S M UH S
+phn_s_n_uh	S N UH
+phn_s_n_uh_n	S N UH N
+phn_s_n_uh_d	S N UH D
+phn_s_n_uh_s	S N UH S
+phn_s_p_uh	S P UH
+phn_s_p_uh_n	S P UH N
+phn_s_p_uh_d	S P UH D
+phn_s_p_uh_s	S P UH S
+phn_s_t_uh	S T UH
+phn_s_t_uh_n	S T UH N
+phn_s_t_uh_d	S T UH D
+phn_s_t_uh_s	S T UH S
+phn_s_w_uh	S W UH
+phn_s_w_uh_n	S W UH N
+phn_s_w_uh_d	S W UH D
+phn_s_w_uh_s	S W UH S
+phn_s_k_r_uh	S K R UH
+phn_s_k_r_uh_n	S K R UH N
+phn_s_k_r_uh_d	S K R UH D
+phn_s_k_r_uh_s	S K R UH S
+phn_s_t_r_uh	S T R UH
+phn_s_t_r_uh_n	S T R UH N
+phn_s_t_r_uh_d	S T R UH D
+phn_s_t_r_uh_s	S T R UH S
+phn_s_p_r_uh	S P R UH
+phn_s_p_r_uh_n	S P R UH N
+phn_s_p_r_uh_d	S P R UH D
+phn_s_p_r_uh_s	S P R UH S
+phn_t_r_uh	T R UH
+phn_t_r_uh_n	T R UH N
+phn_t_r_uh_d	T R UH D
+phn_t_r_uh_s	T R UH S
+phn_t_w_uh	T W UH
+phn_t_w_uh_n	T W UH N
+phn_t_w_uh_d	T W UH D
+phn_t_w_uh_s	T W UH S
+phn_uh_	UH 
+phn_b_uh	B UH
+phn_b_uh_n	B UH N
+phn_b_uh_d	B UH D
+phn_b_uh_s	B UH S
+phn_ch_uh	CH UH
+phn_ch_uh_n	CH UH N
+phn_ch_uh_d	CH UH D
+phn_ch_uh_s	CH UH S
+phn_d_uh	D UH
+phn_d_uh_n	D UH N
+phn_d_uh_d	D UH D
+phn_d_uh_s	D UH S
+phn_dh_uh	DH UH
+phn_dh_uh_n	DH UH N
+phn_dh_uh_d	DH UH D
+phn_dh_uh_s	DH UH S
+phn_dx_uh	DX UH
+phn_dx_uh_n	DX UH N
+phn_dx_uh_d	DX UH D
+phn_dx_uh_s	DX UH S
+phn_f_uh	F UH
+phn_f_uh_n	F UH N
+phn_f_uh_d	F UH D
+phn_f_uh_s	F UH S
+phn_g_uh	G UH
+phn_g_uh_n	G UH N
+phn_g_uh_d	G UH D
+phn_g_uh_s	G UH S
+phn_hh_uh	HH UH
+phn_hh_uh_n	HH UH N
+phn_hh_uh_d	HH UH D
+phn_hh_uh_s	HH UH S
+phn_jh_uh	JH UH
+phn_jh_uh_n	JH UH N
+phn_jh_uh_d	JH UH D
+phn_jh_uh_s	JH UH S
+phn_k_uh	K UH
+phn_k_uh_n	K UH N
+phn_k_uh_d	K UH D
+phn_k_uh_s	K UH S
+phn_l_uh	L UH
+phn_l_uh_n	L UH N
+phn_l_uh_d	L UH D
+phn_l_uh_s	L UH S
+phn_m_uh	M UH
+phn_m_uh_n	M UH N
+phn_m_uh_d	M UH D
+phn_m_uh_s	M UH S
+phn_n_uh	N UH
+phn_n_uh_n	N UH N
+phn_n_uh_d	N UH D
+phn_n_uh_s	N UH S
+phn_ng_uh	NG UH
+phn_ng_uh_n	NG UH N
+phn_ng_uh_d	NG UH D
+phn_ng_uh_s	NG UH S
+phn_p_uh	P UH
+phn_p_uh_n	P UH N
+phn_p_uh_d	P UH D
+phn_p_uh_s	P UH S
+phn_r_uh	R UH
+phn_r_uh_n	R UH N
+phn_r_uh_d	R UH D
+phn_r_uh_s	R UH S
+phn_s_uh	S UH
+phn_s_uh_n	S UH N
+phn_s_uh_d	S UH D
+phn_s_uh_s	S UH S
+phn_sh_uh	SH UH
+phn_sh_uh_n	SH UH N
+phn_sh_uh_d	SH UH D
+phn_sh_uh_s	SH UH S
+phn_t_uh	T UH
+phn_t_uh_n	T UH N
+phn_t_uh_d	T UH D
+phn_t_uh_s	T UH S
+phn_th_uh	TH UH
+phn_th_uh_n	TH UH N
+phn_th_uh_d	TH UH D
+phn_th_uh_s	TH UH S
+phn_v_uh	V UH
+phn_v_uh_n	V UH N
+phn_v_uh_d	V UH D
+phn_v_uh_s	V UH S
+phn_w_uh	W UH
+phn_w_uh_n	W UH N
+phn_w_uh_d	W UH D
+phn_w_uh_s	W UH S
+phn_y_uh	Y UH
+phn_y_uh_n	Y UH N
+phn_y_uh_d	Y UH D
+phn_y_uh_s	Y UH S
+phn_z_uh	Z UH
+phn_z_uh_n	Z UH N
+phn_z_uh_d	Z UH D
+phn_z_uh_s	Z UH S
+phn_zh_uh	ZH UH
+phn_zh_uh_n	ZH UH N
+phn_zh_uh_d	ZH UH D
+phn_zh_uh_s	ZH UH S
+phn_b_l_uh	B L UH
+phn_b_l_uh_n	B L UH N
+phn_b_l_uh_d	B L UH D
+phn_b_l_uh_s	B L UH S
+phn_b_r_uh	B R UH
+phn_b_r_uh_n	B R UH N
+phn_b_r_uh_d	B R UH D
+phn_b_r_uh_s	B R UH S
+phn_k_l_uh	K L UH
+phn_k_l_uh_n	K L UH N
+phn_k_l_uh_d	K L UH D
+phn_k_l_uh_s	K L UH S
+phn_k_r_uh	K R UH
+phn_k_r_uh_n	K R UH N
+phn_k_r_uh_d	K R UH D
+phn_k_r_uh_s	K R UH S
+phn_d_r_uh	D R UH
+phn_d_r_uh_n	D R UH N
+phn_d_r_uh_d	D R UH D
+phn_d_r_uh_s	D R UH S
+phn_d_w_uh	D W UH
+phn_d_w_uh_n	D W UH N
+phn_d_w_uh_d	D W UH D
+phn_d_w_uh_s	D W UH S
+phn_f_l_uh	F L UH
+phn_f_l_uh_n	F L UH N
+phn_f_l_uh_d	F L UH D
+phn_f_l_uh_s	F L UH S
+phn_f_r_uh	F R UH
+phn_f_r_uh_n	F R UH N
+phn_f_r_uh_d	F R UH D
+phn_f_r_uh_s	F R UH S
+phn_g_l_uh	G L UH
+phn_g_l_uh_n	G L UH N
+phn_g_l_uh_d	G L UH D
+phn_g_l_uh_s	G L UH S
+phn_g_r_uh	G R UH
+phn_g_r_uh_n	G R UH N
+phn_g_r_uh_d	G R UH D
+phn_g_r_uh_s	G R UH S
+phn_p_l_uh	P L UH
+phn_p_l_uh_n	P L UH N
+phn_p_l_uh_d	P L UH D
+phn_p_l_uh_s	P L UH S
+phn_p_r_uh	P R UH
+phn_p_r_uh_n	P R UH N
+phn_p_r_uh_d	P R UH D
+phn_p_r_uh_s	P R UH S
+phn_s_ch_uh	S CH UH
+phn_s_ch_uh_n	S CH UH N
+phn_s_ch_uh_d	S CH UH D
+phn_s_ch_uh_s	S CH UH S
+phn_s_k_uh	S K UH
+phn_s_k_uh_n	S K UH N
+phn_s_k_uh_d	S K UH D
+phn_s_k_uh_s	S K UH S
+phn_s_l_uh	S L UH
+phn_s_l_uh_n	S L UH N
+phn_s_l_uh_d	S L UH D
+phn_s_l_uh_s	S L UH S
+phn_s_m_uh	S M UH
+phn_s_m_uh_n	S M UH N
+phn_s_m_uh_d	S M UH D
+phn_s_m_uh_s	S M UH S
+phn_s_n_uh	S N UH
+phn_s_n_uh_n	S N UH N
+phn_s_n_uh_d	S N UH D
+phn_s_n_uh_s	S N UH S
+phn_s_p_uh	S P UH
+phn_s_p_uh_n	S P UH N
+phn_s_p_uh_d	S P UH D
+phn_s_p_uh_s	S P UH S
+phn_s_t_uh	S T UH
+phn_s_t_uh_n	S T UH N
+phn_s_t_uh_d	S T UH D
+phn_s_t_uh_s	S T UH S
+phn_s_w_uh	S W UH
+phn_s_w_uh_n	S W UH N
+phn_s_w_uh_d	S W UH D
+phn_s_w_uh_s	S W UH S
+phn_s_k_r_uh	S K R UH
+phn_s_k_r_uh_n	S K R UH N
+phn_s_k_r_uh_d	S K R UH D
+phn_s_k_r_uh_s	S K R UH S
+phn_s_t_r_uh	S T R UH
+phn_s_t_r_uh_n	S T R UH N
+phn_s_t_r_uh_d	S T R UH D
+phn_s_t_r_uh_s	S T R UH S
+phn_s_p_r_uh	S P R UH
+phn_s_p_r_uh_n	S P R UH N
+phn_s_p_r_uh_d	S P R UH D
+phn_s_p_r_uh_s	S P R UH S
+phn_t_r_uh	T R UH
+phn_t_r_uh_n	T R UH N
+phn_t_r_uh_d	T R UH D
+phn_t_r_uh_s	T R UH S
+phn_t_w_uh	T W UH
+phn_t_w_uh_n	T W UH N
+phn_t_w_uh_d	T W UH D
+phn_t_w_uh_s	T W UH S
+phn_uw_	UW 
+phn_b_uw	B UW
+phn_b_uw_n	B UW N
+phn_b_uw_d	B UW D
+phn_b_uw_s	B UW S
+phn_ch_uw	CH UW
+phn_ch_uw_n	CH UW N
+phn_ch_uw_d	CH UW D
+phn_ch_uw_s	CH UW S
+phn_d_uw	D UW
+phn_d_uw_n	D UW N
+phn_d_uw_d	D UW D
+phn_d_uw_s	D UW S
+phn_dh_uw	DH UW
+phn_dh_uw_n	DH UW N
+phn_dh_uw_d	DH UW D
+phn_dh_uw_s	DH UW S
+phn_dx_uw	DX UW
+phn_dx_uw_n	DX UW N
+phn_dx_uw_d	DX UW D
+phn_dx_uw_s	DX UW S
+phn_f_uw	F UW
+phn_f_uw_n	F UW N
+phn_f_uw_d	F UW D
+phn_f_uw_s	F UW S
+phn_g_uw	G UW
+phn_g_uw_n	G UW N
+phn_g_uw_d	G UW D
+phn_g_uw_s	G UW S
+phn_hh_uw	HH UW
+phn_hh_uw_n	HH UW N
+phn_hh_uw_d	HH UW D
+phn_hh_uw_s	HH UW S
+phn_jh_uw	JH UW
+phn_jh_uw_n	JH UW N
+phn_jh_uw_d	JH UW D
+phn_jh_uw_s	JH UW S
+phn_k_uw	K UW
+phn_k_uw_n	K UW N
+phn_k_uw_d	K UW D
+phn_k_uw_s	K UW S
+phn_l_uw	L UW
+phn_l_uw_n	L UW N
+phn_l_uw_d	L UW D
+phn_l_uw_s	L UW S
+phn_m_uw	M UW
+phn_m_uw_n	M UW N
+phn_m_uw_d	M UW D
+phn_m_uw_s	M UW S
+phn_n_uw	N UW
+phn_n_uw_n	N UW N
+phn_n_uw_d	N UW D
+phn_n_uw_s	N UW S
+phn_ng_uw	NG UW
+phn_ng_uw_n	NG UW N
+phn_ng_uw_d	NG UW D
+phn_ng_uw_s	NG UW S
+phn_p_uw	P UW
+phn_p_uw_n	P UW N
+phn_p_uw_d	P UW D
+phn_p_uw_s	P UW S
+phn_r_uw	R UW
+phn_r_uw_n	R UW N
+phn_r_uw_d	R UW D
+phn_r_uw_s	R UW S
+phn_s_uw	S UW
+phn_s_uw_n	S UW N
+phn_s_uw_d	S UW D
+phn_s_uw_s	S UW S
+phn_sh_uw	SH UW
+phn_sh_uw_n	SH UW N
+phn_sh_uw_d	SH UW D
+phn_sh_uw_s	SH UW S
+phn_t_uw	T UW
+phn_t_uw_n	T UW N
+phn_t_uw_d	T UW D
+phn_t_uw_s	T UW S
+phn_th_uw	TH UW
+phn_th_uw_n	TH UW N
+phn_th_uw_d	TH UW D
+phn_th_uw_s	TH UW S
+phn_v_uw	V UW
+phn_v_uw_n	V UW N
+phn_v_uw_d	V UW D
+phn_v_uw_s	V UW S
+phn_w_uw	W UW
+phn_w_uw_n	W UW N
+phn_w_uw_d	W UW D
+phn_w_uw_s	W UW S
+phn_y_uw	Y UW
+phn_y_uw_n	Y UW N
+phn_y_uw_d	Y UW D
+phn_y_uw_s	Y UW S
+phn_z_uw	Z UW
+phn_z_uw_n	Z UW N
+phn_z_uw_d	Z UW D
+phn_z_uw_s	Z UW S
+phn_zh_uw	ZH UW
+phn_zh_uw_n	ZH UW N
+phn_zh_uw_d	ZH UW D
+phn_zh_uw_s	ZH UW S
+phn_b_l_uw	B L UW
+phn_b_l_uw_n	B L UW N
+phn_b_l_uw_d	B L UW D
+phn_b_l_uw_s	B L UW S
+phn_b_r_uw	B R UW
+phn_b_r_uw_n	B R UW N
+phn_b_r_uw_d	B R UW D
+phn_b_r_uw_s	B R UW S
+phn_k_l_uw	K L UW
+phn_k_l_uw_n	K L UW N
+phn_k_l_uw_d	K L UW D
+phn_k_l_uw_s	K L UW S
+phn_k_r_uw	K R UW
+phn_k_r_uw_n	K R UW N
+phn_k_r_uw_d	K R UW D
+phn_k_r_uw_s	K R UW S
+phn_d_r_uw	D R UW
+phn_d_r_uw_n	D R UW N
+phn_d_r_uw_d	D R UW D
+phn_d_r_uw_s	D R UW S
+phn_d_w_uw	D W UW
+phn_d_w_uw_n	D W UW N
+phn_d_w_uw_d	D W UW D
+phn_d_w_uw_s	D W UW S
+phn_f_l_uw	F L UW
+phn_f_l_uw_n	F L UW N
+phn_f_l_uw_d	F L UW D
+phn_f_l_uw_s	F L UW S
+phn_f_r_uw	F R UW
+phn_f_r_uw_n	F R UW N
+phn_f_r_uw_d	F R UW D
+phn_f_r_uw_s	F R UW S
+phn_g_l_uw	G L UW
+phn_g_l_uw_n	G L UW N
+phn_g_l_uw_d	G L UW D
+phn_g_l_uw_s	G L UW S
+phn_g_r_uw	G R UW
+phn_g_r_uw_n	G R UW N
+phn_g_r_uw_d	G R UW D
+phn_g_r_uw_s	G R UW S
+phn_p_l_uw	P L UW
+phn_p_l_uw_n	P L UW N
+phn_p_l_uw_d	P L UW D
+phn_p_l_uw_s	P L UW S
+phn_p_r_uw	P R UW
+phn_p_r_uw_n	P R UW N
+phn_p_r_uw_d	P R UW D
+phn_p_r_uw_s	P R UW S
+phn_s_ch_uw	S CH UW
+phn_s_ch_uw_n	S CH UW N
+phn_s_ch_uw_d	S CH UW D
+phn_s_ch_uw_s	S CH UW S
+phn_s_k_uw	S K UW
+phn_s_k_uw_n	S K UW N
+phn_s_k_uw_d	S K UW D
+phn_s_k_uw_s	S K UW S
+phn_s_l_uw	S L UW
+phn_s_l_uw_n	S L UW N
+phn_s_l_uw_d	S L UW D
+phn_s_l_uw_s	S L UW S
+phn_s_m_uw	S M UW
+phn_s_m_uw_n	S M UW N
+phn_s_m_uw_d	S M UW D
+phn_s_m_uw_s	S M UW S
+phn_s_n_uw	S N UW
+phn_s_n_uw_n	S N UW N
+phn_s_n_uw_d	S N UW D
+phn_s_n_uw_s	S N UW S
+phn_s_p_uw	S P UW
+phn_s_p_uw_n	S P UW N
+phn_s_p_uw_d	S P UW D
+phn_s_p_uw_s	S P UW S
+phn_s_t_uw	S T UW
+phn_s_t_uw_n	S T UW N
+phn_s_t_uw_d	S T UW D
+phn_s_t_uw_s	S T UW S
+phn_s_w_uw	S W UW
+phn_s_w_uw_n	S W UW N
+phn_s_w_uw_d	S W UW D
+phn_s_w_uw_s	S W UW S
+phn_s_k_r_uw	S K R UW
+phn_s_k_r_uw_n	S K R UW N
+phn_s_k_r_uw_d	S K R UW D
+phn_s_k_r_uw_s	S K R UW S
+phn_s_t_r_uw	S T R UW
+phn_s_t_r_uw_n	S T R UW N
+phn_s_t_r_uw_d	S T R UW D
+phn_s_t_r_uw_s	S T R UW S
+phn_s_p_r_uw	S P R UW
+phn_s_p_r_uw_n	S P R UW N
+phn_s_p_r_uw_d	S P R UW D
+phn_s_p_r_uw_s	S P R UW S
+phn_t_r_uw	T R UW
+phn_t_r_uw_n	T R UW N
+phn_t_r_uw_d	T R UW D
+phn_t_r_uw_s	T R UW S
+phn_t_w_uw	T W UW
+phn_t_w_uw_n	T W UW N
+phn_t_w_uw_d	T W UW D
+phn_t_w_uw_s	T W UW S

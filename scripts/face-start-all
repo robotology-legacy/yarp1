@@ -1,0 +1,36 @@
+#!/bin/sh
+
+DNODE=9
+
+if [ -w //$DNODE/dev/photon ]; then
+  echo "Photon detected on node $DNODE, using it"
+else
+  echo "Using photon on node $NODE"
+  DNODE=$NODE
+fi
+
+cogcam="on -n$DNODE -d cogcam -s //$DNODE/dev/photon"
+
+let x0=10
+let y0=10
+let xstep=150
+let ystep=300
+
+let x=x0
+let y=y0
+
+#
+# start viewers.
+#
+$cogcam -x $x -y $y +/yarp/viewer/face_finder &
+let x=x+xstep
+$cogcam -x $x -y $y +/yarp/viewer/face_tracker &
+let x=x+xstep
+
+#
+# start mdoules.
+#
+slay -n27 -Q face_finder
+on -d -n27 face_finder
+slay -n26 -Q face_tracker
+on -d -n26 face_tracker

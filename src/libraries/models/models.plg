@@ -1,0 +1,52 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: models - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP2E5A.tmp" with contents
+[
+/nologo /MD /W3 /GX /O2 /I "..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /Fo"obj\Release/" /Fd"obj\Release/" /FD /c 
+"D:\Users\pasa\Software\YARP\src\libraries\models\LookupTable.cpp"
+"D:\Users\pasa\Software\YARP\src\libraries\models\PDFilter.cpp"
+"D:\Users\pasa\Software\YARP\src\libraries\models\RecursiveLS.cpp"
+"D:\Users\pasa\Software\YARP\src\libraries\models\TwoDKalmanFilter.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP2E5A.tmp" 
+Creating command line "link.exe -lib /nologo /out:"..\..\..\lib\winnt\models.lib"  .\obj\Release\LookupTable.obj .\obj\Release\PDFilter.obj .\obj\Release\RecursiveLS.obj .\obj\Release\TwoDKalmanFilter.obj "
+<h3>Output Window</h3>
+Compiling...
+LookupTable.cpp
+PDFilter.cpp
+RecursiveLS.cpp
+TwoDKalmanFilter.cpp
+Generating Code...
+Creating library...
+Creating temporary file "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP2E5B.bat" with contents
+[
+@echo off
+copy *.h ..\..\..\include
+copy *.inl ..\..\..\include
+]
+Creating command line "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP2E5B.bat"
+Intalling library
+LookupTable.h
+LowPassFilter.h
+Models.h
+PDFilter.h
+RecursiveLS.h
+StaticLut.h
+TwoDKalmanFilter.h
+        7 file(s) copied.
+LookupTable.inl
+        1 file(s) copied.
+
+
+
+<h3>Results</h3>
+models.lib - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

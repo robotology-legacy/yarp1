@@ -1,0 +1,7 @@
+node=$1
+exec=$2
+shift
+shift
+key=$KEY
+echo "on -n$node slay -Q $exec" >> $KEY.stop
+chmod u+x $KEY.stop

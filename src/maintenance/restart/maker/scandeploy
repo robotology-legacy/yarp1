@@ -1,0 +1,11 @@
+for active in `ls *.o 2> /dev/null`; do
+  base=`basename $active .o`
+  if [ -f $base.scan ]; then
+    missing=`./$base.scan`
+    if [ "$missing" != "" ]; then
+      echo Removing $active because $missing is missing
+      $base.stop
+      rm -f $base.o
+    fi
+  fi
+done

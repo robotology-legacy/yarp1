@@ -1,0 +1,7 @@
+#!/bin/sh
+
+porter /yarp/msg/o:head !/yarp/closed_loop/in/messages
+porter /yarp/msg/o:arm !/yarp/arm_thread/messages
+
+porter /yarp/closed_loop/p_out !/yarp/msg/i:headpos
+porter /yarp/arm_thread/p_out !/yarp/msg/i:armpos

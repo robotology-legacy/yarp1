@@ -1,0 +1,8 @@
+ACT=/home/cog/active
+node=$1
+exec=$2
+shift
+shift
+key=$KEY
+echo "sin -n$node | grep -q $exec || missing=\"$missing $exec\"" >> $ACT/$KEY.scan
+chmod u+x $ACT/$KEY.scan

@@ -1,0 +1,48 @@
+#!/usr/local/bin/perl
+
+open(DATA,"<data01.txt");
+open(OUT,">data02.txt");
+
+my $txt = "";
+$valid = 0;
+
+while(<DATA>)
+{
+    chomp;
+    if ($_ =~ /trace with name .*_([0-9]+)_([0-9]+)/)
+    {
+	if ($valid)
+	{
+	    print "$txt\n";
+	}
+	$v1 = int($1);
+	$v2 = int($2);
+	$txt = "$v1 $v2 ";
+	$valid = 1;
+    }
+    if ($_ =~ /:/)
+    {
+	split;
+	$name = $_[0];
+	$val0 = $_[2];
+	$val1 = $_[3];
+	$val2 = $_[4];
+	if ($name eq "m_action_number" || $name eq "m_object_orientation" ||
+	    $name eq "m_object_orientation_quality")
+	{
+	    $txt = $txt . "$val0 ";
+	}
+	if ($name eq "m_starting_position_image" ||
+	    $name eq "m_ending_position_image")
+	{
+	    $val1 = int($val1);
+	    $val2 = int($val2);
+	    $txt = $txt . "$val1 $val2 ";
+	}
+    }
+}
+
+if ($valid)
+{
+    print "$txt\n";
+}

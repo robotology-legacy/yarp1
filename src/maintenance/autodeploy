@@ -1,0 +1,12 @@
+#!/bin/ksh
+
+#id | grep -q "root" || {
+#  NAME=`basename $0`
+#  echo "You need to be super-user to use $NAME"
+#  exit 1
+#}
+
+cd $YARP_ROOT/scripts/auto
+
+export PATH=.:$PATH
+sudo autodeploygui | autodeploymaker

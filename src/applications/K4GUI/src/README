@@ -1,0 +1,14 @@
+This application is developed using QNX's PhAB (Photon App Builder).
+To open application: $ appbuilder -n
+PhAB GUI should appear. 
+Existing application can be opened by giving PhAB its top directory. 
+For example: to open this application, look under: 
+/ai/ai/mb/cdp/src/YARP/src/applications, a list of directories should appear, 
+including K4GUI. clicking on K4GUI will open this application.
+
+Compiling can be done in the PhAB GUI or by simply typing make in the
+/ai/ai/mb/cdp/src/YARP/src/applications/K4GUI/src directory.
+.o and executable files are automatically placed in the default directory.
+
+For details on programming in PhAB, see PhAB manual.
+

@@ -1,0 +1,28 @@
+NODE=$1
+PORT=//$NODE/dev/ser1
+
+echo "Setting up serial port on node $NODE ($PORT)"
+
+
+stty baud=19200 < $PORT
+stty -ihflow -obflow -lkhflow -ohpaged -ohflow +clocal < $PORT
+
+echo
+echo "DESIRED SETTINGS --"
+echo "Name:  $PORT"
+cat<<XXX
+Type:  serial
+Opens: 1 (R-)
+Sigint Grp: 0, Sighup pid: 0
++raw +clocal
+start=^Q  stop=^S   min=00  time=00
+par=none bits=8 stopb=1 baud=19200 rows=0,0
++DTR +RTS -BRK -cts -dsr -ri -cd ioport=3F8 irq=4
+XXX
+
+echo
+echo "ACHIEVED SETTINGS --"
+stty < $PORT
+
+echo
+echo "Please take a moment to check that the desired and achieved settings match"

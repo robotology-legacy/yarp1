@@ -1,0 +1,9 @@
+#!/bin/sh
+
+###^M
+### Switches and globals^M
+###^M
+. switches
+
+porter /yarp/attention/out /yarp/closed_loop/in/color_segm_data
+porter /yarp/disparity/out/disparity /yarp/closed_loop/in/disparity_data

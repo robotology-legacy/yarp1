@@ -1,0 +1,10 @@
+%C - UEI A/D Card Driver/Library Interface
+
+%C &
+
+Options:
+ -n process-name ["/yarp/uei"]
+ -b base-addr    [0x700]
+ -p priority     [10]
+ -V verbosity    [0]
+

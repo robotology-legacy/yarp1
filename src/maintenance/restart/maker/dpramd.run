@@ -1,0 +1,2 @@
+echo Starting dpramd - key is $KEY
+deploy 8 boo ha ha

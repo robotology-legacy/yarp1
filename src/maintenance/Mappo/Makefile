@@ -1,0 +1,4 @@
+MAIN = makeptpscript
+
+all: $(MAIN)
+

@@ -1,0 +1,11 @@
+- problems?
+
+This SW is absolutely unreliable. 
+It's a miracle it works as it is but there's no guarantee that it
+might fail in other situations. Unfortunately porting this SW was a very
+bad idea. It would have been much simpler and safer to simply
+reimplement the self organizing map.
+
+--
+
+LATER: reimplement from scratch.

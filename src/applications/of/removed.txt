@@ -1,0 +1,450 @@
+#define BASISFILENAME "/ai/ai/mb/cdp/src/YARP/conf/basis"
+int **basisx = NULL;
+int **basisy = NULL;
+double *scalefactor = NULL;
+
+double *tmpx = NULL;
+double *tmpy = NULL;
+
+//
+//
+//
+void LoadBases (int njoints, int sizex, int sizey)
+{
+	FILE *fp;
+	char filename[256];
+	memset (filename, 0, 256);
+
+	// alloc bases.
+	basisx = new int *[njoints];
+	basisy = new int *[njoints];
+	assert (basisx != NULL && basisy != NULL);
+	basisx[0] = new int[njoints*sizex*sizey];
+	basisy[0] = new int[njoints*sizex*sizey];
+	assert (basisx[0] != NULL && basisy[0] != NULL);
+
+	scalefactor = new double[njoints];
+	assert (scalefactor != NULL);
+
+	tmpx = new double[sizex*sizey];
+	tmpy = new double[sizex*sizey];
+	assert (tmpx != NULL && tmpy != NULL);
+
+	for (int i = 0; i < njoints; i++)
+	{
+		basisx[i] = basisx[0] + i * sizex * sizey;
+		basisy[i] = basisy[0] + i * sizex * sizey;
+
+		sprintf (filename, "%s%d.txt\0", BASISFILENAME, i); 
+		fp = fopen (filename, "r");
+		assert (fp != NULL);
+
+		double tmp;
+		for (int j = 0; j < njoints; j++)
+		{
+			fscanf (fp, "%lf ", &tmp);
+			if (j == i)
+				scalefactor[i] = tmp;
+		}
+		fscanf (fp, "\n\n");
+
+		//
+		for (j = 0; j < sizey; j++)
+		{
+			for (int k = 0; k < sizex; k++)
+			{
+				fscanf (fp, "%d ", &(basisx[i][j*sizex+k]));
+			}
+			fscanf (fp, "\n");
+		}
+		fscanf (fp, "\n");
+
+		for (j = 0; j < sizey; j++)
+		{
+			for (int k = 0; k < sizex; k++)
+			{
+				fscanf (fp, "%d ", &(basisy[i][j*sizex+k]));
+			}
+			fscanf (fp, "\n");
+		}
+
+		fclose (fp);
+	}
+}
+
+void Cleanup ()
+{
+	if (basisx != NULL)
+	{
+		if (basisx[0] != NULL)
+			delete[] basisx[0];
+
+		delete[] basisx;
+	}
+
+	if (basisy != NULL)
+	{
+		if (basisy[0] != NULL)
+			delete[] basisy[0];
+
+		delete[] basisy;
+	}
+
+	if (scalefactor != NULL)
+		delete[] scalefactor;
+
+	if (tmpx != NULL)
+		delete[] tmpx;
+	if (tmpy != NULL)
+		delete[] tmpy;
+}
+
+const double GAIN = 0.2;
+
+void GenerateEstimation (double *speed, int *esx, int *esy, int sizex, int sizey, int njoints)
+{
+	memset (tmpx, 0, sizeof(double) * sizex * sizey);
+	memset (tmpy, 0, sizeof(double) * sizex * sizey);
+
+	for (int i = 0; i < njoints; i++)
+	{
+		if (i != 1)	// joint 1 doesn't need to be included.
+		{
+			double factor = GAIN * speed[i] / scalefactor[i];
+			for (int j = 0; j < sizex * sizey; j++)
+			{
+				tmpx[j] += (factor * basisx[i][j]);
+				tmpy[j] += (factor * basisy[i][j]);
+			}
+		}
+	}
+
+	// round.
+	for (int j = 0; j < sizex * sizey; j++)
+	{
+		esx[j] = int(tmpx[j]+.5);
+		esy[j] = int(tmpy[j]+.5);
+	}
+}
+
+void PlotEstimation (YARPImageOf<YarpPixelMono>& out, int *esx, int *esy, int sizex, int sizey)
+{
+	const int w = out.GetWidth();
+	const int h = out.GetHeight();
+
+	for (int j = 0; j < sizey; j++)
+	{
+		for (int i = 0; i < sizex; i++)
+		{
+			int cx = i * BLOCKSIZE + BLOCKSIZE/2;
+			int cy = j * BLOCKSIZE + BLOCKSIZE/2;
+
+			// draw arrow.
+			const int RES = 2 * MAXFLOW;
+			const double inc = 1.0 / RES;
+			int x,y;
+			for (int k = 0; k < RES; k++)
+			{
+				x = int(cx + esx[j*sizex+i] * k * inc + .5);
+				y = int(cy + esy[j*sizex+i] * k * inc + .5);
+				if (x >= 0 && x < w && y >= 0 && y < h)
+					out (x,y) = 0;
+			}
+
+			out(cx,cy) = 255;
+		}
+	}
+}
+
+bool SimilarFlow (int fx, int fy, int vx, int vy)
+{
+	int dx = fx - vx;
+	int dy = fy - vy;
+
+	//double mod1 = sqrt (vx * vx + vy * vy);
+	//double mod2 = sqrt (fx * fx + fy * fy);
+
+	if (sqrt(dx * dx + dy * dy) < 3)
+	//if (fabs(mod1-mod2) < 2)
+		return true;
+	else
+		return false;
+}
+
+// this is only temporary... just to try 16x16.
+int tagged[256];
+int ii, jj;
+int sx, sy;
+int *fx, *fy;
+int last_tag;
+int numelem[256];
+
+void RecRegionGrowing (int i, int j);
+
+void RegionGrowing (int i, int j, int *vx, int *vy, int ox, int oy)
+{
+	ii = i;
+	jj = j;
+	sx = ox;
+	sy = oy;
+	fx = vx;
+	fy = vy;
+
+	RecRegionGrowing (i, j);
+}
+
+void RecRegionGrowing (int i, int j)
+{
+	if (tagged[i*sx+j] != 0 || !SimilarFlow (fx[ii*sx+jj],fy[ii*sx+jj],fx[i*sx+j],fy[i*sx+j])) 
+		return;
+	else
+	{
+		tagged[i*sx+j] = last_tag;
+		numelem[last_tag]++;
+	}
+
+	if (j + 1 < sx-1)
+	{
+		RecRegionGrowing (i, j+1);
+		if (i - 1 >= 1)
+		{
+			RecRegionGrowing (i - 1, j + 1);
+			RecRegionGrowing (i - 1, j);
+		}
+
+		if (i + 1 < sy-1)
+		{
+			RecRegionGrowing (i+1, j+1);
+			RecRegionGrowing (i+1, j);
+		}
+	}
+
+	if (j - 1 >= 1)
+	{
+		RecRegionGrowing (i, j-1);
+		if (i - 1 >= 1)
+			RecRegionGrowing (i-1,j-1);
+
+		if (i + 1 < sy-1)
+			RecRegionGrowing (i+1,j-1);
+	}
+
+	return;
+}
+
+void TagFlow (YARPImageOf<YarpPixelMono>& out, int *vx, int *vy, int ox, int oy)
+{
+	unsigned char *dst = (unsigned char *)out.GetRawBuffer();
+
+	memset (tagged, 0, sizeof(int)*256);
+	memset (numelem, 0, sizeof(int)*256);
+
+	last_tag = 0;
+	for (int i = 1; i < oy-1; i++)
+	{
+		for (int j = 1; j < ox-1; j++)
+		{
+			if (tagged[i*ox+j] == 0)
+			{
+				last_tag++;
+				RegionGrowing (i, j, vx, vy, ox, oy);
+			}
+		}
+	}
+
+	for (i = 1; i <= last_tag; i++)
+	{
+		if (numelem[i] < 5)
+		{
+			for (int j = 0; j < ox * oy; j++)
+			{
+				if (tagged[j] == i)
+					tagged[j] = 0;
+			}
+		}
+	}
+
+	// last_tag is the number of tags.
+	//double nfact = 256 / last_tag;
+	if (last_tag < 10)
+		last_tag = 10;
+	double nfact = 256.0 / last_tag;
+	unsigned char color;
+
+	for (i = 0; i < oy; i++)
+		for (int j = 0; j < ox; j++)
+		{
+			double tmp = tagged[i*ox+j] * nfact;
+			if (tmp > 255)
+				color = 255;
+			else
+				color = (unsigned char)tmp;
+
+			WriteBigPixel (out, j*BLOCKSIZE, i*BLOCKSIZE, color, BLOCKSIZE);
+		}
+}
+
+void SubtractFlow (YARPImageOf<YarpPixelMono>& out, int *vx, int *vy, int *esx, int *esy, int ox, int oy)
+{
+	for (int j = 0; j < oy; j++)
+	{
+		for (int i = 0; i < ox; i++)
+		{
+			*esx = *vx - *esx;
+			*esy = *vy - *esy;
+
+			if (*esx * *esx + *esy * *esy > 9)
+				WriteBigPixel (out, i*BLOCKSIZE, j*BLOCKSIZE, 0, BLOCKSIZE);
+
+			esx++;
+			esy++;
+			vx++;
+			vy++;
+		}
+	}
+}
+
+#if 0
+		if (!first_cycle)
+		{
+			const int VALUE = 0;
+			double x1,y1;
+
+			// look for sign changes.
+			if (sgn(vspeed(1)) == sgn(oldspeed(1)) &&
+				sgn(vspeed(3)) == sgn(oldspeed(3)))
+			{
+				if (vspeed(1) != 0.0 || vspeed(3) != 0.0)
+				{
+					// no sign changes
+					double theta = atan2(10*vspeed(1), -vspeed(3));
+
+					for (int s = -45; s <= 45; s+=5)
+					{
+						for (int r = 0; r <= 8; r++)
+						{
+							x1 = r * cos (theta + s * 3.141528 / 180);
+							y1 = r * sin (theta + s * 3.141528 / 180);
+							if (x1 <= MAXFLOW && x1 >= -MAXFLOW &&
+								y1 <= MAXFLOW && y1 >= -MAXFLOW)
+								flow_histo(x1,y1) = VALUE;
+						}
+					}
+				}
+				else
+				{
+					for (int ii = -1; ii <= 1; ii++)
+						for (int jj = -1; jj <= 1; jj++)
+							flow_histo(double(ii),double(jj)) = VALUE;
+				}
+
+				BackprojectHistogram (hout, flow_histo, vx, vy, ox, oy);
+			}
+			else
+			{
+				// sign changes - no estimate.
+				hout.Zero();
+				flow_histo = 0;
+			}
+
+			oldspeed = vspeed;
+		}
+		else
+		{
+			// first cycle
+			first_cycle = false;
+			oldspeed = vspeed;
+			hout.Zero();
+			flow_histo = 0;
+		}
+
+		ConvertHistogram2Img (out_image, flow_histo);
+
+		YARPGenericImage& outImg = out.Content(); // Lasts until next Write()
+		outImg.Refer(out_image);
+		out.Write();
+
+		YARPGenericImage& outImg2 = phisto.Content(); // Lasts until next Write()
+		outImg2.Refer(hout);
+		phisto.Write();
+	}
+}
+#endif
+
+#if 0	// ESTIMATE
+
+	of.SetSpatialSmooth();
+
+	LoadBases (7, ox, oy);
+	CVisDVector vspeed(7);
+
+	// delay buffer.
+	const int delay = 1;
+	JointSpeed speed_array[delay];
+	memset (speed_array, 0, sizeof(JointSpeed) * delay);
+	int index_array = 0;
+	bool array_full = false;
+
+	// process first frame.
+	in.Read();
+	in_image.Refer (in.Content());
+
+	YARPColorConverter::RGB2Grayscale (in_image, mono);
+	of.Initialize (mono);
+
+	while (1)
+	{
+		in.Read();
+		in_image.Refer (in.Content());
+		YARPColorConverter::RGB2Grayscale (in_image, mono);
+
+		of.Apply (mono, out_image, vx, vy);
+
+		YARPGenericImage& outImg = out.Content(); // Lasts until next Write()
+		outImg.Refer(out_image);
+		out.Write();
+
+		// read the head movement, compute estimate and plot it.
+		speed.Read();
+		JointSpeed js = speed.Content();
+
+		if (array_full)
+		{
+			index_array = (index_array + 1) % delay;
+
+			vspeed(1) = speed_array[index_array].j1;
+			vspeed(2) = speed_array[index_array].j2;
+			vspeed(3) = speed_array[index_array].j3;
+			vspeed(4) = speed_array[index_array].j4;
+			vspeed(5) = speed_array[index_array].j5;
+			vspeed(6) = speed_array[index_array].j6;
+			vspeed(7) = speed_array[index_array].j7;
+
+			GenerateEstimation (vspeed.data(), esx, esy, ox, oy, 7);
+			hout = mono;
+			//SubtractFlow (hout, vx, vy, esx, esy, ox, oy);
+			PlotEstimation (hout, esx, esy, ox, oy);
+			//PlotFlowMag (hout, vx, vy, ox, oy);
+
+			speed_array[index_array] = js;
+		}
+		else
+		{
+			// just fill the buffer.
+			speed_array [index_array] = js;
+			index_array ++;
+			if (index_array > delay-1)
+			{
+				array_full = true;
+				index_array = delay-1;
+			}
+
+			hout = mono;
+		}
+
+		YARPGenericImage& outImg2 = phisto.Content(); // Lasts until next Write()
+		outImg2.Refer(hout);
+		phisto.Write();
+	}
+
+#endif	// ESTIMATE

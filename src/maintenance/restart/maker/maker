@@ -1,0 +1,20 @@
+more=true
+while $more; do
+  read cmd target
+  echo ">>>" $cmd $target
+  if [ "$cmd" = "stop" ]; then
+    if [ -f $target.stop ]; then
+      echo ">>> Stopping $target"
+      chmod u+x $target.stop
+      $target.stop
+      rm -f $target.o
+    fi
+  fi
+  if [ "$cmd" = "start" ]; then
+   echo ">>> Starting $target"
+    make $target.o
+  fi
+  if [ "$cmd" = "" ]; then
+    more=false
+  fi
+done

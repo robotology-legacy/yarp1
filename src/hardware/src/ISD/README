@@ -1,0 +1,7 @@
+Inter-Sense Daemon
+
+Low-level hardware controller for the Inter-Sense 3-axis intertial package.
+Must be made (and installed) as root using sudo.
+
+(c) 2000, Brian Scassellati, All rights reserved.
+

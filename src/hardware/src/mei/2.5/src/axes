@@ -1,0 +1,179 @@
+bconfig.c:			FRAME_SIZE * (axis + pdsp->axes * e_frame) ;
+idsp.c:	pdsp->board = -1;
+idsp.c:			pdsp->board = (int16)board;
+idsp.c:	if(pdsp->board == -1)
+idsp.c:	pdsp->iobase = iobase;				/* iobase is set to iobase */
+idsp.c:		pdsp->mei_dsp_base = (int16 volatile huge *) p;
+idsp.c:	pdsp->mei_dsp_base = (int16*) (A16_BASE);
+idsp.c:	pdsp->mei_dsp_base = MeiMemoryPointer(iobase, &dsp_io_problem);
+idsp.c:	pdsp->iobase = iobase;
+idsp.c:	pdsp->mei_dsp_base = (int16*) (A16_BASE);
+idsp.c:	DSP_OUTB(dsp->reset, 0);
+idsp.c:	DSP_OUTB((P_DSP_DM)(dsp->reset + 1), 0);
+idsp.c:	DSP_OUT(dsp->reset, 0xFFFF);
+idsp.c:	if(!(dsp->ok))
+idsp.c:	if((axis < 0) || (axis >= ((int16) dsp->axes)))
+idsp.c:	if(!(dsp->ok))
+idsp.c:	if((axis < 0) || (axis >= ((int16) dsp->axes)))
+idsp.c:	if(!(dsp->ok))
+idsp.c:	dsp->iobase = iobase;
+idsp.c:	dsp->address = iobase + PCDSP_ADDRESS ;
+idsp.c:	dsp->data = iobase + PCDSP_DATA ;
+idsp.c:	dsp->reset = iobase + PCDSP_RESET ;
+idsp.c:	dsp->ok = FALSE ;
+idsp.c:	for(axis = 0; axis < pdsp->axes; axis++)
+idsp.c:		if(!(dsp_read_dm((int16)(pdsp->e_data+ED(axis)))&CD_KILL_AXIS))
+idsp.c:	pdsp->signature = idsp_read_dm(pdsp, DM_SIGNATURE);
+idsp.c:	pdsp->version = idsp_read_dm(pdsp, DM_FIRMWARE_VERSION);
+idsp.c:	pdsp->option = idsp_read_dm(pdsp, DM_OPTION);
+idsp.c:	if (pdsp->signature != PCDSP_SIGNATURE)
+idsp.c:	if ((pdsp->version >> 4) != PCDSP_VERSION)
+idsp.c:	pdsp->ok = TRUE ;
+idsp.c:	pdsp->axes = idsp_read_dm(pdsp, DM_AXES);
+idsp.c:	pdsp->pc_event = idsp_read_dm(pdsp, DM_PC_EVENT);
+idsp.c:	pdsp->pc_status = idsp_read_dm(pdsp, DM_PC_STATUS);
+idsp.c:	pdsp->inptr = idsp_read_dm(pdsp, DM_INPTR);
+idsp.c:	pdsp->outptr = idsp_read_dm(pdsp, DM_OUTPTR);
+idsp.c:	pdsp->infree = pdsp->inptr + pdsp->axes;
+idsp.c:	pdsp->outfree = pdsp->outptr + pdsp->axes;
+idsp.c:	pdsp->transfer = idsp_read_dm(pdsp, DM_TRANSFER_BLOCK);
+idsp.c:	pdsp->data_struct = idsp_read_dm(pdsp, DM_DATA_STRUCT);
+idsp.c:	pdsp->e_data = idsp_read_dm(pdsp, DM_E_DATA);
+idsp.c:	pdsp->global_data = idsp_read_dm(pdsp, DM_GLOBAL_DATA);
+idsp.c:	dsp_error = pcdsp_transfer_block(pdsp, TRUE, FALSE, PCDSP_TIMER, 1, &(pdsp->sample_clock)) ;
+idsp.c:	DSP_OUT((int16)(pdsp->iobase + 8), (unsigned16)(PCDSP_DM | DM_SIGNATURE));
+idsp.c:	clock_id = DSP_IN((int16)(pdsp->iobase + PCDSP_DATA));
+idsp.c:		pdsp->timer_scale = 20000000L;	/* clock is running at 20MHz */
+idsp.c:		pdsp->timer_scale = 10000000L;	/* clock is running at 10MHz (default) */
+idsp.c:	P_DSP_DM gd = pdsp->global_data + GD_CONFIG ;
+idsp.c:	i = idsp_read_dm(pdsp, (P_DSP_DM)(pdsp->global_data + GD_CONFIG));
+idsp.c:	P_DSP_DM a = pdsp->global_data + GD_JOG ;
+idsp.c:    addr = pdsp->data_struct + DS(axis) + DS_D(2) ;
+iframe.c:	dst->f.control |= dsp->frame_control[axis];
+iframe.c:	for(dst->current = idsp_read_dm(dsp, dsp->outfree);
+iframe.c:		dst->current = idsp_read_dm(dsp, dsp->outfree))
+iframe.c:	idsp_write_dm(dsp, dsp->outfree, next);
+iframe.c:	dst->f.control |= dsp->frame_control[axis] ;
+iframe.c:   if(!dsp->frame_buffer.frames_left)
+iframe.c:	dst->f.control |= dsp->frame_control[axis];
+iframe.c:	if (pframe->dsp->flags[pframe->axis] & DF_FRAME_COMPRESS)
+iframe.c:	if (! (pframe->dsp->flags[pframe->axis] & DF_FRAME_COMPRESS))
+iframe.c:	inptr = pframe->dsp->inptr + pframe->axis ;
+iframe.c:	DSP_DM gate = idsp_read_dm(pdsp, (P_DSP_DM)(pdsp->global_data + GD_GATE));
+iframe.c:	return idsp_write_dm(pdsp, (P_DSP_DM)(pdsp->global_data + GD_GATE), gate);
+iframe.c:	if (! pdsp->laxis[axis].gate)
+iframe.c:	pdsp->laxis[axis].gate++ ;
+iframe.c:	if (pdsp->laxis[axis].gate)
+iframe.c:		pdsp->laxis[axis].gate--;
+iframe.c:	if (! pdsp->laxis[axis].gate)
+iframe.c:{	pdsp->laxis[axis].gate = 0;
+imemory.c:	while (idsp_read_dm(dsp, (P_DSP_DM)(dsp->transfer + TRANSFER_CTRL)) && timeout)
+imemory.c:		idsp_write_dm(dsp, (P_DSP_DM)(dsp->transfer + TRANSFER_ADDR), addr);
+imemory.c:			pcdsp_write_dm(dsp, (P_DSP_DM)(dsp->transfer + TRANSFER_BUFFER), actual_length, buffer);
+imemory.c:		idsp_write_dm(dsp, (P_DSP_DM)(dsp->transfer + TRANSFER_CTRL), control_word);
+imemory.c:			pcdsp_read_dm(dsp, (P_DSP_DM)(dsp->transfer + TRANSFER_BUFFER), actual_length, buffer);
+imemory.c:		DSP_OUT(dsp->address, (unsigned16)((addr + i) | PCDSP_DM));
+imemory.c:		r = DSP_IN(dsp->data) ;
+imemory.c:		DSP_OUT(dsp->address, (unsigned16)((addr + i) | PCDSP_PM));
+imemory.c:		r = DSP_IN(dsp->data) ;
+imemory.c:		DSP_OUT(dsp->address, (unsigned16)((addr + i) | PCDSP_DM));
+imemory.c:		DSP_OUT(dsp->data, src[i]);
+imemory.c:		DSP_OUT(dsp->address, (unsigned16)((addr + i) | PCDSP_PM));
+imemory.c:		DSP_OUT(dsp->data, src[i]);
+llbm.c:	DSP_OUT(pdsp->address, (unsigned16)(addr | PCDSP_BM));
+llbm.c:	DSP_OUT(pdsp->data, (unsigned16)(byte & 0xFF));
+llbm.c:	DSP_OUT(pdsp->address, (unsigned16)(addr | PCDSP_BM)) ;
+llbm.c:	r = DSP_IN(pdsp->data) & 0xFF ;
+llconfig.c:	return (pdsp->e_data + configdata[parameter].offset + ED(axis));
+llef.c:			* (axis + pdsp->axes * e_frame) ;
+llframe.c:		case 'l':	r = (pdsp->FRAME_ALLOCATE)(f, pdsp, *pi);
+llframe.c:						f->f.trig_action = pdsp->frame_action[f->axis] ;
+llframe.c:		case 'd':	r = (pdsp->FRAME_DOWNLOAD)(f); break;
+llframe.c:	for (a = 0; (frame->axis < 0) && (a <= pdsp->axes); a++)
+llframe.c:		if (a == pdsp->axes)
+llframe.c:			addr = pdsp->infree;
+llframe.c:			addr = pdsp->outptr + a ;
+llink.c:		ds = dsp->data_struct + DS(axis) ;
+llink.c:   P_DSP_DM    control_addr = pdsp->data_struct + DS(slave) + DS_RATIO + 2;
+llink.c:   P_DSP_DM    command_addr = pdsp->data_struct + DS(slave) + DS_POSITION;
+llio.c:	dsp->analog_control[ch] =
+llio.c:	control = dsp->analog_control[channel] ;
+llmove.c:	int16 e = pcdsp_frames_left(pdsp, axis) || pdsp->laxis[axis].gate, f = 0;
+llmove.c:	f = e && (pdsp->laxis[axis].last == LA_COMMAND);
+llmove.c:		f = pdsp->flags[axis] & DF_AXIS_BUSY ;
+llmove.c:		r = ipcdsp_double(&(pdsp->laxis[axis].pos));
+llpid.c:{	P_DSP_DM filter = pdsp->e_data + ED(axis) + ED_C0 ;
+llpid.c:{	P_DSP_DM filter = pdsp->e_data + ED(axis) + ED_C0 ;
+llpid.c:{	P_DSP_DM filter = pdsp->e_data + ED(axis) + ED_I0 ;
+llpid.c:{	P_DSP_DM filter = pdsp->e_data + ED(axis) + ED_I0 ;
+llpos.c:			(pdsp->frame_control[axis] & 0xFF00) | 0x0F);
+llsetvel.c:			trigger = TRIGGER_POSITIVE | (pdsp->frame_action[axis]);
+llsetvel.c:            pdsp->frame_control[axis] | FCTL_HOLD) ;
+llstatus.c:{	return idsp_read_dm(pdsp, (P_DSP_DM)(pdsp->pc_event + axis));
+llstatus.c:	idsp_write_dm(pdsp, (P_DSP_DM)(pdsp->pc_event + axis), event);
+mldebug.c:	if (pframe->dsp)  printf(" (I/O base 0x%4.4X)", pframe->dsp->address) ;
+mldsp.c:{	*rate = (unsigned) (pdsp->timer_scale / (long) (clock + 1)) ;
+mldsp.c:{	return (unsigned) (pdsp->timer_scale / ((unsigned long) samplesPerSecond)) - 1;
+mldsp.c:	{	sample_rate(dspPtr, pdsp->sample_clock, &pdsp->sample_rate);
+mldsp.c:		{	pdsp->sercdata[axis].channel = SERCOS_MAX_CHANNELS;		/* default is uninitialized */
+mldsp.c:	  		pdsp->sercdata[axis].mode = SERCOS_MAX_CHANNELS;
+mldsp.c:	  		pdsp->sercdata[axis].drive_addr = SERCOS_MAX_CHANNELS;
+mldsp.c:	  		pdsp->sercdata[axis].drive_mfg = SERCOS_MAX_CHANNELS;
+mldsp.c:		{	pdsp->sercos = 1;
+mldsp.c:					pdsp->sercdata[axis].channel = channel;
+mldsp.c:					pdsp->sercdata[axis].mode = (unsigned16)dsp_read_pm((unsigned16)(addr + 1));
+mldsp.c:					pdsp->sercdata[axis].drive_addr = (unsigned16)dsp_read_pm((unsigned16)(addr + 2));
+mldsp.c:					pdsp->sercdata[axis].drive_mfg = (unsigned16)dsp_read_pm((unsigned16)(addr + 3));
+mldsp.c:			pdsp->sercos = 0;
+mldsp.c:			pdsp->laxis[axis].gate = 0;
+mldsp.c:			pdsp->frame_control[axis] = FCTL_DEFAULT;
+mldsp.c:			pdsp->frame_action[axis] = NEW_FRAME;
+mldsp.c:			pdsp->flags[axis] = 0;
+mldsp.c:			pdsp->analog_control[axis] = axis;
+mldsp.c:		pdsp->jog_x = -1;
+mldsp.c:		pdsp->jog_y = -1;
+mldsp.c:		pdsp->jog_z = -1;
+mldsp.c:		pdsp->FRAME_ALLOCATE = frame_allocate;
+mldsp.c:		pdsp->FRAME_DOWNLOAD = frame_download;
+mldsp.c:		pdsp->frame_buffer.length = 0;
+mldsp.c:		pdsp->frame_buffer.frames = 0;
+mldsp.c:		pdsp->frame_buffer.frames_left = 0;
+mldsp.c:		pdsp->frame_buffer.pbuffer = NULL;
+mldsp.c:	pdsp->analog_channel = -1;
+mldsp.c:   if(frames > frame->dsp->frame_buffer.frames)
+mldsp.c:		plaxis = &(pdsp->laxis[axis]) ;
+mlmove.c:	if(dsp->FRAME_ALLOCATE(&frame, dsp, axis)==DSP_OK) 
+mlmove.c:		frame.f.trig_action = dsp->frame_action[axis] ;
+mlmove.c:		dsp->FRAME_DOWNLOAD(&frame);	/* send frame to DSP */
+mlmove.c:	if(dsp->FRAME_ALLOCATE(&frame, dsp, axis)==DSP_OK) 
+mlmove.c:		frame.f.trig_action = dsp->frame_action[axis]  ;
+mlmove.c:		dsp->FRAME_DOWNLOAD(&frame);	/* send frame to DSP */
+mlsetvel.c:	int16 e = pcdsp_frames_left(pdsp, axis) || pdsp->laxis[axis].gate;
+mlsetvel.c:	if (e && (pdsp->laxis[axis].last == LA_VELOCITY))
+mlsetvel.c:			copy_lfixed(pdsp->laxis[axis].vel, fixed_zero) ;
+mlsetvel.c:			pcdsp_get_velocity(pdsp, axis, &(pdsp->laxis[axis].vel));
+mlsetvel.c:	ipcdsp_double_vel(pdsp, axis, &pdsp->laxis[axis].vel, &current_vel);
+mlsetvel.c:	sub_lfixed(*change, pdsp->laxis[axis].vel) ;
+mlsetvel.c:	if ((axis < 0) || (axis >= pdsp->axes))
+mlstatus.c:	if (pdsp->laxis[axis].gate)
+mlstatus.c:	inptr = pdsp->inptr + axis ;
+mlstatus.c:	outptr = pdsp->outptr + axis ;
+mluom.c:		return & dsp->conversion[axis] ;
+mluom.c:	returns a double where fdsp->whole is the whole portion,
+mluom.c:	and (fdsp->frac / FRACTIONS_PER_COUNT) is the fractional part.
+mluom.c:	r = (double) fdsp->whole;
+mluom.c:	s = (double) fdsp->frac;
+mluom.c:	src *= pconv->secondsPerPeriod * ((double) pdsp->sample_rate) ;
+mluom.c:	s = pdsp->sample_rate ;
+mluom.c:	s = ((double) pdsp->sample_rate) * pconv->secondsPerPeriod ;
+mluom.c:	a  = ((double) pdsp->sample_rate) *pconv->accelPeriod ;
+mluom.c:	s = ((double) pdsp->sample_rate) * pconv->secondsPerPeriod ;
+mluom.c:	a  = ((double) pdsp->sample_rate) *pconv->accelPeriod ;
+mluom.c:	*dst /= (pconv->secondsPerPeriod * ((double) pdsp->sample_rate)) ;
+mluom.c:		s = (double) pdsp->sample_rate ;
+mluom.c:		s = (double) pdsp->sample_rate,
+mluom.c:	s = ((double) pdsp->sample_rate) * pconv->secondsPerPeriod ;
+mluom.c:	a  = ((double) pdsp->sample_rate) * pconv->accelPeriod ;
+mluom.c:		s = (double) pdsp->sample_rate,
+mluom.c:	s = ((double) pdsp->sample_rate) * pconv->secondsPerPeriod ;
+mluom.c:	a  = ((double) pdsp->sample_rate) *pconv->accelPeriod ;

@@ -1,0 +1,266 @@
+//
+// Com data packets.
+//
+
+#ifndef __tx_datah__
+#define __tx_datah__
+
+#include "YARPBool.h"
+
+typedef struct _single_p_data
+{
+	double x, y;
+	int valid;
+}
+SinglePosData;
+
+typedef struct _stereo_p_data
+{
+	double xl, yl;
+	double xr, yr;
+	int valid;
+}
+StereoPosData;
+
+// all this stuff is not exactly elegant C++... anyway!
+class CBox2Send 
+{
+public:
+	bool valid;
+
+	// logpolar
+	int cmax, rmax;
+	int cmin, rmin;
+
+	// cartesian
+	int xmax, ymax;
+	int xmin, ymin;
+
+	// all in cartesian.
+	int total_sal;
+	int total_pixels;
+	int xsum, ysum;
+	int centroid_x;
+	int centroid_y;
+};
+
+// this is used to send the most significant 
+// boxes from one node to another.
+typedef class _5_boxes
+{
+public:
+	CBox2Send box1;
+	CBox2Send box2;
+	CBox2Send box3;
+	CBox2Send box4;
+	CBox2Send box5;
+  
+  CBox2Send& operator() (int index)
+    {
+      switch(index)
+	{
+	case 0: return box1; break;
+	case 1: return box2; break;
+	case 2: return box3; break;
+	case 3: return box4; break;
+	case 4: return box5; break;
+	};
+      return box1;
+    }
+  
+  static int GetMaxBoxes()
+    { return 5; }
+}
+FiveBoxesInARow;
+
+// something more might be needed later.
+typedef struct _disparity_data
+{
+	double disparity;
+}
+DisparityData;
+
+// joint speed.
+typedef struct _joint_speed
+{
+          double j1;
+          double j2;
+          double j3;
+          double j4;
+          double j5;
+          double j6;
+          double j7;
+  
+          inline double& operator() (int i)
+    {
+                      switch(i)
+	{
+	case 1: return j1;
+	case 2: return j2;
+	case 3: return j3;
+	case 4: return j4;
+	case 5: return j5;
+	case 6: return j6;
+	case 7: return j7;
+	}
+      
+                      return j1;
+    }
+}
+JointSpeed;
+
+typedef struct _gyro_pos
+{
+          double y,p,r;
+}
+GyroPos;
+
+// same struct for joint position.
+typedef struct _joint_speed JointPos;
+
+// joint speed.
+typedef struct _K4_joint_speed
+{
+
+  double j1;
+  double j2;
+  double j3;
+  double j4;
+  double j5;
+  double j6;
+  double j7;
+  double j8;
+  double j9;
+  double j10;
+  double j11;
+  double j12;
+  double j13;
+  double j14;
+  double j15;
+  double j16;
+  double j17;
+  double j18;
+  double j19;
+  double j20;
+  double j21;
+  double j22;
+  double j23;
+  double j24;
+  double j25;
+  double j26;
+  double j27;
+  double j28;
+  double j29;
+  double j30;
+  
+	inline double& operator() (int i)
+	{
+		switch(i)
+		{
+		case 1: return j1;
+		case 2: return j2;
+		case 3: return j3;
+		case 4: return j4;
+		case 5: return j5;
+		case 6: return j6;
+		case 7: return j7;
+		case 8: return j8;
+                case 9: return j9;
+		case 10: return j10;
+		case 11: return j11;
+		case 12: return j12;
+		case 13: return j13;
+		case 14: return j14;
+		case 15: return j15;
+		case 16: return j16;
+                case 17: return j17;
+		case 18: return j18;
+		case 19: return j19;
+		case 20: return j20;
+		case 21: return j21;
+		case 22: return j22;
+		case 23: return j23;
+		case 24: return j24;
+                case 25: return j25;
+		case 26: return j26;
+		case 27: return j27;
+		case 28: return j28;
+		case 29: return j29;
+		case 30: return j30;
+
+
+		}
+	  return j1;
+	}
+}
+K4JointSpeed;
+
+
+// same struct for joint position.
+typedef struct _K4_joint_speed K4JointPos;
+
+typedef struct _simple_point
+{
+	int x, y;
+} IntPosData;
+
+// head message type.
+enum 
+{
+	HeadMsgNonValid = 0,
+	HeadMsgOffset = 1,
+	HeadMsgStopNeckMovement = 2,
+	HeadMsgStopAll = 3,
+	HeadMsgStopAllVisual = 4,
+	HeadMsgMoveToPosition = 5
+};
+
+typedef struct _head_msg_type
+{
+	int type;
+	double j1;
+	double j2;
+	double j3;
+	double j4;
+	double j5;
+	double j6;
+	double j7;
+}
+HeadMessage;
+
+enum
+{
+	ArmMsgNonValid = 0,
+	ArmMsgMoveTo = 1,
+	ArmMsgWaveHand = 2
+};
+
+// arm control has 19 joints.
+#define __ARMNJOINTS 19
+typedef struct _arm_msg_type
+{
+	int type;
+	double j[__ARMNJOINTS];
+}
+ArmMessage;
+
+typedef struct _arm_joint_array
+{
+	double j[__ARMNJOINTS];
+}
+ArmJoints;
+
+typedef struct _trackermesg
+{
+	bool valid;
+	double aj[__ARMNJOINTS];
+	double hj[7];
+	int img[2];
+}
+TrackerMsg;
+
+
+
+#undef __ARMNJOINTS
+
+#endif

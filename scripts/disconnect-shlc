@@ -1,0 +1,9 @@
+#!/bin/sh
+
+conditional_porter /yarp/right/fovea2 !/yarp/shlc/i:img
+conditional_porter /yarp/closed_loop/p_out !/yarp/shlc/i:headp
+conditional_porter /yarp/arm_thread/p_out !/yarp/shlc/i:armp
+
+conditional_porter /yarp/msg/o:msg !/yarp/shlc/i:msg
+
+conditional_porter /yarp/shlc/o:img !/foveal_egomap/i:img

@@ -1,0 +1,22 @@
+#!/bin/sh
+
+###^M
+### Switches and globals^M
+###^M
+. switches
+
+if $USE_TRACKER
+then
+porter /attn_tracker/o:pos /yarp/closed_loop/in/color_segm_data
+else
+porter /yarp/attention/out /yarp/closed_loop/in/color_segm_data
+fi
+
+porter /yarp/disparity/out/disparity /yarp/closed_loop/in/disparity_data
+
+porter /yarp/closed_loop/c_out /yarp/optic_flow/left/in/velocity
+porter /yarp/closed_loop/c_out /yarp/optic_flow/right/in/velocity
+conditional_porter /yarp/closed_loop/p_out /attn_tracker/i:head
+conditional_porter /yarp/arm_thread/p_out /attn_tracker/i:arm
+
+$YARP_ROOT/scripts/attention-connect-egomap

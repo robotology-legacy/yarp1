@@ -1,0 +1,19 @@
+#!/bin/sh
+
+TARG=22
+PROG=isd
+OPTIONS="-V 4 -c 2"
+SERIALPORT=//22/dev/ser1
+BAUDRATE=115200
+BINROOT=$YARP_ROOT/bin/qnx
+LOGROOT=/tmp
+
+slay -Q -n $TARG $PROG
+stty +flush < $SERIALPORT
+stty baud=$BAUDRATE < $SERIALPORT
+
+if [ -f $LOGROOT/$PROG.$TARG.log ]; then
+  mv $LOGROOT/$PROG.$TARG.log $LOGROOT/$PROG.$TARG.log.old
+fi
+
+on -f $TARG $BINROOT/$PROG $OPTIONS -s $SERIALPORT >$LOGROOT/$PROG.$TARG.log 2>&1 &

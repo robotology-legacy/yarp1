@@ -1,0 +1,16 @@
+where are things on COG:
+
+
+
+ISD - Node 3 Serial port 1
+MEID - Head control Node 4 Address: 0x
+
+Node 3 MEI torso/hand - address 320
+Node 6 MEI adreess 260 - wrist left and right arms
+Node 7 MEI adreess 320 - shoulder/elbow left/right arms.
+Node 8 UEI A/D converters.
+
+Node 24 mounts 2 frame grabber.
+
+Nodes 13-16 mount frame grabber
+Nodes 17-20 mount frame grabber

@@ -1,0 +1,11 @@
+porter /yarp/closed_loop/p_out /egomap/i:head
+porter /yarp/right/wide/fat /egomap/i:img
+#porter /yarp/right/wide1 /egomap/i:img
+porter /egomap/o:img /yarp/viewer/egomap
+porter /egomap/o:cmd /yarp/closed_loop/in/messages
+#porter /voice/command/out /egomap/i:cmd
+conditional_porter /egomap_gui/o:bot /egomap/i:bot
+
+porter /yarp/right/fovea2 /obj_segment/i:img
+porter /obj_segment/o:img /yarp/viewer/obj_segment
+conditional_porter /obj_segment/o:bot /yarp/msg/i:msgreply

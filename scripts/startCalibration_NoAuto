@@ -1,0 +1,8 @@
+(
+sleep 2
+porter /eyecal/out/command /yapoc/in/command
+porter /YAPOC/out/position /eyecal/in/position
+) &
+on -n14 $YARP_ROOT/bin/qnx/eyecal -auto_eyecal no
+
+

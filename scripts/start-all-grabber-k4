@@ -1,0 +1,56 @@
+#!/bin/sh
+
+FILE=`fullpath -t $0`
+OS=qnx
+PROCDIR=$YARP_ROOT/bin/$OS
+
+echo "'oly cow..."
+echo "be sure you're root..."
+
+#./kill-all
+
+echo "Starting grabber2 on node 17"
+on -n17 slay -Q grabber2 
+on -d -n17 $PROCDIR/grabber2 -height 128 -width 128 -square -format bgr -tagged \
+  -top 0.05 -bottom 0.95 -dtop 0.03 -output /yarp/stereo1/bgr &
+sleep 2
+
+#echo "Starting grabber2 on node 17"
+#on -n17 slay -Q grabber2 
+#on -d -n17 $PROCDIR/grabber2 -height 128 -width 128 -format bgr -tagged \
+#  -top 0.05 -bottom 0.95 -dtop 0.03 -output /yarp/stereo2/bgr &
+#sleep 2
+
+echo "Starting left eye..."
+
+on -n15 slay -Q grabber
+on -d -n15 $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/left/wide1 &
+#on -n19 slay -Q grabber
+#on -d -n19 $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/left/wide2 &
+#on -n18 slay -Q grabber
+#on -d -n18 $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/left/fovea1 &
+#on -n20 slay -Q grabber
+#on -d -n20 $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/left/fovea2 &
+
+echo "Starting right eye..."
+
+on -n16 slay -Q grabber
+on -d -n16 $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/right/wide1 &
+#on -n15 slay -Q grabber
+#on -d -n15 $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/right/wide2 &
+#on -n14 slay -Q grabber
+#on -d -n14 $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/right/fovea1 &
+#on -n16 slay -Q grabber
+#on -d -n16 $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/right/fovea2 &
+
+echo "Starting optic flow grabber..."
+#on -n25 slay -Q grabber
+#on -d -n25 $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -square -output /yarp/right/wide3 &
+
+echo "Starting face tracker grabber..."
+#on -n27 slay -Q grabber
+#on -d -n27 $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -square -output /scam &
+
+sleep 3
+echo "Allocated channels..."
+sin gnames

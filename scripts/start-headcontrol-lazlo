@@ -1,0 +1,7 @@
+#!/bin/sh
+
+#
+#
+# start headcontrol client on lazlo on node 22.
+
+sudo on -n22 -d headcontrol -n //22/dev/mei0x320 -f /ai/ai/mb/cdp/src/YARP/conf/lazlo.ini -a /ai/ai/mb/cdp/src/YARP/scripts/attention-connect-all-lazlo -c /ai/ai/mb/cdp/src/YARP/scripts/attention-connect-control-lazlo

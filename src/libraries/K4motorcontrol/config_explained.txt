@@ -1,0 +1,48 @@
+//NOTE: at this level everything is measured in encoder ticks.
+//NOTE: njoints must always = 8 in this implementation.
+
+The number of joints.
+Do not change this because the only supported mode of operation is with 8
+joints. It should not be a problem to extend the class to handle different
+cases but it must be done carefully.
+
+joint to axis conversion number - 8 values.
+they are respectively:
+neck tilt
+right eye pan
+left eye pan
+eye tilt
+neck pan
+head roll
+head tilt
+neck crane
+
+for each joint. MEI gain params:
+these are checked at startup against those in the MEI boot memory.
+COEFFICIENTS * number of joints.
+
+calibration offset.
+this is a vector of njoints elements.
+this is not currently being used.
+
+default velocity.
+a vector of njoints elements.
+
+limits max and min (2 vectors of njoints components)
+for all but the differential joint(s) the limits are relative to the zero 
+and restrict the range with respect to the maximum determined during
+calibration.
+
+maxerror (a vector a njoints components):
+a vector of maximum allowed error during calibration.
+this determines the stop condition when the hard stop is hit.
+this is not currently being used, because we're not calibrating the motors
+this way.
+
+encoder to angles coeff. a vector of njoints components.
+the conversion factor from encoder to degrees.
+this is also not currently used b/c the conversion is done on client's side,
+using functions provided by YAPOCMessage class.
+
+
+

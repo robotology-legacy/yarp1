@@ -1,0 +1,43 @@
+FILE=`fullpath -t $0`
+OS=qnx
+PROCDIR=$YARP_ROOT/bin/$OS
+
+echo "Starting grabber2 on node 24"
+deployas 24 grabber2 $PROCDIR/grabber2 -height 128 -width 128 -square -format bgr -tagged \
+  -top 0.05 -bottom 0.95 -dtop 0.03 -output /yarp/stereo1/bgr &
+sleep 1
+
+echo "Starting grabber2 on node 28"
+deployas 28 grabber2 $PROCDIR/grabber2 -height 128 -width 128 -format bgr -tagged \
+  -top 0.05 -bottom 0.95 -dtop 0.03 -output /yarp/stereo2/bgr &
+sleep 1
+
+echo "Starting left eye..."
+
+deployas 17 grabber $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/left/wide1 &
+sleep 1
+deployas 19 grabber $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/left/wide2 &
+sleep 1
+deployas 18 grabber $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/left/fovea1 &
+sleep 1
+deployas 20 grabber $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/left/fovea2 &
+sleep 1
+
+echo "Starting right eye..."
+
+deployas 13 grabber $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/right/wide1 &
+sleep 1
+deployas 15 grabber $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/right/wide2 &
+sleep 1
+deployas 14 grabber $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/right/fovea1 &
+sleep 1
+deployas 16 grabber $PROCDIR/grabber -height 128 -width 128 -format bgr -tagged -output /yarp/right/fovea2 &
+sleep 1
+
+echo "Starting others..."
+
+deployas 27 grabber $PROCDIR/grabber -format bgr -height 120 -width 160 -o /scam &
+sleep 1
+
+echo "Allocated channels..."
+sin gnames

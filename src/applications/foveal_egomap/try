@@ -1,0 +1,12 @@
+#!/usr/local/bin/perl -w
+
+#system "killall xv";
+
+for ($i=0; $i<=$#ARGV; $i++)
+{
+    my $txt = $ARGV[$i];
+    if ($txt =~ /[0-9]+_[0-9]+/)
+    {
+	system "xv /YARP/state/objects/raw/overlay/$txt.ppm &";
+    }
+}

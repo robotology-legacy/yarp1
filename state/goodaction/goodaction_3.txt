@@ -1,0 +1,268 @@
+YARPGoodActionMap /ai/ai/mb/cdp/src/YARP/state/goodaction/goodaction_3.txt
+precision theta : 0.087266
+precision phi : 0.087266
+size : 8
+YARPGoodUnitList
+average theta : -0.057786
+average phi : 1.298701
+precision torso : 500.000000
+entries : 35
+actual size : 5
+Unit : 0
+theta, phi : -0.061941 1.310472
+torso : -1080.000000
+action no : 3
+reinforcer : 12.464900
+merges : 14
+Unit : 1
+theta, phi : -0.049733 1.296956
+torso : 581.000000
+action no : 3
+reinforcer : 15.264338
+merges : 1
+Unit : 2
+theta, phi : -0.066188 1.284990
+torso : -203.000000
+action no : 3
+reinforcer : 10.784317
+merges : 3
+Unit : 3
+theta, phi : -0.059269 1.280665
+torso : -2056.000000
+action no : 3
+reinforcer : 7.425787
+merges : 6
+Unit : 4
+theta, phi : -0.044896 1.299847
+torso : -2789.000000
+action no : 3
+reinforcer : 12.553380
+merges : 6
+YARPGoodUnitList
+average theta : 0.027322
+average phi : 1.271706
+precision torso : 500.000000
+entries : 30
+actual size : 7
+Unit : 0
+theta, phi : 0.026490 1.297834
+torso : 842.000000
+action no : 3
+reinforcer : 0.000000
+merges : 1
+Unit : 1
+theta, phi : 0.032123 1.257859
+torso : -325.000000
+action no : 3
+reinforcer : 10.090348
+merges : 8
+Unit : 2
+theta, phi : 0.055542 1.259365
+torso : 1956.000000
+action no : 3
+reinforcer : 0.000000
+merges : 0
+Unit : 3
+theta, phi : 0.049605 1.291210
+torso : 270.000000
+action no : 3
+reinforcer : 12.619429
+merges : 1
+Unit : 4
+theta, phi : 0.019951 1.289682
+torso : -1771.000000
+action no : 3
+reinforcer : 22.021328
+merges : 7
+Unit : 5
+theta, phi : 0.027998 1.257266
+torso : -3022.000000
+action no : 3
+reinforcer : 1.869924
+merges : 5
+Unit : 6
+theta, phi : -0.002383 1.265976
+torso : -986.000000
+action no : 3
+reinforcer : 12.349089
+merges : 1
+YARPGoodUnitList
+average theta : -0.133303
+average phi : 1.364131
+precision torso : 500.000000
+entries : 19
+actual size : 5
+Unit : 0
+theta, phi : -0.126752 1.362548
+torso : -517.000000
+action no : 3
+reinforcer : 23.851794
+merges : 5
+Unit : 1
+theta, phi : -0.136219 1.347666
+torso : -1486.000000
+action no : 3
+reinforcer : 12.068827
+merges : 5
+Unit : 2
+theta, phi : -0.112411 1.384380
+torso : 968.000000
+action no : 3
+reinforcer : 30.509976
+merges : 1
+Unit : 3
+theta, phi : -0.134215 1.367193
+torso : -3041.000000
+action no : 3
+reinforcer : 0.000000
+merges : 3
+Unit : 4
+theta, phi : -0.193248 1.419679
+torso : 92.000000
+action no : 3
+reinforcer : 17.117243
+merges : 0
+YARPGoodUnitList
+average theta : 0.128917
+average phi : 1.255496
+precision torso : 500.000000
+entries : 4
+actual size : 3
+Unit : 0
+theta, phi : 0.144766 1.270884
+torso : -658.000000
+action no : 3
+reinforcer : 0.000000
+merges : 1
+Unit : 1
+theta, phi : 0.138186 1.231993
+torso : -1361.000000
+action no : 3
+reinforcer : 0.000000
+merges : 0
+Unit : 2
+theta, phi : 0.087949 1.248224
+torso : 1904.000000
+action no : 3
+reinforcer : 0.000000
+merges : 0
+YARPGoodUnitList
+average theta : -0.095730
+average phi : 1.251342
+precision torso : 500.000000
+entries : 37
+actual size : 7
+Unit : 0
+theta, phi : -0.083143 1.215306
+torso : 474.000000
+action no : 3
+reinforcer : 0.000000
+merges : 0
+Unit : 1
+theta, phi : -0.060373 1.226214
+torso : -68.000000
+action no : 3
+reinforcer : 10.655643
+merges : 3
+Unit : 2
+theta, phi : -0.112205 1.254595
+torso : -2007.000000
+action no : 3
+reinforcer : 3.307368
+merges : 13
+Unit : 3
+theta, phi : -0.073678 1.245474
+torso : -783.000000
+action no : 3
+reinforcer : 7.973214
+merges : 4
+Unit : 4
+theta, phi : -0.108616 1.255867
+torso : -3021.000000
+action no : 3
+reinforcer : 6.751594
+merges : 5
+Unit : 5
+theta, phi : -0.084319 1.267337
+torso : -1367.000000
+action no : 3
+reinforcer : 5.249762
+merges : 4
+Unit : 6
+theta, phi : -0.102411 1.257955
+torso : -2508.000000
+action no : 3
+reinforcer : 0.000000
+merges : 1
+YARPGoodUnitList
+average theta : -0.025487
+average phi : 1.365757
+precision torso : 500.000000
+entries : 11
+actual size : 6
+Unit : 0
+theta, phi : -0.020783 1.393825
+torso : -1109.000000
+action no : 3
+reinforcer : 11.464163
+merges : 1
+Unit : 1
+theta, phi : -0.003186 1.368454
+torso : 62.000000
+action no : 3
+reinforcer : 18.927493
+merges : 1
+Unit : 2
+theta, phi : -0.024153 1.352381
+torso : -550.000000
+action no : 3
+reinforcer : 0.000000
+merges : 0
+Unit : 3
+theta, phi : -0.000736 1.341263
+torso : 578.000000
+action no : 3
+reinforcer : 0.000000
+merges : 0
+Unit : 4
+theta, phi : -0.036155 1.357980
+torso : -2830.000000
+action no : 3
+reinforcer : 15.845239
+merges : 3
+Unit : 5
+theta, phi : -0.062911 1.373207
+torso : -1849.000000
+action no : 3
+reinforcer : 0.000000
+merges : 0
+YARPGoodUnitList
+average theta : -0.209919
+average phi : 1.287841
+precision torso : 500.000000
+entries : 5
+actual size : 2
+Unit : 0
+theta, phi : -0.216696 1.280708
+torso : -1200.000000
+action no : 3
+reinforcer : 4.013865
+merges : 2
+Unit : 1
+theta, phi : -0.199754 1.298541
+torso : -2357.000000
+action no : 3
+reinforcer : 4.301162
+merges : 1
+YARPGoodUnitList
+average theta : 0.297927
+average phi : 1.402668
+precision torso : 500.000000
+entries : 1
+actual size : 1
+Unit : 0
+theta, phi : 0.297927 1.402668
+torso : 3045.000000
+action no : 3
+reinforcer : 0.000000
+merges : 0

@@ -1,0 +1,1 @@
+ABOBJ = abmain.o do_appear1.o do_appear2.o do_appear3.o do_appear4.o do_appear5.o do_reset.o do_revert1.o do_revert2.o do_revert3.o do_revert4.o do_revert5.o do_target1.o do_target2.o do_target3.o do_target4.o do_target5.o go_point.o initialize.o shipment.o

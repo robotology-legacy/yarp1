@@ -1,0 +1,4 @@
+#!/usr/local/bin/bash
+
+. vvsetenv
+obj/linux/exec_test1

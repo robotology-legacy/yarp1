@@ -1,0 +1,10 @@
+%C - MEI DSP Card Driver/Library Interface (v2)
+
+%C &
+
+Options:
+ -b base-addr    [0x320]
+ -i irq          [none] (not supported)
+ -p priority     [10]
+ -V verbosity    [0]
+

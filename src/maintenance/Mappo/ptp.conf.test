@@ -1,0 +1,22 @@
+#
+# sample makeptpscript configuration file
+#
+
+# first free logical network
+freenet 10
+
+# name the drivers (they must use standart -l, -I, -r arguments)
+driver 5 Net.speedo
+driver 6 Net.speedo
+driver 7 Net.speedo
+driver 8 Net.speedo
+
+# list the connections
+#connect 5.0,6.0
+#connect 5.1, 7.0
+#connect 5.2, 8.0
+#connect 6.1, 7.1
+#connect 6.2, 8.1
+#connect 7.2, 8.2
+#connect 7.0, 8.2
+#connect 7.0, 5.1

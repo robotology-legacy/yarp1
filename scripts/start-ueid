@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# Daemon-spawn script
+#
+# Copy this template, fill in your particulars, and delete this message.
+# This script will run $PROG on node $TARG, with options $OPTIONS, after
+#  killing the previous running version.
+#
+# Make sure you name your version of this script as "start-SOMETHING".
+# The output of $PROG will be directed to /var/daemon/SOMETHING.NODE.log
+#
+
+TARG=8                         # target node 
+PROG=$YARP_ROOT/bin/qnx/ueid   # program name
+OPTIONS="-V2 " # options
+
+
+# *** Don't touch anything below this line! ***
+
+DMNROOT=/var/daemon
+NAME=`basename $0 | sed -e "s^start-^^"`
+PIDFILE=$DMNROOT/$NAME.$TARG.pid
+LOGFILE=$DMNROOT/$NAME.$TARG.log
+
+
+if [ "$1" == "thisisforreal" ]; then
+    $PROG $OPTIONS >$LOGFILE 2>&1 &
+    echo $! > $PIDFILE
+else
+    # kill running version
+    if [ -f $PIDFILE ]; then
+	/bin/kill -n $TARG `cat $PIDFILE`
+    fi
+    # rotate log
+    if [ -f $LOGFILE ]; then
+	mv $LOGFILE $LOGFILE.old
+    fi
+    # start process
+    on -f $TARG $0 thisisforreal
+fi
+

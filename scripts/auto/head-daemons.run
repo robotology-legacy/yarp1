@@ -1,0 +1,6 @@
+
+$YARP_ROOT/scripts/start-meid-4-320
+$YARP_ROOT/scripts/start-isd
+
+undeploy 4 meid
+undeploy 4 isd

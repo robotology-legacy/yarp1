@@ -1,0 +1,107 @@
+//
+// Pasa's data packets.
+//
+
+#ifndef __tx_datah__
+#define __tx_datah__
+
+#include "YARPBool.h"
+
+typedef struct _single_p_data
+{
+	double x, y;
+	int valid;
+}
+SinglePosData;
+
+typedef struct _stereo_p_data
+{
+	double xl, yl;
+	double xr, yr;
+	int valid;
+}
+StereoPosData;
+
+// all this stuff is not exactly elegant C++... anyway!
+class CBox2Send 
+{
+public:
+	bool valid;
+
+	// logpolar
+	int cmax, rmax;
+	int cmin, rmin;
+
+	// cartesian
+	int xmax, ymax;
+	int xmin, ymin;
+
+	// all in cartesian.
+	int total_sal;
+	int total_pixels;
+	int xsum, ysum;
+	int centroid_x;
+	int centroid_y;
+};
+
+// this is used to send the most significant 
+// boxes from one node to another.
+typedef struct _5_boxes
+{
+	CBox2Send box1;
+	CBox2Send box2;
+	CBox2Send box3;
+	CBox2Send box4;
+	CBox2Send box5;
+}
+FiveBoxesInARow;
+
+// something more might be needed later.
+typedef struct _disparity_data
+{
+	double disparity;
+}
+DisparityData;
+
+// joint speed.
+typedef struct _joint_speed
+{
+	double j1;
+	double j2;
+	double j3;
+	double j4;
+	double j5;
+	double j6;
+	double j7;
+}
+JointSpeed;
+
+// head message type.
+enum 
+{
+	HeadMsgNonValid = 0,
+	HeadMsgOffset = 1
+};
+
+typedef struct _head_msg_type
+{
+	int type;
+	double j1;
+	double j2;
+	double j3;
+	double j4;
+	double j5;
+	double j6;
+	double j7;
+}
+HeadMessage;
+
+// same struct for joint position.
+typedef struct _joint_speed JointPos;
+
+typedef struct _simple_point
+{
+	int x, y;
+} IntPosData;
+
+#endif

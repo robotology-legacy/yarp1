@@ -1,0 +1,11 @@
+(
+  sleep 3
+#  porter /yarp/left/wide1 /attn_tracker/i:img
+  porter /yarp/right/wide3 /attn_tracker/i:img
+  porter /attn_tracker/o:img /yarp/viewer/attn_tracker
+  porter /yarp/attention/out_dom /attn_tracker/i:pos
+
+ conditional_porter /yarp/closed_loop/p_out /attn_tracker/i:head
+ conditional_porter /yarp/arm_thread/p_out /attn_tracker/i:arm
+) &
+on -n25 ./attn_tracker

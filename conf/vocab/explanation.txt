@@ -1,0 +1,28 @@
+PERCEPT_REACHING_STARTED: reaching started.
+PERCEPT_REACHING_STOPPED: reaching ended.
+PERCEPT_RECORDING_STARTED: started recording images only (there was motion and reaching was interrupted).
+PERCEPT_RECORDING_STOPPED: stopped recording phase.
+PERCEPT_PUSHING_STARTED: started pushing. final phase just before touching the object.
+PERCEPT_PUSHING_STOPPED: stopped ended.
+PERCEPT_REQUEST_ACTION: a request to decide which action to take has been received.
+PERCEPT_COMPUTED_ACTION: action computed. param1: action (0=backslap, 1=pullin, 2=sidetap, 3=pushaway).
+PERCEPT_PROCESSING_STARTED: actual processing of poking sequence started.
+PERCEPT_PROCESSING_FINISHED: actual processing of poking sequence completed.
+PERCEPT_OBSERVING_STARTED: human poking processing started.
+PERCEPT_OBSERVING_FINISHED: human poking processing finished.
+PERCEPT_PROCESSING_RESULT: return value of processing: param1. 0 all ok, -1 no contact or poor optic flow for tracking, -2 no flow but contact (any other value, likely to be a bug).
+PERCEPT_IMAGE_POSITIONS: 4 params: i1(1),i1(2): start pos at time of contact, i2(1),i2(2): end pos after 12 frames.
+PERCEPT_IMAGE_POSE_SHAPE: 2 params: orientation (angle) and pointiness.
+PERCEPT_OBJECT_RECOGNIZED_AS: 1 param: object number, -1 if not recognized (not in dbase). otherwise 0,1,2,3 (by now).
+PERCEPT_ACTION_INTERPRETED_AS: 1 param: action number (0=backslap, 1... etc as before). interpretation of the action performed by a human.
+PERCEPT_PUSHING_VECTOR: pushing vector, 2 params. x,y components of the direction of pushing.
+PERCEPT_ISSUED_ACTION: 1 param, action number executed. usual numbering.
+PERCEPT_BEST_MATCH_NEURON: 1 param, best matching neuron. traces are grouped according to color histogram similarity measure. numbering here depends on how many classes have been created so far.
+PERCEPT_GOOD_OBJECT_MATCH: good object match, adding trace to existing neuron.
+PERCEPT_ADDING_NEURON: no match, adding a new neuron/class.
+PERCEPT_MIMICRY_MODE: mimicry mode, finding best action to take.
+PERCEPT_LAST_OBJECT_OBSERVED: 1 param, last object observed (for mimicry). numbering 0,1,2,3...
+PERCEPT_IMAGE_POSE_DIRECTION: 2 params, orientation of the object, direction of movement of the object.
+PERCEPT_CURRENT_OBJECT_OBSERVED: 1 param, object just observed. numbering 0,1,2,3...
+PERCEPT_OBJECT_AFFORDANCE: 1 param, current object principal affordance.
+PERCEPT_AFFORDANCE_MODE: affordance mode, find best action to take according to object affordance.

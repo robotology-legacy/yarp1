@@ -1,0 +1,29 @@
+ACT=/home/cog/active
+more=true
+while $more; do
+  read cmd target
+  target=`echo $target`
+  if [ "$cmd" = "stop" ]; then
+    if [ -f $ACT/$target.stop ]; then
+      echo ">>> Stopping $target"
+      chmod u+x $ACT/$target.stop
+      $ACT/$target.stop
+      rm -f $ACT/$target.o
+    fi
+  fi
+  if [ "$cmd" = "start" ]; then
+   echo ">>> Starting $target"
+    make $target.o
+  fi
+  if [ "$cmd" = "power" ]; then
+   echo ">>> Running init"
+   rm -f $ACT/soft-connect.o
+    make soft-connect.o
+#    /home/cog/bin/init
+  fi
+  if [ "$cmd" = "" ]; then
+    more=false
+  else
+    echo -n   #">>> '$cmd' '$target'"
+  fi
+done

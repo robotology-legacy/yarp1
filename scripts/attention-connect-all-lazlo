@@ -1,0 +1,51 @@
+#!/bin/sh
+
+###
+### Switches and globals
+###
+. switches
+
+###
+### Left eye attention block
+###
+if $START_LEFT_EYE_BLOCK
+then
+
+# connect visual processing modules.
+   porter /yarp/left/wide1 /yarp/visual_attn/left/in/img
+   porter /yarp/right/wide1 /yarp/visual_attn/right/in/img
+
+   porter /yarp/left/wide1 /yarp/skin/left/in/img
+   porter /yarp/right/wide1 /yarp/skin/right/in/img
+
+   porter /yarp/stereo1/bgr.1 /yarp/disparity/in/right
+   porter /yarp/stereo1/bgr.2 /yarp/disparity/in/left
+
+# disparity 
+   porter /yarp/disparity/out/img /yarp/view/disparity/img
+   porter /yarp/disparity/out/histo /yarp/view/disparity/histo
+
+# connect viewers
+  if $START_LEFT_VIEWER
+  then
+	porter /yarp/visual_attn/left/out/img /yarp/view/visual_attn/left
+	porter /yarp/skin/left/out/img /yarp/view/skin/left
+  fi
+
+  if $START_RIGHT_VIEWER
+  then
+	porter /yarp/visual_attn/right/out/img /yarp/view/visual_attn/right
+	porter /yarp/skin/right/out/img /yarp/view/skin/right
+  fi
+
+fi
+
+# connect vision to attention
+porter /yarp/visual_attn/left/out/boxes /yarp/attention/in.2.2
+porter /yarp/visual_attn/right/out/boxes /yarp/attention/in.3.2
+
+porter /yarp/skin/left/out/boxes /yarp/attention/in.4.3
+porter /yarp/skin/right/out/boxes /yarp/attention/in.5.3
+
+# connect saliency.
+porter /yarp/attention/out/saliency /yarp/view/saliency

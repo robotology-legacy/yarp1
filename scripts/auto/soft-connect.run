@@ -1,0 +1,62 @@
+#!/bin/sh
+
+# connect visual processing modules.
+   deploy_porter /yarp/stereo2/bgr.2 /yarp/color_segm/in/right
+   deploy_porter /yarp/stereo2/bgr.1 /yarp/color_segm/in/left
+#   deploy_porter /yarp/left/wide1 /yarp/color_segm/in/right
+#   deploy_porter /yarp/right/wide1 /yarp/color_segm/in/left
+
+   deploy_porter /yarp/left/wide1 /yarp/visual_attn/left/in/img
+   deploy_porter /yarp/right/wide1 /yarp/visual_attn/right/in/img
+
+   deploy_porter /yarp/left/wide1 /yarp/skin/left/in/img
+   deploy_porter /yarp/right/wide1 /yarp/skin/right/in/img
+
+   deploy_porter /yarp/left/wide2 /yarp/optic_flow/left/in/img
+   deploy_porter /yarp/right/wide2 /yarp/optic_flow/right/in/img
+
+   deploy_porter /yarp/stereo1/bgr.1 /yarp/disparity/in/right
+   deploy_porter /yarp/stereo1/bgr.2 /yarp/disparity/in/left
+#   deploy_porter /yarp/left/wide2 /yarp/disparity/in/right
+#   deploy_porter /yarp/right/wide2 /yarp/disparity/in/left
+
+# color segmentation
+   deploy_porter /yarp/color_segm/out/right /yarp/view/color_segm/right
+   deploy_porter /yarp/color_segm/out/left /yarp/view/color_segm/left
+   deploy_porter /yarp/color_segm/out/histo /yarp/view/color_segm/histo
+
+# disparity 
+   deploy_porter /yarp/disparity/out/img /yarp/view/disparity/img
+   deploy_porter /yarp/disparity/out/histo /yarp/view/disparity/histo
+
+# connect viewers
+	deploy_porter /yarp/visual_attn/left/out/img /yarp/view/visual_attn/left
+	deploy_porter /yarp/skin/left/out/img /yarp/view/skin/left
+	deploy_porter /yarp/optic_flow/left/out/img /yarp/view/motion/left
+
+deploy_porter /yarp/visual_attn/right/out/img /yarp/view/visual_attn/right
+	deploy_porter /yarp/skin/right/out/img /yarp/view/skin/right
+	deploy_porter /yarp/optic_flow/right/out/img /yarp/view/motion/right
+
+# connect vision to attention
+deploy_porter /yarp/color_segm/out/boxl /yarp/attention/in.0.1
+deploy_porter /yarp/color_segm/out/boxr /yarp/attention/in.1.1
+
+deploy_porter /yarp/visual_attn/left/out/boxes /yarp/attention/in.2.2
+deploy_porter /yarp/visual_attn/right/out/boxes /yarp/attention/in.3.2
+
+deploy_porter /yarp/skin/left/out/boxes /yarp/attention/in.4.3
+deploy_porter /yarp/skin/right/out/boxes /yarp/attention/in.5.3
+
+deploy_porter /yarp/optic_flow/left/out/boxes /yarp/attention/in.6.3
+deploy_porter /yarp/optic_flow/right/out/boxes /yarp/attention/in.7.3
+
+deploy_porter /yarp/attention/out/saliency /yarp/view/saliency
+
+deploy_porter /yarp/right/wide1 /face_tracker/i:img
+deploy_porter /face_tracker/o:img /yarp/viewer/face_tracker
+deploy_porter /yarp/face/o:mix /face_tracker/i:mix
+deploy_porter /face_tracker/o:box /yarp/attention/in.8.15
+deploy_porter /scam /yarp/face/i:img
+deploy_porter /yarp/face/o:img /yarp/viewer/face_finder
+

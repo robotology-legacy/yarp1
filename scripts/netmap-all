@@ -1,0 +1,10 @@
+PROGS="grabber grabber2"
+
+nodes=`netmap | grep -v ":" | grep -v mask | cut -c 1-10 | grep -v "#"`
+nodes=`echo $nodes | sed "s/^ *1//"`
+for node in $nodes; do
+  echo "Updating licenses on node $node"
+  on -n$node license -r
+  echo "Updating netmap on node $node"
+  ( on -n1 netmap ) | ( on -n$node netmap -F - )
+done

@@ -1,0 +1,17 @@
+#!/bin/sh
+
+export INITIAL_KILL=true
+
+export START_LEFT_EYE_BLOCK=true
+export START_LEFT_VIEWER=true
+export START_LEFT_ATTN_GUI=false
+
+export START_RIGHT_EYE_BLOCK=true
+export START_RIGHT_VIEWER=true
+export START_RIGHT_ATTN_GUI=false
+
+export START_RECOGNITION=true
+
+export USE_TRACKER=true
+export USE_EGOMAP=true
+export USE_COLORSEGM=true

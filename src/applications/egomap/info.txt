@@ -1,0 +1,27 @@
+        TROLL=0,                // mei node 3 axis 0
+	TPITCH=1,
+	TYAW=2,
+	LSHOULDERA=3,   // mei node 7 axis
+	LSHOULDERB=4,
+	LELBOWA=5,
+	LELBOWB=6,
+	LWRISTA=7,
+	// mei node 6 axis 0
+        LWRISTB=8,              // mei node 6 axis 1
+	LTHUMB=9,
+	LPAW=10,
+	RSHOULDERA=11,
+	RSHOULDERB=12,
+	RELBOWA=13,
+	RELBOWB=14,
+	RWRISTA=15,
+	// mei node 6 axis 2
+        RWRISTB=16,             // mei node 6 axis 3
+	RTHUMB=17,
+	RPAW=18,
+	NJOINTS=19
+				
+
+
+
+

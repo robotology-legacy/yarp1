@@ -1,0 +1,11 @@
+#!/bin/sh
+
+conditional_porter /yarp/msg/o:head /yarp/closed_loop/in/messages
+conditional_porter /yarp/msg/o:arm /yarp/arm_thread/messages
+
+conditional_porter /attn_tracker/o:pos /yarp/msg/i:target
+
+conditional_porter /yarp/closed_loop/p_out /yarp/msg/i:headpos
+conditional_porter /yarp/arm_thread/p_out /yarp/msg/i:armpos
+
+conditional_porter /obj_segment/o:bot /yarp/msg/i:msgreply

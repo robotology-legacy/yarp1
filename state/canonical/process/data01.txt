@@ -1,0 +1,2610 @@
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0000
+m_starting_position_image : 2 80.000000 88.000000 
+m_ending_position_image : 2 100.000000 115.000000 
+m_action_number : 1
+m_object_orientation : -1.431648
+m_object_orientation_quality : 0.005670
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0001
+m_starting_position_image : 2 75.000000 65.000000 
+m_ending_position_image : 2 95.000000 74.000000 
+m_action_number : 2
+m_object_orientation : -0.137781
+m_object_orientation_quality : 0.025811
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0002
+m_starting_position_image : 2 76.000000 88.000000 
+m_ending_position_image : 2 90.000000 107.000000 
+m_action_number : 2
+m_object_orientation : 0.293109
+m_object_orientation_quality : 0.015594
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0003
+m_starting_position_image : 2 93.000000 69.000000 
+m_ending_position_image : 2 107.000000 96.000000 
+m_action_number : 1
+m_object_orientation : 0.133531
+m_object_orientation_quality : 0.047077
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0004
+m_starting_position_image : 2 77.000000 65.000000 
+m_ending_position_image : 2 69.000000 35.000000 
+m_action_number : 0
+m_object_orientation : -0.716311
+m_object_orientation_quality : 0.024741
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0005
+m_starting_position_image : 2 69.000000 83.000000 
+m_ending_position_image : 2 93.000000 106.000000 
+m_action_number : 2
+m_object_orientation : 1.164598
+m_object_orientation_quality : 0.004740
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0006
+m_starting_position_image : 2 93.000000 73.000000 
+m_ending_position_image : 2 103.000000 89.000000 
+m_action_number : 1
+m_object_orientation : -0.043340
+m_object_orientation_quality : 0.035157
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0007
+m_starting_position_image : 2 73.000000 72.000000 
+m_ending_position_image : 2 92.000000 90.000000 
+m_action_number : 1
+m_object_orientation : 0.100930
+m_object_orientation_quality : 0.031025
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0008
+m_starting_position_image : 2 84.000000 89.000000 
+m_ending_position_image : 2 100.000000 102.000000 
+m_action_number : 2
+m_object_orientation : 0.501851
+m_object_orientation_quality : 0.013358
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0009
+m_starting_position_image : 2 69.000000 77.000000 
+m_ending_position_image : 2 52.000000 40.000000 
+m_action_number : 0
+m_object_orientation : 1.433484
+m_object_orientation_quality : 0.010507
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0010
+m_starting_position_image : 2 86.000000 64.000000 
+m_ending_position_image : 2 79.000000 37.000000 
+m_action_number : 0
+m_object_orientation : 1.176374
+m_object_orientation_quality : 0.031383
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0011
+m_starting_position_image : 2 81.000000 92.000000 
+m_ending_position_image : 2 98.000000 111.000000 
+m_action_number : 1
+m_object_orientation : 0.757385
+m_object_orientation_quality : 0.012401
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0012
+m_starting_position_image : 2 96.000000 93.000000 
+m_ending_position_image : 2 110.000000 114.000000 
+m_action_number : 1
+m_object_orientation : 0.762504
+m_object_orientation_quality : 0.009659
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0013
+m_starting_position_image : 2 87.000000 83.000000 
+m_ending_position_image : 2 101.000000 96.000000 
+m_action_number : 2
+m_object_orientation : -1.312668
+m_object_orientation_quality : 0.005996
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0014
+m_starting_position_image : 2 76.000000 85.000000 
+m_ending_position_image : 2 94.000000 62.000000 
+m_action_number : 3
+m_object_orientation : -0.915322
+m_object_orientation_quality : 0.038187
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0015
+m_starting_position_image : 2 80.000000 91.000000 
+m_ending_position_image : 2 89.000000 100.000000 
+m_action_number : 2
+m_object_orientation : 0.387617
+m_object_orientation_quality : 0.022546
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0016
+m_starting_position_image : 2 63.000000 94.000000 
+m_ending_position_image : 2 74.000000 92.000000 
+m_action_number : 1
+m_object_orientation : 1.194578
+m_object_orientation_quality : 0.032201
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0017
+m_starting_position_image : 2 30.000000 92.000000 
+m_ending_position_image : 2 18.000000 48.000000 
+m_action_number : 0
+m_object_orientation : -0.168435
+m_object_orientation_quality : 0.017053
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0018
+m_starting_position_image : 2 69.000000 84.000000 
+m_ending_position_image : 2 78.000000 88.000000 
+m_action_number : 1
+m_object_orientation : -0.251699
+m_object_orientation_quality : 0.016808
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0019
+m_starting_position_image : 2 57.000000 82.000000 
+m_ending_position_image : 2 50.000000 37.000000 
+m_action_number : 0
+m_object_orientation : -1.524004
+m_object_orientation_quality : 0.027527
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0020
+m_starting_position_image : 2 100.000000 79.000000 
+m_ending_position_image : 2 97.000000 57.000000 
+m_action_number : 0
+m_object_orientation : 1.053917
+m_object_orientation_quality : 0.021956
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0021
+m_starting_position_image : 2 101.000000 74.000000 
+m_ending_position_image : 2 108.000000 61.000000 
+m_action_number : 3
+m_object_orientation : -0.835973
+m_object_orientation_quality : 0.039197
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0022
+m_starting_position_image : 2 39.000000 46.000000 
+m_ending_position_image : 2 41.000000 47.000000 
+m_action_number : 1
+m_object_orientation : -0.182922
+m_object_orientation_quality : 0.099568
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0023
+m_starting_position_image : 2 96.000000 90.000000 
+m_ending_position_image : 2 106.000000 94.000000 
+m_action_number : 0
+m_object_orientation : 1.360402
+m_object_orientation_quality : 0.024934
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0024
+m_starting_position_image : 2 18.000000 21.000000 
+m_ending_position_image : 2 18.000000 21.000000 
+m_action_number : 0
+m_object_orientation : -1.069758
+m_object_orientation_quality : 0.057333
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0025
+m_starting_position_image : 2 98.000000 92.000000 
+m_ending_position_image : 2 99.000000 87.000000 
+m_action_number : 2
+m_object_orientation : -0.054086
+m_object_orientation_quality : 0.010107
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0026
+m_starting_position_image : 2 78.000000 82.000000 
+m_ending_position_image : 2 92.000000 89.000000 
+m_action_number : 1
+m_object_orientation : -0.304267
+m_object_orientation_quality : 0.019455
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0027
+m_starting_position_image : 2 78.000000 83.000000 
+m_ending_position_image : 2 90.000000 91.000000 
+m_action_number : 2
+m_object_orientation : 1.278525
+m_object_orientation_quality : 0.008096
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0028
+m_starting_position_image : 2 74.000000 80.000000 
+m_ending_position_image : 2 60.000000 46.000000 
+m_action_number : 0
+m_object_orientation : -0.736156
+m_object_orientation_quality : 0.021103
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0029
+m_starting_position_image : 2 66.000000 91.000000 
+m_ending_position_image : 2 88.000000 109.000000 
+m_action_number : 2
+m_object_orientation : 0.621849
+m_object_orientation_quality : 0.026922
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0030
+m_starting_position_image : 2 89.000000 78.000000 
+m_ending_position_image : 2 100.000000 90.000000 
+m_action_number : 1
+m_object_orientation : 0.031855
+m_object_orientation_quality : 0.088991
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0031
+m_starting_position_image : 2 108.000000 52.000000 
+m_ending_position_image : 2 110.000000 42.000000 
+m_action_number : 3
+m_object_orientation : -1.451446
+m_object_orientation_quality : 0.041715
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0032
+m_starting_position_image : 2 84.000000 63.000000 
+m_ending_position_image : 2 75.000000 35.000000 
+m_action_number : 0
+m_object_orientation : 0.090023
+m_object_orientation_quality : 0.017801
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0033
+m_starting_position_image : 2 87.000000 77.000000 
+m_ending_position_image : 2 77.000000 45.000000 
+m_action_number : 0
+m_object_orientation : 1.445647
+m_object_orientation_quality : 0.014265
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0034
+m_starting_position_image : 2 84.000000 78.000000 
+m_ending_position_image : 2 93.000000 89.000000 
+m_action_number : 2
+m_object_orientation : -0.059765
+m_object_orientation_quality : 0.013732
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0035
+m_starting_position_image : 2 71.000000 70.000000 
+m_ending_position_image : 2 75.000000 55.000000 
+m_action_number : 3
+m_object_orientation : -1.113923
+m_object_orientation_quality : 0.019296
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0036
+m_starting_position_image : 2 70.000000 86.000000 
+m_ending_position_image : 2 96.000000 116.000000 
+m_action_number : 1
+m_object_orientation : 1.301173
+m_object_orientation_quality : 0.085462
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0037
+m_starting_position_image : 2 44.000000 66.000000 
+m_ending_position_image : 2 39.000000 39.000000 
+m_action_number : 3
+m_object_orientation : 1.053153
+m_object_orientation_quality : 0.009712
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0038
+m_starting_position_image : 2 68.000000 63.000000 
+m_ending_position_image : 2 60.000000 26.000000 
+m_action_number : 3
+m_object_orientation : 0.204943
+m_object_orientation_quality : 0.024896
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0039
+m_starting_position_image : 2 77.000000 69.000000 
+m_ending_position_image : 2 65.000000 43.000000 
+m_action_number : 0
+m_object_orientation : 1.360135
+m_object_orientation_quality : 0.003414
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0040
+m_starting_position_image : 2 85.000000 86.000000 
+m_ending_position_image : 2 92.000000 86.000000 
+m_action_number : 2
+m_object_orientation : -1.320173
+m_object_orientation_quality : 0.014876
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0041
+m_starting_position_image : 2 73.000000 99.000000 
+m_ending_position_image : 2 66.000000 91.000000 
+m_action_number : 1
+m_object_orientation : 1.151591
+m_object_orientation_quality : 0.019069
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0042
+m_starting_position_image : 2 51.000000 88.000000 
+m_ending_position_image : 2 43.000000 58.000000 
+m_action_number : 0
+m_object_orientation : 0.002026
+m_object_orientation_quality : 0.187250
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0043
+m_starting_position_image : 2 63.000000 78.000000 
+m_ending_position_image : 2 63.000000 61.000000 
+m_action_number : 0
+m_object_orientation : 1.316636
+m_object_orientation_quality : 0.078994
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0044
+m_starting_position_image : 2 65.000000 88.000000 
+m_ending_position_image : 2 73.000000 96.000000 
+m_action_number : 1
+m_object_orientation : 0.242635
+m_object_orientation_quality : 0.022509
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0045
+m_starting_position_image : 2 78.000000 61.000000 
+m_ending_position_image : 2 113.000000 95.000000 
+m_action_number : 1
+m_object_orientation : 0.921778
+m_object_orientation_quality : 0.069201
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0046
+m_starting_position_image : 2 75.000000 77.000000 
+m_ending_position_image : 2 92.000000 95.000000 
+m_action_number : 2
+m_object_orientation : 0.084311
+m_object_orientation_quality : 0.002139
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0047
+m_starting_position_image : 2 81.000000 77.000000 
+m_ending_position_image : 2 109.000000 106.000000 
+m_action_number : 1
+m_object_orientation : 0.623054
+m_object_orientation_quality : 0.012800
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0048
+m_starting_position_image : 2 52.000000 70.000000 
+m_ending_position_image : 2 54.000000 46.000000 
+m_action_number : 3
+m_object_orientation : 0.909297
+m_object_orientation_quality : 0.018510
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0049
+m_starting_position_image : 2 90.000000 75.000000 
+m_ending_position_image : 2 112.000000 80.000000 
+m_action_number : 2
+m_object_orientation : -0.098080
+m_object_orientation_quality : 0.065485
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0050
+m_starting_position_image : 2 59.000000 93.000000 
+m_ending_position_image : 2 70.000000 100.000000 
+m_action_number : 1
+m_object_orientation : 1.198084
+m_object_orientation_quality : 0.014474
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0051
+m_starting_position_image : 2 54.000000 41.000000 
+m_ending_position_image : 2 60.000000 40.000000 
+m_action_number : 0
+m_object_orientation : 0.518118
+m_object_orientation_quality : 0.027894
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0052
+m_starting_position_image : 2 62.000000 91.000000 
+m_ending_position_image : 2 84.000000 115.000000 
+m_action_number : 1
+m_object_orientation : 1.431651
+m_object_orientation_quality : 0.008795
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0053
+m_starting_position_image : 2 84.000000 68.000000 
+m_ending_position_image : 2 109.000000 105.000000 
+m_action_number : 2
+m_object_orientation : -0.731604
+m_object_orientation_quality : 0.001981
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0054
+m_starting_position_image : 2 92.000000 86.000000 
+m_ending_position_image : 2 96.000000 92.000000 
+m_action_number : 2
+m_object_orientation : 0.025568
+m_object_orientation_quality : 0.025780
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0055
+m_starting_position_image : 2 88.000000 96.000000 
+m_ending_position_image : 2 97.000000 101.000000 
+m_action_number : 1
+m_object_orientation : 0.464440
+m_object_orientation_quality : 0.034746
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0056
+m_starting_position_image : 2 62.000000 78.000000 
+m_ending_position_image : 2 77.000000 87.000000 
+m_action_number : 2
+m_object_orientation : 0.212139
+m_object_orientation_quality : 0.026139
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0057
+m_starting_position_image : 2 98.000000 76.000000 
+m_ending_position_image : 2 87.000000 46.000000 
+m_action_number : 0
+m_object_orientation : 0.465362
+m_object_orientation_quality : 0.043645
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0058
+m_starting_position_image : 2 48.000000 70.000000 
+m_ending_position_image : 2 59.000000 79.000000 
+m_action_number : 2
+m_object_orientation : 0.455726
+m_object_orientation_quality : 0.011806
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0059
+m_starting_position_image : 2 68.000000 96.000000 
+m_ending_position_image : 2 90.000000 107.000000 
+m_action_number : 1
+m_object_orientation : 0.496987
+m_object_orientation_quality : 0.009579
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0060
+m_starting_position_image : 2 100.000000 80.000000 
+m_ending_position_image : 2 108.000000 93.000000 
+m_action_number : 1
+m_object_orientation : 1.418209
+m_object_orientation_quality : 0.001788
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0061
+m_starting_position_image : 2 89.000000 75.000000 
+m_ending_position_image : 2 102.000000 56.000000 
+m_action_number : 3
+m_object_orientation : 0.546477
+m_object_orientation_quality : 0.027726
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0062
+m_starting_position_image : 2 88.000000 84.000000 
+m_ending_position_image : 2 101.000000 84.000000 
+m_action_number : 3
+m_object_orientation : 1.037435
+m_object_orientation_quality : 0.011965
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0063
+m_starting_position_image : 2 94.000000 48.000000 
+m_ending_position_image : 2 84.000000 38.000000 
+m_action_number : 0
+m_object_orientation : -0.676798
+m_object_orientation_quality : 0.006349
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0064
+m_starting_position_image : 2 57.000000 64.000000 
+m_ending_position_image : 2 57.000000 59.000000 
+m_action_number : 3
+m_object_orientation : 1.041720
+m_object_orientation_quality : 0.160682
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0065
+m_starting_position_image : 2 100.000000 79.000000 
+m_ending_position_image : 2 85.000000 45.000000 
+m_action_number : 0
+m_object_orientation : 1.280117
+m_object_orientation_quality : 0.017196
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0066
+m_starting_position_image : 2 71.000000 79.000000 
+m_ending_position_image : 2 88.000000 99.000000 
+m_action_number : 2
+m_object_orientation : 0.932637
+m_object_orientation_quality : 0.015240
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0067
+m_starting_position_image : 2 86.000000 90.000000 
+m_ending_position_image : 2 88.000000 94.000000 
+m_action_number : 1
+m_object_orientation : -1.254823
+m_object_orientation_quality : 0.005724
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0068
+m_starting_position_image : 2 89.000000 73.000000 
+m_ending_position_image : 2 77.000000 37.000000 
+m_action_number : 0
+m_object_orientation : 1.410667
+m_object_orientation_quality : 0.031386
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0069
+m_starting_position_image : 2 84.000000 64.000000 
+m_ending_position_image : 2 80.000000 37.000000 
+m_action_number : 0
+m_object_orientation : -0.573354
+m_object_orientation_quality : 0.018120
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0070
+m_starting_position_image : 2 82.000000 87.000000 
+m_ending_position_image : 2 95.000000 95.000000 
+m_action_number : 1
+m_object_orientation : 0.078426
+m_object_orientation_quality : 0.019797
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0071
+m_starting_position_image : 2 78.000000 93.000000 
+m_ending_position_image : 2 99.000000 109.000000 
+m_action_number : 1
+m_object_orientation : 0.674150
+m_object_orientation_quality : 0.026938
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0072
+m_starting_position_image : 2 81.000000 79.000000 
+m_ending_position_image : 2 84.000000 60.000000 
+m_action_number : 3
+m_object_orientation : 0.932152
+m_object_orientation_quality : 0.083840
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0073
+m_starting_position_image : 2 68.000000 102.000000 
+m_ending_position_image : 2 95.000000 115.000000 
+m_action_number : 2
+m_object_orientation : 0.499656
+m_object_orientation_quality : 0.024426
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0074
+m_starting_position_image : 2 73.000000 94.000000 
+m_ending_position_image : 2 89.000000 114.000000 
+m_action_number : 1
+m_object_orientation : 0.733044
+m_object_orientation_quality : 0.056376
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0075
+m_starting_position_image : 2 68.000000 88.000000 
+m_ending_position_image : 2 58.000000 56.000000 
+m_action_number : 0
+m_object_orientation : 1.478657
+m_object_orientation_quality : 0.025353
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0076
+m_starting_position_image : 2 95.000000 104.000000 
+m_ending_position_image : 2 107.000000 113.000000 
+m_action_number : 2
+m_object_orientation : 0.351938
+m_object_orientation_quality : 0.044745
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0077
+m_starting_position_image : 2 88.000000 75.000000 
+m_ending_position_image : 2 103.000000 86.000000 
+m_action_number : 2
+m_object_orientation : -0.116030
+m_object_orientation_quality : 0.015770
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0078
+m_starting_position_image : 2 87.000000 85.000000 
+m_ending_position_image : 2 102.000000 100.000000 
+m_action_number : 2
+m_object_orientation : 0.530334
+m_object_orientation_quality : 0.016463
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0079
+m_starting_position_image : 2 62.000000 86.000000 
+m_ending_position_image : 2 72.000000 89.000000 
+m_action_number : 1
+m_object_orientation : 0.700590
+m_object_orientation_quality : 0.008393
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0080
+m_starting_position_image : 2 81.000000 80.000000 
+m_ending_position_image : 2 98.000000 60.000000 
+m_action_number : 3
+m_object_orientation : 0.858243
+m_object_orientation_quality : 0.007243
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0081
+m_starting_position_image : 2 80.000000 87.000000 
+m_ending_position_image : 2 93.000000 94.000000 
+m_action_number : 2
+m_object_orientation : 0.066850
+m_object_orientation_quality : 0.022458
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0082
+m_starting_position_image : 2 83.000000 80.000000 
+m_ending_position_image : 2 100.000000 93.000000 
+m_action_number : 2
+m_object_orientation : 0.172592
+m_object_orientation_quality : 0.018627
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0083
+m_starting_position_image : 2 84.000000 71.000000 
+m_ending_position_image : 2 70.000000 36.000000 
+m_action_number : 0
+m_object_orientation : 1.506355
+m_object_orientation_quality : 0.015592
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0084
+m_starting_position_image : 2 79.000000 81.000000 
+m_ending_position_image : 2 88.000000 68.000000 
+m_action_number : 3
+m_object_orientation : 0.530250
+m_object_orientation_quality : 0.006984
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0085
+m_starting_position_image : 2 49.000000 77.000000 
+m_ending_position_image : 2 75.000000 102.000000 
+m_action_number : 2
+m_object_orientation : 0.973998
+m_object_orientation_quality : 0.017772
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0086
+m_starting_position_image : 2 49.000000 79.000000 
+m_ending_position_image : 2 76.000000 97.000000 
+m_action_number : 2
+m_object_orientation : -0.162105
+m_object_orientation_quality : 0.009115
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0087
+m_starting_position_image : 2 70.000000 87.000000 
+m_ending_position_image : 2 98.000000 107.000000 
+m_action_number : 2
+m_object_orientation : -0.560577
+m_object_orientation_quality : 0.003434
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0088
+m_starting_position_image : 2 85.000000 79.000000 
+m_ending_position_image : 2 100.000000 103.000000 
+m_action_number : 1
+m_object_orientation : 0.479340
+m_object_orientation_quality : 0.039247
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0089
+m_starting_position_image : 2 85.000000 91.000000 
+m_ending_position_image : 2 73.000000 54.000000 
+m_action_number : 0
+m_object_orientation : -0.393064
+m_object_orientation_quality : 0.009018
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0090
+m_starting_position_image : 2 53.000000 65.000000 
+m_ending_position_image : 2 39.000000 41.000000 
+m_action_number : 0
+m_object_orientation : 0.490086
+m_object_orientation_quality : 0.043099
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0091
+m_starting_position_image : 2 56.000000 94.000000 
+m_ending_position_image : 2 79.000000 108.000000 
+m_action_number : 1
+m_object_orientation : 0.885178
+m_object_orientation_quality : 0.060076
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0092
+m_starting_position_image : 2 90.000000 81.000000 
+m_ending_position_image : 2 109.000000 65.000000 
+m_action_number : 3
+m_object_orientation : -0.699174
+m_object_orientation_quality : 0.012562
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0093
+m_starting_position_image : 2 61.000000 65.000000 
+m_ending_position_image : 2 46.000000 31.000000 
+m_action_number : 0
+m_object_orientation : 1.325806
+m_object_orientation_quality : 0.014762
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0094
+m_starting_position_image : 2 65.000000 63.000000 
+m_ending_position_image : 2 77.000000 30.000000 
+m_action_number : 3
+m_object_orientation : -0.540733
+m_object_orientation_quality : 0.022205
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0095
+m_starting_position_image : 2 91.000000 83.000000 
+m_ending_position_image : 2 99.000000 77.000000 
+m_action_number : 3
+m_object_orientation : -1.380773
+m_object_orientation_quality : 0.039090
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0096
+m_starting_position_image : 2 63.000000 97.000000 
+m_ending_position_image : 2 92.000000 112.000000 
+m_action_number : 2
+m_object_orientation : -1.446984
+m_object_orientation_quality : 0.016403
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0097
+m_starting_position_image : 2 60.000000 94.000000 
+m_ending_position_image : 2 73.000000 104.000000 
+m_action_number : 1
+m_object_orientation : 0.081020
+m_object_orientation_quality : 0.024414
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0098
+m_starting_position_image : 2 82.000000 90.000000 
+m_ending_position_image : 2 97.000000 101.000000 
+m_action_number : 2
+m_object_orientation : -0.709925
+m_object_orientation_quality : 0.009407
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0099
+m_starting_position_image : 2 63.000000 81.000000 
+m_ending_position_image : 2 58.000000 35.000000 
+m_action_number : 0
+m_object_orientation : -1.458597
+m_object_orientation_quality : 0.025185
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0100
+m_starting_position_image : 2 84.000000 79.000000 
+m_ending_position_image : 2 87.000000 45.000000 
+m_action_number : 0
+m_object_orientation : -1.049188
+m_object_orientation_quality : 0.033745
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0101
+m_starting_position_image : 2 66.000000 16.000000 
+m_ending_position_image : 2 66.000000 16.000000 
+m_action_number : 3
+m_object_orientation : 1.050529
+m_object_orientation_quality : 0.053466
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0102
+m_starting_position_image : 2 55.000000 47.000000 
+m_ending_position_image : 2 71.000000 44.000000 
+m_action_number : 1
+m_object_orientation : -0.930168
+m_object_orientation_quality : 0.033722
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0000_0103
+m_starting_position_image : 2 71.000000 92.000000 
+m_ending_position_image : 2 98.000000 113.000000 
+m_action_number : 1
+m_object_orientation : 0.377718
+m_object_orientation_quality : 0.018435
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0001_0000
+m_starting_position_image : 2 90.000000 96.000000 
+m_ending_position_image : 2 98.000000 105.000000 
+m_action_number : 2
+m_object_orientation : 0.633822
+m_object_orientation_quality : 0.081888
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0001_0001
+m_starting_position_image : 2 91.000000 94.000000 
+m_ending_position_image : 2 101.000000 99.000000 
+m_action_number : 2
+m_object_orientation : 0.680818
+m_object_orientation_quality : 0.069763
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0001_0002
+m_starting_position_image : 2 94.000000 90.000000 
+m_ending_position_image : 2 108.000000 108.000000 
+m_action_number : 1
+m_object_orientation : 0.698465
+m_object_orientation_quality : 0.078386
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0001_0003
+m_starting_position_image : 2 94.000000 95.000000 
+m_ending_position_image : 2 108.000000 102.000000 
+m_action_number : 2
+m_object_orientation : 0.741331
+m_object_orientation_quality : 0.072603
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0001_0004
+m_starting_position_image : 2 87.000000 89.000000 
+m_ending_position_image : 2 104.000000 75.000000 
+m_action_number : 1
+m_object_orientation : 0.741898
+m_object_orientation_quality : 0.108723
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0001_0005
+m_starting_position_image : 2 92.000000 86.000000 
+m_ending_position_image : 2 98.000000 82.000000 
+m_action_number : 2
+m_object_orientation : 0.600791
+m_object_orientation_quality : 0.100314
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0000
+m_starting_position_image : 2 70.000000 65.000000 
+m_ending_position_image : 2 36.000000 37.000000 
+m_action_number : 0
+m_object_orientation : 0.500873
+m_object_orientation_quality : 0.084298
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0001
+m_starting_position_image : 2 82.000000 87.000000 
+m_ending_position_image : 2 106.000000 110.000000 
+m_action_number : 1
+m_object_orientation : 0.780553
+m_object_orientation_quality : 0.076801
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0002
+m_starting_position_image : 2 87.000000 72.000000 
+m_ending_position_image : 2 102.000000 65.000000 
+m_action_number : 3
+m_object_orientation : -0.132396
+m_object_orientation_quality : 0.068949
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0003
+m_starting_position_image : 2 61.000000 79.000000 
+m_ending_position_image : 2 43.000000 49.000000 
+m_action_number : 0
+m_object_orientation : 0.146772
+m_object_orientation_quality : 0.093762
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0004
+m_starting_position_image : 2 68.000000 88.000000 
+m_ending_position_image : 2 63.000000 50.000000 
+m_action_number : 0
+m_object_orientation : 0.125714
+m_object_orientation_quality : 0.087552
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0005
+m_starting_position_image : 2 91.000000 65.000000 
+m_ending_position_image : 2 102.000000 36.000000 
+m_action_number : 2
+m_object_orientation : -0.945503
+m_object_orientation_quality : 0.032651
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0006
+m_starting_position_image : 2 84.000000 88.000000 
+m_ending_position_image : 2 98.000000 99.000000 
+m_action_number : 2
+m_object_orientation : -1.192393
+m_object_orientation_quality : 0.067170
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0007
+m_starting_position_image : 2 101.000000 79.000000 
+m_ending_position_image : 2 106.000000 72.000000 
+m_action_number : 2
+m_object_orientation : -1.346587
+m_object_orientation_quality : 0.064508
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0008
+m_starting_position_image : 2 90.000000 60.000000 
+m_ending_position_image : 2 97.000000 40.000000 
+m_action_number : 0
+m_object_orientation : -0.613168
+m_object_orientation_quality : 0.055285
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0009
+m_starting_position_image : 2 85.000000 100.000000 
+m_ending_position_image : 2 101.000000 115.000000 
+m_action_number : 1
+m_object_orientation : 0.888007
+m_object_orientation_quality : 0.077889
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0010
+m_starting_position_image : 2 86.000000 79.000000 
+m_ending_position_image : 2 102.000000 53.000000 
+m_action_number : 3
+m_object_orientation : 0.606399
+m_object_orientation_quality : 0.081922
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0011
+m_starting_position_image : 2 86.000000 82.000000 
+m_ending_position_image : 2 93.000000 67.000000 
+m_action_number : 3
+m_object_orientation : 0.692543
+m_object_orientation_quality : 0.080449
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0012
+m_starting_position_image : 2 91.000000 87.000000 
+m_ending_position_image : 2 109.000000 96.000000 
+m_action_number : 1
+m_object_orientation : -0.662286
+m_object_orientation_quality : 0.060427
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0013
+m_starting_position_image : 2 88.000000 62.000000 
+m_ending_position_image : 2 116.000000 52.000000 
+m_action_number : 2
+m_object_orientation : -0.293521
+m_object_orientation_quality : 0.054877
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0014
+m_starting_position_image : 2 74.000000 85.000000 
+m_ending_position_image : 2 63.000000 66.000000 
+m_action_number : 0
+m_object_orientation : 0.775563
+m_object_orientation_quality : 0.068643
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0015
+m_starting_position_image : 2 54.000000 75.000000 
+m_ending_position_image : 2 55.000000 62.000000 
+m_action_number : 3
+m_object_orientation : 0.999112
+m_object_orientation_quality : 0.069577
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0016
+m_starting_position_image : 2 90.000000 81.000000 
+m_ending_position_image : 2 108.000000 101.000000 
+m_action_number : 2
+m_object_orientation : 1.026191
+m_object_orientation_quality : 0.078837
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0017
+m_starting_position_image : 2 100.000000 82.000000 
+m_ending_position_image : 2 114.000000 99.000000 
+m_action_number : 1
+m_object_orientation : 1.164252
+m_object_orientation_quality : 0.090402
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0018
+m_starting_position_image : 2 92.000000 77.000000 
+m_ending_position_image : 2 75.000000 53.000000 
+m_action_number : 0
+m_object_orientation : 0.135481
+m_object_orientation_quality : 0.112003
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0019
+m_starting_position_image : 2 91.000000 71.000000 
+m_ending_position_image : 2 96.000000 40.000000 
+m_action_number : 3
+m_object_orientation : -1.447779
+m_object_orientation_quality : 0.066998
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0020
+m_starting_position_image : 2 63.000000 89.000000 
+m_ending_position_image : 2 72.000000 93.000000 
+m_action_number : 1
+m_object_orientation : 1.382006
+m_object_orientation_quality : 0.068112
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0021
+m_starting_position_image : 2 93.000000 69.000000 
+m_ending_position_image : 2 104.000000 77.000000 
+m_action_number : 2
+m_object_orientation : 1.234830
+m_object_orientation_quality : 0.069481
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0022
+m_starting_position_image : 2 92.000000 75.000000 
+m_ending_position_image : 2 114.000000 66.000000 
+m_action_number : 2
+m_object_orientation : -0.395843
+m_object_orientation_quality : 0.063755
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0023
+m_starting_position_image : 2 82.000000 69.000000 
+m_ending_position_image : 2 79.000000 34.000000 
+m_action_number : 3
+m_object_orientation : 0.203193
+m_object_orientation_quality : 0.071688
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0024
+m_starting_position_image : 2 97.000000 93.000000 
+m_ending_position_image : 2 89.000000 51.000000 
+m_action_number : 0
+m_object_orientation : 1.402383
+m_object_orientation_quality : 0.071791
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0025
+m_starting_position_image : 2 88.000000 79.000000 
+m_ending_position_image : 2 102.000000 62.000000 
+m_action_number : 3
+m_object_orientation : 0.638685
+m_object_orientation_quality : 0.078837
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0026
+m_starting_position_image : 2 89.000000 70.000000 
+m_ending_position_image : 2 99.000000 68.000000 
+m_action_number : 2
+m_object_orientation : 1.486667
+m_object_orientation_quality : 0.066745
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0027
+m_starting_position_image : 2 82.000000 74.000000 
+m_ending_position_image : 2 114.000000 65.000000 
+m_action_number : 2
+m_object_orientation : -0.118301
+m_object_orientation_quality : 0.073838
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0028
+m_starting_position_image : 2 72.000000 80.000000 
+m_ending_position_image : 2 68.000000 49.000000 
+m_action_number : 0
+m_object_orientation : 0.316741
+m_object_orientation_quality : 0.063095
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0029
+m_starting_position_image : 2 91.000000 63.000000 
+m_ending_position_image : 2 112.000000 34.000000 
+m_action_number : 3
+m_object_orientation : -0.708535
+m_object_orientation_quality : 0.060293
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0030
+m_starting_position_image : 2 96.000000 68.000000 
+m_ending_position_image : 2 116.000000 48.000000 
+m_action_number : 3
+m_object_orientation : -0.623118
+m_object_orientation_quality : 0.056694
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0031
+m_starting_position_image : 2 76.000000 88.000000 
+m_ending_position_image : 2 95.000000 114.000000 
+m_action_number : 1
+m_object_orientation : -0.794445
+m_object_orientation_quality : 0.028585
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0032
+m_starting_position_image : 2 42.000000 69.000000 
+m_ending_position_image : 2 50.000000 111.000000 
+m_action_number : 2
+m_object_orientation : -1.298976
+m_object_orientation_quality : 0.042732
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0033
+m_starting_position_image : 2 50.000000 74.000000 
+m_ending_position_image : 2 32.000000 51.000000 
+m_action_number : 3
+m_object_orientation : 0.938915
+m_object_orientation_quality : 0.071898
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0034
+m_starting_position_image : 2 69.000000 90.000000 
+m_ending_position_image : 2 82.000000 75.000000 
+m_action_number : 0
+m_object_orientation : -0.865233
+m_object_orientation_quality : 0.070463
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0035
+m_starting_position_image : 2 99.000000 93.000000 
+m_ending_position_image : 2 82.000000 52.000000 
+m_action_number : 0
+m_object_orientation : 1.109660
+m_object_orientation_quality : 0.061805
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0036
+m_starting_position_image : 2 63.000000 56.000000 
+m_ending_position_image : 2 27.000000 34.000000 
+m_action_number : 2
+m_object_orientation : 0.549224
+m_object_orientation_quality : 0.080586
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0037
+m_starting_position_image : 2 100.000000 82.000000 
+m_ending_position_image : 2 97.000000 72.000000 
+m_action_number : 0
+m_object_orientation : 0.917011
+m_object_orientation_quality : 0.076559
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0038
+m_starting_position_image : 2 72.000000 61.000000 
+m_ending_position_image : 2 90.000000 75.000000 
+m_action_number : 2
+m_object_orientation : 1.456283
+m_object_orientation_quality : 0.070976
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0039
+m_starting_position_image : 2 74.000000 63.000000 
+m_ending_position_image : 2 97.000000 84.000000 
+m_action_number : 2
+m_object_orientation : -1.474511
+m_object_orientation_quality : 0.063076
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0040
+m_starting_position_image : 2 74.000000 42.000000 
+m_ending_position_image : 2 76.000000 21.000000 
+m_action_number : 3
+m_object_orientation : -1.018518
+m_object_orientation_quality : 0.045181
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0041
+m_starting_position_image : 2 78.000000 82.000000 
+m_ending_position_image : 2 96.000000 92.000000 
+m_action_number : 2
+m_object_orientation : 1.220471
+m_object_orientation_quality : 0.076657
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0042
+m_starting_position_image : 2 94.000000 83.000000 
+m_ending_position_image : 2 115.000000 103.000000 
+m_action_number : 1
+m_object_orientation : 0.639729
+m_object_orientation_quality : 0.064547
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0043
+m_starting_position_image : 2 37.000000 71.000000 
+m_ending_position_image : 2 12.000000 47.000000 
+m_action_number : 0
+m_object_orientation : 0.466745
+m_object_orientation_quality : 0.078243
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0044
+m_starting_position_image : 2 93.000000 71.000000 
+m_ending_position_image : 2 109.000000 59.000000 
+m_action_number : 3
+m_object_orientation : 1.336415
+m_object_orientation_quality : 0.066608
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0045
+m_starting_position_image : 2 83.000000 81.000000 
+m_ending_position_image : 2 106.000000 100.000000 
+m_action_number : 1
+m_object_orientation : 1.008348
+m_object_orientation_quality : 0.071493
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0046
+m_starting_position_image : 2 68.000000 74.000000 
+m_ending_position_image : 2 48.000000 38.000000 
+m_action_number : 0
+m_object_orientation : 1.023474
+m_object_orientation_quality : 0.073589
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0047
+m_starting_position_image : 2 73.000000 67.000000 
+m_ending_position_image : 2 94.000000 53.000000 
+m_action_number : 3
+m_object_orientation : -0.628725
+m_object_orientation_quality : 0.061201
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0048
+m_starting_position_image : 2 78.000000 85.000000 
+m_ending_position_image : 2 78.000000 57.000000 
+m_action_number : 0
+m_object_orientation : -0.131417
+m_object_orientation_quality : 0.068378
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0049
+m_starting_position_image : 2 76.000000 73.000000 
+m_ending_position_image : 2 87.000000 67.000000 
+m_action_number : 1
+m_object_orientation : -0.807763
+m_object_orientation_quality : 0.068931
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0050
+m_starting_position_image : 2 58.000000 74.000000 
+m_ending_position_image : 2 78.000000 65.000000 
+m_action_number : 2
+m_object_orientation : -0.866511
+m_object_orientation_quality : 0.057037
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0051
+m_starting_position_image : 2 73.000000 83.000000 
+m_ending_position_image : 2 83.000000 96.000000 
+m_action_number : 1
+m_object_orientation : -1.073700
+m_object_orientation_quality : 0.064561
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0052
+m_starting_position_image : 2 87.000000 79.000000 
+m_ending_position_image : 2 108.000000 61.000000 
+m_action_number : 1
+m_object_orientation : -0.737239
+m_object_orientation_quality : 0.064642
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0053
+m_starting_position_image : 2 47.000000 67.000000 
+m_ending_position_image : 2 55.000000 36.000000 
+m_action_number : 3
+m_object_orientation : -1.405969
+m_object_orientation_quality : 0.069498
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0054
+m_starting_position_image : 2 86.000000 82.000000 
+m_ending_position_image : 2 112.000000 64.000000 
+m_action_number : 2
+m_object_orientation : -0.444226
+m_object_orientation_quality : 0.072667
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0055
+m_starting_position_image : 2 56.000000 76.000000 
+m_ending_position_image : 2 71.000000 33.000000 
+m_action_number : 0
+m_object_orientation : -1.079225
+m_object_orientation_quality : 0.059359
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0056
+m_starting_position_image : 2 67.000000 81.000000 
+m_ending_position_image : 2 86.000000 64.000000 
+m_action_number : 3
+m_object_orientation : -0.587088
+m_object_orientation_quality : 0.067697
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0057
+m_starting_position_image : 2 88.000000 91.000000 
+m_ending_position_image : 2 106.000000 110.000000 
+m_action_number : 1
+m_object_orientation : 1.240230
+m_object_orientation_quality : 0.073209
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0058
+m_starting_position_image : 2 77.000000 66.000000 
+m_ending_position_image : 2 78.000000 50.000000 
+m_action_number : 0
+m_object_orientation : -0.457310
+m_object_orientation_quality : 0.065815
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0059
+m_starting_position_image : 2 76.000000 90.000000 
+m_ending_position_image : 2 76.000000 102.000000 
+m_action_number : 3
+m_object_orientation : -1.567117
+m_object_orientation_quality : 0.034868
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0060
+m_starting_position_image : 2 89.000000 54.000000 
+m_ending_position_image : 2 96.000000 33.000000 
+m_action_number : 0
+m_object_orientation : -0.456442
+m_object_orientation_quality : 0.064896
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0061
+m_starting_position_image : 2 82.000000 90.000000 
+m_ending_position_image : 2 107.000000 110.000000 
+m_action_number : 1
+m_object_orientation : 1.076144
+m_object_orientation_quality : 0.069256
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0062
+m_starting_position_image : 2 73.000000 70.000000 
+m_ending_position_image : 2 71.000000 44.000000 
+m_action_number : 0
+m_object_orientation : -0.594713
+m_object_orientation_quality : 0.061359
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0063
+m_starting_position_image : 2 61.000000 64.000000 
+m_ending_position_image : 2 47.000000 21.000000 
+m_action_number : 0
+m_object_orientation : 1.204940
+m_object_orientation_quality : 0.057044
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0064
+m_starting_position_image : 2 106.000000 52.000000 
+m_ending_position_image : 2 108.000000 51.000000 
+m_action_number : 3
+m_object_orientation : 0.574644
+m_object_orientation_quality : 0.037434
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0065
+m_starting_position_image : 2 69.000000 90.000000 
+m_ending_position_image : 2 86.000000 99.000000 
+m_action_number : 1
+m_object_orientation : -1.458578
+m_object_orientation_quality : 0.030263
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0066
+m_starting_position_image : 2 81.000000 62.000000 
+m_ending_position_image : 2 107.000000 80.000000 
+m_action_number : 1
+m_object_orientation : -1.006559
+m_object_orientation_quality : 0.064766
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0067
+m_starting_position_image : 2 89.000000 83.000000 
+m_ending_position_image : 2 100.000000 82.000000 
+m_action_number : 3
+m_object_orientation : 0.284639
+m_object_orientation_quality : 0.068788
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0068
+m_starting_position_image : 2 89.000000 62.000000 
+m_ending_position_image : 2 92.000000 42.000000 
+m_action_number : 0
+m_object_orientation : -0.246524
+m_object_orientation_quality : 0.061905
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0069
+m_starting_position_image : 2 87.000000 99.000000 
+m_ending_position_image : 2 102.000000 81.000000 
+m_action_number : 3
+m_object_orientation : 0.496741
+m_object_orientation_quality : 0.042825
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0070
+m_starting_position_image : 2 83.000000 73.000000 
+m_ending_position_image : 2 108.000000 94.000000 
+m_action_number : 1
+m_object_orientation : -0.943877
+m_object_orientation_quality : 0.061295
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0071
+m_starting_position_image : 2 61.000000 63.000000 
+m_ending_position_image : 2 53.000000 45.000000 
+m_action_number : 3
+m_object_orientation : 0.115802
+m_object_orientation_quality : 0.068209
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0072
+m_starting_position_image : 2 93.000000 89.000000 
+m_ending_position_image : 2 116.000000 84.000000 
+m_action_number : 2
+m_object_orientation : -0.228591
+m_object_orientation_quality : 0.064474
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0073
+m_starting_position_image : 2 70.000000 78.000000 
+m_ending_position_image : 2 80.000000 65.000000 
+m_action_number : 3
+m_object_orientation : -0.525742
+m_object_orientation_quality : 0.065102
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0074
+m_starting_position_image : 2 65.000000 72.000000 
+m_ending_position_image : 2 57.000000 30.000000 
+m_action_number : 0
+m_object_orientation : 1.212858
+m_object_orientation_quality : 0.056784
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0075
+m_starting_position_image : 2 94.000000 86.000000 
+m_ending_position_image : 2 115.000000 96.000000 
+m_action_number : 1
+m_object_orientation : 0.379527
+m_object_orientation_quality : 0.065216
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0076
+m_starting_position_image : 2 72.000000 69.000000 
+m_ending_position_image : 2 80.000000 66.000000 
+m_action_number : 2
+m_object_orientation : 1.460249
+m_object_orientation_quality : 0.067068
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0077
+m_starting_position_image : 2 80.000000 70.000000 
+m_ending_position_image : 2 67.000000 29.000000 
+m_action_number : 0
+m_object_orientation : 1.032815
+m_object_orientation_quality : 0.078312
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0078
+m_starting_position_image : 2 75.000000 78.000000 
+m_ending_position_image : 2 87.000000 46.000000 
+m_action_number : 3
+m_object_orientation : -1.246983
+m_object_orientation_quality : 0.066754
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0079
+m_starting_position_image : 2 89.000000 75.000000 
+m_ending_position_image : 2 100.000000 61.000000 
+m_action_number : 3
+m_object_orientation : -0.850733
+m_object_orientation_quality : 0.068817
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0080
+m_starting_position_image : 2 75.000000 76.000000 
+m_ending_position_image : 2 76.000000 43.000000 
+m_action_number : 3
+m_object_orientation : -1.440377
+m_object_orientation_quality : 0.065803
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0081
+m_starting_position_image : 2 86.000000 66.000000 
+m_ending_position_image : 2 89.000000 58.000000 
+m_action_number : 2
+m_object_orientation : 1.564657
+m_object_orientation_quality : 0.059427
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0082
+m_starting_position_image : 2 90.000000 66.000000 
+m_ending_position_image : 2 115.000000 58.000000 
+m_action_number : 2
+m_object_orientation : 0.080790
+m_object_orientation_quality : 0.066301
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0083
+m_starting_position_image : 2 75.000000 51.000000 
+m_ending_position_image : 2 64.000000 41.000000 
+m_action_number : 0
+m_object_orientation : 0.073121
+m_object_orientation_quality : 0.066616
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0084
+m_starting_position_image : 2 95.000000 83.000000 
+m_ending_position_image : 2 94.000000 57.000000 
+m_action_number : 0
+m_object_orientation : 0.436790
+m_object_orientation_quality : 0.073739
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0085
+m_starting_position_image : 2 90.000000 84.000000 
+m_ending_position_image : 2 111.000000 89.000000 
+m_action_number : 1
+m_object_orientation : 0.252359
+m_object_orientation_quality : 0.082514
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0086
+m_starting_position_image : 2 100.000000 76.000000 
+m_ending_position_image : 2 111.000000 75.000000 
+m_action_number : 1
+m_object_orientation : -0.218996
+m_object_orientation_quality : 0.020592
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0087
+m_starting_position_image : 2 83.000000 86.000000 
+m_ending_position_image : 2 97.000000 81.000000 
+m_action_number : 3
+m_object_orientation : -0.331207
+m_object_orientation_quality : 0.063555
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0088
+m_starting_position_image : 2 95.000000 83.000000 
+m_ending_position_image : 2 108.000000 86.000000 
+m_action_number : 1
+m_object_orientation : -0.574482
+m_object_orientation_quality : 0.066229
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0089
+m_starting_position_image : 2 90.000000 72.000000 
+m_ending_position_image : 2 104.000000 64.000000 
+m_action_number : 2
+m_object_orientation : -1.186323
+m_object_orientation_quality : 0.060856
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0090
+m_starting_position_image : 2 74.000000 79.000000 
+m_ending_position_image : 2 101.000000 97.000000 
+m_action_number : 1
+m_object_orientation : -1.051792
+m_object_orientation_quality : 0.058963
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0091
+m_starting_position_image : 2 82.000000 78.000000 
+m_ending_position_image : 2 108.000000 96.000000 
+m_action_number : 1
+m_object_orientation : -0.992998
+m_object_orientation_quality : 0.061334
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0092
+m_starting_position_image : 2 81.000000 90.000000 
+m_ending_position_image : 2 116.000000 92.000000 
+m_action_number : 2
+m_object_orientation : 0.099087
+m_object_orientation_quality : 0.072235
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0093
+m_starting_position_image : 2 75.000000 84.000000 
+m_ending_position_image : 2 100.000000 98.000000 
+m_action_number : 2
+m_object_orientation : -0.990656
+m_object_orientation_quality : 0.052681
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0094
+m_starting_position_image : 2 66.000000 53.000000 
+m_ending_position_image : 2 84.000000 69.000000 
+m_action_number : 1
+m_object_orientation : -1.426617
+m_object_orientation_quality : 0.061609
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0095
+m_starting_position_image : 2 74.000000 78.000000 
+m_ending_position_image : 2 96.000000 90.000000 
+m_action_number : 2
+m_object_orientation : -1.128090
+m_object_orientation_quality : 0.060333
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0096
+m_starting_position_image : 2 78.000000 84.000000 
+m_ending_position_image : 2 104.000000 71.000000 
+m_action_number : 2
+m_object_orientation : -0.499022
+m_object_orientation_quality : 0.069722
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0097
+m_starting_position_image : 2 81.000000 79.000000 
+m_ending_position_image : 2 84.000000 40.000000 
+m_action_number : 0
+m_object_orientation : -1.470712
+m_object_orientation_quality : 0.044333
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0098
+m_starting_position_image : 2 94.000000 61.000000 
+m_ending_position_image : 2 98.000000 72.000000 
+m_action_number : 1
+m_object_orientation : 1.283296
+m_object_orientation_quality : 0.065914
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0099
+m_starting_position_image : 2 90.000000 63.000000 
+m_ending_position_image : 2 112.000000 38.000000 
+m_action_number : 2
+m_object_orientation : -0.611743
+m_object_orientation_quality : 0.048648
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0100
+m_starting_position_image : 2 73.000000 77.000000 
+m_ending_position_image : 2 72.000000 76.000000 
+m_action_number : 1
+m_object_orientation : -0.173745
+m_object_orientation_quality : 0.526901
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0101
+m_starting_position_image : 2 72.000000 79.000000 
+m_ending_position_image : 2 108.000000 69.000000 
+m_action_number : 2
+m_object_orientation : -0.219923
+m_object_orientation_quality : 0.067755
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0102
+m_starting_position_image : 2 52.000000 72.000000 
+m_ending_position_image : 2 30.000000 49.000000 
+m_action_number : 0
+m_object_orientation : 0.099278
+m_object_orientation_quality : 0.064901
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0103
+m_starting_position_image : 2 62.000000 53.000000 
+m_ending_position_image : 2 62.000000 53.000000 
+m_action_number : 3
+m_object_orientation : 0.605761
+m_object_orientation_quality : 0.055896
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0002_0104
+m_starting_position_image : 2 98.000000 85.000000 
+m_ending_position_image : 2 110.000000 101.000000 
+m_action_number : 1
+m_object_orientation : 1.432897
+m_object_orientation_quality : 0.066871
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0000
+m_starting_position_image : 2 76.000000 80.000000 
+m_ending_position_image : 2 108.000000 86.000000 
+m_action_number : 2
+m_object_orientation : -1.362003
+m_object_orientation_quality : 0.098295
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0001
+m_starting_position_image : 2 89.000000 64.000000 
+m_ending_position_image : 2 109.000000 51.000000 
+m_action_number : 3
+m_object_orientation : 1.096013
+m_object_orientation_quality : 0.190197
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0002
+m_starting_position_image : 2 76.000000 46.000000 
+m_ending_position_image : 2 93.000000 39.000000 
+m_action_number : 2
+m_object_orientation : -1.545468
+m_object_orientation_quality : 0.082136
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0003
+m_starting_position_image : 2 90.000000 82.000000 
+m_ending_position_image : 2 101.000000 79.000000 
+m_action_number : 1
+m_object_orientation : 0.968355
+m_object_orientation_quality : 0.157522
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0004
+m_starting_position_image : 2 83.000000 63.000000 
+m_ending_position_image : 2 97.000000 61.000000 
+m_action_number : 2
+m_object_orientation : 1.360456
+m_object_orientation_quality : 0.168443
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0005
+m_starting_position_image : 2 68.000000 57.000000 
+m_ending_position_image : 2 72.000000 35.000000 
+m_action_number : 0
+m_object_orientation : 0.557847
+m_object_orientation_quality : 0.140679
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0006
+m_starting_position_image : 2 86.000000 69.000000 
+m_ending_position_image : 2 99.000000 68.000000 
+m_action_number : 2
+m_object_orientation : -1.459422
+m_object_orientation_quality : 0.123609
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0007
+m_starting_position_image : 2 73.000000 83.000000 
+m_ending_position_image : 2 75.000000 60.000000 
+m_action_number : 0
+m_object_orientation : 0.503199
+m_object_orientation_quality : 0.091882
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0008
+m_starting_position_image : 2 83.000000 93.000000 
+m_ending_position_image : 2 95.000000 92.000000 
+m_action_number : 2
+m_object_orientation : 1.247242
+m_object_orientation_quality : 0.102561
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0009
+m_starting_position_image : 2 77.000000 83.000000 
+m_ending_position_image : 2 85.000000 77.000000 
+m_action_number : 2
+m_object_orientation : 0.950525
+m_object_orientation_quality : 0.150148
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0010
+m_starting_position_image : 2 83.000000 88.000000 
+m_ending_position_image : 2 103.000000 89.000000 
+m_action_number : 2
+m_object_orientation : -1.532674
+m_object_orientation_quality : 0.126746
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0011
+m_starting_position_image : 2 85.000000 90.000000 
+m_ending_position_image : 2 110.000000 93.000000 
+m_action_number : 1
+m_object_orientation : -1.311554
+m_object_orientation_quality : 0.091331
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0012
+m_starting_position_image : 2 89.000000 71.000000 
+m_ending_position_image : 2 98.000000 69.000000 
+m_action_number : 0
+m_object_orientation : -1.266998
+m_object_orientation_quality : 0.113072
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0013
+m_starting_position_image : 2 68.000000 47.000000 
+m_ending_position_image : 2 71.000000 46.000000 
+m_action_number : 0
+m_object_orientation : 1.537883
+m_object_orientation_quality : 0.136612
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0014
+m_starting_position_image : 2 39.000000 91.000000 
+m_ending_position_image : 2 45.000000 90.000000 
+m_action_number : 2
+m_object_orientation : 0.276599
+m_object_orientation_quality : 0.103417
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0015
+m_starting_position_image : 2 104.000000 80.000000 
+m_ending_position_image : 2 105.000000 78.000000 
+m_action_number : 3
+m_object_orientation : 0.894792
+m_object_orientation_quality : 0.054597
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0016
+m_starting_position_image : 2 70.000000 78.000000 
+m_ending_position_image : 2 76.000000 66.000000 
+m_action_number : 0
+m_object_orientation : -1.558237
+m_object_orientation_quality : 0.168433
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0017
+m_starting_position_image : 2 96.000000 72.000000 
+m_ending_position_image : 2 105.000000 64.000000 
+m_action_number : 0
+m_object_orientation : 1.195388
+m_object_orientation_quality : 0.092791
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0018
+m_starting_position_image : 2 73.000000 75.000000 
+m_ending_position_image : 2 91.000000 79.000000 
+m_action_number : 2
+m_object_orientation : 1.003159
+m_object_orientation_quality : 0.124801
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0019
+m_starting_position_image : 2 74.000000 67.000000 
+m_ending_position_image : 2 89.000000 66.000000 
+m_action_number : 2
+m_object_orientation : 1.567164
+m_object_orientation_quality : 0.122518
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0020
+m_starting_position_image : 2 79.000000 77.000000 
+m_ending_position_image : 2 73.000000 45.000000 
+m_action_number : 0
+m_object_orientation : -0.173699
+m_object_orientation_quality : 0.166475
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0021
+m_starting_position_image : 2 60.000000 84.000000 
+m_ending_position_image : 2 73.000000 112.000000 
+m_action_number : 2
+m_object_orientation : -0.231649
+m_object_orientation_quality : 0.137957
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0022
+m_starting_position_image : 2 91.000000 63.000000 
+m_ending_position_image : 2 111.000000 61.000000 
+m_action_number : 2
+m_object_orientation : -1.546695
+m_object_orientation_quality : 0.118282
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0023
+m_starting_position_image : 2 92.000000 57.000000 
+m_ending_position_image : 2 93.000000 49.000000 
+m_action_number : 3
+m_object_orientation : -1.264914
+m_object_orientation_quality : 0.170512
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0024
+m_starting_position_image : 2 93.000000 88.000000 
+m_ending_position_image : 2 92.000000 75.000000 
+m_action_number : 0
+m_object_orientation : -1.470084
+m_object_orientation_quality : 0.143795
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0025
+m_starting_position_image : 2 84.000000 58.000000 
+m_ending_position_image : 2 95.000000 42.000000 
+m_action_number : 0
+m_object_orientation : 1.102768
+m_object_orientation_quality : 0.143376
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0026
+m_starting_position_image : 2 83.000000 55.000000 
+m_ending_position_image : 2 92.000000 32.000000 
+m_action_number : 3
+m_object_orientation : 0.782960
+m_object_orientation_quality : 0.100804
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0027
+m_starting_position_image : 2 69.000000 73.000000 
+m_ending_position_image : 2 84.000000 55.000000 
+m_action_number : 0
+m_object_orientation : 0.893749
+m_object_orientation_quality : 0.132405
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0028
+m_starting_position_image : 2 71.000000 72.000000 
+m_ending_position_image : 2 76.000000 63.000000 
+m_action_number : 0
+m_object_orientation : 1.245309
+m_object_orientation_quality : 0.180076
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0029
+m_starting_position_image : 2 81.000000 88.000000 
+m_ending_position_image : 2 98.000000 84.000000 
+m_action_number : 1
+m_object_orientation : 1.301186
+m_object_orientation_quality : 0.151122
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0030
+m_starting_position_image : 2 81.000000 80.000000 
+m_ending_position_image : 2 96.000000 66.000000 
+m_action_number : 0
+m_object_orientation : 0.998879
+m_object_orientation_quality : 0.170323
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0031
+m_starting_position_image : 2 47.000000 65.000000 
+m_ending_position_image : 2 67.000000 53.000000 
+m_action_number : 2
+m_object_orientation : 1.099971
+m_object_orientation_quality : 0.127756
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0032
+m_starting_position_image : 2 79.000000 73.000000 
+m_ending_position_image : 2 69.000000 63.000000 
+m_action_number : 0
+m_object_orientation : -1.184666
+m_object_orientation_quality : 0.127333
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0033
+m_starting_position_image : 2 54.000000 80.000000 
+m_ending_position_image : 2 68.000000 63.000000 
+m_action_number : 0
+m_object_orientation : 1.234383
+m_object_orientation_quality : 0.161902
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0034
+m_starting_position_image : 2 92.000000 58.000000 
+m_ending_position_image : 2 103.000000 49.000000 
+m_action_number : 1
+m_object_orientation : 1.256412
+m_object_orientation_quality : 0.086280
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0035
+m_starting_position_image : 2 73.000000 84.000000 
+m_ending_position_image : 2 106.000000 93.000000 
+m_action_number : 1
+m_object_orientation : 1.466337
+m_object_orientation_quality : 0.102028
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0036
+m_starting_position_image : 2 62.000000 68.000000 
+m_ending_position_image : 2 72.000000 68.000000 
+m_action_number : 2
+m_object_orientation : 1.309195
+m_object_orientation_quality : 0.122220
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0037
+m_starting_position_image : 2 71.000000 61.000000 
+m_ending_position_image : 2 96.000000 50.000000 
+m_action_number : 1
+m_object_orientation : 1.328505
+m_object_orientation_quality : 0.056220
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0038
+m_starting_position_image : 2 73.000000 55.000000 
+m_ending_position_image : 2 80.000000 29.000000 
+m_action_number : 0
+m_object_orientation : -0.007294
+m_object_orientation_quality : 0.139901
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0039
+m_starting_position_image : 2 62.000000 86.000000 
+m_ending_position_image : 2 64.000000 86.000000 
+m_action_number : 3
+m_object_orientation : 0.030256
+m_object_orientation_quality : 0.148088
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0040
+m_starting_position_image : 2 87.000000 83.000000 
+m_ending_position_image : 2 91.000000 77.000000 
+m_action_number : 1
+m_object_orientation : 0.016903
+m_object_orientation_quality : 0.146897
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0041
+m_starting_position_image : 2 82.000000 74.000000 
+m_ending_position_image : 2 85.000000 79.000000 
+m_action_number : 2
+m_object_orientation : 0.109572
+m_object_orientation_quality : 0.147175
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0042
+m_starting_position_image : 2 73.000000 52.000000 
+m_ending_position_image : 2 88.000000 32.000000 
+m_action_number : 3
+m_object_orientation : 0.743033
+m_object_orientation_quality : 0.134397
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0043
+m_starting_position_image : 2 73.000000 81.000000 
+m_ending_position_image : 2 85.000000 97.000000 
+m_action_number : 2
+m_object_orientation : -0.197359
+m_object_orientation_quality : 0.101796
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0044
+m_starting_position_image : 2 67.000000 67.000000 
+m_ending_position_image : 2 58.000000 33.000000 
+m_action_number : 0
+m_object_orientation : -0.193632
+m_object_orientation_quality : 0.108210
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0045
+m_starting_position_image : 2 58.000000 95.000000 
+m_ending_position_image : 2 84.000000 114.000000 
+m_action_number : 2
+m_object_orientation : -0.621722
+m_object_orientation_quality : 0.077594
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0046
+m_starting_position_image : 2 66.000000 79.000000 
+m_ending_position_image : 2 93.000000 80.000000 
+m_action_number : 1
+m_object_orientation : 1.079222
+m_object_orientation_quality : 0.115304
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0047
+m_starting_position_image : 2 93.000000 78.000000 
+m_ending_position_image : 2 106.000000 71.000000 
+m_action_number : 0
+m_object_orientation : 1.447737
+m_object_orientation_quality : 0.157187
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0048
+m_starting_position_image : 2 71.000000 59.000000 
+m_ending_position_image : 2 91.000000 58.000000 
+m_action_number : 3
+m_object_orientation : 1.366890
+m_object_orientation_quality : 0.115424
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0049
+m_starting_position_image : 2 101.000000 51.000000 
+m_ending_position_image : 2 103.000000 34.000000 
+m_action_number : 3
+m_object_orientation : -0.158144
+m_object_orientation_quality : 0.085193
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0050
+m_starting_position_image : 2 87.000000 64.000000 
+m_ending_position_image : 2 112.000000 65.000000 
+m_action_number : 1
+m_object_orientation : -1.312325
+m_object_orientation_quality : 0.108412
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0051
+m_starting_position_image : 2 85.000000 76.000000 
+m_ending_position_image : 2 97.000000 94.000000 
+m_action_number : 2
+m_object_orientation : -0.637410
+m_object_orientation_quality : 0.117188
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0052
+m_starting_position_image : 2 83.000000 53.000000 
+m_ending_position_image : 2 83.000000 40.000000 
+m_action_number : 3
+m_object_orientation : -0.116345
+m_object_orientation_quality : 0.140918
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0053
+m_starting_position_image : 2 95.000000 63.000000 
+m_ending_position_image : 2 103.000000 75.000000 
+m_action_number : 2
+m_object_orientation : -0.210949
+m_object_orientation_quality : 0.094305
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0054
+m_starting_position_image : 2 92.000000 77.000000 
+m_ending_position_image : 2 102.000000 70.000000 
+m_action_number : 0
+m_object_orientation : 1.210513
+m_object_orientation_quality : 0.113370
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0055
+m_starting_position_image : 2 71.000000 85.000000 
+m_ending_position_image : 2 81.000000 80.000000 
+m_action_number : 3
+m_object_orientation : 0.941373
+m_object_orientation_quality : 0.139052
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0056
+m_starting_position_image : 2 90.000000 83.000000 
+m_ending_position_image : 2 113.000000 81.000000 
+m_action_number : 2
+m_object_orientation : -1.456560
+m_object_orientation_quality : 0.144499
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0057
+m_starting_position_image : 2 106.000000 79.000000 
+m_ending_position_image : 2 118.000000 80.000000 
+m_action_number : 3
+m_object_orientation : -1.443320
+m_object_orientation_quality : 0.111593
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0058
+m_starting_position_image : 2 92.000000 69.000000 
+m_ending_position_image : 2 103.000000 69.000000 
+m_action_number : 2
+m_object_orientation : -1.337636
+m_object_orientation_quality : 0.131623
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0059
+m_starting_position_image : 2 76.000000 80.000000 
+m_ending_position_image : 2 98.000000 91.000000 
+m_action_number : 2
+m_object_orientation : -0.481548
+m_object_orientation_quality : 0.120239
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0060
+m_starting_position_image : 2 92.000000 52.000000 
+m_ending_position_image : 2 101.000000 49.000000 
+m_action_number : 3
+m_object_orientation : -1.160793
+m_object_orientation_quality : 0.114578
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0061
+m_starting_position_image : 2 75.000000 48.000000 
+m_ending_position_image : 2 78.000000 41.000000 
+m_action_number : 0
+m_object_orientation : -0.859174
+m_object_orientation_quality : 0.132491
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0062
+m_starting_position_image : 2 97.000000 82.000000 
+m_ending_position_image : 2 110.000000 77.000000 
+m_action_number : 1
+m_object_orientation : 1.414374
+m_object_orientation_quality : 0.103707
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0063
+m_starting_position_image : 2 74.000000 67.000000 
+m_ending_position_image : 2 93.000000 52.000000 
+m_action_number : 1
+m_object_orientation : 0.738258
+m_object_orientation_quality : 0.130251
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0064
+m_starting_position_image : 2 78.000000 59.000000 
+m_ending_position_image : 2 91.000000 46.000000 
+m_action_number : 0
+m_object_orientation : 0.619166
+m_object_orientation_quality : 0.131966
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0065
+m_starting_position_image : 2 67.000000 69.000000 
+m_ending_position_image : 2 79.000000 56.000000 
+m_action_number : 0
+m_object_orientation : 0.582145
+m_object_orientation_quality : 0.158795
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0066
+m_starting_position_image : 2 71.000000 54.000000 
+m_ending_position_image : 2 73.000000 54.000000 
+m_action_number : 3
+m_object_orientation : -0.924958
+m_object_orientation_quality : 0.103060
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0067
+m_starting_position_image : 2 90.000000 64.000000 
+m_ending_position_image : 2 102.000000 64.000000 
+m_action_number : 3
+m_object_orientation : -1.091232
+m_object_orientation_quality : 0.118263
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0068
+m_starting_position_image : 2 88.000000 70.000000 
+m_ending_position_image : 2 103.000000 61.000000 
+m_action_number : 0
+m_object_orientation : 1.285212
+m_object_orientation_quality : 0.135908
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0069
+m_starting_position_image : 2 61.000000 72.000000 
+m_ending_position_image : 2 59.000000 41.000000 
+m_action_number : 0
+m_object_orientation : -0.449759
+m_object_orientation_quality : 0.147973
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0070
+m_starting_position_image : 2 66.000000 68.000000 
+m_ending_position_image : 2 87.000000 55.000000 
+m_action_number : 3
+m_object_orientation : 1.089387
+m_object_orientation_quality : 0.127810
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0071
+m_starting_position_image : 2 74.000000 74.000000 
+m_ending_position_image : 2 105.000000 85.000000 
+m_action_number : 2
+m_object_orientation : 1.568834
+m_object_orientation_quality : 0.169155
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0072
+m_starting_position_image : 2 81.000000 70.000000 
+m_ending_position_image : 2 68.000000 64.000000 
+m_action_number : 0
+m_object_orientation : -1.506882
+m_object_orientation_quality : 0.125995
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0073
+m_starting_position_image : 2 85.000000 55.000000 
+m_ending_position_image : 2 70.000000 51.000000 
+m_action_number : 0
+m_object_orientation : 1.543961
+m_object_orientation_quality : 0.072867
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0074
+m_starting_position_image : 2 83.000000 86.000000 
+m_ending_position_image : 2 74.000000 70.000000 
+m_action_number : 0
+m_object_orientation : -1.306466
+m_object_orientation_quality : 0.115331
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0075
+m_starting_position_image : 2 89.000000 72.000000 
+m_ending_position_image : 2 106.000000 66.000000 
+m_action_number : 1
+m_object_orientation : -1.368708
+m_object_orientation_quality : 0.081038
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0076
+m_starting_position_image : 2 84.000000 71.000000 
+m_ending_position_image : 2 110.000000 72.000000 
+m_action_number : 2
+m_object_orientation : 1.516932
+m_object_orientation_quality : 0.127079
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0077
+m_starting_position_image : 2 91.000000 60.000000 
+m_ending_position_image : 2 105.000000 61.000000 
+m_action_number : 1
+m_object_orientation : -1.402832
+m_object_orientation_quality : 0.156163
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0078
+m_starting_position_image : 2 59.000000 74.000000 
+m_ending_position_image : 2 86.000000 86.000000 
+m_action_number : 2
+m_object_orientation : -0.964786
+m_object_orientation_quality : 0.109038
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0079
+m_starting_position_image : 2 68.000000 85.000000 
+m_ending_position_image : 2 100.000000 86.000000 
+m_action_number : 2
+m_object_orientation : -1.211032
+m_object_orientation_quality : 0.178665
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0080
+m_starting_position_image : 2 82.000000 71.000000 
+m_ending_position_image : 2 96.000000 70.000000 
+m_action_number : 2
+m_object_orientation : -1.528840
+m_object_orientation_quality : 0.115331
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0081
+m_starting_position_image : 2 80.000000 81.000000 
+m_ending_position_image : 2 99.000000 89.000000 
+m_action_number : 2
+m_object_orientation : -0.796578
+m_object_orientation_quality : 0.109834
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0082
+m_starting_position_image : 2 73.000000 71.000000 
+m_ending_position_image : 2 97.000000 84.000000 
+m_action_number : 1
+m_object_orientation : -0.849177
+m_object_orientation_quality : 0.110813
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0083
+m_starting_position_image : 2 53.000000 65.000000 
+m_ending_position_image : 2 54.000000 42.000000 
+m_action_number : 0
+m_object_orientation : -0.448279
+m_object_orientation_quality : 0.125950
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0084
+m_starting_position_image : 2 70.000000 64.000000 
+m_ending_position_image : 2 86.000000 48.000000 
+m_action_number : 0
+m_object_orientation : 0.886410
+m_object_orientation_quality : 0.135841
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0085
+m_starting_position_image : 2 59.000000 69.000000 
+m_ending_position_image : 2 90.000000 62.000000 
+m_action_number : 2
+m_object_orientation : 1.079640
+m_object_orientation_quality : 0.128195
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0086
+m_starting_position_image : 2 76.000000 58.000000 
+m_ending_position_image : 2 102.000000 56.000000 
+m_action_number : 1
+m_object_orientation : 1.346745
+m_object_orientation_quality : 0.203445
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0087
+m_starting_position_image : 2 86.000000 66.000000 
+m_ending_position_image : 2 85.000000 41.000000 
+m_action_number : 0
+m_object_orientation : -0.056163
+m_object_orientation_quality : 0.152381
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0088
+m_starting_position_image : 2 87.000000 96.000000 
+m_ending_position_image : 2 93.000000 99.000000 
+m_action_number : 1
+m_object_orientation : -0.567131
+m_object_orientation_quality : 0.122448
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0089
+m_starting_position_image : 2 82.000000 76.000000 
+m_ending_position_image : 2 89.000000 48.000000 
+m_action_number : 0
+m_object_orientation : -0.070334
+m_object_orientation_quality : 0.106689
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0090
+m_starting_position_image : 2 75.000000 57.000000 
+m_ending_position_image : 2 88.000000 84.000000 
+m_action_number : 2
+m_object_orientation : -0.419841
+m_object_orientation_quality : 0.113155
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0091
+m_starting_position_image : 2 72.000000 63.000000 
+m_ending_position_image : 2 67.000000 36.000000 
+m_action_number : 0
+m_object_orientation : -0.344615
+m_object_orientation_quality : 0.120448
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0092
+m_starting_position_image : 2 93.000000 79.000000 
+m_ending_position_image : 2 103.000000 108.000000 
+m_action_number : 1
+m_object_orientation : 0.056113
+m_object_orientation_quality : 0.121181
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0093
+m_starting_position_image : 2 95.000000 73.000000 
+m_ending_position_image : 2 100.000000 66.000000 
+m_action_number : 3
+m_object_orientation : -0.303829
+m_object_orientation_quality : 0.105232
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0094
+m_starting_position_image : 2 79.000000 68.000000 
+m_ending_position_image : 2 87.000000 76.000000 
+m_action_number : 2
+m_object_orientation : 0.130973
+m_object_orientation_quality : 0.157945
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0095
+m_starting_position_image : 2 82.000000 71.000000 
+m_ending_position_image : 2 88.000000 76.000000 
+m_action_number : 2
+m_object_orientation : -0.306295
+m_object_orientation_quality : 0.126026
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0096
+m_starting_position_image : 2 97.000000 57.000000 
+m_ending_position_image : 2 102.000000 56.000000 
+m_action_number : 2
+m_object_orientation : -0.058237
+m_object_orientation_quality : 0.094662
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0097
+m_starting_position_image : 2 94.000000 73.000000 
+m_ending_position_image : 2 94.000000 72.000000 
+m_action_number : 1
+m_object_orientation : -0.276677
+m_object_orientation_quality : 0.099131
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0098
+m_starting_position_image : 2 85.000000 63.000000 
+m_ending_position_image : 2 84.000000 35.000000 
+m_action_number : 0
+m_object_orientation : 0.056330
+m_object_orientation_quality : 0.148652
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0003_0099
+m_starting_position_image : 2 80.000000 83.000000 
+m_ending_position_image : 2 100.000000 80.000000 
+m_action_number : 1
+m_object_orientation : 1.429275
+m_object_orientation_quality : 0.112962
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0004_0000
+m_starting_position_image : 2 105.000000 40.000000 
+m_ending_position_image : 2 105.000000 39.000000 
+m_action_number : 1
+m_object_orientation : 1.143805
+m_object_orientation_quality : 0.371432
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0004_0001
+m_starting_position_image : 2 79.000000 91.000000 
+m_ending_position_image : 2 91.000000 80.000000 
+m_action_number : 1
+m_object_orientation : -0.348927
+m_object_orientation_quality : 0.068848
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0005_0000
+m_starting_position_image : 2 90.000000 81.000000 
+m_ending_position_image : 2 102.000000 67.000000 
+m_action_number : 3
+m_object_orientation : 0.802847
+m_object_orientation_quality : 0.014581
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0000
+m_starting_position_image : 2 100.000000 76.000000 
+m_ending_position_image : 2 111.000000 76.000000 
+m_action_number : 2
+m_object_orientation : -1.446795
+m_object_orientation_quality : 0.041736
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0001
+m_starting_position_image : 2 92.000000 60.000000 
+m_ending_position_image : 2 117.000000 58.000000 
+m_action_number : 2
+m_object_orientation : -0.507448
+m_object_orientation_quality : 0.012378
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0002
+m_starting_position_image : 2 61.000000 67.000000 
+m_ending_position_image : 2 94.000000 88.000000 
+m_action_number : 2
+m_object_orientation : 0.290138
+m_object_orientation_quality : 0.010058
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0003
+m_starting_position_image : 2 76.000000 57.000000 
+m_ending_position_image : 2 65.000000 30.000000 
+m_action_number : 0
+m_object_orientation : -1.379316
+m_object_orientation_quality : 0.007147
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0004
+m_starting_position_image : 2 61.000000 62.000000 
+m_ending_position_image : 2 52.000000 29.000000 
+m_action_number : 0
+m_object_orientation : 1.494119
+m_object_orientation_quality : 0.015848
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0005
+m_starting_position_image : 2 68.000000 84.000000 
+m_ending_position_image : 2 92.000000 91.000000 
+m_action_number : 2
+m_object_orientation : 0.580161
+m_object_orientation_quality : 0.056306
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0006
+m_starting_position_image : 2 65.000000 70.000000 
+m_ending_position_image : 2 54.000000 28.000000 
+m_action_number : 0
+m_object_orientation : 1.492046
+m_object_orientation_quality : 0.017278
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0007
+m_starting_position_image : 2 73.000000 70.000000 
+m_ending_position_image : 2 109.000000 88.000000 
+m_action_number : 1
+m_object_orientation : 0.652827
+m_object_orientation_quality : 0.006364
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0008
+m_starting_position_image : 2 80.000000 59.000000 
+m_ending_position_image : 2 108.000000 44.000000 
+m_action_number : 2
+m_object_orientation : -0.069976
+m_object_orientation_quality : 0.033665
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0009
+m_starting_position_image : 2 84.000000 56.000000 
+m_ending_position_image : 2 98.000000 57.000000 
+m_action_number : 2
+m_object_orientation : 0.375706
+m_object_orientation_quality : 0.099589
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0010
+m_starting_position_image : 2 75.000000 61.000000 
+m_ending_position_image : 2 106.000000 57.000000 
+m_action_number : 1
+m_object_orientation : -0.487931
+m_object_orientation_quality : 0.006852
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0011
+m_starting_position_image : 2 63.000000 66.000000 
+m_ending_position_image : 2 65.000000 32.000000 
+m_action_number : 0
+m_object_orientation : -0.846109
+m_object_orientation_quality : 0.017280
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0012
+m_starting_position_image : 2 76.000000 77.000000 
+m_ending_position_image : 2 81.000000 72.000000 
+m_action_number : 2
+m_object_orientation : -0.379289
+m_object_orientation_quality : 0.009861
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0013
+m_starting_position_image : 2 55.000000 81.000000 
+m_ending_position_image : 2 79.000000 91.000000 
+m_action_number : 1
+m_object_orientation : 0.431512
+m_object_orientation_quality : 0.012559
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0014
+m_starting_position_image : 2 71.000000 87.000000 
+m_ending_position_image : 2 105.000000 92.000000 
+m_action_number : 1
+m_object_orientation : 0.185500
+m_object_orientation_quality : 0.014017
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0015
+m_starting_position_image : 2 83.000000 77.000000 
+m_ending_position_image : 2 117.000000 81.000000 
+m_action_number : 2
+m_object_orientation : -0.477996
+m_object_orientation_quality : 0.009818
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0016
+m_starting_position_image : 2 66.000000 60.000000 
+m_ending_position_image : 2 57.000000 58.000000 
+m_action_number : 3
+m_object_orientation : -0.551082
+m_object_orientation_quality : 0.006287
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0017
+m_starting_position_image : 2 98.000000 38.000000 
+m_ending_position_image : 2 106.000000 15.000000 
+m_action_number : 3
+m_object_orientation : -1.396462
+m_object_orientation_quality : 0.030468
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0018
+m_starting_position_image : 2 68.000000 77.000000 
+m_ending_position_image : 2 105.000000 90.000000 
+m_action_number : 1
+m_object_orientation : 0.027163
+m_object_orientation_quality : 0.014798
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0019
+m_starting_position_image : 2 86.000000 88.000000 
+m_ending_position_image : 2 107.000000 94.000000 
+m_action_number : 1
+m_object_orientation : -0.779798
+m_object_orientation_quality : 0.028980
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0020
+m_starting_position_image : 2 74.000000 77.000000 
+m_ending_position_image : 2 111.000000 96.000000 
+m_action_number : 1
+m_object_orientation : 0.242810
+m_object_orientation_quality : 0.008996
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0021
+m_starting_position_image : 2 74.000000 61.000000 
+m_ending_position_image : 2 96.000000 14.000000 
+m_action_number : 3
+m_object_orientation : -0.762377
+m_object_orientation_quality : 0.030402
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0022
+m_starting_position_image : 2 70.000000 67.000000 
+m_ending_position_image : 2 59.000000 33.000000 
+m_action_number : 0
+m_object_orientation : -1.100520
+m_object_orientation_quality : 0.007121
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0023
+m_starting_position_image : 2 38.000000 83.000000 
+m_ending_position_image : 2 63.000000 87.000000 
+m_action_number : 1
+m_object_orientation : -0.116603
+m_object_orientation_quality : 0.023217
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0024
+m_starting_position_image : 2 95.000000 91.000000 
+m_ending_position_image : 2 112.000000 103.000000 
+m_action_number : 2
+m_object_orientation : 1.273219
+m_object_orientation_quality : 0.012836
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0025
+m_starting_position_image : 2 79.000000 41.000000 
+m_ending_position_image : 2 97.000000 15.000000 
+m_action_number : 3
+m_object_orientation : -1.403485
+m_object_orientation_quality : 0.005715
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0026
+m_starting_position_image : 2 42.000000 93.000000 
+m_ending_position_image : 2 54.000000 92.000000 
+m_action_number : 2
+m_object_orientation : 0.202373
+m_object_orientation_quality : 0.041826
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0027
+m_starting_position_image : 2 86.000000 86.000000 
+m_ending_position_image : 2 115.000000 96.000000 
+m_action_number : 2
+m_object_orientation : -0.438881
+m_object_orientation_quality : 0.011717
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0028
+m_starting_position_image : 2 89.000000 91.000000 
+m_ending_position_image : 2 108.000000 114.000000 
+m_action_number : 1
+m_object_orientation : 0.401112
+m_object_orientation_quality : 0.005270
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0029
+m_starting_position_image : 2 60.000000 52.000000 
+m_ending_position_image : 2 46.000000 40.000000 
+m_action_number : 0
+m_object_orientation : 1.017129
+m_object_orientation_quality : 0.006198
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0030
+m_starting_position_image : 2 44.000000 98.000000 
+m_ending_position_image : 2 80.000000 104.000000 
+m_action_number : 2
+m_object_orientation : 0.130774
+m_object_orientation_quality : 0.065234
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0031
+m_starting_position_image : 2 89.000000 62.000000 
+m_ending_position_image : 2 104.000000 25.000000 
+m_action_number : 3
+m_object_orientation : -0.517876
+m_object_orientation_quality : 0.006915
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0032
+m_starting_position_image : 2 96.000000 63.000000 
+m_ending_position_image : 2 111.000000 59.000000 
+m_action_number : 2
+m_object_orientation : -0.388234
+m_object_orientation_quality : 0.084614
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0033
+m_starting_position_image : 2 71.000000 77.000000 
+m_ending_position_image : 2 96.000000 82.000000 
+m_action_number : 1
+m_object_orientation : 0.296644
+m_object_orientation_quality : 0.003760
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0034
+m_starting_position_image : 2 90.000000 52.000000 
+m_ending_position_image : 2 99.000000 64.000000 
+m_action_number : 2
+m_object_orientation : -1.103712
+m_object_orientation_quality : 0.004449
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0035
+m_starting_position_image : 2 88.000000 75.000000 
+m_ending_position_image : 2 115.000000 69.000000 
+m_action_number : 2
+m_object_orientation : -0.295874
+m_object_orientation_quality : 0.013632
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0036
+m_starting_position_image : 2 88.000000 72.000000 
+m_ending_position_image : 2 101.000000 34.000000 
+m_action_number : 0
+m_object_orientation : -0.490961
+m_object_orientation_quality : 0.004807
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0037
+m_starting_position_image : 2 75.000000 85.000000 
+m_ending_position_image : 2 103.000000 98.000000 
+m_action_number : 1
+m_object_orientation : 0.492420
+m_object_orientation_quality : 0.008912
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0038
+m_starting_position_image : 2 89.000000 83.000000 
+m_ending_position_image : 2 116.000000 90.000000 
+m_action_number : 2
+m_object_orientation : -0.347581
+m_object_orientation_quality : 0.014380
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0039
+m_starting_position_image : 2 60.000000 88.000000 
+m_ending_position_image : 2 59.000000 45.000000 
+m_action_number : 0
+m_object_orientation : -0.660594
+m_object_orientation_quality : 0.004380
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0040
+m_starting_position_image : 2 75.000000 79.000000 
+m_ending_position_image : 2 93.000000 101.000000 
+m_action_number : 2
+m_object_orientation : -0.657041
+m_object_orientation_quality : 0.007390
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0041
+m_starting_position_image : 2 87.000000 95.000000 
+m_ending_position_image : 2 106.000000 111.000000 
+m_action_number : 1
+m_object_orientation : 0.150629
+m_object_orientation_quality : 0.029217
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0042
+m_starting_position_image : 2 70.000000 84.000000 
+m_ending_position_image : 2 102.000000 105.000000 
+m_action_number : 1
+m_object_orientation : 0.132454
+m_object_orientation_quality : 0.011809
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0043
+m_starting_position_image : 2 90.000000 75.000000 
+m_ending_position_image : 2 118.000000 83.000000 
+m_action_number : 2
+m_object_orientation : -0.133066
+m_object_orientation_quality : 0.010467
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0044
+m_starting_position_image : 2 88.000000 79.000000 
+m_ending_position_image : 2 87.000000 48.000000 
+m_action_number : 0
+m_object_orientation : -0.208400
+m_object_orientation_quality : 0.004031
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0045
+m_starting_position_image : 2 71.000000 68.000000 
+m_ending_position_image : 2 97.000000 101.000000 
+m_action_number : 2
+m_object_orientation : 0.400405
+m_object_orientation_quality : 0.007637
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0046
+m_starting_position_image : 2 75.000000 51.000000 
+m_ending_position_image : 2 79.000000 25.000000 
+m_action_number : 0
+m_object_orientation : -0.641710
+m_object_orientation_quality : 0.016090
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0047
+m_starting_position_image : 2 70.000000 65.000000 
+m_ending_position_image : 2 96.000000 72.000000 
+m_action_number : 2
+m_object_orientation : 0.266143
+m_object_orientation_quality : 0.007396
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0048
+m_starting_position_image : 2 75.000000 74.000000 
+m_ending_position_image : 2 93.000000 89.000000 
+m_action_number : 2
+m_object_orientation : 0.145451
+m_object_orientation_quality : 0.014661
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0049
+m_starting_position_image : 2 83.000000 92.000000 
+m_ending_position_image : 2 117.000000 91.000000 
+m_action_number : 2
+m_object_orientation : -0.376543
+m_object_orientation_quality : 0.011664
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0050
+m_starting_position_image : 2 72.000000 78.000000 
+m_ending_position_image : 2 103.000000 86.000000 
+m_action_number : 3
+m_object_orientation : -0.746386
+m_object_orientation_quality : 0.015575
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0051
+m_starting_position_image : 2 64.000000 58.000000 
+m_ending_position_image : 2 68.000000 54.000000 
+m_action_number : 2
+m_object_orientation : -0.602813
+m_object_orientation_quality : 0.004345
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0052
+m_starting_position_image : 2 98.000000 75.000000 
+m_ending_position_image : 2 115.000000 90.000000 
+m_action_number : 1
+m_object_orientation : 1.518406
+m_object_orientation_quality : 0.024253
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0053
+m_starting_position_image : 2 80.000000 98.000000 
+m_ending_position_image : 2 103.000000 110.000000 
+m_action_number : 1
+m_object_orientation : 0.203822
+m_object_orientation_quality : 0.034736
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0054
+m_starting_position_image : 2 37.000000 74.000000 
+m_ending_position_image : 2 39.000000 31.000000 
+m_action_number : 0
+m_object_orientation : -0.574540
+m_object_orientation_quality : 0.005945
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0055
+m_starting_position_image : 2 57.000000 84.000000 
+m_ending_position_image : 2 44.000000 43.000000 
+m_action_number : 0
+m_object_orientation : -0.920723
+m_object_orientation_quality : 0.008574
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0056
+m_starting_position_image : 2 81.000000 82.000000 
+m_ending_position_image : 2 113.000000 97.000000 
+m_action_number : 2
+m_object_orientation : 0.506891
+m_object_orientation_quality : 0.009677
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0057
+m_starting_position_image : 2 60.000000 89.000000 
+m_ending_position_image : 2 91.000000 115.000000 
+m_action_number : 2
+m_object_orientation : 1.426687
+m_object_orientation_quality : 0.003878
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0058
+m_starting_position_image : 2 73.000000 88.000000 
+m_ending_position_image : 2 96.000000 97.000000 
+m_action_number : 1
+m_object_orientation : 0.224940
+m_object_orientation_quality : 0.011585
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0059
+m_starting_position_image : 2 78.000000 87.000000 
+m_ending_position_image : 2 111.000000 107.000000 
+m_action_number : 1
+m_object_orientation : 0.168348
+m_object_orientation_quality : 0.047836
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0060
+m_starting_position_image : 2 63.000000 80.000000 
+m_ending_position_image : 2 65.000000 39.000000 
+m_action_number : 0
+m_object_orientation : -1.136161
+m_object_orientation_quality : 0.009913
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0061
+m_starting_position_image : 2 64.000000 57.000000 
+m_ending_position_image : 2 97.000000 80.000000 
+m_action_number : 2
+m_object_orientation : 0.524064
+m_object_orientation_quality : 0.006448
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0062
+m_starting_position_image : 2 97.000000 79.000000 
+m_ending_position_image : 2 116.000000 97.000000 
+m_action_number : 1
+m_object_orientation : 1.229674
+m_object_orientation_quality : 0.021115
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0063
+m_starting_position_image : 2 69.000000 78.000000 
+m_ending_position_image : 2 106.000000 91.000000 
+m_action_number : 1
+m_object_orientation : 0.282872
+m_object_orientation_quality : 0.010263
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0064
+m_starting_position_image : 2 78.000000 63.000000 
+m_ending_position_image : 2 69.000000 29.000000 
+m_action_number : 0
+m_object_orientation : -0.419823
+m_object_orientation_quality : 0.015590
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0065
+m_starting_position_image : 2 73.000000 58.000000 
+m_ending_position_image : 2 107.000000 85.000000 
+m_action_number : 1
+m_object_orientation : -0.027618
+m_object_orientation_quality : 0.005497
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0066
+m_starting_position_image : 2 75.000000 59.000000 
+m_ending_position_image : 2 74.000000 25.000000 
+m_action_number : 0
+m_object_orientation : -1.302678
+m_object_orientation_quality : 0.015114
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0067
+m_starting_position_image : 2 81.000000 86.000000 
+m_ending_position_image : 2 111.000000 102.000000 
+m_action_number : 0
+m_object_orientation : 0.200981
+m_object_orientation_quality : 0.005991
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0068
+m_starting_position_image : 2 74.000000 42.000000 
+m_ending_position_image : 2 55.000000 13.000000 
+m_action_number : 3
+m_object_orientation : 1.184460
+m_object_orientation_quality : 0.006259
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0069
+m_starting_position_image : 2 60.000000 88.000000 
+m_ending_position_image : 2 102.000000 116.000000 
+m_action_number : 2
+m_object_orientation : 0.182957
+m_object_orientation_quality : 0.003594
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0070
+m_starting_position_image : 2 74.000000 91.000000 
+m_ending_position_image : 2 106.000000 97.000000 
+m_action_number : 1
+m_object_orientation : -0.558213
+m_object_orientation_quality : 0.010651
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0071
+m_starting_position_image : 2 53.000000 86.000000 
+m_ending_position_image : 2 98.000000 111.000000 
+m_action_number : 3
+m_object_orientation : -0.273600
+m_object_orientation_quality : 0.003320
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0072
+m_starting_position_image : 2 73.000000 50.000000 
+m_ending_position_image : 2 104.000000 43.000000 
+m_action_number : 2
+m_object_orientation : -0.867164
+m_object_orientation_quality : 0.008495
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0073
+m_starting_position_image : 2 57.000000 89.000000 
+m_ending_position_image : 2 53.000000 51.000000 
+m_action_number : 0
+m_object_orientation : 1.468729
+m_object_orientation_quality : 0.013723
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0074
+m_starting_position_image : 2 70.000000 55.000000 
+m_ending_position_image : 2 99.000000 60.000000 
+m_action_number : 1
+m_object_orientation : -0.362623
+m_object_orientation_quality : 0.002168
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0075
+m_starting_position_image : 2 63.000000 66.000000 
+m_ending_position_image : 2 55.000000 41.000000 
+m_action_number : 0
+m_object_orientation : 1.555267
+m_object_orientation_quality : 0.015098
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0076
+m_starting_position_image : 2 38.000000 92.000000 
+m_ending_position_image : 2 62.000000 108.000000 
+m_action_number : 0
+m_object_orientation : 0.507471
+m_object_orientation_quality : 0.041016
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0077
+m_starting_position_image : 2 77.000000 70.000000 
+m_ending_position_image : 2 66.000000 57.000000 
+m_action_number : 0
+m_object_orientation : -0.453944
+m_object_orientation_quality : 0.013863
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0078
+m_starting_position_image : 2 58.000000 78.000000 
+m_ending_position_image : 2 61.000000 43.000000 
+m_action_number : 0
+m_object_orientation : -1.108203
+m_object_orientation_quality : 0.026607
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0079
+m_starting_position_image : 2 56.000000 64.000000 
+m_ending_position_image : 2 53.000000 34.000000 
+m_action_number : 0
+m_object_orientation : -1.381642
+m_object_orientation_quality : 0.004687
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0080
+m_starting_position_image : 2 89.000000 85.000000 
+m_ending_position_image : 2 115.000000 104.000000 
+m_action_number : 1
+m_object_orientation : 0.385152
+m_object_orientation_quality : 0.015310
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0081
+m_starting_position_image : 2 72.000000 86.000000 
+m_ending_position_image : 2 101.000000 95.000000 
+m_action_number : 1
+m_object_orientation : 0.608109
+m_object_orientation_quality : 0.015011
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0082
+m_starting_position_image : 2 66.000000 69.000000 
+m_ending_position_image : 2 60.000000 47.000000 
+m_action_number : 0
+m_object_orientation : -1.402654
+m_object_orientation_quality : 0.010790
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0083
+m_starting_position_image : 2 44.000000 85.000000 
+m_ending_position_image : 2 42.000000 40.000000 
+m_action_number : 0
+m_object_orientation : 1.402199
+m_object_orientation_quality : 0.025193
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0084
+m_starting_position_image : 2 48.000000 98.000000 
+m_ending_position_image : 2 60.000000 109.000000 
+m_action_number : 1
+m_object_orientation : 0.121707
+m_object_orientation_quality : 0.026264
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0085
+m_starting_position_image : 2 81.000000 78.000000 
+m_ending_position_image : 2 101.000000 82.000000 
+m_action_number : 1
+m_object_orientation : -0.059564
+m_object_orientation_quality : 0.011708
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0086
+m_starting_position_image : 2 47.000000 66.000000 
+m_ending_position_image : 2 69.000000 70.000000 
+m_action_number : 1
+m_object_orientation : 0.159278
+m_object_orientation_quality : 0.012904
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0087
+m_starting_position_image : 2 90.000000 56.000000 
+m_ending_position_image : 2 90.000000 54.000000 
+m_action_number : 1
+m_object_orientation : -0.714752
+m_object_orientation_quality : 0.004772
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0088
+m_starting_position_image : 2 84.000000 53.000000 
+m_ending_position_image : 2 103.000000 63.000000 
+m_action_number : 1
+m_object_orientation : 0.879680
+m_object_orientation_quality : 0.035108
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0089
+m_starting_position_image : 2 90.000000 53.000000 
+m_ending_position_image : 2 77.000000 31.000000 
+m_action_number : 0
+m_object_orientation : -1.070266
+m_object_orientation_quality : 0.003820
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0090
+m_starting_position_image : 2 80.000000 87.000000 
+m_ending_position_image : 2 98.000000 105.000000 
+m_action_number : 2
+m_object_orientation : -1.294847
+m_object_orientation_quality : 0.004491
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0091
+m_starting_position_image : 2 79.000000 97.000000 
+m_ending_position_image : 2 101.000000 114.000000 
+m_action_number : 1
+m_object_orientation : 0.176058
+m_object_orientation_quality : 0.031114
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0092
+m_starting_position_image : 2 95.000000 91.000000 
+m_ending_position_image : 2 108.000000 104.000000 
+m_action_number : 1
+m_object_orientation : 1.459638
+m_object_orientation_quality : 0.015105
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0093
+m_starting_position_image : 2 81.000000 77.000000 
+m_ending_position_image : 2 78.000000 42.000000 
+m_action_number : 0
+m_object_orientation : -0.286330
+m_object_orientation_quality : 0.002953
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0094
+m_starting_position_image : 2 105.000000 56.000000 
+m_ending_position_image : 2 117.000000 39.000000 
+m_action_number : 3
+m_object_orientation : -1.440418
+m_object_orientation_quality : 0.092314
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0095
+m_starting_position_image : 2 74.000000 69.000000 
+m_ending_position_image : 2 66.000000 29.000000 
+m_action_number : 0
+m_object_orientation : 1.320896
+m_object_orientation_quality : 0.010872
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0096
+m_starting_position_image : 2 78.000000 69.000000 
+m_ending_position_image : 2 106.000000 91.000000 
+m_action_number : 2
+m_object_orientation : 0.074762
+m_object_orientation_quality : 0.039538
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0097
+m_starting_position_image : 2 92.000000 89.000000 
+m_ending_position_image : 2 110.000000 105.000000 
+m_action_number : 1
+m_object_orientation : 0.583652
+m_object_orientation_quality : 0.006675
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0098
+m_starting_position_image : 2 77.000000 77.000000 
+m_ending_position_image : 2 116.000000 90.000000 
+m_action_number : 2
+m_object_orientation : -0.099462
+m_object_orientation_quality : 0.006767
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0099
+m_starting_position_image : 2 61.000000 92.000000 
+m_ending_position_image : 2 101.000000 115.000000 
+m_action_number : 1
+m_object_orientation : 0.738644
+m_object_orientation_quality : 0.002839
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0100
+m_starting_position_image : 2 93.000000 89.000000 
+m_ending_position_image : 2 105.000000 101.000000 
+m_action_number : 2
+m_object_orientation : 0.932789
+m_object_orientation_quality : 0.015964
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0101
+m_starting_position_image : 2 80.000000 74.000000 
+m_ending_position_image : 2 110.000000 82.000000 
+m_action_number : 2
+m_object_orientation : 0.817891
+m_object_orientation_quality : 0.015291
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0006_0102
+m_starting_position_image : 2 69.000000 87.000000 
+m_ending_position_image : 2 104.000000 111.000000 
+m_action_number : 1
+m_object_orientation : -1.570678
+m_object_orientation_quality : 0.000642
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0007_0000
+m_starting_position_image : 2 86.000000 14.000000 
+m_ending_position_image : 2 86.000000 14.000000 
+m_action_number : 3
+m_object_orientation : -0.003110
+m_object_orientation_quality : 0.049570
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0008_0000
+m_starting_position_image : 2 81.000000 91.000000 
+m_ending_position_image : 2 76.000000 75.000000 
+m_action_number : 0
+m_object_orientation : 1.285391
+m_object_orientation_quality : 0.070748
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0009_0000
+m_starting_position_image : 2 65.000000 37.000000 
+m_ending_position_image : 2 65.000000 37.000000 
+m_action_number : 0
+m_object_orientation : -0.792921
+m_object_orientation_quality : 0.100785
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0010_0000
+m_starting_position_image : 2 60.000000 65.000000 
+m_ending_position_image : 2 53.000000 58.000000 
+m_action_number : 0
+m_object_orientation : 1.568153
+m_object_orientation_quality : 0.059674
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0010_0001
+m_starting_position_image : 2 63.000000 79.000000 
+m_ending_position_image : 2 66.000000 75.000000 
+m_action_number : 2
+m_object_orientation : 0.824750
+m_object_orientation_quality : 0.077543
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0010_0002
+m_starting_position_image : 2 69.000000 76.000000 
+m_ending_position_image : 2 73.000000 73.000000 
+m_action_number : 2
+m_object_orientation : 1.338925
+m_object_orientation_quality : 0.041898
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0011_0000
+m_starting_position_image : 2 46.000000 88.000000 
+m_ending_position_image : 2 80.000000 98.000000 
+m_action_number : 2
+m_object_orientation : -0.030719
+m_object_orientation_quality : 0.032079
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0012_0000
+m_starting_position_image : 2 73.000000 96.000000 
+m_ending_position_image : 2 73.000000 93.000000 
+m_action_number : 2
+m_object_orientation : 0.983812
+m_object_orientation_quality : 0.100183
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0013_0000
+m_starting_position_image : 2 75.000000 93.000000 
+m_ending_position_image : 2 86.000000 100.000000 
+m_action_number : 1
+m_object_orientation : 0.811209
+m_object_orientation_quality : 0.048457
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0014_0000
+m_starting_position_image : 2 65.000000 35.000000 
+m_ending_position_image : 2 93.000000 39.000000 
+m_action_number : 1
+m_object_orientation : -1.146141
+m_object_orientation_quality : 0.023959
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0014_0001
+m_starting_position_image : 2 95.000000 70.000000 
+m_ending_position_image : 2 109.000000 76.000000 
+m_action_number : 2
+m_object_orientation : 0.330837
+m_object_orientation_quality : 0.053278
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0015_0000
+m_starting_position_image : 2 84.000000 85.000000 
+m_ending_position_image : 2 103.000000 90.000000 
+m_action_number : 2
+m_object_orientation : -1.443129
+m_object_orientation_quality : 0.012765
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0015_0001
+m_starting_position_image : 2 87.000000 84.000000 
+m_ending_position_image : 2 113.000000 99.000000 
+m_action_number : 1
+m_object_orientation : 0.902139
+m_object_orientation_quality : 0.050272
+trace with name /ai/ai/mb/cdp/src/YARP/state/canonical/canonical_0015_0002
+m_starting_position_image : 2 83.000000 85.000000 
+m_ending_position_image : 2 97.000000 97.000000 
+m_action_number : 2
+m_object_orientation : 0.648640
+m_object_orientation_quality : 0.073753

@@ -1,0 +1,16 @@
+(
+sleep 2
+porter /eyecal/out/command /yapoc/in/command
+porter /YAPOC/out/position /eyecal/in/position
+porter /yarp/left/wide1 /eyecal/i:img
+porter /yarp/right/wide1 /eyecal/right/i:img
+porter /eyecal/o:img /view1
+porter /eyecal/right/o:img /view2
+) &
+on -n14 ./eyecal -auto_eyecal yes
+
+
+
+
+
+

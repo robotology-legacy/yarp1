@@ -1,0 +1,92 @@
+#!/bin/sh
+
+###
+### Switches and globals
+###
+. switches
+
+###
+### Left eye attention block
+###
+if $START_LEFT_EYE_BLOCK
+then
+
+# connect visual processing modules.
+
+
+#porter /yarp/stereo2/bgr.2 /yarp/color_segm/in/right
+#porter /yarp/stereo2/bgr.1 /yarp/color_segm/in/left
+
+porter /yarp/left/wide1 /yarp/color_segm/in/right
+porter /yarp/right/wide1 /yarp/color_segm/in/left
+
+   porter /yarp/left/wide1 /yarp/visual_attn/left/in/img
+   porter /yarp/right/wide1 /yarp/visual_attn/right/in/img
+
+   porter /yarp/left/wide1 /yarp/skin/left/in/img
+   porter /yarp/right/wide1 /yarp/skin/right/in/img
+
+#cck
+#porter /yarp/left/wide2 /yarp/optic_flow/left/in/img
+#porter /yarp/right/wide2 /yarp/optic_flow/right/in/img
+
+   porter /yarp/stereo1/bgr.1 /yarp/disparity/in/right
+   porter /yarp/stereo1/bgr.2 /yarp/disparity/in/left
+#   porter /yarp/left/wide2 /yarp/disparity/in/right
+#   porter /yarp/right/wide2 /yarp/disparity/in/left
+
+# color segmentation
+   porter /yarp/color_segm/out/right /yarp/view/color_segm/right
+   porter /yarp/color_segm/out/left /yarp/view/color_segm/left
+   porter /yarp/color_segm/out/histo /yarp/view/color_segm/histo
+
+# disparity 
+   porter /yarp/disparity/out/img /yarp/view/disparity/img
+   porter /yarp/disparity/out/histo /yarp/view/disparity/histo
+
+# connect viewers
+  if $START_LEFT_VIEWER
+  then
+	porter /yarp/visual_attn/left/out/img /yarp/view/visual_attn/left
+	porter /yarp/skin/left/out/img /yarp/view/skin/left
+#cck
+#	porter /yarp/optic_flow/left/out/img /yarp/view/motion/left
+  fi
+
+  if $START_RIGHT_VIEWER
+  then
+	porter /yarp/visual_attn/right/out/img /yarp/view/visual_attn/right
+	porter /yarp/skin/right/out/img /yarp/view/skin/right
+#cck
+#	porter /yarp/optic_flow/right/out/img /yarp/view/motion/right
+  fi
+
+fi
+
+# connect vision to attention
+porter /yarp/color_segm/out/boxl /yarp/attention/in.0.1
+porter /yarp/color_segm/out/boxr /yarp/attention/in.1.1
+
+porter /yarp/visual_attn/left/out/boxes /yarp/attention/in.2.2
+porter /yarp/visual_attn/right/out/boxes /yarp/attention/in.3.2
+
+porter /yarp/skin/left/out/boxes /yarp/attention/in.4.3
+porter /yarp/skin/right/out/boxes /yarp/attention/in.5.3
+
+#cck
+#porter /yarp/optic_flow/left/out/boxes /yarp/attention/in.6.3
+#porter /yarp/optic_flow/right/out/boxes /yarp/attention/in.7.3
+
+# connect face tracker.
+#cck
+#porter /face_tracker/o:box /yarp/attention/in.8.15
+
+# connect saliency.
+porter /yarp/attention/out/saliency /yarp/view/saliency
+
+if $USE_TRACKER
+then
+  porter /yarp/right/wide1 /attn_tracker/i:img
+  porter /attn_tracker/o:img /yarp/viewer/attn_tracker
+  porter /yarp/attention/out_dom /attn_tracker/i:pos
+fi

@@ -1,0 +1,3 @@
+Framegrabber.cpp(625): Error! E029: (col 25) symbol 'Copy' has not been declared 
+cc: /usr/watcom/10.6/bin/wpp386 exited 2
+make: *** [Framegrabber.o] Error 2

@@ -1,0 +1,2 @@
+send_image +/yarp/view/object blank.ppm
+send_image +/yarp/view/speculate blank.ppm

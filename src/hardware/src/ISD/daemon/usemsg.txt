@@ -1,0 +1,9 @@
+%C - ISD InterSense Inertial Package Daemon/Library Interface
+
+%C &
+
+Options:
+ -n process-name ["/cog/isd"]
+ -p priority     [10]
+ -V verbosity    [0]
+

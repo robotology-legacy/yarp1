@@ -1,0 +1,5 @@
+(
+  sleep 2
+  porter /yarp/speech/out /yarp/closed_loop/in/messages
+) &
+./speech_posture

@@ -1,0 +1,4 @@
+cd $YARP_ROOT/src/applications/foveal_egomap
+slay -n16 -Q foveal_egomap
+on -n16 -d foveal_egomap &
+sleep 2

@@ -1,0 +1,106 @@
+grabber version 0.91
+--------------------
+
+grabber is a QNX application which can interface with a PXC200
+framegrabber and serve the image stream it provides to other processes
+through the native QNX message-passing protocol.
+
+Suppose you have a framegrabber on node 6 of your QNX system and you
+wish to acquire 128*128 monochrome images from it at frame rate.  To
+do this with grabber:
+
+  on -n6 grabber -height 128 -width 128 -format mono -output /cam
+
+(You need to be super-user to run grabber)
+
+To request the grabber to stream its output to an input you have
+waiting called, for example, /tracker/i:image, you may use the
+"porter" command: 
+
+  porter /cam /tracker/i:image
+
+The client process that attached the name /tracker/i:image will now
+receive images in whatever format the grabber was requested to supply.
+The images, by default, are raw arrays of pixels with any header and
+tag information stripped away, since at the time of writing this is
+what all existing clients expect.
+
+Any number of client processes may request images from the grabber
+process.  A slowly responding client will not delay the rate at which
+grabber serves its other clients.
+
+The image formats that grabber currently supports are:
+  mono: Each pixel is a single byte - a grayscale value.
+  rgb:  Each pixel is three bytes - a red, green, and blue value.
+  rgba: Each pixel is four bytes - red, green, blue, and a masking 
+        value (unused).
+  bgr:  Like rgb, but with the order of the colors inverted.
+  bgra: Like rgba, but with the order of the colors inverted.
+
+The PXC200 framegrabber can supply the mono, bgr, and bgra formats.
+Serving rgb and rgba requires an extra byte-shuffling step within the
+grabber process.
+
+Here are the image formats currently in use that I am aware of,
+expressed in terms of the call to grabber needed to support them:
+
+  128x128 monochrome:
+    grabber -h 128 -w 128 -format mono -o /cam/mono
+
+  Scaz's color format:
+    grabber -h 128 -w 128 -format bgra -o /cam/color4
+
+  Paul's color format:
+    grabber -h 128 -w 128 -format rgb  -o /cam/color3
+
+  64x64 monochrome:
+    grabber -h 64  -w 64  -format mono -o /cam/mono/small
+
+Multiple image formats can be served.  For example, Kismet's
+vision system currently uses 128x128 monochrome and both
+Scaz's and Paul's color format.  Here's how to serve these:
+
+  grabber -h 128 -w 128 -format bgra   -o /cam/color4 \
+                        -reformat rgb  -o /cam/color3 \
+                        -reformat mono -o /cam/mono
+
+There is a single "-format" step, which controls the format that the
+physical framegrabber serves.  There are multiple "-reformat" steps,
+which remap the grabbed image onto the desired formats within the
+grabber process.
+
+By default, grabber scales the entire image from the framegrabber into
+the size you specify, regardless of aspect ratio.  This gives the
+client the maximum field of view.  You can change this behavior by
+using -top, -left, -right, and -bottom.  These specify what part of
+the framegrabber image to work with, and are expressed as fractions of
+the original.  Here's how to get square pixels from the PXC200
+framegrabber:
+
+  grabber -h 128 -w 128 -left 0.125 -right 0.875 -f mono -o /cam/mono
+
+or equivalently
+
+  grabber -h 128 -w 128 -square -format mono -o /cam/mono
+
+You can get timing information from grabber by adding -timer:
+
+  grabber -o /cam -timer
+
+grabber and porter are installed on apocalyse, ragnarok, and visage
+in:
+
+  /home/cog/bin
+
+This 0.91 release of grabber lacks the following: 
+ + A client library for reading the tagged image formats that grabber
+   can supply.
+     --> Now exists, but undocumented
+ + A "-rescale" option, analogous to "-reformat", for serving
+   images of multiple resolution simultaneously.
+     --> Now exists. -rescale h w
+ + Control over frame rate (60Hz, 30Hz, slower).
+
+Contact: paulfitz@ai.mit.edu, cckemp@ai.mit.edu
+         Bug reports / change requests / source patches appreciated!
+         Source in CVS under qnx/daemons/grabber (not yet stand-alone)

@@ -1,0 +1,54 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: common - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\paulfitz\LOCALS~1\Temp\RSP111.tmp" with contents
+[
+/nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /I "../../sys_include" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_MBCS" /D "__WIN__" /D "__WIN_MSVC__" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"Y:\YARP\src\os_services\winnt\YARPTime.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\paulfitz\LOCALS~1\Temp\RSP111.tmp" 
+Creating temporary file "C:\DOCUME~1\paulfitz\LOCALS~1\Temp\RSP112.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ws2_32.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/common.pdb" /debug /machine:I386 /out:"Debug/common.exe" /pdbtype:sept 
+.\Debug\common.obj
+.\Debug\StdAfx.obj
+.\Debug\BlockReceiver.obj
+.\Debug\BlockSender.obj
+.\Debug\mesh.obj
+.\Debug\Port.obj
+.\Debug\RefCounted.obj
+.\Debug\Sendable.obj
+.\Debug\socklib.obj
+.\Debug\TinySocket.obj
+.\Debug\YARPNameService.obj
+.\Debug\YARPPort.obj
+.\Debug\YARPSocket.obj
+.\Debug\YARPSocketNameService.obj
+.\Debug\YARPSocketSyncComm.obj
+.\Debug\YARPSyncComm.obj
+.\Debug\common.res
+.\Debug\YARPMultipartMessage.obj
+.\Debug\YARPNativeNameService.obj
+.\Debug\YARPScheduler.obj
+.\Debug\YARPSemaphore.obj
+.\Debug\YARPThread.obj
+.\Debug\YARPTime.obj
+]
+Creating command line "link.exe @C:\DOCUME~1\paulfitz\LOCALS~1\Temp\RSP112.tmp"
+<h3>Output Window</h3>
+Compiling...
+YARPTime.cpp
+Linking...
+
+
+
+<h3>Results</h3>
+common.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

@@ -1,0 +1,6 @@
+#!/bin/sh
+#find . -type d -exec chgrp cog {} \;
+find . -exec chgrp cog {} \;
+find . -exec chmod ug+rw {} \;
+find . -type d -exec chmod ug+rwx {} \;
+

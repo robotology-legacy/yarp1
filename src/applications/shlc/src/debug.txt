@@ -1,0 +1,1546 @@
+number of frames to load 275
+OutputSequence: can't load file description.txt
+play_from_memory: 1
+numframes: 275
+ox 16 oy 16
+Sequence has 275 frames
+processing from frame 91 to 140
+frame no 91 contact : 0
+optic flow computed
+frame no 92 contact : 0
+optic flow computed
+frame no 93 contact : 0
+optic flow computed
+frame no 94 contact : 0
+optic flow computed
+frame no 95 contact : 0
+optic flow computed
+frame no 96 contact : 0
+optic flow computed
+frame no 97 contact : 0
+optic flow computed
+frame no 98 contact : 0
+optic flow computed
+frame no 99 contact : 0
+optic flow computed
+frame no 100 contact : 0
+optic flow computed
+frame no 101 contact : 0
+optic flow computed
+frame no 102 contact : 0
+optic flow computed
+frame no 103 contact : 0
+optic flow computed
+frame no 104 contact : 0
+optic flow computed
+*** CONTACT!
+Flow = 5.34373
+frame no 105 contact : 0
+optic flow computed
+*** POST CONTACT!
+Flow = 6.032
+frame no 106 contact : 1
+optic flow computed
+vector 1: 0 -2
+vector 2: 0 -2
+vector 3: -3 0
+vector 4: 0 -2
+found 4 vectors, average -0.750000 -1.500000 2.250000
+frame no 107 contact : 0
+optic flow computed
+vector 1: 0 -2
+vector 2: -1 -2
+vector 3: 0 -2
+vector 4: 0 -2
+vector 5: 0 -2
+found 5 vectors, average -0.200000 -2.000000 2.047214
+frame no 108 contact : 0
+optic flow computed
+vector 1: 1 -2
+vector 2: 1 -2
+found 2 vectors, average 1.000000 -2.000000 2.236068
+frame no 109 contact : 0
+optic flow computed
+vector 1: -1 -2
+vector 2: 0 -2
+vector 3: 0 -2
+vector 4: 0 -2
+found 4 vectors, average -0.250000 -2.000000 2.059017
+frame no 110 contact : 0
+optic flow computed
+vector 1: -5 1
+vector 2: 0 -2
+found 2 vectors, average -2.500000 -0.500000 3.549510
+frame no 111 contact : 0
+optic flow computed
+vector 1: -1 -2
+vector 2: -1 -2
+vector 3: -1 -2
+vector 4: -1 -2
+vector 5: -2 0
+found 5 vectors, average -1.200000 -1.600000 2.188854
+frame no 112 contact : 0
+optic flow computed
+found 0 vectors, average 0.000000 0.000000 0.000000
+frame no 113 contact : 0
+optic flow computed
+frame no 114 contact : 0
+optic flow computed
+frame no 115 contact : 0
+optic flow computed
+frame no 116 contact : 0
+optic flow computed
+frame no 117 contact : 0
+optic flow computed
+frame no 118 contact : 0
+optic flow computed
+frame no 119 contact : 0
+optic flow computed
+frame no 120 contact : 0
+optic flow computed
+frame no 121 contact : 0
+optic flow computed
+frame no 122 contact : 0
+optic flow computed
+frame no 123 contact : 0
+optic flow computed
+frame no 124 contact : 0
+optic flow computed
+frame no 125 contact : 0
+optic flow computed
+frame no 126 contact : 0
+optic flow computed
+frame no 127 contact : 0
+optic flow computed
+frame no 128 contact : 0
+optic flow computed
+frame no 129 contact : 0
+optic flow computed
+frame no 130 contact : 0
+optic flow computed
+frame no 131 contact : 0
+optic flow computed
+frame no 132 contact : 0
+optic flow computed
+frame no 133 contact : 0
+optic flow computed
+frame no 134 contact : 0
+optic flow computed
+frame no 135 contact : 0
+optic flow computed
+frame no 136 contact : 0
+optic flow computed
+frame no 137 contact : 0
+optic flow computed
+frame no 138 contact : 0
+optic flow computed
+frame no 139 contact : 0
+optic flow computed
+frame no 140 contact : 0
+optic flow computed
+optic flow is poor, skipping frames
+re-processing from frame 92 to 140
+writing frame 0 to oseq
+frame no 92 contact : 0
+optic flow computed
+frame skipped
+writing frame 1 to oseq
+frame no 94 contact : 0
+optic flow computed
+frame skipped
+writing frame 2 to oseq
+frame no 96 contact : 0
+optic flow computed
+frame skipped
+writing frame 3 to oseq
+frame no 98 contact : 0
+optic flow computed
+frame skipped
+writing frame 4 to oseq
+frame no 100 contact : 0
+optic flow computed
+frame skipped
+writing frame 5 to oseq
+frame no 102 contact : 0
+optic flow computed
+frame skipped
+writing frame 6 to oseq
+frame no 104 contact : 0
+optic flow computed
+*** CONTACT!
+Flow = 5.34373
+frame skipped
+*** POST CONTACT!
+Flow = 6.032
+writing frame 7 to oseq
+frame no 106 contact : 1
+optic flow computed
+vector 1: 2 1
+vector 2: -1 -3
+vector 3: 1 -3
+vector 4: 0 -3
+vector 5: 0 -2
+vector 6: 0 -2
+vector 7: 0 -2
+found 7 vectors, average 0.285714 -2.000000 2.508660
+frame skipped
+writing frame 8 to oseq
+frame no 108 contact : 0
+optic flow computed
+vector 1: -5 -4
+vector 2: 2 0
+vector 3: 1 -2
+vector 4: 0 -2
+vector 5: -1 -3
+vector 6: -1 -3
+vector 7: -1 -3
+vector 8: -2 -2
+vector 9: -1 -3
+vector 10: -1 -3
+vector 11: -6 0
+vector 12: 0 -3
+found 12 vectors, average -1.250000 -2.333333 3.356584
+solution: a: 1.004332 b: -0.007735 t1: -0.646040 t2: -4.351485
+frame skipped
+writing frame 9 to oseq
+frame no 110 contact : 0
+optic flow computed
+vector 1: 0 -2
+vector 2: 2 0
+vector 3: 0 -2
+vector 4: 0 -2
+vector 5: -1 -3
+vector 6: -1 -3
+vector 7: 0 -3
+vector 8: -1 -2
+vector 9: -6 0
+vector 10: -1 -2
+vector 11: -1 -3
+vector 12: -1 -3
+vector 13: 0 -3
+vector 14: -1 -2
+found 14 vectors, average -0.785714 -2.142857 2.811237
+solution: a: 0.990730 b: -0.019617 t1: 4.094737 t2: -3.648804
+frame skipped
+writing frame 10 to oseq
+frame no 112 contact : 0
+optic flow computed
+vector 1: 0 -2
+vector 2: 0 -2
+vector 3: 2 1
+vector 4: -1 -3
+vector 5: 1 -3
+vector 6: -5 0
+vector 7: 0 -2
+vector 8: -2 -1
+found 8 vectors, average -0.625000 -1.500000 2.724586
+frame skipped
+writing frame 11 to oseq
+frame no 114 contact : 0
+optic flow computed
+vector 1: 1 -2
+vector 2: -1 -3
+vector 3: 0 -2
+vector 4: -1 -3
+vector 5: -1 -2
+vector 6: 0 -2
+vector 7: -2 -1
+found 7 vectors, average -0.571429 -2.142857 2.433251
+frame skipped
+writing frame 12 to oseq
+frame no 116 contact : 0
+optic flow computed
+found 0 vectors, average 0.000000 0.000000 0.000000
+frame skipped
+writing frame 13 to oseq
+frame no 118 contact : 0
+optic flow computed
+found 0 vectors, average 0.000000 0.000000 0.000000
+frame skipped
+writing frame 14 to oseq
+frame no 120 contact : 0
+optic flow computed
+frame skipped
+writing frame 15 to oseq
+frame no 122 contact : 0
+optic flow computed
+frame skipped
+writing frame 16 to oseq
+frame no 124 contact : 0
+optic flow computed
+frame skipped
+writing frame 17 to oseq
+frame no 126 contact : 0
+optic flow computed
+frame skipped
+writing frame 18 to oseq
+frame no 128 contact : 0
+optic flow computed
+frame skipped
+writing frame 19 to oseq
+frame no 130 contact : 0
+optic flow computed
+frame skipped
+writing frame 20 to oseq
+frame no 132 contact : 0
+optic flow computed
+frame skipped
+writing frame 21 to oseq
+frame no 134 contact : 0
+optic flow computed
+frame skipped
+writing frame 22 to oseq
+frame no 136 contact : 0
+optic flow computed
+frame skipped
+writing frame 23 to oseq
+frame no 138 contact : 0
+optic flow computed
+frame skipped
+writing frame 24 to oseq
+frame no 140 contact : 0
+optic flow computed
+improved? 5
+number of frames to load 276
+OutputSequence: can't load file description.txt
+numframes: 276
+ox 16 oy 16
+Sequence has 276 frames
+processing from frame 230 to 265
+frame no 230 contact : 0
+optic flow computed
+frame no 231 contact : 0
+optic flow computed
+frame no 232 contact : 0
+optic flow computed
+frame no 233 contact : 0
+optic flow computed
+frame no 234 contact : 0
+optic flow computed
+frame no 235 contact : 0
+optic flow computed
+frame no 236 contact : 0
+optic flow computed
+frame no 237 contact : 0
+optic flow computed
+frame no 238 contact : 0
+optic flow computed
+frame no 239 contact : 0
+optic flow computed
+frame no 240 contact : 0
+optic flow computed
+frame no 241 contact : 0
+optic flow computed
+frame no 242 contact : 0
+optic flow computed
+frame no 243 contact : 0
+optic flow computed
+frame no 244 contact : 0
+optic flow computed
+frame no 245 contact : 0
+optic flow computed
+frame no 246 contact : 0
+optic flow computed
+frame no 247 contact : 0
+optic flow computed
+frame no 248 contact : 0
+optic flow computed
+frame no 249 contact : 0
+optic flow computed
+frame no 250 contact : 0
+optic flow computed
+frame no 251 contact : 0
+optic flow computed
+frame no 252 contact : 0
+optic flow computed
+frame no 253 contact : 0
+optic flow computed
+frame no 254 contact : 0
+optic flow computed
+frame no 255 contact : 0
+optic flow computed
+*** CONTACT!
+Flow = 5.9479
+frame no 256 contact : 0
+optic flow computed
+*** POST CONTACT!
+Flow = 7.93541
+frame no 257 contact : 1
+optic flow computed
+vector 1: 0 -2
+vector 2: -5 -4
+vector 3: 0 -2
+vector 4: 0 -2
+vector 5: 1 -2
+vector 6: 1 -2
+vector 7: 0 -2
+vector 8: -1 -2
+vector 9: 1 -2
+vector 10: 0 -2
+vector 11: 1 -3
+vector 12: 0 -2
+vector 13: 0 -2
+vector 14: 0 -2
+vector 15: 0 -2
+vector 16: 0 -2
+vector 17: 0 -3
+vector 18: -1 -4
+vector 19: 0 -2
+vector 20: 2 -1
+vector 21: 0 -2
+vector 22: 0 -2
+vector 23: 0 -2
+vector 24: 0 -2
+found 24 vectors, average -0.041667 -2.208333 2.411202
+solution: a: 0.999844 b: 0.005781 t1: -0.745000 t2: -1.402500
+frame no 258 contact : 0
+optic flow computed
+vector 1: 3 -2
+vector 2: 0 -3
+vector 3: -5 -5
+vector 4: -2 -4
+vector 5: 0 -3
+vector 6: 0 -3
+vector 7: 0 -3
+vector 8: -1 -3
+vector 9: -1 -3
+vector 10: 0 -3
+vector 11: 0 -3
+vector 12: 0 -3
+vector 13: 0 -3
+vector 14: 0 -3
+vector 15: 1 -2
+vector 16: 0 -3
+vector 17: 0 -3
+vector 18: 0 -4
+vector 19: 0 -3
+vector 20: 0 -3
+vector 21: 0 -3
+vector 22: 0 -3
+found 22 vectors, average -0.227273 -3.090909 3.304972
+solution: a: 1.000775 b: 0.003314 t1: -0.728682 t2: -2.740465
+frame no 259 contact : 0
+optic flow computed
+vector 1: 0 -4
+vector 2: -5 -8
+vector 3: 0 -4
+vector 4: 0 -4
+vector 5: -3 -5
+vector 6: -5 -6
+vector 7: -3 -5
+vector 8: 0 -4
+vector 9: 0 -4
+vector 10: 0 -4
+vector 11: -1 -4
+vector 12: 0 -4
+vector 13: 0 -3
+vector 14: -2 0
+vector 15: 0 -4
+vector 16: 0 -4
+vector 17: 0 -4
+vector 18: 2 0
+vector 19: 0 -4
+vector 20: 0 -4
+vector 21: 0 -4
+vector 22: 0 -4
+vector 23: 0 -4
+vector 24: 0 -4
+vector 25: 0 -4
+vector 26: 0 -4
+vector 27: 0 -5
+found 27 vectors, average -0.629630 -4.000000 4.334416
+solution: a: 1.003483 b: 0.013545 t1: -2.611442 t2: -2.515738
+frame no 260 contact : 0
+optic flow computed
+vector 1: 0 -5
+vector 2: 0 -5
+vector 3: -1 -5
+vector 4: -5 -8
+vector 5: 1 -4
+vector 6: -1 -5
+vector 7: -3 -6
+vector 8: 1 -6
+vector 9: 0 -5
+vector 10: -1 -5
+vector 11: 0 -4
+vector 12: 0 -6
+vector 13: 0 -5
+vector 14: 4 0
+vector 15: 0 -6
+vector 16: -1 -6
+vector 17: -2 -7
+vector 18: -1 -4
+vector 19: -1 -6
+vector 20: 0 -5
+vector 21: -1 -5
+vector 22: 2 -3
+found 22 vectors, average -0.409091 -5.045455 5.405383
+solution: a: 1.003197 b: -0.002939 t1: -0.538507 t2: -5.786596
+frame no 261 contact : 0
+optic flow computed
+vector 1: -1 -4
+vector 2: 0 -6
+vector 3: -5 -8
+vector 4: 2 -5
+vector 5: -4 -8
+vector 6: -4 -8
+vector 7: 0 -6
+vector 8: -1 -7
+vector 9: 1 -6
+vector 10: -1 -6
+vector 11: 0 -7
+vector 12: 0 -7
+vector 13: 1 -8
+vector 14: -1 -8
+vector 15: -2 -8
+vector 16: -1 -6
+vector 17: -1 -7
+vector 18: -1 -7
+vector 19: -2 -8
+vector 20: -3 -8
+vector 21: -1 -7
+vector 22: -1 -7
+found 22 vectors, average -1.136364 -6.909091 7.163426
+solution: a: 0.984089 b: 0.000602 t1: 0.865071 t2: -5.292124
+frame no 262 contact : 0
+optic flow computed
+vector 1: 0 -4
+vector 2: 1 -5
+vector 3: 0 -6
+vector 4: -4 -8
+vector 5: -6 4
+vector 6: -3 -7
+vector 7: 4 -5
+vector 8: 0 -6
+vector 9: 0 -8
+vector 10: 0 -8
+vector 11: 8 8
+vector 12: 3 -2
+vector 13: 0 -8
+vector 14: -1 -8
+vector 15: 0 -8
+vector 16: 1 -8
+vector 17: 0 -8
+vector 18: -1 -8
+vector 19: -2 -8
+vector 20: 1 -8
+vector 21: 0 -8
+vector 22: -1 -7
+found 22 vectors, average 0.000000 -5.727273 7.352676
+solution: a: 0.978912 b: -0.005248 t1: 3.149618 t2: -4.589313
+frame no 263 contact : 0
+optic flow computed
+vector 1: 0 -4
+vector 2: -4 -6
+vector 3: -4 -6
+vector 4: 3 -4
+vector 5: 0 -5
+vector 6: 0 -5
+vector 7: 1 -8
+vector 8: 1 -7
+vector 9: 2 8
+vector 10: -1 -7
+vector 11: 2 -4
+vector 12: 0 -8
+vector 13: -1 -8
+vector 14: -4 -5
+vector 15: 8 -6
+vector 16: 1 -8
+vector 17: -1 -8
+vector 18: -1 -8
+vector 19: 4 -7
+vector 20: 6 -8
+vector 21: -2 -6
+found 21 vectors, average 0.476190 -5.714286 7.113520
+solution: a: 0.962495 b: -0.003615 t1: 5.692371 t2: -3.361772
+frame no 264 contact : 0
+optic flow computed
+frame no 265 contact : 0
+optic flow computed
+number of frames to load 266
+OutputSequence: can't load file description.txt
+numframes: 266
+ox 16 oy 16
+Sequence has 266 frames
+processing from frame 231 to 265
+frame no 231 contact : 0
+optic flow computed
+frame no 232 contact : 0
+optic flow computed
+frame no 233 contact : 0
+optic flow computed
+frame no 234 contact : 0
+optic flow computed
+frame no 235 contact : 0
+optic flow computed
+frame no 236 contact : 0
+optic flow computed
+frame no 237 contact : 0
+optic flow computed
+frame no 238 contact : 0
+optic flow computed
+frame no 239 contact : 0
+optic flow computed
+frame no 240 contact : 0
+optic flow computed
+frame no 241 contact : 0
+optic flow computed
+frame no 242 contact : 0
+optic flow computed
+frame no 243 contact : 0
+optic flow computed
+frame no 244 contact : 0
+optic flow computed
+frame no 245 contact : 0
+optic flow computed
+frame no 246 contact : 0
+optic flow computed
+*** CONTACT!
+Flow = 6.21518
+frame no 247 contact : 0
+optic flow computed
+*** POST CONTACT!
+Flow = 8.06906
+frame no 248 contact : 1
+optic flow computed
+vector 1: 4 4
+vector 2: 3 4
+vector 3: 3 3
+vector 4: 4 4
+vector 5: 4 4
+vector 6: 2 3
+vector 7: 5 3
+vector 8: 2 4
+vector 9: 2 4
+vector 10: 2 3
+vector 11: 2 3
+vector 12: 2 3
+vector 13: 4 8
+vector 14: 1 2
+vector 15: 3 4
+vector 16: -2 5
+vector 17: -2 5
+found 17 vectors, average 2.294118 3.882353 4.844782
+solution: a: 0.991041 b: -0.019599 t1: 6.638870 t2: 3.549276
+frame no 249 contact : 0
+optic flow computed
+vector 1: 4 4
+vector 2: 5 2
+vector 3: 2 3
+vector 4: 1 2
+vector 5: 2 4
+vector 6: 1 5
+vector 7: 2 5
+vector 8: 6 3
+vector 9: 2 5
+vector 10: 4 4
+vector 11: 2 3
+vector 12: 2 5
+vector 13: 2 3
+vector 14: 3 4
+vector 15: 3 3
+vector 16: 2 3
+vector 17: 3 4
+vector 18: 2 4
+vector 19: 2 4
+vector 20: 1 3
+vector 21: 3 4
+vector 22: 4 6
+vector 23: -1 6
+found 23 vectors, average 2.478261 3.869565 4.801524
+solution: a: 1.004276 b: -0.005194 t1: 2.934107 t2: 2.494124
+frame no 250 contact : 0
+optic flow computed
+vector 1: 3 4
+vector 2: 4 3
+vector 3: 2 3
+vector 4: 2 4
+vector 5: 2 4
+vector 6: 2 4
+vector 7: 3 4
+vector 8: 4 3
+vector 9: 1 2
+vector 10: 5 3
+vector 11: 2 2
+vector 12: 2 4
+vector 13: 3 4
+vector 14: 1 3
+vector 15: 7 5
+vector 16: 1 3
+vector 17: 4 7
+found 17 vectors, average 2.823529 3.647059 4.728158
+solution: a: 1.006338 b: -0.004500 t1: 3.000270 t2: 2.058792
+frame no 251 contact : 0
+optic flow computed
+vector 1: 2 4
+vector 2: 4 3
+vector 3: 2 3
+vector 4: -1 4
+vector 5: 2 4
+vector 6: 3 4
+vector 7: 3 4
+vector 8: 3 4
+vector 9: 2 4
+vector 10: 2 3
+vector 11: 3 4
+found 11 vectors, average 2.272727 3.727273 4.522783
+solution: a: 1.015776 b: 0.004906 t1: -0.922705 t2: 1.625604
+frame no 252 contact : 0
+optic flow computed
+vector 1: 5 3
+vector 2: 5 3
+vector 3: 1 4
+vector 4: 2 4
+vector 5: 2 4
+vector 6: 2 4
+vector 7: 2 4
+vector 8: 2 3
+vector 9: -1 2
+vector 10: 2 5
+vector 11: 3 5
+vector 12: 1 2
+vector 13: 2 1
+vector 14: -3 -5
+found 14 vectors, average 1.785714 2.785714 4.359598
+solution: a: 0.995492 b: -0.003818 t1: 3.074103 t2: 3.136776
+frame no 253 contact : 0
+optic flow computed
+vector 1: -2 3
+vector 2: 1 3
+vector 3: 2 3
+vector 4: 1 3
+vector 5: 2 3
+vector 6: 2 3
+vector 7: 4 2
+vector 8: 4 2
+vector 9: 6 1
+vector 10: 1 3
+vector 11: 2 4
+vector 12: 1 2
+vector 13: 1 2
+found 13 vectors, average 1.923077 2.615385 3.683103
+solution: a: 1.003872 b: -0.001564 t1: 1.725907 t2: 1.676471
+frame no 254 contact : 0
+optic flow computed
+vector 1: 1 2
+vector 2: 2 1
+vector 3: 2 1
+vector 4: 1 2
+vector 5: 1 2
+vector 6: 1 2
+vector 7: 1 2
+vector 8: -1 2
+vector 9: 2 2
+vector 10: 2 2
+found 10 vectors, average 1.200000 1.800000 2.354540
+solution: a: 1.012856 b: 0.000198 t1: -0.525316 t2: -0.683544
+frame no 255 contact : 0
+optic flow computed
+frame no 256 contact : 0
+optic flow computed
+frame no 257 contact : 0
+optic flow computed
+frame no 258 contact : 0
+optic flow computed
+frame no 259 contact : 0
+optic flow computed
+frame no 260 contact : 0
+optic flow computed
+frame no 261 contact : 0
+optic flow computed
+frame no 262 contact : 0
+optic flow computed
+frame no 263 contact : 0
+optic flow computed
+frame no 264 contact : 0
+optic flow computed
+frame no 265 contact : 0
+optic flow computed
+number of frames to load 324
+OutputSequence: can't load file description.txt
+numframes: 324
+number of frames to load 259
+OutputSequence: can't load file description.txt
+numframes: 259
+number of frames to load 259
+OutputSequence: can't load file description.txt
+numframes: 259
+ox 16 oy 16
+Sequence has 259 frames
+processing from frame 220 to 258
+frame no 220 contact : 0
+optic flow computed
+frame no 221 contact : 0
+optic flow computed
+frame no 222 contact : 0
+optic flow computed
+frame no 223 contact : 0
+optic flow computed
+frame no 224 contact : 0
+optic flow computed
+frame no 225 contact : 0
+optic flow computed
+frame no 226 contact : 0
+optic flow computed
+frame no 227 contact : 0
+optic flow computed
+frame no 228 contact : 0
+optic flow computed
+frame no 229 contact : 0
+optic flow computed
+frame no 230 contact : 0
+optic flow computed
+frame no 231 contact : 0
+optic flow computed
+frame no 232 contact : 0
+optic flow computed
+frame no 233 contact : 0
+optic flow computed
+frame no 234 contact : 0
+optic flow computed
+frame no 235 contact : 0
+optic flow computed
+frame no 236 contact : 0
+optic flow computed
+frame no 237 contact : 0
+optic flow computed
+frame no 238 contact : 0
+optic flow computed
+frame no 239 contact : 0
+optic flow computed
+frame no 240 contact : 0
+optic flow computed
+*** CONTACT!
+Flow = 7.4122
+frame no 241 contact : 0
+optic flow computed
+*** POST CONTACT!
+Flow = 9.31059
+frame no 242 contact : 1
+optic flow computed
+vector 1: 1 3
+vector 2: 3 3
+vector 3: 5 2
+vector 4: 4 2
+vector 5: 3 1
+vector 6: 0 -6
+vector 7: 3 3
+vector 8: 3 3
+vector 9: 4 3
+vector 10: 4 3
+vector 11: 4 3
+vector 12: 4 2
+vector 13: 3 2
+vector 14: 4 3
+vector 15: 4 3
+vector 16: 4 2
+vector 17: 4 2
+vector 18: 4 3
+vector 19: 4 3
+vector 20: 4 3
+vector 21: 4 3
+vector 22: 4 3
+vector 23: 4 1
+vector 24: 2 2
+vector 25: 2 -5
+vector 26: 8 2
+vector 27: 3 1
+found 27 vectors, average 3.555556 1.851852 4.654701
+solution: a: 1.001001 b: 0.011778 t1: 1.376322 t2: 3.339894
+frame no 243 contact : 0
+optic flow computed
+vector 1: 6 2
+vector 2: 2 3
+vector 3: 3 2
+vector 4: 2 -1
+vector 5: 3 3
+vector 6: 4 3
+vector 7: 5 3
+vector 8: 4 3
+vector 9: 4 3
+vector 10: 4 2
+vector 11: 3 2
+vector 12: 2 3
+vector 13: 3 3
+vector 14: 4 4
+vector 15: 4 3
+vector 16: 4 2
+vector 17: 4 1
+vector 18: -1 4
+vector 19: 4 2
+vector 20: 4 3
+vector 21: 4 4
+vector 22: 5 2
+vector 23: 4 1
+vector 24: 8 5
+vector 25: 4 3
+vector 26: 4 3
+vector 27: 6 2
+vector 28: 5 2
+vector 29: 5 3
+vector 30: 4 3
+found 30 vectors, average 3.900000 2.600000 4.891944
+solution: a: 1.013446 b: 0.012230 t1: -0.240334 t2: 1.923547
+frame no 244 contact : 0
+optic flow computed
+vector 1: 2 3
+vector 2: 3 2
+vector 3: 2 1
+vector 4: 3 3
+vector 5: 1 4
+vector 6: 3 3
+vector 7: 4 3
+vector 8: 3 2
+vector 9: 2 3
+vector 10: 3 3
+vector 11: 4 7
+vector 12: 4 3
+vector 13: 4 3
+vector 14: 4 3
+vector 15: 4 3
+vector 16: 3 0
+vector 17: -1 4
+vector 18: 5 1
+vector 19: 3 1
+vector 20: 4 3
+vector 21: 4 2
+vector 22: 4 2
+vector 23: 0 2
+vector 24: 4 3
+vector 25: 4 3
+vector 26: 4 3
+vector 27: 2 4
+vector 28: 5 2
+vector 29: 3 -1
+vector 30: -3 8
+vector 31: 5 5
+vector 32: 4 2
+vector 33: 4 1
+found 33 vectors, average 3.030303 2.757576 4.549398
+solution: a: 1.016509 b: 0.014115 t1: -2.046919 t2: 1.778025
+frame no 245 contact : 0
+optic flow computed
+vector 1: 2 2
+vector 2: 0 4
+vector 3: -8 7
+vector 4: 3 4
+vector 5: 2 4
+vector 6: 4 3
+vector 7: 4 2
+vector 8: 3 3
+vector 9: 4 3
+vector 10: 3 2
+vector 11: 3 2
+vector 12: 4 2
+vector 13: 2 2
+vector 14: -3 2
+vector 15: 2 1
+vector 16: 3 2
+vector 17: 3 2
+vector 18: -2 4
+vector 19: -8 1
+vector 20: 4 4
+vector 21: 4 3
+vector 22: 3 3
+vector 23: 4 2
+vector 24: 5 6
+vector 25: 6 2
+vector 26: 4 2
+found 26 vectors, average 1.961538 2.846154 4.758571
+solution: a: 1.017269 b: 0.011202 t1: -2.719147 t2: 1.216873
+frame no 246 contact : 0
+optic flow computed
+vector 1: 2 2
+vector 2: 1 3
+vector 3: -3 5
+vector 4: 2 3
+vector 5: 3 3
+vector 6: 3 3
+vector 7: 3 3
+vector 8: 4 3
+vector 9: 3 2
+vector 10: 4 2
+vector 11: 2 3
+vector 12: 2 3
+vector 13: -1 4
+vector 14: 3 4
+vector 15: 3 3
+vector 16: 2 2
+vector 17: 3 2
+vector 18: 7 0
+vector 19: -6 -3
+vector 20: 3 3
+vector 21: 3 2
+vector 22: 3 3
+vector 23: 4 2
+vector 24: 3 0
+vector 25: 5 6
+vector 26: -2 -7
+vector 27: 4 3
+vector 28: 3 3
+vector 29: 0 4
+vector 30: 4 1
+found 30 vectors, average 2.233333 2.233333 4.465697
+solution: a: 0.994263 b: 0.001737 t1: 2.754000 t2: 3.613639
+frame no 247 contact : 0
+optic flow computed
+vector 1: 0 3
+vector 2: 2 1
+vector 3: 2 2
+vector 4: 2 2
+vector 5: 5 1
+vector 6: 3 2
+vector 7: 2 1
+vector 8: 1 2
+vector 9: 2 3
+vector 10: 2 2
+vector 11: 7 -1
+vector 12: 2 3
+vector 13: 3 2
+vector 14: 3 2
+vector 15: 5 0
+vector 16: -2 5
+vector 17: 3 2
+vector 18: 3 2
+vector 19: 2 1
+vector 20: 4 4
+vector 21: 3 2
+vector 22: 3 2
+vector 23: 4 0
+found 23 vectors, average 2.652174 1.869565 3.699636
+solution: a: 1.002450 b: 0.004437 t1: 1.411585 t2: 2.066638
+frame no 248 contact : 0
+optic flow computed
+vector 1: -2 3
+vector 2: -3 4
+vector 3: -5 5
+vector 4: 2 1
+vector 5: 2 2
+vector 6: 1 2
+vector 7: 2 2
+vector 8: 2 0
+vector 9: 2 2
+vector 10: 1 2
+vector 11: 2 1
+vector 12: 2 0
+found 12 vectors, average 0.500000 2.000000 3.092181
+solution: a: 0.981545 b: 0.010335 t1: 1.413386 t2: 7.295276
+frame no 249 contact : 0
+optic flow computed
+frame no 250 contact : 0
+optic flow computed
+frame no 251 contact : 0
+optic flow computed
+frame no 252 contact : 0
+optic flow computed
+frame no 253 contact : 0
+optic flow computed
+frame no 254 contact : 0
+optic flow computed
+frame no 255 contact : 0
+optic flow computed
+frame no 256 contact : 0
+optic flow computed
+frame no 257 contact : 0
+optic flow computed
+frame no 258 contact : 0
+optic flow computed
+frame no 0 contact : 0
+frame no 1 contact : 0
+frame no 2 contact : 0
+frame no 3 contact : 0
+frame no 4 contact : 0
+frame no 5 contact : 0
+frame no 6 contact : 0
+frame no 7 contact : 0
+frame no 8 contact : 0
+frame no 9 contact : 0
+frame no 10 contact : 0
+frame no 11 contact : 0
+frame no 12 contact : 0
+frame no 13 contact : 0
+frame no 14 contact : 0
+frame no 15 contact : 0
+frame no 16 contact : 0
+frame no 17 contact : 0
+frame no 18 contact : 0
+frame no 19 contact : 0
+frame no 20 contact : 0
+frame no 21 contact : 0
+frame no 22 contact : 0
+frame no 23 contact : 0
+frame no 24 contact : 0
+frame no 25 contact : 0
+frame no 26 contact : 0
+frame no 27 contact : 0
+frame no 28 contact : 0
+frame no 29 contact : 0
+frame no 30 contact : 0
+frame no 31 contact : 0
+frame no 32 contact : 0
+frame no 33 contact : 0
+frame no 34 contact : 0
+frame no 35 contact : 0
+frame no 36 contact : 0
+frame no 37 contact : 0
+frame no 38 contact : 0
+frame no 39 contact : 0
+frame no 40 contact : 0
+frame no 41 contact : 0
+frame no 42 contact : 0
+frame no 43 contact : 0
+frame no 44 contact : 0
+frame no 45 contact : 0
+frame no 46 contact : 0
+frame no 47 contact : 0
+frame no 48 contact : 0
+frame no 49 contact : 0
+frame no 50 contact : 0
+frame no 51 contact : 0
+frame no 52 contact : 0
+frame no 53 contact : 0
+frame no 54 contact : 0
+frame no 55 contact : 0
+frame no 56 contact : 0
+frame no 57 contact : 0
+frame no 58 contact : 0
+frame no 59 contact : 0
+frame no 60 contact : 0
+frame no 61 contact : 0
+frame no 62 contact : 0
+frame no 63 contact : 0
+frame no 64 contact : 0
+frame no 65 contact : 0
+frame no 66 contact : 0
+frame no 67 contact : 0
+frame no 68 contact : 0
+frame no 69 contact : 0
+frame no 70 contact : 0
+frame no 71 contact : 0
+frame no 72 contact : 0
+frame no 73 contact : 0
+frame no 74 contact : 0
+frame no 75 contact : 0
+frame no 76 contact : 0
+frame no 77 contact : 0
+frame no 78 contact : 0
+frame no 79 contact : 0
+frame no 80 contact : 0
+frame no 81 contact : 0
+frame no 82 contact : 0
+frame no 83 contact : 0
+frame no 84 contact : 0
+frame no 85 contact : 0
+frame no 86 contact : 0
+frame no 87 contact : 0
+frame no 88 contact : 0
+frame no 89 contact : 0
+frame no 90 contact : 0
+frame no 91 contact : 0
+frame no 92 contact : 0
+frame no 93 contact : 0
+frame no 94 contact : 0
+frame no 95 contact : 0
+frame no 96 contact : 0
+frame no 97 contact : 0
+frame no 98 contact : 0
+frame no 99 contact : 0
+frame no 100 contact : 0
+frame no 101 contact : 0
+frame no 102 contact : 0
+frame no 103 contact : 0
+frame no 104 contact : 0
+frame no 105 contact : 0
+frame no 106 contact : 0
+frame no 107 contact : 0
+frame no 108 contact : 0
+frame no 109 contact : 0
+frame no 110 contact : 0
+frame no 111 contact : 0
+frame no 112 contact : 0
+frame no 113 contact : 0
+frame no 114 contact : 0
+frame no 115 contact : 0
+frame no 116 contact : 0
+frame no 117 contact : 0
+frame no 118 contact : 0
+frame no 119 contact : 0
+frame no 120 contact : 0
+frame no 121 contact : 0
+frame no 122 contact : 0
+frame no 123 contact : 0
+frame no 124 contact : 0
+frame no 125 contact : 0
+frame no 126 contact : 0
+frame no 127 contact : 0
+frame no 128 contact : 0
+frame no 129 contact : 0
+frame no 130 contact : 0
+frame no 131 contact : 0
+frame no 132 contact : 0
+frame no 133 contact : 0
+frame no 134 contact : 0
+frame no 135 contact : 0
+frame no 136 contact : 0
+frame no 137 contact : 0
+frame no 138 contact : 0
+frame no 139 contact : 0
+frame no 140 contact : 0
+frame no 141 contact : 0
+frame no 142 contact : 0
+frame no 143 contact : 0
+frame no 144 contact : 0
+frame no 145 contact : 0
+frame no 146 contact : 0
+frame no 147 contact : 0
+frame no 148 contact : 0
+frame no 149 contact : 0
+frame no 150 contact : 0
+frame no 151 contact : 0
+frame no 152 contact : 0
+frame no 153 contact : 0
+frame no 154 contact : 0
+frame no 155 contact : 0
+frame no 156 contact : 0
+frame no 157 contact : 0
+frame no 158 contact : 0
+frame no 159 contact : 0
+frame no 160 contact : 0
+frame no 161 contact : 0
+frame no 162 contact : 0
+frame no 163 contact : 0
+frame no 164 contact : 0
+frame no 165 contact : 0
+frame no 166 contact : 0
+frame no 167 contact : 0
+frame no 168 contact : 0
+frame no 169 contact : 0
+frame no 170 contact : 0
+frame no 171 contact : 0
+frame no 172 contact : 0
+frame no 173 contact : 0
+frame no 174 contact : 0
+frame no 175 contact : 0
+frame no 176 contact : 0
+frame no 177 contact : 0
+frame no 178 contact : 0
+frame no 179 contact : 0
+frame no 180 contact : 0
+frame no 181 contact : 0
+frame no 182 contact : 0
+frame no 183 contact : 0
+frame no 184 contact : 0
+frame no 185 contact : 0
+frame no 186 contact : 0
+frame no 187 contact : 0
+frame no 188 contact : 0
+frame no 189 contact : 0
+frame no 190 contact : 0
+frame no 191 contact : 0
+frame no 192 contact : 0
+frame no 193 contact : 0
+frame no 194 contact : 0
+frame no 195 contact : 0
+frame no 196 contact : 0
+frame no 197 contact : 0
+frame no 198 contact : 0
+frame no 199 contact : 0
+frame no 200 contact : 0
+frame no 201 contact : 0
+frame no 202 contact : 0
+frame no 203 contact : 0
+frame no 204 contact : 0
+frame no 205 contact : 0
+frame no 206 contact : 0
+frame no 207 contact : 0
+frame no 208 contact : 0
+frame no 209 contact : 0
+frame no 210 contact : 0
+frame no 211 contact : 0
+frame no 212 contact : 0
+frame no 213 contact : 0
+frame no 214 contact : 0
+frame no 215 contact : 0
+frame no 216 contact : 0
+frame no 217 contact : 0
+frame no 218 contact : 0
+frame no 219 contact : 0
+frame no 220 contact : 0
+frame no 221 contact : 0
+frame no 222 contact : 0
+frame no 223 contact : 0
+frame no 224 contact : 0
+frame no 225 contact : 0
+frame no 226 contact : 0
+frame no 227 contact : 0
+frame no 228 contact : 0
+frame no 229 contact : 0
+frame no 230 contact : 0
+frame no 231 contact : 0
+frame no 232 contact : 0
+frame no 233 contact : 0
+frame no 234 contact : 0
+frame no 235 contact : 0
+frame no 236 contact : 0
+frame no 237 contact : 0
+frame no 238 contact : 0
+frame no 239 contact : 0
+frame no 240 contact : 0
+*** CONTACT!
+Flow = 7.4122
+frame no 241 contact : 0
+*** POST CONTACT!
+Flow = 9.31059
+frame no 242 contact : 1
+frame no 243 contact : 0
+frame no 244 contact : 0
+frame no 245 contact : 0
+frame no 246 contact : 0
+frame no 247 contact : 0
+frame no 248 contact : 0
+frame no 249 contact : 0
+frame no 250 contact : 0
+frame no 251 contact : 0
+frame no 252 contact : 0
+frame no 253 contact : 0
+frame no 254 contact : 0
+frame no 255 contact : 0
+frame no 256 contact : 0
+frame no 257 contact : 0
+frame no 258 contact : 0
+numframes: 259
+number of frames to load 273
+OutputSequence: can't load file description.txt
+numframes: 273
+number of frames to load 273
+OutputSequence: can't load file description.txt
+numframes: 273
+ox 16 oy 16
+Sequence has 273 frames
+processing from frame 230 to 272
+frame no 230 contact : 0
+optic flow computed
+frame no 231 contact : 0
+optic flow computed
+frame no 232 contact : 0
+optic flow computed
+frame no 233 contact : 0
+optic flow computed
+frame no 234 contact : 0
+optic flow computed
+frame no 235 contact : 0
+optic flow computed
+frame no 236 contact : 0
+optic flow computed
+frame no 237 contact : 0
+optic flow computed
+frame no 238 contact : 0
+optic flow computed
+frame no 239 contact : 0
+optic flow computed
+frame no 240 contact : 0
+optic flow computed
+frame no 241 contact : 0
+optic flow computed
+frame no 242 contact : 0
+optic flow computed
+frame no 243 contact : 0
+optic flow computed
+frame no 244 contact : 0
+optic flow computed
+frame no 245 contact : 0
+optic flow computed
+frame no 246 contact : 0
+optic flow computed
+frame no 247 contact : 0
+optic flow computed
+frame no 248 contact : 0
+optic flow computed
+frame no 249 contact : 0
+optic flow computed
+frame no 250 contact : 0
+optic flow computed
+frame no 251 contact : 0
+optic flow computed
+frame no 252 contact : 0
+optic flow computed
+frame no 253 contact : 0
+optic flow computed
+frame no 254 contact : 0
+optic flow computed
+*** CONTACT!
+Flow = 7.5872
+frame no 255 contact : 0
+optic flow computed
+*** POST CONTACT!
+Flow = 8.87895
+frame no 256 contact : 1
+optic flow computed
+vector 1: 6 5
+vector 2: 2 5
+vector 3: 1 5
+vector 4: 1 6
+vector 5: 2 6
+vector 6: 1 5
+vector 7: 2 6
+vector 8: 1 5
+vector 9: 1 6
+vector 10: 1 5
+vector 11: 1 5
+vector 12: 1 5
+vector 13: -4 6
+vector 14: 0 7
+vector 15: 2 7
+vector 16: 1 6
+vector 17: 0 5
+vector 18: -1 7
+vector 19: 2 6
+vector 20: -1 7
+vector 21: 2 5
+found 21 vectors, average 1.000000 5.714286 6.049048
+solution: a: 1.001160 b: -0.015432 t1: 3.495668 t2: 3.209158
+frame no 257 contact : 0
+optic flow computed
+vector 1: 0 5
+vector 2: -3 5
+vector 3: 1 5
+vector 4: -3 5
+vector 5: 2 5
+vector 6: 1 5
+vector 7: 1 6
+vector 8: 1 6
+vector 9: 0 4
+vector 10: -1 5
+vector 11: -1 6
+vector 12: 1 7
+vector 13: 0 5
+vector 14: 0 4
+vector 15: -1 7
+vector 16: -2 7
+vector 17: 0 6
+found 17 vectors, average -0.235294 5.470588 5.647921
+solution: a: 1.015447 b: -0.012910 t1: -0.230769 t2: 0.560541
+frame no 258 contact : 0
+optic flow computed
+vector 1: 0 5
+vector 2: 4 6
+vector 3: 0 5
+vector 4: 7 2
+vector 5: -5 8
+vector 6: -1 8
+vector 7: 1 6
+vector 8: 1 6
+vector 9: 0 3
+vector 10: 0 5
+vector 11: 1 2
+vector 12: 0 5
+vector 13: -4 6
+vector 14: -8 6
+vector 15: 0 6
+vector 16: 8 5
+vector 17: 0 6
+vector 18: -1 5
+vector 19: 6 7
+found 19 vectors, average 0.473684 5.368421 6.439615
+solution: a: 1.013069 b: -0.012097 t1: 0.910714 t2: 1.297811
+frame no 259 contact : 0
+optic flow computed
+vector 1: 6 5
+vector 2: 4 6
+vector 3: 1 6
+vector 4: 0 7
+vector 5: 1 8
+vector 6: 0 5
+vector 7: 1 4
+vector 8: -1 4
+vector 9: -6 7
+vector 10: -8 5
+vector 11: 1 8
+vector 12: 1 8
+vector 13: 0 2
+vector 14: 0 5
+vector 15: -5 6
+vector 16: -8 7
+vector 17: 0 8
+vector 18: 3 8
+vector 19: 6 5
+vector 20: 7 8
+vector 21: 2 7
+vector 22: -1 5
+found 22 vectors, average 0.181818 6.090909 7.136116
+solution: a: 1.020391 b: -0.014446 t1: 0.022799 t2: -0.035377
+frame no 260 contact : 0
+optic flow computed
+vector 1: -2 5
+vector 2: 0 5
+vector 3: 1 5
+vector 4: 0 5
+vector 5: 0 5
+vector 6: 0 6
+vector 7: 0 5
+vector 8: -2 5
+vector 9: -3 4
+vector 10: 0 5
+vector 11: 0 6
+vector 12: 0 7
+vector 13: 0 6
+vector 14: 0 3
+vector 15: -8 4
+vector 16: 2 7
+vector 17: 1 7
+vector 18: 0 8
+found 18 vectors, average -0.611111 5.444444 5.842489
+solution: a: 1.012214 b: -0.023794 t1: 2.515228 t2: -0.543147
+frame no 261 contact : 0
+optic flow computed
+vector 1: -1 3
+vector 2: 6 3
+vector 3: -1 2
+vector 4: 2 2
+vector 5: 2 2
+vector 6: 1 2
+vector 7: 0 2
+vector 8: 8 3
+vector 9: 1 2
+vector 10: 1 2
+vector 11: 1 2
+vector 12: 1 2
+vector 13: 1 2
+vector 14: 1 2
+vector 15: 1 2
+vector 16: 0 2
+vector 17: 1 2
+vector 18: 1 2
+found 18 vectors, average 1.444444 2.166667 2.926005
+solution: a: 0.986247 b: 0.002116 t1: 2.937712 t2: 5.312119
+frame no 262 contact : 0
+optic flow computed
+vector 1: 6 0
+vector 2: 7 0
+vector 3: -2 -1
+vector 4: 2 0
+found 4 vectors, average 3.250000 -0.250000 4.309017
+frame no 263 contact : 0
+optic flow computed
+frame no 264 contact : 0
+optic flow computed
+frame no 265 contact : 0
+optic flow computed
+frame no 266 contact : 0
+optic flow computed
+frame no 267 contact : 0
+optic flow computed
+frame no 268 contact : 0
+optic flow computed
+frame no 269 contact : 0
+optic flow computed
+frame no 270 contact : 0
+optic flow computed
+frame no 271 contact : 0
+optic flow computed
+frame no 272 contact : 0
+optic f^^^ native name lookup of /yarp/right/fovea2
+^^^ native name lookup of /yarp/closed_loop/p_out
+^^^ native name lookup of /yarp/arm_thread/p_out
+^^^ source /yarp/msg/o:msg does not exist, so will not try to connect
+low computed

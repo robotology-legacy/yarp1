@@ -1,0 +1,2 @@
+#define MAXVIRTUALAXES 30
+#define N_PICGAINPARAM 4

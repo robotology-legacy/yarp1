@@ -1,0 +1,356 @@
+#!/usr/bin/perl
+
+$| = 1;
+
+sub Via2DecItem
+{
+    my $via = shift;
+    my $dec = uc($via);
+    $dec = " $dec ";
+    $dec =~ s/ ([A-Z])D / $1 /g;
+
+#AA          The "ah" sound in "are", "car", "far", that is 
+#            followed by "r-like" sounds, but NOT as in "pot",
+#            "hot", or "cot".
+
+    $dec =~ s/ AA / :a /g;
+
+#AE          The A sound, as in "add", "cat", or "pan".
+
+    $dec =~ s/ AE / :A /g;
+
+#AH          The stressed "uh" sound, as in "one" or "come", but NOT
+#            as in "obtain" or "alarm".
+
+    $dec =~ s/ AH / :H /g;
+
+#AO          The short O sound, as in "all", "off", or "caution", and 
+#            also the "ah" sound in "pot", "hot", and "cot".
+
+    $dec =~ s/ AO / :c /g;
+
+#AW          The "au" sound, as in "how", "about", and "lout".
+
+    $dec =~ s/ AW / :a :w /g;
+
+#AX          The unstressed "uh" sound, as in "seven" or "accept", but 
+#            NOT as in "enter".
+
+    $dec =~ s/ AX / :X /g;
+
+#AXR         The unstressed "er" sound, as in "another", "over", but NOT
+#            as in "fur".
+
+    $dec =~ s/ AXR / :R /g;
+
+#AY          The long I sound, as in "fire", "why", and "eye".
+
+    $dec =~ s/ AY / :Y /g;
+
+#B           The B sound as in "be" or "able".
+
+    $dec =~ s/ B / :b /g;
+
+#CH          The "ch" sound as in "cheap".
+
+    $dec =~ s/ CH / :C /g;
+
+#D           The D sound, as in "and" or "David".
+
+    $dec =~ s/ D / :d /g;
+
+#DH          The voiced "th" sound, as in "the" or "either", but NOT as 
+#            in "the-sis" or "thing".
+
+    $dec =~ s/ DH / :D /g;
+
+#DX          The very short T or D sound, as in "butter", "greater", or
+#            "regard-ing".
+
+    $dec =~ s/ DX / :F /g;
+
+#EH          The stressed "eh" sound, as in "enter", "check", or 
+#            "pleasant", but NOT as in "moment".
+
+    $dec =~ s/ EH / :E /g;
+
+#ER          The stressed "er" sound, as in "refer", "turn", or "her", 
+#            but NOT as in "another".
+
+    $dec =~ s/ ER / :R /g;
+
+#EY          The long A sound, as in "became", "train", or "eight".
+
+    $dec =~ s/ EY / :e /g;
+
+#F           The F sound, as in "father" or "rough".
+
+    $dec =~ s/ F / :f /g;
+
+#G           The hard G sound, as in "again" or "Peg".
+
+    $dec =~ s/ G / :g /g;
+
+#HH          The H sound, as in "here" or "who".
+
+    $dec =~ s/ HH / :h /g;
+
+#IH          The stressed short I sound, as in "it", "if", or "pick", 
+#            but NOT as in "lasting".
+
+    $dec =~ s/ IH / :I /g;
+
+#IX          The unstressed short I sound, as in "discuss", "budgeted",
+#            "decided", or "saving", but NOT as in "it".
+
+    $dec =~ s/ IX / :X /g;
+
+#IY          The long E sound, as in "anyone", "obvious", or "highly".
+
+    $dec =~ s/ IY / :i /g;
+
+#JH          The "j" sound, as in "jeep".
+
+    $dec =~ s/ JH / :J /g;
+
+#K           The K sound not at the beginning of a word, as in 
+#            "because", "dark", or "scale".
+
+    $dec =~ s/ K / :k /g;
+
+#L           The L sound, as in "level" or "parallel".
+
+    $dec =~ s/ L / :l /g;
+
+#M           The M sound, as in "am" or "must".
+
+    $dec =~ s/ M / :m /g;
+
+#N           The N sound starting or the unaccented N in the middle of a 
+#            word, as in "final", "not", or "none".
+
+    $dec =~ s/ N / :n /g;
+
+#NG          The N followed by G or K sound, as in "bang", "think", or 
+#            "singing".
+
+    $dec =~ s/ NG / :G /g;
+
+#OW          The long O sound, as in "quote", "open", or "go".
+
+    $dec =~ s/ OW / :o /g;
+
+#OY          The "oi" or long I sound, as in "avoid", "employ", or 
+#            "boy".
+
+    $dec =~ s/ OY / :c :y /g;
+
+#P           The P sound, as in "place", "potato", "adoption", "amps", 
+#            or "rapid".
+
+    $dec =~ s/ P / :p /g;
+
+#R           The R followed by a vowel sound in the same syllable, as in
+#            "abroad", "brace", or "read".
+
+    $dec =~ s/ R / :r /g;
+
+#S           The S not followed by H sound, as in "sit", "circus", or 
+#            "decide".
+
+    $dec =~ s/ S / :s /g;
+
+#SH          The "sh" sound, as in "action", "shade", "beach", or 
+#            "splash".
+
+    $dec =~ s/ SH / :S /g;
+
+#T           The T (not TH) sound not at the beginning of a word, as in 
+#            "adapter", "retry", or "lets".
+
+    $dec =~ s/ T / :t /g;
+
+#TH          The unvoiced "th" sound, as in "thesis" or "thing", but NOT 
+#            as in "the" or "either".
+
+    $dec =~ s/ TH / :T /g;
+
+#TS          The "t s" sound at the end of a word.
+
+    $dec =~ s/ TS / :t :s /g;
+
+#UH          The short U sound, as in "good", "put", "full", or "could".
+
+    $dec =~ s/ UH / :H /g;
+
+#UW          The stressed long U sound, as in "to", "use", "you", or 
+#            "view".
+
+    $dec =~ s/ UW / :u /g;
+
+#V           The V sound, as in "eleven", "improve", or "very".
+
+    $dec =~ s/ V / :v /g;
+
+#W           The W sound, as in "frequent", "question", "way", or 
+#            "anywhere".
+
+    $dec =~ s/ W / :w /g;
+
+#Y           The y sound that leads into a vowel, as in "emulate", 
+#            "senior",
+#            "yes", or "you".
+
+    $dec =~ s/ Y / :y /g;
+
+#Z           The Z sound, as in "pans", "goes", or "zero".
+
+    $dec =~ s/ Z / :z /g;
+
+#ZH          The "zh" sound, as in "azure", "Asia", or "measure".
+
+    $dec =~ s/ ZH / :Z /g;
+
+#    $dec =~ tr/A-Z/a-z/;
+    $dec =~ s/://g;
+    return $dec;
+}
+
+sub Via2DecPhrase
+{
+    my $via = shift;
+    my @lst = split(' ',$via);
+    my $txt = "";
+    foreach $item (@lst)
+    {
+	if ($item =~ /^phn_(.*)/)
+	{
+	    $txt .= " // ";
+	    $item = $1;
+	    my $t = 0;
+	    if ($item =~ /<([^>]+)>/)
+	    {
+		$t = $1;
+		$item =~ s/<[^>]*>//g;
+	    }
+	    $item =~ s/_/ /g;
+	    my $dec = Via2DecItem($item);
+	    my @decs = split(' ',$dec);
+	    my $ttag = "";
+	    if ($t>$400)  # Bug! Can't change it now, demo -paulfitz
+	    {
+		$td = int($t/($#decs+1));
+		if ($td>150)
+		{
+		    $ttag = "<$td>";
+		}
+	    }
+	    foreach $d (@decs)
+	    {
+		$txt = $txt . "[$d$ttag] ";
+	    }
+	}
+	else
+	{
+	    $txt = $txt . "$item ";
+	}
+    }
+#    $txt =~ s/\] +\[//g;
+#    $txt =~ s/ +$//;
+    return $txt;
+}
+
+sub ValidForBabble
+{
+  my $txt = shift;
+  my $more = 1;
+  $txt =~ s/ /_/g;
+  $org = $txt;
+#  if ($txt =~ /(\[[^\n\r]+\])/)
+  if (0)
+  {
+      $txt = $1;
+      $rep = quotemeta($rep);
+      while ($more)
+      {
+	  $more = 0;
+	  if ($txt =~ /([aeiouy][a-z])[a-z\]]/)
+	  {
+	      $src = $1;
+	      $dest = uc($src);
+	      $txt =~ s/$src/${dest}_/;
+	      $more = 1;
+	  }
+      }
+      $txt = lc($txt);
+      while ($txt =~ /([a-z])_/)
+      {
+	  $src = $1;
+	  $txt =~ s/($src)_/${src}<240>/;
+      }
+      $org =~ s/$rep/$txt/;
+      $txt = $org;
+  }
+  $txt =~ s/\]( |_)+\[//g;
+  $txt =~ s/( |_)+$//;
+  return $txt;
+}
+
+while (<>)
+{
+    chop;
+    if ($_ =~ /(.*)/)
+    {
+#	print "# in: $1\n";
+	$txt = $1;
+	$source = $txt;
+	$phn = $txt;
+
+#	print STDERR "PHASE 1  $phn\n";
+	
+	$dec = Via2DecPhrase($phn);
+#	print "# step2: $dec\n";
+
+#	print STDERR "PHASE 2  $dec\n";
+       
+	$dec =~ s/ /_/g;
+	$dec = ValidForBabble($dec);
+
+
+#	print STDERR "PHASE 3  $dec\n";
+	
+#	print "# Phonemes: $phn (Dec=$dec)\n";
+#	print "heard_full $dec\n";
+#	print STDERR "heard_full $dec\n";
+
+#need next line if want consistent annotation of word
+	$dec =~ s/\<[^\>]*\>//g;
+
+	$dec =~ s/\[/\`\[\.1/g;
+	$dec =~ s/[_\/]/ /g;
+	$dec =~ s/ +/ /g;
+	$dec =~ s/^ +//g;
+	$dec =~ s/ +$//g;
+	print "$source\n$dec\n";
+
+#	if ($dec =~ /\[([^\]]*)\]/)
+#	{
+#	    $beef = $1;
+#	    print "`[.1$beef]\n";
+#	}
+
+#.	print STDERR "heard $dec\n";
+    }
+    if ($_ =~ /^\*\*\* ([^\n\r]+)/)
+    {
+#	print "$1\n";
+	print STDERR "$1\n";
+    }
+    if (0)
+    {
+#	print "# $_\n";
+    }
+}
+
+
+

@@ -1,0 +1,5 @@
+  on -n10 slay -Q oh_behave
+  on -n10 -d oh_behave &
+  
+
+			      

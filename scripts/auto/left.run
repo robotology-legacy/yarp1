@@ -1,0 +1,5 @@
+#include "grabbers.run"
+
+deployas 17 visual_attn visual_attn +/yarp/visual_attn/left 
+deployas 19 optic_flow optic_flow +/yarp/optic_flow/left -p 
+deployas 17 skin skin +/yarp/skin/left 

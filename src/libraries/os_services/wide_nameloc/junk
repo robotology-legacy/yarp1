@@ -1,0 +1,39 @@
+Starting up socket nameloc service on port 4200
+Server socket open on host 0.0.0.0, port 4200
+888888 pre accept 3
+### Waiting for new data
+>>> accepting a new socket 4 (from in 3)
+888888 post accept 3
+888888 pre pushback 3
+888888 post pushback 3
+$$$ changing from -1 to 4
+888888 pre postbegin 3
+*** listener 4 waiting
+>>>> header created with size 8
+>>>> len part has size 4
+>>>> one char has size 1
+Reading for pid 4
+888888 post postbegin 3
+   pid 4...
+Read loop 4: 8
+Got 8 bytes of 8
+*** got a header
+*** and i am owned
+$$$ Declaring data available
+### Got new data
+### Identified source of new data
+### Waking up source of new data
+### Waiting for buffer write
+888888 pre accept 3
+*** woken up!
+Reading for pid 4
+Read loop 4: 21
+Got 21 bytes of 21
+$$$ Declaring data written
+@@@ got data 21/21
+Reading for pid 4
+Read loop 4: 21
+Got 21 bytes of 21
+=== checking local system for /foveal_egomap/i:img
+=== Found something!
+Server socket open on host 0.0.0.0, port 1960
