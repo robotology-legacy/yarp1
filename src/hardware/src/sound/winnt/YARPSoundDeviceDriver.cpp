@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.12 2004-05-18 10:10:18 beltran Exp $
+//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.13 2004-05-24 12:55:21 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -419,7 +419,9 @@ SoundResources::_select_control(unsigned int control_type)
 								 MIXER_GETLINECONTROLSF_ONEBYTYPE);
 	
 	if (m_err != MMSYSERR_NOERROR) 
-		printf("yarpsounddriver: %s has no mute control!\n", m_mixerLine.szName);
+		printf("yarpsounddriver: %s has no %s control!\n", 
+			   m_mixerLine.szName, 
+			   m_mixerLineControls.pamxctrl->szName);
 	
 	return YARP_OK;
 }
@@ -658,7 +660,8 @@ YARPSoundDeviceDriver::set_mute(void *cmd)
 	//----------------------------------------------------------------------
 	//  Select the mute control in the selected line
 	//----------------------------------------------------------------------
-	d._select_control(MIXERCONTROL_CONTROLTYPE_MUTE);
+	//d._select_control(MIXERCONTROL_CONTROLTYPE_MUTE);
+	d._select_control(MIXERCONTROL_CONTROLTYPE_ONOFF);
 	
 	mixerControlDetails.cbStruct    = sizeof(MIXERCONTROLDETAILS);
 	mixerControlDetails.dwControlID = d.m_mixerControlArray.dwControlID;
