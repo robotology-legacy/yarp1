@@ -1,4 +1,4 @@
-// $ID$
+// $Id: YARPControlBoardUtils.cpp,v 1.4 2003-06-20 12:58:47 natta Exp $
 #include <YARPControlBoardUtils.h>
 
 // operator overload for the LowLevelPID class. These are used only within 
