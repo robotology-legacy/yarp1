@@ -74,7 +74,7 @@ public:
 		return YARP_OK;
 	}
 
-	int setPositions(double *pos)
+	int setPositions(const double *pos)
 	{
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++)
@@ -88,7 +88,7 @@ public:
 		return -1;
 	}
 
-	int setVelocities(double *vel)
+	int setVelocities(const double *vel)
 	{
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) {
@@ -102,7 +102,7 @@ public:
 		_unlock();
 		return -1;
 	}
-	int setAccs(double *acc)
+	int setAccs(const double *acc)
 	{
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) {
@@ -117,7 +117,7 @@ public:
 		return -1;
 	}
 
-	int velocityMove(double *vel)
+	int velocityMove(const double *vel)
 	{
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) {
@@ -132,7 +132,7 @@ public:
 		return -1;
 	}
 
-	int setCommands(double *pos)
+	int setCommands(const double *pos)
 	{
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) {
@@ -238,9 +238,9 @@ int YARPGenericComponent<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *fin
 	currentPos = new double[_parameters._nj];
 	
 	// set command "here"
-	getPositions(currentPos);
-	setCommands(currentPos);
-		
+	// getPositions(currentPos);
+	// setCommands(currentPos);
+
 	for(int i = 0; i < _parameters._nj; i++) {
 		SingleAxisParameters cmd;
 		cmd.axis = i;
