@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNetworkTypes.h,v 1.4 2004-08-21 17:53:46 gmetta Exp $
+/// $Id: YARPNetworkTypes.h,v 1.5 2004-12-11 18:05:03 micheletavella Exp $
 ///
 ///
 
@@ -90,6 +90,13 @@
 	 * Definition of the NetInt32 type for Linux/gcc.
 	 */
 	typedef int32_t NetInt32;
+#endif
+
+#ifdef __DARWIN__
+        /**
+         * Definition of the NetInt32 type for Darwin/gcc.
+         */
+        typedef int32_t NetInt32;
 #endif
 
 #ifdef __QNX__
