@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.40 2003-09-09 11:02:05 babybot Exp $
+/// $Id: main.cpp,v 1.41 2003-10-31 10:31:16 babybot Exp $
 ///
 ///
 
@@ -200,6 +200,13 @@ int ParseParams (int argc, char *argv[])
 	else
 	if (_sizex == -1 && _sizey == -1)
 		_sizex = _sizey = 128;
+
+	using namespace _logpolarParams;
+	if (_logp)
+	{
+		_sizex = _xsize;
+		_sizey = _ysize;
+	}
 
 	return YARP_OK; 
 }

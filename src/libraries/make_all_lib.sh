@@ -18,6 +18,8 @@ then
 	echo "$PHRASE ACE DLL."
 	cd ./ACE_wrappers/ace/
 	make $MODE 
+	make yarpize
+# SPECIAL for ACE
 	cd ../../
 fi
 echo "$PHRASE Math."
@@ -131,7 +133,7 @@ Check()
 {
 if [ $1 -eq 0 ]         # Test exit status of "cmp" command.
 then
-  echo "COMMAND SUCCESSFULL"
+  echo "COMMAND SUCCESSFUL"
 else  
   echo "ERROR DETECTED"
   exit 0
