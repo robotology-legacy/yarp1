@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.26 2003-07-31 15:34:09 babybot Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.27 2003-07-31 21:40:08 gmetta Exp $
 ///
 ///
 
@@ -474,7 +474,7 @@ int YARPSocketEndpointManager::Close (YARPUniqueNameID& dest)
 		}
 	}
 
-	if (sock->GetIdentifier() == ACE_INVALID_HANDLE)
+///	if (sock->GetIdentifier() == ACE_INVALID_HANDLE)
 	{
 		int pid = my_gettid();
 		_endpointmanager.mutex.Wait();

@@ -52,11 +52,16 @@ BOOL CCamviewApp::InitInstance()
 		/// adds the leading /
 		m_portname = "/" + m_portname;
 	}
+	
 	m_out_portname = "/view/o:point";
 	if (cmdInfo.GetOption("out", m_out_portname )) 
 	{ 
 		/// adds the leading /
-		m_out_portname  = "/" + m_out_portname ;
+		m_out_portname = "/" + m_out_portname ;
+	}
+	else
+	{
+		m_out_portname = m_portname + "/out";
 	}
 
 	CString speriod;

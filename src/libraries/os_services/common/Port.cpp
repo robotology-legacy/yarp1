@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.49 2003-07-31 06:51:14 gmetta Exp $
+/// $Id: Port.cpp,v 1.50 2003-07-31 21:40:08 gmetta Exp $
 ///
 ///
 
@@ -676,11 +676,6 @@ void _strange_select::Body ()
 
 void Port::Body()
 {
-#ifdef __QNX6__
-///	signal (SIGCHLD, SIG_IGN);
-///	signal (SIGPIPE, SIG_IGN);
-#endif
-
 	int tag = 0;
 	char *buf = NULL;
 	Fragments cmd;
@@ -695,6 +690,7 @@ void Port::Body()
 	name_set = 1;
 
 	/// LATER: must actually jump to the end of the thread for proper cleanup instead of returning.
+	/// this is the registration section.
 	switch (protocol_type)
 	{
 	case YARP_QNET:
@@ -1128,8 +1124,9 @@ void Port::Body()
 						}
 					}
 
-					/// this is added here, automatically ask for an end.
-					/// sort of extra param for DETACH_ALL message.
+					/// automatically ask for the end of the thread.
+					/// sort of extra param for DETACH_ALL message, just post on the end
+					/// mutex.
 					if (buf[0] == 1)
 						YARPThread::AskForEnd();
 
@@ -1154,11 +1151,14 @@ void Port::Body()
 			OnRead();
 			call_on_read = 0;
 		}
-	} /// if it's valid
+	} /// if !terminated
 
 	/// since this is started in this thread
 	/// close it here also.
 	tsender.End ();
+
+	/// tries to shut down the input socket threads.
+	YARPEndpointManager::Close (*pid);
 
 	/// unregister the port name here.
 	YARPNameService::UnregisterName (pid);
@@ -1362,12 +1362,16 @@ int Port::Say(const char *buf)
 		if (protocol_type == YARP_MCAST)
 		{
 			self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+			self_id->setServiceType (YARP_TCP);
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
 		}
 		else
 		{
 			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+			if (self_id->getServiceType() != YARP_QNET)
+				self_id->setServiceType (YARP_TCP);
+
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
 		}
@@ -1379,12 +1383,16 @@ int Port::Say(const char *buf)
 		if (protocol_type == YARP_MCAST)
 		{
 			self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+			self_id->setServiceType (YARP_TCP);
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
 		}
 		else
 		{
 			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+			if (self_id->getServiceType() != YARP_QNET)
+				self_id->setServiceType (YARP_TCP);
+
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
 		}
@@ -1413,12 +1421,17 @@ int Port::SaySelfEnd(void)
 		if (protocol_type == YARP_MCAST)
 		{
 			self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+			self_id->setServiceType (YARP_TCP);
+
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
 		}
 		else
 		{
 			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+			if (self_id->getServiceType() != YARP_QNET)
+				self_id->setServiceType (YARP_TCP);
+
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
 		}
@@ -1430,12 +1443,17 @@ int Port::SaySelfEnd(void)
 		if (protocol_type == YARP_MCAST)
 		{
 			self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+			self_id->setServiceType (YARP_TCP);
+
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
 		}
 		else
 		{
 			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+			if (self_id->getServiceType() != YARP_QNET)
+				self_id->setServiceType (YARP_TCP);
+
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
 		}
@@ -1445,8 +1463,10 @@ int Port::SaySelfEnd(void)
 	{
 		if (self_id->isValid())
 		{
-			char c = 1;
-			result = SendHelper (*self_id, &c, sizeof(char), MSG_ID_DETACH_ALL);
+			char c[2];
+			c[0] = 1;
+			c[1] = 0;
+			result = SendHelper (*self_id, c, 2*sizeof(char), MSG_ID_DETACH_ALL);
 		}
 	
 		/// deletes the endpoint.

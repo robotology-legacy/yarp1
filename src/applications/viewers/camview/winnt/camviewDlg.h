@@ -112,6 +112,8 @@ public:
 		m_rect.bottom = b;
 		m_mutex.Post();
 	}
+
+	void TryClosePort () { m_inport.Unregister(); }
 };
 
 ///

@@ -168,6 +168,8 @@ void CRecv::Body (void)
 			YARPTime::DelayInSeconds ((m_period - 2)* 1e-3);
 		}
 	}
+
+	///m_inport.Unregister();
 }
 
 void CRecv::SaveCurrentFrame (const char *filename)
@@ -532,8 +534,11 @@ void CCamviewDlg::OnClose()
 {
 	DrawDibClose (m_drawdib);
 
-	m_receiver.End (1000);
-	CDialog::OnClose();
+	m_receiver.AskForEnd ();
+///	m_receiver.TryClosePort ();
+///	m_outPort.Unregister ();
+
+	CDialog::OnClose ();
 }
 
 void CCamviewDlg::OnQuit() 

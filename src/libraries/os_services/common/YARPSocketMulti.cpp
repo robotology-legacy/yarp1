@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.9 2003-07-31 06:51:14 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.10 2003-07-31 21:40:08 gmetta Exp $
 ///
 ///
 
@@ -338,7 +338,7 @@ public:
 ///
 ///
 ///
-class _SocketThreadListMulti : public YARPBareThread
+class _SocketThreadListMulti : public YARPThread
 {
 private:
 	ACE_INET_Addr _local_addr;						/// local address of the acceptor.
@@ -388,9 +388,31 @@ public:
 
 	virtual void Body (void)
 	{
-		while (1)
+		while (!IsTerminated())
 		{
 			addSocket();
+		}
+	}
+
+	virtual void End (int donkill = 0)
+	{
+		if (_initialized)
+		{
+			ACE_SOCK_Connector connector;
+			ACE_SOCK_Stream stream;
+			ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+			int r = connector.connect (stream, _local_addr, 0, &timeout);
+			if (r < 0)
+			{
+				/// not much else I can do anyway.
+				YARPThread::End(0);
+				return;
+			}
+
+			MyMessageHeader hdr;
+			hdr.SetBad ();
+			stream.send_n (&hdr, sizeof(hdr), 0);
+			stream.close ();
 		}
 	}
 
@@ -1221,21 +1243,17 @@ void _SocketThreadMulti::BodyShmem (void)
 				while (_read_more)
 				{
 					int rr = 0;
-
-					/// this was r too, a bit confusing.
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read more data\n"));
 
-#if 0
 					if (_extern_reply_length == 0)
 					{
-						///YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? read 0 len buffer, not waiting\n"));
-						///rr = stream.recv_n (_extern_reply_buffer, 0, 0);
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? read 0 len buffer\n"));
+						rr = stream.recv_n (_extern_reply_buffer, 0, 0);
 					}
 					else
 					{
-#endif
 						rr = stream.recv_n (_extern_reply_buffer, _extern_reply_length, 0); 
-///					}
+					}
 
 					_extern_reply_length = rr;
 					_read_more = 0;
@@ -1897,20 +1915,7 @@ void _SocketThreadListMulti::addSocket (void)
 		/// checks whether <incoming> already tried a connection
 		///		and it is still connected.
 		list<_SocketThreadMulti *>::iterator it_avail;
-#if 0
-		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
-		{
-			if (!(*it_avail)->isAvailable ())
-			{
-				if ((*it_avail)->getRemoteID().getAddressRef().get_host_addr() == incoming.get_host_addr() &&
-					(*it_avail)->getRemoteID().getAddressRef().get_port_number() == incoming.get_port_number())
-				{
-					ACE_DEBUG ((LM_DEBUG, "thread already connected %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
-					break;
-				}
-			}
-		}
-#endif
+
 		/// check accept return value.
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
@@ -2007,20 +2012,7 @@ void _SocketThreadListMulti::addSocket (void)
 		/// checks whether <incoming> already tried a connection
 		///		and it is still connected.
 		list<_SocketThreadMulti *>::iterator it_avail;
-#if 0
-		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
-		{
-			if (!(*it_avail)->isAvailable ())
-			{
-				if ((*it_avail)->getRemoteID().getAddressRef().get_host_addr() == group.get_host_addr() &&
-					(*it_avail)->getRemoteID().getAddressRef().get_port_number() == group.get_port_number())
-				{
-					ACE_DEBUG ((LM_DEBUG, "thread already connected %s:%d\n", group.get_host_addr(), group.get_port_number()));
-					break;
-				}
-			}
-		}
-#endif
+ 
 		/// check accept return value.
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
@@ -2095,20 +2087,7 @@ void _SocketThreadListMulti::addSocket (void)
 		/// checks whether <incoming> already tried a connection
 		///		and it is still connected.
 		list<_SocketThreadMulti *>::iterator it_avail;
-#if 0
-		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
-		{
-			if (!(*it_avail)->isAvailable ())
-			{
-				if ((*it_avail)->getRemoteID().getAddressRef().get_host_addr() == incoming.get_host_addr() &&
-					(*it_avail)->getRemoteID().getAddressRef().get_port_number() == incoming.get_port_number())
-				{
-					ACE_DEBUG ((LM_DEBUG, "thread already connected %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
-					break;
-				}
-			}
-		}
-#endif
+
 		/// check accept return value.
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
@@ -2258,6 +2237,8 @@ void _SocketThreadListMulti::addSocket (void)
 
 		stream->close ();
 		delete stream;
+
+		AskForEnd();
 	}
 }
 

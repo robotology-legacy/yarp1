@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.12 2003-07-30 22:43:06 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.13 2003-07-31 21:40:08 gmetta Exp $
 ///
 ///
 
@@ -306,8 +306,14 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 	}
 
 	YARPUniqueNameID* id = YARPNameService::LocateName (src_name);
-	/// go always in TCP mode for the connection creation procedure.
-	id->setServiceType (YARP_TCP);
+
+	if (id->getServiceType() != YARP_QNET)
+	{
+		/// go always in TCP mode for the connection creation procedure.
+		/// if it's QNET does a QNET connection.
+		id->setServiceType (YARP_TCP);
+	}
+
 	YARPEndpointManager::CreateOutputEndpoint (*id);
 	YARPEndpointManager::ConnectEndpoints (*id);
 
