@@ -13,9 +13,143 @@
 
 using namespace _logpolarParams;
 
+YARPLogpolar _mapper;
+
+struct circle
+{
+	circle()
+	{
+		r = new int [_srho*_stheta];
+		t = new int [_srho*_stheta];
+	}
+	~circle()
+	{
+		delete [] r;
+		delete [] t;
+	}
+
+	void reset()
+	{ n = 0; }
+
+	void add(int T, int R)
+	{ 
+		r[n] = R;
+		t[n] = T;
+		n++;
+	}
+
+	int *r;
+	int *t;
+	int n;
+};
+
+void findCircle(int T0, int R0, double R, circle &out)
+{
+	out.reset();
+	int theta;
+	int rho2;
+	int rho1;
+	int r0;
+	r0 = _mapper.CsiToRo(R0);
+	for(theta = 0; theta < _logpolarParams::_stheta; theta++)
+	{
+		double c = cos((theta-T0)/_q);
+		double DELTA = (r0*r0*(c*c-1) + R*R);
+		if (DELTA>=0)
+		{
+			int r = (r0*c+sqrt(DELTA)) + 0.5;
+			if (r > 0)
+			{
+				rho2 = _mapper.RoToCsi(r);
+				if ((rho2>(_logpolarParams::_srho-1)))
+				{
+					rho2 = _logpolarParams::_srho-1;
+				}
+				else if (rho2<0)
+					rho2 = 0;
+
+				int p;
+				for(p = r0; p<=rho2; p++)
+					out.add(theta, p);
+			}
+			
+			r = (r0*c-sqrt(DELTA)) + 0.5;
+			if (r > 0)
+			{
+				rho1 = _mapper.RoToCsi(r);
+				if ((rho1>(_logpolarParams::_srho-1)))
+				{
+					rho1 = _logpolarParams::_srho-1;
+				}
+				else if (rho1<0)
+					rho1 = 0;
+			
+				int p;
+				for(p = rho1; p<=r0; p++)
+					out.add(theta, p);
+			}
+		}
+	}
+}
+
+class YARPHandSegmentation
+{
+public:
+	YARPHandSegmentation (double lumaTh, unsigned char max, unsigned char min, unsigned char n):
+	  histo(max, min, n)
+	  {}
+	  YARPHandSegmentation (double lumaTh, unsigned char max, unsigned char min, unsigned char *n):
+	  histo(max, min, n)
+	  {}
+
+	void search(YARPImageOf<YarpPixelHSV> &src, YARPImageOf<YarpPixelMono> &backpr, YARPImageOf<YarpPixelMono> &out, YARPLpHistoSegmentation &target, double R)
+	{
+		// perform complete search over the image
+		// just plot image
+		int r;
+		int t;
+		for(r = 0; r<_srho; r++)
+			for(t = 0; t<_stheta; t++)
+			{
+			//	if ( backpr(t,r) > 200)
+				{
+					findCircle(t, r, R, points);
+					cumulateRegion(src, points);
+					// now histo is the histogram of the current circle
+					double p = intersect(target);
+					out(t,r) = unsigned char (p*255 + 0.5);
+				}
+			}
+	}
+		
+	void cumulateRegion(YARPImageOf<YarpPixelHSV> &src, circle &points)
+	{
+		int m;
+		histo.clean();
+		for(m = 0; m < points.n; m++)
+		{
+			YarpPixelHSV pixel = src(points.t[m], points.r[m]);
+			// later check weight
+			histo.Apply(pixel.h, pixel.s, 0, 1);
+		}
+	}
+
+	double intersect(YARPLpHistoSegmentation &target)
+	{
+		// later
+		return 0;
+	}
+
+	circle points;
+	YARP3DHistogram histo;
+};
+
+using namespace _logpolarParams;
+
 int main(int argc, char* argv[])
 {
 	YARPLpHistoSegmentation _histo(5, 255, 0, 10);
+	YARPHandSegmentation _hand(5, 255, 0, 10);
 
 	YARPInputPortOf<YARPGenericImage> _inPortImage(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 	YARPInputPortOf<YARPGenericImage> _inPortSeg(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
@@ -42,8 +176,11 @@ int main(int argc, char* argv[])
 	_leftHSV.Resize(_stheta, _srho);
 
 	YARPImageOf<YarpPixelMono> _outSeg;
+	YARPImageOf<YarpPixelMono> _outSeg2;
 	// YARPImageOf<YarpPixelMono> _blobs;
 	_outSeg.Resize(_stheta, _srho);
+	_outSeg2.Resize(_stheta, _srho);
+
 	// _blobs.Resize(_stheta, _srho);
 
 	YARPLogpolar _mapper;
@@ -76,7 +213,11 @@ int main(int argc, char* argv[])
 		
 		YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
 		_histo.backProjection(_leftHSV, _outSeg);
-		
+
+		// _outSeg.Zero();
+
+		_hand.search(_leftHSV, _outSeg, _outSeg2, _histo, 20);
+				
 		_outPortSeg.Content().Refer(_outSeg);
 		_outPortSeg.Write();
 

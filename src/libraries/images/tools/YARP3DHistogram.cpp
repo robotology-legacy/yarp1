@@ -18,7 +18,7 @@ Histo3D::~Histo3D()
 void Histo3D::clean()
 {
 	int i;
-	_maximum = 0.0;
+	_maximum = 1.0;
 	
 	if (_lut != NULL)
 	{
@@ -106,7 +106,7 @@ void Histo1D:: resize(unsigned char max, unsigned char min, unsigned char size)
 
 void Histo1D::clean()
 {
-	_maximum = 0.0;
+	_maximum = 1.0;
 		
 	if (_lut != NULL)
 	{
