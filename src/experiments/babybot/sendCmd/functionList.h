@@ -1,7 +1,7 @@
 
-#include <yarp/YARPBottle.h>
+#include <yarp/YARPBabyBottle.h>
 
-typedef bool (*myFunction)(const YBVocab &vocab, YARPBottle &bottle);
+typedef bool (*myFunction)(const YBVocab &vocab, YARPBabyBottle &bottle);
 
 struct COMMAND_TABLE_ENTRY
 {
@@ -22,10 +22,10 @@ typedef COMMAND_TABLE::iterator COMMAND_TABLE_IT;
 														tmp.f = MYFUNCTION;\
 														_commands.push_back(tmp);}
 
-bool sendSimpleVocab(const YBVocab &vocab, YARPBottle &bottle);
-bool sendArmJointCommand(const YBVocab &vocab, YARPBottle &bottle);
-bool sendHeadJointCommand(const YBVocab &vocab, YARPBottle &bottle);
-bool sendHandJointCommand(const YBVocab &vocab, YARPBottle &bottle);
-bool sendHandKinematicsView(const YBVocab &vocab, YARPBottle &bottle);
-bool sendString(const YBVocab &vocab, YARPBottle &);
+bool sendSimpleVocab(const YBVocab &vocab, YARPBabyBottle &bottle);
+bool sendArmJointCommand(const YBVocab &vocab, YARPBabyBottle &bottle);
+bool sendHeadJointCommand(const YBVocab &vocab, YARPBabyBottle &bottle);
+bool sendHandJointCommand(const YBVocab &vocab, YARPBabyBottle &bottle);
+bool sendHandKinematicsView(const YBVocab &vocab, YARPBabyBottle &bottle);
+bool sendString(const YBVocab &vocab, YARPBabyBottle &);
 

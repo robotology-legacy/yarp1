@@ -1,19 +1,25 @@
+
+
 #include "functionList.h"
-#include <yarp/YARPVocab.h>
+#include <yarp/YARPConfigRobot.h>
+#include <yarp/YARPRobotMath.h>
+#include <iostream>
+using namespace std;
+
 
 const int __armJoints = 6;
 const int __headJoints = 5;
 const int __handJoints = 6;
 
 // just send a vocab
-bool sendSimpleVocab(const YBVocab &vocab, YARPBottle &bottle)
+bool sendSimpleVocab(const YBVocab &vocab, YARPBabyBottle &bottle)
 {
 	bottle.writeVocab(vocab);
 	return true;
 }
 
 // send a vocab command followed by a YVector (arm)
-bool sendArmJointCommand(const YBVocab &vocab, YARPBottle &bottle)
+bool sendArmJointCommand(const YBVocab &vocab, YARPBabyBottle &bottle)
 {
 	bottle.writeVocab(vocab);
 	cout << "Arm command requires now " << __armJoints << " joint position (grad)\n";
@@ -30,7 +36,7 @@ bool sendArmJointCommand(const YBVocab &vocab, YARPBottle &bottle)
 }
 
 // send a vocab command followed by a YVector (head)
-bool sendHeadJointCommand(const YBVocab &vocab, YARPBottle &bottle)
+bool sendHeadJointCommand(const YBVocab &vocab, YARPBabyBottle &bottle)
 {
 	bottle.writeVocab(vocab);
 	cout << "Head command requires now " << __headJoints << " joint position (grad)\n";
@@ -47,7 +53,7 @@ bool sendHeadJointCommand(const YBVocab &vocab, YARPBottle &bottle)
 }
 
 // send a vocab command followed by a YVector (hand)
-bool sendHandJointCommand(const YBVocab &vocab, YARPBottle &bottle)
+bool sendHandJointCommand(const YBVocab &vocab, YARPBabyBottle &bottle)
 {
 	bottle.writeVocab(vocab);
 	cout << "Hand command requires now " << __handJoints << " joint position (grad)\n";
@@ -64,7 +70,7 @@ bool sendHandJointCommand(const YBVocab &vocab, YARPBottle &bottle)
 }
 
 // send a vocab, ask for two double
-bool sendHandKinematicsView(const YBVocab &vocab, YARPBottle &bottle)
+bool sendHandKinematicsView(const YBVocab &vocab, YARPBabyBottle &bottle)
 {
 	bottle.writeVocab(vocab);
 	cout << "Command requires now two double (azimuth, elevation)\n";
@@ -77,7 +83,7 @@ bool sendHandKinematicsView(const YBVocab &vocab, YARPBottle &bottle)
 	return true;
 }
 
-bool sendString(const YBVocab &vocab, YARPBottle &bottle)
+bool sendString(const YBVocab &vocab, YARPBabyBottle &bottle)
 {
 	bottle.writeVocab(vocab);
 	cout << "Command now requires a string\n";

@@ -4,10 +4,12 @@
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBabyBottle.h>
 #include <yarp/YARPConfigRobot.h>
+#include <iostream>
+using namespace std;
 
 #include "functionList.h"
 
-YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPOutputPortOf<YARPBabyBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 COMMAND_TABLE _commands;
 
 void _fillTable()
@@ -107,7 +109,7 @@ void _help()
 	cout << "------------------------\n";
 }
 
-bool _parse(const YARPString &c, YARPBottle &b)
+bool _parse(const YARPString &c, YARPBabyBottle &b)
 {
 	COMMAND_TABLE_IT it(_commands);
 	while(!it.done())
@@ -131,7 +133,7 @@ int main(int argc, char* argv[])
 	_fillTable();
 	
 	_outPort.Register("/motorcmd/o");
-	YARPBottle tmp;
+	YARPBabyBottle tmp;
 	tmp.setID(YBVMotorLabel);	// set bottle label
 	YARPString c;
 	bool quit = false;

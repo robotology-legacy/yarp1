@@ -147,7 +147,7 @@ foreach $directory (glob "*")
 	}
 }
 
-foreach $directory (qw/ headcontrol armcontrol /) #(glob "*")
+foreach $directory (qw/ headcontrol armcontrol sendCmd repeater /) #(glob "*")
 {
 	if (-d $directory && !(-d "$directory/src") && !(-d "$directory/include/yarp"))
 	{
