@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSemaphore.cpp,v 1.3 2003-04-18 09:25:49 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPSemaphore.cpp,v 1.4 2003-04-27 21:57:42 gmetta Exp $
 ///
 ///
 ///

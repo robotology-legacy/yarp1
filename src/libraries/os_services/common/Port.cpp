@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.9 2003-04-24 08:49:32 gmetta Exp $
+/// $Id: Port.cpp,v 1.10 2003-04-27 21:57:41 gmetta Exp $
 ///
 ///
 
@@ -149,7 +149,7 @@ int Port::SayServer (const YARPNameID& pid, const char *buf)
 	int result = YARP_FAIL;
 	if (pid.isValid())
 	{
-		result = SendHelper (pid, buf, strlen(buf)+1, MSG_ID_NULL);
+		result = SendHelper (pid, buf, ACE_OS::strlen(buf)+1, MSG_ID_NULL);
 	}
 	return result;
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.5 2003-04-24 16:54:44 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.6 2003-04-27 21:57:41 gmetta Exp $
 ///
 ///
 
@@ -151,7 +151,7 @@ int YARPNameService::ConnectNameServer(const char *name)
 			while (!fin.eof() && !is_connected)
 			{
 				fin.getline(aux_name,sizeof(aux_name));
-				if (strchr(aux_name,'|')!=NULL)
+				if (ACE_OS::strchr(aux_name,'|')!=NULL)
 				{
 					//		  fprintf(stderr, 
 					//			  "Trying name server \"%s\"...\n", 
@@ -190,7 +190,7 @@ int ConnectNameServer(YARPOutputSocket& namer)
 	  while (!fin.eof() && !is_connected)
 	    {
 	      fin.getline(aux_name,sizeof(aux_name));
-	      if (strchr(aux_name,'|')!=NULL)
+		  if (ACE_OS::strchr(aux_name,'|')!=NULL)
 		{
        //	  fprintf(stderr, 
 //			  "Trying name server \"%s\"...\n", 
@@ -304,11 +304,11 @@ YARPUniqueNameID YARPNameService::RegisterName(const char *name, int reg_type, i
 				NameServiceHeader hdr;
 				hdr.port = in_port;
 				hdr.machine_length = 0;
-				hdr.key_length = strlen(name)+1;
+				hdr.key_length = ACE_OS::strlen(name)+1;
 				hdr.spare2 = hdr.spare1 = -1;
 				char hostname[256] = "localhost";
 				YARPNetworkObject::GetHostName(hostname,sizeof(hostname));
-				hdr.machine_length = strlen(hostname)+1;
+				hdr.machine_length = ACE_OS::strlen(hostname)+1;
 				hdr.request_type = NAME_REGISTER;
 
 				mutex.Wait();
@@ -363,7 +363,7 @@ YARPUniqueNameID YARPNameService::LocateName(const char *name)
 #if 0
   YARPNameID all_result;
 
-  if (strchr(name,'|')==NULL)
+  if (ACE_OS::strchr(name,'|')==NULL)
     {
       if (native && YARPNativeNameService::IsNonTrivial())
 	{
@@ -381,7 +381,7 @@ YARPUniqueNameID YARPNameService::LocateName(const char *name)
 	  NameServiceHeader hdr;
 	  hdr.port = 0;
 	  hdr.machine_length = 0;
-	  hdr.key_length = strlen(name)+1;
+	  hdr.key_length = ACE_OS::strlen(name)+1;
 	  hdr.spare2 = hdr.spare1 = -1;
 	  hdr.request_type = NAME_LOOKUP;
 	  

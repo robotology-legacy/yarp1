@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: strng.h,v 1.4 2003-04-22 09:06:36 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: strng.h,v 1.5 2003-04-27 21:57:41 gmetta Exp $
 ///
 ///
 
@@ -63,13 +72,9 @@
 #include <ace/config.h>
 #include <ace/Log_Msg.h>
 
-#include <stdlib.h>
-#include <string.h>
-///#include <assert.h>
-
-//#include "String.h"
-
-
+///
+///
+///
 class String
 {
 private:
@@ -80,7 +85,7 @@ public:
 	String ( const char *val ) 
 	{ 
 		if (val!=NULL) 
-			str = strdup ( val ); 
+			str = ACE_OS::strdup ( val ); 
 	    else 
 			str = NULL; 
 	}
@@ -100,7 +105,7 @@ public:
 	{ 
 		if ( str != NULL ) 
 		{ 
-			free ( str ); 
+			ACE_OS::free ( str ); 
 			str = NULL; 
 		} 
 	}
@@ -113,7 +118,7 @@ public:
 		SetNull(); 
 		if ( val != NULL ) 
 		{
-			str = strdup ( val ); ACE_ASSERT (str!=NULL);
+			str = ACE_OS::strdup ( val ); ACE_ASSERT (str!=NULL);
 		} 
 		return *this; 
 	}
@@ -128,10 +133,10 @@ public:
 	{ 
 		String old;
 		old.str = str;
-		str = (char*)malloc(length()+strlen(val)+1);
+		str = (char*)ACE_OS::malloc(length()+ACE_OS::strlen(val)+1);
 		ACE_ASSERT (str!=NULL);
-		strcpy(str,old.str);
-		strcat(str,val);
+		ACE_OS::strcpy(str,old.str);
+		ACE_OS::strcat(str,val);
 	}
 };
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.4 2003-04-24 16:54:44 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.5 2003-04-27 21:57:41 gmetta Exp $
 ///
 ///
 
@@ -525,6 +525,19 @@ void _SocketThreadDgram::Body (void)
 		
 		ACE_DEBUG ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_name(), incoming.get_port_number()));
 
+		if (r >= 0 && hdr.GetLength() == (_MAGIC_NUMBER + 1))
+		{
+			ACE_DEBUG ((LM_DEBUG, "received a message to close the thread\n"));
+			/// a legitimate message to close down the thread.
+			/// sends reply to caller.
+			hdr.SetGood ();
+			hdr.SetLength (0);
+			_local_socket.send (&hdr, sizeof(hdr), incoming);
+			_local_socket.close ();
+			finished = 1;
+			continue;
+		}
+
 		/// this is supposed to read the header, r must be > 0
 		if (r < 0 || incoming != _remote_endpoint.getAddressRef())
 		{
@@ -532,18 +545,9 @@ void _SocketThreadDgram::Body (void)
 			if (incoming != _remote_endpoint.getAddressRef())
 			{
 				ACE_DEBUG ((LM_DEBUG, "returning because incoming diffs from remote addr\n"));
-
-				if (hdr.GetLength() == (_MAGIC_NUMBER + 1))
-				{
-					/// a legitimate close message.
-					hdr.SetGood ();
-					hdr.SetLength (0);
-					_local_socket.send (&hdr, sizeof(hdr), incoming);
-				}
 			}
 			_local_socket.close ();
 			finished = 1;
-			continue;
 		}
 
 		ACE_DEBUG ((LM_DEBUG, "??? received header _SocketThreadDgram, len = %d\n", hdr.GetLength()));
@@ -798,125 +802,93 @@ void _SocketThreadListDgram::addSocket (void)
 	}
 	while (ra == -1);
 
-	switch (hdr.GetLength () - _MAGIC_NUMBER)
+	if (hdr.GetLength() == _MAGIC_NUMBER)
 	{
-	case 0:
+		/// checks whether <incoming> already tried a connection
+		///		and it is still connected.
+		list<_SocketThreadDgram *>::iterator it_avail;
+		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 		{
-			/// checks whether <incoming> already tried a connection
-			///		and it is still connected.
-			list<_SocketThreadDgram *>::iterator it_avail;
-			for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+			if (!(*it_avail)->isAvailable ())
 			{
-				if (!(*it_avail)->isAvailable ())
+				if ((*it_avail)->getRemoteID().getAddressRef() == incoming)
 				{
-					if ((*it_avail)->getRemoteID().getAddressRef() == incoming)
-					{
-						ACE_DEBUG ((LM_DEBUG, "thread already connected %s:%d\n", incoming.get_host_name(), incoming.get_port_number()));
+					ACE_DEBUG ((LM_DEBUG, "thread already connected %s:%d\n", incoming.get_host_name(), incoming.get_port_number()));
 
-						/// needs to recycle the thread, and stop it first.
-						/// reconnecting!
+					/// needs to recycle the thread, and stop it first.
+					/// reconnecting!
 
-						///(*it_avail)->End ();
-						///(*it_avail)->setAvailable (1);
-						break;
-					}
-				}
-			}
-
-			/// check accept return value.
-			ACE_DEBUG ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_name(), incoming.get_port_number()));
-			ACE_DEBUG ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
-
-			/// get a new available port number associated to this IP.
-			/// recycle thread and port # if possible.
-			int reusing = 0;
-			for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
-			{
-				if ((*it_avail)->isAvailable ())
-				{
-					reusing = 1;
-					port_number = (*it_avail)->getOldPortNumber (); 
+					///(*it_avail)->End ();
+					///(*it_avail)->setAvailable (1);
 					break;
 				}
 			}
+		}
 
-			if (!reusing)
-				port_number = getNewPortNumberFromPool ();
+		/// check accept return value.
+		ACE_DEBUG ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_name(), incoming.get_port_number()));
+		ACE_DEBUG ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
 
-			if (port_number == 0)
+		/// get a new available port number associated to this IP.
+		/// recycle thread and port # if possible.
+		int reusing = 0;
+		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+		{
+			if ((*it_avail)->isAvailable ())
 			{
-				///
-				hdr.SetBad ();
-				_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
+				reusing = 1;
+				port_number = (*it_avail)->getOldPortNumber (); 
+				break;
+			}
+		}
+
+		if (!reusing)
+			port_number = getNewPortNumberFromPool ();
+
+		if (port_number == 0)
+		{
+			///
+			hdr.SetBad ();
+			_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
+		}
+		else
+		{
+			if (it_avail == _list.end())
+			{
+				_list.push_back(new _SocketThreadDgram());
+				it_avail = _list.end();
+				it_avail--;
+			}
+
+			ACE_DEBUG ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
+			(*it_avail)->setAvailable (0);
+			(*it_avail)->setOwner (*this);
+
+			ACE_DEBUG ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
+			if (!reusing)
+			{
+				(*it_avail)->reuse (&YARPUniqueNameID(YARP_UDP, incoming), port_number);
+				(*it_avail)->Begin();
 			}
 			else
 			{
-				if (it_avail == _list.end())
-				{
-					_list.push_back(new _SocketThreadDgram());
-					it_avail = _list.end();
-					it_avail--;
-				}
-
-				ACE_DEBUG ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
-				(*it_avail)->setAvailable (0);
-				(*it_avail)->setOwner (*this);
+				(*it_avail)->End();
 				(*it_avail)->reuse (&YARPUniqueNameID(YARP_UDP, incoming), port_number);
-
-				/// send reply to incoming socket.
-				/// LATER: to refuse the connection simply send back a SetBad() header.
-				hdr.SetGood ();
-				hdr.SetLength (port_number);
-				_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
-
-				ACE_DEBUG ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
-				if (!reusing)
-				{
-					(*it_avail)->Begin();
-				}
-				else
-				{
-					(*it_avail)->End();
-					(*it_avail)->Begin();
-				}
-
-				ACE_DEBUG ((LM_DEBUG, "777777 post postbegin %d\n", errno));
-			}
-		}
-		break;
-
-	case 1:
-		{
-			/// determines who's asking to terminate the connection.
-			list<_SocketThreadDgram *>::iterator it_avail;
-			for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
-			{
-				if (!(*it_avail)->isAvailable ())
-				{
-					if ((*it_avail)->getRemoteID().getAddressRef() == incoming)
-					{
-						/// kill the thread.
-						/// (*it_avail)->End ();
-
-						/// must signal properly to thread...
-
-						(*it_avail)->setAvailable (1);
-						ACE_DEBUG ((LM_DEBUG, "thread terminated on remote request %s:%d\n", incoming.get_host_name(), incoming.get_port_number()));
-						break;
-					}
-				}
+				(*it_avail)->Begin();
 			}
 
-			/// sends reply to incoming socket.
+			/// send reply to incoming socket.
+			/// LATER: to refuse the connection simply send back a SetBad() header.
 			hdr.SetGood ();
-			hdr.SetLength (0);
+			hdr.SetLength (port_number);
 			_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
-		}
-		break;
 
-	default:
+			ACE_DEBUG ((LM_DEBUG, "777777 post postbegin %d\n", errno));
+		}
+	}
+	else
+	{
 		ACE_DEBUG ((LM_DEBUG, "corrupted header received, abort connection attempt, listening\n"));
-		break;
 	}
 }
 
@@ -1430,6 +1402,23 @@ int YARPOutputSocketDgram::SendBegin(char *buffer, int buffer_length)
 
 	ACE_DEBUG ((LM_DEBUG, "sending to: %s:%d\n", d._remote_addr.get_host_name(), d._remote_addr.get_port_number()));
 
+#if 0
+	/// minor optimization using iovec.
+	int sent = -1;
+	iovec iov[2];
+	iov[0].iov_base = (char *)&hdr;
+	iov[0].iov_len = sizeof(hdr);
+	iov[1].iov_base = (char *)buffer;
+	iov[1].iov_len = buffer_length;
+	sent = d._connector_socket.send (iov, 2, d._remote_addr);
+	if (sent != (sizeof(hdr) + buffer_length))
+	{
+		ACE_DEBUG ((LM_DEBUG, "iovec test send failed %d\n", sent));
+		return YARP_FAIL;
+	}
+	/// doesn't work, it requires an iovec on the other end.
+#endif
+
 	int sent = -1;
 	sent = d._connector_socket.send ((const void *)(&hdr), sizeof(hdr), d._remote_addr);
 	if (sent != sizeof(hdr))
@@ -1440,7 +1429,6 @@ int YARPOutputSocketDgram::SendBegin(char *buffer, int buffer_length)
 		return YARP_FAIL;
 
 	return YARP_OK;
-	//return SendBlock(OSDATA(system_resources).sock,buffer,buffer_length);
 }
 
 
@@ -1455,8 +1443,6 @@ int YARPOutputSocketDgram::SendContinue(char *buffer, int buffer_length)
 		return YARP_FAIL;
 
 	return YARP_OK;
-
-	//return SendBlock(OSDATA(system_resources).sock,buffer,buffer_length,0);
 }
 
 /// I'm afraid the reply might end up being costly to streaming communication.
@@ -1488,21 +1474,16 @@ int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buff
 		}
 	}
 	return result;
-
-	//return ::SendBeginEnd(OSDATA(system_resources).sock,reply_buffer,reply_buffer_length);
 }
 
 
 int YARPOutputSocketDgram::SendEnd(char *reply_buffer, int reply_buffer_length)
 {
 	return SendReceivingReply (reply_buffer, reply_buffer_length);
-	//return ::SendEnd(OSDATA(system_resources).sock,reply_buffer,reply_buffer_length);
 }
 
 
 ACE_HANDLE YARPOutputSocketDgram::GetIdentifier(void) const
 {
 	return identifier;
-	///return _connector.get_handle ();
-	//return OSDATA(system_resources).sock.GetSocketPID();
 }

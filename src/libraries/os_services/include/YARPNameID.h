@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameID.h,v 1.5 2003-04-24 08:49:33 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPNameID.h,v 1.6 2003-04-27 21:57:41 gmetta Exp $
 ///
 ///
 /*

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.8 2003-04-24 16:54:44 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.9 2003-04-27 21:57:41 gmetta Exp $
 ///
 ///
 
@@ -174,9 +174,9 @@ int YARPNetworkObject::getHostname(char *buffer, int buffer_length)
 	// cygwin version doesn't have getdomainname or any obvious equivalent
 	if (result==0)
 	{
-		if (strchr(buffer,'.')==NULL)
+		if (ACE_OS::strchr(buffer,'.')==NULL)
 		{
-			int delta = strlen(buffer);
+			int delta = ACE_OS::strlen(buffer);
 			buffer += delta;
 			buffer_length -= delta;
 			if (buffer_length>=1)

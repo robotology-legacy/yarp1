@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPThread.cpp,v 1.4 2003-04-19 21:04:52 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPThread.cpp,v 1.5 2003-04-27 21:57:42 gmetta Exp $
 ///
 ///
 
