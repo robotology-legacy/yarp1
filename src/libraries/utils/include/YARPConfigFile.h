@@ -5,12 +5,13 @@
 
 // by nat May 2003
 //
-// $Id: YARPConfigFile.h,v 1.1 2003-05-23 17:09:18 natta Exp $
+// $Id: YARPConfigFile.h,v 1.2 2003-06-20 12:46:09 babybot Exp $
 
 #ifndef __YARPCONFIGFILE__
 #define __YARPCONFIGFILE__
 
 #include <conf/YARPConfig.h>
+#include <stdio.h>
 #include <YARPErrorCodes.h>
 #include <string>
 

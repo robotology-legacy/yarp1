@@ -5,7 +5,7 @@
 
 // by nat May 2003
 //
-// $Id: YARPLogFile.h,v 1.2 2003-05-31 06:31:38 gmetta Exp $
+// $Id: YARPLogFile.h,v 1.3 2003-06-20 12:46:09 babybot Exp $
 
 #ifndef __YARPDUMPFILE__
 #define __YARPDUMPFILE__
@@ -13,6 +13,7 @@
 #include <conf/YARPConfig.h>
 #include <YARPErrorCodes.h>
 #include <YARPMatrix.h>
+#include <stdio.h>
 
 class YARPLogFile
 {
