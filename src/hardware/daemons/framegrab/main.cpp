@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.51 2004-02-12 17:43:57 babybot Exp $
+/// $Id: main.cpp,v 1.52 2004-05-19 14:09:46 babybot Exp $
 ///
 ///
 
@@ -156,7 +156,7 @@ int ParseParams (int argc, char *argv[])
 
 			case 'h':
 				_sizey = ACE_OS::atoi (argv[i+1]);
-				ACE_ASSERT (_sizey <= 288);
+				ACE_ASSERT (_sizey <= 272);
 				i++;
 				break;
 
