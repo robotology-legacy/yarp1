@@ -228,6 +228,10 @@ struct bttv
 	unsigned int last_field; /* number of last grabbed field */
 	int i2c_command;
 	int triton1;
+
+	//PCI HANDLERS
+	void   *hdl;
+	int phdl;
 };
 //#endif
 
