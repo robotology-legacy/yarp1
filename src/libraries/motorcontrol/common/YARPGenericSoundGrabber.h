@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPGenericSoundGrabber.h,v 1.3 2004-04-27 16:18:29 beltran Exp $
+//         Version:  $Id: YARPGenericSoundGrabber.h,v 1.4 2004-05-24 09:17:36 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -54,7 +54,7 @@ public:
 	int releaseBuffer (void);
 	int waitOnNewFrame (void);
 	int setVolume(int);
-	int setMute();
+	int setMute(int);
 };
 
 //--------------------------------------------------------------------------------------
@@ -153,10 +153,10 @@ int YARPGenericSoundGrabber<ADAPTER, PARAMETERS>::setVolume(int volume)
 // Description:  
 //--------------------------------------------------------------------------------------
 template <class ADAPTER, class PARAMETERS>
-int YARPGenericSoundGrabber<ADAPTER, PARAMETERS>::setMute()
+int YARPGenericSoundGrabber<ADAPTER, PARAMETERS>::setMute(int mute_value)
 {
 	int ret;
-	ret = _adapter.IOCtl(SCMDSetMute,&volume);
+	ret = _adapter.IOCtl(SCMDSetMute,&mute_value);
 	return ret;
 }
 #endif
