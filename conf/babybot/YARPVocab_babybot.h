@@ -2,7 +2,7 @@
 ///                                                                   ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-///                    #Add our name(s) here#                         ///
+///                    #nat#                         ///
 ///                                                                   ///
 ///     "Licensed under the Academic Free License Version 1.0"        ///
 ///                                                                   ///
@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPVocab_babybot.h,v 1.2 2004-07-30 17:41:20 babybot Exp $
+/// $Id: YARPVocab_babybot.h,v 1.3 2004-09-02 08:44:25 babybot Exp $
 ///
 ///
 
@@ -50,7 +50,11 @@ const char *const YBVArmShake = "ArmRndShake";
 const char *const YBVArmRest = "ArmRndRest";
 const char *const YBVArmRestDone = "ArmRndRestDone";
 const char *const YBVArmForceResting = "ArmForceResting";
+const char *const YBVArmForceRestingTrue = "ArmForceRestingTrue";
+const char *const YBVArmForceRestingFalse = "ArmForceRestingFalse";
 const char *const YBVArmInhibitResting = "ArmInhibitResting";
+const char *const YBVArmInhibitRestingTrue = "ArmInhibitRestingTrue";
+const char *const YBVArmInhibitRestingFalse = "ArmInhibitRestingFalse";
 const char *const YBVArmZeroG = "ArmZeroG";
 const char *const YBVArmHibernate = "ArmHibernate";
 const char *const YBVArmResume = "ArmResume";
