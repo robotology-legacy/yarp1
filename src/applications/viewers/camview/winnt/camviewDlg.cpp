@@ -201,7 +201,8 @@ BOOL CCamviewDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
 	// TODO: Add extra initialization here
-	m_connection_name = ((CCamviewApp *)AfxGetApp())->m_portname;
+	CCamviewApp *p = ((CCamviewApp *)AfxGetApp());
+	m_connection_name = p->m_portname;
 	UpdateData(FALSE);
 
 	m_receiver.SetOwner (this);
@@ -214,7 +215,16 @@ BOOL CCamviewDlg::OnInitDialog()
 	m_drawdib = DrawDibOpen (); 
 	ASSERT (m_drawdib != NULL);
 
-	m_receiver.SetPeriod (((CCamviewApp *)AfxGetApp())->m_period);
+	m_receiver.SetPeriod (p->m_period);
+
+	CRect wpos;
+	GetWindowRect (&wpos);
+	ClientToScreen (&wpos);
+
+	if (p->m_x < 0) p->m_x = wpos.left;
+	if (p->m_y < 0) p->m_y = wpos.top;
+
+	MoveWindow (p->m_x, p->m_y, wpos.Width(), wpos.Height(), TRUE);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }

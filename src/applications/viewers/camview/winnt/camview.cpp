@@ -61,6 +61,17 @@ BOOL CCamviewApp::InitInstance()
 	else
 		m_period = 0;
 
+	CString tmp;
+	if (cmdInfo.GetOption("x", tmp))
+		m_x = atoi(tmp);
+	else
+		m_x = -1;
+
+	if (cmdInfo.GetOption("y", tmp))
+		m_y = atoi(tmp);
+	else
+		m_y = -1;
+
 	/// not really needed.
 	AfxEnableControlContainer();
 

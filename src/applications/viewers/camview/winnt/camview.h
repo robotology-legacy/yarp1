@@ -25,6 +25,8 @@ public:
 	CCamviewApp();
 	CString m_portname;
 	int m_period;
+	int m_x;
+	int m_y;
 
 // Overrides
 	// ClassWizard generated virtual function overrides
