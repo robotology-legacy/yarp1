@@ -21,11 +21,20 @@ class YARPForceSensor
 		{
 			delete [] _reading;
 		}
-		int initialize()
-		{ return _adapter.initialize(_params); }
+		int initialize(const std::string file)
+		{ 
+			int ret;
+			ret = _params.load(std::string(""),file);
+			if (ret == YARP_FAIL)
+				return ret;
+
+			ret = _adapter.initialize();
+			return ret;
+		}
 		int uninitialize()
 		{ return _adapter.uninitialize(); }
-		int read(double *f, double *t)
+
+		int readRaw(double *f, double *t)
 		{	
 			_adapter.IOCtl(CMDJR3ReadData, _reading);
 			int i = 0;
@@ -39,11 +48,33 @@ class YARPForceSensor
 			return YARP_OK;
 		}
 
+		int read(double *f, double *t)
+		{	
+			_adapter.IOCtl(CMDJR3ReadData, _reading);
+			int i = 0;
+			int j = 0;
+			
+			for(i = 0; i < 3; i++)
+			{
+				// matrix product between reading and R
+				f[i] = (_reading[0]/_params._max) * _params._R[i][0];
+				f[i] += (_reading[1]/_params._max) * _params._R[i][1];
+				f[i] += (_reading[2]/_params._max) * _params._R[i][2];
+			
+				t[i] = (_reading[3]/_params._max) * _params._R[i][0];
+				t[i] += (_reading[4]/_params._max) * _params._R[i][1];
+				t[i] += (_reading[5]/_params._max) * _params._R[i][2];
+			}
+						
+			return YARP_OK;
+		}
+
 	protected:
 		ADAPTER _adapter;
 		PARAMETERS _params;
 
 		short *_reading;
+
 };
 
 typedef YARPForceSensor<YARPJR3Adapter, YARPJR3Params> YARPBabybotForceSensor;
