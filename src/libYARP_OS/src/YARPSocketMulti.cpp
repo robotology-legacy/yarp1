@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.10 2004-07-30 06:51:26 eshuy Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.11 2004-07-30 14:19:00 eshuy Exp $
 ///
 ///
 
@@ -625,9 +625,17 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 				ACE_SOCK_Dgram_Mcast& mcast = *((ACE_SOCK_Dgram_Mcast *)_socket);
 
-				mcast.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), _remote_endpoint.getInterfaceName().c_str(), 1);	// reuse addr enabled
+				if (_remote_endpoint.getInterfaceName()!=YARPString("default")) {
+				  mcast.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), _remote_endpoint.getInterfaceName().c_str(), 1);	// reuse addr enabled
+				} else {
+				  mcast.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), NULL, 1);	// reuse addr enabled
+				}
 				YARPNetworkObject::setSocketBufSize (mcast, MAX_PACKET);
-				mcast.join (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), 1, _remote_endpoint.getInterfaceName().c_str());
+				if (_remote_endpoint.getInterfaceName()!=YARPString("default")) {
+				  mcast.join (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), 1, _remote_endpoint.getInterfaceName().c_str());
+				} else {
+				  mcast.join (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), 1, NULL);
+				}
 
 				if (mcast.get_handle() == ACE_INVALID_HANDLE)
 				{

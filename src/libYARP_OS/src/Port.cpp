@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.11 2004-07-09 16:10:13 eshuy Exp $
+/// $Id: Port.cpp,v 1.12 2004-07-30 14:19:00 eshuy Exp $
 ///
 ///
 
@@ -124,7 +124,7 @@ void safe_printf(char *format,...)
 #define MAX_FRAGMENT (4)
 
 ///
-/// #define DEBUG_DISABLE_SHMEM 1
+#define DEBUG_DISABLE_SHMEM 1
 
 /// this is because SHMEM alloc is not implemented in ACE for QNX6.
 #ifdef __QNX6__

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.3 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.4 2004-07-30 14:19:00 eshuy Exp $
 ///
 ///
 
@@ -402,10 +402,17 @@ int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name)
 		d._mcast_addr.get_port_number(), 
 		d._mcast_addr.get_host_addr()));
 
-	int r = d._connector_socket.open (d._mcast_addr, ((YARPUniqueNameSock&)name).getInterfaceName().c_str(), 1);		/// reuse addr on, netif = 0.
+	int r = -1;
+
+	if (((YARPUniqueNameSock&)name).getInterfaceName()!=YARPString("default")) {
+	  r = d._connector_socket.open (d._mcast_addr, ((YARPUniqueNameSock&)name).getInterfaceName().c_str(), 1);		/// reuse addr on, netif = 0.
+	} else {
+	  r = d._connector_socket.open (d._mcast_addr, NULL, 1);		/// reuse addr on, netif = 0.
+	}
 	if (r == -1)
 	{
-		ACE_DEBUG ((LM_DEBUG, "cannot open mcast socket %s:%d\n", d._mcast_addr.get_host_addr(), d._mcast_addr.get_port_number()));
+		ACE_DEBUG ((LM_DEBUG, "cannot open mcast socket %s:%d (%s)\n", d._mcast_addr.get_host_addr(), d._mcast_addr.get_port_number(),
+			    ((YARPUniqueNameSock&)name).getInterfaceName().c_str()));
 		return YARP_FAIL;
 	}
 
