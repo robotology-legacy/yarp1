@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPCyberGloveDeviceDriver.cpp,v 1.1 2004-09-13 23:22:48 babybot Exp $
+/// $Id: YARPCyberGloveDeviceDriver.cpp,v 1.2 2005-02-17 11:37:04 babybot Exp $
 ///
 ///
 
@@ -97,6 +97,7 @@ public:
 	YARPSemaphore _bmutex;
 
 	void _fillDataStructure(unsigned char *inBytes, DataGloveData *destStruct);
+	void _cleanData();
 };
 
 void CyberGloveResources::_fillDataStructure(unsigned char *inBytes, DataGloveData *destStruct)
@@ -145,6 +146,41 @@ void CyberGloveResources::_fillDataStructure(unsigned char *inBytes, DataGloveDa
 	destStruct->wrist[0] = angles[21];
 	// Wrist yaw
 	destStruct->wrist[1] = angles[22];
+}
+
+void CyberGloveResources::_cleanData()
+{
+	// Thumb
+	_data.thumb[0] = 0;
+	_data.thumb[1] = 0;
+	_data.thumb[2] = 0;
+	_data.abduction[0] = 0;
+	// Index
+	_data.index[0] = 0;
+	_data.index[1] = 0;
+	_data.index[2] = 0;
+	_data.abduction[1] = 0;
+	// Middle
+	_data.middle[0] = 0;
+	_data.middle[1] = 0;
+	_data.middle[2] = 0;
+	_data.abduction[2] = 0;
+	// Ring
+	_data.ring[0] = 0;
+	_data.ring[1] = 0;
+	_data.ring[2] = 0;
+	_data.abduction[3] = 0;
+	// Pinkie
+	_data.pinkie[0] = 0;
+	_data.pinkie[1] = 0;
+	_data.pinkie[2] = 0;
+	_data.abduction[4] = 0;
+	// Palm arhc
+	_data.palmArch = 0;
+	// Wrist pitch
+	_data.wrist[0] = 0;
+	// Wrist yaw
+	_data.wrist[1] = 0;
 }
 
 ///
@@ -299,6 +335,7 @@ void YARPCyberGloveDeviceDriver::Body (void)
 	char c = 'S';
 	unsigned char b[23] = {0};
 	unsigned long int bytesRead = 0;
+	d._cleanData();
 	d._serialPort.Write(&c,1);
 	
 	while (!IsTerminated())	
