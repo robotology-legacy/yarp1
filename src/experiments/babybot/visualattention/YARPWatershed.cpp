@@ -1526,6 +1526,21 @@ void YARPWatershed::fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, bool *blobL
 }
 
 
+// If I use the function I shouldn't strecth the color opponency maps
+void YARPWatershed::fuseFoveaBlob2(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag)
+{
+	const YarpPixelMono rg0=m_attn[1].meanRG;
+	const YarpPixelMono gr0=m_attn[1].meanGR;
+	const YarpPixelMono by0=m_attn[1].meanBY;
+	
+	for (int i=0; i<max_tag; i++) {
+		if (blobList[i])
+			if ((m_attn[i].meanRG-rg0)*(m_attn[i].meanRG-rg0)+(m_attn[i].meanGR-gr0)*(m_attn[i].meanGR-gr0)+(m_attn[i].meanBY-by0)*(m_attn[i].meanBY-by0)>=110 )
+				blobList[i]=false;
+	}
+}
+
+
 void YARPWatershed::drawBlobList(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag, const YarpPixelMono gray)
 {
 	//id.Zero();

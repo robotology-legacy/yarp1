@@ -1026,7 +1026,7 @@ void YARPImgAtt::findEdges()
 {
 	//YARPConvKernelFile::Write("./prewitt.yck\0",prewitt);
 	
-	DBGPF1 ACE_OS::printf(">>> 4 orientation\n");
+	DBGPF1 ACE_OS::printf(">>> edges in 4 orientations\n");
 	// dovrei scalare i risulati di 3 o 4 in modo che
 	// dopo vengono riscalati tra 0 e 255
 	/*iplFixedFilter((IplImage *)iis,(IplImage *)ors[0], IPL_PREWITT_3x3_H);
@@ -1069,7 +1069,7 @@ void YARPImgAtt::findEdges()
 	memcpy(((IplImage *)or[1])->imageData, ((IplImage *)ors[1])->imageData, ((IplImage *)ors[1])->imageSize);
 	memcpy(((IplImage *)or[2])->imageData, ((IplImage *)ors[2])->imageData, ((IplImage *)ors[2])->imageSize);*/
 	//memcpy(((IplImage *)or[3])->imageData, ((IplImage *)ors[3])->imageData, ((IplImage *)ors[3])->imageSize);
-	CombineMax(array2, 3, out);
+	CombineMax(array2, 3, edge);
 	//Combine(array2, 3, edge2);
 
 	/*int *stat = new int [height];
@@ -1189,16 +1189,6 @@ void YARPImgAtt::normalize()
 	FullRange((IplImage *)or_r[3], (IplImage *)or_r[3], mn[4], mx[4]);*/
 	FullRange((IplImage *)edge, (IplImage *)edge, mn[4], mx[4]);
 	//FullRange((IplImage *)edge2, (IplImage *)edge2, mn[5], mx[5]);
-<<<<<<< ImgAtt.cpp
-	/*int *stat = new int [height];
-	LineStat(edge, stat);
-	LineMax(edge, edge);
-	LineStat(edge, stat);*/
-	//lineMax2(edge, edge);
-	//LineMax(edge, edge);
-	LineMax(out, out);
-=======
->>>>>>> 1.2
 
 	
 	//DBGPF1 ACE_OS::printf(">>> combine output images\n");
@@ -1261,17 +1251,17 @@ void YARPImgAtt::findBlobs(int num, Vett* pos)
 	//YARPImageFile::Write(savename, tmp1);
 
 
-	//rain.setThreshold(4);
-	/*int max_tag=rain.apply(edge, tagged);
+	//rain.setThreshold(5);
+	int max_tag=rain.apply(edge, tagged);
 	rain.blobCatalog(tagged, rg, gr, by, r1, g1, b1, max_tag);
 	rain.removeFoveaBlob(tagged);
-	rain.RemoveNonValid(max_tag, 3800, 100);*/
+	rain.RemoveNonValid(max_tag, 3800, 100);
 	//rain.ComputeSalience(max_tag, max_tag);
-	//rain.ComputeSalienceAll(max_tag, max_tag);
+	rain.ComputeSalienceAll(max_tag, max_tag);
 	//rain.SortAndComputeSalience(200, max_tag);
 	//rain.SortAndComputeSalience(100, max_tag);
 	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
-	//rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, 1, 0, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
+	rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, 1, 0, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
 	//pOldZdi=((IplImage *)tmp1)->roi;
 	//((IplImage *)tmp1)->roi=&zdi;
 	//MinMax((IplImage *)tmp1, mn[0], mx[0]);
@@ -1302,7 +1292,7 @@ void YARPImgAtt::findBlobs(int num, Vett* pos)
 	//rain.setThreshold(3);
 	//rain.applyOnOld(edge, tagged);
 	//rain.apply(edge, tagged);
-	//rain.DrawFoveaBlob(blobFov, tagged);
+	rain.DrawFoveaBlob(blobFov, tagged);
 
 	//blobFov.Zero();
 	//memset(blobFov.GetRawBuffer(), 255, 50*((IplImage*)blobFov)->widthStep);
@@ -1310,20 +1300,19 @@ void YARPImgAtt::findBlobs(int num, Vett* pos)
 	//fit.plotEllipse(bfX0, bfY0, bfA11, bfA12, bfA22, blobFov, 127);
 
 
-	//bool* blobList = new bool [max_tag];
-	//rain.findNeighborhood(tagged, 100, 100, blobList, max_tag);
-
-	/*ACE_OS::sprintf(savename, "./src.ppm");
-	YARPImageFile::Write(savename, src);
-	saveImages();*/
-
+	// - slower
+	// - it considers also "lateral" pixels
+	// - it doesn't consider pixel
+	/*rain.findNeighborhood(tagged, 0, 0, blobList, max_tag);
+	rain.fuseFoveaBlob2(tagged, blobList, max_tag);*/
 	
-	/*rain.fuseFoveaBlob(tagged, blobList, max_tag);
 	rain.fuseFoveaBlob(tagged, blobList, max_tag);
+	
+	
 	blobList[1]=false;
-	rain.drawBlobList(blobFov, tagged, blobList, max_tag, 127);*/
+	rain.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
 	/*ACE_OS::sprintf(savename, "./blob_fov2.ppm");
-	YARPImageFile::Write(savename, tmp1);*/
+	YARPImageFile::Write(savename, blobFov);*/
 }
 
 
