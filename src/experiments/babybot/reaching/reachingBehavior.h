@@ -96,6 +96,24 @@ public:
 	
 };
 
+class RB2Output: public RBBaseOutput
+{
+public:
+	RB2Output(const YBVocab &v1, const YBVocab &v2)
+	{
+		_bottle1.setID(YBVMotorLabel);
+		_bottle2.setID(YBVMotorLabel);
+
+		_bottle1.writeVocab(v1);
+		_bottle2.writeVocab(v2);
+
+	}
+	void output(ABSharedData *d);
+
+	YARPBottle _bottle1;
+	YARPBottle _bottle2;
+};
+
 class RBSimpleOutput: public RBBaseOutput
 {
 public:

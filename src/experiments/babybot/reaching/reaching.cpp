@@ -50,8 +50,8 @@ int main(int argc, char* argv[])
 	RBInputCommand			armDone(YBVArmDone);
 	RBInputCommand			handDone(YBVHandDone);
 	RBInputCommand			reachingInput(YBVReachingReach);
-	RBSimpleOutput			inhibitHead(YBVSinkSuppress);
-	RBSimpleOutput			enableHead(YBVSinkRelease);
+	RB2Output				inhibitAll(YBVSinkSuppress, YBVGraspRflxInhibit);
+	RB2Output				enableAll(YBVSinkRelease, YBVGraspRflxRelease);
 	RBHandOpen				openHand;
 	RBInputCommand			armRest(YBVArmRest);
 	RBInputCommand			armIsBusy(YBVArmIsBusy);
@@ -64,20 +64,20 @@ int main(int argc, char* argv[])
 	// _behavior.add(NULL, &reachingSeq1, &reachingSeq2, &inhibitHead);
 	_behavior.add(&reachingInput, &waitIdle, &reachingSeq1, &reachingPrepareOutput);
 	_behavior.add(&armDone, &reachingSeq1, &reachingSeq2);
-	_behavior.add(&armIsBusy, &reachingSeq1, &waitIdle, &enableHead);
-	_behavior.add(&armRest, &reachingSeq1, &waitIdle, &enableHead);
+	_behavior.add(&armIsBusy, &reachingSeq1, &waitIdle, &enableAll);
+	_behavior.add(&armRest, &reachingSeq1, &waitIdle, &enableAll);
 	
-	_behavior.add(NULL, &reachingSeq2, &reachingSeq2b, &inhibitHead);
+	_behavior.add(NULL, &reachingSeq2, &reachingSeq2b, &inhibitAll);
 	_behavior.add(NULL, &reachingSeq2b, &reachingSeq31, &reachingOutput1);
 	_behavior.add(&armDone, &reachingSeq31, &reachingSeq32, &reachingOutput2);
-	_behavior.add(&armIsBusy, &reachingSeq31, &waitIdle, &enableHead);
+	_behavior.add(&armIsBusy, &reachingSeq31, &waitIdle, &enableAll);
 	
 	_behavior.add(&armDone, &reachingSeq32, &waitDeltaT1, &handClose);
-	_behavior.add(&armIsBusy, &reachingSeq32, &waitIdle, &enableHead);
+	_behavior.add(&armIsBusy, &reachingSeq32, &waitIdle, &enableAll);
 	// wait
 	_behavior.add(&handDone, &waitDeltaT1, &reachingSeq33, &reachingOutput3);
 	_behavior.add(&armDone, &reachingSeq33, &reachingSeq5, &reachingBack);
-	_behavior.add(&armIsBusy, &reachingSeq33, &waitIdle, &enableHead);
+	_behavior.add(&armIsBusy, &reachingSeq33, &waitIdle, &enableAll);
 
 
 	// _behavior.add(&armIsBusy, &reachingSeq3, &waitIdle, &enableHead);
@@ -85,12 +85,12 @@ int main(int argc, char* argv[])
 	// _behavior.add(NULL, &reachingSeq4, &reachingSeq5, &reachingBack);
 	
 	_behavior.add(&armDone, &reachingSeq5, &reachingSeq6, &openHand);
-	_behavior.add(NULL, &reachingSeq6, &waitIdle, &enableHead);
+	_behavior.add(NULL, &reachingSeq6, &waitIdle, &enableAll);
 
-	_behavior.add(&armIsBusy, &reachingSeq5, &waitIdle, &enableHead);
-	_behavior.add(&armRest, &reachingSeq31, &waitIdle, &enableHead);
-	_behavior.add(&armRest, &reachingSeq32, &waitIdle, &enableHead);
-	_behavior.add(&armRest, &reachingSeq33, &waitIdle, &enableHead);
+	_behavior.add(&armIsBusy, &reachingSeq5, &waitIdle, &enableAll);
+	_behavior.add(&armRest, &reachingSeq31, &waitIdle, &enableAll);
+	_behavior.add(&armRest, &reachingSeq32, &waitIdle, &enableAll);
+	_behavior.add(&armRest, &reachingSeq33, &waitIdle, &enableAll);
 
 	_behavior.Begin();
 	_behavior.loop();

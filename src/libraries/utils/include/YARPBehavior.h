@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.24 2004-06-29 08:43:33 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.25 2004-07-27 18:02:59 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -174,8 +174,7 @@ public:
 	typedef FUNCTION_TABLE::iterator FUNCTION_TABLE_IT;
 
 	YARPBehavior(MY_SHARED_DATA *d, const YARPString &pName, const YBVocab &label, const YBVocab &exitC):
-	YARPFSM<MY_BEHAVIOR, MY_SHARED_DATA>(d),
-	_inport(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
+	YARPFSM<MY_BEHAVIOR, MY_SHARED_DATA>(d), _inport(YARPInputPort::NO_BUFFERS, YARP_MCAST)
 	{
 		_key = label;			
 		_bottle.setID(_key);	// sent and received bottles have same ID
@@ -300,7 +299,6 @@ template <class MY_BEHAVIOR, class MY_SHARED_DATA>
 int YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
 _parse(YARPBottle &bottle)
 {
-	
 	if (bottle.getID() != _key)
 	{
 		// this is not for you, return
@@ -320,6 +318,13 @@ _parse(YARPBottle &bottle)
 			YARP_BEHAVIOR_DEBUG(("I'm Alive!\n"));
 		}
 	}
+
+	//
+	#ifdef YARP_BEHAVIOR_EXTRA_DEBUG
+	YBVocab tmp;
+	if (bottle.tryReadVocab(tmp))
+			bottle.display();
+	#endif
 
 	// handle signals, global functions
 	FUNCTION_TABLE_IT itf(_functions);

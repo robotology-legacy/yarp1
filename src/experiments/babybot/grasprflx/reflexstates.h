@@ -1,3 +1,5 @@
+#define YARP_BEHAVIOR_EXTRA_DEBUG
+
 #include <YARPBehavior.h>
 #include <./conf/YARPVocab.h>
 
@@ -25,6 +27,7 @@ public:
 		_initialized = false;
 		_rndIndex = 0;
 		_count = 0;
+		_inhibited = false;
 	}
 
 	void read()
@@ -49,7 +52,7 @@ public:
 			count++;
 		}
 
-		if ( (tmp/count) > 0.0 )
+		if ( ((tmp/count) > 0.0 ) && (!_inhibited) )
 		{
 			printf("DEBUG: activating graps, level %lf\n", tmp/count);
 			return true;
@@ -109,6 +112,18 @@ public:
 		_initialized = true;
 	}
 
+	void inhibit()
+	{
+		ACE_OS::printf("grasp reflex inhibited\n");
+		_inhibited = true;
+	}
+
+	void release()
+	{
+		ACE_OS::printf("grasp reflex released\n");
+		_inhibited = false;
+	}
+
 public:
 	YARPInputPortOf<YVector> _touchPort;
 	YVector _touch;
@@ -122,7 +137,7 @@ public:
 	int _rndIndex;
 
 	int _count;
-
+	bool _inhibited;
 };
 
 // BEHAVIOR
@@ -150,10 +165,20 @@ public:
 class GRBWaitIdle: public GRBehaviorBaseState
 {
 public:
+	GRBWaitIdle()
+	{
+		_msg = YARPString("Waiting idle");
+	}
+	GRBWaitIdle(const YARPString &message)
+	{
+		_msg = message;
+	}
 	void handle(ReflexShared *d)
 	{
-		ACE_OS::printf("Waiting idle\n");
+		ACE_OS::printf("%s\n", _msg.c_str());
 	}
+
+	YARPString _msg;
 };
 
 class GRBPickRndAction: public GRBehaviorBaseState
@@ -249,3 +274,21 @@ public:
 	bool input(YARPBottle *in, ReflexShared *d);
 };
 
+class GRBInhibitCommand: public GRBehaviorBaseOutputState
+{
+public:
+	void output(ReflexShared *d)
+	{
+		d->inhibit();
+	}
+};
+
+class GRBReleaseCommand: public GRBehaviorBaseOutputState
+{
+public:
+	void output(ReflexShared *d)
+	{
+		d->release();
+	}
+
+};

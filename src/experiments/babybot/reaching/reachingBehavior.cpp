@@ -71,6 +71,17 @@ void RBOutputCommand::output(ABSharedData *d)
 	}
 }
 
+void RB2Output::output(ABSharedData *d)
+{
+	d->_outPort.Content() = _bottle1;
+	d->_outPort.Write(1);
+
+//	Sleep(500);
+
+	d->_outPort.Content() = _bottle2;
+	d->_outPort.Write(1);
+}
+
 void RBOutputReaching1::output(ABSharedData *d)
 {
 	_bottle.reset();

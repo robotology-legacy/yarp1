@@ -82,6 +82,8 @@ const char *const YBVSinkDisplayStatus = "SinkDisplayStatus";
 const char *const YBVGraspRflxQuit = "GraspRflxQuit";
 const char *const YBVGraspRflxClutch = "GraspRflxClutch";
 const char *const YBVGraspRflxForceOpen = "GraspRflxForceOpen";
+const char *const YBVGraspRflxInhibit = "GraspRflxInhibit";
+const char *const YBVGraspRflxRelease = "GraspRflxRelease";
 
 // handlocalization
 const char *const YBVHandLocQuit = "HandLocQuit";

@@ -26,7 +26,8 @@ int main(int argc, char* argv[])
 	TBArmInput				_armRest(YBVArmRest);			
 	TBArmInput				_armRestDone(YBVArmRestDone);			
 	TBArmInput				_armIsBusy(YBVArmIsBusy);		
-	TBArmInput				_newSaccade(YBVSaccadeNewImpTarget);		
+	// TBArmInput				_newSaccade(YBVSaccadeNewImpTarget);		
+	TBArmInput				_newSaccade(YBVSaccadeNewTarget);		
 
 	_behavior.setInitialState(&_waitSaccade);
 	// _behavior.add(&_armAck, &_waitAck, &_waitAck);

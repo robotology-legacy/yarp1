@@ -76,14 +76,20 @@ int main(int argc, char* argv[])
 	GRBGrasp grasp;
 	GRBCloseOutputCommand closeCmd;
 	GRBOpenOutputCommand openCmd;
+	GRBInhibitCommand inhibitOutput;
+	GRBReleaseCommand enableOutput;
 	GRBOutputSignal	sendClutching(YBVGraspRflxClutch);
 	GRBInit init;
 	GRBSimpleInput motionDone(YBVHandDone);
+	GRBSimpleInput inhibit(YBVGraspRflxInhibit);
+	GRBSimpleInput release(YBVGraspRflxRelease);
 	GRBSimpleInput forceOpen(YBVGraspRflxForceOpen);
 
 	readConfigFile(cfgFile, shared);
 
 	behavior.setInitialState(&loopTouch);
+	behavior.add(&inhibit, &inhibitOutput);
+	behavior.add(&release, &enableOutput);
 	behavior.add(&init, &loopTouch, &pickRnd);
 	behavior.add(NULL, &loopTouch, &loopTouch);	// loopTouch is a blocking state
 	behavior.add(NULL, &pickRnd, &waitOpen1, &openCmd);

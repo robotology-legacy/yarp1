@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPRepeater.h,v 1.8 2004-02-05 07:16:26 babybot Exp $
+/// $Id: YARPRepeater.h,v 1.9 2004-07-27 18:02:59 babybot Exp $
 ///  
 //
 
@@ -76,7 +76,7 @@ class YARPRepeater: public YARPThread
 {
 public:
 	YARPRepeater(YARPString &inPortName, YARPString &outPortName, int inputProtocol, int outputProtocol):
-		_inputPort(YARPInputPort::DEFAULT_BUFFERS, inputProtocol),
+		_inputPort(YARPInputPort::NO_BUFFERS, inputProtocol),
 		_outputPort(YARPOutputPort::DEFAULT_OUTPUTS, outputProtocol)
 	{
 		_inputPort.Register(inPortName.c_str());
