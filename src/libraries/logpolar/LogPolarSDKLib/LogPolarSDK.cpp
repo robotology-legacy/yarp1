@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.27 2004-01-16 15:51:07 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.28 2004-01-16 17:52:32 fberton Exp $
 ///
 ///
 
@@ -1553,7 +1553,7 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 
 //		k1 = k * 1 * Par->Size_Theta * Par->Size_Fovea; //Positioning on the table
 		k1 = k * 1 * Par->Size_LP; //Positioning on the table
-		Lptr = Left;
+		Rptr = Right;
 
 		count = 0;
 
@@ -1561,31 +1561,31 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 		{
 			for (i=0; i<Par->Size_Theta; i++)
 			{
-				iR = ShiftMap[k1 + j*Par->Size_Theta+i];
-				iL = 3 * (j*Par->Size_Theta+i);
-				if (iR > 0)
+				iL = ShiftMap[k1 + j*Par->Size_Theta+i];
+				iR = 3 * (j*Par->Size_Theta+i);
+				if (iL > 0)
 				{
-					average_Lr += *Lptr++;//Left [iL];
-					average_Rr += Right[iR];
-					average_Lg += *Lptr++;//Left [iL+1];
-					average_Rg += Right[iR+1];
-					average_Lb += *Lptr++;//Left [iL+2];
-					average_Rb += Right[iR+2];
+					average_Rr += *Rptr++;//Right [iR];
+					average_Lr += Left[iL];
+					average_Rg += *Rptr++;//Right [iR+1];
+					average_Lg += Left[iL+1];
+					average_Rb += *Rptr++;//Right [iR+2];
+					average_Lb += Left[iL+2];
 					count++;
 				}
-				else Lptr +=3;
+				else Rptr +=3;
 			}
-			Lptr += AddedPadSize;
+			Rptr += AddedPadSize;
 		}
 		
 		if (count != 0)
 			{
-				average_Lr /= count;
 				average_Rr /= count;
-				average_Lg /= count;
+				average_Lr /= count;
 				average_Rg /= count;
-				average_Lb /= count;
+				average_Lg /= count;
 				average_Rb /= count;
+				average_Lb /= count;
 			}
 
 			double numr   = 0;
@@ -1598,43 +1598,43 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 			double den_1b = 0;
 			double den_2b = 0;
 
-			Lptr = Left;
+			Rptr = Right;
 
 //		for (j=0; j<Par->Size_Fovea; j++)
 		for (j=0; j<Rows; j++)
 		{
 			for (i=0; i<Par->Size_Theta; i++)
 			{
-					iR = ShiftMap[k1 + 3 * i];
-					iL = 3 * i;
-					iR = ShiftMap[k1 + j*Par->Size_Theta+i];
-					iL = 3 * (j*Par->Size_Theta+i);
+					iL = ShiftMap[k1 + 3 * i];
+					iR = 3 * i;
+					iL = ShiftMap[k1 + j*Par->Size_Theta+i];
+					iR = 3 * (j*Par->Size_Theta+i);
 
-					if (iR > 0)
+					if (iL > 0)
 					{
-//						d_1 = *Lptr++ - average_Lr;
-//						d_2 = Right[iR] - average_Rr;
-						d_1 = *Lptr++ - aL.Red;
-						d_2 = Right[iR] - aR.Red;
+//						d_1 = *Rptr++ - average_Rr;
+//						d_2 = Left[iL] - average_Lr;
+						d_1 = *Rptr++ - aR.Red;
+						d_2 = Left[iL] - aL.Red;
 						numr   += (d_1 * d_2);
 						den_1r += (d_1 * d_1);
 						den_2r += (d_2 * d_2);
 
-						d_1 = *Lptr++ - aL.Gre;
-						d_2 = Right[iR+1] - aR.Gre;
+						d_1 = *Rptr++ - aR.Gre;
+						d_2 = Left[iL+1] - aL.Gre;
 						numg   += (d_1 * d_2);
 						den_1g += (d_1 * d_1);
 						den_2g += (d_2 * d_2);
 
-						d_1 = *Lptr++ - aL.Blu;
-						d_2 = Right[iR+2] - aR.Blu;
+						d_1 = *Rptr++ - aR.Blu;
+						d_2 = Left[iL+2] - aL.Blu;
 						numb   += (d_1 * d_2);
 						den_1b += (d_1 * d_1);
 						den_2b += (d_2 * d_2);
 					}
-					else Lptr +=3;
+					else Rptr +=3;
 				}
-			Lptr += AddedPadSize;
+			Rptr += AddedPadSize;
 		}
 			corr_val[k]  = (1.0 - (numr * numr) / (den_1r * den_2r + 0.00001));	
 			corr_val[k] += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
