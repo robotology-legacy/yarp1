@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.19 2003-05-19 16:41:09 gmetta Exp $
+/// $Id: Port.cpp,v 1.20 2003-05-19 20:39:55 gmetta Exp $
 ///
 ///
 
@@ -268,7 +268,7 @@ void OutputTarget::Body ()
 	}
 
 	YARPEndpointManager::Close (target_pid.getNameID());	
-	ACE_DEBUG ((LM_DEBUG, "thread %d bailing out\n", GetIdentifier()));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "thread %d bailing out\n", GetIdentifier()));
 }
 
 ///
@@ -327,7 +327,7 @@ void _strange_select::Body ()
 				{
 					active = 0;
 					timeout = 1;
-					ACE_DEBUG ((LM_DEBUG, "timeout expired %f\n", now-started));
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "timeout expired %f\n", now-started));
 				}
 
 				if (!active)
@@ -376,14 +376,14 @@ void _strange_select::Body ()
 			}
 		}
 
-		ACE_DEBUG ((LM_DEBUG, "Sending a message from %s\n", _owner->name.c_str()));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Sending a message from %s\n", _owner->name.c_str()));
 		target = _owner->targets.GetRoot ();
 
 		_owner->out_mutex.Wait ();
 
 		while (target!=NULL)
 		{
-			ACE_DEBUG ((LM_DEBUG, "Sending a message from %s to target %s\n", _owner->name.c_str(), target->GetLabel().c_str()));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "Sending a message from %s to target %s\n", _owner->name.c_str(), target->GetLabel().c_str()));
 			if (_owner->p_sendable.Ptr() != NULL)
 			{
 #ifdef UPDATED_PORT

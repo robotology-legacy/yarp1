@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.15 2003-05-19 16:41:09 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.16 2003-05-19 20:39:55 gmetta Exp $
 ///
 ///
 
@@ -106,10 +106,7 @@ using namespace std;
 #include "YARPScheduler.h"
 #include "YARPTime.h"
 
-///int TINY_VERBOSE = 0;
-///#define DBG if (TINY_VERBOSE)
-//#define DBG if (0)
-
+#define THIS_DBG 80
 
 ///
 /// yarp message header.
@@ -126,9 +123,9 @@ public:
 	{
 		len = 0;
 		SetBad();
-///		ACE_DEBUG((LM_DEBUG, ">>>> header created with size %d\n", sizeof(MyMessageHeader)));
-///		ACE_DEBUG((LM_DEBUG, ">>>> len part has size %d\n", sizeof(NetInt32)));
-///		ACE_DEBUG((LM_DEBUG, ">>>> one char has size %d\n", sizeof(char)));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> header created with size %d\n", sizeof(MyMessageHeader)));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> len part has size %d\n", sizeof(NetInt32)));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> one char has size %d\n", sizeof(char)));
 	}
 
 	void SetGood()
@@ -483,7 +480,7 @@ void _SocketThread::Body (void)
 
 	while (!finished)
 	{
-		ACE_DEBUG ((LM_DEBUG, "*** listener %d waiting\n", _remote_endpoint.getAddressRef().get_port_number()));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** listener %d waiting\n", _remote_endpoint.getAddressRef().get_port_number()));
 
 		MyMessageHeader hdr;
 		hdr.SetBad();
@@ -494,7 +491,7 @@ void _SocketThread::Body (void)
 		
 		if (r < 0)
 		{
-			ACE_DEBUG ((LM_DEBUG, "*** closing %d\n", r));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** closing %d\n", r));
 			_stream->close ();
 			//socket.Close();
 			finished = 1;
@@ -503,9 +500,9 @@ void _SocketThread::Body (void)
 		int len = hdr.GetLength();
 		if (len < 0)
 		{
-			ACE_DEBUG ((LM_DEBUG, "{{}} Corrupt/empty header received\n"));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "{{}} Corrupt/empty header received\n"));
 
-			ACE_DEBUG ((LM_DEBUG, "*** closing\n", r));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** closing\n", r));
 			_stream->close ();
 			//socket.Close();
 			finished = 1;
@@ -513,10 +510,10 @@ void _SocketThread::Body (void)
 
 		if (len >= 0)
 		{
-			ACE_DEBUG ((LM_DEBUG, "*** got a header\n"));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** got a header\n"));
 			if (_owner != NULL)
 			{
-				ACE_DEBUG ((LM_DEBUG, "*** and i am owned\n"));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** and i am owned\n"));
 				_mutex.Wait();
 				_extern_buffer = NULL;
 				_extern_length = len;
@@ -527,7 +524,8 @@ void _SocketThread::Body (void)
 				_waiting = 1;
 				_mutex.Post();
 				_wakeup.Wait();
-				ACE_DEBUG ((LM_DEBUG, "*** woken up!\n"));
+
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** woken up!\n"));
 			}
 
 			if (_extern_buffer != NULL)
@@ -608,18 +606,18 @@ void _SocketThread::Body (void)
 					int curr_preamble = _reply_preamble;
 					if (rep)
 					{
-						ACE_DEBUG ((LM_DEBUG, "*** POSTING reply made %d\n", curr_preamble));
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** POSTING reply made %d\n", curr_preamble));
 						_reply_made.Post();
 					}
 
 					if (r >= 0)
 					{
-						ACE_DEBUG ((LM_DEBUG, "*** listener got %d bytes\n", r));
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** listener got %d bytes\n", r));
 					}
 
 					if (r < 0)
 					{
-						ACE_DEBUG ((LM_DEBUG, "*** closing\n", r));
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** closing\n", r));
 						_stream->close ();
 						//socket.Close();
 						finished = 1;
@@ -630,9 +628,9 @@ void _SocketThread::Body (void)
 					{
 						was_preamble = 1;
 
-						ACE_DEBUG ((LM_DEBUG, "*** WAITING for post-preamble wakeup\n", r));
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** WAITING for post-preamble wakeup\n", r));
 						_wakeup.Wait();
-						ACE_DEBUG ((LM_DEBUG, "*** DONE WAITING for post-preamble wakeup\n", r));
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** DONE WAITING for post-preamble wakeup\n", r));
 						rep = 1;
 					}
 				}
@@ -650,10 +648,10 @@ void _SocketThread::Body (void)
 	_mutex.Post ();
 
 #ifdef __WIN32__
-	ACE_DEBUG ((LM_DEBUG, "*** comms thread bailed out\n"));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** comms thread bailed out\n"));
 #else
 	/// what is this for?
-	ACE_DEBUG ((LM_DEBUG, "*** comms thread %d bailed out\n", getpid()));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** comms thread %d bailed out\n", getpid()));
 #endif
 }
     
@@ -688,7 +686,7 @@ ACE_HANDLE _SocketThreadList::connect(const YARPUniqueNameID& id)
 
 	// pid = sock;	/// if needed stores the ACE_HANDLE in pid.
 	
-	ACE_DEBUG ((LM_DEBUG, "server socket open on %s port %d\n", _local_addr.get_host_name(), _local_addr.get_port_number()));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "server socket open on %s port %d\n", _local_addr.get_host_name(), _local_addr.get_port_number()));
 
 	// pid = sock;
 	_initialized = 1;
@@ -731,7 +729,7 @@ int newsock;
 	/// ACE_ASSERT (_acceptor != NULL);
 
 	YARPScheduler::yield();
-	ACE_DEBUG ((LM_DEBUG, "888888 pre accept %d\n", errno));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "888888 pre accept %d\n", errno));
 
 	ACE_INET_Addr incoming;
 	ACE_SOCK_Stream *newstream = new ACE_SOCK_Stream;
@@ -750,11 +748,11 @@ int newsock;
 
 	/// check accept return value.
 	ACE_DEBUG ((LM_DEBUG, ">>> accepting a new socket %d (from in %s)\n", newstream->get_handle(), incoming.get_host_name()));
-	ACE_DEBUG ((LM_DEBUG, "888888 post accept %d\n", errno));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "888888 post accept %d\n", errno));
 
 	if (newstream->get_handle() == ACE_INVALID_HANDLE)
 	{
-		ACE_DEBUG ((LM_DEBUG, "invalid stream after accept, returning from addSocket\n"));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "invalid stream after accept, returning from addSocket\n"));
 		return;
 	}
 
@@ -789,7 +787,7 @@ if (count>=0)
 		}
 	}
 
-	ACE_DEBUG ((LM_DEBUG, "888888 pre pushback %d\n", errno));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "888888 pre pushback %d\n", errno));
 
 	if (it_avail == _list.end())
 	{
@@ -798,11 +796,11 @@ if (count>=0)
 		it_avail--;
 	}
 
-	ACE_DEBUG ((LM_DEBUG, "888888 post pushback %d\n", errno));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "888888 post pushback %d\n", errno));
 	(*it_avail)->setAvailable (0);
 	(*it_avail)->setOwner (*this);
 
-	ACE_DEBUG ((LM_DEBUG, "888888 pre postbegin %d\n", errno));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "888888 pre postbegin %d\n", errno));
 	if (!reusing)
 	{
 		(*it_avail)->Begin();
@@ -817,7 +815,7 @@ if (count>=0)
 	/// needs to be here, in case End destroys the old stream.
 	(*it_avail)->reuse (YARPUniqueNameID(YARP_TCP, incoming), newstream);
 
-	ACE_DEBUG ((LM_DEBUG, "888888 post postbegin %d\n", errno));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "888888 post postbegin %d\n", errno));
 
 	/*
 	for (list<_SocketThread *>::iterator it = _list.begin(); it != _list.end(); it++)
@@ -891,14 +889,14 @@ int _SocketThreadList::close (ACE_HANDLE reply_id)
 void _SocketThreadList::declareDataAvailable (void)
 {
 	ACE_ASSERT (_initialized != 0);
-	ACE_DEBUG ((LM_DEBUG, "$$$ Declaring data available\n"));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "$$$ Declaring data available\n"));
 	_new_data.Post ();	
 }
 
 void _SocketThreadList::declareDataWritten (void)
 {
 	ACE_ASSERT (_initialized != 0);
-	ACE_DEBUG ((LM_DEBUG, "$$$ Declaring new data written\n"));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "$$$ Declaring new data written\n"));
 	_new_data_written.Post ();	
 }
 
@@ -920,10 +918,10 @@ int _SocketThreadList::read(char *buf, int len, ACE_HANDLE *reply_pid)
 
 	while (!finished)
 	{
-		ACE_DEBUG ((LM_DEBUG, "### Waiting for new data\n"));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "### Waiting for new data\n"));
 		_new_data.Wait();
 
-		ACE_DEBUG ((LM_DEBUG, "### Got new data\n"));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "### Got new data\n"));
 
 		list<_SocketThread *>::iterator it_avail;
 		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
@@ -936,7 +934,7 @@ int _SocketThreadList::read(char *buf, int len, ACE_HANDLE *reply_pid)
 
 				if ((*it_avail)->isWaiting())
 				{
-					ACE_HANDLE ((LM_DEBUG, "### Identified source of new data\n"));
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "### Identified source of new data\n"));
 
 					work = 1;
 					(*it_avail)->setWaiting(0);						/// = 0;
@@ -948,18 +946,18 @@ int _SocketThreadList::read(char *buf, int len, ACE_HANDLE *reply_pid)
 
 					(*it_avail)->postToWakeup ();	/// wakeup.Post();
 
-					ACE_DEBUG ((LM_DEBUG, "### Waking up source of new data\n"));
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "### Waking up source of new data\n"));
 				}
 				
 				(*it_avail)->postToMutex ();	/// mutex.Post();
 
 				if (work)
 				{
-					ACE_DEBUG ((LM_DEBUG, "### Waiting for buffer write\n"));
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "### Waiting for buffer write\n"));
 					_new_data_written.Wait();
 
 					save_pid = (*it_avail)->getID();
-					ACE_DEBUG ((LM_DEBUG, "@@@ got data %d/%d\n", in_len, len));
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "@@@ got data %d/%d\n", in_len, len));
 					result = in_len;
 					finished = 1;
 					break;
@@ -1004,7 +1002,7 @@ int _SocketThreadList::beginReply(ACE_HANDLE reply_pid, char *buf, int len)
 {
 	ACE_ASSERT (_initialized != 0);
 
-	ACE_DEBUG ((LM_DEBUG, "&&& BEGINNING REPLY of %d bytes\n", len));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& BEGINNING REPLY of %d bytes\n", len));
 
 	list<_SocketThread *>::iterator it_avail;
 	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
@@ -1028,7 +1026,7 @@ int _SocketThreadList::beginReply(ACE_HANDLE reply_pid, char *buf, int len)
 		}
 	}
 
-	ACE_DEBUG ((LM_DEBUG, "&&& FINISHED BEGINNING REPLY of %d bytes\n", len));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& FINISHED BEGINNING REPLY of %d bytes\n", len));
 
 	return 0;
 }
@@ -1036,7 +1034,7 @@ int _SocketThreadList::beginReply(ACE_HANDLE reply_pid, char *buf, int len)
 int _SocketThreadList::reply(ACE_HANDLE reply_pid, char *buf, int len)
 {
 	ACE_ASSERT (_initialized != 0);
-	ACE_DEBUG ((LM_DEBUG, "&&& BEGINNING FINAL REPLY of %d bytes\n", len));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& BEGINNING FINAL REPLY of %d bytes\n", len));
 
 	list<_SocketThread *>::iterator it_avail;
 	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
@@ -1058,7 +1056,7 @@ int _SocketThreadList::reply(ACE_HANDLE reply_pid, char *buf, int len)
 		}
 	}
 
-	ACE_DEBUG ((LM_DEBUG, "&&& FINISHED BEGINNING FINAL REPLY of %d bytes\n", len));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& FINISHED BEGINNING FINAL REPLY of %d bytes\n", len));
 
 	return 0;
 }
@@ -1296,7 +1294,7 @@ int YARPOutputSocket::SetTCPNoDelay (void)
 int YARPOutputSocket::Connect (void)
 {
 	OSData& d = OSDATA(system_resources);
-	ACE_DEBUG ((LM_DEBUG, "Connecting to port %d on %s\n", 
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Connecting to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 
 		d._remote_addr.get_host_name()));
 
