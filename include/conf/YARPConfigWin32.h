@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.13 2003-05-20 01:27:49 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.14 2003-05-21 12:38:35 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -47,7 +47,7 @@
 #define YARP_UDP_REGPORTS       11
 
 /// read timeout on socket transport (in seconds).
-#define YARP_SOCK_TIMEOUT       2
+#define YARP_SOCK_TIMEOUT       20
 
 /// fix compiler idiosyncrasy
 #define for if(1)for
