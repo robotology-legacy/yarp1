@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: seqgrabber.cpp,v 1.5 2005-02-21 12:05:24 babybot Exp $
+/// $Id: seqgrabber.cpp,v 1.6 2005-02-25 11:05:40 babybot Exp $
 /// 
 
 #include <yarp/YARPConfig.h>
@@ -98,7 +98,7 @@ const char *DEFAULT_FOLDER = "C:/temp/";
 const int DEFAULT_LENGTH = 30;	// seconds
 const double timeFrame = 0.04;	// seconds
 
-const int each = 10;		// save each 10
+int each = 10;		// save each 10
 ///
 ///
 ///
@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
 	char buf[256];
 	bool stereo = false;
 	bool cinque = false;
+	bool stop = false;
 
 	int length;
 
@@ -155,6 +156,12 @@ int main(int argc, char *argv[])
 	{
 		stereo = false;
 		cinque = true;
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "-stop"))
+	{
+		stop = true;
+		each = 1;
 	}
 
 	/// images are coming from the input network.
@@ -197,12 +204,16 @@ int main(int argc, char *argv[])
 	time1 = YARPTime::GetTimeAsSeconds ();
 	while (frameCounter < nFrame)
 	{		
+		if (stop) {
+			ACE_OS::printf("Press any key and return to continue\n");
+			getchar();
+		} else
+			printFrame(frameCounter, time1);
+
 		_image1Port.Read();
 		if (stereo)
 			_image2Port.Read();
-				
-		printFrame(frameCounter, time1);
-
+		
 		if (frameCounter%each == 0)
 		{
 			if (stereo)
