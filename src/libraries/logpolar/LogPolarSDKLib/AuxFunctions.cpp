@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.17 2004-05-25 16:53:16 orfra Exp $
+/// $Id: AuxFunctions.cpp,v 1.18 2004-05-26 09:19:26 orfra Exp $
 ///
 ///
 
@@ -662,7 +662,7 @@ void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data 
 //Remaining Lines (non Fovea)
 	memcpy(outImage+PadLine * par->Size_Fovea,
 		inImage+PadLine * par->Size_Fovea,
-		PadLine * (par->Size_Fovea-par->Size_Rho) * 3 * sizeof(unsigned char));
+		PadLine * (par->Size_Rho-par->Size_Fovea) * sizeof(unsigned char));
 	
 	/*for (j=PadLine * par->Size_Fovea; j<PadLine * par->Size_Rho; j++)
 	{
