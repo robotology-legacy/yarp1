@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.3 2003-04-22 16:24:10 natta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #nat#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: main.cpp,v 1.4 2003-04-23 15:18:53 gmetta Exp $
 ///
 ///
 

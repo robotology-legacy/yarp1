@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: NameClient.cpp,v 1.1 2003-04-18 08:52:33 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #nat#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: NameClient.cpp,v 1.2 2003-04-23 15:18:53 gmetta Exp $
 ///
 ///
 

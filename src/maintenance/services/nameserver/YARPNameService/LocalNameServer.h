@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.2 2003-04-22 16:23:57 natta Exp $
+/// $Id: LocalNameServer.h,v 1.3 2003-04-23 15:18:52 gmetta Exp $
 ///
 ///
 
@@ -90,14 +90,14 @@
 // various constants (ip and port pools, ret codes...)
 const int __startPortPool = 1001;
 const int __endPortPool = 1999;
-const int __portNotFound = 0;
+///const int __portNotFound = 0;
 
 const int __startDynPortPool = 4000;
 const int __endDynPortPool = 4999;
 
 const char __startIpPool[] = {"224.0.0.0"};
 const char __endIpPool[] = {"224.255.255.255"};
-const char __ipNotFound[] = {"0.0.0.0"};
+///const char __ipNotFound[] = {"0.0.0.0"};
 
 const int _max_ref = 9999;
 
