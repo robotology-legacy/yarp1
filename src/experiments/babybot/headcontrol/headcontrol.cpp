@@ -2,12 +2,9 @@
 //
 #include <yarp/YARPScheduler.h>
 #include "HeadBehavior.h"
-
-#include <iostream>
-
-// #include "..\..\visualprocessing\parameters.h"
 #include "HeadThread.h"
 
+#include <iostream>
 using namespace std;
 
 char __filename[256] = "head.ini";
