@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.18 2003-06-28 16:40:01 babybot Exp $
+/// $Id: YARPSocket.cpp,v 1.19 2003-07-01 21:26:19 gmetta Exp $
 ///
 ///
 
@@ -112,6 +112,7 @@ using namespace std;
 /// yarp message header.
 ///
 #include "begin_pack_for_net.h"
+
 struct MyMessageHeader
 {
 public:
@@ -123,9 +124,6 @@ public:
 	{
 		len = 0;
 		SetBad();
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> header created with size %d\n", sizeof(MyMessageHeader)));
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> len part has size %d\n", sizeof(NetInt32)));
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> one char has size %d\n", sizeof(char)));
 	}
 
 	void SetGood()
@@ -162,6 +160,7 @@ public:
 		}
 	}
 } PACKED_FOR_NET;
+
 #include "end_pack_for_net.h"
 
 ///
@@ -186,7 +185,7 @@ int YARPNetworkObject::getHostname(char *buffer, int buffer_length)
 {
 	int result = gethostname (buffer, buffer_length);
 #ifndef __QNX4__
-#ifndef __WIN__
+#ifndef __WIN32__
 #ifndef __QNX6__
 	// QNX4 just doesn't have getdomainname or any obvious equivalent
 	// cygwin version doesn't have getdomainname or any obvious equivalent
@@ -228,7 +227,7 @@ class _SocketThreadList;
 ///
 ///
 ///
-class _SocketThread : public YARPThread
+class _SocketThread : public YARPBareThread
 {
 protected:
 	int _available;
@@ -275,12 +274,9 @@ public:
 	/// the thread shouldn't be running.
 	void reuse(const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream);
 
-	ACE_HANDLE getID () const
-    {
-		return  _stream->get_handle (); /// socket.GetSocketPID();
-    }
+	ACE_HANDLE getID () const { return  _stream->get_handle (); }
 
-	virtual void End (void);
+	virtual void End (int dontkill = 0);
 
 	/// thread Body.
 	///	error check is not consistent.
@@ -317,12 +313,9 @@ public:
 ///
 ///
 ///
-class _SocketThreadList : public YARPThread
+class _SocketThreadList : public YARPBareThread
 {
 private:
-	/// int pid; what is this for?
-	/// int assigned_port; replaced by ACE_SOCK_Addr
-	
 	ACE_INET_Addr _local_addr;
 	ACE_SOCK_Acceptor _acceptor;
 
@@ -335,9 +328,6 @@ public:
 	/// ctors
 	_SocketThreadList () : _local_addr (1111), _new_data(0), _new_data_written(0)
 	{
-		///pid = -1;  
-		///system_resources = NULL; 
-		///assigned_port = -1; 
 		_initialized = 0;
 	}
 
@@ -432,9 +422,9 @@ void _SocketThread::reuse(const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream
 	_available = 0;
 }
 
-void _SocketThread::End (void)
+void _SocketThread::End (int dontkill /* = 0 */)
 {
-	YARPThread::End ();
+	YARPBareThread::End ();
 	_mutex.Wait ();
 	if (_stream != NULL)
 	{
@@ -470,13 +460,11 @@ void _SocketThread::Body (void)
 		int r = -1;
 
 		r = _stream->recv_n (&hdr, sizeof(hdr), 0);
-		//socket.Read((char*)(&hdr),sizeof(hdr),1);
 		
 		if (r < 0)
 		{
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** closing %d\n", r));
 			_stream->close ();
-			//socket.Close();
 			finished = 1;
 		}
 
@@ -487,7 +475,6 @@ void _SocketThread::Body (void)
 
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** closing\n", r));
 			_stream->close ();
-			//socket.Close();
 			finished = 1;
 		}
 
@@ -519,7 +506,6 @@ void _SocketThread::Body (void)
 				}
 
 				r = _stream->recv_n (_extern_buffer, len , 0);
-				// r = socket.Read(extern_buffer,len,1);
 				_extern_length = r;
 				int rep = _needs_reply;
 				
@@ -532,8 +518,6 @@ void _SocketThread::Body (void)
 
 				while (_read_more)
 				{
-					/// this was r too, a bit confusing.
-					///ACE_ASSERT (_extern_reply_length != 0);
 					int rr = 0;
 					if (_extern_reply_length == 0)
 					{
@@ -578,11 +562,9 @@ void _SocketThread::Body (void)
 
 					hdr2.SetLength(reply_len);
 					_stream->send_n (&hdr2, sizeof(hdr2), 0);
-					//socket.Write((char*)(&hdr2),sizeof(hdr2));
 
 					if (reply_len > 0)
 					{
-						//socket.Write(buf3,reply_len);
 						_stream->send_n (buf3, reply_len);
 					}
 
@@ -602,7 +584,6 @@ void _SocketThread::Body (void)
 					{
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** closing\n", r));
 						_stream->close ();
-						//socket.Close();
 						finished = 1;
 					}
 
@@ -666,17 +647,13 @@ ACE_HANDLE _SocketThreadList::connect(const YARPUniqueNameID& id)
 
 	/// closes down any still open thread (just in case?).
 	if (_initialized) closeAll ();
-
-	// pid = sock;	/// if needed stores the ACE_HANDLE in pid.
 	
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "server socket open on %s port %d\n", _local_addr.get_host_name(), _local_addr.get_port_number()));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "server socket open on %s port %d\n", _local_addr.get_host_addr(), _local_addr.get_port_number()));
 
-	// pid = sock;
 	_initialized = 1;
 
 	Begin();
 
-	//IFVERB printf("Server socket is %d\n", sock);
 	return _acceptor.get_handle ();
 }
 
@@ -689,9 +666,6 @@ void _SocketThreadList::addSocket()
 #ifdef __QNX__
 	signal( SIGCHLD, SIG_IGN );     /* Ignore condition */
 #endif
-
-	/// need to assert that _acceptor is actually created and connected.
-	/// ACE_ASSERT (_acceptor != NULL);
 
 	YARPScheduler::yield();
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "888888 pre accept %d\n", errno));
@@ -712,7 +686,7 @@ void _SocketThreadList::addSocket()
 	while (ra == -1);
 
 	/// check accept return value.
-	ACE_DEBUG ((LM_DEBUG, ">>> accepting a new socket %d (from in %s)\n", newstream->get_handle(), incoming.get_host_name()));
+	ACE_DEBUG ((LM_DEBUG, ">>> accepting a new socket %d (from in %s)\n", newstream->get_handle(), incoming.get_host_addr()));
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "888888 post accept %d\n", errno));
 
 	if (newstream->get_handle() == ACE_INVALID_HANDLE)
@@ -754,7 +728,6 @@ void _SocketThreadList::addSocket()
 	{
 		(*it_avail)->End();
 		(*it_avail)->Begin();
-		//(*it_avail).wakeup.Post();
 	}
 
 	/// needs to be here, in case End destroys the old stream.
@@ -779,11 +752,9 @@ int _SocketThreadList::closeAll (void)
 	/// terminates itself.
 	End ();
 
-	/// sockclose(pid);
 	_acceptor.close ();
 	_initialized = 0;
 
-	///pid = 0;
 	return 1;
 }
 
@@ -1189,7 +1160,7 @@ int YARPOutputSocket::Connect (void)
 	OSData& d = OSDATA(system_resources);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Connecting to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 
-		d._remote_addr.get_host_name()));
+		d._remote_addr.get_host_addr()));
 
 	d._connector.connect (d._stream, d._remote_addr);
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.18 2003-06-30 09:30:06 babybot Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.19 2003-07-01 21:26:19 gmetta Exp $
 ///
 ///
 
@@ -523,7 +523,8 @@ YARPUniqueNameID YARPSocketNameService::RegisterName(YARPNameClient& namer, cons
 	///
 	///int ret = reg_addr.set((u_short)0, buf);
 	reg_addr.set((u_short)0, buf);
-	ACE_DEBUG((LM_DEBUG, "RegisterName - hostname in addr : %s\n", reg_addr.get_host_addr()));
+	
+	ACE_DEBUG((LM_DEBUG, "registering name %s of (%s)\n", name, reg_addr.get_host_addr()));
 	std::string tname (name);
 
 	switch (reg_type)
@@ -610,8 +611,6 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 	ACE_INET_Addr addr;
 	
 	std::string sname = name;
-	///sname.resize (YARP_STRING_LEN, 0);
-	///sname.assign (name);
 
 	switch (name_type)
 	{

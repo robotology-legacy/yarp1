@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.35 2003-07-01 12:49:57 gmetta Exp $
+/// $Id: Port.cpp,v 1.36 2003-07-01 21:26:19 gmetta Exp $
 ///
 ///
 
@@ -736,11 +736,6 @@ void Port::Body()
 		out_mutex.Wait();
 		assume_data = !expect_header;
 		out_mutex.Post();
-
-		//if (asleep)
-		//{
-		//wakeup.Post();
-		//}
 
 		/// WARNING: cmd buffer is not zeroed anywhere, in case buffer is string
 		///		it might be better to do it somewhere around here.

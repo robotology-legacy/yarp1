@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.18 2003-07-01 12:49:57 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.19 2003-07-01 21:26:19 gmetta Exp $
 ///
 ///
 
@@ -127,6 +127,7 @@ const int _MAGIC_NUMBER = 7777;
 /// yarp message header.
 ///
 #include "begin_pack_for_net.h"
+
 struct MyMessageHeader
 {
 public:
@@ -174,6 +175,7 @@ public:
 		}
 	}
 } PACKED_FOR_NET;
+
 #include "end_pack_for_net.h"
 
 ///
@@ -200,7 +202,7 @@ class _SocketThreadListMcast;
 ///
 ///
 ///
-class _SocketThreadMcast : public YARPThread
+class _SocketThreadMcast : public YARPBareThread
 {
 protected:
 	int _available;
@@ -218,6 +220,12 @@ protected:
 	int _extern_length;
 	char *_extern_reply_buffer;
 	int _extern_reply_length;
+
+	/// unfortunately to avoid multiple packet send/recv in MCAST/UDP requires
+	/// a buffer copy. Multiple mcast/udp packets is deleterious in terms of bandwidth
+	/// consumption.
+	char _local_buffer[MAX_PACKET];
+	int _local_buffer_counter;
 
 	int _waiting;
 	int _needs_reply;
@@ -258,7 +266,7 @@ public:
 	bool isMcast(void) const { return (_mcast_addr.getServiceType() == YARP_MCAST) ? true : false; }
 	ACE_HANDLE getID () const {	return  _local_socket.get_handle (); }
 
-	virtual void End (void);
+	virtual void End (int dontkill = 0);
 
 	/// thread Body.
 	///	error check is not consistent.
@@ -300,7 +308,7 @@ public:
 ///
 ///
 ///
-class _SocketThreadListMcast : public YARPThread
+class _SocketThreadListMcast : public YARPBareThread
 {
 private:
 	ACE_INET_Addr _local_addr;
@@ -414,6 +422,7 @@ int _SocketThreadMcast::_begin (const YARPUniqueNameID *remid, const YARPUniqueN
 	_extern_reply_length = 0;
 	_waiting = 0;
 	_needs_reply = 0;
+	_local_buffer_counter = 0;
 
 	/// stores the address of the remote endpoint, the IP and port are used to reply to it
 	/// and also check whether new data is coming from the same source.
@@ -515,9 +524,9 @@ int _SocketThreadMcast::reuse(const YARPUniqueNameID& remid, const YARPUniqueNam
 	return YARP_OK;
 }
 
-void _SocketThreadMcast::End (void)
+void _SocketThreadMcast::End (int dontkill /* = 0 */)
 {
-	YARPThread::End ();
+	YARPBareThread::End ();
 	_mutex.Wait ();
 	
 	if (_local_socket.get_handle() != ACE_INVALID_HANDLE)
@@ -555,6 +564,7 @@ void _SocketThreadMcast::Body (void)
 	_read_more = 0;
 	_reply_preamble = 0;
 
+
 	if (_mcast_addr.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 	{
 		BodyUdp ();			/// udp only connection.
@@ -587,22 +597,36 @@ void _SocketThreadMcast::Body (void)
 
 void _SocketThreadMcast::BodyUdp (void)
 {
-	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
-	ACE_INET_Addr incoming;
-	int finished = 0;
+	///ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 
-	///
+	int finished = 0;
+	
+	ACE_INET_Addr incoming;
+
+	int r = YARP_FAIL;
+	int was_preamble = 0;
+	int len = 0;	
+
+	char bufack[] = "acknowledged";
+	char *buf3 = bufack;
+
+	memset (_local_buffer, 0, MAX_PACKET);
+	_local_buffer_counter = 0;
+
 	while (!finished)
 	{
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread of remote port %s:%d waiting\n", _remote_endpoint.getAddressRef().get_host_name(), _remote_endpoint.getAddressRef().get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread waiting on port %d waiting\n", _local_addr.getAddressRef().get_port_number()));
 
-		MyMessageHeader hdr;
-		hdr.SetBad();
-		int r = YARP_FAIL;
+		iovec iov[1];
+		iov[0].iov_base = _local_buffer;
+		iov[0].iov_len = MAX_PACKET;
 
-		r = _local_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_name(), incoming.get_port_number()));
+		r = _local_socket.recv (iov, 1, incoming, 0);
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
+
+		MyMessageHeader& hdr = *((MyMessageHeader *)_local_buffer);
+		_local_buffer_counter = sizeof(MyMessageHeader);
 
 		if (r >= 0 && hdr.GetLength() == (_MAGIC_NUMBER + 1))
 		{
@@ -612,33 +636,37 @@ void _SocketThreadMcast::BodyUdp (void)
 			hdr.SetGood ();
 			hdr.SetLength (0);
 			_local_socket.send (&hdr, sizeof(hdr), incoming);
+
 			_local_socket.close ();
 			finished = 1;
-			continue;
+			goto DgramSocketMsgSkip;
 		}
 
 		/// this is supposed to read the header, r must be > 0
-		if (r < 0 || 
-			incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
+		if (r < 0 || incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
 		{
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing (recv returned %d)\n", r));
 			if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
 			{
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "returning because incoming diffs from remote addr\n"));
 			}
+
 			_local_socket.close ();
 			finished = 1;
+			goto DgramSocketMsgSkip;
 		}
 
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? received header _SocketThreadMcast, len = %d\n", hdr.GetLength()));
 
-		int len = hdr.GetLength();
+		len = hdr.GetLength();
 		if (len < 0)
 		{
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "{{}} Corrupt/empty header received\n"));
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing thread\n"));
+			
 			_local_socket.close ();
 			finished = 1;
+			goto DgramSocketMsgSkip;
 		}
 
 		if (len >= 0)
@@ -669,19 +697,9 @@ void _SocketThreadMcast::BodyUdp (void)
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read the data buffer\n"));
 
-				r = _local_socket.recv (_extern_buffer, len , incoming, 0, &timeout);
-				if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
-				{
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
-					_local_socket.close ();
-					finished = 1;
-				}
-				if (r < 0)
-				{
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? recv failed, time out?\n"));
-					_local_socket.close ();
-					finished = 1;
-				}
+				memcpy (_extern_buffer, _local_buffer+_local_buffer_counter, len); 
+				_local_buffer_counter += len;
+				r = len;
 			
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? received a buffer _SocketThreadMcast\n"));
 
@@ -702,75 +720,14 @@ void _SocketThreadMcast::BodyUdp (void)
 					/// this was r too, a bit confusing.
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read more data\n"));
 
-					int rr = 0;
 					if (_extern_reply_length == 0)
 					{
-						/// then do a select.
-						ACE_Handle_Set set;
-						set.reset ();
-						set.set_bit (_local_socket.get_handle());
-						rr = ACE_OS::select (int(_local_socket.get_handle())+1, set, 0, 0, &timeout);
-						/// wait here until next valid chunck of data.
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? read 0 len buffer, not waiting\n"));
 					}
 					else
 					{
-						///
-						int remaining = _extern_reply_length;
-						char *tmp = _extern_reply_buffer;
-						int retry = 0;
-						do 
-						{
-							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to recv %d\n", remaining));
-
-							rr = _local_socket.recv (tmp, remaining, incoming, 0, &timeout);
-							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? last read got %d bytes\n", rr));
-							if (rr < 0)
-							{
-								retry ++;
-								if (retry > 5)
-								{
-									ACE_DEBUG ((LM_DEBUG, "retried 5 times, exit now\n"));
-									break;
-								}
-								rr = 0;
-							}
-							else
-							{
-								remaining -= rr;
-								tmp += rr;
-								int ack = 0x01020304;
-								_local_socket.send (&ack, sizeof(int), incoming);
-
-								YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? acknowledged\n"));
-							}
-						}
-						while (rr >= 0 && remaining > 0);
-
-						///rr = _local_socket.recv (_extern_reply_buffer, _extern_reply_length, incoming, 0, &timeout); 
-					}
-
-					if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
-					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing %d\n", rr));
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
-						_local_socket.close ();
-						finished = 1;
-					}
-					else
-					if (_extern_reply_length > 0 && rr < 0)
-					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing %d\n", rr));
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? recv failed\n"));
-						_local_socket.close ();
-						finished = 1;
-					}
-					else
-					if (_extern_reply_length == 0 && rr <= 0)
-					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing %d\n", rr));
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? select failed\n"));
-						_local_socket.close ();
-						finished = 1;
+						memcpy (_extern_reply_buffer, _local_buffer+_local_buffer_counter, _extern_reply_length);
+						_local_buffer_counter += _extern_reply_length;
 					}
 
 					_read_more = 0;
@@ -779,9 +736,12 @@ void _SocketThreadMcast::BodyUdp (void)
 					_needs_reply = 0;
 				}
 
-				int was_preamble = 0;
+				was_preamble = 0;
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to go into sending reply\n"));
+
+				/// creates a local buffer and sends it.
+				_local_buffer_counter = 0;
 
 				do
 				{
@@ -793,8 +753,7 @@ void _SocketThreadMcast::BodyUdp (void)
 
 					MyMessageHeader hdr2;
 					hdr2.SetGood();
-					char bufack[] = "acknowledged";
-					char *buf3 = bufack;
+					buf3 = bufack;
 					int reply_len = 0;
 					if (rep)
 					{
@@ -805,11 +764,13 @@ void _SocketThreadMcast::BodyUdp (void)
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? sending reply _SocketThreadMcast\n"));
 
 					hdr2.SetLength(reply_len);
-					_local_socket.send (&hdr2, sizeof(hdr2), _remote_endpoint.getAddressRef());
+					memcpy (_local_buffer + _local_buffer_counter, &hdr2, sizeof(hdr2));
+					_local_buffer_counter += sizeof(hdr2);
 
 					if (reply_len > 0)
 					{
-						_local_socket.send (buf3, reply_len, _remote_endpoint.getAddressRef());
+						memcpy (_local_buffer + _local_buffer_counter, buf3, reply_len);
+						_local_buffer_counter += reply_len;
 					}
 
 					int curr_preamble = _reply_preamble;
@@ -817,18 +778,6 @@ void _SocketThreadMcast::BodyUdp (void)
 					{
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? POSTING reply made %d\n", curr_preamble));
 						_reply_made.Post();
-					}
-
-					if (r >= 0)
-					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener got %d bytes\n", r));
-					}
-
-					if (r < 0)
-					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing because r = %d\n", r));
-						_local_socket.close ();
-						finished = 1;
 					}
 
 					was_preamble = 0;
@@ -843,8 +792,19 @@ void _SocketThreadMcast::BodyUdp (void)
 					}
 				}
 				while (was_preamble);
+
+				/// sends reply as a single packet.
+				iovec iov;
+				iov.iov_base = _local_buffer;
+				iov.iov_len = _local_buffer_counter;
+
+				_local_socket.send (&iov, 1, _remote_endpoint.getAddressRef(), 0);
 			}
 		}
+
+DgramSocketMsgSkip:
+		/// this is to skip the rest of the message.
+		;
 	}	/// while !finished
 }
 
@@ -854,12 +814,12 @@ void _SocketThreadMcast::BodyUdp (void)
 void _SocketThreadMcast::BodyMcast (void)
 {
 	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	
 	ACE_INET_Addr incoming;
+	
 	int finished = 0;
-	char *local_buffer = new char[MAX_PACKET];
-	ACE_ASSERT (local_buffer != 0);
-	memset (local_buffer, 0, MAX_PACKET);
-	int local_buffer_counter = 0;
+	memset (_local_buffer, 0, MAX_PACKET);
+	_local_buffer_counter = 0;
 
 	///
 	while (!finished)
@@ -876,14 +836,16 @@ void _SocketThreadMcast::BodyMcast (void)
 		set.set_bit (_mcast_socket.get_handle());
 		int max = ((int)_local_socket.get_handle() > (int)_mcast_socket.get_handle()) 
 			? (int)_local_socket.get_handle() : (int)_mcast_socket.get_handle();
+
 		int rr = ACE_OS::select (max + 1, set, 0, 0, NULL);	///&timeout);	/// shouldn't timeout here.
+
 		if (rr <= 0)
 		{
 			ACE_DEBUG ((LM_DEBUG, "main select failed\n"));
 			ACE_DEBUG ((LM_DEBUG, "proper bailout required here\n"));
 
-			if (local_buffer != NULL) delete[] local_buffer;
-			return;
+			finished = 1;
+			goto McastSocketMsgSkip;
 		}
 		
 		///
@@ -904,19 +866,20 @@ void _SocketThreadMcast::BodyMcast (void)
 
 				/// need to close (properly) also the mcast socket.
 				_mcast_socket.close ();
+	
 				finished = 1;
-				continue;
+				goto McastSocketMsgSkip;
 			}
 
 			if (rr == 1)
-				continue;
+				goto McastSocketMsgSkip;
+				///continue;
 		}
 		
-
 		if (set.is_set (_mcast_socket.get_handle()))
 		{
 			iovec iov[1];
-			iov[0].iov_base = local_buffer;
+			iov[0].iov_base = _local_buffer;
 			iov[0].iov_len = MAX_PACKET;
 
 			r = _mcast_socket.recv (iov, 1, incoming, 0);
@@ -931,13 +894,10 @@ void _SocketThreadMcast::BodyMcast (void)
 				finished = 1;
 			}
 
-			MyMessageHeader& hdr = *((MyMessageHeader *)local_buffer);
-			local_buffer_counter = sizeof(hdr);
+			MyMessageHeader& hdr = *((MyMessageHeader *)_local_buffer);
+			_local_buffer_counter = sizeof(hdr);
 
-			/// maybe I need to have a big recv for the total number of bytes or more?
-			///r = _mcast_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
-
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? received header _SocketThreadMcast, len = %d\n", hdr.GetLength()));
 
 			int len = hdr.GetLength();
@@ -951,8 +911,8 @@ void _SocketThreadMcast::BodyMcast (void)
 				_mcast_socket.close ();
 				finished = 1;
 			}
-
-			if (len >= 0)
+			else
+			///if (len >= 0)
 			{
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got a header\n"));
 				if (_owner != NULL)
@@ -980,15 +940,10 @@ void _SocketThreadMcast::BodyMcast (void)
 
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read the data buffer\n"));
 
-					///r = _mcast_socket.recv (_extern_buffer, len , incoming, 0, &timeout);
 					/// shouldn't be much different from the real recv.
-					memcpy (_extern_buffer, local_buffer+local_buffer_counter, len); 
-					local_buffer_counter += len;
-					r = len;
-
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? received a buffer _SocketThreadMcast\n"));
-
-					_extern_length = r;
+					memcpy (_extern_buffer, _local_buffer + _local_buffer_counter, len); 
+					_local_buffer_counter += len;
+					_extern_length = len;
 					int rep = _needs_reply;
 					
 					_owner->declareDataWritten();
@@ -1006,31 +961,13 @@ void _SocketThreadMcast::BodyMcast (void)
 						/// this was r too, a bit confusing.
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read more data\n"));
 
-						int rr = 0;
-						/// shouldn't happen for mcast thread (maybe...).
-						/// ACE_ASSERT (_extern_reply_length != 0);
-
 						if (_extern_reply_length == 0)
 						{
-							/// then do a select.
-							///ACE_Handle_Set set;
-							///set.reset ();
-							///set.set_bit (_mcast_socket.get_handle());
-							///rr = ACE_OS::select (int(_mcast_socket.get_handle())+1, set, 0, 0, &timeout);
-							/// wait here until next valid chunck of data.
-
-							/// ACE_DEBUG ((LM_DEBUG, "This shouldn't happen\n"));
 						}
 						else
 						{
-							///
-							///int remaining = _extern_reply_length;
-							///char *tmp = _extern_reply_buffer;
-							///int retry = 0;
-
-							memcpy (_extern_reply_buffer, local_buffer+local_buffer_counter, _extern_reply_length);
-							local_buffer_counter += _extern_reply_length;
-							rr = _extern_reply_length;
+							memcpy (_extern_reply_buffer, _local_buffer + _local_buffer_counter, _extern_reply_length);
+							_local_buffer_counter += _extern_reply_length;
 						}
 
 						_read_more = 0;
@@ -1047,9 +984,10 @@ void _SocketThreadMcast::BodyMcast (void)
 
 		} /// if is_set (MCAST)...
 
+McastSocketMsgSkip:
+		;
 	} /// while !finished
 
-	if (local_buffer != NULL) delete[] local_buffer;
 	/// returning because the thread is closing down.
 }
 
@@ -1087,8 +1025,7 @@ ACE_HANDLE _SocketThreadListMcast::connect (const YARPUniqueNameID& id)
 
 	if (_acceptor_socket.get_handle() == ACE_INVALID_HANDLE)
 	{
-		ACE_DEBUG ((LM_DEBUG, ">>>>> problems with opening receiving UDP at %s:%d\n", _local_addr.get_host_name(), _local_addr.get_port_number()));
-		/// ACE_DEBUG ((LM_DEBUG, "thread 0x%x (%P:%t) %p\n", GetCurrentThreadId(), "can't open socket"));
+		ACE_DEBUG ((LM_DEBUG, ">>>>> problems with opening receiving UDP at %s:%d\n", _local_addr.get_host_addr(), _local_addr.get_port_number()));
 		return ACE_INVALID_HANDLE;
 
 		/// and the thread is not started.
@@ -1096,8 +1033,6 @@ ACE_HANDLE _SocketThreadListMcast::connect (const YARPUniqueNameID& id)
 	
 	/// closes down any still open thread (just in case?).
 	if (_initialized) closeAll ();
-
-	/// ACE_DEBUG ((LM_DEBUG, "thread 0x%x server socket open on %s port %d\n", GetCurrentThreadId(), _local_addr.get_host_name(), _local_addr.get_port_number()));
 
 	_initialized = 1;
 
@@ -1722,6 +1657,7 @@ public:
 	enum { _max_num_clients = 256 };
 	ACE_INET_Addr _clients[_max_num_clients];
 	std::string _client_names[_max_num_clients];
+	int _num_connected_clients;
 
 	MyMessageHeader _hdr;
 
@@ -1751,12 +1687,13 @@ YARPOutputSocketMcast::YARPOutputSocketMcast (void)
 	for (i = 0; i < d._max_num_clients; i++)
 	{
 		d._clients[i].set ((u_short)0, INADDR_ANY);
-		///d._client_names[i].resize (YARP_STRING_LEN, 0);
 	}
 
 	d._num_elements = 0;
 	d._overall_msg_size = 0;
 	d._hdr.SetBad();
+
+	d._num_connected_clients = 0;
 }
 
 YARPOutputSocketMcast::~YARPOutputSocketMcast (void)
@@ -1813,8 +1750,8 @@ int YARPOutputSocketMcast::CloseMcastAll (void)
 		}
 	}
 
-	///ACE_OS::shutdown (d._udp_socket.get_handle(), ACE_SHUTDOWN_BOTH);
 	d._udp_socket.close ();
+	d._num_connected_clients = 0;
 
 	return YARP_OK;
 }
@@ -1873,6 +1810,16 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 		d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
 	
 		d._udp_socket.close ();
+
+		d._num_connected_clients --;
+
+		/// closes down the socket.
+		if (d._num_connected_clients <= 0)
+		{
+			d._connector_socket.close ();
+			identifier = ACE_INVALID_HANDLE;
+		}
+
 		return YARP_FAIL;
 	}
 
@@ -1880,6 +1827,14 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
 
 	d._udp_socket.close ();
+	d._num_connected_clients --;
+
+	/// closes down the socket.
+	if (d._num_connected_clients <= 0)
+	{
+		d._connector_socket.close ();
+		identifier = ACE_INVALID_HANDLE;
+	}
 
 	return YARP_OK;
 }
@@ -1908,7 +1863,6 @@ int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name) ///, int local
 		ACE_DEBUG ((LM_DEBUG, "cannot set buffer size to %d\n", MAX_PACKET));
 		return YARP_FAIL;
 	}
-
 
 	/// no loopback?
 #if 0
@@ -2013,6 +1967,9 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	port_number = hdr.GetLength();
 	if (port_number == -1)
 	{
+		d._clients[firstempty].set ((u_short)0, INADDR_ANY);
+		d._client_names[firstempty].erase(d._client_names[firstempty].begin(), d._client_names[firstempty].end());
+
 		/// there might be a real -1 port number -> 65535.
 		d._udp_socket.close ();
 		ACE_DEBUG ((LM_DEBUG, "got garbage back from remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
@@ -2027,6 +1984,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	s = sname;
 
 	d._udp_socket.close ();
+	d._num_connected_clients ++;
 
 	return YARP_OK;
 }
@@ -2089,17 +2047,12 @@ int YARPOutputSocketMcast::SendEnd(char *reply_buffer, int reply_buffer_length)
 		ACE_ASSERT (1 == 0);
 	}
 
-///	int x = *((int *)d._iov[d._num_elements-1].iov_base);
-///	ACE_DEBUG ((LM_DEBUG, "about to send %d elements, last is %d\n", d._num_elements, x));
-
 	int sent = d._connector_socket.send (d._iov, d._num_elements, 0);
 	if (sent < 0)
 		return YARP_FAIL;
 
 	memset (reply_buffer, 0, reply_buffer_length);
 	return reply_buffer_length;
-
-	///return SendReceivingReply (reply_buffer, reply_buffer_length);
 }
 
 

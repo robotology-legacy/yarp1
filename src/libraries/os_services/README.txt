@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.17 2003-07-01 12:49:57 gmetta Exp $
+$Id: README.txt,v 1.18 2003-07-01 21:26:19 gmetta Exp $
 
 
 =============
@@ -18,6 +18,7 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 =============
 Things under development:
 
+
 1- troubles when disconnecting/reconnecting mcast ports, grabber, etc.
 1.1- check proper termination of connections/threads - too many complaints.
 	- at least when the main thread is closing gracefully.
@@ -31,11 +32,11 @@ Things under development:
 3- initialization MFC+os_services might fail under some circumstances
 	- solution: do explicit init and fini
 
+3.1- rationalize YARPUniqueNameID class with additional functions and data.
+
 4- rationalize multiple protocol handling (single object to handle many protocols).
 
 5- implement shared mem communication protocol.
-
-6.1- move channel communication on TCP if possible.
 
 6.2- reply messages, exploit iovec structure, maintaining compatibility w/ YARP multipart msg.
 
@@ -51,6 +52,7 @@ Things under development:
 
 11- missing htons here and there in the udp communication (fine w/ intel architecture).
 
+12- check out from name server.
 
 
 ===
