@@ -93,6 +93,10 @@ PostBuild_Cmds=copy .\Debug\YARPNameService.exe ..\..\..\..\..\bin\winnt
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\LocalNameServer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPNameServer.cpp
 # End Source File
 # Begin Source File
@@ -106,6 +110,10 @@ SOURCE=.\YARPNameService.cpp
 # Begin Source File
 
 SOURCE=.\CThreadImpl.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LocalNameServer.h
 # End Source File
 # Begin Source File
 
