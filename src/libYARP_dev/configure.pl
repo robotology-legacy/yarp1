@@ -17,7 +17,7 @@ if (!defined($yarp_root))
 
 require "$yarp_root/conf/configure.template.pl" or die "Can't find template file $yarp_root/conf/configure.template.pl\n";
 
-check_os();
+my $exp_os = check_os();
 
 print "Ready to start...\n";
 
@@ -46,8 +46,8 @@ print "For pathnames you can use (type) the pre-defined value \$YARP_ROOT ";
 print "that I've verified as: \"$yarp_root\"\n\n";
 print "Please, use always the forward slash as a separator!\n";
 
-print "I determined already that you're running on Windows. ";
-die "But, your config file doesn't report so\n" unless ($os eq "winnt");
+print "I determined already that you're running on a supported OS: $exp_os\n";
+die "Cross-compile is not supported, the auto-detected OS must be also selected\n" if ($os ne $exp_os);
 
 print "I also imagine you've compiled YARP_OS, I'm not checking for it so please ";
 print "make sure you've run \"configure.pl\" and \"build.pl\" for YARP_OS.\n\n";
@@ -80,91 +80,12 @@ if ($options{"Compile_Dev<-Lib_Clean"} eq "TRUE" &&
 print "Browsing through the list of available device drivers\n";
 print "In case you don't know what to do, it's no harm including all available drivers\n";
 
-open PROJECT, "./src/libYARP_dev.dsp" or die "Can't open project file: $!\n";
-$newname = "libYARP_dev_$options{\"Architecture<-Hardware_Name\"}";
-open MYPROJECT, "> ./src/$newname.dsp" or die "Can't open output project file: $!\n";
-
-my $stop_copying = 0;
-
-while (<PROJECT>)
+if ($os eq "winnt")
 {
-	s/libYARP_dev/$newname/g;
-	if (/# Name "$newname - Win32 Debug"/)
-	{
-		print MYPROJECT $_;
-		$stop_copying = 1;
-	}
-	elsif (/# Begin Group "Source Files"/)
-	{
-		print MYPROJECT $_;
-		my $line = undef;
-		while (1)
-		{
-			$line = <PROJECT>;
-			print MYPROJECT $line;
-			if ($line =~ /^# End Group/)
-			{
-				last;
-			}
-		}
-	}
-	elsif (/# Begin Group "Header Files"/)
-	{
-		print MYPROJECT $_;
-		my $line = undef;
-		while (1)
-		{
-			$line = <PROJECT>;
-			print MYPROJECT $line;
-			if ($line =~ /^# End Group/)
-			{
-				last;
-			}
-		}
-	}
-	else
-	{
-		if (!$stop_copying)
-		{
-			print MYPROJECT $_;
-		}
-	}
+
+
 }
 
-foreach my $device (glob "*")
-{
-	if (-d "$device/$os/yarp")
-	{
-		print "Would you like to add \"$device\" to the project [YES]? ";
-		chomp(my $answer = <STDIN>);
-		if ($answer =~ /\b[YyTt1]\w*/ || $answer eq '')
-		{
-			$options{"Compile_Dev<-DD_$device"} = "YES";
-			print MYPROJECT "# Begin Group \"$device\"\r\n\r\n";
-			print MYPROJECT "# PROP Default_Filter \"h;cpp\"\r\n";
-			
-			foreach my $file (glob "$device/$os/yarp/*.cpp $device/$os/yarp/*.h")
-			{
-				print MYPROJECT "# Begin Source File\r\n\r\n";
-				$file =~ s#/#\\#g;
-				my $line = "SOURCE=..\\$file\r\n";
-				print MYPROJECT "$line";
-				print MYPROJECT "# End Source File\r\n";
-			}
-
-			print MYPROJECT "# End Group\r\n";
-		}
-		else
-		{
-			$options{"Compile_Dev<-DD_$device"} = "NO";
-		}
-	}
-}
-
-print MYPROJECT "# End Target\n\r# End Project\r\n";
-
-close MYPROJECT;
-close PROJECT;
 
 print "We're done for now, the context file has been updated: \"$config_file\"\n";
 print "A new project reflecting your choices has been created in \"./src\"\n";
@@ -259,3 +180,97 @@ else
 save_config_file (\%options, $config_file);
 
 print "Done!\n";
+
+
+#
+# function to create a new project.
+#
+sub generate_dsp_project
+{
+	open PROJECT, "./src/libYARP_dev.dsp" or die "Can't open project file: $!\n";
+	$newname = "libYARP_dev_$options{\"Architecture<-Hardware_Name\"}";
+	open MYPROJECT, "> ./src/$newname.dsp" or die "Can't open output project file: $!\n";
+
+	my $stop_copying = 0;
+
+	while (<PROJECT>)
+	{
+		s/libYARP_dev/$newname/g;
+		if (/# Name "$newname - Win32 Debug"/)
+		{
+			print MYPROJECT $_;
+			$stop_copying = 1;
+		}
+		elsif (/# Begin Group "Source Files"/)
+		{
+			print MYPROJECT $_;
+			my $line = undef;
+			while (1)
+			{
+				$line = <PROJECT>;
+				print MYPROJECT $line;
+				if ($line =~ /^# End Group/)
+				{
+					last;
+				}
+			}
+		}
+		elsif (/# Begin Group "Header Files"/)
+		{
+			print MYPROJECT $_;
+			my $line = undef;
+			while (1)
+			{
+				$line = <PROJECT>;
+				print MYPROJECT $line;
+				if ($line =~ /^# End Group/)
+				{
+					last;
+				}
+			}
+		}
+		else
+		{
+			if (!$stop_copying)
+			{
+				print MYPROJECT $_;
+			}
+		}
+	}
+
+	foreach my $device (glob "*")
+	{
+		if (-d "$device/$os/yarp")
+		{
+			print "Would you like to add \"$device\" to the project [YES]? ";
+			chomp(my $answer = <STDIN>);
+			if ($answer =~ /\b[YyTt1]\w*/ || $answer eq '')
+			{
+				$options{"Compile_Dev<-DD_$device"} = "YES";
+				print MYPROJECT "# Begin Group \"$device\"\r\n\r\n";
+				print MYPROJECT "# PROP Default_Filter \"h;cpp\"\r\n";
+				
+				foreach my $file (glob "$device/$os/yarp/*.cpp $device/$os/yarp/*.h")
+				{
+					print MYPROJECT "# Begin Source File\r\n\r\n";
+					$file =~ s#/#\\#g;
+					my $line = "SOURCE=..\\$file\r\n";
+					print MYPROJECT "$line";
+					print MYPROJECT "# End Source File\r\n";
+				}
+	
+				print MYPROJECT "# End Group\r\n";
+			}
+			else
+			{
+				$options{"Compile_Dev<-DD_$device"} = "NO";
+			}
+		}
+	}
+	
+	print MYPROJECT "# End Target\n\r# End Project\r\n";
+
+	close MYPROJECT;
+	close PROJECT;
+}
+
