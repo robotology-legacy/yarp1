@@ -7,4 +7,4 @@ WshShell.Run ("porter /vergence/o:histo !/viewvergence/i:img", 7, true);
 
 /// slay
 WshShell.Run ("slay -n calliope vergence.exe", 7, true);
-///WshShell.Run ("slay -n calliope camview.exe ", 7, true);
+WshShell.Run ("slay -n calliope camview.exe ", 7, true);
