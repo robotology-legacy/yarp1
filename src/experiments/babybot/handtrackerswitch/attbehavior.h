@@ -16,6 +16,8 @@ public:
 	YARPInputPortOf<YVector> _positionPort;
 	YARPInputPortOf<YVector> _predictionPort;
 	YARPOutputPortOf<YARPBottle> _out;
+
+	bool _inhibit;
 };
 
 class AttBehavior: public YARPBehavior<AttBehavior, AttSharedData>

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_egomap.cpp,v 1.4 2004-01-20 19:31:06 babybot Exp $
+/// $Id: attn_egomap.cpp,v 1.5 2004-01-26 13:16:22 babybot Exp $
 ///
 ///
 
@@ -71,6 +71,7 @@
 #include <YARPPort.h>
 #include <YARPImages.h>
 #include <YARPBottle.h>
+#include <YARPBottleContent.h>
 #include <conf/YARPVocab.h>
 
 #include <iostream>
@@ -94,12 +95,8 @@
 ///
 ///
 const char *DEFAULT_NAME = "/egomap";
-const int ISIZE = 128;
-const int FULLSIZE = 256;
-
-///
-///
-///
+const char *__imageNetName = "Net1";
+const int DECIMATE = 2;
 
 using namespace _logpolarParams;
 
@@ -109,46 +106,65 @@ struct ObjectListEntry
 	YVector v;
 };
 
-class ObjectList: YARPList<ObjectListEntry>
-{
-	ObjectList():_sema(1)
-	{}
+typedef YARPList<ObjectListEntry> OBJECT_LIST;
+typedef OBJECT_LIST::iterator OBJECT_LIST_IT;
 
-	void add(const YARPString &key, YVector &v)
+class ObjectList: public OBJECT_LIST
+{
+public:
+	ObjectList()
 	{
-		// LATER
+		_current.v.Resize(3);
+		_current.key = "Null";
+	}
+
+	void add(const YARPString &key, const YVector &v)
+	{
+		remove(key);
+		ObjectListEntry newObj;
+		newObj.key = key;
+		newObj.v = v;
+
+		push_back(newObj);
 	}
 	void remove(const YARPString &key)
 	{
-
+		OBJECT_LIST_IT it(*this);
+		while(!it.done())
+		{
+			if ((*it).key == key)
+				it.remove();
+			it++;
+		}
 	}
 
 	void setCurrent(const YARPString &key)
 	{
-		sema.Wait();
-		// search and replace _current
-		// LATER _current = ;
-		_sema.Post();
+		OBJECT_LIST_IT it(*this);
+		while(!it.done())
+		{
+			if ((*it).key == key)
+			{
+				_current.key = (*it).key;
+				_current.v = (*it).v;
+				break;
+			}
+			it++;
+		}
 	}
 
-	void getCurrent(YVector curr)
-	{
-		_sema.Wait();
-		curr = _current.v;
-		_sema.Post();
-	}
+	void getCurrent(YVector &curr)
+	{ curr = _current.v; }
 
 private:
 	ObjectListEntry _current;
-	YARPSemaphore _sema; // ??
 };
 
 class EgoMap: public YARPInputPortOf<YARPBottle>
 {
-	
 protected:
 	YARPInputPortOf<YVector> _inPortPosition;
-	YARPInputPortOf<YVector> _outPortPosition;
+	YARPOutputPortOf<YVector> _outPortPosition;
 	YARPInputPortOf<YARPGenericImage> _inPortImage;
 	YARPOutputPortOf<YARPGenericImage> _outPortImage;
 	YARPBabybotHeadKin _gaze;
@@ -159,12 +175,15 @@ protected:
 	YARPImageOf<YarpPixelBGR> _remappedImg;
 
 	YVector _out;
-
 	YARPLogpolar _mapper;
+	ObjectList _objList;
+	
+	YARPSemaphore _sema;
 	
 public:
 	EgoMap(const YARPString &baseName):
-	YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
+	YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP),
+	_sema(1),
 	_gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) ),
 	_inPortPosition(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
 	_inPortImage(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
@@ -173,7 +192,7 @@ public:
 	{
 		Register(YARPString(baseName).append("/cmd/i").c_str());
 		_inPortPosition.Register(YARPString(baseName).append("/head/i").c_str());
-		_inPortImage.Register(YARPString(baseName).append("/image/i").c_str());
+		_inPortImage.Register(YARPString(baseName).append("/image/i").c_str(), __imageNetName);
 		_outPortPosition.Register(YARPString(baseName).append("/target/o").c_str());
 		_outPortImage.Register(YARPString(baseName).append("/image/o").c_str());
 		
@@ -181,8 +200,8 @@ public:
 		_out = 0.0;
 
 		_coloredImg.Resize (_stheta, _srho);
-		_remappedImg.Resize (FULLSIZE, FULLSIZE);
-		_outImg.Resize(FULLSIZE/2, FULLSIZE/2);
+		_remappedImg.Resize (_xsize, _ysize);
+		_outImg.Resize(_xsize/DECIMATE, _ysize/DECIMATE);
 	}
 
 	void loop()
@@ -190,41 +209,52 @@ public:
 		_inPortPosition.Read();
 		YVector &pos = _inPortPosition.Content();
 
-		_gaze.update(pos);
+		_lock();
+			_gaze.update(pos);
+		_unlock();
 
 		if (_inPortImage.Read(0))
 		{
 			_inImg.Refer (_inPortImage.Content());
 			_mapper.ReconstructColor (_inImg, _coloredImg);
 			_mapper.Logpolar2Cartesian (_coloredImg, _remappedImg);
-
-			YARPSimpleOperation::Decimate (_remappedImg, _outImg, 2, 2);
 		}
 		
 		// loop all objects
+
+		_lock();
+		OBJECT_LIST_IT it(_objList);
+		while(!it.done())
 		{
 			int predx = 0, predy = 0;
-			YVector v(3);
-			// LATER fill v(3)
+			YVector &v = (*it).v;
 			_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, v, predx, predy);
 
-			YARPSimpleOperation::DrawCross(_outImg, predx/2, predy/2, YarpPixelBGR(0, 255, 0), 10, 2);
+			YARPSimpleOperation::DrawCross(_remappedImg, predx, predy, YarpPixelBGR(200, 0, 0), 8, 3);
 
-			_out(1) = predx-128;
-			_out(2) = predy-128;
-			// LATER: plot cross for each obj
+			it++;
 		}
-		
+
+		YARPSimpleOperation::Decimate (_remappedImg, _outImg, DECIMATE, DECIMATE);
+
+		YVector v(3);
+		_objList.getCurrent(v);
+		int tmpx, tmpy;
+		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, v, tmpx, tmpy);
+		_out(1) = tmpx-_xsize/2;
+		_out(2) = tmpy-_ysize/2;
+
+		_unlock();
 		// write position
 		_outPortPosition.Content() = _out;
-
-
+		_outPortPosition.Write();
+				
 		// send image
 		_outPortImage.Content().Refer(_outImg);
 		_outPortImage.Write();
 	}
 
-	void OnRead()
+	virtual void OnRead(void)
 	{
 		Read();
 		YARPBottle &tmpBottle = Content();
@@ -239,45 +269,68 @@ public:
 		{
 			char key[80];
 			int x,y;
-			tmpBottle.readText(key);
+			if (!tmpBottle.tryReadText(key))
+				return;
+			tmpBottle.moveOn();
 			tmpBottle.readInt(&x);
 			tmpBottle.readInt(&y);
-			_handleAdd(key, x, y);
+
+			ACE_OS::printf("EgoMap: adding %s %d,%d\n", key, x, y);
+			_handleAdd(key, x+_xsize/2, y+_ysize/2);
 		}
 		if (tmp == YBVEgoMapRemove)
 		{
 			char key[80];
-			tmpBottle.readText(key);
+			if (!tmpBottle.tryReadText(key))
+				return;
+			tmpBottle.moveOn();
+			ACE_OS::printf("EgoMap: removing %s\n", key);
 			_handleRemove(key);
 		}
 		if (tmp == YBVEgoMapSetCurrent)
 		{
 			char key[80];
-			tmpBottle.readText(key);
+			if (!tmpBottle.tryReadText(key))
+				return;
+			tmpBottle.moveOn();
+			ACE_OS::printf("EgoMap: setting current as %s\n", key);
 			_handleSetCurrent(key);
 		}
 	}
 
 private:
+	void inline _lock()
+	{ _sema.Wait(); }
+
+	void inline _unlock()
+	{ _sema.Post(); }
+
 	void _handleAdd(const YARPString &key, int x, int y)
 	{
-		// LATER ADD
-		// convert x,y, into v and add it
+		_lock();
+			YVector v(3);
+			_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT_PERI, v, x, y);
+			_objList.add(key, v);
+		_unlock();
 	}
 	void _handleRemove(const YARPString &key)
 	{
-		// LATER
+		_lock();
+			_objList.remove(key);
+		_unlock();
 	}
 	void _handleSetCurrent(const YARPString &key)
 	{
-		// LATER
+		_lock();
+			_objList.setCurrent(key);
+		_unlock();
 	}
 };
 
 
 int main(int argc, char *argv[])
 {
-	EgoMap _map("/egomap");
+	EgoMap _map(DEFAULT_NAME);
 
 	while(1)
 	{

@@ -36,7 +36,12 @@ int main(int argc, char* argv[])
 	RBSimpleInput rest(YBVArmRest);
 	RBSimpleInput restDone(YBVArmRestDone);
 	RBSimpleOutput inhibitRest(YBVArmInhibitResting);
+	RBSimpleOutput inhibitHead(YBVSinkInhibitAll);
+	RBSimpleOutput enableHead(YBVSinkEnableAll);
 	///////////////////////////////////////
+
+	RBWaitDeltaT trState1(1);
+	RBWaitDeltaT trState2(1);
 
 	// arm random movement
 	_rnd.setInitialState(&init);
@@ -49,11 +54,19 @@ int main(int argc, char* argv[])
 	
 	// shake sequences
 	// wrist only
-	_rnd.add(&motionDone, &waitMotion, &initShakeWrist, &inhibitRest);
+	// JUST ADDES
+	_rnd.add(&motionDone, &waitMotion, &trState1, &inhibitRest);
+	_rnd.add(NULL, &trState1, &initShakeWrist, &inhibitHead);
+
+	// _rnd.add(&motionDone, &waitMotion, &initShakeWrist, &inhibitRest);
 	_rnd.add(&rest, &waitMotion, &waitRest);
 	_rnd.add(NULL, &initShakeWrist, &waitShakeWrist);
-	_rnd.add(&motionDone, &waitShakeWrist, &initMotion, &inhibitRest);
-	
+	// _rnd.add(&motionDone, &waitShakeWrist, &initMotion, &inhibitRest);
+
+	// JUST ADDED
+	_rnd.add(&motionDone, &waitShakeWrist, &trState2, &enableHead);
+	_rnd.add(NULL, &trState2, &initMotion, &inhibitRest);
+		
 
 	/* other joints
 	_rnd.add(&motionDone, &waitShakeWrist, &waitDeltaT1);

@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 	}
 	
 	int nSamples = __nSamples;
-	if (!YARPParseParameters::parse(argc, argv, "batchSize", &nSamples))
+	if (!YARPParseParameters::parse(argc, argv, "batchsize", &nSamples))
 	{
 		nSamples = __nSamples;
 	}

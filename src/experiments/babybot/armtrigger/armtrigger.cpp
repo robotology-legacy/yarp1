@@ -9,15 +9,30 @@ int main(int argc, char* argv[])
 	
 	TBWaitRead	waitTarget("Target");
 	TBWaitRead	waitHand("Hand");
+	TBWaitRead	waitEgoMap("EgoMap");
 	TBTransition trLookTarget("LookTarget");
+	
+	TBTransition trStore("store location to ego map");
+	TBTransition trRemove("remove location to ego map");
+	TBTransition trSetCurrent("set current location to ego map");
+
 	TBTransition trLookHand("LookHand");
 	TBTransition trArmRest("ArmRest");
 	TBTransition waitReaching("WaitReaching");
 	TBTransition waitArmRest("WaitArmRest");
 	TBIsTargetCentered checkTarget;
-	TBIsHandCentered checkHand;
+	TBIsTargetCentered checkHand;
+	TBIsTargetCentered checkEgoMap;
+	// TBIsHandCentered checkHand;
+
+	TBOutputStoreEgoMap storePoint("reaching1");
+	// TBOutputRemoveEgoMap removePoint("reaching1");
+	// TBOutputSetCurrentEgoMap setCurrentEgomap("reaching1");
+
 	TBOutputCommand lookHand(YBVAttentionLookHand);
 	TBOutputCommand lookTarget(YBVAttentionLookTarget);
+	TBOutputCommand lookEgoMap(YBVAttentionLookEgoMap);
+
 	TBOutputCommand reach(YBVReachingReach);
 	TBOutputCommand learn(YBVReachingLearn);
 	TBSimpleInput	checkArmDone(YBVArmDone);
@@ -28,12 +43,17 @@ int main(int argc, char* argv[])
 	TBOutputCommand armRest(YBVArmForceResting);
 
 	_behavior.setInitialState(&waitTarget);
-	_behavior.add(&checkTarget, &waitTarget, &waitReaching, &reach);
+	_behavior.add(&checkTarget, &waitTarget, &trStore, &storePoint);
+	_behavior.add(NULL, &trStore, &waitReaching, &reach);
 	_behavior.add(&checkArmRest, &waitTarget, &waitArmRest, &lookTarget);
+
+	_behavior.add(&checkEgoMap, &waitEgoMap, &waitArmRest, &lookTarget);
+	_behavior.add(NULL, &waitEgoMap, &waitEgoMap);
+		
 	_behavior.add(NULL, &waitTarget, &waitTarget);	// loop here
 	_behavior.add(&checkArmDone, &waitReaching, &trLookHand);
 	_behavior.add(&checkArmRest, &waitReaching, &waitArmRest, &lookTarget);
-
+	
 	_behavior.add(&checkArmRest, &trLookHand, &waitArmRest, &lookTarget);
 	_behavior.add(NULL, &trLookHand, &waitHand, &lookHand);
 	// _behavior.add(&checkHand, &waitHand, &trArmRest, &learn);

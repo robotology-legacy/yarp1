@@ -21,6 +21,7 @@ class TBSharedData
 	bool checkHand();
 
 	YARPOutputPortOf<YARPBottle> _outPort;
+	YARPOutputPortOf<YARPBottle> _egoMapPort;
 	YARPInputPortOf<YVector> _vergencePort;
 	YARPInputPortOf<YVector> _handTrackingPort;
 	YARPInputPortOf<YVector> _targetTrackingPort;
@@ -134,6 +135,20 @@ public:
 	
 	YARPBottle _bottle;
 	YBVocab _cmd;
+};
+
+class TBOutputStoreEgoMap: public TBBaseOutput
+{
+public:
+	TBOutputStoreEgoMap(const YARPString &name)
+	{
+		_name = name;
+	}
+	
+	void output(TBSharedData *d);
+	
+	YARPBottle _bottle;
+	YARPString _name;
 };
 
 #endif

@@ -16,6 +16,7 @@ public:
 	YARPInputPortOf<YVector> _handPort;
 	YARPInputPortOf<YVector> _handPredictionPort;
 	YARPInputPortOf<YVector> _targetPort;
+	YARPInputPortOf<YVector> _egoMapPort;
 	YARPOutputPortOf<YVector> _out;
 };
 
@@ -37,6 +38,12 @@ public:
 };
 
 class AttBTarget: public AttBStateBase
+{
+public:
+	void handle(AttSharedData *d);
+};
+
+class AttBEgoMap: public AttBStateBase
 {
 public:
 	void handle(AttSharedData *d);

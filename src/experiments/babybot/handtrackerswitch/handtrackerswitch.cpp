@@ -5,7 +5,6 @@
 #include <YARPRobotMath.h>
 #include <YARPPort.h>
 
-#include "att.h"
 #include "attbehavior.h"
 
 int main(int argc, char* argv[])
@@ -18,12 +17,17 @@ int main(int argc, char* argv[])
 	
 	AttBWait autolookCurrState("Auto current");
 	AttBWait autolookPredState("Auto prediction");
+	AttBWait waitInhibited1("waitInhibited1");
+	AttBWait waitInhibited2("waitInhibited2");
 	
 	AttBSimpleInput lookPredInput(YBVHTSPrediction);
 	AttBSimpleInput lookCurrInput(YBVHTSCurrent);
 	AttBSimpleInput lookAutoInput(YBVHTSAuto);
 	AttBSimpleInput armDone(YBVArmDone);
 	AttBSimpleInput armNewCmd(YBVArmIssuedCmd);
+		
+	AttBSimpleInput inhibit(YBVHTSInhibit);;
+	AttBSimpleInput enable(YBVHTSEnable);;
 
 	AttBSimpleOutput attLookPred(YBVAttentionLookPrediction);
 	AttBSimpleOutput attLookCurr(YBVAttentionLookHand);
@@ -46,6 +50,14 @@ int main(int argc, char* argv[])
 	_behavior.add(&lookPredInput, &autolookCurrState, &lookPredState, &attLookPred);
 	_behavior.add(&lookCurrInput, &autolookCurrState, &lookCurrState, &attLookCurr);
 
+	_behavior.add(&inhibit, &lookCurrState, &waitInhibited1);
+	_behavior.add(&inhibit, &lookPredState, &waitInhibited1);
+	_behavior.add(&inhibit, &autolookCurrState, &waitInhibited2);
+	_behavior.add(&inhibit, &autolookPredState, &waitInhibited2);
+
+	_behavior.add(&enable, &waitInhibited1, &lookPredState, &attLookPred);
+	_behavior.add(&enable, &waitInhibited2, &autolookPredState, &attLookPred);
+	
 	// start behavior
 	_behavior.Begin();
 	_behavior.loop();

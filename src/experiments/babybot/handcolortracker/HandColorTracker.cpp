@@ -9,6 +9,7 @@
 #include <YARPImageFile.h>
 #include <YARPLogpolar.h>
 
+#include <YARPControlBoardNetworkData.h>
 #include <YARPVectorPortContent.h>
 #include <YARPPort.h>
 
