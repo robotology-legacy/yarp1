@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.5 2004-09-06 08:12:34 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.6 2004-09-06 16:40:27 beltran Exp $
 ///
 
 /** 
@@ -193,6 +193,11 @@ public:
 	 * Just add a new vector at the end of the array.
 	 * 
 	 * @param in the YVector to be added to the template, the vector is copied to a local copy
+	 * @param flag this flag controls what to do when the Template is full.
+	 * 	-# 0 The new vector is NOT added. It returns waiting from software on the top to resize the Template
+	 * 	and repeat the adding operation.
+	 * 	-# 1 Resizes the template in just one new space and adds the new vector in this new created space.
+	 * 	-# 2 Removes the oldest vector creating the space for the new one.
 	 * 
 	 * @return The result of the operation
 	 * 	-# 0  The template is already full
@@ -202,27 +207,31 @@ public:
 	 * 		  this could happen in the case a Destroy is called before an Add
 	 */
 	inline int
-	Add(YVector &in)
+	Add(YVector &in, int flag = 0)
 	{
-		int vectorsize        = 0;
-		YVector * new_pvector = NULL;
+        int vectorsize        = 0;    /** The size of the vector we want to add.             */
+        YVector * new_pvector = NULL; /** A pointer to create a new vector for the template. */
 
 		if ( m_parray == NULL)
 		{
 			ACE_OS::fprintf(stdout,"YARPSoundTemplate: Sorry, the sound template has not memory available\n");
 			return (-2);
 		}
-
-        if (m_currentsize == m_totalsize)       // The Template is full
-            return (0);
-
-        vectorsize = in.Length();
-
+        
+		vectorsize = in.Length();
         if (m_currentsize == 0)                 // This is the first vector in the template
             m_vectors_length = vectorsize;      // Define the template vector length
         else                                    // There are some other vectors to compare with
             if (vectorsize != m_vectors_length) // The 'in' vector has a different size of that
                 return (-1);                    // of the other vectors in the template
+
+        if (m_currentsize == m_totalsize)       // The Template is full
+			switch(flag)
+			{
+                case 0: return(0);break;                // Nothing to do just returning with error
+                case 1: Resize(m_totalsize+1);break;    // Making just one space for one new vector
+                case 2: Bufferize(in); return(1);break; // Force the introduction of the new vector
+			}
 
 		new_pvector = new YVector();
 		new_pvector->Resize(m_vectors_length);
@@ -232,6 +241,73 @@ public:
 		m_parray[m_currentsize] = new_pvector;
 		m_currentsize++;
 		return 1;
+	}
+
+	/** 
+	  * Adds a vector in the position of the last element; it moves left-size all the vectors to make space 
+	  * to the new element. In other words, the oldest vector is eliminated to make space to the new arrival
+	  * that is stored at the end of the template.
+	  * 
+	  * @param vector A reference to the new vector.
+	  * 
+	  * @return YARP_OK
+	  */
+	inline 
+	int Bufferize(YVector &vector)
+	{
+		int i = 0;
+        YVector * new_pvector = NULL; /** A pointer to create a new vector for the template. */
+
+		delete m_parray[0]; // Just eliminate the first element
+
+		for( i = 0; i < m_currentsize-1; i++)
+			m_parray[i] = m_parray[i+1];
+
+		new_pvector = new YVector();
+		new_pvector->Resize(m_vectors_length);
+		*(new_pvector) = vector;
+
+		i++;
+		m_parray[i] = new_pvector;
+
+		return YARP_OK;
+		
+	}
+
+	/** 
+	  * Deletes a vector in the template; "element" determinates the position of the vector
+	  * inside the template.
+	  * 
+	  * @param index An integer that indicates the position of the vector to be eliminated (starts at 0).
+	  * 
+	  * @return 
+	  * 	-# YARP_OK if the deleting operation was done correctly
+	  * 	-# YARP_FAIL if there was an error
+	  * 		-# the index parameter was bigger than the current size of the template
+	  * 		-# the index parameter was negative
+	  */
+	inline
+	int Delete(int index)
+	{
+		int i = 0;
+		int j = 0;
+
+		if (index >= m_currentsize || index < 0)
+		{
+			ACE_OS::fprintf(stdout, "YARPSoundTemplate: Sorry! Element %d can not be removed \n",index);
+			return YARP_FAIL;
+		}
+
+		ACE_ASSERT( m_parray != NULL);
+
+		delete m_parray[index];
+
+		for( i = index; i < m_currentsize-1; i++)
+			m_parray[i] = m_parray[i+1];
+
+		m_currentsize -= 1;
+
+		return YARP_OK;
 	}
 	
 	/** 
@@ -325,13 +401,11 @@ public:
 			sum = 0.0;
 			for( j = 0; j < m_currentsize; j++)
 			{
-				// Get the pointer to the vector data
-				pvector = m_parray[j];
-				pdata = pvector->data();
-				// Add the i value of the vector to the sum
-				sum += pdata[i];
-			}
-			_means[i] = sum/m_currentsize; // We store the mean in the means vector
+                pvector = m_parray[j];     // Get the pointer to the vector data
+                pdata = pvector->data();
+                sum += pdata[i];           // Add the i value of the vector to the sum
+            }
+            _means[i] = sum/m_currentsize; // We store the mean in the means vector
 		}
 
 		//----------------------------------------------------------------------
@@ -351,7 +425,7 @@ public:
 
 		// Calculate the final covariance matrix
 		if (flag)
-			covm = (_xvars.Transposed() * _xvars) / (m_currentsize); //Check if I should use the Transpose method	
+			covm = (_xvars.Transposed() * _xvars) / (m_currentsize); /** @todo Check if I should use the Transpose method. */	
 		else
 			covm = (_xvars.Transposed() * _xvars) / (m_currentsize-1);
 

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: soundidentification.cpp,v 1.9 2004-08-24 19:54:40 beltran Exp $
+/// $Id: soundidentification.cpp,v 1.10 2004-09-06 16:40:27 beltran Exp $
 ///
 
 /** 
@@ -53,6 +53,7 @@
 #include <yarp/YARPBottle.h>
 #include <yarp/YARPBottleContent.h>
 #include <yarp/YARPThread.h>
+#include <yarp/YARPRobotHardware.h>
 
 #include "YARPDtw.h"
 #include "YARPSoundTemplate.h"
@@ -63,6 +64,8 @@ using namespace std;
 const int   __outSize    = 5;
 const char *__baseName   = "/soundidentification/";
 const char *__configFile = "sound.ini";
+int _sizex = 256;
+int _sizey = 256; /** @todo Put this as an external parameter?. */
 
 /** 
  * Runs the main processing loop. 
@@ -84,31 +87,50 @@ public:
         YARPBottle m_bottle;              // This bottle is used to control externally the
                                           // action to be taken.
         YVector _out_mfcc(L_VECTOR_MFCC); // The vector for the MFCC coefficients
+
+        YARPImageOf<YarpPixelBGR> _out_mix;   /** The mixelgram image.    */
+        YARPImageOf<YarpPixelBGR> _input_img; /** The normal input image. */
+
+        _out_img.Resize  (_sizex,_sizey);
+        _input_img.Resize(_sizex,_sizey);
+
+		_out_img.Zero();
+		
+		YARPScheduler::setHighResScheduling();
 		
 		//----------------------------------------------------------------------
 		// Port declarations 
 		//----------------------------------------------------------------------
-		YARPInputPortOf<YARPSoundBuffer> _inPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-		YARPInputPortOf<YARPBottle> _inAction(YARPInputPort::DOUBLE_BUFFERS, YARP_UDP);
-		YARPOutputPortOf<YVector> _outPort_mfcc(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+        YARPInputPortOf<YARPSoundBuffer>   _inpSound (YARPInputPort::DEFAULT_BUFFERS ,_protocol);
+        YARPInputPortOf<YARPBottle>        _inpAction(YARPInputPort::DEFAULT_BUFFERS ,_protocol);
+        YARPInputPortOf<YARPGenericImage>  _inpImg   (YARPInputPort::DEFAULT_BUFFERS ,_protocol);
+        YARPOutputPortOf<YVector>          _outpMfcc (YARPOutputPort::DEFAULT_OUTPUTS,_protocol);
+        YARPOutputPortOf<YARPGenericImage> _outpImg  (YARPOutputPort::DEFAULT_OUTPUTS,_protocol);
 
-		YARPScheduler::setHighResScheduling();
+        _inpSound.SetAllowShmem (_sharedmem);
+        _inpAction.SetAllowShmem(_sharedmem);
+        _inpImg.SetAllowShmem   (_sharedmem);
+        _outpMfcc.SetAllowShmem (_sharedmem);
+        _outpImg.SetAllowShmem  (_sharedmem);
 
 		SoundIdentificationProcessing _soundIndprocessor(__configFile,  __outSize);
 		size = _soundIndprocessor.GetSize();
 
-		YARPString base1(__baseName);
-		YARPString base2(__baseName);
+		YARPString file_name("mfcc.txt"); // Name of the file where to save the mfcc if necessary
+		YARPString base1(__baseName); YARPString base2(__baseName);
+		YARPString base3(__baseName); YARPString base4(__baseName); YARPString base5(__baseName);
 
-		_inPort.Register(base1.append("i").c_str());
-		_outPort_mfcc.Register(base2.append("srmo").c_str());
+        _inpSound.Register (base1.append("i"     ).c_str());
+        _inpAction.Register(base2.append("action").c_str());
+        _inpImg.Register   (base3.append("action").c_str());
+        _outpMfcc.Register (base4.append("mfcc"  ).c_str());
+        _outpImg.Register  (base5.append("mfcc"  ).c_str());
 
 		time1 = YARPTime::GetTimeAsSeconds();
 
 		//----------------------------------------------------------------------
 		// Main loop.
 		//----------------------------------------------------------------------
-		YARPString file_name("mfcc.txt");
 
 		//----------------------------------------------------------------------
 		//  The next variables control the action to be done by the front end. They
@@ -126,20 +148,47 @@ public:
 		//		it goal is that to detect the start-end of a sound template that needs to
 		//		be identified.
 		//----------------------------------------------------------------------
-        int _sound_order          = 0;
-        int _sound_save           = 0;
-        int _pre_sound_save       = 0;
-        int _sound_identificate   = 0;
-        int _pre_sound_idenficate = 0;
-        bool _save                = false;
-        bool _identify            = false;
+        int  _sound_order          = 0;
+        int  _sound_save           = 0;
+        int  _pre_sound_save       = 0;
+        int  _sound_identificate   = 0;
+        int  _pre_sound_idenficate = 0;
+        bool _save                 = false;
+        bool _identify             = false;
+        int  mixel_value           = 0;
 
 		while(!IsTerminated())
 		{
 			counter++;
 
-			_inPort.Read(); // Read sound stream 
-			_soundIndprocessor.apply(_inPort.Content(),_out_mfcc); 
+			_inpSound.Read(); // Read sound stream 
+			_soundIndprocessor.apply(_inpSound.Content(),_out_mfcc); 
+			
+			int ret = sound_template.Add(_out_mfcc, 2); // Adds new vector; bufferize if necessary
+
+			if (!ret) // The add has failed because no space in the template
+			{
+				sound_template.Resize();
+				sound_template.Add(_out_mfcc);
+			}
+			
+			//Read the image from the image port
+			_input_img.Refer(_inpImg.Content());
+
+			//----------------------------------------------------------------------
+			//  Go to calculate the mixel for each pixel in the image.
+			//----------------------------------------------------------------------
+			for(i = 0; i < _input_img.GetHeight(); i++ )
+				for( j = 0; j < _input_img.GetWidth(); j++)
+				{
+					mixel_value = CalculateMixel(YARPSoundTemplate &stemp, YARPGenericImage &img);
+					//somehow put the value of the mixel in the output image
+					/////_output_mix(i,j) = mixel_value;
+					//send the mixelgram image into the network
+					//
+					_outpImg.Content().Refer(_output_mix);
+					_outpImg.Write();
+				}
 
 #if 0
 			_inAction.Read(); // Read what to do with the sound than now is beeing received
@@ -174,13 +223,6 @@ public:
 			////_outPort_mfcc.Content() = _out_mfcc;
 			////_outPort_mfcc.Write();
 
-			int ret = sound_template.Add(_out_mfcc);
-
-			if (!ret) // The add has failed because no space in the template
-			{
-				sound_template.Resize();
-				sound_template.Add(_out_mfcc);
-			}
 
 			//----------------------------------------------------------------------
 			//  Time calculation stuff
@@ -203,6 +245,34 @@ public:
 		return ;
 	}
 };
+
+/** 
+  * Calculates the mixel using the mutual information from a sound stream and an image.
+  * @todo add mutual information formula.
+  * 
+  * @param stemp The sound template containing the sound parametrization.
+  * @param img   The image with the pixels to be analized.
+  * @param i     The mixel/pixel 'w' position in the image
+  * @param j     The mixel/pixel 'h' position in the image
+  * 
+  * @return The value of the mixel using the mutual information formula between the sound
+  * and the image.
+  */
+int 
+CalculateMixel(YARPSoundTemplate &stemp, YARPGenericImage &img, int i, int j)
+{
+
+    YarpPixelBGR pix(0,0,0);
+	YARPMatrix soundcovariance;
+	YARPMatrix pixelcovariance;
+	YARPMatrix mutualcovariance;
+
+	// Calculate sound covariance matrix
+	stemp.CovarianceMatrix(soundcovariance);	
+
+	// Caculate pixel covariance matrix
+	pix = img.SafePixel(i,j);
+}
 
 /** 
  * The main function.
