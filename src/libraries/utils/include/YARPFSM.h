@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPFSM.h,v 1.5 2003-07-11 16:45:12 babybot Exp $
+/// $Id: YARPFSM.h,v 1.6 2003-07-15 13:21:17 natta Exp $
 ///  
 /// Finite State Machine class -- by nat July 2003
 //
@@ -76,6 +76,13 @@ class YARPFSMInput
 		virtual bool input(FSM_SHARED_DATA *input) = 0;
 };
 
+template <class FSM_SHARED_DATA>
+class YARPFSMOutput
+{	
+	public:
+		virtual void output(FSM_SHARED_DATA *input) = 0;
+};
+
 // forward
 template <class MYFSM, class FSM_SHARED_DATA>
 class YARPFSMStateBase;
@@ -85,13 +92,15 @@ class YARPFSMTableEntry
 {
 	public:
 	YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *state;
-	YARPFSMInput<FSM_SHARED_DATA> *function;
+	YARPFSMInput<FSM_SHARED_DATA> *inFunction;
+	YARPFSMOutput<FSM_SHARED_DATA> *outFunction;
 
 	// operator == used by <list> to remove entries
 	bool operator == (const YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> &i)
 	{
-		if ( (function == i.function) &&
-			(state == i.state) )
+		if ( (inFunction == i.inFunction) &&
+			(state == i.state) &&
+			(outFunction == i.outFuncion) )
 			return true;
 		else
 			return false;
@@ -121,6 +130,8 @@ public:
 		// if table is empty use default value
 		if (_table.empty())
 		{
+			if (_defaultOut != NULL)
+				_defaultOut->output(d);
 			t->changeState(_default);
 			return false;
 		}
@@ -131,16 +142,22 @@ public:
 	
 		while (it != _table.end())
 		{
-			flag = it->function->input(d);
+			flag = it->inFunction->input(d);
 	
 			if (flag)
 			{
+				if (it->outFunction != NULL)
+					it->outFunction->output(d);
+
 				t->changeState(it->state);
 				return true;;
 			}
 			it++;
 		}
-		// none of the input were valid, use default
+		// none of the input were valid, use defaults
+		if (_defaultOut != NULL)
+			_defaultOut->output(d);
+
 		t->changeState(_default);
 		return false;
 	}
@@ -151,11 +168,15 @@ public:
 	void setDefault(YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *n)
 	{ _default = n; }
 
+	void setDefaultOut(YARPFSMOutput<FSM_SHARED_DATA> *out)
+	{ _defaultOut = out; }
+
 	bool isAs()
 	{ return _as; }
 
 	FSM_TABLE _table;
 	YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *_default;
+	YARPFSMOutput<FSM_SHARED_DATA> *_defaultOut;
 
 	bool _as;
 };
@@ -177,17 +198,18 @@ public:
 		state->decideState((MYFSM *) this, _data);
 	}
 
-	void add(YARPFSMInput<FSM_SHARED_DATA> *in,  FSM_STATE *s1, FSM_STATE *s2)
-	{
+	void add(YARPFSMInput<FSM_SHARED_DATA> *in,  FSM_STATE *s1, FSM_STATE *s2, YARPFSMOutput<FSM_SHARED_DATA> *outF = NULL)	{
 		if (in == NULL)
 		{
+			s1->setDefaultOut(outF);
 			s1->setDefault(s2);
 			s1->_table.clear();
 		}
 		else
 		{
 			YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> tmp;
-			tmp.function = in;
+			tmp.inFunction = in;
+			tmp.outFunction = outF;
 			tmp.state = (FSM_STATE *) s2;
 			FSM_STATE *tmpS = (FSM_STATE *)s1;
 			tmpS->_table.push_back(tmp);
@@ -204,7 +226,6 @@ public:
 		tmp.state = s2;
 	
 		s1->_table.remove(tmp);
-		
 	}
 
 	void changeState(FSM_STATE *n)
