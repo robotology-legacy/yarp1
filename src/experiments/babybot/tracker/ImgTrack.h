@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: ImgTrack.h,v 1.1 2003-10-24 07:20:22 gmetta Exp $
+/// $Id: ImgTrack.h,v 1.2 2003-10-24 11:27:06 babybot Exp $
 ///
 ///
 
@@ -213,6 +213,7 @@ protected:
 	/// signal a new target.
 	bool _new_target;
 	int _ex, _ey;
+	int _xx, _yy;
 
 	bool _movement;
 	int _low_q_ct;
@@ -228,10 +229,19 @@ public:
 	{
 		_lock.Wait ();
 
-		/// LATER: TO BE COMPLETED.
 		_new_target = true;
 		_ex = x;
 		_ey = y;
+		
+		_lock.Post ();
+	}
+
+	void getTarget (int& rx, int& ry)
+	{
+		_lock.Wait ();
+
+		rx = _xx;
+		ry = _yy;
 		
 		_lock.Post ();
 	}

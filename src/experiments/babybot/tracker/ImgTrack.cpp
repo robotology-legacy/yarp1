@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: ImgTrack.cpp,v 1.2 2003-10-24 08:09:02 gmetta Exp $
+/// $Id: ImgTrack.cpp,v 1.3 2003-10-24 11:27:06 babybot Exp $
 ///
 ///
 
@@ -362,6 +362,8 @@ YARPComplexTrackerTool::YARPComplexTrackerTool () : _lock(1)
 	_new_target = true;
 	_ex = _tx;
 	_ey = _ty;
+	_xx = _tx;
+	_yy = _ty;
 
 	/// other params.
 	_low_q_ct = 0;
@@ -605,4 +607,9 @@ void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<
 		AddCircle (dest, pixb, (int)sub_x, (int)sub_y, 2);
 		AddCircle (dest, pixb, (int)sub_x2, (int)sub_y2, 2);
 	}
+
+	_lock.Wait();
+	_xx = x;
+	_yy = y;
+	_lock.Post();
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_tracker.cpp,v 1.1 2003-10-24 07:20:22 gmetta Exp $
+/// $Id: attn_tracker.cpp,v 1.2 2003-10-24 11:27:06 babybot Exp $
 ///
 ///
 
@@ -77,8 +77,11 @@
 #include <YARPThread.h>
 #include <YARPSemaphore.h>
 #include <YARPImageDraw.h>
+#include <YARPLogpolar.h>
+#include <YARPMath.h>
 
 #include <YARPParseParameters.h>
+#include <YARPVectorPortContent.h>
 
 #include "ImgTrack.h"
 
@@ -87,6 +90,7 @@
 ///
 YARPInputPortOf<YARPGenericImage> in_img;
 YARPOutputPortOf<YARPGenericImage> out_img;
+YARPOutputPortOf<YVector> out_point;
 
 const char *DEFAULT_NAME = "/tracker";
 
@@ -96,9 +100,12 @@ const char *DEFAULT_NAME = "/tracker";
 ///
 int main(int argc, char *argv[])
 {
+	using namespace _logpolarParams;
+
 	YARPComplexTrackerTool tracker;
 
 	YARPString name;
+	YARPString network;
 	char buf[256];
 
 	if (!YARPParseParameters::parse(argc, argv, "name", name))
@@ -106,27 +113,57 @@ int main(int argc, char *argv[])
 		name = DEFAULT_NAME;
 	}
 
+	if (!YARPParseParameters::parse(argc, argv, "net", network))
+	{
+		network = "default";
+	}
+
 	sprintf(buf, "%s/i:img", name.c_str());
-	in_img.Register(buf);
+	in_img.Register(buf, network.c_str());
 	sprintf(buf, "%s/o:img", name.c_str());
-	out_img.Register(buf);
+	out_img.Register(buf, network.c_str());
+
+	sprintf(buf, "%s/o:vect", name.c_str());
+	out_point.Register(buf, network.c_str());
 
 	///
 	///
 	///
+	YARPImageOf<YarpPixelMono> in;
+	YARPImageOf<YarpPixelBGR> out;
+	YARPImageOf<YarpPixelBGR> colored;
+	YARPImageOf<YarpPixelBGR> remapped;
+
+	colored.Resize (_stheta, _srho);
+	remapped.Resize (128, 128);
+
+	YARPLogpolar mapper;
+	YVector v(2);
+	v = 0;
+
 	while(1)
     {
 		in_img.Read();
-		YARPImageOf<YarpPixelBGR> in;
-		YARPImageOf<YarpPixelBGR> out;
 
 		in.Refer (in_img.Content());
+		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)in, colored);
+		mapper.Logpolar2CartesianFovea (colored, remapped);
+
+		ACE_ASSERT (in.GetWidth() == _stheta && in.GetHeight() == _srho);
+		ACE_ASSERT (remapped.GetWidth() == 128 && remapped.GetHeight() == 128);
+
 		out_img.Content().SetID (YARP_PIXEL_BGR);
 
-		SatisfySize (in, out_img.Content());
+		SatisfySize (remapped, out_img.Content());
 		out.Refer (out_img.Content());
-		tracker.apply (in, out);
+		tracker.apply (remapped, out);
 		out_img.Write ();
+
+		/// get the target.
+		int x = 64, y = 64;
+		tracker.getTarget (x, y);
+		out_point.Content() = v;
+		out_point.Write();
     }
 
 	return 0;
