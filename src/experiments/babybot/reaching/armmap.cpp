@@ -81,7 +81,7 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 	else
 	{
 		_nnet.sim(tmp.data(), _command.data());
-		_fkinematics.update(arm, _command);
+		_fkinematics.update(_command, head);
 		_fkinematics.computeJacobian(x,y);		// compute from center
 		YVector tmpArm(6);
 		tmpArm(1) = _command(1);
@@ -94,8 +94,8 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 	//	tmpArm(5) = arm(5);
 	//	tmpArm(6) = arm(6);
 
-		_command = _fkinematics.computeCommandThreshold(tmpArm , x, y);	// to center
-		_sendTrajectory();
+	//	_command = _fkinematics.computeCommandThreshold(tmpArm , x, y);	// to center
+	//	_sendTrajectory();
 		
 		_formTrajectory(_command);
 	}

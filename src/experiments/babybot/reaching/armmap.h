@@ -33,7 +33,8 @@ const double __maxRnd[] = {5.0*degToRad, 5.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0
 const double __minRnd[] = {-5.0*degToRad, -5.0*degToRad, -5.0*degToRad, 0.0, 0.0, 0.0};
 
 // command used to prepare reaching
-const double __preparePosition[] = { 15*degToRad, 0.0, 0.0, 0*degToRad, 0.0, -70.0*degToRad};
+// const double __preparePosition[] = { 15*degToRad, 0.0, 0.0, 0*degToRad, 0.0, -70.0*degToRad};
+const double __preparePosition[] = { 15*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*degToRad};
 
 // offset in the shoulder to reach "from above"
 const double __shoulderOffset1 = 25*degToRad;
@@ -43,12 +44,13 @@ const double __shoulderOffset2 = 5*degToRad;
 // const double __shoulderOffset2 = 5*degToRad;
 
 // to turn the hand downwardly
-const double __wrist1 = -10*degToRad;	
-const double __wrist2 = -30*degToRad;
-const double __wrist3 = -170*degToRad;
-// const double __wrist1 = 0*degToRad;	
-// const double __wrist2 = 0*degToRad;
-// const double __wrist3 = -90*degToRad;
+// const double __wrist1 = -10*degToRad;	
+// const double __wrist2 = -30*degToRad;
+// const double __wrist3 = -170*degToRad;
+
+const double __wrist1 = 0*degToRad;	
+const double __wrist2 = 0*degToRad;
+const double __wrist3 = -90*degToRad;
 
 // offset in the retinal space, for the reaching
 const double __azimuthOffset = -6*degToRad;
