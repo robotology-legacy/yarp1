@@ -1,4 +1,3 @@
-<<<<<<< YARPGenericControlBoard.h
 /////////////////////////////////////////////////////////////////////////
 ///                                                                   ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
@@ -28,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.14 2005-03-29 20:30:32 natta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.15 2005-03-30 16:24:20 natta Exp $
 ///
 ///
 
