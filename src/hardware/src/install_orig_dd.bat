@@ -1,3 +1,9 @@
+rem compiling special libraries
+echo compiling special libraries...
+cd .\valuecan\winnt\dd_orig\lib
+nmake /f mCAN.mak CFG="mCAN - Win32 Release"
+cd ..\..\..\..
+
 rem install header files
 echo installing .h files...
 copy .\nidaq\winnt\dd_orig\include\*.h ..\..\..\include\sys

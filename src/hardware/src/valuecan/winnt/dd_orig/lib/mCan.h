@@ -27,14 +27,15 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: mCan.h,v 1.1 2004-04-29 08:08:57 babybot Exp $
+/// $Id: mCan.h,v 1.2 2004-05-19 09:32:44 babybot Exp $
 ///
 ///
 
 #ifndef __MCAN_HEADER__
 #define __MCAN_HEADER__
 
-#include <conf/YARPConfig.h>
+///#include <conf/YARPConfig.h>
+#include <windows.h>
 #include "icsnVC40.h"
 
 
