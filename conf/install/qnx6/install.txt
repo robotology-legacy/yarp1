@@ -1,6 +1,6 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.18 2003-09-10 17:03:03 beltran Exp $
+$Id: install.txt,v 1.19 2003-09-11 15:29:33 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
@@ -112,6 +112,10 @@ REQUIRES:
 	motorcontrol
 			- use "make" in %YARP_ROOT/src/libraries/motorcontrol	
 			- use "make install" in %YARP_ROOT/src/libraries/motorcontrol
+
+	math
+			-usual process make; make install in the directory:
+				%YARP_ROOT/src/libraries/math	
 	===
 
 	//utils
