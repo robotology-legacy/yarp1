@@ -52,121 +52,151 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.12 2003-06-30 09:30:06 babybot Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #pasa, paulfitz, nat#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: wide_nameloc.cpp,v 1.1 2003-06-30 09:30:06 babybot Exp $
 ///
 ///
-
-// YARPNameServer.h: interface for the YARPNameServer class.
-//
-// 
-// 
-// -- January 2003 -- by nat 
-// -- Modified for YARP April 2003 -- by nat 
-//////////////////////////////////////////////////////////////////////
-
-#if !defined __YARPNAMESERVER__
-#define __YARPNAMESERVER__
-
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
 
 #include <conf/YARPConfig.h>
-#ifndef _NOLIB
-#define _NOLIB
-#endif
-#include <wide_nameloc.h>
-
 #include <ace/config.h>
-#include <ace/SOCK_Acceptor.h>
-#include <ace/SOCK_Connector.h>
-#include <ace/SOCK_Stream.h>
-#include <ace/Log_Msg.h>
 
-#include "CThreadImpl.h"
-#include "LocalNameServer.h"
+#include "wide_nameloc.h"
 
-#define SIZE_BUF 4096
-
-class YARPNameServer: public CThreadImpl
+///
+///
+///
+void YARPNameQnx::set(const std::string &str, const std::string &node, NetInt32 pid, NetInt32 ch)
 {
-public:
-	YARPNameServer(const std::string &file, int port):
-	  CThreadImpl("name server thread",0),
-	  server_addr_(port), peer_acceptor_(server_addr_, 1)
-	{
-		  ns.init(file);
-		  data_buf_ = new char [SIZE_BUF];
+	setName(str);
+	setAddr(node, pid, ch);
+}
 
-		  start();
-	}
-	~YARPNameServer()
-	{
-		///peer_acceptor_.close();
-		terminate();
-		delete [] data_buf_;
-	}
+void YARPNameQnx::setName(const std::string &str)
+{	
+	int len = strlen(str.c_str());
+	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+	strcpy(_name, str.c_str());
+	_name[len] = 0;
+}
 
-	int accept_connection();
-	int handle_connection();
+void YARPNameQnx::setAddr(const std::string &node, NetInt32 pid, NetInt32 ch)
+{
+	int len = strlen(node.c_str());
+	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+	strcpy(_node, node.c_str());
+	_node[len] = 0;
+	_pid = pid;
+	_chan = ch;
+}
 
-	// dump current status
-	void dump_resources();
-	void dump_names();
-	void dump_statics();
-	void dump()
-	{
-		cout << "\n\n-Dumping current status:";
-		dump_statics();
-		cout << "\n";
-		dump_names();
-		cout << "\n";
-		dump_resources();
-		cout << "-End";
-	};
-	
-	void handle_registration(const std::string &service_name, const std::string &ip, int type, int n = 1);
-	void handle_query(const std::string &service_name);
-	void handle_query_qnx(const std::string &name);
-	void handle_registration_dip(const std::string &service_name, int type);
-	void handle_registration_qnx(const YARPNameQnx &entry);
-	void handle_registration_dip_dbg(const std::string &service_name, int type);
-	void handle_registration_dbg(const std::string &service_name, const std::string &ip, int type, int n = 1);
-	void query_dbg(const std::string &service_name);
-	void handle_release(const std::string &service_name);
-	void handle_release_qnx(const std::string &service_name);
+void YARPNameQnx::getAddr(std::string &node, NetInt32 *pid, NetInt32 *ch)
+{
+	node = std::string(_node);
+	*pid = _pid;
+	*ch = _chan;
+}
 
-	// usual thread methods
-	virtual void doInit()
-	{
-		// wait 0.5 sec...
-		ACE_OS::sleep(ACE_Time_Value(0,500000));
-		// just print port used
-		if (peer_acceptor_.get_local_addr (server_addr_) != -1)
-			NAME_SERVER_DEBUG (("Starting server at port %d\n", server_addr_.get_port_number ()));
-		else
-			NAME_SERVER_DEBUG (("Error: cannot get local address\n"));
-	}
-	virtual void doLoop()
-	{
-		if (accept_connection() != -1)
-			handle_connection();
-	}
-	virtual void doRelease()
-			{/* release, if any */}
+///
+///
+///
+void YARPNameTCP::set(const std::string &str, const ACE_INET_Addr &addr)
+{
+	setName(str);
+	setAddr(addr);
+}
 
-private:
-	void _handle_reply(const std::string &ip, int type, int port);
-	void _handle_reply(const std::string &ip, int type, const PORT_LIST &ports);
-	void _handle_reply(const YARPNameQnx &entry, int type);
-	LocalNameServer ns;
+void YARPNameTCP::setName(const std::string &str)
+{
+	int len = strlen (str.c_str());
+	ACE_DEBUG ((LM_DEBUG, "setName: %s len %d\n", str.c_str(), len));
+	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+	strcpy(_name, str.c_str());
+	_name[len] = 0;
+}
 
-	ACE_INET_Addr		server_addr_;
-	ACE_INET_Addr		client_addr_;
-	ACE_SOCK_Acceptor	peer_acceptor_;
-	ACE_SOCK_Stream		new_stream_;
+void YARPNameTCP::setAddr(const ACE_INET_Addr &addr)
+{
+	setIp(addr.get_host_addr());
+	setPort(addr.get_port_number());
+}
 
-	char *data_buf_;
-};
+void YARPNameTCP::setIp(const std::string &ip)
+{
+	int len = strlen(ip.c_str());
+	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+	strcpy(_ip, ip.c_str());
+	_ip[len] = 0;
+}
 
-#endif // 
+void YARPNameTCP::setPort(NetInt32 p)
+{
+	_port = p;
+}
+
+void YARPNameTCP::getAddr(ACE_INET_Addr &addr)
+{
+	addr.set(_port, _ip);
+}
+
+///
+///
+///
+void YARPNameUDP::set(const std::string &str, const ACE_INET_Addr &addr)
+{
+	setName(str);
+	setAddr(addr);
+}
+
+void YARPNameUDP::setName(const std::string &str)
+{
+	int len =  strlen(str.c_str());
+	ACE_DEBUG ((LM_DEBUG, "setName: %s len %d\n", str.c_str(), len));
+	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+	strcpy(_name, str.c_str());
+	_name[len] = 0;
+}
+
+void YARPNameUDP::setAddr(const ACE_INET_Addr &addr)
+{
+	setIp(addr.get_host_addr());
+	setPorts(0, addr.get_port_number());
+}
+
+void YARPNameUDP::setIp(const std::string &ip)
+{
+	int len = strlen(ip.c_str());
+	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+	strcpy(_ip, ip.c_str());
+	_ip[len] = 0;
+}
+
+void YARPNameUDP::setPorts(NetInt32 index, NetInt32 p)
+{
+	ACE_ASSERT( (index>=0) && (index<__YARP_NAMESERVICE_UDP_MAX_PORTS) );
+	_ports[index] = p;
+}
+
+void YARPNameUDP::setNPorts(NetInt32 n)
+{
+	ACE_ASSERT( (n>=1) && (n<=__YARP_NAMESERVICE_UDP_MAX_PORTS) );
+	_nPorts = n;
+}
+
+void YARPNameUDP::getAddr(ACE_INET_Addr &addr)
+{
+	addr.set(_ports[0], _ip);
+}
+
+NetInt32 YARPNameUDP::getPorts(NetInt32 index) 
+{
+	ACE_ASSERT( (index>=0) && (index<__YARP_NAMESERVICE_UDP_MAX_PORTS) );
+	return _ports[index];
+}

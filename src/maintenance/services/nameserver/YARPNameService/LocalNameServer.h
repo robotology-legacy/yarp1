@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.13 2003-06-25 12:53:34 babybot Exp $
+/// $Id: LocalNameServer.h,v 1.14 2003-06-30 09:30:06 babybot Exp $
 ///
 ///
 
@@ -73,6 +73,10 @@
 #endif // _MSC_VER > 1000
 
 #include <conf/YARPConfig.h>
+
+#ifndef _NOLIB
+#define _NOLIB 1
+#endif
 #include "wide_nameloc.h"
 
 #include <string>

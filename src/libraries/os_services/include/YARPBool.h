@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPBool.h,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPBool.h,v 1.3 2003-06-30 09:30:06 babybot Exp $
 ///
 ///
 /*
@@ -69,21 +69,16 @@
 #	pragma once
 #endif
 
+#error ">>>>>> YARPBool: obsolete, shouldn't be included"
+
 // may need some work to make this reliably portable
 
-#ifndef __WIN__
+#ifdef __QNX4__
 
 #	ifndef bool
 #	define bool int
 #	define true 1
 #	define false 0
-#	endif
-
-#else
-
-// this is for windows cygwin....
-#	ifndef __WIN_MSVC__
-#	include <stl_config.h>
 #	endif
 
 #endif

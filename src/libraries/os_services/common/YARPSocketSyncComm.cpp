@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.14 2003-05-28 17:42:00 gmetta Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.15 2003-06-30 09:30:06 babybot Exp $
 ///
 ///
 
@@ -324,7 +324,7 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultip
 			ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks+prefix.reply_blocks));
 		}
 
-		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
+		ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
 	}
 	/* preamble code ends */
 
@@ -367,7 +367,7 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, YARPMultipa
 			ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks+prefix.reply_blocks));
 		}
 
-		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
+		ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
 	}
 	/* preamble code ends */
 

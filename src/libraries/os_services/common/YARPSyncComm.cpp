@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSyncComm.cpp,v 1.5 2003-05-27 22:37:30 gmetta Exp $
+/// $Id: YARPSyncComm.cpp,v 1.6 2003-06-30 09:30:06 babybot Exp $
 ///
 ///
 
@@ -74,31 +74,7 @@
 ///
 static void Complete(YARPNameID& dest)
 {
-
-#if 0
-	if (dest.getServiceType() == YARP_NAME_MODE_NULL)
-	{
-///		dest = YARPNameService::GetRegistration();
-	}
-
-	if (dest.getServiceType() == YARP_NAME_MODE_NULL)
-	{
-		if (YARPNativeNameService::IsNonTrivial())
-		{
-			dest = YARPNameID(YARP_NAME_MODE_NATIVE,0);
-		}
-		else
-		{
-			dest = YARPNameID(YARP_NAME_MODE_SOCKET,0);
-		}
-	}
-#endif
-
-	/// shouldn't already know about the mode here?
-	/// LATER: this must be changed somehow.
-	/// dest = YARPNameID (YARP_TCP, ACE_INVALID_HANDLE);
-
-	/// does nothing.
+	ACE_UNUSED_ARG (dest);
 }
 
 ///

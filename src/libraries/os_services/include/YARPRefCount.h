@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRefCount.h,v 1.4 2003-06-28 16:40:01 babybot Exp $
+/// $Id: YARPRefCount.h,v 1.5 2003-06-30 09:30:06 babybot Exp $
 ///
 ///
 /*
@@ -68,7 +68,6 @@
 #include <ace/Log_Msg.h>
 
 #include "YARPAll.h"
-#include "YARPBool.h"
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.15 2003-06-28 16:40:01 babybot Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.16 2003-06-30 09:30:05 babybot Exp $
 ///
 ///
 
@@ -1751,7 +1751,7 @@ YARPOutputSocketMcast::YARPOutputSocketMcast (void)
 	for (i = 0; i < d._max_num_clients; i++)
 	{
 		d._clients[i].set ((u_short)0, INADDR_ANY);
-		d._client_names[i].resize (YARP_STRING_LEN, 0);
+		///d._client_names[i].resize (YARP_STRING_LEN, 0);
 	}
 
 	d._num_elements = 0;
@@ -1880,8 +1880,8 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._clients[j].get_host_addr(), d._clients[j].get_port_number()));
 
 		d._clients[j].set ((u_short)0, INADDR_ANY);
-		///d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
-		d._client_names[j].resize (YARP_STRING_LEN, 0);
+		d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
+		///d._client_names[j].resize (YARP_STRING_LEN, 0);
 	
 		///ACE_OS::shutdown (d._udp_socket.get_handle(), ACE_SHUTDOWN_BOTH);
 		d._udp_socket.close ();
@@ -1889,8 +1889,8 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	}
 
 	d._clients[j].set ((u_short)0, INADDR_ANY);
-	///d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
-	d._client_names[j].resize (YARP_STRING_LEN, 0);
+	d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
+	///d._client_names[j].resize (YARP_STRING_LEN, 0);
 
 	d._udp_socket.close ();
 
@@ -1972,8 +1972,8 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 
 				/// erases the client entry anyway.
 				d._clients[i].set ((u_short)0, INADDR_ANY);
-				///d._client_names[i].erase(d._client_names[i].begin(), d._client_names[i].end());
-				d._client_names[i].resize (YARP_STRING_LEN, 0);
+				d._client_names[i].erase(d._client_names[i].begin(), d._client_names[i].end());
+				///d._client_names[i].resize (YARP_STRING_LEN, 0);
 			}
 
 			/// 250 ms delay.
@@ -2052,7 +2052,7 @@ int YARPOutputSocketMcast::SendBegin(char *buffer, int buffer_length)
 {
 	OSDataMcast& d = OSDATA(system_resources);
 	d._hdr.SetGood ();
-    d._hdr.SetLength (buffer_length);
+	d._hdr.SetLength (buffer_length);
 
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "sending to: %s:%d\n", d._mcast_addr.get_host_addr(), d._mcast_addr.get_port_number()));
 

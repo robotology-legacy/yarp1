@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.6 2003-06-20 12:04:57 babybot Exp $
+/// $Id: YARPThread.cpp,v 1.7 2003-06-30 09:30:06 babybot Exp $
 ///
 ///
 
@@ -168,7 +168,7 @@ void YARPThread::Begin (int stack_size)
 int YARPThread::GetPriority (void)
 {
 	int prio = YARP_FAIL;
-	int ret = ACE_Thread::getprio ((ACE_hthread_t)system_resource, prio);
+	ACE_Thread::getprio ((ACE_hthread_t)system_resource, prio);
 	return prio;
 }
 

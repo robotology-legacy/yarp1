@@ -61,12 +61,20 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.7 2003-06-28 16:40:01 babybot Exp $
+/// $Id: wide_nameloc.h,v 1.8 2003-06-30 09:30:06 babybot Exp $
 ///
 ///
 
 #ifndef wide_nameloc_INC
 #define wide_nameloc_INC
+
+#if defined(_NOLIB)
+#	if defined(_ISLIB)
+#	undef _ISLIB
+#	endif
+#else
+#	define _ISLIB 1
+#endif
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
@@ -114,9 +122,19 @@ struct YARPNameServiceCmd
 	NetInt32 type;
 } PACKED_FOR_NET;
 
+///
+///
+///
 class YARPNameQnx
 {
 public:
+#ifdef _ISLIB
+	void set(const std::string &str, const std::string &node, NetInt32 pid, NetInt32 ch);
+	void setName(const std::string &str);
+	void setAddr(const std::string &node, NetInt32 pid, NetInt32 ch);
+	void getAddr(std::string &node, NetInt32 *pid, NetInt32 *ch);
+
+#else
 	void set(const std::string &str, const std::string &node, NetInt32 pid, NetInt32 ch)
 	{
 		setName(str);
@@ -147,6 +165,7 @@ public:
 		*pid = _pid;
 		*ch = _chan;
 	}
+#endif
 
 	const char *getName() const { return _name; }
 	const char *getNode() const { return _node; }
@@ -163,6 +182,14 @@ public:
 class YARPNameTCP
 {
 public:
+#ifdef _ISLIB
+	void set(const std::string &str, const ACE_INET_Addr &addr);
+	void setName(const std::string &str);
+	void setAddr(const ACE_INET_Addr &addr);
+	void setIp(const std::string &ip);
+	void setPort(NetInt32 p);
+	void getAddr(ACE_INET_Addr &addr);
+#else
 	void set(const std::string &str, const ACE_INET_Addr &addr)
 	{
 		setName(str);
@@ -201,6 +228,7 @@ public:
 	{
 		addr.set(_port, _ip);
 	}
+#endif
 
 	const char *getName() const { return _name; }
 	const char *getIp() const { return _ip; }
@@ -212,9 +240,22 @@ public:
 	NetInt32 _port;
 } PACKED_FOR_NET;
 
+///
+///
+///
 class YARPNameUDP
 {
 public:
+#ifdef _ISLIB
+	void set(const std::string &str, const ACE_INET_Addr &addr);
+	void setName(const std::string &str);
+	void setAddr(const ACE_INET_Addr &addr);
+	void setIp(const std::string &ip);
+	void setPorts(NetInt32 index, NetInt32 p);
+	void setNPorts(NetInt32 n);
+	void getAddr(ACE_INET_Addr &addr);
+	NetInt32 getPorts(NetInt32 index); 
+#else
 	void set(const std::string &str, const ACE_INET_Addr &addr)
 	{
 		setName(str);
@@ -261,14 +302,15 @@ public:
 		addr.set(_ports[0], _ip);
 	}
 
-	const char *getName() const { return _name; }
-	const char *getIp() const { return _ip; }
-
 	NetInt32 getPorts(NetInt32 index) 
 	{
 		ACE_ASSERT( (index>=0) && (index<__YARP_NAMESERVICE_UDP_MAX_PORTS) );
 		return _ports[index];
 	}
+#endif
+
+	const char *getName() const { return _name; }
+	const char *getIp() const { return _ip; }
 
 	int length() { return sizeof(YARPNameUDP); }
 
@@ -277,36 +319,8 @@ public:
 	NetInt32 _ports[__YARP_NAMESERVICE_UDP_MAX_PORTS];
 	NetInt32 _nPorts;
 } PACKED_FOR_NET;
+
 #include "end_pack_for_net.h"
-
-///
-///
-///
-///enum NameServiceRequest
-///{
-///	NAME_NO_ACTION,
-///	NAME_REGISTER,
-///	NAME_LOOKUP,
-///};
-
-///
-///
-///
-#if 0
-#include "begin_pack_for_net.h"
-struct NameServiceHeader
-{
-	NetInt32 port;
-	NetInt32 key_length;
-	NetInt32 machine_length;
-	NetInt32 spare1;
-	NetInt32 spare2;
-	char request_type;
-} PACKED_FOR_NET;
-#include "end_pack_for_net.h"
-#endif
-
-
 
 
 #endif

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.17 2003-06-28 16:40:01 babybot Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.18 2003-06-30 09:30:06 babybot Exp $
 ///
 ///
 
@@ -609,9 +609,9 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 	///
 	ACE_INET_Addr addr;
 	
-	std::string sname;
-	sname.resize (YARP_STRING_LEN, 0);
-	sname.assign (name);
+	std::string sname = name;
+	///sname.resize (YARP_STRING_LEN, 0);
+	///sname.assign (name);
 
 	switch (name_type)
 	{

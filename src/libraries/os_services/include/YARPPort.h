@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.5 2003-05-01 22:51:19 gmetta Exp $
+/// $Id: YARPPort.h,v 1.6 2003-06-30 09:30:06 babybot Exp $
 ///
 ///
 
@@ -85,7 +85,6 @@
 
 ///#include <assert.h>
 
-#include "YARPBool.h"
 #include "YARPPortContent.h"
 #include "YARPNameID.h"
 
