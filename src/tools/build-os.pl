@@ -26,7 +26,6 @@ if (!defined($yarp_root))
 require "$yarp_root/conf/configure.template.pl" or die "Can't find template file $yarp_root/conf/configure.template.pl\n";
 
 my $exp_os = check_os();
-
 my $debug = '';
 my $release = '';
 my $clean = '';

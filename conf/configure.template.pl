@@ -226,7 +226,7 @@ sub do_ext_compile
 		chmod 0755, $1;
 	}
 	
-	open TOOLS, "$exe|";
+	open TOOLS, "perl $exe|";
 	while (<TOOLS>)
 	{
 		print;
