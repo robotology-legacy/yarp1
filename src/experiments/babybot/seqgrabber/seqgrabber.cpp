@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: seqgrabber.cpp,v 1.4 2005-01-28 17:44:08 babybot Exp $
+/// $Id: seqgrabber.cpp,v 1.5 2005-02-21 12:05:24 babybot Exp $
 /// 
 
 #include <yarp/YARPConfig.h>
@@ -207,38 +207,38 @@ int main(int argc, char *argv[])
 		{
 			if (stereo)
 			{
-				sprintf(tmpName, "%s%sL%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+				sprintf(tmpName, "%s%sL%05d.ppm", outdir.c_str(), name.c_str(), frameCounter);
 				YARPImageFile::Write(tmpName, _image1Port.Content());
 			
-				sprintf(tmpName, "%s%sR%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+				sprintf(tmpName, "%s%sR%05d.ppm", outdir.c_str(), name.c_str(), frameCounter);
 				YARPImageFile::Write(tmpName, _image2Port.Content());
 			}
 			else if(cinque)
 			{
-				sprintf(tmpName, "%s%s1_%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+				sprintf(tmpName, "%s%s1_%05d.ppm", outdir.c_str(), name.c_str(), frameCounter);
 				YARPImageFile::Write(tmpName, _image1Port.Content());
 
 				if(_image2Port.Read(0))
 				{
-					sprintf(tmpName, "%s%s2_%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+					sprintf(tmpName, "%s%s2_%05d.ppm", outdir.c_str(), name.c_str(), frameCounter);
 					YARPImageFile::Write(tmpName, _image2Port.Content());
 				}
 
 				if(_image3Port.Read(0))
 				{
-					sprintf(tmpName, "%s%s3_%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+					sprintf(tmpName, "%s%s3_%05d.ppm", outdir.c_str(), name.c_str(), frameCounter);
 					YARPImageFile::Write(tmpName, _image3Port.Content());
 				}
 
 				if(_image4Port.Read(0))
 				{
-					sprintf(tmpName, "%s%s4_%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+					sprintf(tmpName, "%s%s4_%05d.ppm", outdir.c_str(), name.c_str(), frameCounter);
 					YARPImageFile::Write(tmpName, _image4Port.Content());
 				}
 
 				if(_image5Port.Read(0))
 				{
-					sprintf(tmpName, "%s%s5_%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+					sprintf(tmpName, "%s%s5_%05d.ppm", outdir.c_str(), name.c_str(), frameCounter);
 					YARPImageFile::Write(tmpName, _image5Port.Content());
 				}
 			}
