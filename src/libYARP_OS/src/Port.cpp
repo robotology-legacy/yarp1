@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.14 2004-08-02 12:31:55 eshuy Exp $
+/// $Id: Port.cpp,v 1.15 2004-08-04 15:23:55 eshuy Exp $
 ///
 ///
 
@@ -1708,10 +1708,13 @@ int Port::SaySelfEnd(void)
 		}
 	}
 
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 	if (self_id != NULL)
 	{
+	  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 		if (self_id->isValid())
 		{
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 			result = SendHelper (*self_id, NULL, 0, MSG_ID_DETACH_ALL);
 		}
 
