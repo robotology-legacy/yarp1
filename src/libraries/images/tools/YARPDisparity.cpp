@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.14 2004-01-30 17:11:10 fberton Exp $
+/// $Id: YARPDisparity.cpp,v 1.15 2004-01-30 17:30:52 fberton Exp $
 ///
 ///
 
@@ -78,8 +78,8 @@
 YARPDisparityTool::YARPDisparityTool()
 {
 	char *yarproot = GetYarpRoot();
-//	ACE_OS::sprintf(_path,"%s/%s/\0", yarproot, "conf");
-	ACE_OS::sprintf(_path,"%s","c:/temp/tables/prefix/");
+	ACE_OS::sprintf(_path,"%s/%s/\0", yarproot, "conf");
+//	ACE_OS::sprintf(_path,"%s","c:/temp/tables/prefix/");
 
 	_dsTable		= NULL;
 	_shiftFunction	= NULL;
