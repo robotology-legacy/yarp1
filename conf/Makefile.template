@@ -9,7 +9,9 @@ ifeq ($(shell uname),QNX)
   SYSLIB = 
   ifneq (,$(findstring $(shell uname -r),$(QNX_VER)))
 	SYSDIR = qnx6
-	EXTRA_OPTS = -fexceptions -pipe -W -Wall -Wpointer-arith -gstabs -Wno-uninitialized
+# EXTRA_OPTS = -fexceptions -pipe -W -Wall -Wpointer-arith -gstabs -Wno-uninitialized
+# changed by pasa, I wonder whether this is needed. 
+	EXTRA_OPTS = 
 	CC = g++
 	CC1 = gcc
 	CDEFS = $(EXTRA_OPTS) -D__QNX__ -D__QNX6__ -I/usr/local/include/g++-3/
