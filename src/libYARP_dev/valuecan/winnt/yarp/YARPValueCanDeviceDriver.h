@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.4 2004-09-05 14:47:56 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.5 2004-10-24 19:02:07 babybot Exp $
 ///
 ///
 
@@ -172,8 +172,9 @@ protected:
 	int setTorqueLimits (void *cmd);
 	int getTorqueLimit (void *cmd);
 	int getTorqueLimits (void *cmd);
-	int getErrorStatus(void *cmd);
-	
+	int getErrorStatus (void *cmd);
+	int checkMotionDone (void *cmd);
+
 	int setDebugMessageFilter (void *cmd);
 	int setDebugPrintFunction (void *cmd);
 

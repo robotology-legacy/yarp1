@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.5 2004-09-05 14:47:56 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.6 2004-10-24 19:02:07 babybot Exp $
 ///
 ///
 
@@ -323,6 +323,7 @@ YARPValueCanDeviceDriver::YARPValueCanDeviceDriver(void)
 
 	m_cmds[CMDSetCommand] = &YARPValueCanDeviceDriver::setCommand;
 	m_cmds[CMDSetCommands] = &YARPValueCanDeviceDriver::setCommands;
+	m_cmds[CMDCheckMotionDone] = &YARPValueCanDeviceDriver::checkMotionDone;
 
 	m_cmds[CMDGetTorque] = &YARPValueCanDeviceDriver::getTorque;
 	m_cmds[CMDGetTorques] = &YARPValueCanDeviceDriver::getTorques;
@@ -1272,6 +1273,33 @@ int YARPValueCanDeviceDriver::getErrorStatus (void *cmd)
 	else
 		return YARP_FAIL;
 
+	return YARP_OK;
+}
+
+/// cmd is a pointer to a bool
+int YARPValueCanDeviceDriver::checkMotionDone (void *cmd)
+{
+	ValueCanResources& r = RES(system_resources);
+	int i;
+	short value;
+	bool *out = (bool *) cmd;
+
+	for(i = 0; i < r._njoints; i++)
+	{
+		if (ENABLED(i))
+		{
+			if (_readWord16 (CAN_MOTION_DONE, i, value) == YARP_OK)
+			{
+				if (!value)
+				{
+					*out = false;
+					return YARP_OK;
+				}
+			}
+		}
+	}
+
+	*out = true;
 	return YARP_OK;
 }
 

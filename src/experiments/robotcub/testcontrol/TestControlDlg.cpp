@@ -243,6 +243,8 @@ BEGIN_MESSAGE_MAP(CTestControlDlg, CDialog)
 	ON_CBN_SELENDOK(IDC_COMBO_ENTRY_ARM, OnSelendokComboEntryArm)
 	ON_BN_CLICKED(IDC_BUTTON_ALL, OnButtonAll)
 	ON_CBN_SELENDOK(IDC_COMBO_ENTRY_ALL, OnSelendokComboEntryAll)
+	ON_COMMAND(ID_POSTURES_SETSEQUENCE, OnPosturesSetsequence)
+	ON_UPDATE_COMMAND_UI(ID_POSTURES_SETSEQUENCE, OnUpdatePosturesSetsequence)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -281,9 +283,11 @@ BOOL CTestControlDlg::OnInitDialog()
 
 	// modeless dialog boxes.
 	_gaincontroldlg.Create (CGainControlDlg::IDD, this);
-//	_gaincontroldlg.m_parent = this;
+	//	_gaincontroldlg.m_parent = this;
 
 	_calibrationdlg.Create (CCalibrationDlg::IDD, this);
+
+	_sequencedlg.Create (CSeqDlg::IDD, this);
 
 	// sort of initialization.
 	m_entry_ctrl.SetCurSel(0);
@@ -1118,11 +1122,11 @@ void CTestControlDlg::OnButtonAll()
 		ACE_OS::memcpy (_headjointstore, m_v, sizeof(double) * MAX_HEAD_JNTS);
 		head.setVelocities (_headjointstore);
 
-		ACE_OS::memcpy (_headjointstore, m_p, sizeof(double) * MAX_HEAD_JNTS);
-		head.setPositions (_headjointstore);
-
 		ACE_OS::memcpy (_armjointstore, m_va, sizeof(double) * MAX_ARM_JNTS);
 		arm.setVelocities (_armjointstore);
+
+		ACE_OS::memcpy (_headjointstore, m_p, sizeof(double) * MAX_HEAD_JNTS);
+		head.setPositions (_headjointstore);
 
 		ACE_OS::memcpy (_armjointstore, m_pa, sizeof(double) * MAX_ARM_JNTS);
 		arm.setPositions (_armjointstore);
@@ -1148,4 +1152,14 @@ void CTestControlDlg::OnSelendokComboEntryAll()
 
 		UpdateData(FALSE);
 	}
+}
+
+void CTestControlDlg::OnPosturesSetsequence() 
+{
+	_sequencedlg.ShowWindow(SW_SHOW);
+}
+
+void CTestControlDlg::OnUpdatePosturesSetsequence(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable (_headinitialized || _arminitialized);
 }

@@ -99,7 +99,7 @@ byte	_general_board_error = ERROR_NONE;
 
 volatile bool _wait = true;				/* wait on timer variable */
 
-extern _ended[];						/* trajectory completed flag */
+extern bool _ended[];						/* trajectory completed flag */
 #define IS_DONE(jj) (_ended[jj])
 
 /* Local prototypes */
@@ -485,7 +485,9 @@ void main(void)
 
 	/* initialization */
 	DSP_SendDataEx ("\r\n\n");
-	DSP_SendDataEx ("Firmware - ver 1.1\r\n");
+	DSP_SendDataEx ("Firmware - ver ");
+	DSP_SendDataEx (VERSION);
+	DSP_SendDataEx ("\r\n");
 	
 	PWMC1_Enable ();
 	PWMC2_Enable ();  
@@ -674,6 +676,7 @@ byte can_interface (void)
 		HANDLE_MSG (CAN_ENABLE_PWM_PAD, CAN_ENABLE_PWM_PAD_HANDLER)
 		HANDLE_MSG (CAN_DISABLE_PWM_PAD, CAN_DISABLE_PWM_PAD_HANDLER)
 		HANDLE_MSG (CAN_GET_CONTROL_MODE, CAN_GET_CONTROL_MODE_HANDLER)
+		HANDLE_MSG (CAN_MOTION_DONE, CAN_MOTION_DONE_HANDLER)
 		
 		HANDLE_MSG (CAN_WRITE_FLASH_MEM, CAN_WRITE_FLASH_MEM_HANDLER)
 		HANDLE_MSG (CAN_READ_FLASH_MEM, CAN_READ_FLASH_MEM_HANDLER)
@@ -759,8 +762,9 @@ byte serial_interface (void)
 		case 'H':
 		case '\r':
 			DSP_SendDataEx ("\r\n\n");
-			DSP_SendDataEx ("Firmware - ver 1.1\r\n");
-			DSP_SendDataEx ("h, H: help\r\n");
+			DSP_SendDataEx ("Firmware - ver ");
+			DSP_SendDataEx (VERSION);
+			DSP_SendDataEx ("\r\nh, H: help\r\n");
 			
 			DSP_SendDataEx ("a, set card address\r\n");
 			DSP_SendDataEx ("b, print card address\r\n");

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.2 2004-09-05 14:47:56 babybot Exp $
+/// $Id: Controller.H,v 1.3 2004-10-24 19:02:07 babybot Exp $
 ///
 ///
 
@@ -46,6 +46,7 @@
 #define true 1
 #endif
 
+#define VERSION "1.11"				/* the version of this code */
 #define DEFAULT_BOARD_ID	15		/* default ID for receiving messages (4 bit field) */
 #define SMALL_BUFFER_SIZE 	10		/* for serial I/O */
 #define CONTROLLER_PERIOD 	1		/* espressed in ms */
@@ -110,6 +111,7 @@ long BYTE_C(byte x4, byte x3, byte x2, byte x1);
 #define CAN_ENABLE_PWM_PAD			5
 #define CAN_DISABLE_PWM_PAD			6
 #define CAN_GET_CONTROL_MODE		7
+#define CAN_MOTION_DONE				8
 
 #define CAN_WRITE_FLASH_MEM			10
 #define CAN_READ_FLASH_MEM			11

@@ -101,6 +101,10 @@ SOURCE=.\GainControlDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SeqDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdAfx.cpp
 # ADD CPP /Yc"stdafx.h"
 # End Source File
@@ -135,6 +139,10 @@ SOURCE=.\GainControlDlg.h
 # Begin Source File
 
 SOURCE=.\Resource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SeqDlg.h
 # End Source File
 # Begin Source File
 

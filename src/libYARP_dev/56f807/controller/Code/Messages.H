@@ -126,6 +126,24 @@
 		_general_board_error = ERROR_SEND; \
 }
 
+#define CAN_MOTION_DONE_HANDLER(x) \
+{ \
+	CAN_DATA[0] = CAN_DATA[0] >> 4; \
+	CAN_DATA[0] |= (_board_ID << 4); \
+	if (CAN1_GetStateTX () != 0) \
+	{ \
+		int i = CHANNEL(CAN_DATA[1]); \
+		CAN_LEN = 4; \
+		/* CAN_DATA[1] untouched */ \
+		CAN_DATA[2] = BYTE_H(_ended[i]); \
+		CAN_DATA[3] = BYTE_L(_ended[i]); \
+		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
+	} \
+	else \
+		_general_board_error = ERROR_SEND; \
+}
+
 #define CAN_WRITE_FLASH_MEM_HANDLER(x) \
 { \
 	writeToFlash (); \

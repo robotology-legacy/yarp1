@@ -85,7 +85,8 @@ void CTestAxisDlg::OnButtonStartm()
 
 	m_index = p.m_axis_ctrl.GetCurSel();
 	const int duration = (int)ceil (fabs(m_startposition - m_stopposition) / m_speed + .5);
-	const int MARGIN = 200;
+	///const int MARGIN = 200;
+	const int MSECONDS = 100;
 
 	if (m_index != CB_ERR && duration < 32767 && duration >= 1)
 	{
@@ -114,7 +115,14 @@ void CTestAxisDlg::OnButtonStartm()
 		param = m_startposition;
 		p.m_driver.IOCtl(CMDSetPosition, (void *)&x);
 	
-		SetTimer (TIMER2_ID, duration+MARGIN, NULL); 
+		bool done = false;
+		while (!done)
+		{
+			p.m_driver.IOCtl(CMDCheckMotionDone, (void *)&done);
+			YARPTime::DelayInSeconds(0.1);
+		}
+
+		SetTimer (TIMER2_ID, MSECONDS, NULL); 
 	}
 	else
 	{
@@ -139,14 +147,23 @@ void CTestAxisDlg::OnTimer(UINT nIDEvent)
 {
 	if (m_repetition < m_repetitions)
 	{
+		CCanControlDlg& p = *(CCanControlDlg *)GetParent();
+		SingleAxisParameters x;
+		x.axis = m_index;				
+
+		bool done = false;
+		p.m_driver.IOCtl(CMDCheckMotionDone, (void *)&done);
+
+		if (!done)
+		{	
+			CDialog::OnTimer(nIDEvent);
+			return;
+		}
+
 		m_repetition ++;
 		if ((m_repetition % 2) == 0)
 		{
-			CCanControlDlg& p = *(CCanControlDlg *)GetParent();
-
 			/// go to start.
-			SingleAxisParameters x;
-			x.axis = m_index;				
 			double param = 0;
 			x.parameters = &param;
 
@@ -162,11 +179,6 @@ void CTestAxisDlg::OnTimer(UINT nIDEvent)
 		else
 		{
 			/// go to stop.
-			CCanControlDlg& p = *(CCanControlDlg *)GetParent();
-
-			/// go to start.
-			SingleAxisParameters x;
-			x.axis = m_index;				
 			double param = 0;
 			x.parameters = &param;
 

@@ -10,6 +10,7 @@
 
 #include "GainControlDlg.h"
 #include "CalibrationDlg.h"
+#include "SeqDlg.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // CTestControlDlg dialog
@@ -53,7 +54,8 @@ public:
 
 	CGainControlDlg _gaincontroldlg;
 	CCalibrationDlg _calibrationdlg;
-
+	CSeqDlg			_sequencedlg;
+	
 	// my hack!
 	CEdit	m_sa_ctrl[MAX_ARM_JNTS];
 	CEdit	m_va_ctrl[MAX_ARM_JNTS];
@@ -144,6 +146,8 @@ protected:
 	afx_msg void OnSelendokComboEntryArm();
 	afx_msg void OnButtonAll();
 	afx_msg void OnSelendokComboEntryAll();
+	afx_msg void OnPosturesSetsequence();
+	afx_msg void OnUpdatePosturesSetsequence(CCmdUI* pCmdUI);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
