@@ -3,7 +3,7 @@
 #ifndef __GALILONEUROBOTARMADAPTER__
 #define __GALILONEUROBOTARMADAPTER__
 
-// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.2 2003-07-30 14:18:39 beltran Exp $
+// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.3 2003-07-30 16:12:52 beltran Exp $
 
 #include <ace/log_msg.h>
 #include <YARPGalilDeviceDriver.h>
@@ -260,6 +260,8 @@ public:
 
 		/* First the card needs to be reseted */
 		IOCtl(CMDResetController, NULL);
+		idleMode();
+		_amplifiers = false;
 
 		// amp level and limits
 		for(int i=0; i < _parameters->_nj; i++)
@@ -281,6 +283,11 @@ public:
 
 			SingleAxisParameters cmd;
 			cmd.axis=i;
+
+			double motor_type = -1; //Servo motor with reversed polarity
+			cmd.paramenters=&motor_type;
+
+			IOCtl(CMDMotorType,&cmd);
 			
 			int error = 2000;
 			cmd.parameters=&error;
@@ -292,6 +299,8 @@ public:
 			cmd.parameters=&value;
 			///set the off_on error
 			IOCtl(CMDOffOnError,&cmd); 
+
+
 			
 			// PUMA has no hw limits
 			// set limit events-> none
@@ -308,10 +317,17 @@ public:
 		cmd.port = 1;
 		cmd.value = (short) 0x01;
 		******************/
-		idleMode();
-		_amplifiers = false;
-		/////////////////////////
 		
+		/////////////////////////
+		// This activates the necesary bit in the output port to be able to start the puma
+		// The value has been obtained empirically. It is sure it can be improved by using
+		// the time to search the exact bit
+
+		IOParameters cmd;
+		cmd.port = 1; //This is ignored
+		cmd.value = (short) 255;
+
+		IOCtl(CMDSetOutputPort,&cmd);		
 	
 		_initialized = true;
 		return YARP_OK;
