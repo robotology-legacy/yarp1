@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.13 2003-10-30 14:09:58 beltran Exp $
+#$Id: Makefile,v 1.14 2004-02-04 15:09:26 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -6,7 +6,7 @@ include $(YARP_ROOT)/conf/Makefile.template
 
 OBJS =
 #CC = g++
-CFLAGS = -I $(YARP_ROOT)/include -I ../../common -I ../$(OS)/dd_orig/include 
+CFLAGS = $(CFAST) $(CDEFS) -I $(YARP_ROOT)/include -I ../../common -I ../$(OS)/dd_orig/include 
 
 SUBDIRS =
 

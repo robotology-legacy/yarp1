@@ -1,11 +1,11 @@
-# $Id: Makefile,v 1.10 2004-01-13 15:53:58 beltran Exp $
+# $Id: Makefile,v 1.11 2004-02-04 15:09:26 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
 #OBJS = $(patsubst %.cpp, %.o, $(wildcard *.cpp))
 #OBJS = YARPGALILOnEurobotHeadAdapter.o
 
-CFLAGS = -g -I../include -I../sys_include -I$(YARP_ROOT)/include/ -I$(YARP_ROOT)/src/hardware/include \
+CFLAGS = $(CFAST) $(CDEFS) -I../include -I../sys_include -I$(YARP_ROOT)/include/ -I$(YARP_ROOT)/src/hardware/include \
 -I../common
 
 LIBS = $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib $(YARP_ROOT)/bin/$(SYSDIR)/libACE.so \

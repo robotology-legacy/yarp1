@@ -1,8 +1,10 @@
 # Makefile for bbtvx and blit (visualization)
 
 CC=qcc
-CFLAGS= -g
-LDFLAGS= -g
+#CFLAGS= -g
+#LDFLAGS= -g
+CFLAGS= 
+LDFLAGS= 
 SRC=bttvx.c
 SRC2=blit.c
 OBJS=bttvx.o bttvx_dev.o

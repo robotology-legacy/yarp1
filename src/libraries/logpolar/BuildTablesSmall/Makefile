@@ -1,9 +1,9 @@
-#$Id: Makefile,v 1.6 2004-01-31 00:55:52 babybot Exp $
+#$Id: Makefile,v 1.7 2004-02-04 15:09:26 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
 OBJS =
-CFLAGS = -I $(YARP_ROOT)/include $(CFAST)
+CFLAGS = $(CFAST) $(CDEFS) -I $(YARP_ROOT)/include 
 LIBS = $(YARP_ROOT)/lib/$(OS)/LogPolarSmallSDK.lib
 
 all: BuildTablesSmall
