@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.h,v 1.4 2003-04-22 17:01:19 gmetta Exp $
+/// $Id: YARPSocket.h,v 1.5 2003-05-14 17:17:24 gmetta Exp $
 ///
 ///
 
@@ -116,25 +116,84 @@ public:
 	int getSocketType (void) const { return _socktype; }
 
 	virtual int Close(void) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int Close(ACE_HANDLE reply_id) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
+	virtual int Close(ACE_HANDLE reply_id) { ACE_UNUSED_ARG(reply_id); ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
 	virtual int CloseAll(void) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
 
-	virtual int Prepare (const YARPUniqueNameID& name) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
+	virtual int Prepare (const YARPUniqueNameID& name) { ACE_UNUSED_ARG(name); ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
+	virtual int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL) 
+	{ 
+		ACE_UNUSED_ARG(buffer); 
+		ACE_UNUSED_ARG(buffer_length);
+		ACE_UNUSED_ARG(reply_id);
+		ACE_ASSERT (NOT_IMPLEMENTED); 
+		return YARP_FAIL; 
+	}
+	virtual int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL) 
+	{
+		ACE_UNUSED_ARG(buffer);
+		ACE_UNUSED_ARG(buffer_length);
+		ACE_UNUSED_ARG(reply_id); 
+		ACE_ASSERT (NOT_IMPLEMENTED); 
+		return YARP_FAIL; 
+	}
+	virtual int ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length) 
+	{
+		ACE_UNUSED_ARG(reply_id);
+		ACE_UNUSED_ARG(buffer);
+		ACE_UNUSED_ARG(buffer_length); 
+		ACE_ASSERT (NOT_IMPLEMENTED); 
+		return YARP_FAIL; 
+	}
+	virtual int ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length) 
+	{
+		ACE_UNUSED_ARG(reply_id);
+		ACE_UNUSED_ARG(reply_buffer);
+		ACE_UNUSED_ARG(reply_buffer_length); 
+		ACE_ASSERT (NOT_IMPLEMENTED); 
+		return YARP_FAIL; 
+	}
+	virtual int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length) 
+	{
+		ACE_UNUSED_ARG(reply_id);
+		ACE_UNUSED_ARG(reply_buffer);
+		ACE_UNUSED_ARG(reply_buffer_length); 
+		ACE_ASSERT (NOT_IMPLEMENTED); 
+		return YARP_FAIL; 
+	}
 
 	virtual ACE_HANDLE GetIdentifier(void) const { ACE_ASSERT (NOT_IMPLEMENTED); return ACE_INVALID_HANDLE; }
-	virtual void SetIdentifier(int n_identifier) { ACE_ASSERT (NOT_IMPLEMENTED); }
+	virtual void SetIdentifier(int n_identifier) { ACE_UNUSED_ARG(n_identifier); ACE_ASSERT (NOT_IMPLEMENTED); }
 	virtual int GetAssignedPort(void) const { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
 	virtual int Connect(void) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
 	
-	virtual int SendBegin(char *buffer, int buffer_length) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int SendContinue(char *buffer, int buffer_length) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int SendReceivingReply(char *reply_buffer, int reply_buffer_length) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int SendEnd(char *reply_buffer, int reply_buffer_length) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
+	virtual int SendBegin(char *buffer, int buffer_length) 
+	{
+		ACE_UNUSED_ARG(buffer);
+		ACE_UNUSED_ARG(buffer_length); 
+		ACE_ASSERT (NOT_IMPLEMENTED); 
+		return YARP_FAIL; 
+	}
+	virtual int SendContinue(char *buffer, int buffer_length) 
+	{
+		ACE_UNUSED_ARG(buffer);
+		ACE_UNUSED_ARG(buffer_length); 
+		ACE_ASSERT (NOT_IMPLEMENTED); 
+		return YARP_FAIL; 
+	}
+	virtual int SendReceivingReply(char *reply_buffer, int reply_buffer_length) 
+	{
+		ACE_UNUSED_ARG(reply_buffer);
+		ACE_UNUSED_ARG(reply_buffer_length); 
+		ACE_ASSERT (NOT_IMPLEMENTED); 
+		return YARP_FAIL; 
+	}
+	virtual int SendEnd(char *reply_buffer, int reply_buffer_length) 
+	{
+		ACE_UNUSED_ARG(reply_buffer);
+		ACE_UNUSED_ARG(reply_buffer_length); 
+		ACE_ASSERT (NOT_IMPLEMENTED); 
+		return YARP_FAIL; 
+	}
 
 	virtual int GetServiceType (void) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
 };

@@ -11,11 +11,14 @@
 include $(YARP_ROOT)/conf/Makefile.template
 CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS)
 
-#BIN     = exec_test1
+#BIN     = exec_test1 exec_test2
+BIN     = exec_test2
 LDLIBS  = $(MATHLIB) $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib
 
 BUILD = $(VBIN)
 
+# For make depend.
+SRC = $(addsuffix .cpp, $(BIN))
 
 #----------------------------------------------------------------------------
 #       Include macros and targets
@@ -28,54 +31,16 @@ include $(ACE_ROOT)/include/makeinclude/rules.nonested.GNU
 include $(ACE_ROOT)/include/makeinclude/rules.bin.GNU
 include $(ACE_ROOT)/include/makeinclude/rules.local.GNU
 
-GENDIR = obj/$(SYSDIR)
+#----------------------------------------------------------------------------
+#       Local targets
+#----------------------------------------------------------------------------
 
-TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp))
-EXEC_TARGETS = $(patsubst %.cpp, $(GENDIR)/%, $(wildcard exec_*.cpp))
+#----------------------------------------------------------------------------
+#       Dependencies
+#----------------------------------------------------------------------------
 
-BIN	= exec_test1
-
-# For make depend.
-SRC = $(addsuffix .cpp, $(BIN))
-
-
-VPATH += $(GENDIR)
-
-all: target
-
-test: target
-	@for f in $(EXEC_TARGETS); do \
-	echo "# Executing $$f ################################"; \
-	$$f; \
-	done
-
-target: $(TARGETS) $(EXEC_TARGETS) subtarget
-
-#$(GENDIR)/%.o: %.cpp
-#	$(CC) $(CFLAGS) -c $^ -o $@
-
-$(GENDIR)/%.o: %.cpp
-	$(CC) $(CFLAGS) -c $^ 
-
-$(GENDIR)/%: %.o
-	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
-
-clean: subclean
-	rm -f $(TARGETS) $(EXEC_TARGETS)
-
-install: subinstall
-	@echo Doing nothing as yet
-
-subtarget :
-	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) $(MAKEFLAGS) target ) ; done
-
-subclean :
-	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) $(MAKEFLAGS) clean ) ; done
-
-subinstall :
-	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) $(MAKEFLAGS) install ) ; done
+# DO NOT DELETE THIS LINE -- g++dep uses it.
+# DO NOT PUT ANYTHING AFTER THIS LINE, IT WILL GO AWAY.
 
 
+# IF YOU PUT ANYTHING HERE IT WILL GO AWAY

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: exec_test2.cpp,v 1.4 2003-04-24 08:49:33 gmetta Exp $
+/// $Id: exec_test2.cpp,v 1.5 2003-05-14 17:17:24 gmetta Exp $
 ///
 ///
 
@@ -187,6 +187,9 @@ public:
 
 int main(int argc, char *argv[])
 {
+	ACE_UNUSED_ARG(argc);
+	ACE_UNUSED_ARG(argv);
+
 	MyThread1 t1;
 //	MyThread1 t3;
 	MyThread2 t2;

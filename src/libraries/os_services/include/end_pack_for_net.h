@@ -23,7 +23,7 @@
 /// Licensor, this list of conditions, and the following disclaimers  ///
 /// in the documentation and/or other materials provided with the     ///
 /// distribution.                                                     ///
-///
+///                                                                   ///
 /// Neither the names of Licensor, nor the names of any contributors  ///
 /// to the Software, nor any of their trademarks or service marks,    ///
 /// may be used to endorse or promote products derived from this      ///
@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: end_pack_for_net.h,v 1.5 2003-04-30 13:22:41 beltran Exp $
+/// $Id: end_pack_for_net.h,v 1.6 2003-05-14 17:17:24 gmetta Exp $
 ///
 ///
 
@@ -80,5 +80,6 @@
 #endif
 
 #ifdef __QNX6__
-#pragma align 0 
+///#pragma align 0 
+#pragma pack()
 #endif
