@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.2 2003-06-19 15:10:06 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.3 2003-06-19 15:20:19 beltran Exp $
 ///
 ///
 
@@ -85,7 +85,7 @@ struct PicoloOpenParameters
 	PicoloOpenParameters()
 	{
 		_unit_number = 0;
-		_video_type = 2;
+		_video_type = 0;
 		_size = 256;
 	}
 
