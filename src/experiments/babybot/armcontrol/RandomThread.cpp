@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: RandomThread.cpp,v 1.3 2004-07-30 13:39:47 babybot Exp $
+/// $Id: RandomThread.cpp,v 1.4 2004-12-31 13:21:35 beltran Exp $
 ///
 ///
 
@@ -45,8 +45,8 @@ void getRand(const double *max, const double *min, double *rnd, int nj)
 	for (int i = 0 ; i < nj; i++)
 	{
 		double x = (double) rand()/RAND_MAX;
-		int a = (max[i] - min[i]);
-		int b = min[i];
+		int a = (int)(max[i] - min[i]);
+		int b = (int)(min[i]);
 
 		rnd[i] = a*x+b;
 	}
