@@ -75,9 +75,9 @@ public:
 	void directCommand(const YVector &cmd)
 	{
 		ASDirectCommand *tmp = ASDirectCommand::instance();
-		changeInitState(tmp);
 		tmp->newCmdFlag = true;
 		tmp->cmd = cmd;
+		changeInitState(tmp);
 	}
 
 	void directCommandMode()

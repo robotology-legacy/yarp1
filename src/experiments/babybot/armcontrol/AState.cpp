@@ -23,7 +23,6 @@ void AState::changeState (ArmThread *t, AState *s)
 
 void ASDirectCommand:: handle(ArmThread *t)
 {
-	// ARM_STATE_DEBUG(("ASDirectCommand\n"));
 	t->_arm_status._state._thread = _armThread::directCommand;
 		
 	if (t->checkMotionDone() && newCmdFlag)
@@ -98,8 +97,7 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 			}
 
 			// signal end of motion
-			t->_data.writeVocab(YBVArmDone);
-			t->send();
+			t->writeAndSend(YBVArmDone);
 			changeState(t,t->_init_state);
 		}
 	}
@@ -153,8 +151,7 @@ void ASRestingInit:: handle(ArmThread *t)
 	changeState(t,waitState);
 
 	// signal end of motion
-	t->_data.writeVocab(YBVArmDone);
-	t->send();
+	t->writeAndSend(YBVArmRest);
 }
 
 void ASMove:: handle(ArmThread *t)
@@ -234,6 +231,7 @@ void ASRestingRaiseGains:: handle(ArmThread *t)
 		t->_restingInhibited = false;
 		changeState(t, t->_init_state);
 		t->_arm_status._pidStatus = _armThread::high;
+		t->writeAndSend(YBVArmRestDone);
 	}
 }
 
@@ -304,9 +302,8 @@ void ASShake:: handle(ArmThread *t)
 		t->_shaking = false;
 		t->_restingInhibited = false;
 		// signal end of motion
-		t->_data.writeVocab(YBVArmDone);
-		t->send();
-
+		t->writeAndSend(YBVArmDone);
+		
 		return;
 	}
 	else if ( (n%2) == 0)

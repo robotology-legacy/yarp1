@@ -24,19 +24,17 @@ typedef YARPBaseBehaviorInput<ArmBehaviorData> ArmBehaviorBaseInput;
 class ABWaitIdle: public ArmBehaviorStateBase
 {
 public:
-	void handle(ArmBehaviorData *d)
+	ABWaitIdle(const YARPString &msg)
 	{
-		printf("Wait idle\n");
+		_message = msg;
 	}
-};
 
-class ABWaitMotion: public ArmBehaviorStateBase
-{
-public:
 	void handle(ArmBehaviorData *d)
 	{
-		printf("Wait for motion\n");
+		printf("ARMBehavior: waiting on %s\n", _message.c_str());
 	}
+
+	YARPString _message;
 };
 
 class ABOutputCommand: public ArmBehaviorBaseOutput
@@ -64,30 +62,16 @@ public:
 	int key;
 };
 
-class ABInputShakeCmd: public ArmBehaviorBaseInput
+class ABSimpleInput: public ArmBehaviorBaseInput
 {
 public:
-	ABInputShakeCmd()
+	ABSimpleInput(int k)
 	{
-		key = YBVArmShake;
+		key = k;
 	}
 	bool input(YARPBottle *in, ArmBehaviorData *d);
 	
 	int key;
-};
-
-class ABCheckMotionDone: public ArmBehaviorBaseInput
-{
-public:
-	ABCheckMotionDone()
-	{
-		key = YBVArmDone;
-	}
-
-	bool input(YARPBottle *in, ArmBehaviorData *d);
-	
-	int key;
-
 };
 
 #endif

@@ -50,22 +50,33 @@ int main(int argc, char* argv[])
 	ArmBehavior _arm(&arm_thread, YBLabelMotor, "/armcontrol/behavior/i");
 	arm_thread.start();
 
-	ABWaitIdle waitIdle;
-	ABWaitMotion waitMotion;
+	ABWaitIdle waitIdle("command");
+	ABWaitIdle waitMotion("motion");
+	ABWaitIdle waitRest("resting");
 	ABInputCommand inputCmd;
-	ABCheckMotionDone checkMotionDone;
+	ABSimpleInput checkMotionDone(YBVArmDone);
 	ABOutputCommand outputCmd;
 	ABOutputShakeCmd outputShk;
-	ABInputShakeCmd inputShk;
-	
+	ABSimpleInput inputShk(YBVArmShake);
+	ABSimpleInput inputRest(YBVArmRest);
+	ABSimpleInput checkRestDone(YBVArmRestDone);
+		
 	_arm.setInitialState(&waitIdle);
-	_arm.Begin();
+	/////////////////////////////// config state machine
+	// shaked and arm command
 	_arm.add(&inputCmd, &waitIdle, &waitMotion, &outputCmd);
 	_arm.add(&inputShk, &waitIdle, &waitMotion, &outputShk);
 	_arm.add(&checkMotionDone, &waitMotion, &waitIdle);
-	_arm.loop();
-	// _arm.End();
-	// stop arm
+	
+	// resting cycle
+	_arm.add(&inputRest, &waitMotion, &waitRest);
+	_arm.add(&checkRestDone, &waitRest, &waitIdle);
+	////////////////////
+
+	// start state machine
+	_arm.Begin();
+	_arm.loop();	// block here until quit command is received
+
 	arm_thread.terminate(false);	// no timeout here, important !
 	return 0;
 }

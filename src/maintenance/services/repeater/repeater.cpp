@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	}
 	oname = name+"o";
 	iname = name+"i";
-	Repeater rep(iname, oname, YARP_UDP, YARP_MCAST);
+	Repeater rep(iname, oname, YARP_TCP, YARP_MCAST);
 	rep.Begin();
 	
 	cout << "e to exit";

@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.13 2003-09-02 16:59:50 natta Exp $
+/// $Id: YARPBehavior.h,v 1.14 2003-09-05 12:18:23 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -88,7 +88,7 @@ class YARPBehaviorSharedData
 {
 	public:
 		YARPBehaviorSharedData(int ID, std::string portName):
-		  _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+		  _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 		  {	
 			  _data.setID(ID);
 			  _outPort.Register(portName.c_str());
@@ -100,6 +100,12 @@ class YARPBehaviorSharedData
 			  _outPort.Content() = _data;
 			  _outPort.Write();
 			  _data.reset();
+		  }
+
+		  void writeAndSend(int v)
+		  {
+			  _data.writeVocab(v);
+			  send();
 		  }
 
 	YARPBottle _data;
@@ -166,7 +172,7 @@ public:
 	~YARPBehavior()
 	{
 		// destroy pulse states
-		PULSE_TABLE_IT it(_pulse_table);;
+		PULSE_TABLE_IT it(_pulse_table);
 		while(!it.done())
 		{
 			delete (*it);

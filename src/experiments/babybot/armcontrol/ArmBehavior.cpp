@@ -32,7 +32,7 @@ bool ABInputCommand::input(YARPBottle *in, ArmBehaviorData *d)
 			
 }
 
-bool ABInputShakeCmd::input(YARPBottle *in, ArmBehaviorData *d)
+bool ABSimpleInput::input(YARPBottle *in, ArmBehaviorData *d)
 {
 	int k;
 	if (!in->tryReadVocab(&k))
@@ -41,20 +41,6 @@ bool ABInputShakeCmd::input(YARPBottle *in, ArmBehaviorData *d)
 	if (k != key)
 		return false;
 
-	in->moveOn();
-
-	return true;
-}
-
-bool ABCheckMotionDone::input(YARPBottle *in, ArmBehaviorData *d)
-{
-	int k;
-	if (!in->tryReadVocab(&k))
-		return false;
-
-	if (k != key)
-		return false;
-	
 	in->moveOn();
 
 	return true;

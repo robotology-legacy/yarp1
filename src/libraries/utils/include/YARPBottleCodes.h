@@ -26,6 +26,8 @@ enum {
 	YBVArmRndStart,
 	YBVArmRndStop,
 	YBVArmShake,
+	YBVArmRest,
+	YBVArmRestDone,
 	YBVIsAlive,
 	YBVHandNewCmd,
 	YBVHandDone,
@@ -40,8 +42,11 @@ const char *ybc_label(T x) {
     case YBVExit: return "exit";
 	case YBVArmNewCmd: return "arm -- new cmd";
 	case YBVArmDone: return "arm -- done";
+	case YBVArmRest: return "arm -- start resting sequence";
+	case YBVArmRestDone: return "arm -- rest done";
 	case YBVArmRndStart: return "arm -- rnd start";
 	case YBVArmRndStop: return "arm -- rnd stop";
+	case YBVArmShake: return "arm -- shake";
 	case YBVHandNewCmd: return "hand -- new cmd";
 	case YBVHandDone: return "hand -- done";
 	case YBVHandShake: return "hand -- shake";

@@ -97,64 +97,12 @@ typedef YARPFSMStateBase<RndBehavior, RndSharedData> RndBehaviorStateBase;
 typedef YARPFSMOutput<RndSharedData> RndBehaviorBaseOutput;
 typedef YARPBaseBehaviorInput<RndSharedData> RndBehaviorBaseInput;
 
-class RBCheckMotionDone: public RndBehaviorBaseInput
+class RBSimpleInput: public RndBehaviorBaseInput
 {
 public:
-	RBCheckMotionDone()
+	RBSimpleInput(int k)
 	{
-		key = YBVArmDone;
-	}
-
-	bool input(YARPBottle *in, RndSharedData *d)
-	{
-		int k;
-		if (!in->tryReadVocab(&k))
-			return false;
-
-		if (k != key)
-			return false;
-	
-		in->moveOn();
-
-		return true;
-	}
-	
-	int key;
-
-};
-
-class RBStart: public RndBehaviorBaseInput
-{
-public:
-	RBStart()
-	{
-		key = YBVArmRndStart;
-	}
-
-	bool input(YARPBottle *in, RndSharedData *d)
-	{
-		int k;
-		if (!in->tryReadVocab(&k))
-			return false;
-
-		if (k != key)
-			return false;
-	
-		in->moveOn();
-
-		return true;
-	}
-	
-	int key;
-
-};
-
-class RBStop: public RndBehaviorBaseInput
-{
-public:
-	RBStop()
-	{
-		key = YBVArmRndStop;
+		key = k;
 	}
 
 	bool input(YARPBottle *in, RndSharedData *d)
@@ -187,10 +135,15 @@ public:
 class RBWaitMotion: public RndBehaviorStateBase
 {
 public:
+	RBWaitMotion(const YARPString &msg)
+	{
+		_message = msg;
+	}
 	void handle(RndSharedData *d)
 	{
-		printf("RBWaitMotion: wait for arm motion to be done\n");
+		printf("RBWaitMotion: %s\n", _message.c_str());
 	}
+	YARPString _message;
 };
 
 class RBInitMotion: public RndBehaviorStateBase
