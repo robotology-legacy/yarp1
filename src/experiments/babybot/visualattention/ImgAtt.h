@@ -77,7 +77,6 @@
 #include <yarp/YARPImage.h>
 #include <yarp/YARPLogpolar.h>
 //#include <YARPBlobDetector.h>
-//#include <YARPIntegralImage.h>
 #include <yarp/YARPConicFitter.h>
 #include <yarp/YARPImageMoments.h>
 #include "YARPConvKernel.h"
@@ -95,7 +94,7 @@
 
 
 const int range = 256;
-const int maxError=1000;
+const int maxError=900;
 const int minBoundingArea=100;
 
 typedef struct { int x; int y; } Vett;

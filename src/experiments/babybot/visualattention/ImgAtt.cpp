@@ -1402,7 +1402,7 @@ bool YARPImgAtt::isHand(YARPBox &box)
 			int crg=neighBoxesHand[i].meanRG-box.meanRG;
 			int cgr=neighBoxesHand[i].meanGR-box.meanGR;
 			int cby=neighBoxesHand[i].meanBY-box.meanBY;
-			if (crg*crg+cgr*cgr+cby*cby<maxError)
+			if (crg*crg+cgr*cgr+cby*cby<maxError-400)
 				return true;
 		}
 	}

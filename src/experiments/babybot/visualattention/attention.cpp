@@ -250,6 +250,7 @@ void mainthread::Body (void)
 	int toMem = 0;
 	bool noOutput = true;
 	bool isStarted = true;
+	bool reaching=false;
 	searching = false;
 	exploring = true;
 	learnObject = false;
@@ -259,6 +260,7 @@ void mainthread::Body (void)
 	int mRG;
 	int mGR;
 	int mBY;
+	int reachingAttempt=0;
 
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n"); // to stop the execution on this instruction
@@ -346,13 +348,13 @@ void mainthread::Body (void)
 		
 		// HANDLE MESSAGES
 		YBVocab message;
-		//do {
+		do {
 			if (inBottle.Read(0)) {
 				//ACE_OS::printf("Port received:");
 				YARPBottle &bottle = inBottle.Content();
 				//bottle.display();
 				if (bottle.tryReadVocab(message)) {
-					ACE_OS::printf("Message received: ");
+					ACE_OS::printf("Message received\n");
 					if (message == YBVVAStart) {
 						ACE_OS::printf("starting\n");
 						isStarted = true;
@@ -387,6 +389,7 @@ void mainthread::Body (void)
 						searching = false;
 						exploring = true;
 						att_mod.resetObject();
+						reaching=false;
 					} else if (message == YBVKFTrainStart) {
 						ACE_OS::printf("KF Training starting...\n");
 						toMem=4;
@@ -395,7 +398,7 @@ void mainthread::Body (void)
 						toMem=0;
 					} else if (message == YBVKFStop) {
 						ACE_OS::printf("KF Stopping...\n");
-						mustMove=true;
+						//mustMove=true;
 						if (learnHand) {
 							learnHand=false;
 							att_mod.dumpLearnHand();
@@ -406,6 +409,22 @@ void mainthread::Body (void)
 							noOutput=(boxesMem==0);
 							att_mod.dumpLearnObject();
 						}
+					} else if (message == YBVReachingSuccess) {
+						att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
+						searching = false;
+						exploring = true;
+						noOutput=true;
+					} else if (message == YBVReachingFailure) {
+						reachingAttempt++;
+						if (reachingAttempt==3) {
+							ACE_OS::printf("I give up!\n");
+							reachingAttempt=0;
+							att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
+							searching = false;
+							exploring = true;
+							noOutput=true;
+						} else
+							noOutput=false;
 					} else if (message == YBVVAMove) {
 						ACE_OS::printf("Moving to a new target\n");
 						mustMove=true;
@@ -434,15 +453,20 @@ void mainthread::Body (void)
 						ACE_OS::printf("nothing done\n");*/
 				}
 			} 
-		//} while (targetFound && (message!=YBVReachingAck && message!=YBVReachingAbort) && !noOutput);
+		} while ((message!=YBVReachingAck && message!=YBVReachingAbort) && reaching);
 
+		reaching=false;
+		
 		////////////////////
-		/*if (message==YBVReachingAbort)
+		if (message==YBVReachingAbort) {
 			ACE_OS::printf("-------------->Reaching aborted\n");
-		else if (message==YBVReachingAck)
+			mustMove=true;
+		} else if (message==YBVReachingAck) {
 			ACE_OS::printf("-------------->Reaching started! YUU-HUU!!!\n");
+			noOutput=true;
+		}
 		if (exploring && targetFound) att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
-		targetFound = false;*/
+		targetFound = false;
 		////////////////////
 		
 		if (isStarted) {
@@ -498,7 +522,7 @@ void mainthread::Body (void)
 					int x,y;
 					int mass;
 					att_mod.diffCenterOfMassAndMass(tmp2, maxDiff, &x, &y, &mass);
-					if (mass>maxMass) {
+					if (mass>maxMass && (x>128-32 && x<128+32 && y>128-32 && y<128+32)) {
 						int cartx, carty;
 						mapper.Logpolar2Cartesian(y, x, cartx, carty);
 						diffFound = true;
@@ -566,19 +590,10 @@ endDiffCheck:
 							cout<<"CMP:"<<cmp<<", ECT:"<<ect<<endl;
 							att_mod.setParameters(mRG, mGR, mBY, cmp, ect, 0, 1);
 							if (learnHand) {
-								//double tmpScore;
-								//do {
-									att_mod.learnHand();
-									//tmpScore=att_mod.checkObject(img);
-								//} while (tmpScore<0.5);
+								att_mod.learnHand();
 							} else {
-								//boxesMem=att_mod.learnObject();
-								//att_mod.checkObject(img);
-								//double tmpScore;
-								//do {
-									boxesMem=att_mod.learnObject();
-									att_mod.checkObject(img);
-								//} while (tmpScore<0.4);
+								boxesMem=att_mod.learnObject();
+								att_mod.checkObject(img);
 							}
 							toMem--;
 							searching=true;
@@ -594,10 +609,11 @@ endDiffCheck:
 							if (!mustMove) {
 								if (!noOutput) {
 									ACE_OS::printf("Target found, sending the center of the blob\n");
-									/*tmpBottle.writeInt(att_mod.fovBox.centroid_x);
+									tmpBottle.writeInt(att_mod.fovBox.centroid_x);
 									tmpBottle.writeInt(att_mod.fovBox.centroid_y);
 									outBottle.Content() = tmpBottle;
-									outBottle.Write();*/
+									outBottle.Write();
+									reaching=true;
 								} else
 									ACE_OS::printf("Target found but I'm freezed!\n");
 							}
@@ -631,11 +647,8 @@ endDiffCheck:
 						// Point already sended or not sended if target found
 						if (found) {
 							if (learnObject) {
-								//double tmpScore;
-								//do {
-									att_mod.learnObject();
-									att_mod.checkObject(img);
-								//} while (tmpScore<0.4);
+								att_mod.learnObject();
+								att_mod.checkObject(img);
 								att_mod.dumpLearnObject();
 								learnObject=false;
 							}
