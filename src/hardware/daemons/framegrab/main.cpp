@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.48 2004-01-28 18:12:21 babybot Exp $
+/// $Id: main.cpp,v 1.49 2004-01-29 09:56:17 beltran Exp $
 ///
 ///
 
@@ -262,7 +262,6 @@ int _grabber2rgb (const unsigned char *in, unsigned char *out, int szx, int szy)
 //      Created:  15/01/2003 10:36:00 W. Europe Standard Time
 //     Revision:  21/01/2004: Removed some prints
 // =====================================================================================
-
 class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 {
 	protected:
@@ -275,7 +274,15 @@ class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 		unsigned int m_satv;
 		int m_lnotch;
 		int m_ldec;
+		int m_peak;
+		int m_cagc;
+		int m_ckill;
+		int m_range;
+		int m_ysleep;
+		int m_csleep;
 		int m_crush;
+		int m_gamma;
+		int m_dithf;
 
 	public:
 		FgNetDataPort (Grabber * gb):YARPInputPortOf<YARPBottle>(YARPInputPort::DOUBLE_BUFFERS, YARP_UDP) 
@@ -287,6 +294,12 @@ class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 		virtual void OnRead(void);
 };
 
+//--------------------------------------------------------------------------------------
+//       Class:  FgNetDataPort
+//      Method:  OnRead()
+// Description:  This is just the the callback funtion that reads the bottle and sets
+// the adequate driver functions
+//--------------------------------------------------------------------------------------
 void FgNetDataPort::OnRead(void)
 {
 	///printf("Accesing OnRead\n");
@@ -300,7 +313,15 @@ void FgNetDataPort::OnRead(void)
 	m_bottle.readInt((int *)&m_satv);
 	m_bottle.readInt((int *)&m_lnotch);
 	m_bottle.readInt((int *)&m_ldec);
+	m_bottle.readInt((int *)&m_peak);
+	m_bottle.readInt((int *)&m_cagc);
+	m_bottle.readInt((int *)&m_ckill);
+	m_bottle.readInt((int *)&m_range);
+	m_bottle.readInt((int *)&m_ysleep);
+	m_bottle.readInt((int *)&m_csleep);
 	m_bottle.readInt((int *)&m_crush);
+	m_bottle.readInt((int *)&m_gamma);
+	m_bottle.readInt((int *)&m_dithf);
 
 	///m_bottle.display();
 
@@ -311,7 +332,15 @@ void FgNetDataPort::OnRead(void)
 	m_gb->setSatV((unsigned int)m_satv);
 	m_gb->setLNotch(m_lnotch);
 	m_gb->setLDec(m_ldec);
+	m_gb->setPeak(m_peak);
+	m_gb->setCagc(m_cagc);
+	m_gb->setCkill(m_ckill);
+	m_gb->setRange(m_range);
+	m_gb->setYsleep(m_ysleep);
+	m_gb->setCsleep(m_csleep);
 	m_gb->setCrush(m_crush);
+	m_gb->setGamma(m_gamma);
+	m_gb->setDithFrame(m_dithf);
 }
 
 ///
@@ -525,8 +554,11 @@ int mainthread::_runAsLogpolarSimulation (void)
 #if !defined(__LinuxTest__)
 int mainthread::_runAsLogpolar (void)
 {
+#if defined(__QNXEurobot__)
+	YARPEurobotGrabberParams params;
+#else
 	YARPBabybotGrabberParams params;
-	
+#endif	
 	using namespace _logpolarParams;
 
 	Grabber grabber;
