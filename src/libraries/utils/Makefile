@@ -24,8 +24,10 @@ local: $(CODELIB)
 $(CODELIB): subtarget
 	$(AR) $(ARFLAGS) ./lib/$(OS)/$(CODELIB) $(OBJS)
 
-install: target subinstall
-	$(CP) ./lib/$(OS)/$(CODELIB) $(YARP_ROOT)/lib/$(SYSDIR)
+#install: target subinstall
+install : subinstall
+	# For the comment do not copy the lib	
+	#$(CP) ./lib/$(OS)/$(CODELIB) $(YARP_ROOT)/lib/$(SYSDIR)
 	$(CP) include/*.h $(YARP_ROOT)/include
 
 clean: subclean
