@@ -9,13 +9,14 @@ const int N = 20;
 const int _nJoints = 6;
 
 
-	const double pos1[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
+	// const double pos1[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
+	const double pos1[_nJoints] = {5.0 * degToRad, 0.0*degToRad, 45.0*degToRad, 0.0, 0.0, -40.0*degToRad};
 	const double pos2[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, -70.0*degToRad};
 	const double pos3[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
 	const double pos4[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, -20.0*degToRad, 0.0};
 	const double pos5[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 20.0*degToRad, 0.0};
 	const double pos6[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
-	const double pos7[_nJoints] = {5.0 * degToRad, 0.0*degToRad, 0.0*degToRad, 0.0, 0.0, -70.0*degToRad};
+	const double pos7[_nJoints] = {5.0 * degToRad, 0.0*degToRad, 0.0*degToRad, 0.0, 0.0, -120.0*degToRad};
 
 
 #if 0
@@ -51,16 +52,16 @@ int main(int argc, char* argv[])
 	EBWaitDeltaT dT2(0.2);
 	EBWaitDeltaT dT3OneSecond(1);
 
-	EBWaitDeltaT dTHandClosing(3);
+	EBWaitDeltaT dTHandClosing(0.1);
 	EBWaitDeltaT waitArmSeemsToRest(5);
 	EBStartKF	startKF;
 	EBStopKF	stopKF;
 	EBSimpleOutput	forceOpen(YBVGraspRflxForceOpen);
 	EBSimpleOutput  parkArm(YBVArmForceRestingTrue);
 	
-	// output: enaqble and disable hand tracking system
-	EBEnableTracker enableHandTracking;
-	EBInhibitTracker inhibitHandTracking;
+	// output: enable and disable hand tracking system
+	EBEnableTracker		enableHandTracking;
+	EBInhibitTracker	inhibitHandTracking;
 		
 	EBOutputCommand cmd1(YBVArmForceNewCmd, YVector(_nJoints, pos1));
 	EBOutputCommand cmd2(YBVArmForceNewCmd, YVector(_nJoints, pos2));
@@ -70,7 +71,8 @@ int main(int argc, char* argv[])
 	EBOutputCommand cmd6(YBVArmForceNewCmd, YVector(_nJoints, pos6));
 	EBOutputCommand cmd7(YBVArmForceNewCmd, YVector(_nJoints, pos7));
 
-	EBSimpleInput motionDone(YBVArmDone);
+	EBSimpleInput armDone(YBVArmDone);
+	EBSimpleInput handDone(YBVHandDone);
 	EBSimpleInput start(YBVKFExplorationStart);
 	EBSimpleInput start2(YBVGraspRflxClutch);
 	EBSimpleInput armAck(YBVArmIssuedCmd);
@@ -86,7 +88,7 @@ int main(int argc, char* argv[])
 	behavior.add(NULL, &waitArmSeemsToRest, &waitStart, &forceOpen);
 	behavior.add(NULL, &stateEnableHandTracking, &waitMotion1, &enableHandTracking);
 
-	behavior.add(&motionDone, &waitMotion1, &dT3OneSecond);
+	behavior.add(&armDone, &waitMotion1, &dT3OneSecond);
 	// wait some extra time before issueing the startKF signal
 	behavior.add(NULL, &dT3OneSecond, &dT1, &startKF);
 	
@@ -97,17 +99,17 @@ int main(int argc, char* argv[])
 
 	/*
 	behavior.add(NULL, &dT1, &waitMotion2, &cmd2);
-	// behavior.add(&motionDone, &waitMotion1, &waitMotion2, &cmd2);
-	behavior.add(&motionDone, &waitMotion2, &waitMotion3, &cmd3);
-	behavior.add(&motionDone, &waitMotion3, &waitMotion4, &cmd4);
-	behavior.add(&motionDone, &waitMotion4, &waitMotion5, &cmd5);
-	behavior.add(&motionDone, &waitMotion5, &waitMotion6, &cmd6);
+	// behavior.add(&armDone, &waitMotion1, &waitMotion2, &cmd2);
+	behavior.add(&armDone, &waitMotion2, &waitMotion3, &cmd3);
+	behavior.add(&armDone, &waitMotion3, &waitMotion4, &cmd4);
+	behavior.add(&armDone, &waitMotion4, &waitMotion5, &cmd5);
+	behavior.add(&armDone, &waitMotion5, &waitMotion6, &cmd6);
 
-	behavior.add(&motionDone, &waitMotion6, &dT2, &stopKF);
+	behavior.add(&armDone, &waitMotion6, &dT2, &stopKF);
 	*/
 	behavior.add(NULL, &dT2, &waitMotion7, &cmd7);
-	behavior.add(&motionDone, &waitMotion7, &waitMotion8, &forceOpen);
-	behavior.add(NULL, &waitMotion8, &waitStart, &parkArm);
+	behavior.add(&armDone, &waitMotion7, &waitMotion8, &forceOpen);
+	behavior.add(&handDone, &waitMotion8, &waitStart, &parkArm);
 
 	behavior.Begin();
 	behavior.loop();

@@ -1,4 +1,5 @@
 #include "armmap.h"
+#include <yarp/YARPDebugUtils.h>
 
 ArmMap::ArmMap(const char *reachingNNet, const char *handlocNNet):
 _headKinematics(YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) ),
@@ -62,7 +63,7 @@ ArmMap::~ArmMap()
 
 }
 
-void ArmMap::query(const YVector &arm, const YVector &head)
+bool ArmMap::query(const YVector &arm, const YVector &head)
 {
 	_headKinematics.update(head);
 	// _fkinematics.update(arm, head);
@@ -70,6 +71,10 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 	const Y3DVector &cart = _headKinematics.fixationPolar();
 	Y3DVector tmp;
 	tmp = cart;
+
+	if (!_checkReachability(cart))
+		return false;
+
 //	tmp(1) = tmp(1) + __azimuthOffset;
 //	tmp(2) = tmp(2) + __elevationOffset;
 //	tmp(3) = tmp(3) + __distanceOffset;
@@ -77,7 +82,6 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 	int x, y;	//retinal position (for closed loop)
 	x = 114;
 	y = 134;
-
 
 	if (_mode == atnr)
 		_command = _atr.query(head) + _noise.query();
@@ -113,6 +117,8 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 		
 		_formTrajectory(_command);
 	}
+
+	return true;
 }
 
 void ArmMap::learn(const YVector &head, const YVector &arm)
@@ -206,5 +212,17 @@ void ArmMap::_sendTrajectory()
 	printf("Sending trajectory...");
 	_outPortArmTrajectory.Write(1);
 	printf("done !\n");
+}
 
+bool ArmMap::_checkReachability(const Y3DVector &cart)
+{
+	bool ret = true;
+
+	YARPDebugUtils::print(cart);
+
+	ret = ret && (cart(1) < 0.4) && (cart(1) > -0.4);	// az
+	ret = ret && (cart(2) < 0.4) && (cart(2) > -0.6);	// el
+	ret = ret && (cart(3) < 660) && (cart(3) > -280);	// dist
+
+	return ret;
 }

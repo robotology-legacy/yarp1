@@ -45,9 +45,9 @@ class SBSharedData: public YARPInputPortOf<YARPBabyBottle>
 
 			int dummy;
 			if ( (YARPInputPortOf<YARPBabyBottle>::Content().tryReadInt(&dummy)) || (!_selectiveReaching))
-				_isImportant = true;
-			else 
 				_isImportant = false;
+			else 
+				_isImportant = true;
 			
 			if ( (x<=0) || (y<=0) )
 			{

@@ -26,6 +26,17 @@ if (e == -1)
     return;
 end
 
+idWristForce = port('create', 'vector', 0, 'udp');
+if (idWristForce == -1)
+    disp('cannot create wirst force input port');
+    return;
+end
+e = port('register', idWristForce, '/handkinematics/forcewrist/i', 'default');
+if (e == -1)
+    disp('cannot register wrist force input port');
+    return;
+end
+
 idTouch = port('create', 'vector', 0, 'mcast');
 if (idTouch == -1)
     disp('cannot create touch port');
@@ -37,7 +48,7 @@ if (e == -1)
     return;
 end
 
-idBottle = port('create', 'bottle', 0, 'udp');
+idBottle = port('create', 'bottle', 0, 'udp', 'no_buffers');
 if (idBottle == -1)
     disp('cannot create behavior input port');
     return;
@@ -53,16 +64,19 @@ porter ('/handcontrol/o:status', '!/handkinematics/i');
 porter ('/repeater/o', '!/handkinematics/behavior/i');
 porter ('/touch/o', '!/handkinematics/touch/i');
 porter ('/handcontrol/o:force', '!/handkinematics/force/i');
+porter ('/wristforce/o', '!/handkinematics/forcewrist/i');
 
 %%%% connect
 porter('/handcontrol/o:status', '/handkinematics/i');
 porter ('/handcontrol/o:force', '/handkinematics/force/i');
 porter('/repeater/o', '/handkinematics/behavior/i');
 porter('/touch/o', '/handkinematics/touch/i');
+porter ('/wristforce/o', '/handkinematics/forcewrist/i');
 
 qh = zeros(1,16);
 qtouch = zeros(1,17);
 qforce = zeros(1,15);
+wristForce = zeros(1:6);
 
 % loop
 i = 0;
@@ -75,11 +89,22 @@ filename2 = '';
 while(~exit)
     [qh err1] = port('read', idVector, 0);
     [qtouch err2] = port('read', idTouch, 0);
+      
     if (err2 < 0)
         qtouch(1:17) = 0;
     end
+    
+     [wristForce err4] = port('read', idWristForce, 0);
+     if (err4 < 0)
+         disp('Error reading wrist');
+         wristForce(1:6) = 0;
+     end
+     % zoomV(1:6) = 10;
+     % plot_vector(wristForce(1:3), wristForce(4:6), zoomV);
+    
+    
     if ( (err1 >= 0) && (~freeze))
-      computeHandKin(qh, qtouch, az, el);
+      computeHandKin(qh, qtouch, wristForce, az, el);
     end
     
     [qforce err3] = port('read', idForce, 0);
@@ -109,7 +134,13 @@ while(~exit)
                     freeze = 1;
                 end
             end
-            if ( (strcmp(bottle{2}, 'HandKinSavePosture')) || (strcmp(bottle{2}, 'GraspRflxClutch')))
+            if(strcmp(bottle{2}, 'ReachingDone'))
+                disp('Reaching done !');
+                play_beeps(5);
+                appendToFile(qh, qtouch, wristForce);
+            end
+            if ( (strcmp(bottle{2}, 'HandKinSavePosture')) )
+                %% || (strcmp(bottle{2}, 'GraspRflxClutch')))
                 savePosture(filename, qh, qtouch);
                 saveTouchForce(filename2, qforce, qtouch);
             end
@@ -146,5 +177,8 @@ porter ('/touch/o', '!/handkinematics/touch/i');
 port('unregister', idTouch);
 port('destroy', idTouch);
 
-clear port;
+porter ('/wristforce/o', '!/handkinematics/forcewrist/i');
+port('unregister', idWristForce);
+port('destroy', idWristForce);
 
+clear port;

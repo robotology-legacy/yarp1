@@ -1,4 +1,4 @@
-//#define SINGLE_OBJECT_MODE
+#define SINGLE_OBJECT_MODE
 
 #include <stdio.h>
 #include <assert.h>

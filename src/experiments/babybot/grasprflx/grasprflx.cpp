@@ -30,7 +30,7 @@ void readConfigFile(const YARPString &filename, ReflexShared &rflxShared)
 	// alloc commands
 	YVector *_closePos = new YVector [_nSynergies];
 	YVector *_openPos = new YVector [_nSynergies];
-
+	
 	int i = 0;
 	for(i = 0; i < _nSynergies; i++)
 	{
@@ -106,8 +106,6 @@ int main(int argc, char* argv[])
 		behavior.add(&forceOpen, &waitT[N-1], &waitOpen2, &openCmd);
 	else
 		behavior.add(NULL, &waitT[N-1], &waitOpen2, &openCmd);
-	
-	behavior.add(&motionDone, &waitOpen2, &loopTouch);
 	
 	behavior.Begin();
 	behavior.loop();

@@ -81,9 +81,23 @@ public:
 class RBOutputCommand: public RBBaseOutput
 {
 public:
+	RBOutputCommand(const YBVocab &v1, const YVector &hand)
+	{
+		_bottle1.setID(YBVMotorLabel);
+		_bottle2.setID(YBVMotorLabel);
+		
+		// bottle1 will be filled "on the fly"
+		_bottle2.writeVocab(v1);
+		_bottle2.writeYVector(hand);
+	}
 	void output(ABSharedData *d);
 
-	YARPBabyBottle _bottle;
+private:
+	void _sendAbort(ABSharedData *d);
+	void _sendReachingCommand(ABSharedData *d, const YVector &cmd);
+
+	YARPBabyBottle _bottle1;
+	YARPBabyBottle _bottle2;
 	
 };
 
@@ -103,6 +117,45 @@ public:
 
 	YARPBabyBottle _bottle1;
 	YARPBabyBottle _bottle2;
+};
+
+class RBOutputMessage: public RBBaseOutput
+{
+public:
+	RBOutputMessage(const YBVocab &v)
+	{
+		_bottle.setID(YBVMotorLabel);
+		_bottle.writeVocab(v);
+	}
+	void output(ABSharedData *d);
+
+	YARPBabyBottle _bottle;
+};
+
+class RB4Output: public RBBaseOutput
+{
+public:
+	RB4Output(const YBVocab &v1, const YBVocab &v2, const YBVocab &v3, const YBVocab &v4, const YVector &cmd)
+	{
+		_bottle1.setID(YBVMotorLabel);
+		_bottle2.setID(YBVMotorLabel);
+		_bottle3.setID(YBVMotorLabel);
+		_bottle4.setID(YBVMotorLabel);
+
+		_bottle1.writeVocab(v1);
+		_bottle2.writeVocab(v2);
+		_bottle3.writeVocab(v3);
+		
+		_bottle4.writeVocab(v4);
+		_bottle4.writeYVector(cmd);
+
+	}
+	void output(ABSharedData *d);
+
+	YARPBabyBottle _bottle1;
+	YARPBabyBottle _bottle2;
+	YARPBabyBottle _bottle3;
+	YARPBabyBottle _bottle4;
 };
 
 class RBSimpleOutput: public RBBaseOutput

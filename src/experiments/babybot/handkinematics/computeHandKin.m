@@ -1,10 +1,10 @@
-function computeHandKin (qh, qt, el, az)
+function computeHandKin (qh, qt, wrist, el, az)
 %
 % q is motor joints
 %
 % March 2003 by nat
 %
-%
+% Sept 2004 by nat, included wrist
 
 global XSF;
 global YSF;
@@ -221,6 +221,9 @@ for f = 2:n_fingers
     end
 end
 
+zoom(1:6) = 200;
+plot_wrist_force(wrist(1:3), wrist(4:6), zoom);
+
 figure(1), hold off;
 drawnow;
 
@@ -362,3 +365,50 @@ figure(1), fill3(A(1,:), A(2,:), A(3,:), color);
 %    H = line(LXH, LYH, LZH, 'color', [0, 0, 0]);
 %    set(H,'LineWidth',width);
 % end
+
+function plot_wrist_force(vector_01, vector_02, zoom)
+
+% plot_vector(vector1,vector2,zoom)
+% 
+% plot 2 3d vectors (vector1 and vector2), where
+% vector1(1) = x;
+% vector(2) = y;
+% vector3(3) = z;
+%
+% zoom is a scale factor
+%
+% Vectors are rotated.
+
+R01 = zeros(3,3);
+angle = -pi/4;
+
+RM = zeros(3,3);
+RM(2,3) = 1;
+RM(3,2) = -1;
+
+vector1 = vector_01;
+vector2 = (RM*vector_02')';
+
+max_force = zeros(1,3);
+max_torque = zeros(1,3);
+
+max_force(1) = 1;
+max_force(2) = 1;
+max_force(3) = 1;
+
+max_torque(1) = 1;
+max_torque(2) = 1;
+max_torque(3) = 1;
+
+figure(1), quiver3(0,0,0,zoom(1)*vector1(1), zoom(2)*vector1(2), zoom(3)*vector1(3), 'b');
+% figure(3), quiver3(0,0,0,zoom(1)*vector1(1), 0,0,'r');   %fx
+% figure(3), quiver3(0,0,0,0,zoom(2)*vector1(2),0,'r');   %fy
+% figure(3), quiver3(0,0,0,0,0,zoom(3)*vector1(3),'r');   %fz
+figure(1), quiver3(0,0,0,zoom(4)*vector2(1), zoom(5)*vector2(2), zoom(6)*vector2(3), 'r');
+% figure(4), quiver3(0,0,0,zoom(4)*vector2(1), 0,0,'r');   %fx
+%figure(4), quiver3(0,0,0,0,zoom(5)*vector2(2),0,'r');   %fy
+%figure(4), quiver3(0,0,0,0,0,zoom(6)*vector2(3),'r');   %fz
+%figure(4), view(120,45);
+%figure(4), xlabel('x');
+%figure(4), ylabel('y');
+%figure(4), zlabel('z');

@@ -27,6 +27,7 @@ int main(int argc, char* argv[])
 	TBArmInput				_armRestDone(YBVArmRestDone);			
 	TBArmInput				_armIsBusy(YBVArmIsBusy);		
 	TBArmInput				_newSaccade(YBVSaccadeNewImpTarget);		
+	TBArmInput				_reachingAbort(YBVReachingAbort);		
 
 	_behavior.setInitialState(&_waitSaccade);
 	// _behavior.add(&_armAck, &_waitAck, &_waitAck);
@@ -37,6 +38,7 @@ int main(int argc, char* argv[])
 	_behavior.add(&_isFixated, &_waitFixated, &_waitAck1, &_reaching);
 	_behavior.add(&_armIsBusy, &_waitAck1, &_waitRest);
 	_behavior.add(&_armAck, &_waitAck1, &_waitReaching);
+	_behavior.add(&_reachingAbort, &_waitAck1, &_waitSaccade);
 	_behavior.add(NULL, &_waitReaching, &_waitSaccade);
 	// _behavior.add(NULL, &_wait, &_wait);
 	// _behavior.add(NULL, &_wait, &_waitAck1, &_reaching);

@@ -42,11 +42,11 @@ const double __preparePosition[] = { 5*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*
 // (tappullo)
 const double __armOffset1 = 0*degToRad;
 const double __armOffset2 = 0*degToRad;
-const double __foreArmOffset1 = -10*degToRad;
-const double __foreArmOffset2 = -10*degToRad;
+const double __foreArmOffset1 = -8*degToRad;
+const double __foreArmOffset2 = -8*degToRad;
 // offset in the shoulder to reach "from above"
-const double __shoulderOffset1 = 25*degToRad;
-const double __shoulderOffset2 = 20*degToRad;
+const double __shoulderOffset1 = 30*degToRad;
+const double __shoulderOffset2 = 23*degToRad;
 
 // to turn the hand downwardly
 // const double __wrist1 = -10*degToRad;	
@@ -54,8 +54,8 @@ const double __shoulderOffset2 = 20*degToRad;
 // const double __wrist3 = -170*degToRad;
 
 const double __wrist1 = 0*degToRad;	
-const double __wrist2 = -20*degToRad;
-const double __wrist3 = -160*degToRad;
+const double __wrist2 = -35*degToRad;
+const double __wrist3 = -170*degToRad;
 // const double __wrist3 = 0*degToRad;
 
 // offset in the head space, for reaching
@@ -127,7 +127,7 @@ public:
 		_nnet.load(p);
 	}
 
-	void query(const YVector &arm, const YVector &head);
+	bool query(const YVector &arm, const YVector &head);
 	const YVector &reachingCmd()
 	{ return _command; }
 	const YVector &prepareCmd()
@@ -141,6 +141,7 @@ private:
 	bool _checkReachingCondition();
 	void _formTrajectory(const YVector &cmd);
 	void _sendTrajectory();
+	bool _checkReachability(const Y3DVector &cart);
 
 	YARPBPNNet _nnet;
 //	RFNet	   _rfnet;

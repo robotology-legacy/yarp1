@@ -51,63 +51,78 @@ void RBLearnOutputCommand::output(ABSharedData *d)
 
 void RBOutputCommand::output(ABSharedData *d)
 {
-	_bottle.reset();
-	_bottle.setID(YBVMotorLabel);
-	_bottle.writeVocab(YBVArmNewCmd);
-
+	// read (poll ports)
 	if (d->_headPort.Read(0))
 	{
 		if (d->_armPort.Read(0))
 		{
 			const YVector& head = d->_headPort.Content();
 			const YVector& arm = d->_armPort.Content()._current_position;
-			d->_map.query(arm, head);
-
-			const YVector& cmd = d->_map.prepareCmd();
-
-			cout << "Preparing arm\n";
-
-			_bottle.writeYVector(cmd);
-			_bottle.display();
-			d->_outPort.Content() = _bottle;
-			d->_outPort.Write(1);
-		}
-		else
-		{
-			cout << "Check arm connection\n";
+			
+			if (d->_map.query(arm, head))
+			{
+				cout << "Target can be reached !\n";
+				const YVector& cmd = d->_map.prepareCmd();
+				_sendReachingCommand(d, cmd);
+				return;
+			}
 		}
 	}
-	else
-	{
-		// cout << "Check head connection\n";
-		cout << "No connection from arm and head using default\n";
-		// NO_HEAD_NO_ARM
-		/*
-		const double __armInitial[] = {0, 0, 0, 0, 0, 0};
-		const double __headInitial[] = {-4, -20, -15, -8, -8};
-		YVector head(5, __headInitial);
-		YVector arm(6, __armInitial);
-		head *= degToRad;
-		arm *= degToRad;
-		*/
-		/*		
-		d->_map.query(arm, head);
 
-		const YVector& cmd = d->_map.prepareCmd();
+	cout << "Target is out of reach (or head/arm not connected)... aborting!\n";
+	_sendAbort(d);
+}
 
-		cout << "Preparing arm\n";
+void RBOutputCommand::_sendAbort(ABSharedData *d)
+{
+	_bottle1.reset();
+	_bottle1.setID(YBVMotorLabel);
+	_bottle1.writeVocab(YBVReachingAbort);
+	d->_outPort.Content() = _bottle1;
+	d->_outPort.Write(1);
+}
 
-		_bottle.writeYVector(cmd);
-		_bottle.display();
-		d->_outPort.Content() = _bottle;
-		d->_outPort.Write(1);
-		*/
-		////////////
-	}
+void RBOutputCommand::_sendReachingCommand(ABSharedData *d, const YVector &cmd)
+{
+	cout << "Opening hand\n";
+	/////// 
+	d->_outPort.Content() = _bottle2;
+	d->_outPort.Write(1);
+
+	cout << "Preparing arm\n";
+	_bottle1.reset();
+	_bottle1.setID(YBVMotorLabel);
+	_bottle1.writeVocab(YBVArmForceNewCmd);
+	_bottle1.writeYVector(cmd);
+	d->_outPort.Content() = _bottle1;
+	d->_outPort.Write(1);
 }
 
 void RB2Output::output(ABSharedData *d)
 {
+	d->_outPort.Content() = _bottle1;
+	d->_outPort.Write(1);
+
+//	Sleep(500);
+
+	d->_outPort.Content() = _bottle2;
+	d->_outPort.Write(1);
+}
+
+void RBOutputMessage::output(ABSharedData *d)
+{
+	d->_outPort.Content() = _bottle;
+	d->_outPort.Write(1);
+}
+
+void RB4Output::output(ABSharedData *d)
+{
+	d->_outPort.Content() = _bottle4;
+	d->_outPort.Write(1);
+
+	d->_outPort.Content() = _bottle3;
+	d->_outPort.Write(1);
+
 	d->_outPort.Content() = _bottle1;
 	d->_outPort.Write(1);
 

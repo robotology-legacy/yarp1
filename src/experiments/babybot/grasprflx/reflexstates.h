@@ -128,7 +128,7 @@ public:
 	int _nSynergies;
 	YVector *_openCmds;
 	YVector *_closeCmds;
-
+	
 	bool _initialized;
 
 	int _rndIndex;

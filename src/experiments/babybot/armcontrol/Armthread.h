@@ -158,6 +158,7 @@ public:
 	//anable/disable inhibition
 	void inhibitResting()
 	{
+		_tirednessControl.forceResting(false);
 		if (_tirednessControl.inhibited())
 		{
 			ARM_THREAD_DEBUG(("Resting allowed\n"));
