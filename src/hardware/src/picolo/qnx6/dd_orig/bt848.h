@@ -19,10 +19,16 @@
 
 */
 
-#define dword u32
+
 
 #ifndef _BT848_H_
 #define _BT848_H_
+
+#ifdef __cplusplus
+	extern "C" {
+#endif
+
+#define dword u32
 
 #define  PCI_BASE_ADDRESS_MEM_MASK      (~0x0fUL)
 
@@ -412,5 +418,9 @@
 
 #define BT878_DEVCTRL 0x40
 #define BT878_EN_TBFX 0x02
+
+#ifdef  __cplusplus
+}
+#endif
 
 #endif

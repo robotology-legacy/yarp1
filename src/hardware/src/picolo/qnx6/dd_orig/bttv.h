@@ -22,6 +22,10 @@
 #ifndef _BTTV_H_
 #define _BTTV_H_
 
+#ifdef __cplusplus
+	extern "C" {
+#endif
+
 #define BTTV_VERSION_CODE 0x000604
 
 #define ushort unsigned short
@@ -29,8 +33,6 @@
 #define unchar unsigned char
 #define ulong unsigned long
 
-volatile uint8_t	 *regbase8;
-volatile uint32_t    *regbase;    /* device has 32-bit registers */
 
 
 //#include <linux/types.h>
@@ -323,4 +325,12 @@ struct bttv
 #define TEA6300_TR         0x03		/* treble control */
 #define TEA6300_FA         0x04		/* fader control */
 #define TEA6300_SW         0x05		/* mute and source switch */
+
+
+#ifdef  __cplusplus
+}
 #endif
+
+#endif
+
+
