@@ -40,9 +40,10 @@ RSC=rc.exe
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir ""
 # PROP Intermediate_Dir "Release"
+# PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "C:\Progra~1\Matlab6p5\extern\include" /I "C:\Progra~1\Matlab6p5\simulink\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS" /D "_USRDLL" /D "IBMPC" /D "MSVC" /D "MSWIND" /D "__STDC__" /D "MATLAB_MEX_FILE" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\..\..\include" /I "C:\Progra~1\Matlab6p5\extern\include" /I "C:\Progra~1\Matlab6p5\simulink\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS" /D "_USRDLL" /D "IBMPC" /D "MSVC" /D "MSWIND" /D "__STDC__" /D "MATLAB_MEX_FILE" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
@@ -52,7 +53,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib libmx.lib libmex.lib libmatlb.lib libmat.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"C:\Progra~1\Matlab6p5\extern\lib\win32\microsoft\msvc60" /export:"mexFunction"
+# ADD LINK32 motorcontrol.lib utils.lib images.lib os_services.lib math.lib ace.lib winmm.lib kernel32.lib user32.lib libmx.lib libmex.lib libmatlb.lib libmat.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"..\..\..\..\lib\winnt" /libpath:"C:\Progra~1\Matlab6p5\extern\lib\win32\microsoft\msvc60" /export:"mexFunction"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Installing...
+PostBuild_Cmds=copy .\port.dll ..\..\..\..\bin\winnt	copy .\*.m ..\..\..\..\bin\winnt
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "port - Win32 Debug"
 
@@ -83,7 +89,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing...
-PostBuild_Cmds=copy .\port.dll ..\..\..\..\bin\winnt
+PostBuild_Cmds=copy .\port.dll ..\..\..\..\bin\winnt	copy .\*.m ..\..\..\..\bin\winnt
 # End Special Build Tool
 
 !ENDIF 
@@ -127,6 +133,14 @@ SOURCE=.\global.h
 # Begin Source File
 
 SOURCE="D:\Users\pasa\Repository\yarp\src\maintenance\matlab\port\port.c"
+# End Source File
+# End Group
+# Begin Group "Matlab Files"
+
+# PROP Default_Filter "m"
+# Begin Source File
+
+SOURCE=.\porter.m
 # End Source File
 # End Group
 # Begin Source File

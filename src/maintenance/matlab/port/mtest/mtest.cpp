@@ -61,73 +61,43 @@
 ///
 
 ///
-/// $Id: global.h,v 1.2 2003-11-18 00:30:18 gmetta Exp $
+/// $Id: mtest.cpp,v 1.1 2003-11-18 00:30:18 gmetta Exp $
 ///
 ///
 
-#ifndef __globalh__
-#define __globalh__
+
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+
+#include <YARPPort.h>
+#include <YARPSemaphore.h>
+#include <YARPThread.h>
+
+#include <YARPTime.h>
 
 ///
-/// possible port types within matlab.
-enum _dataType 
-{ 
-	MX_YARP_INVALID = 0, 
-	MX_YARP_INT = 1, 
-	MX_YARP_DOUBLE = 2,
-	MX_YARP_FLOAT = 3,
-	MX_YARP_YVECTOR = 4,
-	MX_YARP_IMAGE = 5,
-	MX_YARP_BOTTLE = 6,
-};
-
 ///
-/// struct to pass params to the dispatch function (and to the YARP ports).
-struct _paramsTag
+///
+int main (int argc, char *argv[])
 {
-	char *_portname;		/// symbolic name of the port.
-	enum _dataType _type;	/// type of the port.
-	char *_protocol;		/// protocol TCP/UDP/MCAST...
-	bool _direction;		/// true means INPUT port, false means OUTPUT port
-	char *_network;			/// name of the subnetwork, otherwise default.
-	int _extra_params;		/// buffering, multiple output specs.
-	int _portnumber;		/// if the entry is known, identifies the port uniquely.
-	char *_extra_content;	/// a string for many uses.
-	int _sizex, _sizey;		/// for multi-dimensional data types.
-};
+	YARPOutputPortOf<int> port;
+	YARPInputPortOf<int> iport;
 
-typedef struct _paramsTag _dispatchParams;
+	port.Register ("/mtest/o:int", "local");
+	iport.Register ("/mtest/i:int", "local");
 
-///
-/// type of entry of the static list of ports within the DLL.
-///		this is all what I need to cast the port to the correct type and call
-///		a method on it.
-///
-struct _portTypeEntryTag
-{
-	void *_port;
-	enum _dataType _type;
-	bool _direction;
-	char *_name;
-};
+	for (int i = 0;; i++)
+	{
+		printf ("about to write %d\n", i);
+		port.Content() = i;
+		port.Write();
+		///YARPTime::DelayInSeconds(1.0);
 
-typedef struct _portTypeEntryTag _portEntry;
+		iport.Read();
+		int x = iport.Content();
+		printf ("got reply %d\n", x);
+	}
 
-///
-/// max number of ports.
-const int MAX_PORTS = 20;
-
-///
-///
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-	int dispatcher (const char *operation, void *params);
-
-#ifdef __cplusplus
+	return 0;
 }
-#endif
-
-#endif

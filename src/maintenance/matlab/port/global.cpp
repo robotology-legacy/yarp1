@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: global.cpp,v 1.1 2003-11-13 22:18:05 gmetta Exp $
+/// $Id: global.cpp,v 1.2 2003-11-18 00:30:18 gmetta Exp $
 ///
 ///
 
@@ -84,17 +84,6 @@
 
 #include "global.h"
 
-static _portEntry _listOfEntries[MAX_PORTS] =
-{ 
-	{ 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL },
-	{ 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL },
-	{ 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL },
-	{ 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL },
-	{ 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL },
-	{ 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL },
-	{ 0, MX_YARP_INVALID, false, NULL }, { 0, MX_YARP_INVALID, false, NULL }
-};
-
 ///
 ///
 /// local internal prototypes.
@@ -107,6 +96,53 @@ int register_port (void *params);
 int unregister_port (void *params);
 int destroy_port (void *params);
 int list_port (void *params);
+int read_port (void *params);
+int write_port (void *params);
+int porter (void *params);
+
+///
+///
+/// hopefully gets called before unloading the DLL.
+class _listHandler 
+{
+protected:
+	_portEntry *_list;
+
+public:
+	_listHandler()
+	{
+		_list = new _portEntry[MAX_PORTS];
+		ACE_ASSERT (_list != NULL);
+
+		for (int i = 0; i < MAX_PORTS; i++)
+		{
+			memset (_list+i, 0, sizeof(_portEntry));
+			_list[i]._type = MX_YARP_INVALID;
+		}
+	}
+
+	~_listHandler()
+	{
+		if (_list != NULL)
+		{
+			for (int i = 0; i < MAX_PORTS; i++)
+			{
+				_dispatchParams par;
+				memset (&par, 0, sizeof(_dispatchParams));
+				par._portnumber = i;
+				///destroy_port ((void *)&par);
+			}
+
+			delete[] _list;
+		}
+	}
+
+	/// not checked.
+	_portEntry& operator[] (int i) { return _list[i]; }
+};
+
+/// the list variable. 
+static _listHandler __list;
  
 ///
 ///
@@ -120,14 +156,17 @@ struct _actionEntryTag
 };
 typedef struct _actionEntryTag _actionEntry;
 
-const int NUM_OF_ACTIONS = 5;
+const int NUM_OF_ACTIONS = 8;
 static _actionEntry _actions[NUM_OF_ACTIONS] =
 {
 	{ (PV)create_port, "create" },
 	{ (PV)register_port, "register" },
 	{ (PV)unregister_port, "unregister" },
 	{ (PV)destroy_port, "destroy" },
-	{ (PV)list_port, "list" }
+	{ (PV)list_port, "list" },
+	{ (PV)read_port, "read" },
+	{ (PV)write_port, "write" },
+	{ (PV)porter, "porter" }
 };
 
 ///
@@ -191,7 +230,7 @@ int dispatcher (const char *operation, void *params)
 					myport._port = (void *) new YARPInputPortOf<##y> (YARPInputPort::DEFAULT_BUFFERS, stringToProtocol(par._protocol)); \
 				else \
 					myport._port = (void *) new YARPOutputPortOf<##y> (YARPOutputPort::DEFAULT_OUTPUTS, stringToProtocol(par._protocol)); \
-				myport._type = MX_YARP_INT; \
+				myport._type = MX_YARP_##x; \
 				myport._direction = par._direction; \
 				myport._name = NULL; \
 		} \
@@ -291,7 +330,7 @@ int create_port (void *params)
 
 	for (i = 0; i < MAX_PORTS; i++)
 	{
-		if (_listOfEntries[i]._port == NULL)
+		if (__list[i]._port == NULL)
 		{
 			portno = i;
 			break;
@@ -302,12 +341,13 @@ int create_port (void *params)
 		return -1;
 
 	///
-	_portEntry& myport = _listOfEntries[portno];
+	_portEntry& myport = __list[portno];
 
 	switch (par._type)
 	{
 		PORT_CREATE (INT, int);
 		PORT_CREATE (DOUBLE, double);
+		PORT_CREATE (FLOAT, float);
 
 		default:
 			return -1;
@@ -330,7 +370,7 @@ int register_port (void *params)
 	if (portno < 0 || portno >= MAX_PORTS)
 		return -1;
 
-	_portEntry& myport = _listOfEntries[portno];
+	_portEntry& myport = __list[portno];
 	if (par._portname == NULL ||
 		par._network == NULL ||
 		myport._name != NULL)	/// already registered.
@@ -340,6 +380,7 @@ int register_port (void *params)
 	{
 		PORT_REGISTER (INT, int);
 		PORT_REGISTER (DOUBLE, double);
+		PORT_REGISTER (FLOAT, float);
 
 		default:
 			return -1;
@@ -362,7 +403,7 @@ int unregister_port (void *params)
 	if (portno < 0 || portno >= MAX_PORTS)
 		return -1;
 
-	_portEntry& myport = _listOfEntries[portno];
+	_portEntry& myport = __list[portno];
 	if (myport._name == NULL)
 		return -1;
 
@@ -370,6 +411,7 @@ int unregister_port (void *params)
 	{
 		PORT_UNREGISTER(INT, int);
 		PORT_UNREGISTER(DOUBLE, double);
+		PORT_UNREGISTER(FLOAT, float);
 
 		default:
 			return -1;
@@ -392,7 +434,7 @@ int destroy_port (void *params)
 	if (portno < 0 || portno >= MAX_PORTS)
 		return -1;
 
-	_portEntry& myport = _listOfEntries[portno];
+	_portEntry& myport = __list[portno];
 
 	if (myport._name != NULL)
 	{
@@ -405,6 +447,7 @@ int destroy_port (void *params)
 	{
 		PORT_DESTROY (INT, int);
 		PORT_DESTROY (DOUBLE, double);
+		PORT_DESTROY (FLOAT, float);
 
 		default:
 			return -1;
@@ -441,6 +484,16 @@ char *typeToString(enum _dataType type, char *buffer)
 		buffer[5] = 0;
 		break;
 
+	case MX_YARP_FLOAT:
+		strncpy (buffer, "float", 5);
+		buffer[5] = 0;
+		break;
+
+	case MX_YARP_BOTTLE:
+		strncpy (buffer, "bottle", 6);
+		buffer[6] = 0;
+		break;
+
 	default:
 		strncpy (buffer, "invalid type", 12);
 		buffer[12] = 0;
@@ -469,7 +522,7 @@ int list_port (void *params)
 
 	for (i = 0; i < MAX_PORTS; i++)
 	{
-		_portEntry& myport = _listOfEntries[i];
+		_portEntry& myport = __list[i];
 		if (myport._port != NULL)
 		{
 			sprintf (tmp, "$$ %d of type %s of %s, registered as %s\n", i, typeToString(myport._type, buffer), (myport._direction)?"input":"output", (myport._name != NULL)?myport._name:"(Null)");
@@ -481,5 +534,125 @@ int list_port (void *params)
 
 		tmp = par._extra_content + strlen (par._extra_content);
 	}
+	return 0;
+}
+
+#define PORT_READ(x, y) \
+		case MX_YARP_##x: \
+		{ \
+			YARPInputPortOf<##y> *port = (YARPInputPortOf<##y> *)myport._port; \
+			if (port->Read((par._extra_params)?true:false)) \
+			{ \
+				par._extra_content = (char *)&(port->Content()); \
+				return_value = 0; \
+				par._type = myport._type; \
+			} \
+			else \
+			{ \
+				par._extra_content = NULL; \
+				return_value = -2; \
+				par._type = MX_YARP_INVALID; \
+			} \
+			par._sizex = 1; \
+			par._sizey = 1; \
+		} \
+		break;
+
+
+#define PORT_WRITE(x, y) \
+		case MX_YARP_##x: \
+		{ \
+			YARPOutputPortOf<##y> *port = (YARPOutputPortOf<##y> *)myport._port; \
+			if (par._sizex != 1 || par._sizey != 1) \
+				return_value = -1; \
+			else \
+			{ \
+				port->Content() = ##y((*(double *)par._extra_content) + .5); \
+				port->Write((par._extra_params)?true:false); \
+				return_value = 0; \
+			} \
+		} \
+		break;
+
+///
+///
+///
+int read_port (void *params)
+{
+	_dispatchParams& par = *(_dispatchParams *)params;
+	int portno = -1;
+	int return_value = -1;
+
+	portno = par._portnumber;
+	if (portno < 0 || portno >= MAX_PORTS)
+		return -1;
+
+	_portEntry& myport = __list[portno];
+	if (myport._port == NULL ||
+		myport._type == MX_YARP_INVALID ||
+		myport._direction == false ||
+		myport._name == NULL)
+		return -1;
+
+	switch (myport._type)
+	{
+		PORT_READ (INT, int);
+		PORT_READ (DOUBLE, double);
+		PORT_READ (FLOAT, float);
+
+		default:
+			return -1;
+			break;
+	}
+
+	return return_value;
+}
+
+
+int write_port (void *params)
+{
+	_dispatchParams& par = *(_dispatchParams *)params;
+	int portno = -1;
+	int return_value = -1;
+
+	portno = par._portnumber;
+	if (portno < 0 || portno >= MAX_PORTS)
+		return -1;
+
+	_portEntry& myport = __list[portno];
+	if (myport._port == NULL ||
+		myport._type == MX_YARP_INVALID ||
+		myport._direction == true ||
+		myport._name == NULL)
+		return -1;
+
+	/// can't be #defined because of the many exceptions in handling types.
+	switch (myport._type)
+	{
+		PORT_WRITE(INT, int);
+		PORT_WRITE(DOUBLE, double);
+		PORT_WRITE(FLOAT, float);
+
+		default:
+			return -1;
+			break;
+	}
+
+	return return_value;
+}
+
+
+///
+///
+/// risky if doesn't return from porter. Matlab hangs.
+int porter (void *params)
+{
+	_dispatchParams& par = *(_dispatchParams *)params;
+	if (par._portname == NULL || 
+		par._extra_content == NULL)
+		return -1;
+
+	YARPPort::Connect (par._portname, par._extra_content);
+
 	return 0;
 }
