@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.5 2004-07-08 15:08:05 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.6 2004-07-28 13:46:12 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -76,12 +76,37 @@ public:
 		//----------------------------------------------------------------------
 		//  From here I implement the MFCC (Mel Frequency Ceptrum Coefficients)
 		//----------------------------------------------------------------------
-
+		
+		/*----------------------------------------------------------------------
+		 *  Write the signal in a file for comparation
+		 *----------------------------------------------------------------------*/
+#ifdef SAVEDATA
+		{
+			FILE *f = fopen ("signal.txt", "a");
+			for ( i = 0; i < numSamples; i++)
+				fprintf(f,"%f ",Re[i]);
+			fclose(f);
+		}
+#endif
+		
 		//----------------------------------------------------------------------
 		//  Compute Hamming ponderation and PreAccent
 		//----------------------------------------------------------------------
 		for ( i = 0; i < numSamples; i++)
-			Re[i] = PreAccent(Re[i]) * HammingPonderation(numSamples, i);
+			//Re[i] = PreAccent(Re[i]) * HammingPonderation(numSamples, i);
+			Re[i] = Re[i] * HammingPonderation(numSamples,i);
+
+		/*----------------------------------------------------------------------
+		 *  Write the signal in a file for comparation
+		 *----------------------------------------------------------------------*/
+#ifdef SAVEDATA
+		{
+			FILE *f = fopen ("signalhamming.txt", "a");
+			for ( i = 0; i < numSamples; i++)
+				fprintf(f,"%f ",Re[i]);
+			fclose(f);
+		}
+#endif
 
 		//----------------------------------------------------------------------
 		//  Compute FFT of the signal
@@ -92,6 +117,19 @@ public:
 		//  Compute the energy for the signal
 		//----------------------------------------------------------------------
 		ConjComplexMultiplication(Re, Im);
+
+		/*----------------------------------------------------------------------
+		 *  Write the signal in a file for comparation
+		 *----------------------------------------------------------------------*/
+#ifdef SAVEDATA
+		{
+			FILE *f = fopen ("fftenergy.txt", "a");
+			for ( i = 0; i < numSamples; i++)
+				fprintf(f,"%f ",Re[i]);
+			fprintf(f,"\n");
+			fclose(f);
+		}
+#endif
 
 		//----------------------------------------------------------------------
 		//  Calculate the Mel-Filter bank spectral response and get the log10
@@ -105,8 +143,28 @@ public:
 		//----------------------------------------------------------------------
         idct( filters_energy_vector.Length(), // the size of the filters_energy_vector
               out.Length(),                   // the size of the ccoefficients_vector
-              filters_energy_vector.data(), // the pointer to the vector of filters
-              out.data());                  // the pointer to the vector of coefficients
+              filters_energy_vector.data(),   // the pointer to the vector of filters
+              out.data());                    // the pointer to the vector of coefficients
+		
+		//----------------------------------------------------------------------
+		//  Testing to seee if the triangular filter is beeing generated correctly
+		//----------------------------------------------------------------------
+#if 0
+		//memset(Re,1,sizeof(double)*numSamples); //Set Re all to one
+		for (i=0;i<numSamples;i++)
+			Re[i]=1.0;
+		
+		for ( i = 0; i < totalfilters; i++)     //Apply the filter
+			filters_energy_vector[i] = Triangularfilter(Re, i);
+		//Save the result in a file to be visualized
+		{
+			FILE *f = fopen ("filterout.txt", "a");
+			for ( i = 0; i < totalfilters; i++)
+				fprintf(f,"%f ",filters_energy_vector[i]);
+			fprintf(f,"\n");
+			fclose(f);
+		}
+#endif
 
 		return 1; //We have a vector output
 	}
@@ -120,7 +178,7 @@ private:
 	//----------------------------------------------------------------------
 	int ConjComplexMultiplication(double *, double *);
 	void idct(int, int, double *, double *);
-	double Triangularfilter(const double *, const int);
+	double Triangularfilter(const double *, int);
 	double HammingPonderation(const unsigned int, const unsigned int);
 	double PreAccent(double);
 	

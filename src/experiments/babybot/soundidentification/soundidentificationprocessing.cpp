@@ -12,7 +12,7 @@
 //     This implementatin is partially based in the sound software used by Lorenzo Natale
 //     is his master thesis.
 // 
-//         Version:  $Id: soundidentificationprocessing.cpp,v 1.5 2004-07-08 15:08:05 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.cpp,v 1.6 2004-07-28 13:46:12 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -84,7 +84,8 @@ SoundIdentificationProcessing::SoundIdentificationProcessing(const YARPString &i
 	//  May be to ajust this was necessary in the original fortran code to be
 	//  use in computers with low memory.
 	//----------------------------------------------------------------------
-	fft = new YARPFft(numSamples, numSamples);
+	//fft = new YARPFft(numSamples, numSamples);
+	fft = new YARPFft(2, 11);
 
 	Re = new double[numSamples]; // this contains the Re of both channels
 	Im = new double[numSamples]; // this contains the Im of both channels
@@ -114,30 +115,29 @@ SoundIdentificationProcessing::~SoundIdentificationProcessing()
 // in a logarithmic fasion.
 // The function return the log-energy respose of the filter.
 // Input parameters
-// 		input_Re - a pointer to the furier spectra
+// 		input_Re - a pointer to the furier spectrum
 // 		k - filter number
 // Output parameters
 //		log-energy of the 'k' filter
 //--------------------------------------------------------------------------------------
 double 
 SoundIdentificationProcessing::Triangularfilter(const double *input_Re, 
-												const int k)
+												int k)
 {
-	int i           = 0;
-	int lowIndex    = 0;
-	int centerIndex = 0;
-	int upperIndex  = 0;
-	double filter_output = 0.0;
-	double energy        = 0.0;
-	double lowFreq       = 0.0;
-	double centerFreq    = 0.0;
-	double upperFreq     = 0.0;
-	double triangleHeight = 0.0;
+	int i                   = 0;
+	double filter_output    = 0.0;
+	double energy           = 0.0;
+	double lowFreq          = 0.0;
+	double centerFreq       = 0.0;
+	double upperFreq        = 0.0;
+	double triangleHeight   = 0.0;
 	double last_linear_freq = 0.0;
+	double fftFreq          = 0.0;
 
 	//----------------------------------------------------------------------
 	// Calculate the lowFreq, centerFreq and upperFreq of the filter 
 	//----------------------------------------------------------------------
+	k++;
 	if (k <= linearFilters)
 	{
 		lowFreq    = lowestFrequency + (k - 1) * linearSpacing;
@@ -146,36 +146,28 @@ SoundIdentificationProcessing::Triangularfilter(const double *input_Re,
 	}
 	else // In the case we are in the logarithmic filter distribution
 	{
-		last_linear_freq = lowestFrequency + k * linearSpacing;
-		lowFreq    = last_linear_freq * pow(logSpacing, (k-linearFilters-1));
-		centerFreq = last_linear_freq * pow(logSpacing, (k-linearFilters));
-		upperFreq  = last_linear_freq * pow(logSpacing, (k-linearFilters+1));
+		last_linear_freq = lowestFrequency + (linearFilters * linearSpacing);
+		lowFreq          = last_linear_freq * pow(logSpacing, (k-linearFilters+1));
+		centerFreq       = last_linear_freq * pow(logSpacing, (k-linearFilters+2));
+		upperFreq        = last_linear_freq * pow(logSpacing, (k-linearFilters+3));
 	}
 
 	//Calculate the height of the triangle filter
-	triangleHeight = 2 / (upperFreq-lowFreq);
-	
-	//----------------------------------------------------------------------
-	//  Calculate the indexes in the Spectral space
-	//----------------------------------------------------------------------
-	lowIndex    = int ((lowFreq    / _SamplesPerSec) * numSamples);
-	centerIndex = int ((centerFreq / _SamplesPerSec) * numSamples);
-	upperIndex  = int ((upperFreq  / _SamplesPerSec) * numSamples);
-	
-	ACE_ASSERT(upperIndex  < numFreqSamples);
-	ACE_ASSERT(lowIndex    < centerIndex);
-	ACE_ASSERT(centerIndex < upperIndex);
+	triangleHeight = (double)2.0 / (double)(upperFreq-lowFreq);
 
 	//----------------------------------------------------------------------
 	//  Apply the filter taking care to apply the correct triangle height
 	//  Acumulate the energy response of the filter
 	//----------------------------------------------------------------------
-	for ( i = 0; i < numFreqSamples; i++)
+	for ( i = 0; i < numSamples; i++)
 	{
-		if ( i > lowIndex && i <= centerIndex)
-			filter_output = input_Re[i] * triangleHeight * ((i - lowIndex)/(centerIndex-lowIndex));
-		else if ( i > centerIndex && i < upperIndex)
-			filter_output = input_Re[i] * triangleHeight * ((upperIndex - i)/(upperIndex - centerIndex));
+		int fftsize = numSamples;
+		fftFreq = (((double)i/(double)fftsize) * (double)_SamplesPerSec);
+
+		if ( fftFreq > lowFreq && fftFreq <= centerFreq)
+			filter_output = input_Re[i] * triangleHeight * ((double)(fftFreq - lowFreq)/(double)(centerFreq - lowFreq));
+		else if ( fftFreq > centerFreq && fftFreq < upperFreq)
+			filter_output = input_Re[i] * triangleHeight * ((double)(upperFreq - fftFreq)/(double)(upperFreq - centerFreq));
 		else
 			filter_output = 0.0;
 
@@ -240,22 +232,28 @@ SoundIdentificationProcessing::PreAccent(double z)
 //       Class:  SoundIdentificationProcessing
 //      Method:  idct
 // Description:  Discrete cosine transform
-//	\begin{equation}
-// 		c_i =\frac{2}{N} \sum_{k=1}^{N} Y_k \cos[k (i+0.5)\frac{\pi}{N}] , i = 1,2,\dots,M, 
-//  \end{equation} 
+//  \begin{equation}
+//   		c_i =\frac{2}{N} \sum_{k=1}^{N} Y_k \cos[i (k+0.5)\frac{\pi}{N}] , i = 1,2,\dots,M, 
+//  \end{equation}
 // 
 // Ref: "Numerical Recipes in C", page 519
 //--------------------------------------------------------------------------------------
 void 
-SoundIdentificationProcessing::idct(int size_in, int size_out,
+SoundIdentificationProcessing::idct(int size_in, 
+									int size_out,
 									double * data_in, 
 									double * data_out)
 {
-	memset(data_out,0,sizeof(double)*size_out);
-	for ( int i=0; i < size_out; i++ )
-	{
-		for ( int k=0 ; k < size_in ; k++ )
-			 data_out[i] += data_in[k]*cos((double)(PI*k*(i+0.5)/size_in));
-		data_out[i] *= (double) 2.0/size_in;
-	}
+    int i = 0;                                                                                                                                
+    int k = 0;                                                                                                                                
+                                                                                                                                              
+    memset(data_out,0,sizeof(double)*size_out);                                                                                               
+    for (  i=0; i < size_out; i++ )                                                                                                           
+    {                                                                                                                                         
+        for (  k=0 ; k < size_in ; k++ )                                                                                                      
+             data_out[i] += data_in[k]*cos((double)(PI*i*(k+0.5))/(double)size_in);                                                           
+        data_out[i] *= ((double)1.0/(double)sqrt(size_in/2));                                                                                 
+        if( i == 0)                                                                                                                           
+            data_out[i] *= (sqrt(2)/2);                                                                                                       
+    }                                                                                                                                         
 }
