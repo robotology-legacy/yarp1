@@ -61,12 +61,12 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.cpp,v 1.9 2003-09-02 13:57:29 natta Exp $
+/// $Id: YARPBlobDetector.cpp,v 1.10 2003-09-02 14:55:05 natta Exp $
 ///
 ///
 
 #include "YARPBlobDetector.h"
-#include <YARPImageFile.h>
+#include "YARPImageFile.h"
 #include "math.h"
 
 YARPBlobDetector::YARPBlobDetector(float thrs)
