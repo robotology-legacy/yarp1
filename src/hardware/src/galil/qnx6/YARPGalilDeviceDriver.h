@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.13 2003-12-22 12:23:27 beltran Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.14 2003-12-22 14:48:26 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -101,6 +101,8 @@ public:
 	
 	int set_jog_mode();
 	int set_jogs(void *input);
+	// as set_jogs, but wait for prev. command to complete
+	int set_safe_jogs(void *input);
 	
 	int controller_idle(void *input);
 		
@@ -111,8 +113,11 @@ public:
 	int get_motor_type(void * input);
 		
 	int check_motion_done(void *flag);
+
 	int check_motion_done(void *flag,int axis);
 
+	int check_frames_left(void *flag);
+	int wait_for_frames_left(void *cmd);
 	int set_dr(void * value);
 	int set_index_search(void * cmd);
 	int find_index(); 

@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPGalilDeviceDriver.cpp,v 1.14 2003-12-22 12:23:27 beltran Exp $
+//         Version:  $Id: YARPGalilDeviceDriver.cpp,v 1.15 2003-12-22 14:48:26 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -79,8 +79,10 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDResetController] 	= &YARPGalilDeviceDriver::reset_controller;
 	m_cmds[CMDErrorLimit]		= &YARPGalilDeviceDriver::error_limit;
 	m_cmds[CMDOffOnError]		= &YARPGalilDeviceDriver::off_on_error; 
-
+	
 	m_cmds[CMDVMove] 			= &YARPGalilDeviceDriver::set_jogs;
+	m_cmds[CMDSafeVMove]		= &YARPGalilDeviceDriver::set_safe_jogs;
+
 	m_cmds[CMDCheckMotionDone]	= &YARPGalilDeviceDriver::check_motion_done;
 
 	m_cmds[CMDControllerIdle]	= &YARPGalilDeviceDriver::controller_idle;
@@ -90,11 +92,15 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDAbortAxes]		= &YARPGalilDeviceDriver::abort_axes;
 
 	m_cmds[CMDMotorType]		= &YARPGalilDeviceDriver::motor_type;
+	
 	m_cmds[CMDGetMotorType]		= &YARPGalilDeviceDriver::get_motor_type;
 
 	m_cmds[CMDSetCommands]		= &YARPGalilDeviceDriver::set_commands;
+
 	m_cmds[CMDSetCommand]		= &YARPGalilDeviceDriver::set_command;
 
+	m_cmds[CMDCheckFramesLeft]  = &YARPGalilDeviceDriver::check_frames_left;
+	m_cmds[CMDWaitForFramesLeft] = &YARPGalilDeviceDriver::wait_for_frames_left;
 	m_cmds[CMDSetDR]			= &YARPGalilDeviceDriver::set_dr;
 	m_cmds[CMDIndexSearch]		= &YARPGalilDeviceDriver::set_index_search;
 
@@ -102,6 +108,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 
 	m_question_marks = NULL;
 	m_temp_int_array = NULL;
+
 	m_temp_double_array = NULL;
 }
 
@@ -1333,6 +1340,30 @@ int YARPGalilDeviceDriver::set_jogs (void *spds)
 	}
 
 	rc = begin_motion(NULL);
+	return rc;
+}
+
+int YARPGalilDeviceDriver::set_safe_jogs (void *spds) 
+{
+	long rc = 0;
+	// NOT IMPLEMENTED YET !!
+	ACE_ASSERT(0);
+	return rc;
+}
+
+int YARPGalilDeviceDriver::check_frames_left (void *flag) 
+{
+	long rc = 0;
+	// NOT IMPLEMENTED YET !!
+	ACE_ASSERT(0);
+	return rc;
+}
+
+int YARPGalilDeviceDriver::wait_for_frames_left(void *cmd) 
+{
+	long rc = 0;
+	// NOT IMPLEMENTED YET !!
+	ACE_ASSERT(0);
 	return rc;
 }
 
