@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing library
-PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\common\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\picolo\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy .\jr3\winnt\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	copy .\androidworld\common\*.h ..\..\..\include	copy .\sound\winnt\*.h ..\..\..\include	make_lib.bat
+PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\common\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\picolo\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy .\jr3\winnt\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	copy .\androidworld\common\*.h ..\..\..\include	copy .\sound\winnt\*.h ..\..\..\include	copy .\valuecan\winnt\*.h ..\..\..\include	make_lib.bat
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "alldrivers - Win32 Debug"
@@ -82,7 +82,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing library
-PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\common\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\picolo\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy .\jr3\winnt\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	copy .\androidworld\common\*.h ..\..\..\include	copy .\sound\winnt\*.h ..\..\..\include	make_lib_db.bat
+PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\common\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\picolo\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy .\jr3\winnt\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	copy .\androidworld\common\*.h ..\..\..\include	copy .\sound\winnt\*.h ..\..\..\include	copy .\valuecan\winnt\*.h ..\..\..\include	make_lib_db.bat
 # End Special Build Tool
 
 !ENDIF 
