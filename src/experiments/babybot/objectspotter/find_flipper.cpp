@@ -1,3 +1,5 @@
+//#define SINGLE_OBJECT_MODE
+
 #include <stdio.h>
 #include <assert.h>
 
@@ -95,12 +97,18 @@ void Process(YARPImageOf<YarpPixelBGR>& src, YARPImageOf<YarpPixelMono>& mask,
   static int was_training = 0;
   if (training) {
 	  if (!was_training) {
-		  spot.Reset();
+#ifdef SINGLE_OBJECT_MODE
+	    spot.Reset();
+#endif
 	  }
 	  if (ignore) {
 	    spot.TrainIgnore(src,mask,dest);
 	  } else {
+#ifdef SINGLE_OBJECT_MODE
 	    spot.Train(src,mask,dest);
+#else
+	    spot.Add(src,mask);
+#endif
 	  }
   } else {
 	SatisfySize(src,dest);
@@ -214,12 +222,14 @@ void flipper_end() {
 	}
 }
 
+// main training entrance
 void flipper_apply(YARPImageOf<YarpPixelBGR>& src,
 				   YARPImageOf<YarpPixelMono>& mask,
 				   YARPImageOf<YarpPixelBGR>& dest, int ignore) {
 	Process(src,mask,dest,1,ignore);
 }
 
+// main testing entrance
 void flipper_apply(YARPImageOf<YarpPixelBGR>& src,
 				   YARPImageOf<YarpPixelBGR>& dest,
 				   int& xx, int& yy, int& ff) {

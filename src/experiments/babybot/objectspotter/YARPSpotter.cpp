@@ -1,3 +1,6 @@
+//#define SINGLE_OBJECT_MODE
+
+
 #include <assert.h>
 #include <stdio.h>
 #include <yarp/YARPSpotter.h>
@@ -12,6 +15,9 @@ using namespace std;
 #include <math.h>
 
 //#ifdef __LINUX__
+
+#define dprintf printf
+//#define dprintf if (0) printf
 
 #define APPROX_CIRCLE
 
@@ -4190,9 +4196,11 @@ void YARPSpotter::Train(YARPImageOf<YarpPixelBGR>& src,
 			YARPImageOf<YarpPixelBGR>& dest,
 			int px, int py)
 {
-	printf("**** TRAINING\n");
+  printf("**** TRAINING\n");
   mutex.Wait();
+#ifdef SINGLE_OBJECT_MODE
   RedirectTrainer(oracle_bank[0]);
+#endif
   Process(src,mask,dest,0,px,py);
   /*
   oracle_bank[0] = oracle;  // super inefficient!
@@ -4202,10 +4210,18 @@ void YARPSpotter::Train(YARPImageOf<YarpPixelBGR>& src,
   oracle_count = 1;
   */
   if (oracle_count<1) oracle_count = 1;
+#ifdef SINGLE_OBJECT_MODE
   oracle_proto[0].Set(src,mask);
+#endif
   printf("Comparing...\n");
-  oracle_bank[0].Compare(oracle_bank3[0]);
+  p_oracle->Compare(oracle_bank3[0]);
+  //oracle_bank[0].Compare(oracle_bank3[0]);
   mutex.Post();
+  //#else
+  //printf(">>> add\n");
+  //Add(src,mask);
+  //#endif
+  printf("**** DONE TRAINING\n");
 }
 
 
@@ -4483,6 +4499,7 @@ void YARPSpotter::SetTarget(int target)
 void YARPSpotter::Add(YARPImageOf<YarpPixelBGR>& src,
 		      YARPImageOf<YarpPixelMono>& mask)
 {
+  dprintf("*** ADDING\n");
   double best_cmp = -1;
   int best_idx = -1;
   for (int i=0; i<oracle_count; i++)
@@ -4518,14 +4535,23 @@ void YARPSpotter::Add(YARPImageOf<YarpPixelBGR>& src,
       RedirectTrainer(oracle_bank[best_idx]);
       //UpdateOracle(best_idx,src,mask);
       YARPImageOf<YarpPixelBGR> dest;
+      dprintf("*** train phase\n");
       Train(src,mask,dest);
+      oracle_proto[best_idx].Set(src,mask);
+#if 0
+      dprintf("*** Test 1 phase\n");
+      SatisfySize(src,dest);
       Test(src,dest,1);
+      dprintf("*** Test 2 phase\n");
       Test(src,dest,2);
+      dprintf("*** proto phase\n");
       if (best_cmp>0.9 || oracle_proto[best_idx].image.GetWidth()==0)
 	{
 	  oracle_proto[best_idx].Set(src,mask);
 	}
+#endif
     }
+  dprintf("*** DONE ADDING\n");
 }
 
 

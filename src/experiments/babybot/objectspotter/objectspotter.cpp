@@ -8,7 +8,7 @@
 ///
 
 ///
-/// $Id: objectspotter.cpp,v 1.1 2004-09-04 23:15:43 eshuy Exp $
+/// $Id: objectspotter.cpp,v 1.2 2004-09-05 23:20:24 eshuy Exp $
 ///
 ///
 
@@ -118,7 +118,8 @@ public:
       printf("Dealing with image %s, grasping %d\n", filename, grasping);
       YARPImageOf<YarpPixelBGR> src;
       YARPImageOf<YarpPixelBGR> dest;
-      src.Resize(256,256);
+      YARPImageFile::Read(filename,src);
+      //src.Resize(256,256);
       dest.PeerCopy(src);
       process(src,dest,grasping);
 
