@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.2 2004-12-21 17:48:37 babybot Exp $
+/// $Id: Controller.H,v 1.3 2004-12-22 17:13:25 babybot Exp $
 ///
 ///
 
@@ -46,7 +46,10 @@
 #define true 1
 #endif
 
-#define VERSION 0x0112				/* the version of this code */
+#define VERSION 0x0111				/* standard/basic implementation */
+//#define VERSION 0x0112				/* decouples shoulder first two joints */
+//#define VERSION 0x0113				/* decouples the third joint of the shoulder */
+
 #define DEFAULT_BOARD_ID	15		/* default ID for receiving messages (4 bit field) */
 #define SMALL_BUFFER_SIZE 	10		/* for serial I/O */
 #define CONTROLLER_PERIOD 	1		/* espressed in ms */
@@ -161,7 +164,11 @@ dword BYTE_C(byte x4, byte x3, byte x2, byte x1);
 #define CAN_SET_MAX_VELOCITY		68
 #define CAN_GET_MAX_VELOCITY		69
 
-#define NUM_OF_MESSAGES				70
+/* special messages for inter board communication/synchronization */
+#define CAN_GET_ACTIVE_ENCODER_POSITION 70
+#define CAN_SET_ACTIVE_ENCODER_POSITION 71
+
+#define NUM_OF_MESSAGES				72
 
 /* error status values */
 #define ERROR_NONE					0			/* no error, all ok */

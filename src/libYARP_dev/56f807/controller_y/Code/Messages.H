@@ -156,6 +156,52 @@
 	_general_board_error = ERROR_NONE; \
 }
 
+#define CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER(x) \
+{ \
+	CAN_DATA[0] = CAN_DATA[0] >> 4; \
+	CAN_DATA[0] |= (_board_ID << 4); \
+	if (CAN1_GetStateTX () != 0) \
+	{ \
+		int i = CHANNEL(CAN_DATA[1]); \
+		CAN_DATA[1] = CAN_SET_ACTIVE_ENCODER_POSITION; \
+		if (i) CHANNEL_1(CAN_DATA[1]); \
+		\
+		CAN_LEN = 6; \
+		CAN_DATA[2] = BYTE_4(_position[i]); \
+		CAN_DATA[3] = BYTE_3(_position[i]); \
+		CAN_DATA[4] = BYTE_2(_position[i]); \
+		CAN_DATA[5] = BYTE_1(_position[i]); \
+		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
+	} \
+	else \
+		_general_board_error = ERROR_SEND; \
+}
+
+//		if (_verbose) \
+//		{ if (i) DSP_SendDataEx ("re 1"); \
+//			else DSP_SendDataEx ("re 0"); \
+//		} \
+
+
+#if VERSION == 0x0113
+#define CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER(x) \
+{ \
+	int i = CHANNEL(CAN_DATA[1]); \
+	long value; \
+	if (CAN_LEN == 6) \
+	{ \
+		value = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \
+		_other_position[i] = value; \
+		_pending_request[i] = false; \
+		_general_board_error = ERROR_NONE; \
+	} \
+	else \
+		_general_board_error = ERROR_FMT; \
+}
+#endif
+
+
 #define CAN_GET_ENCODER_POSITION_HANDLER(x) \
 { \
 	CAN_DATA[0] = CAN_DATA[0] >> 4; \

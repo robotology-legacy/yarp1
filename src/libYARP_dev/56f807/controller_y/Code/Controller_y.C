@@ -87,6 +87,13 @@ Int16  _ki[JN] = { 0, 0 };
 Int16  _ko[JN] = { 0, 0 };				/* offset */
 Int16  _kr[JN] = { 3, 3 };				/* scale factor (negative power of two) */
 
+#if VERSION == 0x0113
+Int32  _other_position[JN] = { 0, 0 };	/* the position of the synchronized card */
+bool _pending_request[JN] = { false, false };			/* whether a request to another card is pending */
+Int16  _timeout[JN] = { 0, 0 };			/* used to timeout requests */
+Int16 _counter = 0;
+#endif
+
 /* CAN bus communication global vars */
 byte 	CAN_data[8];					/* CAN bus message */
 dword 	CAN_messID = 0;					/* arbitration */
@@ -105,6 +112,10 @@ extern bool _ended[];						/* trajectory completed flag */
 /* Local prototypes */
 Int16 compute_pid2(byte j);
 void print_version(void);
+
+#if VERSION == 0x0113
+void can_send_request(void);
+#endif
 
 /*
  * macro functions variables.
@@ -420,19 +431,6 @@ void generatePwm (byte i)
 			
 		/* computes PID control */
 		compute_pid2 (i);
-#if 0
-		if (_verbose && i == 0)
-		{
-			DSP_SendDWordAsCharsDec (L_deposit_l(_pid[i]));
-			DSP_SendDataEx(" ");
-			DSP_SendDWordAsCharsDec (L_deposit_l(_error[i]));
-			DSP_SendDataEx(" ");
-			DSP_SendDWordAsCharsDec (_desired[i]);
-			DSP_SendDataEx(" ");
-			DSP_SendDWordAsCharsDec (_position[i]);
-			DSP_SendDataEx("\r\n");
-		}
-#endif
 		
 		/* set PWM, _pid becomes the PWM value */
 		if (_calibrated[i])
@@ -472,15 +470,65 @@ void print_version(void)
 {
 	DSP_SendDataEx ("\r\n\n");
 	DSP_SendDataEx ("Firmware - ver ");
-#if VERSION == 0x0112
-	DSP_SendDataEx ("1.12");
-#elif VERSION == 0x0111
+#if VERSION == 0x0111
 	DSP_SendDataEx ("1.11");
+#elif VERSION == 0x0112
+	DSP_SendDataEx ("1.12");
+#elif VERSION == 0x0113
+	DSP_SendDataEx ("1.13");
 #else
 #	error "No valid version specified"
 #endif
 	DSP_SendDataEx ("\r\n");
 }
+
+#if VERSION == 0x0113
+void can_send_request(void)
+{
+	const byte _neighbor = 11;
+	int i;
+	
+	_counter ++;
+	if (_counter > 5)
+	{
+	
+		for (i = 0; i < JN; i++)
+		{
+			if (!_pending_request[i])
+			{
+				_timeout[i] = 0;
+				CAN_data[0] = _neighbor;
+				CAN_data[0] |= (_board_ID << 4);
+				
+				CAN_data[1] = CAN_GET_ACTIVE_ENCODER_POSITION;		/* position joint 0 */
+				if (i) CHANNEL_1(CAN_data[1]);
+				
+				if (CAN1_GetStateTX () != 0)
+				{
+					CAN_length = 2;
+					CAN_frameType = DATA_FRAME;
+					CAN_messID = 0;
+					CAN1_SendFrame (0, CAN_messID, CAN_frameType, CAN_length, CAN_data);
+					_pending_request[i] = true;
+				}
+			}
+			else
+			{
+				_timeout[i] ++;
+				if (_timeout[i] > 10)
+				{
+					_timeout[i] = 0;
+					_pending_request[i] = false;
+					if (_verbose) 
+						if (i) DSP_SendDataEx ("to - 1\r\n"); else DSP_SendDataEx ("to - 0\r\n");
+				}
+			}
+		}
+		
+		_counter = 0;
+	}
+}
+#endif
 
 /* 
 	This is the main controller loop.
@@ -526,6 +574,11 @@ void main(void)
 		serial_interface ();
 		can_interface ();
 		
+#if VERSION == 0x0113
+		/* used to ask information about neighbor cards */
+		can_send_request ();
+#endif
+
 		/* instructions are executed for both axes and only the PWM isn't 
 		   used if the specific axis is not used/calibrated
 		   we're supposed to guarantee a constant loop period 
@@ -540,23 +593,18 @@ void main(void)
 
 #if VERSION == 0x0112
 		/* (de)couple encoder readings */
-		if (_verbose)
-		{
-			DSP_SendDWordAsCharsDec (_position[0]);
-			DSP_SendDataEx(" ");
-			DSP_SendDWordAsCharsDec (_position[1]);
-			DSP_SendDataEx(" ");
-//			DSP_SendDataEx("\r\n");
-		}
-		
 		_position[0] = L_sub(_position[0], _position[1]);
 
+#elif VERSION == 0x0113
 		if (_verbose)
 		{
-			DSP_SendDWordAsCharsDec (_position[0]);
+			DSP_SendDWordAsCharsDec (_other_position[0]);
+			DSP_SendDataEx(" ");
+			DSP_SendDWordAsCharsDec (_other_position[1]);
 			DSP_SendDataEx("\r\n");
 		}
 		
+		///_position[0] = L_sub (_position[0], _other_position[0]);
 #endif
 
 		/* this can be useful to estimate speed later on */
@@ -758,6 +806,10 @@ byte can_interface (void)
 		HANDLE_MSG (CAN_GET_TLIM, CAN_GET_TLIM_HANDLER)
 		HANDLE_MSG (CAN_GET_ERROR_STATUS, CAN_GET_ERROR_STATUS_HANDLER)
 		
+		HANDLE_MSG (CAN_GET_ACTIVE_ENCODER_POSITION, CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER)
+#if VERSION == 0x0113
+		HANDLE_MSG (CAN_SET_ACTIVE_ENCODER_POSITION, CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER)
+#endif
 		END_MSG_TABLE		
 
 		if (_verbose)

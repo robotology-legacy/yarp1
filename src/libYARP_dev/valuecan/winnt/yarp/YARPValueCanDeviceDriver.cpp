@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.6 2004-10-24 19:02:07 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.7 2004-12-22 17:13:29 babybot Exp $
 ///
 ///
 
@@ -45,7 +45,7 @@
 
 /// get the message types from the DSP code.
 #define __ONLY_DEF
-#include "../56f807/controller/Code/Controller.h"
+#include "../56f807/controller_y/Code/Controller.h"
 
 
 /// Message property.
@@ -65,7 +65,7 @@
 ///
 const int MAX_CHANNELS	= 255;
 const int MAX_NID		= 16;
-const int BUF_SIZE		= 255;
+const int BUF_SIZE		= 16384;
 
 
 class ValueCanResources
@@ -408,7 +408,8 @@ void YARPValueCanDeviceDriver::_debugMsg (int n, void *msg, int (*p) (char *fmt,
 		for (i = 0; i < n; i++)
 		{
 			ValueCanResources& r = RES(system_resources);
-			if ((m[i].Data[1] & 0x7f) != r._filter)
+			if ((m[i].Data[1] & 0x7f) != r._filter &&
+				(m[i].Data[0] & 0x0f) == r._my_address)
 			{
 				(*p) 
 					("s: %2x d: %2x c: %1d msg: %3d x: %x %x %x %x %x %x\n", 
