@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.14 2003-05-21 15:31:08 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.15 2003-05-23 08:24:03 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -83,8 +83,8 @@ extern int __debug_level;
 
 NetInt32 foo;
 
-YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 ///YARPInputPortOf<NetInt32> in;
 ///YARPOutputPortOf<NetInt32> out;
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.8 2003-05-16 00:02:31 gmetta Exp $
+/// $Id: YARPNameClient.h,v 1.9 2003-05-23 08:24:02 gmetta Exp $
 ///
 ///
 
@@ -292,7 +292,11 @@ private:
 		{
 			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","connection failed"), -1);
 		}
-		return 0;
+
+		int one = 1;
+		client_stream_.set_option (ACE_IPPROTO_TCP, TCP_NODELAY, &one, sizeof(int));
+
+		return YARP_OK;
 	}
 
 	// close down the connection properly

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.22 2003-05-21 15:41:39 gmetta Exp $
+/// $Id: Port.cpp,v 1.23 2003-05-23 08:24:01 gmetta Exp $
 ///
 ///
 
@@ -174,7 +174,7 @@ void OutputTarget::Body ()
 	CountedPtr<Sendable> p_local_sendable;
 
 	int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
-	ACE_DEBUG ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
 	if (SetPriority(prio) == YARP_FAIL)
 	{
 		ACE_DEBUG ((LM_DEBUG, "can't raise priority of OutputTarget thread, potential source of troubles\n"));
@@ -299,7 +299,7 @@ void _strange_select::Body ()
 	int prio = ACE_Sched_Params::priority_max(ACE_SCHED_OTHER);
 	///prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, prio, ACE_SCOPE_THREAD);
 
-	ACE_DEBUG ((LM_DEBUG, "strange_select thread at priority %d -> %d\n", GetPriority(), prio));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "strange_select thread at priority %d -> %d\n", GetPriority(), prio));
 	if (SetPriority(prio) == YARP_FAIL)
 	{
 		ACE_DEBUG ((LM_DEBUG, "can't raise priority of strange_select thread, potential source of troubles\n"));

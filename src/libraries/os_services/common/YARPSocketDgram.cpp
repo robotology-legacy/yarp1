@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.20 2003-05-22 00:14:27 babybot Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.21 2003-05-23 08:24:02 gmetta Exp $
 ///
 ///
 
@@ -360,7 +360,7 @@ public:
 	virtual void Body (void)
 	{
 		int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
-		ACE_DEBUG ((LM_DEBUG, "acceptor thread at priority %d -> %d\n", GetPriority(), prio));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "acceptor thread at priority %d -> %d\n", GetPriority(), prio));
 		if (SetPriority(prio) == YARP_FAIL)
 		{
 			ACE_DEBUG ((LM_DEBUG, "can't raise priority of acceptor thread, potential source of troubles\n"));
@@ -524,7 +524,7 @@ void _SocketThreadDgram::Body (void)
 	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 
 	int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
-	ACE_DEBUG ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
 	if (SetPriority(prio) == YARP_FAIL)
 	{
 		ACE_DEBUG ((LM_DEBUG, "can't raise priority of reader thread, potential source of troubles\n"));
@@ -551,7 +551,6 @@ void _SocketThreadDgram::Body (void)
 		int r = YARP_FAIL;
 
 		r = _local_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
-		
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_name(), incoming.get_port_number()));
 
 		if (r >= 0 && hdr.GetLength() == (_MAGIC_NUMBER + 1))
@@ -804,6 +803,8 @@ void _SocketThreadDgram::Body (void)
 	/// the socket is closed already.
 	_available = 1;
 	_mutex.Post ();
+
+	ACE_DEBUG ((LM_DEBUG, "A reader thread returned\n"));
 
 #ifdef __WIN32__
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? comms thread bailed out\n"));
@@ -1500,23 +1501,6 @@ int YARPOutputSocketDgram::SendBegin(char *buffer, int buffer_length)
     hdr.SetLength (buffer_length);
 
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "sending to: %s:%d\n", d._remote_addr.get_host_name(), d._remote_addr.get_port_number()));
-
-#if 0
-	/// minor optimization using iovec.
-	int sent = -1;
-	iovec iov[2];
-	iov[0].iov_base = (char *)&hdr;
-	iov[0].iov_len = sizeof(hdr);
-	iov[1].iov_base = (char *)buffer;
-	iov[1].iov_len = buffer_length;
-	sent = d._connector_socket.send (iov, 2, d._remote_addr);
-	if (sent != (sizeof(hdr) + buffer_length))
-	{
-		ACE_DEBUG ((LM_DEBUG, "iovec test send failed %d\n", sent));
-		return YARP_FAIL;
-	}
-	/// doesn't work, it requires an iovec on the other end.
-#endif
 
 	int sent = -1;
 	sent = d._connector_socket.send ((const void *)(&hdr), sizeof(hdr), d._remote_addr);

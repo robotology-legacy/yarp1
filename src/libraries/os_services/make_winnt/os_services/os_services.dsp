@@ -201,6 +201,10 @@ SOURCE=..\..\include\YARPSocketDgram.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\YARPSocketMcast.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\YARPSocketNameService.h
 # End Source File
 # Begin Source File
@@ -290,6 +294,10 @@ SOURCE=..\..\common\YARPSocket.cpp
 # Begin Source File
 
 SOURCE=..\..\common\YARPSocketDgram.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\common\YARPSocketMcast.cpp
 # End Source File
 # Begin Source File
 
