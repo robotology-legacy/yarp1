@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.5 2004-05-07 01:40:16 babybot Exp $
+/// $Id: main.cpp,v 1.6 2004-05-09 00:30:14 babybot Exp $
 ///
 ///
 
@@ -162,7 +162,7 @@ int main (int argc, char *argv[])
 
 		case 'u':
 			{
-				double cmd[4] = { 0, 0, 0, 0 };
+				double cmd[4] = { 0, 1, 0, 1 };
 				driver.IOCtl(CMDVMove, (void *)cmd);
 				ACE_OS::printf ("axes should be stopped\n");
 			}
