@@ -1,6 +1,6 @@
 // reaching.cpp : Defines the entry point for the console application.
 //
-//#define TEST_REACHING
+#define TEST_REACHING
 
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBabyBottle.h>
@@ -37,7 +37,8 @@ int main(int argc, char* argv[])
 	RBWaitIdle reachingSeq2b("AS state issue reaching command");
 	
 	RBWaitIdle reachingSeq31("Waiting for arm done (actually reaching1)");
-	RBWaitIdle reachingSeq32("Waiting for arm done (actually reaching2)");
+	RBWaitDeltaT reachingSeq32("Waiting for arm done (closed loop)",0);
+	RBWaitDeltaT  reachingSeq32a("Waiting for arm done (actually reaching 2)",2);
 	RBWaitIdle inhibitedState("Reaching inhibited");
 	// RBWaitIdle reachingSeq33("Waiting for arm done (actually reaching3)");
 	RBWaitDeltaT reachingSeq33("Waiting for arm done (actually reaching3)", 2);
@@ -69,6 +70,7 @@ int main(int argc, char* argv[])
 	RBOutputReaching1		reachingOutput1;
 	RBOutputReaching2		reachingOutput2;
 	RBOutputReaching3		reachingOutput3;
+	RBOutputReachingCL		reachingOutputCL;
 	RBOutputBack			reachingBack;
 	RBMotorCommand			reachingDropOut (YBVArmForceNewCmd, YVector(6, __armDrop));
 	RBLearnOutputCommand	learnOutput;
@@ -122,9 +124,11 @@ int main(int argc, char* argv[])
 	
 	_behavior.add(NULL, &reachingSeq2, &reachingSeq2b, &inhibitAll);
 	_behavior.add(NULL, &reachingSeq2b, &reachingSeq31, &reachingOutput1);
-	_behavior.add(&armDone, &reachingSeq31, &reachingSeq32, &reachingOutput2);
+	_behavior.add(&armDone, &reachingSeq31, &reachingSeq32a, &reachingOutputCL);
 	_behavior.add(&armIsBusy, &reachingSeq31, &waitIdle, &enableAll);
-	
+
+	_behavior.add(NULL, &reachingSeq32a, &reachingSeq32, &reachingOutput2);
+		
 #ifndef TEST_REACHING
 	_behavior.add(&armDone, &reachingSeq32, &waitDeltaT1, &handClose);
 #else

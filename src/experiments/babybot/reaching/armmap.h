@@ -1,7 +1,7 @@
 #ifndef __ARMMAP__
 #define __ARMMAP__
 
-//#define TEST_REACHING
+#define TEST_REACHING
 
 #include <yarp/YARPBabybotHead.h>
 #include <yarp/YARPRndUtils.h>
@@ -44,13 +44,13 @@ const double __preparePosition[] = { 5*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*
 #ifndef TEST_REACHING
 	// offset in the shoulder to reach "from above"
 	const double __shoulderOffset1 = 40*degToRad;
-	const double __shoulderOffset2 = 30*degToRad;
+	const double __shoulderOffset2 = 10*degToRad;
 	// offset in the shoulder to fix offset in the reaching
 	// (tappullo)
 	const double __armOffset1 = 0*degToRad;
 	const double __armOffset2 = 0*degToRad;
-	const double __foreArmOffset1 = -8*degToRad;
-	const double __foreArmOffset2 = -8*degToRad;
+	const double __foreArmOffset1 = 0;//-8*degToRad;
+	const double __foreArmOffset2 = 0;//-8*degToRad;
 
 	const double __wrist1a = 0*degToRad;	
 	const double __wrist2a = 0*degToRad;
@@ -62,7 +62,7 @@ const double __preparePosition[] = { 5*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*
 	const double __wrist3b = -170*degToRad;
 #else 
 	// offset in the shoulder to reach "from above"
-	const double __shoulderOffset1 = 20*degToRad;
+	const double __shoulderOffset1 = 0*degToRad;
 	const double __shoulderOffset2 = 0*degToRad;
 	// offset in the shoulder to fix offset in the reaching
 	// (tappullo)
@@ -143,7 +143,7 @@ public:
 	}
 };
 
-const int __trajectoryLength = 3;
+const int __trajectoryLength = 4;
 
 class ArmMap: public YARPInputPortOf<YARPBabyBottle>
 {
@@ -169,13 +169,13 @@ public:
 private:
 	bool _checkLearnCondition();
 	bool _checkReachingCondition();
-	void _formTrajectory(const YVector &cmd);
+	void _formTrajectory(const YVector &cmd, const YVector &cmdCL);
 	void _sendTrajectory();
 	bool _checkReachability(const Y3DVector &cart);
 
 
-	YARPBPNNet _nnet;
-//	RFNet	   _rfnet;
+//	YARPBPNNet _nnet;
+	RFNet	   _rfnet;
 
 	ArmForwardKinematics _fkinematics;
 		
@@ -190,6 +190,7 @@ private:
 	YARPBabybotHeadKin _headKinematics;
 	YARPBabyBottle _bottle;
 	YVector _command;
+	YVector _commandCL;
 	YVector _prepare;
 	YVector *_trajectory;
 

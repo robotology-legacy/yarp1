@@ -186,7 +186,7 @@ void RBOutputReaching2::output(ABSharedData *d)
 	_bottle.setID(YBVMotorLabel);
 	_bottle.writeVocab(YBVArmNewCmd);
 
-	const YVector& cmd = d->_map.getCommand(1);
+	const YVector& cmd = d->_map.getCommand(2);
 
 	_bottle.writeYVector(cmd);
 	d->_outPort.Content() = _bottle;
@@ -200,13 +200,28 @@ void RBOutputReaching3::output(ABSharedData *d)
 	_bottle.setID(YBVMotorLabel);
 	_bottle.writeVocab(YBVArmNewCmd);
 
-	const YVector& cmd = d->_map.getCommand(2);
+	const YVector& cmd = d->_map.getCommand(3);
 
 	_bottle.writeYVector(cmd);
 	d->_outPort.Content() = _bottle;
 	d->_outPort.Write(1);
 	
 }
+
+void RBOutputReachingCL::output(ABSharedData *d)
+{
+	_bottle.reset();
+	_bottle.setID(YBVMotorLabel);
+	_bottle.writeVocab(YBVArmNewCmd);
+
+	const YVector& cmd = d->_map.getCommand(1);
+
+	_bottle.writeYVector(cmd);
+	d->_outPort.Content() = _bottle;
+	d->_outPort.Write(1);
+	
+}
+
 void RBSimpleOutput::output(ABSharedData *d)
 {
 	_bottle.reset();

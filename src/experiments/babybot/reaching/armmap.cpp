@@ -12,18 +12,19 @@ _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 	// load nnets
 	ACE_OS::sprintf (filename, "%s/conf/babybot/%s", root, reachingNNet);
 	
-	if (_nnet.load(filename)!=YARP_OK)
+/*	if (_nnet.load(filename)!=YARP_OK)
 	{
 		ACE_OS::printf("Error, cannot read neural network file %s", filename);
 		exit(-1);
 	}
+	*/
 	
-	/*
+	
 	if (_rfnet.LoadNet("reaching.rfwr","y:/conf/babybot/")!=YARP_OK)
 	{
 		ACE_OS::printf("Error, cannot read rfwr ini file %s", "reaching.rfwr");
 		exit(-1);
-	}*/
+	}
 
 	ACE_OS::printf("Read neural network from %s\n", filename);
 
@@ -52,6 +53,7 @@ _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 
 	_noise.resize(__nJointsArm, __maxRnd, __minRnd);
 	_command.Resize(__nJointsArm);
+	_commandCL.Resize(__nJointsArm);
 	_prepare.Resize(__nJointsArm);
 
 	_prepare = YVector(__nJointsArm, __preparePosition);
@@ -103,15 +105,15 @@ bool ArmMap::query(const YVector &arm, const YVector &head)
 	else
 	{
 
-		_nnet.sim(tmp.data(), _command.data());
-/*		YVector tmpY(3);
+//		_nnet.sim(tmp.data(), _command.data());
+		YVector tmpY(3);
 		_rfnet.Simulate(tmp, 0.001, tmpY);
 		_command = 0.0;
 		_command(1) = tmpY(1);
 		_command(2) = tmpY(2);
-		_command(3) = tmpY(3);*/
+		_command(3) = tmpY(3);
 
-#define USE_JACOBIAN 0
+#define USE_JACOBIAN 1
 #if USE_JACOBIAN
 		_fkinematics.update(_command, head);
 		_fkinematics.computeJacobian(x,y);		// compute from center
@@ -119,18 +121,20 @@ bool ArmMap::query(const YVector &arm, const YVector &head)
 	//	tmpArm(1) = _command(1);
 	//  tmpArm(2) = _command(2);
 	//	tmpArm(3) = _command(3);
-		tmpArm(1) = _command(1);	 	//copy 1 joint from map
-		tmpArm(2) = arm(2);
-		tmpArm(3) = arm(3);
-		tmpArm(4) = arm(4);
-		tmpArm(5) = arm(5);
-		tmpArm(6) = arm(6);
 
-		_command = _fkinematics.computeCommandThreshold(tmpArm , x, y);	// to center
+//		tmpArm(1) = _command(1);	 	//copy 1 joint from map
+//		tmpArm(2) = arm(2);
+//		tmpArm(3) = arm(3);
+//		tmpArm(4) = arm(4);
+//		tmpArm(5) = arm(5);
+//		tmpArm(6) = arm(6);
+
+		tmpArm=_command;
+		_commandCL = _fkinematics.computeCommandThreshold(tmpArm , x, y);	// to center
 #endif
 	//	_sendTrajectory();
 		
-		_formTrajectory(_command);
+		_formTrajectory(_command, _commandCL);
 	}
 
 	return true;
@@ -174,7 +178,7 @@ void ArmMap::OnRead(void)
 }
 
 
-void ArmMap::_formTrajectory(const YVector &cmd)
+void ArmMap::_formTrajectory(const YVector &cmd, const YVector &cmdCL)
 {
 	// first move
 	_trajectory[0] = _command;
@@ -185,17 +189,24 @@ void ArmMap::_formTrajectory(const YVector &cmd)
 	_trajectory[0](5) = __wrist2a;
 	_trajectory[0](6) = __wrist3a;
 
-	// actual reaching
-	_trajectory[1] = _command;
-	_trajectory[1](1) = _command(1)+__shoulderOffset2;
-	_trajectory[1](2) = _command(2)+__armOffset2;
-	_trajectory[1](3) = _command(3)+__foreArmOffset2;
+	_trajectory[1](1)= _command(1)+__shoulderOffset1;
+	_trajectory[1](2) = _commandCL(2)+__armOffset1;
+	_trajectory[1](3) = _commandCL(3)+__foreArmOffset1;
 	_trajectory[1](4) = __wrist1b;
 	_trajectory[1](5) = __wrist2b;
 	_trajectory[1](6) = __wrist3b;
 
+	// actual reaching
+	_trajectory[2] = _command;
+	_trajectory[2](1) = _command(1)+__shoulderOffset2;
+	_trajectory[2](2) = _commandCL(2)+__armOffset2;
+	_trajectory[2](3) = _commandCL(3)+__foreArmOffset2;
+	_trajectory[2](4) = __wrist1b;
+	_trajectory[2](5) = __wrist2b;
+	_trajectory[2](6) = __wrist3b;
+
 	// go back
-	_trajectory[2] = _trajectory[0];
+	_trajectory[3] = _trajectory[1];
 }
 
 const YVector &ArmMap::getCommand(int index)

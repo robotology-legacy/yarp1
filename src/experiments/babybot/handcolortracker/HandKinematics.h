@@ -47,7 +47,112 @@ public:
 	}
 
 	YVector _position;
-	
+};
+
+struct trPoint
+{
+	int x;
+	int y;
+};
+
+#include <vector>
+
+class ArmTrajectory: public YARPInputPortOf<YARPBabyBottle>
+{
+public:
+	ArmTrajectory(): YARPInputPortOf<YARPBabyBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
+	{
+		YARPString tmp = "/handtracker/trajectory/i";
+		Register(tmp.c_str());
+
+	}
+
+	virtual void OnRead(void)
+	{
+		YBVocab	tmpVocab;
+
+		Read();
+		YARPBabyBottle &tmpBottle = Content();
+
+		if (tmpBottle.tryReadVocab(tmpVocab))
+			tmpBottle.moveOn();
+		
+		if (tmpVocab == YBVReachingReach)
+		{
+			// start acquisition
+			center.clear();
+			fingers.clear();
+			acquisition = true;
+		}
+		else
+		if (tmpVocab == YBVReachingDone)
+		{
+			// stop
+			acquisition = false;
+			// dump to file
+			dump("c:/center.txt", center);
+			dump("c:/fingers.txt", fingers);
+
+		}
+		return;
+	}
+
+	void update(int cx, int cy, int fx, int fy)
+	{
+		if (acquisition)
+		{
+			trPoint tmpC,tmpF;
+			tmpC.x = cx;
+			tmpC.y = cy;
+
+			tmpF.x = fx;
+			tmpF.y = fy;
+
+			center.push_back(tmpC);
+			fingers.push_back(tmpF);
+
+		}
+
+	}
+
+	void plotTrajectory(YARPImageOf<YarpPixelBGR> &img, YarpPixelBGR &color1, YarpPixelBGR &color2)
+	{
+		plotTrajectory(center, img, color1);
+		plotTrajectory(fingers, img, color2);
+	}
+
+private:
+	inline void plotTrajectory(const std::vector<trPoint> &v, YARPImageOf<YarpPixelBGR> &img, YarpPixelBGR &color)
+	{
+		
+		for (int i = 0; i < v.size(); i++)
+		{
+			int x = v[i].x;
+			int y = v[i].y;
+			YARPSimpleOperation::DrawCross(img, x, y, color, 1, 1);
+
+		}
+
+	}
+
+	inline void dump(const char *fn, const std::vector<trPoint> &v)
+	{
+		FILE *fp = fopen(fn, "w");
+		for (int i = 0; i < v.size(); i++)
+		{
+			int x = v[i].x;
+			int y = v[i].y;
+			fprintf(fp, "%d\t%d\n", x, y);
+		}
+		fclose(fp);
+	}
+
+	std::vector<trPoint> center;
+	std::vector<trPoint> fingers;
+
+	bool acquisition;
+
+
 };
 
 class HandKinematics

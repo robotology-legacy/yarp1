@@ -214,6 +214,15 @@ public:
 	
 };
 
+class RBOutputReachingCL: public RBBaseOutput
+{
+public:
+	void output(ABSharedData *d);
+
+	YARPBabyBottle _bottle;
+	
+};
+
 class RBOutputBack: public RBBaseOutput
 {
 public:

@@ -38,7 +38,6 @@ int __headCounter = 0;
 #define DECLARE_INPUT_PORT(TYPE, NAME, PROTOCOL) YARPInputPortOf<TYPE> NAME(YARPInputPort::DEFAULT_BUFFERS, PROTOCOL)
 #define DECLARE_OUTPUT_PORT(TYPE, NAME, PROTOCOL) YARPOutputPortOf<TYPE> NAME(YARPOutputPort::DEFAULT_OUTPUTS, PROTOCOL)
 
-
 inline bool pollPort(YARPInputPortOf<YVector> &port, YVector &out, int *counter)
 {
 	bool ret = false;
@@ -99,6 +98,8 @@ int main(int argc, char* argv[])
 
 	if (!YARPParseParameters::parse(argc, argv, "-position"))
 		plotActual = false;
+
+	ArmTrajectory trajectory;
 
 	unsigned char bins[] = {16, 16, 1};
 	YARPLpHistoSegmentation _histo(80, 80, 255, 0, bins);
@@ -257,6 +258,9 @@ int main(int argc, char* argv[])
 				_segmenter.drawCross(tmpEl.x, tmpEl.y, YarpPixelBGR(255, 0, 0), 5, 1);
 				_segmenter.plotEllipse(tmpEl, YarpPixelBGR(255, 0, 0));
 				_segmenter.plotEllipse2(tmpEl, YarpPixelBGR(0, 255, 0), _handFingers);
+
+				trajectory.update(tmpEl.x, tmpEl.y, _handFingers(1), _handFingers(2));
+				trajectory.plotTrajectory(_segmenter.getImage(), YarpPixelBGR(255,0,0), YarpPixelBGR(156,0,255));
 			// }
 			// else
 			// {
