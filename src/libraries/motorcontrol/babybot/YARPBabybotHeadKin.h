@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.7 2004-01-16 23:08:34 babybot Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.8 2004-05-20 08:08:07 gmetta Exp $
 ///
 ///
 
@@ -89,29 +89,9 @@
 /// things to be moved into the head configuration file
 const int _dh_nrf = 5;
 
-const double DH_left[_dh_nrf][5] = {
-	{0, 0, 0, 0, -1},
-	{0, -pi/2, 0, -pi/2, 1},
-	{125, 0, 0, pi/2, 1},
-	{0, pi/2, 0, pi/2, 0},	// zero in the fifth position means it's a convenience trsf.
-	{-71.5, 0, 0, pi/2, 1},
-};
-
-const double DH_right[_dh_nrf][5] = {
-	{0, 0, 0, 0, -1},
-	{0, -pi/2, 0, -pi/2, 1},
-	{125, 0, 0, pi/2, 1},
-	{0, pi/2, 0, pi/2, 0},
-	{71.5, 0, 0, pi/2, -1},
-};
-
-/// maybe not needed now. Height of the neck?
-const double TBaseline[4][4] = {
-	{1, 0, 0, 0},
-	{0, 1, 0, 0},
-	{0, 0, 1, 133},
-	{0, 0 ,0, 1},
-};
+extern const double DH_left[_dh_nrf][5];
+extern const double DH_right[_dh_nrf][5];
+extern const double TBaseline[4][4];
 
 ///
 /// these params are very approximate.

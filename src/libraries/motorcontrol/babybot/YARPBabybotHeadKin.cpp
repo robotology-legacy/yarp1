@@ -61,11 +61,44 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.cpp,v 1.4 2003-11-11 17:53:28 babybot Exp $
+/// $Id: YARPBabybotHeadKin.cpp,v 1.5 2004-05-20 08:08:07 gmetta Exp $
 ///
 ///
 
 #include "YARPBabybotHeadKin.h"
+
+
+#ifdef __WIN32__
+#pragma init_seg(lib)
+#endif
+
+///
+/// global vars.
+///
+const double DH_left[_dh_nrf][5] = {
+	{0, 0, 0, 0, -1},
+	{0, -pi/2, 0, -pi/2, 1},
+	{125, 0, 0, pi/2, 1},
+	{0, pi/2, 0, pi/2, 0},	// zero in the fifth position means it's a convenience trsf.
+	{-71.5, 0, 0, pi/2, 1},
+};
+
+const double DH_right[_dh_nrf][5] = {
+	{0, 0, 0, 0, -1},
+	{0, -pi/2, 0, -pi/2, 1},
+	{125, 0, 0, pi/2, 1},
+	{0, pi/2, 0, pi/2, 0},
+	{71.5, 0, 0, pi/2, -1},
+};
+
+/// maybe not needed now. Height of the neck?
+const double TBaseline[4][4] = {
+	{1, 0, 0, 0},
+	{0, 1, 0, 0},
+	{0, 0, 1, 133},
+	{0, 0 ,0, 1},
+};
+
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
