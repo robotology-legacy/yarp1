@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
+/// $Id: YARPNameService.h,v 1.4 2004-07-13 00:48:36 babybot Exp $
 ///
 ///
 /*
@@ -80,71 +80,172 @@
 
 #include <yarp/YARPNameID.h>
 
-///
-/// don't optimize constructor is actually for troubles I encountered under gcc QNX6.
-#ifdef __WIN32__
-#define NAMER_CONFIG_FILE "conf\\namer.conf"
-#else
+/**
+ * \file YARPNameService.h interface to the name server (yarp-service) and
+ * high level interface to the creation of communication endpoints.
+ * Creation of an endpoint involves calling the name server.
+ */
+
 #define NAMER_CONFIG_FILE "conf/namer.conf"
-#endif
+
+/// don't optimize constructor is actually for troubles I encountered under gcc QNX6.
 #define DONT_OPTIMIZE_CONSTRUCTOR if (0) { int i; i++; }
 
-///
-///
-///
+/**
+ * High level interface to the name server. It connects using tcp to the
+ * name server and send certain messages to access the name server services.
+ * This high level interface can serve both socket communication and QNET.
+ */
 class YARPNameService
 {
 public:
+	/**
+	 * Constructor.
+	 */
 	YARPNameService () { DONT_OPTIMIZE_CONSTRUCTOR; Initialize (); }
+
+	/**
+	 * Destructor.
+	 */
 	~YARPNameService () { Finalize (); }
 
-	/// shouldn't be just an opportunistic call to the name server?
+	/**
+	 * Does nothing.
+	 * @param name is ignored.
+	 * @return always YARP_OK.
+	 */ 
 	static int ConnectNameServer(const char *name = NULL);
+
+	/**
+	 * Initializes the global object (singleton) by reading the configuration file.
+	 * @return YARP_OK on success.
+	 */
 	static int Initialize (void);
+
+	/**
+	 * Finilizes the use of the class by cleaning memory.
+	 * @return YARP_OK on success.
+	 */
 	static int Finalize (void);
 
-	///// OLD: if native flag set, register with native name service only
-	/// YARP_QNX4 flag is used to ask a name to the native QNX4 name service.
-	/// static int RegisterName(const char *name, int native=1);
+	/**
+	 * Registers a new name into the name server.
+	 * @param name is the name to be registered (a symbolic name contained in the string).
+	 * @param network_name is the name of the network to be used (YARP supports multiple nic's on the same machine).
+	 * @param reg_type is one of the enumeration in YARP_NameID_defs.h, typically the protocol type (UDP is generally used for registration).
+	 * @param num_ports_needed is the number of ip ports to reserve (i.e. in practice the max number of incoming connections).
+	 * @return a pointer to a YARPUniqueNameID which as been allocated on the fly (DeleteName() must be called to free memory).
+	 */
 	static YARPUniqueNameID* RegisterName (const char *name, const char *network_name, int reg_type = YARP_DEFAULT_PROTOCOL, int num_ports_needed = YARP_PROTOCOL_REGPORTS);
-	/// reg_type is one of the enumeration in YARPNameID_defs.h
 
-	// if native flag set, search native name service first, then global
-	/// it does a search on various protocols instead asking for a type.
+	/**
+	 * Locates a name (if exists) on the name server.
+	 * @param name is the name to be searched.
+	 * @param network_name is the name of the network to be used (YARP supports multiple nic's on the same machine).
+	 * @param name_type is one of the enumeration in YARP_NameID_defs.h, typically the protocol type.
+	 * @return a pointer to a YARPUniqueNameID which as been allocated on the fly (DeleteName() must be called to free memory).
+	 */
 	static YARPUniqueNameID* LocateName (const char *name, const char *network_name = NULL, int name_type = YARP_NO_SERVICE_AVAILABLE);
 
-	///
-	/// just deallocates memory, call UnregisterName to actually remove the
-	/// name from the name server (call this after un-registration).
+	/**
+	 * Just deallocates memory, call UnregisterName() to actually remove the
+	 * name from the name server (call this after un-registration).
+	 * @param the pointer to the YARPUniqueNameID to be freed.
+	 * @return YARP_OK on success.
+	 */
 	static int DeleteName (YARPUniqueNameID* pid);
 
-	///
-	///
+	/**
+	 * Unregisters the name from the name server.
+	 * @param the pointer to the YARPUniqueNameID to be unregistered.
+	 * @return YARP_OK on success.
+	 */
 	static int UnregisterName (YARPUniqueNameID* pid);
 
-	///
-	/// queries the name server for an IP and netname association. returns the 
-	/// ifname (IP or symbolic) and true if IP and netname belong to the same subnet.
+	/**
+	 * Queries the name server for an IP and netname association. Returns the 
+	 * interface name (IP or symbolic) and true if IP and netname belong to the same subnet.
+	 * @param ip is the ip address to be searched.
+	 * @param network name is the network name to compare with.
+	 * @param ifname is the name of the interface (ip address on Windows, device name on unix).
+	 * @return true if the ip belongs to the subnet identified by the network name.
+	 */
 	static bool VerifySame (const char *ip, const char *network_name, YARPString& ifname);
 
-	///
-	///
+	/**
+	 * Verifies whether two ip's are actually on the same machine. This is needed to
+	 * decide whether to start a SHMEM connection.
+	 * Also checks whether the two ip's are on the same network.
+	 * @param rem_ip is the address of the remote connection.
+	 * @param loc_ip is the address of the local endpoint.
+	 * @param network_name is the network of the local endpoint.
+	 * @return true if a shared memory connection is possible.
+	 */
 	static bool VerifyLocal (const char *rem_ip, const char *loc_ip, const char *network_name);
 };
 
 
-///
-/// handles endpoint(s) allocation and connection.
-///
+/**
+ * Manager for the communication endpoints. This class creates both socket and qnet endpoints.
+ */
 class YARPEndpointManager
 {
 public:
+	/**
+	 * Creates an input endpoint. Depending on the protocol creates a socket or a qnet endpoint.
+	 * Some more details can be found on the documentation of YARPSocket.
+	 * @param name is the unique name id obtained by registering the symbolic name to the name
+	 * server.
+	 * @return YARP_OK on success.
+	 */
 	static int CreateInputEndpoint(YARPUniqueNameID& name);
+
+	/**
+	 * Creates an output endpoint. Depending on the protocol creates a socket or a qnet endpoint.
+	 * Some more details can be found on the documentation of YARPSocket.
+	 * @param name is the unique name id obtained by registering the symbolic name to the name
+	 * server.
+	 * @return YARP_OK on success.
+	 */
 	static int CreateOutputEndpoint(YARPUniqueNameID& name);
+
+	/**
+	 * Connects the local endpoint with the destination. The local endpoint is acquired
+	 * by looking to the socket associated with the current thread.
+	 * Some more details can be found on the documentation of YARPSocket.
+	 * @param dest is the unique name of the destination endpoint (this is queried from the 
+	 * name server).
+	 * @return YARP_OK on success.
+	 */
 	static int ConnectEndpoints(YARPUniqueNameID& dest);
+
+	/**
+	 * Closes an endpoint.
+	 * @param endp is the unique name of the endpoint to be closed. The calling thread
+	 * must be the owner.
+	 * @return YARP_OK on success.
+	 */
 	static int Close(YARPUniqueNameID& endp);
+
+	/**
+	 * Closes all MCAST connections. It only works for output sockets.
+	 * @return YARP_OK on success.
+	 */
 	static int CloseMcastAll(void);
+
+	/**
+	 * Returns the number of clients. Called by MCAST sockets only.
+	 * The behavior is undefined (e.g. segmentation violation) if called by a non-MCAST socket.
+	 * @return the number of connected MCAST listeners on success or YARP_FAIL on failure.
+	 */
 	static int GetNumberOfClients(void);
+
+	/**
+	 * Disable the Nagle's algorithm for the endpoint. Beware that this might affect 
+	 * the performance of communication. Make sure you know the effects of it.
+	 * @param endp is the endpoint.
+	 * @return YARP_OK on success.
+	 */
 	static int SetTCPNoDelay (const YARPUniqueNameID& endp);
 };
 
