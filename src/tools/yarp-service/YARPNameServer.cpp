@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.2 2004-07-09 07:34:53 eshuy Exp $
+/// $Id: YARPNameServer.cpp,v 1.3 2004-07-09 16:42:42 eshuy Exp $
 ///
 ///
 
@@ -65,6 +65,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <yarp/YARPAll.h>
+
 using namespace std;
 
 // this is really bad - should use real strings
@@ -76,7 +78,7 @@ char * GetYarpRoot (void)
 	char * ret = getenv ("YARP_ROOT");
 	if (ret == NULL)
 	{
-		ACE_DEBUG ((LM_DEBUG, "::GetYarpRoot : can't retrieve YARP_ROOT env variable\n"));
+	  //ACE_DEBUG ((LM_DEBUG, "::GetYarpRoot : can't retrieve YARP_ROOT env variable\n"));
 		ret = getenv("HOME");
 		if (ret!=NULL) {
 		  sprintf(name_buffer,"%s/.yarp",ret);
@@ -239,6 +241,7 @@ void YARPNameServer::handle_registration(const YARPString &service_name, const Y
 	PORT_LIST ports;
 	IpEntry tmpEntry;
 	tmpEntry.ip = ip;
+	printf("about to handle %s\n", ip.c_str());
 	ns.registerName(service_name, tmpEntry, type, ports, np);
 	
 	PORT_IT i(ports);
@@ -254,8 +257,10 @@ void YARPNameServer::handle_query(const YARPString &service_name)
 	YARPString ip;
 	int port;
 	int type;
+	printf("mmmm %s/%d name %s\n", __FILE__, __LINE__, service_name.c_str());
 	ns.queryName(service_name, ip, &type, &port);
 	NAME_SERVER_DEBUG(("Reply %s as %s(%s):%d\n", service_name.c_str(), ip.c_str(), servicetypeConverter(type), port));
+	printf("mmmm %s/%d\n", __FILE__, __LINE__);
 	_handle_reply(ip, type, port);
 }
 

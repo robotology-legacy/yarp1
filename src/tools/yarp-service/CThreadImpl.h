@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: CThreadImpl.h,v 1.2 2004-07-09 07:34:53 eshuy Exp $
+/// $Id: CThreadImpl.h,v 1.3 2004-07-09 16:42:41 eshuy Exp $
 ///
 ///
 //////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@
 #ifndef __CThreadImpl__
 #define __CThreadImpl__
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 
 #include <ace/config.h>
 #include <ace/Thread_Manager.h>

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.2 2004-07-09 07:34:53 eshuy Exp $
+/// $Id: YARPNameService.cpp,v 1.3 2004-07-09 16:42:42 eshuy Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -117,20 +117,17 @@ int parse(const YARPString &str)
 		return -1;
 }
 
-int main(int argc, char* argv[])
-{
-	ACE_UNUSED_ARG (argc);
-	ACE_UNUSED_ARG (argv);
 
-	/// This is NT only, usual idiosincrasy between // and \\ Unix/NT clash.
-	/// handle the connection w/ the remote name server.
+static void GetServer(YARPString& fname, YARPString& server, int& port,
+		      const char *target = NULL,
+		      int target_port = -1) {
 	int read_ok = 0;
 
 	char buf[256];
-	ACE_ASSERT (GetYarpRoot() != NULL);
 	char *root = GetYarpRoot();
+	ACE_ASSERT (root != NULL);
 	ACE_OS::sprintf (buf, "%s/%s", root, _name_file_path);
-	printf("Trying to read from %s\n", buf);
+	printf("Using configuration file %s\n", buf);
 
 	{
 	ifstream fin(buf);
@@ -143,7 +140,11 @@ int main(int argc, char* argv[])
 		ACE_OS::mkdir(root);
 		ACE_OS::mkdir(buf2);
 		ofstream fout(buf);
-		fout << "localhost 10000" << endl << endl;
+		if (target==NULL) {
+		  fout << "localhost 10000" << endl << endl;
+		} else {
+		  fout << target << " " << target_port << endl << endl;
+		}
 		fout << "// start network description, don't forget to separate \"Node=\" and names with space" << endl;
 		fout << "[NETWORK_DESCRIPTION]" << endl;
 		fout << "[END]" << endl;
@@ -153,20 +154,73 @@ int main(int argc, char* argv[])
 	ifstream fin(buf);
 	if (fin.eof() || fin.fail())
 	  {
-	    ACE_DEBUG ((LM_DEBUG, "still can't read config file\n"));
-	    return YARP_FAIL;
+	    ACE_DEBUG ((LM_WARNING, "can't read or create config file\n"));
+	    exit(1);
 	  }
 
 	char hostname[256];
 	ACE_OS::memset (hostname, 0, 256);
 
 	fin >> hostname >> _server_port;
-	ACE_DEBUG ((LM_DEBUG, "name server at %s port %d\n", hostname, _server_port));
 
-	///
-	YARPNameServer dns(buf, _server_port);
-		
+	int ok = 1;
+	if (target!=NULL) {
+	  if (strcmp(target,hostname)!=0 || _server_port!=target_port) {
+	    printf("*** Asked to use name service at [%s %d]\n",
+		   target, target_port);
+	    printf("*** But [%s] says to use [%s %d]\n",
+		   buf, hostname, _server_port);
+	    printf("*** Please fix [%s] or delete it\n",
+		   buf);
+	    ok = 0;
+	  }
+	}
+	if (ok) {
+	  ACE_DEBUG ((LM_INFO, "*** Using YARP name server at [%s %d]\n", hostname, _server_port));
+	}
+
+	fname = buf;
+	server = hostname;
+	port = _server_port;
+	
 	fin.close ();
+}
+
+int main(int argc, char* argv[])
+{
+  argc--;
+  argv++;
+
+  if (argc>0) {
+    const char *target = argv[0];
+    argc--;
+    argv++;
+    int port = 10000;
+    if (argc>0) {
+      port = atoi(argv[0]);
+      argc--;
+      argv++;
+    }
+    printf("asked to direct service to another machine, %s:%d\n",target,port);
+    YARPString buf, server;
+    int _server_port;
+    GetServer(buf,server,_server_port,target,port);
+
+    exit(0);
+  }
+
+  //ACE_UNUSED_ARG (argc);
+  //ACE_UNUSED_ARG (argv);
+
+	/// This is NT only, usual idiosincrasy between // and \\ Unix/NT clash.
+	/// handle the connection w/ the remote name server.
+
+  YARPString buf, server;
+  int _server_port = 10000;
+  GetServer(buf,server,_server_port);
+
+  YARPNameServer dns(buf.c_str(), _server_port);
+
 
 	YARPString str;
 	print_menu();

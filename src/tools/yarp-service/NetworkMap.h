@@ -1,4 +1,4 @@
-/// $Id: NetworkMap.h,v 1.2 2004-07-09 07:34:53 eshuy Exp $
+/// $Id: NetworkMap.h,v 1.3 2004-07-09 16:42:42 eshuy Exp $
 // 
 // July 2003 -- by nat
 //////////////////////////////////////////////////////////////////////
@@ -32,6 +32,7 @@ public:
 	// typedef
 	struct tableEntry
 	{
+		YARPString name;
 		YARPString netID;
 		YARPString nic;
 		YARPString ip;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.2 2004-07-09 07:34:53 eshuy Exp $
+/// $Id: LocalNameServer.cpp,v 1.3 2004-07-09 16:42:42 eshuy Exp $
 ///
 
 #include "LocalNameServer.h"
@@ -509,6 +509,7 @@ int LocalNameServer::queryName(const YARPString &name, YARPString &ip, int *type
 			ip = tmp_ip;
 			*port = (*tmp_ports_it).port;
 			*type = protocol;
+		  printf("Found name ... [%s]\n", ip.c_str());
 			return 0;
 		}
 	}

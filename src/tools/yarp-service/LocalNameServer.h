@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.2 2004-07-09 07:34:53 eshuy Exp $
+/// $Id: LocalNameServer.h,v 1.3 2004-07-09 16:42:42 eshuy Exp $
 ///
 ///
 
@@ -72,8 +72,8 @@
 #	pragma once
 #endif
 
-#include <yarp/conf/YARPConfig.h>
-#include <yarp_private/wide_nameloc.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/wide_nameloc.h>
 #include <yarp/YARPString.h>
 #include <yarp/YARPList.h>
 

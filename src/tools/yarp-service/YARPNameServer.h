@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.2 2004-07-09 07:34:53 eshuy Exp $
+/// $Id: YARPNameServer.h,v 1.3 2004-07-09 16:42:42 eshuy Exp $
 ///
 ///
 
@@ -72,11 +72,11 @@
 #	pragma once
 #endif
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #ifndef _NOLIB
 #define _NOLIB
 #endif
-#include <yarp_private/wide_nameloc.h>
+#include <yarp/wide_nameloc.h>
 
 #include <ace/config.h>
 #include <ace/SOCK_Acceptor.h>
@@ -153,8 +153,14 @@ public:
 		// just print port used
 		if (peer_acceptor_.get_local_addr (server_addr_) != -1)
 			NAME_SERVER_DEBUG (("Starting server at port %d\n", server_addr_.get_port_number ()));
-		else
-			NAME_SERVER_DEBUG (("Error: cannot get local address\n"));
+		else {
+		  NAME_SERVER_DEBUG (("Error: cannot get local address\n"));
+		  NAME_SERVER_DEBUG (("Perhaps the name server is already running?\n"));
+		  NAME_SERVER_DEBUG (("If you killed it recently, you may have to wait a little...\n"));
+		  NAME_SERVER_DEBUG (("... for the socket port to be released\n"));
+		  NAME_SERVER_DEBUG (("(running 'netstat|grep %d' may help find when this happens)\n", server_addr_.get_port_number()));
+		  exit(1);
+		}
 	}
 	virtual void doLoop()
 	{

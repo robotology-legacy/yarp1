@@ -4,6 +4,7 @@
 
 #include "NetworkMap.h"
 #include <stdio.h>
+#include <ace/INET_Addr.h>
 
 using namespace std;
 
@@ -26,6 +27,11 @@ int NetworkMap::_load(const YARPString &filename)
 {
 	// open
 	FILE *fp = fopen(filename.c_str(), "r");
+	if (fp==NULL) {
+	  fprintf(stderr,"Failed to open %s (%s:%d)\n", filename.c_str(),
+		  __FILE__,__LINE__);
+	  exit(1);
+	}
 
 	// look for [NETWORK_DESCRIPTION]
 	char row[255];
@@ -91,6 +97,7 @@ int NetworkMap::_load(const YARPString &filename)
 			else if (chk == 1) // new node
 				break;
 
+			tmpTableEntry.name = tmpMapEntry.nodeName;
 			tmpTableEntry.netID = YARPString(row1);
 			tmpTableEntry.nic = YARPString(row2);
 			tmpTableEntry.ip = YARPString(row3);
@@ -122,6 +129,8 @@ int NetworkMap::_readAndCheck(FILE * fp, char *row)
 
 void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPString &outNic, YARPString &outIp)
 {
+  //printf("Hello good evening and welcome to findIp\n");
+  //printf("Today we are looking for %s on network %s\n", inIp.c_str(), net.c_str());
 	NETWORK_MAP_IT mapIt(_networkMap);
 	
 	bool foundNode = false;
@@ -140,6 +149,7 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 		NODE_TABLE_IT nodeIt((*mapIt).table);
 		while (!nodeIt.done() && !(foundNet&&foundNode) )
 		{
+		  //printf("checking name %s and address %s and network %s\n", (*nodeIt).name.c_str(), (*nodeIt).ip.c_str(), (*nodeIt).netID.c_str());
 			if ((*nodeIt).netID == net)
 			{
 				tmpIp = (*nodeIt).ip;
@@ -147,7 +157,7 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 				foundNet = true;
 			}
 			
-			if ((*nodeIt).ip == inIp)
+			if ((*nodeIt).ip == inIp || (*nodeIt).name == inIp.c_str())
 				foundNode = true;
 				
 			nodeIt++;
@@ -157,12 +167,17 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 
 	if ( !(foundNode && foundNet) )
 	{
+	  // by default, if can do nothing else, just try looking up IP
+	  ACE_INET_Addr addr;
+	  int r = addr.set((short unsigned int)0,(const char *)inIp.c_str());
+	  if (r != -1) {
+	    outIp = addr.get_host_addr();
+	    outNic = "default";
+	  }
+	  else {
 		outIp = "0.0.0.0";		// nothing was found, return 0.0.0.0
 		outNic = "not_found";	// nothing was found, return "not found"
-
-		//PFHIT
-		outIp = "127.0.0.1";
-		outNic = "127.0.0.1";
+	  }
 	}
 	else
 	{
