@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.16 2003-05-19 23:36:01 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.17 2003-05-20 01:18:05 gmetta Exp $
 ///
 ///
 
@@ -657,6 +657,7 @@ void _SocketThreadDgram::Body (void)
 							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to recv %d\n", remaining));
 
 							rr = _local_socket.recv (tmp, remaining, incoming, 0, &timeout);
+							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? last read got %d bytes\n", rr));
 							if (rr < 0)
 							{
 								retry ++;
@@ -1518,9 +1519,20 @@ int YARPOutputSocketDgram::SendContinue(char *buffer, int buffer_length)
 {
 	OSDataDgram& d = OSDATA(system_resources);
 	/// without header.
-	int sent = d._connector_socket.send (buffer, buffer_length, d._remote_addr);
-	if (sent != buffer_length)
-		return YARP_FAIL;
+	int sent = 0, counter = 0;
+	do
+	{
+		sent = d._connector_socket.send (buffer, buffer_length, d._remote_addr);
+		counter ++;
+
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "last sent %d bytes, counter %d\n", sent, counter));
+		if (counter > 5)
+		{
+			ACE_DEBUG ((LM_DEBUG, "send failed for buf len %d after %d trials\n", buffer_length, counter));
+			return YARP_FAIL;
+		}
+	}
+	while (sent != buffer_length);
 
 	int ack = 0;
 	ACE_INET_Addr incoming;
@@ -1532,6 +1544,7 @@ int YARPOutputSocketDgram::SendContinue(char *buffer, int buffer_length)
 		return YARP_FAIL;
 	}
 
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "ack received for len = %d, 0x%x\n", buffer_length, ack));
 	return YARP_OK;
 }
 

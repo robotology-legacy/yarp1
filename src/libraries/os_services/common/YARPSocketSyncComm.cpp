@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.8 2003-05-19 23:36:01 gmetta Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.9 2003-05-20 01:18:06 gmetta Exp $
 ///
 ///
 
@@ -148,19 +148,6 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, char *buff
 			}
 		}
 
-		///
-		/// workaround needed for UDP, let's compile for TCP too and see what happens.
-#if 0
-		if (buffer_length <= 0)
-		{
-			char c = 0;
-			ct = ts->ReceiveContinue (id, &c, 1);
-		}
-		else
-		{
-			ct = ts->ReceiveContinue (id, buffer, buffer_length);
-		}
-#endif
 		ct = ts->ReceiveContinue (id, buffer, buffer_length);
 	}
 
@@ -286,16 +273,21 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 	/// just a wakeup required by the protocol under UDP.
 	///char c = 0;
 	///os->SendContinue (&c, 1);
-
+		
+	///YARPTime::DelayInSeconds(2.5);
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "about to send buf 0 %d bytes\n", msg.GetBufferLength(0)));
 	os->SendContinue (msg.GetBuffer(0), msg.GetBufferLength(0));
 	/* preamble code ends */
 
+	///YARPTime::DelayInSeconds(2.5);
 	//os.SendBegin(msg.GetBuffer(0),msg.GetBufferLength(0));
 
 	for (i = 1; i < send_parts; i++)
 	{
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "about to send buf %d %d bytes\n", i, msg.GetBufferLength(i)));
 		os->SendContinue (msg.GetBuffer(i), msg.GetBufferLength(i));      
-///		YARPScheduler::yield();
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "sent buf %d %d bytes\n", i, msg.GetBufferLength(i)));
+		///YARPTime::DelayInSeconds(2.5);
 	}
 	
 	char ch = -1;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test13.cpp,v 1.7 2003-05-19 23:36:01 gmetta Exp $
+/// $Id: exec_test13.cpp,v 1.8 2003-05-20 01:18:06 gmetta Exp $
 ///
 ///
 
@@ -86,8 +86,8 @@ public:
 	char msg[LEN];
 };
 
-YARPInputPortOf<Msg> in(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-YARPOutputPortOf<Msg> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPInputPortOf<Msg> in(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+YARPOutputPortOf<Msg> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 ///YARPInputPortOf<Msg> in;
 ///YARPOutputPortOf<Msg> out;
 
@@ -119,7 +119,7 @@ public:
 		printf("Step1.5\n");
 		//YARPTime::DelayInSeconds(2);
 		int ct = 1;
-		while (1)
+		for (int i = 0; i < 10; i++) /// (1)
 		{
 			printf("Step2\n");
 			sprintf(out.Content().msg,"foo");
@@ -137,7 +137,7 @@ extern int __debug_level;
 
 int main(int argc, char *argv[])
 {
-	__debug_level = 80;
+///	__debug_level = 80;
 	Thread1 t1;
 	Thread2 t2;
 	int s = 1, c = 1;
