@@ -115,6 +115,7 @@ char _netname0[512];
 char _netname1[512];
 
 const int numBoxes = 5;
+bool isMoving;
 
 YARPImgAtt att_mod(_stheta, _srho, _sfovea, numBoxes);
 
@@ -147,11 +148,29 @@ void secondthread::Body(void)
 	
 	inVector.Register(_inName3, _netname0);
 
+	inVector.Read();
+	YVector &jointsOld = inVector.Content();
+	
 	while (!IsTerminated()) {
+		double diffJoints=0;
+		
 		inVector.Read();
 		YVector &joints = inVector.Content();
 		//cout<<joints(1)<<" "<<joints(2)<<" "<<joints(3)<<" "<<joints(4)<<" "<<joints(5)<<endl;
 		//cout<<joints.Length()<<endl;
+		bool changed=false;
+		for (int i=1; i<=5;i++)
+			if (fabs(joints(i)-jointsOld(i))>diffJoints) {
+				diffJoints=fabs(joints(i)-jointsOld(i));
+				changed=true;
+			}
+		/*if (changed)
+			cout<<diffJoints<<endl;*/
+		if (diffJoints<0.0001)
+			isMoving=false;
+		else
+			isMoving=true;
+		
 		_lock();
 		att_mod.setPosition(joints);
 		_unlock();
@@ -228,6 +247,7 @@ void mainthread::Body (void)
 	outBottle.Register(_outName3, _netname0);
 
 	int frame_no = 0;
+	bool moved = false;
 
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n"); // to stop the execution on this instruction
@@ -328,11 +348,6 @@ testDiff:
 			
 			tmpBottle.reset();
 
-			/*inVector.Read();
-			YVector &joints = inVector.Content();
-			//cout<<joints(1)<<" "<<joints(2)<<" "<<joints(3)<<joints(4)<<" "<<joints(5)<<endl;
-			att_mod.setPosition(joints);*/
-			
 			if (!inImage.Read())
 				//cur = YARPTime::GetTimeAsSeconds();
 			//else
@@ -353,52 +368,60 @@ testDiff:
 			iplRShiftS(imgOld, imgOld, 2);
 			iplAdd(tmp, imgOld, imgOld);*/
 
-			iplSubtract(img, imgOld, tmp);
-			iplSubtract(imgOld, img, tmp2);
-			iplAdd(tmp2, tmp, tmp);
-		
-			// Posso
-			//1) mettere a 1 tutti i pixel > di maxDiff, taggare
-			//2) sottrarre maxDiff, filtrare e taggare
-			//3) prendere il punto + vicino alla periferia > di maxDiff e selezionarlo
-
-			// filtro a mediana x eliminare i pixel isolati? Ma è lento...
-			
 			//inVector.Read();
 			//YVector &checkFix = inVector.Content();
 			
 			//if (checkFix(1)==1) {
-			if (1) {
+			if (!isMoving) {
 				frame_no++;
 				
-				for (int y=0; y<_srho; y++)
-					for (int x=0; x<_stheta; x++)
-						// points near the fovea are privileged?
-						// should I calculare the center of mass of the variations and the area?
-						if (tmp(x,y)>maxDiff) {
-							ACE_OS::printf("Difference detected at (%d,%d)=%d\n",x,y,tmp(x,y));
-							out.Zero();
-							out(x,y)=255;
-							out.SafePixel(x+1,y)=255;
-							out.SafePixel(x-1,y)=255;
-							out.SafePixel(x,y-1)=255;
-							out.SafePixel(x,y+1)=255;
-							tmpBottle.writeInt(x);
-							tmpBottle.writeInt(y);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							imgOld.Refer(img);
-							goto printFrame;
-						}
-			
-				// 0.25*current frame + 0.75*previous frame
-				iplRShiftS(imgOld, tmp, 2);
-				iplSubtract(imgOld, tmp, tmp);
-				iplRShiftS(img, imgOld, 2);
-				iplAdd(tmp, imgOld, img);
+				if (moved) {
+					moved = false;
+				} else {
+					iplSubtract(img, imgOld, tmp);
+					iplSubtract(imgOld, img, tmp2);
+					iplAdd(tmp2, tmp, tmp2);
+				
+					// 0.25*current frame + 0.75*previous frame
+					iplRShiftS(imgOld, tmp, 2);
+					iplSubtract(imgOld, tmp, tmp);
+					iplRShiftS(img, imgOld, 2);
+					iplAdd(tmp, imgOld, img);
+
+					// Posso
+					//1) mettere a 1 tutti i pixel > di maxDiff, taggare
+					//2) sottrarre maxDiff, filtrare e taggare
+					//3) prendere il punto + vicino alla periferia > di maxDiff e selezionarlo
+					// filtro a mediana x eliminare i pixel isolati? Ma è lento...
+					// se c'è solo un pixel ignoralo?
+					// se c'è stato un movimento lo dovresti ricordare e spostarsi lì in ogni caso?
+					/*for (int y=0; y<_srho; y++)
+						for (int x=0; x<_stheta; x++)
+							// points near the fovea are privileged?
+							// should I calculare the center of mass of the variations and the area?
+							if (tmp2(x,y)>maxDiff) {
+								// TO DO: Add a check on the limits
+								ACE_OS::printf("Difference detected at (%d,%d)=%d\n",x,y,tmp(x,y));
+								out.Zero();
+								out(x,y)=255;
+								out.SafePixel(x+1,y)=255;
+								out.SafePixel(x-1,y)=255;
+								out.SafePixel(x,y-1)=255;
+								out.SafePixel(x,y+1)=255;
+								tmpBottle.writeInt(x);
+								tmpBottle.writeInt(y);
+								tmpBottle.writeInt(-1);
+								tmpBottle.writeInt(-1);
+								tmpBottle.writeInt(-1);
+								tmpBottle.writeInt(-1);
+								tmpBottle.writeInt(-1);
+								tmpBottle.writeInt(-1);
+								tmpBottle.writeInt(-1);
+								tmpBottle.writeInt(-1);
+								imgOld.Refer(img);
+								goto printFrame;
+							}*/
+				}
 
 				DBGPF1 ACE_OS::printf(">>> reconstruct colors\n");
 				//mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)imgOld, colored_s);
@@ -417,6 +440,7 @@ testDiff:
 				//if (checkFix(1)==1 && found) {
 				if (found) {
 					// no next target
+					ACE_OS::printf("No point: target found\n");
 					tmpBottle.writeInt(-1);
 					tmpBottle.writeInt(-1);
 					tmpBottle.writeInt(-1);
@@ -424,6 +448,7 @@ testDiff:
 					tmpBottle.writeInt(-1);
 				} else {
 					// next target
+					//ACE_OS::printf("Sending point\n");
 					tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
 					tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
 					tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
@@ -435,9 +460,6 @@ testDiff:
 				tmpBottle.writeInt(att_mod.fovBox.meanGR);
 				tmpBottle.writeInt(att_mod.fovBox.meanBY);
 
-				outBottle.Content() = tmpBottle;
-				outBottle.Write();
-					
 				out.Refer(att_mod.Saliency());
 				out2.Refer(att_mod.BlobFov());
 			
@@ -451,10 +473,6 @@ testDiff:
 				mapper.Uniform2Sawt(colored_u, colored_s);
 				YARPImageUtils::GetRed(colored_s, out);
 
-				YARPImageUtils::SetRed(out2, colored_u);
-				mapper.Uniform2Sawt(colored_u, colored_s);
-				YARPImageUtils::GetRed(colored_s, out2);
-				
 				/*out2.Zero();
 				memset(out2.GetRawBuffer(), 255, 50*((IplImage*)out2)->widthStep);
 				fitlp.fitEllipse(out2, &bfX0, &bfY0, &bfA11, &bfA12, &bfA22);
@@ -470,21 +488,34 @@ testDiff:
 				ACE_OS::sprintf(savename, "./ellipse.ppm");
 				YARPImageFile::Write(savename, out3);*/
 
-				outImage2.Content().Refer(out2);
-				outImage2.Write();
-				
-				//v(1) = pos_max[0].centroid_x;
-				//v(2) = pos_max[0].centroid_y;
-				//out_point.Content() = v;
-				//out_point.Write();
-
 				//start = start + (YARPTime::GetTimeAsSeconds() - cur);
+			} else {
+				ACE_OS::printf("No point: the robot is moving\n");
+				moved = true;
+				tmpBottle.writeInt(-1);
+				tmpBottle.writeInt(-1);
+				tmpBottle.writeInt(-1);
+				tmpBottle.writeInt(-1);
+				tmpBottle.writeInt(-1);
+				tmpBottle.writeInt(-1);
+				tmpBottle.writeInt(-1);
+				tmpBottle.writeInt(-1);
 			}
 
+
 printFrame:
+			YARPImageUtils::SetRed(out2, colored_u);
+			mapper.Uniform2Sawt(colored_u, colored_s);
+			YARPImageUtils::GetRed(colored_s, out2);
+
+			outBottle.Content() = tmpBottle;
+			outBottle.Write();
 
 			outImage.Content().Refer(out);
 			outImage.Write();
+
+			outImage2.Content().Refer(out2);
+			outImage2.Write();
 
 			if ((frame_no % 100) == 0) {
 				cur = YARPTime::GetTimeAsSeconds();
@@ -502,6 +533,8 @@ printFrame:
 int main (int argc, char *argv[])
 {
 	char basename[80]="/";
+	isMoving=false;
+		
 	YARPParseParameters::parse(argc, argv, "name", basename);
 
 	ACE_OS::sprintf(_inName1, "/visualattention%s/i:img",basename);
