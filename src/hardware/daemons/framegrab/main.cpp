@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.31 2003-07-26 22:27:10 gmetta Exp $
+/// $Id: main.cpp,v 1.32 2003-08-01 06:57:28 babybot Exp $
 ///
 ///
 
@@ -479,8 +479,8 @@ int _runAsCartesian (void)
 		if ((frame_no % 250) == 0)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
-			ACE_OS::fprintf (stdout, "average frame time: %lf\n", (cur-start)/250);
-			ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
+			ACE_OS::fprintf (stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
+			// ACE_OS::fprintf (stdout, "frame number %d acquired\r", frame_no);
 			start = cur;
 		}
 

@@ -26,17 +26,17 @@ using namespace std;
 const int __defaultRate = 40;
 const string __defaultName = "/touch/o:1";
 
-class Thread : public YARPRateThread
+class MyThread : public YARPRateThread
 {
 public:
-	Thread (const char *name, int rate):YARPRateThread(name, rate),
+	MyThread (const char *name, int rate):YARPRateThread(name, rate),
 	_outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	{
 		_name = string(name);
 		_readings.Resize(32);
 		_readings = 0.0;
 	}
-	~Thread()
+	~MyThread()
 	{
 	}
 
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 	if (!YARPParseParameters::parse(argc, argv, "name", name))
 		name = __defaultName;
 
-	Thread _thread(name.c_str(), rate);
+	MyThread _thread(name.c_str(), rate);
 
 	_thread.start();
 	

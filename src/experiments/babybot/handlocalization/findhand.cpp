@@ -72,7 +72,8 @@ FindHand::~FindHand()
 
 void FindHand::Body()
 {
-	_lock();
+	cout << "loop\n";
+	//_lock();
 	// read ports
 	_readInputPorts();
 	// new image
@@ -126,7 +127,7 @@ void FindHand::Body()
 	
 	_writeOutputPorts();
 
-	_unlock();
+//	_unlock();
 
 	_frame++;
 	if ((_frame%100)==0)
