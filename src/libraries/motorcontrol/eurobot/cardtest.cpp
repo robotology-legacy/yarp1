@@ -35,12 +35,9 @@ int main(int argc, char * argv[])
 	testvelocity(2, 0.1);
 	testvelocity(3, 0.1);
 	
-	double pos2[4] = {0.0,0.0,0.0,0.0};
 	
 	//_head.setPositions(pos);
-	//_head.getPositions(pos2);
 	
-	std::cout << pos2[0] << " " << pos2[1] << " " << pos2[2] << " " << pos2[3] << endl;
 	
 	_head.uninitialize();
 	//SingleAxisParameters cmd;
@@ -49,38 +46,13 @@ int main(int argc, char * argv[])
 	//cmd.parameters = &value;
 	//_head.IOCtl(CMDSetPosition, &cmd);
 	
-	/*
-	
-	int values[] = {3000,0,0,0};
-	_head.IOCtl(CMDSetPositions, values);	
-	
-	delay(2000);
-	values[0] = 3000;
-	values[1] = 3000;
-	values[2] = 0;
-	values[3] = 0;
-	_head.IOCtl(CMDSetPositions, values);
-	delay(2000);
-	values[0] = 3000;
-	values[1] = 3000;
-	values[2] = 3000;
-	values[3] = 0;
-	_head.IOCtl(CMDSetPositions, values);
-	delay(2000);
-	values[0] = 3000;
-	values[1] = 3000;
-	values[2] = 3000;
-	values[3] = 3000;
-	_head.IOCtl(CMDSetPositions, values);
-	*/
-	
-	
 }
 
 void testvelocity(int index, double speed)
 {
 	double pos[4] = {0.0,0.0,0.0,0.0};
-		
+	double pos2[4] = {0.0,0.0,0.0,0.0};
+	
 	pos[index] = speed;
 	
 	for (int i = 0; i < 2; i ++)
@@ -88,9 +60,13 @@ void testvelocity(int index, double speed)
 		
 	_head.velocityMove(pos);
 	delay(2000);
+	 _head.getPositions(pos2);
+        printf(" Position: %f %f %f %f \n",pos2[0],pos2[1],pos2[2],pos[3]);
 	pos[index] = -0.1;
 	_head.velocityMove(pos);
 	delay (2000);
+	_head.getPositions(pos2);
+        printf(" Position: %f %f %f %f \n",pos2[0],pos2[1],pos2[2],pos[3]);
 	pos[index] = 0.1;
 	}
 	
