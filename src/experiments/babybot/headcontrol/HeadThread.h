@@ -1,0 +1,107 @@
+// HeadThread.h: interface for the HeadThread class.
+//
+//
+//////////////////////////////////////////////////////////////////////
+
+#ifndef __headthreadh__
+#define __headthreadh__
+
+#include <YARPRobotMath.h>	// useful stuff, like degToRad, pi and radToDeg include also VisDMatrix.h
+#include <YARPRateThread.h>
+#include <YARPBabybotHead.h>
+#include <YARPPort.h>
+#include <YARPVectorPortContent.h>
+
+#define HEAD_THREAD_VERBOSE
+
+#ifdef HEAD_THREAD_VERBOSE
+#define HEAD_THREAD_DEBUG(string) YARP_DEBUG("HEAD_THREAD_DEBUG:", string)
+#else  HEAD_THREAD_DEBUG(string) YARP_NULL_DEBUG
+#endif
+
+// state
+#include "HeadFSMStates.h"
+#include "VorControl.h"
+
+class HeadThread: public YARPRateThread
+{
+public:
+	HeadThread(int rate, 
+			   const char *name = "head control thread",
+			   const char *ini_file = NULL);
+	virtual ~HeadThread();
+
+	void doInit();
+	void doLoop();
+	void doRelease();
+
+private:
+	//move the head to 0
+	void park(int flag);
+
+	void calibrateInertial();
+
+	inline void read_status();
+	inline void write_status();
+	inline void send_commands();
+	inline void check_limits();
+
+	YVector _deltaQ;				//command
+	HeadFSM *_fsm;
+	HeadSharedData _head;
+
+	VorControl *_vor;
+	YVector _inertial;
+	YVector _directCmd;
+	YVector _vorCmd;
+
+	char _iniFile[80];
+	char _path[255];
+
+	// output ports
+	YARPOutputPortOf<YVector> _inertialPort;
+	YARPOutputPortOf<YARPControlBoardNetworkData> _statusPort;
+	YARPOutputPortOf<YVector> _positionPort;
+	
+	//
+	YARPInputPortOf<YVector> _vorPort;
+	YARPInputPortOf<YVector> _directCmdPort;
+	
+	/*HeadStatus		head_status;			//collect status information
+	Vergence		*p_control_vergence;	//vergence
+	SaccadeBehavior	*p_control_saccade;		//saccade
+	GazeShift		*p_control_smooth;		//gaze control
+	Avoidance		*p_avoid;				//limit avoidance
+	Inertial		*p_vor;					//vor 
+	*/
+};
+
+inline void HeadThread::read_status()
+{
+	/// get head
+	_head.getPositions(_head._status._current_position.data());
+	_head.getVelocities(_head._status._velocity.data());
+	_head._status._velocity*=radToDeg/10;		//normalize
+
+	_head.readAnalogs(_inertial.data());
+
+	// read vor info
+	if (_vorPort.Read(0))
+	{
+		_vorCmd = _vorPort.Content();
+	}
+	
+	
+
+}
+
+inline void HeadThread::write_status()
+{
+	// send inertial info
+	_inertialPort.Content() = _inertial;
+	_inertialPort.Write();
+
+	_head.velocityMove(_deltaQ.data());
+}
+
+#endif // __headthreadh__

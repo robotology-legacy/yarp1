@@ -38,7 +38,10 @@ public:
 		}
 
 		if ( (tmp/count) > 0.0 )
+		{
+			printf("DEBUG: activating graps, level %lf\n", tmp/count);
 			return true;
+		}
 		else 
 			return false;
 

@@ -97,10 +97,10 @@ void HandThread::doLoop()
 
 	_fsm->doYourDuty();
 
-	// _hand.getPositionsRaw(_status.data());
-	_hand.getSpeedsRaw(_status.data());
+	_hand.getPositionsRaw(_status.data());
+	// _hand.getSpeedsRaw(_status.data());
 	
-	_handStatusOut.Content() = _status/3000;	// normalize between 0 and 1
+	_handStatusOut.Content() = _status; // /3000;	// normalize between 0 and 1
 	_handStatusOut.Write();
 	
 	_hand.output();
