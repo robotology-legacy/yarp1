@@ -10,7 +10,7 @@
 #		  --distribution <PATH> is the path where ACE was unpacked
 #		  --os <OS> is the operating system you're compiling for
 #
-# $Id: build.pl,v 1.5 2004-10-14 20:30:11 babybot Exp $
+# $Id: build.pl,v 1.6 2004-10-15 00:21:26 babybot Exp $
 #
 # This script can be (at least in theory) configured to
 # do some useful thing in Linux and/or Qnx too. It's definitely
@@ -104,6 +104,8 @@ if ($clean)
 	}
 	elsif ($os eq "qnx6")
 	{
+		symlink ("$yarp_root/include/qnx6/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		symlink ("$yarp_root/include/qnx6/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
 		call_make_and_print ('', 'clean');
 	}
 
@@ -125,7 +127,7 @@ if ($debug)
 		unlink "config.h";
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
-	elsif ($os eq "qnx6")
+	elsif ($os eq "qnx6" && $release == 0)
 	{
 		chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
 		symlink ("$yarp_root/include/qnx6/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
@@ -258,7 +260,7 @@ sub call_make_and_print
 {
         my ($project, $operation) = @_;
 
-        open MK, "make ACE $operation"."|";
+        open MK, "make $operation"."|";
         while (<MK>)
         {
                 print;

@@ -16,14 +16,14 @@ sub check_os
 	chomp ($ver = `ver`);
 	chomp ($uname = `uname`);
 	if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0 
-	   && index ($uname, "Linux") < 0)
+	   && index ($uname, "Linux") < 0 && index ($uname, "QNX") < 0)
 	{
 #		print "This is a Windows 2000/XP specific script\n";
 		print "Your OS is not yet suppoorted by this script\n";
 		print "Perhaps this procedure can be simply extended to "; 
 		print "other OSes but for now, this is all experimental...\n";
 		
-		die "This script is specific to Windows 2000/XP, Cygwin, Linux\n";
+		die "This script is specific to Windows 2000/XP, Cygwin, Linux, and Qnx6\n";
 	}
 
 	$exp_os = '';
@@ -36,6 +36,10 @@ sub check_os
 		elsif ($uname =~ /Linux/)
 		{
 			$exp_os = "linux";	
+		}
+		elsif ($uname =~ /QNX/)
+		{
+			$exp_os = "qnx6";
 		}
 	}
 	else
@@ -211,6 +215,12 @@ sub call_msdev_and_print
 sub do_ext_compile
 {
 	my ($exe) = @_;
+
+	unless (-x $exe)
+	{
+		chmod 0755, $exe;
+	}
+	
 	open TOOLS, "$exe|";
 	while (<TOOLS>)
 	{

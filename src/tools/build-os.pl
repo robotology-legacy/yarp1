@@ -60,7 +60,7 @@ if ($clean)
 			chdir "..";
 		}
 	}
-	elsif ($os eq "linux")
+	elsif ($os eq "linux" || $os eq "qnx6")
 	{
 		foreach my $project (@projects)
 		{
@@ -84,7 +84,7 @@ if ($debug)
 			chdir "..";
 		}
 	}
-	elsif ($os eq "linux")
+	elsif ($os eq "linux" || $os eq "qnx6")
 	{
 		foreach my $project (@projects)
 		{
@@ -107,7 +107,7 @@ if ($release)
 			chdir "..";
 		}
 	}
-	elsif ($os eq "linux")
+	elsif ($os eq "linux" || $os eq "qnx6")
 	{
 		foreach my $project (@projects)
 		{

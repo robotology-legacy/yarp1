@@ -1,6 +1,6 @@
 #
 # Template to be included by all YARP makefiles.
-# $Id: Makefile.template,v 1.15 2004-10-08 22:11:05 gmetta Exp $
+# $Id: Makefile.template,v 1.16 2004-10-15 00:21:25 babybot Exp $
 #
 
 QNX_VER = 6.1.0 6.2.0 6.2.1
@@ -8,43 +8,41 @@ QNX_VER = 6.1.0 6.2.0 6.2.1
 ifeq ($(shell uname),QNX)
   
   ifneq (,$(findstring $(shell uname -r),$(QNX_VER)))
+	nto_version := $(shell uname -a | awk '{ gsub("\\.","", $$3 ); print $$3;}')
+
 	SYSDIR = qnx6
-	EXTRA_OPTS = $(YARP_DEBUG) -Y_gpp -fexceptions -pipe -Wpointer-arith -Wno-uninitialized 
-# -gstabs
-	CC = QCC
-	CC1 = qcc
-	CDEFS = $(EXTRA_OPTS) -D__QNX__ -D__QNX6__ -I/usr/local/include/g++-3/
-	CFASTSTRUCT =
+	EXTRA_OPTS = $(YARP_DEBUG) -fexceptions -pipe -Wpointer-arith -Wno-uninitialized 
+	CC = g++
+	CC1 = gcc
+	CDEFS = $(EXTRA_OPTS) -D__QNX__ -D__QNX6__ -DYARP_OS_CONFIG=QNX6 -I/usr/include/g++-3/ -I$(YARP_ROOT)/include/
+	CDEFS += -DACE_NTO_VERS=$(nto_version)
+	CDEFS += -DACE_HAS_EXCEPTIONS -D__ACE_INLINE__ -DACE_HAS_ACE_TOKEN -DACE_HAS_ACE_SVCCONF -DACE_AS_STATIC_LIBS 
 	CFAST = -O3
-  	LIBADD = 
-  else
-	SYSDIR = qnx
-	CC = cc
-	CC1 = $(CC)
-	CDEFS = -D__QNX__ -D__QNX4__
-	CFASTSTRUCT = -zp4
-	CFAST = -Oneaxt $(CFASTSTRUCT)
-  	LIBADD = 
+  	LIBADD = -lsocket
+
   endif
 
 else
 
   ifeq ($(shell uname),Linux)
+
 	SYSDIR = linux
 	EXTRA_OPTS = $(YARP_DEBUG) -fexceptions -pipe -Wpointer-arith -Wno-uninitialized 
 	CC = g++
 	CC1 = gcc
-#	SYSLIB = -lpthread
 	CDEFS = $(EXTRA_OPTS) -D__LINUX__ -DYARP_OS_CONFIG=LINUX -I/usr/include/g++/
 	CFAST = -O3
 	LIBADD = -lpthread
+
   else
+
 	CC = g++
 	CC1 = gcc
 	SYSDIR = winnt
 	CDEFS = -D__WIN__
 	CFAST = -O3
 	LIBADD = 
+
   endif
 
 endif

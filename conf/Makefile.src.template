@@ -1,6 +1,6 @@
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))
 
-CFLAGS = -D_REENTRANT $(CFAST) $(CDEFS) $(INCS)
+CFLAGS = -D_REENTRANT $(CFAST) $(INCS) $(CDEFS)
 
 #CFLAGS = $(CFAST) $(CDEFS) -I../include/yarp -I../include/yarp_private -I../include/$(SYSDIR) -I../include
 

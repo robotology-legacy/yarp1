@@ -74,6 +74,7 @@ if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
 		if (-e $options{"Compile_OS<-ACE_PATH"} &&
 			-e "$yarp_root/include/$os/ace" )
 		{
+			print ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"} --os $os\n\n");
 			do_ext_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"} --os $os");
 		}
 	}
@@ -115,6 +116,10 @@ if ($clean)
 	{
 		call_make_and_print ('', "clean");		
 	}
+	elsif ($os eq "qnx6")
+	{
+		call_make_and_print ('', "clean");		
+	}
 }
 
 if ($debug)
@@ -131,6 +136,10 @@ if ($debug)
 	{
 		call_make_and_print ('', "CFAST=-g");
 	}
+	elsif ($os eq "qnx6")
+	{
+		call_make_and_print ('', "CFAST=-g");
+	}
 }
 
 if ($release)
@@ -144,6 +153,10 @@ if ($release)
 		chdir ".." or die "Cannot chdir to ..: $!";
 	}
 	elsif ($os eq "linux")
+	{
+		call_make_and_print ('', "CFAST=-O3");
+	}
+	elsif ($os eq "qnx6")
 	{
 		call_make_and_print ('', "CFAST=-O3");
 	}

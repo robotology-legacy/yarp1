@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPMultipartMessage.cpp,v 1.3 2004-08-11 13:29:20 babybot Exp $
+/// $Id: YARPMultipartMessage.cpp,v 1.4 2004-10-15 00:21:26 babybot Exp $
 ///
 ///
 
@@ -130,7 +130,7 @@ public:
 		/* MIG4NTO           _setmx Replaced by SETIOV() for use with the QNX Neutrino */
 		/* MIG4NTO                  Msg*() functions. */
 		//_setmx(this,buffer,len);
-		SETIOV(&iov, buffer, len);
+		SETIOV(&iov, n_buffer, n_len);
 #endif
 	}
 };
@@ -196,7 +196,7 @@ char *YARPMultipartMessage::GetBuffer(int index)
 	Block *blk = ((Block*)system_resource) + index;
 	/* MIG4NTO            MK_FP NO LONGER SUPPORTED */
 	//return (char *) MK_FP(blk->mxfer_seg,blk->mxfer_off);
-	return ((char *) blk->iov.iov_base); //buh???
+	return ((char *) blk->iov.iov_base);
 #endif
 }
 

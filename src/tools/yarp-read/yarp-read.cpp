@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-read.cpp,v 1.8 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: yarp-read.cpp,v 1.9 2004-10-15 00:21:27 babybot Exp $
 ///
 ///
 
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     return YARP_FAIL;
   }
 
-  YARPInputPortOf<YARPBottle> in_port(YARPInputPort::NO_BUFFERS);
+  YARPInputPortOf<YARPBottle> in_port(YARPInputPort::NO_BUFFERS, YARP_TCP);
   in_port.Register(argv[0]);
   argc--;
   argv++;

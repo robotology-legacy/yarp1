@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.cpp,v 1.3 2004-08-21 17:53:46 gmetta Exp $
+/// $Id: YARPNativeNameService.cpp,v 1.4 2004-10-15 00:21:26 babybot Exp $
 ///
 ///
 //// #include <ace/OS.h>
@@ -70,7 +70,10 @@
 ///	this compiles into something similar for QNX6 that uses the global name server anyway.
 ///
 #include <yarp/YARPNativeNameService.h>
-
+#ifdef __QNX6__
+#include <sys/neutrino.h>
+#include <sys/netmgr.h>
+#endif
 
 ///
 /// need to create a channel first, then register into the name server.
