@@ -345,6 +345,7 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 
 	
 	tmpBGR1.Resize(x, y);
+	// MODIFY
 	//tmpBGR2.Resize(x, y);
 	((IplImage *)tmpBGR1)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)tmpBGR1)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
@@ -356,6 +357,7 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 
 	blobFov.Resize(x, y);
 	objectFov.Resize(x, y);
+	objectMsk.Resize(x, y);
 	
 	//out_colored.Resize(_stheta, _srho);
 	//temp_16.Resize(_stheta, _srho, -2);
@@ -1032,6 +1034,18 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, bool stable)
 	YARPImageUtils::GetGreen(src,g2);
 	YARPImageUtils::GetBlue(src,b2);
 	
+	// MODIFY
+	/*iplSubtract(src, meanCol, tmpBGR1);
+	iplSubtract(meanCol, src, tmpBGR2);
+	iplAdd(tmpBGR1, tmpBGR2, tmpBGR2);
+	iplColorToGray(tmpBGR2, objectFov);
+	char *root = GetYarpRoot();
+	char path[256];
+	ACE_OS::sprintf (path, "%s/zgarbage/va/", root); 
+	ACE_OS::sprintf(savename, "%sdiff.ppm", path);
+	YARPImageFile::Write(savename, objectFov);*/
+
+
 	iplRShiftS(src, src, 1);
 	/*ACE_OS::sprintf(savename, "meancol.ppm");
 	YARPImageFile::Write(savename, meanCol);*/
@@ -1241,7 +1255,7 @@ void YARPImgAtt::learnBackground()
 	memset(neighTemp, false, sizeof(bool)*(max_tag+1));
 	int recognized=0;
 
-	// mark blobs that are near target blob
+	// mark blobs that are similar to target blob color
 	for (int b=2; b<=max_tag; b++) {
 		YARPBox tmp;
 		salience.getBlobNum(b, tmp);
@@ -1266,14 +1280,17 @@ void YARPImgAtt::learnBackground()
 			for (int n=0; n<numNeighBoxes; n++) {
 				if (!neighTaken[n]) {
 					for (int b=2; b<=max_tag; b++) {
-						//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
 						if (blobList[b]!=1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000 && blobListBack[b]==0) {
+							bool ok=false;
 							for (int c=2; c<=max_tag; c++) {
+								//Is it near a blob similar to the target one?
 								if (connGraph[b*(max_tag+1)+c] && neighTemp[c]) {
+									ok=true;
 									break;
 								}
 							}
-							if (c<=max_tag+1) {
+							//if (c<=max_tag+1) {
+							if (ok) {
 								YARPBox tmp;
 								salience.getBlobNum(b, tmp);
 				
@@ -1422,7 +1439,6 @@ double YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src, const double th)
 		double totalScore4=1;
 		double totalScore5=1;
 		double totalScore6=1;
-		double confidence=1;
 		int k=0;
 
 		memset(blobList, 0, sizeof(char)*(max_tag+1));
@@ -1470,11 +1486,9 @@ double YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src, const double th)
 			// altrimenti 2000 blob con prob 0.1 di esserci ke nn ci sono mi abbassa tantissimo
 			// il punteggio!
 			if (neighTaken[n]) {
-				confidence*=neighProb[n];
 				totalScore4*=neighProb[n];
 				totalScore5*=(double)(neighFounded2[n]+1)/(neighEpoch2[n]+2);
 			} else {
-				confidence*=(1-neighProb[n]*(1-0.2));
 				totalScore4*=1-neighProb[n];
 				totalScore5*=1-(double)(neighFounded2[n]+1)/(neighEpoch2[n]+2);
 			}
@@ -1484,24 +1498,28 @@ double YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src, const double th)
 		else totalScore6=0;
 
 		objectFov.Zero();
+		objectMsk.Zero();
 		if (totalScore6>=th) {
 			blobListObject[1]=2;
 			//salience.drawBlobListRandom(objectFov, tagged, blobListObject, max_tag);
+			salience.drawBlobList(objectMsk, tagged, blobListObject, max_tag);
 			salience.drawBlobListMask(src, objectFov, tagged, blobListObject, max_tag);
 		}
 
-		ACE_OS::printf("Total Score4: %lf\n", totalScore4);
-		ACE_OS::printf("Total Score5: %lf\n", totalScore5);
-		ACE_OS::printf("Total Score6: %lf\n", totalScore6);
-		/*if (totalScore<.8) ACE_OS::printf(" too low, moving\n");
-		else ACE_OS::printf("\n");*/
-		//return (totalScore<.8 && epoch>30);
-		//return totalScore6>=0.5;
+		ACE_OS::printf("P(M|O): %lf\n", totalScore4);
+		ACE_OS::printf("P(M|~O): %lf\n", totalScore5);
+		ACE_OS::printf("P(O|M): %lf\n", totalScore6);
 		return totalScore6;
 	}
 	
-	//return true;
 	return 1;
+}
+
+
+void YARPImgAtt::centerOfMassObject(int *x, int *y)
+{
+	double mass;
+	moments.centerOfMassAndMass(objectMsk, x, y, &mass);
 }
 
 
@@ -1744,27 +1762,19 @@ void YARPImgAtt::normalize()
 
 void YARPImgAtt::findBlobs()
 {
-	/*tmp1=edge;
-	//tmp1.Zero();
-	//tmp1=ii;
-	//blobFinder.DrawBoxesLP(tmp1);
-	//tmp2=out;
-	//FindNMax(num, pos);
-	
-	for (i=0; i<num; i++) {
-		FindMax(tmp2, pos2);
-		pos[i]=pos2;
-		//pos[i].x=pos2.x;
-		//pos[i].y=pos2.y;
-		blobFinder.SeedColor(tmp2, tagged, pos2.x, pos2.y, 0);
-		//ZeroMask(tmp2, tmp1, 255-i, 0, width, fovHeight, height);
-	}*/
-	
 	max_tag=rain.apply(edge, tagged);
 	salience.blobCatalog(tagged, rg, gr, by, r2, g2, b2, max_tag);
 
-	//ACE_OS::printf("# tags:%d", max_tag);
-
+#ifdef NUMBLOBLOG
+	char *root = GetYarpRoot();
+	char logFile[256];
+	ACE_OS::sprintf (logFile, "%s/zgarbage/va/log.txt", root); 
+	FILE *fp=ACE_OS::fopen(logFile,"a+");
+	ACE_OS::fprintf(fp, "%d\n", max_tag);
+	ACE_OS::fclose(fp);
+	//ACE_OS::printf("%d\n", max_tag);
+#endif
+	
 	//rain.setThreshold(3);
 	//rain.applyOnOld(edge, tagged);
 	//rain.apply(edge, tagged);

@@ -173,6 +173,7 @@ protected:
 	YARPImageOf<YarpPixelBGR> meanCol;
 
 	YARPImageOf<YarpPixelBGR> tmpBGR1;
+	// MODIFY
 	//YARPImageOf<YarpPixelBGR> tmpBGR2;
 	
 	YARPImageOf<YarpPixelMono> map[4];
@@ -187,7 +188,8 @@ protected:
 	
 	YARPImageOf<YarpPixelMono> blobFov;
 	YARPImageOf<YarpPixelMono> objectFov;
-	
+	YARPImageOf<YarpPixelMono> objectMsk;
+
 	YARPImageOf<YarpPixelMono> oldWshed;
 
 	YARPArrayConvKernel prewitt_diag1;
@@ -297,6 +299,7 @@ public:
 	YARPImageOf<YarpPixelMono>& Saliency() { return out; }
 	YARPImageOf<YarpPixelMono>& getBlobFov() { return blobFov; }
 	YARPImageOf<YarpPixelMono>& getObjectFov() { return objectFov; }
+	YARPImageOf<YarpPixelMono>& getObjectMsk() { return objectMsk; }
 	YARPImageOf<YarpPixelBGR>& ColorQuantiz() { return meanCol; }
 	void GetTarget(int &x, int &y);
 	
@@ -346,6 +349,7 @@ public:
 	void resetHand();
 	int learnObject();
 	double checkObject(YARPImageOf<YarpPixelMono> &src, const double th);
+	void centerOfMassObject(int *x, int *y);
 	void dumpLearnObject();
 	void dumpLearnHand();
 	void learnBackground();

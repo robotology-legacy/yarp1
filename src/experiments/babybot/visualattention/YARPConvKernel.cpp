@@ -267,7 +267,7 @@ void YARPArrayConvKernel::SetGaussianRow(int radius, double variance, double nor
 	}
 
 	for (i=0; i<2*radius+1; i++)
-		values[i]=decimals[i]/sum*norm*(1<<shiftR)+.5;
+		values[i]=int(decimals[i]/sum*norm*(1<<shiftR)+.5);
 		
 	YARPConvKernel *tmp = new YARPConvKernel(2*radius+1, 1, radius, 0, values, shiftR);
 
@@ -296,7 +296,7 @@ void YARPArrayConvKernel::SetGaussianCol(int radius, double variance, double nor
 	}
 
 	for (i=0; i<2*radius+1; i++)
-		values[i]=decimals[i]/sum*norm*(1<<shiftR)+.5;
+		values[i]=int(decimals[i]/sum*norm*(1<<shiftR)+.5);
 		
 	YARPConvKernel *tmp = new YARPConvKernel(1, 2*radius+1, 0, radius, values, shiftR);
 

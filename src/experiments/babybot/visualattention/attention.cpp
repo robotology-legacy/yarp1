@@ -306,7 +306,7 @@ void mainthread::Body (void)
 		}
 
 		if (maxDiff<127) {
-			maxMass=255*3*3;
+			maxMass=255*2*2;
 			
 #if 0
 			// Note that the control on the area should be done in the log polar plane,
@@ -470,6 +470,7 @@ void mainthread::Body (void)
 			ACE_OS::printf("-------------->Reaching started! YUU-HUU!!!\n");
 			noOutput=true;
 		}
+		// if I'm searching for a bottom-up target...
 		if (exploring && targetFound) att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
 		targetFound = false;
 		////////////////////
@@ -527,6 +528,7 @@ void mainthread::Body (void)
 					int x,y;
 					int mass;
 					att_mod.diffCenterOfMassAndMass(tmp2, maxDiff, &x, &y, &mass);
+					// The robot pays attention only to moving objects in a window in the center
 					if (mass>maxMass && (x>128-32 && x<128+32 && y>128-32 && y<128+32)) {
 						int cartx, carty;
 						mapper.Logpolar2Cartesian(y, x, cartx, carty);
@@ -535,6 +537,7 @@ void mainthread::Body (void)
 						moved=frameToStabilize;
 												
 						targetFound = false;
+
 						// If the robot is searching the movement isn't displayed
 						if (!searching && att_mod.isWithinRange(cartx, carty)) {
 							out.Refer(tmp2);
@@ -567,6 +570,19 @@ endDiffCheck:
 				mapper.Sawt2Uniform(colored_s, colored_u);
 				//mapper.Sawt2TriCentral(colored_s, colored_u);
 				
+				
+#ifdef NUMBLOBLOG				
+				char *root = GetYarpRoot();
+				char logFile[256];
+				ACE_OS::sprintf (logFile, "%s/zgarbage/va/log2.txt", root); 
+				FILE *fp=ACE_OS::fopen(logFile,"a+");
+				if (diffFound)
+					ACE_OS::fprintf(fp, "1000\n");
+				else
+					ACE_OS::fprintf(fp, "0\n");
+				ACE_OS::fclose(fp);
+#endif
+				
 				if (diffFound) {
 					att_mod.initMeanCol(colored_u);
 					diffFound=false;
@@ -595,7 +611,7 @@ endDiffCheck:
 								att_mod.learnHand();
 							} else {
 								boxesMem=att_mod.learnObject();
-								att_mod.checkObject(img, 0.5);
+								att_mod.checkObject(img, 0);  //during learnig phase always shows the segmented object
 							}
 							toMem--;
 							searching=true;
@@ -612,9 +628,16 @@ endDiffCheck:
 							att_mod.dumpLearnObject();
 							if (!mustMove) {
 								if (!noOutput) {
-									ACE_OS::printf("Target found, sending the center of the blob\n");
-									tmpBottle.writeInt(att_mod.fovBox.centroid_x);
-									tmpBottle.writeInt(att_mod.fovBox.centroid_y);
+									ACE_OS::printf("Target found, sending the center of the object\n");
+									int xObj, yObj;
+									att_mod.centerOfMassObject(&xObj, &yObj);
+									ACE_OS::printf("Center of blob: (%d,%d)\nCenter of object: (%d,%d)\n",
+										(int)att_mod.fovBox.centroid_x, (int)att_mod.fovBox.centroid_y,
+										xObj,yObj);
+									tmpBottle.writeInt(xObj);
+									tmpBottle.writeInt(yObj);
+									//tmpBottle.writeInt(att_mod.fovBox.centroid_x);
+									//tmpBottle.writeInt(att_mod.fovBox.centroid_y);
 									outBottle.Content() = tmpBottle;
 									outBottle.Write();
 									reaching=true;
@@ -623,6 +646,7 @@ endDiffCheck:
 							}
 							targetFound = !mustMove;
 						} else {
+							// MODIFY
 							out3.Zero();
 							if (!noOutput) {
 								ACE_OS::printf("Sending point: blob# %ld @ (%d,%d)\n", att_mod.max_boxes[0].id, (int)att_mod.max_boxes[0].centroid_x, (int)att_mod.max_boxes[0].centroid_y);
@@ -653,7 +677,7 @@ endDiffCheck:
 						if (found) {
 							if (learnObject) {
 								att_mod.learnObject();
-								att_mod.checkObject(img, 0.5);
+								att_mod.checkObject(img, 0); //during learnig phase always shows the segmented object
 								att_mod.dumpLearnObject();
 								learnObject=false;
 								saccades=0;
@@ -747,6 +771,10 @@ endDiffCheck:
 			outImage2.Write();
 
 			//mapper.Logpolar2Cartesian(att_mod.ColorQuantiz(), out3);
+			//MODIFY
+			/*YARPImageUtils::SetRed(out3, colored_u);
+			mapper.Uniform2Sawt(colored_u, colored_s);
+			YARPImageUtils::GetRed(colored_s, out3);*/
 			outImage3.Content().Refer(out3);
 			outImage3.Write();
 			
@@ -770,7 +798,7 @@ int main (int argc, char *argv[])
 		
 	YARPParseParameters::parse(argc, argv, "-name", basename);
 
-	ACE_OS::sprintf(_inName1, "/visualattention%s/i:img",basename);
+	ACE_OS::sprintf(_inName1, "/visualattention%s/i:img",basename);		//input log-polar img
 	ACE_OS::sprintf(_inName2, "/visualattention%s/i:bot", basename);	//input commands
 	ACE_OS::sprintf(_inName3, "/visualattention%s/i:vec", basename);	//motor 
 	ACE_OS::sprintf(_inName4, "/visualattention%s/i:vec2", basename);	//checkfixation
@@ -835,6 +863,9 @@ int main (int argc, char *argv[])
 		} else if (c=='n') {
 			ACE_OS::printf("Learn counter example\n");
 			_thread.learnNotObject=true;
+		} else if (c=='i') {
+			ACE_OS::printf("Saving all images\n");
+			att_mod.saveImages();
 		} else
 			cout << "Type q+return to quit" << endl;
 	} while (c != 'q');
