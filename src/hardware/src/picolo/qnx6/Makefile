@@ -1,12 +1,12 @@
-#$Id: Makefile,v 1.5 2003-06-26 12:27:38 beltran Exp $
+#$Id: Makefile,v 1.6 2003-06-26 16:01:36 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
 #SYSDIR = qnx6
 
 OBJS =
-CC = qcc
-CFLAGS = -ggdb3 -g -I $(YARP_ROOT)/include -I ../../common -I ./dd_orig/include
+CC = g++
+CFLAGS = -g -I $(YARP_ROOT)/include -I ../../common -I ./dd_orig/include
 
 SUBDIRS =
 
