@@ -17,23 +17,21 @@ extern bool freeze;
 
 int
 image_freeze( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
-	{
+{
+  /* eliminate 'unreferenced' warnings */
+  widget = widget, apinfo = apinfo, cbinfo = cbinfo;
 
-	/* eliminate 'unreferenced' warnings */
-	widget = widget, apinfo = apinfo, cbinfo = cbinfo;
+  if (!freeze)
+  {
+    freeze = true;
+    ApModifyItemText( &imagemenu, ABN_image_frezee, "DiFreeze");
+  }
+  else
+  {
+    freeze = false;
+    ApModifyItemText( &imagemenu, ABN_image_frezee, "Freeze");
+  }
 
-	if (!freeze)
-	{
-		freeze = true;
-		ApModifyItemText( &imagemenu, ABN_image_frezee, "DiFreeze");
-	}
-	else
-	{
-		freeze = false;
-		ApModifyItemText( &imagemenu, ABN_image_frezee, "Freeze");
-	}
-
-	return( Pt_CONTINUE );
-
-	}
+  return( Pt_CONTINUE );
+}
 

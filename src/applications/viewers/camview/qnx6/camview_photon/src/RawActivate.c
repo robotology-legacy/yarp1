@@ -25,11 +25,10 @@ extern YARPControlBoardNetworkData _arm_status;
 int
 RawActivate( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
 {
-	char buff[100];
-	/* eliminate 'unreferenced' warnings */
-	widget = widget, apinfo = apinfo, cbinfo = cbinfo;
-	PtDamageWidget( praw );
-	return( Pt_CONTINUE );
-
+  char buff[100];
+  /* eliminate 'unreferenced' warnings */
+  widget = widget, apinfo = apinfo, cbinfo = cbinfo;
+  PtDamageWidget( praw );
+  return( Pt_CONTINUE );
 }
 

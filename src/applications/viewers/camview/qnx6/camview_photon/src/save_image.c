@@ -50,6 +50,5 @@ save_image( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
     freeze = false;
 
   return( Pt_CONTINUE );
-
 }
 

@@ -18,6 +18,7 @@ int raw_init( PtWidget_t *widget ) ;
 int exit_viewer( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
 int image_freeze( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
 int save_image( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int base_resize( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
 #ifdef __cplusplus
 }
 #endif

@@ -4,6 +4,9 @@ int RawActivate ( PtWidget_t *widget , ApInfo_t *apinfo , PtCallbackInfo_t *cbin
 
 /* ../abmain.c */
 
+/* ../base_resize.c */
+int base_resize ( PtWidget_t *widget , ApInfo_t *apinfo , PtCallbackInfo_t *cbinfo );
+
 /* ../dibujo.c */
 void dibujo ( PtWidget_t *widget , PhTile_t *damage );
 

@@ -16,14 +16,11 @@
 
 int
 TimerActivate( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
+{
+  /* eliminate 'unreferenced' warnings */
+  widget = widget, apinfo = apinfo, cbinfo = cbinfo;
 
-	{
-
-	/* eliminate 'unreferenced' warnings */
-	widget = widget, apinfo = apinfo, cbinfo = cbinfo;
-
-        RawZone->Dibujo(widget,apinfo,cbinfo);	
-	return( Pt_CONTINUE );
-
-	}
+  RawZone->Dibujo(widget,apinfo,cbinfo);	
+  return( Pt_CONTINUE );
+}
 

@@ -15,18 +15,26 @@
 #include "ReadingThread.h"
 
 extern ReadingThread t1;
+extern bool freeze;
+extern double * vv;
+extern double * uu;
 
 int
 exit_viewer( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
 {
+      /* eliminate 'unreferenced' warnings */
+  widget = widget, apinfo = apinfo, cbinfo = cbinfo;
 
-	/* eliminate 'unreferenced' warnings */
-	widget = widget, apinfo = apinfo, cbinfo = cbinfo;
+  freeze = true;
+  m_exit = true;
+  if (vv!=NULL)
+    delete []vv;
+  if (uu!=NULL)
+    delete []uu;
+  t1.End(0);
 
-	t1.End(0);
+  PtExit( EXIT_SUCCESS );
 
-	PtExit( EXIT_SUCCESS );
-
-	return( Pt_CONTINUE );
+  return( Pt_CONTINUE );
 }
 
