@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Sendable.h,v 1.2 2003-04-18 09:25:49 gmetta Exp $
+/// $Id: Sendable.h,v 1.3 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -83,8 +83,8 @@ public:
 
 	Sendable() { owner = NULL; }
 	virtual ~Sendable() {}
-	virtual int Write(BlockSender& sender) { return 1; }
-	virtual int Read(BlockReceiver& receiver) { return 1; }
+	virtual int Write(BlockSender& sender) { ACE_UNUSED_ARG(sender); return 1; }
+	virtual int Read(BlockReceiver& receiver) { ACE_UNUSED_ARG(receiver); return 1; }
 	virtual int Destroy();
 };
 

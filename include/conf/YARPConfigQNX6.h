@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigQNX6.h,v 1.14 2003-06-22 15:47:42 gmetta Exp $
+// $Id: YARPConfigQNX6.h,v 1.15 2003-06-28 16:40:01 babybot Exp $
 // YARP config file QNX6.
 //
 //
@@ -40,6 +40,9 @@
 
 /// alignment bytes required for mmx/ipl instructions.
 #define YARP_IMAGE_ALIGN 8
+
+/// default length for general purpose strings.
+#define YARP_STRING_LEN 256
 
 #include <ace/config.h>
 

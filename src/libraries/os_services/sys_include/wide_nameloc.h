@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.6 2003-04-27 16:54:35 natta Exp $
+/// $Id: wide_nameloc.h,v 1.7 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -88,7 +88,7 @@
 ///
 ///
 ///
-#define __YARP_NAMESERVICE_STRING_LEN 256
+#define __YARP_NAMESERVICE_STRING_LEN YARP_STRING_LEN
 #define __YARP_NAMESERVICE_UDP_MAX_PORTS 21
 
 const int __portNotFound = 0;
@@ -124,13 +124,19 @@ public:
 	}
 
 	void setName(const std::string &str)
-	{
-		strncpy(_name, str.c_str(), __YARP_NAMESERVICE_STRING_LEN);
+	{	
+		int len = strlen(str.c_str());
+		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+		strcpy(_name, str.c_str());
+		_name[len] = 0;
 	}
 
 	void setAddr(const std::string &node, NetInt32 pid, NetInt32 ch)
 	{
-		strncpy(_node, node.c_str(), __YARP_NAMESERVICE_STRING_LEN);
+		int len = strlen(node.c_str());
+		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+		strcpy(_node, node.c_str());
+		_node[len] = 0;
 		_pid = pid;
 		_chan = ch;
 	}
@@ -142,20 +148,11 @@ public:
 		*ch = _chan;
 	}
 
-	const char *getName() const
-	{return _name;}
-
-	const char *getNode() const
-	{return _node;}
-
-	NetInt32 getPid() const
-	{return _pid;}
-	
-	NetInt32 getChan() const
-	{return _chan;}
-
-	int length() const
-	{return sizeof(YARPNameQnx);}
+	const char *getName() const { return _name; }
+	const char *getNode() const { return _node; }
+	NetInt32 getPid() const { return _pid; }
+	NetInt32 getChan() const { return _chan; }
+	int length() const { return sizeof(YARPNameQnx); }
 
 	char _name[__YARP_NAMESERVICE_STRING_LEN];
 	char _node[__YARP_NAMESERVICE_STRING_LEN];
@@ -174,7 +171,11 @@ public:
 
 	void setName(const std::string &str)
 	{
-		strncpy(_name, str.c_str(), __YARP_NAMESERVICE_STRING_LEN);
+		int len = strlen (str.c_str());
+		ACE_DEBUG ((LM_DEBUG, "setName: %s len %d\n", str.c_str(), len));
+		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+		strcpy(_name, str.c_str());
+		_name[len] = 0;
 	}
 
 	void setAddr(const ACE_INET_Addr &addr)
@@ -185,7 +186,10 @@ public:
 
 	void setIp(const std::string &ip)
 	{
-		strncpy(_ip, ip.c_str(), __YARP_NAMESERVICE_STRING_LEN);
+		int len = strlen(ip.c_str());
+		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+		strcpy(_ip, ip.c_str());
+		_ip[len] = 0;
 	}
 
 	void setPort(NetInt32 p)
@@ -198,17 +202,10 @@ public:
 		addr.set(_port, _ip);
 	}
 
-    const char *getName() const
-	{return _name;}
-
-	const char *getIp() const
-	{return _ip;}
-
-	NetInt32 getPort()
-	{return _port;}
-
-	int length()
-	{return sizeof(YARPNameTCP);}
+	const char *getName() const { return _name; }
+	const char *getIp() const { return _ip; }
+	NetInt32 getPort() { return _port; }
+	int length() { return sizeof(YARPNameTCP); }
 
 	char _name[__YARP_NAMESERVICE_STRING_LEN];
 	char _ip[__YARP_NAMESERVICE_STRING_LEN];
@@ -226,7 +223,11 @@ public:
 
 	void setName(const std::string &str)
 	{
-		strncpy(_name, str.c_str(), __YARP_NAMESERVICE_STRING_LEN);
+		int len =  strlen(str.c_str());
+		ACE_DEBUG ((LM_DEBUG, "setName: %s len %d\n", str.c_str(), len));
+		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+		strcpy(_name, str.c_str());
+		_name[len] = 0;
 	}
 
 	void setAddr(const ACE_INET_Addr &addr)
@@ -237,7 +238,10 @@ public:
 
 	void setIp(const std::string &ip)
 	{
-		strncpy(_ip, ip.c_str(), __YARP_NAMESERVICE_STRING_LEN);
+		int len = strlen(ip.c_str());
+		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+		strcpy(_ip, ip.c_str());
+		_ip[len] = 0;
 	}
 
 	void setPorts(NetInt32 index, NetInt32 p)
@@ -257,19 +261,16 @@ public:
 		addr.set(_ports[0], _ip);
 	}
 
-	const char *getName() const
-	{return _name;}
+	const char *getName() const { return _name; }
+	const char *getIp() const { return _ip; }
 
-	const char *getIp() const
-	{return _ip;}
-
-	NetInt32 getPorts(NetInt32 index) {
+	NetInt32 getPorts(NetInt32 index) 
+	{
 		ACE_ASSERT( (index>=0) && (index<__YARP_NAMESERVICE_UDP_MAX_PORTS) );
 		return _ports[index];
 	}
 
-	int length()
-	{return sizeof(YARPNameUDP);}
+	int length() { return sizeof(YARPNameUDP); }
 
 	char _name[__YARP_NAMESERVICE_STRING_LEN];
 	char _ip[__YARP_NAMESERVICE_STRING_LEN];

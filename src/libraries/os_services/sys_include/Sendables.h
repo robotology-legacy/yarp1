@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Sendables.h,v 1.4 2003-04-22 09:06:40 gmetta Exp $
+/// $Id: Sendables.h,v 1.5 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 #ifndef SENDABLES_H_INC
@@ -97,9 +97,9 @@ public:
 		sendable = NULL;
 	}
 
-	int operator == (const PSendable& s) const { return 1; }
-	int operator != (const PSendable& s) const { return 0; }
-	int operator < (const PSendable& s) const { return 0; }
+	int operator == (const PSendable& s) const { ACE_UNUSED_ARG(s); return 1; }
+	int operator != (const PSendable& s) const { ACE_UNUSED_ARG(s); return 0; }
+	int operator < (const PSendable& s) const { ACE_UNUSED_ARG(s); return 0; }
 };
 
 class Sendables
@@ -108,7 +108,7 @@ public:
 	list<PSendable> sendables;
 
 	void PutSendable(Sendable *s)
-    {
+	{
 		refcounted_sema.Wait();
 		list<PSendable>::iterator cursor;
 		//cout << "*** NEW stl " << __FILE__ << ":" << __LINE__ << endl;
@@ -127,17 +127,17 @@ public:
 		s->owner = this;
 		//printf("PutSendable() > 1\n");
 		refcounted_sema.Post();
-    }
+	}
 
 	void TakeBack(Sendable *s)
-    {
+	{
 		//printf("##### Take back called for %ld (%d)\n", (long int) s, s->ref_count);
 		PutSendable(s);
 		//printf("##### POST Take back called for %ld (%d)\n", (long int) s, s->ref_count);
-    }
+	}
   
 	Sendable *GetSendable()
-    {
+	{
 		Sendable *s = NULL;
 		refcounted_sema.Wait();
 		list<PSendable>::iterator cursor = sendables.end();
@@ -154,7 +154,7 @@ public:
 		}
 		refcounted_sema.Post();
 		return s;
-    }
+	}
 };
 
 template <class T>

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.14 2003-06-25 23:30:29 babybot Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.15 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -245,9 +245,9 @@ public:
 	/// thread creation might be a relatively costly process.
 
 	/// required by stl interface.
-	int operator == (const _SocketThreadMcast& other) { return 0; }
-	int operator != (const _SocketThreadMcast& other) { return 0; }
-	int operator <  (const _SocketThreadMcast& other) { return 0; }
+	int operator == (const _SocketThreadMcast& other) { ACE_UNUSED_ARG(other); return 0; }
+	int operator != (const _SocketThreadMcast& other) { ACE_UNUSED_ARG(other); return 0; }
+	int operator <  (const _SocketThreadMcast& other) { ACE_UNUSED_ARG(other); return 0; }
 
 	void setOwner(const _SocketThreadListMcast& n_owner);
 
@@ -431,8 +431,8 @@ int _SocketThreadMcast::_begin (const YARPUniqueNameID *remid, const YARPUniqueN
 	if (port != 0)
 	{
 		/// listen to this new port.
-		char buf[256];
-		YARPNetworkObject::getHostname (buf, 256);
+		char buf[YARP_STRING_LEN];
+		YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
 		_local_addr.getAddressRef().set (port, buf);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
 		
@@ -486,8 +486,8 @@ int _SocketThreadMcast::reuse(const YARPUniqueNameID& remid, const YARPUniqueNam
 		_port = port;
 
 		/// listen to this new port.
-		char buf[256];
-		YARPNetworkObject::getHostname (buf, 256);
+		char buf[YARP_STRING_LEN];
+		YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
 		_local_addr.getAddressRef().set (port, buf);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
 		YARPNetworkObject::setSocketBufSize (_local_socket, MAX_PACKET);
@@ -739,7 +739,7 @@ void _SocketThreadMcast::BodyUdp (void)
 								remaining -= rr;
 								tmp += rr;
 								int ack = 0x01020304;
-								int sent = _local_socket.send (&ack, sizeof(int), incoming);
+								_local_socket.send (&ack, sizeof(int), incoming);
 
 								YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? acknowledged\n"));
 							}
@@ -1024,9 +1024,9 @@ void _SocketThreadMcast::BodyMcast (void)
 						else
 						{
 							///
-							int remaining = _extern_reply_length;
-							char *tmp = _extern_reply_buffer;
-							int retry = 0;
+							///int remaining = _extern_reply_length;
+							///char *tmp = _extern_reply_buffer;
+							///int retry = 0;
 
 							memcpy (_extern_reply_buffer, local_buffer+local_buffer_counter, _extern_reply_length);
 							local_buffer_counter += _extern_reply_length;
@@ -1721,7 +1721,7 @@ public:
 
 	enum { _max_num_clients = 256 };
 	ACE_INET_Addr _clients[_max_num_clients];
-	string _client_names[_max_num_clients];
+	std::string _client_names[_max_num_clients];
 
 	MyMessageHeader _hdr;
 
@@ -1747,14 +1747,16 @@ YARPOutputSocketMcast::YARPOutputSocketMcast (void)
 	_socktype = YARP_O_SOCKET;
 
 	int i;
-	for (i = 0; i < OSDATA(system_resources)._max_num_clients; i++)
+	OSDataMcast& d = OSDATA(system_resources);
+	for (i = 0; i < d._max_num_clients; i++)
 	{
-		OSDATA(system_resources)._clients[i].set ((u_short)0, INADDR_ANY);
+		d._clients[i].set ((u_short)0, INADDR_ANY);
+		d._client_names[i].resize (YARP_STRING_LEN, 0);
 	}
 
-	OSDATA(system_resources)._num_elements = 0;
-	OSDATA(system_resources)._overall_msg_size = 0;
-	OSDATA(system_resources)._hdr.SetBad();
+	d._num_elements = 0;
+	d._overall_msg_size = 0;
+	d._hdr.SetBad();
 }
 
 YARPOutputSocketMcast::~YARPOutputSocketMcast (void)
@@ -1787,8 +1789,8 @@ int YARPOutputSocketMcast::CloseMcastAll (void)
 	hdr.SetLength (_MAGIC_NUMBER + 1);
 
 	/// calling gethostname is not required since I can use INET_ADDR_ANY
-	char buf[256];
-	YARPNetworkObject::getHostname (buf, 256);
+	char buf[YARP_STRING_LEN];
+	YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
 	ACE_INET_Addr local ((u_short)0, buf);
 	d._udp_socket.open (local, ACE_PROTOCOL_FAMILY_INET, 0, 1);
 
@@ -1828,8 +1830,8 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	hdr.SetLength (_MAGIC_NUMBER + 1);
 
 	/// calling gethostname is not required since I can use INET_ADDR_ANY
-	char buf[256];
-	YARPNetworkObject::getHostname (buf, 256);
+	char buf[YARP_STRING_LEN];
+	YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
 	ACE_INET_Addr local ((u_short)0, buf);
 	d._udp_socket.open (local, ACE_PROTOCOL_FAMILY_INET, 0, 1);
 
@@ -1844,17 +1846,10 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 
 	for (i = 0; i < d._max_num_clients; i++)
 	{
-		ACE_OS::printf ("----- >>>>> addr of str %d 0x%0x\n", i, &(d._client_names[i]));
-		ACE_OS::fflush (stdout);
+		///ACE_OS::printf ("----- >>>>> addr of str %d 0x%0x\n", i, &(d._client_names[i]));
+		///ACE_OS::fflush (stdout);
 		ACE_OS::printf ("----- >>>>> len of %d = %d\n", i, d._client_names[i].size());
 		ACE_OS::fflush (stdout);
-#if 0
-		if (d._clients[i].get_host_addr() == nm.get_host_addr())
-		{
-			ACE_DEBUG ((LM_DEBUG, "strcmp of 0x%0x len %d\n", (int)d._client_names[i].c_str(), d._client_names[i].size()));
-			ACE_DEBUG ((LM_DEBUG, "entry %d --- %s:%d --- %s\n", i, d._clients[i].get_host_addr(), d._clients[i].get_port_number(), d._client_names[i].c_str()));
-		}
-#endif
 		
 		if (d._clients[i].get_host_addr() == nm.get_host_addr() &&
 			d._client_names[i].compare(sname) == 0)
@@ -1885,7 +1880,8 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._clients[j].get_host_addr(), d._clients[j].get_port_number()));
 
 		d._clients[j].set ((u_short)0, INADDR_ANY);
-		d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
+		///d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
+		d._client_names[j].resize (YARP_STRING_LEN, 0);
 	
 		///ACE_OS::shutdown (d._udp_socket.get_handle(), ACE_SHUTDOWN_BOTH);
 		d._udp_socket.close ();
@@ -1893,7 +1889,8 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	}
 
 	d._clients[j].set ((u_short)0, INADDR_ANY);
-	d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
+	///d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
+	d._client_names[j].resize (YARP_STRING_LEN, 0);
 
 	d._udp_socket.close ();
 
@@ -1975,7 +1972,8 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 
 				/// erases the client entry anyway.
 				d._clients[i].set ((u_short)0, INADDR_ANY);
-				d._client_names[i].erase(d._client_names[i].begin(), d._client_names[i].end());
+				///d._client_names[i].erase(d._client_names[i].begin(), d._client_names[i].end());
+				d._client_names[i].resize (YARP_STRING_LEN, 0);
 			}
 
 			/// 250 ms delay.
@@ -1991,8 +1989,8 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 		}
 	}
 
-	char buf[256];
-	YARPNetworkObject::getHostname (buf, 256);
+	char buf[YARP_STRING_LEN];
+	YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
 	ACE_INET_Addr local ((u_short)0, buf);
 	d._udp_socket.open (local, ACE_PROTOCOL_FAMILY_INET, 0, 1);
 
@@ -2040,7 +2038,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 
 	/// stores also the full symbolic name as index.
 	ACE_DEBUG ((LM_DEBUG, "----- name of connection is %s ---- inserting position %d, len %d\n", sname, firstempty, strlen(sname)));
-	string& s = d._client_names[firstempty];
+	std::string& s = d._client_names[firstempty];
 	s = sname;
 	ACE_OS::printf ("----- string has len of %d\n", s.size());
 

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Sendable.cpp,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: Sendable.cpp,v 1.3 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -74,7 +74,7 @@ int Sendable::Destroy()
 	}
 	else
 	{
-		ACE_OS::printf(">>> Sendable::Destroy() killed 0x%x\n", ((long int) (this)));
+		ACE_OS::printf(">>> Sendable::Destroy() killed 0x%x\n", ((int) (this)));
 		delete this;
 		destroyed = 1;
 	}

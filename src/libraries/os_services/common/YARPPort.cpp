@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.7 2003-04-24 16:54:44 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.8 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -106,6 +106,8 @@ static void AddPort(YARPPort *port)
 /// LATER: find out why this is commented out.
 static void RemovePort(YARPPort *port)
 {
+	ACE_UNUSED_ARG(port);
+
 	port_list_mutex.Wait();
 #ifndef __QNX__
 	//  port_list.erase(port);

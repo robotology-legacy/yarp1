@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.cpp,v 1.7 2003-05-19 16:41:09 gmetta Exp $
+/// $Id: BlockSender.cpp,v 1.8 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -149,8 +149,9 @@ int BlockSender::Add(char *buffer, int len)
 			AddPiece(buffer, available);
 			len -= available;
 			buffer += available;
+			ACE_DEBUG ((LM_DEBUG, "BlockSender: packet overflow! --- trobules!\n"));
 			///Fire();
-			available = max_packet;
+			///available = max_packet;
 		}
 		else
 		{

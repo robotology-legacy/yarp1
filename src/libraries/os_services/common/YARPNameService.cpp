@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.16 2003-05-29 00:39:26 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.17 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -123,6 +123,7 @@ char * GetYarpRoot (void)
 ///
 int YARPNameService::ConnectNameServer(const char *name)
 {
+	ACE_UNUSED_ARG (name);
 	return YARP_OK;
 }
 
@@ -139,7 +140,7 @@ int YARPNameService::Initialize (void)
 	}
 
 	/// handle the connection w/ the remote name server.
-	char buf[256];
+	char buf[YARP_STRING_LEN];
 	ACE_ASSERT (GetYarpRoot() != NULL);
 #ifdef __WIN32__
 	ACE_OS::sprintf (buf, "%s\\%s\0", GetYarpRoot(), NAMER_CONFIG_FILE);
@@ -154,8 +155,8 @@ int YARPNameService::Initialize (void)
 		return YARP_FAIL;
 	}
 
-	char hostname[256];
-	ACE_OS::memset (hostname, 0, 256);
+	char hostname[YARP_STRING_LEN];
+	ACE_OS::memset (hostname, 0, YARP_STRING_LEN);
 	int portnumber = -1;
 
 	fin >> hostname >> portnumber;

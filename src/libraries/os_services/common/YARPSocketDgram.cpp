@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.28 2003-06-23 08:05:55 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.29 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -253,9 +253,9 @@ public:
 	/// thread creation might be a relatively costly process.
 
 	/// required by stl interface.
-	int operator == (const _SocketThreadDgram& other) { return 0; }
-	int operator != (const _SocketThreadDgram& other) { return 0; }
-	int operator <  (const _SocketThreadDgram& other) { return 0; }
+	int operator == (const _SocketThreadDgram& other) { ACE_UNUSED_ARG(other); return 0; }
+	int operator != (const _SocketThreadDgram& other) { ACE_UNUSED_ARG(other); return 0; }
+	int operator <  (const _SocketThreadDgram& other) { ACE_UNUSED_ARG(other); return 0; }
 
 	void setOwner(const _SocketThreadListDgram& n_owner);
 
@@ -436,8 +436,8 @@ int _SocketThreadDgram::_begin (const YARPUniqueNameID *remid, int port = 0)
 	if (port != 0)
 	{
 		/// listen to this new port.
-		char buf[256];
-		YARPNetworkObject::getHostname (buf, 256);
+		char buf[YARP_STRING_LEN];
+		YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
 		_local_addr.getAddressRef().set (port, buf);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled?
 
@@ -483,8 +483,8 @@ int _SocketThreadDgram::reuse(const YARPUniqueNameID& remid, int port)
 		_port = port;
 
 		/// listen to this new port.
-		char buf [256];
-		YARPNetworkObject::getHostname (buf, 256);
+		char buf [YARP_STRING_LEN];
+		YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
 		_local_addr.getAddressRef().set (port, buf);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled?
 
@@ -717,7 +717,7 @@ void _SocketThreadDgram::Body (void)
 								remaining -= rr;
 								tmp += rr;
 								int ack = 0x01020304;
-								int sent = _local_socket.send (&ack, sizeof(int), incoming);
+								_local_socket.send (&ack, sizeof(int), incoming);
 
 								YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? acknowledged\n"));
 							}
@@ -1451,7 +1451,7 @@ int YARPOutputSocketDgram::Close (void)
 		return YARP_FAIL;
 	}
 
-	int dummy = hdr.GetLength();
+	hdr.GetLength();
 	d._remote_addr.set ((u_short)0);
 	d._remote_acceptor_store.set ((u_short)0);
 
@@ -1462,8 +1462,8 @@ int YARPOutputSocketDgram::Close (void)
 int YARPOutputSocketDgram::Prepare (const YARPUniqueNameID& name) ///, int local_port)
 {
 	/// local_port might not be needed by the socket layer.
-	char buf[256];
-	YARPNetworkObject::getHostname (buf, 256);
+	char buf[YARP_STRING_LEN];
+	YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
 	OSDATA(system_resources)._local_addr.set ((u_short)0, buf);
 	OSDATA(system_resources)._remote_addr = ((YARPUniqueNameID&)name).getAddressRef();
 	return YARP_OK;

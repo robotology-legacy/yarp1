@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.16 2003-05-29 00:39:27 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.17 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -517,13 +517,14 @@ YARPUniqueNameID YARPSocketNameService::RegisterName(YARPNameClient& namer, cons
 	ACE_INET_Addr reg_addr;
 	YARPUniqueNameID n (reg_type, addr);
 
-	char buf[256];
-	YARPNetworkObject::getHostname (buf, 256);
+	char buf[YARP_STRING_LEN];
+	YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
 
 	///
-	int ret = reg_addr.set((u_short)0, buf);
-	ACE_DEBUG((LM_DEBUG, "RegisterName - hostname in addr : %s\n", reg_addr.get_host_name()));
-	string tname (name);
+	///int ret = reg_addr.set((u_short)0, buf);
+	reg_addr.set((u_short)0, buf);
+	ACE_DEBUG((LM_DEBUG, "RegisterName - hostname in addr : %s\n", reg_addr.get_host_addr()));
+	std::string tname (name);
 
 	switch (reg_type)
 	{
@@ -537,7 +538,7 @@ YARPUniqueNameID YARPSocketNameService::RegisterName(YARPNameClient& namer, cons
 			
 			YARPNameQnx tmp;
 			tmp.setName(name);
-			tmp.setAddr(string(reg_addr.get_host_name()), my_getpid(), chid);
+			tmp.setAddr(std::string(reg_addr.get_host_name()), my_getpid(), chid);
 			if (namer.check_in_qnx (tmp) != YARP_OK)
 			{
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems registering %s\n", name));
@@ -607,6 +608,10 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 	/// handle the connection w/ the remote name server.
 	///
 	ACE_INET_Addr addr;
+	
+	std::string sname;
+	sname.resize (YARP_STRING_LEN, 0);
+	sname.assign (name);
 
 	switch (name_type)
 	{
@@ -614,15 +619,15 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 		{
 			YARPNameQnx tmp;
 			int reg_type = YARP_NO_SERVICE_AVAILABLE;
-			if (namer.query_qnx (name, tmp, &reg_type) != YARP_OK)
+			if (namer.query_qnx (sname, tmp, &reg_type) != YARP_OK)
 			{
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s\n", name));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s\n", sname.c_str()));
 				return YARPUniqueNameID ();	/// invalid name id.
 			}
 
 			if (reg_type != name_type)
 			{
-				ACE_DEBUG ((LM_DEBUG, ">>>>The requested type differs from the actual one %s\n", name));
+				ACE_DEBUG ((LM_DEBUG, ">>>>The requested type differs from the actual one %s\n", sname.c_str()));
 				return YARPUniqueNameID ();
 			}
 
@@ -642,15 +647,15 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 		{
 			///
 			int reg_type = YARP_NO_SERVICE_AVAILABLE;
-			if (namer.query (name, addr, &reg_type) != YARP_OK)
+			if (namer.query (sname, addr, &reg_type) != YARP_OK)
 			{
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> Problems locating %s\n", name));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> Problems locating %s\n", sname.c_str()));
 				return YARPUniqueNameID ();	/// invalid name id.
 			}
 
 			if (reg_type != name_type)
 			{
-				ACE_DEBUG ((LM_DEBUG, ">>> The requested type differs from the actual one %s\n", name));
+				ACE_DEBUG ((LM_DEBUG, ">>> The requested type differs from the actual one %s\n", sname.c_str()));
 				return YARPUniqueNameID ();
 			}
 			
@@ -673,7 +678,7 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 			ACE_OS::srand (ACE_OS::time(NULL));
 
 			ACE_INET_Addr addr;
-			char fullname[256];
+			char fullname[YARP_STRING_LEN];
 			int ret = YARP_FAIL;
 			int reg_type = YARP_NO_SERVICE_AVAILABLE;
 
@@ -690,10 +695,10 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 			while (addr.get_port_number() != 0);
 
 			/// can't locate a name -> it's a new one.
-			string tname (fullname);
+			std::string tname (fullname);
 			if (namer.check_in_mcast(tname, addr) != YARP_OK)
 			{
-				ACE_DEBUG ((LM_DEBUG, "can't get an MCAST group for %s\n", name));
+				ACE_DEBUG ((LM_DEBUG, "can't get an MCAST group for %s\n", sname.c_str()));
 				return YARPUniqueNameID();
 			}
 
@@ -711,9 +716,9 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 			
 			if (YARPNativeNameService::IsNonTrivial())
 			{
-				if (namer.query_qnx (name, tmp, &reg_type) != YARP_OK)
+				if (namer.query_qnx (sname, tmp, &reg_type) != YARP_OK)
 				{
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s, perhaps the name service is not running\n", name));
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s, perhaps the name service is not running\n", sname.c_str()));
 					return YARPUniqueNameID ();	/// invalid name id.
 				}
 
@@ -729,13 +734,13 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 					return n;
 				}
 
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> Problems locating %s in QNET protocol\n", name));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> Problems locating %s in QNET protocol\n", sname.c_str()));
 			}
 
 			reg_type = YARP_NO_SERVICE_AVAILABLE;
-			if (namer.query (name, addr, &reg_type) != YARP_OK)
+			if (namer.query (sname, addr, &reg_type) != YARP_OK)
 			{
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> Problems locating %s also in TCP/UPD protocol\n", name));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> Problems locating %s also in TCP/UPD protocol\n", sname.c_str()));
 				return YARPUniqueNameID ();	/// invalid name id.
 			}
 			
@@ -746,7 +751,7 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 		break;
 
 	default:
-		ACE_DEBUG ((LM_DEBUG, "troubles locating name: %s\n", name));
+		ACE_DEBUG ((LM_DEBUG, "troubles locating name: %s\n", sname.c_str()));
 		break;
 	}
 

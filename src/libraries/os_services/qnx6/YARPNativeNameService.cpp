@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.cpp,v 1.5 2003-05-16 21:57:08 gmetta Exp $
+/// $Id: YARPNativeNameService.cpp,v 1.6 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -128,6 +128,7 @@ YARPNameID YARPNativeEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& nam
 
 int YARPNativeEndpointManager::ConnectEndpoints(YARPNameID& dest)
 {
+	ACE_UNUSED_ARG(dest);
 	return YARP_OK;
 }
 
@@ -141,11 +142,13 @@ int YARPNativeEndpointManager::Close(const YARPNameID& id)
 ///
 int YARPNativeNameService::RegisterName(const char *name)
 {
+	ACE_UNUSED_ARG(name);
 	return YARP_OK;
 }
 
 YARPNameID YARPNativeNameService::LocateName(const char *name)
 {
+	ACE_UNUSED_ARG(name);
 	return YARPNameID();
 }
 

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRefCount.h,v 1.3 2003-04-22 09:06:35 gmetta Exp $
+/// $Id: YARPRefCount.h,v 1.4 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 /*
@@ -118,6 +118,7 @@ public:
 	// otherwise should return a copy of the object if possible
 	virtual void *Clone(bool always_clone)
 	{ 
+		ACE_UNUSED_ARG(always_clone);
 		return NULL; 
 	}
 };
@@ -165,6 +166,7 @@ public:
 
 	virtual void *Clone(int always_clone)
 	{ 
+		ACE_UNUSED_ARG(always_clone);
 		int is_implemented=0; 
 		ACE_ASSERT(is_implemented==1); 
 		return NULL; 

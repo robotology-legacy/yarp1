@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.h,v 1.6 2003-05-19 16:41:09 gmetta Exp $
+/// $Id: BlockSender.h,v 1.7 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -149,6 +149,8 @@ public:
 		Begin (YARPNameID (YARP_NO_SERVICE_AVAILABLE, ACE_INVALID_HANDLE));
 	}
 
+	virtual ~BlockSender() {}
+
 	void SetMaxPacket(int n_max_packet)
 	{
 		ACE_UNUSED_ARG (n_max_packet);
@@ -168,9 +170,9 @@ public:
 	int Add(char *buffer, int len);
 
 	virtual int Write(char *buffer, int length)
-    {
+	{
 		return Add (buffer, length);
-    }
+	}
 
 	int End()
 	{

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.33 2003-06-25 23:30:28 babybot Exp $
+/// $Id: Port.cpp,v 1.34 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -208,7 +208,7 @@ void OutputTarget::Body ()
 	BlockSender sender;
 	CountedPtr<Sendable> p_local_sendable;
 
-	memset (cmdname, 0, 512);
+	memset (cmdname, 0, 2*YARP_STRING_LEN);
 	msg_type = 0;
 
 #if 0
@@ -620,7 +620,7 @@ void Port::Body()
 ///	signal (SIGPIPE, SIG_IGN);
 #endif
 
-	int failed = 0;
+	///int failed = 0;
 	int tag = 0;
 	char *buf;
 	Fragments cmd;
@@ -1255,7 +1255,7 @@ int Port::IsSending ()
 
 void Port::FinishSend ()
 {
-	int sending = 0;
+	///int sending = 0;
 	OutputTarget *target; //, *next;
 	target = targets.GetRoot();
 

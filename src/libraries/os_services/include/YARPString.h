@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPString.h,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPString.h,v 1.3 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -66,7 +66,7 @@
 #	pragma once
 #endif
 
-#ifndef __QNX__
+#ifndef __QNX4__
 #include <string>
 using namespace std;
 #else
@@ -75,6 +75,6 @@ using namespace std;
 #define c_str AsChars
 #endif
 
-typedef string YARPString;
+typedef std::string YARPString;
 
 #endif

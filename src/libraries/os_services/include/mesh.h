@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: mesh.h,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: mesh.h,v 1.3 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -156,7 +156,7 @@ class MeshLink
 {
 protected:
   int pruneId;
-	string
+	std::string
 		label;			//	Name of node
 	MeshLink
 		*src,			//	Source of link
@@ -210,7 +210,7 @@ public:
 	void SetOwner ( Mesh *mesh );
 
 	//	Sets or changes the name of the link
-	void SetLabel ( const string& lbl );
+	void SetLabel ( const std::string& lbl );
 	void SetLabel ( const char *lbl );
 
 	//	Disconnects any links using this link as their source
@@ -220,18 +220,18 @@ public:
 	void RemoveAsDest();
 
 	//	Gets the name of the link
-	const string& GetLabel()	{	return label;		}
+	const std::string& GetLabel()	{	return label;		}
 
 	Mesh *GetOwner()	{ return owner; }
 
 #ifndef ROBOT
 	//	Reads the user-data component of the link in verbose format
 	//	(For example, from cin)
-	virtual int Read ( istream& is, int style )	{	return 1;	}
+	virtual int Read ( istream& is, int style )	{ ACE_UNUSED_ARG(is); ACE_UNUSED_ARG(style); return 1;	}
 
 	//	Writes the user-data component of the link in verbose format
 	//	(For example, to cout)
-	virtual int Write ( ostream& os, int style )	{	return 1;	}
+	virtual int Write ( ostream& os, int style )	{ ACE_UNUSED_ARG(os); ACE_UNUSED_ARG(style); return 1;	}
 #endif
 
 	//	Traversal functions
@@ -273,7 +273,7 @@ public:
 
 
 
-extern const string
+extern const std::string
 	NullName;		//	Sentinel name to signal the end of a list of
 					//	links		 
 
@@ -302,10 +302,10 @@ protected:
 
 	//	Makes sure that a link with the given label exists. If it doesn't,
     //	create it
-	MeshLink *LabelledLink ( const string& label );
+	MeshLink *LabelledLink ( const std::string& label );
 
     //	Adds a new link from a given source to a given destination
-	MeshLink *AddLink ( const string& label, const string& srcLabel, const string& destLabel );
+	MeshLink *AddLink ( const std::string& label, const std::string& srcLabel, const std::string& destLabel );
 
 public:
 
@@ -331,7 +331,7 @@ public:
 	virtual ~Mesh();
 
     //	Finds the link in the mesh with the given label
-	MeshLink *FindByLabel ( const string& label );
+	MeshLink *FindByLabel ( const std::string& label );
 
 	//	Deletes all the links in the mesh
 	void Clear();
@@ -433,12 +433,12 @@ private:
 	{	return new LinkType;		}
 
 public:
-	LinkType *NewLink ( const string& label, const string& srcLabel, const string& destLabel )
+	LinkType *NewLink ( const std::string& label, const std::string& srcLabel, const std::string& destLabel )
 	{	return ( LinkType * ) AddLink ( label, srcLabel, destLabel );	}
 
 	LinkType *GetRoot()		{	return ( LinkType * ) root;				}
 
-	LinkType *GetByLabel ( const string& label )
+	LinkType *GetByLabel ( const std::string& label )
 	{	return ( LinkType * ) FindByLabel ( label );	}
 
 	LinkType *NewLink()

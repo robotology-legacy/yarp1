@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.17 2003-05-29 00:39:26 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.18 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -265,9 +265,9 @@ public:
 	~_SocketThread () {}
 
 	/// required by stl interface.
-	int operator == (const _SocketThread& other) { return 0; }
-	int operator != (const _SocketThread& other) { return 0; }
-	int operator <  (const _SocketThread& other) { return 0; }
+	int operator == (const _SocketThread& other) { ACE_UNUSED_ARG(other); return 0; }
+	int operator != (const _SocketThread& other) { ACE_UNUSED_ARG(other); return 0; }
+	int operator <  (const _SocketThread& other) { ACE_UNUSED_ARG(other); return 0; }
 
 	void setOwner(_SocketThreadList& n_owner);
 

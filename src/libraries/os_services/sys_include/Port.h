@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.13 2003-06-20 12:04:57 babybot Exp $
+/// $Id: Port.h,v 1.14 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -127,13 +127,14 @@ public:
 	int port_number;
 	int protocol_type;
 	Sema something_to_send;
-	Sema mutex;
 #ifdef UPDATED_PORT
 	Sema space_available;
 #endif
+	Sema mutex;
+
 	CountedPtr<Sendable> p_sendable;
 	int msg_type;
-	char cmdname[512];
+	char cmdname[2*YARP_STRING_LEN];
 
 	OutputTarget() : something_to_send(0), 
 #ifdef UPDATED_PORT
@@ -146,7 +147,7 @@ public:
 		check_tick = 0;  ticking = 0;
 		port_number = 0;
 		protocol_type = YARP_NO_SERVICE_AVAILABLE;
-		memset (cmdname, 0, 512);
+		memset (cmdname, 0, 2*YARP_STRING_LEN);
 		msg_type = 0;
     }
 
@@ -370,12 +371,12 @@ public:
 #ifdef UPDATED_PORT
 	int require_complete_send;
 	void RequireCompleteSend(int flag = 1)
-    {
+	{
 		require_complete_send = flag;
-    }
+	}
   
 	int CountClients(void)
-    {
+	{
 		int ct = 0;
 		MeshLink *ptr;
 		list_mutex.Wait();
@@ -387,7 +388,7 @@ public:
 		}
 		list_mutex.Post();
 		return ct;
-    }
+	}
 #endif
 
 	CountedPtr<Sendable> p_sendable;
@@ -406,16 +407,16 @@ public:
 	virtual void Body();
 
 	Port (const char *nname, int autostart = 1, int n_protocol_type = YARP_NO_SERVICE_AVAILABLE) : 
+		tsender(this),
+		protocol_type(n_protocol_type),
 		something_to_send(0), 
 		something_to_read(0),
-		wakeup(0),
 		okay_to_send(1),
-		out_mutex(1),
+		wakeup(0),
 		list_mutex(1),
+		out_mutex(1),
 		end_thread(0),
-		name(nname),
-		tsender(this),
-		protocol_type(n_protocol_type)
+		name(nname)
 	{ 
 		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
 		add_header = 1;
@@ -428,14 +429,14 @@ public:
 	}
 
 	Port () : 
+		tsender(this),
 		something_to_send(0), 
 		something_to_read(0),
-		wakeup(0),
 		okay_to_send(1),
-		out_mutex(1),
+		wakeup(0),
 		list_mutex(1),
-		end_thread(0),
-		tsender(this)
+		out_mutex(1),
+		end_thread(0)
 	{
 		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
 		add_header = 1;
@@ -445,8 +446,10 @@ public:
 
 	virtual ~Port();
 
-	virtual void End(int donkill = 0)
+	virtual void End(int dontkill = 0)
 	{
+		ACE_UNUSED_ARG(dontkill);
+
 		if (name_set)
 		{
 			end_thread.Post();

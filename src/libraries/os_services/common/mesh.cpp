@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: mesh.cpp,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: mesh.cpp,v 1.3 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -81,7 +81,7 @@ Description This file defines classes to be used when setting up a Mesh
 
 const char
 	TabChar = '\x09';
-const string
+const std::string
 	NullName = "-";
 
 
@@ -288,7 +288,7 @@ Input		lbl				The new label of the link
 
 Returns		-
 -----------------------------------------------------------------------------*/
-void MeshLink::SetLabel ( const string& lbl )
+void MeshLink::SetLabel ( const std::string& lbl )
 {
 	label = lbl;
 }
@@ -425,7 +425,7 @@ Input		label			The name to search for.
 
 Returns		A pointer to the link if it was found, otherwise NULL
 -----------------------------------------------------------------------------*/
-MeshLink *Mesh::FindByLabel ( const string& label )
+MeshLink *Mesh::FindByLabel ( const std::string& label )
 {
 	int
 		found = 0;
@@ -462,7 +462,7 @@ Returns		A pointer to the new link if it was created successfully,
 			If any of the links named already exist, their current
             definition is used.
 -----------------------------------------------------------------------------*/
-MeshLink *Mesh::AddLink ( const string& label, const string& srcLabel, const string& destLabel )
+MeshLink *Mesh::AddLink ( const std::string& label, const std::string& srcLabel, const std::string& destLabel )
 {
 	int
 		success = 0;
@@ -501,7 +501,7 @@ Input		label			The name of thelink
 Returns		A pointer to the new if it was created successfully or found,
 			otherwise NULL
 -----------------------------------------------------------------------------*/
-MeshLink *Mesh::LabelledLink ( const string& label )
+MeshLink *Mesh::LabelledLink ( const std::string& label )
 {
 	MeshLink
 		*link = NULL;
@@ -543,12 +543,12 @@ Returns		True if no error while loading, false on error
 int Mesh::Load ( istream& is, int style )
 {
 	char
-		buf[256];
+		buf[YARP_STRING_LEN];
 	int
 		verbose = ( ( style & FORMAT ) == PROSE_FORMAT ),
 		failed = 0,
 		done = 0;
-	string
+	std::string
 		label,
 		srcLabel,
 		destLabel;

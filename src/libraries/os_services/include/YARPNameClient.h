@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.10 2003-06-04 12:02:57 beltran Exp $
+/// $Id: YARPNameClient.h,v 1.11 2003-06-28 16:40:01 babybot Exp $
 ///
 ///
 
@@ -497,6 +497,8 @@ private:
 			return YARP_FAIL;
 		
 		tmpRqst.setName(s);
+		ACE_OS::printf ("----- DAMN include files code! ----- %s\n", tmpRqst.getName());
+
 		tmpCmd.cmd = YARPNSQuery;
 		tmpCmd.type = YARP_TCP;	// TCP, UDP, MCAST queries are handled in the same way
 		tmpCmd.length = tmpRqst.length();
