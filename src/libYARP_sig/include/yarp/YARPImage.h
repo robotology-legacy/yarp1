@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.1 2004-07-12 16:45:57 eshuy Exp $
+/// $Id: YARPImage.h,v 1.2 2004-07-13 10:17:44 eshuy Exp $
 ///
 ///
 
@@ -115,7 +115,7 @@ enum __PixelTypesEnum
 ///
 ///
 ///
-#ifdef __cplusplus
+///#ifdef __cplusplus
 
 #include <yarp/begin_pack_for_net.h>
 
@@ -186,6 +186,17 @@ const int YarpImageAlign = YARP_IMAGE_ALIGN;
 // through row pointers... this should ease porting stuff from older 
 // formats.
 //
+
+class YARPGenericImage;
+void SatisfySize(YARPGenericImage& src, YARPGenericImage& dest);
+
+/**
+ * Basic image class.
+ *
+ * Objects of this class are able to create and manipulate images, but
+ * has no real idea about their content.  For typed images, see
+ * YARPImageOf.
+ */
 class YARPGenericImage
 {
 protected:
@@ -200,7 +211,7 @@ protected:
 	// ipl allocation is done in two steps.
 	// _alloc allocates the actual ipl pointer.
 	// _alloc_data allocates the image array and data.
-	// memory is allocated in a single chunck. Row ptrs are then
+	// memory is allocated in a single chunk. Row ptrs are then
 	// made to point appropriately. This is compatible with IPL and
 	// SOMEONE says it's more efficient on NT.
 	void _alloc (void);
@@ -221,92 +232,372 @@ protected:
 	int _pad_bytes (int linesize, int align) const;
 
 public:
+
+	/**
+	 * Default constructor.
+	 * Creates an empty image.
+	 */
 	YARPGenericImage(void);
+
+	/**
+	 * Copy constructor.
+	 * Clones the content of another image.
+	 * @param i the image to clone
+	 */
 	YARPGenericImage(const YARPGenericImage& i);
+
 	virtual ~YARPGenericImage();
+
+	/**
+	 * Resets image for IPL.
+	 * This is just for IPL -- otherwise just use Clear().
+	 * Discards all memory allocated for the image content.
+	 * Cleanup function is used to clean IPL allocated mem
+	 * in a multi-threaded environment.
+	 * A better memory allocator for IPL should be provided in the future.
+	 * Use Cleanup before leaving the thread which allocated the image.
+	 */
 	virtual void Cleanup () { _free_complete(); }
 
+	/**
+	 * Assignment operator.
+	 * Clones the content of another image.
+	 * @param i the image to clone
+	 */
 	virtual void operator=(const YARPGenericImage& i);
 
+	/**
+	 * Gets pixel type identifier.
+	 * Images have an associated type identifier to
+	 * permit automatic casting between different image types.
+	 * @return the image type identifier
+	 */
 	virtual int GetID (void) const { return type_id; }
+
+
+	/**
+	 * Sets pixel type identifier.
+	 * Only needed when working with non-native types.
+	 * @param n_id the new pixel type identifier
+	 */
 	void SetID (int n_id) { type_id = n_id; }
+
+	/**
+	 * Sets pixel type identifier.
+	 * Only needed when working with non-native types.
+	 * @param n_id the new pixel type identifier
+	 */
 	void CastID (int n_id) { type_id = n_id; }
 
+	/**
+	 * Gets pixel size in memory in bytes.
+	 * @return the size of the pixels stored in the image, in bytes
+	 */
 	int GetPixelSize (void) const;
 
+	/**
+	 * Gets height of image in pixels
+	 * @return the height of the image in pixels (0 if no image present)
+	 */
 	inline int GetHeight() const 
 	{ if (pImage!=NULL) return pImage->height; else return 0; }
+
+	/**
+	 * Gets width of image in pixels
+	 * @return the width of the image in pixels (0 if no image present)
+	 */
 	inline int GetWidth() const  
 	{ if (pImage!=NULL) return pImage->width;  else return 0; }
 
+	/**
+	 * Allocate memory for an image of a particular size and pixel type.
+	 * If memory has already been allocated for an image of a different
+	 * size/type, that is discarded.  This method is rarely needed -- use
+	 * instead the Resize method of YARPImageOf, which knows which
+	 * kind of pixels to make.
+	 * @param the width of the image
+	 * @param the height of the image
+	 * @param the type identifier of the pixels
+	 */
 	void Resize (int x, int y, int pixel_type);
+
+	/**
+	 * Allocate memory for an image of a particular size.
+	 * If memory has already been allocated for an image of a different
+	 * size, that is discarded.  The type of the image is assumed to
+	 * have been already decided, either by a call to SetID() or by
+	 * using a derived class (YARPImageOf).
+	 * @param the width of the image
+	 * @param the height of the image
+	 */
 	void Resize (int x, int y) { Resize(x,y,GetID()); }
+
+	/**
+	 * Resets image.
+	 * Discards all allocated memory.
+	 */
 	void Clear (void);
+
+	/**
+	 * Sets each pixel of the image to zero.
+	 */
 	inline void Zero (void) { ACE_ASSERT(pImage != NULL); memset(pImage->imageData, 0, pImage->imageSize); }
 
+	/**
+	 * Provide access to an external image stored in memory.
+	 * Disables the built-in reference counting mechanism.
+	 * After this call, the external image can be accessed using
+	 * the same methods used to access normal YARP images.
+	 * Need to check what this does about image padding! --
+	 * be careful if your image rows are not quad-word aligned.
+	 * @param buf the start of the memory block in which the image is stored
+	 * @param x the width of the image
+	 * @param y the height of the image
+	 * @param pixel_type the type identifier of the pixels
+	 */
 	void UncountedRefer(void *buf, int x, int y, int pixel_type) { _alloc_complete_extern(buf,x,y,pixel_type); }
+
+	/**
+	 * Provide access to an external image stored in memory.
+	 * Disables the built-in reference counting mechanism.
+	 * After this call, the external image can be accessed using
+	 * the same methods used to access normal YARP images.
+	 * Need to check what this does about image padding! --
+	 * be careful if your image rows are not quad-word aligned.
+	 * @param buf the start of the memory block in which the image is stored
+	 * @param x the width of the image
+	 * @param y the height of the image
+	 */
 	void UncountedRefer(void *buf, int x, int y) { _alloc_complete_extern(buf,x,y,GetID()); }
+
+	/**
+	 * Provide access to another YARP image, without reference counting.
+	 * @param src the image to access
+	 */
 	void UncountedRefer(const YARPGenericImage& src)
 	{
 		_alloc_complete_extern((void*)src.GetRawBuffer(), src.GetWidth(), src.GetHeight(), src.GetID());
 	}
 
+	/**
+	 * Provide access to another YARP image, with reference counting.
+	 * @param src the image to access
+	 */
 	void Refer(YARPGenericImage& src);
+
+
+	/**
+	 * Provide access to another YARP image, with reference counting.
+	 * If the current image is typed differently to the other image,
+	 * then a cast operation will occur, otherwise a Refer() will
+	 * occur.
+	 * @param src the image to access
+	 */
 	void ReferOrCopy(YARPGenericImage& src);
 
+	/**
+	 * Make a copy of another image, changing pixel type if needed.
+	 * @src the image to copy
+	 */
 	void CastCopy(const YARPGenericImage& src);
+
+	/**
+	 * Make a copy of another image of the same pixel type.
+	 * An error occurs if the image is of a different pixel type.
+	 * Use this method if you want to be sure you are alerted
+	 * to any unexpected casting occuring in your program.
+	 * @src the image to copy
+	 */
 	void PeerCopy(const YARPGenericImage& src);
+
+	/**
+	 * Make a copy of another image, changing its size to the current
+	 * image size.
+	 * @src the image to copy
+	 */
 	void ScaledCopy(const YARPGenericImage& src);
+
+	/**
+	 * Make a scaled copy of another image.
+	 * @src the image to copy
+	 * @nx the desired final image width
+	 * @ny the desired final image height
+	 */
 	void ScaledCopy(const YARPGenericImage& src, int nx, int ny);
 
+	/**
+	 * Extract a portion of the current image.
+	 * Starting from a particular coordinate in the current image
+	 * (startX,startY) this method fills a target image with 
+	 * a rectangle from the current image.  The size of the
+	 * rectangle is defined by the target image.
+	 * @param id the target image
+	 * @param startX the leftmost edge of the rectangle
+	 * @param startY the upmost edge of the rectangle
+	 */
 	void Crop (YARPGenericImage& id, int startX, int startY);
+
+	/**
+	 * Overwrites a portion of the current image.
+	 * Starting from a particular coordinate in the current image
+	 * (startX,startY) this method copies a target image into
+	 * a rectangular portion of the current image.  The size of the
+	 * rectangle is defined by the target image.
+	 * @param id the target image
+	 * @param startX the leftmost edge of the rectangle
+	 * @param startY the upmost edge of the rectangle
+	 */
 	void Paste (YARPGenericImage& is, int startX, int startY);
 
+	/**
+	 * Get a pointer to the underlying image buffer.
+	 * Use at your own risk.
+	 * @return a pointer to the underlying image buffer, if it exists, otherwise NULL
+	 */
 	char *GetRawBuffer() const { return (pImage!=NULL) ? pImage->imageData : NULL; }
 
-	// cast operator allows calling ipl functions directly.
+	/**
+	 * IPL cast operator
+	 * @return underlying IPL-compatible structure, handy for calling IPL-compatible functions
+	 */
 	operator IplImage*() const { return pImage; }
+
+	/**
+	 * IPL cast operator
+	 * @return underlying IPL-compatible structure, handy for calling IPL-compatible functions
+	 */
 	IplImage* GetIplPointer(void) const { return pImage; }
 
-	// rows array.
+	/**
+	 * Get array of row pointers.
+	 * @return address of an array of row pointers
+	 */
 	inline char **GetArray(void) const { return (char **)Data; }
 
-	// actual array.
+	/**
+	 * Get a pointer to the underlying image buffer.
+	 * Use at your own risk.
+	 * @return a pointer to the underlying image buffer
+	 */
 	inline char *GetAllocatedArray(void) const { return (char*) pImage->imageData; }
 
-	// actual array size.
+	/**
+	 * Size of the underlying image buffer.
+	 * @return size of the underlying image buffer in bytes.
+	 */
 	inline int GetAllocatedDataSize(void) const { return pImage->imageSize; }
 
-	// actual row size in bytes.
+	/**
+	 * Size of the underlying image buffer rows.
+	 * @return size of the underlying image buffer rows in bytes.
+	 */
 	inline int GetAllocatedLineSize(void) const { return pImage->widthStep; }
 
+	/**
+	 * Size of the padding in underlying image buffer rows.
+	 * Padding makes for more efficient access.
+	 * @return number of bytes of padding of the underlying image buffer rows.
+	 */
 	// LATER: take into account pixel size also!
 	inline int GetPadding() const { return _pad_bytes (pImage->width * pImage->nChannels, YarpImageAlign); }
+
+	/**
+	 * Find address of a pixel within the image.
+	 * (0,0) is top-left of image.
+	 * @param x the horizontal coordinate of the pixel, from 0 to GetWidth()-1
+	 * @param y the vertical coordinate of the pixel, from 0 to GetHeight()-1
+	 * @return the coordinate of the requested pixel.
+	 */
 	inline char *RawPixel(int x, int y) const { return (Data[y] + x*GetPixelSize()); }
+
+
+	/**
+	 * Make sure this image is bigger than another.
+	 * Convenient during image processing.
+	 * @param src the reference image
+	 */
+	void BiggerThan(YARPGenericImage& src) {
+	  SatisfySize(src,*this);
+	}
 };
 
 
+/**
+ * Typed image class.
+ *
+ * This is a wrapper over YARPGenericImage providing type security for
+ * pixel access.
+ */
 template <class T>
 class YARPImageOf : public YARPGenericImage
 {
 public:
+	/**
+	 * Copy constructor.
+	 * @ i image to take a copy of
+	 */
 	YARPImageOf(const YARPImageOf<T>& i) : YARPGenericImage (i) {}
+
+	/**
+	 * Default constructor.
+	 */
 	YARPImageOf () : YARPGenericImage () {}
 
+	/**
+	 * Assignment operator.
+	 * @ i image to take a copy of
+	 */
 	virtual void operator=(const YARPImageOf<T>& i) { YARPGenericImage::operator= (i); }
 
-	// if type is not specialized, arbitrary id is specified that carries size
-	// of pixel
+	// if type is not specialized, arbitrary id is specified that
+	// carries size of pixel
+
+	/**
+	 * Get pixel type identifier.
+	 * This is done automatically for recognized pixel types.
+	 * @ return pixel type identifier
+	 */
 	virtual inline int GetID() const;
 
+	/**
+	 * Allocate memory for an image of a particular size.
+	 * If memory has already been allocated for an image of a different
+	 * size, that is discarded.
+	 * @param the width of the image
+	 * @param the height of the image
+	 */
 	void Resize(int x, int y) { YARPGenericImage::Resize(x,y,GetID()); }
 
+	/**
+	 * Empty pixel.
+	 */
 	T null_pixel;
 
+	/**
+	 * Access a pixel within the image.
+	 * (0,0) is top-left of image.
+	 * @param x the horizontal coordinate of the pixel, from 0 to GetWidth()-1
+	 * @param y the vertical coordinate of the pixel, from 0 to GetHeight()-1
+	 * @return reference to the requested pixel
+	 */
 	inline T& Pixel(int x, int y) { return *((T*)(Data[y] + x*sizeof(T))); }
 
+	/**
+	 * Access a pixel within the image.
+	 * Identical to Pixel() method.
+	 * @param x the horizontal coordinate of the pixel
+	 * @param y the vertical coordinate of the pixel
+	 * @return reference to the requested pixel
+	 */
 	T& operator()(int x, int y)	{ return Pixel(x,y); }
 
+	/**
+	 * Access a pixel within the image, throwing an assertion if out-of-bounds.
+	 * Otherwise identical to Pixel() method.
+	 * @param x the horizontal coordinate of the pixel
+	 * @param y the vertical coordinate of the pixel
+	 * @return reference to the requested pixel
+	 */
 	T& AssertedPixel(int x, int y)
 	{
 		ACE_ASSERT(Data!=NULL && pImage != NULL);
@@ -317,6 +608,16 @@ public:
 		return Pixel(x,y);
 	}
 
+	/**
+	 * Access a pixel within the image, or the null pixel if out-of-bounds.
+	 * Otherwise identical to Pixel() method.
+	 * Very convenient for avoiding excess conditionals on boundary
+	 * conditions of otherwise homogeneous calculations across an
+	 * image
+	 * @param x the horizontal coordinate of the pixel
+	 * @param y the vertical coordinate of the pixel
+	 * @return reference to the requested pixel
+	 */
 	T& SafePixel(int x, int y)
 	{
 		ACE_ASSERT(Data != NULL && pImage != NULL);
@@ -328,7 +629,16 @@ public:
 		return null_pixel;
 	}
 
+	/**
+	 * Access the null pixel.
+	 * @return reference to the null pixel
+	 */
 	T& NullPixel() { return null_pixel; }
+
+	/**
+	 * Get an appropriately typed pointer to the underlying image buffer.
+	 * @return a pointer to the underlying image buffer, if it exists, otherwise NULL
+	 */
 	T *GetTypedBuffer() { return (T*)GetRawBuffer(); }
 };
 
@@ -351,9 +661,8 @@ __YARPIMAGE_ASSOCIATE_TAG(YARP_PIXEL_INT,YarpPixelInt)
 
 #undef __YARPIMAGE_ASSOCIATE_TAG
 
-void SatisfySize(YARPGenericImage& src, YARPGenericImage& dest);
 
-#endif	/// of __cplusplus
+///#endif	/// of __cplusplus
 
 #endif
 
