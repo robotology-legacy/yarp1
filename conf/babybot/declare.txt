@@ -1,1 +1,1 @@
-0 D:/Users/pasa/Repository/yarp/conf/babybot/object_model/autohist_0001.txt D:/Users/pasa/Repository/yarp/conf/babybot/object_model/autoproto_0001.ppm D:/Users/pasa/Repository/yarp/conf/babybot/object_model/blank.txt
+0 Y:/conf/babybot/autohist_0001.txt Y:/conf/babybot/autoproto_0001.ppm Y:/conf/babybot/blank.txt
