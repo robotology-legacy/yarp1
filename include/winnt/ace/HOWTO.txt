@@ -1,0 +1,26 @@
+How to use the build.bat to compile and install ACE on windows.
+
+the script accepts two parameters:
+1- the operation requested
+2- the directory name where ACE is unpacked (from the zip file)
+
+operations can be:
+clean: as in make clean, removes all compilation intermediate file.
+debug: compile with debug enabled.
+release: compile optimized.
+install: install on the default distribution
+
+the script assumes YARP_ROOT environment variable is properly set.
+
+the directory at point 2- requires also to include ACE_wrapper
+
+examples:
+build debug ..\..\..\src\ACE_wrappers
+ - to build debug
+
+build install ..\..\..\src\ACE_wrappers
+ - to copy headers and libs to the "standard" places
+
+Note: the config.h contained in this directory will be copied to
+the correct place to compile (i.e.: ACE_wrappers\ace\) and then
+removed on finish.

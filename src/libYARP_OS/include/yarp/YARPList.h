@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPList.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPList.h,v 1.3 2004-07-09 13:42:55 gmetta Exp $
 ///
 ///
 
@@ -73,37 +73,99 @@
 #	pragma once
 #endif
 
+/**
+ * \file YARPList.h a STL-like list class derived from ACE List container.
+ */
+
+/**
+ * the YARPList iterator. The main difference with C++ STL
+ * is that the iterator here is initialized for a specific
+ * object and keeps a pointer to it internally.
+ */
 template <class T>
 class YARPListIterator : public ACE_DLList_Iterator<T>
 {
 public:
+	/**
+	 * Constructor. Creates a new iterator for a specific instance of YARPList.
+	 * @param i an ACE_DLList reference to link the iterator to.
+	 */
 	YARPListIterator(ACE_DLList<T>& i) : ACE_DLList_Iterator<T>(i) {}
+
+	/**
+	 * Constructor. Creates a new iterator for a specific instance of YARPList: same
+	 * as above but const parameter.
+	 * @param i an ACE_DLList reference to link the iterator to.
+	 */
 	YARPListIterator(const YARPListIterator& i) : ACE_DLList_Iterator<T>(i.dllist_) {}
+
+	/**
+	 * Destructor.
+	 */
 	~YARPListIterator() {}
 
+	/**
+	 * move the iterator to the beginning of the list.
+	 */
 	int go_head(void) { return ACE_DLList_Iterator<T>::go_head(); }
+
+	/**
+	 * move the iterator to the end of the list.
+	 */
 	int go_tail(void) { return ACE_DLList_Iterator<T>::go_tail(); }
 
+	/**
+	 * dereferencing operator.
+	 * @return a reference to the current item pointed to by the iterator.
+	 */
 	T& operator *() const { return *(T*)(ACE_DLList_Iterator<T>::operator*().item_); }
-//	T& operator ->() const { return *(T*)(
 };
 
+/**
+ * A generic double-linked templatized list derived from the ACE correspondent list.
+ */
 template <class T>
 class YARPList : public ACE_DLList<T>
 {
 public:
+	/**
+	 * defines the iterator to be class YARPList<T>::iterator
+	 */
 	typedef YARPListIterator<T> iterator;
+
+	/**
+	 * defines the constant iterator to be class YARPList<T>::const_iterator
+	 */
 	typedef const YARPListIterator<T> const_iterator;
 
 	friend class YARPListIterator<T>;
 
-
+	/**
+	 * Constructor.
+	 */
 	YARPList(void) : ACE_DLList<T> () {}
+
+	/**
+	 * Copy constructor.
+	 * @param l is a reference to an instance of the same class type.
+	 */
 	YARPList(const YARPList<T>& l) : ACE_DLList<T> (l) {}
 	
-	void operator= (const ACE_DLList<T> &l) { ACE_DLList<T>::operator=(l); } 
+	/**
+	 * Copy operator.
+	 * @param l is a reference to an instance of another list to copy from.
+	 */
+	void operator= (const ACE_DLList<T> &l) { ACE_DLList<T>::operator=(l); }
+	
+	/**
+	 * Copy operator from the ACE list.
+	 * @param l is a reference to an ACE double linked list.
+	 */
 	void operator= (const YARPList<T> &l) { ACE_DLList<T>::operator=(l); } 
 
+	/**
+	 * Destructor.
+	 */
 	~YARPList() { reset(); }
 
 	void push_back (const T& new_item) { T* el = new T; *el = new_item; insert_tail(el); }
