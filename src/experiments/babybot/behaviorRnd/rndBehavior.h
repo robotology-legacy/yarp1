@@ -6,19 +6,15 @@
 #include <YARPBehavior.h>
 #include <YARPBottle.h>
 #include <YARPConfigFile.h>
+#include <./conf/YARPMotorVocab.h>
 
 class RndSharedData: public YARPBehaviorSharedData
 {
 public:
-	RndSharedData(): YARPBehaviorSharedData(YBLabelMotor, "/armrandom/behavior/o")
+	RndSharedData(): YARPBehaviorSharedData("/armrandom/behavior/o", YBVMotorLabel)
 	{
 		char *root = GetYarpRoot();
-#if defined(__WIN32__)
-		ACE_OS::sprintf (_iniFile, "%s\\conf\\babybot\\arm.ini\0", root);
-#elif defined(__QNX6__)
 		ACE_OS::sprintf (_iniFile, "%s/conf/babybot/arm.ini\0", root);
-#endif
-		///strncpy(_iniFile, "y:\\conf\\babybot\\arm.ini", 80);
 
 		YARPConfigFile file;
 		file.set("", _iniFile);
@@ -89,7 +85,7 @@ class RndBehavior: public YARPBehavior<RndBehavior, RndSharedData>
 {
 public:
 	RndBehavior(RndSharedData *d):
-	YARPBehavior<RndBehavior, RndSharedData>(d, YBLabelMotor, "/armrandom/behavior/i"){}
+	YARPBehavior<RndBehavior, RndSharedData>(d, "/armrandom/behavior/i", YBVMotorLabel, YBVArmRndQuit){}
 
 };
 
@@ -100,18 +96,17 @@ typedef YARPBaseBehaviorInput<RndSharedData> RndBehaviorBaseInput;
 class RBSimpleInput: public RndBehaviorBaseInput
 {
 public:
-	RBSimpleInput(int k)
+	RBSimpleInput(const YARPString &k)
 	{
 		key = k;
 	}
 
 	bool input(YARPBottle *in, RndSharedData *d)
 	{
-		int k;
-		if (!in->tryReadVocab(&k))
+		if (!in->tryReadVocab(tmpK))
 			return false;
 
-		if (k != key)
+		if (tmpK != key)
 			return false;
 	
 		in->moveOn();
@@ -119,14 +114,15 @@ public:
 		return true;
 	}
 	
-	int key;
+	YBVocab key;
+	YBVocab tmpK;
 
 };
 
 class RBSimpleOutput: public RndBehaviorBaseOutput
 {
 public:
-	RBSimpleOutput(int k)
+	RBSimpleOutput(const YBVocab &k)
 	{
 		_key = k;
 	}
@@ -136,7 +132,7 @@ public:
 		d->writeAndSend(_key);
 	}
 
-	int _key;
+	YBVocab _key;
 };
 
 class RBWaitIdle: public RndBehaviorStateBase
@@ -153,7 +149,7 @@ class RBInit: public RndBehaviorStateBase
 public:
 	void handle(RndSharedData *d)
 	{
-		cout << "Init rnd generator\n";
+		printf("Init rnd generator\n");;
 		srand(time(NULL));
 	}
 };
@@ -169,6 +165,7 @@ public:
 	{
 		printf("RBWaitMotion: %s\n", _message.c_str());
 	}
+	
 	YARPString _message;
 };
 

@@ -4,6 +4,7 @@
 #include <YARPPort.h>
 #include <YARPRepeater.h>
 #include <YARPParseParameters.h>
+#include <YARPBottleContent.h>
 #include <YARPBottle.h>
 
 #include <iostream>

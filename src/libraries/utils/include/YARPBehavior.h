@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.19 2003-11-04 19:26:56 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.20 2003-11-07 14:08:21 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -70,7 +70,6 @@
 #include <YARPFSM.h>
 #include <YARPPort.h>
 #include <YARPThread.h>
-#include <string>
 
 #include "YARPBottle.h"
 #include "YARPBottleContent.h"
@@ -82,15 +81,13 @@
 #else #define YARP_BEHAVIOR_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
-const int __exitCode = -1;
-
 class YARPBehaviorSharedData
 {
 	public:
-		YARPBehaviorSharedData(int ID, const YARPString &portName):
+		YARPBehaviorSharedData(const YARPString &portName, const YBVocab &label):
 		  _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 		  {	
-			  _data.setID(ID);
+			  _data.setID(label);
 			  _outPort.Register(portName.c_str());
 		  }
 
@@ -103,7 +100,7 @@ class YARPBehaviorSharedData
 			  _data.reset();
 		  }
 
-		  void writeAndSend(int v)
+		  void writeAndSend(const YBVocab &v)
 		  {
 			  _data.writeVocab(v);
 			  send();
@@ -176,12 +173,13 @@ public:
 	typedef PULSE_TABLE::iterator PULSE_TABLE_IT;
 	typedef FUNCTION_TABLE::iterator FUNCTION_TABLE_IT;
 
-	YARPBehavior(MY_SHARED_DATA *d, int label, std::string pName, int exitC = YBVExit):
+	YARPBehavior(MY_SHARED_DATA *d, const YARPString &pName, const YBVocab &label, const YBVocab &exitC):
 	YARPFSM<MY_BEHAVIOR, MY_SHARED_DATA>(d),
 	_inport(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 	{
-		_key = label;
-		_exitCode = exitC;
+		_key = label;			
+		_bottle.setID(_key);	// sent and received bottles have same ID
+		_exitCode = exitC;		
 		_init(pName);
 	}
 
@@ -242,19 +240,22 @@ private:
 		YARPThread::Join(); // wait
 	}
 	// init class
-	void _init(std::string name)
+	void _init(const YARPString &name)
 	{ 
 		_inport.Register(name.c_str());	// register port
 	}
 
 	BEHAVIOR_TABLE _table;
 	FUNCTION_TABLE _functions;
-	PULSE_TABLE _pulse_table;		//keep track of the input states created, so that we can delete them later
+	PULSE_TABLE _pulse_table;				//keep track of the input states created, so that we can delete them later
 
-	YARPInputPortOf<YARPBottle> _inport;
-	int _key;
-	int _exitCode;
-	ACE_Auto_Event _stopEvent;
+	YBVocab			_key;					// only bottles with this ID are considered
+	YBVocab			_exitCode;				// exit when this vocab code is received
+	ACE_Auto_Event	_stopEvent;
+	
+	YBVocab			_tmpVocab;				// temp variable to avoid using a local var within _parse method
+	YARPBottle		_bottle;				// ths is the bottle used for the communication
+	YARPInputPortOf<YARPBottle> _inport;	// input port
 };
 
 template <class MY_BEHAVIOR, class MY_SHARED_DATA> 
@@ -301,16 +302,15 @@ _parse(YARPBottle &bottle)
 		return 0;
 	}
 
-	// handle exit code
-	int vocab = -1;
-	if ( bottle.tryReadVocab(&vocab) )
+	// handle exit code and alive message
+	if (bottle.tryReadVocab(_tmpVocab) )
 	{
-		if (vocab == _exitCode)
+		if (_tmpVocab == _exitCode)
 		{
 			_quit();
 			return -1;
 		}
-		else if (vocab ==YBVIsAlive)
+		else if (_tmpVocab == YBVIsAlive)
 		{
 			YARP_BEHAVIOR_DEBUG(("I'm Alive!\n"));
 		}
@@ -369,9 +369,6 @@ template <class MY_BEHAVIOR, class MY_SHARED_DATA>
 void YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
 Body(void)
 {
-	YARPBottle dummy;
-	dummy.setID(_key);	
-
 	while(!IsTerminated())
 	{
 		// handle state
@@ -385,7 +382,7 @@ Body(void)
 		{
 			// state is AS, just loop !
 			// and still check inputs
-			_parse(dummy);
+			_parse(_bottle);
 		}
 		// switch state
 		state->decideState((MY_BEHAVIOR *)this, _data);

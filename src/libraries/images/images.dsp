@@ -42,8 +42,8 @@ RSC=rc.exe
 # PROP Output_Dir "obj\Release"
 # PROP Intermediate_Dir "obj\Release"
 # PROP Target_Dir ""
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I ".\include" /I "..\..\..\include" /D "_LIB" /D "NDEBUG" /D "WIN32" /D "_MBCS" /FD /c
 # SUBTRACT CPP /YX
@@ -58,7 +58,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library
-PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Release\imagesx.lib ..\ipl\lib\ipl.lib /out:.\obj\Release\images.lib	copy .\obj\Release\images.lib ..\..\..\lib\winnt
+PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Release\imagesx.lib ..\ipl\lib\ipl.lib /out:.\obj\Release\images.lib
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "images - Win32 Debug"
@@ -73,8 +73,8 @@ PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Release\imagesx.lib
 # PROP Output_Dir "obj\Debug"
 # PROP Intermediate_Dir "obj\Debug"
 # PROP Target_Dir ""
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\include" /I "..\..\..\include" /D "_LIB" /D "_DEBUG" /D "WIN32" /D "_MBCS" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -89,7 +89,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library
-PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Debug\imagesDBx.lib ..\ipl\lib\ipl.lib /out:.\obj\Debug\imagesDB.lib	copy .\obj\Debug\imagesDB.lib ..\..\..\lib\winnt
+PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Debug\imagesDBx.lib ..\ipl\lib\ipl.lib /out:.\obj\Debug\imagesDB.lib
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "images - Win32 FakeIpl Debug"
@@ -104,8 +104,8 @@ PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Debug\imagesDBx.lib
 # PROP Output_Dir "obj\Debug"
 # PROP Intermediate_Dir "obj\Debug"
 # PROP Target_Dir ""
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\include" /I "..\..\..\include" /I "C:\Program Files\Intel\plsuite\include" /D "_DEBUG" /D "WIN32" /D "_UNICODE" /D "_LIB" /D "__WIN__" /D "__WIN_MSVC__" /FD /GZ /c
 # SUBTRACT BASE CPP /YX
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\include" /I "..\..\..\include" /I ".\fakeipl" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "__FAKEIPL__" /FD /GZ /c
@@ -121,7 +121,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library
-PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Debug\images_fakeipl_DBx.lib .\fakeipl\fakeiplDB.lib /out:.\obj\Debug\imagesDBf.lib	copy .\obj\Debug\imagesDBf.lib ..\..\..\lib\winnt
+PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Debug\images_fakeipl_DBx.lib .\fakeipl\fakeiplDB.lib /out:.\obj\Debug\imagesDBf.lib
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "images - Win32 FakeIpl Release"
@@ -136,8 +136,8 @@ PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Debug\images_fakeip
 # PROP Output_Dir "obj\Release"
 # PROP Intermediate_Dir "obj\Release"
 # PROP Target_Dir ""
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /I ".\include" /I "..\..\..\include" /I "C:\Program Files\Intel\plsuite\include" /D "NDEBUG" /D "WIN32" /D "_UNICODE" /D "_LIB" /D "__WIN__" /D "__WIN_MSVC__" /FD /c
 # SUBTRACT BASE CPP /YX
 # ADD CPP /nologo /MD /W3 /GX /O2 /I ".\include" /I "..\..\..\include" /I ".\fakeipl" /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "__FAKEIPL__" /FD /c
@@ -153,7 +153,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library
-PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Release\images_fakeipl_x.lib .\fakeipl\fakeipl.lib /out:.\obj\Release\imagesf.lib	copy .\obj\Release\imagesf.lib ..\..\..\lib\winnt
+PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Release\images_fakeipl_x.lib .\fakeipl\fakeipl.lib /out:.\obj\Release\imagesf.lib
 # End Special Build Tool
 
 !ENDIF 

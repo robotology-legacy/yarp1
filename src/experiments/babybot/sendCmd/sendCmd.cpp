@@ -4,6 +4,8 @@
 #include <YARPPort.h>
 #include <YARPBottleContent.h>
 #include <YARPBottle.h>
+#include <YARPBehaviorLabelConverter.h>
+#include <./conf/YARPMotorVocab.h>
 
 YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
@@ -17,10 +19,10 @@ int main(int argc, char* argv[])
 	{
 		tmp.reset();
 		bool send = false;
-		tmp.setID(YBLabelMotor);
+		tmp.setID(YBVMotorLabel);
 		if (c == "start")
 		{
-			tmp.writeVocab(YBVArmRndStart);
+			tmp.writeVocab(c); // YBVArmRndStart);
 			send = true;
 		}
 		else if (c == "stop")
@@ -140,12 +142,7 @@ int main(int argc, char* argv[])
 			tmp.writeVocab(YBVHandQuit);
 			send = true;
 		}
-		else 
-		{
-			send = false;
-
-		}
-
+	
 		if (send)
 		{
 			_outPort.Content() = tmp;
@@ -158,6 +155,6 @@ int main(int argc, char* argv[])
 		if (quit)
 			return 0;
 	};	
-	
+
 	return 0;
 }

@@ -43,6 +43,7 @@ CLEAN :
 	-@erase "$(INTDIR)\attn_tracker.obj"
 	-@erase "$(INTDIR)\ImgTrack.obj"
 	-@erase "$(INTDIR)\vc60.idb"
+	-@erase "$(INTDIR)\YARPBabybotHeadKin.obj"
 	-@erase "$(OUTDIR)\tracker.exe"
 
 "$(OUTDIR)" :
@@ -54,10 +55,11 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\tracker.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=utils.lib images.lib os_services.lib math.lib ace.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\tracker.pdb" /machine:I386 /out:"$(OUTDIR)\tracker.exe" /libpath:"..\..\..\..\lib\winnt" 
+LINK32_FLAGS=motorcontrol.lib utils.lib images.lib os_services.lib math.lib ace.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\tracker.pdb" /machine:I386 /out:"$(OUTDIR)\tracker.exe" /libpath:"..\..\..\..\lib\winnt" 
 LINK32_OBJS= \
 	"$(INTDIR)\attn_tracker.obj" \
-	"$(INTDIR)\ImgTrack.obj"
+	"$(INTDIR)\ImgTrack.obj" \
+	"$(INTDIR)\YARPBabybotHeadKin.obj"
 
 "$(OUTDIR)\tracker.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -94,6 +96,7 @@ CLEAN :
 	-@erase "$(INTDIR)\ImgTrack.obj"
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
+	-@erase "$(INTDIR)\YARPBabybotHeadKin.obj"
 	-@erase "$(OUTDIR)\tracker.exe"
 	-@erase "$(OUTDIR)\tracker.ilk"
 	-@erase "$(OUTDIR)\tracker.pdb"
@@ -107,10 +110,11 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\tracker.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=utilsDB.lib imagesDB.lib os_servicesDB.lib mathDB.lib aced.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"$(OUTDIR)\tracker.pdb" /debug /machine:I386 /out:"$(OUTDIR)\tracker.exe" /pdbtype:sept /libpath:"..\..\..\..\lib\winnt" 
+LINK32_FLAGS=motorcontrolDB.lib utilsDB.lib imagesDB.lib os_servicesDB.lib mathDB.lib aced.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"$(OUTDIR)\tracker.pdb" /debug /machine:I386 /out:"$(OUTDIR)\tracker.exe" /pdbtype:sept /libpath:"..\..\..\..\lib\winnt" 
 LINK32_OBJS= \
 	"$(INTDIR)\attn_tracker.obj" \
-	"$(INTDIR)\ImgTrack.obj"
+	"$(INTDIR)\ImgTrack.obj" \
+	"$(INTDIR)\YARPBabybotHeadKin.obj"
 
 "$(OUTDIR)\tracker.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -182,6 +186,11 @@ SOURCE=.\attn_tracker.cpp
 SOURCE=.\ImgTrack.cpp
 
 "$(INTDIR)\ImgTrack.obj" : $(SOURCE) "$(INTDIR)"
+
+
+SOURCE=.\YARPBabybotHeadKin.cpp
+
+"$(INTDIR)\YARPBabybotHeadKin.obj" : $(SOURCE) "$(INTDIR)"
 
 
 

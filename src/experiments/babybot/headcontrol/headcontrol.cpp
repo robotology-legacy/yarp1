@@ -25,11 +25,7 @@ int main(int argc, char* argv[])
 	char *root = GetYarpRoot();
 	char path[256];
 	
-#if defined(__WIN32__)
-	ACE_OS::sprintf (path, "%s\\conf\\babybot\\\0", root); 
-#elif defined (__QNX6__)
 	ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
-#endif
 
 	file.set(path, __filename);
 	file.get("[THREAD]", "Rate", &_head_thread_rate);
@@ -39,7 +35,7 @@ int main(int argc, char* argv[])
 						__filename);
 	thread.start();
 
-	HeadBehavior behavior(&thread, YBLabelMotor, "/headcontrol/behavior/i", YBVHeadQuit);
+	HeadBehavior behavior(&thread);
 
 	HBWaitIdle waitIdle("idle");
 	HBDirectCommandInput directCmd(YBVHeadNewCmd);

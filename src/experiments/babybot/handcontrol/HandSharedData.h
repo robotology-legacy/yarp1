@@ -3,11 +3,12 @@
 
 #include <YARPBabybothand.h>
 #include <YARPBehavior.h>
+#include <./conf/YARPMotorVocab.h>
 
 class HandSharedData: public YARPBabybotHand, public YARPBehaviorSharedData
 {
 public:
-	HandSharedData():YARPBehaviorSharedData(YBLabelMotor, "/handcontrol/behavior/o"){};
+	HandSharedData():YARPBehaviorSharedData("/handcontrol/behavior/o", YBVMotorLabel){};
 
 	bool _shaking;
 };

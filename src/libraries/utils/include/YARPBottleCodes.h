@@ -1,16 +1,9 @@
+#ifndef __YARPBOTTLECODESINC__
+#define __YARPBOTTLECODESINC__
 
-#ifndef YARPBottleCodes_INC
-#define YARPBottleCodes_INC
+#include <YARPString.h>
 
-// Automatically generated file -- do not edit directly.
-// Generated in directory /home/mb/cdp/src/YARP/conf/vocab
-
-// labels
-enum {
-	YBLabelNULL,
-	YBLabelMotor
-};
-
+// bottle types
 enum {
 	YBTypeChar,
 	YBTypeInt,
@@ -20,57 +13,28 @@ enum {
 	YBTypeString
 };
 
-enum {
-	YBVIsAlive,
-	YBVArmNewCmd,
-	YBVArmDone,
-	YBVArmRndStart,
-	YBVArmRndStop,
-	YBVArmShake,
-	YBVArmRest,
-	YBVArmRestDone,
-	YBVArmForceResting,
-	YBVArmInhibitResting,
-	YBVArmZeroG,
-	YBVArmQuit,
-	YBVHandNewCmd,
-	YBVHandDone,
-	YBVHandShake,
-	YBVHandResetEncoders,
-	YBVHandQuit,
-	YBVHeadNewCmd,
-	YBVHeadStop,
-	YBVHeadQuit,
-	YBVExit
-};
+const char * const YBLabelNULL	= "Motor";
+const char * const YBVIsAlive	= "IsAlive";
+const int __maxBottleID = 80;
 
-template <class T>
-const char *ybc_label(T x) {
-  switch (x) {
-    case YBVExit: return "exit";
-	case YBVIsAlive: return "is alive?";
-	case YBVArmNewCmd: return "arm new cmd";
-	case YBVArmDone: return "arm done";
-	case YBVArmRest: return "arm start resting sequence";
-	case YBVArmRestDone: return "arm rest done";
-	case YBVArmRndStart: return "arm rnd start";
-	case YBVArmRndStop: return "arm rnd stop";
-	case YBVArmShake: return "arm shake";
-	case YBVArmForceResting: return "arm force resting";
-	case YBVArmInhibitResting: return "arm inhibit resting";
-	case YBVArmZeroG: return "arm zero g mode";
-	case YBVArmQuit: return "arm quit";
-	case YBVHandShake: return "hand shake";
-	case YBVHandNewCmd: return "hand new cmd";
-	case YBVHandDone: return "hand done";
-	case YBVHandResetEncoders: return "hand reset encoders";
-	case YBVHandQuit: return "hand quit";
-	case YBVHeadNewCmd: return "head new cmd";
-	case YBVHeadStop: return "head stop cmd";
-	case YBVHeadQuit: return "head quit";
-  }
-  return "UNKNOWN";
-};
+class YBVocab : public ACE_String_Base<char>
+{
+public:
+	YBVocab () : ACE_String_Base<char> () {}
+	YBVocab (const char *s) : ACE_String_Base<char> (s) {}
+	YBVocab (const char *s, size_t len) : ACE_String_Base<char> (s, len) {}
+	YBVocab (const ACE_String_Base<char>& s) : ACE_String_Base<char> (s) {}
+	YBVocab (const YBVocab& s) : ACE_String_Base<char> (s) {}
+	YBVocab (char c) : ACE_String_Base<char> (c) {}
+	YBVocab (size_t len, char c = 0) : ACE_String_Base<char> (len, c) {}
 
+	~YBVocab () { clear(1); }
+
+	YBVocab& operator= (const YBVocab& s) { ACE_String_Base<char>::operator= (s); return *this; }
+	
+	YBVocab& append(const char *s) { ACE_String_Base<char>::operator+=(s); return *this; }
+	YBVocab& append(const YBVocab& s) { ACE_String_Base<char>::operator+=(s); return *this; }
+	bool empty (void) { return (length() == 0) ? true : false; }
+};
 
 #endif

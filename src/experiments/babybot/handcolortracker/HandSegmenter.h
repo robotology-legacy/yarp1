@@ -6,7 +6,7 @@
 #include <YARPPort.h>
 #include <YARPConicFitter.h>
 
-const double __scale = 2.0;
+const double __scale = 4.0;
 
 class HandSegmenter
 {
@@ -24,10 +24,20 @@ public:
 
 	void merge(const YARPImageOf<YarpPixelMono> &in, const YARPShapeEllipse &el)
 	{
-		_createMask(el, mask);
-		_filter(in, mask);
 		mapper.ReconstructColor(mask, tmpLp);
 		mapper.Logpolar2Cartesian(tmpLp, tmpImage);
+
+		int x,y;
+		mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
+		x = (x + _logpolarParams::_xsize/2)/__scale;
+		y = (_logpolarParams::_ysize/2-y)/__scale;
+		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(255, 0, 0));
+		_send();
+	}
+
+	void mergeColor(const YARPImageOf<YarpPixelBGR> &in, const YARPShapeEllipse &el)
+	{
+		mapper.Logpolar2Cartesian(in, tmpImage);
 		YARPSimpleOperation::Decimate(tmpImage, outImage, __scale, __scale);
 		int x,y;
 		mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);

@@ -100,6 +100,10 @@ PostBuild_Cmds=copy .\include\*.h ..\..\..\include	copy .\lib\winnt\utilsdb.lib 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\src\YARPBehaviorLabelConverter.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\YARPBottle.cpp
 # End Source File
 # Begin Source File
@@ -125,6 +129,10 @@ SOURCE=.\src\YARPPidFilter.cpp
 # Begin Source File
 
 SOURCE=.\include\YARPBehavior.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\YARPBehaviorLabelConverter.h
 # End Source File
 # Begin Source File
 

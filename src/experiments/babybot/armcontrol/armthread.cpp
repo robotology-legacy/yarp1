@@ -13,7 +13,7 @@
 
 ArmThread::ArmThread(int rate, const char *name, const char *ini_file):
 YARPRateThread(name, rate),
-YARPBehaviorSharedData(YBLabelMotor, "/armcontrol/behavior/o"),
+YARPBehaviorSharedData("/armcontrol/behavior/o", YBVMotorLabel),
 _tirednessControl(23000.0, 10000.0, rate, 0.5),
 _wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
@@ -21,12 +21,8 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	char *root = GetYarpRoot();
 	char path[256];
 	
-	#if defined(__WIN32__)
-		ACE_OS::sprintf (path, "%s\\conf\\babybot\\\0", root); 
-	#elif defined (__QNX6__)
-		ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
-	#endif
-
+	ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
+	
 	strncpy(_iniFile, ini_file, 80);
 	strncpy(_path, path, 256);
 	_arm_status.resize(path, ini_file);

@@ -2,7 +2,7 @@
 
 YARPBottle::YARPBottle()
 {
-	id = 0;
+	id.set(YBLabelNULL);
 	top = 0;
 	index = 0;
 	len = 0;
@@ -23,6 +23,7 @@ void YARPBottle::dump()
 
 void YARPBottle::display()
 {
+	ACE_OS::printf("%s: ", id.text.c_str());
 	rewind();
     int first = 1;
     while (more())
@@ -42,8 +43,9 @@ void YARPBottle::display()
 		  _moveOn(sizeof(int));
 	      break;
 	    case YBTypeVocab:
-	      printf("%s", ybc_label(readRawInt()));
-		  _moveOn(sizeof(int));
+	      str = (char *) readRawText();
+	      printf("<%s>", str);
+		  _moveOn(strlen(str)+1+sizeof(int));
 	      break;
 	    case YBTypeDouble:
 	      printf("%g", readRawFloat());

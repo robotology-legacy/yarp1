@@ -8,12 +8,8 @@ _handStatusOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	char *root = GetYarpRoot();
 	char path[256];
 	
-	#if defined(__WIN32__)
-		ACE_OS::sprintf (path, "%s\\conf\\babybot\\\0", root); 
-	#elif defined (__QNX6__)
-		ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
-	#endif
-
+	ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
+	
 	_cfgFile = YARPString(cfgF);
 	_path = YARPString(path);
 		

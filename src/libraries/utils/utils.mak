@@ -38,6 +38,7 @@ ALL : ".\lib\winnt\utils.lib"
 
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
+	-@erase "$(INTDIR)\YARPBehaviorLabelConverter.obj"
 	-@erase "$(INTDIR)\YARPBottle.obj"
 	-@erase "$(INTDIR)\YARPConfigFile.obj"
 	-@erase "$(INTDIR)\YARPLogFile.obj"
@@ -62,7 +63,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPConfigFile.obj" \
 	"$(INTDIR)\YARPLogFile.obj" \
 	"$(INTDIR)\YARPParseParameters.obj" \
-	"$(INTDIR)\YARPPidFilter.obj"
+	"$(INTDIR)\YARPPidFilter.obj" \
+	"$(INTDIR)\YARPBehaviorLabelConverter.obj"
 
 ".\lib\winnt\utils.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -91,6 +93,7 @@ ALL : ".\lib\winnt\utilsdb.lib"
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
+	-@erase "$(INTDIR)\YARPBehaviorLabelConverter.obj"
 	-@erase "$(INTDIR)\YARPBottle.obj"
 	-@erase "$(INTDIR)\YARPConfigFile.obj"
 	-@erase "$(INTDIR)\YARPLogFile.obj"
@@ -115,7 +118,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPConfigFile.obj" \
 	"$(INTDIR)\YARPLogFile.obj" \
 	"$(INTDIR)\YARPParseParameters.obj" \
-	"$(INTDIR)\YARPPidFilter.obj"
+	"$(INTDIR)\YARPPidFilter.obj" \
+	"$(INTDIR)\YARPBehaviorLabelConverter.obj"
 
 ".\lib\winnt\utilsdb.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -175,6 +179,12 @@ $(DS_POSTBUILD_DEP) : ".\lib\winnt\utilsdb.lib"
 
 
 !IF "$(CFG)" == "utils - Win32 Release" || "$(CFG)" == "utils - Win32 Debug"
+SOURCE=.\src\YARPBehaviorLabelConverter.cpp
+
+"$(INTDIR)\YARPBehaviorLabelConverter.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
 SOURCE=.\src\YARPBottle.cpp
 
 "$(INTDIR)\YARPBottle.obj" : $(SOURCE) "$(INTDIR)"

@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 
 	hand_thread.start();
 
-	HandBehavior _hand(&hand_thread, YBLabelMotor, "/handcontrol/behavior/i", YBVHandQuit);
+	HandBehavior _hand(&hand_thread);
 	
 	HBWaitIdle waitIdle;
 	HBWaitMotion waitMotion;

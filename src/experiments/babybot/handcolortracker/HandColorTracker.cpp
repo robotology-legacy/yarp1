@@ -103,7 +103,8 @@ int main(int argc, char* argv[])
 		// YARPImageOf<YarpPixelMono> &tmp = _blobber.getSegmented();
 
 		// _segmenter.merge(tmp, _handLocalization.query());
-		_segmenter.merge(_outSeg, _handLocalization.query());
+		// _segmenter.merge(_outSeg, _handLocalization.query());
+		_segmenter.mergeColor(_leftColored, _handLocalization.query());
 		// _segmenter.merge(_outSeg, _handLocalization.query());
 		//_segmenter.search(_leftHSV, _histo, _handLocalization.query());
 

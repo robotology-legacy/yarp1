@@ -7,11 +7,10 @@ void HBWaitIdle::handle(HeadThread *d)
 
 bool HBSimpleInput::input(YARPBottle *in, HeadThread *d)
 {
-	int k;
-	if (!in->tryReadVocab(&k))
+	if (!in->tryReadVocab(newK))
 		return false;
 	
-	if (k != key)
+	if (newK != key)
 		return false;
 
 	in->moveOn();
@@ -31,11 +30,10 @@ void HBOutputStop::output(HeadThread *d)
 
 bool HBDirectCommandInput::input(YARPBottle *in, HeadThread *d)
 {
-	int k;
-	if (!in->tryReadVocab(&k))
+	if (!in->tryReadVocab(newK))
 		return false;
 	
-	if (k != key)
+	if (newK != key)
 		return false;
 
 	in->moveOn();

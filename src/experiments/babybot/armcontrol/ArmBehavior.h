@@ -3,6 +3,7 @@
 
 #include <YARPBehavior.h>
 #include <YARPBottle.h>
+#include <./conf/YARPMotorVocab.h>
 #include "Armthread.h"
 
 class ArmThread;
@@ -12,8 +13,8 @@ typedef ArmThread ArmBehaviorData;
 class ArmBehavior: public YARPBehavior<ArmBehavior, ArmBehaviorData>
 {
 public:
-	ArmBehavior(ArmBehaviorData *d, int k, const std::string &pName, int exitCode):
-	YARPBehavior<ArmBehavior, ArmBehaviorData>(d, k, pName, exitCode){}
+	ArmBehavior(ArmBehaviorData *d):
+	YARPBehavior<ArmBehavior, ArmBehaviorData>(d, "/armcontrol/behavior/i", YBVMotorLabel, YBVArmQuit){}
 
 };
 
@@ -76,37 +77,41 @@ public:
 class ABInputCommand: public ArmBehaviorBaseInput
 {
 public:
-	ABInputCommand(int k)
+	ABInputCommand(YBVocab k)
 	{
 		key = k;
 	}
 	bool input(YARPBottle *in, ArmBehaviorData *d);
 	
-	int key;
+	YBVocab key;
+	YBVocab tmpK;
+
 };
 
 class ABInputShakeCommand: public ArmBehaviorBaseInput
 {
 public:
-	ABInputShakeCommand(int k)
+	ABInputShakeCommand(YBVocab k)
 	{
 		key = k;
 	}
 	bool input(YARPBottle *in, ArmBehaviorData *d);
 	
-	int key;
+	YBVocab key;
+	YBVocab tmpK;
 };
 
 class ABSimpleInput: public ArmBehaviorBaseInput
 {
 public:
-	ABSimpleInput(int k)
+	ABSimpleInput(YBVocab k)
 	{
 		key = k;
 	}
 	bool input(YARPBottle *in, ArmBehaviorData *d);
 	
-	int key;
+	YBVocab key;
+	YBVocab tmpK;
 };
 
 #endif

@@ -110,18 +110,30 @@ public:
 	{ 
 		_tirednessControl.inhibit(false);
 		if (_tirednessControl.forced() )
+		{
+			ARM_THREAD_DEBUG(("Free to move again\n"));
 			_tirednessControl.forceResting(false);
+		}
 		else
+		{
+			ARM_THREAD_DEBUG(("Forced to rest\n"));
 			_tirednessControl.forceResting(true);
+		}
 	}
 
 	void inhibitResting()
 	{
 		_tirednessControl.forceResting(false);
 		if (_tirednessControl.inhibited())
+		{
+			ARM_THREAD_DEBUG(("Given to rest\n"));
 			_tirednessControl.inhibit(false);
+		}
 		else
+		{
+			ARM_THREAD_DEBUG(("Not allowed to rest\n"));
 			_tirednessControl.inhibit(true);
+		}
 	}
 
 	void park(int index);	// park arm

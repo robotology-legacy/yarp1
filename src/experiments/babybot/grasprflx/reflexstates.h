@@ -1,4 +1,5 @@
 #include <YARPBehavior.h>
+#include <./conf/YARPMotorVocab.h>
 
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
@@ -12,7 +13,7 @@ class ReflexShared: public YARPBehaviorSharedData
 {
 public:
 	ReflexShared():
-	  YARPBehaviorSharedData(YBLabelMotor, "/graspreflex/o"),
+	  YARPBehaviorSharedData("/graspreflex/o", YBVMotorLabel),
 	  _touchPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 	{
 		_touchPort.Register(__inputPortName.c_str());
@@ -58,7 +59,7 @@ class GRBehavior: public YARPBehavior<GRBehavior, ReflexShared>
 {
 	public:
 		GRBehavior(ReflexShared *d):
-		YARPBehavior<GRBehavior, ReflexShared>(d, YBLabelMotor, "/graspreflex/i"){};
+		YARPBehavior<GRBehavior, ReflexShared>(d, "/graspreflex/i", YBVMotorLabel, YBVGraspRflxQuit){};
 };
 
 typedef YARPFSMStateBase<GRBehavior, ReflexShared> GRBehaviorBaseState;
@@ -86,18 +87,17 @@ public:
 class GRBSimpleInput: public GRBehaviorBaseInputState
 {
 public:
-	GRBSimpleInput(int k)
+	GRBSimpleInput(const YBVocab &k)
 	{
 		key = k;
 	}
 
 	bool input(YARPBottle *in, ReflexShared *d)
 	{
-		int k;
-		if (!in->tryReadVocab(&k))
+		if (!in->tryReadVocab(tmpK))
 			return false;
 
-		if (k != key)
+		if (tmpK != key)
 			return false;
 	
 		in->moveOn();
@@ -105,7 +105,8 @@ public:
 		return true;
 	}
 	
-	int key;
+	YBVocab key;
+	YBVocab tmpK;
 
 };
 

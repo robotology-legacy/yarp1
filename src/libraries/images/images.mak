@@ -81,7 +81,6 @@ OutDir=.\obj\Release
 $(DS_POSTBUILD_DEP) : "$(OUTDIR)\imagesx.lib"
    copy .\include\*.h ..\..\..\include
 	lib .\obj\Release\imagesx.lib ..\ipl\lib\ipl.lib /out:.\obj\Release\images.lib
-	copy .\obj\Release\images.lib ..\..\..\lib\winnt
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 
 !ELSEIF  "$(CFG)" == "images - Win32 Debug"
@@ -136,7 +135,6 @@ OutDir=.\obj\Debug
 $(DS_POSTBUILD_DEP) : "$(OUTDIR)\imagesDBx.lib"
    copy .\include\*.h ..\..\..\include
 	lib .\obj\Debug\imagesDBx.lib ..\ipl\lib\ipl.lib /out:.\obj\Debug\imagesDB.lib
-	copy .\obj\Debug\imagesDB.lib ..\..\..\lib\winnt
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 
 !ELSEIF  "$(CFG)" == "images - Win32 FakeIpl Debug"
@@ -191,7 +189,6 @@ OutDir=.\obj\Debug
 $(DS_POSTBUILD_DEP) : "$(OUTDIR)\images_fakeipl_DBx.lib"
    copy .\include\*.h ..\..\..\include
 	lib .\obj\Debug\images_fakeipl_DBx.lib .\fakeipl\fakeiplDB.lib /out:.\obj\Debug\imagesDBf.lib
-	copy .\obj\Debug\imagesDBf.lib ..\..\..\lib\winnt
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 
 !ELSEIF  "$(CFG)" == "images - Win32 FakeIpl Release"
@@ -245,7 +242,6 @@ OutDir=.\obj\Release
 $(DS_POSTBUILD_DEP) : "$(OUTDIR)\images_fakeipl_x.lib"
    copy .\include\*.h ..\..\..\include
 	lib .\obj\Release\images_fakeipl_x.lib .\fakeipl\fakeipl.lib /out:.\obj\Release\imagesf.lib
-	copy .\obj\Release\imagesf.lib ..\..\..\lib\winnt
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 
 !ENDIF 

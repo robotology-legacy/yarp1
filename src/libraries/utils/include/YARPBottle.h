@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.4 2003-10-03 16:50:38 babybot Exp $
+/// $Id: YARPBottle.h,v 1.5 2003-11-07 14:08:21 babybot Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -78,25 +78,46 @@
 #define YARPBOTTLE_INC
 
 #include <assert.h>
-#include <string.h>
 #include <stdio.h>
 
 #include <YARPPort.h>
 #include <YARPPortContent.h>
 #include <YARPBottleCodes.h>
 #include <YARPRobotMath.h>
-
-#include <vector>
+#include <YARPString.h>
+#include <YARPList.h>
 
 class YARPBottle
 {
+	struct BottleId
+	{
+		BottleId()
+		{
+			text.resize(__maxBottleID);
+		}
+
+		void set(const char *s)
+		{ 
+			text.set(s);
+			int tmp = text.length() + 1;
+			length = (tmp < __maxBottleID) ? tmp :__maxBottleID;
+		}
+		void set(const YBVocab &s)
+		{
+			text = s;
+			int tmp = text.length() + 1;
+			length = (tmp < __maxBottleID) ? tmp :__maxBottleID;
+		}
+		YBVocab text;
+		NetInt32 length;
+	};
+
 public:
 	YARPBottle();
 
 	YARPBottle& operator = (const YARPBottle& bottle)
 	{
-	  id = bottle.id;
-      len = bottle.len;
+	  id.set(bottle.id.text);
       top = bottle.top;
 	  text = bottle.text;
 	  lastReadSeq = bottle.lastReadSeq;
@@ -105,8 +126,8 @@ public:
    
     YARPVector<char>& getBuffer() { return text; }
 
-	void setID(int l) { id = l; }
-	int getID() const { return id; }
+	void setID(const YBVocab &l) { id.set(l.c_str()); }
+	const YBVocab &getID() const { return id.text; }
 	int getSize() const { return text.size(); }
   
 	// consecutive writes add data in the buffer
@@ -116,8 +137,12 @@ public:
 		{ writeRawInt(YBTypeDouble);  writeRawFloat(result); }
 	void writeText(const char *result)
 		{ writeRawInt(YBTypeString);  writeRawText(result); }
-	void writeVocab(NetInt32 result)
-		{ writeRawInt(YBTypeVocab);  writeRawInt(result); }
+
+	void writeVocab(const YBVocab &result)
+	{
+		writeRawInt(YBTypeVocab);
+		writeRawText(result.c_str());
+	}
 
 	void writeYVector(const YVector &in)
 	{
@@ -170,27 +195,27 @@ public:
 		return true;
 	}
 
-	bool tryReadText(const char *s)
+	bool tryReadText(char *s)
 	{
 		int oldIndex = index;
 		lastReadSeq = 0;
 		if (!assertType(YBTypeString))
 			return false;
 		index+=sizeof(YBTypeString);
-		s = readRawText();
+		readRawText(s);
 		index = oldIndex;
 		return true;
 	}
 
-	bool tryReadVocab(int *v)
+	bool tryReadVocab(YBVocab &v)
 	{
 		int oldIndex = index;
 		lastReadSeq = 0;
 		if (!assertType(YBTypeVocab))
 			return false;
 		index+=sizeof(YBTypeVocab);
-		*v = (int) readRawInt();
-		index = oldIndex;
+		v = YBVocab(readRawText());
+    	index = oldIndex;
 		return true;
 	}
 
@@ -212,7 +237,7 @@ public:
 			moveOn();
 	}
 	
-	void readText(const char *s)
+	void readText(char *s)
 	{
 		if (tryReadText(s))
 			moveOn();
@@ -320,6 +345,14 @@ protected:
 		return tmp;
     }
 	
+	void readRawText(char *s)
+    {
+		NetInt32 len = readRawInt();
+		index += sizeof(int);
+		memcpy(s, readRawBlock(len), len);
+		index -= sizeof(int);
+    }
+
 	void writeRawText(const char *text)
     {
 		writeRawInt(strlen(text)+1);
@@ -337,7 +370,7 @@ protected:
     }
 
 	YARPVector<char> text;
-	NetInt32 id;
+	BottleId id;
 	NetInt32 len;
 	NetInt32 top;
 	int index;

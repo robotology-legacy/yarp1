@@ -16,11 +16,10 @@ void HBShakeCmdOutput::output(HandBehaviorData *d)
 
 bool HBInputCommand::input(YARPBottle *in, HandBehaviorData *d)
 {
-	int k;
-	if (!in->tryReadVocab(&k))
+	if (!in->tryReadVocab(tmpK))
 		return false;
 	
-	if (k != key)
+	if (tmpK != key)
 		return false;
 
 	in->moveOn();
@@ -34,11 +33,10 @@ bool HBInputCommand::input(YARPBottle *in, HandBehaviorData *d)
 
 bool HBInputReset::input(YARPBottle *in, HandBehaviorData *d)
 {
-	int k;
-	if (!in->tryReadVocab(&k))
+	if (!in->tryReadVocab(tmpK))
 		return false;
 	
-	if (k != key)
+	if (tmpK != key)
 		return false;
 
 	in->moveOn();
@@ -51,11 +49,10 @@ bool HBInputReset::input(YARPBottle *in, HandBehaviorData *d)
 
 bool HBShakeCmdInput::input(YARPBottle *in, HandBehaviorData *d)
 {
-	int k;
-	if (!in->tryReadVocab(&k))
+	if (!in->tryReadVocab(tmpK))
 		return false;
 	
-	if (k != key)
+	if (tmpK != key)
 		return false;
 
 	in->moveOn();
@@ -65,11 +62,10 @@ bool HBShakeCmdInput::input(YARPBottle *in, HandBehaviorData *d)
 
 bool HBCheckMotionDone::input(YARPBottle *in, HandBehaviorData *d)
 {
-	int k;
-	if (!in->tryReadVocab(&k))
+	if (!in->tryReadVocab(tmpK))
 		return false;
 
-	if (k != key)
+	if (tmpK != key)
 		return false;
 	
 	in->moveOn();

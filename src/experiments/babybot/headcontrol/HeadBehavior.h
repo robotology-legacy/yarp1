@@ -3,16 +3,16 @@
 
 #include <YARPBehavior.h>
 #include <YARPBottle.h>
+#include <./conf/YARPMotorVocab.h>
 #include "HeadThread.h"
 
 class HeadThread;
-
+ 
 class HeadBehavior: public YARPBehavior<HeadBehavior, HeadThread>
 {
 public:
-	HeadBehavior(HeadThread *d, int k, const std::string &pName, int exitCode):
-	YARPBehavior<HeadBehavior, HeadThread>(d, k, pName, exitCode){}
-
+	HeadBehavior(HeadThread *d):
+	YARPBehavior<HeadBehavior, HeadThread>(d, "/headcontrol/behavior/i", YBVMotorLabel, YBVHeadQuit){}
 };
 
 typedef YARPFSMStateBase<HeadBehavior, HeadThread> HeadBehaviorStateBase;
@@ -47,25 +47,27 @@ public:
 class HBSimpleInput: public HeadBehaviorBaseInput
 {
 public:
-	HBSimpleInput(int k)
+	HBSimpleInput(const YBVocab &k)
 	{
 		key = k;
 	}
 	bool input(YARPBottle *in, HeadThread *d);
 	
-	int key;
+	YBVocab key;
+	YBVocab newK;
 };
 
 class HBDirectCommandInput: public HeadBehaviorBaseInput
 {
 public:
-	HBDirectCommandInput(int k)
+	HBDirectCommandInput(const YBVocab &k)
 	{
 		key = k;
 	}
 	bool input(YARPBottle *in, HeadThread *d);
 	
-	int key;
+	YBVocab key;
+	YBVocab newK;
 	YVector _cmd;
 };
 

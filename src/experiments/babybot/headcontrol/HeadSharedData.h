@@ -9,7 +9,7 @@
 class HeadSharedData: public YARPBabybotHead, public YARPBehaviorSharedData
 {
 public:
-	HeadSharedData():YARPBehaviorSharedData(YBLabelMotor, "/headcontrol/behavior/o"){};
+	HeadSharedData():YARPBehaviorSharedData("/headcontrol/behavior/o", "Motor"){};
 
 	void initialize(const YARPString &path, const YARPString &iniFile)
 	{

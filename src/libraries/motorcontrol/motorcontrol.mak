@@ -40,6 +40,7 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\YARPBabybotArm.obj"
 	-@erase "$(INTDIR)\YARPBabybotInertialSensor.obj"
+	-@erase "$(INTDIR)\YARPKinematics.obj"
 	-@erase "$(INTDIR)\YARPTrajectoryGen.obj"
 	-@erase ".\lib\winnt\motorcontrol.lib"
 
@@ -58,7 +59,8 @@ LIB32_FLAGS=/nologo /out:".\lib\winnt\motorcontrol.lib"
 LIB32_OBJS= \
 	"$(INTDIR)\YARPTrajectoryGen.obj" \
 	"$(INTDIR)\YARPBabybotArm.obj" \
-	"$(INTDIR)\YARPBabybotInertialSensor.obj"
+	"$(INTDIR)\YARPBabybotInertialSensor.obj" \
+	"$(INTDIR)\YARPKinematics.obj"
 
 ".\lib\winnt\motorcontrol.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -89,6 +91,7 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.pdb"
 	-@erase "$(INTDIR)\YARPBabybotArm.obj"
 	-@erase "$(INTDIR)\YARPBabybotInertialSensor.obj"
+	-@erase "$(INTDIR)\YARPKinematics.obj"
 	-@erase "$(INTDIR)\YARPTrajectoryGen.obj"
 	-@erase ".\lib\winnt\motorcontroldb.lib"
 
@@ -107,7 +110,8 @@ LIB32_FLAGS=/nologo /out:".\lib\winnt\motorcontroldb.lib"
 LIB32_OBJS= \
 	"$(INTDIR)\YARPTrajectoryGen.obj" \
 	"$(INTDIR)\YARPBabybotArm.obj" \
-	"$(INTDIR)\YARPBabybotInertialSensor.obj"
+	"$(INTDIR)\YARPBabybotInertialSensor.obj" \
+	"$(INTDIR)\YARPKinematics.obj"
 
 ".\lib\winnt\motorcontroldb.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -169,6 +173,12 @@ $(DS_POSTBUILD_DEP) : ".\lib\winnt\motorcontroldb.lib"
 
 
 !IF "$(CFG)" == "motorcontrol - Win32 Release" || "$(CFG)" == "motorcontrol - Win32 Debug"
+SOURCE=.\common\YARPKinematics.cpp
+
+"$(INTDIR)\YARPKinematics.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
 SOURCE=.\common\YARPTrajectoryGen.cpp
 
 "$(INTDIR)\YARPTrajectoryGen.obj" : $(SOURCE) "$(INTDIR)"

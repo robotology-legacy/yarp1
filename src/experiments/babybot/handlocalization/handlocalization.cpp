@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 	_findHand._threshold = (unsigned char) thr;
 	_findHand._alpha = alpha;
 	
-	HLBehavior _hlbehavior(&_findHand, YBLabelMotor, "/handlocalization/behavior/i");
+	HLBehavior _hlbehavior(&_findHand);
 	HLDoMotion doMotion;
 	HLFind find;
 	HLShakeStart startFingers(YBVHandShake);

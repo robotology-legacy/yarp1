@@ -2,6 +2,7 @@
 #define __HAND_BEHAVEIORS__
 
 #include <YARPBehavior.h>
+#include <./conf/YARPMotorVocab.h>
 #include "HandThread.h"
 
 typedef HandThread HandBehaviorData;
@@ -9,8 +10,8 @@ typedef HandThread HandBehaviorData;
 class HandBehavior: public YARPBehavior<HandBehavior, HandThread>
 {
 	public:
-		HandBehavior(HandBehaviorData *d, int k, const std::string &pName, int exit):
-		YARPBehavior<HandBehavior, HandBehaviorData>(d, k, pName, exit){};
+		HandBehavior(HandBehaviorData *d):
+		YARPBehavior<HandBehavior, HandBehaviorData>(d, "/handcontrol/behavior/i", YBVMotorLabel, YBVHandQuit){};
 };
 
 typedef YARPFSMStateBase<HandBehavior, HandBehaviorData> HandBehaviorStateBase;
@@ -57,7 +58,8 @@ public:
 	}
 	bool input(YARPBottle *in, HandBehaviorData *d);
 	
-	int key;
+	YBVocab key;
+	YBVocab tmpK;
 };
 
 
@@ -70,32 +72,35 @@ public:
 	}
 	bool input(YARPBottle *in, HandBehaviorData *d);
 	
-	int key;
+	YBVocab key;
+	YBVocab tmpK;
 };
 
 class HBShakeCmdInput: public HandBehaviorBaseInput
 {
 public:
-	HBShakeCmdInput(int k)
+	HBShakeCmdInput(const YBVocab &k)
 	{
 		key = k;
 	}
 	bool input(YARPBottle *in, HandBehaviorData *d);
 		
-	int key;
+	YBVocab key;
+	YBVocab tmpK;
 };
 
 class HBCheckMotionDone: public HandBehaviorBaseInput
 {
 public:
-	HBCheckMotionDone(int k)
+	HBCheckMotionDone(const YBVocab &k)
 	{
 		key = k;
 	}
 
 	bool input(YARPBottle *in, HandBehaviorData *d);
 	
-	int key;
+	YBVocab key;
+	YBVocab tmpK;
 
 };
 

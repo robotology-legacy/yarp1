@@ -1,14 +1,16 @@
-//
+#ifndef __HLBEHAVIORHH__
+#define __HLBEHAVIORHH__
 
 #include <YARPBehavior.h>
+#include <./conf/YARPMotorVocab.h>
 
 #include "FindHand.h"
 
 class HLBehavior: public YARPBehavior<HLBehavior, FindHand>
 {
 	public:
-		HLBehavior(FindHand *d, int k, const std::string &pName):
-		YARPBehavior<HLBehavior, FindHand>(d, k, pName){};
+		HLBehavior(FindHand *d):
+		YARPBehavior<HLBehavior, FindHand>(d, "/handlocalization/behavior/i", YBVMotorLabel, YBVHandLocQuit){};
 };
 
 typedef YARPFSMStateBase<HLBehavior, FindHand> HLBehaviorStateBase;
@@ -36,17 +38,16 @@ public:
 class HLShakeStart: public HLBehaviorBaseInput
 {
 public:
-	HLShakeStart(int k)
+	HLShakeStart(const YBVocab &k)
 	{
 		key = k;
 	}
 	bool input(YARPBottle *in, FindHand *d)
 	{
-		int k;
-		if (!in->tryReadVocab(&k))
+		if (!in->tryReadVocab(tmpK))
 			return false;
 
-		if (k != key)
+		if (tmpK != key)
 			return false;
 	
 		in->moveOn();
@@ -55,23 +56,23 @@ public:
 
 		return true;
 	}
-	int key;
+	YBVocab key;
+	YBVocab tmpK;
 };
 
 class HLShakeStop: public HLBehaviorBaseInput
 {
 public:
-	HLShakeStop(int k)
+	HLShakeStop(const YBVocab &k)
 	{
 		key = k;
 	}
 	bool input(YARPBottle *in, FindHand *d)
 	{
-		int k;
-		if (!in->tryReadVocab(&k))
+		if (!in->tryReadVocab(tmpK))
 			return false;
 
-		if (k != key)
+		if (tmpK != key)
 			return false;
 	
 		in->moveOn();
@@ -80,5 +81,9 @@ public:
 
 		return true;
 	}
-	int key;
+
+	YBVocab key;
+	YBVocab tmpK;
 };
+
+#endif
