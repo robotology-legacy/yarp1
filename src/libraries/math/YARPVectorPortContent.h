@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPVectorPortContent.h,v 1.5 2003-07-17 15:59:10 gmetta Exp $
+/// $Id: YARPVectorPortContent.h,v 1.6 2003-07-22 15:14:32 babybot Exp $
 ///
 ///
 
@@ -214,7 +214,7 @@ public:
 	YARPOutputPortOf<YMatrix>(int n_service_type = DEFAULT_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicOutputPort<YARPMatrixPortContent> (n_service_type, n_protocol_type) {}
 
-	virtual ~YARPInputPortOf<YMatrix> () { ((Port *)system_resource)->End(); }
+	virtual ~YARPOutputPortOf<YMatrix> () { ((Port *)system_resource)->End(); }
 };
 
 
