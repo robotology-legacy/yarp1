@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.23 2003-07-02 23:03:07 babybot Exp $
+/// $Id: main.cpp,v 1.24 2003-07-15 14:20:39 beltran Exp $
 ///
 ///
 
@@ -432,7 +432,7 @@ int _runAsLogpolar (void)
 	
 		/// fills the actual image buffer.
 #ifdef __QNX6__
-		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _size*_size*3);
+		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _xsize*_xsize*3);
 #else
 		/// fills the actual image buffer.
 		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _xsize);
