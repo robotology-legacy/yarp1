@@ -134,6 +134,10 @@ SOURCE=.\include\YARPLogFile.h
 
 SOURCE=.\include\YARPParseParameters.h
 # End Source File
+# Begin Source File
+
+SOURCE=..\motorcontrol\babybot\YARPRepeater.h
+# End Source File
 # End Group
 # End Target
 # End Project

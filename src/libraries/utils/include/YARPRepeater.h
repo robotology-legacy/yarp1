@@ -59,181 +59,58 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.2 2003-07-09 17:55:14 babybot Exp $
+/// $Id: YARPRepeater.h,v 1.1 2003-07-09 17:55:14 babybot Exp $
 ///  
-/// Behavior class -- by nat July 2003
+/// very simple class to handle config files... by nat May 2003
 //
 
-#ifndef __YARPBEHAVIORCLASS__
-#define __YARPBEHAVIORCLASS__
+#ifndef __YARPREPEATER__
+#define __YARPREPEATER__
 
-#include <YARPFSM.h>
-#include <YARPPort.h>
 #include <YARPThread.h>
+#include <YARPPort.h>
 #include <string>
 
-template <class OUT_DATA>
-class YARPBehaviorSharedData
-{
-	public:
-		YARPBehaviorSharedData(std::string portName):
-		  _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
-		  {
-			  _outPort.Register(portName.c_str());
-		  };
-
-		  void send(OUT_DATA &d)
-		  {
-			  printf("Sending data\n");
-			  memcpy(_outPort.Content(), d, sizeof(int)*2);
-			  _outPort.Write();
-		  }
-
-	YARPOutputPortOf<OUT_DATA> _outPort;
-};
-
-template <class MY_BEHAVIOR, class SHARED_DATA>
-class YARPBehavior: public YARPThread , public YARPFSM<MY_BEHAVIOR, SHARED_DATA>
+template <class DATATYPE>
+class YARPRepeater: public YARPThread
 {
 public:
-	YARPBehavior(SHARED_DATA *s): YARPThread(), YARPFSM<MY_BEHAVIOR, SHARED_DATA>(s)
+	YARPRepeater(std::string inPortName, std::string outPortName, int inputProtocol, int outputProtocol):
+		_inputPort(YARPInputPort::DEFAULT_BUFFERS, inputProtocol),
+		_outputPort(YARPOutputPort::DEFAULT_OUTPUTS, outputProtocol)
 	{
+		_inputPort.Register(inPortName.c_str());
+		_outputPort.Register(outPortName.c_str());
+
 		YARPThread::Begin();
 	}
 
-	~YARPBehavior()
+	~YARPRepeater()
 	{
-		YARPThread::End();	// check this
+		YARPThread::End();
 	}
 
 	virtual void Body(void)
 	{
 		while(!IsTerminated())
 		{
-			// handle stuff
-			_stopEvent.wait();
-			doYourDuty();
+			_inputPort.Read();
+
+
+			// later make this general !
+			memcpy(_tmp, _inputPort.Content(), sizeof(_tmp));
+			memcpy(_outputPort.Content(), _tmp, sizeof(_tmp));
+			////////////////////////////////////
+
+			_outputPort.Write();
 		}
 	}
-	
-	void pulse(YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *s)
-	{
-		// signal pulse event
-		if (checkState(s))
-			_stopEvent.signal();
-	}
 
-	ACE_Auto_Event _stopEvent;
+	YARPInputPortOf<DATATYPE> _inputPort;
+	YARPOutputPortOf<DATATYPE> _outputPort;
+
+	DATATYPE _tmp;
 };
 
-template <class MY_BEHAVIOR, class SHARED_DATA>
-class YARPBehaviorMsgHandler
-{
-public:
-	YARPBehaviorMsgHandler(MY_BEHAVIOR *fsm, int k, std::string pName):
-	_inport(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
-	{
-		_fsm = fsm;
-		_key = k;
-		init(pName);
-	}
+#endif;
 
-	void init(std::string name)
-	{
-		_inport.Register(name.c_str());	// register port
-	}
-	
-	void handle()
-	{
-		_inport.Read();
-		// read some data
-		memcpy(_data, _inport.Content(), sizeof(int) * 2);
-
-		_parse(_data);
-	}
-
-	void _parse(int *d)
-	{
-		if (d[0] != _key)
-		{
-			// this is not for you, return
-			return;
-		}
-
-		// handle message
-		ENTRY_HANDLER_IT it;
-		it = _table.begin();
-		while(it != _table.end())
-		{
-			if (it->key == d[1])
-				it->function(_fsm);
-			it++;
-		}
-
-		// handle signals
-		ENTRY_SIGNALS_IT is;
-		is = _signals.begin();
-		while(is != _signals.end())
-		{
-			if (is->key == d[1])
-				is->function(_fsm, is->state);
-			is++;
-		}
-	}
-
-	void add(int k, void (*f)(MY_BEHAVIOR *fsm))
-	{
-		entryHandler tmp;
-		tmp.function = f;
-		tmp.key = k;
-
-		_table.push_back(tmp);
-	}
-	
-	void add(int k, void (*f)(MY_BEHAVIOR * , YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *), YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *s)
-	{
-		sigHandler tmp;
-		tmp.function = f;
-		tmp.state = s;
-		tmp.key = k;
-
-		_signals.push_back(tmp);
-	}
-
-
-	MY_BEHAVIOR *_fsm;
-	YARPInputPortOf<int [2]> _inport;
-	int _data[2];
-
-	struct entryHandler
-	{
-		int key;
-		void (*function)(MY_BEHAVIOR *);
-	};
-
-	struct sigHandler
-	{
-		int key;
-		YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *state;
-		void (*function)(MY_BEHAVIOR *, YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *);
-	};
-	
-	typedef std::list<entryHandler> ENTRY_HANDLER_LIST;
-	typedef ENTRY_HANDLER_LIST::iterator ENTRY_HANDLER_IT;
-
-	typedef std::list<sigHandler> ENTRY_SIGNALS;
-	typedef ENTRY_SIGNALS::iterator ENTRY_SIGNALS_IT;
-
-	ENTRY_HANDLER_LIST _table;
-	ENTRY_SIGNALS	   _signals;
-
-	int _key;
-};
-
-template <class MY_BEHAVIOR, class SHARED_DATA>
-void sigFunction(YARPBehavior<MY_BEHAVIOR, SHARED_DATA> *fsm, YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *s)
-{
-	fsm->pulse(s);
-};
-
-#endif

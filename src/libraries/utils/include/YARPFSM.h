@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPFSM.h,v 1.3 2003-07-08 17:41:13 babybot Exp $
+/// $Id: YARPFSM.h,v 1.4 2003-07-09 17:55:14 babybot Exp $
 ///  
 /// Finite State Machine class -- by nat July 2003
 //
@@ -143,7 +143,7 @@ public:
 	}
 
 	// virtual functions
-	virtual void handle(void *) = 0;
+	virtual void handle(FSM_SHARED_DATA *) = 0;
 
 	void setDefault(YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *n)
 	{ _default = n; }
