@@ -1,4 +1,4 @@
-// $Id: YARPJR3DeviceDriver.cpp,v 1.1 2003-06-20 14:33:51 natta Exp $
+// $Id: YARPJR3DeviceDriver.cpp,v 1.2 2003-06-20 16:58:35 babybot Exp $
 
 #include "YARPJR3DeviceDriver.h"
 
@@ -8,10 +8,9 @@ int YARPJR3DeviceDriver::open(void *d)
 {
 	JR3OpenParameters *tmp = (JR3OpenParameters *) d;
 
-	p_num = tmp->_nump;
+	p_num = (tmp->_nump-1);
 	
-	int a = init_jr3(tmp->_vendorID, tmp->_deviceID, 1, (tmp->_nump-1), 1);
-
+	int a = init_jr3(tmp->_vendorID, tmp->_deviceID, 1, tmp->_nump, 1);
 	return a;
 }
 

@@ -5,7 +5,7 @@
 #include <ace/config.h>
 #include <ace/OS.h>
 
-#include <YARPThread.h>
+#include <YARPRateThread.h>
 #include <YARPSemaphore.h>
 #include <YARPScheduler.h>
 #include <YARPTime.h>
@@ -19,26 +19,65 @@ int ParseParams (int argc, char *argv[])
 	return YARP_OK; 
 }
 
+class Thread : public YARPRateThread
+{
+public:
+	Thread():YARPRateThread("force", 100)
+	{
+		_forces = new double[3];
+		_torques = new double [3];
+	}
+	~Thread()
+	{
+		delete [] _forces;
+		delete [] _torques;
+	}
+
+	void doInit()
+	{
+		fs.initialize();
+	}
+
+	void doLoop()
+	{
+	
+		fs.read(_forces, _torques);
+		for(int i = 0; i < 3; i++)
+			cout << _forces[i] << '\t';
+
+		cout << '\n';
+	}
+
+	void doRelease()
+	{
+		fs.uninitialize();
+	}
+
+	
+	YARPBabybotForceSensor fs;
+	double *_forces;
+	double *_torques;
+};
+
 
 int main (int argc, char *argv[])
 {
 	YARPScheduler::setHighResScheduling ();
 
-	double force[3];
-	double torque[3];
+	Thread _thread;
 
-	YARPBabybotForceSensor fs;
-
-	fs.initialize();
+	_thread.start();
 	
-	while(true)
+	char c;
+	cout << "Type 'e' to exit\n";
+	while(cin >> c)
 	{
-		fs.read(force, torque);
-		ACE_OS::sleep(40*1000);
+		cout << "Type 'e' to exit\n";
+		if (c == 'e')
+			break;
 	}
-
-	fs.uninitialize();
-
+	
+	_thread.terminate();
 	return YARP_OK;
 }
 

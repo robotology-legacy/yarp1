@@ -27,15 +27,14 @@ class YARPForceSensor
 		{ return _adapter.uninitialize(); }
 		int read(double *f, double *t)
 		{	
-			short r[6];
 			_adapter.IOCtl(CMDJR3ReadData, _reading);
 			int i = 0;
 			int j = 0;
 			for(i = 0; i<3; i++)
 			{
-				f[i] = (double) r[j];
+				f[i] = (double) _reading[j];
 				j++;
-				t[i] = (double) r[j];
+				t[i] = (double) _reading[j];
 				j++;
 			}
 			return YARP_OK;
