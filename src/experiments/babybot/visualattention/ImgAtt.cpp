@@ -951,6 +951,11 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, int num, YARPBox* boxes)
 	DBGPF1 ACE_OS::printf(">>> Filtering the images to remove some noise\n");
 	//ACE_OS::sprintf(savename, "./osrc.ppm");
 	//YARPImageFile::Write(savename, src);
+
+	// with '3' the segmentation is worse
+	iplRShiftS(src, src, 2);
+	iplLShiftS(src, src, 2);
+	
 	iplColorMedianFilter(src, tmpBGR1, 3, 3, 1, 1); // better in the perifery, worse in fovea
 	iplColorMedianFilter(tmpBGR1, src, 3, 3, 1, 1); // better in the perifery, worse in fovea
 	//src=tmpBGR1;
@@ -961,10 +966,7 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, int num, YARPBox* boxes)
 	findBlobs(num, boxes);
 	quantizeColors();
 	
-	/*ACE_OS::sprintf(savename, "./src.ppm");
-	YARPImageFile::Write(savename, src);
-	saveImages();*/
-
+	saveImages(src);
 	
 	/*MinMax(edge, mn, mx);
 	FullRange(edge, edge, mn, mx);
@@ -1286,7 +1288,7 @@ void YARPImgAtt::findBlobs(int num, YARPBox* boxes)
 	//rain.SortAndComputeSalience(200, max_tag);
 	//rain.SortAndComputeSalience(100, max_tag);
 	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
-	//rain.IOR(tagged, boxes, num);
+	rain.IOR(tagged, boxes, num);
 	
 	rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
 	//pOldZdi=((IplImage *)tmp1)->roi;
@@ -1378,31 +1380,39 @@ void YARPImgAtt::updateIORTable(const int num, YARPBox* boxes)
 }
 
 
-void YARPImgAtt::saveImages()
+void YARPImgAtt::saveImages(YARPImageOf<YarpPixelBGR> &src)
 {
-	ACE_OS::sprintf(savename, "./r.ppm");
+	char *root = GetYarpRoot();
+	char path[256];
+	
+	ACE_OS::sprintf (path, "%s/zgarbage/va/", root); 
+	
+	ACE_OS::sprintf(savename, "%ssrc.ppm", path);
+	YARPImageFile::Write(savename, src);
+	
+	ACE_OS::sprintf(savename, "%sr.ppm", path);
 	YARPImageFile::Write(savename, r1);
-	ACE_OS::sprintf(savename, "./g.ppm");
+	ACE_OS::sprintf(savename, "%sg.ppm", path);
 	YARPImageFile::Write(savename, g1);
-	ACE_OS::sprintf(savename, "./b.ppm");
+	ACE_OS::sprintf(savename, "%sb.ppm", path);
 	YARPImageFile::Write(savename, b1);
-	ACE_OS::sprintf(savename, "./i.ppm");
+	ACE_OS::sprintf(savename, "%si.ppm", path);
 	YARPImageFile::Write(savename, i1);
 
-	ACE_OS::sprintf(savename, "./rc.ppm");
+	ACE_OS::sprintf(savename, "%src.ppm", path);
 	YARPImageFile::Write(savename, r1_g_c);
-	ACE_OS::sprintf(savename, "./gc.ppm");
+	ACE_OS::sprintf(savename, "%sgc.ppm", path);
 	YARPImageFile::Write(savename, g1_g_c);
-	ACE_OS::sprintf(savename, "./bc.ppm");
+	ACE_OS::sprintf(savename, "%sbc.ppm", path);
 	YARPImageFile::Write(savename, b1_g_c);
-	//ACE_OS::sprintf(savename, "./ic.ppm");
+	//ACE_OS::sprintf(savename, "%sic.ppm", path);
 	//YARPImageFile::Write(savename, i1_g_c);
 
 	//ACE_OS::sprintf(savename, "./rs.ppm");
 	//YARPImageFile::Write(savename, r1_g_s);
 	//ACE_OS::sprintf(savename, "./gs.ppm");
 	//YARPImageFile::Write(savename, g1_g_s);
-	ACE_OS::sprintf(savename, "./ys.ppm");
+	ACE_OS::sprintf(savename, "%sys.ppm", path);
 	YARPImageFile::Write(savename, y1_g_s);
 	//ACE_OS::sprintf(savename, "./is.ppm");
 	//YARPImageFile::Write(savename, i1_g_s);
@@ -1416,33 +1426,33 @@ void YARPImgAtt::saveImages()
 	//ACE_OS::sprintf(savename, "./or3.ppm");
 	//YARPImageFile::Write(savename, or_r[3]);
 	
-	ACE_OS::sprintf(savename, "./or0.ppm");
+	ACE_OS::sprintf(savename, "%sor0.ppm", path);
 	YARPImageFile::Write(savename, or[0]);
-	ACE_OS::sprintf(savename, "./or1.ppm");
+	ACE_OS::sprintf(savename, "%sor1.ppm", path);
 	YARPImageFile::Write(savename, or[1]);
-	ACE_OS::sprintf(savename, "./or2.ppm");
+	ACE_OS::sprintf(savename, "%sor2.ppm", path);
 	YARPImageFile::Write(savename, or[2]);
 	//ACE_OS::sprintf(savename, "./or3.ppm");
 	//YARPImageFile::Write(savename, or[3]);
 
-	ACE_OS::sprintf(savename, "./edge.ppm");
+	ACE_OS::sprintf(savename, "%sedge.ppm", path);
 	YARPImageFile::Write(savename, edge);
 	//ACE_OS::sprintf(savename, "./edge2.ppm");
 	//YARPImageFile::Write(savename, edge2);
 	
-	ACE_OS::sprintf(savename, "./rg.ppm");
+	ACE_OS::sprintf(savename, "%srg.ppm", path);
 	YARPImageFile::Write(savename, rg);
-	ACE_OS::sprintf(savename, "./gr.ppm");
+	ACE_OS::sprintf(savename, "%sgr.ppm", path);
 	YARPImageFile::Write(savename, gr);
-	ACE_OS::sprintf(savename, "./by.ppm");
+	ACE_OS::sprintf(savename, "%sby.ppm", path);
 	YARPImageFile::Write(savename, by);
 	/*ACE_OS::sprintf(savename, "./ii.ppm");
 	YARPImageFile::Write(savename, ii);*/
 
 	/*ACE_OS::sprintf(savename, "./comb.ppm");
 	YARPImageFile::Write(savename, comb);*/
-	ACE_OS::sprintf(savename, "./out.ppm");
+	ACE_OS::sprintf(savename, "%sout.ppm", path);
 	YARPImageFile::Write(savename, out);
-	ACE_OS::sprintf(savename, "./blob_fov.ppm");
+	ACE_OS::sprintf(savename, "%sblob_fov.ppm", path);
 	YARPImageFile::Write(savename, blobFov);
 }

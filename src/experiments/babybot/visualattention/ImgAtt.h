@@ -250,10 +250,10 @@ public:
 	YARPImageOf<YarpPixelMono>& Saliency() { return out; }
 	YARPImageOf<YarpPixelMono>& BlobFov() { return blobFov; }
 	void GetTarget(int &x, int &y);
-	void saveImages();
+	void saveImages(YARPImageOf<YarpPixelBGR> &src);
 	void setWatershedTh(YarpPixelMono th) { rain.setThreshold(th); }
 
-	void setParameters(const YarpPixelMono sRG, const YarpPixelMono sGR, const YarpPixelMono sBY, const float sBU, const float sTD)
+	inline void setParameters(const YarpPixelMono sRG, const YarpPixelMono sGR, const YarpPixelMono sBY, const float sBU, const float sTD)
 	{
 		searchRG=sRG;
 		searchGR=sGR;
@@ -262,6 +262,7 @@ public:
 		salienceBU=sBU;
 		salienceTD=sTD;
 	}
+	inline void setPosition(const YVector &p) { rain.setPosition(p); }
 	void updateIORTable(const int num, YARPBox* boxes);
 	void resetIORTable(const int num, YARPBox* boxes);
 };

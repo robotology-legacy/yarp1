@@ -1109,7 +1109,7 @@ void YARPWatershed::IOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int n
 			int r, c;
 			int x, y;
 			//TO DO: transform to "local" axis
-			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT, boxes[i].v, x, y);
+			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].v, x, y);
 			m_lp.Cartesian2Logpolar(x, y, r, c);
 			YarpPixelInt index=tagged(c, r);
 			cout<<"box #"<<i<<endl;

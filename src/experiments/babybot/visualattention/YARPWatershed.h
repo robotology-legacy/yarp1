@@ -153,6 +153,8 @@ public:
 
 	void maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox* boxes, int num);
 	void maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox &box);
+
+	void setPosition(const YVector &p) { _gaze.update(p); }
 };
 
 #endif

@@ -86,7 +86,8 @@
 #include <YARPImages.h>
 #include <YARPLogpolar.h>
 
-#include <YARPMath.h>
+#include <YARPMatrix.h>
+#include <YARPVectorPortContent.h>
 
 #include "ImgAtt.h"
 
@@ -99,12 +100,14 @@ using namespace _logpolarParams;
 
 ///
 /// global params.
-char _name1[512];
-char _name2[512];
-char _name3[512];
-char _name4[512];
-char _name5[512];
-char _netname[512];
+char _inName1[512];
+char _inName2[512];
+char _inName3[512];
+char _outName1[512];
+char _outName2[512];
+char _outName3[512];
+char _netname0[512];
+char _netname1[512];
 
 YARPImgAtt att_mod(_stheta, _srho, _sfovea);
 
@@ -127,13 +130,14 @@ void mainthread::Body (void)
 	YARPImageOf<YarpPixelBGR> colored_s;
 	YARPImageOf<YarpPixelBGR> colored_u;
 	YARPImageOf<YarpPixelBGR> col_cart;
-	YARPInputPortOf<YARPGenericImage> inport(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	DeclareOutport(imageOut);
-	DeclareOutport(imageOut2);
-	YARPOutputPortOf<YVector> out_point;
-	YARPInputPortOf<YARPBottle> _controlPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-	YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
-
+	YARPInputPortOf<YARPGenericImage> inImage(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	YARPInputPortOf<YARPBottle> inBottle(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+	YARPInputPortOf<YVector> inVector;
+	DeclareOutport(outImage);
+	DeclareOutport(outImage2);
+	YARPOutputPortOf<YARPBottle> outBottle(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
+	//YARPOutputPortOf<YVector> out_point;
+	
 	YARPLogpolar mapper;
 
 	double start = 0;
@@ -173,11 +177,12 @@ void mainthread::Body (void)
 
 	//YARPConvKernelFile::Write("./prewitt.yck\0",prewitt);
 	
-	imageOut.Register(_name1, _netname);
-	inport.Register(_name2, _netname);
-	imageOut2.Register(_name3, _netname);
-	_controlPort.Register(_name4, _netname);
-	_outPort.Register(_name5, _netname);
+	inImage.Register(_inName1, _netname1);
+	inBottle.Register(_inName2, _netname0);
+	inVector.Register(_inName3, _netname0);
+	outImage.Register(_outName1, _netname1);
+	outImage2.Register(_outName2, _netname1);
+	outBottle.Register(_outName3, _netname0);
 
 	int frame_no = 0;
 
@@ -185,7 +190,7 @@ void mainthread::Body (void)
 	
 	pos_max = new YARPBox[numBoxes];
 
-	if (!inport.Read())
+	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n");
 
 	//imgOld.Refer(inport.Content());
@@ -200,11 +205,11 @@ void mainthread::Body (void)
 		
 		////////// HANDLE MESSAGES
 		////// wait untill start message is received
-		if (_controlPort.Read(0))
+		if (inBottle.Read(0))
 		{
 			// parse message
 			ACE_OS::printf("Port received:");
-			YARPBottle &bottle = _controlPort.Content();
+			YARPBottle &bottle = inBottle.Content();
 			bottle.display();
 			YBVocab message;
 			if (bottle.tryReadVocab(message))
@@ -257,16 +262,20 @@ void mainthread::Body (void)
 		{
 			tmpBottle.reset();
 
-			if (inport.Read())
+			inVector.Read();
+			att_mod.setPosition(inVector.Content());
+			
+			if (inImage.Read())
 				cur = YARPTime::GetTimeAsSeconds();
 			else
 				ACE_OS::printf(">>> ERROR: frame not read\n");
 		
-			img.Refer(inport.Content());
+			img.Refer(inImage.Content());
 			DBGPF1 ACE_OS::printf(">>> got a frame\n");
 
-			iplRShiftS(img, img, 1);
-			iplLShiftS(img, img, 1);
+			// with '3' the segmentation is worse
+			//iplRShiftS(img, img, 2);
+			//iplLShiftS(img, img, 2);
 
 			/*iplRShiftS(img, img, 1);
 			iplAdd(img, imgOld, imgOld);*/
@@ -328,19 +337,19 @@ void mainthread::Body (void)
 			ACE_OS::sprintf(savename, "./ellipse.ppm");
 			YARPImageFile::Write(savename, out3);*/
 
-			imageOut.Content().Refer(out);
-			imageOut.Write();
+			outImage.Content().Refer(out);
+			outImage.Write();
 
-			imageOut2.Content().Refer(out2);
-			imageOut2.Write();
+			outImage2.Content().Refer(out2);
+			outImage2.Write();
 			
 			tmpBottle.writeInt(pos_max[0].centroid_x);
 			tmpBottle.writeInt(pos_max[0].centroid_y);
 			tmpBottle.writeInt(pos_max[0].meanRG);
 			tmpBottle.writeInt(pos_max[0].meanGR);
 			tmpBottle.writeInt(pos_max[0].meanBY);
-			_outPort.Content() = tmpBottle;
-			_outPort.Write();
+			outBottle.Content() = tmpBottle;
+			outBottle.Write();
 
 			//v(1) = pos_max[0].centroid_x;
 			//v(2) = pos_max[0].centroid_y;
@@ -367,12 +376,14 @@ int main (int argc, char *argv[])
 	char basename[80]="/";
 	YARPParseParameters::parse(argc, argv, "name", basename);
 
-	ACE_OS::sprintf(_name1, "/visualattention%s/o:img",basename);
-	ACE_OS::sprintf(_name2, "/visualattention%s/i:img", basename);
-	ACE_OS::sprintf(_name3, "/visualattention%s/o:img2", basename);
-	ACE_OS::sprintf(_name4, "/visualattention%s/i:bottle", basename);
-	ACE_OS::sprintf(_name5, "/visualattention%s/o:bottle", basename);
-	ACE_OS::sprintf(_netname, "Net1");
+	ACE_OS::sprintf(_inName1, "/visualattention%s/i:img",basename);
+	ACE_OS::sprintf(_inName2, "/visualattention%s/i:bot", basename);
+	ACE_OS::sprintf(_inName3, "/visualattention%s/i:vec", basename);
+	ACE_OS::sprintf(_outName1, "/visualattention%s/o:img", basename);
+	ACE_OS::sprintf(_outName2, "/visualattention%s/o:img2", basename);
+	ACE_OS::sprintf(_outName3, "/visualattention%s/o:bot", basename);
+	ACE_OS::sprintf(_netname0, "Net0");
+	ACE_OS::sprintf(_netname1, "Net1");
 
 	YARPScheduler::setHighResScheduling();
 
