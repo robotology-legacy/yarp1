@@ -40,8 +40,8 @@ RSC=rc.exe
 # PROP Output_Dir ".\obj\Release"
 # PROP Intermediate_Dir ".\obj\Release"
 # PROP Target_Dir ""
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I ".\include" /I "..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /verbose /c
 # ADD BASE RSC /l 0x410 /d "NDEBUG"
@@ -71,8 +71,8 @@ PostBuild_Cmds=copy .\include\*.h ..\..\..\include	copy .\lib\winnt\utils.lib ..
 # PROP Output_Dir ".\obj\Debug"
 # PROP Intermediate_Dir ".\obj\Debug"
 # PROP Target_Dir ""
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\include" /I "..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -114,6 +114,10 @@ SOURCE=.\src\YARPLogFile.cpp
 
 SOURCE=.\src\YARPParseParameters.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\src\YARPPidFilter.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -149,6 +153,10 @@ SOURCE=.\include\YARPLogFile.h
 # Begin Source File
 
 SOURCE=.\include\YARPParseParameters.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\YARPPidFilter.h
 # End Source File
 # Begin Source File
 
