@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.6 2004-02-26 16:21:34 beltran Exp $
+//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.7 2004-02-26 18:10:26 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -128,6 +128,7 @@ YARPSoundDeviceDriver::Body (void)
 
 		switch (msg.message) {
 			case MM_WIM_DATA: //Buffer filled 
+				printf("yarpsounddriver: received data\n");
 				// msg.lParam contains a pointer to the WAVEHDR structure for the filled buffer.
 				if (((WAVEHDR *)msg.lParam)->dwBytesRecorded) {
 					//Here write in the local buffer using the syncronization mutexes

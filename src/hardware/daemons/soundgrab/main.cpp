@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: main.cpp,v 1.1 2004-02-25 16:45:48 beltran Exp $
+//         Version:  $Id: main.cpp,v 1.2 2004-02-26 18:12:11 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -358,7 +358,7 @@ mainthread::_runAsNormally (void)
 		// memcpy the stuff to a local buffer
 		////Here I should refer the correct data type. I still have to decide this type
 		///outport.Content().Refer (buffer); //is this correct? do I pass the pointer to the buffer?
-		outport.Write();
+		//outport.Write();
 
 		soundgrabber.releaseBuffer ();
 

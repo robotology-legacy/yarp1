@@ -10,7 +10,7 @@
 // 
 //     Description:  This files implements the SoundResources methods
 // 
-//         Version:  $Id: YARPSoundResources.cpp,v 1.4 2004-02-26 16:21:35 beltran Exp $
+//         Version:  $Id: YARPSoundResources.cpp,v 1.5 2004-02-26 18:10:26 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -48,14 +48,12 @@ SoundResources::_initialize (const SoundOpenParameters& params)
 int
 SoundResources::_uninitialize (void)
 {
-	/////_bmutex.Wait ();
-
-	//Insert some class of stop function if exist in the hardware
-
-	//Release memory (buffer, variables...etc)	
-	/////_bmutex.Post ();
+	_bmutex.Wait ();
+	//Close mixer
 	mixerClose(m_MixerHandle);
+	//Reset the wave input device
 	waveInReset(m_WaveInHandle);
+	_bmutex.Post ();
 
 	return YARP_OK;
 }
@@ -98,10 +96,10 @@ SoundResources::_init (const SoundOpenParameters& params)
 	//  Initialize Mixter
 	//----------------------------------------------------------------------
 	m_err = mixerOpen(&m_MixerHandle, 
-					(DWORD)m_WaveInHandle, 
-					0, 
-					0, 
-					MIXER_OBJECTF_HWAVEIN);
+					  (DWORD)m_WaveInHandle, 
+					  0, 
+					  0, 
+					  MIXER_OBJECTF_HWAVEIN);
 
 	if (m_err != MMSYSERR_NOERROR) {
 		printf("yarpsounddriver: Device does not have mixer support! -- %08X\n", m_err);
@@ -168,6 +166,16 @@ SoundResources::_prepareBuffers(void)
 
 	if ((m_err = waveInPrepareHeader(m_WaveInHandle, &m_WaveHeader[1], sizeof(WAVEHDR)))) 
 		printf("yarpsounddriver: Error preparing WAVEHDR -- %08X\n", m_err);
+
+
+	//----------------------------------------------------------------------
+	//  It is necessary to queue the two buffers. Here I should add another buffer if 
+	//  we want a thirt buffer
+	//----------------------------------------------------------------------
+	if ((m_err = waveInAddBuffer(m_WaveInHandle, &m_WaveHeader[0], sizeof(WAVEHDR))))
+		printf("yarpsounddriver: Error queueing WAVEHDR 1! -- %08X\n", m_err);
+	if ((m_err = waveInAddBuffer(m_WaveInHandle, &m_WaveHeader[1], sizeof(WAVEHDR))))
+		printf("yarpsounddriver: Error queueing WAVEHDR 2! -- %08X\n", m_err);
 }
 
 //--------------------------------------------------------------------------------------
@@ -193,7 +201,7 @@ SoundResources::_select_line(unsigned int type)
 		if (m_mixerLine.dwComponentType == type)
 			printf("yarpsounddriver: source line found\n");
 	}
-	printf("yarpsounddriver: -warning- source line not found");
+	printf("yarpsounddriver: -warning- source line not found\n");
 	return YARP_OK;
 }
 
