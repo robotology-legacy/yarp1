@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericGrabber.h,v 1.6 2003-09-03 15:15:26 babybot Exp $
+/// $Id: YARPGenericGrabber.h,v 1.7 2003-12-17 10:31:07 beltran Exp $
 ///
 ///
 
@@ -93,6 +93,14 @@ public:
 	int waitOnNewFrame (void);
 	int getWidth (int *w);
 	int getHeight (int *h);
+	int setBright(unsigned int);
+	int setHue(unsigned int);
+	int setContrast(unsigned int);
+	int setSatU(unsigned int);
+	int setSatV(unsigned int);
+	int setLNotch(int);
+	int setLDec(int);
+	int setCrush(int);
 };
 
 template <class ADAPTER, class PARAMETERS>
@@ -147,4 +155,67 @@ int YARPGenericGrabber<ADAPTER, PARAMETERS>::getHeight (int *h)
 	return _adapter.IOCtl (FCMDGetSizeY, h);
 }
 
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setBright(unsigned int bright)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetBright, &bright);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setHue(unsigned int hue)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetHue, &hue);
+	return ret; 	
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setContrast(unsigned int contrast)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetContrast, &contrast);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setSatU(unsigned int satu)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetSatU, &satu);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setSatV(unsigned int satv)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetSatV,&satv);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setLNotch(int state)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetLNotch,&state);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setLDec(int state)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetLDec,&state);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setCrush(int state)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetCrush,&state);
+	return ret;
+}
 #endif
