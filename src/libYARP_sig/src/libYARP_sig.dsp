@@ -1,7 +1,6 @@
 # Microsoft Developer Studio Project File - Name="libYARP_sig" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** foo **
-
+# ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
@@ -20,13 +19,13 @@ CFG=libYARP_sig - Win32 Debug
 !MESSAGE 
 !MESSAGE "libYARP_sig - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE "libYARP_sig - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE 
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
-MTL=midl.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "libYARP_sig - Win32 Release"
@@ -41,6 +40,7 @@ RSC=rc.exe
 # PROP Output_Dir "..\obj\winnt"
 # PROP Intermediate_Dir "..\obj\winnt\release"
 # PROP Target_Dir ""
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I "../include" /I "../../../include" /I "../../../include/winnt" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
@@ -65,8 +65,9 @@ LIB32=link.exe -lib
 # PROP Output_Dir "..\obj\winnt"
 # PROP Intermediate_Dir "..\obj\winnt\debug"
 # PROP Target_Dir ""
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../include" /I "../../../include/winnt" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../libYARP_OS/include" /I "../../../include" /I "../../../include/winnt" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -86,14 +87,9 @@ LIB32=link.exe -lib
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
-
 # Begin Source File
 
-SOURCE=.\YARPImage.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPImageUtils.cpp
+SOURCE=..\build.bat
 # End Source File
 # Begin Source File
 
@@ -101,17 +97,20 @@ SOURCE=.\cvbase.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPImage.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPImageFile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPImageUtils.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\YARPSimpleOperations.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=..\build.bat
-# End Source File
-
 # End Group
 # End Target
 # End Project

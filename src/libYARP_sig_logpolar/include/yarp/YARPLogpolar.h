@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.2 2004-07-20 12:26:56 eshuy Exp $
+/// $Id: YARPLogpolar.h,v 1.3 2004-07-20 15:00:57 babybot Exp $
 ///
 ///
 
@@ -71,7 +71,7 @@
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
-#include <ace/Thread_Mutex.h>
+#include <ace/Synch.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
