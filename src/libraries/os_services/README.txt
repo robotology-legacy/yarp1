@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.4 2003-05-03 22:58:37 gmetta Exp $
+$Id: README.txt,v 1.5 2003-05-18 22:35:15 gmetta Exp $
 
 
 =============
@@ -17,17 +17,24 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 
 =============
 Things under development:
-0- finish testing under NT with all examples in test.
 
-0- QNET close (detach) channel, close endpoint is not implemented. 
-	Also destroying channel is not implemented.
+7- can still get garbage if a recv fails, timeout or a connection is broken by terminating
+	the sender. USE test12 to see this condition.
+
+8- UDP fails with big messages. USE test13 to see this condition.
+
+
+
+
+0- QNET
+	Destroying channel is not implemented (where? destructor?).
 
 0.1- QNET complete test under QNX.
 
 0.5- implement check_out from name server.
 
 
-1- UDP, MCAST code?
+1- MCAST code?
 
 2- speed up by removing all reply to message issues (sort of mandatory for MCAST anyway).
 2.1- also sending header + data in a single gather wide send should improve perf. especially
@@ -35,8 +42,7 @@ Things under development:
 
 3- what to do with the QNX4 code.
 
-4- how to integrate the QNX6 code.
-
 5- return error if trying a connection on the wrong protocol.
 
 6- add windows DLL to the repository (these are the DLL's installed by visual C++).
+
