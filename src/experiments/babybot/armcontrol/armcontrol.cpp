@@ -19,7 +19,7 @@ char menu();
 
 using namespace std;
 
-extern __debug_level;
+extern int __debug_level;
 
 int main(int argc, char* argv[])
 {
