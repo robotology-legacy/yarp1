@@ -10,7 +10,7 @@ OBJS2=blit.o
 DIST=bttvx_0.2.2
 OS = qnx6
 
-all: $(OBJS) bttvx blit bttvx_dev
+all: $(OBJS) bttvx blit bttvx_dev bttvx_regs
 
 bttvx: $(OBJS)
 	@echo
@@ -27,6 +27,12 @@ bttvx_dev:
 	@echo --------------Compiling bttvx_dev ---------------
 	@echo
 	$(CC) $(LDFLAGS) $@.o bttvx.lib  -o $@  
+
+bttvx_regs:
+	@echo
+	@echo ---------------Compiling bttvx_reg --------------
+	@echo
+	$(CC) $(LDFLAGS) $@.c -o $@
 	   
 install:
 	@echo
@@ -41,5 +47,8 @@ clean:
 	@echo
 	rm -f bttvx
 	rm -f bttvx_dev
+	rm -f bttvx_regs
 	rm -f *.o
 	rm -f blit
+
+
