@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.9 2003-10-10 08:23:38 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.10 2003-10-14 08:04:02 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -64,6 +64,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDOffOnError]		= &YARPGalilDeviceDriver::off_on_error; 
 	
 	m_cmds[CMDVMove] 			= &YARPGalilDeviceDriver::set_jogs;
+	m_cmds[CMDCheckMotionDone]	= &YARPGalilDeviceDriver::check_motion_done;
 	
 	m_cmds[CMDControllerIdle]	= &YARPGalilDeviceDriver::controller_idle;
 	
@@ -1443,13 +1444,17 @@ int YARPGalilDeviceDriver::get_motor_type(void *par)
 }
 
 // FIX: This must be improved! The axes added to the _BG Operand should be variable
+// Now I am checking all the axis in the control card. The axis that are not being used should return 
+// "motion done" because no motion was ordered on them, therefore only the axis participating in a movement
+// should contribute to the command. 
+
 int YARPGalilDeviceDriver::check_motion_done(void *flag)
 {
 	long rc = 0;
 
 	bool *tmp = (bool *) flag;
 	
-	char cmd[] = "MG _BGABCD";
+	char cmd[] = "MG _BGABCDEFGH";
 	char *buff = m_buffer_out;
 
 	memcpy(buff, cmd, sizeof(cmd)-1);
