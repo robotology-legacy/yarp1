@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.7 2003-06-06 15:40:34 babybot Exp $
+/// $Id: main.cpp,v 1.8 2003-06-07 00:20:17 babybot Exp $
 ///
 ///
 
@@ -116,12 +116,13 @@ int ParseParams (int argc, char *argv[])
 
 			case 'b':
 				_board_no = ACE_OS::atoi (argv[i+1]);
-				i ++;
+				i++;
 				break;
 
 			case 't':
 				ACE_OS::fprintf (stdout, "grabber acting as a receiver client...\n");
 				ACE_OS::sprintf (_name, "%s\0", argv[i+1]);
+				i++;
 				_client = true;
 				break;
 			}

@@ -43,10 +43,11 @@ public:
 
 	void SetOwner (CCamviewDlg *owner) { m_owner = owner; }
 	void SetName (const char * name) { strcpy (m_name, name); }
+	inline int GetWidth (void) const { return m_x; }
 
 	unsigned char * AcquireBuffer (void)
 	{
-		m_mutex.Wait();
+		m_mutex.Wait ();
 		return (unsigned char *)m_converter.GetBuffer();
 	}
 

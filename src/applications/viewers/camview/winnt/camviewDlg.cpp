@@ -28,6 +28,8 @@ void CRecv::Body (void)
 		if (m_img.GetWidth() != m_x || m_img.GetHeight() != m_y)
 		{
 			m_converter.Resize (m_img);
+			m_x = m_img.GetWidth ();
+			m_y = m_img.GetHeight ();
 		}
 
 		/// prepare the DIB to display.
@@ -224,7 +226,16 @@ void CCamviewDlg::OnPaint()
 	{
 		CPaintDC dc(this);
 		unsigned char *dib = m_receiver.AcquireBuffer();
-		CopyToScreen(dc.GetSafeHdc(), dib, 0, 0, 1.0, 1.0);
+
+		if (dib != NULL)
+		{
+			CRect rect;
+			GetClientRect (&rect);
+			dc.LPtoDP (&rect);
+			double zx = rect.Width() / m_receiver.GetWidth();
+			CopyToScreen(dc.GetSafeHdc(), dib, 0, 0, zx, zx);
+		}
+
 		m_receiver.ReleaseBuffer();
 
 		CDialog::OnPaint();
