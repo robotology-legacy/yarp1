@@ -1,23 +1,24 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.2 2003-05-28 14:47:56 beltran Exp $
+$Id: install.txt,v 1.3 2003-05-28 17:19:00 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
 ---INTRODUCTION---
 
-In the robot network two kind of QNX machines will be installed.There is a machine considered to be the 
+In the robot network two kind of QNX machines are installed.There is a machine considered to be the 
 "server" and the rest are "nodes".
-Ther server has the more complex installation and will run commands and programs in the nodes.
+The server has the more complex installation and will run commands and programs in the nodes.
+(for the future NFS support will be added)
 
 ---SERVER INSTALLATION---
 
 Currently QNX 6.2.0 Profesional Edition is the version we are using. Its installation is straight; some extra 
-modules some be added from the third party CD if ones wants extra support like: samba or ssh.
+modules should be added from the third party CD if ones wants support like: samba or ssh.
 
-The network cards supported by qnx are the Matrox's or the 3Com's. 
+The network cards supported by qnx are the Matrox's and the 3Com's. 
 
-The propietary QNX network (QNET) should be install, both in the server and in the nodes. The command to run is:
+The propietary QNX network (QNET) should be installed, both in the server and in the nodes. The command to run is:
 mount -Tio-net npm-qnet.so
 This adds the QNET to the network qnx manager called io-net. It is better to create a file called "rc.local" inside
 /etc/rc.d to run this command.
@@ -46,6 +47,10 @@ lookup 130.251.4.31
 
 It is unknown why Qnx needs these files to be configured manually but if it is not done this way YARP fails using some 
 low level functions (like...)
+
+Install the compiler: unfortunately, the qnx compiler is a modified version of gcc that doesn't work correctly for
+our pourposes (does not compile ACE). To be able to compile ACE is necessary to install the real gcc (add the version 
+the documentation for the installation).
 
 ---YARP INSTALLATION---
 
