@@ -6,7 +6,7 @@
 **     Beantype  : 56F807
 **     Version   : Bean 01.002, Driver 01.05, CPU db: 2.71.191
 **     Compiler  : Metrowerks DSP C Compiler
-**     Date/Time : 12/21/2004, 1:02 PM
+**     Date/Time : 1/12/2005, 12:42 PM
 **     Abstract  :
 **
 **     Settings  :
@@ -197,8 +197,9 @@ void _EntryPoint(void)
   clrRegBit(PLLCR, PLLPD);             /* Enable PLL */
   while(!getRegBit(PLLSR, LCK0)){}     /* Wait for PLL lock */
   
-  for (i = 0; i < 10000; i++) asm(nop);
-  
+  for (i = 0; i < 10000; i++)
+    asm (nop);
+    
   setRegBitGroup(PLLCR, ZSRC, 2);      /* Select clock source from postscaler */
   /*** End of PE initialization code after reset ***/
 

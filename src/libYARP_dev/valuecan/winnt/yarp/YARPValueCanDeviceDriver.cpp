@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.7 2004-12-22 17:13:29 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.8 2005-01-12 13:06:56 babybot Exp $
 ///
 ///
 
@@ -1329,7 +1329,11 @@ int YARPValueCanDeviceDriver::_writeNone (int msg, int axis)
 	r._cmdBuffer.Data[0] += (r._destinations[axis/2] & 0x0f); 
 	r._cmdBuffer.Data[1] = msg | ((axis % 2) << 7);
 
-	r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
+	r._cmdBuffer.ArbIDOrHeader = (((r._my_address << 4) & 0xf0) << 8) + 
+								 ((r._destinations[axis/2] & 0x0f) << 8) +
+								 (msg | ((axis % 2) << 7));
+
+	//r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
 	r._cmdBuffer.NumberBytesData = 2;
 		
 	_request = true;
@@ -1362,7 +1366,12 @@ int YARPValueCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 	r._cmdBuffer.Data[0] = ((r._my_address << 4) & 0xf0);
 	r._cmdBuffer.Data[0] += (r._destinations[axis/2] & 0x0f); 
 	r._cmdBuffer.Data[1] = msg | ((axis % 2) << 7);
-	r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
+
+	r._cmdBuffer.ArbIDOrHeader = (((r._my_address << 4) & 0xf0) << 8) + 
+								 ((r._destinations[axis/2] & 0x0f) << 8) +
+								 (msg | ((axis % 2) << 7));
+
+	//r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
 	r._cmdBuffer.NumberBytesData = 2;
 		
 	_request = true;
@@ -1402,7 +1411,10 @@ int YARPValueCanDeviceDriver::_writeWord16 (int msg, int axis, short s)
 
 	*((short *)(r._cmdBuffer.Data+2)) = s;
 	
-	r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
+	r._cmdBuffer.ArbIDOrHeader = (((r._my_address << 4) & 0xf0) << 8) + 
+								 ((r._destinations[axis/2] & 0x0f) << 8) +
+								 (msg | ((axis % 2) << 7));
+	//r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
 	r._cmdBuffer.NumberBytesData = 4;
 		
 	_request = true;
@@ -1436,7 +1448,10 @@ int YARPValueCanDeviceDriver::_writeDWord (int msg, int axis, int value)
 
 	*((int*)(r._cmdBuffer.Data+2)) = value;
 
-	r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
+	r._cmdBuffer.ArbIDOrHeader = (((r._my_address << 4) & 0xf0) << 8) + 
+								 ((r._destinations[axis/2] & 0x0f) << 8) +
+								 (msg | ((axis % 2) << 7));
+	//r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
 	r._cmdBuffer.NumberBytesData = 6;
 		
 	_request = true;
@@ -1473,7 +1488,10 @@ int YARPValueCanDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short
 	*((short *)(r._cmdBuffer.Data+2)) = s1;
 	*((short *)(r._cmdBuffer.Data+4)) = s2;
 	
-	r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
+	r._cmdBuffer.ArbIDOrHeader = (((r._my_address << 4) & 0xf0) << 8) + 
+								 ((r._destinations[axis/2] & 0x0f) << 8) +
+								 (msg | ((axis % 2) << 7));
+	//r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
 	r._cmdBuffer.NumberBytesData = 6;
 		
 	_request = true;
@@ -1510,7 +1528,11 @@ int YARPValueCanDeviceDriver::_readDWord (int msg, int axis, int& value)
 	r._cmdBuffer.Data[0] = ((r._my_address << 4) & 0xf0);
 	r._cmdBuffer.Data[0] += (r._destinations[axis/2] & 0x0f); 
 	r._cmdBuffer.Data[1] = msg | ((axis % 2) << 7);
-	r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
+
+	r._cmdBuffer.ArbIDOrHeader = (((r._my_address << 4) & 0xf0) << 8) + 
+								 ((r._destinations[axis/2] & 0x0f) << 8) +
+								 (msg | ((axis % 2) << 7));
+	//	r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
 	r._cmdBuffer.NumberBytesData = 2;
 		
 	_request = true;

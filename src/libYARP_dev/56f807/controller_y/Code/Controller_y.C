@@ -581,6 +581,8 @@ void can_send_request(void)
 */
 void main(void)
 {
+	Int32 acceptance_code = 0x0;
+	
 	/*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
 	PE_low_level_init();
 	/*** End of Processor Expert internal initialization.                    ***/
@@ -595,7 +597,12 @@ void main(void)
 
 	/* reads the PID parameters from flash memory */
 	readFromFlash ();
-	
+
+	/* CAN masks/filters init */
+	CAN1_SetAcceptanceMask (0xfffff0ff);
+	acceptance_code = L_deposit_l (_board_ID);
+	CAN1_SetAcceptanceCode (acceptance_code << 8);
+		
 	/* reset encoders, LATER: should do something more than this */
 	calibrate(0);
 	calibrate(1);
@@ -635,14 +642,6 @@ void main(void)
 		_position[0] = L_sub(_position[0], _position[1]);
 
 #elif VERSION == 0x0113
-		if (_verbose && _counter == 0)
-		{
-			DSP_SendDWordAsCharsDec (_other_position[0]);
-			DSP_SendDataEx(" ");
-			DSP_SendDWordAsCharsDec (_other_position[1]);
-			DSP_SendDataEx("\r\n");
-		}
-		
 		_position[0] = L_add (_position[0], _other_position[0] >> 1);
 		_position[0] = L_sub (_position[0], _other_position[1] >> 2);
 		///_position[0] = L_sub (_position[0], _other_position[0]);
@@ -715,12 +714,12 @@ byte calibrate (byte jnt)
 	
 /* message table macros */
 #define BEGIN_MSG_TABLE(x) \
-	if ((x[0] & 0x0f) != _board_ID) \
+	if ((x & 0x00000f00) != _board_ID) \
 	{ \
-		/* DSP_SendDataEx ("it wasn't my message\r\n"); */ \
+		DSP_SendDataEx ("it wasn't my message\r\n"); \
 		return ERR_OK; \
 	} \
-	switch (x[1] & 0x7F) \
+	switch (x & 0x7F) \
 	{ \
 		default: \
 			return ERR_OK; \
@@ -775,9 +774,9 @@ byte can_interface (void)
 		CAN1_ReadFrame (&CAN_messID, &CAN_frameType, &CAN_frameFormat, &CAN_length, CAN_data);
 		if (_verbose)
 		{
-			//print_can (CAN_data, CAN_length, 'i');
-			//CAN1_GetError (&err);
-			//print_can_error (&err);
+			print_can (CAN_data, CAN_length, 'i');
+			CAN1_GetError (&err);
+			print_can_error (&err);
 		}
 		
 #define CAN_DATA CAN_data
@@ -787,11 +786,11 @@ byte can_interface (void)
 #define CAN_ID CAN_messID
 
 		/* interpret the messages */
-		BEGIN_SPECIAL_MSG_TABLE (CAN_data)
-		HANDLE_MSG (CAN_SET_BOARD_ID, CAN_SET_BOARD_ID_HANDLER)
-		END_SPECIAL_MSG_TABLE
+		//BEGIN_SPECIAL_MSG_TABLE (CAN_data)
+		//HANDLE_MSG (CAN_SET_BOARD_ID, CAN_SET_BOARD_ID_HANDLER)
+		//END_SPECIAL_MSG_TABLE
 		
-		BEGIN_MSG_TABLE (CAN_data)
+		BEGIN_MSG_TABLE (CAN_messID)
 		HANDLE_MSG (CAN_NO_MESSAGE, CAN_NO_MESSAGE_HANDLER)
 		HANDLE_MSG (CAN_CONTROLLER_RUN, CAN_CONTROLLER_RUN_HANDLER)
 		HANDLE_MSG (CAN_CONTROLLER_IDLE, CAN_CONTROLLER_IDLE_HANDLER)
