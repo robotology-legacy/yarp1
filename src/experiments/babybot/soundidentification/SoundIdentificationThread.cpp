@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.cpp,v 1.10 2004-12-30 10:51:53 beltran Exp $
+/// $Id: SoundIdentificationThread.cpp,v 1.11 2004-12-30 16:50:46 beltran Exp $
 ///
 
 /** 
@@ -214,10 +214,10 @@ int SoundIdentificationThread::BackProjectHSHistogram(
 				dValue
 				);
 
-			iHueWidthCoordinate = dHue;
+			iHueWidthCoordinate = (int)dHue;
 			dSaturation *= 10.0f;
 			fractionalPart = modf( dSaturation, &integerPart);
-			iSaturationHeightCoordinate = ( fractionalPart < 0.5) ? integerPart : integerPart +1;
+			iSaturationHeightCoordinate = (int)(( fractionalPart < 0.5) ? integerPart : integerPart +1);
 
 
 			YarpPixelMono &hspixel = imageHSHistogram.SafePixel( 
@@ -285,10 +285,10 @@ int SoundIdentificationThread::ComputeHSHistogram (
 					dValue
 					);
 
-				iHueWidthCoordinate = dHue;
+				iHueWidthCoordinate = (int)dHue;
 				dSaturation *= 10.0f;
 				fractionalPart = modf( dSaturation, &integerPart);
-				iSaturationHeightCoordinate = ( fractionalPart < 0.5) ? integerPart : integerPart +1;
+				iSaturationHeightCoordinate =(int) (( fractionalPart < 0.5) ? integerPart : integerPart +1);
 
 				YarpPixelMono & hspixel = imageHSHistogram.SafePixel( 
 					iHueWidthCoordinate, 
@@ -359,7 +359,7 @@ int SoundIdentificationThread::GetSegmentedImage (
 					pixelsSum += pimg(i,j);
 					imagesIterator++;
 				}
-				segmentedImage(i,j) = pixelsSum / (double) numberOfSamples;
+				segmentedImage(i,j) = (unsigned char )(pixelsSum / (double) numberOfSamples);
 				pixelsSum = 0.0;
 			}
 			else {
@@ -367,7 +367,7 @@ int SoundIdentificationThread::GetSegmentedImage (
 					segmentedImage(i,j) = 0;
 				}
 				else {
-					segmentedImage(i,j) = decaingFactor * segmentedImage(i,j);
+					segmentedImage(i,j) = (unsigned char)(decaingFactor * segmentedImage(i,j));
 				}
 			}
 		}
@@ -387,8 +387,6 @@ int SoundIdentificationThread::calculateMixel(
 	) {
 	//LOCAL_TRACE("SoundIdentification: CalculateMixel2");
 
-	int n         = 0;  /** Sound number of componects.                          */
-	int m         = 0;  /** Image number of components.                          */
 	double _dSX   = 0.0;
 	double _dSX2  = 0.0;
 	double _dSY   = 0.0;
@@ -463,7 +461,7 @@ int SoundIdentificationThread::calculateMixel(
 	//---------------------------------------------------------------------- 
 	double value = (-1.0)*(0.5 * (logf((1.0 - _dR2))/(double)logf(2)));
 
-	return(MIN(255,MAX(0,255*value)));
+	return((int)(MIN(255,MAX(0,255*value))));
 }
 
 //----------------------------------------------------------------------
@@ -478,7 +476,7 @@ int SoundIdentificationThread::SavePairList(YARPString name) {
 
 	thePairListIterator.go_head();
 
-	for ( int i = 0; i < _pairList.size(); i++) {
+	for ( unsigned int i = 0; i < _pairList.size(); i++) {
 
 		YARPString sequenceName(name);
 		SoundImagePair &temppair = *thePairListIterator;
@@ -531,7 +529,6 @@ void SoundIdentificationThread::Body (void)
 {
 	//LOCAL_TRACE("SoundIdenfication: Entering Body");
 	const int N  = 200;
-	const int N2 = 10 ;
 
 	int    counter = 0;
 	int    size    = 0;
@@ -564,10 +561,10 @@ void SoundIdentificationThread::Body (void)
 	YARPInputPortOf<YARPSoundBuffer>   _inpSound(YARPInputPort::NO_BUFFERS ,YARP_TCP);
 	YARPInputPortOf<YARPGenericImage>  _inpImg(YARPInputPort::NO_BUFFERS, YARP_TCP);
 	//YARPOutputPortOf<YVector>          _outpMfcc (YARPOutputPort::DEFAULT_OUTPUTS,YARP_UDP);
-	YARPOutputPortOf<YARPGenericImage> _outpImg;
-	YARPOutputPortOf<YARPGenericImage> _outprecImg;
-	YARPOutputPortOf<YARPGenericImage> _outSoundHistogramPort;
-	YARPOutputPortOf<YARPGenericImage> _outHSHistogramPort;
+	YARPOutputPortOf<YARPGenericImage> _outpImg(YARPInputPort::NO_BUFFERS ,YARP_TCP);
+	YARPOutputPortOf<YARPGenericImage> _outprecImg(YARPInputPort::NO_BUFFERS ,YARP_TCP);
+	YARPOutputPortOf<YARPGenericImage> _outSoundHistogramPort(YARPInputPort::NO_BUFFERS ,YARP_TCP);
+	YARPOutputPortOf<YARPGenericImage> _outHSHistogramPort(YARPInputPort::NO_BUFFERS ,YARP_TCP);
 
 	//_inpSound.SetAllowShmem (_sharedmem);
 	//_inpImg.SetAllowShmem   (_sharedmem);
@@ -611,14 +608,14 @@ void SoundIdentificationThread::Body (void)
 	double _rmsmean         = __rmsthreshold + 1;
 	double _rmsmeansum      = 0.0;
 	double _minDtwValue     = HUGE;
-	bool _bFoundTemplate = false;
 	int _hsMaximumWidth = 0;
 	int _hsMaximumHeight = 0;
 	SoundImagePair soundImagePair;
 
 	while(!IsTerminated())
 	{
-		int i,j;
+		unsigned int i;
+		unsigned int j;
 		counter++;
 
 		_sema.Wait(1); // Start Semaphore
@@ -689,9 +686,9 @@ void SoundIdentificationThread::Body (void)
 		//----------------------------------------------------------------------
 		if ( _imagesList.size() > 3 && learningPhase == 1) {
 
-			int w = _imgInput.GetWidth();
-			int h = _imgInput.GetHeight();
-			int numberMixels = 0;
+			unsigned int w = _imgInput.GetWidth();
+			unsigned int h = _imgInput.GetHeight();
+			unsigned int numberMixels = 0;
 			//----------------------------------------------------------------------
 			//  Navigate through the pixels and calculate the Mixel for each one. 
 			//----------------------------------------------------------------------
@@ -711,16 +708,16 @@ void SoundIdentificationThread::Body (void)
 						//----------------------------------------------------------------------
 						//  Paint the pixel and all its sorrounding pixels
 						//----------------------------------------------------------------------
-						for ( int ni = i-2; ni < i+2; ni++ )
-							for (int nj = j-2; nj < j+2; nj++)
+						for ( unsigned int ni = i-2; ni < i+2; ni++ )
+							for (unsigned int nj = j-2; nj < j+2; nj++)
 								_imgMixelgram(ni,nj) = _dMixelValue;
 
 						numberMixels++;
 					}
 					else
 					{
-						for ( int ni = i-2; ni < i+2; ni++ )
-							for (int nj = j-2; nj < j+2; nj++)
+						for ( unsigned int ni = i-2; ni < i+2; ni++ )
+							for (unsigned int nj = j-2; nj < j+2; nj++)
 								_imgMixelgram(ni,nj) = 0;
 					}
 				}
@@ -901,7 +898,6 @@ void SoundIdentificationThread::Body (void)
 		if ( learningPhase == 0 ) {
 			 
 			double _rmsMean     = 0.0;
-			int    _machingPair = 0;
 			int    _result      = 0;
 			double _dtwValue    = 0.0;
 			int _vectorSize = _imagesList.size(); 
@@ -1017,8 +1013,8 @@ void SoundIdentificationThread::Body (void)
 		period += (time1-time2);
 		if (counter == N)
 		{
-			printf("average= %lf \n", period/N);
-			printf("rms average= %lf \n", _rmsmeansum/N);
+			printf("average= %f \n", period/N);
+			printf("rms average= %f \n", _rmsmeansum/N);
 			period = 0.0;
 			_rmsmeansum = 0.0;
 			counter = 0;

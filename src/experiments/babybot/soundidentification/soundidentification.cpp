@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: soundidentification.cpp,v 1.23 2004-12-30 10:51:53 beltran Exp $
+/// $Id: soundidentification.cpp,v 1.24 2004-12-30 16:50:46 beltran Exp $
 ///
 
 /** 
@@ -63,7 +63,7 @@ int  _protocol  = YARP_MCAST;
  * 
  * @return 0 always
  */
-int main(int argc, char* argv[]) {
+int main() {
 
 	int iSValue = 15;
 	double dDecayFactor = 0.99;

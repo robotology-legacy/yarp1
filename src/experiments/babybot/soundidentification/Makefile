@@ -9,7 +9,7 @@
 #----------------------------------------------------------------------------
 
 include $(YARP_ROOT)/conf/Makefile.template
-CPPFLAGS += -I$(YARP_ROOT)/include -I$(YARP_ROOT)/include/$(SYSDIR) -I../utils/include $(CDEFS)# $(CFAST)
+CPPFLAGS += -I$(YARP_ROOT)/include -I$(YARP_ROOT)/include/$(SYSDIR) -I../utils/include #$(CDEFS)# $(CFAST)
 
 BIN = soundidentification
 
@@ -33,15 +33,6 @@ LSRC = $(SRC) $(addsuffix .cpp,$(BIN))
 #LDLIBS  +=  $(addprefix .shobj/,$(SHOBJ))
 
 BUILD = $(VBIN)
-
-w:
-	@echo please select a robot setup
-eurobot:
-	@make ROBOT=__QNXEurobot__ all
-babybot:
-	@make ROBOT=__QNXBabybot__ all
-test:
-	@make -f Makefile.test ROBOT=__LinuxTest__ all
 
 #----------------------------------------------------------------------------
 #	Include macros and targets

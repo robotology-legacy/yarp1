@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.h,v 1.9 2004-12-30 10:51:53 beltran Exp $
+/// $Id: SoundIdentificationThread.h,v 1.10 2004-12-30 16:50:46 beltran Exp $
 ///
 
 /** 
@@ -228,7 +228,7 @@ private:
 	int learningPhase;
 	typedef YARPImageOf<YarpPixelBGR> ColorImage ;
 	typedef YARPImageOf<YarpPixelMono> MonoImage;
-	int _iSValue;								   /** Contains the time samples used for the time buffers.		  */
+	unsigned int _iSValue;						   /** Contains the time samples used for the time buffers.		  */
 	double _dDecayValue;						   /** Decay value for the temporal images decay.				  */
 	YARPSemaphore _sema;						   /** Semaphore to synchronize access to class data.			  */
 	YARPSoundTemplate _soundTemplate;			   /** The sound template containing the mfcc parametrized sound. */

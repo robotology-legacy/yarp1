@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.17 2004-12-30 10:51:53 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.18 2004-12-30 16:50:46 beltran Exp $
 ///
 
 /** 
@@ -64,7 +64,7 @@ class YARPSoundTemplate
 {
 private:
 
-    int m_totalsize;       /** This is the real total size of the m_parray.                         */
+    unsigned int m_totalsize;       /** This is the real total size of the m_parray.                         */
     int m_vectors_length;  /** This is the size of the internal vectors; This length is defined by. */
                             /** the first vector introduced in the template.                         */
     //YVector ** m_parray;   /** This is the actual pointer to the array of vectors.                  */
@@ -125,7 +125,7 @@ public:
 	 * @param new_size The new size of the array of sound vectors
 	 */
 	inline void 
-	Resize( int new_size) {
+	Resize( unsigned int new_size) {
 
 		ACE_ASSERT ( new_size != 0 );
 		if ( m_totalsize > new_size) {
@@ -171,7 +171,7 @@ public:
 	 * 
 	 * @return the total available size of the template
 	 */
-	inline int
+	inline unsigned int
 	Size() const { return m_totalsize; }
 	
 	/** 
@@ -245,14 +245,13 @@ public:
 	  * 		-# the index parameter was negative
 	  */
 	inline
-	int Delete(int index)
+	int Delete(unsigned int index)
 	{
 		LOCAL_TRACE("YARPSoundTemplate: Entering Delete");
 		YARPListIterator<YVector> soundTemplateIterator(m_parray);
-		int i = 0;
-		int j = 0;
+		unsigned int i = 0;
 
-		if (index >= m_parray.size() || index < 0)
+		if (index >= m_parray.size())
 		{
 			ACE_OS::fprintf(stdout, "YARPSoundTemplate: Sorry! Element %d can not be removed \n",index);
 			return YARP_FAIL;
@@ -278,9 +277,8 @@ public:
 	{
 		LOCAL_TRACE("YARPSoundTemplate: Entering Save");
 		FILE * pfile;
-		int i = 0;
+		unsigned int i = 0;
 		int j = 0;
-		YVector * pvector = NULL;
 		double  * pdata   = NULL;
 		YARPListIterator<YVector> soundTemplateIterator(m_parray);
 
@@ -357,7 +355,7 @@ public:
 
 					theTemporalVectorIterator.go_head(); 
 
-					for (int i = 0; i < temporalVector.size(); i++) {
+					for (unsigned int i = 0; i < temporalVector.size(); i++) {
 						valuesVector[i] = *theTemporalVectorIterator;
 						theTemporalVectorIterator++;
 					}
@@ -385,7 +383,6 @@ public:
 	  */
 	YARPSoundTemplate& operator=(const YARPSoundTemplate& soundTemplate)
 	{
-		int i = 0;
 		YVector tempVector;
 
 		Destroy();

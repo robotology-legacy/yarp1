@@ -12,7 +12,7 @@
 //     This implementatin is partially based in the sound software used by Lorenzo Natale
 //     is his master thesis.
 // 
-//         Version:  $Id: soundidentificationprocessing.cpp,v 1.11 2004-12-30 10:49:29 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.cpp,v 1.12 2004-12-30 16:50:47 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -60,7 +60,9 @@ SoundIdentificationProcessing::SoundIdentificationProcessing(const YARPString &i
 	filters_energy_vector.Resize(1,totalfilters);
 
 	_path.append(root);
-	_path.append("/conf/babybot/"); 
+	//_path.append("/conf/babybot/"); 
+	_path.append("/");
+	_path.append(ConfigFilePath); 
 
 	//----------------------------------------------------------------------
 	//  Just recover from the configuration file the real sound parameters the user
@@ -419,9 +421,9 @@ SoundIdentificationProcessing::GetInteger( const double double_value) {
 
 	_dFractionalPart = modf( double_value, &_dIntegerPart);
 	if ( _dIntegerPart > 0 )
-		result = (_dFractionalPart < 0.5) ? _dIntegerPart : (_dIntegerPart+1);
+		result = (int)((_dFractionalPart < 0.5) ? _dIntegerPart : (_dIntegerPart+1));
 	else
-		result = (_dFractionalPart < 0.5) ? _dIntegerPart : (_dIntegerPart-1);
+		result = (int)((_dFractionalPart < 0.5) ? _dIntegerPart : (_dIntegerPart-1));
 
 	return result;
 }
