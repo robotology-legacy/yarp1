@@ -134,7 +134,7 @@ void mainthread::Body (void)
 	
 	char savename[512];
 
-	Vett* pos_max;
+	YARPBox* pos_max;
 
 	YVector v(2);
 
@@ -163,7 +163,7 @@ void mainthread::Body (void)
 
 	int frame_no = 0;
 
-	pos_max = new Vett[7];
+	pos_max = new YARPBox[7];
 
 	if (!inport.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n");
@@ -215,7 +215,7 @@ void mainthread::Body (void)
 		//att_mod.FindNMax(7, pos_max);
 
 		//ACE_OS::printf("max position: x=%d y=%d max=%d\n", pos_x, pos_y, max);
-		DBGPF1 ACE_OS::printf("max position: x=%d y=%d\n", pos_max[0].x, pos_max[0].y);
+		DBGPF1 ACE_OS::printf("max position: x=%d y=%d\n", pos_max[0].centroid_x, pos_max[0].centroid_y);
 
 		//ARRONZAMENTO
 		YARPImageUtils::SetRed(out, colored_u);
@@ -247,8 +247,8 @@ void mainthread::Body (void)
 		outport2.Content().Refer(out2);
 		outport2.Write();
 		
-		v(1) = pos_max[0].x;
-		v(2) = pos_max[0].y;
+		v(1) = pos_max[0].centroid_x;
+		v(2) = pos_max[0].centroid_y;
 		//out_point.Content() = v;
 		//out_point.Write();
 
@@ -269,7 +269,7 @@ void mainthread::Body (void)
 
 int main (int argc, char *argv[])
 {
-	char basename[80];
+	char basename[80]="/";
 	YARPParseParameters::parse(argc, argv, "name", basename);
 
 	ACE_OS::sprintf(_name1, "/visualattention%s/o:img",basename);
