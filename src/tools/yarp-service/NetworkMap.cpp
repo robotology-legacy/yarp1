@@ -174,7 +174,8 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 	  int r = addr.set((short unsigned int)0,(const char *)inIp.c_str());
 	  if (r != -1) {
 	    outIp = addr.get_host_addr();
-	    outNic = "default";
+	    //outNic = "default";
+	    outNic = net;
 	  }
 	  else {
 		outIp = "0.0.0.0";		// nothing was found, return 0.0.0.0

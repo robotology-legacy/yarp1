@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-write.cpp,v 1.6 2004-07-30 13:28:08 eshuy Exp $
+/// $Id: yarp-write.cpp,v 1.7 2004-07-30 14:44:16 eshuy Exp $
 ///
 ///
 
@@ -62,6 +62,8 @@
 #include <yarp/YARPTime.h>
 #include <yarp/YARPBottleContent.h>
 
+#include <yarp/debug.h>
+
 #include <iostream>
 using namespace std;
 
@@ -70,6 +72,8 @@ extern int __debug_level;
 int main(int argc, char *argv[])
 {
   //__debug_level = 100;
+
+  set_yarp_debug(100,100);
 
   argc--;
   argv++;
