@@ -1,0 +1,67 @@
+
+EXECDIR = ../bin/$(SYSDIR)
+EXEC_TARGET = $(EXECDIR)/$(notdir $(PWD))
+
+include $(YARP_ROOT)/conf/Makefile.template
+
+TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))
+
+INCS = -I../../libYARP_OS/include -I$(YARP_ROOT)/include/$(SYSDIR) -I.
+
+CFLAGS = $(CFAST) $(INCS) $(CDEFS) 
+
+SUBDIRS =
+
+GENDIR = obj/$(SYSDIR)
+
+VPATH += $(GENDIR)
+
+default: topinstall
+
+all: target
+
+target: $(TARGETS) $(EXEC_TARGET)
+
+w:
+	@echo -n
+
+$(EXEC_TARGET): $(TARGETS)
+	mkdir -p $(EXECDIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS) -lACE -L../../libYARP_OS/lib/$(SYSDIR) -lYARP_OS
+
+# install to top dir
+topinstall: $(EXEC_TARGET)
+	mkdir -p $(YARP_ROOT)/bin/$(SYSDIR)
+	$(CP) $< $(YARP_ROOT)/bin/$(SYSDIR)
+
+
+$(GENDIR)/%.o: %.cpp
+	mkdir -p $(GENDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(GENDIR)/%.o: %.c
+	mkdir -p $(GENDIR)
+	$(CC1) $(CFLAGS) -c $< -o $@
+
+clean: subclean
+	rm -f $(TARGETS) $(EXEC_TARGETS)
+	rm -f *.o
+
+install: target subinstall
+	@echo Doing nothing as yet
+
+subtarget :
+	@for d in $(SUBDIRS) ; do \
+		( cd $$d ; $(MAKE) $(MAKEFLAGS) target ) ; done
+
+subclean :
+	@for d in $(SUBDIRS) ; do \
+		( cd $$d ; $(MAKE) $(MAKEFLAGS) clean ) ; done
+
+subinstall :
+	@for d in $(SUBDIRS) ; do \
+		( cd $$d ; $(MAKE) $(MAKEFLAGS) install ) ; done
+
+depend:
+	makedepend -Y $(INCS) -p$(GENDIR)/ *.cpp
+
