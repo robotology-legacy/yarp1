@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.1 2003-04-18 08:52:33 gmetta Exp $
+/// $Id: main.cpp,v 1.2 2003-04-21 21:21:23 natta Exp $
 ///
 ///
 
@@ -70,9 +70,10 @@ void print_menu()
 	cout << "\n-----------------------\n";
 	cout << "\nName client menu\n";
 	cout << "\n";
-	cout << "reg name ip: debug mode, register name ip\n";
-	cout << "query name: debug mode, query name\n";
-	cout << "rel name: debug mode, release name\n";
+	cout << "reg name ip: egister name ip\n";
+	cout << "regmc name: register name, multicast\n";
+	cout << "query name: query name\n";
+	cout << "rel name: release name\n";
 	cout << "any key: this menu\n";
 	cout << "q!: exit\n";
 	cout << "-----------------------\n";
@@ -89,6 +90,8 @@ int parse(const std::string &str)
 		return 2;
 	else if (str == "query")
 		return 3;
+	else if (str == "regmc")
+		return 4;
 	else
 		return -1;
 }
@@ -135,7 +138,13 @@ int main(int argc, char* argv[])
 			if (nc.query(str1, tmpAddr) != 0)
 				cout << "Error connecting to the server\n";
 		}
-
+		else if (ret == 4) {
+			string str1;
+			cin >> str1;
+			ACE_INET_Addr tmpAddr;
+			if (nc.check_in_mcast(str1, tmpAddr) != 0)
+				cout << "Error connecting to the server\n";
+		}
 		print_menu();
 	}
 

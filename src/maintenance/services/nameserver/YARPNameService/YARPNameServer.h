@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.3 2003-04-21 20:28:48 natta Exp $
+/// $Id: YARPNameServer.h,v 1.4 2003-04-21 21:20:40 natta Exp $
 ///
 ///
 
@@ -97,46 +97,22 @@
 		do {} while(0)
 #endif
 
-
+// various constants (ip and port pools, ret codes...)
 const int __startPortPool = 1001;
 const int __endPortPool = 1999;
 const int __portNotFound = 0;
 
 const int __startDynPortPool = 4000;
-const int __endDynPortPool = 4002;
+const int __endDynPortPool = 4999;
 
-const char __startIpPool[] = {"224.0.0.1"};
-const char __endIpPool[] = {"224.0.0.4"};
+const char __startIpPool[] = {"224.0.0.0"};
+const char __endIpPool[] = {"224.255.255.255"};
 const char __ipNotFound[] = {"0.0.0.0"};
 
 const int _max_ref = 9999;
 
-inline std::string getNextIp(const std::string &i)
-{
-	char tmp[255];
-	int a,b,c,d;
-	sscanf(i.c_str(),"%d.%d.%d.%d", &a,&b,&c,&d);
-	d++;
-	if (d == 256)
-	{
-		d = 0;
-		c++;
-		if (c == 256)
-		{
-			c = 0;
-			b++;
-			if (b == 256)
-			{
-				b = 0;
-				a++;
-				if (a = 256)
-					a = 0;
-			}
-		}
-	}
-	sprintf(tmp, "%d.%d.%d.%d", a,b,c,d);
-	return std::string(tmp);
-}
+// return the ip address right after 'i'
+std::string getNextIp(const std::string &i);
 
 class PortEntry
 {

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.4 2003-04-21 20:28:48 natta Exp $
+/// $Id: YARPNameServer.cpp,v 1.5 2003-04-21 21:20:40 natta Exp $
 ///
 ///
 
@@ -65,6 +65,9 @@
 #include <fstream>
 #include <iostream>
 
+using namespace std;
+
+// general function
 char * GetYarpRoot (void)
 {
 	char * ret = getenv ("YARP_ROOT");
@@ -75,11 +78,36 @@ char * GetYarpRoot (void)
 	return ret;
 }
 
+std::string getNextIp(const std::string &i)
+{
+	char tmp[255];
+	int a,b,c,d;
+	sscanf(i.c_str(),"%d.%d.%d.%d", &a,&b,&c,&d);
+	d++;
+	if (d == 256)
+	{
+		d = 0;
+		c++;
+		if (c == 256)
+		{
+			c = 0;
+			b++;
+			if (b == 256)
+			{
+				b = 0;
+				a++;
+				if (a = 256)
+					a = 0;
+			}
+		}
+	}
+	sprintf(tmp, "%d.%d.%d.%d", a,b,c,d);
+	return std::string(tmp);
+}
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-using namespace std;
-
 PortEntry IpEntry::ask_new_port()
 {
 	PortEntry new_port;
@@ -572,29 +600,33 @@ int YARPNameServer::handle_connection()
 	iov[0].iov_base = data_buf_;
 	iov[0].iov_len = tmpCmd.length;	//message length
 	res = new_stream_.recvv_n(iov, 1, 0, &byte_count);
-		
-	// ACE_DEBUG((LM_DEBUG,"Server received %s \n",data_buf_));
-	// ACE_DEBUG((LM_DEBUG,"Server received %d bytes\n",byte_count));
-	
-	// NAME_SERVER_DEBUG(("Received %s \n",data_buf_));
 
-	if (tmpCmd.cmd == YARPNSQuery)
+	if ( (tmpCmd.cmd == YARPNSQuery) &&
+		((tmpCmd.type == YARP_UDP) || (tmpCmd.type == YARP_TCP) || (tmpCmd.type == YARP_MCAST)))
 	{
 		// register a name, ask back ip and port
 		YARPNameTCP *tmpRqst = (YARPNameTCP*) (data_buf_);
 		handle_query(tmpRqst->_name);
 	}
-	else if (tmpCmd.cmd == YARPNSRelease)
+	else if ((tmpCmd.cmd == YARPNSRelease) &&
+		((tmpCmd.type == YARP_UDP) || (tmpCmd.type == YARP_TCP) || (tmpCmd.type == YARP_MCAST)))
 	{
 		// release a name
 		YARPNameTCP *tmpRqst = (YARPNameTCP*) (data_buf_);
 		handle_release(tmpRqst->_name);
 	}
-	else if (tmpCmd.cmd == YARPNSRegister)
+	else if ((tmpCmd.cmd == YARPNSRegister) &&
+		((tmpCmd.type == YARP_UDP) || (tmpCmd.type == YARP_TCP)))
 	{ 
-		// register name and ip, ask back ip and port
+		// register name and ip, ask back port (TCP and UDP)
 		YARPNameTCP *tmpRqst = (YARPNameTCP*) (data_buf_);
 		handle_registration(tmpRqst->_name, std::string(tmpRqst->_ip));
+	}
+	else if ((tmpCmd.cmd == YARPNSRegister) &&
+		(tmpCmd.type == YARP_MCAST))
+	{
+		YARPNameTCP *tmpRqst = (YARPNameTCP*) (data_buf_);
+		handle_registration_dip(tmpRqst->_name);
 	}
 	else
 		NAME_SERVER_DEBUG(("Sorry: command not recognized\n"));
