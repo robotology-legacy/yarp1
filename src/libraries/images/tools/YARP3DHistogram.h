@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARP3DHistogram.h,v 1.8 2003-10-31 18:31:19 natta Exp $ 
+/// $Id: YARP3DHistogram.h,v 1.9 2003-12-05 16:16:21 babybot Exp $ 
 ///
 /// August 2003 -- by nat
 
@@ -161,9 +161,9 @@ public:
 
 	inline unsigned int pixelToKey(unsigned char r, unsigned char g, unsigned char b, unsigned int *key)
 	{
-		int tmpR = (r/_delta[0]);
-		int tmpG = (g/_delta[1]);
-		int tmpB = (b/_delta[2]);
+		int tmpR = (int) (r/_delta[0]);
+		int tmpG = (int) (g/_delta[1]);
+		int tmpB = (int) (b/_delta[2]);
 
 		unsigned int tmp;
 		tmp = (tmpR)*_size[1]*_size[2];

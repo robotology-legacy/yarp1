@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPColorConverter.cpp,v 1.4 2003-08-20 08:13:55 natta Exp $
+/// $Id: YARPColorConverter.cpp,v 1.5 2003-12-05 16:16:21 babybot Exp $
 ///
 ///
 
@@ -117,7 +117,7 @@ void YARPColorConverter::RGB2Normalized (const YARPImageOf<YarpPixelRGB>& in, YA
 		for(c = 0; c < in.GetWidth(); c++)
 		{
 			tmp = (float *) outTmp;
-			lum = inTmp[0] + inTmp[1] + inTmp[2];
+			lum = (float)( inTmp[0] + inTmp[1] + inTmp[2]);
 			if (lum > threshold)
 			{
 				tmp[0] = inTmp[0]/lum;
@@ -160,7 +160,7 @@ void YARPColorConverter::RGB2Normalized (const YARPImageOf<YarpPixelRGB>& in, YA
 	{
 		for(c = 0; c < in.GetWidth(); c++)
 		{
-			lum = inTmp[0] + inTmp[1] + inTmp[2];
+			lum = (float)(inTmp[0] + inTmp[1] + inTmp[2]);
 			if (lum > threshold)
 			{
 				outTmp[0] = (unsigned char)((inTmp[0]/lum)*255 + 0.5);
@@ -205,7 +205,7 @@ void YARPColorConverter::RGB2Normalized (const YARPImageOf<YarpPixelBGR>& in, YA
 	{
 		for(c = 0; c < in.GetWidth(); c++)
 		{
-			lum = inTmp[0] + inTmp[1] + inTmp[2];
+			lum = (float) (inTmp[0] + inTmp[1] + inTmp[2]);
 			if (lum > threshold)
 			{
 				outTmp[0] = (unsigned char)((inTmp[0]/lum)*255 + 0.5);	// B

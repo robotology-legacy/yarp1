@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.cpp,v 1.12 2003-09-04 16:57:40 babybot Exp $
+/// $Id: YARPBlobDetector.cpp,v 1.13 2003-12-05 16:16:21 babybot Exp $
 ///
 ///
 
@@ -126,7 +126,7 @@ void YARPBlobDetector::filter(YARPImageOf<YarpPixelMono> &in)
 				int maxY = r+_filterSizeCart[f];
 				int minY = r-_filterSizeCart[f];
 
-				tmp += _integralImg.getSaliency(maxX, minX, maxY, minY)*255/_nfilters;
+				tmp += (float) _integralImg.getSaliency(maxX, minX, maxY, minY)*255/_nfilters;
 			}
 
 			if (_threshold > 0)
@@ -172,7 +172,7 @@ void YARPBlobDetector::filterLp(YARPImageOf<YarpPixelMono> &in)
 				int maxY = r+deltaT;
 				int minY = r-deltaT;
 				
-				tmp += _integralImg.getSaliencyLp(maxX, minX, maxY, minY)*255/_nfilters;
+				tmp += (float) _integralImg.getSaliencyLp(maxX, minX, maxY, minY)*255/_nfilters;
 			}
 			if (_threshold > 0)
 			{

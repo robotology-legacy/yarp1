@@ -17,7 +17,7 @@ void YARPLpConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, int *t0,  int 
 	_moments.centerOfMass(in, &x, &y);
 	_moments.Cartesian2Logpolar(x, y, *r0, *t0);
 	
-	*R = _radiusOfGyration(in, x, y);
+	*R = (int) (_radiusOfGyration(in, x, y) + 0.5);
 }
 
 void YARPLpConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, int *t0,  int *r0, double *a11, double *a12, double *a22)
@@ -57,7 +57,6 @@ void YARPLpConicFitter::_radius(YARPImageOf<YarpPixelMono> &in, int theta,  int 
 	double avR = 0.0;
 	double maxR = 0.0;
 	double minR = 255*255;
-	int n = 0;
 	int x0;
 	int y0;
 	unsigned char *src;
@@ -119,7 +118,7 @@ void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, doub
 		return;
 	}
 	
-	r0 = _moments.CsiToRo(R0);
+	r0 = (int) _moments.CsiToRo(R0);
 	double c0 = cos((T0)/_q);
 	double s0 = sin((T0)/_q);
 
@@ -139,7 +138,7 @@ void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, doub
 		double DELTA = B*B-A*C;
 		if (DELTA >= 0)
 		{
-			int r = (B+sqrt(DELTA))/A + 0.5;
+			int r = (int) ((B+sqrt(DELTA))/A + 0.5);
 			if (r > 0)
 			{
 				rho = _moments.RoToCsi(r);
@@ -147,7 +146,7 @@ void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, doub
 					output(theta,rho) = 255;
 			}
 			
-			r = (B-sqrt(DELTA))/A + 0.5;
+			r = (int) ((B-sqrt(DELTA))/A + 0.5);
 			if (r > 0)
 			{
 				rho = _moments.RoToCsi(r);
@@ -173,7 +172,7 @@ void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, doub
 		return;
 	}
 
-	r0 = _moments.CsiToRo(R0);
+	r0 = (int) _moments.CsiToRo(R0);
 	double c0 = cos((T0)/_q);
 	double s0 = sin((T0)/_q);
 
@@ -193,7 +192,7 @@ void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, doub
 		double DELTA = B*B-A*C;
 		if (DELTA >= 0)
 		{
-			int r = (B+sqrt(DELTA))/A + 0.5;
+			int r = (int) ((B+sqrt(DELTA))/A + 0.5);
 			if (r > 0)
 			{
 				rho = _moments.RoToCsi(r);
@@ -201,7 +200,7 @@ void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, doub
 					output(theta,rho) = v;
 			}
 			
-			r = (B-sqrt(DELTA))/A + 0.5;
+			r = (int) ((B-sqrt(DELTA))/A + 0.5);
 			if (r > 0)
 			{
 				rho = _moments.RoToCsi(r);
@@ -220,14 +219,14 @@ void YARPLpConicFitter::plotCircle(int T0, int R0, double R, YARPImageOf<YarpPix
 	int theta;
 	int rho;
 	int r0;
-	r0 = _moments.CsiToRo(R0);
+	r0 = (int)(_moments.CsiToRo(R0)+0.5);
 	for(theta = 0; theta < _logpolarParams::_stheta; theta++)
 	{
 		double c = cos((theta-T0)/_q);
 		double DELTA = (r0*r0*(c*c-1) + R*R);
 		if (DELTA>=0)
 		{
-			int r = (r0*c+sqrt(DELTA)) + 0.5;
+			int r = (int) (r0*c+sqrt(DELTA) + 0.5);
 			if (r > 0)
 			{
 				rho = _moments.RoToCsi(r);
@@ -235,7 +234,7 @@ void YARPLpConicFitter::plotCircle(int T0, int R0, double R, YARPImageOf<YarpPix
 					output(theta,rho) = 255;
 			}
 			
-			r = (r0*c-sqrt(DELTA)) + 0.5;
+			r = (int) ((r0*c-sqrt(DELTA)) + 0.5);
 			if (r > 0)
 			{
 				rho = _moments.RoToCsi(r);
@@ -260,7 +259,7 @@ void YARPLpConicFitter::plotCircle(int T0, int R0, double R, YARPImageOf<YarpPix
 		double DELTA = (r0*r0*(c*c-1) + R*R);
 		if (DELTA>=0)
 		{
-			int r = (r0*c+sqrt(DELTA)) + 0.5;
+			int r = (int) ((r0*c+sqrt(DELTA)) + 0.5);
 			if (r > 0)
 			{
 				rho = _moments.RoToCsi(r);
@@ -268,7 +267,7 @@ void YARPLpConicFitter::plotCircle(int T0, int R0, double R, YARPImageOf<YarpPix
 					output(theta,rho) = v;
 			}
 			
-			r = (r0*c-sqrt(DELTA)) + 0.5;
+			r = (int) ((r0*c-sqrt(DELTA)) + 0.5);
 			if (r > 0)
 			{
 				rho = _moments.RoToCsi(r);

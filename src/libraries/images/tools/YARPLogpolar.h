@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.17 2003-11-11 21:36:05 babybot Exp $
+/// $Id: YARPLogpolar.h,v 1.18 2003-12-05 16:16:21 babybot Exp $
 ///
 ///
 
@@ -116,6 +116,7 @@ namespace _logpolarParams
 
 inline double pSize(int c, int r, int nf = _logpolarParams::_sfovea)
 {
+	c;	// keep the compiler happy
 	const double _alfa = 0.0130;
 	const double _beta = 0.91;
 
@@ -178,18 +179,19 @@ public:
 	inline int GetCWidth (void) const { return _logpolarParams::_xsize; }
 	inline int GetCHeight (void) const { return _logpolarParams::_ysize; }
 
-	inline double CsiToRo(double csi)
+	inline int CsiToRo(double csi)
 	{
-		return _logpolarParams::_alfa*exp(_logpolarParams::_beta*csi);
+		return (int) (_logpolarParams::_alfa*exp(_logpolarParams::_beta*csi)+0.5);
 	}
 
-	inline double RoToCsi(double r)
+	inline int RoToCsi(double r)
 	{
-		return _logpolarParams::_beta_inv*log(_logpolarParams::_alfa_inv*r);
+		return (int) (_logpolarParams::_beta_inv*log(_logpolarParams::_alfa_inv*r)+0.5);
 	}
 
 	inline double Jacobian(int csi, int eta)
 	{
+		eta;	// keep the compiler happy
 		double ret;
 		ret = _logpolarParams::_jacob1 * exp(2*_logpolarParams::_beta*csi);
 		return ret;

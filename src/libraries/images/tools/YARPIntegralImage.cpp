@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.cpp,v 1.6 2003-09-04 16:57:40 babybot Exp $
+/// $Id: YARPIntegralImage.cpp,v 1.7 2003-12-05 16:16:21 babybot Exp $
 ///
 ///
 
@@ -99,7 +99,7 @@ void YARPIntegralImage::_resize(int nC, int nR, int sf)
 	_nRows = nR;
 	_nfovea = sf;
 
-	_max = 255*(nR-sf)*nC;
+	_max = (float) (255*(nR-sf)*nC);
 	
 	_integralImg.Resize(nC, nR);
 	_rowSum.Resize(nC,nR);
@@ -163,12 +163,12 @@ int YARPIntegralImage::computeLp(YARPImageOf<YarpPixelMono> &input)
 	for(r = _nfovea; r < _nRows; r++)
 	{
 		// first col
-		_rowSum(0,r) = input(0,r)*pSize(c,r,_nfovea) ;
+		_rowSum(0,r) = (float) (input(0,r)*pSize(c,r,_nfovea));
 		_integralImg(0, r) = _integralImg(0, r-1) + _rowSum(0,r);
 		
 		for(c = 1; c < _nCols; c++)
 		{
-			_rowSum(c,r) = _rowSum(c-1,r) + input(c,r)*pSize(c,r,_nfovea);
+			_rowSum(c,r) = _rowSum(c-1,r) + (float) (input(c,r)*pSize(c,r,_nfovea));
 			_integralImg(c,r) = _integralImg(c, r-1) + _rowSum(c,r);
 		}
 	}

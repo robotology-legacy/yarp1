@@ -95,7 +95,7 @@ void Histo1D:: resize(unsigned char max, unsigned char min, unsigned char size)
 	_max = max;
 	_min = min;
 	_size = size;
-	_delta = (_max-_min)/_size;
+	_delta = (unsigned char) ((_max-_min)/_size);
 	if (((_max-_min)%_size) != 0)
 		_delta += 1;
 		
