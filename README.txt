@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.8 2003-04-09 10:52:04 gmetta Exp $
+$Id: README.txt,v 1.9 2003-04-09 11:10:39 gmetta Exp $
 
 Before you do anything else.
 YARP assumes you have correctly set up the following variables (ALSO WINNT):
@@ -11,7 +11,7 @@ While most of the code compiles correctly on different platforms,
 there are exceptions (e.g. the device drivers).
 Also we assumed:
 -Microsoft Visual C++ on NT
--Watcom 10.6 on QNX
+-Watcom 10.6 on QNX4.25
 -gcc (?) on LINUX
 
 

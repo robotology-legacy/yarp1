@@ -1,7 +1,9 @@
 //
-// $id$
+// $Id: config.h,v 1.3 2003-04-09 11:10:39 gmetta Exp $
 //	ACE Config File
 //
+
+#include <conf/YARPConfig.h>
 
 #ifdef __QNX6__
 
