@@ -961,9 +961,9 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, int num, YARPBox* boxes)
 	findBlobs(num, boxes);
 	quantizeColors();
 	
-	ACE_OS::sprintf(savename, "./src.ppm");
+	/*ACE_OS::sprintf(savename, "./src.ppm");
 	YARPImageFile::Write(savename, src);
-	saveImages();
+	saveImages();*/
 
 	
 	/*MinMax(edge, mn, mx);
@@ -1286,7 +1286,7 @@ void YARPImgAtt::findBlobs(int num, YARPBox* boxes)
 	//rain.SortAndComputeSalience(200, max_tag);
 	//rain.SortAndComputeSalience(100, max_tag);
 	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
-	rain.IOR(tagged, boxes, num);
+	//rain.IOR(tagged, boxes, num);
 	
 	rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
 	//pOldZdi=((IplImage *)tmp1)->roi;
@@ -1305,10 +1305,10 @@ void YARPImgAtt::findBlobs(int num, YARPBox* boxes)
 	YARPImageFile::Write(savename, tmpBGR1);*/
 
 	
-	tmpBGR1.Zero();
+	/*tmpBGR1.Zero();
 	rain.DrawMeanOpponentColorsLP(tmpBGR1, tagged);
 	ACE_OS::sprintf(savename, "./meanocol.ppm");
-	YARPImageFile::Write(savename, tmpBGR1);
+	YARPImageFile::Write(savename, tmpBGR1);*/
 
 
 	/*blobFinder.DrawGrayLP(tmp1, tagged, 200);
