@@ -38,4 +38,4 @@ test: deploy
 	@cd tmp/YARP && make
 
 clean:
-	rm -rf $(TARGETS) unpacked.tag
+	rm -rf $(TARGETS) unpacked.tag $(MAIN).tar $(MAIN).tar.gz
