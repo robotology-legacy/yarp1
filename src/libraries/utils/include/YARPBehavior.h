@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.20 2003-11-07 14:08:21 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.21 2003-11-12 17:14:28 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -360,7 +360,8 @@ handleMsg()
 	YARPBottle tmp;
 	tmp = _inport.Content();
 
-	// tmp.display();
+	//ACE_OS::printf("Received:\n");
+	//tmp.display();
 	
 	return _parse(tmp);
 }

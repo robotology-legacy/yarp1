@@ -23,7 +23,7 @@ void YARPBottle::dump()
 
 void YARPBottle::display()
 {
-	ACE_OS::printf("%s: ", id.text.c_str());
+	ACE_OS::printf("%s: ", id.c_str());
 	rewind();
     int first = 1;
     while (more())

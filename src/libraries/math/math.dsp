@@ -105,10 +105,6 @@ SOURCE=.\YARPMatrix.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\YARPRecursiveLS.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\YARPRobotMath.cpp
 # End Source File
 # End Group

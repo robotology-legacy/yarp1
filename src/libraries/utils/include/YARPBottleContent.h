@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottleContent.h,v 1.5 2003-11-07 14:08:21 babybot Exp $
+/// $Id: YARPBottleContent.h,v 1.6 2003-11-12 17:14:28 babybot Exp $
 ///
 ///
 
@@ -91,7 +91,7 @@ public:
     {
 	  // read id
 	  reader.Read((char*)(&id.length), sizeof(id.length));
-	  reader.Read(&id.text[0], id.length);
+	  reader.Read(id.text, id.length);
 	  // read id
 	  reader.Read((char*)(&len),sizeof(len));
 
@@ -106,7 +106,7 @@ public:
   virtual int Write(YARPPortWriter& writer)
     {
 	  writer.Write((char*)(&id.length),sizeof(id.length));
-	  writer.Write((char*) id.text.c_str(), id.length);
+	  writer.Write((char*) id.text, id.length);
 	  len = top; 
       
       writer.Write((char*)(&len),sizeof(len));

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.5 2003-11-07 14:08:21 babybot Exp $
+/// $Id: YARPBottle.h,v 1.6 2003-11-12 17:14:28 babybot Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -93,22 +93,52 @@ class YARPBottle
 	{
 		BottleId()
 		{
-			text.resize(__maxBottleID);
+		//	text.resize(__maxBottleID);
 		}
 
 		void set(const char *s)
 		{ 
-			text.set(s);
-			int tmp = text.length() + 1;
-			length = (tmp < __maxBottleID) ? tmp :__maxBottleID;
+			strncpy(text, s , __maxBottleID-1);
+			text[__maxBottleID-1] = '\0';	// paranoid ?
+			length = strlen(text)+1;
 		}
 		void set(const YBVocab &s)
 		{
-			text = s;
-			int tmp = text.length() + 1;
-			length = (tmp < __maxBottleID) ? tmp :__maxBottleID;
+			set(s.c_str());
 		}
-		YBVocab text;
+
+		bool operator !=(const BottleId &l) const
+		{
+			return !operator==(l);
+		}
+		
+		bool operator==(const BottleId &l) const
+		{
+			if (strcmp(text, l.c_str()) == 0)
+				return true;
+			else
+				return false;
+		}
+
+		bool operator !=(const YBVocab &l) const
+		{
+			return !operator==(l);
+		}
+		
+		bool operator==(const YBVocab &l) const
+		{
+			if (strcmp(text, l.c_str()) == 0)
+				return true;
+			else
+				return false;
+		}
+
+		const char *c_str() const
+		{
+			return text;
+		}
+
+		char text[__maxBottleID];
 		NetInt32 length;
 	};
 
@@ -127,7 +157,7 @@ public:
     YARPVector<char>& getBuffer() { return text; }
 
 	void setID(const YBVocab &l) { id.set(l.c_str()); }
-	const YBVocab &getID() const { return id.text; }
+	const BottleId &getID() const { return id; }
 	int getSize() const { return text.size(); }
   
 	// consecutive writes add data in the buffer

@@ -9,8 +9,6 @@
 #include <YARPBPNNet.h>
 #include <YARPBabybotHeadKin.h>
 
-#define FULL_SIZE 256
-
 class HandKinematics
 {
 public:
@@ -19,15 +17,6 @@ public:
 
 	void learn(YVector &arm, YVector &head, YARPBottle &newPoint);
 	
-	/*
-	void query(YARPImageOf<YarpPixelMono> &in)
-	{
-		YARPShapeEllipse el;
-
-		_query(_armPosition, el);
-		_fitter.plotEllipse(el, in);
-	}*/
-
 	void query(YVector &arm, YVector &head, YARPShapeEllipse &el)
 	{
 		_query(arm, head, el);
@@ -50,22 +39,9 @@ private:
 		_center.sim(arm.data(),	// uses only the first 3 joints
 				    _v.data());
 
-		/*
-		double tmp = 1 - _v(1)*_v(1) - _v(2)*_v(2);
-		if (tmp>0)
-			_v(3) =sqrt(tmp);
-		else
-			_v(3) = 0.0;
-		*/
-
 		// compute retinal position
 		int predx = 0, predy = 0;
 		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v, predx, predy);
-
-		// predx += FULL_SIZE/2;
-		// predy += FULL_SIZE/2;
-
-		printf("%d\t%d\n", predx, predy);
 
 		//////////////////////////////////////
 

@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPRepeater.h,v 1.6 2003-08-04 08:43:51 babybot Exp $
+/// $Id: YARPRepeater.h,v 1.7 2003-11-12 17:14:28 babybot Exp $
 ///  
 //
 
@@ -95,9 +95,12 @@ public:
 		while(!IsTerminated())
 		{
 			_inputPort.Read();
+			ACE_OS::printf("Received:\n");
 			_inputPort.Content().display();	// this is ok only if DATATYPE is a YARPBottle
 
 			_outputPort.Content() = _inputPort.Content();
+			ACE_OS::printf("Sent:\n");
+			_outputPort.Content().display();
 			_outputPort.Write();
 		}
 	}

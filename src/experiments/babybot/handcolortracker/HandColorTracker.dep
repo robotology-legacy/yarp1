@@ -127,10 +127,7 @@
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\logpolarsdk.h"\
 	"..\..\..\..\include\mesh.h"\
-	"..\..\..\..\include\mm.h"\
-	"..\..\..\..\include\nnet.h"\
 	"..\..\..\..\include\port.h"\
-	"..\..\..\..\include\random.h"\
 	"..\..\..\..\include\refcounted.h"\
 	"..\..\..\..\include\sendable.h"\
 	"..\..\..\..\include\sys\ipl.h"\
@@ -139,16 +136,19 @@
 	"..\..\..\..\include\sys\iplwind.h"\
 	"..\..\..\..\include\yarp3dhistogram.h"\
 	"..\..\..\..\include\yarpall.h"\
+	"..\..\..\..\include\yarpbabybotheadkin.h"\
 	"..\..\..\..\include\yarpblobdetector.h"\
 	"..\..\..\..\include\yarpbottle.h"\
 	"..\..\..\..\include\yarpbottlecodes.h"\
 	"..\..\..\..\include\yarpbottlecontent.h"\
+	"..\..\..\..\include\yarpbpnnet.h"\
 	"..\..\..\..\include\yarpcolorconverter.h"\
 	"..\..\..\..\include\yarpconfigfile.h"\
 	"..\..\..\..\include\yarpconicfitter.h"\
 	"..\..\..\..\include\yarpcontrolboardnetworkdata.h"\
 	"..\..\..\..\include\yarpdibconverter.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\..\include\yarpfft.h"\
 	"..\..\..\..\include\yarpfilters.h"\
 	"..\..\..\..\include\yarpfragments.h"\
 	"..\..\..\..\include\yarphistosegmentation.h"\
@@ -161,9 +161,11 @@
 	"..\..\..\..\include\yarpimages.h"\
 	"..\..\..\..\include\yarpimageutils.h"\
 	"..\..\..\..\include\yarpintegralimage.h"\
+	"..\..\..\..\include\yarpkinematics.h"\
 	"..\..\..\..\include\yarplist.h"\
 	"..\..\..\..\include\yarplogfile.h"\
 	"..\..\..\..\include\yarplogpolar.h"\
+	"..\..\..\..\include\yarpmath.h"\
 	"..\..\..\..\include\yarpmatrix.h"\
 	"..\..\..\..\include\yarpmatrix.inl"\
 	"..\..\..\..\include\yarpnameid.h"\
@@ -179,6 +181,7 @@
 	"..\..\..\..\include\yarpstring.h"\
 	"..\..\..\..\include\yarpthread.h"\
 	"..\..\..\..\include\yarptime.h"\
+	"..\..\..\..\include\yarpvectorportcontent.h"\
 	".\HandKinematics.h"\
 	".\HandSegmenter.h"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
@@ -311,23 +314,23 @@
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\logpolarsdk.h"\
 	"..\..\..\..\include\mesh.h"\
-	"..\..\..\..\include\mm.h"\
-	"..\..\..\..\include\nnet.h"\
 	"..\..\..\..\include\port.h"\
-	"..\..\..\..\include\random.h"\
 	"..\..\..\..\include\refcounted.h"\
 	"..\..\..\..\include\sendable.h"\
 	"..\..\..\..\include\sys\ipl.h"\
 	"..\..\..\..\include\sys\iplerror.h"\
 	"..\..\..\..\include\sys\iplmisc.h"\
 	"..\..\..\..\include\yarpall.h"\
+	"..\..\..\..\include\yarpbabybotheadkin.h"\
 	"..\..\..\..\include\yarpbottle.h"\
 	"..\..\..\..\include\yarpbottlecodes.h"\
 	"..\..\..\..\include\yarpbottlecontent.h"\
+	"..\..\..\..\include\yarpbpnnet.h"\
 	"..\..\..\..\include\yarpconfigfile.h"\
 	"..\..\..\..\include\yarpconicfitter.h"\
 	"..\..\..\..\include\yarpcontrolboardnetworkdata.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\..\include\yarpfft.h"\
 	"..\..\..\..\include\yarpfilters.h"\
 	"..\..\..\..\include\yarpfragments.h"\
 	"..\..\..\..\include\yarpimage.h"\
@@ -338,9 +341,11 @@
 	"..\..\..\..\include\yarpimageportcontent.h"\
 	"..\..\..\..\include\yarpimages.h"\
 	"..\..\..\..\include\yarpimageutils.h"\
+	"..\..\..\..\include\yarpkinematics.h"\
 	"..\..\..\..\include\yarplist.h"\
 	"..\..\..\..\include\yarplogfile.h"\
 	"..\..\..\..\include\yarplogpolar.h"\
+	"..\..\..\..\include\yarpmath.h"\
 	"..\..\..\..\include\yarpmatrix.h"\
 	"..\..\..\..\include\yarpmatrix.inl"\
 	"..\..\..\..\include\yarpnameid.h"\

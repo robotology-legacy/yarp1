@@ -29,8 +29,10 @@ public:
 
 		int x,y;
 		mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
-		x = (x + _logpolarParams::_xsize/2)/__scale;
-		y = (_logpolarParams::_ysize/2-y)/__scale;
+		///x = (x + _logpolarParams::_xsize/2)/__scale;
+		///y = (_logpolarParams::_ysize/2-y)/__scale;
+		x /= __scale;
+		y /= __scale;
 		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(255, 0, 0));
 		_send();
 	}
@@ -63,8 +65,10 @@ public:
 		outImage.Zero();
 		int x,y;
 		mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
-		x = (x + _logpolarParams::_xsize/2)/__scale;
-		y = (_logpolarParams::_ysize/2-y)/__scale;
+		///x = (x + _logpolarParams::_xsize/2)/__scale;
+		///y = (_logpolarParams::_ysize/2-y)/__scale;
+		x /= __scale;
+		y /= __scale;
 		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(v, 0, 0));
 		//send 
 		_send();

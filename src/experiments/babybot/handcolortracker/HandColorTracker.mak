@@ -54,7 +54,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\HandColorTracker.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=mbp.lib math.lib utils.lib winmm.lib images.lib ace.lib os_services.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\HandColorTracker.pdb" /machine:I386 /nodefaultlib:"libcmt.lib" /nodefaultlib:"libc.lib" /out:"$(OUTDIR)\HandColorTracker.exe" /libpath:"..\..\..\..\lib\winnt" 
+LINK32_FLAGS=motorcontrol.lib math.lib utils.lib winmm.lib images.lib ace.lib os_services.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\HandColorTracker.pdb" /machine:I386 /nodefaultlib:"libcmt.lib" /nodefaultlib:"libc.lib" /out:"$(OUTDIR)\HandColorTracker.exe" /libpath:"..\..\..\..\lib\winnt" 
 LINK32_OBJS= \
 	"$(INTDIR)\HandColorTracker.obj" \
 	"$(INTDIR)\HandDirectKinematics.obj"
@@ -106,7 +106,7 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\HandColorTracker.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=imagesdb.lib mathdb.lib motorcontroldb.lib mathdb.lib utilsdb.lib alldriversdb.lib winmm.lib os_servicesDB.lib ipl.lib aced.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"$(OUTDIR)\HandColorTracker.pdb" /debug /machine:I386 /nodefaultlib:"libcmt.lib" /nodefaultlib:"libc.lib" /out:"$(OUTDIR)\HandColorTracker.exe" /pdbtype:sept /libpath:"..\..\..\..\lib\winnt" 
+LINK32_FLAGS=mbpd.lib imagesdb.lib mathdb.lib motorcontroldb.lib mathdb.lib utilsdb.lib alldriversdb.lib winmm.lib os_servicesDB.lib ipl.lib aced.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"$(OUTDIR)\HandColorTracker.pdb" /debug /machine:I386 /nodefaultlib:"libcmt.lib" /nodefaultlib:"libc.lib" /out:"$(OUTDIR)\HandColorTracker.exe" /pdbtype:sept /libpath:"..\..\..\..\lib\winnt" 
 LINK32_OBJS= \
 	"$(INTDIR)\HandColorTracker.obj" \
 	"$(INTDIR)\HandDirectKinematics.obj"

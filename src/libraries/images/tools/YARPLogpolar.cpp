@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.21 2003-11-11 21:36:05 babybot Exp $
+/// $Id: YARPLogpolar.cpp,v 1.22 2003-11-12 17:14:27 babybot Exp $
 ///
 ///
 
@@ -336,6 +336,9 @@ YARPLogpolar::~YARPLogpolar ()
 	} //  end critical section
 }
 
+///
+///
+/// ox, oy in [0,max]x[0,max]
 int YARPLogpolar::Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy)
 {
 	double xx = 0;
@@ -343,8 +346,9 @@ int YARPLogpolar::Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy)
 
 	Get_XY_Center(&xx, &yy, irho, itheta, &_img, _angShiftMap);
 
-	ox = int(xx + .5);
-	oy = int(yy + .5);
+	using namespace _logpolarParams;
+	ox = int(xx + .5) + _xsize/2;
+	oy = _ysize/2 - int(yy + .5);
 
 	return YARP_OK;
 }
@@ -382,8 +386,14 @@ int YARPLogpolar::Logpolar2CartesianFovea (const YARPImageOf<YarpPixelBGR>& in, 
 	return YARP_OK;
 }
 
+///
+/// ix, iy are in [0,max]x[0,max]
 int YARPLogpolar::Cartesian2Logpolar (int ix, int iy, int& orho, int& otheta)
 {
+	using namespace _logpolarParams;
+	ix -= _xsize/2;
+	iy = _ysize/2 - iy;
+
 	orho = Get_Rho (ix, iy, &_img);
 	otheta = Get_Theta(ix, iy, orho, &_img, _angShiftMap, _padMap);
 
