@@ -1,0 +1,4 @@
+root ..
+package libYARP_math
+copy dir src/libYARP_math
+endpackage

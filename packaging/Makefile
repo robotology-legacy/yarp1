@@ -34,7 +34,7 @@ unpacked.tag: $(ZIPS)
 $(MAIN).tar: unpacked.tag
 	cd tmp && tar cvf ../$@ YARP
 
-test: deploy
+test: unpacked.tag
 	@cd tmp/YARP && make
 
 clean:
