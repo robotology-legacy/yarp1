@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.5 2003-04-27 16:54:35 natta Exp $
+/// $Id: LocalNameServer.h,v 1.6 2003-04-29 21:27:04 gmetta Exp $
 ///
 ///
 
@@ -89,11 +89,12 @@
 #endif
 
 // various constants (ip and port pools, ret codes...)
-const int __startPortPool = 1001;
-const int __endPortPool = 1999;
+const int __startPortPool = 10001;
+const int __endPortPool = 10999;
+///const int __portNotFound = 0;
 
-const int __startDynPortPool = 4000;
-const int __endDynPortPool = 4999;
+const int __startDynPortPool = 10001;
+const int __endDynPortPool = 10999;
 
 const char __startIpPool[] = {"224.0.0.0"};
 const char __endIpPool[] = {"224.255.255.255"};
