@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: soundidentification.cpp,v 1.16 2004-10-05 17:38:39 beltran Exp $
+/// $Id: soundidentification.cpp,v 1.17 2004-10-06 15:48:14 beltran Exp $
 ///
 
 /** 
@@ -69,13 +69,14 @@ using namespace std;
 int calculateMixel(YARPCovMatrix &, 
 			   YARPImageOf<YarpPixelBGR>*,int,int,int); 
 int calculateMixel2(double *,
-			   	YARPImageOf<YarpPixelBGR>*,int,int,int); 
+			   	YARPImageOf<YarpPixelBGR>*,int,int,int,double&); 
 
 const int   __outSize    = 5;
 const char *__baseName   = "/soundidentification/";
 const char *__configFile = "sound.ini";
 int _sizex = 250;
 int _sizey = 270; /** @todo Put this as an external parameter?. */
+const double __rmsthreshold = 300.0;
 
 /**
  * Some variable for the network connection.
@@ -188,6 +189,11 @@ public:
         int _dMixelValue           = 0;
 		double _dSoundRms = 0.0;
 		double _vRms[ARRAY_MAX];
+		YARPImageOf<YarpPixelBGR> newimg;
+		int memory_factor = 0;
+		bool _first = true;
+		double _rmsmean = __rmsthreshold + 1;
+		double _rmsmeansum = 0.0;
 
 		while(!IsTerminated())
 		{
@@ -213,6 +219,12 @@ public:
 			//----------------------------------------------------------------------
 			if ( _imgInput.GetWidth() != _imgMixelgram.GetWidth() || _imgInput.GetHeight() != _imgMixelgram.GetHeight())
 				_imgMixelgram.Resize(_imgInput.GetWidth(),_imgInput.GetHeight());
+			if (_first)
+			{
+				newimg.Resize(_imgInput.GetWidth(), _imgInput.GetHeight());
+				_first = false;
+			}
+
 
 			//----------------------------------------------------------------------
 			//  Introduce image into the images vector.
@@ -249,24 +261,72 @@ public:
 				int wend   = w - (w * 1/3);
 				int hstart = h - (h * 2/3);
 				int hend   = h - (h * 1/3);
+				int number_pixels = 0;
 				//----------------------------------------------------------------------
 				//  Navigate through the pixels and calculate the Mixel for each one. 
 				//----------------------------------------------------------------------
-				for(i = wstart; i < wend; i++ )
-					for( j = hstart; j < hend; j++)
-				//for(i = 0; i < w; i++ )
-				//	for( j = 0; j < h; j++)
+				//for(i = wstart; i < wend; i++ )
+				//	for( j = hstart; j < hend; j++)
+				for(i = 0; i < w; i+=3 )
+					for( j = 0; j < h; j+=3)
 					{
 						///////_dMixelValue = calculateMixel(_mSoundCov, _vImages,_soundTemplate.Length(), i, j);
-						_dMixelValue = calculateMixel2(_vRms, _vImages,_soundTemplate.Length(), i, j);
+						_dMixelValue = calculateMixel2(_vRms, _vImages,_soundTemplate.Length(), i, j, _rmsmean);
 						//_dMixelValue = counter;
-						if (_dMixelValue > 100) //Threshold
-							_imgMixelgram.SafePixel(i,j).r = _dMixelValue;
+						if (_dMixelValue > 180) //Threshold
+						{
+							//----------------------------------------------------------------------
+							//  Paint all the sorrounding pixels
+							//----------------------------------------------------------------------
+							for ( int ni = i-2; ni < i+2; ni++ )
+								for (int nj = j-2; nj < j+2; nj++)
+									_imgMixelgram.SafePixel(ni,nj).r = _dMixelValue;
+							number_pixels++;
+						}
 						else
-							_imgMixelgram.SafePixel(i,j).r = 0;
+						{
+							for ( int ni = i-2; ni < i+2; ni++ )
+								for (int nj = j-2; nj < j+2; nj++)
+									_imgMixelgram.SafePixel(ni,nj).r = 0;
+						}
 						_imgMixelgram.SafePixel(i,j).g = 0;
 						_imgMixelgram.SafePixel(i,j).b = 0;
 					}
+
+				_rmsmeansum += _rmsmean;
+
+				if ( memory_factor > 60)
+					newimg.Zero();
+				memory_factor++;
+				double alpha = 0.95; // Decaing factor
+
+				if (number_pixels > 40)
+				{
+					YARPImageOf<YarpPixelBGR>& tmpimg2 = _vImages[_soundTemplate.Length()-1];
+	
+					for(i = 0; i < w; i++ )
+						for( j = 0; j < h; j++)
+							if ( _imgMixelgram.SafePixel(i,j).r > 180)
+								newimg.SafePixel(i,j) = tmpimg2.SafePixel(i,j);
+							else
+							{
+								if ( memory_factor > 60)
+								{
+									newimg.SafePixel(i,j).r = 0;
+									newimg.SafePixel(i,j).g = 0;
+									newimg.SafePixel(i,j).b = 0;
+								}
+								else
+								{
+									newimg.SafePixel(i,j).r = alpha * newimg.SafePixel(i,j).r;
+									newimg.SafePixel(i,j).g = alpha * newimg.SafePixel(i,j).g;
+									newimg.SafePixel(i,j).b = alpha * newimg.SafePixel(i,j).b;
+								}
+							}
+					memory_factor = 0;
+					 
+				}
+
 
 				//----------------------------------------------------------------------
 				//  Paint a little green mark to see that images are being received.
@@ -290,10 +350,18 @@ public:
 				//  Send the procesed image back to the network (the image remains
 				//  as received)
 				//----------------------------------------------------------------------
-				YARPImageOf<YarpPixelBGR>& tempp = _vImages[_soundTemplate.Length()-1];
-				_outprecImg.Content().SetID(YARP_PIXEL_BGR);
-				_outprecImg.Content().Refer(tempp);
-				_outprecImg.Write(1);
+				if ( number_pixels > 40 || memory_factor < 60)
+				{
+					_outprecImg.Content().SetID(YARP_PIXEL_BGR);
+					_outprecImg.Content().Refer(newimg);
+					_outprecImg.Write(1);
+				}else
+				{
+					YARPImageOf<YarpPixelBGR>& tempp = _vImages[_soundTemplate.Length()-1];
+					_outprecImg.Content().SetID(YARP_PIXEL_BGR);
+					_outprecImg.Content().Refer(tempp);
+					_outprecImg.Write(1);
+				}
 			}
 			/*
 			//----------------------------------------------------------------------
@@ -356,7 +424,9 @@ public:
 			if (counter == N)
 			{
 				printf("average= %lf \n", period/N);
+				printf("rms average= %lf \n", _rmsmeansum/N);
 				period = 0.0;
+				_rmsmeansum = 0.0;
 				counter = 0;
 			}
 		}
@@ -493,7 +563,8 @@ int
 calculateMixel2(double * vRms, 
 			   YARPImageOf<YarpPixelBGR> * vImgs, 
 			   int iSamples,
-			   int i, int j)
+			   int i, int j,
+			   double &rmsmean)
 {
 	ACE_TRACE("calculateMixel2");
 
@@ -511,16 +582,15 @@ calculateMixel2(double * vRms,
     double _dSSyy = 0.0;
 	double _dMaxRms = 0.0;
 	double _dDampeningfactor = 0.0;
-	const double _dalpha = 50.0;
-
+	const double _dalpha = 100.0;
 	YVector _vV;        /** Vector containing the gray values of pixels samples. */
+
 
     _vV.Resize(iSamples);
 	
 	//----------------------------------------------------------------------
 	//  Fill PixelSamples matrix
 	//----------------------------------------------------------------------
-	double mean = 0.0;
 	for (int z = 1; z <= iSamples; z++)
 	{
 		//----------------------------------------------------------------------
@@ -544,6 +614,9 @@ calculateMixel2(double * vRms,
 		//----------------------------------------------------------------------
 		_dSXY += (vRms[z-1] * _vV(z));
 	}
+	//Return rmsmean
+	rmsmean = _dSX/(double)iSamples;
+	if (rmsmean < __rmsthreshold) return 0;
 
 	//----------------------------------------------------------------------
 	//  Compute Pearson correlation coefficient.
@@ -557,8 +630,8 @@ calculateMixel2(double * vRms,
 	//----------------------------------------------------------------------
 	//  Compute mutual information
 	//---------------------------------------------------------------------- 
-	//double value = (0.5 * (ACE::log2(1.0 - _dR2)));
-	double value = (-1.0)*(0.5 * (logf((1.0 - _dR2)* _dDampeningfactor)/(double)logf(2)));
+	//double value = (-1.0)*(0.5 * (logf((1.0 - _dR2))/(double)logf(2))* _dDampeningfactor);
+	double value = (-1.0)*(0.5 * (logf((1.0 - _dR2))/(double)logf(2)));
 
 	return(MIN(255,MAX(0,255*value)));
 }
