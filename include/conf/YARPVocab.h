@@ -1,1 +1,1 @@
-#include <./conf/YARPBabybotVocab.h>
+#include <conf/YARPBabybotVocab.h>
