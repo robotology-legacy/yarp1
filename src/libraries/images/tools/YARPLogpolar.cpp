@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.14 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: YARPLogpolar.cpp,v 1.15 2003-09-02 14:27:55 natta Exp $
 ///
 ///
 
@@ -156,131 +156,138 @@ int YARPLogpolarSampler::Cartesian2Logpolar (const YARPGenericImage& in, YARPGen
 ///
 ///
 ///
+unsigned int	YARPLogpolar::_classInstances = 0;
+int *			YARPLogpolar::_remapMap = NULL;
+int *			YARPLogpolar::_remapMapFovea = NULL;
+double *		YARPLogpolar::_angShiftMap = NULL;
+short *			YARPLogpolar::_padMap = NULL;
+Neighborhood *	YARPLogpolar::_weightsMap = NULL;
+Image_Data		YARPLogpolar::_img;
+
 YARPLogpolar::YARPLogpolar (void)
 {
 	using namespace _logpolarParams;
 
 	_mapsLoaded = true;
 
-	_remapMap = NULL;
-	_remapMapFovea = NULL;
-	_angShiftMap = NULL;
-	_padMap = NULL;
-	_weightsMap = NULL;
+	if (_classInstances == 0)
+	{
 
-	_img = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho, _stheta, _sfovea,
-		1090,
-		CUSTOM,
-		256.0/1090.0);
+		_img = Set_Param(
+			_xsize, _ysize,
+			256, 256,
+			_srho, _stheta, _sfovea,
+			1090,
+			CUSTOM,
+			256.0/1090.0);
 
-	_img.padding = YarpImageAlign;
-	_img.Pix_Numb = 2;
+		_img.padding = YarpImageAlign;
+		_img.Pix_Numb = 2;
 
-	char *path = GetYarpRoot ();
+		char *path = GetYarpRoot ();
 
-	/// logpolar to cartesian lookup table for the complete image.
-	char filename[YARP_STRING_LEN];
+		/// logpolar to cartesian lookup table for the complete image.
+		char filename[YARP_STRING_LEN];
 
 #ifdef __WIN32__
-	ACE_OS::sprintf(filename,"%s\\conf\\%s_%2.3f%s", path, "RemapMap", _img.Zoom_Level, ".gio");
+		ACE_OS::sprintf(filename,"%s\\conf\\%s_%2.3f%s", path, "RemapMap", _img.Zoom_Level, ".gio");
 #else
-	ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f%s", path, "RemapMap", _img.Zoom_Level, ".gio");
+		ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f%s", path, "RemapMap", _img.Zoom_Level, ".gio");
 #endif
-	FILE *fin = ACE_OS::fopen(filename,"rb");
-	if (fin == NULL)
-		goto exitConstructorOnError;
+		FILE *fin = ACE_OS::fopen(filename,"rb");
+		if (fin == NULL)
+			goto exitConstructorOnError;
 
-	_remapMap = (int *) malloc (_img.Size_Img_Remap * sizeof(int));
-	ACE_ASSERT (_remapMap != NULL);
+		_remapMap = (int *) malloc (_img.Size_Img_Remap * sizeof(int));
+		ACE_ASSERT (_remapMap != NULL);
 
-	ACE_OS::fread(_remapMap, sizeof(int), _img.Size_Img_Remap, fin);
-	ACE_OS::fclose (fin);
+		ACE_OS::fread(_remapMap, sizeof(int), _img.Size_Img_Remap, fin);
+		ACE_OS::fclose (fin);
 
 #ifdef __WIN32__
-	ACE_OS::sprintf(filename, "%s\\conf\\%s", path, "AngularShiftMap.gio");
+		ACE_OS::sprintf(filename, "%s\\conf\\%s", path, "AngularShiftMap.gio");
 #else
-	ACE_OS::sprintf(filename, "%s/conf/%s", path, "AngularShiftMap.gio");
+		ACE_OS::sprintf(filename, "%s/conf/%s", path, "AngularShiftMap.gio");
 #endif
-	fin = ACE_OS::fopen(filename, "rb");
-	if (fin == NULL)
-		goto exitConstructorOnError;
+		fin = ACE_OS::fopen(filename, "rb");
+		if (fin == NULL)
+			goto exitConstructorOnError;
 	
-	_angShiftMap = (double *) malloc (_img.Size_Rho * sizeof(double));
-	ACE_ASSERT (_angShiftMap != NULL);
-	ACE_OS::fread(_angShiftMap, sizeof(double), _img.Size_Rho, fin);
-	ACE_OS::fclose (fin);
+		_angShiftMap = (double *) malloc (_img.Size_Rho * sizeof(double));
+		ACE_ASSERT (_angShiftMap != NULL);
+		ACE_OS::fread(_angShiftMap, sizeof(double), _img.Size_Rho, fin);
+		ACE_OS::fclose (fin);
 
 #ifdef __WIN32__
-	ACE_OS::sprintf(filename, "%s\\conf\\%s", path, "PadMap.gio");
+		ACE_OS::sprintf(filename, "%s\\conf\\%s", path, "PadMap.gio");
 #else
-	ACE_OS::sprintf(filename, "%s/conf/%s", path, "PadMap.gio");
+		ACE_OS::sprintf(filename, "%s/conf/%s", path, "PadMap.gio");
 #endif
-	fin = ACE_OS::fopen(filename, "rb");
-	if (fin == NULL)
-		goto exitConstructorOnError;
+		fin = ACE_OS::fopen(filename, "rb");
+		if (fin == NULL)
+			goto exitConstructorOnError;
 
-	_padMap = (short *) malloc (_img.Size_Theta * _img.Size_Fovea * sizeof(short));
-	ACE_ASSERT (_padMap != NULL);
+		_padMap = (short *) malloc (_img.Size_Theta * _img.Size_Fovea * sizeof(short));
+		ACE_ASSERT (_padMap != NULL);
 
-	ACE_OS::fread(_padMap, sizeof(short), _img.Size_Theta * _img.Size_Fovea, fin);
-	ACE_OS::fclose (fin);
+		ACE_OS::fread(_padMap, sizeof(short), _img.Size_Theta * _img.Size_Fovea, fin);
+		ACE_OS::fclose (fin);
 
 #ifdef __WIN32__
-	ACE_OS::sprintf(filename, "%s\\conf\\%s%02d%s", path, "WeightsMap", _img.Pix_Numb, ".gio");
+		ACE_OS::sprintf(filename, "%s\\conf\\%s%02d%s", path, "WeightsMap", _img.Pix_Numb, ".gio");
 #else
-	ACE_OS::sprintf(filename, "%s/conf/%s%02d%s", path, "WeightsMap", _img.Pix_Numb, ".gio");
+		ACE_OS::sprintf(filename, "%s/conf/%s%02d%s", path, "WeightsMap", _img.Pix_Numb, ".gio");
 #endif
-	fin = ACE_OS::fopen(filename, "rb");
-	if (fin == NULL)
-		goto exitConstructorOnError;
+		fin = ACE_OS::fopen(filename, "rb");
+		if (fin == NULL)
+			goto exitConstructorOnError;
 
-	_weightsMap = (Neighborhood *) malloc (_img.Size_LP * _img.Pix_Numb * 3 * sizeof(Neighborhood));
-	ACE_ASSERT (_weightsMap != NULL);
+		_weightsMap = (Neighborhood *) malloc (_img.Size_LP * _img.Pix_Numb * 3 * sizeof(Neighborhood));
+		ACE_ASSERT (_weightsMap != NULL);
 
-	ACE_OS::fread(_weightsMap, sizeof(Neighborhood), _img.Size_LP * _img.Pix_Numb * 3, fin);
-	ACE_OS::fclose (fin);
+		ACE_OS::fread(_weightsMap, sizeof(Neighborhood), _img.Size_LP * _img.Pix_Numb * 3, fin);
+		ACE_OS::fclose (fin);
 
-	_img = Set_Param(
-		_xsize, _ysize,
-		128, 128,
-		_srho, _stheta, _sfovea,
-		1090,
-		CUSTOM,
-		512.0/1090.0);
+		_img = Set_Param(
+			_xsize, _ysize,
+			128, 128,
+			_srho, _stheta, _sfovea,
+			1090,
+			CUSTOM,
+			512.0/1090.0);
 
-	_img.padding = YarpImageAlign;
-	_img.Pix_Numb = 2;
+		_img.padding = YarpImageAlign;
+		_img.Pix_Numb = 2;
 
 	/// remap lut for the fovea.
 #ifdef __WIN32__
-	ACE_OS::sprintf(filename,"%s\\conf\\%s_%2.3f_%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
+		ACE_OS::sprintf(filename,"%s\\conf\\%s_%2.3f_%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
 #else
-	ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f_%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
+		ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f_%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
 #endif
-	fin = ACE_OS::fopen(filename,"rb");
-	if (fin == NULL)
-		goto exitConstructorOnError;
+		fin = ACE_OS::fopen(filename,"rb");
+		if (fin == NULL)
+			goto exitConstructorOnError;
 
-	_remapMapFovea = (int *) malloc (_img.Size_Img_Remap * sizeof(int));
-	ACE_ASSERT (_remapMapFovea != NULL);
+		_remapMapFovea = (int *) malloc (_img.Size_Img_Remap * sizeof(int));
+		ACE_ASSERT (_remapMapFovea != NULL);
 
-	ACE_OS::fread(_remapMapFovea, sizeof(int), _img.Size_Img_Remap, fin);
-	ACE_OS::fclose (fin);
+		ACE_OS::fread(_remapMapFovea, sizeof(int), _img.Size_Img_Remap, fin);
+		ACE_OS::fclose (fin);
 
-	_img = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho, _stheta, _sfovea,
-		1090,
-		CUSTOM,
-		256.0/1090.0);
+		_img = Set_Param(
+			_xsize, _ysize,
+			256, 256,
+			_srho, _stheta, _sfovea,
+			1090,
+			CUSTOM,
+			256.0/1090.0);
 
-	_img.padding = YarpImageAlign;
-	_img.Pix_Numb = 2;
-
+		_img.padding = YarpImageAlign;
+		_img.Pix_Numb = 2;
+	}
+	// everything went fine, increment instance counter
+	_classInstances++;
 	return;
 
 exitConstructorOnError:
@@ -300,12 +307,17 @@ exitConstructorOnError:
 
 YARPLogpolar::~YARPLogpolar ()
 {
-	if (_remapMap != NULL) free (_remapMap);
-	if (_remapMapFovea != NULL) free (_remapMapFovea);
+	if (_classInstances > 0)
+	{
+		if (_remapMap != NULL) free (_remapMap);
+		if (_remapMapFovea != NULL) free (_remapMapFovea);
 	
-	if (_angShiftMap != NULL) free (_angShiftMap);
-	if (_padMap != NULL) free (_padMap);
-	if (_weightsMap != NULL) free (_weightsMap);
+		if (_angShiftMap != NULL) free (_angShiftMap);
+		if (_padMap != NULL) free (_padMap);
+		if (_weightsMap != NULL) free (_weightsMap);
+
+		_classInstances--;
+	}
 }
 
 int YARPLogpolar::Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy)

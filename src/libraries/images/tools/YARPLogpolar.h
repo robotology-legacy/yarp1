@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.11 2003-09-02 13:57:29 natta Exp $
+/// $Id: YARPLogpolar.h,v 1.12 2003-09-02 14:27:55 natta Exp $
 ///
 ///
 
@@ -134,12 +134,13 @@ public:
 class YARPLogpolar : public YARPFilter
 {
 protected:
-	Image_Data _img;
-	int * _remapMap;
-	int * _remapMapFovea;
-	double *_angShiftMap;
-	short *_padMap;
-	Neighborhood * _weightsMap;
+	static Image_Data _img;
+	static int * _remapMap;
+	static int * _remapMapFovea;
+	static double *_angShiftMap;
+	static short *_padMap;
+	static unsigned int _classInstances;
+	static Neighborhood * _weightsMap;
 	bool _mapsLoaded;
 
 public:

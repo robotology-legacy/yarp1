@@ -181,6 +181,10 @@ SOURCE=.\YARPColorConverter.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPConicFitter.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPDIBConverter.cpp
 # End Source File
 # Begin Source File
@@ -190,6 +194,10 @@ SOURCE=.\YARPHistoSegmentation.cpp
 # Begin Source File
 
 SOURCE=.\YARPImageFile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPImageMoments.cpp
 # End Source File
 # Begin Source File
 
@@ -217,6 +225,10 @@ SOURCE=.\YARPColorConverter.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPConicFitter.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPDIBConverter.h
 # End Source File
 # Begin Source File
@@ -226,6 +238,10 @@ SOURCE=.\YARPHistoSegmentation.h
 # Begin Source File
 
 SOURCE=.\YARPImageFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPImageMoments.h
 # End Source File
 # Begin Source File
 
