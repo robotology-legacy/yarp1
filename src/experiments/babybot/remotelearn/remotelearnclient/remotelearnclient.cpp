@@ -1,8 +1,6 @@
 // remotelearnclient.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
-
 #include <conf/YARPConfig.h>
 #include <wide_nameloc.h>
 

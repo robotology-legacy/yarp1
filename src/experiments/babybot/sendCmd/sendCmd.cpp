@@ -4,7 +4,6 @@
 #include <YARPPort.h>
 #include <YARPBottleContent.h>
 #include <YARPBottle.h>
-#include <YARPBehaviorLabelConverter.h>
 #include <./conf/YARPMotorVocab.h>
 
 YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
