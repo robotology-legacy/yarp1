@@ -45,7 +45,6 @@ double prod(YVector v);
 int findMag(YVector v, double val, int inds[]);
 void outIni(YVector & v, std::ostream & file);
 void outIni(YMatrix & m, std::ostream & file);
-void GetInput(std::istream & device, YVector& X, YVector& Y);
 double sumTot(const YVector& v);
 double mean(const YVector& v);
 double var(const YVector& v);

@@ -62,7 +62,7 @@ class ArmForwardKinematics
 {
 public:
 	ArmForwardKinematics();
-	ArmForwardKinematics(const char *f1);
+	ArmForwardKinematics(const char *f1, const char *f2);
 	~ArmForwardKinematics();
 
 	void query(YVector &arm, YVector &head, YARPShapeEllipse &el)
@@ -77,6 +77,11 @@ public:
 		return el;
 	}
 
+	void queryFingers(YVector &arm, YVector &head, int &x, int &y)
+	{
+		_queryFingers(arm, head, x, y);
+	}
+
 	void computeJacobian(int x0, int y0);
 	const YMatrix &jacobian(){ return _jacobian; }
 	const YMatrix &jacobianInv(){ return _jacobianInv; }
@@ -85,6 +90,7 @@ public:
 	int getNPoints(){return _nPoints;}
 
 	int load(const char *f1);
+	int loadEllipse(const char *f1);
 	
 	YVector computeCommandThreshold(YVector initialArm, int targetX, int targetY);
 	YVector computeCommandFixedSteps(YVector initialArm, int targetX, int targetY);
@@ -112,21 +118,21 @@ private:
 	{
 		// compute _v()
 		_center.sim(arm.data(),	// uses only the first 3 joints
-				    _v.data());
+				    _v1.data());
 
 		// compute retinal position
 		int predx = 0, predy = 0;
-		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v, x, y);
+		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v1, x, y);
 	}
 	void _query(const YVector &arm, const YVector &head, YARPShapeEllipse &el)
 	{
 		// compute _v()
 		_center.sim(arm.data(),	// uses only the first 3 joints
-				    _v.data());
+				    _v1.data());
 
 		// compute retinal position
 		int predx = 0, predy = 0;
-		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v, predx, predy);
+		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v1, predx, predy);
 		//////////////////////////////////////
 
 		el.x = predx;		
@@ -134,6 +140,50 @@ private:
 		el.a11 = 0; 
 		el.a12 = 0; 
 		el.a22 = 0; 
+	}
+
+	void _queryFingers(const YVector &arm, const YVector &head, int &x, int &y)
+	{
+		// compute _v()
+		_center.sim(arm.data(),	// uses only the first 3 joints
+				    _v1.data());
+
+		_ellipse.sim(arm.data(),
+					_v2.data());
+
+		// compute retinal position
+		YARPShapeEllipse el;
+		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v1, el.x, el.y);
+		el.a11 = _v2(1); 
+		el.a12 = _v2(2); 
+		el.a22 = _v2(3); 
+		computeFingers(el, x, y);
+	}
+
+	inline void computeFingers(const YARPShapeEllipse &el, int &x, int &y)
+	{
+		double delta = el.a11*el.a11+4*el.a12*el.a12-2*el.a11*el.a22+el.a22*el.a22;
+		double m1 = (-el.a11+el.a22-sqrt(delta))/(2*el.a12);
+		double m2 = (-el.a11+el.a22+sqrt(delta))/(2*el.a12);
+
+		double x11 = -1/sqrt(el.a11+m1*(2*el.a12+el.a22*m1)); //el.x;
+		double x12 = 1/sqrt(el.a11+m1*(2*el.a12+el.a22*m1)); //el.x;
+
+		double x21 = -1/sqrt(el.a11+m2*(2*el.a12+el.a22*m2)); //+ el.x;
+		double x22 = 1/sqrt(el.a11+m2*(2*el.a12+el.a22*m2)); // + el.x;
+
+	//	printf("%.4lf\t%.4lf\t%.4lf\n", el.a11, el.a12, el.a22);
+
+		double y11 = -m1*(x11); //el.y;
+		double y12 = -m1*(x12); //el.y;
+		double y21 = -m2*(x21); //el.y;
+		double y22 = -m2*(x22); //el.y;
+
+	//	printf("%.4lf\t%.4lf\t%.4lf\t%.4lf\n", x11, y11, x12, y12);
+	//	printf("%.4lf\t%.4lf\t%.4lf\t%.4lf\n", x21, y21, x22, y22);
+		
+		x = x12+el.x;
+		y = y12+el.y;
 	}
 
 	void _dumpToDisk(const YVector &arm, const YVector &head, const YARPShapeEllipse &ellipse);
@@ -145,7 +195,8 @@ private:
 	YARPBPNNet _ellipse;
 
 	YARPBabybotHeadKin _gaze;
-	YVector _v;
+	YVector _v1;
+	YVector _v2;
 	YVector _head;
 	YVector _arm;
 	int _nPoints;

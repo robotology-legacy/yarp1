@@ -12,13 +12,19 @@ _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMa
 	_init();
 }
 
-ArmForwardKinematics::ArmForwardKinematics(const char *f1):
+ArmForwardKinematics::ArmForwardKinematics(const char *f1, const char *f2):
 _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
 {
 	// load nnets if name was specified
 	if (load(f1) != YARP_OK)
 	{
 		ACE_OS::printf("Error reading nnet file in %s", f1);
+		exit(-1);
+	}
+
+	if (loadEllipse(f2) != YARP_OK)
+	{
+		ACE_OS::printf("Error reading nnet file in %s", f2);
 		exit(-1);
 	}
 	_init();
@@ -29,10 +35,16 @@ int ArmForwardKinematics::load(const char *f1)
 	return _center.load(f1);
 }
 
+int ArmForwardKinematics::loadEllipse(const char *f1)
+{
+	return _ellipse.load(f1);
+}
+
 void ArmForwardKinematics::_init()
 {
 	_nPoints = __nPoints;
-	_v.Resize(3);
+	_v1.Resize(3);
+	_v2.Resize(3);
 
 	_random.resize(1, 0.0, __explStd*degToRad);
 
@@ -56,7 +68,6 @@ void ArmForwardKinematics::_init()
 
 ArmForwardKinematics::~ArmForwardKinematics()
 {
-
 	_log.close();
 }
 
@@ -85,7 +96,10 @@ void ArmForwardKinematics::_randomExploration(int x0, int y0)
 		tmp(2) = _arm(2) + tmpDelta1;
 		tmp(3) = _arm(3) + tmpDelta2;
 	//	tmp(3) = _arm(3) + tmpDelta1;
-		_query(tmp, _head, tmpX, tmpY);
+	
+	//	_query(tmp, _head, tmpX, tmpY); // center
+		_queryFingers(tmp, _head, tmpX, tmpY);
+		
 		_data[i](1) = tmpX;
 		_data[i](2) = tmpY;
 		_b1(i+1) = tmpDelta1; // tmpX;
@@ -114,28 +128,38 @@ YVector ArmForwardKinematics::computeCommandFixedSteps(YVector initialArm, int t
 {
 	YVector dT(2);
 	YVector &tmpArm = initialArm;
-	YARPShapeEllipse tmpEl = query(tmpArm, _head);
+	// YARPShapeEllipse tmpEl = query(tmpArm, _head);	//center
+	int tmpX, tmpY;
+	queryFingers(tmpArm, _head, tmpX, tmpY);
 	int i;
 	for(i = 0; i < __nSteps; i++)
 	{
 		// planning trajectory
-		dT(1) = targetX-tmpEl.x;
-		dT(2) = targetY-tmpEl.y;
+		// dT(1) = targetX-tmpEl.x;	// center
+		// dT(2) = targetY-tmpEl.y;	//center
+		dT(1) = targetX-tmpX;
+		dT(2) = targetY-tmpY;
+
 		YVector dQ = plan(dT);
 		dQ(2) = dQ(2) * 0.05;
 		dQ(3) = dQ(3) * 0.05;
 		tmpArm = tmpArm+dQ;
 
 		update(tmpArm, _head);
-		tmpEl = query(tmpArm, _head);
+		// tmpEl = query(tmpArm, _head);	//center
+		queryFingers(tmpArm, _head, tmpX, tmpY);
 	
 		// current
-		_trajectory.pixels[i][0] = tmpEl.x;
-		_trajectory.pixels[i][1] = tmpEl.y;
+		// _trajectory.pixels[i][0] = tmpEl.x;	//center
+		// _trajectory.pixels[i][1] = tmpEl.y;	//center
+		_trajectory.pixels[i][0] = tmpX;
+		_trajectory.pixels[i][1] = tmpY;
+
 		_trajectory.arm[i] = tmpArm;
 
 		// this is to recompute the jacobian every time
-		computeJacobian(tmpEl.x, tmpEl.y);
+		//computeJacobian(tmpEl.x, tmpEl.y);	//center
+		computeJacobian(tmpX, tmpY);	//center
 	}
 
 	_trajectory.length = i;
@@ -148,29 +172,37 @@ YVector ArmForwardKinematics::computeCommandThreshold(YVector initialArm, int ta
 	ACE_OS::printf("Computing trajectory");
 	YVector dT(2);
 	YVector &tmpArm = initialArm;
-	YARPShapeEllipse tmpEl = query(tmpArm, _head);
+	// YARPShapeEllipse tmpEl = query(tmpArm, _head);	//center
+	int tmpX, tmpY;
+	queryFingers(tmpArm, _head, tmpX, tmpY);
 	int i = 0;
 	bool done = false;
 	while(!done)
 	{	
 		// planning trajectory
-		dT(1) = targetX-tmpEl.x;
-		dT(2) = targetY-tmpEl.y;
+		// dT(1) = targetX-tmpEl.x;	//center
+		// dT(2) = targetY-tmpEl.y;	//center
+		dT(1) = targetX-tmpX;
+		dT(2) = targetY-tmpY;
 		YVector dQ = plan(dT);
 		dQ(2) = dQ(2) * 0.05;
 		dQ(3) = dQ(3) * 0.05;
 		tmpArm = tmpArm+dQ;
 
 		update(tmpArm, _head);
-		tmpEl = query(tmpArm, _head);
+		// tmpEl = query(tmpArm, _head);	//center
+		queryFingers(tmpArm, _head, tmpX, tmpY);
 	
 		// current
-		_trajectory.pixels[i][0] = tmpEl.x;
-		_trajectory.pixels[i][1] = tmpEl.y;
+		// _trajectory.pixels[i][0] = tmpEl.x;	//center
+		// _trajectory.pixels[i][1] = tmpEl.y;	//center
+		_trajectory.pixels[i][0] = tmpX;
+		_trajectory.pixels[i][1] = tmpY;
 		_trajectory.arm[i] = tmpArm;
 
 		// this is to recompute the jacobian every time
-		computeJacobian(tmpEl.x, tmpEl.y);
+		// computeJacobian(tmpEl.x, tmpEl.y);		//center
+		computeJacobian(tmpX, tmpY);		//center
 
 		if ( (dT(1)*dT(1) + dT(2)*dT(2))<__pixelThreshold)
 			done = true;

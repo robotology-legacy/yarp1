@@ -115,6 +115,8 @@ int main(int argc, char* argv[])
 	/// form config name
 	const char *root = GetYarpRoot();
 	char tmp[256];
+	char tmp1[256];
+	char tmp2[256];
 	ACE_OS::sprintf (tmp, "%s/conf/babybot/handforward.dat", root);
 
 	//// PORT LIST
@@ -145,8 +147,9 @@ int main(int argc, char* argv[])
 	YARPBPNNet _openLoopReaching;			// reaching nnetwork
 	YARPBabybotHeadKin _headKinematics (YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]));		// head kinematics
 
-	ACE_OS::sprintf (tmp, "%s/conf/babybot/%s", root, __nnetFile1);
-	ArmForwardKinematics _armJacobian(tmp);
+	ACE_OS::sprintf (tmp1, "%s/conf/babybot/%s", root, __nnetFile1);
+	ACE_OS::sprintf (tmp2, "%s/conf/babybot/%s", root, __nnetFile2);
+	ArmForwardKinematics _armJacobian(tmp1,tmp2);
 	YARPImageOf<YarpPixelMono> _left;
 	YARPImageOf<YarpPixelBGR> _leftColored;
 	_left.Resize(_stheta, _srho);
@@ -236,8 +239,8 @@ int main(int argc, char* argv[])
 			YARPSimpleOperation::DrawCross(_outSeg2, x, y, YarpPixelBGR(0, 255, 0), 5, 1);
 
 			printf("Computing Jacobian...\n");
-			x = 128;
-			y = 128;
+			// x = 128;
+			// y = 128;
 			_armJacobian.computeJacobian(x, y);
 			int h = 0;
 			const YVector *tmpPoints = _armJacobian.getPoints();

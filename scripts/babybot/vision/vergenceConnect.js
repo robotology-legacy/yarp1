@@ -1,4 +1,6 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
+
+WshShell.Run ("vergenceDisconnect.js", 7, true);
 WshShell.Run ("yarp-connect /right/o:img /vergence/i:right", 7, true);
 WshShell.Run ("yarp-connect /left/o:img /vergence/i:left", 7, true);
 

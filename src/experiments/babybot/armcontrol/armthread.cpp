@@ -119,6 +119,9 @@ _torquesPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	_restingInhibited = false;
 	_shaking = false;
 
+	// FORCE FEEDBACK
+	forceFeedback = false;
+
 }
 
 ArmThread::~ArmThread()
@@ -242,6 +245,18 @@ inline void ArmThread::send_commands()
 		else
 			_pids[j].OFFSET = g[j];
 	}
+
+/*	// FORCE FEEDBACK
+	double t6 = 0;
+	if (forceFeedback)
+	{
+		double a = -54*2667;	//54
+		double b = 3250;
+		t6 = _wristF(6)*a + b;
+		_pids[5].OFFSET = -t6;
+		std::cout << _pids[5].OFFSET << "\t";
+		std::cout << _arm_status._torques(6) << "\n";
+	}*/
 
 	_arm.setPIDs(_pids);
 
@@ -370,7 +385,16 @@ bool ArmThread::_checkLimits(const YVector &inCmd, YVector &outCmd)
 int ArmThread::setStiffness(int joint, double k)
 {
 	LowLevelPID pid;
-	if( (joint>=0) && (joint<_nj) )
+
+	// FORCE FEEDBACK
+	if (joint == 5)
+	{
+		std::cout << "Special case, trying to change wrist joint\n";
+		std::cout << "YOU're trying to set it to: " << k << "\n";
+		_pids[joint].KP = fabs(k)*_pidSigns[joint];
+		forceFeedback =  true; //!forceFeedback;
+	}
+	else if( (joint>=0) && (joint<_nj) )
 	{
 		_arm.getPID(joint, pid, false);
 		std::cout << "PID on " << joint << " IS NOW: " << pid.KP << "\n"; //  = k;

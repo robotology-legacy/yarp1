@@ -2,11 +2,12 @@
 
 const char *__reachingNNet = "reaching.ini";
 const char *__handlocNNet = "handfk1.ini";
+const char *__ellipseNNet = "handfk2.ini";
 
 using namespace std;
 
 ABSharedData::ABSharedData():
-_map(__reachingNNet, __handlocNNet),
+_map(__reachingNNet, __handlocNNet,__ellipseNNet),
 _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
 _armPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
 _headPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
@@ -115,17 +116,19 @@ void RBOutputCommand::_sendReachingCommand(ABSharedData *d, const YVector &cmd)
 	d->_outPort.Content() = _bottle3;
 	d->_outPort.Write(1);
 
-	cout << "Opening hand\n";
-	/////// 
-	d->_outPort.Content() = _bottle2;
-	d->_outPort.Write(1);
-
 	cout << "Preparing arm\n";
 	_bottle1.reset();
 	_bottle1.setID(YBVMotorLabel);
 	_bottle1.writeVocab(YBVArmForceNewCmd);
 	_bottle1.writeYVector(cmd);
 	d->_outPort.Content() = _bottle1;
+	d->_outPort.Write(1);
+
+	Sleep(2000);
+
+	cout << "Opening hand\n";
+	/////// 
+	d->_outPort.Content() = _bottle2;
 	d->_outPort.Write(1);
 }
 

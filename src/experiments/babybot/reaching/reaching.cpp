@@ -1,6 +1,6 @@
 // reaching.cpp : Defines the entry point for the console application.
 //
-// #define TEST_REACHING
+//#define TEST_REACHING
 
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBabyBottle.h>
@@ -15,7 +15,7 @@ int _headFrames = 0;
 int _armFrames = 0;
 int _nFrames = 0;
 
-const double __handOpen[] = {100.0*degToRad, 0.0, 0.0, 0.0, 0.0, 0.0};
+const double __handOpen[] = {100.0*degToRad, 0.0, 20.0*degToRad, 20.0*degToRad, 20.0*degToRad, 20.0*degToRad};
 const double __handClose[] = {100.0*degToRad, 50.0*degToRad, -80.0*degToRad, -80.0*degToRad, -80.0*degToRad, -80.0*degToRad};
 const double __handAtRest[] = {0.0*degToRad, 50.0*degToRad, 0.0, 0.0, 0.0, 0.0};
 
@@ -117,8 +117,8 @@ int main(int argc, char* argv[])
 	_behavior.add(&reachingEnable, &inhibitedState, &waitIdle);
 
 	_behavior.add(&armDone, &reachingSeq1b, &reachingSeq2);
-	_behavior.add(&armIsBusy, &reachingSeq1b, &waitHandDone);
-	_behavior.add(&armRest, &reachingSeq1b, &waitHandDone);
+//	_behavior.add(&armIsBusy, &reachingSeq1b, &waitHandDone);
+//	_behavior.add(&armRest, &reachingSeq1b, &waitHandDone);
 	
 	_behavior.add(NULL, &reachingSeq2, &reachingSeq2b, &inhibitAll);
 	_behavior.add(NULL, &reachingSeq2b, &reachingSeq31, &reachingOutput1);

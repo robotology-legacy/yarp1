@@ -49,8 +49,8 @@ const double __preparePosition[] = { 5*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*
 	// (tappullo)
 	const double __armOffset1 = 0*degToRad;
 	const double __armOffset2 = 0*degToRad;
-	const double __foreArmOffset1 = 0; //-8*degToRad;
-	const double __foreArmOffset2 = 0; //-8*degToRad;
+	const double __foreArmOffset1 = -8*degToRad;
+	const double __foreArmOffset2 = -8*degToRad;
 
 	const double __wrist1a = 0*degToRad;	
 	const double __wrist2a = 0*degToRad;
@@ -148,7 +148,7 @@ const int __trajectoryLength = 3;
 class ArmMap: public YARPInputPortOf<YARPBabyBottle>
 {
 public:
-	ArmMap(const char *reachingNNet, const char *handlocNNet);
+	ArmMap(const char *reachingNNet, const char *handlocNNet, const char *ellipseNNet);
 	~ArmMap();
 
 	void load(YARPBPNNetState &p)

@@ -4,7 +4,7 @@ color = {'ko', 'r*', 'bs', 'g^', 'c^', 'y+'};
 
 n = 2;
 path = './exp1/';
-file = 'grasping.txt';
+file = 'grasping3.txt';
 filename = sprintf('%s%s', path, file);
 
 data = load(filename);
@@ -20,7 +20,9 @@ touch = data(:,tmpI:tmpI+ntouch-1);
 tmpI = tmpI+ntouch;
 force = data(:,tmpI:tmpI+nf-1);
 
-trainPatterns = [hand(:,2:nj) force];
+% trainPatterns = [hand(:,2:nj) force];   % TRAIN WITH HAND & WRIST FORCE
+trainPatterns = [hand(:,2:nj)];         % TRAIN WITH HAND POSTURE ONLY
+%% trainPatterns = [force];             % TRAIN WITH WRIST FORCE
 
 %% divide clusters (for testing)
 nClasses = 6;
@@ -85,32 +87,32 @@ neurons(2) = 10;
 %%%%%%%
 net = 0;
 
-% %% TRAIN VQ
-% nA = 0;
-% nB = 0;
-% for i = 1:size(labels,1)
-%     if (labels(i) ~= 0)
-%         labels(i) = 2;
-%         nB=nB+1;
-%     else
-%         labels(i) = 1;
-%         nA = nA+1;
-%     end
-% end
-% 
-% Tc = labels';
-% T = ind2vec(Tc);
-% target = full(T);
-% pA = nA/size(labels,1);
-% pB = nB/size(labels,1);
-% net = newlvq(minmax(P), 25, [pA, pB]);
-% net.trainParam.epochs = 300;
-% net = train(net, P, T);
-% Y = sim(net, P);
-% Yc = vec2ind(Y);
-% 
-% error = Yc-Tc;
-error = 0;
+%% TRAIN VQ
+nA = 0;
+nB = 0;
+for i = 1:size(labels,1)
+    if (labels(i) ~= 0)
+        labels(i) = 2;
+        nB=nB+1;
+    else
+        labels(i) = 1;
+        nA = nA+1;
+    end
+end
+
+Tc = labels';
+T = ind2vec(Tc);
+target = full(T);
+pA = nA/size(labels,1);
+pB = nB/size(labels,1);
+net = newlvq(minmax(P), 25, [pA, pB]);
+net.trainParam.epochs = 300;
+net = train(net, P, T);
+Y = sim(net, P);
+Yc = vec2ind(Y);
+
+error = Yc-Tc;
+%% error = 0;
 %%% train som
 function net = trainSom(P, neurons, epochs)
 net = newsom(minmax(P), neurons, 'hextop');

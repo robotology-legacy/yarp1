@@ -113,6 +113,7 @@ int main(int argc, char* argv[])
 
 	DECLARE_OUTPUT_PORT (YVector, _outputPortHandPosition, YARP_UDP);
 	DECLARE_OUTPUT_PORT (YVector, _outputPortHandPredicted, YARP_UDP);
+	DECLARE_OUTPUT_PORT (YVector, _outputPortHandFingers, YARP_UDP);
 		
 	DECLARE_INPUT_PORT (YARPControlBoardNetworkData, _armPort, YARP_UDP);
 	DECLARE_INPUT_PORT (YVector, _headPort, YARP_UDP);
@@ -142,6 +143,7 @@ int main(int argc, char* argv[])
 	_outputPortTrain2.Register("/handtracker/nnet2/o");
 	_outputPortHandPosition.Register("/handtracker/position/o");
 	_outputPortHandPredicted.Register("/handtracker/prediction/o");
+	_outputPortHandFingers.Register("/handtracker/fingers/o");
 	_outPortColor.Register("/handtracker/segmentation/o:img");
 	
 	YARPImageOf<YarpPixelMono> _left;
@@ -160,6 +162,7 @@ int main(int argc, char* argv[])
 	YVector _arm(6);
 	YVector _head(5);
 	YVector _handPosition(2);
+	YVector _handFingers(2);
 
 	YARPImageOf<YarpPixelMono> _outSeg;
 	YARPImageOf<YarpPixelMono> _outSeg2;
@@ -253,6 +256,7 @@ int main(int argc, char* argv[])
 			{*/
 				_segmenter.drawCross(tmpEl.x, tmpEl.y, YarpPixelBGR(255, 0, 0), 5, 1);
 				_segmenter.plotEllipse(tmpEl, YarpPixelBGR(255, 0, 0));
+				_segmenter.plotEllipse2(tmpEl, YarpPixelBGR(0, 255, 0), _handFingers);
 			// }
 			// else
 			// {
@@ -291,6 +295,12 @@ int main(int argc, char* argv[])
 		_handPosition(2) = (tmpEl2.y - 128 + __yOffset);
 		_outputPortHandPredicted.Content() = _handPosition;
 		_outputPortHandPredicted.Write();
+
+		// send hand fingers
+		_handFingers(1) = (_handFingers(1) - 64);
+		_handFingers(2) = (_handFingers(2) - 64);
+		_outputPortHandFingers.Content() = _handFingers;
+		_outputPortHandFingers.Write();
 
 		// poll remote learning ports
 		if (_inputPortTrain1.Read(0))

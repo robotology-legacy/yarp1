@@ -90,6 +90,40 @@ public:
 		conicFitterCart.plotEllipse(el, outImage, v);
 	}
 	
+	inline void plotEllipse2(const YARPShapeEllipse &el, const YarpPixelBGR &v, YVector &fingers)
+	{
+		double delta = el.a11*el.a11+4*el.a12*el.a12-2*el.a11*el.a22+el.a22*el.a22;
+		double m1 = (-el.a11+el.a22-sqrt(delta))/(2*el.a12);
+		double m2 = (-el.a11+el.a22+sqrt(delta))/(2*el.a12);
+
+		double x11 = -1/sqrt(el.a11+m1*(2*el.a12+el.a22*m1)); //el.x;
+		double x12 = 1/sqrt(el.a11+m1*(2*el.a12+el.a22*m1)); //el.x;
+
+		double x21 = -1/sqrt(el.a11+m2*(2*el.a12+el.a22*m2)); //+ el.x;
+		double x22 = 1/sqrt(el.a11+m2*(2*el.a12+el.a22*m2)); // + el.x;
+
+		printf("%.4lf\t%.4lf\t%.4lf\n", el.a11, el.a12, el.a22);
+
+		double y11 = -m1*(x11); //el.y;
+		double y12 = -m1*(x12); //el.y;
+		double y21 = -m2*(x21); //el.y;
+		double y22 = -m2*(x22); //el.y;
+
+	//	printf("%.4lf\t%.4lf\t%.4lf\t%.4lf\n", x11, y11, x12, y12);
+	//	printf("%.4lf\t%.4lf\t%.4lf\t%.4lf\n", x21, y21, x22, y22);
+		
+		YARPSimpleOperation::DrawCross(outImage, x11+el.x, y11+el.y, v, 3, 1);
+		YARPSimpleOperation::DrawCross(outImage, x21+el.x, y21+el.y, v, 3, 1);
+		YARPSimpleOperation::DrawCross(outImage, x12+el.x, y12+el.y, v, 3, 1);
+		YARPSimpleOperation::DrawCross(outImage, x22+el.x, y22+el.y, v, 3, 1);
+
+		fingers(1) = x12+el.x;
+		fingers(2) = y12+el.y;
+
+				
+		// conicFitterCart.plotEllipse(el, outImage, v);
+	}
+
 	YARPImageOf<YarpPixelBGR> &getImage()
 	{
 		return outImage;

@@ -548,22 +548,6 @@ void outIni(YMatrix & m, ostream & file)
 }
 
 
-// ---------------------------------------------------------------------------------------- 
-//Funzione che acquisisce i dati
-// ---------------------------------------------------------------------------------------- 
-
-void GetInput(istream & device, YVector& X, YVector& Y)
-{
-	int i;
-	for(i = 1; i<= X.Length(); i ++)
-			device >> X(i);
-	
-	for (i=1; i<= Y.Length(); i ++)
-			device >> Y(i);
-
-}
-
-
 //---------------------------------------------------
 // Calcola la media campione : somma N elementi / N.
 //---------------------------------------------------

@@ -36,7 +36,6 @@ porter ('/checkfixation/bottle/out', '/3dtest/fixation/i:bot');
 %%%%%%%%%%% LOOP
 exit = false;
 N = 0;
-figure(1), CLF, hold on;
 figure(2), CLF;
 started = false;
 while(~exit)
@@ -67,8 +66,8 @@ while(~exit)
         N
         object(:,N) = delta(:);
              
-        figure(1), scatter3(delta(1), delta(2), delta(3), 'x'), hold on;
-        figure(1), view(45, 45), drawnow;
+       % figure(1), scatter3(delta(1), delta(2), delta(3), 'x'), hold on;
+       % figure(1), view(45, 45), drawnow;
 
         if (N > 5)
         x = object(1,:);
@@ -86,13 +85,14 @@ while(~exit)
         [Xinterp, YInterp] = meshgrid(xv, yv);
         Zinterp = griddata(x,y,z,Xinterp, YInterp);
     
-        figure(2), mesh(Xinterp, YInterp, Zinterp), 
-                    hold on, view(65,55), axis([-800, 0, -300, 300, -200, 10]), drawnow;
+        figure(2), scatter3(object(1,:), object(2,:), object(3,:), 'o', 'k'), hold on,
+                    mesh(Xinterp, YInterp, Zinterp),  
+                   view(65,55), axis([-800, 0, -300, 300, -200, 10]), drawnow;
+        figure(2), hold off;
         end
     end
 end
 
-figure(1), hold off;
 %%%%%%%%%%%%%%%%%%%
 
 %% disconnect

@@ -12,6 +12,7 @@ WshShell.Run ("yarp-connect /repeater/o /handtracker/prediction/i", 7, true);
 
 WshShell.Run ("yarp-connect /handtracker/prediction/o /attention/handprediction/i", 7, true);
 WshShell.Run ("yarp-connect /handtracker/position/o /attention/hand/i", 7, true);
+//WshShell.Run ("yarp-connect /handtracker/fingers/o /attention/hand/i", 7, true);
 
 
 

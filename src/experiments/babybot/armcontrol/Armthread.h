@@ -275,6 +275,9 @@ public: //later: make it private
 	double	_newGain;
 	int		_newGainJoint;
 
+	// FORCE FEEDBACK
+	bool forceFeedback;
+
 };
 
 #endif //.h

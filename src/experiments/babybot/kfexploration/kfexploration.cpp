@@ -19,9 +19,9 @@ const int _nJoints = 6;
 	const double pos6[_nJoints] = {20.0 * degToRad, 10.0*degToRad, 0.0*degToRad, -20.0*degToRad, 0.0*degToRad, 0.0};
 	
 	const double pos7[_nJoints] = {0.0 * degToRad, 20.0*degToRad, 20.0*degToRad, -20.0*degToRad, 0.0*degToRad, 0.0};
-	
-	const double pos8[_nJoints] = {10.0 * degToRad, 40.0*degToRad, -40.0*degToRad, -20.0*degToRad, 0.0*degToRad, 0.0};
+	const double pos8[_nJoints] = {-10.0 * degToRad, 50.0*degToRad, -30.0*degToRad, 0.0*degToRad, 0.0*degToRad, 0.0};
 	const double pos9[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
+	
 	const double pos10[_nJoints] = {5.0 * degToRad, 0.0*degToRad, 0.0*degToRad, 0.0, 0.0, -120.0*degToRad};
 
 

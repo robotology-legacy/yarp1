@@ -4,7 +4,9 @@
 %
 
 %% load network from disk
-load 'vq1'
+% load 'vq'
+load 'vqNetWrist'
+load 'vqNetHand'
 
 idVector = port('create', 'vector', 0, 'mcast');
 if (idVector == -1)
@@ -152,20 +154,34 @@ while(~exit)
             end
             if(strcmp(bottle{2}, 'ReachingDone'))
                 disp('Reaching done !');
-                data = [qh(2:16) wristForce]';
+                % data = [qh(2:16) wristForce]';
                 % ask network
-                a = sim(vq1, data);
+                isPosture = sim(vqNetHand, qh(2:16)');
+                isWeight = sim(vqNetWrist, wristForce');
                 
                 % prepare bottle
+                ret = checkGrasp(isPosture, isWeight);
                 outBottle{1} = 'Motor';
-                if(a(1) == 1)
-                    disp('--> not grasped !\n');
-                    play_beeps(1);
-                    outBottle{2} = 'HandKinGraspFailure1';
-                else
-                    disp('--> grasped ! \n');
+                if(ret == 1)
+                    disp('--> grasped !!');
+                    disp('I might have the object, is it light?');
                     play_beeps(10);
                     outBottle{2} = 'HandKinGraspSuccess1';
+                elseif(ret == 2)
+                    disp('--> grasped !!');
+                    disp('I might have the object, is it a good grasp?');
+                    play_beeps(10);
+                    outBottle{2} = 'HandKinGraspSuccess1';
+                elseif(ret == 3)
+                    disp('--> grasped !!');
+                    disp('Quite sure I have the object');
+                    play_beeps(10);
+                    outBottle{2} = 'HandKinGraspSuccess1';
+                else
+                    disp('--> not grasped !!');
+                    disp('Pretty sure about it');
+                    play_beeps(1);
+                    outBottle{2} = 'HandKinGraspFailure1';
                 end
                % appendToFile(qh, qtouch, wristForce);
                port('write', idOutBottle, outBottle);
@@ -178,7 +194,7 @@ while(~exit)
             if (strcmp(bottle{2}, 'HandKinSetFile'))
                filename = sprintf('%s%s', bottle{3}, '.txt');
                filename2 = sprintf('%s%s', bottle{3}, 'TF.txt');
-               tmp = strcat ('Future posture will be saved to:', filename);
+               tmp = strcat ('Future postures will be saved to:', filename);
                disp(tmp);
                tmp = strcat ('Future touch-force couple will be saved to:', filename2);
                disp(tmp);

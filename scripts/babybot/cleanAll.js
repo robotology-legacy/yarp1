@@ -17,6 +17,7 @@ for(i = 0; i < machineList.length; i++)
 {
   // WScript.Echo("Cleaning: " + machineList[i]);
   WshShell.Run ("on -d -n "+ machineList[i]+ " cleaner.js", 7,true);
+//  WshShell.Run ("on -d -n "+ machineList[i]+ " copyLogon.js", 7,true);
 }
 
 function BuildComputerList(filename)
