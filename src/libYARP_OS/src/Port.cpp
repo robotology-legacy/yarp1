@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.13 2004-07-30 16:34:20 eshuy Exp $
+/// $Id: Port.cpp,v 1.14 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 
@@ -123,7 +123,7 @@ void safe_printf(char *format,...)
 #define HEADER_CT (4)
 #define MAX_FRAGMENT (4)
 
-///#define DEBUG_DISABLE_SHMEM 1
+//#define DEBUG_DISABLE_SHMEM 1
 
 /// this is because SHMEM alloc is not implemented in ACE for QNX6.
 #ifdef __QNX6__
@@ -220,6 +220,7 @@ void OutputTarget::End (int dontkill /* =-1 */)
 ///
 void OutputTarget::Body ()
 {
+  //printf("OUTPUT TARGET REQ ACK %d\n", GetRequireAck());
 	/// implicit wait mutex for this thread.
 	/// see overridden Begin()
 
@@ -244,6 +245,7 @@ void OutputTarget::Body ()
 			/// LATER: must do proper bailout if locate fails.
 			///
 			target_pid = YARPNameService::LocateName (GetLabel().c_str());
+			target_pid->setRequireAck(GetRequireAck());
 			if (target_pid->getServiceType() != protocol_type)
 			{
 				/// problems.
@@ -270,6 +272,7 @@ void OutputTarget::Body ()
 			ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : starting a TCP sender thread\n"));
 
 			target_pid = YARPNameService::LocateName (GetLabel().c_str(), network_name.c_str());
+			target_pid->setRequireAck(GetRequireAck());
 			if (!target_pid->isConsistent(YARP_UDP))
 			{
 			  if (target_pid->getServiceType()==YARP_NO_SERVICE_AVAILABLE) {
@@ -306,6 +309,7 @@ void OutputTarget::Body ()
 				/// going into SHMEM mode.
 				protocol_type = YARP_SHMEM;
 				target_pid->setServiceType (YARP_SHMEM);
+				target_pid->setRequireAck(GetRequireAck());
 
 				/// 
 				ACE_DEBUG ((LM_DEBUG, "$$$$$ OutputTarget::Body : this goes into SHMEM mode\n"));
@@ -339,6 +343,7 @@ void OutputTarget::Body ()
 
 				protocol_type = YARP_TCP;
 				target_pid->setServiceType (YARP_TCP);
+				target_pid->setRequireAck(GetRequireAck());
 			}
 
 			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
@@ -359,6 +364,7 @@ void OutputTarget::Body ()
 			ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : starting a UDP sender thread\n"));
 
 			target_pid = YARPNameService::LocateName (GetLabel().c_str(), network_name.c_str());
+			target_pid->setRequireAck(GetRequireAck());
 			if (!target_pid->isConsistent(YARP_UDP))
 			{
 			  if (target_pid->getServiceType()==YARP_NO_SERVICE_AVAILABLE) {
@@ -394,6 +400,7 @@ void OutputTarget::Body ()
 				/// going into SHMEM mode.
 				protocol_type = YARP_SHMEM;
 				((YARPUniqueNameSock *)target_pid)->setServiceType (YARP_SHMEM);
+				target_pid->setRequireAck(GetRequireAck());
 
 				/// 
 				ACE_DEBUG ((LM_DEBUG, "$$$$$ OutputTarget::Body : this goes into SHMEM mode\n"));
@@ -452,6 +459,7 @@ void OutputTarget::Body ()
 			/// ALSO: VerifySame had been called before actually running the thread.
 
 			target_pid = YARPNameService::LocateName(GetLabel().c_str(), network_name.c_str(), YARP_MCAST);
+			target_pid->setRequireAck(GetRequireAck());
 			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
 
 			if (target_pid->getServiceType() != YARP_MCAST)
@@ -474,7 +482,7 @@ void OutputTarget::Body ()
 		break;
 	}
 
-	/// this wait for intialization.
+	/// this wait for initialization.
 	PostMutex ();
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Output target after initialization section\n"));
 
@@ -604,6 +612,7 @@ void OutputTarget::Body ()
 		PostMutex();
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Waiting for sema to send <<< sema okay!\n"));
 
+		target_pid->getNameID().setRequireAck(GetRequireAck());
 		sender.Begin(target_pid->getNameID());
 		header.tag = MSG_ID_DATA;
 		header.length = 0;
@@ -1080,6 +1089,8 @@ void Port::Body()
 							target->network_name = network_name;
 							target->target_pid = NULL;
 							target->protocol_type = protocol_type;
+							//printf("SET REQ ACK %d\n", GetRequireAck());
+							target->SetRequireAck(GetRequireAck());
 
 							target->Begin();
 						}
@@ -1597,6 +1608,7 @@ int Port::Say(const char *buf)
 		{
 			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), YARP_UDP);
 			self_id->setServiceType (YARP_TCP);
+			self_id->setRequireAck(require_ack);
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
 		}
@@ -1605,6 +1617,7 @@ int Port::Say(const char *buf)
 			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), protocol_type);
 			if (self_id->getServiceType() != YARP_QNET)
 				self_id->setServiceType (YARP_TCP);
+			self_id->setRequireAck(require_ack);
 
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
@@ -1618,6 +1631,7 @@ int Port::Say(const char *buf)
 		{
 			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), YARP_UDP);
 			self_id->setServiceType (YARP_TCP);
+			self_id->setRequireAck(require_ack);
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
 		}
@@ -1626,6 +1640,7 @@ int Port::Say(const char *buf)
 			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), protocol_type);
 			if (self_id->getServiceType() != YARP_QNET)
 				self_id->setServiceType (YARP_TCP);
+			self_id->setRequireAck(require_ack);
 
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);

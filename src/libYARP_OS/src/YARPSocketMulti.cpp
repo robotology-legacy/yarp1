@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.11 2004-07-30 14:19:00 eshuy Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.12 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 
@@ -103,6 +103,8 @@
 
 ///
 #define THIS_DBG 80
+
+#define DONT_WAIT_UP
 
 ///
 /// yarp message header.
@@ -259,6 +261,12 @@ public:
 	YARPUniqueNameSock& getRemoteID(void) { return _remote_endpoint; }
 	ACE_HANDLE getID () const {	return  (_socket_addr != NULL) ? _socket_addr->getRawIdentifier () : ACE_INVALID_HANDLE; }
 	int getServiceType (void) const { return (_socket_addr != NULL) ? _socket_addr->getServiceType() : YARP_NO_SERVICE_AVAILABLE; }
+	int getRequireAck (void) const { return (_socket_addr != NULL) ? _socket_addr->getRequireAck() : 0; }
+  void setRequireAck(int flag) {
+    if (_socket_addr!=NULL) {
+      _socket_addr->setRequireAck(flag);
+    }
+  }
 
 	virtual void End (int dontkill = -1);
 
@@ -1096,6 +1104,10 @@ void _SocketThreadMulti::BodyTcp (void)
 
 				was_preamble = 0;
 
+#ifdef DONT_WAIT_UP
+				//printf("REQACK %d %d\n", __LINE__, getRequireAck());
+				if (getRequireAck())
+#endif
 				do
 				{
 					if (_reply_preamble)
@@ -1284,6 +1296,10 @@ void _SocketThreadMulti::BodyShmem (void)
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to go into sending reply\n"));
 
+#ifdef DONT_WAIT_UP
+				//printf("REQACK %d %d\n", __LINE__, getRequireAck());
+				if (getRequireAck())
+#endif
 				do
 				{
 					if (_reply_preamble)
@@ -1836,6 +1852,9 @@ inline void _printList (YARPList<_SocketThreadMulti *>& _list, const char *c)
 
 void _SocketThreadListMulti::addSocket (void)
 {
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Hello good evening and welcome to addSocket\n"));
+
+
 	// need to keep calling this to get next incoming socket
 	ACE_ASSERT (_initialized != 0);
 
@@ -1883,7 +1902,12 @@ void _SocketThreadListMulti::addSocket (void)
 	/// MAGIC_NUMBER+2	-> SHMEM
 	/// MAGIC_NUMBER+3  -> TCP
 	///
-	if (hdr.GetLength() == YARP_MAGIC_NUMBER)
+	int magic = ((hdr.GetLength()-YARP_MAGIC_NUMBER)&15)+YARP_MAGIC_NUMBER;
+	int flags = ((hdr.GetLength()-YARP_MAGIC_NUMBER)&(255-15));
+	int req_ack = flags!=0;
+	//printf("**** addSocket determined a REQ ACK state of %d\n", req_ack);
+
+	if (magic == YARP_MAGIC_NUMBER)
 	{
 		/// checks whether <incoming> already tried a connection
 		///		and it is still connected.
@@ -1939,6 +1963,7 @@ void _SocketThreadListMulti::addSocket (void)
 				temp.getAddressRef().set ((u_short)0, _local_addr.get_host_addr());
 
 				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_UDP, ACE_INET_Addr(port_number)), port_number);
+				(*it_avail)->setRequireAck(req_ack);
 				(*it_avail)->Begin();
 			}
 			else
@@ -1949,6 +1974,7 @@ void _SocketThreadListMulti::addSocket (void)
 
 				(*it_avail)->CleanState ();
 				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_UDP, ACE_INET_Addr(port_number)), port_number);
+				(*it_avail)->setRequireAck(req_ack);
 				(*it_avail)->Begin();
 			}
 
@@ -1965,7 +1991,7 @@ void _SocketThreadListMulti::addSocket (void)
 		delete stream;
 	}
 	else
-	if (hdr.GetLength() == (YARP_MAGIC_NUMBER + 1))
+	if (magic == (YARP_MAGIC_NUMBER + 1))
 	{
 		/// ask an MCAST connection.
 
@@ -2045,6 +2071,7 @@ void _SocketThreadListMulti::addSocket (void)
 				temp.getAddressRef().set ((u_short)0, _local_addr.get_host_addr());
 
 				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_MCAST, group), port_number);
+				(*it_avail)->setRequireAck(req_ack);
 				(*it_avail)->Begin();
 			}
 			else
@@ -2055,6 +2082,7 @@ void _SocketThreadListMulti::addSocket (void)
 
 				(*it_avail)->CleanState ();
 				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_MCAST, group), port_number);
+				(*it_avail)->setRequireAck(req_ack);
 				(*it_avail)->Begin();
 			}
 
@@ -2071,7 +2099,7 @@ void _SocketThreadListMulti::addSocket (void)
 		delete stream;
 	}
 	else
-	if (hdr.GetLength() == (YARP_MAGIC_NUMBER + 2))
+	if (magic == (YARP_MAGIC_NUMBER + 2))
 	{
 		/// ask a SHMEM connection.
 
@@ -2132,6 +2160,7 @@ void _SocketThreadListMulti::addSocket (void)
 
 				/// need a port number for SHMEM? or can I recycle the same as UDP, 'cause SHMEM messaging is TCP?
 				(*it_avail)->reuse (&temp, &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
+				(*it_avail)->setRequireAck(req_ack);
 				(*it_avail)->Begin();
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "3777777 Begin %d new thread ready to go on port %d\n", __LINE__, port_number));
 			}
@@ -2143,6 +2172,7 @@ void _SocketThreadListMulti::addSocket (void)
 
 				(*it_avail)->CleanState ();
 				(*it_avail)->reuse (&temp, &YARPUniqueNameMem(YARP_SHMEM, port_number), port_number);
+				(*it_avail)->setRequireAck(req_ack);
 				(*it_avail)->Begin();
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "3777777 Begin %d new thread ready to go on port %d\n", __LINE__, port_number));
 			}
@@ -2160,7 +2190,7 @@ void _SocketThreadListMulti::addSocket (void)
 		delete stream;
 	}
 	else
-	if (hdr.GetLength() == (YARP_MAGIC_NUMBER + 3))
+	if (magic == (YARP_MAGIC_NUMBER + 3))
 	{
 		/// 
 		/// LATER: optimize port # usage. the TCP connection is actually keeping a 
@@ -2228,6 +2258,7 @@ void _SocketThreadListMulti::addSocket (void)
 
 				(*it_avail)->setTCPStream (stream);
 				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_TCP, ACE_INET_Addr(port_number)), port_number);
+				(*it_avail)->setRequireAck(req_ack);
 				(*it_avail)->Begin();
 			}
 			else
@@ -2239,6 +2270,7 @@ void _SocketThreadListMulti::addSocket (void)
 				(*it_avail)->CleanState ();
 				(*it_avail)->setTCPStream (stream);
 				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_TCP, ACE_INET_Addr(port_number)), port_number);
+				(*it_avail)->setRequireAck(req_ack);
 				(*it_avail)->Begin();
 			}
 
@@ -2430,7 +2462,13 @@ int _SocketThreadListMulti::beginReply(ACE_HANDLE reply_pid, char *buf, int len)
 		{
 			if ((*it_avail)->getID() == reply_pid)
 			{
+#ifdef DONT_WAIT_UP
+			  //printf("REQACK %d %d\n", __LINE__, (*it_avail)->getRequireAck());
+#endif
 				if ((*it_avail)->getServiceType () != YARP_MCAST &&
+#ifdef DONT_WAIT_UP
+				    ((*it_avail)->getRequireAck() || ((*it_avail)->getServiceType () != YARP_TCP && (*it_avail)->getServiceType () != YARP_SHMEM)) &&
+#endif
 					(*it_avail)->getServiceType () != YARP_UDP)
 				{
 					(*it_avail)->waitOnMutex ();					///mutex.Wait();
@@ -2470,7 +2508,13 @@ int _SocketThreadListMulti::reply(ACE_HANDLE reply_pid, char *buf, int len)
 		{
 			if ((*it_avail)->getID() == reply_pid)
 			{
+#ifdef DONT_WAIT_UP
+			  //printf("REQACK %d %d\n", __LINE__, (*it_avail)->getRequireAck());
+#endif
 				if ((*it_avail)->getServiceType() != YARP_MCAST &&
+#ifdef DONT_WAIT_UP
+				    ((*it_avail)->getRequireAck() || ((*it_avail)->getServiceType () != YARP_TCP && (*it_avail)->getServiceType () != YARP_SHMEM)) &&
+#endif
 					(*it_avail)->getServiceType () != YARP_UDP)
 				{
 					(*it_avail)->waitOnMutex ();				///mutex.Wait();
@@ -2765,7 +2809,7 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 	int port_number = 0;
 	MyMessageHeader hdr;
 	hdr.SetGood ();
-	hdr.SetLength (YARP_MAGIC_NUMBER + 2);
+	hdr.SetLength (YARP_MAGIC_NUMBER + 2 + 128*name.getRequireAck());
 
 	/// verifies it's a new connection.
 	ACE_INET_Addr nm = ((YARPUniqueNameSock&)name).getAddressRef();
@@ -2808,7 +2852,7 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 	//d._mem_addr.set(d._local_addr);
 	//d._mem_addr.set_port_number(port_number);
 	
-	d._mem_addr.set (port_number, d._local_addr.get_host_addr()); //PFHIT
+	d._mem_addr.set (port_number, d._local_addr.get_host_addr());
 
 
 	/// at this point the remote should be listening on port_number
@@ -2869,6 +2913,13 @@ int YARPOutputSocketMulti::SendContinue(char *buffer, int buffer_length)
 /// I'm afraid the reply might end up being costly to streaming communication.
 int YARPOutputSocketMulti::SendReceivingReply(char *reply_buffer, int reply_buffer_length)
 {
+#ifdef DONT_WAIT_UP
+  //printf("REQ STATE %d\n", getRequireAck());
+#endif
+
+#ifdef DONT_WAIT_UP
+  if (getRequireAck()) {
+#endif
 	OSDataMulti& d = OSDATA(system_resources);
 	MyMessageHeader hdr2;
 	hdr2.SetBad ();
@@ -2893,6 +2944,12 @@ int YARPOutputSocketMulti::SendReceivingReply(char *reply_buffer, int reply_buff
 		}
 	}
 	return result;
+#ifdef DONT_WAIT_UP
+  } else {
+	memset (reply_buffer, 0, reply_buffer_length);
+	return reply_buffer_length;
+  }
+#endif
 }
 
 int YARPOutputSocketMulti::SendEnd(char *reply_buffer, int reply_buffer_length)

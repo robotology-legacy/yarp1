@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.6 2004-07-09 16:10:13 eshuy Exp $
+/// $Id: YARPPort.cpp,v 1.7 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 
@@ -215,7 +215,7 @@ class PortData : public Port
 public:
 	YARPSendablesOf<YARPSendable> sendables;
 	CountedPtr<YARPSendable> p_s;
-	int service_type;
+        int service_type;
 	YARPInputPort *in_owner;
 	YARPOutputPort *out_owner;
 
@@ -293,8 +293,8 @@ int YARPPort::Connect(const char *name)
 {
 	if (strcmp (name, PD.name.c_str()) == 0)
 	{
-		ACE_DEBUG ((LM_DEBUG, "Try to be serious please\n"));
-		return YARP_FAIL;
+	  ACE_DEBUG ((LM_ERROR, "Try to be serious please\n"));
+	  return YARP_FAIL;
 	}
 
 	return PD.Say(name);
@@ -305,8 +305,8 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 {
 	if (strcmp (src_name, dest_name) == 0)
 	{
-		ACE_DEBUG ((LM_DEBUG, "Silly you, you tried it, didn't you?\n"));
-		return YARP_FAIL;
+	  ACE_DEBUG ((LM_ERROR, "Silly you, you tried it, didn't you?\n"));
+	  return YARP_FAIL;
 	}
 
 	/// NULL 2nd param means no net specified, only IP addr.
@@ -369,6 +369,18 @@ void YARPPort::DeactivateAll()
 	}
 
 	port_list_mutex.Post();
+}
+
+
+void YARPPort::SetRequireAck(int require_ack) 
+{
+  PD.SetRequireAck(require_ack);
+}
+
+
+int YARPPort::GetRequireAck()
+{
+  return PD.GetRequireAck();
 }
 
 

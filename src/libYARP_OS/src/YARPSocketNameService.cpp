@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.9 2004-07-12 13:34:32 eshuy Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.10 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 
@@ -220,7 +220,7 @@ int YARPSocketEndpointManager::CreateInputEndpoint (YARPUniqueNameID& name)
 			name.getServiceType() != YARP_UDP &&
 			name.getServiceType() != YARP_MCAST)
 		{
-			ACE_DEBUG ((LM_DEBUG, "YARPSocketEndpointManager::CreateInputEndpoint, service type not supported\n"));
+			ACE_DEBUG ((LM_ERROR, "YARPSocketEndpointManager::CreateInputEndpoint, service type not supported\n"));
 			return YARP_FAIL;
 		}
 
@@ -270,6 +270,7 @@ int YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& name)
 			{
 				no = new YARPOutputSocket;
 				ACE_ASSERT (no != NULL);
+				no->setRequireAck(name.getRequireAck());
 				_endpointmanager._map.rebind (pid, no);
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing output socket\n"));
@@ -283,6 +284,7 @@ int YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& name)
 			{
 				no = new YARPOutputSocketDgram;
 				ACE_ASSERT (no != NULL);
+				no->setRequireAck(name.getRequireAck());
 				_endpointmanager._map.rebind (pid, no);
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing output socket\n"));
@@ -296,6 +298,7 @@ int YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& name)
 			{
 				no = new YARPOutputSocketMcast;
 				ACE_ASSERT (no != NULL);
+				no->setRequireAck(name.getRequireAck());
 				_endpointmanager._map.rebind (pid, no);
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing output socket\n"));
@@ -308,6 +311,7 @@ int YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& name)
 			{
 				no = new YARPOutputSocketMulti;
 				ACE_ASSERT (no != NULL);
+				no->setRequireAck(name.getRequireAck());
 				_endpointmanager._map.rebind (pid, no);
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing output socket\n"));

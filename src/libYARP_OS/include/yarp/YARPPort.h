@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.5 2004-07-09 16:10:13 eshuy Exp $
+/// $Id: YARPPort.h,v 1.6 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 
@@ -220,6 +220,9 @@ public:
 	 * Erm.  Shrug.
 	 */
 	virtual void End();
+
+	void SetRequireAck(int require_ack = 1);
+	int GetRequireAck();
 };
 
 

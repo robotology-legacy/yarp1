@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.5 2004-07-30 06:51:26 eshuy Exp $
+/// $Id: YARPNameID.h,v 1.6 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 /*
@@ -129,13 +129,16 @@ public:
 	int operator == (const YARPNameID& other) { return (_raw_id == other._raw_id) && (_mode == other._mode); }
 	int operator != (const YARPNameID& other) { return !(operator == (other)); }
 
-	inline int getServiceType (void) const { return _mode; }
+	inline int getServiceType (void) const { return _mode&YARP_PROTOCOL_MASK; }
+	inline int getRequireAck (void) const { return (_mode&YARP_REQUIRE_ACK)!=0; }
 	inline void setServiceType (int type) { _mode = type; }
+	inline void setRequireAck (int flag) { _mode = (_mode&YARP_PROTOCOL_MASK) | (flag?YARP_REQUIRE_ACK:0); }
 	inline ACE_HANDLE getRawIdentifier (void) const { return _raw_id; }
 	inline void setRawIdentifier (ACE_HANDLE id) { _raw_id = id; }
 	inline int isValid(void) const { return (_raw_id != ACE_INVALID_HANDLE) ? 1 : 0; }
 	inline int isError(void) const { return (_raw_id == ACE_INVALID_HANDLE); }
-	inline int isConsistent(int n_mode) const { return (_mode == n_mode); }
+	inline int isConsistent(int n_mode) const { return (getServiceType() == n_mode); }
+	//inline int isConsistent(int n_mode) const { return (_mode == n_mode); }
 	void invalidate() { _raw_id = ACE_INVALID_HANDLE;  _mode = YARP_NO_SERVICE_AVAILABLE; }
 };
 

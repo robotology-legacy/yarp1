@@ -35,7 +35,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.h,v 1.4 2004-07-10 23:00:51 gmetta Exp $
+/// $Id: YARPSocket.h,v 1.5 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 
@@ -69,7 +69,7 @@
 #endif
 
 /** 
- * Idenitifies the socket type.
+ * Identifies the socket type.
  */
 enum
 {
@@ -87,6 +87,10 @@ enum
 	 * The socket class incapsulates an output channel.
 	 */
 	YARP_O_SOCKET = 2,
+
+	YARP_X_SOCKET_MASK = 3,
+
+	YARP_SOCK_REQUIRE_ACK = 128,
 };
 
 /**
@@ -126,7 +130,7 @@ public:
 	 * Gets the socket type.
 	 * @return the socket type as in the enum.
 	 */
-	virtual int getSocketType (void) const { return _socktype; }
+	virtual int getSocketType (void) const { return _socktype & YARP_X_SOCKET_MASK; }
 
 	/**
 	 * Gets the socket low-level identifier.
@@ -139,6 +143,10 @@ public:
 	 * @return the protocol type or any other service descriptot.
 	 */
 	virtual int GetServiceType (void) = 0;
+
+	int getRequireAck (void) const { return (_socktype & YARP_SOCK_REQUIRE_ACK)!=0; }
+
+	void setRequireAck(int flag) { _socktype = (_socktype&YARP_X_SOCKET_MASK)|(flag?YARP_SOCK_REQUIRE_ACK:0); }
 };
 
 /**

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.4 2004-07-30 14:19:00 eshuy Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.5 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 
@@ -489,7 +489,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	int port_number = 0;
 	MyMessageHeader hdr;
 	hdr.SetGood ();
-	hdr.SetLength (YARP_MAGIC_NUMBER + 1);
+	hdr.SetLength (YARP_MAGIC_NUMBER + 1 + 128*name.getRequireAck());
 
 	char myhostname[YARP_STRING_LEN];
 	getHostname (myhostname, YARP_STRING_LEN);

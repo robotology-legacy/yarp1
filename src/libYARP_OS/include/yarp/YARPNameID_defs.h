@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID_defs.h,v 1.1 2004-07-09 16:10:13 eshuy Exp $
+/// $Id: YARPNameID_defs.h,v 1.2 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 
@@ -133,6 +133,13 @@ enum YARPProtocols
 	* The port is an input port with multiple protocol abilities.
 	*/
 	YARP_MULTI = 6,
+
+	YARP_PROTOCOL_MASK = 15,
+
+	/**
+	 * Protocols TCP and SHMEM may or may not request acknowledgements.
+	 */
+	YARP_REQUIRE_ACK = 128,
 };
 
 const char __udpString[] = "UDP";

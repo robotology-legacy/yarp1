@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.3 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.4 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 
@@ -351,7 +351,7 @@ int YARPOutputSocketDgram::Connect (const YARPUniqueNameID& name)
 	int port_number = 0;
 	MyMessageHeader hdr;
 	hdr.SetGood ();
-	hdr.SetLength (YARP_MAGIC_NUMBER);
+	hdr.SetLength (YARP_MAGIC_NUMBER + 128*name.getRequireAck());
 	stream.send_n (&hdr, sizeof(hdr), 0);
 
 	/// wait response.

@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPConfigFile.cpp,v 1.1 2004-07-28 21:46:21 babybot Exp $
+///  $Id: YARPConfigFile.cpp,v 1.2 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 

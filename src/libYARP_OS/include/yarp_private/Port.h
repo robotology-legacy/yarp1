@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.7 2004-07-09 18:52:41 eshuy Exp $
+/// $Id: Port.h,v 1.8 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 
@@ -128,6 +128,7 @@ public:
 	int deactivated;
 	int port_number;
 	int protocol_type;
+	int require_ack;
 
 	Sema something_to_send;
 #ifdef UPDATED_PORT
@@ -147,6 +148,7 @@ public:
 					space_available(1),
 #endif
 					mutex(1),
+	  require_ack(0),
 					network_name(YARP_DEFAULT_NET)
     {
 		target_pid = NULL;
@@ -220,6 +222,14 @@ public:
 	int ConnectMcast (const char *name);
 	int DeactivateMcast (const char *name);
 	int DeactivateMcastAll (void);
+
+	void SetRequireAck(int flag) {
+	  require_ack = flag;
+	}
+
+	int GetRequireAck() {
+	  return require_ack;
+	}
 };
 
 
@@ -301,6 +311,7 @@ public:
 	int name_set;
 	int add_header;
 	int expect_header;
+	int require_ack;
 	MeshOf<OutputTarget> targets;
 	Sema something_to_send;
 	Sema something_to_read;
@@ -369,6 +380,7 @@ public:
 		complete_terminate(0,0),
 		complete_msg_thread(0,0),
 		name(nname),
+  	        require_ack(0),
 		network_name(YARP_DEFAULT_NET)
 	{ 
 		_started = false;
@@ -392,6 +404,7 @@ public:
 		wakeup(0),
 		list_mutex(1),
 		out_mutex(1),
+  	        require_ack(0),
 		complete_terminate(0,0),
 		complete_msg_thread(0,0),
 		network_name(YARP_DEFAULT_NET)
@@ -528,6 +541,14 @@ public:
 
 	int IsSending (void);
 	void FinishSend (void);
+
+	void SetRequireAck(int flag) {
+	  require_ack = flag;
+	}
+
+	int GetRequireAck() {
+	  return require_ack;
+	}
 };
 
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.7 2004-07-09 18:52:41 eshuy Exp $
+/// $Id: YARPSocket.cpp,v 1.8 2004-08-02 12:31:55 eshuy Exp $
 ///
 ///
 
@@ -113,6 +113,9 @@
 /// yarp message header.
 ///
 #include <yarp/begin_pack_for_net.h>
+
+#define DONT_WAIT_UP
+
 
 struct MyMessageHeader
 {
@@ -296,7 +299,7 @@ int YARPOutputSocket::Connect (const YARPUniqueNameID& name)
 
 	MyMessageHeader hdr;
 	hdr.SetGood();
-	hdr.SetLength(YARP_MAGIC_NUMBER+3);
+	hdr.SetLength(YARP_MAGIC_NUMBER+3 + 128*name.getRequireAck());
 
 	d._stream.send_n (&hdr, sizeof(hdr), 0);
 
@@ -353,6 +356,10 @@ int YARPOutputSocket::SendContinue(char *buffer, int buffer_length)
 /// I'm afraid the reply might end up being costly to streaming communication.
 int YARPOutputSocket::SendReceivingReply(char *reply_buffer, int reply_buffer_length)
 {
+  //printf("RequireAck state is %d\n", getRequireAck());
+#ifdef DONT_WAIT_UP
+  if (getRequireAck()) {
+#endif
 	MyMessageHeader hdr2;
 	hdr2.SetBad ();
 
@@ -376,6 +383,12 @@ int YARPOutputSocket::SendReceivingReply(char *reply_buffer, int reply_buffer_le
 		}
 	}
 	return result;
+#ifdef DONT_WAIT_UP
+  } else {
+	memset (reply_buffer, 0, reply_buffer_length);
+	return reply_buffer_length;
+  }
+#endif
 }
 
 
