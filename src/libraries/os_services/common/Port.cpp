@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.40 2003-07-11 09:50:55 gmetta Exp $
+/// $Id: Port.cpp,v 1.41 2003-07-11 09:56:37 gmetta Exp $
 ///
 ///
 
@@ -127,7 +127,7 @@ void safe_printf(char *format,...)
 
 ///
 /// for testing only (possibly remove it completely).
-#define DEBUG_DISABLE_SHMEM 1
+///#define DEBUG_DISABLE_SHMEM 1
 
 ///
 /// prepares the connect command. the header is NewFragmentHeader. a sender is
