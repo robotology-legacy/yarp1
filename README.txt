@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.4 2002-09-17 21:24:47 gmetta Exp $
+$Id: README.txt,v 1.5 2002-09-23 20:45:09 gmetta Exp $
 
 Before you do anything else.
 YARP assumes you have correctly set up the following variables:
@@ -13,6 +13,14 @@ Also we assumed:
 -Microsoft Visual C++ on NT
 -Watcom 10.6 on QNX
 -gcc (?) on LINUX
+
+
+
+For historical reasons the YARP root is usually called YARP (some of
+the applications do not really check $YARP_ROOT variable and assume
+some weird absolute path.
+The CVS repository is called yarp (lowercase). Temporary solution is 
+to make a soft link (ln -s).
 
 
 
