@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.45 2004-01-16 17:34:10 gmetta Exp $
+/// $Id: main.cpp,v 1.46 2004-01-21 09:41:43 beltran Exp $
 ///
 ///
 
@@ -246,10 +246,17 @@ int _grabber2rgb (const unsigned char *in, unsigned char *out, int szx, int szy)
 	return YARP_OK;
 }
 
-//
-// This class extends a YARPPort in order to implement the OnRead callback function
-// It receives a bottle with information to adjust the images in the framegrabber
-//
+// =====================================================================================
+//        Class:  FgNetDataPort
+// 
+//  Description:  This class extends a YARPPort in order to implement the OnRead callback function
+// 				  It receives a bottle with information to adjust the images in the framegrabber
+// 				  To be used to fgadjuster photon application. 
+// 
+//       Author:  Ing. Carlos Beltran
+//      Created:  15/01/2003 10:36:00 W. Europe Standard Time
+//     Revision:  21/01/2004: Removed some prints
+// =====================================================================================
 
 class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 {
@@ -277,9 +284,8 @@ class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 
 void FgNetDataPort::OnRead(void)
 {
-	printf("Accesing OnRead\n");
+	//printf("Accesing OnRead\n");
 	Read ();
-	//printf ("RECEIVED a message in HighLevelPortReply\n");
 	m_bottle = Content();
 	m_bottle.readInt((int *)&m_bright);
 	m_bottle.readInt((int *)&m_hue);
@@ -290,7 +296,7 @@ void FgNetDataPort::OnRead(void)
 	m_bottle.readInt((int *)&m_ldec);
 	m_bottle.readInt((int *)&m_crush);
 
-	m_bottle.display();
+	//m_bottle.display();
 
 	m_gb->setBright((unsigned int)m_bright);
 	m_gb->setHue((unsigned int)m_hue);
