@@ -35,16 +35,13 @@ public:
 		for(r = 0; r<_srho; r++)
 			for(t = 0; t<_stheta; t++)
 			{
-				cout << t << "\t" << r << "\n";
 				if ( backpr(t,r) > 250)
 				{
 					_fitter.findCircle(t, r, R, points);
-					cout << points.n << "\n";
 					cumulateRegion(src, points);
 					// now histo is the histogram of the current circle
 					double p = intersect(target);
 					out(t,r) = unsigned char (p*255 + 0.5);
-					// out(t,r) = 255;
 				}
 				else
 					out(t,r) = 0;
@@ -79,6 +76,7 @@ public:
 			double h = tmpH.value()/histo.maximum();
 			
 			sum += (g-h)*(g-h);
+			it++;
 		}
 
 		return sum;

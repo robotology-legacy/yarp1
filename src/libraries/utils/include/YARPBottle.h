@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.1 2003-07-18 16:14:06 natta Exp $
+/// $Id: YARPBottle.h,v 1.2 2003-09-18 15:35:12 babybot Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -304,6 +304,9 @@ protected:
 	
 	bool assertType(int ch)
     {
+		// first of all check if bottle is !empty
+		if (!more())
+			return false;
 		int compare;
 		compare = readRawInt();
 		return (ch==compare);

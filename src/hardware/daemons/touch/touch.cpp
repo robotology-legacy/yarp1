@@ -22,7 +22,7 @@
 using namespace std;
 
 const int __defaultRate = 40;
-const YARPString __defaultName = "/touch/o:1";
+const YARPString __defaultName = "/touch/o";
 
 class MyThread : public YARPRateThread
 {

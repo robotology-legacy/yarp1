@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPFSM.h,v 1.9 2003-09-05 12:18:23 babybot Exp $
+/// $Id: YARPFSM.h,v 1.10 2003-09-18 15:35:12 babybot Exp $
 ///  
 /// Finite State Machine class -- by nat July 2003
 //
@@ -142,7 +142,10 @@ public:
 	
 		while (!it.done())
 		{
-			flag = (*it).inFunction->input(d);
+			if ((*it).inFunction == NULL)
+				flag = true;
+			else
+				flag = (*it).inFunction->input(d);
 	
 			if (flag)
 			{
@@ -199,13 +202,13 @@ public:
 	}
 
 	void add(YARPFSMInput<FSM_SHARED_DATA> *in,  FSM_STATE *s1, FSM_STATE *s2, YARPFSMOutput<FSM_SHARED_DATA> *outF = NULL)	{
-		if (in == NULL)
-		{
-			s1->setDefaultOut(outF);
-			s1->setDefault(s2);
-			s1->_table.clear();
-		}
-		else
+		// if (in == NULL)
+		// {
+		//	s1->setDefaultOut(outF);
+		//	s1->setDefault(s2);
+		//	s1->_table.clear();
+		// }
+		// else
 		{
 			YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> tmp;
 			tmp.inFunction = in;

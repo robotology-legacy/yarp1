@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.14 2003-09-05 12:18:23 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.15 2003-09-18 15:35:12 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -87,7 +87,7 @@ const int __exitCode = -1;
 class YARPBehaviorSharedData
 {
 	public:
-		YARPBehaviorSharedData(int ID, std::string portName):
+		YARPBehaviorSharedData(int ID, const YARPString &portName):
 		  _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 		  {	
 			  _data.setID(ID);
@@ -105,6 +105,12 @@ class YARPBehaviorSharedData
 		  void writeAndSend(int v)
 		  {
 			  _data.writeVocab(v);
+			  send();
+		  }
+
+		  void writeAndSend(const YVector &v)
+		  {
+			  _data.writeYVector(v);
 			  send();
 		  }
 
@@ -323,6 +329,9 @@ template <class MY_BEHAVIOR, class MY_SHARED_DATA>
 void YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
 Body(void)
 {
+	YARPBottle dummy;
+	dummy.setID(_key);	
+
 	while(!IsTerminated())
 	{
 		// handle state
@@ -335,6 +344,8 @@ Body(void)
 		else 
 		{
 			// state is AS, just loop !
+			// and still check inputs
+			_parse(dummy);
 		}
 		// switch state
 		state->decideState((MY_BEHAVIOR *)this, _data);
