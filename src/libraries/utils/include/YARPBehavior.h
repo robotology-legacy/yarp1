@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.2 2003-07-09 17:55:14 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.3 2003-07-11 16:45:12 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -80,7 +80,7 @@ class YARPBehaviorSharedData
 		  _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 		  {
 			  _outPort.Register(portName.c_str());
-		  };
+		  }
 
 		  void send(OUT_DATA &d)
 		  {
@@ -111,7 +111,8 @@ public:
 		while(!IsTerminated())
 		{
 			// handle stuff
-			_stopEvent.wait();
+			if (!currentState()->isAs())
+				_stopEvent.wait();
 			doYourDuty();
 		}
 	}
@@ -122,6 +123,8 @@ public:
 		if (checkState(s))
 			_stopEvent.signal();
 	}
+
+
 
 	ACE_Auto_Event _stopEvent;
 };
@@ -159,7 +162,6 @@ public:
 			// this is not for you, return
 			return;
 		}
-
 		// handle message
 		ENTRY_HANDLER_IT it;
 		it = _table.begin();
@@ -181,6 +183,7 @@ public:
 		}
 	}
 
+
 	void add(int k, void (*f)(MY_BEHAVIOR *fsm))
 	{
 		entryHandler tmp;
@@ -192,6 +195,7 @@ public:
 	
 	void add(int k, void (*f)(MY_BEHAVIOR * , YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *), YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *s)
 	{
+		s->_as = false;
 		sigHandler tmp;
 		tmp.function = f;
 		tmp.state = s;

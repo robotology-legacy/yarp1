@@ -33,17 +33,24 @@ int main(int argc, char* argv[])
 	hand_thread.start();
 
 	WaitState wait;
-	MoveState move;
+	MoveState shake;
+//	MoveState move;
 	
 	HandBehavior _behavior(&hand_thread);
 
 	_behavior.setInitialState(&wait);
-	_behavior.add(NULL, &wait, &move);
-	_behavior.add(NULL, &move, &wait);
+	_behavior.add(NULL, &wait, &shake);
+	_behavior.add(NULL, &shake, &wait);
 
 	HandMsgHandler _messageH(&_behavior, 0, "/behaviors/i:hand");
 	_messageH.add(1, sigFunction, &wait);
-	_messageH.add(0, sigFunction, &move);
+	_messageH.add(0, sigFunction, &shake);
+
+	/*
+	_messageH.add(3, sigFunction, &move);
+	_behavior.add(NULL, &move, &wait);
+	*/
+
 	
 	char c;
 	while(true)

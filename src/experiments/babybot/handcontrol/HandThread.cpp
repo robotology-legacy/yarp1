@@ -29,6 +29,17 @@ YARPRateThread(name, rate)
 	_shake3.setCmd(tmp);
 	_wait1.setNSteps(35);
 	///////
+
+	// single movement behavior
+	_fsm->add(&_startMove, &_waitState, &_move1State);
+	_fsm->add(NULL, &_move1State, &_move2State);
+	_fsm->add(&_waitMove, &_move2State, &_endMotionState);
+	_fsm->add(NULL, &_endMotionState, &_waitState);
+
+	tmp = 0.0;
+	_shake3.setCmd(tmp);
+	_wait1.setNSteps(35);
+
 }
 
 HandThread::~HandThread()
@@ -59,4 +70,14 @@ void HandThread::doLoop()
 void HandThread::doRelease()
 {
 	_hand.uninitialize();
+}
+
+void HandThread::singleMove(const YVector &pos, int time)
+{
+	if (time<0)
+		time = 1;
+
+	_waitMove.setNSteps(time);
+	_move1State.setCmd(pos);
+	_startMove.set();
 }

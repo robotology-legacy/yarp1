@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPFSM.h,v 1.4 2003-07-09 17:55:14 babybot Exp $
+/// $Id: YARPFSM.h,v 1.5 2003-07-11 16:45:12 babybot Exp $
 ///  
 /// Finite State Machine class -- by nat July 2003
 //
@@ -104,7 +104,10 @@ class YARPFSMStateBase
 {
 protected:
 	YARPFSMStateBase()
-	{ _default = this; }
+	{
+		_default = this;
+		_as = true;
+	}
 	virtual ~YARPFSMStateBase(){}
 
 	typedef YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> FSM_TABLE_ENTRY;
@@ -148,8 +151,13 @@ public:
 	void setDefault(YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *n)
 	{ _default = n; }
 
+	bool isAs()
+	{ return _as; }
+
 	FSM_TABLE _table;
 	YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *_default;
+
+	bool _as;
 };
 
 template <class MYFSM, class FSM_SHARED_DATA>
@@ -212,6 +220,9 @@ public:
 		else
 			return false;
 	}
+
+	FSM_STATE *currentState()
+	{ return state; }
 
 	FSM_SHARED_DATA *_data;
 	FSM_STATE *state;

@@ -27,6 +27,8 @@ public:
 	void doInit();
 	void doLoop();
 	void doRelease();
+
+	void singleMove(const YVector &pos, int time);
 	
 	HandSharedData _hand;
 
@@ -39,13 +41,24 @@ public:
 
 	// fsm states
 	IdleState _waitState;
+	
+	// shake
 	InitMoveState _shake1;
 	IdleState _shake2;
 	InitMoveState _shake3;
 	IdleState _shake4;
 	EndMotion _endMotion;
+	
+	// inputs
 	WaitNSteps _wait1;
 	Pulse _startShake;
+	
+	// single movement
+	InitMoveState _move1State;
+	IdleState _move2State;
+	WaitNSteps _waitMove;
+	Pulse _startMove;
+	EndMotion _endMotionState;
 };
 
 #endif // .h
