@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.tool.template,v 1.6 2004-12-07 15:44:53 babybot Exp $
+# $Id: Makefile.tool.template,v 1.7 2005-02-24 22:12:08 natta Exp $
 #
 
 EXECDIR = ../bin/$(SYSDIR)
@@ -29,8 +29,8 @@ w:
 	@echo -n
 
 $(EXEC_TARGET): $(TARGETS)
-	mkdir -p $(EXECDIR)
-	$(CC) $(CFLAGS) $^ -o $@ -L$(YARP_ROOT)/lib/$(SYSDIR) $(MYLIBS) -lYARP_OS -lACE $(LIBADD)
+	 mkdir -p $(EXECDIR)
+	 $(CC) $(CFLAGS) $^ -o $@ -L$(YARP_ROOT)/lib/$(SYSDIR) $(MYLIBS) -lYARP_OS -lACE $(LIBADD)
 
 # install to top dir
 topinstall: $(EXEC_TARGET)

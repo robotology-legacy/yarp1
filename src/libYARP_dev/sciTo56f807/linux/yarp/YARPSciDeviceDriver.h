@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.h,v 1.4 2005-02-23 21:35:22 natta Exp $
+/// $Id: YARPSciDeviceDriver.h,v 1.5 2005-02-24 22:12:08 natta Exp $
 ///
 ///
 
@@ -36,8 +36,9 @@
 
 #include <yarp/YARPConfig.h>
 #include <yarp/YARPDeviceDriver.h>
+#include <yarp/YARPControlBoardUtils.h>
 #include <yarp/YARPSemaphore.h>
-#include "SerialProtocol.h"
+#include <yarp/SerialProtocol.h>
 /**
  * \file YARPSciDeviceDriver.h 
  * class for interfacing with the value can device driver.
@@ -96,9 +97,9 @@ public:
 	 */
 	virtual int close(void);
 
-protected:
+public: //later private:
 	
-	//int getPosition(void *cmd);
+	int getPosition(void *cmd);
 	/*
 	int getPositions(void *cmd);
 	int getRefPosition (void *cmd);
@@ -149,10 +150,12 @@ protected:
 	/**
 	* Helpers to write/read from/to the serial port
 	*/
+	
+	// LATER: inline
 	inline int _write(int msg, int joint);
+	int _readWord(int msg, int joint, int &value);
 	
 protected:
-	void *system_resources;
 	YARPSemaphore _mutex;
 	SerialProtocol _serialPort;
 };

@@ -1,6 +1,6 @@
 
 //
-// $Id: YARPConfig.h,v 1.2 2004-09-24 19:24:36 eshuy Exp $
+// $Id: YARPConfig.h,v 1.3 2005-02-24 22:12:08 natta Exp $
 // YARP config file (template).
 //
 //

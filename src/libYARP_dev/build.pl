@@ -200,7 +200,6 @@ sub install_libs_generic
 			}
 		}
 	}
-	
 	if ($libraries ne '')
 	{
 		print "\nNow building libraries...\n";
