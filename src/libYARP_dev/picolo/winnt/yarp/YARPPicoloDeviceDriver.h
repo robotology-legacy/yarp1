@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.1 2004-07-13 13:21:10 babybot Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.2 2004-07-13 13:47:56 babybot Exp $
 ///
 ///
 
@@ -51,9 +51,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * \file YARPPicoloDeviceDriver.h device driver for managing the Picolo frame grabber.
+ * This is a bt848 based frame grabber.
+ */
+
+/**
+ * Structure for defining the open() parameters of the frame grabber.
+ */
 struct PicoloOpenParameters
 {
-	/// add here params for the open.
+	/**
+	 * Constructor. Add here the parameters for the open().
+	 */
 	PicoloOpenParameters()
 	{
 		_unit_number = 0;
@@ -66,16 +76,21 @@ struct PicoloOpenParameters
 		// _alfa = 1.125f;
 	}
 
-	int _unit_number;		/// board number 0, 1, 2, etc.
-	int _video_type;		/// 0 composite, 1 svideo.
-	int _size_x;			/// requested size x.
-	int _size_y;			/// requested size y.
-	int _offset_y;			/// y offset, with respect to the center 
-	int _offset_x;			/// x offset, with respect to the center
-	float _alfa;			/// to have the possibility to shift the roi vertically, the requested size is actually _alfa*_size_y
+	int _unit_number;		/** board number 0, 1, 2, etc. */
+	int _video_type;		/** 0 composite, 1 svideo. */
+	int _size_x;			/** requested size x. */
+	int _size_y;			/** requested size y. */
+	int _offset_y;			/** y offset, with respect to the center. */
+	int _offset_x;			/** x offset, with respect to the center. */
+	float _alfa;			/** to have the possibility of shifting the ROI vertically, the requested size is actually _alfa*_size_y */
 };
 
-
+/**
+ * The Picolo frame grabber, derived from the YARPDeviceDriver and from the YARPThread class.
+ * The device driver handles triple buffering by having a thread waiting on new frame events and
+ * manually generating the correct pointer for the user to read. The class is not itself 
+ * protected by a mutex since there's an internal mutex already. This is hidden in system_resources.
+ */
 class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>, public YARPThread
 {
 private:
@@ -83,14 +98,36 @@ private:
 	void operator=(const YARPPicoloDeviceDriver&);
 
 public:
+	/**
+	 * Constructor.
+	 */
 	YARPPicoloDeviceDriver();
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPPicoloDeviceDriver();
 
-	// overload open, close
+	/**
+	 * Opens the device driver. For the meaning of parameters see PicoloOpenParameters.
+	 * @param p is a pointer to the open arguments.
+	 * @return returns YARP_OK on success.
+	 */
 	virtual int open(void *d);
+
+	/**
+	 * Closes the device driver.
+	 * @return returns YARP_OK on success.
+	 */
 	virtual int close(void);
 
-	virtual int acquireBuffer(void *);
+protected:
+	/**
+	 * Locks the current image buffer.
+	 * @param buffer is a pointer to the buffer address (i.e. a double pointer).
+	 * @return YARP_OK if successful.
+	 */
+	virtual int acquireBuffer(void *buffer);
 	virtual int releaseBuffer(void *);
 	virtual int waitOnNewFrame (void *cmd);
 	virtual int getWidth(void *cmd);

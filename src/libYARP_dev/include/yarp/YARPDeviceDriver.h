@@ -31,7 +31,7 @@
 //
 // 
 // feb 2003 -- by nat and pasa
-// $Id: YARPDeviceDriver.h,v 1.2 2004-07-13 13:21:07 babybot Exp $
+// $Id: YARPDeviceDriver.h,v 1.3 2004-07-13 13:47:56 babybot Exp $
 
 #ifndef __YARP_DEVICE_DRIVER__
 #define __YARP_DEVICE_DRIVER__
@@ -117,7 +117,7 @@ public:
 
 	/**
 	 * Closes the device driver.
-	 * @return is should return YARP_OK on success.
+	 * @return it should return YARP_OK on success.
 	 */
 	virtual int close() = 0;
 
