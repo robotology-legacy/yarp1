@@ -78,7 +78,7 @@ int YARPConvKernelFile::Read(const char *src, YARPConvKernel &dest)
 	
 	if (!fp)
 	{
-		ACE_OS::fprintf(stderr, "pgm/ppm: Error - cannot open file for reading\n");
+		ACE_OS::fprintf(stderr, "Error - cannot open file for reading\n");
 		return -1;
 	}
 
@@ -108,7 +108,7 @@ int YARPConvKernelFile::Write(const char *dest, YARPConvKernel &src)
 	
 	if (!fp)
 	{
-		ACE_OS::fprintf(stderr, "pgm/ppm: Error - cannot open file for writing\n");
+		ACE_OS::fprintf(stderr, "Error - cannot open file for writing\n");
 		return -1;
 	}
 

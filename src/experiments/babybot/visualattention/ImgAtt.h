@@ -189,6 +189,7 @@ protected:
 	//YARPArrayConvKernel prewitt_o_s;
 	YARPArrayConvKernel sobel;
 	
+	YARPArrayConvKernel gauss_s;
 	YARPArrayConvKernel gauss_c_s;
 	YARPArrayConvKernel gauss_s_s;
 
@@ -298,6 +299,10 @@ public:
 	inline void initMeanCol(YARPImageOf<YarpPixelBGR> &in)
 	{
 		meanCol=in;
+		((IplImage *)meanCol)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
+		((IplImage *)meanCol)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
+		((IplImage *)meanCol)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=IPL_BORDER_REPLICATE;
+		((IplImage *)meanCol)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;
 	}
 	
 	YARPBox* IORBoxes;

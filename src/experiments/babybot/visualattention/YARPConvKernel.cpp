@@ -435,13 +435,17 @@ void YARPArrayConvKernel::ConvolveSep2D(const YARPGenericImage &srcImage,
 	tmp.SetID(srcImage.GetID());
 	//YARPImageOf<YarpPixelMono> tmp;
 	tmp.Resize(srcImage.GetWidth(), srcImage.GetHeight());
-		
+	((IplImage *)tmp)->BorderMode[IPL_SIDE_LEFT_INDEX]=((IplImage *)srcImage)->BorderMode[IPL_SIDE_LEFT_INDEX];
+	((IplImage *)tmp)->BorderMode[IPL_SIDE_RIGHT_INDEX]=((IplImage *)srcImage)->BorderMode[IPL_SIDE_RIGHT_INDEX];
+	((IplImage *)tmp)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=((IplImage *)srcImage)->BorderMode[IPL_SIDE_BOTTOM_INDEX];
+	((IplImage *)tmp)->BorderMode[IPL_SIDE_TOP_INDEX]=((IplImage *)srcImage)->BorderMode[IPL_SIDE_TOP_INDEX];
+	
 	//iplConvolveSep2D(IplImage* srcImage,IplImage* dstImage, IplConvKernel* xKernel,IplConvKernel* yKernel);
 	//iplConvolveSep2D((IplImage *)srcImage, (IplImage *)dstImage, ipl_array[0], ipl_array[1]);
 
 	// in questo modo evito il problema di prima, ma dovrebbe essere più lento
-	iplConvolveSep2D((IplImage *)srcImage, (IplImage *)tmp, ipl_array[0], NULL);
-	iplConvolveSep2D((IplImage *)tmp, (IplImage *)dstImage, NULL, ipl_array[1]);
+	iplConvolveSep2D(srcImage, tmp, ipl_array[0], NULL);
+	iplConvolveSep2D(tmp, dstImage, NULL, ipl_array[1]);
 
 	zdi.coi=0;
 	zdi.xOffset=0;

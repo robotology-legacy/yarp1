@@ -1259,12 +1259,12 @@ void YARPWatershed::checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, 
 
 void YARPWatershed::doIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num)
 {
-	for (int i=0; i<num; i++) {
-		if (boxes[i].valid) {
+	for (int l=0; l<num; l++) {
+		if (boxes[l].valid) {
 			int r1, c1, r, c;
 			int x, y;
 			
-			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].elev, boxes[i].az, x, y);
+			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[l].elev, boxes[l].az, x, y);
 			m_lp.Cartesian2Logpolar(x, y, r1, c1);
 			for (int i=-3; i<=3; i++)
 				for (int j=-3; j<=3; j++) {
@@ -1274,11 +1274,11 @@ void YARPWatershed::doIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int
 						if (c<0) c=width+c;
 						else if (c>width) c=c-width-1;
 						YarpPixelInt index=tagged(c, r);
-						int crg=m_boxes[index].meanRG-boxes[i].meanRG;
-						int cgr=m_boxes[index].meanGR-boxes[i].meanGR;
-						int cby=m_boxes[index].meanBY-boxes[i].meanBY;
+						int crg=m_boxes[index].meanRG-boxes[l].meanRG;
+						int cgr=m_boxes[index].meanGR-boxes[l].meanGR;
+						int cby=m_boxes[index].meanBY-boxes[l].meanBY;
 
-						if (crg*crg+cgr*cgr+cby*cby<500) {
+						if (crg*crg+cgr*cgr+cby*cby<1000) {
 							m_boxes[index].valid=false;
 						}
 					}

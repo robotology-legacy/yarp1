@@ -171,6 +171,7 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	
 	sobel.Resize(8);
 
+	gauss_s.Resize(2);
 	gauss_c_s.Resize(2);
 	gauss_s_s.Resize(2);
 	
@@ -192,6 +193,10 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	sobel.Set(3,3,1,1,sobel6,2,6);
 	sobel.Set(3,3,1,1,sobel7,2,7);
 
+	gauss_s.SetGaussianRow(2,1,1,11,0);
+	gauss_s.SetGaussianCol(2,1,1,11,1);
+	//gauss_s.InitFixBorder();
+	
 	//gauss_c_s.Set(5,1,2,0,g_c,11,0);
 	//gauss_c_s.Set(1,5,0,2,g_c,11,1);
 	gauss_c_s.SetGaussianRow(2,1,1/sqrt(1.5),11,0);
@@ -327,6 +332,11 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 
 	meanOppCol.Resize(x, y);
 	meanCol.Resize(x, y);
+	((IplImage *)meanCol)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
+	((IplImage *)meanCol)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
+	((IplImage *)meanCol)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=IPL_BORDER_REPLICATE;
+	((IplImage *)meanCol)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;
+
 	
 	tmpBGR1.Resize(x, y);
 	//tmpBGR2.Resize(x, y);
@@ -980,8 +990,15 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 	YARPImageUtils::GetBlue(src,b2);
 	
 	iplRShiftS(src, src, 1);
+	/*ACE_OS::sprintf(savename, "meancol.ppm");
+	YARPImageFile::Write(savename, meanCol);*/
+	gauss_s.ConvolveSep2D(meanCol,meanCol);
+	/*ACE_OS::sprintf(savename, "meancolg.ppm");
+	YARPImageFile::Write(savename, meanCol);*/
 	iplRShiftS(meanCol, meanCol, 1);
 	iplAdd(src, meanCol, src);
+	/*ACE_OS::sprintf(savename, "src.ppm");
+	YARPImageFile::Write(savename, src);*/
 
 	//iplLShiftS(src, src, 1);
 	
@@ -1004,6 +1021,7 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 	iplColorMedianFilter(tmpBGR1, src, 3, 3, 1, 1); // better in the perifery, worse in fovea*/
 	//src=tmpBGR1;
 
+	
 	colorOpponency(src);
 	findEdges();
 	
@@ -1028,7 +1046,7 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 		//cout<<"CMP DELTA %:"<<(fovBox.cmp-cmp)/cmp*100;
 		//cout<<"  ECT DELTA %:"<<(fovBox.ect-ect)/ect*100<<endl;
 
-		if (crg*crg+cgr*cgr+cby*cby<150) {
+		if (crg*crg+cgr*cgr+cby*cby<1000) {
 			found=true;
 		}
 	}	
@@ -1398,7 +1416,7 @@ void YARPImgAtt::findBlobs()
 	
 	//rain.RemoveNonValid(max_tag, 3800, 100);
 	rain.ComputeSalienceAll(max_tag, max_tag);
-	rain.RemoveNonValid(max_tag, 6000, 200);
+	rain.RemoveNonValid(max_tag, 6000, 100);
 
 	
 	//rain.ComputeSalience(max_tag, max_tag);
