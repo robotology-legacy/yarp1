@@ -23,7 +23,7 @@ int ParseParams (int argc, char *argv[])
 class Thread : public YARPRateThread
 {
 public:
-	Thread():YARPRateThread("force", 100),
+	Thread():YARPRateThread("force", 40),
 	_outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	{
 	}
@@ -33,7 +33,7 @@ public:
 
 	void doInit()
 	{
-		fs.initialize();
+		fs.initialize("Y:\\conf\\babybot\\forcesensor.ini");
 
 		_outPort.Register("/force/o:1");
 
@@ -43,14 +43,15 @@ public:
 	{
 	
 		fs.read(_forces, _torques);
-		for(int i = 0; i < 3; i++)
-			cout << _forces[i] << '\t';
 
-		memcpy(_outPort.Content(), _forces, sizeof(double)*3);
+		for(int i = 0; i < 3; i++)
+			printf("%.3lf\t",_torques[i]);
+
+		cout << "\n";
+		
+		memcpy(_outPort.Content(), _torques, sizeof(double)*3);
 		
 		_outPort.Write();
-
-		cout << '\n';
 	}
 
 	void doRelease()
