@@ -92,7 +92,7 @@ public:
 	int setVelocities(double *vel)
 	{
 		_lock();
-		for (int i = 0; i < _BabybotHead::_nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) {
 			_temp_double[i] = angleToEncoder(vel[_parameters._axis_map[i]],
 											_parameters._encoderToAngles[i],
 											0.0,
@@ -106,7 +106,7 @@ public:
 	int setAccs(double *acc)
 	{
 		_lock();
-		for (int i = 0; i < _BabybotHead::_nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) {
 			_temp_double[i] = angleToEncoder(acc[_parameters._axis_map[i]],
 											_parameters._encoderToAngles[i],
 											0.0,
@@ -121,7 +121,7 @@ public:
 	int velocityMove(double *vel)
 	{
 		_lock();
-		for (int i = 0; i < _BabybotHead::_nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) {
 			_temp_double[i] = angleToEncoder(vel[_parameters._axis_map[i]],
 											_parameters._encoderToAngles[i],
 											0.0,
@@ -136,7 +136,7 @@ public:
 	int setCommands(double *pos)
 	{
 		_lock();
-		for (int i = 0; i < _BabybotHead::_nj; i++) {
+		for (int i = 0; i < _parameters._nj; i++) {
 			_temp_double[i] = angleToEncoder(pos[_parameters._axis_map[i]],
 											_parameters._encoderToAngles[i],
 											0.0,
@@ -270,7 +270,5 @@ int YARPGenericComponent<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *fin
 	delete [] currentPos; 
 	return -1;
 }
-
-typedef YARPGenericComponent<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters> YARPHead;
 
 #endif // h
