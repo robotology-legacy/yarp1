@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.23 2003-08-29 10:35:10 babybot Exp $
+/// $Id: YARPNameServer.cpp,v 1.24 2004-02-04 17:20:24 babybot Exp $
 ///
 ///
 
@@ -190,7 +190,7 @@ void YARPNameServer::handle_exdump_request()
 		///int length = i->ports.size();
 		PORT_IT j((*i).ports);
 		// first port
-		ACE_OS::sprintf(dummy, "%d\0", (*j).port);
+		ACE_OS::sprintf(dummy, "%d", (*j).port);
 		text.append (dummy);
 		text.append (",");
 
@@ -209,10 +209,10 @@ void YARPNameServer::handle_exdump_request()
 		text.append("\t");
 		text.append((*j).getNode());
 		text.append("\t");
-		ACE_OS::sprintf(dummy, "%d\0", (*j).getPid()); 
+		ACE_OS::sprintf(dummy, "%d", (*j).getPid()); 
 		text.append(dummy);
 		text.append("\t");
-		ACE_OS::sprintf(dummy, "%d\0", (*j).getChan());
+		ACE_OS::sprintf(dummy, "%d", (*j).getChan());
 		text.append(dummy);
 		text.append (" (");
 		text.append (servicetypeConverter(YARP_QNET));

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.12 2003-08-02 07:46:15 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.13 2004-02-04 17:20:24 babybot Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -121,11 +121,7 @@ int main(int argc, char* argv[])
 	/// handle the connection w/ the remote name server.
 	char buf[256];
 	ACE_ASSERT (GetYarpRoot() != NULL);
-#ifdef __WIN32__
-	ACE_OS::sprintf (buf, "%s\\%s\0", GetYarpRoot(), _name_file_path);
-#else
-	ACE_OS::sprintf (buf, "%s/%s\0", GetYarpRoot(), _name_file_path);
-#endif
+	ACE_OS::sprintf (buf, "%s/%s", GetYarpRoot(), _name_file_path);
 
 	ifstream fin(buf);
 	if (fin.eof() || fin.fail())

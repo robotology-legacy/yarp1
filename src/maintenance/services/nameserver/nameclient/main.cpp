@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.14 2004-02-04 16:46:58 babybot Exp $
+/// $Id: main.cpp,v 1.15 2004-02-04 17:20:24 babybot Exp $
 ///
 ///
 
@@ -145,11 +145,7 @@ int main(int argc, char* argv[])
 {
 	char buf[YARP_STRING_LEN];
 	ACE_ASSERT (GetYarpRoot() != NULL);
-#ifdef __WIN32__
-	ACE_OS::sprintf (buf, "%s\\%s\0", GetYarpRoot(), NAMER_CONFIG_FILE);
-#else
-	ACE_OS::sprintf (buf, "%s/%s\0", GetYarpRoot(), NAMER_CONFIG_FILE);
-#endif
+	ACE_OS::sprintf (buf, "%s/%s", GetYarpRoot(), NAMER_CONFIG_FILE);
 
 	ifstream fin(buf);
 	if (fin.eof() || fin.fail())
