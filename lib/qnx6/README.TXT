@@ -1,1 +1,1 @@
-on second thoughts don't read me
+Lib directory for qnx 6 libraries
