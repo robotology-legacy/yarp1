@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.2 2003-04-20 21:33:54 natta Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.3 2003-05-02 10:43:56 natta Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -10,50 +10,50 @@ YARPGalilDeviceDriver::YARPGalilDeviceDriver() :
 YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 {
 	// fill function pointer table
-	m_cmds[CMDSetSpeed] = YARPGalilDeviceDriver::set_speed;
-	m_cmds[CMDSetAcceleration] = YARPGalilDeviceDriver::set_acceleration;
-	m_cmds[CMDSetPosition] = YARPGalilDeviceDriver::set_position;
-	m_cmds[CMDSetPID] = YARPGalilDeviceDriver::set_pid;
-	m_cmds[CMDGetPosition] = YARPGalilDeviceDriver::get_position;
+	m_cmds[CMDSetSpeed] = &YARPGalilDeviceDriver::set_speed;
+	m_cmds[CMDSetAcceleration] = &YARPGalilDeviceDriver::set_acceleration;
+	m_cmds[CMDSetPosition] = &YARPGalilDeviceDriver::set_position;
+	m_cmds[CMDSetPID] = &YARPGalilDeviceDriver::set_pid;
+	m_cmds[CMDGetPosition] = &YARPGalilDeviceDriver::get_position;
 
-	m_cmds[CMDSetOutputPort] = YARPGalilDeviceDriver::set_output_port;
-	m_cmds[CMDSetOutputBit] = YARPGalilDeviceDriver::set_output_bit;
-	m_cmds[CMDClearOutputBit] = YARPGalilDeviceDriver::clear_output_bit;
+	m_cmds[CMDSetOutputPort] = &YARPGalilDeviceDriver::set_output_port;
+	m_cmds[CMDSetOutputBit] = &YARPGalilDeviceDriver::set_output_bit;
+	m_cmds[CMDClearOutputBit] = &YARPGalilDeviceDriver::clear_output_bit;
 
-	m_cmds[CMDSetOffset] = YARPGalilDeviceDriver::set_offset;
-	m_cmds[CMDSetOffsets] = YARPGalilDeviceDriver::set_offsets;
+	m_cmds[CMDSetOffset] = &YARPGalilDeviceDriver::set_offset;
+	m_cmds[CMDSetOffsets] = &YARPGalilDeviceDriver::set_offsets;
 		
-	m_cmds[CMDSetSpeeds] = YARPGalilDeviceDriver::set_speeds;
-	m_cmds[CMDSetAccelerations] = YARPGalilDeviceDriver::set_accelerations;
-	m_cmds[CMDSetPositions] = YARPGalilDeviceDriver::set_positions;
-	m_cmds[CMDGetPositions] = YARPGalilDeviceDriver::get_positions;
+	m_cmds[CMDSetSpeeds] = &YARPGalilDeviceDriver::set_speeds;
+	m_cmds[CMDSetAccelerations] = &YARPGalilDeviceDriver::set_accelerations;
+	m_cmds[CMDSetPositions] = &YARPGalilDeviceDriver::set_positions;
+	m_cmds[CMDGetPositions] = &YARPGalilDeviceDriver::get_positions;
 
-	m_cmds[CMDBeginMotion] = YARPGalilDeviceDriver::begin_motion;
-	m_cmds[CMDBeginMotions] = YARPGalilDeviceDriver::begin_motions;
+	m_cmds[CMDBeginMotion] = &YARPGalilDeviceDriver::begin_motion;
+	m_cmds[CMDBeginMotions] = &YARPGalilDeviceDriver::begin_motions;
 
-	m_cmds[CMDDefinePositions] = YARPGalilDeviceDriver::define_positions;
-	m_cmds[CMDDefinePosition] = YARPGalilDeviceDriver::define_position;
+	m_cmds[CMDDefinePositions] = &YARPGalilDeviceDriver::define_positions;
+	m_cmds[CMDDefinePosition] = &YARPGalilDeviceDriver::define_position;
 
-	m_cmds[CMDStopAxes] = YARPGalilDeviceDriver::stop_axes;
-	m_cmds[CMDReadSwitches] = YARPGalilDeviceDriver::read_switches;
+	m_cmds[CMDStopAxes] = &YARPGalilDeviceDriver::stop_axes;
+	m_cmds[CMDReadSwitches] = &YARPGalilDeviceDriver::read_switches;
 
-	m_cmds[CMDServoHere] = YARPGalilDeviceDriver::servo_here;
+	m_cmds[CMDServoHere] = &YARPGalilDeviceDriver::servo_here;
 
-	m_cmds[CMDGetSpeeds] = YARPGalilDeviceDriver::get_speeds;
+	m_cmds[CMDGetSpeeds] = &YARPGalilDeviceDriver::get_speeds;
 
-	m_cmds[CMDGetRefSpeeds] = YARPGalilDeviceDriver::get_ref_speeds;
-	m_cmds[CMDGetRefAccelerations] = YARPGalilDeviceDriver::get_ref_accelerations;
-	m_cmds[CMDGetRefPositions] = YARPGalilDeviceDriver::get_ref_positions;
-	m_cmds[CMDGetPID] = YARPGalilDeviceDriver::get_pid;
-	m_cmds[CMDGetTorques] = YARPGalilDeviceDriver::get_torques;
+	m_cmds[CMDGetRefSpeeds] = &YARPGalilDeviceDriver::get_ref_speeds;
+	m_cmds[CMDGetRefAccelerations] = &YARPGalilDeviceDriver::get_ref_accelerations;
+	m_cmds[CMDGetRefPositions] = &YARPGalilDeviceDriver::get_ref_positions;
+	m_cmds[CMDGetPID] = &YARPGalilDeviceDriver::get_pid;
+	m_cmds[CMDGetTorques] = &YARPGalilDeviceDriver::get_torques;
 
-	m_cmds[CMDSetIntegratorLimits] = YARPGalilDeviceDriver::set_int_limits;
-	m_cmds[CMDSetTorqueLimits] = YARPGalilDeviceDriver::set_torque_limits;
-	m_cmds[CMDGetErrors] = YARPGalilDeviceDriver::get_errors;
+	m_cmds[CMDSetIntegratorLimits] = &YARPGalilDeviceDriver::set_int_limits;
+	m_cmds[CMDSetTorqueLimits] = &YARPGalilDeviceDriver::set_torque_limits;
+	m_cmds[CMDGetErrors] = &YARPGalilDeviceDriver::get_errors;
 
-	m_cmds[CMDReadInput] = YARPGalilDeviceDriver::read_input;
+	m_cmds[CMDReadInput] = &YARPGalilDeviceDriver::read_input;
 			
-	m_cmds[CMDDummy] = YARPGalilDeviceDriver::dummy;
+	m_cmds[CMDDummy] = &YARPGalilDeviceDriver::dummy;
 }
 
 int YARPGalilDeviceDriver::open(void *d)

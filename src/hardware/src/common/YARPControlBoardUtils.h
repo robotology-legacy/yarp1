@@ -4,7 +4,7 @@
 //
 // feb 2003 -- by nat and pasa
 
-// $Id: YARPControlBoardUtils.h,v 1.4 2003-04-30 16:04:17 natta Exp $
+// $Id: YARPControlBoardUtils.h,v 1.5 2003-05-02 10:43:55 natta Exp $
 #include <conf/YARPConfig.h>
 
 #ifndef __YARP_CONTROL_BOARD_UTILS__
@@ -15,70 +15,72 @@
 // command list
 enum ControlBoardCmd
 {
-	CMDSetSpeed	= 0,
-	CMDSetPosition	= 1,
-	CMDSetAcceleration = 2,
-	CMDSetPID = 3,
-	CMDGetPosition = 4,
+	CMDSetSpeed	= 0,		// ref speed for position control
+	CMDSetPosition	= 1,	// position control
+	CMDSetAcceleration = 2,	// ref acc for positiona and vel control
+	CMDSetPID = 3,			// set pid
+	CMDGetPosition = 4,		// read actual position
+	CMDSetSpeeds = 5,		// see above, all axes
+	CMDSetPositions	= 6,	// see above, all axes
+	CMDSetAccelerations = 7,// see above, all axes
+	CMDGetPositions = 8,	// see above, all axes
+
+	CMDSetOutputPort = 9,	// set output port to a spec value
+	CMDSetOutputBit = 10,	// set single bit to 1
+	CMDClearOutputBit = 11,	// set single bit to 0
+
+	CMDSetOffset = 12,		// set output offset
+	CMDSetOffsets = 13,		// same as above, all axes
+
+	CMDBeginMotion = 14,	// start motion (Galil)
+	CMDBeginMotions = 15,	// same all axes
+
+	CMDDefinePosition = 16,	// set encoder, single axis
+	CMDDefinePositions = 17,// set encoders
 	
-	CMDSetSpeeds = 5,
-	CMDSetPositions	= 6,
-	CMDSetAccelerations = 7,
-	CMDGetPositions = 8,
-
-	CMDSetOutputPort = 9,
-	CMDSetOutputBit = 10,
-	CMDClearOutputBit = 11,
-
-	CMDSetOffset = 12,
-	CMDSetOffsets = 13,
-
-	CMDBeginMotion = 14,
-	CMDBeginMotions = 15,
-
-	CMDDefinePosition = 16,
-	CMDDefinePositions = 17,
+	CMDStopAxes= 18,		// issue a stop
+	CMDReadSwitches = 19,	// read switched (Galil)
+	CMDServoHere = 20,		// set current position as current 
+	CMDGetSpeeds= 21,		// istantaneous speed
 	
-	CMDStopAxes= 18,
-	CMDReadSwitches = 19,
-	CMDServoHere = 20,
-
-	CMDGetSpeeds= 21,
+	CMDGetRefSpeeds = 22,			// get reference speed
+	CMDGetRefAccelerations = 23,	// get ref acc
+	CMDGetRefPositions = 24,		// get ref pos
 	
-	CMDGetRefSpeeds = 22,
-	CMDGetRefAccelerations = 23,
-	CMDGetRefPositions = 24,
-	CMDGetPID = 25,
-	CMDGetTorques = 26,
-
-	CMDSetIntegratorLimits = 27,
-	CMDSetTorqueLimits = 28,
-	CMDGetErrors = 29,
-
-	CMDReadInput = 30,
-
-	CMDInitPortAsInput = 31,
-	CMDInitPortAsOutput = 32,
-	CMDGetOutputPort = 33,
-	CMDSetAmpEnableLevel = 34,
-	CMDSetAmpEnable = 35,
-	CMDDisableAmp = 36,
-	CMDEnableAmp = 37,
-	CMDControllerIdle = 38,
-	CMDControllerRun = 39,
-	CMDClearStop = 40,			// on MEI -> clear_status
+	CMDGetPID = 25,					// read current pid val
+	CMDGetTorques = 26,				// read ist torques (output voltage)
+	
+	CMDSetIntegratorLimits = 27,	// int. limit
+	CMDSetTorqueLimits = 28,		// torque limit
+	
+	CMDGetErrors = 29,				// read current error
+	
+	CMDReadInput = 30,				// read all ? (not yet impl)
+	CMDInitPortAsInput = 31,		// I/O
+	CMDInitPortAsOutput = 32,		// I/O
+	CMDGetOutputPort = 33,			// I/O
+	
+	CMDSetAmpEnableLevel = 34,		// set amp enable level
+	CMDSetAmpEnable = 35,			// set amp enable
+	CMDDisableAmp = 36,				// disable amp
+	CMDEnableAmp = 37,				// enable amp
+	CMDControllerIdle = 38,			// see MEI
+	CMDControllerRun = 39,			// see MEI
+	CMDClearStop = 40,				// on MEI -> clear_status
+	// limits
 	CMDSetPositiveLimit = 41,
 	CMDSetNegativeLimit = 42,
 	CMDSetPositiveLevel = 43,
 	CMDSetNegativeLevel = 44,
-	CMDVMove = 45,
-	CMDCheckMotionDone = 46,
-	CMDWaitForMotionDone = 47,
-	CMDSetCommands = 48,
+	CMDVMove = 45,					// set move vel mode (begin motion)
+	CMDCheckMotionDone = 46,		// check for motion done
+	CMDWaitForMotionDone = 47,		// wait (loop with sleep)
+	CMDSetCommands = 48,			// set current command (watch out! dangerous)
+	// home/index 
 	CMDSetHomeIndexConfig = 49,
 	CMDSetHomeLevel = 50,
 	CMDSetHome = 51,
-	CMDSetStopRate = 52,
+	CMDSetStopRate = 52,			// stop rate1
 	CMDDummy = 53,	 // dummy command for debug purpose
 	CBNCmds = 54 // required! tells the total number of commands
 };

@@ -24,7 +24,7 @@ public:
 		m_cmds = new  cmd_function_t [n_cmds];
 
 		for(int i = 0; i < n_cmds; i++)
-			m_cmds[i] = defaultCmd;
+			m_cmds[i] = &DERIVED::defaultCmd;
 
 		m_handle = 0;
 	}
