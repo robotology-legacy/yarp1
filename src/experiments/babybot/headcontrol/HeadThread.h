@@ -76,7 +76,8 @@ private:
 	inline void read_status();
 	inline void write_status();
 		
-	YVector _deltaQ;				//command
+	YVector _deltaQ;				// command
+	double  _deltaT;				// thread rate (s)
 	HeadFSM *_fsm;
 	HeadSharedData _head;
 
@@ -138,12 +139,6 @@ inline void HeadThread::write_status()
 	_positionPort.Content() = _head._status._current_position;
 	_positionPort.Write();
 	
-	if (_head.checkLimits(_head._status._current_position.data(), _deltaQ.data()))
-	{
-//		HEAD_THREAD_DEBUG(("limit reached #%u\n", _count));
-	}
-
-//	printf("#%u %lf\n", _count, _deltaQ(3));
 	_head.velocityMove(_deltaQ.data());
 }
 

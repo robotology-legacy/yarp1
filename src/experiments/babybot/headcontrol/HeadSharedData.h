@@ -28,12 +28,14 @@ public:
 		_status.resize(path, iniFile);
 		_directCmd.Resize(_status._nj);
 		_inCmd.Resize(_status._nj);
+		_predictedPos.Resize(_status._nj);
 	}
 
 public:
 	YARPControlBoardNetworkData _status;
 	YVector _directCmd;
 	YVector _inCmd;
+	YVector _predictedPos;
 };
 
 #endif

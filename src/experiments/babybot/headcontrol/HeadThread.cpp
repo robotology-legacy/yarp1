@@ -44,6 +44,8 @@ _positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	_inertial.Resize(3);
 	_deltaQ.Resize(_head.nj());
 
+	_deltaT = rate/1000.0;
+
 	// FSM
 	_hsDirectCmd.set(_head._directCmd);
 	double *tmp = new double [3];
@@ -113,25 +115,31 @@ void HeadThread::doLoop()
 	// read data from MEI board
 	read_status();
 
-	// this is the position control
+	// this is the position control; it writes on _head._directCmd
 	_fsm->doYourDuty();
 
 	/////////// check _inPort delay
 	if (_inPortCounter>=__inPortDelay)
 	{
-		HEAD_THREAD_DEBUG(("Input port timed out !\n"));
+		HEAD_THREAD_DEBUG(("#%u Input port timed out !\n", _threadCounter));
 		_stopFlag = true;
 	}
 	else
 		_stopFlag = false;
 	/////////////////////////////////////
 	
+	/////////// stopFlag is now obsolete
 	if (_directCmdFlag || _stopFlag)
 		_deltaQ = _head._directCmd;
 	else
 		_deltaQ = _head._inCmd;
 	/////////////
-	// vergence
+
+	// form prediction
+	_head._predictedPos = _head._status._current_position + _deltaT*_deltaQ;
+	// check limits
+	_head.checkLimits(_head._predictedPos.data(), _deltaQ.data());
+	
 	write_status();
 
 	// increase counters
