@@ -18,7 +18,7 @@ else
   LDLAGS += -fno-exceptions
 endif # ! exceptions
 
-CC      = gcc
+#CC      = gcc
 CXX     = QCC
 
 include $(ACE_ROOT)/include/makeinclude/platform_g++_common.GNU
