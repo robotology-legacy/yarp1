@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.4 2003-06-26 16:47:32 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.5 2003-06-27 12:43:25 beltran Exp $
 ///
 ///
 
@@ -73,7 +73,6 @@
 #include <YARPPicoloDeviceDriver.h>
 #include <YARPFrameGrabberUtils.h>
 
-#define _QNX
 //#include <bttv.h>
 
 typedef unsigned long UINT32;
@@ -459,4 +458,3 @@ int YARPPicoloDeviceDriver::getHeight (void *cmd)
 	return YARP_OK;
 }
 
-#undef _QNX
