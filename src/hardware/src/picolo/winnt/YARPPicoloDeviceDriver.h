@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.1 2003-05-30 17:28:28 gmetta Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.2 2003-05-31 06:31:37 gmetta Exp $
 ///
 ///
 
@@ -84,6 +84,9 @@ struct PicoloOpenParameters
 	/// add here params for the open.
 	PicoloOpenParameters()
 	{
+		_unit_number = 0;
+		_video_type = 0;
+		_size = 256;
 	}
 
 	int _unit_number;		/// board number 0, 1, 2, etc.
@@ -106,8 +109,8 @@ public:
 	virtual int open(void *d);
 	virtual int close(void);
 
-	virtual int acquireBuffer(unsigned char **buffer);
-	virtual int releaseBuffer(void);
+	virtual int acquireBuffer(void *);
+	virtual int releaseBuffer(void *);
 
 protected:
 	void *system_resources;

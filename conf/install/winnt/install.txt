@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.4 2003-05-22 16:21:51 gmetta Exp $
+$Id: install.txt,v 1.5 2003-05-31 06:31:34 gmetta Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -96,6 +96,9 @@ REQUIRES:
 		- NOT DEFINED YET!
 
 	===
+
+	math	
+		- dsw in: %YARP_ROOT%\src\libraries\math\math.dsw
 
 	utils
 		- dsw in: %YARP_ROOT%\src\libraries\utils\utils.dsw

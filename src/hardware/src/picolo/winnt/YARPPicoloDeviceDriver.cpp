@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.1 2003-05-30 17:28:28 gmetta Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.2 2003-05-31 06:31:37 gmetta Exp $
 ///
 ///
 
@@ -287,6 +287,10 @@ YARPPicoloDeviceDriver::YARPPicoloDeviceDriver(void) : YARPDeviceDriver<YARPNull
 {
 	system_resources = (void *) new PicoloResources;
 	ACE_ASSERT (system_resources != NULL);
+
+	/// for the IOCtl call.
+	m_cmds[FCMDAcquireBuffer] = &YARPPicoloDeviceDriver::acquireBuffer;
+	m_cmds[FCMDReleaseBuffer] = &YARPPicoloDeviceDriver::releaseBuffer;
 }
 
 YARPPicoloDeviceDriver::~YARPPicoloDeviceDriver()
@@ -369,16 +373,16 @@ void YARPPicoloDeviceDriver::Body (void)
 	}
 }
 
-int YARPPicoloDeviceDriver::acquireBuffer (unsigned char **buffer)
+int YARPPicoloDeviceDriver::acquireBuffer (void *buffer)
 {
 	PicoloResources& d = RES(system_resources);
 	d._bmutex.Wait ();
-	*buffer = d._rawBuffer;
+	(*(unsigned char **)buffer) = d._rawBuffer;
 
 	return YARP_OK;
 }
 
-int YARPPicoloDeviceDriver::releaseBuffer (void)
+int YARPPicoloDeviceDriver::releaseBuffer (void *cmd)
 {
 	PicoloResources& d = RES(system_resources);
 	d._bmutex.Post ();

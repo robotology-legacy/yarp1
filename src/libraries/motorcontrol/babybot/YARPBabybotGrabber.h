@@ -61,8 +61,13 @@
 ///
 
 ///
-/// $Id: YARPBabybotGrabber.h,v 1.1 2003-05-30 17:21:35 gmetta Exp $
+/// $Id: YARPBabybotGrabber.h,v 1.2 2003-05-31 06:31:38 gmetta Exp $
 ///
 ///
 
+#ifndef __YARPBabybotGrabberh__
+#define __YARPBabybotGrabberh__
 
+typedef YARPGenericGrabber<YARPPicoloOnBabybotAdapter, YARPBabybotGrabberParams> YARPBabybotGrabber;
+
+#endif

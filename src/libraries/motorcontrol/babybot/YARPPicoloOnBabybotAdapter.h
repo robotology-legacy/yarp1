@@ -61,6 +61,40 @@
 ///
 
 ///
-/// $Id: YARPPicoloOnBabybotAdapter.h,v 1.1 2003-05-30 17:21:36 gmetta Exp $
+/// $Id: YARPPicoloOnBabybotAdapter.h,v 1.2 2003-05-31 06:31:38 gmetta Exp $
 ///
 ///
+
+#ifndef __YARPPicoloOnBabybotAdapter__
+#define __YARPPicoloOnBabybotAdapter__
+
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+
+#include <YARPPicoloDeviceDriver.h>
+
+/// don't need anything fancier.
+typedef PicoloOpenParameters YARPBabybotGrabberParams;
+
+///
+///
+///
+class YARPPicoloOnBabybotAdapter : public YARPPicoloDeviceDriver
+{
+public:
+	int initialize (YARPBabybotGrabberParams& params)
+	{
+		/// need additional initialization, put it here.
+		return open ((void *)&params);
+	}
+
+	int uninitialize (void)
+	{
+		/// need additional termination stuff, here's the place for it.
+		return close ();
+	}
+};
+
+
+#endif

@@ -55,12 +55,71 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #Add our name(s) here#
+///                    #pasa#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: YARPGenericGrabber.h,v 1.1 2003-05-30 17:21:36 gmetta Exp $
+/// $Id: YARPGenericGrabber.h,v 1.2 2003-05-31 06:31:38 gmetta Exp $
 ///
 ///
+
+#ifndef __YARPGenericGrabberh__
+#define __YARPGenericGrabberh__
+
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+
+#include <YARPFrameGrabberUtils.h>
+#include <YARPPicoloOnBabybotAdapter.h>
+
+template <class ADAPTER, class PARAMETERS>
+class YARPGenericGrabber
+{
+protected:
+	ADAPTER _adapter;		/// adapts the hw idiosyncrasies
+	PARAMETERS _params;		/// actual grabber specific parameters
+
+public:
+	YARPGenericGrabber () {}
+	~YARPGenericGrabber () {}
+
+	int initialize (int board, int size);
+	int uninitialize (void);
+	int acquireBuffer (unsigned char **buffer);
+	int releaseBuffer (void);
+};
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::initialize (int board, int size)
+{
+	_params._unit_number = board;
+	_params._video_type = 0;
+	_params._size = size;
+
+	/// calls the adapter init that parses the params appropriately.
+	/// this is because initialization can vary depending on the specific setup.
+	return _adapter.initialize (_params);
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::initialize (void)
+{
+	return _adapter.uninitialize (_params);
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::acquireBuffer (unsigned char **buffer)
+{
+	return _adapter.IOCtl (FCMDAcquireBuffer, (void *)buffer);
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::releaseBuffer (void)
+{
+	return _adapter.IOCtl (FCMDReleaseBuffer, NULL);
+}
+
+#endif

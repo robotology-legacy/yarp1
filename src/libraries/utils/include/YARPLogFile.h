@@ -5,14 +5,14 @@
 
 // by nat May 2003
 //
-// $Id: YARPLogFile.h,v 1.1 2003-05-30 21:46:07 babybot Exp $
+// $Id: YARPLogFile.h,v 1.2 2003-05-31 06:31:38 gmetta Exp $
 
 #ifndef __YARPDUMPFILE__
 #define __YARPDUMPFILE__
 
 #include <conf/YARPConfig.h>
 #include <YARPErrorCodes.h>
-#include <VisDMatrix.h>
+#include <YARPMatrix.h>
 
 class YARPLogFile
 {
@@ -66,7 +66,7 @@ public:
 		return YARP_OK;
 	}
 
-	inline int dump(const CVisDVector &v)
+	inline int dump(const YVector &v)
 	{
 		if (_freeze)
 			return YARP_OK;

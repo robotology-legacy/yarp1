@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.10 2003-05-30 11:58:31 gmetta Exp $
+$Id: README.txt,v 1.11 2003-05-31 06:31:38 gmetta Exp $
 
 
 =============
@@ -18,8 +18,7 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 =============
 Things under development:
 
-1- UDP crashes on leto-eolo connection, it could be a problem of the terminal server 
-	though. Test it running from console.
+1- remove old grabber stuff.
 
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating
 	the sender. USE test12 to see this condition.

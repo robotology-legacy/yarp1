@@ -112,6 +112,10 @@ SOURCE=.\babybot\YARPBabybotArm.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\babybot\YARPBabybotGrabber.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\babybot\YARPBabybotHead.h
 # End Source File
 # Begin Source File
@@ -120,11 +124,19 @@ SOURCE=.\common\YARPGenericComponent.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\common\YARPGenericGrabber.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\babybot\YARPMEIOnBabybotArmAdapter.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\babybot\YARPMEIOnBabybotHeadAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\babybot\YARPPicoloOnBabybotAdapter.h
 # End Source File
 # Begin Source File
 
