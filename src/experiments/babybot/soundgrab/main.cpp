@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.2 2004-09-13 09:04:31 beltran Exp $
+/// $Id: main.cpp,v 1.3 2004-09-28 14:27:53 beltran Exp $
 ///
 
 #include <yarp/YARPConfig.h>
@@ -77,8 +77,8 @@ bool _help           = false;
 /**
  * Some variable for the network connection.
  */
-bool _sharedmem = true;
-int  _protocol  = YARP_MCAST;
+bool _sharedmem = false;
+int  _protocol  = YARP_UDP;
 
 /**
  * Default sound parameters.
@@ -577,6 +577,7 @@ mainthread::_runAsNormally (void)
 	//DeclareOutport(outport);
 	
 	YARPOutputPortOf<YARPSoundBuffer> outport(YARPOutputPort::DEFAULT_OUTPUTS, _protocol);
+	outport.SetAllowShmem(_sharedmem);
 	outport.Register (_name, _netname);
 
 	//----------------------------------------------------------------------
