@@ -24,6 +24,7 @@ w:
 	@echo -n
 
 $(GENDIR)/%.bin: %.cpp
+	mkdir -p $(GENDIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBS) -L../lib/$(SYSDIR) -lACE -lYARP_OS
 
 $(GENDIR)/%.o: %.cpp
