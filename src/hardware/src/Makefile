@@ -1,8 +1,7 @@
 # Device driver global makefile
 include $(YARP_ROOT)/conf/Makefile.template
 
-SUBDIRS = picolo 
-#galil
+SUBDIRS = picolo galil 
 
 all: compile drivers
 
