@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.4 2004-02-25 17:20:58 beltran Exp $
+//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.5 2004-02-25 18:04:55 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -31,7 +31,7 @@
 //    Author:  Ing. Carlos Beltran
 //  Revision:  none
 // =====================================================================================
-SoundResources& RES(void *res) { return *(SoundResources *)res; }
+inline SoundResources& RES(void *res) { return *(SoundResources *)res; }
 
 //--------------------------------------------------------------------------------------
 //       Class:  YARPSoundDeviceDriver
