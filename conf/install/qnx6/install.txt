@@ -1,6 +1,6 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.7 2003-06-20 12:52:27 babybot Exp $
+$Id: install.txt,v 1.8 2003-07-01 08:58:59 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
@@ -86,12 +86,29 @@ REQUIRES:
 	os_services
 		- use "make" from: %YARP_ROOT%\src\libraries\os_services\
 		- use "make install"
+		
+	*** we will unify later all the compilations (for the moment like this)
 	hardware galil
 		- use "make" from: %YARP_ROOT%\src\hardware\src\galil\qnx6\
 		- use "make install" from: %YARP_ROOT%\src\hardware\src\galil\qnx6\
-	=== 
+	
+	hardware picolo
+		- use "make" from %YARP_ROOT%/src/libraries/src/picolo/qnx6/dd_orig
+		- use "make intall" %YARP_ROOT%/src/libraries/src/picolo/qnx6/dd_orig
+		- the same in %YARP_ROOT%/src/libraries/src/picolo/qnx6/
+		 
 	images
-		- NOT DEFINED YET!
+		* Install fake ipl
+			- by running %YARP_ROOT/src/libraries/ipl/install_fake_ipl script.
+		* Install log polar
+			- use "make" in %YARP_ROOT%/src/libraries/logpolar
+			- use "make install" in the same place
+			##### check this #####
+			- ## "make" in  %YARP_ROOT%/src/libraries/logpolar/BuildTables
+			- ## run %YARP_ROOT%/src/libraries/logpolar/BuildTables
+			- ## should a tables directory be created?? not clear where the table should go.
+		* Install images
+			- use "make" in %YARP_ROOT%/src/libraries/images
 	===
 
 	utils
