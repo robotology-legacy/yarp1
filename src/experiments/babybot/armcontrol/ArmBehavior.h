@@ -12,8 +12,8 @@ typedef ArmThread ArmBehaviorData;
 class ArmBehavior: public YARPBehavior<ArmBehavior, ArmBehaviorData>
 {
 public:
-	ArmBehavior(ArmBehaviorData *d, int k, const std::string &pName):
-	YARPBehavior<ArmBehavior, ArmBehaviorData>(d, k, pName){}
+	ArmBehavior(ArmBehaviorData *d, int k, const std::string &pName, int exitCode):
+	YARPBehavior<ArmBehavior, ArmBehaviorData>(d, k, pName, exitCode){}
 
 };
 

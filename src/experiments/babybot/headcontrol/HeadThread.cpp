@@ -66,6 +66,8 @@ _positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 
 	_count = 0;
 
+	_stopFlag = false;
+
 	delete [] tmp;
 	delete [] tmpPid;
 }
@@ -113,7 +115,7 @@ void HeadThread::doLoop()
 	// this is the position control
 	_fsm->doYourDuty();
 
-	if (_directCmdFlag)
+	if (_directCmdFlag || _stopFlag)
 		_deltaQ = _head._directCmd;
 	else
 		_deltaQ = _head._inCmd;

@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.18 2003-10-30 09:41:43 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.19 2003-11-04 19:26:56 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -176,11 +176,12 @@ public:
 	typedef PULSE_TABLE::iterator PULSE_TABLE_IT;
 	typedef FUNCTION_TABLE::iterator FUNCTION_TABLE_IT;
 
-	YARPBehavior(MY_SHARED_DATA *d, int k, std::string pName):
+	YARPBehavior(MY_SHARED_DATA *d, int label, std::string pName, int exitC = YBVExit):
 	YARPFSM<MY_BEHAVIOR, MY_SHARED_DATA>(d),
 	_inport(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 	{
-		_key = k;
+		_key = label;
+		_exitCode = exitC;
 		_init(pName);
 	}
 
@@ -304,7 +305,7 @@ _parse(YARPBottle &bottle)
 	int vocab = -1;
 	if ( bottle.tryReadVocab(&vocab) )
 	{
-		if (vocab == YBVExit)
+		if (vocab == _exitCode)
 		{
 			_quit();
 			return -1;

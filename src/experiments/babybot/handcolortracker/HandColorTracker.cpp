@@ -22,7 +22,8 @@ YARPLogpolar _mapper;
 
 int main(int argc, char* argv[])
 {
-	YARPLpHistoSegmentation _histo(65, 50, 255, 0, 15);
+	unsigned char bins[] = {16, 16, 1};
+	YARPLpHistoSegmentation _histo(80, 80, 255, 0, bins);
 
 	YARPBlobDetector _blobber((float) 0.0);
 	_blobber.resize(_stheta, _srho, _sfovea);
@@ -59,7 +60,7 @@ int main(int argc, char* argv[])
 	_outSeg2.Resize(_stheta, _srho);
 
 	char tmp[128];
-	sprintf(tmp, "%s%d", "y:\\zgarbage\\exp19\\histo", 90);
+	sprintf(tmp, "%s%d", "y:\\zgarbage\\exp19\\histo", 100);
 	_histo.load(YARPString(tmp));
 
 	YARPLogpolar _mapper;
@@ -99,12 +100,13 @@ int main(int argc, char* argv[])
 		YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
 		_histo.backProjection(_leftHSV, _outSeg);
 
-		//_blobber.filterLp(_outSeg);
-		YARPImageOf<YarpPixelMono> &tmp = _blobber.getSegmented();
+		// _blobber.filterLp(_outSeg);
+		// YARPImageOf<YarpPixelMono> &tmp = _blobber.getSegmented();
 
-		_segmenter.merge(tmp, _handLocalization.query());
+//		_segmenter.merge(tmp, _handLocalization.query());
 		//_segmenter.search(_leftHSV, _histo, _handLocalization.query());
 
+		// _outPortBackprojection.Content().Refer(_outSeg);
 		_outPortBackprojection.Content().Refer(_outSeg);
 		_outPortBackprojection.Write();
 	}

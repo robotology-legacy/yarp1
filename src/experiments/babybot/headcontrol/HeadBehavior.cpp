@@ -7,12 +7,26 @@ void HBWaitIdle::handle(HeadThread *d)
 
 bool HBSimpleInput::input(YARPBottle *in, HeadThread *d)
 {
-	return false;
+	int k;
+	if (!in->tryReadVocab(&k))
+		return false;
+	
+	if (k != key)
+		return false;
+
+	in->moveOn();
+
+	return true;
 }
 
 void HBOutputCommand::output(HeadThread *d)
 {
 	return;
+}
+
+void HBOutputStop::output(HeadThread *d)
+{
+	d->stop();
 }
 
 bool HBDirectCommandInput::input(YARPBottle *in, HeadThread *d)

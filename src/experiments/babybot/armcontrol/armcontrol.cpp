@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
 						"arm thread",
 						__filename);
 
-	ArmBehavior _arm(&arm_thread, YBLabelMotor, "/armcontrol/behavior/i");
+	ArmBehavior _arm(&arm_thread, YBLabelMotor, "/armcontrol/behavior/i", YBVArmQuit);
 	arm_thread.start();
 
 	ABWaitIdle waitIdle("command");

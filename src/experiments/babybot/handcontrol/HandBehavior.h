@@ -9,8 +9,8 @@ typedef HandThread HandBehaviorData;
 class HandBehavior: public YARPBehavior<HandBehavior, HandThread>
 {
 	public:
-		HandBehavior(HandBehaviorData *d, int k, const std::string &pName):
-		YARPBehavior<HandBehavior, HandBehaviorData>(d, k, pName){};
+		HandBehavior(HandBehaviorData *d, int k, const std::string &pName, int exit):
+		YARPBehavior<HandBehavior, HandBehaviorData>(d, k, pName, exit){};
 };
 
 typedef YARPFSMStateBase<HandBehavior, HandBehaviorData> HandBehaviorStateBase;

@@ -21,6 +21,7 @@ enum {
 };
 
 enum {
+	YBVIsAlive,
 	YBVArmNewCmd,
 	YBVArmDone,
 	YBVArmRndStart,
@@ -31,12 +32,15 @@ enum {
 	YBVArmForceResting,
 	YBVArmInhibitResting,
 	YBVArmZeroG,
-	YBVIsAlive,
+	YBVArmQuit,
 	YBVHandNewCmd,
 	YBVHandDone,
 	YBVHandShake,
 	YBVHandResetEncoders,
+	YBVHandQuit,
 	YBVHeadNewCmd,
+	YBVHeadStop,
+	YBVHeadQuit,
 	YBVExit
 };
 
@@ -44,6 +48,7 @@ template <class T>
 const char *ybc_label(T x) {
   switch (x) {
     case YBVExit: return "exit";
+	case YBVIsAlive: return "is alive?";
 	case YBVArmNewCmd: return "arm new cmd";
 	case YBVArmDone: return "arm done";
 	case YBVArmRest: return "arm start resting sequence";
@@ -54,12 +59,15 @@ const char *ybc_label(T x) {
 	case YBVArmForceResting: return "arm force resting";
 	case YBVArmInhibitResting: return "arm inhibit resting";
 	case YBVArmZeroG: return "arm zero g mode";
+	case YBVArmQuit: return "arm quit";
 	case YBVHandShake: return "hand shake";
 	case YBVHandNewCmd: return "hand new cmd";
 	case YBVHandDone: return "hand done";
-	case YBVIsAlive: return "is alive?";
 	case YBVHandResetEncoders: return "hand reset encoders";
+	case YBVHandQuit: return "hand quit";
 	case YBVHeadNewCmd: return "head new cmd";
+	case YBVHeadStop: return "head stop cmd";
+	case YBVHeadQuit: return "head quit";
   }
   return "UNKNOWN";
 };

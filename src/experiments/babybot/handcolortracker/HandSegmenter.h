@@ -112,7 +112,7 @@ private:
 				// (*img2) = (*img2)*(*img1);
 				(*img2) = (*img1)*10;
 				if ( (*img2) >255)
-					*img2 = 255;
+					*img2 = (char) 255;
 
 				img1++;
 				img2++;

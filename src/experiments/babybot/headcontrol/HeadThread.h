@@ -44,6 +44,20 @@ public:
 		return true;
 	}
 
+	void stop()
+	{
+		if (_stopFlag)
+		{
+			HEAD_THREAD_DEBUG(("Head is now free to move\n"));
+			_stopFlag = false;
+		}
+		else 
+		{
+			HEAD_THREAD_DEBUG(("Head is now stopped\n"));
+			_stopFlag = true;
+		}
+	}
+
 private:
 	//move the head to 0
 	void park(int flag);
@@ -69,10 +83,13 @@ private:
 	YARPOutputPortOf<YVector> _inertialPort;
 	YARPOutputPortOf<YARPControlBoardNetworkData> _statusPort;
 	YARPOutputPortOf<YVector> _positionPort;
-	
+
 	//
 	YARPInputPortOf<YVector> _inPort;
 	//	YARPInputPortOf<YVector> _directCmdPort;
+
+	// stop flag
+	bool _stopFlag;
 	
 	// FSM
 	HIDirectCmdStart	_hiDirectCmdStart;

@@ -10,8 +10,8 @@ class HeadThread;
 class HeadBehavior: public YARPBehavior<HeadBehavior, HeadThread>
 {
 public:
-	HeadBehavior(HeadThread *d, int k, const std::string &pName):
-	YARPBehavior<HeadBehavior, HeadThread>(d, k, pName){}
+	HeadBehavior(HeadThread *d, int k, const std::string &pName, int exitCode):
+	YARPBehavior<HeadBehavior, HeadThread>(d, k, pName, exitCode){}
 
 };
 
@@ -33,6 +33,12 @@ public:
 };
 
 class HBOutputCommand: public HeadBehaviorBaseOutput
+{
+public:
+	void output(HeadThread *d);
+};
+
+class HBOutputStop: public HeadBehaviorBaseOutput
 {
 public:
 	void output(HeadThread *d);

@@ -18,8 +18,6 @@ int main(int argc, char* argv[])
 		tmp.reset();
 		bool send = false;
 		tmp.setID(YBLabelMotor);
-		if (c == "e")
-			break;
 		if (c == "start")
 		{
 			tmp.writeVocab(YBVArmRndStart);
@@ -120,6 +118,26 @@ int main(int argc, char* argv[])
 			}
 
 			tmp.writeYVector(cmd);
+			send = true;
+		}
+		else if (c == "headquit")
+		{
+			tmp.writeVocab(YBVHeadQuit);
+			send = true;
+		}
+		else if (c == "headstop")
+		{
+			tmp.writeVocab(YBVHeadStop);
+			send = true;
+		}
+		else if (c == "armquit")
+		{
+			tmp.writeVocab(YBVArmQuit);
+			send = true;
+		}
+		else if (c == "handquit")
+		{
+			tmp.writeVocab(YBVHandQuit);
 			send = true;
 		}
 		else 
