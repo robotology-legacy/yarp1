@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.3 2003-07-01 09:15:48 babybot Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.4 2003-07-01 21:29:43 babybot Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -39,6 +39,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDDefinePosition] 	= &YARPGalilDeviceDriver::define_position;
 
 	m_cmds[CMDStopAxes] 		= &YARPGalilDeviceDriver::stop_axes;
+	m_cmds[CMDAbortAxes]		= &YARPGalilDeviceDriver::abort_axes;
 	m_cmds[CMDReadSwitches] 	= &YARPGalilDeviceDriver::read_switches;
 
 	m_cmds[CMDServoHere] 		= &YARPGalilDeviceDriver::servo_here;
@@ -53,6 +54,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 
 	m_cmds[CMDSetIntegratorLimits] = &YARPGalilDeviceDriver::set_int_limits;
 	m_cmds[CMDSetTorqueLimits] 	= &YARPGalilDeviceDriver::set_torque_limits;
+	m_cmds[CMDGetTorqueLimits] 	= &YARPGalilDeviceDriver::get_torque_limits;
 	m_cmds[CMDGetErrors] 		= &YARPGalilDeviceDriver::get_errors;
 
 	m_cmds[CMDReadInput] 		= &YARPGalilDeviceDriver::read_input;
@@ -67,6 +69,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	
 	m_cmds[CMDSetPositiveLimit] = &YARPGalilDeviceDriver::set_positive_limit;
 	m_cmds[CMDSetNegativeLimit]	= &YARPGalilDeviceDriver::set_negative_limit;
+	m_cmds[CMDAbortAxes]		= &YARPGalilDeviceDriver::abort_axes;
 			
 	m_cmds[CMDDummy] 			= &YARPGalilDeviceDriver::dummy;
 }
@@ -773,6 +776,13 @@ int YARPGalilDeviceDriver::set_torque_limits(void *trqs)
 	return rc;
 }
 
+int YARPGalilDeviceDriver::get_torque_limits(void *trqs)
+{
+	long rc = 0;
+	// NOT IMPL YET !
+	return rc;
+}
+
 int YARPGalilDeviceDriver::set_int_limits(void *lmts)
 {
 	long rc = 0;
@@ -882,6 +892,7 @@ int YARPGalilDeviceDriver::begin_motions(void *cmd)
 	return rc;
 }
 
+// decelerate to a stop
 int YARPGalilDeviceDriver::stop_axes(void *par)
 {
 	long rc = 0;
@@ -893,6 +904,31 @@ int YARPGalilDeviceDriver::stop_axes(void *par)
 	///////////////////////////////////////////////////////////////////
 	// ST
 	buff = _append_cmd((char) 0xA1, buff);		//ST
+	buff = _append_cmd((char) 0x00, buff);
+	buff = _append_cmd((char) 0x00, buff);
+	buff = _append_cmd((char) 0x00, buff);
+
+	cmd_length = 4;
+
+	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+							(unsigned char *) m_buffer_out, cmd_length ,
+							m_buffer_in, buff_length);
+	
+	return rc;
+}
+
+// instantaneous stop (no deceleration)
+int YARPGalilDeviceDriver::abort_axes(void *par)
+{
+	long rc = 0;
+	
+	int cmd_length = 0;
+
+	char *buff = m_buffer_out;
+
+	///////////////////////////////////////////////////////////////////
+	// AB
+	buff = _append_cmd((char) 0xA2, buff);		//AB
 	buff = _append_cmd((char) 0x00, buff);
 	buff = _append_cmd((char) 0x00, buff);
 	buff = _append_cmd((char) 0x00, buff);

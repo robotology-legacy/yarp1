@@ -20,7 +20,7 @@ class HandThread : public YARPRateThread
 {
 public:
 	HandThread(int rate, 
-			   const char *name = "prova nome");
+			   const char *name = "hand thread");
 	virtual ~HandThread();
 
 	void doInit()

@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.3 2003-06-30 21:08:06 babybot Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.4 2003-07-01 21:29:43 babybot Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -71,7 +71,8 @@ public:
 	int begin_motion(void *cmd);
 	int begin_motions(void *d);
 
-	int stop_axes(void *p);
+	int stop_axes(void *p);		// decelerate
+	int abort_axes(void *p);	// instantaneous stop
 	int read_switches(void *p);
 
 	int servo_here(void *p);
@@ -86,6 +87,7 @@ public:
 	int get_torques(void *trqs);
 
 	int set_torque_limits(void *trqs);
+	int get_torque_limits(void *trqs);
 	int get_errors(void *errs);
 	int set_int_limits(void *lmts);
 
@@ -98,7 +100,7 @@ public:
 	int set_jogs(void *input);
 	
 	int controller_idle(void *input);
-	
+		
 	int set_positive_limit(void * input);
 	int set_negative_limit(void * input);
 	

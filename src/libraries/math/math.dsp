@@ -40,6 +40,8 @@ RSC=rc.exe
 # PROP Output_Dir "obj\Release"
 # PROP Intermediate_Dir "obj\Release"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /Ob2 /I "..\..\..\include" /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
@@ -69,6 +71,8 @@ PostBuild_Cmds=copy *.h ..\..\..\include	copy *.inl ..\..\..\include
 # PROP Output_Dir "obj\Debug"
 # PROP Intermediate_Dir "obj\Debug"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\..\..\include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -109,11 +113,19 @@ SOURCE=.\YARPMatrix.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPRecursiveLS.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPRobotMath.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\YARPSVD.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPTwoDKalmanFilter.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -137,11 +149,19 @@ SOURCE=.\YARPMatrix.inl
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPRecursiveLS.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPRobotMath.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\YARPRobotMath.inl
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPTwoDKalmanFilter.h
 # End Source File
 # End Group
 # End Target

@@ -4,7 +4,7 @@
 //
 // adapted for yarp June 2003 -- by nat
 
-// $Id: YARPBabybotHand.h,v 1.1 2003-06-30 21:09:19 babybot Exp $
+// $Id: YARPBabybotHand.h,v 1.2 2003-07-01 21:29:44 babybot Exp $
 
 #ifndef __YARPBABYBOTHANDH__
 #define __YARPBABYBOTHANDH__
@@ -23,6 +23,89 @@
 #endif
 
 #include <math.h>
+
+class YARPTorqueControl
+{
+public:
+	YARPTorqueControl()
+	{
+		_maxTime = 0;
+		_thresholds = NULL;
+		_limit = NULL;
+		_time = NULL;
+	}
+	~YARPTorqueControl()
+	{
+		if (_thresholds != NULL)
+			delete [] _thresholds;
+		if (_limit != NULL)
+			delete [] _limit;
+		if (_time != NULL)
+			delete [] _time;
+	}
+
+	void resize(int nj, unsigned int maxT, const double *thr)
+	{
+		_nj = nj;
+		_maxTime = maxT;
+		_time = 0;
+		_limit = false;
+
+		_thresholds = new double [_nj];
+		_limit = new bool [_nj];
+		_time = new unsigned int [_nj];
+
+		for(int i = 0; i < _nj; i++)
+		{
+			_thresholds[i] = fabs(thr[i]);
+			_limit[i] = false;
+			_time[i] = 0;
+		}
+		
+	}
+
+	bool update(const double *tr, double *max)
+	{
+		int i;
+		bool ret = false;
+		for (i = 0; i < _nj; i++)
+		{
+			if (_limit[i])
+			{
+				ret = true;
+			}
+			else 
+			{
+				if (fabs(tr[i]) > _thresholds[i])
+					_time[i]++;
+
+				if (_time[i]>_maxTime)
+				{
+					_limit[i] = true;
+					ret = true;
+					max[i] = _thresholds[i];
+				}
+			}
+		}
+		return ret;
+	}
+
+	void reset()
+	{
+		int i;
+		for(i = 0; i < _nj; i++)
+		{ 
+			_time[i] = 0;
+			_limit[i] = false;
+		}
+	}
+
+	unsigned int _maxTime;
+	unsigned int *_time;
+	bool *_limit;
+	double *_thresholds;
+	int _nj;
+};
 
 template <class ADAPTERHALL, class ADAPTERGALIL, class PARAMETERS>
 class YARPBabybotHandTemplate
@@ -61,6 +144,7 @@ public:
 	
 		_offsets = new double [_parameters._naj];
 		_motor_torques = new double [_parameters._naj];
+		_max_torques = new double [_parameters._naj];
 
 	}
 	void _falloc()
@@ -84,6 +168,7 @@ public:
 	
 		delete [] _offsets;
 		delete [] _motor_torques;
+		delete [] _max_torques;
 	}
 
 		// refresh local copies
@@ -112,8 +197,6 @@ public:
 		rc = _control_board.IOCtl(CMDGetRefPositions, _tmp_command_double);
 		_convert_output(_tmp_command_double, _reference_positions);
 
-		// rc = _control_board.IOCtl(CMDReadInput, &_input);
-				
 		// switches // LATER: this should go in the adapter
 		rc = _control_board.IOCtl(CMDReadSwitches, _tmp_command_char);
 		_convert_output(_tmp_command_char, _switches);
@@ -135,9 +218,11 @@ public:
 	int output()
 	{
 		lock();
-		if (!_moving)
-			_control_board.IOCtl(CMDBeginMotions, NULL);
-		
+		if (_torqueControl.update(_motor_torques, _max_torques))
+		{
+			_convert_input(_max_torques, _tmp_command_double);
+			_control_board.IOCtl(CMDSetTorqueLimits, _tmp_command_double);
+		}
 		unlock();
 		return 0;
 	}
@@ -161,7 +246,10 @@ public:
 
 	int stopAxes()
 	{
-		return _control_board.IOCtl(CMDStopAxes, NULL);
+		lock();
+		int ret = _control_board.stop();
+		unlock();
+		return ret; 
 	}
 	int initialize(const std::string &init_file)
 	{
@@ -182,9 +270,14 @@ public:
 		memset(_switches, 0, _naj*sizeof(_switches[0]));
 		memset(_is_moving, 9, _naj*sizeof(_is_moving[0]));
 		memset(_reference_positions, 9, _naj*sizeof(_reference_positions[0]));
+
+		memcpy(_max_torques, _parameters._torque_limits, _naj*sizeof(double));
 	
+		_torqueControl.resize(_naj, _parameters._max_time, _parameters._torque_thresholds);
 		// open galil
 		_control_board.initialize(&_parameters);
+		// torque limits
+		_control_board.IOCtl(CMDSetTorqueLimits, _max_torques);
 		// set idel mode
 		rc = idleMode();
 
@@ -291,6 +384,23 @@ public:
 		return rc;
 	}
 
+	int velocityMoves(const double *sp)
+	{
+		int rc = 0;
+		lock();
+		_control_board.stop();
+		// reset torque control
+		_torqueControl.reset();
+		_control_board.IOCtl(CMDSetTorqueLimits, _parameters._torque_limits);
+		// apply commands
+		_convert_and_couple_input(_reference_accs, _tmp_command_double);
+		rc = _control_board.IOCtl(CMDSetAccelerations, _tmp_command_double);
+		_convert_and_couple_input(sp, _tmp_command_double);
+		rc = _control_board.IOCtl(CMDVMove, _tmp_command_double);
+		unlock();
+		return rc;
+	}
+
 	int setPositionsRaw(const double *pos)
 	{
 		int rc = 0;
@@ -322,10 +432,14 @@ public:
 			tmp_accs[i] = tmp_speeds[i]*10;
 		}
 
+		// reset torque control
+		_torqueControl.reset();
+		_control_board.IOCtl(CMDSetTorqueLimits, _parameters._torque_limits);
+		// apply commands
 		rc = _control_board.IOCtl(CMDSetSpeeds, tmp_speeds);
 		rc = _control_board.IOCtl(CMDSetAccelerations, tmp_accs);
 		rc = _control_board.IOCtl(CMDSetPositions, tmp_pos);
-		
+
 		unlock();
 		return rc;
 	}
@@ -600,12 +714,14 @@ protected:
 	// offsets and torques
 	double *_offsets;
 	double *_motor_torques;
+	double *_max_torques;
 
 	bool _initialized;
 	int _naj;
 	int _nidaq_ch;
 
 	YARPSemaphore _mutex;
+	YARPTorqueControl _torqueControl;
 
 };
 

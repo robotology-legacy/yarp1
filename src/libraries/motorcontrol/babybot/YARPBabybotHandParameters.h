@@ -1,7 +1,7 @@
 // originally feb 2003 -- by nat
 // adapted to yarp June 2003 -- by nat
 
-// $Id: YARPBabybotHandParameters.h,v 1.1 2003-06-30 21:09:19 babybot Exp $
+// $Id: YARPBabybotHandParameters.h,v 1.2 2003-07-01 21:29:44 babybot Exp $
 
 #ifndef __YARPBABYBOTHANDPARAMETERSH__
 #define __YARPBABYBOTHANDPARAMETERSH__
@@ -98,6 +98,12 @@ public:
 		if (cfgFile.get("[GALIL]", "TorqueLimits", _torque_limits, _naj) == YARP_FAIL)
 			return YARP_FAIL;
 
+		if (cfgFile.get("[GALIL]", "TorqueThresholds", _torque_thresholds, _naj) == YARP_FAIL)
+			return YARP_FAIL;
+
+		if (cfgFile.get("[GALIL]", "MaxTime", &_max_time, 1) == YARP_FAIL)
+			return YARP_FAIL;
+
 		int i;
 		for(i = 0; i<_naj; i++)
 		{
@@ -158,6 +164,9 @@ public:
 
 	double _int_limits[_BabybotHand::__naj];
 	double _torque_limits[_BabybotHand::__naj];
+
+	int _max_time;
+	double _torque_thresholds[_BabybotHand::__naj];
 
 	double _coupling[_BabybotHand::__naj][_BabybotHand::__naj];
 	double _de_coupling[_BabybotHand::__naj][_BabybotHand::__naj];

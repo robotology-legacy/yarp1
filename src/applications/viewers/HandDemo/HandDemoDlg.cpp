@@ -118,7 +118,7 @@ BEGIN_MESSAGE_MAP(CHandDemoDlg, CDialog)
 	ON_BN_CLICKED(IDSTOP, OnStop)
 	ON_BN_CLICKED(IDUPDATEGAINS, OnUpdategains)
 	ON_BN_CLICKED(IDUPDATESPEEDS, OnUpdatespeeds)
-	ON_BN_CLICKED(IDUPDATETRANSMISSION, OnUpdatetransmission)
+	ON_BN_CLICKED(IDVMOVE, OnVmove)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -415,7 +415,27 @@ void CHandDemoDlg::OnUpdatespeeds()
 	
 }
 
-void CHandDemoDlg::OnUpdatetransmission() 
+void CHandDemoDlg::OnVmove() 
 {
-	
+	UpdateData(TRUE);
+
+	command[0] = m_acc1;
+	command[1] = m_acc2;
+	command[2] = m_acc3;
+	command[3] = m_acc4;
+	command[4] = m_acc5;
+	command[5] = m_acc6;
+
+	_hand_thread._hand.setAccelerationsRaw(command);
+
+	command[0] = m_sp1;
+	command[1] = m_sp2;
+	command[2] = m_sp3;
+	command[3] = m_sp4;
+	command[4] = m_sp5;
+	command[5] = m_sp6;
+
+	_hand_thread._hand.velocityMoves(command);
+
+
 }

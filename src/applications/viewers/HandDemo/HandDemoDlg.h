@@ -100,6 +100,7 @@ protected:
 	afx_msg void OnUpdategains();
 	afx_msg void OnUpdatespeeds();
 	afx_msg void OnUpdatetransmission();
+	afx_msg void OnVmove();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

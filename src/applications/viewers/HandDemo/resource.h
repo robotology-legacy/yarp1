@@ -8,6 +8,7 @@
 #define IDUPDATEGAINS                   6
 #define IDUPDATESPEEDS                  7
 #define IDUPDATETRANSMISSION            8
+#define IDVMOVE                         8
 #define IDD_HANDDEMO_DIALOG             102
 #define IDR_MAINFRAME                   128
 #define IDD_JOINTS                      129

@@ -4,7 +4,7 @@
 //
 // feb 2003 -- by nat and pasa
 
-// $Id: YARPControlBoardUtils.h,v 1.10 2003-05-30 17:28:28 gmetta Exp $
+// $Id: YARPControlBoardUtils.h,v 1.11 2003-07-01 21:29:43 babybot Exp $
 #include <conf/YARPConfig.h>
 
 #ifndef __YARP_CONTROL_BOARD_UTILS__
@@ -93,9 +93,10 @@ enum ControlBoardCmd
 	
 	CMDGetTorqueLimit		= 59,   // get torque limit, single joint
 	CMDGetTorqueLimits		= 60,   // get torque limit, multiple joints
+	CMDAbortAxes			= 61,	// abort motion, Galil
 
-	CMDDummy 				= 61,	// dummy command for debug purpose
-	CBNCmds 				= 62 	// required! tells the total number of commands
+	CMDDummy 				= 62,	// dummy command for debug purpose
+	CBNCmds 				= 63 	// required! tells the total number of commands
 };
 
 enum ControlBoardEvents

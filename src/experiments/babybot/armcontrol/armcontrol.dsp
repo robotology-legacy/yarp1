@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\include" /I "..\..\include\sys" /I "..\..\src\libraries\ACE_wrappers\\" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /FD /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE RSC /l 0x410 /d "NDEBUG"
 # ADD RSC /l 0x410 /d "NDEBUG"
@@ -51,7 +51,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 utils.lib alldrivers.lib services.lib mbp.lib jr3pci_lib.lib models.lib winmm.lib math.lib images.lib services.lib ipl.lib ace.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386 /nodefaultlib:"libcmt.lib" /nodefaultlib:"libc.lib" /libpath:"..\..\lib\winnt" /libpath:"..\..\lib\winnt\sys" /libpath:"..\..\src\libraries\ACE_wrappers\ace"
+# ADD LINK32 motorcontrol.lib math.lib utils.lib alldrivers.lib winmm.lib os_services.lib ipl.lib ace.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386 /nodefaultlib:"libcmt.lib" /nodefaultlib:"libc.lib" /libpath:"..\..\..\..\..\lib\winnt"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy .\release\armcontrol.exe ..\..\..\..\..\bin\winnt
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "armcontrol - Win32 Debug"
 
@@ -67,7 +71,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\..\include" /I "..\..\include\sys" /I "..\..\src\libraries\ACE_wrappers\\" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\..\..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /FD /GZ /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE RSC /l 0x410 /d "_DEBUG"
 # ADD RSC /l 0x410 /d "_DEBUG"
@@ -76,7 +80,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 utilsdb.lib alldriversdb.lib mbpd.lib jr3pci_lib.lib modelsDB.lib winmm.lib mathDB.lib imagesDB.lib servicesDB.lib ipl.lib aced.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /nodefaultlib:"libcmtd.lib" /nodefaultlib:"libc.lib" /pdbtype:sept /libpath:"..\..\lib\winnt" /libpath:"..\..\lib\winnt\sys" /libpath:"..\..\src\libraries\ACE_wrappers\ace"
+# ADD LINK32 motorcontroldb.lib mathdb.lib utilsdb.lib alldriversdb.lib winmm.lib os_servicesDB.lib ipl.lib aced.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /nodefaultlib:"libcmtd.lib" /nodefaultlib:"libc.lib" /pdbtype:sept /libpath:"..\..\..\..\..\lib\winnt"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy .\debug\armcontrol.exe ..\..\..\..\..\bin\winnt
+# End Special Build Tool
 
 !ENDIF 
 
@@ -98,10 +106,6 @@ SOURCE=.\armthread.cpp
 # Begin Source File
 
 SOURCE=.\AState.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\jr3pci.cpp
 # End Source File
 # Begin Source File
 
@@ -131,10 +135,6 @@ SOURCE=.\Armthread.h
 # Begin Source File
 
 SOURCE=.\AState.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\jr3pci.h
 # End Source File
 # Begin Source File
 
