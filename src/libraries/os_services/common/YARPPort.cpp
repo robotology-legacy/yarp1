@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.16 2003-08-27 16:37:31 babybot Exp $
+/// $Id: YARPPort.cpp,v 1.17 2004-06-30 13:40:21 eshuy Exp $
 ///
 ///
 
@@ -86,6 +86,14 @@
 #endif
 
 using namespace std;
+
+
+//Notes on destructors: make sure you call the Port->End() from the destructor if
+///		you inherits from any of the port classes. This terminates the comm threads
+///		smoothly that avoids segmentation violations on leaks on exit.
+///	ALT: implement and explicit port un-registration method that also terminates the
+///		comm threads.
+
 
 typedef YARPList<YARPPort *> PortList;
 static PortList port_list;

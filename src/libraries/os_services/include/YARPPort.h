@@ -62,13 +62,14 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.12 2003-08-27 16:37:32 babybot Exp $
+/// $Id: YARPPort.h,v 1.13 2004-06-30 13:40:21 eshuy Exp $
 ///
 ///
 
 /*
 	paulfitz Sat May 26 22:34:44 EDT 2001
 */
+
 
 #ifndef YARPPort_INC
 #define YARPPort_INC
@@ -87,12 +88,13 @@
 #include "YARPNameID.h"
 #include "Port.h"
 
-///
-/// Notes on destructors: make sure you call the Port->End() from the destructor if
-///		you inherits from any of the port classes. This terminates the comm threads
-///		smoothly that avoids segmentation violations on leaks on exit.
-///	ALT: implement and explicit port un-registration method that also terminates the
-///		comm threads.
+/**
+ * A class for streaming communication.  Objects of this class ("ports") can
+ * be registered with a name server and connected to each other across
+ * the network or via shared memory.  Ports should be instantiated using
+ * classes derived from YARPInputPort or YARPOutputPort, rather than
+ * this base class.
+ */
 
 class YARPPort
 {
@@ -101,43 +103,203 @@ protected:
 	YARPPortContent *content;
 
 public:
+  /**
+     Constructor.
+     Creates a port.  Before using the port, you will need to Register() it.
+   */
 	YARPPort();
+
+
+  /**
+     Destructor.
+     It is good practice to Unregister() before destroying a port.
+   */
 	virtual ~YARPPort();
 
+  /**
+    Gives the port a name, and registers it.
+    The name should be unique, but there are no constraints on its form.
+    The name server needs to be told about the port ("registration").
+    @param name the name for the port
+    @param network_name the name of the network the name server is on
+    @return YARP_OK if registration was successful.
+   */
 	virtual int Register (const char *name, const char *network_name = YARP_DEFAULT_NET);
+
+  /**
+     Asks the name server to unregister the port.
+     Other ports will no longer be able to connect to it.
+     @result YARP_OK if successful.
+   */
 	virtual int Unregister (void);
 
+  /**
+     Direct output from this port to a specified target port.
+     @param name the name of the target port, as registered with the name server.
+     @result YARP_OK if successful.
+   */
 	int Connect(const char *name);
+
+  /**
+     Allocate some content for the port.
+     Content is an instance of the data structure that a port can read and write.  This method must be defined by the user.
+     @return Pointer to the content, or NULL on failure.
+   */
 	virtual YARPPortContent *CreateContent() = 0;
+
+  /**
+    Get the current content associated with the port.  There is guaranteed
+    to always be such content, but the actual content object may change
+    after any call to the port's methods (this is to allow for communication
+    to multiple targets at different rates, which requires content objects
+    to have flexible lifetimes).
+    @return the content associated with the port.
+   */
 	YARPPortContent& Content();
+
+  /**
+     Check whether any ports have the current port as their target.
+     @return non-zero if any ports have the current port as their target.
+   */
 	int IsReceiving();
+
+  /**
+     Check whether this port has any target ports.
+     @return non-zero if this port has any target ports.
+   */
 	int IsSending();
+
+  /**
+     Waits for any current communication with a target to complete.
+   */
 	void FinishSend();
+
+  /**
+     Shut down this port.
+   */
 	void Deactivate();
+
+  /**
+     Shut down all ports.
+   */
 	static void DeactivateAll();
+
+  /**
+     Connect one port to another by name.
+     @return YARP_OK on success.
+   */
 	static int Connect(const char *src_name, const char *dest_name);
 };
+
+
+/**
+ * An input port.
+ * Objects in this class can receive messages from YARPOutputPort objects
+ * ("output ports").  Messages can be received either in an event-driven
+ * way, by overriding the OnRead() method, or by blocking/polling, using
+ * Read().  While one message is being read, other messages may be arriving,
+ * depending on the number of buffers the port is configured with.
+ */
 
 class YARPInputPort : public YARPPort
 {
 public:
+
+  /**
+   * Number of buffers available to port to store incoming messages.
+   */
+
 	enum
 	{
+	  /**
+	   * No buffering:
+	   * While the owner of the input port is accessing a
+	   * previously read message, no other messages may be
+	   * received.
+	   */
 		NO_BUFFERS,
+
+		/**
+		 * Two buffers:
+		 * while the owner of the input port is accessing a
+		 * previously read message A, the next message B may
+		 * be arriving - but once it has arrived, no further
+		 * messages may arrive until the owner stops accessing
+		 * A and starts accessing B.
+		 */
 		DOUBLE_BUFFERS,
+
+		/**
+		 * Three buffers:
+		 * while the owner of the input port is accessing a
+		 * previously read message A, arbitrary numbers of
+		 * messages may arrive;  When the owner stops
+		 * accessing A, and tries to access the next message,
+		 * that message will be the most recently completely
+		 * received message (previous completely received
+		 * messages, if any, are discarded).
+		 */
 		TRIPLE_BUFFERS,
+
+
+		/**
+		 * By default, three buffers are made available to the port,
+		 * so that the most recent fully-received message is always
+		 * available to the owner of the port with minimal delay.
+		 */
 		DEFAULT_BUFFERS = TRIPLE_BUFFERS
 	};
 
+  /**
+   * Constructor.
+   * @param n_service_type type of buffering used to receive messages.
+   * @param n_protocol_type which network protocol to use.
+   */
 	YARPInputPort(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL);
+
+  /**
+   * Destructor.
+   */
 	virtual ~YARPInputPort();
 
 	virtual int Register(const char *name, const char *net_name = YARP_DEFAULT_NET);
+
+  /**
+   * Read message from port.
+   * This method is used to check if a message is currently available
+   * and optionally to wait for one to arrive.  Once this method reports
+   * that a message is available, the message can be accessed using the
+   * Content() method.
+   * @param wait if true, block and wait for a message to arrive, otherwise
+   * return immediately.
+   * @return true if a message is available, otherwise false.
+   */
 	bool Read(bool wait=true);
+
+  /**
+   * Handle an incoming message.
+   * This is an event handler which is called when a message is available.
+   * You may override it to take some action.  Note that to access the
+   * message, it is still essential to call Read().
+   */
 	virtual void OnRead() { /*ACE_DEBUG ((LM_DEBUG, "silly OnRead\n"));*/ }
+
+  /**
+   * Access a message.
+   * Once Read() reports that a message is available, Content() will
+   * return that message.  The object returned is valid until the next
+   * time that Read() is called.
+   * @return the received message.
+   */
 	YARPPortContent& Content() { return YARPPort::Content(); }
 };
 
+
+/**
+ * An output port.
+ * Objects in this class can send messages to YARPInputPort objects
+ * ("input ports").  
+ */
 
 class YARPOutputPort : public YARPPort
 {

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPErrorCodes.h,v 1.2 2003-08-12 16:50:52 gmetta Exp $
+/// $Id: YARPErrorCodes.h,v 1.3 2004-06-30 13:40:21 eshuy Exp $
 ///
 ///
 
@@ -66,12 +66,20 @@
 #endif
 
 
-/// contains generic library error codes.
-/// later to be extended.
-///
+
+/**
+ * Generic YARP library error codes.
+ */
 enum
 {
+  /**
+   * A YARP function succeeded.
+   */
 	YARP_OK = 0,
+
+  /**
+   * A YARP function failed.
+   */
 	YARP_FAIL = -1,
 };
 
