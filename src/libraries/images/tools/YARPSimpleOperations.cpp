@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.cpp,v 1.4 2004-02-23 19:50:09 babybot Exp $
+/// $Id: YARPSimpleOperations.cpp,v 1.5 2004-04-26 10:26:29 babybot Exp $
 ///
 ///
 
@@ -88,36 +88,6 @@ void YARPSimpleOperation::Scale (const YARPImageOf<YarpPixelMono>& in, YARPImage
 	}
 }
 
-void YARPSimpleOperation::Decimate (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out, double scaleX, double scaleY, int interpolate)
-{
-	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
-	ACE_ASSERT ( (scaleX >= 1) && (scaleY >= 1) );
-	ACE_ASSERT (in.GetWidth() == (int ) out.GetWidth()*scaleX);
-	ACE_ASSERT (in.GetHeight() == (int ) out.GetHeight()*scaleY);
-	
-	iplDecimate(in, out, 1, (int)scaleX, 1, (int)scaleY, interpolate);
-}
-
-void YARPSimpleOperation::Decimate (const YARPImageOf<YarpPixelRGB>& in, YARPImageOf<YarpPixelRGB>& out, double scaleX, double scaleY, int interpolate)
-{
-	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
-	ACE_ASSERT ( (scaleX >= 1) && (scaleY >= 1) );
-	ACE_ASSERT (in.GetWidth() == (int ) out.GetWidth()*scaleX);
-	ACE_ASSERT (in.GetHeight() == (int ) out.GetHeight()*scaleY);
-	
-	iplDecimate(in, out, 1, (int)scaleX, 1, (int)scaleY, interpolate);
-}
-
-void YARPSimpleOperation::Decimate (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out, double scaleX, double scaleY, int interpolate)
-{
-	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
-	ACE_ASSERT ( (scaleX >= 1) && (scaleY >= 1) );
-	ACE_ASSERT (in.GetWidth() == (int ) out.GetWidth()*scaleX);
-	ACE_ASSERT (in.GetHeight() == (int ) out.GetHeight()*scaleY);
-	
-	iplDecimate(in, out, 1, (int)scaleX, 1, (int)scaleY, interpolate);
-}
-
 void YARPSimpleOperation::Flip (const YARPGenericImage& in, YARPGenericImage& out)
 {
 	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
@@ -138,6 +108,7 @@ void YARPSimpleOperation::Flip (const YARPGenericImage& in, YARPGenericImage& ou
 
 ///
 ///
+/*
 void YARPSimpleOperation::DrawLine (YARPImageOf<YarpPixelRGB>& dest, int xstart, int ystart, int xend, int yend, const YarpPixelRGB& pixel)
 {
 	const int width = dest.GetWidth();
@@ -257,7 +228,7 @@ void YARPSimpleOperation::DrawLine (YARPImageOf<YarpPixelMono>& dest, int xstart
     } 
 }
 
-
+*/
 void YARPSimpleOperation::Threshold (const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelMono> &out, unsigned char threshold)
 {
 	iplThreshold(in, out, threshold);

@@ -10,7 +10,7 @@ WshShell.Run ("porter /reaching/behavior/o /repeater/i", 7, true);
 // WshShell.Run ("porter /trigger/behavior/o /repeater/i", 7, true);
 // WshShell.Run ("porter /repeater/o /trigger/behavior/i", 7, true);
 
-//WshShell.Run ("porter /handtracker/position/o /trigger/hand/i", 7, true);
+// WshShell.Run ("porter /handtracker/position/o /trigger/hand/i", 7, true);
 //WshShell.Run ("porter /tracker/o:vect /trigger/target/i", 7, true);
 
 // WshShell.Run ("porter /attention/o /trigger/target/i", 7, true);

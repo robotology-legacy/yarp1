@@ -73,6 +73,13 @@ void _fillTable()
 	REG_VOCAB(sendSimpleVocab, YBVHandKinFreeze, "freeze/resume handkinematics.m");
 	REG_VOCAB(sendString, YBVHandKinSetFile, "handkinematics.m set filename");
 	REG_VOCAB(sendSimpleVocab, YBVHandKinSavePosture, "handkinematics.m save current posture");
+
+	// grasp rflx
+	REG_VOCAB(sendSimpleVocab, YBVGraspRflxForceOpen, "grasp reflex force open");
+
+	// kfexploration
+	REG_VOCAB(sendSimpleVocab, YBVKFExplorationStart, "kf exploration start");
+	REG_VOCAB(sendSimpleVocab, YBVKFExplorationQuit, "kf exploration quit");
 }
 
 void _help()

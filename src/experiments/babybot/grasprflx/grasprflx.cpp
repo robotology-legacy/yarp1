@@ -70,6 +70,7 @@ int main(int argc, char* argv[])
 	GRBOutputSignal	sendClutching(YBVGraspRflxClutch);
 	GRBInit init;
 	GRBSimpleInput motionDone(YBVHandDone);
+	GRBSimpleInput forceOpen(YBVGraspRflxForceOpen);
 
 	readConfigFile(shared);
 
@@ -83,7 +84,11 @@ int main(int argc, char* argv[])
 	for(int i = 0; i<(N-1); i++)
 		behavior.add(NULL, &waitT[i], &waitT[i+1]);
 
+	// check no automatic release
 	behavior.add(NULL, &waitT[N-1], &waitOpen2, &openCmd);
+	
+	// behavior.add(&forceOpen, &waitT[N-1], &waitOpen2, &openCmd);
+
 	behavior.add(&motionDone, &waitOpen2, &loopTouch);
 
 	behavior.Begin();

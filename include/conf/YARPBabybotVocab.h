@@ -70,6 +70,7 @@ const char *const YBVSinkDisplayStatus = "SinkDisplayStatus";
 // grasprflx
 const char *const YBVGraspRflxQuit = "GraspRflxQuit";
 const char *const YBVGraspRflxClutch = "GraspRflxClutch";
+const char *const YBVGraspRflxForceOpen = "GraspRflxForceOpen";
 
 // handlocalization
 const char *const YBVHandLocQuit = "HandLocQuit";
@@ -94,4 +95,15 @@ const char *const YBVRLTrainNow = "RLTrainNow";
 const char *const YBVRLTrainContinue = "RLTrainContinue";
 const char *const YBVRLNEpoch = "RLNEpoch";
 const char *const YBVRLBatchSize = "RLBatchSize";
+
+// Key frames messages
+const char *const YBVKFStart = "KFStart";
+const char *const YBVKFStop = "KFStop";
+const char *const YBVKFQuit = "KFQuit";
+const char *const YBVKFDump = "KFDump";
+
+const char *const YBVKFExplorationStart = "KFExplorationStart";
+const char *const YBVKFExplorationQuit = "KFExplorationQuit";
+
+
 #endif

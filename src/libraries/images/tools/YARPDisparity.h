@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.h,v 1.9 2004-02-23 15:56:33 fberton Exp $
+/// $Id: YARPDisparity.h,v 1.10 2004-04-26 10:26:29 babybot Exp $
 ///
 ///
 // disparity.h: interface for the YARPDisparityTool class.
@@ -110,6 +110,8 @@ public:
 	double * _gaussFunction;
 	double _corrTreshold;
 
+	int *_count;
+		
 	int _actRings;
 	double _gMean;
 	double _gSigma;
@@ -118,12 +120,23 @@ public:
 	double _snRatio;
 
 
+	inline int getShiftLevels()
+		{ return _shiftLevels; }
+	inline const double *getCorrFunction()
+		{ return _corrFunct; }
+
+	void setRings(int r)
+	{ _actRings = r; }
+
 	int loadShiftTable(Image_Data* Par);
 	int loadDSTable(Image_Data* Par);
 
 	void downSample(YARPImageOf<YarpPixelBGR> & inImg, YARPImageOf<YarpPixelBGR> & outImg);
 	int computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
 						 YARPImageOf<YarpPixelBGR> & inLImg);
+
+	int computeDisparityRGB (YARPImageOf<YarpPixelBGR> & inRImg,
+						     YARPImageOf<YarpPixelBGR> & inLImg);
 
 	int corrAdjust(int * count);
 	double computeSNRatio(int disparity);

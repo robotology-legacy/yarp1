@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.18 2004-03-25 14:17:23 beltran Exp $
+/// $Id: YARPDisparity.cpp,v 1.19 2004-04-26 10:26:29 babybot Exp $
 ///
 ///
 
@@ -90,6 +90,7 @@ YARPDisparityTool::YARPDisparityTool()
 	_corrFunct		= NULL;
 	_actRings		= 21;
 	_corrTreshold   = 2.0;
+	_count			= NULL;
 }
 
 YARPDisparityTool::~YARPDisparityTool()
@@ -114,6 +115,9 @@ YARPDisparityTool::~YARPDisparityTool()
 
 	if (_corrFunct != NULL)
 		delete [] _corrFunct;
+
+	if (_count != NULL)
+		delete [] _count;
 }
 
 int YARPDisparityTool::loadShiftTable(Image_Data * Par)
@@ -241,6 +245,7 @@ int YARPDisparityTool::loadShiftTable(Image_Data * Par)
 
 */
 
+		_count = new int [_shiftLevels];
 
 		ACE_OS::fclose (fin);
 		return 1;
@@ -337,8 +342,6 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
 {
 	int k;
 	int disparity;
-	int * count = NULL;
-	count = (int*) malloc (_shiftLevels * sizeof(int));
 
 	rgbPixel avgLeft,avgRight;
 
@@ -355,10 +358,10 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
 					avgRight,
 					avgLeft,
 					_actRings,
-					count);
+					_count);
 
 
-	disparity = corrAdjust(count); //Computes where the best correspondance is and removes non valid points
+	disparity = corrAdjust(_count); //Computes where the best correspondance is and removes non valid points
 
 
 //	double avg = 0.0;
@@ -375,7 +378,7 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
 	_gMean  = double(disparity);
 	_gSigma = 10.0;
 
-	findFittingFunction();
+//	findFittingFunction();
 
 	for (k=0; k<_shiftLevels; k++)
 		_corrFunct[k] = 3.0 - _corrFunct[k];
@@ -396,24 +399,51 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
 		else 
 			disparity = 0;
 */
-	free (count);
 	return disparity;
+}
 
+int YARPDisparityTool::computeDisparityRGB (YARPImageOf<YarpPixelBGR> & inRImg,
+											YARPImageOf<YarpPixelBGR> & inLImg)
+{
+	int k;
+	int disparity;
+
+	rgbPixel avgLeft,avgRight;
+
+	avgRight = computeAvg(inRImg.GetHeight(),inRImg.GetWidth(),inRImg.GetPadding(),(unsigned char*)inRImg.GetRawBuffer());
+	avgLeft  = computeAvg(inLImg.GetHeight(),inLImg.GetWidth(),inLImg.GetPadding(),(unsigned char*)inLImg.GetRawBuffer());
+
+	
+	shiftnCorrFoveaRGB	((unsigned char*)inRImg.GetRawBuffer(),
+						(unsigned char*)inLImg.GetRawBuffer(),
+						&_imgS,
+						_shiftLevels,
+						_shiftMap,
+						_corrFunct,
+						avgRight,
+						avgLeft,
+						_actRings,
+						_count);
+
+
+	disparity = corrAdjust(_count); //Computes where the best correspondance is and removes non valid points
+
+	disparity = _shiftFunction[disparity];
+	disparity = (int)(0.5 + disparity * _imgS.Size_X_Remap / (float)_imgS.Resolution);
+
+	return disparity;
 }
 
 void YARPDisparityTool::makeHistogram(YARPImageOf<YarpPixelMono>& hImg)
 {
 	int i,j;
-	int height = 64;
-	int width = 256;
+	int height = hImg.GetHeight();
+	int width = hImg.GetWidth();
 //	int height = 512;
 //	int width = 512;
 	unsigned char * hist = (unsigned char *)hImg.GetRawBuffer();
-	double * dispCopy;
 
-	dispCopy  = (double*) malloc ((_shiftLevels-1)*sizeof(double));
-
-	int offset = (width-_shiftLevels+1)/2;
+	int offset = (height-_shiftLevels+1)/2;
 
 	for (j=0;j<height*width;j++)
 		hist[j] = 0;
@@ -428,6 +458,7 @@ void YARPDisparityTool::makeHistogram(YARPImageOf<YarpPixelMono>& hImg)
 		}
 	}
 
+	/*
 	for (i=0; i<_shiftLevels-1; i++)
 	{
 		if ((i+offset >=0)&&(i+offset<width))
@@ -436,11 +467,12 @@ void YARPDisparityTool::makeHistogram(YARPImageOf<YarpPixelMono>& hImg)
 					hist[(j*width+i+offset)] = (hist[(j*width+i+offset)]+192)/2;
 		}
 	}
+	*/
 		
 	for (j=0; j<height; j++)
 		hist[(j*width+width/2)] = 255;
 
-	free (dispCopy);
+
 }
 
 int YARPDisparityTool::functFitting(YVector& x,

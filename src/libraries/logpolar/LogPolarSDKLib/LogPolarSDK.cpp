@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.36 2004-02-23 11:12:34 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.37 2004-04-26 10:26:29 babybot Exp $
 ///
 ///
 
@@ -1572,6 +1572,110 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 	}
 }
 
+void shiftnCorrFoveaRGB (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aFull, rgbPixel aFov,int Rows, int * count)
+{
+	int i,j,k,k1;
+	int i2,i1;//iR,iL
+
+	double rxy[4];
+	double rxx[4];
+	double ryy[4];
+	int pX[3];
+	int pY[3];
+
+	memset(rxx, 0, 4*sizeof(double));
+	memset(ryy, 0, 4*sizeof(double));
+	memset(rxy, 0, 4*sizeof(double));
+
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = fullImg;
+	fovPtr = fovImg;
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(Par->Size_Theta*Par->LP_Planes,Par->padding) - Par->Size_Theta*Par->LP_Planes;
+
+	for (k=0; k<Steps; k++)
+	{
+
+		// reset counters
+		memset(rxx, 0, 4*sizeof(double));
+		memset(ryy, 0, 4*sizeof(double));
+		memset(rxy, 0, 4*sizeof(double));
+
+		k1 = k * Par->Size_LP; //Positioning on the table
+
+		count[k] = 0;
+
+		for (j=0; j<Rows; j++)
+		{
+			tIndex = j*Par->Size_Theta;
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+				i2 = ShiftMap[k1 + tIndex+i];
+				if (i2 > 0)
+					count[k]++;
+			}
+
+		}
+
+		fovPtr = fovImg;
+		fullPtr = fullImg;
+
+//		for (j=0; j<Par->Size_Fovea; j++)
+		for (j=0; j<Rows; j++)
+		{
+			tIndex = j*Par->Size_Theta;
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+//					i2 = ShiftMap[k1 + 3 * i];
+//					i1 = 3 * i;
+					i2 = ShiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+
+					if (i2 > 0)
+					{
+//						d_1 = *img2ptr++ - average_Rr;
+//						d_2 = Left[i1] - average_Lr;
+						pX[0] = *fovPtr++ - aFov.Red;
+						pY[0] = fullPtr[i2] - aFull.Red;
+
+						pX[1] = *fovPtr++ - aFov.Gre;
+						pY[1] = fullPtr[i2+1] - aFull.Gre;
+						
+						pX[2] = *fovPtr++ - aFov.Blu;
+						pY[2] = fullPtr[i2+2] - aFull.Blu;
+
+					
+						rxy[0] += (pX[0]*pY[0] + pX[1]*pY[1] + pX[2]*pY[2]);
+						rxy[1] += (pX[1]*pY[2] - pX[2]*pY[1]);
+						rxy[2] += (pX[0]*pY[1] - pX[1]*pY[0]);
+						rxy[3] += (pX[2]*pY[0] - pX[0]*pY[2]);
+
+						rxx[0] += (pX[0]*pX[0] + pX[1]*pX[1] + pX[2]*pX[2]);
+						rxx[1] += (pX[1]*pX[2] - pX[2]*pX[1]);
+						rxx[2] += (pX[0]*pX[1] - pX[1]*pX[0]);
+						rxx[3] += (pX[2]*pX[0] - pX[0]*pX[2]);
+
+						ryy[0] += (pY[0]*pY[0] + pY[1]*pY[1] + pY[2]*pY[2]);
+						ryy[1] += (pY[1]*pY[2] - pY[2]*pY[1]);
+						ryy[2] += (pY[0]*pY[1] - pY[1]*pY[0]);
+						ryy[3] += (pY[2]*pY[0] - pY[0]*pY[2]);
+					}
+					else fovPtr +=3;
+				}
+			fovPtr+=AddedPadSize;
+		}
+
+		double absRxySq=rxy[0]*rxy[0] + rxy[1]*rxy[1] + rxy[2]*rxy[2] + rxy[3]*rxy[3];  
+		double absRxxSq=rxx[0]*rxx[0] + rxx[1]*rxx[1] + rxx[2]*rxx[2] + rxx[3]*rxx[3];  
+		double absRyySq=ryy[0]*ryy[0] + ryy[1]*ryy[1] + ryy[2]*ryy[2] + ryy[3]*ryy[3];  
+		
+		corr_val[k]  = 3*(absRxySq/(sqrt(absRxxSq)*sqrt(absRyySq)));
+		
+	}
+}
 
 int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR)//, int * pixCount)
 {
@@ -1725,12 +1829,8 @@ void shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Dat
 {
 	int i,j,k,k1;
 	int i2,i1;//iR,iL
-//	int *count;
 	double d_1;
 	double d_2;
-//	double MIN = 10000;
-//	int MAX = 0;
-//	int minindex;
 
 	double numr   = 0;
 	double den_1r = 0;
@@ -1743,8 +1843,6 @@ void shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Dat
 	double den_2b = 0;
 
 	unsigned char * fullPtr,* fovPtr;
-
-//	count = (int*) malloc (Steps * sizeof(int));
 
 	fullPtr = fullImg;
 	fovPtr = fovImg;

@@ -1,7 +1,7 @@
 // by nat Jan 2003
 // handle exception, Dec 2003
 
-var shareName = "\\\\eolo\\yarp";
+var shareName = "\\\\130.251.43.254\\yarp";
 var drive = "Y:";
 
 WScript.Echo("Executing logon script...");

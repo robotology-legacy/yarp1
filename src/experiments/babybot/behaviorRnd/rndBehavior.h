@@ -8,6 +8,8 @@
 #include <YARPConfigFile.h>
 #include <./conf/YARPVocab.h>
 
+#include <YARPRndUtils.h>
+
 class RndSharedData: public YARPBehaviorSharedData
 {
 public:
@@ -36,6 +38,8 @@ public:
 		_command = new double [_nj];
 		_torques = new double [_nj];
 		_positions = new double [_nj];
+		_stored.Resize(_nj);
+		_stored = 0;
 
 		// read ini file now; parameters are read every time the thread starts
 		file.get("[RANDOMTHREAD]", "MAXINIT", _maxInit.data(), _nj);
@@ -49,7 +53,22 @@ public:
 	
 		_minCurrent = _minInit;
 		_maxCurrent = _maxInit;
-	
+
+		YVector av(_nj);
+		YVector std(_nj);
+		YVector max(_nj);
+		YVector min(_nj);
+		
+		file.get("[RANDOMTHREAD]", "GAUSS_AVERAGE", av.data(), _nj);
+		file.get("[RANDOMTHREAD]", "GAUSS_STD", std.data(), _nj);
+		file.get("[RANDOMTHREAD]", "GAUSS_MAX", max.data(), _nj);
+		file.get("[RANDOMTHREAD]", "GAUSS_MIN", min.data(), _nj);
+
+		_gauss.resize(max, min, av, std);
+		_rnd.resize(_maxFinal, _minFinal);
+
+		_first = true;
+			
 		// initialize random generator
 		srand( (unsigned)time( NULL ) );
 	}
@@ -78,11 +97,26 @@ public:
 	double *_torques;
 	double *_positions;
 
+	YVector _stored;
+	YARPRndVector _rnd;
+	YARPRndSafeGaussVector _gauss;
+
+	bool _first;
+
 	// generate a random number within max and min
 	void getRand(const double *, const double *, double *, int);
 
 	void sendNext();
 	void sendShake(const YVector &cmd);
+
+	void reset()
+	{
+		_first = true;
+	}
+
+	void sendNextGauss();
+	void gauss();
+	void rnd();
 };
 
 class RndBehavior: public YARPBehavior<RndBehavior, RndSharedData>
@@ -139,6 +173,15 @@ public:
 	YBVocab _key;
 };
 
+class RBRndReset: public RndBehaviorBaseOutput
+{
+public:
+	void output(RndSharedData *d)
+	{
+		d->reset();
+	}
+};
+
 class RBWaitIdle: public RndBehaviorStateBase
 {
 public:
@@ -150,6 +193,7 @@ public:
 	void handle(RndSharedData *d)
 	{
 		printf(_message.c_str());
+		d->reset();
 	}
 
 	YARPString _message;
@@ -161,6 +205,7 @@ public:
 	void handle(RndSharedData *d)
 	{
 		printf("Init rnd generator\n");;
+		d->reset();
 		srand(time(NULL));
 	}
 };
@@ -186,7 +231,8 @@ public:
 	void handle(RndSharedData *d)
 	{
 		printf("RBInitMotion: initialize new random movement\n");
-		d->sendNext();
+		// d->sendNext();
+		d->sendNextGauss();
 	}
 };
 

@@ -94,7 +94,11 @@ public:
 		_nnet.load(p);
 	}
 
-	const YVector &query(const YVector &head);
+	void query(const YVector &head);
+	const YVector &reachingCmd()
+	{ return _command; }
+	const YVector &prepareCmd()
+	{ return _prepare; }
 	void learn(const YVector &head, const YVector &arm);
 	
 private:
@@ -113,6 +117,7 @@ private:
 	YARPBabybotHeadKin _headKinematics;
 	YARPBottle _bottle;
 	YVector _command;
+	YVector _prepare;
 
 	int _nUpdated;
 	enum mode {atnr = 0, learning = 1, reaching = 2};

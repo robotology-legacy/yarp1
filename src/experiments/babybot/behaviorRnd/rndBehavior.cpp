@@ -43,6 +43,72 @@ void RndSharedData::sendNext()
 	send();
 }
 
+void RndSharedData::rnd()
+{
+	cout << "New random move\n";
+	
+	YVector cmd;
+	cmd.Resize(_nj);
+
+	cmd = _rnd.getVector();
+
+	int i;
+	for(i = 1; i <= _nj; i++)
+	{
+		cout << cmd(i) << '\t';
+		cmd(i) = cmd(i)*degToRad;
+	}
+
+	cout << "\n";
+
+	_data.reset();
+	_data.writeVocab(YBVArmNewCmd);
+	_data.writeYVector(cmd);
+
+	_stored = cmd;
+
+	send();
+}
+
+void RndSharedData::gauss()
+{
+	cout << "New gaussian move\n";
+	
+	YVector cmd;
+	cmd.Resize(_nj);
+
+	cmd = _stored + _gauss.getVector();
+
+	int i;
+	for(i = 1; i <= _nj; i++)
+	{
+		cout << cmd(i) << '\t';
+		cmd(i) = cmd(i)*degToRad;
+	}
+
+	cout << "\n";
+
+	_data.reset();
+	_data.writeVocab(YBVArmNewCmd);
+	_data.writeYVector(cmd);
+
+	_stored = cmd;
+
+	send();
+}
+
+void RndSharedData::sendNextGauss()
+{
+	if (_first)
+	{
+		rnd();
+		_first = false;
+	}
+	else
+		gauss();
+
+}
+
 void RndSharedData::sendShake(const YVector &cmd)
 {
 	_data.reset();

@@ -261,9 +261,12 @@ int main(int argc, char* argv[])
 		// prediction
 		if (plotPrediction)
 		{
-			tmpEl2.scale(_segmenter.scale);
-			_segmenter.drawCross(tmpEl2.x, tmpEl2.y, YarpPixelBGR(0, 255, 0), 5, 1);
-			_segmenter.plotEllipse(tmpEl2, YarpPixelBGR(0, 255, 0));
+			YARPShapeEllipse tmpEl;
+			tmpEl = tmpEl2;
+			tmpEl.scale(__scale);
+
+			_segmenter.drawCross(tmpEl.x, tmpEl.y, YarpPixelBGR(0, 255, 0), 5, 1);
+			_segmenter.plotEllipse(tmpEl, YarpPixelBGR(0, 255, 0));
 		}
 						
 		// colored image

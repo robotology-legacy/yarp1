@@ -33,7 +33,6 @@ int main(int argc, char* argv[])
 	RBWaitMotion waitShakeWrist("waiting on wrist shake");
 	RBWaitMotion waitShakeForearm("waiting on forearm shake");
 	RBWaitMotion waitShakeArm("waiting on arm shake");
-
 	RBWaitMotion waitRest("wating on rest");
 	
 	// input states
@@ -45,6 +44,7 @@ int main(int argc, char* argv[])
 	RBSimpleOutput inhibitRest(YBVArmInhibitResting);
 	RBSimpleOutput inhibitHead(YBVSinkInhibitAll);
 	RBSimpleOutput enableHead(YBVSinkEnableAll);
+	RBRndReset	   resetRnd;
 	///////////////////////////////////////
 
 	RBWaitDeltaT trState1(1);
@@ -55,11 +55,11 @@ int main(int argc, char* argv[])
 	_rnd.setInitialState(&init);
 	_rnd.add(NULL, &init, &waitIdle);
 	_rnd.add(&stop, &waitIdle, &stopped);
-	_rnd.add(&rest, &waitIdle, &waitRest);
+	_rnd.add(&rest, &waitIdle, &waitRest, &resetRnd);
 	_rnd.add(&start, &waitIdle, &initMotion);
 	// rest
-	_rnd.add(&rest, &initMotion, &waitRest);
-	_rnd.add(&rest, &waitMotion, &waitRest);
+	_rnd.add(&rest, &initMotion, &waitRest, &resetRnd);
+	_rnd.add(&rest, &waitMotion, &waitRest, &resetRnd);
 	_rnd.add(&stop, &waitMotion, &stopped);
 	_rnd.add(NULL, &initMotion, &waitMotion);
 
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 	if (!_shake)
 	{
 		_rnd.add(&motionDone, &waitMotion, &waitSomeTime);
-		_rnd.add(&rest, &waitSomeTime, &waitRest);
+		_rnd.add(&rest, &waitSomeTime, &waitRest, &resetRnd);
 		_rnd.add(NULL, &waitSomeTime, &initMotion);
 	}
 	else

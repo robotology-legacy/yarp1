@@ -1,6 +1,6 @@
 #include "reachingBehavior.h"
 
-const char *__nnetFile1 = "reaching.ini";
+const char *__nnetFile1 = "reaching1.ini";
 
 ABSharedData::ABSharedData():
 _map(__nnetFile1),
@@ -55,7 +55,11 @@ void RBOutputCommand::output(ABSharedData *d)
 	if (d->_headPort.Read(0))
 	{
 		const YVector& head = d->_headPort.Content();
-		const YVector& cmd = d->_map.query(head);
+		d->_map.query(head);
+
+		const YVector& cmd = d->_map.prepareCmd();
+
+		cout << "Preparing arm\n";
 
 		_bottle.writeYVector(cmd);
 		d->_outPort.Content() = _bottle;
@@ -68,3 +72,40 @@ void RBOutputCommand::output(ABSharedData *d)
 
 }
 
+void RBOutputReaching::output(ABSharedData *d)
+{
+	_bottle.reset();
+	_bottle.setID(YBVMotorLabel);
+	_bottle.writeVocab(YBVArmNewCmd);
+
+	const YVector& cmd = d->_map.reachingCmd();
+
+	_bottle.writeYVector(cmd);
+	d->_outPort.Content() = _bottle;
+	d->_outPort.Write(1);
+	
+}
+
+void RBSimpleOutput::output(ABSharedData *d)
+{
+	_bottle.reset();
+	_bottle.setID(YBVMotorLabel);
+	_bottle.writeVocab(_key);
+
+	d->_outPort.Content() = _bottle;
+	d->_outPort.Write(1);
+}
+
+void RBOutputBack::output(ABSharedData *d)
+{
+	_bottle.reset();
+	_bottle.setID(YBVMotorLabel);
+	_bottle.writeVocab(YBVArmNewCmd);
+
+	const YVector& cmd = d->_map.prepareCmd();
+
+	_bottle.writeYVector(cmd);
+	d->_outPort.Content() = _bottle;
+	d->_outPort.Write(1);
+	
+}

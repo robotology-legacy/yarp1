@@ -23,7 +23,12 @@ _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 
 	_noise.resize(__nJointsArm, __maxRnd, __minRnd);
 	_command.Resize(__nJointsArm);
+	_prepare.Resize(__nJointsArm);
 
+	_prepare = 0;
+	_prepare(1) = 8*degToRad;
+	_prepare(4) = -70*degToRad;
+	
 	_nUpdated = 0;
 	_mode = reaching;
 }
@@ -33,7 +38,7 @@ ArmMap::~ArmMap()
 
 }
 
-const YVector &ArmMap::query(const YVector &head)
+void ArmMap::query(const YVector &head)
 {
 	_headKinematics.update(head);
 	const Y3DVector &cart = _headKinematics.fixation();
@@ -48,9 +53,10 @@ const YVector &ArmMap::query(const YVector &head)
 	else
 	{
 		_nnet.sim(cart.data(), _command.data());
+		_command(4) = -70*degToRad;
+		_command(5) = 0;
+		_command(6) = 0;
 	}
-	
-	return _command;
 }
 
 void ArmMap::learn(const YVector &head, const YVector &arm)
