@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.cpp,v 1.1 2005-02-19 20:51:00 natta Exp $
+/// $Id: YARPSciDeviceDriver.cpp,v 1.2 2005-02-19 23:33:53 natta Exp $
 ///
 ///
 
@@ -42,7 +42,7 @@
 // #include "../56f807/cotroller_dc/Code/controller.h"
 
 
-#ifdef 0
+#if 0
 
 YARPSciCanDeviceDriver::YARPSciCanDeviceDriver(void) 
 	: YARPDeviceDriver<YARPNullSemaphore, YARPSciCanDeviceDriver>(CBNCmds), _mutex(1)

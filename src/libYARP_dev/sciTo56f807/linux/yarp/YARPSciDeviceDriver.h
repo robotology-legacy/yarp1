@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.h,v 1.2 2005-02-19 22:26:40 natta Exp $
+/// $Id: YARPSciDeviceDriver.h,v 1.3 2005-02-19 23:33:53 natta Exp $
 ///
 ///
 
@@ -37,7 +37,6 @@
 #include <yarp/YARPConfig.h>
 #include <yarp/YARPDeviceDriver.h>
 #include <yarp/YARPSemaphore.h>
-
 /**
  * \file YARPSciDeviceDriver.h 
  * class for interfacing with the value can device driver.
@@ -59,7 +58,7 @@ struct SciOpenParameters
  * The sci device driver.
 */
 class YARPSciDeviceDriver : 
-	public YARPDeviceDriver<YARPNullSemaphore, YARPSciDeviceDriver >, public YARPThread
+	public YARPDeviceDriver<YARPNullSemaphore, YARPSciDeviceDriver >
 {
 private:
 	YARPSciDeviceDriver (const YARPSciDeviceDriver &);
@@ -69,12 +68,12 @@ public:
 	/**
 	 * Constructor.
 	 */
-	YARPSciDeviceDriver ();
+	YARPSciDeviceDriver ():YARPDeviceDriver<YARPNullSemaphore, YARPSciDeviceDriver>(1),_mutex(1){};
 
 	/**
 	 * Destructor.
 	 */
-	virtual ~YARPSciDeviceDriver ();
+	virtual ~YARPSciDeviceDriver (){};
 
 	/**
 	 * Opens the device driver.
@@ -82,13 +81,13 @@ public:
 	 * of type SciCanOpenParameters.
 	 * @return YARP_OK on success.
 	 */ 
-	virtual int open(void *d);
+	virtual int open(void *d){};
 
 	/**
 	 * Closes the device driver.
 	 * @return YARP_OK on success.
 	 */
-	virtual int close(void);
+	virtual int close(void){};
 
 protected:
 	/*
