@@ -71,29 +71,62 @@ unless ($force)
 if ($clean)
 {
 	print "\nCleaning...\n";
-	chdir "./src" or die "Cannot chdir to src: $!";
+	if ($os eq "winnt")
+	{
+		chdir "./src" or die "Cannot chdir to src: $!";
 
-	call_msdev_and_print ("libYARP_sig", "Debug", "CLEAN");
-	call_msdev_and_print ("libYARP_sig", "Release", "CLEAN");
+		call_msdev_and_print ("libYARP_sig", "Debug", "CLEAN");
+		call_msdev_and_print ("libYARP_sig", "Release", "CLEAN");
 	
-	print "\n";
-	chdir "../" or die "Cannot chdir to ..: $!";
+		print "\n";
+		chdir "../" or die "Cannot chdir to ..: $!";
+	}
+	elsif ($os eq "linux")
+	{
+                call_make_and_print ('', "clean");
+	}
+	elsif ($os eq "qnx6")
+	{
+                call_make_and_print ('', "clean");
+	}	
 }
 
 if ($debug)
 {
 	print "\nCompiling debug\n";
-	chdir "./src" or die "Cannot chdir to src: $!";
-	call_msdev_and_print ("libYARP_sig", "Debug", "BUILD");
-	chdir "../" or die "Cannot chdir to ..: $!";
+	if ($os eq "winnt")
+	{
+		chdir "./src" or die "Cannot chdir to src: $!";
+		call_msdev_and_print ("libYARP_sig", "Debug", "BUILD");
+		chdir "../" or die "Cannot chdir to ..: $!";
+	}
+	elsif ($os eq "linux")
+	{
+                call_make_and_print ('', "CFAST=-g");
+	}
+	elsif ($os eq "qnx6")
+	{
+                call_make_and_print ('', "CFAST=-g");
+	}
 }
 
 if ($release)
 {
 	print "\nCompiling optimized\n";
-	chdir "./src" or die "Cannot chdir to src: $!";
-	call_msdev_and_print ("libYARP_sig", "Release", "BUILD");
-	chdir ".." or die "Cannot chdir to ..: $!";
+	if ($os eq "winnt")
+	{
+		chdir "./src" or die "Cannot chdir to src: $!";
+		call_msdev_and_print ("libYARP_sig", "Release", "BUILD");
+		chdir ".." or die "Cannot chdir to ..: $!";
+	}
+	elsif ($os eq "linux")
+	{
+                call_make_and_print ('', "CFAST=-O3");
+	}
+	elsif ($os eq "qnx6")
+	{
+                call_make_and_print ('', "CFAST=-O3");
+	}
 }
 
 if ($install)
