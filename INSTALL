@@ -1,7 +1,37 @@
 
-if you are on linux, try typing
-  make
-  make install  (as superuser)
+QUICK START for Debian Linux users:
 
-if you wish to install libraries and header files, try typing
-  make devinstall  (as superuser)
+  YARP requires the ACE package.
+    apt-get install libace-dev libace5.4 (as superuser)
+
+  To compile YARP, try typing
+    make
+    make install  (as superuser)
+
+  If you wish to install libraries and header files, try typing
+    make devinstall  (as superuser)
+
+The makefiles currently want to install stuff in /usr/local.  Apologies
+in advance if you have to go fiddle with that.
+
+
+MORE GENERAL method:
+
+We require ACE version 5.3.3 or greater.
+
+On Debian-based linux machines, ACE is available as a binary package;
+simply type ``apt-get install libace-dev'' as super-user. Please check
+(e.g. by searching at http://packages.debian.org) that the version
+available is 5.3.3 or greater. At the time of writing, this is true
+for Debian unstable but not true for Debian stable.
+
+For all other scenarios, we suggest you go to the ACE homepage, and
+download and compile the source package:
+
+    http://www.cs.wustl.edu/ schmidt/ACE.html 
+
+If you are a windows user, look for Visual Studio project files.  If you 
+are a unix user, fiddle with Makefiles.
+
+If you feel inspired, please send us better installation
+instructions -- because boy do we need them.
