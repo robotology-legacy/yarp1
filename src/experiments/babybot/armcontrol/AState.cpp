@@ -65,7 +65,7 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 				t->_gravity1.update(t->_arm_status._current_position, torque1);
 				t->_gravity2.update(t->_arm_status._current_position, torque2);
 				t->_gravity3.update(t->_arm_status._current_position, torque3);
-				t->_gravity5.update(t->_wristF(4), torque5);
+				// t->_gravity5.update(t->_wristF(4), torque5);
 				
 				// estimate error
 				_error = t->_arm_status._current_position - _finalCmd;
@@ -75,7 +75,7 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 				t->_gravity3.getP(_lsparameters[2]);
 				
 				// joint 5 is different
-				t->_gravity5.getP(_j5Ls);
+				// t->_gravity5.getP(_j5Ls);
 				
 				/////////////////////////
 				_errorFile.dump(t->_arm_status._current_position);
@@ -93,6 +93,16 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 				_pointsFile.dump(t->_wristF);
 				_pointsFile.newLine();
 				////////////////////
+
+				YARPOutputPortOf<int [2]> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
+	
+				// signal state
+				int _msg[2];
+				_msg[0] = 0;
+				_msg[1] = 1;
+				memcpy(t->_behaviorsPort.Content(), _msg, sizeof(int) * 2);
+				t->_behaviorsPort.Write();
+				//////////////////
 			}
 
 			changeState(t, t->_init_state); //ASDirectCommand::instance());

@@ -27,6 +27,8 @@
 #include "ArmStatus.h"
 #include "YARPNameClient.h"
 
+#include <YARPPort.h>
+
 #define ARM_THREAD_VERBOSE
 
 #ifdef ARM_THREAD_VERBOSE
@@ -134,7 +136,8 @@ private:
 	
 	char _iniFile[80];						// config file
 
-
+	YARPOutputPortOf<int [2]> _behaviorsPort;
+	
 public: //later: make it private
 	ArmStatus _arm_status;
 	YARPBabybotArm _arm;

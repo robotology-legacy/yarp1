@@ -15,7 +15,8 @@ ArmThread::ArmThread(int rate, const char *name, const char *ini_file):
 YARPRateThread(name, rate),
 _tirednessControl(23000.0, 10000.0, rate, 0.5),
 _arm_status(ini_file),
-_wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
+_wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
+_behaviorsPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 {
 	strncpy(_iniFile, ini_file, 80);
 
@@ -46,6 +47,9 @@ _wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 	changeInitState(ASDirectCommand::instance());
 	_arm_state = _init_state;
 	_restingInhibited = false;
+
+	//
+	_behaviorsPort.Register("/behaviors/o:1");
 }
 
 ArmThread::~ArmThread()
@@ -137,7 +141,7 @@ inline void ArmThread::send_commands()
 	_gravity2.computeG(_arm_status._current_position, &g[1]);
 	_gravity3.computeG(_arm_status._current_position, &g[2]);
 	g[3] = 0.0;
-	_gravity5.computeG(_wristF(4), &g[4]);
+	g[4] = 0.0; // _gravity5.computeG(_wristF(4), &g[4]);
 	g[5] = 0.0;
 
 	for(int i = 0; i < 6; i++)
