@@ -1049,8 +1049,8 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 		//cout<<"CMP DELTA %:"<<(fovBox.cmp-cmp)/cmp*100;
 		//cout<<"  ECT DELTA %:"<<(fovBox.ect-ect)/ect*100<<endl;
 
-		//if (fovBox.areaCart>100 && crg*crg+cgr*cgr+cby*cby<1000) {
-		if (crg*crg+cgr*cgr+cby*cby<500) {
+		if (fovBox.areaCart>100 && crg*crg+cgr*cgr+cby*cby<500) {
+		//if (crg*crg+cgr*cgr+cby*cby<500) {
 			found=true;
 		}
 	}	

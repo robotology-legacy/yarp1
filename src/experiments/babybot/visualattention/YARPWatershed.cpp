@@ -1207,7 +1207,7 @@ void YARPWatershed::ComputeSalienceAll(int num_blob, int last_tag)
 			//m_boxes[i] = m_boxes[i];
 
 			// Maybe I can calculate this values only when it is useful...
-			//int area=TotalArea(m_boxes[i]);
+			//m_boxes[i].areaCart=TotalArea(m_boxes[i]);
 			m_boxes[i].centroid_y = (double)m_boxes[i].ysum / m_boxes[i].areaLP;
 			m_boxes[i].centroid_x = (double)m_boxes[i].xsum / m_boxes[i].areaLP;
 
@@ -2029,7 +2029,7 @@ void YARPWatershed::statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobLi
 	for (int tag=1; tag<max_tag; tag++)
 		if (blobList[tag]) {
 			area+=m_boxes[tag].areaLP;
-			areaCart+=m_boxes[tag].areaCart;
+			areaCart+=TotalArea(m_boxes[tag]);
 			rgSum+=m_boxes[tag].rgSum;
 			grSum+=m_boxes[tag].grSum;
 			bySum+=m_boxes[tag].bySum;
