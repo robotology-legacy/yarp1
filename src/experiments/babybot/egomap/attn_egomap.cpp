@@ -61,14 +61,17 @@
 ///
 
 ///
-/// $Id: attn_egomap.cpp,v 1.3 2003-11-11 17:54:12 babybot Exp $
+/// $Id: attn_egomap.cpp,v 1.4 2004-01-20 19:31:06 babybot Exp $
 ///
 ///
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
+#include <YARPPort.h>
 #include <YARPImages.h>
+#include <YARPBottle.h>
+#include <conf/YARPVocab.h>
 
 #include <iostream>
 #include <math.h>
@@ -85,14 +88,11 @@
 
 #include <YARPBabybotHeadKin.h>
 
-///
-///
-///
-YARPInputPortOf<YARPGenericImage> in_img;
-YARPInputPortOf<YVector> in_pos;
+#include <YARPList.h>
 
-YARPOutputPortOf<YARPGenericImage> out_img;
-
+///
+///
+///
 const char *DEFAULT_NAME = "/egomap";
 const int ISIZE = 128;
 const int FULLSIZE = 256;
@@ -100,192 +100,189 @@ const int FULLSIZE = 256;
 ///
 ///
 ///
-class _procThread : public YARPThread
+
+using namespace _logpolarParams;
+
+struct ObjectListEntry
 {
-protected:
-	YARPSemaphore _sema;
-	bool _getcurrent;
+	YARPString key;
+	YVector v;
+};
 
-	enum { MAXOBJ = 10 };
-	YVector _rays[MAXOBJ];
-	int _nextfree;
+class ObjectList: YARPList<ObjectListEntry>
+{
+	ObjectList():_sema(1)
+	{}
 
-	YARPBabybotHeadKin _gaze;
-
-public:
-	_procThread () : 
-		YARPThread(), 
-		_sema(1), 
-		_gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
-		{}
-
-	virtual ~_procThread () {}
-
-	void Body (void)
+	void add(const YARPString &key, YVector &v)
 	{
-		using namespace _logpolarParams;
+		// LATER
+	}
+	void remove(const YARPString &key)
+	{
 
-		_sema.Wait();
-		_getcurrent = false;
-		_nextfree = 0;
-		_sema.Post();
-
-		///
-		///
-		///
-		YARPImageOf<YarpPixelMono> in;
-		YARPImageOf<YarpPixelBGR> out;
-		YARPImageOf<YarpPixelBGR> colored;
-		YARPImageOf<YarpPixelBGR> remapped;
-
-		colored.Resize (_stheta, _srho);
-		remapped.Resize (FULLSIZE, FULLSIZE);
-
-		YARPLogpolar mapper;
-
-		while (!IsTerminated())
-		{
-			in_img.Read();
-
-			in.Refer (in_img.Content());
-			mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)in, colored);
-			mapper.Logpolar2Cartesian (colored, remapped);
-
-			ACE_ASSERT (in.GetWidth() == _stheta && in.GetHeight() == _srho);
-			ACE_ASSERT (remapped.GetWidth() == FULLSIZE && remapped.GetHeight() == FULLSIZE);
-
-			out_img.Content().SetID (YARP_PIXEL_BGR);
-
-			out_img.Content().Resize (ISIZE, ISIZE); 
-			out.Refer (out_img.Content());
-
-			/// copy reduced size into output img.
-			YARPSimpleOperation::Decimate (remapped, out, 2, 2);
-
-			in_pos.Read();
-			YVector& jnts = in_pos.Content();
-
-			_gaze.update (jnts);
-
-			/// does the display.
-			for (int i = 0; i < _nextfree; i++)
-			{
-				int predx = 0, predy = 0;
-				_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _rays[i], predx, predy);
-				///predx += FULLSIZE/2;
-				///predy += FULLSIZE/2;
-
-				///
-				YarpPixelBGR green (0, 255, 0);
-				AddCircleOutline (out, green, predx/2, predy/2, 5);
-				AddCircleOutline (out, green, predx/2, predy/2, 4);
-			}
-
-
-			_sema.Wait();
-			bool newpoint = _getcurrent;
-			_getcurrent = false;
-			_sema.Post();
-
-			/// 
-			///
-			/// operations, add new vector.
-			if (newpoint)
-			{
-				_rays[_nextfree].Resize(3);
-				/// get the current ray.
-				_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _rays[_nextfree], FULLSIZE/2, FULLSIZE/2);
-				/// the new ray is also stored.
-				_nextfree++;
-			}
-
-			out_img.Write ();
-		}
-
-		/// returning smoothly.
 	}
 
-	void AddPointCurrent (void)
+	void setCurrent(const YARPString &key)
+	{
+		sema.Wait();
+		// search and replace _current
+		// LATER _current = ;
+		_sema.Post();
+	}
+
+	void getCurrent(YVector curr)
 	{
 		_sema.Wait();
-		_getcurrent = true;
+		curr = _current.v;
 		_sema.Post();
+	}
+
+private:
+	ObjectListEntry _current;
+	YARPSemaphore _sema; // ??
+};
+
+class EgoMap: public YARPInputPortOf<YARPBottle>
+{
+	
+protected:
+	YARPInputPortOf<YVector> _inPortPosition;
+	YARPInputPortOf<YVector> _outPortPosition;
+	YARPInputPortOf<YARPGenericImage> _inPortImage;
+	YARPOutputPortOf<YARPGenericImage> _outPortImage;
+	YARPBabybotHeadKin _gaze;
+
+	YARPImageOf<YarpPixelMono> _inImg;
+	YARPImageOf<YarpPixelBGR> _outImg;
+	YARPImageOf<YarpPixelBGR> _coloredImg;
+	YARPImageOf<YarpPixelBGR> _remappedImg;
+
+	YVector _out;
+
+	YARPLogpolar _mapper;
+	
+public:
+	EgoMap(const YARPString &baseName):
+	YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
+	_gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) ),
+	_inPortPosition(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
+	_inPortImage(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
+	_outPortPosition(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
+	_outPortImage(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+	{
+		Register(YARPString(baseName).append("/cmd/i").c_str());
+		_inPortPosition.Register(YARPString(baseName).append("/head/i").c_str());
+		_inPortImage.Register(YARPString(baseName).append("/image/i").c_str());
+		_outPortPosition.Register(YARPString(baseName).append("/target/o").c_str());
+		_outPortImage.Register(YARPString(baseName).append("/image/o").c_str());
+		
+		_out.Resize(2);
+		_out = 0.0;
+
+		_coloredImg.Resize (_stheta, _srho);
+		_remappedImg.Resize (FULLSIZE, FULLSIZE);
+		_outImg.Resize(FULLSIZE/2, FULLSIZE/2);
+	}
+
+	void loop()
+	{
+		_inPortPosition.Read();
+		YVector &pos = _inPortPosition.Content();
+
+		_gaze.update(pos);
+
+		if (_inPortImage.Read(0))
+		{
+			_inImg.Refer (_inPortImage.Content());
+			_mapper.ReconstructColor (_inImg, _coloredImg);
+			_mapper.Logpolar2Cartesian (_coloredImg, _remappedImg);
+
+			YARPSimpleOperation::Decimate (_remappedImg, _outImg, 2, 2);
+		}
+		
+		// loop all objects
+		{
+			int predx = 0, predy = 0;
+			YVector v(3);
+			// LATER fill v(3)
+			_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, v, predx, predy);
+
+			YARPSimpleOperation::DrawCross(_outImg, predx/2, predy/2, YarpPixelBGR(0, 255, 0), 10, 2);
+
+			_out(1) = predx-128;
+			_out(2) = predy-128;
+			// LATER: plot cross for each obj
+		}
+		
+		// write position
+		_outPortPosition.Content() = _out;
+
+
+		// send image
+		_outPortImage.Content().Refer(_outImg);
+		_outPortImage.Write();
+	}
+
+	void OnRead()
+	{
+		Read();
+		YARPBottle &tmpBottle = Content();
+
+		YBVocab tmp;
+		if (!tmpBottle.tryReadVocab(tmp))
+			return;	
+			
+		tmpBottle.moveOn();
+		
+		if (tmp == YBVEgoMapAdd)
+		{
+			char key[80];
+			int x,y;
+			tmpBottle.readText(key);
+			tmpBottle.readInt(&x);
+			tmpBottle.readInt(&y);
+			_handleAdd(key, x, y);
+		}
+		if (tmp == YBVEgoMapRemove)
+		{
+			char key[80];
+			tmpBottle.readText(key);
+			_handleRemove(key);
+		}
+		if (tmp == YBVEgoMapSetCurrent)
+		{
+			char key[80];
+			tmpBottle.readText(key);
+			_handleSetCurrent(key);
+		}
+	}
+
+private:
+	void _handleAdd(const YARPString &key, int x, int y)
+	{
+		// LATER ADD
+		// convert x,y, into v and add it
+	}
+	void _handleRemove(const YARPString &key)
+	{
+		// LATER
+	}
+	void _handleSetCurrent(const YARPString &key)
+	{
+		// LATER
 	}
 };
 
 
-
-///
-///
-///
-///
 int main(int argc, char *argv[])
 {
-	using namespace _logpolarParams;
+	EgoMap _map("/egomap");
 
-	YARPString name;
-	YARPString network_i;
-	YARPString network_o;
-	char buf[256];
-
-	if (!YARPParseParameters::parse(argc, argv, "name", name))
+	while(1)
 	{
-		name = DEFAULT_NAME;
+		_map.loop();
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "neti", network_i))
-	{
-		network_i = "default";
-	}
-
-	if (!YARPParseParameters::parse(argc, argv, "neto", network_o))
-	{
-		network_o = "default";
-	}
-
-	/// images are coming from the input network.
-	sprintf(buf, "%s/i:img", name.c_str());
-	in_img.Register(buf, network_i.c_str());
-
-	/// the position of the head gets here from the default network.
-	sprintf(buf, "%s/i:headposition", name.c_str());
-	in_pos.Register(buf, network_o.c_str());
-
-	sprintf(buf, "%s/o:img", name.c_str());
-	out_img.Register(buf, network_i.c_str());
-
-	_procThread thread;
-	thread.Begin();
-
-	while (1)
-	{
-		char c;
-		scanf ("%c", &c);
-
-		switch (c)
-		{
-		case 'h':
-		case '?':
-			printf ("h,?: help, print this message\n");
-			printf ("a: add current fixation point to the set of objects\n");
-			printf ("q: quit\n");
-			break;
-
-		case 'q':
-			goto ReturnSmoothly;
-			break;
-
-		case 'a':
-			thread.AddPointCurrent ();
-			break;
-		}
-	}
-
-
-ReturnSmoothly:
-	printf ("hopefully returning smoothly\n");
-
-	thread.End();
-	
 	return 0;
 }

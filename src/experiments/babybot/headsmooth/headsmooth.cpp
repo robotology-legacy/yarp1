@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
 	double time2;
 	double period = 0.0;
 	time1 = YARPTime::GetTimeAsSeconds();
-	const int N = 1000;
+	const int N = 200;
 	int counter = 0;
 	while(true)
 	{

@@ -1,9 +1,5 @@
 # Microsoft Developer Studio Generated Dependency File, included by attention.mak
 
-.\att.cpp : \
-	".\att.h"\
-	
-
 .\attbehavior.cpp : \
 	"..\..\..\..\include\ace\ace.h"\
 	"..\..\..\..\include\ace\ace.i"\

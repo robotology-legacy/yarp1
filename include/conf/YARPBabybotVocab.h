@@ -41,6 +41,7 @@ const char *const YBVHandQuit = "HandQuit";
 // attention behavior
 const char *const YBVAttentionQuit = "AttentionQuit";
 const char *const YBVAttentionLookHand = "AttentionLookHand";
+const char *const YBVAttentionLookPrediction = "AttentionLookPrediction";
 const char *const YBVAttentionLookTarget = "AttentionLookTarget";
 
 // head behavior
@@ -48,6 +49,11 @@ const char *const YBVHeadNewCmd = "HeadNewCmd";
 const char *const YBVHeadHibernate = "HeadHibernate";
 const char *const YBVHeadResume = "HeadResume";
 const char *const YBVHeadQuit = "HeadQuit";
+
+// hand tracker switch behavior
+const char *const YBVHTSPrediction= "HTSPrediction";
+const char *const YBVHTSCurrent= "HTSCurrent";
+const char *const YBVHTSAuto= "HTSAuto";
 
 // sink behavior
 const char *const YBVSinkQuit = "SinkQuit";
@@ -71,6 +77,11 @@ const char *const YBVHandKinView = "HandKinView";
 const char *const YBVHandKinFreeze = "HandKinFreeze";
 const char *const YBVHandKinSetFile = "HandKinSetFile";
 const char *const YBVHandKinSavePosture = "HandKinSavePosture";
+
+// egomap
+const char *const YBVEgoMapAdd = "EgoMapAdd";
+const char *const YBVEgoMapRemove = "EgoMapRemove";
+const char *const YBVEgoMapSetCurrent = "EgoMapSetCurrent";
 
 // general
 const char *const YBVExit = "GeneralExit";

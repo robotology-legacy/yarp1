@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.21 2003-11-12 17:14:28 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.22 2004-01-20 19:31:06 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -217,8 +217,9 @@ public:
 				return ;
 		}
 	}
-	// add a transition
+	// add a transition: if 'in' is true move from 's1' to 's2' producing 'out'
 	void add(BaseBehaviorInput *in, MyBaseStates *s1, MyBaseStates *s2, BaseBehaviorOutput *out = NULL);
+	// add a transition: if 'in' then produce 'out', from any state without changing state
 	void add(BaseBehaviorInput *in, BaseBehaviorOutput *out);
 	
 	void updateTable(BTableEntry entry)
