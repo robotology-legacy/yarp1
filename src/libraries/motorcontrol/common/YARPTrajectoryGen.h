@@ -19,6 +19,13 @@ public:
 	int setFinal(const double *final, int nstp);
 	int setFinal(const double *actual, const double *final, int nstp);
 	int setFinal(const double *actual, const double *viaPoint, const double *final, int nstp);
+	int getCurrent(double *cmd)
+	{
+		_lock();
+		memcpy(cmd, _lastCommand, sizeof(double)*_size);
+		_unlock();
+		return YARP_OK;
+	}
 	bool getNext(double *next);
 	inline int resize(int size, int npnts)
 	{

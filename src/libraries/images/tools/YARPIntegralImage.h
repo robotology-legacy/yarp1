@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.h,v 1.2 2003-08-10 14:56:56 natta Exp $
+/// $Id: YARPIntegralImage.h,v 1.3 2003-08-12 17:17:07 babybot Exp $
 ///
 /// August 2003 -- by nat
 
@@ -89,7 +89,11 @@ public:
 
 	inline float get(int c, int r)
 	{
-		return _integralImg(c,r)/_integralImg(_nCols-1, _nRows-1);
+		float max = _integralImg(_nCols-1, _nRows-1);
+		if (max > 0.0)
+			return _integralImg(c,r)/max;
+		else
+			return 0.0;
 	}
 
 	inline double getSaliency(int maxX, int minX, int maxY, int minY)

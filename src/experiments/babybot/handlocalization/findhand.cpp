@@ -43,6 +43,7 @@ _blobDetector(5.0)
 	_pixelOut.Resize(4);
 	
 	_frame = 0;
+	_nSegmentations = 0;
 
 	_x = 0;
 	_y = 0;
@@ -72,10 +73,7 @@ FindHand::~FindHand()
 	delete [] _zeroCrossing;
 	delete [] _zeroCrossingHand;
 
-	int i;
-			
 	delete [] _output;
-
 }
 
 void FindHand::Body()
@@ -139,10 +137,19 @@ void FindHand::_segmentation()
 	// _mapper.Logpolar2Cartesian(_detectedColored, _detectedCart);
 	// YARPColorConverter::RGB2Grayscale(_detectedCart, _detectedCartGrayscale);
 	// iplColorToGray(_detectedCart, _detectedCartGrayscale);
+	char detected[128];
+	char segmented[128];
+	char segColored[128];
+	_nSegmentations++;
+	sprintf(detected, "%s%d.ppm", "y:\\zgarbage\\detected",_nSegmentations);
+	sprintf(segmented, "%s%d.ppm", "y:\\zgarbage\\segmented", _nSegmentations);
+	sprintf(segColored, "%s%d.ppm", "y:\\zgarbage\\segColored", _nSegmentations);
+	
 	_blobDetector.filterLp(_detected);
-	YARPImageFile::Write("y:\\zgarbage\\detected.ppm", _detected);
+	YARPImageFile::Write(detected, _detected);
 	YARPImageOf<YarpPixelMono> &tmp = _blobDetector.getSegmented();
-	YARPImageFile::Write("y:\\zgarbage\\segmented.ppm", tmp);
+	YARPImageFile::Write(segmented, tmp);
+	
 	/*
 	int rho;
 	int theta;
@@ -165,6 +172,8 @@ void FindHand::_segmentation()
 			if (tmp(theta, rho) < 255)
 				_actualLp(theta, rho) = 0;
 		}
+	
+	YARPImageFile::Write(segColored, _actualLp);
 }
 
 void FindHand::_dumpDetection()
@@ -214,7 +223,7 @@ void FindHand::_dumpDetection()
 				double motorStd;
 				int nMotor;
 				nMotor = _zeroCrossingHand[m].result(&motorMean, &motorStd);
-				if ( (fabs(motionMean-motorMean) < 0.3) && (abs(nMotor-n) < 2) && (nMotor > 0) )
+				if ( (fabs(motionMean-motorMean) < 0.3) && (abs(nMotor-n) < 3) && (nMotor > 0) )
 				{
 					// segmented image, B/N
 					_detected(x,y) = 255;//_actualLp(x,y);

@@ -62,6 +62,11 @@ public:
 		_shaking = true;
 		ASShake *tmp = ASShake ::instance();
 		tmp->n = 16;
+		YVector pos;
+		pos.Resize(6);
+		_trajectory.getCurrent(pos.data());
+		tmp->setActualPosition(pos);
+		// tmp->setActualPosition(_arm_status._current_position);
 		changeInitState(tmp);
 	}
 
@@ -167,6 +172,7 @@ public: //later: make it private
 	YVector _cmd;	//move it from here !
 	YVector _speed;
 	YVector _acc;
+
 };
 
 #endif //.h

@@ -12,6 +12,8 @@
 
 #include <./ace/Hash_Map_Manager.h>
 
+using namespace _logpolarParams;
+
 class HistoKey
 {
 public:
@@ -122,7 +124,7 @@ public:
 			_max[i] = max;
 			_min[i] = min;
 			_size[i] = n;
-			_delta[i] = (_max[i]-_min[i])/_size[i];
+			_delta[i] = double (_max[i]-_min[i])/_size[i] + 0.5;
 		}
 	};
 
@@ -150,8 +152,8 @@ public:
 		if ((r+g+b) < 5)
 			return;
 
-		if ( (r == 85) && (g == 85) && (b == 85) )
-			return;
+		/*if ( (r == 85) && (g == 85) && (b == 85) )
+			return;*/
 
 		_pixelToKey(r, g, b, tmpKey);
 
@@ -368,10 +370,10 @@ public:
 	inline void _normalize (unsigned char r, unsigned char g, unsigned char b,
 							unsigned char *rp, unsigned char *gp, unsigned char *bp)
 	{
-	//	*rp = r;
-	//	*gp = g;
-	//	*bp = b;
-
+		*rp = r;
+		*gp = g;
+		*bp = b;
+/*
 		float luma = r+g+b;
 		if (luma < _lumaThreshold)
 		{
@@ -384,7 +386,7 @@ public:
 			*rp = (r/luma)*255 + 0.5;
 			*gp = (g/luma)*255 + 0.5;
 			*bp = (b/luma)*255 + 0.5;
-		}
+		}*/
 	}
 	
 	inline void _normalize (const YarpPixelRGB &in, YarpPixelRGB &out)
@@ -459,8 +461,8 @@ public:
 		// complete histogram backprojection
 		int i;
 		int j;
-		for(i = 0; i < in.GetHeight(); i++)
-			for(j = 0; j < in.GetWidth(); j++)
+		for(j = 0; j < in.GetHeight(); j++)
+			for(i = 0; i < in.GetWidth(); i++)
 			{
 				YarpPixelRGB tmp;
 				_normalize(in(i,j), tmp);
@@ -473,8 +475,8 @@ public:
 		// complete histogram backprojection
 		int i;
 		int j;
-		for(i = 0; i < in.GetHeight(); i++)
-			for(j = 0; j < in.GetWidth(); j++)
+		for(j = 0; j < in.GetHeight(); j++)
+			for(i = 0; i < in.GetWidth(); i++)
 			{
 				YarpPixelRGB tmp;
 				_normalize(in(i,j), tmp);
@@ -488,12 +490,14 @@ private:
 
 int main(int argc, char* argv[])
 {
-	YARPHistogramSegmentation _histo(5, 255, 0, 32);
+	YARPHistogramSegmentation _histo(5, 255, 0, 10);
 
 	YARPInputPortOf<YARPGenericImage> _inPortImage(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 	YARPInputPortOf<YARPGenericImage> _inPortSeg(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
 	YARPOutputPortOf<YARPGenericImage> _outPortSeg(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+	YARPBlobDetector _blobber(5.0);
+	_blobber.resize(_stheta, _srho, _sfovea);
 	
 	_inPortImage.Register("/handtracker/i:img");
 	_inPortSeg.Register("/handtracker/segmentation/i:img");
@@ -503,20 +507,35 @@ int main(int argc, char* argv[])
 	YARPImageOf<YarpPixelMono> _leftSeg;
 	YARPImageOf<YarpPixelBGR> _leftColored;
 	YARPImageOf<YarpPixelBGR> _leftSegColored;
+	_left.Resize(_stheta, _srho);
+	_leftSeg.Resize(_stheta, _srho);
+	_leftColored.Resize(_stheta, _srho);
+	_leftSegColored.Resize(_stheta, _srho);
 
 	YARPImageOf<YarpPixelMono> _outSeg;
+	// YARPImageOf<YarpPixelMono> _blobs;
+	_outSeg.Resize(_stheta, _srho);
+	// _blobs.Resize(_stheta, _srho);
 
 	YARPLogpolar _mapper;
 
-	while (false)
+	int _nHistos = 0;
+	while (true)
 	{
 		_inPortImage.Read();
-
+		
 		if (_inPortSeg.Read(0))
 		{
+			ACE_OS::printf("Updating histogram\n");
 			_leftSeg.Refer(_inPortSeg.Content());
 			_mapper.ReconstructColor(_leftSeg, _leftSegColored);
 			_histo.Apply(_leftSegColored);
+
+			// dump histo
+			char tmp[128];
+			_nHistos++;
+			sprintf(tmp, "%s%d", "y:\\zgarbage\\histo", _nHistos);
+			_histo.dump(YARPString(tmp));
 		}
 
 		_left.Refer (_inPortImage.Content());
@@ -525,9 +544,17 @@ int main(int argc, char* argv[])
 		_mapper.ReconstructColor (_left, _leftColored);
 
 		_histo.backProjection(_leftColored, _outSeg);
+		// _blobber.ApplyLp(_outSeg);
 		
+		// iplMultiplyS(_outSeg, _outSeg, 4);
+				
+		// _outPortSeg.Content().Refer(_blobber.getSegmented());
 		_outPortSeg.Content().Refer(_outSeg);
 		_outPortSeg.Write();
+
+		/*_nHistos++;
+		if ((_frame%100)==0)
+			ACE_OS::printf("frame #%5d\r", _nHistos);*/
 	}
 	
 		

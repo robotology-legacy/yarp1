@@ -306,18 +306,19 @@ void ASShake:: handle(ArmThread *t)
 		// signal end of motion
 		t->_data.writeVocab(YBVArmDone);
 		t->send();
+
 		return;
 	}
 	else if ( (n%2) == 0)
 	{
 		// first
-		cmd = firstPosition;
+		cmd = currentPosition+firstPosition;
 	}
 	else
 	{
-		cmd = secondPosition;
+		cmd = currentPosition-secondPosition;
 	}
-
+	
 	t->_directCommand(cmd, 10);
 	// prepare wait state
 	ASWaitForMotion *waitState = ASWaitForMotion::instance();

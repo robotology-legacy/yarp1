@@ -77,6 +77,7 @@ private:
 	{ _mutex.Post(); }
 
 	int _frame;
+	int _nSegmentations;
 	bool _shaking;
 	YARPSemaphore _mutex;
 

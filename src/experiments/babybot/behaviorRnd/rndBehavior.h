@@ -82,6 +82,7 @@ public:
 	void getRand(const double *, const double *, double *, int);
 
 	void sendNext();
+	void sendShake();
 };
 
 class RndBehavior: public YARPBehavior<RndBehavior, RndSharedData>
@@ -202,4 +203,13 @@ public:
 	}
 };
 
+class RBInitShake: public RndBehaviorStateBase
+{
+public:
+	void handle(RndSharedData *d)
+	{
+		printf("RBInitShake: starting shake sequence\n");
+		d->sendShake();
+	}
+};
 #endif

@@ -132,7 +132,6 @@ void ArmThread::doLoop()
 	// read data from MEI board
 	read_status();
 	
-	/*
 	// check tiredness
 	if (_tirednessControl.high() && !_restingInhibited)
 	{
@@ -143,7 +142,7 @@ void ArmThread::doLoop()
 		{
 			_arm_state = ASZeroGEnd::instance();
 		}
-	}*/
+	}
 		
 	/////////////
 	_arm_state->handle(this);

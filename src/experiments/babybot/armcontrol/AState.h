@@ -140,10 +140,13 @@ class ASShake: public AState
 	ASShake() {
 		firstPosition.Resize(6);
 		secondPosition.Resize(6);
+		currentPosition.Resize(6);
+
 		cmd.Resize(6);
 		firstPosition = 0.0;
 		secondPosition = 0.0;
 		firstPosition(4) = 7*degToRad;
+		currentPosition = 0.0;
 		cmd = 0.0;
 		n = 16;
 	}
@@ -160,8 +163,14 @@ class ASShake: public AState
 		secondPosition = second;
 	}
 
+	inline setActualPosition(const YVector &pos)
+	{
+		currentPosition = pos;
+	}
+
 	YVector firstPosition;
 	YVector secondPosition;
+	YVector currentPosition;
 	YVector cmd;
 	int n;
 };
