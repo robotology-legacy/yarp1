@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.22 2003-10-07 17:08:28 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.23 2003-10-08 17:13:12 fberton Exp $
 ///
 ///
 
@@ -450,7 +450,7 @@ int Build_Color_Map (Image_Data * Par, char * Path)
 	else
 		sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"ReferenceImage.bmp");		
 
-	Image = Read_Bitmap(&XSize,&YSize,&planes,File_Name);
+	Image = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
 
 	if ((XSize!=Par->Size_Theta)||(YSize!=Par->Size_Rho)||(planes != Par->LP_Planes))
 		return 0;
@@ -683,7 +683,7 @@ int Build_Pad_Map (Image_Data * Par,char * Path)
 	else
 		sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"ReferenceImage.bmp");		
 
-	Image = Read_Bitmap(&XSize,&YSize,&planes,File_Name);
+	Image = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
 
 	if (Image != NULL)
 	{
@@ -1759,7 +1759,9 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 
 //	char SearchString [] = ".00";
 //	char * pointer = NULL;
-//	bool modpath = false;
+	bool modsize = false;
+	int oldsize;
+	double oldzoom;
 	
 //	pointer = strstr(Path,SearchString);
 
@@ -1771,13 +1773,19 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 
 //Loads the Reference Images
 
-	sprintf(File_Name,"%s\\ReferenceImage.bmp",Path);
-	unsigned char * LLP = Read_Bitmap(&LTheta,&LRho,&LPlanes,File_Name);
+	sprintf(File_Name,"%sReferenceImage.bmp",Path);
+	unsigned char * LLP = Load_Bitmap(&LTheta,&LRho,&LPlanes,File_Name);
 
-	sprintf(File_Name,"%s\\%1.2f_ReferenceImage.bmp",Path,Ratio);
-	unsigned char * SLP = Read_Bitmap(&STheta,&SRho,&SPlanes,File_Name);
+	sprintf(File_Name,"%s%1.2f_ReferenceImage.bmp",Path,Ratio);
+	unsigned char * SLP = Load_Bitmap(&STheta,&SRho,&SPlanes,File_Name);
 
 //Sets the Par
+
+	oldsize = LParam->Size_X_Remap;
+	oldzoom = LParam->Zoom_Level;
+	LParam->Size_X_Remap = LParam->Resolution;
+	LParam->Size_Y_Remap = LParam->Resolution;
+	LParam->Size_Img_Remap = LParam->Size_X_Remap * LParam->Size_Y_Remap;
 	
 	LParam->Zoom_Level = 1090.0/83.0; //83 is (SizeFovea*2)-1
 
@@ -2171,6 +2179,11 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	free (*DownSampleTable);
 	free (DownSampleTable);
 
+	LParam->Size_X_Remap = oldsize;
+	LParam->Size_Y_Remap = oldsize;
+	LParam->Size_Img_Remap = LParam->Size_X_Remap * LParam->Size_Y_Remap;
+	LParam->Zoom_Level = oldzoom;
+
 //	if (modpath)
 //		sprintf(Path,"%s1.00\\",Path);
 
@@ -2190,11 +2203,11 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 	FILE * fout;
 	int steps;
 
-	steps = Par->Resolution/4;
+	steps = Par->Resolution/2;
 
 	unsigned short retval = Load_Tables(Par,&Tables,Path,17);
 
-	ShiftMap = (int*) malloc((Par->Resolution/2)*3*Par->Size_LP*sizeof(int));
+	ShiftMap = (int*) malloc((Par->Resolution)*3*Par->Size_LP*sizeof(int));
 
 	if (retval != 17)
 	{
@@ -2220,7 +2233,7 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 		for (k=0; k<2*steps*Par->Size_LP*3; k++)
 			ShiftMap[k] = 0;
 
-		for (l = -steps; l<-steps+Par->Resolution/2; l++)
+		for (l = -steps; l<-steps+Par->Resolution; l++)
 		{
 			printf("%d\n",l);
 			for(j=0; j<Par->Size_Rho; j++)
@@ -2259,7 +2272,7 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 //			sprintf(File_Name,"%s%1.2f_%s_%d%s",Path,Par->Ratio,"ShiftMap",Par->Resolution,".gio");
 		
 		fout = fopen(File_Name,"wb");
-		fwrite(ShiftMap,sizeof(int),(Par->Resolution/2)*3*Par->Size_LP,fout);
+		fwrite(ShiftMap,sizeof(int),(Par->Resolution)*3*Par->Size_LP,fout);
 		fclose (fout);
 
 		free (Tables.PadMap);

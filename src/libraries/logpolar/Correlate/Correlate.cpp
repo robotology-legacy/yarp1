@@ -44,9 +44,9 @@ void main ()
 
 
 	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Mosaic\\Cart1.bmp");
-	Remapped_Image [0] = Read_Bitmap(&XSize1,&YSize1,&Planes1,File_Name);
+	Remapped_Image [0] = Load_Bitmap(&XSize1,&YSize1,&Planes1,File_Name);
 	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Mosaic\\Cart2.bmp");
-	Remapped_Image [1] = Read_Bitmap(&XSize2,&YSize2,&Planes2,File_Name);
+	Remapped_Image [1] = Load_Bitmap(&XSize2,&YSize2,&Planes2,File_Name);
 
 	CorrVal = Find_Max_Corr(XSize1,YSize1,
 							XSize2,YSize2,

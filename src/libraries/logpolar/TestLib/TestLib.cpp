@@ -70,7 +70,7 @@ void main ()
 	int i,k,l;
 	sprintf(File_Name,"C:\\Temp\\From Talia\\Test Mosaic\\2428x2428B.bmp");
 
-	Cart_Image = Read_Bitmap(&OrigXSize,&OrigYSize,&planes,File_Name);
+	Cart_Image = Load_Bitmap(&OrigXSize,&OrigYSize,&planes,File_Name);
 	Rem_Image  = (unsigned char *)calloc(3 * Param.Size_Img_Remap , sizeof(unsigned char));
 	Rem_Image1  = (unsigned char *)calloc(3 * Param.Size_Img_Remap , sizeof(unsigned char));
 	Rem_Image2  = (unsigned char *)calloc(3 * Param.Size_Img_Remap , sizeof(unsigned char));
@@ -271,7 +271,7 @@ void main ()
 	Pix_Numb = 4;
 
 
-//	Cart_Image = Read_Bitmap(&OrigXSize,&OrigYSize,&planes,File_Name);
+//	Cart_Image = Load_Bitmap(&OrigXSize,&OrigYSize,&planes,File_Name);
 
 
 	Neighborhood * Weights_Map = NULL;
@@ -422,7 +422,7 @@ void main ()
 
 	FILE * fin, * fout;
 
-	Cart_Image = Read_Bitmap(&XSize,&YSize,&planes,File_Name);
+	Cart_Image = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
 
 
 

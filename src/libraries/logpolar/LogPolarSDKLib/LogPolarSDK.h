@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.15 2003-10-07 17:08:28 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.16 2003-10-08 17:13:12 fberton Exp $
 ///
 ///
 
@@ -92,8 +92,10 @@
 #define PI 3.1415926535897932384626433832795
 
 #define ANGSHIFT	  1
+#define COL			  2
 #define DS4			  4
 #define REMAP		 32
+#define WEIGHTS		 64
 #define DS2			256
 #define SHIFT		512
 
@@ -233,7 +235,7 @@ int Giotto_Acq_Wrapper(unsigned char * image,
 void Giotto_Close();
 void Giotto_Close_Wrapper(int *vdesc);
 
-unsigned char * Read_Bitmap(
+unsigned char * Load_Bitmap(
 				 int *X_Size,
 				 int *Y_Size,
 				 int *planes,

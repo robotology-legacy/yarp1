@@ -20,7 +20,7 @@ void main()
 	Image_Data Param;
 	
 	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Images\\TestImg.bmp");
-	Cartesian = Read_Bitmap(&XSize,&YSize,&Planes,File_Name);
+	Cartesian = Load_Bitmap(&XSize,&YSize,&Planes,File_Name);
 
 	Param = Set_Param(	XSize,YSize,
 						1090,1090,
@@ -48,7 +48,7 @@ void main()
 	free(LogPolar);
 
 	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Images\\Star8.bmp");
-	Cartesian = Read_Bitmap(&XSize,&YSize,&Planes,File_Name);
+	Cartesian = Load_Bitmap(&XSize,&YSize,&Planes,File_Name);
 	LogPolar = (unsigned char *)malloc(Param.Size_LP * 3 * sizeof(unsigned char));
 
 	Make_LP_Real(LogPolar,Cartesian,&Param,Cart2LP_Map);
@@ -60,7 +60,7 @@ void main()
 	free(LogPolar);
 
 	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Images\\Star9.bmp");
-	Cartesian = Read_Bitmap(&XSize,&YSize,&Planes,File_Name);
+	Cartesian = Load_Bitmap(&XSize,&YSize,&Planes,File_Name);
 	LogPolar = (unsigned char *)malloc(Param.Size_LP * 3 * sizeof(unsigned char));
 
 	Make_LP_Real(LogPolar,Cartesian,&Param,Cart2LP_Map);

@@ -30,7 +30,7 @@ void main ()
 
 	sprintf(File_Name,"%s","C:\\Temp\\Test.bmp");
 	sprintf(Path,"%s","C:\\Temp\\Tables\\");
-	Orig_Image = Read_Bitmap(&XSize,&YSize,&Planes,File_Name);
+	Orig_Image = Load_Bitmap(&XSize,&YSize,&Planes,File_Name);
 
 	Param = Set_Param(XSize,YSize,
 						128,128,

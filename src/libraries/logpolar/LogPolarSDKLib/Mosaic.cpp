@@ -295,7 +295,7 @@ void Init_Mosaic(Tables * TabPtr, Images * ImgPtr, Image_Data * Param, int ImgID
 
 	//Legge la Mappa LogPolare delle risoluzioni e la rimappa
 	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Mosaic\\MapLP.bmp");
-	TabPtr->LP_Map = Read_Bitmap(&Param->Size_Theta,&Param->Size_Rho,&Param->LP_Planes,File_Name);
+	TabPtr->LP_Map = Load_Bitmap(&Param->Size_Theta,&Param->Size_Rho,&Param->LP_Planes,File_Name);
 
 	TabPtr->Small_Partial_Map  = (unsigned char *) malloc (Param->Size_Img_Remap * sizeof(unsigned char));
 	Remap_Cropped(ImgPtr->Small_Remapped[0],TabPtr->LP_Map,Param,TabPtr->RemapMap[4],0,0);
@@ -305,7 +305,7 @@ void Init_Mosaic(Tables * TabPtr, Images * ImgPtr, Image_Data * Param, int ImgID
 
 	//Legge la LogPolare iniziale e la rimappa
 	sprintf(File_Name,"%s%03d%s","C:\\Temp\\From Talia\\Frames\\Frame_",ImgID,".bmp");
-	ImgPtr->LP_Image[0] = Read_Bitmap(&Param->Size_Theta,&Param->Size_Rho,&Param->LP_Planes,File_Name);
+	ImgPtr->LP_Image[0] = Load_Bitmap(&Param->Size_Theta,&Param->Size_Rho,&Param->LP_Planes,File_Name);
 
 	Remap_Cropped(ImgPtr->Small_Remapped[0],ImgPtr->LP_Image[0],Param,TabPtr->RemapMap[4],0,0);
 

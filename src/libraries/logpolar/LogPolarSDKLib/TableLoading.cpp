@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableLoading.cpp,v 1.12 2003-10-07 17:08:28 fberton Exp $
+/// $Id: TableLoading.cpp,v 1.13 2003-10-08 17:13:12 fberton Exp $
 ///
 ///
 
@@ -306,8 +306,8 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
-			Tables->ShiftMap = (int *) malloc ((Par->Resolution/2)*3*Par->Size_LP * sizeof(int));
-			fread(Tables->ShiftMap,sizeof(int),(Par->Resolution/2)*3*Par->Size_LP,fin);
+			Tables->ShiftMap = (int *) malloc ((Par->Resolution)*3*Par->Size_LP * sizeof(int));
+			fread(Tables->ShiftMap,sizeof(int),(Par->Resolution)*3*Par->Size_LP,fin);
 			fclose (fin);
 			retval = retval | 512;
 		}

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.5 2003-09-24 11:00:05 fberton Exp $
+/// $Id: AuxFunctions.cpp,v 1.6 2003-10-08 17:13:12 fberton Exp $
 ///
 ///
 
@@ -84,11 +84,11 @@ void Get_Path()
 }
 
 /************************************************************************
-* Read_Bitmap															*
+* Load_Bitmap															*
 * Legge un'immagine bitmap da file										*
 ************************************************************************/	
 
-unsigned char * Read_Bitmap(int *X_Size,
+unsigned char * Load_Bitmap(int *X_Size,
 							int *Y_Size,
 							int *planes,
 							char * filename)

@@ -220,7 +220,7 @@ void main()
 // Reconstruct Color													//
 //////////////////////////////////////////////////////////////////////////
 
-//	LP_Image = Read_Bitmap(&XSizeLP,&YSizeLP,&plLP,Generic_Image_Filename);
+//	LP_Image = Load_Bitmap(&XSizeLP,&YSizeLP,&plLP,Generic_Image_Filename);
 //	LP_Image2 = (unsigned char *)calloc(Par.Size_LP * 3 , sizeof(unsigned char));
 
 /*	Reconstruct_Color(LP_Image2,
@@ -295,7 +295,7 @@ void main()
 
 /*	LP_Image = (unsigned char *)malloc(Par.Size_LP * 3 * sizeof(unsigned char));
 
-	Cart_Image = Read_Bitmap(&XSizeCart,&YSizeCart,&plCart,Generic_Image_Filename);
+	Cart_Image = Load_Bitmap(&XSizeCart,&YSizeCart,&plCart,Generic_Image_Filename);
 
 	for (j=0; j<Par.Size_LP; j++)
 	{
@@ -516,7 +516,7 @@ void main()
 
 
 
-	LP_Image = Read_Bitmap(&XSizeLP,&YSizeLP,&plLP,Generic_Image_Filename);
+	LP_Image = Load_Bitmap(&XSizeLP,&YSizeLP,&plLP,Generic_Image_Filename);
 	Rem_Image= (unsigned char *)malloc(SIZEREMAP * SIZEREMAP * 3 * sizeof(unsigned char));
 
 	for (j=0; j<1090; j++)
@@ -560,7 +560,7 @@ void main()
 		printf("\n");
 	}
 	
-	LP_Image = Read_Bitmap(&XSizeLP,&YSizeLP,&plLP,Input_Image_Filename);
+	LP_Image = Load_Bitmap(&XSizeLP,&YSizeLP,&plLP,Input_Image_Filename);
 
 	for (j=1;j<50;j++)
 	{

@@ -78,10 +78,10 @@ void main ()
 					  FITIN,0,0);
 
 	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Mosaic\\RemLPMap.bmp");
-	RemLP_Map = Read_Bitmap(&RemXSize,&RemYSize,&Planes,File_Name);
+	RemLP_Map = Load_Bitmap(&RemXSize,&RemYSize,&Planes,File_Name);
 	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Mosaic\\2428x2428B.bmp");
 	sprintf(Working_Folder,"%s","C:\\Temp\\From Talia\\Tables\\Test\\Giotto2.0\\");
-	Full_Image = Read_Bitmap(&XSize,&YSize,&Planes,File_Name);
+	Full_Image = Load_Bitmap(&XSize,&YSize,&Planes,File_Name);
 	Cart2LP_Map = Load_Cart2LP_Map(&Param,Working_Folder);
 	Total_Cart_Image = (unsigned char *)calloc(3 * XSize * YSize , sizeof(unsigned char));
 	Total_Map = (unsigned char *)malloc(XSize * YSize * sizeof(unsigned char));
@@ -139,7 +139,7 @@ void main ()
 		StartPosX = Param.Center_X_Remap;
 		StartPosY = Param.Center_Y_Remap;
 		sprintf(File_Name,"%s%03d%s","C:\\Temp\\From Talia\\Frames\\Frame_",start,".bmp");
-		LP_Image[0] = Read_Bitmap(&a,&b,&c,File_Name);
+		LP_Image[0] = Load_Bitmap(&a,&b,&c,File_Name);
 	}
 	
 	Coordinates [start] = Param.Center_Y_Remap * XSize + Param.Center_X_Remap;
@@ -194,7 +194,7 @@ void main ()
 	{
 //		LP_Image [1] = Get_LP_from_Large_Image(Full_Image,&Param,XSize,Cart2LP_Map);
 		sprintf(File_Name,"%s%03d%s","C:\\Temp\\From Talia\\Frames\\Frame_",frames,".bmp");
-		LP_Image[1] = Read_Bitmap(&a,&b,&c,File_Name);
+		LP_Image[1] = Load_Bitmap(&a,&b,&c,File_Name);
 	}
 
 //		sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Mosaic\\LP Image.bmp");
