@@ -26,7 +26,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
-IDD_HANDDEMO_DIALOG DIALOGEX 0, 0, 258, 251
+IDD_HANDDEMO_DIALOG DIALOGEX 0, 0, 258, 170
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "HandDemo"
@@ -86,15 +86,6 @@ BEGIN
     EDITTEXT        IDC_GAIN_INT5,217,92,29,13,ES_AUTOHSCROLL
     EDITTEXT        IDC_GAIN_INT6,217,108,29,13,ES_AUTOHSCROLL
     LTEXT           "Ki",IDC_STATIC,231,9,8,8
-    EDITTEXT        IDC_JOINT,18,180,20,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_IP,18,164,56,13,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "Update",IDUPDATETRANSMISSION,109,160,27,78,BS_VCENTER
-    EDITTEXT        IDC_PORT,76,164,27,13,ES_AUTOHSCROLL
-    GROUPBOX        "Motors",IDC_STATIC,13,156,95,40
-    EDITTEXT        IDC_HALLS,18,222,20,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_IPHALLS,18,208,56,13,ES_AUTOHSCROLL
-    EDITTEXT        IDC_PORTHALL,76,208,27,13,ES_AUTOHSCROLL
-    GROUPBOX        "Halls",IDC_STATIC,13,197,95,40
 END
 
 IDD_TORQUES DIALOG DISCARDABLE  0, 0, 64, 108
@@ -176,7 +167,7 @@ BEGIN
         LEFTMARGIN, 6
         RIGHTMARGIN, 250
         TOPMARGIN, 7
-        BOTTOMMARGIN, 244
+        BOTTOMMARGIN, 163
     END
 
     IDD_TORQUES, DIALOG
@@ -201,53 +192,6 @@ END
 LANGUAGE LANG_ITALIAN, SUBLANG_ITALIAN
 #pragma code_page(1252)
 #endif //_WIN32
-
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-1 TEXTINCLUDE DISCARDABLE 
-BEGIN
-    "resource.h\0"
-END
-
-2 TEXTINCLUDE DISCARDABLE 
-BEGIN
-    "#include ""afxres.h""\r\n"
-    "\0"
-END
-
-3 TEXTINCLUDE DISCARDABLE 
-BEGIN
-    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
-    "#define _AFX_NO_OLE_RESOURCES\r\n"
-    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
-    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
-    "\r\n"
-    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
-    "#ifdef _WIN32\r\n"
-    "LANGUAGE 9, 1\r\n"
-    "#pragma code_page(1252)\r\n"
-    "#endif //_WIN32\r\n"
-    "#include ""res\\HandDemo.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
-    "#include ""afxres.rc""         // Standard components\r\n"
-    "#endif\r\n"
-    "\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDR_MAINFRAME           ICON    DISCARDABLE     "res\\HandDemo.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -345,6 +289,53 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\HandDemo.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\HandDemo.ico"
 #endif    // Italian (Italy) resources
 /////////////////////////////////////////////////////////////////////////////
 

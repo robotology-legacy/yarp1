@@ -60,12 +60,6 @@ CHandDemoDlg::CHandDemoDlg(CWnd* pParent /*=NULL*/)
 	m_gain_int4 = 0.0;
 	m_gain_int5 = 0.0;
 	m_gain_int6 = 0.0;
-	m_port_halls = 0;
-	m_ip_motors = _T("");
-	m_port_motors = 0;
-	m_ip_halls = _T("");
-	m_joint = 0;
-	m_hall = 0;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -111,12 +105,6 @@ void CHandDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_GAIN_INT4, m_gain_int4);
 	DDX_Text(pDX, IDC_GAIN_INT5, m_gain_int5);
 	DDX_Text(pDX, IDC_GAIN_INT6, m_gain_int6);
-	DDX_Text(pDX, IDC_PORTHALL, m_port_halls);
-	DDX_Text(pDX, IDC_IP, m_ip_motors);
-	DDX_Text(pDX, IDC_PORT, m_port_motors);
-	DDX_Text(pDX, IDC_IPHALLS, m_ip_halls);
-	DDX_Text(pDX, IDC_JOINT, m_joint);
-	DDX_Text(pDX, IDC_HALLS, m_hall);
 	//}}AFX_DATA_MAP
 }
 
@@ -219,15 +207,6 @@ BOOL CHandDemoDlg::OnInitDialog()
 	m_gain_prop6 = pid.KP;
 	m_gain_der6 = pid.KD;
 	m_gain_int6 = pid.KI;
-
-	// transmission
-	m_ip_motors = "pento.lira.dist.unige.it";
-	m_port_motors = 3000;
-	m_joint = 1;
-
-	m_ip_halls = "pento.lira.dist.unige.it";
-	m_port_halls = 3001;
-	m_hall = 1;
 
 	UpdateData(FALSE);
 

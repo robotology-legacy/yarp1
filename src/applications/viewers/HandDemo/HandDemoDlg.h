@@ -63,10 +63,6 @@ public:
 	double		m_gain_int4;
 	double		m_gain_int5;
 	double		m_gain_int6;
-	int		m_port_halls;
-	CString	m_ip_motors;
-	int		m_port_motors;
-	CString	m_ip_halls;
 	int		m_joint;
 	int		m_hall;
 	//}}AFX_DATA
