@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.12 2003-10-30 13:46:20 babybot Exp $
+#$Id: Makefile,v 1.13 2003-10-30 14:09:58 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -19,7 +19,7 @@ YARPGalilDeviceDriver.o: YARPGalilDeviceDriver.h
 	$(CC) $(CFLAGS) -c YARPGalilDeviceDriver.cpp -o YARPGalilDeviceDriver.o
 
 YARPGalilDeviceDriver.lib : YARPGalilDeviceDriver.o
-	$(AR) $(ARFLAGS) YARPGalilDeviceDriver.lib YARPGalilDeviceDriver.o ../../obj/$(OS)/*.o ../$(OS)/dd_orig/lib/dmcqnx.lib
+	$(AR) $(ARFLAGS) YARPGalilDeviceDriver.lib YARPGalilDeviceDriver.o ../../obj/$(OS)/*.o ./dd_orig/lib/dmcqnx.lib
 	
 clean:
 	@echo
