@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.24 2003-07-15 14:20:39 beltran Exp $
+/// $Id: main.cpp,v 1.25 2003-07-15 16:01:18 babybot Exp $
 ///
 ///
 
@@ -84,19 +84,19 @@
 
 #	include <YARPEurobotGrabber.h>
 #	define Grabber YARPEurobotGrabber
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage> ##x
+#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #elif defined(__WIN32Babybot__)
 
 #	include <YARPBabybotGrabber.h>
 #	define Grabber YARPBabybotGrabber
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage> ##x
+#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #elif defined(__QNXBabybot__)
 
 #	include <YARPBabybotGrabber.h>
 #	define Grabber YARPBabybotGrabber
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage> ##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #else
 
@@ -220,7 +220,7 @@ int _runAsClient (void)
 {
 	YARPImageOf<YarpPixelBGR> img;
 
-	YARPInputPortOf<YARPGenericImage> inport;
+	YARPInputPortOf<YARPGenericImage> inport(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 
 	inport.Register (_name);
 	int frame_no = 0;
