@@ -13,10 +13,27 @@
 #include "LiveGloveDlg.h"
 #include "LiveTrackerDlg.h"
 #include "MessagesDlg.h"
-//#include "SaverThread.h"
+#include "SaverThread.h"
+#include "OptionsDlg.h"
 
 
 //////////////////////////////////////
+struct GraspOptions
+{
+	int	sizeX;
+	int sizeY;
+	char portName[255];
+	char netName[255];
+	char savePath[255];
+	char prefix[255];
+	int useCamera;
+	int useTracker;
+	int useDataGlove;
+	int usePresSens;
+	int refresh;
+};
+
+typedef struct GraspOptions PgmOptions;
 
 /////////////////////////////////////////////////////////////////////////////
 // CGraspCaptureDlg dialog
@@ -25,15 +42,18 @@ class CGraspCaptureDlg : public CDialog
 {
 // Construction
 public:
-	bool SetupPorts(void);
+	void setupOptions();
+	bool registerPorts(void);
 	void InitMembers();
 	void InitDlgMembers();
+	void prepareDataStructures(void);
+	void cleanDataStructures(void);
+	void unregisterPorts(void);
 	CGraspCaptureDlg(CWnd* pParent = NULL);	// standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CGraspCaptureDlg)
 	enum { IDD = IDD_GRASPCAPTURE_DIALOG };
-		// NOTE: the ClassWizard will add data members here
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -61,6 +81,9 @@ protected:
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnAcqStart();
 	afx_msg void OnAcqStop();
+	afx_msg void OnKill();
+	afx_msg void OnOptions();
+	afx_msg void OnDebugWnd();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 private:
@@ -68,18 +91,23 @@ private:
 	CLiveTrackerDlg TrackerDialog;
 	CLiveCameraDlg	CameraDialog;
 	CMessagesDlg MessagesDialog;
+	COptionsDlg OptionsDialog;
 	bool bLiveTracker;
 	bool bLiveGlove;
 	bool bLiveCamera;
+	bool bShowDebugWnd;
 	UINT m_timerID;
-
-	int reply;
+	
 	MNumData data;
 	YARPImageOf<YarpPixelBGR> img;
-	FILE *outfile;
 	CSaverThread saverThread;
-	char fileName[255];
-
+	int nSeq;
+	PgmOptions options;
+	YARPInputPortOf<MNumData> data_inport;
+	YARPInputPortOf<YARPGenericImage> img_inport;
+	YARPInputPortOf<int> rep_inport;
+	YARPOutputPortOf<MCommands> cmd_outport;
+	CString logText;
 };
 
 //{{AFX_INSERT_LOCATION}}

@@ -14,6 +14,7 @@
 #define IDB_TRACKER                     134
 #define IDB_GLOVE                       136
 #define IDD_MESSAGES                    137
+#define IDD_OPTIONS                     138
 #define IDC_CONNECT                     1000
 #define IDC_DISCONNECT                  1001
 #define IDC_ACQ_START                   1002
@@ -26,7 +27,9 @@
 #define IDC_POS_X                       1008
 #define IDC_QUIT                        1009
 #define IDC_POS_Y                       1009
+#define IDC_DEBUG_WND                   1009
 #define IDC_POS_Z                       1010
+#define IDC_KILL                        1010
 #define IDC_OR_AZIMUTH                  1011
 #define IDC_FINGER_1                    1011
 #define IDC_OR_ELEVATION                1012
@@ -36,13 +39,22 @@
 #define IDC_FINGER_4                    1014
 #define IDC_MESS_BOX                    1014
 #define IDC_FINGER_5                    1015
+#define IDC_LOAD                        1015
 #define IDC_FINGER_6                    1016
+#define IDC_SAVE                        1016
 #define IDC_FINGER_7                    1017
+#define IDC_DEFAULT                     1017
 #define IDC_FINGER_8                    1018
+#define IDC_SETPATH                     1018
 #define IDC_FINGER_9                    1019
 #define IDC_FINGER_10                   1020
+#define IDC_PORT_N                      1020
 #define IDC_FINGER_11                   1021
+#define IDC_NET_N                       1021
 #define IDC_FINGER_12                   1022
+#define IDC_REFRESH                     1022
+#define IDC_SAVEPATH                    1023
+#define IDC_PREFIX                      1025
 #define IDC_FINGER_13                   1026
 #define IDC_FINGER_14                   1027
 #define IDC_FINGER_15                   1028
@@ -62,9 +74,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        138
+#define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1015
+#define _APS_NEXT_CONTROL_VALUE         1024
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

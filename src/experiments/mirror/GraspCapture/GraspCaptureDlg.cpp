@@ -11,14 +11,6 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-YARPInputPortOf<MNumData> _data_inport;
-YARPInputPortOf<YARPGenericImage> _img_inport;
-YARPInputPortOf<int> _rep_inport;
-YARPOutputPortOf<MCommands> _cmd_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-int _sizeX;
-int _sizeY;
-char _path[255];
-int _nSeq;
 
 /////////////////////////////////////////////////////////////////////////////
 // CAboutDlg dialog used for App About
@@ -100,6 +92,9 @@ BEGIN_MESSAGE_MAP(CGraspCaptureDlg, CDialog)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_ACQ_START, OnAcqStart)
 	ON_BN_CLICKED(IDC_ACQ_STOP, OnAcqStop)
+	ON_BN_CLICKED(IDC_KILL, OnKill)
+	ON_BN_CLICKED(IDC_OPTIONS, OnOptions)
+	ON_BN_CLICKED(IDC_DEBUG_WND, OnDebugWnd)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -134,18 +129,13 @@ BOOL CGraspCaptureDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
 	// TODO: Add extra initialization here
-	InitMembers();
 	InitDlgMembers();
-	bool ret = false;
-	ret = SetupPorts();
-	if (ret)
-		MessageBox("Ports Registration Successed.", "All done.", MB_ICONINFORMATION);
-	else
+	InitMembers();
+	if (!registerPorts())
 	{
 		MessageBox("Ports Registration Failed.", "Fatal error.",MB_ICONERROR);
 		exit(YARP_FAIL);
 	}
-	MessagesDialog.ShowWindow(SW_HIDE);
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -204,9 +194,17 @@ void CGraspCaptureDlg::InitDlgMembers()
 	TrackerDialog.Create(CLiveTrackerDlg::IDD, this);
 	CameraDialog.Create(CLiveCameraDlg::IDD, this);
 	MessagesDialog.Create(CMessagesDlg::IDD, this);
+	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
+	GetDlgItem(IDC_ACQ_STOP)->EnableWindow(FALSE);
+	GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(FALSE);
+	GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(FALSE);
+	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
+	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
 	bLiveTracker = false;
 	bLiveGlove = false;
 	bLiveCamera = false;
+	bShowDebugWnd = true;
+	MessagesDialog.ShowWindow(SW_RESTORE);
 	m_timerID = NULL;
 }
 
@@ -269,7 +267,7 @@ void CGraspCaptureDlg::OnLiveTracker()
 	{
 		if (m_timerID == NULL)
 		{
-			m_timerID = SetTimer(321, 100, NULL);
+			m_timerID = SetTimer(321, options.refresh, NULL);
 			_ASSERT (m_timerID != 0);
 		}
 		TrackerDialog.ShowWindow(SW_RESTORE);
@@ -286,152 +284,173 @@ void CGraspCaptureDlg::OnLiveTracker()
 
 void CGraspCaptureDlg::InitMembers()
 {
-	_sizeX = 0;
-	_sizeY = 0;
-	reply = -1;
-	outfile = NULL;
-	_nSeq = 0;
+	options.sizeX = 0;
+	options.sizeY = 0;
+	options.useCamera = 0;
+	options.useTracker = 0;
+	options.useDataGlove = 0;
+	options.usePresSens = 0;
+	setupOptions();
+	nSeq = 0;
 }
 
 void CGraspCaptureDlg::OnConnect() 
 {
-	CString logText;
-	MessagesDialog.ShowWindow(SW_RESTORE);
-	logText = "Connecting..\r\nOpening Output file 'data.txt'...";
-	MessagesDialog.m_MessageBox.SetWindowText(logText);
-	outfile = fopen("data.txt","w");
-	if (outfile == NULL)
+	cmd_outport.Content() = CCMDConnect;
+	cmd_outport.Write();
+	rep_inport.Read();
+	int reply;
+	reply = rep_inport.Content();
+	if ( reply != CMD_FAILED)
 	{
-		logText += "\r\nFATAL ERROR: impossible to open output file 'data.txt'.";
-		MessagesDialog.m_MessageBox.SetWindowText(logText);
-		MessageBox("Peripherals connection Failed.", "Error.",MB_ICONERROR);	
-	}
-	else 
-	{
-		logText += " Done.";
-		MessagesDialog.m_MessageBox.SetWindowText(logText);
-		logText += "\r\nSending the Connect command to server...";
-		MessagesDialog.m_MessageBox.SetWindowText(logText);
-		_cmd_outport.Content() = CCMDConnect;
-		_cmd_outport.Write();
-		_rep_inport.Read();
-		reply = _rep_inport.Content();
-		if ( reply == CMD_ACK)
+		logText += "Server Connected.\r\n";
+		options.useDataGlove = reply & HW_DATAGLOVE;
+		options.useTracker = reply & HW_TRACKER;
+		options.usePresSens = reply & HW_PRESSENS;
+		options.useCamera = reply & HW_CAMERA;
+		if (options.useCamera)
 		{
-			_rep_inport.Read();
-			_sizeX = _rep_inport.Content();
-			_rep_inport.Read();
-			_sizeY = _rep_inport.Content();
-			img.Resize (_sizeX, _sizeY);
-			logText += " Done.\r\nPeripherals Connected.";
-			CString logText2;
-			logText2.Format("\r\nImage Size is x = %d y = %d",_sizeX, _sizeY); 
-			logText += logText2;
-			MessagesDialog.m_MessageBox.SetWindowText(logText);
-			MessageBox("Peripherals connection Successed.", "All done.", MB_ICONINFORMATION);
-			MessagesDialog.ShowWindow(SW_HIDE);
+			rep_inport.Read();
+			options.sizeX = rep_inport.Content();
+			rep_inport.Read();
+			options.sizeY = rep_inport.Content();
+			logText += "Image size is ";
+			char dummy[100];
+			ACE_OS::sprintf(dummy,"%d",options.sizeX);
+			logText += dummy;;
+			logText += " X ";
+			ACE_OS::sprintf(dummy,"%d",options.sizeY);
+			logText += dummy;
+			logText += "\r\n";
+			MessageBox("Peripherals connected.", "Connection succeded.");
 		}
-		else
+		prepareDataStructures();
+		saverThread.useCamera = options.useCamera;
+		saverThread.useDataGlove = options.useDataGlove;
+		saverThread.usePresSens = options.usePresSens;
+		saverThread.useTracker = options.useTracker;
+		saverThread.pImg = &(img);
+		saverThread.pData = &(data);
+		saverThread.p_data_inport = &(data_inport);
+		saverThread.p_img_inport = &(img_inport);
+		if (options.useCamera)
 		{
-			logText += " Failed.";
-			MessagesDialog.m_MessageBox.SetWindowText(logText);
-			MessageBox("Peripherals connection Failed.", "Error.",MB_ICONERROR);
-			MessagesDialog.ShowWindow(SW_HIDE);	
-		}	
+			CameraDialog.pImage = &img;
+			CameraDialog.sizeX = options.sizeX;
+			CameraDialog.sizeY = options.sizeY;
+		}
+		GetDlgItem(IDC_CONNECT)->EnableWindow(FALSE);
+		GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
+		GetDlgItem(IDC_KILL)->EnableWindow(FALSE);
+		if(options.useCamera)
+			GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
+		if(options.useDataGlove || options.usePresSens)
+			GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
+		if(options.useTracker)
+			GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(TRUE);
+		GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
 	}
+	else
+	{
+		logText += "Connection Failed\r\n.";
+		MessageBox("Peripherals connection Failed.", "Error.",MB_ICONERROR);
+	}	
+	MessagesDialog.m_MessageBox.SetWindowText(logText);
 }
 
-bool CGraspCaptureDlg::SetupPorts()
+bool CGraspCaptureDlg::registerPorts()
 {
-	CString logText;
-	MessagesDialog.ShowWindow(SW_RESTORE);
+	char portName[255];
+	int ret = 0;
+	
 	// Data port registration
-	logText = "Registering Data port (input)...";
-	MessagesDialog.m_MessageBox.SetWindowText(logText);
-	int ret = 0;	
-	ret = _data_inport.Register("/test/i:str","default");
+	ACE_OS::sprintf(portName,"/%s/i:str", options.portName);
+	ret = data_inport.Register(portName, options.netName);
 	if (ret != YARP_OK)
 	{
-		logText += "\r\nFATAL ERROR: problems registering output port with name '/test/i:str' (see above).\r\n";
-		MessagesDialog.m_MessageBox.SetWindowText(logText);
+		logText += "\r\nFATAL ERROR: problems registering output port with name ";
+		logText += portName;
+		logText += ".\r\n";
 		return false;
 	}
+	logText += "Port :";
+	logText += portName;
+	logText += " registered.\r\n";
 	
-	logText += " Done.\r\n";
-	MessagesDialog.m_MessageBox.SetWindowText(logText);
-
 // Images port registration
-	logText += "Registering Images port (input)...";
-	MessagesDialog.m_MessageBox.SetWindowText(logText);
-	ret = 0;	
-	ret = _img_inport.Register("/test/i:img","default");
+	ACE_OS::sprintf(portName,"/%s/i:img", options.portName);
+	ret = img_inport.Register(portName, options.netName);
 	if (ret != YARP_OK)
 	{
-		logText += "\r\nFATAL ERROR: problems registering output port with name '/test/i:img' (see above).\r\n";
-		MessagesDialog.m_MessageBox.SetWindowText(logText);
+		logText += "\r\nFATAL ERROR: problems registering output port with name ";
+		logText += portName;
+		logText += ".\r\n";
 		return false;
 	}
-	
-	logText += " Done.\r\n";
-	MessagesDialog.m_MessageBox.SetWindowText(logText);
+	logText += "Port :";
+	logText += portName;
+	logText += " registerd.\r\n";
 
 // Commands port registration
-	logText += "Registering Commands port (output)...";
-	MessagesDialog.m_MessageBox.SetWindowText(logText);
-	ret = 0;	
-	ret = _cmd_outport.Register("/test/o:int","default");
+	ACE_OS::sprintf(portName,"/%s/o:int", options.portName);
+	ret =cmd_outport.Register(portName, options.netName);
 	if (ret != YARP_OK)
 	{
-		logText += "\r\nFATAL ERROR: problems registering input port with name '/test/o:int' (see above).";
-		MessagesDialog.m_MessageBox.SetWindowText(logText);
+		logText += "\r\nFATAL ERROR: problems registering output port with name ";
+		logText += portName;
+		logText += ".\r\n";
 		return false;
 	}
-	logText += " Done.\r\n";
-	MessagesDialog.m_MessageBox.SetWindowText(logText);
+	logText += "Port :";
+	logText += portName;
+	logText += " registerd.\r\n";
 
 // Response port registration
-	logText += "Registering Response port (input)...";
-	MessagesDialog.m_MessageBox.SetWindowText(logText);
-	ret = 0;	
-	ret = _rep_inport.Register("/test/i:int", "default");
+	ACE_OS::sprintf(portName,"/%s/i:int", options.portName);
+	ret = rep_inport.Register(portName, options.netName);
 	if (ret != YARP_OK)
 	{
-		logText += "\r\nFATAL ERROR: problems registering output port with name '/test/i:int' (see above).";
-		MessagesDialog.m_MessageBox.SetWindowText(logText);
+		logText += "\r\nFATAL ERROR: problems registering output port with name ";
+		logText += portName;
+		logText += ".\r\n";
 		return false;
 	}
-	logText += " Done.\r\n";
+	logText += "Port :";
+	logText += portName;
+	logText += " registerd.\r\n";
+	
+	system("connect.bat");
+	logText += "Connection between ports established.\r\n";
 	MessagesDialog.m_MessageBox.SetWindowText(logText);
 	return true;
 }
 
 void CGraspCaptureDlg::OnDisconnect() 
 {
-	CString logText;
-	MessagesDialog.ShowWindow(SW_RESTORE);
-	logText = "Closing data file..";
-	MessagesDialog.m_MessageBox.SetWindowText(logText);
-	fclose(outfile);
-	logText += " Done.\r\nSending the Kill command..";
-	MessagesDialog.m_MessageBox.SetWindowText(logText);
-	_cmd_outport.Content() = CCMDQuit;
-	_cmd_outport.Write();
-	_rep_inport.Read();
-	reply = _rep_inport.Content();
+	logText += "Sending the Disconnect command..";
+	cmd_outport.Content() = CCMDDisconnect;
+	cmd_outport.Write();
+	rep_inport.Read();
+	int reply;
+	reply = rep_inport.Content();
 	if ( reply == CMD_ACK)
 	{
-		logText += " Done.";
-		MessagesDialog.m_MessageBox.SetWindowText(logText);
-		MessageBox("Peripherals disconnection Successed.", "All done.", MB_ICONINFORMATION);
-			
+		logText += " Done.\r\n";
 	}	
 	else
 	{
-		logText += " Failed.";
-		MessagesDialog.m_MessageBox.SetWindowText(logText);
+		logText += " Failed.\r\n";
 		MessageBox("Peripherals disconnection Failed.", "Error.",MB_ICONERROR);
+		MessagesDialog.ShowWindow(SW_HIDE);
 	}
-	MessagesDialog.ShowWindow(SW_HIDE);
+	MessagesDialog.m_MessageBox.SetWindowText(logText);
+	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
+	GetDlgItem(IDC_CONNECT)->EnableWindow(TRUE);
+	GetDlgItem(IDC_KILL)->EnableWindow(TRUE);
+	GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(FALSE);
+	GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(FALSE);
+	GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(FALSE);
+	GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
 }
 
 void CGraspCaptureDlg::OnClose() 
@@ -442,28 +461,33 @@ void CGraspCaptureDlg::OnClose()
 		KillTimer (m_timerID);
 // Disconnection 
 // Port releasing
-	_data_inport.Unregister();
-	_img_inport.Unregister();
-	_rep_inport.Unregister();
-	_cmd_outport.Unregister();
+	data_inport.Unregister();
+	img_inport.Unregister();
+	rep_inport.Unregister();
+	cmd_outport.Unregister();
 
 	CDialog::OnClose();
 }
 
 void CGraspCaptureDlg::OnTimer(UINT nIDEvent) 
-{
-	// TODO: Add your message handler code here and/or call default
-// Request for data
-	_cmd_outport.Content() = CCMDGetData;
-	_cmd_outport.Write();
-	_rep_inport.Read();
-	reply = _rep_inport.Content();
+{	
+	cmd_outport.Content() = CCMDGetData;
+	cmd_outport.Write();
+	rep_inport.Read();
+	int reply;
+	reply = rep_inport.Content();
 	if ( reply == CMD_ACK)
 	{
-		_data_inport.Read();
-		_img_inport.Read();
-		data = _data_inport.Content();
-		img.Refer(_img_inport.Content());
+		if ( options.useDataGlove || options.useTracker || options.usePresSens)
+		{
+			data_inport.Read();
+			data = data_inport.Content();
+		}
+		if (options.useCamera)
+		{
+			img_inport.Read();
+			img.Refer(img_inport.Content());
+		}
 	}	
 	else
 	{
@@ -501,49 +525,218 @@ void CGraspCaptureDlg::OnAcqStart()
 		OnLiveGlove();
 	if (bLiveTracker)
 		OnLiveTracker();
+	GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(FALSE);
+	GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(FALSE);
+	GetDlgItem(IDC_DISCONNECT)->EnableWindow(FALSE);
+	GetDlgItem(IDC_QUIT)->EnableWindow(FALSE);
+	GetDlgItem(IDC_OPTIONS)->EnableWindow(FALSE);
 
 	CFileFind finder;
 
-	BOOL bFound;
-	do 
-	{
-		_nSeq++;
-		sprintf(_path,"D:\\Mirror\\sequences\\seq%03d", _nSeq);
-		bFound = finder.FindFile(_path);
-	} while (bFound);
 	
-	int Ret;
-	Ret = _tmkdir(_path);
-	if (Ret != 0)
+	char fName[255];
+	
+	saverThread.pFile = NULL;
+	ACE_OS::sprintf(saverThread.prefix, "%s\\%s%03d",options.savePath, options.prefix, nSeq);
+	logText += "Saving data to the path ";
+	logText += options.savePath;
+	logText += " with prefix ";
+	logText += saverThread.prefix;
+	logText += "\r\n";
+	if ( options.useDataGlove || options.useTracker || options.usePresSens)
 	{
-		MessageBox("Impossible to create destination directory.", "Error.", MB_ICONERROR);
-		return;
+		
+		ACE_OS::sprintf(fName, "%s.csv",saverThread.prefix);
+		saverThread.pFile = fopen(fName,"w");
+		if (saverThread.pFile == NULL)
+		{
+			logText += "ERROR: Impossible to open output file.\r\n";
+			MessagesDialog.m_MessageBox.SetWindowText(logText);
+			MessageBox("Impossible to open output file.", "Error.", MB_ICONERROR);
+			GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
+			GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
+			GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
+			GetDlgItem(IDC_QUIT)->EnableWindow(TRUE);
+			GetDlgItem(IDC_OPTIONS)->EnableWindow(TRUE);
+			return;
+		}
+		saverThread.writeHeaderToFile();
+		logText += "Saving data to file ";
+		logText += fName;
+		logText += "\r\n";
 	}
-	//cout << endl << "Starting streaming mode..";
-	_cmd_outport.Content() = CCMDStartStreaming;
-	_cmd_outport.Write();
-	_rep_inport.Read();
-	reply = _rep_inport.Content();
+
+	cleanDataStructures();
+
+	cmd_outport.Content() = CCMDStartStreaming;
+	cmd_outport.Write();
+	rep_inport.Read();
+	int reply;
+	reply = rep_inport.Content();
 	if ( reply == CMD_ACK)
 	{
+		logText += "Saving Thread started.\r\n";
+		GetDlgItem(IDC_ACQ_START)->EnableWindow(FALSE);
+		GetDlgItem(IDC_ACQ_STOP)->EnableWindow(TRUE);
+		//saverThread.
 		saverThread.Begin();
-		//cout << " Done." << endl;
 	}
 	else
-		MessageBox("Impossible to start saving thread.", "Error.", MB_ICONERROR);	
+	{
+		logText += "ERROR: Failed to start Thread.\r\n";
+		MessageBox("Impossible to start saving thread.", "Error.", MB_ICONERROR);
+		GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
+		GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
+		GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
+		GetDlgItem(IDC_QUIT)->EnableWindow(TRUE);
+		GetDlgItem(IDC_OPTIONS)->EnableWindow(TRUE);
+	}
+	MessagesDialog.m_MessageBox.SetWindowText(logText);
 }
 
 void CGraspCaptureDlg::OnAcqStop() 
 {
-	//cout << endl << "Stopping streaming mode..";
-	_cmd_outport.Content() = CCMDStopStreaming;
-	_cmd_outport.Write();
+	cmd_outport.Content() = CCMDStopStreaming;
+	cmd_outport.Write();
+	saverThread.End();
+
+	if (saverThread.pFile != NULL)
+		fclose(saverThread.pFile);
+	int reply;
+	reply = rep_inport.Content();
+	if ( reply != CMD_ACK)
+		MessageBox("Problems stopping saving thread.", "Error.", MB_ICONERROR);
+	nSeq++;
+	GetDlgItem(IDC_ACQ_START)->EnableWindow(TRUE);
+	GetDlgItem(IDC_ACQ_STOP)->EnableWindow(FALSE);
+	GetDlgItem(IDC_DISCONNECT)->EnableWindow(TRUE);
+	GetDlgItem(IDC_QUIT)->EnableWindow(TRUE);
+	GetDlgItem(IDC_OPTIONS)->EnableWindow(TRUE);
+	if (options.useCamera)
+		GetDlgItem(IDC_LIVE_CAMERA)->EnableWindow(TRUE);
+	if (options.useDataGlove || options.usePresSens)
+		GetDlgItem(IDC_LIVE_GLOVE)->EnableWindow(TRUE);
+	if (options.useTracker)
+		GetDlgItem(IDC_LIVE_TRACKER)->EnableWindow(TRUE);
+	logText += "Saving Thread stopped.\r\n";
+	logText += "Sequence n.";
+	char dummy[100];
+	ACE_OS::sprintf(dummy,"%d",nSeq);
+	logText += dummy;
+	logText += " saved (";
+	ACE_OS::sprintf(dummy,"%d",saverThread.getSavedFramesN());
+	logText += dummy;
+	logText += " frames).\r\n";
+	MessagesDialog.m_MessageBox.SetWindowText(logText);
+}
+
+
+
+void CGraspCaptureDlg::prepareDataStructures(void)
+{
+	img.Resize (options.sizeX, options.sizeY);
+}
+
+void CGraspCaptureDlg::cleanDataStructures(void)
+{
+// Pressure Sensors
+	data.pressure.channelA = 0;
+	data.pressure.channelB = 0;
+	data.pressure.channelC = 0;
+	data.pressure.channelD = 0;
+// Tracker
+	data.tracker.x = 0.0;
+	data.tracker.y = 0.0;
+	data.tracker.z = 0.0;
+	data.tracker.azimuth = 0.0;
+	data.tracker.elevation = 0.0;
+	data.tracker.roll = 0.0;
+// DataGlove
+	data.glove.thumb[0] = 0;	// inner
+	data.glove.thumb[1] = 0;	// middle
+	data.glove.thumb[2] = 0;	// outer
+	data.glove.index[0] = 0;	// inner
+	data.glove.index[1] = 0;	// middle
+	data.glove.index[2] = 0;	// outer
+	data.glove.middle[0] = 0;	// inner
+	data.glove.middle[1] = 0;	// middle
+	data.glove.middle[2] = 0;	// outer
+	data.glove.ring[0] = 0;	// inner
+	data.glove.ring[1] = 0;	// middle
+	data.glove.ring[2] = 0;	// outer
+	data.glove.pinkie[0] = 0;	// inner
+	data.glove.pinkie[1] = 0;	// middle
+	data.glove.pinkie[2] = 0;	// outer
+	data.glove.abduction[0] = 0; // thumb-index
+	data.glove.abduction[1] = 0; // index-middle
+	data.glove.abduction[2] = 0; // middle-ring
+	data.glove.abduction[3] = 0; // ring-pinkie
+	data.glove.abduction[4] = 0; // palm
+	data.glove.palmArch = 0;
+	data.glove.wrist[0] = 0; // pitch
+	data.glove.wrist[1] = 0; // yaw
+
+	img.Zero();
+}
+
+void CGraspCaptureDlg::unregisterPorts()
+{
+	cmd_outport.Unregister();
+	rep_inport.Unregister();
+	data_inport.Unregister();
+	img_inport.Unregister();
+}
+
+void CGraspCaptureDlg::OnKill() 
+{
+	logText += "Sending the KILL command..";
+	
+	cmd_outport.Content() = CCMDQuit;
+	cmd_outport.Write();
+	rep_inport.Read();
+	int reply;
+	reply = rep_inport.Content();
 	if ( reply == CMD_ACK)
 	{
-		saverThread.End();
-		//cout << " Done." << endl;
+		logText += " Done.";
+	}	
+	else
+	{
+		logText += " Failed.";
+		MessageBox("Problems killing the server.", "Error.", MB_ICONERROR);
+	}
+	MessagesDialog.m_MessageBox.SetWindowText(logText);
+	OnOK();
+}
+
+void CGraspCaptureDlg::OnOptions() 
+{
+	BOOL ret;
+	ret = OptionsDialog.DoModal();
+	// controllare il valore di ritorno;
+	if (ret)
+		setupOptions();
+}
+
+void CGraspCaptureDlg::setupOptions()
+{
+	ACE_OS::strcpy(options.netName,(LPCSTR)(OptionsDialog.m_NetName) );
+	ACE_OS::strcpy(options.portName,(LPCSTR)(OptionsDialog.m_PortName) );
+	ACE_OS::strcpy(options.prefix,(LPCSTR)(OptionsDialog.m_Prefix) );
+	ACE_OS::strcpy(options.savePath,(LPCSTR)(OptionsDialog.m_SavePath) );
+	options.refresh = OptionsDialog.m_RefreshTime;
+}
+
+void CGraspCaptureDlg::OnDebugWnd() 
+{
+	if 	(bShowDebugWnd)
+	{
+		bShowDebugWnd = false;
+		MessagesDialog.ShowWindow(SW_HIDE);
 	}
 	else
-		MessageBox("Impossible to stop saving thread.", "Error.", MB_ICONERROR);
-	
+	{
+		bShowDebugWnd = true;
+		MessagesDialog.ShowWindow(SW_RESTORE);
+	}	
 }

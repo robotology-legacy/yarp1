@@ -12,8 +12,6 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 #define _BORDER 10
-extern int _sizeX;
-extern int _sizeY;
 
 /////////////////////////////////////////////////////////////////////////////
 // CLiveCameraDlg dialog
@@ -25,7 +23,9 @@ CLiveCameraDlg::CLiveCameraDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CLiveCameraDlg)
 		// NOTE: the ClassWizard will add member initialization here
 	pImage = NULL;
-	m_drawdib = DrawDibOpen();
+	m_drawdib = DrawDibOpen (); 
+	ASSERT (m_drawdib != NULL);
+	//m_drawdib = DrawDibOpen();
 	//}}AFX_DATA_INIT
 }
 
@@ -52,15 +52,17 @@ END_MESSAGE_MAP()
 void CLiveCameraDlg::OnPaint() 
 {
 	CPaintDC dc(this); // device context for painting
-	if ( pImage != NULL)
+	if (( pImage != NULL) && (sizeX != 0) && (sizeY != 0) )
 	{
 		GetClientRect (&m_rect);
-		double zoomX = double(m_rect.Width() - 2 * _BORDER) / double(_sizeX);
-		double zoomY = double(m_rect.Height() - 2 * _BORDER) / double(_sizeY);
-		unsigned char *dib = (unsigned char*)m_converter.ConvertAndFlipToDIB(*pImage);
-		
-		CopyToScreen(m_drawdib, dc.GetSafeHdc(), dib, _BORDER, _BORDER, zoomX, zoomY);
+		double zoomX;
+		double zoomY;
 
+		zoomX= double(m_rect.Width() - 2 * _BORDER) / double(sizeX);
+		zoomY = double(m_rect.Height() - 2 * _BORDER) / double(sizeY);
+		unsigned char *dib = (unsigned char*)m_converter.ConvertAndFlipToDIB(*pImage);
+		CopyToScreen(m_drawdib, dc.GetSafeHdc(), dib, _BORDER, _BORDER, zoomX, zoomY);
+		
 	}
 	// Do not call CDialog::OnPaint() for painting messages
 }
@@ -103,9 +105,9 @@ void CLiveCameraDlg::CopyToScreen(HDRAWDIB hDD, HDC hDC, unsigned char *img, int
 	}
 }
 
-void CLiveCameraDlg::UpdateState(YARPGenericImage *img)
+void CLiveCameraDlg::UpdateState(YARPGenericImage *p_img)
 {
-	pImage = img;
+	pImage = p_img;
 	GetClientRect (&m_rect);
 	InvalidateRect (m_rect, FALSE);
 }

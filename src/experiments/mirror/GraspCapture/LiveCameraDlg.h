@@ -7,6 +7,8 @@
 // LiveCameraDlg.h : header file
 //
 
+#include "DIBConverter.h"
+
 /////////////////////////////////////////////////////////////////////////////
 // CLiveCameraDlg dialog
 
@@ -40,6 +42,8 @@ protected:
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 public:
+	int sizeY;
+	int sizeX;
 	void UpdateState(YARPGenericImage *img);
 	void CopyToScreen(HDRAWDIB hDD, HDC hDC, unsigned char *img, int destX, int destY, double zoomX, double zoomY);
 	YARPDIBConverter m_converter;
