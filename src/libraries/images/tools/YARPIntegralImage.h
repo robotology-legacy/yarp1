@@ -61,7 +61,7 @@
 ///
 
 ///
-/// &Id$
+/// $Id: YARPIntegralImage.h,v 1.2 2003-08-10 14:56:56 natta Exp $
 ///
 /// August 2003 -- by nat
 

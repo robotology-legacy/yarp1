@@ -61,7 +61,7 @@
 ///
 
 ///
-/// &Id$
+/// $Id: YARPBlobDetector.h,v 1.2 2003-08-10 14:56:56 natta Exp $
 ///
 /// August 2003 -- by nat
 
@@ -82,6 +82,16 @@ class YARPBlobDetector
 public:
 	YARPBlobDetector(unsigned char thr = 20);
 	~YARPBlobDetector();
+
+	void Apply(YARPImageOf<YarpPixelMono> &in)
+	{
+		filter(in);
+	}
+
+	void ApplyLp(YARPImageOf<YarpPixelMono> &in)
+	{
+		filterLp(in);
+	}
 
 	void filter(YARPImageOf<YarpPixelMono> &in);
 	void filterLp(YARPImageOf<YarpPixelMono> &in);
