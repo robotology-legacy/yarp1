@@ -15,7 +15,8 @@ _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
 _outPixelPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
 _handStatusPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
 _inPixelCoord(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
-_segmentedImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
+_segmentedImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
+_blobDetector(5.0)
 {
 	_inPort.Register((portName+"/i:img").c_str());
 	_outPort.Register((portName+"/o:img").c_str());
@@ -33,7 +34,7 @@ _segmentedImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 	_background.Resize(_stheta, _srho);
 	_background.Zero();
 
-	_blobDetector.resize(_xsize,_ysize);
+	_blobDetector.resize(_stheta,_srho, _sfovea);
 	_detectedCart.Resize(_xsize, _ysize);
 	_detectedCartGrayscale.Resize(_xsize, _ysize);
 
@@ -91,8 +92,8 @@ void FindHand::Body()
 	_actualLp.Refer (_inPort.Content());
 
 	// reconstruct color
-	_mapper.ReconstructColor (_actualLp, _actualColored);
-	iplColorToGray(_actualColored, _actualGrayscale);
+	_mapper.ReconstructGrays (_actualLp, _actualGrayscale); //Colored);
+	// iplColorToGray(_actualColored, _actualGrayscale);
 	// iplSubtract(_actualGrayscale, _background, _motion);
 	// iplAbs(_motion, _motion);
 	
@@ -135,24 +136,36 @@ void FindHand::Body()
 }
 void FindHand::_segmentation()
 {
-	_mapper.ReconstructColor(_detected, _detectedColored);
-	_mapper.Logpolar2Cartesian(_detectedColored, _detectedCart);
+//	YARPImageFile::Write("y:\\hand.ppm",_detected);
+	// _mapper.ReconstructColor(_detected, _detectedColored);
+	// _mapper.Logpolar2Cartesian(_detectedColored, _detectedCart);
 	// YARPColorConverter::RGB2Grayscale(_detectedCart, _detectedCartGrayscale);
-	iplColorToGray(_detectedCart, _detectedCartGrayscale);
-	_blobDetector.filter(_detectedCartGrayscale);
+	// iplColorToGray(_detectedCart, _detectedCartGrayscale);
+	_blobDetector.filterLp(_detected);
+	YARPImageFile::Write("y:\\zgarbage\\detected.ppm", _detected);
 	YARPImageOf<YarpPixelMono> &tmp = _blobDetector.getSegmented();
-	// YARPImageFile::Write("y:\\debug.ppm", tmp);
-	
+	YARPImageFile::Write("y:\\zgarbage\\segmented.ppm", tmp);
+	/*
 	int rho;
 	int theta;
 	for(rho = 0; rho<_srho; rho++)
 		for(theta = 0; theta<_stheta; theta++)
 		{
 			int x,y;
-			_mapper.Logpolar2Cartesian(theta, rho, x, y);
+			_mapper.Logpolar2Cartesian(rho, theta, x, y);
 			if ( (x >=0 ) && (y >= 0) )
 				if (tmp(x,y) < 255)
 					_actualLp(theta, rho) = 0;
+		}
+		*/
+	
+	int rho;
+	int theta;
+	for(rho = 0; rho<_srho; rho++)
+		for(theta = 0; theta<_stheta; theta++)
+		{
+			if (tmp(theta, rho) < 255)
+				_actualLp(theta, rho) = 255;//0;
 		}
 }
 

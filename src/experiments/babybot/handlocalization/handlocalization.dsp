@@ -111,6 +111,14 @@ SOURCE=.\hlbehavior.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\HandColorTracker\YARPBlobDetector.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\HandColorTracker\YARPIntegralImage.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\zerocrossing.cpp
 # End Source File
 # End Group
@@ -124,6 +132,14 @@ SOURCE=.\findhand.h
 # Begin Source File
 
 SOURCE=.\hlbehavior.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\HandColorTracker\YARPBlobDetector.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\HandColorTracker\YARPIntegralImage.h
 # End Source File
 # Begin Source File
 

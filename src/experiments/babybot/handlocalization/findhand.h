@@ -5,7 +5,7 @@
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
 #include <YARPImages.h>
-#include "..\HandColorTracker\YARPBlobDetector.h"
+#include <YARPBlobDetector.h>
 #include <YARPSemaphore.h>
 #include "zerocrossing.h"
 
