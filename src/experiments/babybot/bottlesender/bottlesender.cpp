@@ -18,6 +18,7 @@ void _fillTable()
 	// global commands
 	REG_CMD(addYVector, "YVector", "put an YVector into the bottle");
 	REG_CMD(addYVocab, "YBVocab", "put an YBVocab into the bottle");
+	REG_CMD(addID, "ID", "set bottle id");
 	REG_CMD(addText, "Text", "put an text string into the bottle");
 	REG_CMD(addInt, "Int", "put an integer into the bottle");
 	REG_CMD(addFloat, "Float", "put a float into the bottle");

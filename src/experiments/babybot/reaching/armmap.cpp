@@ -25,9 +25,15 @@ _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 	_command.Resize(__nJointsArm);
 	_prepare.Resize(__nJointsArm);
 
-	_prepare = 0;
-	_prepare(1) = 8*degToRad;
-	_prepare(4) = -70*degToRad;
+	_prepare = YVector(__nJointsArm, __preparePosition);
+
+	_trajectoryLength = __trajectoryLength;
+	_trajectory = new YVector[_trajectoryLength];
+	for(int i = 0; i<_trajectoryLength; i++)
+	{
+		_trajectory[i].Resize(__nJointsArm);
+		_trajectory[i] = 0.0;
+	}
 	
 	_nUpdated = 0;
 	_mode = reaching;
@@ -41,22 +47,25 @@ ArmMap::~ArmMap()
 void ArmMap::query(const YVector &head)
 {
 	_headKinematics.update(head);
-	const Y3DVector &cart = _headKinematics.fixation();
-	
+	const Y3DVector &cart = _headKinematics.fixationPolar();
+	Y3DVector tmp;
+	tmp = cart;
+	tmp(1) = tmp(1) + __azimuthOffset;
+	tmp(2) = tmp(2) + __elevationOffset;
+	tmp(3) = tmp(3) + __distanceOffset;
+
+
 	if (_mode == atnr)
 		_command = _atr.query(head) + _noise.query();
 	else if (_mode == learning)
 	{
-		_nnet.sim(cart.data(), _command.data());
+		_nnet.sim(tmp.data(), _command.data());
 		_command = _command + _noise.query();
 	}
 	else
 	{
-		_nnet.sim(cart.data(), _command.data());
-		_command(1) = _command(1) + 10*degToRad;
-		_command(4) = -90*degToRad;
-		_command(5) = 0;
-		_command(6) = -90*degToRad;
+		_nnet.sim(tmp.data(), _command.data());
+		_formTrajectory(_command);
 	}
 }
 
@@ -67,7 +76,7 @@ void ArmMap::learn(const YVector &head, const YVector &arm)
 	_bottle.reset();
 		
 	_headKinematics.update(head);
-	const Y3DVector &cart = _headKinematics.fixation();
+	const Y3DVector &cart = _headKinematics.fixationPolar();
 
 	/////////// prepare data
 	// first three elements are cart position
@@ -95,4 +104,35 @@ void ArmMap::OnRead(void)
 	if (_mode == atnr)
 		_mode = learning;
 	ACE_OS::printf("..done!\n");
+}
+
+
+void ArmMap::_formTrajectory(const YVector &cmd)
+{
+	// first move
+	_trajectory[0] = _command;
+	_trajectory[0](1) = _command(1)+__shoulderOffset1;
+	_trajectory[0](4) = __wrist1;
+	_trajectory[0](5) = __wrist2;
+	_trajectory[0](6) = __wrist3;
+
+	// actual reaching
+	_trajectory[1] = _command;
+	_trajectory[1](1) = _command(1) +__shoulderOffset2;
+	_trajectory[1](4) = __wrist1;
+	_trajectory[1](5) = __wrist2;
+	_trajectory[1](6) = __wrist3;
+
+	// go back
+	_trajectory[2] = _trajectory[0];
+}
+
+const YVector &ArmMap::getCommand(int index)
+{
+	if (index < 0)
+		index = 0;
+	else if (index>_trajectoryLength)
+		index = _trajectoryLength;
+	
+	return _trajectory[index];
 }

@@ -1,6 +1,6 @@
 #include "reachingBehavior.h"
 
-const char *__nnetFile1 = "reaching1.ini";
+const char *__nnetFile1 = "reaching.ini";
 
 ABSharedData::ABSharedData():
 _map(__nnetFile1),
@@ -69,16 +69,15 @@ void RBOutputCommand::output(ABSharedData *d)
 	{
 		cout << "Check head connection\n";
 	}
-
 }
 
-void RBOutputReaching::output(ABSharedData *d)
+void RBOutputReaching1::output(ABSharedData *d)
 {
 	_bottle.reset();
 	_bottle.setID(YBVMotorLabel);
 	_bottle.writeVocab(YBVArmNewCmd);
 
-	const YVector& cmd = d->_map.reachingCmd();
+	const YVector& cmd = d->_map.getCommand(0);
 
 	_bottle.writeYVector(cmd);
 	d->_outPort.Content() = _bottle;
@@ -86,6 +85,33 @@ void RBOutputReaching::output(ABSharedData *d)
 	
 }
 
+void RBOutputReaching2::output(ABSharedData *d)
+{
+	_bottle.reset();
+	_bottle.setID(YBVMotorLabel);
+	_bottle.writeVocab(YBVArmNewCmd);
+
+	const YVector& cmd = d->_map.getCommand(1);
+
+	_bottle.writeYVector(cmd);
+	d->_outPort.Content() = _bottle;
+	d->_outPort.Write(1);
+	
+}
+
+void RBOutputReaching3::output(ABSharedData *d)
+{
+	_bottle.reset();
+	_bottle.setID(YBVMotorLabel);
+	_bottle.writeVocab(YBVArmNewCmd);
+
+	const YVector& cmd = d->_map.getCommand(2);
+
+	_bottle.writeYVector(cmd);
+	d->_outPort.Content() = _bottle;
+	d->_outPort.Write(1);
+	
+}
 void RBSimpleOutput::output(ABSharedData *d)
 {
 	_bottle.reset();
@@ -108,4 +134,16 @@ void RBOutputBack::output(ABSharedData *d)
 	d->_outPort.Content() = _bottle;
 	d->_outPort.Write(1);
 	
+}
+
+void RBHandClose::output(ABSharedData *d)
+{
+	d->_outPort.Content() = _bottle;
+	d->_outPort.Write(1);
+}
+
+void RBHandOpen::output(ABSharedData *d)
+{
+	d->_outPort.Content() = _bottle;
+	d->_outPort.Write(1);
 }

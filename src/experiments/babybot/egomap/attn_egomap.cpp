@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_egomap.cpp,v 1.9 2004-05-21 14:29:29 babybot Exp $
+/// $Id: attn_egomap.cpp,v 1.10 2004-07-21 12:36:53 babybot Exp $
 ///
 ///
 
@@ -215,7 +215,10 @@ public:
 			YVector tmp(3);
 			// _gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT_PERI, tmp, 128, 128);
 			_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT_PERI, el, az, 128, 128);
-			printf("Elevation:%lf\tAzimuth:%lf\n", el*180/PI, az*180/PI);
+			const Y3DVector &fixation = _gaze.fixationPolar();
+			
+			printf("Azimuth:%.2lf\tElevation:%.2lf\tDistance %.2lf\n", 
+								fixation(1)*180/PI, fixation(2)*180/PI, fixation(3));
 			// printf("%lf\t%lf\t%lf\n", tmp(1), tmp(2), tmp(3));
 			
 		_unlock();

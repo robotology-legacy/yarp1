@@ -133,4 +133,7 @@ const char *const YBVSaccadeSetTarget = "SaccadeSetTarget";
 const char *const YBVSaccadeNewTarget = "SaccadeNewTarget";
 const char *const YBVSaccadeFixated = "SaccadeFixated";
 
+// misc
+const char *const YBVCollectPoints = "CollectPoints";
+
 #endif

@@ -1,5 +1,6 @@
 // reaching.cpp : Defines the entry point for the console application.
 //
+// #define __INHIBITGRASPING__
 
 #include <YARPPort.h>
 #include <YARPBottle.h>
@@ -28,19 +29,30 @@ int main(int argc, char* argv[])
 	RBWaitDeltaT reachingSeq1("Waiting for arm done (prepare reaching)", 0.5);
 	RBWaitIdle reachingSeq2("AS state, inhibit head");
 	RBWaitIdle reachingSeq2b("AS state issue reaching command");
-	RBWaitIdle reachingSeq3("Waiting for arm done (actually reaching)");
-	RBWaitDeltaT reachingSeq4("AS state, issue withdraw arm", 3);
+	
+	RBWaitIdle reachingSeq31("Waiting for arm done (actually reaching1)");
+	RBWaitIdle reachingSeq32("Waiting for arm done (actually reaching2)");
+	RBWaitIdle reachingSeq33("Waiting for arm done (actually reaching3)");
+	
+	RBWaitDeltaT waitDeltaT1("AS state, wait some time", 0.5);
+	RBWaitDeltaT reachingSeq4("AS state, issue withdraw arm", 0.5);
 	RBWaitIdle reachingSeq5("Waiting for arm done (withdrawing arm)");
+	RBWaitIdle reachingSeq6("Open hand");
 
 	RBOutputCommand			reachingPrepareOutput;
-	RBOutputReaching		reachingOutput;
+	RBHandClose				handClose;
+	RBOutputReaching1		reachingOutput1;
+	RBOutputReaching2		reachingOutput2;
+	RBOutputReaching3		reachingOutput3;
 	RBOutputBack			reachingBack;
 	RBLearnOutputCommand	learnOutput;
 	RBInputCommand			learnInput(YBVReachingLearn);
 	RBInputCommand			armDone(YBVArmDone);
+	RBInputCommand			handDone(YBVHandDone);
 	RBInputCommand			reachingInput(YBVReachingReach);
 	RBSimpleOutput			inhibitHead(YBVSinkSuppress);
 	RBSimpleOutput			enableHead(YBVSinkRelease);
+	RBHandOpen				openHand;
 	RBInputCommand			armRest(YBVArmRest);
 	RBInputCommand			armIsBusy(YBVArmIsBusy);
 
@@ -54,16 +66,31 @@ int main(int argc, char* argv[])
 	_behavior.add(&armDone, &reachingSeq1, &reachingSeq2);
 	_behavior.add(&armIsBusy, &reachingSeq1, &waitIdle, &enableHead);
 	_behavior.add(&armRest, &reachingSeq1, &waitIdle, &enableHead);
-
+	
 	_behavior.add(NULL, &reachingSeq2, &reachingSeq2b, &inhibitHead);
-	_behavior.add(NULL, &reachingSeq2b, &reachingSeq3, &reachingOutput);
-	_behavior.add(&armDone, &reachingSeq3, &reachingSeq4);
-	_behavior.add(&armIsBusy, &reachingSeq3, &waitIdle, &enableHead);
-	_behavior.add(&armRest, &reachingSeq3, &waitIdle, &enableHead);
-	_behavior.add(NULL, &reachingSeq4, &reachingSeq5, &reachingBack);
-	_behavior.add(&armDone, &reachingSeq5, &waitIdle, &enableHead);
+	_behavior.add(NULL, &reachingSeq2b, &reachingSeq31, &reachingOutput1);
+	_behavior.add(&armDone, &reachingSeq31, &reachingSeq32, &reachingOutput2);
+	_behavior.add(&armIsBusy, &reachingSeq31, &waitIdle, &enableHead);
+	
+	_behavior.add(&armDone, &reachingSeq32, &waitDeltaT1, &handClose);
+	_behavior.add(&armIsBusy, &reachingSeq32, &waitIdle, &enableHead);
+	// wait
+	_behavior.add(&handDone, &waitDeltaT1, &reachingSeq33, &reachingOutput3);
+	_behavior.add(&armDone, &reachingSeq33, &reachingSeq5, &reachingBack);
+	_behavior.add(&armIsBusy, &reachingSeq33, &waitIdle, &enableHead);
+
+
+	// _behavior.add(&armIsBusy, &reachingSeq3, &waitIdle, &enableHead);
+	// _behavior.add(&armRest, &reachingSeq3, &waitIdle, &enableHead);
+	// _behavior.add(NULL, &reachingSeq4, &reachingSeq5, &reachingBack);
+	
+	_behavior.add(&armDone, &reachingSeq5, &reachingSeq6, &openHand);
+	_behavior.add(NULL, &reachingSeq6, &waitIdle, &enableHead);
+
 	_behavior.add(&armIsBusy, &reachingSeq5, &waitIdle, &enableHead);
-	_behavior.add(&armRest, &reachingSeq3, &waitIdle, &enableHead);
+	_behavior.add(&armRest, &reachingSeq31, &waitIdle, &enableHead);
+	_behavior.add(&armRest, &reachingSeq32, &waitIdle, &enableHead);
+	_behavior.add(&armRest, &reachingSeq33, &waitIdle, &enableHead);
 
 	_behavior.Begin();
 	_behavior.loop();

@@ -35,6 +35,21 @@ bool addYVocab(YARPBottle &bottle)
 	return true;
 }
 
+bool addID(YARPBottle &bottle)
+{
+	YBVocab tmp;
+	YARPString tmpString;
+
+	cout << "Adding a YBVocab\n";
+	cout << "Type label (you may have to check YARPVocab.h): ";
+	cin >> tmpString;
+	tmp = tmpString;
+
+	bottle.setID(tmp);
+	return true;
+
+}
+
 bool display(YARPBottle &bottle)
 {
 	cout << "Current bottle is: ";

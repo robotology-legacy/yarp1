@@ -16,11 +16,7 @@ public:
 	RndSharedData(): YARPBehaviorSharedData("/armrandom/behavior/o", YBVMotorLabel)
 	{
 		char *root = GetYarpRoot();
-#if defined(__QNXEurobot__)
-		ACE_OS::sprintf (_iniFile, "%s/conf/eurobot/arm.ini\0", root);
-#else
-		ACE_OS::sprintf (_iniFile, "%s/conf/babybot/arm.ini\0", root);
-#endif
+		ACE_OS::sprintf (_iniFile, "%s/%sarm.ini\0", root, ConfigFilePath);
 
 		YARPConfigFile file;
 		file.set("", _iniFile);

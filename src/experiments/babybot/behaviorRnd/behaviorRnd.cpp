@@ -63,6 +63,7 @@ int main(int argc, char* argv[])
 	_rnd.add(&rest, &initMotion, &waitRest, &resetRnd);
 	_rnd.add(&rest, &waitMotion, &waitRest, &resetRnd);
 	_rnd.add(&stop, &waitMotion, &stopped);
+	_rnd.add(&armBusy, &waitMotion, &waitRest, &resetRnd);
 	_rnd.add(&armStarted, &initMotion, &waitMotion);
 	_rnd.add(&armBusy, &initMotion, &waitRest, &resetRnd);
 

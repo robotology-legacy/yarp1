@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: checkFixation.cpp,v 1.2 2004-07-13 13:31:27 babybot Exp $
+/// $Id: checkFixation.cpp,v 1.3 2004-07-21 12:36:53 babybot Exp $
 ///
 ///
 
@@ -100,6 +100,9 @@ public:
 	OutputBottlePort(): YARPRateThread("whatevername", 5000)
 	{
 		_currentState = low; 
+
+		_bottle.setID(YBVMotorLabel);
+		_bottle.writeVocab(YBVSaccadeFixated);
 	}
 
 	void Register (const char *portName, const char *net)
@@ -131,14 +134,14 @@ public:
 	void send()
 	{
 		ACE_OS::printf("\n**** Fixated! (sending bottle) ****\n");
-		_outPort.Content().setID(YBVMotorLabel);
-		_outPort.Content().writeVocab(YBVSaccadeFixated);
+		_outPort.Content() = _bottle;
 		_outPort.Write();
 	}
 
 
 private:
 	YARPOutputPortOf<YARPBottle> _outPort;
+	YARPBottle _bottle;
 	__State _currentState;
 };
 

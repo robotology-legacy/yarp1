@@ -16,13 +16,18 @@ int main(int argc, char* argv[])
 	TBSimpleInput	checkArmRest(YBVArmRest);
 	TBSimpleInput	checkArmRestDone(YBVArmRestDone);
 	TBSimpleInput	checkArmNewCmd(YBVArmIssuedCmd);
+	TBSimpleInput	forceDump(YBVCollectPoints);
 
 	TBIsTargetCentered checkTarget;
 	TBOutput output("");
 
 	TriggerBehavior _behavior(&_data);
 
-	_behavior.setInitialState(&waitArm);
+	_behavior.setInitialState(&waitTarget);
+	_behavior.add(&forceDump, &waitTarget, &waitTarget, &output);
+	_behavior.add(NULL, &waitTarget, &waitTarget);
+
+/*	_behavior.setInitialState(&waitArm);
 	_behavior.add(&checkArmRest, &waitArm, &waitArmRest);
 	_behavior.add(&checkArmNewCmd, &waitArm, &waitArmDone);
 	_behavior.add(&checkArmDone, &waitArmDone, &waitTarget);
@@ -31,8 +36,7 @@ int main(int argc, char* argv[])
 	_behavior.add(&checkTarget, &waitTarget, &waitArm, &output);
 	_behavior.add(NULL, &waitTarget, &waitTarget);
 
-	_behavior.add(&checkArmRestDone, &waitArmRest, &waitArm);
-
+	_behavior.add(&checkArmRestDone, &waitArmRest, &waitArm);*/
 	_behavior.Begin();
 	_behavior.loop();
 

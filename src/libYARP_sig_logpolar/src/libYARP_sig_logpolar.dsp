@@ -1,7 +1,6 @@
 # Microsoft Developer Studio Project File - Name="libYARP_sig_logpolar" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** foo **
-
+# ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
@@ -20,13 +19,13 @@ CFG=libYARP_sig_logpolar - Win32 Debug
 !MESSAGE 
 !MESSAGE "libYARP_sig_logpolar - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE "libYARP_sig_logpolar - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE 
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
-MTL=midl.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "libYARP_sig_logpolar - Win32 Release"
@@ -41,6 +40,7 @@ RSC=rc.exe
 # PROP Output_Dir "..\obj\winnt"
 # PROP Intermediate_Dir "..\obj\winnt\release"
 # PROP Target_Dir ""
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I "../include" /I "../../../include" /I "../../../include/winnt" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
@@ -65,6 +65,7 @@ LIB32=link.exe -lib
 # PROP Output_Dir "..\obj\winnt"
 # PROP Intermediate_Dir "..\obj\winnt\debug"
 # PROP Target_Dir ""
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../include" /I "../../../include/winnt" /I "../../libYARP_OS/include" /I "../../libYARP_sig/include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -86,16 +87,38 @@ LIB32=link.exe -lib
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
 
+SOURCE=.\Acquisition.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\AuxFunctions.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\LogPolarSDK.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Mosaic.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TableGeneration.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TableLoading.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\TestFunctions.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPLogpolar.cpp
 # End Source File
-
 # End Group
 # End Target
 # End Project

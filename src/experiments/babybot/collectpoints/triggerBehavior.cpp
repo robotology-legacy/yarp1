@@ -117,7 +117,7 @@ void TBOutput::output(TBSharedData *d)
 {
 	ACE_OS::printf("Dump current point\n");
 
-	_file.dump(d->xyz());
+	_file.dump(d->getPolar());
 	_file.dump(d->_arm);
 	_file.newLine();
 	

@@ -22,10 +22,16 @@ class TBSharedData
 	
 	void read();
 	
-	const Y3DVector &xyz()
+	const Y3DVector &getCartesian()
 	{
 		_headKinematics.update(_head);
 		return _headKinematics.fixation();
+	}
+
+	const Y3DVector &getPolar()
+	{
+		_headKinematics.update(_head);
+		return _headKinematics.fixationPolar();
 	}
 
 	bool checkTarget();

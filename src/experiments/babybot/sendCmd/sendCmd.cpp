@@ -84,6 +84,7 @@ void _fillTable()
 
 	// grasp rflx
 	REG_VOCAB(sendSimpleVocab, YBVGraspRflxForceOpen, "grasp reflex force open");
+	REG_VOCAB(sendSimpleVocab, YBVGraspRflxClutch, "grasp reflex force close");
 
 	// kfexploration
 	REG_VOCAB(sendSimpleVocab, YBVKFExplorationStart, "kf exploration start");

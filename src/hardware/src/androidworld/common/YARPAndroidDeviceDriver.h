@@ -10,6 +10,7 @@
 const int __AndroidNInput = 32;	// 8x4
 const int __AndroidNChips = 4;
 const int __AndroidNChannels = 8;
+const int __trials = 1;
 
 struct AndroidOpenParameters
 {
@@ -37,8 +38,6 @@ struct AndroidSingleChannel
 	int channel;
 	unsigned char *data;
 };
-
-const int __trials = 1;
 
 class YARPAndroidDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPAndroidDeviceDriver > 
 {
@@ -69,7 +68,10 @@ private:
 
 	unsigned char readMSB()
 	{
-		int c = _inp(_pport+1);
+		int c;
+		int trials = __trials;
+		while(trials--)
+			c = _inp(_pport+1);
 		if (c&0x8)
 			return 1;	// msb only
 		else 

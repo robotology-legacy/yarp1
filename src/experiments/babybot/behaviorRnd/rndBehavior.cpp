@@ -37,6 +37,8 @@ void RndSharedData::sendNext()
 		cmd(i+1) = _command[i]*degToRad;
 	}
 
+	_stored = cmd;	// store old command
+
 	_data.reset();
 	_data.writeVocab(YBVArmNewCmd);
 	_data.writeYVector(cmd);
@@ -77,7 +79,7 @@ void RndSharedData::gauss()
 	YVector cmd;
 	cmd.Resize(_nj);
 
-	cmd = _stored + _gauss.getVector();
+	cmd = _gauss.getVector();
 
 	int i;
 	for(i = 1; i <= _nj; i++)
@@ -85,14 +87,14 @@ void RndSharedData::gauss()
 		cout << cmd(i) << '\t';
 		cmd(i) = cmd(i)*degToRad;
 	}
-
 	cout << "\n";
+
+	cmd = cmd + _stored; // add new command
+	_stored = cmd;		 // save current
 
 	_data.reset();
 	_data.writeVocab(YBVArmNewCmd);
 	_data.writeYVector(cmd);
-
-	_stored = cmd;
 
 	send();
 }

@@ -113,6 +113,10 @@ SOURCE=.\reflexstates.cpp
 
 SOURCE=.\reflexstates.h
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\include\conf\YARPBabybotVocab.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 

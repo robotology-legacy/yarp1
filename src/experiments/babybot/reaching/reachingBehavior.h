@@ -6,6 +6,15 @@
 #include <./conf/YARPVocab.h>
 #include "armmap.h"
 
+#ifndef __INHIBITGRASPING__
+	const double __handOpen[] = {20.0*degToRad, 0.0, 0.0, 0.0, 0.0, 0.0};
+	const double __handClose[] = {90.0*degToRad, 70.0*degToRad, -80.0*degToRad, -80.0*degToRad, -80.0*degToRad, -80.0*degToRad};
+#else
+	const double __handOpen[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+	const double __handClose[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+#endif
+
+
 class ABSharedData
 {
 	public:
@@ -100,7 +109,25 @@ public:
 	YARPBottle _bottle;
 };
 
-class RBOutputReaching: public RBBaseOutput
+class RBOutputReaching1: public RBBaseOutput
+{
+public:
+	void output(ABSharedData *d);
+
+	YARPBottle _bottle;
+	
+};
+
+class RBOutputReaching2: public RBBaseOutput
+{
+public:
+	void output(ABSharedData *d);
+
+	YARPBottle _bottle;
+	
+};
+
+class RBOutputReaching3: public RBBaseOutput
 {
 public:
 	void output(ABSharedData *d);
@@ -126,16 +153,34 @@ public:
 	
 };
 
+class RBHandClose: public RBBaseOutput
+{
+public:
+	RBHandClose()
+	{
+		_bottle.setID(YBVMotorLabel);
+		_bottle.writeVocab(YBVHandNewCmd);
+		_bottle.writeYVector(YVector(6, __handClose));
+	}
+	void output(ABSharedData *d);
 
+	YARPBottle _bottle;
+	
+};
 
+class RBHandOpen: public RBBaseOutput
+{
+public:
+	RBHandOpen()
+	{
+		_bottle.setID(YBVMotorLabel);
+		_bottle.writeVocab(YBVHandNewCmd);
+		_bottle.writeYVector(YVector(6, __handOpen));
+	}
+	void output(ABSharedData *d);
 
-
-
-
-
-
-
-
-
+	YARPBottle _bottle;
+	
+};
 
 #endif
