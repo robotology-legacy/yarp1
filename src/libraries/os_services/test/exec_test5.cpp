@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.9 2003-05-23 14:15:54 gmetta Exp $
+/// $Id: exec_test5.cpp,v 1.10 2003-05-23 15:28:23 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
 	int s = 1, c = 1;
 	YARPScheduler::setHighResScheduling();
 
-///	__debug_level = 80;
+	__debug_level = 80;
 
 	if (argc>=2)
 	{

@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.10 2003-05-23 13:52:39 gmetta Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.11 2003-05-23 15:28:23 gmetta Exp $
 ///
 ///
 
@@ -111,8 +111,7 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, char *buffer, int buffer_le
 	prefix.reply_size = return_buffer_length;
 
 	os->SendBegin ((char*)(&prefix), sizeof(prefix));
-	if (os->SendContinue (buffer, buffer_length) != YARP_OK)
-		return YARP_FAIL;
+	os->SendContinue (buffer, buffer_length);
 	
 	char ch = -1;
 	os->SendReceivingReply (&ch, 1);
@@ -183,8 +182,6 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, char *buffe
 			{
 				NetInt32 x;
 				ct = ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
-				if (ct < 0)
-					return YARPNameID (src.getServiceType(), ACE_INVALID_HANDLE);
 			}
 		}
 
@@ -260,20 +257,16 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 
 	os->SendBegin ((char*)(&prefix), sizeof(prefix));
 	
-	int result = YARP_OK;
-
 	for (i = 0; i < send_parts; i++)
 	{
 		NetInt32 x = msg.GetBufferLength(i);
-		if (os->SendContinue ((char*)(&x), sizeof(x)) != YARP_OK)
-			return YARP_FAIL;
+		os->SendContinue ((char*)(&x), sizeof(x));
 	}
 
 	for (i = 0; i < return_parts; i++)
 	{
 		NetInt32 x = return_msg.GetBufferLength(i);
-		if (os->SendContinue ((char*)(&x), sizeof(x)) != YARP_OK)
-			return YARP_FAIL;
+		os->SendContinue ((char*)(&x), sizeof(x));
 	}
 
 	///
@@ -283,8 +276,7 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 		
 	///YARPTime::DelayInSeconds(2.5);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "about to send buf 0 %d bytes\n", msg.GetBufferLength(0)));
-	if (os->SendContinue (msg.GetBuffer(0), msg.GetBufferLength(0)) != YARP_OK)
-		return YARP_FAIL;
+	os->SendContinue (msg.GetBuffer(0), msg.GetBufferLength(0));
 
 	/* preamble code ends */
 
@@ -294,8 +286,7 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 	for (i = 1; i < send_parts; i++)
 	{
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "about to send buf %d %d bytes\n", i, msg.GetBufferLength(i)));
-		if (os->SendContinue (msg.GetBuffer(i), msg.GetBufferLength(i)) != YARP_OK)
-			return YARP_FAIL;
+		os->SendContinue (msg.GetBuffer(i), msg.GetBufferLength(i));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "sent buf %d %d bytes\n", i, msg.GetBufferLength(i)));
 		///YARPTime::DelayInSeconds(2.5);
 	}
@@ -309,7 +300,7 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 		{
 			os->SendReceivingReply (return_msg.GetBuffer(i), return_msg.GetBufferLength(i));
 		}
-		result = os->SendEnd (return_msg.GetBuffer(return_parts-1), return_msg.GetBufferLength(return_parts-1));
+		int result = os->SendEnd (return_msg.GetBuffer(return_parts-1), return_msg.GetBufferLength(return_parts-1));
 		return result;
 	}
 
@@ -330,7 +321,6 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultip
 	/* preamble code begins */
 	BlockPrefix prefix;
 	ts->ReceiveBegin ((char*)(&prefix), sizeof(prefix), &id);
-	int ret = YARP_OK;
 
 	if (id != ACE_INVALID_HANDLE)
 	{
@@ -340,19 +330,16 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultip
 			NetInt32 x;
 			for (i = 0;i < prefix.total_blocks; i++)
 			{
-				if (ts->ReceiveContinue (id, (char*)(&x), sizeof(x)) < 0)
-					return YARPNameID (src.getServiceType(), ACE_INVALID_HANDLE);
+				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
 			}
 
 			for (i = 0; i < prefix.reply_blocks; i++)
 			{
-				if (ts->ReceiveContinue (id, (char*)(&x), sizeof(x)) < 0)
-					return YARPNameID (src.getServiceType(), ACE_INVALID_HANDLE);
+				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
 			}
 		}
 
-		if (ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0)) < 0)
-			return YARPNameID (src.getServiceType(), ACE_INVALID_HANDLE);
+		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
 	}
 	/* preamble code ends */
 
@@ -365,8 +352,6 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultip
 		{
 			int ct2 = ts->ReceiveContinue (id, msg.GetBuffer(i), msg.GetBufferLength(i));
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^ additional receive of %d bytes\n", ct2));
-			if (ct2 < 0)
-				return YARPNameID (src.getServiceType(), ACE_INVALID_HANDLE);
 		}
 	}
 
@@ -396,20 +381,16 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, YARPMultipa
 			NetInt32 x;
 			for (i = 0; i < prefix.total_blocks; i++)
 			{
-				if (ts->ReceiveContinue (id, (char*)(&x), sizeof(x)) < 0)
-					return YARPNameID (src.getServiceType(), ACE_INVALID_HANDLE);
+				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
 			}
 
 			for (i=0;i<prefix.reply_blocks; i++)
 			{
-				if (ts->ReceiveContinue (id, (char*)(&x), sizeof(x)) < 0)
-					return YARPNameID (src.getServiceType(), ACE_INVALID_HANDLE);
+				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
 			}
 		}
 
 		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
-		if (ct < 0)
-			return YARPNameID (src.getServiceType(), ACE_INVALID_HANDLE);
 	}
 	/* preamble code ends */
 
@@ -419,8 +400,7 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, YARPMultipa
 	{
 		for (int i = 1; i < receive_parts; i++)
 		{
-			if (ts->ReceiveContinue (id, msg.GetBuffer(i), msg.GetBufferLength(i)) < 0)
-				return YARPNameID (src.getServiceType(), ACE_INVALID_HANDLE);
+			ts->ReceiveContinue (id, msg.GetBuffer(i), msg.GetBufferLength(i));
 		}
 	}
 
