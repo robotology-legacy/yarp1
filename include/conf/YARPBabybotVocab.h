@@ -42,6 +42,7 @@ const char *const YBVHandQuit = "HandQuit";
 const char *const YBVAttentionQuit = "AttentionQuit";
 const char *const YBVAttentionLookHand = "AttentionLookHand";
 const char *const YBVAttentionLookPrediction = "AttentionLookPrediction";
+const char *const YBVAttentionLookEgoMap = "AttentionLookEgoMap";
 const char *const YBVAttentionLookTarget = "AttentionLookTarget";
 
 // head behavior
@@ -54,6 +55,8 @@ const char *const YBVHeadQuit = "HeadQuit";
 const char *const YBVHTSPrediction= "HTSPrediction";
 const char *const YBVHTSCurrent= "HTSCurrent";
 const char *const YBVHTSAuto= "HTSAuto";
+const char *const YBVHTSInhibit = "HTSInhibit";
+const char *const YBVHTSEnable = "HTSEnable";
 
 // sink behavior
 const char *const YBVSinkQuit = "SinkQuit";

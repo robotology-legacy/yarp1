@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.8 2003-11-20 15:35:54 gmetta Exp $
+/// $Id: YARPBottle.h,v 1.9 2004-01-26 13:33:46 babybot Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -151,6 +151,7 @@ public:
       top = bottle.top;
 	  text = bottle.text;
 	  lastReadSeq = bottle.lastReadSeq;
+	  index = bottle.index;
 	  return *this;
 	}
    
