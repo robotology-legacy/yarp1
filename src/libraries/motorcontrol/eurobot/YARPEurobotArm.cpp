@@ -1,4 +1,4 @@
-// $Id: YARPEurobotArm.cpp,v 1.3 2003-08-01 08:56:38 beltran Exp $
+// $Id: YARPEurobotArm.cpp,v 1.4 2003-08-19 08:14:29 beltran Exp $
 
 #include "YARPEurobotArm.h"
 
@@ -51,7 +51,9 @@ int YARPEurobotArm::velocityMove(const double *vel)
 {
 	_lock();
 	angleToEncoders(vel, _temp_double);
+	printf(" Vel in Encoders: %f %f %f %f \n",_temp_double[0],_temp_double[1],_temp_double[2],_temp_double[3]);
 	_adapter.IOCtl(CMDVMove, _temp_double);
+	printf(" Vel in Encoders2: %f %f %f %f \n",_temp_double[0],_temp_double[1],_temp_double[2],_temp_double[3]);
 	_unlock();
 	return -1;
 }

@@ -3,7 +3,7 @@
 #ifndef __GALILONEUROBOTARMADAPTER__
 #define __GALILONEUROBOTARMADAPTER__
 
-// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.4 2003-08-01 08:56:38 beltran Exp $
+// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.5 2003-08-19 08:14:29 beltran Exp $
 
 #include <ace/Log_Msg.h>
 #include <YARPGalilDeviceDriver.h>
@@ -21,6 +21,7 @@
 namespace _EurobotArm
 {
 	const int _nj = 6;
+	//char _mask = (char) 0x3F;
 	const LowLevelPID _highPIDs[_nj] =
 	{
 		LowLevelPID(320.63, 2509.63, 85.71, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -30.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
@@ -70,6 +71,8 @@ public:
 		_nj = 0;
 		
 		_nj = _EurobotArm::_nj;
+		//_mask = _EurobotArm::_mask;
+		_mask = (char) 0x3F;
 		_realloc(_nj);
 		int i;
 		for(i = 0; i<_nj; i++) {
@@ -230,6 +233,7 @@ public:
 	double *_invCouple;
 	int *_stiffPID;
 	int _nj;
+	char _mask;
 	double *_maxDAC;
 };
 
@@ -255,12 +259,13 @@ public:
 		_parameters = par;
 		GalilOpenParameters op_par;
 		op_par.nj= _parameters->_nj; 
+		op_par.mask = _parameters->_mask;
 		if (YARPGalilDeviceDriver::open(&op_par) != 0)
 			return YARP_FAIL;
 
 		/* First the card needs to be reseted */
 		IOCtl(CMDResetController, NULL);
-		idleMode();
+		//idleMode();
 		_amplifiers = false;
 
 		// amp level and limits
@@ -288,8 +293,12 @@ public:
 			cmd.parameters=&motor_type;
 
 			IOCtl(CMDMotorType,&cmd);
+
+			IOCtl(CMDGetMotorType,&cmd);
+
+			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Motor type motor %d = %f\n",cmd.axis, motor_type));
 			
-			int error = 2000;
+			int error = 10000;
 			cmd.parameters=&error;
 			
 			///Set the error limit
@@ -304,11 +313,13 @@ public:
 			
 			// PUMA has no hw limits
 			// set limit events-> none
+			/***************
 			ControlBoardEvents event;
 			event = CBNoEvent;
 			cmd.parameters=&event;
 			IOCtl(CMDSetPositiveLimit, &cmd);
 			IOCtl(CMDSetNegativeLimit, &cmd);
+			******************/
 		}
 		
 		/*****************

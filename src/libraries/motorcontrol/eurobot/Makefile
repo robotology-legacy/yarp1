@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2003-08-01 08:56:38 beltran Exp $
+# $Id: Makefile,v 1.6 2003-08-19 08:14:29 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -9,7 +9,7 @@ CFLAGS = -g -I../include -I../sys_include -I$(YARP_ROOT)/include/ -I$(YARP_ROOT)
 -I../common
 
 LIBS = $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib $(YARP_ROOT)/bin/$(SYSDIR)/libACE.so \
-$(YARP_ROOT)/lib/$(OS)/YARPGalilDeviceDriver.lib $(YARP_ROOT)/lib/$(OS)/dmcqnx.lib	 
+$(YARP_ROOT)/lib/$(OS)/YARPGalilDeviceDriver.lib $(YARP_ROOT)/lib/$(OS)/dmcqnx.lib $(YARP_ROOT)/lib/$(OS)/MotorCtrl.lib 
 
 SUBDIRS =
 
@@ -26,16 +26,18 @@ OUTDIR = ../obj/$(SYSDIR)
 #YARPGALILOnEurobotHeadAdapter.o: YARPGALILOnEurobotHeadAdapter.h
 #	$(CC) $(CFLAGS) -c $^ -o $@
 
-local: cardtest.cpp
+test: cardtest.cpp
 	$(CC) $(CFLAGS)  cardtest.cpp -o cardtest $(LIBS)
-	$(CC) $(CFLAGS)  -c YARPEurobotArm.cpp
-	$(CP) -c YARPEurobotArm.o $(OUTDIR)/
+	$(CC) $(CFLAGS)  armtest.cpp -o armtest $(LIBS)
 
 all: target
 
 target: local
 
 local: $(OBJS)
+	$(CC) $(CFLAGS)  -c YARPEurobotArm.cpp
+	$(CP) -c YARPEurobotArm.o $(OUTDIR)/
+
 
 w:
 	@echo -n
