@@ -62,7 +62,7 @@ double YARPLpImageMoments::centralMoments(YARPImageOf<YarpPixelMono> &in, int xm
 				Logpolar2Cartesian(c, t, x, y);
 				J = Jacobian(c, t);
 
-				res += pow((x-xm),p)*pow((y-ym),q)*J;
+				res += pow((double)(x-xm),(double)p)*pow((double)(y-ym),(double)q)*J;
 				area += J;
 			}
 			src++;
