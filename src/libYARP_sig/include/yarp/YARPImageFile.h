@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageFile.h,v 1.1 2004-07-13 15:34:21 eshuy Exp $
+/// $Id: YARPImageFile.h,v 1.2 2004-07-13 15:41:55 eshuy Exp $
 ///
 ///
 
@@ -93,6 +93,7 @@ namespace YARPImageFile
 		FORMAT_ANY,
 		FORMAT_PGM,
 		FORMAT_PPM,
+		FORMAT_NUMERIC,
 	};
 
 	int Read(const char *src, YARPGenericImage& dest, int format=FORMAT_ANY);

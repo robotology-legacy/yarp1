@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageFile.cpp,v 1.1 2004-07-13 15:34:21 eshuy Exp $
+/// $Id: YARPImageFile.cpp,v 1.2 2004-07-13 15:41:55 eshuy Exp $
 ///
 ///
 
@@ -71,6 +71,9 @@
 
 #include <yarp/YARPImageFile.h>
 #include <yarp/YARPSimpleOperations.h>
+
+#include <fstream>
+using namespace std;
 
 // The PGM/PPM code is old code from a long forgotten source.
 
@@ -330,15 +333,124 @@ static int ImageWrite(YARPGenericImage& img, const char *filename)
 
 int YARPImageFile::Read(const char *src, YARPGenericImage& dest, int format)
 {
-	return ImageRead(dest,src);
-	//return 0;
+ if (format!=YARPImageFile::FORMAT_NUMERIC)
+    {
+      return ImageRead(dest,src);
+    }
+  int hh = 0, ww = 0;
+  {
+    ifstream fin(src);
+    int blank = 1;
+    int curr = 0;
+    while (!fin.eof())
+      {
+	int ch = fin.get();
+	//if (ch!='\n') printf("[%c]",ch);
+	if (ch==' ' || ch == '\t' || ch == '\r' || ch == '\n' || fin.eof())
+	  {
+	    if (!blank)
+	      {
+		if (curr==0)
+		  {
+		    hh++;
+		  }
+		curr++;
+		if (curr>ww)
+		  {
+		    ww = curr;
+		    //printf("%d\n", ww);
+		  }
+	      }
+	    blank = 1;
+	    if (ch=='\n')
+	      {
+		curr = 0;
+	      }
+	  }
+	else
+	  {
+	    blank = 0;
+	  }
+      }
+  }
+  //printf("yyy dim %d %d\n", hh, ww);
+  YARPImageOf<YarpPixelFloat> flt;
+  flt.Resize(ww,hh);
+  hh = 0; ww = 0;
+  {
+    char buf[256];
+    int idx = 0;
+    ifstream fin(src);
+    int blank = 1;
+    int curr = 0;
+    while (!fin.eof())
+      {
+	int ch = fin.get();
+	if (ch==' ' || ch == '\t' || ch == '\r' || ch == '\n' || fin.eof())
+	  {
+	    if (!blank)
+	      {
+		if (curr==0)
+		  {
+		    hh++;
+		  }
+		curr++;
+		if (curr>ww)
+		  {
+		    ww = curr;
+		  }
+		buf[idx] = '\0';
+		flt(curr-1,hh-1) = atof(buf);
+		idx = 0;
+	      }
+	    blank = 1;
+	    if (ch=='\n')
+	      {
+		curr = 0;
+	      }
+	  }
+	else
+	  {
+	    buf[idx] = ch;
+	    idx++;
+	    assert(idx<sizeof(buf));
+	    blank = 0;
+	  }
+      }
+  }
+    
+  dest.CastCopy(flt);
+
+  return 0;
+
+  //return ImageRead(dest,src);
+  //return 0;
 }
 
 
 int YARPImageFile::Write(const char *dest, YARPGenericImage& src, int format)
 {
-	return ImageWrite(src,dest);
-	//return 0;
+ if (format!=YARPImageFile::FORMAT_NUMERIC)
+    {
+      return ImageWrite(src,dest);
+    }
+  YARPImageOf<YarpPixelFloat> flt;
+  ofstream fout(dest);
+  flt.CastCopy(src);
+  for (int i=0; i<flt.GetHeight(); i++)
+    {
+      for (int j=0; j<flt.GetWidth(); j++)
+	{
+	  char buf[255];
+	  sprintf(buf,"%g ", flt(j,i));
+	  fout << buf << " ";
+	}
+      fout << endl;
+    }
+  return 0;
+
+  //return ImageWrite(src,dest);
+  //return 0;
 }
 
 
