@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_egomap.cpp,v 1.1 2003-11-07 17:31:09 babybot Exp $
+/// $Id: attn_egomap.cpp,v 1.2 2003-11-11 11:28:25 babybot Exp $
 ///
 ///
 
@@ -194,7 +194,7 @@ public:
 			{
 				_rays[_nextfree].Resize(3);
 				/// get the current ray.
-				_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT, _rays[_nextfree], 0, 0);
+				_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _rays[_nextfree], 0, 0);
 				/// the new ray is also stored.
 				_nextfree++;
 			}
