@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.11 2003-07-31 06:51:14 gmetta Exp $
+$Id: install.txt,v 1.12 2003-09-02 14:09:02 babybot Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -78,11 +78,10 @@ YARP proper install/configuration
 REQUIRES:
 	- ACE 5.3.3 from: http://www.cs.wustl.edu/~schmidt/ACE.html
 	- IPL 2.5 from Intel ----> or IPP (not for free!)
+		== already in the repository, see below on IPL install.
 
 	- DLLs from Visual Studio 6.0: strangely enough the default win install
 		doesn't have the correct version.
-		-
-		-
 
 0) licensing:
 	- the template of the academic free licence can be found in
@@ -102,6 +101,10 @@ REQUIRES:
 		Copy the template into: %YARP_ROOT%/include/conf/YARPConfig.h
 
 2) Compile:
+	See makefile (make_all_lib.bat) for simplified compilation FIRST! And only
+	if you're particularly skilled the std procedure. To compile everything type:
+	make_all_lib.bat debug[release] full. 
+
 	ACE, this copies also the .h, .i, and .cpp files into %YARP_ROOT%\include
 		- use dsw from: %YARP_ROOT%\src\libraries\ACE_wrappers\ace
 	os_services
