@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-write.cpp,v 1.13 2004-10-15 00:21:27 babybot Exp $
+/// $Id: yarp-write.cpp,v 1.14 2004-10-16 23:24:48 gmetta Exp $
 ///
 ///
 
@@ -69,7 +69,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-  //set_yarp_debug(100,100);
+  set_yarp_debug(100,100);
 
   argc--;
   argv++;

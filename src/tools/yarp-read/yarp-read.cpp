@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-read.cpp,v 1.9 2004-10-15 00:21:27 babybot Exp $
+/// $Id: yarp-read.cpp,v 1.10 2004-10-16 23:24:48 gmetta Exp $
 ///
 ///
 
@@ -71,7 +71,7 @@ using namespace std;
 int main(int argc, char *argv[])
 {
   //__debug_level = 100;
-  //set_yarp_debug(100,100);
+  set_yarp_debug(100,100);
 
   argc--;
   argv++;
