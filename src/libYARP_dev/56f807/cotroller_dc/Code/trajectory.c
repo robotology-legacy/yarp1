@@ -107,7 +107,7 @@ Int32 step_trajectory (byte jj)
 		return _x0[jj];
 	}
 	else
-	if (_curtf[jj] < 1.-_stepf[jj])
+	if (_curtf[jj] < 1.0 - _stepf[jj])
 	{
 		/* calculate the power factors */
 		a = p5f (_curtf[jj]);

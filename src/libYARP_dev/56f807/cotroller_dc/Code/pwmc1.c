@@ -124,10 +124,11 @@ byte PWMC1_setDuty (byte channel, int duty)
  */
 byte PWMC1_setDutyPercent(byte channel,byte duty)
 {
-  register word dutyreg;
+	register word dutyreg;
 
 	if (duty>100)
-	return ERR_RANGE;
+		return ERR_RANGE;
+		
 	dutyreg = (word)((dword)getReg (PWMB_PWMCM) * duty / 100);
 	switch (channel) 
 	{
