@@ -70,7 +70,7 @@ WARN_LOGFILE           =
 INPUT                  = include/yarp/YARPPort.h \
                          include/yarp/YARPPortContent.h \
                          include/yarp/YARPErrorCodes.h \
-                         include/yarp_private/YARPNameID_defs.h \
+                         include/yarp/YARPNameID_defs.h \
                          include/yarp/YARPTime.h \
                          include/yarp/begin_pack_for_net.h \
                          include/yarp/end_pack_for_net.h \

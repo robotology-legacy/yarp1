@@ -1,0 +1,247 @@
+
+\section{YARP communication}
+
+YARP's communication code is, at heart, simply about moving bytes
+along pipes between processes, where the individual pipes and
+processes can be created and destroyed with minimal impact on the
+rest of the system.  For other communication models, YARP is not
+the tool to use -- try ACE/TAO for example.
+
+\subsection{Getting started}
+
+Make sure you have installed YARP as described in section XXX.
+We will now exercise your installation to make sure everything
+is okay and correctly configured.  First, please open four terminal
+windows; we'll refer to theses as A, B, C, and D.  
+
+Before doing any communication, is is necessary to start the YARP name
+service -- this is a program which keeps track of what YARP resources
+are currently available and how to access them.
+%
+In terminal A, type:
+
+\begin{verbatim}
+yarp_name_service
+\end{verbatim}
+
+If all goes well, you will see a series of cheerful messages finishing
+in ``YARP name service started OK'' -- if you don't, then you need to
+return to the installation section.
+
+Next, in terminal B, type:
+%
+\begin{verbatim}
+yarp_read /port1
+\end{verbatim}
+%
+If all goes well, this will report \ctt{registered YARP port /port1} in
+terminal B and in terminal A some corresponding message will also appear.
+
+Next, in terminal C, type:
+
+\begin{verbatim}
+echo yarp_write /port2
+\end{verbatim}
+
+If all goes well, this will report \ctt{registered YARP port /port2} in
+terminal C and in terminal A some corresponding message will also appear.
+
+Now, in terminal D, type:
+
+\begin{verbatim}
+yarp_connect /port2 /port1
+\end{verbatim}
+
+Terminal C will report \ctt{connecting YARP port /port2 to /port1}.  Now if
+you type ``hello world'' into terminal C, and hit enter, that text
+will appear on terminal B.
+
+If you have another computer with YARP installed on it, open a
+terminal on it (let's call that terminal E) and type:
+
+\begin{verbatim}
+yarp_name_service machinename
+\end{verbatim}
+
+where machinename is the full name or IP address of the first machine
+on which the YARP name service is running.  If all goes well it should
+report \ctt{connection established with YARP name service running on
+{\bf machinename}}.
+
+Now on terminal E type:
+%
+\begin{verbatim}
+yarp_read /port3
+\end{verbatim}
+%
+and on terminal C, type:
+%
+\begin{verbatim}
+yarp_connect /port2 /port3
+\end{verbatim}
+%
+Now any line you enter in terminal B should appear in both terminal C and E.
+
+
+
+\subsection{Getting coding}
+
+Suppose you have a structure \ctt{Target} in process A with some data
+you would like to have in process B:
+%
+\begin{verbatim}
+struct Target {
+  int x, y, z;
+  char label[20];
+};
+\end{verbatim}
+%
+If you are operating in a homogeneous network (same OS and hardware on
+all machines), then moving Target structures around is easy.  See
+section XXX for a few details needed otherwise.
+%
+The steps are create, register, communicate, unregister (optional).
+The necessary methods and classes are in the following header file:
+
+\begin{verbatim}
+#include <yarp/YARPPort.h>
+\end{verbatim}
+%
+Make sure that YARP is set up okay on the machines you are using by 
+running \ctt{yarp-service --check}.  If not, go to section XXX.
+%
+In process A you would create an output port that can send a Target:
+%
+\begin{verbatim}
+YARPOutputPortOf<Target> out_port;
+\end{verbatim}
+%
+%
+In process B you would create an input port that can receive a Target:
+%
+\begin{verbatim}
+YARPInputPortOf<Target> in_port;
+\end{verbatim}
+%
+Then, in the main() methods of each process, you would create a name
+for each port so that they can find each other.  For example, in
+process A:
+%
+\begin{verbatim}
+out_port.Register("/target/out");
+\end{verbatim}
+%
+and in process B:
+%
+\begin{verbatim}
+in_port.Register("/target/in");
+\end{verbatim}
+%
+Once both processes are running, these ports can be connected by
+typing \ctt{yarp-connect /target/out /target/in} on the command line.
+Alternatively, you can connect them using code; for example, from
+process A call:
+%
+\begin{verbatim}
+out_port.Connect("/target/in");
+\end{verbatim}
+%
+Now the ports are connected and ready to communicate.  In process A
+you could set up a Target as follows:
+%
+\begin{verbatim}
+Target& target = out_port.Content();
+target.x = target.y = target.z = 10;
+strncpy(target.label,"hello yarp world",sizeof(target.label));
+\end{verbatim}
+%
+And then you could send it like this:
+%
+\begin{verbatim}
+out_port.Write();
+\end{verbatim}
+%
+In process B, you can wait for the Target to arrive by calling Read():
+%
+\begin{verbatim}
+bool success = in_port.Read();
+\end{verbatim}
+%
+If a target is successfully read, it becomes available using Content():
+%
+\begin{verbatim}
+if (success) {
+  Target@ target = in_port.Content();
+  cout << "target is located at (" << target.x
+       << "," << target.y
+       << "," << target.z
+       << ") with label " << target.label << endl;
+
+}
+\end{verbatim}
+
+See Appendix XXX and demos in directory YYY for this code.
+
+
+\subsection{The details}
+
+Quality of service. 
+
+Crossing OS/Hardware/Compiler boundaries.
+
+Different protocols -- shared mem, tcp, udp, multicast.
+
+
+
+\subsection{Messages in bottles}
+
+When completely maximal efficiently is not a concern, it can be 
+convenient to not have to compile the type of every message.
+For this, the \ctt{YARPBottle} class is available.  This is a generic
+container into which you can throw integers, floating point numbers,
+and strings, send them across the network, then easy parse the message
+again at the far side.  For example, the following code:
+%
+\begin{verbatim}
+#include <stdio.h>
+
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBottle.h>
+
+int main() {
+  YARPOutputPortOf<YARPBottle> out_port;
+  out_port.Register("/test/demo00");
+  out_port.Connect("/test/reader");
+
+  for (int i=0; i<5; i++) {
+    char buf[256];
+    sprintf(buf,"test number %d", i);
+    out_port.Content().writeText(buf);
+    out_port.Write(1);
+  }
+  out_port.FinishSend();
+
+  return 0;
+}
+\end{verbatim}
+%
+will send a series of YARPBottles out on the port \ctt{/test/demo00}.
+If, before starting this code, you start a reader in another terminal with:
+%
+\begin{verbatim}
+yarp-read /test/reader
+\end{verbatim}
+%
+then the following messages should appear:
+%
+test number 0
+test number 1
+test number 2
+test number 3
+test number 4
+%
+The \ctt{yarp-read} reader responds to YARPBottles that contain text.
+You can look at the source of yarp-read as an example of how to read 
+a YARPBottle.
+
+explain: Write(1), FinishSend

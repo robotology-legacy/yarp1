@@ -1,0 +1,80 @@
+
+%\newif\ifnote
+%\ifx\notepaper\undefined
+%  \notefalse
+%\else
+%  \notetrue
+%\fi
+
+\newcommand{\pflist}
+  {	\renewcommand{\labelitemi}{$\triangleright$}
+	\setlength{\itemsep}{0mm}
+	\setlength{\parsep}{0mm}
+	\setlength{\partopsep}{0mm}
+	\setlength{\topsep}{0mm}
+	\setlength{\parskip}{0mm}    }
+
+\documentclass[a4paper]{article}
+
+%\usepackage{afterpage}
+\usepackage[dvips]{graphicx}
+\usepackage{psfig}
+%\usepackage{fullpage}
+%\usepackage{color}
+%\usepackage{pstricks}
+%\usepackage{code}
+\input{section-formatting}
+
+\newcommand{\blue}{}
+
+\begin{document}
+
+
+\title{Dr. YARP\\ Doc{\small umentation} for Yet Another Robot Platform}
+
+
+\author{Paul Fitzpatrick, Giorgio Metta}
+
+\maketitle
+
+
+\begin{center}
+{\LARGE 
+
+THIS ISN'T EVEN A DRAFT YET
+
+\ \\
+
+\ \\
+
+don't believe a word you read here
+}
+\end{center}
+
+\newpage
+\input{section-communications}
+
+
+\newpage
+\input{section-installation}
+
+%\newpage
+%\input{section-getting-started}
+
+%\newpage
+%\input{section-coding}
+
+%\newpage
+%\input{section-port-reference}
+
+\newpage
+\input{section-introduction}
+
+\newpage
+\input{section-from-adapt}
+
+
+%%\input{section-from-thesis}
+
+\end{document}
+
