@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.12 2003-04-18 16:06:02 gmetta Exp $
+$Id: README.txt,v 1.13 2003-04-30 16:54:58 gmetta Exp $
 
 Before you do anything else.
 YARP assumes you have correctly set up the following variables (ALSO WINNT):
@@ -117,3 +117,7 @@ ACE Apr 2003:
 	- ACE is used by YARP and thus it is now MANDATORY.
 	--- it's too radical of a change. too much effort to keep also the old 
 		non-ACE version available.
+
+ACE under QNX6:
+	define ACE_ROOT -> ACE_wrappers
+	define LD_LIBRARY_PATH -> $YARP_ROOT/bin/qnx6

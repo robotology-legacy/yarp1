@@ -23,7 +23,7 @@
 /// Licensor, this list of conditions, and the following disclaimers  ///
 /// in the documentation and/or other materials provided with the     ///
 /// distribution.                                                     ///
-///
+///                                                                   ///
 /// Neither the names of Licensor, nor the names of any contributors  ///
 /// to the Software, nor any of their trademarks or service marks,    ///
 /// may be used to endorse or promote products derived from this      ///
@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.10 2003-04-27 21:57:41 gmetta Exp $
+/// $Id: Port.cpp,v 1.11 2003-04-30 16:54:59 gmetta Exp $
 ///
 ///
 

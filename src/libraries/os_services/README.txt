@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.1 2003-04-29 22:38:09 gmetta Exp $
+$Id: README.txt,v 1.2 2003-04-30 16:54:58 gmetta Exp $
 
 
 =============
@@ -28,3 +28,6 @@ Things under development:
 
 4- how to integrate the QNX6 code.
 
+5- return error if trying a connection on the wrong protocol.
+
+6- add windows DLL to the repository (these are the DLL's installed by visual C++).
