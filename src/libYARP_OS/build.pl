@@ -61,7 +61,7 @@ my $os = $options{"Architecture<-OS"};
 
 if ($os ne $exp_os)
 {
-	die "The auto-detected OS differs from the configured OS: $exp_os vs. %os\n";
+	die "The auto-detected OS differs from the configured OS: $exp_os vs. $os\n";
 }
 
 if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
