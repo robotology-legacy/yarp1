@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPFrameGrabberUtils.h,v 1.2 2003-06-05 12:40:03 gmetta Exp $
+/// $Id: YARPFrameGrabberUtils.h,v 1.3 2003-12-10 09:17:15 beltran Exp $
 ///
 ///
 
@@ -77,9 +77,13 @@ enum FrameGrabberCmd
 	FCMDWaitNewFrame = 3,
 	FCMDGetSizeX = 4,
 	FCMDGetSizeY = 5,
+	FCMDSetBright = 6,
+	FCMDSetHue = 7,
+	FCMDSetContrast = 8,
+	FCMDSetSatU = 9,
+	FCMDSetSatV = 10,
 
-	FCMDNCmds = 6
+	FCMDNCmds = 11
 };
-
 
 #endif
