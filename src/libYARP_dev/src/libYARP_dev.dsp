@@ -263,6 +263,10 @@ SOURCE=..\null\winnt\yarp\YARPNullDeviceDriver.h
 # PROP Default_Filter "h;cpp"
 # Begin Source File
 
+SOURCE=..\null_grabber\winnt\yarp\YARPNullGrabberDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\null_grabber\winnt\yarp\YARPNullGrabberDeviceDriver.h
 # End Source File
 # End Group
