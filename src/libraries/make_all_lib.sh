@@ -40,7 +40,8 @@ echo "$PHRASE BuildTables executable"
 cd ./logpolar/BuildTablesSmall/
 make $MODE
 Check $?
-$RUN_BUILD_TABLES
+$INSTALL
+#$RUN_BUILD_TABLES
 cd ../../
 
 echo "$PHRASE os_services library"
