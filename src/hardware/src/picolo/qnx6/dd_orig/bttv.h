@@ -157,7 +157,7 @@ struct bttv
 	unsigned long busriscmem; 
 	u32 *riscmem;
   
-	unsigned char *vbibuf;
+	unsigned char *image_buffer;
 	unsigned char *imagebuf_1;
 	unsigned char *imagebuf_2;
 	unsigned char *imagebuf_3;
@@ -203,7 +203,7 @@ struct bttv
 #define GBUFFER_GRABBING     1
 #define GBUFFER_DONE         2
 
-        char *fbuffer;
+    char *fbuffer;
 	int gmode;
 	int grabbing;
 	int lastgrab;
