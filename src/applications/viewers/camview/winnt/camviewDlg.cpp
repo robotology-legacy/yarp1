@@ -464,7 +464,7 @@ void CCamviewDlg::OnClose()
 {
 	DrawDibClose (m_drawdib);
 
-	m_receiver.End ();
+	m_receiver.End (1000);
 	CDialog::OnClose();
 }
 
