@@ -12,7 +12,7 @@
 //     This implementatin is partially based in the sound software used by Lorenzo Natale
 //     is his master thesis.
 // 
-//         Version:  $Id: soundidentificationprocessing.cpp,v 1.4 2004-07-08 14:47:31 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.cpp,v 1.5 2004-07-08 15:08:05 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -57,6 +57,8 @@ SoundIdentificationProcessing::SoundIdentificationProcessing(const YARPString &i
 	cepstralCoefficients = 13;
 
 	totalfilters = linearFilters + logFilters;
+
+	filters_energy_vector.Resize(totalfilters);
 
 	_path.append(root);
 	_path.append("/conf/babybot/"); 
@@ -119,17 +121,18 @@ SoundIdentificationProcessing::~SoundIdentificationProcessing()
 //--------------------------------------------------------------------------------------
 double 
 SoundIdentificationProcessing::Triangularfilter(const double *input_Re, 
-												const int k);
+												const int k)
 {
-	int i         = 0;
-	int lowIndex  = 0;
-	int highIndex = 0;
+	int i           = 0;
+	int lowIndex    = 0;
+	int centerIndex = 0;
+	int upperIndex  = 0;
 	double filter_output = 0.0;
 	double energy        = 0.0;
 	double lowFreq       = 0.0;
 	double centerFreq    = 0.0;
 	double upperFreq     = 0.0;
-	double triangleHeigh = 0.0;
+	double triangleHeight = 0.0;
 	double last_linear_freq = 0.0;
 
 	//----------------------------------------------------------------------
@@ -161,7 +164,7 @@ SoundIdentificationProcessing::Triangularfilter(const double *input_Re,
 	
 	ACE_ASSERT(upperIndex  < numFreqSamples);
 	ACE_ASSERT(lowIndex    < centerIndex);
-	ACE_ASSERT(centerIndex < highIndex);
+	ACE_ASSERT(centerIndex < upperIndex);
 
 	//----------------------------------------------------------------------
 	//  Apply the filter taking care to apply the correct triangle height
@@ -170,7 +173,7 @@ SoundIdentificationProcessing::Triangularfilter(const double *input_Re,
 	for ( i = 0; i < numFreqSamples; i++)
 	{
 		if ( i > lowIndex && i <= centerIndex)
-			filter_output = input_Re[i] * triangleHeight * ((i - lowIndex)/(centerIndex-lowerIndex));
+			filter_output = input_Re[i] * triangleHeight * ((i - lowIndex)/(centerIndex-lowIndex));
 		else if ( i > centerIndex && i < upperIndex)
 			filter_output = input_Re[i] * triangleHeight * ((upperIndex - i)/(upperIndex - centerIndex));
 		else
@@ -226,7 +229,7 @@ SoundIdentificationProcessing::HammingPonderation(const unsigned int N,
 //      Method:  PreAccent
 // Description:  Get high frequencies stronger
 //--------------------------------------------------------------------------------------
-inline double
+double
 SoundIdentificationProcessing::PreAccent(double z)
 {
 	double factor = 0.9;
@@ -243,7 +246,7 @@ SoundIdentificationProcessing::PreAccent(double z)
 // 
 // Ref: "Numerical Recipes in C", page 519
 //--------------------------------------------------------------------------------------
-inline void 
+void 
 SoundIdentificationProcessing::idct(int size_in, int size_out,
 									double * data_in, 
 									double * data_out)
@@ -252,7 +255,7 @@ SoundIdentificationProcessing::idct(int size_in, int size_out,
 	for ( int i=0; i < size_out; i++ )
 	{
 		for ( int k=0 ; k < size_in ; k++ )
-			 data_out[i] += data_in[k]*cos((double)(pi*k*(i+0.5)/size_in));
+			 data_out[i] += data_in[k]*cos((double)(PI*k*(i+0.5)/size_in));
 		data_out[i] *= (double) 2.0/size_in;
 	}
 }

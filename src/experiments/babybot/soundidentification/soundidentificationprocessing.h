@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.4 2004-07-08 14:47:31 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.5 2004-07-08 15:08:05 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -51,6 +51,7 @@ public:
 	{
 		unsigned char * buff = (unsigned char *) in.GetRawBuffer();
 		int dim[1] = {numSamples};
+		int i = 0;
 		
 		//----------------------------------------------------------------------
 		// Fill the Re and Im vectors from the sound buffer
@@ -61,7 +62,7 @@ public:
 		// sound indentification.
 		// The data is introduced in the Re_Hamm variable for later processing
 		//----------------------------------------------------------------------
-		for (int i = 0; i < numSamples; i++)
+		for ( i = 0; i < numSamples; i++)
 		{
 			short temp;
 
@@ -79,7 +80,7 @@ public:
 		//----------------------------------------------------------------------
 		//  Compute Hamming ponderation and PreAccent
 		//----------------------------------------------------------------------
-		for (int i = 0; i < numSamples; i++)
+		for ( i = 0; i < numSamples; i++)
 			Re[i] = PreAccent(Re[i]) * HammingPonderation(numSamples, i);
 
 		//----------------------------------------------------------------------
@@ -96,14 +97,14 @@ public:
 		//  Calculate the Mel-Filter bank spectral response and get the log10
 		//  energy for each filter
 		//----------------------------------------------------------------------
-		for (int i = 0; i < totalfilters; i++)
-			filters_energy_vector[i] = TriangularFilter(Re, i);
+		for ( i = 0; i < totalfilters; i++)
+			filters_energy_vector[i] = Triangularfilter(Re, i);
 
 		//----------------------------------------------------------------------
 		//  Calulate ceptral coefficients
 		//----------------------------------------------------------------------
-        idct( filters_energy_vector.size(), // the size of the filters_energy_vector
-              out.size(),                   // the size of the ccoefficients_vector
+        idct( filters_energy_vector.Length(), // the size of the filters_energy_vector
+              out.Length(),                   // the size of the ccoefficients_vector
               filters_energy_vector.data(), // the pointer to the vector of filters
               out.data());                  // the pointer to the vector of coefficients
 
@@ -118,8 +119,8 @@ private:
 	//  Private Functions
 	//----------------------------------------------------------------------
 	int ConjComplexMultiplication(double *, double *);
-	void idct(int, int, double, double);
-	void Triangularfilter(const double *, const int);
+	void idct(int, int, double *, double *);
+	double Triangularfilter(const double *, const int);
 	double HammingPonderation(const unsigned int, const unsigned int);
 	double PreAccent(double);
 	
@@ -166,5 +167,6 @@ private:
 
 	YARPString _iniFile;
 	YARPString _path;
+	YVector filters_energy_vector;
 };
 #endif
