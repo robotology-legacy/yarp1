@@ -11,20 +11,20 @@
 include $(YARP_ROOT)/conf/Makefile.template
 CPPFLAGS += -I$(YARP_ROOT)/include $(CDEFS)# $(CFAST)
 
-BIN = ImgTrack
+BIN = attn_tracker
 
 CDEFS += -D$(ROBOT)
 
-FILES =	attn_tracker
+FILES = ImgTrack
 
-LDLIBS  = $(YARP_ROOT)/lib/$(OS)/MotorCtrl.lib	\
-		  $(YARP_ROOT)/lib/$(OS)/YARPGalilDeviceDriver.lib	\
+LDLIBS  = $(YARP_ROOT)/lib/$(OS)/YARPGalilDeviceDriver.lib	\
 		  $(YARP_ROOT)/lib/$(OS)/dmcqnx.lib	\
 		  $(YARP_ROOT)/lib/$(OS)/images.lib	\
 		  $(YARP_ROOT)/lib/$(OS)/LogPolarSmallSDK.lib	\
 		  $(YARP_ROOT)/lib/$(OS)/fakeipl.lib	\
 		  $(YARP_ROOT)/lib/$(OS)/os_services.lib	\
 		  $(YARP_ROOT)/lib/$(OS)/math.lib	\
+		  $(YARP_ROOT)/lib/$(OS)/MotorCtrl.lib	\
 		  $(YARP_ROOT)/lib/$(OS)/utils.lib
 
 SRC  = $(addsuffix .cpp,$(FILES))
