@@ -13,7 +13,7 @@
 
 All ()
 {
-if [ "%2" == "full" ]
+if [ "$1" == "full" ]
 then
 	echo "$PHRASE ACE DLL."
 	cd ./ACE_wrappers/ace/
@@ -118,7 +118,7 @@ then
         INSTALL="make install"
         INSTALL_IPL="./install_fake_ipl"
         RUN_BUILD_TABLES="./BuildTablesSmall $YARP_ROOT/conf/"
-        All
+        All $2
 elif [ "$1" == "release" ]
 then
         echo "release"
@@ -128,7 +128,7 @@ then
         INSTALL="make install"
         INSTALL_IPL="./install_fake_ipl"
         RUN_BUILD_TABLES="./BuildTablesSmall $YARP_ROOT/conf/"
-        All
+        All $2
 elif [ "$1" == "clean" ]
 then
         echo "clean"
@@ -137,7 +137,7 @@ then
         INSTALL=""
         INSTALL_IPL=""
         RUN_BUILD_TABLES=""
-        All
+        All $2
 elif [ "$1" == "framegrab" ]
 then
         echo "Compiling Nameserver + porter + framegrabber + visualizer"
