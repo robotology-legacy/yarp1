@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.6 2003-06-05 17:48:13 babybot Exp $
+/// $Id: main.cpp,v 1.7 2003-06-06 15:40:34 babybot Exp $
 ///
 ///
 
@@ -74,14 +74,18 @@
 #include <YARPThread.h>
 #include <YARPSemaphore.h>
 #include <YARPScheduler.h>
+#include <YARPTime.h>
 
 #include <YARPBabybotGrabber.h>
 
 #include <YARPImages.h>
 
-const int size = 128;
+///
+/// global params.
+int _size = 128;
 char _name[512];
 bool _client = false;
+int _board_no = 0;
 
 /// LATER: used to parse command line options.
 int ParseParams (int argc, char *argv[]) 
@@ -93,7 +97,7 @@ int ParseParams (int argc, char *argv[])
 	{
 		if (argv[i][0] == '+')
 		{
-			memcpy (_name, &argv[i][1], strlen (&argv[i][1]));
+			ACE_OS::sprintf (_name, "/%s/o:img\0", argv[i]+1);
 		}
 		else
 		if (argv[i][0] == '-')
@@ -101,18 +105,24 @@ int ParseParams (int argc, char *argv[])
 			switch (argv[i][1])
 			{
 			case 'w':
+				_size = ACE_OS::atoi (argv[i+1]);
 				i++;
 				break;
 
 			case 'h':
+				_size = ACE_OS::atoi (argv[i+1]);
 				i++;
+				break;
+
+			case 'b':
+				_board_no = ACE_OS::atoi (argv[i+1]);
+				i ++;
 				break;
 
 			case 't':
 				ACE_OS::fprintf (stdout, "grabber acting as a receiver client...\n");
 				ACE_OS::sprintf (_name, "%s\0", argv[i+1]);
 				_client = true;
-				i++;
 				break;
 			}
 		}
@@ -133,17 +143,16 @@ int _grabber2rgb (const unsigned char *in, unsigned char *out, int sz)
 	int * first_pix = (int *)in;
 	int * ptr = first_pix;
 
-	///for (int r = 2 * sz - 1; r >= 0; r--, r--)
-	for (int r = 0; r < 2 * sz; r++, r++)
+	for (int r = 0; r < sz; r++)
 	{
 		ptr = first_pix + (sz * r);
 
 		/// needed to remove the extra byte of the 32 bit representation.
 		for (int c = 0; c < sz; c++)
 		{
-			*out++ = unsigned char((*ptr & 0x00ff0000) >> 16);
-			*out++ = unsigned char((*ptr & 0x0000ff00) >> 8);
 			*out++ = unsigned char((*ptr & 0x000000ff));
+			*out++ = unsigned char((*ptr & 0x0000ff00) >> 8);
+			*out++ = unsigned char((*ptr & 0x00ff0000) >> 16);
 
 			ptr ++;
 		}
@@ -155,7 +164,6 @@ int _grabber2rgb (const unsigned char *in, unsigned char *out, int sz)
 int _runAsClient (void)
 {
 	YARPImageOf<YarpPixelBGR> img;
-	///img.Resize (size, size);
 
 	YARPInputPortOf<YARPGenericImage> inport;
 	bool finished = false;
@@ -168,8 +176,6 @@ int _runAsClient (void)
 
 	while (!finished)
 	{
-		ACE_OS::printf (">>> before read\n");
-
 		inport.Read ();
 		img.Refer (inport.Content());
 
@@ -177,10 +183,10 @@ int _runAsClient (void)
 
 		frame_no++;
 
-		ACE_OS::sprintf (savename, "./grab_test%d.ppm\0", frame_no);
+		ACE_OS::sprintf (savename, "./grab_test%04d.ppm\0", frame_no);
 		YARPImageFile::Write (savename, img);
 
-		if (frame_no > 10)
+		if (frame_no > 100)
 		{
 			finished = true;
 		}
@@ -188,6 +194,7 @@ int _runAsClient (void)
 
 	return YARP_OK;
 }
+
 
 ///
 ///
@@ -200,12 +207,12 @@ int main (int argc, char *argv[])
 
 	if (_client)
 	{
-		return _runAsClient();
+		return _runAsClient ();
 	}
 
 	YARPBabybotGrabber grabber;
 	YARPImageOf<YarpPixelBGR> img;
-	img.Resize (size, size);
+	img.Resize (_size, _size);
 
 	YARPOutputPortOf<YARPGenericImage> outport;
 	bool finished = false;
@@ -213,7 +220,7 @@ int main (int argc, char *argv[])
 	outport.Register (_name);
 
 	/// params to be passed from the command line.
-	grabber.initialize (0, size);
+	grabber.initialize (_board_no, _size);
 
 	int w = -1, h = -1;
 	grabber.getWidth (&w);
@@ -225,11 +232,14 @@ int main (int argc, char *argv[])
 	ACE_OS::fprintf (stderr, "starting up grabber...\n");
 	ACE_OS::fprintf (stderr, "acq size: w=%d h=%d\n", w, h);
 
-	if (w != size || h != 2 * size)
+	if (w != _size || h != 2 * _size) ///2 * _size)
 	{
 		ACE_OS::fprintf (stderr, "pls, specify a different size, application will now exit\n");
 		finished = true;
 	}
+
+	double start = YARPTime::GetTimeAsSeconds ();
+	double cur = start;
 
 	while (!finished)
 	{
@@ -237,13 +247,18 @@ int main (int argc, char *argv[])
 		grabber.acquireBuffer (&buffer);
 	
 		/// fills the actual image buffer.
-		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), size);
+		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _size);
 		outport.Content().Refer (img);
 		outport.Write();
 
 		frame_no++;
 		if ((frame_no % 250) == 0)
+		{
+			cur = YARPTime::GetTimeAsSeconds ();
+			ACE_OS::fprintf (stderr, "average frame time: %lf\n", (cur-start)/250);
 			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
+			start = cur;
+		}
 
 		/// sends the buffer.
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.6 2003-06-05 17:48:13 babybot Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.7 2003-06-06 15:40:34 babybot Exp $
 ///
 ///
 
@@ -79,7 +79,7 @@
 class PicoloResources
 {
 public:
-	PicoloResources (void) : _bmutex(1), _new_frame(1)
+	PicoloResources (void) : _bmutex(1), _new_frame(0)
 	{
 		_nRequestedSize = 0;
 		_nWidth = 0;
@@ -103,7 +103,6 @@ public:
 
 	YARPSemaphore _bmutex;
 	YARPSemaphore _new_frame;
-	///ACE_Mutex _new_frame;
 
 	// Img size are determined partially by the HW.
 	UINT32 _nRequestedSize;
@@ -127,6 +126,21 @@ protected:
 	inline void _prepareBuffers (void);
 };
 
+///
+double GetTimeAsSeconds(void)
+{
+	ACE_Time_Value timev = ACE_OS::gettimeofday ();
+	return double(timev.sec()) + timev.usec() * 1e-6; 
+}
+
+void DelayInSeconds(double delay_in_seconds)
+{
+	ACE_Time_Value tv;
+	tv.sec (int(delay_in_seconds));
+	tv.usec ((delay_in_seconds-int(delay_in_seconds)) * 1e6);
+
+	ACE_OS::sleep(tv);
+}
 
 ///
 ///
@@ -153,9 +167,6 @@ inline int PicoloResources::_intialize (const PicoloOpenParameters& params)
 	// select initial buffer.
 	PicoloStatus = PicoloSelectBuffer(_picoloHandle, 0);
 
-	///PicoloRegisterAcquisitionCallback(gdata.m_picoloHandle0, gdata.EndOfAcquisition0, &gdata);
-	///PicoloRegisterAcquisitionCallback(gdata.m_picoloHandle1, gdata.EndOfAcquisition1, &gdata);
-
 	// starts continuous acquisition.
 	PicoloStatus = PicoloAcquire (_picoloHandle, PICOLO_ACQUIRE_CONTINUOUS | PICOLO_ACQUIRE_INC, 1);
 	ACE_ASSERT (PicoloStatus == PICOLO_OK);
@@ -166,14 +177,26 @@ inline int PicoloResources::_intialize (const PicoloOpenParameters& params)
 inline int PicoloResources::_uninitialize (void)
 {
 	_bmutex.Wait ();
-	
-	/// LATER:
-	/// need to release the buffers.
-	/// call PicoloStop at least.
-	/// and then release the buffers allocated in _initialize.
+
+	if (_nRequestedSize == 0 && _nWidth == 0 && _nHeight == 0)
+		return YARP_FAIL;
+
+	PicoloAcquire (_picoloHandle, PICOLO_ACQUIRE_STOP, 1);
+	PicoloStop (_picoloHandle);
+
+	int i;
+	for (i = 0; i < _num_buffers; i++)
+		VirtualFree (_buffer[i], _nImageSize, MEM_DECOMMIT);
 
 	if (_rawBuffer != NULL) delete[] _rawBuffer;
 	_rawBuffer = NULL;
+
+	_nRequestedSize = 0;
+	_nWidth = 0;
+	_nHeight = 0;
+	_nImageSize = 0;
+	_picoloHandle = 0;
+	_canpost = true;
 	
 	_bmutex.Post ();
 
@@ -218,20 +241,21 @@ inline PICOLOHANDLE PicoloResources::_init (const PicoloOpenParameters& params)
 	ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	// assume we want a square image
-	float ratio = 576.0/_nRequestedSize;
-	float xSize = 768.0/ratio;
+	float scalex = 576.0/_nRequestedSize;
+	float scaley = scalex / 2.0;
+	float xSize = 768.0/scalex;
 	float offsetX = (xSize-_nRequestedSize) / 2;
 
 	// adjust size and scaling. 
 	PicoloStatus = PicoloSetControlFloat(ret,
 										 PICOLO_CID_ADJUST_SCALEX,
-										 ratio);
+										 scalex);
 	ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	// img height is twice the requested size.
 	PicoloStatus = PicoloSetControlFloat(ret,
 										 PICOLO_CID_ADJUST_SCALEY,
-										 ratio/2);
+										 scaley);
 	ACE_ASSERT (PicoloStatus == PICOLO_OK);
 	PicoloStatus = PicoloSetControlValue(ret,
 										 PICOLO_CID_ADJUST_SIZEX,
@@ -283,7 +307,7 @@ inline void PicoloResources::_prepareBuffers(void)
 									_picoloHandle, 
 									_buffer[i],  
 									_nImageSize, 
-									PICOLO_FRAME_ANY, 
+									PICOLO_FIELD_DOWN_ONLY,
 									(PVOID*) &_aligned[i]);
 		ACE_ASSERT (_bufHandles[i] >= 0);
 		memset(_aligned[i], 0, _nImageSize);
@@ -337,7 +361,6 @@ int YARPPicoloDeviceDriver::close (void)
 	return ret;
 }
 
-
 ///
 ///
 /// acquisition thread for real!
@@ -354,40 +377,41 @@ void YARPPicoloDeviceDriver::Body (void)
 
 	d._canpost = true;
 
+	int i = 0;
+
+	unsigned int bufno = 0;
+	PicoloStatus = PicoloGetCurrentBuffer (d._picoloHandle, &bufno);
+	ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	const unsigned int startbuf = (bufno > 0) ? (bufno - 1) : (d._num_buffers - 1);
+	unsigned int readfro = startbuf;
+
 	/// strategy, waits, copy into lockable buffer.
 	while (!finished)	
 	{
 		PicoloStatus = PicoloWaitEvent (d._picoloHandle, PICOLO_EV_END_ACQUISITION);
-		if (PicoloStatus == PICOLO_OK)
+		if (PicoloStatus != PICOLO_OK)
 		{
-			///d._new_frame.Post();
-			///d._new_frame.release();
+			ACE_DEBUG ((LM_DEBUG, "it's likely that the acquisition timed out, returning\n"));
+			finished = true;
+		}
 
+		readfro = startbuf;
+
+		for (i = 0; i < d._num_buffers; i++)
+		{
 			if (d._bmutex.PollingWait () == 1)
 			{
+				/// buffer acquired.
+				/// read from buffer
+				memcpy (d._rawBuffer, d._aligned[readfro], d._nImageSize);
+					
 				if (d._canpost)
 				{
 					d._canpost = false;
 					d._new_frame.Post();
 				}
 
-				/// buffer acquired.
-				/// read from buffer
-				unsigned int bufno = 0;
-				PicoloStatus = PicoloGetCurrentBuffer (d._picoloHandle, &bufno);
-				if (PicoloStatus == PICOLO_OK)
-				{
-					const unsigned int readfro = ((bufno - 1) >= 0) ? (bufno - 1) : (d._num_buffers - 1);
-					memcpy (d._rawBuffer, d._aligned[readfro], d._nImageSize);
-					ACE_OS::printf ("%d ", readfro);
-					d._bmutex.Post ();
-				}
-				else
-				{
-					/// does nothing
-					ACE_DEBUG ((LM_DEBUG, "can't read the current buffer no : weird!\n"));
-					d._bmutex.Post ();
-				}
+				d._bmutex.Post ();
 			}
 			else
 			{
@@ -395,14 +419,16 @@ void YARPPicoloDeviceDriver::Body (void)
 				/// silently ignores this condition.
 				ACE_DEBUG ((LM_DEBUG, "lost a frame, acq thread\n"));
 			}
-		}
-		else
-		{
-			/// d._new_frame.Post(); /// and set an error flag somewhere.
-			finished = true;
-			ACE_DEBUG ((LM_DEBUG, "it's likely that the acquisition timed out, returning\n"));
-		}
+
+			readfro = ((readfro + 1) % d._num_buffers);
+
+			/// 40 ms delay
+			if (i < d._num_buffers-1)
+				DelayInSeconds (0.040);
+		} /// end for
 	}
+
+	ACE_DEBUG ((LM_DEBUG, "acquisition thread returning...\n"));
 }
 
 int YARPPicoloDeviceDriver::acquireBuffer (void *buffer)
