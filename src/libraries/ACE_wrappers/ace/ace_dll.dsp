@@ -61,6 +61,11 @@ LINK32=link.exe
 # SUBTRACT BASE LINK32 /pdb:none
 # ADD LINK32 advapi32.lib user32.lib /nologo /subsystem:windows /dll /pdb:".\acemfc.pdb" /map /debug /machine:I386 /out:"..\bin\acemfc.dll"
 # SUBTRACT LINK32 /pdb:none
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Installing ACE...
+PostBuild_Cmds=copy ..\bin\acemfc.dll ..\..\..\..\bin\winnt	copy .\acemfc.lib ..\..\..\..\lib\winnt	copy .\*.h ..\..\..\..\include\ace	copy .\*.inl ..\..\..\..\include\ace	copy .\*.i ..\..\..\..\include\ace	copy .\*.cpp ..\..\..\..\include\ace
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ACE DLL - Win32 MFC Debug"
 
@@ -92,6 +97,11 @@ LINK32=link.exe
 # SUBTRACT BASE LINK32 /pdb:none
 # ADD LINK32 advapi32.lib user32.lib /nologo /subsystem:windows /dll /pdb:".\acemfcd.pdb" /debug /machine:I386 /out:"..\bin\acemfcd.dll"
 # SUBTRACT LINK32 /pdb:none
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Installing ACE...
+PostBuild_Cmds=copy ..\bin\acemfcd.dll ..\..\..\..\bin\winnt	copy .\acemfcd.lib ..\..\..\..\lib\winnt	copy .\*.h ..\..\..\..\include\ace	copy .\*.inl ..\..\..\..\include\ace	copy .\*.i ..\..\..\..\include\ace	copy .\*.cpp ..\..\..\..\include\ace
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ACE DLL - Win32 Release"
 

@@ -99,6 +99,19 @@ PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Debug\toolsDB.lib ..\..
 
 SOURCE=.\YARPDIBConverter.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\YARPLogpolar.cpp
+
+!IF  "$(CFG)" == "tools - Win32 Release"
+
+# PROP Exclude_From_Build 1
+
+!ELSEIF  "$(CFG)" == "tools - Win32 Debug"
+
+!ENDIF 
+
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -106,6 +119,10 @@ SOURCE=.\YARPDIBConverter.cpp
 # Begin Source File
 
 SOURCE=.\YARPDIBConverter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPLogpolar.h
 # End Source File
 # End Group
 # End Target
