@@ -73,14 +73,6 @@ using namespace std;
 
 #include "YARPWatershed.h"
 
-/*	i=0;
-	for (int r=0; r<height; r++) {
-		for (int c=0; c<width; c++)	{
-			i++;
-		}
-		i+=padding;
-	}*/
-
 
 YARPWatershed::YARPWatershed(const int width1, const int height1, const int wstep, const YarpPixelMono th):
 	_gaze( YMatrix(_dh_nrf, 5, DH_left[0]), YMatrix(_dh_nrf, 5, DH_right[0]), YMatrix(4, 4, TBaseline[0]) )
@@ -114,7 +106,6 @@ void YARPWatershed::resize(const int width1, const int height1, const int wstep,
 	height=height1;
 
 	imageSize=width*height;
-	//imageSizePad=wstep*(height1+252;
 	padding=wstep-width1;
 
 	widthStep=wstep;
@@ -133,7 +124,6 @@ void YARPWatershed::resize(const int width1, const int height1, const int wstep,
 	//m_attn = new YARPBox[imageSize];
 	//ACE_ASSERT(m_attn != NULL);
 
-	
 	tmpMsk = iplCreateImageHeader(
 		1,
 		0,
@@ -168,12 +158,10 @@ YARPWatershed::~YARPWatershed()
 
 void YARPWatershed::createNeighborhood(const int widthStep, const bool neigh8)
 {
-	if (!neigh8) {
-		//neigh.resize(4,0,false,false);
+	if (!neigh8)
 		neighSize=4;
-	} else {
+	else
 		neighSize=8;
-	}
 
 	if (neigh!=NULL)
 		delete [] neigh;
@@ -181,7 +169,6 @@ void YARPWatershed::createNeighborhood(const int widthStep, const bool neigh8)
 	neigh = new int [neighSize];
 	neighL = new int [neighSize];
 	neighR = new int [neighSize];
-
 
 	if (neigh8) {
 		//	012
@@ -397,6 +384,109 @@ void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPIma
 }*/
 
 
+/*void YARPWatershed::connectivityGraph(const YARPImageOf<YarpPixelInt>& src, bool **matr, int max_tag)
+{
+	YarpPixelInt *p_src=(YarpPixelInt *)src.GetRawBuffer();
+	int i,j,n,pos,p;
+
+	memset(matr, false, sizeof(bool)*max_tag);
+
+	// first row
+	// first pixel
+	// no check!
+	p=1;
+
+	// first row, 1->150
+	// Note that the pixel of the first row are all the same, so it is
+	// useless to check the "far" neighborhoods
+	for(i=1; i<width-1; i++) {
+		for(n=neighSize/2-1; n<neighSize; n++) { // no top Neighbor
+			pos = p + neigh[n];
+			if (p_src[p]!=p_src[pos]) {
+				matr(;
+			}
+		}
+		p++;
+	}
+	// last pixel of the first row
+	for(n=neighSize/2-1; n<neighSize; n++) {
+		pos = p + neighR[n];
+		if (p_src[p]!=p_src[pos]) {
+			p_dst[p] = val;
+			break;
+		}
+	}
+	p++;
+	p+=padding;
+
+	// inner part
+	for(j=1; j<height-1; j++) {
+		// first pixel of the inner part
+		for(n=0; n<neighSize; n++) {
+			pos = p + neighL[n];
+			if (p_src[p]!=p_src[pos]) {
+				p_dst[p] = val;
+				break;
+			}
+		}
+		p++;
+		
+		for(i=1; i<width-1; i++) {
+			for(n=0; n<neighSize; n++) {
+				pos = p + neigh[n];
+				if (p_src[p]!=p_src[pos]) {
+					p_dst[p] = val;
+					break;
+				}
+			}
+			p++;
+		}
+		
+		//last pixel of the inner part
+		for(n=0; n<neighSize; n++) {
+			pos = p + neighR[n];
+			if (p_src[p]!=p_src[pos]) {
+				p_dst[p] = val;
+				break;
+			}
+		}
+		p++;
+		
+		p+=padding;
+	}
+
+	// last row
+	// first pixel
+	for(n=0; n<neighSize/2+1; n++) {
+		pos = p + neighL[n];
+		if (p_src[p]!=p_src[pos]) {
+			p_dst[p] = val;
+			break;
+		}
+	}
+	p++;
+	// last row, 1->150
+	for(i=1; i<width-1; i++) {
+		for(n=0; n<neighSize/2+1; n++) { // no top Neighbor
+			pos = p + neigh[n];
+			if (p_src[p]!=p_src[pos]) {
+				p_dst[p] = val;
+				break;
+			}
+		}
+		p++;
+	}
+	// last pixel of the last row
+	for(n=0; n<neighSize/2+1; n++) {
+		pos = p + neighR[n];
+		if (p_src[p]!=p_src[pos]) {
+			p_dst[p] = val;
+			break;
+		}
+	}
+}*/
+
+
 // create regions (numbers by "counter") which are lokal minima(s)
 int YARPWatershed::markMinimas(YARPImageOf<YarpPixelInt>& result)
 {
@@ -497,9 +587,8 @@ void YARPWatershed::letsRain(YARPImageOf<YarpPixelInt>& result)
 			// set all points belong to the way down := tempi,
 			// which is the counterNumber of the lokalMin
 			int numOfLokalMin = p_result[tempi];
-			for(cc=0; cc<regionC; cc++) {
+			for(cc=0; cc<regionC; cc++)
 				p_result[tempRegion[cc]] = numOfLokalMin;
-			}
 			i++;
 		}
 		i+=padding;
@@ -972,12 +1061,6 @@ int YARPWatershed::applyOnOld(const YARPImageOf<YarpPixelMono> &src, YARPImageOf
 		i+=padding;
 	}
 
-	/*
-	* according to idea of the rainfallingWatersheds from
-	* P. De Smet and Rui Luis V.P.M.Pires
-	* http://telin.rug.ac.be/ipi/watershed
-	*/
-
 	createTmpImage(src);
 	num_tags=markMinimas(result);
 	letsRain(result);
@@ -1016,7 +1099,6 @@ void YARPWatershed::blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<Y
 		m_boxes[i].rSum=0;
 		m_boxes[i].gSum=0;
 		m_boxes[i].bSum=0;
-
 	}
   
 	// special case for the null tag (0)
@@ -1036,48 +1118,44 @@ void YARPWatershed::blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<Y
 			m_boxes[tagged(0, r)].indexCutted=r;
 		}
 		
-	// pixels are logpolar, averaging is done in cartesian.
+	// pixels are logpolar, averaging is done in cartesian
 	for (r = 0; r < height; r++) {
 		for (int c = 0; c < width; c++) {
 			long int tag_index = tagged(c, r);
-			if (tag_index != 0) {
-				m_boxes[tag_index].areaLP++;
-				//m_boxes[tag_index].areaCart+=pixelSize[r];
+			m_boxes[tag_index].areaLP++;
+			//m_boxes[tag_index].areaCart+=pixelSize[r];
 
-				m_boxes[tag_index].valid = true;
+			m_boxes[tag_index].valid = true;
 
-				// euristic to check if the blob is an edge
-				//if (img(c,r)>70) m_boxes[tag_index].edge = true;
-				
-				int x, y;
-				m_lp.Logpolar2Cartesian(r, c, x, y);
+			int x, y;
+			m_lp.Logpolar2Cartesian(r, c, x, y);
 
-				if (m_boxes[tag_index].ymax < y) m_boxes[tag_index].ymax = y;
-				if (m_boxes[tag_index].ymin > y) m_boxes[tag_index].ymin = y;
-				if (m_boxes[tag_index].xmax < x) m_boxes[tag_index].xmax = x;
-				if (m_boxes[tag_index].xmin > x) m_boxes[tag_index].xmin = x;
+			if (m_boxes[tag_index].ymax < y) m_boxes[tag_index].ymax = y;
+			if (m_boxes[tag_index].ymin > y) m_boxes[tag_index].ymin = y;
+			if (m_boxes[tag_index].xmax < x) m_boxes[tag_index].xmax = x;
+			if (m_boxes[tag_index].xmin > x) m_boxes[tag_index].xmin = x;
 
-				m_boxes[tag_index].ysum += y;
-				m_boxes[tag_index].xsum += x;
+			m_boxes[tag_index].ysum += y;
+			m_boxes[tag_index].xsum += x;
 
-				if (m_boxes[tag_index].rmax < r) m_boxes[tag_index].rmax = r;
-				if (m_boxes[tag_index].rmin > r) m_boxes[tag_index].rmin = r;
-				if (!m_boxes[tag_index].cutted) {
-					if (m_boxes[tag_index].cmax < c) m_boxes[tag_index].cmax = c;
-					if (m_boxes[tag_index].cmin > c) m_boxes[tag_index].cmin = c;
-				} else
-					_checkCutted[m_boxes[tag_index].indexCutted*height+c]=true;
+			if (m_boxes[tag_index].rmax < r) m_boxes[tag_index].rmax = r;
+			if (m_boxes[tag_index].rmin > r) m_boxes[tag_index].rmin = r;
+			if (!m_boxes[tag_index].cutted) {
+				if (m_boxes[tag_index].cmax < c) m_boxes[tag_index].cmax = c;
+				if (m_boxes[tag_index].cmin > c) m_boxes[tag_index].cmin = c;
+			} else
+				_checkCutted[m_boxes[tag_index].indexCutted*height+c]=true;
 
-				m_boxes[tag_index].rgSum += rg(c, r);
-				m_boxes[tag_index].grSum += gr(c, r);
-				m_boxes[tag_index].bySum += by(c, r);
+			m_boxes[tag_index].rgSum += rg(c, r);
+			m_boxes[tag_index].grSum += gr(c, r);
+			m_boxes[tag_index].bySum += by(c, r);
 
-				m_boxes[tag_index].rSum += r1(c, r);
-				m_boxes[tag_index].gSum += g1(c, r);
-				m_boxes[tag_index].bSum += b1(c, r);
-			}
+			m_boxes[tag_index].rSum += r1(c, r);
+			m_boxes[tag_index].gSum += g1(c, r);
+			m_boxes[tag_index].bSum += b1(c, r);
 		}
 	}
+	
 	for (i = 1; i <= last_tag; i++) {
 		if (m_boxes[i].cutted) {
 			int index = m_boxes[i].indexCutted;
@@ -1164,72 +1242,49 @@ void YARPWatershed::ComputeSalience(int num_blob, int last_tag)
 {	
 	int i=1;
 
-	//int badboxes=0;
-
 	for (; i <= last_tag; i++) {
 	//while (i<=last_tag && num_blob>0) {
 		if (m_boxes[i].valid) {
 
-			// Maybe I can calculate this values only when it is useful...
 			//int area=TotalArea(m_boxes[i]);
 			m_boxes[i].centroid_y = (double)m_boxes[i].ysum / m_boxes[i].areaLP;
 			m_boxes[i].centroid_x = (double)m_boxes[i].xsum / m_boxes[i].areaLP;
 
-			// mean values are calculated only for biggest blobs
 			m_boxes[i].meanRG = m_boxes[i].rgSum / m_boxes[i].areaLP;
 			m_boxes[i].meanGR = m_boxes[i].grSum / m_boxes[i].areaLP;
 			m_boxes[i].meanBY = m_boxes[i].bySum / m_boxes[i].areaLP;
 			
 			//m_boxes[box_num].id = max_tag;
-
-			/*if (m_boxes[i].xmin<126 && m_boxes[i].xmax>126 &&
-				m_boxes[i].ymin<126 && m_boxes[i].ymax>126)
-				badboxes++;*/
 		} else
 			m_boxes[i].valid=false;
 		//i++;
 	}
-	
-	//cout<<badboxes<<endl;
-
 }
 
 
+//Valid and not valid boxes
 void YARPWatershed::ComputeSalienceAll(int num_blob, int last_tag)
 {	
 	int i=1;
-
-	//int badboxes=0;
 
 	for (; i <= last_tag; i++) {
 	//while (i<=last_tag && num_blob>0) {
 		if (m_boxes[i].areaLP) {
 			//m_boxes[i] = m_boxes[i];
 
-			// Maybe I can calculate this values only when it is useful...
 			//m_boxes[i].areaCart=TotalArea(m_boxes[i]);
 			m_boxes[i].centroid_y = (double)m_boxes[i].ysum / m_boxes[i].areaLP;
 			m_boxes[i].centroid_x = (double)m_boxes[i].xsum / m_boxes[i].areaLP;
 
-			// mean values are calculated only for biggest blobs
 			m_boxes[i].meanRG = m_boxes[i].rgSum / m_boxes[i].areaLP;
 			m_boxes[i].meanGR = m_boxes[i].grSum / m_boxes[i].areaLP;
 			m_boxes[i].meanBY = m_boxes[i].bySum / m_boxes[i].areaLP;
 			
 			//m_boxes[box_num].id = max_tag;
-
-			/*if (m_boxes[i].xmin<126 && m_boxes[i].xmax>126 &&
-				m_boxes[i].ymin<126 && m_boxes[i].ymax>126 &&
-				m_boxes[i].valid)
-				badboxes++;*/
-
 		} else
 			m_boxes[i].valid=false;
 		//i++;
 	}
-
-	//cout<<badboxes<<endl;
-
 }
 
 
@@ -1302,9 +1357,8 @@ void YARPWatershed::drawIOR(YARPImageOf<YarpPixelMono>& out, YARPBox* boxes, int
 			int x, y;
 			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].elev, boxes[i].az, x, y);
 			m_lp.Cartesian2Logpolar(x, y, r, c);
-			if (r>=height) {
+			if (r>=height)
 				continue;
-			}
 			out(c, r)=255;
 		}
 	}
@@ -1371,9 +1425,6 @@ void YARPWatershed::RemoveNonValid(int last_tag, const int max_size, const int m
 
 void YARPWatershed::removeBlobList(bool *blobList, int max_tag)
 {
-	//ARRONZAMENTO
-	m_boxes[1].valid=false;
-	
 	for (int i=0; i<max_tag; i++) {
 		if (blobList[i])
 			m_boxes[i].valid=false;		
@@ -1381,7 +1432,7 @@ void YARPWatershed::removeBlobList(bool *blobList, int max_tag)
 }
 
 
-int YARPWatershed::DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged)
+void YARPWatershed::DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged)
 {
 	/*if (last_tag<numBlob || numBlob==-1) numBlob=last_tag;
 	
@@ -1399,12 +1450,10 @@ int YARPWatershed::DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<Y
 	for (int r=0; r<height; r++)
 		for (int c=0; c<width; c++)
 			id(c ,r)=m_boxes[tagged(c, r)].meanColors;
-	
-	return 1;
 }
 
 
-int YARPWatershed::DrawMeanOpponentColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged)
+void YARPWatershed::DrawMeanOpponentColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged)
 {
 	for (int r=0; r<height; r++)
 		for (int c=0; c<width; c++) {
@@ -1414,8 +1463,6 @@ int YARPWatershed::DrawMeanOpponentColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPI
 				id(c ,r).b=m_boxes[tagged(c, r)].meanBY;
 			//}
 		}
-	
-	return 1;
 }
 
 
@@ -1455,8 +1502,6 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 	borderBY=((IplImage *)by)->BorderMode[IPL_SIDE_BOTTOM_INDEX];
 	iplSetBorderMode((IplImage *)by, IPL_BORDER_REPLICATE, IPL_SIDE_BOTTOM, 0);
 
-	// ARRONZAMENTO
-	//memset(dst.GetRawBuffer(), 255, ((IplImage*)dst)->imageSize);
 	dst.Zero();
 	
 	if (numBlob>imageSize) numBlob=imageSize;
@@ -1621,8 +1666,8 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 			Cartesian2Logpolar(m_boxes[i].xmin, m_boxes[i].ymin, r, c);
 			Cartesian2Logpolar(m_boxes[i].xmin, m_boxes[i].ymin, r, c);*/
 
-			int rdim=(m_boxes[i].rmax-m_boxes[i].rmin+1);
-			int cdim=(m_boxes[i].cmax-m_boxes[i].cmin+1);
+			int rdim=(double)(m_boxes[i].rmax-m_boxes[i].rmin+1)*.75;
+			int cdim=(double)(m_boxes[i].cmax-m_boxes[i].cmin+1)*.75;
 
 			int a,b,c,d;
 			c = m_boxes[i].rmax+rdim;
@@ -1640,13 +1685,11 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 				m_boxes[i].rmax+rdim,
 				m_boxes[i].rmin-rdim)/(rdim*cdim);
 			m_boxes[i].cRG=abs(tmp-m_boxes[i].meanRG);
-
 			tmp=255*height*width*integralGR.getSaliencyLp(m_boxes[i].cmax+cdim,
 				m_boxes[i].cmin-cdim,
 				m_boxes[i].rmax+rdim,
 				m_boxes[i].rmin-rdim)/(rdim*cdim);
 			m_boxes[i].cGR=abs(tmp-m_boxes[i].meanGR);
-			
 			tmp=255*height*width*integralBY.getSaliencyLp(m_boxes[i].cmax+cdim,
 				m_boxes[i].cmin-cdim,
 				m_boxes[i].rmax+rdim,
@@ -1712,7 +1755,7 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 		}
 	}
 
-	const int maxDest=127;
+	const int maxDest=170;
 
 	if (maxSalienceBU!=minSalienceBU) {
 		a1=255*(maxDest-1)/(maxSalienceBU-minSalienceBU);
@@ -1774,9 +1817,9 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 
 void YARPWatershed::DrawFoveaBlob(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, const YarpPixelMono gray)
 {
-	id.Zero();
-	
 	int tag=tagged(0, 0);
+	
+	id.Zero();
 	
 	for (int r=m_boxes[tag].rmin; r<=m_boxes[tag].rmax; r++)
 		for (int c=0; c<width; c++)
@@ -1960,6 +2003,21 @@ void YARPWatershed::fuseFoveaBlob2(YARPImageOf<YarpPixelInt>& tagged, bool *blob
 }
 
 
+// Variance method
+void YARPWatershed::fuseFoveaBlob3(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, YarpPixelBGR var, int max_tag)
+{
+	const YarpPixelMono rg0=m_boxes[1].meanRG;
+	const YarpPixelMono gr0=m_boxes[1].meanGR;
+	const YarpPixelMono by0=m_boxes[1].meanBY;
+	
+	for (int i=0; i<max_tag; i++) {
+		if (blobList[i])
+			if (abs(m_boxes[i].meanRG-rg0)/var.r+abs(m_boxes[i].meanGR-gr0)/var.g+abs(m_boxes[i].meanBY-by0)/var.b>2)
+				blobList[i]=false;
+	}
+}
+
+
 void YARPWatershed::drawBlobList(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag, const YarpPixelMono gray)
 {
 	//id.Zero();
@@ -2017,14 +2075,48 @@ void YARPWatershed::centerOfMassAndMass(YARPImageOf<YarpPixelInt> &in, YarpPixel
 }
 
 
+YarpPixelBGR YARPWatershed::varBlob(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<YarpPixelMono> &rg, YARPImageOf<YarpPixelMono> &gr, YARPImageOf<YarpPixelMono> &by, int tag)
+{
+	int tmpr, tmpg, tmpb;
+	YarpPixelBGR tmp;
+
+	tmpr=0;
+	tmpg=0;
+	tmpb=0;
+
+	for (int r=m_boxes[tag].rmin; r<=m_boxes[tag].rmax; r++)
+		for (int c=m_boxes[tag].cmin; c<=m_boxes[tag].cmax; c++)
+			if (tagged(c, r)==tag) {
+				tmpr+=rg(c, r)*rg(c, r);
+				tmpg+=gr(c, r)*gr(c, r);
+				tmpb+=by(c, r)*by(c, r);
+			}
+	
+	tmpr = tmpr / m_boxes[tag].areaLP;
+	tmpg = tmpg / m_boxes[tag].areaLP;
+	tmpb = tmpb / m_boxes[tag].areaLP;
+
+	tmp.r = sqrt(tmpr - m_boxes[tag].meanRG*m_boxes[tag].meanRG);
+	tmp.g = sqrt(tmpg - m_boxes[tag].meanGR*m_boxes[tag].meanGR);
+	tmp.b = sqrt(tmpb - m_boxes[tag].meanBY*m_boxes[tag].meanBY);
+
+	if (tmp.r==0) tmp.r=1;
+	if (tmp.g==0) tmp.g=1;
+	if (tmp.b==0) tmp.b=1;
+	
+	return tmp;
+}
+
+
 void YARPWatershed::statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag, YARPBox &blob)
 {
-	int area=0;
-	int areaCart=0;
-	
+	unsigned long int area=0;
+	unsigned long int areaCart=0;
 	unsigned long int rgSum=0;
 	unsigned long int grSum=0;
 	unsigned long int bySum=0;
+	unsigned long int xSum=0;
+	unsigned long int ySum=0;
 
 	for (int tag=1; tag<max_tag; tag++)
 		if (blobList[tag]) {
@@ -2033,6 +2125,8 @@ void YARPWatershed::statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobLi
 			rgSum+=m_boxes[tag].rgSum;
 			grSum+=m_boxes[tag].grSum;
 			bySum+=m_boxes[tag].bySum;
+			xSum+=m_boxes[tag].xsum;
+			ySum+=m_boxes[tag].ysum;
 		}
 	
 	blob.areaLP=area;
@@ -2044,17 +2138,9 @@ void YARPWatershed::statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobLi
 		blob.meanRG=rgSum/area;
 		blob.meanGR=grSum/area;
 		blob.meanBY=bySum/area;
+		blob.centroid_x=xSum/area;
+		blob.centroid_y=ySum/area;
 	}
-
-	//ARRONZAMENTO
-	blob.centroid_x=m_boxes[1].centroid_x;
-	blob.centroid_y=m_boxes[1].centroid_y;
-}
-
-
-void YARPWatershed::getBlob(YARPImageOf<YarpPixelInt>& tagged, int x, int y, YARPBox &blob)
-{
-	blob=m_boxes[tagged(x, y)];
 }
 
 
@@ -2093,11 +2179,10 @@ void YARPWatershed::maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_t
 	int xcart;
 	int ycart;
 	
-	for (int l = 1; l < max_tag; l++) {
+	for (int l = 1; l < max_tag; l++)
 		if (m_boxes[l].valid)
 			if (m_boxes[l].salienceTotal>m_boxes[max].salienceTotal)
 				max=l;
-	}
 
 	box=m_boxes[max];
 	centerOfMassAndMass(tagged, box.id, &xcart, &ycart, &box.areaCart);
@@ -2114,12 +2199,9 @@ void YARPWatershed::foveaBlob(YARPImageOf<YarpPixelInt>& tagged, YARPBox &box)
 }
 
 
-int YARPWatershed::DrawVQColor(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged)
+void YARPWatershed::DrawVQColor(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged)
 {
 	for (int r=0; r<height; r++)
-		for (int c=0; c<width; c++) {
+		for (int c=0; c<width; c++)
 			colorVQ.DominantQuantization(m_boxes[tagged(c, r)].meanColors, id(c,r), 0.3*255);
-		}
-	
-	return 1;
 }

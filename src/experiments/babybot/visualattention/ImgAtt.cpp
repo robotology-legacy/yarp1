@@ -982,8 +982,6 @@ void YARPImgAtt::GetTarget(int &x, int &y)
 
 bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 {
-	int mn;
-	int mx;
 	bool found=false;
 	
 	DBGPF1 ACE_OS::printf(">>> get original planes\n");
@@ -1060,7 +1058,9 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 
 	//saveImages(src);
 	
-	/*MinMax(edge, mn, mx);
+	/*int mn;
+	int mx;
+	MinMax(edge, mn, mx);
 	FullRange(edge, edge, mn, mx);
 	out=edge;*/
 
@@ -1377,6 +1377,13 @@ void YARPImgAtt::findBlobs()
 	//rain.apply(edge, tagged);
 	rain.DrawFoveaBlob(blobFov, tagged);
 
+
+	rain.ComputeSalienceAll(max_tag, max_tag);
+	
+
+	YarpPixelBGR varFoveaBlob = rain.varBlob(tagged, rg, gr, by, 1);
+
+
 	//blobFov.Zero();
 	//memset(blobFov.GetRawBuffer(), 255, 50*((IplImage*)blobFov)->widthStep);
 	//fit.fitEllipse(blobFov, &bfX0, &bfY0, &bfA11, &bfA12, &bfA22);
@@ -1386,20 +1393,20 @@ void YARPImgAtt::findBlobs()
 	// - faster
 	// - it considers also "lateral" pixels
 	// - it doesn't add pixels iteratively
-	//rain.findNeighborhood(tagged, 0, 0, blobList, max_tag);
-	//rain.fuseFoveaBlob2(tagged, blobList, max_tag);
+	rain.findNeighborhood(tagged, 0, 0, blobList, max_tag);
+	rain.fuseFoveaBlob3(tagged, blobList, varFoveaBlob, max_tag);
 
 	// alternative method
 	//rain.fuseFoveaBlob(tagged, blobList, max_tag);
 	
-	/*blobList[1]=false;
-	rain.drawBlobList(blobFov, tagged, blobList, max_tag, 127);*/
+	blobList[1]=false;
+	rain.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
 	/*ACE_OS::sprintf(savename, "./blob_fov2.ppm");
 	YARPImageFile::Write(savename, blobFov);*/
-	blobList[1]=true;
+	blobList[1]=true; // so the fovea blob is eliminated by the removeBlobList
 	rain.statBlobList(tagged, blobList, max_tag, fovBox);
-	//rain.removeBlobList(blobList, max_tag);
-	rain.removeFoveaBlob(tagged);
+	rain.removeBlobList(blobList, max_tag);
+	//rain.removeFoveaBlob(tagged);
 
 	/*int CoMX, CoMY;
 	double u00, u11, u20, u02;
@@ -1417,10 +1424,7 @@ void YARPImgAtt::findBlobs()
 	//fovBox.cmp=(u20+u02)/(u00*u00);
 	//fovBox.ect=sqrt((u20-u02)*(u20-u02)+4*u11*u11)/(u20+u02);
 
-	
-	//rain.RemoveNonValid(max_tag, 3800, 100);
-	rain.ComputeSalienceAll(max_tag, max_tag);
-	
+
 	// Comment the following line to disable the elimination of non valid blob
 	rain.RemoveNonValid(max_tag, 6000, 100);
 

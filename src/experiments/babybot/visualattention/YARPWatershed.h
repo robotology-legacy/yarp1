@@ -50,7 +50,7 @@ public:
 
 	//bool edge;
 
-	// I use long to allow blob of dimension>255
+	// I use long to allow blob of dimension>255, but in MSVC int is = long!
 	unsigned long int rgSum;
 	unsigned long int grSum;
 	unsigned long int bySum;
@@ -94,10 +94,7 @@ class YARPWatershed {
 	int *neighL;
 	int *neighR;
 	int padding;
-	//YARPImageOf<YarpPixelMono> borderLUT;
-	//unsigned char *p_borderLUT;
 	int imageSize;
-	//int imageSizePad;
 
 	YarpPixelMono threshold;
 
@@ -160,9 +157,9 @@ public:
 	void checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num);
 	void ComputeMeanColors(int last_tag);
 	void RemoveNonValid(int last_tag, const int max_size, const int min_size);
-	int DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
-	int DrawMeanOpponentColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
-	int DrawVQColor(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
+	void DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
+	void DrawMeanOpponentColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
+	void DrawVQColor(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
 	int DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
 	int DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
 	//int DrawGrayLP(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, int numBlob);
@@ -173,9 +170,12 @@ public:
 	void findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, int y, bool *blobList, int max_tag);
 	void fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag);
 	void fuseFoveaBlob2(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag);
+	void fuseFoveaBlob3(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, YarpPixelBGR var, int max_tag);
+	YarpPixelBGR varBlob(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<YarpPixelMono> &rg, YARPImageOf<YarpPixelMono> &gr, YARPImageOf<YarpPixelMono> &by, int tag);
 	void statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag, YARPBox &blob);
 	void centerOfMassAndMass(YARPImageOf<YarpPixelInt> &in, YarpPixelInt tag, int *x, int *y, double *mass);
-	inline void getBlob(YARPImageOf<YarpPixelInt>& tagged, int x, int y, YARPBox &blob);
+	inline void getBlob(YARPImageOf<YarpPixelInt>& tagged, int x, int y, YARPBox &blob)
+		{blob=m_boxes[tagged(x, y)];}
 
 	void maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox* boxes, int num);
 	void maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox &box);

@@ -119,6 +119,10 @@ SOURCE=.\YARPConvKernelFile.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPSalience.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPWatershed.cpp
 # End Source File
 # End Group
@@ -140,6 +144,10 @@ SOURCE=.\YARPConvKernel.h
 # Begin Source File
 
 SOURCE=.\YARPConvKernelFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPSalience.h
 # End Source File
 # Begin Source File
 
