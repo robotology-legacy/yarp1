@@ -55,13 +55,13 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #Add our name(s) here#
+///                    #nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-///  $Id: YARPGalilOnBabybotHandAdapter.h,v 1.2 2004-07-30 10:33:24 babybot Exp $
+///  $Id: YARPGalilOnBabybotHandAdapter.h,v 1.3 2004-09-03 13:16:09 babybot Exp $
 ///
 ///
 
@@ -77,7 +77,6 @@
 
 #include <ace/log_msg.h>
 #include <yarp/YARPGalilDeviceDriver.h>
-///#include <string> /// DEPRECATED!
 
 #define YARP_GALIL_ON_BABYBOT_HAND_ADAPTER_VERBOSE
 
@@ -155,9 +154,10 @@ public:
 		// set gains
 		for(int i = 0; i < _parameters->_naj; i++)
 		{
-			IOCtl(CMDControllerIdle, &i); // disable PID
+			int tmpIndex = _parameters->_axes_lut[i];
+			IOCtl(CMDControllerIdle, &tmpIndex); // disable PID
 			SingleAxisParameters cmd;
-			cmd.axis = i;
+			cmd.axis = tmpIndex;
 			cmd.parameters = &_parameters->_highPIDs[i];
 			IOCtl(CMDSetPID, &cmd);
 			double pos = 0.0;

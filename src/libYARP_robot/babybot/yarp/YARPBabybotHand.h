@@ -55,13 +55,13 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #Add our name(s) here#
+///                    #nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-///  $Id: YARPBabybotHand.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+///  $Id: YARPBabybotHand.h,v 1.2 2004-09-03 13:16:09 babybot Exp $
 ///
 ///
 
@@ -253,13 +253,6 @@ public:
 		rc = _control_board.IOCtl(CMDGetSpeeds, _tmp_command_double);
 		_convert_and_decouple_output_raw(_tmp_command_double, _optic_encoders_sp_raw);
 		
-		/*
-		for(i = 0; i < 6; i++)
-			printf("%lf ", _optic_encoders_sp_raw[i]);
-		printf("\n");*/
-		// _convert_output_raw(_tmp_command_double, _optic_encoders_sp_raw);
-		// _convert_output_raw(_tmp_command_int, _optic_encoders_sp_raw);
-
 		rc = _control_board.IOCtl(CMDGetTorques, _tmp_command_double);
 		_convert_output_raw(_tmp_command_double, _motor_torques);
 
@@ -862,7 +855,6 @@ protected:
 	double *_optic_encoder_zeros;
 
 	// these are used to convert high level axis map into galil axis map
-//	int *_tmp_command_int;
 	double *_tmp_command_double;
 	short *_tmp_command_short;
 	char *_tmp_command_char;
