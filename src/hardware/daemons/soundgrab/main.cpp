@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.14 2004-08-30 10:33:56 beltran Exp $
+/// $Id: main.cpp,v 1.15 2004-08-30 14:03:56 beltran Exp $
 ///
 
 #include <yarp/YARPConfig.h>
@@ -46,40 +46,17 @@
 #include <yarp/YARPBottle.h>
 #include <yarp/YARPBottleContent.h>
 #include <yarp/YARPConfigFile.h>
+#include <yarp/YARPParseParameters.h>
 
 #include <windows.h>
 #include <stdio.h>
 #include <conio.h>
 #include <mmsystem.h>
 
+#include <yarp/YARPRobotHardware.h>
 #include <iostream>
 
 using namespace std;
-
-#if defined(__QNXEurobot__)
-
-#	include <YARPEurobotSoundGrabber.h>
-#	define DeclareOutport(x) YARPOutputPortOf<YARPSoundBuffer>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
-
-#elif defined(__WIN32Babybot__)
-
-#	include <yarp/YARPBabybotSoundGrabber.h>
-#	define DeclareOutport(x) YARPOutputPortOf<YARPSoundBuffer>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
-
-#elif defined(__QNXBabybot__)
-
-#	include <YARPBabybotSoundGrabber.h>
-#	define DeclareOutport(x) YARPOutputPortOf<YARPSoundBuffer>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
-
-#elif defined(__LinuxTest__)
-/// apparently small difference in macro subst, need to investigate, weird.
-#	define DeclareOutport(x) YARPOutputPortOf<YARPSoundBuffer>(x)(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
-
-#else
-
-#error "pls specify a setup by defining symbol, see code above"
-
-#endif
 
 /**
  * Global parameters.
@@ -87,11 +64,18 @@ using namespace std;
 char _name[512];
 char _fgdataname[512];
 char _netname[512];
-bool _client          = false;
-bool _simu            = false;
-bool _fgnetdata       = false;
-int  _board_no        = 0;
-char __filename[256]  = "sound.ini";
+bool _client         = false;
+bool _simu           = false;
+bool _fgnetdata      = false;
+int  _board_no       = 0;
+char __filename[256] = "sound.ini";
+bool _help           = false;
+
+/**
+ * Some variable for the network connection.
+ */
+bool _sharedmem = true;
+int  _protocol  = YARP_MCAST;
 
 /**
  * Default sound parameters.
@@ -105,6 +89,46 @@ int _volume        = 50;
 extern int __debug_level;
 
 /** 
+  * Returns the help.
+  * 
+  * @return YARP_OK  
+  */
+int 
+PrintHelp (void)
+{
+	/*
+	ACE_OS::fprintf (stdout, "USAGE:\n");
+	ACE_OS::fprintf (stdout, "--help, print help and exit\n");
+	ACE_OS::fprintf (stdout, "--name <str>, use <str> as port name prefix (don't forget the leading /)\n");
+	ACE_OS::fprintf (stdout, "--w <int>, set the acquisition width\n");
+	ACE_OS::fprintf (stdout, "--h <int>, set the acquisition height\n");
+	ACE_OS::fprintf (stdout, "--b <int>, board number (0 or 1)\n");
+	ACE_OS::fprintf (stdout, "--s, simulation mode\n");
+	ACE_OS::fprintf (stdout, "--net <str>, define the network name (in a multi-network configuration)\n");
+	ACE_OS::fprintf (stdout, "--o <int>, set acquisition vertical offset\n");
+	ACE_OS::fprintf (stdout, "--f, activate external control of acquisition parameters (through YARPBottle messages)\n");
+	ACE_OS::fprintf (stdout, "--shmem, disable shared memory communication on output\n");
+	ACE_OS::fprintf (stdout, "--protocol <str>, preferred output protocol (default MCAST)\n");
+	*/
+
+	/** @todo Stardarize the input parameter with those of the grabber (up). */
+
+	ACE_OS::fprintf(stdout, "USE: soundgrab <+name -Parameters>\n");
+	ACE_OS::fprintf(stdout, "--help, print help and exit\n");
+	ACE_OS::fprintf(stdout, "--c, the channels present in the sound stream\n");
+	ACE_OS::fprintf(stdout, "--a, the SamplesPerSecond of the sound stream\n");
+	ACE_OS::fprintf(stdout, "--i, the BitsPerSample of the sound stream\n");
+	ACE_OS::fprintf(stdout, "--l, the BufferLength of the sound stream\n");
+	ACE_OS::fprintf(stdout, "--b, the BoardNumber of the sound acquisition board\n");
+	ACE_OS::fprintf(stdout, "--t, receiver client modality\n");
+	ACE_OS::fprintf(stdout, "--s, server in Simulation mode\n");
+	ACE_OS::fprintf(stdout, "--n, Network number\n");
+	ACE_OS::fprintf(stdout, "--f, Open port for volume/gain/mute data\n");
+	
+	return YARP_OK;
+}
+
+/** 
   * Parses the parameters passed to the grabber.
   * 
   * @param argc The number of parameters
@@ -116,104 +140,77 @@ extern int __debug_level;
 int 
 ParseParams (int argc, char *argv[], int visualize = 0) 
 {
-	int i;
-	
 	ACE_OS::sprintf (_name      , "/%s/o:sound" , argv[0]);
 	ACE_OS::sprintf (_fgdataname, "/%s/i:fgdata", argv[0]);
 	ACE_OS::sprintf (_netname   , "default");
 
-	if (visualize)
-	{
-		ACE_OS::fprintf(stdout, "USE: soundgrab <+name -Parameters>\n");
-		ACE_OS::fprintf(stdout, "c -> Channels\n");
-		ACE_OS::fprintf(stdout, "a -> SamplesPerSecond\n");
-		ACE_OS::fprintf(stdout, "i -> BitsPerSample\n");
-		ACE_OS::fprintf(stdout, "l -> BufferLength\n");
-		ACE_OS::fprintf(stdout, "b -> BoardNumber\n");
-		ACE_OS::fprintf(stdout, "t -> Receiver client modality\n");
-		ACE_OS::fprintf(stdout, "s -> Server Simulation\n");
-		ACE_OS::fprintf(stdout, "n -> Network\n");
-		ACE_OS::fprintf(stdout, "f -> Open port for volume/gain/mute data\n");
+	YARPString tmps;
 
+	if (YARPParseParameters::parse(argc, argv, "help") 
+		|| argc == 1 
+		|| YARPParseParameters::parse(argc, argv, "?") 
+		|| YARPParseParameters::parse(argc, argv, "-help"))
+	{
+		_help = true;
 		return YARP_OK;
-   	}
+	}
 
-	for (i = 1; i < argc; i++)
+	if (YARPParseParameters::parse(argc, argv, "-name", tmps))
 	{
-		if (argv[i][0] == '?') { 
-			ParseParams(argc, argv, 1);
-			exit(0);
-		}
-		else
-		if (argv[i][0] == '+') 
-		{
-			ACE_OS::sprintf (_name      , "/%s/o:sound" , argv[i]+1);
-			ACE_OS::sprintf (_fgdataname, "/%s/i:fgdata", argv[i]+1);
-		}
-		else
-		if (argv[i][0] == '-') 
-		{
-			switch (argv[i][1])
-			{
-            case 'c':                                     // Channels
-                _Channels = ACE_OS::atoi(argv[i+1]);
-                i++;
-                break;
+		ACE_OS::sprintf (_name, "%s/o:img", tmps.c_str());
+		ACE_OS::sprintf (_fgdataname,"%s/i:fgdata", tmps.c_str());
+	}
 
-            case 'a':                                     // SamplesPerSecond
-                _SamplesPerSec = ACE_OS::atoi(argv[i+1]);
-                i++;
-                break;
+	if (YARPParseParameters::parse(argc, argv, "-c", &_Channels))
+	{
+		ACE_ASSERT (_Channels != 0 && _Channels < 3);
+	}
 
-            case 'i':                                     // BitsPerSample
-                _BitsPerSample = ACE_OS::atoi(argv[i+1]);
-                i++;
-                break;
+	if (YARPParseParameters::parse(argc, argv, "-a", &_SamplesPerSec))
+	{
+		ACE_ASSERT (_SamplesPerSec != 0);
+	}
 
-            case 'l':                                     // BufferLength
-                _BufferLength = ACE_OS::atoi(argv[i+1]);
-                i++;
-                break;
+	if (YARPParseParameters::parse(argc, argv, "-i", &_BitsPerSample))
+	{
+		ACE_ASSERT (_BitsPerSample != 0);
+	}
 
-			case 'b':
-				_board_no = ACE_OS::atoi (argv[i+1]);
-				i++;
-				break;
+	if (YARPParseParameters::parse(argc, argv, "-l", &_BufferLength))
+	{
+		ACE_ASSERT (_BufferLength != 0);
+	}
 
-			case 't':
-				ACE_OS::fprintf (stdout, "soundgrabber acting as a receiver client...\n");
-				ACE_OS::sprintf (_name, "%s", argv[i+1]);
-				i++;
-				_client = true;
-				_simu = false;
-				break;
+	if (YARPParseParameters::parse(argc, argv, "-b", &_board_no))
+	{
+		//ACE_ASSERT (_Channels != 0 && _Channels < 3);
+	}
 
-			case 's':
-				ACE_OS::fprintf (stdout, "simulating a soundgrabber...\n");
-				_simu = true;
-				_client = false;
-				break;
+	if (YARPParseParameters::parse(argc, argv, "-t", tmps))
+	{
+		ACE_OS::fprintf(stdout, "soundgrabber acting as a receiver clients...\n");
+		ACE_OS::sprintf (_name,"%s", tmps.c_str());
+		_client = true;
+		_simu   = false;
+	}
 
-			case 'n':
-				ACE_OS::fprintf (stdout, "sending to network : %s\n", argv[i+1]);
-				ACE_OS::sprintf (_netname, "%s", argv[i+1]);
-				i++;
-				break;
+	if (YARPParseParameters::parse(argc, argv, "-s"))
+	{
+		ACE_OS::fprintf(stdout, "soundgrabber simulating a soundgrabber...\n");
+		_simu   = true;
+		_client = false;
+	}
 
-			case 'f':
-				ACE_OS::fprintf(stdout, "grabber receiving data from network mode...\n");
-				_fgnetdata = true;
-				break;
+	if (YARPParseParameters::parse(argc, argv, "-n", tmps))
+	{
+		ACE_OS::fprintf (stdout, "sending to network : %s\n", tmps.c_str());
+		ACE_OS::sprintf (_netname, "%s", tmps.c_str());
+	}
 
-			default:
-				ACE_OS::fprintf(stdout, "The %s option is not supported",argv[i]);
-				break;
-			}
-		}
-		else 
-		{
-			ACE_OS::fprintf (stderr, "unrecognized parameter %d:%s\n", i, argv[i]);
-		}
+	if (YARPParseParameters::parse(argc, argv, "-f"))
+	{
+		ACE_OS::fprintf(stdout, "grabber receiving data from network mode...\n");
+		_fgnetdata = true;
 	}
 
 	return YARP_OK; 
@@ -224,6 +221,8 @@ ParseParams (int argc, char *argv[], int visualize = 0)
   * Extends the YARPPort in order to implement the OnRead callback function.
   * It receives a bottle with information adjust the sound. To be used with fgadjuster photon 
   * application or with a similar application.
+  *
+  * @todo adapt it to control some sound variables. Like the balance, volume...etc.
   */
 class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 {
@@ -254,10 +253,7 @@ class FgNetDataPort : public YARPInputPortOf<YARPBottle>
   */
 void FgNetDataPort::OnRead(void)
 {
-	/*************************************************************
-	 * Here the reading of adjusting data must be done.          *
-	 * The bottle object is used to send the data in the network *
-	 *************************************************************/
+	/** @todo process somehow the data received from the network. */
 	Read ();
 	m_bottle = Content();
 	m_bottle.rewind();
@@ -306,6 +302,8 @@ public:
 /** 
   * This method acts as a client for another soundgrabber.
   * Simply reads the sound buffer form the network and puts it in a WAVE file.
+  *
+  * @todo Avoid the use of Windows depended code for the WAV files.
   * 
   * @return YARP_OK
   */
@@ -389,6 +387,8 @@ mainthread::_runAsClient (void)
 /** 
   * This function simulates a recording and sends the simulated data into the network.
   * It is used to test this level plus clients and network connections.
+  *
+  * @todo Avoid the use of windows depended code.
   * 
   * @return 
   * 	-# YARP_OK everything was ok.
@@ -410,7 +410,9 @@ mainthread::_runAsSimulation (void)
 	//----------------------------------------------------------------------
 	//  Port initialization
 	//----------------------------------------------------------------------
-	DeclareOutport(outport);
+	//DeclareOutport(outport);
+	YARPOutputPortOf<YARPSoundBuffer> outport(YARPOutputPort::DEFAULT_OUTPUTS, _protocol);
+	
 	outport.Register (_name, _netname);
 	
 	/// alloc buffer.
@@ -560,7 +562,9 @@ mainthread::_runAsNormally (void)
 	//----------------------------------------------------------------------
 	//  Port initialization
 	//----------------------------------------------------------------------
-	DeclareOutport(outport);
+	//DeclareOutport(outport);
+	
+	YARPOutputPortOf<YARPSoundBuffer> outport(YARPOutputPort::DEFAULT_OUTPUTS, _protocol);
 	outport.Register (_name, _netname);
 
 	//----------------------------------------------------------------------
@@ -606,7 +610,7 @@ mainthread::_runAsNormally (void)
 		outport.Content().Refer (buffer);
 		outport.Write();
 
-		soundgrabber.releaseBuffer (); // this could be release earlier?
+		soundgrabber.releaseBuffer (); // this could be released earlier?
 
 		//----------------------------------------------------------------------
 		//  Time measurement stuff
@@ -647,11 +651,16 @@ mainthread::_runAsNormally (void)
 int 
 main (int argc, char *argv[])
 {
-	///__debug_level = 80;
 
 	YARPScheduler::setHighResScheduling ();
 
 	ParseParams (argc, argv);
+
+	if (_help)
+	{
+		PrintHelp ();
+		return YARP_OK;
+	}
 
 	mainthread _thread;
 	_thread.Begin();
@@ -661,7 +670,6 @@ main (int argc, char *argv[])
 	do {
 		cout << "Type q+return to quit" << endl;
 		cin >> c;
-		ParseParams(argc, argv, 1);
 	}
 	while (c != 'q');
 
