@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.1 2003-11-07 14:19:33 babybot Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.2 2003-11-07 17:31:10 babybot Exp $
 ///
 ///
 
@@ -118,6 +118,7 @@ const double F = 4;						/// camera F length.
 const double PixScaleX = 120;			/// camera mm to pixel conversion factor.
 const double PixScaleY = 120;			/// same along the y coord.
 
+const double Periphery2Fovea = 2.0;		/// conversione from foval to peripheral.
 
 ///
 ///
@@ -139,7 +140,7 @@ public:
 	///
 	/// eventually it should be possible to call this function also for mapping to the peripheral image.
 	/// ONLY foveal remapped now.
-	typedef enum { KIN_LEFT = 1, KIN_RIGHT = 2 } __kinType;
+	typedef enum { KIN_LEFT = 1, KIN_RIGHT = 2, KIN_LEFT_PERI = 3, KIN_RIGHT_PERI = 4 } __kinType;
 	
 	///
 	/// constructor, takes two set of DH params.
@@ -161,7 +162,12 @@ public:
 
 	///
 	/// given an up to date kin matrix, it computes the x,y point where a given ray v intersects the img plane.
-	void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, int& y);
+	void intersectRay (__kinType k, const YVector& v, int& x, int& y);
+
+	///
+	/// given a point in the peripheral img returns the corresp foval one.
+	inline void peripheryToFovea (int x, int y, int& rx, int& ry) { rx = x * Periphery2Fovea; ry = y * Periphery2Fovea; }
+	inline void foveaToPeriphery (int x, int y, int& rx, int& ry) { rx = x / Periphery2Fovea; ry = y / Periphery2Fovea; }
 
 protected:
 	inline void _computeFixation (const YHmgTrsf &T1, const YHmgTrsf &T2);

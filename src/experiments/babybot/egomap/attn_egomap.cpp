@@ -55,13 +55,13 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #original paulfitz, changed pasa#
+///                    #pasa#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: attn_tracker.cpp,v 1.7 2003-11-07 17:31:09 babybot Exp $
+/// $Id: attn_egomap.cpp,v 1.1 2003-11-07 17:31:09 babybot Exp $
 ///
 ///
 
@@ -83,8 +83,7 @@
 #include <YARPParseParameters.h>
 #include <YARPVectorPortContent.h>
 
-#include "ImgTrack.h"
-
+#include <YARPBabybotHeadKin.h>
 
 ///
 ///
@@ -93,9 +92,128 @@ YARPInputPortOf<YARPGenericImage> in_img;
 YARPInputPortOf<YVector> in_pos;
 
 YARPOutputPortOf<YARPGenericImage> out_img;
-YARPOutputPortOf<YVector> out_point (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
-const char *DEFAULT_NAME = "/tracker";
+const char *DEFAULT_NAME = "/egomap";
+const int ISIZE = 128;
+const int FULLSIZE = 256;
+
+///
+///
+///
+class _procThread : public YARPThread
+{
+protected:
+	YARPSemaphore _sema;
+	bool _getcurrent;
+
+	enum { MAXOBJ = 10 };
+	YVector _rays[MAXOBJ];
+	int _nextfree;
+
+	YARPBabybotHeadKin _gaze;
+
+public:
+	_procThread () : 
+		YARPThread(), 
+		_sema(1), 
+		_gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
+		{}
+
+	virtual ~_procThread () {}
+
+	void Body (void)
+	{
+		using namespace _logpolarParams;
+
+		_sema.Wait();
+		_getcurrent = false;
+		_nextfree = 0;
+		_sema.Post();
+
+		///
+		///
+		///
+		YARPImageOf<YarpPixelMono> in;
+		YARPImageOf<YarpPixelBGR> out;
+		YARPImageOf<YarpPixelBGR> colored;
+		YARPImageOf<YarpPixelBGR> remapped;
+
+		colored.Resize (_stheta, _srho);
+		remapped.Resize (FULLSIZE, FULLSIZE);
+
+		YARPLogpolar mapper;
+
+		while (!IsTerminated())
+		{
+			in_img.Read();
+
+			in.Refer (in_img.Content());
+			mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)in, colored);
+			mapper.Logpolar2Cartesian (colored, remapped);
+
+			ACE_ASSERT (in.GetWidth() == _stheta && in.GetHeight() == _srho);
+			ACE_ASSERT (remapped.GetWidth() == FULLSIZE && remapped.GetHeight() == FULLSIZE);
+
+			out_img.Content().SetID (YARP_PIXEL_BGR);
+
+			out_img.Content().Resize (ISIZE, ISIZE); 
+			out.Refer (out_img.Content());
+
+			/// copy reduced size into output img.
+			YARPSimpleOperation::Decimate (remapped, out, 2, 2);
+
+			in_pos.Read();
+			YVector& jnts = in_pos.Content();
+
+			_gaze.update (jnts);
+
+			/// does the display.
+			for (int i = 0; i < _nextfree; i++)
+			{
+				int predx = 0, predy = 0;
+				_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _rays[i], predx, predy);
+				predx += FULLSIZE/2;
+				predy += FULLSIZE/2;
+
+				///
+				YarpPixelBGR green (0, 255, 0);
+				AddCircleOutline (out, green, predx/2, predy/2, 5);
+				AddCircleOutline (out, green, predx/2, predy/2, 4);
+			}
+
+
+			_sema.Wait();
+			bool newpoint = _getcurrent;
+			_getcurrent = false;
+			_sema.Post();
+
+			/// 
+			///
+			/// operations, add new vector.
+			if (newpoint)
+			{
+				_rays[_nextfree].Resize(3);
+				/// get the current ray.
+				_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT, _rays[_nextfree], 0, 0);
+				/// the new ray is also stored.
+				_nextfree++;
+			}
+
+			out_img.Write ();
+		}
+
+		/// returning smoothly.
+	}
+
+	void AddPointCurrent (void)
+	{
+		_sema.Wait();
+		_getcurrent = true;
+		_sema.Post();
+	}
+};
+
+
 
 ///
 ///
@@ -104,8 +222,6 @@ const char *DEFAULT_NAME = "/tracker";
 int main(int argc, char *argv[])
 {
 	using namespace _logpolarParams;
-
-	YARPComplexTrackerTool tracker;
 
 	YARPString name;
 	YARPString network_i;
@@ -138,57 +254,38 @@ int main(int argc, char *argv[])
 	sprintf(buf, "%s/o:img", name.c_str());
 	out_img.Register(buf, network_i.c_str());
 
-	sprintf(buf, "%s/o:vect", name.c_str());
-	out_point.Register(buf, network_o.c_str());
+	_procThread thread;
+	thread.Begin();
 
-	///
-	///
-	///
-	YARPImageOf<YarpPixelMono> in;
-	YARPImageOf<YarpPixelBGR> out;
-	YARPImageOf<YarpPixelBGR> colored;
-	YARPImageOf<YarpPixelBGR> remapped;
+	while (1)
+	{
+		char c;
+		scanf ("%c", &c);
 
-	colored.Resize (_stheta, _srho);
-	remapped.Resize (ISIZE, ISIZE);
+		switch (c)
+		{
+		case 'h':
+		case '?':
+			printf ("h,?: help, print this message\n");
+			printf ("a: add current fixation point to the set of objects\n");
+			printf ("q: quit\n");
+			break;
 
-	YARPLogpolar mapper;
-	YVector v(2);
-	v = 0;
+		case 'q':
+			goto ReturnSmoothly;
+			break;
 
-	while(1)
-    {
-		in_img.Read();
+		case 'a':
+			thread.AddPointCurrent ();
+			break;
+		}
+	}
 
-		in.Refer (in_img.Content());
-		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)in, colored);
-		mapper.Logpolar2CartesianFovea (colored, remapped);
 
-		ACE_ASSERT (in.GetWidth() == _stheta && in.GetHeight() == _srho);
-		ACE_ASSERT (remapped.GetWidth() == ISIZE && remapped.GetHeight() == ISIZE);
+ReturnSmoothly:
+	printf ("hopefully returning smoothly\n");
 
-		out_img.Content().SetID (YARP_PIXEL_BGR);
-
-		SatisfySize (remapped, out_img.Content());
-		out.Refer (out_img.Content());
-		out = remapped;
-
-		in_pos.Read();
-		YVector& jnt = in_pos.Content();
-
-		///
-		tracker.apply (remapped, out, jnt);
-
-		out_img.Write ();
-
-		/// get the target.
-		int x = 0, y = 0;
-		tracker.getTarget (x, y);
-		v(1) = x;
-		v(2) = y;
-		out_point.Content() = v;
-		out_point.Write();
-    }
-
+	thread.End();
+	
 	return 0;
 }

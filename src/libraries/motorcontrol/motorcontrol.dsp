@@ -205,6 +205,14 @@ SOURCE=.\babybot\YARPBabybotHead.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\babybot\YARPBabybotHeadKin.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\babybot\YARPBabybotHeadKin.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\babybot\YARPBabybotInertialSensor.cpp
 # End Source File
 # Begin Source File
