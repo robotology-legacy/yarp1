@@ -1,0 +1,84 @@
+Naming conventions.
+
+- by nat
+
+Here is a draft of the naming convention we may be using in the future. 
+The overall idea is to have names which are short, simple and readable.
+Having said that, you'll find out that some solutions are not "optimal"
+but have been chosen for aesthetic reasons.
+Of course we can discuss them.
+
+- Function names should start with lowercase letter. Multi-words names have
+mixed case. I used to separete them with underscores, but this tends to make
+names too long.
+
+Examples:
+computeOpticFlow();
+doLoop();
+...
+
+- Private functions start with underscore. It may be useful To identify
+private functions because often they modify member variables.
+
+Example:
+_alloc();
+_freeMemory();
+
+- Member variables start with underscore too. This is inspired both by ACE (where 
+the undescore is at the end of the name) and by MFC (where there is a "m_" at 
+the beginning).
+
+Example:
+bool _calibrated;
+double *_actualPositions;
+
+- Class names are capitalized. Multi-words names have mixed case. Within the library
+they start with YARP.
+
+Example:
+YARPGenericImage
+YARPGalilDeviceDriver
+YARPMEIDeviceDriver	// this is an exeption because MEI is uppercase
+
+- Macros and defines are all uppercase. To separate multi-words in this case we
+are forced to use underscore.
+
+Examples:
+#define MY_TIME 10
+#define HEAD_STATUS_DEBUG(string) \
+	do {printf("HEAD_STATUS_DEBUG: "),printf string;} while(0)
+
+- Constant variable names begin with double underscore "__".
+
+Examples:
+const int __nEcc = 32;
+const int __nAng = 64;
+const int __threadPeriod = 40;
+
+- Parameters. Input parameters go first followed by output parameters. 
+Of course don't forget to use const.
+
+Examples:
+convertImage(const YARPImage &in, YARPImage &out);
+
+- It is a good practice to use plural names for vectors
+
+Examples:
+double *positions;
+bool *flags;
+
+- Templates... Do we need a naming convention too ? We could use names which are
+self-explaining or prefix them with T.
+
+Examples:
+YARPImageOf<YarpRGBPixel>
+GenericControlTemplate<>
+TGenericControl<>
+
+- Namespaces... I used to prefix namespace names with underscore. Better suggestions ?
+
+Example:
+namespace _hand
+{}
+
+
