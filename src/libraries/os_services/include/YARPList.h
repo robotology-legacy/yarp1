@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPList.h,v 1.4 2003-08-20 08:14:51 natta Exp $
+/// $Id: YARPList.h,v 1.5 2003-09-19 15:37:20 babybot Exp $
 ///
 ///
 
@@ -143,10 +143,32 @@ public:
 	int go_head(void) { _it = 0; return _it; }
 	int go_tail(void) { _it = _owner.size(); return _it; }
 
-	T& operator *() const { ACE_ASSERT (_owner.size() != 0 && _it >= 0 && _it < _owner.size()); return _onwer[_it]; }
+	bool done()
+	{
+		if (_it == _owner.size() )
+			return true;
+		else
+			return false;
+	}
+
+	const T& operator *() const { ACE_ASSERT (_owner.size() != 0 && _it >= 0 && _it < _owner.size()); return _owner[_it]; }
 
 	int operator ++() { _it++; return _it; }
 	int operator --() { _it--; return _it; }
+
+	int operator ++(int)
+	{
+		int tmp = _it;
+		_it++;
+		return tmp;
+	}
+
+	int operator --(int)
+	{
+		int tmp = _it;
+		_it--;
+		return tmp;
+	}
 
 	bool operator== (int i) { return (_it == i) ? true : false; }
 	bool operator== (const YARPVectorIterator<T>& i) { return (_it == i._it) ? true : false; }
@@ -185,6 +207,13 @@ public:
 		int old_size = resize (ACE_Array<T>::size()+1);
 		ACE_Array<T>::operator[] (old_size) = element;
 		return old_size+1;
+	}
+
+	int reserve (size_t sz)
+	{
+		int old_size = ACE_Array<T>::max_size();
+		ACE_Array<T>::max_size(sz);
+		return old_size;
 	}
 };
 

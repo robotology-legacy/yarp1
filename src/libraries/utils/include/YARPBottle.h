@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.2 2003-09-18 15:35:12 babybot Exp $
+/// $Id: YARPBottle.h,v 1.3 2003-09-19 15:37:20 babybot Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -103,7 +103,7 @@ public:
 	  return *this;
 	}
    
-    std::vector<char>& getBuffer() { return text; }
+    YARPVector<char>& getBuffer() { return text; }
 
 	void setID(int l) { id = l; }
 	int getID() const { return id; }
@@ -312,7 +312,7 @@ protected:
 		return (ch==compare);
     }
 
-	std::vector<char> text;
+	YARPVector<char> text;
 	NetInt32 id;
 	NetInt32 len;
 	NetInt32 top;

@@ -13,8 +13,8 @@ void YARPBottle::dump()
 {
 	cout << "Starting dump of internal string\n";
 	cout << "Seq length:" << text.size() << endl;
-	std::vector<char>::iterator it = text.begin();
-	while (it != text.end())
+	YARPVector<char>::iterator it(text);
+	while (!it.done())
 	{
 		printf("%d\n", *it);
 		it++;
