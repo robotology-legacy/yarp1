@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.cpp,v 1.2 2004-10-28 15:19:49 beltran Exp $
+/// $Id: SoundIdentificationThread.cpp,v 1.3 2004-10-29 08:29:01 beltran Exp $
 ///
 
 /** 
@@ -92,22 +92,6 @@ void SoundIdentificationThread::setDecaingFactor(const double &dfactor) {
 	_dDecayValue = dfactor;
 
 	_sema.Post(); // End Semaphore
-}
-
-//----------------------------------------------------------------------
-//  getSValue
-//----------------------------------------------------------------------
-int SoundIdentificationThread::getSValue() { 
-	LOCAL_TRACE("SoundIdentification: Entering getSValue");
-	return _iSValue;
-}
-
-//----------------------------------------------------------------------
-//  getDecaingFactor
-//----------------------------------------------------------------------
-double SoundIdentificationThread::getDecaingFactor() { 
-	LOCAL_TRACE("SoundIdentification: Entering getDecaingFactor");
-	return _dDecayValue; 
 }
 
 //----------------------------------------------------------------------
@@ -808,18 +792,20 @@ void SoundIdentificationThread::Body (void)
 			_outHSHistogramPort.Content().Refer(scaledimage);
 			_outHSHistogramPort.Write();
 		}
-		/*
+
+		
 		//----------------------------------------------------------------------
 		//  This just resends the received images with some delay.
 		//----------------------------------------------------------------------
-		if (_soundTemplate.Length() > 18)
+		/*
+		if (_soundTemplate.Length() > 10)
 		{
-		YARPImageOf<YarpPixelBGR>& tempp = _vImages[0];
-		_outpImg.Content().SetID(YARP_PIXEL_BGR);
+		YARPImageOf<YarpPixelMono>& tempp = _vLogPolarImages[0];
+		_outpImg.Content().SetID(YARP_PIXEL_MONO);
 		_outpImg.Content().Refer(tempp);
 		_outpImg.Write();
 		}
-		 */
+		*/
 #if 0
 		//----------------------------------------------------------------------
 		//  Actions stuff. This need to be written better.

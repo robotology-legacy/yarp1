@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.h,v 1.1 2004-10-28 14:28:54 beltran Exp $
+/// $Id: SoundIdentificationThread.h,v 1.2 2004-10-29 08:29:01 beltran Exp $
 ///
 
 /** 
@@ -135,14 +135,19 @@ public:
 	  * 
 	  * @return The S value.
 	  */
-	int getSValue();
-
+	inline int getSValue() const {
+		LOCAL_TRACE("SoundIdentification: Entering getSValue");
+		return _iSValue;
+	}
 	/** 
 	  * Returns the Decaing factor.
 	  * 
 	  * @return The decaing factor.
 	  */
-	double getDecaingFactor();
+	inline double getDecaingFactor() const {
+		LOCAL_TRACE("SoundIdentification: Entering getDecaingFactor");
+		return _dDecayValue; 
+	}
 
 	/** 
 	  * The main body of the thread.

@@ -103,6 +103,10 @@ SOURCE=.\soundidentification.cpp
 
 SOURCE=.\soundidentificationprocessing.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\SoundIdentificationThread.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -110,6 +114,10 @@ SOURCE=.\soundidentificationprocessing.cpp
 # Begin Source File
 
 SOURCE=.\soundidentificationprocessing.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SoundIdentificationThread.h
 # End Source File
 # Begin Source File
 
