@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.11 2003-11-17 11:16:55 beltran Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.12 2003-12-18 14:31:32 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -430,4 +430,3 @@ void YARPGalilDeviceDriver::double_to_int(int * int_array, double * double_array
 }
 
 #endif // .h
-
