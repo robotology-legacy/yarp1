@@ -1,6 +1,62 @@
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
+///                                                                   ///
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, /// 
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+
+///
+///	$Id: YARPThread.h,v 1.3 2003-04-18 09:25:48 gmetta Exp $
+///
+///
 /*
 	paulfitz Mon May 21 13:42:24 EDT 2001
-	$Id: YARPThread.h,v 1.2 2003-04-10 15:01:32 gmetta Exp $
 */
 
 #ifndef YARPThread_INC
@@ -10,8 +66,18 @@
 Ideally, would use POSIX semaphores, threads etc.
  */
 #include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/Synch.h>
 #include "YARPAll.h"
 
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
+
+///
+///
+///
+///
 class YARPThread
 {
 private:
@@ -29,9 +95,10 @@ public:
 
 	// Assertion fails if insufficient resources at initialization.
 	// stack_size of zero means use default stack size
-	void Begin(int stack_size=0);
-	void End();
 
+	/// Begin and End are now virtual, overridable.
+	virtual void Begin(int stack_size=0);
+	virtual void End();
 	virtual void Body() = 0; // this is the body of the thread
 
 	int GetIdentifier() { return identifier; }
@@ -53,38 +120,14 @@ public:
 };
 
 
-
-/* abstraction for thread-specific data */
 ///
-///
-class YARPThreadSpecificBase
-{
-private:
-	void *system_resource;  
-
-public:
-	YARPThreadSpecificBase();
-	virtual ~YARPThreadSpecificBase();
-
-	void Set(int len);
-	char *Get();
-};
-
-///
-///
+/// ACE_TSS_Type_Adapter<int>
 template <class T>
-class YARPThreadSpecific : public YARPThreadSpecificBase
+class YARPThreadSpecific : public ACE_TSS<ACE_TSS_Type_Adapter <T> >
 {
 public:
-	YARPThreadSpecific()
-	{
-		Set(sizeof(T));
-	}
-
-	T& Content()
-	{
-		return *((T*)Get());
-	}
+	YARPThreadSpecific() : ACE_TSS<ACE_TSS_Type_Adapter <T> >() {}
+	T& Content() { return **(ACE_TSS<ACE_TSS_Type_Adapter <T> > *)(this); } ///return (T&)(*this); }
 };
 
 #endif

@@ -1,104 +1,163 @@
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
+///
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, /// 
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
 
-//#include <sys/kernel.h>
+///
+/// $Id: BlockReceiver.cpp,v 1.2 2003-04-18 09:25:47 gmetta Exp $
+///
+///
+
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+
 #include "BlockReceiver.h"
-
 #include "debug.h"
-
 #include "YARPSyncComm.h"
 
 int BlockReceiver::End()
 {
-  if (reply_pending) // && !failed)
-    {
-      if (pid.IsValid()) 
+	if (reply_pending) // && !failed)
 	{
-	  char buf[] = "ok";
-	  int r = YARPSyncComm::Reply(pid,buf,sizeof(buf));
-	  if (r==-1)
-	    {
-	      DBG(50) printf("BlockReceiver failed 1\n");
-	      failed = 1;
-	    }
+		if (pid.isValid()) 
+		{
+			char buf[] = "ok";
+			int r = YARPSyncComm::Reply(pid, buf, sizeof(buf));
+			if (r == YARP_FAIL)
+			{
+				DBG(50) ACE_OS::printf("BlockReceiver failed 1\n");
+				failed = 1;
+			}
+		}
+		reply_pending = 0;
 	}
-      reply_pending = 0;
-    }
-  return !failed;
+	return !failed;
 }
 
 int BlockReceiver::Get()
 {
-  if (!has_msg && !failed)
-    {
-      DBG(95) printf("Receiving...\n");
-      char buf[100];
-      pid = YARPSyncComm::BlockingReceive(pid,buf,0);
-      if (pid.IsValid())
+	if (!has_msg && !failed)
 	{
-	  has_msg = 1;
-	  offset = 0;
-	  reply_pending = 1;
+		DBG(95) ACE_OS::printf("Receiving...\n");
+		char buf[100];
+		pid = YARPSyncComm::BlockingReceive(pid, buf, 0);
+		if (pid.isValid())
+		{
+			has_msg = 1;
+			offset = 0;
+			reply_pending = 1;
+		}
+		else
+		{
+			DBG(50) ACE_OS::printf("BlockReceiver failed 2\n");
+			failed = 1;
+			pid.invalidate();
+		}
 	}
-      else
-	{
-	  DBG(50) printf("BlockReceiver failed 2\n");
-	  failed = 1;
-	  pid.Invalidate();
-	}
-    }
-  return has_msg;
+	return has_msg;
 }
 
 int BlockReceiver::Get(char *buffer, int len)
 {
-  int bytes;
-  int target = len;
-  int terminated = 0;
-  while (len>0 && pid.IsValid() && !terminated)
-    {
-      Get();
-      if (has_msg)
+	int bytes;
+	int target = len;
+	int terminated = 0;
+
+	while (len > 0 && pid.isValid() && !terminated)
 	{
-	  DBG(95) printf("Reading %d, %d remaining...\n",target,len);
-	  //bytes = Readmsg(pid,offset,buffer,len);
-	  bytes = YARPSyncComm::ContinuedReceive(pid,buffer,len);
-	  if (bytes==0)
-	    {
-	      End();
-	      has_msg = 0;
-	      Get();
-	      if (has_msg)
+		Get();
+		if (has_msg)
 		{
-		  bytes = YARPSyncComm::ContinuedReceive(pid,buffer,len);
+			DBG(95) ACE_OS::printf("Reading %d, %d remaining...\n",target,len);
+			//bytes = Readmsg(pid,offset,buffer,len);
+			bytes = YARPSyncComm::ContinuedReceive(pid,buffer,len);
+			if (bytes==0)
+			{
+				End();
+				has_msg = 0;
+				Get();
+				if (has_msg)
+				{
+					bytes = YARPSyncComm::ContinuedReceive(pid,buffer,len);
+				}
+			}
+			DBG(95) ACE_OS::printf("Got %d of %d...\n",bytes,target);
+
+			if (bytes<0)
+			{
+				failed = 1;
+				pid.invalidate();
+			}
+			else
+			{
+				if (bytes>len)
+				{
+					failed = 1;
+					terminated = 1;
+				}
+				if (bytes>0)
+				{
+					buffer += bytes;
+					len -= bytes;
+					offset += bytes;
+				}
+			}
 		}
-	    }
-	  DBG(95) printf("Got %d of %d...\n",bytes,target);
-	  if (bytes<0)
-	    {
-	      failed = 1;
-	      pid.Invalidate();
-	    }
-	  else
-	    {
-	      if (bytes>len)
+		else
 		{
-		  failed = 1;
-		  terminated = 1;
+			terminated = 1;
 		}
-	      if (bytes>0)
-		{
-		  buffer += bytes;
-		  len -= bytes;
-		  offset += bytes;
-		}
-	    }
 	}
-      else
-	{
-	  terminated = 1;
-	}
-    }
-  DBG(95) printf("Stopping %d failed=%d terminated=%d...\n",target,
-		 failed,terminated);
-  return !failed;
+	DBG(95) ACE_OS::printf("Stopping %d failed=%d terminated=%d...\n",target, failed,terminated);
+	return !failed;
 }
 

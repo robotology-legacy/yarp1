@@ -1,10 +1,74 @@
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
+///
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, /// 
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+
+///
+/// $Id: YARPPort.h,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+///
+///
+
 /*
-paulfitz Sat May 26 22:34:44 EDT 2001
+	paulfitz Sat May 26 22:34:44 EDT 2001
 */
+
 #ifndef YARPPort_INC
 #define YARPPort_INC
 
+#include <conf/YARPConfig.h>
 #include "YARPAll.h"
+
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
 
 #include <assert.h>
 
@@ -15,77 +79,63 @@ paulfitz Sat May 26 22:34:44 EDT 2001
 class YARPPort
 {
 protected:
-  void *system_resource;  
-  YARPPortContent *content;
+	void *system_resource;  
+	YARPPortContent *content;
+
 public:
-  virtual int Register(const char *name);
+	YARPPort();
+	virtual ~YARPPort();
 
-  int Connect(const char *name);
-
-  YARPPort();
-  virtual ~YARPPort();
-
-  virtual YARPPortContent *CreateContent() = 0;
-
-  YARPPortContent& Content();
-
-  static int Connect(const char *src_name, const char *dest_name);
-
-  int IsReceiving();
-
-  int IsSending();
-
-  void FinishSend();
-
-  void Deactivate();
-
-  static void DeactivateAll();
+	virtual int Register(const char *name);
+	int Connect(const char *name);
+	virtual YARPPortContent *CreateContent() = 0;
+	YARPPortContent& Content();
+	int IsReceiving();
+	int IsSending();
+	void FinishSend();
+	void Deactivate();
+	static void DeactivateAll();
+	static int Connect(const char *src_name, const char *dest_name);
 };
 
 class YARPInputPort : public YARPPort
 {
 public:
-  enum
-  {
-    NO_BUFFERS,
-    DOUBLE_BUFFERS,
-    TRIPLE_BUFFERS,
-    DEFAULT_BUFFERS = TRIPLE_BUFFERS
-  };
+	enum
+	{
+		NO_BUFFERS,
+		DOUBLE_BUFFERS,
+		TRIPLE_BUFFERS,
+		DEFAULT_BUFFERS = TRIPLE_BUFFERS
+	};
 
-  YARPInputPort(int n_service_type = DEFAULT_BUFFERS);
-  virtual ~YARPInputPort();
+	YARPInputPort(int n_service_type = DEFAULT_BUFFERS);
+	virtual ~YARPInputPort();
 
-  virtual int Register(const char *name);
-
-  bool Read(bool wait=true);
-
-  virtual void OnRead() {}
-
-  YARPPortContent& Content() { return YARPPort::Content(); }
+	virtual int Register(const char *name);
+	bool Read(bool wait=true);
+	virtual void OnRead() {}
+	YARPPortContent& Content() { return YARPPort::Content(); }
 };
 
 
 class YARPOutputPort : public YARPPort
 {
 public:
-  enum
-  {
-    MANY_OUTPUTS,
-    SINGLE_OUTPUT,
-    DEFAULT_OUTPUTS = MANY_OUTPUTS
-  };
+	enum
+	{
+		MANY_OUTPUTS,
+		SINGLE_OUTPUT,
+		DEFAULT_OUTPUTS = MANY_OUTPUTS
+	};
 
-  YARPOutputPort(int n_service_type = MANY_OUTPUTS);
-  virtual ~YARPOutputPort();
+	YARPOutputPort(int n_service_type = MANY_OUTPUTS);
+	virtual ~YARPOutputPort();
 
-  virtual int Register(const char *name);
-
-  YARPPortContent& Content();
-
-  void Write(bool wait=false);
-
-  virtual void OnWrite() {}
+	virtual int Register(const char *name);
+	YARPPortContent& Content();
+	void Write(bool wait=false);
+	virtual void OnWrite() {}
 };
 
 
@@ -93,31 +143,29 @@ template <class T>
 class YARPInputPortOf : public YARPInputPort
 {
 public:
-  YARPInputPortOf(int n_service_type = DEFAULT_BUFFERS) :
-     YARPInputPort(n_service_type) {}
+	YARPInputPortOf(int n_service_type = DEFAULT_BUFFERS) :
+	YARPInputPort(n_service_type) {}
   
-  virtual YARPPortContent *CreateContent() 
-    { return new YARPPortContentOf<T>; }
+	virtual YARPPortContent *CreateContent() { return new YARPPortContentOf<T>; }
 
-  T& Content()
-    {
-      assert(content!=NULL);
-      return ((YARPPortContentOf<T>*)content)->Content();
-    }
+	T& Content()
+	{
+		assert(content!=NULL);
+		return ((YARPPortContentOf<T>*)content)->Content();
+	}
 };
 
 template <class T>
 class YARPOutputPortOf : public YARPOutputPort
 {
 public:
-  virtual YARPPortContent *CreateContent() 
-    { return new YARPPortContentOf<T>; }
+	virtual YARPPortContent *CreateContent() { return new YARPPortContentOf<T>; }
 
-  T& Content()
+	T& Content()
     {
-      YARPOutputPort::Content();
-      assert(content!=NULL);
-      return ((YARPPortContentOf<T>*)content)->Content();
+		YARPOutputPort::Content();
+		assert(content!=NULL);
+		return ((YARPPortContentOf<T>*)content)->Content();
     }
 };
 
@@ -125,33 +173,22 @@ template <class T>
 class YARPBasicInputPort : public YARPInputPort
 {
 public:
-  YARPBasicInputPort(int n_service_type = DEFAULT_BUFFERS) :
-     YARPInputPort(n_service_type) {}
+	YARPBasicInputPort(int n_service_type = DEFAULT_BUFFERS) : YARPInputPort(n_service_type) {}
 
-  virtual YARPPortContent *CreateContent() 
-    { return new T; }
+	virtual YARPPortContent *CreateContent() { return new T; }
 
-  T& Content()
-    {
-      return *((T*)(&YARPPort::Content()));
-    }
+	T& Content() { return *((T*)(&YARPPort::Content())); }
 };
 
 template <class T>
 class YARPBasicOutputPort : public YARPOutputPort
 {
 public:
-  YARPBasicOutputPort(int n_service_type = MANY_OUTPUTS) :
-    YARPOutputPort(n_service_type)
-    {}
+	YARPBasicOutputPort(int n_service_type = MANY_OUTPUTS) : YARPOutputPort(n_service_type) {}
 
-  virtual YARPPortContent *CreateContent() 
-    { return new T; }
+	virtual YARPPortContent *CreateContent() { return new T; }
 
-  T& Content()
-    {
-      return *((T*)(&YARPOutputPort::Content()));
-    }
+	T& Content() { return *((T*)(&YARPOutputPort::Content())); }
 };
 
 #endif

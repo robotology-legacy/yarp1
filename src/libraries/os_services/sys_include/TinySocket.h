@@ -1,6 +1,7 @@
 #ifndef TINYSOCKET_INC
 #define TINYSOCKET_INC
 
+#include <conf/YARPConfig.h>
 
 #ifndef __QNX__
 using namespace std;

@@ -1,5 +1,58 @@
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
 ///
-/// $Id: Port.h,v 1.2 2003-04-10 15:01:34 gmetta Exp $
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, /// 
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+
+///
+/// $Id: Port.h,v 1.3 2003-04-18 09:25:49 gmetta Exp $
 ///
 ///
 
@@ -7,8 +60,11 @@
 #define __PORT_H_INC
 
 #include <conf/YARPConfig.h>
+#include <ace/config.h>
 
-//#include "debug-new.h"
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
 
 #include "YARPString.h"
 
@@ -66,7 +122,7 @@ public:
 #endif
                    mutex(1)
     { 
-		target_pid.Invalidate(); add_header = 1;  active = 1; sending = 0; 
+		target_pid.invalidate(); add_header = 1;  active = 1; sending = 0; 
 		deactivate = 0;  deactivated = 0;
 		check_tick = 0;  ticking = 0;
     }
@@ -132,7 +188,7 @@ public:
 	Sema wakeup;
 	string name;
 	HeaderedBlockSender<NewFragmentHeader> sender;
-	YARPNameID self_id;
+	YARPUniqueNameID self_id;
 
 #ifdef UPDATED_PORT
 	int require_complete_send;
@@ -190,7 +246,7 @@ public:
 
 	virtual ~Port();
 
-	Port() : 
+	Port () : 
 		something_to_send(0), 
 		something_to_read(0),
 		wakeup(0),
@@ -214,12 +270,11 @@ public:
 		okay_to_send.Post();
 	}
   
-	int SendHelper(YARPNameID pid, const char *buf, int len, int tag=MSG_ID_NULL);
-	int SayServer(YARPNameID pid, const char *buf);
+	int SendHelper(const YARPNameID& pid, const char *buf, int len, int tag=MSG_ID_NULL);
+	int SayServer(const YARPNameID& pid, const char *buf);
 
-	int MakeServer(const char *name);
-	YARPNameID GetServer(const char *name);
-
+	YARPUniqueNameID MakeServer(const char *name);
+	YARPUniqueNameID GetServer(const char *name);
 
 	void AddHeaders(int flag)
     {
@@ -245,14 +300,17 @@ public:
 	//maddog  void Say(const char *buf)
 	int Say(const char *buf)
     {
-		int result = -1;
-		if (!self_id.IsValid())
+		int result = YARP_FAIL;
+		if (!self_id.isValid())
 		{
 			self_id = GetServer(name.c_str());
+			YARPEndpointManager::CreateOutputEndpoint (self_id);
+			YARPEndpointManager::ConnectEndpoints (self_id);
 		}
-		if (self_id.IsValid())
+
+		if (self_id.isValid())
 		{
-			result = SayServer(self_id,buf);
+			result = SayServer(self_id, buf);
 		}
 		return result;
     }
@@ -269,7 +327,7 @@ public:
 
 	void Deactivate()
     {
-		char buf[2] = {MSG_ID_DETACH_ALL, 0};
+		char buf[2] = { MSG_ID_DETACH_ALL, 0 };
 		okay_to_send.Wait(); 
 		Say(buf);
     }

@@ -1,3 +1,9 @@
+///
+/// $Id: TinySocket.cpp,v 1.4 2003-04-18 09:25:48 gmetta Exp $
+///
+///
+
+#include <conf/YARPConfig.h>
 
 #include <stdio.h>
 
@@ -64,7 +70,6 @@ using namespace std;
 #include "YARPSemaphore.h"
 #include "YARPTime.h"
 #include "TinySocket.h"
-//#include "Semaphore.h"
 #include "YARPNetworkTypes.h"
 
 #include "YARPScheduler.h"

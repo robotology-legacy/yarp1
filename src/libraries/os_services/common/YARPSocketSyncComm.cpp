@@ -1,16 +1,78 @@
-#include <assert.h>
-#include <stdio.h>
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
+///                                                                   ///
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, /// 
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+
+///
+/// $Id: YARPSocketSyncComm.cpp,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+///
+///
+
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+#include <ace/Synch.h>
+
+//#include <assert.h>
+//#include <stdio.h>
 
 #include "YARPSocketSyncComm.h"
-
 #include "YARPSocket.h"
+#include "YARPSocketNameService.h"
 
-#include "ThreadInput.h"
+///#include "ThreadInput.h"
 #include "YARPNameID_defs.h"
 #include "BlockPrefix.h"
 
 #include "debug.h"
-
 
 /*
   Code sends along a preamble to permit transparent bridging.  Preamble
@@ -18,306 +80,326 @@
  */
 
 
-int YARPSocketSyncComm::Send(YARPNameID dest, char *buffer, 
-				 int buffer_length,
-				 char *return_buffer, int return_buffer_length)
+int YARPSocketSyncComm::Send(const YARPNameID& dest, char *buffer, int buffer_length, char *return_buffer, int return_buffer_length)
 {
-  YARPOutputSocket os;
-  assert(dest.IsConsistent(YARP_NAME_MODE_SOCKET));
-  os.SetIdentifier(dest.GetRawIdentifier());
-  os.InhibitDisconnect();
-  //os.SendBegin(buffer,buffer_length);
-  //return os.SendEnd(return_buffer,return_buffer_length);
+	YARPOutputSocket *os = (YARPOutputSocket *)YARPSocketEndpointManager::GetThreadSocket ();
+	ACE_ASSERT (dest.isConsistent(YARP_TCP));	/// maybe test for consistence with all socket based protocols.
+	ACE_ASSERT (os != NULL);
 
-  BlockPrefix prefix;
-  prefix.total_blocks = 1;
-  prefix.reply_blocks = 1;
-  prefix.size = buffer_length;
-  prefix.reply_size = return_buffer_length;
-  os.SendBegin((char*)(&prefix),sizeof(prefix));
-  os.SendContinue(buffer,buffer_length);
-  char ch = -1;
-  os.SendReceivingReply(&ch,1);
-  if (ch==0)
-    {
-      return os.SendEnd(return_buffer,return_buffer_length);
-    }
-  return -1;
-}
+	///os.SetIdentifier(dest.GetRawIdentifier());
+	///os.InhibitDisconnect();
 
+	//os.SendBegin(buffer,buffer_length);
+	//return os.SendEnd(return_buffer,return_buffer_length);
 
-YARPNameID YARPSocketSyncComm::BlockingReceive(YARPNameID src, char *buffer, 
-				    int buffer_length)
-{
-  YARPInputSocket *ts = GetThreadSocket();
-  assert(src.IsConsistent(YARP_NAME_MODE_SOCKET));
-  assert(ts!=NULL);
-  //int id = -1;
-  //int ct = ts->ReceiveBegin(buffer,buffer_length, &id);
-  //return YARPNameID(YARP_NAME_MODE_SOCKET,id);
+	BlockPrefix prefix;
+	prefix.total_blocks = 1;
+	prefix.reply_blocks = 1;
+	prefix.size = buffer_length;
+	prefix.reply_size = return_buffer_length;
 
-  BlockPrefix prefix;
-  int id = -1;
-  int ct = ts->ReceiveBegin((char*)(&prefix),sizeof(prefix),&id);
-  if (ct>=0)
-    {
-      if (prefix.size<0)
+	os->SendBegin ((char*)(&prefix), sizeof(prefix));
+	os->SendContinue (buffer, buffer_length);
+	
+	char ch = -1;
+	os->SendReceivingReply (&ch, 1);
+	if (ch == 0)
 	{
-	  for (int i=0;i<prefix.total_blocks+prefix.reply_blocks && ct>=0; i++)
-	    {
-	      NetInt32 x;
-	      ct = ts->ReceiveContinue(id,(char*)(&x),sizeof(x));
-	    }
+		return os->SendEnd (return_buffer, return_buffer_length);
 	}
-      ct = ts->ReceiveContinue(id,buffer,buffer_length);
-    }
-  if (ct<0) 
-    {
-      //printf("Failed in YARPSocketSyncComm::BlockingReceive\n");
-      id = -1;
-    }
-  return YARPNameID(YARP_NAME_MODE_SOCKET,id);
+
+	return YARP_FAIL;
 }
 
 
-YARPNameID YARPSocketSyncComm::PollingReceive(YARPNameID src, char *buffer, 
-				   int buffer_length)
+YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, char *buffer, int buffer_length)
 {
-  YARPInputSocket *ts = GetThreadSocket();
-  assert(src.IsConsistent(YARP_NAME_MODE_SOCKET));
-  assert(ts!=NULL);
-  //int id = -1;
-  //int ct = ts->PollingReceiveBegin(buffer,buffer_length, &id);
-  //return YARPNameID(YARP_NAME_MODE_SOCKET,id);
+	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT(src.isConsistent(YARP_TCP));
+	ACE_ASSERT(ts != NULL);
 
-  BlockPrefix prefix;
-  int id = -1;
-  int ct = ts->PollingReceiveBegin((char*)(&prefix),sizeof(prefix),&id);
-  if (ct>=0)
-    {
-      if (prefix.size<0)
+	//int id = -1;
+	//int ct = ts->ReceiveBegin(buffer,buffer_length, &id);
+	//return YARPNameID(YARP_NAME_MODE_SOCKET,id);
+
+	BlockPrefix prefix;
+	ACE_HANDLE id = ACE_INVALID_HANDLE;
+	int ct = ts->ReceiveBegin ((char*)(&prefix), sizeof(prefix), &id);
+	if (ct >= 0)
 	{
-	  for (int i=0;i<prefix.total_blocks+prefix.reply_blocks && ct>=0; i++)
-	    {
-	      NetInt32 x;
-	      ct = ts->ReceiveContinue(id,(char*)(&x),sizeof(x));
-	    }
+		if (prefix.size < 0)
+		{
+			for (int i = 0; i < prefix.total_blocks + prefix.reply_blocks && ct >= 0; i++)
+			{
+				NetInt32 x;
+				ct = ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
+			}
+		}
+
+		ct = ts->ReceiveContinue (id, buffer, buffer_length);
 	}
-      ct = ts->ReceiveContinue(id,buffer,buffer_length);
-    }
-  if (ct<0) id = -1;
-  return YARPNameID(YARP_NAME_MODE_SOCKET,id);
-}
 
-
-int YARPSocketSyncComm::ContinuedReceive(YARPNameID src, char *buffer, 
-					 int buffer_length)
-{
-  YARPInputSocket *ts = GetThreadSocket();
-  assert(src.IsConsistent(YARP_NAME_MODE_SOCKET));
-  assert(ts!=NULL);
-
-  int ct = -1;
-  if (src.IsValid())
-    {
-      ct = ts->ReceiveContinue(src.GetRawIdentifier(),buffer,buffer_length);
-    }
-  return ct;
-}
-
-
-int YARPSocketSyncComm::Reply(YARPNameID src, char *buffer, 
-				  int buffer_length)
-{
-  YARPInputSocket *ts = GetThreadSocket();
-  assert(src.IsConsistent(YARP_NAME_MODE_SOCKET));
-  assert(ts!=NULL);
-  char ch = 0;
-  ts->ReceiveReplying(src.GetRawIdentifier(),&ch,1);
-  return ts->ReceiveEnd(src.GetRawIdentifier(),buffer,buffer_length);
-}
-
-
-int YARPSocketSyncComm::InvalidReply(YARPNameID src)
-{
-  YARPInputSocket *ts = GetThreadSocket();
-  assert(src.IsConsistent(YARP_NAME_MODE_SOCKET));
-  assert(ts!=NULL);
-  char ch = 0;
-  return ts->ReceiveEnd(src.GetRawIdentifier(),&ch,1);
-}
-
-
-int YARPSocketSyncComm::Send(YARPNameID dest, YARPMultipartMessage& msg,
-				 YARPMultipartMessage& return_msg)
-{
-  YARPOutputSocket os;
-  assert(dest.IsConsistent(YARP_NAME_MODE_SOCKET));
-  os.SetIdentifier(dest.GetRawIdentifier());
-  os.InhibitDisconnect();
-  int send_parts = msg.GetParts();
-  int return_parts = return_msg.GetParts();
-  assert(send_parts>=1);
-  assert(return_parts>=1);
-  int i;
-
-  DBG(50) printf("Get %d send_parts, %d return_parts\n", send_parts, 
-		 return_parts);
-
-  /* preamble code begins */
-  BlockPrefix prefix;
-  prefix.total_blocks = send_parts;
-  prefix.reply_blocks = return_parts;
-  prefix.size = -1;
-  prefix.reply_size = -1;
-  os.SendBegin((char*)(&prefix),sizeof(prefix));
-  for (i=0;i<send_parts; i++)
-    {
-      NetInt32 x = msg.GetBufferLength(i);
-      os.SendContinue((char*)(&x),sizeof(x));
-    }
-  for (i=0;i<return_parts; i++)
-    {
-      NetInt32 x = return_msg.GetBufferLength(i);
-      os.SendContinue((char*)(&x),sizeof(x));
-    }
-  os.SendContinue(msg.GetBuffer(0),msg.GetBufferLength(0));
-  /* preamble code ends */
-
-  //os.SendBegin(msg.GetBuffer(0),msg.GetBufferLength(0));
-
-  for (i=1;i<send_parts; i++)
-    {
-      os.SendContinue(msg.GetBuffer(i),msg.GetBufferLength(i));      
-    }
-  char ch = -1;
-  os.SendReceivingReply(&ch,1);
-  if (ch==0)
-    {
-      for (i=0;i<return_parts-1; i++)
+	if (ct < 0) 
 	{
-	  os.SendReceivingReply(return_msg.GetBuffer(i),
-				return_msg.GetBufferLength(i));
+		//printf("Failed in YARPSocketSyncComm::BlockingReceive\n");
+		id = ACE_INVALID_HANDLE;
 	}
-      int result = os.SendEnd(return_msg.GetBuffer(return_parts-1),
-			  return_msg.GetBufferLength(return_parts-1));
-      return result;
-    }
-  return -1;
+
+	return YARPNameID (YARP_TCP, id);
 }
 
 
-YARPNameID YARPSocketSyncComm::BlockingReceive(YARPNameID src, 
-					 YARPMultipartMessage& msg)
+YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, char *buffer, int buffer_length)
 {
-  YARPInputSocket *ts = GetThreadSocket();
-  assert(ts!=NULL);
-  assert(src.IsConsistent(YARP_NAME_MODE_SOCKET));
-  int id = -1;
-  int receive_parts = msg.GetParts();
-  assert(receive_parts>=1);
+	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (src.isConsistent(YARP_TCP));
+	ACE_ASSERT (ts != NULL);
 
-  /* preamble code begins */
-  BlockPrefix prefix;
-  ts->ReceiveBegin((char*)(&prefix),sizeof(prefix), &id);
-  if (id!=-1)
-    {
-      if (prefix.size<0)
-	{
-	  int i;
-	  NetInt32 x;
-	  for (i=0;i<prefix.total_blocks; i++)
-	    {
-	      ts->ReceiveContinue(id,(char*)(&x),sizeof(x));
-	    }
-	  for (i=0;i<prefix.reply_blocks; i++)
-	    {
-	      ts->ReceiveContinue(id,(char*)(&x),sizeof(x));
-	    }
-	}
-      int ct = ts->ReceiveContinue(id,msg.GetBuffer(0),msg.GetBufferLength(0));
-    }
-  /* preamble code ends */
+	//int id = -1;
+	//int ct = ts->PollingReceiveBegin(buffer,buffer_length, &id);
+	//return YARPNameID(YARP_NAME_MODE_SOCKET,id);
 
-  //  int ct = ts->ReceiveBegin(msg.GetBuffer(0),msg.GetBufferLength(0), &id);
-  if (id!=-1)
-    {
-      for (int i=1; i<receive_parts; i++)
+	BlockPrefix prefix;
+	ACE_HANDLE id = ACE_INVALID_HANDLE;
+	int ct = ts->PollingReceiveBegin ((char*)(&prefix), sizeof(prefix), &id);
+	if (ct >= 0)
 	{
-	  int ct2 = ts->ReceiveContinue(id,msg.GetBuffer(i),msg.GetBufferLength(i));
-	  DBG(5) printf("^^^ additional receive of %d bytes\n", ct2);
+		if (prefix.size < 0)
+		{
+			for (int i = 0; i < prefix.total_blocks + prefix.reply_blocks && ct >= 0; i++)
+			{
+				NetInt32 x;
+				ct = ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
+			}
+		}
+		ct = ts->ReceiveContinue (id, buffer, buffer_length);
 	}
-    }
-  return YARPNameID(YARP_NAME_MODE_SOCKET,id);
+	
+	if (ct < 0) id = ACE_INVALID_HANDLE;
+
+	return YARPNameID (YARP_TCP, id);
 }
 
 
-YARPNameID YARPSocketSyncComm::PollingReceive(YARPNameID src, 
-					YARPMultipartMessage& msg)
+int YARPSocketSyncComm::ContinuedReceive(const YARPNameID& src, char *buffer, int buffer_length)
 {
-  YARPInputSocket *ts = GetThreadSocket();
-  assert(src.IsConsistent(YARP_NAME_MODE_SOCKET));
-  assert(ts!=NULL);
-  int id = -1;
-  int receive_parts = msg.GetParts();
-  assert(receive_parts>=1);
+	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (src.isConsistent(YARP_TCP));
+	ACE_ASSERT (ts != NULL);
 
-  /* preamble code begins */
-  BlockPrefix prefix;
-  ts->PollingReceiveBegin((char*)(&prefix),sizeof(prefix), &id);
-  if (id!=-1)
-    {
-      if (prefix.size<0)
+	int ct = -1;
+	if (src.isValid())
 	{
-	  int i;
-	  NetInt32 x;
-	  for (i=0;i<prefix.total_blocks; i++)
-	    {
-	      ts->ReceiveContinue(id,(char*)(&x),sizeof(x));
-	    }
-	  for (i=0;i<prefix.reply_blocks; i++)
-	    {
-	      ts->ReceiveContinue(id,(char*)(&x),sizeof(x));
-	    }
+		ct = ts->ReceiveContinue (src.getRawIdentifier(), buffer, buffer_length);
 	}
-      int ct = ts->ReceiveContinue(id,msg.GetBuffer(0),msg.GetBufferLength(0));
-    }
-  /* preamble code ends */
-
-  //int ct = ts->PollingReceiveBegin(msg.GetBuffer(0),msg.GetBufferLength(0), 
-  //			   &id);
-  if (id!=-1)
-    {
-      for (int i=1; i<receive_parts; i++)
-	{
-	  ts->ReceiveContinue(id,msg.GetBuffer(i),msg.GetBufferLength(i));
-	}
-    }
-  return YARPNameID(YARP_NAME_MODE_SOCKET,id);
+	return ct;
 }
 
 
-
-int YARPSocketSyncComm::Reply(YARPNameID src, YARPMultipartMessage& msg)
+int YARPSocketSyncComm::Reply(const YARPNameID& src, char *buffer, int buffer_length)
 {
-  YARPInputSocket *ts = GetThreadSocket();
-  assert(ts!=NULL);
-  int reply_parts = msg.GetParts();
-  assert(reply_parts>=1);
+	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (src.isConsistent(YARP_TCP));
+	ACE_ASSERT (ts != NULL);
 
-  assert(src.IsConsistent(YARP_NAME_MODE_SOCKET));
-  char ch = 0;
-  ts->ReceiveReplying(src.GetRawIdentifier(),&ch,1);
-  for (int i=0; i<reply_parts-1; i++)
-    {
-      ts->ReceiveReplying(src.GetRawIdentifier(),msg.GetBuffer(i),
-			  msg.GetBufferLength(i));
-    }
-
-  return ts->ReceiveEnd(src.GetRawIdentifier(),msg.GetBuffer(reply_parts-1),
-			msg.GetBufferLength(reply_parts-1));
+	char ch = 0;
+	ts->ReceiveReplying (src.getRawIdentifier(), &ch, 1);
+	return ts->ReceiveEnd (src.getRawIdentifier(), buffer, buffer_length);
 }
 
+
+int YARPSocketSyncComm::InvalidReply(const YARPNameID& src)
+{
+	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (src.isConsistent(YARP_TCP));
+	ACE_ASSERT (ts != NULL);
+
+	char ch = 0;
+	return ts->ReceiveEnd (src.getRawIdentifier(), &ch, 1);
+}
+
+
+int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, YARPMultipartMessage& return_msg)
+{
+	YARPOutputSocket *os = (YARPOutputSocket *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (dest.isConsistent(YARP_TCP));
+
+	//os->SetIdentifier(dest.GetRawIdentifier());
+	//os->InhibitDisconnect();
+	int send_parts = msg.GetParts();
+	int return_parts = return_msg.GetParts();
+	ACE_ASSERT (send_parts >= 1);
+	ACE_ASSERT (return_parts >= 1);
+	int i;
+
+	DBG(50) printf("Get %d send_parts, %d return_parts\n", send_parts, return_parts);
+
+	/* preamble code begins */
+	BlockPrefix prefix;
+	prefix.total_blocks = send_parts;
+	prefix.reply_blocks = return_parts;
+	prefix.size = -1;
+	prefix.reply_size = -1;
+
+	os->SendBegin ((char*)(&prefix), sizeof(prefix));
+	
+	for (i = 0; i < send_parts; i++)
+	{
+		NetInt32 x = msg.GetBufferLength(i);
+		os->SendContinue ((char*)(&x), sizeof(x));
+	}
+
+	for (i = 0; i < return_parts; i++)
+	{
+		NetInt32 x = return_msg.GetBufferLength(i);
+		os->SendContinue ((char*)(&x), sizeof(x));
+	}
+
+	os->SendContinue (msg.GetBuffer(0), msg.GetBufferLength(0));
+	/* preamble code ends */
+
+	//os.SendBegin(msg.GetBuffer(0),msg.GetBufferLength(0));
+
+	for (i = 1; i < send_parts; i++)
+	{
+		os->SendContinue (msg.GetBuffer(i), msg.GetBufferLength(i));      
+	}
+	
+	char ch = -1;
+	os->SendReceivingReply (&ch, 1);
+	
+	if (ch == 0)
+	{
+		for (i = 0; i < return_parts-1; i++)
+		{
+			os->SendReceivingReply (return_msg.GetBuffer(i), return_msg.GetBufferLength(i));
+		}
+		int result = os->SendEnd (return_msg.GetBuffer(return_parts-1), return_msg.GetBufferLength(return_parts-1));
+		return result;
+	}
+
+	return YARP_FAIL;
+}
+
+
+YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultipartMessage& msg)
+{
+	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (ts != NULL);
+	ACE_ASSERT (src.isConsistent(YARP_TCP));
+
+	ACE_HANDLE id = ACE_INVALID_HANDLE;
+	int receive_parts = msg.GetParts();
+	ACE_ASSERT (receive_parts >= 1);
+
+	/* preamble code begins */
+	BlockPrefix prefix;
+	ts->ReceiveBegin ((char*)(&prefix), sizeof(prefix), &id);
+
+	if (id != ACE_INVALID_HANDLE)
+	{
+		if (prefix.size < 0)
+		{
+			int i;
+			NetInt32 x;
+			for (i = 0;i < prefix.total_blocks; i++)
+			{
+				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
+			}
+
+			for (i = 0; i < prefix.reply_blocks; i++)
+			{
+				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
+			}
+		}
+
+		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
+	}
+	/* preamble code ends */
+
+	//  int ct = ts->ReceiveBegin(msg.GetBuffer(0),msg.GetBufferLength(0), &id);
+	if (id != ACE_INVALID_HANDLE)
+	{
+		for (int i = 1; i < receive_parts; i++)
+		{
+			int ct2 = ts->ReceiveContinue (id, msg.GetBuffer(i), msg.GetBufferLength(i));
+			DBG(5) printf("^^^ additional receive of %d bytes\n", ct2);
+		}
+	}
+
+	return YARPNameID (YARP_TCP,id);
+}
+
+
+YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, YARPMultipartMessage& msg)
+{
+	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT(src.isConsistent(YARP_TCP));
+	ACE_ASSERT(ts!=NULL);
+
+	ACE_HANDLE id = ACE_INVALID_HANDLE;
+	int receive_parts = msg.GetParts();
+	ACE_ASSERT(receive_parts>=1);
+
+	/* preamble code begins */
+	BlockPrefix prefix;
+	ts->PollingReceiveBegin((char*)(&prefix),sizeof(prefix), &id);
+
+	if (id != ACE_INVALID_HANDLE)
+	{
+		if (prefix.size < 0)
+		{
+			int i;
+			NetInt32 x;
+			for (i = 0; i < prefix.total_blocks; i++)
+			{
+				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
+			}
+
+			for (i=0;i<prefix.reply_blocks; i++)
+			{
+				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
+			}
+		}
+
+		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
+	}
+	/* preamble code ends */
+
+	//int ct = ts->PollingReceiveBegin(msg.GetBuffer(0),msg.GetBufferLength(0), 
+	//			   &id);
+	if (id != ACE_INVALID_HANDLE)
+	{
+		for (int i = 1; i < receive_parts; i++)
+		{
+			ts->ReceiveContinue (id, msg.GetBuffer(i), msg.GetBufferLength(i));
+		}
+	}
+
+	return YARPNameID (YARP_TCP,id);
+}
+
+
+
+int YARPSocketSyncComm::Reply(const YARPNameID& src, YARPMultipartMessage& msg)
+{
+	YARPInputSocket *ts = (YARPInputSocket *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (ts != NULL);
+
+	int reply_parts = msg.GetParts();
+	ACE_ASSERT (reply_parts >= 1);
+
+	ACE_ASSERT (src.isConsistent(YARP_TCP));
+	char ch = 0;
+
+	ts->ReceiveReplying (src.getRawIdentifier(), &ch, 1);
+	for (int i = 0; i < reply_parts-1; i++)
+	{
+		ts->ReceiveReplying (src.getRawIdentifier(), msg.GetBuffer(i), msg.GetBufferLength(i));
+	}
+
+	return ts->ReceiveEnd (src.getRawIdentifier(), msg.GetBuffer(reply_parts-1), msg.GetBufferLength(reply_parts-1));
+}
 
 
 

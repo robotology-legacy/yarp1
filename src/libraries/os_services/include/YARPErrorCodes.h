@@ -52,86 +52,28 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameID.h,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPErrorCodes.h,v 1.1 2003-04-18 09:29:44 gmetta Exp $
 ///
 ///
-/*
-	paulfitz Tue May 22 15:34:43 EDT 2001
- */
 
-#ifndef YARPNameID_INC
-#define YARPNameID_INC
+#ifndef __YARPErrorCodesh__
+#define __YARPErrorCodesh__
 
 #include <conf/YARPConfig.h>
-#include <ace/config.h>
-#include <ace/OS.h>
-#include <ace/SOCK_Acceptor.h>
-#include <ace/SOCK_Connector.h>
-#include <ace/SOCK_Stream.h>
-
-#include "YARPAll.h"
-#include "YARPNameID_defs.h"
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
+
+/// contains generic library error codes.
+/// later to be extended.
 ///
-/// Defines the endpoint name id. encapsulates the socket id and network mode flag.
-///	Pasa: moved int variables to protected.
-///
-class YARPNameID
+enum
 {
-protected:
-	int _mode;			// mode socket, Qnet, etc.
-	ACE_HANDLE _raw_id;	// OS id, e.g. socket id.
-
-public:
-	YARPNameID () { _raw_id = ACE_INVALID_HANDLE;  _mode = YARP_NO_SERVICE_AVAILABLE; }
-	YARPNameID (int n_mode, ACE_HANDLE n_raw_id) { _mode = n_mode;  _raw_id = n_raw_id; }
-
-	int operator == (const YARPNameID& other) { return (_raw_id == other._raw_id) && (_mode == other._mode); }
-	int operator != (const YARPNameID& other) { return !(operator == (other)); }
-
-	inline int getServiceType (void) const { return _mode; }
-	inline ACE_HANDLE getRawIdentifier (void) const { return _raw_id; }
-	inline void setRawIdentifier (ACE_HANDLE id) { _raw_id = id; }
-	inline int isValid(void) const { return (_raw_id != ACE_INVALID_HANDLE) ? 1 : 0; }
-	///int IsGeneric() { return raw_id == 0; } buggy maybe never used
-	inline int isError(void) const { return (_raw_id == ACE_INVALID_HANDLE); }
-	inline int isConsistent(int n_mode) const { return (_mode == n_mode) || (_mode == YARP_NO_SERVICE_AVAILABLE); }
-	void invalidate() { _raw_id = ACE_INVALID_HANDLE;  _mode = YARP_NO_SERVICE_AVAILABLE; }
+	YARP_OK = 0,
+	YARP_FAIL = -1,
 };
 
-#define YARP_NAMEID_NULL YARPNameID()
-
-///
-/// contains the assigned port/IP address.
-///	a bit more generic than the address/port pair only.
-///
-class YARPUniqueNameID : public YARPNameID
-{
-protected:
-	ACE_INET_Addr _address;
-	
-public:
-	YARPUniqueNameID () : YARPNameID(), _address(1111, "localhost") {}
-	YARPUniqueNameID (int service, int port, char *hostname) : YARPNameID(service, ACE_INVALID_HANDLE), _address (port, hostname) {}
-	YARPUniqueNameID (int service, const ACE_INET_Addr& addr) : YARPNameID(service, ACE_INVALID_HANDLE), _address (addr) {}
-
-	inline ACE_INET_Addr& getAddressRef (void) { return _address; }
-//	inline int isValid (void) const { return (_mode != YARP_NO_SERVICE_AVAILABLE) ? 1 : 0; }
-	inline YARPNameID& getNameID(void) { return (YARPNameID &)(*this); }
-};
-
-
-/// service types.
-///
-///	YARP_NO_SERVICE_AVAILABLE	= -1,
-///	YARP_UDP					= 0,
-///	YARP_TCP					= 1,
-///	YARP_MCAST					= 2,
-///	YARP_QNET					= 3,
-///
 
 #endif

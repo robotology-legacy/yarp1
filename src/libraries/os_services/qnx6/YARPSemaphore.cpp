@@ -1,3 +1,8 @@
+///
+/// $Id: YARPSemaphore.cpp,v 1.2 2003-04-18 09:25:49 gmetta Exp $
+///
+///
+
 #include <semaphore.h>
 #include <assert.h>
 #include <stdlib.h>
