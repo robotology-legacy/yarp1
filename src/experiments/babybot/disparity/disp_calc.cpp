@@ -3,6 +3,8 @@
 #include "YARPDisparity.h"
 
 
+
+
 int main(int argc, char *argv[])
 {
 	YARPImageOf<YarpPixelMono> LBWimg;
