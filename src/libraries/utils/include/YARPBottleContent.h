@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottleContent.h,v 1.3 2003-07-24 07:56:52 gmetta Exp $
+/// $Id: YARPBottleContent.h,v 1.4 2003-07-27 19:48:49 gmetta Exp $
 ///
 ///
 
@@ -84,7 +84,7 @@ class YARPBottleContent : public YARPBottle, public YARPPortContent
 public:
 	virtual ~YARPBottleContent () 
 	{
-		ACE_DEBUG ((LM_DEBUG, "destroying a YARPBottleContent\n"));
+		///ACE_DEBUG ((LM_DEBUG, "destroying a YARPBottleContent\n"));
 	}
 
 	virtual int Read(YARPPortReader& reader)
