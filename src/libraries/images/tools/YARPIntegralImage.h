@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.h,v 1.6 2003-08-22 15:39:55 natta Exp $
+/// $Id: YARPIntegralImage.h,v 1.7 2003-09-02 13:57:29 natta Exp $
 ///
 /// August 2003 -- by nat
 
@@ -95,93 +95,13 @@ public:
 
 	void resize(int nR, int nC, int sfovea = 0);
 
-	void get(YARPImageOf<YarpPixelMono> &out)
-	{
-		int r,c;
-		for(r = 0; r < _nRows; r++)
-			for(c = 0; c < _nCols; c++)
-				out(c,r) = (YarpPixelMono)((_integralImg(c,r)*255)/_max + 0.5);
-	}
-
+	inline void get(YARPImageOf<YarpPixelMono> &out);
 	inline float get(int c, int r)
-	{
-		// float max = _integralImg(_nCols-1, _nRows-1);
-		return _integralImg(c,r)/_max;
-	}
+	{ return _integralImg(c,r)/_max; }
 
-	inline double getSaliency(int maxX, int minX, int maxY, int minY)
-	{
-		double tmp1; 
-		double tmp2; 
-		double tmp3; 
-		double tmp4; 
-
-		if (minX < 0)
-			minX = 0;
-		if (minY < 0)
-			minY = 0;
-		if (maxX > _nCols-1)
-			maxX = _nCols-1;
-		if (maxY > _nRows-1)
-			maxY = _nRows-1;
-
-		tmp1 = get(minX, minY);
-		tmp2 = get(maxX, minY);
-		tmp3 = get(minX, maxY);
-		tmp4 = get(maxX, maxY);
-
-		return (tmp4 + tmp1 - (tmp2+tmp3));
-	}
-
-	inline double getSaliencyLp(int maxT, int minT, int maxR, int minR)
-	{
-		double tmp1, tmp2, tmp3, tmp4; 
-
-		if (minR < 0)
-			minR = 0;
-				
-		if (maxR > _nRows-1)
-			maxR = _nRows-1;
-		
-		if ( (minT>=0) && (maxT<_nCols) ) {
-			// nothing special tmp4+tmp3 - (tmp1 + tmp2)
-
-			tmp1 = get(minT, minR);
-			tmp2 = -get(maxT, minR);
-			tmp3 = -get(minT, maxR);
-			tmp4 = get(maxT, maxR);
-		}
-		else if ( (minT<0) && (maxT<_nCols) )
-		{
-			tmp1 = get(0, minR);
-			tmp2 = -get(maxT, minR);
-			tmp3 = -get(0, maxR);
-			tmp4 = get(maxT, maxR);
-
-			tmp1 += get(_nCols-1+minT, minR);
-			tmp2 += -get(_nCols-1, minR);
-			tmp3 += -get(_nCols-1+minT, maxR);
-			tmp4 += get(_nCols-1, maxR);
-		}
-		else if ( (minT>0) && (maxT>=_nCols) )
-		{
-			tmp1 = get(minT, minR);
-			tmp2 = -get(_nCols-1, minR);
-			tmp3 = -get(minT, maxR);
-			tmp4 = get(_nCols-1, maxR);
-
-			tmp1 += get(0, minR);
-			tmp2 += -get(maxT-_nCols, minR);
-			tmp3 += -get(0, maxR);
-			tmp4 += get(maxT-_nCols, maxR);
-		
-		}
-		else
-			return 0;		// case not supported
-
-		return (tmp4 + tmp3 + tmp1 + tmp2);
-	}
-
+	inline double getSaliency(int maxX, int minX, int maxY, int minY);
+	inline double getSaliencyLp(int maxT, int minT, int maxR, int minR);
+	
 	int computeCartesian(YARPImageOf<YarpPixelMono> &input);
 	int computeLp(YARPImageOf<YarpPixelMono> &input);
 
@@ -194,6 +114,97 @@ private:
 	int _nfovea;
 	float _max;
 };
+
+inline void YARPIntegralImage::get(YARPImageOf<YarpPixelMono> &out)
+{
+	int r,c;
+	float *src;
+	unsigned char *dst;
+	for(r = 0; r < _nRows; r++)
+	{
+		src = (float *) _integralImg.GetArray()[r];
+		dst = (unsigned char *) out.GetArray()[r];
+		for(c = 0; c < _nCols; c++)
+		{
+			*dst = (YarpPixelMono)(((*src)*255)/_max + 0.5);
+			src++;
+			dst++;
+		}
+	}
+}
+
+inline double YARPIntegralImage::getSaliencyLp(int maxT, int minT, int maxR, int minR)
+{
+	double tmp1, tmp2, tmp3, tmp4; 
+	
+	if (minR < 0)
+		minR = 0;
+				
+	if (maxR > _nRows-1)
+		maxR = _nRows-1;
+		
+	if ( (minT>=0) && (maxT<_nCols) )
+	{
+		
+		tmp1 = get(minT, minR);
+		tmp2 = -get(maxT, minR);
+		tmp3 = -get(minT, maxR);
+		tmp4 = get(maxT, maxR);
+	}
+	else if ( (minT<0) && (maxT<_nCols) )
+	{
+		tmp1 = get(0, minR);
+		tmp2 = -get(maxT, minR);
+		tmp3 = -get(0, maxR);
+		tmp4 = get(maxT, maxR);
+		
+		tmp1 += get(_nCols-1+minT, minR);
+		tmp2 += -get(_nCols-1, minR);
+		tmp3 += -get(_nCols-1+minT, maxR);
+		tmp4 += get(_nCols-1, maxR);
+	}
+	else if ( (minT>0) && (maxT>=_nCols) )
+	{
+		tmp1 = get(minT, minR);
+		tmp2 = -get(_nCols-1, minR);
+		tmp3 = -get(minT, maxR);
+		tmp4 = get(_nCols-1, maxR);
+
+		tmp1 += get(0, minR);
+		tmp2 += -get(maxT-_nCols, minR);
+		tmp3 += -get(0, maxR);
+		tmp4 += get(maxT-_nCols, maxR);
+		
+	}
+	else
+		return 0;		// case not supported
+
+	return (tmp4 + tmp3 + tmp1 + tmp2);
+}
+
+inline double YARPIntegralImage::getSaliency(int maxX, int minX, int maxY, int minY)
+{
+	double tmp1; 
+	double tmp2; 
+	double tmp3; 
+	double tmp4; 
+
+	if (minX < 0)
+		minX = 0;
+	if (minY < 0)
+		minY = 0;
+	if (maxX > _nCols-1)
+		maxX = _nCols-1;
+	if (maxY > _nRows-1)
+		maxY = _nRows-1;
+
+	tmp1 = get(minX, minY);
+	tmp2 = get(maxX, minY);
+	tmp3 = get(minX, maxY);
+	tmp4 = get(maxX, maxY);
+
+	return (tmp4 + tmp1 - (tmp2+tmp3));
+}
 
 #endif
 

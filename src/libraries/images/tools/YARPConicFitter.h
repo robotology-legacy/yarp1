@@ -61,188 +61,43 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.cpp,v 1.9 2003-09-02 13:57:29 natta Exp $
+/// $Id: YARPConicFitter.h,v 1.1 2003-09-02 13:57:29 natta Exp $
 ///
-///
+/// Fit simple conics to a segmented region. Logpolar version.
+/// September 2003 -- by nat
 
-#include "YARPBlobDetector.h"
-#include <YARPImageFile.h>
-#include "math.h"
+#ifndef __YARPCONICFITTER__
 
-YARPBlobDetector::YARPBlobDetector(float thrs)
+#include "YARPLogpolar.h"
+#include "YARPImageMoments.h"
+
+class YARPLpConicFitter
 {
-	_nRows = 0;
-	_nCols = 0;
+public:
+	// fit a circle to a segmented region; r0, t0 is the center of the circle (center of mass)
+	// Rmin, Rmax, Rav are respectively min, max and av radius of the region.
+	void fitCircle(YARPImageOf<YarpPixelMono> &in, int *r0,  int *t0, int *Rmin, int *Rmax, int *Rav);
+	// fit a circle to a segmented region; r0, t0 is the center of the circle (center of mass)
+	// r here is the radius of gyration
+	void fitCircle(YARPImageOf<YarpPixelMono> &in, int *r0,  int *t0, int *r);
+	// fit an ellipse to the segmented region. a11, a12, a22 are the parameters of the conic matrix
+	// computed from the central moments (see code for the formulas)
+	void fitEllipse(YARPImageOf<YarpPixelMono> &in, int *r0,  int *t0, double *a11, double *a12, double *a22);
 
-	_threshold = thrs;
+	// plot a circle; 
+	// (T0, R0) is the center (logpolar coordinates), R is the radius (cartesian coordinates)
+	void plotCircle(int T0, int R0, double R, YARPImageOf<YarpPixelMono> &output);
+	// plot an ellipse from the coefficients of the quadratic form
+	// (T0, R0) is the center (logpolar coordinates)
+	void plotEllipse(int T0, int R0, double a11, double a12, double a22, YARPImageOf<YarpPixelMono> &output);
 
-}
+private:
+	// compute minimum, maximum and average radius of the seg region
+	void _radius(YARPImageOf<YarpPixelMono> &in, int rho,  int theta, int *Rmin, int *Rmax, int *Rav);
+	// compute the radius of gyration of the segmented region
+	double _radiusOfGyration(YARPImageOf<YarpPixelMono> &in, int x, int y);
 
-YARPBlobDetector::~YARPBlobDetector()
-{
-	_dealloc();
-}
+	YARPLpImageMoments _moments;
+};
 
-void YARPBlobDetector::_resize(int nC, int nR, int sf)
-{
-	_dealloc();
-
-	_nRows = nR;
-	_nCols = nC;
-	_nfovea = sf;
-	
-	_integralImg.resize(nC, nR, sf);
-	_segmented.Resize(nC, nR);
-	_segmented.Zero();
-}
-
-void YARPBlobDetector::_dealloc()
-{
-}
-
-void YARPBlobDetector::filter(YARPImageOf<YarpPixelMono> &in)
-{
-	// compute integral img
-	_integralImg.computeCartesian(in);
-
-	int f;
-	float tmp;
-	float *segmented;
-	
-	int r;
-	int c;
-	for(r = 0; r < _nRows; r++)
-	{
-		segmented = (float *) _segmented.GetArray()[r];
-		for(c = 0; c < _nCols; c++)
-		{
-			// for each filer
-			tmp = 0.0;
-			for(f = 0; f < _nfilters; f++)
-			{
-				int maxX = c+_filterSizeCart[f];
-				int minX = c-_filterSizeCart[f];
-				int maxY = r+_filterSizeCart[f];
-				int minY = r-_filterSizeCart[f];
-
-				tmp += _integralImg.getSaliency(maxX, minX, maxY, minY)*255/_nfilters;
-			}
-
-			if (_threshold > 0)
-			{
-				// threshold
-				if (tmp>_threshold)
-					tmp = 255;
-				else 
-					tmp = 0;
-			}
-
-			*segmented = (YarpPixelMono)(tmp+0.5);
-			segmented++;
-		}
-	}
-}
-
-void YARPBlobDetector::filterLp(YARPImageOf<YarpPixelMono> &in)
-{
-	// compute integral img
-	_integralImg.computeLp(in);
-
-	int f;
-	float tmp;
-
-	int r;
-	int c;
-	float *segmented;
-	for(r = 0; r < _nRows; r++)
-	{
-		segmented = (float *) _segmented.GetArray()[r]; 
-		for(c = 0; c < _nCols; c++)
-		{
-			// for each filer
-			tmp = 0.0;
-			for(f = 0; f < _nfilters; f++)
-			{
-				int deltaT = int (_filterSizeTheta[f]/pSize(c,r,_nfovea) + 0.5);
-				int deltaR = int (_filterSizeRho[f]/pSize(c,r,_nfovea) + 0.5);
-
-				int maxX = c+deltaR;
-				int minX = c-deltaR;
-				int maxY = r+deltaT;
-				int minY = r-deltaT;
-				
-				tmp += _integralImg.getSaliencyLp(maxX, minX, maxY, minY)*255/_nfilters;
-			}
-			if (_threshold > 0)
-			{
-				// threshold
-				if (tmp>_threshold)
-					tmp = 255;
-				else 
-					tmp = 0;
-			}
-
-			*segmented = (YarpPixelMono)(tmp+0.5);
-			segmented++;
-		}
-	}
-}
-
-void YARPBlobDetector::debug()
-{
-	char tmpName[255];
-	YARPImageOf<YarpPixelMono> tmpImage;
-	tmpImage.Resize(_nCols, _nRows);
-
-	int r;
-	int c;
-	int f;
-	int center = _nfovea;
-	for(f = 0; f < _nfilters; f++)
-	{
-		sprintf(tmpName, "%s%d.ppm", "blobDebug", f);
-		tmpImage.Zero();
-		center = _nfovea;
-
-		for(r = 0; r < _nRows; r++)
-		{
-			c = _nCols/2;
-
-			int deltaT = int (_filterSizeTheta[f]/pSize(c,r,_nfovea) + 0.5);
-			int deltaR = int (_filterSizeRho[f]/pSize(c,r,_nfovea) + 0.5);
-
-			int maxX = c+deltaR;
-			int minX = c-deltaR;
-			int maxY = r+deltaT;
-			int minY = r-deltaT;
-
-			center = center + 2*deltaR;
-
-			_drawBox(maxX, minX, maxY, minY, tmpImage);
-		}
-				
-		YARPImageFile::Write(tmpName, tmpImage);
-	}
-}
-
-void YARPBlobDetector::_drawBox(int maxX, int minX, int maxY, int minY, YARPImageOf<YarpPixelMono> &out)
-{
-	int r,c;
-	if (minY<=0)
-		minY = 0;
-
-	if (maxY>(_nRows-1))
-		maxY = _nRows -1;
-
-	for(r = minY; r<=maxY; r++)
-	{
-		out(minX, r) = 255;
-		out(maxX, r) = 255;
-	}
-
-	for(c = minX; c<=maxX; c++)
-	{
-		out(c, minY) = 255;
-		out(c, maxY) = 255;
-	}
-}
+#endif

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.10 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: YARPLogpolar.h,v 1.11 2003-09-02 13:57:29 natta Exp $
 ///
 ///
 
@@ -84,6 +84,15 @@
 ///		of one of the latest logpolar CMOS chips.
 ///
 
+// Some parameters were computed to fit the log polar
+// transformation as implemented by the CMOS chip according
+// to the following equations:
+// x = ro*cos(eta/q)
+// y = ro*sin(eta/q)
+// ro = _alfa*exp(_beta*csi)
+// jacobian(csi, eta) = _jacob1 * exp(2*_beta*csi);
+// September 2003 -- by nat
+
 namespace _logpolarParams
 {
 	const int _xsize = 256;
@@ -91,8 +100,16 @@ namespace _logpolarParams
 	const int _srho = 152;
 	const int _stheta = 252;
 	const int _sfovea = 42;
-};
 
+	const double _alfa = 3.76;	
+	const double _beta = 0.0233;
+	const double _alfa_inv = 1/_alfa;
+	const double _beta_inv = 1/_beta;
+	const double _q = _stheta/(2*PI);
+	const double _alfasquare = _alfa*_alfa;
+	const double _betasquare = _beta*_beta;
+	const double _jacob1 = _alfasquare*_beta/_q;
+};
 
 class YARPLogpolarSampler : public YARPFilter
 {
@@ -141,6 +158,23 @@ public:
 
 	inline int GetCWidth (void) const { return _logpolarParams::_xsize; }
 	inline int GetCHeight (void) const { return _logpolarParams::_ysize; }
+
+	inline double CsiToRo(double csi)
+	{
+		return _logpolarParams::_alfa*exp(_logpolarParams::_beta*csi);
+	}
+
+	inline double RoToCsi(double r)
+	{
+		return _logpolarParams::_beta_inv*log(_logpolarParams::_alfa_inv*r);
+	}
+
+	inline double Jacobian(int csi, int eta)
+	{
+		double ret;
+		ret = _logpolarParams::_jacob1 * exp(2*_logpolarParams::_beta*csi);
+		return ret;
+	}
 
 	bool TablesOk(void) const { return _mapsLoaded; }
 };

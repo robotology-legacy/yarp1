@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.7 2003-08-06 16:48:47 babybot Exp $
+/// $Id: LogPolarSDK.h,v 1.8 2003-09-02 13:57:29 natta Exp $
 ///
 ///
 
@@ -88,7 +88,6 @@
 #define BLUE  2
 
 #define MAX_PIX 10
-
 
 #define PI 3.1415926535897932384626433832795
 

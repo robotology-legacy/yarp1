@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.h,v 1.7 2003-08-22 15:39:55 natta Exp $
+/// $Id: YARPBlobDetector.h,v 1.8 2003-09-02 13:57:29 natta Exp $
 ///
 /// August 2003 -- by nat
 
@@ -78,12 +78,6 @@ const int _filterSizeCart[] = {7, 11, 15, 21, 25, 31, 35, 41, 45, 51};
 
 const int _filterSizeTheta[] = {7, 11, 15, 21, 25, 31, 35, 41, 45, 51, 61};
 const int _filterSizeRho[] = {11, 15, 21, 25, 31, 35, 41, 45, 51, 61, 71};
-
-// const double _alfa = 0.023;
-// const double _beta = 0.28;
-
-// const double _alfa = 0.025;
-// const double _beta = 0.19;
 
 class YARPBlobDetector
 {
@@ -108,9 +102,7 @@ public:
 	{ _resize (nC, nR, sf); }
 
 	YARPImageOf<YarpPixelMono> & getSegmented()
-	{
-		return _segmented;
-	}
+	{ return _segmented; }
 
 	void debug();
 	
@@ -124,7 +116,6 @@ private:
 	int _nfovea;
 
 	YARPIntegralImage _integralImg;
-	YARPImageOf<YarpPixelFloat> *_filtered;
 	YARPImageOf<YarpPixelMono> _segmented;
 
 	float _threshold;
