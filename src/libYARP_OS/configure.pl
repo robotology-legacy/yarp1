@@ -14,7 +14,7 @@ chomp ($uname = `uname`);
 if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
 {
 	print "This is a Windows 2000/XP specific script\n";
-	print "Perhaps this procedure can be simply extended to\n"; 
+	print "Perhaps this procedure can be simply extended to "; 
 	print "other OSes but for now, this is all experimental...\n";
 	
 	die "This script is specific to Windows 2000/XP\n";
@@ -61,10 +61,10 @@ if (-e $config_file)
 #
 #
 
-print "Now I'm going to ask a few questions to help the configuration\n";
+print "Now I'm going to ask a few questions to help the configuration. ";
 print "So, let's start...\n";
-print "For pathnames you can use (type) the pre-defined value \$YARP_ROOT\n";
-print " that I've verified as: \"$yarp_root\"\n\n";
+print "For pathnames you can use (type) the pre-defined value \$YARP_ROOT ";
+print "that I've verified as: \"$yarp_root\"\n\n";
 print "Please, use always the forward slash as a separator!\n";
 
 print "I determined already that you're running on Windows\n";
@@ -82,7 +82,7 @@ get_option_hash ("Compile_OS<-Tools_Rebuild", "YES", "Would you like to rebuild 
 get_option_hash ("Compile_OS<-Tools_Debug", "FALSE", "Would you like to compile the tools for debugging?");
 
 # consistency check.
-if ($options{"Compile_OS<-Lib_Debug"} eq "FALSE" && 
+if ($options{"Compile_OS<-Lib_Debug"} ne "TRUE" && 
 	$options{"Compile_OS<-Lib_Release"} eq "FALSE" && 
 	$options{"Compile_OS<-Lib_Clean"} eq "TRUE")
 {
@@ -92,11 +92,11 @@ if ($options{"Compile_OS<-Lib_Debug"} eq "FALSE" &&
 }
 
 if ($options{"Compile_OS<-Lib_Install"} eq "TRUE" &&
-	$options{"Compile_OS<-Tools_Rebuild"} eq "NO")
+	$options{"Compile_OS<-Tools_Rebuild"} ne "YES")
 {
 	print "You need to recompile the tools since you're installing a new build of the libraries\n";
 	print "I'm adding the tools compilation flag for you\n";
-	$options{"Compile_OS<-Tools_Rebuild"} = "TRUE";
+	$options{"Compile_OS<-Tools_Rebuild"} = "YES";
 }
 
 print "We're done for now, the context file is being created: \"$config_file\"\n";

@@ -105,9 +105,10 @@ if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
 
 #
 # override.
-$debug = ($options{"Compile_OS<-Lib_Debug"} eq "TRUE") ? '1' : '';
-$release = ($options{"Compile_OS<-Lib_Release"} eq "TRUE") ? '1' : '';
-$install = ($options{"Compile_OS<-Lib_Install"} eq "TRUE") ? '1' : '';
+$debug = ($options{"Compile_OS<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
+$release = ($options{"Compile_OS<-Lib_Release"} eq "TRUE") ? 1 : $release;
+$install = ($options{"Compile_OS<-Lib_Install"} eq "TRUE") ? 1 : $install;
+$clean = ($options{"Compile_OS<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
 
 #
 #
