@@ -41,6 +41,11 @@ extern "C" {
 
 #include "bttv.h"
 #define BTTV_MAX 6
+/*
+ * Those are the default values for BRIGHT and CONTRAST (for babybot using fgadjuster)
+ */
+#define BRIGHT_DEFAULT 81
+#define CONTRAST_DEFAULT 140
 
 	/*Globar variables*/
 	static int bttv_num;
@@ -1060,13 +1065,12 @@ extern "C" {
 
 		bt848_set_size(btv);
 
-		bt848_bright(0x25);
-		//bt848_bright(btv, 0x7f);
-		//bt848_sat_u(btv,1);
-		//bt848_sat_v(btv,1);	
-		//bt848_hue(btv,0);
-		btwrite(0xd8, BT848_CONTRAST_LO);
-		//btwrite(0x80,BT848_OFORM);
+		//----------------------------------------------------------------------
+		//	Insert default bright and contrast values
+		//	This is to aproximate picolo (windows) driver performance  
+		//----------------------------------------------------------------------
+		bt848_bright(BRIGHT_DEFAULT);
+		bt848_contrast(CONTRAST_DEFAULT);
 
 		//btwrite(BT848_ADC_RESERVED|BT848_ADC_CRUSH, BT848_ADC);
 		btwrite(BT848_ADC_RESERVED, BT848_ADC);

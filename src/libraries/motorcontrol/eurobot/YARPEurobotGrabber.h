@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPEurobotGrabber.h,v 1.3 2003-12-17 10:31:44 beltran Exp $
+/// $Id: YARPEurobotGrabber.h,v 1.4 2004-01-21 09:29:44 beltran Exp $
 ///
 ///
 
@@ -72,3 +72,4 @@
 #include <YARPPicoloOnEurobotAdapter.h>
 
 typedef YARPGenericGrabber<YARPPicoloOnEurobotAdapter, YARPEurobotGrabberParams> YARPEurobotGrabber;
+#endif
