@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPGalilDeviceDriver.cpp,v 1.16 2003-12-22 16:51:16 beltran Exp $
+//         Version:  $Id: YARPGalilDeviceDriver.cpp,v 1.17 2003-12-23 16:21:36 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -84,6 +84,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDSafeVMove]		= &YARPGalilDeviceDriver::set_safe_jogs;
 
 	m_cmds[CMDCheckMotionDone]	= &YARPGalilDeviceDriver::check_motion_done;
+	m_cmds[CMDWaitForMotionDone] = &YARPGalilDeviceDriver::waitForMotionDone;
 
 	m_cmds[CMDControllerIdle]	= &YARPGalilDeviceDriver::controller_idle;
 
@@ -1548,6 +1549,34 @@ int YARPGalilDeviceDriver::check_motion_done(void *flag, int axis)
 		*tmp = true;
 	else							//Motion in progress
 		*tmp = false;
+
+	return rc;
+}
+
+//--------------------------------------------------------------------------------------
+//       Class:  YARPGalilDeviceDriver
+//      Method:  waitForMotionDone 
+// Description:  This method wait for a motion to be completed. A time command can
+// 				 be used in order to avoid a continuous polling 
+//--------------------------------------------------------------------------------------
+int 
+YARPGalilDeviceDriver::waitForMotionDone(void *cmd)
+{
+	int rc = 0;
+	bool _motion_flag = false;
+	int time = *((int *) cmd);
+
+	check_motion_done(&_motion_flag);
+	if (time != 0){ 
+		while(!_motion_flag){
+			ACE_OS::sleep(ACE_Time_Value(0,time));
+			check_motion_done(&_motion_flag);
+		}
+	}
+	else {
+		while(!_motion_flag)
+			check_motion_done(&_motion_flag);
+	}
 
 	return rc;
 }

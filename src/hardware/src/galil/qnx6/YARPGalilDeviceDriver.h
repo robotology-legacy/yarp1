@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.14 2003-12-22 14:48:26 beltran Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.15 2003-12-23 16:21:36 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -113,8 +113,8 @@ public:
 	int get_motor_type(void * input);
 		
 	int check_motion_done(void *flag);
-
 	int check_motion_done(void *flag,int axis);
+	int waitForMotionDone(void * cmd); 
 
 	int check_frames_left(void *flag);
 	int wait_for_frames_left(void *cmd);
