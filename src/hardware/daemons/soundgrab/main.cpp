@@ -10,9 +10,9 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: main.cpp,v 1.6 2004-03-22 17:46:59 beltran Exp $
+//         Version:  $Id: main.cpp,v 1.7 2004-04-07 15:47:17 beltran Exp $
 // 
-//          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
+//          Author:  Eng. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
 // 
 // =====================================================================================
@@ -95,22 +95,22 @@ ParseParams (int argc, char *argv[], int visualize = 0)
 {
 	int i;
 	
-	ACE_OS::sprintf (_name       , "/%s/o:sound"  , argv[0]);
-	ACE_OS::sprintf (_fgdataname , "/%s/i:fgdata" , argv[0]);
-	ACE_OS::sprintf (_netname    , "default");
+	ACE_OS::sprintf (_name      , "/%s/o:sound" , argv[0]);
+	ACE_OS::sprintf (_fgdataname, "/%s/i:fgdata", argv[0]);
+	ACE_OS::sprintf (_netname   , "default");
 
 	if (visualize)
 	{
-		ACE_OS::fprintf(stdout,"USE: soundgrab <+name -Parameters>\n"); 
-		ACE_OS::fprintf(stdout,"c -> Channels\n");
-		ACE_OS::fprintf(stdout,"a -> SamplesPerSecond\n");
-		ACE_OS::fprintf(stdout,"i -> BitsPerSample\n");
-		ACE_OS::fprintf(stdout,"l -> BufferLength\n");
-		ACE_OS::fprintf(stdout,"b -> BoardNumber\n");
-		ACE_OS::fprintf(stdout,"t -> Receiver client modality\n");
-		ACE_OS::fprintf(stdout,"s -> Server Simulation\n");
-		ACE_OS::fprintf(stdout,"n -> Network\n");
-		ACE_OS::fprintf(stdout,"f -> Open port for volume/gain/mute data\n");
+		ACE_OS::fprintf(stdout, "USE: soundgrab <+name -Parameters>\n");
+		ACE_OS::fprintf(stdout, "c -> Channels\n");
+		ACE_OS::fprintf(stdout, "a -> SamplesPerSecond\n");
+		ACE_OS::fprintf(stdout, "i -> BitsPerSample\n");
+		ACE_OS::fprintf(stdout, "l -> BufferLength\n");
+		ACE_OS::fprintf(stdout, "b -> BoardNumber\n");
+		ACE_OS::fprintf(stdout, "t -> Receiver client modality\n");
+		ACE_OS::fprintf(stdout, "s -> Server Simulation\n");
+		ACE_OS::fprintf(stdout, "n -> Network\n");
+		ACE_OS::fprintf(stdout, "f -> Open port for volume/gain/mute data\n");
 
 		return YARP_OK;
    	}
@@ -122,12 +122,14 @@ ParseParams (int argc, char *argv[], int visualize = 0)
 			exit(0);
 		}
 		else
-		if (argv[i][0] == '+') {
-			ACE_OS::sprintf (_name       , "/%s/o:sound"  , argv[i]+1);
-			ACE_OS::sprintf (_fgdataname , "/%s/i:fgdata" , argv[i]+1);
+		if (argv[i][0] == '+') 
+		{
+			ACE_OS::sprintf (_name      , "/%s/o:sound" , argv[i]+1);
+			ACE_OS::sprintf (_fgdataname, "/%s/i:fgdata", argv[i]+1);
 		}
 		else
-		if (argv[i][0] == '-') {
+		if (argv[i][0] == '-') 
+		{
 			switch (argv[i][1])
 			{
             case 'c':                                     // Channels
@@ -185,7 +187,8 @@ ParseParams (int argc, char *argv[], int visualize = 0)
 				break;
 			}
 		}
-		else {
+		else 
+		{
 			ACE_OS::fprintf (stderr, "unrecognized parameter %d:%s\n", i, argv[i]);
 		}
 	}
@@ -200,8 +203,8 @@ ParseParams (int argc, char *argv[], int visualize = 0)
 //  It receives a bottle with information to adjust the sound 
 //  To be used to fgadjuster photon application. 
 // 
-//       Author:  Ing. Carlos Beltran
-//      Created:  15/01/2003 10:36:00 W. Europe Standard Time
+//       Author:  Eng. Carlos Beltran
+//      Created:  15/01/2003 10:36:00 
 //     Revision:  NOTE: Modifications should be done to support sound variables
 //     (volume, mute...etc) 
 // =====================================================================================
@@ -248,7 +251,7 @@ void FgNetDataPort::OnRead(void)
 // 
 //  Description:  
 // 
-//       Author:  Ing. Carlos Beltran
+//       Author:  Eng. Carlos Beltran
 //      Created:  25/02/2004 10:30:43 W. Europe Standard Time
 //     Revision:  none
 // =====================================================================================
@@ -457,7 +460,8 @@ mainthread::_runAsNormally (void)
 	//----------------------------------------------------------------------
 	FgNetDataPort  * m_fg_net_data;
 
-	if (_fgnetdata) {
+	if (_fgnetdata) 
+	{
 		m_fg_net_data = new FgNetDataPort(&soundgrabber);
 		m_fg_net_data->Register (_fgdataname,_netname);
 	} 
