@@ -4,11 +4,11 @@ SUBDIRS = src $(wildcard yarp-*)
 
 default:
 	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) $(MAKEFLAGS) ) ; done
+		( cd $$d ; $(MAKE) ) ; done
 
 
 clean:
 	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) $(MAKEFLAGS) clean ) ; done
+		( cd $$d ; $(MAKE) clean ) ; done
 
 
