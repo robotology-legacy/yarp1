@@ -61,9 +61,9 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.cpp,v 1.9 2004-07-12 08:36:31 babybot Exp $
+/// $Id: YARPBabybotHeadKin.cpp,v 1.10 2004-07-19 13:17:16 babybot Exp $
 ///
-///
+/// read from file (July 04 by nat)
 
 #include "YARPBabybotHeadKin.h"
 #include <YARPConfigFile.h>
@@ -114,7 +114,7 @@ YARPBabybotHeadKin::YARPBabybotHeadKin ()
 ///
 /// each of <dh_left>, <dh_right> describes independently the two kinematic chains from 
 /// base to left and base to right eye respectively.
-/// each matrix has njoint + occasional fictious links lines.
+/// each matrix has njoint occasional fictious links lines.
 ///
 YARPBabybotHeadKin::YARPBabybotHeadKin (const YMatrix &dh_left, const YMatrix &dh_right, const YHmgTrsf &bline)
 	: _leftCamera (dh_left, bline),
@@ -214,7 +214,6 @@ void YARPBabybotHeadKin::computeDirect (const YVector &joints)
 
 	_leftCamera.computeDirect (_leftJoints);
 	_rightCamera.computeDirect (_rightJoints);
-
 	_computeFixation (_rightCamera.endFrame(), _leftCamera.endFrame());
 }
 

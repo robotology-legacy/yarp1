@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.12 2004-07-12 08:36:31 babybot Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.13 2004-07-19 13:17:16 babybot Exp $
 ///
 ///
 
@@ -159,6 +159,10 @@ public:
 	/// given an up to data kin matrix, it returns the x,y,z cartesian coordinate of the fixation point
 	const Y3DVector &fixation()
 		{ return _fixationPoint; }
+	const Y3DVector &fixationCartesian()
+		{ return _fixationPoint; }
+	const Y3DVector &fixationPolar()
+		{ return _fixationPolar; }
 
 	///
 	/// given a point in the peripheral img returns the corresp foval one.
@@ -170,12 +174,14 @@ protected:
 	inline void _polarToCartesian(double el, double az, YVector &v);
 	inline void _cartesianToPolar(const YVector &v, double &el, double &az);
 
+	inline void _cartesianToPolar(const Y3DVector &cart, Y3DVector &polar);
 	YARPRobotKinematics _leftCamera;
 	YARPRobotKinematics _rightCamera;
 
 	YVector _leftJoints;
 	YVector _rightJoints;
 	Y3DVector _fixationPoint;
+	Y3DVector _fixationPolar;
 	int _nFrame;
 
 private:
@@ -200,6 +206,19 @@ inline void YARPBabybotHeadKin::_cartesianToPolar(const YVector &v, double &el, 
 	az = atan2(v(2), -v(1));							// azimuth
 	double tmp = sqrt(v(1)*v(1) + v(2)*v(2));			
 	el = atan2(v(3),tmp);								// elevation
+}
+
+inline void YARPBabybotHeadKin::_cartesianToPolar(const Y3DVector &cartesian, Y3DVector &polar)
+{
+	polar(1) = atan2(cartesian(2), -cartesian(1));
+	// azimuth
+	double tmp = sqrt(cartesian(1)*cartesian(1) + cartesian(2)*cartesian(2));			
+	// elevation
+	polar(2) = atan2(cartesian(3),tmp);
+
+	// distance
+	polar(3) = sqrt(cartesian(1)*cartesian(1) + cartesian(2)*cartesian(2)+cartesian(3)*cartesian(3));
+	
 }
 
 ///
@@ -229,6 +248,8 @@ inline void YARPBabybotHeadKin::_computeFixation (const YHmgTrsf &T1, const YHmg
 	_fixationPoint(1) = T1(1,4) + T1(1,1) * u;
 	_fixationPoint(2) = T1(2,4) + T1(2,1) * u;
 	_fixationPoint(3) = T1(3,4) + T1(3,1) * u;
+
+	_cartesianToPolar(_fixationPoint, _fixationPolar);
 }
 
 #endif
