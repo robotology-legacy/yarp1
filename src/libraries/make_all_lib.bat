@@ -127,7 +127,7 @@ msdev tools.dsp /MAKE "tools - Win32 Debug" /BUILD
 cd ..\..\
 echo Building utils library.
 cd .\utils\
-msdev utils.mak /MAKE "utils - Win32 Debug" /BUILD
+msdev utils.dsw /MAKE "utils - Win32 Debug" /BUILD
 cd ..\
 
 echo Building "Device Drivers."
