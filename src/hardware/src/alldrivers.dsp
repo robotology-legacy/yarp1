@@ -193,6 +193,10 @@ SOURCE=.\valuecan\winnt\YARPValueCanDeviceDriver.h
 # End Group
 # Begin Source File
 
+SOURCE=.\valuecan\winnt\CAN_bus_protocol.txt
+# End Source File
+# Begin Source File
+
 SOURCE=.\howto.txt
 # End Source File
 # End Target

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.3 2004-05-02 22:25:12 babybot Exp $
+/// $Id: Controller.H,v 1.4 2004-05-03 23:49:46 babybot Exp $
 ///
 ///
 
@@ -70,7 +70,7 @@
 /* same as above, deals also with endianism */
 #define BYTE_C(x4, x3, x2, x1) \
 	(_L_deposit_h(__shl(x1,8) | x2) | \
-	 _L_deposit_l(__shl(x3,8) | x4))
+	 (_L_deposit_l(__shl(x3,8) | x4) & 0x7fffffff))
 	 
 #define BYTE_W(x2, x1) (__shl(x1,8) | x2)
 
@@ -94,12 +94,13 @@
  * this is 8 bits long, MSB is the channel (0 or 1). 
  */
 #define CAN_NO_MESSAGE				0
-#define CAN_TOGGLE_POSITION_MODE 	1
-#define CAN_TOGGLE_VELOCITY_MODE	2
+#define CAN_CONTROLLER_RUN		 	1
+#define CAN_CONTROLLER_IDLE			2
 #define CAN_TOGGLE_VERBOSE			3
 #define CAN_CALIBRATE_ENCODER		4
-#define CAN_TOGGLE_PWM_PAD			5
-#define CAN_GET_CONTROL_MODE		6
+#define CAN_ENABLE_PWM_PAD			5
+#define CAN_DISABLE_PWM_PAD			6
+#define CAN_GET_CONTROL_MODE		7
 
 #define CAN_WRITE_FLASH_MEM			10
 #define CAN_READ_FLASH_MEM			11
@@ -114,6 +115,8 @@
 
 #define CAN_POSITION_MOVE			27
 #define CAN_VELOCITY_MOVE			28
+
+#define CAN_SET_ENCODER_POSITION	29
 
 #define CAN_SET_P_GAIN				30
 #define CAN_GET_P_GAIN				31

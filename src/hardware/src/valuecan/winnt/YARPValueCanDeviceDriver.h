@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.4 2004-05-02 22:25:12 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.5 2004-05-03 23:49:46 babybot Exp $
 ///
 ///
 
@@ -66,6 +66,13 @@ struct ValueCanOpenParameters
 	int _timeout;								/// number of cycles before timing out
 };
 
+///
+///
+const short MAX_SHORT = 32767;
+const short MIN_SHORT = -32768;
+const int MAX_INT = 0x7fffffff;
+const int MIN_INT = 0x80000000;
+
 
 class YARPValueCanDeviceDriver : 
 	public YARPDeviceDriver<YARPNullSemaphore, YARPValueCanDeviceDriver>, public YARPThread
@@ -83,11 +90,29 @@ public:
 	virtual int close(void);
 
 	virtual int getPosition(void *cmd);
+	virtual int getPositions(void *cmd);
 	virtual int getRefPositions(void *cmd);
 	virtual int setPosition(void *cmd);
+	virtual int setPositions(void *cmd);
 	virtual int setSpeed(void *cmd);
+	virtual int setSpeeds(void *cmd);
+	virtual int getRefSpeeds(void *cmd);
 	virtual int setAcceleration(void *cmd);
+	virtual int setAccelerations(void *cmd);
+	virtual int getRefAccelerations(void *cmd);
+	virtual int setOffset(void *cmd);
+	virtual int setOffsets(void *cmd);
 	virtual int setPid(void *cmd);
+	virtual int getPid(void *cmd);
+	virtual int setIntegratorLimit(void *cmd);
+	virtual int setIntegratorLimits(void *cmd);
+	virtual int definePosition(void *cmd);
+	virtual int definePositions(void *cmd);
+	virtual int enableAmp(void *cmd);
+	virtual int disableAmp(void *cmd);
+	virtual int controllerIdle(void *cmd);
+	virtual int controllerRun(void *cmd);
+	virtual int velocityMove(void *cmd);
 
 protected:
 	void *system_resources;
@@ -99,8 +124,34 @@ protected:
 	virtual void Body(void);
 
 	/// helper functions
-	int _writeWord16 (int msg, int axis, short value);
+	int _writeWord16 (int msg, int axis, short s);
+	int _writeWord16Ex (int msg, int axis, short s1, short s2);
+	int _readWord16 (int msg, int axis, short& value);
 	int _readDWord (int msg, int axis, int& value);
+	int _writeDWord (int msg, int axis, int value);
+	int _writeNone (int msg, int axis);
+
+	inline short S_16(double x) const 
+	{
+		if (x <= double(-(MAX_SHORT))-1)
+			return MIN_SHORT;
+		else
+		if (x >= double(MAX_SHORT))
+			return MAX_SHORT;
+		else
+			return short(x + .5);
+	}
+
+	inline int S_32(double x) const
+	{
+		if (x <= double(-(MAX_INT))-1.0)
+			return MIN_INT;
+		else
+		if (x >= double(MAX_INT))
+			return MAX_INT;
+		else
+			return int(x + .5);
+	}
 };
 
 
