@@ -24,7 +24,8 @@ LDLIBS  = $(YARP_ROOT)/lib/$(OS)/libYARP_robot.a \
 		  $(YARP_ROOT)/lib/$(OS)/libYARP_sig.a \
 		  $(YARP_ROOT)/lib/$(OS)/libYARP_sig_logpolar.a \
 		  $(YARP_ROOT)/lib/$(OS)/libYARP_OS.a \
-		  $(YARP_ROOT)/lib/$(OS)/libYARP_math.a
+		  $(YARP_ROOT)/lib/$(OS)/libYARP_math.a \
+		  $(YARP_ROOT)/lib/$(OS)/utils.a
 
 SRC  = $(addsuffix .cpp,$(FILES))
 OBJ  = $(addsuffix .o,$(FILES))
