@@ -55,7 +55,7 @@ nmake /f sin.mak CFG="sin - Win32 Release" clean
 cd ..\slay
 nmake /f slay.mak CFG="slay - Win32 Debug" clean
 nmake /f slay.mak CFG="slay - Win32 Release" clean
-cd ..\
+cd ..\..\
 
 goto end
 
@@ -87,7 +87,7 @@ cd ..\sin
 nmake /f sin.mak CFG="sin - Win32 Debug"
 cd ..\slay
 nmake /f slay.mak CFG="slay - Win32 Debug"
-cd ..\
+cd ..\..\
 
 goto end
 
@@ -119,7 +119,7 @@ cd ..\sin
 nmake /f sin.mak CFG="sin - Win32 Release"
 cd ..\slay
 nmake /f slay.mak CFG="slay - Win32 Release"
-cd ..\
+cd ..\..\
 
 goto end
 
