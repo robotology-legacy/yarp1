@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPIterativeStats.h,v 1.2 2003-04-30 13:22:41 beltran Exp $
+/// $Id: YARPIterativeStats.h,v 1.3 2003-05-21 11:12:16 gmetta Exp $
 ///
 ///
 
@@ -71,6 +71,10 @@
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
 #include <math.h>
+
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
 
 ///
 ///
