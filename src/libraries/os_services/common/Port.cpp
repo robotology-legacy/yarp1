@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.13 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: Port.cpp,v 1.14 2003-05-13 22:14:16 gmetta Exp $
 ///
 ///
 
@@ -316,6 +316,7 @@ void _strange_select::Body ()
 				{
 					active = 0;
 					timeout = 1;
+					ACE_DEBUG ((LM_DEBUG, "timeout expired %f\n", now-started));
 				}
 
 				if (!active)
@@ -694,7 +695,7 @@ void Port::Body()
 					
 					while (p_receiver_incoming.Ptr() == NULL)
 					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "%%% Waiting for incoming space\n"));
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& Waiting for incoming space\n"));
 						// HIT - should have way to convey back skip
 						// request to sender
 						// (can't just ignore, don't know how many)
@@ -718,7 +719,7 @@ void Port::Body()
 					out_mutex.Wait();
 					receiving = 0;
 					
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "%%% Received. Switching with latest space\n"));
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& Received. Switching with latest space\n"));
 					p_receiver_latest.Switch(p_receiver_incoming);
 					
 					if (!has_input)
@@ -870,7 +871,7 @@ Sendable *Port::Acquire(int wait)
 		ACE_ASSERT (!accessing);
 		if (p_receiver_latest.Ptr()!=NULL)
 		{
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "%%% READ from latest space\n"));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& READ from latest space\n"));
 			p_receiver_latest.Switch(p_receiver_access);
 			has_input = 0;
 		}
@@ -894,18 +895,18 @@ void Port::Relinquish()
     {
 		if (p_receiver_incoming.Ptr()==NULL)
 		{
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "%%% READ relinquish to incoming space\n"));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& READ relinquish to incoming space\n"));
 			p_receiver_incoming.Switch(p_receiver_access);
 		}
 		else 
 		if (p_receiver_latest.Ptr()==NULL)
 		{
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "%%% READ relinquish to latest space\n"));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& READ relinquish to latest space\n"));
 			p_receiver_latest.Switch(p_receiver_access);
 		}
 		else
 		{
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "%%% READ relinquish to access space\n"));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& READ relinquish to access space\n"));
 		}
 	
 		if (asleep)

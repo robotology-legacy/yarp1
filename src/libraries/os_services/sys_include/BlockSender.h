@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.h,v 1.3 2003-04-18 09:25:49 gmetta Exp $
+/// $Id: BlockSender.h,v 1.4 2003-05-13 22:14:16 gmetta Exp $
 ///
 ///
 
@@ -126,12 +126,12 @@ public:
 class BlockSender : public YARPPortWriter
 {
 protected:
-	int max_packet;
+	///int max_packet;
 	int AddPiece(char *buffer, int len);
 
 public:
 	YARPNameID pid;
-	int available;
+	///int available;
 	int pieces;
 	int failed;
 	vector<BlockUnit> entries;
@@ -139,21 +139,22 @@ public:
 
 	BlockSender()
 	{
-		max_packet = MAX_PACKET;
+		///max_packet = MAX_PACKET;
 		Begin (YARPNameID (YARP_NO_SERVICE_AVAILABLE, ACE_INVALID_HANDLE));
 	}
 
 	void SetMaxPacket(int n_max_packet)
 	{
-		available += (n_max_packet-max_packet);
-		max_packet = n_max_packet;
+		ACE_UNUSED_ARG (n_max_packet);
+		///available += (n_max_packet-max_packet);
+		///max_packet = n_max_packet;
 	}
 
 	void Begin(const YARPNameID& npid)
 	{
 		pid = npid;
 		cursor = entries.begin();
-		available = max_packet;
+		///available = max_packet;
 		pieces = 0;
 		failed = 0;
 	}
@@ -162,7 +163,7 @@ public:
 
 	virtual int Write(char *buffer, int length)
     {
-		return Add(buffer,length);
+		return Add (buffer, length);
     }
 
 	int End()
@@ -229,10 +230,10 @@ public:
 		Check();
 		if (header_cursor == headers.end())
 		{
-			if (__debug_level >= 50)
-			{
+			///if (__debug_level >= 50)
+			///{
 				//cout << "*** NEW stl " << __FILE__ << ":" << __LINE__ << endl;
-			}
+			///}
 
 			header_cursor = headers.insert(header_cursor,T());
 		}

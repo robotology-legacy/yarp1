@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.5 2003-05-01 22:51:19 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.6 2003-05-13 22:14:16 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -38,6 +38,12 @@
 
 /// set the default protocol in port creation.
 #define YARP_DEFAULT_PROTOCOL	YARP_UDP
+
+/// set here how many ports are requested by the def protocol.
+#define YARP_PROTOCOL_REGPORTS  11
+
+/// set the number of ports used by UDP for a single port.
+#define YARP_UDP_REGPORTS       11
 
 /// disables warning for init_seg(lib) very legitimate use of directive.
 #pragma warning (disable:4073)

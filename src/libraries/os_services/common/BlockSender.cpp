@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.cpp,v 1.5 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: BlockSender.cpp,v 1.6 2003-05-13 22:14:16 gmetta Exp $
 ///
 ///
 
@@ -95,11 +95,12 @@ int BlockSender::Fire()
 		BlockUnit *bu = entries.begin();
 		YARPMultipartMessage msg(bu, pieces);	// this are allocated whenever there's a Fire...
 		YARPMultipartMessage reply_msg(1);		// LATER: optimize by allocating in advance.
+		
 		//char buf[100];
-		reply_msg.Set(0,_buf,sizeof(_buf));
+		reply_msg.Set(0, _buf, sizeof(_buf));
 		result = YARPSyncComm::Send(pid, msg, reply_msg);
 		pieces = 0;
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Sent %d pieces\n",pieces));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Sent %d pieces\n", pieces));
 	}
 	cursor = entries.begin();
 	if (result == YARP_FAIL)
@@ -107,12 +108,13 @@ int BlockSender::Fire()
 		failed = 1;
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** BlockSender::Fire() failed, err# %P\n"));
 	}
+
 	return (result != YARP_FAIL);
 }
 
 int BlockSender::AddPiece(char *buffer, int len)
 {
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Adding piece, length %d (avail %d)\n", len, available));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Adding piece, length %d (avail -infinite-)\n", len)); ///available));
 	if (cursor == entries.end ())
 	{
 		///YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** NEW stl %s : %s\n", __FILE__, __LINE__));
@@ -136,6 +138,10 @@ int BlockSender::AddPiece(char *buffer, int len)
 ///
 int BlockSender::Add(char *buffer, int len)
 {
+	AddPiece (buffer, len);
+	return 1;
+
+	/*
 	while (len > 0)
 	{
 		if (len > available)
@@ -159,6 +165,7 @@ int BlockSender::Add(char *buffer, int len)
 		}
 	}
 	return 1;
+	*/
 }
 
 #undef THIS_DBG
