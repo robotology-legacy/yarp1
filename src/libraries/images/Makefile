@@ -1,19 +1,6 @@
 include $(YARP_ROOT)/conf/Makefile.template
 
-ifeq ($(shell uname),QNX)
-  CC = cc
-  SYSDIR = qnx
-else
-  ifeq ($(shell uname),Linux)
-    CC = g++
-    SYSDIR = linux
-  else
-    CC = g++
-    SYSDIR = winnt
-  endif
-endif
-
-SUBDIRS = src temporary
+SUBDIRS = src tools
 # $(SYSDIR)
 
 OUT_SYS = obj/$(SYSDIR)
