@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.4 2003-06-05 12:40:03 gmetta Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.5 2003-08-05 17:03:44 babybot Exp $
 ///
 ///
 
@@ -120,6 +120,15 @@ protected:
 
 	//  functions
 	virtual void Body(void);
+	// debug
+
+	/*void Begin(){};
+	void End(int p = 0) {};
+	int GetPriority(){return 0;};
+	int SetPriority(int p){return 0;};
+	*/
+
+
 };
 
 

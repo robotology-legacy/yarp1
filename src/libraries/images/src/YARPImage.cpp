@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.cpp,v 1.7 2003-06-22 15:47:42 gmetta Exp $
+/// $Id: YARPImage.cpp,v 1.8 2003-08-05 17:03:44 babybot Exp $
 ///
 ///
 
@@ -559,7 +559,12 @@ void YARPGenericImage::_alloc (void)
 		if (pImage->imageData != NULL)
 			_free(); // was iplDeallocateImage(pImage); but that won't work with refs
 	
-	iplAllocateImage (pImage, 0, 0);
+	if ( (type_id == YARP_PIXEL_MONO_FLOAT) || (type_id == YARP_PIXEL_RGB_FLOAT) ||
+		(type_id == YARP_PIXEL_HSV_FLOAT) )
+		iplAllocateImageFP(pImage, 0, 0);
+	else
+		iplAllocateImage (pImage, 0, 0);
+
 	iplSetBorderMode (pImage, IPL_BORDER_CONSTANT, IPL_SIDE_ALL, 0);
 }
 

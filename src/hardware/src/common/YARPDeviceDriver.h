@@ -3,7 +3,7 @@
 //
 // 
 // feb 2003 -- by nat and pasa
-// $Id: YARPDeviceDriver.h,v 1.5 2003-05-16 11:19:46 natta Exp $
+// $Id: YARPDeviceDriver.h,v 1.6 2003-08-05 17:03:44 babybot Exp $
 
 #ifndef __YARP_DEVICE_DRIVER__
 #define __YARP_DEVICE_DRIVER__
@@ -35,7 +35,7 @@ public:
 
 	virtual ~YARPDeviceDriver()
 	{
-		delete m_cmds;
+		delete [] m_cmds;
 
 		if (m_handle != 0)
 			((DERIVED *) this)->close();
