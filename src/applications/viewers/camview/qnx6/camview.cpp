@@ -77,6 +77,8 @@ bool _client = false;
 bool _simu = false;
 bool _logp = false;
 
+PhImage_t * phimage;
+
 #define RAD (WH>>1)         // 1/2 the width/height for computing animation
 #define REPS 100            // how many times we want to blit each image
 
@@ -204,10 +206,12 @@ void FreeBuffer(CoolImage *i)
 // this function blits the given buffer using our blit type method
 inline void BlitBuffer(PtWidget_t *win,CoolImage *i)
 {
-	PhImage_t phimage;
+	
 	// For blit type 0, we use PgDrawImagemx(). We have to make sure 
 	// to set the region to the windows region first.  Don't forget
 	// to flush! :)
+	
+	
 	if (blittype==0 || blittype==1)
 	{
 		PhPoint_t pos={0,0};
@@ -217,16 +221,16 @@ inline void BlitBuffer(PtWidget_t *win,CoolImage *i)
 		size.h = WH;
 
 		PgSetRegion(PtWidgetRid(win)); 
-		//PgDrawImagemx(i->buffer,Pg_IMAGE_DIRECT_555,&pos,&size,i->pitch,0);
-		////PgDrawImagemx(i->buffer,Pg_IMAGE_DIRECT_888,&pos,&size,i->pitch,0);
-
-		////PgFlush();
 		
-		phimage.size=size;
-		phimage.bpl = WH*deep;
-		phimage.type = Pg_IMAGE_DIRECT_888;
-		phimage.image =  (char *)i->buffer;
-		PgDrawPhImagemx( &pos, &phimage, 0  );
+		/////PgDrawImagemx(i->buffer,Pg_IMAGE_DIRECT_888,&pos,&size,i->pitch,0);
+
+		/////PgFlush();
+		
+		phimage->size=size;
+		phimage->bpl = WH*deep;
+		phimage->type = Pg_IMAGE_DIRECT_888;
+		phimage->image =  (char *)i->buffer;
+		PgDrawPhImagemx( &pos, phimage, 0  );
 		PgFlush();
 	}else
     if (blittype == 2)
@@ -323,6 +327,14 @@ int RunRemote()
 	PtSetArg(&args[1],Pt_ARG_DIM,&dim,0);
 	win=PtCreateWidget(PtWindow,Pt_NO_PARENT,2,args);
 	PtRealizeWidget(win);
+	
+	phimage = PhCreateImage( phimage,
+                        	 288,
+                        	 288,
+                        	 Pg_IMAGE_DIRECT_888,
+                        	 NULL,
+                        	 0,
+                        	 1);
 
 
 	/*
@@ -457,6 +469,8 @@ int RunLocally()
 	PtSetArg(&args[1],Pt_ARG_DIM,&dim,0);
 	win=PtCreateWidget(PtWindow,Pt_NO_PARENT,2,args);
 	PtRealizeWidget(win);
+	
+	
 
 
 	/*
@@ -475,6 +489,7 @@ int RunLocally()
 		   {
 		   grabber.waitOnNewFrame ();
 		   grabber.acquireBuffer (&image->buffer);
+		   //grabber.acquireBuffer ((unsigned char *)(phimage->image));
 		   cycle1=ClockCycles( );
 		    }
 		   
