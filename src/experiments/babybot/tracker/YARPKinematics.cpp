@@ -55,168 +55,96 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #original paulfitz, changed pasa#
+///                    #nat, pasa#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: attn_tracker.cpp,v 1.5 2003-11-06 14:42:14 gmetta Exp $
+/// $Id: YARPKinematics.cpp,v 1.1 2003-11-06 14:42:14 gmetta Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
-#include <ace/config.h>
-#include <ace/OS.h>
-#include <YARPImages.h>
+// RobotKinematics.cpp: implementation of the DirectKinematics class.
+//
+//////////////////////////////////////////////////////////////////////
 
-#include <iostream>
+#include "YARPKinematics.h"
 #include <math.h>
 
-#include <YARPTime.h>
-#include <YARPThread.h>
-#include <YARPSemaphore.h>
-#include <YARPImageDraw.h>
-#include <YARPLogpolar.h>
-#include <YARPMath.h>
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
 
-#include <YARPParseParameters.h>
-#include <YARPVectorPortContent.h>
-
-#include "ImgTrack.h"
-#include "YARPBabybotHeadKin.h"
-
-
-///
-///
-///
-YARPInputPortOf<YARPGenericImage> in_img;
-YARPInputPortOf<YVector> in_pos;
-
-YARPOutputPortOf<YARPGenericImage> out_img;
-YARPOutputPortOf<YVector> out_point (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-
-const char *DEFAULT_NAME = "/tracker";
-
-///
-///
-///
-///
-int main(int argc, char *argv[])
+YARPRobotKinematics::YARPRobotKinematics ()
 {
-	using namespace _logpolarParams;
+	_nFrame = 0;
+	_Ti = NULL;
+	_Ti0 = NULL;
+}
 
-	YARPComplexTrackerTool tracker;
+YARPRobotKinematics::YARPRobotKinematics (const YMatrix &dh, const YHmgTrsf &bline)
+{
+	resize (dh,bline);
+}
 
-	YARPString name;
-	YARPString network_i;
-	YARPString network_o;
-	char buf[256];
+YARPRobotKinematics::YARPRobotKinematics (const YMatrix &dh)
+{
+	YHmgTrsf tmp;
+	tmp.Identity();
+	resize (dh, tmp);
+}
 
-	if (!YARPParseParameters::parse(argc, argv, "name", name))
+YARPRobotKinematics::~YARPRobotKinematics ()
+{
+	if (_Ti != NULL) delete[] _Ti;
+	if (_Ti0 != NULL) delete[] _Ti0;
+}
+
+void YARPRobotKinematics::resize (const YMatrix &dh, const YHmgTrsf &bline)
+{
+	_dh_param = dh;
+
+	_nFrame = dh.NRows();
+
+	_Ti = new YHmgTrsf(_nFrame);
+	_Ti0 = new YHmgTrsf(_nFrame);
+
+	for(int i = 0; i < _nFrame ; i++)
 	{
-		name = DEFAULT_NAME;
+		_Ti[i].Identity();
+		_Ti0[i].Identity();
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "neti", network_i))
+	_TB0 = bline;
+	_joints.Resize(_nFrame);
+}
+
+void YARPRobotKinematics::computeDirect (const YVector &jnts)
+{
+	int i;	//ref frame counter
+	int j;	//joint counter
+	
+	j = 1;
+	/// the double counter i,j is used to add intermediate transforms while keeping
+	/// the joint vector to its real size (e.g. the number of physical joint of the robot).
+	for (i = 1; i <= _nFrame; i++)
 	{
-		network_i = "default";
+		if (_dh_param(i,5) == 0)
+		{
+			_joints(i) = _dh_param(i,4);
+			_computeT(_Ti[i-1], _joints(i), _dh_param(i,1), _dh_param(i,2), _dh_param(i,3));
+		}
+		else
+		{
+			_joints(i) = jnts(j) * _dh_param(i,5) + _dh_param(i,4);
+			_computeT(_Ti[i-1], _joints(i), _dh_param(i,1), _dh_param(i,2), _dh_param(i,3));
+			j++;
+		}
+		
+		if (i == 1)
+			_Ti0[i-1] = _TB0 * _Ti[i-1];
+		else
+			_Ti0[i-1] = _Ti0[i-2] * _Ti[i-1];
 	}
-
-	if (!YARPParseParameters::parse(argc, argv, "neto", network_o))
-	{
-		network_o = "default";
-	}
-
-	/// images are coming from the input network.
-	sprintf(buf, "%s/i:img", name.c_str());
-	in_img.Register(buf, network_i.c_str());
-
-	/// the position of the head gets here from the default network.
-	sprintf(buf, "%s/i:headposition", name.c_str());
-	in_pos.Register(buf, network_o.c_str());
-
-	sprintf(buf, "%s/o:img", name.c_str());
-	out_img.Register(buf, network_i.c_str());
-
-	sprintf(buf, "%s/o:vect", name.c_str());
-	out_point.Register(buf, network_o.c_str());
-
-	///
-	///
-	///
-	YARPImageOf<YarpPixelMono> in;
-	YARPImageOf<YarpPixelBGR> out;
-	YARPImageOf<YarpPixelBGR> colored;
-	YARPImageOf<YarpPixelBGR> remapped;
-
-	colored.Resize (_stheta, _srho);
-	remapped.Resize (128, 128);
-
-	YARPLogpolar mapper;
-	YVector v(2);
-	v = 0;
-
-	/// 
-	///
-	YHmgTrsf baseline (YMatrix (4, 4, TBaseline[0]));
-
-	YARPBabybotHeadKin gaze 
-		(
-			YMatrix (_dh_nrf, 5, DH_left[0]),
-			YMatrix (_dh_nrf, 5, DH_right[0]), 
-			baseline
-		);
-	///
-	///
-
-
-	/// get the direction vector of a point on the image.
-	in_pos.Read();
-	YVector& jnt = in_pos.Content();
-	gaze.update (jnt);
-	YVector ray(3);
-	gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT, ray, 0, 0);
-
-	while(1)
-    {
-		in_img.Read();
-
-		in.Refer (in_img.Content());
-		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)in, colored);
-		mapper.Logpolar2CartesianFovea (colored, remapped);
-
-		ACE_ASSERT (in.GetWidth() == _stheta && in.GetHeight() == _srho);
-		ACE_ASSERT (remapped.GetWidth() == ISIZE && remapped.GetHeight() == ISIZE);
-
-		out_img.Content().SetID (YARP_PIXEL_BGR);
-
-		SatisfySize (remapped, out_img.Content());
-		out.Refer (out_img.Content());
-
-		in_pos.Read();
-		YVector& jnt = in_pos.Content();
-
-		///
-		/// tracker.apply (remapped, out);
-		gaze.update (jnt);
-
-		int x = 0, y = 0;
-		gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT, ray, x, y);
-
-		YarpPixelBGR green(0,255,0);
-		AddCircleOutline (out, green, (int)x+64, (int)y+64, 5);
-
-		out_img.Write ();
-
-		/// get the target.
-		///int x = 0, y = 0;
-		tracker.getTarget (x, y);
-		v(1) = x;
-		v(2) = y;
-		out_point.Content() = v;
-		out_point.Write();
-    }
-
-	return 0;
 }

@@ -55,168 +55,129 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #original paulfitz, changed pasa#
+///                    #nat, pasa#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: attn_tracker.cpp,v 1.5 2003-11-06 14:42:14 gmetta Exp $
+/// $Id: YARPBabybotHeadKin.cpp,v 1.1 2003-11-06 14:42:14 gmetta Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
-#include <ace/config.h>
-#include <ace/OS.h>
-#include <YARPImages.h>
-
-#include <iostream>
-#include <math.h>
-
-#include <YARPTime.h>
-#include <YARPThread.h>
-#include <YARPSemaphore.h>
-#include <YARPImageDraw.h>
-#include <YARPLogpolar.h>
-#include <YARPMath.h>
-
-#include <YARPParseParameters.h>
-#include <YARPVectorPortContent.h>
-
-#include "ImgTrack.h"
 #include "YARPBabybotHeadKin.h"
 
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
 
 ///
 ///
+/// each of <dh_left>, <dh_right> describes independently the two kinematic chains from 
+/// base to left and base to right eye respectively.
+/// each matrix has njoint + occasional fictious links lines.
 ///
-YARPInputPortOf<YARPGenericImage> in_img;
-YARPInputPortOf<YVector> in_pos;
-
-YARPOutputPortOf<YARPGenericImage> out_img;
-YARPOutputPortOf<YVector> out_point (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-
-const char *DEFAULT_NAME = "/tracker";
-
-///
-///
-///
-///
-int main(int argc, char *argv[])
+YARPBabybotHeadKin::YARPBabybotHeadKin (const YMatrix &dh_left, const YMatrix &dh_right, const YHmgTrsf &bline)
+	: _leftCamera (dh_left, bline),
+	  _rightCamera (dh_right, bline)
 {
-	using namespace _logpolarParams;
+	///
+	ACE_ASSERT (dh_left.NRows() == dh_right.NRows());
 
-	YARPComplexTrackerTool tracker;
+	/// nFrame must be rather the NRows - the # of rows with fifth colum == 0.
+	_nFrame = dh_left.NRows();
 
-	YARPString name;
-	YARPString network_i;
-	YARPString network_o;
-	char buf[256];
+	_leftJoints.Resize (_nFrame);
+	_rightJoints.Resize (_nFrame);
 
-	if (!YARPParseParameters::parse(argc, argv, "name", name))
+	_leftJoints = 0;
+	_rightJoints = 0;
+}
+
+YARPBabybotHeadKin::~YARPBabybotHeadKin ()
+{
+
+}
+
+/// <joints is a 5 dim vector>
+/// since this file is for the Babybot's head, I can asser if Size is different.
+void YARPBabybotHeadKin::computeDirect (const YVector &joints)
+{
+	ACE_ASSERT (joints.Length() == 5); 
+
+	// the joint vector is devided into right and left
+	// I *KNOW* this is awful because doesn't use n_ref_frame
+	_leftJoints(1) = joints(1);
+	_leftJoints(2) = joints(2);
+	_leftJoints(3) = joints(3);
+	_leftJoints(4) = joints(5);
+
+	_rightJoints(1) = joints(1);
+	_rightJoints(2) = joints(2);
+	_rightJoints(3) = joints(3);
+	_rightJoints(4) = joints(4);
+
+	_leftCamera.computeDirect (_leftJoints);
+	_rightCamera.computeDirect (_rightJoints);
+
+	_computeFixation (_rightCamera.endFrame(), _leftCamera.endFrame());
+}
+
+///
+/// given an up to date kinematic matrix, returns the ray passing from an image plane point x,y.
+void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
+{
+	ACE_ASSERT (k == KIN_LEFT);
+
+	if (k == KIN_LEFT)
 	{
-		name = DEFAULT_NAME;
-	}
+		YHmgTrsf ep = _leftCamera.endFrame();
 
-	if (!YARPParseParameters::parse(argc, argv, "neti", network_i))
+		/// pixels -> mm
+		x /= PixScaleX;
+		y /= PixScaleY;
+
+		v(1) = F * ep (1, 1) - x * ep (2, 1) - y * ep (3, 1);
+		v(2) = F * ep (1, 2) - x * ep (2, 2) - y * ep (3, 2);
+		v(3) = F * ep (1, 3) - x * ep (2, 3) - y * ep (3, 3);
+
+		v /= v.norm2();
+	}
+}
+
+///
+/// given an up to date kin matrix, it computes the x,y point where a given ray v intersects the img plane.
+void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, int& y)
+{
+	ACE_ASSERT (k == KIN_LEFT);
+
+	if (k == KIN_LEFT)
 	{
-		network_i = "default";
-	}
+		YVector q(3), it(3);
+		YHmgTrsf ep = _leftCamera.endFrame();
 
-	if (!YARPParseParameters::parse(argc, argv, "neto", network_o))
-	{
-		network_o = "default";
-	}
+		q(1) = ep(1,4) + F * ep(1,1);
+		q(2) = ep(2,4) + F * ep(2,1);
+		q(3) = ep(3,4) + F * ep(3,1);
 
-	/// images are coming from the input network.
-	sprintf(buf, "%s/i:img", name.c_str());
-	in_img.Register(buf, network_i.c_str());
+		/// intersect plane w/ old ray v.
+		/// normal vector to plane is ep(1/2/3, 1)
+		double t = ep(1,1)*q(1) + ep(2,1)*q(2) + ep(3,1)*q(3);
+		t /= (ep(1,1)*v(1) + ep(2,1)*v(2) + ep(3,1)*v(3));
+		it = v * t;
 
-	/// the position of the head gets here from the default network.
-	sprintf(buf, "%s/i:headposition", name.c_str());
-	in_pos.Register(buf, network_o.c_str());
+		/// the vector of the displacement from origin to intersection in img plane.
+		it -= q;
 
-	sprintf(buf, "%s/o:img", name.c_str());
-	out_img.Register(buf, network_i.c_str());
-
-	sprintf(buf, "%s/o:vect", name.c_str());
-	out_point.Register(buf, network_o.c_str());
-
-	///
-	///
-	///
-	YARPImageOf<YarpPixelMono> in;
-	YARPImageOf<YarpPixelBGR> out;
-	YARPImageOf<YarpPixelBGR> colored;
-	YARPImageOf<YarpPixelBGR> remapped;
-
-	colored.Resize (_stheta, _srho);
-	remapped.Resize (128, 128);
-
-	YARPLogpolar mapper;
-	YVector v(2);
-	v = 0;
-
-	/// 
-	///
-	YHmgTrsf baseline (YMatrix (4, 4, TBaseline[0]));
-
-	YARPBabybotHeadKin gaze 
-		(
-			YMatrix (_dh_nrf, 5, DH_left[0]),
-			YMatrix (_dh_nrf, 5, DH_right[0]), 
-			baseline
-		);
-	///
-	///
-
-
-	/// get the direction vector of a point on the image.
-	in_pos.Read();
-	YVector& jnt = in_pos.Content();
-	gaze.update (jnt);
-	YVector ray(3);
-	gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT, ray, 0, 0);
-
-	while(1)
-    {
-		in_img.Read();
-
-		in.Refer (in_img.Content());
-		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)in, colored);
-		mapper.Logpolar2CartesianFovea (colored, remapped);
-
-		ACE_ASSERT (in.GetWidth() == _stheta && in.GetHeight() == _srho);
-		ACE_ASSERT (remapped.GetWidth() == ISIZE && remapped.GetHeight() == ISIZE);
-
-		out_img.Content().SetID (YARP_PIXEL_BGR);
-
-		SatisfySize (remapped, out_img.Content());
-		out.Refer (out_img.Content());
-
-		in_pos.Read();
-		YVector& jnt = in_pos.Content();
+		YVector tmp(3);
 
 		///
-		/// tracker.apply (remapped, out);
-		gaze.update (jnt);
+		///tmp(1) = ep(1,1) * it(1) + ep(2,1) * it(2) + ep(3,1) * it(3);
+		tmp(2) = ep(1,2) * it(1) + ep(2,2) * it(2) + ep(3,2) * it(3);
+		tmp(3) = ep(1,3) * it(1) + ep(2,3) * it(2) + ep(3,3) * it(3);
 
-		int x = 0, y = 0;
-		gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT, ray, x, y);
-
-		YarpPixelBGR green(0,255,0);
-		AddCircleOutline (out, green, (int)x+64, (int)y+64, 5);
-
-		out_img.Write ();
-
-		/// get the target.
-		///int x = 0, y = 0;
-		tracker.getTarget (x, y);
-		v(1) = x;
-		v(2) = y;
-		out_point.Content() = v;
-		out_point.Write();
-    }
-
-	return 0;
+		/// mm -> pixels
+		x = int (-tmp(2) * PixScaleX + .5);
+		y = int (-tmp(3) * PixScaleY + .5);
+	}
 }
