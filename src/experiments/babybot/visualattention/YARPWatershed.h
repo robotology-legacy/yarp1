@@ -30,17 +30,15 @@ public:
 	// logpolar
 	int cmax, rmax;
 	int cmin, rmin;
-
+	int areaLP;
+	
 	// cartesian
 	int xmax, ymax;
 	int xmin, ymin;
-
-	// all in cartesian.
-	int areaLP;
 	double areaCart;
 	int xsum, ysum;
-	int centroid_x;
-	int centroid_y;
+	double centroid_x;
+	double centroid_y;
 
 	long int id;
 

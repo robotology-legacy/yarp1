@@ -181,7 +181,7 @@ void mainthread::Body (void)
 
 	int frame_no = 0;
 
-	const int numBoxes = 7;
+	const int numBoxes = 5;
 	
 	pos_max = new YARPBox[numBoxes];
 

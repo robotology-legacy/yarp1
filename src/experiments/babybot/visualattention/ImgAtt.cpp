@@ -245,25 +245,25 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea)
 	rg.Resize(x, y);
 	gr.Resize(x, y);
 	by.Resize(x, y);
-	ii.Resize(x, y);
+	//ii.Resize(x, y);
 	
 	rgs.Resize(x, y);
 	grs.Resize(x, y);
 	bys.Resize(x, y);
-	iis.Resize(x, y);
+	//iis.Resize(x, y);
 
 	rgf.Resize(x, y);
 	grf.Resize(x, y);
 	byf.Resize(x, y);
-	iif.Resize(x, y);
+	//iif.Resize(x, y);
 	((IplImage *)rg)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)rg)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)gr)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)gr)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)by)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)by)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
-	((IplImage *)ii)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
-	((IplImage *)ii)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
+	/*((IplImage *)ii)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
+	((IplImage *)ii)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;*/
 
 	((IplImage *)rgs)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)rgs)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
@@ -277,10 +277,10 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea)
 	((IplImage *)bys)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)bys)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=IPL_BORDER_REPLICATE;
 	((IplImage *)bys)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;
-	((IplImage *)iis)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
+	/*((IplImage *)iis)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)iis)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)iis)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=IPL_BORDER_REPLICATE;
-	((IplImage *)iis)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;
+	((IplImage *)iis)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;*/
 
 	((IplImage *)edge)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)edge)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
@@ -315,7 +315,7 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea)
 	((IplImage *)tmpBGR1)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=IPL_BORDER_REPLICATE;
 	((IplImage *)tmpBGR1)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;
 
-	comb.Resize(x, y);
+	//comb.Resize(x, y);
 	out.Resize(x, y);
 
 	blobFov.Resize(x, y);
@@ -323,10 +323,10 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea)
 	//out_colored.Resize(_stheta, _srho);
 	//temp_16.Resize(_stheta, _srho, -2);
 
-	array1[0]=&rg;
+	/*array1[0]=&rg;
 	array1[1]=&gr;
 	array1[2]=&by;
-	array1[3]=&ii;
+	array1[3]=&ii;*/
 	/*array1[4]=&or_r[0];
 	array1[5]=&or_r[1];
 	array1[6]=&or_r[2];
@@ -961,9 +961,9 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, int num, YARPBox* boxes)
 	findBlobs(num, boxes);
 	quantizeColors();
 	
-	/*ACE_OS::sprintf(savename, "./src.ppm");
+	ACE_OS::sprintf(savename, "./src.ppm");
 	YARPImageFile::Write(savename, src);
-	saveImages();*/
+	saveImages();
 
 	
 	/*MinMax(edge, mn, mx);
@@ -1001,7 +1001,6 @@ void YARPImgAtt::colorOpponency(YARPImageOf<YarpPixelBGR> &src)
 	//gauss_s_s.ConvolveSep2D(is1,is1_g_s);
 
 	
-	//DBGPF1 ACE_OS::printf(">>> RG GR BY II\n");
 	DBGPF1 ACE_OS::printf(">>> RG GR BY\n");
 	/*iplSubtract((IplImage *)r1_g_c, (IplImage *)g1_g_s, (IplImage *)rg);
 	iplSubtract((IplImage *)g1_g_c, (IplImage *)r1_g_s, (IplImage *)gr);
@@ -1227,7 +1226,6 @@ void YARPImgAtt::normalize()
 	//YARPImageFile::Write(savename, out);
 	//FullRange((IplImage *)comb, (IplImage *)comb);
 
-	
 	//iplClose(edge, edge, 1);
 }
 	
@@ -1307,10 +1305,10 @@ void YARPImgAtt::findBlobs(int num, YARPBox* boxes)
 	YARPImageFile::Write(savename, tmpBGR1);*/
 
 	
-	/*tmpBGR1.Zero();
+	tmpBGR1.Zero();
 	rain.DrawMeanOpponentColorsLP(tmpBGR1, tagged);
 	ACE_OS::sprintf(savename, "./meanocol.ppm");
-	YARPImageFile::Write(savename, tmpBGR1);*/
+	YARPImageFile::Write(savename, tmpBGR1);
 
 
 	/*blobFinder.DrawGrayLP(tmp1, tagged, 200);
@@ -1438,11 +1436,11 @@ void YARPImgAtt::saveImages()
 	YARPImageFile::Write(savename, gr);
 	ACE_OS::sprintf(savename, "./by.ppm");
 	YARPImageFile::Write(savename, by);
-	ACE_OS::sprintf(savename, "./ii.ppm");
-	YARPImageFile::Write(savename, ii);
+	/*ACE_OS::sprintf(savename, "./ii.ppm");
+	YARPImageFile::Write(savename, ii);*/
 
-	ACE_OS::sprintf(savename, "./comb.ppm");
-	YARPImageFile::Write(savename, comb);
+	/*ACE_OS::sprintf(savename, "./comb.ppm");
+	YARPImageFile::Write(savename, comb);*/
 	ACE_OS::sprintf(savename, "./out.ppm");
 	YARPImageFile::Write(savename, out);
 	ACE_OS::sprintf(savename, "./blob_fov.ppm");

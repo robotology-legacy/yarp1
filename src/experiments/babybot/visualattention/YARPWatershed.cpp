@@ -959,8 +959,8 @@ void YARPWatershed::blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<Y
 				if (m_boxes[tag_index].xmax < x) m_boxes[tag_index].xmax = x;
 				if (m_boxes[tag_index].xmin > x) m_boxes[tag_index].xmin = x;
 
-				/*m_boxes[tag_index].ysum += y;
-				m_boxes[tag_index].xsum += x;*/
+				m_boxes[tag_index].ysum += y;
+				m_boxes[tag_index].xsum += x;
 
 				if (m_boxes[tag_index].rmax < r) m_boxes[tag_index].rmax = r;
 				if (m_boxes[tag_index].rmin > r) m_boxes[tag_index].rmin = r;
@@ -976,10 +976,6 @@ void YARPWatershed::blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<Y
 				m_boxes[tag_index].bSum += b1(c, r);
 			}
 		}
-
-	// The blob in the fovea is marked as non valid
-	// so it doesn't appear in the attentional map
-	//m_boxes[tagged(0, 0)].valid=false;
 }	
 
 
@@ -1013,8 +1009,8 @@ void YARPWatershed::SortAndComputeSalience(int num_tag, int last_tag)
 			m_attn[box_num] = m_boxes[max_tag];
 
 			//m_attn[box_num].valid = true;
-			m_attn[box_num].centroid_y = m_boxes[max_tag].ysum / max_areaCart;
-			m_attn[box_num].centroid_x = m_boxes[max_tag].xsum / max_areaCart;
+			m_attn[box_num].centroid_y = (double)m_boxes[max_tag].ysum / m_boxes[max_tag].areaLP;
+			m_attn[box_num].centroid_x = (double)m_boxes[max_tag].xsum / m_boxes[max_tag].areaLP;
 
 			// mean values are calculated only for biggest blobs
 			m_attn[box_num].meanRG = m_boxes[max_tag].rgSum / m_boxes[max_tag].areaLP;
@@ -1043,6 +1039,7 @@ void YARPWatershed::SortAndComputeSalience(int num_tag, int last_tag)
 
 
 // Total number of blobs
+// Only for valid boxes
 void YARPWatershed::ComputeSalience(int num_blob, int last_tag)
 {	
 	int i=1;
@@ -1055,8 +1052,10 @@ void YARPWatershed::ComputeSalience(int num_blob, int last_tag)
 		if (m_boxes[i].valid) {
 			m_attn[i] = m_boxes[i];
 
-			//m_attn[box_num].centroid_y = m_boxes[max_tag].ysum / max_areaCart;
-			//m_attn[box_num].centroid_x = m_boxes[max_tag].xsum / max_areaCart;
+			// Maybe I can calculate this values only when it is useful...
+			//int area=TotalArea(m_boxes[i]);
+			m_attn[i].centroid_y = (double)m_boxes[i].ysum / m_boxes[i].areaLP;
+			m_attn[i].centroid_x = (double)m_boxes[i].xsum / m_boxes[i].areaLP;
 
 			// mean values are calculated only for biggest blobs
 			m_attn[i].meanRG = m_boxes[i].rgSum / m_boxes[i].areaLP;
@@ -1083,8 +1082,10 @@ void YARPWatershed::ComputeSalienceAll(int num_blob, int last_tag)
 		if (m_boxes[i].areaLP) {
 			m_attn[i] = m_boxes[i];
 
-			//m_attn[box_num].centroid_y = m_boxes[max_tag].ysum / max_areaCart;
-			//m_attn[box_num].centroid_x = m_boxes[max_tag].xsum / max_areaCart;
+			// Maybe I can calculate this values only when it is useful...
+			//int area=TotalArea(m_boxes[i]);
+			m_attn[i].centroid_y = (double)m_boxes[i].ysum / m_boxes[i].areaLP;
+			m_attn[i].centroid_x = (double)m_boxes[i].xsum / m_boxes[i].areaLP;
 
 			// mean values are calculated only for biggest blobs
 			m_attn[i].meanRG = m_boxes[i].rgSum / m_boxes[i].areaLP;
@@ -1103,11 +1104,19 @@ void YARPWatershed::IOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int n
 {
 	for (int i=0; i<num; i++) {
 		if (boxes[i].valid) {
-			//trasform to "local" axis
-			YarpPixelInt index=tagged.Pixel(boxes[i].centroid_x, boxes[i].centroid_y);
-			cout<<"RG diff: "<<(m_attn[index].meanRG==boxes[i].meanRG)<<endl;
-			cout<<"GR diff: "<<(m_attn[index].meanGR==boxes[i].meanGR)<<endl;
-			cout<<"BY diff: "<<(m_attn[index].meanBY==boxes[i].meanBY)<<endl;
+			int r, c;
+			//TO DO: transform to "local" axis
+			m_lp.Cartesian2Logpolar(boxes[i].centroid_x, boxes[i].centroid_y, r, c);
+			YarpPixelInt index=tagged(c, r);
+			cout<<"box #"<<i<<endl;
+			cout<<"RG : "<<(int)m_attn[index].meanRG<<endl;
+			cout<<"GR : "<<(int)m_attn[index].meanGR<<endl;
+			cout<<"BY : "<<(int)m_attn[index].meanBY<<endl;
+			cout<<"RG diff: "<<abs((int)m_attn[index].meanRG-(int)boxes[i].meanRG)<<endl;
+			cout<<"GR diff: "<<abs((int)m_attn[index].meanGR-(int)boxes[i].meanGR)<<endl;
+			cout<<"BY diff: "<<abs((int)m_attn[index].meanBY-(int)boxes[i].meanBY)<<endl;
+			cout<<"areaLP diff: "<<abs(m_attn[index].areaLP-boxes[i].areaLP)<<endl;
+			cout<<endl;
 		}
 	}
 }

@@ -127,17 +127,17 @@ protected:
 	YARPImageOf<YarpPixelMono> rg;
 	YARPImageOf<YarpPixelMono> gr;
 	YARPImageOf<YarpPixelMono> by;
-	YARPImageOf<YarpPixelMono> ii;
+	//YARPImageOf<YarpPixelMono> ii;
 
 	YARPImageOf<YarpPixelMonoSigned> rgs;
 	YARPImageOf<YarpPixelMonoSigned> grs;
 	YARPImageOf<YarpPixelMonoSigned> bys;
-	YARPImageOf<YarpPixelMonoSigned> iis;
+	//YARPImageOf<YarpPixelMonoSigned> iis;
 
 	YARPImageOf<YarpPixelMono> rgf;
 	YARPImageOf<YarpPixelMono> grf;
 	YARPImageOf<YarpPixelMono> byf;
-	YARPImageOf<YarpPixelMono> iif;
+	//YARPImageOf<YarpPixelMono> iif;
 
 	YARPImageOf<YarpPixelMono> tmp1;
 	YARPImageOf<YarpPixelMono> tmp2;
@@ -164,11 +164,11 @@ protected:
 	
 	YARPImageOf<YarpPixelMono> map[4];
 	
-	YARPImageOf<YarpPixelMono> *array1[8];
+	//YARPImageOf<YarpPixelMono> *array1[8];
 	YARPImageOf<YarpPixelMono> *array2[3];
 	//YARPImageOf<YarpPixelMonoSigned> *array3[12];
 
-	YARPImageOf<YarpPixelMono> comb;
+	//YARPImageOf<YarpPixelMono> comb;
 
 	YARPImageOf<YarpPixelMono> out;
 	
