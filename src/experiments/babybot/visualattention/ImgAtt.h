@@ -223,6 +223,7 @@ protected:
 
 	YARPLpConicFitter fit;
 	YARPLpImageMoments moments;
+	YARPImageMoments momentsCart;
 
 	int num_IORBoxes;
 
@@ -288,10 +289,10 @@ public:
 	void resetIORTable();
 	void drawIORTable();
 
-	inline void diffCenterOfMassAndMass(YARPImageOf<YarpPixelMono> &in, YarpPixelMono th, int *x, int *y, double *mass)
+	inline void diffCenterOfMassAndMass(YARPImageOf<YarpPixelMono> &in, YarpPixelMono th, int *x, int *y, int *mass)
 	{
 		iplThreshold(in, in, th);
-		moments.centerOfMassAndMass(in, x, y, mass);
+		momentsCart.centerOfMassAndMass(in, x, y, mass);
 	}
 
 	inline void initMeanCol(YARPImageOf<YarpPixelBGR> &in)

@@ -60,12 +60,6 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
-///
-/// $Id:
-///
-///
-
-
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
@@ -199,7 +193,7 @@ void mainthread::Body (void)
 	YARPInputPortOf<YVector> inVector;
 	DeclareOutport(outImage);
 	DeclareOutport(outImage2);
-	DeclareOutport(outImage3);
+	//DeclareOutport(outImage3);
 	YARPOutputPortOf<YARPBottle> outBottle(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
 	//YARPOutputPortOf<YVector> out_point;
 	
@@ -248,7 +242,7 @@ void mainthread::Body (void)
 	outImage.Register(_outName1, _netname1);
 	outImage2.Register(_outName2, _netname1);
 	outBottle.Register(_outName3, _netname0);
-	outImage3.Register(_outName4, _netname1);
+	//outImage3.Register(_outName4, _netname1);
 
 	int frame_no = 0;
 	bool moved = true;
@@ -261,7 +255,7 @@ void mainthread::Body (void)
 	YARPTime::DelayInSeconds(0.5);
 
 	YarpPixelMono maxDiff;
-	double maxMass;
+	int maxMass;
 	do {
 		ACE_OS::printf("Inizialization of the motion detector...");
 		maxDiff=0;
@@ -277,7 +271,7 @@ void mainthread::Body (void)
 		for (int i=0; i<90; i++)
 		{
 			int xm,ym;
-			double mass;
+			int mass;
 
 			if (!inImage.Read())
 				ACE_OS::printf(">>> ERROR: frame not read\n");
@@ -314,7 +308,7 @@ void mainthread::Body (void)
 			for (i=0; i<90; i++)
 			{
 				int xm,ym;
-				double mass;
+				int mass;
 
 				if (!inImage.Read())
 					ACE_OS::printf(">>> ERROR: frame not read\n");
@@ -333,9 +327,9 @@ void mainthread::Body (void)
 			ACE_OS::printf("Warning! Max Diff=%d it is too high! I'm going to recalculate it.\n", maxDiff);
 
 		if (maxMass>1000)
-			ACE_OS::printf("Warning! Max Mass=%lf, it is too high! I'm going to recalculate it.\n", maxMass);
+			ACE_OS::printf("Warning! Max Mass=%d, it is too high! I'm going to recalculate it.\n", maxMass);
 	} while (maxDiff>127 || maxMass>1000);
-	ACE_OS::printf("done! Max Diff=%d, Max Mass=%lf\n", maxDiff, maxMass);
+	ACE_OS::printf("done! Max Diff=%d, Max Mass=%d\n", maxDiff, maxMass);
 	
 	//att_mod.setParameters(109, 0, 18, 0, 1);
 	bool isStarted = true;
@@ -438,27 +432,24 @@ void mainthread::Body (void)
 					// Posso
 					//1) mettere a 1 tutti i pixel > di maxDiff, taggare
 					//2) sottrarre maxDiff, filtrare e taggare
-					//3) prendere il punto + vicino alla periferia > di maxDiff e selezionarlo
-					// filtro a mediana x eliminare i pixel isolati? Ma è lento...
-					// se c'è solo un pixel ignoralo?
 					// se c'è stato un movimento lo dovresti ricordare e spostarsi lì in ogni caso?
 					diffFound = false;
 					diffFoundValid = false;
 					int x,y;
-					double mass;
+					int mass;
 					att_mod.diffCenterOfMassAndMass(tmp2, maxDiff, &x, &y, &mass);
 					if (mass>maxMass) {
-						//int cartx, carty;
-						//mapper.Logpolar2Cartesian(y, x, cartx, carty);
+						int cartx, carty;
+						mapper.Logpolar2Cartesian(y, x, cartx, carty);
 						diffFound = true;
-						if (att_mod.isWithinRange(x, y)) {
+						if (att_mod.isWithinRange(cartx, carty)) {
 							out.Refer(tmp2);
-							ACE_OS::printf("Valid difference detected at (%d,%d)\n",x,y);
+							ACE_OS::printf("Valid difference detected at (%d,%d)\n",cartx,carty);
 						
 							//tmpBottle.writeInt(cartx);
 							//tmpBottle.writeInt(carty);
-							tmpBottle.writeInt(x);
-							tmpBottle.writeInt(y);
+							tmpBottle.writeInt(cartx);
+							tmpBottle.writeInt(carty);
 							tmpBottle.writeInt(-1);
 							tmpBottle.writeInt(-1);
 							tmpBottle.writeInt(-1);
@@ -470,7 +461,7 @@ void mainthread::Body (void)
 							targetFound = false;
 							diffFoundValid = true;
 						} else
-							ACE_OS::printf("Difference detected at (%d,%d)\n",x,y);
+							ACE_OS::printf("Difference detected at (%d,%d)\n",cartx,carty);
 						goto endDiffCheck;
 					}
 
@@ -576,9 +567,9 @@ endDiffCheck:
 			outImage2.Content().Refer(out2);
 			outImage2.Write();
 
-			mapper.Logpolar2Cartesian(att_mod.ColorQuantiz(), out3);
-			outImage3.Content().Refer(out3);
-			outImage3.Write();
+			//mapper.Logpolar2Cartesian(att_mod.ColorQuantiz(), out3);
+			//outImage3.Content().Refer(out3);
+			//outImage3.Write();
 			
 			if ((frame_no % 100) == 0) {
 				cur = YARPTime::GetTimeAsSeconds();

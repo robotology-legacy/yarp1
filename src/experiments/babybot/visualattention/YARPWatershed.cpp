@@ -1665,15 +1665,14 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 			                m_boxes[i].cBY*m_boxes[i].cBY);
 			salienceBU=salienceBU/sqrt(3);*/
 
-			salienceBU=m_boxes[i].cRG;
-
+			/*salienceBU=m_boxes[i].cRG;
 			if (salienceBU<m_boxes[i].cGR)
 				salienceBU=m_boxes[i].cGR;
-
 			if (salienceBU<m_boxes[i].cBY)
-				salienceBU=m_boxes[i].cBY;
+				salienceBU=m_boxes[i].cBY;*/
 
-			//salienceBU=m_boxes[i].cRG+m_boxes[i].cGR+m_boxes[i].cBY;
+			// sum of abs of contrast differences
+			salienceBU=m_boxes[i].cRG+m_boxes[i].cGR+m_boxes[i].cBY;
 
 
 			salienceTD=sqrt((m_boxes[i].meanRG-prg)*(m_boxes[i].meanRG-prg)+
