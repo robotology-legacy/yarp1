@@ -258,7 +258,7 @@ make_rawrisctab(struct bttv *btv, unsigned int *ro,
 				vadr+= (bpl);
 	}
 	
-	*(ro++) = BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRE |BT848_RISC_IRQ;
+	*(ro++) = BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRO |BT848_RISC_IRQ;
 	*(ro++) = 0;
 	*(ro++) = BT848_RISC_JUMP;
 	*(ro++) = virt_to_bus((u32 *)re);

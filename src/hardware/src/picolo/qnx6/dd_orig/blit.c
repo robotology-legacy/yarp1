@@ -1,3 +1,6 @@
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <photon/PtWidget.h>
@@ -33,6 +36,7 @@
 // we'll be testing three different types of blits, defaulting to the first
 static long blittype=0;
 unsigned char * temp_buffer_p;
+
 
 // this structure will contain our image data
 typedef struct
@@ -84,7 +88,7 @@ CoolImage *AllocBuffer(long w,long h,int fd)
 		{
 			i->pitch=i->ctx->pitch;
 			//i->ctx->pitch = 1024 * 2;
-			i->buffer=PdGetOffscreenContextPtr(i->ctx);
+			i->buffer=(unsigned char *)PdGetOffscreenContextPtr(i->ctx);
 			return i;
 		}
 	}
@@ -195,12 +199,14 @@ main(int argc,char *argv[])
     int n;
 	int error;
 	int counter = 0;
+	int counter_mean = 0;
 	int file = 0;
 
 
 	//Timing calculation
     uint64_t cps, cycle1, cycle2, ncycles;
     float sec;
+    float msec;
 
 	// if a paramater was passed, grab it as the blit type 
 	if (argc>1) blittype=atoi(argv[1]);
@@ -261,7 +267,7 @@ main(int argc,char *argv[])
 				//  puts( " -- serial descriptor has data pending" );
 				/* Read the text */
 
-				//cycle1=ClockCycles( );
+				cycle1=ClockCycles( );
 
 				//lseek(fd,0L,SEEK_SET);
 			///	size_read = read( fd, image->buffer, W*H*deep );
@@ -269,7 +275,6 @@ main(int argc,char *argv[])
 		   {
 		   BttvxWaitEvent();
 		   BttvxAcquireBuffer(image->buffer);	
-		   cycle1=ClockCycles( );
 		    }
 		   
 		   switch(file)
@@ -292,6 +297,7 @@ main(int argc,char *argv[])
 		   	BttvxReleaseBuffer();
 		   cycle2=ClockCycles( );
 		   counter++;
+		   counter_mean++;
 
 		   
 		   ncycles=cycle2-cycle1;
@@ -302,7 +308,14 @@ main(int argc,char *argv[])
 		   cps = SYSPAGE_ENTRY(qtime)->cycles_per_sec;
 		   //printf( "This system has %lld cycles/sec.\n",cps );
 		   sec=(float)ncycles/cps;
-		   //printf("The cycles in seconds is %f \n",sec);
+		   msec +=sec;
+		   if (counter_mean == 250 )
+		   {
+		   	msec = msec/counter_mean;
+		   	printf("The cycles in seconds is %f \n",msec);
+		   	counter_mean = 0;
+		   	msec = 0;
+		   }
 		//}else
 			//sleep(2);
 		}
@@ -316,6 +329,7 @@ main(int argc,char *argv[])
 	PtUnrealizeWidget(win);
 	PtDestroyWidget(win);
 }
+
 
 
 
