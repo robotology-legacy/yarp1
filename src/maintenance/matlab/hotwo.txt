@@ -1,9 +1,0 @@
-Running YARP code from within Matlab 6.5 (R13)
-
-- run the mex configuration script from within matlab. mex -setup
-- compile the YARP support file (mex projects dll's) and install them (automatic)
-- add the binary directory $YARP_ROOT/bin/winnt to the matlab list of paths
-
-FOR more information please refer to the original matlab documentation
-
---> other versions of matlab. I suspect everything should work fine at least on R12, never tested though.
