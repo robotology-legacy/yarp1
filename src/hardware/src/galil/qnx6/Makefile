@@ -1,17 +1,58 @@
-#$Id: Makefile,v 1.9 2003-07-29 13:40:57 beltran Exp $
+#----------------------------------------------------------------------------
+#	Makefile,v 1.27 2002/11/16 15:37:16 bala Exp
+#
+#	Makefile for tests of the miscellaneous ACE performance tests
+#----------------------------------------------------------------------------
+
+#----------------------------------------------------------------------------
+#	Local macros
+#----------------------------------------------------------------------------
 
 include $(YARP_ROOT)/conf/Makefile.template
+CPPFLAGS     += -I$(YARP_ROOT)/include -I ./dd_orig/include $(CDEFS) $(CFAST)
+
+BIN     = galil_term 
+	
+FILES 	= 
+	  
+LDLIBS  =  $(YARP_ROOT)/lib/$(OS)/dmcqnx.lib \
+	$(YARP_ROOT)/lib/$(OS)/utils.lib
+
+
+SRC	= $(addsuffix .cpp,$(FILES))
+OBJ    = $(addsuffix .o,$(FILES))
+LSRC    = $(SRC) $(addsuffix .cpp,$(BIN))
+
+# add more libraries here.
+#LDLIBS  +=  $(addprefix .obj/,$(LOBJ))
+
+BUILD = $(VBIN)
+
+
+#----------------------------------------------------------------------------
+#	Include macros and targets
+#----------------------------------------------------------------------------
+
+include	$(ACE_ROOT)/include/makeinclude/wrapper_macros.GNU
+include	$(ACE_ROOT)/include/makeinclude/macros.GNU
+include	$(ACE_ROOT)/include/makeinclude/rules.common.GNU
+include	$(ACE_ROOT)/include/makeinclude/rules.nonested.GNU
+include	$(ACE_ROOT)/include/makeinclude/rules.bin.GNU
+include	$(ACE_ROOT)/include/makeinclude/rules.local.GNU
+
+#----------------------------------------------------------------------------
+#	Local targets
+#----------------------------------------------------------------------------
 
 install:
-	@echo
-	@echo ---------------Installing Galil dd_orig --------------
-	@echo
-	$(CP) ./dd_orig/lib/*.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
-	$(CP) ./dd_orig/lib/*.lib $(YARP_ROOT)/lib/$(OS)
+	cp $(BIN) $(YARP_ROOT)/bin/$(OS)/
 
-clean:
-	@echo  Nothing to clean
+# don't really care about deps. Unless we test the g++def program.
 
+#----------------------------------------------------------------------------
+#	Dependencies
+#----------------------------------------------------------------------------
 
-
+# DO NOT DELETE THIS LINE -- g++dep uses it.
+# DO NOT PUT ANYTHING AFTER THIS LINE, IT WILL GO AWAY.
 
