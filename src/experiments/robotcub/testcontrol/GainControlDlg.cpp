@@ -182,11 +182,12 @@ void CGainControlDlg::OnButtonSetminmax()
 	const int index = m_axis_combo.GetCurSel();
 	const int bus = m_bus_combo.GetCurSel();
 
-	if (index >= MAX_HEAD_JNTS || 
+	if ((bus == HEAD && index >= MAX_HEAD_JNTS) || 
+		(bus == ARM && index >= MAX_ARM_JNTS) ||
 		index == CB_ERR || 
-		bus < HEAD || 
-		bus > ARM || 
-		bus == CB_ERR)
+		bus < HEAD 
+		|| bus > ARM 
+		|| bus == CB_ERR)
 	{
 		return;
 	}
@@ -197,7 +198,7 @@ void CGainControlDlg::OnButtonSetminmax()
 		head.setSoftwareLimits (index, m_min, m_max);
 		break;
 
-	case 1:
+	case ARM:
 		arm.setSoftwareLimits (index, m_min, m_max);
 		break;
 	}

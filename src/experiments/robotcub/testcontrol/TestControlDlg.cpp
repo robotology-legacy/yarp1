@@ -179,6 +179,8 @@ void CTestControlDlg::DoDataExchange(CDataExchange* pDX)
 	}
 
 	//{{AFX_DATA_MAP(CTestControlDlg)
+	DDX_Control(pDX, IDC_COMBO_ENTRY_ALL, m_entry_all_ctrl);
+	DDX_Control(pDX, IDC_BUTTON_ALL, m_goall_ctrl);
 	DDX_Control(pDX, IDC_COMBO_ENTRY_ARM, m_entry_ctrl_arm);
 	DDX_Control(pDX, IDC_BUTTON_STORE_CURRENT_ARM, m_storecurrent_ctrl_arm);
 	DDX_Control(pDX, IDC_BUTTON_STORE_ARM, m_store_ctrl_arm);
@@ -239,6 +241,8 @@ BEGIN_MESSAGE_MAP(CTestControlDlg, CDialog)
 	ON_BN_CLICKED(IDC_BUTTON_STORE_ARM, OnButtonStoreArm)
 	ON_BN_CLICKED(IDC_BUTTON_STORE_CURRENT_ARM, OnButtonStoreCurrentArm)
 	ON_CBN_SELENDOK(IDC_COMBO_ENTRY_ARM, OnSelendokComboEntryArm)
+	ON_BN_CLICKED(IDC_BUTTON_ALL, OnButtonAll)
+	ON_CBN_SELENDOK(IDC_COMBO_ENTRY_ALL, OnSelendokComboEntryAll)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -459,6 +463,12 @@ void CTestControlDlg::EnableGUI ()
 
 		m_0encoders_ctrl_arm.EnableWindow();
 	}
+
+	if (_headinitialized && _arminitialized)
+	{
+		m_goall_ctrl.EnableWindow();
+		m_entry_all_ctrl.EnableWindow();
+	}
 }
 
 void CTestControlDlg::DisableGUI ()
@@ -498,6 +508,9 @@ void CTestControlDlg::DisableGUI ()
 	}
 
 	m_0encoders_ctrl_arm.EnableWindow(FALSE);
+
+	m_goall_ctrl.EnableWindow(FALSE);
+	m_entry_all_ctrl.EnableWindow(FALSE);
 
 	// others.
 	_gaincontroldlg.DisableInterface();
@@ -1094,4 +1107,45 @@ void CTestControlDlg::OnButton0encodersArm()
 void CTestControlDlg::OnButtonStopArm() 
 {
 	// LATER: to be implemented!
+}
+
+void CTestControlDlg::OnButtonAll() 
+{
+	if (_headrunning && _armrunning)
+	{
+		UpdateData (TRUE);
+
+		ACE_OS::memcpy (_headjointstore, m_v, sizeof(double) * MAX_HEAD_JNTS);
+		head.setVelocities (_headjointstore);
+
+		ACE_OS::memcpy (_headjointstore, m_p, sizeof(double) * MAX_HEAD_JNTS);
+		head.setPositions (_headjointstore);
+
+		ACE_OS::memcpy (_armjointstore, m_va, sizeof(double) * MAX_ARM_JNTS);
+		arm.setVelocities (_armjointstore);
+
+		ACE_OS::memcpy (_armjointstore, m_pa, sizeof(double) * MAX_ARM_JNTS);
+		arm.setPositions (_armjointstore);
+	}
+	else
+	{
+		MessageBox ("The controllers [arm and head] must be running before using this button", "Error!");
+	}
+}
+
+void CTestControlDlg::OnSelendokComboEntryAll() 
+{
+	const int index = m_entry_all_ctrl.GetCurSel();
+	if (index != CB_ERR && index >= 0 && index < N_POSTURES)
+	{
+		m_entry_ctrl.SetCurSel (index);
+		ACE_OS::memcpy (m_p, _headstore[index], sizeof(double) * MAX_HEAD_JNTS);
+		ACE_OS::memcpy (m_v, _headstorev[index], sizeof(double) * MAX_HEAD_JNTS);
+
+		m_entry_ctrl_arm.SetCurSel (index);
+		ACE_OS::memcpy (m_pa, _armstore[index], sizeof(double) * MAX_ARM_JNTS);
+		ACE_OS::memcpy (m_va, _armstorev[index], sizeof(double) * MAX_ARM_JNTS);
+
+		UpdateData(FALSE);
+	}
 }

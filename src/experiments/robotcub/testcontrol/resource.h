@@ -40,28 +40,20 @@
 #define IDC_EDIT_V5                     1013
 #define IDC_EDIT_V6                     1014
 #define IDC_EDIT_V7                     1015
-#define IDC_BUTTON_GO                   1017
 #define IDC_EDIT_V8                     1016
+#define IDC_BUTTON_GO                   1017
 #define IDC_COMBO_ENTRY                 1018
 #define IDC_BUTTON_WRITEFLASH           1019
-#define IDC_EDIT_S1                     1090
 #define IDC_BUTTON_READFLASH            1020
-#define IDC_EDIT_S2                     1091
 #define IDC_BUTTON_IDLE                 1021
 #define IDC_BUTTON_RUN                  1022
-#define IDC_EDIT_S3                     1092
 #define IDC_BUTTON_J1                   1023
-#define IDC_EDIT_S4                     1093
 #define IDC_BUTTON_J2                   1024
-#define IDC_EDIT_S5                     1094
 #define IDC_BUTTON_J3                   1025
 #define IDC_BUTTON_STOP                 1026
 #define IDC_BUTTON_J4                   1026
-#define IDC_EDIT_S6                     1095
 #define IDC_BUTTON_NECKPAN              1027
-#define IDC_EDIT_S7                     1096
 #define IDC_BUTTON_ROLLTILT             1028
-#define IDC_EDIT_S8                     1097
 #define IDC_EDIT_MIN                    1030
 #define IDC_BUTTON_CALIBRATEHEAD        1030
 #define IDC_EDIT_MAX                    1031
@@ -121,6 +113,16 @@
 #define IDC_EDIT_SA15                   1083
 #define IDC_BUTTON_STORE_CURRENT_ARM    1084
 #define IDC_BUTTON_0ENCODERS_ARM        1085
+#define IDC_COMBO_ENTRY_ALL             1086
+#define IDC_EDIT_S1                     1090
+#define IDC_EDIT_S2                     1091
+#define IDC_EDIT_S3                     1092
+#define IDC_EDIT_S4                     1093
+#define IDC_EDIT_S5                     1094
+#define IDC_EDIT_S6                     1095
+#define IDC_EDIT_S7                     1096
+#define IDC_EDIT_S8                     1097
+#define IDC_BUTTON_ALL                  1200
 #define ID_HELP_ABOUT                   32771
 #define ID_FILE_EXIT                    32772
 #define ID_INTERFACE_START              32773
@@ -138,7 +140,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        140
 #define _APS_NEXT_COMMAND_VALUE         32782
-#define _APS_NEXT_CONTROL_VALUE         1200
+#define _APS_NEXT_CONTROL_VALUE         1201
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

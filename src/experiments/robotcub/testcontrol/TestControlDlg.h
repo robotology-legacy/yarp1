@@ -70,6 +70,8 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CTestControlDlg)
 	enum { IDD = IDD_TESTCONTROL_DIALOG };
+	CComboBox	m_entry_all_ctrl;
+	CButton	m_goall_ctrl;
 	CComboBox	m_entry_ctrl_arm;
 	CButton	m_storecurrent_ctrl_arm;
 	CButton	m_store_ctrl_arm;
@@ -140,6 +142,8 @@ protected:
 	afx_msg void OnButtonStoreArm();
 	afx_msg void OnButtonStoreCurrentArm();
 	afx_msg void OnSelendokComboEntryArm();
+	afx_msg void OnButtonAll();
+	afx_msg void OnSelendokComboEntryAll();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
