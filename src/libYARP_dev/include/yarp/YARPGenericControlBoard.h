@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.4 2004-09-02 22:05:46 gmetta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.5 2004-09-03 21:22:54 babybot Exp $
 ///
 ///
 
@@ -322,15 +322,19 @@ public:
 	 * do.
 	 * @param axis is the axis to modify.
 	 * @param pid is a reference to a LowLevelPID structure containing the parameters.
+	 * @param sync is a flag that decides whether the new values is also copied onto the 
+	 * internal parameters structure (true by default).
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
-	int setPID(int axis, LowLevelPID& pid)
+	int setPID(int axis, LowLevelPID& pid, bool sync = true)
 	{
 		_lock();
 		SingleAxisParameters cmd;
 		cmd.axis = _parameters._axis_map[axis];
 		cmd.parameters = &pid;
 		int ret = _adapter.IOCtl(CMDSetPID, &cmd);
+		if (sync && ret == YARP_OK)
+			memcpy (&(_parameters._highPIDs[axis]), &pid, sizeof(LowLevelPID));
 		_unlock();
 		return ret;
 	}
@@ -339,15 +343,19 @@ public:
 	 * Gets the PID values for a specified axis. 
 	 * @param axis is the axis to modify.
 	 * @param pid is a reference to a LowLevelPID structure returning the parameters.
+	 * @param sync is a flag that decides whether the new values is also copied onto the 
+	 * internal parameters structure (true by default).
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
-	int getPID(int axis, LowLevelPID& pid)
+	int getPID(int axis, LowLevelPID& pid, bool sync = true)
 	{
 		_lock();
 		SingleAxisParameters cmd;
 		cmd.axis = _parameters._axis_map[axis];
 		cmd.parameters = &pid;
 		int ret = _adapter.IOCtl(CMDGetPID, &cmd);
+		if (sync && ret == YARP_OK)
+			memcpy (&(_parameters._highPIDs[axis]), &pid, sizeof(LowLevelPID));
 		_unlock();
 		return ret;
 	}

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.2 2004-09-02 22:05:46 gmetta Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.3 2004-09-03 21:22:54 babybot Exp $
 ///
 ///
 
@@ -228,8 +228,6 @@ protected:
 		else
 			return int(x + .5);
 	}
-
-	inline double getMaxTorque(int axis) const { ACE_UNUSED_ARG(axis); return 100.0; }
 };
 
 

@@ -27,13 +27,14 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.3 2004-09-02 22:05:46 gmetta Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.4 2004-09-03 21:22:54 babybot Exp $
 ///
 ///
 
 /// general purpose stuff.
 #include <yarp/YARPConfig.h>
 #include <yarp/YARPControlBoardUtils.h>
+#include <yarp/YARPScheduler.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Sched_Params.h>
@@ -350,6 +351,8 @@ YARPValueCanDeviceDriver::~YARPValueCanDeviceDriver ()
 
 int YARPValueCanDeviceDriver::open (void *res)
 {
+	_mutex.Wait(); // the thread will post this mutex after startup.
+
 	ValueCanResources& d = RES(system_resources);
 	int ret = d._initialize (*(ValueCanOpenParameters *)res);
 
@@ -362,7 +365,12 @@ int YARPValueCanDeviceDriver::open (void *res)
 	ACE_ASSERT (_ref_positions != NULL && _ref_speeds != NULL && _ref_accs != NULL);
 
 	if (ret >= 0)
+	{
 		Begin ();
+		YARPScheduler::yield();
+	}
+	else
+		_mutex.Post();
 
 	return ret;
 }
@@ -429,6 +437,8 @@ void YARPValueCanDeviceDriver::Body(void)
 	_request = false;
 	_noreply = false;
 
+	_mutex.Post();	// was decremented by the open().
+
 	while (!IsTerminated())
 	{
 		before = YARPTime::GetTimeAsSeconds();
@@ -462,13 +472,18 @@ void YARPValueCanDeviceDriver::Body(void)
 
 				if (m.StatusBitField & SPY_STATUS_TX_MSG)
 				{
+					_mutex.Wait();
 					/// my last sent message.
 					if (_noreply)
 					{
 						_noreply = false;
 						pending = false;
+						_mutex.Post();
 						_ev.Signal();
 					}
+					else
+						_mutex.Post();
+
 					continue;
 				}
 
@@ -478,8 +493,10 @@ void YARPValueCanDeviceDriver::Body(void)
 				{
 					/// ok, this is my reply.
 					/// write reply and signal event.
+					_mutex.Wait();
 					memcpy (&r._cmdBuffer, &m, sizeof(icsSpyMessage));
 					pending = false;
+					_mutex.Post();
 					_ev.Signal();
 				}
 			}
@@ -489,10 +506,12 @@ void YARPValueCanDeviceDriver::Body(void)
 			cyclecount++;
 			if (cyclecount >= r._timeout)
 			{
+				_mutex.Wait();
 				if (r._p) (*r._p)("CAN: board %d timed out [msg type %d channel %d]\n", (r._cmdBuffer.Data[0] & 0x0f), messagetype & 0x7f, (messagetype & 0x80)?1:0);
 				r._cmdBuffer.Data[0] = 0;
 				r._cmdBuffer.Data[1] = CAN_NO_MESSAGE;
 				pending = false;
+				_mutex.Post();
 				_ev.Signal();
 			}
 		}

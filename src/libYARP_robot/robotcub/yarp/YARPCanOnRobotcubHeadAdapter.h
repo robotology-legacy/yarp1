@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.8 2004-09-03 10:53:59 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.9 2004-09-03 21:22:54 babybot Exp $
 ///
 ///
 
@@ -155,6 +155,9 @@ public:
 			_stiffPID[i] = _RobotcubHead::_stiffPID[i];
 			_maxDAC[i] = _RobotcubHead::_maxDAC[i];
 		}
+
+		_p = NULL;
+		_message_filter = 20;
 	}
 
 	/**
@@ -241,8 +244,8 @@ public:
 		// convert limits to radiants
 		for(i = 0; i < _nj; i++)
 		{
-			_limitsMax[i] = _limitsMax[i] * degToRad;
-			_limitsMin[i] = _limitsMin[i] * degToRad;
+			_limitsMax[i] *= degToRad;
+			_limitsMin[i] *= degToRad;
 		}
 		//////////////////////////////////////////////////////////////////
 
@@ -440,8 +443,9 @@ public:
 
 		for(int i=0; i < _parameters->_nj; i++)
 		{
+			int actual_axis = _parameters->_axis_map[i];
 			SingleAxisParameters cmd;
-			cmd.axis = _parameters->_axis_map[i];
+			cmd.axis = actual_axis;
 			
 			// amp enable level
 			short level = 1;
@@ -464,6 +468,46 @@ public:
 			level = 1;
 			cmd.parameters = &level;
 			IOCtl(CMDSetAxisAnalog, &cmd);
+
+			// what to do about the PID gain, who should I trust?
+			// data are both on flash memory and on the configuration file.
+			// using the numbers on the initialization file for now.
+			IOCtl(CMDControllerIdle, &actual_axis);
+			cmd.parameters = &_parameters->_highPIDs[i];
+				
+			IOCtl(CMDSetPID, &cmd);
+
+			// reset encoders.
+			// just in case :)
+			double pos = 0.0;
+			cmd.parameters = &pos;
+			IOCtl(CMDDefinePosition, &cmd);
+
+			// and set the limits too from the data in the initialization file.
+			double min, max;
+			if (_parameters->_signs[i] == 1)
+				min = -(_parameters->_limitsMin[i] * 
+						_parameters->_encoderToAngles[i]) / (2.0 * pi) + 
+						_parameters->_zeros[i];
+			else
+				min = (_parameters->_limitsMin[i] * 
+						_parameters->_encoderToAngles[i]) / (2.0 * pi) + 
+						_parameters->_zeros[i];
+
+			if (_parameters->_signs[i] == 1)
+				max = -(_parameters->_limitsMax[i] * 
+						_parameters->_encoderToAngles[i]) / (2.0 * pi) + 
+						_parameters->_zeros[i];
+			else
+				max = (_parameters->_limitsMax[i] * 
+						_parameters->_encoderToAngles[i]) / (2.0 * pi) + 
+						_parameters->_zeros[i];
+
+			cmd.parameters = &min;
+			IOCtl(CMDSetSWNegativeLimit, &cmd);
+
+			cmd.parameters = &max;
+			IOCtl(CMDSetSWPositiveLimit, &cmd);			
 		}
 
 		_initialized = true;
@@ -684,6 +728,20 @@ public:
 		}
 
 		return YARP_OK;
+	}
+
+	/**
+	 * Gets the maximum torque reference.
+	 * @param axis is the axis to request information about.
+	 * @return the maximum torque reference: i.e. the maximum output of the amplifier.
+	 * 100 is the return value of the RobotCub controllers meaning the 100% of the PWM signal.
+	 */
+	inline double getMaxTorque(int axis) const 
+	{ 
+		if (axis < 0 || axis >= _parameters->_nj)
+			return YARP_FAIL;
+		else
+			return _parameters->_maxDAC[axis];
 	}
 
 private:
