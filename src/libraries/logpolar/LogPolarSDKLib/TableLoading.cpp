@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableLoading.cpp,v 1.16 2003-11-25 16:58:37 fberton Exp $
+/// $Id: TableLoading.cpp,v 1.17 2003-11-26 14:30:08 fberton Exp $
 ///
 ///
 
@@ -345,7 +345,7 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 			sprintf(File_Name,"%s%1.2f_%s_P%d%s",Path,Par->Ratio,"ShiftMap",Par->padding,".gio");
 
 		Tables->CorrLevels = (double *)malloc(Tables->ShiftLevels*sizeof(double));
-		Tables->PixelCount = (int *)malloc(Tables->ShiftLevels*sizeof(int));
+//		Tables->PixelCount = (int *)malloc(Tables->ShiftLevels*sizeof(int));
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			Tables->ShiftMap = (int *) malloc ((Tables->ShiftLevels)*1*Par->Size_LP * sizeof(int));

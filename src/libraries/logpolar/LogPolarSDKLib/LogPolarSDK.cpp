@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.23 2003-11-26 13:43:39 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.24 2003-11-26 14:30:08 fberton Exp $
 ///
 ///
 
@@ -1374,7 +1374,7 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 }
 
 
-int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, int * pixCount)
+int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val)//, int * pixCount)
 {
 	int i,j,k,k1;
 	int iR,iL;
@@ -1385,6 +1385,7 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 	double MIN = 10000;
 	int MAX = 0;
 	int minindex;
+	int count;
 
 
 	unsigned char * Lptr,* Rptr;
@@ -1408,7 +1409,7 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 		k1 = k * 1 * Par->Size_LP; //Positioning on the table
 		Lptr = Left;
 
-		pixCount[k] = 0;
+		count = 0;
 
 		for (j=0; j<Par->Size_Rho; j++)
 		{
@@ -1425,21 +1426,22 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 					average_Rg += Right[iR+1];
 					average_Lb += *Lptr++;//Left [iL+2];
 					average_Rb += Right[iR+2];
-					pixCount[k]++;
+					count++;
 				}
 				else Lptr +=3;
 			}
 			Lptr += AddedPadSize;
 		}
 		
-		if (pixCount[k] != 0)
+//		if (pixCount[k] != 0)
+		if (count != 0)
 			{
-				average_Lr /= pixCount[k];
-				average_Rr /= pixCount[k];
-				average_Lg /= pixCount[k];
-				average_Rg /= pixCount[k];
-				average_Lb /= pixCount[k];
-				average_Rb /= pixCount[k];
+				average_Lr /= count;
+				average_Rr /= count;
+				average_Lg /= count;
+				average_Rg /= count;
+				average_Lb /= count;
+				average_Rb /= count;
 			}
 
 			double numr   = 0;
@@ -1496,13 +1498,15 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 				MIN = corr_val[k];
 				minindex = k;
 			}
-			if (pixCount[k]>MAX)
-				MAX = pixCount[k];
+			if (count>MAX)
+				MAX = count;
 //		printf("%03d     %2.5f\n",k-SParam.Resolution/2,corr_val);
+			corr_val[k] = (3-corr_val[k])*count;
 		}
 	
 	for (k=0; k<Steps; k++)
-		corr_val[k] = 3-((3-corr_val[k])*pixCount[k]/(double)MAX);
+		corr_val[k] = 3-(corr_val[k]/(double)MAX);
+//		corr_val[k] = 3-((3-corr_val[k])*pixCount[k]/(double)MAX);
 
 	return minindex;
 }
