@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.5 2003-08-05 17:03:44 babybot Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.6 2003-08-07 04:23:43 gmetta Exp $
 ///
 ///
 
@@ -103,7 +103,7 @@ private:
 
 public:
 	YARPPicoloDeviceDriver();
-	~YARPPicoloDeviceDriver();
+	virtual ~YARPPicoloDeviceDriver();
 
 	// overload open, close
 	virtual int open(void *d);

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.8 2003-08-06 16:48:47 babybot Exp $
+/// $Id: YARPLogpolar.h,v 1.9 2003-08-07 04:23:43 gmetta Exp $
 ///
 ///
 
@@ -123,6 +123,7 @@ protected:
 	double *_angShiftMap;
 	short *_padMap;
 	Neighborhood * _weightsMap;
+	bool _mapsLoaded;
 
 public:
 	YARPLogpolar (void);
@@ -140,6 +141,8 @@ public:
 
 	inline int GetCWidth (void) const { return _logpolarParams::_xsize; }
 	inline int GetCHeight (void) const { return _logpolarParams::_ysize; }
+
+	bool TablesOk(void) const { return _mapsLoaded; }
 };
 
 

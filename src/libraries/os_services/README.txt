@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.29 2003-08-07 01:19:48 gmetta Exp $
+$Id: README.txt,v 1.30 2003-08-07 04:23:43 gmetta Exp $
 
 
 =============
@@ -17,10 +17,6 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 
 =============
 Things under development:
-
-1.2.3- check Image lib float allocation.
-1.2.4- check logpolar, what happens if no tables?
-1.2.5- SHMEM fails if not net?
 
 1.2.5- bugs in fg, thread stuff?
 

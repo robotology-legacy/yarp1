@@ -73,6 +73,7 @@ public:
 	inline int GetPeriod (void) const { return m_period; }
 	inline void AssumeLogpolar (void) { m_logp = true; }
 	inline void AssumeDisplayFovea (void) { m_fov = true; }
+	inline bool TablesOk (void) const { return m_mapper.TablesOk(); }
 
 	unsigned char * AcquireBuffer (void)
 	{

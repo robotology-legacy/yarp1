@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.cpp,v 1.8 2003-08-05 17:03:44 babybot Exp $
+/// $Id: YARPImage.cpp,v 1.9 2003-08-07 04:23:43 gmetta Exp $
 ///
 ///
 
@@ -701,7 +701,6 @@ void YARPGenericImage::_free_data (void)
 	*/
 }
 
-// This reflects the fact that under QNX we do not need any padding.
 // LATER: implement for LINUX.
 int YARPGenericImage::_pad_bytes (int linesize, int align) const
 {

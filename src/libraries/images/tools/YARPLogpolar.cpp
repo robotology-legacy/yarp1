@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.12 2003-08-06 16:48:47 babybot Exp $
+/// $Id: YARPLogpolar.cpp,v 1.13 2003-08-07 04:23:43 gmetta Exp $
 ///
 ///
 
@@ -160,6 +160,14 @@ YARPLogpolar::YARPLogpolar (void)
 {
 	using namespace _logpolarParams;
 
+	_mapsLoaded = true;
+
+	_remapMap = NULL;
+	_remapMapFovea = NULL;
+	_angShiftMap = NULL;
+	_padMap = NULL;
+	_weightsMap = NULL;
+
 	_img = Set_Param(
 		_xsize, _ysize,
 		256, 256,
@@ -174,7 +182,7 @@ YARPLogpolar::YARPLogpolar (void)
 	char *path = GetYarpRoot ();
 
 	/// logpolar to cartesian lookup table for the complete image.
-	char filename[256];
+	char filename[YARP_STRING_LEN];
 
 #ifdef __WIN32__
 	ACE_OS::sprintf(filename,"%s\\conf\\%s_%2.3f%s", path, "RemapMap", _img.Zoom_Level, ".gio");
@@ -182,7 +190,8 @@ YARPLogpolar::YARPLogpolar (void)
 	ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f%s", path, "RemapMap", _img.Zoom_Level, ".gio");
 #endif
 	FILE *fin = ACE_OS::fopen(filename,"rb");
-	ACE_ASSERT (fin != NULL);
+	if (fin == NULL)
+		goto exitConstructorOnError;
 
 	_remapMap = (int *) malloc (_img.Size_Img_Remap * sizeof(int));
 	ACE_ASSERT (_remapMap != NULL);
@@ -196,8 +205,9 @@ YARPLogpolar::YARPLogpolar (void)
 	ACE_OS::sprintf(filename, "%s/conf/%s", path, "AngularShiftMap.gio");
 #endif
 	fin = ACE_OS::fopen(filename, "rb");
-	ACE_ASSERT (fin != NULL);
-
+	if (fin == NULL)
+		goto exitConstructorOnError;
+	
 	_angShiftMap = (double *) malloc (_img.Size_Rho * sizeof(double));
 	ACE_ASSERT (_angShiftMap != NULL);
 	ACE_OS::fread(_angShiftMap, sizeof(double), _img.Size_Rho, fin);
@@ -209,7 +219,8 @@ YARPLogpolar::YARPLogpolar (void)
 	ACE_OS::sprintf(filename, "%s/conf/%s", path, "PadMap.gio");
 #endif
 	fin = ACE_OS::fopen(filename, "rb");
-	ACE_ASSERT (fin != NULL);
+	if (fin == NULL)
+		goto exitConstructorOnError;
 
 	_padMap = (short *) malloc (_img.Size_Theta * _img.Size_Fovea * sizeof(short));
 	ACE_ASSERT (_padMap != NULL);
@@ -223,7 +234,8 @@ YARPLogpolar::YARPLogpolar (void)
 	ACE_OS::sprintf(filename, "%s/conf/%s%02d%s", path, "WeightsMap", _img.Pix_Numb, ".gio");
 #endif
 	fin = ACE_OS::fopen(filename, "rb");
-	ACE_ASSERT (fin != NULL);
+	if (fin == NULL)
+		goto exitConstructorOnError;
 
 	_weightsMap = (Neighborhood *) malloc (_img.Size_LP * _img.Pix_Numb * 3 * sizeof(Neighborhood));
 	ACE_ASSERT (_weightsMap != NULL);
@@ -249,7 +261,8 @@ YARPLogpolar::YARPLogpolar (void)
 	ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f_%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
 #endif
 	fin = ACE_OS::fopen(filename,"rb");
-	ACE_ASSERT (fin != NULL);
+	if (fin == NULL)
+		goto exitConstructorOnError;
 
 	_remapMapFovea = (int *) malloc (_img.Size_Img_Remap * sizeof(int));
 	ACE_ASSERT (_remapMapFovea != NULL);
@@ -267,6 +280,22 @@ YARPLogpolar::YARPLogpolar (void)
 
 	_img.padding = YarpImageAlign;
 	_img.Pix_Numb = 2;
+
+	return;
+
+exitConstructorOnError:
+	_mapsLoaded = false;
+
+	if (_remapMap != NULL) free (_remapMap);
+	_remapMap = NULL;
+	if (_remapMapFovea != NULL) free (_remapMapFovea);
+	_remapMapFovea = NULL;
+	if (_angShiftMap != NULL) free (_angShiftMap);
+	_angShiftMap = NULL;
+	if (_padMap != NULL) free (_padMap);
+	_padMap = NULL;
+	if (_weightsMap != NULL) free (_weightsMap);
+	_weightsMap = NULL;
 }
 
 YARPLogpolar::~YARPLogpolar ()

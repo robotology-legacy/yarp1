@@ -101,7 +101,7 @@ void CRecv::Body (void)
 				m_converter.ConvertToDIB (m_flipped);
 			}
 		}
-		else
+		else	/// logpolar fovea.
 		if (m_logp && m_fov)
 		{
 			if (m_img.GetWidth() != _stheta || m_img.GetHeight() != _srho)
@@ -304,7 +304,7 @@ BOOL CCamviewDlg::OnInitDialog()
 	CCamviewApp *p = ((CCamviewApp *)AfxGetApp());
 	m_connection_name = p->m_portname;
 	m_output_connection = p->m_out_portname;
-	if (p->m_lp) m_receiver.AssumeLogpolar();
+	if (p->m_lp && m_receiver.TablesOk()) m_receiver.AssumeLogpolar();
 	if (p->m_fov) m_receiver.AssumeDisplayFovea();
 
 	UpdateData(FALSE);

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: FakeIpl.cpp,v 1.4 2003-07-02 23:03:07 babybot Exp $
+/// $Id: FakeIpl.cpp,v 1.5 2003-08-07 04:23:43 gmetta Exp $
 ///
 ///
 
@@ -131,6 +131,17 @@ void FreeAligned (T* ptr)
 	delete[] (T *)(((char *)ptr) - addbytes);
 }
 
+///
+///
+/// WARNING:
+///		most of this is implemented for PAD_BYTES == 0.
+///
+///		fixing the functions for != 0 is trivial though.
+///
+///	LATER:
+///		externd for PAD_BYTES != 0.
+///		NOT TESTED YET!
+///
 
 /*
 typedef struct _IplConvKernel {
@@ -760,7 +771,7 @@ IPLAPIIMPL(void, iplAllocateImageFP,(IplImage* image, int doFill, float fillValu
 {
 	assert (image->depth == IPL_DEPTH_32F);
 	assert (image->dataOrder == IPL_DATA_ORDER_PIXEL);
-	assert (image->widthStep == image->width * (image->depth & IPL_DEPTH_MASK) / 8 * image->nChannels);
+///	assert (image->widthStep == image->width * (image->depth & IPL_DEPTH_MASK) / 8 * image->nChannels);
 	assert (image->imageSize == image->widthStep * image->height);
 
 	image->imageData = AllocAligned<char> (image->imageSize);
@@ -780,6 +791,8 @@ IPLAPIIMPL(void, iplAllocateImageFP,(IplImage* image, int doFill, float fillValu
 		}
 		else
 		{
+			assert (PAD_BYTES (image->widthStep, YARP_IMAGE_ALIGN) == 0);
+
 			// time consuming
 			float *tmp = (float *)image->imageData;
 			const int limit = image->imageSize / sizeof(float);
