@@ -1,22 +1,34 @@
-// =====================================================================================
-//
-//       YARP - Yet Another Robotic Platform (c) 2001-2003 
-//
-//                    #Ing. Carlos Beltran#
-//
-//     "Licensed under the Academic Free License Version 1.0"
-// 
-//        Filename:  main.cpp
-// 
-//     Description:  
-// 
-//         Version:  $Id: main.cpp,v 1.13 2004-08-30 10:15:36 beltran Exp $
-// 
-//          Author:  Eng. Carlos Beltran (Carlos), cbeltran@dist.unige.it
-//         Company:  Lira-Lab
-// 
-// =====================================================================================
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
+///                                                                   ///
+///                    #Carlos Beltran Gonzalez#                      ///
+///                                                                   ///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
 
+///
+/// $Id: main.cpp,v 1.14 2004-08-30 10:33:56 beltran Exp $
+///
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
@@ -69,9 +81,9 @@ using namespace std;
 
 #endif
 
-//----------------------------------------------------------------------
-// Global parameters  
-//----------------------------------------------------------------------
+/**
+ * Global parameters.
+ */
 char _name[512];
 char _fgdataname[512];
 char _netname[512];
@@ -81,9 +93,9 @@ bool _fgnetdata       = false;
 int  _board_no        = 0;
 char __filename[256]  = "sound.ini";
 
-//----------------------------------------------------------------------
-//  Default Sound paramters
-//----------------------------------------------------------------------
+/**
+ * Default sound parameters.
+ */
 int _Channels      = 2;
 int _SamplesPerSec = 44100;
 int _BitsPerSample = 16;
@@ -92,15 +104,15 @@ int _volume        = 50;
 
 extern int __debug_level;
 
-// ===  FUNCTION  ======================================================================
-// 
-//         Name:  ParseParams
-// 
-//  Description:  This function parse the parameters passed to the grabber
-// 
-//    Author:  Ing. Carlos Beltran
-//  Revision:  none
-// =====================================================================================
+/** 
+  * Parses the parameters passed to the grabber.
+  * 
+  * @param argc The number of parameters
+  * @param argv The array of pointers to the parameters characters arrays
+  * @param visualize 
+  * 
+  * @return 
+  */
 int 
 ParseParams (int argc, char *argv[], int visualize = 0) 
 {
@@ -207,19 +219,12 @@ ParseParams (int argc, char *argv[], int visualize = 0)
 	return YARP_OK; 
 }
 
-// =====================================================================================
-//        Class:  FgNetDataPort
-// 
-//  Description:  This class extends a YARPPort in order to implement the OnRead callback function
-//  It receives a bottle with information to adjust the sound 
-//  To be used to fgadjuster photon application. 
-// 
-//       Author:  Eng. Carlos Beltran
-//      Created:  15/01/2003 10:36:00 
-//     Revision:  NOTE: Modifications should be done to support sound variables
-//     (volume, mute...etc) 
-// =====================================================================================
 #if !defined(__LinuxTest__)
+/** 
+  * Extends the YARPPort in order to implement the OnRead callback function.
+  * It receives a bottle with information adjust the sound. To be used with fgadjuster photon 
+  * application or with a similar application.
+  */
 class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 {
 	protected:
@@ -227,21 +232,26 @@ class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 		YARPSoundGrabber * m_gb;
 
 	public:
+		/** 
+		  * The constructor.
+		  * 
+		  * @param gb The pointer to the soundgrabber pointer
+		  */
 		FgNetDataPort (YARPSoundGrabber * gb):YARPInputPortOf<YARPBottle>(YARPInputPort::DOUBLE_BUFFERS, YARP_UDP) 
 		{ 
 			m_gb = gb;
 			m_bottle.reset();
 		}
 
+		/** 
+		  * This is the callback function.
+		  */
 		virtual void OnRead(void);
 };
 
-//--------------------------------------------------------------------------------------
-//       Class:  FgNetDataPort
-//      Method:  OnRead()
-// Description:  This is just the the callback funtion that reads the bottle and sets
-// the adequate driver functions
-//--------------------------------------------------------------------------------------
+/** 
+  * The callback function.
+  */
 void FgNetDataPort::OnRead(void)
 {
 	/*************************************************************
@@ -257,18 +267,15 @@ void FgNetDataPort::OnRead(void)
 }
 #endif
 
-// =====================================================================================
-//        Class:  mainthread
-// 
-//  Description:  
-// 
-//       Author:  Eng. Carlos Beltran
-//      Created:  25/02/2004 10:30:43 W. Europe Standard Time
-//     Revision:  none
-// =====================================================================================
+/** 
+  * The main thread.
+  */
 class mainthread : public YARPThread
 {
 public:
+	/** 
+	  * The main body code.
+	  */
 	virtual void Body (void)
 	{
 		if (_client)
@@ -296,12 +303,12 @@ public:
 	int _runAsNormally (void);
 };
 
-//--------------------------------------------------------------------------------------
-//       Class:  mainthread
-//      Method:  _runAsClient
-// Description:  This method acts as client of other soundgrabber. Simply reads the sound
-// buffer from the network and puts it in a WAVE file
-//--------------------------------------------------------------------------------------
+/** 
+  * This method acts as a client for another soundgrabber.
+  * Simply reads the sound buffer form the network and puts it in a WAVE file.
+  * 
+  * @return YARP_OK
+  */
 int 
 mainthread::_runAsClient (void)
 {
@@ -379,12 +386,14 @@ mainthread::_runAsClient (void)
 	return YARP_OK;
 }
 
-//--------------------------------------------------------------------------------------
-//       Class:  mainthread
-//      Method:  _runAsSimulation 
-// Description:  This function simulates a recording and sends the simulated data into
-// the network. It is used to test this level plus clients and network conections
-//--------------------------------------------------------------------------------------
+/** 
+  * This function simulates a recording and sends the simulated data into the network.
+  * It is used to test this level plus clients and network connections.
+  * 
+  * @return 
+  * 	-# YARP_OK everything was ok.
+  * 	-# YARP_FAIL something didn't work as expected. 
+  */
 int 
 mainthread::_runAsSimulation (void)
 {
@@ -531,12 +540,14 @@ mainthread::_runAsSimulation (void)
 	return YARP_OK;
 }
 
-//--------------------------------------------------------------------------------------
-//       Class:  mainthread
-//      Method:  _runAsNormally
-// Description:  This method normally instanciates an access to the low level driver.
-// It gets the sound data and sends it to the network
-//--------------------------------------------------------------------------------------
+/** 
+  * This method instanciates an access to the low level driver.
+  * It gets the sound data and sends it to the network. 
+  *
+  * @return 
+  * 	-# YARP_OK everything was ok.
+  * 	-# YARP_FAIL something went wrong
+  */
 int 
 mainthread::_runAsNormally (void)
 {
@@ -625,15 +636,14 @@ mainthread::_runAsNormally (void)
 	return YARP_OK;
 }
 
-// ===  FUNCTION  ======================================================================
-// 
-//         Name:  main
-// 
-//  Description:  Obviously the main function. 
-// 
-//    Author:  Ing. Carlos Beltran
-//  Revision:  none
-// =====================================================================================
+/** 
+  * Obviously the main function.
+  * 
+  * @param argc The number of parameters.
+  * @param argv The actual pointer to the parameters arrays.
+  * 
+  * @return YARP_OK Seems everything went perfect.
+  */
 int 
 main (int argc, char *argv[])
 {
