@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.2 2003-05-22 10:37:29 gmetta Exp $
+$Id: install.txt,v 1.3 2003-05-22 10:39:57 gmetta Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -76,7 +76,10 @@ REQUIRES:
 		the modified files from the repository inplace)
 	- install IPL to get the DLLs, libs, and .h files
 		WHERE TO COPY THEM?
-	copy .h files into %YARP_ROOT%\include\sys
+		copy .h files into %YARP_ROOT%\include\sys
+	- use the %YARP_ROOT%/YARPConfigTemplate.h and include the correct 
+		config file (found in %YARP_ROOT%/include/conf)
+		Copy the template into: %YARP_ROOT%/include/conf/YARPConfig.h
 
 2) Compile:
 	ACE, this copies also the .h, .i, and .cpp files into %YARP_ROOT%\include
