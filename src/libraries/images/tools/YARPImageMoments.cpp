@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageMoments.cpp,v 1.8 2004-04-21 17:53:15 natta Exp $
+/// $Id: YARPImageMoments.cpp,v 1.9 2004-07-06 08:49:13 orfra Exp $
 ///
 ///
 
@@ -71,17 +71,40 @@
 using namespace _logpolarParams;
 
 // LOGPOLAR VERSION
-void YARPLpImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y)
+void YARPLpImageMoments::centerOfMassAndMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y, double *mass)
 {
 	int t,c;
-	double area = 0.0;
+	double areaT = 0.0;
 	double sumX = 0.0;
 	double sumY = 0.0;
 	unsigned char *src;
 	for(c = 0; c < _srho; c++)
 	{
+		int sumTmpX = 0;
+		int sumTmpY = 0;
+		int areaTmp = 0;
+
 		src = (unsigned char *)in.GetArray()[c];
 		for(t = 0; t < _stheta; t++)
+		{
+			int tmpX;
+			int tmpY;
+
+			Logpolar2Cartesian(c, t, tmpX, tmpY);
+
+			sumTmpX += tmpX*(*src);
+			sumTmpY += tmpY*(*src);
+			areaTmp += (*src);
+					
+			src++;
+		}
+		double J=Jacobian(c, 0);
+		sumX+=sumTmpX*J;
+		sumY+=sumTmpY*J;
+		areaT+=areaTmp*J;
+
+
+		/*for(t = 0; t < _stheta; t++)
 		{
 			int tmpX = 0;
 			int tmpY = 0;
@@ -96,19 +119,66 @@ void YARPLpImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, in
 			area += J;
 					
 			src++;
-		}
+		}*/
 	}
 	
-	if (area != 0)
+	*mass=areaT;
+	
+	if (areaT != 0)
 	{
-		*x = (int)(sumX/area);
-		*y = (int)(sumY/area);
+		*x = (int)(sumX/areaT);
+		*y = (int)(sumY/areaT);
 	}
 	else
 	{
 		*x = 0;
 		*y = 0;
 	}
+}
+
+void YARPLpImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y)
+{
+	double tmp;
+	centerOfMassAndMass(in, x, y, &tmp);
+}
+
+void YARPLpImageMoments::centralMomentsOrder2(YARPImageOf<YarpPixelMono> &in, int xm, int ym, double *u11, double *u20, double *u02)
+{
+	int t,c;
+	double area = 0.0;
+	double res11 = 0.0;
+	double res20 = 0.0;
+	double res02 = 0.0;
+	unsigned char *src;
+	
+	for(c = 0; c < _srho; c++) {
+		int res11Tmp = 0;
+		int res20Tmp = 0;
+		int res02Tmp = 0;
+		
+		src = (unsigned char *)in.GetArray()[c];
+
+		for(t = 0; t < _stheta; t++) {
+			int x;
+			int y;
+			
+			Logpolar2Cartesian(c, t, x, y);
+
+			res11Tmp += (x-xm)*(y-ym)*(*src);
+			res20Tmp += (x-xm)*(x-xm)*(*src);
+			res02Tmp += (y-ym)*(y-ym)*(*src);
+			
+			src++;
+		}
+		double J = Jacobian(c, 0);
+		res11+=res11Tmp*J;
+		res20+=res20Tmp*J;
+		res02+=res02Tmp*J;
+	}
+
+	*u11=res11;
+	*u20=res20;
+	*u02=res02;
 }
 
 double YARPLpImageMoments::centralMoments(YARPImageOf<YarpPixelMono> &in, int xm, int ym, int p, int q)
