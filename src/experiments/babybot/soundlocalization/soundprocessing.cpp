@@ -10,7 +10,7 @@
 // 
 //     Description:  Implements all the sound processing algorithms.
 // 
-//         Version:  $Id: soundprocessing.cpp,v 1.3 2004-04-15 14:37:36 beltran Exp $
+//         Version:  $Id: soundprocessing.cpp,v 1.4 2004-04-16 14:08:57 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -77,8 +77,12 @@ SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
 	fft = new YARPFft(numSamples, numSamples);
 
 	// allocate vectors
-	crosscorrelation = new double[numSamples];
-	ans_Im = new double[numSamples];
+	crosscorrelation_Re = new double[numSamples];
+	crosscorrelation_Im = new double[numSamples];
+	leftcorrelation_Re  = new double[numSamples];
+	leftcorrelation_Im  = new double[numSamples];
+	rightcorrelation_Re = new double[numSamples];
+	rightcorrelation_Im = new double[numSamples];
 	Re     = new double[2 * numSamples];
 	Im     = new double[2 * numSamples];
 }
@@ -93,8 +97,12 @@ SoundProcessing::~SoundProcessing()
 	delete fft;
 	delete[] Re;
 	delete[] Im;
-	delete[] crosscorrelation;
-	delete[] ans_Im;
+	delete[] crosscorrelation_Re;
+	delete[] crosscorrelation_Im;
+	delete[] leftcorrelation_Re;
+	delete[] leftcorrelation_Im;
+	delete[] rightcorrelation_Re;
+	delete[] rightcorrelation_Im;
 }
 
 //--------------------------------------------------------------------------------------
@@ -102,38 +110,60 @@ SoundProcessing::~SoundProcessing()
 //      Method: ComputeCorrelation2 
 // Description: Calculate the correlation function using the Fourier Transform 
 //--------------------------------------------------------------------------------------
-int SoundProcessing::ComputeCrossCorrelation()
+int SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
+											 double * right_Re, double * right_Im)
 {
 	int i = 0;
 	int dim[1] = {numSamples};
-	double *fft1_Re = Re;
-	double *fft1_Im = Im;
-	double *fft2_Re = fft1_Re + numSamples;
-	double *fft2_Im = fft1_Im + numSamples;
+	
 
-	fft->Fft(1, dim, fft1_Re, fft1_Im, 1, -1); // Calculate FFT
-	fft->Fft(1, dim, fft2_Re, fft2_Im, 1, -1); // Calculate FFT
+	ConjMultiplication(left_Re, left_Im,
+					   right_Re, right_Im,
+					   crosscorrelation_Re,
+					   crosscorrelation_Im);
+	ConjMultiplication(left_Re, left_Im,
+					   left_Re, left_Im,
+					   leftcorrelation_Re,
+					   leftcorrelation_Im);
+	ConjMultiplication(left_Re, left_Im,
+					   right_Re, right_Im,
+					   rightcorrelation_Re,
+					   rightcorrelation_Im);
 
+	
 	//----------------------------------------------------------------------
-	//  Multiplication between the spectrum of the first signal and the complex
-	//  conjugation of the spectrum of the second (discrete correlation theorem)
-	//  (a+ib)(c-id) = (ac+bd)+i(bc-ad)
-	//  The vector crosscorrelation is used to store the real part. Ans_Im for
-	//  the imaginary part.
+	//  Consider here to apply the SCOT filtering
 	//----------------------------------------------------------------------
-	for	( i = 0; i < numSamples; i++) 
-	{
-		*(crosscorrelation+i) = ((*fft1_Re) * (*fft2_Re) + (*fft1_Im) * (*fft2_Im))/numSamples;
-		*(ans_Im+i)           = ((*fft1_Im) * (*fft2_Re) - (*fft1_Re) * (*fft2_Im))/numSamples;
-		fft1_Re++; fft1_Im++; fft2_Re++; fft2_Im++;
-	}
-
+	
 	//----------------------------------------------------------------------
 	//  Calculate the inverse Fast Fourier Transform
 	//  At the end the crosscorrelation vector should contain the crosscorre-
 	//  lation data
 	//----------------------------------------------------------------------
-	fft->Fft(1, dim, crosscorrelation, ans_Im, 1, -1);
+	fft->Fft(1, dim, crosscorrelation_Re, crosscorrelation_Im, 1, -1);
 	
+	return 0;
+}
+
+//--------------------------------------------------------------------------------------
+//       Class: SoundProcessing 
+//      Method: ConjMultiplication 
+// Description: Multiplication between the spectrum of the first signal and the complex
+// conjugation of the spectrum of the second (discrete correlation theorem) 
+// (a+ib)(c-id)=(ac+bd)+i(bc-ad)
+//--------------------------------------------------------------------------------------
+int SoundProcessing::ConjMultiplication(double * fft1_Re, double * fft1_Im,
+										double * fft2_Re, double * fft2_Im,
+										double * ans_Re , double * ans_Im)
+{
+	int i;
+	
+	for	( i = 0; i < numSamples; i++) 
+	{
+		*(ans_Re+i) = ((*fft1_Re) * (*fft2_Re) + (*fft1_Im) * (*fft2_Im))/numSamples;
+		*(ans_Im+i) = ((*fft1_Im) * (*fft2_Re) - (*fft1_Re) * (*fft2_Im))/numSamples;
+		fft1_Re++; fft1_Im++; fft2_Re++; fft2_Im++;
+	}
+
 	return 0;
 }

@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.3 2004-04-15 14:37:36 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.4 2004-04-16 14:08:57 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -40,6 +40,7 @@ public:
 	void apply(YARPSoundBuffer &in, YVector &out)
 	{
 		unsigned char * buff = (unsigned char *) in.GetRawBuffer();
+		int dim[1] = {numSamples};
 		
 		//----------------------------------------------------------------------
 		// Fill the Re and Im vectors from the sound buffer
@@ -63,11 +64,15 @@ public:
 			buff += 2;
 		}
 
-		ComputeCrossCorrelation();
+        fft->Fft(1, dim, Re, Im, 1, -1);                           // Calculate first signal FFT
+        fft->Fft(1, dim, Re + numSamples, Im + numSamples, 1, -1); // Calculate second signal FFT
+
+		ComputeCrossCorrelation( Re, Im, Re + numSamples, Im + numSamples);
 	}
 
 private:
-	int ComputeCrossCorrelation();
+	int ComputeCrossCorrelation(double *,double *,double *,double *);
+	int ConjMultiplication(double *,double *,double *,double *,double *,double *);
 	void _threshold(double *v, double th)
 	{
 		// Surely, this is not necessary
@@ -88,8 +93,12 @@ private:
 
 	double * Re;
 	double * Im;
-	double * crosscorrelation; //this is also used as a working vector
-	double * ans_Im;
+	double * crosscorrelation_Re; //this is also used as a working vector
+	double * crosscorrelation_Im;
+	double * leftcorrelation_Re; //this is also used as a working vector
+	double * leftcorrelation_Im;
+	double * rightcorrelation_Re; //this is also used as a working vector
+	double * rightcorrelation_Im;
 
     int numSamples;     // number of samples for channel
     int numFreqSamples; // length of the trasformations (N/2 + 1??)
