@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.5 2003-04-27 21:57:41 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.6 2003-04-29 21:50:12 gmetta Exp $
 ///
 ///
 
@@ -1386,7 +1386,7 @@ int YARPOutputSocketDgram::Connect (void)
 	}
 
 	/// the connect changes the remote port number to the actual assigned channel.
-	d._remote_addr.set (port_number, d._remote_addr.get_host_name());
+	d._remote_addr.set_port_number (port_number);
 	identifier = d._connector_socket.get_handle ();
 
 	return YARP_OK;

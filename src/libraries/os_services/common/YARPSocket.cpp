@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.9 2003-04-27 21:57:41 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.10 2003-04-29 21:50:10 gmetta Exp $
 ///
 ///
 
@@ -672,10 +672,9 @@ ACE_HANDLE _SocketThreadList::connect(const YARPUniqueNameID& id)
 	ACE_DEBUG ((LM_DEBUG, "server socket open on %s port %d\n", _local_addr.get_host_name(), _local_addr.get_port_number()));
 
 	// pid = sock;
+	_initialized = 1;
 
 	Begin();
-
-	_initialized = 1;
 
 	//IFVERB printf("Server socket is %d\n", sock);
 	return _acceptor.get_handle ();

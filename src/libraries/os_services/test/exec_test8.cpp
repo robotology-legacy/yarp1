@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.6 2003-04-24 08:49:34 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.7 2003-04-29 21:50:34 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -90,7 +90,11 @@ public:
 	virtual void Body()
 	{
 		int er = in.Register("/foo/the/rampaging/frog");
-		ACE_ASSERT (er == YARP_OK);
+		if (er != YARP_OK)
+		{
+			ACE_DEBUG ((LM_DEBUG, "Thread1: can't register port name, bailing out\n"));
+			return;
+		}
 
 		YARPTime::DelayInSeconds(2);
 
@@ -98,7 +102,7 @@ public:
 		{
 			printf("Waiting for input\n");
 			in.Read();
-			printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$Read %d\n", in.Content());
+			ACE_OS::printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$Read %d\n", in.Content());
 		}
 	}
 };
@@ -110,7 +114,11 @@ public:
 	virtual void Body()
 	{
 		int er = out.Register("/foo/the/rampaging/fly");
-		ACE_ASSERT (er == YARP_OK);
+		if (er != YARP_OK)
+		{
+			ACE_DEBUG ((LM_DEBUG, "Thread2: can't register port name, bailing out\n"));
+			return;
+		}
 
 		YARPTime::DelayInSeconds(2);
 		printf("Step1\n");
