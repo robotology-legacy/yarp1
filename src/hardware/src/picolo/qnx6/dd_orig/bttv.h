@@ -50,11 +50,17 @@ volatile uint32_t    *regbase;    /* device has 32-bit registers */
 #define O_NONCAP	O_TRUNC
 #endif
 
+#define W 128
+//#define W 384
+#define H 128
+//#define H 288
+#define deep 3
+
 #define MAX_GBUFFERS	2
-#define RISCMEM_LEN	(32744*2)
+#define RISCMEM_LEN	(32744*2)//Check why is this sice
 #define VBI_MAXLINES    16
 //#define VBIBUF_SIZE     (2048*VBI_MAXLINES*2)
-#define VBIBUF_SIZE     384*288*3  //This should be dinamic
+#define VBIBUF_SIZE     W*H*deep  //This should be dinamic
 //#define VBIBUF_SIZE     1310720
 typedef unsigned long  u32;
 typedef unsigned short u16;
@@ -152,8 +158,9 @@ struct bttv
 	u32 *riscmem;
   
 	unsigned char *vbibuf;
-	unsigned char *imagebuf_odd;
-	unsigned char *imagebuf_even;
+	unsigned char *imagebuf_1;
+	unsigned char *imagebuf_2;
+	unsigned char *imagebuf_3;
 	struct bttv_window win;
 	int type;            /* card type  */
 	int audio;           /* audio mode */
@@ -171,8 +178,9 @@ struct bttv
 	//WAIT_QUEUE capqe;
 	int vbip;
 
-	u32 *risc_odd;
-	u32 *risc_even;
+	u32 *risc_1;
+	u32 *risc_2;
+	u32 *risc_3;
 	int cap;
 	struct video_clip *cliprecs;
 

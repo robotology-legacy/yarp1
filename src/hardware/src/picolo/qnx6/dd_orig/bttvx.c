@@ -35,7 +35,6 @@
 #include <pthread.h>
 
 #include "bttv.h"
-#include "bttvx.h" // Public header, devctl's.
 #define BTTV_MAX 6
 
 static int bttv_num;
@@ -48,7 +47,7 @@ static iofunc_attr_t             attr;
 int irq_debug = 1;
 
 int count=0;
-int flag = 0;
+int flag = 1;
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t condvar = PTHREAD_COND_INITIALIZER;
@@ -67,22 +66,26 @@ static void bt848_cap(struct bttv * btv,int state);
 /********************************************************************************
 	The read function.
 *********************************************************************************/
-int 
+inline int 
 read_bttvx(unsigned char * buffer)
 {
 	struct bttv * btv = &bttvs[0];
-	if (flag)
+	
+	//This flag is controlled from the interrupt handler. The idea is to return
+	//always the last used buffer
+	
+	switch(flag)
 	{
-		memcpy(buffer,btv->imagebuf_odd, W*H*deep);
-		/////buffer = btv->imagebuf_odd;
-		flag = 0;
-	}
-	else
-	{
-		memcpy(buffer,btv->imagebuf_even, W*H*deep);
-		flag = 1;
-	}
-	return 1;
+		case 1:
+			memcpy(buffer,btv->imagebuf_1, W*H*deep);
+			break;
+		case 2:
+			memcpy(buffer,btv->imagebuf_2, W*H*deep);
+			break;
+		case 3:
+			memcpy(buffer,btv->imagebuf_3, W*H*deep);
+			break;
+	};
 }	
 
 int 
@@ -95,7 +98,7 @@ BttvxWaitEvent()
 /*******************************************************************************
 Devctl's
 *******************************************************************************/
-int
+/*int
 io_devctl(resmgr_context_t *ctp, io_devctl_t *msg, RESMGR_OCB_T *ocb)
 {
 	int *data;
@@ -132,10 +135,10 @@ io_devctl(resmgr_context_t *ctp, io_devctl_t *msg, RESMGR_OCB_T *ocb)
 			nbytes=0;
 		break;
 
-	/*	case BTTVX_DEVCTL_GET_SAT_U:
-		case BTTVX_DEVCTL_SET_SAT_U:
-		case BTTVX_DEVCTL_GET_SAT_V:
-		case BTTVX_DEVCTL_SET_SAT_V:*/
+		///case BTTVX_DEVCTL_GET_SAT_U:
+		///case BTTVX_DEVCTL_SET_SAT_U:
+		///case BTTVX_DEVCTL_GET_SAT_V:
+		///case BTTVX_DEVCTL_SET_SAT_V:
 		default: return(ENOSYS);
 		}
 	memset(&msg->o,0,sizeof(msg->o));
@@ -143,6 +146,7 @@ io_devctl(resmgr_context_t *ctp, io_devctl_t *msg, RESMGR_OCB_T *ocb)
 	msg->o.nbytes=nbytes;
 	return(_RESMGR_PTR(ctp,&msg->o,sizeof(msg->o)+nbytes));
 }
+*/
 
  /******************************************************************************** 
         Tvnorms   
@@ -267,7 +271,7 @@ u32 virt_to_bus ( u32 * addr )
 *********************************************************************************/
 static int 
 make_rawrisctab(struct bttv *btv, unsigned int *ro,
-                            unsigned int *re, unsigned int *vbuf, unsigned int *vbuf2)
+                            unsigned int *re, unsigned int *vbuf)
 {
     unsigned long line;
 	int flags=btv->cap;
@@ -275,7 +279,6 @@ make_rawrisctab(struct bttv *btv, unsigned int *ro,
 	unsigned long bpl = btv->win.width*btv->win.bpp;
 
 	unsigned long vadr=(unsigned long) vbuf;
-	unsigned long vadr2=(unsigned long) vbuf2;
 
 
 	*(ro++)=BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRE;
@@ -283,53 +286,18 @@ make_rawrisctab(struct bttv *btv, unsigned int *ro,
 	*(ro++)=BT848_RISC_SYNC|BT848_FIFO_STATUS_FM1; 
     *(ro++)=0;
 
-	/*
-	
-	*(ro++)=BT848_RISC_SYNC|BT848_RISC_RESYNC;
-	*(ro++)=0;
-	*(ro++)=BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_FM1; 
-    *(ro++)=0;
-
-	*/
-	*(re++)=BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRE;
-	*(re++)=0;
-	*(re++)=BT848_RISC_SYNC |BT848_FIFO_STATUS_FM1;
-    *(re++)=0;
-	
-	/*
-	*(re++)=BT848_RISC_SYNC|BT848_RISC_RESYNC;
-	*(re++)=0;
-	*(re++)=BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_FM1;
-    *(re++)=0;
-	*/
-	
-        /* In PAL 650 blocks of 256 DWORDs are sampled, but only if VDELAY
-           is 2 and without separate VBI grabbing.
-           We'll have to handle this inside the IRQ handler ... */
-
-	//for (line=0; line < 650; line++)
 	for (line=0; line < btv->win.height; line++)
 	{
                 
                 *(ro++)=BT848_RISC_WRITE|bpl|BT848_RISC_SOL|BT848_RISC_EOL;
                 *(ro++)=virt_to_bus((u32 *) vadr);
-				//vadr+= bpl;
-				*(re++)=BT848_RISC_WRITE|bpl|BT848_RISC_SOL|BT848_RISC_EOL;
-                *(re++)=virt_to_bus((u32 *) vadr2);
-                //vadr+= (bpl*2);
 				vadr+= (bpl);
-				vadr2+=(bpl);
 	}
 	
 	*(ro++) = BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRE |BT848_RISC_IRQ;
 	*(ro++) = 0;
 	*(ro++) = BT848_RISC_JUMP;
-	*(ro++) = virt_to_bus(btv->risc_even);
-
-	*(re++) = BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRE |BT848_RISC_IRQ;
-	*(re++) = 0;
-	*(re++) = BT848_RISC_JUMP;
-	*(re++) = virt_to_bus(btv->risc_odd);
+	*(ro++) = virt_to_bus((u32 *)re);
 
 	 btaor(flags, ~0x0f, BT848_CAP_CTL);
 
@@ -337,7 +305,6 @@ make_rawrisctab(struct bttv *btv, unsigned int *ro,
      bt848_dma(btv, 3);
    else
      bt848_dma(btv, 0);
-
 	
 	return 0;
 }
@@ -637,11 +604,21 @@ void InterruptEvent()
 	/* get device status bits */
 	dstat=btread(BT848_DSTATUS);
 	
+	//This interrupt called when the RISC program has finished
 	if (astat & BT848_INT_RISCI)
 	{
 		pthread_cond_signal(&condvar);
-		//printf("YESS!!");
-		//fflush(stdout);
+		
+		//Flag control
+		switch(flag)
+		{
+		case 1:case 2:
+			flag ++;
+			break;
+		case 3:
+			flag = 1;
+			break;
+		};
 	}
 
 	if (astat & BT848_INT_VPRES)
@@ -927,11 +904,18 @@ open_bttvx()
 	bt848_cap(btv, 1); //activa capture
 	
 	make_rawrisctab(btv, 
-				  (unsigned int *) btv->risc_odd,
-                  (unsigned int *) btv->risc_even, 
-				  (unsigned int *) btv->imagebuf_odd,
-				  (unsigned int *) btv->imagebuf_even);
-	
+				  (unsigned int *) btv->risc_1,
+                  (unsigned int *) btv->risc_2, 
+				  (unsigned int *) btv->imagebuf_1);
+	make_rawrisctab(btv, 
+				  (unsigned int *) btv->risc_2,
+                  (unsigned int *) btv->risc_3, 
+				  (unsigned int *) btv->imagebuf_2);
+	make_rawrisctab(btv, 
+				  (unsigned int *) btv->risc_3,
+                  (unsigned int *) btv->risc_1, 
+				  (unsigned int *) btv->imagebuf_3);
+
 	//bt848_cap(btv, 1); //activa capture
 	return 1;
 }
@@ -990,37 +974,28 @@ init_bt848(struct bttv * btv, int video_format)
   btv->cap=0;
 
   //wtv.riscmem=(ulong *) malloc(RISCMEM_LEN);
-  btv->risc_odd = (u32 *) mmap(0,
+  btv->risc_1 = (u32 *) mmap(0,
 					RISCMEM_LEN/2,
 					PROT_READ|PROT_WRITE|PROT_NOCACHE,
 					MAP_PHYS|MAP_ANON,
 					NOFD,
 					0);
 
-  btv->risc_even = (u32 *) mmap(0,
+  btv->risc_2 = (u32 *) mmap(0,
+					RISCMEM_LEN/2,
+					PROT_READ|PROT_WRITE|PROT_NOCACHE,
+					MAP_PHYS|MAP_ANON,
+					NOFD,
+					0);
+					
+  btv->risc_3 = (u32 *) mmap(0,
 					RISCMEM_LEN/2,
 					PROT_READ|PROT_WRITE|PROT_NOCACHE,
 					MAP_PHYS|MAP_ANON,
 					NOFD,
 					0);
 
-  btv->risc_jmp = (u32 *) mmap(0,
-					2048,
-					PROT_READ|PROT_WRITE|PROT_NOCACHE,
-					MAP_PHYS|MAP_ANON,
-					NOFD,
-					0);
-
-  //btv->vbi_odd  = btv->risc_jmp + 12;
-  //btv->vbi_even = btv->vbi_odd + 256;
-
-  //btv->bus_vbi_odd=virt_to_bus(btv->risc_jmp);
-  //btv->bus_vbi_even=virt_to_bus(btv->risc_jmp+6);
-  //btwrite(virt_to_bus(btv->risc_jmp+2), BT848_RISC_STRT_ADD);
-
-  //Important one: program the RISC address in the RISC_STRT_ADD register
-  //regbase[69] = virt_to_bus(btv->risc_jmp+2);
-  regbase[69] = virt_to_bus( btv->risc_odd);
+  regbase[69] = virt_to_bus( btv->risc_1);
 
   /*
   btv->vbibuf = (unchar *) mmap(0,
@@ -1032,22 +1007,30 @@ init_bt848(struct bttv * btv, int video_format)
   memset(btv->vbibuf, 1,VBIBUF_SIZE);
   */
 
-  btv->imagebuf_odd =   (unchar *) mmap(0,
+  btv->imagebuf_1 =   (unchar *) mmap(0,
 					VBIBUF_SIZE,
 					PROT_READ|PROT_WRITE|PROT_NOCACHE,
 					MAP_PHYS|MAP_ANON | MAP_BELOW16M ,
 					NOFD,
 					0);
-  memset(btv->imagebuf_odd, 1,VBIBUF_SIZE);
+  memset(btv->imagebuf_1, 1,VBIBUF_SIZE);
 
 
-  btv->imagebuf_even =   (unchar *) mmap(0,
+  btv->imagebuf_2 =   (unchar *) mmap(0,
 					VBIBUF_SIZE,
 					PROT_READ|PROT_WRITE|PROT_NOCACHE,
 					MAP_PHYS|MAP_ANON | MAP_BELOW16M ,
 					NOFD,
 					0);
-  memset(btv->imagebuf_even, 1,VBIBUF_SIZE);
+  memset(btv->imagebuf_2, 1,VBIBUF_SIZE);
+  
+  btv->imagebuf_3 = (unchar *) mmap(0,
+					VBIBUF_SIZE,
+					PROT_READ|PROT_WRITE|PROT_NOCACHE,
+					MAP_PHYS|MAP_ANON | MAP_BELOW16M ,
+					NOFD,
+					0);
+  memset(btv->imagebuf_3, 1,VBIBUF_SIZE);
 
   //bt848_muxsel(btv, 1);
   
