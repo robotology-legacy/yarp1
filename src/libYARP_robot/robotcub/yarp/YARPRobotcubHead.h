@@ -30,13 +30,13 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #Add our name(s) here#
+///                    #pasa#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-///  $Id: YARPRobotcubHead.h,v 1.4 2004-09-02 22:05:46 gmetta Exp $
+///  $Id: YARPRobotcubHead.h,v 1.5 2004-09-06 23:05:33 babybot Exp $
 ///
 ///
 
