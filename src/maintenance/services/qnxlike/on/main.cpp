@@ -61,13 +61,14 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2003-05-29 22:32:26 gmetta Exp $
+/// $Id: main.cpp,v 1.2 2003-06-12 09:51:17 babybot Exp $
 ///
 ///
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 void usage (const char *name)
 {
@@ -133,12 +134,12 @@ int main (int argc, char *argv[])
 		return -1;
 	}
 
-	memset (cmdstring, 0, 4096);
-	char *tmp = cmdstring;
-	sprintf (tmp, "rclient \\\\"); tmp += 10;
-
 	if (!detached)
 	{
+		memset (cmdstring, 0, 4096);
+		char *tmp = cmdstring;
+		sprintf (tmp, "rclient \\\\"); tmp += 10;
+
 		sprintf (tmp, "%s ", nodename); tmp += (strlen(nodename) + 1);
 		if (user)
 		{
@@ -159,7 +160,56 @@ int main (int argc, char *argv[])
 	}
 	else
 	{
-		fprintf (stderr, "detached mode not implemented yet\n");
+		memset (cmdstring, 0, 4096);
+		char *tmp = cmdstring;
+
+		/// must call, cscript remote.js remote_script_name.js machine_name.
+		char *yarppath = getenv("YARP_ROOT");
+		if (yarppath == NULL)
+		{
+			fprintf (stderr, "can't getenv YARP_ROOT, perhaps it is not defined\n");
+			return -1;
+		}
+
+		sprintf (tmp, "cscript //Nologo %s\\bin\\winnt\\remote.js %s\\bin\\winnt\\_launch.js %s\0", yarppath, yarppath, nodename);
+
+		char what_to_execute[1024];
+		memset (what_to_execute, 0, 1024);
+		sprintf (what_to_execute, "%s\0", argv[j]);
+		char where_to_execute[1024];
+		memset (where_to_execute, 0, 1024);
+		sprintf (where_to_execute, "\"\"");
+		char params[1024];
+		memset (params, 0, 1024);
+		tmp = params;
+		*tmp = '"'; tmp++;
+		for (int i = j + 1; i < argc; i++)
+		{
+			sprintf (tmp, " %s ", argv[i]); tmp += (strlen(argv[i]) + 1);
+		}
+		*tmp = '"'; tmp++;
+
+		/// the remote_script must be created on the fly and invoked appropriately to run 
+		///	the exec name.
+		char filename[512];
+		memset (filename, 0, 512);
+		sprintf (filename, "%s\\bin\\winnt\\_launch.js\0", yarppath);
+		FILE *fp = fopen (filename, "w");
+		assert (fp != NULL);
+
+		fprintf (fp, "%s", "var objArgs = WScript.Arguments;\n");
+		fprintf (fp, "%s%s%s", "var name = \"", what_to_execute, "\";\n");
+		fprintf (fp, "%s%s%s", "var path = ", where_to_execute, ";\n");
+		fprintf (fp, "%s%s%s", "var params = ", params, ";\n");
+		fprintf (fp, "%s%s", 
+			"var WshShell = WScript.CreateObject(\"WScript.Shell\");\n",
+			"WshShell.Run (path+name+params, 1, false);");
+
+		fclose (fp);
+
+		///printf ("%s\n", cmdstring);
+		system (cmdstring);
+
 		return -1;
 	}
 

@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.7 2003-06-11 16:40:00 gmetta Exp $
+$Id: install.txt,v 1.8 2003-06-12 09:51:17 babybot Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -52,6 +52,12 @@ What to do on each machine of the network
 	- For this you need your original CDs.
 	- Libraries for some of the stuff we're using are included under 
 		%YARP_ROOT%\hardware (lib/dll/.h files).
+
+7) install remote scripting host, it can be downloaded from:
+	http://msdn.microsoft.com/scripting
+	- use dcomcnfg to give the WSHRemote appropriate permissions
+	- change the user running remotely to "interactive user" - this is in dcomcnfg
+	- use the enable_remote_scripting.reg to enable remote scripting into the registry
 
 ----
 End of MACHINE specific configuration/install

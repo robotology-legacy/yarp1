@@ -1,0 +1,13 @@
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows Script Host\Settings]
+"DisplayLogo"="1"
+"ActiveDebugging"="1"
+"SilentTerminate"="0"
+"TrustPolicy"="0"
+"Enabled"="1"
+"IgnoreUserSettings"="0"
+"LogSecurityFailures"="1"
+"LogSecuritySuccesses"="0"
+"Remote"="1"
+

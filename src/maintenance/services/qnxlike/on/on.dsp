@@ -53,7 +53,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing...
-PostBuild_Cmds=copy .\Release\on.exe ..\..\..\..\..\bin\winnt\_on.exe
+PostBuild_Cmds=copy .\Release\on.exe ..\..\..\..\..\bin\winnt\_on.exe	copy remote.js ..\..\..\..\..\bin\winnt
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "on - Win32 Debug"
@@ -82,7 +82,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing...
-PostBuild_Cmds=copy .\Debug\on.exe ..\..\..\..\..\bin\winnt\_on.exe
+PostBuild_Cmds=copy .\Debug\on.exe ..\..\..\..\..\bin\winnt\_on.exe	copy remote.js ..\..\..\..\..\bin\winnt
 # End Special Build Tool
 
 !ENDIF 
@@ -103,5 +103,9 @@ SOURCE=.\main.cpp
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # End Group
+# Begin Source File
+
+SOURCE=.\remote.js
+# End Source File
 # End Target
 # End Project
