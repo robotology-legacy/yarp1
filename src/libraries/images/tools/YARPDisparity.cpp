@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.2 2003-11-21 13:59:20 babybot Exp $
+/// $Id: YARPDisparity.cpp,v 1.3 2003-11-21 17:53:02 babybot Exp $
 ///
 ///
 
@@ -251,6 +251,7 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
 								_shiftMap,
 								_corrFunct);
 
+	disparity = _shiftFunction[disparity];
 	return disparity;
 }
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.2 2003-11-21 13:59:19 babybot Exp $
+/// $Id: vergence.cpp,v 1.3 2003-11-21 17:53:02 babybot Exp $
 ///
 ///
 
@@ -93,6 +93,7 @@ YARPInputPortOf<YARPGenericImage> in_left;
 YARPInputPortOf<YARPGenericImage> in_right;
 
 YARPOutputPortOf<YARPGenericImage> out_img (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPOutputPortOf<YVector> out_disp (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
 const char *DEFAULT_NAME = "/vergence";
 
@@ -132,6 +133,8 @@ int main(int argc, char *argv[])
 
 	sprintf(buf, "%s/o:histo", name.c_str());
 	out_img.Register(buf, network_i.c_str());
+	sprintf(buf, "%s/o:disparity", name.c_str());
+	out_disp.Register(buf, network_o.c_str());
 
 	YARPImageOf<YarpPixelMono> inl;
 	YARPImageOf<YarpPixelMono> inr;
@@ -173,7 +176,8 @@ int main(int argc, char *argv[])
 		disparity.downSample (col_left, sub_left);
 		disparity.downSample (col_right, sub_right);
 		
-		int disparityval = disparity.computeDisparity (sub_left, sub_right);
+		YVector disparityval(1);
+		disparityval(1) = (double)disparity.computeDisparity (sub_left, sub_right);
 
 		out_img.Content().SetID (YARP_PIXEL_MONO);
 		out_img.Content().Resize (128, 64);
@@ -181,6 +185,9 @@ int main(int argc, char *argv[])
 
 		disparity.makeHistogram (out);
 		out_img.Write();
+
+		out_disp.Content() = disparityval;
+		out_disp.Write();
 	}
 
 	return 0;
