@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPFrameGrabberUtils.h,v 1.3 2003-12-10 09:17:15 beltran Exp $
+/// $Id: YARPFrameGrabberUtils.h,v 1.4 2003-12-17 09:55:04 beltran Exp $
 ///
 ///
 
@@ -82,8 +82,11 @@ enum FrameGrabberCmd
 	FCMDSetContrast = 8,
 	FCMDSetSatU = 9,
 	FCMDSetSatV = 10,
+	FCMDSetLNotch = 11,
+	FCMDSetLDec = 12,
+	FCMDSetCrush = 13,
 
-	FCMDNCmds = 11
+	FCMDNCmds = 14
 };
 
 #endif
