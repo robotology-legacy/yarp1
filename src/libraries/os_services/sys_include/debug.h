@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: debug.h,v 1.4 2003-04-23 08:44:28 natta Exp $
+/// $Id: debug.h,v 1.5 2003-06-04 12:03:13 beltran Exp $
 ///
 ///
 /// WARNING. this file name is looking for a name clash.
@@ -80,9 +80,7 @@ extern int __debug_level;
 
 #define YARP_DBG(x) if(DEBUG_LEVEL>=x) ACE_DEBUG
 
-#define YARP_DEBUG(string1, string2) \
-	do {ACE_OS::printf(string1),ACE_OS::printf string2;} while(0)
-#define YARP_NULL_DEBUG \
-	do {} while(0)
+#define YARP_DEBUG(string1, string2) do {ACE_OS::printf(string1),ACE_OS::printf string2;} while(0)
+#define YARP_NULL_DEBUG do {} while(0)
 
 #endif

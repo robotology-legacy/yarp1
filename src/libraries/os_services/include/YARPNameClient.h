@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.9 2003-05-23 08:24:02 gmetta Exp $
+/// $Id: YARPNameClient.h,v 1.10 2003-06-04 12:02:57 beltran Exp $
 ///
 ///
 
@@ -99,11 +99,9 @@
 
 #ifdef NAME_CLIENT_VERBOSE
 ///	#include <stdio.h>
-	#define NAME_CLIENT_DEBUG(string) \
-		do {ACE_OS::printf("NAME_CLIENT: "),ACE_OS::printf string;} while(0)
+	#define NAME_CLIENT_DEBUG(string) do {ACE_OS::printf("NAME_CLIENT: "),ACE_OS::printf string;} while(0)
 #else
-	#define NAME_CLIENT_DEBUG(string)\
-		do {} while(0)
+	#define NAME_CLIENT_DEBUG(string) do {} while(0)
 #endif
 
 #ifndef SIZE_BUF
