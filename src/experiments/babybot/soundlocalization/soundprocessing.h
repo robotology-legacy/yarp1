@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.11 2004-04-30 16:43:18 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.12 2004-05-04 09:15:32 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -194,8 +194,8 @@ public:
 	inline double GetCorrMax() { return corrMax;}
 	inline double * GetCrossCorrelationBuffer(int tag) 
 	{ 
-        if ( !tag ) return corrVect;     // Return correlation calculated in the time space
-        else return corrVectFreq; // Return correlation calculated in the frequency space
+        if ( !tag ) return corrVect; // Return correlation calculated in the time space
+        else return corrVectFreq;    // Return correlation calculated in the frequency space
 	}
 
 	inline int GetSize() { return numSamples;}
@@ -209,8 +209,8 @@ private:
 	int ComputeCrossCorrelation(double *,double *,double *,double *);
 	int ConjComplexMultiplication(double *,double *,double *,double *,double *,double *);
 	int ComplexMultiplication(double *, double *, double *, double *);
-	double squareMean(double * , double * , double, double);
 	int ComputeLevels();
+	double squareMean(double * , double * , double, double);
 	double scalarProduct(double *, double *, int);
 	double correlation(double *, double *, int);
 	void filter(double *, double *,double, double);
