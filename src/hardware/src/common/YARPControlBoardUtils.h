@@ -4,7 +4,7 @@
 //
 // feb 2003 -- by nat and pasa
 
-// $Id: YARPControlBoardUtils.h,v 1.5 2003-05-02 10:43:55 natta Exp $
+// $Id: YARPControlBoardUtils.h,v 1.6 2003-05-04 18:09:33 natta Exp $
 #include <conf/YARPConfig.h>
 
 #ifndef __YARP_CONTROL_BOARD_UTILS__
@@ -180,21 +180,5 @@ struct IOParameters
 	int port;
 	short value;
 };
-
-inline double angleToEncoder(double angle, double encParam, int zero, int sign)
-{
-	if (sign == 1)
-		return -(angle * encParam) / (2.0 * pi) + zero;
-	else
-		return angle * encParam / (2.0 * pi) + zero;
-}
-
-inline double encoderToAngle(double encoder, double encParam, int zero, int sign)
-{
-	if (sign == 1)
-		return (-encoder - zero) * 2.0 * pi / encParam;
-	else
-		return (encoder - zero) * 2.0 * pi / encParam;
-}
 
 #endif	//.h

@@ -1,7 +1,7 @@
 #ifndef __YARPGENERICCOMPONENTHH__
 #define __YARPGENERICCOMPONENTHH__
 
-#include "YARPMEIOnBabybotHead.h"
+#include <YARPControlBoardUtils.h> // required for LowLevelPID class
 #include <YARPSemaphore.h>
 
 #include <math.h>
@@ -185,7 +185,10 @@ public:
 
 	inline int nj(){ return _parameters._nj;}
 	int setGainsSmoothly(LowLevelPID *finalPIDs, int s = 150);
-	
+
+	inline double angleToEncoder(double angle, double encParam, int zero, int sign);
+	inline double encoderToAngle(double encoder, double encParam, int zero, int sign);
+
 public:
 	PARAMETERS _parameters;
 
@@ -281,6 +284,25 @@ int YARPGenericComponent<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *fin
 	delete [] shift;
 	delete [] currentPos; 
 	return -1;
+}
+template <class ADAPTER, class PARAMETERS>
+inline double YARPGenericComponent<ADAPTER, PARAMETERS>::
+angleToEncoder(double angle, double encParam, int zero, int sign)
+{
+	if (sign == 1)
+		return -(angle * encParam) / (2.0 * pi) + zero;
+	else
+		return angle * encParam / (2.0 * pi) + zero;
+}
+
+template <class ADAPTER, class PARAMETERS>
+inline double YARPGenericComponent<ADAPTER, PARAMETERS>::
+encoderToAngle(double encoder, double encParam, int zero, int sign)
+{
+	if (sign == 1)
+		return (-encoder - zero) * 2.0 * pi / encParam;
+	else
+		return (encoder - zero) * 2.0 * pi / encParam;
 }
 
 #endif // h

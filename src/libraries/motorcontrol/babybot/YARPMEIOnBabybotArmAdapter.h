@@ -1,7 +1,7 @@
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.6 2003-05-02 17:03:57 natta Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.7 2003-05-04 18:10:44 natta Exp $
 
 #include <ace/log_msg.h>
 #include <YarpMeiDeviceDriver.h>
@@ -42,7 +42,8 @@ namespace _BabybotArm
 	const int _signs[_nj] = {0, 0, 0, 0, 0, 0};
 	const double _encWheels[_nj] = {1000.0, 1000.0, 1000.0, 800.0, 800.0, 800.0};
 	const double _encoders[_nj] = {-46.72, 69.9733, -42.9867, 43.5111, 39.3846, 31.7692};
-	const double _fwdCouple[3] = {-9.8462, 1.0, -5.5999886532};
+	const double _fwdCouple[_nj] = {0.0, 0.0, 0.0, -9.8462, 1.0, -5.5999886532};
+	const double _invCouple[_nj] = {0.0, 0.0, 0.0, 1/_fwdCouple[3], 1/_fwdCouple[4], 1/_fwdCouple[5]};
 }; // namespace
 
 class YARPBabybotArmParameters
@@ -58,6 +59,8 @@ public:
 			_axis_map[i] = _BabybotArm::_axis_map[i];
 			_signs[i] = _BabybotArm::_signs[i];
 			_encoderToAngles[i] = _BabybotArm::_encoders[i]*_BabybotArm::_encWheels[i];
+			_fwdCouple[i] = _BabybotArm::_fwdCouple[i];
+			_invCouple[i] = _BabybotArm::_invCouple[i];
 		}
 	}
 
@@ -72,6 +75,8 @@ public:
 	double _signs[_BabybotArm::_nj];
 	int _axis_map[_BabybotArm::_nj];
 	double _encoderToAngles[_BabybotArm::_nj];
+	double _fwdCouple[_BabybotArm::_nj];
+	double _invCouple[_BabybotArm::_nj];
 	int _nj;
 };
 

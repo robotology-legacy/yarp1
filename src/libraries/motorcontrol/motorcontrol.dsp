@@ -53,7 +53,7 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo /out:".\lib\winnt\motorcontrol.lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy .\babybot\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include
+PostBuild_Cmds=copy .\babybot\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy .\lib\winnt\motorcontrol.lib ..\..\..\lib\winnt
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "motorcontrol - Win32 Debug"
@@ -82,7 +82,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing lib
-PostBuild_Cmds=copy .\common\*.h ..\..\..\include	copy .\babybot\*.h ..\..\..\include
+PostBuild_Cmds=copy .\common\*.h ..\..\..\include	copy .\babybot\*.h ..\..\..\include	copy .\lib\winnt\motorcontroldb.lib ..\..\..\lib\winnt
 # End Special Build Tool
 
 !ENDIF 
@@ -96,7 +96,7 @@ PostBuild_Cmds=copy .\common\*.h ..\..\..\include	copy .\babybot\*.h ..\..\..\in
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\common\dummy.cpp
+SOURCE=.\babybot\YARPBabybotArm.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
