@@ -44,11 +44,22 @@ extern "C" {
 /*
  * Those are the default values for BRIGHT and CONTRAST (for babybot using fgadjuster)
  */
-#define BRIGHT_DEFAULT 81
+#define BRIGHT_DEFAULT 0
 #define HUE_DEFAULT 0
-#define CONTRAST_DEFAULT 140
+#define CONTRAST_DEFAULT 216
 #define SATV_DEFAULT 180
 #define SATU_DEFAULT 254 
+#define LNOTCH 1
+#define LDEC   0
+#define CRUSH  0
+#define PEAK   0
+#define CAGC   0
+#define CKILL  0
+#define RANGE  1
+#define YSLEEP 0
+#define CSLEEP 0
+#define GAMMA  0
+#define DITH_FRAME  0
 
 	/*Globar variables*/
 	static int bttv_num;
@@ -1314,7 +1325,7 @@ extern "C" {
 		bt848_set_size(btv);
 
 		//----------------------------------------------------------------------
-		//	Insert default bright and contrast values
+		//	Insert default bright and contrast values. Also add adequate filters
 		//	This is to aproximate picolo (windows) driver performance  
 		//----------------------------------------------------------------------
 		bt848_bright(BRIGHT_DEFAULT);
@@ -1322,6 +1333,19 @@ extern "C" {
 		bt848_contrast(CONTRAST_DEFAULT);
 		bt848_sat_v(SATV_DEFAULT);
 		bt848_sat_u(SATU_DEFAULT);
+		bt848_set_lnotch(LNOTCH);
+		bt848_set_ldec(LDEC);
+		bt848_set_peak(PEAK);
+		bt848_set_cagc(CAGC);
+		bt848_set_ckill(CKILL);
+		bt848_set_range(RANGE);
+		bt848_set_ysleep(YSLEEP);
+		bt848_set_csleep(CSLEEP);
+		bt848_set_crush(CRUSH);
+		bt848_set_gamma(GAMMA);
+		bt848_set_dithframe(DITH_FRAME);
+
+
 
 		//btwrite(BT848_ADC_RESERVED|BT848_ADC_CRUSH, BT848_ADC);
 		btwrite(BT848_ADC_RESERVED, BT848_ADC);
