@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.1 2003-05-22 10:24:42 gmetta Exp $
+$Id: install.txt,v 1.2 2003-05-22 10:37:29 gmetta Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -88,10 +88,20 @@ REQUIRES:
 	images
 		- NOT DEFINED YET!
 
+	===
+
+	utils
+		- dsw in: %YARP_ROOT%\src\libraries\utils\utils.dsw
+
 	hardware
-		- dsw project in:
-		
+		- dsw project in: %YARP_ROOT%\src\hardware\src\alldrivers.dsw
+			it does the install but...
+		- run then install_orig_dd.bat that copies the libraries+includes 
+			in the correct directories.
+
 	motorcontrol
+		- dsw in: %YARP_ROOT%\src\libraries\motorcontrol\motorcontrol.dsw
+			compile and install automatically.
 
 
 3) What to include/link for building an application is YARP.
