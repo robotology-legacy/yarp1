@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.13 2003-08-29 10:35:10 babybot Exp $
+/// $Id: main.cpp,v 1.14 2004-02-04 16:46:58 babybot Exp $
 ///
 ///
 
@@ -320,7 +320,7 @@ void interactive(YARPNameClient& nc)
 			cin >> ip;
 			cin >> netId;
 			nc.query_nic(ip, netId, outNic, outIp);
-			ACE_OS::printf("Reply: %s(%s)", outNic, outIp);
+			ACE_OS::printf("Reply: %s(%s)", outNic.c_str(), outIp.c_str());
 			cout << endl;
 		}
 		print_menu();
