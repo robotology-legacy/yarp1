@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.9 2003-07-10 20:53:56 gmetta Exp $
+/// $Id: main.cpp,v 1.10 2003-07-16 13:25:40 babybot Exp $
 ///
 ///
 
@@ -218,7 +218,7 @@ void interactive(YARPNameClient& nc)
 			ACE_INET_Addr addr;
 			ACE_INET_Addr reg_addr;
 
-			reg_addr.set((int)0, str2.c_str());
+			reg_addr.set((unsigned short)0, str2.c_str());
 			
 			if (nc.check_in(str1, reg_addr, addr) != 0)
 				cout << "Error connecting to the server\n";
