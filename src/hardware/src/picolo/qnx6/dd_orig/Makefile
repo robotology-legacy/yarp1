@@ -8,6 +8,7 @@ SRC2=blit.c
 OBJS=bttvx.o
 OBJS2=blit.o
 DIST=bttvx_0.2.2
+OS = qnx6
 
 all: $(OBJS) bttvx blit
 

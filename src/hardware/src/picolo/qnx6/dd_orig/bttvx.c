@@ -683,7 +683,7 @@ attach_bt848(int device_id)
      * graphics adapter.
      */
     info.VendorId = 0x109e;
-    //info.DeviceId = 0x36e;
+    
 	info.DeviceId = 0x350;
 
 	hdl = pci_attach_device(0,
@@ -692,8 +692,16 @@ attach_bt848(int device_id)
 							&info); 
 
 	if (hdl == NULL)
-		return 0;
-
+	{
+		//Second chance
+		info.DeviceId = 0x36e;
+		hdl = pci_attach_device(0,
+							PCI_SHARE|PCI_INIT_ALL|PCI_SEARCH_VEND|PCI_SEARCH_VENDEV, 
+							device_id, 
+							&info); 
+		if (hdl == NULL)
+			return 0;
+	}
 	/* Enable bus mastering*/
 	pci_read_config32(info.BusNumber,
 					 info.DevFunc,
@@ -1107,7 +1115,7 @@ init_bt848(struct bttv * btv, int video_format)
  *
  *************************************************************************/
 
-int init_bttvx(int argc1, int argc2)
+int init_bttvx(int argc1, int argc2) //Video format, device id
 {
 	int i; 
 	/* declare variables we'll be using */
@@ -1184,7 +1192,7 @@ int init_bttvx(int argc1, int argc2)
 	if ( i == 0)
 	{
 		printf("bttvx: sorry I didn't find the card\n");
-		return(0);
+		exit(0);
 	}
 
 	i = init_bt848(&bttvs[0],video_format); 
