@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.12 2003-08-10 07:08:40 gmetta Exp $
+/// $Id: YARPThread.cpp,v 1.13 2003-08-10 08:39:59 babybot Exp $
 ///
 ///
 
@@ -207,7 +207,7 @@ void YARPBareThread::End(int dontkill)
 	sema.Wait();
 
 	ACE_ASSERT (shutdown_state == YT_None);
-	ACE_ASSERT (running == 1);
+	ACE_ASSERT (running == true || shutdown_state == YT_None);
 
 	running = false;
 	shutdown_state = YT_End;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.15 2003-08-10 07:08:40 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.16 2003-08-10 08:39:59 babybot Exp $
 ///
 ///
 
@@ -357,6 +357,7 @@ public:
 			if (r < 0)
 			{
 				/// not much else I can do anyway.
+				YARPThread::CleanState();
 				YARPThread::End(0);
 				return;
 			}
