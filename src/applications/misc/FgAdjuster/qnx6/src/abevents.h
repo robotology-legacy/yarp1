@@ -15,6 +15,14 @@ static const ApEventLink_t AbLinks_base[] = {
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "togglebuttonLNotch", 2009, tb_lnotch_activate, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "togglebuttonLDec", 2009, tb_ldec_activate, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "togglebuttonCrush", 2009, tb_crush_activate, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "togglebuttonPeak", 2009, tb_peak_activate, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "togglebuttonCagc", 2009, tb_cagc_activate, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "togglebuttonCkill", 2009, tb_ckill_activate, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "togglebuttonCrushRange", 2009, tb_range_activate, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "togglebuttonYsleep", 2009, tb_ysleep_activate, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "togglebuttonCsleep", 2009, tb_csleep_activate, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "togglebuttonGamma", 2009, tb_gamma_activate, 0, 0, 0, 0, },
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "togglebuttonDithFrame", 2009, tb_dithframe_activate, 0, 0, 0, 0, },
 	{ 0 }
 	};
 

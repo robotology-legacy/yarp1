@@ -3,7 +3,7 @@
 #include "abdefine.h"
 
 extern ApWindowLink_t base;
-extern ApWidget_t AbWidgets[ 14 ];
+extern ApWidget_t AbWidgets[ 22 ];
 
 
 #ifdef __cplusplus
@@ -19,6 +19,14 @@ int base_open( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
 int tb_lnotch_activate( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
 int tb_ldec_activate( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
 int tb_crush_activate( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int tb_peak_activate( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int tb_cagc_activate( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int tb_ckill_activate( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int tb_range_activate( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int tb_ysleep_activate( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int tb_csleep_activate( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int tb_gamma_activate( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
+int tb_dithframe_activate( PtWidget_t *widget, ApInfo_t *data, PtCallbackInfo_t *cbinfo );
 #ifdef __cplusplus
 }
 #endif

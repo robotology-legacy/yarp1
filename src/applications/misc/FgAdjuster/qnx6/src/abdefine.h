@@ -29,6 +29,22 @@ extern const int ABN_togglebuttonLDec;
 #define ABW_togglebuttonLDec                 AbGetABW( ABN_togglebuttonLDec )
 extern const int ABN_togglebuttonCrush;
 #define ABW_togglebuttonCrush                AbGetABW( ABN_togglebuttonCrush )
+extern const int ABN_togglebuttonPeak;
+#define ABW_togglebuttonPeak                 AbGetABW( ABN_togglebuttonPeak )
+extern const int ABN_togglebuttonCagc;
+#define ABW_togglebuttonCagc                 AbGetABW( ABN_togglebuttonCagc )
+extern const int ABN_togglebuttonCkill;
+#define ABW_togglebuttonCkill                AbGetABW( ABN_togglebuttonCkill )
+extern const int ABN_togglebuttonCrushRange;
+#define ABW_togglebuttonCrushRange           AbGetABW( ABN_togglebuttonCrushRange )
+extern const int ABN_togglebuttonYsleep;
+#define ABW_togglebuttonYsleep               AbGetABW( ABN_togglebuttonYsleep )
+extern const int ABN_togglebuttonCsleep;
+#define ABW_togglebuttonCsleep               AbGetABW( ABN_togglebuttonCsleep )
+extern const int ABN_togglebuttonGamma;
+#define ABW_togglebuttonGamma                AbGetABW( ABN_togglebuttonGamma )
+extern const int ABN_togglebuttonDithFrame;
+#define ABW_togglebuttonDithFrame            AbGetABW( ABN_togglebuttonDithFrame )
 
 #define AbGetABW( n ) ( AbWidgets[ n ].wgt )
 

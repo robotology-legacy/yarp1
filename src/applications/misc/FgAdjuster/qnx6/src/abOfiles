@@ -1,1 +1,1 @@
-ABOBJ = abmain.o base_open.o init.o slider_bright_move.o slider_contrast_move.o slider_hue_move.o slider_satu_move.o slider_satv_mode.o tb_crush_activate.o tb_ldec_activate.o tb_lnotch_activate.o 
+ABOBJ = abmain.o base_open.o init.o slider_bright_move.o slider_contrast_move.o slider_hue_move.o slider_satu_move.o slider_satv_mode.o tb_cagc_activate.o tb_ckill_activate.o tb_crush_activate.o tb_csleep_activate.o tb_dithframe_activate.o tb_gamma_activate.o tb_ldec_activate.o tb_lnotch_activate.o tb_peak_activate.o tb_range_activate.o tb_ysleep_activate.o 

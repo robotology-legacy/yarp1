@@ -15,4 +15,12 @@ const int ABN_text_satv = 10;
 const int ABN_togglebuttonLNotch = 11;
 const int ABN_togglebuttonLDec = 12;
 const int ABN_togglebuttonCrush = 13;
+const int ABN_togglebuttonPeak = 14;
+const int ABN_togglebuttonCagc = 15;
+const int ABN_togglebuttonCkill = 16;
+const int ABN_togglebuttonCrushRange = 17;
+const int ABN_togglebuttonYsleep = 18;
+const int ABN_togglebuttonCsleep = 19;
+const int ABN_togglebuttonGamma = 20;
+const int ABN_togglebuttonDithFrame = 21;
 
