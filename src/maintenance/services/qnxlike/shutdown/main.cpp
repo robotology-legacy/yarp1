@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2003-06-11 16:19:46 babybot Exp $
+/// $Id: main.cpp,v 1.2 2003-06-11 16:32:49 babybot Exp $
 ///
 ///
 
@@ -80,7 +80,7 @@ int main (int argc, char *argv[])
 {
 	char cmdstring[4096];
 	
-	if (argc < 4)
+	if (argc != 3)
 	{
 		usage (argv[0]);
 		return -1;
@@ -106,7 +106,7 @@ int main (int argc, char *argv[])
 
 	memset (cmdstring, 0, 4096);
 	char *tmp = cmdstring;
-	sprintf (tmp, "_shutdown /R /C \\\\"); tmp += 18;
+	sprintf (tmp, "_shutdown /T:01 /R /C \\\\"); tmp += 24;
 	sprintf (tmp, "%s\0", nodename); tmp += (strlen(nodename));
 
 	system (cmdstring);
