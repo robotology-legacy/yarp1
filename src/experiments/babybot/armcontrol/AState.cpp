@@ -229,6 +229,7 @@ void ASRestingRaiseGains:: handle(ArmThread *t)
 		// raise gains smoothly
 		ARM_STATE_DEBUG(("PID are active, g is activated !\n"));
 		t->_restingInhibited = false;
+		t->directCommandMode();
 		changeState(t, t->_init_state);
 		t->_arm_status._pidStatus = _armThread::high;
 		t->writeAndSend(YBVArmRestDone);

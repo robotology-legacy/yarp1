@@ -19,8 +19,12 @@ char menu();
 
 using namespace std;
 
+extern __debug_level;
+
 int main(int argc, char* argv[])
 {
+	//__debug_level = 100;
+
 	YARPScheduler::setHighResScheduling();
 
 	cout << "Starting arm control...\n";
@@ -57,7 +61,7 @@ int main(int argc, char* argv[])
 	ABOutputCommand outputCmd;
 	ABOutputShakeCmd outputShk;
 	ABInputCommand inputCmd(YBVArmNewCmd);
-	ABInputCommand inputShk(YBVArmShake);
+	ABInputShakeCommand inputShk(YBVArmShake);
 	ABSimpleInput inputRest(YBVArmRest);
 	ABSimpleInput checkRestDone(YBVArmRestDone);
 
@@ -75,6 +79,8 @@ int main(int argc, char* argv[])
 	
 	// resting cycle
 	_arm.add(&inputRest, &waitMotion, &waitRest);
+	_arm.add(&inputRest, &waitIdle, &waitRest);
+
 	_arm.add(&checkRestDone, &waitRest, &waitIdle);
 	////////////////////
 

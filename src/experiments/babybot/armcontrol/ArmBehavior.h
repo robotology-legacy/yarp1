@@ -73,6 +73,18 @@ public:
 	int key;
 };
 
+class ABInputShakeCommand: public ArmBehaviorBaseInput
+{
+public:
+	ABInputShakeCommand(int k)
+	{
+		key = k;
+	}
+	bool input(YARPBottle *in, ArmBehaviorData *d);
+	
+	int key;
+};
+
 class ABSimpleInput: public ArmBehaviorBaseInput
 {
 public:

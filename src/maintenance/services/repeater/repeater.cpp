@@ -16,7 +16,7 @@ typedef YARPRepeater<YARPBottle> Repeater;
 
 int main(int argc, char* argv[])
 {
-	///__debug_level = 80;
+	// __debug_level = 80;
 
 	YARPString oname;
 	YARPString iname;
@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	}
 	oname = name+"o";
 	iname = name+"i";
-	Repeater rep(iname, oname, YARP_TCP, YARP_MCAST);
+	Repeater rep(iname, oname, YARP_UDP, YARP_MCAST);
 	rep.Begin();
 	
 	cout << "e to exit";

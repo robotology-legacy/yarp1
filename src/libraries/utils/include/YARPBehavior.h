@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.16 2003-09-19 14:24:20 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.17 2003-09-23 17:51:42 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -79,7 +79,7 @@
 
 #ifdef YARP_BEHAVIOR_VERBOSE
 #define YARP_BEHAVIOR_DEBUG(string) YARP_DEBUG("YARP_BEHAVIOR :", string)
-#else YARP_BEHAVIOR_DEBUG(string) YARP_NULL_DEBUG
+#else #define YARP_BEHAVIOR_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 const int __exitCode = -1;
@@ -88,7 +88,7 @@ class YARPBehaviorSharedData
 {
 	public:
 		YARPBehaviorSharedData(int ID, const YARPString &portName):
-		  _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
+		  _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 		  {	
 			  _data.setID(ID);
 			  _outPort.Register(portName.c_str());
@@ -96,9 +96,11 @@ class YARPBehaviorSharedData
 
 		  void send()
 		  {
-			  printf("Sending data\n");
+			  // printf("YARB_BEHAVIOR: sending ");
+			  // _data.display();
 			  _outPort.Content() = _data;
-			  _outPort.Write();
+			  // _outPort.Content().display();
+			  _outPort.Write(1);
 			  _data.reset();
 		  }
 

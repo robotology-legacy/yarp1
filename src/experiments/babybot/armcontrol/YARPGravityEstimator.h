@@ -7,10 +7,11 @@
 #include <YARPErrorCodes.h>
 #include "debug.h"
 
-#define GRAVITY_VERBOSE
+// #define GRAVITY_VERBOSE
 #ifdef GRAVITY_VERBOSE
-#define GRAVITY_DEBUG(string) YARP_DEBUG("GRAVITY_DEBUG:", string)
-#else  GRAVITY_DEBUG(string) YARP_NULL_DEBUG
+	#define GRAVITY_DEBUG(string) YARP_DEBUG("GRAVITY_DEBUG:", string)
+#else  
+	#define GRAVITY_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 #include "YARPRecursiveLS.h"

@@ -67,7 +67,7 @@ public:
 		// start shake sequence
 		_shaking = true;
 		ASShake *tmp = ASShake ::instance();
-		tmp->n = 16;
+		tmp->n = 8;
 		YVector pos;
 		YVector first;
 		YVector second;
@@ -206,6 +206,7 @@ public: //later: make it private
 	YVector _speed;
 	YVector _acc;
 
+	YVector _shakeCmd; //this is used only by AB
 };
 
 #endif //.h

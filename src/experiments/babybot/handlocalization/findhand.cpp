@@ -135,16 +135,20 @@ void FindHand::_segmentation()
 	char detected[128];
 	char blob[128];
 	char segmented[128];
+	char complete[128];
 	_nSegmentations++;
 	sprintf(detected, "%s%d.ppm", "y:\\zgarbage\\detected",_nSegmentations);
 	sprintf(blob, "%s%d.ppm", "y:\\zgarbage\\blob", _nSegmentations);
 	sprintf(segmented, "%s%d.ppm", "y:\\zgarbage\\segmented", _nSegmentations);
+	sprintf(complete, "%s%d.ppm", "y:\\zgarbage\\complete", _nSegmentations);
 	
 	_blobDetector.filterLp(_detected);
 	YARPImageFile::Write(detected, _detected);
 	YARPImageOf<YarpPixelMono> &tmp = _blobDetector.getSegmented();
 	YARPImageFile::Write(blob, tmp);
 	
+	YARPImageFile::Write(complete, _actualLp);
+
 	int rho;
 	int theta;
 	unsigned char *tmpLp;
@@ -163,9 +167,9 @@ void FindHand::_segmentation()
 	}
 
 	// fit a circle in to the segmented region
-	int r0, t0, R;
-	_fit.fitCircle(tmp, &t0,  &r0, &R);
-	_fit.plotCircle(t0, r0, R, _actualLp);
+	// int r0, t0, R;
+	// _fit.fitCircle(tmp, &t0,  &r0, &R);
+	// _fit.plotCircle(t0, r0, R, _actualLp);
 	
 	YARPImageFile::Write(segmented, _actualLp);
 }

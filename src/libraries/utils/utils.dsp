@@ -48,10 +48,11 @@ LINK32=link.exe -lib
 # ADD RSC /l 0x410 /d "NDEBUG"
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
-# ADD BSC32 /nologo
+# SUBTRACT BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /out:".\lib\winnt\utils.lib"
+# SUBTRACT LIB32 /nologo
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing lib

@@ -123,6 +123,22 @@ public:
 
 };
 
+class RBSimpleOutput: public RndBehaviorBaseOutput
+{
+public:
+	RBSimpleOutput(int k)
+	{
+		_key = k;
+	}
+
+	void output(RndSharedData *d)
+	{
+		d->writeAndSend(_key);
+	}
+
+	int _key;
+};
+
 class RBWaitIdle: public RndBehaviorStateBase
 {
 public:
@@ -173,4 +189,22 @@ public:
 	YARPString message;
 	YVector command;
 };
+
+
+class RBWaitDeltaT: public RndBehaviorStateBase
+{
+public:
+	RBWaitDeltaT(double time)
+	{
+		_deltaT = time;
+	}
+
+	void handle(RndSharedData *d)
+	{
+		YARPTime::DelayInSeconds(_deltaT);
+	}
+
+	double _deltaT;
+};
+
 #endif

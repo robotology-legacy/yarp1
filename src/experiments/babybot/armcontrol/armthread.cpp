@@ -39,6 +39,11 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	_acc = _acc*(degToRad);
 	//////////////
 
+	_cmd.Resize(6);
+	_shakeCmd.Resize(6);
+	_shakeCmd = 0.0;
+	_cmd = 0.0;
+
 	/////////// Resting states
 	YVector tmp1,tmp2;
 	tmp1.Resize(_nj);

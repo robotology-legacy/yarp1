@@ -20,7 +20,7 @@ class HLDoMotion: public HLBehaviorStateBase
 public:
 	void handle(FindHand *d)
 	{
-		cout << "Computing motion\n";
+		printf("Computing motion\n");
 	}
 };
 
@@ -29,7 +29,7 @@ class HLFind: public HLBehaviorStateBase
 public:
 	void handle(FindHand *d)
 	{
-		cout << "OK\n";
+		printf("End detection sequence\n");
 	}
 };
 

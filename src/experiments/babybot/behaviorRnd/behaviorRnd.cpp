@@ -3,9 +3,9 @@
 
 #include "rndBehavior.h"
 
-const double __wrist[] = {0,0,0,7*degToRad,0,0};
-const double __forearm[] = {0,0,7*degToRad,0,0,0};
-const double __arm[] = {0,7*degToRad,0,0,0,0};
+const double __wrist[] = {0,6*degToRad, 0, 0, 0, 0};
+const double __forearm[] = {0,0,15*degToRad,0,0,0};
+const double __arm[] = {0,6*degToRad,0,0,0,0};
 
 int main(int argc, char* argv[])
 {
@@ -19,6 +19,8 @@ int main(int argc, char* argv[])
 	RBInitShake initShakeArm(YVector(6, __arm), "arm");
 
 	RBWaitIdle waitIdle;
+	RBWaitDeltaT waitDeltaT1(2);
+	RBWaitDeltaT waitDeltaT2(2);
 	RBWaitMotion waitMotion("waiting on arm random motion");
 	RBWaitMotion waitShakeWrist("waiting on wrist shake");
 	RBWaitMotion waitShakeForearm("waiting on forearm shake");
@@ -32,22 +34,30 @@ int main(int argc, char* argv[])
 	RBSimpleInput stop(YBVArmRndStop);
 	RBSimpleInput rest(YBVArmRest);
 	RBSimpleInput restDone(YBVArmRestDone);
+	RBSimpleOutput inhibitRest(YBVArmInhibitResting);
 	///////////////////////////////////////
 
 	// arm random movement
 	_rnd.setInitialState(&waitIdle);
 	_rnd.add(&start, &waitIdle, &initMotion);
 	_rnd.add(NULL, &initMotion, &waitMotion);
-	_rnd.add(&motionDone, &waitMotion, &initShakeWrist);
+	_rnd.add(&motionDone, &waitMotion, &initShakeWrist, &inhibitRest);
 	_rnd.add(&rest, &waitMotion, &waitRest);
 
 	// shake sequences
+	// wrist only
 	_rnd.add(NULL, &initShakeWrist, &waitShakeWrist);
-	_rnd.add(&motionDone, &waitShakeWrist, &initShakeForearm);
+	_rnd.add(&motionDone, &waitShakeWrist, &initMotion, &inhibitRest);
+
+	/* other joints
+	_rnd.add(&motionDone, &waitShakeWrist, &waitDeltaT1);
+	_rnd.add(NULL, &waitDeltaT1, &initShakeForearm);
 	_rnd.add(NULL, &initShakeForearm, &waitShakeForearm);
-	_rnd.add(&motionDone, &waitShakeForearm, &initShakeArm);
+	_rnd.add(&motionDone, &waitShakeForearm, &waitDeltaT2);
+	_rnd.add(NULL, &waitDeltaT2, &initShakeArm);
 	_rnd.add(NULL, &initShakeArm, &waitShakeArm);
-	_rnd.add(&motionDone, &waitShakeArm, &initMotion);
+	_rnd.add(&motionDone, &waitShakeArm, &initMotion, &inhibitRest);
+	*/
 	
 	// rest
 	_rnd.add(&rest, &waitShakeWrist, &waitRest);

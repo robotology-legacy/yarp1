@@ -78,6 +78,14 @@ int main(int argc, char* argv[])
 		else if (c == "shakearm")
 		{
 			tmp.writeVocab(YBVArmShake);
+			YVector cmd;
+			cmd.Resize(6);
+			for (int i = 0; i < 6; i++)
+			{
+				cin >> cmd(i+1);
+				cmd(i+1) = cmd(i+1)*degToRad;
+			}
+			tmp.writeYVector(cmd);
 			send = true;
 		}
 		else if (c == "resethand")
