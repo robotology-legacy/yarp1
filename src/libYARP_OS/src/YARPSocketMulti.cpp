@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.13 2004-08-02 17:19:49 eshuy Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.14 2004-08-04 15:38:15 eshuy Exp $
 ///
 ///
 
@@ -1880,7 +1880,7 @@ void _SocketThreadListMulti::addSocket (void)
 
 		if (ra < 0)
 		{
-			ACE_DEBUG ((LM_DEBUG, "-------->>>>> acceptor_socket got garbage, trying again\n"));
+			ACE_DEBUG ((LM_ERROR, "-------->>>>> acceptor_socket got garbage, trying again\n"));
 			YARPTime::DelayInSeconds(1);
 		}
 
@@ -1891,7 +1891,7 @@ void _SocketThreadListMulti::addSocket (void)
 
 		if (ra <= 0)
 		{
-			ACE_DEBUG ((LM_DEBUG, "---- something weird happened while receiving header, trying again\n"));
+			ACE_DEBUG ((LM_ERROR, "---- something weird happened while receiving header, trying again\n"));
 			ra = -1;
 		}
 	}
@@ -1939,7 +1939,7 @@ void _SocketThreadListMulti::addSocket (void)
 			_printList (_list, "UDP");
 
 			/// failed connection, for any reason (likely too many connections).
-			ACE_DEBUG ((LM_DEBUG, "777777 can't get a port, too many connections\n"));
+			ACE_DEBUG ((LM_ERROR, "*** error, can't get a port, too many connections\n"));
 			hdr.SetBad ();
 			stream->send_n (&hdr, sizeof(hdr), 0);
 		}
@@ -2139,7 +2139,7 @@ void _SocketThreadListMulti::addSocket (void)
 			_printList (_list, "SHMEM");
 
 			/// failed connection, for any reason (likely too many connections).
-			ACE_DEBUG ((LM_DEBUG, "777777 can't get a port, too many connections\n"));
+			ACE_DEBUG ((LM_ERROR, "*** error, can't get a port, too many connections\n"));
 			hdr.SetBad ();
 			stream->send_n (&hdr, sizeof(hdr), 0);
 		}
@@ -2230,7 +2230,7 @@ void _SocketThreadListMulti::addSocket (void)
 			_printList (_list, "TCP");
 
 			/// failed connection, for any reason (likely too many connections).
-			ACE_DEBUG ((LM_DEBUG, "777777 can't get a port, too many connections\n"));
+			ACE_DEBUG ((LM_ERROR, "*** error, can't get a port, too many connections\n"));
 			hdr.SetBad ();
 			stream->send_n (&hdr, sizeof(hdr), 0);
 			stream->close ();
@@ -2837,7 +2837,7 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 	r = stream.recv_n (&hdr, sizeof(hdr), 0, &timeout);
 	if (r < 0)
 	{
-		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
+		ACE_DEBUG ((LM_ERROR, "*** error, cannot handshake with remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
 		stream.close ();
 		return YARP_FAIL;
 	}
@@ -2846,7 +2846,7 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 	if (port_number == -1)
 	{
 		/// there might be a real -1 port number -> 65535.
-		ACE_DEBUG ((LM_DEBUG, "got garbage back from remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
+		ACE_DEBUG ((LM_ERROR, "*** error, got garbage back from remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 		stream.close ();
 		return YARP_FAIL;
 	}

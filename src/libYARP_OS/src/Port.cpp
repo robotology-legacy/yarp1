@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.15 2004-08-04 15:23:55 eshuy Exp $
+/// $Id: Port.cpp,v 1.16 2004-08-04 15:38:05 eshuy Exp $
 ///
 ///
 
@@ -1664,6 +1664,7 @@ int Port::Say(const char *buf)
 /// this commands the port to terminate gracefully.
 int Port::SaySelfEnd(void)
 {
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 	int result = YARP_FAIL;
 	if (self_id == NULL && name.c_str()[0] != '\0')
 	{

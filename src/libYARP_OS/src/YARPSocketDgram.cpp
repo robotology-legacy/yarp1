@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.4 2004-08-02 12:31:55 eshuy Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.5 2004-08-04 15:38:15 eshuy Exp $
 ///
 ///
 
@@ -372,7 +372,7 @@ int YARPOutputSocketDgram::Connect (const YARPUniqueNameID& name)
 	{
 		/// there might be a real -1 port number -> 65535.
 		stream.close ();
-		ACE_DEBUG ((LM_DEBUG, "got garbage back from remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
+		ACE_DEBUG ((LM_ERROR, "*** error, got garbage back from remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 		return YARP_FAIL;
 	}
 
