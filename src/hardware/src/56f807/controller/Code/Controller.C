@@ -209,7 +209,7 @@ long step_velocity (byte jj)
  */
 byte writeToFlash (void)
 {
-	dword ptr = FLASH_START_ADDR;
+	dword ptr = FLASH_END_ADDR;
 	byte i, err;
 	word tmp;
 	bool gerr = false;
@@ -218,24 +218,34 @@ byte writeToFlash (void)
 	{
 		err = IFsh1_SetWordFlash(ptr, _kp[i]);
 		gerr |= (err != ERR_OK);
-		ptr += 2;
+		ADP(ptr,2);
 		err = IFsh1_SetWordFlash(ptr, _kd[i]);
 		gerr |= (err != ERR_OK);
-		ptr += 2;	
+		ADP(ptr,2);
 //		err = IFsh1_SetWordFlash(ptr, _ki[i]);
 		err = IFsh1_SetWordFlash(ptr, 0);
 		gerr |= (err != ERR_OK);
-		ptr += 2;	
+		ADP(ptr,2);
 		err = IFsh1_SetWordFlash(ptr, _ko[i]);
 		gerr |= (err != ERR_OK);
-		ptr += 2;	
+		ADP(ptr,2);
 		err = IFsh1_SetWordFlash(ptr, _kr[i]);
 		gerr |= (err != ERR_OK);
-		ptr += 2;	
+		ADP(ptr,2);
 //		err = IFsh1_SetWordFlash(ptr, _integral_limit[i]);
 		err = IFsh1_SetWordFlash(ptr, 0);
 		gerr |= (err != ERR_OK);
-		ptr += 2;
+		ADP(ptr,2);
+		err = IFsh1_SetWordFlash(ptr, _pid_limit[i]);
+		gerr |= (err != ERR_OK);
+		ADP(ptr,2);
+		
+		err = IFsh1_SetLongFlash(ptr, _min_position[i]);
+		gerr |= (err != ERR_OK);
+		ADP(ptr,4);
+		err = IFsh1_SetLongFlash(ptr, _max_position[i]);
+		gerr |= (err != ERR_OK);
+		ADP(ptr,4);
 	}
 
 	tmp = BYTE_W(_board_ID, 0);
@@ -251,24 +261,31 @@ byte writeToFlash (void)
 
 byte readFromFlash (void)
 {
-	dword ptr = FLASH_START_ADDR;
+	dword ptr = FLASH_END_ADDR;
 	word tmp;
 	int i;
 
 	for (i = 0; i < JN; i++)
 	{
 		IFsh1_GetWordFlash(ptr, (word *)(_kp+i));
-		ptr +=2;
+		ADP(ptr,2);
 		IFsh1_GetWordFlash(ptr, (word *)(_kd+i));
-		ptr +=2;
+		ADP(ptr,2);
 		IFsh1_GetWordFlash(ptr, (word *)(_ki+i));
-		ptr +=2;
+		ADP(ptr,2);
 		IFsh1_GetWordFlash(ptr, (word *)(_ko+i));
-		ptr +=2;
+		ADP(ptr,2);
 		IFsh1_GetWordFlash(ptr, (word *)(_kr+i));
-		ptr +=2;
+		ADP(ptr,2);
 		IFsh1_GetWordFlash(ptr, (word *)(_integral_limit+i));
-		ptr +=2;
+		ADP(ptr,2);
+		IFsh1_GetWordFlash(ptr, (word *)(_pid_limit+i));
+		ADP(ptr,2);
+		
+		IFsh1_GetLongFlash(ptr, (dword *)(_min_position+i));
+		ADP(ptr,4);
+		IFsh1_GetLongFlash(ptr, (dword *)(_max_position+i));
+		ADP(ptr,4);
 	}
 
 	IFsh1_GetWordFlash(ptr, &tmp);
@@ -411,7 +428,7 @@ void main(void)
 	QD2_InitPosition ();
 
 	/* reads the PID parameters from flash memory */
-	//readFromFlash ();
+	readFromFlash ();
 	
 	/* reset encoders, LATER: should do something more than this */
 	calibrate(0);

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.9 2004-05-31 17:38:12 babybot Exp $
+/// $Id: Controller.H,v 1.10 2004-06-05 12:45:55 babybot Exp $
 ///
 ///
 
@@ -61,6 +61,8 @@
 #define DEFAULT_MAX_VELOCITY 0x7fff
 
 #define FLASH_START_ADDR 0x2000
+#define FLASH_END_ADDR 0x3ffc		/* leaves an empty word at end */
+#define ADP(x,amount) x-=amount
 
 #ifndef __ONLY_DEF
 /* deals with the endianism - byte 4 is the MSB on the Pentium */
