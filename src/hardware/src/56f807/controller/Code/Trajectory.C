@@ -82,6 +82,12 @@ int abort_trajectory (byte jj, long limit)
 		_curstep[jj] = 0;
 		_xf[jj] = limit;
 	}
+	else
+	{
+		_curt[jj] = 0;
+		_curstep[jj] = 0;
+		_xf[jj] = limit;
+	}
 	
 	return 0;
 }

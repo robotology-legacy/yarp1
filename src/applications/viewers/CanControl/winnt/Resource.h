@@ -59,6 +59,9 @@
 #define IDC_BUTTON_SETMINMAX            1032
 #define IDC_STATIC_STATUS               1033
 #define IDC_BUTTON_SPY                  1034
+#define IDC_BUTTON_FILTER               1035
+#define IDC_EDIT_FILTER                 1036
+#define IDC_BUTTON_REMOVE_FILTER        1037
 #define ID_FILE_EXIT                    32771
 #define ID_HELP_ABOUT                   32772
 #define ID_PARAMETERS_NUMBEROFCARDS     32773
@@ -76,7 +79,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        135
 #define _APS_NEXT_COMMAND_VALUE         32781
-#define _APS_NEXT_CONTROL_VALUE         1035
+#define _APS_NEXT_CONTROL_VALUE         1038
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

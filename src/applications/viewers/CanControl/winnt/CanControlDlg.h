@@ -11,6 +11,8 @@
 /////////////////////////////////////////////////////////////////////////////
 // CCanControlDlg dialog
 
+#include "CanControlParams.h"
+
 class CCanControlDlg : public CDialog
 {
 // Construction
@@ -20,6 +22,9 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CCanControlDlg)
 	enum { IDD = IDD_CANCONTROL_DIALOG };
+	CButton	m_remove_filter_ctrl;
+	CEdit	m_msg_filter_ctrl;
+	CButton	m_filter_ctrl;
 	CButton	m_spy_ctrl;
 	CStatic	m_status_ctrl;
 	CButton	m_flash_read_ctrl;
@@ -62,6 +67,7 @@ public:
 	double	m_desired_acceleration;
 	double	m_min_position;
 	double	m_max_position;
+	int		m_msg_filter;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -78,7 +84,7 @@ protected:
 	YARPValueCanDeviceDriver	m_driver;
 	ValueCanOpenParameters		m_params;
 	int							m_njoints;
-	unsigned char				m_destinations[16];
+	unsigned char				m_destinations[CANBUS_MAXCARDS];
 	bool						m_driverok;
 
 	void ActivateGUI ();
@@ -86,6 +92,7 @@ protected:
 	void UpdateAxisParams (int axis);
 
 	char						m_buffer[256];
+	double						m_vmove[CANBUS_MAXCARDS*4];
 
 	// Generated message map functions
 	//{{AFX_MSG(CCanControlDlg)
@@ -127,6 +134,8 @@ protected:
 	afx_msg void OnUpdateFileOpenconsole(CCmdUI* pCmdUI);
 	afx_msg void OnFileCloseconsole();
 	afx_msg void OnUpdateFileCloseconsole(CCmdUI* pCmdUI);
+	afx_msg void OnButtonFilter();
+	afx_msg void OnButtonRemoveFilter();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

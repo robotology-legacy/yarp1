@@ -126,6 +126,7 @@ CCanControlDlg::CCanControlDlg(CWnd* pParent /*=NULL*/)
 	m_desired_acceleration = 0.0;
 	m_min_position = 0.0;
 	m_max_position = 0.0;
+	m_msg_filter = 0;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -135,6 +136,9 @@ void CCanControlDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCanControlDlg)
+	DDX_Control(pDX, IDC_BUTTON_REMOVE_FILTER, m_remove_filter_ctrl);
+	DDX_Control(pDX, IDC_EDIT_FILTER, m_msg_filter_ctrl);
+	DDX_Control(pDX, IDC_BUTTON_FILTER, m_filter_ctrl);
 	DDX_Control(pDX, IDC_BUTTON_SPY, m_spy_ctrl);
 	DDX_Control(pDX, IDC_STATIC_STATUS, m_status_ctrl);
 	DDX_Control(pDX, IDC_FLASH_READ, m_flash_read_ctrl);
@@ -186,6 +190,7 @@ void CCanControlDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxDouble(pDX, m_desired_acceleration, 0., 100.);
 	DDX_Text(pDX, IDC_EDIT_MIN, m_min_position);
 	DDX_Text(pDX, IDC_EDIT_MAX, m_max_position);
+	DDX_Text(pDX, IDC_EDIT_FILTER, m_msg_filter);
 	//}}AFX_DATA_MAP
 }
 
@@ -228,6 +233,8 @@ BEGIN_MESSAGE_MAP(CCanControlDlg, CDialog)
 	ON_UPDATE_COMMAND_UI(ID_FILE_OPENCONSOLE, OnUpdateFileOpenconsole)
 	ON_COMMAND(ID_FILE_CLOSECONSOLE, OnFileCloseconsole)
 	ON_UPDATE_COMMAND_UI(ID_FILE_CLOSECONSOLE, OnUpdateFileCloseconsole)
+	ON_BN_CLICKED(IDC_BUTTON_FILTER, OnButtonFilter)
+	ON_BN_CLICKED(IDC_BUTTON_REMOVE_FILTER, OnButtonRemoveFilter)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -267,8 +274,10 @@ BOOL CCanControlDlg::OnInitDialog()
 	m_njoints = DEFAULT_NJOINTS;
 	memset (m_destinations, 16, sizeof(unsigned char) * CANBUS_MAXCARDS);
 	m_destinations[0] = DEFAULT_DESTINATION;
-	m_destinations[15] = CANBUS_MY_ADDRESS;		/// shouldn't be used anyway
+	m_destinations[CANBUS_MAXCARDS-1] = CANBUS_MY_ADDRESS;		/// shouldn't be used anyway
 	m_driverok = false;
+
+	memset (m_vmove, 0, sizeof(double) * CANBUS_MAXCARDS * 4);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -412,7 +421,11 @@ void CCanControlDlg::ActivateGUI ()
 	m_min_ctrl.EnableWindow();
 	m_max_ctrl.EnableWindow();
 	m_setminmax_ctrl.EnableWindow();
+	
 	m_spy_ctrl.EnableWindow();
+	m_filter_ctrl.EnableWindow();
+	m_msg_filter_ctrl.EnableWindow();
+	m_remove_filter_ctrl.EnableWindow();
 
 	/// 
 	SetTimer (TIMER_ID, GUI_REFRESH_INTERVAL, NULL); 
@@ -452,7 +465,11 @@ void CCanControlDlg::DeactivateGUI ()
 	m_min_ctrl.EnableWindow(FALSE);
 	m_max_ctrl.EnableWindow(FALSE);
 	m_setminmax_ctrl.EnableWindow(FALSE);
+
 	m_spy_ctrl.EnableWindow(FALSE);
+	m_filter_ctrl.EnableWindow(FALSE);
+	m_msg_filter_ctrl.EnableWindow(FALSE);
+	m_remove_filter_ctrl.EnableWindow(FALSE);
 
 	m_mode_ctrl.EnableWindow(FALSE);
 }
@@ -545,6 +562,12 @@ void CCanControlDlg::UpdateAxisParams (int axis)
 	m_ilimit = pid.I_LIMIT;
 	m_igain = pid.KI;
 	m_tlimit = pid.T_LIMIT;
+
+	par.parameters = (void *)&m_max_position;
+	m_driver.IOCtl(CMDGetPositiveLimit, (void *)&par);
+	par.parameters = (void *)&m_min_position;
+	m_driver.IOCtl(CMDGetNegativeLimit, (void *)&par);
+
 	UpdateData(FALSE);
 }
 
@@ -737,25 +760,12 @@ void CCanControlDlg::OnButtonGo()
 
 		case 1:
 			{
-				double cmd[4] = { 0, 0, 0, 0 };
-				if ((index % 2) == 0)
-				{
-					cmd[0] = m_desired_speed;
-					cmd[1] = m_desired_acceleration;
-					if (cmd[1] < 1)
-						cmd[1] = 1;
-					cmd[2] = cmd[3] = 0;
-				}
-				else
-				{
-					cmd[0] = cmd[1] = 0;
-					cmd[2] = m_desired_speed;
-					cmd[3] = m_desired_acceleration;
-					if (cmd[3] < 1)
-						cmd[3] = 1;
-				}
+				m_vmove[index*2] = m_desired_speed;
+				m_vmove[index*2+1] = m_desired_acceleration;
+				if (m_vmove[index*2+1] < 1)
+					m_vmove[index*2+1] = 1;
 
-				m_driver.IOCtl(CMDVMove, (void *)cmd);
+				m_driver.IOCtl(CMDVMove, (void *)m_vmove);
 			}
 			break;
 		}
@@ -798,23 +808,14 @@ void CCanControlDlg::OnButtonStop()
 
 		case 1:
 			{
-				double cmd[4] = { 0, 1, 0, 1 };
-				if ((index % 2) == 0)
+				int i;
+				for (i = 0; i < CANBUS_MAXCARDS * 4; i += 2)
 				{
-					cmd[0] = 0;
-					cmd[1] = m_desired_acceleration;
-					if (cmd[1] < 1)
-						cmd[1] = 1;
-				}
-				else
-				{
-					cmd[2] = 0;
-					cmd[3] = m_desired_acceleration;
-					if (cmd[3] < 1)
-						cmd[3] = 1;
+					m_vmove[i] = 0;
+					m_vmove[i+1] = 1;
 				}
 
-				m_driver.IOCtl(CMDVMove, (void *)cmd);
+				m_driver.IOCtl(CMDVMove, (void *)m_vmove);
 			}
 			break;
 		}
@@ -862,10 +863,10 @@ void CCanControlDlg::OnButtonSetminmax()
 		SingleAxisParameters x;
 		x.axis = index;
 		x.parameters = &m_min_position;
-		m_driver.IOCtl(CMDSetPositiveLimit, (void *)&x);
+		m_driver.IOCtl(CMDSetNegativeLimit, (void *)&x);
 
 		x.parameters = &m_max_position;
-		m_driver.IOCtl(CMDSetNegativeLimit, (void *)&x);
+		m_driver.IOCtl(CMDSetPositiveLimit, (void *)&x);
 	}
 }
 
@@ -892,4 +893,17 @@ void CCanControlDlg::OnFileCloseconsole()
 void CCanControlDlg::OnUpdateFileCloseconsole(CCmdUI* pCmdUI) 
 {
 	pCmdUI->Enable (m_driverok);
+}
+
+void CCanControlDlg::OnButtonFilter() 
+{
+	UpdateData (TRUE);
+	m_driver.IOCtl(CMDSetDebugMessageFilter, (void *)&m_msg_filter);
+}
+
+void CCanControlDlg::OnButtonRemoveFilter() 
+{
+	m_msg_filter = -1;
+	UpdateData (FALSE);
+	m_driver.IOCtl(CMDSetDebugMessageFilter, (void *)&m_msg_filter);
 }

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.11 2004-05-27 23:44:48 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.12 2004-05-28 17:36:35 babybot Exp $
 ///
 ///
 
@@ -87,6 +87,7 @@ public:
 
 	int (*_p) (char *fmt, ...);					///	pointer to a printf type function
 												/// used to spy on can messages.
+	int _filter;								/// don't print filtered messages.
 
 public:
 	int _initialize (const ValueCanOpenParameters& params);
@@ -111,6 +112,7 @@ public:
 		_timeout = 1;
 		_njoints = 0;
 		_p = NULL;
+		_filter = -1;
 	}
 
 	~ValueCanResources () { _uninitialize(); }
@@ -255,7 +257,7 @@ int ValueCanResources::_initialize (const ValueCanOpenParameters& params)
 	_njoints = params._njoints;
 
 	_p = params._p;
-	if (_p) (*_p)("CAN: spy is on!");
+	_filter = -1;
 
 	return 0;
 }
@@ -314,11 +316,16 @@ YARPValueCanDeviceDriver::YARPValueCanDeviceDriver(void)
 
 	m_cmds[CMDSetPositiveLimit] = &YARPValueCanDeviceDriver::setPositiveLimit;
 	m_cmds[CMDSetNegativeLimit] = &YARPValueCanDeviceDriver::setNegativeLimit;
+	m_cmds[CMDGetPositiveLimit] = &YARPValueCanDeviceDriver::getPositiveLimit;
+	m_cmds[CMDGetNegativeLimit] = &YARPValueCanDeviceDriver::getNegativeLimit;
 	
 	m_cmds[CMDGetTorqueLimit] = &YARPValueCanDeviceDriver::getTorqueLimit;
 	m_cmds[CMDGetTorqueLimits] = &YARPValueCanDeviceDriver::getTorqueLimits;
 	m_cmds[CMDSetTorqueLimit] = &YARPValueCanDeviceDriver::setTorqueLimit;
 	m_cmds[CMDSetTorqueLimits] = &YARPValueCanDeviceDriver::setTorqueLimits;
+
+	m_cmds[CMDSetDebugMessageFilter] = &YARPValueCanDeviceDriver::setDebugMessageFilter;
+	m_cmds[CMDSetDebugPrintFunction] = &YARPValueCanDeviceDriver::setDebugPrintFunction;
 
 	m_cmds[CMDGetErrorStatus] = &YARPValueCanDeviceDriver::getErrorStatus;
 }
@@ -334,6 +341,9 @@ int YARPValueCanDeviceDriver::open (void *res)
 {
 	ValueCanResources& d = RES(system_resources);
 	int ret = d._initialize (*(ValueCanOpenParameters *)res);
+
+	_p = ((ValueCanOpenParameters *)res)->_p;
+	_filter = -1;
 
 	if (ret >= 0)
 		Begin ();
@@ -365,18 +375,22 @@ void YARPValueCanDeviceDriver::_debugMsg (int n, void *msg, int (*p) (char *fmt,
 		/// minimal debug, actual debug would require interpreting messages.
 		for (i = 0; i < n; i++)
 		{
-			(*p) 
-				("s: %2x d: %2x c: %1d msg: %3d x: %x %x %x %x %x %x\n", 
-				  (m[i].Data[0] & 0xf0) >> 4, 
-				   m[i].Data[0] & 0x0f, 
-				 ((m[i].Data[1] & 0x80)==0)?0:1,
-				  (m[i].Data[1] & 0x7f),
-				   m[i].Data[2],
-				   m[i].Data[3],
-				   m[i].Data[4],
-				   m[i].Data[5],
-				   m[i].Data[6],
-				   m[i].Data[7]);
+			ValueCanResources& r = RES(system_resources);
+			if ((m[i].Data[1] & 0x7f) != r._filter)
+			{
+				(*p) 
+					("s: %2x d: %2x c: %1d msg: %3d x: %x %x %x %x %x %x\n", 
+					  (m[i].Data[0] & 0xf0) >> 4, 
+					   m[i].Data[0] & 0x0f, 
+					 ((m[i].Data[1] & 0x80)==0)?0:1,
+					  (m[i].Data[1] & 0x7f),
+					   m[i].Data[2],
+					   m[i].Data[3],
+					   m[i].Data[4],
+					   m[i].Data[5],
+					   m[i].Data[6],
+					   m[i].Data[7]);
+			}
 		}
 	}
 }
@@ -404,7 +418,6 @@ void YARPValueCanDeviceDriver::Body(void)
 		int n = r._read_np (err);
 
 		if (err != 0)
-			///ACE_DEBUG ((LM_DEBUG, "got %d errors\n", err));
 			if (r._p) (*r._p)("got %d errors\n", err);
 
 		/// debug/print messages to console.
@@ -419,12 +432,10 @@ void YARPValueCanDeviceDriver::Body(void)
 			{
 				icsSpyMessage& m = r._canMsg[i];
 				if (m.StatusBitField & SPY_STATUS_GLOBAL_ERR)
-					///ACE_DEBUG ((LM_DEBUG, "CAN: troubles w/ message %x\n", m.StatusBitField));
 					if (r._p) (*r._p)("CAN: troubles w/ message %x\n", m.StatusBitField);
 
 				if (r._error (m))
 				{	
-					///ACE_DEBUG ((LM_DEBUG, "CAN: skipped a message for error\n"));
 					if (r._p) (*r._p)("CAN: skipped a message for error\n");
 					continue;		/// skip this message.
 				}
@@ -458,7 +469,6 @@ void YARPValueCanDeviceDriver::Body(void)
 			cyclecount++;
 			if (cyclecount >= r._timeout)
 			{
-				///ACE_DEBUG ((LM_DEBUG, "CAN: board %d timed out [msg type %d channel %d]\n", (r._cmdBuffer.Data[0] & 0x0f), messagetype & 0x7f, (messagetype & 0x80)?1:0));
 				if (r._p) (*r._p)("CAN: board %d timed out [msg type %d channel %d]\n", (r._cmdBuffer.Data[0] & 0x0f), messagetype & 0x7f, (messagetype & 0x80)?1:0);
 				r._cmdBuffer.Data[0] = 0;
 				r._cmdBuffer.Data[1] = CAN_NO_MESSAGE;
@@ -470,6 +480,11 @@ void YARPValueCanDeviceDriver::Body(void)
 		/// LATER: add callbacks here.
 
 		_mutex.Wait();
+		
+		/// copies buffered values.
+		r._p = _p;
+		r._filter = _filter;
+
 		if (_request && !pending)
 		{
 			r._write ();
@@ -488,12 +503,35 @@ void YARPValueCanDeviceDriver::Body(void)
 		}
 		else 
 		{
-			///ACE_DEBUG ((LM_DEBUG, "CAN: thread can't poll fast enough\n"));
 			if (r._p) (*r._p)("CAN: thread can't poll fast enough\n");
 		}
 		before = now;
 	}
 }
+
+///
+///
+/// specific messages that change the driver behavior.
+int YARPValueCanDeviceDriver::setDebugMessageFilter (void *cmd)
+{
+	_mutex.Wait();
+	ValueCanResources& r = RES(system_resources);
+	_filter = *(int *)cmd;
+	_mutex.Post();
+
+	return YARP_OK;
+}
+
+int YARPValueCanDeviceDriver::setDebugPrintFunction (void *cmd)
+{
+	_mutex.Wait();
+	ValueCanResources& r = RES(system_resources);
+	_p = (int (*) (char *fmt, ...))cmd;
+	_mutex.Post();
+
+	return YARP_OK;
+}
+
 
 ///
 /// 
@@ -997,6 +1035,34 @@ int YARPValueCanDeviceDriver::setNegativeLimit (void *cmd)
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
 	
 	return _writeDWord (CAN_SET_MIN_POSITION, axis, S_32(*((double *)tmp->parameters)));
+}
+
+/// cmd is a SingleAxis pointer with double arg
+int YARPValueCanDeviceDriver::getNegativeLimit (void *cmd)
+{
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	short value;
+
+	_readWord16 (CAN_GET_MIN_POSITION, axis, value);
+	*((double *)tmp->parameters) = double(value);
+
+	return YARP_OK;
+}
+
+/// cmd is a SingleAxis pointer with double arg
+int YARPValueCanDeviceDriver::getPositiveLimit (void *cmd)
+{
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	short value;
+
+	_readWord16 (CAN_GET_MAX_POSITION, axis, value);
+	*((double *)tmp->parameters) = double(value);
+
+	return YARP_OK;
 }
 
 

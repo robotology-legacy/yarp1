@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.10 2004-05-27 23:44:48 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.11 2004-05-28 17:36:35 babybot Exp $
 ///
 ///
 
@@ -123,11 +123,16 @@ public:
 	int writeBootMemory(void *cmd);
 	int setPositiveLimit(void *cmd);
 	int setNegativeLimit(void *cmd);
+	int getPositiveLimit(void *cmd);
+	int getNegativeLimit(void *cmd);
 	int setTorqueLimit (void *cmd);
 	int setTorqueLimits (void *cmd);
 	int getTorqueLimit (void *cmd);
 	int getTorqueLimits (void *cmd);
 	int getErrorStatus(void *cmd);
+
+	int setDebugMessageFilter (void *cmd);
+	int setDebugPrintFunction (void *cmd);
 
 protected:
 	void *system_resources;
@@ -135,6 +140,11 @@ protected:
 	YARPEvent _ev;
 	bool _request;
 	bool _noreply;
+	
+	/// debug function/variables.
+	void _debugMsg (int n, void *msg, int (*p) (char *fmt, ...));
+	int (*_p) (char *fmt, ...);
+	int _filter;
 
 	virtual void Body(void);
 
@@ -167,8 +177,6 @@ protected:
 		else
 			return int(x + .5);
 	}
-
-	void _debugMsg (int n, void *msg, int (*p) (char *fmt, ...));
 };
 
 

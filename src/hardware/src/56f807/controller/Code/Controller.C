@@ -358,7 +358,7 @@ void generatePwm (byte i)
 				if (_pid[i] > 100) 
 					_pid[i] = 100;
 				DUTYCYCLE (i, 0, 0);
-				DUTYCYCLE (i, 2, (unsigned char)(_pid[0] & 0x00ff));
+				DUTYCYCLE (i, 2, (unsigned char)(_pid[i] & 0x00ff));
 				DUTYCYCLE (i, 4, 0);
 			}
 			
@@ -370,6 +370,8 @@ void generatePwm (byte i)
 		DUTYCYCLE (i, 0, 0);
 		DUTYCYCLE (i, 2, 0);
 		DUTYCYCLE (i, 4, 0);
+
+		LOADDUTYCYCLE(i);
 	}
 }
 
@@ -449,13 +451,7 @@ void main(void)
 		generatePwm (1);
 		
 		/* do extra functions, communicate, etc. */
-		if (_verbose)
-		{
-			DSP_SendDWordAsCharsDec (_position[0]);
-			DSP_SendDataEx (" ");
-			DSP_SendDWordAsCharsDec (_desired[0]);
-			DSP_SendDataEx ("\r\n");
-		}
+		/* LATER */
 		
 		/* tells that the control cycle is completed */
 		_wait = true;	
@@ -650,7 +646,6 @@ byte serial_interface (void)
 {
 	AS1_TComData d = 0;
 	char buffer[SMALL_BUFFER_SIZE];
-	byte retval = 0;
 	int  iretval = 0;
 	
 	if (c == 0)
@@ -669,67 +664,38 @@ byte serial_interface (void)
 			DSP_SendDataEx ("Firmware - ver 1.0\r\n");
 			DSP_SendDataEx ("h, H: help\r\n");
 			
-			DSP_SendDataEx ("1, toggle position mode\r\n");
-			DSP_SendDataEx ("2, toggle velocity mode\r\n");
-			DSP_SendDataEx ("3, verbose on/off\r\n");
+			DSP_SendDataEx ("a, set card address\r\n");
+			DSP_SendDataEx ("b, print card address\r\n");
 			
-			DSP_SendDataEx ("w0, enable PWM 0\n\r");
-			DSP_SendDataEx ("w1, enable PWM 1\n\r");
 			DSP_SendDataEx ("w2, write control params to FLASH mem\r\n");
 			DSP_SendDataEx ("w3, read control params from FLASH mem\r\n");
 						
-			DSP_SendDataEx ("e, get current position 0\r\n");
-			
-			c = 0;
-			break;
-		
-		case '1':
-			if (_control_mode[0] == MODE_IDLE)
-			{
-				_control_mode[0] = MODE_POSITION;
-				_set_vel[0] = DEFAULT_VELOCITY;
-				_set_vel[1] = DEFAULT_VELOCITY;
-				DSP_SendDataEx ("mode = position\r\n");
-			}
-			else
-			if (_control_mode[0] == MODE_POSITION)
-			{
-				_control_mode[0] = MODE_IDLE;
-				DSP_SendDataEx ("mode = idle\r\n");
-			}
-			else
-				DSP_SendDataEx ("go to idle first\r\n");
-			c = 0;
-			break;
-			
-		case '2':
-			if (_control_mode[0] == MODE_IDLE)
-			{
-				_control_mode[0] = MODE_VELOCITY;
-				_set_vel[0] = 0;
-				_set_vel[1] = 0;
-				DSP_SendDataEx ("mode = velocity\r\n");
-			}
-			else
-			if (_control_mode[0] == MODE_VELOCITY)
-			{
-				_control_mode[0] = MODE_IDLE;
-				DSP_SendDataEx ("mode = idle\r\n");
-			}
-			else
-				DSP_SendDataEx ("go to idle first\r\n");
 			c = 0;
 			break;
 
-		case '3':
-			_verbose = !_verbose;
-			if (_verbose)
-				DSP_SendDataEx ("verbose = true\r\n");
-			else
-				DSP_SendDataEx ("verbose = false\r\n");
+		case 'a':
+			DSP_SendDataEx ("address [1-15]: ");
+			DSP_ReceiveDataEx (buffer, SMALL_BUFFER_SIZE, true);
+			iretval = DSP_atoi (buffer, DSP_strlen(buffer, SMALL_BUFFER_SIZE)); 
+			DSP_SendDataEx ("address is ");
+			DSP_SendWord16AsChars (iretval);
+			DSP_SendDataEx ("\r\n");
+			
+			if (iretval >= 1 && iretval <= 15)
+				_board_ID = iretval & 0x0f;
+			
 			c = 0;
 			break;
+
+		case 'b':
+			DSP_SendDataEx ("address is ");
+			iretval = BYTE_W(_board_ID, 0);
+			DSP_SendWord16AsChars (iretval);
+			DSP_SendDataEx ("\r\n");
 			
+			c = 0;
+			break;
+						
 		case 'w':
 			if (AS1_RecvChar(&d) == ERR_OK)
 			{
@@ -790,16 +756,7 @@ byte serial_interface (void)
 				c = 0;
 			}
 			break;
-				
-		case 'e':
-			DSP_SendDataEx ("position: ");
-			DSP_SendDWordAsCharsDec (_position[0]);
-			DSP_SendDataEx (" ");
-			DSP_SendDWordAsCharsDec (_position[1]);
-			DSP_SendDataEx ("\r\n");
-			c = 0;
-			break;
-			
+		
 	}	/* end switch/case */
 }
 

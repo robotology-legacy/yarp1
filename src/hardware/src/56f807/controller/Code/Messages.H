@@ -184,6 +184,7 @@
 	if (CAN_LEN == 6) \
 	{ \
 		_desired[i] = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \
+		abort_trajectory (i, _desired[i]); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \

@@ -115,7 +115,7 @@ char DSP_HexToChar (byte value)
 
 int DSP_atoi (char *strAddr, int strSize)
 {
-	byte i, end;
+	int i, end;
 	int val = 0;
 	int _pow = 1;
 	byte negative = 0;
