@@ -10,87 +10,11 @@
 #include <YARPLogpolar.h>
 
 #include <YARPHistoSegmentation.h>
+#include <YARPConicFitter.h>
 
 using namespace _logpolarParams;
 
 YARPLogpolar _mapper;
-
-struct circle
-{
-	circle()
-	{
-		r = new int [_srho*_stheta];
-		t = new int [_srho*_stheta];
-	}
-	~circle()
-	{
-		delete [] r;
-		delete [] t;
-	}
-
-	void reset()
-	{ n = 0; }
-
-	void add(int T, int R)
-	{ 
-		r[n] = R;
-		t[n] = T;
-		n++;
-	}
-
-	int *r;
-	int *t;
-	int n;
-};
-
-void findCircle(int T0, int R0, double R, circle &out)
-{
-	out.reset();
-	int theta;
-	int rho2;
-	int rho1;
-	int r0;
-	r0 = _mapper.CsiToRo(R0);
-	for(theta = 0; theta < _logpolarParams::_stheta; theta++)
-	{
-		double c = cos((theta-T0)/_q);
-		double DELTA = (r0*r0*(c*c-1) + R*R);
-		if (DELTA>=0)
-		{
-			int r = (r0*c+sqrt(DELTA)) + 0.5;
-			if (r > 0)
-			{
-				rho2 = _mapper.RoToCsi(r);
-				if ((rho2>(_logpolarParams::_srho-1)))
-				{
-					rho2 = _logpolarParams::_srho-1;
-				}
-				else if (rho2<0)
-					rho2 = 0;
-
-				int p;
-				for(p = r0; p<=rho2; p++)
-					out.add(theta, p);
-			}
-			
-			r = (r0*c-sqrt(DELTA)) + 0.5;
-			if (r > 0)
-			{
-				rho1 = _mapper.RoToCsi(r);
-				if ((rho1>(_logpolarParams::_srho-1)))
-				{
-					rho1 = _logpolarParams::_srho-1;
-				}
-				else if (rho1<0)
-					rho1 = 0;
-			
-				int p;
-				for(p = rho1; p<=r0; p++)
-					out.add(theta, p);
-			}
-		}
-	}
-}
 
 class YARPHandSegmentation
 {
@@ -111,16 +35,20 @@ public:
 		for(r = 0; r<_srho; r++)
 			for(t = 0; t<_stheta; t++)
 			{
-				if ( backpr(t,r) > 200)
+				cout << t << "\t" << r << "\n";
+				if ( backpr(t,r) > 250)
 				{
-					findCircle(t, r, R, points);
+					_fitter.findCircle(t, r, R, points);
+					cout << points.n << "\n";
 					cumulateRegion(src, points);
 					// now histo is the histogram of the current circle
 					double p = intersect(target);
 					out(t,r) = unsigned char (p*255 + 0.5);
+					// out(t,r) = 255;
 				}
 				else
 					out(t,r) = 0;
+
 			}
 	}
 		
@@ -145,29 +73,20 @@ public:
 		double sumG = 0.0;
 		double sumH = 0.0;
 		double sum = 0.0;
-		while  ( (target._3dlut.find(it, tmpG)!=-1) && (histo._3dlut.find(it, tmpH)!=-1) )
+		while  ( (target.find(it, tmpG)!=-1) && (histo.find(it, tmpH)!=-1) )
 		{
-			double g = tmpG.value()/target._maximum;
-			double h = tmpH.value()/histo._maximum;
+			double g = tmpG.value()/target.maximum();
+			double h = tmpH.value()/histo.maximum();
 			
-			sumG += g;
-			sumH += h;
-
-			if (g>h)
-				sum += h;
-			else
-				sum += g;
-			it++;
+			sum += (g-h)*(g-h);
 		}
 
-		if (sumG>sumH)
-			return sum/sumH;
-		else
-			return sum/sumG;
+		return sum;
 	}
 
 	circle points;
 	YARP3DHistogram histo;
+	YARPLpConicFitter _fitter;
 };
 
 using namespace _logpolarParams;
@@ -248,7 +167,7 @@ int main(int argc, char* argv[])
 
 		_hand.search(_leftHSV, _outSeg, _outSeg2, _histo, 20);
 				
-		_outPortSeg.Content().Refer(_outSeg);
+		_outPortSeg.Content().Refer(_outSeg2);
 		_outPortSeg.Write();
 
 		/*_nHistos++;

@@ -187,3 +187,52 @@ void YARPLpConicFitter::plotCircle(int T0, int R0, double R, YARPImageOf<YarpPix
 	// plot center
 	output(T0, R0) = 255;
 }
+
+void YARPLpConicFitter::findCircle(int T0, int R0, double R, circle &out)
+{
+	out.reset();
+	int theta;
+	int rho2;
+	int rho1;
+	int r0;
+	r0 = _moments.CsiToRo(R0);
+	for(theta = 0; theta < _logpolarParams::_stheta; theta++)
+	{
+		double c = cos((theta-T0)/_q);
+		double DELTA = (r0*r0*(c*c-1) + R*R);
+		if (DELTA>=0)
+		{
+			int r = (r0*c+sqrt(DELTA)) + 0.5;
+			if (r > 0)
+			{
+				rho2 = _moments.RoToCsi(r);
+				if ((rho2>(_logpolarParams::_srho-1)))
+				{
+					rho2 = _logpolarParams::_srho-1;
+				}
+				else if (rho2<0)
+					rho2 = 0;
+
+				int p;
+				for(p = r0; p<=rho2; p++)
+					out.add(theta, p);
+			}
+			
+			r = (r0*c-sqrt(DELTA)) + 0.5;
+			if (r > 0)
+			{
+				rho1 = _moments.RoToCsi(r);
+				if ((rho1>(_logpolarParams::_srho-1)))
+				{
+					rho1 = _logpolarParams::_srho-1;
+				}
+				else if (rho1<0)
+					rho1 = 0;
+			
+				int p;
+				for(p = rho1; p<=r0; p++)
+					out.add(theta, p);
+			}
+		}
+	}
+}

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPConicFitter.h,v 1.2 2003-09-04 13:05:17 babybot Exp $
+/// $Id: YARPConicFitter.h,v 1.3 2003-09-09 17:26:20 babybot Exp $
 ///
 /// Fit simple conics to a segmented region. Logpolar version.
 /// September 2003 -- by nat
@@ -70,6 +70,34 @@
 
 #include "YARPLogpolar.h"
 #include "YARPImageMoments.h"
+
+struct circle
+{
+	circle()
+	{
+		r = new int [_logpolarParams::_srho*_logpolarParams::_stheta];
+		t = new int [_logpolarParams::_srho*_logpolarParams::_stheta];
+	}
+	~circle()
+	{
+		delete [] r;
+		delete [] t;
+	}
+
+	void reset()
+	{ n = 0; }
+
+	void add(int T, int R)
+	{ 
+		r[n] = R;
+		t[n] = T;
+		n++;
+	}
+
+	int *r;
+	int *t;
+	int n;
+};
 
 class YARPLpConicFitter
 {
@@ -83,6 +111,9 @@ public:
 	// fit an ellipse to the segmented region. a11, a12, a22 are the parameters of the conic matrix
 	// computed from the central moments (see code for the formulas)
 	void fitEllipse(YARPImageOf<YarpPixelMono> &in, int *t0,  int *r0, double *a11, double *a12, double *a22);
+
+	// returns points within a circle of center T0,R0 radius R0
+	void findCircle(int T0, int R0, double R, circle &out);
 
 	// plot a circle; 
 	// (T0, R0) is the center (logpolar coordinates), R is the radius (cartesian coordinates)

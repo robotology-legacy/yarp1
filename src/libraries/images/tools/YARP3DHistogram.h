@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARP3DHistogram.h,v 1.4 2003-09-09 16:33:11 babybot Exp $ 
+/// $Id: YARP3DHistogram.h,v 1.5 2003-09-09 17:26:20 babybot Exp $ 
 ///
 /// August 2003 -- by nat
 
@@ -223,6 +223,14 @@ public:
 	void Resize(unsigned char max, unsigned char min, unsigned char n);
 	void Resize(unsigned char max, unsigned char min, unsigned char *n);
 	void Apply(unsigned char r, unsigned char g, unsigned char b, double w = 1.0);
+
+	inline int find(unsigned int it, HistoEntry &v)
+	{
+		return _3dlut.find(it, v);
+	}
+
+	inline double maximum()
+	{ return _3dlut._maximum; }
 		
 	int dump(const YARPString &basename);
 	
