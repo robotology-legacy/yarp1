@@ -5,11 +5,17 @@
 #include "VectViewer.h"
 #include "VectViewerDlg.h"
 
+#include "CommandLineInfoEx.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+
+const int __defaultPeriod = 100;
+const int __defaultSize = 1;
+const int __defaultWindowLength = 300;
 
 /////////////////////////////////////////////////////////////////////////////
 // CVectViewerApp
@@ -41,10 +47,41 @@ CVectViewerApp theApp;
 
 BOOL CVectViewerApp::InitInstance()
 {
-	// Standard initialization
-	// If you are not using these features and wish to reduce the size
-	//  of your final executable, you should remove from the following
-	//  the specific initialization routines you do not need.
+	// parse command line
+
+	CCommandLineInfoEx cmdInfo;
+	ParseCommandLine(cmdInfo);
+
+	int iPeriod;
+	int iSize;
+	int iWindow;
+	double *dScale;
+	bool aScale;
+	CString dummy,name, period, size, window, scale;
+	name = "/";
+	cmdInfo.GetOption("name", dummy);
+	name += dummy;
+	if (cmdInfo.GetOption("p", period))
+		iPeriod = atoi(period);
+	else
+		iPeriod = __defaultPeriod;
+
+	if (cmdInfo.GetOption("size", size))
+		iSize = atoi(size);
+	else
+		iSize = __defaultSize;
+
+	dScale = new double[iSize];
+
+	if (cmdInfo.GetOption("window", window))
+		iWindow = atoi(window);
+	else
+		iWindow = __defaultWindowLength;
+
+	// if (cmdInfo.GetOption("scale", scale))
+	for(int i = 0; i < iSize; i++)
+		dScale[i] = 1.0;
+	aScale = true;
 
 #ifdef _AFXDLL
 	Enable3dControls();			// Call this when using MFC in a shared DLL
@@ -52,8 +89,12 @@ BOOL CVectViewerApp::InitInstance()
 	Enable3dControlsStatic();	// Call this when linking to MFC statically
 #endif
 
-	CVectViewerDlg dlg;
+	CVectViewerDlg dlg(name, iPeriod, iSize, iWindow);
 	m_pMainWnd = &dlg;
+
+	dlg._aScale = aScale;
+	dlg.setScale(dScale);
+
 	int nResponse = dlg.DoModal();
 	if (nResponse == IDOK)
 	{

@@ -15,11 +15,10 @@
 #include <conf/YARPConfig.h>
 #include <YARPThread.h>
 #include <YARPPort.h>
+#include <YARPSemaphore.h>
 
-const int __length = 3;
-const int __displayPeriod = 100;
+#include <math.h>
 
-const int __xSize = 300;
 const int __ySize = 100;
  
 const int __yDist = 3;
@@ -34,7 +33,7 @@ class CVectViewerDlg : public CDialog
 {
 // Construction
 public:
-	CVectViewerDlg(CWnd* pParent = NULL);	// standard constructor
+	CVectViewerDlg(const char *name, int period, int size, int window, CWnd* pParent = NULL);	// standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CVectViewerDlg)
@@ -51,22 +50,100 @@ public:
 public:
 	void update(double *nVal)
 	{
-		// do I need to lock "_current" ?
+		_mutex.Wait();
+		
+		_counter++;
+		if (_counter > _window)
+		{
+			// change scale
+			// erase window
+			eraseHistory();
+			for(int i = 0; i < _size; i++)
+			{
+				if (_max[i] > 0)
+					_scale[i] = 0.5*1/_max[i];
+				else
+					_scale[i] = 0.0;
+
+				_max[i] = 0.0;
+			}
+			_counter = 0;
+			refreshHistory();
+		}
 
 		int i = 0;
-		for(i = 0; i < __length; i++)
-			_current[i] = __ySize * (0.5 + _zoom[i] * nVal[i]);
+		for(i = 0; i < _size; i++)
+		{
+			// keep maximum
+			if (fabs(nVal[i])>_max[i])
+				_max[i] = fabs(nVal[i]);
 
+			_current[i] = 0.5*__ySize * (1 - _zoom[i] * nVal[i]*_scale[i]);
+
+			if (_current[i] > __ySize)
+			{
+				_current[i] = __ySize;
+				_counter = _window;	//force rescaling
+			}
+			else if (_current[i] < 0)
+			{
+				_current[i] = 0;
+				_counter = _window; //force rescaling
+			}
+
+			// history !
+			// shift
+			int j;
+			for(j = 0; j < _window-1; j++)
+				_history[i][j] = _history[i][j+1];
+			// keep new val
+			_history[i][_window-1] = nVal[i];
+		}
+		_mutex.Post();
+	}
+
+	void eraseHistory()
+	{
+		int i;
+		int j;
+		for(i = 0; i < _size; i++)
+		{
+			for(j = 0; j < _window; j++)
+			{
+				for(int m = 0; m < __ySize; m++)
+				_dcMem[i].SetPixel(j, m, RGB(0, 0, 0));
+			}
+		}
+	}
+	void refreshHistory()
+	{	
+		int i;
+		int j;
+		for(i = 0; i < _size; i++)
+		{
+			// _dcMem[i] //erase
+			double tmp;
+			for(j = 0; j < _window; j++)
+			{
+				tmp = __ySize * 0.5 * (1 - _zoom[i] * _history[i][j]*_scale[i]);
+				_dcMem[i].SetPixel(j, tmp, RGB(255, 0, 0));
+			}
+		}
 	}
 
 	void ScrollAndPaint(CDC &dc, double actual, double old)
 	{
-		CRect tmp(0, 0, __xSize, __ySize);
+		CRect tmp(0, 0, _window, __ySize);
 		dc.ScrollDC(-1, 0, tmp, tmp, NULL, NULL);
 
 		// erase the old value and paint the new one
-		dc.SetPixel(__xSize-1, old, RGB(0, 0, 0));
-		dc.SetPixel(__xSize-1, actual, RGB(255, 0, 0));
+		dc.SetPixel(_window-1, old, RGB(0, 0, 0));
+		dc.SetPixel(_window-1, actual, RGB(255, 0, 0));
+	}
+
+	void setScale(double *s)
+	{
+		memcpy(_scale, s, sizeof(double)*_size);
 	}
 
 // Implementation
@@ -87,12 +164,16 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 
-	double _current[__length];
-	double _previous[__length];
+	double _current[3];
+	double _previous[3];
+
+	double **_history;
 
 	CBitmap *_dspWindows;
 	CDC		*_dcMem;
 	double *_zoom;
+	double *_scale;
+	double *_max;
 	CRect  _displayRect;
 
 	int _nRows;
@@ -102,6 +183,17 @@ protected:
 
 	CRecv *_pReceiver;
 
+	char _name[255];
+	int _period;
+	int _size;
+	int _window;
+
+	int _counter;
+
+	YARPSemaphore _mutex;
+
+public:
+	bool _aScale;
 };
 
 class CRecv: public YARPThread
@@ -121,19 +213,19 @@ public:
 		while(true)
 		{
 			_inPort.Read();
-			memcpy(_current, _inPort.Content(), __length*sizeof(double));
+			memcpy(_current, _inPort.Content(), 3*sizeof(double));
 			_owner->update(_current);
 		}
 	}
 
 	void Register(char *name = NULL)
 	{
-		_inPort.Register("/force/i:1");
+		_inPort.Register(name);
 	}
 
 	CVectViewerDlg *_owner;
-	YARPInputPortOf<double [__length]> _inPort;
-	double _current[__length];
+	YARPInputPortOf<double [3]> _inPort;
+	double _current[3];
 };
 
 //{{AFX_INSERT_LOCATION}}

@@ -59,7 +59,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CVectViewerDlg dialog
 
-CVectViewerDlg::CVectViewerDlg(CWnd* pParent /*=NULL*/)
+CVectViewerDlg::CVectViewerDlg(const char *name, int period, int size, int window, CWnd* pParent /*=NULL*/)
 	: CDialog(CVectViewerDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CVectViewerDlg)
@@ -67,6 +67,15 @@ CVectViewerDlg::CVectViewerDlg(CWnd* pParent /*=NULL*/)
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	strncpy(_name, name, 255);
+
+	_window = window;
+	_size = size;
+	_period = period;
+
+	_scale = new double [_size];
+	_max = new double [_size];
 }
 
 void CVectViewerDlg::DoDataExchange(CDataExchange* pDX)
@@ -120,37 +129,42 @@ BOOL CVectViewerDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
 	// set timer
-	_timer = SetTimer(1, __displayPeriod, 0);
+	_timer = SetTimer(1, _period, 0);
 
 	// display stuff
 	
 	CClientDC dcScreen(this);
-	_dspWindows = new CBitmap[__length];
-	_dcMem = new CDC[__length];
+	_dspWindows = new CBitmap[_size];
+	_dcMem = new CDC[_size];
 
+	_history = new double *[_size];
+	
 	int i = 0;
-	for (i = 0; i < __length; i++)
+	for (i = 0; i < _size; i++)
 	{
-		_dspWindows[i].CreateCompatibleBitmap(&dcScreen, __xSize, __ySize);
+		_dspWindows[i].CreateCompatibleBitmap(&dcScreen, _window, __ySize);
 		_dcMem[i].CreateCompatibleDC(&dcScreen);
 		_dcMem[i].SelectObject(&_dspWindows[i]);
+
+		_history[i] = new double[_window];
+		memset(_history[i], 0, sizeof(double)*_window);
 	}
 
-	_nRows = __length;
+	_nRows = _size;
 	_nColumns = 1;
 
-	_displayRect.SetRect(__dispYPos, __dispXPos, (__xSize+__xDist)*_nColumns, (__ySize+__yDist)*_nRows);
+	_displayRect.SetRect(__dispYPos, __dispXPos, (_window+__xDist)*_nColumns, (__ySize+__yDist)*_nRows);
 
 	// resize window
-	this->SetWindowPos(&wndTop, 0, 0, (__xSize+__xDist)*_nColumns, (__ySize+__yDist)*_nRows+34, SWP_HIDEWINDOW);
+	this->SetWindowPos(&wndTop, 0, 0, (_window+__xDist)*_nColumns, (__ySize+__yDist)*_nRows+34, SWP_HIDEWINDOW);
 	
 	// zoom factors
-	_zoom = new double [__length];
-	for (i = 0; i < __length; i++)
-			_zoom[i] = 0.001;
+	_zoom = new double [_size];
+	for (i = 0; i < _size; i++)
+			_zoom[i] = 1; //0.001;
 
 	// initialize display
-	for(i = 0; i < __length; i++)
+	for(i = 0; i < _size; i++)
 	{
 		_current[i] = __ySize * 0.5;
 		_previous[i] = __ySize * 0.5;
@@ -158,8 +172,10 @@ BOOL CVectViewerDlg::OnInitDialog()
 
 	// receiver
 	_pReceiver = new CRecv(this);
-	_pReceiver->Register();
+	_pReceiver->Register(_name);
 	_pReceiver->Begin();
+
+	_counter = 0;
 	
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -192,13 +208,13 @@ void CVectViewerDlg::OnPaint()
 	int c = 1;
 	int r = 1;
 
-	for (int i = 0; i < __length; i++)
+	for (int i = 0; i < _size; i++)
 	{
 		// compute display position
-		xPos = (__xSize + __xDist)*(c-1);
+		xPos = (_window + __xDist)*(c-1);
 		yPos = (__ySize + __yDist)*(r-1);
 
-		dc.BitBlt(xPos, yPos, __xSize, __ySize, &_dcMem[i], 0, 0, SRCCOPY);
+		dc.BitBlt(xPos, yPos, _window, __ySize, &_dcMem[i], 0, 0, SRCCOPY);
 
 		if (i == _nRows-1)
 		{
@@ -232,15 +248,17 @@ void CVectViewerDlg::OnTimer(UINT nIDEvent)
 {
 	// TODO: Add your message handler code here and/or call default
 
+	_mutex.Wait();
 	// scroll
-	for (int i = 0; i < __length; i++)
+	for (int i = 0; i < _size; i++)
 	{	
 		ScrollAndPaint(_dcMem[i], _current[i], _previous[i]);
 		_previous[i] = _current[i];
 	}
+	_mutex.Post();
 
 	if (IsWindowVisible())
-		InvalidateRect(_displayRect);
+		InvalidateRect(_displayRect, FALSE);
 	
 	CDialog::OnTimer(nIDEvent);
 }
@@ -257,6 +275,15 @@ void CVectViewerDlg::OnDestroy()
 	delete [] _dspWindows;
 	delete [] _zoom;
 	delete _pReceiver;
+	delete [] _scale;
+	delete [] _max;
+
+	for(int i = 0; i < _size; i++)
+	{
+		delete [] _history[i];
+	}
+
+	delete [] _history;
 }
 
 void CVectViewerDlg::OnCaptureChanged(CWnd *pWnd) 

@@ -53,6 +53,10 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
 # ADD LINK32 /nologo /subsystem:windows /machine:I386
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy .\Release\vectviewer.exe ..\..\..\..\..\bin\winnt
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "VectViewer - Win32 Debug"
 
@@ -80,6 +84,10 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 os_servicesdb.lib aced.lib winmm.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\..\..\lib\winnt"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy .\Debug\vectviewer.exe ..\..\..\..\..\bin\winnt
+# End Special Build Tool
 
 !ENDIF 
 
@@ -90,6 +98,10 @@ LINK32=link.exe
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\CommandLineInfoEx.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\StdAfx.cpp
@@ -111,6 +123,10 @@ SOURCE=.\VectViewerDlg.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\CommandLineInfoEx.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\Resource.h
