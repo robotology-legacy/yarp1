@@ -10,7 +10,7 @@
 
 extern "C"
 {
-	#include "../mbp/random.h"
+	#include "../mbp/Random.h"
 	#include "../mbp/Mm.h"
 }
 
@@ -852,8 +852,8 @@ void YARPBPNNet::sim(int nIPattern,REAL *input, REAL *output)
 	nBatchPattern = nIPattern;
 	Status[0] = (REAL *) calloc(n_input*nBatchPattern, sizeof(REAL));
 	normalizeBatch(input, Status[0], max_input, min_input, n_input);
-	
-	for (int i=1; i LE nLayer; i++)
+	int i;	
+	for ( i=1; i LE nLayer; i++)
     {
 		Status[i]         = (REAL*) calloc((nUnit)[i]*(nIPattern),sizeof(REAL));
 		CHECK_PTR((Status)[i]);
@@ -952,8 +952,8 @@ void YARPBPNNet::save(const char* filename)
 		char tmp[255];
 		sprintf(tmp, "%s[%d]= ", "Weights", i);
 		output << tmp;
-
-		for (int j=0; j LT nUnit[i]*nUnit[i-1]; j++)
+		int j;
+		for (j=0; j LT nUnit[i]*nUnit[i-1]; j++)
 		{
 			output << Weight[i][j] << " ";
 		}
