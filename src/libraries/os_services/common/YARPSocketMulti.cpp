@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.11 2003-07-31 22:06:59 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.12 2003-07-31 22:21:10 gmetta Exp $
 ///
 ///
 
@@ -470,111 +470,10 @@ int _SocketThreadMulti::_begin (const YARPUniqueNameSock *remid, const YARPUniqu
 
 	_port = port;
 
-#if 0
-	if (port != 0)
-	{
-		ACE_ASSERT (1 == 0);
-
-		ACE_ASSERT (remid != NULL && socket != NULL);
-		ACE_ASSERT (remid->getServiceType() == YARP_TCP);
-
-		_remote_endpoint = *remid;
-
-		/// listen to this new port (this is the UDP channel).
-		char myhostname[YARP_STRING_LEN];
-		getHostname (myhostname, YARP_STRING_LEN);
-		_local_addr.getAddressRef().set (port, myhostname);
-
-		_local_acceptor.open(_local_addr.getAddressRef(), 1);	/// reuse addr enabled.
-
-		switch (socket->getServiceType())
-		{
-		case YARP_TCP:
-			{
-				///
-				ACE_DEBUG ((LM_DEBUG, "SocketThreadMulti::_begin: TCP not implemented\n"));
-				_socket = NULL;
-			}
-			break;
-
-		case YARP_MCAST:
-			{
-				_socket_addr = new YARPUniqueNameSock ((YARPUniqueNameSock*)socket);
-				ACE_ASSERT (_socket_addr != NULL);
-
-				/// build an MCAST socket.
-				_socket = (void *)new ACE_SOCK_Dgram_Mcast;
-				ACE_ASSERT (_socket != NULL);
-
-				ACE_SOCK_Dgram_Mcast& mcast = *((ACE_SOCK_Dgram_Mcast *)_socket);
-				
-				if (_socket_addr != NULL)
-				{
-					mcast.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), 0, 1);	// reuse addr enabled
-					YARPNetworkObject::setSocketBufSize (mcast, MAX_PACKET);
-					mcast.join (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), 1, 0);
-
-					if (mcast.get_handle() == ACE_INVALID_HANDLE)
-						return YARP_FAIL;
-				}
-			}
-			break;
-
-		case YARP_UDP:
-			{
-				_socket_addr = new YARPUniqueNameSock ((YARPUniqueNameSock*)socket);
-				ACE_ASSERT (_socket_addr != NULL);
-
-				/// build the DGRAM socket.
-				_socket = (void *)new ACE_SOCK_Dgram;
-				ACE_ASSERT (_socket != NULL);
-				
-				ACE_SOCK_Dgram& dgram = *((ACE_SOCK_Dgram *)_socket);
-				
-				if (_socket_addr != NULL)
-				{
-					dgram.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
-					YARPNetworkObject::setSocketBufSize (dgram, MAX_PACKET);
-
-					if (dgram.get_handle() == ACE_INVALID_HANDLE)
-						return YARP_FAIL;
-				}
-			}
-			break;
-
-		case YARP_SHMEM:
-			{
-				_socket_addr = new YARPUniqueNameMem ((YARPUniqueNameMem*)socket);
-				ACE_ASSERT (_socket_addr != NULL);
-
-				_socket = (void *)new ACE_MEM_Acceptor (((YARPUniqueNameMem&)*_socket_addr).getAddressRef(), 1);
-				ACE_ASSERT (_socket != NULL);
-			}
-			break;
-
-		default:
-			ACE_DEBUG ((LM_DEBUG, "SocketThreadMulti::_begin: protocol not implemented\n"));
-			_socket = NULL;
-			break;
-		}
-
-		_local_addr.setServiceType (YARP_TCP);
-		_local_addr.setRawIdentifier (_local_acceptor.get_handle());
-
-		if (_local_acceptor.get_handle() == ACE_INVALID_HANDLE)
-		{
-			return YARP_FAIL;
-		}
-		_available = 0;
-	}
-	else
-#endif
-	{
-		_available = 1;
-		_socket = NULL;
-		_remote_endpoint.invalidate();
-		_socket_addr = NULL;
-	}
+	_available = 1;
+	_socket = NULL;
+	_remote_endpoint.invalidate();
+	_socket_addr = NULL;
 
 	_read_more = 0;
 	_reply_preamble = 0;
@@ -1526,71 +1425,6 @@ void _SocketThreadMulti::BodyUdp (void)
 					}
 
 					_local_buffer_counter = 0;
-
-#if 0
-					was_preamble = 0;
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to go into sending reply\n"));
-
-					/// creates a local buffer and sends it.
-					_local_buffer_counter = 0;
-
-					do
-					{
-						if (_reply_preamble)
-						{
-							rep = 1;
-						}
-
-						MyMessageHeader hdr2;
-						hdr2.SetGood();
-						buf3 = bufack;
-						int reply_len = 0;
-						if (rep)
-						{
-							buf3 = _extern_reply_buffer;
-							reply_len = _extern_reply_length;
-						}
-
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? sending reply _SocketThreadMulti\n"));
-
-						hdr2.SetLength(reply_len);
-						memcpy (_local_buffer + _local_buffer_counter, &hdr2, sizeof(hdr2));
-						_local_buffer_counter += sizeof(hdr2);
-
-						if (reply_len > 0)
-						{
-							memcpy (_local_buffer + _local_buffer_counter, buf3, reply_len);
-							_local_buffer_counter += reply_len;
-						}
-
-						int curr_preamble = _reply_preamble;
-						if (rep)
-						{
-							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? POSTING reply made %d\n", curr_preamble));
-							_reply_made.Post();
-						}
-
-						was_preamble = 0;
-						if (curr_preamble)
-						{
-							was_preamble = 1;
-
-							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? WAITING for post-preamble wakeup\n", r));
-							_wakeup.Wait();
-							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? DONE WAITING for post-preamble wakeup\n", r));
-							rep = 1;
-						}
-					}
-					while (was_preamble);
-
-					/// sends reply as a single packet.
-					iovec iov;
-					iov.iov_base = _local_buffer;
-					iov.iov_len = _local_buffer_counter;
-
-					dgram_socket.send (&iov, 1, _remote_endpoint.getAddressRef(), 0);
-
-#endif
 				}
 				else
 				{

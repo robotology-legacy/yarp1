@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.39 2003-07-31 22:06:59 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.40 2003-07-31 22:21:10 gmetta Exp $
 ///
 ///
 
@@ -420,88 +420,6 @@ int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buff
 {
 	memset (reply_buffer, 0, reply_buffer_length);
 	return reply_buffer_length;
-
-#if 0
-	OSDataDgram& d = OSDATA(system_resources);
-	int result = YARP_FAIL;
-
-	if (d._overall_msg_size != 0)
-	{
-		/// it needs to send the message first.
-		if (d._overall_msg_size > MAX_PACKET)
-		{
-			ACE_DEBUG ((LM_DEBUG, "Implementation limit, pls, you should refrain from sending big MCAST packets\n"));
-			ACE_DEBUG ((LM_DEBUG, "Actual size is %d, allowed %d\n", d._overall_msg_size, MAX_PACKET));
-			ACE_ASSERT (1 == 0);
-		}
-
-		int sent = d._connector_socket.send (d._iov, d._num_elements, d._remote_addr, 0);
-		if (sent < 0)
-		{
-			ACE_DEBUG ((LM_DEBUG, "Actual send to %s:%d failed\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
-			return YARP_FAIL;
-		}
-
-		d._overall_msg_size = 0;
-		d._num_elements = 0;
-
-		d._iov[0].iov_base = d._buffer;
-		d._iov[0].iov_len = MAX_PACKET;
-		ACE_INET_Addr incoming;
-		int r = d._connector_socket.recv (d._iov, 1, incoming, 0);
-		if (r > 0)
-		{
-			MyMessageHeader *hdr2 = (MyMessageHeader *)(d._iov[0].iov_base);
-			d._iov[0].iov_base = ((char *)d._iov[0].iov_base) + sizeof(MyMessageHeader);
-
-			int len2 = hdr2->GetLength();
-			if (len2 > 0)
-			{
-				if (len2 < reply_buffer_length)
-				{
-					reply_buffer_length = len2;
-				}
-
-				memcpy (reply_buffer, d._iov[0].iov_base, reply_buffer_length);
-				d._iov[0].iov_base = ((char *)d._iov[0].iov_base) + reply_buffer_length;
-				result = reply_buffer_length;
-			}
-			else
-			{
-				if (len2 == 0) { result = 0; }
-			}
-		}
-		else
-		{
-			ACE_DEBUG ((LM_DEBUG, "Recv of reply msg failed\n"));
-			return YARP_FAIL;
-		}
-	}
-	else
-	{
-		MyMessageHeader *hdr2 = (MyMessageHeader *)(d._iov[0].iov_base);
-		d._iov[0].iov_base = ((char *)d._iov[0].iov_base) + sizeof(MyMessageHeader);
-
-		int len2 = hdr2->GetLength();
-		if (len2 > 0)
-		{
-			if (len2 < reply_buffer_length)
-			{
-				reply_buffer_length = len2;
-			}
-
-			memcpy (reply_buffer, d._iov[0].iov_base, reply_buffer_length);
-			d._iov[0].iov_base = ((char *)d._iov[0].iov_base) + reply_buffer_length;
-			result = reply_buffer_length;
-		}
-		else
-		{
-			if (len2 == 0) { result = 0; }
-		}
-	}
-
-	return result;
-#endif
 }
 
 
@@ -526,8 +444,6 @@ int YARPOutputSocketDgram::SendEnd(char *reply_buffer, int reply_buffer_length)
 
 	memset (reply_buffer, 0, reply_buffer_length);
 	return reply_buffer_length;
-	
-	////return SendReceivingReply (reply_buffer, reply_buffer_length);
 }
 
 

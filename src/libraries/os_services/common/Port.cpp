@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.51 2003-07-31 22:06:59 gmetta Exp $
+/// $Id: Port.cpp,v 1.52 2003-07-31 22:21:10 gmetta Exp $
 ///
 ///
 
@@ -517,17 +517,6 @@ void _strange_select::Body ()
 	signal (SIGPIPE, SIG_IGN);
 #endif
 
-#if 0
-	int prio = ACE_Sched_Params::priority_max(ACE_SCHED_OTHER);
-	///prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, prio, ACE_SCOPE_THREAD);
-
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "strange_select thread at priority %d -> %d\n", GetPriority(), prio));
-	if (SetPriority(prio) == YARP_FAIL)
-	{
-		ACE_DEBUG ((LM_DEBUG, "can't raise priority of strange_select thread, potential source of troubles\n"));
-	}
-#endif
-
 	OutputTarget *target, *next;
 
 	while (!_terminate)
@@ -781,6 +770,7 @@ void Port::Body()
 	/// all this to avoid sending a message through the port socket.
 	tsender.Begin ();
 
+	/// registration completed. now goes the receiver/command thread.
 	if (asleep)
 	{
 		asleep = 0;
@@ -1311,7 +1301,6 @@ Port::~Port()
 
 int Port::IsSending ()
 {
-	//printf("sending?? pending=%d\n", pending);
 	int sending = pending;
 	OutputTarget *target; //, *next;
 	target = targets.GetRoot();
@@ -1319,7 +1308,6 @@ int Port::IsSending ()
 	while (target != NULL && !sending)
 	{
 		target->WaitMutex();
-		//printf(">>> sending?? %s->sending=%d\n", target->GetLabel().c_str(), target->sending);
 		sending |= target->sending;
 		target->PostMutex();
 		target = target->GetMeshNext();
@@ -1331,8 +1319,7 @@ int Port::IsSending ()
 
 void Port::FinishSend ()
 {
-	///int sending = 0;
-	OutputTarget *target; //, *next;
+	OutputTarget *target;
 	target = targets.GetRoot();
 
 	while (pending)
