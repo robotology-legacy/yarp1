@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test13.cpp,v 1.12 2003-05-29 00:39:27 gmetta Exp $
+/// $Id: exec_test13.cpp,v 1.13 2003-05-29 16:39:33 gmetta Exp $
 ///
 ///
 
@@ -88,10 +88,10 @@ public:
 	char msg[LEN];
 };
 
-///YARPInputPortOf<Msg> in(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-///YARPOutputPortOf<Msg> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-YARPInputPortOf<Msg> in;
-YARPOutputPortOf<Msg> out;
+YARPInputPortOf<Msg> in(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+YARPOutputPortOf<Msg> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+///YARPInputPortOf<Msg> in;
+///YARPOutputPortOf<Msg> out;
 
 class Thread1 : public YARPThread
 {

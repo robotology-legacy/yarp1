@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.26 2003-05-29 13:50:50 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.27 2003-05-29 16:39:32 gmetta Exp $
 ///
 ///
 
@@ -1589,7 +1589,8 @@ int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buff
 	int result = -1;
 	ACE_INET_Addr incoming;
 
-	int r = d._connector_socket.recv ((void *)(&hdr2), sizeof(hdr2), incoming);
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	int r = d._connector_socket.recv ((void *)(&hdr2), sizeof(hdr2), incoming, 0, &timeout);
 	if (r == sizeof(hdr2))
 	{
 		int len2 = hdr2.GetLength();
@@ -1600,7 +1601,7 @@ int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buff
 				reply_buffer_length = len2;
 			}
 
-			result = d._connector_socket.recv ((void *)reply_buffer, reply_buffer_length, incoming);
+			result = d._connector_socket.recv ((void *)reply_buffer, reply_buffer_length, incoming, 0, &timeout);
 		}
 		else
 		{
