@@ -1,1 +1,1 @@
-ABSRC = ../RawActivate.c ../abmain.c ../dibujo.c ../exit_viewer.c ../image_freeze.c ../init.c ../raw_init.c 
+ABSRC = ../RawActivate.c ../abmain.c ../dibujo.c ../exit_viewer.c ../image_freeze.c ../init.c ../raw_init.c ../save_image.c 

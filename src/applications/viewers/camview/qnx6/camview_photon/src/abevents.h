@@ -17,6 +17,7 @@ static const ApEventLink_t AbLinks_base[] = {
 	};
 
 static const ApEventLink_t AbLinks_filemenu[] = {
+	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "file_name", 2009, save_image, 0, 0, 0, 0, },
 	{ 8, 0, 0L, 0L, 0L, NULL, NULL, "file_exit", 2009, exit_viewer, 0, 0, 0, 0, },
 	{ 0 }
 	};

@@ -1,1 +1,1 @@
-ABOBJ = RawActivate.o abmain.o dibujo.o exit_viewer.o image_freeze.o init.o raw_init.o 
+ABOBJ = RawActivate.o abmain.o dibujo.o exit_viewer.o image_freeze.o init.o raw_init.o save_image.o 

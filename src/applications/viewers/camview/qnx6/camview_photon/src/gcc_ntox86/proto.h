@@ -19,3 +19,6 @@ int init ( int argc , char *argv []);
 
 /* ../raw_init.c */
 int raw_init ( PtWidget_t *widget );
+
+/* ../save_image.c */
+int save_image ( PtWidget_t *widget , ApInfo_t *apinfo , PtCallbackInfo_t *cbinfo );
