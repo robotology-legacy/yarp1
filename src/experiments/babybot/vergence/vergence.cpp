@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.6 2004-01-16 14:59:26 babybot Exp $
+/// $Id: vergence.cpp,v 1.7 2004-01-17 11:38:15 gmetta Exp $
 ///
 ///
 
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 	previousLeft.Resize(_stheta, _srho);
 	previousRight.Resize(_stheta, _srho);
 	int counter = 0;
-	char tmpName[255];
+	///char tmpName[255];
 	
 	while (1)
 	{

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.23 2004-01-16 15:51:07 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.24 2004-01-17 11:38:15 gmetta Exp $
 ///
 ///
 
@@ -181,6 +181,8 @@ struct LUT_Ptrs{
 	double			* CorrLevels;
 //	int				* PixelCount;
 };
+
+
 struct rgbPixel
 {
 	unsigned char Red;
