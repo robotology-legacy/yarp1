@@ -1,6 +1,6 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.22 2003-10-03 15:38:01 beltran Exp $
+$Id: install.txt,v 1.23 2003-10-30 11:59:20 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
@@ -72,7 +72,7 @@ REQUIRES:
 	i.e.:tar xvfzk ACE-5.3.tar.gz
 	  *** check out the correct ACE files from the repository ***
 
-	- in $YARP_ROOT/src/libraries/ACE_wrappers/include/makeinclude clean the next link:
+	- in $YARP_ROOT/src/libraries/ACE_wrappers/include/makeinclude create the next link:
 		ln -s platform_qnx_rtp_gcc.GNU platform_macros.GNU
 
 	- use the %YARP_ROOT%/conf/YARPConfigTemplate.h and include the correct 
