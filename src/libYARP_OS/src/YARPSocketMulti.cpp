@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.5 2004-07-08 19:15:28 eshuy Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.6 2004-07-09 08:53:57 eshuy Exp $
 ///
 ///
 
@@ -2708,7 +2708,7 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 	}
 
 	stream.send_n (&hdr, sizeof(hdr), 0);
-	
+
 	/// wait response.
 	hdr.SetBad ();
 	r = stream.recv_n (&hdr, sizeof(hdr), 0, &timeout);
@@ -2733,10 +2733,15 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 	/// the connect changes the remote port number to the actual assigned channel.
 	/// should close on this address.
 	d._remote_addr.set_port_number (port_number);
+
+	//d._mem_addr.set(d._local_addr);
+	//d._mem_addr.set_port_number(port_number);
+	
 	d._mem_addr.set (port_number, d._local_addr.get_host_addr());
 
 	/// at this point the remote should be listening on port_number
 	r = d._connector_socket.connect (d._stream, d._mem_addr);
+
 	if (r == -1)
 	{
 	  ACE_DEBUG ((LM_ERROR, "*** CHECK that your machine's domain name is configured\n"));

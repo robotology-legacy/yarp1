@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.4 2004-07-08 19:15:28 eshuy Exp $
+/// $Id: YARPSocket.cpp,v 1.5 2004-07-09 08:53:57 eshuy Exp $
 ///
 ///
 
@@ -188,6 +188,10 @@ int YARPNetworkObject::setSocketBufSize (ACE_SOCK& sock, int size)
 int getHostname(char *buffer, int buffer_length)
 {
 	int result = gethostname (buffer, buffer_length);
+	// just who wants the following to actually happen?
+	// breaks shmem endpoint comparison if no domain set.
+	// interesting to see what happens across different domains...
+#if 0
 #ifndef __QNX4__
 #ifndef __WIN32__
 #ifndef __QNX6__
@@ -209,6 +213,7 @@ int getHostname(char *buffer, int buffer_length)
 			result = getdomainname(buffer,buffer_length);
 		}
 	}
+#endif
 #endif
 #endif
 #endif

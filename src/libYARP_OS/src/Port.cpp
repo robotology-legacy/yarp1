@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.7 2004-07-08 19:15:27 eshuy Exp $
+/// $Id: Port.cpp,v 1.8 2004-07-09 08:53:57 eshuy Exp $
 ///
 ///
 
@@ -287,7 +287,6 @@ void OutputTarget::Body ()
 				return;	
 			}
 
-#ifndef __LINUXFOOO__
 #ifndef DEBUG_DISABLE_SHMEM
 			/// involves a query to dns or to the /etc/hosts file.
 			char myhostname[YARP_STRING_LEN];
@@ -313,7 +312,6 @@ void OutputTarget::Body ()
 				ACE_DEBUG ((LM_DEBUG, "$$$$$ OutputTarget::Body : this goes into SHMEM mode\n"));
 			}
 			else
-#endif
 #endif
 			{
 				/// LATER: must do proper bailout if locate fails.
