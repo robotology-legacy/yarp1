@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.9 2003-05-29 13:50:50 gmetta Exp $
+$Id: README.txt,v 1.10 2003-05-30 11:58:31 gmetta Exp $
 
 
 =============
@@ -18,13 +18,16 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 =============
 Things under development:
 
+1- UDP crashes on leto-eolo connection, it could be a problem of the terminal server 
+	though. Test it running from console.
+
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating
 	the sender. USE test12 to see this condition.
 
 9- release version crashes on exit. USE test 13 to show this problem, and close the 
 	receiver first.
 
-10- IMPORTANT! specify the nic, for multiple parallel connections.
+10- IMPORTANT! specify the nic, for multiple parallel connections in MCAST.
 
 11- missing htons here and there in the udp communication (fine w/ intel architecture).
 

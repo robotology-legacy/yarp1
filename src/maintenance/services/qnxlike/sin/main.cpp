@@ -61,13 +61,14 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2003-05-29 22:32:26 gmetta Exp $
+/// $Id: main.cpp,v 1.2 2003-05-30 11:58:31 gmetta Exp $
 ///
 ///
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <windows.h>
 
 void usage (const char *name)
 {
@@ -78,7 +79,7 @@ void usage (const char *name)
 ///
 int main (int argc, char *argv[])
 {
-	char cmdstring[4096];
+	char cmdstring[2048];
 	
 	if (argc < 2)
 	{
@@ -96,7 +97,7 @@ int main (int argc, char *argv[])
 	{
 		if (strcmp(argv[1], "-n") == 0)
 		{
-			memset (cmdstring, 0, 4096);
+			memset (cmdstring, 0, 2048);
 			char *tmp = cmdstring;
 			sprintf (tmp, "rkill /view \\\\"); tmp += 14;
 			sprintf (tmp, "%s", argv[2]); tmp += (strlen(argv[2]));
