@@ -1,19 +1,14 @@
-# $Id: Makefile,v 1.4 2003-07-02 12:51:12 beltran Exp $
+# $Id: Makefile,v 1.1 2003-07-02 12:51:12 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
-#SYSDIR = 
-
 #OBJS = $(patsubst %.cpp, %.o, $(wildcard *.cpp))
-#OBJS = YARPGALILOnEurobotHeadAdapter.o
 
 CFLAGS = -g -I../include -I../sys_include -I$(YARP_ROOT)/include/ -I$(YARP_ROOT)/src/hardware/include \
 -I../common
 
 LIBS = $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib $(YARP_ROOT)/bin/$(SYSDIR)/libACE.so \
 $(YARP_ROOT)/lib/$(OS)/YARPGalilDeviceDriver.lib $(YARP_ROOT)/lib/$(OS)/dmcqnx.lib	 
-
-SUBDIRS =
 
 CODELIB = 
 
@@ -25,25 +20,14 @@ OUTDIR = ../obj/$(SYSDIR)
 #	$(CC) $(CFLAGS) -c $^ -o $@
 #	cp $@ $(OUTDIR)
 
-#YARPGALILOnEurobotHeadAdapter.o: YARPGALILOnEurobotHeadAdapter.h
-#	$(CC) $(CFLAGS) -c $^ -o $@
-
-local: cardtest.cpp
-	$(CC) $(CFLAGS)  cardtest.cpp -o cardtest $(LIBS)
+local: 
 
 all: target
 
 target: local
 
-local: $(OBJS)
-
-w:
-	@echo -n
-
 clean:
-	rm -f $(OUTDIR)/*.o *.o $(CODELIB) 
-	rm -f cardtest
-
+	
 install:
 	cp *.h $(YARP_ROOT)/include
 

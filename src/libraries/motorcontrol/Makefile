@@ -1,6 +1,6 @@
 include $(YARP_ROOT)/conf/Makefile.template
 
-SUBDIRS = src
+SUBDIRS = eurobot babybot
 # $(SYSDIR)
 
 OUT_SYS = obj/$(SYSDIR)
@@ -18,18 +18,18 @@ all: target
 w:
 	echo -n
 
-target: subtarget local
+#target: subtarget local
+target: subtarget
 
 local: $(CODELIB)
 
 $(CODELIB): subtarget
 	$(AR) $(ARFLAGS) $(OUT_LIB)/$(CODELIB) $(OBJS)
 
-#install: target subinstall
-install: 
+install: target subinstall
 	$(CP) common/*.h $(YARP_ROOT)/include
-	$(CP) $(OUT_LIB)/$(CODELIB) $(YARP_ROOT)/lib/$(SYSDIR)
-	$(CP) include/*.h include/*.inl $(YARP_ROOT)/include
+	#$(CP) $(OUT_LIB)/$(CODELIB) $(YARP_ROOT)/lib/$(SYSDIR)
+	#$(CP) include/*.h include/*.inl $(YARP_ROOT)/include
 
 clean: subclean
 	rm -f obj/$(SYSDIR)/*
