@@ -12,6 +12,8 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
+const int _AVE = 20;
+
 /////////////////////////////////////////////////////////////////////////////
 // CAboutDlg dialog used for App About
 
@@ -20,9 +22,14 @@ void CRecv::Body (void)
 	/// 
 	m_inport.Register (m_name);
 
+	double start = -1;
+	double cur = -1;
+	int frame_no = 0;
+
 	while (1)
 	{
 		m_inport.Read();
+
 		m_img.Refer (m_inport.Content());
 		if (m_flipped.GetWidth() != m_img.GetWidth() || m_flipped.GetHeight() != m_img.GetHeight())
 		{
@@ -45,6 +52,19 @@ void CRecv::Body (void)
 			m_converter.ConvertToDIB (m_flipped);
 		}
 
+		frame_no ++;
+		if (start == -1)
+		{
+			start = cur = YARPTime::GetTimeAsSeconds();
+		}
+
+		if ((frame_no % _AVE) == 0)
+		{
+			cur = YARPTime::GetTimeAsSeconds();
+			m_est_interval = (cur - start) / _AVE;
+			start = cur;
+		}
+
 		m_mutex.Post();
 
 		/// copy it somewhere and fire a WM_PAINT event.
@@ -56,6 +76,13 @@ void CRecv::Body (void)
 			YARPTime::DelayInSeconds ((m_period - 2)* 1e-3);
 		}
 	}
+}
+
+void CRecv::SaveCurrentFrame (const char *filename)
+{
+	m_mutex.Wait ();
+	m_converter.SaveDIB (filename);
+	m_mutex.Post ();
 }
 
 class CAboutDlg : public CDialog
@@ -137,6 +164,9 @@ BEGIN_MESSAGE_MAP(CCamviewDlg, CDialog)
 	ON_COMMAND(ID_IMAGE_FREEZE, OnImageFreeze)
 	ON_UPDATE_COMMAND_UI(ID_IMAGE_FREEZE, OnUpdateImageFreeze)
 	ON_COMMAND(ID_IMAGE_NEWRATE, OnImageNewrate)
+	ON_COMMAND(ID_FILE_SAVEIMAGE, OnFileSaveimage)
+	ON_UPDATE_COMMAND_UI(ID_FILE_SAVEIMAGE, OnUpdateFileSaveimage)
+	ON_COMMAND(ID_IMAGE_SHOWINTERVAL, OnImageShowinterval)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -178,10 +208,6 @@ BOOL CCamviewDlg::OnInitDialog()
 	m_receiver.SetName ((LPCSTR)m_connection_name);
 	
 	m_receiver.Begin ();
-
-	/// required to set the stretch type.
-	///CPaintDC dc(this);
-	///SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);  
 
 	m_frozen = false;
 
@@ -421,4 +447,38 @@ void CCamviewDlg::OnImageNewrate()
 	{
 		m_receiver.SetPeriod (dlgRate.m_period);
 	}
+}
+
+void CCamviewDlg::OnFileSaveimage() 
+{
+	OnImageFreeze ();
+
+	CFileDialog fileDlg(FALSE,		/// save as dialog
+						"bmp",		/// default ext
+						NULL,		/// default filename
+						OFN_OVERWRITEPROMPT, /// flags
+						"Windows bitmap files (*.bmp)|*.bmp||", 
+						this);
+
+	int nResponse = fileDlg.DoModal();
+	if (nResponse == IDOK)
+	{
+		m_receiver.SaveCurrentFrame (fileDlg.m_ofn.lpstrFile);
+	}
+
+	OnImageFreeze ();
+}
+
+void CCamviewDlg::OnUpdateFileSaveimage(CCmdUI* pCmdUI) 
+{
+	unsigned char *dib = m_receiver.AcquireBuffer();
+	m_receiver.ReleaseBuffer();
+	pCmdUI->Enable (dib != NULL);
+}
+
+void CCamviewDlg::OnImageShowinterval() 
+{
+	CString string;
+	string.Format ("Estimated interval during last %d cycles: %.3f\0", _AVE, m_receiver.GetEstimatedInterval());
+	MessageBox (string);
 }

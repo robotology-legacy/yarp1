@@ -28,6 +28,7 @@ public:
 	int m_y;
 	bool m_frozen;
 	int m_period;
+	double m_est_interval;
 
 	YARPInputPortOf<YARPGenericImage> m_inport;
 	YARPImageOf<YarpPixelBGR> m_img;
@@ -42,6 +43,7 @@ public:
 		m_x = m_y = -1;
 		m_frozen = false;
 		m_period = 0;
+		m_est_interval = 0;
 	}
 
 	~CRecv () {}
@@ -71,6 +73,15 @@ public:
 		m_mutex.Wait();
 		m_frozen = fr;
 		m_mutex.Post();
+	}
+
+	void SaveCurrentFrame (const char *filename);
+	double GetEstimatedInterval (void)
+	{
+		m_mutex.Wait();
+		double ret = m_est_interval;
+		m_mutex.Post();
+		return ret;
 	}
 };
 
@@ -120,6 +131,9 @@ protected:
 	afx_msg void OnImageFreeze();
 	afx_msg void OnUpdateImageFreeze(CCmdUI* pCmdUI);
 	afx_msg void OnImageNewrate();
+	afx_msg void OnFileSaveimage();
+	afx_msg void OnUpdateFileSaveimage(CCmdUI* pCmdUI);
+	afx_msg void OnImageShowinterval();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

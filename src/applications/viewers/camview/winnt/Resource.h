@@ -16,13 +16,14 @@
 #define ID_HELP_ABOUT                   32773
 #define ID_IMAGE_FREEZE                 32774
 #define ID_IMAGE_NEWRATE                32775
+#define ID_IMAGE_SHOWINTERVAL           32776
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        132
-#define _APS_NEXT_COMMAND_VALUE         32776
+#define _APS_NEXT_COMMAND_VALUE         32777
 #define _APS_NEXT_CONTROL_VALUE         1002
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

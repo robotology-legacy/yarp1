@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\tools.lib ..\obj\Release\imagesx.lib ..\..\ipl\lib\ipl.lib /out:..\obj\Release\images.lib	copy ..\obj\Release\images.lib ..\..\..\..\lib\winnt
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\tools.lib ..\..\ipl\lib\ipl.lib /out:..\obj\Release\images.lib	copy ..\obj\Release\images.lib ..\..\..\..\lib\winnt
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "tools - Win32 Debug"
@@ -69,8 +69,8 @@ PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\tools.lib ..\ob
 # PROP Output_Dir "..\obj\Debug"
 # PROP Intermediate_Dir "..\obj\Debug"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ  /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ  /c
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -83,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Debug\toolsDB.lib ..\obj\Debug\imagesDBx.lib ..\..\ipl\lib\ipl.lib /out:..\obj\Debug\imagesDB.lib	copy ..\obj\Debug\imagesDB.lib ..\..\..\..\lib\winnt
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Debug\toolsDB.lib ..\..\ipl\lib\ipl.lib /out:..\obj\Debug\imagesDB.lib	copy ..\obj\Debug\imagesDB.lib ..\..\..\..\lib\winnt
 # End Special Build Tool
 
 !ENDIF 

@@ -167,6 +167,8 @@ BEGIN
     BEGIN
         MENUITEM "&Freeze",                     ID_IMAGE_FREEZE
         MENUITEM "New &rate...",                ID_IMAGE_NEWRATE
+        MENUITEM SEPARATOR
+        MENUITEM "&Show interval...",           ID_IMAGE_SHOWINTERVAL
     END
     POPUP "&Help", HELP
     BEGIN

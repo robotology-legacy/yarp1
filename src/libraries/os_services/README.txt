@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.13 2003-06-09 09:56:46 gmetta Exp $
+$Id: README.txt,v 1.14 2003-06-09 21:36:36 gmetta Exp $
 
 
 =============
@@ -23,7 +23,8 @@ Things under development:
 	- at least when the main thread is closing gracefully.
 	- it might need to call an extra termination function and wait...
 	- see also point 9.
-1.2- there's a MEMORY LEAK in attaching to a mcast server side port (the sender actually).
+1.2- something wrong when starting grabber + viewer on hermes, it tends to slow
+	down over time (if connecting and disconnecting many times).
 
 
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating

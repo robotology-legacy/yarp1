@@ -57,7 +57,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing viewer...
-PostBuild_Cmds=copy .\Debug\camview.exe ..\..\..\..\..\bin\winnt
+PostBuild_Cmds=copy .\Release\camview.exe ..\..\..\..\..\bin\winnt
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "camview - Win32 Debug"
