@@ -110,7 +110,7 @@ void YARPHistoSegmentation::backProjection(YARPImageOf<YarpPixelRGB> &in, YARPIm
 		{
 			_normalize(*src, tmp);
 			*dst = YARP3DHistogram::backProjection(tmp)*255 + 0.5;
-			src+=3;
+			src++;
 			dst++;
 		}
 	}
@@ -132,7 +132,7 @@ void YARPHistoSegmentation::backProjection(YARPImageOf<YarpPixelBGR> &in, YARPIm
 		{
 			_normalize(*src, tmp);
 			*dst = YARP3DHistogram::backProjection(tmp)*255 + 0.5;
-			src += 3;
+			src++;
 			dst++;
 		}
 	}
@@ -152,7 +152,7 @@ void YARPHistoSegmentation::backProjection(YARPImageOf<YarpPixelHSV> &in, YARPIm
 		for(i = 0; i < in.GetWidth(); i++)
 		{
 			*dst = YARP3DHistogram::backProjection(src->h, src->s, 0)*255 + 0.5;
-			src += 3;
+			src++;
 			dst++;
 		}
 	}

@@ -242,15 +242,11 @@ void YARP3DHistogram::clean()
 void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b, double w)
 {
 	HistoEntry *tmpEntryP = NULL;
-	// HistoKey tmpKey;
 	unsigned int it;
 
 	// check int threshold
 	if ((r+g+b) < 5)
 		return;
-
-	/*if ( (r == 85) && (g == 85) && (b == 85) )
-		return;*/
 
 	_pixelToKey(r, g, b, &it);
 
