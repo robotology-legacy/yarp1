@@ -1,0 +1,74 @@
+[virtual=x86,bios +compress] .bootstrap={
+startup-bios  
+#ROBOT_SERVER=europa.lira.dist.unige.it
+PATH=/proc/boot:/net/europa.lira.dist.unige.it/usr/local/bin:/net/europa.lira.dist.unige.it/bin:/net/europa.lira.dist.unige.it/usr/photon/bin:/net/europa.lira.dist.unige.it/usr/local/bin: LD_LIBRARY_PATH=/proc/boot:/usr/lib:/net/europa.lira.dist.unige.it/lib:/net/europa.lira.dist.unige.it/usr/lib:/net/europa.lira.dist.unige.it/lib/dll:/net/europa.lira.dist.unige.it/usr/local/lib procnto
+}
+
+[+script] .script={
+display_msg "My QNX Network image"
+seedres
+pipe &
+pci-bios &
+hostname nodo1
+waitfor /dev/pci
+#put in your actual IP,netmask and gateway
+io-net -del900
+#io-net -dvia-rhine
+mount -Tio-net npm-qnet.so
+waitfor /net
+
+#If you´re using ssh, start random daemon
+random -t -p &
+devc-con -n2 &
+reopen /dev/con2
+[+session] HOME=/ TERM=qansi-m ksh &
+reopen /dev/con1
+[+session] HOME=/ TERM=qansi-m ksh &
+}
+
+# the following is an example of inline file
+# you are doing this because non-QNX machines
+# won't recognise our "qansi-m" terminal. "ansi" terminal
+# is found on most machines
+[perms=+r,+x] /.kshrc = {
+alias telnet="TERM=ansi /proc/boot/telnet"
+}
+
+libc.so
+libsocket.so
+#libstdc++.so
+# required for ssh
+#libz.so
+npm-tcpip.so
+npm-qnet.so
+#devn-via-rhine.so
+#devn-tulip.so
+devn-el900.so
+/etc/hosts=/etc/hosts
+/etc/termcap=/etc/termcap
+/etc/passwd=/etc/passwd
+[type=link] /usr/lib/ldqnx.so.2=/proc/boot/libc.so
+#[type=link] /usr=/net/europa.lira.dist.unige.it/usr
+#[type=link] /home=/net/europa.lira.dist.unige.it/home
+
+[code=uip data=copy perms=+r,+x]
+seedres
+pipe
+ksh
+devc-con
+io-net
+ls
+pidin
+mount
+pci-bios
+hostname
+env
+#ifconfig
+#route
+#netstat
+#pci
+#cat
+#/usr/bin/ftp
+#/usr/bin/telnet
+#/usr/bin/ssh
+#/usr/bin/ping
