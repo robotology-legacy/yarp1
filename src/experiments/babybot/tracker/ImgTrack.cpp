@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: ImgTrack.cpp,v 1.1 2003-10-24 07:20:22 gmetta Exp $
+/// $Id: ImgTrack.cpp,v 1.2 2003-10-24 08:09:02 gmetta Exp $
 ///
 ///
 
@@ -408,6 +408,10 @@ void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<
 	/// LATER: this might be the place to auto-reset the tracker in case that any timeout expired.
 	///
 	///
+	if (now - _last_movement > 30)
+	{
+		setNewTarget (ISIZE/2, ISIZE/2);
+	}
 
 	/// a bit of copying.
 	_mono.CastCopy(src);
