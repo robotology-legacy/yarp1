@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.h,v 1.7 2005-02-25 17:04:34 natta Exp $
+/// $Id: YARPSciDeviceDriver.h,v 1.8 2005-03-03 03:36:08 natta Exp $
 ///
 ///
 
@@ -100,6 +100,9 @@ public:
 public: //later private:
 	
 	int getPosition(void *cmd);
+	int setPosition(void *cmd);
+	int setPositionMode(void *cmd);
+	int setForceMode(void *cmd);
 	/*
 	int getPositions(void *cmd);
 	int getRefPosition (void *cmd);
@@ -152,7 +155,11 @@ public: //later private:
 	*/
 	
 	// LATER: inline
-	int _readWord(int msg, int joint, int &value);
+	int _readWord(char msg, char joint, int &value);
+	int _writeWord(char msg, char joint, int value);
+	int _writeWord(char msg, char joint);
+
+	void readDebugger();
 	
 protected:
 	YARPSemaphore _mutex;

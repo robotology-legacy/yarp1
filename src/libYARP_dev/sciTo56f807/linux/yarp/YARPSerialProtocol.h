@@ -2,6 +2,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdio.h>
 
 #if !defined(__YARPSERIALPROTOCOLH__)
 #define __YARPSERIALPROTOCOLH__
@@ -26,6 +30,8 @@ public:
 	unsigned char _dataIn[__spBufferSize];
 	unsigned char _formatedData2Send[__spPacketSize];
 	unsigned char _rawData2Send[__spBufferSize];
+
+	char readRaw();
 
 private:
 	inline int _readbytes(unsigned char * sBuffer, char num)

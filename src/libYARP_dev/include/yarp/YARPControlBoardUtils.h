@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.3 2004-09-05 14:47:56 babybot Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.4 2005-03-03 03:36:08 natta Exp $
 ///
 ///
 
@@ -58,6 +58,9 @@ enum ControlBoardCmd
 	//
 	CMDDefinePosition 		= 16,	// set encoder value, single axis.
 	CMDDefinePositions 		= 17,	// set encoder values, all axes simultaneously.
+
+	CMDSetPositionControlMode = 86,   // set position mode
+	CMDSetForceControlMode	  = 87,	  // set force control mode
 
 	CMDGetPosition 			= 4,	// read actual encoder position.
 	CMDGetPositions 		= 8,	// see above, all axes.
@@ -189,7 +192,7 @@ enum ControlBoardCmd
 	// Make sure the CBNCmds is always up to date.
 	//
 	CMDDummy 				= 63,	// dummy command for debug purposes.
-	CBNCmds 				= 86 	// required! tells the total number of commands
+	CBNCmds 				= 87 	// required! tells the total number of commands
 };
 
 

@@ -4,11 +4,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "YARPSerialProtocol.h"
-
-#include <termios.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <stdio.h>
+#include <yarp/YARPAll.h>
+#include <ace/OS.h>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -33,7 +30,8 @@ int SerialProtocol::readFormat2bytes()
 	while(sw)
 	{
 		// printf("Receiving:\n");
-		if(_readbytes(&byte,1)==1)
+		while(_readbytes(&byte,1)!=1);	//busy waiting
+		// if(_readbytes(&byte,1)==1)
 		{
 		  // printf("%x\n", byte);
 		  if(((byte>>4)&0x0F)==_count)
@@ -60,22 +58,28 @@ int SerialProtocol::readFormat2bytes()
 				  _half=(byte<<4)&0xF0;
 			  }
 		  }
-		}
+		}/*
 		else
 		{
 			sw=0;
 			ret=YARP_FAIL;
-		}
+		}*/
 	}
 
 	return ret;
+}
+
+char SerialProtocol::readRaw()
+{
+	unsigned char byte;
+	while(_readbytes(&byte,1)!=1);
+	return byte;
 }
 
 int SerialProtocol::writeFormat2bytes()
 {
 	unsigned char byte;  
 	int countb;
-
 	for(countb=0;countb<__spPacketSize;countb++)
 	{
 	    if(countb&0x01)
@@ -86,11 +90,6 @@ int SerialProtocol::writeFormat2bytes()
 	    _formatedData2Send[countb]=byte;
 	}
 
-	// printf("Sending:\n");
-	/*for(int o = 0; o<__spPacketSize; o++)
-	{
-		printf("%x\n", _formatedData2Send[o]);
-	}*/
 	if (_writebytes(_formatedData2Send, __spPacketSize) == __spPacketSize)
 		return YARP_OK;
 	else

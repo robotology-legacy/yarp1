@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.cpp,v 1.6 2005-02-25 17:04:34 natta Exp $
+/// $Id: YARPSciDeviceDriver.cpp,v 1.7 2005-03-03 03:36:08 natta Exp $
 ///
 ///
 
@@ -49,6 +49,8 @@ YARPSciDeviceDriver::YARPSciDeviceDriver(void)
 	: YARPDeviceDriver<YARPNullSemaphore, YARPSciDeviceDriver>(CBNCmds), _mutex(1)
 {
 	m_cmds[CMDGetPosition] = &YARPSciDeviceDriver::getPosition;
+	m_cmds[CMDSetPositionControlMode] = &YARPSciDeviceDriver::setPositionMode;
+	m_cmds[CMDSetPosition] = &YARPSciDeviceDriver::setPosition;
 }
 
 YARPSciDeviceDriver::~YARPSciDeviceDriver ()
@@ -95,7 +97,40 @@ int YARPSciDeviceDriver::getPosition(void *cmd)
 	return ret;
 }
 
-int YARPSciDeviceDriver::_readWord(int msg, int joint, int &value)
+int YARPSciDeviceDriver::setPositionMode(void *cmd)
+{
+	int ret;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	int value;
+	
+	ret = _writeWord(SCI_POSITION_CONTROL_MODE, axis);
+	return ret;
+}
+
+int YARPSciDeviceDriver::setForceMode(void *cmd)
+{
+	int ret;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	int value;
+	
+	ret = _writeWord(SCI_FORCE_CONTROL_MODE, axis);
+	return ret;
+}
+
+int YARPSciDeviceDriver::setPosition(void *cmd)
+{
+	int ret;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	double value = *((double *) tmp->parameters);
+
+	ret = _writeWord(SCI_SET_POSITION, axis, (int)(value));
+	return ret;
+}
+
+int YARPSciDeviceDriver::_readWord(char msg, char joint, int &value)
 {
 	int ret;
 
@@ -110,8 +145,6 @@ int YARPSciDeviceDriver::_readWord(int msg, int joint, int &value)
 		return ret;
 	}
 
-	YARPTime::DelayInSeconds(0.005);
-
 	ret = _serialPort.readFormat2bytes();
 
 	if (ret != YARP_OK)
@@ -125,3 +158,121 @@ int YARPSciDeviceDriver::_readWord(int msg, int joint, int &value)
 		return YARP_OK;
 	}
 }
+
+int YARPSciDeviceDriver::_writeWord(char msg, char joint)
+{
+	int ret;
+
+	_serialPort._rawData2Send[0] = msg;
+	_serialPort._rawData2Send[1] = joint;
+
+	ret = _serialPort.writeFormat2bytes();
+
+	return ret;
+}
+
+int YARPSciDeviceDriver::_writeWord(char msg, char joint, int value)
+{
+	int ret;
+
+	ACE_OS::printf("sending:%d\n", value);
+	_serialPort._rawData2Send[0] = msg;
+	_serialPort._rawData2Send[1] = joint;
+	_serialPort._rawData2Send[2] = value;
+	_serialPort._rawData2Send[3] = (value>>8);
+
+	ret = _serialPort.writeFormat2bytes();
+
+	return ret;
+}
+
+void YARPSciDeviceDriver::readDebugger()
+{
+	char byte;
+	char byte1, byte2, byte3, byte4;
+	char tmp[255];	//later, change this or control overflow
+	char *pTmp;
+	bool done = false;
+	int index = 0;
+
+	tmp[0]='\0';
+	pTmp = tmp;
+
+/*	unsigned char local;
+	while(true)
+	{
+		byte = _serialPort.readRaw();
+		local = byte;
+		//printf("*");
+		printf("%x\n", byte); 
+	}*/
+
+	while(!done)
+	{
+		byte = _serialPort.readRaw();
+
+		if(byte=='\r')
+		{
+			*pTmp = '\r';
+			pTmp++;
+			done = true;
+		}
+		else if (byte == '\0')
+		{
+			done = true;
+		}
+		else if (byte == '%')
+		{
+			// manage symbol
+			byte = _serialPort.readRaw();
+			if(byte=='x')
+			{
+				// we have a byte
+				sprintf(pTmp, "0x");
+				pTmp+=2;
+				byte = _serialPort.readRaw();
+				sprintf(pTmp,"%x",byte);
+				pTmp+=2;
+			}
+			else if(byte=='d')
+			{
+				// we have a 16 word
+				sprintf(pTmp, "0x");
+				pTmp+=2;
+				byte1 = _serialPort.readRaw();
+				byte2 = _serialPort.readRaw();
+				sprintf(pTmp,"%x%x", byte2,byte1);
+				pTmp+=4;
+			}
+			else if(byte=='l')
+			{
+				// we have a 32 word
+				sprintf(pTmp, "0x");
+				pTmp+=2;
+				
+				byte1 = _serialPort.readRaw();
+				byte2 = _serialPort.readRaw();
+				byte3 = _serialPort.readRaw();
+				byte4 = _serialPort.readRaw();
+				sprintf(pTmp,"%x%x%x%x", byte4,byte3,byte2,byte1);
+				pTmp+=8;
+			}
+			else
+			{
+				sprintf(pTmp, "_ERROR_");
+				pTmp+=7;
+			}
+			done = true;
+		}
+		else
+		{
+			*pTmp=byte;
+			pTmp++;
+		}
+	}
+
+	// close string
+	*pTmp = '\0';
+	ACE_OS::printf("%s", tmp);
+}
+	
