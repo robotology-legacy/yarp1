@@ -119,6 +119,10 @@ if ($clean)
 	{
 		call_make_and_print ('', "clean");		
 	}
+        elsif ($os eq "darwin")
+        {
+		call_make_and_print ('', "clean");
+       	}
 }
 
 if ($debug)
@@ -136,6 +140,10 @@ if ($debug)
 		call_make_and_print ('', "CFAST=-g");
 	}
 	elsif ($os eq "qnx6")
+	{
+		call_make_and_print ('', "CFAST=-g");
+	}
+	elsif ($os eq "darwin")
 	{
 		call_make_and_print ('', "CFAST=-g");
 	}
@@ -158,6 +166,10 @@ if ($release)
 	elsif ($os eq "qnx6")
 	{
 		call_make_and_print ('', "CFAST=-O3");
+	}
+	elsif ($os eq "darwin")
+	{
+		call_make_and_print ('', "CFAST=-O2");
 	}
 }
 

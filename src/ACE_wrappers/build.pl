@@ -10,7 +10,7 @@
 #		  --distribution <PATH> is the path where ACE was unpacked
 #		  --os <OS> is the operating system you're compiling for
 #
-# $Id: build.pl,v 1.9 2004-12-01 15:49:25 babybot Exp $
+# $Id: build.pl,v 1.10 2004-12-06 14:39:31 micheletavella Exp $
 #
 # This script can be (at least in theory) configured to
 # do some useful thing in Linux and/or Qnx too. It's definitely
@@ -37,9 +37,10 @@ my $yarp_root;
 chomp ($ver = `ver`);
 chomp ($uname = `uname`);
 if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0
-	&& index ($uname, "QNX") < 0 && index ($uname, "Linux") < 0)
+	&& index ($uname, "QNX") < 0 && index ($uname, "Linux") < 0
+	&& index ($uname, "Darwin") < 0)
 {
-	die "This script is specific to Windows 2000/XP, Cygwin, Linux, or Qnx version 6\n";
+	die "This script is specific to Windows 2000/XP, Cygwin, Linux, Darwin or Qnx version 6\n";
 }
 
 $yarp_root = $ENV{'YARP_ROOT'};
@@ -71,9 +72,9 @@ unless (defined $distribution)
 	die "This script requires the parameter --distribution <path>\n";
 }
 
-if ($os ne "winnt" && $os ne "qnx6" && $os ne "linux")
+if ($os ne "winnt" && $os ne "qnx6" && $os ne "linux" && $os ne "darwin")
 {
-	die "This script is not yet tuned for OSes apart \"winnt\" and \"qnx6\"\n";
+	die "This script is not yet tuned for OSes apart \"winnt\", \"linux\", \"darwin\" and \"qnx6\"\n";
 }
 
 #
@@ -114,7 +115,12 @@ if ($clean)
 		symlink ("$yarp_root/include/$os/ace/config-linux.h", "$distribution/ace/config.h");
 		call_make_and_print ('', 'clean');
 	}
-
+        elsif ($os eq "darwin")
+        {
+                symlink ("$yarp_root/include/$os/ace/platform_macosx_panther.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+                symlink ("$yarp_root/include/$os/ace/config-macosx-panther.h", "$distribution/ace/config.h");
+                call_make_and_print ('', 'clean');
+        }
 	print "\n";
 	chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 }
@@ -153,6 +159,16 @@ if ($debug)
 
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
+        elsif ($os eq "darwin" && $release == 0)
+        {
+                chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
+                symlink ("$yarp_root/include/$os/ace/platform_macosx_panther.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+                symlink ("$yarp_root/include/$os/ace/config-macosx-panther.h", "$distribution/ace/config.h");
+
+                call_make_and_print ('', 'debug=1 optimize=0');
+                
+                chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
+        }
 }
 
 if ($release)
@@ -189,6 +205,15 @@ if ($release)
 
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
+        elsif ($os eq "darwin")
+        {
+                chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
+                symlink ("$yarp_root/include/$os/ace/platform_macosx_panther.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+                symlink ("$yarp_root/include/$os/ace/config-macosx-panther.h", "$distribution/ace/config.h");
+                call_make_and_print ('', 'optimize=1 debug=0');
+
+                chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
+        }
 }
 
 if ($install)
