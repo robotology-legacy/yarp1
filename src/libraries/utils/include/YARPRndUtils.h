@@ -34,7 +34,7 @@
 /// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
 /// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
 /// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
-/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, /// 
 /// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
 /// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
 /// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
@@ -59,32 +59,158 @@
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
+///
+/// $Id: YARPRndUtils.h,v 1.1 2004-02-07 17:20:54 natta Exp $
+///
+///
+/// Useful classes for random number generations.
+/// February 2004 -- by nat
+/// 
 
-///
-///  $Id: YARPRnd.cpp,v 1.3 2004-02-07 17:19:16 natta Exp $
-///
-///
+#ifndef __YARPRNDUTILS__
+#define __YARPRNDUTILS__
 
+#include <YARPMatrix.h>
 #include "YARPRnd.h"
 
-YARPRnd::YARPRnd(long seed)
+// Generate normally distributed random numbers (av = 0, std = 1.0)
+// Uses Box-Muller transformation.
+class YARPRndNormal: public YARPRnd
 {
-	theSeed = seed;
-	aa = 16807L;
-	mm = 2147483647L;
-	qq = 127773L;
-	rr = 2836L;
-}
+public:
+	YARPRndNormal(long seed = 1);
+		
+	void init (long aSeed)
+	{
+		YARPRnd::init(aSeed);
+		_last = 2;
+	}
+	
+	double getNumber();
 
-double YARPRnd::getNumber()
+private:
+	inline void _boxMuller();
+	
+	double _y[2];
+	int _last;
+};
+
+// YARPRndVector: Vector implementation of YARPRnd
+class YARPRndVector: public YARPRnd
 {
-	hh = theSeed/qq;
-	lo = theSeed-hh*qq;
-	test = aa*lo-rr*hh;
-	if (test > 0)
-		theSeed = test;
-	else
-		theSeed = test+mm;
-			
-	return (double)theSeed/(double)mm;
-}
+public:
+	YARPRndVector(int size = 1, double max = 1.0, double min = 0.0)
+	{ resize(YVector(1, &max), YVector(1, &min)); }
+
+	YARPRndVector(const YVector &max, const YVector &min)
+	{ resize(max, min); }
+
+	void resize(int s, const double *max, const double *min)
+	{ resize(YVector(s, max), YVector(s, min)); }
+
+	void resize(const YVector &max, const YVector &min);
+	
+	inline const YVector &getVector()
+	{
+		for(int i = 1; i <= _size; i++)
+			_random(i) = (_max(i) - _min(i)) * getNumber() + _min(i);
+		
+		return _random;
+	}
+
+	inline double getScalar()
+	{ return (_max(1) - _min(1)) * getNumber() + _min(1); }
+
+protected:
+	YVector _max;
+	YVector _min;
+	YVector _random;
+	int _size;
+};
+
+// YARPRndGaussVector: vector implementation of YARPRndNormal
+class YARPRndGaussVector: public YARPRndNormal
+{
+public:
+	YARPRndGaussVector(int size = 1, double av = 0.0, double std = 1.0)
+	{ resize(YVector(1, &av), YVector(1, &std)); }
+
+	YARPRndGaussVector(const YVector &av, const YVector &std)
+	{ resize(av, std); }
+
+	void resize(int s, const double *av, const double *std)
+	{ resize(YVector(s, av), YVector(s, std)); }
+
+	void resize(const YVector &av, const YVector &std);
+	
+	inline const YVector &getVector()
+	{
+		for(int i = 1; i <= _size; i++)
+			_random(i) = _std(i)*getNumber() + _average(i);
+		
+		return _random;
+	}
+
+	inline double getScalar()
+	{ return _std(1)*getNumber() + _average(1); }
+
+protected:
+	YVector _std;
+	YVector _average;
+	YVector _random;
+	int _size;
+};
+
+// YARPRndSafeGaussVector
+// Safe version of YARPRndGaussVector
+// Random vectors are bounded between max and min. Default max = min = 0;
+class YARPRndSafeGaussVector: public YARPRndGaussVector
+{
+public:
+	YARPRndSafeGaussVector(int size = 1, double max = 0.0, double min = 0.0, double av = 0.0, double std = 1.0)
+	{ resize(YVector(1, &max), YVector(1, &min), YVector(1, &av), YVector(1, &std));}
+
+	YARPRndSafeGaussVector(const YVector &max, const YVector &min, const YVector &av, const YVector &std)
+	{ resize(max, min, av, std); }
+
+	void resize(int s, const double *max, const double *min, const double *av, const double *std)
+	{ resize(YVector(s, max), YVector(s, min), YVector(s, av), YVector(s, std)); }
+
+	void resize(const YVector &max, const YVector &min, const YVector &av, const YVector &std);
+	
+	inline const YVector &getVector()
+	{
+		for(int i = 1; i <= _size; i++)
+		{
+			double tmp;
+			tmp = _std(i)*getNumber() + _average(i);
+			if (tmp > _max(i) ) 
+				_random(i) = _max(i);
+			else if (tmp < _min(i) )
+				_random(i) = _min(i);
+			else
+				_random(i) = tmp;
+		}
+		
+		return _random;
+	}
+
+	inline double getScalar()
+	{
+		double ret;
+		ret = _std(1)*getNumber() + _average(1);
+		
+		if (ret > _max(1))
+			return _max(1);
+		else if (ret < _min(1) )
+			return _min(1);
+		else
+			return ret;
+	}
+
+protected:
+	YVector _max;
+	YVector _min;
+};
+
+#endif

@@ -55,36 +55,95 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #nat#
+///			                    #nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-///  $Id: YARPRnd.cpp,v 1.3 2004-02-07 17:19:16 natta Exp $
+///  $Id: YARPRndUtils.cpp,v 1.1 2004-02-07 17:20:54 natta Exp $
 ///
 ///
 
-#include "YARPRnd.h"
+#include "YARPRndUtils.h"
+#include <YARPAll.h>
+#include <math.h>
+#include <time.h>
 
-YARPRnd::YARPRnd(long seed)
+///////// YARPRndNormal
+YARPRndNormal::YARPRndNormal(long seed): YARPRnd(seed)
 {
-	theSeed = seed;
-	aa = 16807L;
-	mm = 2147483647L;
-	qq = 127773L;
-	rr = 2836L;
+	_y[0] = 0.0;
+	_y[1] = 0.0;
+	_last = 2;
 }
 
-double YARPRnd::getNumber()
+double YARPRndNormal::getNumber()
 {
-	hh = theSeed/qq;
-	lo = theSeed-hh*qq;
-	test = aa*lo-rr*hh;
-	if (test > 0)
-		theSeed = test;
-	else
-		theSeed = test+mm;
-			
-	return (double)theSeed/(double)mm;
+	double ret;
+	if (_last > 1)
+	{
+		_boxMuller();	//compute two normally distr random number
+		_last = 0;
+	}
+		
+	ret = _y[_last];
+	_last++;
+	return ret;
+}
+
+inline void YARPRndNormal::_boxMuller()
+{
+	double x1, x2;
+	double w = 2.0;
+	while (w >= 1.0)
+	{
+		x1 = 2.0 * YARPRnd::getNumber() - 1.0;
+		x2 = 2.0 * YARPRnd::getNumber() - 1.0;
+		w = x1 * x1 + x2 * x2;
+	}
+
+	w = sqrt( (-2.0 * log( w ) ) / w );
+	_y[0] = x1 * w;
+	_y[1] = x2 * w;
+}
+
+////////// YARPRndVector
+void YARPRndVector::resize(const YVector &max, const YVector &min)
+{
+	ACE_ASSERT(max.Length() == min.Length());
+	ACE_ASSERT(max.Length() > 0);
+	
+	YARPRnd::init((unsigned) time(NULL));
+
+	_size = max.Length();
+	_max = max;
+	_min = min;
+	_random.Resize(_size);
+}
+
+////////// YARPRndGaussVector
+void YARPRndGaussVector::resize(const YVector &av, const YVector &std)
+{
+	ACE_ASSERT(av.Length() == std.Length());
+	ACE_ASSERT(av.Length() > 0);
+
+	YARPRndNormal::init((unsigned) time(NULL));
+
+	_size = av.Length();
+	_average = av;
+	_std = std;
+	_random.Resize(_size);
+}
+
+////////// YARPRndSafeGaussVector
+void YARPRndSafeGaussVector::resize(const YVector &max, const YVector &min, const YVector &av, const YVector &std)
+{
+	ACE_ASSERT((av.Length() == std.Length()) && (max.Length() == min.Length()) && (min.Length() == std.Length()));
+	ACE_ASSERT(av.Length() > 0);
+
+	YARPRndGaussVector::resize(av, std);
+
+	_max = max;
+	_min = min;
 }

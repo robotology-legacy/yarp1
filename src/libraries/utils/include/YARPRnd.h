@@ -61,13 +61,17 @@
 ///
 
 ///
-/// $Id: YARPRnd.h,v 1.1 2004-01-15 11:11:18 babybot Exp $
+/// $Id: YARPRnd.h,v 1.2 2004-02-07 17:19:16 natta Exp $
 ///
 ///
-/// Random generator class. Original implementation written by
-/// Davide Anguita University of Genova DIBE. C++ wrapper by nat
-/// (see also Random.c/Random.h files in the mbp lib=.
+/// Random generator class. Original implementation written by Davide Anguita
+/// University of Genova DIBE(see also Random.c/Random.h files in the mbp lib).
+/// Jan 2004 -- C++ wrapper by nat
+/// 
 /// Return a random number between 0 and 1;
+
+#ifndef __YARPRND__
+#define __YARPRND__
 
 class YARPRnd
 {
@@ -93,3 +97,6 @@ private:
 	long   hh;
 	long   test;
 };
+
+#endif
+

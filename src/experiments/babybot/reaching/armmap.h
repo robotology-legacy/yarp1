@@ -2,7 +2,7 @@
 #define __ARMMAP__
 
 #include <YARPBabybotHead.h>
-#include <YARPRnd.h>
+#include <YARPRndUtils.h>
 #include <time.h>
 #include <YARPBPNNet.h>
 #include <YARPPort.h>
@@ -67,62 +67,19 @@ private:
 	YVector *_arm;
 };
 
-class NoiseModule: public YARPRnd
+class NoiseModule: public YARPRndVector
 {
 public:
-	NoiseModule(int size = 1, double max = 1.0, double min = 0.0)
-	{
-		resize(YVector(1, &max), YVector(1, &min));
-	}
-
-	NoiseModule(const YVector &max, const YVector &min)
-	{
-		resize(max, min);
-	}
-
-	void resize(int s, const double *max, const double *min)
-	{
-		resize(YVector(s, max), YVector(s, min));
-	}
-
-	void resize(const YVector &max, const YVector &min)
-	{
-		ACE_ASSERT(max.Length() == min.Length());
-		ACE_ASSERT(max.Length() > 0);
-
-		YARPRnd::init((unsigned) time(NULL));
-
-		_size = max.Length();
-		_max = max;
-		_min = min;
-		_data.Resize(_size);
-		_random.Resize(_size);
-	}
-
+	NoiseModule()
+	{}
+	
+	NoiseModule(const YVector &max, const YVector &min): YARPRndVector(max, min)
+	{}
+	
 	const YVector &query()
 	{
 		return getVector();
 	}
-
-	const YVector &getVector()
-	{
-		for(int i = 1; i <= _size; i++)
-			_random(i) = (_max(i) - _min(i)) * getNumber() + _min(i);
-		
-		return _random;
-	}
-
-	double getScalar()
-	{
-		return (_max(1) - _min(1)) * getNumber() + _min(1);
-	}
-
-private:
-	YVector _max;
-	YVector _min;
-	YVector _data;
-	YVector _random;
-	int _size;
 };
 
 class ArmMap: public YARPInputPortOf<YARPBottle>

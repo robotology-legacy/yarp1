@@ -6,6 +6,7 @@
 // YBVRLTrainNow: force the network to train on current samples
 // YBVRLNEpoch + float set new value for #epoch
 // YBVRLBatchSize + float set new batch size
+// YBVRLTrainContinue train, without initialize the net
 	
 #include "lbehavior.h"
 #include <YARPBottle.h>

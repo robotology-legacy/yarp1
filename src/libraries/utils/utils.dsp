@@ -140,6 +140,10 @@ SOURCE=.\src\YARPRnd.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\YARPRndUtils.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\YARPTwoDKalmanFilter.cpp
 # End Source File
 # End Group
@@ -205,6 +209,10 @@ SOURCE=.\include\YARPRepeater.h
 # Begin Source File
 
 SOURCE=.\include\YARPRnd.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\YARPRndUtils.h
 # End Source File
 # Begin Source File
 
