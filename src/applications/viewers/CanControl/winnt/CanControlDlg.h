@@ -33,12 +33,25 @@ public:
 protected:
 	HICON m_hIcon;
 
+/// my stuff.
+	YARPValueCanDeviceDriver	m_driver;
+	ValueCanOpenParameters		m_params;
+	int							m_njoints;
+	unsigned char				m_destinations[16];
+	bool						m_driverok;
+
 	// Generated message map functions
 	//{{AFX_MSG(CCanControlDlg)
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
+	afx_msg void OnHelpAbout();
+	afx_msg void OnClose();
+	afx_msg void OnFileExit();
+	afx_msg void OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu);
+	afx_msg void OnDriverRun();
+	afx_msg void OnDriverKill();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

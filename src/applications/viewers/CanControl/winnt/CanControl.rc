@@ -1,4 +1,4 @@
-// Microsoft Visual C++ generated resource script.
+//Microsoft Developer Studio generated resource script.
 //
 #include "resource.h"
 
@@ -11,6 +11,15 @@
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -35,19 +44,18 @@ BEGIN
     "#define _AFX_NO_OLE_RESOURCES\r\n"
     "#define _AFX_NO_TRACKER_RESOURCES\r\n"
     "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
-	"\r\n"
-	"#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
-	"#ifdef _WIN32\r\n"
-	"LANGUAGE 9, 1\r\n"
-	"#pragma code_page(1252)\r\n"
-	"#endif //_WIN32\r\n"
-	"#include ""res\\CanControl.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
-	"#include ""afxres.rc""  	// Standard components\r\n"
-	"#endif\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\CanControl.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
     "\0"
 END
 
-/////////////////////////////////////////////////////////////////////////////
 #endif    // APSTUDIO_INVOKED
 
 
@@ -60,12 +68,6 @@ END
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON    DISCARDABLE     "res\\CanControl.ico"
 
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
-LANGUAGE 9, 1
-#pragma code_page(1252)
-#endif //_WIN32
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
@@ -80,28 +82,55 @@ BEGIN
     LTEXT           "CanControl Version 1.0",IDC_STATIC,40,10,119,8,
                     SS_NOPREFIX
     LTEXT           "Copyright (C) 2004",IDC_STATIC,40,25,119,8
-    DEFPUSHBUTTON   "OK",IDOK,178,7, 50,14,WS_GROUP
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
 END
 
-IDD_CANCONTROL_DIALOG DIALOGEX  0, 0, 320, 200 
+IDD_CANCONTROL_DIALOG DIALOGEX 0, 0, 280, 138
 STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "CanControl"
-FONT 8, "MS Sans Serif"
+MENU IDR_MAINMENU
+FONT 8, "MS Sans Serif", 0, 0, 0x1
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,260,7,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,260,23,50,14
-	LTEXT           "TODO: Place dialog controls here.",IDC_STATIC,50,90,200,8
 END
 
+IDD_ADDRESS_DIALOG DIALOG DISCARDABLE  0, 0, 192, 94
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,135,26,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,135,43,50,14
+    EDITTEXT        IDC_EDIT_ADDRESS0,7,26,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS1,36,26,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS2,65,26,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS3,94,26,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS4,7,42,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS5,36,42,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS6,65,42,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS7,94,42,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS8,7,58,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS9,36,58,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS10,65,58,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS11,94,58,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS12,7,74,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS13,36,74,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS14,65,74,28,13
+    EDITTEXT        IDC_EDIT_ADDRESS15,94,74,28,13,ES_READONLY
+    LTEXT           "Addresses of the controlled cards",IDC_STATIC,41,7,106,
+                    8
+END
+
+
+#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
 //
 
-VS_VERSION_INFO     VERSIONINFO
-  FILEVERSION       1,0,0,1
-  PRODUCTVERSION    1,0,0,1
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -112,26 +141,29 @@ VS_VERSION_INFO     VERSIONINFO
  FILETYPE 0x1L
  FILESUBTYPE 0x0L
 BEGIN
-	BLOCK "StringFileInfo"
-	BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
         BLOCK "040904B0"
-		BEGIN 
-			VALUE "CompanyName",     "\0"
-			VALUE "FileDescription", "CanControl MFC Application\0"
-			VALUE "FileVersion",     "1, 0, 0, 1\0"
-			VALUE "InternalName",    "CanControl\0"
-			VALUE "LegalCopyright",  "Copyright (C) 2004\0"
-			VALUE "LegalTrademarks", "\0"
-			VALUE "OriginalFilename","CanControl.EXE\0"
-			VALUE "ProductName",     "CanControl Application\0"
-			VALUE "ProductVersion",  "1, 0, 0, 1\0"
-		END
-	END
-	BLOCK "VarFileInfo" 
-	BEGIN 
-		VALUE "Translation", 0x409, 1200
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "CanControl MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "CanControl\0"
+            VALUE "LegalCopyright", "Copyright (C) 2004\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "CanControl.EXE\0"
+            VALUE "ProductName", "CanControl Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
     END
 END
+
+#endif    // !_MAC
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -148,16 +180,55 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 48
     END
+
     IDD_CANCONTROL_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 313
+        RIGHTMARGIN, 273
         TOPMARGIN, 7
-        BOTTOMMARGIN,193 
+        BOTTOMMARGIN, 131
+    END
+
+    IDD_ADDRESS_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 185
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 87
     END
 END
 #endif    // APSTUDIO_INVOKED
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINMENU MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_FILE_EXIT
+    END
+    POPUP "&Driver"
+    BEGIN
+        MENUITEM "&Run",                        ID_DRIVER_RUN
+        MENUITEM "&Kill",                       ID_DRIVER_KILL
+    END
+    POPUP "&Parameters"
+    BEGIN
+        MENUITEM "&Number of cards",            ID_PARAMETERS_NUMBEROFCARDS
+        MENUITEM "&Address of cards",           ID_PARAMETERS_ADDRESSOFCARDS
+        MENUITEM SEPARATOR
+        MENUITEM "Set &PID",                    ID_PARAMETERS_SETPID
+    END
+    POPUP "&Help", HELP
+    BEGIN
+        MENUITEM "&About",                      ID_HELP_ABOUT
+    END
+END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -169,7 +240,11 @@ STRINGTABLE DISCARDABLE
 BEGIN
     IDS_ABOUTBOX            "&About CanControl..."
 END
-#endif
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
 
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -186,8 +261,8 @@ END
 LANGUAGE 9, 1
 #pragma code_page(1252)
 #endif //_WIN32
-#include "res\\CanControl.rc2"  // non-Microsoft Visual C++ edited resources
-#include "afxres.rc"  	// Standard components
+#include "res\CanControl.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

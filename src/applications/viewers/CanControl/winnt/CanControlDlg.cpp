@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "CanControl.h"
 #include "CanControlDlg.h"
+#include "CanControlParams.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -82,6 +83,12 @@ BEGIN_MESSAGE_MAP(CCanControlDlg, CDialog)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_COMMAND(ID_HELP_ABOUT, OnHelpAbout)
+	ON_WM_CLOSE()
+	ON_COMMAND(ID_FILE_EXIT, OnFileExit)
+	ON_WM_INITMENUPOPUP()
+	ON_COMMAND(ID_DRIVER_RUN, OnDriverRun)
+	ON_COMMAND(ID_DRIVER_KILL, OnDriverKill)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -115,8 +122,16 @@ BOOL CCanControlDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
-	// TODO: Add extra initialization here
+	/// specific initialization.
+	YARPScheduler::setHighResScheduling();
 	
+	m_njoints = DEFAULT_NJOINTS;
+	memset (m_destinations, 16, sizeof(unsigned char) * CANBUS_MAXCARDS);
+	m_destinations[0] = DEFAULT_DESTINATION;
+	m_destinations[15] = CANBUS_MY_ADDRESS;		/// shouldn't be used anyway
+	m_driverok = false;
+
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -167,4 +182,102 @@ void CCanControlDlg::OnPaint()
 HCURSOR CCanControlDlg::OnQueryDragIcon()
 {
 	return (HCURSOR) m_hIcon;
+}
+
+void CCanControlDlg::OnHelpAbout() 
+{
+	CAboutDlg dlgAbout;
+	dlgAbout.DoModal();
+}
+
+void CCanControlDlg::OnClose() 
+{
+	OnDriverKill ();
+	CDialog::OnClose();
+}
+
+void CCanControlDlg::OnFileExit() 
+{
+	PostMessage (WM_CLOSE);	
+}
+
+void CCanControlDlg::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu) 
+{
+	CDialog::OnInitMenuPopup(pPopupMenu, nIndex, bSysMenu);
+	
+	if (!bSysMenu)
+	{
+		ASSERT(pPopupMenu != NULL);
+		// check the enabled state of various menu items
+		CCmdUI state;
+		state.m_pMenu = pPopupMenu;
+		ASSERT(state.m_pOther == NULL);
+		state.m_nIndexMax = pPopupMenu->GetMenuItemCount();
+
+		for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax; state.m_nIndex++)
+		{
+			state.m_nID = pPopupMenu->GetMenuItemID(state.m_nIndex);
+			if (state.m_nID == 0)
+				continue; // menu separator or invalid cmd - ignore it
+			ASSERT(state.m_pOther == NULL);
+			ASSERT(state.m_pMenu != NULL);
+			if (state.m_nID == (UINT)-1)
+			{
+				// possibly a popup menu, route to first item of that popup
+				state.m_pSubMenu = pPopupMenu->GetSubMenu(state.m_nIndex);
+				if (state.m_pSubMenu == NULL || 
+					(state.m_nID = state.m_pSubMenu->GetMenuItemID(0)) == 0 ||
+					state.m_nID == (UINT)-1)
+				{
+					continue; // first item of popup can't be routed to
+				}
+				state.DoUpdate(this, FALSE);  // popups are never auto disabled
+			}
+			else
+			{
+				// normal menu item
+				// Auto enable/disable if command is _not_ a system command
+				state.m_pSubMenu = NULL;
+				state.DoUpdate(this, state.m_nID < 0xF000);
+			}
+		}
+	}	
+}
+
+///
+/// starts up the device driver.
+///
+void CCanControlDlg::OnDriverRun() 
+{
+	/// we have a few defaults here.
+	m_params._port_number = CANBUS_DEVICE_NUM;
+	m_params._arbitrationID = CANBUS_ARBITRATION_ID;
+	
+	memcpy (m_params._destinations, m_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
+
+	m_params._my_address = CANBUS_MY_ADDRESS;					/// my address.
+	m_params._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
+	m_params._timeout = CANBUS_TIMEOUT;							/// approx this value times the polling interval [ms].
+
+	m_params._njoints = m_njoints;
+
+	if (m_driver.open ((void *)&m_params) < 0)
+	{
+		m_driverok = false;
+		m_driver.close ();
+		MessageBox ("The driver didn't start correctly, pls check the hardware", "Error!");
+		return;
+	}
+
+	MessageBox ("The driver is now running", "Good!");
+	m_driverok = true;
+}
+
+void CCanControlDlg::OnDriverKill() 
+{
+	if (m_driverok)
+	{
+		m_driver.close ();
+		m_driverok = false;
+	}
 }
