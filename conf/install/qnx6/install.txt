@@ -1,6 +1,6 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.9 2003-07-02 12:22:59 beltran Exp $
+$Id: install.txt,v 1.10 2003-07-02 12:50:05 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
@@ -107,7 +107,6 @@ REQUIRES:
 	motorcontrol
 		* for the moment
 			- use "make install" in %YARP_ROOT/src/libraries/motorcontrol
-			- use "make install" in %YARP_ROOT/src/libraries/motorcontrol/eurobot
 	===
 
 	//utils
