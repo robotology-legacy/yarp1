@@ -7,7 +7,7 @@
 
 #include <yarp/YARPBabybotHeadKin.h>
 
-const double __maxVerg = 40*degToRad;
+const double __maxVerg = 35*degToRad;
 const double __minVerg = 3*degToRad;
 const int __centerX = 128;
 const int __centerY = 128;

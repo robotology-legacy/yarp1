@@ -1,1 +1,0 @@
-pls, make a sym link of your GNU platform file. Do not include it in the CVS repository.

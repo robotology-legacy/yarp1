@@ -1,1 +1,0 @@
-Just a local repository for the libraries. Don't link from here.

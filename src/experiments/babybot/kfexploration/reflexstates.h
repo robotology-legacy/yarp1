@@ -1,13 +1,11 @@
-#include <YARPBehavior.h>
-#include <./conf/YARPBabybotVocab.h>
+#include <yarp/YARPConfigRobot.h>
+#include <yarp/YARPBehavior.h>
 
-#include <YARPPort.h>
-#include <YARPBottleContent.h>
-#include <YARPVectorPortContent.h>
-#include <YARPPort.h>
-#include <YARPMatrix.h>
-#include <YARPString.h>
-#include <YARPTime.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPMatrix.h>
+#include <yarp/YARPString.h>
+#include <yarp/YARPTime.h>
 
 const YARPString __inputPortName = "/touch/i";
 
@@ -23,7 +21,7 @@ public:
 
 public:
 
-	YARPOutputPortOf<YARPBottle> _outBehavior;
+	YARPOutputPortOf<YARPBabyBottle> _outBehavior;
 
 };
 
@@ -63,7 +61,7 @@ public:
 		key = k;
 	}
 
-	bool input(YARPBottle *in, ExplorationShared *d)
+	bool input(YARPBabyBottle *in, ExplorationShared *d)
 	{
 		if (!in->tryReadVocab(tmpK))
 			return false;
@@ -133,7 +131,7 @@ public:
 		d->_outBehavior.Write(0);
 	}
 
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 };
 
 
@@ -157,8 +155,8 @@ public:
 		d->send();
 	}
 
-	YARPBottle _bottleVor;
-	YARPBottle _bottleTracker;
+	YARPBabyBottle _bottleVor;
+	YARPBabyBottle _bottleTracker;
 };
 
 class EBInhibitTracker: public EBehaviorBaseOutputState
@@ -181,8 +179,8 @@ public:
 		d->send();
 	}
 
-	YARPBottle _bottleVor;
-	YARPBottle _bottleTracker;
+	YARPBabyBottle _bottleVor;
+	YARPBabyBottle _bottleTracker;
 };
 
 class EBStopKF: public EBehaviorBaseOutputState
@@ -199,7 +197,7 @@ public:
 		d->_outBehavior.Write(0);
 	}
 
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 };
 
 class EBOpenhand: public EBehaviorBaseOutputState

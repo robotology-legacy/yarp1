@@ -1,6 +1,0 @@
-motor control includes now interface classes to wrap hardware control in general
-- frame grabbers
-- ADC's
-- control proper
-- force sensors
--

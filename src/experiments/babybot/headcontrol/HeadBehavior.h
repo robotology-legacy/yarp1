@@ -2,7 +2,7 @@
 #define __HEAD_BEHAVIOR__
 
 #include <yarp/YARPBehavior.h>
-#include <yarp/YARPBottle.h>
+#include <yarp/YARPBabyBottle.h>
 #include <yarp/YARPConfigRobot.h>
 #include "HeadThread.h"
 

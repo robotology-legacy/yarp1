@@ -1,7 +1,0 @@
-# Microsoft Developer Studio Generated Dependency File, included by mCAN.mak
-
-.\mCan.cpp : \
-	"..\include\icsnVC40.h"\
-	"..\include\icsSpyData.h"\
-	".\mCan.h"\
-	
