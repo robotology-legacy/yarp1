@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.38 2003-07-08 22:04:20 gmetta Exp $
+/// $Id: Port.cpp,v 1.39 2003-07-10 23:28:32 gmetta Exp $
 ///
 ///
 
@@ -125,6 +125,9 @@ void safe_printf(char *format,...)
 #define HEADER_CT (4)
 #define MAX_FRAGMENT (4)
 
+///
+/// for testing only (possibly remove it completely).
+/// #define DEBUG_DISABLE_SHMEM 1
 
 ///
 /// prepares the connect command. the header is NewFragmentHeader. a sender is
@@ -256,6 +259,7 @@ void OutputTarget::Body ()
 			getHostname (myhostname, YARP_STRING_LEN);
 			ACE_INET_Addr local ((u_short)0, myhostname);
 
+#ifndef DEBUG_DISABLE_SHMEM
 			if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
 			{
 				/// going into SHMEM mode.
@@ -276,8 +280,14 @@ void OutputTarget::Body ()
 					target_pid->invalidate();
 				}
 			}
-
-			///((YARPUniqueNameSock *)target_pid)->setPorts (&port_number, 1);
+#else
+			if (target_pid->getServiceType() != YARP_UDP)
+			{
+				/// problems.
+				ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
+				target_pid->invalidate();
+			}
+#endif
 
 			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
 			YARPEndpointManager::ConnectEndpoints (*target_pid);
@@ -849,6 +859,9 @@ void Port::Body()
 		}
         list_mutex.Post ();
 
+		/// BEWARE:
+		/// added a new syntax for MCAST ports, use a leading //
+		///
 		if (pid->isValid())
 		{
 			switch(tag)
@@ -869,7 +882,7 @@ void Port::Body()
 							
 							ACE_ASSERT(target != NULL);
 							
-							target->target_pid = NULL; ///->invalidate();
+							target->target_pid = NULL;
 							target->protocol_type = protocol_type;
 
 							target->Begin();
@@ -881,31 +894,85 @@ void Port::Body()
 					}
 					else
 					{
-						/// mcast out port thread.
-						target = targets.GetByLabel ("mcast-thread");
-						if (target == NULL)
+#ifndef DEBUG_DISABLE_SHMEM
+						/// it requires an extra call to the name server.
+						YARPUniqueNameID *pid = YARPNameService::LocateName (buf);
+
+						/// requires a query to dns unfortunately (maybe not?).
+						char myhostname[YARP_STRING_LEN];
+						getHostname (myhostname, YARP_STRING_LEN);
+						ACE_INET_Addr local ((u_short)0, myhostname);
+
+						if (((YARPUniqueNameSock *)pid)->getAddressRef().get_ip_address() == local.get_ip_address())
 						{
-							ACE_DEBUG ((LM_DEBUG, "Starting MCAST singleton (to be verified) thread\n"));
-							target = targets.NewLink("mcast-thread");
+							/// go into UDP-SHMEM.
+							target = targets.GetByLabel (buf);
+							if (target == NULL)
+							{
+								ACE_DEBUG ((LM_DEBUG, "Starting (possibly SHMEM) connection between %s and %s\n", name.c_str(), buf));
 
-							ACE_ASSERT(target != NULL);
-							target->target_pid = NULL; ///->invalidate();
-							target->protocol_type = protocol_type;
+								target = targets.NewLink(buf);
+								
+								ACE_ASSERT(target != NULL);
+								
+								target->target_pid = NULL;
+								target->protocol_type = YARP_UDP;
 
-							target->Begin();
+								target->Begin();
+							}
+							else
+							{
+								ACE_DEBUG ((LM_DEBUG, "Ignoring %s, already connected\n", buf));
+							}
+						}
+						else
+#endif
+						/// falls back in UDP mode.
+						/// no 2nd / means UDP destination (otherwise need a tag on the name server).
+						if (buf[1] != '/')
+						{
+							/// go into UDP.
+							target = targets.GetByLabel (buf);
+							if (target == NULL)
+							{
+								ACE_DEBUG ((LM_DEBUG, "Starting (possibly UDP) connection between %s and %s\n", name.c_str(), buf));
 
-							target->ConnectMcast (buf);
+								target = targets.NewLink(buf);
+								
+								ACE_ASSERT(target != NULL);
+								
+								target->target_pid = NULL;
+								target->protocol_type = YARP_UDP;
+
+								target->Begin();
+							}
+							else
+							{
+								ACE_DEBUG ((LM_DEBUG, "Ignoring %s, already connected\n", buf));
+							}
 						}
 						else
 						{
-							ACE_DEBUG ((LM_DEBUG, "MCAST: Starting connection between %s and %s\n", name.c_str(), buf));
-						
-							/// verifies whether it can start a SHMEM thread.
-							/// Procedure:
-							///		- if local == remote address (ip)
-							///		- start a thread and force it to go into SHMEM mode.
-							
-							target->ConnectMcast (buf);
+							/// mcast out port thread.
+							target = targets.GetByLabel ("mcast-thread");
+							if (target == NULL)
+							{
+								ACE_DEBUG ((LM_DEBUG, "Starting MCAST singleton (to be verified) thread\n"));
+								target = targets.NewLink("mcast-thread");
+
+								ACE_ASSERT(target != NULL);
+								target->target_pid = NULL;
+								target->protocol_type = protocol_type;
+
+								target->Begin();
+
+								target->ConnectMcast (buf);
+							}
+							else
+							{
+								ACE_DEBUG ((LM_DEBUG, "MCAST: Starting connection between %s and %s\n", name.c_str(), buf));
+								target->ConnectMcast (buf);
+							}
 						}
 					}
 
@@ -930,16 +997,35 @@ void Port::Body()
 					}
 					else
 					{
-						/// check here first for SHMEM connection.
-						/// if target is !NULL then close that connection (simple deactivate).
-
-						/// mcast
-						target = targets.GetByLabel("mcast-thread");
+#ifndef DEBUG_DISABLE_SHMEM
+						target = targets.GetByLabel(buf+1);
 						if (target != NULL)
 						{
-							ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and (%s) via %s\n", name.c_str(), buf+1, target->GetLabel().c_str()));
-							
-							target->DeactivateMcast(buf+1);
+							ACE_DEBUG ((LM_DEBUG, "Removing (SHMEM) connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
+							target->Deactivate();
+						}
+						else
+#endif
+						if (buf[2] != '/')
+						{
+							/// can't be MCAST, switches to UDP.
+							target = targets.GetByLabel(buf+1);
+							if (target != NULL)
+							{
+								ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
+								target->Deactivate();
+							}
+						}
+						else
+						{
+							/// mcast
+							target = targets.GetByLabel("mcast-thread");
+							if (target != NULL)
+							{
+								ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and (%s) via %s\n", name.c_str(), buf+1, target->GetLabel().c_str()));
+								
+								target->DeactivateMcast(buf+1);
+							}
 						}
 					}
 
@@ -1020,16 +1106,27 @@ void Port::Body()
 					}
 					else
 					{
+						OutputTarget *mtarget = targets.GetByLabel("mcast-thread");
+#ifndef DEBUG_DISABLE_SHMEM
+						/// takes care of the SHMEM connection
+						target = targets.GetRoot();
+
+						while (target != NULL)
+						{
+							next = target->GetMeshNext();
+							ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
+							if (target != mtarget && mtarget != NULL)
+								target->Deactivate();
+							target = next;
+						}
+#endif
+
 						/// mcast
-						target = targets.GetByLabel("mcast-thread");
-						if (target != NULL)
+						if (mtarget != NULL)
 						{
 							ACE_DEBUG ((LM_DEBUG, "Removing all mcast connections\n"));
-							
-							target->DeactivateMcastAll();
+							mtarget->DeactivateMcastAll();
 						}
-
-						/// and finally perhaps delete all the remaining SHMEM stuff.
 					}
 
 					list_mutex.Post ();

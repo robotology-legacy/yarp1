@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.22 2003-07-08 22:04:20 gmetta Exp $
+$Id: README.txt,v 1.23 2003-07-10 23:28:32 gmetta Exp $
 
 
 =============
@@ -28,12 +28,9 @@ Things under development:
 	down over time (if connecting and disconnecting many times).
 1.3- proper shutdown of extra port threads.
 
-2- extra commands for the name server.
 
 3- initialization MFC+os_services might fail under some circumstances
 	- solution: do explicit init and fini
-
-6.2- reply messages, exploit iovec structure, maintaining compatibility w/ YARP multipart msg.
 
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating
 	the sender. USE test12 to see this condition.
@@ -62,5 +59,6 @@ Things under development:
 5- return error if trying a connection on the wrong protocol.
 
 6- add windows DLL to the repository (these are the DLL's installed by visual C++).
+	- ok, still need to check whether everything is there.
 
 ***********
