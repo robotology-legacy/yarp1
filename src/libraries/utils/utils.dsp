@@ -136,6 +136,10 @@ SOURCE=.\src\YARPRecursiveLS.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\YARPRnd.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\YARPTwoDKalmanFilter.cpp
 # End Source File
 # End Group
@@ -197,6 +201,10 @@ SOURCE=.\include\YARPRecursiveLS.h
 # Begin Source File
 
 SOURCE=.\include\YARPRepeater.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\YARPRnd.h
 # End Source File
 # Begin Source File
 
