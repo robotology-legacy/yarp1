@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.12 2003-07-01 09:48:44 babybot Exp $
+/// $Id: YARPNameServer.cpp,v 1.13 2003-07-01 09:59:09 babybot Exp $
 ///
 ///
 
@@ -81,7 +81,12 @@ char * GetYarpRoot (void)
 int YARPNameServer::accept_connection()
 {
 	ACE_Time_Value timeout (5, 0);
-	return peer_acceptor_.accept (new_stream_, &client_addr_, &timeout);
+	int ret;
+	int one = 1;
+
+	ret = peer_acceptor_.accept (new_stream_, &client_addr_, &timeout);
+	new_stream_.set_option (ACE_IPPROTO_TCP, TCP_NODELAY, &one, sizeof(int));
+	return ret;
 }
 
 void YARPNameServer::dump_statics()
