@@ -13,6 +13,8 @@ CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS)
 
 BIN     = main
 
+CDEFS += -D__QNXEurobot__
+
 FILES 	=
 	  
 LDLIBS  =	$(YARP_ROOT)/lib/$(SYSDIR)/YARPPicoloDeviceDriver.lib	\
