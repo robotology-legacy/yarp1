@@ -85,15 +85,15 @@ print "If this procedure isn't clear to you, please, have a look at the document
 print "To start, provide a name for your hardware context. This will be merged with the ";
 print "OS name to provide our installation means of distinguishing this specific hardware\n\n";
 
-get_option_hash ("Architecture<-Hardware_Name", "null", "What is your hardware name?");
+get_option_hash ("Architecture<-Hardware_Name", "null", "What is your hardware name?", 0);
 print "Then your context specific directories are going to be called: \"$options{\"Architecture<-Hardware_Name\"}\"\n";
 
 print "These are the standard flags for compiling the library\n";
 
-get_option_hash ("Compile_Dev<-Lib_Clean", "FALSE", "Clean first: i.e. rebuild libraries?");
-get_option_hash ("Compile_Dev<-Lib_Debug", "FALSE", "Compile debug version?");
-get_option_hash ("Compile_Dev<-Lib_Release", "FALSE", "Compile release (optimized)?");
-get_option_hash ("Compile_Dev<-Lib_Install", "FALSE", "Install after build?");
+get_option_hash ("Compile_Dev<-Lib_Clean", "FALSE", "Clean first: i.e. rebuild libraries?", 1);
+get_option_hash ("Compile_Dev<-Lib_Debug", "FALSE", "Compile debug version?", 1);
+get_option_hash ("Compile_Dev<-Lib_Release", "FALSE", "Compile release (optimized)?", 1);
+get_option_hash ("Compile_Dev<-Lib_Install", "FALSE", "Install after build?", 1);
 
 if ($options{"Compile_Dev<-Lib_Clean"} eq "TRUE" &&
 	$options{"Compile_Dev<-Lib_Debug"} eq "FALSE" &&
@@ -164,7 +164,7 @@ foreach my $device (glob "*")
 	{
 		print "Would you like to add \"$device\" to the project [YES]? ";
 		chomp(my $answer = <STDIN>);
-		if ($answer eq "YES" || $answer eq '')
+		if ($answer =~ /\b[YyTt1]\w*/ || $answer eq '')
 		{
 			$options{"Compile_Dev<-DD_$device"} = "YES";
 			print MYPROJECT "# Begin Group \"$device\"\r\n\r\n";
@@ -284,7 +284,7 @@ else
 #
 sub get_option_hash
 {
-	my ($key, $default_value, $message) = @_;
+	my ($key, $default_value, $message, $type) = @_;
 	my $line = undef;
 
 	$options{$key} = $default_value if (!exists($options{$key}));
@@ -293,7 +293,49 @@ sub get_option_hash
 	chomp($line = <STDIN>);
 	$options{$key} = $line if (defined($line) && $line ne '');
 
+	if ($type)
+	{
+		verify_bool ($key, $default_value);
+	}
+
 	0;
+}
+
+sub verify_bool
+{
+	my ($key, $default_value) = @_;
+	my $value = $options{$key};
+
+	if ($default_value =~ /\b[TtFf]\w*/)
+	{
+		if ($value =~ /\b[TtYy1]\w*/)
+		{
+			$options{$key} = "TRUE";
+		}
+		elsif ($value =~ /\b[FfNn0]\w*/)
+		{
+			$options{$key} = "FALSE";
+		}
+		else
+		{
+			$options{$key} = $default_value;
+		}
+	}
+	elsif ($default_value =~ /\b[YyNn]\w*/)
+	{
+		if ($value =~ /\b[TtYy1]\w*/)
+		{
+			$options{$key} = "YES";
+		}
+		elsif ($value =~ /\b[FfNn0]\w*/)
+		{
+			$options{$key} = "NO";
+		}
+		else
+		{
+			$options{$key} = $default_value;
+		}
+	}
 }
 
 

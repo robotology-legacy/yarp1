@@ -72,17 +72,17 @@ print "Please, use always the forward slash as a separator!\n";
 
 print "I determined already that you're running on Windows\n";
 
-get_option_hash ("Architecture<-OS", "winnt", "Just to make sure, what's your OS?");
-get_option_hash ("Compile_OS<-ACE_PATH", "\$YARP_ROOT/src/ACE_wrappers", "Where has ACE been unpacked?");
-get_option_hash ("Compile_OS<-ACE_Rebuild", "NO", "Do you want to rebuild ACE, i.e. clean before building?");
+get_option_hash ("Architecture<-OS", "winnt", "Just to make sure, what's your OS?", 0);
+get_option_hash ("Compile_OS<-ACE_PATH", "\$YARP_ROOT/src/ACE_wrappers", "Where has ACE been unpacked?", 0);
+get_option_hash ("Compile_OS<-ACE_Rebuild", "NO", "Do you want to rebuild ACE, i.e. clean before building?", 1);
 
 print "Would you like to set a default for library compilation?\n";
-get_option_hash ("Compile_OS<-Lib_Clean", "FALSE", "Clean first: i.e. rebuild libraries?");
-get_option_hash ("Compile_OS<-Lib_Debug", "FALSE", "Debug mode?");
-get_option_hash ("Compile_OS<-Lib_Release", "FALSE", "Release mode (optimization on)?");
-get_option_hash ("Compile_OS<-Lib_Install", "FALSE", "Install after compile?");
-get_option_hash ("Compile_OS<-Tools_Rebuild", "YES", "Would you like to rebuild the YARP tools");
-get_option_hash ("Compile_OS<-Tools_Debug", "FALSE", "Would you like to compile the tools for debugging?");
+get_option_hash ("Compile_OS<-Lib_Clean", "FALSE", "Clean first: i.e. rebuild libraries?", 1);
+get_option_hash ("Compile_OS<-Lib_Debug", "FALSE", "Debug mode?", 1);
+get_option_hash ("Compile_OS<-Lib_Release", "FALSE", "Release mode (optimization on)?", 1);
+get_option_hash ("Compile_OS<-Lib_Install", "FALSE", "Install after compile?", 1);
+get_option_hash ("Compile_OS<-Tools_Rebuild", "YES", "Would you like to rebuild the YARP tools", 1);
+get_option_hash ("Compile_OS<-Tools_Debug", "FALSE", "Would you like to compile the tools for debugging?", 1);
 
 # consistency check.
 if ($options{"Compile_OS<-Lib_Debug"} ne "TRUE" && 
@@ -109,7 +109,7 @@ print "We're done for now, the context file is being created: \"$config_file\"\n
 #
 sub get_option_hash
 {
-	my ($key, $default_value, $message) = @_;
+	my ($key, $default_value, $message, $type) = @_;
 	my $line = undef;
 
 	$options{$key} = $default_value if (!exists($options{$key}));
@@ -118,9 +118,50 @@ sub get_option_hash
 	chomp($line = <STDIN>);
 	$options{$key} = $line if (defined($line) && $line ne '');
 
+	if ($type)
+	{
+		verify_bool ($key, $default_value);
+	}
+
 	0;
 }
 
+sub verify_bool
+{
+	my ($key, $default_value) = @_;
+	my $value = $options{$key};
+
+	if ($default_value =~ /\b[TtFf]\w*/)
+	{
+		if ($value =~ /\b[TtYy1]\w*/)
+		{
+			$options{$key} = "TRUE";
+		}
+		elsif ($value =~ /\b[FfNn0]\w*/)
+		{
+			$options{$key} = "FALSE";
+		}
+		else
+		{
+			$options{$key} = $default_value;
+		}
+	}
+	elsif ($default_value =~ /\b[YyNn]\w*/)
+	{
+		if ($value =~ /\b[TtYy1]\w*/)
+		{
+			$options{$key} = "YES";
+		}
+		elsif ($value =~ /\b[FfNn0]\w*/)
+		{
+			$options{$key} = "NO";
+		}
+		else
+		{
+			$options{$key} = $default_value;
+		}
+	}
+}
 
 #
 # creating a new config file.

@@ -102,10 +102,10 @@ print "Once more you are on a \"$os\" machine and configuring for something call
 
 print "These are the standard flags for compiling the library:\n";
 
-get_option_hash ("Compile_Robot<-Lib_Clean", "FALSE", "Clean first: i.e. rebuild libraries?");
-get_option_hash ("Compile_Robot<-Lib_Debug", "FALSE", "Compile debug version?");
-get_option_hash ("Compile_Robot<-Lib_Release", "FALSE", "Compile release (optimized)?");
-get_option_hash ("Compile_Robot<-Lib_Install", "FALSE", "Install after build?");
+get_option_hash ("Compile_Robot<-Lib_Clean", "FALSE", "Clean first: i.e. rebuild libraries?", 1);
+get_option_hash ("Compile_Robot<-Lib_Debug", "FALSE", "Compile debug version?", 1);
+get_option_hash ("Compile_Robot<-Lib_Release", "FALSE", "Compile release (optimized)?", 1);
+get_option_hash ("Compile_Robot<-Lib_Install", "FALSE", "Install after build?", 1);
 
 if ($options{"Compile_Robot<-Lib_Clean"} eq "TRUE" &&
 	$options{"Compile_Robot<-Lib_Debug"} eq "FALSE" &&
@@ -116,7 +116,7 @@ if ($options{"Compile_Robot<-Lib_Clean"} eq "TRUE" &&
 	$options{"Compile_Robot<-Lib_Debug"} = "TRUE";
 }
 
-get_option_hash ("Compile_Robot<-Tools_Rebuild", "NO", "Would you like to recompile the tools?");
+get_option_hash ("Compile_Robot<-Tools_Rebuild", "NO", "Would you like to recompile the tools?", 1);
 
 if ($options{"Compile_Robot<-Tools_Rebuild"} eq "NO" &&
 	$options{"Compile_Robot<-Lib_Clean"} eq "TRUE")
@@ -126,7 +126,7 @@ if ($options{"Compile_Robot<-Tools_Rebuild"} eq "NO" &&
 	$options{"Compile_Robot<-Tools_Rebuild"} = "YES";
 }
 
-get_option_hash ("Compile_Robot<-Tools_Debug", "FALSE", "Would you like to compile the tools with debug enabled?");
+get_option_hash ("Compile_Robot<-Tools_Debug", "FALSE", "Would you like to compile the tools with debug enabled?", 1);
 
 print "Browsing through the list of available device drivers\n";
 print "I'll be looking for classes you might have used device drivers in ";
@@ -216,7 +216,7 @@ foreach my $device (glob "*")
 
 				print "Confirm addition to YARPRobotHardware.h, type SKIP to skip this definition or NO to enter a new one [YES]? ";
 				chomp ($answer = <STDIN>);
-				if ($answer eq '' || $answer eq "YES")
+				if ($answer eq '' || $answer =~ /\b[Yy1]\w*/)
 				{
 					print CONFIG "/// #define for device driver \"$device\" in context \"$robotname\"$nline";
 					print CONFIG "#include <yarp/$filename.h>$nline";
@@ -361,7 +361,7 @@ close PROJECT;
 #
 sub get_option_hash
 {
-	my ($key, $default_value, $message) = @_;
+	my ($key, $default_value, $message, $type) = @_;
 	my $line = undef;
 
 	$options{$key} = $default_value if (!exists($options{$key}));
@@ -370,9 +370,50 @@ sub get_option_hash
 	chomp($line = <STDIN>);
 	$options{$key} = $line if (defined($line) && $line ne '');
 
+	if ($type)
+	{
+		verify_bool ($key, $default_value);
+	}
+
 	0;
 }
 
+sub verify_bool
+{
+	my ($key, $default_value) = @_;
+	my $value = $options{$key};
+
+	if ($default_value =~ /\b[TtFf]\w*/)
+	{
+		if ($value =~ /\b[TtYy1]\w*/)
+		{
+			$options{$key} = "TRUE";
+		}
+		elsif ($value =~ /\b[FfNn0]\w*/)
+		{
+			$options{$key} = "FALSE";
+		}
+		else
+		{
+			$options{$key} = $default_value;
+		}
+	}
+	elsif ($default_value =~ /\b[YyNn]\w*/)
+	{
+		if ($value =~ /\b[TtYy1]\w*/)
+		{
+			$options{$key} = "YES";
+		}
+		elsif ($value =~ /\b[FfNn0]\w*/)
+		{
+			$options{$key} = "NO";
+		}
+		else
+		{
+			$options{$key} = $default_value;
+		}
+	}
+}
 
 #
 # creating a new config file.
