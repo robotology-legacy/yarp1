@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.6 2004-04-23 17:42:04 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.7 2004-04-26 15:51:10 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -100,9 +100,10 @@ public:
 		return(((double (corrShift - shift)) / _SamplesPerSec) * 1e6);
 	}
 
-	inline double * GetCrossCorrelationBuffer() { return crosscorrelation_Re; }
+	inline double * GetCrossCorrelationBuffer() { return crosscorrelation_Re;}
 
 	inline int GetSize() { return numSamples;}
+	inline double GetMaxCC() { return corrMax; }
 
 private:
 	int ComputeCrossCorrelation(double *,double *,double *,double *);
@@ -134,17 +135,17 @@ private:
 
 	double * Re;
 	double * Im;
-    double * crosscorrelation_Re;   // The correlation buffer (it is also used to store the spectrum when calculating the fft)
-    double * crosscorrelation_Im;   // Well, really, the crosscorralation has not an imaginary part
-                                    // this is just used to store the imaginary part of the fft that is later used
-                                    // to obtain the crosscorrelation using the inverse fft
-    double * leftcorrelation_Re;    // This is for the auto correlation of the left audio signal
-    double * leftcorrelation_Im;    // Here applies the same discusion than in the crosscorrelation case
-    double * rightcorrelation_Re;   // The same but for the right audio signal
+    double * crosscorrelation_Re;    // The correlation buffer (it is also used to store the spectrum when calculating the fft)
+    double * crosscorrelation_Im;    // Well, really, the crosscorralation has not an imaginary part
+                                     // this is just used to store the imaginary part of the fft that is later used
+                                     // to obtain the crosscorrelation using the inverse fft
+    double * leftcorrelation_Re;     // This is for the auto correlation of the left audio signal
+    double * leftcorrelation_Im;     // Here applies the same discusion than in the crosscorrelation case
+    double * rightcorrelation_Re;    // The same but for the right audio signal
     double * rightcorrelation_Im;
-    double * SCOToperator_Re;       // The buffer for the SCOToperator
-    double * SCOToperator_Im;   
-    double corrMax; //Maximum value in the correlation vector
+    double * SCOToperator_Re;        // The buffer for the SCOToperator
+    double * SCOToperator_Im;
+    double corrMax;                  // Maximum value in the correlation vector
 
     int numSamples;     // number of samples for channel
     int numFreqSamples; // length of the trasformations (N/2 + 1??)

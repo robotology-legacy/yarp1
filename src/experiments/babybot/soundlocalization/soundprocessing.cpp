@@ -10,7 +10,7 @@
 // 
 //     Description:  Implements all the sound processing algorithms.
 // 
-//         Version:  $Id: soundprocessing.cpp,v 1.6 2004-04-23 17:42:04 beltran Exp $
+//         Version:  $Id: soundprocessing.cpp,v 1.7 2004-04-26 15:51:10 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -85,8 +85,11 @@ SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
 	leftcorrelation_Im  = new double[numSamples];
 	rightcorrelation_Re = new double[numSamples];
 	rightcorrelation_Im = new double[numSamples];
+	SCOToperator_Re     = new double[numSamples];
+	SCOToperator_Im     = new double[numSamples];
 	Re = new double[2 * numSamples]; // this contains the Re of both channels
 	Im = new double[2 * numSamples]; // this contains the Im of both channels
+
 }
 
 //--------------------------------------------------------------------------------------
@@ -105,6 +108,8 @@ SoundProcessing::~SoundProcessing()
 	delete[] leftcorrelation_Im;
 	delete[] rightcorrelation_Re;
 	delete[] rightcorrelation_Im;
+	delete[] SCOToperator_Re;
+	delete[] SCOToperator_Im;
 }
 
 //--------------------------------------------------------------------------------------
@@ -162,7 +167,7 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 	
 	double tempCorr = 0.0;
 	int ind = shift;
-	double * ptempcross = crosscorrelation_Re + numSamples - shift + bias;
+	double * ptempcross = crosscorrelation_Re + (numSamples/2) - shift + bias;
 
 	for ( i =0; i <windowMax; i++)
 		if ( ptempcross[i] > tempCorr)

@@ -11,7 +11,7 @@
 //     Description:  This is the main loop receiving the sound streams. Another class called
 //     soundprocessing is used to perform all the analysis.
 // 
-//         Version:  $Id: soundlocalization.cpp,v 1.3 2004-04-23 17:42:04 beltran Exp $
+//         Version:  $Id: soundlocalization.cpp,v 1.4 2004-04-26 15:51:10 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -45,12 +45,12 @@ int main(int argc, char* argv[])
 	double scalefactor     = 0.0;
 	double integer_part    = 0.0;
 	double fractional_part = 0.0;
-	int scalevector[256];
-	double temp_scalevector[256];
-	double sccvector[256]; // scaled cross correlation vector
+	int scalevector[1000];
+	double temp_scalevector[1000];
+	double sccvector[1000]; // scaled cross correlation vector
 	char * ppixel;
 	YARPImageOf<YarpPixelBGR> _sl_img; // Image to create the sound localization map
-	_sl_img.Resize (256, 256);
+	_sl_img.Resize (1000, 256);
 	YARPScheduler::setHighResScheduling();
 
 	YVector _out(__outSize); 
@@ -83,11 +83,11 @@ int main(int argc, char* argv[])
 	//  calculate the scalevector. Used later to map the crosscorrelation data
 	//  into the soundlocalization image
 	//----------------------------------------------------------------------
-	scalefactor         = (double)size / (double)256;
+	scalefactor         = (double)size / (double)1000;
 	scalevector[0]      = 0.0;
 	temp_scalevector[0] = 0.0;
 
-	for (int i = 1; i < 256; i++)
+	for (int i = 1; i < 1000; i++)
 	{
 		temp_scalevector[i] = temp_scalevector[i-1] + scalefactor;
 		fractional_part     = modf(temp_scalevector[i], &integer_part);
@@ -108,20 +108,33 @@ int main(int argc, char* argv[])
 		//  soundlocalization image calculation
 		//----------------------------------------------------------------------
 		_pcrosscorrelation  = _soundprocessor.GetCrossCorrelationBuffer();
+		double max = 0.0;
 	
-		for ( i = 0; i < 256; i++)
+		for ( i = 0; i < 1000; i++)
+		{
             sccvector[i] = _pcrosscorrelation[scalevector[i]]; // maping the crosscorrelation vector in the
                                                                // scaled crosscorrelation vector
+			if (sccvector[i] > max)
+				max = sccvector[i];
+		}
+		
+		_sl_img.Zero(); // clear the image 
 
 		// Paint the scaled crosscorrelation function in the image
-		for ( i = 0; i < 256; i++)
+		for ( i = 0; i < 1000; i++)
 		{
-			ppixel =  _sl_img.RawPixel(128,sccvector[i]);
-			*ppixel = 255; // Just paint a white pixel
+			int y = (int)((sccvector[i]*255)/max);
+			if ( y < 0 )  y = 0;
+			if ( y > 255) y = 255;
+			y = 255 - y; // invert coordinates system
+			ppixel =  _sl_img.RawPixel(i,y);
+			*ppixel = 200; // Just paint a white pixel
+			//ppixel = _sl_img.RawPixel(i,100); // try to paint a straig line in the image
+			//*ppixel = 200;
 		}
 
 		/// sends the image.
-		_slimageoutPort.Content().Refer (_sl_img);
+		_slimageoutPort.Content().Refer(_sl_img);
 		_slimageoutPort.Write();
 
 		////////////////////////////////////////////////////////////////////////
