@@ -10,7 +10,7 @@
 #		  --distribution <PATH> is the path where ACE was unpacked
 #		  --os <OS> is the operating system you're compiling for
 #
-# $Id: build.pl,v 1.3 2004-07-26 15:04:29 babybot Exp $
+# $Id: build.pl,v 1.4 2004-08-11 09:14:18 gmetta Exp $
 #
 # This script can be (at least in theory) configured to
 # do some useful thing in Linux and/or Qnx too. It's definitely
@@ -29,8 +29,9 @@ use File::Copy qw(copy);
 use strict;
 
 print "Entering build process for ACE libraries...\n";
-print "Assuming you've unpacked version 5.4.1, it might not work on other releases\n";
-print "since Windows project names tend not to be uniform across releases\n";
+print "I'm trying to guess the project file name\n";
+#print "Assuming you've unpacked version 5.4.1, it might not work on other releases\n";
+#print "since Windows project names tend not to be uniform across releases\n";
 
 my $ver;
 my $uname;
@@ -82,13 +83,65 @@ if ($os ne "winnt")
 #
 select STDERR;
 
+#
+# since ACE might have different project names I'm searching
+# on all projects in the ace directory.
+#
+my $project_name = '';
+my $file_name = '';
+foreach my $file (glob "$distribution/ace/*.dsp")
+{
+	if (open FILE, "$file") 
+	{
+		my @matching_lines = grep { /# Microsoft Developer Studio/ } <FILE>;
+		foreach my $line (@matching_lines)
+		{
+			if ($line =~ /Name=\"([\w \s]+)\" - /)
+			{
+				if ($project_name ne '')
+				{
+					my $candidate = $1;
+					if ($candidate =~ /dll/i)
+					{
+						$project_name = $candidate;
+						if ($file =~ /.*\/([\w \s]+.dsp)/)
+						{
+							$file_name = $1;
+						}
+					}
+				}
+				else
+				{
+					$project_name = $1;
+					if ($file =~ /.*\/([\w \s]+.dsp)/)
+					{
+						$file_name = $1;
+					}
+				}
+			}
+		}
+
+		close FILE;
+	}
+	else
+	{
+		warn "Cannot open $file: $!\n";
+	}
+}
+
+print "Using $file_name for project $project_name\n\n";
+if ($project_name eq '')
+{
+	die "Can't find any suitable project name to compile ACE, sorry...\n";
+}
+
 if ($clean)
 {
 	print "\nCleaning...\n";
 	chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
 
-	call_msdev_and_print ("Debug", "CLEAN");
-	call_msdev_and_print ("Release", "CLEAN");
+	call_msdev_and_print ("Debug", "CLEAN", $project_name, $file_name);
+	call_msdev_and_print ("Release", "CLEAN", $project_name, $file_name);
 	
 	print "\n";
 	chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
@@ -101,7 +154,7 @@ if ($debug)
 	copy ("$yarp_root/include/winnt/ace/config.h", "$distribution/ace/") or die "Can't copy config.h file\n"; 
 	chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
 
-	call_msdev_and_print ("Debug", "BUILD");
+	call_msdev_and_print ("Debug", "BUILD", $project_name, $file_name);
 	
 	unlink "config.h";
 	chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
@@ -114,7 +167,7 @@ if ($release)
 	copy ("$yarp_root/include/winnt/ace/config.h", "$distribution/ace/") or die "Can't copy config.h file\n"; 
 	chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
 
-	call_msdev_and_print ("Release", "BUILD");
+	call_msdev_and_print ("Release", "BUILD", $project_name, $file_name);
 	
 	unlink "config.h";
 	chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
@@ -160,9 +213,9 @@ select STDOUT;
 #
 sub call_msdev_and_print
 {
-	my ($version, $operation) = @_;
+	my ($version, $operation, $project_name, $file_name) = @_;
 
-	open MSDEV, "msdev ace.dsw /MAKE \"ACE DLL - Win32 ".$version."\" /".$operation."|";
+	open MSDEV, "msdev $file_name /MAKE \"$project_name - Win32 ".$version."\" /".$operation."|";
 	while (<MSDEV>)
 	{
 		print;

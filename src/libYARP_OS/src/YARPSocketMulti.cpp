@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.20 2004-08-10 22:10:14 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.21 2004-08-11 09:14:18 gmetta Exp $
 ///
 ///
 
@@ -1339,16 +1339,19 @@ void _SocketThreadMulti::BodyTcp (void)
 		/// better packing all the sends in a single send_n - what about the NODELAY option?.
 		r = 0;
 		double now = YARPTime::GetTimeAsSeconds();
-		double prev = now-1000;
-		while (r==0 && (now-prev>YARP_SHORT_SOCK_TIMEOUT/2.0)) {
-		  // repeat loop so long as it is willing to block.
-		  ACE_Time_Value timeout (YARP_SHORT_SOCK_TIMEOUT, 0);
-		  prev = now;
-		  r = _stream->recv_n (&hdr, sizeof(hdr), &timeout);
-		  now = YARPTime::GetTimeAsSeconds();
-		  if (r == -1 && errno==ETIME && !IsTerminated()) {
-		    r = 0;  prev = now-1000;
-		  }
+		double prev = now - 1000;
+		while (r==0 && (now-prev>YARP_SHORT_SOCK_TIMEOUT/2.0)) 
+		{
+			// repeat loop so long as it is willing to block.
+			ACE_Time_Value timeout (YARP_SHORT_SOCK_TIMEOUT, 0);
+			prev = now;
+			r = _stream->recv_n (&hdr, sizeof(hdr), &timeout);
+			now = YARPTime::GetTimeAsSeconds();
+			if (r == -1 && errno==ETIME && !IsTerminated()) 
+			{
+				r = 0;  
+				prev = now - 1000;
+			}
 		}
 		//r = _stream->recv_n (&hdr, sizeof(hdr), 0);
 		
@@ -1543,7 +1546,25 @@ void _SocketThreadMulti::BodyShmem (void)
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread SHMEM of remote port %s:%d waiting\n", _remote_endpoint.getAddressRef().get_host_addr(), _remote_endpoint.getAddressRef().get_port_number()));
 
 		MyMessageHeader hdr;
-		r = stream.recv_n (&hdr, sizeof(hdr), 0);
+
+		r = 0;
+		double now = YARPTime::GetTimeAsSeconds();
+		double prev = now - 1000;
+		while (r == 0 && (now - prev > YARP_SHORT_SOCK_TIMEOUT/2.0)) 
+		{
+			// repeat loop so long as it is willing to block.
+			ACE_Time_Value timeout (YARP_SHORT_SOCK_TIMEOUT, 0);
+			prev = now;
+			r = _stream->recv_n (&hdr, sizeof(hdr), &timeout);
+			now = YARPTime::GetTimeAsSeconds();
+			if (r == -1 && errno == ETIME && !IsTerminated()) 
+			{
+				r = 0;  
+				prev = now - 1000;
+			}
+		}
+
+		///r = stream.recv_n (&hdr, sizeof(hdr), 0);
 
 		/// this is supposed to read the header, r must be > 0
 		if (r <= 0)
