@@ -27,11 +27,11 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNullGrabberDeviceDriver.cpp,v 1.1 2004-12-06 17:00:31 gmetta Exp $
+/// $Id: YARPNullGrabberDeviceDriver.cpp,v 1.2 2004-12-11 00:16:33 gmetta Exp $
 ///
 ///
 
-#include <yarp/YARPNullGrabberDeviceDriver.h>
+#include "YARPNullGrabberDeviceDriver.h"
 
 //
 //
