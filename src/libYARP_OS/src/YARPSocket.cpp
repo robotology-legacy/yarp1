@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPSocket.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
@@ -74,7 +74,7 @@
 ///
 ///
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Handle_Set.h>
@@ -99,20 +99,20 @@
 
 #endif
 
-#include "YARPSocket.h"
-#include "YARPThread.h"
-#include "YARPSemaphore.h"
-#include "YARPNameID.h"
-#include "YARPScheduler.h"
-#include "YARPTime.h"
-#include "YARPString.h"
+#include <yarp/YARPSocket.h>
+#include <yarp/YARPThread.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPNameID.h>
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPTime.h>
+#include <yarp/YARPString.h>
 
 #define THIS_DBG 80
 
 ///
 /// yarp message header.
 ///
-#include "begin_pack_for_net.h"
+#include <yarp/begin_pack_for_net.h>
 
 struct MyMessageHeader
 {
@@ -162,7 +162,7 @@ public:
 	}
 } PACKED_FOR_NET;
 
-#include "end_pack_for_net.h"
+#include <yarp/end_pack_for_net.h>
 
 ///
 /// sets recv and send <sock> buffers to <size>

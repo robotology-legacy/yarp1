@@ -52,17 +52,17 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: RefCounted.cpp,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: RefCounted.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Synch.h>
 
-#include "RefCounted.h"
-#include "YARPString.h"
+#include "yarp_private/RefCounted.h"
+#include <yarp/YARPString.h>
 
 #ifdef __WIN32__
 /// library initialization.

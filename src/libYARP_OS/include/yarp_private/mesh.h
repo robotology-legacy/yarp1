@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: mesh.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: mesh.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
@@ -131,7 +131,7 @@ Description This file declares classes to be used when setting up a Mesh
 #include <iostream>
 #include <assert.h>
 
-#include "YARPString.h"
+#include <yarp/YARPString.h>
 
 //--Forward Declarations-------------------------------------------------------
 //-----------------------------------------------------------------------------

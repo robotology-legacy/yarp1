@@ -52,28 +52,28 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockPrefix.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: BlockPrefix.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
 #ifndef BLOCKPREFIX_INC
 #define BLOCKPREFIX_INC
 
-#include <conf/YARPConfig.h>
-#include "YARPNetworkTypes.h"
+#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPNetworkTypes.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
-#include "begin_pack_for_net.h"
+#include <yarp/begin_pack_for_net.h>
 class BlockPrefix
 {
 public:
 	unsigned char total_blocks, reply_blocks;
 	NetInt32 size, reply_size;
 } PACKED_FOR_NET;
-#include "end_pack_for_net.h"
+#include <yarp/end_pack_for_net.h>
 
 
 #endif

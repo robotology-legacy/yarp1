@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.2 2004-07-01 22:06:22 gmetta Exp $
+///	$Id: YARPThread.h,v 1.3 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 /*
@@ -69,12 +69,12 @@
 #ifndef YARPThread_INC
 #define YARPThread_INC
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Synch.h>
-#include "YARPAll.h"
-#include "YARPSemaphore.h"
-#include "YARPTime.h"
+#include <yarp/YARPAll.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPTime.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once

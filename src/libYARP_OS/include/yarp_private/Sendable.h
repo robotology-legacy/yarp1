@@ -52,14 +52,14 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Sendable.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: Sendable.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
 #ifndef SENDABLE_H_INC
 #define SENDABLE_H_INC
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
@@ -67,9 +67,9 @@
 #	pragma once
 #endif
 
-#include "BlockSender.h"
-#include "BlockReceiver.h"
-#include "RefCounted.h"
+#include "yarp_private/BlockSender.h"
+#include "yarp_private/BlockReceiver.h"
+#include "yarp_private/RefCounted.h"
 
 class Sendables;
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeSyncComm.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPNativeSyncComm.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 /*
@@ -71,15 +71,15 @@
 #ifndef YARPNativeSyncComm_INC
 #define YARPNativeSyncComm_INC
 
-#include <conf/YARPConfig.h>
-#include "YARPAll.h"
+#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPAll.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
-#include "YARPNameService.h"
-#include "YARPMultipartMessage.h"
+#include <yarp/YARPNameService.h>
+#include <yarp/YARPMultipartMessage.h>
 
 
 #ifdef __QNX__
@@ -101,7 +101,7 @@ public:
 #else
 
 /// redefint type in order to use Socket as native under NT/Linux
-#include "YARPSocketSyncComm.h"
+#include <yarp/YARPSocketSyncComm.h>
 #define YARPNativeSyncComm YARPSocketSyncComm
 
 #endif

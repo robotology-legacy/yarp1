@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPPort.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
@@ -78,19 +78,19 @@
 #ifndef YARPPort_INC
 #define YARPPort_INC
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Log_Msg.h>
 
-#include "YARPAll.h"
+#include <yarp/YARPAll.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
-#include "YARPPortContent.h"
-#include "YARPNameID.h"
-#include "Port.h"
+#include <yarp/YARPPortContent.h>
+#include <yarp/YARPNameID.h>
+#include "yarp_private/Port.h"
 
 /**
  * A class for streaming communication.  Objects of this class ("ports") can

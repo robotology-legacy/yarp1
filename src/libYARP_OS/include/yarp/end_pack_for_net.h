@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: end_pack_for_net.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: end_pack_for_net.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
@@ -71,7 +71,7 @@
  * @see begin_pack_for_net.h
  */
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 
 #ifdef __WIN__
 #pragma pack(pop)

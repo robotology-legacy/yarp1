@@ -61,17 +61,17 @@
 ///
 
 ///
-/// $Id: BlockReceiver.cpp,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: BlockReceiver.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/ACE.h>
 
-#include "BlockReceiver.h"
-#include "debug.h"
-#include "YARPSyncComm.h"
+#include "yarp_private/BlockReceiver.h"
+#include "yarp_private/debug.h"
+#include <yarp/YARPSyncComm.h>
 
 /// class/unit specific debug level.
 #define THIS_DBG 50

@@ -61,35 +61,35 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: Port.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
 #ifndef __PORT_H_INC
 #define __PORT_H_INC
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
-#include "YARPString.h"
-#include "YARPNameID.h"
-#include "YARPTime.h"
+#include <yarp/YARPString.h>
+#include <yarp/YARPNameID.h>
+#include <yarp/YARPTime.h>
 
-#include "mesh.h"
-#include "YARPSemaphore.h"
+#include "yarp_private/mesh.h"
+#include <yarp/YARPSemaphore.h>
 #define Sema YARPSemaphore
-#include "YARPThread.h"
+#include <yarp/YARPThread.h>
 #define Thread YARPThread
-#include "Sendable.h"
-#include "YARPFragments.h"
+#include "yarp_private/Sendable.h"
+#include <yarp_private/YARPFragments.h>
 #define Fragment Fragments
-#include "BlockSender.h"
+#include "yarp_private/BlockSender.h"
 
-#include "YARPNetworkTypes.h"
+#include <yarp/YARPNetworkTypes.h>
 
 
 // Message tags, chosen to be reasonably human readable
@@ -223,7 +223,7 @@ public:
 };
 
 
-#include "begin_pack_for_net.h"
+#include <yarp/begin_pack_for_net.h>
 class NewFragmentHeader
 {
 public:
@@ -235,7 +235,7 @@ public:
 
 	NewFragmentHeader() { checker='~';}
 } PACKED_FOR_NET;
-#include "end_pack_for_net.h"
+#include <yarp/end_pack_for_net.h>
 
 ///
 ///

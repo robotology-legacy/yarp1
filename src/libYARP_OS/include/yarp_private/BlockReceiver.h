@@ -52,22 +52,22 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockReceiver.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: BlockReceiver.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
 #ifndef BLOCKRECEIVER_H_INC
 #define BLOCKRECEIVER_H_INC
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
-#include "YARPNameService.h"
-#include "YARPPortContent.h"
+#include <yarp/YARPNameService.h>
+#include <yarp/YARPPortContent.h>
 
 ///
 ///

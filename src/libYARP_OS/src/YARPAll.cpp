@@ -61,10 +61,10 @@
 ///
 
 ///
-/// $Id: YARPAll.cpp,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPAll.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/ACE.h>
 #include <ace/OS.h>
@@ -73,8 +73,8 @@
 #include <stdarg.h>
 
 #define YARP_USE_OLD_PRINTF
-#include "YARPAll.h"
-#include "YARPSemaphore.h"
+#include <yarp/YARPAll.h>
+#include <yarp/YARPSemaphore.h>
 
 #ifdef __WIN32__
 /// library initialization.

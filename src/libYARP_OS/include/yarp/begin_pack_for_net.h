@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: begin_pack_for_net.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: begin_pack_for_net.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 
 /**
@@ -72,9 +72,9 @@
  * communication between compilers.
  * @see end_pack_for_net.h
  */
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 
-#include "YARPNetworkTypes.h"
+#include <yarp/YARPNetworkTypes.h>
 
 // pending -- need to deal with endian changes between machines
 

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRefCount.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPRefCount.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 /*
@@ -62,12 +62,12 @@
 #ifndef YARPRefCounted_INC
 #define YARPRefCounted_INC
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Synch.h>
 #include <ace/Log_Msg.h>
 
-#include "YARPAll.h"
+#include <yarp/YARPAll.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once

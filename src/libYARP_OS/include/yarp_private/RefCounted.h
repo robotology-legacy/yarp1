@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: RefCounted.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: RefCounted.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
@@ -60,7 +60,7 @@
 #define REFCOUNTED_H_INC
 
 ///
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
@@ -71,7 +71,7 @@
 // Certain strategic operations on refcounted objects
 // are made atomic
 
-#include "YARPSemaphore.h"
+#include <yarp/YARPSemaphore.h>
 
 
 /// Lazy boy!

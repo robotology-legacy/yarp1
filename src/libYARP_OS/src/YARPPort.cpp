@@ -62,23 +62,23 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPPort.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 
-#include "Port.h"
-#include "Sendables.h"
-#include "debug.h"
+#include "yarp_private/Port.h"
+#include "yarp_private/Sendables.h"
+#include "yarp_private/debug.h"
 
-#include "YARPPort.h"
-#include "YARPNameService.h"
-#include "YARPSemaphore.h"
-#include "YARPAll.h"
+#include <yarp/YARPPort.h>
+#include <yarp/YARPNameService.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPAll.h>
 
-#include "YARPList.h"
+#include <yarp/YARPList.h>
 
 #ifdef __WIN32__
 /// library initialization.

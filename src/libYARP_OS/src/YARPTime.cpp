@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPTime.cpp,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPTime.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
@@ -71,7 +71,7 @@
 #include <ace/config.h>
 #include <ace/OS.h>
 
-#include "YARPTime.h"
+#include <yarp/YARPTime.h>
 
 double YARPTime::GetTimeAsSeconds()
 {

@@ -52,14 +52,14 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: BlockSender.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
 #ifndef BLOCKSENDER_H_INC
 #define BLOCKSENDER_H_INC
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
@@ -74,11 +74,11 @@
 /// STILL under testing especially for efficiency.
 #include <ace/Containers_T.h>
 
-#include "RefCounted.h"
-#include "YARPNameID.h"
-#include "YARPNameID_defs.h"
-#include "YARPPortContent.h"
-#include "YARPList.h"
+#include "yarp_private/RefCounted.h"
+#include <yarp/YARPNameID.h>
+#include <yarp_private/YARPNameID_defs.h>
+#include <yarp/YARPPortContent.h>
+#include <yarp/YARPList.h>
 
 extern int __debug_level;
 

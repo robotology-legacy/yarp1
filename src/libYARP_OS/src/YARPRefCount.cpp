@@ -61,14 +61,14 @@
 ///
 
 ///
-/// $Id: YARPRefCount.cpp,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPRefCount.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
-#include "YARPRefCount.h"
+#include <yarp/YARPRefCount.h>
 
 #ifdef YARPREFCOUNT_SINGLE_MUTEX
-#include "YARPSemaphore.h"
+#include <yarp/YARPSemaphore.h>
 
 #ifdef __WIN32__
 /// library initialization.

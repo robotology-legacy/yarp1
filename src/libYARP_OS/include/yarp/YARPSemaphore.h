@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPSemaphore.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+///	$Id: YARPSemaphore.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 /*
@@ -62,12 +62,12 @@
 #ifndef YARPSemaphore_INC
 #define YARPSemaphore_INC
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Synch.h>
 
-#include "YARPAll.h"
-#include "YARPErrorCodes.h"
+#include <yarp/YARPAll.h>
+#include <yarp/YARPErrorCodes.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once

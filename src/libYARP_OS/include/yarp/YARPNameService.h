@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPNameService.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 /*
@@ -71,14 +71,14 @@
 #ifndef YARPNameService_INC
 #define YARPNameService_INC
 
-#include <conf/YARPConfig.h>
-#include "YARPAll.h"
+#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPAll.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
-#include "YARPNameID.h"
+#include <yarp/YARPNameID.h>
 
 ///
 /// don't optimize constructor is actually for troubles I encountered under gcc QNX6.

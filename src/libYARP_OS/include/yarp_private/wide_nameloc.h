@@ -61,24 +61,24 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: wide_nameloc.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
 #ifndef wide_nameloc_INC
 #define wide_nameloc_INC
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/SOCK_Acceptor.h>
 #include <ace/SOCK_Connector.h>
 #include <ace/SOCK_Stream.h>
 #include <ace/Log_Msg.h>
 
-#include "YARPNetworkTypes.h"
-#include "YARPNameID_defs.h"
+#include <yarp/YARPNetworkTypes.h>
+#include <yarp_private/YARPNameID_defs.h>
 
-#include <YARPString.h>
+#include <yarp/YARPString.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
@@ -109,7 +109,7 @@ enum
 	YARPNSNicQuery = 6
 };
 
-#include "begin_pack_for_net.h"
+#include <yarp/begin_pack_for_net.h>
 struct YARPNameServiceCmd
 {
 	NetInt32 cmd;
@@ -194,7 +194,7 @@ public:
 	NetInt32 _nPorts;
 } PACKED_FOR_NET;
 
-#include "end_pack_for_net.h"
+#include <yarp/end_pack_for_net.h>
 
 
 #endif

@@ -52,21 +52,21 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSyncComm.cpp,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPSyncComm.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/OS.h>
 
 //#include <stdio.h>
 
-#include "YARPSyncComm.h"
-#include "YARPNativeSyncComm.h"
-#include "YARPSocketSyncComm.h"
-#include "YARPNameID_defs.h"
-#include "YARPNameService.h"
-#include "YARPNativeNameService.h"
+#include <yarp/YARPSyncComm.h>
+#include <yarp/YARPNativeSyncComm.h>
+#include <yarp/YARPSocketSyncComm.h>
+#include <yarp_private/YARPNameID_defs.h>
+#include <yarp/YARPNameService.h>
+#include <yarp/YARPNativeNameService.h>
 
 ///
 /// Native, at least for QNX is the QNet stuff.

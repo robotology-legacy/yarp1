@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPNameClient.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
@@ -72,13 +72,13 @@
 #if !defined __NAME_CLIENT__
 #define __NAME_CLIENT__
 
-#include <conf/YARPConfig.h>
-#include <YARPAll.h>
+#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPAll.h>
 #include <ace/config.h>
 
-#include "wide_nameloc.h"
-#include "YARPTime.h"
-#include "YARPSemaphore.h"
+#include "yarp_private/wide_nameloc.h"
+#include <yarp/YARPTime.h>
+#include <yarp/YARPSemaphore.h>
 
 #include <ace/SOCK_Acceptor.h>
 #include <ace/SOCK_Connector.h>
@@ -89,7 +89,7 @@
 #	pragma once
 #endif
 
-#include <YARPString.h>
+#include <yarp/YARPString.h>
 
 ///#define NAME_CLIENT_VERBOSE 
 

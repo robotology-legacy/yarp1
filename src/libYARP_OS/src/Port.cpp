@@ -61,11 +61,11 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: Port.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Synch.h>
@@ -73,25 +73,25 @@
 
 #include <stdarg.h>
 
-#include "YARPThread.h"
-#include "mesh.h"
+#include <yarp/YARPThread.h>
+#include "yarp_private/mesh.h"
 
-#include "YARPString.h"
+#include <yarp/YARPString.h>
 
-#include "BlockSender.h"
-#include "BlockReceiver.h"
+#include "yarp_private/BlockSender.h"
+#include "yarp_private/BlockReceiver.h"
 
-#include "Port.h"
+#include "yarp_private/Port.h"
 
-#include "debug.h"
-#include "RefCounted.h"
+#include "yarp_private/debug.h"
+#include "yarp_private/RefCounted.h"
 
-#include "YARPNameService.h"
-#include "YARPNativeNameService.h"
-#include "YARPSyncComm.h"
-#include "YARPScheduler.h"
-#include "YARPTime.h"
-#include "YARPSocket.h"
+#include <yarp/YARPNameService.h>
+#include <yarp/YARPNativeNameService.h>
+#include <yarp/YARPSyncComm.h>
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPTime.h>
+#include <yarp/YARPSocket.h>
 
 #if defined(__QNX6__) || defined(__LINUX__)
 #include <signal.h>

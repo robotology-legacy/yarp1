@@ -61,26 +61,26 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPNameService.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/OS.h>
 
 #include <fstream>
 
-#include "YARPNameService.h"
-#include "YARPSemaphore.h"
-#include "YARPSocket.h"
-#include "YARPSocketNameService.h"
-#include "YARPNativeNameService.h"
-#include "YARPNameID.h"
-#include "YARPNameClient.h"
+#include <yarp/YARPNameService.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPSocket.h>
+#include <yarp/YARPSocketNameService.h>
+#include <yarp/YARPNativeNameService.h>
+#include <yarp/YARPNameID.h>
+#include <yarp/YARPNameClient.h>
 
-#include "wide_nameloc.h"
-#include "YARPNameID_defs.h"
-#include "YARPString.h"
+#include "yarp_private/wide_nameloc.h"
+#include <yarp_private/YARPNameID_defs.h>
+#include <yarp/YARPString.h>
 
 #ifdef __WIN32__
 /// library initialization.

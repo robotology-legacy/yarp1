@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPBool.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPBool.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 /*
@@ -62,14 +62,14 @@
 #ifndef YARPBool_INC
 #define YARPBool_INC
 
-#include <conf/YARPConfig.h>
-#include "YARPAll.h"
+#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPAll.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
-#error ">>>>>> YARPBool: obsolete, shouldn't be included"
+#error >>>>>>> YARPBool: obsolete, shouldn't be included>
 
 // may need some work to make this reliably portable
 

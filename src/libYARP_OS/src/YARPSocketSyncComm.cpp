@@ -60,11 +60,11 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Synch.h>
@@ -72,16 +72,16 @@
 //#include <assert.h>
 //#include <stdio.h>
 
-#include "YARPSocketSyncComm.h"
-#include "YARPSocket.h"
-#include "YARPSocketDgram.h"
-#include "YARPSocketNameService.h"
-#include "YARPScheduler.h"
+#include <yarp/YARPSocketSyncComm.h>
+#include <yarp/YARPSocket.h>
+#include <yarp/YARPSocketDgram.h>
+#include <yarp/YARPSocketNameService.h>
+#include <yarp/YARPScheduler.h>
 
-#include "YARPNameID_defs.h"
-#include "BlockPrefix.h"
+#include <yarp_private/YARPNameID_defs.h>
+#include "yarp_private/BlockPrefix.h"
 
-#include "debug.h"
+#include "yarp_private/debug.h"
 
 #define THIS_DBG 50
 

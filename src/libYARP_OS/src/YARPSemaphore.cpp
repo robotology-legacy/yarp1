@@ -61,14 +61,14 @@
 ///
 
 ///
-/// $Id: YARPSemaphore.cpp,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPSemaphore.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 ///
 /// pasa Apr 2003
 ///
 
-#include "YARPSemaphore.h"
+#include <yarp/YARPSemaphore.h>
 
 /// ACE inclusion
 #include <ace/config.h>

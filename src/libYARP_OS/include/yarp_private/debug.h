@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: debug.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: debug.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 /// WARNING. this file name is looking for a name clash.
@@ -60,7 +60,7 @@
 #ifndef DEBUG_H_INC
 #define DEBUG_H_INC
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Log_Msg.h>
 

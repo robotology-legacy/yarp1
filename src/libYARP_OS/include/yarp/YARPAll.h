@@ -52,15 +52,15 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPAll.h,v 1.2 2004-07-01 22:31:33 gmetta Exp $
+/// $Id: YARPAll.h,v 1.3 2004-07-02 08:47:05 eshuy Exp $
 ///
 ///
 
 #ifndef YARPAll_INC
 #define YARPAll_INC
 
-#include <conf/YARPConfig.h>
-#include "YARPErrorCodes.h"
+#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPErrorCodes.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
@@ -78,7 +78,7 @@
 #endif
 
 #include <stdio.h>
-#include <debug.h>
+#include <yarp_private/debug.h>
 
 // thread-safe version of printf
 void YARP_safe_printf(char *format,...);

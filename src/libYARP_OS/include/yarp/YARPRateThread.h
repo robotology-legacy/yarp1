@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRateThread.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPRateThread.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 
@@ -90,7 +90,7 @@
 
 #if defined(__WIN32__) || defined(__QNX6__) || defined(__LINUX__)
 
-#include <conf/YARPConfig.h>
+#include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Thread_Manager.h>
 #include <ace/Synch.h>
@@ -101,7 +101,7 @@
 #include "IterativeStats.h" //from models lib link models.lib/modelsdb.lib
 #endif
 
-#include <YARPString.h>
+#include <yarp/YARPString.h>
 
 #ifdef __QNX6__
 #include <sys/neutrino.h>
@@ -422,7 +422,7 @@ public:
 /// #ifdef __QNX__
 /// #ifdef __QNX4__		/// not quite sure it's ok on QNX6
 
-#include "YARPSemaphore.h"
+#include <yarp/YARPSemaphore.h>
 
 #include <stdio.h>
 #include <unistd.h>

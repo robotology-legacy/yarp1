@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPortContent.h,v 1.1 2004-07-01 15:29:30 eshuy Exp $
+/// $Id: YARPPortContent.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
 ///
 ///
 /*
@@ -71,8 +71,8 @@
 #ifndef YARPPortContent_INC
 #define YARPPortContent_INC
 
-#include <conf/YARPConfig.h>
-#include "YARPAll.h"
+#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPAll.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
