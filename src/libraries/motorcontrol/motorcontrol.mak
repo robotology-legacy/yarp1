@@ -25,9 +25,6 @@ NULL=
 NULL=nul
 !ENDIF 
 
-CPP=cl.exe
-RSC=rc.exe
-
 !IF  "$(CFG)" == "motorcontrol - Win32 Release"
 
 OUTDIR=.\obj\Release
@@ -50,7 +47,40 @@ CLEAN :
 
 LINK32=link.exe -lib
 MTL=midl.exe
+CPP=cl.exe
 CPP_PROJ=/nologo /MD /W3 /GX /O2 /I ".\common" /I ".\babybot" /I "..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
+
+.c{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.c{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+RSC=rc.exe
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\motorcontrol.bsc" 
 BSC32_SBRS= \
@@ -58,11 +88,11 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:".\lib\winnt\motorcontrol.lib" 
 LIB32_OBJS= \
+	"$(INTDIR)\YARPKinematics.obj" \
 	"$(INTDIR)\YARPTrajectoryGen.obj" \
 	"$(INTDIR)\YARPBabybotArm.obj" \
-	"$(INTDIR)\YARPBabybotInertialSensor.obj" \
-	"$(INTDIR)\YARPKinematics.obj" \
-	"$(INTDIR)\YARPBabybotHeadKin.obj"
+	"$(INTDIR)\YARPBabybotHeadKin.obj" \
+	"$(INTDIR)\YARPBabybotInertialSensor.obj"
 
 ".\lib\winnt\motorcontrol.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -103,38 +133,8 @@ CLEAN :
 
 LINK32=link.exe -lib
 MTL=midl.exe
+CPP=cl.exe
 CPP_PROJ=/nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\common" /I ".\babybot" /I "..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
-BSC32=bscmake.exe
-BSC32_FLAGS=/nologo /o"$(OUTDIR)\motorcontrol.bsc" 
-BSC32_SBRS= \
-	
-LIB32=link.exe -lib
-LIB32_FLAGS=/nologo /out:".\lib\winnt\motorcontroldb.lib" 
-LIB32_OBJS= \
-	"$(INTDIR)\YARPTrajectoryGen.obj" \
-	"$(INTDIR)\YARPBabybotArm.obj" \
-	"$(INTDIR)\YARPBabybotInertialSensor.obj" \
-	"$(INTDIR)\YARPKinematics.obj" \
-	"$(INTDIR)\YARPBabybotHeadKin.obj"
-
-".\lib\winnt\motorcontroldb.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
-    $(LIB32) @<<
-  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
-<<
-
-SOURCE="$(InputPath)"
-PostBuild_Desc=installing lib
-DS_POSTBUILD_DEP=$(INTDIR)\postbld.dep
-
-ALL : $(DS_POSTBUILD_DEP)
-
-$(DS_POSTBUILD_DEP) : ".\lib\winnt\motorcontroldb.lib"
-   copy .\common\*.h ..\..\..\include
-	copy .\babybot\*.h ..\..\..\include
-	copy .\lib\winnt\motorcontroldb.lib ..\..\..\lib\winnt
-	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
-
-!ENDIF 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -165,6 +165,39 @@ $(DS_POSTBUILD_DEP) : ".\lib\winnt\motorcontroldb.lib"
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
+
+RSC=rc.exe
+BSC32=bscmake.exe
+BSC32_FLAGS=/nologo /o"$(OUTDIR)\motorcontrol.bsc" 
+BSC32_SBRS= \
+	
+LIB32=link.exe -lib
+LIB32_FLAGS=/nologo /out:".\lib\winnt\motorcontroldb.lib" 
+LIB32_OBJS= \
+	"$(INTDIR)\YARPKinematics.obj" \
+	"$(INTDIR)\YARPTrajectoryGen.obj" \
+	"$(INTDIR)\YARPBabybotArm.obj" \
+	"$(INTDIR)\YARPBabybotHeadKin.obj" \
+	"$(INTDIR)\YARPBabybotInertialSensor.obj"
+
+".\lib\winnt\motorcontroldb.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
+<<
+
+SOURCE="$(InputPath)"
+PostBuild_Desc=installing lib
+DS_POSTBUILD_DEP=$(INTDIR)\postbld.dep
+
+ALL : $(DS_POSTBUILD_DEP)
+
+$(DS_POSTBUILD_DEP) : ".\lib\winnt\motorcontroldb.lib"
+   copy .\common\*.h ..\..\..\include
+	copy .\babybot\*.h ..\..\..\include
+	copy .\lib\winnt\motorcontroldb.lib ..\..\..\lib\winnt
+	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
+
+!ENDIF 
 
 
 !IF "$(NO_EXTERNAL_DEPS)" != "1"
