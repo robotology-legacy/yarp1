@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.8 2004-10-04 13:01:07 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.9 2004-10-04 15:08:23 babybot Exp $
 ///
 ///
 
@@ -978,13 +978,12 @@ template <class ADAPTER, class PARAMETERS>
 inline bool YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 decMaxTorque(int axis, double delta, double value)
 {
-	int adapterRet;
 	bool ret = false;
 	double currentLimit, newLimit;
 	SingleAxisParameters cmd;
 	cmd.axis = _parameters._axis_map[axis];
 	cmd.parameters = &currentLimit;
-	adapterRet = _adapter.IOCtl(CMDGetTorqueLimit, &cmd);
+	_adapter.IOCtl(CMDGetTorqueLimit, &cmd);
 
 	newLimit = currentLimit - (fabs(delta));
 
@@ -1002,9 +1001,7 @@ decMaxTorque(int axis, double delta, double value)
 	}
 
 	cmd.parameters = &newLimit;
-	adapterRet = _adapter.IOCtl(CMDSetTorqueLimit, &cmd);
-	if(adapterRet!=YARP_OK)
-		printf("CMDSetTorqueLimit returned an error\n");
+	_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
 	return ret;
 }
 
