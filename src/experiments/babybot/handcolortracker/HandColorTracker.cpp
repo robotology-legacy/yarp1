@@ -386,26 +386,15 @@ public:
 			*bp = (b/luma)*255 + 0.5;
 		}
 	}
-
+	
 	inline void _normalize (const YarpPixelRGB &in, YarpPixelRGB &out)
 	{
-	//	out.r = in.r;
-	//	out.g = in.g;
-	//	out.b = in.b;
-	
-		float luma = in.r+in.g+in.b;
-		if (luma < _lumaThreshold)
-		{
-			out.r = 0;
-			out.g = 0;
-			out.b = 0;
-		}
-		else
-		{
-			out.r = (in.r/luma)*255 + 0.5;
-			out.g = (in.g/luma)*255 + 0.5;
-			out.b = (in.b/luma)*255 + 0.5;
-		}
+		_normalize(in.r, in.g, in.b, &out.r, &out.g, &out.b);
+	}
+
+	inline void _normalize (const YarpPixelBGR &in, YarpPixelRGB &out)
+	{
+		_normalize(in.r, in.g, in.b, &out.r, &out.g, &out.b);
 	}
 
 	void Apply(YARPImageOf<YarpPixelBGR> &src)
@@ -479,6 +468,20 @@ public:
 			}
 	}
 
+	void backProjection(YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelMono> &out)
+	{	
+		// complete histogram backprojection
+		int i;
+		int j;
+		for(i = 0; i < in.GetHeight(); i++)
+			for(j = 0; j < in.GetWidth(); j++)
+			{
+				YarpPixelRGB tmp;
+				_normalize(in(i,j), tmp);
+				out(i,j) = YARPRGBHistogram::backProjection(tmp)*255 + 0.5;
+			}
+	}
+
 private:
 	double _lumaThreshold;
 };
@@ -486,6 +489,46 @@ private:
 int main(int argc, char* argv[])
 {
 	YARPHistogramSegmentation _histo(5, 255, 0, 32);
+
+	YARPInputPortOf<YARPGenericImage> _inPortImage(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+	YARPInputPortOf<YARPGenericImage> _inPortSeg(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+
+	YARPOutputPortOf<YARPGenericImage> _outPortSeg(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+	
+	_inPortImage.Register("/handtracker/i:img");
+	_inPortSeg.Register("/handtracker/segmentation/i:img");
+	_outPortSeg.Register("/handtracker/segmentation/o:img");
+
+	YARPImageOf<YarpPixelMono> _left;
+	YARPImageOf<YarpPixelMono> _leftSeg;
+	YARPImageOf<YarpPixelBGR> _leftColored;
+	YARPImageOf<YarpPixelBGR> _leftSegColored;
+
+	YARPImageOf<YarpPixelMono> _outSeg;
+
+	YARPLogpolar _mapper;
+
+	while (false)
+	{
+		_inPortImage.Read();
+
+		if (_inPortSeg.Read(0))
+		{
+			_leftSeg.Refer(_inPortSeg.Content());
+			_mapper.ReconstructColor(_leftSeg, _leftSegColored);
+			_histo.Apply(_leftSegColored);
+		}
+
+		_left.Refer (_inPortImage.Content());
+
+		// reconstruct color
+		_mapper.ReconstructColor (_left, _leftColored);
+
+		_histo.backProjection(_leftColored, _outSeg);
+		
+		_outPortSeg.Content().Refer(_outSeg);
+		_outPortSeg.Write();
+	}
 	
 		
 	/*
