@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.16 2004-02-04 16:10:22 fberton Exp $
+/// $Id: main.cpp,v 1.17 2004-02-04 16:42:09 babybot Exp $
 ///
 ///
 
@@ -212,7 +212,7 @@ int main (int argc, char *argv[])
 	Param.padding = _salign;
 	Param.Fovea_Type = 0;
 	Param.Ratio = 4.0f;
-	Param.dres = (float)(1090.0/4.0);
+	Param.dres = 1090.0/4.0;
 
 	printf ("Creating Shift map ...");
 	rval = Build_Shift_Map (&Param, Path);
@@ -225,7 +225,6 @@ int main (int argc, char *argv[])
 
 	Build_Step_Function (Path, &Param);
 	printf ("\t\tDone !  \n\n");
-
 
 	printf("Generation Completed.\n\n");
 
