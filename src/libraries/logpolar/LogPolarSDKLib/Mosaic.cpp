@@ -12,8 +12,8 @@ unsigned char * Crop_Image (unsigned char * Input_Image,Image_Data * Par,int Ori
 	int i,j;
 	unsigned char * Output_Image;
 	int TotSize = DestSize * DestSize;
-	int XOrigin = Par->Center_X_Remap - DestSize/2;
-	int YOrigin = Par->Center_Y_Remap - DestSize/2;
+//	int XOrigin = Par->Center_X_Remap - DestSize/2;
+//	int YOrigin = Par->Center_Y_Remap - DestSize/2;
 	
 	Output_Image  = (unsigned char *)malloc(3 * TotSize * sizeof(unsigned char));
 
@@ -50,8 +50,8 @@ void Add_to_Full_Image (unsigned char * Input_Image,
 	int i,j;
 //	int displX = (int)((Par->Center_X_Remap) - (Par->Resolution/2)*Par->Zoom_Level);
 //	int displY = (int)((Par->Center_Y_Remap) - (Par->Resolution/2)*Par->Zoom_Level);
-	int displX = (int)(Par->Center_X_Remap) - TesseraXSize/2;
-	int displY = (int)(Par->Center_Y_Remap) - TesseraYSize/2;
+//	int displX = (int)(Par->Center_X_Remap) - TesseraXSize/2;
+//	int displY = (int)(Par->Center_Y_Remap) - TesseraYSize/2;
 
 	for (j=0; j<TesseraYSize; j++)
 		for (i=0; i<TesseraXSize; i++)

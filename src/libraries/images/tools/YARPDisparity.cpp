@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.15 2004-01-30 17:30:52 fberton Exp $
+/// $Id: YARPDisparity.cpp,v 1.16 2004-02-04 16:10:22 fberton Exp $
 ///
 ///
 
@@ -86,7 +86,7 @@ YARPDisparityTool::YARPDisparityTool()
 	_shiftMap		= NULL;
 	_corrFunct		= NULL;
 	_actRings		= 21;
-	_corrTreshold   = 2.5;
+	_corrTreshold   = 2.0;
 }
 
 YARPDisparityTool::~YARPDisparityTool()
@@ -355,7 +355,7 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
 	double avg = 0.0;
 	int k;
 
-	for (k=0; k<_shiftLevels; k++)
+/*	for (k=0; k<_shiftLevels; k++)
 		avg += (3.0-_corrFunct[k]);
 
 	avg /= _shiftLevels;
@@ -387,7 +387,42 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
 		else 
 			disparity = 0;
 
+
+  */
+
+	for (k=0; k<_shiftLevels; k++)
+		_corrFunct[k] = 3.0 - _corrFunct[k];
+
+	for (k=0; k<_shiftLevels; k++)
+		avg += _corrFunct[k];
+
+	avg /= _shiftLevels;
+
+//	for (k=0; k<_shiftLevels; k++)
+//		_corrFunct[k] = _corrFunct[k]/(avg+0.00001);
+
+	double min = _corrFunct [disparity];
+
+//	for (k=0; k<_shiftLevels; k++)
+//		_corrFunct[k] = 3.0*(_corrFunct[k])/(min);
+
+	if ((min/avg)<_corrTreshold)
+		disparity = -1;
+
+	if (disparity != -1)
+		{
+			disparity = _shiftFunction[disparity];
+
+			disparity = (int)(0.5 + disparity * _imgS.Size_X_Remap / (float)_imgS.Resolution);
+		}
+		else 
+			disparity = 0;
+
+	for (k=0; k<_shiftLevels; k++)
+		_corrFunct[k] = 3.0 - _corrFunct[k];
+
 	return disparity;
+
 }
 
 void YARPDisparityTool::makeHistogram(YARPImageOf<YarpPixelMono>& hImg)

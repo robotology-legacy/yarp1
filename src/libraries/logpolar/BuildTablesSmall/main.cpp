@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.15 2004-02-02 17:47:33 fberton Exp $
+/// $Id: main.cpp,v 1.16 2004-02-04 16:10:22 fberton Exp $
 ///
 ///
 
@@ -90,6 +90,8 @@ int main (int argc, char *argv[])
 
 	char Path[512];
 
+	int rval;
+
 	if (argc < 2)
 	{
 		printf ("Use %s <path> (with trailing backslash!)\n", argv[0]);
@@ -110,14 +112,34 @@ int main (int argc, char *argv[])
 	Param.padding = _salign;
 	Param.Fovea_Type = 0;
 
-	printf ("Creating Ang_Shift_Map map \n");
-	Build_Ang_Shift_Map(&Param, Path);
-	printf ("Creating Pad map \n");
-	Build_Pad_Map(&Param, Path);
-	printf ("Creating Remap_Map map for the whole image\n", Path);
-	Build_Remap_Map (&Param, Path);
-	printf ("Creating Cart2LP map \n", Path);
-	Build_Cart2LP_Map(&Param, Path);
+	printf ("Creating Angular Shift map ...");
+	rval = Build_Ang_Shift_Map(&Param, Path);
+	if (rval)
+		printf ("\t\tDone !  \n");
+	else 
+		printf ("\t\tFailed !  \n");
+
+	printf ("Creating Pad map ...");
+	rval = Build_Pad_Map(&Param, Path);
+	if (rval)
+		printf ("\t\t\tDone !  \n");
+	else 
+		printf ("\t\t\tFailed !  \n");
+
+	printf ("Creating Remap map (Whole Image) ...", Path);
+	rval = Build_Remap_Map (&Param, Path);
+	if (rval)
+		printf ("\tDone !  \n");
+	else 
+		printf ("\tFailed !  \n");
+
+	
+	printf ("Creating Cart2LP map ...", Path);
+	rval = Build_Cart2LP_Map(&Param, Path);
+	if (rval)
+		printf ("\t\tDone !  \n");
+	else 
+		printf ("\t\tFailed !  \n");
 
 	Param = Set_Param(
 		_xsize, _ysize,
@@ -130,25 +152,55 @@ int main (int argc, char *argv[])
 	Param.padding = _salign;
 	Param.Fovea_Type = 0;
 
-	printf ("Creating Build_Remap map \n");
-	Build_Remap_Map(&Param, Path);
-	printf ("Creating Color map \n");
-	Build_Color_Map(&Param,Path);
+	printf ("Creating Remap map (Center) ...");
+	rval = Build_Remap_Map(&Param, Path);
+	if (rval)
+		printf ("\t\tDone !  \n");
+	else 
+		printf ("\t\tFailed !  \n");
+
+	printf ("Creating Color map ...");
+	rval = Build_Color_Map(&Param,Path);
+	if (rval)
+		printf ("\t\t\tDone !  \n");
+	else 
+		printf ("\t\t\tFailed !  \n");
+
 
 	///
 	Param.Pix_Numb = 2;
 
-	printf ("Creating XY map \n");
-	Build_XY_Map(&Param, Path);
-	printf ("Creating Neigborhood map \n");
-	Build_Neighborhood_Map(&Param, Path);
-	printf ("Creating Weights map \n");
-	Build_Weights_Map(&Param, Path);	
+	printf ("Creating XY map ...");
+	rval = Build_XY_Map(&Param, Path);
+	if (rval)
+		printf ("\t\t\tDone !  \n");
+	else 
+		printf ("\t\t\tFailed !  \n");
+
+	printf ("Creating Neigborhood map ...");
+	rval = Build_Neighborhood_Map(&Param, Path);
+	if (rval)
+		printf ("\t\tDone !  \n");
+	else 
+		printf ("\t\tFailed !  \n");
+
+	printf ("Creating Weights map ...");
+	rval = Build_Weights_Map(&Param, Path);	
+	if (rval)
+		printf ("\t\tDone !  \n");
+	else 
+		printf ("\t\tFailed !  \n");
+
 
 	Param.padding = _salign;
 	Param.Fovea_Type = 0;
-	printf ("Creating DS map\n");
-	Build_DS_Map (&Param, Path, 4.0);
+	printf ("Creating DS map ...");
+	rval = Build_DS_Map (&Param, Path, 4.0);
+	if (rval)
+		printf ("\t\t\tDone !  \n");
+	else 
+		printf ("\t\t\tFailed !  \n");
+
 
 	Param = Set_Param(
 		_xsize, _ysize,
@@ -160,14 +212,22 @@ int main (int argc, char *argv[])
 	Param.padding = _salign;
 	Param.Fovea_Type = 0;
 	Param.Ratio = 4.0f;
-	Param.dres = (double)(1090.0/4.0);
+	Param.dres = (float)(1090.0/4.0);
 
-	printf ("Creating Shift map\n");
-	Build_Shift_Map (&Param, Path);
-	printf ("Creating Step Function\n");
+	printf ("Creating Shift map ...");
+	rval = Build_Shift_Map (&Param, Path);
+	if (rval)
+		printf ("\t\t\tDone !  \n");
+	else 
+		printf ("\t\t\tFailed !  \n");
+
+	printf ("Creating Step Function ...");
+
 	Build_Step_Function (Path, &Param);
+	printf ("\t\tDone !  \n\n");
 
-	printf("Finish\n");
+
+	printf("Generation Completed.\n\n");
 
 	return 0;
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.28 2004-01-30 17:23:46 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.29 2004-02-04 16:10:22 fberton Exp $
 ///
 ///
 
@@ -114,7 +114,7 @@ struct Image_Data{
 	int Resolution;
 	double dres;
 
-	int Fovea_Display_Mode; //0 Sawtooth (Raw); 1 Triangular; 2 Complete
+//	int Fovea_Display_Mode; //0 Sawtooth (Raw); 1 Triangular; 2 Complete
 
 	// Log Polar Metrics
 	int Size_Rho;
@@ -127,8 +127,6 @@ struct Image_Data{
 	// Remapped Cartesian Metrics
 	int Size_X_Remap;
 	int Size_Y_Remap;
-	int Center_X_Remap;
-	int Center_Y_Remap;
 	int Size_Img_Remap;
 
 	// Original Cartesian Metrics

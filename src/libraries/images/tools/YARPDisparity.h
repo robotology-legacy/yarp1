@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.h,v 1.7 2004-01-30 17:11:10 fberton Exp $
+/// $Id: YARPDisparity.h,v 1.8 2004-02-04 16:10:22 fberton Exp $
 ///
 ///
 // disparity.h: interface for the YARPDisparityTool class.
@@ -114,8 +114,8 @@ public:
 	int loadDSTable(Image_Data* Par);
 
 	void downSample(YARPImageOf<YarpPixelBGR> & inImg, YARPImageOf<YarpPixelBGR> & outImg);
-	int computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
-						 YARPImageOf<YarpPixelBGR> & inRImg);
+	int computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
+						 YARPImageOf<YarpPixelBGR> & inLImg);
 
 	void makeHistogram(YARPImageOf<YarpPixelMono> & hImg);
 

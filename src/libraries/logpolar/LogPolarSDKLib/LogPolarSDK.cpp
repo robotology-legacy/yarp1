@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.33 2004-02-02 16:25:27 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.34 2004-02-04 16:10:22 fberton Exp $
 ///
 ///
 
@@ -127,8 +127,6 @@ Image_Data Set_Param(int SXO,
 		image.Resolution = resolution;
 		image.Size_X_Remap = SXR;
 		image.Size_Y_Remap = SYR;
-//		image.Center_X_Remap = Cx;
-//		image.Center_Y_Remap = Cy;
 		break;
 	}
 	
@@ -141,6 +139,7 @@ Image_Data Set_Param(int SXO,
 	image.Orig_Planes = Color;
 	image.Remap_Planes = Color;
 	image.Valid_Log_Index = false;
+	image.Log_Index = 1.0;
 
 	if (ZoomLevel == FITIN){
 		image.Zoom_Level = (double)(image.Size_Y_Remap);
@@ -252,7 +251,7 @@ int Get_Rho(double x,
 
 /************************************************************************
 * Get_XY_Center  														*
-************************************************************************/	
+***********************************************************************	
 int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, double *Ang_Shift)
 {
 	double scalefactor;
@@ -307,11 +306,11 @@ int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, d
 	return 0;
 }
 
-
+*/
 
 /************************************************************************
 * Get_X_Center  														*
-************************************************************************/	
+***********************************************************************	
 
 double Get_X_Center_Old(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap)
 {
@@ -366,10 +365,10 @@ double Get_X_Center_Old(double rho, double theta, Image_Data *par, double *Ang_S
 
 		return x*scalefactor;
 }
-
+*/
 /************************************************************************
 * Get_Y_Center  														*
-************************************************************************/	
+***********************************************************************	
 
 double Get_Y_Center_Old(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap){
 
@@ -424,7 +423,7 @@ double Get_Y_Center_Old(double rho, double theta, Image_Data *par, double *Ang_S
 		return y*scalefactor;
 
 }
-
+*/
 
 /************************************************************************
 * Reconstruct_Color		  												*
@@ -630,8 +629,6 @@ void Remap(unsigned char * Out_Image,
 	In_Image[1] = 0; // 192;
 	In_Image[2] = 0; // 192;
 	//const int Size = Par->Size_X_Remap * Par->Size_Y_Remap;
-//	int CenterX = Par->Center_X_Remap;
-//	int CenterY = Par->Center_Y_Remap;
 
 //	int starti = (Par->Resolution/2)+CenterX-(SizeRemapX/2);
 //	int startj = (Par->Resolution/2)-CenterY-(SizeRemapY/2);

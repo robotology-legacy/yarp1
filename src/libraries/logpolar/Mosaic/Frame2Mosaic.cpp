@@ -101,8 +101,8 @@ void main ()
 					ClosestFrame = j;
 				}
 			}
-			Param.Center_X_Remap = 0;
-			Param.Center_Y_Remap = 0;
+//			Param.Center_X_Remap = 0;
+//			Param.Center_Y_Remap = 0;
 			sprintf(File_Name,"%s%03d%s","C:\\Temp\\From Talia\\Frames\\Frame_",ClosestFrame,".bmp");
 			ImgPtr.LP_Image[0] = Load_Bitmap(&Param.Size_Theta,&Param.Size_Rho,&Param.LP_Planes,File_Name);
 
@@ -117,7 +117,7 @@ void main ()
 				Size1 = Param.Size_X_Remap;
 
 				ImgPtr.Small_Remapped[0] = (unsigned char *)malloc(Param.Size_Img_Remap * 3 * sizeof(unsigned char));
-				Remap_Cropped(ImgPtr.Small_Remapped[0],ImgPtr.LP_Image[0],&Param,TabPtr.RemapMap[j],Param.Center_X_Remap/pow(2,j),Param.Center_Y_Remap/pow(2,j));
+//				Remap_Cropped(ImgPtr.Small_Remapped[0],ImgPtr.LP_Image[0],&Param,TabPtr.RemapMap[j],Param.Center_X_Remap/pow(2,j),Param.Center_Y_Remap/pow(2,j));
 				sprintf(File_Name,"%s%03d%s%2.3f%s","C:\\Temp\\From Talia\\Frames\\Frame_",ClosestFrame,"Rem",Param.Zoom_Level,".bmp");
 				Save_Bitmap(ImgPtr.Small_Remapped[0],Param.Size_X_Remap,Param.Size_Y_Remap,3,File_Name);
 
@@ -168,8 +168,8 @@ void main ()
 
 				free(TabPtr.Raw_Corr_Map);
 
-				Param.Center_X_Remap += (int)(pow(2,j)*(min_i%(Size1-Size2)-(Size1-Size2)/2));
-				Param.Center_Y_Remap += (int)(pow(2,j)*(min_i/(Size1-Size2)-(Size1-Size2)/2));	
+//				Param.Center_X_Remap += (int)(pow(2,j)*(min_i%(Size1-Size2)-(Size1-Size2)/2));
+//				Param.Center_Y_Remap += (int)(pow(2,j)*(min_i/(Size1-Size2)-(Size1-Size2)/2));	
 				free(ImgPtr.Small_Remapped[0]);
 				free(ImgPtr.Small_Remapped[1]);
 			}
@@ -182,8 +182,8 @@ void main ()
 			Param.Size_X_Remap = (int)(TabPtr.RemLUTFullX[4]);
 			Param.Size_Y_Remap = Param.Size_X_Remap;
 			Param.Size_Img_Remap = Param.Size_X_Remap * Param.Size_Y_Remap;
-			Param.Center_X_Remap = Param.Center_X_Remap * Param.Zoom_Level + TabPtr.SmMosaicX/2;
-			Param.Center_Y_Remap = Param.Center_Y_Remap * Param.Zoom_Level + TabPtr.SmMosaicY/2;
+//			Param.Center_X_Remap = Param.Center_X_Remap * Param.Zoom_Level + TabPtr.SmMosaicX/2;
+//			Param.Center_Y_Remap = Param.Center_Y_Remap * Param.Zoom_Level + TabPtr.SmMosaicY/2;
 			ImgPtr.Small_Remapped[1] = (unsigned char *)malloc(Param.Size_Img_Remap*3*sizeof(unsigned char));
 			sprintf(File_Name,"%s%03d%s","C:\\Temp\\From Talia\\Frames\\Frame_",frame,".bmp");
 			ImgPtr.LP_Image[1] = Load_Bitmap(&Param.Size_Theta,&Param.Size_Rho,&Param.LP_Planes,File_Name);

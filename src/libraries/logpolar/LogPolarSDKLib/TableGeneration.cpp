@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.35 2004-01-30 16:50:33 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.36 2004-02-04 16:10:22 fberton Exp $
 ///
 ///
 
@@ -1821,6 +1821,9 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	sprintf(File_Name,"%s%1.2f_ReferenceImage.bmp",Path,Ratio);
 	unsigned char * SLP = Load_Bitmap(&STheta,&SRho,&SPlanes,File_Name);
 
+	if ((LLP == NULL)||(SLP == NULL))
+		return 0;
+
 //Sets the Par
 
 	oldsize = LParam->Size_X_Remap;
@@ -2349,7 +2352,7 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 {
 
 #define FLOATRES
-	int i,j,k,l;
+	int i,j,l;
 	double tempX,tempY;
 	int newRho, newTheta;
 
@@ -2377,7 +2380,8 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 #endif
 
 //	ShiftMap = (int*) malloc((1+3*Par->Resolution/2)*1*Par->Size_LP*sizeof(int));
-	ShiftMap = (int*) malloc((1+2*steps)*1*Par->Size_LP*sizeof(int));
+//	ShiftMap = (int*) malloc((1+2*steps)*1*Par->Size_LP*sizeof(int));
+	ShiftMap = (int*) calloc((1+2*steps)*Par->Size_LP,sizeof(int));
 
 	unsigned short retval = Load_Tables(Par,&Tables,Path,17);
 
@@ -2402,8 +2406,8 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 	}
 	else
 	{
-		for (k=0; k<(2*steps+1)*Par->Size_LP*1; k++)
-			ShiftMap[k] = 0;
+//		for (k=0; k<(2*steps+1)*Par->Size_LP*1; k++)
+//			ShiftMap[k] = 0;
 
 //		for (l = -steps; l<=-steps+(3*Par->Resolution/2); l++)
 		for (l = -steps; l<steps+1; l++)
@@ -2448,7 +2452,8 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 								if ((newTheta>=0)&&(newTheta<Par->Size_Theta))
 								{
 //									for (k=0; k<3; k++)
-										ShiftMap[(l+steps)*(1*Par->Size_LP)+1*(j*Par->Size_Theta+i)] = 3*(newRho*Par->Size_Theta+newTheta)+newRho * AddedPad;
+
+									ShiftMap[(l+steps)*(1*Par->Size_LP)+1*(j*Par->Size_Theta+i)] = 3*(newRho*Par->Size_Theta+newTheta)+newRho * AddedPad;
 	//								New_LP_Image[3*(j*Par->Size_Theta+i)] = LP_Image[3*(newRho*Par->Size_Theta+newTheta)];
 	//								New_LP_Image[3*(j*Par->Size_Theta+i)+1] = LP_Image[3*(newRho*Par->Size_Theta+newTheta)+1];
 	//								New_LP_Image[3*(j*Par->Size_Theta+i)+2] = LP_Image[3*(newRho*Par->Size_Theta+newTheta)+2];
