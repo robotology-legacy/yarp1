@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPExMatrix.h,v 1.3 2004-09-15 07:27:18 beltran Exp $
+/// $Id: YARPExMatrix.h,v 1.4 2004-09-21 17:21:52 beltran Exp $
 ///
 #ifndef __YARPExMatrixh__
 #define __YARPExMatrixh__
@@ -112,7 +112,7 @@ public:
 	{ 
 		_mA = mA; 	
 		_vTau.Resize(_mA.NCols());
-		_mR = _mA; // The _mR matrix will contain the right data well the determinant calculation is called
+		_mR = _mA; // The _mR matrix will contain the right data when the determinant calculation is called
 		calculateR();
 		
 		return YARP_OK;
@@ -139,9 +139,9 @@ public:
 	int calculateR()
 	{
 		_Qr.QRFactorization(_mR.data(),
-							 _mR.NRows(),
-							 _mR.NCols(),
-							 _vTau.data());
+							_mR.NRows(),
+							_mR.NCols(),
+							_vTau.data());
 
 		return YARP_OK;
 	}
@@ -201,15 +201,16 @@ public:
 	
 	YARPCovMatrix& operator=(YMatrix& refmatrix)
 	{
-		/*
+		
 		double ** refdata = refmatrix.data();
-		double ** ldata = data();
+		double ** ldata;
 
 		if (NRows() != refmatrix.NRows() || NCols() != refmatrix.NCols())
 			Resize(refmatrix.NRows(),refmatrix.NCols());
+		ldata = data();
 		memcpy(ldata[0], refdata[0], NRows()*NCols()*sizeof(double));
-		*/
-		(YMatrix)(*this) = refmatrix;
+	
+		//(YMatrix)(*this) = refmatrix;
 		return *this;
 	}
 
@@ -245,7 +246,7 @@ public:
 	  */
 	YARPExMatrix(int rows, int cols, const double *storage = 0):YMatrix(rows, cols, storage)
 	{
-		_vMeans.Resize(rows);
+		_vMeans.Resize(cols);
 		_mLocalVariances.Resize(rows,cols);
 	}
 
@@ -256,7 +257,7 @@ public:
 	  */
 	YARPExMatrix(const YMatrix &refmatrix):YMatrix(refmatrix)
 	{
-		_vMeans.Resize(YMatrix::NRows());
+		_vMeans.Resize(YMatrix::NCols());
 		_mLocalVariances.Resize(NRows(),NCols());
 	}
 
@@ -275,7 +276,7 @@ public:
 	  */
 	void Resize(int rows, int cols, const double *storage = 0)
 	{
-		_vMeans.Resize(rows);
+		_vMeans.Resize(cols);
 		_mLocalVariances.Resize(rows,cols);
 		YMatrix::Resize(rows,cols,storage);
 	}
@@ -312,9 +313,9 @@ public:
 		//  Calculate the final covariance matrix
 		//----------------------------------------------------------------------
 		if (flag)
-			mCov = (_mLocalVariances.Transposed() * _mLocalVariances) / (NRows()); 
+			mCov = (_mLocalVariances.Transposed() * _mLocalVariances) / (double)(NRows()); 
 		else
-			mCov = (_mLocalVariances.Transposed() * _mLocalVariances) / (NRows()-1);
+			mCov = (_mLocalVariances.Transposed() * _mLocalVariances) / (double)(NRows()-1);
 
 		mCov.setOriginalVariancesMatrix(_mLocalVariances);
 

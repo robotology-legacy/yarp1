@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: soundidentification.cpp,v 1.13 2004-09-15 07:27:18 beltran Exp $
+/// $Id: soundidentification.cpp,v 1.14 2004-09-21 17:21:52 beltran Exp $
 ///
 
 /** 
@@ -39,9 +39,10 @@
  * @author Carlos Beltran
  * @date 2004-08-24
  */
+#define ACE_NTRACE 1
 
 #include <iostream>
-#include <ace/Vector_T.h>
+#include <ace/Log_Msg.h>
 #include <yarp/YARPScheduler.h>
 #include <yarp/YARPRobotMath.h>
 #include <yarp/YARPPort.h>
@@ -65,24 +66,20 @@
 
 using namespace std;
 
-typedef YARPImageOf<YarpPixelBGR> BGRImage_Type;
-typedef YARPImageOf<YarpPixelBGR> *pBGRImage_Type;
-typedef ACE_Vector<pBGRImage_Type> vpImages_Type;
-//typedef ACE_Vector<YARPGenericImage>::iterator vImages_Iterator;
-
 int 
-calculateMixel(YARPCovMatrix &mXtX, vpImages_Type &vImgs, int i, int j); 
+calculateMixel(YARPCovMatrix &, 
+			   YARPImageOf<YarpPixelBGR>*,int,int,int); 
 
 const int   __outSize    = 5;
 const char *__baseName   = "/soundidentification/";
 const char *__configFile = "sound.ini";
-int _sizex = 256;
-int _sizey = 256; /** @todo Put this as an external parameter?. */
+int _sizex = 250;
+int _sizey = 270; /** @todo Put this as an external parameter?. */
 
 /**
  * Some variable for the network connection.
  */
-bool _sharedmem = true;
+bool _sharedmem = false;
 int  _protocol  = YARP_MCAST;
 
 /** 
@@ -101,6 +98,7 @@ public:
 		double time2   = 0.0;
 		double period  = 0.0;
 		YarpPixelBGR _auxpix(0,0,0); /** Temporal pixel.  */
+		char * ppixel;
 		//YARPVectorBuffer vector_buff;
 		YARPSoundTemplate _soundTemplate;
         YARPBottle _botActions;            // This bottle is used to control externally the
@@ -109,31 +107,31 @@ public:
 		YARPCovMatrix _mSoundCov;
 		YMatrix _mLocVar;
 
-        BGRImage_Type _imgMixelgram;      /** The mixelgram image.    */
-        BGRImage_Type * _imgInput;          /** The normal input image. */
+        YARPImageOf<YarpPixelBGR> _imgMixelgram; /** The mixelgram image.    */
+        YARPImageOf<YarpPixelBGR> _imgInput;    /** The normal input image. */
 
-        vpImages_Type _vImages(_soundTemplate.Size()); /** Vector of images.       */
+        /** Vector of pointers to images. */
+		//YARPImageOf<YarpPixelBGR> ** _vImages = new YARPImageOf<YarpPixelBGR> *[_soundTemplate.Size()]; 
+		YARPImageOf<YarpPixelBGR> _vImages[ARRAY_MAX]; 
 
         _imgMixelgram.Resize(_sizex,_sizey);
         //_imgInput.Resize(_sizex,_sizey);
 
-		_imgMixelgram.Zero();
-		
 		YARPScheduler::setHighResScheduling();
 		
 		//----------------------------------------------------------------------
 		// Port declarations 
 		//----------------------------------------------------------------------
         YARPInputPortOf<YARPSoundBuffer>   _inpSound (YARPInputPort::DEFAULT_BUFFERS ,YARP_UDP);
-        YARPInputPortOf<YARPBottle>        _inpAction(YARPInputPort::DEFAULT_BUFFERS ,YARP_UDP);
-        YARPInputPortOf<YARPGenericImage>  _inpImg   (YARPInputPort::DEFAULT_BUFFERS ,YARP_UDP);
-        YARPOutputPortOf<YVector>          _outpMfcc (YARPOutputPort::DEFAULT_OUTPUTS,YARP_UDP);
-        YARPOutputPortOf<YARPGenericImage> _outpImg  (YARPOutputPort::DEFAULT_OUTPUTS,YARP_UDP);
+        //YARPInputPortOf<YARPBottle>        _inpAction(YARPInputPort::DEFAULT_BUFFERS ,YARP_UDP);
+        YARPInputPortOf<YARPGenericImage>  _inpImg;
+        //YARPOutputPortOf<YVector>          _outpMfcc (YARPOutputPort::DEFAULT_OUTPUTS,YARP_UDP);
+        YARPOutputPortOf<YARPGenericImage> _outpImg;
 
         //_inpSound.SetAllowShmem (_sharedmem);
         //_inpAction.SetAllowShmem(_sharedmem);
         //_inpImg.SetAllowShmem   (_sharedmem);
-        _outpMfcc.SetAllowShmem (_sharedmem);
+        //_outpMfcc.SetAllowShmem (_sharedmem);
         _outpImg.SetAllowShmem  (_sharedmem);
 
 		SoundIdentificationProcessing _soundIndprocessor(__configFile,  __outSize);
@@ -144,9 +142,9 @@ public:
 		YARPString base3(__baseName); YARPString base4(__baseName); YARPString base5(__baseName);
 
         _inpSound.Register (base1.append("i"     ).c_str());
-        _inpAction.Register(base2.append("action").c_str());
+        //_inpAction.Register(base2.append("action").c_str());
         _inpImg.Register   (base3.append("i:img").c_str());
-        _outpMfcc.Register (base4.append("mfcc"  ).c_str());
+        //_outpMfcc.Register (base4.append("mfcc"  ).c_str());
         _outpImg.Register  (base5.append("o:img"  ).c_str());
 
 		time1 = YARPTime::GetTimeAsSeconds();
@@ -191,52 +189,79 @@ public:
             int ret = _soundTemplate.Add(_vOutMfcc, 2);  // Adds new vector; bufferize if necessary
             ACE_ASSERT(ret != 0);
 			
-			_imgInput = new BGRImage_Type;
-			_imgInput->Resize(_sizex,_sizey);
+			//_imgInput = new YARPImageOf<YarpPixelBGR>;
+			//ACE_NEW(_imgInput,YARPImageOf<YarpPixelBGR>);
+			//_imgInput->Resize(_sizex,_sizey);
 
 			_inpImg.Read();
-            _imgInput->Refer(_inpImg.Content());          // Read the image from the image port
+            _imgInput.CastCopy(_inpImg.Content()); // Read the image from the image port
+
+			_imgMixelgram.Resize(_imgInput.GetWidth(),_imgInput.GetHeight());
+
+			YARPImageOf<YarpPixelBGR>& tmpimg4 = _vImages[_soundTemplate.Length()-1];
+			tmpimg4.CastCopy(_imgInput);
 
 			//Move left the _vImages to make space to the new image pointer
+
 			if( _soundTemplate.isFull()) 
 			{ 
-				int i;
-				vpImages_Type _vTempImages(_vImages.size()); 
-				//copy elements
-				for (i = 1; i < _vImages.size();i++)
-					_vTempImages.set(_vImages[i],i-1);
-
-				_vTempImages.set(_imgInput,_soundTemplate.Size()-1);
-				_vImages = _vTempImages;
+				//YARPImageOf<YarpPixelBGR> * pimg;
+				//pimg = _vImages[0];
+				//delete pimg; //Remove first element
+				// Move elements to the left
+				for (i = 1; i < _soundTemplate.Length();i++)
+				{
+					YARPImageOf<YarpPixelBGR>& tmpimg = _vImages[i-1];
+					YARPImageOf<YarpPixelBGR>& tmpimg2 = _vImages[i]; 
+					tmpimg.CastCopy(tmpimg2);
+				}
 			}
-			else
-				_vImages.set(_imgInput,_soundTemplate.Length()-1);
 
 			//----------------------------------------------------------------------
 			//  Go to calculate the mixel for each pixel in the image.
 			//----------------------------------------------------------------------
-//			if (_soundTemplate.Length() == 100)
-//			{
-//				_soundTemplate.Save("test.txt");
-//			}
-			if (_soundTemplate.Length() > 5)
+			if (_soundTemplate.Length() > 18)
 			{
-				ACE_OS::fprintf(stdout, "sending image\n");
+				//ACE_OS::fprintf(stdout, "sending image\n");
 				_soundTemplate.CovarianceMatrix(_mSoundCov); // Calculate the sound covariance
-				for(i = 0; i < _imgInput->GetHeight(); i++ )
-					for( j = 0; j < _imgInput->GetWidth(); j++)
+				int w = _imgInput.GetWidth();
+				int h = _imgInput.GetHeight();
+				int wstart = w - (w * 2/3);
+				int wend   = w - (w * 1/3);
+				int hstart = h - (h * 2/3);
+				int hend   = h - (h * 1/3);
+				for(i = wstart; i < wend; i++ )
+					for( j = hstart; j < hend; j++)
 					{
-						_dMixelValue = calculateMixel(_mSoundCov, _vImages, i, j);
-						_auxpix.r = _dMixelValue;
-						_auxpix.g = 0.0;
-						_auxpix.b = 0.0;
-						_imgMixelgram.SafePixel(i,j) = _auxpix;
+						_dMixelValue = calculateMixel(_mSoundCov, _vImages,_soundTemplate.Length(), i, j);
+						//_dMixelValue = counter;
+						_imgMixelgram.SafePixel(i,j).r = _dMixelValue*20;
+						_imgMixelgram.SafePixel(i,j).g = 0;
+						_imgMixelgram.SafePixel(i,j).b = 0;
 					}
 
+				if (counter < _imgInput.GetWidth())
+				{
+					int r,c;
+					r = _imgInput.GetHeight()-10;
+					c = counter;
+					_imgMixelgram.SafePixel(c,r).g = 255;
+				}
+
 				//send the mixelgram image into the network
-				_outpImg.Content().Refer(_imgMixelgram);
+				_outpImg.Content().SetID(YARP_PIXEL_BGR);
+				_outpImg.Content().CastCopy(_imgMixelgram);
 				_outpImg.Write();
 			}
+			/*
+			if (_soundTemplate.Length() > 20)
+			{
+				YARPImageOf<YarpPixelBGR>& tempp = _vImages[20];
+				_outpImg.Content().SetID(YARP_PIXEL_BGR);
+				_outpImg.Content().CastCopy(tempp);
+				_outpImg.Write();
+			}
+			*/
 #if 0
 			_inAction.Read(); // Read what to do with the sound than now is beeing received
 			_botActions = _inAction.Content();
@@ -286,8 +311,12 @@ public:
 			}
 		}
 
+		/*
 		for( int i = 0; i < _soundTemplate.Length(); i++)	
 			if ( _vImages[i] != NULL ) delete _vImages[i];
+		 */
+
+		//delete[] _vImages;
 
 		YARPString name(file_name);
 		_soundTemplate.Save(name);
@@ -302,7 +331,8 @@ public:
   * @todo add mutual information formula.
   * 
   * @param mXtX The sound covariance matrix.
-  * @param vImgs   The image with the pixels to be analized.
+  * @param vImgs Array of pointer to the images. 
+  * @param iSamples Number of samples.
   * @param i     The mixel/pixel 'w' position in the image
   * @param j     The mixel/pixel 'h' position in the image
   * 
@@ -311,44 +341,40 @@ public:
   */
 int 
 calculateMixel(YARPCovMatrix &mXtX, 
-			   vpImages_Type &vImgs, 
+			   YARPImageOf<YarpPixelBGR> * vImgs, 
+			   int iSamples,
 			   int i, int j)
 {
+	ACE_TRACE("calculateMixel");
+
     int n         = 0;        /** Sound number of componects.                           */
     int m         = 0;        /** Image number of components.                           */
-    int _iSamples = 0;        /** Number of samples in the temporal dimension.          */
     int ret;                  /** Return variable.                                      */
-
-    YarpPixelBGR _pix(0,0,0); /** Temporal pixel.                                       */
-
-    YARPExMatrix  _mV;        /** Matrix with the pixel samples (in the time domain).   */
+    
+	YARPExMatrix  _mV;        /** Matrix with the pixel samples (in the time domain).   */
     YARPCovMatrix _mYtY;      /** Covariance matrix of _mV.                             */
     YARPCovMatrix _mCtC;      /** Mutual covariance matrix.                             */
     YMatrix _mY;              /** The local variances matrix of mYtY.                   */
     YMatrix _mX;              /** The local variances matrix of mXtX.                   */
     YMatrix _mC;              /** The local variances matrix for the mutual covariance. */
 
-
-    n = mXtX.NRows();         // The soundcovariance matrix determinates the
+    n = mXtX.NCols();         // The soundcovariance matrix determinates the
                               // number of parameters used to parametrice the sound
     m = 3;                    // The pixel contains 3 bytes for RGB data
-    _iSamples = vImgs.size(); // The size of the images vector dictates the number of
-                              // samples that are being used. It should be the same
-                              // for the sound.
 
-    _mV.Resize(_iSamples,3);
-	_mC.Resize(_iSamples,n+m);
+    _mV.Resize(iSamples,3);
+	_mC.Resize(iSamples,n+m);
 
 	ret = mXtX.getOriginalVariancesMatrix(_mX);
 	ACE_ASSERT(ret != YARP_FAIL);
-
+	
 	// Fill PixelSamples matrix
-	for (int z = 0; z < _iSamples; z++)
+	for (int z = 1; z <= iSamples; z++)
 	{
-		_pix = vImgs[z]->SafePixel(i,j);
-		_mV(z,1) = _pix.r;
-		_mV(z,2) = _pix.g;
-		_mV(z,3) = _pix.b;
+		YARPImageOf<YarpPixelBGR>& pimg = vImgs[z-1];
+		_mV(z,1) = pimg.SafePixel(i,j).r;
+		_mV(z,2) = pimg.SafePixel(i,j).g;
+		_mV(z,3) = pimg.SafePixel(i,j).b;
 	}
 		
 	// Caculate pixel covariance matrix
@@ -357,7 +383,7 @@ calculateMixel(YARPCovMatrix &mXtX,
 	ACE_ASSERT(ret != YARP_FAIL);
 
 	// Calculate local mutual variances matrix
-	for (int r = 1; r <= _iSamples; r++)
+	for (int r = 1; r <= iSamples; r++)
 		for (int c = 1; c <= _mC.NCols(); c++)
 		{
 			if ( c <= n)
@@ -374,15 +400,15 @@ calculateMixel(YARPCovMatrix &mXtX,
 	double _dDetXtX = 0.0;
 	double _dDetYtY = 0.0;
 
-	_mCtC.determinant(_dDetCtC);
-	mXtX.determinant(_dDetXtX);
-	_mYtY.determinant(_dDetYtY);
+    _mCtC.determinant(_dDetCtC);
+    mXtX.determinant (_dDetXtX);
+    _mYtY.determinant(_dDetYtY);
 
-	double value = 1/2 * ACE::log2((_dDetXtX * _dDetYtY) / _dDetCtC);
+	double value = (1/2.0) * ACE::log2((_dDetXtX * _dDetYtY) / (double)_dDetCtC);
 
 	//pixel = min(255,max(0,255*mixel)) from Vuppla
-	return(MIN(255,MAX(0,255*value)));
-
+	//return(MIN(255,MAX(0,255*value)));
+	return(value);
 }
 
 /** 

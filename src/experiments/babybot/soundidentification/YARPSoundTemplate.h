@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.9 2004-09-15 07:27:18 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.10 2004-09-21 17:21:52 beltran Exp $
 ///
 
 /** 
@@ -49,7 +49,7 @@
 #include <math.h>
 #include "YARPExMatrix.h"
 
-#define ARRAY_MAX 110 // Aproximatelly 5 seconds sound (22 frames/second)
+#define ARRAY_MAX 20 // Aproximatelly 5 seconds sound (22 frames/second)
 
 #ifndef	HUGE
 	#define	HUGE	1e30
@@ -83,7 +83,6 @@ public:
 		m_totalsize      = ARRAY_MAX;
 		m_parray         = new YVector *[ARRAY_MAX];
 		memset(m_parray, 0 , sizeof(YVector *) * ARRAY_MAX);
-	
 	}
 	/** 
 	 * Overloaded constructor.
@@ -295,7 +294,6 @@ public:
 		m_parray[m_currentsize-1] = new_pvector;
 
 		return YARP_OK;
-		
 	}
 
 	/** 
@@ -408,12 +406,13 @@ public:
         YVector _means;           /** Local temporal vector to store the mean values.   */
         YMatrix _xvars;           /** Temporal matrix to store the local variances.     */
         YMatrix _xvarst;          /** Temporal transpose.                               */
-		YMatrix _mcov;          /** Temporal covariance                               */
+		YMatrix _mcov;          /** Temporal covariance.                               */
         YVector * pvector = NULL; /** Temporal pointer to YVector.                      */
         double  * pdata   = NULL; /** Temporal pointer to access YVector internal data. */
 
 		_means.Resize(m_vectors_length);
         _xvars.Resize(m_currentsize,m_vectors_length);
+		_mcov.Resize(m_vectors_length, m_vectors_length);
 		
 		//----------------------------------------------------------------------
 		// Calculate means. 
@@ -430,7 +429,7 @@ public:
                 pvector = m_parray[j];     // Get the pointer to the vector data
                 sum += (*pvector)[i];           // Add the i value of the vector to the sum
             }
-            _means[i] = sum/(double)m_currentsize; // We store the mean in the means vector
+            _means[i] = (double)sum/(double)m_currentsize; // We store the mean in the means vector
 		}
 
 		//----------------------------------------------------------------------
@@ -446,8 +445,8 @@ public:
 		}
 
 		_xvarst = _xvars.Transposed();
-		_mcov = _xvarst * _xvars;
-		mCov = _mcov;
+		_mcov   = _xvarst * _xvars;
+		mCov    = _mcov;
 
 		// Calculate the final covariance matrix
 		if (flag)
