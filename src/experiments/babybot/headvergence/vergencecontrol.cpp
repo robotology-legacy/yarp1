@@ -61,13 +61,13 @@
 ///
 
 ///
-/// $Id: vergencecontrol.cpp,v 1.6 2004-07-12 08:36:31 babybot Exp $
+/// $Id: vergencecontrol.cpp,v 1.7 2004-07-30 17:41:21 babybot Exp $
 ///
 ///
 
 #include "vergencecontrol.h"
 
-#include <YARPConfigFile.h>
+#include <yarp/YARPConfigFile.h>
 
 VergenceControl::VergenceControl(const YARPString &iniFile, int insize, int outsize)
 {

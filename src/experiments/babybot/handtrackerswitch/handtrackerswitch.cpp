@@ -1,9 +1,9 @@
 // handtrackerswitch.cpp : Defines the entry point for the console application.
 //
 
-#include <YARPScheduler.h>
-#include <YARPRobotMath.h>
-#include <YARPPort.h>
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPRobotMath.h>
+#include <yarp/YARPPort.h>
 
 #include "attbehavior.h"
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPParseParameters.h,v 1.2 2004-07-20 00:34:25 babybot Exp $
+/// $Id: YARPParseParameters.h,v 1.3 2004-07-30 17:41:22 babybot Exp $
 ///
 /// Simple parser facility for program arguments. July 2003 -- by nat
 /// usage: -switch parameter
@@ -73,14 +73,13 @@
 
 #include <yarp/YARPString.h>
 
-class YARPParseParameters
+namespace YARPParseParameters
 {
-public:
-	static bool parse (int argc, char *argv[], const YARPString &key, YARPString &out);
-	static bool parse (int argc, char *argv[], const YARPString &key);
-	static bool parse (int argc, char *argv[], const YARPString &key, int *out);
-	static bool parse (int argc, char *argv[], const YARPString &key, char *out);
-	static bool parse (int argc, char *argv[], const YARPString &key, double *out);
+	bool parse (int argc, char *argv[], const YARPString &key, YARPString &out);
+	bool parse (int argc, char *argv[], const YARPString &key);
+	bool parse (int argc, char *argv[], const YARPString &key, int *out);
+	bool parse (int argc, char *argv[], const YARPString &key, char *out);
+	bool parse (int argc, char *argv[], const YARPString &key, double *out);
 };
 
 #endif

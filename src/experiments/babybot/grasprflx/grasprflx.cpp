@@ -2,8 +2,10 @@
 //
 
 #include "reflexstates.h"
-#include <YARPConfigFile.h>
-#include <YARPParseParameters.h>
+#include <yarp/YARPConfigFile.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPConfigRobot.h>
+
 
 const int N = 20;
 const int _nJoints = 6;

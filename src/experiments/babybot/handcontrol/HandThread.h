@@ -6,17 +6,16 @@
 #ifndef __HAND_THREAD__
 #define __HAND_THREAD__
 
-#include <conf/YarpConfig.h>
+#include <yarp/YarpConfig.h>
 
-#include <YARPRateThread.h>
+#include <yarp/YARPRateThread.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPPort.h>
+
 #include "HandFSM.h"
 #include "HandFSMStates.h"
-#include <YARPBehavior.h>
 
-#include <YARPVectorPortContent.h>
-#include <YARPPort.h>
-
-#include <YARPBabybotHand.h>
+#include <yarp/YARPBabybotHand.h>
 #include "hallparameters.h"
 
 #define HAND_THREAD_VERBOSE

@@ -64,6 +64,12 @@
 /// $Id:
 ///
 ///
+#include <yarp/YARPConfig.h>
+#include <ace/config.h>
+#include <ipl/ipl.h>
+
+#include <iostream>
+using namespace std;
 
 #include "YARPWatershed.h"
 

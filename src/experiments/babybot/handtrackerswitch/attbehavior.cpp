@@ -33,7 +33,7 @@ void AttBPollPrediction::handle(AttSharedData *d)
 //	d->_predictionPort.Read();
 }
 
-bool AttBSimpleInput::input(YARPBottle *in, AttSharedData *d)
+bool AttBSimpleInput::input(YARPBabyBottle *in, AttSharedData *d)
 {
 	if (!in->tryReadVocab(newK))
 		return false;

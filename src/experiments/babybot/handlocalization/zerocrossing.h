@@ -1,8 +1,8 @@
 #ifndef __ZERO_CROSSING__
 #define __ZERO_CROSSING__
 
-#include <YARPRobotmath.h>
-#include <YARPIterativeStats.h>
+#include <yarp/YARPRobotmath.h>
+#include <yarp/YARPIterativeStats.h>
 #include <vector>
 
 class ZeroCrossing

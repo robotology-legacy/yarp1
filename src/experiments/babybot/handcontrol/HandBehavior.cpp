@@ -1,4 +1,6 @@
 #include "HandBehavior.h"
+#include <iostream>
+using namespace std;
 
 void HBOutputCommand::output(HandBehaviorData *d)
 {
@@ -14,7 +16,7 @@ void HBShakeCmdOutput::output(HandBehaviorData *d)
 	d->shake();
 }
 
-bool HBInputCommand::input(YARPBottle *in, HandBehaviorData *d)
+bool HBInputCommand::input(YARPBabyBottle *in, HandBehaviorData *d)
 {
 	if (!in->tryReadVocab(tmpK))
 		return false;
@@ -31,7 +33,7 @@ bool HBInputCommand::input(YARPBottle *in, HandBehaviorData *d)
 	return true;
 }
 
-bool HBInputReset::input(YARPBottle *in, HandBehaviorData *d)
+bool HBInputReset::input(YARPBabyBottle *in, HandBehaviorData *d)
 {
 	if (!in->tryReadVocab(tmpK))
 		return false;
@@ -47,7 +49,7 @@ bool HBInputReset::input(YARPBottle *in, HandBehaviorData *d)
 	return true;
 }
 
-bool HBShakeCmdInput::input(YARPBottle *in, HandBehaviorData *d)
+bool HBShakeCmdInput::input(YARPBabyBottle *in, HandBehaviorData *d)
 {
 	if (!in->tryReadVocab(tmpK))
 		return false;
@@ -60,7 +62,7 @@ bool HBShakeCmdInput::input(YARPBottle *in, HandBehaviorData *d)
 	return true;
 }
 
-bool HBCheckMotionDone::input(YARPBottle *in, HandBehaviorData *d)
+bool HBCheckMotionDone::input(YARPBabyBottle *in, HandBehaviorData *d)
 {
 	if (!in->tryReadVocab(tmpK))
 		return false;

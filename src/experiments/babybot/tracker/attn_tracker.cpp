@@ -61,27 +61,26 @@
 ///
 
 ///
-/// $Id: attn_tracker.cpp,v 1.7 2003-11-07 17:31:09 babybot Exp $
+/// $Id: attn_tracker.cpp,v 1.8 2004-07-30 17:41:22 babybot Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
-#include <YARPImages.h>
+#include <yarp/YARPImages.h>
 
 #include <iostream>
 #include <math.h>
 
-#include <YARPTime.h>
-#include <YARPThread.h>
-#include <YARPSemaphore.h>
-#include <YARPImageDraw.h>
-#include <YARPLogpolar.h>
-#include <YARPMath.h>
+#include <yarp/YARPTime.h>
+#include <yarp/YARPThread.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPImageDraw.h>
+#include <yarp/YARPLogpolar.h>
+#include <yarp/YARPMath.h>
 
-#include <YARPParseParameters.h>
-#include <YARPVectorPortContent.h>
+#include <yarp/YARPParseParameters.h>
 
 #include "ImgTrack.h"
 

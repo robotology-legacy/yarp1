@@ -61,20 +61,20 @@
 ///
 
 ///
-/// $Id: vergencecontrol.h,v 1.5 2004-05-20 16:27:40 babybot Exp $
+/// $Id: vergencecontrol.h,v 1.6 2004-07-30 17:41:21 babybot Exp $
 ///
 ///
 
 #ifndef __VergenceControlhh__
 #define __VergenceControlhh__
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 
-#include <YARPMatrix.h>
-#include <YARPPidFilter.h>
-#include <YARPString.h>
-#include <YARPBottle.h>
+#include <yarp/YARPMatrix.h>
+#include <yarp/YARPPidFilter.h>
+#include <yarp/YARPString.h>
+#include <yarp/YARPBabyBottle.h>
 #include "../headsink/sinkconstants.h"
 
 ///
@@ -86,7 +86,7 @@ public:
 	VergenceControl(const YARPString &iniFile, int insize, int outsize);
 	~VergenceControl();
 	
-	void apply(const YVector &in, YARPBottle &out)
+	void apply(const YVector &in, YARPBabyBottle &out)
 	{
 		out.reset();
 		apply(in, _cmd);

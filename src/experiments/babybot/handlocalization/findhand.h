@@ -1,17 +1,21 @@
 #ifndef __FIND_HAND__
 #define __FIND_HAND__
 
-#include <YARPLogpolar.h>
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
-#include <YARPControlBoardNetworkData.h>
-#include <YARPImages.h>
-#include <YARPBlobDetector.h>
-#include <YARPSemaphore.h>
-#include <YARPConicFitter.h>
+#include <yarp/YARPLogpolar.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPControlBoardNetworkData.h>
+#include <yarp/YARPImages.h>
+#include <yarp/YARPBlobDetector.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPConicFitter.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPThread.h>
+
 #include "zerocrossing.h"
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
+
+#include <iostream>
+using namespace std;
+
 
 class FindHand: public YARPThread
 {
@@ -25,7 +29,7 @@ public:
 	YARPOutputPortOf<YARPGenericImage> _segmentedImagePort;
 	YARPOutputPortOf<YVector> _outPixelPort;
 	YARPInputPortOf<int[2]> _inPixelCoord;
-	YARPOutputPortOf<YARPBottle> _armDataPort;
+	YARPOutputPortOf<YARPBabyBottle> _armDataPort;
 	YARPInputPortOf<YARPControlBoardNetworkData> _motorStatusPort;
 
 	YARPImageOf<YarpPixelMono> _actualLp;
@@ -49,7 +53,7 @@ public:
 	unsigned char _threshold;
 	
 	YARPControlBoardNetworkData _motorStatus;
-	YARPBottle _armData;
+	YARPBabyBottle _armData;
 	YVector _pixelOut;
 	YVector _zeros;
 	void Body();

@@ -1,22 +1,22 @@
 // HandColorTracker.cpp : Defines the entry point for the console application.
 //
 
-#include <YARPParseParameters.h>
-#include <YARPIntegralImage.h>
-#include <YARPDIBConverter.h>
-#include <YARPSimpleOperations.h>
-#include <YARPColorConverter.h>
-#include <YARPBlobDetector.h>
-#include <YARPImageFile.h>
-#include <YARPLogpolar.h>
+#include <yarp/YARPConfig.h>
+#include <ace/config.h>
+#include <ipl/ipl.h>
 
-#include <YARPControlBoardNetworkData.h>
-#include <YARPVectorPortContent.h>
-#include <YARPPort.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPIntegralImage.h>
+#include <yarp/YARPSimpleOperations.h>
+#include <yarp/YARPColorConverter.h>
+#include <yarp/YARPBlobDetector.h>
+#include <yarp/YARPImageFile.h>
+#include <yarp/YARPLogpolar.h>
 
-#include <YARPBlobDetector.h>
-
-#include <YARPHistoSegmentation.h>
+#include <yarp/YARPControlBoardNetworkData.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBlobDetector.h>
+#include <yarp/YARPHistoSegmentation.h>
 
 #include "HandKinematics.h"
 #include "HandSegmenter.h"
@@ -79,7 +79,7 @@ inline bool pollPort(YARPInputPortOf<YARPGenericImage> &port, YARPGenericImage &
 
 void printFrameStatus(int n);
 
-void dumpError(YARPShapeEllipse &ellipse, YARPBottle &segData);
+void dumpError(YARPShapeEllipse &ellipse, YARPBabyBottle &segData);
 
 YARPLogFile _log;
 
@@ -117,15 +117,15 @@ int main(int argc, char* argv[])
 	DECLARE_INPUT_PORT (YARPControlBoardNetworkData, _armPort, YARP_UDP);
 	DECLARE_INPUT_PORT (YVector, _headPort, YARP_UDP);
 
-	DECLARE_INPUT_PORT (YARPBottle,	_armSegmentationPort, YARP_TCP);
+	DECLARE_INPUT_PORT (YARPBabyBottle,	_armSegmentationPort, YARP_TCP);
 	
-	DECLARE_OUTPUT_PORT (YARPBottle, _outputPortTrain1, YARP_TCP);
-	DECLARE_INPUT_PORT (YARPBottle, _inputPortTrain1, YARP_TCP);
-	DECLARE_OUTPUT_PORT (YARPBottle, _outputPortTrain2, YARP_TCP);
-	DECLARE_INPUT_PORT (YARPBottle, _inputPortTrain2, YARP_TCP);
+	DECLARE_OUTPUT_PORT (YARPBabyBottle, _outputPortTrain1, YARP_TCP);
+	DECLARE_INPUT_PORT (YARPBabyBottle, _inputPortTrain1, YARP_TCP);
+	DECLARE_OUTPUT_PORT (YARPBabyBottle, _outputPortTrain2, YARP_TCP);
+	DECLARE_INPUT_PORT (YARPBabyBottle, _inputPortTrain2, YARP_TCP);
 	
-	YARPBottle _outputTrainBottle1;
-	YARPBottle _outputTrainBottle2;
+	YARPBabyBottle _outputTrainBottle1;
+	YARPBabyBottle _outputTrainBottle2;
 
 	HandKinematics _handLocalization(__nnetFile1, __nnetFile2);
 	HandSegmenter _segmenter;
@@ -319,7 +319,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void dumpError(YARPShapeEllipse &ellipse, YARPBottle &segData)
+void dumpError(YARPShapeEllipse &ellipse, YARPBabyBottle &segData)
 {
 	int ix;
 	int iy;

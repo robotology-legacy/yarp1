@@ -4,12 +4,12 @@
 #define CHECKANDDESTROY(pointer) if(pointer!=NULL) { delete [] pointer;\
 														pointer = NULL;}
 
-#include <YARPBPNNet.h>
-#include <YARPThread.h>
-#include <YARPList.h>
-#include <YARPSemaphore.h>
-#include <YARPBottle.h>
-#include <YARPLogFile.h>
+#include <yarp/YARPBPNNet.h>
+#include <yarp/YARPThread.h>
+#include <yarp/YARPList.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPLogFile.h>
 
 class BatchDataSample
 {

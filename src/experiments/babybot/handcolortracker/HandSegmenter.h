@@ -1,9 +1,9 @@
 #ifndef __HANDSEGMENTER__
 #define __HANDSEGMENTER__
 
-#include <YARPImage.h>
-#include <YARPLogpolar.h>
-#include <YARPConicFitter.h>
+#include <yarp/YARPImage.h>
+#include <yarp/YARPLogpolar.h>
+#include <yarp/YARPConicFitter.h>
 
 const double __scale = 2.0;
 

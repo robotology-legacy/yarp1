@@ -1,7 +1,7 @@
 #include "saccadebehavior.h"
 #include "../headsink/sinkconstants.h"
 
-#include <YARPTime.h>
+#include <yarp/YARPTime.h>
 
 bool SBCheckSaccadeDone::input(SBSharedData *d)
 {
@@ -148,7 +148,7 @@ void SBSimpleOutput::output(SBSharedData *d)
 
 	d->_saccade.getPosition(&x, &y);
 
-	YARPBottle bottle;
+	YARPBabyBottle bottle;
 	bottle.writeVocab(YBVEgoMapAdd);
 	bottle.writeText("Saccades");
 	bottle.writeInt(x);	// LATER

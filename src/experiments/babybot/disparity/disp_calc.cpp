@@ -1,8 +1,6 @@
 
-#include "LogPolarSDK.h"
-#include "YARPDisparity.h"
-
-
+#include <yarp/LogPolarSDK.h>
+#include <yarp/YARPDisparity.h>
 
 
 int main(int argc, char *argv[])

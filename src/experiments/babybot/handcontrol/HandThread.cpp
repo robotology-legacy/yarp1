@@ -1,5 +1,7 @@
 // HandThread implementation file
 #include "HandThread.h"
+#include <iostream>
+using namespace std;
 
 HandThread::HandThread(int rate, const char *name, const char *cfgF):
 YARPRateThread(name, rate),

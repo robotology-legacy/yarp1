@@ -1,9 +1,9 @@
 #ifndef __REACHINGBEHAVIOR__
 #define __REACHINGBEHAVIOR__
 
-#include <YARPBehavior.h>
-#include <YARPBottle.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPConfigRobot.h>
 #include "armmap.h"
 
 #ifndef __INHIBITGRASPING__
@@ -21,7 +21,7 @@ class ABSharedData
 		ABSharedData();
 		~ABSharedData(){};
 		
-	YARPOutputPortOf<YARPBottle> _outPort;
+	YARPOutputPortOf<YARPBabyBottle> _outPort;
 	YARPInputPortOf<YVector> _headPort;
 	YARPInputPortOf<YARPControlBoardNetworkData> _armPort;
 	ArmMap _map;
@@ -81,7 +81,7 @@ public:
 	{
 		key = k;
 	}
-	bool input(YARPBottle *in, ABSharedData *d);
+	bool input(YARPBabyBottle *in, ABSharedData *d);
 	
 	YBVocab key;
 	YBVocab tmpK;
@@ -92,7 +92,7 @@ class RBOutputCommand: public RBBaseOutput
 public:
 	void output(ABSharedData *d);
 
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 	
 };
 
@@ -110,8 +110,8 @@ public:
 	}
 	void output(ABSharedData *d);
 
-	YARPBottle _bottle1;
-	YARPBottle _bottle2;
+	YARPBabyBottle _bottle1;
+	YARPBabyBottle _bottle2;
 };
 
 class RBSimpleOutput: public RBBaseOutput
@@ -124,7 +124,7 @@ public:
 	void output(ABSharedData *d);
 
 	YBVocab _key;
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 };
 
 class RBOutputReaching1: public RBBaseOutput
@@ -132,7 +132,7 @@ class RBOutputReaching1: public RBBaseOutput
 public:
 	void output(ABSharedData *d);
 
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 	
 };
 
@@ -141,7 +141,7 @@ class RBOutputReaching2: public RBBaseOutput
 public:
 	void output(ABSharedData *d);
 
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 	
 };
 
@@ -150,7 +150,7 @@ class RBOutputReaching3: public RBBaseOutput
 public:
 	void output(ABSharedData *d);
 
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 	
 };
 
@@ -159,7 +159,7 @@ class RBOutputBack: public RBBaseOutput
 public:
 	void output(ABSharedData *d);
 
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 	
 };
 
@@ -182,7 +182,7 @@ public:
 	}
 	void output(ABSharedData *d);
 
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 	
 };
 
@@ -197,7 +197,7 @@ public:
 	}
 	void output(ABSharedData *d);
 
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 	
 };
 

@@ -61,31 +61,30 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.18 2004-07-12 08:36:31 babybot Exp $
+/// $Id: vergence.cpp,v 1.19 2004-07-30 17:41:22 babybot Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPConfigRobot.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
-#include <YARPImages.h>
-#include <YARPImagePortContent.h>
+#include <yarp/YARPImages.h>
 
 #include <iostream>
 #include <math.h>
 
-#include <YARPTime.h>
-#include <YARPThread.h>
-#include <YARPSemaphore.h>
-#include <YARPImageDraw.h>
-#include <YARPLogpolar.h>
-#include <YARPMath.h>
+#include <yarp/YARPTime.h>
+#include <yarp/YARPThread.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPImageDraw.h>
+#include <yarp/YARPLogpolar.h>
+#include <yarp/YARPMath.h>
 
-#include <YARPParseParameters.h>
-#include <YARPVectorPortContent.h>
-#include <YARPDisparity.h>
-#include <YARPImageFile.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPDisparity.h>
+#include <yarp/YARPImageFile.h>
 
 #include "headvergencelimits.h"
 

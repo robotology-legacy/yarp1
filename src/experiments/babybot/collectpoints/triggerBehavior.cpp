@@ -86,12 +86,12 @@ void TBWaitRead::handle(TBSharedData *d)
 	}
 }
 
-bool TBIsTargetCentered::input(YARPBottle *in, TBSharedData *d)
+bool TBIsTargetCentered::input(YARPBabyBottle *in, TBSharedData *d)
 {
 	return d->checkTarget();
 }
 
-bool TBSimpleInput::input(YARPBottle *in, TBSharedData *d)
+bool TBSimpleInput::input(YARPBabyBottle *in, TBSharedData *d)
 {
 	if (!in->tryReadVocab(tmpKey))
 		return false;

@@ -1,11 +1,10 @@
 #ifndef __smoothcontrol2hh__
 #define __smoothcontrol2hh__
 
-#include <YARPMatrix.h>
-#include <YARPPidFilter.h>
-#include <YARPString.h>
-
-#include <YARPLogPolar.h>
+#include <yarp/YARPMatrix.h>
+#include <yarp/YARPPidFilter.h>
+#include <yarp/YARPString.h>
+#include <yarp/YARPLogPolar.h>
 
 class SmoothControl
 {

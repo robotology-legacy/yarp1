@@ -4,10 +4,10 @@
 // saccades
 // May 2004, by nat
 
-#include <YARPMatrix.h>
-#include <YARPBabybotHeadKin.h>
-#include <YARPConfigFile.h>
-#include <YARPLogFile.h>
+#include <yarp/YARPMatrix.h>
+#include <yarp/YARPBabybotHeadKin.h>
+#include <yarp/YARPConfigFile.h>
+#include <yarp/YARPLogFile.h>
 #include "SmoothControl.h"
 
 using namespace _logpolarParams;

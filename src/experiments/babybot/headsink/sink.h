@@ -1,12 +1,11 @@
 #ifndef __sinkclasshh__
 #define __sinkclasshh__
 
-#include <conf/YARPConfig.h>
-#include <YARPRateThread.h>
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
-#include <YARPBottleContent.h>
-#include <YARPLogFile.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPRateThread.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPLogFile.h>
 
 class NeckControl;
 
@@ -72,12 +71,12 @@ private:
 	inline void _restoreInhibition()
 	{ _manualInhibition = _storedInhibition; }
 
-	inline bool _polPort(YARPInputPortOf<YARPBottle> &port, YVector &v, int &inhibition)
+	inline bool _polPort(YARPInputPortOf<YARPBabyBottle> &port, YVector &v, int &inhibition)
 	{
 		if (port.Read(0))
 		{
 			// port.Content().display();
-			YARPBottle &tmp = port.Content();
+			YARPBabyBottle &tmp = port.Content();
 			tmp.readYVector(v);
 			tmp.readInt(&inhibition);
 			return true;
@@ -90,7 +89,10 @@ private:
 		if (port.Read(0))
 		{
 			v = port.Content();
+			return true;
 		}
+
+		return false;
 	}
 
 	NeckControl *_neckControl;
@@ -100,7 +102,7 @@ private:
 	YVector _outCmd;
 	
 	// input channels
-	YARPInputPortOf<YARPBottle>  *_inPorts[SinkChN];
+	YARPInputPortOf<YARPBabyBottle>  *_inPorts[SinkChN];
 	YARPInputPortOf<YVector> _inPortPosition;
 	YVector _inVectors[SinkChN];
 	int _inhibitions[SinkChN];	// these are received from channels
@@ -119,8 +121,8 @@ private:
 	unsigned int _counter;
 };
 
-#include <YARPPidFilter.h>
-#include <YARPConfigFile.h>
+#include <yarp/YARPPidFilter.h>
+#include <yarp/YARPConfigFile.h>
 
 class NeckControl
 {

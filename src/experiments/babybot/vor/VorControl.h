@@ -10,8 +10,8 @@
 #else  VOR_CONTROL_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
-#include <YARPRobotMath.h>
-#include <YARPString.h>
+#include <yarp/YARPRobotMath.h>
+#include <yarp/YARPString.h>
 
 class VorControl
 {

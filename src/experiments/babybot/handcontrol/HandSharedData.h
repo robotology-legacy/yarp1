@@ -1,9 +1,9 @@
 #ifndef __HAND_SHARED_DATA
 #define __HAND_SHARED_DATA
 
-#include <YARPBabybothand.h>
-#include <YARPBehavior.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPBabybothand.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPConfigRobot.h>
 
 class HandSharedData: public YARPBabybotHand, public YARPBehaviorSharedData
 {

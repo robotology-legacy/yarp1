@@ -1,6 +1,6 @@
 #include "findHand.h"
 
-#include <YARPColorConverter.h>
+#include <yarp/YARPColorConverter.h>
 
 using namespace _logpolarParams;
 

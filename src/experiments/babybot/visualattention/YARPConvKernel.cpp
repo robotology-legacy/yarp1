@@ -64,10 +64,12 @@
 /// $Id:
 ///
 ///
+#include <yarp/YARPConfig.h>
+#include <ace/config.h>
+#include <ipl/ipl.h>
 
-
-#include <YARPImage.h>
-#include <YARPMatrix.h>
+#include <yarp/YARPImage.h>
+#include <yarp/YARPMatrix.h>
 #include "YARPConvKernel.h"
 
 /*YMatrix YMatrix::operator*(const YMatrix& refmatrix) const

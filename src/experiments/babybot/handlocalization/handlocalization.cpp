@@ -1,9 +1,9 @@
 //
 
-#include <conf/YARPconfig.h>
-#include <YARPParseParameters.h>
+#include <yarp/YARPconfig.h>
+#include <yarp/YARPParseParameters.h>
 #include "HLBehavior.h"
-#include <YARPBottle.h>
+#include <yarp/YARPBabyBottle.h>
 #include "findHand.h"
 
 const unsigned char __defaultThreshold = 20;

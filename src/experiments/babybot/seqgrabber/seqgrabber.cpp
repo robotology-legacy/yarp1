@@ -61,27 +61,28 @@
 ///
 
 ///
-/// $Id: seqgrabber.cpp,v 1.1 2004-06-07 18:32:18 babybot Exp $
+/// $Id: seqgrabber.cpp,v 1.2 2004-07-30 17:41:21 babybot Exp $
 /// 
 /// Test stereo match by mergin together left and right channels (fovea)
 /// January 04 -- by nat
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
-#include <YARPImages.h>
-#include <YARPImagePortContent.h>
+#include <yarp/YARPImages.h>
+#include <yarp/YARPImagePortContent.h>
 
 #include <iostream>
 #include <math.h>
 
-#include <YARPLogpolar.h>
-#include <YARPMath.h>
+#include <yarp/YARPLogpolar.h>
+#include <yarp/YARPMath.h>
 
-#include <YARPParseParameters.h>
-#include <YARPImageFile.h>
-#include <YARPImageUtils.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPImageFile.h>
+#include <yarp/YARPImageUtils.h>
+#include <yarp/YARPTime.h>
 
 ///
 ///

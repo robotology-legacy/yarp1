@@ -6,7 +6,7 @@ void SBWaitIdle::handle(Sink *d)
 	ACE_OS::printf("SinkBehavior: waiting on %s\n", _message.c_str());
 }
 
-bool SBSimpleInput::input(YARPBottle *in, Sink *d)
+bool SBSimpleInput::input(YARPBabyBottle *in, Sink *d)
 {
 	if (!in->tryReadVocab(newK))
 		return false;

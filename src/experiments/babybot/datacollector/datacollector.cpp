@@ -61,28 +61,29 @@
 ///
 
 ///
-/// $Id: datacollector.cpp,v 1.1 2004-06-07 18:32:17 babybot Exp $
+/// $Id: datacollector.cpp,v 1.2 2004-07-30 17:41:20 babybot Exp $
 /// 
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
-#include <YARPImages.h>
-#include <YARPImagePortContent.h>
-#include <YARPVectorPortContent.h>
-#include <YARPControlBoardNetworkData.h>
+#include <yarp/YARPImages.h>
+#include <yarp/YARPControlBoardNetworkData.h>
 
 #include <iostream>
 #include <math.h>
 
-#include <YARPLogpolar.h>
-#include <YARPMath.h>
+#include <yarp/YARPLogpolar.h>
+#include <yarp/YARPMath.h>
 
-#include <YARPParseParameters.h>
-#include <YARPLogFile.h>
-#include <YARPImageFile.h>
-#include <YARPImageUtils.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPLogFile.h>
+#include <yarp/YARPImageFile.h>
+#include <yarp/YARPImageUtils.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPList.h>
+#include <yarp/YARPTime.h>
 
 class MyPort
 {

@@ -1,4 +1,6 @@
 #include "saccadecontrol.h"
+#include <yarp/YARPConfigRobot.h>
+
 // May 2004 -- by nat
 
 //////

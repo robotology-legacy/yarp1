@@ -65,8 +65,11 @@
 ///
 ///
 
+#include <yarp/YARPConfig.h>
+#include <ace/config.h>
+#include <ipl/ipl.h>
 
-#include <YARPColorConverter.h>
+#include <yarp/YARPColorConverter.h>
 #include "ImgAtt.h"
 
 #define DBGPF1 if (0)

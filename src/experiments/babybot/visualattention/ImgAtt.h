@@ -68,15 +68,18 @@
 #ifndef __YARPIMGATT__
 #define __YARPIMGATT__
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
-#include <YARPImage.h>
-#include <YARPLogpolar.h>
+
+#include <ipl/ipl.h>
+
+#include <yarp/YARPImage.h>
+#include <yarp/YARPLogpolar.h>
 //#include <YARPBlobDetector.h>
 //#include <YARPIntegralImage.h>
-#include <YARPConicFitter.h>
-#include <YARPImageMoments.h>
+#include <yarp/YARPConicFitter.h>
+#include <yarp/YARPImageMoments.h>
 #include "YARPConvKernel.h"
 #include "YARPConvKernelFile.h"
 //#include "YARPColorVQ.h"

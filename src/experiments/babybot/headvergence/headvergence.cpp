@@ -61,20 +61,19 @@
 ///
 
 ///
-/// $Id: headvergence.cpp,v 1.4 2004-05-20 16:27:40 babybot Exp $
+/// $Id: headvergence.cpp,v 1.5 2004-07-30 17:41:21 babybot Exp $
 ///
 ///
 
 // headvergence.cpp : Defines the entry point for the console application.
 //
 
-#include <YARPScheduler.h>
-#include <YARPRobotMath.h>
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
-#include <YARPBottleContent.h>
-#include <YARPString.h>
-#include <YARPTime.h>
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPRobotMath.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPString.h>
+#include <yarp/YARPTime.h>
 
 #include "vergencecontrol.h"
 
@@ -93,7 +92,7 @@ int main(int argc, char* argv[])
 	YVector _in(__inSize);
 	YVector _out(__outSize);
 	YARPInputPortOf<YVector> _inPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+	YARPOutputPortOf<YARPBabyBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 	
 	VergenceControl _control(__configFile, __inSize, __outSize);
 
@@ -103,7 +102,7 @@ int main(int argc, char* argv[])
 	_inPort.Register(base1.append("i").c_str());
 	_outPort.Register(base2.append("o").c_str());
 
-	YARPBottle b;
+	YARPBabyBottle b;
 	
 	double time1;
 	double time2;

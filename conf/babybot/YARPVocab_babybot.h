@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPVocab_babybot.h,v 1.1 2004-07-30 09:58:40 babybot Exp $
+/// $Id: YARPVocab_babybot.h,v 1.2 2004-07-30 17:41:20 babybot Exp $
 ///
 ///
 
@@ -115,6 +115,8 @@ const char *const YBVSinkDisplayStatus = "SinkDisplayStatus";
 const char *const YBVGraspRflxQuit = "GraspRflxQuit";
 const char *const YBVGraspRflxClutch = "GraspRflxClutch";
 const char *const YBVGraspRflxForceOpen = "GraspRflxForceOpen";
+const char *const YBVGraspRflxInhibit = "GraspRflxInhibit";
+const char *const YBVGraspRflxRelease = "GraspRflxRelease";
 
 // handlocalization
 const char *const YBVHandLocQuit = "HandLocQuit";

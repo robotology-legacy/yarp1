@@ -31,7 +31,7 @@ void GRBOutputSignal::output (ReflexShared *d)
 	d->send();
 }
 
-bool GRBInit::input(YARPBottle *in, ReflexShared *d)
+bool GRBInit::input(YARPBabyBottle *in, ReflexShared *d)
 {
 	return (d->checkPalmTouch());
 }

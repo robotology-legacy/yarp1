@@ -61,35 +61,36 @@
 ///
 
 ///
-/// $Id: attn_egomap.cpp,v 1.10 2004-07-21 12:36:53 babybot Exp $
+/// $Id: attn_egomap.cpp,v 1.11 2004-07-30 17:41:20 babybot Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
+#define HAVE_IPL 1
+
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPConfigRobot.h>
 #include <ace/config.h>
 #include <ace/OS.h>
-#include <YARPPort.h>
-#include <YARPImages.h>
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
-#include <conf/YARPVocab.h>
+
+#include <ipl/ipl.h>
+
+#include <yarp/YARPPort.h>
+#include <yarp/YARPImages.h>
+#include <yarp/YARPBabyBottle.h>
 
 #include <iostream>
 #include <math.h>
 
-#include <YARPTime.h>
-#include <YARPThread.h>
-#include <YARPSemaphore.h>
-#include <YARPImageDraw.h>
-#include <YARPLogpolar.h>
-#include <YARPMath.h>
+#include <yarp/YARPTime.h>
+#include <yarp/YARPThread.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPImageDraw.h>
+#include <yarp/YARPLogpolar.h>
+#include <yarp/YARPMath.h>
 
-#include <YARPParseParameters.h>
-#include <YARPVectorPortContent.h>
-
-#include <YARPBabybotHeadKin.h>
-
-#include <YARPList.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPBabybotHeadKin.h>
+#include <yarp/YARPList.h>
 
 ///
 ///

@@ -61,31 +61,28 @@
 ///
 
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPConfigRobot.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
-#include <YARPPort.h>
-#include <YARPImages.h>
-#include <YARPList.h>
+#include <ipl/ipl.h>
 
-#include <YARPThread.h>
-#include <YARPSemaphore.h>
-#include <YARPScheduler.h>
-#include <YARPTime.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPImages.h>
+#include <yarp/YARPList.h>
+#include <yarp/YARPThread.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPTime.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPImages.h>
+#include <yarp/YARPLogpolar.h>
+#include <yarp/YARPMatrix.h>
 
-#include <YARPParseParameters.h>
-
-#include <./conf/YARPVocab.h>
-
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
-
-#include <YARPImages.h>
-#include <YARPLogpolar.h>
-
-#include <YARPMatrix.h>
-#include <YARPVectorPortContent.h>
+#include <iostream>
+using namespace std;
 
 #include "ImgAtt.h"
 

@@ -5,7 +5,7 @@
 // for searching the maximum in the crosscorrelation function.
 // July 2004 -- by nat
 
-#include <YARPBabybotHeadKin.h>
+#include <yarp/YARPBabybotHeadKin.h>
 
 const double __maxVerg = 40*degToRad;
 const double __minVerg = 3*degToRad;

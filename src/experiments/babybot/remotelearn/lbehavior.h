@@ -1,7 +1,7 @@
 #ifndef __LBEHAVIOR__
 #define __LBEHAVIOR__
 
-#include <YARPBehavior.h>
+#include <yarp/YARPBehavior.h>
 #include "learner.h"
 
 // LATER IMPLEMENT BEHAVIOR

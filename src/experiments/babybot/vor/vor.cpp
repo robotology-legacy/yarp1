@@ -1,11 +1,13 @@
 // vor.cpp : Defines the entry point for the console application.
 //
 
-#include <YARPScheduler.h>
-#include <YARPRobotMath.h>
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
-#include <YARPBottleContent.h>
+#include <yarp/YARPConfig.h>
+#include <ace/config.h>
+
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPRobotMath.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBabyBottle.h>
 
 #include "VorControl.h"
 #include "../headsink/sinkconstants.h"
@@ -17,7 +19,7 @@ const double __vorGain = 2.0;
 int main(int argc, char* argv[])
 {
 	YARPInputPortOf<YVector> _inertialPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	YARPOutputPortOf<YARPBottle> _vorPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+	YARPOutputPortOf<YARPBabyBottle> _vorPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
 	_inertialPort.Register("/vor/inertial/i");
 	_vorPort.Register("/vor/o");

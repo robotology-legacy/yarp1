@@ -4,10 +4,8 @@
 #include "HandThread.h"
 #include <iostream>
 
-#include "YARPNameClient.h"
-
-#include "YARPScheduler.h"
-#include "YARPConfigFile.h"
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPConfigFile.h>
 
 #include "HandBehavior.h"
 

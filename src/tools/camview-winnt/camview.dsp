@@ -81,7 +81,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 libYARP_mathd.lib libYARP_sigd.lib libYARP_sig_logpolard.lib libYARP_OS.lib aced.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\lib\winnt"
+# ADD LINK32 libYARP_mathd.lib libYARP_sigd.lib libYARP_sig_logpolard.lib libYARP_OSd.lib aced.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\lib\winnt"
 
 !ENDIF 
 

@@ -1,8 +1,8 @@
 #ifndef __HLBEHAVIORHH__
 #define __HLBEHAVIORHH__
 
-#include <YARPBehavior.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPConfigRobot.h>
 
 #include "FindHand.h"
 
@@ -42,7 +42,7 @@ public:
 	{
 		key = k;
 	}
-	bool input(YARPBottle *in, FindHand *d)
+	bool input(YARPBabyBottle *in, FindHand *d)
 	{
 		if (!in->tryReadVocab(tmpK))
 			return false;
@@ -67,7 +67,7 @@ public:
 	{
 		key = k;
 	}
-	bool input(YARPBottle *in, FindHand *d)
+	bool input(YARPBabyBottle *in, FindHand *d)
 	{
 		if (!in->tryReadVocab(tmpK))
 			return false;

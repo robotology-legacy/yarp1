@@ -2,13 +2,12 @@
 //
 // #define __INHIBITGRASPING__
 
-#include <YARPPort.h>
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
-#include <YARPMatrix.h>
-#include <YARPVectorPortContent.h>
-#include <YARPControlBoardNetworkData.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPMatrix.h>
+#include <yarp/YARPControlBoardNetworkData.h>
+#include <yarp/YARPConfigRobot.h>
+
 #include "armmap.h"
 #include "reachingBehavior.h"
 
@@ -18,7 +17,7 @@ int _nFrames = 0;
 
 int main(int argc, char* argv[])
 {
-	YARPBottle _outputTrainBottle;
+	YARPBabyBottle _outputTrainBottle;
 	
 	YVector _arm;
 	YVector _head;

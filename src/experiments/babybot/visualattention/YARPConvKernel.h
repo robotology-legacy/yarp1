@@ -68,10 +68,10 @@
 #ifndef __YARPCONVKERNEL__
 #define __YARPCONVKERNEL__
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
-#include <YARPImage.h>
+#include <yarp/YARPImage.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once

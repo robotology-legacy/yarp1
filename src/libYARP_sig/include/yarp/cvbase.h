@@ -235,8 +235,6 @@ IplConvKernelFP;
 #define IPL_IMAGE_DATA   2
 #define IPL_IMAGE_ROI    4
 
-#endif/*HAVE_IPL*/
-
 #ifndef IPL_IMAGE_MAGIC_VAL
 #define IPL_IMAGE_MAGIC_VAL  ((int)sizeof(IplImage))
 #endif
@@ -252,8 +250,6 @@ IplConvKernelFP;
 #endif
 
 
-
-
 // to fool a few Windows declarations.
 //typedef int HDC;
 //typedef char _TCHAR;
@@ -266,10 +262,11 @@ IplConvKernelFP;
  */
 int _iplCalcPadding (int lineSize, int align);
 
-
-
-
+/**
+* Definition for functions implemented within YARP_sig.
+*/
 #define IPLAPIIMPL(type,name,arg) extern type name arg
+
 
 IPLAPIIMPL(IplConvKernel*, 
 	   iplCreateConvKernel,(int nCols, int nRows,
@@ -371,7 +368,6 @@ IPLAPIIMPL(void, iplHSV2RGB,(IplImage* hsvImage, IplImage* rgbImage));
 
 IPLAPIIMPL(void, iplXorS,(IplImage* srcImage, IplImage* dstImage, unsigned int value));
 
-
 #define IPL_BORDER_CONSTANT 0
 
 #define IPL_SIDE_TOP_INDEX 0
@@ -401,6 +397,8 @@ IPLAPIIMPL(void, iplXorS,(IplImage* srcImage, IplImage* dstImage, unsigned int v
 #define IPL_INTER_CUBIC       2
 #define IPL_INTER_SUPER       3
 #define IPL_SMOOTH_EDGE      16
+
+#endif /* !HAVE_IPL */
 
 #endif /*YARP_CVTYPES_H_*/
 

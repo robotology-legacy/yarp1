@@ -1,8 +1,8 @@
 #ifndef __HAND_BEHAVEIORS__
 #define __HAND_BEHAVEIORS__
 
-#include <YARPBehavior.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPConfigRobot.h>
 #include "HandThread.h"
 
 typedef HandThread HandBehaviorData;
@@ -56,7 +56,7 @@ public:
 	{
 		key = YBVHandNewCmd;
 	}
-	bool input(YARPBottle *in, HandBehaviorData *d);
+	bool input(YARPBabyBottle *in, HandBehaviorData *d);
 	
 	YBVocab key;
 	YBVocab tmpK;
@@ -70,7 +70,7 @@ public:
 	{
 		key = YBVHandResetEncoders;
 	}
-	bool input(YARPBottle *in, HandBehaviorData *d);
+	bool input(YARPBabyBottle *in, HandBehaviorData *d);
 	
 	YBVocab key;
 	YBVocab tmpK;
@@ -83,7 +83,7 @@ public:
 	{
 		key = k;
 	}
-	bool input(YARPBottle *in, HandBehaviorData *d);
+	bool input(YARPBabyBottle *in, HandBehaviorData *d);
 		
 	YBVocab key;
 	YBVocab tmpK;
@@ -97,7 +97,7 @@ public:
 		key = k;
 	}
 
-	bool input(YARPBottle *in, HandBehaviorData *d);
+	bool input(YARPBabyBottle *in, HandBehaviorData *d);
 	
 	YBVocab key;
 	YBVocab tmpK;

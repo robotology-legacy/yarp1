@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: ImgTrack.h,v 1.5 2004-07-09 10:48:54 babybot Exp $
+/// $Id: ImgTrack.h,v 1.6 2004-07-30 17:41:22 babybot Exp $
 ///
 ///
 
@@ -69,22 +69,22 @@
 #ifndef _YARPImageTrackTool_INC
 #define _YARPImageTrackTool_INC
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
-#include <YARPImage.h>
-#include <YARPImageDraw.h>
-#include <YARPSemaphore.h>
-#include <YARPTime.h>
+#include <yarp/YARPImage.h>
+#include <yarp/YARPImageDraw.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPTime.h>
 
 ///
 /// LATER: from motor control library.
 #if defined(__QNXEurobot__)
-	#include "YARPEurobotHeadKin.h"
+	#include <yarp/YARPEurobotHeadKin.h>
 	typedef YARPEurobotHeadKin YARPHeadKinematics;
 #else      // ----- #ifdef __QNXEurobot__  ----- 
-	#include "YARPBabybotHeadKin.h"
+	#include <yarp/YARPBabybotHeadKin.h>
 	typedef YARPBabybotHeadKin YARPHeadKinematics;
 #endif     // ----- #ifdef __QNXEurobot__  ----- 
 

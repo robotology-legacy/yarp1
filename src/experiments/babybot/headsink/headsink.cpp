@@ -2,10 +2,9 @@
 //
 // 2003 -- by nat
 
-#include <YARPScheduler.h>
-#include <YARPRobotMath.h>
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPRobotMath.h>
+#include <yarp/YARPPort.h>
 
 #include "sink.h"
 #include "sinkbehavior.h"

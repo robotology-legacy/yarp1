@@ -1,19 +1,19 @@
 #ifndef __ArmForwardKinematicshh__
 #define __ArmForwardKinematicshh__
 
-#include <YARPLogFile.h>
-#include <YARPConicFitter.h>
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
-#include <YARPControlBoardNetworkData.h>
-#include <YARPBPNNet.h>
-#include <YARPBabybotHeadKin.h>
+#include <yarp/YARPLogFile.h>
+#include <yarp/YARPConicFitter.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPControlBoardNetworkData.h>
+#include <yarp/YARPBPNNet.h>
+#include <yarp/YARPBabybotHeadKin.h>
 
-#include <YARPPort.h>
-#include <YARPBottleContent.h>
-#include <./conf/YARPBabybotVocab.h>
-#include <YARPRndUtils.h>
-#include <vector>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPConfigRobot.h>
+#include <yarp/YARPRndUtils.h>
+
+#include <vector>		//// AAAA!!!!
+using namespace std;
 
 class ArmForwardKinematics
 {

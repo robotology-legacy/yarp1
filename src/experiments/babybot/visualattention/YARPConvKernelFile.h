@@ -68,7 +68,7 @@
 #ifndef __YARPCONVKERNELFILE__
 #define __YARPCONVKERNELFILE__
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 

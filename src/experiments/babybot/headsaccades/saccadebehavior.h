@@ -1,16 +1,15 @@
 #ifndef __saccadebehaviorhh__
 #define __saccadebehaviorhh__
 
-#include <YARPBehavior.h>
-#include <conf/YARPVocab.h>
-#include <YARPPort.h>
-#include <YARPBottleContent.h>
-#include <YARPVectorPortContent.h>
-#include "SaccadeControl.h"
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPConfigRobot.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBabyBottle.h>
 
+#include "SaccadeControl.h"
 #include "SmoothControl.h"
 
-class SBSharedData: public YARPInputPortOf<YARPBottle>
+class SBSharedData: public YARPInputPortOf<YARPBabyBottle>
 {
 	public:
 		SBSharedData(bool selectiveReaching = false)
@@ -40,12 +39,12 @@ class SBSharedData: public YARPInputPortOf<YARPBottle>
 		virtual void OnRead()
 		{
 			int x,y;
-			YARPInputPortOf<YARPBottle>::Read();
-			YARPInputPortOf<YARPBottle>::Content().readInt(&x);
-			YARPInputPortOf<YARPBottle>::Content().readInt(&y);
+			YARPInputPortOf<YARPBabyBottle>::Read();
+			YARPInputPortOf<YARPBabyBottle>::Content().readInt(&x);
+			YARPInputPortOf<YARPBabyBottle>::Content().readInt(&y);
 
 			int dummy;
-			if ( (YARPInputPortOf<YARPBottle>::Content().tryReadInt(&dummy)) || (!_selectiveReaching))
+			if ( (YARPInputPortOf<YARPBabyBottle>::Content().tryReadInt(&dummy)) || (!_selectiveReaching))
 				_isImportant = true;
 			else 
 				_isImportant = false;
@@ -98,12 +97,12 @@ class SBSharedData: public YARPInputPortOf<YARPBottle>
 		bool newTarget()
 		{ return _newTarget; }
 	
-	YARPOutputPortOf<YARPBottle> _out;
-	YARPOutputPortOf<YARPBottle> _outAtt;
+	YARPOutputPortOf<YARPBabyBottle> _out;
+	YARPOutputPortOf<YARPBabyBottle> _outAtt;
 	YARPOutputPortOf<YVector> _outFixation;
 	YARPInputPortOf<YVector> _in;
-	YARPInputPortOf<YARPBottle> _inBehavior;
-	YARPOutputPortOf<YARPBottle> _outBehavior;
+	YARPInputPortOf<YARPBabyBottle> _inBehavior;
+	YARPOutputPortOf<YARPBabyBottle> _outBehavior;
 	YARPInputPortOf<YVector> _inFixation;
 
 

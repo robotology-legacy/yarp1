@@ -1,9 +1,9 @@
 #ifndef __HANDFSMCLASS__
 #define __HANDFSMCLASS__
 
-#include <YARPFSM.h>
-#include <YARPRobotMath.h>
-#include <YARPBabybotHand.h>
+#include <yarp/YARPFSM.h>
+#include <yarp/YARPRobotMath.h>
+#include <yarp/YARPBabybotHand.h>
 
 #include "HandSharedData.h"
 

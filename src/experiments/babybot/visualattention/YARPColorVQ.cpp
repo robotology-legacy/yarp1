@@ -65,6 +65,9 @@
 ///
 ///
 
+#include <yarp/YARPConfig.h>
+#include <ace/config.h>
+#include <ipl/ipl.h>
 
 #include "YARPColorVQ.h"
 

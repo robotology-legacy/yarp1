@@ -1,3 +1,7 @@
+#include <yarp/YARPConfig.h>
+#include <ace/config.h>
+#include <ipl/ipl.h>
+
 #include "HandKinematics.h"
 
 HandKinematics::HandKinematics(const char *f1, const char *f2):
@@ -53,7 +57,7 @@ void HandKinematics::_dumpToDisk(const YVector &arm, const YVector &head, const 
 	printf("#%d got a new point\n", _npoints);
 }
 
-void HandKinematics::learn(YVector &arm, YVector &head, YARPBottle &newPoint)
+void HandKinematics::learn(YVector &arm, YVector &head, YARPBabyBottle &newPoint)
 {
 	YARPShapeEllipse ellipse;
 
@@ -72,7 +76,7 @@ void HandKinematics::update(const YVector &arm, const YVector &head)
 	_gaze.update(_head);
 }
 
-void HandKinematics::prepareRemoteTrainData(YARPBottle &input, YARPBottle &out1, YARPBottle &out2)
+void HandKinematics::prepareRemoteTrainData(YARPBabyBottle &input, YARPBabyBottle &out1, YARPBabyBottle &out2)
 {
 	out1.reset();
 	out2.reset();

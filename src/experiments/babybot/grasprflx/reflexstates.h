@@ -1,13 +1,12 @@
 #define YARP_BEHAVIOR_EXTRA_DEBUG
 
-#include <YARPBehavior.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPConfigRobot.h>
 
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
-#include <YARPMatrix.h>
-#include <YARPString.h>
-#include <YARPTime.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPMatrix.h>
+#include <yarp/YARPString.h>
+#include <yarp/YARPTime.h>
 
 const YARPString __inputPortName = "/touch/i";
 
@@ -198,7 +197,7 @@ public:
 		key = k;
 	}
 
-	bool input(YARPBottle *in, ReflexShared *d)
+	bool input(YARPBabyBottle *in, ReflexShared *d)
 	{
 		if (!in->tryReadVocab(tmpK))
 			return false;
@@ -271,7 +270,7 @@ public:
 class GRBInit: public GRBehaviorBaseInputState
 {
 public:
-	bool input(YARPBottle *in, ReflexShared *d);
+	bool input(YARPBabyBottle *in, ReflexShared *d);
 };
 
 class GRBInhibitCommand: public GRBehaviorBaseOutputState

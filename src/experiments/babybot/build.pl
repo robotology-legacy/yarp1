@@ -147,9 +147,11 @@ foreach $directory (glob "*")
 	}
 }
 
-foreach $directory (qw/ headcontrol armcontrol sendCmd repeater armtrigger attention /) #(glob "*")
+foreach $directory (glob "*")
 {
-	if (-d $directory && !(-d "$directory/src") && !(-d "$directory/include/yarp"))
+	if (-d $directory && !(-d "$directory/src") && 
+		!(-d "$directory/include/yarp") && 
+		!(-e "$directory/donotcompile.txt"))
 	{
 		if (!chdir $directory)
 		{

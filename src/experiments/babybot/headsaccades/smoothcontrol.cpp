@@ -1,5 +1,5 @@
 #include "smoothcontrol.h"
-#include <YARPConfigFile.h>
+#include <yarp/YARPConfigFile.h>
 
 SmoothControl::SmoothControl(const YARPString &iniFile)
 {

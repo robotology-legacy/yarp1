@@ -13,7 +13,7 @@ _headPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 	_outPort.Register("/reaching/behavior/o");
 }
 
-bool RBInputCommand::input(YARPBottle *in, ABSharedData *d)
+bool RBInputCommand::input(YARPBabyBottle *in, ABSharedData *d)
 {
 	if (!in->tryReadVocab(tmpK))
 		return false;

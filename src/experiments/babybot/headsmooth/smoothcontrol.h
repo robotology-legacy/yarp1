@@ -1,12 +1,12 @@
 #ifndef __smoothcontrolhh__
 #define __smoothcontrolhh__
 
-#include <YARPMatrix.h>
-#include <YARPPidFilter.h>
-#include <YARPString.h>
-#include <YARPBottle.h>
+#include <yarp/YARPMatrix.h>
+#include <yarp/YARPPidFilter.h>
+#include <yarp/YARPString.h>
+#include <yarp/YARPBabyBottle.h>
 
-#include <YARPLogpolar.h>
+#include <yarp/YARPLogpolar.h>
 
 #include "../headsink/sinkconstants.h"
 
@@ -16,7 +16,7 @@ public:
 	SmoothControl(const YARPString &iniFile, int insize, int outsize);
 	~SmoothControl();
 
-	void apply(const YVector &in, YARPBottle &out)
+	void apply(const YVector &in, YARPBabyBottle &out)
 	{
 		apply(in, _cmd);
 		out.reset();

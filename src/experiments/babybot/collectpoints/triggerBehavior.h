@@ -1,14 +1,13 @@
 #ifndef __collectpoints__
 #define __collectpoints__
 
-#include <YARPBehavior.h>
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
-#include <YARPBottle.h>
-#include <YARPControlBoardNetworkData.h>
-#include <./conf/YARPVocab.h>
-#include <YARPLogFile.h>
-#include <YARPBabybotHeadKin.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPControlBoardNetworkData.h>
+#include <yarp/YARPConfigRobot.h>
+#include <yarp/YARPLogFile.h>
+#include <yarp/YARPBabybotHeadKin.h>
 
 const double __vergenceTh = 2;
 const double __trackTh = (128/13 * 128/13)*2;
@@ -36,7 +35,7 @@ class TBSharedData
 
 	bool checkTarget();
 	
-	YARPOutputPortOf<YARPBottle> _outPort;
+	YARPOutputPortOf<YARPBabyBottle> _outPort;
 	YARPInputPortOf<YVector> _vergencePort;
 	YARPInputPortOf<YVector> _targetTrackingPort;
 	YARPInputPortOf<YVector> _headPort;
@@ -111,7 +110,7 @@ public:
 class TBIsTargetCentered: public TBBaseInput
 {
 public:
-	bool input(YARPBottle *in, TBSharedData *d);
+	bool input(YARPBabyBottle *in, TBSharedData *d);
 };
 
 class TBSimpleInput: public TBBaseInput
@@ -122,7 +121,7 @@ public:
 		key = k;
 	}
 
-	bool input(YARPBottle *in, TBSharedData *d);
+	bool input(YARPBabyBottle *in, TBSharedData *d);
 
 
 	YBVocab key;
@@ -138,7 +137,7 @@ public:
 	}
 	void output(TBSharedData *d);
 	
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 	YBVocab _cmd;
 };
 
@@ -158,7 +157,7 @@ public:
 	
 	void output(TBSharedData *d);
 	
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 	YARPString _name;
 	
 	YARPLogFile _file;

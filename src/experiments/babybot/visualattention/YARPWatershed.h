@@ -1,11 +1,11 @@
 #ifndef __YARPWATERSHED__
 #define __YARPWATERSHED__
 
-#include <YARPImage.h>
-#include <YARPlogpolar.h>
-#include <YARPBabybotHeadKin.h>
-#include <YARPMath.h>
-#include <YARPIntegralImage.h>
+#include <yarp/YARPImage.h>
+#include <yarp/YARPlogpolar.h>
+#include <yarp/YARPBabybotHeadKin.h>
+#include <yarp/YARPMath.h>
+#include <yarp/YARPIntegralImage.h>
 #include "YARPColorVQ.h"
 
 

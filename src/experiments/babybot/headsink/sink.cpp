@@ -25,11 +25,11 @@ YARPRateThread(name, rate),
 _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
 _inPortPosition (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 {
-	_inPorts[SinkChVor] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	_inPorts[SinkChTracker] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	_inPorts[SinkChVergence] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	_inPorts[SinkChSaccades] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	_inPorts[SinkChSmoothPursuit] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	_inPorts[SinkChVor] = new YARPInputPortOf<YARPBabyBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	_inPorts[SinkChTracker] = new YARPInputPortOf<YARPBabyBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	_inPorts[SinkChVergence] = new YARPInputPortOf<YARPBabyBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	_inPorts[SinkChSaccades] = new YARPInputPortOf<YARPBabyBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	_inPorts[SinkChSmoothPursuit] = new YARPInputPortOf<YARPBabyBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
 	_iniFile = YARPString(ini_file);
 

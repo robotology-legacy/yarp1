@@ -12,7 +12,7 @@ using namespace std;
 
 extern int __debug_level;
 
-typedef YARPRepeater<YARPBottle> Repeater;
+typedef YARPRepeater<YARPBabyBottle> Repeater;
 
 int main(int argc, char* argv[])
 {

@@ -1,9 +1,9 @@
 #ifndef __SINK_BEHAVIOR__
 #define __SINK_BEHAVIOR__
 
-#include <YARPBehavior.h>
-#include <YARPBottle.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPConfigRobot.h>
 #include "sink.h"
 
 class SinkBehavior: public YARPBehavior<SinkBehavior, Sink>
@@ -55,7 +55,7 @@ public:
 	{
 		key = k;
 	}
-	bool input(YARPBottle *in, Sink *d);
+	bool input(YARPBabyBottle *in, Sink *d);
 	
 	YBVocab key;
 	YBVocab newK;

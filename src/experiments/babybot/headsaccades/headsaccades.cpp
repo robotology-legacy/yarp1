@@ -61,20 +61,19 @@
 ///
 
 ///
-/// $Id: headsaccades.cpp,v 1.2 2004-07-29 17:10:46 babybot Exp $
+/// $Id: headsaccades.cpp,v 1.3 2004-07-30 17:41:21 babybot Exp $
 ///
 ///
 
 // headsaccades.cpp : Defines the entry point for the console application.
 //
 
-#include <YARPScheduler.h>
-#include <YARPRobotMath.h>
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
-#include <YARPString.h>
-#include <YARPTime.h>
-#include <YARPParseParameters.h>
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPRobotMath.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPString.h>
+#include <yarp/YARPTime.h>
+#include <yarp/YARPParseParameters.h>
 
 #include "SaccadeBehavior.h"
 

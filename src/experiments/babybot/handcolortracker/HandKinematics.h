@@ -1,22 +1,21 @@
 #ifndef __HANDKINEMATICS__
 #define __HANDKINEMATICS__
 
-#include <YARPLogFile.h>
-#include <YARPConicFitter.h>
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
-#include <YARPControlBoardNetworkData.h>
-#include <YARPBPNNet.h>
-#include <YARPBabybotHeadKin.h>
+#include <yarp/YARPLogFile.h>
+#include <yarp/YARPConicFitter.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPControlBoardNetworkData.h>
+#include <yarp/YARPBPNNet.h>
+#include <yarp/YARPBabybotHeadKin.h>
 
-#include <YARPPort.h>
-#include <YARPBottleContent.h>
-#include <./conf/YARPBabybotVocab.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBottleContent.h>
+#include <yarp/YARPConfigRobot.h>
 
-class ArmPredictionPort: public YARPInputPortOf<YARPBottle>
+class ArmPredictionPort: public YARPInputPortOf<YARPBabyBottle>
 {
 public:
-	ArmPredictionPort(): YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
+	ArmPredictionPort(): YARPInputPortOf<YARPBabyBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 	{
 		YARPString tmp = "/handtracker/prediction/i";
 		Register(tmp.c_str());
@@ -30,7 +29,7 @@ public:
 		YBVocab	tmpVocab;
 
 		Read();
-		YARPBottle &tmpBottle = Content();
+		YARPBabyBottle &tmpBottle = Content();
 
 		if (tmpBottle.getID() != YBVMotorLabel)
 			return;
@@ -59,7 +58,7 @@ public:
 	HandKinematics(const char *f1, const char *f2);
 	~HandKinematics();
 
-	void learn(YVector &arm, YVector &head, YARPBottle &newPoint);
+	void learn(YVector &arm, YVector &head, YARPBabyBottle &newPoint);
 	
 	void query(YVector &arm, YVector &head, YARPShapeEllipse &el)
 	{
@@ -106,7 +105,7 @@ public:
 		_ellipse.load(p);
 	}
 
-	void prepareRemoteTrainData(YARPBottle &input, YARPBottle &out1, YARPBottle &out2);
+	void prepareRemoteTrainData(YARPBabyBottle &input, YARPBabyBottle &out1, YARPBabyBottle &out2);
 	void update(const YVector &arm, const YVector &head);
 	
 private:

@@ -64,7 +64,9 @@
 /// $Id:
 ///
 ///
-
+#include <yarp/YARPConfig.h>
+#include <ace/config.h>
+#include <ipl/ipl.h>
 
 #include "YARPConvKernelFile.h"
 

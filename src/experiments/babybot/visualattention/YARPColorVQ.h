@@ -8,7 +8,7 @@
 #ifndef __YARPCOLORVQ__
 #define __YARPCOLORVQ__
 
-#include <YARPImage.h>
+#include <yarp/YARPImage.h>
 
 //
 // bounding box type.

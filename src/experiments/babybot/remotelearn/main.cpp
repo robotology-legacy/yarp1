@@ -9,11 +9,10 @@
 // YBVRLTrainContinue train, without initialize the net
 	
 #include "lbehavior.h"
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
-#include <YARPPort.h>
-#include <YARPParseParameters.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPConfigRobot.h>
 
 const char __filename[] = "test.ini";
 const char __outFilename[] = "out.ini";
@@ -21,7 +20,7 @@ const char __basePortName[] = "/remotelearn";
 const int __nIterations = 100000;
 const int __nSamples = -1;
 
-#include <YARPRnd.h>
+#include <yarp/YARPRnd.h>
 
 double nIterations = __nIterations;
 int nSamples = __nSamples;

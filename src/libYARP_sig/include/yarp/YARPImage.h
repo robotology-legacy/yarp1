@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.3 2004-07-13 17:30:43 eshuy Exp $
+/// $Id: YARPImage.h,v 1.4 2004-07-30 17:41:22 babybot Exp $
 ///
 ///
 
@@ -682,6 +682,7 @@ __YARPIMAGE_ASSOCIATE_TAG(YARP_PIXEL_INT,YarpPixelInt)
 
 
 ///#endif	/// of __cplusplus
+#include <yarp/YARPImagePort.h>
 
 #endif
 

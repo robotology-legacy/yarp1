@@ -1,17 +1,15 @@
 #ifndef __ARMMAP__
 #define __ARMMAP__
 
-#include <YARPBabybotHead.h>
-#include <YARPRndUtils.h>
+#include <yarp/YARPBabybotHead.h>
+#include <yarp/YARPRndUtils.h>
 #include <time.h>
-#include <YARPBPNNet.h>
-#include <YARPPort.h>
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
-#include <YARPMatrix.h>
-#include <YARPVectorPortContent.h>
-#include <YARPControlBoardNetworkData.h>
-#include <YARPBabybotHeadKin.h>
+#include <yarp/YARPBPNNet.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPMatrix.h>
+#include <yarp/YARPControlBoardNetworkData.h>
+#include <yarp/YARPBabybotHeadKin.h>
 
 #include "../testjacobian/ArmForwardKinematics.h"
 
@@ -102,7 +100,7 @@ public:
 
 const int __trajectoryLength = 3;
 
-class ArmMap: public YARPInputPortOf<YARPBottle>
+class ArmMap: public YARPInputPortOf<YARPBabyBottle>
 {
 public:
 	ArmMap(const char *nnetFile);
@@ -131,7 +129,7 @@ private:
 	YARPBPNNet _nnet;
 	ArmForwardKinematics _fkinematics;
 		
-	YARPOutputPortOf<YARPBottle> _outPortRemoteLearn;
+	YARPOutputPortOf<YARPBabyBottle> _outPortRemoteLearn;
 
 	virtual void OnRead(void);
 
@@ -139,7 +137,7 @@ private:
 	NoiseModule _noise;
 
 	YARPBabybotHeadKin _headKinematics;
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 	YVector _command;
 	YVector _prepare;
 	YVector *_trajectory;
