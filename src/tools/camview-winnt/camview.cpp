@@ -46,10 +46,11 @@ BOOL CCamviewApp::InitInstance()
 	CCommandLineInfoEx cmdInfo; 
 	ParseCommandLine (cmdInfo);
 
-	CString prova = m_lpCmdLine;
+	const char *cmdLine = LPCTSTR(m_lpCmdLine);
 
 	m_portname = "/view/i:img";
-	if (cmdInfo.GetOption("name", m_portname)) 
+	YARPString dummy;
+	if (cmdInfo.GetOption("--name", m_portname)) 
 	{ 
 		/// adds the leading /
 		m_portname = "/" + m_portname;
