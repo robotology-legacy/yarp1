@@ -1,4 +1,4 @@
-//$Id: YARPGALILOnEurobotHeadAdapter.h,v 1.1 2003-05-21 14:55:54 beltran Exp $
+//$Id: YARPGALILOnEurobotHeadAdapter.h,v 1.2 2003-05-28 16:04:59 beltran Exp $
 
 #ifndef __GALILONEUROBOTHEAD__
 #define __GALILONEUROBOTHEAD__
@@ -43,7 +43,7 @@ namespace _EurobotHead
 	const double _zeros[_nj] = {0.0, 0.0, 0.0, 0.0};
 	const int _axis_map[_nj] = {3, 2, 1, 0};
 	const int _signs[_nj] = {0, 0, 0, 0}; //This must be fixed in the eurohead
-	const double _encoderToAngles[_nj] = {(2.0 * 3.14)*89588.31, (2.0 * 3.14)*23092.74, (2.0 * 3.14)*22605.73, (2.0 * 3.14)*95237.81}; 
+	const double _encoderToAngles[_nj] = {(2*pi)*89588.31, (2*pi)*23092.74, (2*pi)*22605.73, (2*pi)*95237.81}; 
 }; // namespace
 
 class YARPEurobotHeadParameters
@@ -92,25 +92,27 @@ public:
 			uninitialize();
 	}
 	
+	/*
 	int initialize()
 	{
 		YARPEurobotHeadParameters parameters;
 		initialize((const YARPEurobotHeadParameters)parameters);
 	}
+	*/
 
-	int initialize(const YARPEurobotHeadParameters &par)
+	int initialize(YARPEurobotHeadParameters *par)
 	{
 		_parameters = par;
 		GalilOpenParameters op_par;
-		op_par.nj= _parameters._nj; 
-		op_par.mask = _parameters._mask;
+		op_par.nj= _parameters->_nj; 
+		op_par.mask = _parameters->_mask;
 		if (YARPGalilDeviceDriver::open(&op_par) != 0)
 			return YARP_FAIL;
 			
 		/* First the card needs to be reseted */
 		IOCtl(CMDResetController, NULL);
 
-		for(int i=0; i < _parameters._nj; i++)
+		for(int i=0; i < _parameters->_nj; i++)
 		{
 			SingleAxisParameters cmd;
 			cmd.axis=i;
@@ -158,7 +160,7 @@ public:
 	}
 	int idleMode()
 	{
-		for(int i = 0; i < _parameters._nj; i++)
+		for(int i = 0; i < _parameters->_nj; i++)
 			IOCtl(CMDControllerIdle, &i);
 			
 		return YARP_OK;
@@ -166,12 +168,12 @@ public:
 
 	int activatePID()
 	{
-		for(int i = 0; i < _parameters._nj; i++)
+		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			IOCtl(CMDControllerIdle, &i);
 			SingleAxisParameters cmd;
 			cmd.axis = i;
-			cmd.parameters = &_parameters._highPIDs[i];
+			cmd.parameters = &_parameters->_highPIDs[i];
 			IOCtl(CMDSetPID, &cmd);
 			double pos = 0.0;
 			cmd.parameters = &pos;
@@ -186,7 +188,7 @@ public:
 
 private:
 	bool _initialized;
-	YARPEurobotHeadParameters _parameters;
+	YARPEurobotHeadParameters * _parameters;
 };
 
 #endif	// .h
