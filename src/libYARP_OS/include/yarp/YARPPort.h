@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPPort.h,v 1.3 2004-07-06 13:30:38 eshuy Exp $
 ///
 ///
 
@@ -379,8 +379,14 @@ public:
 	YARPPortContent& Content();
 
 	/**
-	 * Transmit the current message under preparation to the port's targets.
-	 * @param wait if true, wait for transmission to complete (if supported by network protocol), otherwise return immediately.
+	 * Transmit the current message under preparation to the
+	 * port's targets.  
+	 *
+	 * @param wait if true, wait for any transmission already in
+	 * progress to complete (if supported by network protocol)
+	 * before trying to send the current message.  If you want to
+	 * wait until the *current* message gets transmitted before
+	 * continuing, call FinishSend().
 	 */
 	void Write(bool wait=false);
 
