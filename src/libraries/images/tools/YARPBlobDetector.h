@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.h,v 1.6 2003-08-22 13:28:58 babybot Exp $
+/// $Id: YARPBlobDetector.h,v 1.7 2003-08-22 15:39:55 natta Exp $
 ///
 /// August 2003 -- by nat
 
@@ -88,7 +88,7 @@ const int _filterSizeRho[] = {11, 15, 21, 25, 31, 35, 41, 45, 51, 61, 71};
 class YARPBlobDetector
 {
 public:
-	YARPBlobDetector(unsigned char thr = 20);
+	YARPBlobDetector(float thrs = 0.0);
 	~YARPBlobDetector();
 
 	void Apply(YARPImageOf<YarpPixelMono> &in)
@@ -127,7 +127,7 @@ private:
 	YARPImageOf<YarpPixelFloat> *_filtered;
 	YARPImageOf<YarpPixelMono> _segmented;
 
-	unsigned char _threshold;
+	float _threshold;
 
 };
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.cpp,v 1.4 2003-08-21 09:43:06 natta Exp $
+/// $Id: YARPIntegralImage.cpp,v 1.5 2003-08-22 15:39:55 natta Exp $
 ///
 ///
 
@@ -72,6 +72,7 @@ YARPIntegralImage::YARPIntegralImage()
 	_nRows = 0;
 	_nCols = 0;
 	_nfovea = 0;
+	_max = 1.0;
 }
 
 YARPIntegralImage::YARPIntegralImage(int nC, int nR, int sf)
@@ -96,6 +97,8 @@ void YARPIntegralImage::_resize(int nC, int nR, int sf)
 	_nCols = nC;
 	_nRows = nR;
 	_nfovea = sf;
+
+	_max = 255*(nR-sf)*nC;
 	
 	_integralImg.Resize(nC, nR);
 	_rowSum.Resize(nC,nR);

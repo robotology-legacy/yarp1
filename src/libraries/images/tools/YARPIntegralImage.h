@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.h,v 1.5 2003-08-21 09:43:06 natta Exp $
+/// $Id: YARPIntegralImage.h,v 1.6 2003-08-22 15:39:55 natta Exp $
 ///
 /// August 2003 -- by nat
 
@@ -100,16 +100,13 @@ public:
 		int r,c;
 		for(r = 0; r < _nRows; r++)
 			for(c = 0; c < _nCols; c++)
-				out(c,r) = (YarpPixelMono)((_integralImg(c,r)*255)/_integralImg(_nCols-1, _nRows-1) + 0.5);
+				out(c,r) = (YarpPixelMono)((_integralImg(c,r)*255)/_max + 0.5);
 	}
 
 	inline float get(int c, int r)
 	{
-		float max = _integralImg(_nCols-1, _nRows-1);
-		if (max > 0.0)
-			return _integralImg(c,r)/max;
-		else
-			return 0.0;
+		// float max = _integralImg(_nCols-1, _nRows-1);
+		return _integralImg(c,r)/_max;
 	}
 
 	inline double getSaliency(int maxX, int minX, int maxY, int minY)
@@ -195,6 +192,7 @@ private:
 	int _nRows;
 	int _nCols;
 	int _nfovea;
+	float _max;
 };
 
 #endif
