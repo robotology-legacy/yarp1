@@ -212,7 +212,7 @@ class CRecv: public YARPThread
 {
 public:
 	CRecv(CVectViewerDlg *own):
-	_inPort(YARP_UDP)
+	_inPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 	{
 		_owner = own;
 	}
