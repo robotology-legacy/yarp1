@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.9 2004-08-05 09:55:30 eshuy Exp $
+/// $Id: Port.h,v 1.10 2004-08-05 10:16:02 eshuy Exp $
 ///
 ///
 
@@ -407,6 +407,7 @@ public:
 		list_mutex(1),
 		out_mutex(1),
   	        require_ack(0),
+   	        ignore_data(0),
 		complete_terminate(0,0),
 		complete_msg_thread(0,0),
 		network_name(YARP_DEFAULT_NET)
