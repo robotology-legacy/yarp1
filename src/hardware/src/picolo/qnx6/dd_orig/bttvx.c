@@ -45,7 +45,10 @@ extern "C" {
  * Those are the default values for BRIGHT and CONTRAST (for babybot using fgadjuster)
  */
 #define BRIGHT_DEFAULT 81
+#define HUE_DEFAULT 0
 #define CONTRAST_DEFAULT 140
+#define SATV_DEFAULT 180
+#define SATU_DEFAULT 254 
 
 	/*Globar variables*/
 	static int bttv_num;
@@ -306,13 +309,13 @@ extern "C" {
 	{
 		if (state)
 		{
-			btwrite(~BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
-			btwrite(~BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
+			btor(BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
+			btor(BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
 		}
 		else
 		{
-			btwrite(BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
-			btwrite(BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
+			btand(~BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
+			btand(~BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
 		}
 	}
 
@@ -324,13 +327,13 @@ extern "C" {
 	{
 		if (state)
 		{
-			btwrite(~BT848_CONTROL_LDEC, BT848_E_CONTROL);
-			btwrite(~BT848_CONTROL_LDEC, BT848_O_CONTROL);
+			btor(BT848_CONTROL_LDEC, BT848_E_CONTROL);
+			btor(BT848_CONTROL_LDEC, BT848_O_CONTROL);
 		}
 		else
 		{
-			btwrite(BT848_CONTROL_LDEC, BT848_E_CONTROL);
-			btwrite(BT848_CONTROL_LDEC, BT848_O_CONTROL);
+			btand(~BT848_CONTROL_LDEC, BT848_E_CONTROL);
+			btand(~BT848_CONTROL_LDEC, BT848_O_CONTROL);
 		}
 	}
 
@@ -341,9 +344,13 @@ extern "C" {
 	bt848_set_crush(int state)
 	{
 		if (state)
-			btwrite(BT848_ADC_CRUSH, BT848_ADC);
+		{
+			btor(BT848_ADC_CRUSH, BT848_ADC);
+		}
 		else
-			btwrite(~BT848_ADC_CRUSH, BT848_ADC);
+		{
+			btand(~BT848_ADC_CRUSH, BT848_ADC);
+		}
 	}
 
 	/********************************************************************************
@@ -1070,21 +1077,21 @@ extern "C" {
 		//	This is to aproximate picolo (windows) driver performance  
 		//----------------------------------------------------------------------
 		bt848_bright(BRIGHT_DEFAULT);
+		bt848_hue(HUE_DEFAULT);
 		bt848_contrast(CONTRAST_DEFAULT);
+		bt848_sat_v(SATV_DEFAULT);
+		bt848_sat_u(SATU_DEFAULT);
 
 		//btwrite(BT848_ADC_RESERVED|BT848_ADC_CRUSH, BT848_ADC);
 		btwrite(BT848_ADC_RESERVED, BT848_ADC);
 
-		btwrite(BT848_CONTROL_LDEC, BT848_E_CONTROL);
-		btwrite(BT848_CONTROL_LDEC, BT848_O_CONTROL);
-
-		btwrite(BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
-		btwrite(BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
+		btwrite(BT848_CONTROL_LDEC | BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
+		btwrite(BT848_CONTROL_LDEC | BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
 
 		if (btv->win.norm == 2) //S-video; Y/C configuration
 		{
-			btwrite(BT848_CONTROL_COMP, BT848_E_CONTROL);
-			btwrite(BT848_CONTROL_COMP, BT848_O_CONTROL);
+			btwrite(BT848_CONTROL_COMP | BT848_CONTROL_LDEC | BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
+			btwrite(BT848_CONTROL_COMP | BT848_CONTROL_LDEC | BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
 		}
 
 		btwrite(0x00, BT848_E_SCLOOP);
