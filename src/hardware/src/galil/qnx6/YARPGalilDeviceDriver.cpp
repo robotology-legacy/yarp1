@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.4 2003-10-30 13:46:20 babybot Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.8 2003-10-30 13:46:20 babybot Exp $
 
 #include "YARPGalilDeviceDriver.h"
 

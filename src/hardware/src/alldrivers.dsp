@@ -104,7 +104,7 @@ SOURCE=.\common\YARPControlBoardUtils.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\galil\common\YARPGalilDeviceDriver.cpp
+SOURCE=.\galil\winnt\YARPGalilDeviceDriver.cpp
 # End Source File
 # Begin Source File
 
@@ -148,7 +148,7 @@ SOURCE=.\common\YARPFrameGrabberUtils.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\galil\common\YARPGalilDeviceDriver.h
+SOURCE=.\galil\winnt\YARPGalilDeviceDriver.h
 # End Source File
 # Begin Source File
 

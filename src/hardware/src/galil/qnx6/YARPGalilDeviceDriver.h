@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.5 2003-10-30 13:46:20 babybot Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.8 2003-10-30 13:46:20 babybot Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
