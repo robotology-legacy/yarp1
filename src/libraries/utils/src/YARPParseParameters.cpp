@@ -1,4 +1,4 @@
-// $Id: YARPParseParameters.cpp,v 1.1 2003-07-04 12:53:57 babybot Exp $
+// $Id: YARPParseParameters.cpp,v 1.2 2003-07-20 14:46:28 natta Exp $
 
 #include "YARPParseParameters.h"
 
@@ -57,6 +57,19 @@ bool YARPParseParameters::parse (int argc, char *argv[], const string &key, int 
 	if (YARPParseParameters::parse(argc, argv, key, dummy))
 	{
 		*out = atoi(dummy.c_str());
+		return true;
+	}
+	else
+		return false;
+
+}
+
+bool YARPParseParameters::parse (int argc, char *argv[], const string &key, double *out) 
+{
+	string dummy;
+	if (YARPParseParameters::parse(argc, argv, key, dummy))
+	{
+		*out = atof(dummy.c_str());
 		return true;
 	}
 	else
