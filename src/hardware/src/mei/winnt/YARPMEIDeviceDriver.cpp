@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.4 2003-04-30 16:04:30 natta Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.5 2003-05-01 15:05:04 natta Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -689,7 +689,8 @@ int YARPMEIDeviceDriver::setHome(void *cmd)
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	int axis = tmp->axis;
 	ControlBoardEvents *event = (ControlBoardEvents *) tmp->parameters;
-	rc = set_positive_limit(axis, _events[*event]);
+	int16 ev = _events[*event];
+	rc = set_home(axis, ev);
 	return rc;
 }
 
