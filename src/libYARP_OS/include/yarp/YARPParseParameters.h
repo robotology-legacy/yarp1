@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPParseParameters.h,v 1.1 2004-07-19 11:22:38 eshuy Exp $
+/// $Id: YARPParseParameters.h,v 1.2 2004-07-20 00:34:25 babybot Exp $
 ///
 /// Simple parser facility for program arguments. July 2003 -- by nat
 /// usage: -switch parameter
@@ -71,7 +71,7 @@
 #ifndef __YARPPARSEPARAMETERS__
 #define __YARPPARSEPARAMETERS__
 
-#include <YARPString.h>
+#include <yarp/YARPString.h>
 
 class YARPParseParameters
 {

@@ -24,38 +24,29 @@ if "%1"=="install" goto install
 
 :clean 
 echo Cleaning...
-msdev tools.dsw /MAKE "yarp_service - Win32 Debug" /CLEAN
-msdev tools.dsw /MAKE "yarp_service - Win32 Release" /CLEAN
-msdev tools.dsw /MAKE "yarp_read - Win32 Debug" /CLEAN
-msdev tools.dsw /MAKE "yarp_read - Win32 Release" /CLEAN
-msdev tools.dsw /MAKE "yarp_write - Win32 Debug" /CLEAN
-msdev tools.dsw /MAKE "yarp_write - Win32 Release" /CLEAN
-msdev tools.dsw /MAKE "yarp_connect - Win32 Debug" /CLEAN
-msdev tools.dsw /MAKE "yarp_connect - Win32 Release" /CLEAN
+for /D %%i in (*) do (
+	for %%j in (%%i\*) do (
+		if "%%~xj" == ".dsp" msdev %%j /MAKE "%%~nj - Win32 Debug" /CLEAN ))
 goto end
 
 
 :debug
-msdev tools.dsw /MAKE "yarp_service - Win32 Debug" /BUILD
-msdev tools.dsw /MAKE "yarp_read - Win32 Debug" /BUILD
-msdev tools.dsw /MAKE "yarp_write - Win32 Debug" /BUILD
-msdev tools.dsw /MAKE "yarp_connect - Win32 Debug" /BUILD
+for /D %%i in (*) do (
+	for %%j in (%%i\*) do (
+		if "%%~xj" == ".dsp" msdev %%j /MAKE "%%~nj - Win32 Debug" /BUILD ))
 goto end
 
 
 :release
-msdev tools.dsw /MAKE "yarp_service - Win32 Release" /BUILD
-msdev tools.dsw /MAKE "yarp_read - Win32 Release" /BUILD
-msdev tools.dsw /MAKE "yarp_write - Win32 Release" /BUILD
-msdev tools.dsw /MAKE "yarp_connect - Win32 Release" /BUILD
+for /D %%i in (*) do (
+	for %%j in (%%i\*) do (
+		if "%%~xj" == ".dsp" msdev %%j /MAKE "%%~nj - Win32 Release" /BUILD ))
 goto end
 
 
 :install
-copy .\yarp-service\obj\yarp-service.exe %YARP_ROOT%\bin\winnt\
-copy .\yarp-read\obj\yarp-read.exe %YARP_ROOT%\bin\winnt\
-copy .\yarp-write\obj\yarp-write.exe %YARP_ROOT%\bin\winnt\
-copy .\yarp-connect\obj\yarp-connect.exe %YARP_ROOT%\bin\winnt\
+for /D %%i in (*) do (
+	copy %%i\obj\%%i.exe %YARP_ROOT%\bin\winnt\ )
 goto end
 
 

@@ -35,15 +35,23 @@
 ///
 
 ///
-/// $Id: YARPFrameGrabberUtils.h,v 1.1 2004-07-13 13:21:07 babybot Exp $
+/// $Id: YARPFrameGrabberUtils.h,v 1.2 2004-07-20 00:34:25 babybot Exp $
 ///
 ///
+
+/**
+ * \file YARPFrameGrabberUtils.h contains definition for the frame
+ * acquisition classes.
+ */
 
 #ifndef __YARPFrameGrabberUtilsh__
 #define __YARPFrameGrabberUtilsh__
 
 #include <yarp/YARPConfig.h>
 
+/**
+ * The messages accepted by the frame grabber device drivers.
+ */
 enum FrameGrabberCmd
 {
 	FCMDAcquireBuffer = 1,

@@ -147,6 +147,10 @@ SOURCE=.\YARPNativeSyncComm.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPParseParameters.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPPort.cpp
 # End Source File
 # Begin Source File
@@ -211,6 +215,10 @@ SOURCE=..\include\yarp\begin_pack_for_net.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\debug.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\end_pack_for_net.h
 # End Source File
 # Begin Source File
@@ -263,6 +271,10 @@ SOURCE=..\include\yarp\YARPNameID.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\YARPNameID_defs.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\YARPNameService.h
 # End Source File
 # Begin Source File
@@ -279,11 +291,19 @@ SOURCE=..\include\yarp\YARPNetworkTypes.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\YARPParseParameters.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\YARPPort.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\include\yarp\YARPPortContent.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPRandom.h
 # End Source File
 # Begin Source File
 

@@ -64,8 +64,8 @@ LIB32=link.exe -lib
 # PROP Output_Dir "../lib/winnt/"
 # PROP Intermediate_Dir "../obj/winnt/debug"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ  /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\include" /I "..\..\..\include\winnt" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ  /c
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\include" /I "..\..\..\include\winnt" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -108,6 +108,10 @@ SOURCE=..\include\yarp\YARPDeviceDriver.h
 # Begin Source File
 
 SOURCE=..\include\yarp\YARPFrameGrabberUtils.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPGenericGrabber.h
 # End Source File
 # Begin Source File
 
