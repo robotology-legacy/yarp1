@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.6 2004-07-09 13:33:20 eshuy Exp $
+/// $Id: YARPThread.cpp,v 1.7 2004-12-13 10:22:15 micheletavella Exp $
 ///
 ///
 
@@ -232,6 +232,10 @@ void YARPBareThread::End(int dontkill)
 
 		///ACE_Thread::kill (identifier, SIGKILL);
 		pthread_cancel (identifier);
+
+#elif defined(__DARWIN__)
+                
+                pthread_cancel (identifier);
 #else
 
 #error "YARPBareThread::End - not implemented for the specified architecture"
