@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketSyncComm.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
+/// $Id: YARPSocketSyncComm.h,v 1.4 2004-07-11 22:23:41 gmetta Exp $
 ///
 ///
 /*
@@ -71,29 +71,131 @@
 #ifndef YARPSocketSyncComm_INC
 #define YARPSocketSyncComm_INC
 
+/**
+ * \file YARPSocketSyncComm.h implements a synchronous communication model over sockets.
+ * This class is specific to socket communication, other models might use something similar.
+ * This class is private to the yarp library and the user shouldn't be too concerned with it.
+ * @see YARPNativeSyncComm.h
+ */
+
 #include <yarp/YARPConfig.h>
-
 #include <yarp/YARPAll.h>
-
 #include <yarp/YARPSocketNameService.h>
 #include <yarp/YARPMultipartMessage.h>
 
 
+/**
+ * This class implements the synchronous communication over sockets. It's just a container
+ * for static members since the instance specific data are collected in a global list
+ * indexed by the thread id. This assumes there's at most one socket per thread.
+ * Communication threads create a socket and use it further on to
+ * keep communicating always through the same socket. Also, VERY IMPORTANT, the
+ * synchronous communication model is not correct for every protocol. In practice,
+ * it's synchronous only for TCP and SHMEM, while is simply unidirectional (no reply)
+ * for UDP and MCAST. Functions are simple enough since most of the work is carried out
+ * by sockets (at the communication level) or by the port code (at the formatting and 
+ * message preparation level).
+ * @see YARPSocket
+ */
 class YARPSocketSyncComm
 {
 protected:
 	///static NetInt32 _buffer[256];	/// this is only used to send part lengths.
 
 public:
+	/**
+	 * Sends a buffer to a remote peer. It will check that the calling thread is
+	 * actually owning an output socket.
+	 * @param dest is the destination of the message identified by a YARPNameID class.
+	 * @param buffer is the buffer to be sent.
+	 * @param buffer_length is the length of the buffer.
+	 * @param return_buffer is the buffer that will contain the reply to the message.
+	 * @param return_buffer_length is the length of the reply message.
+	 * @return YARP_OK on success.
+	 */
 	static int Send(const YARPNameID& dest, char *buffer, int buffer_length, char *return_buffer, int return_buffer_length);
+
+	/**
+	 * Blocks to receive a message from a remote peer. This is the first function called
+	 * when receiving a message.
+	 * @param src is the local address (this is not related with the remote peer address).
+	 * @param buffer is the buffer for receiving the message.
+	 * @param buffer_length is the length of the receiving buffer.
+	 * @return the ID of the remote peer (protocol and id for replying).
+	 */
 	static YARPNameID BlockingReceive(const YARPNameID& src, char *buffer, int buffer_length);
+
+	/**
+	 * Polls to see whether there's any pending message. This can be also the first function
+	 * called when receiving as an alternative to the blocking receive.
+	 * @param src is the local address (this is not related with the remote peer address).
+	 * @param buffer is the buffer for receiving the message.
+	 * @param buffer_length is the length of the receiving buffer.
+	 * @return the ID of the remote peer (protocol and id for replying).
+	 */
 	static YARPNameID PollingReceive(const YARPNameID& src, char *buffer, int buffer_length);
+
+	/**
+	 * Continues the reception of a message. A polling or blocking receive should have been
+	 * called and the return id stored somewhere.
+	 * @param src is the address of the remote peer (the one returned by polling or blocking recv).
+	 * @param buffer is the buffer for receiving the message piece.
+	 * @param buffer_length is the length of the receiving buffer.
+	 * @return YARP_OK on success.
+	 */
 	static int ContinuedReceive(const YARPNameID& src, char *buffer, int buffer_length);
+
+	/**
+	 * Replies to the sender.
+	 * @param src is the address of the remote peer (the one returned by polling or blocking recv).
+	 * @param buffer is the buffer containing the reply message.
+	 * @param buffer_length is the length of the buffer.
+	 * @return YARP_OK on success.
+	 */
 	static int Reply(const YARPNameID& src, char *buffer, int buffer_length);
+
+	/**
+	 * Replies to the sender with an invalid message. Informs the remote peer something went
+	 * wrong and the message wasn't received correctly.
+	 * @param src is the address of the remote peer (the one returned by polling or blocking recv).
+	 * @return YARP_OK on success.
+	 */
 	static int InvalidReply(const YARPNameID& src);
+
+	/**
+	 * Sends a message to a remote peer. This method sends a multi-part message and
+	 * waits for a multi-part response from the peer.
+	 * @param dest is the destination of the message identified by a YARPNameID class.
+	 * @param msg is the multipart message to be sent.
+	 * @param return_msg is the reply to the message.
+	 * @return YARP_OK on success.
+	 */
 	static int Send(const YARPNameID& dest, YARPMultipartMessage& msg, YARPMultipartMessage& return_msg);
+
+	/**
+	 * Blocks to receive a message from a remote peer. This is the first function called
+	 * when receiving a message.
+	 * @param src is the local address (this is not related with the remote peer address).
+	 * @param msg is the multipart message.
+	 * @return the ID of the remote peer (protocol and id for replying).
+	 */
 	static YARPNameID BlockingReceive(const YARPNameID& src, YARPMultipartMessage& msg);
+
+	/**
+	 * Polls to see whether there's any pending message. This can be also the first function
+	 * called when receiving as an alternative to the blocking receive.
+	 * @param src is the local address (this is not related with the remote peer address).
+	 * @param msg is the multipart message.
+	 * @return the ID of the remote peer (protocol and id for replying).
+	 */
 	static YARPNameID PollingReceive(const YARPNameID& src, YARPMultipartMessage& msg);
+
+	/**
+	 * Replies a multipart message to the sender.
+	 * @param src is the address of the remote peer (the one returned by polling or blocking recv).
+	 * @param msg is a multipart message.
+	 * @return YARP_OK on success.
+	 */
 	static int Reply(const YARPNameID& src, YARPMultipartMessage& msg);
 };
 
