@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableLoading.cpp,v 1.11 2003-10-06 17:28:46 fberton Exp $
+/// $Id: TableLoading.cpp,v 1.12 2003-10-07 17:08:28 fberton Exp $
 ///
 ///
 
@@ -298,9 +298,11 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 	if ((List&512)==512)
 	{
 		if (Par->Ratio == 1.00)
-			sprintf(File_Name,"%s%dx%d_%s",Path,Par->Size_X_Remap,Par->Size_Y_Remap,"ShiftMap.gio");
+			sprintf(File_Name,"%s",Path,"ShiftMap.gio");
+//			sprintf(File_Name,"%s%s_%d",Path,"ShiftMap",Par->Resolution,".gio");
 		else
-			sprintf(File_Name,"%s%1.2f_%dx%d_%s",Path,Par->Ratio,Par->Size_X_Remap,Par->Size_Y_Remap,"ShiftMap.gio");
+			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"ShiftMap.gio");
+//			sprintf(File_Name,"%s%1.2f_%s_%d%s",Path,Par->Ratio,"ShiftMap",Par->Resolution,".gio");
 
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{

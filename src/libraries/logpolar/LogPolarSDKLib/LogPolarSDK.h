@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.14 2003-10-06 17:28:46 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.15 2003-10-07 17:08:28 fberton Exp $
 ///
 ///
 
@@ -90,6 +90,12 @@
 #define MAX_PIX 10
 
 #define PI 3.1415926535897932384626433832795
+
+#define ANGSHIFT	  1
+#define DS4			  4
+#define REMAP		 32
+#define DS2			256
+#define SHIFT		512
 
 struct Image_Data{
 

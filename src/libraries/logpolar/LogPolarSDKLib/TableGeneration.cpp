@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.21 2003-10-06 17:28:46 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.22 2003-10-07 17:08:28 fberton Exp $
 ///
 ///
 
@@ -2226,11 +2226,14 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 			for(j=0; j<Par->Size_Rho; j++)
 				for(i=0; i<Par->Size_Theta; i++)
 				{
-					tempX = l*Par->Size_X_Remap*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+					tempX = l*Par->Resolution*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+//					tempX = l*Par->Size_X_Remap*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
 					tempY = Get_Y_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
-					if ((tempX<Par->Size_X_Remap/2)&&(tempY<Par->Size_Y_Remap/2))
+					if ((tempX<Par->Resolution/2)&&(tempY<Par->Resolution/2))
+//					if ((tempX<Par->Size_X_Remap/2)&&(tempY<Par->Size_Y_Remap/2))
 					{
-						if ((tempX>=-Par->Size_X_Remap/2)&&(tempY>=-Par->Size_Y_Remap/2))
+						if ((tempX>=-Par->Resolution/2)&&(tempY>=-Par->Resolution/2))
+//						if ((tempX>=-Par->Size_X_Remap/2)&&(tempY>=-Par->Size_Y_Remap/2))
 						{
 							newRho = Get_Rho(tempX,tempY,Par);
 							newTheta = Get_Theta(tempX,tempY,newRho,Par,Tables.AngShiftMap,Tables.PadMap);
@@ -2249,9 +2252,11 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 		}
 
 		if (Par->Ratio == 1.00)
-			sprintf(File_Name,"%s%dx%d_%s",Path,Par->Size_X_Remap,Par->Size_Y_Remap,"ShiftMap.gio");
+			sprintf(File_Name,"%s",Path,"ShiftMap.gio");
+//			sprintf(File_Name,"%s%s_%d",Path,"ShiftMap",Par->Resolution,".gio");
 		else
-			sprintf(File_Name,"%s%1.2f_%dx%d_%s",Path,Par->Ratio,Par->Size_X_Remap,Par->Size_Y_Remap,"ShiftMap.gio");
+			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"ShiftMap.gio");
+//			sprintf(File_Name,"%s%1.2f_%s_%d%s",Path,Par->Ratio,"ShiftMap",Par->Resolution,".gio");
 		
 		fout = fopen(File_Name,"wb");
 		fwrite(ShiftMap,sizeof(int),(Par->Resolution/2)*3*Par->Size_LP,fout);
