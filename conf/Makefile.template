@@ -10,12 +10,14 @@ ifeq ($(shell uname),QNX)
   ifneq (,$(findstring $(shell uname -r),$(QNX_VER)))
 	 SYSDIR = qnx6
      CC = g++
-     CDEFS = -D__QNX6__
+     CC1 = gcc
+     CDEFS = -D__QNX__ -D__QNX6__
      CFASTSTRUCT =
 	 CFAST =
   else
      SYSDIR = qnx
 	 CC = cc
+	 CC1 = $(CC)
      CDEFS = -D__QNX__ -D__QNX4__
      CFASTSTRUCT = -zp4
 	 CFAST = -Oneaxt $(CFASTSTRUCT)
@@ -25,6 +27,7 @@ ifeq ($(shell uname),QNX)
 else
   ifeq ($(shell uname),Linux)
     CC = g++
+    CC1 = gcc
     SYSDIR = linux
     SYSLIB = -lpthread
     CDEFS = -D__LINUX__
@@ -32,6 +35,7 @@ else
     LIBADD = -lpthread
   else
     CC = g++
+    CC1 = gcc
     SYSDIR = winnt
     CDEFS = -D__WIN__
     CFAST = -O3
