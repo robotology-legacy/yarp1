@@ -1,6 +1,6 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.19 2003-09-11 15:29:33 beltran Exp $
+$Id: install.txt,v 1.20 2003-09-12 16:44:14 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
@@ -105,10 +105,9 @@ REQUIRES:
 			- use "make install" in the same place
 
 	utils
-		*for the momment
-			-use "make install" in %YARP_ROOT/src/libraries/utils
-			(an error appears because the library is not present but this is ok for the moment)
-			
+		-use "make" in %YARP_ROOT/src/libraries/utils
+		-use "make install" in the same place	
+		
 	motorcontrol
 			- use "make" in %YARP_ROOT/src/libraries/motorcontrol	
 			- use "make install" in %YARP_ROOT/src/libraries/motorcontrol
@@ -116,12 +115,6 @@ REQUIRES:
 	math
 			-usual process make; make install in the directory:
 				%YARP_ROOT/src/libraries/math	
-	===
-
-	//utils
-	//	- dsw in: %YARP_ROOT%\src\libraries\utils\utils.dsw
-
-	
 
 3) What to include/link for building an application is YARP.
 	TO BE COMPLETED, templates?
@@ -170,6 +163,6 @@ procedure where a kernel images is built an inserted in the disk. (add here proc
 
 	i.e.: How to use all this
 	./YARPNameService
-	./framegrabber -l
+	./framegrabber -l -w 256 -h 256
         ./camview -l -w 256	
 	./porter /framegrab/o:img /images:i

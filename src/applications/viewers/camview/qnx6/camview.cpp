@@ -314,8 +314,8 @@ int RunRemote()
 	YARPLogpolar m_mapper;
 
 	//YARPDIBConverter m_converter;
-	YARPInputPortOf<YARPGenericImage> inport (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
-	//YARPInputPortOf<YARPGenericImage> inport;
+	//YARPInputPortOf<YARPGenericImage> inport (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+	YARPInputPortOf<YARPGenericImage> inport;
 
 	inport.Register ("/images:i");
     
