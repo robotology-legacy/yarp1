@@ -12,6 +12,7 @@
 // CCanControlDlg dialog
 
 #include "CanControlParams.h"
+#include "TestAxisDlg.h"
 
 class CCanControlDlg : public CDialog
 {
@@ -80,6 +81,7 @@ public:
 protected:
 	HICON m_hIcon;
 
+public:
 /// my stuff.
 	YARPValueCanDeviceDriver	m_driver;
 	ValueCanOpenParameters		m_params;
@@ -93,7 +95,11 @@ protected:
 
 	char						m_buffer[256];
 	double						m_vmove[CANBUS_MAXCARDS*4];
+	double						m_current_displayed_position;
 
+	CTestAxisDlg				m_testaxisdlg;
+
+protected:
 	// Generated message map functions
 	//{{AFX_MSG(CCanControlDlg)
 	virtual BOOL OnInitDialog();
@@ -136,6 +142,8 @@ protected:
 	afx_msg void OnUpdateFileCloseconsole(CCmdUI* pCmdUI);
 	afx_msg void OnButtonFilter();
 	afx_msg void OnButtonRemoveFilter();
+	afx_msg void OnParametersTestaxis();
+	afx_msg void OnUpdateParametersTestaxis(CCmdUI* pCmdUI);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

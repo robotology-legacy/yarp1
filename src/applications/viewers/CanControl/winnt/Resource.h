@@ -11,6 +11,7 @@
 #define IDD_ADDRESS_DIALOG              131
 #define IDD_CARDS_DIALOG                132
 #define IDD_SETADDR_DIALOG              134
+#define IDD_TEST_DIALOG                 135
 #define IDC_EDIT_ADDRESS0               1000
 #define IDC_EDIT1                       1001
 #define IDC_BUTTON_UPDATE               1002
@@ -62,6 +63,13 @@
 #define IDC_BUTTON_FILTER               1035
 #define IDC_EDIT_FILTER                 1036
 #define IDC_BUTTON_REMOVE_FILTER        1037
+#define IDC_BUTTON_HIDE                 1038
+#define IDC_EDIT_START                  1039
+#define IDC_EDIT_STOP                   1040
+#define IDC_EDIT_REPETITIONS            1041
+#define IDC_EDIT_VELOCITY               1042
+#define IDC_BUTTON_STOPM                1043
+#define IDC_BUTTON_STARTM               1045
 #define ID_FILE_EXIT                    32771
 #define ID_HELP_ABOUT                   32772
 #define ID_PARAMETERS_NUMBEROFCARDS     32773
@@ -72,14 +80,17 @@
 #define ID_DRIVER_SENDADDRESS           32778
 #define ID_FILE_OPENCONSOLE             32779
 #define ID_FILE_CLOSECONSOLE            32780
+#define ID_FILE_LOADCONFIGURATION       32781
+#define ID_FILE_SAVECONFIGURATION       32782
+#define ID_PARAMETERS_TESTAXIS          32783
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        135
-#define _APS_NEXT_COMMAND_VALUE         32781
-#define _APS_NEXT_CONTROL_VALUE         1038
+#define _APS_NEXT_RESOURCE_VALUE        136
+#define _APS_NEXT_COMMAND_VALUE         32784
+#define _APS_NEXT_CONTROL_VALUE         1046
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

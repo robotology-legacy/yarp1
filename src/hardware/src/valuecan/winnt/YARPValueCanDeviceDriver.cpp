@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.12 2004-05-28 17:36:35 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.13 2004-05-31 17:38:12 babybot Exp $
 ///
 ///
 
@@ -1043,9 +1043,9 @@ int YARPValueCanDeviceDriver::getNegativeLimit (void *cmd)
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
-	short value;
+	int value;
 
-	_readWord16 (CAN_GET_MIN_POSITION, axis, value);
+	_readDWord (CAN_GET_MIN_POSITION, axis, value);
 	*((double *)tmp->parameters) = double(value);
 
 	return YARP_OK;
@@ -1057,9 +1057,9 @@ int YARPValueCanDeviceDriver::getPositiveLimit (void *cmd)
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
-	short value;
+	int value;
 
-	_readWord16 (CAN_GET_MAX_POSITION, axis, value);
+	_readDWord (CAN_GET_MAX_POSITION, axis, value);
 	*((double *)tmp->parameters) = double(value);
 
 	return YARP_OK;

@@ -9,6 +9,8 @@
 #include "CardsDlg.h"
 #include "SetAddressDlg.h"
 
+#include "math.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -110,7 +112,7 @@ END_MESSAGE_MAP()
 // CCanControlDlg dialog
 
 CCanControlDlg::CCanControlDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CCanControlDlg::IDD, pParent)
+	: CDialog(CCanControlDlg::IDD, pParent), m_testaxisdlg(this)
 {
 	//{{AFX_DATA_INIT(CCanControlDlg)
 	m_axis = -1;
@@ -235,6 +237,8 @@ BEGIN_MESSAGE_MAP(CCanControlDlg, CDialog)
 	ON_UPDATE_COMMAND_UI(ID_FILE_CLOSECONSOLE, OnUpdateFileCloseconsole)
 	ON_BN_CLICKED(IDC_BUTTON_FILTER, OnButtonFilter)
 	ON_BN_CLICKED(IDC_BUTTON_REMOVE_FILTER, OnButtonRemoveFilter)
+	ON_COMMAND(ID_PARAMETERS_TESTAXIS, OnParametersTestaxis)
+	ON_UPDATE_COMMAND_UI(ID_PARAMETERS_TESTAXIS, OnUpdateParametersTestaxis)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -278,6 +282,11 @@ BOOL CCanControlDlg::OnInitDialog()
 	m_driverok = false;
 
 	memset (m_vmove, 0, sizeof(double) * CANBUS_MAXCARDS * 4);
+
+	m_current_displayed_position = 0;
+
+	/// modeless dialog boxes.
+	m_testaxisdlg.Create (CTestAxisDlg::IDD, this);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -663,6 +672,8 @@ void CCanControlDlg::OnTimer(UINT nIDEvent)
 		ACE_OS::sprintf (m_buffer, "%f", *((double *)par.parameters));
 		m_current_position_ctrl.SetWindowText (m_buffer);
 
+		m_current_displayed_position = *((double *)par.parameters);
+
 		if (ret != YARP_OK)
 		{
 			m_status_ctrl.SetWindowText ("Error!");
@@ -747,6 +758,16 @@ void CCanControlDlg::OnButtonGo()
 				x.axis = index;				
 				double params[2] = { 0, 0 };
 				x.parameters = (void *)params;
+
+				double d = fabs(m_desired_position - m_current_displayed_position);
+				d /= m_desired_speed;
+				/// d /= 1; DSP control loop runs @ 1ms period.
+	
+				if (d > 32767 || d < 1)
+				{
+					MessageBox ("Can't generate trajectory with current parameters: try increasing velocity", "Error!");
+					break;
+				}
 
 				params[0] = m_desired_position;
 				params[1] = m_desired_speed;
@@ -906,4 +927,14 @@ void CCanControlDlg::OnButtonRemoveFilter()
 	m_msg_filter = -1;
 	UpdateData (FALSE);
 	m_driver.IOCtl(CMDSetDebugMessageFilter, (void *)&m_msg_filter);
+}
+
+void CCanControlDlg::OnParametersTestaxis() 
+{
+	m_testaxisdlg.ShowWindow (SW_SHOW);
+}
+
+void CCanControlDlg::OnUpdateParametersTestaxis(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable (m_driverok);
 }

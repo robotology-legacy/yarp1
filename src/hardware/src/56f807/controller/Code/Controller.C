@@ -79,11 +79,11 @@ int  _error_old[JN] = { 0, 0 };			/* error at t-1 */
 int  _pid[JN] = { 0, 0 };				/* pid result */
 int  _pid_limit[JN] = { 100, 100 };		/* pid limit */
 
-int  _kp[JN] = { 10, 0 };				/* PID gain */
-int  _kd[JN] = { 40, 0 };
+int  _kp[JN] = { 10, 10 };				/* PID gain */
+int  _kd[JN] = { 40, 40 };
 int  _ki[JN] = { 0, 0 };
 int  _ko[JN] = { 0, 0 };				/* offset */
-int  _kr[JN] = { 4, 0 };				/* scale factor (negative power of two) */
+int  _kr[JN] = { 3, 3 };				/* scale factor (negative power of two) */
 
 /* CAN bus communication global vars */
 byte 	CAN_data[8];					/* CAN bus message */
@@ -276,6 +276,15 @@ byte readFromFlash (void)
 	//ptr ++;
 	
 	return ERR_OK;
+}
+
+long BYTE_C(byte x4, byte x3, byte x2, byte x1)
+{
+	long ret;
+	short *p = (short *)&ret;
+	*p++ = __shl(x3,8) | x4;
+	*p++ = __shl(x1,8) | x2;
+	return ret;
 }
 
 #define SPIKEREMOVE(i) \

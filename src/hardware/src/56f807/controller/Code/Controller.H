@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.8 2004-05-25 22:58:30 babybot Exp $
+/// $Id: Controller.H,v 1.9 2004-05-31 17:38:12 babybot Exp $
 ///
 ///
 
@@ -74,9 +74,10 @@
 #define BYTE_H(x) (x & 0xff)
 
 /* same as above, deals also with endianism */
-#define BYTE_C(x4, x3, x2, x1) \
-	(_L_deposit_h(__shl(x1,8) | x2) | \
-	 (_L_deposit_l(__shl(x3,8) | x4) & 0x7fffffff))
+//#define BYTE_C(x4, x3, x2, x1) \
+//	(_L_deposit_h(__shl(x1,8) | x2) | \
+//	 (_L_deposit_l(__shl(x3,8) | x4) & 0x7fffffff))
+long BYTE_C(byte x4, byte x3, byte x2, byte x1);
 	 
 #define BYTE_W(x2, x1) (__shl(x1,8) | x2)
 
