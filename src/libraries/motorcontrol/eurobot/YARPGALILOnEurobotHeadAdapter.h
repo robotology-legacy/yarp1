@@ -1,4 +1,4 @@
-//$Id: YARPGALILOnEurobotHeadAdapter.h,v 1.7 2003-12-22 17:57:49 beltran Exp $
+//$Id: YARPGALILOnEurobotHeadAdapter.h,v 1.8 2004-01-07 11:59:03 beltran Exp $
 
 #ifndef __GALILONEUROBOTHEAD__
 #define __GALILONEUROBOTHEAD__
@@ -291,6 +291,13 @@ public:
 
 			 ***/
 		}
+
+
+		//----------------------------------------------------------------------
+		//  This command is important in order to activate the second FIFO communications
+		//----------------------------------------------------------------------
+		int frec = -3;
+		IOCtl(CMDSetDR,&frec); //Set second FIFO refresh frecuency (DR command)
 
 		_initialized = true;
 		return YARP_OK;
