@@ -16,8 +16,8 @@ using namespace std;
 
 //#ifdef __LINUX__
 
-#define dprintf printf
-//#define dprintf if (0) printf
+//#define dprintf printf
+#define dprintf if (0) printf
 
 #define APPROX_CIRCLE
 
