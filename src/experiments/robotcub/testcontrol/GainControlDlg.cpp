@@ -14,6 +14,8 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 extern YARPHead head;
+extern YARPArm arm;
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CGainControlDlg dialog
@@ -34,7 +36,7 @@ CGainControlDlg::CGainControlDlg(CWnd* pParent /*=NULL*/)
 	m_min = 0;
 	//}}AFX_DATA_INIT
 
-	m_parent = (CTestControlDlg *)pParent;
+	//m_parent = (CTestControlDlg *)pParent;
 }
 
 
@@ -174,7 +176,7 @@ void CGainControlDlg::OnButtonSetminmax()
 	const int index = m_axis_combo.GetCurSel();
 	const int bus = m_bus_combo.GetCurSel();
 
-	if (index >= m_parent->_headjoints || 
+	if (index >= MAX_HEAD_JNTS || 
 		index == CB_ERR || 
 		bus < 0 || 
 		bus > 1 || 
@@ -246,7 +248,7 @@ void CGainControlDlg::OnSelendokComboAxis()
 	const int index = m_axis_combo.GetCurSel();
 	const int bus = m_bus_combo.GetCurSel();
 
-	if (index >= m_parent->_headjoints || index == CB_ERR || bus < 0 || bus > 1 || bus == CB_ERR)
+	if (index >= MAX_HEAD_JNTS || index == CB_ERR || bus < 0 || bus > 1 || bus == CB_ERR)
 	{
 		m_axis_combo.SetCurSel(-1);
 		m_bus_combo.SetCurSel(0);

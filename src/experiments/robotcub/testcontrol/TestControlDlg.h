@@ -14,6 +14,12 @@
 /////////////////////////////////////////////////////////////////////////////
 // CTestControlDlg dialog
 
+
+// since it's a constant anyway.
+#define MAX_ARM_JNTS 15
+#define MAX_HEAD_JNTS 8
+
+
 class CTestControlDlg : public CDialog
 {
 // Construction
@@ -21,75 +27,63 @@ public:
 	CTestControlDlg(CWnd* pParent = NULL);	// standard constructor
 	void EnableGUI (void);
 	void DisableGUI (void);
-	void AllocArrays (int nj);
-	void FreeArrays (void);
+	void AllocHeadArrays (int nj);
+	void FreeHeadArrays (void);
+	void AllocArmArrays (int nj);
+	void FreeArmArrays (void);
 
 	// variables.
 	bool _headinitialized;			// whether the head control device is initialized.
-	int  _headjoints;				// number of joints.
+	bool _arminitialized;			// same for the arm/hand.
 	
 	double *_headstore[N_POSTURES];  
 	double *_headstorev[N_POSTURES];  
 
-	double *_headjointstore;		// temporary array.
-	double *_headlastreached;		// temporary array.
+	double *_armstore[N_POSTURES];  
+	double *_armstorev[N_POSTURES];  
+
+	double *_headjointstore;		// temporary arrays.
+	double *_headlastreached;
+	double *_armjointstore;
+	double *_armlastreached;
 	char _buffer[512];				// general purpose buffer.
 
 	CGainControlDlg _gaincontroldlg;
 	CCalibrationDlg _calibrationdlg;
 
+	// my hack!
+	CEdit	m_sa_ctrl[MAX_ARM_JNTS];
+	CEdit	m_va_ctrl[MAX_ARM_JNTS];
+	CEdit	m_pa_ctrl[MAX_ARM_JNTS];
+	double	m_pa[MAX_ARM_JNTS];
+	double	m_va[MAX_ARM_JNTS];
+
+	CEdit	m_s_ctrl[MAX_HEAD_JNTS];
+	CEdit	m_v_ctrl[MAX_HEAD_JNTS];
+	CEdit	m_p_ctrl[MAX_HEAD_JNTS];
+	double	m_p[MAX_HEAD_JNTS];
+	double  m_v[MAX_HEAD_JNTS];
+
 // Dialog Data
 	//{{AFX_DATA(CTestControlDlg)
 	enum { IDD = IDD_TESTCONTROL_DIALOG };
+	CComboBox	m_entry_ctrl_arm;
+	CButton	m_storecurrent_ctrl_arm;
+	CButton	m_store_ctrl_arm;
+	CButton	m_stop_ctrl_arm;
+	CButton	m_run_ctrl_arm;
+	CButton	m_idle_ctrl_arm;
+	CButton	m_go_ctrl_arm;
+	CButton	m_0encoders_ctrl_arm;
 	CButton	m_0encoders_ctrl;
 	CButton	m_calibratehead_ctrl;
 	CButton	m_storecurrent_ctrl;
-	CEdit	m_s8_ctrl;
-	CEdit	m_s7_ctrl;
-	CEdit	m_s6_ctrl;
-	CEdit	m_s5_ctrl;
-	CEdit	m_s4_ctrl;
-	CEdit	m_s3_ctrl;
-	CEdit	m_s2_ctrl;
-	CEdit	m_s1_ctrl;
-	CEdit	m_v8_ctrl;
-	CEdit	m_v7_ctrl;
-	CEdit	m_v6_ctrl;
-	CEdit	m_v5_ctrl;
-	CEdit	m_v4_ctrl;
-	CEdit	m_v3_ctrl;
-	CEdit	m_v2_ctrl;
-	CEdit	m_v1_ctrl;
-	CEdit	m_p8_ctrl;
-	CEdit	m_p7_ctrl;
-	CEdit	m_p6_ctrl;
-	CEdit	m_p5_ctrl;
-	CEdit	m_p4_ctrl;
-	CEdit	m_p3_ctrl;
-	CEdit	m_p2_ctrl;
-	CEdit	m_p1_ctrl;
 	CButton	m_go_ctrl;
 	CComboBox	m_entry_ctrl;
 	CButton	m_store_ctrl;
 	CButton	m_stop_ctrl;
 	CButton	m_run_ctrl;
 	CButton	m_idle_ctrl;
-	double	m_p1;
-	double	m_p2;
-	double	m_p3;
-	double	m_p4;
-	double	m_p5;
-	double	m_p6;
-	double	m_p7;
-	double	m_p8;
-	double	m_v1;
-	double	m_v2;
-	double	m_v3;
-	double	m_v4;
-	double	m_v5;
-	double	m_v6;
-	double	m_v7;
-	double	m_v8;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -135,6 +129,14 @@ protected:
 	afx_msg void OnUpdateFileSavepostures(CCmdUI* pCmdUI);
 	afx_msg void OnButtonCalibratehead();
 	afx_msg void OnButton0encoders();
+	afx_msg void OnButton0encodersArm();
+	afx_msg void OnButtonGoArm();
+	afx_msg void OnButtonIdleArm();
+	afx_msg void OnButtonRunArm();
+	afx_msg void OnButtonStopArm();
+	afx_msg void OnButtonStoreArm();
+	afx_msg void OnButtonStoreCurrentArm();
+	afx_msg void OnSelendokComboEntryArm();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -121,100 +121,78 @@ CTestControlDlg::CTestControlDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CTestControlDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CTestControlDlg)
-	m_p1 = 0.0;
-	m_p2 = 0.0;
-	m_p3 = 0.0;
-	m_p4 = 0.0;
-	m_p5 = 0.0;
-	m_p6 = 0.0;
-	m_p7 = 0.0;
-	m_p8 = 0.0;
-	m_v1 = 0.0;
-	m_v2 = 0.0;
-	m_v3 = 0.0;
-	m_v4 = 0.0;
-	m_v5 = 0.0;
-	m_v6 = 0.0;
-	m_v7 = 0.0;
-	m_v8 = 0.0;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
+
+	ACE_OS::memset (m_p, 0, sizeof(double) * MAX_HEAD_JNTS);
+	ACE_OS::memset (m_v, 0, sizeof(double) * MAX_HEAD_JNTS);
+
+	ACE_OS::memset (m_pa, 0, sizeof(double) * MAX_ARM_JNTS);
+	ACE_OS::memset (m_va, 0, sizeof(double) * MAX_ARM_JNTS);
+
 	m_hIcon = AfxGetApp()->LoadIcon(IDI_ICON_FACE);
 
 	_headinitialized = false;
-	_headjoints = -1;
 	_headjointstore = NULL;
 	_headlastreached = NULL;
+
+	_arminitialized = false;
+	_armjointstore = NULL;
+	_armlastreached = NULL;
 
 	int i;
 	for (i = 0; i < N_POSTURES; i++)
 	{
 		_headstore[i] = NULL;
 		_headstorev[i] = NULL;
+		_armstore[i] = NULL;
+		_armstorev[i] = NULL;
 	}
 }
 
 void CTestControlDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
+
+	int i;
+	for (i = 0; i < MAX_ARM_JNTS; i++)
+	{
+		DDX_Control(pDX, IDC_EDIT_SA1+i, m_sa_ctrl[i]);
+		DDX_Control(pDX, IDC_EDIT_VA1+i, m_va_ctrl[i]);
+		DDX_Control(pDX, IDC_EDIT_PA1+i, m_pa_ctrl[i]);
+		DDX_Text(pDX, IDC_EDIT_PA1+i, m_pa[i]);
+		DDX_Text(pDX, IDC_EDIT_VA1+i, m_va[i]);
+		DDV_MinMaxDouble(pDX, m_va[i], -32768., 32767.);
+	}
+
+	for (i = 0; i < MAX_HEAD_JNTS; i++)
+	{
+		DDX_Control(pDX, IDC_EDIT_S1+i, m_s_ctrl[i]);
+		DDX_Control(pDX, IDC_EDIT_V1+i, m_v_ctrl[i]);
+		DDX_Control(pDX, IDC_EDIT_P1+i, m_p_ctrl[i]);
+		DDX_Text(pDX, IDC_EDIT_P1+i, m_p[i]);
+		DDX_Text(pDX, IDC_EDIT_V1+i, m_v[i]);
+		DDV_MinMaxDouble(pDX, m_v[i], -32768., 32767.);
+	}
+
 	//{{AFX_DATA_MAP(CTestControlDlg)
+	DDX_Control(pDX, IDC_COMBO_ENTRY_ARM, m_entry_ctrl_arm);
+	DDX_Control(pDX, IDC_BUTTON_STORE_CURRENT_ARM, m_storecurrent_ctrl_arm);
+	DDX_Control(pDX, IDC_BUTTON_STORE_ARM, m_store_ctrl_arm);
+	DDX_Control(pDX, IDC_BUTTON_STOP_ARM, m_stop_ctrl_arm);
+	DDX_Control(pDX, IDC_BUTTON_RUN_ARM, m_run_ctrl_arm);
+	DDX_Control(pDX, IDC_BUTTON_IDLE_ARM, m_idle_ctrl_arm);
+	DDX_Control(pDX, IDC_BUTTON_GO_ARM, m_go_ctrl_arm);
+	DDX_Control(pDX, IDC_BUTTON_0ENCODERS_ARM, m_0encoders_ctrl_arm);
 	DDX_Control(pDX, IDC_BUTTON_0ENCODERS, m_0encoders_ctrl);
 	DDX_Control(pDX, IDC_BUTTON_CALIBRATEHEAD, m_calibratehead_ctrl);
 	DDX_Control(pDX, IDC_BUTTON_STORE_CURRENT, m_storecurrent_ctrl);
-	DDX_Control(pDX, IDC_EDIT_S8, m_s8_ctrl);
-	DDX_Control(pDX, IDC_EDIT_S7, m_s7_ctrl);
-	DDX_Control(pDX, IDC_EDIT_S6, m_s6_ctrl);
-	DDX_Control(pDX, IDC_EDIT_S5, m_s5_ctrl);
-	DDX_Control(pDX, IDC_EDIT_S4, m_s4_ctrl);
-	DDX_Control(pDX, IDC_EDIT_S3, m_s3_ctrl);
-	DDX_Control(pDX, IDC_EDIT_S2, m_s2_ctrl);
-	DDX_Control(pDX, IDC_EDIT_S1, m_s1_ctrl);
-	DDX_Control(pDX, IDC_EDIT_V8, m_v8_ctrl);
-	DDX_Control(pDX, IDC_EDIT_V7, m_v7_ctrl);
-	DDX_Control(pDX, IDC_EDIT_V6, m_v6_ctrl);
-	DDX_Control(pDX, IDC_EDIT_V5, m_v5_ctrl);
-	DDX_Control(pDX, IDC_EDIT_V4, m_v4_ctrl);
-	DDX_Control(pDX, IDC_EDIT_V3, m_v3_ctrl);
-	DDX_Control(pDX, IDC_EDIT_V2, m_v2_ctrl);
-	DDX_Control(pDX, IDC_EDIT_V1, m_v1_ctrl);
-	DDX_Control(pDX, IDC_EDIT_P8, m_p8_ctrl);
-	DDX_Control(pDX, IDC_EDIT_P7, m_p7_ctrl);
-	DDX_Control(pDX, IDC_EDIT_P6, m_p6_ctrl);
-	DDX_Control(pDX, IDC_EDIT_P5, m_p5_ctrl);
-	DDX_Control(pDX, IDC_EDIT_P4, m_p4_ctrl);
-	DDX_Control(pDX, IDC_EDIT_P3, m_p3_ctrl);
-	DDX_Control(pDX, IDC_EDIT_P2, m_p2_ctrl);
-	DDX_Control(pDX, IDC_EDIT_P1, m_p1_ctrl);
 	DDX_Control(pDX, IDC_BUTTON_GO, m_go_ctrl);
 	DDX_Control(pDX, IDC_COMBO_ENTRY, m_entry_ctrl);
 	DDX_Control(pDX, IDC_BUTTON_STORE, m_store_ctrl);
 	DDX_Control(pDX, IDC_BUTTON_STOP, m_stop_ctrl);
 	DDX_Control(pDX, IDC_BUTTON_RUN, m_run_ctrl);
 	DDX_Control(pDX, IDC_BUTTON_IDLE, m_idle_ctrl);
-	DDX_Text(pDX, IDC_EDIT_P1, m_p1);
-	DDX_Text(pDX, IDC_EDIT_P2, m_p2);
-	DDX_Text(pDX, IDC_EDIT_P3, m_p3);
-	DDX_Text(pDX, IDC_EDIT_P4, m_p4);
-	DDX_Text(pDX, IDC_EDIT_P5, m_p5);
-	DDX_Text(pDX, IDC_EDIT_P6, m_p6);
-	DDX_Text(pDX, IDC_EDIT_P7, m_p7);
-	DDX_Text(pDX, IDC_EDIT_P8, m_p8);
-	DDX_Text(pDX, IDC_EDIT_V1, m_v1);
-	DDV_MinMaxDouble(pDX, m_v1, -32768., 32767.);
-	DDX_Text(pDX, IDC_EDIT_V2, m_v2);
-	DDV_MinMaxDouble(pDX, m_v2, -32768., 32767.);
-	DDX_Text(pDX, IDC_EDIT_V3, m_v3);
-	DDV_MinMaxDouble(pDX, m_v3, -32768., 32767.);
-	DDX_Text(pDX, IDC_EDIT_V4, m_v4);
-	DDV_MinMaxDouble(pDX, m_v4, -32768., 32767.);
-	DDX_Text(pDX, IDC_EDIT_V5, m_v5);
-	DDV_MinMaxDouble(pDX, m_v5, -32768., 32767.);
-	DDX_Text(pDX, IDC_EDIT_V6, m_v6);
-	DDV_MinMaxDouble(pDX, m_v6, -32768., 32767.);
-	DDX_Text(pDX, IDC_EDIT_V7, m_v7);
-	DDV_MinMaxDouble(pDX, m_v7, -32768., 32767.);
-	DDX_Text(pDX, IDC_EDIT_V8, m_v8);
-	DDV_MinMaxDouble(pDX, m_v8, -32768., 32767.);
 	//}}AFX_DATA_MAP
 }
 
@@ -250,6 +228,14 @@ BEGIN_MESSAGE_MAP(CTestControlDlg, CDialog)
 	ON_UPDATE_COMMAND_UI(ID_FILE_SAVEPOSTURES, OnUpdateFileSavepostures)
 	ON_BN_CLICKED(IDC_BUTTON_CALIBRATEHEAD, OnButtonCalibratehead)
 	ON_BN_CLICKED(IDC_BUTTON_0ENCODERS, OnButton0encoders)
+	ON_BN_CLICKED(IDC_BUTTON_0ENCODERS_ARM, OnButton0encodersArm)
+	ON_BN_CLICKED(IDC_BUTTON_GO_ARM, OnButtonGoArm)
+	ON_BN_CLICKED(IDC_BUTTON_IDLE_ARM, OnButtonIdleArm)
+	ON_BN_CLICKED(IDC_BUTTON_RUN_ARM, OnButtonRunArm)
+	ON_BN_CLICKED(IDC_BUTTON_STOP_ARM, OnButtonStopArm)
+	ON_BN_CLICKED(IDC_BUTTON_STORE_ARM, OnButtonStoreArm)
+	ON_BN_CLICKED(IDC_BUTTON_STORE_CURRENT_ARM, OnButtonStoreCurrentArm)
+	ON_CBN_SELENDOK(IDC_COMBO_ENTRY_ARM, OnSelendokComboEntryArm)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -288,28 +274,25 @@ BOOL CTestControlDlg::OnInitDialog()
 
 	// modeless dialog boxes.
 	_gaincontroldlg.Create (CGainControlDlg::IDD, this);
-	_gaincontroldlg.m_parent = this;
+//	_gaincontroldlg.m_parent = this;
 
 	_calibrationdlg.Create (CCalibrationDlg::IDD, this);
 
 	// sort of initialization.
 	m_entry_ctrl.SetCurSel(0);
-	m_p1_ctrl.SetWindowText ("0");
-	m_p2_ctrl.SetWindowText ("0");
-	m_p3_ctrl.SetWindowText ("0");
-	m_p4_ctrl.SetWindowText ("0");
-	m_p5_ctrl.SetWindowText ("0");
-	m_p6_ctrl.SetWindowText ("0");
-	m_p7_ctrl.SetWindowText ("0");
-	m_p8_ctrl.SetWindowText ("0");
-	m_v1_ctrl.SetWindowText ("0");
-	m_v2_ctrl.SetWindowText ("0");
-	m_v3_ctrl.SetWindowText ("0");
-	m_v4_ctrl.SetWindowText ("0");
-	m_v5_ctrl.SetWindowText ("0");
-	m_v6_ctrl.SetWindowText ("0");
-	m_v7_ctrl.SetWindowText ("0");
-	m_v8_ctrl.SetWindowText ("0");
+
+	int i;
+	for (i = 0; i < MAX_HEAD_JNTS; i++)
+	{
+		m_p_ctrl[i].SetWindowText ("0");
+		m_v_ctrl[i].SetWindowText ("0");
+	}
+
+	for (i = 0; i < MAX_ARM_JNTS; i++)
+	{
+		m_pa_ctrl[i].SetWindowText ("0");
+		m_va_ctrl[i].SetWindowText ("0");
+	}
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -426,40 +409,57 @@ void CTestControlDlg::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysM
 
 void CTestControlDlg::EnableGUI ()
 {
+	if (!_headinitialized && !_arminitialized)
+		return;
+
 	SetTimer (TIMER_ID, GUI_REFRESH_INTERVAL, NULL); 
 
 	_gaincontroldlg.EnableInterface();
 	_calibrationdlg.EnableInterface();
 
-	m_entry_ctrl.EnableWindow();
-	m_go_ctrl.EnableWindow();
-	m_idle_ctrl.EnableWindow();
-	m_run_ctrl.EnableWindow();
-	m_stop_ctrl.EnableWindow();
-	m_store_ctrl.EnableWindow();
-	m_storecurrent_ctrl.EnableWindow();
-	m_p1_ctrl.EnableWindow();
-	m_p2_ctrl.EnableWindow();
-	m_p3_ctrl.EnableWindow();
-	m_p4_ctrl.EnableWindow();
-	m_p5_ctrl.EnableWindow();
-	m_p6_ctrl.EnableWindow();
-	m_p7_ctrl.EnableWindow();
-	m_p8_ctrl.EnableWindow();
-	m_v1_ctrl.EnableWindow();
-	m_v2_ctrl.EnableWindow();
-	m_v3_ctrl.EnableWindow();
-	m_v4_ctrl.EnableWindow();
-	m_v5_ctrl.EnableWindow();
-	m_v6_ctrl.EnableWindow();
-	m_v7_ctrl.EnableWindow();
-	m_v8_ctrl.EnableWindow();
-	m_calibratehead_ctrl.EnableWindow();
-	m_0encoders_ctrl.EnableWindow();
+	if (_headinitialized)
+	{
+		m_entry_ctrl.EnableWindow();
+		m_go_ctrl.EnableWindow();
+		m_idle_ctrl.EnableWindow();
+		m_run_ctrl.EnableWindow();
+		m_stop_ctrl.EnableWindow();
+		m_store_ctrl.EnableWindow();
+		m_storecurrent_ctrl.EnableWindow();
+
+		for (int i = 0; i < MAX_HEAD_JNTS; i++)
+		{
+			m_p_ctrl[i].EnableWindow();
+			m_v_ctrl[i].EnableWindow();
+		}
+
+		m_calibratehead_ctrl.EnableWindow();
+		m_0encoders_ctrl.EnableWindow();
+	}
+
+	if (_arminitialized)
+	{
+		m_entry_ctrl_arm.EnableWindow();
+		m_go_ctrl_arm.EnableWindow();
+		m_idle_ctrl_arm.EnableWindow();
+		m_run_ctrl_arm.EnableWindow();
+		m_stop_ctrl_arm.EnableWindow();
+		m_store_ctrl_arm.EnableWindow();
+		m_storecurrent_ctrl_arm.EnableWindow();
+
+		for (int i = 0; i < MAX_ARM_JNTS; i++)
+		{
+			m_pa_ctrl[i].EnableWindow();
+			m_va_ctrl[i].EnableWindow();
+		}
+
+		m_0encoders_ctrl_arm.EnableWindow();
+	}
 }
 
 void CTestControlDlg::DisableGUI ()
 {
+	// head controls.
 	m_entry_ctrl.EnableWindow(FALSE);
 	m_go_ctrl.EnableWindow(FALSE);
 	m_idle_ctrl.EnableWindow(FALSE);
@@ -467,33 +467,46 @@ void CTestControlDlg::DisableGUI ()
 	m_stop_ctrl.EnableWindow(FALSE);
 	m_store_ctrl.EnableWindow(FALSE);
 	m_storecurrent_ctrl.EnableWindow(FALSE);
-	m_p1_ctrl.EnableWindow(FALSE);
-	m_p2_ctrl.EnableWindow(FALSE);
-	m_p3_ctrl.EnableWindow(FALSE);
-	m_p4_ctrl.EnableWindow(FALSE);
-	m_p5_ctrl.EnableWindow(FALSE);
-	m_p6_ctrl.EnableWindow(FALSE);
-	m_p7_ctrl.EnableWindow(FALSE);
-	m_p8_ctrl.EnableWindow(FALSE);
-	m_v1_ctrl.EnableWindow(FALSE);
-	m_v2_ctrl.EnableWindow(FALSE);
-	m_v3_ctrl.EnableWindow(FALSE);
-	m_v4_ctrl.EnableWindow(FALSE);
-	m_v5_ctrl.EnableWindow(FALSE);
-	m_v6_ctrl.EnableWindow(FALSE);
-	m_v7_ctrl.EnableWindow(FALSE);
-	m_v8_ctrl.EnableWindow(FALSE);
+
+	int i;
+	for (i = 0; i < MAX_HEAD_JNTS; i++)
+	{
+		m_p_ctrl[i].EnableWindow(FALSE);
+		m_v_ctrl[i].EnableWindow(FALSE);
+	}
+
 	m_calibratehead_ctrl.EnableWindow(FALSE);
 	m_0encoders_ctrl.EnableWindow(FALSE);
 
+	// arm controls.
+	m_entry_ctrl_arm.EnableWindow(FALSE);
+	m_go_ctrl_arm.EnableWindow(FALSE);
+	m_idle_ctrl_arm.EnableWindow(FALSE);
+	m_run_ctrl_arm.EnableWindow(FALSE);
+	m_stop_ctrl_arm.EnableWindow(FALSE);
+	m_store_ctrl_arm.EnableWindow(FALSE);
+	m_storecurrent_ctrl_arm.EnableWindow(FALSE);
+
+	for (i = 0; i < MAX_ARM_JNTS; i++)
+	{
+		m_pa_ctrl[i].EnableWindow(FALSE);
+		m_va_ctrl[i].EnableWindow(FALSE);
+	}
+
+	m_0encoders_ctrl_arm.EnableWindow(FALSE);
+
+	// others.
 	_gaincontroldlg.DisableInterface();
 	_calibrationdlg.DisableInterface();
 
 	KillTimer (TIMER_ID);
 }
 
-void CTestControlDlg::AllocArrays(int nj)
+void CTestControlDlg::AllocHeadArrays(int nj)
 {
+	if (nj <= 0)
+		return;
+
 	_headjointstore = new double[nj];
 	ACE_ASSERT (_headjointstore != NULL);
 	ACE_OS::memset (_headjointstore, 0, sizeof(double) * nj);
@@ -508,12 +521,38 @@ void CTestControlDlg::AllocArrays(int nj)
 		_headstore[i] = new double[nj];
 		_headstorev[i] = new double[nj];
 		ACE_ASSERT (_headstore[i] != NULL && _headstorev[i]);
+
 		ACE_OS::memset (_headstore[i], 0, sizeof(double) * nj);
 		ACE_OS::memset (_headstorev[i], 0, sizeof(double) * nj);
 	}
 }
 
-void CTestControlDlg::FreeArrays(void)
+void CTestControlDlg::AllocArmArrays(int nj)
+{
+	if (nj <= 0)
+		return;
+
+	_armjointstore = new double[nj];
+	ACE_ASSERT (_armjointstore != NULL);
+	ACE_OS::memset (_armjointstore, 0, sizeof(double) * nj);
+
+	_armlastreached = new double[nj];
+	ACE_ASSERT (_armlastreached != NULL);
+	ACE_OS::memset (_armlastreached, 0, sizeof(double) * nj);
+
+	int i;
+	for (i = 0; i < N_POSTURES; i++)
+	{
+		_armstore[i] = new double[nj];
+		_armstorev[i] = new double[nj];
+		ACE_ASSERT (_armstore[i] != NULL && _armstorev[i]);
+
+		ACE_OS::memset (_armstore[i], 0, sizeof(double) * nj);
+		ACE_OS::memset (_armstorev[i], 0, sizeof(double) * nj);
+	}
+}
+
+void CTestControlDlg::FreeHeadArrays(void)
 {
 	if (_headjointstore != NULL) delete[] _headjointstore;
 	_headjointstore = NULL;
@@ -531,6 +570,24 @@ void CTestControlDlg::FreeArrays(void)
 	}
 }
 
+void CTestControlDlg::FreeArmArrays(void)
+{
+	if (_armjointstore != NULL) delete[] _armjointstore;
+	_armjointstore = NULL;
+
+	if (_armlastreached != NULL) delete[] _armlastreached;
+	_armlastreached = NULL;
+
+	int i;
+	for (i = 0; i < N_POSTURES; i++)
+	{
+		if (_armstore[i] != NULL) delete[] _armstore[i];
+		_armstore[i] = NULL;
+		if (_armstorev[i] != NULL) delete[] _armstorev[i];
+		_armstorev[i] = NULL;
+	}
+}
+
 void CTestControlDlg::OnInterfaceStart() 
 {
 	char *root = GetYarpRoot();
@@ -538,8 +595,9 @@ void CTestControlDlg::OnInterfaceStart()
 
 	ACE_OS::sprintf (path, "%s/%s\0", root, ConfigFilePath); 
 
+	// initialize head controller on bus 1.
 	YARPRobotcubHeadParameters parameters;
-	parameters.load (YARPString(path), YARPString(INI_FILE));
+	parameters.load (YARPString(path), YARPString(HEAD_INI_FILE));
 	parameters._message_filter = 20;
 	parameters._p = xprintf;
 
@@ -547,17 +605,45 @@ void CTestControlDlg::OnInterfaceStart()
 	if (ret != YARP_OK)
 	{
 		_headinitialized = false;
-		DisableGUI ();
+		//DisableGUI ();
 		char message[512];
-		ACE_OS::sprintf (message, "Can't start the interface with the robot, please make sure the hardware and control cards are on.\nThe ini file was: %s%s", path, INI_FILE);
+		ACE_OS::sprintf (message, "Can't start the interface with the robot head, please make sure the hardware and control cards are on.\nThe ini file was: %s%s", path, HEAD_INI_FILE);
 		MessageBox (message, "Error!");
-		return;
+		//return;
+	}
+	else
+	{
+		_headinitialized = true;
+		ACE_ASSERT (head.nj() == MAX_HEAD_JNTS); // not other size is allowed.
 	}
 
-	_headinitialized = true;
-	_headjoints = head.nj();
+	// initialize arm controller on bus 2.
+	YARPRobotcubArmParameters aparameters;
+	aparameters.load (YARPString(path), YARPString(ARM_INI_FILE));
+	aparameters._message_filter = 20;
+	aparameters._p = xprintf;
 
-	AllocArrays (_headjoints);
+	ret = arm.initialize(aparameters);
+	if (ret != YARP_OK)
+	{
+		_arminitialized = false;
+		//DisableGUI ();
+		char message[512];
+		ACE_OS::sprintf (message, "Can't start the interface with the robot arm/hand, please make sure the hardware and control cards are on.\nThe ini file was: %s%s", path, ARM_INI_FILE);
+		MessageBox (message, "Error!");
+		//return;
+	}
+	else
+	{
+		_arminitialized = true;
+		ACE_ASSERT (arm.nj() == MAX_ARM_JNTS);
+	}
+
+	if (_headinitialized)
+		AllocHeadArrays (MAX_HEAD_JNTS);
+
+	if (_arminitialized)
+		AllocArmArrays (MAX_ARM_JNTS);
 
 	EnableGUI ();
 }
@@ -570,22 +656,29 @@ void CTestControlDlg::OnInterfaceStop()
 	{
 		head.idleMode ();
 		head.uninitialize ();	
+		FreeHeadArrays ();
+		_headinitialized = false;
+	}
+
+	if (_arminitialized)
+	{
+		arm.idleMode ();
+		arm.uninitialize ();	
+		FreeArmArrays ();
+		_arminitialized = false;
 	}
 	
-	FreeArrays ();
-
 	DisableGUI ();
-	_headinitialized = false;
 }
 
 void CTestControlDlg::OnUpdateInterfaceStart(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable (!_headinitialized);
+	pCmdUI->Enable (!_headinitialized && !_arminitialized);
 }
 
 void CTestControlDlg::OnUpdateInterfaceStop(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable (_headinitialized);
+	pCmdUI->Enable (_headinitialized || _arminitialized);
 }
 
 void CTestControlDlg::OnFileOpenconsole() 
@@ -596,7 +689,7 @@ void CTestControlDlg::OnFileOpenconsole()
 
 void CTestControlDlg::OnUpdateFileOpenconsole(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable (_headinitialized);
+	pCmdUI->Enable (_headinitialized || _arminitialized);
 }
 
 void CTestControlDlg::OnFileCloseconsole() 
@@ -606,7 +699,7 @@ void CTestControlDlg::OnFileCloseconsole()
 
 void CTestControlDlg::OnUpdateFileCloseconsole(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable (_headinitialized);
+	pCmdUI->Enable (_headinitialized || _arminitialized);
 }
 
 void CTestControlDlg::OnInterfaceShowgain() 
@@ -624,33 +717,47 @@ void CTestControlDlg::OnButtonRun()
 	head.activatePID (false);
 }
 
+void CTestControlDlg::OnButtonRunArm() 
+{
+	arm.activatePID (false);
+}
+
 void CTestControlDlg::OnButtonIdle() 
 {
 	head.idleMode ();
 }
 
+void CTestControlDlg::OnButtonIdleArm() 
+{
+	arm.idleMode ();
+}
+
 void CTestControlDlg::OnTimer(UINT nIDEvent) 
 {
-	int ret = head.getPositions (_headjointstore);
-	ACE_OS::memcpy (_headlastreached, _headjointstore, sizeof(double) * _headjoints);
-
-	ACE_OS::sprintf (_buffer, "%.2f", _headjointstore[0]);
-	m_s1_ctrl.SetWindowText (_buffer);
-	ACE_OS::sprintf (_buffer, "%.2f", _headjointstore[1]);
-	m_s2_ctrl.SetWindowText (_buffer);
-	ACE_OS::sprintf (_buffer, "%.2f", _headjointstore[2]);
-	m_s3_ctrl.SetWindowText (_buffer);
-	ACE_OS::sprintf (_buffer, "%.2f", _headjointstore[3]);
-	m_s4_ctrl.SetWindowText (_buffer);
-	ACE_OS::sprintf (_buffer, "%.2f", _headjointstore[4]);
-	m_s5_ctrl.SetWindowText (_buffer);
-	ACE_OS::sprintf (_buffer, "%.2f", _headjointstore[5]);
-	m_s6_ctrl.SetWindowText (_buffer);
-	ACE_OS::sprintf (_buffer, "%.2f", _headjointstore[6]);
-	m_s7_ctrl.SetWindowText (_buffer);
-	ACE_OS::sprintf (_buffer, "%.2f", _headjointstore[7]);
-	m_s8_ctrl.SetWindowText (_buffer);
+	if (_headinitialized)
+	{
+		int ret = head.getPositions (_headjointstore);
+		ACE_OS::memcpy (_headlastreached, _headjointstore, sizeof(double) * MAX_HEAD_JNTS);
+		
+		for (int i = 0; i < MAX_HEAD_JNTS; i++)
+		{
+			ACE_OS::sprintf (_buffer, "%.2f", _headjointstore[i]);
+			m_s_ctrl[i].SetWindowText (_buffer);
+		}
+	}
 	
+	if (_arminitialized)
+	{
+		int ret = arm.getPositions (_armjointstore);
+		ACE_OS::memcpy (_armlastreached, _armjointstore, sizeof(double) * MAX_ARM_JNTS);
+
+		for (int i = 0; i < MAX_ARM_JNTS; i++)
+		{
+			ACE_OS::sprintf (_buffer, "%.2f", _armjointstore[i]);
+			m_sa_ctrl[i].SetWindowText (_buffer);
+		}
+	}
+
 	CDialog::OnTimer(nIDEvent);
 }
 
@@ -658,27 +765,22 @@ void CTestControlDlg::OnButtonGo()
 {
 	UpdateData (TRUE);
 
-	_headjointstore[0] = m_v1;
-	_headjointstore[1] = m_v2;
-	_headjointstore[2] = m_v3;
-	_headjointstore[3] = m_v4;
-	_headjointstore[4] = m_v5;
-	_headjointstore[5] = m_v6;
-	_headjointstore[6] = m_v7;
-	_headjointstore[7] = m_v8;
-
+	ACE_OS::memcpy (_headjointstore, m_v, sizeof(double) * MAX_HEAD_JNTS);
 	head.setVelocities (_headjointstore);
 
-	_headjointstore[0] = m_p1;
-	_headjointstore[1] = m_p2;
-	_headjointstore[2] = m_p3;
-	_headjointstore[3] = m_p4;
-	_headjointstore[4] = m_p5;
-	_headjointstore[5] = m_p6;
-	_headjointstore[6] = m_p7;
-	_headjointstore[7] = m_p8;
-
+	ACE_OS::memcpy (_headjointstore, m_p, sizeof(double) * MAX_HEAD_JNTS);
 	head.setPositions (_headjointstore);
+}
+
+void CTestControlDlg::OnButtonGoArm() 
+{
+	UpdateData (TRUE);
+
+	ACE_OS::memcpy (_armjointstore, m_va, sizeof(double) * MAX_ARM_JNTS);
+	arm.setVelocities (_armjointstore);
+
+	ACE_OS::memcpy (_armjointstore, m_pa, sizeof(double) * MAX_ARM_JNTS);
+	arm.setPositions (_armjointstore);
 }
 
 void CTestControlDlg::OnButtonStore() 
@@ -694,23 +796,25 @@ void CTestControlDlg::OnButtonStore()
 		return;
 	}
 
-	_headstore[entry][0] = m_p1;
-	_headstore[entry][1] = m_p2;
-	_headstore[entry][2] = m_p3;
-	_headstore[entry][3] = m_p4;
-	_headstore[entry][4] = m_p5;
-	_headstore[entry][5] = m_p6;
-	_headstore[entry][6] = m_p7;
-	_headstore[entry][7] = m_p8;
+	ACE_OS::memcpy (_headstore[entry], m_p, sizeof(double) * MAX_HEAD_JNTS);
+	ACE_OS::memcpy (_headstorev[entry], m_v, sizeof(double) * MAX_HEAD_JNTS);
+}
 
-	_headstorev[entry][0] = m_v1;
-	_headstorev[entry][1] = m_v2;
-	_headstorev[entry][2] = m_v3;
-	_headstorev[entry][3] = m_v4;
-	_headstorev[entry][4] = m_v5;
-	_headstorev[entry][5] = m_v6;
-	_headstorev[entry][6] = m_v7;
-	_headstorev[entry][7] = m_v8;
+void CTestControlDlg::OnButtonStoreArm() 
+{
+	// saves the current displayed position into the store.
+	UpdateData (TRUE);
+
+	const int entry = m_entry_ctrl_arm.GetCurSel();	
+
+	if (entry == CB_ERR || entry < 0 || entry >= N_POSTURES)
+	{
+		MessageBox ("Invalid selection: don't know where to save data", "Error!");
+		return;
+	}
+
+	ACE_OS::memcpy (_armstore[entry], m_pa, sizeof(double) * MAX_ARM_JNTS);
+	ACE_OS::memcpy (_armstorev[entry], m_va, sizeof(double) * MAX_ARM_JNTS);
 }
 
 void CTestControlDlg::OnSelendokComboEntry() 
@@ -723,23 +827,24 @@ void CTestControlDlg::OnSelendokComboEntry()
 		return;
 	}
 
-	m_p1 = _headstore[entry][0];
-	m_p2 = _headstore[entry][1];
-	m_p3 = _headstore[entry][2];
-	m_p4 = _headstore[entry][3];
-	m_p5 = _headstore[entry][4];
-	m_p6 = _headstore[entry][5];
-	m_p7 = _headstore[entry][6];
-	m_p8 = _headstore[entry][7];
+	ACE_OS::memcpy (m_p, _headstore[entry], sizeof(double) * MAX_HEAD_JNTS);
+	ACE_OS::memcpy (m_v, _headstorev[entry], sizeof(double) * MAX_HEAD_JNTS);
 
-	m_v1 = _headstorev[entry][0];
-	m_v2 = _headstorev[entry][1];
-	m_v3 = _headstorev[entry][2];
-	m_v4 = _headstorev[entry][3];
-	m_v5 = _headstorev[entry][4];
-	m_v6 = _headstorev[entry][5];
-	m_v7 = _headstorev[entry][6];
-	m_v8 = _headstorev[entry][7];
+	UpdateData(FALSE);
+}
+
+void CTestControlDlg::OnSelendokComboEntryArm() 
+{
+	const int entry = m_entry_ctrl_arm.GetCurSel();	
+
+	if (entry == CB_ERR || entry < 0 || entry >= N_POSTURES)
+	{
+		MessageBox ("Invalid selection", "Error!");
+		return;
+	}
+
+	ACE_OS::memcpy (m_pa, _armstore[entry], sizeof(double) * MAX_ARM_JNTS);
+	ACE_OS::memcpy (m_va, _armstorev[entry], sizeof(double) * MAX_ARM_JNTS);
 
 	UpdateData(FALSE);
 }
@@ -757,23 +862,34 @@ void CTestControlDlg::OnButtonStoreCurrent()
 		return;
 	}
 
-	ACE_OS::memcpy (_headstore[entry], _headlastreached, sizeof(double) * _headjoints);
-
-	_headstorev[entry][0] = m_v1;
-	_headstorev[entry][1] = m_v2;
-	_headstorev[entry][2] = m_v3;
-	_headstorev[entry][3] = m_v4;
-	_headstorev[entry][4] = m_v5;
-	_headstorev[entry][5] = m_v6;
-	_headstorev[entry][6] = m_v7;
-	_headstorev[entry][7] = m_v8;
-
+	ACE_OS::memcpy (_headstore[entry], _headlastreached, sizeof(double) * MAX_HEAD_JNTS);
+	ACE_OS::memcpy (_headstorev[entry], m_v, sizeof(double) * MAX_HEAD_JNTS);
+	
 	OnSelendokComboEntry();	 // to update the display.
+}
+
+void CTestControlDlg::OnButtonStoreCurrentArm() 
+{
+	// saves the current displayed position into the store.
+	UpdateData (TRUE);
+
+	const int entry = m_entry_ctrl_arm.GetCurSel();	
+
+	if (entry == CB_ERR || entry < 0 || entry >= N_POSTURES)
+	{
+		MessageBox ("Invalid selection: don't know where to save data", "Error!");
+		return;
+	}
+
+	ACE_OS::memcpy (_armstore[entry], _armlastreached, sizeof(double) * MAX_ARM_JNTS);
+	ACE_OS::memcpy (_armstorev[entry], m_va, sizeof(double) * MAX_ARM_JNTS);
+
+	OnSelendokComboEntryArm();	 // to update the display.
 }
 
 void CTestControlDlg::OnFileLoadpostures() 
 {
-	if (!_headinitialized)
+	if (!_headinitialized && !_arminitialized)
 		return;
 
 	ACE_OS::sprintf (_buffer, "%s/conf/robotcub/postures_test.txt", GetYarpRoot());
@@ -784,32 +900,69 @@ void CTestControlDlg::OnFileLoadpostures()
 		return;
 	}
 
-	// scanf is Windows implementation, note the %lf for double.
-	int i, j;
-	for (i = 0; i < N_POSTURES; i++)
-	{
-		for (j = 0; j < _headjoints; j++)
-			fscanf (fp, "%lf ", &_headstore[i][j]);
-		fscanf (fp, "\n");
+	// scanf is Windows implementation, note the %lf for reading doubles.
 
-		for (j = 0; j < _headjoints; j++)
-			fscanf (fp, "%lf ", &_headstorev[i][j]);
-		fscanf (fp, "\n");
+	if (_headinitialized)
+	{
+		int i, j;
+		for (i = 0; i < N_POSTURES; i++)
+		{
+			for (j = 0; j < MAX_HEAD_JNTS; j++)
+				fscanf (fp, "%lf ", &_headstore[i][j]);
+			fscanf (fp, "\n");
+
+			for (j = 0; j < MAX_HEAD_JNTS; j++)
+				fscanf (fp, "%lf ", &_headstorev[i][j]);
+			fscanf (fp, "\n");
+		}
+	
+		OnSelendokComboEntry();	 // to update display.
+	}
+	else
+	{
+		// to skip the head entries.
+		int i, j;
+		double dummy;
+		for (i = 0; i < N_POSTURES; i++)
+		{
+			for (j = 0; j < MAX_HEAD_JNTS; j++)
+				fscanf (fp, "%lf ", &dummy);
+			fscanf (fp, "\n");
+
+			for (j = 0; j < MAX_HEAD_JNTS; j++)
+				fscanf (fp, "%lf ", &dummy);
+			fscanf (fp, "\n");
+		}
+	}
+
+	if (_arminitialized)
+	{
+		int i, j;
+		for (i = 0; i < N_POSTURES; i++)
+		{
+			for (j = 0; j < MAX_ARM_JNTS; j++)
+				fscanf (fp, "%lf ", &_armstore[i][j]);
+			fscanf (fp, "\n");
+
+			for (j = 0; j < MAX_ARM_JNTS; j++)
+				fscanf (fp, "%lf ", &_armstorev[i][j]);
+			fscanf (fp, "\n");
+		}
+
+		OnSelendokComboEntryArm();	 // to update display.
 	}
 
 	ACE_OS::fclose (fp);
-
-	OnSelendokComboEntry();	 // to update display.
 }
 
 void CTestControlDlg::OnUpdateFileLoadpostures(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable (_headinitialized);
+	pCmdUI->Enable (_headinitialized || _arminitialized);
 }
 
 void CTestControlDlg::OnFileSavepostures() 
 {
-	if (!_headinitialized)
+	if (!_headinitialized && !_arminitialized)
 		return;
 
 	ACE_OS::sprintf (_buffer, "%s/conf/robotcub/postures_test.txt", GetYarpRoot());
@@ -820,16 +973,64 @@ void CTestControlDlg::OnFileSavepostures()
 		return;
 	}
 
-	int i, j;
-	for (i = 0; i < N_POSTURES; i++)
+	if (_headinitialized)
 	{
-		for (j = 0; j < _headjoints; j++)
-			ACE_OS::fprintf (fp, "%.2f ", _headstore[i][j]);
-		ACE_OS::fprintf (fp, "\n");
+		int i, j;
+		for (i = 0; i < N_POSTURES; i++)
+		{
+			for (j = 0; j < MAX_HEAD_JNTS; j++)
+				ACE_OS::fprintf (fp, "%.2f ", _headstore[i][j]);
+			ACE_OS::fprintf (fp, "\n");
 
-		for (j = 0; j < _headjoints; j++)
-			ACE_OS::fprintf (fp, "%.2f ", _headstorev[i][j]);
-		ACE_OS::fprintf (fp, "\n");
+			for (j = 0; j < MAX_HEAD_JNTS; j++)
+				ACE_OS::fprintf (fp, "%.2f ", _headstorev[i][j]);
+			ACE_OS::fprintf (fp, "\n");
+		}
+	}
+	else
+	{
+		int i, j;
+		double dummy = 0;
+		for (i = 0; i < N_POSTURES; i++)
+		{
+			for (j = 0; j < MAX_HEAD_JNTS; j++)
+				ACE_OS::fprintf (fp, "%.2f ", dummy);
+			ACE_OS::fprintf (fp, "\n");
+
+			for (j = 0; j < MAX_HEAD_JNTS; j++)
+				ACE_OS::fprintf (fp, "%.2f ", dummy);
+			ACE_OS::fprintf (fp, "\n");
+		}
+	}
+
+	if (_arminitialized)
+	{
+		int i, j;
+		for (i = 0; i < N_POSTURES; i++)
+		{
+			for (j = 0; j < MAX_ARM_JNTS; j++)
+				ACE_OS::fprintf (fp, "%.2f ", _armstore[i][j]);
+			ACE_OS::fprintf (fp, "\n");
+
+			for (j = 0; j < MAX_ARM_JNTS; j++)
+				ACE_OS::fprintf (fp, "%.2f ", _armstorev[i][j]);
+			ACE_OS::fprintf (fp, "\n");
+		}
+	}
+	else
+	{
+		int i, j;
+		double dummy = 0;
+		for (i = 0; i < N_POSTURES; i++)
+		{
+			for (j = 0; j < MAX_ARM_JNTS; j++)
+				ACE_OS::fprintf (fp, "%.2f ", dummy);
+			ACE_OS::fprintf (fp, "\n");
+
+			for (j = 0; j < MAX_ARM_JNTS; j++)
+				ACE_OS::fprintf (fp, "%.2f ", dummy);
+			ACE_OS::fprintf (fp, "\n");
+		}
 	}
 
 	ACE_OS::fclose (fp);
@@ -837,7 +1038,7 @@ void CTestControlDlg::OnFileSavepostures()
 
 void CTestControlDlg::OnUpdateFileSavepostures(CCmdUI* pCmdUI) 
 {
-	pCmdUI->Enable (_headinitialized);
+	pCmdUI->Enable (_headinitialized || _arminitialized);
 }
 
 void CTestControlDlg::OnButtonCalibratehead() 
@@ -850,7 +1051,20 @@ void CTestControlDlg::OnButton0encoders()
 	// safely disables amplifiers first!
 	head.idleMode ();
 	head.resetEncoders ();
-	ACE_OS::memset (_headjointstore, 0, sizeof(double) * _headjoints);
+	ACE_OS::memset (_headjointstore, 0, sizeof(double) * MAX_HEAD_JNTS);
 	head.setCommands (_headjointstore);
-	//head.activatePID (); and it leaves it disabled.
+}
+
+void CTestControlDlg::OnButton0encodersArm() 
+{
+	// safely disables amplifiers first!
+	arm.idleMode ();
+	arm.resetEncoders ();
+	ACE_OS::memset (_armjointstore, 0, sizeof(double) * MAX_ARM_JNTS);
+	arm.setCommands (_armjointstore);
+}
+
+void CTestControlDlg::OnButtonStopArm() 
+{
+	// LATER: to be implemented!
 }

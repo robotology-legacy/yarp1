@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.2 2004-09-03 22:48:42 gmetta Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.3 2004-09-05 01:07:54 babybot Exp $
 ///
 ///
 
@@ -105,7 +105,7 @@ namespace _RobotcubArm
 	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
 
-	const int CANBUS_DEVICE_NUM			= 0;
+	const int CANBUS_DEVICE_NUM			= 1;
 	const int CANBUS_ARBITRATION_ID		= 0;
 	const int CANBUS_MY_ADDRESS			= 0;
 	const int CANBUS_POLLING_INTERVAL	= 2;			/// [ms]
@@ -113,7 +113,7 @@ namespace _RobotcubArm
 	const int CANBUS_MAXCARDS			= MAX_CARDS;
 
 	const char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 
-												  0x7f, 0x7f, 0x7f, 0x7f,
+												  0x0b, 0x0a, 0x09, 0x08,
 												  0x7f, 0x7f, 0x7f, 0x7f,
 												  0x7f, 0x7f, 0x7f, 0x7f };
 }; // namespace
@@ -148,12 +148,12 @@ public:
 		_zeros = NULL;
 		_signs = NULL;
 		_axis_map = NULL;
+		_inv_axis_map = NULL;
 		_encoderToAngles = NULL;
 		_stiffPID = NULL;
 		_maxDAC = NULL;
 		_limitsMax = NULL;
 		_limitsMin = NULL;
-		//_nj = 0;
 		
 		_nj = _RobotcubArm::_nj;
 		_realloc(_nj);
@@ -168,6 +168,21 @@ public:
 			_encoderToAngles[i] = _RobotcubArm::_encoderToAngles[i];
 			_stiffPID[i] = _RobotcubArm::_stiffPID[i];
 			_maxDAC[i] = _RobotcubArm::_maxDAC[i];
+		}
+
+		// invert the axis map.
+		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
+		for (i = 0; i < _nj; i++)
+		{
+			int j;
+			for (j = 0; j < _nj; j++)
+			{
+				if (_axis_map[j] == i)
+				{
+					_inv_axis_map[i] = j;
+					break;
+				}
+			}
 		}
 
 		_p = NULL;
@@ -189,6 +204,8 @@ public:
 			delete [] _signs;
 		if (_axis_map != NULL)
 			delete [] _axis_map;
+		if (_inv_axis_map != NULL)
+			delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL)
 			delete [] _encoderToAngles;
 		if (_stiffPID != NULL)
@@ -242,6 +259,22 @@ public:
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "AxisMap", _axis_map, _nj) == YARP_FAIL)
 			return YARP_FAIL;
+
+		// invert the axis map.
+		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
+		for (i = 0; i < _nj; i++)
+		{
+			int j;
+			for (j = 0; j < _nj; j++)
+			{
+				if (_axis_map[j] == i)
+				{
+					_inv_axis_map[i] = j;
+					break;
+				}
+			}
+		}
+
 		if (cfgFile.get("[GENERAL]", "Signs", _signs, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "MaxDAC", _maxDAC, _nj) == YARP_FAIL)
@@ -289,6 +322,7 @@ public:
 			memcpy (_zeros, peer._zeros, sizeof(double) * _nj);
 			memcpy (_signs, peer._signs, sizeof(double) * _nj);
 			memcpy (_axis_map, peer._axis_map, sizeof(int) * _nj);
+			memcpy (_inv_axis_map, peer._inv_axis_map, sizeof(int) * _nj);
 			memcpy (_encoderToAngles, peer._encoderToAngles, sizeof(double) * _nj);
 			memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
 			memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
@@ -305,6 +339,7 @@ public:
 			if (_zeros != NULL)	delete [] _zeros;
 			if (_signs != NULL)	delete [] _signs;
 			if (_axis_map != NULL) delete [] _axis_map;
+			if (_inv_axis_map != NULL) delete [] _inv_axis_map;
 			if (_encoderToAngles != NULL) delete [] _encoderToAngles;
 			if (_stiffPID != NULL) delete [] _stiffPID;
 			if (_maxDAC != NULL) delete [] _maxDAC;
@@ -316,6 +351,7 @@ public:
 			_zeros = NULL;
 			_signs = NULL;
 			_axis_map = NULL;
+			_inv_axis_map = NULL;
 			_encoderToAngles = NULL;
 			_stiffPID = NULL;
 			_maxDAC = NULL;
@@ -346,6 +382,8 @@ private:
 			delete [] _signs;
 		if (_axis_map != NULL)
 			delete [] _axis_map;
+		if (_inv_axis_map != NULL)
+			delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL)
 			delete [] _encoderToAngles;
 		if (_stiffPID != NULL)
@@ -362,6 +400,7 @@ private:
 		_zeros = new double [nj];
 		_signs = new double [nj];
 		_axis_map = new int [nj];
+		_inv_axis_map = new int [nj];
 		_encoderToAngles = new double [nj];
 		_limitsMax = new double [nj];
 		_limitsMin = new double [nj];
@@ -377,6 +416,7 @@ public:
 	double			*_zeros;
 	double			*_signs;
 	int				*_axis_map;
+	int				*_inv_axis_map;
 	double			*_encoderToAngles;
 	int				*_stiffPID;
 	double			*_maxDAC;
@@ -542,7 +582,7 @@ public:
 	}
 
 	/**
-	 * Disables simultaneously the controller and the amplifier (these are
+	 * Disables simultaneously the controller and the amplifier (they are
 	 * usually two separate commands on control cards).
 	 * @return YARP_OK always.
 	 */
@@ -727,18 +767,15 @@ public:
 	{
 		switch (joint)
 		{
+		default:
+			return YARP_FAIL;
+
 		case -1:
 			YARP_ROBOTCUB_ARM_ADAPTER_DEBUG(("Starting arm calibration routine"));
 			ACE_OS::printf("..done!\n");
 			return YARP_OK;
-		
-		case 0:
-		case 1:
-		case 2:
-		case 3:
-			// should use the axis map perhaps.
-			return genericCalibrate (_parameters->_axis_map[joint]);
-			break;
+
+		// LATER: to be completed.
 		}
 
 		return YARP_OK;

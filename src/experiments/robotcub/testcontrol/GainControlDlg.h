@@ -22,7 +22,7 @@ public:
 	void DisableInterface (void);
 	void UpdateAxisParams (int bus, int axis);
 	
-	CTestControlDlg *m_parent;
+//	CTestControlDlg *m_parent;
 
 // Dialog Data
 	//{{AFX_DATA(CGainControlDlg)
