@@ -1,13 +1,6 @@
-Utility classes for motor control.
-
-Wrapper classes for the MEI daemon with controlled output.
-Virtual coordinates always.
-Velocity and position control.
-
-
-
-TODO:
-1) parking
-2) it did not load the config from the def directory?
-3) test the lower and raise gain functions
-4) determine the encoder to angles conversion values
+motor control includes now interface classes to wrap hardware control in general
+- frame grabbers
+- ADC's
+- control proper
+- force sensors
+-
