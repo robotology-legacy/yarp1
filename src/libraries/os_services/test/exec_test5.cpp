@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.8 2003-05-23 14:12:31 gmetta Exp $
+/// $Id: exec_test5.cpp,v 1.9 2003-05-23 14:15:54 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -88,6 +88,7 @@
 //#define REG_LOCATE_NAME "/test/exec_test2"
 
 #define __UDP
+#define __PRINT
 
 YARPSemaphore out(1);
 
@@ -124,10 +125,12 @@ public:
 		int x = 42;
 		while (1)
 		{
-			///out.Wait();
-			///cout << "Preparing to send: " << txt << endl;
-			///cout.flush();
-			///out.Post();
+#ifdef __PRINT
+			out.Wait();
+			cout << "Preparing to send: " << txt << endl;
+			cout.flush();
+			out.Post();
+#endif
 
 			YARPMultipartMessage smsg(2);
 			smsg.Set(0,txt,sizeof(txt));
@@ -136,24 +139,28 @@ public:
 			double y = 999;
 			rmsg.Set(0,reply,sizeof(reply));
 			rmsg.Set(1,(char*)(&y),sizeof(y));
-			///cout << "***sending: " << txt << endl;
-			///cout.flush();
-
+#ifdef __PRINT
+			cout << "***sending: " << txt << endl;
+			cout.flush();
+#endif
 			int result = YARPSyncComm::Send(id.getNameID(),smsg,rmsg);
 			x++;
 
 			if (result>=0)
 			{
-				///out.Wait();
-				///cout << "(result " << result << ") Got reply : " << reply << " and number " << y << endl;
-				///cout.flush();
-				if ((x % 1) == 0)
+#ifdef __PRINT
+				out.Wait();
+				cout << "(result " << result << ") Got reply : " << reply << " and number " << y << endl;
+				cout.flush();
+				out.Post();
+#else
+				if ((x % 100) == 0)
 				{
 					cout << "sent msg : " << x << endl;
 					cout << "(result " << result << ") Got reply : " << reply << " and number " << y << endl;
 					cout.flush();
 				}
-				///out.Post();
+#endif
 			}
 			else
 			{
@@ -200,10 +207,12 @@ public:
 
 		while (1)
 		{
-			///out.Wait();
-			///cout << "Waiting for input" << endl;
-			///cout.flush();
-			///out.Post();
+#ifdef __PRINT
+			out.Wait();
+			cout << "Waiting for input" << endl;
+			cout.flush();
+			out.Post();
+#endif
 			YARPMultipartMessage imsg(2);
 			int x = 999;
 			imsg.Set(0,buf,sizeof(buf));
@@ -219,12 +228,13 @@ public:
 				first = false;
 			}
 
-			///out.Wait();
 			sprintf(reply,"<%s,%d>", buf, x);
-			///cout << "Received message: " << buf << " and number " << x << endl;
-			///cout.flush();
-			///out.Post();
-
+#ifdef __PRINT
+			out.Wait();
+			cout << "Received message: " << buf << " and number " << x << endl;
+			cout.flush();
+			out.Post();
+#endif
 			double y = 432.1;
 			YARPMultipartMessage omsg(2);
 			omsg.Set(0,reply,sizeof(reply));
@@ -239,12 +249,14 @@ public:
 			counter ++;
 			prevtime = now;
 
-			if ((x % 1) == 0)
+#ifndef __PRINT
+			if ((x % 100) == 0)
 			{
 				cout << "Received message: " << buf << " and number " << x << endl;
 				cout << "average thread time : " << cumul/counter << endl;
 				cout.flush();
 			}
+#endif
 		}
 	}
 };
