@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.11 2003-10-31 12:20:03 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.12 2003-12-10 09:19:53 beltran Exp $
 ///
 ///
 
@@ -73,50 +73,49 @@
 #include "YARPPicoloDeviceDriver.h"
 #include <YARPFrameGrabberUtils.h>
 
-
-
 typedef unsigned long UINT32;
 
 class PicoloResources
 {
-public:
-	PicoloResources (void) : _bmutex(1), _new_frame(0)
-	{
-		_nRequestedSize = 0;
-		_nWidth = 0;
-		_nHeight = 0;
-		_nImageSize = 0;
-		
-		_rawBuffer = NULL;
-		_canpost = true;
-	}
+	public:
+		PicoloResources (void) : _bmutex(1), _new_frame(0)
+		{
+			_nRequestedSize = 0;
+			_nWidth = 0;
+			_nHeight = 0;
+			_nImageSize = 0;
 
-	~PicoloResources () { _uninitialize (); }
+			_rawBuffer = NULL;
+			_canpost = true;
+		}
 
-	enum { _num_buffers = 3 };
+		~PicoloResources () { _uninitialize (); }
 
-	YARPSemaphore _bmutex;
-	YARPSemaphore _new_frame;
+		enum { _num_buffers = 3 };
 
-	// Img size are determined partially by the HW.
-	UINT32 _nRequestedSize;
-	UINT32 _nWidth;
-	UINT32 _nHeight;
-	UINT32 _nImageSize;
+		YARPSemaphore _bmutex;
+		YARPSemaphore _new_frame;
 
-	bool _canpost;
+		// Img size are determined partially by the HW.
+		UINT32 _nRequestedSize;
+		UINT32 _nWidth;
+		UINT32 _nHeight;
+		UINT32 _nImageSize;
 
-	unsigned char *_rawBuffer;
+		bool _canpost;
+		unsigned char *_rawBuffer;
 
-	inline int _intialize (const PicoloOpenParameters& params);
-	inline int _uninitialize (void);
+		inline int _intialize (const PicoloOpenParameters& params);
+		inline int _uninitialize (void);
 
-protected:
-	inline int _init (const PicoloOpenParameters& params);
-	inline void _prepareBuffers (void);
+	protected:
+		inline int _init (const PicoloOpenParameters& params);
+		inline void _prepareBuffers (void);
 };
 
 ///
+//
+//
 double GetTimeAsSeconds(void)
 {
 	ACE_Time_Value timev = ACE_OS::gettimeofday ();
@@ -128,13 +127,12 @@ void DelayInSeconds(double delay_in_seconds)
 	ACE_Time_Value tv;
 	tv.sec (int(delay_in_seconds));
 	tv.usec ((delay_in_seconds-int(delay_in_seconds)) * 1e6);
-
 	ACE_OS::sleep(tv);
 }
 
 ///
-///
 /// full initialize and startup of the grabber.
+//
 inline int PicoloResources::_intialize (const PicoloOpenParameters& params)
 {
 	_init (params);
@@ -146,7 +144,6 @@ inline int PicoloResources::_intialize (const PicoloOpenParameters& params)
 inline int PicoloResources::_uninitialize (void)
 {
 	_bmutex.Wait ();
-
 	close_bttvx();
 
 	if (_rawBuffer != NULL) delete[] _rawBuffer;
@@ -156,14 +153,12 @@ inline int PicoloResources::_uninitialize (void)
 	_nWidth = 0;
 	_nHeight = 0;
 	_nImageSize = 0;
-	///_picoloHandle = 0;
 	_canpost = true;
-	
+
 	_bmutex.Post ();
 
 	return YARP_OK;
 }
-
 
 ///
 ///
@@ -176,17 +171,14 @@ inline int PicoloResources::_init (const PicoloOpenParameters& params)
 	_nWidth = params._size_x;
 	_nHeight = params._size_y;
 	_nImageSize = params._size_x * params._size_y * 3;
-	
+
 	init_bttvx(params._video_type,params._unit_number,_nWidth,_nHeight);
-	
+
 	_bmutex.Wait ();
 	_rawBuffer = new unsigned char [_nImageSize];
 	ACE_ASSERT (_rawBuffer != NULL);
 	_bmutex.Post ();
 
-	/// all ok, store the handle.
-	//_picoloHandle = ret;
-	////_picoloHandle = params._unit_number;
 	return ret;
 }
 
@@ -202,9 +194,14 @@ YARPPicoloDeviceDriver::YARPPicoloDeviceDriver(void) : YARPDeviceDriver<YARPNull
 	/// for the IOCtl call.
 	m_cmds[FCMDAcquireBuffer] = &YARPPicoloDeviceDriver::acquireBuffer;
 	m_cmds[FCMDReleaseBuffer] = &YARPPicoloDeviceDriver::releaseBuffer;
-	m_cmds[FCMDWaitNewFrame] = &YARPPicoloDeviceDriver::waitOnNewFrame;
-	m_cmds[FCMDGetSizeX] = &YARPPicoloDeviceDriver::getWidth;
-	m_cmds[FCMDGetSizeY] = &YARPPicoloDeviceDriver::getHeight;
+	m_cmds[FCMDWaitNewFrame]  = &YARPPicoloDeviceDriver::waitOnNewFrame;
+	m_cmds[FCMDGetSizeX]      = &YARPPicoloDeviceDriver::getWidth;
+	m_cmds[FCMDGetSizeY]      = &YARPPicoloDeviceDriver::getHeight;
+	m_cmds[FCMDSetBright]     = &YARPPicoloDeviceDriver::setBright;
+	m_cmds[FCMDSetHue]        = &YARPPicoloDeviceDriver::setHue;
+	m_cmds[FCMDSetContrast]   = &YARPPicoloDeviceDriver::setContrast;
+	m_cmds[FCMDSetSatU]       = &YARPPicoloDeviceDriver::setSatU;
+	m_cmds[FCMDSetSatV]       = &YARPPicoloDeviceDriver::setSatV;
 }
 
 YARPPicoloDeviceDriver::~YARPPicoloDeviceDriver()
@@ -220,8 +217,6 @@ int YARPPicoloDeviceDriver::open (void *res)
 {
 	PicoloResources& d = RES(system_resources);
 	int ret = d._intialize (*(PicoloOpenParameters *)res);
-
-	///Begin ();
 
 	return ret;
 }
@@ -274,6 +269,51 @@ int YARPPicoloDeviceDriver::getWidth (void *cmd)
 int YARPPicoloDeviceDriver::getHeight (void *cmd)
 {
 	*(int *)cmd = RES(system_resources)._nHeight;
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setBright(void *cmd)
+{
+	//	void bt848_bright(uint bright);
+	unsigned int * m_bright = (unsigned int *) cmd;
+	bt848_bright( *m_bright);
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setHue(void *cmd)
+{
+	//	void bt848_hue(uint hue);
+	unsigned int * m_hue = (unsigned int *) cmd;
+	bt848_hue( *m_hue);
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setContrast(void * cmd)
+{
+	//void bt848_contrast(uint cont);	
+	unsigned int * m_contrast = (unsigned int *) cmd;
+	bt848_contrast( *m_contrast);	
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setSatU(void * cmd)
+{
+	//void bt848_sat_u( ulong data);
+	unsigned long * m_satu = (unsigned long *) cmd;
+	bt848_sat_u( *m_satu);
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setSatV(void * cmd)
+{
+	//void bt848_sat_v( ulong data);
+	unsigned long * m_satv = (unsigned long *) cmd;
+	bt848_sat_v( *m_satv);
 	return YARP_OK;
 }
 
