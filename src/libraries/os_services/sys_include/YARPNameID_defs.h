@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameID_defs.h,v 1.2 2003-04-18 09:25:49 gmetta Exp $
+/// $Id: YARPNameID_defs.h,v 1.3 2003-04-23 17:39:15 natta Exp $
 ///
 ///
 
@@ -84,5 +84,25 @@ enum
 	YARP_QNET = 3,
 	YARP_QNX4 = 4,
 };
+
+const char __udpString[] = "UDP";
+const char __tcpString[] = "TCP";
+const char __mcastString[] = "MCAST";
+const char __qnxString[] = "QNX";
+const char __noServiceString[] = "NO_SVC";
+
+inline const char *servicetypeConverter(int type)
+{
+	if (type == YARP_UDP)
+		return __udpString;
+	if (type == YARP_TCP)
+		return __tcpString;
+	if (type == YARP_MCAST)
+		return __mcastString;
+	if ((type == YARP_QNET) || (type == YARP_QNX4))
+		return __qnxString;
+	
+	return __noServiceString;
+}
 
 #endif
