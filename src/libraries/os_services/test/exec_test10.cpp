@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test10.cpp,v 1.2 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: exec_test10.cpp,v 1.3 2003-06-20 21:03:03 babybot Exp $
 ///
 ///
 
@@ -103,7 +103,7 @@ public:
 		{
 			ACE_OS::printf("Waiting for input\n");
 			in.Read();
-			ACE_OS::printf("Read %d\n", in.Content());
+			ACE_OS::printf("Read %d\n", (int)in.Content());
 		}
 	}
 };
@@ -112,6 +112,9 @@ public:
 
 int main(int argc, char *argv[])
 {
+	ACE_UNUSED_ARG(argc);
+	ACE_UNUSED_ARG(argv);
+
 	Thread1 *t1[MAX_T];
 
 	__debug_level = 100;
