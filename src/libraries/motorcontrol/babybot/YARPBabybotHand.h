@@ -4,7 +4,7 @@
 //
 // adapted for yarp June 2003 -- by nat
 
-// $Id: YARPBabybotHand.h,v 1.2 2003-07-01 21:29:44 babybot Exp $
+// $Id: YARPBabybotHand.h,v 1.3 2003-07-09 17:55:38 babybot Exp $
 
 #ifndef __YARPBABYBOTHANDH__
 #define __YARPBABYBOTHANDH__
@@ -254,6 +254,8 @@ public:
 	int initialize(const std::string &init_file)
 	{
 		int rc = 0;
+		if (_initialized)
+			return YARP_FAIL;;
 
 		_parameters.load("",init_file);
 		_naj = _parameters._naj;
@@ -310,6 +312,9 @@ public:
 	int uninitialize()
 	{	
 		int rc = 0;
+		if (!_initialized)
+			return YARP_FAIL;
+
 		lock();
 		
 		_control_board.uninitialize();
@@ -435,6 +440,7 @@ public:
 		// reset torque control
 		_torqueControl.reset();
 		_control_board.IOCtl(CMDSetTorqueLimits, _parameters._torque_limits);
+		_control_board.stop();
 		// apply commands
 		rc = _control_board.IOCtl(CMDSetSpeeds, tmp_speeds);
 		rc = _control_board.IOCtl(CMDSetAccelerations, tmp_accs);
@@ -593,6 +599,14 @@ public:
 		memcpy(moving, _is_moving, _naj*sizeof(_is_moving[0]));
 		unlock();
 		return 0;
+	}
+
+	bool isMoving()
+	{
+		lock();
+		bool ret = _moving;
+		unlock();
+		return ret;
 	}
 
 	int getMotorTorques(double *trqs)

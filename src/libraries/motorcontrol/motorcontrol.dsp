@@ -185,6 +185,10 @@ SOURCE=.\babybot\YARPBabybotHead.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\babybot\YARPGalilOnBabybotHandAdapter.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\babybot\YARPMEIOnBabybotArmAdapter.h
 # End Source File
 # Begin Source File
