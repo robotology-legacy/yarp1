@@ -1,5 +1,7 @@
 #include "findHand.h"
 
+#include <YARPColorConverter.h>
+
 using namespace _logpolarParams;
 
 const double __threshold = 10/255.0;
@@ -24,11 +26,16 @@ _segmentedImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 	_segmentedImagePort.Register((portName+"/segmentation/o:img").c_str());
 
 	_actualColored.Resize (_stheta, _srho);
-	_segmented.Resize(_stheta, _srho);
+	_detected.Resize(_stheta, _srho);
+	_detectedColored.Resize(_stheta, _srho);
 	_actualGrayscale.Resize(_stheta, _srho);
 	_motion.Resize(_stheta, _srho);
 	_background.Resize(_stheta, _srho);
 	_background.Zero();
+
+	_blobDetector.resize(_xsize,_ysize);
+	_detectedCart.Resize(_xsize, _ysize);
+	_detectedCartGrayscale.Resize(_xsize, _ysize);
 
 	_handSpeed.Resize(6);
 	_armSpeed.Resize(6);
@@ -126,6 +133,28 @@ void FindHand::Body()
 		printf("frame #%5d\r", _frame);
 	}
 }
+void FindHand::_segmentation()
+{
+	_mapper.ReconstructColor(_detected, _detectedColored);
+	_mapper.Logpolar2Cartesian(_detectedColored, _detectedCart);
+	// YARPColorConverter::RGB2Grayscale(_detectedCart, _detectedCartGrayscale);
+	iplColorToGray(_detectedCart, _detectedCartGrayscale);
+	_blobDetector.filter(_detectedCartGrayscale);
+	YARPImageOf<YarpPixelMono> &tmp = _blobDetector.getSegmented();
+	// YARPImageFile::Write("y:\\debug.ppm", tmp);
+	
+	int rho;
+	int theta;
+	for(rho = 0; rho<_srho; rho++)
+		for(theta = 0; theta<_stheta; theta++)
+		{
+			int x,y;
+			_mapper.Logpolar2Cartesian(theta, rho, x, y);
+			if ( (x >=0 ) && (y >= 0) )
+				if (tmp(x,y) < 255)
+					_actualLp(theta, rho) = 0;
+		}
+}
 
 void FindHand::_dumpDetection()
 {
@@ -148,7 +177,7 @@ void FindHand::_dumpDetection()
 		cout << nMotor << "\t" << motorMean << "\t" << motorStd << endl;
 	}
 
-	_segmented.Zero();
+	_detected.Zero();
 
 	// for each pixel
 	int j = 0;
@@ -177,7 +206,7 @@ void FindHand::_dumpDetection()
 				if ( (fabs(motionMean-motorMean) < 0.3) && (abs(nMotor-n) < 2) && (nMotor > 0) )
 				{
 					// segmented image, B/N
-					_segmented(x,y) = 255;//_actualLp(x,y);
+					_detected(x,y) = 255;//_actualLp(x,y);
 				}
 			}
 			j++;
@@ -189,7 +218,7 @@ void FindHand::_dumpDetection()
 		_zeroCrossingHand[m].reset();
 
 	}
-	// display
-	_segmentedImagePort.Content().Refer(_segmented);
-	_segmentedImagePort.Write();
+
+	_segmentation();
+	_sendSegmentation();
 }

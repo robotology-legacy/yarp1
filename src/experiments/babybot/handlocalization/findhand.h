@@ -5,6 +5,7 @@
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
 #include <YARPImages.h>
+#include "..\HandColorTracker\YARPBlobDetector.h"
 #include <YARPSemaphore.h>
 #include "zerocrossing.h"
 
@@ -25,12 +26,17 @@ public:
 
 	YARPImageOf<YarpPixelMono> _actualLp;
 	YARPImageOf<YarpPixelBGR> _actualColored;
-	YARPImageOf<YarpPixelMono> _segmented;
+	YARPImageOf<YarpPixelMono> _detected;
 	YARPImageOf<YarpPixelMono> _actualGrayscale;
 	YARPImageOf<YarpPixelMono> _motion;
+	YARPImageOf<YarpPixelBGR> _detectedCart;
+	YARPImageOf<YarpPixelBGR> _detectedColored;
+	YARPImageOf<YarpPixelMono> _detectedCartGrayscale;
 	YARPImageOf<YarpPixelMono> *_output;
 
 	YARPImageOf<YarpPixelMono> _background;
+
+	YARPBlobDetector _blobDetector;
 
 	YARPLogpolar _mapper;
 
@@ -75,6 +81,14 @@ private:
 	YARPSemaphore _mutex;
 
 	void _dumpDetection();
+	void _segmentation();
+	void _sendSegmentation()
+	{
+		// display
+		_segmentedImagePort.Content().Refer(_actualLp);
+		_segmentedImagePort.Write();
+	}
+
 	void _readInputPorts()
 	{
 		// input images
@@ -112,24 +126,51 @@ private:
 		int j = 0;
 		double dummy;
 
-		for(y = 0/*_logpolarParams::_sfovea*/; y<_logpolarParams::_srho; y++)
-			for(x = 0; x<_logpolarParams::_stheta; x++)
-			{
-				_zeroCrossing[j].find(_motion(x,y)/255.0, &dummy);
-				if ( (x == _x) && (y == _y) )
-				{
-					_pixelOut(2) = dummy;
-				}
-				j++;
-			}
-			
 		_zeroCrossingHand[0].find(fabs(_handSpeed(1)), &dummy);
 		_zeroCrossingHand[1].find(fabs(_handSpeed(2)), &dummy);
 		_zeroCrossingHand[2].find(fabs(_handSpeed(3)), &dummy);
 		_zeroCrossingHand[3].find(fabs(_handSpeed(4)), &dummy);
 		_zeroCrossingHand[4].find(fabs(_handSpeed(5)), _pixelOut.data()+3);//_pixelOut.data()+1);
 		_zeroCrossingHand[5].find(fabs(_handSpeed(6)), &dummy);
+
+		for(y = 0/*_logpolarParams::_sfovea*/; y<_logpolarParams::_srho; y++)
+			for(x = 0; x<_logpolarParams::_stheta; x++)
+			{
+				_zeroCrossing[j].find(_motion(x,y)/255.0, &dummy);
+
+				double motionMean;
+				double motionStd;
+				int n;
+				n = _zeroCrossing[j].result(&motionMean, &motionStd);
+
+				if ( (x == _x) && (y == _y) )
+				{
+					_pixelOut(2) = dummy;
+				}
+
+				/*
+				//////////// detection
+				int m;
+				for(m = 0; m < 6; m++)
+				{
+					double motorMean;
+					double motorStd;
+					int nMotor;
+					nMotor = _zeroCrossingHand[m].result(&motorMean, &motorStd);
+					if ( (fabs(motionMean-motorMean) < 0.3) && (abs(nMotor-n) < 2) && (nMotor > 0) )
+					{
+						// segmented image, B/N
+						_detected(x,y) = 255;//_actualLp(x,y);
+					}
+					else
+						_detected(x,y) = 0;
+				}*/
+				j++;
+			}
+		
+		// display
+	//	_segmentedImagePort.Content().Refer(_detected);
+	//	_segmentedImagePort.Write();
 	}
 };
-
 #endif

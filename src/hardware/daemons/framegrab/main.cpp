@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.34 2003-08-05 17:03:43 babybot Exp $
+/// $Id: main.cpp,v 1.35 2003-08-06 18:24:55 babybot Exp $
 ///
 ///
 
@@ -366,7 +366,7 @@ int _runAsLogpolar (void)
 	using namespace _logpolarParams;
 
 	Grabber grabber;
-	/*
+
 	YARPImageOf<YarpPixelBGR> img;
 	YARPImageOf<YarpPixelMono> lp;
 	
@@ -428,9 +428,8 @@ int _runAsLogpolar (void)
 		}
 	}
 
-	grabber.uninitialize ();*/
+	grabber.uninitialize ();
 	
-
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
 	return YARP_OK;
 }
