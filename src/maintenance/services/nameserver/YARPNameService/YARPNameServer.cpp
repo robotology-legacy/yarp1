@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.20 2003-08-20 08:23:10 natta Exp $
+/// $Id: YARPNameServer.cpp,v 1.21 2003-08-20 08:26:25 natta Exp $
 ///
 ///
 
@@ -190,13 +190,7 @@ void YARPNameServer::handle_exdump_request()
 		///int length = i->ports.size();
 		PORT_IT j((*i).ports);
 		// first port
-<<<<<<< YARPNameServer.cpp
-		itoa((*j).port, dummy, 10);
-=======
-		j = i->ports.begin();
-		ACE_OS::sprintf(dummy, "%d\0", j->port);
-		///itoa(j->port, dummy, 10);
->>>>>>> 1.19
+		ACE_OS::sprintf(dummy, "%d\0", (*j).port);
 		text.append (dummy);
 		text.append (",");
 
@@ -215,20 +209,10 @@ void YARPNameServer::handle_exdump_request()
 		text.append("\t");
 		text.append((*j).getNode());
 		text.append("\t");
-<<<<<<< YARPNameServer.cpp
-		itoa((*j).getPid(), dummy, 10);
-=======
-		ACE_OS::sprintf(dummy, "%d\0", j->getPid()); 
-		///itoa(j->getPid(), dummy, 10);
->>>>>>> 1.19
+		ACE_OS::sprintf(dummy, "%d\0", (*j).getPid()); 
 		text.append(dummy);
 		text.append("\t");
-<<<<<<< YARPNameServer.cpp
-		itoa((*j).getChan(),dummy, 10);
-=======
-		ACE_OS::sprintf(dummy, "%d\0", j->getChan());
-		///itoa(j->getChan(),dummy, 10);
->>>>>>> 1.19
+		ACE_OS::sprintf(dummy, "%d\0", (*j).getChan());
 		text.append(dummy);
 		text.append (" (");
 		text.append (servicetypeConverter(YARP_QNET));

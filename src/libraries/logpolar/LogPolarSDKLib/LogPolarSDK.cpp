@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.11 2003-08-06 16:48:47 babybot Exp $
+/// $Id: LogPolarSDK.cpp,v 1.12 2003-08-20 08:26:49 natta Exp $
 ///
 ///
 
@@ -581,9 +581,9 @@ void Remap(unsigned char * Out_Image,
 			}
 			else
 			{
-				*RemImgPtr++ = 192;
-				*RemImgPtr++ = 192;
-				*RemImgPtr++ = 192;
+				*RemImgPtr++ = 0;
+				*RemImgPtr++ = 0;
+				*RemImgPtr++ = 0;
 				LPImgPtr++;
 			}
 		}

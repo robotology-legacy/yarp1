@@ -22,6 +22,11 @@ if "%1"=="release" goto release
 :clean 
 echo Cleaning all...
 
+cd .\mapper\
+nmake /f mapper.mak CFG="mapper - Win32 Debug" clean
+nmake /f mapper.mak CFG="mapper - Win32 Release" clean
+cd ..\..\
+
 cd .\porter\porter\
 nmake /f porter.mak CFG="porter - Win32 Debug" clean
 nmake /f porter.mak CFG="porter - Win32 Release" clean
@@ -63,6 +68,10 @@ goto end
 :debug
 echo compiling all with DEBUG enabled.
 
+cd .\mapper\
+nmake /f mapper.mak CFG="mapper - Win32 Debug"
+cd ..\..\
+
 cd .\porter\porter\
 nmake /f porter.mak CFG="porter - Win32 Debug"
 cd ..\conditional_porter\
@@ -94,6 +103,10 @@ goto end
 :release
 
 echo compiling all with RELEASE enabled.
+
+cd .\mapper\
+nmake /f mapper.mak CFG="mapper - Win32 Release"
+cd ..\..\
 
 cd .\porter\porter\
 nmake /f porter.mak CFG="porter - Win32 Release"
