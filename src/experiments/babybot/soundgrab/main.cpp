@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.1 2004-09-10 22:05:48 gmetta Exp $
+/// $Id: main.cpp,v 1.2 2004-09-13 09:04:31 beltran Exp $
 ///
 
 #include <yarp/YARPConfig.h>
@@ -48,10 +48,13 @@
 #include <yarp/YARPConfigFile.h>
 #include <yarp/YARPParseParameters.h>
 
+#ifdef __WIN__
 #include <windows.h>
+#include <mmsystem.h>
+#endif
+
 #include <stdio.h>
 #include <conio.h>
-#include <mmsystem.h>
 
 #include <yarp/YARPRobotHardware.h>
 #include <iostream>
@@ -314,7 +317,7 @@ mainthread::_runAsClient (void)
 {
 	YARPSoundBuffer buffer;
 	YARPInputPortOf<YARPSoundBuffer> inport(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-
+#ifdef __WIN__
 	HMMIO        hmmio;
 	MMCKINFO     ckRIFF;
 	MMCKINFO     ck;
@@ -383,6 +386,9 @@ mainthread::_runAsClient (void)
 	mmioClose(hmmio, 0);
 
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
+#else
+	ACE_OS::fprintf(stdout, "Sorry: soundgrabber can only work as a client int windows");
+#endif
 	return YARP_OK;
 }
 
@@ -399,6 +405,7 @@ mainthread::_runAsClient (void)
 int 
 mainthread::_runAsSimulation (void)
 {
+#ifdef __WIN__
 	HMMIO        hmmio;
 	MMCKINFO     ckRIFF;
 	MMCKINFO     ck;
@@ -541,6 +548,9 @@ mainthread::_runAsSimulation (void)
 	}
 
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
+#else
+	ACE_OS::fprintf(stdout, "Sorry: soundgrabber can only work as a simulation in windows\n");
+#endif
 	return YARP_OK;
 }
 
@@ -608,7 +618,7 @@ mainthread::_runAsNormally (void)
 		unsigned char *tmp;
 		soundgrabber.acquireBuffer(&tmp);
 
-		memcpy (buffer.GetRawBuffer(), tmp, sizeof(unsigned char) * _BufferLength);
+		ACE_OS::memcpy (buffer.GetRawBuffer(), tmp, sizeof(unsigned char) * _BufferLength);
 		outport.Content().Refer (buffer);
 		outport.Write();
 
