@@ -163,6 +163,10 @@ SOURCE=.\YARPRobotMath.inl
 
 SOURCE=.\YARPTwoDKalmanFilter.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\YARPVectorPortContent.h
+# End Source File
 # End Group
 # End Target
 # End Project
