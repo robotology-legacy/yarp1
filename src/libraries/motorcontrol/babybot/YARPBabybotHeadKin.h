@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.2 2003-11-07 17:31:10 babybot Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.3 2003-11-08 21:54:59 gmetta Exp $
 ///
 ///
 
@@ -85,7 +85,7 @@
 ///
 ///
 ///
-/// things to move into configuration file
+/// things to be moved into the head configuration file
 const int _dh_nrf = 5;
 
 const double DH_left[_dh_nrf][5] = {
@@ -208,7 +208,6 @@ inline void YARPBabybotHeadKin::_computeFixation (const YHmgTrsf &T1, const YHmg
 	_fixationPoint(1) = T1(1,4) + T1(1,1) * u;
 	_fixationPoint(2) = T1(2,4) + T1(2,1) * u;
 	_fixationPoint(3) = T1(3,4) + T1(3,1) * u;
-
 }
 
 #endif
