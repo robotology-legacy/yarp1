@@ -35,7 +35,7 @@ include $(ACE_ROOT)/include/makeinclude/rules.local.GNU
 #----------------------------------------------------------------------------
 
 install:
-	cp $(BIN) $(YARP_ROOT)/bin/$(OS)
+	$(CP) $(BIN) $(YARP_ROOT)/bin/$(OS)
 
 #----------------------------------------------------------------------------
 #       Dependencies

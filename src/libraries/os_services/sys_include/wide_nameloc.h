@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.8 2003-06-30 09:30:06 babybot Exp $
+/// $Id: wide_nameloc.h,v 1.9 2003-06-30 13:37:43 babybot Exp $
 ///
 ///
 
@@ -199,7 +199,6 @@ public:
 	void setName(const std::string &str)
 	{
 		int len = strlen (str.c_str());
-		ACE_DEBUG ((LM_DEBUG, "setName: %s len %d\n", str.c_str(), len));
 		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
 		strcpy(_name, str.c_str());
 		_name[len] = 0;
@@ -265,7 +264,6 @@ public:
 	void setName(const std::string &str)
 	{
 		int len =  strlen(str.c_str());
-		ACE_DEBUG ((LM_DEBUG, "setName: %s len %d\n", str.c_str(), len));
 		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
 		strcpy(_name, str.c_str());
 		_name[len] = 0;

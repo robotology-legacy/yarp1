@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.16 2003-06-30 09:30:05 babybot Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.17 2003-06-30 13:37:43 babybot Exp $
 ///
 ///
 
@@ -1840,17 +1840,8 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	ACE_INET_Addr& nm = ((YARPUniqueNameID &)name).getAddressRef();
 	char *sname = (char *)((YARPUniqueNameID &)name).getP2Ptr();
 
-	ACE_DEBUG ((LM_DEBUG, "comparing with %s:%d --- %s\n", nm.get_host_addr(), nm.get_port_number(), sname));
-
-	ACE_OS::printf ("------- address of _client_names 0x%0x\n", (int)d._client_names);	
-
 	for (i = 0; i < d._max_num_clients; i++)
 	{
-		///ACE_OS::printf ("----- >>>>> addr of str %d 0x%0x\n", i, &(d._client_names[i]));
-		///ACE_OS::fflush (stdout);
-		ACE_OS::printf ("----- >>>>> len of %d = %d\n", i, d._client_names[i].size());
-		ACE_OS::fflush (stdout);
-		
 		if (d._clients[i].get_host_addr() == nm.get_host_addr() &&
 			d._client_names[i].compare(sname) == 0)
 		{
@@ -1861,7 +1852,6 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 
 	if (j == -1)
 	{
-		///ACE_OS::shutdown (d._udp_socket.get_handle(), ACE_SHUTDOWN_BOTH);
 		d._udp_socket.close ();
 		ACE_DEBUG ((LM_DEBUG, "the specific name is not connected %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
 		return YARP_FAIL;
@@ -1881,16 +1871,13 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 
 		d._clients[j].set ((u_short)0, INADDR_ANY);
 		d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
-		///d._client_names[j].resize (YARP_STRING_LEN, 0);
 	
-		///ACE_OS::shutdown (d._udp_socket.get_handle(), ACE_SHUTDOWN_BOTH);
 		d._udp_socket.close ();
 		return YARP_FAIL;
 	}
 
 	d._clients[j].set ((u_short)0, INADDR_ANY);
 	d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
-	///d._client_names[j].resize (YARP_STRING_LEN, 0);
 
 	d._udp_socket.close ();
 
@@ -1973,7 +1960,6 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 				/// erases the client entry anyway.
 				d._clients[i].set ((u_short)0, INADDR_ANY);
 				d._client_names[i].erase(d._client_names[i].begin(), d._client_names[i].end());
-				///d._client_names[i].resize (YARP_STRING_LEN, 0);
 			}
 
 			/// 250 ms delay.
@@ -2037,10 +2023,8 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	d._clients[firstempty].set_port_number (port_number);
 
 	/// stores also the full symbolic name as index.
-	ACE_DEBUG ((LM_DEBUG, "----- name of connection is %s ---- inserting position %d, len %d\n", sname, firstempty, strlen(sname)));
 	std::string& s = d._client_names[firstempty];
 	s = sname;
-	ACE_OS::printf ("----- string has len of %d\n", s.size());
 
 	d._udp_socket.close ();
 

@@ -48,8 +48,7 @@ endif
 OS=$(SYSDIR)
 
 ifeq ($(OS),qnx)
-  CP=cp 
-#-t old stuff
+  CP=cp -f
 else
   CP=cp
 endif

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.5 2003-06-30 09:30:05 babybot Exp $
+/// $Id: YARPNameClient.cpp,v 1.6 2003-06-30 13:37:43 babybot Exp $
 ///
 ///
 
@@ -474,7 +474,6 @@ int YARPNameClient::_query(const std::string &s, ACE_INET_Addr &addr, int *type)
 		return YARP_FAIL;
 
 	tmpRqst.setName(s);
-	ACE_OS::printf ("----- DAMN include files code! ----- %s\n", tmpRqst.getName());
 
 	tmpCmd.cmd = YARPNSQuery;
 	tmpCmd.type = YARP_TCP;	// TCP, UDP, MCAST queries are handled in the same way

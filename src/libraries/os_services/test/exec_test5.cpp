@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.14 2003-05-28 17:42:01 gmetta Exp $
+/// $Id: exec_test5.cpp,v 1.15 2003-06-30 13:37:43 babybot Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -117,7 +117,17 @@ public:
 			YARPEndpointManager::CreateOutputEndpoint (id);
 
 			idc = YARPNameService::LocateName(REG_LOCATE_NAME, YARP_UDP);
+			
+			/// misusing P2 array to pass the actual symbolic name to the soc
+                                        
+			const int siz = ((strlen(REG_LOCATE_NAME)+1)/sizeof(int))+1;
+			idc.allocP2(siz);
+			char *dname = (char *)idc.getP2Ptr();
+			memset (dname, 0, siz*sizeof(int));
+			memcpy (dname, REG_LOCATE_NAME, strlen(REG_LOCATE_NAME));
+
 			YARPEndpointManager::ConnectEndpoints (idc);
+			idc.freeP2();
 
 			if (!id.isValid() || !idc.isValid())
 			{
