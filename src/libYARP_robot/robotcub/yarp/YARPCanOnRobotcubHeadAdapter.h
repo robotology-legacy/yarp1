@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.13 2004-09-05 14:47:56 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.14 2004-09-05 22:27:55 babybot Exp $
 ///
 ///
 
@@ -319,18 +319,18 @@ public:
 		{
 			_realloc (_nj);
 
-			memcpy (_highPIDs, peer._highPIDs, sizeof(LowLevelPID) * _nj);
-			memcpy (_lowPIDs, peer._lowPIDs, sizeof(LowLevelPID) * _nj);
-			memcpy (_zeros, peer._zeros, sizeof(double) * _nj);
-			memcpy (_signs, peer._signs, sizeof(double) * _nj);
-			memcpy (_axis_map, peer._axis_map, sizeof(int) * _nj);
-			memcpy (_inv_axis_map, peer._inv_axis_map, sizeof(int) * _nj);
-			memcpy (_encoderToAngles, peer._encoderToAngles, sizeof(double) * _nj);
-			memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
-			memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
-			memcpy (_limitsMax, peer._limitsMax, sizeof(double) * _nj);
-			memcpy (_limitsMin, peer._limitsMin, sizeof(double) * _nj);
-			memcpy (_destinations, peer._destinations, sizeof(char) * _RobotcubHead::CANBUS_MAXCARDS);
+			ACE_OS::memcpy (_highPIDs, peer._highPIDs, sizeof(LowLevelPID) * _nj);
+			ACE_OS::memcpy (_lowPIDs, peer._lowPIDs, sizeof(LowLevelPID) * _nj);
+			ACE_OS::memcpy (_zeros, peer._zeros, sizeof(double) * _nj);
+			ACE_OS::memcpy (_signs, peer._signs, sizeof(double) * _nj);
+			ACE_OS::memcpy (_axis_map, peer._axis_map, sizeof(int) * _nj);
+			ACE_OS::memcpy (_inv_axis_map, peer._inv_axis_map, sizeof(int) * _nj);
+			ACE_OS::memcpy (_encoderToAngles, peer._encoderToAngles, sizeof(double) * _nj);
+			ACE_OS::memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
+			ACE_OS::memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
+			ACE_OS::memcpy (_limitsMax, peer._limitsMax, sizeof(double) * _nj);
+			ACE_OS::memcpy (_limitsMin, peer._limitsMin, sizeof(double) * _nj);
+			ACE_OS::memcpy (_destinations, peer._destinations, sizeof(unsigned char) * _RobotcubHead::CANBUS_MAXCARDS);
 
 			_p = peer._p;
 			_message_filter = peer._message_filter;
@@ -719,7 +719,10 @@ public:
 	}
 
 	/**
-	 *
+	 * Servos to the position specified.
+	 * @param joint is the joint required.
+	 * @param pos is the position to set the reference to.
+	 * @return YARP_OK always (which doesn't mean it always succeed).
 	 */
 	int servoToPos (int joint, double pos)
 	{
@@ -749,6 +752,19 @@ public:
 		double max_position = 0;
 		double min_position = 0;
 
+		double tmp = 0;
+		SingleAxisParameters cmd;
+		cmd.axis = joint;
+		cmd.parameters = &tmp;
+
+		// disables limits first (more elegant by implementing the
+		// disbale limit check command!).
+		tmp = 0x7fffffff;
+		IOCtl(CMDSetSWPositiveLimit, &cmd);
+
+		tmp = 0x80000000;
+		IOCtl(CMDSetSWNegativeLimit, &cmd);
+
 		max_position = speedMove (joint, DESIRED_SPEED, DESIRED_ACC, THRESHOLD);
 		servoToPos (joint, max_position);
 
@@ -757,11 +773,6 @@ public:
 
 		const double center = (max_position+min_position)/2;
 		MY_DEBUG("Determined max: %f min: %f center: %f\n", max_position, min_position, center);
-
-		SingleAxisParameters cmd;
-		cmd.axis = joint;
-		double tmp = 0;
-		cmd.parameters = &tmp;
 
 		tmp = DESIRED_SPEED;
 		IOCtl(CMDSetSpeed, &cmd);

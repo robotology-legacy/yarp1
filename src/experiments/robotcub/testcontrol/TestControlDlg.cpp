@@ -140,6 +140,9 @@ CTestControlDlg::CTestControlDlg(CWnd* pParent /*=NULL*/)
 	_armjointstore = NULL;
 	_armlastreached = NULL;
 
+	_headrunning = false;
+	_armrunning = false;
+
 	int i;
 	for (i = 0; i < N_POSTURES; i++)
 	{
@@ -614,6 +617,7 @@ void CTestControlDlg::OnInterfaceStart()
 	else
 	{
 		_headinitialized = true;
+		_headrunning = false;
 		ACE_ASSERT (head.nj() == MAX_HEAD_JNTS); // not other size is allowed.
 	}
 
@@ -636,6 +640,7 @@ void CTestControlDlg::OnInterfaceStart()
 	else
 	{
 		_arminitialized = true;
+		_armrunning = false;
 		ACE_ASSERT (arm.nj() == MAX_ARM_JNTS);
 	}
 
@@ -655,6 +660,7 @@ void CTestControlDlg::OnInterfaceStop()
 	if (_headinitialized)
 	{
 		head.idleMode ();
+		_headrunning = false;
 		head.uninitialize ();	
 		FreeHeadArrays ();
 		_headinitialized = false;
@@ -663,6 +669,7 @@ void CTestControlDlg::OnInterfaceStop()
 	if (_arminitialized)
 	{
 		arm.idleMode ();
+		_armrunning = false;
 		arm.uninitialize ();	
 		FreeArmArrays ();
 		_arminitialized = false;
@@ -714,29 +721,33 @@ void CTestControlDlg::OnInterfaceHidegain()
 
 void CTestControlDlg::OnButtonRun() 
 {
-	head.activatePID (false);
+	if (head.activatePID (false) == YARP_OK)
+		_headrunning = true;
 }
 
 void CTestControlDlg::OnButtonRunArm() 
 {
-	arm.activatePID (false);
+	if (arm.activatePID (false) == YARP_OK)
+		_armrunning = true;
 }
 
 void CTestControlDlg::OnButtonIdle() 
 {
-	head.idleMode ();
+	if (head.idleMode () == YARP_OK)
+		_headrunning = false;
 }
 
 void CTestControlDlg::OnButtonIdleArm() 
 {
-	arm.idleMode ();
+	if (arm.idleMode () == YARP_OK)
+		_armrunning = false;
 }
 
 void CTestControlDlg::OnTimer(UINT nIDEvent) 
 {
 	if (_headinitialized)
 	{
-		int ret = head.getPositions (_headjointstore);
+		head.getPositions (_headjointstore);
 		ACE_OS::memcpy (_headlastreached, _headjointstore, sizeof(double) * MAX_HEAD_JNTS);
 		
 		for (int i = 0; i < MAX_HEAD_JNTS; i++)
@@ -748,7 +759,7 @@ void CTestControlDlg::OnTimer(UINT nIDEvent)
 	
 	if (_arminitialized)
 	{
-		int ret = arm.getPositions (_armjointstore);
+		arm.getPositions (_armjointstore);
 		ACE_OS::memcpy (_armlastreached, _armjointstore, sizeof(double) * MAX_ARM_JNTS);
 
 		for (int i = 0; i < MAX_ARM_JNTS; i++)
@@ -763,24 +774,34 @@ void CTestControlDlg::OnTimer(UINT nIDEvent)
 
 void CTestControlDlg::OnButtonGo() 
 {
-	UpdateData (TRUE);
+	if (_headrunning)
+	{
+		UpdateData (TRUE);
 
-	ACE_OS::memcpy (_headjointstore, m_v, sizeof(double) * MAX_HEAD_JNTS);
-	head.setVelocities (_headjointstore);
+		ACE_OS::memcpy (_headjointstore, m_v, sizeof(double) * MAX_HEAD_JNTS);
+		head.setVelocities (_headjointstore);
 
-	ACE_OS::memcpy (_headjointstore, m_p, sizeof(double) * MAX_HEAD_JNTS);
-	head.setPositions (_headjointstore);
+		ACE_OS::memcpy (_headjointstore, m_p, sizeof(double) * MAX_HEAD_JNTS);
+		head.setPositions (_headjointstore);
+	}
+	else
+		MessageBox ("The controller must be running before commanding the robot", "Error!");
 }
 
 void CTestControlDlg::OnButtonGoArm() 
 {
-	UpdateData (TRUE);
+	if (_armrunning)
+	{
+		UpdateData (TRUE);
 
-	ACE_OS::memcpy (_armjointstore, m_va, sizeof(double) * MAX_ARM_JNTS);
-	arm.setVelocities (_armjointstore);
+		ACE_OS::memcpy (_armjointstore, m_va, sizeof(double) * MAX_ARM_JNTS);
+		arm.setVelocities (_armjointstore);
 
-	ACE_OS::memcpy (_armjointstore, m_pa, sizeof(double) * MAX_ARM_JNTS);
-	arm.setPositions (_armjointstore);
+		ACE_OS::memcpy (_armjointstore, m_pa, sizeof(double) * MAX_ARM_JNTS);
+		arm.setPositions (_armjointstore);
+	}
+	else
+		MessageBox ("The controller must be running before commanding the robot", "Error!");
 }
 
 void CTestControlDlg::OnButtonStore() 
@@ -1043,7 +1064,10 @@ void CTestControlDlg::OnUpdateFileSavepostures(CCmdUI* pCmdUI)
 
 void CTestControlDlg::OnButtonCalibratehead() 
 {
-	_calibrationdlg.ShowWindow (SW_SHOW);	
+	if (_headrunning)
+		_calibrationdlg.ShowWindow (SW_SHOW);	
+	else
+		MessageBox ("The controller must be running before calibrating", "Error!");
 }
 
 void CTestControlDlg::OnButton0encoders() 

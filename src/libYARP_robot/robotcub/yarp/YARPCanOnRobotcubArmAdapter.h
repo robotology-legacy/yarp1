@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.3 2004-09-05 01:07:54 babybot Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.4 2004-09-05 22:27:55 babybot Exp $
 ///
 ///
 
@@ -100,7 +100,7 @@ namespace _RobotcubArm
 
 	const double _zeros[_nj]			= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	const int _axis_map[_nj]			= { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
-	const int _signs[_nj]				= { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	const double _signs[_nj]			= { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
@@ -112,10 +112,10 @@ namespace _RobotcubArm
 	const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
 	const int CANBUS_MAXCARDS			= MAX_CARDS;
 
-	const char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 
-												  0x0b, 0x0a, 0x09, 0x08,
-												  0x7f, 0x7f, 0x7f, 0x7f,
-												  0x7f, 0x7f, 0x7f, 0x7f };
+	const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 
+														   0x0b, 0x0a, 0x09, 0x08,
+														   0x80, 0x80, 0x80, 0x80,
+														   0x80, 0x80, 0x80, 0x80 };
 }; // namespace
 
 
@@ -154,24 +154,25 @@ public:
 		_maxDAC = NULL;
 		_limitsMax = NULL;
 		_limitsMin = NULL;
+		_destinations = NULL;
 		
 		_nj = _RobotcubArm::_nj;
 		_realloc(_nj);
-		int i;
-		for(i = 0; i < _nj; i++) 
-		{
-			_highPIDs[i] = _RobotcubArm::_highPIDs[i];
-			_lowPIDs[i] = _RobotcubArm::_lowPIDs[i];
-			_zeros[i] = _RobotcubArm::_zeros[i];
-			_axis_map[i] = _RobotcubArm::_axis_map[i];
-			_signs[i] = _RobotcubArm::_signs[i];
-			_encoderToAngles[i] = _RobotcubArm::_encoderToAngles[i];
-			_stiffPID[i] = _RobotcubArm::_stiffPID[i];
-			_maxDAC[i] = _RobotcubArm::_maxDAC[i];
-		}
+
+		ACE_OS::memcpy (_highPIDs, _RobotcubArm::_highPIDs, sizeof(LowLevelPID) * _nj);
+		ACE_OS::memcpy (_lowPIDs, _RobotcubArm::_lowPIDs, sizeof(LowLevelPID) * _nj);
+		ACE_OS::memcpy (_zeros, _RobotcubArm::_zeros, sizeof(double) * _nj);
+		ACE_OS::memcpy (_axis_map, _RobotcubArm::_axis_map, sizeof(int) * _nj);
+		// signs should be int or bool?
+		ACE_OS::memcpy (_signs, _RobotcubArm::_signs, sizeof(double) * _nj);
+		ACE_OS::memcpy (_encoderToAngles, _RobotcubArm::_encoderToAngles, sizeof(double) * _nj);
+		ACE_OS::memcpy (_stiffPID, _RobotcubArm::_stiffPID, sizeof(int) * _nj);
+		ACE_OS::memcpy (_maxDAC, _RobotcubArm::_maxDAC, sizeof(double) * _nj);
+		ACE_OS::memcpy (_destinations, _RobotcubArm::_destinations, sizeof(unsigned char) * _RobotcubArm::CANBUS_MAXCARDS);
 
 		// invert the axis map.
 		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
+		int i;
 		for (i = 0; i < _nj; i++)
 		{
 			int j;
@@ -194,28 +195,18 @@ public:
 	 */
 	~YARPRobotcubArmParameters()
 	{
-		if (_highPIDs != NULL)
-			delete [] _highPIDs;
-		if (_lowPIDs != NULL)
-			delete [] _lowPIDs;
-		if (_zeros != NULL)
-			delete [] _zeros;
-		if (_signs != NULL)
-			delete [] _signs;
-		if (_axis_map != NULL)
-			delete [] _axis_map;
-		if (_inv_axis_map != NULL)
-			delete [] _inv_axis_map;
-		if (_encoderToAngles != NULL)
-			delete [] _encoderToAngles;
-		if (_stiffPID != NULL)
-			delete [] _stiffPID;
-		if (_maxDAC != NULL)
-			delete [] _maxDAC;
-		if (_limitsMax != NULL)
-			delete [] _limitsMax;
-		if (_limitsMin != NULL)
-			delete [] _limitsMin;
+		if (_highPIDs != NULL) delete [] _highPIDs;
+		if (_lowPIDs != NULL) delete [] _lowPIDs;
+		if (_zeros != NULL)	delete [] _zeros;
+		if (_signs != NULL) delete [] _signs;
+		if (_axis_map != NULL) delete [] _axis_map;
+		if (_inv_axis_map != NULL) delete [] _inv_axis_map;
+		if (_encoderToAngles != NULL) delete [] _encoderToAngles;
+		if (_stiffPID != NULL) delete [] _stiffPID;
+		if (_maxDAC != NULL) delete [] _maxDAC;
+		if (_limitsMax != NULL) delete [] _limitsMax;
+		if (_limitsMin != NULL) delete [] _limitsMin;
+		if (_destinations != NULL) delete[] _destinations;
 	}
 
 	/**
@@ -282,6 +273,13 @@ public:
 		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 
+		int tmp[_RobotcubArm::CANBUS_MAXCARDS];
+		if (cfgFile.get("[GENERAL]", "CanAddresses", tmp, _RobotcubArm::CANBUS_MAXCARDS) == YARP_FAIL)
+			return YARP_FAIL;
+
+		for (i = 0; i < _RobotcubArm::CANBUS_MAXCARDS; i++)
+			_destinations[i] = (tmp[i] & 0xff);
+
 		///////////////// ARM LIMITS
 		if (cfgFile.get("[LIMITS]", "Max", _limitsMax, _nj) == YARP_FAIL)
 			return YARP_FAIL;
@@ -317,17 +315,18 @@ public:
 		{
 			_realloc (_nj);
 
-			memcpy (_highPIDs, peer._highPIDs, sizeof(LowLevelPID) * _nj);
-			memcpy (_lowPIDs, peer._lowPIDs, sizeof(LowLevelPID) * _nj);
-			memcpy (_zeros, peer._zeros, sizeof(double) * _nj);
-			memcpy (_signs, peer._signs, sizeof(double) * _nj);
-			memcpy (_axis_map, peer._axis_map, sizeof(int) * _nj);
-			memcpy (_inv_axis_map, peer._inv_axis_map, sizeof(int) * _nj);
-			memcpy (_encoderToAngles, peer._encoderToAngles, sizeof(double) * _nj);
-			memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
-			memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
-			memcpy (_limitsMax, peer._limitsMax, sizeof(double) * _nj);
-			memcpy (_limitsMin, peer._limitsMin, sizeof(double) * _nj);
+			ACE_OS::memcpy (_highPIDs, peer._highPIDs, sizeof(LowLevelPID) * _nj);
+			ACE_OS::memcpy (_lowPIDs, peer._lowPIDs, sizeof(LowLevelPID) * _nj);
+			ACE_OS::memcpy (_zeros, peer._zeros, sizeof(double) * _nj);
+			ACE_OS::memcpy (_signs, peer._signs, sizeof(double) * _nj);
+			ACE_OS::memcpy (_axis_map, peer._axis_map, sizeof(int) * _nj);
+			ACE_OS::memcpy (_inv_axis_map, peer._inv_axis_map, sizeof(int) * _nj);
+			ACE_OS::memcpy (_encoderToAngles, peer._encoderToAngles, sizeof(double) * _nj);
+			ACE_OS::memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
+			ACE_OS::memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
+			ACE_OS::memcpy (_limitsMax, peer._limitsMax, sizeof(double) * _nj);
+			ACE_OS::memcpy (_limitsMin, peer._limitsMin, sizeof(double) * _nj);
+			ACE_OS::memcpy (_destinations, peer._destinations, sizeof(unsigned char) * _RobotcubArm::CANBUS_MAXCARDS);
 
 			_p = peer._p;
 			_message_filter = peer._message_filter;
@@ -345,6 +344,7 @@ public:
 			if (_maxDAC != NULL) delete [] _maxDAC;
 			if (_limitsMax != NULL) delete [] _limitsMax;
 			if (_limitsMin != NULL) delete [] _limitsMin;
+			if (_destinations != NULL) delete[] _destinations;
 
 			_highPIDs = NULL;
 			_lowPIDs = NULL;
@@ -357,6 +357,7 @@ public:
 			_maxDAC = NULL;
 			_limitsMax = NULL;
 			_limitsMin = NULL;
+			_destinations = NULL;
 
 			_p = peer._p;
 			_message_filter = peer._message_filter;
@@ -372,29 +373,19 @@ private:
 	 */
 	void _realloc(int nj)
 	{
-		if (_highPIDs != NULL)
-			delete [] _highPIDs;
-		if (_lowPIDs != NULL)
-			delete [] _lowPIDs;
-		if (_zeros != NULL)
-			delete [] _zeros;
-		if (_signs != NULL)
-			delete [] _signs;
-		if (_axis_map != NULL)
-			delete [] _axis_map;
-		if (_inv_axis_map != NULL)
-			delete [] _inv_axis_map;
-		if (_encoderToAngles != NULL)
-			delete [] _encoderToAngles;
-		if (_stiffPID != NULL)
-			delete [] _stiffPID;
-		if (_maxDAC != NULL)
-			delete [] _maxDAC;
-		if (_limitsMax != NULL)
-			delete [] _limitsMax;
-		if (_limitsMin != NULL)
-			delete [] _limitsMin;
-		
+		if (_highPIDs != NULL) delete [] _highPIDs;
+		if (_lowPIDs != NULL) delete [] _lowPIDs;
+		if (_zeros != NULL) delete [] _zeros;
+		if (_signs != NULL)	delete [] _signs;
+		if (_axis_map != NULL) delete [] _axis_map;
+		if (_inv_axis_map != NULL) delete [] _inv_axis_map;
+		if (_encoderToAngles != NULL) delete [] _encoderToAngles;
+		if (_stiffPID != NULL) delete [] _stiffPID;
+		if (_maxDAC != NULL) delete [] _maxDAC;
+		if (_limitsMax != NULL) delete [] _limitsMax;
+		if (_limitsMin != NULL) delete [] _limitsMin;
+		if (_destinations != NULL) delete[] _destinations;
+
 		_highPIDs = new LowLevelPID [nj];
 		_lowPIDs = new LowLevelPID [nj];
 		_zeros = new double [nj];
@@ -406,6 +397,7 @@ private:
 		_limitsMin = new double [nj];
 		_stiffPID = new int [nj];
 		_maxDAC = new double [nj];
+		_destinations = new unsigned char[_RobotcubArm::CANBUS_MAXCARDS];
 	}
 
 public:
@@ -422,6 +414,7 @@ public:
 	double			*_maxDAC;
 	double			*_limitsMax;
 	double			*_limitsMin;
+	unsigned char	*_destinations;
 
 	int (* _p) (char *fmt, ...);
 	int _message_filter;
@@ -477,7 +470,7 @@ public:
 		ValueCanOpenParameters op_par;
 		op_par._port_number = CANBUS_DEVICE_NUM;
 		op_par._arbitrationID = CANBUS_ARBITRATION_ID;
-		memcpy (op_par._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
+		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
 		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
 		op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
 		op_par._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].

@@ -35,6 +35,9 @@ public:
 	// variables.
 	bool _headinitialized;			// whether the head control device is initialized.
 	bool _arminitialized;			// same for the arm/hand.
+
+	bool _headrunning;				// whether the PID controller is ON.
+	bool _armrunning;
 	
 	double *_headstore[N_POSTURES];  
 	double *_headstorev[N_POSTURES];  
