@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.8 2004-05-15 22:09:57 gmetta Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.9 2004-05-25 22:58:55 babybot Exp $
 ///
 ///
 
@@ -121,6 +121,10 @@ public:
 	int writeBootMemory(void *cmd);
 	int setPositiveLimit(void *cmd);
 	int setNegativeLimit(void *cmd);
+	int setTorqueLimit (void *cmd);
+	int setTorqueLimits (void *cmd);
+	int getTorqueLimit (void *cmd);
+	int getTorqueLimits (void *cmd);
 	int getErrorStatus(void *cmd);
 
 protected:

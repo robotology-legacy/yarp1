@@ -77,6 +77,7 @@ int  _error[JN] = { 0, 0 };				/* actual feedback error */
 int  _error_old[JN] = { 0, 0 };			/* error at t-1 */
 
 int  _pid[JN] = { 0, 0 };				/* pid result */
+int  _pid_limit[JN] = { 100, 100 };		/* pid limit */
 
 int  _kp[JN] = { 10, 0 };				/* PID gain */
 int  _kd[JN] = { 40, 0 };
@@ -157,6 +158,12 @@ int u0, u1, ud;
 	_pid[j] += __shr (u0, _kr[j]); \
 	\
 	_pid[j] += _ko[j]; \
+	\
+	if (_pid[j] < -_pid_limit[j]) \
+		_pid[j] = -_pid_limit[j]; \
+	else \
+	if (_pid[j] > _pid_limit[j]) \
+		_pid[j] = _pid_limit[j]; \
 }	
 /* end of macro */
 
@@ -204,6 +211,7 @@ byte writeToFlash (void)
 {
 	dword ptr = FLASH_START_ADDR;
 	byte i, err;
+	word tmp;
 	bool gerr = false;
 	
 	for (i = 0; i < JN; i++)
@@ -228,10 +236,12 @@ byte writeToFlash (void)
 		err = IFsh1_SetWordFlash(ptr, 0);
 		gerr |= (err != ERR_OK);
 		ptr += 2;
-		err = IFsh1_SetByteFlash(ptr, _board_ID);
-		gerr |= (err != ERR_OK);
-		ptr ++;		
 	}
+
+	tmp = BYTE_W(_board_ID, 0);
+	err = IFsh1_SetWordFlash(ptr, tmp);
+	gerr |= (err != ERR_OK);
+	//ptr ++;		
 
 	if (gerr)
 		DSP_SendDataEx ("Error while writing to flash memory, pls try again\r\n");
@@ -242,6 +252,7 @@ byte writeToFlash (void)
 byte readFromFlash (void)
 {
 	dword ptr = FLASH_START_ADDR;
+	word tmp;
 	int i;
 
 	for (i = 0; i < JN; i++)
@@ -258,9 +269,11 @@ byte readFromFlash (void)
 		ptr +=2;
 		IFsh1_GetWordFlash(ptr, (word *)(_integral_limit+i));
 		ptr +=2;
-		IFsh1_GetByteFlash(ptr, &_board_ID);
-		ptr ++;
 	}
+
+	IFsh1_GetWordFlash(ptr, &tmp);
+	_board_ID = BYTE_H(tmp);
+	//ptr ++;
 	
 	return ERR_OK;
 }
@@ -610,6 +623,8 @@ byte can_interface (void)
 		HANDLE_MSG (CAN_SET_MAX_VELOCITY, CAN_SET_MAX_VELOCITY_HANDLER)
 		HANDLE_MSG (CAN_GET_MAX_VELOCITY, CAN_GET_MAX_VELOCITY_HANDLER)
 	
+		HANDLE_MSG (CAN_SET_TLIM, CAN_SET_TLIM_HANDLER)
+		HANDLE_MSG (CAN_GET_TLIM, CAN_GET_TLIM_HANDLER)
 		HANDLE_MSG (CAN_GET_ERROR_STATUS, CAN_GET_ERROR_STATUS_HANDLER)
 		
 		END_MSG_TABLE		

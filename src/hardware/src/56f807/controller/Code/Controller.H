@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.7 2004-05-07 01:40:15 babybot Exp $
+/// $Id: Controller.H,v 1.8 2004-05-25 22:58:30 babybot Exp $
 ///
 ///
 
@@ -46,7 +46,7 @@
 #define true 1
 #endif
 
-#define DEFAULT_BOARD_ID	1		/* default ID for receiving messages (4 bit field) */
+#define DEFAULT_BOARD_ID	15		/* default ID for receiving messages (4 bit field) */
 #define SMALL_BUFFER_SIZE 	10		/* for serial I/O */
 #define CONTROLLER_PERIOD 	1		/* espressed in ms */
 #define JN 2						/* number of axes, can't be changed anyway */
@@ -138,6 +138,8 @@
 #define CAN_GET_OFFSET				39
 #define CAN_SET_SCALE				40
 #define CAN_GET_SCALE				41
+#define CAN_SET_TLIM				42
+#define CAN_GET_TLIM				43
 
 #define CAN_SET_BOARD_ID			50
 #define CAN_GET_BOARD_ID			51

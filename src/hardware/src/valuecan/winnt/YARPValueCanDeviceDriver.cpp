@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.8 2004-05-15 22:09:57 gmetta Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.9 2004-05-25 22:58:54 babybot Exp $
 ///
 ///
 
@@ -307,6 +307,11 @@ YARPValueCanDeviceDriver::YARPValueCanDeviceDriver(void)
 
 	m_cmds[CMDSetPositiveLimit] = &YARPValueCanDeviceDriver::setPositiveLimit;
 	m_cmds[CMDSetNegativeLimit] = &YARPValueCanDeviceDriver::setNegativeLimit;
+	
+	m_cmds[CMDGetTorqueLimit] = &YARPValueCanDeviceDriver::getTorqueLimit;
+	m_cmds[CMDGetTorqueLimits] = &YARPValueCanDeviceDriver::getTorqueLimits;
+	m_cmds[CMDSetTorqueLimit] = &YARPValueCanDeviceDriver::setTorqueLimit;
+	m_cmds[CMDSetTorqueLimits] = &YARPValueCanDeviceDriver::setTorqueLimits;
 
 	m_cmds[CMDGetErrorStatus] = &YARPValueCanDeviceDriver::getErrorStatus;
 }
@@ -947,6 +952,67 @@ int YARPValueCanDeviceDriver::setNegativeLimit (void *cmd)
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
 	
 	return _writeDWord (CAN_SET_MIN_POSITION, axis, S_32(*((double *)tmp->parameters)));
+}
+
+
+/// cmd is a SingleAxis pointer with double arg
+int YARPValueCanDeviceDriver::setTorqueLimit (void *cmd)
+{
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	const short s = S_16(*((double *)tmp->parameters));
+	
+	return _writeWord16 (CAN_SET_TLIM, axis, s);
+}
+
+/// cmd is an array of double
+int YARPValueCanDeviceDriver::setTorqueLimits (void *cmd)
+{
+	ValueCanResources& r = RES(system_resources);
+	double *tmp = (double *)cmd;
+
+	int i;
+	for (i = 0; i < r._njoints; i++)
+	{
+		if (_writeWord16 (CAN_SET_TLIM, i, S_16(tmp[i])) != YARP_OK)
+			return YARP_FAIL;
+	}
+
+	return YARP_OK;
+}
+
+/// cmd is a SingleAxis pointer with double arg
+int YARPValueCanDeviceDriver::getTorqueLimit (void *cmd)
+{
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	short value;
+
+	_readWord16 (CAN_GET_TLIM, axis, value);
+	*((double *)tmp->parameters) = double(value);
+
+	return YARP_OK;
+}
+
+/// cmd is an array of double
+int YARPValueCanDeviceDriver::getTorqueLimits (void *cmd)
+{
+	ValueCanResources& r = RES(system_resources);
+	double *out = (double *) cmd;
+	int i;
+	short value = 0;
+
+	for(i = 0; i < r._njoints; i++)
+	{
+		if (_readWord16 (CAN_GET_TLIM, i, value) == YARP_OK)
+			out[i] = double (value);
+		else
+			return YARP_FAIL;
+	}
+
+	return YARP_OK;
 }
 
 /// cmd is a pointer to an integer
