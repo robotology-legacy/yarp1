@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.2 2003-06-30 21:08:06 babybot Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.3 2003-07-01 09:15:48 babybot Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -205,7 +205,6 @@ int YARPGalilDeviceDriver::set_position(void *cmd)
 	long rc = 0;
 
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	// int *position = (int *) tmp->parameters;
 	double *position = (double *) tmp->parameters;
 
 	char *buff = m_buffer_out;
@@ -227,7 +226,7 @@ int YARPGalilDeviceDriver::set_position(void *cmd)
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, 8,
 							m_buffer_in, buff_length);
-//	begin_motion(NULL);
+	begin_motion(NULL);
 	return rc;
 }
 
@@ -300,7 +299,6 @@ int YARPGalilDeviceDriver::get_positions(void *j)
 {
 	long rc = 0;
 
-	//int *output = (int *) j;
 	double *output = (double *) j;
 	char *buff = m_buffer_out;
 
@@ -325,7 +323,6 @@ int YARPGalilDeviceDriver::get_ref_positions(void *j)
 {
 	long rc = 0;
 
-	//int *output = (int *) j;
 	double *output = (double *) j;
 	char *buff = m_buffer_out;
 
@@ -350,7 +347,6 @@ int YARPGalilDeviceDriver::get_errors(void *errs)
 {
 	long rc = 0;
 
-	//int *output = (int *) errs;
 	double *output = (double *) errs;
 	char *buff = m_buffer_out;
 
@@ -400,7 +396,6 @@ int YARPGalilDeviceDriver::get_speeds(void *spds)
 {
 	long rc = 0;
 
-	//int *output = (int *) spds;
 	double *output = (double *) spds;
 	char *buff = m_buffer_out;
 
@@ -438,11 +433,8 @@ int YARPGalilDeviceDriver::set_speeds (void *spds)
 
 	int cmd_length = 0;
 	
-	///int *speeds = (int *) spds;
-	
 	double * speeds_double = (double *) spds;	
-	//int * speeds = new int [m_njoints];
-	
+		
 	double_to_int(m_temp_int_array, speeds_double);
 
 	char *buff = m_buffer_out;
@@ -473,7 +465,6 @@ int YARPGalilDeviceDriver::set_positions (void *param)
 	int cmd_length = 0;
 
 	double * positions_double = (double *) param;	
-	//int * positions = new int [m_njoints];
 	
 	double_to_int(m_temp_int_array, positions_double);
 	
@@ -496,7 +487,7 @@ int YARPGalilDeviceDriver::set_positions (void *param)
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, cmd_length ,
 							m_buffer_in, buff_length);
-//	rc = begin_motion(NULL);							
+	rc = begin_motion(NULL);							
 	return rc;
 }
 
@@ -536,7 +527,6 @@ int YARPGalilDeviceDriver::define_position (void *cmd)
 	long rc = 0;
 
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	// int *position = (int *) tmp->parameters;
 	double *position = (double *) tmp->parameters;
 
 	char *buff = m_buffer_out;
@@ -567,8 +557,6 @@ int YARPGalilDeviceDriver::set_accelerations (void *param)
 	long rc = 0;
 
 	int cmd_length = 0;
-	
-	///int *accelerations = (int *) param;
 	
 	double * accelerations_double = (double *) param;	
 		
@@ -1004,7 +992,6 @@ int YARPGalilDeviceDriver::get_ref_accelerations(void *accs)
 {
 	long rc = 0;
 
-	// int *output = (int *) accs;
 	double *output = (double *) accs;
 	
 	char cmd[] = "AC";
@@ -1169,11 +1156,8 @@ int YARPGalilDeviceDriver::set_jogs (void *spds)
 
 	int cmd_length = 0;
 	
-	///int *speeds = (int *) spds;
-	
 	double * speeds_double = (double *) spds;	
-	//int * speeds = new int [m_njoints];
-	
+		
 	double_to_int(m_temp_int_array, speeds_double);
 
 	char *buff = m_buffer_out;
@@ -1194,7 +1178,7 @@ int YARPGalilDeviceDriver::set_jogs (void *spds)
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, cmd_length ,
 							m_buffer_in, buff_length);
-//	rc = begin_motion(NULL);
+	rc = begin_motion(NULL);
 	return rc;
 }
 
