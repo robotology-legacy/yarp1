@@ -1,22 +1,91 @@
-/*
-paulfitz Mon May 21 16:51:13 EDT 2001
-pasa June 2001.
-*/
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
+///                                                                   ///
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+
+///
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #pasa, paulfitz#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPImage.h,v 1.2 2003-06-05 10:51:10 gmetta Exp $
+///
+///
 
 #ifndef YARPImage_INC
 #define YARPImage_INC
 
-#ifdef __QNX__
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
+
+#ifdef __QNX4__
 #include "YARPSafeNew.h"
 #endif
 
+///
+/// this is required to ship images through ports.
 #include "YARPNetworkTypes.h"
 
-#include <assert.h>
-#include <stdlib.h>
-
 #ifdef __LINUX__
-#include "sys/ipl.h"
+#include <sys/ipl.h>
 #endif
 
 // the image types partially reflect the IPL image types.
@@ -24,19 +93,19 @@ pasa June 2001.
 // There must be a pixel type for every ImageType entry.
 enum
 {	 
-  YARP_PIXEL_INVALID = 0,
-  YARP_PIXEL_MONO,
-  YARP_PIXEL_RGB,
-  YARP_PIXEL_HSV,
-  YARP_PIXEL_BGR,  // external libraries sometimes want flipped order
-  YARP_PIXEL_MONO_SIGNED,
-  YARP_PIXEL_RGB_SIGNED,
-  YARP_PIXEL_MONO_FLOAT,
-  YARP_PIXEL_RGB_FLOAT,
-  YARP_PIXEL_HSV_FLOAT,
-  YARP_PIXEL_INT,
-  // negative ids reserved for pixels of undeclared type but known size
-  // in bytes
+	YARP_PIXEL_INVALID = 0,
+	YARP_PIXEL_MONO,
+	YARP_PIXEL_RGB,
+	YARP_PIXEL_HSV,
+	YARP_PIXEL_BGR,  // external libraries sometimes want flipped order
+	YARP_PIXEL_MONO_SIGNED,
+	YARP_PIXEL_RGB_SIGNED,
+	YARP_PIXEL_MONO_FLOAT,
+	YARP_PIXEL_RGB_FLOAT,
+	YARP_PIXEL_HSV_FLOAT,
+	YARP_PIXEL_INT,
+	// negative ids reserved for pixels of undeclared type but known size
+	// in bytes
 };
 
 #include "begin_pack_for_net.h"
@@ -103,12 +172,12 @@ class YARPRefCount;
 //#	include <ipl.h>
 //#endif
 
-#ifdef __WIN__
+#ifdef __WIN32__
 
 #	ifdef __FAKEIPL__
 #	include <FakeIpl.h>		// use FakeIpl under WIN32
 #	else
-#	include <ipl.h>
+#	include <sys/ipl.h>
 #	endif
 
 #endif
@@ -121,121 +190,100 @@ class YARPRefCount;
 class YARPGenericImage
 {
 protected:
+	int type_id;
 
-  int type_id;
+	IplImage* pImage;
+	char **Data;       // this is not IPL. it's char to maintain IPL compatibility
 
-  IplImage* pImage;
-  char **Data;       // this is not IPL. it's char to maintain IPL compatibility
+	YARPRefCount *buffer_references; // counts users of pImage->imageData
+	int is_owner;
 
-  YARPRefCount *buffer_references; // counts users of pImage->imageData
-  int is_owner;
+	// ipl allocation is done in two steps.
+	// _alloc allocates the actual ipl pointer.
+	// _alloc_data allocates the image array and data.
+	// memory is allocated in a single chunck. Row ptrs are then
+	// made to point appropriately. This is compatible with IPL and
+	// SOMEONE says it's more efficient on NT.
+	void _alloc (void);
+	void _alloc_extern (void *buf);
+	void _alloc_data (void);
+	void _free (void);
+	void _free_data (void);
 
-  // ipl allocation is done in two steps.
-  // _alloc allocates the actual ipl pointer.
-  // _alloc_data allocates the image array and data.
-  // memory is allocated in a single chunck. Row ptrs are then
-  // made to point appropriately. This is compatible with IPL and
-  // SOMEONE says it's more efficient on NT.
-  void _alloc (void);
-  void _alloc_extern (void *buf);
-  void _alloc_data (void);
-  void _free (void);
-  void _free_data (void);
+	void _make_independent(); 
+	void _set_ipl_header(int x, int y, int pixel_type);
+	void _free_ipl_header();
+	void _alloc_complete(int x, int y, int pixel_type);
+	void _free_complete();
 
-  void _make_independent(); 
-  void _set_ipl_header(int x, int y, int pixel_type);
-  void _free_ipl_header();
-  void _alloc_complete(int x, int y, int pixel_type);
-  void _free_complete();
+	void _alloc_complete_extern(void *buf, int x, int y, int pixel_type);
 
-  void _alloc_complete_extern(void *buf, int x, int y, int pixel_type);
-
-  // computes the # of padding bytes. These are always at the end of the row.
-  int _pad_bytes (int linesize, int align) const;
+	// computes the # of padding bytes. These are always at the end of the row.
+	int _pad_bytes (int linesize, int align) const;
 
 public:
+	YARPGenericImage(void);
+	YARPGenericImage(const YARPGenericImage& i);
+	virtual ~YARPGenericImage();
+	virtual void Cleanup () { _free_complete(); }
 
-  YARPGenericImage(void);
-  YARPGenericImage(const YARPGenericImage& i);
-  virtual ~YARPGenericImage();
-  virtual void Cleanup () { _free_complete(); }
+	virtual void operator=(const YARPGenericImage& i);
 
-  virtual void operator=(const YARPGenericImage& i);
+	virtual int GetID (void) const { return type_id; }
+	void SetID (int n_id) { type_id = n_id; }
+	void CastID (int n_id) { type_id = n_id; }
 
-  virtual int GetID (void) const { return type_id; }
-  void SetID (int n_id) { type_id = n_id; }
-  void CastID (int n_id) { type_id = n_id; }
+	int GetPixelSize (void) const;
 
-  int GetPixelSize (void) const;
+	inline int GetHeight() const 
+	{ if (pImage!=NULL) return pImage->height; else return 0; }
+	inline int GetWidth() const  
+	{ if (pImage!=NULL) return pImage->width;  else return 0; }
 
-  inline int GetHeight() const 
-    { if (pImage!=NULL) return pImage->height; else return 0; }
-  inline int GetWidth() const  
-    { if (pImage!=NULL) return pImage->width;  else return 0; }
+	void Resize (int x, int y, int pixel_type);
+	void Resize (int x, int y) { Resize(x,y,GetID()); }
+	void Clear (void);
+	void Zero (void);
 
-  void Resize (int x, int y, int pixel_type);
-  void Resize (int x, int y) { Resize(x,y,GetID()); }
-  void Clear (void);
-  void Zero (void);
- 
-  void UncountedRefer(void *buf, int x, int y, int pixel_type)
-  {
-    _alloc_complete_extern(buf,x,y,pixel_type);
-  }
+	void UncountedRefer(void *buf, int x, int y, int pixel_type) { _alloc_complete_extern(buf,x,y,pixel_type); }
+	void UncountedRefer(void *buf, int x, int y) { _alloc_complete_extern(buf,x,y,GetID()); }
+	void UncountedRefer(const YARPGenericImage& src)
+	{
+		_alloc_complete_extern((void*)src.GetRawBuffer(), src.GetWidth(), src.GetHeight(), src.GetID());
+	}
 
-  void UncountedRefer(void *buf, int x, int y)
-  {
-    _alloc_complete_extern(buf,x,y,GetID());
-  }
+	void Refer(YARPGenericImage& src);
+	void ReferOrCopy(YARPGenericImage& src);
 
-  void UncountedRefer(const YARPGenericImage& src)
-  {
-    _alloc_complete_extern((void*)src.GetRawBuffer(),src.GetWidth(),
-			   src.GetHeight(),src.GetID());
-  }
+	void CastCopy(const YARPGenericImage& src);
+	void PeerCopy(const YARPGenericImage& src);
+	void ScaledCopy(const YARPGenericImage& src);
+	void ScaledCopy(const YARPGenericImage& src, int nx, int ny);
 
-  void Refer(YARPGenericImage& src);
-  void ReferOrCopy(YARPGenericImage& src);
- 
-  void CastCopy(const YARPGenericImage& src);
-  void PeerCopy(const YARPGenericImage& src);
-  void ScaledCopy(const YARPGenericImage& src);
-  void ScaledCopy(const YARPGenericImage& src, int nx, int ny);
+	void Crop (YARPGenericImage& id, int startX, int startY);
+	void Paste (YARPGenericImage& is, int startX, int startY);
 
+	char *GetRawBuffer() const { return (pImage!=NULL) ? pImage->imageData : NULL; }
 
-  void Crop (YARPGenericImage& id, int startX, int startY);
-  void Paste (YARPGenericImage& is, int startX, int startY);
+	// cast operator allows calling ipl functions directly.
+	operator IplImage*() const { return pImage; }
+	IplImage* GetIplPointer(void) const { return pImage; }
 
-  char *GetRawBuffer() const
-	{ return (pImage!=NULL) ? pImage->imageData : NULL; }
+	// rows array.
+	inline char **GetArray(void) const { return (char **)Data; }
 
-  // cast operator allows calling ipl functions directly.
-  operator IplImage*() const { return pImage; }
-  IplImage* GetIplPointer(void) const { return pImage; }
+	// actual array.
+	inline char *GetAllocatedArray(void) const { return (char*) pImage->imageData; }
 
-  // rows array.
-  inline char **GetArray(void) const 
-    { return (char **)Data; }
+	// actual array size.
+	inline int GetAllocatedDataSize(void) const { return pImage->imageSize; }
 
-  // actual array.
-  inline char *GetAllocatedArray(void) const 
-    { return (char*) pImage->imageData; }
+	// actual row size in bytes.
+	inline int GetAllocatedLineSize(void) const { return pImage->widthStep; }
 
-  // actual array size.
-  inline int GetAllocatedDataSize(void) const 
-    { return pImage->imageSize; }
-
-  // actual row size in bytes.
-  inline int GetAllocatedLineSize(void) const 
-    { return pImage->widthStep; }
-
-  // LATER: take into account pixel size also!
-  inline int GetPadding() const
-    { return _pad_bytes (pImage->width * pImage->nChannels, 8); }
-
-  inline char *RawPixel(int x, int y) const
-    { return (Data[y] + x*GetPixelSize()); }
- 
+	// LATER: take into account pixel size also!
+	inline int GetPadding() const { return _pad_bytes (pImage->width * pImage->nChannels, 8); }
+	inline char *RawPixel(int x, int y) const { return (Data[y] + x*GetPixelSize()); }
 };
 
 
@@ -246,28 +294,24 @@ public:
 	YARPImageOf(const YARPImageOf<T>& i) : YARPGenericImage (i) {}
 	YARPImageOf () : YARPGenericImage () {}
 
-	virtual void operator=(const YARPImageOf<T>& i) 
-		{ YARPGenericImage::operator= (i); }
+	virtual void operator=(const YARPImageOf<T>& i) { YARPGenericImage::operator= (i); }
 
 	// if type is not specialized, arbitrary id is specified that carries size
 	// of pixel
 	virtual inline int GetID() const;
 
-	void Resize(int x, int y)
-		{ YARPGenericImage::Resize(x,y,GetID()); }
+	void Resize(int x, int y) { YARPGenericImage::Resize(x,y,GetID()); }
 
 	T null_pixel;
 
-	inline T& Pixel(int x, int y)
-		{ return *((T*)(Data[y] + x*sizeof(T))); }
+	inline T& Pixel(int x, int y) { return *((T*)(Data[y] + x*sizeof(T))); }
 
-	T& operator()(int x, int y)
-		{ return Pixel(x,y); }
+	T& operator()(int x, int y)	{ return Pixel(x,y); }
 
 	T& AssertedPixel(int x, int y)
 	{
-		assert(Data!=NULL && pImage != NULL);
-		assert(x >= 0 && 
+		ACE_ASSERT(Data!=NULL && pImage != NULL);
+		ACE_ASSERT(x >= 0 && 
 			 x < pImage->width &&
 			 y >= 0 &&
 			 y < pImage->height);
@@ -276,7 +320,7 @@ public:
 
 	T& SafePixel(int x, int y)
 	{
-		assert(Data != NULL && pImage != NULL);
+		ACE_ASSERT(Data != NULL && pImage != NULL);
 		if (x >= 0 &&
 			x < pImage->width &&
 			y >= 0 &&
@@ -285,11 +329,8 @@ public:
 		return null_pixel;
 	}
 
-	T& NullPixel()
-		{ return null_pixel; }
-
-	T *GetTypedBuffer()
-	  { return (T*)GetRawBuffer(); }
+	T& NullPixel() { return null_pixel; }
+	T *GetTypedBuffer() { return (T*)GetRawBuffer(); }
 };
 
 template<class T>

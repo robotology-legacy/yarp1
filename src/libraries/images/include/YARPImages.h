@@ -55,59 +55,39 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #pasa, paulfitz#
+///                    #pasa#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: YARPImageUtils.h,v 1.2 2003-06-05 10:51:10 gmetta Exp $
+/// $Id: YARPImages.h,v 1.1 2003-06-05 10:51:10 gmetta Exp $
 ///
 ///
 
-//
-// YARPImageUtils.h 
-//
+///
+/// global include for the image lib.
 
-//
-// Utilities. I'm not trying to be exhaustive. When we need them we can 
-//	simply add them here.
-//
-#ifndef __YARPImageUtilsh__
-#define __YARPImageUtilsh__
+#ifndef __YARPImagesh__
+#define __YARPImagesh__
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
+#include <ace/OS.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
+
 #include "YARPImage.h"
+#include "YARPImagePort.h"
+#include "YARPImagePortContent.h"
+#include "YARPImageDraw.h"
+#include "YARPImageFile.h"
+#include "YARPFilters.h"
+#include "YARPImageUtils.h"
+#include "YARPSimpleOperations.h"
 
-//
-class YARPImageUtils 
-{
-public:
-	static void GetRed (const YARPImageOf<YarpPixelRGB>& in, YARPImageOf<YarpPixelMono>& out);
-	static void GetRed (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelMono>& out);
-	static void GetGreen (const YARPImageOf<YarpPixelRGB>& in, YARPImageOf<YarpPixelMono>& out);
-	static void GetGreen (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelMono>& out);
-	static void GetBlue (const YARPImageOf<YarpPixelRGB>& in, YARPImageOf<YarpPixelMono>& out);
-	static void GetBlue (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelMono>& out);
-
-	static void SetRed (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelRGB>& out);
-	static void SetRed (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelBGR>& out);
-	static void SetGreen (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelRGB>& out);
-	static void SetGreen (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelBGR>& out);
-	static void SetBlue (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelRGB>& out);
-	static void SetBlue (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelBGR>& out);
-
-	static void GetValue (const YARPImageOf<YarpPixelHSV>& in, YARPImageOf<YarpPixelMono>& out);
-	static void GetSaturation (const YARPImageOf<YarpPixelHSV>& in, YARPImageOf<YarpPixelMono>& out);
-	static void GetHue (const YARPImageOf<YarpPixelHSV>& in, YARPImageOf<YarpPixelMono>& out);
-
-	static void PasteInto (const YARPImageOf<YarpPixelMono>& src, int x, int y, int zoom, YARPImageOf<YarpPixelMono>& dst);
-};
 
 #endif

@@ -44,7 +44,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\..\..\include" /I "C:\Program Files\Intel\plsuite\include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "__WIN__" /D "__WIN_MSVC__" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\..\..\..\include" /I "..\..\..\include" /D "_CONSOLE" /D "NDEBUG" /D "WIN32" /D "_MBCS" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -69,7 +69,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\..\..\..\include" /I "C:\Program Files\Intel\plsuite\include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "__WIN__" /D "__WIN_MSVC__" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\..\..\..\include" /I "..\..\..\include" /D "_CONSOLE" /D "_DEBUG" /D "WIN32" /D "_MBCS" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -149,34 +149,10 @@ LINK32=link.exe
 
 SOURCE=.\exec_test1.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\YARPCanonicalData.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPSearchRotation.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPTargetLocator.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
-# Begin Source File
-
-SOURCE=.\YARPCanonicalData.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPSearchRotation.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPTargetLocator.h
-# End Source File
 # End Group
 # End Target
 # End Project

@@ -1,21 +1,85 @@
-#define __YARPSafeNewh__
-#include <iostream.h>
-#include "YARPTime.h"
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
+///                                                                   ///
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
 
-#include <stdio.h>
-#include <string.h>
-#include "YARPImage.h"
+///
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #pasa, paulfitz#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
 
-#include "YARPRefCount.h"
+///
+/// $Id: YARPImage.cpp,v 1.2 2003-06-05 10:51:10 gmetta Exp $
+///
+///
+
+///#define __YARPSafeNewh__
+#include <iostream>
+
+#include <YARPTime.h>
+#include <YARPImage.h>
+#include <YARPRefCount.h>
 
 #define DBGPF1 if (0)
 
 void SatisfySize(YARPGenericImage& src, YARPGenericImage& dest)
 {
-  if (dest.GetHeight()!=src.GetHeight() ||
-      dest.GetWidth() !=src.GetWidth())
-    {
-      dest.Resize(src.GetWidth(),src.GetHeight());
+	if (dest.GetHeight()!=src.GetHeight() ||
+		dest.GetWidth() !=src.GetWidth())
+	{
+		dest.Resize(src.GetWidth(),src.GetHeight());
     }
 }
 
@@ -73,7 +137,7 @@ SPECIAL_COPY(YARP_PIXEL_RGB,YARP_PIXEL_MONO)
 SPECIAL_COPY(YARP_PIXEL_RGB,YARP_PIXEL_INT)
   *dest = (unsigned char)((src->r + src->g + src->b)/3);
 SPECIAL_COPY(YARP_PIXEL_RGB,YARP_PIXEL_HSV)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_RGB,YARP_PIXEL_MONO_SIGNED)
   *dest = (char)((src->r + src->g + src->b)/3);
 SPECIAL_COPY(YARP_PIXEL_RGB,YARP_PIXEL_RGB_SIGNED)
@@ -89,25 +153,25 @@ SPECIAL_COPY(YARP_PIXEL_RGB,YARP_PIXEL_BGR)
   dest->g = src->g;
   dest->b = src->b;
 SPECIAL_COPY(YARP_PIXEL_RGB,YARP_PIXEL_HSV_FLOAT)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 
 
 SPECIAL_COPY(YARP_PIXEL_HSV,YARP_PIXEL_MONO)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV,YARP_PIXEL_RGB)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV,YARP_PIXEL_BGR)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV,YARP_PIXEL_MONO_SIGNED)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV,YARP_PIXEL_RGB_SIGNED)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV,YARP_PIXEL_MONO_FLOAT)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV,YARP_PIXEL_RGB_FLOAT)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV,YARP_PIXEL_HSV_FLOAT)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 
 
 SPECIAL_COPY(YARP_PIXEL_BGR,YARP_PIXEL_MONO)
@@ -115,7 +179,7 @@ SPECIAL_COPY(YARP_PIXEL_BGR,YARP_PIXEL_MONO)
 SPECIAL_COPY(YARP_PIXEL_BGR,YARP_PIXEL_INT)
   *dest = (unsigned char)((src->r + src->g + src->b)/3);
 SPECIAL_COPY(YARP_PIXEL_BGR,YARP_PIXEL_HSV)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_BGR,YARP_PIXEL_MONO_SIGNED)
   *dest = (char)((src->r + src->g + src->b)/3);
 SPECIAL_COPY(YARP_PIXEL_BGR,YARP_PIXEL_RGB_SIGNED)
@@ -131,7 +195,7 @@ SPECIAL_COPY(YARP_PIXEL_BGR,YARP_PIXEL_RGB)
   dest->g = src->g;
   dest->b = src->b;
 SPECIAL_COPY(YARP_PIXEL_BGR,YARP_PIXEL_HSV_FLOAT)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 
 
 SPECIAL_COPY(YARP_PIXEL_MONO_SIGNED,YARP_PIXEL_RGB)
@@ -158,7 +222,7 @@ SPECIAL_COPY(YARP_PIXEL_RGB_SIGNED,YARP_PIXEL_MONO)
 SPECIAL_COPY(YARP_PIXEL_RGB_SIGNED,YARP_PIXEL_INT)
   *dest = (unsigned char)((src->r + src->g + src->b)/3);
 SPECIAL_COPY(YARP_PIXEL_RGB_SIGNED,YARP_PIXEL_HSV)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_RGB_SIGNED,YARP_PIXEL_MONO_SIGNED)
   *dest = (char)((src->r + src->g + src->b)/3);
 SPECIAL_COPY(YARP_PIXEL_RGB_SIGNED,YARP_PIXEL_RGB)
@@ -176,7 +240,7 @@ SPECIAL_COPY(YARP_PIXEL_RGB_SIGNED,YARP_PIXEL_RGB_FLOAT)
   dest->g = src->g;
   dest->b = src->b;
 SPECIAL_COPY(YARP_PIXEL_RGB_SIGNED,YARP_PIXEL_HSV_FLOAT)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 
 SPECIAL_COPY(YARP_PIXEL_MONO_FLOAT,YARP_PIXEL_MONO)
   *dest = (unsigned char)*src;
@@ -204,7 +268,7 @@ SPECIAL_COPY(YARP_PIXEL_RGB_FLOAT,YARP_PIXEL_MONO)
 SPECIAL_COPY(YARP_PIXEL_RGB_FLOAT,YARP_PIXEL_INT)
   *dest = (unsigned char)((src->r + src->g + src->b)/3);
 SPECIAL_COPY(YARP_PIXEL_RGB_FLOAT,YARP_PIXEL_HSV)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_RGB_FLOAT,YARP_PIXEL_MONO_SIGNED)
   *dest = (char)((src->r + src->g + src->b)/3);
 SPECIAL_COPY(YARP_PIXEL_RGB_FLOAT,YARP_PIXEL_RGB)
@@ -222,24 +286,24 @@ SPECIAL_COPY(YARP_PIXEL_RGB_FLOAT,YARP_PIXEL_RGB_SIGNED)
   dest->g = (signed char) src->g;
   dest->b = (signed char) src->b;
 SPECIAL_COPY(YARP_PIXEL_RGB_FLOAT,YARP_PIXEL_HSV_FLOAT)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 
 SPECIAL_COPY(YARP_PIXEL_HSV_FLOAT,YARP_PIXEL_MONO)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV_FLOAT,YARP_PIXEL_RGB)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV_FLOAT,YARP_PIXEL_BGR)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV_FLOAT,YARP_PIXEL_MONO_SIGNED)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV_FLOAT,YARP_PIXEL_RGB_SIGNED)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV_FLOAT,YARP_PIXEL_MONO_FLOAT)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV_FLOAT,YARP_PIXEL_RGB_FLOAT)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 SPECIAL_COPY(YARP_PIXEL_HSV_FLOAT,YARP_PIXEL_HSV)
-  assert(implemented_yet == 0);
+  ACE_ASSERT(implemented_yet == 0);
 
 SPECIAL_COPY(YARP_PIXEL_INT,YARP_PIXEL_RGB)
   dest->r = dest->g = dest->b = *src;
@@ -336,7 +400,7 @@ void YARPPixelCopier(const char *src, int id1,
       MAKE_2CASE(YARP_PIXEL_BGR,YARP_PIXEL_INT);
 
     default:
-      printf("*** Tried to copy type %d to %d\n", id1, id2);
+		ACE_OS::printf("*** Tried to copy type %d to %d\n", id1, id2);
       exit(1);
     }
 }
@@ -376,7 +440,7 @@ static int _GetPixelSize(int pixel_type)
     default:
       // only other acceptable possibility is that the size is being supplied
       // for an unknown type
-      //assert (pixel_type<0);
+      //ACE_ASSERT (pixel_type<0);
       result = -pixel_type;
       break;
     }
@@ -386,7 +450,7 @@ static int _GetPixelSize(int pixel_type)
 
 int YARPGenericImage::GetPixelSize() const
 {
-  return _GetPixelSize(type_id);
+	return _GetPixelSize(type_id);
 }
 
 // need alternate definitions of the following functions if the IPL
@@ -426,9 +490,9 @@ void YARPGenericImage::operator= (const YARPGenericImage &i)
 // note the padding stuff.
 void YARPGenericImage::Crop (YARPGenericImage& id, int startX, int startY)
 {
-	assert (id.GetID() == GetID());
-	assert (pImage != NULL && id.pImage != NULL);
-	assert ((startX + id.GetWidth()) <= pImage->width && (startY + id.GetHeight()) <= pImage->height);
+	ACE_ASSERT (id.GetID() == GetID());
+	ACE_ASSERT (pImage != NULL && id.pImage != NULL);
+	ACE_ASSERT ((startX + id.GetWidth()) <= pImage->width && (startY + id.GetHeight()) <= pImage->height);
 			
 	int sAlignLineSize = pImage->widthStep;
 	int dAlignLineSize = id.pImage->widthStep;
@@ -449,9 +513,9 @@ void YARPGenericImage::Crop (YARPGenericImage& id, int startX, int startY)
 
 void YARPGenericImage::Paste (YARPGenericImage& is, int startX, int startY)
 {
-	assert (is.GetID() == GetID());
-	assert (pImage != NULL && is.pImage != NULL);
-	assert ((startX + is.GetWidth()) <= pImage->width && (startY + is.GetHeight()) <= pImage->height);
+	ACE_ASSERT (is.GetID() == GetID());
+	ACE_ASSERT (pImage != NULL && is.pImage != NULL);
+	ACE_ASSERT ((startX + is.GetWidth()) <= pImage->width && (startY + is.GetHeight()) <= pImage->height);
 		
 	int dAlignLineSize = pImage->widthStep;
 	int sAlignLineSize = is.pImage->widthStep;
@@ -473,39 +537,40 @@ void YARPGenericImage::Paste (YARPGenericImage& is, int startX, int startY)
 // allocates an empty image.
 void YARPGenericImage::_alloc (void)
 {
-  assert (pImage != NULL);
-  
-  if (pImage != NULL)
-    if (pImage->imageData != NULL)
-      _free(); // was iplDeallocateImage(pImage); but that won't work with refs
+	ACE_ASSERT (pImage != NULL);
 
-  iplAllocateImage (pImage, 0, 0);
-  iplSetBorderMode (pImage, IPL_BORDER_CONSTANT, IPL_SIDE_ALL, 0);
+	if (pImage != NULL)
+		if (pImage->imageData != NULL)
+			_free(); // was iplDeallocateImage(pImage); but that won't work with refs
+	
+	iplAllocateImage (pImage, 0, 0);
+	iplSetBorderMode (pImage, IPL_BORDER_CONSTANT, IPL_SIDE_ALL, 0);
 }
 
 // installs an external buffer as the image data
 void YARPGenericImage::_alloc_extern (void *buf)
 {
-  assert (pImage != NULL);
-  assert(Data==NULL);
+	ACE_ASSERT (pImage != NULL);
+	ACE_ASSERT(Data==NULL);
 
-  if (pImage != NULL)
-    if (pImage->imageData != NULL)
-      iplDeallocateImage (pImage);
-  //iplAllocateImage (pImage, 0, 0);
-  pImage->imageData = (char*)buf;
-  // HIT probably need to do more for real IPL
+	if (pImage != NULL)
+		if (pImage->imageData != NULL)
+			iplDeallocateImage (pImage);
+
+	//iplAllocateImage (pImage, 0, 0);
+	pImage->imageData = (char*)buf;
+	// HIT probably need to do more for real IPL
   
-  //iplSetBorderMode (pImage, IPL_BORDER_CONSTANT, IPL_SIDE_ALL, 0);
+	//iplSetBorderMode (pImage, IPL_BORDER_CONSTANT, IPL_SIDE_ALL, 0);
 }
 
 // allocates the Data pointer.
 void YARPGenericImage::_alloc_data (void)
 {
-	DBGPF1 printf("alloc_data1\n"), fflush(stdout);
-	assert (pImage != NULL);
+	DBGPF1 ACE_OS::printf("alloc_data1\n"), fflush(stdout);
+	ACE_ASSERT (pImage != NULL);
 
-	assert(Data==NULL);
+	ACE_ASSERT(Data==NULL);
 	/*
 	if (Data != NULL)
 	{
@@ -516,29 +581,29 @@ void YARPGenericImage::_alloc_data (void)
 	}
 	*/
 
-	DBGPF1 printf("alloc_data1b\n"), fflush(stdout);
+	DBGPF1 ACE_OS::printf("alloc_data1b\n"), fflush(stdout);
 	DBGPF1 YARPTime::DelayInSeconds(0.1);
 
 	int hh = pImage->height * sizeof(char *);
-        DBGPF1 printf("height is %d (%d)\n", pImage->height, hh);
+	DBGPF1 ACE_OS::printf("height is %d (%d)\n", pImage->height, hh);
 
-	DBGPF1 printf("alloc_data1c\n"), fflush(stdout);
+	DBGPF1 ACE_OS::printf("alloc_data1c\n"), fflush(stdout);
 	DBGPF1 YARPTime::DelayInSeconds(0.1);
 
 	char **ptr = new char *[pImage->height];
 
-	DBGPF1 printf("alloc_data2\n"), fflush(stdout);
+	DBGPF1 ACE_OS::printf("alloc_data2\n"), fflush(stdout);
 	DBGPF1 YARPTime::DelayInSeconds(0.1);
 	Data = ptr;
 
-	assert (Data != NULL);
+	ACE_ASSERT (Data != NULL);
 
-	assert (pImage->imageData != NULL);
+	ACE_ASSERT (pImage->imageData != NULL);
 
 	int nPlanes = pImage->nChannels;
 	int width = pImage->width;
     int height = pImage->height;
-	DBGPF1 printf("alloc_data3\n");
+	DBGPF1 ACE_OS::printf("alloc_data3\n");
 
     char * DataArea = pImage->imageData;
     
@@ -547,70 +612,72 @@ void YARPGenericImage::_alloc_data (void)
 		Data[r] = DataArea;
 		DataArea += pImage->widthStep;
 	}
-	DBGPF1 printf("alloc_data4\n");
+	DBGPF1 ACE_OS::printf("alloc_data4\n");
 }
 
 void YARPGenericImage::_free (void)
 {
-//	assert (pImage != NULL);
-  if (pImage != NULL)
-    if (pImage->imageData != NULL)
-    {
-      int zero_count = 1;
-      if (buffer_references != NULL)
-	{
-	  DBGPF1 if (buffer_references!=NULL) cout << "HIT B Buffer references " << buffer_references->GetReferenceCount() << endl;
-	  buffer_references->RemoveRef();
-	  int ref = buffer_references->GetReferenceCount();
-	  DBGPF1 if (buffer_references!=NULL) cout << "HIT C Buffer references " << buffer_references->GetReferenceCount() << endl;
-	  if (ref<=0)
-	    {
-	      DBGPF1 cout << "HIT deleting buffer_references" << endl;
-	      delete buffer_references;
-	    }
-	  else
-	    {
-	      zero_count = 0;
-	    }
-	  buffer_references = NULL;
-	}
-      if (zero_count)
-	{
-	  //cout << "HIT maybe deleting ipl image" << endl;
-	  if (is_owner)
-	    {
-	      DBGPF1 cout << "HIT really truly deleting ipl image" << endl;
-	      iplDeallocateImage (pImage);
-	      if (Data!=NULL)
+	//	ACE_ASSERT (pImage != NULL);
+	if (pImage != NULL)
+		if (pImage->imageData != NULL)
 		{
-		  delete[] Data;
-		}
-	    }
-	  else
-	    {
-	      if (Data!=NULL)
-		{
-		  delete[] Data;
-		}
-	    }
+			int zero_count = 1;
+			if (buffer_references != NULL)
+			{
+				DBGPF1 if (buffer_references!=NULL) cout << "HIT B Buffer references " << buffer_references->GetReferenceCount() << endl;
+				buffer_references->RemoveRef();
+				int ref = buffer_references->GetReferenceCount();
+				DBGPF1 if (buffer_references!=NULL) cout << "HIT C Buffer references " << buffer_references->GetReferenceCount() << endl;
+				if (ref<=0)
+				{
+					DBGPF1 cout << "HIT deleting buffer_references" << endl;
+					delete buffer_references;
+				}
+				else
+				{
+					zero_count = 0;
+				}
+				buffer_references = NULL;
+			}
+
+			if (zero_count)
+			{
+				//cout << "HIT maybe deleting ipl image" << endl;
+				if (is_owner)
+				{
+					DBGPF1 cout << "HIT really truly deleting ipl image" << endl;
+					iplDeallocateImage (pImage);
+					if (Data!=NULL)
+					{
+						delete[] Data;
+					}
+				}
+				else
+				{
+					if (Data!=NULL)
+					{
+						delete[] Data;
+					}
+				}
+			}
+
+		is_owner = 1;
+		Data = NULL;
+		pImage->imageData = NULL;
 	}
-      is_owner = 1;
-      Data = NULL;
-      pImage->imageData = NULL;
-    }
 }
 
 void YARPGenericImage::_free_data (void)
 {
-  assert(Data==NULL); // Now always free Data at same time
-                      // as image buffer, for correct refcounting
-  /*
+	ACE_ASSERT(Data==NULL); // Now always free Data at same time
+				  // as image buffer, for correct refcounting
+	/*
 	if (Data != NULL)
 	{
-	  delete[] Data;
+		delete[] Data;
 	}
 	Data = NULL;
-  */
+	*/
 }
 
 // This reflects the fact that under QNX we do not need any padding.
@@ -646,8 +713,8 @@ void YARPGenericImage::_set_ipl_header(int x, int y, int pixel_type)
 					NULL,
 					NULL,
 					NULL);
-		DBGPF1 printf("Set pImage to %ld\n", (long int) pImage);
-		DBGPF1 printf("Set init h to %d\n", (long int) pImage->height);
+		DBGPF1 ACE_OS::printf("Set pImage to %ld\n", (long int) pImage);
+		DBGPF1 ACE_OS::printf("Set init h to %d\n", (long int) pImage->height);
 		break;
 
 	case YARP_PIXEL_RGB:
@@ -723,7 +790,7 @@ void YARPGenericImage::_set_ipl_header(int x, int y, int pixel_type)
 		break;
 
 	case YARP_PIXEL_RGB_SIGNED:
-		assert (implemented_yet == 0);
+		ACE_ASSERT (implemented_yet == 0);
 		break;
 
 	case YARP_PIXEL_MONO_FLOAT:
@@ -760,11 +827,11 @@ void YARPGenericImage::_set_ipl_header(int x, int y, int pixel_type)
 					NULL,
 					NULL,
 					NULL);
-		//assert (implemented_yet == 0);
+		//ACE_ASSERT (implemented_yet == 0);
 		break;
 
 	case YARP_PIXEL_HSV_FLOAT:
-		assert (implemented_yet == 0);
+		ACE_ASSERT (implemented_yet == 0);
 		break;
 
 	case YARP_PIXEL_INT:
@@ -787,7 +854,7 @@ void YARPGenericImage::_set_ipl_header(int x, int y, int pixel_type)
 
 	case YARP_PIXEL_INVALID:
 		// not a type!
-		printf ("*** Trying to allocate an invalid pixel type image\n");
+		ACE_OS::printf ("*** Trying to allocate an invalid pixel type image\n");
 		exit(1);
 		break;
 	  
@@ -830,7 +897,7 @@ void YARPGenericImage::_set_ipl_header(int x, int y, int pixel_type)
 	default:
 		// unknown pixel type. Should revert to a non-IPL mode... how?
 		// LATER: implement this.
-		assert (implemented_yet == 0);
+		ACE_ASSERT (implemented_yet == 0);
 		break;
 	}
 
@@ -839,17 +906,17 @@ void YARPGenericImage::_set_ipl_header(int x, int y, int pixel_type)
 
 void YARPGenericImage::_free_ipl_header()
 {
-  if (pImage!=NULL)
-    {
-      iplDeallocate (pImage, IPL_IMAGE_HEADER);
-    }
-  pImage = NULL;
+	if (pImage!=NULL)
+	{
+		iplDeallocate (pImage, IPL_IMAGE_HEADER);
+	}
+	pImage = NULL;
 }
 
 void YARPGenericImage::_make_independent()
 {
-  // needs to be filled out once references are permitted -paulfitz
-  // actually I think this isn't really needed -paulfitz
+	// needs to be filled out once references are permitted -paulfitz
+	// actually I think this isn't really needed -paulfitz
 }
 
 void YARPGenericImage::_alloc_complete(int x, int y, int pixel_type)
@@ -861,16 +928,15 @@ void YARPGenericImage::_alloc_complete(int x, int y, int pixel_type)
 	_alloc_data ();
 }
 
-void YARPGenericImage::_alloc_complete_extern(void *buf, int x, int y, 
-					      int pixel_type)
+void YARPGenericImage::_alloc_complete_extern(void *buf, int x, int y, int pixel_type)
 {
-  _make_independent();
-  _free_complete();
-  _set_ipl_header(x, y, pixel_type);
-  Data = NULL;
-  _alloc_extern (buf);
-  _alloc_data ();
-  is_owner = 0;
+	_make_independent();
+	_free_complete();
+	_set_ipl_header(x, y, pixel_type);
+	Data = NULL;
+	_alloc_extern (buf);
+	_alloc_data ();
+	is_owner = 0;
 }
 
 
@@ -890,7 +956,7 @@ void YARPGenericImage::Clear()
 
 void YARPGenericImage::Zero ()
 {
-	assert (pImage != NULL);
+	ACE_ASSERT (pImage != NULL);
 	memset (pImage->imageData, 0, pImage->imageSize);
 }
 
@@ -912,61 +978,65 @@ void YARPGenericImage::Resize(int x, int y, int pixel_type)
 
 	if (need_recreation)
 	{
-	  _free_complete();
-	  DBGPF1 printf("HIT recreation for %ld %ld: %d %d %d\n", (long int) this, (long int) pImage, x, y, pixel_type);
-	  _alloc_complete (x, y, pixel_type);
+		_free_complete();
+		DBGPF1 ACE_OS::printf("HIT recreation for %ld %ld: %d %d %d\n", (long int) this, (long int) pImage, x, y, pixel_type);
+		_alloc_complete (x, y, pixel_type);
 	}
 }
 
 void YARPGenericImage::Refer(YARPGenericImage& src)
 {
-  assert (src.pImage != NULL); // should we allow copying from a non-allocated image?
-  
-  int my_id = GetID();
-  int other_id = src.GetID();
-  
-  if (Data == NULL && my_id == YARP_PIXEL_INVALID)
-    {
-      SetID (other_id);
-      my_id = GetID();
-    }
-  
-  if (my_id != other_id)
-    {
-      printf("*** Tried to Refer() to an incompatible image type.\n");
-      printf("*** Please copy instead, using CastCopy().\n");
-      exit(1);
-    }
-  
-  DBGPF1 cout << "HIT Starting refer" << endl;
-  _make_independent();
-  DBGPF1 cout << "HIT step 1" << endl;
-  _free_complete();
-  DBGPF1 cout << "HIT step 2" << endl;
-  DBGPF1 if (buffer_references!=NULL) cout << "HIT X Buffer references " << buffer_references->GetReferenceCount() << endl;
-  buffer_references = AddYarpRefCount(src.buffer_references);
-  DBGPF1 if (buffer_references!=NULL) cout << "HIT Y Buffer references " << buffer_references->GetReferenceCount() << endl;
-  DBGPF1 cout << "HIT step 3 // " 
-	      << src.GetWidth() << " "
-	      << src.GetHeight() << " "
-	      << src.GetID() << " "
-	      << endl;
-  _set_ipl_header(src.GetWidth(), src.GetHeight(), src.GetID());
-  DBGPF1 cout << "HIT step 4" << endl;
-  _alloc_extern ((void*)src.GetRawBuffer());
-  is_owner = src.is_owner;
-  DBGPF1 cout << "HIT step 5" << endl;
-  assert(Data==NULL);
-  Data = src.Data;
-  //_alloc_data ();
-  DBGPF1 if (buffer_references!=NULL) cout << "HIT Z Buffer references " << buffer_references->GetReferenceCount() << endl;
-  DBGPF1 cout << "HIT Ending refer" << endl;
+	ACE_ASSERT (src.pImage != NULL); // should we allow copying from a non-allocated image?
+
+	int my_id = GetID();
+	int other_id = src.GetID();
+
+	if (Data == NULL && my_id == YARP_PIXEL_INVALID)
+	{
+		SetID (other_id);
+		my_id = GetID();
+	}
+
+	if (my_id != other_id)
+	{
+		ACE_OS::printf("*** Tried to Refer() to an incompatible image type.\n");
+		ACE_OS::printf("*** Please copy instead, using CastCopy().\n");
+		exit(1);
+	}
+
+	DBGPF1 cout << "HIT Starting refer" << endl;
+	_make_independent();
+	DBGPF1 cout << "HIT step 1" << endl;
+	_free_complete();
+	DBGPF1 cout << "HIT step 2" << endl;
+	DBGPF1 if (buffer_references!=NULL) cout << "HIT X Buffer references " << buffer_references->GetReferenceCount() << endl;
+
+	buffer_references = AddYarpRefCount(src.buffer_references);
+	DBGPF1 if (buffer_references!=NULL) cout << "HIT Y Buffer references " << buffer_references->GetReferenceCount() << endl;
+	
+	DBGPF1 cout << "HIT step 3 // " 
+	<< src.GetWidth() << " "
+	<< src.GetHeight() << " "
+	<< src.GetID() << " "
+	<< endl;
+
+	_set_ipl_header(src.GetWidth(), src.GetHeight(), src.GetID());
+	DBGPF1 cout << "HIT step 4" << endl;
+	_alloc_extern ((void*)src.GetRawBuffer());
+	is_owner = src.is_owner;
+	DBGPF1 cout << "HIT step 5" << endl;
+	ACE_ASSERT(Data==NULL);
+	Data = src.Data;
+
+	//_alloc_data ();
+	DBGPF1 if (buffer_references!=NULL) cout << "HIT Z Buffer references " << buffer_references->GetReferenceCount() << endl;
+	DBGPF1 cout << "HIT Ending refer" << endl;
 }
 
 // if not allocated... fill it out.
 void YARPGenericImage::PeerCopy(const YARPGenericImage& img)
 {
-	assert (img.pImage != NULL); // should we allow copying from a non-allocated image?
+	ACE_ASSERT (img.pImage != NULL); // should we allow copying from a non-allocated image?
 
 	int my_id = GetID();
 	int other_id = img.GetID();
@@ -979,8 +1049,8 @@ void YARPGenericImage::PeerCopy(const YARPGenericImage& img)
 
 	if (my_id != other_id)
 	{
-		printf("*** Tried to copy between incompatible image types.\n");
-		printf("*** Please use CastCopy() to do this.\n");
+		ACE_OS::printf("*** Tried to copy between incompatible image types.\n");
+		ACE_OS::printf("*** Please use CastCopy() to do this.\n");
 		exit(1);
 	}
 
@@ -990,7 +1060,7 @@ void YARPGenericImage::PeerCopy(const YARPGenericImage& img)
 	{
 		if (pImage->imageData != NULL && img.pImage->imageData != NULL)
 		{
-			assert(pImage->imageSize == img.pImage->imageSize);
+			ACE_ASSERT(pImage->imageSize == img.pImage->imageSize);
 			memcpy(pImage->imageData, img.pImage->imageData, pImage->imageSize);
 		}
 	}
@@ -1007,7 +1077,7 @@ void YARPGenericImage::CastCopy(const YARPGenericImage& img)
 		const char *src = img.GetRawBuffer();
 		char *dest = GetRawBuffer();
 		const int len = pImage->height * pImage->width;
-		assert(src!=NULL && dest!=NULL);
+		ACE_ASSERT(src!=NULL && dest!=NULL);
 		YARPPixelCopier (src, other_id, dest, my_id, len);
 	}
 	else
@@ -1018,55 +1088,55 @@ void YARPGenericImage::CastCopy(const YARPGenericImage& img)
 
 void YARPGenericImage::ReferOrCopy(YARPGenericImage& image)
 {
-  if (image.GetID() == GetID())
-    {
-      Refer(image);
-    }
-  else
-    {
-      CastCopy(image);
-    }
+	if (image.GetID() == GetID())
+	{
+		Refer(image);
+	}
+	else
+	{
+		CastCopy(image);
+	}
 }
 
 void YARPGenericImage::ScaledCopy(const YARPGenericImage& img, int nx, int ny)
 {
-  if (GetWidth()!=nx || GetHeight()!=ny || GetID() != img.GetID())
-    {
-      Resize(nx, ny, img.GetID());
-    }
-  ScaledCopy(img);
+	if (GetWidth()!=nx || GetHeight()!=ny || GetID() != img.GetID())
+	{
+		Resize(nx, ny, img.GetID());
+	}
+	ScaledCopy(img);
 }
 
 void YARPGenericImage::ScaledCopy(const YARPGenericImage& img)
 {
-  int i, j;
-  int i0 = 0, j0 = 0;
-  float di, dj;
-  
-  int h = img.GetHeight(), w = img.GetWidth();
-  int nh = GetHeight(), nw = GetWidth();
-  int d = GetPixelSize();
-  
-  assert(img.GetID() == GetID());
-  assert(h>0&&w>0&&nh>0&&nw>0);
-  assert(GetPadding()==0);
-  assert(img.GetPadding()==0);
+	int i, j;
+	int i0 = 0, j0 = 0;
+	float di, dj;
 
-  char *mem = img.GetRawBuffer();
-  char *mem2 = GetRawBuffer();
-  assert(mem!=NULL && mem2!=NULL);
-  
-  di = ((float)h)/nh;
-  dj = ((float)w)/nw;
-  
-  for (i=0; i<nh; i++)
-    {
-      i0 = (int)(di*i);
-      for (j=0; j<nw; j++)
+	int h = img.GetHeight(), w = img.GetWidth();
+	int nh = GetHeight(), nw = GetWidth();
+	int d = GetPixelSize();
+
+	ACE_ASSERT(img.GetID() == GetID());
+	ACE_ASSERT(h>0&&w>0&&nh>0&&nw>0);
+	ACE_ASSERT(GetPadding()==0);
+	ACE_ASSERT(img.GetPadding()==0);
+
+	char *mem = img.GetRawBuffer();
+	char *mem2 = GetRawBuffer();
+	ACE_ASSERT(mem!=NULL && mem2!=NULL);
+
+	di = ((float)h)/nh;
+	dj = ((float)w)/nw;
+
+	for (i=0; i<nh; i++)
 	{
-	  j0 = (int)(dj*j);
-	  memcpy(RawPixel(j,i),img.RawPixel(j0,i0),d);
+		i0 = (int)(di*i);
+		for (j=0; j<nw; j++)
+		{
+			j0 = (int)(dj*j);
+			memcpy(RawPixel(j,i),img.RawPixel(j0,i0),d);
+		}
 	}
-    }
 }
  
