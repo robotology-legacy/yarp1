@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: main.cpp,v 1.10 2004-06-03 17:06:40 beltran Exp $
+//         Version:  $Id: main.cpp,v 1.11 2004-06-04 08:48:39 beltran Exp $
 // 
 //          Author:  Eng. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -401,7 +401,7 @@ mainthread::_runAsSimulation (void)
 
 	char savename[512];
 	memset (savename, 0, 512);
-	ACE_OS::sprintf (savename, "./soundgrab_test.wav");
+	ACE_OS::sprintf (savename, "./input_test.wav");
 
 	//----------------------------------------------------------------------
 	//  Open and initialize a WAVE file
@@ -459,18 +459,24 @@ mainthread::_runAsSimulation (void)
 		ACE_OS::fprintf(stdout,"soundgrabber: There is not Data chuck!\n");
 		return YARP_FAIL;
 	}
-
+	
+	int data_size   = 0;
+	int readed_data = 0;
 	//----------------------------------------------------------------------
 	//  Main loop
 	//----------------------------------------------------------------------
 	while (!IsTerminated())
 	{
 		YARPTime::DelayInSeconds (0.04); //Delay 40 milliseconds
+		
+		readed_data = mmioRead(hmmio, (char *)buffer.GetRawBuffer(), _BufferLength);
+		data_size += readed_data;
 
-		if (!mmioRead(hmmio, (char *)buffer.GetRawBuffer(), _BufferLength))
+		if (!readed_data)
 		{
 			ACE_OS::fprintf(stdout,"soundgrabber: I have finish reading the Wave file\n");
-			break;
+			ACE_OS::fprintf(stdout,"soundgrabber: going back to the start of the file\n");
+			mmioSeek(hmmio, data_size, SEEK_CUR);
 		}
 		
 		outport.Content().Refer (buffer);
@@ -494,7 +500,6 @@ mainthread::_runAsSimulation (void)
 
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
 	return YARP_OK;
-
 }
 
 //--------------------------------------------------------------------------------------
