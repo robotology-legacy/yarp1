@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.cpp,v 1.4 2004-10-29 13:25:59 beltran Exp $
+/// $Id: SoundIdentificationThread.cpp,v 1.5 2004-11-01 12:59:22 beltran Exp $
 ///
 
 /** 
@@ -428,20 +428,10 @@ void SoundIdentificationThread::Body (void)
 	double time1   = 0.0;
 	double time2   = 0.0;
 	double period  = 0.0;
-	YarpPixelBGR _auxpix(0,0,0); /** Temporal pixel.  */
-	YARPBottle _botActions;            
 
 	YVector _vOutMfcc(L_VECTOR_MFCC);
 	YARPCovMatrix _mSoundCov;
-	YMatrix _mLocVar;
 
-	/** Vector of pointers to images. */
-	//YARPImageOf<YarpPixelBGR> ** _vImages = new YARPImageOf<YarpPixelBGR> *[_soundTemplate.Size()]; 
-	//YARPImageOf<YarpPixelBGR> _vImages[ARRAY_MAX]; 
-	//YARPImageOf<YarpPixelMono> _vLogPolarImages[ARRAY_MAX]; 
-
-	YARPList<ColorImage> _imagesList;
-	YARPList<MonoImage> _logPolarImagesList;
 	YARPListIterator<ColorImage> _imagesListIterator(_imagesList);
 	YARPListIterator<MonoImage> _logPolarImagesListIterator(_logPolarImagesList);
 
@@ -465,7 +455,6 @@ void SoundIdentificationThread::Body (void)
 	//----------------------------------------------------------------------
 	//LOCAL_TRACE("SoundIdentification: Declaring ports");
 	YARPInputPortOf<YARPSoundBuffer>   _inpSound(YARPInputPort::NO_BUFFERS ,YARP_TCP);
-	//YARPInputPortOf<YARPBottle>        _inpAction(YARPInputPort::DEFAULT_BUFFERS ,YARP_UDP);
 	YARPInputPortOf<YARPGenericImage>  _inpImg(YARPInputPort::NO_BUFFERS, YARP_TCP);
 	//YARPOutputPortOf<YVector>          _outpMfcc (YARPOutputPort::DEFAULT_OUTPUTS,YARP_UDP);
 	YARPOutputPortOf<YARPGenericImage> _outpImg;
@@ -474,7 +463,6 @@ void SoundIdentificationThread::Body (void)
 	YARPOutputPortOf<YARPGenericImage> _outHSHistogramPort;
 
 	//_inpSound.SetAllowShmem (_sharedmem);
-	//_inpAction.SetAllowShmem(_sharedmem);
 	//_inpImg.SetAllowShmem   (_sharedmem);
 	//_outpMfcc.SetAllowShmem (_sharedmem);
 	_outpImg.SetAllowShmem  (_sharedmem);
@@ -496,7 +484,6 @@ void SoundIdentificationThread::Body (void)
 
 	//LOCAL_TRACE("SoundIdentification: Registering ports");
 	_inpSound.Register (base1.append("i"     ).c_str());
-	//_inpAction.Register(base2.append("action").c_str());
 	_inpImg.Register   (base3.append("i:img").c_str());
 	//_outpMfcc.Register (base4.append("mfcc"  ).c_str());
 	_outpImg.Register  (base5.append("o:img"  ).c_str());
@@ -510,41 +497,13 @@ void SoundIdentificationThread::Body (void)
 	// Main loop.
 	//----------------------------------------------------------------------
 
-	//----------------------------------------------------------------------
-	//  The next variables control the action to be done by the front end. They
-	//	are received from an input port and supposed to be controlled by a higher 
-	//	level sound processing software (i.e. that deciding what to memorice, to
-	//	identify...etc.)
-	//  ---	'_sound_order' tells the position of the sound beeing sent, this can
-	//		be used in the case the sound are following a temporal sequence.
-	//	---	'_sound_save' tells the front end to save the current buffer in 
-	//		a sound template. When to start and end a template is controlled by
-	//		this variable in a "level-triggered" fasion (i.e. a level change from
-	//		0->1 produce the front-end to start saving a template; a level change
-	//		from 1-> says the front-end to stop saving the current template)
-	//	--- '_sound_idenficate' works in a similar ways as the previous variable, but
-	//		it goal is that to detect the start-end of a sound template that needs to
-	//		be identified.
-	//----------------------------------------------------------------------
-	int    _sound_order          = 0;
-	int    _sound_save           = 0;
-	int    _pre_sound_save       = 0;
-	int    _sound_identificate   = 0;
-	int    _pre_sound_idenficate = 0;
-	bool   _save                 = false;
-	bool   _identify             = false;
-	int    _dMixelValue          = 0;
-	double _dSoundRms            = 0.0;
+	int    _dMixelValue   = 0;
+	double _dSoundRms     = 0.0;
 	double _vRms[ARRAY_MAX];
-	int    _iMemoryFactor         = 0;
-	bool   _first                = true;
-	double _rmsmean              = __rmsthreshold + 1;
-	double _rmsmeansum           = 0.0;
-	int    _circleradius         = 0;
-	double _imgtimeacquisition   = 0.0;
-	double _soundtimeacquisition = 0.0;
-	double _imgtimeacquisitionold = 0.0;
-	double _soundtimeacquisitionold = 0.0;
+	int    _iMemoryFactor = 0;
+	bool   _first         = true;
+	double _rmsmean       = __rmsthreshold + 1;
+	double _rmsmeansum    = 0.0;
 
 	while(!IsTerminated())
 	{
@@ -559,27 +518,11 @@ void SoundIdentificationThread::Body (void)
 		//LOCAL_TRACE("SoundIdentification: Reading from ports");
 		_inpSound.Read(1); 
 		_inpImg.Read(1);  
-		//_imgInput.Refer(_inpImg.Content()); 
 		_inputLogPolarImage.Refer(_inpImg.Content());
 		_logPolarMapper.ReconstructColor (
 			(const YARPImageOf<YarpPixelMono>&)_inputLogPolarImage, 
 			_imgInput
 			);
-
-		//----------------------------------------------------------------------
-		//  Get acquisition time for the image. This double is travelling in the 
-		//  first bytes of the image.
-		//----------------------------------------------------------------------
-		//double * _pimgtimeacq = (double *)_imgInput.GetRawBuffer();
-		//_imgtimeacquisition   =  *_pimgtimeacq;
-
-		//
-		//Check image sequence correctness
-		//
-		//if ( _imgtimeacquisition < _imgtimeacquisitionold)
-		// 	ACE_OS::fprintf(stdout,"ALERT: error in image sequence time order\n");
-
-		//_imgtimeacquisitionold = _imgtimeacquisition; //Refresh the old variable
 
 		//----------------------------------------------------------------------
 		//  Calculate MFCC vector and add it into the sound template.
@@ -588,33 +531,6 @@ void SoundIdentificationThread::Body (void)
 		int ret = _soundTemplate.Add(_vOutMfcc, 2);  // Adds new vector; bufferize if necessary
 		ACE_ASSERT(ret != 0);
 
-		//
-		//Check sound sequence correctness
-		//
-		//if ( _soundtimeacquisition < _soundtimeacquisitionold)
-		//	ACE_OS::fprintf(stdout,"ALERT: error in sound sequence time order\n");
-
-		//_soundtimeacquisitionold = _soundtimeacquisition; //Refresh the old variable
-
-		//
-		//Chenk syncronization
-		//
-		//if (abs(_soundtimeacquisition - _imgtimeacquisition) > 0.010)
-		//	ACE_OS::fprintf(stdout,"ALERT: Unacceptable image/sound desynchronization.\n");
-
-		//----------------------------------------------------------------------
-		// Check images sizes.
-		//----------------------------------------------------------------------
-		/*
-		   int _iRealMixelImgHeight = _imgMixelgram.GetHeight() - __iSoundHistogramHeight;
-		   if ( _imgInput.GetWidth() != _imgMixelgram.GetWidth() || _imgInput.GetHeight() != _iRealMixelImgHeight)
-		   _imgMixelgram.Resize(_imgInput.GetWidth(),_imgInput.GetHeight() + __iSoundHistogramHeight);
-		   if (_first)
-		   {
-		   newimg.Resize(_imgInput.GetWidth(), _imgInput.GetHeight());
-		   _first = false;
-		   }
-		 */
 		//----------------------------------------------------------------------
 		//  Check size correctness.
 		//----------------------------------------------------------------------
@@ -824,37 +740,6 @@ void SoundIdentificationThread::Body (void)
 			_outpImg.Write();
 		}
 		*/
-#if 0
-		//----------------------------------------------------------------------
-		//  Actions stuff. This need to be written better.
-		//----------------------------------------------------------------------
-		_inAction.Read(); // Read what to do with the sound than now is beeing received
-		_botActions = _inAction.Content();
-
-		//Read and Proccess the action
-		_pre_sound_save = _sound_save;
-		_pre_sound_identification = _sound_indentification;
-		_botActions.readInt((int *)&_sound_order);
-		_botActions.readInt((int *)&_sound_save);
-		_botActions.readInt((int *)&_sound_identificate);
-
-		// Start recording a sound template
-		if ( _pre_sound_save == 0 && _sound_save == 1) 
-		{
-			_save = true;
-			//Create a new template and start saving
-
-		}
-		// End recording the courrent template
-		if ( _pre_sound_save == 1 && _sound_save == 0) 
-		{
-			_save = false;
-		}
-		// Start recording sound template to be identified
-		if ( _pre_sound_identification == 0 && _sound_identification == 1) {}
-		// End recording sound template and identify it
-		if ( _pre_sound_identification == 1 && _sound_identification == 0) {}
-#endif
 
 		//----------------------------------------------------------------------
 		//  Sends the mfcc coefficients

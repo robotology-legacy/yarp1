@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.h,v 1.3 2004-10-29 13:25:59 beltran Exp $
+/// $Id: SoundIdentificationThread.h,v 1.4 2004-11-01 12:59:22 beltran Exp $
 ///
 
 /** 
@@ -82,6 +82,12 @@ extern const char *__configFile;
 extern bool _sharedmem;
 extern int  _protocol;
 
+class SoundImagePair
+{
+	YARPSoundTemplate soundTemplate;
+	YARPImageOf<YarpPixelBGR> image;
+};
+
 /** 
  * Runs the main processing loop. 
  */
@@ -103,6 +109,8 @@ private:
 	YARPImageOf<YarpPixelMono> _inputLogPolarImage;
 	YARPImageOf<YarpPixelBGR> _coloredImage;
 	YARPLogpolar _logPolarMapper;
+	YARPList<ColorImage> _imagesList;
+	YARPList<MonoImage> _logPolarImagesList;
 	const int __sizex;
 	const int __sizey; 
 	const int __histoWidth;
