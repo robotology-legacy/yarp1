@@ -155,7 +155,8 @@ public:
 
 	void Set(int cols, int rows, int anchorX, int anchorY, int* values, int shiftR, int pos);
 	void SetGaussianRow(int radius, double variance, double norm, int shiftR, int pos);
-	
+	void SetGaussianCol(int radius, double variance, double norm, int shiftR, int pos);
+
 	//void Resize(int cols, int rows, int anchorX, int anchorY, int* values, int shiftR);
 	
 	void InitFixBorder();

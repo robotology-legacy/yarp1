@@ -278,6 +278,35 @@ void YARPArrayConvKernel::SetGaussianRow(int radius, double variance, double nor
 }
 
 
+void YARPArrayConvKernel::SetGaussianCol(int radius, double variance, double norm, int shiftR, int pos)
+{
+	ACE_ASSERT(kernels[pos] == NULL);
+	ACE_ASSERT(norm <= 1);
+	
+	double sum=0;
+
+	double *decimals = new double [2*radius+1];
+	int *values = new int [2*radius+1];
+
+	for (int i=0; i<2*radius+1; i++) {
+		decimals[i]=exp(-(i-radius)*(i-radius)/(2*variance*variance));
+		sum+=decimals[i];
+	}
+
+	for (i=0; i<2*radius+1; i++)
+		values[i]=decimals[i]/sum*norm*(1<<shiftR)+.5;
+		
+	YARPConvKernel *tmp = new YARPConvKernel(1, 2*radius+1, 0, radius, values, shiftR);
+
+	ipl_array[pos]=tmp->GetPointer();
+
+	kernels[pos]=tmp;
+
+	delete [] decimals;
+	delete [] values;
+}
+
+
 void YARPArrayConvKernel::InitFixBorder()
 {
 	// somme parziali

@@ -193,12 +193,15 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	sobel.Set(3,3,1,1,sobel7,2,7);
 
 	//gauss_c_s.Set(5,1,2,0,g_c,11,0);
+	//gauss_c_s.Set(1,5,0,2,g_c,11,1);
 	gauss_c_s.SetGaussianRow(2,1,1/sqrt(1.5),11,0);
-	gauss_c_s.Set(1,5,0,2,g_c,11,1);
+	gauss_c_s.SetGaussianCol(2,1,1/sqrt(1.5),11,1);
 	gauss_c_s.InitFixBorder();
 
-	gauss_s_s.Set(15,1,7,0,g_s,11,0);
-	gauss_s_s.Set(1,15,0,7,g_s,11,1);
+	//gauss_s_s.Set(15,1,7,0,g_s,11,0);
+	//gauss_s_s.Set(1,15,0,7,g_s,11,1);
+	gauss_s_s.SetGaussianRow(7,3,1,11,0);
+	gauss_s_s.SetGaussianCol(7,3,1,11,1);
 	gauss_s_s.InitFixBorder();
 	
 	//colored.Resize(_stheta, _srho);
@@ -1411,8 +1414,8 @@ void YARPImgAtt::findBlobs()
 	YARPImageFile::Write(savename, tmpBGR1);*/
 
 	
-	meanOppCol.Zero();
-	rain.DrawMeanOpponentColorsLP(meanOppCol, tagged);
+	/*meanOppCol.Zero();
+	rain.DrawMeanOpponentColorsLP(meanOppCol, tagged);*/
 
 
 	/*blobFinder.DrawGrayLP(tmp1, tagged, 200);

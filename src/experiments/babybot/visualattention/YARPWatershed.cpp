@@ -1606,6 +1606,7 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 }
 
 
+// NOTE: dst isn't cleaned!
 int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby)
 {
 	//IplROI zdi;
@@ -1619,7 +1620,7 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 	int minSalienceTD=INT_MAX;
 	int maxSalienceTD=INT_MIN;
 
-	dst.Zero();
+	//dst.Zero();
 	
 	if (numBlob>imageSize) numBlob=imageSize;
 

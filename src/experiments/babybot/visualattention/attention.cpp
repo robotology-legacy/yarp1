@@ -160,8 +160,8 @@ void secondthread::Body(void)
 
 void mainthread::Body (void)
 {
-	YARPGenericImage img;
-	YARPGenericImage imgOld;
+	YARPImageOf<YarpPixelMono> img;
+	YARPImageOf<YarpPixelMono> imgOld;
 	YARPImageOf<YarpPixelMono> tmp;
 
 	YARPImageOf<YarpPixelMono> out;
@@ -228,45 +228,66 @@ void mainthread::Body (void)
 	int frame_no = 0;
 
 	if (!inImage.Read())
+		ACE_OS::printf(">>> ERROR: frame not read\n"); // to skip the first frame and to clean the screen
+
+	YARPTime::DelayInSeconds(0.5);
+
+testDiff:
+	ACE_OS::printf("Inizialization of the motion detector...");
+	YarpPixelMono maxDiff=0;
+
+	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n");
 
 	imgOld.Refer(inImage.Content());
-	//iplRShiftS(imgOld, imgOld, 1);
-
-	start = YARPTime::GetTimeAsSeconds();
 	
-	bool isStarted = true;
+	// check for difference in "original" image or in grayscale?
+	for (int i=0; i<60; i++)
+	{
+		if (!inImage.Read())
+			ACE_OS::printf(">>> ERROR: frame not read\n");
+		img.Refer(inImage.Content());			
+
+		iplSubtract(img, imgOld, tmp);
+		iplSubtract(imgOld, img, imgOld);
+		iplAdd(imgOld, tmp, tmp);
+		
+		for (int y=0; y<_srho; y++)
+			for (int x=0; x<_stheta; x++)
+				if (tmp(x,y)>maxDiff)
+					maxDiff=tmp(x,y);
+		
+		imgOld.Refer(img);
+	}
+	if (maxDiff>127) {
+		ACE_OS::printf("Warning! Max=%d, it is too high!\n I'll recalculate it.", maxDiff);
+		goto testDiff;
+	} else
+		ACE_OS::printf("done! Max=%d", maxDiff);
 	
 	//att_mod.setParameters(109, 0, 18, 0, 1);
+	start = YARPTime::GetTimeAsSeconds();
+	bool isStarted = true;
 	
-	while (!IsTerminated())
-	{
-		
+	while (!IsTerminated())	{
 		YARPTime::DelayInSeconds(0.010);
 		////////// HANDLE MESSAGES
 		////// wait untill start message is received
-		if (inBottle.Read(0))
-		{
+		if (inBottle.Read(0)) {
 			// parse message
 			ACE_OS::printf("Port received:");
 			YARPBottle &bottle = inBottle.Content();
 			bottle.display();
 			YBVocab message;
-			if (bottle.tryReadVocab(message))
-			{
+			if (bottle.tryReadVocab(message)) {
 				ACE_OS::printf("Message received: ");
-				if (message == YBVVAStart)
-				{
+				if (message == YBVVAStart) {
 					ACE_OS::printf("starting\n");
 					isStarted = true;
-				}
-				else if (message == YBVVAStop)
-				{
+				} else if (message == YBVVAStop) {
 					ACE_OS::printf("stopping\n");
 					isStarted = false;
-				}
-				else if (message == YBVVASet)
-				{
+				} else if (message == YBVVASet) {
 					ACE_OS::printf("set new parameters\n");
 					bottle.readInt(&searchRG);
 					bottle.readInt(&searchGR);
@@ -279,14 +300,10 @@ void mainthread::Body (void)
 					bottle.readFloat(&salienceTD);
 
 					att_mod.setParameters(searchRG, searchGR, searchBY, salienceBU, cmp, ect, salienceTD);
-				}
-				else if (message == YBVVAUpdateIORTable)
-				{
+				} else if (message == YBVVAUpdateIORTable) {
 					ACE_OS::printf("updating IOR table\n");
 					att_mod.updateIORTable();
-				}
-				else if (message == YBVVAResetIORTable)
-				{
+				} else if (message == YBVVAResetIORTable) {
 					ACE_OS::printf("resetting IOR table\n");
 					att_mod.resetIORTable();
 				}
@@ -301,8 +318,7 @@ void mainthread::Body (void)
 		}
 		/////////////////////////////////////
 		//////// MAIN LOOP
-		if (isStarted)
-		{
+		if (isStarted) {
 			bool found;
 			
 			tmpBottle.reset();
@@ -332,98 +348,132 @@ void mainthread::Body (void)
 			iplRShiftS(imgOld, imgOld, 2);
 			iplAdd(tmp, imgOld, imgOld);*/
 
-			// 0.25*frame corrente + 0.75*frame precedente
-			iplRShiftS(imgOld, tmp, 2);
-			iplSubtract(imgOld, tmp, tmp);
-			iplRShiftS(img, imgOld, 2);
-			iplAdd(tmp, imgOld, img);
+			iplSubtract(img, imgOld, tmp);
+			iplSubtract(imgOld, img, imgOld);
+			iplAdd(imgOld, tmp, tmp);
+		
+			// Posso
+			//1) mettere a 1 tutti i pixel > di maxDiff, taggare
+			//2) sottrarre maxDiff, filtrare e taggare
+			//3) prendere il punto + vicino alla periferia > di maxDiff e selezionarlo
 
-			frame_no++;
-
-			DBGPF1 ACE_OS::printf(">>> reconstruct colors\n");
-			//mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)imgOld, colored_s);
-			mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)img, colored_s);
-
-			imgOld.Refer(img);
-
-			//ACE_OS::sprintf(savename, "./col.ppm\0");
-			//YARPImageFile::Write(savename, colored);
+			// filtro a mediana x eliminare i pixel isolati? Ma è lento...
 			
-			mapper.Sawt2Uniform(colored_s, colored_u);
-			//mapper.Sawt2TriCentral(colored_s, colored_u);
-			
-			DBGPF1 ACE_OS::printf(">>> call attention module\n");
+			out.Zero();
+
 			inVector.Read();
 			YVector &checkFix = inVector.Content();
-			found=att_mod.Apply(colored_u);
-			//if (checkFix(1)==1 && found) {
-			if (found) {
-				// no next target
-				tmpBottle.writeInt(-1);
-				tmpBottle.writeInt(-1);
-				tmpBottle.writeInt(-1);
-				tmpBottle.writeInt(-1);
-				tmpBottle.writeInt(-1);
-			} else {
-				// next target
-				tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
-				tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
-				tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
-				tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
-				tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);
-			}
-			// blob in fovea
-			tmpBottle.writeInt(att_mod.fovBox.meanRG);
-			tmpBottle.writeInt(att_mod.fovBox.meanGR);
-			tmpBottle.writeInt(att_mod.fovBox.meanBY);
-
-			outBottle.Content() = tmpBottle;
-			outBottle.Write();
-				
-			out.Refer(att_mod.Saliency());
-			out2.Refer(att_mod.BlobFov());
-		
-			//att_mod.FindNMax(7, pos_max);
-
-			//ACE_OS::printf("max position: x=%d y=%d max=%d\n", pos_x, pos_y, max);
-			//DBGPF1 ACE_OS::printf("max position: x=%d y=%d\n", pos_max[0].centroid_x, pos_max[0].centroid_y);
-
-			//ARRONZAMENTO
-			YARPImageUtils::SetRed(out, colored_u);
-			mapper.Uniform2Sawt(colored_u, colored_s);
-			YARPImageUtils::GetRed(colored_s, out);
-
-			YARPImageUtils::SetRed(out2, colored_u);
-			mapper.Uniform2Sawt(colored_u, colored_s);
-			YARPImageUtils::GetRed(colored_s, out2);
 			
-			/*out2.Zero();
-			memset(out2.GetRawBuffer(), 255, 50*((IplImage*)out2)->widthStep);
-			fitlp.fitEllipse(out2, &bfX0, &bfY0, &bfA11, &bfA12, &bfA22);
-			fitlp.plotEllipse(bfX0, bfY0, bfA11, bfA12, bfA22, out2, 127);
-			ACE_OS::sprintf(savename, "./ellipse.ppm");
-			YARPImageFile::Write(savename, out2);
+			if (checkFix(1)==1) {
+				for (int y=0; y<_srho; y++)
+					for (int x=0; x<_stheta; x++)
+						// points near the fovea are privileged?
+						// should I calculare the center of mass of the variations and the area?
+						if (tmp(x,y)>maxDiff) {
+							out(x,y)=255;
+							tmpBottle.writeInt(x);
+							tmpBottle.writeInt(y);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							imgOld.Refer(img);
+							goto printFrame;
+						}
+			} else {
+				// 0.25*current frame + 0.75*previous frame
+				iplRShiftS(imgOld, tmp, 2);
+				iplSubtract(imgOld, tmp, tmp);
+				iplRShiftS(img, imgOld, 2);
+				iplAdd(tmp, imgOld, img);
 
-			YARPImageUtils::SetRed(out2, colored_s);
-			mapper.Logpolar2Cartesian(colored_s, col_cart);
-			YARPImageUtils::GetRed(col_cart, out3);
-			//fit.fitEllipse(out3, &bfX0, &bfY0, &bfA11, &bfA12, &bfA22);
-			fit.plotEllipse(bfX0, bfY0, bfA11, bfA12, bfA22, out3, 127);
-			ACE_OS::sprintf(savename, "./ellipse.ppm");
-			YARPImageFile::Write(savename, out3);*/
+				frame_no++;
 
+				DBGPF1 ACE_OS::printf(">>> reconstruct colors\n");
+				//mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)imgOld, colored_s);
+				mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)img, colored_s);
+
+				imgOld.Refer(img);
+
+				//ACE_OS::sprintf(savename, "./col.ppm\0");
+				//YARPImageFile::Write(savename, colored);
+				
+				mapper.Sawt2Uniform(colored_s, colored_u);
+				//mapper.Sawt2TriCentral(colored_s, colored_u);
+				
+				DBGPF1 ACE_OS::printf(">>> call attention module\n");
+				found=att_mod.Apply(colored_u);
+				//if (checkFix(1)==1 && found) {
+				if (found) {
+					// no next target
+					tmpBottle.writeInt(-1);
+					tmpBottle.writeInt(-1);
+					tmpBottle.writeInt(-1);
+					tmpBottle.writeInt(-1);
+					tmpBottle.writeInt(-1);
+				} else {
+					// next target
+					tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
+					tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
+					tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
+					tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
+					tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);
+				}
+				// blob in fovea
+				tmpBottle.writeInt(att_mod.fovBox.meanRG);
+				tmpBottle.writeInt(att_mod.fovBox.meanGR);
+				tmpBottle.writeInt(att_mod.fovBox.meanBY);
+
+				outBottle.Content() = tmpBottle;
+				outBottle.Write();
+					
+				out.Refer(att_mod.Saliency());
+				out2.Refer(att_mod.BlobFov());
+			
+				//att_mod.FindNMax(7, pos_max);
+
+				//ACE_OS::printf("max position: x=%d y=%d max=%d\n", pos_x, pos_y, max);
+				//DBGPF1 ACE_OS::printf("max position: x=%d y=%d\n", pos_max[0].centroid_x, pos_max[0].centroid_y);
+
+				//ARRONZAMENTO
+				YARPImageUtils::SetRed(out, colored_u);
+				mapper.Uniform2Sawt(colored_u, colored_s);
+				YARPImageUtils::GetRed(colored_s, out);
+
+				YARPImageUtils::SetRed(out2, colored_u);
+				mapper.Uniform2Sawt(colored_u, colored_s);
+				YARPImageUtils::GetRed(colored_s, out2);
+				
+				/*out2.Zero();
+				memset(out2.GetRawBuffer(), 255, 50*((IplImage*)out2)->widthStep);
+				fitlp.fitEllipse(out2, &bfX0, &bfY0, &bfA11, &bfA12, &bfA22);
+				fitlp.plotEllipse(bfX0, bfY0, bfA11, bfA12, bfA22, out2, 127);
+				ACE_OS::sprintf(savename, "./ellipse.ppm");
+				YARPImageFile::Write(savename, out2);
+
+				YARPImageUtils::SetRed(out2, colored_s);
+				mapper.Logpolar2Cartesian(colored_s, col_cart);
+				YARPImageUtils::GetRed(col_cart, out3);
+				//fit.fitEllipse(out3, &bfX0, &bfY0, &bfA11, &bfA12, &bfA22);
+				fit.plotEllipse(bfX0, bfY0, bfA11, bfA12, bfA22, out3, 127);
+				ACE_OS::sprintf(savename, "./ellipse.ppm");
+				YARPImageFile::Write(savename, out3);*/
+
+				outImage2.Content().Refer(out2);
+				outImage2.Write();
+				
+				//v(1) = pos_max[0].centroid_x;
+				//v(2) = pos_max[0].centroid_y;
+				//out_point.Content() = v;
+				//out_point.Write();
+
+				//start = start + (YARPTime::GetTimeAsSeconds() - cur);
+			}
+
+printFrame:
 			outImage.Content().Refer(out);
 			outImage.Write();
-
-			outImage2.Content().Refer(out2);
-			outImage2.Write();
-			
-			//v(1) = pos_max[0].centroid_x;
-			//v(2) = pos_max[0].centroid_y;
-			//out_point.Content() = v;
-			//out_point.Write();
-
-			//start = start + (YARPTime::GetTimeAsSeconds() - cur);
 
 			if ((frame_no % 100) == 0) {
 				cur = YARPTime::GetTimeAsSeconds();
