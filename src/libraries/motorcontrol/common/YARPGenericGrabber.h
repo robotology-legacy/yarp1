@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericGrabber.h,v 1.4 2003-06-05 12:40:04 gmetta Exp $
+/// $Id: YARPGenericGrabber.h,v 1.5 2003-06-20 14:24:18 natta Exp $
 ///
 ///
 
@@ -73,7 +73,7 @@
 #include <ace/OS.h>
 
 #include <YARPFrameGrabberUtils.h>
-#include <YARPPicoloOnBabybotAdapter.h>
+// #include <YARPPicoloOnBabybotAdapter.h>
 
 template <class ADAPTER, class PARAMETERS>
 class YARPGenericGrabber
