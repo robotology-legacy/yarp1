@@ -37,7 +37,17 @@
 
 #include <YARPPort.h>
 #include <YARPImages.h>
+#include <YARPDIBConverter.h>
+#include <YARPLogpolar.h>
 #include <iostream>
+
+
+#include <YARPThread.h>
+#include <YARPSemaphore.h>
+#include <YARPScheduler.h>
+#include <YARPTime.h>
+#include <YARPImageFile.h>
+
 
 
 // we'll be testing three different types of blits, defaulting to the first
@@ -147,6 +157,7 @@ CoolImage *AllocBuffer(long w,long h,int fd)
 	{
 		//i->pitch=w*2;
 		i->pitch=w * deep;
+		//i->pitch=w * 4;
 		//if (i->buffer=(unsigned char*)malloc(w*h*deep))
 			return i;
 	}else
@@ -193,6 +204,7 @@ void FreeBuffer(CoolImage *i)
 // this function blits the given buffer using our blit type method
 inline void BlitBuffer(PtWidget_t *win,CoolImage *i)
 {
+	PhImage_t phimage;
 	// For blit type 0, we use PgDrawImagemx(). We have to make sure 
 	// to set the region to the windows region first.  Don't forget
 	// to flush! :)
@@ -205,9 +217,16 @@ inline void BlitBuffer(PtWidget_t *win,CoolImage *i)
 		size.h = WH;
 
 		PgSetRegion(PtWidgetRid(win)); 
-		//PgDrawImagemx(i->buffer,Pg_IMAGE_DIRECT_565,&pos,&size,i->pitch,0);
-		PgDrawImagemx(i->buffer,Pg_IMAGE_DIRECT_888,&pos,&size,i->pitch,0);
+		//PgDrawImagemx(i->buffer,Pg_IMAGE_DIRECT_555,&pos,&size,i->pitch,0);
+		////PgDrawImagemx(i->buffer,Pg_IMAGE_DIRECT_888,&pos,&size,i->pitch,0);
 
+		////PgFlush();
+		
+		phimage.size=size;
+		phimage.bpl = WH*deep;
+		phimage.type = Pg_IMAGE_DIRECT_888;
+		phimage.image =  (char *)i->buffer;
+		PgDrawPhImagemx( &pos, &phimage, 0  );
 		PgFlush();
 	}else
     if (blittype == 2)
@@ -258,6 +277,8 @@ inline void LoadImage(int cnt, CoolImage *i)
 
 int RunRemote()
 {
+	using namespace _logpolarParams;
+	
 	CoolImage *image;
 	int x,y;
 	int i,j;
@@ -280,7 +301,15 @@ int RunRemote()
     uint64_t cps, cycle1, cycle2, ncycles;
     float sec;
     
-   YARPImageOf<YarpPixelBGR> img;
+    //YARPImageOf<YarpPixelBGR> img;
+    YARPGenericImage img;
+    YARPGenericImage m_flipped;
+	YARPGenericImage m_remapped;
+	YARPImageOf<YarpPixelBGR> m_colored;
+
+	YARPLogpolar m_mapper;
+
+	//YARPDIBConverter m_converter;
 	//YARPInputPortOf<YARPGenericImage> inport (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 	YARPInputPortOf<YARPGenericImage> inport;
 
@@ -310,10 +339,12 @@ int RunRemote()
 	
 		   inport.Read ();	  
 		   img.Refer (inport.Content());
+
+		if (!_logp)
+		{
 		   image->buffer = (unsigned char *)img.GetRawBuffer();
 		   BlitBuffer(win,image);
 		   
-		 
 		   cycle2=ClockCycles( );
 		   counter++;
 
@@ -323,6 +354,61 @@ int RunRemote()
 		
 		   cps = SYSPAGE_ENTRY(qtime)->cycles_per_sec;
 		   sec=(float)ncycles/cps;
+		   
+		 }else //Log polar case
+		 {
+		 	//if (img.GetWidth() != _stheta || img.GetHeight() != _srho - _sfovea)
+			//{
+				/// falls back to cartesian mode.
+			//	_logp = false;
+			//	continue;
+			//}
+			
+			//YARPImageFile::Write("image0.PGM",img);
+
+			if (m_remapped.GetWidth() != 256 || m_remapped.GetHeight() != 256)
+			{
+				//m_remapped.Resize (256, 256, YARP_PIXEL_BGR);
+				m_remapped.Resize (256, 256, YARP_PIXEL_RGB);
+			}
+
+			if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho - _sfovea)
+			{
+				m_colored.Resize (_stheta, _srho-_sfovea);
+			}
+
+			if (m_flipped.GetWidth() != m_remapped.GetWidth() || m_flipped.GetHeight() != m_remapped.GetHeight())
+			{
+				m_flipped.Resize (m_remapped.GetWidth(), m_remapped.GetHeight(), m_remapped.GetID());
+			}
+
+			m_mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)img, m_colored);
+			m_mapper.Logpolar2Cartesian (m_colored, m_remapped);
+			//YARPSimpleOperation::Flip (m_remapped, m_flipped);
+			
+			//YARPImageFile::Write("remapped0.PPM",m_remapped);
+			//exit(0);
+			
+			 image->buffer = (unsigned char *)m_remapped.GetRawBuffer();
+			 
+			 
+			 
+			  BlitBuffer(win,image);
+
+			//m_mutex.Wait();
+			//if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
+			//{
+			//	m_converter.Resize (m_flipped);
+			//	m_x = m_flipped.GetWidth ();
+			//	m_y = m_flipped.GetHeight ();
+			//}
+
+			//if (!m_frozen)
+			//{
+				/// prepare the DIB to display.
+			//	m_converter.ConvertToDIB (m_flipped);
+			//}
+		 }
 	}
 
 
