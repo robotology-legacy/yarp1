@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPortContent.h,v 1.4 2003-06-17 20:20:36 babybot Exp $
+/// $Id: YARPPortContent.h,v 1.5 2003-07-02 23:03:08 babybot Exp $
 ///
 ///
 /*
@@ -111,7 +111,7 @@ struct HierarchyRoot
 class YARPPortContent : public HierarchyRoot<YARPPortContent>
 {
 public:
-	virtual ~YARPPortContent () { ACE_DEBUG ((LM_DEBUG, "destroying a YARPPortContent\n")); }
+	virtual ~YARPPortContent () { /*ACE_DEBUG ((LM_DEBUG, "destroying a YARPPortContent\n"));*/ }
 
 	virtual int Read(YARPPortReader& reader) = 0;
 	virtual int Write(YARPPortWriter& writer) = 0;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: FakeIpl.cpp,v 1.3 2003-06-22 15:47:42 gmetta Exp $
+/// $Id: FakeIpl.cpp,v 1.4 2003-07-02 23:03:07 babybot Exp $
 ///
 ///
 
@@ -728,7 +728,7 @@ IPLAPIIMPL(void, iplAllocateImage,(IplImage* image, int doFill, int fillValue))
 	// Not implemented depth != 8
 	int depth = (image->depth & IPL_DEPTH_MASK)/8;
 	assert (image->dataOrder == IPL_DATA_ORDER_PIXEL);
-	assert (image->widthStep == image->width * (image->depth & IPL_DEPTH_MASK) / 8 * image->nChannels);
+	///assert (image->widthStep == image->width * (image->depth & IPL_DEPTH_MASK) / 8 * image->nChannels);
 	assert (image->imageSize == image->widthStep * image->height);
 
 	image->imageData = AllocAligned<char> (image->imageSize);	/// new char[image->imageSize];

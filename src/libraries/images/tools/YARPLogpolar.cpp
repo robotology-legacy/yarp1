@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.9 2003-06-20 12:31:04 gmetta Exp $
+/// $Id: YARPLogpolar.cpp,v 1.10 2003-07-02 23:03:08 babybot Exp $
 ///
 ///
 
@@ -86,13 +86,20 @@ YARPLogpolarSampler::YARPLogpolarSampler (void)
 	char *path = GetYarpRoot ();
 	char filename[256];
 
+#ifdef __WIN32__
 	ACE_OS::sprintf(filename, "%s\\conf\\\0", path);
+#else
+	ACE_OS::sprintf(filename, "%s/conf/\0", path);
+#endif
 	/// loads cart to logpolar lookup table.
 	_cart2LP_Map = Load_Cart2LP_Map(&_fovea, filename);
 
 	/// logpolar to cartesian lookup table for the fovea.
+#ifdef __WIN32__
 	ACE_OS::sprintf(filename, "%s\\conf\\%s_%2.3f_%dx%d%s", path, "RemapMap", _fovea.Zoom_Level, _fovea.Size_X_Remap, _fovea.Size_Y_Remap, ".gio");
-
+#else
+	ACE_OS::sprintf(filename, "%s/conf/%s_%2.3f_%dx%d%s", path, "RemapMap", _fovea.Zoom_Level, _fovea.Size_X_Remap, _fovea.Size_Y_Remap, ".gio");
+#endif
 	FILE *fin;
 	fin = ACE_OS::fopen(filename,"rb");
 	ACE_ASSERT (fin != NULL);
@@ -106,7 +113,11 @@ YARPLogpolarSampler::YARPLogpolarSampler (void)
 	_colormap = (char *) malloc (_srho * _stheta);
 	ACE_ASSERT (_colormap != NULL);
 
+#ifdef __WIN32__
 	ACE_OS::sprintf(filename, "%s\\conf\\ColorMap.gio\0", path);
+#else
+	ACE_OS::sprintf(filename, "%s/conf/ColorMap.gio\0", path);
+#endif
 	fin = ACE_OS::fopen(filename,"rb");
 	ACE_ASSERT (fin != NULL);
 	ACE_OS::fread(_colormap, sizeof(char), _srho * _stheta, fin);
@@ -186,7 +197,11 @@ YARPLogpolar::YARPLogpolar (void)
 	char filename[256];
 
 	/// logpolar to cartesian lut for the periphery.
+#ifdef __WIN32__
 	ACE_OS::sprintf(filename,"%s\\conf\\%s_%2.3f%s", path, "RemapMapNoFov", _periphery.Zoom_Level, ".gio");
+#else
+	ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f%s", path, "RemapMapNoFov", _periphery.Zoom_Level, ".gio");
+#endif
 	FILE *fin = ACE_OS::fopen(filename,"rb");
 	ACE_ASSERT (fin != NULL);
 
@@ -196,7 +211,11 @@ YARPLogpolar::YARPLogpolar (void)
 	ACE_OS::fread(_remapMapNf, sizeof(int), _periphery.Size_Img_Remap, fin);
 	ACE_OS::fclose (fin);
 
+#ifdef __WIN32__
 	ACE_OS::sprintf(filename, "%s\\conf\\%s", path, "AngularShiftMap.gio");
+#else
+	ACE_OS::sprintf(filename, "%s/conf/%s", path, "AngularShiftMap.gio");
+#endif
 	fin = ACE_OS::fopen(filename, "rb");
 	ACE_ASSERT (fin != NULL);
 
@@ -205,7 +224,11 @@ YARPLogpolar::YARPLogpolar (void)
 	ACE_OS::fread(_angShiftMap, sizeof(double), _periphery.Size_Rho, fin);
 	ACE_OS::fclose (fin);
 
+#ifdef __WIN32__
 	ACE_OS::sprintf(filename, "%s\\conf\\%s", path, "PadMap.gio");
+#else
+	ACE_OS::sprintf(filename, "%s/conf/%s", path, "PadMap.gio");
+#endif
 	fin = ACE_OS::fopen(filename, "rb");
 	ACE_ASSERT (fin != NULL);
 
@@ -215,7 +238,11 @@ YARPLogpolar::YARPLogpolar (void)
 	ACE_OS::fread(_padMap, sizeof(short), _periphery.Size_Theta * _periphery.Size_Fovea, fin);
 	ACE_OS::fclose (fin);
 
+#ifdef __WIN32__
 	ACE_OS::sprintf(filename, "%s\\conf\\%s%02d%s", path, "WeightsMapNoFov", _periphery.Pix_Numb, ".gio");
+#else
+	ACE_OS::sprintf(filename, "%s/conf/%s%02d%s", path, "WeightsMapNoFov", _periphery.Pix_Numb, ".gio");
+#endif
 	fin = ACE_OS::fopen(filename, "rb");
 	ACE_ASSERT (fin != NULL);
 

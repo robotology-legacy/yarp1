@@ -35,6 +35,9 @@ VLDLIBS = $(LDLIBS:%=%$(VAR))
 
 BUILD = $(VBIN)
 
+w:
+	@echo please select a robot setup
+
 eurobot:
 	@make ROBOT=__QNXEurobot__ all
 

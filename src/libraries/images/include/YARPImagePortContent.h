@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImagePortContent.h,v 1.5 2003-07-02 21:36:29 babybot Exp $
+/// $Id: YARPImagePortContent.h,v 1.6 2003-07-02 23:03:08 babybot Exp $
 ///
 ///
 
@@ -100,7 +100,7 @@ public:
 	YARPImagePortContentHeader header;
 	virtual ~YARPImagePortContent () 
 	{
-		ACE_DEBUG ((LM_DEBUG, "destroying a YARPImagePortContent\n"));
+		///ACE_DEBUG ((LM_DEBUG, "destroying a YARPImagePortContent\n"));
 	}
 
 	virtual int Read(YARPPortReader& reader)

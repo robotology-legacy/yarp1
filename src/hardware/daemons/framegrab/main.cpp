@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.22 2003-07-02 14:40:05 babybot Exp $
+/// $Id: main.cpp,v 1.23 2003-07-02 23:03:07 babybot Exp $
 ///
 ///
 
@@ -84,19 +84,19 @@
 
 #	include <YARPEurobotGrabber.h>
 #	define Grabber YARPEurobotGrabber
-#	define Outport(x) YARPOutputPortOf<YARPGenericImage> ##x
+#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage> ##x
 
 #elif defined(__WIN32Babybot__)
 
 #	include <YARPBabybotGrabber.h>
 #	define Grabber YARPBabybotGrabber
-#	define Outport(x) YARPOutputPortOf<YARPGenericImage> ##x
+#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage> ##x
 
 #elif defined(__QNXBabybot__)
 
 #	include <YARPBabybotGrabber.h>
 #	define Grabber YARPBabybotGrabber
-#	define Outport(x) YARPOutputPortOf<YARPGenericImage> ##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage> ##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 
 #else
 
@@ -113,7 +113,9 @@ bool _simu = false;
 bool _logp = false;
 int _board_no = 0;
 
+
 extern int __debug_level;
+
 
 /// LATER: used to parse command line options.
 int ParseParams (int argc, char *argv[]) 
@@ -202,12 +204,23 @@ int _grabber2rgb (const unsigned char *in, unsigned char *out, int sz)
 	return YARP_OK;
 }
 
+
+#include <signal.h>
+
+bool finished = false;
+
+void _hh (int sig)
+{
+	finished = true;
+	ACE_OS::signal (SIGINT, _hh);
+}
+
+
 int _runAsClient (void)
 {
 	YARPImageOf<YarpPixelBGR> img;
 
 	YARPInputPortOf<YARPGenericImage> inport;
-	bool finished = false;
 
 	inport.Register (_name);
 	int frame_no = 0;
@@ -233,36 +246,19 @@ int _runAsClient (void)
 		}
 	}
 
+	ACE_OS::fprintf (stdout, "returning smoothly\n");
 	return YARP_OK;
 }
 
-#include <signal.h>
-
-void _handler (void)
-{
-	ACE_OS::fprintf (stderr, "atexit...\n");
-
-	return;
-}
-
-bool finished = false;
-
-void _hh (int sig)
-{
-	finished = true;
-	ACE_OS::signal (SIGINT, _hh);
-}
 
 int _runAsSimulation (void)
 {
-	ACE_OS::signal (SIGINT, _hh);
-	///ACE_OS::atexit (_handler);
-
 	YARPImageOf<YarpPixelBGR> img;
 	img.Resize (_size, _size);
 	img.Zero ();
 
-	YARPOutputPortOf<YARPGenericImage> outport;
+	DeclareOutport(outport);
+
 	///bool finished = false;
 
 	outport.Register (_name);
@@ -276,7 +272,6 @@ int _runAsSimulation (void)
 	double cur = start;
 
 	while (!finished)
-	///for (int i = 0; i < 500; i++)
 	{
 		YARPTime::DelayInSeconds (0.04);
 	
@@ -296,6 +291,7 @@ int _runAsSimulation (void)
 		}
 	}
 
+	ACE_OS::fprintf (stdout, "returning smoothly\n");
 	return YARP_OK;
 }
 
@@ -316,8 +312,8 @@ int _runAsLogpolarSimulation (void)
 	fovea.Resize (128, 128);
 	periphery.Resize (_stheta, _srho - _sfovea);
 
-	YARPOutputPortOf<YARPGenericImage> out_fovea;
-	YARPOutputPortOf<YARPGenericImage> out_periphery;
+	DeclareOutport(out_fovea);
+	DeclareOutport(out_periphery);
 
 	out_fovea.Register (_name);
 	char name_p[512];
@@ -332,10 +328,15 @@ int _runAsLogpolarSimulation (void)
 
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
+	///bool finished = false;
 
 	char * path = ACE_OS::getenv ("YARP_ROOT");
 	char filename[512];
+#ifdef __WIN32__
 	ACE_OS::sprintf (filename, "%s\\conf\\test_grabber.ppm\0", path);
+#else
+	ACE_OS::sprintf (filename, "%s/conf/test_grabber.ppm\0", path);
+#endif
 	YARPImageFile::Read (filename, img);
 
 	while (!finished)
@@ -367,6 +368,7 @@ int _runAsLogpolarSimulation (void)
 		}
 	}
 
+	ACE_OS::fprintf (stdout, "returning smoothly\n");
 	return YARP_OK;
 }
 
@@ -388,9 +390,9 @@ int _runAsLogpolar (void)
 	fovea.Resize (128, 128);
 	periphery.Resize (_stheta, _srho - _sfovea);
 
-	YARPOutputPortOf<YARPGenericImage> out_fovea;
-	YARPOutputPortOf<YARPGenericImage> out_periphery;
-	bool finished = false;
+	DeclareOutport(out_fovea);
+	DeclareOutport(out_periphery);
+	///bool finished = false;
 
 	out_fovea.Register (_name);
 
@@ -412,11 +414,13 @@ int _runAsLogpolar (void)
 	ACE_OS::fprintf (stdout, "grabber is logpolar\n");
 	ACE_OS::fprintf (stdout, "acq size: w=%d h=%d\n", w, h);
 
+#if 0
 	if (w != _xsize || h != 2 * _xsize) ///2 * _size)
 	{
 		ACE_OS::fprintf (stderr, "pls, specify a different size, application will now exit\n");
 		finished = true;
 	}
+#endif
 
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
@@ -458,6 +462,7 @@ int _runAsLogpolar (void)
 
 	grabber.uninitialize ();
 
+	ACE_OS::fprintf (stdout, "returning smoothly\n");
 	return YARP_OK;
 }
 
@@ -467,9 +472,9 @@ int _runAsCartesian (void)
 	YARPImageOf<YarpPixelBGR> img;
 	img.Resize (_size, _size);
 
-	Outport(outport);
+	DeclareOutport(outport);
 
-	bool finished = false;
+	////bool finished = false;
 
 	outport.Register (_name);
 
@@ -525,6 +530,7 @@ int _runAsCartesian (void)
 
 	grabber.uninitialize ();
 
+	ACE_OS::fprintf (stdout, "returning smoothly\n");
 	return YARP_OK;
 }
 
@@ -536,6 +542,8 @@ int main (int argc, char *argv[])
 	YARPScheduler::setHighResScheduling ();
 
 	ParseParams (argc, argv);
+
+	ACE_OS::signal (SIGINT, _hh);
 
 	if (_client)
 	{
