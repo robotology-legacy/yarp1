@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.12 2003-06-23 08:05:55 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.13 2003-06-23 16:35:55 babybot Exp $
 ///
 ///
 
@@ -890,7 +890,7 @@ void _SocketThreadMcast::BodyMcast (void)
 		if (rr >= 1 && set.is_set (_local_socket.get_handle()))
 		{
 			r = _local_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_name(), incoming.get_port_number()));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
 
 			if (r >= 0 && hdr.GetLength() == (_MAGIC_NUMBER + 1))
 			{
@@ -936,7 +936,7 @@ void _SocketThreadMcast::BodyMcast (void)
 
 			/// maybe I need to have a big recv for the total number of bytes or more?
 			///r = _mcast_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
-			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_name(), incoming.get_port_number()));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
 
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? received header _SocketThreadMcast, len = %d\n", hdr.GetLength()));
 
