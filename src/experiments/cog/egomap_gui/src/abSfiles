@@ -1,0 +1,1 @@
+ABSRC = ../abmain.cc ../do_appear1.cc ../do_appear2.cc ../do_appear3.cc ../do_appear4.cc ../do_appear5.cc ../do_reset.cc ../do_revert1.cc ../do_revert2.cc ../do_revert3.cc ../do_revert4.cc ../do_revert5.cc ../do_target1.cc ../do_target2.cc ../do_target3.cc ../do_target4.cc ../do_target5.cc ../go_point.cc ../initialize.cc ../shipment.cc

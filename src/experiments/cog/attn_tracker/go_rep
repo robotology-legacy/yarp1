@@ -1,0 +1,3 @@
+porter /yarp/attention/out !/yarp/closed_loop/in/color_segm_data
+sleep 1
+porter /attn_tracker/o:pos /yarp/closed_loop/in/color_segm_data

@@ -1,0 +1,7 @@
+(
+sleep 2
+porter /yarp/right/fovea2 /obj_segment/i:img
+porter /obj_segment/o:img /view1
+conditional_porter /obj_segment/o:bot /yarp/msg/i:msgreply
+) &
+on -n16 ./obj_segment

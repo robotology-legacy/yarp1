@@ -1,0 +1,9 @@
+(
+sleep 4
+porter /voice_control/o:bot /behave/i:bot
+for target in `sin gna | grep "i:bot" | cut -d" " -f1`; do
+  echo Connecting to $target
+  porter /behave/o:bot $target
+done
+) &
+./oh_behave
