@@ -50,7 +50,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo
+# ADD LIB32 /nologo /out:"..\lib\winnt\libYARP_OS.lib"
 
 !ELSEIF  "$(CFG)" == "libYARP_OS - Win32 Debug"
 
@@ -74,7 +74,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"..\obj\winnt\libYARP_OSd.lib"
+# ADD LIB32 /nologo /out:"..\lib\winnt\libYARP_OSd.lib"
 
 !ENDIF 
 
@@ -116,6 +116,10 @@ SOURCE=.\wide_nameloc.cpp
 # Begin Source File
 
 SOURCE=.\YARPAll.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPBottle.cpp
 # End Source File
 # Begin Source File
 
@@ -197,6 +201,10 @@ SOURCE=.\YARPThreadAux.cpp
 
 SOURCE=.\YARPTime.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\YARPVector.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -216,6 +224,18 @@ SOURCE=..\include\yarp\YARPAll.h
 # Begin Source File
 
 SOURCE=..\include\yarp\YARPBool.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPBottle.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPBottleCodes.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPBottleContent.h
 # End Source File
 # Begin Source File
 
@@ -321,6 +341,10 @@ SOURCE=..\include\yarp\YARPThread.h
 
 SOURCE=..\include\yarp\YARPTime.h
 # End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPVector.h
+# End Source File
 # End Group
 # Begin Group "Private Header Files"
 
@@ -374,5 +398,9 @@ SOURCE=..\include\yarp_private\YARPFragments.h
 SOURCE=..\include\yarp_private\YARPNameID_defs.h
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=..\build.bat
+# End Source File
 # End Target
 # End Project
