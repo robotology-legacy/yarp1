@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.9 2003-10-31 12:19:23 beltran Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.10 2003-11-11 11:36:15 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -123,7 +123,9 @@ protected:
 	int * m_temp_int_array;
 	double * m_temp_double_array;
 	long * data;
+	bool m_max_vel;
 
+	double * _last_ordered_positions;
 	double * _current_positions;
 	double * _current_vel;
 	double * _current_accel;

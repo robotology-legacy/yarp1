@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.9 2003-10-31 12:19:23 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.10 2003-11-11 11:36:15 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -129,9 +129,12 @@ int YARPGalilDeviceDriver::open(void *d)
 	m_temp_double_array = new double[m_njoints];
 	data = new long[m_njoints]; 
 
+	_last_ordered_positions= new double [m_njoints];
 	_current_positions = new double [m_njoints];
 	_current_vel	   = new double [m_njoints];
 	_current_accel	   = new double [m_njoints];
+
+	m_max_vel = false;
 
 	int i;
 	int j;
@@ -165,6 +168,11 @@ int YARPGalilDeviceDriver::close(void)
 
 	if (data != NULL)
 		delete [] data;
+
+	
+
+	if (_last_ordered_positions != NULL)
+		delete [] _last_ordered_positions;
 
 	if (_current_positions != NULL)
 		delete [] _current_positions;
@@ -641,20 +649,25 @@ int YARPGalilDeviceDriver::set_positions (void *param)
 	return rc;
 }
 
-/*
+
 int YARPGalilDeviceDriver::set_commands (void *param) 
 {
 
 	double max_speeds[6] = {1000000,1000000,1000000,2000,2000,2000}; 
 	double max_accel[6]  = {1000000,1000000,1000000,2000,2000,2000};
 
-	set_speeds(max_speeds);
-	set_accelerations(max_accel);
+	if (!m_max_vel)
+	{
+		set_speeds(max_speeds);
+		set_accelerations(max_accel);
+		m_max_vel = true;
+	}
 
 	return set_positions (param); 
 	
 }
-*/
+
+/*
 
 int YARPGalilDeviceDriver::set_commands (void *param) 
 {
@@ -662,10 +675,10 @@ int YARPGalilDeviceDriver::set_commands (void *param)
 
 	int cmd_length = 0;
 
-	//double max_speeds[6] = {1000000,1000000,1000000,2000,2000,2000}; 
-	//double max_accel[6]  = {1000000,1000000,1000000,2000,2000,2000};
+	double max_speeds[6] = {1000000,1000000,1000000,2000,2000,2000}; 
+	double max_accel[6]  = {1000000,1000000,1000000,2000,2000,2000};
 
-	bool motion_done = false;
+	//bool motion_done = false;
 
 	///double _jog_vels[6] = {0,0,0,0,0,0};
 
@@ -678,39 +691,37 @@ int YARPGalilDeviceDriver::set_commands (void *param)
 
 	///check_motion_done(&motion_done);
 
-	get_ref_positions(_current_positions);
+	///get_ref_positions(_current_positions);
 	///get_positions(_current_positions);
 
-	for (int i = 0; i <  m_njoints; i++)
-	//{
-			m_temp_double_array[i] = positions_double[i] - _current_positions[i];
+	///for (int i = 0; i <  m_njoints; i++)
+	///			m_temp_double_array[i] = positions_double[i] - _current_positions[i];
+		
 	//		if (m_temp_double_array[i] > 0)
 	//			_jog_vels[i] = 1;
 	//		else
 	//			_jog_vels[i] = -1;
-	//}
 
-	//set jog mode. This is necesary to run the IP command in the adecuate mode
 	
-		
 	double_to_int(m_temp_int_array, m_temp_double_array);
 	
-	sprintf(m_buffer_out,"IP %d,%d,%d,%d,%d,%d",m_temp_int_array[0]
-											   ,m_temp_int_array[1]
-											   ,m_temp_int_array[2]
-											   ,m_temp_int_array[3]
-											   ,m_temp_int_array[4]
-											   ,m_temp_int_array[5]);
+	sprintf(m_buffer_out,"IP%d,%d,%d,%d,%d,%d",m_temp_int_array[0]
+											  ,m_temp_int_array[1]
+											  ,m_temp_int_array[2]
+											  ,m_temp_int_array[3]
+											  ,m_temp_int_array[4]
+											  ,m_temp_int_array[5]);
 
-	//if(motion_done)
 
 	rc = DMCCommand((HANDLEDMC) m_handle,
 					m_buffer_out,
 					m_buffer_in, buff_length);
+	
 
-	return rc;
+	return set_positions(param);
 
 }
+*/
 
 //TODO: int to double transformation
 int YARPGalilDeviceDriver::define_positions (void *param) 
