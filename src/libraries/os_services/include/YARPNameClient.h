@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.7 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: YARPNameClient.h,v 1.8 2003-05-16 00:02:31 gmetta Exp $
 ///
 ///
 
@@ -93,10 +93,14 @@
 
 #include <string>
 
+///#define NAME_CLIENT_VERBOSE it doesn't work under QNX6!
+/// core dump, something very wrong with this define???
+///
+
 #ifdef NAME_CLIENT_VERBOSE
-	#include <stdio.h>
+///	#include <stdio.h>
 	#define NAME_CLIENT_DEBUG(string) \
-		do {printf("NAME_CLIENT: "),printf string;} while(0)
+		do {ACE_OS::printf("NAME_CLIENT: "),ACE_OS::printf string;} while(0)
 #else
 	#define NAME_CLIENT_DEBUG(string)\
 		do {} while(0)
@@ -389,10 +393,11 @@ private:
 		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
 		
 		YARPNameUDP *tmpRpl = (YARPNameUDP *)data_buf_;
+
 		for (int i = 0; i < n; i++)
 		{
 			ports[i] = tmpRpl->getPorts(i);
-			NAME_CLIENT_DEBUG(("Received %s(%s):%d\n", ip.c_str(), tmpCmd.type, ports[i]));
+			NAME_CLIENT_DEBUG(("Received %s(%d):%d\n", ip.c_str(), (int)tmpCmd.type, (int)ports[i]));
 		}
 						
 		// close the connection
@@ -572,7 +577,7 @@ private:
 		
 		entry = *(YARPNameQnx *)data_buf_;
 										
-		NAME_CLIENT_DEBUG(("Received %s %s(%s) %d %d\n", entry.getName(), entry.getNode(), servicetypeConverter(*type), entry.getPid(), entry.getChan()));
+		NAME_CLIENT_DEBUG(("Received %s %s(%s) %d %d\n", entry.getName(), entry.getNode(), servicetypeConverter(*type), (int)entry.getPid(), (int)entry.getChan()));
 				
 		// close the connection
 		close();

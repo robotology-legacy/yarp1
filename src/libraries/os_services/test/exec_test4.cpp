@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test4.cpp,v 1.2 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: exec_test4.cpp,v 1.3 2003-05-16 00:02:31 gmetta Exp $
 ///
 ///
 
@@ -74,6 +74,7 @@
 #include "YARPThread.h"
 #include "YARPTime.h"
 #include "YARPSocketSyncComm.h"
+#include "YARPNativeNameService.h"
 
 #define REG_TEST_NAME "localhost|1111"
 #define REG_LOCATE_NAME "localhost|1111"
@@ -108,8 +109,6 @@ public:
 				return;
 			}
 
-///			id.allocP2(1);
-///			id.getP2Ptr()[0] = 3000;
 			YARPEndpointManager::CreateOutputEndpoint (id);
 			YARPEndpointManager::ConnectEndpoints (id);
 

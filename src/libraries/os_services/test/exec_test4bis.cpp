@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test4bis.cpp,v 1.1 2003-05-12 23:37:24 gmetta Exp $
+/// $Id: exec_test4bis.cpp,v 1.2 2003-05-16 00:02:31 gmetta Exp $
 ///
 ///
 
@@ -82,7 +82,7 @@
 #include "YARPTime.h"
 #include "YARPSyncComm.h"
 #include "YARPSocketNameService.h"
-
+#include "YARPNativeNameService.h"
 
 #define REG_TEST_NAME "/pippo1"
 #define REG_LOCATE_NAME "/pippo1"
@@ -162,8 +162,12 @@ public:
 		int ct = 0;
 		YARPTime::DelayInSeconds(0.01);
 
+#ifdef __QNX6__
+		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel());
+#else
 		/// connect to name server and get ip and port.
 		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
+#endif
 		if (id.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 		{
 			ACE_DEBUG ((LM_DEBUG, "can't register name, bailing out\n"));
@@ -198,6 +202,9 @@ public:
 
 int main(int argc, char *argv[])
 {
+	ACE_UNUSED_ARG(argc);
+	ACE_UNUSED_ARG(argv);
+
 	MyThread1 t1;
 //	MyThread1 t3;
 	MyThread2 t2;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.10 2003-05-15 16:57:45 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.11 2003-05-16 00:02:31 gmetta Exp $
 ///
 ///
 
@@ -140,9 +140,16 @@ static int my_getpid()
 
 #else //QNX6
 
+#include <pthread.h>
 static int my_getpid()
 {
 	return getpid();
+}
+
+/// returns the thread Id.
+static int my_gettid()
+{
+	return (int)pthread_self();
 }
 
 #endif
@@ -189,7 +196,7 @@ public:
 	/// get the socket from the map of all in sockets.
 	inline YARPNetworkObject *GetThreadSocket(void)
 	{
-		int pid = my_getpid();
+		int pid = my_gettid();
 		YARPNetworkObject *result = NULL;
 		mutex.Wait();
 		if (_map.find(pid) != _map.end())
@@ -243,7 +250,7 @@ YARPNameID YARPSocketEndpointManager::CreateInputEndpoint (YARPUniqueNameID& nam
 	if (GetThreadSocket() == NULL)
 	{
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ checks out okay\n"));
-		int pid = my_getpid();
+		int pid = my_gettid();
 		_endpointmanager.mutex.Wait();
 
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ creating\n"));
@@ -306,7 +313,7 @@ YARPNameID YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& na
 	if (GetThreadSocket() == NULL)
 	{
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ checks out okay\n"));
-		int pid = my_getpid();
+		int pid = my_gettid();
 		_endpointmanager.mutex.Wait();
 
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ creating\n"));
