@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.13 2004-01-23 10:32:36 fberton Exp $
+/// $Id: AuxFunctions.cpp,v 1.14 2004-02-23 11:12:34 fberton Exp $
 ///
 ///
 
@@ -441,7 +441,8 @@ rgbPixel computeAvg(int SizeRho,int SizeTheta, int padding, unsigned char * imag
 	int diff = SizeTheta-SizeFovea*6;
 	Size -= (SizeFovea*(SizeFovea-1))*3+(SizeFovea-1)*diff+SizeTheta-1;
 //	Size = (SizeRho-5)*SizeTheta;
-	int paddedLine = computePadSize(3 * SizeTheta,padding);
+//	int paddedLine = computePadSize(3 * SizeTheta,padding);
+	int paddedLine = 3 * SizeTheta+padding;
 
 	int i,j;
 	int sumR = 0;
@@ -455,6 +456,8 @@ rgbPixel computeAvg(int SizeRho,int SizeTheta, int padding, unsigned char * imag
 			sumG += image[j*paddedLine+i+1];
 			sumB += image[j*paddedLine+i+2];
 		}
+
+
 	
 	avg.Red = sumR/Size;
 	avg.Gre = sumG/Size;

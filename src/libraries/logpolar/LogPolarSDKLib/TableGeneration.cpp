@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.36 2004-02-04 16:10:22 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.37 2004-02-23 11:12:34 fberton Exp $
 ///
 ///
 
@@ -2598,8 +2598,8 @@ void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, 
 	int i_SumR,i_SumG,i_SumB;
 	unsigned int position;
 	unsigned char shift; 
-	int AddedPadSize = (Par->Size_Theta * 3) % Par->padding;
-	int PadSizeSmall = ((THETA * 3) % Par->padding)+3*THETA;
+	int AddedPadSize;// = (Par->Size_Theta * 3) % Par->padding;
+	int PadSizeSmall;// = ((THETA * 3) % Par->padding)+3*THETA;
 
 	PadSizeSmall = computePadSize(3*THETA,Par->padding);
 	AddedPadSize = PadSizeSmall - 3*THETA;

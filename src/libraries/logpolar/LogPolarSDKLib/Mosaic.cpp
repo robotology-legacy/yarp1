@@ -6,7 +6,7 @@
 #include "LogPolarSDK.h"
 #include "Mosaic.h"
 
-
+/*
 unsigned char * Crop_Image (unsigned char * Input_Image,Image_Data * Par,int OrigXSize, int DestSize)
 {
 	int i,j;
@@ -36,7 +36,8 @@ unsigned char * Crop_Image (unsigned char * Input_Image,Image_Data * Par,int Ori
 
 	return Output_Image;
 }
-
+*/
+/*
 void Add_to_Full_Image (unsigned char * Input_Image,
 						unsigned char * Full_Image, 
 						unsigned char * Mos_Map, 
@@ -93,7 +94,7 @@ void Add_to_Full_Image (unsigned char * Input_Image,
 
 		}
 }
-
+*/
 double * Find_Max_Corr(int X1, int Y1, int X2, int Y2, unsigned char * Image1, unsigned char * Image2)
 {
 	//Image 1 is the reference image, while Image 2 is the moving image

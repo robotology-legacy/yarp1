@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.35 2004-02-04 17:44:27 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.36 2004-02-23 11:12:34 fberton Exp $
 ///
 ///
 
@@ -1721,16 +1721,16 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 }
 
 
-int shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aFull, rgbPixel aFov,int Rows, double treshold)
+void shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aFull, rgbPixel aFov,int Rows, int * count)
 {
 	int i,j,k,k1;
 	int i2,i1;//iR,iL
-	int *count;
+//	int *count;
 	double d_1;
 	double d_2;
-	double MIN = 10000;
-	int MAX = 0;
-	int minindex;
+//	double MIN = 10000;
+//	int MAX = 0;
+//	int minindex;
 
 	double numr   = 0;
 	double den_1r = 0;
@@ -1744,7 +1744,7 @@ int shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Data
 
 	unsigned char * fullPtr,* fovPtr;
 
-	count = (int*) malloc (Steps * sizeof(int));
+//	count = (int*) malloc (Steps * sizeof(int));
 
 	fullPtr = fullImg;
 	fovPtr = fovImg;
@@ -1777,6 +1777,7 @@ int shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Data
 		}
 //		if (ShiftMap[k1]!=0)
 //			count[k] -=1;
+
 
 		numr   = 0;
 		den_1r = 0;
@@ -1826,40 +1827,39 @@ int shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Data
 					}
 					else fovPtr +=3;
 				}
-			fovPtr += AddedPadSize;
+			fovPtr+=AddedPadSize;
 		}
 
 		corr_val[k]  = (1.0 - (numr * numr) / (den_1r * den_2r + 0.00001));	
 		corr_val[k] += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
 		corr_val[k] += (1.0 - (numb * numb) / (den_1b * den_2b + 0.00001));	
 
-		if (count[k]>MAX)
-			MAX = count[k];
+//		if (count[k]>MAX)
+//			MAX = count[k];
 
 //		printf("%03d     %2.5f\n",k-SParam.Resolution/2,corr_val);
 //			corr_val[k] = (3-corr_val[k])*count;
 			corr_val[k] = (3-corr_val[k]);
+
 		}
 
+/*
 	for (k=0; k<Steps; k++)
 	{
-		if (count[k]<treshold)
+		if (count[k]<MAX)
 			corr_val[k] = 3.0;
 		else
-			corr_val[k] = 3-(corr_val[k]);
+			corr_val[k] = 3.0-(count[k]*corr_val[k]/MAX);
 
-//		corr_val[k] = 1.0-(corr_val[k]/(double)MAX);
 	}
-//		corr_val[k] = 3-((3-corr_val[k])*pixCount[k]/(double)MAX);
 
-//	MAX = -10.0;
 	for (k=0; k<Steps; k++)
 		if (corr_val[k]<MIN)
 		{
 			MIN = corr_val[k];
 			minindex = k;
 		}
-
+*/
 
 /*	int counter = 0;
 
@@ -1882,12 +1882,12 @@ int shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Data
 		}
 	}
 */
-	free(count);
+//	free(count);
 
 /*	if (corr_val[minindex] > treshold)
 		minindex = -1;
 */	
-	return minindex;
+//	return minindex;
 }
 
 void Make_Disp_Histogram(unsigned char * hist,int height, int width, int shiftLevels, double * corrFunct)
