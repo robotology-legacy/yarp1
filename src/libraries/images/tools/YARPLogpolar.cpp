@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.18 2003-09-24 16:10:47 babybot Exp $
+/// $Id: YARPLogpolar.cpp,v 1.19 2003-10-02 14:40:29 beltran Exp $
 ///
 ///
 
@@ -202,7 +202,7 @@ YARPLogpolar::YARPLogpolar (void)
 #ifdef __WIN32__
 			ACE_OS::sprintf(filename,"%s\\conf\\%s_%2.3f_%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
 #else
-			ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
+			ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f_%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
 #endif
 			FILE *fin = ACE_OS::fopen(filename,"rb");
 			if (fin == NULL)
