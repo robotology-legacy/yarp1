@@ -55,10 +55,10 @@ byte _control_mode[JN] = { MODE_IDLE, MODE_IDLE };
 
 Int32 _position[JN] = { 0, 0 };			/* encoder position */
 Int32 _position_old[JN] = { 0, 0 };		/* do I need to add bits for taking into account multiple rotations */
-Int32 _speed[JN] = { 0, 0 };				/* encoder speed */
+Int32 _speed[JN] = { 0, 0 };			/* encoder speed */
 
 Int32 _desired[JN] = { 0, 0 };			/* PID ref value, computed by the trajectory generator */
-Int32 _set_point[JN] = { 0, 0 };			/* set point for position [user specified] */
+Int32 _set_point[JN] = { 0, 0 };		/* set point for position [user specified] */
 
 Int32 _min_position[JN] = { -DEFAULT_MAX_POSITION, -DEFAULT_MAX_POSITION };
 Int32 _max_position[JN] = { DEFAULT_MAX_POSITION, DEFAULT_MAX_POSITION };
@@ -72,44 +72,49 @@ Int16  _max_vel[JN] = { DEFAULT_MAX_VELOCITY, DEFAULT_MAX_VELOCITY };
 										
 Int16  _set_acc[JN] = { DEFAULT_ACCELERATION, DEFAULT_ACCELERATION };
 										/* set point for acceleration [too low!] */
-Int16  _integral[JN] = { 0, 0 };			/* store the sum of the integral component */
+Int16  _integral[JN] = { 0, 0 };		/* store the sum of the integral component */
 Int16  _integral_limit[JN] = { 0x7fff, 0x7fff };
 
-Int16  _error[JN] = { 0, 0 };				/* actual feedback error */
-Int16  _error_old[JN] = { 0, 0 };			/* error at t-1 */
+Int16  _error[JN] = { 0, 0 };			/* actual feedback error */
+Int16  _error_old[JN] = { 0, 0 };		/* error at t-1 */
 
 Int16  _pid[JN] = { 0, 0 };				/* pid result */
-Int16  _pid_limit[JN] = { 100, 100 };		/* pid limit */
+Int16  _pid_limit[JN] = { 100, 100 };	/* pid limit */
 
-Int16  _kp[JN] = { 10, 10 };				/* PID gain */
+Int16  _kp[JN] = { 10, 10 };			/* PID gain */
 Int16  _kd[JN] = { 40, 40 };
 Int16  _ki[JN] = { 0, 0 };
 Int16  _ko[JN] = { 0, 0 };				/* offset */
 Int16  _kr[JN] = { 3, 3 };				/* scale factor (negative power of two) */
 
+Int16 _counter = 0;						/* used to count cycles, it resets now and then */
+										/* to generate periodic events */
+const byte _step = 4;					/* event generation period, counter reset */
+
+/*
+ * version specifi global variables.
+ */
 #if VERSION == 0x0113
 Int32  _other_position[JN] = { 0, 0 };	/* the position of the synchronized card */
 Int32  _adjustment[JN] = { 0, 0 };		/* the actual adjustment (compensation) */
 Int32  _delta_adj[JN] = { 0, 0 };		/* velocity over the adjustment */
 
-bool _pending_request[JN] = { false, false };			/* whether a request to another card is pending */
-Int16  _timeout[JN] = { 0, 0 };			/* used to timeout requests */
-Int16 _counter = 0;
+bool _pending_request = false;			/* whether a request to another card is pending */
+Int16  _timeout = 0;					/* used to timeout requests */
+canmsg_t _canmsg;
 #endif
 
 /* CAN bus communication global vars */
-byte 	CAN_data[8];					/* CAN bus message */
-dword 	CAN_messID = 0;					/* arbitration */
-byte 	CAN_frameType;
-byte 	CAN_frameFormat;
-byte 	CAN_length;						/* len of the data */
+canmsg_t can_fifo[CAN_FIFO_LEN];
+Int16 write_p = 0;
+Int16 read_p = -1;					/* -1 means empty, last_read == fifo_ptr means full */
 
 byte	_board_ID = DEFAULT_BOARD_ID;	/* */
 byte	_general_board_error = ERROR_NONE;
 
 volatile bool _wait = true;				/* wait on timer variable */
 
-extern bool _ended[];						/* trajectory completed flag */
+extern bool _ended[];					/* trajectory completed flag */
 #define IS_DONE(jj) (_ended[jj])
 
 /* Local prototypes */
@@ -121,13 +126,7 @@ void can_send_request(void);
 #endif
 
 /*
- * macro functions variables.
- */
-Int32 saturate;
-Int16 u0, u1, ud;
-
-/*
- * new version of the macro.
+ * compute PID control (integral is not yet implemented).
  */
 Int16 compute_pid2(byte j)
 {
@@ -174,66 +173,6 @@ Int16 compute_pid2(byte j)
 	return (extract_l(PIDoutput));
 }
 
-/* compute PID macro: j can only be 0 or 1 */
-/* requires global var saturate */
-
-/* 
- * PID is:
- * 	_pid[j] = _kp[j] * _error[j] + _kd[j] * (_error[j] - _error_old[j]) + _ki[j] * _integral[j];
- *  _pid[j] >> _kr[j]; 
- *  _pid[j] += _ko[j];
- *
- */
-#define compute_pid(j) \
-{ \
-	/* compute control values */ \
-	_error_old[j] = _error[j]; \
-	saturate = _desired[j] - _position[j]; \
-	if (saturate > 32767) \
-		_error[j] = 32767; \
-	else \
-	if (saturate < -32768) \
-		_error[j] = -32768; \
-	else \
-		_error[j] = __extract_l(saturate); \
-	\
-	u1 = __shr (_error[j], 8); \
-	u0 = (_error[j] & 0x00ff); \
-		\
-	/*_integral[j] += _error[j]; */ \
-	/* if (_integral[j] > _integral_limit[j]) _integral[j] = _integral_limit[j]; */ \
-	/*if (_integral[j] < -_integral_limit[j]) _integral[j] = -_integral_limit[j]; */ \
-		\
-	_pid[j] = _kp[j] * u1; \
-	_pid[j] = __shl (_pid[j], 8-_kr[j]); \
-	u0 *= _kp[j]; \
-	_pid[j] += __shr (u0, _kr[j]); \
-	\
-	saturate = (Int32)_error[j] - (Int32)_error_old[j]; \
-	if (saturate > 32767) \
-		ud = 32767; \
-	else \
-	if (saturate < -32768) \
-		ud = -32768; \
-	else \
-		ud = (Int16)saturate; \
-	\
-	u1 = __shr (ud, 8); \
-	u0 = (ud & 0x00ff); \
-	u1 *= _kd[j]; \
-	_pid[j] += __shl (u1, 8-_kr[j]); \
-	u0 *= _kd[j]; \
-	_pid[j] += __shr (u0, _kr[j]); \
-	\
-	_pid[j] += _ko[j]; \
-	\
-	if (_pid[j] < -_pid_limit[j]) \
-		_pid[j] = -_pid_limit[j]; \
-	else \
-	if (_pid[j] > _pid_limit[j]) \
-		_pid[j] = _pid_limit[j]; \
-}	
-/* end of macro */
 
 /*
  * 
@@ -489,84 +428,33 @@ void print_version(void)
 void can_send_request(void)
 {
 	const byte _neighbor = 11;
-	const byte _step = 3;
-	int i;
-	
-	_counter ++;
-	if (_counter == 1)
-	{
-		i = 0;
-		if (!_pending_request[i])
-		{
-			_timeout[i] = 0;
-			CAN_messID &= 0xfffff800;
-			CAN_messID |= (_neighbor << 7);
-			CAN_messID |= CAN_GET_ACTIVE_ENCODER_POSITION;
-			CAN_data[0] = _board_ID;
-			
-			while (CAN1_GetStateTX () == 0) ;
-			
-//			if (CAN1_GetStateTX () != 0)
-//			{
-				CAN_length = 1;
-				CAN_frameType = DATA_FRAME;
-//				CAN_messID = 0;
-				CAN1_SendFrame (0, CAN_messID, CAN_frameType, CAN_length, CAN_data);
-				_pending_request[i] = true;
-//			}
-		}
-		else
-		{
-			_timeout[i] ++;
-			if (_timeout[i] > 10)
-			{
-				_timeout[i] = 0;
-				_pending_request[i] = false;
-				if (_verbose) 
-					if (i) DSP_SendDataEx ("to - 1\r\n"); else DSP_SendDataEx ("to - 0\r\n");
-			}
-		}
-	}
-	else
-	if (_counter == 2+_step)
-	{
-		i = 1;
-		if (!_pending_request[i])
-		{
-			_timeout[i] = 0;
-			CAN_messID &= 0xfffff800;
-			CAN_messID |= (_neighbor << 7);
-			CAN_messID |= CAN_GET_ACTIVE_ENCODER_POSITION;
-			CAN_data[0] = _board_ID;
-			CHANNEL_1(CAN_data[0]);
 
-			while (CAN1_GetStateTX () == 0) ;
-	
-//			if (CAN1_GetStateTX () != 0)
-//			{
-				CAN_length = 1;
-				CAN_frameType = DATA_FRAME;
-//				CAN_messID = 0;
-				CAN1_SendFrame (0, CAN_messID, CAN_frameType, CAN_length, CAN_data);
-				_pending_request[i] = true;
-//			}
-		}
-		else
+	if (_counter == 0)
+	{
+		if (!_pending_request)
 		{
-			_timeout[i] ++;
-			if (_timeout[i] > 10)
-			{
-				_timeout[i] = 0;
-				_pending_request[i] = false;
-				if (_verbose) 
-					if (i) DSP_SendDataEx ("to - 1\r\n"); else DSP_SendDataEx ("to - 0\r\n");
-			}
+			_timeout = 0;
+			_canmsg.CAN_messID &= 0xfffff800;
+			_canmsg.CAN_messID |= (_neighbor << 7);
+			_canmsg.CAN_messID |= CAN_GET_ACTIVE_ENCODER_POSITION;
+			_canmsg.CAN_data[0] = _board_ID;
+			
+			while (CAN1_GetStateTX () == 0) ;
+			
+			_canmsg.CAN_length = 1;
+			_canmsg.CAN_frameType = DATA_FRAME;
+			CAN1_SendFrame (0, _canmsg.CAN_messID, _canmsg.CAN_frameType, _canmsg.CAN_length, _canmsg.CAN_data);
+			_pending_request = true;
 		}
 	}
-	else
-	if (_counter > 1+2*_step)
+	
+	_timeout ++;
+	if (_timeout > 10) // these are 10 ms.
 	{
-		_counter = 0;
+		_timeout = 0;
+		_pending_request = false;
+		if (_verbose) 
+			DSP_SendDataEx ("timeout\r\n");
 	}
 }
 #endif
@@ -584,7 +472,7 @@ void can_send_request(void)
 void main(void)
 {
 	Int32 acceptance_code = 0x0;
-	
+		
 	/*** Processor Expert internal initialization. DON'T REMOVE THIS CODE!!! ***/
 	PE_low_level_init();
 	/*** End of Processor Expert internal initialization.                    ***/
@@ -614,10 +502,10 @@ void main(void)
 	abort_trajectory (1, 0);
 	
 	/* main control loop */
-	for(;;) 
+	for(_counter = 0;; _counter = ((_counter + 1) % _step)) 
 	{
 		while (_wait) ;
-
+		
 		/* read commands from CAN or serial board */
 		serial_interface ();
 		can_interface ();
@@ -642,8 +530,28 @@ void main(void)
 #if VERSION == 0x0112
 		/* (de)couple encoder readings */
 		_position[0] = L_sub(_position[0], _position[1]);
+		
+#ifdef DEBUG_TRAJECTORY
+		if (_verbose && _counter == 0)
+		{
+			DSP_SendDWordAsCharsDec (_position[0]);
+			DSP_SendDataEx (" ");
+			DSP_SendDWordAsCharsDec (_position[1]);
+			DSP_SendDataEx ("\r\n");
+		}
+#endif
 
 #elif VERSION == 0x0113
+		if (_verbose && _counter == 0)
+		{
+			DSP_SendDWordAsCharsDec (_position[0]);
+			DSP_SendDataEx (" ");
+			DSP_SendDWordAsCharsDec (_adjustment[0]);
+			DSP_SendDataEx (" ");
+			DSP_SendDWordAsCharsDec (_adjustment[1]);
+			DSP_SendDataEx ("\r\n");
+		}
+		
 		/* beware of the first cycle when _old has no meaning */		
 		_position[0] = L_add(_position[0], _adjustment[0] >> 1);
 		_position[0] = L_sub(_position[0], _adjustment[1] >> 2);  // last >>2 must be 11/41
@@ -661,8 +569,8 @@ void main(void)
 		_speed[1] = _position[1] - _position_old[1];
 		
 		/* adjust zero crossing @ position counter */
-		SPIKEREMOVE (0);
-		SPIKEREMOVE (1);
+		//SPIKEREMOVE (0);
+		//SPIKEREMOVE (1);
 
 		/* read ADC or other ports */
 		/* to be inserted here */
@@ -725,14 +633,7 @@ byte calibrate (byte jnt)
 #define BEGIN_MSG_TABLE(x) \
 	if (((x & 0x00000780) >> 7) != _board_ID) \
 	{ \
-	/*	DSP_SendDataEx ("it wasn't my message\r\n"); */ \
 		return ERR_OK; \
-	} \
-	if (_verbose) \
-	{ \
-		DSP_SendDataEx ("address: "); \
-		DSP_SendDWordAsChars ((x & 0x00000780) >> 7); \
-		DSP_SendDataEx ("\r\n"); \
 	} \
 	switch (x & 0x7f) \
 	{ \
@@ -748,8 +649,6 @@ byte calibrate (byte jnt)
 #define END_MSG_TABLE \
 	}
 
-
-///   for (i = 0; i < 10000; i++) asm(nop);
 	
 void print_can (byte data[], byte len, char c)
 {
@@ -784,106 +683,124 @@ CAN1_TError err;
 /* */
 byte can_interface (void)
 {
-	if (CAN1_GetStateRX () != 0)
+	bool done = false;
+	
+	if (read_p != -1)
 	{
-		CAN1_ReadFrame (&CAN_messID, &CAN_frameType, &CAN_frameFormat, &CAN_length, CAN_data);
+		while (!done)
+		{
+			canmsg_t *p = &can_fifo[read_p];
+			if (read_p == write_p)
+			{
+				read_p = -1;	/* empty */
+				done = true;
+			}
+			else
+			{
+				read_p = (read_p + 1) % CAN_FIFO_LEN;
+				done = true;
+			}
+				
+#ifdef DEBUG_CAN_MSG
 		if (_verbose)
 		{
 			DSP_SendDataEx ("id: ");
-			DSP_SendDWordAsChars (CAN_messID);
+			DSP_SendWord16AsChars (read_p);
 			DSP_SendDataEx (" ");
-			print_can (CAN_data, CAN_length, 'i');
+			DSP_SendDWordAsChars (p->CAN_messID);
+			DSP_SendDataEx (" ");
+			print_can (p->CAN_data, p->CAN_length, 'i');
 			CAN1_GetError (&err);
 			print_can_error (&err);
 		}
-		
-#define CAN_DATA CAN_data
-#define CAN_FRAME_TYPE CAN_frameType
-#define CAN_FRAME_FMT CAN_frameFormat
-#define CAN_LEN CAN_length
-#define CAN_ID CAN_messID
-
-		/* interpret the messages */
-		//BEGIN_SPECIAL_MSG_TABLE (CAN_data)
-		//HANDLE_MSG (CAN_SET_BOARD_ID, CAN_SET_BOARD_ID_HANDLER)
-		//END_SPECIAL_MSG_TABLE
-		
-		BEGIN_MSG_TABLE (CAN_messID)
-		HANDLE_MSG (CAN_NO_MESSAGE, CAN_NO_MESSAGE_HANDLER)
-		HANDLE_MSG (CAN_CONTROLLER_RUN, CAN_CONTROLLER_RUN_HANDLER)
-		HANDLE_MSG (CAN_CONTROLLER_IDLE, CAN_CONTROLLER_IDLE_HANDLER)
-		HANDLE_MSG (CAN_TOGGLE_VERBOSE, CAN_TOGGLE_VERBOSE_HANDLER)
-		HANDLE_MSG (CAN_CALIBRATE_ENCODER, CAN_CALIBRATE_ENCODER_HANDLER)
-		HANDLE_MSG (CAN_ENABLE_PWM_PAD, CAN_ENABLE_PWM_PAD_HANDLER)
-		HANDLE_MSG (CAN_DISABLE_PWM_PAD, CAN_DISABLE_PWM_PAD_HANDLER)
-		HANDLE_MSG (CAN_GET_CONTROL_MODE, CAN_GET_CONTROL_MODE_HANDLER)
-		HANDLE_MSG (CAN_MOTION_DONE, CAN_MOTION_DONE_HANDLER)
-		
-		HANDLE_MSG (CAN_WRITE_FLASH_MEM, CAN_WRITE_FLASH_MEM_HANDLER)
-		HANDLE_MSG (CAN_READ_FLASH_MEM, CAN_READ_FLASH_MEM_HANDLER)
-		
-		HANDLE_MSG (CAN_GET_ENCODER_POSITION, CAN_GET_ENCODER_POSITION_HANDLER)
-		HANDLE_MSG (CAN_SET_DESIRED_POSITION, CAN_SET_DESIRED_POSITION_HANDLER)
-		HANDLE_MSG (CAN_GET_DESIRED_POSITION, CAN_GET_DESIRED_POSITION_HANDLER)
-		HANDLE_MSG (CAN_SET_DESIRED_VELOCITY, CAN_SET_DESIRED_VELOCITY_HANDLER)
-		HANDLE_MSG (CAN_GET_DESIRED_VELOCITY, CAN_GET_DESIRED_VELOCITY_HANDLER)
-		HANDLE_MSG (CAN_SET_DESIRED_ACCELER, CAN_SET_DESIRED_ACCELER_HANDLER)
-		HANDLE_MSG (CAN_GET_DESIRED_ACCELER, CAN_GET_DESIRED_ACCELER_HANDLER)
-
-		HANDLE_MSG (CAN_SET_ENCODER_POSITION, CAN_SET_ENCODER_POSITION_HANDLER)
-		HANDLE_MSG (CAN_GET_ENCODER_VELOCITY, CAN_GET_ENCODER_VELOCITY_HANDLER)
-		HANDLE_MSG (CAN_SET_COMMAND_POSITION, CAN_SET_COMMAND_POSITION_HANDLER)
-		
-		HANDLE_MSG (CAN_SET_P_GAIN, CAN_SET_P_GAIN_HANDLER)
-		HANDLE_MSG (CAN_GET_P_GAIN, CAN_GET_P_GAIN_HANDLER)
-		HANDLE_MSG (CAN_SET_D_GAIN, CAN_SET_D_GAIN_HANDLER)
-		HANDLE_MSG (CAN_GET_D_GAIN, CAN_GET_D_GAIN_HANDLER)
-		HANDLE_MSG (CAN_SET_I_GAIN, CAN_SET_I_GAIN_HANDLER)
-		HANDLE_MSG (CAN_GET_I_GAIN, CAN_GET_I_GAIN_HANDLER)
-		HANDLE_MSG (CAN_SET_ILIM_GAIN, CAN_SET_ILIM_GAIN_HANDLER)
-		HANDLE_MSG (CAN_GET_ILIM_GAIN, CAN_GET_ILIM_GAIN_HANDLER)
-		HANDLE_MSG (CAN_SET_OFFSET, CAN_SET_OFFSET_HANDLER)
-		HANDLE_MSG (CAN_GET_OFFSET, CAN_GET_OFFSET_HANDLER)
-		HANDLE_MSG (CAN_SET_SCALE, CAN_SET_SCALE_HANDLER)
-		HANDLE_MSG (CAN_GET_SCALE, CAN_GET_SCALE_HANDLER)
-
-		HANDLE_MSG (CAN_POSITION_MOVE, CAN_POSITION_MOVE_HANDLER)
-		HANDLE_MSG (CAN_VELOCITY_MOVE, CAN_VELOCITY_MOVE_HANDLER)
-	
-		HANDLE_MSG (CAN_GET_PID_OUTPUT, CAN_GET_PID_OUTPUT_HANDLER)
-		HANDLE_MSG (CAN_GET_PID_ERROR, CAN_GET_PID_ERROR_HANDLER)
-		
-		HANDLE_MSG (CAN_SET_MIN_POSITION, CAN_SET_MIN_POSITION_HANDLER)
-		HANDLE_MSG (CAN_GET_MIN_POSITION, CAN_GET_MIN_POSITION_HANDLER)
-		HANDLE_MSG (CAN_SET_MAX_POSITION, CAN_SET_MAX_POSITION_HANDLER)
-		HANDLE_MSG (CAN_GET_MAX_POSITION, CAN_GET_MAX_POSITION_HANDLER)
-		HANDLE_MSG (CAN_SET_MAX_VELOCITY, CAN_SET_MAX_VELOCITY_HANDLER)
-		HANDLE_MSG (CAN_GET_MAX_VELOCITY, CAN_GET_MAX_VELOCITY_HANDLER)
-	
-		HANDLE_MSG (CAN_SET_TLIM, CAN_SET_TLIM_HANDLER)
-		HANDLE_MSG (CAN_GET_TLIM, CAN_GET_TLIM_HANDLER)
-		HANDLE_MSG (CAN_GET_ERROR_STATUS, CAN_GET_ERROR_STATUS_HANDLER)
-		
-		HANDLE_MSG (CAN_GET_ACTIVE_ENCODER_POSITION, CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER)
-#if VERSION == 0x0113
-		HANDLE_MSG (CAN_SET_ACTIVE_ENCODER_POSITION, CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER)
 #endif
-		END_MSG_TABLE		
 
-		if (_verbose)
-		{
-			DSP_SendDataEx ("id: ");
-			DSP_SendDWordAsChars (CAN_messID);
-			DSP_SendDataEx (" ");
-			print_can (CAN_data, CAN_length, 'o'); 
-		}
+#define CAN_DATA p->CAN_data
+#define CAN_FRAME_TYPE p->CAN_frameType
+#define CAN_FRAME_FMT p->CAN_frameFormat
+#define CAN_LEN p->CAN_length
+#define CAN_ID p->CAN_messID
 
-///		if (_general_board_error != ERROR_NONE)
-///		{
-///			DSP_SendDataEx ("error in processing message\r\n");
-///			_general_board_error = ERROR_NONE;
-///		}	
-	}
+			/* interpret the messages */
+			//BEGIN_SPECIAL_MSG_TABLE (CAN_data)
+			//HANDLE_MSG (CAN_SET_BOARD_ID, CAN_SET_BOARD_ID_HANDLER)
+			//END_SPECIAL_MSG_TABLE
+			
+			BEGIN_MSG_TABLE (p->CAN_messID)
+			HANDLE_MSG (CAN_NO_MESSAGE, CAN_NO_MESSAGE_HANDLER)
+			HANDLE_MSG (CAN_CONTROLLER_RUN, CAN_CONTROLLER_RUN_HANDLER)
+			HANDLE_MSG (CAN_CONTROLLER_IDLE, CAN_CONTROLLER_IDLE_HANDLER)
+			HANDLE_MSG (CAN_TOGGLE_VERBOSE, CAN_TOGGLE_VERBOSE_HANDLER)
+			HANDLE_MSG (CAN_CALIBRATE_ENCODER, CAN_CALIBRATE_ENCODER_HANDLER)
+			HANDLE_MSG (CAN_ENABLE_PWM_PAD, CAN_ENABLE_PWM_PAD_HANDLER)
+			HANDLE_MSG (CAN_DISABLE_PWM_PAD, CAN_DISABLE_PWM_PAD_HANDLER)
+			HANDLE_MSG (CAN_GET_CONTROL_MODE, CAN_GET_CONTROL_MODE_HANDLER)
+			HANDLE_MSG (CAN_MOTION_DONE, CAN_MOTION_DONE_HANDLER)
+			
+			HANDLE_MSG (CAN_WRITE_FLASH_MEM, CAN_WRITE_FLASH_MEM_HANDLER)
+			HANDLE_MSG (CAN_READ_FLASH_MEM, CAN_READ_FLASH_MEM_HANDLER)
+			
+			HANDLE_MSG (CAN_GET_ENCODER_POSITION, CAN_GET_ENCODER_POSITION_HANDLER)
+			HANDLE_MSG (CAN_SET_DESIRED_POSITION, CAN_SET_DESIRED_POSITION_HANDLER)
+			HANDLE_MSG (CAN_GET_DESIRED_POSITION, CAN_GET_DESIRED_POSITION_HANDLER)
+			HANDLE_MSG (CAN_SET_DESIRED_VELOCITY, CAN_SET_DESIRED_VELOCITY_HANDLER)
+			HANDLE_MSG (CAN_GET_DESIRED_VELOCITY, CAN_GET_DESIRED_VELOCITY_HANDLER)
+			HANDLE_MSG (CAN_SET_DESIRED_ACCELER, CAN_SET_DESIRED_ACCELER_HANDLER)
+			HANDLE_MSG (CAN_GET_DESIRED_ACCELER, CAN_GET_DESIRED_ACCELER_HANDLER)
+
+			HANDLE_MSG (CAN_SET_ENCODER_POSITION, CAN_SET_ENCODER_POSITION_HANDLER)
+			HANDLE_MSG (CAN_GET_ENCODER_VELOCITY, CAN_GET_ENCODER_VELOCITY_HANDLER)
+			HANDLE_MSG (CAN_SET_COMMAND_POSITION, CAN_SET_COMMAND_POSITION_HANDLER)
+			
+			HANDLE_MSG (CAN_SET_P_GAIN, CAN_SET_P_GAIN_HANDLER)
+			HANDLE_MSG (CAN_GET_P_GAIN, CAN_GET_P_GAIN_HANDLER)
+			HANDLE_MSG (CAN_SET_D_GAIN, CAN_SET_D_GAIN_HANDLER)
+			HANDLE_MSG (CAN_GET_D_GAIN, CAN_GET_D_GAIN_HANDLER)
+			HANDLE_MSG (CAN_SET_I_GAIN, CAN_SET_I_GAIN_HANDLER)
+			HANDLE_MSG (CAN_GET_I_GAIN, CAN_GET_I_GAIN_HANDLER)
+			HANDLE_MSG (CAN_SET_ILIM_GAIN, CAN_SET_ILIM_GAIN_HANDLER)
+			HANDLE_MSG (CAN_GET_ILIM_GAIN, CAN_GET_ILIM_GAIN_HANDLER)
+			HANDLE_MSG (CAN_SET_OFFSET, CAN_SET_OFFSET_HANDLER)
+			HANDLE_MSG (CAN_GET_OFFSET, CAN_GET_OFFSET_HANDLER)
+			HANDLE_MSG (CAN_SET_SCALE, CAN_SET_SCALE_HANDLER)
+			HANDLE_MSG (CAN_GET_SCALE, CAN_GET_SCALE_HANDLER)
+
+			HANDLE_MSG (CAN_POSITION_MOVE, CAN_POSITION_MOVE_HANDLER)
+			HANDLE_MSG (CAN_VELOCITY_MOVE, CAN_VELOCITY_MOVE_HANDLER)
+		
+			HANDLE_MSG (CAN_GET_PID_OUTPUT, CAN_GET_PID_OUTPUT_HANDLER)
+			HANDLE_MSG (CAN_GET_PID_ERROR, CAN_GET_PID_ERROR_HANDLER)
+			
+			HANDLE_MSG (CAN_SET_MIN_POSITION, CAN_SET_MIN_POSITION_HANDLER)
+			HANDLE_MSG (CAN_GET_MIN_POSITION, CAN_GET_MIN_POSITION_HANDLER)
+			HANDLE_MSG (CAN_SET_MAX_POSITION, CAN_SET_MAX_POSITION_HANDLER)
+			HANDLE_MSG (CAN_GET_MAX_POSITION, CAN_GET_MAX_POSITION_HANDLER)
+			HANDLE_MSG (CAN_SET_MAX_VELOCITY, CAN_SET_MAX_VELOCITY_HANDLER)
+			HANDLE_MSG (CAN_GET_MAX_VELOCITY, CAN_GET_MAX_VELOCITY_HANDLER)
+		
+			HANDLE_MSG (CAN_SET_TLIM, CAN_SET_TLIM_HANDLER)
+			HANDLE_MSG (CAN_GET_TLIM, CAN_GET_TLIM_HANDLER)
+			HANDLE_MSG (CAN_GET_ERROR_STATUS, CAN_GET_ERROR_STATUS_HANDLER)
+			
+			HANDLE_MSG (CAN_GET_ACTIVE_ENCODER_POSITION, CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER)
+	#if VERSION == 0x0113
+			HANDLE_MSG (CAN_SET_ACTIVE_ENCODER_POSITION, CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER)
+	#endif
+			END_MSG_TABLE		
+
+	#ifdef DEBUG_CAN_MSG
+			if (_verbose)
+			{
+				DSP_SendDataEx ("id: ");
+				DSP_SendDWordAsChars (p->CAN_messID);
+				DSP_SendDataEx (" ");
+				print_can (p->CAN_data, p->CAN_length, 'o'); 
+			}
+	#endif
+	
+		} /* end of while() */
+		
+	} /* end of if () */
 			
 	return ERR_OK;
 }
@@ -960,16 +877,6 @@ byte serial_interface (void)
 			c = 0;
 			break;
 		
-		case 'j':
-			DSP_SendDataEx ("adj: ");
-			DSP_SendDWordAsCharsDec (_adjustment[0]);		
-			DSP_SendDataEx (" ");
-			DSP_SendDWordAsCharsDec (_adjustment[1]);		
-			DSP_SendDataEx ("\r\n");
-
-			c = 0;
-			break;
-						
 		case 'w':
 			if (AS1_RecvChar(&d) == ERR_OK)
 			{

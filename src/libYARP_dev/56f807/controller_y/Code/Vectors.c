@@ -6,7 +6,7 @@
 **     Beantype  : 56F807
 **     Version   : Bean 01.002, Driver 01.05, CPU db: 2.71.191
 **     Compiler  : Metrowerks DSP C Compiler
-**     Date/Time : 12/14/2004, 2:50 PM
+**     Date/Time : 1/19/2005, 3:32 PM
 **     Abstract  :
 **
 **     Settings  :
@@ -65,8 +65,8 @@ static asm void _vect(void) {
   JSR  Cpu_Interrupt                   /* Interrupt no. 11 (Unused) - ivINT_BFlash  */
   JSR  Cpu_Interrupt                   /* Interrupt no. 12 (Unused) - ivINT_PFlash  */
   JSR  Cpu_Interrupt                   /* Interrupt no. 13 (Unused) - ivINT_DFlash  */
-  JSR  Cpu_Interrupt                   /* Interrupt no. 14 (Unused) - ivINT_MSCAN_TxReady  */
-  JSR  Cpu_Interrupt                   /* Interrupt no. 15 (Unused) - ivINT_MSCAN_RxFull  */
+  JSR  CAN1_InterruptTx                /* Interrupt no. 14 (Used) - ivINT_MSCAN_TxReady  */
+  JSR  CAN1_InterruptRx                /* Interrupt no. 15 (Used) - ivINT_MSCAN_RxFull  */
   JSR  Cpu_Interrupt                   /* Interrupt no. 16 (Unused) - ivINT_MSCAN_Error  */
   JSR  Cpu_Interrupt                   /* Interrupt no. 17 (Unused) - ivINT_MSCAN_Wakeup  */
   JSR  Cpu_Interrupt                   /* Interrupt no. 18 (Unused) - ivINT_PFlash2  */

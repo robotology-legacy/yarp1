@@ -167,20 +167,24 @@
 	_general_board_error = ERROR_NONE; \
 }
 
+
 #define CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER(x) \
 { \
 	PREPARE_HEADER; \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(CAN_DATA[0]); \
 		CAN_ID &= 0xffffff80; \
 		CAN_ID |= CAN_SET_ACTIVE_ENCODER_POSITION; \
 		\
-		CAN_LEN = 5; \
-		CAN_DATA[1] = BYTE_4(_position[i]); \
-		CAN_DATA[2] = BYTE_3(_position[i]); \
-		CAN_DATA[3] = BYTE_2(_position[i]); \
-		CAN_DATA[4] = BYTE_1(_position[i]); \
+		CAN_LEN = 8; \
+		CAN_DATA[0] = BYTE_4(_position[0]); \
+		CAN_DATA[1] = BYTE_3(_position[0]); \
+		CAN_DATA[2] = BYTE_2(_position[0]); \
+		CAN_DATA[3] = BYTE_1(_position[0]); \
+		CAN_DATA[4] = BYTE_4(_position[1]); \
+		CAN_DATA[5] = BYTE_3(_position[1]); \
+		CAN_DATA[6] = BYTE_2(_position[1]); \
+		CAN_DATA[7] = BYTE_1(_position[1]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
@@ -188,28 +192,28 @@
 		_general_board_error = ERROR_SEND; \
 }
 
-//		if (_verbose) \
-//		{ if (i) DSP_SendDataEx ("re 1"); \
-//			else DSP_SendDataEx ("re 0"); \
-//		} \
-// \ 
-
 /* 
  * shift by 2 is because data is available every 4 control cycles 
  */
 #if VERSION == 0x0113
 #define CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER(x) \
 { \
-	int i = CHANNEL(CAN_DATA[0]); \
-	long value, tmp; \
-	if (CAN_LEN == 5) \
+	long value; \
+	if (CAN_LEN == 8) \
 	{ \
-		value = BYTE_C(CAN_DATA[1], CAN_DATA[2], CAN_DATA[3], CAN_DATA[4]); \
-		_adjustment[i] = _other_position[i]; \
-		_delta_adj[i] = L_sub (value, _other_position[i]) >> 2; \
-		_adjustment[i] = L_add (_adjustment[i], _delta_adj[i]); \
-		_other_position[i] = value; \
-		_pending_request[i] = false; \
+		value = BYTE_C(CAN_DATA[0], CAN_DATA[1], CAN_DATA[2], CAN_DATA[3]); \
+		_adjustment[0] = _other_position[0]; \
+		_delta_adj[0] = L_sub (value, _other_position[0]) >> 2; \
+		_adjustment[0] = L_add (_adjustment[0], _delta_adj[0]); \
+		_other_position[0] = value; \
+		\
+		value = BYTE_C(CAN_DATA[4], CAN_DATA[5], CAN_DATA[6], CAN_DATA[7]); \
+		_adjustment[1] = _other_position[1]; \
+		_delta_adj[1] = L_sub (value, _other_position[1]) >> 2; \
+		_adjustment[1] = L_add (_adjustment[1], _delta_adj[1]); \
+		_other_position[1] = value; \
+		\
+		_pending_request = false; \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \

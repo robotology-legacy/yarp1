@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.6 2005-01-17 17:32:06 babybot Exp $
+/// $Id: Controller.H,v 1.7 2005-01-19 17:26:57 babybot Exp $
 ///
 ///
 
@@ -47,8 +47,12 @@
 #endif
 
 //#define VERSION 0x0111				/* standard/basic implementation */
-//#define VERSION 0x0112				/* decouples shoulder first two joints */
-#define VERSION 0x0113				/* decouples the third joint of the shoulder */
+#define VERSION 0x0112				/* decouples shoulder first two joints */
+//#define VERSION 0x0113				/* decouples the third joint of the shoulder */
+
+#define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
+//#define DEBUG_CONTROL_RATE	1 		/* for debugging control cycle rate */
+//#define DEBUG_TRAJECTORY 		1		/* print encoder/joint position */
 
 #define DEFAULT_BOARD_ID	15		/* default ID for receiving messages (4 bit field) */
 #define SMALL_BUFFER_SIZE 	10		/* for serial I/O */
@@ -80,12 +84,21 @@
 #define BYTE_H(x) (x & 0xff)
 
 /* same as above, deals also with endianism */
-//#define BYTE_C(x4, x3, x2, x1) \
-//	(_L_deposit_h(__shl(x1,8) | x2) | \
-//	 (_L_deposit_l(__shl(x3,8) | x4) & 0x7fffffff))
 dword BYTE_C(byte x4, byte x3, byte x2, byte x1);
 	 
 #define BYTE_W(x2, x1) (__shl(x1,8) | x2)
+
+/* can bus message structure */
+typedef struct canmsg_tag 
+{
+	byte 	CAN_data[8];					/* CAN bus message */
+	dword 	CAN_messID;						/* message ID - arbitration */
+	byte 	CAN_frameType;					/* data or remote frame */
+	byte 	CAN_frameFormat;				/* standard or extended frame */
+	byte 	CAN_length;						/* len of the data */
+} canmsg_t;
+
+#define CAN_FIFO_LEN	10					/* length of the fifo buffer */
 
 #endif
 

@@ -46,6 +46,9 @@
 
 /* from Controller.c */
 extern bool _wait;
+extern canmsg_t can_fifo[];
+extern Int16 write_p;
+extern Int16 read_p;
 
 /*
 ** ===================================================================
@@ -63,8 +66,38 @@ extern bool _wait;
 #pragma interrupt called
 void TI1_OnInterrupt(void)
 {
-	//if (!_wait) DSP_SendData ("*", 1);
 	_wait = false;
+}
+
+/*
+** ===================================================================
+**     Event       :  CAN1_OnFullRxBuffer (module Events)
+**
+**     From bean   :  CAN1 [MotorolaCAN]
+**     Description :
+**         This event is called when receive buffer is full after
+**         successful reception of a message.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+#pragma interrupt called
+void CAN1_OnFullRxBuffer(void)
+{
+  canmsg_t *p;
+  write_p = ((write_p + 1) % CAN_FIFO_LEN);
+  // check here for buffer full.
+  p = can_fifo + write_p;
+  CAN1_ReadFrame (&p->CAN_messID, 
+  				  &p->CAN_frameType, 
+  				  &p->CAN_frameFormat, 
+  				  &p->CAN_length, 
+  				  p->CAN_data);
+  if (read_p == -1)
+  {
+  	read_p = write_p;
+	//DSP_SendDataEx ("^\r\n");
+  }
 }
 
 /* END Events */

@@ -6,7 +6,7 @@
 **     Beantype  : 56F807
 **     Version   : Bean 01.002, Driver 01.05, CPU db: 2.71.191
 **     Compiler  : Metrowerks DSP C Compiler
-**     Date/Time : 1/17/2005, 1:23 PM
+**     Date/Time : 1/19/2005, 3:32 PM
 **     Abstract  :
 **
 **     Settings  :
@@ -174,6 +174,7 @@ byte Cpu_GetSpeedMode(void)
   return HIGH_SPEED;                   /* Result the actual cpu mode - high speed mode*/
 }
 
+#if 0
 /*
 ** ===================================================================
 **     Method      :  _EntryPoint (bean 56F807)
@@ -186,8 +187,6 @@ byte Cpu_GetSpeedMode(void)
 extern void init_56800_(void);         /* Forward declaration of external startup function declared in file FSTART.ASM */
 void _EntryPoint(void)
 {
-  long i;
-  
   /*** ### 56F807 "Cpu" init code ... ***/
   /*** PE initialization code after reset ***/
   /* System clock initialization */
@@ -196,15 +195,12 @@ void _EntryPoint(void)
   setRegBit(PLLCR, LCKON);             /* Enable lock detector */
   clrRegBit(PLLCR, PLLPD);             /* Enable PLL */
   while(!getRegBit(PLLSR, LCK0)){}     /* Wait for PLL lock */
-  
-  for (i = 0; i < 10000; i++)
-  	asm(nop);
-  	
   setRegBitGroup(PLLCR, ZSRC, 2);      /* Select clock source from postscaler */
   /*** End of PE initialization code after reset ***/
 
   asm(JMP init_56800_);                /* Jump to C startup code */
 }
+#endif
 
 /*
 ** ===================================================================
@@ -227,6 +223,10 @@ void PE_low_level_init(void)
   output( GPIO_E_PER, input( GPIO_E_PER ) | 3 );
 /* IPR: CH3=1 */
   output( IPR, input( IPR ) | 4096 );
+/* GPR3: PLR15=4,PLR14=4 */
+  output( GPR3, input( GPR3 ) & ~13056 | 17408 );
+/* GPR4: PLR17=4,PLR16=4 */
+  output( GPR4, input( GPR4 ) & ~51 | 68 );
 /* GPR10: PLR42=4 */
   output( GPR10, input( GPR10 ) & ~768 | 1024 );
   /* ### 56F807 "Cpu" init code ... */

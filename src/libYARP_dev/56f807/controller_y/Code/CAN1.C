@@ -6,13 +6,14 @@
 **     Beantype  : MotorolaCAN
 **     Version   : Bean 02.259, Driver 01.01, CPU db: 2.71.191
 **     Compiler  : Metrowerks DSP C Compiler
-**     Date/Time : 1/17/2005, 1:23 PM
+**     Date/Time : 1/19/2005, 3:32 PM
 **     Abstract  :
 **         This bean "MotorolaCAN" implements an CAN serial channel.
 **     Settings  :
 **         CAN channel                 : MSCAN
 **
 **         Protocol
+**             Interrupt priority      : 3
 **             Time segment 1          : 10
 **             Time segment 2          : 7
 **             RSJ                     : 1
@@ -20,6 +21,13 @@
 **             Recieve accept. code    : 0
 **             Recieve accept. mask    : 0
 **
+**         Input interrupt
+**             Vector name             : INT_MSCAN_RxFull
+**             Priority                : 3
+**
+**         Output interrupt
+**             Vector name             : INT_MSCAN_TxReady
+**             Priority                : 3
 **
 **     Contents  :
 **         SetAcceptanceCode - byte CAN1_SetAcceptanceCode(dword Mask);
@@ -50,6 +58,7 @@
 #include "PWMC1.h"
 #include "PWMC2.h"
 #include "TI1.h"
+#include "Events.h"
 
 #define CAN_MAX_DATA_LEN      8        /* Max number of data to be sent in one frame */
 #define FULL_RX_BUF           1        /* RX buffer full           */
@@ -189,6 +198,8 @@ byte CAN1_SetAcceptanceMode(byte Mode)
   setRegBit(CANCTL0, SFTRES);          /* Disable device */
   setRegBitGroup(CANIDAC, IDAM, Mode); /* Set acceptance mode of the receiver */
   clrRegBit(CANCTL0, SFTRES);          /* Start device */
+  setRegBits(CANRFLG, 254);            /* Reset error flags */
+  setReg(CANRIER, 255);                /* Enable interrupts */
   return ERR_OK;                       /* OK */
 }
 
@@ -209,7 +220,7 @@ byte CAN1_SetAcceptanceMode(byte Mode)
 */
 byte CAN1_GetStateRX(void)
 {
-  return (getRegBit(CANRFLG, RXF) != 0)? 1:0; /* Return status of the RX buffer */
+  return ((SerFlag & FULL_RX_BUF) != 0)? 1:0; /* Return status of the RX buffer */
 }
 
 /*
@@ -235,6 +246,7 @@ byte CAN1_SetAcceptanceCode(dword Mask)
 {
   dword tmpMask;
 
+  EnterCritical();                     /* Enter critical section */
   tmpMask = Mask;
   setRegBit(CANCTL0, SFTRES);          /* Disable device */
   setReg(CANIDAR0, (byte)tmpMask);     /* Set acceptance mask register */
@@ -249,6 +261,9 @@ byte CAN1_SetAcceptanceCode(dword Mask)
   setReg(CANIDAR3, (byte)tmpMask);     /* Set acceptance mask register */
   setReg(CANIDAR7, (byte)tmpMask);     /* Set acceptance mask register */
   clrRegBit(CANCTL0, SFTRES);          /* Start device */
+  setRegBits(CANRFLG, 254);            /* Reset error flags */
+  setReg(CANRIER, 255);                /* Enable interrupts */
+  ExitCritical();                      /* Exit critical section */
   return ERR_OK;                       /* OK */
 }
 
@@ -271,17 +286,14 @@ byte CAN1_SetAcceptanceCode(dword Mask)
 */
 byte CAN1_GetError(CAN1_TError *Err)
 {
-  register word Status = getReg(CANRFLG); /* Read the status register */
-
-  /* CANRFLG: RWRNIF=1,TWRNIF=1,RERRIF=1,TERRIF=1,BOFFIF=1,OVRIF=1 */
-  setReg(CANRFLG, 126);                /* Clear error interrupt flags */
   Err->err = 0;                        /* Clear all errors */
-  Err->errName.BusOff = ((Status & CANRFLG_BOFFIF_MASK) != 0); /* Bus-Off state */
-  Err->errName.TxPassive = ((Status & CANRFLG_TERRIF_MASK) != 0); /* Transmitter error */
-  Err->errName.RxPassive = ((Status & CANRFLG_RERRIF_MASK) != 0); /* Receiver error */
-  Err->errName.TxWarning = ((Status & CANRFLG_TWRNIF_MASK) != 0); /* Transmitter warning */
-  Err->errName.RxWarning = ((Status & CANRFLG_RWRNIF_MASK) != 0); /* Receiver warning */
-  Err->errName.OverRun = ((Status & CANRFLG_OVRIF_MASK) != 0); /* Receiver overrun */
+  Err->errName.BusOff = ((ErrFlag & CANRFLG_BOFFIF_MASK) != 0); /* Bus-Off state */
+  Err->errName.TxPassive = ((ErrFlag & CANRFLG_TERRIF_MASK) != 0); /* Transmitter error */
+  Err->errName.RxPassive = ((ErrFlag & CANRFLG_RERRIF_MASK) != 0); /* Receiver error */
+  Err->errName.TxWarning = ((ErrFlag & CANRFLG_TWRNIF_MASK) != 0); /* Transmitter warning */
+  Err->errName.RxWarning = ((ErrFlag & CANRFLG_RWRNIF_MASK) != 0); /* Receiver warning */
+  Err->errName.OverRun = ((ErrFlag & CANRFLG_OVRIF_MASK) != 0); /* Receiver overrun */
+  ErrFlag = 0;                         /* Clear error flags */
   return ERR_OK;
 }
 
@@ -297,6 +309,8 @@ byte CAN1_GetError(CAN1_TError *Err)
 static void HWEnDi(void)
 {
   clrRegBit(CANCTL0, SFTRES);          /* Start device */
+  setRegBits(CANRFLG, 254);            /* Reset error flags */
+  setReg(CANRIER, 255);                /* Enable error and receive interrupts */
 }
 
 /*
@@ -357,6 +371,7 @@ byte CAN1_SendFrame(byte BufferNum,dword MessageID,byte FrameType,byte Length,by
   if (!(getReg(CANTFLG) & bufmask))    /* Is the transmit buffer full? */
     return ERR_TXFULL;                 /* If yes then error */
   MsgBuff = (TMsgBuff *)TXMsgBuffer[BufferNum];
+  EnterCritical();                     /* Disable global interrupts */
   SetTxBufferIdr(Id2Idr(MessageID), MsgBuff); /* Set the message ID */
   if (FrameType == DATA_FRAME) {       /* Is it a data frame? */
     for (i=0; i<Length; i++)
@@ -375,6 +390,7 @@ byte CAN1_SendFrame(byte BufferNum,dword MessageID,byte FrameType,byte Length,by
   MsgBuff->DLR = Length;               /* Set the length of the message */
   MsgBuff->TBPR = 0;                   /* Set the priority (high) */
   setReg(CANTFLG, bufmask);            /* Start transmission */
+  ExitCritical();                      /* Enable global interrupts */
   return ERR_OK;                       /* OK */
 }
 
@@ -412,7 +428,7 @@ byte CAN1_ReadFrame(dword *MessageID,byte *FrameType,byte *FrameFormat,byte *Len
   byte i;                              /* Temporary variable */
   dword ID;                            /* Temporary variable */
 
-  if (!getRegBit(CANRFLG, RXF))        /* Is the receive buffer empty? */
+  if (!SerFlag & FULL_RX_BUF)          /* Is the receive buffer empty? */
     return ERR_RXEMPTY;                /* If yes then error */
   ID = Idr2Id(GetRxBufferIdr());       /* Read the identification of the received message */
   if (ID > EXTENDED_FRAME_ID)          /* Is it the extended frame? */
@@ -426,7 +442,7 @@ byte CAN1_ReadFrame(dword *MessageID,byte *FrameType,byte *FrameFormat,byte *Len
     for (i=0; i<*Length; i++)
       Data[i] = *((byte *)&CAN_RB_DSR0 + i); /* Return received data */
   }
-  setReg(CANRFLG, CANRFLG_RXF_MASK);   /* Reset the receiver interrupt request flag */
+  SerFlag &= ~FULL_RX_BUF;             /* Clear flag "full RX buffer" */
   return ERR_OK;                       /* OK */
 }
 
@@ -520,7 +536,42 @@ byte CAN1_SetAcceptanceMask(dword Mask)
   setReg(CANIDMR3, (byte)tmpMask);     /* Set acceptance mask register */
   setReg(CANIDMR7, (byte)tmpMask);     /* Set acceptance mask register */
   clrRegBit(CANCTL0, SFTRES);          /* Start device */
+  setRegBits(CANRFLG, 254);            /* Reset error flags */
+  setReg(CANRIER, 255);                /* Enable interrupts */
   return ERR_OK;                       /* OK */
+}
+
+/*
+** ===================================================================
+**     Method      :  CAN1_InterruptTx (bean MotorolaCAN)
+**
+**     Description :
+**         This method is internal. It is used by Processor Expert
+**         only.
+** ===================================================================
+*/
+#pragma interrupt
+void CAN1_InterruptTx(void)
+{
+  byte buffer = CANTFLG & 7;           /* Temporary variable */
+
+}
+
+/*
+** ===================================================================
+**     Method      :  CAN1_InterruptRx (bean MotorolaCAN)
+**
+**     Description :
+**         This method is internal. It is used by Processor Expert
+**         only.
+** ===================================================================
+*/
+#pragma interrupt
+void CAN1_InterruptRx(void)
+{
+  setReg(CANRFLG, CANRFLG_RXF_MASK);   /* Reset the reception complete flag */
+  SerFlag |= FULL_RX_BUF;              /* Set flag "full RX buffer" */
+  CAN1_OnFullRxBuffer();               /* If yes then invoke user event */
 }
 
 

@@ -6,7 +6,7 @@
 **     Beantype  : QuadratureDecoder
 **     Version   : Bean 01.020, Driver 01.04, CPU db: 2.71.191
 **     Compiler  : Metrowerks DSP C Compiler
-**     Date/Time : 12/14/2004, 2:54 PM
+**     Date/Time : 1/19/2005, 3:32 PM
 **     Abstract  :
 **         Quadrature decoder module is used to decode shaft position, revolution 
 **         count and speed. Each quadrature decoder module has four input signals: 
@@ -74,6 +74,7 @@
 #include "prototype.h"
 #include "QD1.h"
 
+#if 0
 /*
 ** ===================================================================
 **     Method      :  QD1_SetPosition (bean QuadratureDecoder)
@@ -122,6 +123,8 @@ byte QD1_GetPosition(dword *Position)
   *Position = getReg(DEC0_LPOS)|(dword)getReg(DEC0_UPOSH<<16); /* Get Lower hold and Upper Position Counter Registers */
   return ERR_OK;                       /* OK */
 }
+
+#endif
 
 /*
 ** ===================================================================

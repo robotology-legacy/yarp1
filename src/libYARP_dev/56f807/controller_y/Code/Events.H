@@ -47,6 +47,20 @@ void TI1_OnInterrupt(void);
 */
 
 
+void CAN1_OnFullRxBuffer(void);
+/*
+** ===================================================================
+**     Event       :  CAN1_OnFullRxBuffer (module Events)
+**
+**     From bean   :  CAN1 [MotorolaCAN]
+**     Description :
+**         This event is called when receive buffer is full after
+**         successful reception of a message.
+**     Parameters  : None
+**     Returns     : Nothing
+** ===================================================================
+*/
+
 /* END Events */
 #endif /* __Events_H*/
 

@@ -6,13 +6,14 @@
 **     Beantype  : MotorolaCAN
 **     Version   : Bean 02.259, Driver 01.01, CPU db: 2.71.191
 **     Compiler  : Metrowerks DSP C Compiler
-**     Date/Time : 12/21/2004, 1:01 PM
+**     Date/Time : 1/19/2005, 3:32 PM
 **     Abstract  :
 **         This bean "MotorolaCAN" implements an CAN serial channel.
 **     Settings  :
 **         CAN channel                 : MSCAN
 **
 **         Protocol
+**             Interrupt priority      : 3
 **             Time segment 1          : 10
 **             Time segment 2          : 7
 **             RSJ                     : 1
@@ -20,6 +21,13 @@
 **             Recieve accept. code    : 0
 **             Recieve accept. mask    : 0
 **
+**         Input interrupt
+**             Vector name             : INT_MSCAN_RxFull
+**             Priority                : 3
+**
+**         Output interrupt
+**             Vector name             : INT_MSCAN_TxReady
+**             Priority                : 3
 **
 **     Contents  :
 **         SetAcceptanceCode - byte CAN1_SetAcceptanceCode(dword Mask);
@@ -289,6 +297,51 @@ byte CAN1_SetAcceptanceMask(dword Mask);
 **                           user
 ** ===================================================================
 */
+
+void CAN1_InterruptTx(void);
+/*
+** ===================================================================
+**     Method      :  CAN1_InterruptTx (bean MotorolaCAN)
+**
+**     Description :
+**         This method is internal. It is used by Processor Expert
+**         only.
+** ===================================================================
+*/
+
+void CAN1_InterruptRx(void);
+/*
+** ===================================================================
+**     Method      :  CAN1_InterruptRx (bean MotorolaCAN)
+**
+**     Description :
+**         This method is internal. It is used by Processor Expert
+**         only.
+** ===================================================================
+*/
+
+void CAN1_InterruptError(void);
+/*
+** ===================================================================
+**     Method      :  CAN1_InterruptError (bean MotorolaCAN)
+**
+**     Description :
+**         This method is internal. It is used by Processor Expert
+**         only.
+** ===================================================================
+*/
+
+void CAN1_InterruptWakeup(void);
+/*
+** ===================================================================
+**     Method      :  CAN1_InterruptWakeup (bean MotorolaCAN)
+**
+**     Description :
+**         This method is internal. It is used by Processor Expert
+**         only.
+** ===================================================================
+*/
+
 
 
 
