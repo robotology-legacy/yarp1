@@ -14,6 +14,7 @@ char __filename[256] = "head.ini";
 
 int main(int argc, char* argv[])
 {
+	// read ini file
 	YARPScheduler::setHighResScheduling();
 
 	cout << "Starting head service\n";
@@ -30,18 +31,31 @@ int main(int argc, char* argv[])
 	file.set(path, __filename);
 	file.get("[THREAD]", "Rate", &_head_thread_rate);
 
+	// create thread and behavior SM
 	HeadThread thread(_head_thread_rate,
 						"head thread",
 						__filename);
-	thread.start();
-
+	
 	HeadBehavior behavior(&thread);
 
+	// behavior states
 	HBWaitIdle waitIdle("idle");
-	HBDirectCommandInput directCmd(YBVHeadNewCmd);
-	behavior.setInitialState(&waitIdle);
+	HBWaitIdle hibernated("hibernation");
+	HBDirectCommandInput directIn(YBVHeadNewCmd);
+	HBSimpleInput hibernateIn(YBVHeadHibernate);
+	HBSimpleInput resumeIn(YBVHeadResume);
 
-	behavior.add(&directCmd, &waitIdle, &waitIdle);
+	HBHibernateCommand	hibernateOut;
+	HBResumeCommand		resumeOut;
+
+	// copnfig behavior SM
+	behavior.setInitialState(&waitIdle);
+	behavior.add(&directIn, &waitIdle, &waitIdle);
+	behavior.add(&hibernateIn, &waitIdle, &hibernated, &hibernateOut);
+	behavior.add(&resumeIn, &hibernated, &waitIdle, &resumeOut);
+
+	// start thread and FSM
+	thread.start();
 	
 	behavior.Begin();
 	behavior.loop();

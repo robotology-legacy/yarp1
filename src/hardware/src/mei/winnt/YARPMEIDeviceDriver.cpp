@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.16 2003-10-17 16:34:40 babybot Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.17 2003-12-02 11:42:49 babybot Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -80,6 +80,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetPositiveLimit] = &YARPMEIDeviceDriver::setPositiveLimit;
 	m_cmds[CMDSetNegativeLimit] = &YARPMEIDeviceDriver::setNegativeLimit;
 	m_cmds[CMDVMove] = &YARPMEIDeviceDriver::vMove;
+	m_cmds[CMDSafeVMove] = &YARPMEIDeviceDriver::safeVMove;
 	m_cmds[CMDSetCommands] = &YARPMEIDeviceDriver::setCommands;
 	m_cmds[CMDSetCommand] = &YARPMEIDeviceDriver::setCommand;
 	m_cmds[CMDCheckMotionDone] = &YARPMEIDeviceDriver::checkMotionDone;
@@ -93,6 +94,9 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
 	// analog input
 	m_cmds[CMDReadAnalog] = &YARPMEIDeviceDriver::readAnalog;
 	m_cmds[CMDSetAxisAnalog] = &YARPMEIDeviceDriver::setAxisAnalog;
+
+	m_cmds[CMDCheckFramesLeft] = &YARPMEIDeviceDriver::checkFramesLeft;
+	m_cmds[CMDWaitForFramesLeft] = &YARPMEIDeviceDriver::waitForFramesLeft;
 
 	m_cmds[CMDDummy] = &YARPMEIDeviceDriver::dummy;
 
@@ -703,6 +707,19 @@ int YARPMEIDeviceDriver::vMove(void *spds)
 	return rc;
 }
 
+int YARPMEIDeviceDriver::safeVMove(void *spds)
+{
+	int16 rc = 0;
+	double *cmds = (double *) spds;
+	for(int i = 0; i < _njoints; i++)
+	{
+		if (!frames_left(i))
+			rc = v_move(i, cmds[i], _ref_accs[i]);
+	}
+
+	return rc;
+}
+
 int YARPMEIDeviceDriver::setCommands(void *pos)
 {
 	int16 rc = 0;
@@ -738,12 +755,52 @@ int YARPMEIDeviceDriver::checkMotionDone(void *flag)
 	return rc;
 }
 
-int YARPMEIDeviceDriver::waitForMotionDone(void *flag)
+int YARPMEIDeviceDriver::waitForMotionDone(void *cmd)
 {
 	int16 rc = 0;
 
+	int time = *((int *) cmd);
+
+	if (time != 0) {
+		for(int i = 0; i < _njoints; i++)
+			while(!motion_done(i)) ACE_OS::sleep(ACE_Time_Value(0,time));
+	}
+	else {
+		for(int i = 0; i < _njoints; i++)
+		while(!motion_done(i));	// busy waiting
+	}
+
+	return rc;
+}
+
+
+int YARPMEIDeviceDriver::waitForFramesLeft(void *cmd)
+{
+	int16 rc = 0;
+
+	int time = *((int *) cmd);
+
+	if (time != 0) {
+		for(int i = 0; i < _njoints; i++)
+			while(frames_left(i)) ACE_OS::sleep(ACE_Time_Value(0,time));
+	}
+	else {
+		for(int i = 0; i < _njoints; i++)
+		while(frames_left(i));	// busy waiting
+	}
+
+	return rc;
+}
+
+int YARPMEIDeviceDriver::checkFramesLeft(void *flag)
+{
+	int16 rc = 0;
+	
+	bool *tmp = (bool *) flag;
+	*tmp = true;
+
 	for(int i = 0; i < _njoints; i++)
-		while(!motion_done(i)) ACE_OS::sleep(ACE_Time_Value(0,50000));
+		 *tmp = *tmp && frames_left(i);
 	
 	return rc;
 }

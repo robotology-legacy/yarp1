@@ -1,5 +1,5 @@
 // by nat
-// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.8 2003-11-14 13:56:34 babybot Exp $
+// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.9 2003-12-02 11:42:49 babybot Exp $
 
 #ifndef __MEIONBABYBOTHEAD__
 #define __MEIONBABYBOTHEAD__
@@ -304,18 +304,33 @@ public:
 		return YARP_OK;
 	}
 
-	int activatePID()
+	int activateLowPID(bool reset = true)
+	{
+		return activatePID(reset, _parameters->_lowPIDs);
+	}
+
+	int activatePID(bool reset, LowLevelPID *pids = NULL)
 	{
 		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			IOCtl(CMDControllerIdle, &i);
 			SingleAxisParameters cmd;
 			cmd.axis = i;
-			cmd.parameters = &_parameters->_highPIDs[i];
+
+			if (pids == NULL)
+				cmd.parameters = &_parameters->_highPIDs[i];
+			else
+				cmd.parameters = &pids[i];
+				
 			IOCtl(CMDSetPID, &cmd);
-			double pos = 0.0;
-			cmd.parameters = &pos;
-			IOCtl(CMDDefinePosition, &cmd);
+
+			// reset encoders
+			if (reset) {
+				double pos = 0.0;
+				cmd.parameters = &pos;
+				IOCtl(CMDDefinePosition, &cmd);
+			}
+			//////////////////////////
 			IOCtl(CMDControllerRun, &i);
 			IOCtl(CMDEnableAmp, &i);
 			IOCtl(CMDClearStop, &i);

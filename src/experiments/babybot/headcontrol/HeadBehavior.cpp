@@ -2,7 +2,7 @@
 
 void HBWaitIdle::handle(HeadThread *d)
 {
-	printf("HeadBehavior: waiting on %s\n", _message.c_str());
+	printf("HEAD_BEHAVIOR: waiting on %s\n", _message.c_str());
 }
 
 bool HBSimpleInput::input(YARPBottle *in, HeadThread *d)
@@ -18,9 +18,15 @@ bool HBSimpleInput::input(YARPBottle *in, HeadThread *d)
 	return true;
 }
 
-void HBOutputCommand::output(HeadThread *d)
+void HBHibernateCommand::output(HeadThread *d)
 {
-	return;
+	d->askHibernation();
+	d->terminate(false);	// terminate the thread
+}
+
+void HBResumeCommand::output(HeadThread *d)
+{
+	d->start();				// start the thread
 }
 
 bool HBDirectCommandInput::input(YARPBottle *in, HeadThread *d)

@@ -24,13 +24,17 @@ void _fillTable()
 	REG_VOCAB(sendSimpleVocab, YBVArmZeroG, "arm goes/exit to/from zero g mode");
 	REG_VOCAB(sendSimpleVocab, YBVArmInhibitResting, "inhibit arm resting (dangerous)");
 	REG_VOCAB(sendSimpleVocab, YBVArmForceResting, "force arm resting");
-	REG_VOCAB(sendSimpleVocab, YBVArmQuit, "quit arm control");
 	REG_VOCAB(sendArmJointCommand, YBVArmNewCmd, "send arm position command");
 	REG_VOCAB(sendArmJointCommand, YBVArmShake, "send arm shake command");
+	REG_VOCAB(sendSimpleVocab, YBVArmHibernate, "hibernate arm control");
+	REG_VOCAB(sendSimpleVocab, YBVArmResume, "resume arm control");
+	REG_VOCAB(sendSimpleVocab, YBVArmQuit, "quit arm control");
 
 	// head
 	REG_VOCAB(sendHeadJointCommand, YBVHeadNewCmd, "send head new position command");
 	REG_VOCAB(sendSimpleVocab, YBVHeadQuit, "quit head control");
+	REG_VOCAB(sendSimpleVocab, YBVHeadHibernate, "hibernate head");
+	REG_VOCAB(sendSimpleVocab, YBVHeadResume, "resume head from hibernation");
 	
 	// hand
 	REG_VOCAB(sendHandJointCommand, YBVHandNewCmd, "send hand new position command");

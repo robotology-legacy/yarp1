@@ -68,6 +68,18 @@ public:
 	void output(ArmBehaviorData *d);
 };
 
+class ABOutputHibernate: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
+class ABOutputResume: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
 class ABOutputShakeCmd: public ArmBehaviorBaseOutput
 {
 public:

@@ -67,15 +67,18 @@ public:
 		}
 	}
 
+	// require hibernation
+	void askHibernation()
+	{	
+		_askHib = true;
+	}
+
 private:
 	//move the head to 0
 	void park(int flag);
 
 	void calibrateInertial();
 
-	inline void read_status();
-	inline void write_status();
-		
 	YVector _deltaQ;				// command
 	double  _deltaT;				// thread rate (s)
 	HeadFSM *_fsm;
@@ -98,6 +101,7 @@ private:
 
 	// stop flag
 	bool _stopFlag;
+	bool _askHib;
 	
 	// FSM
 	HIDirectCmdStart	_hiDirectCmdStart;
@@ -112,34 +116,5 @@ private:
 	unsigned int _inPortCounter;	// #control cycles elapsed since
 									// the last frame received from _inPort
 };
-
-inline void HeadThread::read_status()
-{
-	/// get head
-	_head.getPositions(_head._status._current_position.data());
-	_head.getVelocities(_head._status._velocity.data());
-	_head._status._velocity*=radToDeg/10;		//normalize
-
-	_head.readAnalogs(_inertial.data());
-
-	// read vor info
-	if (_inPort.Read(0))
-	{
-		_head._inCmd = _inPort.Content();
-		_inPortCounter = 0;
-	}
-}
-
-inline void HeadThread::write_status()
-{
-	// send inertial info
-	_inertialPort.Content() = _inertial;
-	_inertialPort.Write();
-
-	_positionPort.Content() = _head._status._current_position;
-	_positionPort.Write();
-	
-	_head.velocityMove(_deltaQ.data());
-}
 
 #endif // __headthreadh__

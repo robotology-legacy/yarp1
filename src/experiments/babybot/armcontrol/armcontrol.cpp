@@ -47,19 +47,23 @@ int main(int argc, char* argv[])
 						__filename);
 
 	ArmBehavior _arm(&arm_thread);
-	arm_thread.start();
-
+	
 	ABWaitIdle waitIdle("command");
 	ABWaitIdle waitMotion("motion");
 	ABWaitIdle waitRest("resting");
 	ABWaitIdle waitZeroG("zeroG");
+	ABWaitIdle waitHibernated("hibernate");
 	ABSimpleInput checkMotionDone(YBVArmDone);
 	ABOutputCommand outputCmd;
 	ABOutputShakeCmd outputShk;
+	ABOutputHibernate hibernateOut;
+	ABOutputResume resumeOut;
 	ABInputCommand inputCmd(YBVArmNewCmd);
 	ABInputShakeCommand inputShk(YBVArmShake);
 	ABSimpleInput inputRest(YBVArmRest);
 	ABSimpleInput checkRestDone(YBVArmRestDone);
+	ABSimpleInput hibernateCmd(YBVArmHibernate);
+	ABSimpleInput resumeCmd(YBVArmResume);
 
 	ABSimpleInput inputForceRest(YBVArmForceResting);
 	ABSimpleInput inputInhibitRest(YBVArmInhibitResting);
@@ -75,6 +79,13 @@ int main(int argc, char* argv[])
 	_arm.add(&inputCmd, &waitIdle, &waitMotion, &outputCmd);
 	_arm.add(&inputShk, &waitIdle, &waitMotion, &outputShk);
 	_arm.add(&checkMotionDone, &waitMotion, &waitIdle);
+
+	//  hibernation
+	_arm.add(&hibernateCmd, &waitIdle, &waitHibernated, &hibernateOut);
+	_arm.add(&hibernateCmd, &waitMotion, &waitHibernated, &hibernateOut);
+	_arm.add(&hibernateCmd, &waitZeroG, &waitHibernated, &hibernateOut);
+	_arm.add(&hibernateCmd, &waitRest, &waitHibernated, &hibernateOut);
+	_arm.add(&resumeCmd, &waitHibernated, &waitIdle, &resumeOut);
 	
 	// resting cycle
 	_arm.add(&inputRest, &waitMotion, &waitRest);
@@ -83,7 +94,7 @@ int main(int argc, char* argv[])
 	_arm.add(&checkRestDone, &waitRest, &waitIdle);
 	////////////////////
 
-	// zero G cyvle
+	// zero G cycle
 	_arm.add(&inputZeroG, &waitIdle, &waitZeroG, &outputStartZeroG);
 	_arm.add(&inputZeroG, &waitZeroG, &waitIdle, &outputStopZeroG);
 	
@@ -92,7 +103,9 @@ int main(int argc, char* argv[])
 	_arm.add(&inputInhibitRest, &outputInhibitRest);
 	////////////////////
 
-	// start state machine
+	// start control thread
+	arm_thread.start();
+	// start behavior SM
 	_arm.Begin();
 	_arm.loop();	// block here until quit command is received
 

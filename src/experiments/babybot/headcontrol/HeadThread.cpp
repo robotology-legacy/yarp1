@@ -8,6 +8,7 @@
 #include <iomanip>
 
 const int __inPortDelay = 5;
+const int __outPortDelay = 100;		// 4 seconds
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -69,10 +70,12 @@ _positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	_fsm->add(&_hiDirectCmdEnd, &_hsDirectCmd, &_hsDirectCmdStop);
 	_fsm->add(NULL, &_hsDirectCmdStop, &_hsTrack, &_hoDirectCmdEnd);
 
+	// counters and flags
 	_threadCounter = 0;
 	_inPortCounter = __inPortDelay;
 
 	_stopFlag = false;
+	_askHib = false;;
 
 	delete [] tmp;
 	delete [] tmpPid;
@@ -85,38 +88,85 @@ HeadThread::~HeadThread()
 
 void HeadThread::doInit()
 {
-	// calibration 
-	_head.idleMode();
-	_head._status._pidStatus = 0;
-	std::cout << "--> Head is idle. Calibrate it manually then press any key + return\n";
-	char c;
-	std::cin >> c;
-	std::cout << "Ok, setting velocity mode\n";
+	if (!_askHib)
+	{
+		// start head
+		_head.idleMode();
+		_head._status._pidStatus = 0;
+		std::cout << "--> Head is idle. Calibrate it manually then press any key + return\n";
+		char c;
+		std::cin >> c;
+		std::cout << "Ok, setting velocity mode\n";
 	
-	_head.activatePID();
-	_head._status._pidStatus = 1;
+		_head.activatePID();
+		_head._status._pidStatus = 1;
 
-	park(1);
+		park(1);
 
-	_head.calibrate();
+		_head.calibrate();
+	}
+	else
+	{
+		// resume from hibernated state
+		_head.idleMode();
+		HEAD_THREAD_DEBUG(("resuming from hibernation\n"));
+		_head.activateLowPID(false); // don't reset encoders
+		_head._status._pidStatus = 0;
+		_head.setGainsSmoothly(_head._parameters._highPIDs, 200);
+		_head._status._pidStatus = 1;
+
+		park(1);	// go to starting position
+	}
+
+	_askHib = false;	// reset hibernation state
+
+	// reset counters
+	_threadCounter = 0;
+	_inPortCounter = __inPortDelay;
 }
 
 void HeadThread::doRelease()
 {
-	// park head
-	park(2);
+	// stop the head
+	_deltaQ = 0.0;
+	_head.velocityMove(_deltaQ.data());
+	_head.waitForMotionDone(50000);	// poll with sleep(50ms)
 
-	// be sure to stop the head, in principle this is not needed.
-	_head.idleMode();
+	if (!_askHib)
+	{
+		park(2);			// park the head
+		_head.idleMode();	// disable ampli
+	}
+	else
+	{
+		// hibernate code
+		// do we need to park the head ?
+		HEAD_THREAD_DEBUG(("starting hibernation procedure\n"));
+		_head.setGainsSmoothly(_head._parameters._lowPIDs,200);
+		_head._status._pidStatus = 0;	
+		_head.idleMode();	// disable ampli
+		HEAD_THREAD_DEBUG(("it is now safe to turn off the amplifiers\n"));
+	}
 }
 
 void HeadThread::doLoop()
 {
+	///////////////// READ
 	// read data from MEI board
-	read_status();
+	/// get head
+	_head.getPositions(_head._status._current_position.data());
+	_head.getVelocities(_head._status._velocity.data());
+	_head._status._velocity*=radToDeg/10;		//normalize
 
-	// this is the position control; it writes on _head._directCmd
-	_fsm->doYourDuty();
+	_head.readAnalogs(_inertial.data());
+
+	// poll input port
+	if (_inPort.Read(0))
+	{
+		_head._inCmd = _inPort.Content();
+		_inPortCounter = 0;
+	}
+	/////////////////////////////////////////////
 
 	/////////// check _inPort delay
 	if (_inPortCounter>=__inPortDelay)
@@ -128,19 +178,33 @@ void HeadThread::doLoop()
 		_stopFlag = false;
 	/////////////////////////////////////
 	
-	/////////// stopFlag is now obsolete
+	// this is the position control; it writes on _head._directCmd
+	_fsm->doYourDuty();
+
+	/////////// check stop flag
 	if (_directCmdFlag || _stopFlag)
 		_deltaQ = _head._directCmd;
 	else
 		_deltaQ = _head._inCmd;
 	/////////////
 
-	// form prediction
+	////// CHECK LIMITS
 	_head._predictedPos = _head._status._current_position + _deltaT*_deltaQ;
 	// check limits
 	_head.checkLimits(_head._predictedPos.data(), _deltaQ.data());
 	
-	write_status();
+	//////// SEND STATUS
+	// send inertial info
+	_inertialPort.Content() = _inertial;
+	_inertialPort.Write();
+
+	_positionPort.Content() = _head._status._current_position;
+	_positionPort.Write();
+	
+	// SET VELOCITY
+	// wait a few control loop, in order to let the position propagate
+	if (_threadCounter > __outPortDelay)
+		_head.safeVelocityMove(_deltaQ.data());
 
 	// increase counters
 	_threadCounter++;
@@ -157,7 +221,7 @@ void HeadThread::park(int flag)
 	YVector pos(nj);
 	YVector vel(nj);
 	YVector acc(nj);
-	sprintf(tmp, "Park%d", flag);
+	sprintf(tmp, "Park%d", flag);		// use flag to retrieve different parking positions
 	cfg.get("[THREAD]", tmp, pos.data(), nj);
 	cfg.get("[THREAD]", "Speeds", vel.data(), nj);
 	cfg.get("[THREAD]", "Accelerations", acc.data(), nj);

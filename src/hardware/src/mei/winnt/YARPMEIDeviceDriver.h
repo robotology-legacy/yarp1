@@ -5,7 +5,7 @@
 // April 2003 -- by nat
 //
 // win32: link Medvc50f.lib 
-// $Id: YARPMEIDeviceDriver.h,v 1.9 2003-10-17 16:34:40 babybot Exp $
+// $Id: YARPMEIDeviceDriver.h,v 1.10 2003-12-02 11:42:49 babybot Exp $
 #ifndef __YARP_MEI_DEVICE_DRIVER__
 #define __YARP_MEI_DEVICE_DRIVER__
 
@@ -64,6 +64,7 @@ public:
 	int setOffsets(void *offs);
 	int setOffset(void *cmd);
 	int vMove(void *spds);
+	int safeVMove(void *spds);
 
 	int definePositions(void *pos);
 	int definePosition(void *cmd);
@@ -111,14 +112,22 @@ public:
 	int setNegativeLimit(void *cmd);
 	int setPositiveLevel(void *cmd);
 	int setNegativeLevel(void *cmd);
-	int checkMotionDone(void *cmd);
-	int waitForMotionDone(void *cmd);
+	
 	int setCommands(void *cmd);
 	int setCommand(void *cmd);
 
 	int setHomeIndexConfig(void *cmd);
 	int setHomeLevel(void *cmd);
 	int setHome(void *cmd);
+
+	// MOTION STATUS
+	// non blocking call, check motion done and return
+	int checkMotionDone(void *cmd);
+	// blocking call, poll with sleep(time)
+	// time is ms, 0: busy waiting
+	int waitForMotionDone(void *cmd);
+	int checkFramesLeft(void *cmd);
+	int waitForFramesLeft(void *cmd);
 
 	// analog input
 	int readAnalog(void *cmd);

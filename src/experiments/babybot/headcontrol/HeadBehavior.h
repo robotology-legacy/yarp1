@@ -30,7 +30,13 @@ public:
 	YARPString _message;
 };
 
-class HBOutputCommand: public HeadBehaviorBaseOutput
+class HBHibernateCommand: public HeadBehaviorBaseOutput
+{
+public:
+	void output(HeadThread *d);
+};
+
+class HBResumeCommand: public HeadBehaviorBaseOutput
 {
 public:
 	void output(HeadThread *d);

@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 
 
-// $Id: YARPControlBoardUtils.h,v 1.17 2003-11-17 11:12:26 beltran Exp $
+// $Id: YARPControlBoardUtils.h,v 1.18 2003-12-02 11:42:49 babybot Exp $
 
 #include <conf/YARPConfig.h>
 
@@ -108,8 +108,12 @@ enum ControlBoardCmd
 	/////////////////
 	CMDReadAnalog			= 65,	// read analog input
 	CMDSetAxisAnalog		= 66,	// configure axis analog
+	
 	CMDSetDR				= 67,	// Configures the second communication channel and the data update
-	CBNCmds 				= 68 	// required! tells the total number of commands
+	CMDCheckFramesLeft		= 68,	// return true if frames are left to be executed for one or more axes
+	CMDWaitForFramesLeft	= 69,	// wait, loop with sleep(time), see .h for details
+	CMDSafeVMove			= 70,	// velocity move, check frames left
+	CBNCmds 				= 71 	// required! tells the total number of commands
 
 };
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.5 2003-11-14 13:56:34 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.6 2003-12-02 11:42:49 babybot Exp $
 ///
 ///
 
@@ -103,6 +103,26 @@ public:
 			delete [] _currentLimits;
 	}
 
+	// blocking wait on motion; poll on sleep(time)
+	// time is ms, 0 = busy wait
+	int waitForMotionDone(int time = 0)
+	{
+		int ret;
+		_lock();
+		ret = _adapter.waitForMotionDone(&time);
+		_unlock();
+		return ret;
+	}
+
+	int waitForFramesLeft(int time = 0)
+	{
+		int ret;
+		_lock();
+		ret = _adapter.waitForFramesLeft(&time);
+		_unlock();
+		return ret;
+	}
+
 	int calibrate()
 	{
 		int ret;
@@ -138,10 +158,18 @@ public:
 		return ret;
 	}
 
-	int activatePID()
+	int activatePID(bool reset = true)
 	{
 		_lock();
-		int ret = _adapter.activatePID();
+		int ret = _adapter.activatePID(reset);
+		_unlock();
+		return ret;
+	}
+
+	int activateLowPID(bool reset = true)
+	{
+		_lock();
+		int ret = _adapter.activateLowPID(reset);
 		_unlock();
 		return ret;
 	}
@@ -236,6 +264,21 @@ public:
 		return -1;
 	}
 
+	int safeVelocityMove(const double *vel)
+	{
+		_lock();
+		for (int i = 0; i < _parameters._nj; i++) {
+			_temp_double[i] = angleToEncoder(vel[_parameters._axis_map[i]],
+											_parameters._encoderToAngles[i],
+											0.0,
+											_parameters._signs[i]);
+		}
+
+		_adapter.IOCtl(CMDSafeVMove, _temp_double);
+		_unlock();
+		return -1;
+	}
+
 	int setCommands(const double *pos)
 	{
 		_lock();
@@ -256,6 +299,15 @@ public:
 		bool ret;
 		_lock();
 		_adapter.IOCtl(CMDCheckMotionDone, &ret);
+		_unlock();
+		return ret;
+	}
+
+	bool checkFramesLeft()
+	{
+		bool ret;
+		_lock();
+		_adapter.IOCtl(CMDCheckFramesLeft, &ret);
 		_unlock();
 		return ret;
 	}

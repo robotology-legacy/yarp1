@@ -21,6 +21,17 @@ void ABInhibitResting:: output(ArmBehaviorData *d)
 	d->inhibitResting();
 }
 
+void ABOutputHibernate::output(ArmBehaviorData *d)
+{
+	d->terminate(true);	// no timeout
+	ACE_OS::printf("ARM_BEHAVIOR: it is now safe to turn off the amplifier\n");
+}
+
+void ABOutputResume::output(ArmBehaviorData *d)
+{
+	d->start();	// blocking
+}
+
 bool ABInputCommand::input(YARPBottle *in, ArmBehaviorData *d)
 {
 	if (!in->tryReadVocab(tmpK))

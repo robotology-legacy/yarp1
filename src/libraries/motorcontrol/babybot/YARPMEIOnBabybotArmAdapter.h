@@ -3,7 +3,7 @@
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.19 2003-10-17 16:34:40 babybot Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.20 2003-12-02 11:42:49 babybot Exp $
 
 #include <ace/log_msg.h>
 #include <YARPMeiDeviceDriver.h>
@@ -324,14 +324,24 @@ public:
 		return YARP_OK;
 	}
 
-	int activatePID()
+	int activateLowPID()
+	{
+		return activatePID(_parameters->_lowPIDs);
+	}
+
+	int activatePID(LowLevelPID *pids = NULL)
 	{
 		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			IOCtl(CMDControllerIdle, &i);
 			SingleAxisParameters cmd;
 			cmd.axis = i;
-			cmd.parameters = &_parameters->_highPIDs[i];
+
+			if (pids == NULL)
+				cmd.parameters = &_parameters->_highPIDs[i];
+			else
+				cmd.parameters = &pids[i];
+
 			IOCtl(CMDSetPID, &cmd);
 			double pos = 0.0;
 			cmd.parameters = &pos;

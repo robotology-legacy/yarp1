@@ -18,6 +18,8 @@ const char *const YBVArmRestDone = "ArmRndRestDone";
 const char *const YBVArmForceResting = "ArmForceResting";
 const char *const YBVArmInhibitResting = "ArmInhibitResting";
 const char *const YBVArmZeroG = "ArmZeroG";
+const char *const YBVArmHibernate = "ArmHibernate";
+const char *const YBVArmResume = "ArmResume";
 const char *const YBVArmQuit = "ArmQuit";
 
 // hand behavior
@@ -29,6 +31,8 @@ const char *const YBVHandQuit = "HandQuit";
 
 // head behavior
 const char *const YBVHeadNewCmd = "HeadNewCmd";
+const char *const YBVHeadHibernate = "HeadHibernate";
+const char *const YBVHeadResume = "HeadResume";
 const char *const YBVHeadQuit = "HeadQuit";
 
 // sink behavior

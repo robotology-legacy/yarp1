@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.13 2003-09-02 15:18:08 babybot Exp $
+$Id: install.txt,v 1.14 2003-12-02 11:42:48 babybot Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -43,7 +43,7 @@ What to do on each machine of the network
 		/kill to kill a process.
 
 5) define:
-	- YARP_ROOT env variable: e.g. Q:\yarp
+	- YARP_ROOT env variable: e.g. y:
 	- add to PATH: %YARP_ROOT%\bin\winnt (location of binaries and DLLs)
 	- add to PATH: %YARP_ROOT%\scripts (and subdirs that you need)
 
