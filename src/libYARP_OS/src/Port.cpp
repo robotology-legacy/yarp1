@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.17 2004-08-04 15:50:42 eshuy Exp $
+/// $Id: Port.cpp,v 1.18 2004-08-04 15:55:40 eshuy Exp $
 ///
 ///
 
@@ -1668,8 +1668,10 @@ int Port::SaySelfEnd(void)
 	int result = YARP_FAIL;
 	if (self_id == NULL && name.c_str()[0] != '\0')
 	{
+	  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 		if (protocol_type == YARP_MCAST)
 		{
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), YARP_UDP);
 			self_id->setServiceType (YARP_TCP);
 
@@ -1678,6 +1680,7 @@ int Port::SaySelfEnd(void)
 		}
 		else
 		{
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), protocol_type);
 			if (self_id->getServiceType() != YARP_QNET)
 				self_id->setServiceType (YARP_TCP);
@@ -1690,8 +1693,10 @@ int Port::SaySelfEnd(void)
 	/// silly but to guarantee self_id is !NULL.
 	if (self_id != NULL && !self_id->isValid() && name.c_str()[0] != '\0')
 	{
+	  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 		if (protocol_type == YARP_MCAST)
 		{
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), YARP_UDP);
 			self_id->setServiceType (YARP_TCP);
 
@@ -1700,6 +1705,7 @@ int Port::SaySelfEnd(void)
 		}
 		else
 		{
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), protocol_type);
 			if (self_id->getServiceType() != YARP_QNET)
 				self_id->setServiceType (YARP_TCP);
