@@ -28,6 +28,9 @@ YARPLogpolar _mapper;
 const char *__nnetFile1 = "handfk1.ini";
 const char *__nnetFile2 = "handfk2.ini";
 
+const int __xOffset = -7;
+const int __yOffset = -8;
+
 const double __threshold = 150000;
 int __armCounter = 0;
 int __headCounter = 0;
@@ -105,7 +108,7 @@ int main(int argc, char* argv[])
 
 	DECLARE_INPUT_PORT (YARPGenericImage, _inPortImage, YARP_MCAST);
 	DECLARE_INPUT_PORT (YARPGenericImage, _inPortSeg, YARP_UDP);
-	DECLARE_OUTPUT_PORT (YARPGenericImage, _outPortBackprojection, YARP_UDP);
+	// DECLARE_OUTPUT_PORT (YARPGenericImage, _outPortBackprojection, YARP_UDP);
 	DECLARE_OUTPUT_PORT (YARPGenericImage, _outPortColor, YARP_UDP);
 
 	DECLARE_OUTPUT_PORT (YVector, _outputPortHandPosition, YARP_UDP);
@@ -130,7 +133,7 @@ int main(int argc, char* argv[])
 	_inPortImage.Register("/handtracker/i:img", "Net1");
 	_inPortSeg.Register("/handtracker/segmentation/i:img");
 	_armSegmentationPort.Register("/handtracker/segmentation/i:armdata");
-	_outPortBackprojection.Register("/handtracker/backprojection/o:img");
+//	_outPortBackprojection.Register("/handtracker/backprojection/o:img");
 	_headPort.Register("/handtracker/head/i");
 	_armPort.Register("/handtracker/arm/i");
 	_inputPortTrain1.Register("/handtracker/nnet1/i");
@@ -274,18 +277,18 @@ int main(int argc, char* argv[])
 		_outPortColor.Write();
 			
 		// histo backprojection
-		_outPortBackprojection.Content().Refer(_segThreshold);
-		_outPortBackprojection.Write();
+	//	_outPortBackprojection.Content().Refer(_segThreshold);
+	//	_outPortBackprojection.Write();
 
 		// send hand position
-		_handPosition(1) = (tmpEl1.x - 128);
-		_handPosition(2) = (tmpEl1.y - 128);
+		_handPosition(1) = (tmpEl1.x - 128 + __xOffset);
+		_handPosition(2) = (tmpEl1.y - 128 + __yOffset);
 		_outputPortHandPosition.Content() = _handPosition;
 		_outputPortHandPosition.Write();
 
 		// send hand predicted
-		_handPosition(1) = (tmpEl2.x - 128);
-		_handPosition(2) = (tmpEl2.y - 128);
+		_handPosition(1) = (tmpEl2.x - 128 + __xOffset);
+		_handPosition(2) = (tmpEl2.y - 128 + __yOffset);
 		_outputPortHandPredicted.Content() = _handPosition;
 		_outputPortHandPredicted.Write();
 

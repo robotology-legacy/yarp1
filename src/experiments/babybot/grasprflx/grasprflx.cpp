@@ -3,14 +3,16 @@
 
 #include "reflexstates.h"
 #include <YARPConfigFile.h>
+#include <YARPParseParameters.h>
 
 const int N = 20;
 const int _nJoints = 6;
 
 double _threshold = 0.0;
 int _nSynergies = 0;
+const YARPString __defaultCfgFile = "grasprflx.ini";
 
-void readConfigFile(ReflexShared &rflxShared)
+void readConfigFile(const YARPString &filename, ReflexShared &rflxShared)
 {
 	YARPConfigFile file;
 
@@ -19,7 +21,7 @@ void readConfigFile(ReflexShared &rflxShared)
 
 	ACE_OS::sprintf (path, "%s/conf/babybot/", root); 
 
-	file.set(path, "grasprflx.ini");
+	file.set(path, filename);
 	file.get("[GRASPREFLEX]", "Threshold", &_threshold);
 	file.get("[SYNERGIES]", "N", &_nSynergies);
 
@@ -54,6 +56,13 @@ void readConfigFile(ReflexShared &rflxShared)
 
 int main(int argc, char* argv[])
 {
+	bool norelease = false;
+	if (YARPParseParameters::parse(argc, argv, "norelease"))
+		norelease = true;
+	YARPString cfgFile;
+	if (!YARPParseParameters::parse(argc, argv, "cfg", cfgFile))
+		cfgFile = __defaultCfgFile;
+
 	ReflexShared shared;
 	GRBehavior behavior(&shared);
 	GRBLoopTouch loopTouch;
@@ -72,7 +81,7 @@ int main(int argc, char* argv[])
 	GRBSimpleInput motionDone(YBVHandDone);
 	GRBSimpleInput forceOpen(YBVGraspRflxForceOpen);
 
-	readConfigFile(shared);
+	readConfigFile(cfgFile, shared);
 
 	behavior.setInitialState(&loopTouch);
 	behavior.add(&init, &loopTouch, &pickRnd);
@@ -85,12 +94,13 @@ int main(int argc, char* argv[])
 		behavior.add(NULL, &waitT[i], &waitT[i+1]);
 
 	// check no automatic release
-	behavior.add(NULL, &waitT[N-1], &waitOpen2, &openCmd);
+	if (norelease)
+		behavior.add(&forceOpen, &waitT[N-1], &waitOpen2, &openCmd);
+	else
+		behavior.add(NULL, &waitT[N-1], &waitOpen2, &openCmd);
 	
-	// behavior.add(&forceOpen, &waitT[N-1], &waitOpen2, &openCmd);
-
 	behavior.add(&motionDone, &waitOpen2, &loopTouch);
-
+	
 	behavior.Begin();
 	behavior.loop();
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.h,v 1.12 2004-06-07 18:32:18 babybot Exp $
+/// $Id: YARPDisparity.h,v 1.13 2004-06-11 17:37:56 babybot Exp $
 ///
 ///
 // disparity.h: interface for the YARPDisparityTool class.
@@ -170,6 +170,14 @@ public:
 						  double *value);
 
 	int computeSSDRGBVar (YARPImageOf<YarpPixelBGR> & inRImg,
+						  YARPImageOf<YarpPixelBGR> & inLImg, 
+							double *value);
+
+	int computeSSDRGBTH (YARPImageOf<YarpPixelBGR> & inRImg,
+						  YARPImageOf<YarpPixelBGR> & inLImg, 
+							double *value);
+
+	int computeABSRGB (YARPImageOf<YarpPixelBGR> & inRImg,
 						  YARPImageOf<YarpPixelBGR> & inLImg, 
 							double *value);
 

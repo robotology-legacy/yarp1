@@ -34,8 +34,9 @@ int main(int argc, char* argv[])
 	_behavior.add(&_armRest, &_waitAck1, &_waitRest);
 	_behavior.add(&_armAck, &_waitAck1, &_waitReaching);
 	_behavior.add(NULL, &_waitReaching, &_wait);
-	_behavior.add(NULL, &_wait, &_wait);
-	_behavior.add(&_armRest, &_wait, &_waitReaching);
+	// _behavior.add(NULL, &_wait, &_wait);
+	// _behavior.add(NULL, &_wait, &_waitAck1, &_reaching);
+	_behavior.add(&_armRest, &_wait, &_waitRest);
 	
 	_behavior.add(&_armRestDone, &_waitRest, &_wait);
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.14 2004-06-07 18:32:18 babybot Exp $
+/// $Id: vergence.cpp,v 1.15 2004-06-11 17:37:56 babybot Exp $
 ///
 ///
 
@@ -236,22 +236,22 @@ int main(int argc, char *argv[])
 		disparity[0].downSample (col_right, sub_right);
 
 		double value;
-	//	disparityval(1) = (double)disparity[0].computeRGB (sub_right, sub_left, &value);
+		disparityval(1) = (double)disparity[0].computeSSDRGBTH (sub_right, sub_left, &value);
 		// disparity[0].plotRegion(sub_right, outImageLp, disparity[0].getShift());
 		// disparity[0].remap(outImageLp, outImageCart);
 
-		// disparityval(1) = (double)disparity[1].computeMono (sub_right, sub_left, &value);
+		disparityval(1) = (double)disparity[1].computeABSRGB (sub_right, sub_left, &value);
 		// disparityval(1) = (double)disparity[2].computeRGBAv (sub_left, sub_left, &value);
 
-	//	disparity[0].plotCorrelationMap (sub_right, sub_left, outImageCorrMapLp, disparity[0].zeroShift());
-	//	disparity[0].remap(outImageCorrMapLp, outImageCorrMapCart);
+		//	disparity[0].plotCorrelationMap (sub_right, sub_left, outImageCorrMapLp, disparity[0].zeroShift());
+		//	disparity[0].remap(outImageCorrMapLp, outImageCorrMapCart);
 		
 		disparityval(1) = (double)disparity[3].computeSSDRGBxVar (sub_right, sub_left, &value);
 		// disparity[3].plotRegion(sub_right, outImageLp2, disparity[3].getShift());
 		// disparity[3].remap(outImageLp2, outImageCart2);
 		disparityval(2) = value;
-	//	disparity[3].plotSSDMap(sub_right, sub_left, outImageMapLp, disparity[3].zeroShift());
-	//	disparity[3].remap(outImageMapLp, outImageMapCart);
+		//	disparity[3].plotSSDMap(sub_right, sub_left, outImageMapLp, disparity[3].zeroShift());
+		//	disparity[3].remap(outImageMapLp, outImageMapCart);
 
 		// disparityval(1) = (double)disparity[4].computeSSDRGBxVar (sub_right, sub_left, &value);
 		// disparityval(1) = (double)disparity[5].computeSSDRGBVar (sub_right, sub_left, &value);
@@ -273,15 +273,12 @@ int main(int argc, char *argv[])
 
 		const double *correlation0 = disparity[0].getCorrFunction(); 
 		const double *correlation1 = disparity[1].getCorrFunction();
-		const double *correlation2 = disparity[2].getCorrFunction();
+		const double *correlation2 = disparity[3].getPhase(); //disparity[2].getCorrFunction();
 
-		correlation2 = disparity[3].getPhase();
-		
 		const double *correlation3 = disparity[3].getCorrFunction();
 		const double *correlation4 = disparity[3].getSSDFunction();
 		const double *correlation5 = disparity[3].getVarFunction();
-		// const double *correlation2 = correlation1;
-	
+			
 		makeHistogram(out1, correlation0, correlation1, correlation2, disparity[0].getShiftLevels(), 1);
 		makeHistogram(out2, correlation3, correlation4, correlation5, disparity[0].getShiftLevels(), value);
 	

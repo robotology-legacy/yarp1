@@ -104,6 +104,8 @@ const char *const YBVRLBatchSize = "RLBatchSize";
 // Key frames messages
 const char *const YBVKFStart = "KFStart";
 const char *const YBVKFStop = "KFStop";
+const char *const YBVKFSetRefModel = "KFSetRefModel";
+const char *const YBVKFCheckAgainst = "KFCheckAgainst";
 const char *const YBVKFQuit = "KFQuit";
 const char *const YBVKFDump = "KFDump";
 

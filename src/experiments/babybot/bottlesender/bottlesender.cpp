@@ -4,6 +4,7 @@
 #include <YARPPort.h>
 #include <YARPBottle.h>
 #include <YARPBottleContent.h>
+#include <YARPParseParameters.h>
 #include <./conf/YARPVocab.h>
 #include "functionList.h"
 
@@ -63,8 +64,13 @@ bool _parse(const YARPString &c, YARPBottle &b)
 int main(int argc, char* argv[])
 {
 	_fillTable();
+
+	YARPString name;
+	if (!YARPParseParameters::parse(argc, argv, "name", name))
+		_outPort.Register(YARPString(DEFAULT_NAME).append("/o").c_str());
+	else
+		_outPort.Register(name.append("/o").c_str());
 	
-	_outPort.Register(YARPString(DEFAULT_NAME).append("/o").c_str());
 	YARPBottle tmp;
 	YARPString c;
 	bool quit = false;
