@@ -95,14 +95,6 @@ SOURCE=.\HandColorTracker.cpp
 SOURCE=.\StdAfx.cpp
 # ADD CPP /Yc"stdafx.h"
 # End Source File
-# Begin Source File
-
-SOURCE=.\YARPBlobDetector.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPIntegralImage.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -110,18 +102,6 @@ SOURCE=.\YARPIntegralImage.cpp
 # Begin Source File
 
 SOURCE=.\StdAfx.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPBlobDetector.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPBox.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPIntegralImage.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
