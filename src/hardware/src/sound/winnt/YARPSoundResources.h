@@ -10,15 +10,19 @@
 // 
 //     Description:  This file encapsulates the SoundResources class and the its methods
 // 
-//         Version:  $Id: YARPSoundResources.h,v 1.2 2004-02-23 18:19:19 beltran Exp $
+//         Version:  $Id: YARPSoundResources.h,v 1.3 2004-02-24 17:24:56 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
 //           Email:  cbeltran@dist.unige.it
 // 
 // =====================================================================================
+#ifndef __YARPSoundResourcesh__
+#define __YARPSoundResourcesh__
 
-#define _WINDOWS
+#include <ace/config.h>
+#include <ace/OS.h>
+#include <ace/Sched_Params.h>
 #include "YARPSoundDeviceDriver.h"
 // =====================================================================================
 //        Class: SoundResources 
@@ -39,6 +43,7 @@ public:
 	//----------------------------------------------------------------------
 	SoundResources (void) : _bmutex(1),
 							_new_frame(0),
+							_canpost(true),
 							Busy(false),
 							Ready(true),
 							dwBufferLength(8192),
@@ -63,13 +68,9 @@ public:
 
 	YARPSemaphore _bmutex;
 	YARPSemaphore _new_frame;
+	bool _canpost;
 
 	//Declare usefull variables
-	//Declare buffers and buffers handlers
-	// i.e. The next code
-	//	PICOLOHANDLE _bufHandles[_num_buffers];
-	//	PUINT8 _buffer[_num_buffers];
-	//	PUINT8 _aligned[_num_buffers];
 
 	HWAVEIN			m_WaveInHandle; // Handle to the WAVE In Device 
 	HMIXER			m_MixerHandle; // Handle to Mixer for WAVE In Device
@@ -85,17 +86,16 @@ public:
 	HANDLE			m_waveInThread;
 	unsigned long	m_n, m_numSrc;
 	// Control structures 
-	MIXERCONTROL					m_mixerControlArray;
-	MIXERLINECONTROLS				m_mixerLineControls;
+	MIXERCONTROL		m_mixerControlArray;
+	MIXERLINECONTROLS	m_mixerLineControls;
 
+	//Local lockable buffer
+	unsigned char *_rawBuffer;
 
 	//----------------------------------------------------------------------
 	//  Parameters
 	//----------------------------------------------------------------------
 	const bool Busy, Ready;
-
-	//const int VarMutexID;
-
 	const DWORD dwBufferLength;
 	const DWORD numSamples;		//dwBufferLength/4
 	const DWORD freqSample;
@@ -129,3 +129,5 @@ protected:
 //  Revision:  none
 // =====================================================================================
 SoundResources& RES(void *res) { return *(SoundResources *)res; }
+
+#endif

@@ -10,7 +10,7 @@
 // 
 //     Description:  This files implements the SoundResources methods
 // 
-//         Version:  $Id: YARPSoundResources.cpp,v 1.2 2004-02-23 18:19:19 beltran Exp $
+//         Version:  $Id: YARPSoundResources.cpp,v 1.3 2004-02-24 17:24:55 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -76,6 +76,7 @@ SoundResources::_uninitialize (void)
 
 	//Release memory (buffer, variables...etc)	
 	/////_bmutex.Post ();
+	mixerClose(m_MixerHandle);
 
 	return YARP_OK;
 }
@@ -109,7 +110,7 @@ SoundResources::_init (const SoundOpenParameters& params)
 					   CALLBACK_THREAD);
 
 	if (m_err != MMSYSERR_NOERROR) {
-		//PrintWaveErrorMsg(err, "Can't open WAVE In Device!");
+		//PrintWaveErrorMsg(m_err, "Can't open WAVE In Device!");
 		printf("Can't open WAVE In Device! %d",m_err);
 		return(-2);
 	} 
@@ -117,14 +118,14 @@ SoundResources::_init (const SoundOpenParameters& params)
 	//----------------------------------------------------------------------
 	//  Initialize Mixter
 	//----------------------------------------------------------------------
-	err = mixerOpen(&m_MixerHandle, 
+	m_err = mixerOpen(&m_MixerHandle, 
 					(DWORD)m_WaveInHandle, 
 					0, 
 					0, 
 					MIXER_OBJECTF_HWAVEIN);
 
-	if (err != MMSYSERR_NOERROR) {
-		printf("Device does not have mixer support! -- %08X\n", err);
+	if (m_err != MMSYSERR_NOERROR) {
+		printf("yarpsounddriver: Device does not have mixer support! -- %08X\n", m_err);
 	}
 
 	/* 
@@ -134,52 +135,87 @@ SoundResources::_init (const SoundOpenParameters& params)
 	m_mixerLine.cbStruct = sizeof(MIXERLINE);
 	m_mixerLine.dwComponentType = MIXERLINE_COMPONENTTYPE_DST_WAVEIN;
 
-	err = mixerGetLineInfo((HMIXEROBJ)m_MixerHandle, &m_mixerLine, MIXER_GETLINEINFOF_COMPONENTTYPE);
+	m_err = mixerGetLineInfo((HMIXEROBJ)m_MixerHandle, &m_mixerLine, MIXER_GETLINEINFOF_COMPONENTTYPE);
 
-	if (err != MMSYSERR_NOERROR) {
-		printf("Device does not have a WAVE recording control! -- %08X\n", err);
+	if (m_err != MMSYSERR_NOERROR) {
+		printf("Device does not have a WAVE recording control! -- %08X\n", m_err);
 	}
-	/* 
-	 * Get how many source lines are available from which to record. 
-	 */
-	m_numSrc = mixerLine.cConnections;
+	
+	// Get how many source lines are available from which to record. 
+	m_numSrc = m_mixerLine.cConnections;
+	//select default source line
+	_select_line(MIXERLINE_COMPONENTTYPE_SRC_LINE);
+
 	//----------------------------------------------------------------------
 	// Initialize the local buffers 
 	//----------------------------------------------------------------------
-	/*
 	_bmutex.Wait ();
-	_rawBuffer = new unsigned char [_nImageSize];
+	_rawBuffer = new unsigned char [dwBufferLength];
 	ACE_ASSERT (_rawBuffer != NULL);
 	_bmutex.Post ();
-	*/
 
-	/// all ok, store the handle.
-
-	//return ret;
-	return 0; //This should return an error/success value
+	return YARP_OK; 
 }
 
 //--------------------------------------------------------------------------------------
 //       Class: SoundResources 
 //      Method: (protected) _prepareBuffer 
-// Description:  
+// Description: Prepares the internal buffers for the doble buffering. Later this could
+// be done with three buffers.
 //--------------------------------------------------------------------------------------
 void 
 SoundResources::_prepareBuffers(void)
 {
 	//Here I should prepare all the buffer memory allocation
+	m_WaveHeader[1].dwBufferLength = m_WaveHeader[0].dwBufferLength = dwBufferLength;
+	
+
+	m_WaveHeader[0].lpData = (char *)VirtualAlloc(0, 
+												  m_WaveHeader[0].dwBufferLength, 
+												  MEM_COMMIT, 
+												  PAGE_READWRITE);
+	m_WaveHeader[1].lpData = (char *)VirtualAlloc(0, 
+												  m_WaveHeader[1].dwBufferLength, 
+												  MEM_COMMIT, 
+												  PAGE_READWRITE);
+	//Initialize dwFlags and dwLoops to 0. This seems to be necesary according to the
+	//window documentation
+	m_WaveHeader[0].dwFlags = m_WaveHeader[1].dwFlags = 0L;
+	m_WaveHeader[0].dwLoops = m_WaveHeader[1].dwLoops = 0L; 
+
+	//Lets initialize the headers
+	if ((m_err = waveInPrepareHeader(m_WaveInHandle, &m_WaveHeader[0], sizeof(WAVEHDR)))) 
+		printf("yarpsounddriver: Error preparing WAVEHDR -- %08X\n", m_err);
+
+	if ((m_err = waveInPrepareHeader(m_WaveInHandle, &m_WaveHeader[1], sizeof(WAVEHDR)))) 
+		printf("yarpsounddriver: Error preparing WAVEHDR -- %08X\n", m_err);
 }
 
 //--------------------------------------------------------------------------------------
 //       Class:  SoundResources
 //      Method:  (public)_select_line
-// Description:  This method sets the active line in the m_mixer_line variable. The idea
+// Description:  This method sets the active source line in the m_mixer_line variable. The idea
 // is that externally one can chose the source line (microfone, in line...etc). Then, by
-// chosing the control type one can control the selected line.
+// chosing the control type (volume, mute, on/off) one can control the selected line.
 //--------------------------------------------------------------------------------------
 int
 SoundResources::_select_line(unsigned int type)
 {
+	for(int i = 0; i < m_mixerLine.cConnections; i++) {
+		m_mixerLine.cbStruct = sizeof(MIXERLINE);	
+		m_mixerLine.dwSource = i;
+
+		m_err = mixerGetLineInfo((HMIXEROBJ)m_MixerHandle,
+								 &m_mixerLine,
+								 MIXER_GETLINEINFOF_SOURCE);
+		
+		if (m_err != MMSYSERR_NOERROR) continue;
+		
+		if (m_mixerLine.dwComponentType == type)
+			printf("yarpsounddriver: source line found\n");
+	}
+	printf("yarpsounddriver: -warning- source line not found");
+	return YARP_OK;
 }
 
 //--------------------------------------------------------------------------------------
@@ -188,13 +224,13 @@ SoundResources::_select_line(unsigned int type)
 // Description:  This methos allows to select the type of control in the selected line
 //--------------------------------------------------------------------------------------
 int
-SoundResources::_select_control(unsigned int control)
+SoundResources::_select_control(unsigned int control_type)
 {
 	/*
 	 * Fill the mixerLineControls structure
 	 */
 	m_mixerLineControls.cbStruct = sizeof(MIXERLINECONTROLS);
-	m_mixerLineControls.dwLineID = m_mixerLine->dwLineID;
+	m_mixerLineControls.dwLineID = m_mixerLine.dwLineID;
 	m_mixerLineControls.cControls = 1;
 	//m_mixerLineControls.dwControlType = MIXERCONTROL_CONTROLTYPE_MUTE;
 	m_mixerLineControls.dwControlType = control_type;
@@ -205,5 +241,7 @@ SoundResources::_select_control(unsigned int control)
 							   &m_mixerLineControls, 
 							   MIXER_GETLINECONTROLSF_ONEBYTYPE);
 	
-	if (err != MMSYSERR_NOERROR) printf("yarpsounddriver: %s has no mute control!\n", m_mixerLine->szName);
+	if (m_err != MMSYSERR_NOERROR) printf("yarpsounddriver: %s has no mute control!\n", m_mixerLine.szName);
+	
+	return YARP_OK;
 }
