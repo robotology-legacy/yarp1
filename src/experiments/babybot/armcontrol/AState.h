@@ -74,6 +74,7 @@ public:
 		char *root = GetYarpRoot();
 
 #if defined(__QNXEurobot__)
+		char filename[256]; 
 		ACE_OS::sprintf (filename, "%s/conf/eurobot/errors.txt", root);
 		_errorFile.open(filename);
         ACE_OS::sprintf (filename, "%s/conf/eurobot/leastSquares.txt", root);
