@@ -10,8 +10,8 @@ _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMa
 
 	// ACE_OS::sprintf (path, "%s/conf\babybot\\0", root);
 	ACE_OS::sprintf (filename, "%s/conf/babybot/handforward.dat\0", root);
-	ACE_OS::sprintf (filename1, "%s/conf/babybot/handfk.ini\0", root);
-	ACE_OS::sprintf (filename2, "%s/conf/babybot/handellipse.ini\0", root);
+	ACE_OS::sprintf (filename1, "%s/conf/babybot/handfk1.ini\0", root);
+	ACE_OS::sprintf (filename2, "%s/conf/babybot/handfk2.ini\0", root);
 	
 	_log.append(filename);
 	_npoints = 0;
