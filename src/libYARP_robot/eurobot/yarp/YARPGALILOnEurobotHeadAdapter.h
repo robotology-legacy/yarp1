@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.3 2004-12-27 17:39:31 beltran Exp $
+///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.4 2004-12-29 14:11:42 beltran Exp $
 ///
 ///
 
@@ -71,7 +71,6 @@
 
 #include <ace/Log_Msg.h>
 #include <yarp/YARPGalilDeviceDriver.h>
-#include <string> /// deprecated by YARP, use YARPString instead!
 #include <yarp/YARPConfigFile.h>
 
 #define YARP_BABYBOT_HEAD_ADAPTER_VERBOSE

@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.2 2004-12-07 13:34:42 babybot Exp $
+//         Version:  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.3 2004-12-29 14:11:42 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -23,7 +23,6 @@
 
 #include <ace/Log_Msg.h>
 #include <yarp/YARPGalilDeviceDriver.h>
-#include <string> /// deprecated! Use YARPString pls.
 
 #define YARP_BABYBOT_ARM_ADAPTER_VERBOSE
 
@@ -80,6 +79,7 @@ public:
 		_zeros = NULL;
 		_signs = NULL;
 		_axis_map = NULL;
+		_inv_axis_map = NULL;
 		_encoderToAngles = NULL;
 		_fwdCouple = NULL;
 		_invCouple = NULL;
@@ -114,6 +114,21 @@ public:
 		_invCouple[4] = -_fwdCouple[4] / (_encoderToAngles[3] * _encoderToAngles[5]) +
 		(_fwdCouple[3] * _fwdCouple[5]) / (_encoderToAngles[3] * _encoderToAngles[4] * _encoderToAngles[5]);
 		_invCouple[5] = -_fwdCouple[5] / (_encoderToAngles[4] * _encoderToAngles[5]);
+
+		// invert the axis map.
+		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
+		for (i = 0; i < _nj; i++)
+		{
+			int j;
+			for (j = 0; j < _nj; j++)
+			{
+				if (_axis_map[j] == i)
+				{
+					_inv_axis_map[i] = j;
+					break;
+				}
+			}
+		}
 	}
 
 	~YARPEurobotArmParameters()
@@ -128,6 +143,8 @@ public:
 			delete [] _signs;
 		if (_axis_map != NULL)
 			delete [] _axis_map;
+		if (_inv_axis_map != NULL)
+			delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL)
 			delete [] _encoderToAngles;
 		if (_fwdCouple != NULL)
@@ -172,6 +189,22 @@ public:
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "AxisMap", _axis_map, _nj) == YARP_FAIL)
 			return YARP_FAIL;
+
+		// invert the axis map.
+		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
+		for (i = 0; i < _nj; i++)
+		{
+			int j;
+			for (j = 0; j < _nj; j++)
+			{
+				if (_axis_map[j] == i)
+				{
+					_inv_axis_map[i] = j;
+					break;
+				}
+			}
+		}
+
 		if (cfgFile.get("[GENERAL]", "Signs", _signs, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "FwdCouple", _fwdCouple, _nj) == YARP_FAIL)
@@ -190,9 +223,15 @@ public:
 			return YARP_FAIL;
 		for(i = 0; i< _nj; i++)
 			_encoderToAngles[i] = encoders[i]*encWheels[i];
+		
+		_fwdCouple[3] = _fwdCouple[3]*encWheels[3];
+		_fwdCouple[4] = _fwdCouple[4]*encWheels[4];
+		_fwdCouple[5] = _fwdCouple[5]*encWheels[5];
+
 		delete [] encoders;
 		delete [] encWheels;
 		///////////////////////////////////////////////////
+
 
 		// build _invCouple
 		for (i = 0; i < 3; i++)
@@ -207,7 +246,66 @@ public:
 		return YARP_OK;
 	}
 
+	/**
+	 * Copies an existing parameter instance into this one.
+	 * @param peer is the reference to the object to copy in.
+	 * @return YARP_OK always.
+	 */
+	int copy (const YARPEurobotArmParameters& peer)
+	{
+		_nj = peer._nj;
+
+		if (_nj != 0)
+		{
+			_realloc (_nj);
+
+			memcpy (_highPIDs, peer._highPIDs, sizeof(LowLevelPID) * _nj);
+			memcpy (_lowPIDs, peer._lowPIDs, sizeof(LowLevelPID) * _nj);
+			memcpy (_zeros, peer._zeros, sizeof(double) * _nj);
+			memcpy (_signs, peer._signs, sizeof(double) * _nj);
+			memcpy (_axis_map, peer._axis_map, sizeof(int) * _nj);
+			memcpy (_inv_axis_map, peer._inv_axis_map, sizeof(int) * _nj);
+			memcpy (_encoderToAngles, peer._encoderToAngles, sizeof(double) * _nj);
+			memcpy (_fwdCouple, peer._fwdCouple, sizeof(double) * _nj);
+			memcpy (_invCouple, peer._invCouple, sizeof(double) * _nj);
+			memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
+			memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
+		}
+		else
+		{
+			if (_highPIDs != NULL) delete [] _highPIDs;
+			if (_lowPIDs != NULL) delete [] _lowPIDs;
+			if (_zeros != NULL)	delete [] _zeros;
+			if (_signs != NULL)	delete [] _signs;
+			if (_axis_map != NULL) delete [] _axis_map;
+			if (_inv_axis_map != NULL) delete [] _inv_axis_map;
+			if (_encoderToAngles != NULL) delete [] _encoderToAngles;
+			if (_fwdCouple != NULL) delete [] _fwdCouple;
+			if (_invCouple != NULL)	delete [] _invCouple;
+			if (_stiffPID != NULL) delete [] _stiffPID;
+			if (_maxDAC != NULL) delete [] _maxDAC;
+
+			_highPIDs = NULL;
+			_lowPIDs = NULL;
+			_zeros = NULL;
+			_signs = NULL;
+			_axis_map = NULL;
+			_inv_axis_map = NULL;
+			_encoderToAngles = NULL;
+			_fwdCouple = NULL;
+			_invCouple = NULL;
+			_stiffPID = NULL;
+			_maxDAC = NULL;
+		}
+
+		return YARP_OK;
+	}
+
 private:
+	/**
+	 * Frees memory and reallocates arrays of the new size.
+	 * @param nj is the new size (number of joints).
+	 */
 	void _realloc(int nj)
 	{
 		if (_highPIDs != NULL)
@@ -220,6 +318,8 @@ private:
 			delete [] _signs;
 		if (_axis_map != NULL)
 			delete [] _axis_map;
+		if (_inv_axis_map != NULL)
+			delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL)
 			delete [] _encoderToAngles;
 		if (_fwdCouple != NULL)
@@ -236,6 +336,7 @@ private:
 		_zeros = new double [nj];
 		_signs = new double [nj];
 		_axis_map = new int [nj];
+		_inv_axis_map = new int [nj];
 		_encoderToAngles = new double [nj];
 		_fwdCouple = new double [nj];
 		_invCouple = new double [nj];
@@ -249,6 +350,7 @@ public:
 	double *_zeros;
 	double *_signs;
 	int *_axis_map;
+	int *_inv_axis_map;
 	double *_encoderToAngles;
 	double *_fwdCouple;
 	double *_invCouple;
@@ -344,6 +446,10 @@ public:
 		return YARP_OK;
 	}
 
+	/**
+	 * Uninitializes the controller and closes the device driver.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int uninitialize()
 	{
 		/**************************
@@ -372,11 +478,25 @@ public:
 		return YARP_OK;
 	}
 
+	/**
+	 * Sets the PID values specified in a second set of parameters 
+	 * typically read from the intialization file.
+	 * @param reset if true resets the encoders.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int activateLowPID()
 	{
 		return activatePID(_parameters->_lowPIDs);
 	}
 
+	/**
+	 * Sets the PID values.
+	 * @param reset if true resets the encoder values to zero.
+	 * @param pids is an array of PID data structures. If NULL the values
+	 * contained into an internal variable are used (presumably read from the
+	 * initialization file) otherwise the actual argument is used.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int activatePID(LowLevelPID *pids = NULL)
 	{
 		for(int i = 0; i < _parameters->_nj; i++)
@@ -411,12 +531,21 @@ public:
 		return true;
 	}
 
+	/**
+	 * Disables the software limit check.
+	 * @return always YARP_OK.
+	 */
 	int disableLimitCheck()
 	{
 		_softwareLimits = false;
 		// LATER disable software limit check (encoders)
 		return YARP_OK;
 	}
+
+	/**
+	 * Enables the software limit check.
+	 * @return always YARP_OK.
+	 */
 	int enableLimitCheck()
 	{
 		_softwareLimits = true;
@@ -481,6 +610,11 @@ public:
 
 private:
 
+	/**
+	 * Sets the home configuration behavior.
+	 * @param event is one of the possible events to apply when a homing condition is
+	 * detected (e.g. STOP).
+	 */
 	void _setHomeConfig(int event)
 	{
 		for (int i = 0; i < _parameters->_nj; i++)
