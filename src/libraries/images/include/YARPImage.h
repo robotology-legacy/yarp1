@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.6 2003-06-22 11:39:27 gmetta Exp $
+/// $Id: YARPImage.h,v 1.7 2003-06-22 15:47:42 gmetta Exp $
 ///
 ///
 
@@ -148,7 +148,7 @@ class YARPRefCount;
 ///
 /// alignment required for IP, MMX, optimized stuff.
 /// same alignment is required across platforms for communication issues.
-const int YarpImageAlign = 8;
+const int YarpImageAlign = YARP_IMAGE_ALIGN;
 
 
 // Note on IPL alignment stuff:

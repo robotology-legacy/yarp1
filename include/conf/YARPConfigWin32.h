@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.24 2003-06-16 16:48:24 babybot Exp $
+// $Id: YARPConfigWin32.h,v 1.25 2003-06-22 15:47:42 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -28,7 +28,7 @@
 ///
 #define SINGLE_MUTEX_FOR_REFCOUNTED 1
 #define UPDATED_PORT 1
-#define MAX_PACKET (110*252*3+100)		
+#define MAX_PACKET (128*128*3+100)		
 ///8192
 ///(128*128*3+100)	/// shouldn't be required
 
@@ -52,6 +52,9 @@
 
 /// read short timeout on socket transport (in seconds). - used for waiting short latency delay.
 #define YARP_SHORT_SOCK_TIMEOUT	1
+
+/// alignment bytes required for mmx/ipl instructions.
+#define YARP_IMAGE_ALIGN 8
 
 /// disables warning for init_seg(lib) very legitimate use of directive.
 #pragma warning (disable:4073)

@@ -4,7 +4,7 @@
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
-CFG=tools - Win32 Debug
+CFG=tools - Win32 FakeIpl Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
@@ -13,12 +13,14 @@ CFG=tools - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "tools.mak" CFG="tools - Win32 Debug"
+!MESSAGE NMAKE /f "tools.mak" CFG="tools - Win32 FakeIpl Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
 !MESSAGE "tools - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE "tools - Win32 Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE "tools - Win32 FakeIpl Debug" (based on "Win32 (x86) Static Library")
+!MESSAGE "tools - Win32 FakeIpl Release" (based on "Win32 (x86) Static Library")
 !MESSAGE 
 
 # Begin Project
@@ -90,12 +92,78 @@ PostBuild_Desc=Installing library...
 PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Debug\toolsDB.lib ..\..\ipl\lib\ipl.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Debug\imagesDB.lib	copy ..\obj\Debug\imagesDB.lib ..\..\..\..\lib\winnt
 # End Special Build Tool
 
+!ELSEIF  "$(CFG)" == "tools - Win32 FakeIpl Debug"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "tools___Win32_FakeIpl_Debug"
+# PROP BASE Intermediate_Dir "tools___Win32_FakeIpl_Debug"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "..\obj\Debug"
+# PROP Intermediate_Dir "..\obj\Debug"
+# PROP Target_Dir ""
+LINK32=link.exe -lib
+MTL=midl.exe
+# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
+# SUBTRACT BASE CPP /YX
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "__FAKEIPL__" /FD /GZ /c
+# SUBTRACT CPP /YX
+# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo /out:"..\obj\Debug\toolsDB.lib"
+# ADD LIB32 /nologo /out:"..\obj\Debug\toolsDBf.lib"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Installing library...
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\fakeipl\fakeiplDB.lib ..\obj\Debug\toolsDBf.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Debug\imagesDBf.lib	copy ..\obj\Debug\imagesDBf.lib ..\..\..\..\lib\winnt
+# End Special Build Tool
+
+!ELSEIF  "$(CFG)" == "tools - Win32 FakeIpl Release"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 0
+# PROP BASE Output_Dir "tools___Win32_FakeIpl_Release"
+# PROP BASE Intermediate_Dir "tools___Win32_FakeIpl_Release"
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 0
+# PROP Output_Dir "..\obj\Release"
+# PROP Intermediate_Dir "..\obj\Release"
+# PROP Target_Dir ""
+LINK32=link.exe -lib
+MTL=midl.exe
+# ADD BASE CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
+# SUBTRACT BASE CPP /YX
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "__FAKEIPL__" /FD /c
+# SUBTRACT CPP /YX
+# ADD BASE RSC /l 0x409 /d "NDEBUG"
+# ADD RSC /l 0x409 /d "NDEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LIB32=link.exe -lib
+# ADD BASE LIB32 /nologo
+# ADD LIB32 /nologo /out:"..\obj\Release\toolsf.lib"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Installing library...
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\fakeipl\fakeipl.lib ..\obj\Release\toolsf.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\imagesf.lib	copy ..\obj\Release\imagesf.lib ..\..\..\..\lib\winnt
+# End Special Build Tool
+
 !ENDIF 
 
 # Begin Target
 
 # Name "tools - Win32 Release"
 # Name "tools - Win32 Debug"
+# Name "tools - Win32 FakeIpl Debug"
+# Name "tools - Win32 FakeIpl Release"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"

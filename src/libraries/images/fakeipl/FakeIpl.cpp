@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: FakeIpl.cpp,v 1.2 2003-06-05 10:51:09 gmetta Exp $
+/// $Id: FakeIpl.cpp,v 1.3 2003-06-22 15:47:42 gmetta Exp $
 ///
 ///
 
@@ -103,6 +103,34 @@ bool compareHeader(IplImage* A, IplImage* B)
 	else 
 		return false;
 }
+
+///
+/// this might turn out to be useful.
+inline int PAD_BYTES (int len, int pad)
+{
+	const int rem = len % pad;
+	return (rem != 0) ? (pad - rem) : 0;
+}
+
+template <class T>
+T* AllocAligned (int size)
+{
+	T *ptr = new T[size + YARP_IMAGE_ALIGN];
+	const int rem = (((int)ptr) % YARP_IMAGE_ALIGN);
+	const char addbytes = ((rem != 0) ? (YARP_IMAGE_ALIGN - rem) : 0); 
+	*(((char *)ptr) - 1) = addbytes;
+	return (T*) (((char *)ptr) + addbytes);
+}
+
+template <class T>
+void FreeAligned (T* ptr)
+{
+	if (ptr == NULL) return;
+
+	const char addbytes = *(((char *)ptr) - 1);
+	delete[] (T *)(((char *)ptr) - addbytes);
+}
+
 
 /*
 typedef struct _IplConvKernel {
@@ -239,7 +267,8 @@ IPLAPIIMPL(void, iplConvolve2D,(IplImage* srcImage, IplImage* dstImage,
 	if (__tmp_res == NULL)
 	{
 		__tmp_size = dstImage->imageSize;
-		__tmp_res = new char[dstImage->imageSize];
+		///__tmp_res = new char[dstImage->imageSize];
+		__tmp_res = AllocAligned<char> (dstImage->imageSize);
 		assert (__tmp_res != NULL);
 	}
 	else
@@ -247,9 +276,11 @@ IPLAPIIMPL(void, iplConvolve2D,(IplImage* srcImage, IplImage* dstImage,
 		if (__tmp_size < dstImage->imageSize)
 		{
 			// new size.
-			delete[] __tmp_res;
+			FreeAligned<char> (__tmp_res);
+			///delete[] __tmp_res;
 			__tmp_size = dstImage->imageSize;
-			__tmp_res = new char[dstImage->imageSize];
+			///__tmp_res = new char[dstImage->imageSize];
+			__tmp_res = AllocAligned<char> (dstImage->imageSize);
 			assert (__tmp_res != NULL);
 		}
 	}
@@ -355,16 +386,21 @@ IPLAPIIMPL(void, iplConvolve2DFP,(IplImage* srcImage, IplImage* dstImage,
 	if (__tmp_res == NULL)
 	{
 		__tmp_size = dstImage->imageSize / sizeof(float);
-		__tmp_res = new float[dstImage->imageSize / sizeof(float)];
+		///__tmp_res = new float[dstImage->imageSize / sizeof(float)];
+		__tmp_res = AllocAligned<float> (dstImage->imageSize / sizeof(float));
+		assert (__tmp_res != NULL);
 	}
 	else
 	{
 		if (__tmp_size < (int)(dstImage->imageSize / sizeof(float)))
 		{
 			// new size.
-			delete[] __tmp_res;
+			///delete[] __tmp_res;
+			FreeAligned<float> (__tmp_res);
 			__tmp_size = dstImage->imageSize / sizeof(float);
-			__tmp_res = new float[dstImage->imageSize / sizeof(float)];
+			///__tmp_res = new float[dstImage->imageSize / sizeof(float)];
+			__tmp_res = AllocAligned<float> (dstImage->imageSize / sizeof(float));
+			assert (__tmp_res != NULL);
 		}
 	}
 
@@ -453,16 +489,21 @@ IPLAPIIMPL(void, iplConvolveSep2DFP,(IplImage* srcImage,
 	if (__tmp_res == NULL)
 	{
 		__tmp_size = dstImage->imageSize / sizeof(float);
-		__tmp_res = new float[dstImage->imageSize / sizeof(float)];
+		///__tmp_res = new float[dstImage->imageSize / sizeof(float)];
+		__tmp_res = AllocAligned<float> (dstImage->imageSize / sizeof(float));
+		assert (__tmp_res != NULL);
 	}
 	else
 	{
 		if (__tmp_size < int(dstImage->imageSize / sizeof(float)))
 		{
 			// new size.
-			delete[] __tmp_res;
+			///delete[] __tmp_res;
+			FreeAligned<float> (__tmp_res);
 			__tmp_size = dstImage->imageSize / sizeof(float);
-			__tmp_res = new float[dstImage->imageSize / sizeof(float)];
+			///__tmp_res = new float[dstImage->imageSize / sizeof(float)];
+			__tmp_res = AllocAligned<float> (dstImage->imageSize / sizeof(float));
+			assert (__tmp_res != NULL);
 		}
 	}
 
@@ -553,7 +594,8 @@ IPLAPIIMPL(void, iplConvolveSep2D,(IplImage* srcImage, IplImage* dstImage,
 	if (__tmp_res == NULL)
 	{
 		__tmp_size = dstImage->imageSize;
-		__tmp_res = new char[dstImage->imageSize];
+		///__tmp_res = new char[dstImage->imageSize];
+		__tmp_res = AllocAligned<char> (dstImage->imageSize);
 		assert (__tmp_res != NULL);
 	}
 	else
@@ -561,9 +603,11 @@ IPLAPIIMPL(void, iplConvolveSep2D,(IplImage* srcImage, IplImage* dstImage,
 		if (__tmp_size < dstImage->imageSize)
 		{
 			// new size.
-			delete[] __tmp_res;
+			FreeAligned<char> (__tmp_res);
+			///delete[] __tmp_res;
 			__tmp_size = dstImage->imageSize;
-			__tmp_res = new char[dstImage->imageSize];
+			///__tmp_res = new char[dstImage->imageSize];
+			__tmp_res = AllocAligned<char> (dstImage->imageSize);
 			assert (__tmp_res != NULL);
 		}
 	}
@@ -678,17 +722,16 @@ IPLAPIIMPL(void, iplConvolveSep2D,(IplImage* srcImage, IplImage* dstImage,
 	}
 }
 
-// TODO: don't manage IPL ROI and tiling.
+// TODO: manage IPL ROI and tiling.
 IPLAPIIMPL(void, iplAllocateImage,(IplImage* image, int doFill, int fillValue))
 {
 	// Not implemented depth != 8
-//	assert ((image->depth & IPL_DEPTH_MASK) == 8);
-  int depth = (image->depth & IPL_DEPTH_MASK)/8;
+	int depth = (image->depth & IPL_DEPTH_MASK)/8;
 	assert (image->dataOrder == IPL_DATA_ORDER_PIXEL);
 	assert (image->widthStep == image->width * (image->depth & IPL_DEPTH_MASK) / 8 * image->nChannels);
 	assert (image->imageSize == image->widthStep * image->height);
 
-	image->imageData = new char[image->imageSize];
+	image->imageData = AllocAligned<char> (image->imageSize);	/// new char[image->imageSize];
 	assert (image->imageData != NULL);
 
 	if (image->origin == IPL_ORIGIN_TL)
@@ -720,7 +763,7 @@ IPLAPIIMPL(void, iplAllocateImageFP,(IplImage* image, int doFill, float fillValu
 	assert (image->widthStep == image->width * (image->depth & IPL_DEPTH_MASK) / 8 * image->nChannels);
 	assert (image->imageSize == image->widthStep * image->height);
 
-	image->imageData = new char[image->imageSize];
+	image->imageData = AllocAligned<char> (image->imageSize);
 	assert (image->imageData != NULL);
 
 	if (image->origin == IPL_ORIGIN_TL)
@@ -751,7 +794,7 @@ IPLAPIIMPL(void, iplAllocateImageFP,(IplImage* image, int doFill, float fillValu
 IPLAPIIMPL(void, iplDeallocateImage,(IplImage* image))
 {
 	if (image->imageData != NULL)
-		delete[] image->imageData;
+		FreeAligned<char> (image->imageData); ///delete[] image->imageData;
 	image->imageData = NULL;
 
 	// Not allocated.
@@ -838,6 +881,11 @@ IPLAPIIMPL(IplImage*, iplCreateImageHeader,
 
 	r->dataOrder = dataOrder;	// IPL_DATA_ORDER_PIXEL, IPL_DATA_ORDER_PLANE
 	r->origin = origin;
+	
+	assert (align == IPL_ALIGN_QWORD);	/// don't want to be bothered w/ alignment beside the 
+										/// the 8 bytes stuff.
+	assert (align == YARP_IMAGE_ALIGN);
+
 	r->align = align;
 	r->width = width;
 	r->height = height;
@@ -846,7 +894,8 @@ IPLAPIIMPL(IplImage*, iplCreateImageHeader,
 	r->imageId = NULL;
 
 	r->tileInfo = NULL;
-	r->widthStep = width * (depth & IPL_DEPTH_MASK) / 8 * nChannels;
+	const int linew = width * (depth & IPL_DEPTH_MASK) / 8 * nChannels;
+	r->widthStep = linew + PAD_BYTES(linew, YARP_IMAGE_ALIGN);
 
 	r->imageSize = r->widthStep * height;
 	r->imageData = NULL;
@@ -904,7 +953,8 @@ IPLAPIIMPL(void, iplDeallocateHeader,(IplImage* image))
 	assert (image->nSize == sizeof(IplImage));
 	if (image->imageData != NULL)
 	{
-		delete[] image->imageData;
+		FreeAligned<char> (image->imageData);
+		///delete[] image->imageData;
 	}
 
 	delete image;
@@ -1278,8 +1328,7 @@ IPLAPIIMPL(void, iplAbs,(IplImage* srcImage, IplImage* dstImage))
 	}
 }
 
-IPLAPIIMPL(void, iplThreshold, (IplImage* srcImage, IplImage* dstImage,
-                                                               int threshold))
+IPLAPIIMPL(void, iplThreshold, (IplImage* srcImage, IplImage* dstImage, int threshold))
 {
 	switch (srcImage->depth)
 	{
@@ -1477,9 +1526,9 @@ IPLAPIIMPL(void, iplXorS,(IplImage* srcImage, IplImage* dstImage,
 
 // computes the number of pad bytes (end of line) give the line len and 
 // the requested alignment in byte 
-int _iplCalcPadding (int lineSize, int align)
+inline int _iplCalcPadding (int lineSize, int align)
 {
-	return 0;
+	return PAD_BYTES (lineSize, align);
 }
 
 // not used outside this file.

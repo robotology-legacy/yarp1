@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.cpp,v 1.6 2003-06-18 08:22:27 babybot Exp $
+/// $Id: YARPImage.cpp,v 1.7 2003-06-22 15:47:42 gmetta Exp $
 ///
 ///
 
@@ -328,12 +328,8 @@ SPECIAL_COPY_END
 
 inline int PAD_BYTES (int len, int pad)
 {
-#ifdef __QNX__
-	return 0;
-#else
 	const int rem = len % pad;
 	return (rem != 0) ? (pad - rem) : rem;
-#endif
 }
 
 ///
@@ -704,12 +700,7 @@ void YARPGenericImage::_free_data (void)
 // LATER: implement for LINUX.
 int YARPGenericImage::_pad_bytes (int linesize, int align) const
 {
-#ifdef __QNX__
-	return 0;
-#else
-	int rem = linesize % align;
-	return (rem != 0) ? (align - rem) : rem;
-#endif
+	return PAD_BYTES (linesize, align);
 }
 
 void YARPGenericImage::_set_ipl_header(int x, int y, int pixel_type)

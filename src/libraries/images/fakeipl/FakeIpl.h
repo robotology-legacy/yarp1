@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: FakeIpl.h,v 1.2 2003-06-05 10:51:10 gmetta Exp $
+/// $Id: FakeIpl.h,v 1.3 2003-06-22 15:47:42 gmetta Exp $
 ///
 ///
 
@@ -96,6 +96,8 @@ typedef char _TCHAR;
 
 // my personal prototypes
 int _iplCalcPadding (int lineSize, int align);
+
+/// YARP_IMAGE_ALIGN
 
 #endif
 
