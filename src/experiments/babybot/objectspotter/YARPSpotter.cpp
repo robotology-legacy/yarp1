@@ -625,9 +625,9 @@ long int isqrt(long int x) {
 	static long int done = 0;
 	if (!done) {
 		for (int i=0; i<1000; i++) {
-			table1[i] = (int)(sqrt(i)+0.5);
-			table10[i] = (int)(sqrt(i*10)+0.5);
-			table100[i] = (int)(sqrt(i*100)+0.5);
+			table1[i] = (int)(sqrt((double)i)+0.5);
+			table10[i] = (int)(sqrt((double)i*10)+0.5);
+			table100[i] = (int)(sqrt((double)i*100)+0.5);
 		}
 		done = 1;
 	}

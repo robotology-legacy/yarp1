@@ -13,13 +13,15 @@
 #include <math.h>
 #include <yarp/bresenhm.h>
 
-#ifndef LINUX_BUILD
+#ifndef __LINUX__
 //typedef float __int64;
-template <class T>
-T abs(T x) { return (x<0)?(-x):x; }
 #else
 typedef long long int __int64;
 #endif
+
+
+template <class T>
+T abs(T x) { return (x<0)?(-x):x; }
 
 
 //---------------------------------------------------------------------------
