@@ -142,10 +142,17 @@ public:
 class RBWaitIdle: public RndBehaviorStateBase
 {
 public:
+	RBWaitIdle(const YARPString &msg)
+	{
+		_message = msg;
+	}
+
 	void handle(RndSharedData *d)
 	{
-		printf("RBWaitIdle: wait idle\n");
+		printf(_message.c_str());
 	}
+
+	YARPString _message;
 };
 
 class RBInit: public RndBehaviorStateBase

@@ -24,7 +24,8 @@ int main(int argc, char* argv[])
 	RBInitShake initShakeForearm(YVector(6, __forearm), "forearm");
 	RBInitShake initShakeArm(YVector(6, __arm), "arm");
 
-	RBWaitIdle waitIdle;
+	RBWaitIdle waitIdle("wait idle");
+	RBWaitIdle stopped("rnd stopped");
 	RBInit	init;
 	RBWaitDeltaT waitDeltaT1(2);
 	RBWaitDeltaT waitDeltaT2(2);
@@ -53,11 +54,13 @@ int main(int argc, char* argv[])
 	// arm random movement
 	_rnd.setInitialState(&init);
 	_rnd.add(NULL, &init, &waitIdle);
+	_rnd.add(&stop, &waitIdle, &stopped);
 	_rnd.add(&rest, &waitIdle, &waitRest);
 	_rnd.add(&start, &waitIdle, &initMotion);
 	// rest
 	_rnd.add(&rest, &initMotion, &waitRest);
 	_rnd.add(&rest, &waitMotion, &waitRest);
+	_rnd.add(&stop, &waitMotion, &stopped);
 	_rnd.add(NULL, &initMotion, &waitMotion);
 
 	// no shake
@@ -82,6 +85,7 @@ int main(int argc, char* argv[])
 
 		// JUST ADDED
 		_rnd.add(&motionDone, &waitShakeWrist, &trState2, &enableHead);
+		_rnd.add(&stop, &waitShakeWrist, &stopped);
 		_rnd.add(NULL, &trState2, &initMotion, &inhibitRest);
 	
 		/* other joints
@@ -98,20 +102,16 @@ int main(int argc, char* argv[])
 		_rnd.add(&rest, &waitShakeWrist, &waitRest);
 		_rnd.add(&rest, &waitShakeForearm, &waitRest);
 		_rnd.add(&rest, &waitShakeArm, &waitRest);
+		_rnd.add(&stop, &waitShakeForearm, &stopped);
+		_rnd.add(&stop, &waitShakeArm, &stopped);
 	}
 
 	// wait rest 
+	_rnd.add(&stop, &waitRest, &stopped);
 	_rnd.add(&restDone, &waitRest, &initMotion);
-	
-	// stop states
-	_rnd.add(&stop, &waitIdle, &waitIdle);
-	_rnd.add(&stop, &waitMotion, &waitIdle);
-	_rnd.add(&stop, &waitShakeWrist, &waitIdle);
-	_rnd.add(&stop, &waitShakeForearm, &waitIdle);
-	_rnd.add(&stop, &waitShakeArm, &waitIdle);
-	_rnd.add(&stop, &waitRest, &waitIdle);
 
-
+	_rnd.add(&start, &stopped, &init);
+		
 	_rnd.Begin();
 	_rnd.loop();
 	
