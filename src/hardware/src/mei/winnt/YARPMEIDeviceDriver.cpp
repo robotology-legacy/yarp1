@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.10 2003-05-15 18:42:15 natta Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.11 2003-05-16 11:19:46 natta Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -482,7 +482,7 @@ int YARPMEIDeviceDriver::setOffset(void *cmd)
 
 	double val = *((double *) tmp->parameters);
 
-	_filter_coeffs[axis][DF_OFFSET] = int16 (val+0.5);
+	_filter_coeffs[axis][DF_OFFSET] = (int16) round(val);
 	rc = set_filter(axis, _filter_coeffs[axis]);
 	
 	return rc;
@@ -496,7 +496,7 @@ int YARPMEIDeviceDriver::setOffsets(void *offs)
 
 	for(int i = 0; i<_njoints; i++)
 	{
-		_filter_coeffs[i][DF_OFFSET] = (int16) (cmd[i]+0.5);
+		_filter_coeffs[i][DF_OFFSET] = (int16) round(cmd[i]);
 		rc = set_filter(i, _filter_coeffs[i]);
 	}
 	
@@ -511,7 +511,7 @@ int YARPMEIDeviceDriver::setTorqueLimits(void *trqs)
 
 	for(int i = 0; i<_njoints; i++)
 	{
-		_filter_coeffs[i][DF_DAC_LIMIT] = (int16) (cmd[i]+0.5);
+		_filter_coeffs[i][DF_DAC_LIMIT] = (int16) round(cmd[i]);
 		rc = set_filter(i, _filter_coeffs[i]);
 	}
 	
@@ -526,7 +526,7 @@ int YARPMEIDeviceDriver::setIntLimits(void *lmts)
 
 	for(int i = 0; i<_njoints; i++)
 	{
-		_filter_coeffs[i][DF_I_LIMIT] = (int16) (cmd[i]+0.5);
+		_filter_coeffs[i][DF_I_LIMIT] = (int16) round(cmd[i]);
 		rc = set_filter(i, _filter_coeffs[i]);
 	}
 	
@@ -717,16 +717,16 @@ int YARPMEIDeviceDriver::setPid(void *cmd)
 	LowLevelPID *pid = (LowLevelPID *) tmp->parameters;
 
 	// these are stored to be used later in the setOffsets/setOffset functions
-	_filter_coeffs[tmp->axis][DF_P] = (int16) (pid->KP+0.5);
-	_filter_coeffs[tmp->axis][DF_I] = (int16) (pid->KI+0.5);
-	_filter_coeffs[tmp->axis][DF_D] = (int16) (pid->KD+0.5);
-	_filter_coeffs[tmp->axis][DF_ACCEL_FF] = (int16) (pid->AC_FF+0.5);
-	_filter_coeffs[tmp->axis][DF_VEL_FF] = (int16) (pid->VEL_FF+0.5);
-	_filter_coeffs[tmp->axis][DF_I_LIMIT] = (int16) (pid->I_LIMIT+0.5);
-	_filter_coeffs[tmp->axis][DF_OFFSET] = (int16) (pid->OFFSET+0.5);
-	_filter_coeffs[tmp->axis][DF_DAC_LIMIT] = (int16) (pid->T_LIMIT+0.5);
-	_filter_coeffs[tmp->axis][DF_SHIFT] = (int16) (pid->SHIFT+0.5);
-	_filter_coeffs[tmp->axis][DF_FRICT_FF] = (int16) (pid->FRICT_FF+0.5);
+	_filter_coeffs[tmp->axis][DF_P] = (int16) round(pid->KP);
+	_filter_coeffs[tmp->axis][DF_I] = (int16) round(pid->KI);
+	_filter_coeffs[tmp->axis][DF_D] = (int16) round(pid->KD);
+	_filter_coeffs[tmp->axis][DF_ACCEL_FF] = (int16) round (pid->AC_FF);
+	_filter_coeffs[tmp->axis][DF_VEL_FF] = (int16) round(pid->VEL_FF);
+	_filter_coeffs[tmp->axis][DF_I_LIMIT] = (int16) round(pid->I_LIMIT);
+	_filter_coeffs[tmp->axis][DF_OFFSET] = (int16) round(pid->OFFSET);
+	_filter_coeffs[tmp->axis][DF_DAC_LIMIT] = (int16) round(pid->T_LIMIT);
+	_filter_coeffs[tmp->axis][DF_SHIFT] = (int16) round(pid->SHIFT);
+	_filter_coeffs[tmp->axis][DF_FRICT_FF] = (int16) round(pid->FRICT_FF);
 	
 	rc = set_filter(tmp->axis, _filter_coeffs[tmp->axis]);
 

@@ -3,7 +3,7 @@
 //
 // 
 // feb 2003 -- by nat and pasa
-// $ID$
+// $Id: YARPDeviceDriver.h,v 1.5 2003-05-16 11:19:46 natta Exp $
 
 #ifndef __YARP_DEVICE_DRIVER__
 #define __YARP_DEVICE_DRIVER__
@@ -14,6 +14,10 @@
 // .h must be compilable across multiple architectures (NT, Linux, QNX) with minimal
 //	conditional compile
 //
+
+inline int round(double x) {
+	return ((x)>=0?(int)((x)+0.5):(int)((x)-0.5));
+}
 
 template <class SYNC, class DERIVED>
 class YARPDeviceDriver
