@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.3 2003-04-29 17:47:17 natta Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.4 2003-04-30 16:04:30 natta Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -82,6 +82,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetHomeIndexConfig] = YARPMEIDeviceDriver::setHomeIndexConfig;
 	m_cmds[CMDSetHomeLevel] = YARPMEIDeviceDriver::setHomeLevel;
 	m_cmds[CMDSetHome] = YARPMEIDeviceDriver::setHome;
+	m_cmds[CMDSetStopRate] = YARPMEIDeviceDriver::setStopRate;
 			
 	m_cmds[CMDDummy] = YARPMEIDeviceDriver::dummy;
 
@@ -436,6 +437,17 @@ int YARPMEIDeviceDriver::clearStop(void *axis)
 	rc = clear_status(*ax);
 	// while(!motion_done(*ax));	//LATER: check this
 	
+	return rc;
+}
+
+int YARPMEIDeviceDriver::setStopRate(void *cmd) 
+{
+	int16 rc = 0;
+	
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	double rate = *((double *)(tmp->parameters));
+	rc = set_stop_rate(tmp->axis, rate);
+
 	return rc;
 }
 

@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPBabybotArm.h,v 1.3 2003-04-30 08:16:13 natta Exp $
+// $Id: YARPBabybotArm.h,v 1.4 2003-04-30 16:03:19 natta Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -34,25 +34,10 @@ public:
 	int calibrate()
 	{
 		int ret;
-		if (! (_initialized && _amplifiers) )
-		{
-			YARP_BABYBOT_ARM_DEBUG(("Can't calibrate encoders, the arm not initialized or the power is down!\n"));
-			return YARP_FAIL;
-		}
-		bool limitFlag = false;
-		if (_sotwareLimits)
-			limitFlag = true;
-		_adapter.disableLimitCheck();
-
-		for (int i = 0; i < _parameters.nj(); i++)
-		{
-			
-		}
-
-
-		if (limitFlag)
-			_adapter.enableLimitCheck();
-		return YARP_OK;
+		_lock();
+		ret = _adapter.calibrate();
+		_unlock();
+		return ret;
 	}
 };
 

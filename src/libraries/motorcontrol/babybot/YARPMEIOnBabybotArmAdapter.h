@@ -1,11 +1,18 @@
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.4 2003-04-30 16:03:28 natta Exp $
+
 #include <ace/log_msg.h>
 #include <YarpMeiDeviceDriver.h>
 #include <string>
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.3 2003-04-30 08:29:00 natta Exp $
+#define YARP_BABYBOT_ARM_ADAPTER_VERBOSE
+
+#ifdef YARP_BABYBOT_ARM_ADAPTER_VERBOSE
+#define YARP_BABYBOT_ARM_ADAPTER_DEBUG(string) YARP_DEBUG("BABYBOT_ARM_ADAPTER_DEBUG:", string)
+#else  YARP_BABYBOT_ARM_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
+#endif
 
 namespace _BabybotArm
 {
@@ -207,7 +214,118 @@ public:
 		return YARP_OK;
 	}
 
+	int calibrate() {
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Starting calibration routine..."));
+		if (! (_initialized && _amplifiers) )
+		{
+			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Sorry cannot calibrate encoders, the arm not initialized or the power is down!\n"));
+			return YARP_FAIL;
+		}
+
+		bool limitFlag = false;
+		if (_softwareLimits)
+			limitFlag = true;
+		disableLimitCheck();
+
+		double speeds1[6] = {500.0, 500.0, 500.0, 0.0, 0.0, 0.0};
+		double speeds2[6] = {-500.0, -500.0, -500.0, 0.0, 0.0, 0.0};
+		double acc[6] = {5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0};
+		double posHome[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		double pos1[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		double pos2[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+		double newHome[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+		//////////// find first index
+		_setHomeConfig(CBStopEvent);
+		_clearStop();
+		//
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Searching first index...\n"));
+		IOCtl(CMDSetAccelerations, acc);
+		IOCtl(CMDVMove, speeds1);
+		IOCtl(CMDWaitForMotionDone, NULL);
+		IOCtl(CMDGetPositions, pos1);
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
+		////////////////////////////
+
+		//////////// go back to home position
+		_setHomeConfig(CBNoEvent);
+		_clearStop();
+		//
+		IOCtl(CMDSetSpeeds, speeds1);
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Going back to initial position... \n"));
+		IOCtl(CMDSetCommands, posHome);
+		IOCtl(CMDWaitForMotionDone, NULL);
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
+		///////////////////////////////
+
+		//////////// find second index
+		_setHomeConfig(CBStopEvent);
+		_clearStop();
+		//
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Searching second index ... \n"));
+		IOCtl(CMDSetAccelerations, acc);
+		IOCtl(CMDVMove, speeds2);
+		IOCtl(CMDWaitForMotionDone, NULL);
+		IOCtl(CMDGetPositions, pos2);
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
+		////////////////////////////
+
+		// compute new home position
+		for(int i = 0; i < _parameters._nj; i++)
+		{
+			newHome[i] = (pos1[i]+pos2[i])/2;
+		}
+
+		//////////// go back to the calibrated position
+		_setHomeConfig(CBNoEvent);
+		_clearStop();
+		//
+		IOCtl(CMDSetSpeeds, speeds1);
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Finally move to the calibrated position... \n"));
+		IOCtl(CMDSetCommands, newHome);
+		IOCtl(CMDWaitForMotionDone, NULL);
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done!\n"));
+		///////////////////////////////
+
+		// reset encoders here
+		IOCtl(CMDDefinePositions, posHome);	// posHome is still '0'
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Reset encoders... done!\n"));
+		
+		if (limitFlag)
+			enableLimitCheck();
+
+		return YARP_OK;
+	}
+
 private:
+
+	void _setHomeConfig(int event)
+	{
+		for (int i = 0; i < _parameters._nj; i++)
+		{
+			SingleAxisParameters cmd;
+			int ipar;
+			double dpar;
+			cmd.axis = i;
+			cmd.parameters = &ipar;
+			
+			ipar = CBIndexOnly;
+			IOCtl(CMDSetHomeIndexConfig, &cmd);
+			ipar = 0;					// (active low)
+			IOCtl(CMDSetHomeLevel, &cmd);
+			ipar = event;
+			IOCtl(CMDSetHome, &cmd);
+			cmd.parameters = &dpar;
+			dpar = 50000.0;				// stop rate (acc)
+			IOCtl(CMDSetStopRate, &cmd);
+		}
+	}
+
+	void _clearStop() {
+		for (int i = 0; i < _parameters._nj; i++)
+			IOCtl(CMDClearStop, &i);	// clear stop event
+	}
+
 	bool _initialized;
 	bool _amplifiers;
 	bool _softwareLimits;

@@ -4,7 +4,7 @@
 //
 // feb 2003 -- by nat and pasa
 
-// $Id: YARPControlBoardUtils.h,v 1.3 2003-04-29 17:47:15 natta Exp $
+// $Id: YARPControlBoardUtils.h,v 1.4 2003-04-30 16:04:17 natta Exp $
 #include <conf/YARPConfig.h>
 
 #ifndef __YARP_CONTROL_BOARD_UTILS__
@@ -78,8 +78,9 @@ enum ControlBoardCmd
 	CMDSetHomeIndexConfig = 49,
 	CMDSetHomeLevel = 50,
 	CMDSetHome = 51,
-	CMDDummy = 52,	 // dummy command for debug purpose
-	CBNCmds = 53 // required! tells the total number of commands
+	CMDSetStopRate = 52,
+	CMDDummy = 53,	 // dummy command for debug purpose
+	CBNCmds = 54 // required! tells the total number of commands
 };
 
 enum ControlBoardEvents

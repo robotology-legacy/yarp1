@@ -5,7 +5,7 @@
 // April 2003 -- by nat
 //
 // win32: link Medvc50f.lib 
-// $Id: YARPMEIDeviceDriver.h,v 1.5 2003-04-30 08:32:20 natta Exp $
+// $Id: YARPMEIDeviceDriver.h,v 1.6 2003-04-30 16:04:29 natta Exp $
 #ifndef __YARP_MEI_DEVICE_DRIVER__
 #define __YARP_MEI_DEVICE_DRIVER__
 
@@ -100,6 +100,7 @@ public:
 	int controllerRun(void *axis);
 	int controllerIdle(void *axis);
 	int clearStop(void *axis);
+	int setStopRate(void *axis);
 
 	int setPositiveLimit(void *cmd);
 	int setNegativeLimit(void *cmd);

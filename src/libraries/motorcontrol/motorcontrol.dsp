@@ -120,10 +120,6 @@ SOURCE=.\babybot\YARPMEIOnBabybotArmAdapter.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\babybot\YARPMEIOnBabybotHead.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\babybot\YARPMEIOnBabybotHeadAdapter.h
 # End Source File
 # End Group
