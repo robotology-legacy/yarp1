@@ -186,7 +186,7 @@ byte Cpu_GetSpeedMode(void)
 extern void init_56800_(void);         /* Forward declaration of external startup function declared in file FSTART.ASM */
 void _EntryPoint(void)
 {
-  int i;
+  long i;
   
   /*** ### 56F807 "Cpu" init code ... ***/
   /*** PE initialization code after reset ***/
@@ -197,7 +197,7 @@ void _EntryPoint(void)
   clrRegBit(PLLCR, PLLPD);             /* Enable PLL */
   while(!getRegBit(PLLSR, LCK0)){}     /* Wait for PLL lock */
   
-  for (i = 0; i < 1000; i++) asm(nop);
+  for (i = 0; i < 10000; i++) asm(nop);
  
   setRegBitGroup(PLLCR, ZSRC, 2);      /* Select clock source from postscaler */
   /*** End of PE initialization code after reset ***/
