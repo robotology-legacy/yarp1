@@ -37,8 +37,8 @@ ALL : "$(OUTDIR)\vergence.exe"
 
 
 CLEAN :
-	-@erase "$(INTDIR)\attn_vergence.obj"
 	-@erase "$(INTDIR)\vc60.idb"
+	-@erase "$(INTDIR)\vergence.obj"
 	-@erase "$(OUTDIR)\vergence.exe"
 
 "$(OUTDIR)" :
@@ -85,7 +85,7 @@ BSC32_SBRS= \
 LINK32=link.exe
 LINK32_FLAGS=motorcontrol.lib utils.lib images.lib os_services.lib math.lib ace.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\vergence.pdb" /machine:I386 /out:"$(OUTDIR)\vergence.exe" /libpath:"..\..\..\..\lib\winnt" 
 LINK32_OBJS= \
-	"$(INTDIR)\attn_vergence.obj"
+	"$(INTDIR)\vergence.obj"
 
 "$(OUTDIR)\vergence.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -118,9 +118,9 @@ ALL : "$(OUTDIR)\vergence.exe"
 
 
 CLEAN :
-	-@erase "$(INTDIR)\attn_vergence.obj"
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
+	-@erase "$(INTDIR)\vergence.obj"
 	-@erase "$(OUTDIR)\vergence.exe"
 	-@erase "$(OUTDIR)\vergence.ilk"
 	-@erase "$(OUTDIR)\vergence.pdb"
@@ -169,7 +169,7 @@ BSC32_SBRS= \
 LINK32=link.exe
 LINK32_FLAGS=motorcontrolDB.lib utilsDB.lib imagesDB.lib os_servicesDB.lib mathDB.lib aced.lib winmm.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"$(OUTDIR)\vergence.pdb" /debug /machine:I386 /out:"$(OUTDIR)\vergence.exe" /pdbtype:sept /libpath:"..\..\..\..\lib\winnt" 
 LINK32_OBJS= \
-	"$(INTDIR)\attn_vergence.obj"
+	"$(INTDIR)\vergence.obj"
 
 "$(OUTDIR)\vergence.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -203,9 +203,9 @@ $(DS_POSTBUILD_DEP) : "$(OUTDIR)\vergence.exe"
 
 
 !IF "$(CFG)" == "vergence - Win32 Release" || "$(CFG)" == "vergence - Win32 Debug"
-SOURCE=.\attn_vergence.cpp
+SOURCE=.\vergence.cpp
 
-"$(INTDIR)\attn_vergence.obj" : $(SOURCE) "$(INTDIR)"
+"$(INTDIR)\vergence.obj" : $(SOURCE) "$(INTDIR)"
 
 
 

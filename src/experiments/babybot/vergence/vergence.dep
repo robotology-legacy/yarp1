@@ -1,6 +1,6 @@
 # Microsoft Developer Studio Generated Dependency File, included by vergence.mak
 
-.\attn_vergence.cpp : \
+.\vergence.cpp : \
 	"..\..\..\..\include\ace\ace.h"\
 	"..\..\..\..\include\ace\ace.i"\
 	"..\..\..\..\include\ace\ace_export.h"\
@@ -134,7 +134,7 @@
 	"..\..\..\..\include\sys\iplerror.h"\
 	"..\..\..\..\include\sys\iplmisc.h"\
 	"..\..\..\..\include\yarpall.h"\
-	"..\..\..\..\include\yarpbabybotheadkin.h"\
+	"..\..\..\..\include\yarpdisparity.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
 	"..\..\..\..\include\yarpfft.h"\
 	"..\..\..\..\include\yarpfilters.h"\
@@ -146,7 +146,6 @@
 	"..\..\..\..\include\yarpimageportcontent.h"\
 	"..\..\..\..\include\yarpimages.h"\
 	"..\..\..\..\include\yarpimageutils.h"\
-	"..\..\..\..\include\yarpkinematics.h"\
 	"..\..\..\..\include\yarplist.h"\
 	"..\..\..\..\include\yarplogpolar.h"\
 	"..\..\..\..\include\yarpmath.h"\

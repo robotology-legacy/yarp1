@@ -81,6 +81,11 @@ nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Release" clean
 cd ..
 cd ..
 
+cd .\vergence\
+nmake /f vergence.mak CFG="vergence - Win32 Debug" clean
+nmake /f vergence.mak CFG="vergence - Win32 Release" clean
+cd..
+
 goto end
 
 
@@ -128,6 +133,9 @@ cd .\remotelearn\remotelearnclient
 nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Debug"
 cd ..
 cd ..
+cd .\vergence\
+nmake /f vergence.mak CFG="vergence - Win32 Debug"
+cd..
 
 goto end
 
@@ -177,6 +185,10 @@ cd .\remotelearn\remotelearnclient
 nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Release"
 cd ..
 cd ..
+
+cd .\vergence\
+nmake /f vergence.mak CFG="vergence - Win32 Release"
+cd..
 
 goto end
 
