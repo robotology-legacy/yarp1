@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.9 2003-05-13 20:14:32 natta Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.10 2003-05-15 18:42:15 natta Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -480,7 +480,9 @@ int YARPMEIDeviceDriver::setOffset(void *cmd)
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	int axis = tmp->axis;
 
-	_filter_coeffs[axis][DF_OFFSET] = *((int16 *)tmp->parameters)+0.5;
+	double val = *((double *) tmp->parameters);
+
+	_filter_coeffs[axis][DF_OFFSET] = int16 (val+0.5);
 	rc = set_filter(axis, _filter_coeffs[axis]);
 	
 	return rc;
@@ -714,6 +716,7 @@ int YARPMEIDeviceDriver::setPid(void *cmd)
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	LowLevelPID *pid = (LowLevelPID *) tmp->parameters;
 
+	// these are stored to be used later in the setOffsets/setOffset functions
 	_filter_coeffs[tmp->axis][DF_P] = (int16) (pid->KP+0.5);
 	_filter_coeffs[tmp->axis][DF_I] = (int16) (pid->KI+0.5);
 	_filter_coeffs[tmp->axis][DF_D] = (int16) (pid->KD+0.5);
