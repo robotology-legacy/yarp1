@@ -52,25 +52,17 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-read.cpp,v 1.1 2004-07-05 10:48:20 eshuy Exp $
+/// $Id: yarp-read.cpp,v 1.2 2004-07-06 13:47:13 eshuy Exp $
 ///
 ///
 
 #include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <yarp/YARPPort.h>
-
-class std_text {
-public:
-  char buf[256];
-};
-
-extern int __debug_level;
+#include <yarp/YARPBottleContent.h>
 
 int main(int argc, char *argv[])
 {
-  //__debug_level = 100;
-
   argc--;
   argv++;
 
@@ -78,15 +70,22 @@ int main(int argc, char *argv[])
     return YARP_FAIL;
   }
 
-  YARPInputPortOf<std_text> out(YARPInputPort::NO_BUFFERS);
-  out.Register(argv[0]);
+  YARPInputPortOf<YARPBottle> in_port(YARPInputPort::NO_BUFFERS);
+  in_port.Register(argv[0]);
   argc--;
   argv++;
 
-  while (1) {
-    out.Read();
-    std_text& con = out.Content();
-    cout << "<<< " << con.buf << endl;
+  int eof = 0;
+  while (!eof) {
+    in_port.Read();
+    YARPBottle& bottle = in_port.Content();
+    int eof = 0;
+    if (bottle.tryReadInt(&eof)) {
+      bottle.moveOn();
+    }
+    if (!eof) {
+      cout << bottle.readText() << endl;
+    }
   }
 
   return YARP_OK;

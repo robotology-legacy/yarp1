@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-write.cpp,v 1.1 2004-07-05 10:48:20 eshuy Exp $
+/// $Id: yarp-write.cpp,v 1.2 2004-07-06 13:47:13 eshuy Exp $
 ///
 ///
 
@@ -60,11 +60,8 @@
 #include <ace/config.h>
 #include <yarp/YARPPort.h>
 #include <yarp/YARPTime.h>
+#include <yarp/YARPBottleContent.h>
 
-class std_text {
-public:
-  char buf[256];
-};
 
 int main(int argc, char *argv[])
 {
@@ -75,31 +72,40 @@ int main(int argc, char *argv[])
     return YARP_FAIL;
   }
 
-  YARPOutputPortOf<std_text> out;
-  out.Register(argv[0]);
+  YARPOutputPortOf<YARPBottle> out_port;
+  out_port.Register(argv[0]);
   argc--;
   argv++;
 
   while (argc>=1) {
-    out.Connect(argv[0]);
+    out_port.Connect(argv[0]);
     argc--;
     argv++;
   }
 
 
   while (!(cin.bad()||cin.eof())) {
-    std_text& con = out.Content();
-
     // make sure this works on windows
-    cin.getline(con.buf,sizeof(con.buf),'\n');
+    char buf[256];
+    cin.getline(buf,sizeof(buf),'\n');
 
     if (!(cin.bad()||cin.eof())) {
-      out.Write(1);
-      out.FinishSend();
-      //YARPTime::DelayInSeconds(0.2);
+      YARPBottle& bottle = out_port.Content();
+      bottle.reset();
+      bottle.writeInt(0);
+      bottle.writeText(buf);
+      out_port.Write(1);
     }
   }
-  out.Unregister();
+
+  YARPBottle& bottle = out_port.Content();
+  bottle.reset();
+  bottle.writeInt(1);
+  bottle.writeText("<EOF>");
+  out_port.Write(1);
+  out_port.FinishSend();
+
+  out_port.Unregister();
 
   return YARP_OK;
 }
