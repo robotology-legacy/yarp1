@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: CanControlParams.h,v 1.3 2005-01-17 17:32:04 babybot Exp $
+/// $Id: CanControlParams.h,v 1.4 2005-02-03 17:45:44 babybot Exp $
 ///
 ///
 
@@ -39,7 +39,7 @@
 #define CANBUS_ARBITRATION_ID		0
 #define CANBUS_MY_ADDRESS			0
 #define CANBUS_POLLING_INTERVAL		2		/// [ms]
-#define CANBUS_TIMEOUT				10		/// 10 * POLLING
+#define CANBUS_TIMEOUT				50		/// 10 * POLLING
 
 #define DEFAULT_NJOINTS				2		/// 1 card connected
 #define DEFAULT_DESTINATION			0xf		/// 

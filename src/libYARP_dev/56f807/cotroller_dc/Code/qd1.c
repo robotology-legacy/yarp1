@@ -53,7 +53,7 @@ void QD1_init (void)
 	clrRegBit (QD1_DECCR, MODE0);
 	clrRegBit (QD1_DECCR, MODE1);
 	*/
-	setReg (QD1_FIR, 0);
+	setReg (QD1_FIR, 10);
 	
 	setRegBits (QD1_DECCR, 0);
 }

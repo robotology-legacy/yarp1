@@ -475,8 +475,8 @@ void main(void)
 	__ENIGROUP (50, 4);
 	__ENIGROUP (51, 4);
 	__ENIGROUP (13, 4);
-	__ENIGROUP (14, 4);
-	__ENIGROUP (15, 4);
+	__ENIGROUP (14, 7);
+	__ENIGROUP (15, 7);
 	__ENIGROUP (42, 4);
 		
 	AS1_init ();
@@ -570,6 +570,7 @@ void main(void)
 		
 		/* beware of the first cycle when _old has no meaning */		
 		_position[0] = L_add(_position[0], _adjustment[0] >> 1);
+		_position[0] = L_sub(_position[0], _adjustment[0] / 7);
 		_position[0] = L_sub(_position[0], _adjustment[1] >> 2);  // last >>2 must be 11/41
 				
 		_adjustment[0] = L_add(_adjustment[0], _delta_adj[0]);
@@ -589,15 +590,6 @@ void main(void)
 		generatePwm (0);
 		generatePwm (1);
 
-		if (_verbose && _counter == 0)
-		{
-			AS1_printDWordAsCharsDec (_desired[channel]);
-			AS1_printStringEx (" ");
-			AS1_printWord16AsChars (_pid[channel]);
-			AS1_printStringEx ("\r\n");
-		}
-		
-		
 		/* do extra functions, communicate, etc. */
 		/* LATER */
 		
@@ -746,8 +738,6 @@ byte can_interface (void)
 		if (_verbose)
 		{
 			AS1_printStringEx ("id: ");
-			AS1_printWord16AsChars (read_p);
-			AS1_printStringEx (" ");
 			AS1_printDWordAsChars (_canmsg.CAN_messID);
 			AS1_printStringEx (" ");
 			print_can (_canmsg.CAN_data, _canmsg.CAN_length, 'i');
@@ -898,7 +888,8 @@ byte serial_interface (void)
 			AS1_printStringEx ("w2, write control params to FLASH mem\r\n");
 			AS1_printStringEx ("w3, read control params from FLASH mem\r\n");
 			AS1_printStringEx ("v, toggle verbose flag\r\n");
-			
+
+#ifdef DEBUG_SERIAL			
 			AS1_printStringEx ("e, enable controller channel\r\n");
 			AS1_printStringEx ("g, set pid gain\r\n");
 			AS1_printStringEx ("s, show pid gain\r\n");
@@ -906,9 +897,11 @@ byte serial_interface (void)
 			AS1_printStringEx ("x2, stop trajectory generation\r\n");
 			AS1_printStringEx ("x3, enable/disable PWM\r\n");
 			AS1_printStringEx ("c, toggle channel 0/1\r\n");
-			
+#endif
 			c = 0;
 			break;
+
+#ifdef DEBUG_SERIAL
 	
 		case 'c':
 			if (channel == 0)
@@ -1048,6 +1041,7 @@ byte serial_interface (void)
 						
 			c = 0;
 			break;
+#endif
 
 		case 'v':
 			_verbose = !_verbose;

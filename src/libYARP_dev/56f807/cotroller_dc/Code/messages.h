@@ -150,13 +150,13 @@
 
 #define CAN_WRITE_FLASH_MEM_HANDLER(x) \
 { \
-	/*writeToFlash ();*/ \
+	writeToFlash (_flash_addr); \
 	_general_board_error = ERROR_NONE; \
 }
 
 #define CAN_READ_FLASH_MEM_HANDLER(x) \
 { \
-	/*readFromFlash ();*/ \
+	readFromFlash (_flash_addr); \
 	_general_board_error = ERROR_NONE; \
 }
 

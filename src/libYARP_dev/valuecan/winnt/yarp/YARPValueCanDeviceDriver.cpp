@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.10 2005-01-17 17:32:56 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.11 2005-02-03 17:45:44 babybot Exp $
 ///
 ///
 
@@ -45,7 +45,7 @@
 
 /// get the message types from the DSP code.
 #define __ONLY_DEF
-#include "../56f807/controller_y/Code/Controller.h"
+#include "../56f807/cotroller_dc/Code/controller.h"
 
 
 /// Message property.
