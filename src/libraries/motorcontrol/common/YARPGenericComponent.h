@@ -65,11 +65,11 @@ public:
 		_temp_double = NULL;
 
 		if (_adapter.uninitialize() == YARP_FAIL) {
-			YARP_GEN_COMPONENT_DEBUG(("Error un-initializing MEI board!\n"));
+			YARP_GEN_COMPONENT_DEBUG(("Error un-initializing Control board!\n"));
 			_unlock();
 			return YARP_FAIL;
 		}
-		YARP_GEN_COMPONENT_DEBUG(("MEI board uninitialized!\n"));
+		YARP_GEN_COMPONENT_DEBUG(("Control board uninitialized!\n"));
 		_unlock();
 		return YARP_OK;
 	}
@@ -203,11 +203,11 @@ protected:
 	{
 		_temp_double = new double [_parameters._nj];
 		if (_adapter.initialize(_parameters) == YARP_FAIL) {
-			YARP_GEN_COMPONENT_DEBUG(("Error initializing MEI board!\n"));
+			YARP_GEN_COMPONENT_DEBUG(("Error initializing Control board!\n"));
 			_unlock();
 			return YARP_FAIL;
 		}
-		YARP_GEN_COMPONENT_DEBUG(("MEI board initialized!\n"));
+		YARP_GEN_COMPONENT_DEBUG(("Control board initialized!\n"));
 		return YARP_OK;
 	}
 
