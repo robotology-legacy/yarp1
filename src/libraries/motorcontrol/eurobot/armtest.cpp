@@ -23,20 +23,21 @@ int main(int argc, char * argv[])
 
 	//_arm.calibrate();
 	
-	
+	/*
 	testvelocity(5, 0.1);
 	testvelocity(4, 0.1);
 	testvelocity(3, 0.1);
 	testvelocity(2, 0.1);
-	//double pos2[4] = {0.0,0.0,0.0,0.0};
+	*/
+	double pos2[6];// = {0.0,0.0,0.0,0.0,0.0,0.0};
 
-	//while (1)
-	//{
+	while (1)
+	{
 
-	 //_arm.getPositions(pos2);
-     //   printf(" Position: %f %f %f %f \n",pos2[0],pos2[1],pos2[2],pos2[3]);
-	 //			delay(2000);
-	//}
+	 _arm.getPositions(pos2);
+        //printf(" Position: %f %f %f %f %f %f \n",pos2[0],pos2[1],pos2[2],pos2[3],pos2[4],pos2[5]);
+	 			delay(1000);
+	}
 	
 	
 	_arm.uninitialize();

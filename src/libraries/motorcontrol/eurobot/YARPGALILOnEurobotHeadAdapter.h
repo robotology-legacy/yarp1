@@ -1,4 +1,4 @@
-//$Id: YARPGALILOnEurobotHeadAdapter.h,v 1.4 2003-11-13 18:22:41 beltran Exp $
+//$Id: YARPGALILOnEurobotHeadAdapter.h,v 1.5 2003-11-14 13:08:01 beltran Exp $
 
 #ifndef __GALILONEUROBOTHEAD__
 #define __GALILONEUROBOTHEAD__
@@ -7,6 +7,7 @@
 #include <YARPGalilDeviceDriver.h>
 #include <string>
 #include <YARPConfigFile.h>
+#include <YARPRobotMath.h>
 
 #define YARP_BABYBOT_HEAD_ADAPTER_VERBOSE
 
