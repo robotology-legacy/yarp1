@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.8 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.9 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -117,70 +117,19 @@
 #include <yarp/YARPTime.h>
 #include <yarp/YARPString.h>
 
-///
+#include "yarp_private/Headers.h"
+
+/**
+ * \file YARPSocketDgram.cpp This file contains the implementation of the output socket
+ * abstraction of the udp protocol.
+ */
+
 #define THIS_DBG 80
 
-
-///
-/// yarp message header.
-///
-#include <yarp/begin_pack_for_net.h>
-
-struct MyMessageHeader
-{
-public:
-	char key[2];
-	NetInt32 len;
-	char key2[2];
-
-	MyMessageHeader()
-	{
-		len = 0;
-		SetBad();
-	}
-
-	void SetGood()
-    {
-		key[0] = 'Y';
-		key[1] = 'A';
-		key2[0] = 'R';
-		key2[1] = 'P';
-    }
-  
-	void SetBad()
-    {
-		key[0] = 'y';
-		key[1] = 'a';
-		key2[0] = 'r';
-		key2[1] = 'p';
-    }
-
-	void SetLength(int n_len)
-	{
-		len = n_len;
-	}
-  
-	int GetLength()
-	{
-		if (key[0] == 'Y' && key[1] == 'A' && key2[0] == 'R' && key2[1] == 'P')
-		{
-			return len;
-		}
-		else
-		{
-			//	  printf("*** Bad header\n");
-			return -1;
-		}
-	}
-} PACKED_FOR_NET;
-
-#include <yarp/end_pack_for_net.h>
-
-
-///
-/// Output socket + stream incapsulation.
-///
-///
+/**
+ * OSDataDgram is a helper class that contains variables used by the implementation 
+ * of the udp output socket.
+ */
 class OSDataDgram
 {
 public:
@@ -436,8 +385,8 @@ int YARPOutputSocketDgram::SendEnd(char *reply_buffer, int reply_buffer_length)
 	/// it needs to send the message first.
 	if (d._overall_msg_size > MAX_PACKET)
 	{
-		ACE_DEBUG ((LM_DEBUG, "Implementation limit, pls, you should refrain from sending big MCAST packets\n"));
-		ACE_DEBUG ((LM_DEBUG, "Actual size is %d, allowed %d\n", d._overall_msg_size, MAX_PACKET));
+		ACE_DEBUG ((LM_ERROR, "Implementation limit, pls, you should refrain from sending big datagram packets\n"));
+		ACE_DEBUG ((LM_ERROR, "Actual size is %d, allowed %d\n", d._overall_msg_size, MAX_PACKET));
 		ACE_ASSERT (1 == 0);
 	}
 

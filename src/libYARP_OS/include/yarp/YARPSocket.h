@@ -35,7 +35,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.h,v 1.6 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPSocket.h,v 1.7 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -275,6 +275,7 @@ public:
 class YARPNetworkOutputObject : public YARPNetworkObject
 {
 private:
+	// to prevent copies.
 	YARPNetworkOutputObject (const YARPNetworkOutputObject&);
 	YARPNetworkOutputObject& operator=(const YARPNetworkOutputObject&);
 
@@ -344,7 +345,7 @@ public:
 /**
  * An actual output socket class. The socket now is a real
  * unix/windows socket using the TCP protocol.
- * @see YARPSocketDgram, YARPSocketMcast for more information.
+ * @see YARPOutputSocketDgram, YARPOutputSocketMcast for more information.
  */
 class YARPOutputSocket : public YARPNetworkOutputObject
 {
@@ -363,6 +364,11 @@ public:
 	 */
 	virtual ~YARPOutputSocket();
 
+	/**
+	 * Closes the socket and its connection.
+	 * @param name is the name ID of the connection to terminate.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int Close(const YARPUniqueNameID& name);
 
 	/**
@@ -376,12 +382,49 @@ public:
 	 */
 	int Connect(const YARPUniqueNameID& name, const YARPString& own_name);
 	
+	/**
+	 * Begins sending a message.
+	 * @param buffer is the message buffer.
+	 * @param buffer_length is the length of the buffer in byte.
+	 * @return YARP_OK on success.
+	 */
 	int SendBegin(char *buffer, int buffer_length);
+
+	/**
+	 * Continue by sending another buffer as part of the previous message.
+	 * @param buffer is the message buffer.
+	 * @param buffer_length is the length of the buffer in byte.
+	 * @return YARP_OK on success.
+	 */
 	int SendContinue(char *buffer, int buffer_length);
+
+	/**
+	 * Depending on the protocol starts receiving a reply from the remote
+	 * endpoint.
+	 * @param reply_buffer is the message buffer.
+	 * @param reply_buffer_length is the length of the buffer in byte.
+	 * @return YARP_OK on success.
+	 */
 	int SendReceivingReply(char *reply_buffer, int reply_buffer_length);
+
+	/**
+	 * Completes the reception of the message reply.
+	 * @param reply_buffer is the message buffer.
+	 * @param reply_buffer_length is the length of the buffer in byte.
+	 * @return YARP_OK on success.
+	 */
 	int SendEnd(char *reply_buffer, int reply_buffer_length);
 
+	/**
+	 * Returns the identifier of the undelying socket.
+	 * @return the ACE_HANDLE of the socket.
+	 */
 	ACE_HANDLE GetIdentifier(void) const;
+
+	/**
+	 * Gets the YARP service type.
+	 * @return TCP always.
+	 */
 	int GetServiceType (void) { return YARP_TCP; }
 
 	/**

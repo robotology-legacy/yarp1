@@ -61,12 +61,17 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.h,v 1.4 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPSocketDgram.h,v 1.5 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
 #ifndef __YARPSocketDgramh__
 #define __YARPSocketDgramh__
+
+/**
+ * \file YARPSocketDgram.h This contains classes and methods that implement
+ * the YARP output socket constructs.
+ */
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
@@ -84,16 +89,18 @@
 
 #include <yarp/YARPNetworkTypes.h> // not strictly necessary here
 
-/// SocketTypes
-///{
-///	YARP_NO_SOCKET = 0,
-///	YARP_I_SOCKET = 1,
-///	YARP_O_SOCKET = 2,
-///};
+// SocketTypes
+//{
+//	YARP_NO_SOCKET = 0,
+//	YARP_I_SOCKET = 1,
+//	YARP_O_SOCKET = 2,
+//};
 
-///
-///
-///
+/**
+ * An actual output socket class for the UDP protocol. The socket now is a real
+ * unix/windows socket using the UDP protocol.
+ * @see YARPOutputSocket, YARPOutputSocketMcast for more information.
+ */
 class YARPOutputSocketDgram : public YARPNetworkOutputObject
 {
 protected:
@@ -101,22 +108,85 @@ protected:
 	ACE_HANDLE identifier;
 
 public:
+	/**
+	 * Constructor.
+	 */
 	YARPOutputSocketDgram();
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPOutputSocketDgram();
 
-	/// virtual override.
+	/**
+	 * Closes the socket and its connection.
+	 * @param name is the name ID of the connection to terminate.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int Close(const YARPUniqueNameID& name);
+
+	/**
+	 * Connects to the remote endpoint (an input object).
+	 * @param name is the YARPUniqueNameID which contains the information
+	 * on the remote endpoint of the channel.
+	 * @param own_name is the symbolic name (as registered in the name server) of 
+	 * the port owning the connection, it is sent during connection to the remote
+	 * to allow identifying the specific connection being created.
+	 * @see YARPNetworkOutputObject for details.
+	 */
 	int Connect(const YARPUniqueNameID& name, const YARPString& own_name);
 	
+	/**
+	 * Begins sending a message.
+	 * @param buffer is the message buffer.
+	 * @param buffer_length is the length of the buffer in byte.
+	 * @return YARP_OK on success.
+	 */
 	int SendBegin(char *buffer, int buffer_length);
+
+	/**
+	 * Continue by sending another buffer as part of the previous message.
+	 * @param buffer is the message buffer.
+	 * @param buffer_length is the length of the buffer in byte.
+	 * @return YARP_OK on success.
+	 */
 	int SendContinue(char *buffer, int buffer_length);
+
+	/**
+	 * Depending on the protocol starts receiving a reply from the remote
+	 * endpoint. This method is here for uniformity with other socket types
+	 * but does nothing.
+	 * @param reply_buffer is the message buffer.
+	 * @param reply_buffer_length is the length of the buffer in byte.
+	 * @return YARP_OK on success.
+	 */
 	int SendReceivingReply(char *reply_buffer, int reply_buffer_length);
+
+	/**
+	 * Completes the reception of the message reply.
+	 * @param reply_buffer is the message buffer.
+	 * @param reply_buffer_length is the length of the buffer in byte.
+	 * @return YARP_OK on success.
+	 */
 	int SendEnd(char *reply_buffer, int reply_buffer_length);
 
+	/**
+	 * Returns the identifier of the undelying socket.
+	 * @return the ACE_HANDLE of the socket.
+	 */
 	ACE_HANDLE GetIdentifier(void) const;
+
+	/**
+	 * Gets the YARP service type.
+	 * @return YARP_UDP always.
+	 */
 	int GetServiceType (void) { return YARP_UDP; }
 
-	/// other stuff.
+	/**
+	 * Prepares the socket for communicating.
+	 * @param name is the id of the remote end point of the channel.
+	 * @return YARP_OK on success.
+	 */
 	int Prepare (const YARPUniqueNameID& name);
 };
 

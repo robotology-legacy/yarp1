@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.8 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.9 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -71,6 +71,12 @@
 ///
 ///
 ///
+
+/**
+ * \file YARPSocketMcast.cpp contains classes supporting the implementation of
+ * the MCAST socket and the MCAST port.
+ *
+ */
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
@@ -84,7 +90,7 @@
 #endif
 
 #ifndef __QNX__
-/// WIN32, Linux
+// WIN32, Linux
 
 #ifndef __WIN_MSVC__
 #	include <unistd.h>  // just for gethostname
@@ -105,68 +111,16 @@
 #include <yarp/YARPTime.h>
 #include <yarp/YARPString.h>
 
-///
+#include "yarp_private/Headers.h"
+
+//
 #define THIS_DBG 80
 
-///
-/// yarp message header.
-///
-#include <yarp/begin_pack_for_net.h>
 
-struct MyMessageHeader
-{
-public:
-	char key[2];
-	NetInt32 len;
-	char key2[2];
-
-	MyMessageHeader()
-	{
-		len = 0;
-		SetBad();
-	}
-
-	void SetGood()
-    {
-		key[0] = 'Y';
-		key[1] = 'A';
-		key2[0] = 'R';
-		key2[1] = 'P';
-    }
-  
-	void SetBad()
-    {
-		key[0] = 'y';
-		key[1] = 'a';
-		key2[0] = 'r';
-		key2[1] = 'p';
-    }
-
-	void SetLength(int n_len)
-	{
-		len = n_len;
-	}
-  
-	int GetLength()
-	{
-		if (key[0] == 'Y' && key[1] == 'A' && key2[0] == 'R' && key2[1] == 'P')
-		{
-			return len;
-		}
-		else
-		{
-			//	  printf("*** Bad header\n");
-			return -1;
-		}
-	}
-} PACKED_FOR_NET;
-
-#include <yarp/end_pack_for_net.h>
-
-///
-/// Output socket + stream incapsulation.
-///
-///
+/**
+ * This is a convenience class that incapsulates the output SHMEM socket and 
+ * its associated stream. This is private and the user shouldn't be concerned with.
+ */
 class OSDataMcast
 {
 public:
@@ -252,7 +206,7 @@ int YARPOutputSocketMcast::CloseMcastAll (void)
 	OSDataMcast& d = OSDATA(system_resources);
 	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 
-	/// send the header.
+	// send the header.
 	MyMessageHeader hdr;
 	hdr.SetGood ();
 	hdr.SetLength (YARP_MAGIC_NUMBER + 1);
@@ -272,7 +226,7 @@ int YARPOutputSocketMcast::CloseMcastAll (void)
 
 			stream.send_n (&hdr, sizeof(hdr), 0);
 			
-			/// wait response.
+			// wait response.
 			hdr.SetBad ();
 			r = stream.recv (&hdr, sizeof(hdr), 0, &timeout);
 
@@ -293,28 +247,28 @@ int YARPOutputSocketMcast::CloseMcastAll (void)
 	return YARP_OK;
 }
 
-/// closes down a specific connetion (tell the remote thread the connection is going down.).
+// closes down a specific connetion (tell the remote thread the connection is going down.).
 int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 {
 	OSDataMcast& d = OSDATA(system_resources);
 
-	/// send the header.
+	// send the header.
 	MyMessageHeader hdr;
 	hdr.SetGood ();
 	hdr.SetLength (YARP_MAGIC_NUMBER + 1);
 
 	int i;
 	int j = -1;
-	///const char *sname = ((YARPUniqueNameSock&)name).getName().c_str();
+	//const char *sname = ((YARPUniqueNameSock&)name).getName().c_str();
 	ACE_INET_Addr& nm = ((YARPUniqueNameSock &)name).getAddressRef();
 
 	for (i = 0; i < d._max_num_clients; i++)
 	{
-		///if (d._client_names[i].compare(sname) == 0)
+		//if (d._client_names[i].compare(sname) == 0)
 		if (d._client_names[i] == ((YARPUniqueNameSock&)name).getName())
 		{
 			j = i;
-			///ACE_OS::printf("Returned true\n");
+			//ACE_OS::printf("Returned true\n");
 			break;
 		}
 	}
@@ -339,7 +293,7 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	
 		d._num_connected_clients --;
 
-		/// closes down the socket.
+		// closes down the socket.
 		if (d._num_connected_clients <= 0)
 		{
 			d._connector_socket.close ();
@@ -351,7 +305,7 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 
 	stream.send_n (&hdr, sizeof(hdr), 0);
 
-	/// wait response.
+	// wait response.
 	hdr.SetBad ();
 	r = stream.recv_n (&hdr, sizeof(hdr), 0, &timeout);
 
@@ -365,7 +319,7 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 		stream.close ();
 		d._num_connected_clients --;
 
-		/// closes down the socket.
+		// closes down the socket.
 		if (d._num_connected_clients <= 0)
 		{
 			d._connector_socket.close ();
@@ -381,7 +335,7 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	stream.close ();
 	d._num_connected_clients --;
 
-	/// closes down the socket.
+	// closes down the socket.
 	if (d._num_connected_clients <= 0)
 	{
 		d._connector_socket.close ();
@@ -392,7 +346,7 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 }
 
 
-/// this is called only once to create the group.
+// this is called only once to create the group.
 int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name)
 {
 	OSDataMcast& d = OSDATA(system_resources);
@@ -405,9 +359,9 @@ int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name)
 	int r = -1;
 
 	if (((YARPUniqueNameSock&)name).getInterfaceName()!=YARPString("default")) {
-	  r = d._connector_socket.open (d._mcast_addr, ((YARPUniqueNameSock&)name).getInterfaceName().c_str(), 1);		/// reuse addr on, netif = 0.
+	  r = d._connector_socket.open (d._mcast_addr, ((YARPUniqueNameSock&)name).getInterfaceName().c_str(), 1);		// reuse addr on, netif = 0.
 	} else {
-	  r = d._connector_socket.open (d._mcast_addr, NULL, 1);		/// reuse addr on, netif = 0.
+	  r = d._connector_socket.open (d._mcast_addr, NULL, 1);		// reuse addr on, netif = 0.
 	}
 	if (r == -1)
 	{
@@ -429,53 +383,53 @@ int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name)
 	return YARP_OK;
 }
 
-///
-///
-/// keeping this piece of code for future use. It was needed to smoothly reconnect an MCAST
-///	port... semantic has been changed since then.
+//
+//
+// keeping this piece of code for future use. It was needed to smoothly reconnect an MCAST
+//	port... semantic has been changed since then.
 #if 0
-	/// momentarily raise the connection count to prevent closing the thread.
+	// momentarily raise the connection count to prevent closing the thread.
 	d._num_connected_clients ++;
 
-	/// tries to shut down the connection first.
+	// tries to shut down the connection first.
 	if (Close (name) == YARP_FAIL)
 	{
 		ACE_DEBUG ((LM_DEBUG, "can't close the mcast connection, it can happen if the server died unexpectedly\n"));
 
-		/// erases the client entry anyway.
+		// erases the client entry anyway.
 		d._clients[i].set ((u_short)0, INADDR_ANY);
 		d._client_names[i].erase(d._client_names[i].begin(), d._client_names[i].end());
 	}
 
-	/// see comment above.
+	// see comment above.
 	d._num_connected_clients --;
 
-	/// 250 ms delay.
+	// 250 ms delay.
 	YARPTime::DelayInSeconds (.25);
 #endif
 
-///
-/// this can be called many many times to ask receivers to join to mcast group.
-/// name is the remote we're asking to join.
+//
+// this can be called many many times to ask receivers to join to mcast group.
+// name is the remote we're asking to join.
 int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name, const YARPString& own_name)
 {
 	OSDataMcast& d = OSDATA(system_resources);
 
-	/// verifies it's a new connection.
+	// verifies it's a new connection.
 	ACE_INET_Addr nm = ((YARPUniqueNameSock&)name).getAddressRef();
 
 	int i, firstempty = -1;
 	for (i = 0; i < d._max_num_clients; i++)
 	{
-		/// don't compare the IP addr because the remote might have already unregistered
-		/// in that case, name doesn't contain the IP of the remote.
+		// don't compare the IP addr because the remote might have already unregistered
+		// in that case, name doesn't contain the IP of the remote.
 
-		///if (d._client_names[i].compare(sname) == 0)
+		//if (d._client_names[i].compare(sname) == 0)
 		if (d._client_names[i] == ((YARPUniqueNameSock&)name).getName())
 		{
-			/// it's already there...
+			// it's already there...
 			ACE_DEBUG ((LM_ERROR, "the specific client is already connected %s:%d\n", d._clients[i].get_host_addr(), d._clients[i].get_port_number()));
-			///d._service_socket.close();
+			//d._service_socket.close();
 			return YARP_FAIL;
 		}
 
@@ -485,7 +439,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name, const YARPStri
 		}
 	}
 
-	/// send the header.
+	// send the header.
 	int port_number = 0;
 	MyMessageHeader hdr;
 	hdr.SetGood ();
@@ -504,16 +458,16 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name, const YARPStri
 		return YARP_FAIL;
 	}
 
-	/// ask for a connection.
+	// ask for a connection.
 	stream.send_n (&hdr, sizeof(hdr), 0);
 
-	/// fine, now send the name of the connection.
+	// fine, now send the name of the connection.
 	NetInt32 name_len = own_name.length();
 	stream.send_n (&name_len, sizeof(NetInt32), 0);
 	stream.send_n (own_name.c_str(), name_len, 0);
 
-	/// send mcast ip and port #.
-	/// exactly 6 bytes.
+	// send mcast ip and port #.
+	// exactly 6 bytes.
 	char buf[6];
 	int ip = d._mcast_addr.get_ip_address();
 	buf[0] = (ip & 0xff000000) >> 24;
@@ -526,7 +480,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name, const YARPStri
 	stream.send_n (buf, 6, 0);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "supposedly sent %s:%d\n", d._mcast_addr.get_host_addr(), d._mcast_addr.get_port_number()));
 
-	/// wait response.
+	// wait response.
 	hdr.SetBad ();
 	r = stream.recv_n (&hdr, sizeof(hdr), 0, &timeout);
 
@@ -543,20 +497,20 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name, const YARPStri
 	if (port_number == -1)
 	{
 		d._clients[firstempty].set ((u_short)0, INADDR_ANY);
-		///d._client_names[firstempty].erase(d._client_names[firstempty].begin(), d._client_names[firstempty].end());
+		//d._client_names[firstempty].erase(d._client_names[firstempty].begin(), d._client_names[firstempty].end());
 		d._client_names[firstempty].clear(1);
 
-		/// there might be a real -1 port number -> 65535.
+		// there might be a real -1 port number -> 65535.
 		stream.close ();
 		ACE_DEBUG ((LM_ERROR, "got garbage back from remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
 		return YARP_FAIL;
 	}
 
-	/// the connect changes the remote port number to the actual assigned channel.
+	// the connect changes the remote port number to the actual assigned channel.
 	d._clients[firstempty].set_port_number (port_number);
 
-	/// stores also the full symbolic name as index.
-	/// this can be changed into a string copy since the name now contains a string.
+	// stores also the full symbolic name as index.
+	// this can be changed into a string copy since the name now contains a string.
 	d._client_names[firstempty] = ((YARPUniqueNameSock&)name).getName();
 
 	stream.close ();
@@ -574,7 +528,7 @@ int YARPOutputSocketMcast::SendBegin(char *buffer, int buffer_length)
 
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "sending to: %s:%d\n", d._mcast_addr.get_host_addr(), d._mcast_addr.get_port_number()));
 
-	///d._num_elements = 0;
+	//d._num_elements = 0;
 
 	d._iov[0].iov_base = (char *)&d._hdr;
 	d._iov[0].iov_len = sizeof(d._hdr);
@@ -599,7 +553,7 @@ int YARPOutputSocketMcast::SendContinue(char *buffer, int buffer_length)
 	return YARP_OK;
 }
 
-/// I'm afraid the reply might end up being costly to streaming communication.
+// I'm afraid the reply might end up being costly to streaming communication.
 int YARPOutputSocketMcast::SendReceivingReply(char *reply_buffer, int reply_buffer_length)
 {
 	ACE_OS::memset (reply_buffer, 0, reply_buffer_length);
@@ -610,11 +564,11 @@ int YARPOutputSocketMcast::SendEnd(char *reply_buffer, int reply_buffer_length)
 {
 	OSDataMcast& d = OSDATA(system_resources);
 
-	/// the send can fail because the total buf is too big for the IP stack buffer.
-	/// assert that situation (use the MAX_PACKET_SIZE as limit for sending msgs).
-	/// NOTE: mcast is efficient but should be only used for relatively small messages.
-	///	LATER: should set the socket buffer to handle bigger messages, at least the
-	///		size of a 128sq color image.
+	// the send can fail because the total buf is too big for the IP stack buffer.
+	// assert that situation (use the MAX_PACKET_SIZE as limit for sending msgs).
+	// NOTE: mcast is efficient but should be only used for relatively small messages.
+	//	LATER: should set the socket buffer to handle bigger messages, at least the
+	//		size of a 128sq color image.
 
 	if (d._overall_msg_size > MAX_PACKET)
 	{

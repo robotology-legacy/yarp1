@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-write.cpp,v 1.8 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: yarp-write.cpp,v 1.9 2004-08-21 17:53:47 gmetta Exp $
 ///
 ///
 
@@ -81,7 +81,8 @@ int main(int argc, char *argv[])
     return YARP_FAIL;
   }
 
-  YARPOutputPortOf<YARPBottle> out_port(YARPOutputPort::MANY_OUTPUTS,YARP_MCAST);
+  YARPOutputPortOf<YARPBottle> out_port(YARPOutputPort::MANY_OUTPUTS, YARP_UDP);
+  ///out_port.SetAllowShmem(0);	/// uncommenting this disables SHMEM communication.
   out_port.Register(argv[0]);
   argc--;
   argv++;

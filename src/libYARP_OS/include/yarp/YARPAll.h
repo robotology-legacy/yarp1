@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPAll.h,v 1.6 2004-07-09 16:10:13 eshuy Exp $
+/// $Id: YARPAll.h,v 1.7 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -70,13 +70,6 @@
  * \file YARPAll.h a few global functions prototypes.
  */
 
-#ifdef __QNX4__
-// sorry about this, but necessary for QNX compatible user code using the STL
-// need to silently ignore using namespace std in Watcom compiler
-#define using static
-#define namespace int
-#endif
-
 #include <stdio.h>
 #include <yarp/debug.h>
 
@@ -85,13 +78,6 @@ void YARP_safe_printf(char *format,...);
 void YARP_unsafe_printf(char *format,...);
 void YARP_output_wait();
 void YARP_output_post();
-
-// actually WIN32 is thread safe!
-#ifdef __QNX4__
-#ifndef YARP_USE_OLD_PRINTF
-#define printf YARP_safe_printf
-#endif
-#endif
 
 /**
  * Gets the value of the YARP_ROOT symbol from the environment.

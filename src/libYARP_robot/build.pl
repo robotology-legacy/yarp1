@@ -20,22 +20,15 @@ use Cwd;
 
 print "Entering compile process of YARP_robot libraries...\n";
 
-chomp ($ver = `ver`);
-chomp ($uname = `uname`);
-if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
-{
-	print "This is a Windows 2000/XP specific script\n";
-	print "Perhaps this procedure can be simply extended to\n"; 
-	print "other OSes but for now, this is all experimental...\n";
-	
-	die "This script is specific to Windows 2000/XP or Cygwin\n";
-}
-
 $yarp_root = $ENV{'YARP_ROOT'};
 if (!defined($yarp_root))
 {
 	die "YARP_ROOT environment variable must be defined!\nto point to the path of the yarp source distribution\n";
 }
+
+require "$yarp_root/conf/configure.template.pl" or die "Can't find template file $yarp_root/conf/configure.template.pl\n";
+
+check_os();
 
 print "Ready to start...\n";
 
@@ -61,33 +54,9 @@ unless (-e $config_file)
 	die "Can't find configuration file: $config_file\nPlease make sure a config file exists in \$YARP_ROOT/conf/\n";
 }
 
-open CONFIG, $config_file or die "Can't open config file $!";
 print "Working with: $config_file\n";
+load_config_file (\%options, $config_file);
 
-my $contextual;
-while (<CONFIG>)
-{
-	chomp;
-	if (/^\[(\w+)\]\s?/)
-	{
-		$contextual = $1;
-	}
-	elsif (/^([A-Za-z0-9_]+)= ?/)
-	{
-		my $word = $1;
-		if ($' =~ /((\w|\/)+)\s?/)
-		{
-			$options{$contextual."<-".$word} = $1;
-		}
-	}
-}
-
-#while (($key, $value) = each %options)
-#{
-#	print "$key = $value\n";
-#}
-
-close CONFIG;
 
 my $os = "$options{\"Architecture<-OS\"}";
 my $context_dir = "$options{\"Architecture<-Hardware_Name\"}_$os";
@@ -111,8 +80,8 @@ if ($clean)
 	print "\nCleaning...\n";
 	chdir "./src" or die "Cannot chdir to src: $!";
 
-	call_msdev_and_print ("Debug", "CLEAN");
-	call_msdev_and_print ("Release", "CLEAN");
+	call_msdev_and_print ($project_name, "Debug", "CLEAN");
+	call_msdev_and_print ($project_name, "Release", "CLEAN");
 	
 	print "\n";
 	chdir "../" or die "Cannot chdir to ..: $!";
@@ -122,7 +91,7 @@ if ($debug)
 {
 	print "\nCompiling debug\n";
 	chdir "./src" or die "Cannot chdir to src: $!";
-	call_msdev_and_print ("Debug", "BUILD");
+	call_msdev_and_print ($project_name, "Debug", "BUILD");
 	chdir "../" or die "Cannot chdir to ..: $!";
 }
 
@@ -130,7 +99,7 @@ if ($release)
 {
 	print "\nCompiling optimized\n";
 	chdir "./src" or die "Cannot chdir to src: $!";
-	call_msdev_and_print ("Release", "BUILD");
+	call_msdev_and_print ($project_name, "Release", "BUILD");
 	chdir ".." or die "Cannot chdir to ..: $!";
 }
 
@@ -142,7 +111,7 @@ if ($install)
 	foreach my $file (@my_headers) 
 	{
 		print "Copying $file\n";
-		copy ($file, "$yarp_root/include/yarp/") or warn "Can't copy .h files\n"; 
+		copy ($file, "$yarp_root/include/yarp/") or warn "Can't copy $file\n"; 
 	}
 
 	copy ("./lib/$os/$project_name.lib", "$yarp_root/lib/$os/libYARP_robot.lib") or warn "Can't copy \"./lib/$os/libYARP_robot.lib\"\n";
@@ -161,14 +130,14 @@ if ((!$force && $options{"Compile_Robot<-Tools_Rebuild"} eq "YES") ||
 	{
 		my $current_dir = getcwd;
 		chdir "../tools/" or die "Can't chdir to tools directory\n";
-		do_tools_compile ("build-robot.pl --clean --debug --install --os $os");
+		do_ext_compile ("build-robot.pl --clean --debug --install --os $os");
 		chdir $current_dir or die "Can't chdir to $current_dir\n";
 	}
 	else
 	{
 		my $current_dir = getcwd;
 		chdir "../tools/" or die "Can't chdir to tools directory\n";
-		do_tools_compile ("build-robot.pl --clean --release --install --os $os");
+		do_ext_compile ("build-robot.pl --clean --release --install --os $os");
 		chdir $current_dir or die "Can't chdir to $current_dir\n";
 	}
 }
@@ -177,36 +146,6 @@ else
 	print "You didn't ask to recompile the YARP robot tools\n";
 }
 
-
 print "\nDone!\n";
-
-#
-#
-#
-sub do_tools_compile
-{
-	my ($exe) = @_;
-	open TOOLS, "$exe|";
-	while (<TOOLS>)
-	{
-		print;
-	}
-	close TOOLS;
-}
-
-
-sub call_msdev_and_print
-{
-	my ($version, $operation) = @_;
-
-	open MSDEV, "msdev $project_name.dsp /MAKE \"$project_name - Win32 ".$version."\" /".$operation."|";
-	while (<MSDEV>)
-	{
-		print;
-	}
-	close MSDEV;	
-}
-
-
 
 

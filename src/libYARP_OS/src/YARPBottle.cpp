@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBottle.cpp,v 1.4 2004-08-10 17:08:23 gmetta Exp $
+///  $Id: YARPBottle.cpp,v 1.5 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -81,8 +81,8 @@ YARPBottle::YARPBottle()
 
 void YARPBottle::dump()
 {
-	cout << "Starting dump of internal string\n";
-	cout << "Seq length:" << text.size() << endl;
+	printf ("Starting dump of internal string\n");
+	printf ("Seq length: %d\n", text.size());
 	YARPVector<char>::iterator it(text);
 	while (!it.done())
 	{

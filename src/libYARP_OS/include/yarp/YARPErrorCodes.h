@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPErrorCodes.h,v 1.3 2004-07-09 13:45:58 eshuy Exp $
+/// $Id: YARPErrorCodes.h,v 1.4 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -72,7 +72,7 @@
 /**
  * Generic YARP library error codes.
  */
-enum
+enum YARPErrorCodes
 {
   /**
    * A YARP function succeeded.

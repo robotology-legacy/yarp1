@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.7 2004-08-11 13:29:20 babybot Exp $
+/// $Id: YARPBottle.h,v 1.8 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -78,26 +78,46 @@
 #ifndef YARPBOTTLE_INC
 #define YARPBOTTLE_INC
 
+/**
+ * \file YARPBottle.h This is the definition of YARPBottle objects. These are
+ * little containers for which a content type is provided.
+ */
 #include <assert.h>
 #include <stdio.h>
 
 #include <yarp/YARPPort.h>
 #include <yarp/YARPPortContent.h>
 #include <yarp/YARPBottleCodes.h>
-//#include <yarp/YARPVector.h>
 #include <yarp/YARPString.h>
 #include <yarp/YARPList.h>
 #include <yarp/YARPNetworkTypes.h>
 
+/**
+ * YARPBottle is a container object that can be sent across the network (doesn't do
+ * any marshaling though) and it can contain integers, doubles, etc. Provided you
+ * know how you filled the bottle you can then unfill it in the same order. You can
+ * use bottles to send messages with parameters.
+ */
 class YARPBottle
 {
+	/**
+	 * Definition of the ID of the bottle. This is a little text that accompanies the
+	 * bottle to identify the message type.
+	 */
 	struct BottleId
 	{
+		/**
+		 * Constructor.
+		 */
 		BottleId()
 		{
 		//	text.resize(__maxBottleID);
 		}
 
+		/**
+		 * Sets the bottle ID.
+		 * @param s is the ID (a string).
+		 */
 		void set(const char *s)
 		{ 
 			ACE_OS::strncpy(text, s , __maxBottleID-1);
@@ -105,16 +125,32 @@ class YARPBottle
 			length = ACE_OS::strlen(text)+1;
 		}
 
+		/**
+		 * Sets the bottle ID starting from a YBVocab which is a sort of YARPString.
+		 * @param s is the string to copy text from.
+		 */
 		void set(const YBVocab &s)
 		{
 			set(s.c_str());
 		}
 
+		/**
+		 * Comparison operator. Useful to check whether a received message has to 
+		 * be processed.
+		 * @param l is the reference to the object to compare with.
+		 * @return true if the two ID's aren't the same.
+		 */
 		bool operator !=(const BottleId &l) const
 		{
 			return !operator==(l);
 		}
 		
+		/**
+		 * Comparison operator. Useful to check whether a received message has to 
+		 * be processed.
+		 * @param l is the reference to the object to compare with.
+		 * @return true if the two ID's are the same.
+		 */
 		bool operator==(const BottleId &l) const
 		{
 			if (ACE_OS::strcmp(text, l.c_str()) == 0)
@@ -123,11 +159,23 @@ class YARPBottle
 				return false;
 		}
 
+		/**
+		 * Comparison operator. Useful to check whether a received message has to 
+		 * be processed.
+		 * @param l is the reference to an YBVocab to compare with.
+		 * @return true if the two ID's aren't the same.
+		 */
 		bool operator !=(const YBVocab &l) const
 		{
 			return !operator==(l);
 		}
 		
+		/**
+		 * Comparison operator. Useful to check whether a received message has to 
+		 * be processed.
+		 * @param l is the reference to an YBVocab to compare with.
+		 * @return true if the two ID's are the same.
+		 */
 		bool operator==(const YBVocab &l) const
 		{
 			if (ACE_OS::strcmp(text, l.c_str()) == 0)
@@ -136,6 +184,10 @@ class YARPBottle
 				return false;
 		}
 
+		/**
+		 * Similar to YARPString, gets the ID text.
+		 * @return the ID of the bottle as text.
+		 */
 		const char *c_str() const
 		{
 			return text;
@@ -146,10 +198,20 @@ class YARPBottle
 	};
 
 public:
+	/**
+	 * Default constructor.
+	 */
 	YARPBottle();
 
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPBottle() {}
 
+	/**
+	 * Copy operator for YARPBottle.
+	 * @param bottle is a reference to the object to copy from.
+	 */
 	YARPBottle& operator = (const YARPBottle& bottle)
 	{
 	  id.set(bottle.id.text);
@@ -160,43 +222,95 @@ public:
 	  return *this;
 	}
    
+	/**
+	 * Gets the internal buffer.
+	 * @return a reference to the internal buffer which is a YARPVector.
+	 */
 	YARPVector<char>& getBuffer() { return text; }
 
+	/**
+	 * Sets the ID starting from a YBVocab reference.
+	 * @param l is the reference to the YBVocab object.
+	 */
 	void setID(const YBVocab &l) { id.set(l.c_str()); }
+
+	/**
+	 * Gets the ID of the bottle.
+	 * @return the reference to the internal ID variable.
+	 */
 	const BottleId &getID() const { return id; }
+
+	/**
+	 * Gets the size of the bottle in bytes.
+	 * @return the size of the internal vector in bytes.
+	 */
 	int getSize() const { return text.size(); }
+
+	/**
+	 * Returns the position of the last used byte of the array.
+	 * @return the last used position within the vector of char.
+	 */
 	int getTopInBytes() const { return top; }
+
+	/**
+	 * Gets a pointer to the data.
+	 * @return a pointer to the internal buffer of char.
+	 */
 	const char *getDataPtr() const { return &text[0]; } 
+
+	/**
+	 * Sets the pointer to the data to a externally provided buffer.
+	 * @param buf is the pointer to the buffer.
+	 * @param l is the length of the buffer in bytes.
+	 */
 	void setDataPtr(char *buf, int l) { writeRawBlock(buf, l); }
   
-	// consecutive writes add data in the buffer
+	/**
+	 * Writes an integer to the buffer. Consecutive writes add data in the buffer.
+	 * @param result is the integer to add to the buffer.
+	 */
 	void writeInt(NetInt32 result)
 		{ writeRawInt(YBTypeInt);  writeRawInt(result); }
+
+	/**
+	 * Writes a double precision value to the buffer. 
+	 * Consecutive writes add data in the buffer.
+	 * @param result is the value to add to the buffer.
+	 */
 	void writeFloat(double result)
 		{ writeRawInt(YBTypeDouble);  writeRawFloat(result); }
+
+	/**
+	 * Writes a string (zero terminated) into the buffer. 
+	 * Consecutive writes add data in the buffer.
+	 * @param result is the string to add to the buffer.
+	 */
 	void writeText(const char *result)
 		{ writeRawInt(YBTypeString);  writeRawText(result); }
 
+	/**
+	 * Writes a YBVocab into the buffer.
+	 * @param result is the reference to the YBVocab to add.
+	 */
 	void writeVocab(const YBVocab &result)
 	{
 		writeRawInt(YBTypeVocab);
 		writeRawText(result.c_str());
 	}
 
-	/*
-	void writeYVector(const YVector &in)
-	{
-		writeRawInt(YBTypeYVector);
-		writeRawInt(in.Length());
-		writeRawBlock((char *) in.data(), sizeof(double)*in.Length() );
-	}
-	*/
-  
-	// "try" functions; The rationale is: return true if the type of the next 
-	// variable in the bottle matches the one of the function you call, 
-	// otherwise return false. The output parameter in this case is undefined.
-	// The internal "index" is not changed, that is the next "tryRead" will occur
-	// on the same data, unless the moveOn() function is called.
+	/**
+	 * Peeks an integer from the bottle.
+	 * The rationale is to return true if the type of the next 
+	 * variable in the bottle matches the one of the function you call, 
+	 * otherwise return false. The output parameter in this case is undefined
+	 * (i.e. don't rely on its value).
+	 * The internal "index" is not changed, that is the next "tryRead" will occur
+	 * on the same data, unless the moveOn() function is called.
+	 * This semantic is similar to any peek function when reading a queue.
+	 * @param i is a pointer to the value read from the bottle.
+	 * @return true if something has been read, false otherwise and @a i is
+	 * undefined.
+	 */
 	bool tryReadInt(int *i)
 	{
 		int oldIndex = index;
@@ -209,6 +323,12 @@ public:
 		return true;
 	}
 
+	/**
+	 * Peeks a double precision value from the bottle.
+	 * @param f is a pointer to the value read from the bottle.
+	 * @return true if something has been read, false otherwise and @a i is
+	 * undefined.
+	 */
 	bool tryReadFloat(double *f)
 	{
 		int oldIndex = index;
@@ -221,6 +341,12 @@ public:
 		return true;
 	}
 
+	/**
+	 * Peeks a string from the bottle.
+	 * @param s is a pointer to the string read from the bottle.
+	 * @return true if something has been read, false otherwise and @a i is
+	 * undefined.
+	 */
 	bool tryReadText(char *s)
 	{
 		int oldIndex = index;
@@ -233,8 +359,11 @@ public:
 		return true;
 	}
 
-	// nice to be able to read text without allocating external
-	// buffer, if you own the bottle
+	/**
+	 * Peeks a string from the bottle without checking whether it's been read.
+	 * @return the pointer to the string read from the bottle, NULL if
+	 * the string can't be read at the current position.
+	 */
 	const char *tryReadText()
 	{
 		int oldIndex = index;
@@ -248,6 +377,11 @@ public:
 		return addr;
 	}
 
+	/**
+	 * Peeks a YBVocab from the bottle.
+	 * @param v is the reference to the YBVocab.
+	 * @return true if the return value has been assigned, false otherwise.
+	 */
 	bool tryReadVocab(YBVocab &v)
 	{
 		int oldIndex = index;
@@ -260,14 +394,13 @@ public:
 		return true;
 	}
 
-	/*
-	void readYVector(YVector &v)
-	{
-		if (tryReadYVector(v))
-			moveOn();
-	}
-	*/
-  
+	/**
+	 * Reads an integer from the bottle. It tries reading and if successful
+	 * updates the internal pointer to the next element in the bottle.
+	 * @param v is a pointer to the read value.
+	 * @return true if something has been read and the value assigned to @a v, 
+	 * false otherwise.
+	 */
 	bool readInt(int *v)
 	{
 		if (tryReadInt(v))
@@ -279,12 +412,25 @@ public:
 			return false;
 	}
 
+	/**
+	 * Reads an integer without checking whether it can be read.
+	 * @return the read value, 0 if it can't read from the current position. 0 is
+	 * not discriminative of a failure.
+	 */
 	int readInt() {
 	  int v = 0;
 	  readInt(&v);
 	  return v;
 	}
 
+	/**
+	 * Reads a double precision floating point value from the bottle. 
+	 * It tries reading and if successful
+	 * updates the internal pointer to the next element in the bottle.
+	 * @param v is a pointer to the read value.
+	 * @return true if something has been read and the value assigned to @a v, 
+	 * false otherwise.
+	 */
 	bool readFloat(double *v)
 	{
 		if (tryReadFloat(v))
@@ -296,8 +442,14 @@ public:
 			return false;
 	}
 	
-	// yikes! no way to bound size of buffer -
-	// invitation to disaster.
+	/**
+	 * Reads a string from the bottle.
+	 * Yikes! no way to bound size of buffer -
+	 * invitation to disaster.
+	 * @param s is a pointer to the buffer that will contain the string.
+	 * @return true if something has been read and the value assigned to @a s, 
+	 * false otherwise.
+	 */
 	bool readText(char *s)
 	{
 		if (tryReadText(s))
@@ -309,6 +461,11 @@ public:
 			return false;
 	}
 
+	/**
+	 * Reads a string from the bottle.
+	 * @return the string from the bottle, NULL if it can't be read in the current 
+	 * position.
+	 */
 	const char *readText()
 	{
 	  const char *addr = tryReadText();
@@ -318,29 +475,42 @@ public:
 	  return addr;
 	}
 
+	/**
+	 * Moves the internal pointer to the beginning of the bottle.
+	 */
 	void rewind()
 	{ index = 0;}
 
+	/**
+	 * Empties the bottle.
+	 */
 	void reset()
 	{
 		rewind();
 		top = 0;
 	}
   
+	/**
+	 * Checks whether there's more to read from the bottle.
+	 * @return 1 if there's more to be read, 0 otherwise.
+	 */
 	int more() const
 	{
 	  return (index<top-1);
 	}
 
-	// moveOn(). Increase "index". The next "tryRead" will be on the remaining
-	// part of the buffer. Subsequent calls to moveOn() do nothing unless another
-	// tryRead is called.
+	/**
+	 * Increases the "index". The next "tryRead" will work on the remainder of
+	 * the buffer. Subsequent calls to moveOn() do nothing unless another
+	 * tryRead has been called before.
+	 */
 	void moveOn()
 	{
 		_moveOn(lastReadSeq);
 		lastReadSeq = 0;
 	}
 
+	// internal move on.
 	void _moveOn(int l)
 	{
 		index += l;
@@ -348,7 +518,14 @@ public:
 			index = top;
 	}
 	
+	/**
+	 * Prints the bottle to stdout (no formatting).
+	 */
 	void dump();
+
+	/**
+	 * Prints the bottle to stdout (formatted output).
+	 */
 	virtual void display();
 
 protected:

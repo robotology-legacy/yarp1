@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.6 2004-08-10 13:42:07 babybot Exp $
+/// $Id: YARPNameService.h,v 1.7 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 /*
@@ -186,7 +186,8 @@ public:
 
 
 /**
- * Manager for the communication endpoints. This class creates both socket and qnet endpoints.
+ * YARPEndpointManage is the manager of the communication endpoints. 
+ * This class can create both socket and QNET endpoints.
  */
 class YARPEndpointManager
 {

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottleContent.h,v 1.4 2004-07-30 10:31:38 eshuy Exp $
+/// $Id: YARPBottleContent.h,v 1.5 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -75,18 +75,37 @@
 #	pragma once
 #endif
 
+/**
+ * \file YARPBottleContent.h Defines a class that allows sending the YARPBottle
+ * through a port. This must always be included whenever sending bottles. It is
+ * also included (circular include) from the YARPBottle.h just to make sure
+ * the user doesn't forget to include it.
+ */
 #include <yarp/YARPBottle.h>
 #include <yarp/YARPPort.h>
 #include <yarp/YARPPortContent.h>
 
+/**
+ * YARPBottleContent is the content type for sending bottles through ports.
+ */
 class YARPBottleContent : public YARPBottle, public YARPPortContent
 {
 public:
+	/**
+	 * Default constructor.
+	 */
 	virtual ~YARPBottleContent () 
 	{
 		///ACE_DEBUG ((LM_DEBUG, "destroying a YARPBottleContent\n"));
 	}
 
+	/**
+	 * Reads a bottle from the network. It calls methods in YARPPortReader
+	 * to get buffers from the connection and traslates them into a
+	 * port. This method is automatically called by the Port code.
+	 * @param reader is the reference to the YARPPortReader object.
+	 * @return YARP_OK if successful.
+	 */
 	virtual int Read(YARPPortReader& reader)
     {
 	  // read id
@@ -104,7 +123,14 @@ public:
       return result;
     }
   
-  virtual int Write(YARPPortWriter& writer)
+	/**
+	 * Writes a bottle to the network. It calls methods in YARPPortWriter
+	 * to write buffers into the connection. This method is automatically called
+	 * by the Port code.
+	 * @param writer is the reference to the YARPPortWriter object.
+	 * @return YARP_OK if successful.
+	 */
+	virtual int Write(YARPPortWriter& writer)
     {
 	  writer.Write((char*)(&id.length),sizeof(id.length));
 	  writer.Write((char*) id.text, id.length);
@@ -115,9 +141,17 @@ public:
       return r;
     }
   
-  virtual int Recycle()
+	/**
+	 * In case the content has to be reused. Resets the internal bottle object.
+	 */
+	virtual int Recycle()
     { reset(); top = 0; return 0; }
 
+	/**
+	 * Copies operator. Useful for copying contents.
+	 * @param vec is the object reference to copy from.
+	 * @return a reference to this object.
+	 */
     YARPBottle& operator=(const YARPBottle &vec) { return YARPBottle::operator= (vec); }
 };
 

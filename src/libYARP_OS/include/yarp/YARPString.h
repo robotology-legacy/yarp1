@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPString.h,v 1.5 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: YARPString.h,v 1.6 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -72,16 +72,6 @@
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
-
-//#include <string>
-//typedef std::string YARPString;
-
-#ifndef __QNX4__
-/// WINDOWS/LINUX/QNX6
-
-// temporary patch - stable ACE on linux is currently 5.2 which doesn't
-// do strings
-
 
 #include <ace/OS.h>
 #include <ace/String_Base.h>
@@ -205,15 +195,5 @@ inline std::istream& operator>> (std::istream& is, YARPString& s)
 	s = _buf; 
 	return is; 
 }
-
-#else
-
-#include "strng.h"
-#define string String
-#define c_str AsChars
-
-#endif
-
-///typedef std::string YARPString;
 
 #endif

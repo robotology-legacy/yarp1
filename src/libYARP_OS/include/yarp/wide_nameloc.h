@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.1 2004-07-09 16:47:37 eshuy Exp $
+/// $Id: wide_nameloc.h,v 1.2 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -84,10 +84,11 @@
 #	pragma once
 #endif
 
+/**
+ * \file wide_nameloc.h This file contains structures and classes used when
+ * talking to the name server.
+ */
 
-///
-///
-///
 #define __YARP_NAMESERVICE_STRING_LEN YARP_STRING_LEN
 #define __YARP_NAMESERVICE_UDP_MAX_PORTS 21
 
@@ -95,10 +96,10 @@ const int __portNotFound = 0;
 const char __ipNotFound[] = {"0.0.0.0"};
 
 
-///
-///
-///
-enum
+/**
+ * These are the allowed commands when talking to the name server.
+ */
+enum __YARP_NameSeverCommands
 {
 	YARPNSRegister = 0,
 	YARPNSRelease = 1,
@@ -109,7 +110,12 @@ enum
 	YARPNSNicQuery = 6
 };
 
+
 #include <yarp/begin_pack_for_net.h>
+/**
+ * YARPNameServiceCmd is a short header used to send commands to the
+ * name server.
+ */
 struct YARPNameServiceCmd
 {
 	NetInt32 cmd;
@@ -117,21 +123,77 @@ struct YARPNameServiceCmd
 	NetInt32 type;
 } PACKED_FOR_NET;
 
-///
-///
-///
+/**
+ * YARPNameQnx contains the elements that are used when registering a qnx
+ * connection on the name server. This is a simple container with a few convenient
+ * methods.
+ */
 class YARPNameQnx
 {
 public:
+	/** 
+	 * Sets the value of the internal data (which are public, by the way). A qnx
+	 * connection is uniquely identified by the pid of the process that owns the channel,
+	 * the channel ID of the connection (returned when creating the channel), and
+	 * the name of the node in the QNET network.
+	 * @param str is the symbolic name.
+	 * @param node is the qnx node name.
+	 * @param pid is the pid of the qnx connection.
+	 * @param ch is the channel ID of the qnx connection.
+	 */
 	void set(const YARPString &str, const YARPString &node, NetInt32 pid, NetInt32 ch);
+
+	/**
+	 * Sets the symbolic name information only.
+	 * @param str is the symbolic name following YARP standards for names.
+	 */
 	void setName(const YARPString &str);
+
+	/**
+	 * Sets the qnx channel information.
+	 * @param node is the node name.
+	 * @param pid is the pid of the process owning the connection.
+	 * @param ch is the channel ID of the connection.
+	 */
 	void setAddr(const YARPString &node, NetInt32 pid, NetInt32 ch);
+
+	/**
+	 * Gets the qnx channel information.
+	 * @param node is the node name.
+	 * @param pid is the pid of the process owning the connection.
+	 * @param ch is the channel ID of the connection.
+	 */
 	void getAddr(YARPString &node, NetInt32 *pid, NetInt32 *ch);
 
+	/**
+	 * Gets the symbolic name.
+	 * @return the symbolic name that is registered or to be registered on
+	 * the name server.
+	 */
 	const char *getName() const { return _name; }
+
+	/**
+	 * Gets the qnx node name.
+	 * @return the node name.
+	 */
 	const char *getNode() const { return _node; }
+
+	/**
+	 * Gets the pid number of the process owning the connection.
+	 * @return the pid of the process.
+	 */
 	NetInt32 getPid() const { return _pid; }
+
+	/**
+	 * Gets the channel ID of the connection.
+	 * @return the channel number.
+	 */
 	NetInt32 getChan() const { return _chan; }
+
+	/**
+	 * Gets the size of this class.
+	 * @return the size of the class YARPNameQnx in bytes.
+	 */
 	int length() const { return sizeof(YARPNameQnx); }
 
 	char _name[__YARP_NAMESERVICE_STRING_LEN];
@@ -140,9 +202,19 @@ public:
 	NetInt32 _chan;
 } PACKED_FOR_NET;
 
+
+/** 
+ * YARPNSNic contains information used when asking information about
+ * NIC's to the name server.
+ */
 class YARPNSNic
 {
 public:
+	/**
+	 * Sets the IP address and network name.
+	 * @param ip is the IP address of the caller.
+	 * @param netId is a symbolic network name (see namer.conf file).
+	 */
 	void set(const YARPString &ip, const YARPString &netId);
 
 public:
@@ -150,18 +222,74 @@ public:
 	char _netId[__YARP_NAMESERVICE_STRING_LEN];
 } PACKED_FOR_NET;
 
+
+/** 
+ * YARPNameTCP is used when registering TCP channels. This class is probably
+ * no longer in use by the YARP code. Ports are now registered as UDP anyway
+ * that allows requesting to reserve several IP port numbers in a single call.
+ */
 class YARPNameTCP
 {
 public:
+	/**
+	 * Sets the internal variables.
+	 * @param str is the symbolic name of the port.
+	 * @param addr is the tcp address specification (ip and port number).
+	 */
 	void set(const YARPString &str, const ACE_INET_Addr &addr);
+
+	/**
+	 * Sets the symbolic name only.
+	 * @param str is the symbolic name of the port.
+	 */
 	void setName(const YARPString &str);
+
+	/**
+	 * Sets the tcp address.
+	 * @param addr is the tcp address specification.
+	 */
 	void setAddr(const ACE_INET_Addr &addr);
+
+	/**
+	 * Sets the IP address only.
+	 * @param ip is the IP address of the caller.
+	 */
 	void setIp(const YARPString &ip);
+
+	/**
+	 * Sets the port number only.
+	 * @param p is the port number.
+	 */
 	void setPort(NetInt32 p);
+
+	/**
+	 * Gets the tcp address information.
+	 * @param addr is the returned address (ip and port number).
+	 */
 	void getAddr(ACE_INET_Addr &addr);
+
+	/**
+	 * Gets the symbolic name.
+	 * @return the name of the connection to be registered.
+	 */
 	const char *getName() const { return _name; }
+
+	/**
+	 * Gets the IP address.
+	 * @return the IP address of the connection.
+	 */
 	const char *getIp() const { return _ip; }
+
+	/**
+	 * Gets the port number.
+	 * @return the port number of the connection.
+	 */
 	NetInt32 getPort() { return _port; }
+
+	/**
+	 * Gets the size of the class.
+	 * @return the size of YARPNameTCP in bytes.
+	 */
 	int length() { return sizeof(YARPNameTCP); }
 
 	char _name[__YARP_NAMESERVICE_STRING_LEN];
@@ -169,23 +297,83 @@ public:
 	NetInt32 _port;
 } PACKED_FOR_NET;
 
-///
-///
-///
+
+/** 
+ * YARPNameUDP is used when communicating with the name server about
+ * udp connections. The typical command allows reserving a pool of port 
+ * numbers for future use (e.g. in the order of 10).
+ */
 class YARPNameUDP
 {
 public:
+	/**
+	 * Sets the internal variables.
+	 * @param str is the symbolic name of the port.
+	 * @param addr is the address specification (ip and port number).
+	 */
 	void set(const YARPString &str, const ACE_INET_Addr &addr);
+
+	/**
+	 * Sets the symbolic name only.
+	 * @param str is the symbolic name of the port.
+	 */
 	void setName(const YARPString &str);
+
+	/**
+	 * Sets the tcp address.
+	 * @param addr is the udp address specification.
+	 */
 	void setAddr(const ACE_INET_Addr &addr);
+
+	/**
+	 * Sets the IP address only.
+	 * @param ip is the IP address of the caller.
+	 */
 	void setIp(const YARPString &ip);
+
+	/**
+	 * Sets one of the port into the array.
+	 * @param index is the entry in the array.
+	 * @param p is the port number.
+	 */
 	void setPorts(NetInt32 index, NetInt32 p);
+
+	/**
+	 * Sets the size of the array to contain port numbers, this
+	 * is also the number of ports requested to the name server.
+	 * @param n is the number of ports.
+	 */
 	void setNPorts(NetInt32 n);
+
+	/**
+	 * Gets the udp address of this connection.
+	 * @param addr is the address represented as ACE_INET_Addr.
+	 */
 	void getAddr(ACE_INET_Addr &addr);
+
+	/**
+	 * Gets a port number from the array.
+	 * @param index is the entry of the array.
+	 * @return the port number stored at the @a index position into the array.
+	 */
 	NetInt32 getPorts(NetInt32 index); 
+
+	/**
+	 * Gets the symbolic name.
+	 * @return the name of the connection to be registered.
+	 */
 	const char *getName() const { return _name; }
+
+	/**
+	 * Gets the IP address.
+	 * @return the IP address of the connection.
+	 */
 	const char *getIp() const { return _ip; }
 
+	/**
+	 * Gets the size of the class.
+	 * @return the size of YARPNameTCP in bytes.
+	 */
 	int length() { return sizeof(YARPNameUDP); }
 
 	char _name[__YARP_NAMESERVICE_STRING_LEN];

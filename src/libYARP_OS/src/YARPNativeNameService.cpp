@@ -61,13 +61,12 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.cpp,v 1.2 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPNativeNameService.cpp,v 1.3 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 //// #include <ace/OS.h>
 
 ///
-/// this compiles into the native QNX interface under QNX4.
 ///	this compiles into something similar for QNX6 that uses the global name server anyway.
 ///
 #include <yarp/YARPNativeNameService.h>

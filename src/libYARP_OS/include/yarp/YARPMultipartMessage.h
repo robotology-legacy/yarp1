@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPMultipartMessage.h,v 1.3 2004-07-09 13:45:58 eshuy Exp $
+/// $Id: YARPMultipartMessage.h,v 1.4 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 /*
@@ -71,6 +71,11 @@
 #ifndef YARPMultipartMessage_INC
 #define YARPMultipartMessage_INC
 
+/**
+ * \file YARPMultipartMessage.h This class contains the YARP high level interface to
+ * multipart messages (akin to the multipart QNX messages).
+ */
+
 #include <yarp/YARPConfig.h>
 #include <yarp/YARPAll.h>
 
@@ -78,20 +83,24 @@
 #	pragma once
 #endif
 
-///
-/// This class represents a packetized message. I imagine this WAS needed for QNX4.
-///	it makes little sense on NT sockets...
-///
+/**
+ * YARPMultipartMessage represents a packetized message. This would allow to implement
+ * generic mechanisms for sending arbitrary sized messages. There are limitations at the
+ * moment which the authors didn't take time to remove.
+ */
 class YARPMultipartMessage
 {
 protected:
 	void *system_resource;
 	int top_index, length, owned;
 
-	/// topindex is the last part that has been set (allocated).
-	///	length is the number of parts.
-	/// owned, whether the memory is owned by the class and needs to be freed.
+	// topindex is the last part that has been set (allocated).
+	// length is the number of parts.
+	// owned, whether the memory is owned by the class and needs to be freed.
 public:
+	/**
+	 * Default constructor.
+	 */
 	YARPMultipartMessage() 
 	{ 
 		system_resource = NULL; 
@@ -100,6 +109,10 @@ public:
 		owned = 1; 
 	}
 
+	/**
+	 * Constructor.
+	 * @param n_length is the number of parts (Block) of the message.
+	 */
 	YARPMultipartMessage(int n_length)
 	{ 
 		system_resource = NULL; 
@@ -109,6 +122,12 @@ public:
 		owned = 1; 
 	}
 
+	/**
+	 * Creates a message starting from an existing buffer composed of a 
+	 * certain number of @a entries.
+	 * @param buffer is the pointer to the buffer.
+	 * @param entries is the size of the buffer.
+	 */
 	YARPMultipartMessage(void *buffer, int entries)
 	{ 
 		owned = 0;  
@@ -117,17 +136,54 @@ public:
 		length = entries; 
 	}
 
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPMultipartMessage();
 
+	/**
+	 * Resizes the message to a new size of @a n_length.
+	 * @param n_length is the size of the message in blocks.
+	 */
 	void Resize(int n_length);
 
+	/**
+	 * Attaches a buffer to a certain part of the multipart message.
+	 * @param index is the position where to add the new buffer.
+	 * @param buffer is the pointer to the buffer.
+	 * @param buffer_length is the length of the new buffer.
+	 */
 	void Set(int index, char *buffer, int buffer_length);
+
+	/**
+	 * Gets the index-th element of the buffer.
+	 * @param index is the index into the multipart message.
+	 * @return the pointer to the buffer at position @a index.
+	 */
 	char *GetBuffer(int index);
+
+	/**
+	 * Gets the size of one of the parts.
+	 * @param index is the index into the multipart message.
+	 * @return the size of the buffer at position @a index.
+	 */
 	int GetBufferLength(int index);
 
+	/**
+	 * Resets the array without changing the memory structure.
+	 */
 	void Reset();
 
+	/**
+	 * Gets the number of parts in the message.
+	 * @return the number of blocks in the message.
+	 */
 	int GetParts()       { return top_index+1; }
+
+	/**
+	 * Gets the raw representation of the multipart message.
+	 * @return the pointer to the internal buffer.
+	 */
 	void *GetRawBuffer() { return system_resource; }
 };
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.14 2004-08-10 22:10:14 gmetta Exp $
+/// $Id: Port.h,v 1.15 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -80,12 +80,14 @@
 #include <yarp/YARPTime.h>
 
 #include "yarp_private/mesh.h"
+#include "yarp_private/Headers.h"
+
 #include <yarp/YARPSemaphore.h>
 #define Sema YARPSemaphore
 #include <yarp/YARPThread.h>
 #define Thread YARPThread
 #include "yarp_private/Sendable.h"
-#include <yarp_private/YARPFragments.h>
+#include "yarp_private/YARPFragments.h"
 #define Fragment Fragments
 #include "yarp_private/BlockSender.h"
 
@@ -137,6 +139,7 @@ public:
 	int deactivated;
 	int protocol_type;
 	int require_ack;
+	int allow_shmem;
 
 	Sema something_to_send;
 	Sema space_available;
@@ -158,6 +161,7 @@ public:
 					 space_available(1),
 					 mutex(1),
 					 require_ack(0),
+					 allow_shmem(1),
 					 network_name(YARP_DEFAULT_NET),
 					 own_name("__null")
     {
@@ -294,7 +298,7 @@ public:
 	void SetOwnName (const YARPString& s) { own_name = s; }
 
 	/**
-	 * Requires the INET address the thread is usign for communicating.
+	 * Requires the INET address the thread is using for communicating.
 	 * If using sockets the return value is a true INET address, otherwise
 	 * a plausible reply is produced. For QNET 0 is returned. This is used
 	 * when asking information about the thread and its managed communication
@@ -321,24 +325,6 @@ public:
 		return ACE_INET_Addr((u_short)0);
 	}
 };
-
-
-#include <yarp/begin_pack_for_net.h>
-/**
- * No documentation yet for this class.
- */
-class NewFragmentHeader
-{
-public:
-	NetInt32 length;
-	unsigned char checker;
-	char tag;
-	char more;
-	char first;
-
-	NewFragmentHeader() { checker='~';}
-} PACKED_FOR_NET;
-#include <yarp/end_pack_for_net.h>
 
 ///
 ///
@@ -432,6 +418,7 @@ public:
 	int add_header;
 	int expect_header;
 	int require_ack;
+	int allow_shmem;
 
 	/// the list of output threads.
 	MeshOf<OutputTarget> targets;
@@ -523,6 +510,7 @@ public:
 		complete_msg_thread(0,0),
 		name(nname),
 		require_ack(0),
+		allow_shmem(1),
 		ignore_data(0),
 		network_name(YARP_DEFAULT_NET)
 	{ 
@@ -549,6 +537,7 @@ public:
 		list_mutex(1),
 		out_mutex(1),
 		require_ack(0),
+		allow_shmem(1),
 		ignore_data(0),
 		complete_terminate(0,0),
 		complete_msg_thread(0,0),
@@ -823,6 +812,18 @@ public:
 	 * @return 1 if the communication code is using replies.
 	 */
 	int GetRequireAck() { return require_ack; }
+
+	/**
+	 * Sets the allow shared memory flag into the communication code.
+	 * @param flag is 1 if the code has to permit shared memory connections with the remote peer.
+	 */
+	void SetAllowShmem(int flag) { allow_shmem = flag; }
+
+	/**
+	 * Gets the allow shared memory flag.
+	 * @return 1 if the communication code allows establishing shared memory connections.
+	 */
+	int GetAllowShmem(void) { return allow_shmem; }
 };
 
 

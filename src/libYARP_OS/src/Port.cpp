@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.24 2004-08-11 17:34:58 babybot Exp $
+/// $Id: Port.cpp,v 1.25 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -123,9 +123,10 @@ void safe_printf(char *format,...)
 #define HEADER_CT (4)
 #define MAX_FRAGMENT (4)
 
-//#define DEBUG_DISABLE_SHMEM 1
+///#define DEBUG_DISABLE_SHMEM 1
 
-/// this is because SHMEM alloc is not implemented in ACE for QNX6.
+/// this is because SHMEM alloc is not implemented in ACE 5.3.something for QNX6.
+/// need to figure out what's going on on newer versions.
 #ifdef __QNX6__
 #define DEBUG_DISABLE_SHMEM 1
 #endif
@@ -224,7 +225,7 @@ void OutputTarget::Body ()
 	/// see overridden Begin()
 
 #if defined(__QNX6__) || defined(__LINUX__)
-  signal (SIGPIPE, SIG_IGN);
+	signal (SIGPIPE, SIG_IGN);
 #endif
 	int success = YARP_OK;
 	NewFragmentHeader header;
@@ -301,7 +302,7 @@ void OutputTarget::Body ()
 			bool same_machine = YARPNameService::VerifyLocal (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_host_addr(), iplocal, network_name.c_str());
 
 			///if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
-			if (same_machine)
+			if (same_machine && allow_shmem)
 			{
 				/// going into SHMEM mode.
 				protocol_type = YARP_SHMEM;
@@ -314,7 +315,6 @@ void OutputTarget::Body ()
 			else
 #endif
 			{
-				/// LATER: must do proper bailout if locate fails.
 				///
 				/// LATER: do proper check. 
 				/// 	must always succeed. Any protocol is fine but QNET
@@ -392,7 +392,7 @@ void OutputTarget::Body ()
 			bool same_machine = YARPNameService::VerifyLocal (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_host_addr(), iplocal, network_name.c_str());
 
 			///if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
-			if (same_machine)
+			if (same_machine && allow_shmem)
 			{
 				/// going into SHMEM mode.
 				protocol_type = YARP_SHMEM;
@@ -1063,7 +1063,7 @@ void Port::Body()
 							target->network_name = network_name;
 							target->target_pid = NULL;
 							target->protocol_type = protocol_type;
-							//printf("SET REQ ACK %d\n", GetRequireAck());
+							target->allow_shmem = allow_shmem;
 							target->SetRequireAck (GetRequireAck());
 							target->SetOwnName (name);
 
@@ -1103,9 +1103,9 @@ void Port::Body()
 
 							
 #ifndef DEBUG_DISABLE_SHMEM
-							if (same_machine)
+							if (same_machine && allow_shmem)
 							{
-								/// go into UDP-SHMEM.
+								/// go into TCP-SHMEM.
 								target = targets.GetByLabel (buf);
 								if (target == NULL)
 								{
@@ -1117,6 +1117,7 @@ void Port::Body()
 									target->network_name = network_name;
 									target->target_pid = NULL;
 									target->protocol_type = YARP_UDP;
+									target->allow_shmem = allow_shmem;
 									target->SetOwnName (name);
 
 									target->Begin();
@@ -1140,6 +1141,7 @@ void Port::Body()
 									target->network_name = network_name;
 									target->target_pid = NULL;
 									target->protocol_type = protocol_type;
+									target->allow_shmem = allow_shmem;
 									target->SetOwnName (name);
 
 									target->Begin();
@@ -1153,8 +1155,8 @@ void Port::Body()
 								}
 							}
 
-						}	/// end if (VerifySame)
-					}
+						}	/// end if (same_net)
+					}	/// if !MCAST 
 
 					list_mutex.Post ();
 				}
@@ -1365,8 +1367,6 @@ void Port::Body()
 			case MSG_ID_DETACH_IN:
 				{
 					ACE_DEBUG ((LM_DEBUG, "*** received detach request for %s\n", buf+1));
-
-					ACE_OS::printf ("DETACH_IN received\n");
 
 					YARPUniqueNameID needclose;
 					needclose = *pid;

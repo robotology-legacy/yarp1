@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.h,v 1.5 2004-08-11 17:34:58 babybot Exp $
+/// $Id: BlockSender.h,v 1.6 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -84,14 +84,12 @@ extern int __debug_level;
  * implementation.
  */
 
-#ifdef __QNX4__
-#	include <sys/sendmx.h>
-#else
-
 using namespace std;
 
 /**
- * must match Block class in YARPMultipartMessage implementation 
+ * It must match Block class in YARPMultipartMessage implementation. This is
+ * an old class name/implementation that was found on QNX4 where all this started
+ * out.
  */
 class _mxfer_entry
 {
@@ -113,7 +111,6 @@ public:
 };
 
 #define _setmx(p,b,l) (p)->_set((b),(l))
-#endif
 
 /**
  * Wraps over the block entry type.

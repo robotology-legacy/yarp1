@@ -52,11 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Sendables.h,v 1.3 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: Sendables.h,v 1.4 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 #ifndef SENDABLES_H_INC
 #define SENDABLES_H_INC
+
+/**
+ * \file Sendables.h This file contains classes that help in managing lists of
+ * Sendable objects.
+ */
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
@@ -72,15 +77,30 @@
 
 extern YARPSemaphore refcounted_sema;
 
-
+/**
+ * PSendable is a simple class that manages a pointer to a Sendable object.
+ */
 class PSendable
 {
 public:
+	/** A pointer to a Sendable object. */
 	Sendable *sendable;
+
+	/** 
+	 * Constructor. 
+	 * @param nsendable is a pointer to a sendable to associate to this object.
+	 */
 	PSendable(Sendable *nsendable=NULL) { sendable = nsendable; }
 
+	/**
+	 * Gets the content of this object: i.e. the pointer to the sendable.
+	 * @return a pointer to the Sendable object managed by this object.
+	 */
 	Sendable *Content() { return sendable; }
 
+	/**
+	 * Destructor.
+	 */
 	~PSendable()
 	{
 		if (sendable!=NULL)
@@ -96,11 +116,20 @@ public:
 	int operator < (const PSendable& s) const { ACE_UNUSED_ARG(s); return 0; }
 };
 
+
+/**
+ * Sendables is a list of PSendable objects.
+ */
 class Sendables
 {
 public:
+	/** This is a YARPList of PSendable objects. */
 	YARPList<PSendable> sendables;
 
+	/**
+	 * Adds a sendable to the list.
+	 * @param s is the Sendable to be added to the list.
+	 */
 	void PutSendable(Sendable *s)
 	{
 		refcounted_sema.Wait();
@@ -119,21 +148,30 @@ public:
 		refcounted_sema.Post();
 	}
 
+	/**
+	 * Adds a sendable to the list (calls PutSendable()).
+	 * @param s is the Sendable to be added to the list.
+	 */
 	void TakeBack(Sendable *s)
 	{
 		PutSendable(s);
 	}
   
+	/**
+	 * Gets the last sendable on the list.
+	 * @return a pointer to a Sendable object. The object has been removed from
+	 * the list.
+	 */
 	Sendable *GetSendable()
 	{
 		Sendable *s = NULL;
 		refcounted_sema.Wait();
-		YARPList<PSendable>::iterator cursor(sendables); ///= sendables.end();
+		YARPList<PSendable>::iterator cursor(sendables); //= sendables.end();
 		cursor.go_tail();
 
-		if (!sendables.is_empty()) ///sendables.begin() != sendables.end())
+		if (!sendables.is_empty()) //sendables.begin() != sendables.end())
 		{
-			///--cursor;
+			//--cursor;
 			s = (*cursor).sendable;
 			(*cursor).sendable = NULL;
 			sendables.pop_back();	
@@ -146,15 +184,29 @@ public:
 	}
 };
 
+
+/**
+ * SendablesOf is a template class that manages a list of generic sendables.
+ */
 template <class T>
 class SendablesOf : public Sendables
 {
 public:
+	/**
+	 * Adds a sendable to the list.
+	 * @param s is the sendable to add to the list. It has the same type
+	 * of the template argument T.
+	 */
 	void Put(T *s)
 	{
 		PutSendable(s);
 	}
 
+	/**
+	 * Gets a sendable from the list.
+	 * @return the last sendable from the list. It has the same type
+	 * of the template argument T.
+	 */
 	T *Get()
 	{
 		T *t = (T*)GetSendable();

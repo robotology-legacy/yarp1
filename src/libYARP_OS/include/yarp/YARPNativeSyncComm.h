@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeSyncComm.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
+/// $Id: YARPNativeSyncComm.h,v 1.4 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 /*
@@ -70,6 +70,11 @@
 
 #ifndef YARPNativeSyncComm_INC
 #define YARPNativeSyncComm_INC
+
+/**
+ * \file YARPNativeSyncComm.h It contains the definition of the synchronous communication
+ * model for the QNX protocol.
+ */
 
 #include <yarp/YARPConfig.h>
 #include <yarp/YARPAll.h>
@@ -84,23 +89,104 @@
 
 #ifdef __QNX__
 
+/**
+ * This class implements the synchronous communication over QNX channels. This
+ * comes naturally on QNX and, actually socket communication is modeled after the
+ * QNX model. This is, differently than sockets, always synchronous.
+ */
 class YARPNativeSyncComm
 {
 public:
+	/**
+	 * Sends a buffer to a remote peer.
+	 * @param dest is the destination of the message identified by a YARPNameID class.
+	 * @param buffer is the buffer to be sent.
+	 * @param buffer_length is the length of the buffer.
+	 * @param return_buffer is the buffer that will contain the reply to the message.
+	 * @param return_buffer_length is the length of the reply message.
+	 * @return YARP_OK on success.
+	 */
 	static int Send(YARPNameID dest, char *buffer, int buffer_length, char *return_buffer, int return_buffer_length);
+
+	/**
+	 * Blocks to receive a message from a remote peer. This is the first function called
+	 * when receiving a message.
+	 * @param src is the local address (this is not related with the remote peer address).
+	 * @param buffer is the buffer for receiving the message.
+	 * @param buffer_length is the length of the receiving buffer.
+	 * @return the ID of the remote peer (protocol and id for replying).
+	 */
 	static YARPNameID BlockingReceive(YARPNameID src, char *buffer, int buffer_length);
+
+	/**
+	 * Polls to see whether there's any pending message. This can be also the first function
+	 * called when receiving as an alternative to the blocking receive.
+	 * @param src is the local address (this is not related with the remote peer address).
+	 * @param buffer is the buffer for receiving the message.
+	 * @param buffer_length is the length of the receiving buffer.
+	 * @return the ID of the remote peer (protocol and id for replying).
+	 */
 	static YARPNameID PollingReceive(YARPNameID src, char *buffer, int buffer_length);
+
+	/**
+	 * Continues the reception of a message. A polling or blocking receive should have been
+	 * called and the return id stored somewhere.
+	 * @param src is the address of the remote peer (the one returned by polling or blocking recv).
+	 * @param buffer is the buffer for receiving the message piece.
+	 * @param buffer_length is the length of the receiving buffer.
+	 * @return YARP_OK on success.
+	 */
 	static int ContinuedReceive(YARPNameID src, char *buffer, int buffer_length);
+
+	/**
+	 * Replies to the sender.
+	 * @param src is the address of the remote peer (the one returned by polling or blocking recv).
+	 * @param buffer is the buffer containing the reply message.
+	 * @param buffer_length is the length of the buffer.
+	 * @return YARP_OK on success.
+	 */
 	static int Reply(YARPNameID src, char *buffer, int buffer_length);
+
+	/**
+	 * Sends a message to a remote peer. This method sends a multi-part message and
+	 * waits for a multi-part response from the peer.
+	 * @param dest is the destination of the message identified by a YARPNameID class.
+	 * @param msg is the multipart message to be sent.
+	 * @param return_msg is the reply to the message.
+	 * @return YARP_OK on success.
+	 */
 	static int Send(YARPNameID dest, YARPMultipartMessage& msg, YARPMultipartMessage& return_msg);
+
+	/**
+	 * Blocks to receive a message from a remote peer. This is the first function called
+	 * when receiving a message.
+	 * @param src is the local address (this is not related with the remote peer address).
+	 * @param msg is the multipart message.
+	 * @return the ID of the remote peer (protocol and id for replying).
+	 */
 	static YARPNameID BlockingReceive(YARPNameID src, YARPMultipartMessage& msg);
+
+	/**
+	 * Polls to see whether there's any pending message. This can be also the first function
+	 * called when receiving as an alternative to the blocking receive.
+	 * @param src is the local address (this is not related with the remote peer address).
+	 * @param msg is the multipart message.
+	 * @return the ID of the remote peer (protocol and id for replying).
+	 */
 	static YARPNameID PollingReceive(YARPNameID src, YARPMultipartMessage& msg);
+
+	/**
+	 * Replies a multipart message to the sender.
+	 * @param src is the address of the remote peer (the one returned by polling or blocking recv).
+	 * @param msg is a multipart message.
+	 * @return YARP_OK on success.
+	 */
 	static int Reply(YARPNameID src, YARPMultipartMessage& msg);
 };
 
 #else
 
-/// redefint type in order to use Socket as native under NT/Linux
+/// redefined type in order to use Socket as native under NT/Linux.
 #include <yarp/YARPSocketSyncComm.h>
 #define YARPNativeSyncComm YARPSocketSyncComm
 

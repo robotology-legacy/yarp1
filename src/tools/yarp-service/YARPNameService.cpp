@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.7 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.8 2004-08-21 17:53:47 gmetta Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -74,7 +74,8 @@ using namespace std;
 // need to be able to make directories
 // check how to do this in a portable way...
 #include <ace/OS.h>
-#include <ace/OS_NS_unistd.h>
+/// This doesn't compile under ACE 5.3.3, is it needed?
+///#include <ace/OS_NS_unistd.h>
 #include <ace/INET_Addr.h>
 
 

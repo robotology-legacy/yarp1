@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketNameService.h,v 1.6 2004-08-10 13:42:07 babybot Exp $
+/// $Id: YARPSocketNameService.h,v 1.7 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -74,6 +74,11 @@
 #include <ace/config.h>
 #include <ace/OS.h>
 
+/**
+ * \file YARPSocketNameService.h This is the interface to the name server and the
+ * creation and management of socket based endpoints.
+ */
+
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
@@ -85,46 +90,148 @@
 #include <yarp/YARPNameID_defs.h>
 #include <yarp/YARPSocket.h>
 
-///
-///
-/// LATER: This class becomes the real name service interface.
-///
+
+/**
+ * YARPSocketNameService is the socket based interface (using a tcp channel) to the
+ * name server. It allows conveniently registering a name, locating it, or unregistering it.
+ * Also, it allows checking whether a certain IP address belongs to a network name and
+ * verifying whether two IP's are on the same machine.
+ */
 class YARPSocketNameService
 {
 public:
-	/// register on the remote server and get the port and IP.
+	/**
+	 * Registers a name on the name server and gets the parameters of the connection
+	 * back.
+	 * @param namer is a reference to a namer object (typically a global instance will
+	 * be created by the library).
+	 * @param name is the symbolic name to register.
+	 * @param network_name is the symbolic name of the network (see namer.conf file).
+	 * @param reg_type is the protocol to register. This is one of the YARPProtocols enumeration.
+	 * @param extra_param is an integer which has various uses depending on the protocol. For udp
+	 * names contains the number of ports requested to the name server.
+	 * @return a pointer to a name ID class (YARPUniqueNameID) containing the parameters and 
+	 * result of the registration. Returns always a valid object, the user must take care
+	 * of deleting it using delete.
+	 */
 	static YARPUniqueNameID* RegisterName (YARPNameClient& namer, const char *name, const char *network_name, int reg_type = YARP_DEFAULT_PROTOCOL, int extra_param = YARP_PROTOCOL_REGPORTS);
 
-	/// get a remote port and ID of a given channel.
+	/**
+	 * Locates a name on the name server and returns the parameters required to form a
+	 * connection to the port identified by the symbolic name.
+	 * @param namer is a reference to a namer object (typically a global instance will
+	 * be created by the library).
+	 * @param name is the symbolic name to locate.
+	 * @param network_name is the symbolic name of the network (see namer.conf file).
+	 * @param reg_type is the protocol to register. This is one of the YARPProtocols enumeration.
+	 * @return a pointer to a name ID class (YARPUniqueNameID) containing the parameters and 
+	 * result of the registration. Returns always a valid object, the user must take care
+	 * of deleting it using delete.
+	 */
 	static YARPUniqueNameID* LocateName (YARPNameClient& namer, const char *name, const char *network_name, int reg_type = YARP_DEFAULT_PROTOCOL);
 
-	/// unregister from the name server.
+	/**
+	 * Deletes a name from the name server.
+	 * @param namer is a reference to a namer object (typically a global instance will
+	 * be created by the library).
+	 * @param name is the name to delete.
+	 * @param reg_type is the protocol the name belongs to.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	static int UnregisterName (YARPNameClient& namer, const char *name, int reg_type);
 
-	/// verifies <ip> and <netname> belong to the same network.
+	/**
+	 * Verifies whether @a ip and @a netname belong to the same network.
+	 * @param namer is a reference to a namer object (typically a global instance will
+	 * be created by the library).
+	 * @param ip is the IP address, typically the caller.
+	 * @param netname is the name of the network.
+	 * @param if_name is the interface name, this is returned by the name server.
+	 * @return true if @a ip and @a netname belong to the same network.
+	 */
 	static bool VerifySame (YARPNameClient& namer, const char *ip, const char *netname, YARPString& if_name);
 
-	/// verifies <rem_ip> and <loc_ip> belong to the same machine.
+	/**
+	 * Verifies whether @a rem_ip and @a loc_ip are on the same machine.
+	 * @param namer is a reference to a namer object (typically a global instance will
+	 * be created by the library).
+	 * @param rem_ip is one of the IP numbers to compare.
+	 * @param loc_ip is the second argument of the comparison.
+	 * @param netname is the name of the network the IP have been registered on.
+	 * @return true if  @a rem_ip and @a loc_ip are on the same machine, false otherwise.
+	 */
 	static bool VerifyLocal (YARPNameClient& namer, const char *rem_ip, const char *loc_ip, const char *netname);
 };
 
 
-///
-///
-/// endpoint manager, this handles the real socket/thread ID's.
-///
+/**
+ * YARPSocketEndpointManager manages socket communication endpoints. It contains methods
+ * to instantiate, manage, and close endpoints. Enpoints contain sockets with various
+ * properties, this is just a convenience class for dealing with creation and setting
+ * parameters.
+ */
 class YARPSocketEndpointManager
 {
 public:
+	/**
+	 * Gets the socket associated with the caller thread. It queries the global list
+	 * of associacions (thead, socket) and returns the socket object of the current
+	 * thread. In YARP there's one socket per thread.
+	 * @return a pointer to the socket object associated with the caller thread.
+	 */
 	static YARPNetworkObject *GetThreadSocket(void);
 
-	/// allocates socket (either in or out).
+	/**
+	 * Creates an input endpoint and associates it with the caller.
+	 * @param name is the specification of the local endpoint 
+	 * (e.g. port to listen for incoming connections).
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	static int CreateInputEndpoint(YARPUniqueNameID& name);
+
+	/**
+	 * Creates an output endpoint and associates it with the caller.
+	 * @param name is the specification of the local endpoint (e.g. the local address). 
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	static int CreateOutputEndpoint(YARPUniqueNameID& name);
+
+	/**
+	 * Connects the local output endpoint to a remote input endpoint.
+	 * @param dest is the specification of the remote peer.
+	 * @param own_name is the name of the port issuing the call (this is passed
+	 * to the remote for identifying the caller).
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	static int ConnectEndpoints(YARPUniqueNameID& dest, const YARPString& own_name);
+
+	/**
+	 * Closes the endpoint and frees memory.
+	 * @param dest is the specification of the endpoint to close (e.g. protocol).
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	static int Close(YARPUniqueNameID& dest);
+
+	/**
+	 * Closes all MCAST connections. This is a special method that talks to an
+	 * output socket to terminate all MCAST connections. It tries to close all
+	 * connections by talking to the listeners.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	static int CloseMcastAll(void);
+
+	/**
+	 * Gets the number of clients to an output MCAST connection. This is useful
+	 * for deciding when to terminate multicasting packets on the network.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	static int GetNumberOfClients(void);
+
+	/**
+	 * For TCP sockets it disables the Nagle's algorithm. This can have an 
+	 * impact on the network performance, use with care.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	static int SetTCPNoDelay(void);
 
 	/**

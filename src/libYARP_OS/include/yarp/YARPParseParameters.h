@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPParseParameters.h,v 1.3 2004-07-30 17:41:22 babybot Exp $
+/// $Id: YARPParseParameters.h,v 1.4 2004-08-21 17:53:46 gmetta Exp $
 ///
 /// Simple parser facility for program arguments. July 2003 -- by nat
 /// usage: -switch parameter
@@ -71,14 +71,71 @@
 #ifndef __YARPPARSEPARAMETERS__
 #define __YARPPARSEPARAMETERS__
 
+/**
+ * \file YARPParseParameters.h These are methods to parse the argument
+ * list for strings and subsequently for arguments associated with the string.
+ */
 #include <yarp/YARPString.h>
 
+/**
+ * This is a namespace containing the functions that do different type
+ * of parsing.
+ */
 namespace YARPParseParameters
 {
+	/**
+	 * Parse the argv array for a string argument. It looks for @a key and then
+	 * assume the next argument is a string associated with @a key.
+	 * @param argc is the length of the @argv array.
+	 * @param argv is an array to pointer to strings.
+	 * @param key is the string to search in @a argv.
+	 * @param out is the return argument, the string read from @a argv.
+	 * @return true if the @a key has been found, false otherwise.
+	 */
 	bool parse (int argc, char *argv[], const YARPString &key, YARPString &out);
+
+	/**
+	 * Parse the argv array for a boolean argument (on/off option). 
+	 * It looks for @a key and assumes the presence of the key to 
+	 * specify an ON option.
+	 * @param argc is the length of the @argv array.
+	 * @param argv is an array to pointer to strings.
+	 * @param key is the string to search in @a argv.
+	 * @return true if the @a key has been found, false otherwise.
+	 */
 	bool parse (int argc, char *argv[], const YARPString &key);
+
+	/**
+	 * Parse the argv array for an integer argument.
+	 * @param argc is the length of the @argv array.
+	 * @param argv is an array to pointer to strings.
+	 * @param key is the string to search in @a argv.
+	 * @param out is a pointer to the integer that will contain the value.
+	 * @return true if the @a key has been found and the value stored in @out, 
+	 * false otherwise.
+	 */
 	bool parse (int argc, char *argv[], const YARPString &key, int *out);
+
+	/**
+	 * Parse the argv array for a string argument (represented as char *).
+	 * @param argc is the length of the @argv array.
+	 * @param argv is an array to pointer to strings.
+	 * @param key is the string to search in @a argv.
+	 * @param out is a pointer to the buffer to contain the string.
+	 * @return true if the @a key has been found and the value stored in @out, 
+	 * false otherwise.
+	 */
 	bool parse (int argc, char *argv[], const YARPString &key, char *out);
+
+	/**
+	 * Parse the argv array for a double precision numeric value.
+	 * @param argc is the length of the @argv array.
+	 * @param argv is an array to pointer to strings.
+	 * @param key is the string to search in @a argv.
+	 * @param out is a pointer to the numeric value.
+	 * @return true if the @a key has been found and the value stored in @out, 
+	 * false otherwise.
+	 */
 	bool parse (int argc, char *argv[], const YARPString &key, double *out);
 };
 

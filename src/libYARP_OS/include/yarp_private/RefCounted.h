@@ -52,14 +52,18 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: RefCounted.h,v 1.3 2004-07-09 13:46:02 eshuy Exp $
+/// $Id: RefCounted.h,v 1.4 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
 #ifndef REFCOUNTED_H_INC
 #define REFCOUNTED_H_INC
 
-///
+/**
+ * \file RefCounted.h This file contains certain operations on 
+ * ref counted buffers.
+ */
+
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
@@ -84,9 +88,9 @@ extern Sema refcounted_sema;
 
 extern Sema allocation_sema;
 
-///
-/// this is just an "atomic" counter (add/sub operations are atomized).
-///
+/**
+ * RefCounted is just an "atomic" counter (add/sub operations are atomized).
+ */
 class RefCounted
 {
 public:
@@ -97,24 +101,67 @@ public:
 	Sema mutex;
 #endif
 
+	/**
+	 * Gets the number of references to this object.
+	 * @return the number of references.
+	 */
 	int GetReferenceCount() { return ref_count; }
+
+	/**
+	 * Defaul constructor.
+	 */
 	RefCounted ();
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~RefCounted();
+
+	/**
+	 * Add a reference to the counted object.
+	 */
 	void AddRef();
 
-	// set refcount to zero without destruction
+	/**
+	 * Sets refcount to zero without destruction.
+	 */
 	void ZeroRef();
+
+	/**
+	 * Removes a reference to the object.
+	 */
 	void RemoveRef();
+
+	/**
+	 * Destroys this object.
+	 * @return always 1.
+	 */
 	virtual int Destroy();
+
+	/**
+	 * Clones the object. Tells whether the object can be cloned. 
+	 * Is it still used?
+	 * @param needed if it's not NULL then asks whether the object is to be cloned
+	 * and returns true in the variable. If NULL does nothing.
+	 * @return always NULL.
+	 */
 	virtual void *Clone(int *needed = NULL);
+
+	/**
+	 * Waits on a semaphore.
+	 */
 	void Wait();
+
+	/** 
+	 * Posts a semaphore.
+	 */
 	void Post();
 };
 
 
-//#include <sys/osinfo.h>
-
-// this is a ref counted buffer with ownership and a few util functions.
+/**
+ * Buffer is a ref counted buffer with ownership and a few utility functions.
+ */
 class Buffer : public RefCounted
 {
 public:
@@ -122,33 +169,101 @@ public:
 	int len;
 	int owned;
 
+	/**
+	 * Gets the buffer pointer.
+	 * @return a char pointer to the managed buffer.
+	 */
 	char *GetRawBuffer() { return memory; }
+
+	/**
+	 * Gets the size of the buffer.
+	 * @return the size of the buffer in bytes.
+	 */
 	int GetLength() { return len; }
+
+	/**
+	 * Gets the number of references to the buffer.
+	 * @return the number of references to the managed buffer.
+	 */
 	int GetReferenceCount() { return ref_count; }
 	
+	/**
+	 * Default constructor.
+	 */
 	Buffer();
+
+	/**
+	 * Creates a buffer of size @a nlen.
+	 * @param nlen the size of the buffer in bytes.
+	 */
 	Buffer(int nlen);
+
+	/**
+	 * Creates a counted buffer from an existing one. Memory is not copied.
+	 * @param n_memory is the buffer (must be allocated).
+	 * @param n_len the size of the buffer.
+	 * @param n_owned ownership flag for destruction (use new/delete).
+	 */
 	Buffer(char *n_memory, int n_len, int n_owned = 0);
+
+	/**
+	 * Sets the buffer.
+	 * @param n_memory is the buffer (must be allocated).
+	 * @param n_len the size of the buffer.
+	 * @param n_owned ownership flag for destruction (use new/delete).
+	 */
 	void Set(char *n_memory, int n_len, int n_owned = 0);
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~Buffer();
+
+	/**
+	 * Clone method as for the RefCounted class.
+	 * Copies the buffer into a new buffer and decrements the counter by one.
+	 */
 	virtual void *Clone(int *needed = NULL);
 };
 
-
-// Intended to be applied to RefCounted objects only
+/**
+ * CountedPtr is a template for counted objects intended to be applied 
+ * to RefCounted objects only.
+ */
 template <class T>
 class CountedPtr
 {
 public:
 	T *ptr;
 
+	/**
+	 * Default constructor.
+	 */
 	CountedPtr() { ptr = NULL; }
+
+	/**
+	 * Destructor.
+	 */
 	~CountedPtr() { Reset(); }
 
+	/**
+	 * Builds a new counted object starting from a pointer
+	 * to the internal buffer.
+	 * @param nptr is the pointer to create the buffer from.
+	 */
 	CountedPtr(T *nptr) { ptr = NULL; Take(nptr); }
 
+	/**
+	 * Returns the internal pointer.
+	 * @return the internal pointer to the buffer.
+	 */
 	T *Ptr() { return ptr; }
 
+	/**
+	 * Sets the internal pointer to the buffer provided.
+	 * @param nptr the buffer to attach to. Adds a reference
+	 * to the pointed object.
+	 */
 	void Set(T *nptr)
 	{
 		Reset();
@@ -157,18 +272,31 @@ public:
 		ptr->AddRef();
 	}
 
+	/**
+	 * Attaches to the esisting object without incrementing
+	 * the ref count.
+	 * @param nptr is the object to attach to.
+	 */
 	void Take(T *nptr)
 	{
 		Reset();
 		ptr = nptr;
 	}
 
-	void Reset()
+	/**
+	 * Resets the object. Detaches from the pointed object and
+	 * removes its reference to it.
+	 */
+	void Reset(void)
 	{ 
 		if (ptr!=NULL) ptr->RemoveRef(); 
 		ptr = NULL; 
 	}
 
+	/**
+	 * Switches pointers with a peer.
+	 * @param peer is the peer object to switch ownership with.
+	 */
 	void Switch(CountedPtr<T>& peer)
 	{
 		T *tmp = ptr;
@@ -176,7 +304,10 @@ public:
 		peer.ptr = tmp;
 	}
 
-	void MakeIndependent()
+	/**
+	 * Detaches from the attached object by cloning the buffer.
+	 */
+	void MakeIndependent(void)
 	{
 		int needed;
 		T *nptr;

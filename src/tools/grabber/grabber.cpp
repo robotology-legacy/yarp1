@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: grabber.cpp,v 1.7 2004-08-05 17:11:56 babybot Exp $
+/// $Id: grabber.cpp,v 1.8 2004-08-21 17:53:47 gmetta Exp $
 ///
 ///
 
@@ -57,24 +57,26 @@
 #include <yarp/YARPParseParameters.h>
 
 #include <yarp/YARPRobotHardware.h>
-#define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
-
 #include <iostream>
+
+#define MY_STRINGS 512
 
 ///
 /// global params.
 int		_sizex		= -1;
 int		_sizey		= -1;
 int		_yoffset	= 0;
-char	_name[512];
-char	_fgdataname[512];
-char	_netname[512];
+char	_name[MY_STRINGS];
+char	_fgdataname[MY_STRINGS];
+char	_netname[MY_STRINGS];
 bool	_simu		= false;
 int		_board_no	= 0;
 bool	_fgnetdata	= false;
 bool	_help		= false;
 
-extern int __debug_level;
+bool	_sharedmem  = true;
+int		_protocol	= YARP_MCAST;
+
 
 int PrintHelp (void)
 {
@@ -88,7 +90,8 @@ int PrintHelp (void)
 	ACE_OS::fprintf (stdout, "--net <str>, define the network name (in a multi-network configuration)\n");
 	ACE_OS::fprintf (stdout, "--o <int>, set acquisition vertical offset\n");
 	ACE_OS::fprintf (stdout, "--f, activate external control of acquisition parameters (through YARPBottle messages)\n");
-
+	ACE_OS::fprintf (stdout, "--shmem, disable shared memory communication on output\n");
+	ACE_OS::fprintf (stdout, "--protocol <str>, preferred output protocol (default MCAST)\n");
 	return YARP_OK;
 }
 
@@ -137,11 +140,35 @@ int ParseParams (int argc, char *argv[])
 		ACE_OS::fprintf (stdout, "simulating a grabber...\n");
 		_simu = true;
 	}
+
+	if (YARPParseParameters::parse(argc, argv, "-shmem"))
+	{
+		ACE_OS::fprintf (stdout, "SHMEM is disabled\n");
+		_sharedmem = false;
+	}
 	
 	if (YARPParseParameters::parse(argc, argv, "-net", tmps))
 	{
 		ACE_OS::fprintf (stdout, "sending to network : %s\n", tmps.c_str());
 		ACE_OS::sprintf (_netname, "%s", tmps.c_str());
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "-protocol", tmps))
+	{
+		ACE_OS::fprintf (stdout, "the output protocol is: %s\n", tmps.c_str());
+		if (strncmp (tmps.c_str(), "tcp", 3) == 0)
+			_protocol = YARP_TCP;
+		else if (strncmp (tmps.c_str(), "mcast", 4) == 0)
+			_protocol = YARP_MCAST;
+		else if (strncmp (tmps.c_str(), "udp", 3) == 0)
+			_protocol = YARP_UDP;
+		else if (strncmp (tmps.c_str(), "qnet", 3) == 0)
+			_protocol = YARP_QNET;
+		else
+		{
+			_protocol = YARP_MCAST;
+			ACE_OS::fprintf (stdout, "protocol %s is not recognized, default to MCAST\n", tmps.c_str());
+		}
 	}
 
 	if (YARPParseParameters::parse(argc, argv, "-f"))
@@ -291,7 +318,8 @@ int mainthread::_runAsSimulation (void)
 	img.Resize (_sizex, _sizey);
 	img.Zero ();
 
-	DeclareOutport(outport);
+	YARPOutputPortOf<YARPGenericImage> outport(YARPOutputPort::DEFAULT_OUTPUTS, _protocol);
+	outport.SetAllowShmem(_sharedmem);
 
 	outport.Register (_name, _netname);
 
@@ -333,10 +361,9 @@ int mainthread::_runAsCartesian (void)
 	YARPImageOf<YarpPixelBGR> img;
 	img.Resize (_sizex, _sizey);
 
-	DeclareOutport(outport);
-
+	YARPOutputPortOf<YARPGenericImage> outport(YARPOutputPort::DEFAULT_OUTPUTS, _protocol);
+	outport.SetAllowShmem(_sharedmem);
 	outport.Register (_name, _netname);
-	outport.SetRequireAck(1);
 
 	/// params to be passed from the command line.
 	grabber.initialize (_board_no, _sizex, _sizey);

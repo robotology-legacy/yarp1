@@ -387,7 +387,7 @@ SOURCE=..\include\yarp_private\BlockSender.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\yarp_private\debug.h
+SOURCE=..\include\yarp_private\Headers.h
 # End Source File
 # Begin Source File
 

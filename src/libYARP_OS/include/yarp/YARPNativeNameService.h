@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.h,v 1.4 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPNativeNameService.h,v 1.5 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 /*
@@ -71,6 +71,9 @@
 #ifndef YARPNativeNameService_INC
 #define YARPNativeNameService_INC
 
+/**
+ * \file YARPNativeNameService.h Classes and methods for the management of QNX endpoints.
+ */
 #include <yarp/YARPConfig.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
@@ -80,27 +83,80 @@
 #include <yarp/YARPAll.h>
 #include <yarp/YARPNameID.h>
 
-/// no longer used in QNX6
+/**
+ * YARPNativeNameService used to implement the native name registration on
+ * QNX4.25. It's no longer used on QNX6. This is still here for no specific reason.
+ */
 class YARPNativeNameService
 {
 public:
-	/* zero if successful */
+	/** 
+	 * Registers a name on the QNX4 protocol. This doesn't require the 
+	 * name server since QNX4 has its naming services.
+	 * @param name is the symbolic name to register.
+	 * @return NULL always.
+	 */
 	static YARPUniqueNameID *RegisterName (const char *name);
+
+	/** 
+	 * Locates a name on the QNX4 protocol. This doesn't require the 
+	 * name server since QNX4 has its naming services.
+	 * @param name is the symbolic name to look for.
+	 * @return NULL always.
+	 */
 	static YARPUniqueNameID *LocateName (const char *name);
+
+	/**
+	 * Checks whether the name can be registered on QNX4.
+	 * @return always 0 on QNX6, always 1 on QNX4.
+	 */
 	static int IsNonTrivial (void);
 };
 
-///
-///
-///
+
+/**
+ * YARPNativeEndpointManager deals with creation, use, and deletion of
+ * QNX6 endpoints. If the QNET protocol is selected the port calls these
+ * methods to create and manage the communication channel.
+ */
 class YARPNativeEndpointManager
 {
 public:
-	/// allocates comm channel (in and out).
+	/**
+	 * Creates a QNX6 channel and assign it to the current process.
+	 * @return the channel ID on success, YARP_FAIL on failure.
+	 */
 	static int CreateQnetChannel(void); 
+
+	/**
+	 * This isn't needed on QNX6. It's provided for aestetic reasons.
+	 * @param name is unused.
+	 * @return always YARP_OK on QNX6, YARP_FAIL if called on other systems.
+	 */
 	static int CreateInputEndpoint(YARPUniqueNameID& name);
+
+	/**
+	 * Creates and connects an output endpoint. This method creates a channel 
+	 * that attaches to an existing channel created with CreateQnetChannel().
+	 * @param name contains the specification of the remote peer according to the QNET
+	 * standard: pid, channel ID, and node name.
+	 * @return YARP_OK always, this is probably a mistake.
+	 */
 	static int CreateOutputEndpoint(YARPUniqueNameID& name);
+
+	/**
+	 * Connects two endpoints. This is also a unused method.
+	 * @param dest unused.
+	 * @param own_name unused.
+	 * @return YARP_OK on QNX6, YARP_FAIL on other systems.
+	 */
 	static int ConnectEndpoints(YARPUniqueNameID& dest, const YARPString& own_name);
+
+	/**
+	 * Closes a QNX endpoint/channel.
+	 * @param id is the name ID of the channel to be closed.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	static int Close(YARPUniqueNameID& id);
 };
 

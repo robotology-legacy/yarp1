@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: debug.h,v 1.2 2004-07-30 06:51:26 eshuy Exp $
+/// $Id: debug.h,v 1.3 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 /// WARNING. this file name is looking for a name clash.
@@ -60,6 +60,11 @@
 #ifndef DEBUG_H_INC
 #define DEBUG_H_INC
 
+/**
+ * \file debug.h This header file contains functions useful when debugging
+ * library code.
+ *
+ */
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Log_Msg.h>
@@ -68,8 +73,16 @@
 #	pragma once
 #endif
 
+/** This is a global variable describing the level of verbosing of library debug messages */
 extern int __debug_level;
 
+/** 
+ * Sets the debug level.
+ * @param yarp is the yarp debug level that changes the amount of printing library
+ * code will do.
+ * @param ace is the ace debug level which changes whether ACE will allow LM_DEBUG stuff
+ * to get printed.
+ */
 extern void set_yarp_debug(int yarp, int ace = -1);
 
 #define DEBUG_LEVEL (__debug_level)

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRateThread.h,v 1.4 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: YARPRateThread.h,v 1.5 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -88,14 +88,17 @@
 // #define THREAD_STATS
 //	this is compiled out because it is rather time-consuming.
 
-#if defined(__WIN32__) || defined(__QNX6__) || defined(__LINUX__)
-
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Thread_Manager.h>
 #include <ace/Synch.h>
 #include <ace/Time_Value.h>
 #include <ace/High_Res_Timer.h>
+
+/**
+ * \file YARPRateThread.h This contains definitions for a thread with
+ * periodic activation.
+ */
 
 #ifdef THREAD_STATS
 #include "IterativeStats.h" //from models lib link models.lib/modelsdb.lib
@@ -117,6 +120,13 @@ typedef struct thr_stts
 } thread_statistics;
 #endif
 
+/**
+ * YARPRateThread is the base class for a periodic thread. The user should derive
+ * from this class and implement doInit(), doLoop(), and doRelease() methods. These will
+ * contain the initialization, the main thread code, and the release code respectively.
+ * The thread will wait on a timer and will acivate periodically until termination
+ * is requested.
+ */
 class YARPRateThread 
 {
 protected:
@@ -131,8 +141,21 @@ protected:
 
 	ACE_Auto_Event synchro;	// event for init synchro
 	
+	/**
+	 * The intialization code. This is called once upon thread startup.
+	 */
 	virtual void doInit() =0;
+
+	/**
+	 * The main thread code. This is called periodically whenever the timer
+	 * expires.
+	 */
 	virtual void doLoop() =0;
+
+	/**
+	 * The release code. When the thread receives a termination request it calls
+	 * this code once.
+	 */
 	virtual void doRelease() =0;
 
 #ifdef THREAD_STATS
@@ -142,6 +165,11 @@ protected:
 	ACE_Lock_Adapter<ACE_Thread_Mutex> mutex;
 
 public:
+	/**
+	 * Constructor.
+	 * @param c is the name of thread. Currently unused.
+	 * @param r is the thread interval in milliseconds.
+	 */
 	YARPRateThread(const char *c, int r): name(c)
 	{
 		isRunningF = false;
@@ -153,6 +181,9 @@ public:
 		period.set(0, r*1000);	//period here is usec
 	}
 
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPRateThread(void)
 	{
 		// close the thread
@@ -163,17 +194,27 @@ public:
 
 	}
 
+	/**
+	 * Waits on the internal mutex.
+	 */
 	inline void lock(void)
 	{	
 		// timeout ?
 		mutex.acquire();
 	}
 
+	/**
+	 * Posts the internal mutex.
+	 */
 	inline void unlock(void)
 	{
 		mutex.release();
 	}
 
+	/**
+	 * Starts the thread.
+	 * @param wait is an unused argument.
+	 */
 	virtual void start(bool wait = true)
 	{
 		ACE_UNUSED_ARG (wait);
@@ -207,6 +248,11 @@ public:
 		unlock (); //check the position of this lock() (it was before the wait)
 	}
 
+	/**
+	 * Terminates the thread.
+	 * @param timeout is a flag that tells whether to timeout
+	 * on exit in case the thread code doesn't respond properly.
+	 */
 	void terminate(bool timeout = true)
 	{
 		if (!isRunning())
@@ -265,6 +311,10 @@ public:
 		unlock ();
 	}
 
+	/**
+	 * Sets the thread priority.
+	 * @param p is the thread priority. Warning: this might be OS dependent.
+	 */
 	void setPriority(int p)
 	{
 		thread_priority = p;
@@ -272,6 +322,10 @@ public:
 			ACE_OS::thr_setprio(handle, p);
 	}
 
+	/**
+	 * Gets the thread priority.
+	 * @return the thread priority value.
+	 */
 	int getPriority()
 	{
 		if (isRunning())
@@ -280,6 +334,10 @@ public:
 		return thread_priority;
 	}
 
+	/**
+	 * Sets a new thread interval.
+	 * @param i is the new interval in milliseconds.
+	 */
 	void setInterval(int i)
 	{
 		if (i >= 0)
@@ -298,6 +356,9 @@ public:
 		}
 	}
 
+	/**
+	 * Suspends the thread execution.
+	 */
 	void suspend()
 	{
 		lock();
@@ -311,6 +372,9 @@ public:
 		unlock();
 	}
 
+	/**
+	 * Resumes the thread execution.
+	 */
 	void resume()
 	{
 		lock();
@@ -319,6 +383,10 @@ public:
 		unlock();
 	}
 
+	/**
+	 * Tests whether the thread is running.
+	 * @return true if the thread is in execution.
+	 */
 	bool isRunning(void)
 	{
 		lock ();
@@ -327,6 +395,10 @@ public:
 		return ret;
 	}
 
+	/**
+	 * Tests whether the thread is suspended.
+	 * @return true if the thread is suspended.
+	 */
 	bool isSuspended(void)
 	{
 		lock();
@@ -335,7 +407,16 @@ public:
 		return ret;
 	}
 
+	/**
+	 * Gets the thread name.
+	 * @return the name of the thread.
+	 */
 	const char *getName(void) const { return name.c_str(); }
+
+	/**
+	 * Gets the thread ID.
+	 * @return the ID of the thread (OS specific).
+	 */
 	const int getThreadID(void) const { return thread_id; }
 
 	static void *real_thread(void *p_arg)
@@ -352,17 +433,6 @@ public:
 
 		context->end = false;		
 		ACE_Thread_Manager::instance()->thr_self(context->handle);	//get thread os handle
-		
-		/*
-		char buffer[255];
-		HANDLE w32timer;
-		sprintf (buffer, "Periodic timer%s%u\0", context->name.c_str());
-		w32timer = CreateWaitableTimer (NULL, FALSE, buffer);
-		LARGE_INTEGER tm;
-		tm.LowPart = 0;
-		tm.HighPart = 0;
-		BOOL ret = SetWaitableTimer(w32timer, &tm, context->period.msec(), NULL, NULL, TRUE);
-		*/
 		
 		context->doInit();
 #ifdef THREAD_STATS
@@ -414,314 +484,5 @@ public:
 		return 0;
 	}
 };
-
-#elif defined(__QNX4__)
-
-#error "YARPRateThread: can't compile QNX4, this code is no longer maintained"
-
-/// #ifdef __QNX__
-/// #ifdef __QNX4__		/// not quite sure it's ok on QNX6
-
-#include <yarp/YARPSemaphore.h>
-
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/kernel.h>
-#include <sys/proxy.h>
-#include <sys/wait.h>
-#include <sys/sched.h>
-#include <time.h>
-#include <signal.h>
-#include <process.h>
-
-#ifndef DEFAULT_THREAD_STACK_SIZE
-#define DEFAULT_THREAD_STACK_SIZE 8000
-#endif
-
-// How to use YARPRateThread:
-//	1) Derive from it.
-//	2) Override DoInit, DoLoop, DoRelease pure virtual methods.
-//	3) Use Start, Terminate to start/stop the thread.
-//	4) The constructor takes as argument the period for the timer.
-//	5) DoInit is called once after the thread is started.
-//	6) DoLoop is called periodically (it waits on the timer).
-//	7) DoRelease is called upon calling Terminate.
-//
-class YARPRateThread {
-private:
-	YARPRateThread& operator=(const YARPRateThread&);
-	YARPRateThread(const YARPRateThread&);
-
-protected:
-	char *stack;
-	int pid;			// this was the thread id.
-
-	bool isRunningF;	// running flag.	
-	int period;			// period [ms].
-	const char *name;	// thread name.
-
-	pid_t proxy_end;
-	pid_t proxy_synchro;
-
-	YARPSemaphore   mutex;		// mutex. 
-	
-	timer_t timer;		// waitable timer (a sort of).
-	pid_t proxy_timer;
-	struct itimerspec timer_spec;
-	struct sigevent event;
-
-	virtual void DoInit(void *) =0;
-	virtual void DoLoop(void *) =0;
-	virtual void DoRelease(void *) =0;
-
-public:
-	inline void Lock(void)
-	{	
-		mutex.Wait ();
-	}
-
-	inline void Unlock(void)
-	{
-		mutex.Post ();
-	}
-
-public:
-	YARPRateThread(const char *c, int r, int prio=29) : name(c), mutex(1)
-	{
-		assert (r > 0);
-
-		pid = 0;
-		isRunningF = false;
-		period = r;
-
-		// this is needed for synchro.
-		proxy_synchro = qnx_proxy_attach (0, 0, 0, -1);
-		assert (proxy_synchro >= 0);
-
-		stack = NULL;
-
-		// try to go high priority by default.
-		// this is because I couldn't fix a problem on quit.
-		// this sends actually everything at high priority.
-		int ret = setprio (0, prio);
-		if (ret < 0)
-		{
-			cout << "set priority failed... abort" << endl;
-			ACE_OS::exit (-1);
-		}
-	}
-
-	virtual ~YARPRateThread(void)
-	{
-		// close the thread
-		if (isRunningF) 
-		{
-			isRunningF = false;
-			// force a terminate.
-			Terminate(1);
-		}
-
-		qnx_proxy_detach (proxy_synchro);
-
-		// should it wait for the thread to exit.
-	}
-
-	virtual void Start(bool wait = true)
-	{
-		Lock ();
-
-		if (isRunningF)
-		{
-			Unlock ();
-			return;
-		}
-
-		stack = new char[DEFAULT_THREAD_STACK_SIZE];
-		assert (stack != NULL);
-		//pid = tfork(stack, DEFAULT_THREAD_STACK_SIZE, &RealThread, (void*)this, 0);
-		pid = _beginthread(&RealThread, stack, DEFAULT_THREAD_STACK_SIZE, (void*)this);
-
-		assert (pid >= 0);
-		isRunningF = true;
-		
-		Unlock ();
-
-		// aspetta che sia completata la routine di start.
-		if (wait)
-			WaitSynchro ();
-	}
-
-	void Terminate(bool wait = true)
-	{
-		Lock ();
-		if (!isRunningF)
-		{
-			printf ("growl...\n");
-			kill(pid, SIGTERM);
-			waitpid(pid, NULL, 0);
-			pid = -1;
-			if (stack != NULL)
-			{
-				delete[] stack;
-				stack = NULL;
-			}
-			Unlock ();
-			return;
-		}
-
-		Trigger (proxy_end);
-		Unlock ();
-
-		if (wait)
-		{
-			Receive (proxy_synchro, 0, 0);
-		}
-
-		Lock ();
-		isRunningF = false;
-		if (stack != NULL)
-		{
-			delete[] stack;
-			stack = NULL;
-		}
-		Unlock ();
-	}
-
-	void WaitSynchro(void)
-	{
-		Receive (proxy_synchro, 0, 0);
-	}
-
-	void SetPriority(int p)
-	{
-		int ret = setprio (0, p);
-		if (ret < 0)
-		{
-			cout << "set priority failed (must be root?)" << endl;
-		}
-		return;
-	}
-
-	void SetInterval(int i)
-	{
-		assert (i > 0);
-
-		Lock ();
-		period = i;
-
-		timer_spec.it_value.tv_sec = 0;
-		timer_spec.it_value.tv_nsec = i * 1000000;
-		timer_spec.it_interval.tv_sec = 0;
-		timer_spec.it_interval.tv_nsec = i * 1000000;
-
-		// start the timer.
-		timer_settime (timer, 0, &timer_spec, NULL);
-
-		Unlock ();
-	}
-
-	bool IsRunning(void)
-	{
-		Lock ();
-		bool ret = isRunningF;
-		Unlock ();
-		return ret;
-	}
-	
-	const char *GetName(void) const { return name; }
-
-	static void RealThread(void *args)
-	{
-		YARPRateThread *thisThread = (YARPRateThread *)args;
-
-		thisThread->Lock ();
-
-		// create proxies
-		thisThread->proxy_timer = qnx_proxy_attach (0, 0, 0, -1);
-		assert (thisThread->proxy_timer >= 0);
-		thisThread->proxy_end = qnx_proxy_attach (0, 0, 0, -1);
-		assert (thisThread->proxy_end >= 0);
-
-		thisThread->event.sigev_signo = -thisThread->proxy_timer;
-		thisThread->timer = timer_create (CLOCK_REALTIME, &thisThread->event);
-		assert (thisThread->timer >= 0);
-
-		// prepare remaining structs.
-		long int nsec = (thisThread->period * 1000000) % 1000000000;
-		long int sec = (thisThread->period * 1000000) / 1000000000;
-		thisThread->timer_spec.it_value.tv_sec = sec;
-		thisThread->timer_spec.it_value.tv_nsec = nsec;
-		thisThread->timer_spec.it_interval.tv_sec = sec;
-		thisThread->timer_spec.it_interval.tv_nsec = nsec;
-
-		// start the timer.
-		timer_settime (thisThread->timer, 0, &thisThread->timer_spec, NULL);
-
-		thisThread->Unlock ();
-
-		Receive (thisThread->proxy_timer, 0, 0);
-
-		// call the init function.
-		thisThread->DoInit (args);
-
-		// send event.
-		Trigger (thisThread->proxy_synchro);
-
-		bool local_end = false; 
-
-		while (!local_end)
-		{
-			// ret = WaitForSingleObject (timer, INFINITE);
-			// _ASSERT (ret == WAIT_OBJECT_0);
-			pid_t recv = Receive (0, 0, 0);
-
-			if (recv == thisThread->proxy_end)
-			{
-				local_end = true;
-			}
-			else
-			if (recv == thisThread->proxy_timer)
-			{
-				thisThread->DoLoop (args);
-			}
-			else
-			{
-				printf ("Something wrong inside a thread\n");
-				//return -1;
-				_endthread ();
-			}
-		}
-
-		thisThread->DoRelease (args);
-
-		thisThread->Lock ();
-		// timer must be already stopped.
-		thisThread->timer_spec.it_value.tv_sec = 0;
-		thisThread->timer_spec.it_value.tv_nsec = 0;
-		timer_settime (thisThread->timer, 0, &thisThread->timer_spec, NULL);
-		timer_delete (thisThread->timer);
-
-		// detach proxies
-		qnx_proxy_detach (thisThread->proxy_timer);
-		qnx_proxy_detach (thisThread->proxy_end);
-		thisThread->Unlock ();
-
-		Trigger (thisThread->proxy_synchro);
-
-		//exit(1);
-		_endthread ();
-		//return 1;
-		// The previous version (see class aThread) had both a checked unlock 
-		// through exceptions handling and a termination control (against deadlocks).
-		// TODO: find an alternative to structured exceptions (which are slow).
-	}
-};
-
-#ifdef DEFAULT_THREAD_STACK_SIZE
-#undef DEFAULT_THREAD_STACK_SIZE
-#endif
-
-#endif
 
 #endif

@@ -16,7 +16,7 @@ typedef YARPRepeater<YARPBabyBottle> Repeater;
 
 int main(int argc, char* argv[])
 {
-	// __debug_level = 80;
+	///set_yarp_debug (100, 100);
 
 	YARPString oname;
 	YARPString iname;
@@ -26,8 +26,8 @@ int main(int argc, char* argv[])
 		cout << "Use: " << argv[0] << " --name port_name";
 		return 0;
 	}
-	oname = name+"o";
-	iname = name+"i";
+	oname = name+"/o";
+	iname = name+"/i";
 	Repeater rep(iname, oname, YARP_UDP, YARP_MCAST);
 	rep.Begin();
 	

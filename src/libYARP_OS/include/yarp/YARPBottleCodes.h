@@ -61,28 +61,34 @@
 ///
 
 ///
-///  $Id: YARPBottleCodes.h,v 1.1 2004-07-06 13:48:27 eshuy Exp $
+///  $Id: YARPBottleCodes.h,v 1.2 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
 #ifndef __YARPBOTTLECODESINC__
 #define __YARPBOTTLECODESINC__
 
-///
-///
-/// bottle types
+/**
+ * \file YARPBottleCodes.h This file contains definitions for the
+ * vocabulary type, a sort of string used to define the types of YARPBottle.
+ *
+ */
+
+/**
+ * Bottle types, these are the types that can be added to bottles.
+ */
 enum __YBTypeCodes 
 {
-	YBTypeChar,
-	YBTypeInt,
-	YBTypeDouble,
-	YBTypeYVector,
-	YBTypeVocab,
-	YBTypeString,
+	YBTypeChar = 0,
+	YBTypeInt = 1,
+	YBTypeDouble = 2,
+	YBTypeYVector = 3,
+	YBTypeVocab = 4,
+	YBTypeString = 5,
 };
 
-
-#ifdef __cplusplus
+// who's including from C anyway?
+//#ifdef __cplusplus
 
 #include <yarp/YARPString.h>
 
@@ -91,26 +97,90 @@ const char * const YBLabelNULL	= "Null";
 const char * const YBVIsAlive	= "IsAlive";
 const int __maxBottleID = 80;
 
+/**
+ * The YBVocab class is a sort of string of char which is
+ * used to name bottles and messages within bottles. It's equivalent (almost)
+ * to a YARPString but don't rely too much on it.
+ */
 class YBVocab : public ACE_String_Base<char>
 {
 public:
+	/**
+	 * Default contructor.
+	 */
 	YBVocab () : ACE_String_Base<char> () {}
+
+	/**
+	 * Constructor.
+	 * @param s is a string to copy into this object, s must be zero terminated.
+	 */
 	YBVocab (const char *s) : ACE_String_Base<char> (s) {}
+
+	/**
+	 * Constructor.
+	 * @param s is a char buffer to copy into this object.
+	 * @param len is the length of the buffer.
+	 */
 	YBVocab (const char *s, size_t len) : ACE_String_Base<char> (s, len) {}
+
+	/**
+	 * Constructor.
+	 * @param s is an ACE string to copy from.
+	 */
 	YBVocab (const ACE_String_Base<char>& s) : ACE_String_Base<char> (s) {}
+
+	/**
+	 * Copy constructor.
+	 * @param s is the object to copy from.
+	 */
 	YBVocab (const YBVocab& s) : ACE_String_Base<char> (s) {}
+
+	/**
+	 * Constructor.
+	 * @param c is a char to fill the string with.
+	 */
 	YBVocab (char c) : ACE_String_Base<char> (c) {}
+
+	/**
+	 * Constructor.
+	 * @param len is the length of the newly created object.
+	 * @param c is a char value to fill the buffer with.
+	 */
 	YBVocab (size_t len, char c = 0) : ACE_String_Base<char> (len, c) {}
 
+	/**
+	 * Destructor.
+	 */
 	~YBVocab () { clear(1); }
 
+	/**
+	 * Copy operator.
+	 * @param s is the object reference to copy from.
+	 * @return a reference to this object.
+	 */
 	YBVocab& operator= (const YBVocab& s) { ACE_String_Base<char>::operator= (s); return *this; }
-	
+
+	/**
+	 * Adds something to a YBVocab.
+	 * @param s the string to add to the current object.
+	 * @return a reference to this object.
+	 */
 	YBVocab& append(const char *s) { ACE_String_Base<char>::operator+=(s); return *this; }
+
+	/**
+	 * Adds a YBVocab to the current YBVocab.
+	 * @param s is the object reference to add to the current object.
+	 * @return a reference to this object.
+	 */
 	YBVocab& append(const YBVocab& s) { ACE_String_Base<char>::operator+=(s); return *this; }
+
+	/**
+	 * Checks whether the vocab is empty.
+	 * @return true if it's an empty string, false otherwise.
+	 */
 	bool empty (void) { return (length() == 0) ? true : false; }
 };
 
-#endif
+//#endif
 
 #endif

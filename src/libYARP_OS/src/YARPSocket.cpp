@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.11 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.12 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -74,6 +74,11 @@
 ///
 ///
 
+/**
+ * \file YARPSocket.cpp This file contains classes and implementation of methods
+ * supporting the YARP socket abstraction for TCP communication.
+ */
+
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
@@ -84,7 +89,7 @@
 #endif
 
 #ifndef __QNX__
-	/// WINDOWS/LINUX
+	// WINDOWS/LINUX
 
 #ifndef __WIN_MSVC__
 #	include <unistd.h>  // just for gethostname
@@ -93,7 +98,7 @@
 #endif
 
 #else
-	/// QNX4, and QNX6
+	// QNX6
 
 #	include <unix.h>  // just for gethostname
 
@@ -107,68 +112,13 @@
 #include <yarp/YARPTime.h>
 #include <yarp/YARPString.h>
 
+#include "yarp_private/Headers.h"
+
 #define THIS_DBG 80
-
-///
-/// yarp message header.
-///
-#include <yarp/begin_pack_for_net.h>
-
 #define DONT_WAIT_UP
 
-
-struct MyMessageHeader
-{
-public:
-	char key[2];
-	NetInt32 len;
-	char key2[2];
-
-	MyMessageHeader()
-	{
-		len = 0;
-		SetBad();
-	}
-
-	void SetGood()
-    {
-		key[0] = 'Y';
-		key[1] = 'A';
-		key2[0] = 'R';
-		key2[1] = 'P';
-    }
-  
-	void SetBad()
-    {
-		key[0] = 'y';
-		key[1] = 'a';
-		key2[0] = 'r';
-		key2[1] = 'p';
-    }
-
-	void SetLength(int n_len)
-	{
-		len = n_len;
-	}
-  
-	int GetLength()
-	{
-		if (key[0] == 'Y' && key[1] == 'A' && key2[0] == 'R' && key2[1] == 'P')
-		{
-			return len;
-		}
-		else
-		{
-			//	  printf("*** Bad header\n");
-			return -1;
-		}
-	}
-} PACKED_FOR_NET;
-
-#include <yarp/end_pack_for_net.h>
-
-///
-/// sets recv and send <sock> buffers to <size>
+//
+// sets recv and send <sock> buffers to <size>
 int YARPNetworkObject::setSocketBufSize (ACE_SOCK& sock, int size)
 {
 	int ret = YARP_OK;
@@ -185,9 +135,9 @@ int YARPNetworkObject::setSocketBufSize (ACE_SOCK& sock, int size)
 	return ret;
 }
 
-///
-///
-///
+//
+//
+//
 int getHostname(char *buffer, int buffer_length)
 {
 	int result = gethostname (buffer, buffer_length);
@@ -195,7 +145,6 @@ int getHostname(char *buffer, int buffer_length)
 	// breaks shmem endpoint comparison if no domain set.
 	// interesting to see what happens across different domains...
 #if 0
-#ifndef __QNX4__
 #ifndef __WIN32__
 #ifndef __QNX6__
 	// QNX4 just doesn't have getdomainname or any obvious equivalent
@@ -219,15 +168,13 @@ int getHostname(char *buffer, int buffer_length)
 #endif
 #endif
 #endif
-#endif
 	return result;
 }
 
 
-///
-/// Output socket + stream incapsulation.
-///
-///
+/**
+ * OSData is a convenience class used in the creation of the TCP socket for YARP.
+ */
 class OSData
 {
 public:
@@ -303,18 +250,18 @@ int YARPOutputSocket::Connect (const YARPUniqueNameID& name, const YARPString& o
 
 	d._stream.send_n (&hdr, sizeof(hdr), 0);
 
-	/// fine, now send the name of the connection.
+	// fine, now send the name of the connection.
 	NetInt32 name_len = own_name.length();
 	d._stream.send_n (&name_len, sizeof(NetInt32), 0);
 	d._stream.send_n (own_name.c_str(), name_len, 0);
 
-	/// ...and wait for a reply.
+	// ...and wait for a reply.
 	hdr.SetBad();
 	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 	int r = d._stream.recv_n (&hdr, sizeof(hdr), 0, &timeout);
 	if (r < 0)
 	{
-		///
+		//
 		ACE_DEBUG ((LM_ERROR, "troubles connecting to TCP, this shouldn't really happen, maybe a bug?\n"));
 
 		d._stream.close();
@@ -351,7 +298,7 @@ int YARPOutputSocket::SendBegin(char *buffer, int buffer_length)
 
 int YARPOutputSocket::SendContinue(char *buffer, int buffer_length)
 {
-	/// without header.
+	// without header.
 	int sent = OSDATA(system_resources)._stream.send_n (buffer, buffer_length, 0);
 	if (sent != buffer_length)
 		return YARP_FAIL;
@@ -359,7 +306,7 @@ int YARPOutputSocket::SendContinue(char *buffer, int buffer_length)
 	return YARP_OK;
 }
 
-/// I'm afraid the reply might end up being costly to streaming communication.
+// I'm afraid the reply might end up being costly to streaming communication.
 int YARPOutputSocket::SendReceivingReply(char *reply_buffer, int reply_buffer_length)
 {
   //printf("RequireAck state is %d\n", getRequireAck());

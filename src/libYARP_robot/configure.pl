@@ -11,16 +11,20 @@ use Cwd;
 print "Entering configure process of YARP hardware support...\n";
 print "This is possibly the most intricate piece of configuration in YARP.\n\n";
 
+$yarp_root = $ENV{'YARP_ROOT'};
+if (!defined($yarp_root))
+{
+	die "YARP_ROOT environment variable must be defined!\nto point to the path of the yarp source distribution\n";
+}
+
+require "$yarp_root/conf/configure.template.pl" or die "Can't find template file $yarp_root/conf/configure.template.pl\n";
+check_os();
+
+#
+# Need to generate the appropriate newline!
+#
 chomp ($ver = `ver`);
 chomp ($uname = `uname`);
-if (!($ver =~ /Windows/) && !($uname =~ /CYGWIN/))
-{
-	print "This is a Windows 2000/XP specific script\n";
-	print "Perhaps this procedure can be simply extended to\n"; 
-	print "other OSes but for now, this is all experimental...\n";
-	
-	die "This script is specific to Windows 2000/XP and Cygwin\n";
-}
 
 my $nline = '';
 if ($uname =~ /CYGWIN/)
@@ -36,11 +40,6 @@ else
 	$nline = "\n";
 }
 
-$yarp_root = $ENV{'YARP_ROOT'};
-if (!defined($yarp_root))
-{
-	die "YARP_ROOT environment variable must be defined!\nto point to the path of the yarp source distribution\n";
-}
 
 print "\nReady to start...\n";
 
@@ -51,29 +50,9 @@ GetOptions ('file=s' => \$config_file );
 
 if (-e $config_file)
 {
-	copy ($config_file, "$config_file.old");
+	copy ($config_file, "$config_file.old") or warn "Can't copy $config_file, old file might be overwritten\n";
 
-	open CONFIG, $config_file or die "Can't open config file $!";
-
-	my $contextual;
-	while (<CONFIG>)
-	{
-		chomp;
-		if (/^\[(\w+)\]\s?/)
-		{
-			$contextual = $1;
-		}
-		elsif (/^([A-Za-z0-9_\/\$]+)= ?/)
-		{
-			my $word = $1;
-			if ($' =~ /([A-Za-z0-9_\/\$]+)\s?/)
-			{
-				$options{$contextual."<-".$word} = $1;
-			}
-		}
-	}
-
-	close CONFIG;
+	load_config_file (\%options, $config_file);
 }
 
 #
@@ -102,10 +81,10 @@ print "Once more you are on a \"$os\" machine and configuring for something call
 
 print "These are the standard flags for compiling the library:\n";
 
-get_option_hash ("Compile_Robot<-Lib_Clean", "FALSE", "Clean first: i.e. rebuild libraries?", 1);
-get_option_hash ("Compile_Robot<-Lib_Debug", "FALSE", "Compile debug version?", 1);
-get_option_hash ("Compile_Robot<-Lib_Release", "FALSE", "Compile release (optimized)?", 1);
-get_option_hash ("Compile_Robot<-Lib_Install", "FALSE", "Install after build?", 1);
+get_option_hash ("Compile_Robot<-Lib_Clean", "FALSE", "Clean first: i.e. rebuild libraries?", 1, \%options);
+get_option_hash ("Compile_Robot<-Lib_Debug", "FALSE", "Compile debug version?", 1, \%options);
+get_option_hash ("Compile_Robot<-Lib_Release", "FALSE", "Compile release (optimized)?", 1, \%options);
+get_option_hash ("Compile_Robot<-Lib_Install", "FALSE", "Install after build?", 1, \%options);
 
 if ($options{"Compile_Robot<-Lib_Clean"} eq "TRUE" &&
 	$options{"Compile_Robot<-Lib_Debug"} eq "FALSE" &&
@@ -116,7 +95,7 @@ if ($options{"Compile_Robot<-Lib_Clean"} eq "TRUE" &&
 	$options{"Compile_Robot<-Lib_Debug"} = "TRUE";
 }
 
-get_option_hash ("Compile_Robot<-Tools_Rebuild", "NO", "Would you like to recompile the tools?", 1);
+get_option_hash ("Compile_Robot<-Tools_Rebuild", "NO", "Would you like to recompile the tools?", 1, \%options);
 
 if ($options{"Compile_Robot<-Tools_Rebuild"} eq "NO" &&
 	$options{"Compile_Robot<-Lib_Clean"} eq "TRUE")
@@ -126,7 +105,7 @@ if ($options{"Compile_Robot<-Tools_Rebuild"} eq "NO" &&
 	$options{"Compile_Robot<-Tools_Rebuild"} = "YES";
 }
 
-get_option_hash ("Compile_Robot<-Tools_Debug", "FALSE", "Would you like to compile the tools with debug enabled?", 1);
+get_option_hash ("Compile_Robot<-Tools_Debug", "FALSE", "Would you like to compile the tools with debug enabled?", 1, \%options);
 
 print "Browsing through the list of available device drivers\n";
 print "I'll be looking for classes you might have used device drivers in ";
@@ -357,92 +336,9 @@ close MYPROJECT;
 close PROJECT;
 
 #
-# uses global value %options
-#
-sub get_option_hash
-{
-	my ($key, $default_value, $message, $type) = @_;
-	my $line = undef;
-
-	$options{$key} = $default_value if (!exists($options{$key}));
-
-	print "$message [$options{$key}] ";
-	chomp($line = <STDIN>);
-	$options{$key} = $line if (defined($line) && $line ne '');
-
-	if ($type)
-	{
-		verify_bool ($key, $default_value);
-	}
-
-	0;
-}
-
-sub verify_bool
-{
-	my ($key, $default_value) = @_;
-	my $value = $options{$key};
-
-	if ($default_value =~ /\b[TtFf]\w*/)
-	{
-		if ($value =~ /\b[TtYy1]\w*/)
-		{
-			$options{$key} = "TRUE";
-		}
-		elsif ($value =~ /\b[FfNn0]\w*/)
-		{
-			$options{$key} = "FALSE";
-		}
-		else
-		{
-			$options{$key} = $default_value;
-		}
-	}
-	elsif ($default_value =~ /\b[YyNn]\w*/)
-	{
-		if ($value =~ /\b[TtYy1]\w*/)
-		{
-			$options{$key} = "YES";
-		}
-		elsif ($value =~ /\b[FfNn0]\w*/)
-		{
-			$options{$key} = "NO";
-		}
-		else
-		{
-			$options{$key} = $default_value;
-		}
-	}
-}
-
-#
 # creating a new config file.
 # 
-open CONFIG, "> $config_file";
-select CONFIG;
-
-print "//\n";
-print "// This is an example of configuration file.\n";
-print "// - projects and include files are created relying on this options.\n";
-print "//\n";
-print "// Generated by <configure.pl>\n";
-print "//\n";
-
-my $context = '';
-foreach my $key (sort keys %options)
-{
-	my $value = $options{$key};
-	$key =~ /<-/;
-	if ($context ne $`)
-	{
-		$context = $`;
-		print "\n[$context]\n";
-	}
-	print "$'= $value\n";
-}
-
-select STDOUT;
-close CONFIG;
+save_config_file (\%options, $config_file);
 
 print "Done!\n";
 

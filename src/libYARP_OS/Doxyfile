@@ -78,7 +78,47 @@ INPUT                  = include/yarp/YARPPort.h \
                          include/yarp/YARPThread.h \
                          include/yarp/YARPSemaphore.h \
                          include/yarp/YARPScheduler.h \
-                         include/yarp/YARPList.h
+                         include/yarp/YARPList.h \
+                         src/YARPSocketMulti.cpp \
+                         include/yarp_private/Port.h \
+                         src/YARPSocketNameService.cpp \
+                         src/YARPMultipartMessage.cpp \
+                         include/yarp_private/BlockPrefix.h \
+                         include/yarp_private/Headers.h \
+                         include/yarp_private/BlockReceiver.h \
+                         include/yarp_private/BlockSender.h \
+                         include/yarp_private/RefCounted.h \
+                         include/yarp_private/YARPFragments.h \
+                         include/yarp/YARPConfigFile.h \
+                         include/yarp/YARPNameService.h \
+                         include/yarp/YARPNameID.h \
+                         include/yarp/YARPSocket.h \
+                         include/yarp/YARPSocketMulti.h \
+                         src/YARPAll.cpp \
+                         include/yarp/YARPRateThread.h \
+                         include/yarp/YARPBottle.h \
+                         include/yarp/YARPBottleContent.h \
+                         include/yarp/YARPBottleCodes.h \
+                         include/yarp/YARPSocketSyncComm.h \
+                         include/yarp/YARPNameClient.h \
+                         include/yarp/wide_nameloc.h \
+                         include/yarp/YARPNativeSyncComm.h \
+                         include/yarp/YARPSyncComm.h \
+                         include/yarp/YARPRandom.h \
+                         include/yarp/YARPNativeNameService.h \
+                         include/yarp/YARPSocketNameService.h \
+                         include/yarp/YARPMultipartMessage.h \
+                         src/YARPSocketDgram.cpp \
+                         include/yarp/YARPSocketDgram.h \
+                         include/yarp/YARPSocketMcast.h \
+                         src/YARPSocketMcast.cpp \
+                         src/YARPSocket.cpp \
+                         include/yarp/YARPParseParameters.h \
+                         include/yarp/debug.h \
+                         include/yarp/YARPNetworkTypes.h \
+                         include/yarp_private/Sendable.h \
+                         include/yarp_private/Sendables.h \
+                         src/YARPPort.cpp
 FILE_PATTERNS          = 
 RECURSIVE              = NO
 EXCLUDE                = 

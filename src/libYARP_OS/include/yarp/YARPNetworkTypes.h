@@ -52,12 +52,17 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNetworkTypes.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
+/// $Id: YARPNetworkTypes.h,v 1.4 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
 #ifndef YARPNetworkTypes_INC
 #define YARPNetworkTypes_INC
+
+/**
+ * \file YARPNetworkTypes.h These are a few definitions for data types
+ * to be sent across a network.
+ */
 
 #include <yarp/YARPConfig.h>
 #include <yarp/YARPAll.h>
@@ -81,16 +86,24 @@
  */
 
 #ifdef __LINUX__
+	/**
+	 * Definition of the NetInt32 type for Linux/gcc.
+	 */
 	typedef int32_t NetInt32;
 #endif
 
-
 #ifdef __QNX__
+	/**
+	 * Definition of the NetInt32 type for qnx6/gcc.
+	 */
 	typedef long int NetInt32;
 #endif
 
 #ifdef __WIN__
 #	ifdef __WIN_MSVC__
+		/**
+		 * Definition of the NetInt32 type for Windows/msvc.
+		 */
 		typedef __int32 NetInt32;
 #	else
 #		include <sys/config.h>

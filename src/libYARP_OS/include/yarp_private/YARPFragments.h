@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPFragments.h,v 1.4 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: YARPFragments.h,v 1.5 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -76,6 +76,15 @@
 #	pragma once
 #endif
 
+/**
+ * \file YARPFragments.h definitions for a node of a list of counted buffers.
+ * @see Buffer.
+ */
+
+/**
+ * A class that contains a reference to another copy of itself (sort of).
+ * A node for a list of counted buffers.
+ */
 class Fragments
 {
 protected:
@@ -87,18 +96,38 @@ public:
 	int clen;
 	int owned;
 
+	/**
+	 * Default constructor.
+	 */
 	Fragments()	{ buffer = NULL;  clen = len = 0;  owned = 0;  next = NULL;}
 
+	/**
+	 * Builds an object starting from an existing buffer.
+	 * @param nbuffer is a pointer to a chunk of memory.
+	 * @param nlen the size of the buffer.
+	 * @param nowned tells whether the memory object is owned by this instance.
+	 */
 	Fragments(char *nbuffer, int nlen, int nowned) { buffer = nbuffer;  clen = len = nlen;  owned = nowned;  next = NULL; }
 
+	/**
+	 * Destructor.
+	 */
 	virtual ~Fragments() { ClearChildren(); Clear(); }
 
+	/**
+	 * Clears the variables associated with this object
+	 * and if owned also the buffer.
+	 */
 	void Clear()
 	{ 
 		if (owned&&buffer!=NULL) delete[] buffer;
 		buffer = NULL;  clen = len = 0;  owned = 0; 
 	}
 
+	/**
+	 * Reallocates the buffer to be at least of length @a nlen.
+	 * @param nlen is the new length of the buffer.
+	 */
 	void Require(int nlen)
 	{
 		if (nlen<1) nlen = 1;
@@ -117,7 +146,11 @@ public:
 		}
 	}
 
-	//accident with search-and-replace
+	/**
+	 * Takes an existing object.
+	 * Accident with search-and-replace
+	 * @param fragments is the object to take the buffer from.
+	 */
 	void Take(Fragments& fragments)
 	{
 		buffer = fragments.buffer;
@@ -128,6 +161,11 @@ public:
 		fragments.Clear();
 	}
 
+	/**
+	 * Switches the current object with the one passed as
+	 * argument by replacing it with a Take().
+	 * @param fragments is a reference to the object to take.
+	 */
 	void SwitchOne(Fragments& fragments)
 	{
 		int minlen = fragments.len;
@@ -138,6 +176,11 @@ public:
 		Take(tmp);
 	}
 
+	/**
+	 * Switches the current object with the one in argument.
+	 * @param fragments is the reference to the object to
+	 * exchange with.
+	 */
 	void Switch(Fragments& fragments)
 	{
 		SwitchOne(fragments);
@@ -146,13 +189,40 @@ public:
 		fragments.next = tmp;
 	}
 
+	/**
+	 * Gets the internal buffer.
+	 * @return the pointer to the internal buffer.
+	 */
 	char *GetBuffer() { return buffer; }
+
+	/**
+	 * Gets the size of the buffer.
+	 * @return the size of the buffer in bytes.
+	 */
 	int GetLength() { return clen; }
+
+	/**
+	 * Gets the size of the allocated memory.
+	 * @return the length of the allocated memory buffer.
+	 */
 	int GetAllocatedLength() { return len; }
+
+	/**
+	 * Checks whether the buffer is owned.
+	 * @return 1 if the buffer is owned by this object.
+	 */
 	int IsOwner() { return owned; }
 
+	/**
+	 * Gets the next object in the list.
+	 * @return the pointer to the child object next in the list.
+	 */
 	Fragments *GetNext() { return next; }
 
+	/**
+	 * Adds an object next to this one.
+	 * @return the pointer to the newly allocated object.
+	 */
 	Fragments *AddNext()
 	{ 
 		if (next==NULL) next = new Fragments;  
@@ -160,6 +230,10 @@ public:
 		return next;
 	}
 
+	/**
+	 * Removes the children of this object, and clears
+	 * the memory.
+	 */
 	void ClearChildren()
 	{
 		if (next!=NULL)
@@ -171,7 +245,11 @@ public:
 };
 
 
-
+/**
+ * Copies a buffer of a generic type into a Fragments object.
+ * @param Fragments is a reference to a Fragments object.
+ * @param t is the buffer to copy from.
+ */
 template <class T>
 void CopyToFragments(Fragments& Fragments, const T& t)
 {
@@ -179,6 +257,11 @@ void CopyToFragments(Fragments& Fragments, const T& t)
 	ACE_OS::memcpy(Fragments.GetBuffer(),(char *)(&t),sizeof(t));
 }
 
+/**
+ * Copies the internal Fragments object into a buffer of a generic type.
+ * @param Fragments is a reference to the Fragments object.
+ * @param t is the buffer to copy to.
+ */
 template <class T>
 void CopyFromFragments(Fragments& Fragments, const T& t)
 {

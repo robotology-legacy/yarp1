@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.7 2004-08-10 13:42:07 babybot Exp $
+/// $Id: YARPPort.h,v 1.8 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -221,7 +221,18 @@ public:
 	 */
 	virtual void End();
 
+	/**
+	 * Sets the require acknowledge flag.
+	 * @param require_ack is the flag value. If 1 it means that the
+	 * reply messages aren't required for communicating with the remote peer.
+	 */
 	void SetRequireAck(int require_ack = 1);
+
+	/**
+	 * Gets the require acknowledge flag.
+	 * @return the require acknowledge flag value. If 1 it means that the
+	 * reply messages aren't required for communicating with the remote peer.
+	 */
 	int GetRequireAck();
 };
 
@@ -401,6 +412,20 @@ public:
 	 * Handle a write event.  This method is called when transmission occurs.
 	 */
 	virtual void OnWrite() {}
+
+	/**
+	 * Sets the allow shared memory communication flag.
+	 * @param flag is the flag value. If 0 disables shared memory communication. While
+	 * shared memory is generally more efficient than socket communication, sometimes
+	 * for debugging, it migth be useful to run ports with different protocols locally.
+	 */
+	void SetAllowShmem (int flag = 1);
+
+	/**
+	 * Gets the allow shared memory communication flag.
+	 * @return the flag value. If 0 it means that shared memory is disabled.
+	 */
+	int GetAllowShmem (void);
 };
 
 

@@ -62,9 +62,20 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.10 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.11 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
+
+/**
+ * \file YARPPort.cpp It contains the implementation of the YARPPort object
+ * and some additional private helper classes.
+ * A note on destructors: make sure you call the Port->End() from the destructor if
+ * you inherits from any of the port classes. This terminates the communication threads
+ * smoothly which avoids segmentation violations on leaks on exit.
+ * ALT: implement and explicit port un-registration method that also terminates the
+ * communication threads.
+ *
+ */
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
@@ -81,20 +92,13 @@
 #include <yarp/YARPList.h>
 
 #ifdef __WIN32__
-/// library initialization.
+// library initialization.
 #pragma init_seg(lib)
 #endif
 
 using namespace std;
 
-
-//Notes on destructors: make sure you call the Port->End() from the destructor if
-///		you inherits from any of the port classes. This terminates the comm threads
-///		smoothly that avoids segmentation violations on leaks on exit.
-///	ALT: implement and explicit port un-registration method that also terminates the
-///		comm threads.
-
-
+/** A list of ports is maintained by the library. */
 typedef YARPList<YARPPort *> PortList;
 static PortList port_list;
 static YARPSemaphore port_list_mutex(1);
@@ -106,35 +110,54 @@ static void AddPort(YARPPort *port)
 	port_list_mutex.Post();
 }
 
-/// LATER: find out why this is commented out.
+// LATER: find out why this is commented out.
 static void RemovePort(YARPPort *port)
 {
 	ACE_UNUSED_ARG(port);
 
 	port_list_mutex.Wait();
 
-///#ifndef __QNX__
+//#ifndef __QNX__
 	//  port_list.erase(port);
-///#endif
+//#endif
 	port_list_mutex.Post();
 }
 
-///
-///
-///
+
+/**
+ * YARPSendable is the type of Sendable used by YARP ports. This
+ * is simply derived by the Sendable class.
+ */
 class YARPSendable : public Sendable
 {
 public:
+	/** The YARPPortContent object which knows about read and write. */
 	YARPPortContent *ypc;
+
+	/** A flag on whether this class owns the ypc object. */
 	int owned;
 
+	/**
+	 * Default constructor.
+	 */ 
 	YARPSendable() { ypc = NULL;  owned = 0; }
+
+	/**
+	 * Constructor.
+	 * @param n_ypc is a pointer to the YARPPortContent object to be
+	 * assigned to this instance.
+	 * @param n_owned tells whether the @a n_ypc is owned by this
+	 * instance from now on.
+	 */
 	YARPSendable(YARPPortContent *n_ypc, int n_owned = 1)
 	{
 		ypc = NULL;  owned = 0;
 		Attach(n_ypc, n_owned);
 	}
 
+	/**
+	 * Destructor. It frees memory if needed.
+	 */
 	virtual ~YARPSendable() 
 	{ 
 		if (!YARPThread::IsDying())
@@ -143,6 +166,13 @@ public:
 		}
 	}
 
+	/**
+	 * Attaches a YARPPortContent object to the YARPSendable.
+	 * @param n_ypc is a pointer to the YARPPortContent object to be
+	 * assigned to this instance.
+	 * @param n_owned tells whether the @a n_ypc is owned by this
+	 * instance from now on.
+	 */
 	void Attach(YARPPortContent *n_ypc, int n_owned = 1)
 	{
 		ACE_ASSERT(ypc==NULL);
@@ -150,23 +180,49 @@ public:
 		owned = n_owned;
 	}
 
+	/**
+	 * Gets the content of the sendable.
+	 * @return a pointer to the YARPPortContent object.
+	 */
 	YARPPortContent *Content()
 	{
 		return ypc;
 	}
 
+	/**
+	 * Writes the YARPPortContent to the network. Note that
+	 * the Sendable class is just a pattern here since pretty much
+	 * everything is reimplemented. Also YARPPortContent's know
+	 * how to send/receive themselves.
+	 * @param sender is a reference to the BlockSender object that
+	 * interfaces to the network code.
+	 * @return true on success, false otherwise.
+	 */
 	virtual int Write(BlockSender& sender)
 	{
 		ACE_ASSERT(ypc!=NULL);
 		return ypc->Write(sender);
 	}
 
+	/**
+	 * Reads the YARPPortContent from the network. Note that
+	 * the Sendable class is just a pattern here since pretty much
+	 * everything is reimplemented. Also YARPPortContent's know
+	 * how to send/receive themselves.
+	 * @param sender is a reference to the BlockSender object that
+	 * interfaces to the network code.
+	 * @return true on success, false otherwise.
+	 */
 	virtual int Read(BlockReceiver& receiver)
 	{
 		ACE_ASSERT(ypc!=NULL);
 		return ypc->Read(receiver);
 	}
 
+	/**
+	 * Destroys both YARPPortContent and the internal Sendable.
+	 * @return 1 if the object has been destroyed, 0 otherwise.
+	 */
 	virtual int Destroy()
 	{
 		ACE_ASSERT(ypc!=NULL);
@@ -176,24 +232,41 @@ public:
 	}
 };
 
-///
-///
-///
+
+/**
+ * YARPSendablesOf is a template class for sendables similar to
+ * SendablesOf.
+ */
 template <class T>
 class YARPSendablesOf : public Sendables
 {
 public:
+	/** A pointer to the YARPPort that owns this object. */
 	YARPPort *port;
 
+	/** Default constructor. */
 	YARPSendablesOf() { port = NULL; }
 
+	/**
+	 * Attaches a YARPPort to this list of sendables.
+	 * @param yp is a reference to the YARPPort to attach to.
+	 */
 	void Attach(YARPPort& yp) { port = &yp; }
 
+	/**
+	 * Adds a generic sendable object to the list.
+	 * @param s is a pointer to the sendable object to add.
+	 */
 	void Put(T *s)
 	{
 		PutSendable(s);
 	}
 
+	/**
+	 * Gets the last sendable object from the list.
+	 * @return a pointer to the last object in the list and 
+	 * removes it from the list.
+	 */
 	T *Get()
 	{
 		T *t = (T*)GetSendable();
@@ -210,21 +283,40 @@ public:
 	}
 };
 
+/**
+ * PortData is a simple convenient container for the generic Port class.
+ */
 class PortData : public Port
 {
 public:
+	/** A list of YARPSendable implemented by using YARPSendablesOf template. */
 	YARPSendablesOf<YARPSendable> sendables;
+
+	/** A referenced pointer used when reading and/or writing. */
 	CountedPtr<YARPSendable> p_s;
-        int service_type;
+
+	/** The protocol type of the Port. */
+	int service_type;
+
+	/** The owner, if input port. */
 	YARPInputPort *in_owner;
+
+	/** The owner, if output port. */
 	YARPOutputPort *out_owner;
 
+	/** 
+	 * Attaches the owner to the list.
+	 * @param yp is the YARPPort reference that owns the list of sendables.
+	 */
 	void Attach(YARPPort& yp)
 	{
 		sendables.Attach(yp);
 	}
 
+	/** The OnRead() callback function. */
 	virtual void OnRead() { if (in_owner!=NULL) in_owner->OnRead(); }
+
+	/** The OnWrite() callback function. */
 	virtual void OnSend() { if (out_owner!=NULL) out_owner->OnWrite(); }
 };
 
@@ -309,7 +401,7 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 		return YARP_FAIL;
 	}
 
-	/// checking syntax.
+	// checking syntax.
 	if (src_name[0] != '*' && src_name[0] != '/')
 	{
 		ACE_DEBUG ((LM_ERROR, "The syntax of port connect is wrong\n"));
@@ -320,11 +412,12 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 		return YARP_FAIL;
 	}
 
-	/// request port connections.
+	// request port connections.
 	if (src_name[0] == '*')
 	{
 		YARPUniqueNameID* id = YARPNameService::LocateName (src_name+1, NULL);
 		if (id->getServiceType() != YARP_QNET) id->setServiceType (YARP_TCP);
+		id->setRequireAck(1);
 
 		YARPEndpointManager::CreateOutputEndpoint (*id);
 		int ret = YARPEndpointManager::ConnectEndpoints (*id, "explicit_connect");
@@ -349,12 +442,13 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 		return YARP_FAIL;
 	}
 
-	/// assuming a valid name starting with /
+	// assuming a valid name starting with /
 	if (src_name[0] == '/')
 	{
-		/// NULL 2nd param means no net specified, only IP addr.
+		// NULL 2nd param means no net specified, only IP addr.
 		YARPUniqueNameID* id = YARPNameService::LocateName (src_name, NULL);
 		if (id->getServiceType() != YARP_QNET) id->setServiceType (YARP_TCP);
+		id->setRequireAck(1);
 
 		YARPEndpointManager::CreateOutputEndpoint (*id);
 		int ret = YARPEndpointManager::ConnectEndpoints (*id, "explicit_connect");
@@ -376,17 +470,18 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 		YARPEndpointManager::Close (*id);
 		YARPNameService::DeleteName (id);
 
-		/// continues to next 'if'.
+		// continues to next 'if'.
 	}
 
-	/// can't connect, try a different strategy.
+	// can't connect, try a different strategy.
 	if (dest_name[0] == '!')
 	{
 		ACE_DEBUG ((LM_INFO, "trying again with direct connection\n"));
 
-		/// tries again...
+		// tries again...
 		YARPUniqueNameID* id = YARPNameService::LocateName (dest_name+1, NULL);
 		if (id->getServiceType() != YARP_QNET) id->setServiceType (YARP_TCP);
+		id->setRequireAck(1);
 
 		YARPEndpointManager::CreateOutputEndpoint (*id);
 		int ret = YARPEndpointManager::ConnectEndpoints (*id, "explicit_connect");
@@ -448,7 +543,7 @@ void YARPPort::DeactivateAll()
 	port_list_mutex.Wait();
 
 	PortList::iterator it(port_list);
-	it.go_head();		/// might not be required.
+	it.go_head();		// might not be required.
 
 	while (!it.done())
 	{
@@ -574,3 +669,14 @@ void YARPOutputPort::Write(bool wait)
 	content = NULL;
 }
 
+
+void YARPOutputPort::SetAllowShmem(int flag)
+{
+	PD.SetAllowShmem(flag);
+}
+
+
+int YARPOutputPort::GetAllowShmem(void)
+{
+	return PD.GetAllowShmem();
+}

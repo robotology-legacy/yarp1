@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.5 2004-07-12 13:34:32 eshuy Exp $
+/// $Id: YARPNameClient.h,v 1.6 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -72,6 +72,12 @@
 #if !defined __NAME_CLIENT__
 #define __NAME_CLIENT__
 
+/**
+ * \file YARPNameClient.h This file contains definitions of classes and methods
+ * to access the name server. Ports must register to the name server to allow
+ * publicizing their existence to the network of processes and other ports objects
+ * that might require to connect or receive message from.
+ */
 #include <yarp/YARPConfig.h>
 #include <yarp/YARPAll.h>
 #include <ace/config.h>
@@ -96,26 +102,145 @@
 	#define SIZE_BUF 4096
 #endif
 
+/**
+ * YARPNameClient is a container of methods that talk to the name server via TCP
+ * to request the name services. This is just the interface while the actual object
+ * is global to a process.
+ */
 class YARPNameClient  
 {
 public:
+	/**
+	 * Constructor.
+	 * @param server is the IP address or name where the server resides.
+	 * @param port is the port number the server listens to (e.g. 10000).
+	 */
 	YARPNameClient(const YARPString& server, int port);
+
+	/**
+	 * Constructor.
+	 * @param addr is the ACE_INET_Addr that contains the name and port number
+	 * of the server.
+	 */
 	YARPNameClient(const ACE_INET_Addr &addr);
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPNameClient();
 
+	/**
+	 * Registers an mcast address to a certain symbolic name.
+	 * @param s is the symbolic name to register.
+	 * @param addr is the returned address (IP and port number).
+	 * @return YARP_OK on success.
+	 */
 	int check_in_mcast(const YARPString &s, ACE_INET_Addr &addr);
+
+	/**
+	 * Registers an address to a certain symbolic name.
+	 * @param s is the symbolic name to register.
+	 * @param reg_addr is the address of the caller.
+	 * @param addr is the return address.
+	 * @return YARP_OK on success.
+	 */
 	int check_in (const YARPString &s, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr);
+
+	/**
+	 * Registers an address to a certain symbolic name.
+	 * @param s is the symbolic name to register.
+	 * @param addr is both the address of the caller and the return address of the registration.
+	 * @return YARP_OK on success.
+	 */
 	int check_in (const YARPString &s, ACE_INET_Addr &addr);
+
+	/**
+	 * Registers an address to a certain symbolic name.
+	 * @param s is the symbolic name to register.
+	 * @param ip is both the address of the caller and the returned IP address.
+	 * @param port is the returned IP port number.
+	 * @return YARP_OK on success.
+	 */
 	int check_in (const YARPString &s, YARPString &ip, NetInt32 *port);
+
+	/**
+	 * Registers an udp address to a certain symbolic name.
+	 * @param name is the symbolic name to register.
+	 * @param addr is the IP address.
+	 * @param ports is an array of ports returned by the name server.
+	 * @param n is the size of the array requested.
+	 * @return YARP_OK on success.
+	 */
 	int check_in_udp(const YARPString &name, YARPString &addr, NetInt32 *ports, NetInt32 n);
+
+	/**
+	 * Registers an udp address to a certain symbolic name.
+	 * @param name is the symbolic name to register.
+	 * @param reg_addr is the address of the caller.
+	 * @param addr is the IP address.
+	 * @param ports is an array of ports returned by the name server.
+	 * @param n is the size of the array requested.
+	 * @return YARP_OK on success.
+	 */
 	int check_in_udp(const YARPString &name, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr, NetInt32 *ports, NetInt32 n);
+
+	/**
+	 * Registers a qnx address to a symbolic name.
+	 * @param entry is the qnx name structure that contain the pid, channel number
+	 * and node name of the caller.
+	 * @return YARP_OK on success.
+	 */
 	int check_in_qnx(const YARPNameQnx &entry);
+
+	/**
+	 * Queries the name sever for a name.
+	 * @param s is the name we're requesting information about.
+	 * @param addr is the returned address (both ip and port).
+	 * @param type is a pointer to the return type of the name (mcast, tcp, qnx, etc.).
+	 * @return YARP_OK on success.
+	 */
 	int query (const YARPString &s, ACE_INET_Addr &addr, int *type);
+
+	/**
+	 * Queries the name sever for a qnx name.
+	 * @param s is the name we're requesting information about.
+	 * @param entry is the qnx name structure with the requested information.
+	 * @param type is the type of the name (qnx on success).
+	 * @return YARP_OK on success.
+	 */
 	int query_qnx (const YARPString &s, YARPNameQnx &entry, int *type);
+
+	/**
+	 * Queries network information about a specific NIC.
+	 * @param inIp is the IP number of the caller.
+	 * @param netId is the name of the network we're asking information about.
+	 * @param outNic is the return name of the NIC (network name).
+	 * @param outIp is the return IP address on the @a outNic.
+	 * @return YARP_OK on success.
+	 */
 	int query_nic(const YARPString &inIp, const YARPString &netId, YARPString &outNic, YARPString &outIp);
+
+	/**
+	 * Unregisters a name.
+	 * @param s the name to be removed from the name server tables.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int check_out (const YARPString &s);
+
+	/** 
+	 * Unregisters a qnx name.
+	 * @param s the name to be removed from the name server tables.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int check_out_qnx (const YARPString &s);
+
+	/**
+	 * Dumps the name server tables to stdout.
+	 * @param i determines the behavior of the call: 
+	 * 0 for short dump, 1 for getting extended information.
+	 */
 	YARPString dump(int i = 0);	// 0 short, 1 extended
+
 	int _handle_reply(YARPString &out);
 
 private:

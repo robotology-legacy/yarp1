@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.h,v 1.5 2004-08-10 13:42:07 babybot Exp $
+/// $Id: YARPSocketMulti.h,v 1.6 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 
@@ -81,6 +81,12 @@
 #include <yarp/YARPNameID.h>
 #include <yarp/YARPSocket.h>
 
+/**
+ * \file YARPSocketMulti.h contains the definition of the YARP input socket.
+ * This is implemented by various classes and managed by various threads defined
+ * in YARPSocketMulti.cpp.
+ */
+
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
@@ -94,64 +100,231 @@
 ///	YARP_O_SOCKET = 2,
 ///};
 
-///
-/// still requires the fancy mthread stuff to read from multiple groups.
-///
+/**
+ * YARPInputSocketMulti represents an input socket that can read from
+ * multiple targets using a set of predefined protocols (tcp, udp, etc.).
+ * This is implemented by having multiple threads listening on various
+ * connections and a manager thread accepting new connections and 
+ * managing a list of these threads.
+ */
 class YARPInputSocketMulti : public YARPNetworkInputObject
 {
 protected:
+	/** The internal implementation */
 	void *system_resources;
 
 public:
+	/**
+	 * Default constructor. It initializes the object to a suitable default.
+	 */
 	YARPInputSocketMulti();
+
+	/**
+	 * Destructor. Frees memory too.
+	 */
 	virtual ~YARPInputSocketMulti();
 
-	/// virtual override.
+	/**
+	 * Closes a connection identified by its socket handle.
+	 * @param reply_id is the socket handle that identifies the connection.
+	 * @return YARP_OK on success.
+	 */
 	int Close(ACE_HANDLE reply_id);
+
+	/** 
+	 * Closes a connection identified by its symbolic name (the one registered
+	 * on the name server).
+	 * @param name is the name of the connection.
+	 * @return YARP_OK on success.
+	 */
 	int CloseByName(const YARPString& name);
+
+	/**
+	 * Closes all connections.
+	 * @return YARP_OK if successful.
+	 */
 	int CloseAll(void);
 
+	/**
+	 * Starts receiving a new message by polling all available connections.
+	 * @param buffer is the input buffer to be filled with the message.
+	 * @param buffer_length is the length of the @a buffer.
+	 * @param reply_id is the handle of the socket that received the message and
+	 * it could be used to receive more buffers from the same connection.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
+
+	/**
+	 * Starts receiving a new message but blocks and waits for a new message
+	 * to be available.
+	 * @param buffer is the input buffer to be filled with the message.
+	 * @param buffer_length is the length of the @a buffer.
+	 * @param reply_id is the handle of the socket that received the message and
+	 * it could be used to receive more buffers from the same connection.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
+
+	/**
+	 * Continues receiving from the same socket a PollingReceiveBegin() or a 
+	 * ReceiveBegin() already received a buffer successfully.
+	 * @param reply_id identifies the socket that received correctly.
+	 * @param buffer is the pointer to the buffer to be filled with the message.
+	 * @param buffer_length is the size of the buffer/message.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length);
+
+	/**
+	 * Starts replying to a message that was already received.
+	 * @param reply_id identifies the socket that received correctly.
+	 * @param reply_buffer is the pointer to the buffer that contains the reply.
+	 * @param buffer_reply_length is the size of the buffer/message.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
+
+	/**
+	 * Completes the reply and terminates reception of the message.
+	 * @param reply_id identifies the socket that received correctly.
+	 * @param reply_buffer is the pointer to the buffer that contains the reply.
+	 * @param buffer_reply_length is the size of the buffer/message.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
 
+	/**
+	 * Gets the identifier of the socket. For the input socket it returns
+	 * the handle of the acceptor socket.
+	 * @return the handle of the acceptor socket associated to the
+	 * input socket class.
+	 */
 	ACE_HANDLE GetIdentifier(void) const;
+
+	/**
+	 * Gets the type of service provided by this class.
+	 * @return always YARP_MULTI.
+	 */
 	int GetServiceType (void) { return YARP_MULTI; }
 
-	/// specific.
+	/**
+	 * Prepares the socket for receiving messages. This includes allocating certain
+	 * structures.
+	 * @param name is the ID of the local enpoint receiving connections.
+	 * @param ports is an array of IP port numbers.
+	 * @param number_o_ports is the size of the @a ports array.
+	 * @return YARP_OK if successful.
+	 */
 	int Prepare (const YARPUniqueNameID& name, int *ports, int number_o_ports);
+
+	/**
+	 * Gets the port assigned when accepting connections.
+	 * @return the IP port used for accepting connections (tcp).
+	 */
 	int GetAssignedPort(void) const;
+
+	/**
+	 * Prints information about the list of threads managed by this class
+	 * internally.
+	 * @return YARP_OK on success.
+	 */
 	int PrintThreadList(void);
 };
 
-///
-///
-/// this handles only the SHMEM out connection, UDP and MCAST use the protocol-specific class.
+/**
+ * YARPOutputSocketMulti in spite of its name only manages an output socket
+ * of type YARP_SHMEM. The name is misleading for historical reasons but since
+ * the user is not concerned with this class directly it hasn't been changed
+ * yet. An instance of this class is used by ports whenever creating a new
+ * SHMEM connection.
+ */
 class YARPOutputSocketMulti : public YARPNetworkOutputObject
 {
 protected:
+	/** the intenal implementation of this class */
 	void *system_resources;
+
+	/** the handle of the stream connection */
 	ACE_HANDLE identifier;
 
 public:
+	/** 
+	 * Default constructor.
+	 */
 	YARPOutputSocketMulti();
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPOutputSocketMulti();
 
-	/// virtual override.
+	/**
+	 * Closes the connection to the remote peer.
+	 * @param name is the YARPUniqueNameID that identifies the remote peer.
+	 * @return YARP_OK if successful, YARP_FAIL otherwise.
+	 */
 	int Close(const YARPUniqueNameID& name);
+
+	/**
+	 * Connects to the remote peer.
+	 * @param name is the ID of the remote endpoint.
+	 * @param own_name is the symbolic name of the local endpoint (which is sent
+	 * to the remote to identify ourselves).
+	 * @return YARP_OK if successful, YARP_FAIL otherwise.
+	 */
 	int Connect(const YARPUniqueNameID& name, const YARPString& own_name);
 	
+	/**
+	 * Starts sending a new message.
+	 * @param buffer is the buffer containing the message.
+	 * @param buffer_length is the size of the buffer.
+	 * @return YARP_OK if successful, YARP_FAIL otherwise.
+	 */
 	int SendBegin(char *buffer, int buffer_length);
+
+	/**
+	 * Continues sending a message (adds a new piece).
+	 * @param buffer is the buffer with the new chunk.
+	 * @param buffer_length is the size of the buffer.
+	 * @return YARP_OK if successful, YARP_FAIL otherwise.
+	 */
 	int SendContinue(char *buffer, int buffer_length);
+
+	/**
+	 * Starts receiving the reply to the message.
+	 * @param reply_buffer is the pointer to the buffer receiving the reply.
+	 * @param reply_buffer_length is the size of the reply buffer.
+	 * @return YARP_OK if successful, YARP_FAIL otherwise.
+	 */
 	int SendReceivingReply(char *reply_buffer, int reply_buffer_length);
+
+	/**
+	 * Completes the reception of the reply and the message.
+	 * @param reply_buffer is the pointer to the buffer receiving the reply.
+	 * @param reply_buffer_length is the size of the reply buffer.
+	 * @return YARP_OK if successful, YARP_FAIL otherwise.
+	 */
 	int SendEnd(char *reply_buffer, int reply_buffer_length);
 
+	/**
+	 * Gets the identifier of the socket.
+	 * @return the ACE_HANDLE of the underlying socket.
+	 */
 	ACE_HANDLE GetIdentifier(void) const;
+
+	/**
+	 * Gets the type of service provided by this class.
+	 * @return always YARP_SHMEM.
+	 */
 	int GetServiceType (void) { return YARP_SHMEM; }
 
-	/// specific.
+	/**
+	 * Prepares the socket for connecting. This is to be called
+	 * after contruction.
+	 * @param name is the ID of the local endpoint.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int Prepare (const YARPUniqueNameID& name);
 };
 

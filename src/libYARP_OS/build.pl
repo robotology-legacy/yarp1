@@ -20,22 +20,15 @@ use Cwd;
 
 print "Entering compile process of YARP OS libraries...\n";
 
-chomp ($ver = `ver`);
-chomp ($uname = `uname`);
-if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
-{
-	print "This is a Windows 2000/XP specific script\n";
-	print "Perhaps this procedure can be simply extended to\n"; 
-	print "other OSes but for now, this is all experimental...\n";
-	
-	die "This script is specific to Windows 2000/XP or Cygwin\n";
-}
-
 $yarp_root = $ENV{'YARP_ROOT'};
 if (!defined($yarp_root))
 {
 	die "YARP_ROOT environment variable must be defined!\nto point to the path of the yarp source distribution\n";
 }
+
+require "$yarp_root/conf/configure.template.pl" or die "Can't find template file $yarp_root/conf/configure.template.pl\n";
+
+check_os();
 
 print "Ready to start...\n";
 
@@ -61,28 +54,8 @@ unless (-e $config_file)
 	die "Can't find configuration file: $config_file\nPlease make sure a config file exists in \$YARP_ROOT/conf/\n";
 }
 
-open CONFIG, $config_file or die "Can't open config file $!";
 print "Working with: $config_file\n";
-
-my $contextual;
-while (<CONFIG>)
-{
-	chomp;
-	if (/^\[(\w+)\]\s?/)
-	{
-		$contextual = $1;
-	}
-	elsif (/^([A-Za-z0-9_\$]+)= ?/)
-	{
-		my $word = $1;
-		if ($' =~ /([A-Za-z0-9_\/\$]+)\s?/)
-		{
-			$options{$contextual."<-".$word} = $1;
-		}
-	}
-}
-
-close CONFIG;
+load_config_file (\%options, $config_file);
 
 my $os = $options{"Architecture<-OS"};
 
@@ -96,7 +69,7 @@ if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
 		if (-e $options{"Compile_OS<-ACE_PATH"} &&
 			-e "$yarp_root/include/$os/ace" )
 		{
-			do_ace_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"} --os $os");
+			do_ext_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"} --os $os");
 		}
 	}
 	else
@@ -124,8 +97,8 @@ if ($clean)
 	print "\nCleaning...\n";
 	chdir "./src" or die "Cannot chdir to src: $!";
 
-	call_msdev_and_print ("Debug", "CLEAN");
-	call_msdev_and_print ("Release", "CLEAN");
+	call_msdev_and_print ("libYARP_OS", "Debug", "CLEAN");
+	call_msdev_and_print ("libYARP_OS", "Release", "CLEAN");
 	
 	print "\n";
 	chdir "../" or die "Cannot chdir to ..: $!";
@@ -135,7 +108,7 @@ if ($debug)
 {
 	print "\nCompiling debug\n";
 	chdir "./src" or die "Cannot chdir to src: $!";
-	call_msdev_and_print ("Debug", "BUILD");
+	call_msdev_and_print ("libYARP_OS", "Debug", "BUILD");
 	chdir "../" or die "Cannot chdir to ..: $!";
 }
 
@@ -143,7 +116,7 @@ if ($release)
 {
 	print "\nCompiling optimized\n";
 	chdir "./src" or die "Cannot chdir to src: $!";
-	call_msdev_and_print ("Release", "BUILD");
+	call_msdev_and_print ("libYARP_OS", "Release", "BUILD");
 	chdir ".." or die "Cannot chdir to ..: $!";
 }
 
@@ -155,14 +128,14 @@ if ($install)
 	foreach $file (@my_headers) 
 	{
 		print "Copying $file\n";
-		copy ($file, "$yarp_root/include/yarp/") or die "Can't copy .h files\n"; 
+		copy ($file, "$yarp_root/include/yarp/") or warn "Can't copy $file\n"; 
 	}
 
 	@my_libs = glob "./lib/$os/*.lib";
 	foreach $file (@my_libs)
 	{
 		print "Copying $file\n";
-		copy ($file, "$yarp_root/lib/$os/") or die "Can't copy any .lib file\n";
+		copy ($file, "$yarp_root/lib/$os/") or warn "Can't copy $file\n";
 	}
 }
 
@@ -173,14 +146,14 @@ if ((!$force && $options{"Compile_OS<-Tools_Rebuild"} eq "YES") ||
 	{
 		my $current_dir = getcwd;
 		chdir "../tools/" or die "Can't chdir to tools directory\n";
-		do_tools_compile ("build-os.pl --clean --debug --install --os $os");
+		do_ext_compile ("build-os.pl --clean --debug --install --os $os");
 		chdir $current_dir or die "Can't chdir to $current_dir\n";
 	}
 	else
 	{
 		my $current_dir = getcwd;
 		chdir "../tools/" or die "Can't chdir to tools directory\n";
-		do_tools_compile ("build-os.pl --clean --release --install --os $os");
+		do_ext_compile ("build-os.pl --clean --release --install --os $os");
 		chdir $current_dir or die "Can't chdir to $current_dir\n";
 	}
 }
@@ -188,44 +161,3 @@ else
 {
 	print "You didn't ask to recompile the YARP tools\n";
 }
-
-#
-#
-#
-sub do_tools_compile
-{
-	my ($exe) = @_;
-	open TOOLS, "$exe|";
-	while (<TOOLS>)
-	{
-		print;
-	}
-	close TOOLS;
-}
-
-sub do_ace_compile
-{
-	my ($exe) = @_;
-	open ACE, "$exe|";
-	while (<ACE>)
-	{
-		print;
-	}
-	close ACE;
-}
-
-sub call_msdev_and_print
-{
-	my ($version, $operation) = @_;
-
-	open MSDEV, "msdev libYARP_OS.dsp /MAKE \"libYARP_OS - Win32 ".$version."\" /".$operation."|";
-	while (<MSDEV>)
-	{
-		print;
-	}
-	close MSDEV;	
-}
-
-
-
-

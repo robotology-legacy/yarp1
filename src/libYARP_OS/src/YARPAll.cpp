@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPAll.cpp,v 1.5 2004-07-30 06:51:26 eshuy Exp $
+/// $Id: YARPAll.cpp,v 1.6 2004-08-21 17:53:46 gmetta Exp $
 ///
 ///
 #include <yarp/YARPConfig.h>
@@ -70,7 +70,11 @@
 #include <ace/OS.h>
 #include <yarp/YARPNameService.h>
 
-///#include <stdio.h>
+/**
+ * \file YARPAll.cpp This file contains some initialization code and 
+ * some old useful functions for synchronized output. This file is placed
+ * into some library initialization code (when needed).
+ */
 #include <stdarg.h>
 
 #define YARP_USE_OLD_PRINTF
@@ -85,10 +89,17 @@
 static YARPSemaphore services_sema(1);
 
 
-/// ACE initialize.
+/**
+ * This is a class that takes care of initializing ACE. It only contains
+ * a constructor and destructor that are called when the library is
+ * loaded/unloaded. Of course, the user is not concerned with this code.
+ */ 
 class YARPFooInitializer
 {
 public:
+	/**
+	 * Constructor.
+	 */
 	YARPFooInitializer () { 
 	  ACE::init(); 
 	  // by default won't see debug messages anymore
@@ -96,15 +107,27 @@ public:
 
 	  ACE_OS::srand(ACE_OS::time(0)); 
 	}
+
+	/**
+	 * Destructor.
+	 */
 	~YARPFooInitializer () { ACE::fini(); }
 } _fooinitializer;
 
+/**
+ * Initialization of the name service class.
+ */
 static YARPNameService _justtoinitialize;
 
 
 /// -1 = disabled.
 int __debug_level = -1;
 
+/**
+ * Sets the library debug level.
+ * @param yarp is the YARP debug level (-1 means disabled).
+ * @param ace is the ace debug level (e.g. whether ACE_DEBUG will print to stdout).
+ */
 void set_yarp_debug(int yarp, int ace) {
   if (yarp>=0) __debug_level = yarp;
   if (ace>0) {
@@ -114,8 +137,10 @@ void set_yarp_debug(int yarp, int ace) {
   }
 }
 
-
-// thread-safe version of printf
+/** 
+ * A thread-safe version of printf, using our private semaphore.
+ * @param format is the format string as in printf.
+ */
 void YARP_safe_printf(char *format,...)
 {
 	va_list arglist;
@@ -126,6 +151,11 @@ void YARP_safe_printf(char *format,...)
 	services_sema.Post();
 }
 
+/**
+ * A thread-unsafe version of printf, in case the user likes to
+ * Wait()/Post() the semaphore directly.
+ * @param format is the format string as in printf.
+ */
 void YARP_unsafe_printf(char *format,...)
 {
 	va_list arglist;
@@ -134,11 +164,17 @@ void YARP_unsafe_printf(char *format,...)
 	va_end(arglist);
 }
 
+/**
+ * Waits on the private output semaphore (the same used by YARP_safe_printf()).
+ */
 void YARP_output_wait()
 {
 	services_sema.Wait();
 }
 
+/**
+ * Posts on the private output semaphore (the same used by YARP_safe_printf()).
+ */
 void YARP_output_post()
 {
 	services_sema.Post();
