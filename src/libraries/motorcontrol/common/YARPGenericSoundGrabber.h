@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPGenericSoundGrabber.h,v 1.1 2004-02-25 16:47:58 beltran Exp $
+//         Version:  $Id: YARPGenericSoundGrabber.h,v 1.2 2004-03-03 15:56:20 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -40,14 +40,14 @@ template <class ADAPTER, class PARAMETERS>
 class YARPGenericSoundGrabber
 {
 protected:
-	ADAPTER _adapter;		/// adapts the hw idiosyncrasies
-	PARAMETERS _params;		/// actual grabber specific parameters
+	ADAPTER    _adapter;   /// adapts the hw idiosyncrasies
+	PARAMETERS _params;    /// actual grabber specific parameters
 
 public:
 	YARPGenericSoundGrabber () {}
 	~YARPGenericSoundGrabber () {}
 
-	int initialize (int board);
+	int initialize (int, int, int, int, int);
 	int initialize (const PARAMETERS &param);
 	int uninitialize (void);
 	int acquireBuffer (unsigned char **buffer);
@@ -61,9 +61,18 @@ public:
 // Description:  
 //--------------------------------------------------------------------------------------
 template <class ADAPTER, class PARAMETERS>
-int YARPGenericSoundGrabber<ADAPTER, PARAMETERS>::initialize (int board)
+int YARPGenericSoundGrabber<ADAPTER, PARAMETERS>::initialize (int board, 
+															  int channels, 
+															  int samplespersecond,
+															  int bitspersample,
+															  int bufferlength)
 {
-	//_params._unit_number = board;
+	//_params._unit_number  = board;
+	_params.m_Channels 		= channels;
+	_params.m_SamplesPerSec = samplespersecond;
+	_params.m_BitsPerSample = bitspersample;
+	_params.m_BufferLength  = bufferlength;
+
 	return _adapter.initialize (_params);
 }
 

@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.9 2004-03-02 10:32:00 beltran Exp $
+//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.10 2004-03-03 15:56:20 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -250,17 +250,18 @@ YARPSoundDeviceDriver::set_mute(void *cmd)
 	// 
 	d._select_control(MIXERCONTROL_CONTROLTYPE_MUTE);
 	
-	mixerControlDetails.cbStruct = sizeof(MIXERCONTROLDETAILS);
+	mixerControlDetails.cbStruct    = sizeof(MIXERCONTROLDETAILS);
 	mixerControlDetails.dwControlID = d.m_mixerControlArray.dwControlID;
-	mixerControlDetails.cChannels = d.m_mixerLine.cChannels;
+	mixerControlDetails.cChannels   = d.m_mixerLine.cChannels;
 	
 	if (mixerControlDetails.cChannels > 2) mixerControlDetails.cChannels = 2;
 	
 	if (d.m_mixerControlArray.fdwControl & MIXERCONTROL_CONTROLF_UNIFORM) mixerControlDetails.cChannels = 1;
 
 	mixerControlDetails.cMultipleItems = 0;
-	mixerControlDetails.paDetails = &value[0];
-	mixerControlDetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
+	mixerControlDetails.paDetails      = &value[0];
+	mixerControlDetails.cbDetails      = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
+
 	value[0].dwValue = value[1].dwValue = (*m_mute_state);
 
 	err = mixerSetControlDetails((HMIXEROBJ)d.m_MixerHandle, 
@@ -293,12 +294,13 @@ YARPSoundDeviceDriver::set_volume(void *cmd)
 	 */
 	d._select_control(MIXERCONTROL_CONTROLTYPE_VOLUME);
 	
-	mixerControlDetails.cbStruct = sizeof(MIXERCONTROLDETAILS);
-	mixerControlDetails.dwControlID = d.m_mixerControlArray.dwControlID;
-	mixerControlDetails.cChannels = 2;
+	mixerControlDetails.cbStruct       = sizeof(MIXERCONTROLDETAILS);
+	mixerControlDetails.dwControlID    = d.m_mixerControlArray.dwControlID;
+	mixerControlDetails.cChannels      = 2;
 	mixerControlDetails.cMultipleItems = 0;
-	mixerControlDetails.paDetails = &value[0];
-	mixerControlDetails.cbDetails = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
+	mixerControlDetails.paDetails      = &value[0];
+	mixerControlDetails.cbDetails      = sizeof(MIXERCONTROLDETAILS_UNSIGNED);
+
 	value[0].dwValue = value[1].dwValue = (*m_volume);
 
 	err = mixerSetControlDetails((HMIXEROBJ)d.m_MixerHandle, 

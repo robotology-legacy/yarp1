@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: main.cpp,v 1.3 2004-03-03 10:19:14 beltran Exp $
+//         Version:  $Id: main.cpp,v 1.4 2004-03-03 15:56:20 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -60,14 +60,14 @@
 //----------------------------------------------------------------------
 // Global parameters  
 //----------------------------------------------------------------------
-char	_name[512];
-char	_fgdataname[512];
-char	_netname[512];
-bool	_client		= false;
-bool	_simu		= false;
-bool	_fgnetdata	= false;
-int		_board_no	= 0;
-char    __filename[256] = "sound.ini";
+char _name[512];
+char _fgdataname[512];
+char _netname[512];
+bool _client          = false;
+bool _simu            = false;
+bool _fgnetdata       = false;
+int  _board_no        = 0;
+char __filename[256]  = "sound.ini";
 
 extern int __debug_level;
 
@@ -85,15 +85,15 @@ ParseParams (int argc, char *argv[])
 {
 	int i;
 	
-	ACE_OS::sprintf (_name, "/%s/o:sound", argv[0]);
-	ACE_OS::sprintf (_fgdataname,"/%s/i:fgdata", argv[0]);
-	ACE_OS::sprintf (_netname, "default");
+	ACE_OS::sprintf (_name       , "/%s/o:sound"  , argv[0]);
+	ACE_OS::sprintf (_fgdataname , "/%s/i:fgdata" , argv[0]);
+	ACE_OS::sprintf (_netname    , "default");
 
 	for (i = 1; i < argc; i++)
 	{
 		if (argv[i][0] == '+') {
-			ACE_OS::sprintf (_name, "/%s/o:sound", argv[i]+1);
-			ACE_OS::sprintf (_fgdataname,"/%s/i:fgdata", argv[i]+1);
+			ACE_OS::sprintf (_name       , "/%s/o:sound"  , argv[i]+1);
+			ACE_OS::sprintf (_fgdataname , "/%s/i:fgdata" , argv[i]+1);
 		}
 		else
 		if (argv[i][0] == '-') {
@@ -160,7 +160,6 @@ ParseParams (int argc, char *argv[])
 //     Revision:  NOTE: Modifications should be done to support sound variables
 //     (volume, mute...etc) 
 // =====================================================================================
-
 #if !defined(__LinuxTest__)
 class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 {
@@ -234,7 +233,6 @@ public:
 	int _runAsNormally (void);
 };
 
-
 //--------------------------------------------------------------------------------------
 //       Class:  mainthread
 //      Method:  _runAsClient
@@ -268,7 +266,6 @@ mainthread::_runAsClient (void)
 	return YARP_OK;
 }
 
-
 //--------------------------------------------------------------------------------------
 //       Class:  mainthread
 //      Method:  _runAsSimulation 
@@ -292,9 +289,6 @@ mainthread::_runAsSimulation (void)
 	{
 		YARPTime::DelayInSeconds (0.04);
 	
-		//img.Zero ();
-		//*(img.GetRawBuffer() + (frame_no % img.GetAllocatedDataSize())) = -1;
-
 		outport.Content().Refer (img);
 		outport.Write();
 
@@ -312,7 +306,6 @@ mainthread::_runAsSimulation (void)
 	return YARP_OK;
 }
 
-
 //--------------------------------------------------------------------------------------
 //       Class:  mainthread
 //      Method:  _runAsNormally
@@ -322,14 +315,14 @@ mainthread::_runAsSimulation (void)
 int 
 mainthread::_runAsNormally (void)
 {
-	int _Channels = 0;
-	int _SamplesPerSec= 0;
+	int _Channels      = 0;
+	int _SamplesPerSec = 0;
 	int _BitsPerSample = 0;
-	int _BufferLength = 0;
+	int _BufferLength  = 0;
 
-	HMMIO hmmio;
-	MMCKINFO ckRIFF;
-	MMCKINFO ck;
+	HMMIO        hmmio;
+	MMCKINFO     ckRIFF;
+	MMCKINFO     ck;
 	WAVEFORMATEX waveFormat;
 
 	unsigned char *buffer = NULL;
@@ -338,6 +331,9 @@ mainthread::_runAsNormally (void)
 	YARPSoundGrabber soundgrabber;
 	YARPImageOf<YarpPixelBGR> img;
 
+	//----------------------------------------------------------------------
+	//  Port initialization
+	//----------------------------------------------------------------------
 	DeclareOutport(outport);
 	outport.Register (_name, _netname);
 
@@ -355,22 +351,26 @@ mainthread::_runAsNormally (void)
 #endif
 
 	file.set(path, __filename);
-	file.get("[GENERAL]", "Channels", &_Channels, 1);
-	file.get("[GENERAL]", "SamplesPerSec", &_SamplesPerSec, 1);
-	file.get("[GENERAL]", "BitsPerSample", &_BitsPerSample, 1);
-	file.get("[GENERAL]", "BufferLength", &_BufferLength, 1);
+	file.get("[GENERAL]" , "Channels"      , &_Channels      , 1);
+	file.get("[GENERAL]" , "SamplesPerSec" , &_SamplesPerSec , 1);
+	file.get("[GENERAL]" , "BitsPerSample" , &_BitsPerSample , 1);
+	file.get("[GENERAL]" , "BufferLength"  , &_BufferLength  , 1);
 
 	//----------------------------------------------------------------------
 	//  Initialize the grabber
 	//----------------------------------------------------------------------
-	soundgrabber.initialize (_board_no);
+	soundgrabber.initialize (_board_no,
+							 _Channels,
+							 _SamplesPerSec,
+							 _BitsPerSample,
+							 _BufferLength);
 	
 	//----------------------------------------------------------------------
 	//  Start the data reception port in the case the option is active
 	//----------------------------------------------------------------------
 	FgNetDataPort  * m_fg_net_data;
-	if (_fgnetdata)
-	{
+
+	if (_fgnetdata) {
 		m_fg_net_data = new FgNetDataPort(&soundgrabber);
 		m_fg_net_data->Register (_fgdataname,_netname);
 	} 
@@ -378,20 +378,23 @@ mainthread::_runAsNormally (void)
 	ACE_OS::fprintf (stdout, "starting up soundgrabber...\n");
 
 	double start = YARPTime::GetTimeAsSeconds ();
-	double cur = start;
+	double cur   = start;
 
 	//----------------------------------------------------------------------
 	//  Initialize the WAVEFORMATEX ini sound file data
 	//----------------------------------------------------------------------
-	waveFormat.wFormatTag = WAVE_FORMAT_PCM;
-	waveFormat.nChannels = _Channels;
-	waveFormat.nSamplesPerSec = _SamplesPerSec;
-	waveFormat.wBitsPerSample = _BitsPerSample;
-	waveFormat.nBlockAlign = waveFormat.nChannels * (waveFormat.wBitsPerSample/8);
+	waveFormat.wFormatTag      = WAVE_FORMAT_PCM;
+	waveFormat.nChannels       = _Channels;
+	waveFormat.nSamplesPerSec  = _SamplesPerSec;
+	waveFormat.wBitsPerSample  = _BitsPerSample;
+	waveFormat.nBlockAlign     = waveFormat.nChannels * (waveFormat.wBitsPerSample/8);
 	waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
-	waveFormat.cbSize = 0;
+	waveFormat.cbSize          = 0;
+
 	//----------------------------------------------------------------------
 	//  Open and initialize a WAVE file
+	//  Note: I am using mmio functions. I have to figure out how to do
+	//  this in QNX and Linux
 	//----------------------------------------------------------------------
 	hmmio = mmioOpen("dest.wav",
 					 NULL,
@@ -434,6 +437,9 @@ mainthread::_runAsNormally (void)
 
 		soundgrabber.releaseBuffer ();
 
+		//----------------------------------------------------------------------
+		//  Time measurement stuff
+		//----------------------------------------------------------------------
 		frame_no++;
 		if ((frame_no % 250) == 0)
 		{
@@ -444,15 +450,20 @@ mainthread::_runAsNormally (void)
 		}
 	}
 	
+	//----------------------------------------------------------------------
+	//  Close the WAVE file
+	//----------------------------------------------------------------------
 	mmioAscend(hmmio, &ck, 0);
 	mmioAscend(hmmio, &ckRIFF, 0);
 	mmioClose(hmmio, 0);
 
-	//destroy fg_net_data port
+	//----------------------------------------------------------------------
+	//  destroy fg_net_data port
+	//----------------------------------------------------------------------
 	if (_fgnetdata)
 	{
 		if (m_fg_net_data != NULL)
-			delete m_fg_net_data; //can this be done better? (closind the port?)
+			delete m_fg_net_data; 
 	}
 
 	soundgrabber.uninitialize ();
@@ -484,8 +495,7 @@ main (int argc, char *argv[])
 
 	char c = 0;
 
-	do
-	{
+	do {
 		cout << "Type q+return to quit" << endl;
 		cin >> c;
 	}

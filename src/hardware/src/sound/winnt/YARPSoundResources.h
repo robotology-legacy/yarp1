@@ -10,7 +10,7 @@
 // 
 //     Description:  This file encapsulates the SoundResources class and the its methods
 // 
-//         Version:  $Id: YARPSoundResources.h,v 1.6 2004-03-02 10:32:00 beltran Exp $
+//         Version:  $Id: YARPSoundResources.h,v 1.7 2004-03-03 15:56:20 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -37,23 +37,24 @@
 class SoundResources
 {
 public:
-
 	//----------------------------------------------------------------------
 	//  Constructor/Destructor
 	//----------------------------------------------------------------------
 	SoundResources (void) : _bmutex(1),
 							_new_frame(0),
 							_canpost(true),
-							dwBufferLength(8192),
 							numSamples(2048),
-							freqSample(44100),
-							microDistance(0.14),
-							nBitsSample(16)
+							microDistance(0.14)
 	{
-		//Initialize variables
-		//Assign memory to variables and structures
-		m_InRecord = false;
-		//VarMutexID = 2;
+		//----------------------------------------------------------------------
+		// Initialize variables
+		// Default: 16-bit, 44KHz, stereo
+		//----------------------------------------------------------------------
+		m_InRecord     = false;
+		dwBufferLength = 8192;
+		freqSample     = 44100;
+		nBitsSample    = 16;
+		channels       = 2;
 	}
 
 	~SoundResources () { _uninitialize (); }
@@ -61,29 +62,27 @@ public:
 	//----------------------------------------------------------------------
 	// Variables  
 	//----------------------------------------------------------------------
-
 	YARPSemaphore _bmutex;
 	YARPSemaphore _new_frame;
-	bool _canpost;
+	bool          _canpost;
 
 	//Declare usefull variables
+    HWAVEIN       m_WaveInHandle;    // Handle to the WAVE In Device
+    HMIXER        m_MixerHandle;     // Handle to Mixer for WAVE In Device
+    WAVEHDR       m_WaveHeader[3];   // We use two WAVEHDR's for recording (ie, double-buffering) in this example
+    bool          m_InRecord;        // Variable used to indicate whether we are in record
+    unsigned char m_DoneAll;         // Variable used by recording thread to indicate whether we are in record
 
-	HWAVEIN			m_WaveInHandle; // Handle to the WAVE In Device 
-	HMIXER			m_MixerHandle; // Handle to Mixer for WAVE In Device
-	//HANDLE			m_WaveFileHandle = INVALID_HANDLE_VALUE; // Handle to the disk file where we permanently store 
-	// the recorded audio data 
-	WAVEHDR			m_WaveHeader[3]; // We use two WAVEHDR's for recording (ie, double-buffering) in this example 
-	bool			m_InRecord; // Variable used to indicate whether we are in record 
-	unsigned char	m_DoneAll;	// Variable used by recording thread to indicate whether we are in record 
-
-	MMRESULT		m_err;
-	WAVEFORMATEX	m_waveFormat;
-	MIXERLINE		m_mixerLine;
-	HANDLE			m_waveInThread;
-	unsigned long	m_n, m_numSrc;
+    MMRESULT      m_err;
+    WAVEFORMATEX  m_waveFormat;
+    MIXERLINE     m_mixerLine;
+    HANDLE        m_waveInThread;
+    unsigned long m_n;
+    unsigned long m_numSrc;
+	
 	// Control structures 
-	MIXERCONTROL		m_mixerControlArray;
-	MIXERLINECONTROLS	m_mixerLineControls;
+	MIXERCONTROL      m_mixerControlArray;
+	MIXERLINECONTROLS m_mixerLineControls;
 
 	//Local lockable buffer
 	unsigned char *_rawBuffer;
@@ -91,11 +90,12 @@ public:
 	//----------------------------------------------------------------------
 	//  Parameters
 	//----------------------------------------------------------------------
-	const DWORD dwBufferLength;
-	const DWORD numSamples;		//dwBufferLength/4
-	const DWORD freqSample;
-	const double microDistance; // babybot
-	const WORD nBitsSample;	
+	DWORD        dwBufferLength;
+	const DWORD  numSamples;       //dwBufferLength/4
+	DWORD        freqSample;
+	const double microDistance;    // babybot
+	WORD         nBitsSample;
+	WORD         channels;
 
 	//----------------------------------------------------------------------
 	// Public Method definitions 
