@@ -18,6 +18,10 @@ SmoothControl::SmoothControl(const YARPString &iniFile, int insize, int outsize)
 
 	_pids = new YARPPidFilter[_nPids];
 	double temp[3];
+
+	_cmd.Resize(_outSize);
+	_cmd = 0;
+
 	int i;
 	for(i = 0; i < _nPids; i++)
 	{

@@ -5,6 +5,7 @@
 #include <YARPRobotMath.h>
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
+#include <YARPBottleContent.h>
 #include <YARPString.h>
 #include <YARPTime.h>
 
@@ -22,7 +23,7 @@ int main(int argc, char* argv[])
 	YVector _in(__inSize);
 	YVector _out(__outSize);
 	YARPInputPortOf<YVector> _inPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	YARPOutputPortOf<YVector> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+	YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 	SmoothControl _control(__configFile, __inSize, __outSize);
 
 	YARPString base1(__baseName);
@@ -30,8 +31,7 @@ int main(int argc, char* argv[])
 	_inPort.Register(base1.append("i").c_str());
 	_outPort.Register(base2.append("o").c_str());
 
-	YVector v(__outSize);
-	v = 0.0;
+	YARPBottle b;
 
 	double time1;
 	double time2;
@@ -43,8 +43,9 @@ int main(int argc, char* argv[])
 	{
 		counter++;
 		_inPort.Read();
-		_control.apply(_inPort.Content(), v);
-		_outPort.Content() = v;
+		_control.apply(_inPort.Content(), b);
+		_outPort.Content() = b;
+		// b.display();
 		_outPort.Write();
 		time2 = time1;
 		time1 = YARPTime::GetTimeAsSeconds();

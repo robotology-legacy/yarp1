@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergencecontrol.cpp,v 1.3 2003-11-21 17:53:02 babybot Exp $
+/// $Id: vergencecontrol.cpp,v 1.4 2004-05-20 16:27:40 babybot Exp $
 ///
 ///
 
@@ -74,6 +74,7 @@ VergenceControl::VergenceControl(const YARPString &iniFile, int insize, int outs
 	_iniFile = iniFile;
 	_inSize = insize;
 	_outSize = outsize;
+	_cmd.Resize(outsize);
 
 	YARPConfigFile file;
 	char *root = GetYarpRoot();

@@ -5,6 +5,7 @@
 #include <YARPRateThread.h>
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
+#include <YARPBottleContent.h>
 
 class NeckControl;
 
@@ -21,16 +22,15 @@ const YARPString __baseName = "/headsink/";
 enum __SinkCh
 {
 	SinkChVor = 0,
-	SinkChPosition = 1,
-	SinkChTracker = 2,
-	SinkChVergence = 3,
-	SinkChSaccades= 4,
-	SinkChN = 5,
+	SinkChTracker = 1,
+	SinkChVergence = 2,
+	SinkChSaccades= 3,
+	SinkChN = 4,
 };
 
+const char __portPositionNameSuffix[] = "position/i";
 const char __portNameSuffixes[SinkChN][255] = {
 										"vor/i",
-										"position/i",
 										"track/i",
 										"vergence/i",
 										"saccades/i",
@@ -56,10 +56,23 @@ public:
 	void printChannelsStatus();
 
 private:
+	inline void _polPort(YARPInputPortOf<YARPBottle> &port, YVector &v, int &inhibition)
+	{
+		if (port.Read(0))
+		{
+			// port.Content().display();
+			YARPBottle &tmp = port.Content();
+			tmp.readYVector(v);
+			tmp.readInt(&inhibition);
+		}
+	}
+
 	inline void _polPort(YARPInputPortOf<YVector> &port, YVector &v)
 	{
 		if (port.Read(0))
+		{
 			v = port.Content();
+		}
 	}
 
 	NeckControl *_neckControl;
@@ -69,8 +82,11 @@ private:
 	YVector _outCmd;
 	
 	// input channels
-	YARPInputPortOf<YVector>  *_inPorts[SinkChN];
+	YARPInputPortOf<YARPBottle>  *_inPorts[SinkChN];
+	YARPInputPortOf<YVector> _inPortPosition;
 	YVector _inVectors[SinkChN];
+	int _inhibitions[SinkChN];
+	YVector _position;
 	int _enableVector[SinkChN];
 
 	YARPString _iniFile;
@@ -119,7 +135,7 @@ public:
 		delete [] _pids;
 	}
 
-	const YVector & apply(const YVector &in, const YVector &cmd)
+	const YVector & apply(const YVector &in)
 	{
 		double pred_r = in(4);
 		double pred_l = in(5);

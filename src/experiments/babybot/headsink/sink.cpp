@@ -1,17 +1,18 @@
 #include "sink.h"
+#include "sinkconstants.h"
 
 Sink::Sink(int rate, const char *name, const char *ini_file):
 YARPRateThread(name, rate),
-_outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+_outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
+_inPortPosition (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 {
-	_inPorts[SinkChVor] = new YARPInputPortOf<YVector>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	_inPorts[SinkChPosition] = new YARPInputPortOf<YVector>(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
-	_inPorts[SinkChTracker] = new YARPInputPortOf<YVector>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	_inPorts[SinkChVergence] = new YARPInputPortOf<YVector>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	_inPorts[SinkChSaccades] = new YARPInputPortOf<YVector>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	_inPorts[SinkChVor] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	_inPorts[SinkChTracker] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	_inPorts[SinkChVergence] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	_inPorts[SinkChSaccades] = new YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
 	_iniFile = YARPString(ini_file);
-	
+
 	_nj = __nJoints;
 	YARPString base = __baseName;
 
@@ -23,12 +24,19 @@ _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 		_inVectors[i].Resize(_nj);
 		_inVectors[i] = 0.0;
 
+		_inhibitions[i] = SINK_INHIBIT_NONE;
+
 		_enableVector[i] = 0;		// initially inhibit all channels
 
 		// register port
 		_inPorts[i]->Register(YARPString(base).append(__portNameSuffixes[i]).c_str());
 	}
 
+	// position port
+	_inPortPosition.Register(YARPString(base).append(__portPositionNameSuffix).c_str());
+	_position.Resize(_nj);
+	_position = 0;
+	
 	// output port and vector
 	_outPort.Register(YARPString(base).append("o").c_str());
 	_outCmd.Resize(_nj);
@@ -59,7 +67,11 @@ void Sink::doLoop()
 	/// polls all ports.
 	int i;
 	for(i = 0; i < SinkChN; i++)
-		_polPort(*(_inPorts[i]), _inVectors[i]);
+	{
+		_polPort(*(_inPorts[i]), _inVectors[i], _inhibitions[i]);
+	}
+
+	_polPort(_inPortPosition, _position);
 
 	_outCmd = 0.0;
 
@@ -76,8 +88,14 @@ void Sink::doLoop()
 		_outCmd = _outCmd + _enableVector[SinkChVergence]*_inVectors[SinkChVergence];
 	
 	// finally compute neck
-	const YVector &neck = _neckControl->apply(_inVectors[SinkChPosition], _outCmd);
-	_outCmd = _outCmd + _enableVector[SinkChPosition]*neck;
+	const YVector &neck = _neckControl->apply(_position);
+	_outCmd = _outCmd + neck;
+
+/*	for(int k = 1; k <= 5; k++)
+	{
+		printf("%lf/t", neck(k));
+	}
+	printf("\n");*/
 
 	// add saccades
 	_outCmd = _outCmd + _inVectors[SinkChSaccades];

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.15 2004-02-04 17:20:24 babybot Exp $
+/// $Id: main.cpp,v 1.16 2004-05-20 16:27:40 babybot Exp $
 ///
 ///
 
@@ -159,16 +159,16 @@ int main(int argc, char* argv[])
 
 	fin >> hostname >> portnumber;
 	fin.close ();
-
+	
 	YARPNameClient nc(hostname, portnumber);
-
+	
 	if (YARPParseParameters::parse(argc, argv, "i"))
 		interactive(nc);
 	else
 		commandLine(nc, argc, argv);
 		
 	return YARP_OK;
-}
+} 
 
 void commandLine(YARPNameClient& nc, int argc, char* argv[])
 {

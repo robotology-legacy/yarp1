@@ -121,6 +121,10 @@ SOURCE=.\sink.h
 
 SOURCE=.\sinkbehavior.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\sinkconstants.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergencecontrol.h,v 1.4 2004-04-29 17:34:42 babybot Exp $
+/// $Id: vergencecontrol.h,v 1.5 2004-05-20 16:27:40 babybot Exp $
 ///
 ///
 
@@ -74,6 +74,8 @@
 #include <YARPMatrix.h>
 #include <YARPPidFilter.h>
 #include <YARPString.h>
+#include <YARPBottle.h>
+#include "../headsink/sinkconstants.h"
 
 ///
 ///
@@ -83,6 +85,14 @@ class VergenceControl
 public:
 	VergenceControl(const YARPString &iniFile, int insize, int outsize);
 	~VergenceControl();
+	
+	void apply(const YVector &in, YARPBottle &out)
+	{
+		out.reset();
+		apply(in, _cmd);
+		out.writeYVector(_cmd);
+		out.writeInt(SINK_INHIBIT_NONE);
+	}
 
 	void apply(const YVector &in, YVector &out)
 	{
@@ -108,6 +118,8 @@ private:
 
 	YARPString _iniFile;
 	YARPString _path;
+
+	YVector _cmd;
 };
 
 #endif

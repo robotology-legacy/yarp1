@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.11 2003-08-29 10:35:09 babybot Exp $
+/// $Id: YARPNameClient.cpp,v 1.12 2004-05-20 16:27:40 babybot Exp $
 ///
 ///
 
@@ -683,6 +683,7 @@ int YARPNameClient::_handle_reply(YARPString &out)
 	for(i=0; i<nVectors;i++)
 	{
 		// ith vector
+		iov[0].iov_base = data_buf_;
 		iov[0].iov_len = SIZE_BUF;
 		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
 		///out.append(data_buf_,byte_count);
@@ -692,6 +693,7 @@ int YARPNameClient::_handle_reply(YARPString &out)
 	if (lastVectLength > 0)
 	{
 		// last vector
+		iov[0].iov_base = data_buf_;
 		iov[0].iov_len = lastVectLength;
 		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
 		///out.append(data_buf_,byte_count);

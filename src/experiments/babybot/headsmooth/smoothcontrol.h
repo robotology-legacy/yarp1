@@ -4,14 +4,25 @@
 #include <YARPMatrix.h>
 #include <YARPPidFilter.h>
 #include <YARPString.h>
+#include <YARPBottle.h>
 
 #include <YARPLogpolar.h>
+
+#include "../headsink/sinkconstants.h"
 
 class SmoothControl
 {
 public:
 	SmoothControl(const YARPString &iniFile, int insize, int outsize);
 	~SmoothControl();
+
+	void apply(const YVector &in, YARPBottle &out)
+	{
+		apply(in, _cmd);
+		out.reset();
+		out.writeYVector(_cmd);
+		out.writeInt(SINK_INHIBIT_NONE);
+	}
 
 	void apply(const YVector &in, YVector &out)
 	{
@@ -38,6 +49,7 @@ private:
 			*v = -th;
 	}
 
+	YVector _cmd;
 	int _inSize;
 	int _outSize;
 	int _nPids;
