@@ -39,6 +39,7 @@ ALL : "$(OUTDIR)\headsink.exe"
 CLEAN :
 	-@erase "$(INTDIR)\headsink.obj"
 	-@erase "$(INTDIR)\sink.obj"
+	-@erase "$(INTDIR)\sinkbehavior.obj"
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(OUTDIR)\headsink.exe"
 
@@ -87,7 +88,8 @@ LINK32=link.exe
 LINK32_FLAGS=math.lib utils.lib winmm.lib os_services.lib ace.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\headsink.pdb" /machine:I386 /out:"$(OUTDIR)\headsink.exe" /libpath:"..\..\..\..\lib\winnt" 
 LINK32_OBJS= \
 	"$(INTDIR)\headsink.obj" \
-	"$(INTDIR)\sink.obj"
+	"$(INTDIR)\sink.obj" \
+	"$(INTDIR)\sinkbehavior.obj"
 
 "$(OUTDIR)\headsink.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -122,6 +124,7 @@ ALL : "$(OUTDIR)\headsink.exe"
 CLEAN :
 	-@erase "$(INTDIR)\headsink.obj"
 	-@erase "$(INTDIR)\sink.obj"
+	-@erase "$(INTDIR)\sinkbehavior.obj"
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
 	-@erase "$(OUTDIR)\headsink.exe"
@@ -173,7 +176,8 @@ LINK32=link.exe
 LINK32_FLAGS=aced.lib motorcontroldb.lib mathdb.lib utilsdb.lib alldriversdb.lib winmm.lib os_servicesDB.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"$(OUTDIR)\headsink.pdb" /debug /machine:I386 /out:"$(OUTDIR)\headsink.exe" /pdbtype:sept /libpath:"..\..\..\..\lib\winnt" 
 LINK32_OBJS= \
 	"$(INTDIR)\headsink.obj" \
-	"$(INTDIR)\sink.obj"
+	"$(INTDIR)\sink.obj" \
+	"$(INTDIR)\sinkbehavior.obj"
 
 "$(OUTDIR)\headsink.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -215,6 +219,11 @@ SOURCE=.\headsink.cpp
 SOURCE=.\sink.cpp
 
 "$(INTDIR)\sink.obj" : $(SOURCE) "$(INTDIR)"
+
+
+SOURCE=.\sinkbehavior.cpp
+
+"$(INTDIR)\sinkbehavior.obj" : $(SOURCE) "$(INTDIR)"
 
 
 

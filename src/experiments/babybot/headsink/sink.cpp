@@ -44,6 +44,8 @@ void Sink::doInit()
 
 void Sink::doLoop()
 {
+	/// polls ports.
+
 	_polPort(_inPortVor, _inVor);
 	_polPort(_inPortTrack, _inTrack);
 	_polPort(_inPortPosition, _inPosition);
