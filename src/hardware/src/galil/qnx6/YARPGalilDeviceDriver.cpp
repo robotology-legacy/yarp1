@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.1 2003-05-02 13:08:43 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.2 2003-05-17 10:44:13 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -14,50 +14,54 @@ YARPGalilDeviceDriver::YARPGalilDeviceDriver() :
 YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 {
 	// fill function pointer table
-	m_cmds[CMDSetSpeed] = &YARPGalilDeviceDriver::set_speed;
-	m_cmds[CMDSetAcceleration] = &YARPGalilDeviceDriver::set_acceleration;
-	m_cmds[CMDSetPosition] = &YARPGalilDeviceDriver::set_position;
-	m_cmds[CMDSetPID] = &YARPGalilDeviceDriver::set_pid;
-	m_cmds[CMDGetPosition] = &YARPGalilDeviceDriver::get_position;
+	m_cmds[CMDSetSpeed] 		= &YARPGalilDeviceDriver::set_speed;
+	m_cmds[CMDSetAcceleration] 	= &YARPGalilDeviceDriver::set_acceleration;
+	m_cmds[CMDSetPosition] 		= &YARPGalilDeviceDriver::set_position;
+	m_cmds[CMDSetPID] 			= &YARPGalilDeviceDriver::set_pid;
+	m_cmds[CMDGetPosition] 		= &YARPGalilDeviceDriver::get_position;
 
-	m_cmds[CMDSetOutputPort] = &YARPGalilDeviceDriver::set_output_port;
-	m_cmds[CMDSetOutputBit] = &YARPGalilDeviceDriver::set_output_bit;
-	m_cmds[CMDClearOutputBit] = &YARPGalilDeviceDriver::clear_output_bit;
+	m_cmds[CMDSetOutputPort] 	= &YARPGalilDeviceDriver::set_output_port;
+	m_cmds[CMDSetOutputBit] 	= &YARPGalilDeviceDriver::set_output_bit;
+	m_cmds[CMDClearOutputBit] 	= &YARPGalilDeviceDriver::clear_output_bit;
 
-	m_cmds[CMDSetOffset] = &YARPGalilDeviceDriver::set_offset;
-	m_cmds[CMDSetOffsets] = &YARPGalilDeviceDriver::set_offsets;
+	m_cmds[CMDSetOffset] 		= &YARPGalilDeviceDriver::set_offset;
+	m_cmds[CMDSetOffsets] 		= &YARPGalilDeviceDriver::set_offsets;
 		
-	m_cmds[CMDSetSpeeds] = &YARPGalilDeviceDriver::set_speeds;
+	m_cmds[CMDSetSpeeds] 		= &YARPGalilDeviceDriver::set_speeds;
 	m_cmds[CMDSetAccelerations] = &YARPGalilDeviceDriver::set_accelerations;
-	m_cmds[CMDSetPositions] = &YARPGalilDeviceDriver::set_positions;
-	m_cmds[CMDGetPositions] = &YARPGalilDeviceDriver::get_positions;
+	m_cmds[CMDSetPositions] 	= &YARPGalilDeviceDriver::set_positions;
+	m_cmds[CMDGetPositions] 	= &YARPGalilDeviceDriver::get_positions;
 
-	m_cmds[CMDBeginMotion] = &YARPGalilDeviceDriver::begin_motion;
-	m_cmds[CMDBeginMotions] = &YARPGalilDeviceDriver::begin_motions;
+	m_cmds[CMDBeginMotion] 		= &YARPGalilDeviceDriver::begin_motion;
+	m_cmds[CMDBeginMotions] 	= &YARPGalilDeviceDriver::begin_motions;
 
-	m_cmds[CMDDefinePositions] = &YARPGalilDeviceDriver::define_positions;
-	m_cmds[CMDDefinePosition] = &YARPGalilDeviceDriver::define_position;
+	m_cmds[CMDDefinePositions] 	= &YARPGalilDeviceDriver::define_positions;
+	m_cmds[CMDDefinePosition] 	= &YARPGalilDeviceDriver::define_position;
 
-	m_cmds[CMDStopAxes] = &YARPGalilDeviceDriver::stop_axes;
-	m_cmds[CMDReadSwitches] = &YARPGalilDeviceDriver::read_switches;
+	m_cmds[CMDStopAxes] 		= &YARPGalilDeviceDriver::stop_axes;
+	m_cmds[CMDReadSwitches] 	= &YARPGalilDeviceDriver::read_switches;
 
-	m_cmds[CMDServoHere] = &YARPGalilDeviceDriver::servo_here;
+	m_cmds[CMDServoHere] 		= &YARPGalilDeviceDriver::servo_here;
 
-	m_cmds[CMDGetSpeeds] = &YARPGalilDeviceDriver::get_speeds;
+	m_cmds[CMDGetSpeeds] 		= &YARPGalilDeviceDriver::get_speeds;
 
-	m_cmds[CMDGetRefSpeeds] = &YARPGalilDeviceDriver::get_ref_speeds;
+	m_cmds[CMDGetRefSpeeds] 	= &YARPGalilDeviceDriver::get_ref_speeds;
 	m_cmds[CMDGetRefAccelerations] = &YARPGalilDeviceDriver::get_ref_accelerations;
-	m_cmds[CMDGetRefPositions] = &YARPGalilDeviceDriver::get_ref_positions;
-	m_cmds[CMDGetPID] = &YARPGalilDeviceDriver::get_pid;
-	m_cmds[CMDGetTorques] = &YARPGalilDeviceDriver::get_torques;
+	m_cmds[CMDGetRefPositions] 	= &YARPGalilDeviceDriver::get_ref_positions;
+	m_cmds[CMDGetPID] 			= &YARPGalilDeviceDriver::get_pid;
+	m_cmds[CMDGetTorques] 		= &YARPGalilDeviceDriver::get_torques;
 
 	m_cmds[CMDSetIntegratorLimits] = &YARPGalilDeviceDriver::set_int_limits;
-	m_cmds[CMDSetTorqueLimits] = &YARPGalilDeviceDriver::set_torque_limits;
-	m_cmds[CMDGetErrors] = &YARPGalilDeviceDriver::get_errors;
+	m_cmds[CMDSetTorqueLimits] 	= &YARPGalilDeviceDriver::set_torque_limits;
+	m_cmds[CMDGetErrors] 		= &YARPGalilDeviceDriver::get_errors;
 
-	m_cmds[CMDReadInput] = &YARPGalilDeviceDriver::read_input;
+	m_cmds[CMDReadInput] 		= &YARPGalilDeviceDriver::read_input;
+	
+	m_cmds[CMDResetController] 	= &YARPGalilDeviceDriver::reset_controller;
+	m_cmds[CMDErrorLimit]		= &YARPGalilDeviceDriver::error_limit;
+	m_cmds[CMDOffOnError]		= &YARPGalilDeviceDriver::off_on_error; 
 			
-	m_cmds[CMDDummy] = &YARPGalilDeviceDriver::dummy;
+	m_cmds[CMDDummy] 			= &YARPGalilDeviceDriver::dummy;
 }
 
 int YARPGalilDeviceDriver::open(void *d)
@@ -1038,3 +1042,90 @@ int YARPGalilDeviceDriver::get_pid(void *par)
 
 	return rc;
 }
+
+int
+YARPGalilDeviceDriver::reset_controller(void *par)
+{
+	long rc = 0;
+	
+	char cmd[] = "RS";
+	char *buff = m_buffer_out;
+
+	memcpy(buff, cmd, sizeof(cmd)-1);
+	buff+=(sizeof(cmd)-1);
+
+	// close command
+	buff = _append_cmd('\0', buff);
+	
+	rc = DMCCommand((HANDLEDMC) m_handle,
+					m_buffer_out,
+					m_buffer_in, buff_length);
+
+	//_ascii_to_binary(m_buffer_in, output);
+
+	return rc;
+}
+
+int
+YARPGalilDeviceDriver::error_limit(void *par)
+{
+	long rc = 0;
+
+	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
+	int *error = (int *) tmp->parameters;
+	
+	char *buff = m_buffer_out;
+
+	///////////////////////////////////////////////////////////////////
+	// set velocity
+	buff = _append_cmd((char) 0x88, buff);		//ER
+	buff = _append_cmd((char) 0x04, buff);		//4 byte format
+	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
+
+	// axis
+	unsigned char dummy = 0x01;	//bit
+	dummy <<= tmp->axis;
+	// axis
+	buff = _append_cmd((char) dummy, buff);
+	// value
+	buff = _append_cmd(*error, buff);
+
+	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+							(unsigned char *) m_buffer_out, 8,
+							m_buffer_in, buff_length);
+	
+	return rc;
+}
+
+int
+YARPGalilDeviceDriver::off_on_error(void *par)
+{
+	long rc = 0;
+	
+	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
+	int *value = (int *) tmp->parameters;
+	
+	char *buff = m_buffer_out;
+
+	///////////////////////////////////////////////////////////////////
+	// set velocity
+	buff = _append_cmd((char) 0x8D, buff);		//OE
+	buff = _append_cmd((char) 0x04, buff);		//4 byte format
+	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
+
+	// axis
+	unsigned char dummy = 0x01;	//bit
+	dummy <<= tmp->axis;
+	// axis
+	buff = _append_cmd((char) dummy, buff);
+	// value
+	//Do i need to add something else??
+
+	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+							(unsigned char *) m_buffer_out, 8,
+							m_buffer_in, buff_length);
+	
+	return rc;
+}
+
+
