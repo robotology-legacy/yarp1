@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.2 2003-05-31 06:31:37 gmetta Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.3 2003-05-31 07:22:00 gmetta Exp $
 ///
 ///
 
@@ -78,7 +78,7 @@
 class PicoloResources
 {
 public:
-	PicoloResources (void) : _bmutex(1)
+	PicoloResources (void) : _bmutex(1), _new_frame(1)
 	{
 		_nRequestedSize = 0;
 		_nWidth = 0;
@@ -100,6 +100,7 @@ public:
 	PICOLOHANDLE _picoloHandle;	
 
 	YARPSemaphore _bmutex;
+	YARPSemaphore _new_frame;
 
 	// Img size are determined partially by the HW.
 	UINT32 _nRequestedSize;
@@ -341,6 +342,8 @@ void YARPPicoloDeviceDriver::Body (void)
 		PicoloStatus = PicoloWaitEvent (d._picoloHandle, PICOLO_EV_END_ACQUISITION);
 		if (PicoloStatus == PICOLO_OK)
 		{
+			d._new_frame.Post();
+
 			if (d._bmutex.PollingWait () == 1)
 			{
 				/// buffer acquired.
@@ -367,6 +370,7 @@ void YARPPicoloDeviceDriver::Body (void)
 		}
 		else
 		{
+			/// d._new_frame.Post(); /// and set an error flag somewhere.
 			finished = true;
 			ACE_DEBUG ((LM_DEBUG, "it's likely that the acquisition timed out, returning\n"));
 		}
@@ -386,6 +390,14 @@ int YARPPicoloDeviceDriver::releaseBuffer (void *cmd)
 {
 	PicoloResources& d = RES(system_resources);
 	d._bmutex.Post ();
+
+	return YARP_OK;
+}
+
+int YARPPicoloDeviceDriver::waitOnNewFrame (void *cmd)
+{
+	PicoloResources& d = RES(system_resources);
+	d._new_frame.Wait ();
 
 	return YARP_OK;
 }

@@ -61,64 +61,65 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.3 2003-05-31 07:22:00 gmetta Exp $
+/// $Id: main.cpp,v 1.1 2003-05-31 07:22:00 gmetta Exp $
 ///
 ///
 
-#ifndef __YARPPicoloDeviceDriverh__
-#define __YARPPicoloDeviceDriverh__
+
 
 #include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+
 #include <YARPThread.h>
 #include <YARPSemaphore.h>
-#include <YARPDeviceDriver.h>
-#include <YARPSemaphore.h>
+#include <YARPScheduler.h>
 
-#include <stdlib.h>
-#include <string.h>
+#include <YARPBabybotGrabber.h>
 
-///#include <sys/Picolo32.h>	maybe only in cpp file.
 
-struct PicoloOpenParameters
+/// LATER: used to parse command line options.
+int ParseParams (int argc, char *argv[]) { return YARP_OK; }
+
+///YARPOutputPortOf<YARPGenericImage> output;
+
+///
+///
+///
+int main (int argc, char *argv[])
 {
-	/// add here params for the open.
-	PicoloOpenParameters()
+	YARPScheduler::setHighResScheduling ();
+
+	ParseParams (argc, argv);
+
+	YARPBabybotGrabber grabber;
+	bool finished = false;
+
+	/// params to be passed from the command line.
+	grabber.initialize (0, 256);
+
+	unsigned char *buffer = NULL;
+	int frame_no = 0;
+
+	while (!finished)
 	{
-		_unit_number = 0;
-		_video_type = 0;
-		_size = 256;
+		grabber.waitOnNewFrame ();
+		grabber.acquireBuffer (&buffer);
+	
+		frame_no++;
+		/// transforms the buffer.
+		if ((frame_no % 25) == 0)
+			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
+
+		/// sends the buffer.
+
+		grabber.releaseBuffer ();
 	}
 
-	int _unit_number;		/// board number 0, 1, 2, etc.
-	int _video_type;		/// 0 composite, 1 svideo.
-	int _size;				/// requested size.
-};
+	grabber.uninitialize ();
+
+	return YARP_OK;
+}
 
 
-class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>, public YARPThread
-{
-private:
-	YARPPicoloDeviceDriver(const YARPPicoloDeviceDriver&);
-	void operator=(const YARPPicoloDeviceDriver&);
 
-public:
-	YARPPicoloDeviceDriver();
-	~YARPPicoloDeviceDriver();
-
-	// overload open, close
-	virtual int open(void *d);
-	virtual int close(void);
-
-	virtual int acquireBuffer(void *);
-	virtual int releaseBuffer(void *);
-	virtual int waitOnNewFrame (void *cmd);
-
-protected:
-	void *system_resources;
-
-	//  functions
-	virtual void Body(void);
-};
-
-
-#endif

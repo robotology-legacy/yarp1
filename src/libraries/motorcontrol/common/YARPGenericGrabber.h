@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericGrabber.h,v 1.2 2003-05-31 06:31:38 gmetta Exp $
+/// $Id: YARPGenericGrabber.h,v 1.3 2003-05-31 07:22:00 gmetta Exp $
 ///
 ///
 
@@ -90,6 +90,7 @@ public:
 	int uninitialize (void);
 	int acquireBuffer (unsigned char **buffer);
 	int releaseBuffer (void);
+	int waitOnNewFrame (void);
 };
 
 template <class ADAPTER, class PARAMETERS>
@@ -105,9 +106,9 @@ int YARPGenericGrabber<ADAPTER, PARAMETERS>::initialize (int board, int size)
 }
 
 template <class ADAPTER, class PARAMETERS>
-int YARPGenericGrabber<ADAPTER, PARAMETERS>::initialize (void)
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::uninitialize (void)
 {
-	return _adapter.uninitialize (_params);
+	return _adapter.uninitialize ();
 }
 
 template <class ADAPTER, class PARAMETERS>
@@ -120,6 +121,12 @@ template <class ADAPTER, class PARAMETERS>
 int YARPGenericGrabber<ADAPTER, PARAMETERS>::releaseBuffer (void)
 {
 	return _adapter.IOCtl (FCMDReleaseBuffer, NULL);
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::waitOnNewFrame (void)
+{
+	return _adapter.IOCtl (FCMDWaitNewFrame, NULL);
 }
 
 #endif
