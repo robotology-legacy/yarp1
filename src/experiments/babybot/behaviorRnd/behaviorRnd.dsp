@@ -107,10 +107,6 @@ SOURCE=.\rndBehavior.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\randombehavior.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\rndBehavior.h
 # End Source File
 # End Group
