@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotArm.h,v 1.4 2004-10-04 13:01:07 babybot Exp $
+///  $Id: YARPBabybotArm.h,v 1.5 2004-10-18 08:43:03 natta Exp $
 ///
 ///
 
@@ -188,14 +188,24 @@ inline void YARPBabybotArm::_angleToEncoders(const double *ang, double *enc, con
 		enc[i] = (ang[j] * _parameters._encoderToAngles[i] / (2.0 * pi) + zeros[i]);
 	}
 
-	enc[4] = (ang[_parameters._axis_map[4]] * _parameters._encoderToAngles[4] / (2.0 * pi)) +
+	/* enc[4] = (ang[_parameters._axis_map[4]] * _parameters._encoderToAngles[4] / (2.0 * pi)) +
 			 (ang[_parameters._axis_map[3]] * _parameters._fwdCouple[3] / (2.0 * pi)) +
 			  zeros[4];
+			  */
 
-	enc[5] = (ang[_parameters._axis_map[5]] * _parameters._encoderToAngles[5] / (2.0 * pi)) +
+	/* enc[5] = (ang[_parameters._axis_map[5]] * _parameters._encoderToAngles[5] / (2.0 * pi)) +
 		     (ang[_parameters._axis_map[3]] * _parameters._fwdCouple[4] / (2.0 * pi)) +
 			 (ang[_parameters._axis_map[4]] * _parameters._fwdCouple[5] / (2.0 * pi)) +
 			  zeros[5];
+			  */
+
+	enc[4] = zeros[4]+(_parameters._encoderToAngles/(2.0*pi))*
+			 ( ang[_parameters._axis_map[4]] + _parameters._fwdCouple[3]* ang[_parameters._axis_map[3]]);
+
+	enc[5] = zeros[5] + (_parameters._encoderToAngles[5] / (2.0 * pi))*
+			 (ang[_parameters._axis_map[5]] + 
+			 _parameters._fwdCouple[4]*ang[_parameters._axis_map[3]] +
+			 _parameters._fwdCouple[5]*ang[_parameters._axis_map[4]] );
 }
 
 inline void YARPBabybotArm::_encoderToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters, const double *zeros)
