@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.8 2003-10-30 13:46:20 babybot Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.9 2003-10-31 12:19:23 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -98,13 +98,16 @@ int YARPGalilDeviceDriver::open(void *d)
 	controllerinfo.cbSize = sizeof(controllerinfo);
 	controllerinfo.usModelID = MODEL_1800;
 	controllerinfo.fControllerType = ControllerTypePCIBus;
-	controllerinfo.ulTimeout = 3000;
-	//controllerinfo.ulTimeout = 0;
+	controllerinfo.ulTimeout = 2000;
+	 controllerinfo.ulDelay = 0;
+
    /* If you have more than 1 Galil PCI bus controller, use the serial
       number to identify the controller you wish to connect to */
 	
 	controllerinfo.ulSerialNumber = 0;
 	controllerinfo.pid = getpid();
+	//This is needed to use the second FIFO
+	controllerinfo.hardwareinfo.businfo.fDataRecordAccess = DataRecordAccessFIFO; 
 	
 	DMCInitLibrary();
 
@@ -124,6 +127,7 @@ int YARPGalilDeviceDriver::open(void *d)
 	m_question_marks = new char [2*m_njoints];
 	m_temp_int_array = new int[m_njoints];
 	m_temp_double_array = new double[m_njoints];
+	data = new long[m_njoints]; 
 
 	_current_positions = new double [m_njoints];
 	_current_vel	   = new double [m_njoints];
@@ -158,6 +162,9 @@ int YARPGalilDeviceDriver::close(void)
 
 	if (m_temp_double_array != NULL)
 		delete [] m_temp_double_array;
+
+	if (data != NULL)
+		delete [] data;
 
 	if (_current_positions != NULL)
 		delete [] _current_positions;
@@ -264,6 +271,7 @@ int YARPGalilDeviceDriver::set_position(void *cmd)
 
 
 
+/* TO BE REVISED */
 
 int YARPGalilDeviceDriver::set_command(void *cmd) 
 {
@@ -374,6 +382,19 @@ int YARPGalilDeviceDriver::set_pid(void *cmd)
 int YARPGalilDeviceDriver::get_positions(void *j)
 {
 	long rc = 0;
+	unsigned short data_type;
+
+	double *output = (double *)j;
+
+	DMCRefreshDataRecord((HANDLEDMC) m_handle, 0);
+
+	for (int i = 0; i < m_njoints; i++)
+	{
+			DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisMotorPosition,i+1,&data_type,data + i);
+			*(output+i) = *(data+i);
+	}
+
+	/*
 
 	double *output = (double *) j;
 	char *buff = m_buffer_out;
@@ -391,6 +412,7 @@ int YARPGalilDeviceDriver::get_positions(void *j)
 							m_buffer_in, buff_length);
 	
 	_ascii_to_binary(m_buffer_in, output);
+	*/
 
 	return rc;
 }
@@ -398,8 +420,21 @@ int YARPGalilDeviceDriver::get_positions(void *j)
 int YARPGalilDeviceDriver::get_ref_positions(void *j)
 {
 	long rc = 0;
+	unsigned short data_type;
 
 	double *output = (double *) j;
+
+
+	DMCRefreshDataRecord((HANDLEDMC) m_handle, 0);
+
+	for (int i = 0; i < m_njoints; i++)
+	{
+			DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisReferencePosition,i+1,&data_type,data + i);
+			*(output+i) = *(data+i);
+	}
+
+
+	/*
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -415,6 +450,7 @@ int YARPGalilDeviceDriver::get_ref_positions(void *j)
 							m_buffer_in, buff_length);
 	
 	_ascii_to_binary(m_buffer_in, output);
+	*/
 
 	return rc;
 }
@@ -422,8 +458,19 @@ int YARPGalilDeviceDriver::get_ref_positions(void *j)
 int YARPGalilDeviceDriver::get_errors(void *errs)
 {
 	long rc = 0;
+	unsigned short data_type;
 
 	double *output = (double *) errs;
+
+	DMCRefreshDataRecord((HANDLEDMC) m_handle, 0);
+
+	for (int i = 0; i < m_njoints; i++)
+	{
+			DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisPositionError,i+1,&data_type,data + i);
+			*(output+i) = *(data+i);
+	}
+
+	/*
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -439,6 +486,7 @@ int YARPGalilDeviceDriver::get_errors(void *errs)
 							m_buffer_in, buff_length);
 	
 	_ascii_to_binary(m_buffer_in, output);
+	*/
 
 	return rc;
 }
@@ -446,8 +494,21 @@ int YARPGalilDeviceDriver::get_errors(void *errs)
 int YARPGalilDeviceDriver::get_torques(void *trqs)
 {
 	long rc = 0;
+	unsigned short data_type;
 
 	double *output = (double *) trqs;
+
+	DMCRefreshDataRecord((HANDLEDMC) m_handle, 0);
+
+	for (int i = 0; i < m_njoints; i++)
+	{
+			DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisTorque,i+1,&data_type,data + i);
+			*(output+i) = *(data+i);
+			//This is to transform in the 0.0 - 9.9 format. 
+			*(output+i) *= 0.000307;
+	}
+
+	/*
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -463,6 +524,7 @@ int YARPGalilDeviceDriver::get_torques(void *trqs)
 							m_buffer_in, buff_length);
 	
 	_ascii_to_binary(m_buffer_in, output);
+	*/
 
 	return rc;
 
@@ -471,8 +533,19 @@ int YARPGalilDeviceDriver::get_torques(void *trqs)
 int YARPGalilDeviceDriver::get_speeds(void *spds)
 {
 	long rc = 0;
+	unsigned short data_type;
 
 	double *output = (double *) spds;
+
+	DMCRefreshDataRecord((HANDLEDMC) m_handle, 0);
+
+	for (int i = 0; i < m_njoints; i++)
+	{
+			DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisVelocity,i+1,&data_type,data + i);
+			*(output+i) = *(data+i);
+	}
+
+	/*
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -488,6 +561,7 @@ int YARPGalilDeviceDriver::get_speeds(void *spds)
 							m_buffer_in, buff_length);
 	
 	_ascii_to_binary(m_buffer_in, output);
+	*/
 
 	return rc;
 }
@@ -1089,6 +1163,8 @@ int YARPGalilDeviceDriver::abort_axes(void *par)
 	return rc;
 }
 
+//TODO: This functions needs to be revised to use the DMCGetDataRecordByItemId
+
 int YARPGalilDeviceDriver::read_switches(void *switches)
 {
 	long rc = 0;
@@ -1170,6 +1246,8 @@ int YARPGalilDeviceDriver::get_ref_speeds(void *spds)
 
 	return rc;
 }
+
+//TODO: This would be necesary to do it in ascii mode (DMCCommand)
 
 int YARPGalilDeviceDriver::get_ref_accelerations(void *accs)
 {
@@ -1537,13 +1615,32 @@ int YARPGalilDeviceDriver::get_motor_type(void *par)
 	return rc;
 }
 
-// FIX: This must be improved! The axes added to the _BG Operand should be variable
-// Now I am checking all the axis in the control card. The axis that are not being used should return 
-// "motion done" because no motion was ordered on them, therefore only the axis participating in a movement
-// should contribute to the command. 
 
 int YARPGalilDeviceDriver::check_motion_done(void *flag)
 {
+
+	long rc = 0;
+	bool *tmp = (bool *) flag;
+	unsigned short data_type;
+	long status;
+
+	*tmp = true; //A priory we suppose that the motion is done
+
+	DMCRefreshDataRecord((HANDLEDMC) m_handle, 0);
+
+	for (int i = 0; i < m_njoints; i++)
+	{
+		DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisStatus,i+1,&data_type,&status);
+
+		//The 15th bit contains the motion status
+		if (status & 0x8000)  //One motion in progress detected
+		{
+			*tmp = false;
+			break;
+		}
+	}
+
+/*
 	long rc = 0;
 
 	bool *tmp = (bool *)flag;
@@ -1555,7 +1652,7 @@ int YARPGalilDeviceDriver::check_motion_done(void *flag)
 		rc = check_motion_done(&subflag,i);
 		*tmp = *tmp && subflag;
 	}
-
+*/
 	return rc;
 /*
 	long rc = 0;
@@ -1586,6 +1683,20 @@ int YARPGalilDeviceDriver::check_motion_done(void *flag)
 
 int YARPGalilDeviceDriver::check_motion_done(void *flag, int axis)
 {
+	long rc = 0;
+	bool *tmp = (bool *) flag;
+	unsigned short data_type;
+	long status;
+
+	DMCRefreshDataRecord((HANDLEDMC) m_handle, 0);
+	DMCGetDataRecordByItemId((HANDLEDMC) m_handle,DRIdAxisStatus,axis,&data_type,&status );
+
+	//The 15th bit contains the motion status
+	if ( (status & 0x8000) == 0)	//No move
+		*tmp = true;
+	else							//Motion in progress
+		*tmp = false;
+	/*
 	char axis_names[] = "ABCDEFGH";
 	long rc = 0;
 
@@ -1609,6 +1720,8 @@ int YARPGalilDeviceDriver::check_motion_done(void *flag, int axis)
 	if (atoi(m_buffer_in))	//a '1' from the card means motion running
 		*tmp = false;
 	else	*tmp = true;	//a '0' means motion complete
+
+	*/
 
 	return rc;
 }
