@@ -24,12 +24,17 @@ public:
 
 		_initialized = false;
 		_rndIndex = 0;
+		_count = 0;
 	}
 
 	void read()
 	{
+		if (_count%200 == 0)
+			ACE_OS::printf("Read %d\n frames", _count);
+
 		_touchPort.Read();
 		_touch = _touchPort.Content();
+		_count++;
 	}
 
 	bool checkPalmTouch()
@@ -115,6 +120,8 @@ public:
 	bool _initialized;
 
 	int _rndIndex;
+
+	int _count;
 
 };
 

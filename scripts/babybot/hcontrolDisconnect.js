@@ -17,4 +17,4 @@ WshShell.Run ("porter.exe /tracker/o:vect !/attention/target/i", 7, true);
 WshShell.Run ("porter.exe /handtracker/position/o !/attention/hand/i", 7, true);
 WshShell.Run ("porter.exe /handtracker/prediction/o !/attention/handprediction/i", 7, true);
 
-WshShell.Run ("porter.exe /attention/O !/headsmooth/i", 7, true);
+WshShell.Run ("porter.exe /attention/o !/headsmooth/i", 7, true);

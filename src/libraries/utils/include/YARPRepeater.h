@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPRepeater.h,v 1.7 2003-11-12 17:14:28 babybot Exp $
+/// $Id: YARPRepeater.h,v 1.8 2004-02-05 07:16:26 babybot Exp $
 ///  
 //
 
@@ -101,7 +101,7 @@ public:
 			_outputPort.Content() = _inputPort.Content();
 			ACE_OS::printf("Sent:\n");
 			_outputPort.Content().display();
-			_outputPort.Write();
+			_outputPort.Write(1);
 		}
 	}
 
