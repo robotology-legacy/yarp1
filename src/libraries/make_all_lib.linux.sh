@@ -21,11 +21,15 @@ then
 	if [ "$MODE" == "YARP_DEBUG=-g CFAST=" ]
 	then
 		make debug=1 optimize=0
+		make yarpize
+	elif [ "$MODE" == "clean" ]
+	then
+		make clean
 	else
 		make optimize=1 debug=0
+		make yarpize
 	fi
 
-	make yarpize
 # SPECIAL for ACE
 	cd ../../
 fi
