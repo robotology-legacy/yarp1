@@ -34,7 +34,7 @@ install: target subinstall
 
 clean: subclean
 	cd fakeipl; $(MAKE) $(MAKEFLAGS) clean; cd ..
-	rm -f $(CODELIB) obj/$(SYSDIR)/*
+	rm -f $(CODELIB) obj/$(SYSDIR)/*.o
 
 subtarget :
 	@for d in $(SUBDIRS) ; do \
