@@ -437,6 +437,9 @@ bt848_set_size(struct bttv *btv)
   float xSize; 
   float ySize; 
 
+  float offsetX;
+  float offsetY;
+
   if (!btv->win.width)
     return;
   if (!btv->win.height)
@@ -530,8 +533,12 @@ bt848_set_size(struct bttv *btv)
     vdelay=btv->win.cropy+0x20;
     //hdelay=(((hactive*186)/922))&0x3fe;
 	/////hdelay=(((256*186)/922))&0x3fe;
-	hdelay = (((int)xSize*186)/922)&0x3fe;
+	offsetX = (xSize-btv->win.width)/2;
+	//hdelay = ((hactive*186)/922)+(int)offsetX &0x3fe;
+	hdelay = (((int)xSize*186)/922)+(int)offsetX &0x3fe;
 	
+	
+
   }
     
 
@@ -1147,8 +1154,11 @@ init_bt848(struct bttv * btv, int video_format)
 	btwrite(BT848_CONTROL_COMP, BT848_O_CONTROL);
   }
 
-  btwrite(0x00, BT848_E_SCLOOP);
-  btwrite(0x00, BT848_O_SCLOOP);
+  //btwrite(0x00, BT848_E_SCLOOP);
+  //btwrite(0x00, BT848_O_SCLOOP);
+
+  btwrite(0x40, BT848_E_SCLOOP);
+  btwrite(0x40, BT848_O_SCLOOP);
 
   //This is the interrupt part, It blocks the QNX system. ??
 
