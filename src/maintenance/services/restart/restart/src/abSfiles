@@ -1,1 +1,0 @@
-ABSRC = ../ExitButton_OnClick.c ../HardButton_Click.c ../HardTicker_Tick.c ../KillAllButton_OnClick.c ../KillButton_OnClick.c ../MaintainFlag_Click.c ../MakeButton_OnClick.c ../PowerButton_OnClick.c ../StartButton_OnClick.c ../StopButton_OnClick.c ../TestButton_OnClick.c ../Ticker_Tick.c ../abmain.c 

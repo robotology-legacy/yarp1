@@ -1,9 +1,0 @@
-ACT=/home/cog/active
-node=$1
-exec=$2
-shift
-shift
-key=$KEY
-echo "on -n$node slay -Q $exec #undeploy" >> $ACT/$KEY.stop
-echo "on -n$node slay -9 -Q $exec #undeploy" >> $ACT/$KEY.stop
-chmod u+x $ACT/$KEY.stop
