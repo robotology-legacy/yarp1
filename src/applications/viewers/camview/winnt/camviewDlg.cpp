@@ -32,8 +32,12 @@ void CRecv::Body (void)
 			m_y = m_img.GetHeight ();
 		}
 
-		/// prepare the DIB to display.
-		m_converter.ConvertToDIB (m_img);
+		if (!m_frozen)
+		{
+			/// prepare the DIB to display.
+			m_converter.ConvertToDIB (m_img);
+		}
+
 		m_mutex.Post();
 
 		/// copy it somewhere and fire a WM_PAINT event.
@@ -90,7 +94,7 @@ CCamviewDlg::CCamviewDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CCamviewDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CCamviewDlg)
-		// NOTE: the ClassWizard will add member initialization here
+	m_connection_name = _T("");
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -100,7 +104,9 @@ void CCamviewDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCamviewDlg)
-		// NOTE: the ClassWizard will add DDX and DDV calls here
+	DDX_Control(pDX, IDOK, m_ctrl_quit);
+	DDX_Control(pDX, IDC_NAME, m_ctrl_name);
+	DDX_Text(pDX, IDC_NAME, m_connection_name);
 	//}}AFX_DATA_MAP
 }
 
@@ -112,6 +118,11 @@ BEGIN_MESSAGE_MAP(CCamviewDlg, CDialog)
 	ON_WM_INITMENUPOPUP()
 	ON_WM_CLOSE()
 	ON_BN_CLICKED(IDOK, OnQuit)
+	ON_COMMAND(ID_FILE_EXIT, OnFileExit)
+	ON_COMMAND(ID_HELP_ABOUT, OnHelpAbout)
+	ON_WM_SIZE()
+	ON_COMMAND(ID_IMAGE_FREEZE, OnImageFreeze)
+	ON_UPDATE_COMMAND_UI(ID_IMAGE_FREEZE, OnUpdateImageFreeze)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -146,14 +157,19 @@ BOOL CCamviewDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
 	// TODO: Add extra initialization here
+	m_connection_name = ((CCamviewApp *)AfxGetApp())->m_portname;
+	UpdateData(FALSE);
+
 	m_receiver.SetOwner (this);
-	m_receiver.SetName ((LPCSTR)(((CCamviewApp *)AfxGetApp())->m_portname));
+	m_receiver.SetName ((LPCSTR)m_connection_name);
 	
 	m_receiver.Begin ();
 
 	/// required to set the stretch type.
 	CPaintDC dc(this);
 	SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);  
+
+	m_frozen = false;
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -198,6 +214,8 @@ void CopyToScreen(HDC hDC, unsigned char *img, int destX, int destY, double zoom
 		SRCCOPY);
 }
 
+#define _BORDER 10
+
 
 // If you add a minimize button to your dialog, you will need the code below
 //  to draw the icon.  For MFC applications using the document/view model,
@@ -225,17 +243,44 @@ void CCamviewDlg::OnPaint()
 	else
 	{
 		CPaintDC dc(this);
+
 		unsigned char *dib = m_receiver.AcquireBuffer();
 
-		if (dib != NULL)
+		CRect rect, rect2 = 0;
+		GetClientRect (&rect);
+		
+		/// is this needed?
+		dc.LPtoDP (&rect);
+
+		if (m_ctrl_quit.m_hWnd != NULL)
 		{
-			CRect rect;
-			GetClientRect (&rect);
-			dc.LPtoDP (&rect);
-			double zx = rect.Width() / m_receiver.GetWidth();
-			CopyToScreen(dc.GetSafeHdc(), dib, 0, 0, zx, zx);
+			m_ctrl_quit.GetWindowRect (&rect2);
 		}
 
+		double zx = double(rect.Width() - 2 * _BORDER) / double(m_receiver.GetWidth());
+		double zy = double(rect.Height() - 2 * _BORDER - rect2.Height() - 2) / double(m_receiver.GetHeight());
+
+		int fx = int (m_receiver.GetWidth() * zx + .5);
+		int fy = int (m_receiver.GetHeight() * zy +.5);
+
+		if (fx > fy)
+		{
+			zx = zy;
+			fx = fy;
+		}
+
+		int x = ((rect.Width() - 2 * _BORDER) - fx) / 2 + _BORDER;
+		int y = ((rect.Height() - 2 * _BORDER - rect2.Height() - 2) - fx) / 2 + _BORDER;
+
+		if (dib != NULL)
+			CopyToScreen(dc.GetSafeHdc(), dib, x, y, zx, zx);
+		else
+		{
+			CGdiObject * old = dc.SelectStockObject (GRAY_BRUSH);
+			dc.Rectangle (x, y, x+fx, y+fx);
+			dc.SelectObject (old);
+		}
+		
 		m_receiver.ReleaseBuffer();
 
 		CDialog::OnPaint();
@@ -301,4 +346,45 @@ void CCamviewDlg::OnClose()
 void CCamviewDlg::OnQuit() 
 {
 	PostMessage (WM_CLOSE);
+}
+
+void CCamviewDlg::OnFileExit() 
+{
+	OnQuit ();
+}
+
+void CCamviewDlg::OnHelpAbout() 
+{
+	CAboutDlg dlgAbout;
+	dlgAbout.DoModal();
+}
+
+void CCamviewDlg::OnSize(UINT nType, int cx, int cy) 
+{
+	CDialog::OnSize(nType, cx, cy);
+
+	if (m_ctrl_name.m_hWnd != NULL && m_ctrl_quit.m_hWnd != NULL)
+	{
+		CRect rect, rect2;
+		m_ctrl_name.GetWindowRect (&rect);
+		m_ctrl_quit.GetWindowRect (&rect2);
+
+		const int name_w = cx - 2*_BORDER - rect2.Width() - 2;
+
+		m_ctrl_name.MoveWindow (_BORDER+1, cy-_BORDER-rect.Height()-1, name_w, rect.Height(), FALSE);
+		m_ctrl_quit.MoveWindow (_BORDER+1 + name_w+1, cy-_BORDER-rect2.Height()-1, rect2.Width(), rect2.Height(), FALSE);
+
+		InvalidateRect (NULL, TRUE);
+	}
+}
+
+void CCamviewDlg::OnImageFreeze() 
+{
+	m_frozen = !m_frozen;	
+	m_receiver.Freeze (m_frozen);
+}
+
+void CCamviewDlg::OnUpdateImageFreeze(CCmdUI* pCmdUI) 
+{
+	pCmdUI->SetCheck (m_frozen);	
 }

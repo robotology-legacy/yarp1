@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.12 2003-06-07 00:24:54 gmetta Exp $
+$Id: README.txt,v 1.13 2003-06-09 09:56:46 gmetta Exp $
 
 
 =============
@@ -23,6 +23,8 @@ Things under development:
 	- at least when the main thread is closing gracefully.
 	- it might need to call an extra termination function and wait...
 	- see also point 9.
+1.2- there's a MEMORY LEAK in attaching to a mcast server side port (the sender actually).
+
 
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating
 	the sender. USE test12 to see this condition.

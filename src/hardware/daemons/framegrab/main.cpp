@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.8 2003-06-07 00:20:17 babybot Exp $
+/// $Id: main.cpp,v 1.9 2003-06-09 09:56:46 gmetta Exp $
 ///
 ///
 
@@ -85,6 +85,7 @@
 int _size = 128;
 char _name[512];
 bool _client = false;
+bool _simu = false;
 int _board_no = 0;
 
 /// LATER: used to parse command line options.
@@ -124,6 +125,13 @@ int ParseParams (int argc, char *argv[])
 				ACE_OS::sprintf (_name, "%s\0", argv[i+1]);
 				i++;
 				_client = true;
+				_simu = false;
+				break;
+
+			case 's':
+				ACE_OS::fprintf (stdout, "simulating a grabber...\n");
+				_simu = true;
+				_client = false;
 				break;
 			}
 		}
@@ -197,6 +205,49 @@ int _runAsClient (void)
 }
 
 
+int _runAsSimulation (void)
+{
+	YARPImageOf<YarpPixelBGR> img;
+	img.Resize (_size, _size);
+	img.Zero ();
+
+	YARPOutputPortOf<YARPGenericImage> outport;
+	bool finished = false;
+
+	outport.Register (_name);
+
+	int frame_no = 0;
+
+	ACE_OS::fprintf (stderr, "starting up simulation of a grabber...\n");
+	ACE_OS::fprintf (stderr, "acq size: w=%d h=%d\n", _size, _size);
+
+	double start = YARPTime::GetTimeAsSeconds ();
+	double cur = start;
+
+	while (!finished)
+	{
+		YARPTime::DelayInSeconds (0.04);
+	
+		img.Zero ();
+		*(img.GetRawBuffer() + (frame_no % img.GetAllocatedDataSize())) = -1;
+
+		outport.Content().Refer (img);
+		outport.Write();
+
+		frame_no++;
+		if ((frame_no % 250) == 0)
+		{
+			cur = YARPTime::GetTimeAsSeconds ();
+			ACE_OS::fprintf (stderr, "average frame time: %lf\n", (cur-start)/250);
+			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
+			start = cur;
+		}
+	}
+
+	return YARP_OK;
+}
+
+
 ///
 ///
 ///
@@ -209,6 +260,11 @@ int main (int argc, char *argv[])
 	if (_client)
 	{
 		return _runAsClient ();
+	}
+	else
+	if (_simu)
+	{
+		return _runAsSimulation ();
 	}
 
 	YARPBabybotGrabber grabber;
@@ -249,6 +305,8 @@ int main (int argc, char *argv[])
 	
 		/// fills the actual image buffer.
 		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _size);
+
+		/// sends the buffer.
 		outport.Content().Refer (img);
 		outport.Write();
 
@@ -260,8 +318,6 @@ int main (int argc, char *argv[])
 			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
-
-		/// sends the buffer.
 
 		grabber.releaseBuffer ();
 	}

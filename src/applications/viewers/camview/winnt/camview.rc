@@ -37,13 +37,17 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
 END
 
-IDD_CAMVIEW_DIALOG DIALOGEX 0, 0, 145, 174
-STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+IDD_CAMVIEW_DIALOG DIALOGEX 0, 0, 146, 158
+STYLE WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | 
+    WS_THICKFRAME
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "Camview"
+MENU IDR_MENUMAIN
 FONT 8, "MS Sans Serif"
 BEGIN
-    PUSHBUTTON      "Quit",IDOK,88,153,50,14
+    PUSHBUTTON      "Quit",IDOK,89,137,50,14
+    LTEXT           "Not connected",IDC_NAME,7,137,81,14,SS_CENTERIMAGE | 
+                    WS_BORDER
 END
 
 
@@ -109,12 +113,45 @@ BEGIN
     IDD_CAMVIEW_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 138
+        RIGHTMARGIN, 139
         TOPMARGIN, 7
-        BOTTOMMARGIN, 167
+        BOTTOMMARGIN, 151
     END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\camview.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENUMAIN MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Save image...",              ID_FILE_SAVEIMAGE
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_FILE_EXIT
+    END
+    POPUP "&Image"
+    BEGIN
+        MENUITEM "&Freeze",                     ID_IMAGE_FREEZE
+    END
+    POPUP "&Help", HELP
+    BEGIN
+        MENUITEM "&About...",                   ID_HELP_ABOUT
+    END
+END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -177,15 +214,6 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDR_MAINFRAME           ICON    DISCARDABLE     "res\\camview.ico"
 #endif    // Italian (Italy) resources
 /////////////////////////////////////////////////////////////////////////////
 

@@ -26,6 +26,7 @@ public:
 	char m_name[512];
 	int m_x;
 	int m_y;
+	bool m_frozen;
 
 	YARPInputPortOf<YARPGenericImage> m_inport;
 	YARPImageOf<YarpPixelBGR> m_img;
@@ -37,6 +38,7 @@ public:
 		m_owner = owner;
 		memset (m_name, 0, 512);
 		m_x = m_y = -1;
+		m_frozen = false;
 	}
 
 	~CRecv () {}
@@ -44,6 +46,7 @@ public:
 	void SetOwner (CCamviewDlg *owner) { m_owner = owner; }
 	void SetName (const char * name) { strcpy (m_name, name); }
 	inline int GetWidth (void) const { return m_x; }
+	inline int GetHeight (void) const { return m_y; }
 
 	unsigned char * AcquireBuffer (void)
 	{
@@ -57,6 +60,13 @@ public:
 	}
 
 	virtual void Body (void);
+
+	void Freeze (bool fr)
+	{
+		m_mutex.Wait();
+		m_frozen = fr;
+		m_mutex.Post();
+	}
 };
 
 ///
@@ -69,11 +79,14 @@ class CCamviewDlg : public CDialog
 public:
 	CCamviewDlg(CWnd* pParent = NULL);	// standard constructor
 	CRecv m_receiver;
+	bool m_frozen;
 
 // Dialog Data
 	//{{AFX_DATA(CCamviewDlg)
 	enum { IDD = IDD_CAMVIEW_DIALOG };
-		// NOTE: the ClassWizard will add data members here
+	CButton	m_ctrl_quit;
+	CStatic	m_ctrl_name;
+	CString	m_connection_name;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -95,6 +108,11 @@ protected:
 	afx_msg void OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu);
 	afx_msg void OnClose();
 	afx_msg void OnQuit();
+	afx_msg void OnFileExit();
+	afx_msg void OnHelpAbout();
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnImageFreeze();
+	afx_msg void OnUpdateImageFreeze(CCmdUI* pCmdUI);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

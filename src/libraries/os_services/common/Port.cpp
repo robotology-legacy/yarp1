@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.26 2003-05-29 00:39:26 gmetta Exp $
+/// $Id: Port.cpp,v 1.27 2003-06-09 09:56:46 gmetta Exp $
 ///
 ///
 
@@ -164,6 +164,7 @@ int OutputTarget::ConnectMcast (const char *name)
 {
 	WaitMutex ();
 	memcpy (cmdname, name, strlen(name));
+	cmdname[strlen(name)] = 0;
 	msg_type = 1;
 	PostMutex ();
 
@@ -174,6 +175,7 @@ int OutputTarget::DeactivateMcast (const char *name)
 {
 	WaitMutex ();
 	memcpy (cmdname, name, strlen(name));
+	cmdname[strlen(name)] = 0;
 	msg_type = 2;
 	PostMutex ();
 
@@ -727,6 +729,9 @@ void Port::Body()
 		//{
 		//wakeup.Post();
 		//}
+
+		/// WARNING: cmd buffer is not zeroed anywhere, in case buffer is string
+		///		it might be better to do it somewhere around here.
 
 		if (!assume_data)
 		{

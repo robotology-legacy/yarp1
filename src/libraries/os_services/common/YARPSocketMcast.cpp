@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.9 2003-05-29 15:57:37 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.10 2003-06-09 09:56:46 gmetta Exp $
 ///
 ///
 
@@ -1859,12 +1859,13 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	int r = d._udp_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
 	if (r < 0)
 	{
+		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._clients[j].get_host_addr(), d._clients[j].get_port_number()));
+
 		d._clients[j].set ((u_short)0, INADDR_ANY);
 		d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
 	
 		///ACE_OS::shutdown (d._udp_socket.get_handle(), ACE_SHUTDOWN_BOTH);
 		d._udp_socket.close ();
-		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._clients[j].get_host_addr(), d._clients[j].get_port_number()));
 		return YARP_FAIL;
 	}
 
@@ -1942,7 +1943,10 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 			if (Close (name) == YARP_FAIL)
 			{
 				ACE_DEBUG ((LM_DEBUG, "can't close the mcast connection, it can happen if the server died unexpectedly\n"));
-				///return YARP_FAIL;
+
+				/// erases the client entry anyway.
+				d._clients[i].set ((u_short)0, INADDR_ANY);
+				d._client_names[i].erase(d._client_names[i].begin(), d._client_names[i].end());
 			}
 
 			/// 250 ms delay.

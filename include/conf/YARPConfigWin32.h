@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.19 2003-05-29 15:57:37 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.20 2003-06-09 09:56:46 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -48,7 +48,7 @@
 #define YARP_UDP_REGPORTS       11
 
 /// read timeout on socket transport (in seconds).
-#define YARP_SOCK_TIMEOUT       2
+#define YARP_SOCK_TIMEOUT       2000
 
 /// read short timeout on socket transport (in seconds). - used for waiting short latency delay.
 #define YARP_SHORT_SOCK_TIMEOUT	1
