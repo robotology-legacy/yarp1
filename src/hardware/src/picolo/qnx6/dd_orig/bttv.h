@@ -28,10 +28,14 @@
 
 #define BTTV_VERSION_CODE 0x000604
 
-#define ushort unsigned short
-#define uint unsigned int
-#define unchar unsigned char
-#define ulong unsigned long
+//#define ushort unsigned short
+//#define uint unsigned int
+//#define unchar unsigned char
+//#define ulong unsigned long
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned char unchar;
+typedef unsigned long ulong;
 
 
 
