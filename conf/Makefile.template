@@ -13,7 +13,7 @@ ifeq ($(shell uname),QNX)
      CC1 = gcc
      CDEFS = -D__QNX__ -D__QNX6__
      CFASTSTRUCT =
-	 CFAST =
+	 CFAST = -O3
   else
      SYSDIR = qnx
 	 CC = cc
