@@ -16,12 +16,14 @@ include $(YARP_ROOT)/conf/Makefile.template
 # invoke Makefile.dirs to recurse through subdirectories
 all:
 	@$(MAKE) -f Makefile.ace
-	@$(MAKE) -f Makefile.dirs
+
+ace_only:
+	@$(MAKE) -f Makefile.ace
 
 yarpize:
-	cp libACE.so.5.3.0 $(YARP_ROOT)/bin/qnx6/
+	cp libACE.so.5.3.3 $(YARP_ROOT)/bin/qnx6/
 	cp *.h $(YARP_ROOT)/include/ace/
 	cp *.i $(YARP_ROOT)/include/ace/
 	cp *.cpp $(YARP_ROOT)/include/ace/
 	cp *.inl $(YARP_ROOT)/include/ace/
-	ln -s $(YARP_ROOT)/bin/qnx6/libACE.so.5.3.0 $(YARP_ROOT)/bin/qnx6/libACE.so
+	ln -s -f $(YARP_ROOT)/bin/qnx6/libACE.so.5.3.3 $(YARP_ROOT)/bin/qnx6/libACE.so
