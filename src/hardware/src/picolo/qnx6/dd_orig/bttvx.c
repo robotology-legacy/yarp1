@@ -1,23 +1,23 @@
 /****************************************************************************** 
-			bttv - Bt848 frame grabber driver
+  bttv - Bt848 frame grabber driver
 
-			Copyright (C) 1996,97 Ralph Metzler (rjkm@thp.uni-koeln.de)
-			Copyright (C) 2002. QNX version Carlos Beltran (cbeltran@dist.unige.it)
+  Copyright (C) 1996,97 Ralph Metzler (rjkm@thp.uni-koeln.de)
+  Copyright (C) 2002. QNX version Carlos Beltran (cbeltran@dist.unige.it)
 
-			This program is free software; you can redistribute it and/or modify
-			it under the terms of the GNU General Public License as published by
-			the Free Software Foundation; either version 2 of the License, or
-			(at your option) any later version.
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
 
-			This program is distributed in the hope that it will be useful,
-			but WITHOUT ANY WARRANTY; without even the implied warranty of
-			MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-			GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-			You should have received a copy of the GNU General Public License
-			along with this program; if not, write to the Free Software
-			Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*******************************************************************************/
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *******************************************************************************/
 
 #include <string.h>
 #ifdef __cplusplus
@@ -56,7 +56,7 @@ extern "C" {
 	pthread_cond_t condvar = PTHREAD_COND_INITIALIZER;
 	pthread_mutex_t buf_mutex = PTHREAD_MUTEX_INITIALIZER;
 	int m_exit = 0;
-	
+
 	/* Funcs defs */
 	//static inline void bt848_bright(uint bright);
 	//int get_bt848_bright();
@@ -67,8 +67,8 @@ extern "C" {
 	static void bt848_cap(struct bttv * btv,int state);
 
 	/******************************************************************************** 
-			Tvnorms   
-		*********************************************************************************/   
+	  Tvnorms   
+	 *********************************************************************************/   
 	struct tvnorm   
 	{   
 		unsigned long Fsc; //u32   
@@ -82,8 +82,8 @@ extern "C" {
 	};   
 
 	/********************************************************************************   
-			Tvnorms array   
-		*********************************************************************************/   
+	  Tvnorms array   
+	 *********************************************************************************/   
 
 	static struct tvnorm tvnorms[] = {   
 		/* PAL-BDGHI */   
@@ -134,8 +134,8 @@ extern "C" {
 #define TVNORMS (sizeof(tvnorms)/sizeof(tvnorm)) 
 
 	/********************************************************************************
-			The read function.
-		*********************************************************************************/
+	  The read function.
+	 *********************************************************************************/
 	inline int BttvxAcquireBuffer(unsigned char * buf)
 	{
 		struct bttv * btv = &bttvs[0];
@@ -164,16 +164,16 @@ extern "C" {
 	}
 
 	/********************************************************************************
-			Set Bright
-		*********************************************************************************/
+	  Set Bright
+	 *********************************************************************************/
 	inline void bt848_bright( uint bright)
 	{
 		btwrite(bright&0xff, BT848_BRIGHT);
 	}
 
 	/********************************************************************************
-			Get Bright
-		*********************************************************************************/
+	  Get Bright
+	 *********************************************************************************/
 	int get_bt848_bright()
 	{
 		int bright;
@@ -183,8 +183,8 @@ extern "C" {
 	}
 
 	/********************************************************************************
-			Activa DMA register
-		*********************************************************************************/
+	  Activa DMA register
+	 *********************************************************************************/
 	inline static void bt848_dma(struct bttv *btv, uint state)
 	{
 		if (state)
@@ -194,8 +194,8 @@ extern "C" {
 	}
 
 	/********************************************************************************
-			Adapting the "virt_to_bus" Linux function into QNX
-		*********************************************************************************/
+	  Adapting the "virt_to_bus" Linux function into QNX
+	 *********************************************************************************/
 	u32 virt_to_bus ( u32 * addr )
 	{
 		off_t offset;
@@ -204,10 +204,10 @@ extern "C" {
 	}
 
 	/********************************************************************************
-			RISC tab.
-		*********************************************************************************/
+	  RISC tab.
+	 *********************************************************************************/
 	static int make_rawrisctab(struct bttv *btv, unsigned int *ro,
-			unsigned int *re, unsigned int *vbuf)
+							   unsigned int *re, unsigned int *vbuf)
 	{
 		unsigned long line;
 		int flags=btv->cap;
@@ -242,17 +242,19 @@ extern "C" {
 	}
 
 	/********************************************************************************
-			Hue
-		*********************************************************************************/
-	inline void bt848_hue( uint hue)
+	  Hue
+	 *********************************************************************************/
+	inline void 
+	bt848_hue( uint hue)
 	{
 		btwrite(hue&0xff, BT848_HUE);
 	}
 
 	/********************************************************************************
-			Contrast
-		*********************************************************************************/
-	inline void bt848_contrast( uint cont)
+	  Contrast
+	 *********************************************************************************/
+	inline void 
+	bt848_contrast( uint cont)
 	{
 		uint conthi;
 
@@ -263,9 +265,10 @@ extern "C" {
 	}
 
 	/********************************************************************************
-			Sat u
-		*********************************************************************************/
-	inline void bt848_sat_u( ulong data)
+	  Sat u
+	 *********************************************************************************/
+	inline void 
+	bt848_sat_u( ulong data)
 	{
 		ulong datahi;
 
@@ -276,9 +279,10 @@ extern "C" {
 	}
 
 	/********************************************************************************
-			Sat_v
-		*********************************************************************************/
-	inline void bt848_sat_v( ulong data)
+	  Sat_v
+	 *********************************************************************************/
+	inline void 
+	bt848_sat_v( ulong data)
 	{
 		ulong datahi;
 
@@ -288,18 +292,67 @@ extern "C" {
 		btaor(datahi, ~1, BT848_O_CONTROL);
 	}
 
+	/*
+	 * Set LNOTCH filter.
+	 */
+
+	inline void
+	bt848_set_lnotch(int state)
+	{
+		if (state)
+		{
+			btwrite(~BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
+			btwrite(~BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
+		}
+		else
+		{
+			btwrite(BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
+			btwrite(BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
+		}
+	}
+
+	/*
+	 * Set LDEC
+	 */
+	inline void
+	bt848_set_ldec(int state)
+	{
+		if (state)
+		{
+			btwrite(~BT848_CONTROL_LDEC, BT848_E_CONTROL);
+			btwrite(~BT848_CONTROL_LDEC, BT848_O_CONTROL);
+		}
+		else
+		{
+			btwrite(BT848_CONTROL_LDEC, BT848_E_CONTROL);
+			btwrite(BT848_CONTROL_LDEC, BT848_O_CONTROL);
+		}
+	}
+
+	/*
+	 * Set CRUSH
+	 */
+	inline void
+	bt848_set_crush(int state)
+	{
+		if (state)
+			btwrite(BT848_ADC_CRUSH, BT848_ADC);
+		else
+			btwrite(~BT848_ADC_CRUSH, BT848_ADC);
+	}
+
 	/********************************************************************************
-			If Bt848a or Bt849, use PLL for PAL/SECAM and crystal for NTSC
+	  If Bt848a or Bt849, use PLL for PAL/SECAM and crystal for NTSC
 
-			Frequency = (F_input / PLL_X) * PLL_I.PLL_F/PLL_C 
-			PLL_X = Reference pre-divider (0=1, 1=2) 
-			PLL_C = Post divider (0=6, 1=4)
-			PLL_I = Integer input 
-			PLL_F = Fractional input 
+	  Frequency = (F_input / PLL_X) * PLL_I.PLL_F/PLL_C 
+	  PLL_X = Reference pre-divider (0=1, 1=2) 
+	  PLL_C = Post divider (0=6, 1=4)
+	  PLL_I = Integer input 
+	  PLL_F = Fractional input 
 
-			F_input = 28.636363 MHz: 
-			PAL (CLKx2 = 35.46895 MHz): PLL_X = 1, PLL_I = 0x0E, PLL_F = 0xDCF9, PLL_C = 0
-		********************************************************************************/
+	  F_input = 28.636363 MHz: 
+	  PAL (CLKx2 = 35.46895 MHz): PLL_X = 1, PLL_I = 0x0E, PLL_F = 0xDCF9, PLL_C = 0
+	 ********************************************************************************/
 
 	static void set_pll_freq(struct bttv *btv, unsigned int fin, unsigned int fout)
 	{
@@ -325,8 +378,8 @@ extern "C" {
 	}
 
 	/********************************************************************************
-			Set_pll
-		*********************************************************************************/
+	  Set_pll
+	 *********************************************************************************/
 	static int set_pll(struct bttv *btv)
 	{
 		int i;
@@ -354,7 +407,7 @@ extern "C" {
 		}
 
 		printf("bttv%d: PLL: %d => %d ... ",btv->nr,
-				btv->pll.pll_ifreq, btv->pll.pll_ofreq);
+			   btv->pll.pll_ifreq, btv->pll.pll_ofreq);
 
 		set_pll_freq(btv, btv->pll.pll_ifreq, btv->pll.pll_ofreq);
 
@@ -377,8 +430,8 @@ extern "C" {
 	}
 
 	/********************************************************************************
-			Lets try to put the size
-		*********************************************************************************/
+	  Lets try to put the size
+	 *********************************************************************************/
 	static void bt848_set_size(struct bttv *btv)
 	{
 		ushort vscale, hscale;
@@ -527,14 +580,14 @@ extern "C" {
 		btwrite(vdelay&0xff, BT848_O_VDELAY_LO);
 
 		crop=((hactive>>8)&0x03)|((hdelay>>6)&0x0c)|
-			((vactive>>4)&0x30)|((vdelay>>2)&0xc0);
+		((vactive>>4)&0x30)|((vdelay>>2)&0xc0);
 		btwrite(crop, BT848_E_CROP);
 		btwrite(crop, BT848_O_CROP);
 	}
 
 	/**************************************************************************
-			Now this is working
-		***************************************************************************/
+	  Now this is working
+	 ***************************************************************************/
 	void * InterruptEvent()
 	{
 		uint32_t stat,astat;
@@ -634,9 +687,9 @@ extern "C" {
 	}
 
 	/********************************************************************************
-			Find the bt848.
-			Does it exist in the machine?
-		*********************************************************************************/
+	  Find the bt848.
+	  Does it exist in the machine?
+	 *********************************************************************************/
 	int attach_bt848(int device_id)
 	{
 		short  pci_index;
@@ -669,26 +722,26 @@ extern "C" {
 		}
 
 		/*
-			* Fill in the Vendor and Device ID for a 3dfx VooDoo3
-			* graphics adapter.
-			*/
+		 * Fill in the Vendor and Device ID for a 3dfx VooDoo3
+		 * graphics adapter.
+		 */
 		info.VendorId = 0x109e;
 
 		info.DeviceId = 0x350;
 
 		btv->hdl = pci_attach_device(0,
-				PCI_INIT_ALL|PCI_SEARCH_VEND|PCI_SEARCH_VENDEV, 
-				device_id, 
-				&info); 
+									 PCI_INIT_ALL|PCI_SEARCH_VEND|PCI_SEARCH_VENDEV, 
+									 device_id, 
+									 &info); 
 
 		if (btv->hdl == NULL)
 		{
 			//Second chance
 			info.DeviceId = 0x36e;
 			btv->hdl = pci_attach_device(0,
-					PCI_INIT_ALL|PCI_SEARCH_VEND|PCI_SEARCH_VENDEV, 
-					device_id, 
-					&info); 
+										 PCI_INIT_ALL|PCI_SEARCH_VEND|PCI_SEARCH_VENDEV, 
+										 device_id, 
+										 &info); 
 			if (btv->hdl == NULL)
 				return 0;
 		}
@@ -704,14 +757,14 @@ extern "C" {
 			if (info.BaseAddressSize[i] > 0)
 			{
 				printf("bttvx: Aperture %d: "
-						"Base 0x%llx Length %d bytes Type %s\n", 
-						i,
-						PCI_IS_MEM(info.CpuBaseAddress[i]) ?
-						PCI_MEM_ADDR(info.CpuBaseAddress[i]) :
-						PCI_IO_ADDR(info.CpuBaseAddress[i]),
-						info.BaseAddressSize[i],
-						PCI_IS_MEM(info.CpuBaseAddress[i]) ?
-						"MEM" : "IO");
+					   "Base 0x%llx Length %d bytes Type %s\n", 
+					   i,
+					   PCI_IS_MEM(info.CpuBaseAddress[i]) ?
+					   PCI_MEM_ADDR(info.CpuBaseAddress[i]) :
+					   PCI_IO_ADDR(info.CpuBaseAddress[i]),
+					   info.BaseAddressSize[i],
+					   PCI_IS_MEM(info.CpuBaseAddress[i]) ?
+					   "MEM" : "IO");
 			}
 		}
 
@@ -723,16 +776,16 @@ extern "C" {
 		btv->irq = info.Irq;
 
 		regbase = (uint32_t *) mmap_device_memory(NULL, 
-				info.BaseAddressSize[0],
-				PROT_READ|PROT_WRITE|PROT_NOCACHE, 
-				MAP_TYPE,
-				PCI_MEM_ADDR(info.CpuBaseAddress[0]));
+												  info.BaseAddressSize[0],
+												  PROT_READ|PROT_WRITE|PROT_NOCACHE, 
+												  MAP_TYPE,
+												  PCI_MEM_ADDR(info.CpuBaseAddress[0]));
 
 		regbase8 = (uint8_t *) mmap_device_memory(NULL, 
-				info.BaseAddressSize[0],
-				PROT_READ|PROT_WRITE|PROT_NOCACHE, 
-				MAP_TYPE,
-				PCI_MEM_ADDR(info.CpuBaseAddress[0]));
+												  info.BaseAddressSize[0],
+												  PROT_READ|PROT_WRITE|PROT_NOCACHE, 
+												  MAP_TYPE,
+												  PCI_MEM_ADDR(info.CpuBaseAddress[0]));
 
 		//Interrupt mask register = 0 (INT_MASK)
 		regbase[65]=0;
@@ -792,8 +845,8 @@ extern "C" {
 	}
 
 	/*************************************************************************
-			Activate capture
-		**************************************************************************/
+	  Activate capture
+	 **************************************************************************/
 	static void bt848_cap(struct bttv * btv,int state)
 	{
 		if (state) 
@@ -809,8 +862,8 @@ extern "C" {
 	}
 
 	/********************************************************************************
-			Open
-		*********************************************************************************/
+	  Open
+	 *********************************************************************************/
 	int open_bttvx()
 	{
 		struct bttv *btv;
@@ -825,26 +878,26 @@ extern "C" {
 		bt848_cap(btv, 1); //activa capture
 
 		make_rawrisctab(btv, 
-				(unsigned int *) btv->risc_1,
-				(unsigned int *) btv->risc_2, 
-				(unsigned int *) btv->imagebuf_1);
+						(unsigned int *) btv->risc_1,
+						(unsigned int *) btv->risc_2, 
+						(unsigned int *) btv->imagebuf_1);
 		make_rawrisctab(btv, 
-				(unsigned int *) btv->risc_2,
-				(unsigned int *) btv->risc_3, 
-				(unsigned int *) btv->imagebuf_2);
+						(unsigned int *) btv->risc_2,
+						(unsigned int *) btv->risc_3, 
+						(unsigned int *) btv->imagebuf_2);
 		make_rawrisctab(btv, 
-				(unsigned int *) btv->risc_3,
-				(unsigned int *) btv->risc_1, 
-				(unsigned int *) btv->imagebuf_3);
+						(unsigned int *) btv->risc_3,
+						(unsigned int *) btv->risc_1, 
+						(unsigned int *) btv->imagebuf_3);
 
 		//bt848_cap(btv, 1); //activa capture
 		return 1;
 	}
 
 	/********************************************************************************
-			Close
-			Close all the things
-		*********************************************************************************/
+	  Close
+	  Close all the things
+	 *********************************************************************************/
 	int close_bttvx()
 	{
 		uint32_t stat,astat;
@@ -887,8 +940,8 @@ extern "C" {
 	}
 
 	/***********************************************************************************
-			Initialization
-		************************************************************************************/
+	  Initialization
+	 ************************************************************************************/
 	static int init_bt848(struct bttv * btv, int video_format)
 	{
 		int i;
@@ -930,50 +983,50 @@ extern "C" {
 		btv->cap=0;
 
 		btv->risc_1 = (u32 *) mmap(0,
-				RISCMEM_LEN/2,
-				PROT_READ|PROT_WRITE|PROT_NOCACHE,
-				MAP_PHYS|MAP_ANON,
-				NOFD,
-				0);
+								   RISCMEM_LEN/2,
+								   PROT_READ|PROT_WRITE|PROT_NOCACHE,
+								   MAP_PHYS|MAP_ANON,
+								   NOFD,
+								   0);
 
 		btv->risc_2 = (u32 *) mmap(0,
-				RISCMEM_LEN/2,
-				PROT_READ|PROT_WRITE|PROT_NOCACHE,
-				MAP_PHYS|MAP_ANON,
-				NOFD,
-				0);
+								   RISCMEM_LEN/2,
+								   PROT_READ|PROT_WRITE|PROT_NOCACHE,
+								   MAP_PHYS|MAP_ANON,
+								   NOFD,
+								   0);
 
 		btv->risc_3 = (u32 *) mmap(0,
-				RISCMEM_LEN/2,
-				PROT_READ|PROT_WRITE|PROT_NOCACHE,
-				MAP_PHYS|MAP_ANON,
-				NOFD,
-				0);
+								   RISCMEM_LEN/2,
+								   PROT_READ|PROT_WRITE|PROT_NOCACHE,
+								   MAP_PHYS|MAP_ANON,
+								   NOFD,
+								   0);
 
 		regbase[69] = virt_to_bus( btv->risc_1);
 
 		btv->imagebuf_1 =   (unchar *) mmap(0,
-				btv->win.width * btv->win.height * deep,
-				PROT_READ|PROT_WRITE|PROT_NOCACHE,
-				MAP_PHYS|MAP_ANON | MAP_BELOW16M ,
-				NOFD,
-				0);
+											btv->win.width * btv->win.height * deep,
+											PROT_READ|PROT_WRITE|PROT_NOCACHE,
+											MAP_PHYS|MAP_ANON | MAP_BELOW16M ,
+											NOFD,
+											0);
 		memset(btv->imagebuf_1, 1,btv->win.width * btv->win.height * deep);
 
 		btv->imagebuf_2 =   (unchar *) mmap(0,
-				btv->win.width * btv->win.height * deep,
-				PROT_READ|PROT_WRITE|PROT_NOCACHE,
-				MAP_PHYS|MAP_ANON | MAP_BELOW16M ,
-				NOFD,
-				0);
+											btv->win.width * btv->win.height * deep,
+											PROT_READ|PROT_WRITE|PROT_NOCACHE,
+											MAP_PHYS|MAP_ANON | MAP_BELOW16M ,
+											NOFD,
+											0);
 		memset(btv->imagebuf_2, 1,btv->win.width * btv->win.height * deep);
 
 		btv->imagebuf_3 = (unchar *) mmap(0,
-				btv->win.width * btv->win.height * deep,
-				PROT_READ|PROT_WRITE|PROT_NOCACHE,
-				MAP_PHYS|MAP_ANON | MAP_BELOW16M ,
-				NOFD,
-				0);
+										  btv->win.width * btv->win.height * deep,
+										  PROT_READ|PROT_WRITE|PROT_NOCACHE,
+										  MAP_PHYS|MAP_ANON | MAP_BELOW16M ,
+										  NOFD,
+										  0);
 		memset(btv->imagebuf_3, 1,btv->win.width * btv->win.height * deep);
 
 		//bt848_muxsel(btv, 1);
@@ -1015,10 +1068,14 @@ extern "C" {
 		btwrite(0xd8, BT848_CONTRAST_LO);
 		//btwrite(0x80,BT848_OFORM);
 
-		btwrite(BT848_ADC_RESERVED|BT848_ADC_CRUSH, BT848_ADC);
+		//btwrite(BT848_ADC_RESERVED|BT848_ADC_CRUSH, BT848_ADC);
+		btwrite(BT848_ADC_RESERVED, BT848_ADC);
 
 		btwrite(BT848_CONTROL_LDEC, BT848_E_CONTROL);
 		btwrite(BT848_CONTROL_LDEC, BT848_O_CONTROL);
+
+		btwrite(BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
+		btwrite(BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
 
 		if (btv->win.norm == 2) //S-video; Y/C configuration
 		{
@@ -1038,9 +1095,9 @@ extern "C" {
 	}
 
 	/*************************************************************************
-		*	Main function. Activate the resorce manager	
-		*
-		*************************************************************************/
+	 *	Main function. Activate the resorce manager	
+	 *
+	 *************************************************************************/
 	int init_bttvx(int video_mode, int device_number, int w, int h) //Video format, device id, width and height
 	{
 		int i; 

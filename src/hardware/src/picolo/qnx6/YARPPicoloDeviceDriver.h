@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.9 2003-12-10 09:20:55 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.10 2003-12-17 09:58:47 beltran Exp $
 ///
 ///
 
@@ -117,6 +117,9 @@ class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPi
 		virtual int setContrast(void *cmd);
 		virtual int setSatU(void *cmd);
 		virtual int setSatV(void *cmd);
+		virtual int setLNotch(void * cmd);
+		virtual int setLDec(void * cmd);
+		virtual int setCrush(void * cmd);
 
 	protected:
 		void *system_resources;

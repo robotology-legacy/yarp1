@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.12 2003-12-10 09:19:53 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.13 2003-12-17 09:58:47 beltran Exp $
 ///
 ///
 
@@ -202,6 +202,10 @@ YARPPicoloDeviceDriver::YARPPicoloDeviceDriver(void) : YARPDeviceDriver<YARPNull
 	m_cmds[FCMDSetContrast]   = &YARPPicoloDeviceDriver::setContrast;
 	m_cmds[FCMDSetSatU]       = &YARPPicoloDeviceDriver::setSatU;
 	m_cmds[FCMDSetSatV]       = &YARPPicoloDeviceDriver::setSatV;
+	m_cmds[FCMDSetLNotch]	  = &YARPPicoloDeviceDriver::setLNotch;
+	m_cmds[FCMDSetLDec]	  	  = &YARPPicoloDeviceDriver::setLDec;
+	m_cmds[FCMDSetCrush]	  = &YARPPicoloDeviceDriver::setCrush;
+	
 }
 
 YARPPicoloDeviceDriver::~YARPPicoloDeviceDriver()
@@ -314,6 +318,30 @@ YARPPicoloDeviceDriver::setSatV(void * cmd)
 	//void bt848_sat_v( ulong data);
 	unsigned long * m_satv = (unsigned long *) cmd;
 	bt848_sat_v( *m_satv);
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setLNotch(void * cmd)
+{
+	int * m_state = (int *) cmd;
+	bt848_set_lnotch(*m_state);
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setLDec(void * cmd)
+{
+	int * m_state = (int *) cmd;
+	bt848_set_ldec(*m_state);
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setCrush(void * cmd)
+{
+	int * m_state = (int *) cmd;
+	bt848_set_crush(*m_state);
 	return YARP_OK;
 }
 
