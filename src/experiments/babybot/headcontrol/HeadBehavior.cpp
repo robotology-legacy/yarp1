@@ -1,4 +1,4 @@
-#include "Headbehavior.h"
+#include "HeadBehavior.h"
 
 void HBWaitIdle::handle(HeadThread *d)
 {
