@@ -9,7 +9,7 @@
 #
 #		  --distribution is the path where ACE was unpacked.
 #
-# $Id: build.pl,v 1.1 2004-07-25 22:16:39 babybot Exp $
+# $Id: build.pl,v 1.2 2004-07-26 11:30:32 babybot Exp $
 #
 
 use Getopt::Long;
@@ -136,7 +136,11 @@ if ($install)
 	chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 }
 
+select STDOUT;
 
+#
+#
+#
 sub call_msdev_and_print
 {
 	my ($version, $operation) = @_;

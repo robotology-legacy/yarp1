@@ -14,6 +14,7 @@
 
 use Getopt::Long;
 use File::Copy;
+use Cwd;
 
 print "Entering compile process of YARP OS libraries...\n";
 
@@ -89,7 +90,7 @@ if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
 		if (-e $options{"Compile_OS<-ACE_PATH"} &&
 			-e "$yarp_root/include/$options{\"Architecture<-OS\"}/ace" )
 		{
-			do_ace_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"}|");
+			do_ace_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"}");
 		}
 	}
 	else
@@ -101,9 +102,9 @@ if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
 
 #
 # override.
-$debug = ($options{"Compile_OS<-Debug"} eq "TRUE") ? '1' : '';
-$release = ($options{"Compile_OS<-Release"} eq "TRUE") ? '1' : '';
-$install = ($options{"Compile_OS<-Install"} eq "TRUE") ? '1' : '';
+$debug = ($options{"Compile_OS<-Lib_Debug"} eq "TRUE") ? '1' : '';
+$release = ($options{"Compile_OS<-Lib_Release"} eq "TRUE") ? '1' : '';
+$install = ($options{"Compile_OS<-Lib_Install"} eq "TRUE") ? '1' : '';
 
 #
 #
@@ -155,18 +156,53 @@ if ($install)
 	}
 }
 
+if ($options{"Compile_OS<-Tools_Rebuild"} eq "YES")
+{
+	if ($options{"Compile_OS<-Tools_Debug"} eq "TRUE")
+	{
+		my $current_dir = getcwd;
+		chdir "../tools/" or die "Can't chdir to tools directory\n";
+		do_tools_compile ("build.pl --clean --debug --install");
+		chdir $current_dir or die "Can't chdir to $current_dir\n";
+	}
+	else
+	{
+		my $current_dir = getcwd;
+		chdir "../tools/" or die "Can't chdir to tools directory\n";
+		do_tools_compile ("build.pl --clean --release --install");
+		chdir $current_dir or die "Can't chdir to $current_dir\n";
+	}
+}
+else
+{
+	print "You didn't ask to recompile the YARP tools\n";
+}
+
+
+#
+#
+#
+sub do_tools_compile
+{
+	my ($exe) = @_;
+	open TOOLS, "$exe|";
+	while (<TOOLS>)
+	{
+		print;
+	}
+	close TOOLS;
+}
 
 sub do_ace_compile
 {
 	my ($exe) = @_;
-	open ACE, "$exe";
+	open ACE, "$exe|";
 	while (<ACE>)
 	{
 		print;
 	}
 	close ACE;
 }
-
 
 sub call_msdev_and_print
 {
