@@ -55,13 +55,13 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #Add our name(s) here#
+///                    #nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: YARPConicFitter.cpp,v 1.15 2004-02-23 19:50:09 babybot Exp $
+/// $Id: YARPConicFitter.cpp,v 1.16 2004-04-21 17:53:15 natta Exp $
 ///
 ///
 
@@ -87,47 +87,45 @@ void YARPLpConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, int *t0,  int 
 	*R = (int) (_radiusOfGyration(in, x, y) + 0.5);
 }
 
-void YARPLpConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, int *t0,  int *r0, double *a11, double *a12, double *a22)
+void YARPLpConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, YARPLpShapeEllipse &el)
 {
-	int x,y;
-	_moments.centerOfMass(in, &x, &y);
-	_moments.Cartesian2Logpolar(x, y, *r0, *t0);
+	_moments.centerOfMass(in, &el.x, &el.y);
+	// printf("x0= %d\ty0= %d\n", &el.x, &el.y);
+	_moments.Cartesian2Logpolar(el.x, el.y, el.rho, el.theta);
 	
-	double u20 = _moments.centralMoments(in, x, y, 2, 0);
-	double u11 = _moments.centralMoments(in, x, y, 1, 1);
-	double u02 = _moments.centralMoments(in, x, y, 0, 2);
-	double u00 = _moments.centralMoments(in, x, y, 0, 0);
+	double u20 = _moments.centralMoments(in, el.x, el.y, 2, 0);
+	double u11 = _moments.centralMoments(in, el.x, el.y, 1, 1);
+	double u02 = _moments.centralMoments(in, el.x, el.y, 0, 2);
+	double u00 = _moments.centralMoments(in, el.x, el.y, 0, 0);
 
 	double aSq;
 	double bSq;
 	double theta;
 
 	double tmp = (u20-u02);
-	if (tmp != 0)
-		theta = 0.5*atan(2*u11/tmp);
+	if (tmp > 0)
+		theta = -0.5*atan(2*u11/tmp);
+	else if (tmp < 0)
+		theta = PI/2 - (0.5*atan(2*u11/tmp));
 	else 
 		theta = PI/4;
 
-	aSq = (1/u00)*(u20+u02 + sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
-	bSq = (1/u00)*(u20+u02 - sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
+	aSq = (2/u00)*(u20+u02 + sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
+	bSq = (2/u00)*(u20+u02 - sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
 
-	printf("u: %lf %lf %lf %lf\n", u20, u11, u02, u00);
-	printf("theta: %lf\n", theta);
-	
+	// printf("u20= %lf\tu02= %lf\tu11= %lf\tu00= %lf\n",u20, u02, u11, u00);
+	// printf("a= %lf\tb= %lf\tfi= %lf\n", sqrt(aSq), sqrt(bSq), theta*180/PI);
+
 	double costh = cos(theta);
 	double sinth = sin(theta);
-	if (u20 > u02)
-	{
-		*a11 = (costh*costh)/(aSq) + (sinth*sinth)/(bSq);
-		*a22 = (sinth*sinth)/(aSq) + (costh*costh)/(bSq);
-		*a12 = (1/(bSq) - 1/(aSq)) * sinth*costh;
-	}
-	else
-	{
-		*a22 = (costh*costh)/(aSq) + (sinth*sinth)/(bSq);
-		*a11 = (sinth*sinth)/(aSq) + (costh*costh)/(bSq);
-		*a12 = (1/(aSq) - 1/(bSq)) * sinth*costh;
-	}
+
+	el.a11 = (costh*costh)/(aSq) + (sinth*sinth)/(bSq);
+	el.a22 = (sinth*sinth)/(aSq) + (costh*costh)/(bSq);
+	el.a12 = (1/(aSq) - 1/(bSq)) * sinth*costh;
+
+	el.a = sqrt(aSq);
+	el.b = sqrt(bSq);
+	el.angle = theta;
 }
 
 void YARPLpConicFitter::_radius(YARPImageOf<YarpPixelMono> &in, int theta,  int rho, int *Rmin, int *Rmax, int *Rav)
@@ -475,33 +473,43 @@ void YARPConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, int *x0,  int *y
 	*R = (int)_radiusOfGyration(in, *x0, *y0);
 }
 
-void YARPConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, int *x0,  int *y0, double *a11, double *a12, double *a22)
+void YARPConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, YARPShapeEllipse &el)
 {
-	_moments.centerOfMass(in, x0, y0);
+	_moments.centerOfMass(in, &el.x, &el.y);
 		
-	double u20 = _moments.centralMoments(in, *x0, *y0, 2, 0);
-	double u11 = _moments.centralMoments(in, *x0, *y0, 1, 1);
-	double u02 = _moments.centralMoments(in, *x0, *y0, 0, 2);
-	double u00 = _moments.centralMoments(in, *x0, *y0, 0, 0);
+	double u20 = _moments.centralMoments(in, el.x, el.y, 2, 0);
+	double u11 = _moments.centralMoments(in, el.x, el.y, 1, 1);
+	double u02 = _moments.centralMoments(in, el.x, el.y, 0, 2);
+	double u00 = _moments.centralMoments(in, el.x, el.y, 0, 0);
 
 	double aSq;
 	double bSq;
 	double theta;
 
-	double tmp = u20-u02;
-	if (tmp != 0)
-		theta = 0.5*atan(2*u11/tmp);
+	double tmp = (u20-u02);
+	if (tmp > 0)
+		theta = -0.5*atan(2*u11/tmp);
+	else if (tmp < 0)
+		theta = PI/2 - (0.5*atan(2*u11/tmp));
 	else 
 		theta = PI/4;
 
 	aSq = (2/u00)*(u20+u02 + sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
 	bSq = (2/u00)*(u20+u02 - sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
-	
+
+	// printf("u20= %lf\tu02= %lf\tu11= %lf\tu00= %lf\n",u20, u02, u11, u00);
+	// printf("a= %lf\tb= %lf\tfi= %lf\n", sqrt(aSq), sqrt(bSq), theta*180/PI);
+
 	double costh = cos(theta);
 	double sinth = sin(theta);
-	*a11 = (costh*costh)/(aSq) + (sinth*sinth)/(bSq);
-	*a22 = (sinth*sinth)/(aSq) + (costh*costh)/(bSq);
-	*a12 = (1/(aSq) - 1/(bSq)) * sinth*costh;
+
+	el.a11 = (costh*costh)/(aSq) + (sinth*sinth)/(bSq);
+	el.a22 = (sinth*sinth)/(aSq) + (costh*costh)/(bSq);
+	el.a12 = (1/(aSq) - 1/(bSq)) * sinth*costh;
+
+	el.a = sqrt(aSq);
+	el.b = sqrt(bSq);
+	el.angle = theta;
 }
 
 void YARPConicFitter::_radius(YARPImageOf<YarpPixelMono> &in, int x,  int y, int *Rmin, int *Rmax, int *Rav)
@@ -520,7 +528,47 @@ double YARPConicFitter::_radiusOfGyration(YARPImageOf<YarpPixelMono> &in, int x,
 
 void YARPConicFitter::plotEllipse(int X0, int Y0, double a11, double a12, double a22, YARPImageOf<YarpPixelMono> &output)
 {
-	ACE_ASSERT(0);	// not impl yet
+	int t;
+	float theta = 0.0;
+	const int nThetaS = 200;
+	const float deltaTh= (float) PI/ (double) nThetaS;
+	float x,y,r;
+	
+	if ( !_checkDet(a11, a12, a22) )
+	{
+		// sorry, not an ellipse...
+		return;
+	}
+
+	for(t = 0; t < nThetaS; t++)
+	{
+		theta = deltaTh*t;
+		
+		double c = cos(theta);
+		double s = sin(theta);
+
+		double A = a11*c*c+2*a12*c*s+a22*s*s;
+			
+		if (A > 0)
+		{
+			r = sqrt(1/A);
+
+			int xx = int (r*c+0.5);
+			int yy = int (r*s+0.5);
+
+			x = X0 + xx;
+			y = Y0 - yy;
+			output.SafePixel(x,y) = 255;
+						
+			x = X0 - xx;
+			y = Y0 + yy;
+			
+			output.SafePixel(x,y) = 255;
+		}
+
+	}
+	// plot center
+	output.SafePixel(X0, Y0) = 255;
 }
 
 void YARPConicFitter::plotEllipse(int X0, int Y0, double a11, double a12, double a22, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR &v)
@@ -544,7 +592,7 @@ void YARPConicFitter::plotEllipse(int X0, int Y0, double a11, double a12, double
 		double c = cos(theta);
 		double s = sin(theta);
 
-		double A = a11*c*c+a12*c*s+a22*s*s;
+		double A = a11*c*c+2*a12*c*s+a22*s*s;
 			
 		if (A > 0)
 		{

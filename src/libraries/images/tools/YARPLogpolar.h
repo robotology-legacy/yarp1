@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.23 2004-01-26 09:16:46 orfra Exp $
+/// $Id: YARPLogpolar.h,v 1.24 2004-04-21 17:53:15 natta Exp $
 ///
 ///
 
@@ -81,7 +81,7 @@
 
 ///
 /// embeds the logpolar library for YARP. The librery is a relatively accurate simulation
-///		of one of the latest logpolar CMOS chips.
+///	of one of the latest logpolar CMOS chips.
 ///
 
 // Logpolar trans -- Notational conventions:
@@ -90,7 +90,7 @@
 // ro = k1 + k2*lambda^(csi) csi > F
 // r0 = csi					 csi <= F
 // J(csi, eta) = lambda^csi * ln(lambda)/q (k1+k2*lambda^csi) outside the fovea
-// J(csi, eta) = J(F, eta)							  within the fovea
+// J(csi, eta) = J(F, eta) within the fovea
 // Jan 2004 -- by nat
 
 namespace _logpolarParams
@@ -106,24 +106,6 @@ namespace _logpolarParams
 	// this is the ratio between the full size cartesian image and the actual one
 	const double _ratio = 0.25;		// 1/4
 	
-	// OBSOLETE
-	// Parameters were computed to fit the log polar
-	// transformation as implemented by the CMOS chip according
-	// to the following equations:
-	// x = ro*cos(eta/q)
-	// y = ro*sin(eta/q)
-	// ro = _alfa*exp(_beta*csi)
-	// jacobian(csi, eta) = _jacob1 * exp(2*_beta*csi);
-	// September 2003 -- by nat
-
-	// const double _alfa = 3.76;	
-	// const double _beta = 0.0233;
-	// const double _alfa_inv = 1/_alfa;
-	// const double _beta_inv = 1/_beta;
-	// const double _alfasquare = _alfa*_alfa;
-	// const double _betasquare = _beta*_beta;
-	// const double _jacob1 = _alfasquare*_beta/_q;
-
 	// parameter of the transformation
 	const double _q = _stheta/(2*PI);
 	const double _lambda = 1.02314422608633;
@@ -133,6 +115,7 @@ namespace _logpolarParams
 };
 
 // NOTE: this function was determined empirically and it is far from being correct
+// still used within YARPBlobDetector class
 inline double pSize(int c, int r, int nf = _logpolarParams::_sfovea)
 {
 	ACE_UNUSED_ARG(c);
@@ -241,7 +224,7 @@ inline int YARPLogpolar::RoToCsi(double r)
 		csi = (1/log(lambda))*log(tmp1);
 	}	
 	
-	return (int)csi;
+	return (int) csi;
 }
 
 // compute the jacobian of the transformation
@@ -265,37 +248,8 @@ inline double YARPLogpolar::Jacobian(int csi, int eta)
 	double tmpPow = pow(lambda, c);
 	ret = logLambda*tmpPow*(k1 + k2*tmpPow)/q;
 
-	//return the approximation by excess 
-	// (this was empirically determined)
-	return (int) (ret + 1);
+	return (ret);
 }
-
-// OBSOLETE functions, with old parameters
-/*
-inline double CsiToRo(double csi)
-{
-	return (_logpolarParams::_alfa*(exp(_logpolarParams::_beta*csi)-1));
-}
-
-inline int RoToCsi(double r)
-{
-	double tmp = _logpolarParams::_alfa_inv*r;
-	if (tmp >= 1)
-		return (int) (_logpolarParams::_beta_inv*log(tmp)+0.5);
-	else
-		return 0;
-}
-
-inline double Jacobian(int csi, int eta)
-{
-	eta;	// keep the compiler happy
-	double ret;
-	if (csi >= _logpolarParams::_sfovea)
-		ret = _logpolarParams::_jacob1 * (exp(2*_logpolarParams::_beta*csi));
-	else
-		ret = _logpolarParams::_jacob1 * (exp(2*_logpolarParams::_beta*_logpolarParams::_sfovea));
-	return (int) ret+1;
-}*/
 
 #endif
 

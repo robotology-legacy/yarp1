@@ -55,13 +55,13 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #Add our name(s) here#
+///                    #nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: YARPImageMoments.cpp,v 1.7 2004-04-06 14:26:48 orfra Exp $
+/// $Id: YARPImageMoments.cpp,v 1.8 2004-04-21 17:53:15 natta Exp $
 ///
 ///
 
@@ -70,6 +70,7 @@
 
 using namespace _logpolarParams;
 
+// LOGPOLAR VERSION
 void YARPLpImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y)
 {
 	int t,c;
@@ -85,16 +86,15 @@ void YARPLpImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, in
 			int tmpX = 0;
 			int tmpY = 0;
 			double J = 0.0;
-			if ( *src == 255 )
-			{
-				Logpolar2Cartesian(c, t, tmpX, tmpY);
+		
+			Logpolar2Cartesian(c, t, tmpX, tmpY);
 
-				J = Jacobian(c, t);
+			J = (*src)*Jacobian(c, t);
 
-				sumX += tmpX*J;
-				sumY += tmpY*J;
-				area += J;
-			}
+			sumX += tmpX*J;
+			sumY += tmpY*J;
+			area += J;
+					
 			src++;
 		}
 	}
@@ -125,14 +125,13 @@ double YARPLpImageMoments::centralMoments(YARPImageOf<YarpPixelMono> &in, int xm
 			int x = 0;
 			int y = 0;
 			double J = 0.0;
-			if ( *src == 255 )
-			{
-				Logpolar2Cartesian(c, t, x, y);
-				J = Jacobian(c, t);
+		
+			Logpolar2Cartesian(c, t, x, y);
+			J = (*src)*Jacobian(c, t);
 
-				res += pow((double)(x-xm),(double)p)*pow((double)(y-ym),(double)q)*J;
-				area += J;
-			}
+			res += pow((double)(x-xm),(double)p)*pow((double)(y-ym),(double)q)*J;
+			area += J;
+			
 			src++;
 		}
 	}
@@ -140,7 +139,7 @@ double YARPLpImageMoments::centralMoments(YARPImageOf<YarpPixelMono> &in, int xm
 	return res;
 }
 
-// CARTESIAN
+// CARTESIAN VERSION
 void YARPImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y)
 {
 	int i,j;
@@ -153,12 +152,10 @@ void YARPImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int 
 		src = (unsigned char *)in.GetArray()[j];
 		for(i = 0; i < in.GetWidth(); i++)
 		{
-			if ( *src == 255 )
-			{
-				sumX += i;
-				sumY += j;
-				area ++;
-			}
+			sumX += i*(*src);
+			sumY += j*(*src);
+			area += *src;
+			
 			src++;
 		}
 	}
@@ -186,8 +183,7 @@ double YARPImageMoments::centralMoments(YARPImageOf<YarpPixelMono> &in, int xm, 
 		src = (unsigned char *)in.GetArray()[j];
 		for(i = 0; i < in.GetWidth(); i++)
 		{
-			if ( *src == 255 )
-				res += pow((double)(i-xm),(double)p)*pow((double)(j-ym),(double)q);
+			res += (*src)*pow((double)(i-xm),(double)p)*pow((double)(j-ym),(double)q);
 			
 			src++;
 		}
