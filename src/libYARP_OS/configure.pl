@@ -10,7 +10,8 @@ use File::Copy;
 print "Entering configure process of YARP environment...\n";
 
 chomp ($tmp = `ver`);
-if (index ($tmp, "Windows") < 0)
+chomp ($tmp2 = `uname`);
+if (index ($tmp, "Windows") < 0 && index ($tmp2, "CYGWIN") < 0)
 {
 	print "This is a Windows 2000/XP specific script\n";
 	print "Perhaps this procedure can be simply extended to\n"; 
