@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.h,v 1.3 2003-08-12 00:01:56 gmetta Exp $
+/// $Id: YARPBlobDetector.h,v 1.4 2003-08-20 08:13:55 natta Exp $
 ///
 /// August 2003 -- by nat
 
@@ -72,10 +72,10 @@
 #include <YARPImage.h>
 #include "YARPIntegralImage.h"
 
-const int _nfilters = 6;
+const int _nfilters = 10;
 const int _filterSizeCart[] = {3, 5, 9, 15, 19, 21, 25, 27, 31};
-const int _filterSizeTheta[] = {3, 5, 7, 9, 11, 13};
-const int _filterSizeRho[] = {3, 5, 7, 9, 9, 11};
+const int _filterSizeTheta[] = {7, 9, 11, 13, 15, 21, 31, 41, 45, 51};
+const int _filterSizeRho[] = {5, 7, 9, 11, 13, 15, 21, 31, 41, 41};
 
 class YARPBlobDetector
 {

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.cpp,v 1.3 2003-08-13 00:23:17 gmetta Exp $
+/// $Id: YARPBlobDetector.cpp,v 1.4 2003-08-20 08:13:55 natta Exp $
 ///
 ///
 
@@ -174,14 +174,14 @@ void YARPBlobDetector::filterLp(YARPImageOf<YarpPixelMono> &in)
 				_filtered[f](c,r) = _integralImg.getSaliencyLp(maxX, minX, maxY, minY);
 				tmp += _filtered[f](c,r)*255/_nfilters;
 
-				if (_threshold > 0)
-				{
-					// threshold
-					if (tmp>_threshold)
-						tmp = 255;
-					else 
-						tmp = 0;
-				}
+			}
+			if (_threshold > 0)
+			{
+				// threshold
+				if (tmp>_threshold)
+					tmp = 255;
+				else 
+					tmp = 0;
 			}
 			_segmented(c,r) = (YarpPixelMono)(tmp+0.5);
 	}

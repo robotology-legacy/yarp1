@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPColorConverter.cpp,v 1.3 2003-08-13 00:23:17 gmetta Exp $
+/// $Id: YARPColorConverter.cpp,v 1.4 2003-08-20 08:13:55 natta Exp $
 ///
 ///
 
@@ -112,9 +112,9 @@ void YARPColorConverter::RGB2Normalized (const YARPImageOf<YarpPixelRGB>& in, YA
 	float lum;
 	float *tmp;
 
-	for(c = 0; c<in.GetWidth(); c++)
+	for(r = 0; r<in.GetHeight(); r++)
 	{
-		for(r = 0; r < in.GetHeight(); r++)
+		for(c = 0; c < in.GetWidth(); c++)
 		{
 			tmp = (float *) outTmp;
 			lum = inTmp[0] + inTmp[1] + inTmp[2];
@@ -156,9 +156,9 @@ void YARPColorConverter::RGB2Normalized (const YARPImageOf<YarpPixelRGB>& in, YA
 		
 	float lum;
 	
-	for(c = 0; c<in.GetWidth(); c++)
+	for(r = 0; r<in.GetHeight(); r++)
 	{
-		for(r = 0; r < in.GetHeight(); r++)
+		for(c = 0; c < in.GetWidth(); c++)
 		{
 			lum = inTmp[0] + inTmp[1] + inTmp[2];
 			if (lum > threshold)
@@ -201,9 +201,9 @@ void YARPColorConverter::RGB2Normalized (const YARPImageOf<YarpPixelBGR>& in, YA
 		
 	float lum;
 	
-	for(c = 0; c<in.GetWidth(); c++)
+	for(r = 0; r<in.GetHeight(); r++)
 	{
-		for(r = 0; r < in.GetHeight(); r++)
+		for(c = 0; c < in.GetWidth(); c++)
 		{
 			lum = inTmp[0] + inTmp[1] + inTmp[2];
 			if (lum > threshold)
