@@ -1,7 +1,7 @@
 # Device driver global makefile
 include $(YARP_ROOT)/conf/Makefile.template
 
-SUBDIRS = picolo galil 
+SUBDIRS = common picolo galil 
 
 all: compile drivers
 
@@ -18,4 +18,3 @@ compile:
 drivers: 
 	@for d in $(SUBDIRS) ; do \
 		( cd $$d ; $(MAKE) $(MAKEFLAGS) install ) ; done
-	+cd ./common; make install
