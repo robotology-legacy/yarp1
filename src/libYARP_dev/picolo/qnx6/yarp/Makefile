@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.1 2004-07-13 13:21:10 babybot Exp $
+#$Id: Makefile,v 1.2 2004-11-23 17:12:31 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -6,7 +6,7 @@ include $(YARP_ROOT)/conf/Makefile.template
 
 OBJS =
 #CC = g++
-CFLAGS += -I ./dd_orig -I $(YARP_ROOT)/include -I ../../common 
+CFLAGS += -I ../dd_orig -I $(YARP_ROOT)/include -I ../../../include -I $(YARP_ROOT)/include/$(SYSDIR)
 #LIBS = $(YARP_ROOT)/lib/$(OS)/bttvx.lib
 
 SUBDIRS =
@@ -28,7 +28,7 @@ clean:
 	@echo
 	rm -f *.o
 	rm -f *.lib
-	+cd ./dd_orig; make clean
+	+cd ../dd_orig/src; make clean
 	
 install:
 	@echo
@@ -36,10 +36,10 @@ install:
 	@echo
 	$(CP) *.lib $(YARP_ROOT)/lib/$(OS)
 	$(CP) *.h 	 $(YARP_ROOT)/include
-	+cd ./dd_orig; make install
+	+cd ../dd_orig/src; make install
 	
 subdirs:
-	+cd ./dd_orig; make 
+	+cd ../dd_orig/src; make 
 
 
 

@@ -61,18 +61,18 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.1 2004-07-13 13:21:10 babybot Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.2 2004-11-23 17:12:32 beltran Exp $
 ///
 ///
 
 #ifndef __YARPPicoloDeviceDriverh__
 #define __YARPPicoloDeviceDriverh__
 
-#include <conf/YARPConfig.h>
-#include <YARPThread.h>
-#include <YARPSemaphore.h>
-#include <YARPDeviceDriver.h>
-#include <YARPSemaphore.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPThread.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPDeviceDriver.h>
+#include <yarp/YARPSemaphore.h>
 
 #include <stdlib.h>
 #include <string.h>

@@ -61,17 +61,17 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.1 2004-07-13 13:21:10 babybot Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.2 2004-11-23 17:12:31 beltran Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Sched_Params.h>
 
 #include "YARPPicoloDeviceDriver.h"
-#include <YARPFrameGrabberUtils.h>
+#include <yarp/YARPFrameGrabberUtils.h>
 
 typedef unsigned long UINT32;
 
