@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.8 2004-08-02 12:31:55 eshuy Exp $
+/// $Id: Port.h,v 1.9 2004-08-05 09:55:30 eshuy Exp $
 ///
 ///
 
@@ -360,6 +360,7 @@ public:
 	int has_input;
 	int skip;
 	int pending;
+	int ignore_data;
 	CountedPtr<Receivable> p_receiver_access;
 	CountedPtr<Receivable> p_receiver_latest;
 	CountedPtr<Receivable> p_receiver_incoming;
@@ -381,6 +382,7 @@ public:
 		complete_msg_thread(0,0),
 		name(nname),
   	        require_ack(0),
+   	        ignore_data(0),
 		network_name(YARP_DEFAULT_NET)
 	{ 
 		_started = false;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.18 2004-08-04 15:55:40 eshuy Exp $
+/// $Id: Port.cpp,v 1.19 2004-08-05 09:55:07 eshuy Exp $
 ///
 ///
 
@@ -1274,43 +1274,50 @@ void Port::Body()
 					out_mutex.Wait();
 					receiving = 1;
 					
-					while (p_receiver_incoming.Ptr() == NULL)
-					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& Waiting for incoming space\n"));
-						// HIT - should have way to convey back skip
-						// request to sender
-						// (can't just ignore, don't know how many)
-						// (components message has)
-						
-						asleep = 1;
-						out_mutex.Post();
-						wakeup.Wait();
-						out_mutex.Wait();
+					if (!ignore_data) {
+					  while (p_receiver_incoming.Ptr() == NULL)
+					    {
+					      YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& Waiting for incoming space\n"));
+					      // HIT - should have way to convey back skip
+					      // request to sender
+					      // (can't just ignore, don't know how many)
+					      // (components message has)
+					      
+					      asleep = 1;
+					      out_mutex.Post();
+					      wakeup.Wait();
+					      out_mutex.Wait();
+					    }
+
+					  asleep = 0;
+					  p_receiver_incoming.Ptr()->AddRef();
+					  out_mutex.Post();
+					  
+					  p_receiver_incoming.Ptr()->Read(receiver);
+					  p_receiver_incoming.Ptr()->RemoveRef();
 					}
-
-					asleep = 0;
-					p_receiver_incoming.Ptr()->AddRef();
-					out_mutex.Post();
-
-					p_receiver_incoming.Ptr()->Read(receiver);
-					p_receiver_incoming.Ptr()->RemoveRef();
 
 					receiver.End();
 
 					out_mutex.Wait();
 					receiving = 0;
 					
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& Received. Switching with latest space\n"));
-					p_receiver_latest.Switch(p_receiver_incoming);
-					
-					if (!has_input)
-					{
-						has_input = 1;
-						something_to_read.Post();
+					if (!ignore_data) {
+					  YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& Received. Switching with latest space\n"));
+					  p_receiver_latest.Switch(p_receiver_incoming);
+					  
+					  if (!has_input)
+					    {
+					      has_input = 1;
+					      something_to_read.Post();
+					    }
 					}
 
 					out_mutex.Post();
-					call_on_read = 1;
+
+					if (!ignore_data) {
+					  call_on_read = 1;
+					}
 				}
 				break;
 
@@ -1722,9 +1729,22 @@ int Port::SaySelfEnd(void)
 		if (self_id->isValid())
 		{
 		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
+
+		  // need to make sure the detach message will be read,
+		  // even if other messages are arriving
+
+		  Relinquish();
+		  out_mutex.Wait();
+		  ignore_data = 1;
+		  out_mutex.Post();
+		  Relinquish();
+
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 			result = SendHelper (*self_id, NULL, 0, MSG_ID_DETACH_ALL);
 		}
 
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
+		  Relinquish();
 		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 		/// wait for message to be received.
 		complete_msg_thread.Wait();
