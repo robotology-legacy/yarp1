@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.42 2003-10-31 11:12:44 babybot Exp $
+/// $Id: main.cpp,v 1.43 2003-10-31 15:55:27 fberton Exp $
 ///
 ///
 
@@ -420,7 +420,7 @@ int mainthread::_runAsLogpolarSimulation (void)
 #endif
 	YARPImageFile::Read (filename, img);
 
-	while (!!IsTerminated())
+	while (!IsTerminated())
 	{
 		YARPTime::DelayInSeconds (0.04);
 		
