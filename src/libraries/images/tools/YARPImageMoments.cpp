@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageMoments.cpp,v 1.10 2004-07-09 09:47:58 orfra Exp $
+/// $Id: YARPImageMoments.cpp,v 1.11 2004-07-13 15:14:16 orfra Exp $
 ///
 ///
 
@@ -136,12 +136,6 @@ void YARPLpImageMoments::centerOfMassAndMass(YARPImageOf<YarpPixelMono> &in, int
 	}
 }
 
-void YARPLpImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y)
-{
-	double tmp;
-	centerOfMassAndMass(in, x, y, &tmp);
-}
-
 void YARPLpImageMoments::centralMomentsOrder2(YARPImageOf<YarpPixelMono> &in, int xm, int ym, double *u11, double *u20, double *u02)
 {
 	int t,c;
@@ -210,12 +204,12 @@ double YARPLpImageMoments::centralMoments(YARPImageOf<YarpPixelMono> &in, int xm
 }
 
 // CARTESIAN VERSION
-void YARPImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y)
+void YARPImageMoments::centerOfMassAndMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y, int *mass)
 {
 	int i,j;
-	double area = 0.0;
-	double sumX = 0.0;
-	double sumY = 0.0;
+	int area = 0;
+	int sumX = 0;
+	int sumY = 0;
 	unsigned char *src;
 	for(j = 0; j < in.GetHeight() ; j++)
 	{
@@ -240,6 +234,7 @@ void YARPImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int 
 		*x = 0;
 		*y = 0;
 	}
+	*mass = area;
 }
 
 double YARPImageMoments::centralMoments(YARPImageOf<YarpPixelMono> &in, int xm, int ym, int p, int q)

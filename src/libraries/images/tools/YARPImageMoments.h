@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageMoments.h,v 1.5 2004-07-06 08:49:13 orfra Exp $
+/// $Id: YARPImageMoments.h,v 1.6 2004-07-13 15:14:16 orfra Exp $
 ///
 /// Computes moments and central moments; according to the following eqs:
 /// mpq = SUM (x^p)*(y^q)*f(x,y)
@@ -84,8 +84,12 @@ public:
 	YARPLpImageMoments() {};
 	~YARPLpImageMoments() {};
 	void centerOfMassAndMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y, double *area);
-	// compute center if mass of the segmented region; cartesian coordinates
-	void centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y);
+	// compute center of mass of the segmented region; cartesian coordinates
+	inline void centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y)
+	{
+		double tmp;
+		centerOfMassAndMass(in, x, y, &tmp);
+	}
 	// compute central moments; xm,ym is the center of mass in cartesian coordinates
 	double centralMoments(YARPImageOf<YarpPixelMono> &in, int xm, int ym, int p, int q);
 	void centralMomentsOrder2(YARPImageOf<YarpPixelMono> &in, int xm, int ym, double *u11, double *u20, double *u02);
@@ -97,8 +101,13 @@ class YARPImageMoments
 public:
 	YARPImageMoments() {};
 	~YARPImageMoments() {};
-	// compute center if mass of the segmented region; cartesian coordinates
-	void centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y);
+	void centerOfMassAndMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y, int *area);
+	// compute center of mass of the segmented region; cartesian coordinates
+	inline void centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y)
+	{
+		int tmp;
+		centerOfMassAndMass(in, x, y, &tmp);
+	}
 	// compute central moments; xm,ym is the center of mass in cartesian coordinates
 	double centralMoments(YARPImageOf<YarpPixelMono> &in, int xm, int ym, int p, int q);
 
