@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPJR3Adapter.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+/// $Id: YARPJR3Adapter.h,v 1.2 2004-09-10 15:38:11 babybot Exp $
 ///
 ///
 
@@ -74,6 +74,8 @@
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
+
+#include <yarp/YARPString.h>
 
 #include <math.h>
 #include <yarp/YARPConfigFile.h>
@@ -101,7 +103,7 @@ public:
 		_R[2][2] = 1.0;
 	}
 
-	int load(const std::string &path, const std::string &init_file)
+	int load(const YARPString& path, const YARPString& init_file)
 	{
 		YARPConfigFile cfgFile;
 		// set path and filename

@@ -123,6 +123,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "forcesensor"=.\forcesensor\forcesensor.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "grasprflx"=.\grasprflx\grasprflx.dsp - Package Owner=<4>
 
 Package=<5>

@@ -126,6 +126,10 @@ SOURCE=..\babybot\yarp\YARPBabybotArm.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\babybot\yarp\YARPBabybotForceSensor.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\babybot\yarp\YARPBabybotGrabber.h
 # End Source File
 # Begin Source File

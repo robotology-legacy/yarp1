@@ -102,9 +102,5 @@ PostBuild_Cmds=copy .\Debug\forcesensor.exe ..\..\..\..\bin\winnt
 SOURCE=.\main.cpp
 # End Source File
 # End Group
-# Begin Group "Header Files"
-
-# PROP Default_Filter "h;hpp;hxx;hm;inl"
-# End Group
 # End Target
 # End Project

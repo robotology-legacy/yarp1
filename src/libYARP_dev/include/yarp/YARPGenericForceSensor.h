@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPGenericForceSensor.h,v 1.2 2004-09-10 15:14:06 babybot Exp $
+/// $Id: YARPGenericForceSensor.h,v 1.3 2004-09-10 15:38:11 babybot Exp $
 ///
 ///
 
@@ -46,6 +46,8 @@
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
+
+#include <yarp/YARPString.h>
 
 
 template <class  ADAPTER, class PARAMETERS>
@@ -62,10 +64,10 @@ class YARPGenericForceSensor
 			delete [] _reading;
 		}
 		
-		int initialize(const std::string file)
+		int initialize(const YARPString& file)
 		{ 
 			int ret;
-			ret = _params.load(std::string(""),file);
+			ret = _params.load("", file);
 			if (ret == YARP_FAIL)
 				return ret;
 
