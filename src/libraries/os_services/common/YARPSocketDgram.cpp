@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.10 2003-05-13 22:38:04 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.11 2003-05-18 01:02:23 gmetta Exp $
 ///
 ///
 
@@ -623,7 +623,7 @@ void _SocketThreadDgram::Body (void)
 						ACE_Handle_Set set;
 						set.reset ();
 						set.set_bit (_local_socket.get_handle());
-						ACE_OS::select (1, set);
+						ACE_OS::select (int(_local_socket.get_handle())+1, set);
 						/// wait here until next valid chunck of data.
 					}
 					else
