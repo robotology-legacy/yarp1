@@ -51,6 +51,7 @@ int flag = 1;
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t condvar = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t buf_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 /* Funcs */
@@ -67,26 +68,29 @@ static void bt848_cap(struct bttv * btv,int state);
 	The read function.
 *********************************************************************************/
 inline int 
-read_bttvx(unsigned char * buffer)
+BttvxAcquireBuffer(unsigned char * buf)
 {
 	struct bttv * btv = &bttvs[0];
 	
-	//This flag is controlled from the interrupt handler. The idea is to return
-	//always the last used buffer
-	
-	switch(flag)
-	{
-		case 1:
-			memcpy(buffer,btv->imagebuf_1, W*H*deep);
-			break;
-		case 2:
-			memcpy(buffer,btv->imagebuf_2, W*H*deep);
-			break;
-		case 3:
-			memcpy(buffer,btv->imagebuf_3, W*H*deep);
-			break;
-	};
+	pthread_mutex_lock(&buf_mutex);
+	//buf = btv->image_buffer;
 }	
+
+inline int
+BttvxReleaseBuffer()
+{
+	struct bttv * btv = &bttvs[0];
+	
+	pthread_mutex_unlock(&buf_mutex);
+}
+
+int
+BttvxSetImageBuffer(int dev,unsigned char * buff)
+{
+	struct bttv * btv = &bttvs[dev];
+	
+	btv->image_buffer = buff;
+}
 
 int 
 BttvxWaitEvent()
@@ -589,6 +593,7 @@ void InterruptEvent()
 	uint32_t stat,astat;
 	uint32_t dstat;
 	struct bttv * btv = &bttvs[0];
+	int res = 0;
 
 	/* get/clear interrupt status bits */
 	//stat = btread(BT848_INT_STAT);
@@ -607,18 +612,33 @@ void InterruptEvent()
 	//This interrupt called when the RISC program has finished
 	if (astat & BT848_INT_RISCI)
 	{
-		pthread_cond_signal(&condvar);
-		
-		//Flag control
+		//pthread_mutex_lock(&buf_mutex);
+		res = pthread_mutex_trylock(&buf_mutex );
 		switch(flag)
 		{
-		case 1:case 2:
-			flag ++;
+		case 1:
+			if (res == EOK)
+				memcpy(btv->image_buffer,btv->imagebuf_1, W*H*deep);
+			flag = 2;
+			break;
+		case 2:
+			if (res == EOK)
+				memcpy(btv->image_buffer,btv->imagebuf_2, W*H*deep);
+			flag = 3;
 			break;
 		case 3:
+			if (res == EOK)
+				memcpy(btv->image_buffer,btv->imagebuf_3, W*H*deep);
 			flag = 1;
 			break;
 		};
+		if (res == EOK)
+		{
+			pthread_mutex_unlock(&buf_mutex);
+			pthread_cond_signal(&condvar);
+		}
+		else
+			printf("bttvx:Lost a frame\n");
 	}
 
 	if (astat & BT848_INT_VPRES)
@@ -692,6 +712,9 @@ attach_bt848(int device_id)
 	int id;
 	struct sigevent event;
 	uint16_t hardware_devId;
+	
+	pthread_attr_t attr;
+	struct sched_param param;
 	
 	btv = &bttvs[0];
 
@@ -820,8 +843,25 @@ attach_bt848(int device_id)
 
 	ThreadCtl( _NTO_TCTL_IO, 0 );
 
-	///***///
-	SIGEV_THREAD_INIT((&event), InterruptEvent,NULL, NULL);
+	pthread_attr_init(&attr);
+	pthread_attr_getschedparam(&attr, &param);
+	
+    printf("bttvx:The assigned priority is %d.\n", param.sched_priority);
+    printf("bttvx:The current priority is %d.\n", param.sched_curpriority);
+           
+    param.sched_priority = 63;  
+    param.sched_curpriority = 63;     
+    
+    pthread_attr_setschedparam(&attr, &param);
+    sched_setparam(0, &param); 
+          
+     
+    pthread_attr_getschedparam(&attr, &param);
+	
+    printf("bttvx:The newly assigned priority is %d.\n", param.sched_priority);
+    printf("bttvx:The current priority is %d.\n", param.sched_curpriority);      
+	
+	SIGEV_THREAD_INIT((&event), InterruptEvent,&attr, NULL);
 
 	btv->id =InterruptAttachEvent(info.Irq, &event, _NTO_INTR_FLAGS_TRK_MSK);
 
