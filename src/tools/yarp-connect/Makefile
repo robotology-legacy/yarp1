@@ -11,7 +11,9 @@ include $(YARP_ROOT)/conf/Makefile.template
 
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))
 
-CFLAGS = $(CFAST) $(CDEFS) -I../../libYARP_OS/include -I.
+INCS = -I../../libYARP_OS/include -I$(YARP_ROOT)/include/$(SYSDIR) -I.
+
+CFLAGS = $(CFAST) $(INCS) $(CDEFS) 
 
 SUBDIRS =
 
@@ -32,11 +34,11 @@ $(EXEC_TARGET): $(TARGETS)
 
 $(GENDIR)/%.o: %.cpp
 	mkdir -p $(GENDIR)
-	$(CC) $(CFLAGS) -c $^ -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 $(GENDIR)/%.o: %.c
 	mkdir -p $(GENDIR)
-	$(CC1) $(CFLAGS) -c $^ -o $@
+	$(CC1) $(CFLAGS) -c $< -o $@
 
 clean: subclean
 	rm -f $(TARGETS) $(EXEC_TARGETS)
@@ -57,4 +59,61 @@ subinstall :
 	@for d in $(SUBDIRS) ; do \
 		( cd $$d ; $(MAKE) $(MAKEFLAGS) install ) ; done
 
+depend:
+	makedepend -Y $(INCS) -p$(GENDIR)/ *.cpp
 
+# DO NOT DELETE
+
+obj/linux/LocalNameServer.o: LocalNameServer.h
+obj/linux/LocalNameServer.o: ../../../include/linux/yarp/YARPConfig.h
+obj/linux/LocalNameServer.o: ../../../include/linux/yarp/YARPConfigWin32.h
+obj/linux/LocalNameServer.o: ../../libYARP_OS/include/yarp_private/wide_nameloc.h
+obj/linux/LocalNameServer.o: ../../../include/linux/yarp/YARPConfig.h
+obj/linux/LocalNameServer.o: ../../libYARP_OS/include/yarp/YARPNetworkTypes.h
+obj/linux/LocalNameServer.o: ../../libYARP_OS/include/yarp/YARPAll.h
+obj/linux/LocalNameServer.o: ../../libYARP_OS/include/yarp/YARPErrorCodes.h
+obj/linux/LocalNameServer.o: ../../libYARP_OS/include/yarp_private/debug.h
+obj/linux/LocalNameServer.o: ../../libYARP_OS/include/yarp_private/YARPNameID_defs.h
+obj/linux/LocalNameServer.o: ../../libYARP_OS/include/yarp/YARPString.h
+obj/linux/LocalNameServer.o: ../../libYARP_OS/include/yarp/begin_pack_for_net.h
+obj/linux/LocalNameServer.o: ../../libYARP_OS/include/yarp/end_pack_for_net.h
+obj/linux/LocalNameServer.o: ../../libYARP_OS/include/yarp/YARPList.h
+obj/linux/NetworkMap.o: NetworkMap.h
+obj/linux/NetworkMap.o: ../../libYARP_OS/include/yarp/YARPString.h
+obj/linux/NetworkMap.o: ../../../include/linux/yarp/YARPConfig.h
+obj/linux/NetworkMap.o: ../../libYARP_OS/include/yarp/YARPAll.h
+obj/linux/NetworkMap.o: ../../libYARP_OS/include/yarp/YARPErrorCodes.h
+obj/linux/NetworkMap.o: ../../libYARP_OS/include/yarp_private/debug.h
+obj/linux/NetworkMap.o: ../../libYARP_OS/include/yarp/YARPList.h
+obj/linux/YARPNameServer.o: YARPNameServer.h
+obj/linux/YARPNameServer.o: ../../../include/linux/yarp/YARPConfig.h
+obj/linux/YARPNameServer.o: ../../libYARP_OS/include/yarp_private/wide_nameloc.h
+obj/linux/YARPNameServer.o: ../../libYARP_OS/include/yarp/YARPNetworkTypes.h
+obj/linux/YARPNameServer.o: ../../libYARP_OS/include/yarp/YARPAll.h
+obj/linux/YARPNameServer.o: ../../libYARP_OS/include/yarp/YARPErrorCodes.h
+obj/linux/YARPNameServer.o: ../../libYARP_OS/include/yarp_private/debug.h
+obj/linux/YARPNameServer.o: ../../libYARP_OS/include/yarp_private/YARPNameID_defs.h
+obj/linux/YARPNameServer.o: ../../libYARP_OS/include/yarp/YARPString.h
+obj/linux/YARPNameServer.o: ../../libYARP_OS/include/yarp/begin_pack_for_net.h
+obj/linux/YARPNameServer.o: ../../libYARP_OS/include/yarp/end_pack_for_net.h
+obj/linux/YARPNameServer.o: CThreadImpl.h LocalNameServer.h
+obj/linux/YARPNameServer.o: ../../../include/linux/yarp/YARPConfig.h
+obj/linux/YARPNameServer.o: ../../../include/linux/yarp/YARPConfigWin32.h
+obj/linux/YARPNameServer.o: ../../libYARP_OS/include/yarp/YARPList.h
+obj/linux/YARPNameServer.o: NetworkMap.h
+obj/linux/YARPNameService.o: YARPNameServer.h
+obj/linux/YARPNameService.o: ../../../include/linux/yarp/YARPConfig.h
+obj/linux/YARPNameService.o: ../../libYARP_OS/include/yarp_private/wide_nameloc.h
+obj/linux/YARPNameService.o: ../../libYARP_OS/include/yarp/YARPNetworkTypes.h
+obj/linux/YARPNameService.o: ../../libYARP_OS/include/yarp/YARPAll.h
+obj/linux/YARPNameService.o: ../../libYARP_OS/include/yarp/YARPErrorCodes.h
+obj/linux/YARPNameService.o: ../../libYARP_OS/include/yarp_private/debug.h
+obj/linux/YARPNameService.o: ../../libYARP_OS/include/yarp_private/YARPNameID_defs.h
+obj/linux/YARPNameService.o: ../../libYARP_OS/include/yarp/YARPString.h
+obj/linux/YARPNameService.o: ../../libYARP_OS/include/yarp/begin_pack_for_net.h
+obj/linux/YARPNameService.o: ../../libYARP_OS/include/yarp/end_pack_for_net.h
+obj/linux/YARPNameService.o: CThreadImpl.h LocalNameServer.h
+obj/linux/YARPNameService.o: ../../../include/linux/yarp/YARPConfig.h
+obj/linux/YARPNameService.o: ../../../include/linux/yarp/YARPConfigWin32.h
+obj/linux/YARPNameService.o: ../../libYARP_OS/include/yarp/YARPList.h
+obj/linux/YARPNameService.o: NetworkMap.h

@@ -52,16 +52,18 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-write.cpp,v 1.3 2004-07-09 07:34:53 eshuy Exp $
+/// $Id: yarp-write.cpp,v 1.4 2004-07-09 16:42:59 eshuy Exp $
 ///
 ///
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <yarp/YARPPort.h>
 #include <yarp/YARPTime.h>
 #include <yarp/YARPBottleContent.h>
 
+#include <iostream>
+using namespace std;
 
 int main(int argc, char *argv[])
 {
@@ -83,7 +85,6 @@ int main(int argc, char *argv[])
     argv++;
   }
 
-
   while (!(cin.bad()||cin.eof())) {
     // make sure this works on windows
     char buf[256];
@@ -104,8 +105,6 @@ int main(int argc, char *argv[])
   bottle.writeText("<EOF>");
   out_port.Write(1);
   out_port.FinishSend();
-
-  out_port.Unregister();
 
   return YARP_OK;
 }

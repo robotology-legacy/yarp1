@@ -52,14 +52,17 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-read.cpp,v 1.4 2004-07-09 07:34:53 eshuy Exp $
+/// $Id: yarp-read.cpp,v 1.5 2004-07-09 16:42:59 eshuy Exp $
 ///
 ///
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBottleContent.h>
+
+#include <iostream>
+using namespace std;
 
 //extern int __debug_level;
 

@@ -52,11 +52,11 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-connect.cpp,v 1.2 2004-07-09 07:34:53 eshuy Exp $
+/// $Id: yarp-connect.cpp,v 1.3 2004-07-09 16:42:59 eshuy Exp $
 ///
 ///
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <yarp/YARPPort.h>
 
