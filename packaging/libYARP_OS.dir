@@ -1,0 +1,7 @@
+root ..
+package libYARP_OS
+copy dir include/linux
+copy dir include/winnt
+copy file conf/Makefile.template
+copy dir src/libYARP_OS
+endpackage
