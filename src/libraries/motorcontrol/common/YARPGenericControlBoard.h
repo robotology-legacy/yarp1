@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.8 2004-03-12 16:12:58 gmetta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.9 2004-05-07 17:15:17 babybot Exp $
 ///
 ///
 
@@ -335,6 +335,21 @@ public:
 		_adapter.IOCtl(CMDGetSpeeds, _temp_double);
 		for (int i = 0; i < _parameters._nj; i++) {
 			vel[_parameters._axis_map[i]] = encoderToAngle(_temp_double[i],
+												_parameters._encoderToAngles[i],
+												0.0,
+												_parameters._signs[i]);
+		
+		}
+		_unlock();
+		return -1;
+	}
+
+	int getAccs(double *accs)
+	{
+		_lock();
+		_adapter.IOCtl(CMDGetRefAccelerations, _temp_double);
+		for (int i = 0; i < _parameters._nj; i++) {
+			accs[_parameters._axis_map[i]] = encoderToAngle(_temp_double[i],
 												_parameters._encoderToAngles[i],
 												0.0,
 												_parameters._signs[i]);

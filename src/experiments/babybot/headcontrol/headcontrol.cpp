@@ -26,9 +26,9 @@ int main(int argc, char* argv[])
 	char *root = GetYarpRoot();
 	char path[256];
 #if defined(__QNXEurobot__)	
-	ACE_OS::sprintf (path, "%s/conf/eurobot/\0", root); 
+	ACE_OS::sprintf (path, "%s/conf/eurobot/", root); 
 #else
-	ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
+	ACE_OS::sprintf (path, "%s/conf/babybot/", root); 
 #endif
 
 	file.set(path, __filename);
@@ -42,11 +42,12 @@ int main(int argc, char* argv[])
 	HeadBehavior behavior(&thread);
 
 	// behavior states
-	HBWaitIdle waitIdle("idle");
-	HBWaitIdle hibernated("hibernation");
-	HBDirectCommandInput directIn(YBVHeadNewCmd);
-	HBSimpleInput hibernateIn(YBVHeadHibernate);
-	HBSimpleInput resumeIn(YBVHeadResume);
+	HBWaitIdle				waitIdle("idle");
+	HBWaitIdle				hibernated("hibernation");
+	HBDirectCommandInput	directIn(YBVHeadNewCmd);
+	HBSimpleInput			hibernateIn(YBVHeadHibernate);
+	HBSimpleInput			resumeIn(YBVHeadResume);
+	HBAccInput				accIn(YBVHeadNewAcc);
 
 	HBHibernateCommand	hibernateOut;
 	HBResumeCommand		resumeOut;
@@ -54,6 +55,7 @@ int main(int argc, char* argv[])
 	// copnfig behavior SM
 	behavior.setInitialState(&waitIdle);
 	behavior.add(&directIn, &waitIdle, &waitIdle);
+	behavior.add(&accIn, &waitIdle, &waitIdle);
 	behavior.add(&hibernateIn, &waitIdle, &hibernated, &hibernateOut);
 	behavior.add(&resumeIn, &hibernated, &waitIdle, &resumeOut);
 

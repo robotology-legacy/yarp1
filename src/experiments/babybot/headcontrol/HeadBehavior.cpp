@@ -47,3 +47,22 @@ bool HBDirectCommandInput::input(YARPBottle *in, HeadThread *d)
 	d->directCommand(_cmd);
 	return true;
 }
+
+bool HBAccInput::input(YARPBottle *in, HeadThread *d)
+{
+	if (!in->tryReadVocab(newK))
+		return false;
+	
+	if (newK != key)
+		return false;
+
+	in->moveOn();
+
+	if (!in->tryReadYVector(_cmd))
+		return false;
+
+	in->moveOn();
+
+	d->setAcceleration(_cmd);
+	return true;
+}

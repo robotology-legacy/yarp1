@@ -123,10 +123,6 @@ SOURCE=.\RandomThread.cpp
 
 SOURCE=.\YARPGravityEstimator.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\YARPTrajectoryMinJerk.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -165,7 +161,7 @@ SOURCE=.\YARPGravityEstimator.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\YARPTrajectoryMinJerk.h
+SOURCE=.\YARPTrajectoryMinJerk.cpp.obsolete
 # End Source File
 # End Group
 # Begin Group "Resource Files"

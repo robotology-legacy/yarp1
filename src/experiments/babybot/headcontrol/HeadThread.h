@@ -44,13 +44,25 @@ public:
 	void doLoop();
 	void doRelease();
 
-	bool directCommand(YVector &cmd)
+	bool directCommand(const YVector &cmd)
 	{
 		// later, cosider to check _directCmdFlag
 		_hsDirectCmd.set(cmd);
 		_hiDirectCmdEnd.set(cmd);
 		_directCmdFlag = true;
 		return true;
+	}
+
+	void setAcceleration(const YVector &acc)
+	{
+		_head.setAccs(acc.data());
+		ACE_OS::printf("****** ACCELERATION_DEBUG:\n");
+		YVector tmpAcc;
+		tmpAcc = acc;
+		_head.getAccs(tmpAcc.data());
+		for(int l=1; l<=tmpAcc.Length(); l++)
+			ACE_OS::printf("%lf\t", tmpAcc(l)*radToDeg);
+		ACE_OS::printf("\n");
 	}
 
 	void stop()

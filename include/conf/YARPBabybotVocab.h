@@ -48,6 +48,7 @@ const char *const YBVAttentionLookTarget = "AttentionLookTarget";
 
 // head behavior
 const char *const YBVHeadNewCmd = "HeadNewCmd";
+const char *const YBVHeadNewAcc = "HeadNewAcc";
 const char *const YBVHeadHibernate = "HeadHibernate";
 const char *const YBVHeadResume = "HeadResume";
 const char *const YBVHeadQuit = "HeadQuit";

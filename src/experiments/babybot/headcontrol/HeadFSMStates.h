@@ -35,7 +35,7 @@ public:
 	HIDirectCmdEnd()
 	{}
 
-	void set(YVector &cmd)
+	void set(const YVector &cmd)
 	{
 		_command = cmd;
 	}
@@ -86,7 +86,7 @@ class HSDirectCmd: public HeadFSMStates
 public:
 	HSDirectCmd()
 	{}
-	void set(YVector &cmd)
+	void set(const YVector &cmd)
 	{
 		_command = cmd;
 	}

@@ -69,4 +69,18 @@ public:
 	YVector _cmd;
 };
 
+class HBAccInput: public HeadBehaviorBaseInput
+{
+public:
+	HBAccInput(const YBVocab &k)
+	{
+		key = k;
+	}
+	bool input(YARPBottle *in, HeadThread *d);
+	
+	YBVocab key;
+	YBVocab newK;
+	YVector _cmd;
+};
+
 #endif

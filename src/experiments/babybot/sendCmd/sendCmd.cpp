@@ -32,10 +32,11 @@ void _fillTable()
 
 	// head
 	REG_VOCAB(sendHeadJointCommand, YBVHeadNewCmd, "send head new position command");
+	REG_VOCAB(sendHeadJointCommand, YBVHeadNewAcc, "set head new acceleration");
 	REG_VOCAB(sendSimpleVocab, YBVHeadQuit, "quit head control");
 	REG_VOCAB(sendSimpleVocab, YBVHeadHibernate, "hibernate head");
 	REG_VOCAB(sendSimpleVocab, YBVHeadResume, "resume head from hibernation");
-	
+		
 	// hand
 	REG_VOCAB(sendHandJointCommand, YBVHandNewCmd, "send hand new position command");
 	REG_VOCAB(sendSimpleVocab, YBVHandQuit, "quit hand control");
