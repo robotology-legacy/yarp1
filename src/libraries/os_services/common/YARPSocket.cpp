@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.10 2003-04-29 21:50:10 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.11 2003-04-30 13:22:42 beltran Exp $
 ///
 ///
 
@@ -215,7 +215,7 @@ class _SocketThread : public YARPThread
 protected:
 	int _available;
 	ACE_SOCK_Stream *_stream;
-	YARPUniqueNameID *_remote_endpoint;	
+	YARPUniqueNameID _remote_endpoint;	
 
 	_SocketThreadList *_owner;
 
@@ -230,18 +230,18 @@ protected:
 	int _reply_preamble;
 	YARPSemaphore _wakeup, _mutex, _reply_made;
 
-	void _begin (YARPUniqueNameID *remid, ACE_SOCK_Stream *stream);
+	void _begin (const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream);
 
 public:
 	/// ctors.
-	_SocketThread (YARPUniqueNameID *remid, ACE_SOCK_Stream *stream) : _wakeup(0), _mutex(1), _reply_made(0)
+	_SocketThread (const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream) : _wakeup(0), _mutex(1), _reply_made(0)
     {
 		_begin (remid, stream);
     }
 
 	_SocketThread (void) : _wakeup(0), _mutex(1), _reply_made(0)
     {
-		_begin (NULL, NULL);
+		_begin (YARPUniqueNameID(), NULL);
     }
 
 	~_SocketThread () {}
@@ -277,7 +277,7 @@ public:
 
 	/// call it reconnect (recycle the thread).
 	/// the thread shouldn't be running.
-	void reuse(YARPUniqueNameID *remid, ACE_SOCK_Stream *stream);
+	void reuse(const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream);
 
 	/*
 	/// this is now obsolete, REUSE does the job.
@@ -416,7 +416,7 @@ public:
 /// WARNING: requires a mutex to handle the stream deletion.
 ///
 ///
-void _SocketThread::_begin (YARPUniqueNameID *remid, ACE_SOCK_Stream *stream)
+void _SocketThread::_begin (const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream)
 {
 	_owner = NULL;
 	_extern_buffer = NULL;
@@ -441,7 +441,7 @@ void _SocketThread::setOwner(_SocketThreadList& n_owner)
 
 /// call it reconnect (recycle the thread).
 /// the thread shouldn't be running.
-void _SocketThread::reuse(YARPUniqueNameID *remid, ACE_SOCK_Stream *stream)
+void _SocketThread::reuse(const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream)
 {
 	_remote_endpoint = remid;
 	_stream = stream;
@@ -476,7 +476,7 @@ void _SocketThread::Body (void)
 
 	while (!finished)
 	{
-		ACE_DEBUG ((LM_DEBUG, "*** listener %d waiting\n", _remote_endpoint->getAddressRef().get_port_number()));
+		ACE_DEBUG ((LM_DEBUG, "*** listener %d waiting\n", _remote_endpoint.getAddressRef().get_port_number()));
 
 		MyMessageHeader hdr;
 		hdr.SetBad();
@@ -796,7 +796,7 @@ if (count>=0)
 	}
 
 	/// needs to be here, in case End destroys the old stream.
-	(*it_avail)->reuse (&YARPUniqueNameID(YARP_TCP, incoming), newstream);
+	(*it_avail)->reuse (YARPUniqueNameID(YARP_TCP, incoming), newstream);
 
 	ACE_DEBUG ((LM_DEBUG, "888888 post postbegin %d\n", errno));
 

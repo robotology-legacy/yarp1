@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: end_pack_for_net.h,v 1.4 2003-04-27 21:57:41 gmetta Exp $
+/// $Id: end_pack_for_net.h,v 1.5 2003-04-30 13:22:41 beltran Exp $
 ///
 ///
 
@@ -75,7 +75,10 @@
 #pragma align 0
 #endif
 
-#ifdef __QNX__
+#ifdef __QNX4__
 #pragma  pack (pop) ;
 #endif
 
+#ifdef __QNX6__
+#pragma align 0 
+#endif

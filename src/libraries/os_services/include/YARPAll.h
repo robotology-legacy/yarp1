@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPAll.h,v 1.4 2003-04-22 09:06:32 gmetta Exp $
+/// $Id: YARPAll.h,v 1.5 2003-04-30 13:22:41 beltran Exp $
 ///
 ///
 
@@ -83,7 +83,7 @@ void YARP_output_wait();
 void YARP_output_post();
 
 // actually WIN32 is thread safe!
-#ifndef __WIN__
+#ifdef __QNX4__
 #ifndef YARP_USE_OLD_PRINTF
 #define printf YARP_safe_printf
 #endif

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: begin_pack_for_net.h,v 1.4 2003-04-27 21:57:41 gmetta Exp $
+/// $Id: begin_pack_for_net.h,v 1.5 2003-04-30 13:22:41 beltran Exp $
 ///
 
 #include <conf/YARPConfig.h>
@@ -80,7 +80,11 @@
 #pragma align 1
 #endif
 
-#ifdef __QNX__
+#ifdef __QNX4__
 #pragma  pack (push) ;
 #pragma  pack (1) ;
+#endif
+
+#ifdef __QNX6__
+#pragma  align 1
 #endif

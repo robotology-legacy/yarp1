@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.7 2003-04-24 16:54:44 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.8 2003-04-30 13:22:41 beltran Exp $
 ///
 ///
 
@@ -567,7 +567,7 @@ YARPUniqueNameID YARPSocketNameService::RegisterName(YARPNameClient& namer, cons
 	YARPNetworkObject::getHostname (buf, 256);
 
 	///
-	reg_addr.set((int)0, buf);
+	reg_addr.set((u_short)0, buf);
 	string tname (name);
 
 	switch (reg_type)

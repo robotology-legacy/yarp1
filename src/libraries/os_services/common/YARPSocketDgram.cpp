@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.6 2003-04-29 21:50:12 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.7 2003-04-30 13:22:41 beltran Exp $
 ///
 ///
 
@@ -234,7 +234,7 @@ public:
 
 	_SocketThreadDgram (void) : _wakeup(0), _mutex(1), _reply_made(0)
     {
-		_begin (NULL, NULL);
+		_begin (NULL, 0);
     }
 
 	~_SocketThreadDgram (void) {}
@@ -251,7 +251,7 @@ public:
 
 	/// call it reconnect (recycle the thread).
 	/// the thread shouldn't be running.
-	int reuse(const YARPUniqueNameID *remid, int port);
+	int reuse(const YARPUniqueNameID& remid, int port);
 	YARPUniqueNameID& getRemoteID(void) { return _remote_endpoint; }
 
 	ACE_HANDLE getID () const
@@ -449,9 +449,9 @@ void _SocketThreadDgram::setOwner(const _SocketThreadListDgram& n_owner)
 
 /// call it reconnect (recycle the thread).
 /// the thread shouldn't be running.
-int _SocketThreadDgram::reuse(const YARPUniqueNameID *remid, int port)
+int _SocketThreadDgram::reuse(const YARPUniqueNameID& remid, int port)
 {
-	_remote_endpoint = *remid;
+	_remote_endpoint = remid;
 
 	if (_port != 0)
 	{
@@ -867,13 +867,13 @@ void _SocketThreadListDgram::addSocket (void)
 			ACE_DEBUG ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				(*it_avail)->reuse (&YARPUniqueNameID(YARP_UDP, incoming), port_number);
+				(*it_avail)->reuse (YARPUniqueNameID(YARP_UDP, incoming), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
 				(*it_avail)->End();
-				(*it_avail)->reuse (&YARPUniqueNameID(YARP_UDP, incoming), port_number);
+				(*it_avail)->reuse (YARPUniqueNameID(YARP_UDP, incoming), port_number);
 				(*it_avail)->Begin();
 			}
 

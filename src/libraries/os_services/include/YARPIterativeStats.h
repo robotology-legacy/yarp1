@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPIterativeStats.h,v 1.1 2003-04-22 09:06:33 gmetta Exp $
+/// $Id: YARPIterativeStats.h,v 1.2 2003-04-30 13:22:41 beltran Exp $
 ///
 ///
 
@@ -102,7 +102,7 @@ public:
 		}
 	}
 
-	operator +=(double new_elem) { add_point(new_elem); }
+	IterativeStats& operator +=(double new_elem) { add_point(new_elem); return *this; }
 	double get_mean() { return mean; }
 	double get_var() { return var; }
 	double get_std() { return sqrt(var); }
