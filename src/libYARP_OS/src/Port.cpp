@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: Port.cpp,v 1.3 2004-07-06 09:15:24 eshuy Exp $
 ///
 ///
 
@@ -285,6 +285,7 @@ void OutputTarget::Body ()
 				return;	
 			}
 
+#ifndef __LINUX__
 #ifndef DEBUG_DISABLE_SHMEM
 			/// involves a query to dns or to the /etc/hosts file.
 			char myhostname[YARP_STRING_LEN];
@@ -310,6 +311,7 @@ void OutputTarget::Body ()
 				ACE_DEBUG ((LM_DEBUG, "$$$$$ OutputTarget::Body : this goes into SHMEM mode\n"));
 			}
 			else
+#endif
 #endif
 			{
 				/// LATER: must do proper bailout if locate fails.
@@ -849,7 +851,7 @@ void Port::Body()
 			pid = YARPNameService::RegisterName(name.c_str(), network_name.c_str(), YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel()); 
 			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
-				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
+				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread (qnet)\n"));
 				name_set = 0;
 				if (asleep)
 				{
@@ -868,7 +870,7 @@ void Port::Body()
 			pid = YARPNameService::RegisterName(name.c_str(), network_name.c_str(), YARP_TCP, YARP_UDP_REGPORTS); 
 			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
-				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
+				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread (tcp)\n"));
 				name_set = 0;
 				if (asleep)
 				{
@@ -887,7 +889,7 @@ void Port::Body()
 			pid = YARPNameService::RegisterName(name.c_str(), network_name.c_str(), YARP_UDP, YARP_UDP_REGPORTS); 
 			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
-				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
+				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread (udp)\n"));
 				name_set = 0;
 				if (asleep)
 				{
@@ -906,7 +908,7 @@ void Port::Body()
 			pid = YARPNameService::RegisterName(name.c_str(), network_name.c_str(), YARP_MCAST, YARP_UDP_REGPORTS);
 			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
-				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
+				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread (mcast)\n"));
 				name_set = 0;
 				if (asleep)
 				{

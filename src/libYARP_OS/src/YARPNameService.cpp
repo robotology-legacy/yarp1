@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPNameService.cpp,v 1.3 2004-07-06 09:15:24 eshuy Exp $
 ///
 ///
 
@@ -97,6 +97,30 @@ static YARPNameService _justtoinitialize;
 
 ///#define SCATTERSHOT
 
+// this is really bad - should use real strings
+static int name_buffer_set = 0;
+static char name_buffer[1000];
+
+// general function
+char * GetYarpRoot (void)
+{
+  if (name_buffer_set) {
+    return name_buffer;
+  }
+  char * ret = getenv ("YARP_ROOT");
+  if (ret == NULL)
+    {
+      ACE_DEBUG ((LM_DEBUG, "::GetYarpRoot : can't retrieve YARP_ROOT env variable, using ~/.yarp instead\n"));
+      ret = getenv("HOME");
+      if (ret!=NULL) {
+	sprintf(name_buffer,"%s/.yarp",ret);
+	ret = name_buffer;
+      }
+    }
+  return ret;
+}
+
+/*
 char * GetYarpRoot (void)
 {
 	char * ret = ACE_OS::getenv ("YARP_ROOT");
@@ -107,6 +131,7 @@ char * GetYarpRoot (void)
 	}
 	return ret;
 }
+*/
 
 ///
 ///
@@ -177,6 +202,7 @@ int YARPNameService::Finalize (void)
 
 YARPUniqueNameID* YARPNameService::RegisterName(const char *name, const char *network_name, int reg_type, int num_ports_needed)
 {
+  printf("Trying to register name %s for %s (%d/%d)\n", name, network_name, reg_type, num_ports_needed);
 	if (reg_type == YARP_QNET && !YARPNativeNameService::IsNonTrivial())
 	{
 		ACE_DEBUG ((LM_DEBUG, "YARPNameService: asked QNX under !QNX OS, of course, it failed\n"));

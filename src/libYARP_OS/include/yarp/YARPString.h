@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPString.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPString.h,v 1.3 2004-07-06 09:15:23 eshuy Exp $
 ///
 ///
 
@@ -73,8 +73,15 @@
 #	pragma once
 #endif
 
+//#include <string>
+//typedef std::string YARPString;
+
 #ifndef __QNX4__
 /// WINDOWS/LINUX/QNX6
+
+// temporary patch - stable ACE on linux is currently 5.2 which doesn't
+// do strings
+
 
 #include <ace/OS.h>
 #include <ace/String_Base.h>

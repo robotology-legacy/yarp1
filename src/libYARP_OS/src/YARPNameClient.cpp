@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPNameClient.cpp,v 1.3 2004-07-06 09:15:24 eshuy Exp $
 ///
 ///
 
@@ -72,6 +72,8 @@
 #include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <yarp/YARPNameClient.h>
+
+#include <ace/OS.h>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
