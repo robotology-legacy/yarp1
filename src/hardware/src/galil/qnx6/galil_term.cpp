@@ -1,9 +1,10 @@
 /* This is a QNX6 application for PCI bus communications to a 
    Galil motion controller */
 
-#define DMC_DEBUG
 #include <process.h>  // declares getpid()
 #include <unistd.h>  // declares delay()
+#include <inttypes.h>
+#include <sys/syspage.h>
 
 #include <dmcqnx.h>
 #include <YARPString.h>
@@ -20,25 +21,30 @@ int main(int argc, char* argv[])
    long           rc = 0;            /* Return code */
    int            fInMotion = FALSE; /* Motion complete flag */
    char           buffer[256] = "";  /* Response from controller */
-   char			  command[256]= "";
+   unsigned char			  command[256]= "";
+   ULONG			  command_size = 0;
    pid_t          proxy;
    USHORT         usStatus;
    HANDLEDMC      hdmc = -1;         /* Handle to controller */
    CONTROLLERINFO controllerinfo;    /* Controller information structure */
    YARPString c;
    bool quit = false;
+   uint64_t cps, cycle1, cycle2, ncycles;
+   float sec;
 	
    argc = argc;
    argv = argv;
 
    printf("Simple pci bus communications example for Galil Motion Controllers\n\n");
 
-   memset(&controllerinfo, '\0', sizeof(controllerinfo));
+   memset(&controllerinfo, 0, sizeof(controllerinfo));
 
    controllerinfo.cbSize = sizeof(controllerinfo);
    controllerinfo.usModelID = MODEL_1800;
    controllerinfo.fControllerType = ControllerTypePCIBus;
-   controllerinfo.ulTimeout = 2000;
+   controllerinfo.ulTimeout = 20000;
+   //controllerinfo.ulTimeout = 10;
+   controllerinfo.ulDelay = 20;
    /* If you have more than 1 Galil PCI bus controller, use the serial
       number to identify the controller you wish to connect to */
    controllerinfo.ulSerialNumber = 0; 
@@ -77,7 +83,32 @@ int main(int argc, char* argv[])
 			//memcpy(command,c.c_str(),c.length());
 			//command[c.length() + 1] = ';';
 			c += ";";
+			/*
+			rc = DMCCommand_AsciiToBinary(hdmc, 
+										 (char *) c.c_str(), 
+										  c.length(), 
+										  command,
+										  255, 
+										  &command_size);
+			*/
+			cycle1=ClockCycles( );
 			rc = DMCCommand(hdmc,(char *) c.c_str(), buffer, sizeof(buffer));
+			/*
+			rc = DMCBinaryCommand(hdmc,
+								 command, 
+								 command_size,
+								 buffer, 
+								 sizeof(buffer));
+			*/
+			cycle2=ClockCycles( );
+			ncycles=cycle2-cycle1;
+
+			cps = SYSPAGE_ENTRY(qtime)->cycles_per_sec;
+			sec=(float)ncycles/cps;
+
+			printf("The command timing is %f \n",sec);
+			printf("rc is -> %d\n",rc);
+
 			printf("%s\n",c.c_str());
 		    if (rc)
 				PrintError(rc);
@@ -89,32 +120,6 @@ int main(int argc, char* argv[])
 	
 	};	
 
-   /* Query the state of the inputs */
-   /***
-   rc = DMCCommand(hdmc, "TI;", buffer, sizeof(buffer));
-   if (rc)
-      PrintError(rc);
-   else
-   {
-      int temp;
-      temp = atoi(buffer);
-      printf("The value of the inputs is %d\n", temp);      
-   }     
-	**/
-  
-
-   /* Wait until after motion */
-   /**
-   while (!rc && fInMotion)
-   {
-      rc = DMCCommand(hdmc, "MG_BGX;", buffer, sizeof(buffer));
-      if (rc)
-         PrintError(rc);
-      else
-         fInMotion = atoi(buffer);         
-   }
-	*/
-                   
    rc = DMCClose(hdmc);
    if (rc)
    {
