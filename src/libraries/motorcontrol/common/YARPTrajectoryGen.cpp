@@ -54,14 +54,15 @@ int YARPTrajectoryGen::_resize(int size, int npnts)
 	}
 
 	int i;
-	for (i = 0; i < _steps ; i++)
-	{
-		if (_commands[i] != NULL)
-			delete [] _commands[i];
-	}
-
 	if (_commands != NULL)
+	{
+		for (i = 0; i < _steps ; i++)
+		{	
+			if (_commands[i] != NULL)
+				delete [] _commands[i];
+		}
 		delete [] _commands;
+	}
 
 	_steps = npnts;
 	_size = size;
