@@ -39,6 +39,7 @@ ALL : ".\lib\winnt\motorcontrol.lib"
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\YARPBabybotArm.obj"
+	-@erase "$(INTDIR)\YARPBabybotHeadKin.obj"
 	-@erase "$(INTDIR)\YARPBabybotInertialSensor.obj"
 	-@erase "$(INTDIR)\YARPKinematics.obj"
 	-@erase "$(INTDIR)\YARPTrajectoryGen.obj"
@@ -60,7 +61,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPTrajectoryGen.obj" \
 	"$(INTDIR)\YARPBabybotArm.obj" \
 	"$(INTDIR)\YARPBabybotInertialSensor.obj" \
-	"$(INTDIR)\YARPKinematics.obj"
+	"$(INTDIR)\YARPKinematics.obj" \
+	"$(INTDIR)\YARPBabybotHeadKin.obj"
 
 ".\lib\winnt\motorcontrol.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -90,6 +92,7 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
 	-@erase "$(INTDIR)\YARPBabybotArm.obj"
+	-@erase "$(INTDIR)\YARPBabybotHeadKin.obj"
 	-@erase "$(INTDIR)\YARPBabybotInertialSensor.obj"
 	-@erase "$(INTDIR)\YARPKinematics.obj"
 	-@erase "$(INTDIR)\YARPTrajectoryGen.obj"
@@ -111,7 +114,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPTrajectoryGen.obj" \
 	"$(INTDIR)\YARPBabybotArm.obj" \
 	"$(INTDIR)\YARPBabybotInertialSensor.obj" \
-	"$(INTDIR)\YARPKinematics.obj"
+	"$(INTDIR)\YARPKinematics.obj" \
+	"$(INTDIR)\YARPBabybotHeadKin.obj"
 
 ".\lib\winnt\motorcontroldb.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -189,6 +193,12 @@ SOURCE=.\eurobot\YARPEurobotArm.cpp
 SOURCE=.\babybot\YARPBabybotArm.cpp
 
 "$(INTDIR)\YARPBabybotArm.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\babybot\YARPBabybotHeadKin.cpp
+
+"$(INTDIR)\YARPBabybotHeadKin.obj" : $(SOURCE) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 

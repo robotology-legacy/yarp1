@@ -61,125 +61,91 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.cpp,v 1.2 2003-11-07 12:36:59 babybot Exp $
+/// $Id: YARPKinematics.cpp,v 1.1 2003-11-07 14:19:34 babybot Exp $
 ///
 ///
 
-#include "YARPBabybotHeadKin.h"
+// RobotKinematics.cpp: implementation of the DirectKinematics class.
+//
+//////////////////////////////////////////////////////////////////////
+
+#include "YARPKinematics.h"
+#include <math.h>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-///
-///
-/// each of <dh_left>, <dh_right> describes independently the two kinematic chains from 
-/// base to left and base to right eye respectively.
-/// each matrix has njoint + occasional fictious links lines.
-///
-YARPBabybotHeadKin::YARPBabybotHeadKin (const YMatrix &dh_left, const YMatrix &dh_right, const YHmgTrsf &bline)
-	: _leftCamera (dh_left, bline),
-	  _rightCamera (dh_right, bline)
+YARPRobotKinematics::YARPRobotKinematics ()
 {
-	///
-	ACE_ASSERT (dh_left.NRows() == dh_right.NRows());
-
-	/// nFrame must be rather the NRows - the # of rows with fifth colum == 0.
-	_nFrame = dh_left.NRows();
-
-	_leftJoints.Resize (_nFrame);
-	_rightJoints.Resize (_nFrame);
-
-	_leftJoints = 0;
-	_rightJoints = 0;
+	_nFrame = 0;
+	_Ti = NULL;
+	_Ti0 = NULL;
 }
 
-YARPBabybotHeadKin::~YARPBabybotHeadKin ()
+YARPRobotKinematics::YARPRobotKinematics (const YMatrix &dh, const YHmgTrsf &bline)
 {
-
+	resize (dh,bline);
 }
 
-/// <joints is a 5 dim vector>
-/// since this file is for the Babybot's head, I can asser if Size is different.
-void YARPBabybotHeadKin::computeDirect (const YVector &joints)
+YARPRobotKinematics::YARPRobotKinematics (const YMatrix &dh)
 {
-	ACE_ASSERT (joints.Length() == 5); 
-
-	// the joint vector is devided into right and left
-	// I *KNOW* this is awful because doesn't use n_ref_frame
-	_leftJoints(1) = joints(1);
-	_leftJoints(2) = joints(2);
-	_leftJoints(3) = joints(3);
-	_leftJoints(4) = joints(5);
-
-	_rightJoints(1) = joints(1);
-	_rightJoints(2) = joints(2);
-	_rightJoints(3) = joints(3);
-	_rightJoints(4) = joints(4);
-
-	_leftCamera.computeDirect (_leftJoints);
-	_rightCamera.computeDirect (_rightJoints);
-
-	_computeFixation (_rightCamera.endFrame(), _leftCamera.endFrame());
+	YHmgTrsf tmp;
+	tmp.Identity();
+	resize (dh, tmp);
 }
 
-///
-/// given an up to date kinematic matrix, returns the ray passing from an image plane point x,y.
-void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
+YARPRobotKinematics::~YARPRobotKinematics ()
 {
-	ACE_ASSERT (k == KIN_LEFT);
+	if (_Ti != NULL) delete[] _Ti;
+	if (_Ti0 != NULL) delete[] _Ti0;
+}
 
-	if (k == KIN_LEFT)
+void YARPRobotKinematics::resize (const YMatrix &dh, const YHmgTrsf &bline)
+{
+	_dh_param = dh;
+
+	_nFrame = dh.NRows();
+
+	_Ti = new YHmgTrsf[_nFrame];
+	_Ti0 = new YHmgTrsf[_nFrame];
+	ACE_ASSERT (_Ti != NULL && _Ti0 != NULL);
+
+	for(int i = 0; i < _nFrame ; i++)
 	{
-		YHmgTrsf ep = _leftCamera.endFrame();
-
-		/// pixels -> mm
-		double dx = x / PixScaleX;
-		double dy = y / PixScaleY;
-
-		v(1) = F * ep (1, 1) - dx * ep (1, 2) - dy * ep (1, 3);
-		v(2) = F * ep (2, 1) - dx * ep (2, 2) - dy * ep (2, 3);
-		v(3) = F * ep (3, 1) - dx * ep (3, 2) - dy * ep (3, 3);
-
-		v /= v.norm2();
+		_Ti[i].Identity();
+		_Ti0[i].Identity();
 	}
+
+	_TB0 = bline;
+	_joints.Resize(_nFrame);
 }
 
-///
-/// given an up to date kin matrix, it computes the x,y point where a given ray v intersects the img plane.
-void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, int& y)
+void YARPRobotKinematics::computeDirect (const YVector &jnts)
 {
-	ACE_ASSERT (k == KIN_LEFT);
-
-	if (k == KIN_LEFT)
+	int i;	//ref frame counter
+	int j;	//joint counter
+	
+	j = 1;
+	/// the double counter i,j is used to add intermediate transforms while keeping
+	/// the joint vector to its real size (e.g. the number of physical joint of the robot).
+	for (i = 1; i <= _nFrame; i++)
 	{
-		YVector q(3), it(3);
-		YHmgTrsf ep = _leftCamera.endFrame();
-
-		YVector o(3), epx(3);
-		o(1) = ep(1,4);
-		o(2) = ep(2,4);
-		o(3) = ep(3,4);
-		epx(1) = ep(1,1);
-		epx(2) = ep(2,1);
-		epx(3) = ep(3,1);
-
-		q = o + F * epx;
-
-		/// intersect plane w/ old ray v.
-		/// normal vector to plane is ep(1/2/3, 1)
-		double t = F / (ep(1,1)*v(1) + ep(2,1)*v(2) + ep(3,1)*v(3));
-		it = v * t + o - q;
-
-		YVector tmp(3);
-
-		///
-		///tmp(1) = ep(1,1) * it(1) + ep(2,1) * it(2) + ep(3,1) * it(3);
-		tmp(2) = ep(1,2) * it(1) + ep(2,2) * it(2) + ep(3,2) * it(3);
-		tmp(3) = ep(1,3) * it(1) + ep(2,3) * it(2) + ep(3,3) * it(3);
-
-		/// mm -> pixels
-		x = int (-tmp(2) * PixScaleX + .5);
-		y = int (-tmp(3) * PixScaleY + .5);
+		if (_dh_param(i,5) == 0)
+		{
+			_joints(i) = _dh_param(i,4);
+			_computeT(_Ti[i-1], _joints(i), _dh_param(i,1), _dh_param(i,2), _dh_param(i,3));
+		}
+		else
+		{
+			_joints(i) = jnts(j) * _dh_param(i,5) + _dh_param(i,4);
+			_computeT(_Ti[i-1], _joints(i), _dh_param(i,1), _dh_param(i,2), _dh_param(i,3));
+			j++;
+		}
+		
+		if (i == 1)
+			_Ti0[i-1] = _TB0 * _Ti[i-1];
+		else
+			_Ti0[i-1] = _Ti0[i-2] * _Ti[i-1];
 	}
 }

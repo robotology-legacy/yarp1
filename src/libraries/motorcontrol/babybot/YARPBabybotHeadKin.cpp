@@ -61,148 +61,125 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.2 2003-11-07 12:36:59 babybot Exp $
+/// $Id: YARPBabybotHeadKin.cpp,v 1.1 2003-11-07 14:19:33 babybot Exp $
 ///
 ///
 
-// HeadKinematics.h: interface for the HeadKinematics class.
-//
-// solve fwd kinematics for the babybot head,
-// as of 2003.
+#include "YARPBabybotHeadKin.h"
+
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __YARPBabybotHeadKinh__
-#define __YARPBabybotHeadKinh__
-
-#include <conf/YARPConfig.h>
-#include <ace/config.h>
-#include <ace/OS.h>
-#include <ace/Synch.h>
-
-#include <YARPMath.h>
-#include "YARPKinematics.h"
-
 ///
 ///
+/// each of <dh_left>, <dh_right> describes independently the two kinematic chains from 
+/// base to left and base to right eye respectively.
+/// each matrix has njoint + occasional fictious links lines.
 ///
-/// things to move into configuration file
-const int _dh_nrf = 5;
-
-const double DH_left[_dh_nrf][5] = {
-	{0, 0, 0, 0, -1},
-	{0, -pi/2, 0, -pi/2, 1},
-	{125, 0, 0, pi/2, 1},
-	{0, pi/2, 0, pi/2, 0},	// zero in the fifth position means it's a convenience trsf.
-	{-71.5, 0, 0, pi/2, 1},
-};
-
-const double DH_right[_dh_nrf][5] = {
-	{0, 0, 0, 0, -1},
-	{0, -pi/2, 0, -pi/2, 1},
-	{125, 0, 0, pi/2, 1},
-	{0, pi/2, 0, pi/2, 0},
-	{71.5, 0, 0, pi/2, -1},
-};
-
-/// maybe not needed now. Height of the neck?
-const double TBaseline[4][4] = {
-	{1, 0, 0, 0},
-	{0, 1, 0, 0},
-	{0, 0, 1, 133},
-	{0, 0 ,0, 1},
-};
-
-///
-/// these params are very approximate.
-const double F = 4;						/// camera F length.
-const double PixScaleX = 120;			/// camera mm to pixel conversion factor.
-const double PixScaleY = 120;			/// same along the y coord.
-
-
-///
-///
-///	example of using the YARPBabybotHeadKin class.
-///
-///	  head_kinematics (
-///		YMatrix (_dh_nrf, 5, DH_left[0]),
-///		YMatrix (_dh_nrf, 5, DH_right[0]), 
-///		YHmgTrsf (TBaseline[0]) )
-///
-
-///
-///
-/// Babybot head kinematics.
-///
-class YARPBabybotHeadKin  
+YARPBabybotHeadKin::YARPBabybotHeadKin (const YMatrix &dh_left, const YMatrix &dh_right, const YHmgTrsf &bline)
+	: _leftCamera (dh_left, bline),
+	  _rightCamera (dh_right, bline)
 {
-public:
 	///
-	/// eventually it should be possible to call this function also for mapping to the peripheral image.
-	/// ONLY foveal remapped now.
-	typedef enum { KIN_LEFT = 1, KIN_RIGHT = 2 } __kinType;
-	
-	///
-	/// constructor, takes two set of DH params.
-	/// left describes the structure from base to the left eye (camera).
-	/// right describes the structure from base to the right eye (camera).
-	/// the third parameter is the base to T0 transform. It's simply premultiplied to the 
-	/// final T.
-	YARPBabybotHeadKin (const YMatrix &dh_left, const YMatrix &dh_right, const YHmgTrsf &bline);
-	virtual ~YARPBabybotHeadKin ();
+	ACE_ASSERT (dh_left.NRows() == dh_right.NRows());
 
-	///
-	/// recompute the internal matrices for a new joint position.
-	void computeDirect (const YVector& joints);
-	inline void update (const YVector& joints) { computeDirect (joints); }
+	/// nFrame must be rather the NRows - the # of rows with fifth colum == 0.
+	_nFrame = dh_left.NRows();
 
-	///
-	/// given an up to date kinematic matrix, it returns the ray passing from an image plane point x,y.
-	void computeRay (__kinType k, YVector& v, int x, int y);
+	_leftJoints.Resize (_nFrame);
+	_rightJoints.Resize (_nFrame);
 
-	///
-	/// given an up to date kin matrix, it computes the x,y point where a given ray v intersects the img plane.
-	void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, int& y);
+	_leftJoints = 0;
+	_rightJoints = 0;
+}
 
-protected:
-	inline void _computeFixation (const YHmgTrsf &T1, const YHmgTrsf &T2);
-
-	YARPRobotKinematics _leftCamera;
-	YARPRobotKinematics _rightCamera;
-
-	YVector _leftJoints;
-	YVector _rightJoints;
-	Y3DVector _fixationPoint;
-	int _nFrame;
-};
-
-///
-///
-inline void YARPBabybotHeadKin::_computeFixation (const YHmgTrsf &T1, const YHmgTrsf &T2)
+YARPBabybotHeadKin::~YARPBabybotHeadKin ()
 {
-	double tmp1;
-	double tmp2;
-	double tmp3;
-
-	double u;
-	
-	if (T2(1,1) != 0)
-		tmp1 = T2(2,4)-T1(2,4)-(T2(2,1)/T2(1,1))*(T2(1,4)-T1(1,4));
-	else
-		tmp1 = 0;
-	
-	tmp3 = T2(2,1)*T1(1,1)-T1(2,1)*T2(1,1);
-
-	if (tmp3 != 0)
-		tmp2 = -T2(1,1)/tmp3;
-	else
-		tmp2 = 0;
-	
-	u = tmp2*tmp1;
-
-	_fixationPoint(1) = T1(1,4) + T1(1,1) * u;
-	_fixationPoint(2) = T1(2,4) + T1(2,1) * u;
-	_fixationPoint(3) = T1(3,4) + T1(3,1) * u;
 
 }
 
-#endif
+/// <joints is a 5 dim vector>
+/// since this file is for the Babybot's head, I can asser if Size is different.
+void YARPBabybotHeadKin::computeDirect (const YVector &joints)
+{
+	ACE_ASSERT (joints.Length() == 5); 
+
+	// the joint vector is devided into right and left
+	// I *KNOW* this is awful because doesn't use n_ref_frame
+	_leftJoints(1) = joints(1);
+	_leftJoints(2) = joints(2);
+	_leftJoints(3) = joints(3);
+	_leftJoints(4) = joints(5);
+
+	_rightJoints(1) = joints(1);
+	_rightJoints(2) = joints(2);
+	_rightJoints(3) = joints(3);
+	_rightJoints(4) = joints(4);
+
+	_leftCamera.computeDirect (_leftJoints);
+	_rightCamera.computeDirect (_rightJoints);
+
+	_computeFixation (_rightCamera.endFrame(), _leftCamera.endFrame());
+}
+
+///
+/// given an up to date kinematic matrix, returns the ray passing from an image plane point x,y.
+void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
+{
+	ACE_ASSERT (k == KIN_LEFT);
+
+	if (k == KIN_LEFT)
+	{
+		YHmgTrsf ep = _leftCamera.endFrame();
+
+		/// pixels -> mm
+		double dx = x / PixScaleX;
+		double dy = y / PixScaleY;
+
+		v(1) = F * ep (1, 1) - dx * ep (1, 2) - dy * ep (1, 3);
+		v(2) = F * ep (2, 1) - dx * ep (2, 2) - dy * ep (2, 3);
+		v(3) = F * ep (3, 1) - dx * ep (3, 2) - dy * ep (3, 3);
+
+		v /= v.norm2();
+	}
+}
+
+///
+/// given an up to date kin matrix, it computes the x,y point where a given ray v intersects the img plane.
+void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, int& y)
+{
+	ACE_ASSERT (k == KIN_LEFT);
+
+	if (k == KIN_LEFT)
+	{
+		YVector q(3), it(3);
+		YHmgTrsf ep = _leftCamera.endFrame();
+
+		YVector o(3), epx(3);
+		o(1) = ep(1,4);
+		o(2) = ep(2,4);
+		o(3) = ep(3,4);
+		epx(1) = ep(1,1);
+		epx(2) = ep(2,1);
+		epx(3) = ep(3,1);
+
+		q = o + F * epx;
+
+		/// intersect plane w/ old ray v.
+		/// normal vector to plane is ep(1/2/3, 1)
+		double t = F / (ep(1,1)*v(1) + ep(2,1)*v(2) + ep(3,1)*v(3));
+		it = v * t + o - q;
+
+		YVector tmp(3);
+
+		///
+		///tmp(1) = ep(1,1) * it(1) + ep(2,1) * it(2) + ep(3,1) * it(3);
+		tmp(2) = ep(1,2) * it(1) + ep(2,2) * it(2) + ep(3,2) * it(3);
+		tmp(3) = ep(1,3) * it(1) + ep(2,3) * it(2) + ep(3,3) * it(3);
+
+		/// mm -> pixels
+		x = int (-tmp(2) * PixScaleX + .5);
+		y = int (-tmp(3) * PixScaleY + .5);
+	}
+}
