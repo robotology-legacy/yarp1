@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.8 2004-08-21 17:53:47 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.9 2004-08-30 09:38:48 babybot Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -322,9 +322,6 @@ static void check() {
 void run() {
   //ACE_UNUSED_ARG (argc);
   //ACE_UNUSED_ARG (argv);
-
-	/// This is NT only, usual idiosincrasy between // and \\ Unix/NT clash.
-	/// handle the connection w/ the remote name server.
 
   YARPString buf, server;
   int _server_port = 10000;

@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.3 2004-08-10 17:08:23 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.4 2004-08-30 09:38:48 babybot Exp $
 // YARP config file WIN32.
 //
 //
@@ -44,10 +44,10 @@
 #define YARP_DEFAULT_PROTOCOL	YARP_TCP
 
 /// set here how many ports are requested by the def protocol.
-#define YARP_PROTOCOL_REGPORTS  11
+#define YARP_PROTOCOL_REGPORTS  21
 
 /// set the number of ports used by UDP for a single port.
-#define YARP_UDP_REGPORTS       11
+#define YARP_UDP_REGPORTS       21
 
 /// read timeout on socket transport (in seconds).
 #define YARP_SOCK_TIMEOUT       5
