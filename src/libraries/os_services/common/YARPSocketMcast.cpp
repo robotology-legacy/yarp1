@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.1 2003-05-23 08:30:08 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.2 2003-05-23 23:31:32 gmetta Exp $
 ///
 ///
 
@@ -79,6 +79,8 @@
 /// 1) 
 ///
 ///
+
+#if 0 /// doesn't compile yet.
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
@@ -1357,9 +1359,9 @@ class OSDataMcast
 {
 public:
 	ACE_INET_Addr _remote_acceptor_store;
-	ACE_INET_Addr _remote_addr;
-	ACE_INET_Addr _local_addr;
-	ACE_SOCK_Dgram _connector_socket;
+	ACE_INET_Addr _mcast_addr;
+///	ACE_INET_Addr _local_addr;
+	ACE_SOCK_Dgram_Mcast _connector_socket;
 };
 
 static OSDataMcast& OSDATA(void *x)
@@ -1393,7 +1395,7 @@ YARPOutputSocketMcast::~YARPOutputSocketMcast (void)
 int YARPOutputSocketMcast::Close (void)
 {
 	OSDataMcast& d = OSDATA(system_resources);
-	ACE_DEBUG ((LM_DEBUG, "Pretending to close a connection to port %d on %s\n", 
+	ACE_DEBUG ((LM_DEBUG, "Pretending to close all connections to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 
 		d._remote_addr.get_host_name()));
 
@@ -1586,3 +1588,6 @@ ACE_HANDLE YARPOutputSocketMcast::GetIdentifier(void) const
 }
 
 #undef THIS_DBG
+
+
+#endif

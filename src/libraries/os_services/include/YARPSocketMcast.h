@@ -61,9 +61,11 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.h,v 1.1 2003-05-23 08:30:08 gmetta Exp $
+/// $Id: YARPSocketMcast.h,v 1.2 2003-05-23 23:31:32 gmetta Exp $
 ///
 ///
+
+#if 0	/// doesn't compile yet.
 
 #ifndef __YARPSocketMcasth__
 #define __YARPSocketMcasth__
@@ -162,5 +164,7 @@ public:
 
 	int GetServiceType (void) { return YARP_MCAST; }
 };
+
+#endif
 
 #endif

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketSyncComm.h,v 1.3 2003-04-22 17:01:21 gmetta Exp $
+/// $Id: YARPSocketSyncComm.h,v 1.4 2003-05-23 23:31:32 gmetta Exp $
 ///
 ///
 /*
@@ -81,6 +81,9 @@
 
 class YARPSocketSyncComm
 {
+protected:
+	static NetInt32 _buffer[256];	/// this is only used to send part lengths.
+
 public:
 	static int Send(const YARPNameID& dest, char *buffer, int buffer_length, char *return_buffer, int return_buffer_length);
 	static YARPNameID BlockingReceive(const YARPNameID& src, char *buffer, int buffer_length);

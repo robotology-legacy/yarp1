@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.12 2003-05-23 16:33:24 babybot Exp $
+/// $Id: exec_test5.cpp,v 1.13 2003-05-23 23:31:32 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -88,7 +88,7 @@
 //#define REG_LOCATE_NAME "/test/exec_test2"
 
 #define __UDP
-///#define __PRINT
+#define __PRINT
 
 YARPSemaphore out(1);
 
@@ -167,7 +167,7 @@ public:
 				cout << "connection is dead" << endl;
 			}
 
-			YARPTime::DelayInSeconds(0.005);
+			YARPTime::DelayInSeconds(0.5);
 
 			ct++;
 			sprintf(txt, "And a-%d", ct);

@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.11 2003-05-23 15:28:23 gmetta Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.12 2003-05-23 23:31:32 gmetta Exp $
 ///
 ///
 
@@ -91,6 +91,7 @@
   is otherwise ignored completely. since the QNX spec doesn't have it.
  */
 
+NetInt32 YARPSocketSyncComm::_buffer[256];
 
 int YARPSocketSyncComm::Send(const YARPNameID& dest, char *buffer, int buffer_length, char *return_buffer, int return_buffer_length)
 {
@@ -141,11 +142,14 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, char *buff
 	{
 		if (prefix.size < 0)
 		{
+			ct = ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks + prefix.reply_blocks));
+#if 0
 			for (int i = 0; i < prefix.total_blocks + prefix.reply_blocks && ct >= 0; i++)
 			{
 				NetInt32 x;
 				ct = ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
 			}
+#endif
 		}
 
 		ct = ts->ReceiveContinue (id, buffer, buffer_length);
@@ -178,11 +182,15 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, char *buffe
 	{
 		if (prefix.size < 0)
 		{
+
+			ct = ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks + prefix.reply_blocks));
+#if 0
 			for (int i = 0; i < prefix.total_blocks + prefix.reply_blocks && ct >= 0; i++)
 			{
 				NetInt32 x;
 				ct = ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
 			}
+#endif
 		}
 
 		ct = ts->ReceiveContinue (id, buffer, buffer_length);
@@ -259,6 +267,19 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 	
 	for (i = 0; i < send_parts; i++)
 	{
+		_buffer[i] = msg.GetBufferLength(i);
+	}
+	for (i = 0; i < return_parts; i++)
+	{
+		_buffer[i+send_parts] = return_msg.GetBufferLength(i);
+	}
+
+	os->SendContinue ((char *)_buffer, sizeof(NetInt32) * (send_parts + return_parts));
+
+
+#if 0
+	for (i = 0; i < send_parts; i++)
+	{
 		NetInt32 x = msg.GetBufferLength(i);
 		os->SendContinue ((char*)(&x), sizeof(x));
 	}
@@ -268,11 +289,10 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 		NetInt32 x = return_msg.GetBufferLength(i);
 		os->SendContinue ((char*)(&x), sizeof(x));
 	}
+#endif
 
 	///
 	/// just a wakeup required by the protocol under UDP.
-	///char c = 0;
-	///os->SendContinue (&c, 1);
 		
 	///YARPTime::DelayInSeconds(2.5);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "about to send buf 0 %d bytes\n", msg.GetBufferLength(0)));
@@ -326,8 +346,11 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultip
 	{
 		if (prefix.size < 0)
 		{
-			int i;
-			NetInt32 x;
+			///int i;
+			///NetInt32 x;
+			ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks+prefix.reply_blocks));
+
+#if 0
 			for (i = 0;i < prefix.total_blocks; i++)
 			{
 				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
@@ -337,6 +360,7 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultip
 			{
 				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
 			}
+#endif
 		}
 
 		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
@@ -377,7 +401,10 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, YARPMultipa
 	{
 		if (prefix.size < 0)
 		{
-			int i;
+			///int i;
+			ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks+prefix.reply_blocks));
+
+#if 0
 			NetInt32 x;
 			for (i = 0; i < prefix.total_blocks; i++)
 			{
@@ -388,6 +415,7 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, YARPMultipa
 			{
 				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
 			}
+#endif
 		}
 
 		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
