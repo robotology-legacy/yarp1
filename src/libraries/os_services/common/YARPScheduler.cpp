@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPScheduler.cpp,v 1.1 2003-05-01 09:52:22 gmetta Exp $
+/// $Id: YARPScheduler.cpp,v 1.2 2003-05-01 12:23:53 gmetta Exp $
 ///
 ///
 
@@ -71,8 +71,10 @@
 #include <ace/OS.h>
 
 ///
+#ifdef __WIN32__
 #include <windows.h>
 #include <mmsystem.h>
+#endif
 
 #ifdef Yield
 #undef Yield
@@ -93,5 +95,7 @@ void YARPScheduler::setHighResScheduling ()
 	TIMECAPS tm;
 	timeGetDevCaps(&tm, sizeof(TIMECAPS));
 	timeBeginPeriod(1);
+#else
+	ACE_DEBUG ((LM_DEBUG, "setHighResScheduling: Not implemented, perhaps it doesn't make sense on your OS\n"));
 #endif
 }

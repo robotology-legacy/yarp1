@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPTime.cpp,v 1.1 2003-05-01 09:52:22 gmetta Exp $
+/// $Id: YARPTime.cpp,v 1.2 2003-05-01 12:23:54 gmetta Exp $
 ///
 ///
 
@@ -71,7 +71,9 @@
 #include <ace/config.h>
 #include <ace/OS.h>
 
+#if 0
 #include <windows.h>
+#endif
 #include "YARPTime.h"
 
 double YARPTime::GetTimeAsSeconds()

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.1 2003-05-01 09:52:22 gmetta Exp $
+/// $Id: YARPThread.cpp,v 1.2 2003-05-01 12:23:54 gmetta Exp $
 ///
 ///
 
@@ -71,9 +71,11 @@
 #include <ace/Synch.h>
 
 ///
+#if 0
 #include <windows.h>
 #include <process.h>
 #include <signal.h>
+#endif
 
 #include "YARPSemaphore.h"
 #include "YARPThread.h"
@@ -91,7 +93,11 @@ static void HandleSignal(int sig)
 
 /// very simple thread wrapper.
 ///
+#ifdef __WIN32__
 static unsigned __stdcall ExecuteThread (void *args)
+#else
+unsigned ExecuteThread (void *args)
+#endif
 {
 	YARPThread *thread = ((YARPThread *)args);
 	
