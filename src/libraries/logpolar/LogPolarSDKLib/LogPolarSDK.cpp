@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.40 2004-06-07 18:32:18 babybot Exp $
+/// $Id: LogPolarSDK.cpp,v 1.41 2004-06-08 08:45:57 natta Exp $
 ///
 ///
 
@@ -427,8 +427,7 @@ double Get_Y_Center_Old(double rho, double theta, Image_Data *par, double *Ang_S
 */
 
 /************************************************************************
-* Reconstruct_Color		  												*
-************************************************************************/	
+* Reconstruct_Color		  												*************************************************************************/	
 
 void Reconstruct_Color(unsigned char * Out_Image,
 					   unsigned char * In_Image,

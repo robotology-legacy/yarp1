@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.22 2004-01-20 19:31:06 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.23 2004-06-08 08:45:57 natta Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -257,6 +257,9 @@ private:
 	YBVocab			_tmpVocab;				// temp variable to avoid using a local var within _parse method
 	YARPBottle		_bottle;				// ths is the bottle used for the communication
 	YARPInputPortOf<YARPBottle> _inport;	// input port
+	YARPSemaphore	_mutex;
+	inline void _lock(){ _mutex.Wait(); }
+	inline void _unlock(){ _mutex.Post(); }
 };
 
 template <class MY_BEHAVIOR, class MY_SHARED_DATA> 
@@ -297,6 +300,7 @@ template <class MY_BEHAVIOR, class MY_SHARED_DATA>
 int YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
 _parse(YARPBottle &bottle)
 {
+	
 	if (bottle.getID() != _key)
 	{
 		// this is not for you, return
@@ -358,24 +362,44 @@ handleMsg()
 {
 	_inport.Read();
 
-	YARPBottle tmp;
-	tmp = _inport.Content();
+	_lock();
+		YARPBottle tmp;
+		tmp = _inport.Content();
 
-	//ACE_OS::printf("Received:\n");
-	//tmp.display();
-	
-	return _parse(tmp);
+		//ACE_OS::printf("Received:\n");
+		//tmp.display();
+		int ret = _parse();
+	_unlock();
+	return ret;
 }
 
 template <class MY_BEHAVIOR, class MY_SHARED_DATA>
 void YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
 Body(void)
 {
+	// first iteration
+	_lock();		
+		state->handle(_data);
+	_unlock();
+	if (!currentState()->isAs())
+		_stopEvent.wait();
+	else 
+	{
+		// state is AS, just loop !
+		// and still check inputs
+		_parse(_bottle);
+	}
+
 	while(!IsTerminated())
 	{
 		// handle state
-		state->handle(_data);
+		_lock();
+			state->decideState((MY_BEHAVIOR *)this, _data);	//switch state
+			state->handle(_data);							// execute
+		_unlock();
+
 		// wait, if not asyncrhonous
+
 		if (!currentState()->isAs())
 		{
 			_stopEvent.wait();
@@ -386,8 +410,6 @@ Body(void)
 			// and still check inputs
 			_parse(_bottle);
 		}
-		// switch state
-		state->decideState((MY_BEHAVIOR *)this, _data);
 	}
 }
 

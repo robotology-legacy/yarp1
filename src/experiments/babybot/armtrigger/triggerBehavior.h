@@ -6,7 +6,7 @@
 #include <YARPVectorPortContent.h>
 #include <YARPBottleContent.h>
 #include <YARPBehavior.h>
-#include <./conf/YARPVocab.h>
+#include <./conf/YARPBabybotVocab.h>
 
 class TBSharedData
 {
