@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.1 2003-06-11 17:11:47 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.2 2003-06-19 15:10:06 beltran Exp $
 ///
 ///
 
@@ -73,8 +73,10 @@
 #include "YARPPicoloDeviceDriver.h"
 #include <YARPFrameGrabberUtils.h>
 
-#define _WINDOWS
-#include <sys/Picolo32.h>
+#define _QNX
+#include "./dd_orig/bttv.h"
+
+typedef unsigned long UINT32;
 
 class PicoloResources
 {
@@ -85,11 +87,11 @@ public:
 		_nWidth = 0;
 		_nHeight = 0;
 		_nImageSize = 0;
-		_picoloHandle = 0;
+		//_picoloHandle = 0;
 
-		memset (_bufHandles, 0, sizeof(PICOLOHANDLE) * _num_buffers);
-		memset (_buffer, 0, sizeof(PUINT8) * _num_buffers);
-		memset (_aligned, 0, sizeof(PUINT8) * _num_buffers);
+		//memset (_bufHandles, 0, sizeof(PICOLOHANDLE) * _num_buffers);
+		//memset (_buffer, 0, sizeof(PUINT8) * _num_buffers);
+		//memset (_aligned, 0, sizeof(PUINT8) * _num_buffers);
 
 		_rawBuffer = NULL;
 		_canpost = true;
@@ -99,7 +101,7 @@ public:
 
 	enum { _num_buffers = 3 };
 
-	PICOLOHANDLE _picoloHandle;	
+	//PICOLOHANDLE _picoloHandle;	
 
 	YARPSemaphore _bmutex;
 	YARPSemaphore _new_frame;
@@ -110,9 +112,9 @@ public:
 	UINT32 _nHeight;
 	UINT32 _nImageSize;
 
-	PICOLOHANDLE _bufHandles[_num_buffers];
-	PUINT8 _buffer[_num_buffers];
-	PUINT8 _aligned[_num_buffers];
+	///PICOLOHANDLE _bufHandles[_num_buffers];
+	///PUINT8 _buffer[_num_buffers];
+	///PUINT8 _aligned[_num_buffers];
 
 	bool _canpost;
 
@@ -122,7 +124,7 @@ public:
 	inline int _uninitialize (void);
 
 protected:
-	inline PICOLOHANDLE _init (const PicoloOpenParameters& params);
+	inline int _init (const PicoloOpenParameters& params);
 	inline void _prepareBuffers (void);
 };
 
@@ -148,28 +150,30 @@ void DelayInSeconds(double delay_in_seconds)
 inline int PicoloResources::_intialize (const PicoloOpenParameters& params)
 {
 	_init (params);
-	_prepareBuffers ();
+	open_bttvx();
+	BttvxSetImageBuffer(params._unit_number,_rawBuffer);
+	//_prepareBuffers ();
 
 	// n-part buffering.
-	PICOLOHANDLE BufferList[_num_buffers];
-	PICOLOSTATUS PicoloStatus;
+	///PICOLOHANDLE BufferList[_num_buffers];
+	////PICOLOSTATUS PicoloStatus;
 
 	//
-	int i;
-	for (i = 0; i < _num_buffers; i++)
-	{
-		BufferList[i] = _bufHandles[i];
-	}
+	///int i;
+	////for (i = 0; i < _num_buffers; i++)
+	///{
+	///	BufferList[i] = _bufHandles[i];
+	///}
 
-	PicoloStatus = PicoloSetBufferList (_picoloHandle, BufferList, _num_buffers);
-	ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	////PicoloStatus = PicoloSetBufferList (_picoloHandle, BufferList, _num_buffers);
+	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	// select initial buffer.
-	PicoloStatus = PicoloSelectBuffer(_picoloHandle, 0);
+	////PicoloStatus = PicoloSelectBuffer(_picoloHandle, 0);
 
 	// starts continuous acquisition.
-	PicoloStatus = PicoloAcquire (_picoloHandle, PICOLO_ACQUIRE_CONTINUOUS | PICOLO_ACQUIRE_INC, 1);
-	ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	///PicoloStatus = PicoloAcquire (_picoloHandle, PICOLO_ACQUIRE_CONTINUOUS | PICOLO_ACQUIRE_INC, 1);
+	///ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	return YARP_OK;
 }
@@ -178,16 +182,17 @@ inline int PicoloResources::_uninitialize (void)
 {
 	_bmutex.Wait ();
 
-	if (_nRequestedSize == 0 && _nWidth == 0 && _nHeight == 0)
-		return YARP_FAIL;
+	//if (_nRequestedSize == 0 && _nWidth == 0 && _nHeight == 0)
+	///	return YARP_FAIL;
 
-	PicoloAcquire (_picoloHandle, PICOLO_ACQUIRE_STOP, 1);
-	PicoloStop (_picoloHandle);
+	///PicoloAcquire (_picoloHandle, PICOLO_ACQUIRE_STOP, 1);
+	///PicoloStop (_picoloHandle);
+	/*
 
 	int i;
 	for (i = 0; i < _num_buffers; i++)
 		VirtualFree (_buffer[i], _nImageSize, MEM_DECOMMIT);
-
+	*/
 	if (_rawBuffer != NULL) delete[] _rawBuffer;
 	_rawBuffer = NULL;
 
@@ -195,7 +200,7 @@ inline int PicoloResources::_uninitialize (void)
 	_nWidth = 0;
 	_nHeight = 0;
 	_nImageSize = 0;
-	_picoloHandle = 0;
+	///_picoloHandle = 0;
 	_canpost = true;
 	
 	_bmutex.Post ();
@@ -207,78 +212,80 @@ inline int PicoloResources::_uninitialize (void)
 ///
 ///
 ///
-inline PICOLOHANDLE PicoloResources::_init (const PicoloOpenParameters& params)
+inline int PicoloResources::_init (const PicoloOpenParameters& params)
 {
 	/// copy params.
+	int ret;
 	_nRequestedSize = params._size;
 
+	init_bttvx(params._video_type,params._unit_number);
 	/// starts board up.
-	PICOLOHANDLE ret = PicoloStart(params._unit_number);
-	if (ret < 0)
-	{
-		ACE_DEBUG ((LM_DEBUG, "troubles opening the grabber number %d\n", params._unit_number));
-		return YARP_FAIL;
-	}
+	////PICOLOHANDLE ret = PicoloStart(params._unit_number);
+	////if (ret < 0)
+	///{
+	///	ACE_DEBUG ((LM_DEBUG, "troubles opening the grabber number %d\n", params._unit_number));
+	///	return YARP_FAIL;
+	///}
 
 	// video input.
-	PICOLOSTATUS PicoloStatus;
-	ACE_ASSERT (params._video_type == 0 || params._video_type == 1);
+	////PICOLOSTATUS PicoloStatus;
+	////ACE_ASSERT (params._video_type == 0 || params._video_type == 1);
 
 	/// it might require more params (e.g. ntsc, etc.)
-	if (params._video_type == 0)
-	{
-		PicoloStatus = PicoloSelectVideoInput(ret, PICOLO_INPUT_COMPOSITE_BNC, PICOLO_IFORM_STD_PAL);
-	}
-	else
-	{
-		PicoloStatus = PicoloSelectVideoInput(ret, PICOLO_INPUT_SVIDEO_MINIDIN4, PICOLO_IFORM_625LINES);
-	}
+	////if (params._video_type == 0)
+	////{
+	////	PicoloStatus = PicoloSelectVideoInput(ret, PICOLO_INPUT_COMPOSITE_BNC, PICOLO_IFORM_STD_PAL);
+	////}
+	////else
+	////{
+	////	PicoloStatus = PicoloSelectVideoInput(ret, PICOLO_INPUT_SVIDEO_MINIDIN4, PICOLO_IFORM_625LINES);
+	////}
 
-	ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	// image type. Color only?
-	PicoloStatus = PicoloSelectImageFormat(ret, PICOLO_COLOR_RGB32);
-	ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	////PicoloStatus = PicoloSelectImageFormat(ret, PICOLO_COLOR_RGB32);
+	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	// assume we want a square image
-	float scalex = 576.0/_nRequestedSize;
-	float scaley = scalex / 2.0;
-	float xSize = 768.0/scalex;
-	float offsetX = (xSize-_nRequestedSize) / 2;
+	////float scalex = 576.0/_nRequestedSize;
+	////float scaley = scalex / 2.0;
+	////float xSize = 768.0/scalex;
+	////float offsetX = (xSize-_nRequestedSize) / 2;
 
 	// adjust size and scaling. 
-	PicoloStatus = PicoloSetControlFloat(ret,
-										 PICOLO_CID_ADJUST_SCALEX,
-										 scalex);
-	ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	////PicoloStatus = PicoloSetControlFloat(ret,
+	////									 PICOLO_CID_ADJUST_SCALEX,
+	////									 scalex);
+	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	// img height is twice the requested size.
-	PicoloStatus = PicoloSetControlFloat(ret,
-										 PICOLO_CID_ADJUST_SCALEY,
-										 scaley);
-	ACE_ASSERT (PicoloStatus == PICOLO_OK);
-	PicoloStatus = PicoloSetControlValue(ret,
-										 PICOLO_CID_ADJUST_SIZEX,
-										 _nRequestedSize);
-	ACE_ASSERT (PicoloStatus == PICOLO_OK);
-	PicoloStatus = PicoloSetControlValue(ret,
-										 PICOLO_CID_ADJUST_SIZEY,
-										 2 * _nRequestedSize);
-	ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	////PicoloStatus = PicoloSetControlFloat(ret,
+	////									 PICOLO_CID_ADJUST_SCALEY,
+	////									 scaley);
+	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	////PicoloStatus = PicoloSetControlValue(ret,
+	////									 PICOLO_CID_ADJUST_SIZEX,
+	////									 _nRequestedSize);
+	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	////PicoloStatus = PicoloSetControlValue(ret,
+	////									 PICOLO_CID_ADJUST_SIZEY,
+	////									 2 * _nRequestedSize);
+	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
-	PicoloStatus = PicoloSetControlValue(ret,
-										 PICOLO_CID_ADJUST_OFFSETX,
-										 offsetX);
-	ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	////PicoloStatus = PicoloSetControlValue(ret,
+	////									 PICOLO_CID_ADJUST_OFFSETX,
+	////									 offsetX);
+	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	// re-get size (to be sure!)
-	PicoloStatus = PicoloGetImageSize(ret, 
-									  &_nWidth, 
-									  &_nHeight);
-	ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	////PicoloStatus = PicoloGetImageSize(ret, 
+	////								  &_nWidth, 
+	////								  &_nHeight);
+	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
-	PicoloStatus = PicoloGetImageBufferSize(ret, &_nImageSize); 
-	ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	////PicoloStatus = PicoloGetImageBufferSize(ret, &_nImageSize); 
+	////ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	_bmutex.Wait ();
 	_rawBuffer = new unsigned char [_nImageSize];
@@ -286,32 +293,9 @@ inline PICOLOHANDLE PicoloResources::_init (const PicoloOpenParameters& params)
 	_bmutex.Post ();
 
 	/// all ok, store the handle.
-	_picoloHandle = ret;
-
+	//_picoloHandle = ret;
+	////_picoloHandle = params._unit_number;
 	return ret;
-}
-
-///
-///
-inline void PicoloResources::_prepareBuffers(void)
-{
-	int i;
-	for (i = 0; i < _num_buffers; i++)
-	{
-		_buffer[i] = (PUINT8)VirtualAlloc(NULL, 
-										  _nImageSize, 
-										  MEM_COMMIT, 
-										  PAGE_READWRITE);
-		ACE_ASSERT (_buffer[i] != NULL);
-		_bufHandles[i] = PicoloSetImageBuffer(
-									_picoloHandle, 
-									_buffer[i],  
-									_nImageSize, 
-									PICOLO_FIELD_DOWN_ONLY,
-									(PVOID*) &_aligned[i]);
-		ACE_ASSERT (_bufHandles[i] >= 0);
-		memset(_aligned[i], 0, _nImageSize);
-	}
 }
 
 inline PicoloResources& RES(void *res) { return *(PicoloResources *)res; }
@@ -345,7 +329,7 @@ int YARPPicoloDeviceDriver::open (void *res)
 	PicoloResources& d = RES(system_resources);
 	int ret = d._intialize (*(PicoloOpenParameters *)res);
 
-	Begin ();
+	///Begin ();
 
 	return ret;
 }
@@ -354,7 +338,7 @@ int YARPPicoloDeviceDriver::close (void)
 {
 	PicoloResources& d = RES(system_resources);
 
-	End ();	/// stops the thread first.
+	////End ();	/// stops the thread first.
 
 	int ret = d._uninitialize ();
 
@@ -364,6 +348,7 @@ int YARPPicoloDeviceDriver::close (void)
 ///
 ///
 /// acquisition thread for real!
+/***
 void YARPPicoloDeviceDriver::Body (void)
 {
 	PICOLOSTATUS PicoloStatus;
@@ -430,11 +415,13 @@ void YARPPicoloDeviceDriver::Body (void)
 
 	ACE_DEBUG ((LM_DEBUG, "acquisition thread returning...\n"));
 }
+*/
 
 int YARPPicoloDeviceDriver::acquireBuffer (void *buffer)
 {
 	PicoloResources& d = RES(system_resources);
-	d._bmutex.Wait ();
+	///d._bmutex.Wait ();
+	BttvxAcquireBuffer(d._rawBuffer);
 	(*(unsigned char **)buffer) = d._rawBuffer;
 
 	return YARP_OK;
@@ -443,8 +430,9 @@ int YARPPicoloDeviceDriver::acquireBuffer (void *buffer)
 int YARPPicoloDeviceDriver::releaseBuffer (void *cmd)
 {
 	PicoloResources& d = RES(system_resources);
-	d._canpost = true;
-	d._bmutex.Post ();
+	BttvxReleaseBuffer();
+	//d._canpost = true;
+	//d._bmutex.Post ();
 
 	return YARP_OK;
 }
@@ -452,7 +440,8 @@ int YARPPicoloDeviceDriver::releaseBuffer (void *cmd)
 int YARPPicoloDeviceDriver::waitOnNewFrame (void *cmd)
 {
 	PicoloResources& d = RES(system_resources);
-	d._new_frame.Wait ();
+	BttvxWaitEvent();
+	//d._new_frame.Wait ();
 	///d._new_frame.acquire ();
 
 	return YARP_OK;
@@ -470,4 +459,4 @@ int YARPPicoloDeviceDriver::getHeight (void *cmd)
 	return YARP_OK;
 }
 
-#undef _WINDOWS
+#undef _QNX
