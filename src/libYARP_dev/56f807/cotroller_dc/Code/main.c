@@ -414,9 +414,10 @@ void can_send_request(void)
 		{
 			_timeout = 0;
 			_canmsg.CAN_messID &= 0xfffff800;
-			_canmsg.CAN_messID |= (_neighbor << 7);
-			_canmsg.CAN_messID |= CAN_GET_ACTIVE_ENCODER_POSITION;
-			_canmsg.CAN_data[0] = _board_ID;
+			_canmsg.CAN_messID |= (_board_ID) << 4;
+			_canmsg.CAN_messID |= (_neighbor);
+			_canmsg.CAN_messID |= 0x00000100;
+			_canmsg.CAN_data[0] = CAN_GET_ACTIVE_ENCODER_POSITION;
 			
 			//while (CAN1_GetStateTX () == 0) ;
 			
@@ -463,6 +464,7 @@ byte channel = 0;
 void main(void)
 {
 	Int32 acceptance_code = 0x0;
+	word temporary;
 	
 	/* gets the address of flash memory from the linker */
 	_flash_addr = get_flash_addr();	
@@ -501,9 +503,11 @@ void main(void)
 	/* reads the PID parameters from flash memory */
 	readFromFlash (_flash_addr);
 
-	/* CAN masks/filters init */
-	CAN1_setAcceptanceMask (0xffffff0f);
-	acceptance_code = L_deposit_l (_board_ID) << 4;
+	/* CAN masks/filters init, note the reverse order of mask comparison (see manual) */
+	CAN1_setAcceptanceMask (0xffff1ffe);
+	temporary = _board_ID >> 3;
+	temporary |= (_board_ID << 13);
+	acceptance_code = L_deposit_l (temporary);
 	CAN1_setAcceptanceCode (acceptance_code);
 	
 	/* reset encoders, LATER: should do something more than this */
@@ -630,7 +634,7 @@ byte calibrate (byte jnt)
 }
 
 #define BEGIN_SPECIAL_MSG_TABLE(x) \
-	switch (x[1] & 0x7F) \
+	switch (x & 0x7F) \
 	{ \
 		default: \
 			break;
@@ -641,10 +645,6 @@ byte calibrate (byte jnt)
 /* message table macros */
 #define BEGIN_MSG_TABLE(x) \
 	CAN_TEMP16 = (word)extract_l(x); \
-	if (((CAN_TEMP16 & 0x0780) >> 7) != _board_ID) \
-	{ \
-		return ERR_OK; \
-	} \
 	switch (CAN_TEMP16 & 0x7f) \
 	{ \
 		default: \
@@ -753,12 +753,13 @@ byte can_interface (void)
 #define CAN_ID _canmsg.CAN_messID
 #define CAN_TEMP16 i
 
-			/* interpret the messages */
-			//BEGIN_SPECIAL_MSG_TABLE (CAN_data)
-			//HANDLE_MSG (CAN_SET_BOARD_ID, CAN_SET_BOARD_ID_HANDLER)
-			//END_SPECIAL_MSG_TABLE
+			/* special message, not too neat */
+#if VERSION == 0x0113
+			if (_canmsg.CAN_messID & 0x00000100)
+				CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER(0)
+#endif
 			
-			BEGIN_MSG_TABLE (_canmsg.CAN_messID)
+			BEGIN_MSG_TABLE (_canmsg.CAN_data[0])
 			HANDLE_MSG (CAN_NO_MESSAGE, CAN_NO_MESSAGE_HANDLER)
 			HANDLE_MSG (CAN_CONTROLLER_RUN, CAN_CONTROLLER_RUN_HANDLER)
 			HANDLE_MSG (CAN_CONTROLLER_IDLE, CAN_CONTROLLER_IDLE_HANDLER)
@@ -813,11 +814,9 @@ byte can_interface (void)
 			HANDLE_MSG (CAN_SET_TLIM, CAN_SET_TLIM_HANDLER)
 			HANDLE_MSG (CAN_GET_TLIM, CAN_GET_TLIM_HANDLER)
 			HANDLE_MSG (CAN_GET_ERROR_STATUS, CAN_GET_ERROR_STATUS_HANDLER)
-			
+
 			HANDLE_MSG (CAN_GET_ACTIVE_ENCODER_POSITION, CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER)
-#if VERSION == 0x0113
-			HANDLE_MSG (CAN_SET_ACTIVE_ENCODER_POSITION, CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER)
-#endif
+			
 			END_MSG_TABLE		
 
 #ifdef DEBUG_CAN_MSG
@@ -1064,10 +1063,11 @@ byte serial_interface (void)
 			if (iretval >= 1 && iretval <= 15)
 				_board_ID = iretval & 0x0f;
 
-			/* CAN masks/filters init */
-			CAN1_setAcceptanceMask (0xffffff0f);
-			acceptance_code = 0;
-			acceptance_code = L_deposit_l (_board_ID) << 4;
+			/* CAN masks/filters init, see main() */
+			CAN1_setAcceptanceMask (0xffff1ffe);
+			iretval = _board_ID >> 3;
+			iretval |= (_board_ID << 13);
+			acceptance_code = L_deposit_l (iretval);
 			CAN1_setAcceptanceCode (acceptance_code);
 			
 			c = 0;

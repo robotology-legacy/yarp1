@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.13 2005-04-04 23:28:01 gmetta Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.14 2005-04-05 07:16:27 gmetta Exp $
 ///
 ///
 
@@ -420,12 +420,13 @@ void YARPValueCanDeviceDriver::_debugMsg (int n, void *msg, int (*p) (char *fmt,
 				(m[i].ArbIDOrHeader & 0x0f) == r._my_address)
 			{
 				(*p) 
-					("s: %2x d: %2x c: %1d msg: %3d (%x) ",
-					  (m[i].Data[0] & 0x0f), 
-					  (m[i].ArbIDOrHeader & 0x780) >> 7, 
+					("class: %2d s: %2x d: %2x c: %1d msg: %3d (%x) ",
+					  (m[i].ArbIDOrHeader & 0x700) >> 8,
+					  (m[i].ArbIDOrHeader & 0xf0) >> 4, 
+					  (m[i].ArbIDOrHeader & 0x0f), 
 					  ((m[i].Data[0] & 0x80)==0)?0:1,
-					  (m[i].ArbIDOrHeader & 0x7f),
-					  (m[i].ArbIDOrHeader & 0x7f));
+					  (m[i].Data[0] & 0x7f),
+					  (m[i].Data[0] & 0x7f));
 
 				if (m[i].NumberBytesData > 1)
 				{

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: CanControlParams.h,v 1.5 2005-04-04 23:04:05 babybot Exp $
+/// $Id: CanControlParams.h,v 1.6 2005-04-05 07:16:21 gmetta Exp $
 ///
 ///
 
@@ -39,7 +39,7 @@
 #define CANBUS_ARBITRATION_ID		0
 #define CANBUS_MY_ADDRESS			0
 #define CANBUS_POLLING_INTERVAL		2		/// [ms]
-#define CANBUS_TIMEOUT				150		/// 10 * POLLING
+#define CANBUS_TIMEOUT				50		/// 10 * POLLING
 
 #define DEFAULT_NJOINTS				2		/// 1 card connected
 #define DEFAULT_DESTINATION			0xf		/// 
@@ -49,7 +49,7 @@
 #define TIMER_ID					666
 #define TIMER2_ID					667
 
-#define GUI_REFRESH_INTERVAL		1500		/// [ms]
+#define GUI_REFRESH_INTERVAL		150		/// [ms]
 
 #define CANBUS_INIFILE				"canbus.ini"
 
