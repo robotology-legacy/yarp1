@@ -48,6 +48,14 @@ int _cartesian(const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelBGR> &
 	return 0;
 }
 
+// reconstruct colors and convert to cartesian
+int _cartesianNoCol(const YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelBGR> &out)
+{
+	out.Resize(_xsize,_ysize);
+	_mapper.Logpolar2Cartesian(in, out);
+	return 0;
+}
+
 // reconstruct colors and convert to cartesian, plus extract the fovea
 int _fovea(const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelBGR> &out)
 {
@@ -94,11 +102,12 @@ int main(int argc, char* argv[])
 {
 	if (argc < 2)
 	{
-		cout << "Use: " << argv[0] << " inputfile outputfile [--mono] [--norm] [--lp] [--bmp] [--fov]\n";
+		cout << "Use: " << argv[0] << " inputfile outputfile [--mono] [--norm] [--lp] [--bmp] [--fov] [--nocol]\n";
 		return 0;
 	}
 
 	YARPImageOf<YarpPixelMono> _input;
+	YARPImageOf<YarpPixelBGR> _inputCol;
 	YARPImageOf<YarpPixelBGR> _tmp1;
 	YARPImageOf<YarpPixelBGR> _flipped;
 	YARPImageOf<YarpPixelBGR> _outputColor;
@@ -109,6 +118,7 @@ int main(int argc, char* argv[])
 	bool lp = false;
 	bool fovea = false;
 	bool bmp = false;
+	bool color = true;
 	
 	if (YARPParseParameters::parse(argc, argv, "-mono"))
 	{
@@ -130,26 +140,49 @@ int main(int argc, char* argv[])
 	{
 		bmp = true;
 	}
+	if (YARPParseParameters::parse(argc, argv, "-nocol"))
+	{
+		cout << "You chose not to build colors, assuming input image is RGB\n";
+		color = false;
+	}
+	else
+	{
+		cout << "You chose to build colors, assuming input image is MONO\n";
+		color = true;
+	}
 		
 	YARPString name;
 	YARPString outName;
 	
 	outName.append(argv[2]);
 	
-	if (YARPImageFile::Read(argv[1], _input) == -1)
+	if (color)
 	{
-		ACE_OS::printf("Error: problem reading %s\n", argv[1]);
-		return 0;
+		if (YARPImageFile::Read(argv[1], _input) == -1)
+		{
+			ACE_OS::printf("Error: problem reading mono image %s\n", argv[1]);
+			return 0;
+		}
 	}
+	else
+	{
+		if (YARPImageFile::Read(argv[1], _inputCol) == -1)
+		{
+			ACE_OS::printf("Error: problem reading RGB image %s\n", argv[1]);
+			return 0;
+		}
+	}
+
 
 	if (lp)
 		_logpolar(_input, _tmp1);
 	else if (fovea)
 		_fovea(_input, _tmp1);
-	else
+	else if(color)
 		_cartesian(_input, _tmp1);
+	else
+		_cartesianNoCol(_inputCol, _tmp1);
 	
-
 	if (bmp)
 	{
 		_flipped.Resize(_tmp1.GetWidth(), _tmp1.GetHeight());
