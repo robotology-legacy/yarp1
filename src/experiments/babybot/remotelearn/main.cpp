@@ -142,6 +142,11 @@ void parse(Learner &learner, YARPBottle &b)
 		learner.train((int) nIterations, true);
 		return;
 	}
+	else if (tmp == YBVRLTrainContinue)
+	{
+		learner.train((int) nIterations, false);
+		return;
+	}
 	else if (tmp == YBVRLNEpoch)
 	{
 		b.readFloat(&nIterations);

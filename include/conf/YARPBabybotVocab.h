@@ -91,6 +91,7 @@ const char *const YBVExit = "GeneralExit";
 
 // remote learner
 const char *const YBVRLTrainNow = "RLTrainNow";
+const char *const YBVRLTrainContinue = "RLTrainContinue";
 const char *const YBVRLNEpoch = "RLNEpoch";
 const char *const YBVRLBatchSize = "RLBatchSize";
 #endif

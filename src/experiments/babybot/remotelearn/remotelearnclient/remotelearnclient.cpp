@@ -95,7 +95,7 @@ void train(int argc, char *argv[])
 		}
 		
 		_outPort.Content() = tmpBottle;
-		ACE_OS::printf("Sending train sample #%d...", i);
+		ACE_OS::printf("Sending train sample #%d...", i+1);
 		_outPort.Write(1);	// blocking send
 		ACE_OS::printf("done !\n");
 		Sleep(100);
