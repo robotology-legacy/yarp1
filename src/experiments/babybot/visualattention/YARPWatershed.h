@@ -9,86 +9,7 @@
 #include "YARPColorVQ.h"
 
 
-class YARPBox {
-public:
-	YARPBox() { valid = false; }
-
-	~YARPBox() {}
-
-	bool operator==(const YARPBox& x)
-	{
-		bool ret = true;
-		ret &= (xmax == x.xmax);
-		ret &= (xmin == x.xmin);
-		ret &= (ymax == x.ymax);
-		ret &= (ymin == x.ymin);
-		ret &= (cmax == x.cmax);
-		ret &= (cmin == x.cmin);
-		ret &= (rmax == x.rmax);
-		ret &= (rmin == x.rmin);
-		return ret;
-	}
-
-	bool valid;
-
-	// logpolar
-	int cmax, rmax;
-	int cmin, rmin;
-	int areaLP;
-	
-	// cartesian
-	int xmax, ymax;
-	int xmin, ymin;
-	double areaCart;
-	int xsum, ysum;
-	double centroid_x;
-	double centroid_y;
-
-	bool cutted;
-	
-	long int id;
-
-	//bool edge;
-
-	// I use long to allow blob of dimension>255, but in MSVC int is = long!
-	unsigned long int rgSum;
-	unsigned long int grSum;
-	unsigned long int bySum;
-	
-	unsigned long int rSum;
-	unsigned long int gSum;
-	unsigned long int bSum;
-	
-	YarpPixelMono meanRG;
-	YarpPixelMono meanGR;
-	YarpPixelMono meanBY;
-
-	YarpPixelBGR meanColors;
-	
-	unsigned char cRG;
-	unsigned char cGR;
-	unsigned char cBY;
-
-	int salienceBU;
-	int salienceTD;
-	YarpPixelMono salienceTotal;
-
-	double elev;
-	double az;
-
-	double cmp;
-	double ect;
-
-	int indexCutted;
-};
-
-
 class YARPWatershed {
-	YARPBox *m_boxes;
-	
-	bool *_checkCutted;
-	YarpPixelInt *_indexCutted;
-
 	int neighSize;
 	int *neigh;
 	int *neighL;
@@ -115,13 +36,7 @@ class YARPWatershed {
 	YARPImageOf<YarpPixelMono> tmp;
 	IplImage *tmpMsk;
 
-	YARPIntegralImage integralRG;
-	YARPIntegralImage integralGR;
-	YARPIntegralImage integralBY;
-
 	YARPColorVQ colorVQ;
-
-	YARPBabybotHeadKin _gaze;
 
     void createNeighborhood(const int widthStep, const bool neigh8);
 	//void initBorderLUT(const int width, const int height);
@@ -131,7 +46,6 @@ class YARPWatershed {
 	void letsRain(YARPImageOf<YarpPixelInt>& result);
 	void findLowerNeigh(const YARPImageOf<YarpPixelMono>& src);
 	void createTmpImage(const YARPImageOf<YarpPixelMono>& src);
-	inline int TotalArea(YARPBox& box) { return (box.xmax - box.xmin + 1) * (box.ymax - box.ymin + 1); }
 
 public:
 	//YARPWatershed::YARPWatershed();
@@ -147,52 +61,7 @@ public:
 	int applyOnOld(const YARPImageOf<YarpPixelMono> &src, YARPImageOf<YarpPixelInt> &result);
 
 	void tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPImageOf<YarpPixelMono>& dest);
-
-	void blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<YarpPixelMono> &rg, YARPImageOf<YarpPixelMono> &gr, YARPImageOf<YarpPixelMono> &by, YARPImageOf<YarpPixelMono> &r1, YARPImageOf<YarpPixelMono> &g1, YARPImageOf<YarpPixelMono> &b1, int last_tag);
-	inline void removeFoveaBlob(YARPImageOf<YarpPixelInt>& tagged) {m_boxes[tagged(0, 0)].valid=false;}
-	void removeBlobList(bool *blobList, int max_tag);
-	void SortAndComputeSalience(int num_tag, int last_tag);
-	void ComputeSalience(int num_blob, int last_tag);
-	void ComputeSalienceAll(int num_blob, int last_tag);
-	void checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num);
-	void ComputeMeanColors(int last_tag);
-	void RemoveNonValid(int last_tag, const int max_size, const int min_size);
-	void DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
-	void DrawMeanOpponentColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
-	void DrawVQColor(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
-	int DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
-	int DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
-	//int DrawGrayLP(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, int numBlob);
-	void DrawFoveaBlob(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, const YarpPixelMono gray=255);
-	void drawBlobList(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag, const YarpPixelMono gray=255);
-	void SeedColor(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, int x, int y, int col);
-	
-	void findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, int y, bool *blobList, int max_tag);
-	void fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag);
-	void fuseFoveaBlob2(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag);
-	void fuseFoveaBlob3(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, YarpPixelBGR var, int max_tag);
-	YarpPixelBGR varBlob(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<YarpPixelMono> &rg, YARPImageOf<YarpPixelMono> &gr, YARPImageOf<YarpPixelMono> &by, int tag);
-	void statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag, YARPBox &blob);
-	void centerOfMassAndMass(YARPImageOf<YarpPixelInt> &in, YarpPixelInt tag, int *x, int *y, double *mass);
-	inline void getBlob(YARPImageOf<YarpPixelInt>& tagged, int x, int y, YARPBox &blob)
-		{blob=m_boxes[tagged(x, y)];}
-
-	void maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox* boxes, int num);
-	void maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox &box);
-
-	void doIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num);
-	void drawIOR(YARPImageOf<YarpPixelMono>& out, YARPBox* boxes, int num);
-	void foveaBlob(YARPImageOf<YarpPixelInt>& tagged, YARPBox &box);
-
-	void setPosition(const YVector &p) { _gaze.update(p); }
-	inline bool isWithinRange(int x, int y, double &elev, double &az)
-	{
-		_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, elev, az , x, y);
-		if (elev<2.*PI*(-65.)/360. || elev>2.*PI*(-20.)/360. || az<2.*PI*(-40.)/360. || az>2.*PI*50./360.)
-			return false;
-		else
-			return true;
-	}
+	void findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, int y, char *blobList, int max_tag);
 };
 
 #endif

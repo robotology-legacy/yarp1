@@ -116,6 +116,7 @@ public:
 	virtual void Body (void);
 	bool searching;
 	bool exploring;
+	bool learnObject;
 };
 
 
@@ -251,6 +252,7 @@ void mainthread::Body (void)
 	bool isStarted = true;
 	searching = false;
 	exploring = true;
+	learnObject = false;
 
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n"); // to stop the execution on this instruction
@@ -332,7 +334,7 @@ void mainthread::Body (void)
 		
 		// HANDLE MESSAGES
 		YBVocab message;
-		do {
+		//do {
 			if (inBottle.Read(0)) {
 				//ACE_OS::printf("Port received:");
 				YARPBottle &bottle = inBottle.Content();
@@ -391,15 +393,15 @@ void mainthread::Body (void)
 					}
 					else if (message == YBVVADump) {
 						ACE_OS::printf("Blob in the center:\n");
-						ACE_OS::printf("meanRG: %d\n",(int)att_mod.max_boxes[0].meanRG);
-						ACE_OS::printf("meanGR: %d\n",(int)att_mod.max_boxes[0].meanGR);
-						ACE_OS::printf("meanBY: %d\n",(int)att_mod.max_boxes[0].meanBY);
+						ACE_OS::printf("meanRG: %d\n",(int)att_mod.fovBox.meanRG);
+						ACE_OS::printf("meanGR: %d\n",(int)att_mod.fovBox.meanGR);
+						ACE_OS::printf("meanBY: %d\n",(int)att_mod.fovBox.meanBY);
 					}
 					/*else
 						ACE_OS::printf("nothing done\n");*/
 				}
 			} 
-		} while (targetFound && (message!=YBVReachingAck && message!=YBVReachingAbort) && !noOutput);
+		//} while (targetFound && (message!=YBVReachingAck && message!=YBVReachingAbort) && !noOutput);
 
 		////////////////////
 		if (message==YBVReachingAbort)
@@ -487,10 +489,6 @@ void mainthread::Body (void)
 								ACE_OS::printf("Valid difference detected, but freezed!\n");
 							/*tmpBottle.writeInt(-1);
 							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
 							tmpBottle.writeInt(-1);*/
 							diffFoundValid = true;
 						} else
@@ -542,13 +540,10 @@ endDiffCheck:
 						if (found) {
 							if (!noOutput) {
 								ACE_OS::printf("Target found, sending the center of the blob\n");
-								tmpBottle.writeInt(att_mod.fovBox.centroid_x);
+								/*tmpBottle.writeInt(att_mod.fovBox.centroid_x);
 								tmpBottle.writeInt(att_mod.fovBox.centroid_y);
-								/*tmpBottle.writeInt(-1);
-								tmpBottle.writeInt(-1);
-								tmpBottle.writeInt(-1);*/
 								outBottle.Content() = tmpBottle;
-								outBottle.Write();
+								outBottle.Write();*/
 							} else
 								ACE_OS::printf("Target found but freezed!\n");
 							targetFound = true;
@@ -569,9 +564,7 @@ endDiffCheck:
 
 								tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
 								tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
-								tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
-								/*tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
-								tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);*/
+								tmpBottle.writeInt(0);
 								outBottle.Content() = tmpBottle;
 								outBottle.Write();
 							} else
@@ -581,9 +574,14 @@ endDiffCheck:
 					} else if (moved==-1) {
 						// Point already sended or not sended if target found
 						if (found) {
+							if (learnObject) {
+								att_mod.learnObject();
+								att_mod.dumpLearnObject();
+								learnObject=false;
+							} else {
+								mustMove=att_mod.checkObject();
+							}
 							/*tmpBottle.writeInt(-3);
-							tmpBottle.writeInt(-3);
-							tmpBottle.writeInt(-3);
 							tmpBottle.writeInt(-3);
 							tmpBottle.writeInt(-3);*/
 						} else if (mustMove) {
@@ -603,9 +601,7 @@ endDiffCheck:
 								ACE_OS::printf("Sending point: blob# %ld @ (%d,%d)\n", att_mod.max_boxes[0].id, (int)att_mod.max_boxes[0].centroid_x, (int)att_mod.max_boxes[0].centroid_y);
 								tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
 								tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
-								tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
-								/*tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
-								tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);*/
+								tmpBottle.writeInt(0);
 								outBottle.Content() = tmpBottle;
 								outBottle.Write();
 							} else 
@@ -614,15 +610,11 @@ endDiffCheck:
 						} else {
 							/*tmpBottle.writeInt(-1);
 							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
 							tmpBottle.writeInt(-1);*/
 						}
 					} else {
 						//ACE_OS::printf("Waiting to stabilize\n");
 						/*tmpBottle.writeInt(-1);
-						tmpBottle.writeInt(-1);
-						tmpBottle.writeInt(-1);
 						tmpBottle.writeInt(-1);
 						tmpBottle.writeInt(-1);*/
 					}
@@ -667,11 +659,6 @@ endDiffCheck:
 				moved = frameToStabilize;
 				targetFound = false;
 				/*tmpBottle.writeInt(-4);
-				tmpBottle.writeInt(-4);
-				tmpBottle.writeInt(-4);
-				tmpBottle.writeInt(-4);
-				tmpBottle.writeInt(-4);
-				tmpBottle.writeInt(-4);
 				tmpBottle.writeInt(-4);
 				tmpBottle.writeInt(-4);*/
 			}
@@ -770,6 +757,9 @@ int main (int argc, char *argv[])
 		} else if (c=='m') {
 			ACE_OS::printf("Saving Mean Colors image\n");
 			att_mod.saveMeanCol();
+		} else if (c=='l') {
+			ACE_OS::printf("Learn Object\n");
+			_thread.learnObject=true;
 		} else
 			cout << "Type q+return to quit" << endl;
 	} while (c != 'q');

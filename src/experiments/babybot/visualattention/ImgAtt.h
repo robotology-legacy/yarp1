@@ -85,6 +85,7 @@
 //#include "YARPColorVQ.h"
 //#include "YARPBlobFinder.h"
 #include "YARPWatershed.h"
+#include "YARPSalience.h"
 
 
 
@@ -210,10 +211,11 @@ protected:
 	//YARPBlobFinder blobFinder;
 
 	YARPWatershed rain;
+	YARPSalience salience;
 
 	int max_tag;
 
-	bool* blobList;
+	char* blobList;
 
 	YarpPixelMono searchRG;
 	YarpPixelMono searchGR;
@@ -230,6 +232,11 @@ protected:
 	YARPImageMoments momentsCart;
 
 	int num_IORBoxes;
+
+	int numNeighBoxes;
+	YARPBox *neighBoxes;
+	double *neighProb;
+	long unsigned int epoch;
 
 	char savename[512];
 	
@@ -290,9 +297,9 @@ public:
 		salienceBU=sBU;
 		salienceTD=sTD;
 	}
-	inline void setPosition(const YVector &p) { rain.setPosition(p); }
-	inline bool isWithinRange(int x, int y) { double elev, az; return rain.isWithinRange(x, y, elev, az); }
-	inline bool isWithinRange(int x, int y, double &elev, double &az) { return rain.isWithinRange(x, y, elev, az); }
+	inline void setPosition(const YVector &p) { salience.setPosition(p); }
+	inline bool isWithinRange(int x, int y) { double elev, az; return salience.isWithinRange(x, y, elev, az); }
+	inline bool isWithinRange(int x, int y, double &elev, double &az) { return salience.isWithinRange(x, y, elev, az); }
 	void updateIORTable();
 	void resetIORTable();
 	void drawIORTable();
@@ -311,6 +318,10 @@ public:
 		((IplImage *)meanCol)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=IPL_BORDER_REPLICATE;
 		((IplImage *)meanCol)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;
 	}
+	
+	bool learnObject();
+	bool checkObject();
+	void dumpLearnObject();
 	
 	YARPBox* IORBoxes;
 	YARPBox* max_boxes;
