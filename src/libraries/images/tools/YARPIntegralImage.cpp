@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.cpp,v 1.8 2004-01-26 14:00:18 babybot Exp $
+/// $Id: YARPIntegralImage.cpp,v 1.9 2004-01-26 14:56:58 orfra Exp $
 ///
 ///
 
@@ -123,7 +123,7 @@ int YARPIntegralImage::computeCartesian(YARPImageOf<YarpPixelMono> &input)
 	for(r = 1; r < _nRows; r++)
 	{
 		// first col
-		_rowSum(0,r) = (float) (input(0,r);
+		_rowSum(0,r) = (float) input(0,r);
 		_integralImg(0, r) = _integralImg(0, r-1) + _rowSum(0,r);
 		
 		for(c = 1; c < _nCols; c++)
