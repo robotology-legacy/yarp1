@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPVocab_babybot.h,v 1.5 2004-09-07 20:06:44 babybot Exp $
+/// $Id: YARPVocab_babybot.h,v 1.6 2004-09-07 20:20:25 orfra Exp $
 ///
 ///
 
@@ -164,12 +164,15 @@ const char *const YBVKFExplorationQuit = "KFExplorationQuit";
 // Visual attention messages
 const char *const YBVVAStart = "VAStart";
 const char *const YBVVAStop = "VAStop";
+const char *const YBVVAFreeze = "VAFreeze";
+const char *const YBVVAUnFreeze = "VAUnFreeze";
+const char *const YBVVAMove = "VAMove";
 const char *const YBVVAQuit = "VAQuit";
 const char *const YBVVADump = "VADump";
-
 const char *const YBVVASet = "VASet";
 const char *const YBVVAUpdateIORTable = "VAUpdateIORTable";
 const char *const YBVVAResetIORTable = "VAResetIORTable";
+const char *const YBVVisMem = "VAVisMem";
 
 // saccade control messages
 const char *const YBVSaccadeSetTarget = "SaccadeSetTarget";
