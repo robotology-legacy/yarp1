@@ -705,7 +705,7 @@ void CTestControlDlg::OnUpdateInterfaceStop(CCmdUI* pCmdUI)
 void CTestControlDlg::OnFileOpenconsole() 
 {
 	if (init_console())
-		xprintf("Debug windows started...\n");
+		xprintf("Debug window started...\n");
 }
 
 void CTestControlDlg::OnUpdateFileOpenconsole(CCmdUI* pCmdUI) 
