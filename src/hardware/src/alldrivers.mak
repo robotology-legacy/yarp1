@@ -43,7 +43,6 @@ CLEAN :
 	-@erase "$(INTDIR)\YARPNIDAQDeviceDriver.obj"
 	-@erase "$(INTDIR)\YARPPicoloDeviceDriver.obj"
 	-@erase "$(INTDIR)\YARPSoundDeviceDriver.obj"
-	-@erase "$(INTDIR)\YARPSoundResources.obj"
 	-@erase "$(INTDIR)\YARPValueCanDeviceDriver.obj"
 	-@erase "..\lib\winnt\yarpdrivers.lib"
 
@@ -99,7 +98,6 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPNIDAQDeviceDriver.obj" \
 	"$(INTDIR)\YARPPicoloDeviceDriver.obj" \
 	"$(INTDIR)\YARPSoundDeviceDriver.obj" \
-	"$(INTDIR)\YARPSoundResources.obj" \
 	"$(INTDIR)\YARPValueCanDeviceDriver.obj"
 
 "..\lib\winnt\yarpdrivers.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
@@ -146,7 +144,6 @@ CLEAN :
 	-@erase "$(INTDIR)\YARPNIDAQDeviceDriver.obj"
 	-@erase "$(INTDIR)\YARPPicoloDeviceDriver.obj"
 	-@erase "$(INTDIR)\YARPSoundDeviceDriver.obj"
-	-@erase "$(INTDIR)\YARPSoundResources.obj"
 	-@erase "$(INTDIR)\YARPValueCanDeviceDriver.obj"
 	-@erase "..\lib\winnt\yarpdriversdb.lib"
 
@@ -202,7 +199,6 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPNIDAQDeviceDriver.obj" \
 	"$(INTDIR)\YARPPicoloDeviceDriver.obj" \
 	"$(INTDIR)\YARPSoundDeviceDriver.obj" \
-	"$(INTDIR)\YARPSoundResources.obj" \
 	"$(INTDIR)\YARPValueCanDeviceDriver.obj"
 
 "..\lib\winnt\yarpdriversdb.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
@@ -288,12 +284,6 @@ SOURCE=.\picolo\winnt\YARPPicoloDeviceDriver.cpp
 SOURCE=.\sound\winnt\YARPSoundDeviceDriver.cpp
 
 "$(INTDIR)\YARPSoundDeviceDriver.obj" : $(SOURCE) "$(INTDIR)"
-	$(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-SOURCE=.\sound\winnt\YARPSoundResources.cpp
-
-"$(INTDIR)\YARPSoundResources.obj" : $(SOURCE) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 

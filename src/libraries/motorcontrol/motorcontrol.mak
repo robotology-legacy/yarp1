@@ -45,8 +45,8 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 CPP=cl.exe
 CPP_PROJ=/nologo /MD /W3 /GX /O2 /I ".\common" /I ".\babybot" /I "..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
 
@@ -131,8 +131,8 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 CPP=cl.exe
 CPP_PROJ=/nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\common" /I ".\babybot" /I "..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
 
