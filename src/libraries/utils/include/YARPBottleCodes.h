@@ -1,17 +1,23 @@
 #ifndef __YARPBOTTLECODESINC__
 #define __YARPBOTTLECODESINC__
 
-#include <YARPString.h>
-
-// bottle types
-enum {
+///
+///
+/// bottle types
+enum __YBTypeCodes 
+{
 	YBTypeChar,
 	YBTypeInt,
 	YBTypeDouble,
 	YBTypeYVector,
 	YBTypeVocab,
-	YBTypeString
+	YBTypeString,
 };
+
+
+#ifdef __cplusplus
+
+#include <YARPString.h>
 
 const char * const YBLabelNULL	= "Null";
 const char * const YBVIsAlive	= "IsAlive";
@@ -36,5 +42,7 @@ public:
 	YBVocab& append(const YBVocab& s) { ACE_String_Base<char>::operator+=(s); return *this; }
 	bool empty (void) { return (length() == 0) ? true : false; }
 };
+
+#endif
 
 #endif

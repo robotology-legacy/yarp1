@@ -30,7 +30,7 @@ void YARPBottle::display()
 	{
 	  char *str;
 	  int ch = readRawInt();
-	  _moveOn(sizeof(int));
+	  _moveOn(sizeof(enum __YBTypeCodes));
 	  if (!first)
 	    {
 	      printf(" ");

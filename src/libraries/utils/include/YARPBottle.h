@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.6 2003-11-12 17:14:28 babybot Exp $
+/// $Id: YARPBottle.h,v 1.7 2003-11-20 01:42:39 gmetta Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -159,6 +159,8 @@ public:
 	void setID(const YBVocab &l) { id.set(l.c_str()); }
 	const BottleId &getID() const { return id; }
 	int getSize() const { return text.size(); }
+	int getTopInBytes() const { return top; }
+	const char *getDataPtr() const { return &text[0]; } 
   
 	// consecutive writes add data in the buffer
 	void writeInt(NetInt32 result)

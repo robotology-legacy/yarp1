@@ -107,6 +107,8 @@ SOURCE=.\global.cpp
 
 !IF  "$(CFG)" == "port - Win32 Release"
 
+# SUBTRACT CPP /D "__STDC__"
+
 !ELSEIF  "$(CFG)" == "port - Win32 Debug"
 
 # SUBTRACT CPP /D "__STDC__"

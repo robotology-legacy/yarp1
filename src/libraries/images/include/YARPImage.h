@@ -61,12 +61,14 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.7 2003-06-22 15:47:42 gmetta Exp $
+/// $Id: YARPImage.h,v 1.8 2003-11-20 01:42:39 gmetta Exp $
 ///
 ///
 
 #ifndef YARPImage_INC
 #define YARPImage_INC
+
+#ifdef __cplusplus
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
@@ -88,10 +90,14 @@
 #include <sys/ipl.h>
 #endif
 
+#endif /// __cplusplus
+
+
 // the image types partially reflect the IPL image types.
 // IPL allows 16/32bpp images. Should we constrain our lib to 8bpp.
 // There must be a pixel type for every ImageType entry.
-enum
+// this enumeration is also required in C code.
+enum __PixelTypesEnum
 {	 
 	YARP_PIXEL_INVALID = 0,
 	YARP_PIXEL_MONO,
@@ -107,6 +113,11 @@ enum
 	// negative ids reserved for pixels of undeclared type but known size
 	// in bytes
 };
+
+///
+///
+///
+#ifdef __cplusplus
 
 #include "begin_pack_for_net.h"
 
@@ -359,6 +370,8 @@ __YARPIMAGE_ASSOCIATE_TAG(YARP_PIXEL_INT,YarpPixelInt)
 #undef __YARPIMAGE_ASSOCIATE_TAG
 
 void SatisfySize(YARPGenericImage& src, YARPGenericImage& dest);
+
+#endif	/// of __cplusplus
 
 #endif
 

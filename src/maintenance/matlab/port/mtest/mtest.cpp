@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: mtest.cpp,v 1.2 2003-11-18 01:16:36 gmetta Exp $
+/// $Id: mtest.cpp,v 1.3 2003-11-20 01:42:40 gmetta Exp $
 ///
 ///
 
@@ -75,7 +75,10 @@
 #include <YARPThread.h>
 #include <YARPMath.h>
 #include <YARPVectorPortContent.h>
-
+#include <YARPImage.h>
+#include <YARPImagePortContent.h>
+#include <YARPBottle.h>
+#include <YARPBottleContent.h>
 #include <YARPTime.h>
 
 ///
@@ -83,20 +86,35 @@
 ///
 int main (int argc, char *argv[])
 {
-	YARPOutputPortOf<YVector> port;
-	YARPInputPortOf<YVector> iport;
+	YARPOutputPortOf<YARPBottle> port;
+	YARPInputPortOf<YARPGenericImage> iport;
 
-	port.Register ("/mtest/o:int", "local");
-	iport.Register ("/mtest/i:int", "local");
+	port.Register ("/mtest/o:bottle", "local");
+	iport.Register ("/mtest/i:img", "local");
 
-	YVector v1(2);
-	YVector v2(3);
+	YarpPixelBGR red(255, 0, 0);
+	YarpPixelBGR green(0, 255, 0);
 
+	YARPImageOf<YarpPixelBGR> img;
+	img.Resize (128, 128);
+	img.Zero();
+	img(32, 32) = red;
+	img(1, 62) = green;
+
+	YARPBottle bottle;
+	bottle.setID("PIPPO_ID");
+	
 	for (int i = 0;; i++)
 	{
 		printf ("about to write %d\n", i);
-		v1 = i;
-		port.Content() = v1;
+
+		bottle.rewind();
+		bottle.writeInt (i);
+		bottle.writeFloat (5.0);
+		bottle.writeText ("pippo");
+		bottle.writeVocab ("xxxx-xxxx");
+
+		port.Content() = bottle;
 		port.Write();
 		YARPTime::DelayInSeconds(4.0);
 

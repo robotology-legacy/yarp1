@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: global.cpp,v 1.3 2003-11-18 01:16:36 gmetta Exp $
+/// $Id: global.cpp,v 1.4 2003-11-20 01:42:40 gmetta Exp $
 ///
 ///
 
@@ -80,6 +80,10 @@
 #include <YARPThread.h>
 #include <YARPMath.h>
 #include <YARPVectorPortContent.h>
+#include <YARPBottle.h>
+#include <YARPBottleContent.h>
+#include <YARPImage.h>
+#include <YARPImagePortContent.h>
 
 #include "global.h"
 
@@ -122,6 +126,12 @@ public:
 
 	~_listHandler()
 	{
+	}
+
+	///
+	/// to be called before cleaning up the DLL.
+	void explicitDestroy (void)
+	{
 		if (_list != NULL)
 		{
 			for (int i = 0; i < MAX_PORTS; i++)
@@ -129,10 +139,11 @@ public:
 				_dispatchParams par;
 				memset (&par, 0, sizeof(_dispatchParams));
 				par._portnumber = i;
-				///destroy_port ((void *)&par);
+				destroy_port ((void *)&par);
 			}
 
 			delete[] _list;
+			_list = NULL;
 		}
 	}
 
@@ -142,7 +153,13 @@ public:
 
 /// the list variable. 
 static _listHandler __list;
- 
+
+/// C linkage.
+void cleanUpList(void)
+{
+	__list.explicitDestroy();
+}
+
 ///
 ///
 /// a list of pointers to functions.
@@ -348,6 +365,8 @@ int create_port (void *params)
 		PORT_CREATE (DOUBLE, double);
 		PORT_CREATE (FLOAT, float);
 		PORT_CREATE (YVECTOR, YVector);
+		PORT_CREATE (BOTTLE, YARPBottle);
+		PORT_CREATE (IMAGE, YARPGenericImage);
 
 		default:
 			return -1;
@@ -382,6 +401,8 @@ int register_port (void *params)
 		PORT_REGISTER (DOUBLE, double);
 		PORT_REGISTER (FLOAT, float);
 		PORT_REGISTER (YVECTOR, YVector);
+		PORT_REGISTER (BOTTLE, YARPBottle);
+		PORT_REGISTER (IMAGE, YARPGenericImage);
 
 		default:
 			return -1;
@@ -414,6 +435,8 @@ int unregister_port (void *params)
 		PORT_UNREGISTER(DOUBLE, double);
 		PORT_UNREGISTER(FLOAT, float);
 		PORT_UNREGISTER(YVECTOR, YVector);
+		PORT_UNREGISTER(BOTTLE, YARPBottle);
+		PORT_UNREGISTER(IMAGE, YARPGenericImage);
 
 		default:
 			return -1;
@@ -451,6 +474,8 @@ int destroy_port (void *params)
 		PORT_DESTROY (DOUBLE, double);
 		PORT_DESTROY (FLOAT, float);
 		PORT_DESTROY (YVECTOR, YVector);
+		PORT_DESTROY (BOTTLE, YARPBottle);
+		PORT_DESTROY (IMAGE, YARPGenericImage);
 
 		default:
 			return -1;
@@ -625,6 +650,58 @@ int read_port (void *params)
 		}
 		break;
 
+		case MX_YARP_BOTTLE:
+		{
+			YARPInputPortOf<YARPBottle> *port = (YARPInputPortOf<YARPBottle> *)myport._port;
+			if (port->Read((par._extra_params)?true:false))
+			{
+				YARPBottle& b = port->Content();
+				par._extra_content = (char *)b.getDataPtr();
+				par._portname = (char *)b.getID().c_str();
+				par._sizex = b.getTopInBytes();
+				return_value = 0;
+				par._type = myport._type;
+			}
+			else
+			{
+				par._extra_content = NULL;
+				par._portname = NULL;
+				return_value = -2;
+				par._type = MX_YARP_INVALID;
+				par._sizex = 0;
+			}
+			par._sizey = 1;
+		}
+		break;
+
+		case MX_YARP_IMAGE:
+		{
+			YARPInputPortOf<YARPGenericImage> *port = (YARPInputPortOf<YARPGenericImage> *)myport._port;
+			if (port->Read((par._extra_params)?true:false))
+			{
+				YARPGenericImage& b = port->Content();
+				par._sizey = b.GetHeight();
+				par._sizex = b.GetWidth();
+				par._extra_content = (char *)b.GetRawBuffer();
+				
+				par._extra_params = ((b.GetID() > 0)?(b.GetID()):(-b.GetID())) & 0x0000ffff;
+				par._extra_params |= ((b.GetPadding() << 16) & 0xffff0000);
+				return_value = 0;
+				par._type = myport._type;
+			}
+			else
+			{
+				/// nothing to read.
+				par._extra_content = NULL;
+				par._extra_params = 0;
+				return_value = -2;
+				par._type = MX_YARP_INVALID;
+				par._sizex = 0;
+				par._sizey = 0;
+			}
+		}
+		break;
+
 		default:
 			return -1;
 			break;
@@ -634,6 +711,43 @@ int read_port (void *params)
 }
 
 
+///
+///
+template <class T>
+int matlab_to_yarp (T* in, T* out, int w, int h, int padding)
+{
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			*out++ = *(in + h * j + i);
+		}
+		out = (T*)(((char *)out)+padding);
+	}
+
+	return 0;
+}
+
+template <class T>
+int matlab_to_yarp3 (T* in, T* out, int w, int h, int padding)
+{
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			*out++ = *(in + h * j + i);
+			*out++ = *(in + h * w + h * j + i);
+			*out++ = *(in + 2 * h * w + h * j + i);
+		}
+		out = (T*)(((char *)out)+padding);
+	}
+
+	return 0;
+}
+
+///
+///
+///
 int write_port (void *params)
 {
 	_dispatchParams& par = *(_dispatchParams *)params;
@@ -680,6 +794,135 @@ int write_port (void *params)
 					port->Write((par._extra_params)?true:false);
 					return_value = 0;
 				}
+			}
+		}
+		break;
+
+		case MX_YARP_BOTTLE:
+		{
+			YARPOutputPortOf<YARPBottle> *port = (YARPOutputPortOf<YARPBottle> *)myport._port;
+
+			/// par contains:
+			/// the ID of the bottle in _portname.
+			/// the number of elements in _sizex.
+			/// the array of the bottle in _extra_content.
+			/// + the usual params:
+			///		_extra_params (blocking flag).
+			///
+			YARPBottle tmp;
+			tmp.setID(par._portname);
+
+			/// forcing the const pointer (should be ok since representation is consistent).
+			/// memcpy ((void *)tmp.getDataPtr(), par._extra_content, par._sizex);
+
+			/// NEED A NEW METHOD TO WRITE THE BOTTLE HERE!
+
+			port->Content() = tmp;
+			port->Write((par._extra_params)?true:false);
+			return_value = 0;
+		}
+		break;
+
+		case MX_YARP_IMAGE:
+		{
+			YARPOutputPortOf<YARPGenericImage> *port = (YARPOutputPortOf<YARPGenericImage> *)myport._port;
+
+			switch ((par._extra_params & 0x0000ff00) >> 8)
+			{
+			case YARP_PIXEL_MONO:
+				{
+					port->Content().SetID (YARP_PIXEL_MONO);
+					port->Content().Resize (par._sizex, par._sizey);
+					
+					int padding = port->Content().GetPadding();
+					matlab_to_yarp<unsigned char> ((unsigned char *)par._extra_content, (unsigned char *)port->Content().GetRawBuffer(), par._sizex, par._sizey, padding);
+
+					port->Write((par._extra_params & 0x000000ff)?true:false);
+					return_value = 0;
+				}
+				break;
+
+			case YARP_PIXEL_MONO_SIGNED:
+				{
+					port->Content().SetID (YARP_PIXEL_MONO_SIGNED);
+					port->Content().Resize (par._sizex, par._sizey);
+					
+					int padding = port->Content().GetPadding();
+					matlab_to_yarp<char> ((char *)par._extra_content, (char *)port->Content().GetRawBuffer(), par._sizex, par._sizey, padding);
+
+					port->Write((par._extra_params & 0x000000ff)?true:false);
+					return_value = 0;
+				}
+				break;
+
+			case YARP_PIXEL_INT:
+				{
+					port->Content().SetID (YARP_PIXEL_INT);
+					port->Content().Resize (par._sizex, par._sizey);
+					
+					int padding = port->Content().GetPadding();
+					matlab_to_yarp<int> ((int *)par._extra_content, (int *)port->Content().GetRawBuffer(), par._sizex, par._sizey, padding);
+
+					port->Write((par._extra_params & 0x000000ff)?true:false);
+					return_value = 0;
+				}
+				break;
+
+			case YARP_PIXEL_MONO_FLOAT:
+				{
+					port->Content().SetID (YARP_PIXEL_MONO_FLOAT);
+					port->Content().Resize (par._sizex, par._sizey);
+					
+					int padding = port->Content().GetPadding();
+					matlab_to_yarp<float> ((float *)par._extra_content, (float *)port->Content().GetRawBuffer(), par._sizex, par._sizey, padding);
+
+					port->Write((par._extra_params & 0x000000ff)?true:false);
+					return_value = 0;
+				}
+				break;
+
+			case YARP_PIXEL_RGB:
+				{
+					port->Content().SetID (YARP_PIXEL_RGB);
+					port->Content().Resize (par._sizex, par._sizey);
+					
+					int padding = port->Content().GetPadding();
+					matlab_to_yarp3<unsigned char> ((unsigned char *)par._extra_content, (unsigned char *)port->Content().GetRawBuffer(), par._sizex, par._sizey, padding);
+
+					port->Write((par._extra_params & 0x000000ff)?true:false);
+					return_value = 0;
+				}
+				break;
+
+			case YARP_PIXEL_RGB_SIGNED:
+				{
+					port->Content().SetID (YARP_PIXEL_RGB_SIGNED);
+					port->Content().Resize (par._sizex, par._sizey);
+					
+					int padding = port->Content().GetPadding();
+					matlab_to_yarp3<char> ((char *)par._extra_content, (char *)port->Content().GetRawBuffer(), par._sizex, par._sizey, padding);
+
+					port->Write((par._extra_params & 0x000000ff)?true:false);
+					return_value = 0;
+				}
+				break;
+
+			case YARP_PIXEL_RGB_FLOAT:
+				{
+					port->Content().SetID (YARP_PIXEL_RGB_SIGNED);
+					port->Content().Resize (par._sizex, par._sizey);
+					
+					int padding = port->Content().GetPadding();
+					matlab_to_yarp3<float> ((float *)par._extra_content, (float *)port->Content().GetRawBuffer(), par._sizex, par._sizey, padding);
+
+					port->Write((par._extra_params & 0x000000ff)?true:false);
+					return_value = 0;
+				}
+				break;
+
+			case YARP_PIXEL_INVALID:
+				return_value = -1;
+				break;
 			}
 		}
 		break;

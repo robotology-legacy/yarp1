@@ -61,12 +61,17 @@
 ///
 
 ///
-/// $Id: global.h,v 1.2 2003-11-18 00:30:18 gmetta Exp $
+/// $Id: global.h,v 1.3 2003-11-20 01:42:40 gmetta Exp $
 ///
 ///
 
 #ifndef __globalh__
 #define __globalh__
+
+///
+/// only to include enumerations (for C code).
+#include <YARPBottleCodes.h>
+#include <YARPImage.h>
 
 ///
 /// possible port types within matlab.
@@ -125,6 +130,7 @@ extern "C"
 #endif
 
 	int dispatcher (const char *operation, void *params);
+	void cleanUpList(void);
 
 #ifdef __cplusplus
 }
