@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.2 2003-04-10 15:01:25 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.3 2003-04-18 08:48:19 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -18,9 +18,27 @@
 #	define __WIN__
 #endif
 
+// using Microsoft Visual C++
+#ifndef __WIN_MSVC__
+#	define __WIN_MSVC__
+#endif
+
 ///
+/// Configuration flags
 ///
 #define SINGLE_MUTEX_FOR_REFCOUNTED 1
 #define UPDATED_PORT 1
+#define MAX_PACKET (128*128*3+100)
+
+/// MSVC has pragma once directive.
+#define YARP_HAS_PRAGMA_ONCE 1
+
+/// disables warning for init_seg(lib) very legitimate use of directive.
+#pragma warning (disable:4073)
+
+///
+/// ACE inclusion
+///
+#include <ace/config.h>
 
 #endif
