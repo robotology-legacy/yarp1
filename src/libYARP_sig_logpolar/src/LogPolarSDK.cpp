@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.2 2004-07-27 09:45:04 babybot Exp $
+/// $Id: LogPolarSDK.cpp,v 1.3 2004-08-04 15:23:25 orfra Exp $
 ///
 ///
 
@@ -285,6 +285,62 @@ int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, d
 }
 
 
+/************************************************************************
+* Get_XY_Center_Uniform													*
+************************************************************************/
+int Get_XY_Center_Uniform(double *xx, double *yy, int rho, int theta, Image_Data *par, double *Ang_Shift)
+{
+	double scalefactor;
+	int Temp_Size_Theta;
+	double A,B;
+	double mod;
+	double rd, td;
+
+	if (rho != 0)
+	{
+		rd = rho+0.5;
+		td = theta+0.5;
+	}
+	else
+	{
+		rd = rho;
+		td = theta;
+	}
+
+	if (!par->Valid_Log_Index){
+		par->Log_Index = Compute_Index(par->Resolution,par->Size_Fovea,par->Size_Rho);
+		par->Valid_Log_Index = true;
+	}
+
+	scalefactor = par->Zoom_Level;
+	B = par->Log_Index/(par->Log_Index-1);
+	A = par->Size_Fovea - B - 0.5;
+
+	if (rho<par->Size_Fovea)
+	{
+		Temp_Size_Theta = par->Size_Theta;
+		mod = rd-0.5;
+		if (rho==0)
+		{
+			Temp_Size_Theta = 1;
+			mod = 0;
+		}
+		/*else if (par->Fovea_Display_Mode < 2)
+			Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * rho;*/
+	}
+	else
+	{
+		Temp_Size_Theta = par->Size_Theta;
+		mod = A+B*pow(par->Log_Index,rd-par->Size_Fovea);
+	}
+		/*if (Temp_Size_Theta>par->Size_Theta)
+			Temp_Size_Theta = par->Size_Theta;*/
+
+	*xx = mod * cos(Ang_Shift[rho]+td*PI/(Temp_Size_Theta/2.0)) * scalefactor;
+	*yy = mod * sin(Ang_Shift[rho]+td*PI/(Temp_Size_Theta/2.0)) * scalefactor;
+
+	return 0;
+}
 
 
 /************************************************************************

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.2 2004-07-20 12:26:56 eshuy Exp $
+/// $Id: YARPLogpolar.cpp,v 1.3 2004-08-04 15:23:25 orfra Exp $
 ///
 ///
 
@@ -324,6 +324,23 @@ int YARPLogpolar::Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy)
 	double yy = 0;
 
 	Get_XY_Center(&xx, &yy, irho, itheta, &_img, _angShiftMap);
+
+	using namespace _logpolarParams;
+	ox = int(xx + .5) + _xsize/2;
+	oy = _ysize/2 - int(yy + .5);
+
+	return YARP_OK;
+}
+
+///
+///
+/// ox, oy in [0,max]x[0,max]
+int YARPLogpolar::Logpolar2CartesianUniform (int irho, int itheta, int& ox, int& oy)
+{
+	double xx = 0;
+	double yy = 0;
+
+	Get_XY_Center_Uniform(&xx, &yy, irho, itheta, &_img, _angShiftMap);
 
 	using namespace _logpolarParams;
 	ox = int(xx + .5) + _xsize/2;
