@@ -86,7 +86,8 @@ YARPBPNNet::YARPBPNNet(int nlayer,const int *nunit)
 	nUnit = (int *) calloc(nLayer+1,sizeof(int));
 	CHECK_PTR(nUnit);
 
-	for(int i=0;i<=nLayer;i++)
+	int i;
+	for(i=0;i<=nLayer;i++)
 		nUnit[i] = nunit[i];
 
 	n_input = nUnit[0];
@@ -890,7 +891,8 @@ void YARPBPNNet::save(const char* filename)
 	output << "[NET]\n";
 	output << "NLayers= " << nLayer << '\n';
 	output << "NUnits= ";
-	for (int i=0; i LE nLayer; i++)
+	int i;
+	for (i=0; i LE nLayer; i++)
     {
 		output << nUnit[i] << " ";
 	}
