@@ -486,8 +486,8 @@ bt848_set_size(struct bttv *btv)
     vdelay=btv->win.cropy+0x16;
     hdelay=((hactive*135)/754+btv->win.cropx)&0x3fe;
   } else {				   /*PAL/SECAM*/
-    btv->win.cropwidth=768;
-    btv->win.cropheight=576;
+		btv->win.cropwidth=768;
+		btv->win.cropheight=576;
 	  //btv->win.cropwidth=W;
       //btv->win.cropheight=H;
     if (btv->win.norm==0) { 
@@ -500,11 +500,12 @@ bt848_set_size(struct bttv *btv)
       btaor(BT848_IFORM_PAL_BDGHI, ~BT848_IFORM_NORM, BT848_IFORM);
     }
     btaor(BT848_IFORM_XT1, ~0x18, BT848_IFORM);
-    xsf = (btv->win.width*36875UL)/30000UL;
-    hscale = ((1135UL*4096UL)/xsf-4096);
+    xsf = ((btv->win.width)*36875UL)/30000UL;
+    //hscale = ((1135UL*4096UL)/xsf-4096);
+	hscale = ((922UL*4096UL)/xsf-4096);
 	
     vdelay=btv->win.cropy+0x20;
-    hdelay=((hactive*186)/922)&0x3fe;
+    hdelay=(((hactive*186)/922)+13)&0x3fe;
   }
     
 
