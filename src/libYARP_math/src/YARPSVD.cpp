@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPSVD.cpp,v 1.1 2004-07-27 10:52:35 babybot Exp $
+/// $Id: YARPSVD.cpp,v 1.2 2004-08-02 12:50:23 eshuy Exp $
 ///
 ///
 
@@ -61,7 +61,7 @@ static float at,bt,ct;
 #define PYTHAG(a,b) ((at=fabs(a)) > (bt=fabs(b)) ? (ct=bt/at,at*sqrt(1.0+ct*ct)) : (bt ? (ct=at/bt,bt*sqrt(1.0+ct*ct)): 0.0))
 
 static float maxarg1,maxarg2;
-#define MAX(a,b) (maxarg1=(a),maxarg2=(b),(maxarg1) > (maxarg2) ?	(maxarg1) : (maxarg2))
+#define MYMAX(a,b) (maxarg1=(a),maxarg2=(b),(maxarg1) > (maxarg2) ?	(maxarg1) : (maxarg2))
 
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 
@@ -150,7 +150,7 @@ void SVD (YMatrix& a, YVector& w, YMatrix& v)
 				for (k = l; k <= n; k++) a (i, k) *= scale;
 		    }
 		}
-		anorm = MAX (anorm, (fabs (w (i)) + fabs (rv1 (i))));
+		anorm = MYMAX (anorm, (fabs (w (i)) + fabs (rv1 (i))));
 	}
         
 	for (i = n; i >= 1; i--) 
@@ -318,7 +318,7 @@ void SVD (YMatrix& a, YVector& w, YMatrix& v)
 }
 
 #undef SIGN
-#undef MAX
+#undef MYMAX
 #undef PYTHAG
 
 void SvdSolve(const YMatrix& u, 
