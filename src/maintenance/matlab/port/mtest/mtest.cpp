@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: mtest.cpp,v 1.3 2003-11-20 01:42:40 gmetta Exp $
+/// $Id: mtest.cpp,v 1.4 2003-11-20 15:35:54 gmetta Exp $
 ///
 ///
 
@@ -103,7 +103,10 @@ int main (int argc, char *argv[])
 
 	YARPBottle bottle;
 	bottle.setID("PIPPO_ID");
-	
+	YVector a(2);
+	a(1) = 10;
+	a(2) = 20;
+
 	for (int i = 0;; i++)
 	{
 		printf ("about to write %d\n", i);
@@ -113,6 +116,7 @@ int main (int argc, char *argv[])
 		bottle.writeFloat (5.0);
 		bottle.writeText ("pippo");
 		bottle.writeVocab ("xxxx-xxxx");
+		bottle.writeYVector (a);
 
 		port.Content() = bottle;
 		port.Write();

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.7 2003-11-20 01:42:39 gmetta Exp $
+/// $Id: YARPBottle.h,v 1.8 2003-11-20 15:35:54 gmetta Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -161,6 +161,7 @@ public:
 	int getSize() const { return text.size(); }
 	int getTopInBytes() const { return top; }
 	const char *getDataPtr() const { return &text[0]; } 
+	void setDataPtr(char *buf, int l) { writeRawBlock(buf, l); }
   
 	// consecutive writes add data in the buffer
 	void writeInt(NetInt32 result)

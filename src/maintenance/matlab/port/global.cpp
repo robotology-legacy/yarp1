@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: global.cpp,v 1.4 2003-11-20 01:42:40 gmetta Exp $
+/// $Id: global.cpp,v 1.5 2003-11-20 15:35:54 gmetta Exp $
 ///
 ///
 
@@ -810,12 +810,9 @@ int write_port (void *params)
 			///		_extra_params (blocking flag).
 			///
 			YARPBottle tmp;
+			tmp.reset();
 			tmp.setID(par._portname);
-
-			/// forcing the const pointer (should be ok since representation is consistent).
-			/// memcpy ((void *)tmp.getDataPtr(), par._extra_content, par._sizex);
-
-			/// NEED A NEW METHOD TO WRITE THE BOTTLE HERE!
+			tmp.setDataPtr(par._extra_content, par._sizex);
 
 			port->Content() = tmp;
 			port->Write((par._extra_params)?true:false);
