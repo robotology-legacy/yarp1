@@ -55,7 +55,7 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #Add our name(s) here#
+///                            #bremen#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///

@@ -1491,9 +1491,14 @@ void YARPWatershed::findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, i
 }
 
 
+// If I use the function I shouldn't strecth the color opponency maps
 void YARPWatershed::fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag)
 {
 	memset(blobList, false, sizeof(bool)*max_tag);
+	
+	/*const YarpPixelMono rg0=m_attn[1].meanRG;
+	const YarpPixelMono gr0=m_attn[1].meanGR;
+	const YarpPixelMono by0=m_attn[1].meanBY;*/
 	
 	for (int c=0; c<width; c++) {
 		YarpPixelInt seed=1;
@@ -1510,8 +1515,8 @@ void YARPWatershed::fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, bool *blobL
 			while(tagged(c, r)==seed)
 				r++;
 			seed=tagged(c, r);
-			//if (abs(m_attn[seed].meanRG-rg0)+abs(m_attn[seed].meanGR-gr0)+abs(m_attn[seed].meanBY-by0)<30 )
-			if ((m_attn[seed].meanRG-rg0)*(m_attn[seed].meanRG-rg0)+(m_attn[seed].meanGR-gr0)*(m_attn[seed].meanGR-gr0)+(m_attn[seed].meanBY-by0)*(m_attn[seed].meanBY-by0)<500 )
+			//if (abs(m_attn[seed].meanRG-rg0)+abs(m_attn[seed].meanGR-gr0)+abs(m_attn[seed].meanBY-by0)<13 )
+			if ((m_attn[seed].meanRG-rg0)*(m_attn[seed].meanRG-rg0)+(m_attn[seed].meanGR-gr0)*(m_attn[seed].meanGR-gr0)+(m_attn[seed].meanBY-by0)*(m_attn[seed].meanBY-by0)<110 )
 				blobList[seed]=true;
 			else
 				break;

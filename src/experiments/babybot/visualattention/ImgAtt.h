@@ -199,6 +199,14 @@ protected:
 	bool* blobList;
 
 	YARPLpConicFitter fit;
+
+	char savename[512];
+	
+	inline void colorOpponency(YARPImageOf<YarpPixelBGR> &src);
+	inline void findEdges();
+	inline void normalize();
+	inline void findBlobs(int num, Vett* pos);
+	inline void quantizeColors();
 	
 	float DenteDiSega(short x);
 	void Combine(YARPImageOf<YarpPixelMono> **src, int num, YARPImageOf<YarpPixelMono> &dst);
@@ -231,6 +239,7 @@ public:
 	YARPImageOf<YarpPixelMono>& BlobFov() { return blobFov; }
 	void GetTarget(int &x, int &y);
 	void saveImages();
+	void setWatershedTh(YarpPixelMono th) { rain.setThreshold(th); }
 };
 
 

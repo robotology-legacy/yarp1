@@ -90,6 +90,8 @@
 #define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 
+using namespace _logpolarParams;
+
 ///
 /// global params.
 char _name1[512];
@@ -97,6 +99,7 @@ char _name2[512];
 char _name3[512];
 char _netname[512];
 
+YARPImgAtt att_mod(_stheta, _srho, _sfovea);
 
 class mainthread : public YARPThread
 {
@@ -107,10 +110,8 @@ public:
 
 void mainthread::Body (void)
 {
-	using namespace _logpolarParams;
-
-	YARPImgAtt att_mod(_stheta, _srho, _sfovea);
 	
+
 	YARPGenericImage img;
 	YARPGenericImage imgOld;
 	YARPImageOf<YarpPixelMono> tmp;
@@ -253,7 +254,7 @@ void mainthread::Body (void)
 
 		start = start + (YARPTime::GetTimeAsSeconds() - cur);
 
-		if ((frame_no % 20) == 0) {
+		if ((frame_no % 50) == 0) {
 			//cur = YARPTime::GetTimeAsSeconds();
 			//ACE_OS::fprintf(stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
 			ACE_OS::fprintf(stdout, "average frame time: %f frame #%d acquired\r", start/frame_no, frame_no);
@@ -274,7 +275,6 @@ int main (int argc, char *argv[])
 	ACE_OS::sprintf(_name1, "/visualattention%s/o:img",basename);
 	ACE_OS::sprintf(_name2, "/visualattention%s/i:img", basename);
 	ACE_OS::sprintf(_name3, "/visualattention%s/o:img2", basename);
-	//ACE_OS::sprintf(_name, "/%s/o:img", argv[0]);
 	ACE_OS::sprintf(_netname, "Net1");
 
 	YARPScheduler::setHighResScheduling();
@@ -286,8 +286,11 @@ int main (int argc, char *argv[])
 
 	do
 	{
-		cout << "Type q+return to quit" << endl;
 		cin >> c;
+		if (c<='9' && c>='0')
+			att_mod.setWatershedTh((c-'0')*3);
+		else
+			cout << "Type q+return to quit" << endl;
 	}
 	while (c != 'q');
 
