@@ -61,11 +61,11 @@
 ///
 
 ///
-/// $Id: YARPEurobotHeadKin.cpp,v 1.1 2004-01-12 11:05:32 beltran Exp $
+/// $Id: YARPEurobotHeadKin.cpp,v 1.2 2004-01-12 17:15:07 beltran Exp $
 ///
 ///
 
-#include "YARPBabybotHeadKin.h"
+#include "YARPEurobotHeadKin.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -77,7 +77,7 @@
 /// base to left and base to right eye respectively.
 /// each matrix has njoint + occasional fictious links lines.
 ///
-YARPBabybotHeadKin::YARPBabybotHeadKin (const YMatrix &dh_left, const YMatrix &dh_right, const YHmgTrsf &bline)
+YARPEurobotHeadKin::YARPEurobotHeadKin (const YMatrix &dh_left, const YMatrix &dh_right, const YHmgTrsf &bline)
 	: _leftCamera (dh_left, bline),
 	  _rightCamera (dh_right, bline)
 {
@@ -94,14 +94,14 @@ YARPBabybotHeadKin::YARPBabybotHeadKin (const YMatrix &dh_left, const YMatrix &d
 	_rightJoints = 0;
 }
 
-YARPBabybotHeadKin::~YARPBabybotHeadKin ()
+YARPEurobotHeadKin::~YARPEurobotHeadKin ()
 {
 
 }
 
 /// <joints is a 5 dim vector>
 /// since this file is for the Babybot's head, I can asser if Size is different.
-void YARPBabybotHeadKin::computeDirect (const YVector &joints)
+void YARPEurobotHeadKin::computeDirect (const YVector &joints)
 {
 	ACE_ASSERT (joints.Length() == 5); 
 
@@ -125,7 +125,7 @@ void YARPBabybotHeadKin::computeDirect (const YVector &joints)
 
 ///
 /// given an up to date kinematic matrix, returns the ray passing from an image plane point x,y.
-void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
+void YARPEurobotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
 {
 	if (k == KIN_LEFT)
 	{
@@ -210,7 +210,7 @@ void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
 
 ///
 /// given an up to date kin matrix, it computes the x,y point where a given ray v intersects the img plane.
-void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, int& y)
+void YARPEurobotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, int& y)
 {
 	if (k == KIN_LEFT || k == KIN_LEFT_PERI)
 	{
