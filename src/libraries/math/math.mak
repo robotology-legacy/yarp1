@@ -38,14 +38,9 @@ ALL : "..\..\..\lib\winnt\math.lib"
 
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
-	-@erase "$(INTDIR)\YARPFft.obj"
-	-@erase "$(INTDIR)\YARPLowPassFilter.obj"
-	-@erase "$(INTDIR)\YARPLU.obj"
 	-@erase "$(INTDIR)\YARPMatrix.obj"
 	-@erase "$(INTDIR)\YARPRecursiveLS.obj"
 	-@erase "$(INTDIR)\YARPRobotMath.obj"
-	-@erase "$(INTDIR)\YARPSVD.obj"
-	-@erase "$(INTDIR)\YARPTwoDKalmanFilter.obj"
 	-@erase "..\..\..\lib\winnt\math.lib"
 
 "$(OUTDIR)" :
@@ -61,14 +56,9 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"..\..\..\lib\winnt\math.lib" 
 LIB32_OBJS= \
-	"$(INTDIR)\YARPFft.obj" \
-	"$(INTDIR)\YARPLowPassFilter.obj" \
-	"$(INTDIR)\YARPLU.obj" \
 	"$(INTDIR)\YARPMatrix.obj" \
 	"$(INTDIR)\YARPRecursiveLS.obj" \
-	"$(INTDIR)\YARPRobotMath.obj" \
-	"$(INTDIR)\YARPSVD.obj" \
-	"$(INTDIR)\YARPTwoDKalmanFilter.obj"
+	"$(INTDIR)\YARPRobotMath.obj"
 
 "..\..\..\lib\winnt\math.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -97,14 +87,9 @@ ALL : "..\..\..\lib\winnt\mathDB.lib"
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
-	-@erase "$(INTDIR)\YARPFft.obj"
-	-@erase "$(INTDIR)\YARPLowPassFilter.obj"
-	-@erase "$(INTDIR)\YARPLU.obj"
 	-@erase "$(INTDIR)\YARPMatrix.obj"
 	-@erase "$(INTDIR)\YARPRecursiveLS.obj"
 	-@erase "$(INTDIR)\YARPRobotMath.obj"
-	-@erase "$(INTDIR)\YARPSVD.obj"
-	-@erase "$(INTDIR)\YARPTwoDKalmanFilter.obj"
 	-@erase "..\..\..\lib\winnt\mathDB.lib"
 
 "$(OUTDIR)" :
@@ -120,14 +105,9 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"..\..\..\lib\winnt\mathDB.lib" 
 LIB32_OBJS= \
-	"$(INTDIR)\YARPFft.obj" \
-	"$(INTDIR)\YARPLowPassFilter.obj" \
-	"$(INTDIR)\YARPLU.obj" \
 	"$(INTDIR)\YARPMatrix.obj" \
 	"$(INTDIR)\YARPRecursiveLS.obj" \
-	"$(INTDIR)\YARPRobotMath.obj" \
-	"$(INTDIR)\YARPSVD.obj" \
-	"$(INTDIR)\YARPTwoDKalmanFilter.obj"
+	"$(INTDIR)\YARPRobotMath.obj"
 
 "..\..\..\lib\winnt\mathDB.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -188,21 +168,6 @@ $(DS_POSTBUILD_DEP) : "..\..\..\lib\winnt\mathDB.lib"
 
 
 !IF "$(CFG)" == "math - Win32 Release" || "$(CFG)" == "math - Win32 Debug"
-SOURCE=.\YARPFft.cpp
-
-"$(INTDIR)\YARPFft.obj" : $(SOURCE) "$(INTDIR)"
-
-
-SOURCE=.\YARPLowPassFilter.cpp
-
-"$(INTDIR)\YARPLowPassFilter.obj" : $(SOURCE) "$(INTDIR)"
-
-
-SOURCE=.\YARPLU.cpp
-
-"$(INTDIR)\YARPLU.obj" : $(SOURCE) "$(INTDIR)"
-
-
 SOURCE=.\YARPMatrix.cpp
 
 "$(INTDIR)\YARPMatrix.obj" : $(SOURCE) "$(INTDIR)"
@@ -216,16 +181,6 @@ SOURCE=.\YARPRecursiveLS.cpp
 SOURCE=.\YARPRobotMath.cpp
 
 "$(INTDIR)\YARPRobotMath.obj" : $(SOURCE) "$(INTDIR)"
-
-
-SOURCE=.\YARPSVD.cpp
-
-"$(INTDIR)\YARPSVD.obj" : $(SOURCE) "$(INTDIR)"
-
-
-SOURCE=.\YARPTwoDKalmanFilter.cpp
-
-"$(INTDIR)\YARPTwoDKalmanFilter.obj" : $(SOURCE) "$(INTDIR)"
 
 
 

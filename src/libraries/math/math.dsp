@@ -101,18 +101,6 @@ PostBuild_Cmds=copy *.h ..\..\..\include	copy *.inl ..\..\..\include
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\YARPFft.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPLowPassFilter.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPLU.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\YARPMatrix.cpp
 # End Source File
 # Begin Source File
@@ -123,26 +111,10 @@ SOURCE=.\YARPRecursiveLS.cpp
 
 SOURCE=.\YARPRobotMath.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\YARPSVD.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPTwoDKalmanFilter.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
-# Begin Source File
-
-SOURCE=.\YARPFft.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPLowPassFilter.h
-# End Source File
 # Begin Source File
 
 SOURCE=.\YARPMath.h
@@ -157,19 +129,11 @@ SOURCE=.\YARPMatrix.inl
 # End Source File
 # Begin Source File
 
-SOURCE=.\YARPRecursiveLS.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\YARPRobotMath.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\YARPRobotMath.inl
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPTwoDKalmanFilter.h
 # End Source File
 # Begin Source File
 

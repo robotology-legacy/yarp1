@@ -1,38 +1,5 @@
 # Microsoft Developer Studio Generated Dependency File, included by math.mak
 
-.\YARPFft.cpp : \
-	"..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\include\ace\config-win32.h"\
-	"..\..\..\include\ace\config.h"\
-	"..\..\..\include\ace\post.h"\
-	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\YARPConfig.h"\
-	"..\..\..\include\conf\YARPConfigWin32.h"\
-	".\YARPFft.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	
-
-.\YARPLowPassFilter.cpp : \
-	".\YARPLowPassFilter.h"\
-	
-
-.\YARPLU.cpp : \
-	"..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\include\ace\config-win32.h"\
-	"..\..\..\include\ace\config.h"\
-	"..\..\..\include\ace\post.h"\
-	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\YARPConfig.h"\
-	"..\..\..\include\conf\YARPConfigWin32.h"\
-	".\YARPMatrix.h"\
-	".\YARPMatrix.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	
-
 .\YARPMatrix.cpp : \
 	"..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\
@@ -41,8 +8,8 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\YARPConfig.h"\
-	"..\..\..\include\conf\YARPConfigWin32.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
 	".\YARPMatrix.h"\
 	".\YARPMatrix.inl"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
@@ -56,8 +23,8 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\YARPConfig.h"\
-	"..\..\..\include\conf\YARPConfigWin32.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
 	".\YARPMatrix.h"\
 	".\YARPMatrix.inl"\
 	".\YARPRecursiveLS.h"\
@@ -74,44 +41,11 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\YARPConfig.h"\
-	"..\..\..\include\conf\YARPConfigWin32.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
 	".\YARPMatrix.h"\
 	".\YARPMatrix.inl"\
 	".\YARPRobotMath.h"\
 	".\YARPRobotMath.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	
-
-.\YARPSVD.cpp : \
-	"..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\include\ace\config-win32.h"\
-	"..\..\..\include\ace\config.h"\
-	"..\..\..\include\ace\post.h"\
-	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\YARPConfig.h"\
-	"..\..\..\include\conf\YARPConfigWin32.h"\
-	".\YARPMatrix.h"\
-	".\YARPMatrix.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	
-
-.\YARPTwoDKalmanFilter.cpp : \
-	"..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\include\ace\config-win32.h"\
-	"..\..\..\include\ace\config.h"\
-	"..\..\..\include\ace\post.h"\
-	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\YARPConfig.h"\
-	"..\..\..\include\conf\YARPConfigWin32.h"\
-	".\YARPMatrix.h"\
-	".\YARPMatrix.inl"\
-	".\YARPRobotMath.h"\
-	".\YARPRobotMath.inl"\
-	".\YARPTwoDKalmanFilter.h"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
