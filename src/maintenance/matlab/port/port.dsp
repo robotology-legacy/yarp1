@@ -138,6 +138,10 @@ SOURCE=.\on.m
 
 SOURCE=.\porter.m
 # End Source File
+# Begin Source File
+
+SOURCE=.\slay.m
+# End Source File
 # End Group
 # Begin Source File
 
