@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPBabyBottle.h,v 1.1 2004-08-01 21:29:52 babybot Exp $
+/// $Id: YARPBabyBottle.h,v 1.2 2004-08-11 13:29:20 babybot Exp $
 ///
 ///
 
@@ -66,10 +66,15 @@ public:
   }
 
 
-  void readYVector(YVector &v)
+  bool readYVector(YVector &v)
   {
-    if (tryReadYVector(v))
-      moveOn();
+	  if (tryReadYVector(v))
+	  {
+		moveOn();
+		return true;
+	  }
+	  else
+		return false;
   }
 
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.22 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: Port.cpp,v 1.23 2004-08-11 13:29:20 babybot Exp $
 ///
 ///
 
@@ -1268,6 +1268,10 @@ void Port::Body()
 						p_receiver_incoming.Ptr()->Read(receiver);
 						p_receiver_incoming.Ptr()->RemoveRef();
 					}
+					else
+					{
+						out_mutex.Post();
+					}
 
 					receiver.End();
 
@@ -1684,14 +1688,11 @@ int Port::Say(const char *buf)
 /// this commands the port to terminate gracefully.
 int Port::SaySelfEnd(void)
 {
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 	int result = YARP_FAIL;
 	if (self_id == NULL && name.c_str()[0] != '\0')
 	{
-	  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 		if (protocol_type == YARP_MCAST)
 		{
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), YARP_UDP);
 			self_id->setServiceType (YARP_TCP);
 
@@ -1700,7 +1701,6 @@ int Port::SaySelfEnd(void)
 		}
 		else
 		{
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), protocol_type);
 			if (self_id->getServiceType() != YARP_QNET)
 				self_id->setServiceType (YARP_TCP);
@@ -1713,10 +1713,8 @@ int Port::SaySelfEnd(void)
 	/// silly but to guarantee self_id is !NULL.
 	if (self_id != NULL && !self_id->isValid() && name.c_str()[0] != '\0')
 	{
-	  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 		if (protocol_type == YARP_MCAST)
 		{
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), YARP_UDP);
 			self_id->setServiceType (YARP_TCP);
 
@@ -1725,7 +1723,6 @@ int Port::SaySelfEnd(void)
 		}
 		else
 		{
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), protocol_type);
 			if (self_id->getServiceType() != YARP_QNET)
 				self_id->setServiceType (YARP_TCP);
@@ -1735,50 +1732,38 @@ int Port::SaySelfEnd(void)
 		}
 	}
 
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 	if (self_id != NULL)
 	{
-	  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 		if (self_id->isValid())
 		{
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
+			// need to make sure the detach message will be read,
+			// even if other messages are arriving
 
-		  // need to make sure the detach message will be read,
-		  // even if other messages are arriving
+			Relinquish();
+			out_mutex.Wait();
+			ignore_data = 1;
+			out_mutex.Post();
+			Relinquish();
 
-		  Relinquish();
-		  out_mutex.Wait();
-		  ignore_data = 1;
-		  out_mutex.Post();
-		  Relinquish();
-
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 			result = SendHelper (*self_id, NULL, 0, MSG_ID_DETACH_ALL);
 		}
 
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
-		  Relinquish();
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
+		Relinquish();
 		/// wait for message to be received.
 		complete_msg_thread.Wait();
 
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 		/// deletes the endpoint.
 		YARPEndpointManager::Close (*self_id);
 
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 		YARPNameService::DeleteName (self_id);
 		self_id = NULL;
 
 		///YARPScheduler::yield();
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 
 		/// tell the main thread to complete the termination function.
 		complete_terminate.Signal();
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 
 		YARPThread::Join ();
-		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 	}
 
 	return result;

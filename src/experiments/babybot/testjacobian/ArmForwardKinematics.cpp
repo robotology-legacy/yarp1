@@ -52,22 +52,11 @@ void ArmForwardKinematics::_init()
 	_jacobianInv.Resize(2,2);
 
 	_trajectory.resize(__nSteps);
-	int i;
-	for (i = 0; i < __nSteps; i++)
-	{
-		_trajectory[i] = new int[2];
-		_trajectory[i][0] = 0;
-		_trajectory[i][1] = 0;
-	}
-	_trajectory.length = i;
 }
 
 ArmForwardKinematics::~ArmForwardKinematics()
 {
-	int i;
-	for (i = 0; i < __nSteps; i++)
-		delete [] _trajectory[i];
-		
+
 	_log.close();
 }
 
@@ -141,8 +130,9 @@ YVector ArmForwardKinematics::computeCommandFixedSteps(YVector initialArm, int t
 		tmpEl = query(tmpArm, _head);
 	
 		// current
-		_trajectory[i][0] = tmpEl.x;
-		_trajectory[i][1] = tmpEl.y;
+		_trajectory.pixels[i][0] = tmpEl.x;
+		_trajectory.pixels[i][1] = tmpEl.y;
+		_trajectory.arm[i] = tmpArm;
 
 		// this is to recompute the jacobian every time
 		computeJacobian(tmpEl.x, tmpEl.y);
@@ -175,8 +165,9 @@ YVector ArmForwardKinematics::computeCommandThreshold(YVector initialArm, int ta
 		tmpEl = query(tmpArm, _head);
 	
 		// current
-		_trajectory[i][0] = tmpEl.x;
-		_trajectory[i][1] = tmpEl.y;
+		_trajectory.pixels[i][0] = tmpEl.x;
+		_trajectory.pixels[i][1] = tmpEl.y;
+		_trajectory.arm[i] = tmpArm;
 
 		// this is to recompute the jacobian every time
 		computeJacobian(tmpEl.x, tmpEl.y);

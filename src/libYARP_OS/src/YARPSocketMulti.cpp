@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.21 2004-08-11 09:14:18 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.22 2004-08-11 13:29:20 babybot Exp $
 ///
 ///
 
@@ -1046,11 +1046,9 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 				_socket = (void *)new ACE_MEM_Acceptor (((YARPUniqueNameMem&)*_socket_addr).getAddressRef(), 1);
 				ACE_ASSERT (_socket != NULL);
 
-				/// the size of the SHMEM buff.
-				((ACE_MEM_Acceptor *)_socket)->init_buffer_size (10 * MAX_SHMEM_BUFFER);
-
-				///((ACE_MEM_Acceptor *)_socket)->malloc_options().minimum_bytes_ = 2 * MAX_PACKET;
-				///((ACE_MEM_Acceptor *)_socket)->preferred_strategy (ACE_MEM_IO::MT);
+				/// the size of the SHMEM buffer and the delivery strategy.
+				((ACE_MEM_Acceptor *)_socket)->init_buffer_size (2 * MAX_SHMEM_BUFFER);
+				((ACE_MEM_Acceptor *)_socket)->preferred_strategy (ACE_MEM_IO::Reactive);
 
 				_socket_addr->setRawIdentifier (((ACE_MEM_Acceptor *)_socket)->get_handle());
 
@@ -1555,7 +1553,7 @@ void _SocketThreadMulti::BodyShmem (void)
 			// repeat loop so long as it is willing to block.
 			ACE_Time_Value timeout (YARP_SHORT_SOCK_TIMEOUT, 0);
 			prev = now;
-			r = _stream->recv_n (&hdr, sizeof(hdr), &timeout);
+			r = stream.recv (&hdr, sizeof(hdr), &timeout);
 			now = YARPTime::GetTimeAsSeconds();
 			if (r == -1 && errno == ETIME && !IsTerminated()) 
 			{
@@ -3310,8 +3308,10 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name, const YARPStri
 	
 	d._mem_addr.set (port_number, d._local_addr.get_host_addr());
 
-
 	/// at this point the remote should be listening on port_number
+
+	/// Sets the delivery strategy.
+	d._connector_socket.preferred_strategy (ACE_MEM_IO::Reactive);
 
 	r = d._connector_socket.connect (d._stream, d._mem_addr);
 

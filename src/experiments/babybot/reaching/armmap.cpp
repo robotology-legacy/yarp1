@@ -29,6 +29,8 @@ _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 	Register("/reaching/nnet/i");
 	_outPortRemoteLearn.Register("/reaching/nnet/o");
 
+	_outPortArmTrajectory.Register("/reaching/armtrajectory/o");
+
 	_noise.resize(__nJointsArm, __maxRnd, __minRnd);
 	_command.Resize(__nJointsArm);
 	_prepare.Resize(__nJointsArm);
@@ -88,16 +90,9 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 		tmpArm(5) = arm(5);
 		tmpArm(6) = arm(6);
 
-		// overwrite command
-		printf("Query with arm:\n");
-		for(int i = 1; i <= 3; i++)
-			printf("%lf\t", tmpArm(i));
-			
-		printf("\nx: %d\ty: %d\n", x, y);
-
 		_command = _fkinematics.computeCommandThreshold(tmpArm , x, y);	// to center
+		_sendTrajectory();
 
-		// DEBUG, dump current command
 		_formTrajectory(_command);
 	}
 }
@@ -168,4 +163,26 @@ const YVector &ArmMap::getCommand(int index)
 		index = _trajectoryLength;
 	
 	return _trajectory[index];
+}
+
+void ArmMap::_sendTrajectory()
+{
+	YARPBabyBottle &content = _outPortArmTrajectory.Content();
+
+	content.reset();
+	const Trajectories &tr = _fkinematics.getTrajectory();
+
+	content.writeInt(tr.size);
+	content.writeInt(tr.length);
+	for(int i = 0; i < tr.length; i++)
+	{
+		content.writeInt(tr.pixels[i][0]);	//x
+		content.writeInt(tr.pixels[i][1]);	//y
+		content.writeYVector(tr.arm[i]);		//arm command
+	}
+
+	printf("Sending trajectory...");
+	_outPortArmTrajectory.Write(1);
+	printf("done !\n");
+
 }

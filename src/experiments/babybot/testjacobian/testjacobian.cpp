@@ -9,6 +9,7 @@
 
 #include <yarp/YARPControlBoardNetworkData.h>
 #include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPDebugUtils.h>
 
 #include "ArmForwardKinematics.h"
 
@@ -32,6 +33,7 @@ int __headCounter = 0;
 using std::vector;
 
 void plotTrajectory(const Trajectories &tr, YARPImageOf<YarpPixelBGR> &img);
+void receiveTrajectory(YARPInputPortOf<YARPBabyBottle> &port,  Trajectories &tr);
 
 inline bool pollPort(YARPInputPortOf<YVector> &port, YVector &out, int *counter)
 {
@@ -121,6 +123,8 @@ int main(int argc, char* argv[])
 
 	DECLARE_INPUT_PORT (YARPControlBoardNetworkData, _armPort, YARP_UDP);
 	DECLARE_INPUT_PORT (YVector, _headPort, YARP_UDP);
+	DECLARE_INPUT_PORT (YARPBabyBottle, _reachingTrajectoryPort, YARP_TCP);
+
 	DECLARE_INPUT_PORT (YARPBabyBottle, _inputTarget, YARP_UDP);
 	DECLARE_OUTPUT_PORT (YARPBabyBottle, _armCommand, YARP_UDP);
 	/////////////////////
@@ -132,8 +136,11 @@ int main(int argc, char* argv[])
 	_inputTarget.Register("/testjacobian/target/i");
 	_outPortColor.Register("/testjacobian/o:img");
 	_armCommand.Register("/testjacobian/arm/o");
+	_reachingTrajectoryPort.Register("/testjacobian/reaching/i");
 	/////////////////////
 	
+	Trajectories _trajectory;
+
 	YARPLogpolar _mapper;
 	YARPBPNNet _openLoopReaching;			// reaching nnetwork
 	YARPBabybotHeadKin _headKinematics (YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]));		// head kinematics
@@ -155,8 +162,10 @@ int main(int argc, char* argv[])
 	}
 	ACE_OS::printf("Reading neural network from %s\n", filename1);
 	
-	YVector _arm(6);
-	YVector _head(5);
+	YVector _arm(6, __armInitial);
+	_arm *= degToRad;
+	YVector _head(5, __headInitial);
+	_head *= degToRad;
 	YVector _handPosition(2);
 	YARPBabyBottle _bottle;
 
@@ -179,15 +188,18 @@ int main(int argc, char* argv[])
 		
 		///// poll head and arm positions
 		pollPort(_armPort, _arm, &__armCounter);
-		pollPort(_headPort, _head, &__headCounter);		
+		pollPort(_headPort, _head, &__headCounter);	
+		
 
 		_inPortImage.Content().Refer(_left);
 		_mapper.ReconstructColor(_left, _leftColored);
 		_mapper.Logpolar2Cartesian(_leftColored, _outSeg2);
-			
+		
 		int x,y;
 		if (pollPort(_inputTarget, &x, &y)) 
 			active = true;
+
+		receiveTrajectory(_reachingTrajectoryPort,  _trajectory);
 
 //		_head = YVector(5, __headInitial);
 //		_head = _head*degToRad;
@@ -281,6 +293,7 @@ int main(int argc, char* argv[])
 		}
 		
 		plotTrajectory(_armJacobian.getTrajectory(), _outSeg2);
+		plotTrajectory(_trajectory, _outSeg2);
 		_outPortColor.Content().Refer(_outSeg2);
 		_outPortColor.Write();
 			
@@ -331,11 +344,66 @@ void plotTrajectory(const Trajectories &v, YARPImageOf<YarpPixelBGR> &img)
 
 	for (int i = 0; i < v.length; i++)
 	{
-		tmpEl.x = v[i][0];
-		tmpEl.y = v[i][1];
+		tmpEl.x = v.pixels[i][0];
+		tmpEl.y = v.pixels[i][1];
 		YARPSimpleOperation::DrawCross(img, tmpEl.x, tmpEl.y, YarpPixelBGR(255, 128, 0), 5, 1);
+
+//		YARPDebugUtils::print(v.arm[i]*radToDeg);
+
 	}
 
 	// the last one
 	YARPSimpleOperation::DrawCross(img, tmpEl.x, tmpEl.y, YarpPixelBGR(255, 255, 0), 5, 1);
+}
+
+
+void receiveTrajectory(YARPInputPortOf<YARPBabyBottle> &port,  Trajectories &tr)
+{
+	if (!port.Read(0))
+		return;
+
+	printf("Received new trajectory\n");
+
+	int size;
+	int length;
+
+	YARPBabyBottle &content = port.Content();
+	content.readInt(&size);
+	content.readInt(&length);
+
+	tr.resize(size);
+	tr.length = length;
+
+	bool ret;
+	int x;
+	int y;
+	YVector arm;
+	for(int i = 0; i < (length-1); i++)
+	{
+		ret = content.readInt(&x);
+		ret = ret && content.readInt(&y);
+		ret = ret && content.readYVector(arm);
+
+		if (ret)
+		{
+			tr.pixels[i][0] = x;
+			tr.pixels[i][1] = y;
+			tr.arm[i] = arm;
+		}
+		else
+			printf("Error reading bottle; check sender\n");
+	}
+
+	ret = content.readInt(&x);
+	ret = ret && content.readInt(&y);
+	ret = ret && content.readYVector(arm);
+
+	if (ret)
+	{
+		tr.pixels[i][0] = x;
+		tr.pixels[i][1] = y;
+		tr.arm[i] = arm;
+	}
+	else
+		printf("Error reading bottle; check sender\n");
 }

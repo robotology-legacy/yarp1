@@ -79,7 +79,26 @@ void RBOutputCommand::output(ABSharedData *d)
 	}
 	else
 	{
-		cout << "Check head connection\n";
+		// cout << "Check head connection\n";
+		cout << "No connection from arm and head using default\n";
+		// NO_HEAD_NO_ARM
+		const double __armInitial[] = {0, 0, 0, 0, 0, 0};
+		const double __headInitial[] = {-4, -20, -15, -8, -8};
+		YVector head(5, __headInitial);
+		YVector arm(6, __armInitial);
+		head *= degToRad;
+		arm *= degToRad;
+		d->_map.query(arm, head);
+
+		const YVector& cmd = d->_map.prepareCmd();
+
+		cout << "Preparing arm\n";
+
+		_bottle.writeYVector(cmd);
+		_bottle.display();
+		d->_outPort.Content() = _bottle;
+		d->_outPort.Write(1);
+		////////////
 	}
 }
 

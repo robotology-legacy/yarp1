@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.6 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: YARPBottle.h,v 1.7 2004-08-11 13:29:20 babybot Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -71,6 +71,7 @@
 /// to tryRead return the same value, unless moveOn() is called.
 /// moveOn() has effect only once after each tryRead and move the internal index right
 /// after the data that were read by the last tryRead (if successful).
+/// To avoid calling moveOn() use "read" methods.
 ///
 /// July 2003 --by nat 
 
@@ -267,10 +268,15 @@ public:
 	}
 	*/
   
-	void readInt(int *v)
+	bool readInt(int *v)
 	{
 		if (tryReadInt(v))
+		{
 			moveOn();
+			return true;
+		}
+		else
+			return false;
 	}
 
 	int readInt() {
@@ -279,18 +285,28 @@ public:
 	  return v;
 	}
 
-	void readFloat(double *v)
+	bool readFloat(double *v)
 	{
 		if (tryReadFloat(v))
+		{
 			moveOn();
+			return true;
+		}
+		else
+			return false;
 	}
 	
 	// yikes! no way to bound size of buffer -
 	// invitation to disaster.
-	void readText(char *s)
+	bool readText(char *s)
 	{
 		if (tryReadText(s))
+		{
 			moveOn();
+			return true;
+		}
+		else
+			return false;
 	}
 
 	const char *readText()

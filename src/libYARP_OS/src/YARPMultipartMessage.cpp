@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPMultipartMessage.cpp,v 1.2 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPMultipartMessage.cpp,v 1.3 2004-08-11 13:29:20 babybot Exp $
 ///
 ///
 
@@ -74,8 +74,17 @@
 ///
 #include <yarp/YARPMultipartMessage.h>
 
-///
-/// a block of the multipart message (buffer).
+/**
+ * \file YARPMultipartMessage.cpp contains classes and implementation of
+ * a multipart message. This is useful (in theory) to send messages of
+ * arbitrary size.
+ */
+
+/**
+ * A block of the multipart message (buffer).
+ * Note that the QNX implementation is quite specific to be compatible 
+ * to the OS message structure.
+ */
 class Block
 {
 public:
@@ -86,6 +95,9 @@ public:
 	iov_t iov;
 #endif
 
+	/**
+	 * Constructor.
+	 */
 	Block () 
 	{ 
 #ifndef __QNX6__
@@ -94,11 +106,21 @@ public:
 #endif
 	}
 
+	/**
+	 * Constructor. A buffer is added to the message block.
+	 * @param n_buffer is the pointer to the part of the message.
+	 * @param n_len is the length of the buffer. 
+	 */
 	Block (char *n_buffer, int n_len)
 	{
 		Set(n_buffer, n_len);
 	}
 
+	/**
+	 * Adds a buffer to the block.
+	 * @param n_buffer is the pointer to the part of the message.
+	 * @param n_len is the length of the buffer. 
+	 */
 	void Set (char *n_buffer, int n_len)
 	{
 #ifndef __QNX6__

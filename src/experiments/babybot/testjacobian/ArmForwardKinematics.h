@@ -14,10 +14,47 @@
 
 #include <vector>
 
-class Trajectories: public std::vector<int *>
+const int __nj = 6;
+
+class Trajectories
 {
 public:
+	Trajectories()
+	{
+		size = 0; 
+		length = 0;
+	}
+	~Trajectories()
+	{
+		int i;
+		if (size>0)
+		{
+			for (i = 0; i < size; i++)
+				delete [] pixels[i];
+		}
+	}
+	void resize(int s)
+	{
+		size = s;
+		length = s;
+		for(int i = 0; i < s; i++)
+		{
+			int *newPixel = new int[2];
+			newPixel[0] = 0;
+			newPixel[1] = 1;
+			pixels.push_back(newPixel);
+			
+			YVector newArm;
+			newArm.Resize(__nj);
+			newArm = 0.0;
+			arm.push_back(newArm);
+		}
+	}
+
+	int size;
 	int length;
+	std::vector<int *> pixels;
+	std::vector<YVector> arm;
 };
 
 

@@ -127,16 +127,18 @@ public:
 	void learn(const YVector &head, const YVector &arm);
 
 	const YVector &getCommand(int n);
-	
+
 private:
 	bool _checkLearnCondition();
 	bool _checkReachingCondition();
 	void _formTrajectory(const YVector &cmd);
+	void _sendTrajectory();
 
 	YARPBPNNet _nnet;
 	ArmForwardKinematics _fkinematics;
 		
 	YARPOutputPortOf<YARPBabyBottle> _outPortRemoteLearn;
+	YARPOutputPortOf<YARPBabyBottle> _outPortArmTrajectory;
 
 	virtual void OnRead(void);
 
