@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: main.cpp,v 1.7 2004-04-07 15:47:17 beltran Exp $
+//         Version:  $Id: main.cpp,v 1.8 2004-04-27 16:17:48 beltran Exp $
 // 
 //          Author:  Eng. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -78,6 +78,7 @@ int _Channels      = 2;
 int _SamplesPerSec = 44100;
 int _BitsPerSample = 16;
 int _BufferLength  = 8192;
+int _volume        = 50;
 
 extern int __debug_level;
 
@@ -451,6 +452,7 @@ mainthread::_runAsNormally (void)
 							 _SamplesPerSec,
 							 _BitsPerSample,
 							 _BufferLength);
+	soundgrabber.setVolume(_volume);
 
 	/// alloc buffer.
 	buffer.Resize (_BufferLength);
