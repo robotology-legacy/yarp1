@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.2 2003-06-12 09:51:17 babybot Exp $
+/// $Id: main.cpp,v 1.3 2003-11-26 15:01:14 babybot Exp $
 ///
 ///
 
@@ -98,6 +98,7 @@ int main (int argc, char *argv[])
 	int detached = 0;
 	int user = 0;
 	int j = -1;
+	bool iconified = false;
 
 	for (int i = 1; i < argc; i++)
 	{
@@ -126,6 +127,13 @@ int main (int argc, char *argv[])
 			i += 2;
 			user = 1;
 		}
+		else
+		if (strcmp(argv[i], "-i") == 0)
+		{
+			// username.
+			iconified = true;
+		}
+
 	}
 
 	if (j == -1)
@@ -201,9 +209,15 @@ int main (int argc, char *argv[])
 		fprintf (fp, "%s%s%s", "var name = \"", what_to_execute, "\";\n");
 		fprintf (fp, "%s%s%s", "var path = ", where_to_execute, ";\n");
 		fprintf (fp, "%s%s%s", "var params = ", params, ";\n");
+
+		if (!iconified)
 		fprintf (fp, "%s%s", 
 			"var WshShell = WScript.CreateObject(\"WScript.Shell\");\n",
 			"WshShell.Run (path+name+params, 1, false);");
+		else
+			fprintf (fp, "%s%s", 
+			"var WshShell = WScript.CreateObject(\"WScript.Shell\");\n",
+			"WshShell.Run (path+name+params, 7, false);");
 
 		fclose (fp);
 
