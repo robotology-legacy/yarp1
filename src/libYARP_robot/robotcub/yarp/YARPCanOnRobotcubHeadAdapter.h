@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.16 2005-02-03 17:45:45 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.17 2005-03-23 14:54:45 babybot Exp $
 ///
 ///
 
@@ -290,12 +290,12 @@ public:
 		if (cfgFile.get("[LIMITS]", "Min", _limitsMin, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 
-		// convert limits to radiants
-		for(i = 0; i < _nj; i++)
-		{
-			_limitsMax[i] *= degToRad;
-			_limitsMin[i] *= degToRad;
-		}
+		// convert limits to radians
+		//for(i = 0; i < _nj; i++)
+		//{
+		//	_limitsMax[i] *= degToRad;
+		//	_limitsMin[i] *= degToRad;
+		//}
 		//////////////////////////////////////////////////////////////////
 
 		// build encoder to angles
@@ -543,20 +543,20 @@ public:
 			double min, max;
 			if (_parameters->_signs[i] == 1)
 				min = -(_parameters->_limitsMin[i] * 
-						_parameters->_encoderToAngles[i]) / (2.0 * pi) + 
+						_parameters->_encoderToAngles[i]) / 360.0 + 
 						_parameters->_zeros[i];
 			else
 				min = (_parameters->_limitsMin[i] * 
-						_parameters->_encoderToAngles[i]) / (2.0 * pi) + 
+						_parameters->_encoderToAngles[i]) / 360.0 + 
 						_parameters->_zeros[i];
 
 			if (_parameters->_signs[i] == 1)
 				max = -(_parameters->_limitsMax[i] * 
-						_parameters->_encoderToAngles[i]) / (2.0 * pi) + 
+						_parameters->_encoderToAngles[i]) / 360.0 + 
 						_parameters->_zeros[i];
 			else
 				max = (_parameters->_limitsMax[i] * 
-						_parameters->_encoderToAngles[i]) / (2.0 * pi) + 
+						_parameters->_encoderToAngles[i]) / 360.0 + 
 						_parameters->_zeros[i];
 
 			cmd.parameters = &min;

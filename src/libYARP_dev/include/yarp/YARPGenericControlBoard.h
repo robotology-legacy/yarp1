@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.12 2005-03-23 13:34:24 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.13 2005-03-23 14:54:45 babybot Exp $
 ///
 ///
 
@@ -728,7 +728,6 @@ public:
 		int j;
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
-
 			j = _parameters._inv_axis_map[i];
 			pos[j] = encoderToAngle(_temp_double[i],
 									_parameters._encoderToAngles[j],
@@ -1036,7 +1035,6 @@ template <class ADAPTER, class PARAMETERS>
 inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 angleToEncoder(double angle, double encParam, double zero, int sign)
 {
-
 	if (sign == 1)
 		return -(angle * encParam) / (360) + zero;
 	else
@@ -1048,7 +1046,6 @@ template <class ADAPTER, class PARAMETERS>
 inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 encoderToAngle(double encoder, double encParam, double zero, int sign)
 {
-
 	if (sign == 1)
 		return (zero-encoder) * 360 / encParam;
 	else

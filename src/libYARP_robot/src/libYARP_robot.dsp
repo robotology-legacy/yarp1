@@ -99,10 +99,6 @@ SOURCE=.\YARPTrajectoryGen.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\..\..\include\yarp\YARPGenericControlBoard.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\include\yarp\YARPKinematics.h
 # End Source File
 # Begin Source File
