@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.9 2003-09-24 11:03:31 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.10 2003-09-29 17:02:23 fberton Exp $
 ///
 ///
 
@@ -295,6 +295,7 @@ long Get_Time();
 double Compute_Index(int Resolution, int Fovea, int SizeRho);
 
 int Build_DownSample_Map (Image_Data * Parameters, char * Path);
+void Build_DS_Map(Image_Data * LParam,char * Path, float Ratio);
 
 void RGB_2_YUV(unsigned char * OutImageYUV,
 			   unsigned char * InImageRGB,
