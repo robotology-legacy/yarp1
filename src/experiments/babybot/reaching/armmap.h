@@ -158,6 +158,8 @@ private:
 	YVector _command;
 
 	int _nUpdated;
+	enum mode {atnr = 0, learning = 1, reaching = 2};
+	int _mode;
 };
 
 #endif

@@ -1,11 +1,18 @@
 // remotelearn.cpp : Defines the entry point for the console application.
-//
+// -- by nat Dec. 2003
 
+// accept the following commands (bottles)
+// float variables: train samples
+// YBVRLTrainNow: force the network to train on current samples
+// YBVRLNEpoch + float set new value for #epoch
+// YBVRLBatchSize + float set new batch size
+	
 #include "lbehavior.h"
 #include <YARPBottle.h>
 #include <YARPBottleContent.h>
 #include <YARPPort.h>
 #include <YARPParseParameters.h>
+#include <./conf/YARPVocab.h>
 
 const char __filename[] = "test.ini";
 const char __outFilename[] = "out.ini";
@@ -14,6 +21,12 @@ const int __nIterations = 100000;
 const int __nSamples = 50;
 
 #include <YARPRnd.h>
+
+double nIterations = __nIterations;
+int nSamples = __nSamples;
+
+void parse(Learner &learner, YARPBottle &b);
+
 int main(int argc, char* argv[])
 {
 	// parse input parameters and form port names
@@ -23,7 +36,6 @@ int main(int argc, char* argv[])
 	inFilename.append("/conf/babybot/");
 	outFilename = inFilename;
 
-	double nIterations;
 	YARPString basePortName, inputPort, outputPort;
 	YARPString netFile, outFile, trainSetFile;
 	
@@ -75,7 +87,6 @@ int main(int argc, char* argv[])
 		ACE_OS::printf("trainset will be saved on: %s\n", filename.c_str());
 	}
 		
-	int nSamples = __nSamples;
 	if (!YARPParseParameters::parse(argc, argv, "batchsize", &nSamples))
 	{
 		nSamples = __nSamples;
@@ -97,13 +108,52 @@ int main(int argc, char* argv[])
 	while(true)
 	{
 		_inputPort.Read();
-		_learner.add(_inputPort.Content());
 		_inputPort.Content().display();
 		
-		ACE_OS::printf("Received new sample:#%d\n", _learner.howMany());
-
-		if (_learner.howMany()%nSamples== 0)
-			_learner.train((int) nIterations, true);
+		parse(_learner, _inputPort.Content());
 	}
 	return 0;
+}
+
+void parse(Learner &learner, YARPBottle &b)
+{
+	double dummy;
+	if (b.tryReadFloat(&dummy))
+	{
+		// HANDLE NEW SAMPLE
+		learner.add(b);
+
+		ACE_OS::printf("Received new sample:#%d\n", learner.howMany());
+		// CHECK train condition
+		if (learner.howMany()%nSamples== 0)
+			learner.train((int) nIterations, true);
+		return;
+	}
+
+	// is it a vocab ?
+	YBVocab tmp;
+	if (b.tryReadVocab(tmp))
+		b.moveOn();
+
+	if (tmp == YBVRLTrainNow)
+	{
+		learner.train((int) nIterations, true);
+		return;
+	}
+	else if (tmp == YBVRLNEpoch)
+	{
+		b.readFloat(&nIterations);
+		ACE_OS::printf("#epoch: %lf\n", nIterations);
+		return;
+	}
+	else if (tmp == YBVRLBatchSize)
+	{
+		b.readFloat(&dummy);
+		nSamples = (int) dummy;
+		ACE_OS::printf("new batch size: %d\n", nSamples);
+	}
+	else
+	{
+		ACE_OS::printf("Message not recognized\n");
+	}
 }

@@ -15,6 +15,7 @@ _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 		ACE_OS::printf("Error, cannot read neural network file %s", filename1);
 		exit(-1);
 	}
+	ACE_OS::printf("Reading neural network from %s\n", filename1);
 
 	// register input
 	Register("/reaching/nnet/i");
@@ -24,6 +25,7 @@ _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 	_command.Resize(__nJointsArm);
 
 	_nUpdated = 0;
+	_mode = reaching;
 }
 
 ArmMap::~ArmMap()
@@ -33,13 +35,19 @@ ArmMap::~ArmMap()
 
 const YVector &ArmMap::query(const YVector &head)
 {
-	// read head position
-	if (_nUpdated == 0)
+	_headKinematics.update(head);
+	const Y3DVector &cart = _headKinematics.fixation();
+	
+	if (_mode == atnr)
 		_command = _atr.query(head) + _noise.query();
+	else if (_mode == learning)
+	{
+		_nnet.sim(cart.data(), _command.data());
+		_command = _command + _noise.query();
+	}
 	else
 	{
-		_nnet.sim(head.data(), _command.data());
-		_command = _command + _noise.query();
+		_nnet.sim(cart.data(), _command.data());
 	}
 	
 	return _command;
@@ -77,5 +85,7 @@ void ArmMap::OnRead(void)
 	extract(Content(), tmp);
 	load(tmp);
 	_nUpdated++;
+	if (_mode == atnr)
+		_mode = learning;
 	ACE_OS::printf("..done!\n");
 }

@@ -50,17 +50,21 @@ int main(int argc, char* argv[])
 	RBWaitDeltaT trState2(1);
 	RBWaitDeltaT waitSomeTime(4);
 
-
 	// arm random movement
 	_rnd.setInitialState(&init);
 	_rnd.add(NULL, &init, &waitIdle);
+	_rnd.add(&rest, &waitIdle, &waitRest);
 	_rnd.add(&start, &waitIdle, &initMotion);
+	// rest
+	_rnd.add(&rest, &initMotion, &waitRest);
+	_rnd.add(&rest, &waitMotion, &waitRest);
 	_rnd.add(NULL, &initMotion, &waitMotion);
 
 	// no shake
 	if (!_shake)
 	{
 		_rnd.add(&motionDone, &waitMotion, &waitSomeTime);
+		_rnd.add(&rest, &waitSomeTime, &waitRest);
 		_rnd.add(NULL, &waitSomeTime, &initMotion);
 	}
 	else
@@ -95,10 +99,6 @@ int main(int argc, char* argv[])
 		_rnd.add(&rest, &waitShakeForearm, &waitRest);
 		_rnd.add(&rest, &waitShakeArm, &waitRest);
 	}
-
-	// rest
-	_rnd.add(&rest, &waitIdle, &waitRest);
-	_rnd.add(&rest, &waitMotion, &waitRest);
 
 	// wait rest 
 	_rnd.add(&restDone, &waitRest, &initMotion);
