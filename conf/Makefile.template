@@ -1,6 +1,6 @@
 #
 # Template to be included by all YARP makefiles.
-# $Id: Makefile.template,v 1.18 2004-11-03 17:14:26 micheletavella Exp $
+# $Id: Makefile.template,v 1.19 2004-12-06 13:14:08 micheletavella Exp $
 #
 
 QNX_VER = 6.1.0 6.2.0 6.2.1
@@ -23,9 +23,7 @@ ifeq ($(shell uname),QNX)
 
   endif
 
-else
-
-  ifeq ($(shell uname),Linux)
+elif ($(shell uname),Linux)
 
 	SYSDIR = linux
 	EXTRA_OPTS = $(YARP_DEBUG) -fexceptions -pipe -Wpointer-arith -Wno-uninitialized 
@@ -36,20 +34,23 @@ else
 	CDEFS += -DACE_NDEBUG -DACE_USE_RCSID=0
 	CDEFS += -DACE_HAS_EXCEPTIONS -D__ACE_INLINE__ -DACE_HAS_ACE_TOKEN -DACE_HAS_ACE_SVCCONF -DACE_AS_STATIC_LIBS 
 	CFAST = -O3
-	LIBADD = -lpthread -ldl
+ 	LIBADD = -lpthread -ldl
+  
+elif ($(shell uname),Darwin)
 
-  else
-
-	CC = g++
-	CC1 = gcc
-	SYSDIR = winnt
-	CDEFS = -D__WIN__
-	CFAST = -O3
-	LIBADD = 
-
-  endif
+        SYSDIR = darwin
+        EXTRA_OPTS = $(YARP_DEBUG)  -pipe -Wpointer-arith 
+        CC = g++
+        CC1 = gcc
+        CDEFS = $(EXTRA_OPTS) -D__DARWIN__ -DYARP_OS_CONFIG=DARWIN -I/usr/include/g++/ -I$(YARP_ROOT)/include/
+        # got this from ACE compile.
+        CDEFS += -DACE_NDEBUG -DACE_USE_RCSID=0
+        CDEFS += -DACE_HAS_EXCEPTIONS -D__ACE_INLINE__ -DACE_HAS_ACE_TOKEN -DACE_HAS_ACE_SVCCONF -DACE_AS_STATIC_LIBS
+        CFAST = -O2
+        LIBADD = -lpthread -ldl
 
 endif
+
 
 OS=$(SYSDIR)
 
