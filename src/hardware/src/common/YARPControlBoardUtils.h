@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 
 
-// $Id: YARPControlBoardUtils.h,v 1.18 2003-12-02 11:42:49 babybot Exp $
+// $Id: YARPControlBoardUtils.h,v 1.19 2003-12-22 12:23:27 beltran Exp $
 
 #include <conf/YARPConfig.h>
 
@@ -88,32 +88,33 @@ enum ControlBoardCmd
 	CMDSetHomeLevel 		= 53,
 	CMDSetHome 				= 54,
 	CMDSetStopRate 			= 55,	// stop rate1
+	CMDIndexSearch		    = 56,	//Galil Index Search (Index search + jog move = search for indexes)
 	
-	CMDResetController 		= 56,	//used to reset the Galil Controller
-	CMDErrorLimit			= 57,	//Error limit
-	CMDOffOnError			= 58,	//This command causes the controller to shut off
+	CMDResetController 		= 57,	//used to reset the Galil Controller
+	CMDErrorLimit			= 58,	//Error limit
+	CMDOffOnError			= 59,	//This command causes the controller to shut off
 									//the  motor command if a position error exceeds
 									//the limit specified by the ErrorLimit command
 	
-	CMDGetTorqueLimit		= 59,   // get torque limit, single joint
-	CMDGetTorqueLimits		= 60,   // get torque limit, multiple joints
-	CMDAbortAxes			= 61,	// abort motion, Galil
+	CMDGetTorqueLimit		= 60,   // get torque limit, single joint
+	CMDGetTorqueLimits		= 61,   // get torque limit, multiple joints
+	CMDAbortAxes			= 62,	// abort motion, Galil
 
-	CMDDummy 				= 62,	// dummy command for debug purpose
+	CMDDummy 				= 63,	// dummy command for debug purpose
 
-	CMDMotorType			= 63,	// Used to set the motor type
+	CMDMotorType			= 64,	// Used to set the motor type
 
-	CMDGetMotorType			= 64,
+	CMDGetMotorType			= 65,
 
 	/////////////////
-	CMDReadAnalog			= 65,	// read analog input
-	CMDSetAxisAnalog		= 66,	// configure axis analog
+	CMDReadAnalog			= 66,	// read analog input
+	CMDSetAxisAnalog		= 67,	// configure axis analog
 	
-	CMDSetDR				= 67,	// Configures the second communication channel and the data update
-	CMDCheckFramesLeft		= 68,	// return true if frames are left to be executed for one or more axes
-	CMDWaitForFramesLeft	= 69,	// wait, loop with sleep(time), see .h for details
-	CMDSafeVMove			= 70,	// velocity move, check frames left
-	CBNCmds 				= 71 	// required! tells the total number of commands
+	CMDSetDR				= 68,	// Configures the second communication channel and the data update
+	CMDCheckFramesLeft		= 69,	// return true if frames are left to be executed for one or more axes
+	CMDWaitForFramesLeft	= 70,	// wait, loop with sleep(time), see .h for details
+	CMDSafeVMove			= 71,	// velocity move, check frames left
+	CBNCmds 				= 72 	// required! tells the total number of commands
 
 };
 

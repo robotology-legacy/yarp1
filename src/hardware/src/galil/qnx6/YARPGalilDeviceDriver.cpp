@@ -1,4 +1,21 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.13 2003-12-18 14:29:43 beltran Exp $
+// =====================================================================================
+//
+//       YARP - Yet Another Robotic Platform (c) 2001-2003 
+//
+//                    #Ing. Carlos Beltran#
+//
+//     "Licensed under the Academic Free License Version 1.0"
+// 
+//        Filename:  YARPGalilDeviceDriver.cpp
+// 
+//     Description:  
+// 
+//         Version:  $Id: YARPGalilDeviceDriver.cpp,v 1.14 2003-12-22 12:23:27 beltran Exp $
+// 
+//          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
+//         Company:  Lira-Lab
+// 
+// =====================================================================================
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -79,6 +96,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetCommand]		= &YARPGalilDeviceDriver::set_command;
 
 	m_cmds[CMDSetDR]			= &YARPGalilDeviceDriver::set_dr;
+	m_cmds[CMDIndexSearch]		= &YARPGalilDeviceDriver::set_index_search;
 
 	m_cmds[CMDDummy] 			= &YARPGalilDeviceDriver::dummy;
 
@@ -140,6 +158,7 @@ int YARPGalilDeviceDriver::open(void *d)
 	_current_accel	   = new double [m_njoints];
 
 	m_max_vel = false;
+	_index_search = false;
 
 	int i;
 	int j;
@@ -1302,6 +1321,17 @@ int YARPGalilDeviceDriver::set_jogs (void *spds)
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 						  (unsigned char *) m_buffer_out, cmd_length ,
 						  m_buffer_in, buff_length);
+	//----------------------------------------------------------------------
+	// If the seach index procedure has been activated it is necesary to send
+	// the FI command. This is done so because of the particular procedure
+	// used by the galil card to search indexes. JG->FI->BG  
+	//----------------------------------------------------------------------
+	if ( _index_search )
+	{
+		find_index();
+		_index_search = false;
+	}
+
 	rc = begin_motion(NULL);
 	return rc;
 }
@@ -1451,7 +1481,6 @@ int YARPGalilDeviceDriver::get_motor_type(void *par)
 
 int YARPGalilDeviceDriver::check_motion_done(void *flag)
 {
-
 	long rc = 0;
 	bool *tmp = (bool *) flag;
 	unsigned short data_type;
@@ -1495,7 +1524,16 @@ int YARPGalilDeviceDriver::check_motion_done(void *flag, int axis)
 	return rc;
 }
 
-int YARPGalilDeviceDriver::set_dr(void * value)
+//--------------------------------------------------------------------------------------
+//       Class:  YARPGalilDeviceDriver
+//      Method:  set_dr
+// Description:  The DR command is necessary to activate the secondary communications
+// 				 channel in the galil device driver. The parameter accepted controls
+// 				 the frequency used to update the information in the secondary buffer.
+// 				 The ascii version is used because no binary version exist
+//--------------------------------------------------------------------------------------
+int
+YARPGalilDeviceDriver::set_dr(void * value)
 {
 	int rc = 0;
 	int * _value = (int *) value;
@@ -1503,27 +1541,54 @@ int YARPGalilDeviceDriver::set_dr(void * value)
 	char *buff = m_buffer_out;
 
 	buff = _append_cmd("DR",buff);
-	buff = _append_cmd(itoa((int)(* _value),m_aux_buffer,10),buff);
+	buff = _append_cmd(itoa((int)(* _value),m_aux_buffer,10),
+					   buff);
 	buff = _append_cmd('\0', buff);
 
 	rc = DMCCommand((HANDLEDMC) m_handle,
 					m_buffer_out,
-					m_buffer_in, buff_length);
-	/*	
-	char cmd[] = "DR-3";		//<-- an space left for the axis
+					m_buffer_in, 
+					buff_length);
+	return rc;
+}
 
+//--------------------------------------------------------------------------------------
+//       Class:  YARPGalilDeviceDriver
+//      Method:  activate_index_search
+// Description:  This method set a boolean variable that it used by the set_jogs method
+// 				 to detect if indexes have to be searched.  
+//--------------------------------------------------------------------------------------
+int
+YARPGalilDeviceDriver::set_index_search(void * cmd)
+{
+	bool *tmp = (bool *) cmd;
+	_index_search = *tmp; 
+	return 0;	
+}
+
+//--------------------------------------------------------------------------------------
+//       Class:  YARPGalilDeviceDriver
+//      Method:  find_index 
+// Description:  This method activates de FI command in all the axis. It is not available 
+// 				 externally. This is because the find index procedure has to follow a 
+// 				 particular sequence (JG,FI,BG). Therefore, in upper levels the activate_index_search
+// 				 is used.
+//--------------------------------------------------------------------------------------
+int
+YARPGalilDeviceDriver::find_index()
+{
+	int rc = 0;
 	char *buff = m_buffer_out;
 
-	memcpy(buff, cmd, sizeof(cmd)); //we include also the \0 in cmd 
-	buff+=(sizeof(cmd));
+	buff = _append_cmd((char) 0xA5, buff);		//FI
+	buff = _append_cmd((char) 0x00, buff);		//00 no data fields
+	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
+	buff = _append_cmd((char) 0x00, buff);		//00 for all the axis
 
-	// close command
-	//buff = _append_cmd('\0', buff);
-
-	rc = DMCCommand((HANDLEDMC) m_handle,
-	m_buffer_out,
-	m_buffer_in, buff_length);
-
-*/
+	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+						  (unsigned char *) m_buffer_out, 
+						  4,
+						  m_buffer_in, 
+						  buff_length);
 	return rc;
 }

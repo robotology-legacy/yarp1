@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.12 2003-12-18 14:31:32 beltran Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.13 2003-12-22 12:23:27 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -114,6 +114,8 @@ public:
 	int check_motion_done(void *flag,int axis);
 
 	int set_dr(void * value);
+	int set_index_search(void * cmd);
+	int find_index(); 
 
 	int dummy(void *d);	// dummy function, for debug purpose
 
@@ -126,6 +128,7 @@ protected:
 	double * m_temp_double_array;
 	long * data;
 	bool m_max_vel;
+	bool _index_search;
 
 	double * _last_ordered_positions;
 	double * _current_positions;

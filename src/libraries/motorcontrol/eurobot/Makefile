@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2003-11-17 11:18:35 beltran Exp $
+# $Id: Makefile,v 1.8 2003-12-22 12:23:27 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -28,7 +28,7 @@ OUTDIR = ../obj/$(SYSDIR)
 #	$(CC) $(CFLAGS) -c $^ -o $@
 
 test: cardtest.cpp
-	$(CC) $(CFLAGS)  cardtest.cpp -o cardtest $(LIBS)
+	#$(CC) $(CFLAGS)  cardtest.cpp -o cardtest $(LIBS)
 	$(CC) $(CFLAGS)  armtest.cpp -o armtest $(LIBS)
 
 all: target

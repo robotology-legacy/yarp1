@@ -1,9 +1,25 @@
-// -- by carlos
+// =====================================================================================
+//
+//       YARP - Yet Another Robotic Platform (c) 2001-2003 
+//
+//                    #Ing. Carlos Beltran#
+//
+//     "Licensed under the Academic Free License Version 1.0"
+// 
+//        Filename:  YARPGALILOnEurobotArmAdapter.h
+// 
+//     Description:  
+// 
+//         Version:  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.10 2003-12-22 12:23:27 beltran Exp $
+// 
+//          Author:  Ing. Carlos Beltran (Carlos)
+//         Company:  Lira-Lab
+//           Email:  cbeltran@dist.unige.it
+// 
+// =====================================================================================
 
 #ifndef __GALILONEUROBOTARMADAPTER__
 #define __GALILONEUROBOTARMADAPTER__
-
-// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.9 2003-12-18 16:34:23 beltran Exp $
 
 #include <ace/Log_Msg.h>
 #include <YARPGalilDeviceDriver.h>
@@ -367,8 +383,8 @@ class YARPGALILOnEurobotArmAdapter : public YARPGalilDeviceDriver
 				cmd.parameters = &pos;
 				IOCtl(CMDDefinePosition, &cmd);
 				IOCtl(CMDServoHere,NULL); //Start the motors. This activates the amplifiers
-				_amplifiers = true;
 			}
+			_amplifiers = true;
 
 			return YARP_OK;
 		}
@@ -404,7 +420,24 @@ class YARPGALILOnEurobotArmAdapter : public YARPGalilDeviceDriver
 			return _parameters->_maxDAC[tmp];
 		}
 
-		int calibrate() {
+		//--------------------------------------------------------------------------------------
+		//       Class: YARPGALILOnEurobotArmAdapter 
+		//      Method: calibrate() 
+		// Description: The finding index procedure in the Galil motion card is different from that
+		// 				on the MEI. The FI (find index) command it is used together with JG and BG.
+		// 				The problem is that when the card find and index it reset the position of
+		// 				the encoders to 0. Therefore, it is no way to implement a similar procedure
+		// 				that the one used in the MEI. 
+		// 				Then I have implemented a simplified procedure. Empirically I have found
+		// 				the nearest indexes to the initial position (marked with red signs on the
+		// 				arm) and it came out that they are found in the negative direction of the joints,
+		// 				for all of them. So, the speed used to find the indexes is -500 for all of them.
+		// 				Note: The wait for motion done is not used because we dont need to wait to recover
+		// 				the new position.
+		//--------------------------------------------------------------------------------------
+		int 
+		calibrate() 
+		{
 			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Starting calibration routine...\n"));
 			if (! (_initialized && _amplifiers) )
 			{
@@ -412,77 +445,21 @@ class YARPGALILOnEurobotArmAdapter : public YARPGalilDeviceDriver
 				return YARP_FAIL;
 			}
 
+			bool indexsearchFlag = true;
 			bool limitFlag = false;
 			if (_softwareLimits)
 				limitFlag = true;
 			disableLimitCheck();
 
-			double speeds1[6] = {500.0, 500.0, 500.0, 500.0, 500.0, 500.0};
-			double speeds2[6] = {-500.0, -500.0, -500.0, -500.0, -500.0, -500.0};
-			double acc[6] = {5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0};
-			double posHome[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-			double pos1[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-			double pos2[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-			double newHome[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+			double speeds1[6] = {-500.0, -500.0, -500.0, -500.0, -500.0, -500.0};
 
-			//////////// find first index
-			_setHomeConfig(CBStopEvent);
-			_clearStop();
-			//
-			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Searching first index...\n"));
-			IOCtl(CMDSetAccelerations, acc);
+			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Searching indexes...\n"));
+			IOCtl(CMDIndexSearch, &indexsearchFlag);
 			IOCtl(CMDVMove, speeds1);
-			IOCtl(CMDWaitForMotionDone, NULL);
-			IOCtl(CMDGetPositions, pos1);
+			//IOCtl(CMDWaitForMotionDone, NULL);
+			//IOCtl(CMDGetPositions, pos1);
 			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
 			////////////////////////////
-
-			//////////// go back to home position
-			_setHomeConfig(CBNoEvent);
-			_clearStop();
-			//
-			IOCtl(CMDSetSpeeds, speeds1);
-			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Going back to initial position... \n"));
-			IOCtl(CMDSetPositions, posHome);
-			IOCtl(CMDWaitForMotionDone, NULL);
-			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
-			///////////////////////////////
-
-			//////////// find second index
-			_setHomeConfig(CBStopEvent);
-			_clearStop();
-			//
-			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Searching second index ... \n"));
-			IOCtl(CMDSetAccelerations, acc);
-			IOCtl(CMDVMove, speeds2);
-			IOCtl(CMDWaitForMotionDone, NULL);
-			IOCtl(CMDGetPositions, pos2);
-			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
-			////////////////////////////
-
-			// compute new home position
-			for(int i = 0; i < _parameters->_nj; i++)
-			{
-				newHome[i] = (pos1[i]+pos2[i])/2;
-			}
-			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Calibration: %lf %lf %lf %lf %lf %lf!\n", newHome[0], newHome[1], newHome[2], newHome[3], newHome[5]));
-
-			//////////// go back to the calibrated position
-			_setHomeConfig(CBNoEvent);
-			_clearStop();
-			//
-			IOCtl(CMDSetSpeeds, speeds1);
-			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Finally move to the calibrated position... \n"));
-			IOCtl(CMDSetPositions, newHome);
-			IOCtl(CMDWaitForMotionDone, NULL);
-			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done!\n"));
-			///////////////////////////////
-
-			// reset encoders here
-			_setHomeConfig(CBNoEvent);
-			_clearStop();
-			IOCtl(CMDDefinePositions, posHome);	// posHome is still '0'
-			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Reset encoders... done!\n"));
 
 			if (limitFlag)
 				enableLimitCheck();
