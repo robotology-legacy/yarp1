@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.2 2004-07-13 13:47:56 babybot Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.3 2004-07-14 12:16:17 babybot Exp $
 ///
 ///
 
@@ -90,6 +90,12 @@ struct PicoloOpenParameters
  * The device driver handles triple buffering by having a thread waiting on new frame events and
  * manually generating the correct pointer for the user to read. The class is not itself 
  * protected by a mutex since there's an internal mutex already. This is hidden in system_resources.
+ * The crucial methods of this class allows waiting for the next frame to be acquired
+ * (waitOnNewFrame()), then acquire the last buffer (acquireBuffer()) which protects the 
+ * acquired image during multi-thread access, and finally release the buffer by calling
+ * releaseBuffer(). This last operation is required to allow the driver to continue its
+ * operation. The remainder of the methods are for controlling the acquisition parameters
+ * (in practice certain hardware filters and amplifier gains).
  */
 class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>, public YARPThread
 {
@@ -128,17 +134,90 @@ protected:
 	 * @return YARP_OK if successful.
 	 */
 	virtual int acquireBuffer(void *buffer);
-	virtual int releaseBuffer(void *);
+
+	/**
+	 * Releases the current image buffer.
+	 * @param cmd is not used.
+	 * @return YARP_OK if successful.
+	 */
+	virtual int releaseBuffer(void *cmd);
+
+	/**
+	 * Waits on a new frame. An event is signaled when a new frame is acquired,
+	 * the calling thread waits efficiently on this event.
+	 * @param cmd is not used.
+	 * @return YARP_OK on success.
+	 */
 	virtual int waitOnNewFrame (void *cmd);
+
+	/**
+	 * Returns the width of the acquired image.
+	 * @param cmd is a pointer to an integer.
+	 * @return YARP_OK on success.
+	 */
 	virtual int getWidth(void *cmd);
+
+	/**
+	 * Returns the height of the acquired image.
+	 * @param cmd is a pointer to an integer.
+	 * @return YARP_OK on success.
+	 */
 	virtual int getHeight(void *cmd);
+
+	/**
+	 * Sets the average image brightness. UNIMPLEMENTED.
+	 * @param cmd is a pointer to an integer.
+	 * @return YARP_OK on success.
+	 */
 	virtual int setBrightness (void *cmd);
+
+	/**
+	 * Sets the acquisition hue. UNIMPLEMENTED.
+	 * @param cmd is a pointer to an integer.
+	 * @return YARP_OK on success.
+	 */
 	virtual int setHue (void *cmd);
+
+	/**
+	 * Sets the acquisition contrast. UNIMPLEMENTED.
+	 * @param cmd is a pointer to an integer.
+	 * @return YARP_OK on success.
+	 */
 	virtual int setContrast (void *cmd);
+
+	/**
+	 * Sets the gain of the amplifier on the U chroma channel. UNIMPLEMENTED.
+	 * @param cmd is a pointer to an integer.
+	 * @return YARP_OK on success.
+	 */
 	virtual int setSatU (void *cmd);
+
+	/**
+	 * Sets the gain of the amplifier on the V chroma channel. UNIMPLEMENTED.
+	 * @param cmd is a pointer to an integer.
+	 * @return YARP_OK on success.
+	 */
 	virtual int setSatV (void *cmd);
+
+	/**
+	 * Enables the notch filter (bt848 hardware). UNIMPLEMENTED.
+	 * @param cmd is a pointer to an integer.
+	 * @return YARP_OK on success.
+	 */
 	virtual int setLNotch (void *cmd);
+
+	/**
+	 * Enables the decimation filter (bt848 hardware). UNIMPLEMENTED.
+	 * @param cmd is a pointer to an integer.
+	 * @return YARP_OK on success.
+	 */
 	virtual int setLDec (void *cmd);
+
+	/**
+	 * Enables the crush filter (bt848 hardware). UNIMPLEMENTED.
+	 * @param cmd is a pointer to an integer.
+	 * @return YARP_OK on success.
+	 */
 	virtual int setCrush (void *cmd);
 
 protected:
