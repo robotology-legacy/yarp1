@@ -1,7 +1,7 @@
 #ifndef __YARPEUROBOTHEAD__
 #define __YARPEUROBOTHEAD__
 
-// $Id: YARPEurobotHead.h,v 1.5 2003-12-22 17:57:49 beltran Exp $
+// $Id: YARPEurobotHead.h,v 1.6 2003-12-23 17:53:56 beltran Exp $
 
 #include <conf/YARPConfig.h>
 #include <YARPGenericControlBoard.h>
@@ -11,18 +11,16 @@ namespace _limits
 {
 	const int neckPan = 0;
 	const int neckTilt = 1;
-	const int eyeTilt = 2;
-	const int eyeVersion = 3;
-	const int eyeVergence = 4;
+	const int eyeVersion = 2;
+	const int eyeVergence = 3;
 };
 
 namespace _joints
 {
 	const int neckPan = 0;
 	const int neckTilt = 1;
-	const int eyeTilt = 2;
-	const int rightEye = 3;
-	const int leftEye = 4;
+	const int rightEye = 2;
+	const int leftEye = 3;
 };
 
 //typedef YARPGenericControlBoard<YARPGALILOnEurobotHeadAdapter, YARPEurobotHeadParameters> YARPEurobotHead;
@@ -33,20 +31,20 @@ class YARPEurobotHead: public YARPGenericControlBoard<YARPGALILOnEurobotHeadAdap
 public:
 	inline double vergence(double *pos)
 	{
-		return -( pos[_joints::rightEye] + pos[_joints::leftEye] );
+		return -( pos[_joints::rightEye] - pos[_joints::leftEye] );
 	}
 	inline double dot_vergence(double *cmd)
 	{
-		return cmd[_joints::rightEye] + cmd[_joints::leftEye];
+		return cmd[_joints::rightEye] - cmd[_joints::leftEye];
 	}
 
 	inline double version(double *pos)
 	{
-		return 0.5*(pos[_joints::rightEye]-pos[_joints::leftEye]);
+		return 0.5*(-pos[_joints::rightEye]+pos[_joints::leftEye]);
 	}
 	inline double dot_version(double *cmd)
 	{
-		return 0.5*(cmd[_joints::rightEye]-cmd[_joints::leftEye]);
+		return 0.5*(-cmd[_joints::rightEye]+cmd[_joints::leftEye]);
 
 	}
 	inline bool checkLimits(double *pos, double *cmd)
@@ -61,14 +59,6 @@ public:
 		{
 			cmd[_joints::rightEye] = 0.0;
 			cmd[_joints::leftEye] = 0.0;
-			ret = true;
-		}
-
-		// check eyes, tilt
-		tmp = checkSingleJoint(pos[_joints::eyeTilt], cmd[_joints::eyeTilt], _parameters._limitsMax[_limits::neckPan], _parameters._limitsMin[_limits::eyeTilt], 1);
-		if (tmp)
-		{
-			cmd[_joints::eyeTilt] = 0.0;
 			ret = true;
 		}
 
