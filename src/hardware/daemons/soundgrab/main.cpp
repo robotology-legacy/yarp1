@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: main.cpp,v 1.8 2004-04-27 16:17:48 beltran Exp $
+//         Version:  $Id: main.cpp,v 1.9 2004-05-24 12:53:35 beltran Exp $
 // 
 //          Author:  Eng. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -433,7 +433,8 @@ mainthread::_runAsSimulation (void)
 int 
 mainthread::_runAsNormally (void)
 {
-	int frame_no = 0;
+	int frame_no   = 0;
+	int mute_value = 1;
 
 	YARPSoundGrabber soundgrabber;
 	YARPSoundBuffer buffer;
@@ -453,6 +454,7 @@ mainthread::_runAsNormally (void)
 							 _BitsPerSample,
 							 _BufferLength);
 	soundgrabber.setVolume(_volume);
+	soundgrabber.setMute(mute_value);
 
 	/// alloc buffer.
 	buffer.Resize (_BufferLength);
@@ -509,6 +511,7 @@ mainthread::_runAsNormally (void)
 			delete m_fg_net_data; 
 	}
 
+	soundgrabber.setMute(0);
 	soundgrabber.uninitialize ();
 
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
