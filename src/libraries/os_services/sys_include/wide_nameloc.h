@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: wide_nameloc.h,v 1.3 2003-04-22 16:22:04 natta Exp $
+/// $Id: wide_nameloc.h,v 1.4 2003-04-22 16:23:11 natta Exp $
 ///
 ///
 
@@ -64,6 +64,7 @@
 #include <ace/SOCK_Acceptor.h>
 #include <ace/SOCK_Connector.h>
 #include <ace/SOCK_Stream.h>
+#include <ace/Log_Msg.h>
 
 #include "YARPNetworkTypes.h"
 #include "YARPNameID_defs.h"
@@ -79,7 +80,7 @@
 ///
 ///
 #define __YARP_NAMESERVICE_STRING_LEN 256
-#define __YARP_NAMESERVICE_UDP_MAX_PORTS 20
+#define __YARP_NAMESERVICE_UDP_MAX_PORTS 21
 
 ///
 ///
@@ -200,7 +201,6 @@ public:
 	char _ip[__YARP_NAMESERVICE_STRING_LEN];
 	NetInt32 _port;
 } PACKED_FOR_NET;
-#include "end_pack_for_net.h"
 
 class YARPNameUDP
 {
@@ -229,13 +229,19 @@ public:
 
 	void setPorts(NetInt32 index, NetInt32 p)
 	{
-		ACE_ASSERT( (index>0) && (index<=__YARP_NAMESERVICE_UDP_MAX_PORTS) );
-		_port[index] = p;
+		ACE_ASSERT( (index>=0) && (index<__YARP_NAMESERVICE_UDP_MAX_PORTS) );
+		_ports[index] = p;
+	}
+
+	void setNPorts(NetInt32 n)
+	{
+		ACE_ASSERT( (n>=1) && (n<=__YARP_NAMESERVICE_UDP_MAX_PORTS) );
+		_nPorts = n;
 	}
 
 	void getAddr(ACE_INET_Addr &addr)
 	{
-		addr.set(_port, _ip);
+		addr.set(_ports[0], _ip);
 	}
 
 	char *getName()
@@ -245,8 +251,8 @@ public:
 	{return _ip;}
 
 	NetInt32 getPorts(NetInt32 index) {
-		ACE_ASSERT( (index>0) && (index<=__YARP_NAMESERVICE_UDP_MAX_PORTS) );
-		return _port[index];
+		ACE_ASSERT( (index>=0) && (index<__YARP_NAMESERVICE_UDP_MAX_PORTS) );
+		return _ports[index];
 	}
 
 	int length()
@@ -254,7 +260,8 @@ public:
 
 	char _name[__YARP_NAMESERVICE_STRING_LEN];
 	char _ip[__YARP_NAMESERVICE_STRING_LEN];
-	NetInt32 _ports[__YARP_NAMESERVICE_UDP_MAX_PORTS+1];
+	NetInt32 _ports[__YARP_NAMESERVICE_UDP_MAX_PORTS];
+	NetInt32 _nPorts;
 } PACKED_FOR_NET;
 #include "end_pack_for_net.h"
 
