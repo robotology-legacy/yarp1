@@ -98,7 +98,7 @@ SOURCE=.\headsmooth.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\sink.cpp
+SOURCE=.\smoothcontrol.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -106,7 +106,7 @@ SOURCE=.\sink.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\sink.h
+SOURCE=.\smoothcontrol.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

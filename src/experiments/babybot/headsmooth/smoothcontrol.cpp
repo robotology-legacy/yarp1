@@ -1,8 +1,9 @@
 #include "smoothcontrol.h"
 
-SmoothControl::SmoothControl()
+SmoothControl::SmoothControl(int insize, int outsize)
 {
-
+	_inSize = insize;
+	_outSize = outsize;
 }
 
 SmoothControl::~SmoothControl()
