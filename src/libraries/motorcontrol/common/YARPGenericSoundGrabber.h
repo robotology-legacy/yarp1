@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPGenericSoundGrabber.h,v 1.2 2004-03-03 15:56:20 beltran Exp $
+//         Version:  $Id: YARPGenericSoundGrabber.h,v 1.3 2004-04-27 16:18:29 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -32,8 +32,8 @@
 // 
 //  Description:  
 // 
-//       Author:  Ing. Carlos Beltran
-//      Created:  25/02/2004 16:02:18 W. Europe Standard Time
+//       Author:  Carlos Beltran
+//      Created:  25/02/2004 16:02:18 
 //     Revision:  none
 // =====================================================================================
 template <class ADAPTER, class PARAMETERS>
@@ -53,6 +53,8 @@ public:
 	int acquireBuffer (unsigned char **buffer);
 	int releaseBuffer (void);
 	int waitOnNewFrame (void);
+	int setVolume(int);
+	int setMute();
 };
 
 //--------------------------------------------------------------------------------------
@@ -130,5 +132,31 @@ template <class ADAPTER, class PARAMETERS>
 int YARPGenericSoundGrabber<ADAPTER, PARAMETERS>::waitOnNewFrame (void)
 {
 	return _adapter.IOCtl (SCMDWaitNewFrame, NULL);
+}
+
+//--------------------------------------------------------------------------------------
+//       Class:  YARPGenericSoundGrabber
+//      Method:  setVolume
+// Description:  
+//--------------------------------------------------------------------------------------
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericSoundGrabber<ADAPTER, PARAMETERS>::setVolume(int volume)
+{
+	int ret;
+	ret = _adapter.IOCtl(SCMDSetVolume,&volume);
+	return ret;
+}
+
+//--------------------------------------------------------------------------------------
+//       Class:  YARPGenericSoundGrabber
+//      Method:  setMute
+// Description:  
+//--------------------------------------------------------------------------------------
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericSoundGrabber<ADAPTER, PARAMETERS>::setMute()
+{
+	int ret;
+	ret = _adapter.IOCtl(SCMDSetMute,&volume);
+	return ret;
 }
 #endif
