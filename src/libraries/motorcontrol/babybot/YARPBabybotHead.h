@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotHead.h,v 1.9 2004-01-17 00:15:15 gmetta Exp $
+///  $Id: YARPBabybotHead.h,v 1.10 2004-03-12 16:12:41 gmetta Exp $
 ///
 ///
 
@@ -97,6 +97,7 @@ public:
 	{
 		return -( pos[_joints::rightEye] + pos[_joints::leftEye] );
 	}
+
 	inline double dot_vergence(double *cmd)
 	{
 		return cmd[_joints::rightEye] + cmd[_joints::leftEye];
@@ -106,11 +107,13 @@ public:
 	{
 		return 0.5*(pos[_joints::rightEye]-pos[_joints::leftEye]);
 	}
+
 	inline double dot_version(double *cmd)
 	{
 		return 0.5*(cmd[_joints::rightEye]-cmd[_joints::leftEye]);
 
 	}
+
 	inline bool checkLimits(double *pos, double *cmd)
 	{
 		bool ret = false;

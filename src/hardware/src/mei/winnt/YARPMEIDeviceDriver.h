@@ -5,7 +5,9 @@
 // April 2003 -- by nat
 //
 // win32: link Medvc50f.lib 
-// $Id: YARPMEIDeviceDriver.h,v 1.11 2003-12-23 11:21:59 babybot Exp $
+//
+// $Id: YARPMEIDeviceDriver.h,v 1.12 2004-03-12 16:12:41 gmetta Exp $
+
 #ifndef __YARP_MEI_DEVICE_DRIVER__
 #define __YARP_MEI_DEVICE_DRIVER__
 
@@ -16,6 +18,8 @@
 
 #include <stdlib.h>
 #include <string.h>
+
+
 // abstract, SYNC is the semaphore type.
 //
 
@@ -35,6 +39,9 @@ struct MEIOpenParameters
 	int meiPortAddr;
 };
 
+///
+///
+///
 class YARPMEIDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver> 
 {
 public:
@@ -148,6 +155,14 @@ private:
 	int16 *_all_axes;
 	int *_events;
 
+	int16 *_winding;			/// counting how many times the encoder wraps up.
+	double *_16bit_oldpos;		/// storing the old 16 bit position value (encoder).
+	double *_position_zero;		/// the zero reading of the encoders.
+
+	/// PASA:
+	/// the dev driver doesn't have any control on the calibration of encoders!
+
+	inline int _sgn(double x) { return (x>0) ? 1 : -1; }
 };
 
 #endif // .h

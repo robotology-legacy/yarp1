@@ -160,7 +160,7 @@ void HeadThread::doLoop()
 	/// get head
 	_head.getPositions(_head._status._current_position.data());
 	_head.getVelocities(_head._status._velocity.data());
-	_head._status._velocity*=radToDeg/10;		//normalize
+	_head._status._velocity *= radToDeg/10;		//normalize
 
 	_head.readAnalogs(_inertial.data());
 

@@ -19,7 +19,7 @@
 class HeadSharedData: public MY_HEAD, public YARPBehaviorSharedData
 {
 public:
-	HeadSharedData():YARPBehaviorSharedData("/headcontrol/behavior/o", "Motor"){};
+	HeadSharedData():YARPBehaviorSharedData("/headcontrol/behavior/o", "Motor") {}
 
 	void initialize(const YARPString &path, const YARPString &iniFile)
 	{

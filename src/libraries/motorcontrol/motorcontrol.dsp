@@ -116,6 +116,10 @@ SOURCE=.\common\YARPGenericGrabber.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\common\YARPGenericSoundGrabber.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\common\YARPJR3Adapter.h
 # End Source File
 # Begin Source File

@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.10 2004-01-17 00:15:15 gmetta Exp $
+///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.11 2004-03-12 16:12:41 gmetta Exp $
 ///
 ///
 
@@ -356,6 +356,7 @@ public:
 		_initialized = false;
 		return YARP_OK;
 	}
+
 	int idleMode()
 	{
 		for(int i = 0; i < _parameters->_nj; i++)

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.7 2003-12-23 11:21:59 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.8 2004-03-12 16:12:58 gmetta Exp $
 ///
 ///
 
@@ -93,6 +93,7 @@ public:
 		_currentLimits = NULL;
 		_newLimits = NULL;
 	}
+
 	~YARPGenericControlBoard<ADAPTER, PARAMETERS>()
 	{
 		if (_temp_double != NULL)
@@ -234,6 +235,7 @@ public:
 		_unlock();
 		return -1;
 	}
+
 	int setAccs(const double *acc)
 	{
 		_lock();
@@ -394,11 +396,8 @@ public:
 	PARAMETERS _parameters;
 
 protected:
-	inline void _lock(void)
-	{_mutex.Wait();}	// add timeout ?
-
-	inline void _unlock(void)
-	{_mutex.Post();}
+	inline void _lock(void) { _mutex.Wait(); }	// add timeout ?
+	inline void _unlock(void) { _mutex.Post(); }
 
 	int _initialize()
 	{
@@ -500,6 +499,7 @@ int YARPGenericControlBoard<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *
 	delete [] currentPos; 
 	return -1;
 }
+
 template <class ADAPTER, class PARAMETERS>
 inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 angleToEncoder(double angle, double encParam, int zero, int sign)

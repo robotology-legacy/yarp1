@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.17 2003-12-02 11:42:49 babybot Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.18 2004-03-12 16:12:41 gmetta Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -117,7 +117,7 @@ YARPMEIDeviceDriver::~YARPMEIDeviceDriver()
 
 int YARPMEIDeviceDriver::open(void *d)
 {
-	// temporarly removed
+	// temporarily removed
 	int16 rc = 0;
 
 	MEIOpenParameters *p = (MEIOpenParameters *)d;
@@ -142,6 +142,15 @@ int YARPMEIDeviceDriver::open(void *d)
 
 	_dsp_rate = dsp_sample_rate();
 	
+	_winding = new int16[_njoints];
+	ACE_ASSERT (_winding != NULL);
+
+	_16bit_oldpos = new double[_njoints];
+	ACE_ASSERT (_16bit_oldpos != NULL);
+
+	_position_zero = new double[_njoints];
+	ACE_ASSERT (_position_zero != NULL);
+
 	return rc;
 }
 
@@ -158,6 +167,9 @@ int YARPMEIDeviceDriver::close(void)
 
 	delete [] _filter_coeffs;
 	delete [] _all_axes;
+
+	if (_winding != NULL) delete[] _winding;
+	if (_16bit_oldpos != NULL) delete[] _16bit_oldpos;
 
 	_njoints = 0;
 	
@@ -205,19 +217,69 @@ int YARPMEIDeviceDriver::definePosition (void *cmd)
 
 	rc = set_position(tmp->axis, *pos);
 
+	/// this is to reset the encoder ref value.
+	/// LATER: need to verify whether summing pos is the right thing to do.
+	_position_zero[tmp->axis] = double(dsp_encoder (tmp->axis)) + *pos;
+
 	return rc;
 }
 
 int YARPMEIDeviceDriver::getPositions(void *j)
 {
-	long rc = 0;
-
+	///long rc = 0;
 	double *out = (double *) j;
 
 	for(int i = 0; i < _njoints; i++)
-		rc = get_position(i, &out[i]);
+	{
+		/// direct reading from the DSP (fast!).
+		out[i] = double(dsp_encoder (i));
 
-	return rc;
+		/// computing the actual encoder value.
+		if (_sgn(out[i]) < 0 && _16bit_oldpos[i] > 16384.0 && _winding[i] == 0)
+		{
+			_winding[i] = 1;
+		}
+		else
+		if (_sgn(out[i]) > 0 && _16bit_oldpos[i] < -16384.0 && _winding[i] == 1)
+		{
+			_winding[i] = 0;
+		}
+		else
+		if (_sgn(out[i]) > 0 && _16bit_oldpos[i] < -16384.0 && _winding[i] == 0)
+		{
+			_winding[i] = -1;
+		}
+		else
+		if (_sgn(out[i]) < 0 && _16bit_oldpos[i] > 16384.0 && _winding[i] == -1)
+		{
+			_winding[i] = 0;
+		}
+
+		_16bit_oldpos[i] = out[i];
+
+		switch (_winding[i])
+		{
+			case 1:
+				out[i] = 65535.0 + out[i] - _position_zero[i];
+				break;
+
+			case -1:
+				out[i] = -65535.0 + out[i] - _position_zero[i];
+				break;
+
+			case 0:
+				out[i] -= _position_zero[i];
+				break;
+		}
+
+		/// testing.
+		double tmp_pos;
+		get_position(i, &tmp_pos);
+
+		ACE_DEBUG ((LM_DEBUG, "%f %f\n", tmp_pos, out[i]));
+	}
+
+	return 0;
 }
 
 int YARPMEIDeviceDriver::getRefPositions(void *j)
@@ -279,10 +341,51 @@ int YARPMEIDeviceDriver::getPosition(void *cmd)
 {
 	int16 rc = 0;
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	int axis = tmp->axis;
+	const int axis = tmp->axis;
 
-	rc = get_position(axis, (double *)tmp->parameters);
+	///rc = get_position(axis, (double *)tmp->parameters);
+	double tmpd;
+	tmpd = double(dsp_encoder (axis));
 
+	/// computing the actual encoder value.
+	if (_sgn(tmpd) < 0 && _16bit_oldpos[axis] > 16384.0 && _winding[axis] == 0)
+	{
+		_winding[axis] = 1;
+	}
+	else
+	if (_sgn(tmpd) > 0 && _16bit_oldpos[axis] < -16384.0 && _winding[axis] == 1)
+	{
+		_winding[axis] = 0;
+	}
+	else
+	if (_sgn(tmpd) > 0 && _16bit_oldpos[axis] < -16384.0 && _winding[axis] == 0)
+	{
+		_winding[axis] = -1;
+	}
+	else
+	if (_sgn(tmpd) < 0 && _16bit_oldpos[axis] > 16384.0 && _winding[axis] == -1)
+	{
+		_winding[axis] = 0;
+	}
+
+	_16bit_oldpos[axis] = tmpd;
+
+	switch (_winding[axis])
+	{
+		case 1:
+			tmpd = 65535.0 + tmpd - _position_zero[axis];
+			break;
+
+		case -1:
+			tmpd = -65535.0 + tmpd - _position_zero[axis];
+			break;
+
+		case 0:
+			tmpd -= _position_zero[axis];
+			break;
+	}
+
+	*((double *)tmp->parameters) = tmpd;
 	return rc;
 }
 
@@ -349,7 +452,13 @@ int YARPMEIDeviceDriver::definePositions (void *param)
 
 	double *cmds = (double *) param;
 	for(int i = 0; i < _njoints; i++)
+	{
 		rc = set_position(i, cmds[i]);
+
+		/// this is to reset the encoder ref value.
+		/// LATER: need to verify whether summing cmds[i] is the right thing to do.
+		_position_zero[i] = double(dsp_encoder (i)) + cmds[i];
+	}
 
 	return rc;
 }
@@ -631,7 +740,6 @@ YARPMEIDeviceDriver::readInput(void *input)
 int YARPMEIDeviceDriver::dummy(void *d)
 {
 	int16 rc = 0;
-	
 	return rc;
 }
 
