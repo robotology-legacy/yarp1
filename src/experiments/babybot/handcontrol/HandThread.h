@@ -45,7 +45,8 @@ public:
 	ACE_High_Res_Timer	timer;
 	ACE_Time_Value		period;
 
-	std::string _cfgFile;
+	YARPString _cfgFile;
+	YARPString _path;
 
 	HandFSM *_fsm;
 

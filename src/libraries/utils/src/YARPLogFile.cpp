@@ -2,16 +2,22 @@
 
 YARPLogFile::YARPLogFile()
 {
-	_name = NULL;
 	_fp = NULL;
 	_freeze = true;
 }
 
-YARPLogFile::YARPLogFile(const char *filename)
+YARPLogFile::YARPLogFile(const YARPString &filename)
 {
 	open(filename);
 }
 
+YARPLogFile::YARPLogFile(const YARPString &path, const YARPString &filename)
+{
+	YARPString tmp;
+	tmp = path;
+	tmp.append(filename);
+	open(tmp);
+}
 
 YARPLogFile::~YARPLogFile()
 {

@@ -27,7 +27,7 @@ YARPGravityEstimator::~YARPGravityEstimator()
 
 }
 
-int YARPGravityEstimator::save(const char *filename)
+int YARPGravityEstimator::save(const YARPString &filename)
 {
 	_lock();
 	YMatrix p0(_parSize,_parSize);
@@ -38,7 +38,7 @@ int YARPGravityEstimator::save(const char *filename)
 	// end of the shared part
 	_unlock();
 
-	FILE *fp = fopen(filename, "wt");
+	FILE *fp = fopen(filename.c_str(), "wt");
 	if (fp == NULL)
 		return YARP_FAIL;
 
@@ -57,10 +57,10 @@ int YARPGravityEstimator::save(const char *filename)
 	return YARP_OK;
 }
 
-int YARPGravityEstimator::load(const char *filename)
+int YARPGravityEstimator::load(const YARPString &filename)
 {
 	_lock();
-	FILE *fp = fopen(filename, "r");
+	FILE *fp = fopen(filename.c_str(), "r");
 	int nsteps;
 	YVector t0(_parSize);
 	YMatrix p0(_parSize,_parSize);

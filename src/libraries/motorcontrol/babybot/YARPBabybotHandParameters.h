@@ -1,7 +1,7 @@
 // originally feb 2003 -- by nat
 // adapted to yarp June 2003 -- by nat
 
-// $Id: YARPBabybotHandParameters.h,v 1.3 2003-07-11 14:12:03 babybot Exp $
+// $Id: YARPBabybotHandParameters.h,v 1.4 2003-10-17 16:34:40 babybot Exp $
 
 #ifndef __YARPBABYBOTHANDPARAMETERSH__
 #define __YARPBABYBOTHANDPARAMETERSH__
@@ -59,7 +59,7 @@ public:
 		
 	}
 
-	int load(const std::string &path, const std::string &init_file)
+	int load(const YARPString &path, const YARPString &init_file)
 	{
 		YARPConfigFile cfgFile;
 		// set path and filename

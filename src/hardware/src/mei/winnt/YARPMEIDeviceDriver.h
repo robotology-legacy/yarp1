@@ -5,7 +5,7 @@
 // April 2003 -- by nat
 //
 // win32: link Medvc50f.lib 
-// $Id: YARPMEIDeviceDriver.h,v 1.8 2003-05-21 13:27:22 natta Exp $
+// $Id: YARPMEIDeviceDriver.h,v 1.9 2003-10-17 16:34:40 babybot Exp $
 #ifndef __YARP_MEI_DEVICE_DRIVER__
 #define __YARP_MEI_DEVICE_DRIVER__
 
@@ -119,6 +119,10 @@ public:
 	int setHomeIndexConfig(void *cmd);
 	int setHomeLevel(void *cmd);
 	int setHome(void *cmd);
+
+	// analog input
+	int readAnalog(void *cmd);
+	int setAxisAnalog(void *cmd);
 	
 	int dummy(void *d);	// dummy function, for debug purpose
 

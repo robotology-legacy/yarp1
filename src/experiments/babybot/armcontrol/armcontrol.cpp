@@ -21,6 +21,8 @@ using namespace std;
 
 extern int __debug_level;
 
+char __filename[256] = "arm.ini";
+
 int main(int argc, char* argv[])
 {
 	//__debug_level = 100;
@@ -34,22 +36,19 @@ int main(int argc, char* argv[])
 
 	char *root = GetYarpRoot();
 	char path[256];
-	char filename[256];
-
+	
 #if defined(__WIN32__)
 	ACE_OS::sprintf (path, "%s\\conf\\babybot\\\0", root); 
-	ACE_OS::sprintf (filename, "%s\\conf\\babybot\\arm.ini\0", root); 
 #elif defined (__QNX6__)
 	ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
-	ACE_OS::sprintf (filename, "%s/conf/babybot/arm.ini\0", root); 
 #endif
 
-	file.set(path, "arm.ini");
+	file.set(path, __filename);
 	file.get("[THREAD]", "Rate", &_arm_thread_rate, 1);
 
 	ArmThread arm_thread(_arm_thread_rate,
 						"arm thread",
-						filename);
+						__filename);
 
 	ArmBehavior _arm(&arm_thread, YBLabelMotor, "/armcontrol/behavior/i");
 	arm_thread.start();

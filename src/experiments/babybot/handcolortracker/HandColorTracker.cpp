@@ -9,6 +9,8 @@
 #include <YARPImageFile.h>
 #include <YARPLogpolar.h>
 
+#include <YARPBlobDetector.h>
+
 #include <YARPHistoSegmentation.h>
 
 #include "HandKinematics.h"
@@ -22,8 +24,12 @@ int main(int argc, char* argv[])
 {
 	YARPLpHistoSegmentation _histo(65, 50, 255, 0, 15);
 
+	YARPBlobDetector _blobber((float) 0.0);
+	_blobber.resize(_stheta, _srho, _sfovea);
+
 	YARPInputPortOf<YARPGenericImage> _inPortImage(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 	YARPInputPortOf<YARPGenericImage> _inPortSeg(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	YARPOutputPortOf<YARPGenericImage> _outPortBackprojection(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
 	YARPInputPortOf<YARPBottle>			_armSegmentationPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 	HandKinematics _handLocalization;
@@ -32,6 +38,7 @@ int main(int argc, char* argv[])
 	_inPortImage.Register("/handtracker/i:img", "Net1");
 	_inPortSeg.Register("/handtracker/segmentation/i:img");
 	_armSegmentationPort.Register("/handtracker/segmentation/i:armdata");
+	_outPortBackprojection.Register("/handtracker/backprojection/o:img");
 	
 	YARPImageOf<YarpPixelMono> _left;
 	YARPImageOf<YarpPixelMono> _leftSeg;
@@ -92,7 +99,14 @@ int main(int argc, char* argv[])
 		YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
 		_histo.backProjection(_leftHSV, _outSeg);
 
-		_segmenter.merge(_outSeg, _handLocalization.query());
+		//_blobber.filterLp(_outSeg);
+		YARPImageOf<YarpPixelMono> &tmp = _blobber.getSegmented();
+
+		_segmenter.merge(tmp, _handLocalization.query());
+		//_segmenter.search(_leftHSV, _histo, _handLocalization.query());
+
+		_outPortBackprojection.Content().Refer(_outSeg);
+		_outPortBackprojection.Write();
 	}
 	return 0;
 }

@@ -19,10 +19,20 @@ _arm_status(ini_file),
 _wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 {
+	char *root = GetYarpRoot();
+	char path[256];
+	
+	#if defined(__WIN32__)
+		ACE_OS::sprintf (path, "%s\\conf\\babybot\\\0", root); 
+	#elif defined (__QNX6__)
+		ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
+	#endif
+
 	strncpy(_iniFile, ini_file, 80);
+	strncpy(_path, path, 256);
 
 	YARPConfigFile file;
-	file.set("", ini_file);
+	file.set(_path, ini_file);
 	file.get("[GENERAL]", "Joints", &_nj, 1);
 	file.get("[THREAD]", "TrajSteps", &_nSteps, 1);
 	
@@ -86,29 +96,11 @@ ArmThread::~ArmThread()
 void ArmThread::doInit()
 {
 	// wait for power on
-	_arm.initialize(_iniFile);
+	_arm.initialize(_path, _iniFile);
 
- 	char *root = GetYarpRoot();
-        char path[256];
-        char filename[256];
-
-#if defined(__WIN32__)
-    ACE_OS::sprintf (path, "%s\\conf\\babybot\\\0", root);
-    ACE_OS::sprintf (filename, "%s\\conf\\babybot\\gravity1.ini\0", root);
-	_gravity1.load(filename);
-	ACE_OS::sprintf (filename, "%s\\conf\\babybot\\gravity2.ini\0", root);
-    _gravity2.load(filename);
-	ACE_OS::sprintf (filename, "%s\\conf\\babybot\\gravity3.ini\0", root);
-    _gravity3.load(filename);
-#elif defined (__QNX6__)
-	ACE_OS::sprintf (path, "%s/conf\babybot\\0", root);
-    ACE_OS::sprintf (filename, "%s/conf/babybot/gravity1.ini\0", root);
-    _gravity1.load(filename);
-    ACE_OS::sprintf (filename, "%s/conf/babybot/gravity2.ini\0", root);
-    _gravity2.load(filename);
-    ACE_OS::sprintf (filename, "%s/conf/babybot/gravity3.ini\0", root);
-    _gravity3.load(filename);
-#endif
+	_gravity1.load(_path, "gravity1.ini");
+	_gravity2.load(_path, "gravity2.ini");
+	_gravity3.load(_path, "gravity3.ini");
 
 	std::cout << "Ok, setting PID mode\n";
 	

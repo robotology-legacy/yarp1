@@ -15,6 +15,8 @@ char menu();
 
 using namespace std;
 
+char __configFile[] = "hand.ini";
+
 int main(int argc, char* argv[])
 {
 	YARPScheduler::setHighResScheduling();
@@ -23,12 +25,12 @@ int main(int argc, char* argv[])
 	int _hand_thread_rate;
 	
 	YARPConfigFile file;
-	file.set("Y:\\conf\\babybot\\", "hand.ini");
+	file.set("Y:\\conf\\babybot\\", __configFile);
 	file.get("[THREAD]", "Rate", &_hand_thread_rate, 1);
 		
 	HandThread hand_thread(_hand_thread_rate,
 							"hand thread",
-							"Y:\\conf\\babybot\\hand.ini");
+							__configFile);
 
 	hand_thread.start();
 

@@ -5,7 +5,18 @@ HandThread::HandThread(int rate, const char *name, const char *cfgF):
 YARPRateThread(name, rate),
 _handStatusOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 {
-	_cfgFile = cfgF;
+	char *root = GetYarpRoot();
+	char path[256];
+	
+	#if defined(__WIN32__)
+		ACE_OS::sprintf (path, "%s\\conf\\babybot\\\0", root); 
+	#elif defined (__QNX6__)
+		ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
+	#endif
+
+	_cfgFile = YARPString(cfgF);
+	_path = YARPString(path);
+		
 
 	_fsm = new HandFSM(&_hand);
 
@@ -71,7 +82,7 @@ HandThread::~HandThread()
 
 void HandThread::doInit()
 {
-	_hand.initialize(_cfgFile);
+	_hand.initialize(_path, _cfgFile);
 	_hand.idleMode();
 	_hand.resetEncoders();
 

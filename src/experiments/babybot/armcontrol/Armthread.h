@@ -186,6 +186,7 @@ private:
 	int _nSteps;
 	
 	char _iniFile[80];						// config file
+	char _path[255];
 
 public: //later: make it private
 	YARPControlBoardNetworkData _arm_status;

@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.15 2003-08-01 15:17:51 babybot Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.16 2003-10-17 16:34:40 babybot Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -89,7 +89,11 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetHomeLevel] = &YARPMEIDeviceDriver::setHomeLevel;
 	m_cmds[CMDSetHome] = &YARPMEIDeviceDriver::setHome;
 	m_cmds[CMDSetStopRate] = &YARPMEIDeviceDriver::setStopRate;
-			
+	
+	// analog input
+	m_cmds[CMDReadAnalog] = &YARPMEIDeviceDriver::readAnalog;
+	m_cmds[CMDSetAxisAnalog] = &YARPMEIDeviceDriver::setAxisAnalog;
+
 	m_cmds[CMDDummy] = &YARPMEIDeviceDriver::dummy;
 
 	_events = new int[CBNEvents];
@@ -274,6 +278,29 @@ int YARPMEIDeviceDriver::getPosition(void *cmd)
 	int axis = tmp->axis;
 
 	rc = get_position(axis, (double *)tmp->parameters);
+
+	return rc;
+}
+
+int YARPMEIDeviceDriver::readAnalog(void *cmd)
+{
+	int16 rc = 0;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	int axis = tmp->axis;
+
+	rc = read_axis_analog(axis, (int16 *)tmp->parameters);
+
+	return rc;
+}
+
+int YARPMEIDeviceDriver::setAxisAnalog(void *cmd)
+{
+	int16 rc = 0;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	int axis = tmp->axis;
+	int16 value = *( (int16*) tmp->parameters);
+
+	rc = set_axis_analog(axis, value);
 
 	return rc;
 }

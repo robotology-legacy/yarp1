@@ -4,6 +4,7 @@
 #include <YARPImage.h>
 #include <YARPLogpolar.h>
 #include <YARPPort.h>
+#include <YARPConicFitter.h>
 
 const double __scale = 2.0;
 
@@ -11,38 +12,138 @@ class HandSegmenter
 {
 public:
 	HandSegmenter():
-	outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+	outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
+	histo(255, 0, 15)
 	{
 		outPort.Register("/handtracker/segmentation/o:img");
-		tmpImage.Resize(_logpolarParams::_xsize/__scale, _logpolarParams::_ysize/__scale);
-		outImage.Resize(_logpolarParams::_xsize, _logpolarParams::_ysize);
+		tmpImage.Resize(_logpolarParams::_xsize, _logpolarParams::_ysize);
+		outImage.Resize(_logpolarParams::_xsize/__scale, _logpolarParams::_ysize/__scale);
+		tmpLp.Resize(_logpolarParams::_stheta, _logpolarParams::_srho);
+		mask.Resize(_logpolarParams::_stheta, _logpolarParams::_srho);
 	}
 
 	void merge(const YARPImageOf<YarpPixelMono> &in, const YARPShapeEllipse &el)
 	{
-		mapper.Logpolar2Cartesian(in, tmpImage);
-		// decimate
-		outImage.Zero();
-		iplDecimate(tmpImage, outImage, 1, __scale, 1, __scale, IPL_INTER_LINEAR);
+		mask;
+		// _createMask(el, mask);
+		_filter(in, mask);
+		mapper.ReconstructColor(mask, tmpLp);
+		mapper.Logpolar2Cartesian(tmpLp, tmpImage);
+		YARPSimpleOperation::Decimate(tmpImage, outImage, __scale, __scale);
 		int x,y;
 		mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
-		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelRGB(255, 0, 0));
+		x = (x + _logpolarParams::_xsize/2)/__scale;
+		y = (_logpolarParams::_ysize/2-y)/__scale;
+		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(255, 0, 0));
 		_send();
+	}
+
+	void search(YARPImageOf<YarpPixelHSV> &src, YARPLpHistoSegmentation &target, const YARPShapeEllipse &el)
+	{
+		conicFitter.findEllipse(el, region);
+		cumulateRegion(src, region);
+		cumulateRegion(src, region);
+		// now histo is the histogram of the current circle
+		double p = intersect(target);
+		unsigned char v = p*255;
+		if (v>255)
+			v = 255;
+		
+		outImage.Zero();
+		int x,y;
+		mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
+		x = (x + _logpolarParams::_xsize/2)/__scale;
+		y = (_logpolarParams::_ysize/2-y)/__scale;
+		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(v, 0, 0));
+		//send 
+		_send();
+	}
+		
+	void cumulateRegion(YARPImageOf<YarpPixelHSV> &src, YARPShapeRegion &points)
+	{
+		int m;
+		histo.clean();
+		for(m = 0; m < points.n; m++)
+		{
+			YarpPixelHSV pixel = src(points.t[m], points.r[m]);
+			// later check weight
+			histo.Apply(pixel.h, pixel.s, 0, 1);
+		}
+	}
+
+	double intersect(YARPLpHistoSegmentation &target)
+	{
+		HistoEntry tmpG;
+		HistoEntry tmpH;
+			
+		int it = 0;
+		double sumG = 0.0;
+		double sumH = 0.0;
+		double sum = 0.0;
+		while  ( (target.find(it, tmpG)!=-1) && (histo.find(it, tmpH)!=-1) )
+		{
+			double g = tmpG.value()/target.maximum();
+			double h = tmpH.value()/histo.maximum();
+			
+			sum += (g-h)*(g-h);
+			it++;
+		}
+
+		return sum;
 	}
 	
 private:
 	void _send()
 	{
-	
 		outPort.Content().Refer(outImage);
 		outPort.Write();
 	}
 
+	void _filter(const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelMono> &out)
+	{
+		int i;
+		int j;
+		for (i = 0; i < _logpolarParams::_srho; i++)
+		{
+			char *img1 = in.GetArray()[i];
+			char *img2 = out.GetArray()[i];
+			for(j = 0; j < _logpolarParams::_stheta; j++)
+			{
+				// (*img2) = (*img2)*(*img1);
+				(*img2) = (*img1)*10;
+				if ( (*img2) >255)
+					*img2 = 255;
+
+				img1++;
+				img2++;
+			}
+		}
+	}
+	
+	void _createMask(const YARPShapeEllipse &el, YARPImageOf<YarpPixelMono> &mask)
+	{
+		mask.Zero();
+		conicFitter.findEllipse(el, region);
+		int i;
+		for(i = 0; i < region.n; i++)
+		{
+			mask(region.t[i], region.r[i]) = 1;
+		}
+	}
+
 	YARPOutputPortOf<YARPGenericImage>	outPort;
-	YARPImageOf<YarpPixelRGB> tmpImage;
-	YARPImageOf<YarpPixelRGB> outImage;
+	YARPImageOf<YarpPixelBGR> tmpImage;
+	YARPImageOf<YarpPixelMono> mask;
+	YARPImageOf<YarpPixelBGR> outImage;
+	YARPImageOf<YarpPixelBGR> tmpLp;
 	
 	YARPLogpolar mapper;
+	YARPLpConicFitter conicFitter;
+	YARPShapeRegion region;
+
+	// histo intersection
+	YARP3DHistogram histo;
+
 };
 
 #endif

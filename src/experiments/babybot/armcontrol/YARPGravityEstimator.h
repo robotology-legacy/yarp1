@@ -15,6 +15,7 @@
 #endif
 
 #include "YARPRecursiveLS.h"
+#include <YARPString.h>
 
 const int __gNumOfPar = 6;
 const int __querySize = 500;
@@ -109,8 +110,20 @@ public:
 		_unlock();
 	}
 
-	int load(const char *filename);
-	int save(const char *filename);
+	int load(const YARPString &filename);
+	int load(const YARPString &path, const YARPString &filename)
+	{
+		YARPString tmp(path);
+		tmp.append(filename);
+		return load(tmp);
+	}
+	int save(const YARPString &filename);
+	int save(const YARPString &path, const YARPString &filename)
+	{
+		YARPString tmp(path);
+		tmp.append(filename);
+		return save(tmp);
+	}
 
 private:
 	virtual void _buildInputVector(const YVector &in, YVector &out) = 0;

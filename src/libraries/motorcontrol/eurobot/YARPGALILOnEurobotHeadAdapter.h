@@ -1,4 +1,4 @@
-//$Id: YARPGALILOnEurobotHeadAdapter.h,v 1.2 2003-05-28 16:04:59 beltran Exp $
+//$Id: YARPGALILOnEurobotHeadAdapter.h,v 1.3 2003-10-17 16:34:40 babybot Exp $
 
 #ifndef __GALILONEUROBOTHEAD__
 #define __GALILONEUROBOTHEAD__
@@ -63,7 +63,7 @@ public:
 		}
 	}
 
-	int load(const std::string &init_file)
+	int load(const YARPString &path, const YARPString &init_file)
 	{
 		ACE_ASSERT(0);	//not implemented yet !
 	}

@@ -25,8 +25,8 @@ class YARPControlBoardNetworkData
 {
 public:
 	YARPControlBoardNetworkData(){};
-	YARPControlBoardNetworkData(const char *confFile)
-	{ resize(confFile); };
+	YARPControlBoardNetworkData(const YARPString &path, const YARPString &confFile)
+	{ resize(path, confFile); };
 	YARPControlBoardNetworkData(int rate, int njoints)
 	{ resize(rate, njoints);	}
 	
@@ -47,12 +47,12 @@ public:
 		return *this;
 	}
 
-	void resize(const char *confFile)
+	void resize(const YARPString &path, const YARPString &confFile)
 	{
 		YARPConfigFile file;
 		int nj;
 		int rate;
-		file.set("", confFile);
+		file.set(path, confFile);
 		file.get("[GENERAL]", "Joints", &nj, 1);
 		file.get("[THREAD]", "Rate", &rate, 1);
 		resize(rate, nj);

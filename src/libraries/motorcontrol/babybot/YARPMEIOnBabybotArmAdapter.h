@@ -3,11 +3,11 @@
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.18 2003-08-01 15:17:51 babybot Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.19 2003-10-17 16:34:40 babybot Exp $
 
 #include <ace/log_msg.h>
 #include <YARPMeiDeviceDriver.h>
-#include <string>
+#include <YARPString.h>
 
 #define YARP_BABYBOT_ARM_ADAPTER_VERBOSE
 
@@ -118,7 +118,7 @@ public:
 			delete [] _maxDAC;
 	}
 
-	int load(const std::string &path, const std::string &init_file)
+	int load(const YARPString &path, const YARPString &init_file)
 	{
 		YARPConfigFile cfgFile;
 		// set path and filename

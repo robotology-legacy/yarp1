@@ -1,6 +1,6 @@
 //
 // YARPIniFile.cpp
-// $Id: YARPConfigFile.cpp,v 1.6 2003-10-08 12:23:25 babybot Exp $
+// $Id: YARPConfigFile.cpp,v 1.7 2003-10-17 16:34:40 babybot Exp $
 
 #include "YARPConfigFile.h"
 
@@ -9,10 +9,10 @@
 //
 using namespace std;
 
-bool YARPConfigFile::_open(const char *path, const char *filename)
+bool YARPConfigFile::_open(const YARPString &path, const YARPString &filename)
 {
-	YARPString tmp = YARPString(path);
-	tmp.append(YARPString(filename));
+	YARPString tmp = path;
+	tmp.append(filename);
 	_pFile = fopen(tmp.c_str(), "r");
 	if (_pFile != NULL)
 	{
@@ -159,6 +159,24 @@ int YARPConfigFile::getString(const char *section, const char *name, char *out)
 
 	int i = 0;
 	i = fscanf(_pFile, "%s", out);
+					
+	_close();
+	
+	if (i > 0)
+		return YARP_OK;		// found at least a single char
+	else 
+		return YARP_FAIL;
+}
+
+int YARPConfigFile::getString(const char *section, const char *name, YARPString &out)
+{
+	if (_get(section, name) == YARP_FAIL)
+		return YARP_FAIL;
+
+	int i = 0;
+	char tmp[255];
+	i = fscanf(_pFile, "%s", tmp);
+	out = YARPString(tmp);
 					
 	_close();
 	

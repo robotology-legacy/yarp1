@@ -3,7 +3,7 @@
 #ifndef __GALILONEUROBOTARMADAPTER__
 #define __GALILONEUROBOTARMADAPTER__
 
-// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.5 2003-08-19 08:14:29 beltran Exp $
+// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.6 2003-10-17 16:34:40 babybot Exp $
 
 #include <ace/Log_Msg.h>
 #include <YARPGalilDeviceDriver.h>
@@ -21,6 +21,7 @@
 namespace _EurobotArm
 {
 	const int _nj = 6;
+
 	//char _mask = (char) 0x3F;
 	const LowLevelPID _highPIDs[_nj] =
 	{
@@ -71,7 +72,9 @@ public:
 		_nj = 0;
 		
 		_nj = _EurobotArm::_nj;
+
 		//_mask = _EurobotArm::_mask;
+
 		_mask = (char) 0x3F;
 		_realloc(_nj);
 		int i;
@@ -121,7 +124,7 @@ public:
 			delete [] _maxDAC;
 	}
 
-	int load(const std::string &path, const std::string &init_file)
+	int load(const YARPString &path, const YARPString &init_file)
 	{
 		YARPConfigFile cfgFile;
 		// set path and filename
@@ -233,6 +236,7 @@ public:
 	double *_invCouple;
 	int *_stiffPID;
 	int _nj;
+
 	char _mask;
 	double *_maxDAC;
 };
@@ -259,18 +263,26 @@ public:
 		_parameters = par;
 		GalilOpenParameters op_par;
 		op_par.nj= _parameters->_nj; 
+
 		op_par.mask = _parameters->_mask;
 		if (YARPGalilDeviceDriver::open(&op_par) != 0)
 			return YARP_FAIL;
 
+
+
 		/* First the card needs to be reseted */
+
 		IOCtl(CMDResetController, NULL);
+
 		//idleMode();
+
 		_amplifiers = false;
 
 		// amp level and limits
 		for(int i=0; i < _parameters->_nj; i++)
 		{
+
+
 
 			/************
 			SingleAxisParameters cmd;
@@ -280,65 +292,110 @@ public:
 			cmd.parameters=&level;
 			IOCtl(CMDSetAmpEnableLevel, &cmd);
 			IOCtl(CMDSetAmpEnable, &cmd);
+
 			*************/
 
+
+
 			///pid a cero
+
 			///motors type MT -1,-1,-1,-1,-1,-1,-1,-1
+
 			///activate outputport OP 255
 
+
+
 			SingleAxisParameters cmd;
+
 			cmd.axis=i;
 
+
+
 			double motor_type = -1; //Servo motor with reversed polarity
+
 			cmd.parameters=&motor_type;
+
+
 
 			IOCtl(CMDMotorType,&cmd);
 
+
+
 			IOCtl(CMDGetMotorType,&cmd);
 
+
+
 			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Motor type motor %d = %f\n",cmd.axis, motor_type));
+
 			
+
 			int error = 10000;
+
 			cmd.parameters=&error;
+
 			
+
 			///Set the error limit
+
 			IOCtl(CMDErrorLimit, &cmd);
+
 			
+
 			int value = 1;
+
 			cmd.parameters=&value;
+
 			///set the off_on error
+
 			IOCtl(CMDOffOnError,&cmd); 
+
+
 
 
 			
 			// PUMA has no hw limits
 			// set limit events-> none
+
 			/***************
 			ControlBoardEvents event;
 			event = CBNoEvent;
 			cmd.parameters=&event;
 			IOCtl(CMDSetPositiveLimit, &cmd);
 			IOCtl(CMDSetNegativeLimit, &cmd);
+
 			******************/
 		}
 		
+
 		/*****************
 		// amp enable off
 		IOParameters cmd;
 		cmd.port = 1;
 		cmd.value = (short) 0x01;
+
 		******************/
+
 		
 		/////////////////////////
+
 		// This activates the necesary bit in the output port to be able to start the puma
+
 		// The value has been obtained empirically. It is sure it can be improved by using
+
 		// the time to search the exact bit
 
+
+
 		IOParameters cmd;
+
 		cmd.port = 1; //This is ignored
+
 		cmd.value = (short) 255;
 
+
+
 		IOCtl(CMDSetOutputPort,&cmd);		
+
 	
 		_initialized = true;
 		return YARP_OK;
@@ -346,6 +403,7 @@ public:
 
 	int uninitialize()
 	{
+
 		/**************************
 		/// disable amplifiers
 		IOParameters cmd;
@@ -354,6 +412,7 @@ public:
 		IOCtl(CMDSetOutputPort, &cmd);
 		_amplifiers = false;
 		//////////////////////////
+
 		****************************/
 
 		if (YARPGalilDeviceDriver::close() != 0)
@@ -383,17 +442,21 @@ public:
 			double pos = 0.0;
 			cmd.parameters = &pos;
 			IOCtl(CMDDefinePosition, &cmd);
+
 			IOCtl(CMDServoHere,NULL); //Start the motors
+
 			_amplifiers = true;
 		}
 		/////_setHomeConfig(CBNoEvent);
 		/////_clearStop();
 		/// activate amplifiers
+
 		/********
 		IOParameters cmd;
 		cmd.port = 1;
 		cmd.value = (short) 0x00;
 		IOCtl(CMDSetOutputPort, &cmd);
+
 		****************/
 		
 		//////////////////////////
@@ -403,6 +466,7 @@ public:
 
 	bool checkPowerOn()
 	{
+
 		/***
 		IOParameters cmd;
 		cmd.port = 0;
@@ -412,12 +476,19 @@ public:
 			return true;
 		else
 			return false;
+
 		***/
 
+
+
 		//I didn't find a bit in the input/output Galil ports showing the
+
 		//activation of the armpoweron button. For the moment just
+
 		//return false. Next implement a message asking the user to activate
+
 		//manually the bottom.
+
 		return true;
 	}
 

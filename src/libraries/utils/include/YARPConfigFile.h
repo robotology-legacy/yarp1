@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPConfigFile.h,v 1.8 2003-10-08 12:23:25 babybot Exp $
+/// $Id: YARPConfigFile.h,v 1.9 2003-10-17 16:34:40 babybot Exp $
 ///  
 /// very simple class to handle config files... by nat May 2003
 //
@@ -80,15 +80,15 @@ public:
 		_openFlag = false;
 	}
 
-	YARPConfigFile(const char *path) {
+	YARPConfigFile(const YARPString &path) {
 		_openFlag = false;
 		_path = YARPString(path);
 	}
 
-	YARPConfigFile(const char *path, const char *filename)
+	YARPConfigFile(const YARPString &path, const YARPString &filename)
 	{
-		_path = YARPString(path);
-		_filename = YARPString(filename);
+		_path = path;
+		_filename = filename;
 		_openFlag = false;
 	}
 	
@@ -103,24 +103,25 @@ public:
 	int getHex(const char *section, const char *name, char *out, int n = 1);
 	int getHex(const char *section, const char *name, short *out, int n = 1);
 	int getString(const char *section, const char *name, char *out);
+	int getString(const char *section, const char *name, YARPString &str);
 
-	void set(const char *path, const char *name)
+	void set(const YARPString &path, const YARPString &name)
 	{
 		setName(name);
 		setPath(path);
 	}
 
-	void setName(const char *name)
-	{ _filename = YARPString(name); }
+	void setName(const YARPString &name)
+	{ _filename = name; }
 	
-	void setPath(const char *path)
-	{ _path = YARPString(path); }
+	void setPath(const YARPString &path)
+	{ _path = path; }
 
 private:
 	YARPString _path;
 	YARPString _filename;
 
-	bool _open(const char *path, const char *filename);
+	bool _open(const YARPString &path, const YARPString &filename);
 	void _close()
 	{
 		if (_openFlag) {

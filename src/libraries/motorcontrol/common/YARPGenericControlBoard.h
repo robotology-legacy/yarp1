@@ -61,12 +61,9 @@
 ///
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.2 2003-10-10 13:34:47 beltran Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.3 2003-10-17 16:33:18 babybot Exp $
 ///
 ///
-
-/// LATER: perhaps this class needs to be renamed (GenericComponed is a 
-///			bit too Generic).
 
 #ifndef __YARPGenericControlBoardhh__ 
 #define __YARPGenericControlBoardhh__
@@ -77,7 +74,7 @@
 
 #include <math.h>
 #include <vector>
-#include <string>
+#include <YARPString.h>
 
 #define YARP_GEN_CB_VERBOSE
 
@@ -114,10 +111,10 @@ public:
 		return ret;
 	}
 
-	int initialize(const std::string &init_file)
+	int initialize(const YARPString &path, const YARPString &init_file)
 	{
 		_lock();
-		_parameters.load(std::string(""),init_file);
+		_parameters.load(path, init_file);
 		int ret = _initialize();
 		_unlock();
 		return ret;
@@ -136,6 +133,14 @@ public:
 	{
 		_lock();
 		int ret = _adapter.activatePID();
+		_unlock();
+		return ret;
+	}
+
+	int readAnalog(int axis, double *val)
+	{
+		_lock();
+			int ret = _adapter.readAnalog(axis, val);
 		_unlock();
 		return ret;
 	}
@@ -254,6 +259,21 @@ public:
 			pos[_parameters._axis_map[i]] = encoderToAngle(_temp_double[i],
 												_parameters._encoderToAngles[i],
 												_parameters._zeros[i],
+												_parameters._signs[i]);
+		
+		}
+		_unlock();
+		return -1;
+	}
+
+	int getVelocities(double *vel)
+	{
+		_lock();
+		_adapter.IOCtl(CMDGetSpeeds, _temp_double);
+		for (int i = 0; i < _parameters._nj; i++) {
+			vel[_parameters._axis_map[i]] = encoderToAngle(_temp_double[i],
+												_parameters._encoderToAngles[i],
+												0.0,
 												_parameters._signs[i]);
 		
 		}

@@ -4,7 +4,7 @@
 //
 // adapted for yarp June 2003 -- by nat
 
-// $Id: YARPBabybotHand.h,v 1.4 2003-07-25 17:06:25 babybot Exp $
+// $Id: YARPBabybotHand.h,v 1.5 2003-10-17 16:34:40 babybot Exp $
 
 #ifndef __YARPBABYBOTHANDH__
 #define __YARPBABYBOTHANDH__
@@ -257,13 +257,13 @@ public:
 		unlock();
 		return ret; 
 	}
-	int initialize(const std::string &init_file)
+	int initialize(const YARPString path, const YARPString &init_file)
 	{
 		int rc = 0;
 		if (_initialized)
 			return YARP_FAIL;;
 
-		_parameters.load("",init_file);
+		_parameters.load(path, init_file);
 		_naj = _parameters._naj;
 		_nidaq_ch = _parameters._nidaq_ch;
 

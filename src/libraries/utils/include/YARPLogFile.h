@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPLogFile.h,v 1.6 2003-10-03 16:50:38 babybot Exp $
+/// $Id: YARPLogFile.h,v 1.7 2003-10-17 16:34:40 babybot Exp $
 ///  
 /// very simple class to handle dump files...  -- May 2003 by nat
 
@@ -70,26 +70,30 @@
 #include <YARPErrorCodes.h>
 #include <YARPMatrix.h>
 #include <stdio.h>
+#include <YARPString.h>
 
 class YARPLogFile
 {
 public:
 	YARPLogFile();
-	YARPLogFile(const char *filename);
+	YARPLogFile(const YARPString &);
+	YARPLogFile(const YARPString &path, const YARPString &filename);
 	~YARPLogFile();
-	
-	int open(const char *filename)
-	{
-		if (filename == NULL)
-			return YARP_FAIL;
 
-		int n = strlen(filename);
+	int open(const YARPString &path, const YARPString &filename)
+	{
+		YARPString tmp = path;
+		tmp.append(filename);
+		return open(tmp);
+	}
+	
+	int open(const YARPString &filename)
+	{
 		close();		
 		
-		_name = new char [n+1];
-		strcpy(_name, filename);
-
-		_fp = fopen(filename,"w");
+		_name = filename;
+		
+		_fp = fopen(filename.c_str(),"w");
 
 		if (_fp != NULL)
 		{
@@ -100,18 +104,21 @@ public:
 			return YARP_FAIL;
 	}
 
-	int append(const char *filename)
+	int append(const YARPString &path, const YARPString &filename)
 	{
-		if (filename == NULL)
-			return YARP_FAIL;
+		YARPString tmp;
+		tmp = path;
+		tmp.append(filename);
+		return append(tmp);
+	}
 
-		int n = strlen(filename);
+	int append(const YARPString &filename)
+	{
 		close();
 					
-		_name = new char [n+1];
-		strcpy(_name, filename);
+		_name = filename;
 
-		_fp = fopen(filename,"a");
+		_fp = fopen(filename.c_str(),"a");
 
 		if (_fp != NULL)
 		{
@@ -126,11 +133,8 @@ public:
 	{
 		if (_fp != NULL)
 			fclose(_fp);
-		if (_name != NULL)
-			delete [] _name;
 
 		_fp = NULL;
-		_name = NULL;
 
 		_freeze = true;
 		return YARP_OK;
@@ -138,15 +142,12 @@ public:
 
 	int flush()
 	{
-		if (_name == NULL)
-			return YARP_FAIL;
-
 		_freeze = true;
 
 		if (_fp != NULL)
 			fclose(_fp);
 
-		_fp = fopen(_name,"a");
+		_fp = fopen(_name.c_str(),"a");
 
 		if (_fp != NULL)
 		{
@@ -198,7 +199,7 @@ public:
 	}
 
 private:
-	char *_name;
+	YARPString _name;
 	FILE *_fp;
 	bool _freeze;
 };

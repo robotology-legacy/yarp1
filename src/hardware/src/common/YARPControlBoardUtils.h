@@ -4,8 +4,11 @@
 //
 // feb 2003 -- by nat and pasa
 
-// $Id: YARPControlBoardUtils.h,v 1.14 2003-08-19 09:06:30 beltran Exp $
+
+// $Id: YARPControlBoardUtils.h,v 1.15 2003-10-17 16:34:40 babybot Exp $
+
 #include <conf/YARPConfig.h>
+
 
 
 #ifndef __YARP_CONTROL_BOARD_UTILS__
@@ -97,9 +100,15 @@ enum ControlBoardCmd
 	CMDAbortAxes			= 61,	// abort motion, Galil
 
 	CMDDummy 				= 62,	// dummy command for debug purpose
+
 	CMDMotorType			= 63,	// Used to set the motor type
+
 	CMDGetMotorType			= 64,
-	CBNCmds 				= 65 	// required! tells the total number of commands
+
+	/////////////////
+	CMDReadAnalog			= 65,	// read analog input
+	CMDSetAxisAnalog		= 66,	// configure axis analog
+	CBNCmds 				= 67 	// required! tells the total number of commands
 
 };
 
