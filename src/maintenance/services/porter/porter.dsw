@@ -3,6 +3,18 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "conditional_porter"=.\conditional_porter\conditional_porter.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "porter"=.\porter\porter.dsp - Package Owner=<4>
 
 Package=<5>
