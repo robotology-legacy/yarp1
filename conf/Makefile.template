@@ -1,12 +1,12 @@
 #
 # Template to be included by all YARP makefiles.
+# $Id: Makefile.template,v 1.15 2004-10-08 22:11:05 gmetta Exp $
 #
 
 QNX_VER = 6.1.0 6.2.0 6.2.1
 
 ifeq ($(shell uname),QNX)
   
-#  SYSLIB = 
   ifneq (,$(findstring $(shell uname -r),$(QNX_VER)))
 	SYSDIR = qnx6
 	EXTRA_OPTS = $(YARP_DEBUG) -Y_gpp -fexceptions -pipe -Wpointer-arith -Wno-uninitialized 
@@ -45,7 +45,6 @@ else
 	CDEFS = -D__WIN__
 	CFAST = -O3
 	LIBADD = 
-#	SYSLIB = 
   endif
 
 endif

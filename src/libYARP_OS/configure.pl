@@ -17,7 +17,7 @@ if (!defined($yarp_root))
 
 require "$yarp_root/conf/configure.template.pl" or die "Can't find template file $yarp_root/conf/configure.template.pl\n";
 
-check_os();
+my $exp_os = check_os();
 
 print "Ready to start...\n";
 
@@ -41,11 +41,11 @@ print "Now I'm going to ask a few questions to help the configuration. ";
 print "So, let's start...\n";
 print "For pathnames you can use (type) the pre-defined value \$YARP_ROOT ";
 print "that I've verified as: \"$yarp_root\"\n\n";
-print "Please, use always the forward slash as a separator!\n";
+print "Please, use always the forward slash as separator!\n";
 
-print "I determined already that you're running on Windows\n";
+print "I determined already that you're running on a supported OS: $exp_os\n";
 
-get_option_hash ("Architecture<-OS", "winnt", "Just to make sure, what's your OS?", 0, \%options);
+get_option_hash ("Architecture<-OS", $exp_os, "What's your OS?", 0, \%options);
 get_option_hash ("Compile_OS<-ACE_PATH", "\$YARP_ROOT/src/ACE_wrappers", "Where has ACE been unpacked?", 0, \%options);
 get_option_hash ("Compile_OS<-ACE_Rebuild", "NO", "Do you want to rebuild ACE, i.e. clean before building?", 1, \%options);
 

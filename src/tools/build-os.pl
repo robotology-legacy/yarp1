@@ -17,16 +17,15 @@ print "Entering build process of YARP_OS library tools...\n";
 chomp ($ver = `ver`);
 chomp ($uname = `uname`);
 
-if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
-{
-	die "This script is specific to Windows 2000/XP or Cygwin\n";
-}
-
 $yarp_root = $ENV{'YARP_ROOT'};
 if (!defined($yarp_root))
 {
 	die "YARP_ROOT env var must be defined!\n";
 }
+
+require "$yarp_root/conf/configure.template.pl" or die "Can't find template file $yarp_root/conf/configure.template.pl\n";
+
+my $exp_os = check_os();
 
 my $debug = '';
 my $release = '';
@@ -39,9 +38,9 @@ GetOptions ('debug' => sub { $debug = '1'; $release = '' },
 			'install' => \$install,
 			'os=s' => \$os );
 
-if ($os ne "winnt")
+if ($os ne $exp_os)
 {
-	die "This script is not yet tuned for OSes apart \"winnt\"\n";
+	die "The script has been called for $os but the environemnt report to be on $exp_os\n";
 }
 
 my @projects = qw/ yarp-connect yarp-read yarp-service yarp-write yarp-names /;
@@ -51,12 +50,24 @@ select STDERR;
 if ($clean)
 {
 	print "\nCleaning...\n";
-	foreach my $project (@projects)
+	if ($os eq "winnt")
 	{
-		chdir "./$project";
-		call_msdev_and_print ("Debug", "CLEAN");
-		call_msdev_and_print ("Release", "CLEAN");
-		chdir "..";
+		foreach my $project (@projects)
+		{
+			chdir "./$project";
+			call_msdev_and_print ("Debug", "CLEAN");
+			call_msdev_and_print ("Release", "CLEAN");
+			chdir "..";
+		}
+	}
+	elsif ($os eq "linux")
+	{
+		foreach my $project (@projects)
+		{
+			chdir "./$project";
+			call_make_and_print ('', "clean");
+			chdir "..";
+		}
 	}
 	print "\n";
 }
@@ -64,22 +75,46 @@ if ($clean)
 if ($debug)
 {
 	print "\nCompiling debug\n";
-	foreach my $project (@projects)
+	if ($os eq "winnt")
 	{
-		chdir "./$project";
-		call_msdev_and_print ("Debug", "BUILD");
-		chdir "..";
+		foreach my $project (@projects)
+		{
+			chdir "./$project";
+			call_msdev_and_print ("Debug", "BUILD");
+			chdir "..";
+		}
+	}
+	elsif ($os eq "linux")
+	{
+		foreach my $project (@projects)
+		{
+			chdir "./$project";
+			call_make_and_print ('', "CFAST=-g EXEC_TARGET=../bin/$os/$project");
+			chdir "..";
+		}
 	}
 }
 
 if ($release)
 {
 	print "\nCompiling optimized\n";
-	foreach my $project (@projects)
+	if ($os eq "winnt")
 	{
-		chdir "./$project";
-		call_msdev_and_print ("Release", "BUILD");
-		chdir "..";
+		foreach my $project (@projects)
+		{
+			chdir "./$project";
+			call_msdev_and_print ("Release", "BUILD");
+			chdir "..";
+		}
+	}
+	elsif ($os eq "linux")
+	{
+		foreach my $project (@projects)
+		{
+			chdir "./$project";
+			call_make_and_print ('', "CFAST=-O3 EXEC_TARGET=../bin/$os/$project");
+			chdir "..";
+		}
 	}
 }
 

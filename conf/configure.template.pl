@@ -15,14 +15,35 @@ sub check_os
 {
 	chomp ($ver = `ver`);
 	chomp ($uname = `uname`);
-	if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
+	if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0 
+	   && index ($uname, "Linux") < 0)
 	{
-		print "This is a Windows 2000/XP specific script\n";
+#		print "This is a Windows 2000/XP specific script\n";
+		print "Your OS is not yet suppoorted by this script\n";
 		print "Perhaps this procedure can be simply extended to "; 
 		print "other OSes but for now, this is all experimental...\n";
 		
-		die "This script is specific to Windows 2000/XP or Cygwin\n";
+		die "This script is specific to Windows 2000/XP, Cygwin, Linux\n";
 	}
+
+	$exp_os = '';
+	if (!($ver =~ /Windows/)) # no win
+	{
+		if ($uname =~ /CYGWIN/)
+		{
+			$exp_os = "winnt";
+		}
+		elsif ($uname =~ /Linux/)
+		{
+			$exp_os = "linux";	
+		}
+	}
+	else
+	{
+		$exp_os = "winnt";
+	}
+
+	$exp_os;
 }
 
 
@@ -158,6 +179,19 @@ sub verify_bool
 			$options_ref->{$key} = $default_value;
 		}
 	}
+}
+
+
+sub call_make_and_print
+{
+	my ($project, $operation) = @_;
+
+	open MK, "make -f Makefile $operation"."|";
+	while (<MK>)
+	{
+		print;
+	}
+	close MK;	
 }
 
 
