@@ -1,8 +1,6 @@
-# $Id: Makefile,v 1.4 2003-07-02 12:51:12 beltran Exp $
+# $Id: Makefile,v 1.5 2003-08-01 08:56:38 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
-
-#SYSDIR = 
 
 #OBJS = $(patsubst %.cpp, %.o, $(wildcard *.cpp))
 #OBJS = YARPGALILOnEurobotHeadAdapter.o
@@ -30,6 +28,8 @@ OUTDIR = ../obj/$(SYSDIR)
 
 local: cardtest.cpp
 	$(CC) $(CFLAGS)  cardtest.cpp -o cardtest $(LIBS)
+	$(CC) $(CFLAGS)  -c YARPEurobotArm.cpp
+	$(CP) -c YARPEurobotArm.o $(OUTDIR)/
 
 all: target
 

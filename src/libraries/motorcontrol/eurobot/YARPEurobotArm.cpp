@@ -1,8 +1,8 @@
-// $Id: YARPBabybotArm.cpp,v 1.1 2003-07-30 14:12:54 beltran Exp $
+// $Id: YARPEurobotArm.cpp,v 1.3 2003-08-01 08:56:38 beltran Exp $
 
-#include "YARPBabybotArm.h"
+#include "YARPEurobotArm.h"
 
-int YARPBabybotArm::setPositions(const double *pos)
+int YARPEurobotArm::setPositions(const double *pos)
 {
 	_lock();
 	angleToEncoders(pos, _temp_double);
@@ -20,7 +20,7 @@ int YARPBabybotArm::setPositions(const double *pos)
 	return -1;
 }
 
-int YARPBabybotArm::setPositionsAll(const double *pos)
+int YARPEurobotArm::setPositionsAll(const double *pos)
 {
 	_lock();
 	angleToEncoders(pos, _temp_double);
@@ -29,7 +29,7 @@ int YARPBabybotArm::setPositionsAll(const double *pos)
 	return -1;
 }
 
-int YARPBabybotArm::setVelocities(const double *vel)
+int YARPEurobotArm::setVelocities(const double *vel)
 {
 	_lock();
 	angleToEncoders(vel, _temp_double);
@@ -38,7 +38,7 @@ int YARPBabybotArm::setVelocities(const double *vel)
 	return -1;
 }
 
-int YARPBabybotArm::setAccs(const double *acc)
+int YARPEurobotArm::setAccs(const double *acc)
 {
 	_lock();
 	angleToEncoders(acc, _temp_double);
@@ -47,7 +47,7 @@ int YARPBabybotArm::setAccs(const double *acc)
 	return -1;
 }
 
-int YARPBabybotArm::velocityMove(const double *vel)
+int YARPEurobotArm::velocityMove(const double *vel)
 {
 	_lock();
 	angleToEncoders(vel, _temp_double);
@@ -56,7 +56,7 @@ int YARPBabybotArm::velocityMove(const double *vel)
 	return -1;
 }
 
-int YARPBabybotArm::setCommands(const double *pos)
+int YARPEurobotArm::setCommands(const double *pos)
 {
 	_lock();
 	angleToEncoders(pos, _temp_double);
@@ -72,7 +72,7 @@ int YARPBabybotArm::setCommands(const double *pos)
 	return -1;
 }
 
-int YARPBabybotArm::getPositions(double *pos)
+int YARPEurobotArm::getPositions(double *pos)
 {
 	_lock();
 	_adapter.IOCtl(CMDGetPositions, _temp_double);
@@ -81,7 +81,7 @@ int YARPBabybotArm::getPositions(double *pos)
 	return -1;
 }
 
-int YARPBabybotArm::setG(int i, double g)
+int YARPEurobotArm::setG(int i, double g)
 {
 	_lock();
 	SingleAxisParameters cmd;
@@ -92,7 +92,7 @@ int YARPBabybotArm::setG(int i, double g)
 	return -1;
 }
 
-int YARPBabybotArm::setGs(double *g, int nJ)
+int YARPEurobotArm::setGs(double *g, int nJ)
 {
 	_lock();
 	double offs[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};

@@ -3,9 +3,9 @@
 #ifndef __GALILONEUROBOTARMADAPTER__
 #define __GALILONEUROBOTARMADAPTER__
 
-// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.3 2003-07-30 16:12:52 beltran Exp $
+// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.4 2003-08-01 08:56:38 beltran Exp $
 
-#include <ace/log_msg.h>
+#include <ace/Log_Msg.h>
 #include <YARPGalilDeviceDriver.h>
 #include <string>
 
@@ -24,10 +24,10 @@ namespace _EurobotArm
 	const LowLevelPID _highPIDs[_nj] =
 	{
 		LowLevelPID(320.63, 2509.63, 85.71, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -30.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
-		LowLevelPID(104.38, 2726.88, 5.41.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
+		LowLevelPID(104.38, 2726.88, 5.41, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
 		LowLevelPID(192.0, 2694.13, 20.63, 0.0, -150.0, 32767.0, 0.0, 32767.0, 0.0, -100),	
 		LowLevelPID(179.50, 1341.25, 69.10, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
-		LowLevelPID(238.63, 1782.63.0, 91.85, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -100.0),	
+		LowLevelPID(238.63, 1782.63, 91.85, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -100.0),	
 		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
 	};
 	
@@ -52,7 +52,7 @@ namespace _EurobotArm
 	const double _maxDAC[_nj] = {32767.0, 32767.0, 32767.0, 32767.0, 32767.0, 32767.0};
 }; // namespace
 
-class YARPEuorbotArmParameters
+class YARPEurobotArmParameters
 {
 public:
 	YARPEurobotArmParameters()
@@ -78,7 +78,7 @@ public:
 			_zeros[i] = _EurobotArm::_zeros[i];
 			_axis_map[i] = _EurobotArm::_axis_map[i];
 			_signs[i] = _EurobotArm::_signs[i];
-			_encoderToAngles[i] = _EurobotArm::_encoders[i]*_BabybotArm::_encWheels[i];
+			_encoderToAngles[i] = _EurobotArm::_encoders[i]*_EurobotArm::_encWheels[i];
 			_fwdCouple[i] = _EurobotArm::_fwdCouple[i];
 			_stiffPID[i] = _EurobotArm::_stiffPID[i];
 			_maxDAC[i] = _EurobotArm::_maxDAC[i];
@@ -94,7 +94,7 @@ public:
 		_invCouple[5] = -_fwdCouple[5] / (_encoderToAngles[4] * _encoderToAngles[5]);
 	}
 
-	~YARPBEurobotArmParameters()
+	~YARPEurobotArmParameters()
 	{
 		if (_highPIDs != NULL)
 			delete [] _highPIDs;
@@ -233,7 +233,7 @@ public:
 	double *_maxDAC;
 };
 
-class YARPGALILOnEurobotArmAdapter : public YARPGALILDeviceDriver
+class YARPGALILOnEurobotArmAdapter : public YARPGalilDeviceDriver
 {
 public:
 	YARPGALILOnEurobotArmAdapter()
@@ -253,7 +253,7 @@ public:
 	{
 		//// open device
 		_parameters = par;
-		GAlilOpenParameters op_par;
+		GalilOpenParameters op_par;
 		op_par.nj= _parameters->_nj; 
 		if (YARPGalilDeviceDriver::open(&op_par) != 0)
 			return YARP_FAIL;
@@ -285,7 +285,7 @@ public:
 			cmd.axis=i;
 
 			double motor_type = -1; //Servo motor with reversed polarity
-			cmd.paramenters=&motor_type;
+			cmd.parameters=&motor_type;
 
 			IOCtl(CMDMotorType,&cmd);
 			
@@ -345,7 +345,7 @@ public:
 		//////////////////////////
 		****************************/
 
-		if (YARPMEIDeviceDriver::close() != 0)
+		if (YARPGalilDeviceDriver::close() != 0)
 			return YARP_FAIL;
 
 		_initialized = false;
@@ -392,6 +392,7 @@ public:
 
 	bool checkPowerOn()
 	{
+		/***
 		IOParameters cmd;
 		cmd.port = 0;
 		IOCtl(CMDGetOutputPort, &cmd);
@@ -400,6 +401,13 @@ public:
 			return true;
 		else
 			return false;
+		***/
+
+		//I didn't find a bit in the input/output Galil ports showing the
+		//activation of the armpoweron button. For the moment just
+		//return false. Next implement a message asking the user to activate
+		//manually the bottom.
+		return true;
 	}
 
 	int disableLimitCheck(){
@@ -539,7 +547,7 @@ private:
 	bool _initialized;
 	bool _amplifiers;
 	bool _softwareLimits;
-	YARPBabybotArmParameters *_parameters;
+	YARPEurobotArmParameters *_parameters;
 
 };
 

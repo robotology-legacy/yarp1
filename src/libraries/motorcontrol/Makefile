@@ -1,7 +1,6 @@
 include $(YARP_ROOT)/conf/Makefile.template
 
-SUBDIRS = eurobot babybot
-# $(SYSDIR)
+SUBDIRS = common eurobot babybot
 
 OUT_SYS = obj/$(SYSDIR)
 OUT_LIB = lib/$(SYSDIR)
@@ -13,22 +12,15 @@ VPATH += $(YARP_ROOT)/lib/$(SYSDIR)
 OBJS = $(OUT_SYS)/*.o
 CODELIB = MotorCtrl.lib
 
-all: target
-
-w:
-	echo -n
-
-#target: subtarget local
-target: subtarget
-
 local: $(CODELIB)
 
 $(CODELIB): subtarget
-	$(AR) $(ARFLAGS) $(OUT_LIB)/$(CODELIB) $(OBJS)
+	$(AR) $(ARFLAGS) $(CODELIB) $(OBJS)
+	$(CP) -c $(CODELIB) $(OUT_LIB)/
 
-install: target subinstall
+install: subinstall 
 	$(CP) common/*.h $(YARP_ROOT)/include
-	#$(CP) $(OUT_LIB)/$(CODELIB) $(YARP_ROOT)/lib/$(SYSDIR)
+	$(CP) $(OUT_LIB)/$(CODELIB) $(YARP_ROOT)/lib/$(SYSDIR)
 	#$(CP) include/*.h include/*.inl $(YARP_ROOT)/include
 
 clean: subclean

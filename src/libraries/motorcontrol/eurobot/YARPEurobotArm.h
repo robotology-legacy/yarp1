@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPBabybotArm.h,v 1.1 2003-07-30 14:12:54 beltran Exp $
+// $Id: YARPEurobotArm.h,v 1.3 2003-08-01 08:56:38 beltran Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -11,12 +11,12 @@
 #endif
 
 #include <conf/YARPConfig.h>
-#include <YarpGenericComponent.h>
+#include <YARPGenericComponent.h>
 //#include "YARPMEIOnBabybotArmAdapter.h"
 #include "YARPGALILOnEurobotArmAdapter.h"
 
 //class YARPBabybotArm : public YARPGenericComponent<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters>
-class YARPBabybotArm : public YARPGenericComponent<YARPGALILOnEurobotArmAdapter, YARPEurobotArmParameters>
+class YARPEurobotArm : public YARPGenericComponent<YARPGALILOnEurobotArmAdapter, YARPEurobotArmParameters>
 {
 public:
 	// override activatePID
@@ -26,11 +26,16 @@ public:
 		_lock();
 		ret = _adapter.activatePID();
 		
+		/*********************
 		while (!_adapter.checkPowerOn())
 		{
 			YARP_BABYBOT_ARM_DEBUG(("Press the power on button!\n"));
 			ACE_OS::sleep(ACE_Time_Value(1,0));
 		}
+		***********/
+		YARP_BABYBOT_ARM_DEBUG(("Press the power on button! And then any key\n"));
+		getchar(); //waiting for the user to press a key
+
 		_unlock();
 		return YARP_OK;
 	}
@@ -61,23 +66,28 @@ public:
 	{ _angleToEncoders(ang, enc, _parameters, _parameters._zeros); } 
 	inline void encoderToAngles(const double *enc, double *ang)
 	{ _encoderToAngles(enc, ang, _parameters, _parameters._zeros); }
-	inline void angleVelToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters)
+	//inline void angleVelToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters)
+	inline void angleVelToEncoders(const double *ang, double *enc, const YARPEurobotArmParameters &_parameters)
 	{	
 		double zeros[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 		_angleToEncoders(ang, enc, _parameters, zeros);
 	}
-	inline void encoderVelToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters)
+	//inline void encoderVelToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters)
+	inline void encoderVelToAngles(const double *enc, double *ang, const YARPEurobotArmParameters &_parameters)
 	{ 
 		double zeros[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 		_angleToEncoders(enc, ang, _parameters, zeros);
 	}
 
 private:
-	inline void _angleToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters, const double *zeros);
-	inline void _encoderToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters, const double *zeros);
+	//inline void _angleToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters, const double *zeros);
+	//inline void _encoderToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters, const double *zeros);
+	inline void _angleToEncoders(const double *ang, double *enc, const YARPEurobotArmParameters &_parameters, const double *zeros);
+	inline void _encoderToAngles(const double *enc, double *ang, const YARPEurobotArmParameters &_parameters, const double *zeros);
 };
 
-inline void YARPBabybotArm::_angleToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters, const double *zeros)
+//inline void YARPBabybotArm::_angleToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters, const double *zeros)
+inline void YARPEurobotArm::_angleToEncoders(const double *ang, double *enc, const YARPEurobotArmParameters &_parameters, const double *zeros)
 {
 	// 6 joints only.
 	for (int i = 0; i < 4; i++)
@@ -95,7 +105,8 @@ inline void YARPBabybotArm::_angleToEncoders(const double *ang, double *enc, con
 			  zeros[5];
 }
 
-inline void YARPBabybotArm::_encoderToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters, const double *zeros)
+//inline void YARPBabybotArm::_encoderToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters, const double *zeros)
+inline void YARPEurobotArm::_encoderToAngles(const double *enc, double *ang, const YARPEurobotArmParameters &_parameters, const double *zeros)
 {
 	// 6 joints only.
 	for (int i = 0; i < 4; i++)
