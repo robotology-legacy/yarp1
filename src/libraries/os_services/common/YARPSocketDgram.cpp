@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.25 2003-05-29 00:39:27 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.26 2003-05-29 13:50:50 gmetta Exp $
 ///
 ///
 
@@ -1427,7 +1427,7 @@ YARPOutputSocketDgram::~YARPOutputSocketDgram (void)
 int YARPOutputSocketDgram::Close (void)
 {
 	OSDataDgram& d = OSDATA(system_resources);
-	ACE_DEBUG ((LM_DEBUG, "Pretending to close a connection to port %d on %s\n", 
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Pretending to close a connection to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 
 		d._remote_addr.get_host_name()));
 
@@ -1492,7 +1492,8 @@ int YARPOutputSocketDgram::Connect (void)
 	/// wait response.
 	hdr.SetBad ();
 	ACE_INET_Addr incoming;
-	r = d._connector_socket.recv (&hdr, sizeof(hdr), incoming);
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	r = d._connector_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
 	if (r < 0)
 	{
 		d._connector_socket.close ();

@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.8 2003-05-29 00:39:26 gmetta Exp $
+$Id: README.txt,v 1.9 2003-05-29 13:50:50 gmetta Exp $
 
 
 =============
@@ -21,13 +21,12 @@ Things under development:
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating
 	the sender. USE test12 to see this condition.
 
-8- set the socket buffer size to a % of the max packet defined in the lib.
-8.1- Set buffer size (recv/send), seems to work w/ 8192 bytes (not verified).
-
 9- release version crashes on exit. USE test 13 to show this problem, and close the 
 	receiver first.
 
 10- IMPORTANT! specify the nic, for multiple parallel connections.
+
+11- missing htons here and there in the udp communication (fine w/ intel architecture).
 
 ===
 0- QNET

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.6 2003-04-29 21:27:04 gmetta Exp $
+/// $Id: LocalNameServer.h,v 1.7 2003-05-29 13:50:51 gmetta Exp $
 ///
 ///
 
@@ -93,8 +93,8 @@ const int __startPortPool = 10001;
 const int __endPortPool = 10999;
 ///const int __portNotFound = 0;
 
-const int __startDynPortPool = 10001;
-const int __endDynPortPool = 10999;
+const int __startDynPortPool = 15001;
+const int __endDynPortPool = 15999;
 
 const char __startIpPool[] = {"224.0.0.0"};
 const char __endIpPool[] = {"224.255.255.255"};
