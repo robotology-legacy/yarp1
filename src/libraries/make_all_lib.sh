@@ -87,49 +87,6 @@ $INSTALL
 cd ../
 }
 
-Framegrabber()
-{
-echo "$PHRASE YARPNameService"
-cd $YARP_ROOT/src/maintenance/services/nameserver/YARPNameService/
-make $MODE
-Check $?
-make
-Check $?
-$INSTALL
-Check $?
-cd $YARP_ROOT/src/libraries
-
-echo "$PHRASE Porter"
-cd $YARP_ROOT/src/maintenance/services/porter/porter/
-make $MODE
-Check $?
-make
-Check $?
-$INSTALL
-Check $?
-cd $YARP_ROOT/src/libraries
-
-echo "$PHRASE Framegrabber"
-cd $YARP_ROOT/src/hardware/daemons/framegrab/
-make $MODE
-Check $?
-make $ROBOT
-Check $?
-$INSTALL
-Check $?
-cd $YARP_ROOT/src/libraries
-
-echo "$PHRASE Viewer"
-cd $YARP_ROOT/src/applications/viewers/camview/qnx6/
-make $MODE
-Check $?
-make
-Check $?
-$INSTALL
-Check $?
-cd $YARP_ROOT/src/libraries
-}
-
 Check()
 {
 if [ $1 -eq 0 ]         # Test exit status of "cmp" command.
@@ -180,15 +137,4 @@ then
         INSTALL_IPL=""
         RUN_BUILD_TABLES=""
         All $2
-elif [ "$1" == "framegrab" ]
-then
-        echo "Compiling Nameserver + porter + framegrabber + visualizer"
-        MODE="clean"
-        PHRASE="Compiling/installing"
-        INSTALL="make install"
-        INSTALL_IPL=""
-        RUN_BUILD_TABLES=""
-	ROBOT="eurobot"
-        Framegrabber
 fi
-
