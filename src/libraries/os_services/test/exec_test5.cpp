@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.7 2003-05-23 09:38:23 babybot Exp $
+/// $Id: exec_test5.cpp,v 1.8 2003-05-23 14:12:31 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -147,7 +147,7 @@ public:
 				///out.Wait();
 				///cout << "(result " << result << ") Got reply : " << reply << " and number " << y << endl;
 				///cout.flush();
-				if ((x % 100) == 0)
+				if ((x % 1) == 0)
 				{
 					cout << "sent msg : " << x << endl;
 					cout << "(result " << result << ") Got reply : " << reply << " and number " << y << endl;
@@ -160,7 +160,7 @@ public:
 				cout << "connection is dead" << endl;
 			}
 
-			YARPTime::DelayInSeconds(0.005);
+			YARPTime::DelayInSeconds(1.0);
 
 			ct++;
 			sprintf(txt, "And a-%d", ct);
@@ -239,7 +239,7 @@ public:
 			counter ++;
 			prevtime = now;
 
-			if ((x % 100) == 0)
+			if ((x % 1) == 0)
 			{
 				cout << "Received message: " << buf << " and number " << x << endl;
 				cout << "average thread time : " << cumul/counter << endl;
