@@ -1,0 +1,32 @@
+BTTVX CHANGES
+-------------
+
+20-May-2002 (Version 0.1.0)
+	First version 0.1.0.
+	Working with PAL images
+
+31-May-2002 (Version 0.2.0)
+	Added a test photon program to see the video.
+	Improvement in the RISC program.
+	Color acquisition
+
+18-June-2002 (Version 0.2.1)
+	Some cleaning in the photon program.           
+	Uncommented the close() line in the photon program; this resolves the
+	"Error reading myfile.dat..." problem. Thanks Johan!
+	Added some syncronization stuff in the make_rawrisctab() function. This
+	seems to resolve the lines with "crap" data in the top of the image.
+	Added some stuff for NTSC. I don't know if it works. In theory one
+	could activate NTSC by putting the variable btv->win.norm = 1 in the
+	init_bt848(...) function.
+	Some cleaning in the code (unnecessary stuff) 
+ 
+20-June-2002
+	Removed BT848_FIFO_STATUS_VRE flag in lines 330 and 332, they seem 
+	to cause problems reported by Johan.
+	Added a parameter in the main function to allow user to set PAL or NTSC
+	in the command line. One can do "./bttvx 0" or "./bttvx 1" to 
+	chose PAL or NTSC respectively.
+	Added changes suggested by Kevin Radke to work with NTSC.
+	Added a Makefile so things are more in order -this stars to
+	seem a serious project :) -. Thanks again Johan.

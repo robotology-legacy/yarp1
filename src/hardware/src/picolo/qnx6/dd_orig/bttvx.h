@@ -1,0 +1,23 @@
+/* Public header for BTTVX */
+
+#define W 128
+//#define W 384
+#define H 128
+//#define H 288
+#define deep 3
+
+#define BTTVX 420
+/* Get */
+#define BTTVX_DEVCTL_GET_BRIGHTNESS __DIOF(_DCMD_MISC,BTTVX + 0,int) 
+#define BTTVX_DEVCTL_GET_HUE __DIOF(_DCMD_MISC,BTTVX + 1,int)
+#define BTTVX_DEVCTL_GET_SAT_U __DIOF(_DCMD_MISC,BTTVX + 2,int)
+#define BTTVX_DEVCTL_GET_SAT_Y __DIOF(_DCMD_MISC,BTTVX + 3,int)
+#define BTTVX_DEVCTL_GET_CONTRAST __DIOF(_DCMD_MISC,BTTVX + 4,int)
+/* Set */
+#define BTTVX_DEVCTL_SET_BRIGHTNESS __DIOT(_DCMD_MISC,BTTVX + 14,int)
+#define BTTVX_DEVCTL_SET_HUE __DIOT(_DCMD_MISC,BTTVX + 15,int)
+#define BTTVX_DEVCTL_SET_SAT_U __DIOT(_DCMD_MISC,BTTVX + 16,int)
+#define BTTVX_DEVCTL_SET_SAT_Y __DIOT(_DCMD_MISC,BTTVX + 17,int)
+#define BTTVX_DEVCTL_SET_CONTRAST __DIOT(_DCMD_MISC,BTTVX + 18,int)
+
+
