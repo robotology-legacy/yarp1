@@ -1,7 +1,7 @@
 [virtual=x86,bios +compress] .bootstrap={
 startup-bios  
 #ROBOT_SERVER=europa.lira.dist.unige.it
-PATH=/proc/boot:/net/europa.lira.dist.unige.it/usr/local/bin:/net/europa.lira.dist.unige.it/bin:/net/europa.lira.dist.unige.it/usr/photon/bin:/net/europa.lira.dist.unige.it/usr/local/bin: LD_LIBRARY_PATH=/proc/boot:/usr/lib:/net/europa.lira.dist.unige.it/lib:/net/europa.lira.dist.unige.it/usr/lib:/net/europa.lira.dist.unige.it/lib/dll:/net/europa.lira.dist.unige.it/usr/local/lib procnto
+PATH=/proc/boot:/net/europa.lira.dist.unige.it/usr/local/bin:/net/europa.lira.dist.unige.it/bin:/net/europa.lira.dist.unige.it/usr/photon/bin:/net/europa.lira.dist.unige.it/usr/local/bin LD_LIBRARY_PATH=/proc/boot:/usr/lib:/net/europa.lira.dist.unige.it/lib:/net/europa.lira.dist.unige.it/usr/lib:/net/europa.lira.dist.unige.it/lib/dll:/net/europa.lira.dist.unige.it/usr/local/lib YARP_ROOT=/net/europa.lira.dist.unige.it/home/cbeltran/DEVELOPMENT/yarp procnto
 }
 
 [+script] .script={
@@ -9,10 +9,10 @@ display_msg "My QNX Network image"
 seedres
 pipe &
 pci-bios &
-hostname nodo1
+hostname morpheus 
 waitfor /dev/pci
 #put in your actual IP,netmask and gateway
-io-net -del900
+io-net -del900 -pttcpip if=en0:130.251.43.12:255.255.255.0 default=130.251.43.126 
 #io-net -dvia-rhine
 mount -Tio-net npm-qnet.so
 waitfor /net
@@ -39,7 +39,7 @@ libsocket.so
 #libstdc++.so
 # required for ssh
 #libz.so
-npm-tcpip.so
+npm-ttcpip.so
 npm-qnet.so
 #devn-via-rhine.so
 #devn-tulip.so
@@ -63,8 +63,8 @@ mount
 pci-bios
 hostname
 env
-#ifconfig
-#route
+ifconfig
+route
 #netstat
 #pci
 #cat
