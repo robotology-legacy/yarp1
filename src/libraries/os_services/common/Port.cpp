@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.17 2003-05-18 00:52:18 gmetta Exp $
+/// $Id: Port.cpp,v 1.18 2003-05-18 22:34:43 gmetta Exp $
 ///
 ///
 
@@ -283,6 +283,11 @@ void OutputTarget::Body ()
 ///
 void _strange_select::Body ()
 {
+#ifdef __QNX6__
+	signal (SIGCHLD, SIG_IGN);
+	signal (SIGPIPE, SIG_IGN);
+#endif
+
 	OutputTarget *target, *next;
 
 	while (!_terminate)
@@ -436,6 +441,11 @@ void _strange_select::Body ()
 ///
 void Port::Body()
 {
+#ifdef __QNX6__
+///	signal (SIGCHLD, SIG_IGN);
+///	signal (SIGPIPE, SIG_IGN);
+#endif
+
 	int failed = 0;
 	int tag = 0;
 	char *buf;

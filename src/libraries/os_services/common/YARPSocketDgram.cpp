@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.11 2003-05-18 01:02:23 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.12 2003-05-18 22:34:43 gmetta Exp $
 ///
 ///
 
@@ -88,6 +88,11 @@
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Handle_Set.h>
+#include <ace/Time_Value.h>
+
+#ifdef __QNX6__
+#include <signal.h>
+#endif
 
 #ifndef __QNX__
 /// WIN32, Linux
@@ -501,6 +506,11 @@ void _SocketThreadDgram::End (void)
 ///	error check is not consistent.
 void _SocketThreadDgram::Body (void)
 {
+#ifdef __QNX6__
+	signal (SIGPIPE, SIG_IGN);
+#endif
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	
 	int finished = 0;
 
 	_extern_buffer = NULL;
@@ -521,7 +531,7 @@ void _SocketThreadDgram::Body (void)
 		hdr.SetBad();
 		int r = YARP_FAIL;
 
-		r = _local_socket.recv (&hdr, sizeof(hdr), incoming);
+		r = _local_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
 		
 		ACE_DEBUG ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_name(), incoming.get_port_number()));
 
@@ -589,14 +599,20 @@ void _SocketThreadDgram::Body (void)
 
 				ACE_DEBUG ((LM_DEBUG, "??? about to read the data buffer\n"));
 
-				r = _local_socket.recv (_extern_buffer, len , incoming);
+				r = _local_socket.recv (_extern_buffer, len , incoming, 0, &timeout);
 				if (incoming != _remote_endpoint.getAddressRef())
 				{
 					ACE_DEBUG ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
 					_local_socket.close ();
 					finished = 1;
 				}
-
+				if (r < 0)
+				{
+					ACE_DEBUG ((LM_DEBUG, "??? recv failed, time out?\n"));
+					_local_socket.close ();
+					finished = 1;
+				}
+			
 				ACE_DEBUG ((LM_DEBUG, "??? received a buffer _SocketThreadDgram\n"));
 
 				_extern_length = r;
@@ -623,18 +639,26 @@ void _SocketThreadDgram::Body (void)
 						ACE_Handle_Set set;
 						set.reset ();
 						set.set_bit (_local_socket.get_handle());
-						ACE_OS::select (int(_local_socket.get_handle())+1, set);
+						ACE_OS::select (int(_local_socket.get_handle())+1, set, 0, 0, &timeout);
 						/// wait here until next valid chunck of data.
 					}
 					else
 					{
-						rr = _local_socket.recv (_extern_reply_buffer, _extern_reply_length, incoming); 
+						rr = _local_socket.recv (_extern_reply_buffer, _extern_reply_length, incoming, 0, &timeout); 
 					}
 
 					if (incoming != _remote_endpoint.getAddressRef())
 					{
 						ACE_DEBUG ((LM_DEBUG, "??? closing %d\n", rr));
 						ACE_DEBUG ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
+						_local_socket.close ();
+						finished = 1;
+					}
+
+					if (rr < 0)
+					{
+						ACE_DEBUG ((LM_DEBUG, "??? closing %d\n", rr));
+						ACE_DEBUG ((LM_DEBUG, "??? recv or select failed\n"));
 						_local_socket.close ();
 						finished = 1;
 					}
@@ -712,6 +736,9 @@ void _SocketThreadDgram::Body (void)
 			}
 		}
 	}	/// while !finished
+
+
+///DgramSocketThreadExit:
 
 	_mutex.Wait ();
 	/// the socket is closed already.

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test9.cpp,v 1.3 2003-05-16 22:24:04 gmetta Exp $
+/// $Id: exec_test9.cpp,v 1.4 2003-05-18 22:34:44 gmetta Exp $
 ///
 ///
 
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
 	Thread2 t2;
 	int s = 1, c = 1;
 
-	__debug_level = 100;
+	///__debug_level = 100;
 
 	if (argc>=2)
 	{

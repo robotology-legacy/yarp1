@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test11.cpp,v 1.2 2003-05-13 22:14:16 gmetta Exp $
+/// $Id: exec_test11.cpp,v 1.3 2003-05-18 22:34:44 gmetta Exp $
 ///
 ///
 
@@ -91,7 +91,7 @@ public:
 		{
 			printf("Waiting for input\n");
 			in.Read();
-			printf("Read %d\n", in.Content());
+			printf("Read %d\n", (int)in.Content());
 		}
 	}
 };
@@ -114,7 +114,7 @@ public:
 			out.Content() = ct;
 			printf("Step3\n");
 			ct++;
-			printf("Writing %d\n", out.Content());
+			printf("Writing %d\n", (int)out.Content());
 			//	  out.Write(true);
 			out.Write();
 			//	  YARPTime::DelayInSeconds(0.02);

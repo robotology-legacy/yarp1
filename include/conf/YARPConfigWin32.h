@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.8 2003-05-15 08:53:27 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.9 2003-05-18 22:34:43 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -45,11 +45,11 @@
 /// set the number of ports used by UDP for a single port.
 #define YARP_UDP_REGPORTS       11
 
+/// read timeout on socket transport (in seconds).
+#define YARP_SOCK_TIMEOUT       2
+
 /// disables warning for init_seg(lib) very legitimate use of directive.
 #pragma warning (disable:4073)
-
-/// a null define (actually used in QNX) - can't be removed.
-#define __attribute__ (x)
 
 ///
 /// ACE inclusion

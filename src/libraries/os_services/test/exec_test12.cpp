@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test12.cpp,v 1.2 2003-05-13 22:14:16 gmetta Exp $
+/// $Id: exec_test12.cpp,v 1.3 2003-05-18 22:34:44 gmetta Exp $
 ///
 ///
 
@@ -211,6 +211,8 @@ public:
 
 int main(int argc, char *argv[])
 {
+	__debug_level = 100;
+
 	int s = 1, c = 1;
 	if (argc>=2)
 	{
@@ -239,7 +241,7 @@ int main(int argc, char *argv[])
 		YARPTime::DelayInSeconds(10000.0);
 	}
 
-	YARPTime::DelayInSeconds(20.0);
+	YARPTime::DelayInSeconds(20000.0);
 	t2.End();
 	t1.End();
 

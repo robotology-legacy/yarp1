@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.13 2003-05-18 00:52:19 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.14 2003-05-18 22:34:43 gmetta Exp $
 ///
 ///
 
@@ -78,6 +78,10 @@
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Handle_Set.h>
+
+#ifdef __QNX6__
+#include <signal.h>
+#endif
 
 #ifndef __QNX__
 #include <string>
@@ -465,6 +469,9 @@ void _SocketThread::End (void)
 	///	error check is not consistent.
 void _SocketThread::Body (void)
 {
+#ifdef __QNX6__
+	signal (SIGPIPE, SIG_IGN);
+#endif
 	int finished = 0;
 
 	_extern_buffer = NULL;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test14.cpp,v 1.2 2003-05-13 22:14:16 gmetta Exp $
+/// $Id: exec_test14.cpp,v 1.3 2003-05-18 22:34:44 gmetta Exp $
 ///
 ///
 
@@ -73,8 +73,8 @@
 #include "YARPThread.h"
 #include "YARPTime.h"
 
-YARPInputPortOf<int> in_port(YARPInputPort::NO_BUFFERS);
-YARPOutputPortOf<int> out_port;
+YARPInputPortOf<int> in_port(YARPInputPort::NO_BUFFERS, YARP_UDP);
+YARPOutputPortOf<int> out_port(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
 class T1 : public YARPThread
 {
@@ -115,8 +115,11 @@ public:
 };
 
 
-void main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
+	ACE_UNUSED_ARG(argc);
+	ACE_UNUSED_ARG(argv);
+
 	T1 t1;
 	T2 t2;
 
@@ -131,5 +134,7 @@ void main(int argc, char *argv[])
 	t1.Begin();
 
 	t2.Body();
+
+	return 0;
 }
 
