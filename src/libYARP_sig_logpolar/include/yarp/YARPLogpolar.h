@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.3 2004-07-20 15:00:57 babybot Exp $
+/// $Id: YARPLogpolar.h,v 1.4 2004-08-05 14:16:28 babybot Exp $
 ///
 ///
 
@@ -176,6 +176,7 @@ public:
 	int Logpolar2Cartesian (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out);
 	int Logpolar2CartesianFovea (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out);
 	int Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy);
+	int Logpolar2CartesianUniform (int irho, int itheta, int& ox, int& oy);
 	int Cartesian2Logpolar (double ix, double iy, int& orho, int& otheta);
 	inline int Cartesian2Logpolar (int ix, int iy, int& orho, int& otheta) { return Cartesian2Logpolar ((double) ix, (double) iy, orho, otheta); }
 	int ReconstructColor (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelBGR>& out);

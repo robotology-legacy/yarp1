@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.3 2004-08-02 17:06:00 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.4 2004-08-05 14:16:28 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -114,7 +114,7 @@ class YARPBehaviorSharedData
 		  }
 		  ~YARPBehaviorSharedData()
 		  {
-			printf("--> YARPBehaviorSharedData output port calling unregister\n\n\n");
+			printf("\n\n\n--> YARPBehaviorSharedData output port calling unregister");
 			_outPort.Unregister();
 			printf("--> YARPBehaviorSharedData output port unregisterd successfully\n\n\n");
 		  }
@@ -199,9 +199,9 @@ public:
 			it++;
 		}
 	
-		printf("--> YARPBehavior: calling unregister for BEHAVIOR input port\n\n\n");
+		fprintf(stderr, "\n\n\n--> YARPBehavior: calling unregister for BEHAVIOR input port");
 		_inport.Unregister();
-		printf("--> YARPBehavior: input port unregistered successfully\n\n\n");
+		fprintf(stderr, "--> YARPBehavior: input port unregistered successfully\n\n\n");
 	}
 
 	// thread body
@@ -388,6 +388,7 @@ handleMsg()
 	int ret = _parse(tmp);
 
 	_unlock();
+
 	return ret;
 }
 

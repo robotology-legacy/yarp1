@@ -19,7 +19,7 @@ char __configFile[] = "hand.ini";
 
 int main(int argc, char* argv[])
 {
-	set_yarp_debug(100,100);
+	//set_yarp_debug(100,100);
 	YARPScheduler::setHighResScheduling();
 
 	cout << "Starting hand control...\n";

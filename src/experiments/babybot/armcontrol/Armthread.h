@@ -57,6 +57,8 @@ public:
 		bool tr_done = !_trajectory.checkBusy();
 		bool pid_done = _arm.checkMotionDone();
 
+		// printf("--> Motion: trajectory %d\t arm %d\n",  tr_done ? 1:0, pid_done ? 1:0 );
+
 		return pid_done && tr_done;
 	}
 
@@ -174,9 +176,11 @@ private:
 		
 		_arm.setPositions(cmd.data());
 
+		ACE_OS::printf("---> Sending ArmIssued...");
 		YARPBehaviorSharedData::_data.writeVocab(YBVArmIssuedCmd);
 		YARPBehaviorSharedData::_data.writeYVector(cmd);
 		YARPBehaviorSharedData::send();
+		ACE_OS::printf("done\n");
 	}
 
 	inline void send_commands();

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.3 2004-07-29 22:11:46 babybot Exp $
+/// $Id: LogPolarSDK.h,v 1.4 2004-08-05 14:16:28 babybot Exp $
 ///
 ///
 
@@ -289,6 +289,7 @@ double getYfloatRes(double rho, double theta, Image_Data *par, double *Ang_Shift
 
 
 int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, double *Ang_Shift);
+int Get_XY_Center_Uniform(double *xx, double *yy, int rho, int theta, Image_Data *par, double *Ang_Shift);
 
 Cart2LPInterp * Load_Cart2LP_Map(Image_Data * Param, char * Path);
 

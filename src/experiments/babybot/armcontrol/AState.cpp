@@ -98,7 +98,10 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 			}
 
 			// signal end of motion
+			
+			ACE_OS::printf("---> Sending ArmDone...");
 			t->writeAndSend(YBVArmDone);
+			ACE_OS::printf("---> done!\n");
 			changeState(t,t->_init_state);
 		}
 	}
@@ -304,8 +307,10 @@ void ASShake:: handle(ArmThread *t)
 		t->_shaking = false;
 		t->_restingInhibited = false;
 		// signal end of motion
+
+		ACE_OS::printf("---> Sending ArmDone...");
 		t->writeAndSend(YBVArmDone);
-		
+		ACE_OS::printf("done! \n");
 		return;
 	}
 	else if ( (n%2) == 0)

@@ -111,8 +111,6 @@ int main(int argc, char* argv[])
 	_arm.Begin();
 	_arm.loop();	// block here until quit command is received
 
-	printf("Arm SM terminated\n");
 	arm_thread.terminate(false);	// no timeout here, important !
-	printf("ArmThread terminated\n");
 	return 0;
 }
