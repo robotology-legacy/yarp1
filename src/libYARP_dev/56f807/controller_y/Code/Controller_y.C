@@ -89,6 +89,9 @@ Int16  _kr[JN] = { 3, 3 };				/* scale factor (negative power of two) */
 
 #if VERSION == 0x0113
 Int32  _other_position[JN] = { 0, 0 };	/* the position of the synchronized card */
+Int32  _adjustment[JN] = { 0, 0 };		/* the actual adjustment (compensation) */
+Int32  _delta_adj[JN] = { 0, 0 };		/* velocity over the adjustment */
+
 bool _pending_request[JN] = { false, false };			/* whether a request to another card is pending */
 Int16  _timeout[JN] = { 0, 0 };			/* used to timeout requests */
 Int16 _counter = 0;
@@ -486,7 +489,7 @@ void print_version(void)
 void can_send_request(void)
 {
 	const byte _neighbor = 11;
-	const byte _step = 4;
+	const byte _step = 3;
 	int i;
 	
 	_counter ++;
@@ -496,19 +499,18 @@ void can_send_request(void)
 		if (!_pending_request[i])
 		{
 			_timeout[i] = 0;
-			CAN_data[0] = _neighbor;
-			CAN_data[0] |= (_board_ID << 4);
-			
-			CAN_data[1] = CAN_GET_ACTIVE_ENCODER_POSITION;		/* position joint 0 */
-			//if (i) CHANNEL_1(CAN_data[1]);
+			CAN_messID &= 0xfffff800;
+			CAN_messID |= (_neighbor << 7);
+			CAN_messID |= CAN_GET_ACTIVE_ENCODER_POSITION;
+			CAN_data[0] = _board_ID;
 			
 			while (CAN1_GetStateTX () == 0) ;
 			
 //			if (CAN1_GetStateTX () != 0)
 //			{
-				CAN_length = 2;
+				CAN_length = 1;
 				CAN_frameType = DATA_FRAME;
-				CAN_messID = 0;
+//				CAN_messID = 0;
 				CAN1_SendFrame (0, CAN_messID, CAN_frameType, CAN_length, CAN_data);
 				_pending_request[i] = true;
 //			}
@@ -532,19 +534,19 @@ void can_send_request(void)
 		if (!_pending_request[i])
 		{
 			_timeout[i] = 0;
-			CAN_data[0] = _neighbor;
-			CAN_data[0] |= (_board_ID << 4);
-			
-			CAN_data[1] = CAN_GET_ACTIVE_ENCODER_POSITION;		/* position joint 0 */
-			CHANNEL_1(CAN_data[1]);
+			CAN_messID &= 0xfffff800;
+			CAN_messID |= (_neighbor << 7);
+			CAN_messID |= CAN_GET_ACTIVE_ENCODER_POSITION;
+			CAN_data[0] = _board_ID;
+			CHANNEL_1(CAN_data[0]);
 
 			while (CAN1_GetStateTX () == 0) ;
 	
 //			if (CAN1_GetStateTX () != 0)
 //			{
-				CAN_length = 2;
+				CAN_length = 1;
 				CAN_frameType = DATA_FRAME;
-				CAN_messID = 0;
+//				CAN_messID = 0;
 				CAN1_SendFrame (0, CAN_messID, CAN_frameType, CAN_length, CAN_data);
 				_pending_request[i] = true;
 //			}
@@ -562,7 +564,7 @@ void can_send_request(void)
 		}
 	}
 	else
-	if (_counter > 2+2*_step)
+	if (_counter > 1+2*_step)
 	{
 		_counter = 0;
 	}
@@ -599,9 +601,9 @@ void main(void)
 	readFromFlash ();
 
 	/* CAN masks/filters init */
-	CAN1_SetAcceptanceMask (0xffffffff);
-	//acceptance_code = L_deposit_l (_board_ID);
-	CAN1_SetAcceptanceCode (0x780); // (acceptance_code << 7);
+	CAN1_SetAcceptanceMask (0xffffff0f);
+	acceptance_code = L_deposit_l (_board_ID) << 4;
+	CAN1_SetAcceptanceCode (acceptance_code);
 		
 	/* reset encoders, LATER: should do something more than this */
 	calibrate(0);
@@ -642,8 +644,15 @@ void main(void)
 		_position[0] = L_sub(_position[0], _position[1]);
 
 #elif VERSION == 0x0113
-		_position[0] = L_add (_position[0], _other_position[0] >> 1);
-		_position[0] = L_sub (_position[0], _other_position[1] >> 2);
+		/* beware of the first cycle when _old has no meaning */		
+		_position[0] = L_add(_position[0], _adjustment[0] >> 1);
+		_position[0] = L_sub(_position[0], _adjustment[1] >> 2);  // last >>2 must be 11/41
+				
+		_adjustment[0] = L_add(_adjustment[0], _delta_adj[0]);
+		_adjustment[1] = L_add(_adjustment[1], _delta_adj[1]);
+		
+		//_position[0] = L_add (_position[0], _other_position[0] >> 1);
+		//_position[0] = L_sub (_position[0], _other_position[1] >> 2); // last >>2 must be 11/41
 		///_position[0] = L_sub (_position[0], _other_position[0]);
 #endif
 
@@ -718,6 +727,12 @@ byte calibrate (byte jnt)
 	{ \
 	/*	DSP_SendDataEx ("it wasn't my message\r\n"); */ \
 		return ERR_OK; \
+	} \
+	if (_verbose) \
+	{ \
+		DSP_SendDataEx ("address: "); \
+		DSP_SendDWordAsChars ((x & 0x00000780) >> 7); \
+		DSP_SendDataEx ("\r\n"); \
 	} \
 	switch (x & 0x7f) \
 	{ \
@@ -878,6 +893,7 @@ AS1_TComData c = 0;
 /* test/debug serial port interface (on AS1) */
 byte serial_interface (void)
 {
+	Int32 acceptance_code;
 	AS1_TComData d = 0;
 	char buffer[SMALL_BUFFER_SIZE];
 	int  iretval = 0;
@@ -925,6 +941,12 @@ byte serial_interface (void)
 			
 			if (iretval >= 1 && iretval <= 15)
 				_board_ID = iretval & 0x0f;
+
+			/* CAN masks/filters init */
+			CAN1_SetAcceptanceMask (0xffffff0f);
+			acceptance_code = 0;
+			acceptance_code = L_deposit_l (_board_ID) << 4;
+			CAN1_SetAcceptanceCode (acceptance_code);
 			
 			c = 0;
 			break;
@@ -935,6 +957,16 @@ byte serial_interface (void)
 			DSP_SendWord16AsChars (iretval);
 			DSP_SendDataEx ("\r\n");
 			
+			c = 0;
+			break;
+		
+		case 'j':
+			DSP_SendDataEx ("adj: ");
+			DSP_SendDWordAsCharsDec (_adjustment[0]);		
+			DSP_SendDataEx (" ");
+			DSP_SendDWordAsCharsDec (_adjustment[1]);		
+			DSP_SendDataEx ("\r\n");
+
 			c = 0;
 			break;
 						

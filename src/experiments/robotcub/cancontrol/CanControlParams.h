@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: CanControlParams.h,v 1.2 2005-01-12 17:23:09 babybot Exp $
+/// $Id: CanControlParams.h,v 1.3 2005-01-17 17:32:04 babybot Exp $
 ///
 ///
 
@@ -49,7 +49,7 @@
 #define TIMER_ID					666
 #define TIMER2_ID					667
 
-#define GUI_REFRESH_INTERVAL		1500		/// [ms]
+#define GUI_REFRESH_INTERVAL		150		/// [ms]
 
 #define CANBUS_INIFILE				"canbus.ini"
 

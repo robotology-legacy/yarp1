@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.9 2005-01-12 17:23:14 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.10 2005-01-17 17:32:56 babybot Exp $
 ///
 ///
 
@@ -183,7 +183,7 @@ bool ValueCanResources::_error (const icsSpyMessage& m)
 bool ValueCanResources::_prepareHeader (icsSpyMessage& msg, int msg_type, int src, int dest, int channel)
 {
 	msg.ArbIDOrHeader = (dest << 7) + (msg_type & 0x7f);
-	msg.Data[0] = (channel << 7) + (src << 3);
+	msg.Data[0] = (channel << 7) + (src);
 	return true;
 }
 
@@ -417,11 +417,11 @@ void YARPValueCanDeviceDriver::_debugMsg (int n, void *msg, int (*p) (char *fmt,
 		{
 			ValueCanResources& r = RES(system_resources);
 			if ((m[i].ArbIDOrHeader & 0x7f) != r._filter &&
-				((m[i].ArbIDOrHeader & 0x78) >> 7) == r._my_address)
+				((m[i].ArbIDOrHeader & 0x780) >> 7) == r._my_address)
 			{
 				(*p) 
 					("s: %2x d: %2x c: %1d msg: %3d x: %x %x %x %x %x %x id: %x\n", 
-					  (m[i].Data[0] & 0x78) >> 3, 
+					  (m[i].Data[0] & 0x0f), 
 					   (m[i].ArbIDOrHeader & 0x780) >> 7, 
 					 ((m[i].Data[0] & 0x80)==0)?0:1,
 					  (m[i].ArbIDOrHeader & 0x7f),
@@ -685,19 +685,24 @@ int YARPValueCanDeviceDriver::setPosition (void *cmd)
 
 	_mutex.Wait();
 
+	memset (&(r._cmdBuffer), 0, sizeof(icsSpyMessage));
+	r._prepareHeader (r._cmdBuffer, CAN_POSITION_MOVE, r._my_address, r._destinations[axis/2], axis % 2);
+
+	/*
 	/// four bits are mapped into four bit addresses through _destinations[].
 	r._cmdBuffer.Data[0] = ((r._my_address << 4) & 0xf0);
 	r._cmdBuffer.Data[0] += (r._destinations[axis/2] & 0x0f); 
 	r._cmdBuffer.Data[1] = CAN_POSITION_MOVE | ((axis % 2) << 7);
+	*/
 
 	_ref_positions[axis] = *((double *)tmp->parameters);
-	*((int*)(r._cmdBuffer.Data+2)) = S_32(_ref_positions[axis]);		/// pos
-	*((short*)(r._cmdBuffer.Data+6)) = S_16(_ref_speeds[axis]);			/// speed
+	*((int*)(r._cmdBuffer.Data+1)) = S_32(_ref_positions[axis]);		/// pos
+	*((short*)(r._cmdBuffer.Data+5)) = S_16(_ref_speeds[axis]);			/// speed
 		
 	///*((short*)(r._cmdBuffer.Data+6)) = S_16(*(((double *)tmp->parameters)+1));	/// speed
 
-	r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
-	r._cmdBuffer.NumberBytesData = 8;
+	//r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
+	r._cmdBuffer.NumberBytesData = 7;
 		
 	_request = true;
 	_noreply = true;
@@ -725,18 +730,23 @@ int YARPValueCanDeviceDriver::velocityMove (void *cmd)
 		{
 			_mutex.Wait();
 
+			memset (&(r._cmdBuffer), 0, sizeof(icsSpyMessage));
+			r._prepareHeader (r._cmdBuffer, CAN_VELOCITY_MOVE, r._my_address, r._destinations[i/2], i % 2);
+
+			/*
 			/// four bits are mapped into four bit addresses through _destinations[].
 			r._cmdBuffer.Data[0] = ((r._my_address << 4) & 0xf0);
 			r._cmdBuffer.Data[0] += (r._destinations[i/2] & 0x0f); 
 			r._cmdBuffer.Data[1] = CAN_VELOCITY_MOVE | ((i % 2) << 7);
+			*/
 
 			_ref_speeds[i] = tmp[i];
-			*((short*)(r._cmdBuffer.Data+2)) = S_16(_ref_speeds[i]);		/// speed
-			*((short*)(r._cmdBuffer.Data+4)) = S_16(_ref_accs[i]);			/// accel
+			*((short*)(r._cmdBuffer.Data+1)) = S_16(_ref_speeds[i]);		/// speed
+			*((short*)(r._cmdBuffer.Data+3)) = S_16(_ref_accs[i]);			/// accel
 			///*((short*)(r._cmdBuffer.Data+4)) = S_16(*(tmp+i*2+1));		/// accel
 
-			r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
-			r._cmdBuffer.NumberBytesData = 6;
+			//r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
+			r._cmdBuffer.NumberBytesData = 5;
 			
 			_request = true;
 			_noreply = true;
@@ -1351,7 +1361,7 @@ int YARPValueCanDeviceDriver::_writeNone (int msg, int axis)
 #endif
 
 	//r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
-	r._cmdBuffer.NumberBytesData = 2;
+	r._cmdBuffer.NumberBytesData = 1; // it was 2.
 		
 	_request = true;
 	_noreply = true;
@@ -1393,7 +1403,7 @@ int YARPValueCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 #endif
 
 	//r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
-	r._cmdBuffer.NumberBytesData = 2;
+	r._cmdBuffer.NumberBytesData = 1;
 		
 	_request = true;
 	_noreply = false;
@@ -1402,13 +1412,13 @@ int YARPValueCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 	/// reads back position info.
 	_ev.Wait();
 
-	if (r._cmdBuffer.Data[1] == CAN_NO_MESSAGE)
+	if (r._cmdBuffer.ArbIDOrHeader == CAN_NO_MESSAGE)
 	{
 		value = 0;
 		return YARP_FAIL;
 	}
 
-	value = *((short *)(r._cmdBuffer.Data+2));
+	value = *((short *)(r._cmdBuffer.Data+1));
 	return YARP_OK;
 }
 
@@ -1434,7 +1444,7 @@ int YARPValueCanDeviceDriver::_writeWord16 (int msg, int axis, short s)
 	r._cmdBuffer.Data[1] = msg | ((axis % 2) << 7);
 #endif
 
-	*((short *)(r._cmdBuffer.Data+2)) = s;
+	*((short *)(r._cmdBuffer.Data+1)) = s;
 	
 #if 0
 	r._cmdBuffer.ArbIDOrHeader = (((r._my_address << 4) & 0xf0) << 8) + 
@@ -1442,7 +1452,7 @@ int YARPValueCanDeviceDriver::_writeWord16 (int msg, int axis, short s)
 								 (msg | ((axis % 2) << 7));
 #endif
 	//r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
-	r._cmdBuffer.NumberBytesData = 4;
+	r._cmdBuffer.NumberBytesData = 3;
 		
 	_request = true;
 	_noreply = true;	/// maybe temporary?
@@ -1477,7 +1487,7 @@ int YARPValueCanDeviceDriver::_writeDWord (int msg, int axis, int value)
 	r._cmdBuffer.Data[1] = msg | ((axis % 2) << 7);
 #endif
 
-	*((int*)(r._cmdBuffer.Data+2)) = value;
+	*((int*)(r._cmdBuffer.Data+1)) = value;
 
 #if 0
 	r._cmdBuffer.ArbIDOrHeader = (((r._my_address << 4) & 0xf0) << 8) + 
@@ -1485,7 +1495,7 @@ int YARPValueCanDeviceDriver::_writeDWord (int msg, int axis, int value)
 								 (msg | ((axis % 2) << 7));
 #endif
 	//r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
-	r._cmdBuffer.NumberBytesData = 6;
+	r._cmdBuffer.NumberBytesData = 5;
 		
 	_request = true;
 	_noreply = true;
@@ -1522,8 +1532,8 @@ int YARPValueCanDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short
 	r._cmdBuffer.Data[1] = msg | ((axis % 2) << 7);
 #endif
 
-	*((short *)(r._cmdBuffer.Data+2)) = s1;
-	*((short *)(r._cmdBuffer.Data+4)) = s2;
+	*((short *)(r._cmdBuffer.Data+1)) = s1;
+	*((short *)(r._cmdBuffer.Data+3)) = s2;
 	
 #if 0
 	r._cmdBuffer.ArbIDOrHeader = (((r._my_address << 4) & 0xf0) << 8) + 
@@ -1531,7 +1541,7 @@ int YARPValueCanDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short
 								 (msg | ((axis % 2) << 7));
 #endif
 	//r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
-	r._cmdBuffer.NumberBytesData = 6;
+	r._cmdBuffer.NumberBytesData = 5;
 		
 	_request = true;
 	_noreply = true;	/// maybe temporary?
@@ -1576,7 +1586,7 @@ int YARPValueCanDeviceDriver::_readDWord (int msg, int axis, int& value)
 								 (msg | ((axis % 2) << 7));
 #endif
 	//	r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
-	r._cmdBuffer.NumberBytesData = 2;
+	r._cmdBuffer.NumberBytesData = 1;
 		
 	_request = true;
 	_noreply = false;
@@ -1591,6 +1601,6 @@ int YARPValueCanDeviceDriver::_readDWord (int msg, int axis, int& value)
 		return YARP_FAIL;
 	}
 
-	value = *((int *)(r._cmdBuffer.Data+2));
+	value = *((int *)(r._cmdBuffer.Data+1));
 	return YARP_OK;
 }
