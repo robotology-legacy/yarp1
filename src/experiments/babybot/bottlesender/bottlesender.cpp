@@ -22,6 +22,7 @@
 #include <yarp/YARPBabyBottle.h>
 #include <yarp/YARPParseParameters.h>
 #include <yarp/YARPConfigRobot.h>
+#include <yarp/YARPList.h>
 
 #include "functionList.h"
 
@@ -172,6 +173,7 @@ void command(int argc, char* argv[])
 		YARPString codeInt("-int");
 		YARPString codeVocab("-vocab");
 		YARPString codeLabel("-label");
+		YARPString codeVector("-vector");
 
 		YARPString current(argv[index]);
 
@@ -179,34 +181,85 @@ void command(int argc, char* argv[])
 		{
 			// adding text
 			bottle.writeText(argv[index+1]);
+			index+=2;
+			n-=2;
 		}
 		else if (current == codeFloat)
 		{
 			// add a float
 			float tmp = atof(argv[index+1]);
 			bottle.writeFloat(tmp);
+			index+=2;
+			n-=2;
 		}
 		else if (current == codeVocab)
 		{
 			// add vocab
 			bottle.writeVocab(argv[index+1]);
+			index+=2;
+			n-=2;
 		}
 		else if (current == codeInt)
 		{
 			// add int
 			int tmp = atoi(argv[index+1]);
 			bottle.writeInt(tmp);
+			index+=2;
+			n-=2;
 		}
 		else if (current == codeLabel)
 		{
 			// adding text
 			bottle.setID(argv[index+1]);
+			index+=2;
+			n-=2;
+		}
+		else if(current == codeVector)
+		{
+			float tmpF;
+			index++;
+			n--;
+			int length = 0;
+			YARPList<double> list;
+			bool loop = true;
+			while(loop)
+			{
+				if(n==0)
+				{	
+					// end of par list
+					loop = false;
+					continue;
+				}
+				else if (argv[index][0]=='-')
+				{
+					// found new par
+					loop = false;
+					continue;
+				}
+				
+				tmpF = atof(argv[index]);
+				index++;
+				n--;
+				length++;
+
+				list.push_back(tmpF);
+			}
+
+			if(length>=1)
+			{
+				int k = 0;
+				YVector tmpV(length);
+				YARPList<double>::iterator it(list);
+				for(k=1; k <= length; k++)
+				{
+					tmpV(k) = *it;
+					it++;
+				}
+				bottle.writeYVector(tmpV);
+			}
 		}
 		else
 			error(PARSE_BOTTLE);
-		
-		index+=2;
-		n-=2;
 	}
 
 	bottle.display();
@@ -249,6 +302,7 @@ void printMenu()
 	ACE_OS::printf("-text mystring\n");
 	ACE_OS::printf("-float 0.234\n");
 	ACE_OS::printf("-int 1020\n");
+	ACE_OS::printf("-vector 10 0.1 0.1\n");
 	ACE_OS::printf("-vocab mystring\n");
 	ACE_OS::printf("\n\n");
 }

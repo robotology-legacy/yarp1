@@ -233,6 +233,8 @@ private:
 
 	////////
 	YARPOutputPortOf<YARPControlBoardNetworkData> _armStatusPort;
+	YARPOutputPortOf<YVector> _armPositionPort;
+	YARPOutputPortOf<YVector> _torquesPort;
 	
 	bool _restingInhibited;
 

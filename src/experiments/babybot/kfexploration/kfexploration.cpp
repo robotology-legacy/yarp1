@@ -15,8 +15,14 @@ const int _nJoints = 6;
 	const double pos3[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
 	const double pos4[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, -20.0*degToRad, 0.0};
 	const double pos5[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 20.0*degToRad, 0.0};
-	const double pos6[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
-	const double pos7[_nJoints] = {5.0 * degToRad, 0.0*degToRad, 0.0*degToRad, 0.0, 0.0, -120.0*degToRad};
+	
+	const double pos6[_nJoints] = {20.0 * degToRad, 10.0*degToRad, 0.0*degToRad, -20.0*degToRad, 0.0*degToRad, 0.0};
+	
+	const double pos7[_nJoints] = {0.0 * degToRad, 20.0*degToRad, 20.0*degToRad, -20.0*degToRad, 0.0*degToRad, 0.0};
+	
+	const double pos8[_nJoints] = {10.0 * degToRad, 40.0*degToRad, -40.0*degToRad, -20.0*degToRad, 0.0*degToRad, 0.0};
+	const double pos9[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
+	const double pos10[_nJoints] = {5.0 * degToRad, 0.0*degToRad, 0.0*degToRad, 0.0, 0.0, -120.0*degToRad};
 
 
 #if 0
@@ -48,6 +54,19 @@ int main(int argc, char* argv[])
 
 	EBWaitIdle stateInhibitHandTracking("Inhibit hand tracking");
 	EBWaitIdle stateEnableHandTracking("Enable hand tracking");
+
+	EBWaitIdle position1Wait("Position1 done");
+	EBWaitIdle position2Wait("Position2 done");
+	EBWaitIdle position3Wait("Position3 done");
+	
+	EBWaitDeltaT position2Train(3);
+	EBWaitDeltaT position3Train(3);
+	EBWaitDeltaT position4Train(3);
+
+	EBWaitIdle position2("Waiting arm done");
+	EBWaitIdle position3("Waiting arm done");
+	EBWaitIdle position4("Waiting arm done");
+
 	EBWaitIdle waitArmAck("Wait armAck");
 
 	EBWaitDeltaT dT1(3);
@@ -56,7 +75,7 @@ int main(int argc, char* argv[])
 
 	EBWaitDeltaT dTHandClosing(0.1);
 	EBWaitDeltaT waitArmSeemsToRest(5);
-	EBBehaviorOutput	startTrain(YBVKFTrain);
+	EBBehaviorOutput	startTrain(YBVKFTrainStart);
 	EBBehaviorOutput	startSequence(YBVKFStart);
 	EBBehaviorOutput    stopTrain(YBVKFTrainStop);
 	EBBehaviorOutput    stop(YBVKFStop);
@@ -70,10 +89,13 @@ int main(int argc, char* argv[])
 	EBOutputCommand cmd1(YBVArmForceNewCmd, YVector(_nJoints, pos1));
 	EBOutputCommand cmd2(YBVArmForceNewCmd, YVector(_nJoints, pos2));
 	EBOutputCommand cmd3(YBVArmForceNewCmd, YVector(_nJoints, pos3));
-	EBOutputCommand cmd4(YBVArmForceNewCmd, YVector(_nJoints, pos4));
-	EBOutputCommand cmd5(YBVArmForceNewCmd, YVector(_nJoints, pos5));
-	EBOutputCommand cmd6(YBVArmForceNewCmd, YVector(_nJoints, pos6));
+	// EBOutputCommand cmd4(YBVArmForceNewCmd, YVector(_nJoints, pos4));
+	// EBOutputCommand cmd5(YBVArmForceNewCmd, YVector(_nJoints, pos5));
+//	EBOutputCommand cmd6(YBVArmForceNewCmd, YVector(_nJoints, pos6));
 	EBOutputCommand cmd7(YBVArmForceNewCmd, YVector(_nJoints, pos7));
+	EBOutputCommand cmd8(YBVArmForceNewCmd, YVector(_nJoints, pos8));
+	EBOutputCommand cmd9(YBVArmForceNewCmd, YVector(_nJoints, pos9));
+	EBOutputCommand cmd10(YBVArmForceNewCmd, YVector(_nJoints, pos10));
 
 	EBSimpleInput armDone(YBVArmDone);
 	EBSimpleInput handDone(YBVHandDone);
@@ -98,7 +120,20 @@ int main(int argc, char* argv[])
 	
 	// july 21/04
 	behavior.add(NULL, &dT1, &waitMotion6);
-	behavior.add(NULL, &waitMotion6, &stateInhibitHandTracking, &stop);
+	behavior.add(NULL, &waitMotion6, &position1Wait, &stopTrain);
+	// position2
+	behavior.add(NULL, &position1Wait, &position2, &cmd7);
+	behavior.add(&armDone, &position2, &position2Train, &startTrain);
+	behavior.add(NULL, &position2Train, &position2Wait, &stopTrain);
+	//position3
+	behavior.add(NULL, &position2Wait, &position3, &cmd8);
+	behavior.add(&armDone, &position3, &position3Train, &startTrain);
+	behavior.add(NULL, &position3Train, &position3Wait, &stopTrain);
+	//position 4
+	behavior.add(NULL, &position3Wait, &position4, &cmd9);
+	behavior.add(&armDone, &position4, &position4Train, &startTrain);
+	behavior.add(NULL, &position4Train, &stateInhibitHandTracking, &stopTrain);
+
 	behavior.add(NULL, &stateInhibitHandTracking, &dT2);
 
 	/*
@@ -111,7 +146,7 @@ int main(int argc, char* argv[])
 
 	behavior.add(&armDone, &waitMotion6, &dT2, &stopKF);
 	*/
-	behavior.add(NULL, &dT2, &waitMotion7, &cmd7);
+	behavior.add(NULL, &dT2, &waitMotion7, &cmd10);
 	behavior.add(&armDone, &waitMotion7, &waitMotion8, &forceOpen);
 	behavior.add(&handDone, &waitMotion8, &endState1, &parkArm);
 	behavior.add(NULL, &endState1, &endState2, &inhibitHandTracking);

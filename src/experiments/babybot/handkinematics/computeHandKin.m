@@ -5,6 +5,7 @@ function computeHandKin (qh, qt, wrist, el, az)
 % March 2003 by nat
 %
 % Sept 2004 by nat, included wrist
+% Oct 2004 by nat: this code is a mess
 
 global XSF;
 global YSF;

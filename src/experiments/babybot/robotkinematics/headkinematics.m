@@ -3,7 +3,7 @@ function [K] = headkinematics (q)
 % Head kinematics. 
 % Result is a row
 % 
-% September 2002 by nat and pasa
+% September 2002 by nat
 %
 %
 

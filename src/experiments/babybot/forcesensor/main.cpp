@@ -87,13 +87,24 @@ int main (int argc, char *argv[])
 
 	_thread.start();
 	
-	char c;
-	cout << "Type 'e' to exit\n";
-	while(cin >> c)
+	YARPString str;
+	cout << "Type 'r' to reset the sensor\n";
+	cout << "Type 'q!' to exit\n";
+	bool exit = false;
+	while(!exit)
 	{
-		cout << "Type 'e' to exit\n";
-		if (c == 'e')
-			break;
+		cin >> str;
+		cout << "Type 'r' to reset the sensor\n";
+		cout << "Type 'q!' to exit\n";
+		if (str == YARPString("q!"))
+			exit = true;
+		else if (str == YARPString("r"))
+		{
+			_thread.fs.reset();
+			exit = false;
+		}
+		else
+			exit = false;
 	}
 	
 	_thread.terminate();

@@ -16,7 +16,9 @@ YARPRateThread(name, rate),
 YARPBehaviorSharedData("/armcontrol/behavior/o", YBVMotorLabel),
 _tirednessControl(23000.0, 10000.0, rate, 0.5),
 _wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
-_armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
+_armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST),
+_armPositionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST),
+_torquesPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 {
 	char *root = GetYarpRoot();
 	char path[256];
@@ -102,12 +104,16 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	_pidSigns = new int[_nj];
 		
 
-	// PORT
-	char armStatusPortname[255];
-	file.getString("[THREAD]", "ArmStatusPortName", armStatusPortname);
-	_armStatusPort.Register(armStatusPortname, "Net0");
+	// PORTs
+	char tmpPortName[255];
+	file.getString("[THREAD]", "ArmStatusPortName", tmpPortName);
+	_armStatusPort.Register(tmpPortName, "Net0");
+	file.getString("[THREAD]", "ArmPositionPortName", tmpPortName);
+	_armPositionPort.Register(tmpPortName, "Net0");
+	file.getString("[THREAD]", "ArmTorquesPortName", tmpPortName);
+	_torquesPort.Register(tmpPortName, "Net0");
 	///////////////////////
-	
+
 	changeInitState(ASDirectCommand::instance());
 	_arm_state = _init_state;
 	_restingInhibited = false;
@@ -241,6 +247,12 @@ inline void ArmThread::send_commands()
 
 	_armStatusPort.Content() = _arm_status;
 	_armStatusPort.Write();
+
+	_armPositionPort.Content() = _arm_status._current_position;
+	_armPositionPort.Write();
+
+	_torquesPort.Content() = _arm_status._torques;
+	_torquesPort.Write();
 	
 	_arm.setCommands(_actual_command.data());
 }

@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPGenericForceSensor.h,v 1.3 2004-09-10 15:38:11 babybot Exp $
+/// $Id: YARPGenericForceSensor.h,v 1.4 2004-10-14 17:09:52 babybot Exp $
 ///
 ///
 
@@ -48,7 +48,6 @@
 #include <ace/OS.h>
 
 #include <yarp/YARPString.h>
-
 
 template <class  ADAPTER, class PARAMETERS>
 class YARPGenericForceSensor
@@ -131,6 +130,11 @@ class YARPGenericForceSensor
 			}
 						
 			return YARP_OK;
+		}
+
+		int reset()
+		{
+			_adapter.IOCtl(CMDJR3ResetOffsets, NULL);
 		}
 
 		///int read(YVector &f) { return read(f.data()); }

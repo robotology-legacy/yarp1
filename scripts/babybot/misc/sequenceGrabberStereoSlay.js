@@ -1,4 +1,4 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
 
-WshShell.Run ("slay -n leto seqgrabber.exe", 7, true);
+WshShell.Run ("slay -n circe seqgrabber.exe", 7, true);
 
