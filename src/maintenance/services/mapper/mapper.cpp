@@ -47,6 +47,17 @@ int _cartesian(const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelBGR> &
 	return 0;
 }
 
+// reconstruct colors and convert to cartesian, plus extract the fovea
+int _fovea(const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelBGR> &out)
+{
+	YARPImageOf<YarpPixelBGR> inTmp;
+	inTmp.Resize(in.GetWidth(), in.GetHeight());
+	out.Resize(_xsizefovea,_ysizefovea);
+	_mapper.ReconstructColor(in, inTmp);
+	_mapper.Logpolar2CartesianFovea(inTmp, out);
+	return 0;
+}
+
 int _normalize(const YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelBGR> &out)
 {
 	out.Resize(in.GetWidth(), in.GetHeight());
@@ -80,7 +91,7 @@ int main(int argc, char* argv[])
 {
 	if (argc < 2)
 	{
-		cout << "Use: " << argv[0] << " inputfile outputfile [-mono] [-norm] [-lp] [-bmp]\n";
+		cout << "Use: " << argv[0] << " inputfile outputfile [-mono] [-norm] [-lp] [-bmp] [-fov]\n";
 		return 0;
 	}
 
@@ -93,6 +104,7 @@ int main(int argc, char* argv[])
 	bool grayscale = false;
 	bool normalized = false;
 	bool lp = false;
+	bool fovea = false;
 	bool bmp = false;
 	
 	if (YARPParseParameters::parse(argc, argv, "mono"))
@@ -106,6 +118,10 @@ int main(int argc, char* argv[])
 	if (YARPParseParameters::parse(argc, argv, "lp"))
 	{
 		lp = true;
+	}
+	if (YARPParseParameters::parse(argc, argv, "fov"))
+	{
+		fovea = true;
 	}
 	if (YARPParseParameters::parse(argc, argv, "bmp"))
 	{
@@ -125,6 +141,8 @@ int main(int argc, char* argv[])
 
 	if (lp)
 		_logpolar(_input, _tmp1);
+	else if (fovea)
+		_fovea(_input, _tmp1);
 	else
 		_cartesian(_input, _tmp1);
 	
