@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPKinematics.cpp,v 1.1 2004-07-28 17:17:35 babybot Exp $
+/// $Id: YARPKinematics.cpp,v 1.2 2004-08-02 13:18:33 eshuy Exp $
 ///
 ///
 
