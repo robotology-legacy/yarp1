@@ -5,13 +5,13 @@
 	
 
 ..\LogPolarSDKLib\AuxFunctions.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	"..\LogPolarSDKLib\LogPolarSDK.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 ..\LogPolarSDKLib\LogPolarSDK.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	"..\LogPolarSDKLib\LogPolarSDK.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 ..\LogPolarSDKLib\TableGeneration.cpp : \

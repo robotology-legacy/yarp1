@@ -1,13 +1,13 @@
 # Microsoft Developer Studio Generated Dependency File, included by utils.mak
 
 .\src\YARPBottle.cpp : \
+	"..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	"..\..\..\include\ace\ace.h"\
 	"..\..\..\include\ace\ace.i"\
 	"..\..\..\include\ace\ACE_export.h"\
 	"..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\include\ace\addr.h"\
-	"..\..\..\include\ace\addr.i"\
 	"..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\include\ace\array_base.h"\
 	"..\..\..\include\ace\array_base.inl"\
@@ -15,9 +15,7 @@
 	"..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\include\ace\auto_ptr.i"\
 	"..\..\..\include\ace\Base_Thread_Adapter.h"\
-	"..\..\..\include\ace\Base_Thread_Adapter.inl"\
 	"..\..\..\include\ace\Basic_Types.h"\
-	"..\..\..\include\ace\Basic_Types.i"\
 	"..\..\..\include\ace\config-all.h"\
 	"..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\
@@ -25,13 +23,11 @@
 	"..\..\..\include\ace\config-win32.h"\
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\containers.h"\
-	"..\..\..\include\ace\containers.i"\
 	"..\..\..\include\ace\containers_t.cpp"\
 	"..\..\..\include\ace\containers_t.h"\
 	"..\..\..\include\ace\containers_t.i"\
 	"..\..\..\include\ace\Default_Constants.h"\
 	"..\..\..\include\ace\event_handler.h"\
-	"..\..\..\include\ace\event_handler.i"\
 	"..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\include\ace\free_list.cpp"\
@@ -41,7 +37,6 @@
 	"..\..\..\include\ace\handle_ops.h"\
 	"..\..\..\include\ace\handle_ops.i"\
 	"..\..\..\include\ace\inet_addr.h"\
-	"..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\include\ace\init_ace.h"\
 	"..\..\..\include\ace\init_ace.i"\
 	"..\..\..\include\ace\ipc_sap.h"\
@@ -50,40 +45,27 @@
 	"..\..\..\include\ace\lib_find.i"\
 	"..\..\..\include\ace\Log_Msg.h"\
 	"..\..\..\include\ace\Log_Priority.h"\
-	"..\..\..\include\ace\malloc.i"\
 	"..\..\..\include\ace\malloc_allocator.h"\
-	"..\..\..\include\ace\malloc_allocator.i"\
 	"..\..\..\include\ace\Malloc_Base.h"\
 	"..\..\..\include\ace\malloc_t.cpp"\
 	"..\..\..\include\ace\malloc_t.h"\
 	"..\..\..\include\ace\malloc_t.i"\
 	"..\..\..\include\ace\mem_addr.h"\
-	"..\..\..\include\ace\mem_addr.i"\
 	"..\..\..\include\ace\mem_map.h"\
-	"..\..\..\include\ace\mem_map.i"\
 	"..\..\..\include\ace\memory_pool.h"\
-	"..\..\..\include\ace\memory_pool.i"\
 	"..\..\..\include\ace\Min_Max.h"\
 	"..\..\..\include\ace\Node.cpp"\
 	"..\..\..\include\ace\Node.h"\
 	"..\..\..\include\ace\OS.h"\
-	"..\..\..\include\ace\OS.i"\
 	"..\..\..\include\ace\OS_Dirent.h"\
-	"..\..\..\include\ace\OS_Dirent.inl"\
 	"..\..\..\include\ace\OS_Errno.h"\
-	"..\..\..\include\ace\OS_Errno.inl"\
 	"..\..\..\include\ace\OS_Export.h"\
 	"..\..\..\include\ace\OS_Log_Msg_Attributes.h"\
-	"..\..\..\include\ace\OS_Log_Msg_Attributes.inl"\
 	"..\..\..\include\ace\OS_Memory.h"\
-	"..\..\..\include\ace\OS_Memory.inl"\
 	"..\..\..\include\ace\OS_String.h"\
-	"..\..\..\include\ace\OS_String.inl"\
 	"..\..\..\include\ace\OS_TLI.h"\
-	"..\..\..\include\ace\OS_TLI.inl"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\ace\signal.i"\
 	"..\..\..\include\ace\sock.h"\
 	"..\..\..\include\ace\sock.i"\
 	"..\..\..\include\ace\sock_acceptor.h"\
@@ -102,16 +84,12 @@
 	"..\..\..\include\ace\string_base.i"\
 	"..\..\..\include\ace\string_base_const.h"\
 	"..\..\..\include\ace\synch.h"\
-	"..\..\..\include\ace\synch.i"\
 	"..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\include\ace\synch_t.h"\
 	"..\..\..\include\ace\synch_t.i"\
 	"..\..\..\include\ace\thread.h"\
-	"..\..\..\include\ace\thread.i"\
 	"..\..\..\include\ace\Thread_Adapter.h"\
-	"..\..\..\include\ace\Thread_Adapter.inl"\
 	"..\..\..\include\ace\Time_Value.h"\
-	"..\..\..\include\ace\Time_Value.inl"\
 	"..\..\..\include\ace\Unbounded_Queue.cpp"\
 	"..\..\..\include\ace\Unbounded_Queue.h"\
 	"..\..\..\include\ace\Unbounded_Queue.inl"\
@@ -149,17 +127,16 @@
 	"..\..\..\include\yarptime.h"\
 	".\include\YARPBottle.h"\
 	".\include\YARPBottleCodes.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\src\YARPBPNNet.cpp : \
+	"..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	"..\..\..\include\ace\ace.h"\
 	"..\..\..\include\ace\ace.i"\
 	"..\..\..\include\ace\ACE_export.h"\
 	"..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\include\ace\addr.h"\
-	"..\..\..\include\ace\addr.i"\
 	"..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\include\ace\array_base.h"\
 	"..\..\..\include\ace\array_base.inl"\
@@ -167,9 +144,7 @@
 	"..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\include\ace\auto_ptr.i"\
 	"..\..\..\include\ace\Base_Thread_Adapter.h"\
-	"..\..\..\include\ace\Base_Thread_Adapter.inl"\
 	"..\..\..\include\ace\Basic_Types.h"\
-	"..\..\..\include\ace\Basic_Types.i"\
 	"..\..\..\include\ace\config-all.h"\
 	"..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\
@@ -177,13 +152,11 @@
 	"..\..\..\include\ace\config-win32.h"\
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\containers.h"\
-	"..\..\..\include\ace\containers.i"\
 	"..\..\..\include\ace\containers_t.cpp"\
 	"..\..\..\include\ace\containers_t.h"\
 	"..\..\..\include\ace\containers_t.i"\
 	"..\..\..\include\ace\Default_Constants.h"\
 	"..\..\..\include\ace\event_handler.h"\
-	"..\..\..\include\ace\event_handler.i"\
 	"..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\include\ace\free_list.cpp"\
@@ -193,7 +166,6 @@
 	"..\..\..\include\ace\handle_ops.h"\
 	"..\..\..\include\ace\handle_ops.i"\
 	"..\..\..\include\ace\inet_addr.h"\
-	"..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\include\ace\init_ace.h"\
 	"..\..\..\include\ace\init_ace.i"\
 	"..\..\..\include\ace\ipc_sap.h"\
@@ -202,40 +174,27 @@
 	"..\..\..\include\ace\lib_find.i"\
 	"..\..\..\include\ace\Log_Msg.h"\
 	"..\..\..\include\ace\Log_Priority.h"\
-	"..\..\..\include\ace\malloc.i"\
 	"..\..\..\include\ace\malloc_allocator.h"\
-	"..\..\..\include\ace\malloc_allocator.i"\
 	"..\..\..\include\ace\Malloc_Base.h"\
 	"..\..\..\include\ace\malloc_t.cpp"\
 	"..\..\..\include\ace\malloc_t.h"\
 	"..\..\..\include\ace\malloc_t.i"\
 	"..\..\..\include\ace\mem_addr.h"\
-	"..\..\..\include\ace\mem_addr.i"\
 	"..\..\..\include\ace\mem_map.h"\
-	"..\..\..\include\ace\mem_map.i"\
 	"..\..\..\include\ace\memory_pool.h"\
-	"..\..\..\include\ace\memory_pool.i"\
 	"..\..\..\include\ace\Min_Max.h"\
 	"..\..\..\include\ace\Node.cpp"\
 	"..\..\..\include\ace\Node.h"\
 	"..\..\..\include\ace\OS.h"\
-	"..\..\..\include\ace\OS.i"\
 	"..\..\..\include\ace\OS_Dirent.h"\
-	"..\..\..\include\ace\OS_Dirent.inl"\
 	"..\..\..\include\ace\OS_Errno.h"\
-	"..\..\..\include\ace\OS_Errno.inl"\
 	"..\..\..\include\ace\OS_Export.h"\
 	"..\..\..\include\ace\OS_Log_Msg_Attributes.h"\
-	"..\..\..\include\ace\OS_Log_Msg_Attributes.inl"\
 	"..\..\..\include\ace\OS_Memory.h"\
-	"..\..\..\include\ace\OS_Memory.inl"\
 	"..\..\..\include\ace\OS_String.h"\
-	"..\..\..\include\ace\OS_String.inl"\
 	"..\..\..\include\ace\OS_TLI.h"\
-	"..\..\..\include\ace\OS_TLI.inl"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\ace\signal.i"\
 	"..\..\..\include\ace\sock.h"\
 	"..\..\..\include\ace\sock.i"\
 	"..\..\..\include\ace\sock_acceptor.h"\
@@ -254,16 +213,12 @@
 	"..\..\..\include\ace\string_base.i"\
 	"..\..\..\include\ace\string_base_const.h"\
 	"..\..\..\include\ace\synch.h"\
-	"..\..\..\include\ace\synch.i"\
 	"..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\include\ace\synch_t.h"\
 	"..\..\..\include\ace\synch_t.i"\
 	"..\..\..\include\ace\thread.h"\
-	"..\..\..\include\ace\thread.i"\
 	"..\..\..\include\ace\Thread_Adapter.h"\
-	"..\..\..\include\ace\Thread_Adapter.inl"\
 	"..\..\..\include\ace\Time_Value.h"\
-	"..\..\..\include\ace\Time_Value.inl"\
 	"..\..\..\include\ace\Unbounded_Queue.cpp"\
 	"..\..\..\include\ace\Unbounded_Queue.h"\
 	"..\..\..\include\ace\Unbounded_Queue.inl"\
@@ -306,10 +261,10 @@
 	".\mbp\mbp.h"\
 	".\mbp\Mm.h"\
 	".\mbp\Random.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\src\YARPConfigFile.cpp : \
+	"..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	"..\..\..\include\ace\ace.h"\
 	"..\..\..\include\ace\ace.i"\
 	"..\..\..\include\ace\ACE_export.h"\
@@ -319,9 +274,7 @@
 	"..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\include\ace\auto_ptr.i"\
 	"..\..\..\include\ace\Base_Thread_Adapter.h"\
-	"..\..\..\include\ace\Base_Thread_Adapter.inl"\
 	"..\..\..\include\ace\Basic_Types.h"\
-	"..\..\..\include\ace\Basic_Types.i"\
 	"..\..\..\include\ace\config-all.h"\
 	"..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\
@@ -330,7 +283,6 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\Default_Constants.h"\
 	"..\..\..\include\ace\event_handler.h"\
-	"..\..\..\include\ace\event_handler.i"\
 	"..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\include\ace\free_list.cpp"\
@@ -345,38 +297,26 @@
 	"..\..\..\include\ace\lib_find.i"\
 	"..\..\..\include\ace\Log_Msg.h"\
 	"..\..\..\include\ace\Log_Priority.h"\
-	"..\..\..\include\ace\malloc.i"\
 	"..\..\..\include\ace\malloc_allocator.h"\
-	"..\..\..\include\ace\malloc_allocator.i"\
 	"..\..\..\include\ace\Malloc_Base.h"\
 	"..\..\..\include\ace\malloc_t.cpp"\
 	"..\..\..\include\ace\malloc_t.h"\
 	"..\..\..\include\ace\malloc_t.i"\
 	"..\..\..\include\ace\mem_map.h"\
-	"..\..\..\include\ace\mem_map.i"\
 	"..\..\..\include\ace\memory_pool.h"\
-	"..\..\..\include\ace\memory_pool.i"\
 	"..\..\..\include\ace\Min_Max.h"\
 	"..\..\..\include\ace\Node.cpp"\
 	"..\..\..\include\ace\Node.h"\
 	"..\..\..\include\ace\OS.h"\
-	"..\..\..\include\ace\OS.i"\
 	"..\..\..\include\ace\OS_Dirent.h"\
-	"..\..\..\include\ace\OS_Dirent.inl"\
 	"..\..\..\include\ace\OS_Errno.h"\
-	"..\..\..\include\ace\OS_Errno.inl"\
 	"..\..\..\include\ace\OS_Export.h"\
 	"..\..\..\include\ace\OS_Log_Msg_Attributes.h"\
-	"..\..\..\include\ace\OS_Log_Msg_Attributes.inl"\
 	"..\..\..\include\ace\OS_Memory.h"\
-	"..\..\..\include\ace\OS_Memory.inl"\
 	"..\..\..\include\ace\OS_String.h"\
-	"..\..\..\include\ace\OS_String.inl"\
 	"..\..\..\include\ace\OS_TLI.h"\
-	"..\..\..\include\ace\OS_TLI.inl"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\ace\signal.i"\
 	"..\..\..\include\ace\sock_connect.h"\
 	"..\..\..\include\ace\sock_connect.i"\
 	"..\..\..\include\ace\streams.h"\
@@ -385,16 +325,12 @@
 	"..\..\..\include\ace\string_base.i"\
 	"..\..\..\include\ace\string_base_const.h"\
 	"..\..\..\include\ace\synch.h"\
-	"..\..\..\include\ace\synch.i"\
 	"..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\include\ace\synch_t.h"\
 	"..\..\..\include\ace\synch_t.i"\
 	"..\..\..\include\ace\thread.h"\
-	"..\..\..\include\ace\thread.i"\
 	"..\..\..\include\ace\Thread_Adapter.h"\
-	"..\..\..\include\ace\Thread_Adapter.inl"\
 	"..\..\..\include\ace\Time_Value.h"\
-	"..\..\..\include\ace\Time_Value.inl"\
 	"..\..\..\include\ace\unbounded_set.cpp"\
 	"..\..\..\include\ace\unbounded_set.h"\
 	"..\..\..\include\ace\unbounded_set.inl"\
@@ -405,10 +341,10 @@
 	"..\..\..\include\YARPErrorCodes.h"\
 	"..\..\..\include\yarpstring.h"\
 	".\include\YARPConfigFile.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\src\YARPFft.cpp : \
+	"..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	"..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\
 	"..\..\..\include\ace\config-win32-msvc.h"\
@@ -419,10 +355,10 @@
 	"..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\include\conf\yarpconfigwin32.h"\
 	".\include\YARPFft.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\src\YARPLogFile.cpp : \
+	"..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	"..\..\..\include\ace\ace.h"\
 	"..\..\..\include\ace\ace.i"\
 	"..\..\..\include\ace\ACE_export.h"\
@@ -432,9 +368,7 @@
 	"..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\include\ace\auto_ptr.i"\
 	"..\..\..\include\ace\Base_Thread_Adapter.h"\
-	"..\..\..\include\ace\Base_Thread_Adapter.inl"\
 	"..\..\..\include\ace\Basic_Types.h"\
-	"..\..\..\include\ace\Basic_Types.i"\
 	"..\..\..\include\ace\config-all.h"\
 	"..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\
@@ -443,7 +377,6 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\Default_Constants.h"\
 	"..\..\..\include\ace\event_handler.h"\
-	"..\..\..\include\ace\event_handler.i"\
 	"..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\include\ace\free_list.cpp"\
@@ -458,38 +391,26 @@
 	"..\..\..\include\ace\lib_find.i"\
 	"..\..\..\include\ace\Log_Msg.h"\
 	"..\..\..\include\ace\Log_Priority.h"\
-	"..\..\..\include\ace\malloc.i"\
 	"..\..\..\include\ace\malloc_allocator.h"\
-	"..\..\..\include\ace\malloc_allocator.i"\
 	"..\..\..\include\ace\Malloc_Base.h"\
 	"..\..\..\include\ace\malloc_t.cpp"\
 	"..\..\..\include\ace\malloc_t.h"\
 	"..\..\..\include\ace\malloc_t.i"\
 	"..\..\..\include\ace\mem_map.h"\
-	"..\..\..\include\ace\mem_map.i"\
 	"..\..\..\include\ace\memory_pool.h"\
-	"..\..\..\include\ace\memory_pool.i"\
 	"..\..\..\include\ace\Min_Max.h"\
 	"..\..\..\include\ace\Node.cpp"\
 	"..\..\..\include\ace\Node.h"\
 	"..\..\..\include\ace\OS.h"\
-	"..\..\..\include\ace\OS.i"\
 	"..\..\..\include\ace\OS_Dirent.h"\
-	"..\..\..\include\ace\OS_Dirent.inl"\
 	"..\..\..\include\ace\OS_Errno.h"\
-	"..\..\..\include\ace\OS_Errno.inl"\
 	"..\..\..\include\ace\OS_Export.h"\
 	"..\..\..\include\ace\OS_Log_Msg_Attributes.h"\
-	"..\..\..\include\ace\OS_Log_Msg_Attributes.inl"\
 	"..\..\..\include\ace\OS_Memory.h"\
-	"..\..\..\include\ace\OS_Memory.inl"\
 	"..\..\..\include\ace\OS_String.h"\
-	"..\..\..\include\ace\OS_String.inl"\
 	"..\..\..\include\ace\OS_TLI.h"\
-	"..\..\..\include\ace\OS_TLI.inl"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\ace\signal.i"\
 	"..\..\..\include\ace\sock_connect.h"\
 	"..\..\..\include\ace\sock_connect.i"\
 	"..\..\..\include\ace\streams.h"\
@@ -498,16 +419,12 @@
 	"..\..\..\include\ace\string_base.i"\
 	"..\..\..\include\ace\string_base_const.h"\
 	"..\..\..\include\ace\synch.h"\
-	"..\..\..\include\ace\synch.i"\
 	"..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\include\ace\synch_t.h"\
 	"..\..\..\include\ace\synch_t.i"\
 	"..\..\..\include\ace\thread.h"\
-	"..\..\..\include\ace\thread.i"\
 	"..\..\..\include\ace\Thread_Adapter.h"\
-	"..\..\..\include\ace\Thread_Adapter.inl"\
 	"..\..\..\include\ace\Time_Value.h"\
-	"..\..\..\include\ace\Time_Value.inl"\
 	"..\..\..\include\ace\unbounded_set.cpp"\
 	"..\..\..\include\ace\unbounded_set.h"\
 	"..\..\..\include\ace\unbounded_set.inl"\
@@ -520,7 +437,6 @@
 	"..\..\..\include\yarpmatrix.inl"\
 	"..\..\..\include\yarpstring.h"\
 	".\include\YARPLogFile.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\src\YARPLowPassFilter.cpp : \
@@ -528,6 +444,7 @@
 	
 
 .\src\YARPParseParameters.cpp : \
+	"..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	"..\..\..\include\ace\ace.h"\
 	"..\..\..\include\ace\ace.i"\
 	"..\..\..\include\ace\ACE_export.h"\
@@ -537,9 +454,7 @@
 	"..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\include\ace\auto_ptr.i"\
 	"..\..\..\include\ace\Base_Thread_Adapter.h"\
-	"..\..\..\include\ace\Base_Thread_Adapter.inl"\
 	"..\..\..\include\ace\Basic_Types.h"\
-	"..\..\..\include\ace\Basic_Types.i"\
 	"..\..\..\include\ace\config-all.h"\
 	"..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\
@@ -548,7 +463,6 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\Default_Constants.h"\
 	"..\..\..\include\ace\event_handler.h"\
-	"..\..\..\include\ace\event_handler.i"\
 	"..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\include\ace\free_list.cpp"\
@@ -563,38 +477,26 @@
 	"..\..\..\include\ace\lib_find.i"\
 	"..\..\..\include\ace\Log_Msg.h"\
 	"..\..\..\include\ace\Log_Priority.h"\
-	"..\..\..\include\ace\malloc.i"\
 	"..\..\..\include\ace\malloc_allocator.h"\
-	"..\..\..\include\ace\malloc_allocator.i"\
 	"..\..\..\include\ace\Malloc_Base.h"\
 	"..\..\..\include\ace\malloc_t.cpp"\
 	"..\..\..\include\ace\malloc_t.h"\
 	"..\..\..\include\ace\malloc_t.i"\
 	"..\..\..\include\ace\mem_map.h"\
-	"..\..\..\include\ace\mem_map.i"\
 	"..\..\..\include\ace\memory_pool.h"\
-	"..\..\..\include\ace\memory_pool.i"\
 	"..\..\..\include\ace\Min_Max.h"\
 	"..\..\..\include\ace\Node.cpp"\
 	"..\..\..\include\ace\Node.h"\
 	"..\..\..\include\ace\OS.h"\
-	"..\..\..\include\ace\OS.i"\
 	"..\..\..\include\ace\OS_Dirent.h"\
-	"..\..\..\include\ace\OS_Dirent.inl"\
 	"..\..\..\include\ace\OS_Errno.h"\
-	"..\..\..\include\ace\OS_Errno.inl"\
 	"..\..\..\include\ace\OS_Export.h"\
 	"..\..\..\include\ace\OS_Log_Msg_Attributes.h"\
-	"..\..\..\include\ace\OS_Log_Msg_Attributes.inl"\
 	"..\..\..\include\ace\OS_Memory.h"\
-	"..\..\..\include\ace\OS_Memory.inl"\
 	"..\..\..\include\ace\OS_String.h"\
-	"..\..\..\include\ace\OS_String.inl"\
 	"..\..\..\include\ace\OS_TLI.h"\
-	"..\..\..\include\ace\OS_TLI.inl"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\ace\signal.i"\
 	"..\..\..\include\ace\sock_connect.h"\
 	"..\..\..\include\ace\sock_connect.i"\
 	"..\..\..\include\ace\streams.h"\
@@ -603,16 +505,12 @@
 	"..\..\..\include\ace\string_base.i"\
 	"..\..\..\include\ace\string_base_const.h"\
 	"..\..\..\include\ace\synch.h"\
-	"..\..\..\include\ace\synch.i"\
 	"..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\include\ace\synch_t.h"\
 	"..\..\..\include\ace\synch_t.i"\
 	"..\..\..\include\ace\thread.h"\
-	"..\..\..\include\ace\thread.i"\
 	"..\..\..\include\ace\Thread_Adapter.h"\
-	"..\..\..\include\ace\Thread_Adapter.inl"\
 	"..\..\..\include\ace\Time_Value.h"\
-	"..\..\..\include\ace\Time_Value.inl"\
 	"..\..\..\include\ace\unbounded_set.cpp"\
 	"..\..\..\include\ace\unbounded_set.h"\
 	"..\..\..\include\ace\unbounded_set.inl"\
@@ -623,7 +521,6 @@
 	"..\..\..\include\YARPErrorCodes.h"\
 	"..\..\..\include\yarpstring.h"\
 	".\include\YARPParseParameters.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\src\YARPPidFilter.cpp : \
@@ -631,6 +528,7 @@
 	
 
 .\src\YARPRecursiveLS.cpp : \
+	"..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	"..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\
 	"..\..\..\include\ace\config-win32-msvc.h"\
@@ -645,7 +543,6 @@
 	"..\..\..\include\yarprobotmath.h"\
 	"..\..\..\include\yarprobotmath.inl"\
 	".\include\YARPRecursiveLS.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\src\YARPRnd.cpp : \
@@ -653,89 +550,38 @@
 	
 
 .\src\YARPRndUtils.cpp : \
+	"..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	"..\..\..\include\ace\ACE_export.h"\
 	"..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\include\ace\ace_wchar.inl"\
-	"..\..\..\include\ace\ARGV.h"\
-	"..\..\..\include\ace\ARGV.i"\
-	"..\..\..\include\ace\Argv_Type_Converter.h"\
-	"..\..\..\include\ace\Argv_Type_Converter.inl"\
-	"..\..\..\include\ace\Base_Thread_Adapter.h"\
-	"..\..\..\include\ace\Base_Thread_Adapter.inl"\
 	"..\..\..\include\ace\Basic_Types.h"\
-	"..\..\..\include\ace\Basic_Types.i"\
 	"..\..\..\include\ace\config-all.h"\
-	"..\..\..\include\ace\config-borland-common.h"\
-	"..\..\..\include\ace\config-cxx-common.h"\
-	"..\..\..\include\ace\config-g++-common.h"\
-	"..\..\..\include\ace\config-ghs-common.h"\
-	"..\..\..\include\ace\config-icc-common.h"\
-	"..\..\..\include\ace\config-kcc-common.h"\
-	"..\..\..\include\ace\config-linux-common.h"\
-	"..\..\..\include\ace\config-linux.h"\
-	"..\..\..\include\ace\config-qnx-rtp.h"\
-	"..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\include\ace\config-win32-ghs.h"\
-	"..\..\..\include\ace\config-win32-mingw.h"\
-	"..\..\..\include\ace\config-win32-msvc-5.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\include\ace\config-win32-msvc-7.h"\
 	"..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\include\ace\config-win32-visualage.h"\
 	"..\..\..\include\ace\config-win32.h"\
-	"..\..\..\include\ace\config-WinCE.h"\
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\Default_Constants.h"\
 	"..\..\..\include\ace\Global_Macros.h"\
-	"..\..\..\include\ace\iosfwd.h"\
 	"..\..\..\include\ace\Log_Msg.h"\
-	"..\..\..\include\ace\Log_Msg_Callback.h"\
 	"..\..\..\include\ace\Log_Priority.h"\
-	"..\..\..\include\ace\Malloc_Base.h"\
-	"..\..\..\include\ace\Managed_Object.cpp"\
-	"..\..\..\include\ace\Managed_Object.h"\
-	"..\..\..\include\ace\Managed_Object.i"\
 	"..\..\..\include\ace\Min_Max.h"\
-	"..\..\..\include\ace\Node.cpp"\
-	"..\..\..\include\ace\Node.h"\
-	"..\..\..\include\ace\Object_Manager.h"\
-	"..\..\..\include\ace\Object_Manager.i"\
 	"..\..\..\include\ace\OS.h"\
-	"..\..\..\include\ace\OS.i"\
 	"..\..\..\include\ace\OS_Dirent.h"\
-	"..\..\..\include\ace\OS_Dirent.inl"\
 	"..\..\..\include\ace\OS_Errno.h"\
-	"..\..\..\include\ace\OS_Errno.inl"\
 	"..\..\..\include\ace\OS_Export.h"\
 	"..\..\..\include\ace\OS_Log_Msg_Attributes.h"\
-	"..\..\..\include\ace\OS_Log_Msg_Attributes.inl"\
 	"..\..\..\include\ace\OS_Memory.h"\
-	"..\..\..\include\ace\OS_Memory.inl"\
 	"..\..\..\include\ace\OS_String.h"\
-	"..\..\..\include\ace\OS_String.inl"\
 	"..\..\..\include\ace\OS_TLI.h"\
-	"..\..\..\include\ace\OS_TLI.inl"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
 	"..\..\..\include\ace\streams.h"\
-	"..\..\..\include\ace\Thread_Adapter.h"\
-	"..\..\..\include\ace\Thread_Adapter.inl"\
-	"..\..\..\include\ace\Thread_Control.h"\
-	"..\..\..\include\ace\Thread_Control.inl"\
-	"..\..\..\include\ace\Thread_Exit.h"\
-	"..\..\..\include\ace\Thread_Hook.h"\
 	"..\..\..\include\ace\Time_Value.h"\
-	"..\..\..\include\ace\Time_Value.inl"\
-	"..\..\..\include\ace\Trace.h"\
-	"..\..\..\include\ace\Unbounded_Queue.cpp"\
-	"..\..\..\include\ace\Unbounded_Queue.h"\
-	"..\..\..\include\ace\Unbounded_Queue.inl"\
 	"..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\include\conf\yarpconfigwin32.h"\
 	"..\..\..\include\debug.h"\
 	"..\..\..\include\YARPAll.h"\
-	"..\..\..\include\YARPBool.h"\
 	"..\..\..\include\YARPErrorCodes.h"\
 	"..\..\..\include\yarpmatrix.h"\
 	"..\..\..\include\yarpmatrix.inl"\
@@ -744,6 +590,7 @@
 	
 
 .\src\YARPTwoDKalmanFilter.cpp : \
+	"..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	"..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\
 	"..\..\..\include\ace\config-win32-msvc.h"\
@@ -758,7 +605,6 @@
 	"..\..\..\include\yarprobotmath.h"\
 	"..\..\..\include\yarprobotmath.inl"\
 	".\include\YARPTwoDKalmanFilter.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\mbp\mbp.cpp : \

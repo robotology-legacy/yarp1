@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.23 2004-06-11 17:37:56 babybot Exp $
+/// $Id: YARPDisparity.cpp,v 1.24 2004-06-16 14:34:41 emmebi75 Exp $
 ///
 ///
 
@@ -70,7 +70,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "YARPDisparity.h"
-#include <YARPLogPolar.h>
+#include "YARPLogPolar.h"
 #define SWAP(a,b) {temp=(a);(a)=(b);(b)=temp;}
 #define NR_END 1
 #define FREE_ARG char*

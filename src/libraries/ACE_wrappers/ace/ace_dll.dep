@@ -1,6 +1,10 @@
 # Microsoft Developer Studio Generated Dependency File, included by ace_dll.mak
 
 .\ACE.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -105,13 +109,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\Version.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Activation_Queue.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -181,13 +185,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Active_Map_Manager.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -311,13 +315,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Addr.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -359,13 +363,11 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Arg_Shifter.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -389,11 +391,13 @@
 	".\OS_String.inl"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\ARGV.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -441,13 +445,11 @@
 	".\unbounded_queue.cpp"\
 	".\unbounded_queue.h"\
 	".\unbounded_queue.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Argv_Type_Converter.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -472,11 +474,13 @@
 	".\OS_String.inl"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Asynch_Connector.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -532,13 +536,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Asynch_IO.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -673,13 +677,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Asynch_IO_Impl.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -718,13 +722,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Asynch_Pseudo_Task.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -884,13 +888,11 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\ATM_Acceptor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -904,11 +906,11 @@
 	".\config.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\ATM_Addr.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -922,11 +924,11 @@
 	".\config.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\ATM_Connector.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -940,11 +942,11 @@
 	".\config.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\ATM_Params.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -958,11 +960,11 @@
 	".\config.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\ATM_QoS.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -976,11 +978,11 @@
 	".\config.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\ATM_Stream.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -994,11 +996,13 @@
 	".\config.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Atomic_Op.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -1054,13 +1058,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Base_Thread_Adapter.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -1100,13 +1104,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Based_Pointer_Repository.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -1239,13 +1243,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Basic_Stats.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -1287,13 +1291,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Basic_Types.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -1330,13 +1334,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Capabilities.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -1470,13 +1474,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\CDR_Base.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -1520,13 +1524,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\CDR_Stream.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -1632,13 +1636,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Codecs.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -1679,13 +1683,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Configuration.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -1814,13 +1818,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Configuration_Import_Export.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -1949,13 +1953,11 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Connection_Recycling_Strategy.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -1972,11 +1974,13 @@
 	".\pre.h"\
 	".\Recyclable.h"\
 	".\Recyclable.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Containers.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -2033,13 +2037,11 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Copy_Disabled.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -2054,11 +2056,13 @@
 	".\Copy_Disabled.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Date_Time.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -2096,13 +2100,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\DEV.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -2207,13 +2211,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\DEV_Addr.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -2314,13 +2318,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\DEV_Connector.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -2429,13 +2433,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\DEV_IO.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -2542,13 +2546,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Dirent.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -2590,13 +2594,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Dirent_Selector.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -2634,13 +2638,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\DLL.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -2739,13 +2743,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\DLL_Manager.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -2853,13 +2857,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Dump.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -2918,13 +2922,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Dynamic.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -3002,13 +3006,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Dynamic_Service.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -3055,13 +3059,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Dynamic_Service_Base.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -3187,13 +3191,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Event_Handler.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -3315,13 +3319,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\FIFO.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -3367,13 +3371,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\FIFO_Recv.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -3431,13 +3435,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\FIFO_Recv_Msg.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -3497,13 +3501,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\FIFO_Send.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -3561,13 +3565,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\FIFO_Send_Msg.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -3627,13 +3631,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\FILE.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -3738,13 +3742,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\FILE_Addr.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -3845,13 +3849,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\FILE_Connector.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -3960,13 +3964,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\FILE_IO.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -4073,13 +4077,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\File_Lock.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -4121,13 +4125,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Filecache.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -4257,13 +4261,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Flag_Manip.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -4301,13 +4305,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Framework_Component.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -4415,13 +4419,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Functor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -4474,13 +4478,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Get_Opt.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -4590,13 +4594,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Handle_Ops.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -4634,13 +4638,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Handle_Set.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -4682,13 +4686,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Hash_Map_Manager.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -4813,13 +4817,11 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Hashable.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -4835,11 +4837,13 @@
 	".\Hashable.inl"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\High_Res_Timer.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -4907,13 +4911,13 @@
 	".\unbounded_queue.cpp"\
 	".\unbounded_queue.h"\
 	".\unbounded_queue.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\INET_Addr.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -4959,13 +4963,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Init_ACE.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -5008,13 +5012,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\IO_SAP.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -5058,13 +5062,11 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\IOStream.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -5078,11 +5080,13 @@
 	".\IOStream.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\IPC_SAP.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -5126,13 +5130,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Lib_Find.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -5174,13 +5178,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Local_Name_Space.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -5344,13 +5348,11 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Local_Tokens.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -5365,11 +5367,13 @@
 	".\Local_Tokens.i"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Log_Msg.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -5491,13 +5495,11 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Log_Msg_Backend.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -5512,11 +5514,11 @@
 	".\Log_Msg_Backend.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Log_Msg_Callback.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -5531,11 +5533,13 @@
 	".\Log_Msg_Callback.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Log_Msg_IPC.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -5602,13 +5606,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Log_Msg_NT_Event_Log.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -5652,13 +5656,11 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Log_Msg_UNIX_Syslog.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -5671,11 +5673,13 @@
 	".\config.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Log_Record.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -5729,13 +5733,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Logging_Strategy.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -5844,13 +5848,11 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\LSOCK.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -5864,11 +5866,11 @@
 	".\LSOCK.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\LSOCK_Acceptor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -5882,11 +5884,11 @@
 	".\LSOCK_Acceptor.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\LSOCK_CODgram.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -5900,11 +5902,11 @@
 	".\LSOCK_CODgram.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\LSOCK_Connector.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -5918,11 +5920,11 @@
 	".\LSOCK_Connector.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\LSOCK_Dgram.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -5936,11 +5938,11 @@
 	".\LSOCK_Dgram.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\LSOCK_Stream.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -5954,11 +5956,13 @@
 	".\LSOCK_Stream.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Malloc.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -6050,13 +6054,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Malloc_Allocator.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -6115,13 +6119,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Malloc_Instantiations.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -6208,13 +6212,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Map.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -6352,13 +6356,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\MEM_Acceptor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -6498,13 +6502,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\MEM_Addr.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -6552,13 +6556,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\MEM_Connector.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -6697,13 +6701,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\MEM_IO.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -6830,13 +6834,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Mem_Map.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -6878,13 +6882,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\MEM_SAP.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -6994,13 +6998,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\MEM_Stream.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -7129,13 +7133,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Memory_Pool.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -7232,13 +7236,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Message_Block.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -7296,13 +7300,13 @@
 	".\Time_Value.inl"\
 	".\Timeprobe.h"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Message_Queue.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -7369,13 +7373,11 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Method_Request.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -7392,11 +7394,13 @@
 	".\os_export.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Msg_WFMO_Reactor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -7486,13 +7490,13 @@
 	".\Trace.h"\
 	".\WFMO_Reactor.h"\
 	".\WFMO_Reactor.i"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Name_Proxy.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -7626,13 +7630,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Name_Request_Reply.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -7673,13 +7677,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Name_Space.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -7814,13 +7818,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Naming_Context.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -7988,13 +7992,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Notification_Strategy.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -8034,13 +8038,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\NT_Service.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -8174,13 +8178,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Obchunk.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -8269,13 +8273,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Object_Manager.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -8450,13 +8454,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Obstack.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -8549,13 +8553,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\OS.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -8600,13 +8604,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\OS_Dirent.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -8646,13 +8650,11 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\OS_Errno.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -8668,11 +8670,11 @@
 	".\os_export.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\OS_Log_Msg_Attributes.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -8689,11 +8691,11 @@
 	".\post.h"\
 	".\pre.h"\
 	".\streams.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\OS_Memory.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -8711,11 +8713,13 @@
 	".\OS_Memory.inl"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\OS_QoS.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -8752,13 +8756,11 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\OS_String.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -8781,11 +8783,13 @@
 	".\OS_String.inl"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\OS_Thread_Adapter.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -8828,13 +8832,11 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\OS_TLI.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -8852,11 +8854,11 @@
 	".\OS_TLI.inl"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Pair.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -8872,11 +8874,13 @@
 	".\Pair_T.i"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Parse_Node.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -9052,13 +9056,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\PI_Malloc.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -9166,13 +9170,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Pipe.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -9242,13 +9246,11 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\POSIX_Asynch_IO.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -9262,11 +9264,11 @@
 	".\POSIX_Asynch_IO.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\POSIX_Proactor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -9280,11 +9282,13 @@
 	".\POSIX_Proactor.h"\
 	".\post.h"\
 	".\pre.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Priority_Reactor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -9400,13 +9404,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Proactor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -9609,13 +9613,13 @@
 	".\WIN32_Asynch_IO.h"\
 	".\WIN32_Proactor.h"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Process.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -9721,13 +9725,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Process_Manager.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -9845,13 +9849,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Process_Mutex.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -9916,13 +9920,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Process_Semaphore.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -9975,13 +9979,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Profile_Timer.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -10025,13 +10029,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Reactor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -10191,13 +10195,13 @@
 	".\WFMO_Reactor.h"\
 	".\WFMO_Reactor.i"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Reactor_Notification_Strategy.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -10271,13 +10275,13 @@
 	".\Timer_Queue_T.h"\
 	".\Timer_Queue_T.i"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Read_Buffer.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -10395,13 +10399,11 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Recyclable.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -10417,11 +10419,11 @@
 	".\pre.h"\
 	".\Recyclable.h"\
 	".\Recyclable.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Refcountable.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -10437,11 +10439,13 @@
 	".\pre.h"\
 	".\Refcountable.h"\
 	".\Refcountable.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Registry.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -10550,13 +10554,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Registry_Name_Space.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -10593,13 +10597,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Remote_Name_Space.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -10735,13 +10739,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Remote_Tokens.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -10839,13 +10843,13 @@
 	".\Token_Request_Reply.h"\
 	".\Token_Request_Reply.i"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\RW_Process_Mutex.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -10901,13 +10905,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Sample_History.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -10951,13 +10955,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Sched_Params.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -10995,13 +10999,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Select_Reactor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -11102,13 +11106,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Select_Reactor_Base.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -11221,13 +11225,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Service_Config.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -11407,13 +11411,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Service_Manager.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -11581,13 +11585,13 @@
 	".\WFMO_Reactor.h"\
 	".\WFMO_Reactor.i"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Service_Object.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -11660,13 +11664,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Service_Repository.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -11746,13 +11750,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Service_Templates.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -11935,13 +11939,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Service_Types.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -12078,13 +12082,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Shared_Memory.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -12121,13 +12125,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Shared_Memory_MM.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -12168,13 +12172,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Shared_Memory_SV.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -12215,13 +12219,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Shared_Object.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -12259,13 +12263,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Signal.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -12342,13 +12346,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SOCK.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -12396,13 +12400,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SOCK_Acceptor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -12480,13 +12484,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SOCK_CODgram.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -12550,13 +12554,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Sock_Connect.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -12659,13 +12663,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SOCK_Connector.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -12732,13 +12736,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SOCK_Dgram.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -12813,13 +12817,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SOCK_Dgram_Bcast.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -12883,13 +12887,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SOCK_Dgram_Mcast.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -12945,13 +12949,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SOCK_IO.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -13009,13 +13013,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SOCK_Stream.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -13075,13 +13079,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SPIPE.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -13186,13 +13190,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SPIPE_Acceptor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -13300,13 +13304,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SPIPE_Addr.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -13407,13 +13411,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SPIPE_Connector.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -13522,13 +13526,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SPIPE_Stream.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -13635,13 +13639,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SString.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -13738,13 +13742,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Stats.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -13796,13 +13800,11 @@
 	".\unbounded_queue.cpp"\
 	".\unbounded_queue.h"\
 	".\unbounded_queue.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\String_Base_Const.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -13819,11 +13821,13 @@
 	".\post.h"\
 	".\pre.h"\
 	".\String_Base_Const.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\SV_Message.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -13861,13 +13865,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SV_Message_Queue.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -13911,13 +13915,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SV_Semaphore_Complex.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -13961,13 +13965,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SV_Semaphore_Simple.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -14021,13 +14025,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\SV_Shared_Memory.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -14069,13 +14073,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Svc_Conf_l.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -14207,13 +14211,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Svc_Conf_Lexer_Guard.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -14340,13 +14344,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Svc_Conf_y.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -14532,13 +14536,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Svc_Handler.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -14716,13 +14720,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Synch.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -14785,13 +14789,11 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Synch_Options.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -14812,11 +14814,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\System_Time.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -14904,13 +14908,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Task.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -15042,13 +15046,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Thread.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -15092,13 +15096,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Thread_Adapter.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -15200,13 +15204,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Thread_Control.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -15307,13 +15311,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Thread_Exit.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -15414,13 +15418,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Thread_Hook.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -15457,13 +15461,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Thread_Manager.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -15569,13 +15573,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Time_Request_Reply.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -15673,13 +15677,11 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Time_Value.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -15698,11 +15700,13 @@
 	".\pre.h"\
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\Timeprobe.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -15738,13 +15742,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Timer_Hash.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -15823,13 +15827,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Timer_Heap.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -15902,13 +15906,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Timer_List.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -15975,13 +15979,13 @@
 	".\Timer_Queue_T.h"\
 	".\Timer_Queue_T.i"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Timer_Queue.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -16063,13 +16067,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Timer_Queue_Adapters.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -16205,13 +16209,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Timer_Wheel.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -16278,13 +16282,13 @@
 	".\Timer_Wheel_T.cpp"\
 	".\Timer_Wheel_T.h"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\TLI.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -16331,13 +16335,13 @@
 	".\Time_Value.inl"\
 	".\TLI.h"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\TLI_Acceptor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -16398,13 +16402,13 @@
 	".\TLI_Acceptor.h"\
 	".\TLI_Stream.h"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\TLI_Connector.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -16467,13 +16471,13 @@
 	".\TLI_Connector.h"\
 	".\TLI_Stream.h"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\TLI_Stream.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -16529,13 +16533,13 @@
 	".\TLI.h"\
 	".\TLI_Stream.h"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Token.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -16588,13 +16592,13 @@
 	".\Token.h"\
 	".\Token.i"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Token_Collection.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -16717,13 +16721,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Token_Invariants.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -16850,13 +16854,13 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Token_Manager.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -16984,13 +16988,11 @@
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Token_Request_Reply.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -17011,11 +17013,13 @@
 	".\Time_Value.inl"\
 	".\Token_Request_Reply.h"\
 	".\Token_Request_Reply.i"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\TP_Reactor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -17118,13 +17122,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Trace.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -17164,13 +17168,13 @@
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\TTY_IO.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -17278,13 +17282,13 @@
 	".\unbounded_set.cpp"\
 	".\unbounded_set.h"\
 	".\unbounded_set.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Typed_SV_Message.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -17322,13 +17326,13 @@
 	".\Trace.h"\
 	".\Typed_SV_Message.h"\
 	".\Typed_SV_Message.i"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\Typed_SV_Message_Queue.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -17344,6 +17348,8 @@
 	".\config.h"\
 	".\Default_Constants.h"\
 	".\Global_Macros.h"\
+	".\Log_Msg.h"\
+	".\Log_Priority.h"\
 	".\Min_Max.h"\
 	".\OS.h"\
 	".\OS.i"\
@@ -17361,19 +17367,19 @@
 	".\post.h"\
 	".\pre.h"\
 	".\streams.h"\
+	".\SV_Message_Queue.i"\
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
 	".\Typed_SV_Message.cpp"\
 	".\Typed_SV_Message.h"\
 	".\Typed_SV_Message.i"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
+	".\Typed_SV_Message_Queue.h"\
 	
 
 .\UNIX_Addr.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -17387,11 +17393,13 @@
 	".\post.h"\
 	".\pre.h"\
 	".\UNIX_Addr.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\UPIPE_Acceptor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -17565,13 +17573,13 @@
 	".\UPIPE_Addr.h"\
 	".\UPIPE_Stream.h"\
 	".\UPIPE_Stream.i"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\UPIPE_Connector.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -17744,13 +17752,13 @@
 	".\UPIPE_Connector.i"\
 	".\UPIPE_Stream.h"\
 	".\UPIPE_Stream.i"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\UPIPE_Stream.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -17919,13 +17927,13 @@
 	".\UPIPE_Addr.h"\
 	".\UPIPE_Stream.h"\
 	".\UPIPE_Stream.i"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\WFMO_Reactor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -18024,13 +18032,13 @@
 	".\unbounded_set.inl"\
 	".\WFMO_Reactor.h"\
 	".\WFMO_Reactor.i"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\WIN32_Asynch_IO.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -18227,13 +18235,13 @@
 	".\WIN32_Asynch_IO.h"\
 	".\WIN32_Proactor.h"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\WIN32_Proactor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\process.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\signal.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE.h"\
@@ -18428,13 +18436,11 @@
 	".\WIN32_Asynch_IO.h"\
 	".\WIN32_Proactor.h"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
-	"c:\program files\microsoft visual studio\vc98\include\process.h"\
-	"c:\program files\microsoft visual studio\vc98\include\signal.h"\
 	
 
 .\XML_Svc_Conf.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ACE_export.h"\
@@ -18449,11 +18455,11 @@
 	".\post.h"\
 	".\pre.h"\
 	".\XML_Svc_Conf.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\XtReactor.cpp : \
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"..\..\..\..\..\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	".\ace_wchar.h"\
@@ -18467,8 +18473,6 @@
 	".\post.h"\
 	".\pre.h"\
 	".\XtReactor.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
-	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	
 
 .\ace.rc : \
