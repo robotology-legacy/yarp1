@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: mtest.cpp,v 1.1 2003-11-18 00:30:18 gmetta Exp $
+/// $Id: mtest.cpp,v 1.2 2003-11-18 01:16:36 gmetta Exp $
 ///
 ///
 
@@ -73,6 +73,8 @@
 #include <YARPPort.h>
 #include <YARPSemaphore.h>
 #include <YARPThread.h>
+#include <YARPMath.h>
+#include <YARPVectorPortContent.h>
 
 #include <YARPTime.h>
 
@@ -81,22 +83,26 @@
 ///
 int main (int argc, char *argv[])
 {
-	YARPOutputPortOf<int> port;
-	YARPInputPortOf<int> iport;
+	YARPOutputPortOf<YVector> port;
+	YARPInputPortOf<YVector> iport;
 
 	port.Register ("/mtest/o:int", "local");
 	iport.Register ("/mtest/i:int", "local");
 
+	YVector v1(2);
+	YVector v2(3);
+
 	for (int i = 0;; i++)
 	{
 		printf ("about to write %d\n", i);
-		port.Content() = i;
+		v1 = i;
+		port.Content() = v1;
 		port.Write();
-		///YARPTime::DelayInSeconds(1.0);
+		YARPTime::DelayInSeconds(4.0);
 
-		iport.Read();
-		int x = iport.Content();
-		printf ("got reply %d\n", x);
+///		iport.Read();
+///		v2 = iport.Content();
+///		printf ("got reply %lf and size %d\n", v2(1), v2.Length());
 	}
 
 	return 0;

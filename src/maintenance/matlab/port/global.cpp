@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: global.cpp,v 1.2 2003-11-18 00:30:18 gmetta Exp $
+/// $Id: global.cpp,v 1.3 2003-11-18 01:16:36 gmetta Exp $
 ///
 ///
 
@@ -78,9 +78,8 @@
 #include <YARPPort.h>
 #include <YARPSemaphore.h>
 #include <YARPThread.h>
-
-/// requires image management abilities as well as math stuff (vectors).
-///#include <>
+#include <YARPMath.h>
+#include <YARPVectorPortContent.h>
 
 #include "global.h"
 
@@ -348,6 +347,7 @@ int create_port (void *params)
 		PORT_CREATE (INT, int);
 		PORT_CREATE (DOUBLE, double);
 		PORT_CREATE (FLOAT, float);
+		PORT_CREATE (YVECTOR, YVector);
 
 		default:
 			return -1;
@@ -381,6 +381,7 @@ int register_port (void *params)
 		PORT_REGISTER (INT, int);
 		PORT_REGISTER (DOUBLE, double);
 		PORT_REGISTER (FLOAT, float);
+		PORT_REGISTER (YVECTOR, YVector);
 
 		default:
 			return -1;
@@ -412,6 +413,7 @@ int unregister_port (void *params)
 		PORT_UNREGISTER(INT, int);
 		PORT_UNREGISTER(DOUBLE, double);
 		PORT_UNREGISTER(FLOAT, float);
+		PORT_UNREGISTER(YVECTOR, YVector);
 
 		default:
 			return -1;
@@ -448,6 +450,7 @@ int destroy_port (void *params)
 		PORT_DESTROY (INT, int);
 		PORT_DESTROY (DOUBLE, double);
 		PORT_DESTROY (FLOAT, float);
+		PORT_DESTROY (YVECTOR, YVector);
 
 		default:
 			return -1;
@@ -600,6 +603,28 @@ int read_port (void *params)
 		PORT_READ (DOUBLE, double);
 		PORT_READ (FLOAT, float);
 
+		case MX_YARP_YVECTOR:
+		{
+			YARPInputPortOf<YVector> *port = (YARPInputPortOf<YVector> *)myport._port;
+			if (port->Read((par._extra_params)?true:false))
+			{
+				YVector& v = port->Content();
+				par._extra_content = (char *)v.data();
+				return_value = 0;
+				par._type = myport._type;
+				par._sizex = v.Length();
+			}
+			else
+			{
+				par._extra_content = NULL;
+				return_value = -2;
+				par._type = MX_YARP_INVALID;
+				par._sizex = 0;
+			}
+			par._sizey = 1;
+		}
+		break;
+
 		default:
 			return -1;
 			break;
@@ -632,6 +657,32 @@ int write_port (void *params)
 		PORT_WRITE(INT, int);
 		PORT_WRITE(DOUBLE, double);
 		PORT_WRITE(FLOAT, float);
+
+		case MX_YARP_YVECTOR:
+		{
+			YARPOutputPortOf<YVector> *port = (YARPOutputPortOf<YVector> *)myport._port;
+			if (par._sizex != 1 && par._sizey != 1)	/// matrices are not yet allowed.
+				return_value = -1;
+			else
+			{
+				/// accepts both row and column vectors.
+				if (par._sizex != 1)
+				{
+					port->Content().Resize (par._sizex);
+					memcpy (port->Content().data(), par._extra_content, sizeof(double) * par._sizex);
+					port->Write((par._extra_params)?true:false);
+					return_value = 0;
+				}
+				else
+				{
+					port->Content().Resize (par._sizey);
+					memcpy (port->Content().data(), par._extra_content, sizeof(double) * par._sizey);
+					port->Write((par._extra_params)?true:false);
+					return_value = 0;
+				}
+			}
+		}
+		break;
 
 		default:
 			return -1;
