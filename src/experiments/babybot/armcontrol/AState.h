@@ -70,12 +70,17 @@ public:
 
 		_learn = 0;
 		_j5Ls.Resize(2);
+		
+		char *root = GetYarpRoot();
+		char filename[256];
 
 #if defined(__QNXEurobot__)
-		_errorFile.open("Y:\\conf\\babybot\\errors.txt");
-		_lsFile.open("Y:\\conf\\babybot\\leastSquares.txt");
-		_pointsFile.open("Y:\\conf\\babybot\\points.txt");
-		
+		ACE_OS::sprintf (filename, "%s/conf/eurobot/errors.txt", root);
+		_errorFile.open(filename);
+        ACE_OS::sprintf (filename, "%s/conf/eurobot/leastSquares.txt", root);
+		_lsFile.open(filename);
+        ACE_OS::sprintf (filename, "%s/conf/eurobot/points.txt", root);
+		_pointsFile.open(filename);
 #else
 		_errorFile.open("Y:\\conf\\babybot\\errors.txt");
 		_lsFile.open("Y:\\conf\\babybot\\leastSquares.txt");
