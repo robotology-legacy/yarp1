@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.12 2003-07-01 09:48:44 babybot Exp $
+/// $Id: LocalNameServer.cpp,v 1.13 2003-07-15 13:46:33 natta Exp $
 ///
 
 #include "LocalNameServer.h"
@@ -384,7 +384,8 @@ int services::take_ref(const std::string &name, std::string &ip, int *type, PORT
 	SVC_IT it;
 	if(find_service(name, it) != -1)
 	{
-		bool ref = it->take_ref();
+		bool ref = true;
+		// ref = it->take_ref();	// use ref count
 		ip = it->ip;
 		ports = it->ports;
 		*type = it->type;
