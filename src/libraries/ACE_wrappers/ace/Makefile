@@ -4,6 +4,7 @@
 #       Makefile for the ACE library
 #----------------------------------------------------------------------------
 
+# just an addition
 include $(YARP_ROOT)/conf/Makefile.template
 
 # This default rule is here so invoking make realclean will do
