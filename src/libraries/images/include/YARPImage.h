@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.3 2003-06-17 20:20:35 babybot Exp $
+/// $Id: YARPImage.h,v 1.4 2003-06-18 08:22:27 babybot Exp $
 ///
 ///
 
@@ -146,8 +146,12 @@ typedef struct { float h,s,v; } YarpPixelHSVFloat;
 class YARPRefCount;
 
 ///
-/// alignment required for IPL, MMX, optimized stuff.
+/// alignment required for IP, MMX, optimized stuff.
+#ifdef __QNX__
+const int YarpImageAlign = 1;
+#else
 const int YarpImageAlign = 8;
+#endif
 
 // Note on IPL alignment stuff:
 //	- initial address is aligned on a QUADWORD boundary (allocation).

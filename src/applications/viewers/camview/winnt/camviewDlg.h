@@ -48,9 +48,7 @@ public:
 	{
 		m_owner = owner;
 		memset (m_name, 0, 512);
-		///m_x = m_y = 256;
-		m_x = 252;
-		m_y = 110;
+		m_x = m_y = 256;
 		m_frozen = false;
 		m_period = 0;
 		m_est_interval = 0;
@@ -87,7 +85,8 @@ public:
 	virtual void End (bool donkill = true)
 	{
 		m_end_sema.Post ();
-		YARPThread::End (true);
+		YARPTime::DelayInSeconds (1.0);
+		YARPThread::End (false);
 	}
 
 	void Freeze (bool fr)
