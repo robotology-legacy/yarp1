@@ -71,7 +71,7 @@ void CRecv::Body (void)
 
 				if (m_remapped.GetWidth() != 256 || m_remapped.GetHeight() != 256)
 				{
-					m_remapped.Resize (256, 256, YARP_PIXEL_BGR);
+					m_remapped.Resize (256, 256);
 				}
 
 				if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho)
@@ -114,7 +114,7 @@ void CRecv::Body (void)
 
 				if (m_remapped.GetWidth() != 128 || m_remapped.GetHeight() != 128)
 				{
-					m_remapped.Resize (128, 128, YARP_PIXEL_BGR);
+					m_remapped.Resize (128, 128);
 				}
 
 				if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho)
