@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPSoundOnBabybotAdapter.h,v 1.1 2004-02-25 16:51:47 beltran Exp $
+//         Version:  $Id: YARPSoundOnBabybotAdapter.h,v 1.2 2004-02-25 17:19:51 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -44,7 +44,7 @@ public:
 	YARPSoundOnBabybotAdapter() : YARPSoundDeviceDriver() {}
 	virtual ~YARPSoundOnBabybotAdapter() {}
 
-	int initialize (YARPBabybotGrabberParams& params)
+	int initialize (YARPBabybotSoundGrabberParams& params)
 	{
 		/// need additional initialization, put it here.
 		return open ((void *)&params);
