@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.17 2004-02-23 15:56:33 fberton Exp $
+/// $Id: YARPDisparity.cpp,v 1.18 2004-03-25 14:17:23 beltran Exp $
 ///
 ///
 
@@ -793,7 +793,7 @@ void YARPDisparityTool::findFittingFunction()
 	double alambda;
 	double min_chisq = 100000;
 
-	fittingFunct = gaussian;
+	fittingFunct = &YARPDisparityTool::gaussian;
 
 	for (k=1; k<=_shiftLevels; k++)
 	{
