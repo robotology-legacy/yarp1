@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 
 
-// $Id: YARPControlBoardUtils.h,v 1.20 2004-05-07 01:40:15 babybot Exp $
+// $Id: YARPControlBoardUtils.h,v 1.21 2004-05-15 22:09:57 gmetta Exp $
 
 #include <conf/YARPConfig.h>
 
@@ -116,8 +116,9 @@ enum ControlBoardCmd
 
 	CMDLoadBootMemory		= 72,	// loads control values from permanent storage
 	CMDSaveBootMemory		= 73,	// saves important parameters to permanent storage
+	CMDGetErrorStatus		= 74,	// gets the error status of the control card
 
-	CBNCmds 				= 74 	// required! tells the total number of commands
+	CBNCmds 				= 75 	// required! tells the total number of commands
 };
 
 enum ControlBoardEvents

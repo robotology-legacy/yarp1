@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.7 2004-05-07 01:40:16 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.8 2004-05-15 22:09:57 gmetta Exp $
 ///
 ///
 
@@ -307,6 +307,8 @@ YARPValueCanDeviceDriver::YARPValueCanDeviceDriver(void)
 
 	m_cmds[CMDSetPositiveLimit] = &YARPValueCanDeviceDriver::setPositiveLimit;
 	m_cmds[CMDSetNegativeLimit] = &YARPValueCanDeviceDriver::setNegativeLimit;
+
+	m_cmds[CMDGetErrorStatus] = &YARPValueCanDeviceDriver::getErrorStatus;
 }
 
 YARPValueCanDeviceDriver::~YARPValueCanDeviceDriver ()
@@ -947,7 +949,22 @@ int YARPValueCanDeviceDriver::setNegativeLimit (void *cmd)
 	return _writeDWord (CAN_SET_MIN_POSITION, axis, S_32(*((double *)tmp->parameters)));
 }
 
+/// cmd is a pointer to an integer
+int YARPValueCanDeviceDriver::getErrorStatus (void *cmd)
+{
+	ValueCanResources& r = RES(system_resources);
+	int *out = (int *) cmd;
+	short value = 0;
 
+	/// the axis is irrelevant.
+	/// MSB of the word is 0!
+	if (_readWord16 (CAN_GET_ERROR_STATUS, 0, value) == YARP_OK)
+		*out = int(value);
+	else
+		return YARP_FAIL;
+
+	return YARP_OK;
+}
 
 ///
 /// helper functions.

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.7 2004-05-07 01:40:16 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.8 2004-05-15 22:09:57 gmetta Exp $
 ///
 ///
 
@@ -89,38 +89,39 @@ public:
 	virtual int open(void *d);
 	virtual int close(void);
 
-	virtual int getPosition(void *cmd);
-	virtual int getPositions(void *cmd);
-	virtual int getRefPositions(void *cmd);
-	virtual int setPosition(void *cmd);
-	virtual int setPositions(void *cmd);
-	virtual int setSpeed(void *cmd);
-	virtual int setSpeeds(void *cmd);
-	virtual int getSpeeds(void *cmd);
-	virtual int getRefSpeeds(void *cmd);
-	virtual int setAcceleration(void *cmd);
-	virtual int setAccelerations(void *cmd);
-	virtual int getRefAccelerations(void *cmd);
-	virtual int setOffset(void *cmd);
-	virtual int setOffsets(void *cmd);
-	virtual int setPid(void *cmd);
-	virtual int getPid(void *cmd);
-	virtual int setIntegratorLimit(void *cmd);
-	virtual int setIntegratorLimits(void *cmd);
-	virtual int definePosition(void *cmd);
-	virtual int definePositions(void *cmd);
-	virtual int enableAmp(void *cmd);
-	virtual int disableAmp(void *cmd);
-	virtual int controllerIdle(void *cmd);
-	virtual int controllerRun(void *cmd);
-	virtual int velocityMove(void *cmd);
-	virtual int setCommand(void *cmd);
-	virtual int setCommands(void *cmd);
-	virtual int getTorques(void *cmd);
-	virtual int readBootMemory(void *cmd);
-	virtual int writeBootMemory(void *cmd);
-	virtual int setPositiveLimit(void *cmd);
-	virtual int setNegativeLimit(void *cmd);
+	int getPosition(void *cmd);
+	int getPositions(void *cmd);
+	int getRefPositions(void *cmd);
+	int setPosition(void *cmd);
+	int setPositions(void *cmd);
+	int setSpeed(void *cmd);
+	int setSpeeds(void *cmd);
+	int getSpeeds(void *cmd);
+	int getRefSpeeds(void *cmd);
+	int setAcceleration(void *cmd);
+	int setAccelerations(void *cmd);
+	int getRefAccelerations(void *cmd);
+	int setOffset(void *cmd);
+	int setOffsets(void *cmd);
+	int setPid(void *cmd);
+	int getPid(void *cmd);
+	int setIntegratorLimit(void *cmd);
+	int setIntegratorLimits(void *cmd);
+	int definePosition(void *cmd);
+	int definePositions(void *cmd);
+	int enableAmp(void *cmd);
+	int disableAmp(void *cmd);
+	int controllerIdle(void *cmd);
+	int controllerRun(void *cmd);
+	int velocityMove(void *cmd);
+	int setCommand(void *cmd);
+	int setCommands(void *cmd);
+	int getTorques(void *cmd);
+	int readBootMemory(void *cmd);
+	int writeBootMemory(void *cmd);
+	int setPositiveLimit(void *cmd);
+	int setNegativeLimit(void *cmd);
+	int getErrorStatus(void *cmd);
 
 protected:
 	void *system_resources;

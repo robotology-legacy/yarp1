@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.60 2004-01-27 15:38:38 babybot Exp $
+/// $Id: Port.cpp,v 1.61 2004-05-15 22:09:57 gmetta Exp $
 ///
 ///
 
@@ -473,12 +473,26 @@ void OutputTarget::Body ()
 	PostMutex ();
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Output target after initialization section\n"));
 
-	/// LATER: this code is probably no longer needed.
+	/// if the address is not valid, terminates the thread.
 	if (!target_pid->isValid())
 	{
 		/// 
-		ACE_DEBUG ((LM_DEBUG, "***** OutputTarget, troubles, shouldn't be getting here\n"));
+		ACE_DEBUG ((LM_DEBUG, "***** OutputTarget, troubles, perhaps a process died without unregistering\n"));
+		ACE_DEBUG ((LM_DEBUG, "***** OutputTarget, can't connect to the remote endpoint\n"));
 
+		YARPNameService::DeleteName(target_pid);
+		target_pid = NULL;
+	
+		ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : output thread 0x%x bailing out\n", GetIdentifier()));
+
+		active = 0;
+		deactivated = 1;
+		PostMutex ();
+
+		return;	
+
+		//// LATER: TO BE REMOVED!
+#if 0
 		WaitMutex();
 		active = 0;
 		PostMutex();
@@ -490,6 +504,8 @@ void OutputTarget::Body ()
 			space_available.Post();
 #endif
 		}
+#endif
+
 	}
 
 	while (!deactivated)

@@ -25,6 +25,7 @@
 	if (_control_mode[i] == MODE_IDLE) \
 	{ \
 		_control_mode[i] = MODE_POSITION; \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_MODE; \
@@ -36,6 +37,7 @@
 	if (_control_mode[i] != MODE_IDLE) \
 	{ \
 		_control_mode[i] = MODE_IDLE; \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_MODE; \
@@ -52,6 +54,7 @@
 		calibrate (0); \
 	else \
 		calibrate (1); \
+	_general_board_error = ERROR_NONE; \
 }
 
 #define CAN_ENABLE_PWM_PAD_HANDLER(x) \
@@ -62,6 +65,7 @@
 		{ \
 			PWMC1_OutputPadEnable(); \
 			_pad_enabled[0] = true; \
+			_general_board_error = ERROR_NONE; \
 		} \
 		else \
 			_general_board_error = ERROR_MODE; \
@@ -72,6 +76,7 @@
 		{ \
 			PWMC2_OutputPadEnable(); \
 			_pad_enabled[1] = true; \
+			_general_board_error = ERROR_NONE; \
 		} \
 		else \
 			_general_board_error = ERROR_MODE; \
@@ -86,6 +91,7 @@
 		{ \
 			PWMC1_OutputPadDisable(); \
 			_pad_enabled[0] = false; \
+			_general_board_error = ERROR_NONE; \
 		} \
 		else \
 			_general_board_error = ERROR_MODE; \
@@ -96,6 +102,7 @@
 		{ \
 			PWMC2_OutputPadDisable(); \
 			_pad_enabled[1] = false; \
+			_general_board_error = ERROR_NONE; \
 		} \
 		else \
 			_general_board_error = ERROR_MODE; \
@@ -113,6 +120,7 @@
 		/* CAN_DATA[1] untouched */ \
 		CAN_DATA[2] = _control_mode[i]; \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -121,11 +129,13 @@
 #define CAN_WRITE_FLASH_MEM_HANDLER(x) \
 { \
 	writeToFlash (); \
+	_general_board_error = ERROR_NONE; \
 }
 
 #define CAN_READ_FLASH_MEM_HANDLER(x) \
 { \
 	readFromFlash (); \
+	_general_board_error = ERROR_NONE; \
 }
 
 #define CAN_GET_ENCODER_POSITION_HANDLER(x) \
@@ -143,6 +153,7 @@
 		CAN_DATA[6] = BYTE_2(_speed[i]); \
 		CAN_DATA[7] = BYTE_1(_speed[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -161,6 +172,7 @@
 			QD2_SetPosition (value); \
 		_position[i] = value; \
 		_position_old[i] = value; \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -171,7 +183,10 @@
 	int i = CHANNEL(CAN_DATA[1]); \
 	int value; \
 	if (CAN_LEN == 6) \
+	{ \
 		_desired[i] = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \
+		_general_board_error = ERROR_NONE; \
+	} \		
 	else \
 		_general_board_error = ERROR_FMT; \
 }
@@ -182,6 +197,7 @@
 	if (CAN_LEN == 6) \
 	{ \
 		_set_point[i] = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -200,6 +216,7 @@
 		CAN_DATA[4] = BYTE_2(_set_point[i]); \
 		CAN_DATA[5] = BYTE_1(_set_point[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -212,6 +229,7 @@
 	if (CAN_LEN == 6) \
 	{ \
 		_min_position[i] = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -230,6 +248,7 @@
 		CAN_DATA[4] = BYTE_2(_min_position[i]); \
 		CAN_DATA[5] = BYTE_1(_min_position[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -242,6 +261,7 @@
 	if (CAN_LEN == 6) \
 	{ \
 		_max_position[i] = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -260,6 +280,7 @@
 		CAN_DATA[4] = BYTE_2(_max_position[i]); \
 		CAN_DATA[5] = BYTE_1(_max_position[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -271,6 +292,7 @@
 	if (CAN_LEN == 4) \
 	{ \
 		_max_vel[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -287,6 +309,7 @@
 		CAN_DATA[2] = BYTE_H(_max_vel[i]); \
 		CAN_DATA[3] = BYTE_L(_max_vel[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -310,6 +333,7 @@
 			/* _set_vel needs to be checked */ \
 			_set_acc[i] = 0; \
 			init_trajectory (i, _position[i], _set_point[i], _set_vel[i]); \
+			_general_board_error = ERROR_NONE; \
 		} \
 		else \
 			_general_board_error = ERROR_MODE; \
@@ -331,6 +355,7 @@
 			_set_point[i] = 0; \
 			_set_vel[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
 			_set_acc[i] = BYTE_W(CAN_DATA[4], CAN_DATA[5]); \
+			_general_board_error = ERROR_NONE; \
 		} \
 		else \
 			_general_board_error = ERROR_MODE; \
@@ -345,6 +370,7 @@
 	if (CAN_LEN == 4) \
 	{ \
 		_set_vel[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -361,6 +387,7 @@
 		CAN_DATA[2] = BYTE_H(_set_vel[i]); \
 		CAN_DATA[3] = BYTE_L(_set_vel[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -377,6 +404,7 @@
 		CAN_DATA[2] = BYTE_H(_speed[i]); \
 		CAN_DATA[3] = BYTE_L(_speed[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -388,6 +416,7 @@
 	if (CAN_LEN == 4) \
 	{ \
 		_set_acc[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -404,6 +433,7 @@
 		CAN_DATA[2] = BYTE_H(_set_acc[i]); \
 		CAN_DATA[3] = BYTE_L(_set_acc[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -420,6 +450,7 @@
 		CAN_DATA[2] = BYTE_H(_pid[i]); \
 		CAN_DATA[3] = BYTE_L(_pid[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -431,6 +462,7 @@
 	if (CAN_LEN == 4) \
 	{ \
 		_kp[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -447,6 +479,7 @@
 		CAN_DATA[2] = BYTE_H(_kp[i]); \
 		CAN_DATA[3] = BYTE_L(_kp[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -458,6 +491,7 @@
 	if (CAN_LEN == 4) \
 	{ \
 		_kd[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -474,6 +508,7 @@
 		CAN_DATA[2] = BYTE_H(_kd[i]); \
 		CAN_DATA[3] = BYTE_L(_kd[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -485,6 +520,7 @@
 	if (CAN_LEN == 4) \
 	{ \
 		_ki[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -501,6 +537,7 @@
 		CAN_DATA[2] = BYTE_H(_ki[i]); \
 		CAN_DATA[3] = BYTE_L(_ki[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -512,6 +549,7 @@
 	if (CAN_LEN == 4) \
 	{ \
 		_integral_limit[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -528,6 +566,7 @@
 		CAN_DATA[2] = BYTE_H(_integral_limit[i]); \
 		CAN_DATA[3] = BYTE_L(_integral_limit[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -539,6 +578,7 @@
 	if (CAN_LEN == 4) \
 	{ \
 		_ko[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -555,6 +595,7 @@
 		CAN_DATA[2] = BYTE_H(_ko[i]); \
 		CAN_DATA[3] = BYTE_L(_ko[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
@@ -566,6 +607,7 @@
 	if (CAN_LEN == 4) \
 	{ \
 		_kr[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -582,11 +624,27 @@
 		CAN_DATA[2] = BYTE_H(_kr[i]); \
 		CAN_DATA[3] = BYTE_L(_kr[i]); \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
 	} \
 	else \
 		_general_board_error = ERROR_SEND; \
 }
 
+#define CAN_GET_ERROR_STATUS_HANDLER(x) \
+{ \
+	CAN_DATA[0] = CAN_DATA[0] >> 4; \
+	CAN_DATA[0] |= (_board_ID << 4); \
+	if (CAN1_GetStateTX () != 0) \
+	{ \
+		CAN_LEN = 4; \
+		CAN_DATA[2] = 0x00; \
+		CAN_DATA[3] = _general_board_error; \
+		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		_general_board_error = ERROR_NONE; \
+	} \
+	else \
+		_general_board_error = ERROR_SEND; \
+}
 
 /* end of messages */
 #endif
