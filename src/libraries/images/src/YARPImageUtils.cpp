@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageUtils.cpp,v 1.3 2004-04-26 17:15:37 natta Exp $
+/// $Id: YARPImageUtils.cpp,v 1.4 2004-05-04 09:07:06 orfra Exp $
 ///
 ///
 
@@ -69,7 +69,7 @@
 
 #include "YARPImageUtils.h"
 
-static void GetPlane (const YARPGenericImage& in, YARPImageOf<YarpPixelMono>& out, int shift)
+void GetPlane (const YARPGenericImage& in, YARPImageOf<YarpPixelMono>& out, int shift)
 {
 	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
 	ACE_ASSERT (in.GetWidth() == out.GetWidth());
@@ -93,7 +93,7 @@ static void GetPlane (const YARPGenericImage& in, YARPImageOf<YarpPixelMono>& ou
 	}
 }
 
-static void SetPlane (const YARPImageOf<YarpPixelMono>& in, YARPGenericImage& out, int shift)
+void SetPlane (const YARPImageOf<YarpPixelMono>& in, YARPGenericImage& out, int shift)
 {
 	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
 	ACE_ASSERT (in.GetWidth() == out.GetWidth());
