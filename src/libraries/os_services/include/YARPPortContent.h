@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPortContent.h,v 1.6 2003-07-15 08:06:31 gmetta Exp $
+/// $Id: YARPPortContent.h,v 1.7 2004-06-30 16:24:57 eshuy Exp $
 ///
 ///
 /*
@@ -78,28 +78,37 @@
 #	pragma once
 #endif
 
-///
-///
-///
+/**
+ * Helper for reading raw data from a port.
+ */
 class YARPPortReader
 {
 public:
+  /**
+   * Read a block of data from a port.
+   *
+   * @param buffer address of block of memory to read into.
+   * @param length size of block of memory available.
+   * @return true on success
+   */
 	virtual int Read(char *buffer, int length) = 0;
 };
 
+/**
+ * Helper for writing raw data to a port.
+ */
 class YARPPortWriter
 {
 public:
+  /**
+   * Write a block of data to a port.
+   *
+   * @param buffer address of block of memory to read from.
+   * @param length size of block of memory.
+   * @return true on success
+   */
 	virtual int Write(char *buffer, int length) = 0;
 };
-
-/*
-  Instances of this class know how to read or write themselves, and are
-  can be kept in a pool of objects that circulate from the user to the 
-  communications code and back to the user.  Necessary for efficiency
-  when transmitting to multiple targets that read data at different rates.
- */
-
 
 template <class T>
 struct HierarchyRoot
@@ -108,31 +117,87 @@ struct HierarchyRoot
 	struct HierarchyId {};
 };
 
+
+/**
+ * Wrapper for any content to be transmitted between ports.  Instances
+ * of this class know how to read or write themselves, and are can be
+ * kept in a pool of objects that circulate from the user to the
+ * communications code and back to the user.  Necessary for efficiency
+ * when transmitting to multiple targets that read data at different
+ * rates.
+ */
+
 class YARPPortContent : public HierarchyRoot<YARPPortContent>
 {
 public:
 	virtual ~YARPPortContent () { /*ACE_DEBUG ((LM_DEBUG, "destroying a YARPPortContent\n"));*/ }
 
+	/**
+	 * Initialize the object from a message.  A "reader" is supplied
+	 * by a port object, which expects us to make a series of 
+	 * one or more calls to Read() on the reader to reconstruct
+	 * an object passed across the network.  The port object then
+	 * doesn't need to know anything about the size/format of the
+	 * message.
+	 *
+	 * @param reader interface to read blocks of the message from the port.
+	 * @return true if successful, false otherwise.
+	 */
 	virtual int Read(YARPPortReader& reader) = 0;
+
+	/**
+	 * Describe the object as a message.  A "writer" is supplied
+	 * by a port object, which expects us to make a series of one
+	 * or more calls to Write() on the writer to describe an
+	 * object.  The port object then doesn't need to know anything
+	 * about the size/format of the message.
+	 *
+	 * @param writer interface to write blocks of the message to the port.
+	 * @return true if successful, false otherwise.
+	 */
 	virtual int Write(YARPPortWriter& writer) = 0;
 
-	// Called when communications code is finished with the object, and
-	// it will be passed back to the user.
-	// Often fine to do nothing here.
+	/**
+	 * Clean up. Called when communications code is finished with
+	 * the object, and it will be passed back to the user.  Often
+	 * fine to do nothing here.
+	 *
+	 * @return true if successful, false otherwise.
+	 */
 	virtual int Recycle() = 0;
 };
 
+
+/**
+ * Wrapper for simple content to be transmitted between ports.  "Simple"
+ * content means a class which can safely be transmitted byte-for-byte
+ * across the network.  It must not contain any pointers!
+ *
+ * @param T the simple class which is to be transmitted across the network.
+ */
 
 template <class T>
 class YARPPortContentOf : public YARPPortContent
 {
 public:
+  /**
+   * An instance of the simple content.
+   */
 	T datum;
 
+  /**
+   * Access an instance of the simple content.
+   *
+   * @return a reference to an instance of the simple content.
+   */
 	T& Content() { return datum; }
+
 	virtual ~YARPPortContentOf<T> () { /*ACE_DEBUG ((LM_DEBUG, "destroying a YARPPortContentOf\n"));*/ }
+
 	virtual int Read(YARPPortReader& reader) { return reader.Read((char*)(&datum),sizeof(datum)); }
+
 	virtual int Write(YARPPortWriter& writer) { return writer.Write((char*)(&datum),sizeof(datum)); }
+
 	virtual int Recycle() { return 0; }
 };
 

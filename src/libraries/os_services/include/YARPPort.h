@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.13 2004-06-30 13:40:21 eshuy Exp $
+/// $Id: YARPPort.h,v 1.14 2004-06-30 16:24:57 eshuy Exp $
 ///
 ///
 
@@ -99,94 +99,112 @@
 class YARPPort
 {
 protected:
+  /**
+   * Internal helper object.
+   */
 	void *system_resource;  
+
+	/**
+	 * Current content associated with port.
+	 */
 	YARPPortContent *content;
 
 public:
   /**
-     Constructor.
-     Creates a port.  Before using the port, you will need to Register() it.
+   * Constructor.
+   *  Creates a port.  Before using the port, you will need to Register() it.
    */
 	YARPPort();
 
 
   /**
-     Destructor.
-     It is good practice to Unregister() before destroying a port.
+   * Destructor.
+   * It is good practice to Unregister() before destroying a port.
    */
 	virtual ~YARPPort();
 
   /**
-    Gives the port a name, and registers it.
-    The name should be unique, but there are no constraints on its form.
-    The name server needs to be told about the port ("registration").
-    @param name the name for the port
-    @param network_name the name of the network the name server is on
-    @return YARP_OK if registration was successful.
+    * Gives the port a name, and registers it.
+    * The name should be unique, but there are no constraints on its form.
+    * The name server needs to be told about the port ("registration").
+    *
+    * @param name the name for the port
+    * @param net_name the name of the network the name server is on
+    * @return YARP_OK if registration was successful.
    */
-	virtual int Register (const char *name, const char *network_name = YARP_DEFAULT_NET);
+	virtual int Register (const char *name, const char *net_name = YARP_DEFAULT_NET);
 
   /**
-     Asks the name server to unregister the port.
-     Other ports will no longer be able to connect to it.
-     @result YARP_OK if successful.
+   * Asks the name server to unregister the port.
+   * Other ports will no longer be able to connect to it.
+   *
+   * @result YARP_OK if successful.
    */
 	virtual int Unregister (void);
 
   /**
-     Direct output from this port to a specified target port.
-     @param name the name of the target port, as registered with the name server.
-     @result YARP_OK if successful.
+   * Direct output from this port to a specified target port.  @param
+   * name the name of the target port, as registered with the name
+   * server.
+   *
+   * @result YARP_OK if successful.
    */
 	int Connect(const char *name);
 
   /**
-     Allocate some content for the port.
-     Content is an instance of the data structure that a port can read and write.  This method must be defined by the user.
-     @return Pointer to the content, or NULL on failure.
+   * Allocate some content for the port.  Content is an instance of
+   * the data structure that a port can read and write.  This method
+   * must be defined by the user.
+   *
+   * @return Pointer to the content, or NULL on failure.
    */
 	virtual YARPPortContent *CreateContent() = 0;
 
   /**
-    Get the current content associated with the port.  There is guaranteed
-    to always be such content, but the actual content object may change
-    after any call to the port's methods (this is to allow for communication
-    to multiple targets at different rates, which requires content objects
-    to have flexible lifetimes).
-    @return the content associated with the port.
+   * Get the current content associated with the port.  There is
+   * guaranteed to always be such content, but the actual content
+   * object may change after any call to the port's methods (this is
+   * to allow for communication to multiple targets at different
+   * rates, which requires content objects to have flexible
+   * lifetimes).
+   *
+   * @return the content associated with the port.
    */
 	YARPPortContent& Content();
 
   /**
-     Check whether any ports have the current port as their target.
-     @return non-zero if any ports have the current port as their target.
+   * Check whether any ports have the current port as their target.
+   *
+   * @return non-zero if any ports have the current port as their target.
    */
 	int IsReceiving();
 
   /**
-     Check whether this port has any target ports.
-     @return non-zero if this port has any target ports.
+   * Check whether this port has any target ports.
+   *
+   * @return non-zero if this port has any target ports.
    */
 	int IsSending();
 
   /**
-     Waits for any current communication with a target to complete.
+   * Waits for any current communication with a target to complete.
    */
 	void FinishSend();
 
   /**
-     Shut down this port.
+   * Shut down this port.
    */
 	void Deactivate();
 
   /**
-     Shut down all ports.
+   * Shut down all ports.
    */
 	static void DeactivateAll();
 
   /**
-     Connect one port to another by name.
-     @return YARP_OK on success.
+   * Connect one port to another by name.
+   *
+   * @return YARP_OK on success.
    */
 	static int Connect(const char *src_name, const char *dest_name);
 };
@@ -252,6 +270,7 @@ public:
 
   /**
    * Constructor.
+   *
    * @param n_service_type type of buffering used to receive messages.
    * @param n_protocol_type which network protocol to use.
    */
@@ -270,6 +289,7 @@ public:
    * and optionally to wait for one to arrive.  Once this method reports
    * that a message is available, the message can be accessed using the
    * Content() method.
+   *
    * @param wait if true, block and wait for a message to arrive, otherwise
    * return immediately.
    * @return true if a message is available, otherwise false.
@@ -289,6 +309,7 @@ public:
    * Once Read() reports that a message is available, Content() will
    * return that message.  The object returned is valid until the next
    * time that Read() is called.
+   *
    * @return the received message.
    */
 	YARPPortContent& Content() { return YARPPort::Content(); }
@@ -304,33 +325,105 @@ public:
 class YARPOutputPort : public YARPPort
 {
 public:
+  /**
+   * The number of targets the port may send output to.
+   */
 	enum
 	{
+	  /**
+	   * The port may send output to an arbitrary number of other ports.
+	   */
 		MANY_OUTPUTS,
+
+		/**
+		 * The port may send output to at most one other port.
+		 */
 		SINGLE_OUTPUT,
+
+		/**
+		 * By default, a port may send output to an arbitrary number of other ports.
+		 */
 		DEFAULT_OUTPUTS = MANY_OUTPUTS
 	};
 
+	/**
+	 * Constructor.  
+	 * @param n_service_type the number of targets a
+	 * port may send output to @param n_protocol_type the network
+	 * protocol to use
+	 */
 	YARPOutputPort(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL);
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPOutputPort();
 
 	virtual int Register(const char *name, const char *net_name = YARP_DEFAULT_NET);
+
+  /**
+   * Access the current message under preparation.
+   * The object returned is valid until the next time that Write() is called.
+   * @return the message under preparation.
+   */
 	YARPPortContent& Content();
+
+	/**
+	 * Transmit the current message under preparation to the port's targets.
+	 * @param wait if true, wait for transmission to complete (if supported by network protocol), otherwise return immediately.
+	 */
 	void Write(bool wait=false);
+
+	/**
+	 * Handle a write event.  This method is called when transmission occurs.
+	 */
 	virtual void OnWrite() {}
 };
 
 
+/**
+ * Input port for complex messages.
+ * A complex message is transmitted by define a "content" object which
+ * knows how to read and write it.
+ *
+ * @param T the content class used to read and write individual messages.
+ *
+ * @see YARPPortContent
+ */
 template <class T>
 class YARPInputPortOf : public YARPInputPort
 {
 public:
+  /**
+   * Constructor.
+   * @see YARPInputPort
+   */
 	YARPInputPortOf(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
 		: YARPInputPort(n_service_type, n_protocol_type) { ACE_ASSERT (n_protocol_type != YARP_SHMEM && n_protocol_type != YARP_MULTI); }
+
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPInputPortOf() { ((Port *)system_resource)->End(); }
 
+	/**
+	 * Create a blank message.
+	 * Message creation is delegated to the associated YARPPortContent
+	 * class
+	 *
+	 * @return Pointer to the content, or NULL on failure.
+	 */
 	virtual YARPPortContent *CreateContent() { return new YARPPortContentOf<T>; }
 
+	/**
+	 * Access a message.
+	 * Once Read() reports that a message is available, Content() will
+	 * return that message.  The object returned is valid until the next
+	 * time that Read() is called.
+	 *
+	 * @return the received message.
+	 */
 	T& Content()
 	{
 		ACE_ASSERT(content!=NULL);
@@ -338,16 +431,45 @@ public:
 	}
 };
 
+/**
+ * Output port for complex messages.
+ * A complex message is transmitted by define a "content" object which
+ * knows how to read and write it.
+ *
+ * @param T the content class used to read and write individual messages.
+ *
+ * @see YARPPortContent
+ */
 template <class T>
 class YARPOutputPortOf : public YARPOutputPort
 {
 public:
+  /**
+   * Constructor.
+   * @see YARPOutputPort
+   */
 	YARPOutputPortOf(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
 		: YARPOutputPort(n_service_type, n_protocol_type) { ACE_ASSERT (n_protocol_type != YARP_SHMEM && n_protocol_type != YARP_MULTI); }
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPOutputPortOf() { ((Port *)system_resource)->End(); }
 
+	/**
+	 * Create a blank message.
+	 * Message creation is delegated to the associated YARPPortContent
+	 * class
+	 *
+	 * @return Pointer to the content, or NULL on failure.
+	 */
 	virtual YARPPortContent *CreateContent() { return new YARPPortContentOf<T>; }
 
+  /**
+   * Access the current message under preparation.
+   * The object returned is valid until the next time that Write() is called.
+   * @return the message under preparation.
+   */
 	T& Content()
     {
 		YARPOutputPort::Content();
@@ -356,29 +478,85 @@ public:
     }
 };
 
+/**
+ * Input port for "simple messages".
+ * Simple messages are classes which can safely be transmitted byte-for-byte
+ * across the network.  They should contain no pointers!
+ *
+ * @param T the simple class which will be transmitted byte-for-byte
+ * across the network
+ */
 template <class T>
 class YARPBasicInputPort : public YARPInputPort
 {
 public:
+  /**
+   * Constructor.
+   * @see YARPInputPort
+   */
 	YARPBasicInputPort(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
 		: YARPInputPort(n_service_type, n_protocol_type) { ACE_ASSERT (n_protocol_type != YARP_SHMEM && n_protocol_type != YARP_MULTI); }
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPBasicInputPort() { ((Port *)system_resource)->End(); }
 
+	/**
+	 * Create a blank message.
+	 *
+	 * @return Pointer to the content, or NULL on failure.
+	 */
 	virtual YARPPortContent *CreateContent() { return new T; }
 
+  /**
+   * Access a message.
+   * Once Read() reports that a message is available, Content() will
+   * return that message.  The object returned is valid until the next
+   * time that Read() is called.
+   *
+   * @return the received message.
+   */
 	T& Content() { return *((T*)(&YARPPort::Content())); }
 };
 
+
+/**
+ * Output port for "simple messages".
+ * Simple messages are classes which can safely be transmitted byte-for-byte
+ * across the network.  They should contain no pointers!
+ *
+ * @param T the simple class which will be transmitted byte-for-byte
+ * across the network
+ */
 template <class T>
 class YARPBasicOutputPort : public YARPOutputPort
 {
 public:
+  /**
+   * Constructor.
+   * @see YARPOutputPort
+   */
 	YARPBasicOutputPort(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
 		: YARPOutputPort(n_service_type, n_protocol_type) { ACE_ASSERT (n_protocol_type != YARP_SHMEM && n_protocol_type != YARP_MULTI); }
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPBasicOutputPort() { ((Port *)system_resource)->End(); }
 
+	/**
+	 * Create a blank message.
+	 *
+	 * @return Pointer to the content, or NULL on failure.
+	 */
 	virtual YARPPortContent *CreateContent() { return new T; }
 
+  /**
+   * Access the current message under preparation.
+   * The object returned is valid until the next time that Write() is called.
+   * @return the message under preparation.
+   */
 	T& Content() { return *((T*)(&YARPOutputPort::Content())); }
 };
 

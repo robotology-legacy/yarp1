@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.17 2004-06-30 13:40:21 eshuy Exp $
+/// $Id: YARPPort.cpp,v 1.18 2004-06-30 16:24:57 eshuy Exp $
 ///
 ///
 
@@ -258,9 +258,9 @@ YARPPort::~YARPPort()
 }
 
 
-int YARPPort::Register(const char *name, const char *network_name /* = YARP_DEFAULT_NET */)
+int YARPPort::Register(const char *name, const char *net_name /* = YARP_DEFAULT_NET */)
 {
-	return PD.SetName (name, network_name);
+	return PD.SetName (name, net_name);
 }
 
 int YARPPort::Unregister(void)
