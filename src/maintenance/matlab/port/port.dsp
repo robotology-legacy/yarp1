@@ -132,6 +132,10 @@ SOURCE=.\port.c
 # PROP Default_Filter "m"
 # Begin Source File
 
+SOURCE=.\example.m
+# End Source File
+# Begin Source File
+
 SOURCE=.\on.m
 # End Source File
 # Begin Source File
