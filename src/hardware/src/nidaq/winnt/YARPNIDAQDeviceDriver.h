@@ -5,7 +5,7 @@
 // Feb 2003 -- by nat
 //
 // win32: link nidaq32.lib
-// $ID$
+// $Id: YARPNIDAQDeviceDriver.h,v 1.3 2003-04-20 21:36:25 natta Exp $
 
 #ifndef __YARPNIDAQDeviceDriver__
 #define __YARPNIDAQDeviceDriver__

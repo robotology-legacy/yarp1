@@ -1,4 +1,4 @@
-// $ID$
+// $Id: YARPGalilDeviceDriver.cpp,v 1.2 2003-04-20 21:33:54 natta Exp $
 
 #include "YARPGalilDeviceDriver.h"
 

@@ -1,5 +1,4 @@
-// YARPNIDAQDeviceDriver impl file
-// $ID$
+// $Id: YARPNIDAQDeviceDriver.cpp,v 1.3 2003-04-20 21:36:25 natta Exp $
 
 #include "YARPNIDAQDeviceDriver.h"
 

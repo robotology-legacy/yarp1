@@ -1,5 +1,6 @@
+// $Id: YARPMEIDeviceDriver.cpp,v 1.2 2003-04-20 21:35:39 natta Exp $
+
 #include "YARPMEIDeviceDriver.h"
-// $ID$
 
 // MEI
 #define MEI_WINNT
