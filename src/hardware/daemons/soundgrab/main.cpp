@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.15 2004-08-30 14:03:56 beltran Exp $
+/// $Id: main.cpp,v 1.16 2004-08-30 17:01:31 beltran Exp $
 ///
 
 #include <yarp/YARPConfig.h>
@@ -133,7 +133,7 @@ PrintHelp (void)
   * 
   * @param argc The number of parameters
   * @param argv The array of pointers to the parameters characters arrays
-  * @param visualize 
+  * @param visualize I dont know what is this for
   * 
   * @return 
   */
@@ -157,7 +157,7 @@ ParseParams (int argc, char *argv[], int visualize = 0)
 
 	if (YARPParseParameters::parse(argc, argv, "-name", tmps))
 	{
-		ACE_OS::sprintf (_name, "%s/o:img", tmps.c_str());
+		ACE_OS::sprintf (_name, "%s/o:sound", tmps.c_str());
 		ACE_OS::sprintf (_fgdataname,"%s/i:fgdata", tmps.c_str());
 	}
 
@@ -186,10 +186,16 @@ ParseParams (int argc, char *argv[], int visualize = 0)
 		//ACE_ASSERT (_Channels != 0 && _Channels < 3);
 	}
 
-	if (YARPParseParameters::parse(argc, argv, "-t", tmps))
+	if (YARPParseParameters::parse(argc, argv, "-t"))
 	{
 		ACE_OS::fprintf(stdout, "soundgrabber acting as a receiver clients...\n");
-		ACE_OS::sprintf (_name,"%s", tmps.c_str());
+
+		if (YARPParseParameters::parse(argc, argv, "-name", tmps))
+		{
+			ACE_OS::sprintf (_name, "%s/i:sound", tmps.c_str());
+		} else {
+			ACE_OS::sprintf (_name,"/%s/i:sound" , argv[0]);
+		}
 		_client = true;
 		_simu   = false;
 	}
