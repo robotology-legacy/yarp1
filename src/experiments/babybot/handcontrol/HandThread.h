@@ -11,10 +11,19 @@
 #include <YARPRateThread.h>
 #include "HandFSM.h"
 #include "HandFSMStates.h"
+#include <YARPBehavior.h>
 
+#include <YARPVectorPortContent.h>
 #include <YARPPort.h>
 
 #include <YARPBabybotHand.h>
+
+#define HAND_THREAD_VERBOSE
+
+#ifdef HAND_THREAD_VERBOSE
+#define HAND_THREAD_DEBUG(string) YARP_DEBUG("HAND_THREAD_DEBUG:", string)
+#else  HAND_THREAD_DEBUG(string) YARP_NULL_DEBUG
+#endif
 
 class HandThread : public YARPRateThread
 {
@@ -29,6 +38,7 @@ public:
 	void doRelease();
 
 	void singleMove(const YVector &pos, int time);
+	void shake();
 	
 	HandSharedData _hand;
 
@@ -43,10 +53,8 @@ public:
 	IdleState _waitState;
 	
 	// shake
-	InitMoveState _shake1;
-	IdleState _shake2;
-	InitMoveState _shake3;
-	IdleState _shake4;
+	InitMoveState *_shakeMove;
+	IdleState *_shakeWait;
 	EndMotion _endMotion;
 	
 	// inputs
@@ -59,6 +67,11 @@ public:
 	WaitNSteps _waitMove;
 	Pulse _startMove;
 	EndMotion _endMotionState;
+
+	//
+	YVector _cmd;
+	YARPOutputPortOf<YVector> _handStatusOut;
+	YVector _status;
 };
 
 #endif // .h

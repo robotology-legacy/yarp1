@@ -3,26 +3,24 @@
 
 void InitMoveState::handle(HandSharedData *t)
 {
+	HAND_THREAD_DEBUG(("Init move\n"));
+	
 	t->setPositionsRaw(_cmd.data());
 }
 
 void IdleState::handle(HandSharedData *t)
 {
-	// signal idle state
+/*	// signal idle state
 	int msg[2];
 	msg[0] = 0;	// hand
 	msg[1] = 0;	// idle
 	memcpy(t->_behaviorsPort.Content(), msg, sizeof(msg));
 	t->_behaviorsPort.Write();
+	*/
 }
 
 void EndMotion::handle(HandSharedData *t)
 {
-	// signal end motion state
-	int msg[2];
-	msg[0] = 0;	// hand
-	msg[1] = 2;	// endMotion
-	memcpy(t->_behaviorsPort.Content(), msg, sizeof(msg));
-	t->_behaviorsPort.Write();
-
+	t->_data.writeVocab(YBVHandDone);
+	t->send();
 }

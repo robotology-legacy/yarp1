@@ -8,9 +8,7 @@ const unsigned char __defaultThreshold = 20;
 
 int main(int argc, char *argv[])
 {
-	std::string name;
-	YARPParseParameters::parse(argc, argv, "name", name);
-	FindHand _findHand(name);
+	FindHand _findHand;
 
 	int thr;
 	if (!YARPParseParameters::parse(argc, argv, "t", &thr))

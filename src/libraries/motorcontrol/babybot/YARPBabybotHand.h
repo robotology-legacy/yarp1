@@ -4,7 +4,7 @@
 //
 // adapted for yarp June 2003 -- by nat
 
-// $Id: YARPBabybotHand.h,v 1.3 2003-07-09 17:55:38 babybot Exp $
+// $Id: YARPBabybotHand.h,v 1.4 2003-07-25 17:06:25 babybot Exp $
 
 #ifndef __YARPBABYBOTHANDH__
 #define __YARPBABYBOTHANDH__
@@ -175,6 +175,7 @@ public:
 	int input()
 	{
 		int rc = 0;
+		int i;
 		lock();
 		
 		// read Galil
@@ -184,6 +185,11 @@ public:
 
 		rc = _control_board.IOCtl(CMDGetSpeeds, _tmp_command_double);
 		_convert_and_decouple_output(_tmp_command_double, _optic_encoders_sp_raw);
+		/*
+		for(i = 0; i < 6; i++)
+			printf("%lf ", _optic_encoders_sp_raw[i]);
+		printf("\n");*/
+		// _convert_output(_tmp_command_double, _optic_encoders_sp_raw);
 		// _convert_output(_tmp_command_int, _optic_encoders_sp_raw);
 
 		rc = _control_board.IOCtl(CMDGetTorques, _tmp_command_double);
@@ -201,7 +207,7 @@ public:
 		rc = _control_board.IOCtl(CMDReadSwitches, _tmp_command_char);
 		_convert_output(_tmp_command_char, _switches);
 		_moving = false;
-		for(int i = 0; i < _naj; i++)
+		for(i = 0; i < _naj; i++)
 		{
 			_is_moving[i] = ((char) 0x80 & _switches[i]);
 			_moving = _moving || _is_moving[i];
@@ -668,7 +674,7 @@ protected:
 		{
 			output[i] = 0;
 			for(int j = 0; j < _naj; j++)
-				output[i] += (int) (input[_parameters._vector_lut[j]]*_parameters._de_coupling[i][j]);
+				output[i] += (input[_parameters._vector_lut[j]]*_parameters._de_coupling[i][j]);
 		}
 	}
 

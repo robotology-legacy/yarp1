@@ -11,7 +11,7 @@
 #include "YARPScheduler.h"
 #include "YARPConfigFile.h"
 
-#include "HandBehaviors.h"
+#include "HandBehavior.h"
 
 char menu();
 
@@ -28,55 +28,37 @@ int main(int argc, char* argv[])
 	file.set("Y:\\conf\\babybot\\", "hand.ini");
 	file.get("[THREAD]", "Rate", &_hand_thread_rate, 1);
 		
-	HandThread hand_thread(_hand_thread_rate, "hand thread", "Y:\\conf\\babybot\\hand.ini");
+	HandThread hand_thread(_hand_thread_rate,
+							"hand thread",
+							"Y:\\conf\\babybot\\hand.ini");
 
 	hand_thread.start();
 
-	WaitState wait;
-	MoveState shake;
-//	MoveState move;
+	HandBehavior _hand(&hand_thread, YBLabelMotor, "/handcontrol/behavior/i");
 	
-	HandBehavior _behavior(&hand_thread);
-
-	_behavior.setInitialState(&wait);
-	_behavior.add(NULL, &wait, &shake);
-	_behavior.add(NULL, &shake, &wait);
-
-	HandMsgHandler _messageH(&_behavior, 0, "/behaviors/i:hand");
-	_messageH.add(1, sigFunction, &wait);
-	_messageH.add(0, sigFunction, &shake);
-
-	/*
-	_messageH.add(3, sigFunction, &move);
-	_behavior.add(NULL, &move, &wait);
-	*/
-
+	HBWaitIdle waitIdle;
+	HBWaitMotion waitMotion;
+	HBInputCommand inputCmd;
+	HBShakeCmdInput shakeInput;
+	HBShakeCmdOutput shakeCmd;
+	HBCheckMotionDone checkMotionDone;
+	HBOutputCommand outputCmd;
 	
-	char c;
-	while(true)
-	{
-		_messageH.handle();
-	}
-	 	/*		
-	for(;;)
-	{
-		bool loop = true;
-		char c = menu();
-		switch (c)
-		{
-			case 's':
-			{
-				hand_thread._startShake.set();
-				break;
-			}
-			case 'e':
-				loop = false;
-				break;
-		}
+	_hand.setInitialState(&waitIdle);
+	
+	// single command sequence
+	_hand.add(&inputCmd, &waitIdle, &waitMotion, &outputCmd);
+	_hand.add(&checkMotionDone, &waitMotion, &waitIdle);
+	// multiple command (shake) sequence
+	_hand.add(&shakeInput, &waitIdle, &waitMotion, &shakeCmd);
+	_hand.add(&checkMotionDone, &waitMotion, &waitIdle);
 
-		if (!loop)
-			break;
-	}*/
+	// start
+	_hand.Begin();
+	// blocking loop
+	_hand.loop();
+	// close
+	_hand.End();
 
 	hand_thread.terminate(false);	// no timeout here, important !
 

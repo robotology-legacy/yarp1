@@ -27,8 +27,6 @@
 #include "ArmStatus.h"
 #include "YARPNameClient.h"
 
-#include <YARPPort.h>
-
 #define ARM_THREAD_VERBOSE
 
 #ifdef ARM_THREAD_VERBOSE

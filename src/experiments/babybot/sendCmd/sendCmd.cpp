@@ -40,6 +40,22 @@ int main(int argc, char* argv[])
 			tmp.writeVocab(YBVIsAlive);
 			send = true;
 		}
+		else if (c == "hand")
+		{
+			tmp.writeVocab(YBVHandNewCmd);
+			YVector cmd;
+			cmd.Resize(6);
+			for (int i = 0; i < 6; i++)
+				cin >> cmd(i+1);
+
+			tmp.writeYVector(cmd);
+			send = true;
+		}
+		else if (c == "shake")
+		{
+			tmp.writeVocab(YBVHandShake);
+			send = true;
+		}
 		else 
 		{
 			send = false;
@@ -50,6 +66,9 @@ int main(int argc, char* argv[])
 		{
 			_outPort.Content() = tmp;
 			_outPort.Write();
+			printf("Sent:\n");
+			tmp.display();
+			printf("\n");
 		}
 	};	
 	

@@ -26,6 +26,9 @@ enum {
 	YBVArmRndStart,
 	YBVArmRndStop,
 	YBVIsAlive,
+	YBVHandNewCmd,
+	YBVHandDone,
+	YBVHandShake,
 	YBVExit
 };
 
@@ -33,11 +36,14 @@ template <class T>
 const char *ybc_label(T x) {
   switch (x) {
     case YBVExit: return "exit";
-	case YBVArmNewCmd: return "armnewcmd";
-	case YBVArmDone: return "armdone";
-	case YBVArmRndStart: return "armrndstart";
-	case YBVArmRndStop: return "armrndstop";
-	case YBVIsAlive: return "I'm alive!";
+	case YBVArmNewCmd: return "arm new cmd";
+	case YBVArmDone: return "arm done";
+	case YBVArmRndStart: return "arm rnd start";
+	case YBVArmRndStop: return "arm rnd stop";
+	case YBVHandNewCmd: return "hand new cmd";
+	case YBVHandDone: return "hand done";
+	case YBVHandShake: return "shake hand";
+	case YBVIsAlive: return "is alive?";
   }
   return "UNKNOWN";
 };

@@ -2,17 +2,13 @@
 #define __HAND_SHARED_DATA
 
 #include <YARPBabybothand.h>
-#include <YARPPort.h>
+#include <YARPBehavior.h>
 
-class HandSharedData: public YARPBabybotHand
+class HandSharedData: public YARPBabybotHand, public YARPBehaviorSharedData
 {
 public:
-	HandSharedData():
-	_behaviorsPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
-	{
-		_behaviorsPort.Register("/behaviors/o:hand");
-	}
-	YARPOutputPortOf<int [2]> _behaviorsPort;
+	HandSharedData():YARPBehaviorSharedData(YBLabelMotor, "/handcontrol/behavior/o"){};
 };
+
 
 #endif

@@ -3,6 +3,7 @@
 
 #include <YARPLogpolar.h>
 #include <YARPPort.h>
+#include <YARPVectorPortContent.h>
 #include <YARPImages.h>
 
 class FindHand
@@ -10,8 +11,8 @@ class FindHand
 public:
 	
 	YARPInputPortOf<YARPGenericImage> _inPort;
-	
 	YARPOutputPortOf<YARPGenericImage> _outPort;
+	YARPInputPortOf<YVector> _handStatusPort;
 
 	YARPGenericImage _actualLp;
 	YARPImageOf<YarpPixelBGR> _actualColored;
@@ -22,10 +23,12 @@ public:
 
 	unsigned char _threshold;
 	
-	FindHand(const std::string &portName);
+	FindHand(const std::string &portName = "/handlocalization");
 	~FindHand();
 
 
+	YVector _handSpeed;
+	YVector _handPosition;
 	void Body();
 
 private:

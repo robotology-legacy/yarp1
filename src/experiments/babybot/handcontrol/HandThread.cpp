@@ -2,32 +2,48 @@
 #include "HandThread.h"
 
 HandThread::HandThread(int rate, const char *name, const char *cfgF):
-YARPRateThread(name, rate)
+YARPRateThread(name, rate),
+_handStatusOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 {
 	_cfgFile = cfgF;
 
 	_fsm = new HandFSM(&_hand);
 
+	int n = 10;
+	_shakeMove = new InitMoveState[n];
+	_shakeWait = new IdleState[n];
+
 	_fsm->setInitialState(&_waitState);
 	// shake behavior
-	_fsm->add(&_startShake, &_waitState, &_shake1);
-	_fsm->add(NULL, &_shake1, &_shake2);
-	_fsm->add(&_wait1, &_shake2, &_shake3);
-	_fsm->add(NULL, &_shake3, &_shake4);
-	_fsm->add(&_wait1, &_shake4, &_endMotion);
+	int i;
+	_fsm->add(&_startShake, &_waitState, &_shakeMove[0]);
+	for(i = 0; i<=(n-2);)
+	{
+		_fsm->add(NULL, &_shakeMove[i], &_shakeWait[i]);
+		_fsm->add(&_wait1, &_shakeWait[i], &_shakeMove[i+1]);
+		i++;
+	}
+	_fsm->add(NULL, &_shakeMove[n-1], &_shakeWait[n-1]);
+	_fsm->add(&_wait1, &_shakeWait[n-1], &_endMotion);
 	_fsm->add(NULL, &_endMotion, &_waitState);
 
-	YVector tmp(6);
-	tmp(1) = 0.0;
-	tmp(2) = 0.0;
-	tmp(3) = 1500;
-	tmp(4) = 1500;
-	tmp(5) = -1500;
-	tmp(6) = -1500;
-	_shake1.setCmd(tmp);
-	tmp = 0.0;
-	_shake3.setCmd(tmp);
-	_wait1.setNSteps(35);
+	////////////////////////
+	YVector tmp1(6),tmp2(6);
+	tmp1(1) = 0.0;
+	tmp1(2) = 0.0;
+	tmp1(3) = 1500;
+	tmp1(4) = 1500;
+	tmp1(5) = -1500;
+	tmp1(6) = -1500;
+	tmp2 = 0.0;
+	for(i = 0; i<=(n-1);)
+	{
+		_shakeMove[i].setCmd(tmp1);
+		i++;
+		_shakeMove[i].setCmd(tmp2);
+		i++;
+	}
+	_wait1.setNSteps(10);
 	///////
 
 	// single movement behavior
@@ -36,15 +52,20 @@ YARPRateThread(name, rate)
 	_fsm->add(&_waitMove, &_move2State, &_endMotionState);
 	_fsm->add(NULL, &_endMotionState, &_waitState);
 
-	tmp = 0.0;
-	_shake3.setCmd(tmp);
-	_wait1.setNSteps(35);
+	///////////////
+	_cmd.Resize(6);
+	_cmd = 0.0;
+	/////////////
+	_handStatusOut.Register("/handcontrol/o:status");
+	_status.Resize(12);
 
 }
 
 HandThread::~HandThread()
 {
 	delete _fsm;
+	delete [] _shakeMove;
+	delete [] _shakeWait;
 }
 
 void HandThread::doInit()
@@ -64,6 +85,12 @@ void HandThread::doLoop()
 
 	_fsm->doYourDuty();
 
+	_hand.getPositionsRaw(_status.data());
+	_hand.getSpeedsRaw(_status.data()+6);
+
+	_handStatusOut.Content() = _status;
+	_handStatusOut.Write();
+	
 	_hand.output();
 }
 	
@@ -80,4 +107,9 @@ void HandThread::singleMove(const YVector &pos, int time)
 	_waitMove.setNSteps(time);
 	_move1State.setCmd(pos);
 	_startMove.set();
+}
+
+void HandThread::shake()
+{
+	_startShake.set();
 }

@@ -97,6 +97,10 @@ PostBuild_Cmds=copy .\debug\handcontrol.exe ..\..\..\..\..\bin\winnt
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\HandBehavior.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\handcontrol.cpp
 # End Source File
 # Begin Source File
@@ -118,7 +122,7 @@ SOURCE=.\StdAfx.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\HandBehaviors.h
+SOURCE=.\HandBehavior.h
 # End Source File
 # Begin Source File
 
