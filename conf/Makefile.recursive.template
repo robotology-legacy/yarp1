@@ -1,6 +1,6 @@
 
-#INSTALLROOT = /usr/local
-INSTALLROOT = /home/paulfitz/local
+INSTALLROOT = /usr/local
+#INSTALLROOT = /home/paulfitz/local
 INSTALLBIN = $(INSTALLROOT)/bin
 INSTALLLIB = $(INSTALLROOT)/lib
 INSTALLINC = $(INSTALLROOT)/include/yarp
@@ -19,9 +19,7 @@ topinstall:
 	@for d in $(SUBDIRS) ; do \
 		test -d $$d && ( cd $$d ; $(MAKE) topinstall ) ; done
 
-sysinstall: topinstall
-	@cd bin/$(SYSDIR) ; for d in `ls` ; do \
-		test -f $$d && ( test -x $$d && ( echo Installing $$d to $(INSTALLBIN); cp -f $$d $(INSTALLBIN) ) || ( echo -n ) ) || ( echo -n ) ; done
+devinstall: sysinstall
 	@cd lib/$(SYSDIR) ; for d in `ls` ; do \
 		test -f $$d && ( echo Installing $$d to $(INSTALLLIB); cp -f $$d $(INSTALLLIB) ) || ( echo -n ) ; done
 	mkdir -p $(INSTALLINC)
@@ -29,6 +27,10 @@ sysinstall: topinstall
 		echo Installing $$d to $(INSTALLINC); cp -f $$d $(INSTALLINC); done
 	@cd include/$(SYSDIR)/yarp ; for d in `ls *.h` ; do \
 		echo Installing $$d to $(INSTALLINC); cp -f $$d $(INSTALLINC); done
+
+sysinstall: topinstall
+	@cd bin/$(SYSDIR) ; for d in `ls` ; do \
+		test -f $$d && ( test -x $$d && ( echo Installing $$d to $(INSTALLBIN); cp -f $$d $(INSTALLBIN) ) || ( echo -n ) ) || ( echo -n ) ; done
 
 install: sysinstall
 
