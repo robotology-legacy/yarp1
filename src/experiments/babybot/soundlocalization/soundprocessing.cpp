@@ -10,7 +10,7 @@
 // 
 //     Description:  Implements all the sound processing algorithms.
 // 
-//         Version:  $Id: soundprocessing.cpp,v 1.2 2004-04-14 14:48:23 beltran Exp $
+//         Version:  $Id: soundprocessing.cpp,v 1.3 2004-04-15 14:37:36 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -105,14 +105,14 @@ SoundProcessing::~SoundProcessing()
 int SoundProcessing::ComputeCrossCorrelation()
 {
 	int i = 0;
-	int dim[2]  = {numSamples, numSamples};
-	int dim2[1] = {numSamples};
+	int dim[1] = {numSamples};
 	double *fft1_Re = Re;
 	double *fft1_Im = Im;
 	double *fft2_Re = fft1_Re + numSamples;
 	double *fft2_Im = fft1_Im + numSamples;
 
-	fft->Fft(2, dim, Re, Im, 1, -1); // Calculate FFT
+	fft->Fft(1, dim, fft1_Re, fft1_Im, 1, -1); // Calculate FFT
+	fft->Fft(1, dim, fft2_Re, fft2_Im, 1, -1); // Calculate FFT
 
 	//----------------------------------------------------------------------
 	//  Multiplication between the spectrum of the first signal and the complex
@@ -133,7 +133,7 @@ int SoundProcessing::ComputeCrossCorrelation()
 	//  At the end the crosscorrelation vector should contain the crosscorre-
 	//  lation data
 	//----------------------------------------------------------------------
-	fft->Fft(1, dim2, crosscorrelation, ans_Im, 1, -1);
+	fft->Fft(1, dim, crosscorrelation, ans_Im, 1, -1);
 	
 	return 0;
 }

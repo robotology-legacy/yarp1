@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.2 2004-04-14 14:48:23 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.3 2004-04-15 14:37:36 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -39,17 +39,28 @@ public:
 
 	void apply(YARPSoundBuffer &in, YVector &out)
 	{
+		unsigned char * buff = (unsigned char *) in.GetRawBuffer();
+		
 		//----------------------------------------------------------------------
-		// Here the soundprocesing should be done. 
+		// Fill the Re and Im vectors from the sound buffer
+		// The sound buffer is in unsigned chars. Each sound sample occupies 
+		// two bytes. Right and left channel alternate inside the buffer
 		//----------------------------------------------------------------------
-		int * temp = (int *) in.GetRawBuffer();
-
 		for (int i = 0, j = numSamples; i < numSamples; i++, j++)
 		{
-			Re[i] = *temp++;
+			short temp;
+
+            temp = buff[1] << 8; // More significant byte
+            temp += buff[0];     // less significant byte
+			Re[i] = (double) temp;
 			Im[i] = 0.0;
-			Re[j] = *temp++;
+			buff += 2;
+
+            temp = buff[1] << 8; // More significant byte
+            temp += buff[0];     // less significant byte
+			Re[j] = (double) temp;
 			Im[j] = 0.0;
+			buff += 2;
 		}
 
 		ComputeCrossCorrelation();
