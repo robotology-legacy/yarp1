@@ -275,7 +275,7 @@ void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPIma
 	YarpPixelMono *p_dst;
 	int i,j,n,pos,p;
 
-	const YarpPixelMono val = 25;
+	const YarpPixelMono val = 255;
 
 	//dest.Resize(width,height);
 	p_dst=(YarpPixelMono *)dest.GetRawBuffer();
@@ -1227,7 +1227,6 @@ void YARPWatershed::checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, 
 		if (boxes[i].valid) {
 			int r, c;
 			int x, y;
-			//TO DO: transform to "local" axis
 			cout<<"box #"<<i<<endl;
 			
 			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].v, x, y);
@@ -1244,7 +1243,7 @@ void YARPWatershed::checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, 
 			cout<<"RG diff: "<<abs((int)m_attn[index].meanRG-(int)boxes[i].meanRG)<<endl;
 			cout<<"GR diff: "<<abs((int)m_attn[index].meanGR-(int)boxes[i].meanGR)<<endl;
 			cout<<"BY diff: "<<abs((int)m_attn[index].meanBY-(int)boxes[i].meanBY)<<endl;
-			// the log area changes due to log polare mapping and distance
+			// the log area changes due to log polar mapping and distance
 			cout<<"areaLP diff: "<<abs(m_attn[index].areaLP-boxes[i].areaLP)<<endl;
 			cout<<endl;
 		}
@@ -1256,23 +1255,28 @@ void YARPWatershed::doIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int
 {
 	for (int i=0; i<num; i++) {
 		if (boxes[i].valid) {
-			int r, c;
+			int r1, c1, r, c;
 			int x, y;
-			//TO DO: transform to "local" axis
-			//cout<<"box #"<<i<<endl;
 			
 			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].v, x, y);
-			m_lp.Cartesian2Logpolar(x, y, r, c);
-			if (r<height) {
-				YarpPixelInt index=tagged(c, r);
-				int crg=m_attn[index].meanRG-boxes[i].meanRG;
-				int cgr=m_attn[index].meanGR-boxes[i].meanGR;
-				int cby=m_attn[index].meanBY-boxes[i].meanBY;
+			m_lp.Cartesian2Logpolar(x, y, r1, c1);
+			for (int i=-1; i<=1; i++)
+				for (int j=-1; j<=1; j++) {
+					r=r1+i;
+					c=c1+j;
+					if (r<height && r>=0) {
+						if (c<0) c=width+c;
+						else if (c>width) c=c-width-1;
+						YarpPixelInt index=tagged(c, r);
+						int crg=m_attn[index].meanRG-boxes[i].meanRG;
+						int cgr=m_attn[index].meanGR-boxes[i].meanGR;
+						int cby=m_attn[index].meanBY-boxes[i].meanBY;
 
-				if (crg*crg+cgr*cgr+cby*cby<150) {
-					m_attn[index].valid=false;
+						if (crg*crg+cgr*cgr+cby*cby<150) {
+							m_attn[index].valid=false;
+						}
+					}
 				}
-			}
 		}
 	}
 }

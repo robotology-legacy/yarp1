@@ -995,6 +995,9 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 
 	rain.maxSalienceBlobs(tagged, max_tag, max_boxes, 3);
 
+	//blobFov=edge;
+	//rain.tags2Watershed(tagged, blobFov);
+
 	//saveImages(src);
 	
 	/*MinMax(edge, mn, mx);
@@ -1257,7 +1260,7 @@ void YARPImgAtt::normalize()
 	//YARPImageFile::Write(savename, out);
 	//FullRange((IplImage *)comb, (IplImage *)comb);
 
-	//iplClose(edge, edge, 1);
+	iplClose(edge, edge, 1);
 }
 	
 
@@ -1344,7 +1347,7 @@ void YARPImgAtt::findBlobs()
 	//rain.SortAndComputeSalience(100, max_tag);
 	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
 	rain.checkIOR(tagged, IORBoxes, num_IORBoxes);
-	//rain.doIOR(tagged, IORBoxes, num_IORBoxes);
+	rain.doIOR(tagged, IORBoxes, num_IORBoxes);
 
 
 	rain.DrawContrastLP2(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
@@ -1407,11 +1410,10 @@ void YARPImgAtt::resetIORTable()
 
 void YARPImgAtt::updateIORTable()
 {
-	rain.maxSalienceBlob(tagged, max_tag, IORBoxes[0]);
-
 	for (int j=num_IORBoxes-1; j>0; j--)
 		IORBoxes[j]=IORBoxes[j-1];
 
+	rain.foveaBlob(tagged, IORBoxes[0]);
 	IORBoxes[0].valid=true;
 }
 
