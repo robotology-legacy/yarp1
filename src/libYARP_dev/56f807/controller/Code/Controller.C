@@ -451,7 +451,7 @@ void main(void)
 		   used if the specific axis is not used/calibrated
 		   we're supposed to guarantee a constant loop period 
 		   the serial line and other devices shouldn't be doing
-		   much processing in case the receive external commands */
+		   much processing in case they receive external commands */
 
 		/* read encoders, 32 bit values */
 		_position_old[0] = _position[0];
