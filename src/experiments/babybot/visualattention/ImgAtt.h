@@ -83,6 +83,7 @@
 #include "YARPWatershed.h"
 
 
+
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
@@ -196,7 +197,7 @@ protected:
 	//YARPBlobFinder blobFinder;
 
 	YARPWatershed rain;
-	
+
 	int max_tag;
 
 	bool* blobList;

@@ -1234,7 +1234,7 @@ void YARPImgAtt::findBlobs(int num, YARPBox* boxes)
 {
 	//int i;
 
-	Vett pos2;
+	//Vett pos2;
 
 	int bfX0, bfY0;
 	double bfA11, bfA12, bfA22;

@@ -76,7 +76,8 @@
 	}*/
 
 
-YARPWatershed::YARPWatershed(const int width1, const int height1, const int wstep, const YarpPixelMono th)
+YARPWatershed::YARPWatershed(const int width1, const int height1, const int wstep, const YarpPixelMono th):
+	_gaze(YMatrix(_dh_nrf, 5, DH_left[0]), YMatrix(_dh_nrf, 5, DH_right[0]), YMatrix(4, 4, TBaseline[0]) )
 {
 	neighborhood8=true;
 
@@ -89,7 +90,8 @@ YARPWatershed::YARPWatershed(const int width1, const int height1, const int wste
 }
 
 
-YARPWatershed::YARPWatershed()
+YARPWatershed::YARPWatershed():
+	_gaze(YMatrix(_dh_nrf, 5, DH_left[0]), YMatrix(_dh_nrf, 5, DH_right[0]), YMatrix(4, 4, TBaseline[0]) )
 {
 	neighborhood8=true;
 
@@ -1105,8 +1107,10 @@ void YARPWatershed::IOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int n
 	for (int i=0; i<num; i++) {
 		if (boxes[i].valid) {
 			int r, c;
+			int x, y;
 			//TO DO: transform to "local" axis
-			m_lp.Cartesian2Logpolar(boxes[i].centroid_x, boxes[i].centroid_y, r, c);
+			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT, boxes[i].v, x, y);
+			m_lp.Cartesian2Logpolar(x, y, r, c);
 			YarpPixelInt index=tagged(c, r);
 			cout<<"box #"<<i<<endl;
 			cout<<"RG : "<<(int)m_attn[index].meanRG<<endl;
@@ -1535,13 +1539,14 @@ void YARPWatershed::fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, bool *blobL
 		YarpPixelMono by0;
 
 		int r=1;
-		while(r<height) {
+		while(1) {
 			rg0=m_attn[seed].meanRG;
 			gr0=m_attn[seed].meanGR;
 			by0=m_attn[seed].meanBY;
 
-			while(tagged(c, r)==seed)
+			while(r<height && tagged(c, r)==seed)
 				r++;
+			if (r==height) break;
 			seed=tagged(c, r);
 			//if (abs(m_attn[seed].meanRG-rg0)+abs(m_attn[seed].meanGR-gr0)+abs(m_attn[seed].meanBY-by0)<13 )
 			if ((m_attn[seed].meanRG-rg0)*(m_attn[seed].meanRG-rg0)+(m_attn[seed].meanGR-gr0)*(m_attn[seed].meanGR-gr0)+(m_attn[seed].meanBY-by0)*(m_attn[seed].meanBY-by0)<150 )
@@ -1601,8 +1606,10 @@ void YARPWatershed::maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_
 		}
 	}
 
-	for (l=0; l<num; l++)
+	for (l=0; l<num; l++) {
 		boxes[l]=m_attn[pos[l]];
+		_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT, boxes[l].v , (int)boxes[l].centroid_x, (int)boxes[l].centroid_y);
+	}
 
 	delete [] pos;
 	// If the numbers of valid blobs are less than num???

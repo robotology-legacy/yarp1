@@ -3,11 +3,13 @@
 
 #include <YARPImage.h>
 #include <YARPlogpolar.h>
+#include <YARPBabybotHeadKin.h>
+#include <YARPMath.h>
 
 
 class YARPBox {
 public:
-	YARPBox() {	valid = false; }
+	YARPBox() {	valid = false; v.Resize(3); }
 
 	~YARPBox() {}
 
@@ -66,6 +68,8 @@ public:
 	int salienceBU;
 	int salienceTD;
 	YarpPixelMono salienceTotal;
+
+	YVector v;
 };
 
 
@@ -101,6 +105,8 @@ class YARPWatershed {
 
 	YARPImageOf<YarpPixelMono> tmp;
 	IplImage *tmpMsk;
+
+	YARPBabybotHeadKin _gaze;
 
     void createNeighborhood(const int widthStep, const bool neigh8);
 	//void initBorderLUT(const int width, const int height);
