@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.1 2003-07-08 22:32:27 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.2 2003-07-08 22:37:44 gmetta Exp $
 ///
 ///
 
@@ -811,15 +811,12 @@ void _SocketThreadMulti::BodyShmem (void)
 	char bufack[] = "acknowledged";
 	char *buf3 = bufack;
 
-	/// closes down the socket, no longer used.
-	_local_socket.close();
-
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread about to accept SHMEM on port %d\n", ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_port_number()));
 	ACE_MEM_Acceptor& a = *((ACE_MEM_Acceptor *)_socket);
 	ACE_MEM_Stream stream;
 	a.accept (stream);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread accepted a new stream\n"));
-	
+
 	while (!finished)
 	{
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread SHMEM of remote port %s:%d waiting\n", _remote_endpoint.getAddressRef().get_host_addr(), _remote_endpoint.getAddressRef().get_port_number()));
