@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.5 2003-10-31 10:32:50 babybot Exp $
+#$Id: Makefile,v 1.6 2004-01-31 00:55:52 babybot Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -15,5 +15,5 @@ clean:
 	rm -f BuildTablesSmall
 	
 install:
-	cp BuildTablesSmall $(YARP_ROOT)/bin/$(OS)
+	cp BuildTablesSmall $(YARP_ROOT)/bin/$(OS)/buildtables
 
