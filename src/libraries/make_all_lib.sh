@@ -68,6 +68,37 @@ $INSTALL
 cd ../
 }
 
+Framegrabber()
+{
+echo "$PHRASE YARPNameService"
+cd $YARP_ROOT/src/maintenance/services/nameserver/YARPNameService/
+make $MODE
+make
+$INSTALL
+cd $YARP_ROOT/src/libraries
+
+echo "$PHRASE Porter"
+cd $YARP_ROOT/src/maintenance/services/porter/porter/
+make $MODE
+make
+$INSTALL
+cd $YARP_ROOT/src/libraries
+
+echo "$PHRASE Framegrabber"
+cd $YARP_ROOT/src/hardware/daemons/framegrab/
+make $MODE
+make $ROBOT
+$INSTALL
+cd $YARP_ROOT/src/libraries
+
+echo "$PHRASE Viewer"
+cd $YARP_ROOT/src/applications/viewers/camview/qnx6/
+make $MODE
+make
+$INSTALL
+cd $YARP_ROOT/src/libraries
+}
+
 Nothing()
 {
 echo "A parameter is needed (debug, release, clean)"
@@ -107,5 +138,15 @@ then
         INSTALL_IPL=""
         RUN_BUILD_TABLES=""
         All
+elif [ "$1" == "framegrab" ]
+then
+        echo "Compiling Nameserver + porter + framegrabber + visualizer"
+        MODE="clean"
+        PHRASE="Compiling/installing"
+        INSTALL="make install"
+        INSTALL_IPL=""
+        RUN_BUILD_TABLES=""
+	ROBOT="eurobot"
+        Framegrabber
 fi
 
