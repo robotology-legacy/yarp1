@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.15 2004-08-21 17:53:46 gmetta Exp $
+/// $Id: Port.h,v 1.16 2004-08-24 08:20:01 babybot Exp $
 ///
 ///
 
@@ -112,7 +112,7 @@ enum
 	MSG_ID_ACK          = 'y',
 	MSG_ID_NACK         = 'n',
 	MSG_ID_ATTACH       = '/',
-	MSG_ID_DETACH_ALL   = 'k',		/// can only be used by SaySelfEnd --- WARNING.
+	MSG_ID_DETACH_ALL   = 'k',		// can only be used by SaySelfEnd --- WARNING.
 	MSG_ID_DETACH_IN	= '~',
 	MSG_ID_DUMP_CONNECTIONS = '*',
 	MSG_ID_ERROR        = -1
@@ -201,7 +201,7 @@ public:
 	 */
 	virtual void Begin(int stack_size=0)
 	{
-		/// protect thread code at startup.
+		// protect thread code at startup.
 		WaitMutex ();
 		YARPBareThread::Begin(stack_size);
 	}
@@ -246,11 +246,11 @@ public:
 	{
 		WaitMutex();
 		deactivate = 1;
-		/// added to help close connection quickly.
+		// added to help close connection quickly.
 		something_to_send.Post();
 		PostMutex();
 
-		/// actually terminating the thread, then join.
+		// actually terminating the thread, then join.
 		Join();
 	}
 
@@ -326,8 +326,8 @@ public:
 	}
 };
 
-///
-///
+//
+//
 class Port;
 
 /**
@@ -408,10 +408,10 @@ public:
 	friend class _strange_select;
 	_strange_select tsender;
 
-	/// the protocol type UDP, TCP, etc.
+	// the protocol type UDP, TCP, etc.
 	int protocol_type;
 
-	/// keep track of the thread status.
+	// keep track of the thread status.
 	bool _started;
 
 	int name_set;
@@ -420,7 +420,7 @@ public:
 	int require_ack;
 	int allow_shmem;
 
-	/// the list of output threads.
+	// the list of output threads.
 	MeshOf<OutputTarget> targets;
 
 	Sema something_to_send;
@@ -592,8 +592,8 @@ public:
 			_started = false;
 			list_mutex.Post();
 
-			/// sends a message to unblock the thread from the read and close connections.
-			/// SaySelfEnd does the AskForEnd/Join calls.
+			// sends a message to unblock the thread from the read and close connections.
+			// SaySelfEnd does the AskForEnd/Join calls.
 			SaySelfEnd ();
 		}
 		else
