@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: CThreadImpl.h,v 1.1 2003-04-18 08:52:33 gmetta Exp $
+/// $Id: CThreadImpl.h,v 1.2 2003-06-18 10:03:14 beltran Exp $
 ///
 ///
 //////////////////////////////////////////////////////////////////////////
@@ -87,11 +87,11 @@
 
 #include <conf/YARPConfig.h>
 
-#include "ace\config.h"
-#include "ace\Thread_Manager.h"
-#include "ace\Synch.h"
-#include "ace\Time_Value.h"
-#include "ace\High_Res_Timer.h"
+#include <ace/config.h>
+#include <ace/Thread_Manager.h>
+#include <ace/Synch.h>
+#include <ace/Time_Value.h>
+#include <ace/High_Res_Timer.h>
 
 ///#include "IterativeStats.h" //from models lib link models.lib/modelsdb.lib
 #include <string>
@@ -167,6 +167,7 @@ public:
 		lock ();
 
 		// create suspended.
+#ifdef __WIN__
 		thread_id = ACE_Thread_Manager::instance ()->spawn((unsigned long (__cdecl *)(void *))real_thread, //thread function
 														   this,		//thread parameter
 														   THR_NEW_LWP||THR_SUSPENDED,
@@ -174,6 +175,15 @@ public:
 														   0,
 														   thread_priority
 														  );
+#else
+		thread_id = ACE_Thread_Manager::instance ()->spawn((void *(*) (void *))real_thread, //thread function
+														   this,		//thread parameter
+														   THR_NEW_LWP||THR_SUSPENDED,
+														   0,
+														   0,
+														   thread_priority
+														  );
+#endif
 
 		///
 		ACE_Thread_Manager::instance()->resume_grp(thread_id);
@@ -312,8 +322,13 @@ public:
 
 	const int getThreadID(void) const { return thread_id; }
 
+#ifdef __WIN__
 	static unsigned long * __cdecl real_thread(void *p_arg)
-//	static void * real_thread (void *p_arg)
+#else
+	static unsigned long * real_thread(void *p_arg)
+	//static void * real_thread (void *p_arg)
+#endif
+//   static void * real_thread (void *p_arg)
 	{
 		CThreadImpl *context = (CThreadImpl *) p_arg;
 

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.8 2003-04-27 16:54:35 natta Exp $
+/// $Id: YARPNameServer.h,v 1.9 2003-06-18 10:03:14 beltran Exp $
 ///
 ///
 
@@ -72,13 +72,13 @@
 #endif // _MSC_VER > 1000
 
 #include <conf/YARPConfig.h>
-#include "wide_nameloc.h"
+#include <wide_nameloc.h>
 
-#include "ace\config.h"
-#include "ace\SOCK_Acceptor.h"
-#include "ace\SOCK_Connector.h"
-#include "ace\SOCK_Stream.h"
-#include "ace\Log_Msg.h"
+#include <ace/config.h>
+#include <ace/SOCK_Acceptor.h>
+#include <ace/SOCK_Connector.h>
+#include <ace/SOCK_Stream.h>
+#include <ace/Log_Msg.h>
 
 #include "CThreadImpl.h"
 #include "LocalNameServer.h"
