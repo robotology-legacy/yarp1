@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////
 ///                                                                   ///
-///       YARP - Yet Another Robotic Platform (c) 2001-2003           ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
 ///                    #Add our name(s) here#                         ///
 ///                                                                   ///
@@ -27,6 +27,6 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: licence.short.template,v 1.1 2004-04-29 07:51:11 babybot Exp $
+/// $Id: licence.short.template,v 1.2 2004-04-30 12:46:23 babybot Exp $
 ///
 ///
