@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 		tmp.setID(YBVMotorLabel);
 		if (c == "start")
 		{
-			tmp.writeVocab(c); // YBVArmRndStart);
+			tmp.writeVocab(YBVArmRndStart);
 			send = true;
 		}
 		else if (c == "stop")

@@ -153,10 +153,7 @@ bool FindHand::_segmentation()
 	int t0;
 	int r0;
 	double a11, a12, a22;
-	YVector head(2);
-	head(1) = 0.0;
-	head(2) = 0.0;
-	
+		
 	_fit.fitEllipse(_detected, &t0, &r0, &a11, &a12, &a22);
 	_fit.findEllipse(t0, r0, a11, a12, a22, _pointsBlob);
 	if (_pointsBlob.n > 3)
@@ -166,15 +163,14 @@ bool FindHand::_segmentation()
 
 	_mask(_actualLp, _pointsBlob, _blob);
 	_armData.reset();
-	_armData.writeYVector(_motorStatus._current_position);
-	_armData.writeYVector(head);
 	_armData.writeInt(r0);
 	_armData.writeInt(t0);
 	_armData.writeFloat(a11);
 	_armData.writeFloat(a12);
 	_armData.writeFloat(a22);
 	
-	YARPImageFile::Write(segmented, _blob);
+	if (valid)
+		YARPImageFile::Write(segmented, _blob);
 
 	return valid; 
 }

@@ -5,7 +5,7 @@ YARPRateThread(name, rate),
 _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
 _inPortVor(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 _inPortTrack(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
-_inPortPosition(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
+_inPortPosition(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 {
 	_iniFile = YARPString(ini_file);
 	

@@ -61,14 +61,14 @@
 ///
 
 ///
-/// $Id: YARPImageMoments.h,v 1.2 2003-10-14 12:09:33 babybot Exp $
+/// $Id: YARPImageMoments.h,v 1.3 2003-11-10 19:12:49 babybot Exp $
 ///
 /// Computes moments and central moments; according to the following eqs:
 /// mpq = SUM (x^p)*(y^q)*f(x,y)
 /// upq = SUM (x-xm)^p * (y-ym)^q * f(x,y)
 /// where (xm,ym) is the center of mass computed as:
 /// xm = m10/m00; ym = m01/m00
-/// Logpolar verion, use the jacobian of the transformation.
+/// Logpolar version, use the jacobian of the transformation.
 /// 
 /// September 2003 -- by nat
 

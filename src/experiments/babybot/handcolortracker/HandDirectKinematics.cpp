@@ -1,12 +1,7 @@
 #include "HandKinematics.h"
 
-HandKinematics::HandKinematics():
-_armPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
+HandKinematics::HandKinematics()
 {
-	_armPort.Register("/handtracker/i:arm");
-	_armPosition.Resize(6);
-	_headPosition.Resize(2);
-		
 	char *root = GetYarpRoot();
 	char filename[256];
 	char filename1[256];
@@ -56,17 +51,15 @@ void HandKinematics::_dumpToDisk(const YVector &arm, const YVector &head, const 
 	}
 }
 
-void HandKinematics::learn(YARPBottle &newPoint)
+void HandKinematics::learn(YVector &arm, YVector &head, YARPBottle &newPoint)
 {
 	YARPShapeEllipse ellipse;
 
-	newPoint.readYVector(_armPosition);
-	newPoint.readYVector(_headPosition);
 	newPoint.readInt(&ellipse.rho);
 	newPoint.readInt(&ellipse.theta);
 	newPoint.readFloat(&ellipse.a11);
 	newPoint.readFloat(&ellipse.a12);
 	newPoint.readFloat(&ellipse.a22);
 
-	_dumpToDisk(_armPosition, _headPosition, ellipse);
+	_dumpToDisk(arm, head, ellipse);
 }

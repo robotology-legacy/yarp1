@@ -31,24 +31,24 @@ void YARPLpConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, int *t0,  int
 	double u02 = _moments.centralMoments(in, x, y, 0, 2);
 	double u00 = _moments.centralMoments(in, x, y, 0, 0);
 
-	double a;
-	double b;
+	double aSq;
+	double bSq;
 	double theta;
 
 	double tmp = u20-u02;
 	if (tmp != 0)
 		theta = 0.5*atan(2*u11/tmp);
 	else 
-		tmp = 3.14/2;
+		theta = 3.14/4;
 
-	a = sqrt( (2/u00)*(u20+u02 + sqrt((u20-u02)*(u20-u02) + 4*u11*u11)) );
-	b = sqrt( (2/u00)*(u20+u02 - sqrt((u20-u02)*(u20-u02) + 4*u11*u11)) );
+	aSq = (2/u00)*(u20+u02 + sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
+	bSq = (2/u00)*(u20+u02 - sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
 	
 	double costh = cos(theta);
 	double sinth = sin(theta);
-	*a11 = (costh*costh)/(a*a) + (sinth*sinth)/(b*b);
-	*a22 = (sinth*sinth)/(a*a) + (costh*costh)/(b*b);
-	*a12 = (1/(a*a) - 1/(b*b)) * sinth*costh;
+	*a11 = (costh*costh)/(aSq) + (sinth*sinth)/(bSq);
+	*a22 = (sinth*sinth)/(aSq) + (costh*costh)/(bSq);
+	*a12 = (1/(aSq) - 1/(bSq)) * sinth*costh;
 }
 
 void YARPLpConicFitter::_radius(YARPImageOf<YarpPixelMono> &in, int theta,  int rho, int *Rmin, int *Rmax, int *Rav)

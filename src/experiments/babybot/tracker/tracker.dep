@@ -134,6 +134,7 @@
 	"..\..\..\..\include\sys\iplerror.h"\
 	"..\..\..\..\include\sys\iplmisc.h"\
 	"..\..\..\..\include\yarpall.h"\
+	"..\..\..\..\include\yarpbabybotheadkin.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
 	"..\..\..\..\include\yarpfft.h"\
 	"..\..\..\..\include\yarpfilters.h"\
@@ -167,7 +168,6 @@
 	"..\..\..\..\include\yarptime.h"\
 	"..\..\..\..\include\yarpvectorportcontent.h"\
 	".\ImgTrack.h"\
-	".\YARPBabybotHeadKin.h"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
@@ -228,6 +228,7 @@
 	"..\..\..\..\include\sys\iplerror.h"\
 	"..\..\..\..\include\sys\iplmisc.h"\
 	"..\..\..\..\include\yarpall.h"\
+	"..\..\..\..\include\yarpbabybotheadkin.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
 	"..\..\..\..\include\yarpfft.h"\
 	"..\..\..\..\include\yarpimage.h"\
@@ -242,6 +243,5 @@
 	"..\..\..\..\include\yarpsemaphore.h"\
 	"..\..\..\..\include\yarptime.h"\
 	".\ImgTrack.h"\
-	".\YARPBabybotHeadKin.h"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	

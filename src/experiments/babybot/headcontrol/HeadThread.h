@@ -81,7 +81,7 @@ private:
 
 	// output ports
 	YARPOutputPortOf<YVector> _inertialPort;
-	YARPOutputPortOf<YARPControlBoardNetworkData> _statusPort;
+	// YARPOutputPortOf<YARPControlBoardNetworkData> _statusPort;
 	YARPOutputPortOf<YVector> _positionPort;
 
 	//
@@ -127,7 +127,7 @@ inline void HeadThread::write_status()
 
 	_positionPort.Content() = _head._status._current_position;
 	_positionPort.Write();
-
+	
 	if (_head.checkLimits(_head._status._current_position.data(), _deltaQ.data()))
 	{
 //		HEAD_THREAD_DEBUG(("limit reached #%u\n", _count));

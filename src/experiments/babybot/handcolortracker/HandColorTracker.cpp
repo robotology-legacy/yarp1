@@ -9,6 +9,9 @@
 #include <YARPImageFile.h>
 #include <YARPLogpolar.h>
 
+#include <YARPVectorPortContent.h>
+#include <YARPPort.h>
+
 #include <YARPBlobDetector.h>
 
 #include <YARPHistoSegmentation.h>
@@ -19,6 +22,49 @@
 using namespace _logpolarParams;
 
 YARPLogpolar _mapper;
+
+int __armCounter = 0;
+int __headCounter = 0;
+
+inline bool pollPort(YARPInputPortOf<YVector> &port, YVector &out, int *counter)
+{
+	bool ret = false;
+	if (port.Read(0) )
+	{
+		out = port.Content();
+		ret = true;
+		(*counter)++;
+	}
+
+	return ret;
+}
+
+inline bool pollPort(YARPInputPortOf<YARPControlBoardNetworkData> &port, YVector &out, int *counter)
+{
+	bool ret = false;
+	if (port.Read(0) )
+	{
+		out = port.Content()._current_position;
+		ret = true;
+		(*counter)++;
+	}
+
+	return ret;
+}
+
+inline bool pollPort(YARPInputPortOf<YARPGenericImage> &port, YARPGenericImage &out)
+{
+	bool ret = false;
+	if (port.Read(0))
+	{
+		out.Refer(port.Content());
+		ret = true;
+	}
+
+	return ret;
+}
+
+void printFrameStatus(int n);
 
 int main(int argc, char* argv[])
 {
@@ -32,7 +78,10 @@ int main(int argc, char* argv[])
 	YARPInputPortOf<YARPGenericImage> _inPortSeg(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 	YARPOutputPortOf<YARPGenericImage> _outPortBackprojection(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
-	YARPInputPortOf<YARPBottle>			_armSegmentationPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	YARPInputPortOf<YARPControlBoardNetworkData>  _armPort;
+	YARPInputPortOf<YVector>  _headPort;
+
+	YARPInputPortOf<YARPBottle>	_armSegmentationPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 	HandKinematics _handLocalization;
 	HandSegmenter _segmenter;
 	
@@ -40,6 +89,8 @@ int main(int argc, char* argv[])
 	_inPortSeg.Register("/handtracker/segmentation/i:img");
 	_armSegmentationPort.Register("/handtracker/segmentation/i:armdata");
 	_outPortBackprojection.Register("/handtracker/backprojection/o:img");
+	_headPort.Register("/handtracker/head/i");
+	_armPort.Register("/handtracker/arm/i");
 	
 	YARPImageOf<YarpPixelMono> _left;
 	YARPImageOf<YarpPixelMono> _leftSeg;
@@ -54,6 +105,9 @@ int main(int argc, char* argv[])
 	_leftSegHSV.Resize(_stheta, _srho);
 	_leftHSV.Resize(_stheta, _srho);
 
+	YVector _arm(6);
+	YVector _head(5);
+
 	YARPImageOf<YarpPixelMono> _outSeg;
 	YARPImageOf<YarpPixelMono> _outSeg2;
 	_outSeg.Resize(_stheta, _srho);
@@ -61,39 +115,45 @@ int main(int argc, char* argv[])
 
 	char tmp[128];
 	sprintf(tmp, "%s%d", "y:\\zgarbage\\exp19\\histo", 100);
-	_histo.load(YARPString(tmp));
+	// _histo.load(YARPString(tmp));
 
 	YARPLogpolar _mapper;
 
 	int _nHistos = 0;
+	int _nFrames = 0;
 	while (true)
 	{
+		// blocking on ports
 		_inPortImage.Read();
-		
-		if (_inPortSeg.Read(0))
+
+		/////////////////////////// segmentation
+		// poll segmentation
+		if (pollPort(_inPortSeg, _leftSeg))
 		{
 			ACE_OS::printf("Updating histogram\n");
-			_leftSeg.Refer(_inPortSeg.Content());
 			_mapper.ReconstructColor(_leftSeg, _leftSegColored);
-
 			YARPColorConverter::RGB2HSV(_leftSegColored, _leftSegHSV);
 			_histo.Apply(_leftSegHSV);
-
 			// dump histo
 			char tmp[128];
 			_nHistos++;
 			sprintf(tmp, "%s%d", "y:\\zgarbage\\histo", _nHistos);
 			_histo.dump(YARPString(tmp));
 		}
+		///////////////////////////////////////////
+
+		///// poll head and arm positions
+		pollPort(_armPort, _arm, &__armCounter);
+		pollPort(_headPort, _head, &__headCounter);
 
 		if(_armSegmentationPort.Read(0))
 		{
 			_armSegmentationPort.Content().display();
-			_handLocalization.learn(_armSegmentationPort.Content());
+			_handLocalization.learn(_arm, _head,  _armSegmentationPort.Content());
 		}
 
+		
 		_left.Refer (_inPortImage.Content());
-
 		// reconstruct color
 		_mapper.ReconstructColor (_left, _leftColored);
 		YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
@@ -104,12 +164,24 @@ int main(int argc, char* argv[])
 
 		// _segmenter.merge(tmp, _handLocalization.query());
 		// _segmenter.merge(_outSeg, _handLocalization.query());
-		_segmenter.mergeColor(_leftColored, _handLocalization.query());
+		_segmenter.mergeColor(_leftColored, _handLocalization.query(_arm, _head));
 		// _segmenter.merge(_outSeg, _handLocalization.query());
 		//_segmenter.search(_leftHSV, _histo, _handLocalization.query());
 
 		_outPortBackprojection.Content().Refer(_outSeg);
 		_outPortBackprojection.Write();
+
+		printFrameStatus(_nFrames);
+		_nFrames++;
 	}
 	return 0;
 }
+
+
+////////// print frame status
+void printFrameStatus(int n)
+{
+	if (n%100 == 0)
+		ACE_OS::printf("HeadFrame# %d\tArmFrame# %d\n", __headCounter, __armCounter);
+}
+

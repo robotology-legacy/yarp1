@@ -6,7 +6,7 @@
 #include <YARPBottle.h>
 #include <YARPBottleContent.h>
 #include <YARPControlBoardNetworkData.h>
-#include <nnet.h>
+#include <YARPBPNNet.h>
 
 class HandKinematics
 {
@@ -14,45 +14,38 @@ public:
 	HandKinematics();
 	~HandKinematics();
 
-	void learn(YARPBottle &newPoint);
+	void learn(YVector &arm, YVector &head, YARPBottle &newPoint);
 	
+	/*
 	void query(YARPImageOf<YarpPixelMono> &in)
 	{
 		YARPShapeEllipse el;
-		if (_armPort.Read(0))
-		{
-			_armPosition = _armPort.Content()._current_position;
-		}
-		
+
 		_query(_armPosition, el);
 		_fitter.plotEllipse(el, in);
-	}
+	}*/
 
-	void query(YARPShapeEllipse &el)
+	void query(YVector &arm, YVector &head, YARPShapeEllipse &el)
 	{
-		if (_armPort.Read(0))
-		{
-			_armPosition = _armPort.Content()._current_position;
-		}
-		_query(_armPosition, el);
+		_query(arm, head, el);
 	}
 
-	YARPShapeEllipse query()
+	YARPShapeEllipse query(YVector &arm, YVector &head)
 	{
 		YARPShapeEllipse el;
-		query(el);
+		query(arm, head, el);
 		return el;
 	}
 
 private:
-	void _query(const YVector &position, YARPShapeEllipse &el)
+	void _query(const YVector &arm, const YVector &hand, YARPShapeEllipse &el)
 	{
 		double tmp[3];
 		double c[2];
 		double p[3];
-		tmp[0] = position(1);
-		tmp[1] = position(2);
-		tmp[2] = position(3);
+		tmp[0] = arm(1);
+		tmp[1] = arm(2);
+		tmp[2] = arm(3);
 		center.sim(tmp, c);
 		parameters.sim(tmp, p);
 	
@@ -61,20 +54,15 @@ private:
 		el.a11 = /*p[0];*/ 0.005;
 		el.a12 = /*p[1];*/ 0;
 		el.a22 = /*p[2];*/ 0.005;
-
-		_npoints++;
 	}
 
 	void _dumpToDisk(const YVector &arm, const YVector &head, const YARPShapeEllipse &ellipse);
 	
-	YARPInputPortOf<YARPControlBoardNetworkData>  _armPort;
-	YVector _armPosition;
-	YVector _headPosition;
 	YARPLpConicFitter _fitter;
 	YARPLogFile		  _log;
 	
-	nnet center;
-	nnet parameters;
+	YARPBPNNet center;
+	YARPBPNNet parameters;
 
 	int _npoints;
 };

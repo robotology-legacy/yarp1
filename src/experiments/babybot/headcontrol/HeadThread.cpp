@@ -16,7 +16,7 @@ YARPRateThread(name, rate),
 _inPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 // _directCmdPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 _inertialPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
-_positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+_positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 {
 	char *root = GetYarpRoot();
 	char path[256];
@@ -30,6 +30,7 @@ _positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 
 	_inertialPort.Register("/headcontrol/inertial/o");
 	_positionPort.Register("/headcontrol/position/o");
+	// _statusPort.Register("/headcontrol/status/o");
 
 	_directCmdFlag = false;
 		
