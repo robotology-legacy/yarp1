@@ -10,7 +10,7 @@
 %DVIPSWebPage: (www.radicaleye.com)
 %DVIPSCommandLine: dvips -t a4 -f manual.dvi
 %DVIPSParameters: dpi=600, compressed
-%DVIPSSource:  TeX output 2004.07.14:1247
+%DVIPSSource:  TeX output 2004.07.14:1519
 %%BeginProcSet: texc.pro
 %!
 /TeXDict 300 dict def TeXDict begin/N{def}def/B{bind def}N/S{exch}N/X{S
@@ -628,6 +628,55 @@ setlinecap newpath}N/st{stroke SaveX SaveY moveto}N/fil{fill SaveX SaveY
 moveto}N/ellipse{/endangle X/startangle X/yrad X/xrad X/savematrix
 matrix currentmatrix N TR xrad yrad scale 0 0 1 startangle endangle arc
 savematrix setmatrix}N end
+
+%%EndProcSet
+%%BeginProcSet: color.pro
+%!
+TeXDict begin/setcmykcolor where{pop}{/setcmykcolor{dup 10 eq{pop
+setrgbcolor}{1 sub 4 1 roll 3{3 index add neg dup 0 lt{pop 0}if 3 1 roll
+}repeat setrgbcolor pop}ifelse}B}ifelse/TeXcolorcmyk{setcmykcolor}def
+/TeXcolorrgb{setrgbcolor}def/TeXcolorgrey{setgray}def/TeXcolorgray{
+setgray}def/TeXcolorhsb{sethsbcolor}def/currentcmykcolor where{pop}{
+/currentcmykcolor{currentrgbcolor 10}B}ifelse/DC{exch dup userdict exch
+known{pop pop}{X}ifelse}B/GreenYellow{0.15 0 0.69 0 setcmykcolor}DC
+/Yellow{0 0 1 0 setcmykcolor}DC/Goldenrod{0 0.10 0.84 0 setcmykcolor}DC
+/Dandelion{0 0.29 0.84 0 setcmykcolor}DC/Apricot{0 0.32 0.52 0
+setcmykcolor}DC/Peach{0 0.50 0.70 0 setcmykcolor}DC/Melon{0 0.46 0.50 0
+setcmykcolor}DC/YellowOrange{0 0.42 1 0 setcmykcolor}DC/Orange{0 0.61
+0.87 0 setcmykcolor}DC/BurntOrange{0 0.51 1 0 setcmykcolor}DC
+/Bittersweet{0 0.75 1 0.24 setcmykcolor}DC/RedOrange{0 0.77 0.87 0
+setcmykcolor}DC/Mahogany{0 0.85 0.87 0.35 setcmykcolor}DC/Maroon{0 0.87
+0.68 0.32 setcmykcolor}DC/BrickRed{0 0.89 0.94 0.28 setcmykcolor}DC/Red{
+0 1 1 0 setcmykcolor}DC/OrangeRed{0 1 0.50 0 setcmykcolor}DC/RubineRed{
+0 1 0.13 0 setcmykcolor}DC/WildStrawberry{0 0.96 0.39 0 setcmykcolor}DC
+/Salmon{0 0.53 0.38 0 setcmykcolor}DC/CarnationPink{0 0.63 0 0
+setcmykcolor}DC/Magenta{0 1 0 0 setcmykcolor}DC/VioletRed{0 0.81 0 0
+setcmykcolor}DC/Rhodamine{0 0.82 0 0 setcmykcolor}DC/Mulberry{0.34 0.90
+0 0.02 setcmykcolor}DC/RedViolet{0.07 0.90 0 0.34 setcmykcolor}DC
+/Fuchsia{0.47 0.91 0 0.08 setcmykcolor}DC/Lavender{0 0.48 0 0
+setcmykcolor}DC/Thistle{0.12 0.59 0 0 setcmykcolor}DC/Orchid{0.32 0.64 0
+0 setcmykcolor}DC/DarkOrchid{0.40 0.80 0.20 0 setcmykcolor}DC/Purple{
+0.45 0.86 0 0 setcmykcolor}DC/Plum{0.50 1 0 0 setcmykcolor}DC/Violet{
+0.79 0.88 0 0 setcmykcolor}DC/RoyalPurple{0.75 0.90 0 0 setcmykcolor}DC
+/BlueViolet{0.86 0.91 0 0.04 setcmykcolor}DC/Periwinkle{0.57 0.55 0 0
+setcmykcolor}DC/CadetBlue{0.62 0.57 0.23 0 setcmykcolor}DC
+/CornflowerBlue{0.65 0.13 0 0 setcmykcolor}DC/MidnightBlue{0.98 0.13 0
+0.43 setcmykcolor}DC/NavyBlue{0.94 0.54 0 0 setcmykcolor}DC/RoyalBlue{1
+0.50 0 0 setcmykcolor}DC/Blue{1 1 0 0 setcmykcolor}DC/Cerulean{0.94 0.11
+0 0 setcmykcolor}DC/Cyan{1 0 0 0 setcmykcolor}DC/ProcessBlue{0.96 0 0 0
+setcmykcolor}DC/SkyBlue{0.62 0 0.12 0 setcmykcolor}DC/Turquoise{0.85 0
+0.20 0 setcmykcolor}DC/TealBlue{0.86 0 0.34 0.02 setcmykcolor}DC
+/Aquamarine{0.82 0 0.30 0 setcmykcolor}DC/BlueGreen{0.85 0 0.33 0
+setcmykcolor}DC/Emerald{1 0 0.50 0 setcmykcolor}DC/JungleGreen{0.99 0
+0.52 0 setcmykcolor}DC/SeaGreen{0.69 0 0.50 0 setcmykcolor}DC/Green{1 0
+1 0 setcmykcolor}DC/ForestGreen{0.91 0 0.88 0.12 setcmykcolor}DC
+/PineGreen{0.92 0 0.59 0.25 setcmykcolor}DC/LimeGreen{0.50 0 1 0
+setcmykcolor}DC/YellowGreen{0.44 0 0.74 0 setcmykcolor}DC/SpringGreen{
+0.26 0 0.76 0 setcmykcolor}DC/OliveGreen{0.64 0 0.95 0.40 setcmykcolor}
+DC/RawSienna{0 0.72 1 0.45 setcmykcolor}DC/Sepia{0 0.83 1 0.70
+setcmykcolor}DC/Brown{0 0.81 1 0.60 setcmykcolor}DC/Tan{0.14 0.42 0.56 0
+setcmykcolor}DC/Gray{0 0 0 0.50 setcmykcolor}DC/Black{0 0 0 1
+setcmykcolor}DC/White{0 0 0 0 setcmykcolor}DC end
 
 %%EndProcSet
 %%BeginFont: CMTT9
@@ -2695,9 +2744,9 @@ a4
  end
 %%EndSetup
 %%Page: 1 1
-TeXDict begin 1 0 bop 1693 432 a Fi(Y)-11 b(ARP)1048
-614 y(Y)g(et)43 b(Another)h(Rob)t(ot)f(Platform)1360
-797 y(Installation)f(Guide)1200 1038 y Fh(P)m(aul)33
+TeXDict begin 1 0 bop Black Black Black Black 1693 432
+a Fi(Y)-11 b(ARP)1048 614 y(Y)g(et)43 b(Another)h(Rob)t(ot)f(Platform)
+1360 797 y(Installation)f(Guide)1200 1038 y Fh(P)m(aul)33
 b(Fitzpatric)m(k,)h(Giorgio)d(Metta)1596 1233 y(July)j(14,)e(2004)0
 1591 y Fg(1)135 b(What)45 b(is)g(Y)-11 b(ARP?)0 1773
 y Ff(Y)k(ARP)25 b(is)f(written)g(b)n(y)g(and)g(for)g(researc)n(hers)d
@@ -2718,36 +2767,38 @@ b(The)30 b(easiest)f(and)h(most)g(scalable)e(w)n(a)n(y)h(to)h(do)f
 (computational)f(needs)h(for)0 2370 y(con)n(trolling)26
 b(v)-5 b(arious)26 b(h)n(umanoid)i(rob)r(ots.)125 2470
 y(The)f(comp)r(onen)n(ts)g(of)h(Y)-7 b(ARP)28 b(can)f(b)r(e)h(brok)n
-(en)e(do)n(wn)h(in)n(to:)125 2653 y Fe(\017)41 b Fd(libY)-8
-b(ARP)p 594 2653 29 4 v 33 w(OS)24 b Ff({)g(in)n(terfacing)f(with)i
-(the)f(op)r(erating)f(system\(s\))h(to)g(supp)r(ort)g(easy)f(streaming)
-g(of)h(data)g(across)208 2752 y(man)n(y)29 b(threads)g(across)f(man)n
-(y)h(mac)n(hines.)43 b(Y)-7 b(ARP)30 b(is)g(written)g(to)g(b)r(e)g(OS)f
-(neutral,)h(and)g(explicitly)g(supp)r(orts)208 2852 y(Lin)n(ux,)d
-(Microsoft)g(Windo)n(ws,)g(and)g(the)h(QNX)g(realtime)f(op)r(erating)g
-(system.)125 3018 y Fe(\017)41 b Fd(libY)-8 b(ARP)p 594
-3018 V 33 w(dev)32 b Ff({)e(in)n(terfacing)g(with)i(common)e(devices)h
-(used)g(in)g(rob)r(otics:)43 b(framegrabb)r(ers,)30 b(digital)g(cam-)
-208 3118 y(eras,)c(motor)h(con)n(trol)f(b)r(oards,)h(etc.)125
-3284 y Fe(\017)41 b Fd(libY)-8 b(ARP)p 594 3284 V 33
-w(sig)25 b Ff({)h(p)r(erforming)f(common)h(signal)f(pro)r(cessing)f
-(tasks)i(\(visual,)g(auditory\))f(in)h(an)g(op)r(en)g(manner)208
-3383 y(easily)g(in)n(terfaced)h(with)h(other)f(commonly)g(used)h
-(libraries.)125 3549 y Fe(\017)41 b Fd(...)35 b Ff(|)28
-b(more)e(do)r(cumen)n(tation)i(to)f(come.)125 3732 y(These)e(comp)r
-(onen)n(ts)g(are)f(main)n(tained)i(separately)-7 b(.)34
-b(The)26 b(core)e(comp)r(onen)n(t)i(is)f Fd(libY)-8 b(ARP)p
-3035 3732 V 34 w(OS)p Ff(,)25 b(whic)n(h)h(m)n(ust)f(b)r(e)0
-3832 y(a)n(v)-5 b(ailable)29 b(b)r(efore)h(the)h(other)e(comp)r(onen)n
-(ts)h(can)g(b)r(e)h(used.)45 b(This)30 b(man)n(ual)f(describ)r(es)h(ho)
-n(w)g(to)g(install)g(and)g(use)g(that)0 3931 y(comp)r(onen)n(t)d
-(\014rst,)h(then)g(the)g(others.)0 4206 y Fg(2)135 b(Requiremen)l(ts)0
-4388 y Ff(Y)-7 b(ARP)33 b(is)g(tested)g(on)g(Windo)n(ws)g(\(2000/XP\),)
-e(Lin)n(ux)i(\(Debian/SuSE\),)g(and)g(QNX6.)52 b(It)34
-b(is)e(based)h(on)g(the)g(op)r(en-)0 4487 y(source)28
-b(A)n(CE)g(\(AD)n(APTIVE)i(Comm)n(unication)e(En)n(vironmen)n(t\))g
-(library)-7 b(,)28 b(whic)n(h)h(is)g(p)r(ortable)f(across)f(a)i(v)n
-(ery)f(broad)0 4587 y(range)e(of)i(en)n(vironmen)n(ts,)e(and)i(Y)-7
+(en)e(do)n(wn)h(in)n(to:)p Black 125 2653 a Fe(\017)p
+Black 41 w Fd(libY)-8 b(ARP)p 594 2653 29 4 v 33 w(OS)24
+b Ff({)g(in)n(terfacing)f(with)i(the)f(op)r(erating)f(system\(s\))h(to)
+g(supp)r(ort)g(easy)f(streaming)g(of)h(data)g(across)208
+2752 y(man)n(y)29 b(threads)g(across)f(man)n(y)h(mac)n(hines.)43
+b(Y)-7 b(ARP)30 b(is)g(written)g(to)g(b)r(e)g(OS)f(neutral,)h(and)g
+(explicitly)g(supp)r(orts)208 2852 y(Lin)n(ux,)d(Microsoft)g(Windo)n
+(ws,)g(and)g(the)h(QNX)g(realtime)f(op)r(erating)g(system.)p
+Black 125 3018 a Fe(\017)p Black 41 w Fd(libY)-8 b(ARP)p
+594 3018 V 33 w(dev)32 b Ff({)e(in)n(terfacing)g(with)i(common)e
+(devices)h(used)g(in)g(rob)r(otics:)43 b(framegrabb)r(ers,)30
+b(digital)g(cam-)208 3118 y(eras,)c(motor)h(con)n(trol)f(b)r(oards,)h
+(etc.)p Black 125 3284 a Fe(\017)p Black 41 w Fd(libY)-8
+b(ARP)p 594 3284 V 33 w(sig)25 b Ff({)h(p)r(erforming)f(common)h
+(signal)f(pro)r(cessing)f(tasks)i(\(visual,)g(auditory\))f(in)h(an)g
+(op)r(en)g(manner)208 3383 y(easily)g(in)n(terfaced)h(with)h(other)f
+(commonly)g(used)h(libraries.)p Black 125 3549 a Fe(\017)p
+Black 41 w Fd(...)35 b Ff(|)28 b(more)e(do)r(cumen)n(tation)i(to)f
+(come.)125 3732 y(These)e(comp)r(onen)n(ts)g(are)f(main)n(tained)i
+(separately)-7 b(.)34 b(The)26 b(core)e(comp)r(onen)n(t)i(is)f
+Fd(libY)-8 b(ARP)p 3035 3732 V 34 w(OS)p Ff(,)25 b(whic)n(h)h(m)n(ust)f
+(b)r(e)0 3832 y(a)n(v)-5 b(ailable)29 b(b)r(efore)h(the)h(other)e(comp)
+r(onen)n(ts)h(can)g(b)r(e)h(used.)45 b(This)30 b(man)n(ual)f(describ)r
+(es)h(ho)n(w)g(to)g(install)g(and)g(use)g(that)0 3931
+y(comp)r(onen)n(t)d(\014rst,)h(then)g(the)g(others.)0
+4206 y Fg(2)135 b(Requiremen)l(ts)0 4388 y Ff(Y)-7 b(ARP)33
+b(is)g(tested)g(on)g(Windo)n(ws)g(\(2000/XP\),)e(Lin)n(ux)i
+(\(Debian/SuSE\),)g(and)g(QNX6.)52 b(It)34 b(is)e(based)h(on)g(the)g
+(op)r(en-)0 4487 y(source)28 b(A)n(CE)g(\(AD)n(APTIVE)i(Comm)n
+(unication)e(En)n(vironmen)n(t\))g(library)-7 b(,)28
+b(whic)n(h)h(is)g(p)r(ortable)f(across)f(a)i(v)n(ery)f(broad)0
+4587 y(range)e(of)i(en)n(vironmen)n(ts,)e(and)i(Y)-7
 b(ARP)28 b(should)f(inherit)h(that)g(p)r(ortabilit)n(y)-7
 b(.)125 4686 y(F)g(or)28 b(real-time)g(op)r(eration,)g(net)n(w)n(ork)f
 (o)n(v)n(erhead)g(has)h(to)g(b)r(e)i(minimized,)f(so)f(Y)-7
@@ -2771,9 +2822,9 @@ h(with)g(v)n(endor-supplied)f(co)r(de,)h(but)h(to)f(shield)g(the)h
 r(ossible.)59 b(Chec)n(k)35 b(the)g(requiremen)n(ts)f(imp)r(osed)h(b)n
 (y)g(y)n(our)f(curren)n(t)0 5483 y(hardw)n(are;)26 b(Y)-7
 b(ARP)27 b(will)h(not)g(reduce)f(these,)h(only)f(mak)n(e)g(future)h(c)n
-(hanges)e(easier.)1860 5816 y(1)p eop end
+(hanges)e(easier.)p Black 1860 5816 a(1)p Black eop end
 %%Page: 2 2
-TeXDict begin 2 1 bop 0 83 a Fg(3)135 b(Installation)0
+TeXDict begin 2 1 bop Black Black 0 83 a Fg(3)135 b(Installation)0
 265 y Ff(W)-7 b(e)27 b(suggest)f(that,)h(if)g(y)n(ou)f(are)g(a)g
 (\014rst-time)h(user)f(of)h(Y)-7 b(ARP)g(,)27 b(y)n(ou)f(install)g(it)i
 (on)e(one)g(or)g(t)n(w)n(o)g(mac)n(hines)g(\014rst,)h(b)r(efore)0
@@ -2805,27 +2856,29 @@ b(is)h(5.3.3)f(or)g(greater.)34 b(A)n(t)27 b(the)f(time)h(of)f
 (true)0 1647 y(for)h(Debian)h(stable.)125 1746 y(F)-7
 b(or)34 b(all)h(other)g(scenarios,)g(w)n(e)g(suggest)f(y)n(ou)g(go)h
 (to)g(the)g(A)n(CE)g(homepage,)h(and)f(do)n(wnload)f(and)h(compile)g
-(the)0 1846 y(source)26 b(pac)n(k)-5 b(age:)208 2029
-y Fb(http://www.cs.w)o(ust)o(l.)o(ed)o(u/)37 b(schmidt/ACE.html)125
-2211 y Ff(Since)25 b(A)n(CE)g(is)g(op)r(en-source,)f(w)n(e)h(ha)n(v)n
-(e)g(tak)n(en)f(the)i(lib)r(ert)n(y)f(of)h(redistributing)e(a)h(v)n
-(ersion)f(of)i(it)f(that)h(is)f(kno)n(wn)g(to)0 2311
-y(w)n(ork)h(with)i(Y)-7 b(ARP)g(,)28 b(a)n(v)-5 b(ailable)27
-b(from)g(our)g(w)n(ebsite:)208 2494 y Fb(http://yarp0.so)o(urc)o(ef)o
-(or)o(ge.)o(ne)o(t)0 2726 y Fc(3.2)112 b(Installing)39
-b(the)e(libY)-9 b(ARP)p 1398 2726 34 4 v 39 w(OS)38 b(library)0
-2879 y Ff(Do)n(wnload)27 b(the)h(latest)f(pac)n(k)-5
-b(age)26 b(from)h(the)h(Y)-7 b(ARP)28 b(sourceforge)d(site:)208
-3062 y Fb(http://yarp0.so)o(urc)o(ef)o(or)o(ge.)o(ne)o(t)125
+(the)0 1846 y(source)26 b(pac)n(k)-5 b(age:)p Black Black
+208 2029 a Fb(http://www.cs.w)o(ust)o(l.)o(ed)o(u/)37
+b(schmidt/ACE.html)125 2211 y Ff(Since)25 b(A)n(CE)g(is)g(op)r
+(en-source,)f(w)n(e)h(ha)n(v)n(e)g(tak)n(en)f(the)i(lib)r(ert)n(y)f(of)
+h(redistributing)e(a)h(v)n(ersion)f(of)i(it)f(that)h(is)f(kno)n(wn)g
+(to)0 2311 y(w)n(ork)h(with)i(Y)-7 b(ARP)g(,)28 b(a)n(v)-5
+b(ailable)27 b(from)g(our)g(w)n(ebsite:)p Black Black
+208 2494 a Fb(http://yarp0.so)o(urc)o(ef)o(or)o(ge.)o(ne)o(t)0
+2726 y Fc(3.2)112 b(Installing)39 b(the)e(libY)-9 b(ARP)p
+1398 2726 34 4 v 39 w(OS)38 b(library)0 2879 y Ff(Do)n(wnload)27
+b(the)h(latest)f(pac)n(k)-5 b(age)26 b(from)h(the)h(Y)-7
+b(ARP)28 b(sourceforge)d(site:)p Black Black 208 3062
+a Fb(http://yarp0.so)o(urc)o(ef)o(or)o(ge.)o(ne)o(t)125
 3245 y Ff(Unpac)n(k)i(it)h(and,)f(err,)g(install)g(it.)38
 b(Details)27 b(to)h(come)f(once)g(w)n(e)g(actually)g(mak)n(e)g(the)h
-(release...)1860 5816 y(2)p eop end
+(release...)p Black 1860 5816 a(2)p Black eop end
 %%Page: 3 3
-TeXDict begin 3 2 bop 0 83 a Fg(4)135 b(Getting)46 b(started)0
-265 y Ff(Mak)n(e)24 b(sure)h(y)n(ou)g(ha)n(v)n(e)f(installed)h(libY)-7
-b(ARP)p 1401 265 25 4 v 31 w(OS)25 b(as)f(describ)r(ed)i(in)f(Section)h
-(3.)35 b(W)-7 b(e)26 b(will)g(no)n(w)e(exercise)g(y)n(our)h(installa-)0
-364 y(tion)h(to)h(mak)n(e)e(sure)h(ev)n(erything)f(is)h(ok)-5
+TeXDict begin 3 2 bop Black Black 0 83 a Fg(4)135 b(Getting)46
+b(started)0 265 y Ff(Mak)n(e)24 b(sure)h(y)n(ou)g(ha)n(v)n(e)f
+(installed)h(libY)-7 b(ARP)p 1401 265 25 4 v 31 w(OS)25
+b(as)f(describ)r(ed)i(in)f(Section)h(3.)35 b(W)-7 b(e)26
+b(will)g(no)n(w)e(exercise)g(y)n(our)h(installa-)0 364
+y(tion)h(to)h(mak)n(e)e(sure)h(ev)n(erything)f(is)h(ok)-5
 b(a)n(y)26 b(and)g(correctly)f(con\014gured.)35 b(First,)27
 b(please)e(op)r(en)i(t)n(w)n(o)e(terminal)h(windo)n(ws;)0
 464 y(w)n(e'll)d(refer)g(to)g(these)h(as)e(A)i(and)f(B.)h(Before)e
@@ -2834,55 +2887,58 @@ e(the)i(Y)-7 b(ARP)24 b(name)0 564 y(service)29 b({)g(this)h(is)g(a)g
 (program)d(whic)n(h)j(k)n(eeps)f(trac)n(k)g(of)h(what)f(Y)-7
 b(ARP)31 b(resources)c(are)i(curren)n(tly)g(a)n(v)-5
 b(ailable)29 b(and)g(ho)n(w)0 663 y(to)e(access)g(them.)37
-b(In)28 b(terminal)f(A,)h(t)n(yp)r(e:)0 846 y Fb(yarp-service)39
-b(--run)125 1029 y Ff(If)30 b(all)g(go)r(es)f(w)n(ell,)i(y)n(ou)e(will)
-i(see)e(a)h(series)f(of)h(messages)f(\014nishing)h(in)h(\\***)d(Y)-7
-b(ARP)30 b(name)g(service)f(started)h(OK")0 1128 y({)k(if)h(not,)i(c)n
-(hec)n(k)c(the)i(con\014guration)e(\014le)i(men)n(tioned)g(in)f(the)h
-(messages,)g(or)f(follo)n(w)g(the)h(advice)f(giv)n(en.)57
-b(Next,)36 b(in)0 1228 y(terminal)27 b(B,)h(t)n(yp)r(e:)0
-1394 y Fb(yarp-service)39 b(--check)0 1560 y Ff(This)33
-b(will)h(try)f(to)g(comm)n(unicate)g(with)h(the)f(name)h(serv)n(er,)f
-(send)g(a)g(message,)g(receiv)n(e)f(a)h(message,)h(and)f(basically)0
-1660 y(mak)n(e)27 b(sure)g(that)h(ev)n(erything)e(is)i(w)n(orking)d(w)n
-(ell.)37 b(Here)27 b(is)h(what)f(y)n(ou)g(should)h(see:)208
-1834 y Fa(===============================)q(====)q(=====)q(====)q
-(=====)q(====)q(====)q(=====)q(===)208 1925 y(===)39
-b(Trying)i(to)f(register)h(some)f(ports)208 2017 y(***)f(making)i(port)
-f(/yarp-service/1)j(on)d(default)g(network)h([tcp,)g(11)e(ports])208
-2108 y(***)g(making)i(port)f(/yarp-service/2)j(on)d(default)g(network)h
-([tcp,)g(11)e(ports])208 2199 y(===============================)q(====)
-q(=====)q(====)q(=====)q(====)q(====)q(=====)q(===)208
-2291 y(===)g(Trying)i(to)f(connect)h(some)f(ports)208
-2382 y(***)f(connecting)j(/yarp-service/1)h(to)c(/yarp-service/2)208
-2473 y(===============================)q(====)q(=====)q(====)q(=====)q
-(====)q(====)q(=====)q(===)208 2565 y(===)g(Trying)i(to)f(write)g(some)
-g(data)208 2656 y(***)f(Writing)i(number)g(42)208 2747
+b(In)28 b(terminal)f(A,)h(t)n(yp)r(e:)p Black Black 0
+846 a Fb(yarp-service)39 b(--run)125 1029 y Ff(If)30
+b(all)g(go)r(es)f(w)n(ell,)i(y)n(ou)e(will)i(see)e(a)h(series)f(of)h
+(messages)f(\014nishing)h(in)h(\\***)d(Y)-7 b(ARP)30
+b(name)g(service)f(started)h(OK")0 1128 y({)k(if)h(not,)i(c)n(hec)n(k)c
+(the)i(con\014guration)e(\014le)i(men)n(tioned)g(in)f(the)h(messages,)g
+(or)f(follo)n(w)g(the)h(advice)f(giv)n(en.)57 b(Next,)36
+b(in)0 1228 y(terminal)27 b(B,)h(t)n(yp)r(e:)p Black
+Black 0 1394 a Fb(yarp-service)39 b(--check)0 1560 y
+Ff(This)33 b(will)h(try)f(to)g(comm)n(unicate)g(with)h(the)f(name)h
+(serv)n(er,)f(send)g(a)g(message,)g(receiv)n(e)f(a)h(message,)h(and)f
+(basically)0 1660 y(mak)n(e)27 b(sure)g(that)h(ev)n(erything)e(is)i(w)n
+(orking)d(w)n(ell.)37 b(Here)27 b(is)h(what)f(y)n(ou)g(should)h(see:)p
+Black Black Black Black 208 1834 a Fa(===============================)q
+(====)q(=====)q(====)q(=====)q(====)q(====)q(=====)q(===)208
+1925 y(===)39 b(Trying)i(to)f(register)h(some)f(ports)208
+2017 y(***)f(making)i(port)f(/yarp-service/1)j(on)d(default)g(network)h
+([tcp,)g(11)e(ports])208 2108 y(***)g(making)i(port)f(/yarp-service/2)j
+(on)d(default)g(network)h([tcp,)g(11)e(ports])208 2199
 y(===============================)q(====)q(=====)q(====)q(=====)q(====)
-q(====)q(=====)q(===)208 2839 y(===)e(Trying)i(to)f(read)g(some)g(data)
+q(====)q(=====)q(===)208 2291 y(===)g(Trying)i(to)f(connect)h(some)f
+(ports)208 2382 y(***)f(connecting)j(/yarp-service/1)h(to)c
+(/yarp-service/2)208 2473 y(===============================)q(====)q
+(=====)q(====)q(=====)q(====)q(====)q(=====)q(===)208
+2565 y(===)g(Trying)i(to)f(write)g(some)g(data)208 2656
+y(***)f(Writing)i(number)g(42)208 2747 y
+(===============================)q(====)q(=====)q(====)q(=====)q(====)q
+(====)q(=====)q(===)208 2839 y(===)e(Trying)i(to)f(read)g(some)g(data)
 208 2930 y(***)f(Read)i(number)f(42)208 3021 y
 (===============================)q(====)q(=====)q(====)q(=====)q(====)q
 (====)q(=====)q(===)208 3113 y(===)f(Trying)i(to)f(unregister)h(some)f
 (ports)208 3204 y(===============================)q(====)q(=====)q
 (====)q(=====)q(====)q(====)q(=====)q(===)208 3295 y(***)f(YARP)i
 (seems)f(okay!)0 3478 y Ff(Here)27 b(is)h(an)f(example)g(of)h(things)f
-(going)g(wrong:)208 3636 y Fa(===============================)q(====)q
-(=====)q(====)q(=====)q(====)q(====)q(=====)q(===)208
-3727 y(===)39 b(Trying)i(to)f(register)h(some)f(ports)208
-3818 y(***)f(making)i(port)f(/yarp-service/1)j(on)d(default)g(network)h
-([tcp,)g(11)e(ports])208 3910 y(***)g(FAILED)i(port)f(/yarp-service/1)j
-(-)c(is)h(the)g(YARP)g(name)g(server)h(running?)208 4001
-y(***)e(making)i(port)f(/yarp-service/2)j(on)d(default)g(network)h
-([tcp,)g(11)e(ports])208 4092 y(***)g(FAILED)i(port)f(/yarp-service/2)j
-(-)c(is)h(the)g(YARP)g(name)g(server)h(running?)208 4184
-y(===============================)q(====)q(=====)q(====)q(=====)q(====)
-q(====)q(=====)q(===)208 4275 y(===)e(Trying)i(to)f(connect)h(some)f
-(ports)208 4366 y(===============================)q(====)q(=====)q
-(====)q(=====)q(====)q(====)q(=====)q(====)208 4457 y(===)f(Trying)i
-(to)f(write)g(some)g(data)208 4549 y(***)f(Writing)i(number)g(42)208
-4640 y(===============================)q(====)q(=====)q(====)q(=====)q
-(====)q(====)q(=====)q(===)208 4731 y(===)e(Trying)i(to)f(read)g(some)g
-(data)208 4823 y(===)f(Trying)i(to)f(read)g(some)g(data)208
+(going)g(wrong:)p Black Black Black Black 208 3636 a
+Fa(===============================)q(====)q(=====)q(====)q(=====)q
+(====)q(====)q(=====)q(===)208 3727 y(===)39 b(Trying)i(to)f(register)h
+(some)f(ports)208 3818 y(***)f(making)i(port)f(/yarp-service/1)j(on)d
+(default)g(network)h([tcp,)g(11)e(ports])208 3910 y(***)g(FAILED)i
+(port)f(/yarp-service/1)j(-)c(is)h(the)g(YARP)g(name)g(server)h
+(running?)208 4001 y(***)e(making)i(port)f(/yarp-service/2)j(on)d
+(default)g(network)h([tcp,)g(11)e(ports])208 4092 y(***)g(FAILED)i
+(port)f(/yarp-service/2)j(-)c(is)h(the)g(YARP)g(name)g(server)h
+(running?)208 4184 y(===============================)q(====)q(=====)q
+(====)q(=====)q(====)q(====)q(=====)q(===)208 4275 y(===)e(Trying)i(to)
+f(connect)h(some)f(ports)208 4366 y(===============================)q
+(====)q(=====)q(====)q(=====)q(====)q(====)q(=====)q(====)208
+4457 y(===)f(Trying)i(to)f(write)g(some)g(data)208 4549
+y(***)f(Writing)i(number)g(42)208 4640 y
+(===============================)q(====)q(=====)q(====)q(=====)q(====)q
+(====)q(=====)q(===)208 4731 y(===)e(Trying)i(to)f(read)g(some)g(data)
+208 4823 y(===)f(Trying)i(to)f(read)g(some)g(data)208
 4914 y(===)f(Trying)i(to)f(read)g(some)g(data)208 5005
 y(===============================)q(====)q(=====)q(====)q(=====)q(====)
 q(====)q(=====)q(===)208 5097 y(===)f(Trying)i(to)f(unregister)h(some)f
@@ -2891,26 +2947,28 @@ q(====)q(=====)q(===)208 5097 y(===)f(Trying)i(to)f(unregister)h(some)f
 (seems)f(broken.)208 5371 y(***)f(Check)i(the)f(configuration)i(file)e
 (at)g([/home/paulfitz/.yarp/conf/nam)q(er.co)q(nf])208
 5462 y(***)f(It)h(currently)h(specifies)h(a)d(server)i(at:)835
-5553 y(Machine)g([wuffles])1860 5816 y Ff(3)p eop end
+5553 y(Machine)g([wuffles])p Black 1860 5816 a Ff(3)p
+Black eop end
 %%Page: 4 4
-TeXDict begin 4 3 bop 835 83 a Fa(Port)40 b(number)h([10000])208
-174 y(***)e(These)i(settings)g(can)f(be)f(changed)i(on)f(the)g(first)g
-(line)g(of)g(the)g(file.)208 266 y(***)f(Perhaps)i(try)f(using)h(an)e
-(IP)h(address)h(instead)g(of)e(a)h(host)g(name.)208 357
-y(***)208 448 y(***)f(If)h(this)g(is)g(the)g(wrong)g(configuration)i
-(file,)208 540 y(***)157 b(please)41 b(set)f(the)g(optional)h
-(YARP_ROOT)g(environment)h(variable)208 631 y(***)157
-b(to)40 b(the)g(directory)h(in)f(which)g(the)g(desired)h(namer.conf)g
-(resides)208 722 y(***)125 888 y Ff(If)23 b(net)n(w)n(orking)f(is)h
-(brok)n(en)g(on)g(y)n(our)f(mac)n(hine,)i(then)g(Y)-7
-b(ARP)24 b(will)f(ha)n(v)n(e)f(trouble.)36 b(If)23 b(y)n(ou)g(are)f
-(running)i(the)f(Y)-7 b(ARP)0 988 y(name)29 b(serv)n(er)f(on)h(a)f(mac)
-n(hine)h(that)h(do)r(es)f(not)g(ha)n(v)n(e)f(a)h(static)g(IP)g(address)
-f(or)g(a)h(name)g(registered)f(with)i(DNS,)g(then)0 1088
-y(y)n(ou)h(should)g(c)n(hec)n(k)g(the)g(con\014guration)f(\014le)i(men)
-n(tioned)f(b)n(y)h(y)n(arp-service,)d(and)j(mak)n(e)e(sure)h(that)h
-(the)g(\014rst)f(line)h(of)0 1187 y(the)c(con\014guration)e(\014le)i
-(is)f(of)h(the)g(form:)208 1353 y(curren)n(t.v)-5 b(alid.ip.address)25
+TeXDict begin 4 3 bop Black Black 835 83 a Fa(Port)40
+b(number)h([10000])208 174 y(***)e(These)i(settings)g(can)f(be)f
+(changed)i(on)f(the)g(first)g(line)g(of)g(the)g(file.)208
+266 y(***)f(Perhaps)i(try)f(using)h(an)e(IP)h(address)h(instead)g(of)e
+(a)h(host)g(name.)208 357 y(***)208 448 y(***)f(If)h(this)g(is)g(the)g
+(wrong)g(configuration)i(file,)208 540 y(***)157 b(please)41
+b(set)f(the)g(optional)h(YARP_ROOT)g(environment)h(variable)208
+631 y(***)157 b(to)40 b(the)g(directory)h(in)f(which)g(the)g(desired)h
+(namer.conf)g(resides)208 722 y(***)125 888 y Ff(If)23
+b(net)n(w)n(orking)f(is)h(brok)n(en)g(on)g(y)n(our)f(mac)n(hine,)i
+(then)g(Y)-7 b(ARP)24 b(will)f(ha)n(v)n(e)f(trouble.)36
+b(If)23 b(y)n(ou)g(are)f(running)i(the)f(Y)-7 b(ARP)0
+988 y(name)29 b(serv)n(er)f(on)h(a)f(mac)n(hine)h(that)h(do)r(es)f(not)
+g(ha)n(v)n(e)f(a)h(static)g(IP)g(address)f(or)g(a)h(name)g(registered)f
+(with)i(DNS,)g(then)0 1088 y(y)n(ou)h(should)g(c)n(hec)n(k)g(the)g
+(con\014guration)f(\014le)i(men)n(tioned)f(b)n(y)h(y)n(arp-service,)d
+(and)j(mak)n(e)e(sure)h(that)h(the)g(\014rst)f(line)h(of)0
+1187 y(the)c(con\014guration)e(\014le)i(is)f(of)h(the)g(form:)p
+Black Black 208 1353 a(curren)n(t.v)-5 b(alid.ip.address)25
 b(10000)125 1519 y(The)k(n)n(um)n(b)r(er)h(\\10000")c(is)k(the)g
 (default)g(p)r(ort)g(n)n(um)n(b)r(er)f(that)h(the)h(Y)-7
 b(ARP)30 b(name)f(service)g(uses.)43 b(This)30 b(is)f(usually)0
@@ -2918,9 +2976,9 @@ b(ARP)30 b(name)f(service)g(uses.)43 b(This)30 b(is)f(usually)0
 (this,)g(then)g(please)f(c)n(hange)f(it)j(in)e(the)h(con\014guration)e
 (\014le.)125 1719 y(If)i(all)f(is)g(w)n(ell,)h(w)n(e)f(can)g(try)g
 (exercising)g(Y)-7 b(ARP)28 b(a)f(little)h(more.)125
-1818 y(In)f(terminal)h(B,)f(t)n(yp)r(e:)0 1984 y Fb(yarp-read)40
-b(/port1)0 2150 y Ff(This)g(will)g(rep)r(ort)f(\\)677
-2150 y
+1818 y(In)f(terminal)h(B,)f(t)n(yp)r(e:)p Black Black
+0 1984 a Fb(yarp-read)40 b(/port1)0 2150 y Ff(This)g(will)g(rep)r(ort)f
+(\\)677 2150 y
  0. 0. 1. setrgbcolor
  677 2150 a Fb(making)i(port)h(/port1)f(...)1637
 2150 y
@@ -2928,18 +2986,18 @@ b(/port1)0 2150 y Ff(This)g(will)g(rep)r(ort)f(\\)677
  1637 2150 a Ff(")72 b(in)41 b(terminal)e(B)h(and)g(in)g
 (terminal)g(A)g(some)g(corresp)r(onding)0 2250 y(message)26
 b(will)i(also)e(app)r(ear.)36 b(Next,)28 b(in)g(terminal)g(C,)f(t)n(yp)
-r(e:)0 2433 y Fb(yarp-write)39 b(/port2)125 2615 y Ff(If)27
-b(all)f(go)r(es)g(w)n(ell,)g(this)h(will)g(rep)r(ort)f(\\)1303
-2615 y
+r(e:)p Black Black 0 2433 a Fb(yarp-write)39 b(/port2)125
+2615 y Ff(If)27 b(all)f(go)r(es)g(w)n(ell,)g(this)h(will)g(rep)r(ort)f
+(\\)1303 2615 y
  0. 0. 1. setrgbcolor
  1303 2615 a Fb(making)40 b(port)i(/port2)2089
 2615 y
  0 setgray
  2089 2615 a Ff(")24 b(in)j(terminal)f(C)h(and)f(in)h(terminal)g
 (A)g(some)f(corre-)0 2715 y(sp)r(onding)h(message)f(will)i(also)f(app)r
-(ear.)36 b(No)n(w,)27 b(in)h(terminal)f(D,)h(t)n(yp)r(e:)0
-2897 y Fb(yarp-connect)39 b(/port2)i(/port1)125 3080
-y Ff(T)-7 b(erminal)30 b(C)h(will)h(rep)r(ort)e(\\)1030
+(ear.)36 b(No)n(w,)27 b(in)h(terminal)f(D,)h(t)n(yp)r(e:)p
+Black Black 0 2897 a Fb(yarp-connect)39 b(/port2)i(/port1)125
+3080 y Ff(T)-7 b(erminal)30 b(C)h(will)h(rep)r(ort)e(\\)1030
 3080 y
  0. 0. 1. setrgbcolor
  1030 3080 a Fb(connecting)39 b(/port2)i(to)i(/port1)2209
@@ -2950,8 +3008,8 @@ y Ff(T)-7 b(erminal)30 b(C)h(will)h(rep)r(ort)e(\\)1030
 (en)n(ter,)f(that)h(text)g(will)g(app)r(ear)e(on)i(terminal)f(B.)125
 3279 y(If)21 b(y)n(ou)f(ha)n(v)n(e)g(another)f(computer)i(with)g(Y)-7
 b(ARP)21 b(installed)g(on)g(it,)h(op)r(en)f(a)g(terminal)f(on)h(it)g
-(\(let's)g(call)g(that)g(terminal)0 3379 y(E\))27 b(and)h(t)n(yp)r(e:)0
-3562 y Fb(yarp-service)39 b(--remote)h(machinename)125
+(\(let's)g(call)g(that)g(terminal)0 3379 y(E\))27 b(and)h(t)n(yp)r(e:)p
+Black Black 0 3562 a Fb(yarp-service)39 b(--remote)h(machinename)125
 3744 y Ff(where)32 b(mac)n(hinename)h(is)g(the)h(full)g(name)f(or)f
 (\(b)r(etter)i(still\))g(IP)e(address)g(of)i(the)f(\014rst)g(mac)n
 (hine)g(on)g(whic)n(h)g(the)0 3844 y(Y)-7 b(ARP)28 b(name)f(service)f
@@ -2970,14 +3028,15 @@ j(one)f(on)f(eac)n(h)g(mac)n(hine,)i(whic)n(h)f(should)f(b)r(oth)i
 (refer)e(to)0 4143 y(the)d(IP)f(address)f(of)i(the)g(\014rst)f(mac)n
 (hine)h(\(since)f(that)h(is)g(the)g(one)f(on)g(whic)n(h)h(the)g(serv)n
 (er)d(is)j(running)f(on\).)125 4242 y(If)h(ev)n(erything)e(is)h(going)g
-(ok)-5 b(a)n(y)26 b(so)h(far,)g(t)n(yp)r(e)h(on)f(terminal)h(E:)0
-4408 y Fb(yarp_read)40 b(/port3)0 4575 y Ff(and)27 b(on)h(terminal)f
-(C,)h(t)n(yp)r(e:)0 4741 y Fb(yarp_connect)39 b(/port2)i(/port3)0
+(ok)-5 b(a)n(y)26 b(so)h(far,)g(t)n(yp)r(e)h(on)f(terminal)h(E:)p
+Black Black 0 4408 a Fb(yarp_read)40 b(/port3)0 4575
+y Ff(and)27 b(on)h(terminal)f(C,)h(t)n(yp)r(e:)p Black
+Black 0 4741 a Fb(yarp_connect)39 b(/port2)i(/port3)0
 4907 y Ff(No)n(w)27 b(an)n(y)g(line)h(y)n(ou)f(en)n(ter)g(in)h
 (terminal)f(B)g(should)h(app)r(ear)e(in)i(b)r(oth)g(terminal)g(C)f(and)
-h(E.)1860 5816 y(4)p eop end
+h(E.)p Black 1860 5816 a(4)p Black eop end
 %%Page: 5 5
-TeXDict begin 5 4 bop 0 83 a Fc(4.1)112 b(Getting)37
+TeXDict begin 5 4 bop Black Black 0 83 a Fc(4.1)112 b(Getting)37
 b(co)s(ding)0 236 y Ff(Supp)r(ose)29 b(y)n(ou)f(ha)n(v)n(e)g(a)g
 (structure)h(\\)1148 236 y
  0. 0. 1. setrgbcolor
@@ -2986,41 +3045,42 @@ b(co)s(ding)0 236 y Ff(Supp)r(ose)29 b(y)n(ou)f(ha)n(v)n(e)g(a)g
  0 setgray
  1412 236 a Ff(")c(in)30 b(pro)r(cess)d(A)j(with)f(some)f(data)h
 (y)n(ou)f(w)n(ould)h(lik)n(e)f(to)h(ha)n(v)n(e)f(in)h(pro)r(cess)0
-336 y(B:)0 489 y Fb(struct)41 b(Target)g({)87 588 y(int)i(x,)f(y,)h(z;)
-87 688 y(char)f(label[20];)0 787 y(};)0 940 y Ff(If)29
-b(y)n(ou)g(are)f(op)r(erating)f(in)j(a)e(homogeneous)f(net)n(w)n(ork)h
-(\(same)h(OS)f(and)h(hardw)n(are)e(on)i(all)f(mac)n(hines\),)h(then)h
-(mo)n(ving)0 1040 y(T)-7 b(arget)32 b(structures)h(around)f(is)h(easy)
--7 b(.)54 b(See)33 b(section)g(XXX)h(for)f(a)g(few)h(details)f(needed)h
+336 y(B:)p Black Black 0 489 a Fb(struct)41 b(Target)g({)87
+588 y(int)i(x,)f(y,)h(z;)87 688 y(char)f(label[20];)0
+787 y(};)0 940 y Ff(If)29 b(y)n(ou)g(are)f(op)r(erating)f(in)j(a)e
+(homogeneous)f(net)n(w)n(ork)h(\(same)h(OS)f(and)h(hardw)n(are)e(on)i
+(all)f(mac)n(hines\),)h(then)h(mo)n(ving)0 1040 y(T)-7
+b(arget)32 b(structures)h(around)f(is)h(easy)-7 b(.)54
+b(See)33 b(section)g(XXX)h(for)f(a)g(few)h(details)f(needed)h
 (otherwise.)53 b(The)33 b(steps)h(are)0 1139 y(create,)43
 b(register,)f(comm)n(unicate,)h(unregister)c(\(optional\).)75
 b(The)40 b(necessary)f(metho)r(ds)h(and)g(classes)f(are)h(in)g(the)0
-1239 y(follo)n(wing)27 b(header)f(\014le:)0 1405 y Fb(#include)40
-b(<yarp/YARPPort.h>)0 1571 y Ff(Mak)n(e)18 b(sure)g(that)i(Y)-7
-b(ARP)19 b(is)g(set)g(up)g(ok)-5 b(a)n(y)18 b(on)h(the)g(mac)n(hines)g
-(y)n(ou)f(are)g(using)g(b)n(y)h(running)g(\\)2825 1571
-y
+1239 y(follo)n(wing)27 b(header)f(\014le:)p Black Black
+0 1405 a Fb(#include)40 b(<yarp/YARPPort.h>)0 1571 y
+Ff(Mak)n(e)18 b(sure)g(that)i(Y)-7 b(ARP)19 b(is)g(set)g(up)g(ok)-5
+b(a)n(y)18 b(on)h(the)g(mac)n(hines)g(y)n(ou)f(are)g(using)g(b)n(y)h
+(running)g(\\)2825 1571 y
  0. 0. 1. setrgbcolor
- 2825 1571 a Fb(yarp-service)38 b(--check)3699 1571
-y
+ 2825 1571 a Fb(yarp-service)38
+b(--check)3699 1571 y
  0 setgray
- 3699 1571 a Ff(".)0 1670 y(If)28 b(not,)g(go)e(to)i(section)f(XXX.)i
-(In)e(pro)r(cess)g(A)h(y)n(ou)f(w)n(ould)g(create)f(an)i(output)g(p)r
-(ort)f(that)h(can)f(send)h(a)f(T)-7 b(arget:)0 1823 y
-Fb(YARPOutputPortOf)o(<Ta)o(rg)o(et)o(>)38 b(out_port;)0
-1975 y Ff(In)28 b(pro)r(cess)e(B)i(y)n(ou)f(w)n(ould)g(create)f(an)i
-(input)g(p)r(ort)f(that)h(can)g(receiv)n(e)e(a)h(T)-7
-b(arget:)0 2128 y Fb(YARPInputPortOf<)o(Tar)o(ge)o(t>)37
-b(in_port;)0 2281 y Ff(Then,)31 b(in)g(the)g(main\(\))g(metho)r(ds)g
-(of)f(eac)n(h)g(pro)r(cess,)g(y)n(ou)g(w)n(ould)g(create)f(a)i(name)f
-(for)g(eac)n(h)f(p)r(ort)i(so)f(that)g(they)h(can)0 2380
-y(\014nd)d(eac)n(h)f(other.)36 b(F)-7 b(or)27 b(example,)g(in)h(pro)r
-(cess)f(A:)0 2533 y Fb(out_port.Registe)o(r\(")o(/t)o(ar)o(get)o(/o)o
-(ut")o(\);)0 2686 y Ff(and)g(in)h(pro)r(cess)f(B:)0 2838
-y Fb(in_port.Register)o(\("/)o(ta)o(rg)o(et/)o(in)o("\);)0
-2991 y Ff(Once)f(b)r(oth)g(pro)r(cesses)e(are)h(running,)h(these)g(p)r
-(orts)g(can)g(b)r(e)g(connected)g(b)n(y)f(t)n(yping)h(\\)2715
-2991 y
+ 3699 1571 a Ff(".)0 1670 y(If)28
+b(not,)g(go)e(to)i(section)f(XXX.)i(In)e(pro)r(cess)g(A)h(y)n(ou)f(w)n
+(ould)g(create)f(an)i(output)g(p)r(ort)f(that)h(can)f(send)h(a)f(T)-7
+b(arget:)p Black Black 0 1823 a Fb(YARPOutputPortOf)o(<Ta)o(rg)o(et)o
+(>)38 b(out_port;)0 1975 y Ff(In)28 b(pro)r(cess)e(B)i(y)n(ou)f(w)n
+(ould)g(create)f(an)i(input)g(p)r(ort)f(that)h(can)g(receiv)n(e)e(a)h
+(T)-7 b(arget:)p Black Black 0 2128 a Fb(YARPInputPortOf<)o(Tar)o(ge)o
+(t>)37 b(in_port;)0 2281 y Ff(Then,)31 b(in)g(the)g(main\(\))g(metho)r
+(ds)g(of)f(eac)n(h)g(pro)r(cess,)g(y)n(ou)g(w)n(ould)g(create)f(a)i
+(name)f(for)g(eac)n(h)f(p)r(ort)i(so)f(that)g(they)h(can)0
+2380 y(\014nd)d(eac)n(h)f(other.)36 b(F)-7 b(or)27 b(example,)g(in)h
+(pro)r(cess)f(A:)p Black Black 0 2533 a Fb(out_port.Registe)o(r\(")o
+(/t)o(ar)o(get)o(/o)o(ut")o(\);)0 2686 y Ff(and)g(in)h(pro)r(cess)f(B:)
+p Black Black 0 2838 a Fb(in_port.Register)o(\("/)o(ta)o(rg)o(et/)o(in)
+o("\);)0 2991 y Ff(Once)f(b)r(oth)g(pro)r(cesses)e(are)h(running,)h
+(these)g(p)r(orts)g(can)g(b)r(e)g(connected)g(b)n(y)f(t)n(yping)h(\\)
+2715 2991 y
  0. 0. 1. setrgbcolor
  2715 2991 a Fb(yarp-connect)38 b(/target/out)0
 3090 y(/target/in)440 3090 y
@@ -3028,29 +3088,30 @@ y Fb(in_port.Register)o(\("/)o(ta)o(rg)o(et/)o(in)o("\);)0
  440 3090 a Ff(")24 b(on)j(the)i(command)f
 (line.)39 b(Alternativ)n(ely)-7 b(,)27 b(y)n(ou)h(can)g(connect)g(them)
 g(using)g(co)r(de;)g(for)g(example,)g(from)0 3190 y(pro)r(cess)e(A)i
-(call:)0 3343 y Fb(out_port.Connect)o(\("/)o(ta)o(rg)o(et/)o(in)o("\);)
-0 3495 y Ff(No)n(w)34 b(the)h(p)r(orts)f(are)g(connected)g(and)g(ready)
-g(to)g(comm)n(unicate.)57 b(In)35 b(pro)r(cess)e(A)i(y)n(ou)f(could)g
-(set)h(up)g(a)f(T)-7 b(arget)33 b(as)0 3595 y(follo)n(ws:)0
-3747 y Fb(Target&)41 b(target)g(=)i(out_port.Content)o(\(\);)0
+(call:)p Black Black 0 3343 a Fb(out_port.Connect)o(\("/)o(ta)o(rg)o
+(et/)o(in)o("\);)0 3495 y Ff(No)n(w)34 b(the)h(p)r(orts)f(are)g
+(connected)g(and)g(ready)g(to)g(comm)n(unicate.)57 b(In)35
+b(pro)r(cess)e(A)i(y)n(ou)f(could)g(set)h(up)g(a)f(T)-7
+b(arget)33 b(as)0 3595 y(follo)n(ws:)p Black Black 0
+3747 a Fb(Target&)41 b(target)g(=)i(out_port.Content)o(\(\);)0
 3847 y(target.x)d(=)j(target.y)e(=)i(target.z)d(=)j(10;)0
 3947 y(strncpy\(target.l)o(abe)o(l,)o("h)o(ell)o(o)37
 b(yarp)42 b(world",sizeof\(tar)o(ge)o(t.l)o(ab)o(el\))o(\);)0
 4099 y Ff(And)28 b(then)g(y)n(ou)f(could)h(send)f(it)h(lik)n(e)f(this:)
-0 4252 y Fb(out_port.Write\(\))o(;)0 4405 y Ff(In)h(pro)r(cess)e(B,)i
-(y)n(ou)f(can)g(w)n(ait)g(for)g(the)h(T)-7 b(arget)26
-b(to)i(arriv)n(e)e(b)n(y)h(calling)g(Read\(\):)0 4557
-y Fb(bool)42 b(success)f(=)i(in_port.Read\(\);)0 4710
-y Ff(If)28 b(a)f(target)g(is)g(successfully)h(read,)e(it)i(b)r(ecomes)g
-(a)n(v)-5 b(ailable)26 b(using)h(Con)n(ten)n(t\(\):)0
-4862 y Fb(if)43 b(\(success\))d({)87 4962 y(Target@)h(target)g(=)i
-(in_port.Content\(\))o(;)87 5062 y(cout)f(<<)h("target)e(is)h(located)f
-(at)i(\(")g(<<)f(target.x)305 5161 y(<<)h(",")f(<<)h(target.y)305
-5261 y(<<)g(",")f(<<)h(target.z)305 5361 y(<<)g("\))g(with)f(label)f(")
-i(<<)g(target.label)c(<<)j(endl;)0 5560 y(})1860 5816
-y Ff(5)p eop end
+p Black Black 0 4252 a Fb(out_port.Write\(\))o(;)0 4405
+y Ff(In)h(pro)r(cess)e(B,)i(y)n(ou)f(can)g(w)n(ait)g(for)g(the)h(T)-7
+b(arget)26 b(to)i(arriv)n(e)e(b)n(y)h(calling)g(Read\(\):)p
+Black Black 0 4557 a Fb(bool)42 b(success)f(=)i(in_port.Read\(\);)0
+4710 y Ff(If)28 b(a)f(target)g(is)g(successfully)h(read,)e(it)i(b)r
+(ecomes)g(a)n(v)-5 b(ailable)26 b(using)h(Con)n(ten)n(t\(\):)p
+Black Black 0 4862 a Fb(if)43 b(\(success\))d({)87 4962
+y(Target@)h(target)g(=)i(in_port.Content\(\))o(;)87 5062
+y(cout)f(<<)h("target)e(is)h(located)f(at)i(\(")g(<<)f(target.x)305
+5161 y(<<)h(",")f(<<)h(target.y)305 5261 y(<<)g(",")f(<<)h(target.z)305
+5361 y(<<)g("\))g(with)f(label)f(")i(<<)g(target.label)c(<<)j(endl;)0
+5560 y(})p Black 1860 5816 a Ff(5)p Black eop end
 %%Page: 6 6
-TeXDict begin 6 5 bop 0 83 a Fc(4.2)112 b(Messages)39
+TeXDict begin 6 5 bop Black Black 0 83 a Fc(4.2)112 b(Messages)39
 b(in)f(b)s(ottles)0 236 y Ff(When)30 b(completely)g(maximal)g
 (e\016cien)n(tly)f(is)h(not)g(a)g(concern,)f(it)i(can)e(b)r(e)i(con)n
 (v)n(enien)n(t)d(to)i(not)g(ha)n(v)n(e)f(to)h(compile)f(the)0
@@ -3066,43 +3127,43 @@ b(This)32 b(is)h(a)g(generic)e(con)n(tainer)h(in)n(to)0
 (p)r(oin)n(t)i(n)n(um)n(b)r(ers,)f(and)g(strings,)g(send)g(them)h
 (across)d(the)j(net)n(w)n(ork,)e(then)0 535 y(easy)f(parse)f(the)i
 (message)e(again)h(at)g(the)h(far)f(side.)37 b(F)-7 b(or)27
-b(example,)g(the)h(follo)n(wing)f(co)r(de:)0 701 y Fb(#include)40
-b(<stdio.h>)0 900 y(#include)g(<yarp/YARPPort.h>)0 1000
-y(#include)g(<yarp/YARPBottle.)o(h>)0 1199 y(int)i(main\(\))f({)87
-1299 y(YARPOutputPortOf<)o(YA)o(RP)o(Bot)o(tl)o(e>)c(out_port;)87
-1399 y(out_port.Register)o(\(")o(/t)o(est)o(/d)o(emo)o(00)o("\);)87
-1498 y(out_port.Connect\()o("/)o(te)o(st/)o(re)o(ade)o(r")o(\);)87
-1697 y(for)43 b(\(int)e(i=0;)h(i<5;)g(i++\))g({)174 1797
-y(char)g(buf[256];)174 1897 y(sprintf\(buf,"test)37 b(number)k(\045d",)
-h(i\);)174 1996 y(out_port.Content\()o(\).)o(wri)o(te)o(Tex)o(t\()o
-(buf)o(\);)174 2096 y(out_port.Write\(1\))o(;)87 2196
-y(})87 2295 y(out_port.FinishSe)o(nd)o(\(\))o(;)87 2494
-y(return)f(0;)0 2594 y(})0 2760 y Ff(will)32 b(send)g(a)g(series)f(of)h
-(Y)-7 b(ARPBottles)32 b(out)g(on)g(the)g(p)r(ort)g(\\)1928
+b(example,)g(the)h(follo)n(wing)f(co)r(de:)p Black Black
+0 701 a Fb(#include)40 b(<stdio.h>)0 900 y(#include)g
+(<yarp/YARPPort.h>)0 1000 y(#include)g(<yarp/YARPBottle.)o(h>)0
+1199 y(int)i(main\(\))f({)87 1299 y(YARPOutputPortOf<)o(YA)o(RP)o(Bot)o
+(tl)o(e>)c(out_port;)87 1399 y(out_port.Register)o(\(")o(/t)o(est)o(/d)
+o(emo)o(00)o("\);)87 1498 y(out_port.Connect\()o("/)o(te)o(st/)o(re)o
+(ade)o(r")o(\);)87 1697 y(for)43 b(\(int)e(i=0;)h(i<5;)g(i++\))g({)174
+1797 y(char)g(buf[256];)174 1897 y(sprintf\(buf,"test)37
+b(number)k(\045d",)h(i\);)174 1996 y(out_port.Content\()o(\).)o(wri)o
+(te)o(Tex)o(t\()o(buf)o(\);)174 2096 y(out_port.Write\(1\))o(;)87
+2196 y(})87 2295 y(out_port.FinishSe)o(nd)o(\(\))o(;)87
+2494 y(return)f(0;)0 2594 y(})0 2760 y Ff(will)32 b(send)g(a)g(series)f
+(of)h(Y)-7 b(ARPBottles)32 b(out)g(on)g(the)g(p)r(ort)g(\\)1928
 2760 y
  0. 0. 1. setrgbcolor
  1928 2760 a Fb(/test/demo00)2456 2760 y
  0 setgray
  2456 2760
 a Ff(".)44 b(If,)34 b(b)r(efore)e(starting)f(this)h(co)r(de,)h(y)n(ou)0
-2860 y(start)27 b(a)g(reader)f(in)i(another)f(terminal)g(with:)0
-3026 y Fb(yarp-read)40 b(/test/reader)0 3192 y Ff(then)31
-b(the)g(follo)n(wing)e(messages)g(should)h(app)r(ear:)41
-b(test)31 b(n)n(um)n(b)r(er)f(0)g(test)h(n)n(um)n(b)r(er)f(1)g(test)g
-(n)n(um)n(b)r(er)g(2)g(test)h(n)n(um)n(b)r(er)f(3)0 3291
-y(test)i(n)n(um)n(b)r(er)g(4)g(The)g(\\)764 3291 y
+2860 y(start)27 b(a)g(reader)f(in)i(another)f(terminal)g(with:)p
+Black Black 0 3026 a Fb(yarp-read)40 b(/test/reader)0
+3192 y Ff(then)31 b(the)g(follo)n(wing)e(messages)g(should)h(app)r
+(ear:)41 b(test)31 b(n)n(um)n(b)r(er)f(0)g(test)h(n)n(um)n(b)r(er)f(1)g
+(test)g(n)n(um)n(b)r(er)g(2)g(test)h(n)n(um)n(b)r(er)f(3)0
+3291 y(test)i(n)n(um)n(b)r(er)g(4)g(The)g(\\)764 3291
+y
  0. 0. 1. setrgbcolor
- 764
-3291 a Fb(yarp-read)1160 3291 y
+ 764 3291 a Fb(yarp-read)1160 3291 y
  0 setgray
- 1160 3291 a Ff(")c(reader)j(resp)r
-(onds)g(to)h(Y)-7 b(ARPBottles)32 b(that)h(con)n(tain)e(text.)51
+ 1160 3291 a Ff(")c(reader)j(resp)
+r(onds)g(to)h(Y)-7 b(ARPBottles)32 b(that)h(con)n(tain)e(text.)51
 b(Y)-7 b(ou)33 b(can)e(lo)r(ok)h(at)0 3391 y(the)c(source)e(of)i(y)n
 (arp-read)d(as)i(an)g(example)g(of)h(ho)n(w)f(to)g(read)g(a)g(Y)-7
-b(ARPBottle.)1860 5816 y(6)p eop end
+b(ARPBottle.)p Black 1860 5816 a(6)p Black eop end
 %%Page: 7 7
-TeXDict begin 7 6 bop 699 1947 a @beginspecial 92 @llx
-557 @lly 291 @urx 721 @ury 2834 @rwi @setspecial
+TeXDict begin 7 6 bop Black Black Black 699 1947 a @beginspecial
+92 @llx 557 @lly 291 @urx 721 @ury 2834 @rwi @setspecial
 %%BeginDocument: fig-port-portlets.eps
 %!PS-Adobe-2.0 EPSF-2.0
 %%BoundingBox: 92 557 291 721
@@ -4620,24 +4681,24 @@ b(di\013eren)n(t)f(pro)r(cesses)g(will)h(access)e(this)0
 b(ativ)n(e)24 b(qualit)n(y)i(of)f(service)g(settings,)h(data)f(will)h
 (p)r(ersist)0 2528 y(in)i(the)g(comm)n(unications)e(system)i(as)f(long)
 g(as)g(is)g(necessary)f(to)h(send)h(it)g(on)f(the)h(slo)n(w)n(est)e
-(link.)0 2793 y Fg(5)135 b(Some)45 b(details)0 2975 y
-Ff(The)34 b(main)f(abstraction)g(for)g(in)n(ter-pro)r(cess)f(comm)n
-(unication)h(is)g(called)g(a)h(p)r(ort.)55 b(A)34 b(p)r(ort)f(template)
-h(class)f(can)g(b)r(e)0 3075 y(sp)r(ecialized)c(to)g(send)g(an)n(y)f
-(data)g(t)n(yp)r(e)h(across)e(an)i(IP-net)n(w)n(ork)e(relying)h(on)h(a)
-f(set)h(of)g(di\013eren)n(t)g(proto)r(cols.)40 b(Dep)r(end-)0
-3174 y(ing)30 b(on)g(the)g(proto)r(col)f(di\013eren)n(t)h(b)r(eha)n
-(viors)f(can)h(b)r(e)g(obtained)g(the)h(implemen)n(ted)f(proto)r(cols)f
-(include)i(TCP)-7 b(,)29 b(UDP)-7 b(,)0 3274 y(MCAST,)32
-b(QNET1,)f(and)g(shared)g(memory)-7 b(.)47 b(A)32 b(p)r(ort)f(can)g
-(either)g(send)g(to)g(man)n(y)g(target)g(p)r(orts)g(or)f(receiv)n(e)g
-(sim)n(ul-)0 3374 y(taneously)i(from)g(man)n(y)g(other)f(p)r(orts.)51
-b(A)33 b(p)r(ort)f(is)h(an)f(activ)n(e)f(ob)5 b(ject:)47
-b(a)32 b(thread)g(con)n(tin)n(uously)f(services)g(the)i(p)r(ort)0
-3473 y(ob)5 b(ject.)48 b(Being)31 b(an)g(activ)n(e)g(ob)5
-b(ject)31 b(allo)n(ws)f(resp)r(onding)h(to)g(external)g(ev)n(en)n(ts)f
-(at)i(run)f(time,)i(and)e(for)g(example)g(it)h(is)0 3573
-y(p)r(ossible)d(to)g(send)g(commands)f(to)h(p)r(ort)g(ob)5
+(link.)p Black 0 2793 a Fg(5)135 b(Some)45 b(details)0
+2975 y Ff(The)34 b(main)f(abstraction)g(for)g(in)n(ter-pro)r(cess)f
+(comm)n(unication)h(is)g(called)g(a)h(p)r(ort.)55 b(A)34
+b(p)r(ort)f(template)h(class)f(can)g(b)r(e)0 3075 y(sp)r(ecialized)c
+(to)g(send)g(an)n(y)f(data)g(t)n(yp)r(e)h(across)e(an)i(IP-net)n(w)n
+(ork)e(relying)h(on)h(a)f(set)h(of)g(di\013eren)n(t)g(proto)r(cols.)40
+b(Dep)r(end-)0 3174 y(ing)30 b(on)g(the)g(proto)r(col)f(di\013eren)n(t)
+h(b)r(eha)n(viors)f(can)h(b)r(e)g(obtained)g(the)h(implemen)n(ted)f
+(proto)r(cols)f(include)i(TCP)-7 b(,)29 b(UDP)-7 b(,)0
+3274 y(MCAST,)32 b(QNET1,)f(and)g(shared)g(memory)-7
+b(.)47 b(A)32 b(p)r(ort)f(can)g(either)g(send)g(to)g(man)n(y)g(target)g
+(p)r(orts)g(or)f(receiv)n(e)g(sim)n(ul-)0 3374 y(taneously)i(from)g
+(man)n(y)g(other)f(p)r(orts.)51 b(A)33 b(p)r(ort)f(is)h(an)f(activ)n(e)
+f(ob)5 b(ject:)47 b(a)32 b(thread)g(con)n(tin)n(uously)f(services)g
+(the)i(p)r(ort)0 3473 y(ob)5 b(ject.)48 b(Being)31 b(an)g(activ)n(e)g
+(ob)5 b(ject)31 b(allo)n(ws)f(resp)r(onding)h(to)g(external)g(ev)n(en)n
+(ts)f(at)i(run)f(time,)i(and)e(for)g(example)g(it)h(is)0
+3573 y(p)r(ossible)d(to)g(send)g(commands)f(to)h(p)r(ort)g(ob)5
 b(jects)29 b(to)f(c)n(hange)g(their)h(b)r(eha)n(vior.)40
 b(Commands)29 b(include)g(connecting)g(to)0 3673 y(another)h(remote)h
 (p)r(ort)h(or)e(receiving)g(an)i(incoming)f(request)f(for)h(connection)
@@ -4688,26 +4749,26 @@ b(The)31 b(data)f(sen)n(t)h(through)f(p)r(ort)g(can)g(range)g(from)g
 (simple)h(in)n(tegral)f(t)n(yp)r(es)g(to)h(complex)f(ob)5
 b(jects)0 5565 y(suc)n(h)31 b(as)f(arra)n(ys)e(of)j(data)g(\(images\))f
 (or)g(v)n(ectors.)46 b(Th)n(us)31 b(con)n(trolling)e(a)i(rob)r(ot)f(b)r
-(ecomes)g(something)h(lik)n(e)g(writing)f(a)1860 5816
-y(7)p eop end
+(ecomes)g(something)h(lik)n(e)g(writing)f(a)p Black 1860
+5816 a(7)p Black eop end
 %%Page: 8 8
-TeXDict begin 8 7 bop 0 83 a Ff(distributed)28 b(net)n(w)n(ork)e(of)i
-(suc)n(h)f(mo)r(dules.)125 183 y(In)e(addition,)h(Y)-7
-b(ARP)25 b(con)n(tains)g(supp)r(orting)g(libraries)e(for)i(mathematics)
-g(and)h(rob)r(ot)e(t)n(yp)r(e)i(computation)f(\(kine-)0
-282 y(matics,)33 b(matrices,)g(v)n(ectors,)f(etc.\),)i(image)e(pro)r
-(cessing)e(\(compatible)j(with)g(the)f(In)n(tel)h(IPL)e(library\),)i
-(and)f(general)0 382 y(purp)r(ose)26 b(utilit)n(y)h(classes.)35
-b(W)-7 b(e)27 b(also)f(designed)g(a)g(few)h(mo)r(dules)f(based)g(on)h
-(existing)f(Microsoft)f(tec)n(hnology)g(to)i(allo)n(w)0
-482 y(remote)d(con)n(trolling)e(Windo)n(ws)i(mac)n(hines)g(\(this)h
-(supp)r(ort)f(comes)f(naturally)h(on)g(QNX\).)g(In)h(short,)f(these)g
-(scriptable)0 581 y(mo)r(dules)f(complete)g(seamlessly)f(the)i(arc)n
-(hitecture)d(allo)n(wing)h(the)i(design)e(of)h(scripts)g(to)g(bring)f
-(up)i(the)f(whole)g(con)n(trol)0 681 y(structure)k(and)h(connect)f(man)
-n(y)g(mo)r(dules)h(together.)125 780 y(A)k(Matlab)f(in)n(terface)h(to)f
-(p)r(orts)h(has)f(b)r(een)h(implemen)n(ted.)51 b(This)32
-b(allo)n(ws)e(building)i(Matlab)g(mo)r(dules)g(\(e.g.)49
+TeXDict begin 8 7 bop Black Black 0 83 a Ff(distributed)28
+b(net)n(w)n(ork)e(of)i(suc)n(h)f(mo)r(dules.)125 183
+y(In)e(addition,)h(Y)-7 b(ARP)25 b(con)n(tains)g(supp)r(orting)g
+(libraries)e(for)i(mathematics)g(and)h(rob)r(ot)e(t)n(yp)r(e)i
+(computation)f(\(kine-)0 282 y(matics,)33 b(matrices,)g(v)n(ectors,)f
+(etc.\),)i(image)e(pro)r(cessing)e(\(compatible)j(with)g(the)f(In)n
+(tel)h(IPL)e(library\),)i(and)f(general)0 382 y(purp)r(ose)26
+b(utilit)n(y)h(classes.)35 b(W)-7 b(e)27 b(also)f(designed)g(a)g(few)h
+(mo)r(dules)f(based)g(on)h(existing)f(Microsoft)f(tec)n(hnology)g(to)i
+(allo)n(w)0 482 y(remote)d(con)n(trolling)e(Windo)n(ws)i(mac)n(hines)g
+(\(this)h(supp)r(ort)f(comes)f(naturally)h(on)g(QNX\).)g(In)h(short,)f
+(these)g(scriptable)0 581 y(mo)r(dules)f(complete)g(seamlessly)f(the)i
+(arc)n(hitecture)d(allo)n(wing)h(the)i(design)e(of)h(scripts)g(to)g
+(bring)f(up)i(the)f(whole)g(con)n(trol)0 681 y(structure)k(and)h
+(connect)f(man)n(y)g(mo)r(dules)h(together.)125 780 y(A)k(Matlab)f(in)n
+(terface)h(to)f(p)r(orts)h(has)f(b)r(een)h(implemen)n(ted.)51
+b(This)32 b(allo)n(ws)e(building)i(Matlab)g(mo)r(dules)g(\(e.g.)49
 b(.m)0 880 y(\014les\))37 b(that)g(connect)f(to)h(the)g(rob)r(ot)f(to)g
 (read/write)f(data.)64 b(There)36 b(are)g(basically)f(t)n(w)n(o)h(adv)
 -5 b(an)n(tages:)53 b(i\))37 b(complex)0 980 y(algorithms)22
@@ -4792,8 +4853,8 @@ b(The)30 b(structure)e(con)n(tains)g(iden)n(ti\014ers)h(to)0
 (data.)36 b(Y)-7 b(ARP)26 b(b)r(ottles)h(create)e(a)h(net)n(w)n(ork)f
 (within)h(the)h(net)n(w)n(ork)e(of)0 4839 y(b)r(eha)n(viors)h(to)h
 (realize)g(a)g(high-lev)n(el)g(con)n(trol)f(and)h(co)r(ordinate)g(a)g
-(large)f(n)n(um)n(b)r(er)i(of)f(mo)r(dules.)1860 5816
-y(8)p eop end
+(large)f(n)n(um)n(b)r(er)i(of)f(mo)r(dules.)p Black 1860
+5816 a(8)p Black eop end
 %%Trailer
 
 userdict /end-hook known{end-hook}if

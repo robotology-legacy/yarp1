@@ -32,8 +32,8 @@ happy:
 prep:
 	make $(MAIN).pdf
 	mkdir -p manual/split
-	latex2html -local_icons -dir manual -split +0 $(MAIN).tex
-	latex2html -local_icons -dir manual/split $(MAIN).tex
+	latex2html -debug -local_icons -dir manual -split +0 $(MAIN).tex
+	latex2html -debug -local_icons -dir manual/split $(MAIN).tex
 	cp $(MAIN).pdf manual
 
 ############################################################################
