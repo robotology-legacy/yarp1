@@ -44,8 +44,8 @@ public:
 		file.get("[RANDOMTHREAD]", "MAXFINAL", _maxFinal.data(), _nj);
 		file.get("[RANDOMTHREAD]", "MINFINAL", _minFinal.data(), _nj);
 
-		_maxDelta = (_maxFinal-_maxInit)/20;
-		_minDelta = (_minFinal-_minInit)/20;
+		_maxDelta = (_maxFinal-_maxInit)/60;
+		_minDelta = (_minFinal-_minInit)/60;
 	
 		_minCurrent = _minInit;
 		_maxCurrent = _maxInit;
@@ -145,6 +145,16 @@ public:
 	void handle(RndSharedData *d)
 	{
 		printf("RBWaitIdle: wait idle\n");
+	}
+};
+
+class RBInit: public RndBehaviorStateBase
+{
+public:
+	void handle(RndSharedData *d)
+	{
+		cout << "Init rnd generator\n";
+		srand(time(NULL));
 	}
 };
 

@@ -88,26 +88,22 @@ void ArmThread::doInit()
         char filename[256];
 
 #if defined(__WIN32__)
-        ACE_OS::sprintf (path, "%s\\conf\\babybot\\\0", root);
-        ACE_OS::sprintf (filename, "%s\\conf\\babybot\\gravity1.ini\0", root);
+    ACE_OS::sprintf (path, "%s\\conf\\babybot\\\0", root);
+    ACE_OS::sprintf (filename, "%s\\conf\\babybot\\gravity1.ini\0", root);
 	_gravity1.load(filename);
 	ACE_OS::sprintf (filename, "%s\\conf\\babybot\\gravity2.ini\0", root);
-        _gravity2.load(filename);
+    _gravity2.load(filename);
 	ACE_OS::sprintf (filename, "%s\\conf\\babybot\\gravity3.ini\0", root);
-        _gravity3.load(filename);
+    _gravity3.load(filename);
 #elif defined (__QNX6__)
 	ACE_OS::sprintf (path, "%s/conf\babybot\\0", root);
-        ACE_OS::sprintf (filename, "%s/conf/babybot/gravity1.ini\0", root);
-        _gravity1.load(filename);
-        ACE_OS::sprintf (filename, "%s/conf/babybot/gravity2.ini\0", root);
-        _gravity2.load(filename);
-        ACE_OS::sprintf (filename, "%s/conf/babybot/gravity3.ini\0", root);
-        _gravity3.load(filename);
+    ACE_OS::sprintf (filename, "%s/conf/babybot/gravity1.ini\0", root);
+    _gravity1.load(filename);
+    ACE_OS::sprintf (filename, "%s/conf/babybot/gravity2.ini\0", root);
+    _gravity2.load(filename);
+    ACE_OS::sprintf (filename, "%s/conf/babybot/gravity3.ini\0", root);
+    _gravity3.load(filename);
 #endif
-
-	//_gravity1.load("Y:\\conf\\babybot\\gravity1.ini");
-	//_gravity2.load("Y:\\conf\\babybot\\gravity2.ini");
-	//_gravity3.load("Y:\\conf\\babybot\\gravity3.ini");
 
 	std::cout << "Ok, setting PID mode\n";
 	

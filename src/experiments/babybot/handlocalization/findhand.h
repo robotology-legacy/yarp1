@@ -26,6 +26,7 @@ public:
 	YARPInputPortOf<YVector> _armStatusPort;
 
 	YARPImageOf<YarpPixelMono> _actualLp;
+	YARPImageOf<YarpPixelMono> _blob;
 	YARPImageOf<YarpPixelBGR> _actualColored;
 	YARPImageOf<YarpPixelMono> _detected;
 	YARPImageOf<YarpPixelMono> _actualGrayscale;
@@ -34,6 +35,7 @@ public:
 	YARPImageOf<YarpPixelBGR> _detectedColored;
 	YARPImageOf<YarpPixelMono> _detectedCartGrayscale;
 	YARPImageOf<YarpPixelMono> *_output;
+	region _pointsBlob;
 
 	YARPImageOf<YarpPixelMono> _background;
 

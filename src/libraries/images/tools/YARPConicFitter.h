@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPConicFitter.h,v 1.3 2003-09-09 17:26:20 babybot Exp $
+/// $Id: YARPConicFitter.h,v 1.4 2003-09-24 16:10:47 babybot Exp $
 ///
 /// Fit simple conics to a segmented region. Logpolar version.
 /// September 2003 -- by nat
@@ -99,6 +99,8 @@ struct circle
 	int n;
 };
 
+typedef circle region;
+
 class YARPLpConicFitter
 {
 public:
@@ -114,6 +116,8 @@ public:
 
 	// returns points within a circle of center T0,R0 radius R0
 	void findCircle(int T0, int R0, double R, circle &out);
+	// returns points within an ellipse
+	void findEllipse(int T0, int R0, double a11, double a12, double a22, region &out);
 
 	// plot a circle; 
 	// (T0, R0) is the center (logpolar coordinates), R is the radius (cartesian coordinates)

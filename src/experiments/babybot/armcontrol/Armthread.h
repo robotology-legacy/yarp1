@@ -67,7 +67,7 @@ public:
 		// start shake sequence
 		_shaking = true;
 		ASShake *tmp = ASShake ::instance();
-		tmp->n = 8;
+		tmp->n = 16;
 		YVector pos;
 		YVector first;
 		YVector second;

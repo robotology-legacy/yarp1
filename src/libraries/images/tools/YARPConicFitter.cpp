@@ -236,3 +236,67 @@ void YARPLpConicFitter::findCircle(int T0, int R0, double R, circle &out)
 		}
 	}
 }
+
+void YARPLpConicFitter::findEllipse(int T0, int R0, double a11, double a12, double a22, region &out)
+{
+	out.reset();
+	int theta;
+	int rho2;
+	int rho1;
+	int r0;
+
+	r0 = _moments.CsiToRo(R0);
+	double c0 = cos((T0)/_q);
+	double s0 = sin((T0)/_q);
+
+	for(theta = 0; theta < _logpolarParams::_stheta; theta++)
+	{
+		double c = cos((theta)/_q);
+		double s = sin((theta)/_q);
+
+		double A;
+		double B;
+		double C;
+	
+		A = a11*c*c + 2*a12*c*s + a22*s*s;
+		B = r0*(a11*c*c0 + a12*c*s0 + a12*c0*s + a22*s*s0);
+		C = r0*r0*(2*a12*c0*s0 + a22*s0*s0 + a11*c0*c0)-1;
+
+		double DELTA = B*B-A*C;
+
+		if (DELTA>=0)
+		{
+			int r = (r0*c+sqrt(DELTA)) + 0.5;
+			if (r > 0)
+			{
+				rho2 = _moments.RoToCsi(r);
+				if ((rho2>(_logpolarParams::_srho-1)))
+				{
+					rho2 = _logpolarParams::_srho-1;
+				}
+				else if (rho2<0)
+					rho2 = 0;
+
+				int p;
+				for(p = r0; p<=rho2; p++)
+					out.add(theta, p);
+			}
+			
+			r = (r0*c-sqrt(DELTA)) + 0.5;
+			if (r > 0)
+			{
+				rho1 = _moments.RoToCsi(r);
+				if ((rho1>(_logpolarParams::_srho-1)))
+				{
+					rho1 = _logpolarParams::_srho-1;
+				}
+				else if (rho1<0)
+					rho1 = 0;
+			
+				int p;
+				for(p = rho1; p<=r0; p++)
+					out.add(theta, p);
+			}
+		}
+	}
+}

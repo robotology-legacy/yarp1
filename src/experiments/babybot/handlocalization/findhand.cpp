@@ -34,6 +34,9 @@ _blobDetector(0.5)
 	_background.Resize(_stheta, _srho);
 	_background.Zero();
 
+	_blob.Resize(_stheta, _srho);
+	_blob.Zero();
+
 	_blobDetector.resize(_stheta,_srho, _sfovea);
 	_detectedCart.Resize(_xsize, _ysize);
 	_detectedCartGrayscale.Resize(_xsize, _ysize);
@@ -130,6 +133,7 @@ void FindHand::Body()
 		printf("frame #%5d\r", _frame);
 	}
 }
+/*
 void FindHand::_segmentation()
 {
 	char detected[128];
@@ -165,13 +169,48 @@ void FindHand::_segmentation()
 			tmpLp++;
 		}
 	}
-
-	// fit a circle in to the segmented region
-	// int r0, t0, R;
-	// _fit.fitCircle(tmp, &t0,  &r0, &R);
-	// _fit.plotCircle(t0, r0, R, _actualLp);
 	
 	YARPImageFile::Write(segmented, _actualLp);
+}*/
+
+void FindHand::_segmentation()
+{
+	char detected[128];
+	char blob[128];
+	char segmented[128];
+	char complete[128];
+	_nSegmentations++;
+	sprintf(detected, "%s%d.ppm", "y:\\zgarbage\\detected",_nSegmentations);
+	sprintf(blob, "%s%d.ppm", "y:\\zgarbage\\blob", _nSegmentations);
+	sprintf(segmented, "%s%d.ppm", "y:\\zgarbage\\segmented", _nSegmentations);
+	sprintf(complete, "%s%d.ppm", "y:\\zgarbage\\complete", _nSegmentations);
+	
+	// _blobDetector.filterLp(_detected);
+	YARPImageFile::Write(detected, _detected);
+	// YARPImageOf<YarpPixelMono> &tmp = _blobDetector.getSegmented();
+
+	// fit a circle in to the segmented region
+	int r0, t0;
+	double a11, a12, a22;
+	_fit.fitEllipse(_detected, &t0,  &r0, &a11, &a12, &a22);
+	_fit.findEllipse(t0, r0, a11, a12, a22, _pointsBlob);
+
+	// YARPImageFile::Write(blob, tmp);
+	
+	YARPImageFile::Write(complete, _actualLp);
+	_blob.Zero();
+
+	int k = 0;
+	while(k<_pointsBlob.n)
+	{
+		int r,t;
+		r = _pointsBlob.r[k];
+		t = _pointsBlob.t[k];
+		_blob(r,t) = _actualLp(r,t);
+		k++;
+	}
+		
+	YARPImageFile::Write(segmented, _blob);
 }
 
 void FindHand::_dumpDetection()

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.17 2003-09-08 16:23:09 beltran Exp $
+/// $Id: YARPLogpolar.cpp,v 1.18 2003-09-24 16:10:47 babybot Exp $
 ///
 ///
 
@@ -88,6 +88,7 @@ YARPLogpolarSampler::YARPLogpolarSampler (void)
 		256.0/1090.0);
 
 	_img.padding = YarpImageAlign;
+	_img.Fovea_Type = 0;
 
 	char *path = GetYarpRoot ();
 	char filename[256];
@@ -166,7 +167,7 @@ unsigned int YARPLogpolar::_classInstances = 0;
 int *YARPLogpolar::_remapMap = NULL;
 int *YARPLogpolar::_remapMapFovea = NULL;
 double *YARPLogpolar::_angShiftMap = NULL;
-short *YARPLogpolar::_padMap = NULL;
+unsigned short *YARPLogpolar::_padMap = NULL;
 Neighborhood *YARPLogpolar::_weightsMap = NULL;
 Image_Data YARPLogpolar::_img;
 ACE_Thread_Mutex YARPLogpolar::_mutex;
@@ -191,6 +192,7 @@ YARPLogpolar::YARPLogpolar (void)
 
 			_img.padding = YarpImageAlign;
 			_img.Pix_Numb = 2;
+			_img.Fovea_Type = 0;
 
 			char *path = GetYarpRoot ();
 
@@ -198,9 +200,9 @@ YARPLogpolar::YARPLogpolar (void)
 			char filename[YARP_STRING_LEN];
 
 #ifdef __WIN32__
-			ACE_OS::sprintf(filename,"%s\\conf\\%s_%2.3f%s", path, "RemapMap", _img.Zoom_Level, ".gio");
+			ACE_OS::sprintf(filename,"%s\\conf\\%s_%2.3f_%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
 #else
-			ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f%s", path, "RemapMap", _img.Zoom_Level, ".gio");
+			ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
 #endif
 			FILE *fin = ACE_OS::fopen(filename,"rb");
 			if (fin == NULL)
@@ -235,7 +237,7 @@ YARPLogpolar::YARPLogpolar (void)
 			if (fin == NULL)
 				goto exitConstructorOnError;
 
-			_padMap = (short *) malloc (_img.Size_Theta * _img.Size_Fovea * sizeof(short));	
+			_padMap = (unsigned short *) malloc (_img.Size_Theta * _img.Size_Fovea * sizeof(unsigned short));	
 			ACE_ASSERT (_padMap != NULL);
 
 			ACE_OS::fread(_padMap, sizeof(short), _img.Size_Theta * _img.Size_Fovea, fin);
@@ -266,6 +268,7 @@ YARPLogpolar::YARPLogpolar (void)
 
 			_img.padding = YarpImageAlign;
 			_img.Pix_Numb = 2;
+			_img.Fovea_Type = 0;
 
 		/// remap lut for the fovea.
 #ifdef __WIN32__	
@@ -293,6 +296,7 @@ YARPLogpolar::YARPLogpolar (void)
 	
 			_img.padding = YarpImageAlign;
 			_img.Pix_Numb = 2;
+			_img.Fovea_Type = 0;
 		}
 	// everything went fine, increment instance counter
 	_classInstances++;
@@ -365,12 +369,14 @@ int YARPLogpolar::Logpolar2CartesianFovea (const YARPGenericImage& in, YARPGener
 
 	_img.Size_X_Remap = 128;
 	_img.Size_Y_Remap = 128;
+	_img.Size_Img_Remap = 128 * 128;
 	_img.Zoom_Level = 512.0/1090.0;
 		
 	Remap ((unsigned char *)out.GetRawBuffer(), (unsigned char *)in.GetRawBuffer(), &_img, _remapMapFovea);
 
 	_img.Size_X_Remap = 256;
 	_img.Size_Y_Remap = 256;
+	_img.Size_Img_Remap = 256 * 256;
 	_img.Zoom_Level = 256.0/1090.0;
 
 	return YARP_OK;

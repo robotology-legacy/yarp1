@@ -10,7 +10,7 @@ const double __arm[] = {0,6*degToRad,0,0,0,0};
 int main(int argc, char* argv[])
 {
 	RndSharedData _data;
-
+	
 	RndBehavior _rnd(&_data);
 
 	RBInitMotion initMotion;
@@ -19,6 +19,7 @@ int main(int argc, char* argv[])
 	RBInitShake initShakeArm(YVector(6, __arm), "arm");
 
 	RBWaitIdle waitIdle;
+	RBInit	init;
 	RBWaitDeltaT waitDeltaT1(2);
 	RBWaitDeltaT waitDeltaT2(2);
 	RBWaitMotion waitMotion("waiting on arm random motion");
@@ -38,16 +39,22 @@ int main(int argc, char* argv[])
 	///////////////////////////////////////
 
 	// arm random movement
-	_rnd.setInitialState(&waitIdle);
+	_rnd.setInitialState(&init);
+	_rnd.add(NULL, &init, &waitIdle);
 	_rnd.add(&start, &waitIdle, &initMotion);
 	_rnd.add(NULL, &initMotion, &waitMotion);
-	_rnd.add(&motionDone, &waitMotion, &initShakeWrist, &inhibitRest);
-	_rnd.add(&rest, &waitMotion, &waitRest);
 
+	// no shake
+	_rnd.add(&motionDone, &waitMotion, &waitIdle);
+	
+	/*
 	// shake sequences
 	// wrist only
+	_rnd.add(&motionDone, &waitMotion, &initShakeWrist, &inhibitRest);
+	_rnd.add(&rest, &waitMotion, &waitRest);
 	_rnd.add(NULL, &initShakeWrist, &waitShakeWrist);
 	_rnd.add(&motionDone, &waitShakeWrist, &initMotion, &inhibitRest);
+	*/
 
 	/* other joints
 	_rnd.add(&motionDone, &waitShakeWrist, &waitDeltaT1);

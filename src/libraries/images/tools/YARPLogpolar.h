@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.14 2003-09-04 16:57:40 babybot Exp $
+/// $Id: YARPLogpolar.h,v 1.15 2003-09-24 16:10:47 babybot Exp $
 ///
 ///
 
@@ -153,7 +153,7 @@ protected:
 	static int * _remapMap;
 	static int * _remapMapFovea;
 	static double *_angShiftMap;
-	static short *_padMap;
+	static unsigned short *_padMap;
 	static unsigned int _classInstances;
 	static Neighborhood * _weightsMap;
 	bool _mapsLoaded;
