@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.5 2002-09-23 20:45:09 gmetta Exp $
+$Id: README.txt,v 1.6 2002-11-18 16:00:59 gmetta Exp $
 
 Before you do anything else.
 YARP assumes you have correctly set up the following variables:
@@ -21,6 +21,18 @@ the applications do not really check $YARP_ROOT variable and assume
 some weird absolute path.
 The CVS repository is called yarp (lowercase). Temporary solution is 
 to make a soft link (ln -s).
+
+
+
+Globally defined sysmbols for conditional compilation:
+They are defined in Makefile.template (which is included by local mkfiles)
+and should be defined __WIN__ in VisualStudio project.
+
+__WIN__    identifies NT, sometimes mixed with WIN32
+__QNX__    identifies QNX 4.25, QNX 6 not supported yet
+__QNX4__   perhaps this will turn out to be useful
+__LINUX__  linux, using gcc
+
 
 
 
