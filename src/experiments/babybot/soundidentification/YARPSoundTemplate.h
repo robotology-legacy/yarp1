@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.13 2004-10-15 14:35:28 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.14 2004-11-12 10:05:47 beltran Exp $
 ///
 
 /** 
@@ -116,7 +116,7 @@ public:
 	 * 
 	 * @return 
 	 */
-	inline YVector ** data(void) { return m_parray; }
+	inline YVector ** data(void) const { return m_parray; }
 
 	/** 
 	 * Resize the array with a standart size.
@@ -179,7 +179,7 @@ public:
 	  * 	-# True is the template is full.
 	  * 	-# False otherwise.
 	  */
-	bool isFull()
+	bool isFull () const
 	{
 		if (m_currentsize == m_totalsize)
 			return true;
@@ -194,7 +194,7 @@ public:
 	 * @return  the current size of the template
 	 */
 	inline int
-	Length(){ return m_currentsize; }
+	Length() const { return m_currentsize; }
 
 	/** 
 	 * Returns the total available size of the template.
@@ -202,7 +202,7 @@ public:
 	 * @return the total available size of the template
 	 */
 	inline int
-	Size(){ return m_totalsize; }
+	Size() const { return m_totalsize; }
 	
 	/** 
 	 * Returns the length of the vectors inside the template.
@@ -210,7 +210,7 @@ public:
 	 * @return the length of the vector inside the template
 	 */
 	inline int
-	VectorLength(){ return m_vectors_length; }
+	VectorLength() const { return m_vectors_length; }
 
 	/** 
 	 * Just add a new vector at the end of the array.
@@ -364,6 +364,33 @@ public:
 		}
 
 		fclose(pfile);
+	}
+
+	/** 
+	  * Copies sound templates.
+	  * 
+	  * @param soundTemplate The template to be copied.
+	  * 
+	  * @return The reference to the copied template.
+	  */
+	YARPSoundTemplate& operator=(const YARPSoundTemplate& soundTemplate)
+	{
+		int i = 0;
+		YVector ** pSourceVector;
+		YVector tempVector;
+
+		Destroy();
+		if ( m_totalsize != soundTemplate.Size() ) 
+			Resize(soundTemplate.Size());
+
+		pSourceVector = soundTemplate.data();
+
+		for ( i = 0; i < soundTemplate.Length(); i++ ) {
+			tempVector = *pSourceVector[i]; 
+			Add(tempVector);
+		}
+		
+		return *this;
 	}
 
 	/** 

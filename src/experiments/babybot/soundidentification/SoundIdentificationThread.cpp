@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.cpp,v 1.5 2004-11-01 12:59:22 beltran Exp $
+/// $Id: SoundIdentificationThread.cpp,v 1.6 2004-11-12 10:05:47 beltran Exp $
 ///
 
 /** 
@@ -58,6 +58,7 @@ SoundIdentificationThread::SoundIdentificationThread():
 
 	_iSValue     = 15;
 	_dDecayValue = 0.98;
+	learningPhase = 1;
 }
 
 //----------------------------------------------------------------------
@@ -93,6 +94,37 @@ void SoundIdentificationThread::setDecaingFactor(const double &dfactor) {
 	_dDecayValue = dfactor;
 
 	_sema.Post(); // End Semaphore
+}
+
+//----------------------------------------------------------------------
+//  setLearningPhase
+//----------------------------------------------------------------------
+void SoundIdentificationThread::setLearningState( const int value ) {
+	 LOCAL_TRACE("SoundIdentification: Entering setLearningPhase");
+
+	 _sema.Wait(1);
+	 ACE_OS::fprintf(stdout,"Setting Learning Phase = %d\n", value);
+	 learningPhase = value;
+	 _sema.Post();
+}
+
+//----------------------------------------------------------------------
+// CalculateRMSMean 
+//----------------------------------------------------------------------
+void SoundIdentificationThread::CalculateRMSMean (
+	const double * rmsVector,
+	const int vectorSize,
+	double &rmsMean
+	) {
+	
+	int i = 0;
+	double rmsSum = 0.0; 
+
+	for ( i = 0; i < vectorSize; i++ ) {
+		rmsSum += rmsVector[i]; 
+	}
+
+	rmsMean = rmsSum / (double) vectorSize;
 }
 
 //----------------------------------------------------------------------
@@ -186,7 +218,6 @@ int SoundIdentificationThread::ComputeHSHistogram (
 //  GetSegmentedImage
 //----------------------------------------------------------------------
 int SoundIdentificationThread::GetSegmentedImage (
-	//YARPImageOf<YarpPixelMono> *vImagesVector, 
 	YARPListIterator<MonoImage> &imagesIterator,
 	YARPImageOf<YarpPixelMono> &mixelGramImage,
 	const int width,
@@ -199,9 +230,8 @@ int SoundIdentificationThread::GetSegmentedImage (
 
 	int i = 0;
 	int j = 0;
-	int mixelValue        = 0;
-	double pixelsSum      = 0.0;
-
+	int mixelValue   = 0;
+	double pixelsSum = 0.0;
 
 	for(i = 2; i < width-2; i++ )
 		for( j = 2; j < height-3; j++) {
@@ -209,7 +239,6 @@ int SoundIdentificationThread::GetSegmentedImage (
 			if ( mixelValue > MIXELTHRESHOLD) {
 				imagesIterator.go_head();
 				for (int z = 1; z <= numberOfSamples; z++) {
-					//YARPImageOf<YarpPixelMono>& pimg = vImagesVector[z-1];
 					YARPImageOf<YarpPixelMono>& pimg = *imagesIterator;
 					pixelsSum += pimg(i,j);
 					imagesIterator++;
@@ -430,10 +459,12 @@ void SoundIdentificationThread::Body (void)
 	double period  = 0.0;
 
 	YVector _vOutMfcc(L_VECTOR_MFCC);
+	YVector _vShorterOutMfcc( L_VECTOR_MFCC - 1 );
 	YARPCovMatrix _mSoundCov;
 
 	YARPListIterator<ColorImage> _imagesListIterator(_imagesList);
 	YARPListIterator<MonoImage> _logPolarImagesListIterator(_logPolarImagesList);
+	YARPListIterator<SoundImagePair> _pairListIterator( _pairList );
 
 	//----------------------------------------------------------------------
 	//  Resize some of the images.
@@ -503,7 +534,12 @@ void SoundIdentificationThread::Body (void)
 	int    _iMemoryFactor = 0;
 	bool   _first         = true;
 	double _rmsmean       = __rmsthreshold + 1;
+	double _maxRmsMean = 0.0;
 	double _rmsmeansum    = 0.0;
+	int _mixelsMaximum    = 0;
+	bool _bAlreadyInMemory = false;
+	SoundImagePair soundImagePair;
+	double _minDtwValue = HUGE;
 
 	while(!IsTerminated())
 	{
@@ -519,6 +555,7 @@ void SoundIdentificationThread::Body (void)
 		_inpSound.Read(1); 
 		_inpImg.Read(1);  
 		_inputLogPolarImage.Refer(_inpImg.Content());
+
 		_logPolarMapper.ReconstructColor (
 			(const YARPImageOf<YarpPixelMono>&)_inputLogPolarImage, 
 			_imgInput
@@ -528,7 +565,13 @@ void SoundIdentificationThread::Body (void)
 		//  Calculate MFCC vector and add it into the sound template.
 		//----------------------------------------------------------------------
 		_soundIndprocessor.apply(_inpSound.Content(),_vOutMfcc, _dSoundRms); 
-		int ret = _soundTemplate.Add(_vOutMfcc, 2);  // Adds new vector; bufferize if necessary
+		// Create shorter mfcc vector without first element
+		for ( i = 1; i < L_VECTOR_MFCC; i++) {
+			 _vShorterOutMfcc[i-1] = _vOutMfcc[i];
+		}
+
+		//int ret = _soundTemplate.Add(_vOutMfcc, 2);  // Adds new vector; bufferize if necessary
+		int ret = _soundTemplate.Add(_vShorterOutMfcc, 2);  // Adds new vector; bufferize if necessary
 		ACE_ASSERT(ret != 0);
 
 		//----------------------------------------------------------------------
@@ -553,9 +596,8 @@ void SoundIdentificationThread::Body (void)
 		}
 
 		//----------------------------------------------------------------------
-		//  Introduce image into the images vectors.
+		//  Introduce image into the images lists.
 		//----------------------------------------------------------------------
-		///@todo study how to do this operation more eficiently.
 		_imagesList.push_back(_imgInput);
 		_logPolarImagesList.push_back(_inputLogPolarImage);
 
@@ -575,7 +617,7 @@ void SoundIdentificationThread::Body (void)
 		//----------------------------------------------------------------------
 		//  Go to calculate the mixel for each pixel in the image.
 		//----------------------------------------------------------------------
-		if (_soundTemplate.Length() > 3)
+		if (_soundTemplate.Length() > 3 && learningPhase == 1)
 		{
 			//  Calculate sound covariance matrix.
 			_soundTemplate.CovarianceMatrix(_mSoundCov,0); 
@@ -654,12 +696,12 @@ void SoundIdentificationThread::Body (void)
 			//  When the number of mixel is over a particular threshold I asume
 			//  that an object has been detected.
 			//----------------------------------------------------------------------
-			if ( _iMemoryFactor > MEMORYMAX)
+			if ( _iMemoryFactor > MEMORYMAX) {
 				_newLogPolarImage.Zero();
+			}
 			_iMemoryFactor++;
 
-			if (numberMixels > MIXELSMAX)
-			{
+			if (numberMixels > MIXELSMAX) {
 				GetSegmentedImage (
 					_logPolarImagesListIterator, 
 					_imgMixelgram,
@@ -671,6 +713,7 @@ void SoundIdentificationThread::Body (void)
 					_newLogPolarImage
 					);
 
+
 				_iMemoryFactor = 0;
 			}
 
@@ -681,9 +724,31 @@ void SoundIdentificationThread::Body (void)
 				_logPolarMapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)_newLogPolarImage, 
 					_coloredImage);
 				ComputeHSHistogram( _coloredImage, _imgHSHistogram);
+				
+				//----------------------------------------------------------------------
+				// Memorizing a pair colorhistogram-sound template 
+				//----------------------------------------------------------------------
+				if ( numberMixels > _mixelsMaximum ) {
+					 _mixelsMaximum = numberMixels;
+					 soundImagePair.soundTemplate = _soundTemplate;
+					 soundImagePair.image.CastCopy( _newLogPolarImage ); 
+					 if (_bAlreadyInMemory) {
+						 ACE_OS::fprintf(stdout," Sustitution of pair sound-image!! \n");
+						 _pairList.pop_back(); 	  
+						 _pairList.push_back( soundImagePair ); 
+					 }
+					 else {
+						 ACE_OS::fprintf(stdout," Memorizing a pair sound-image!! \n");
+						 _pairList.push_back( soundImagePair );  
+						 _bAlreadyInMemory = true;
+						  
+					 }
+				}
 			}
 			else {
 				ComputeHSHistogram( _imgInput, _imgHSHistogram); 	
+				_mixelsMaximum = 0;
+				_bAlreadyInMemory = false;
 			}
 
 			//----------------------------------------------------------------------
@@ -700,12 +765,12 @@ void SoundIdentificationThread::Body (void)
 			if ( numberMixels > MIXELSMAX || _iMemoryFactor < MEMORYMAX)
 			{
 				_outprecImg.Content().SetID(YARP_PIXEL_MONO);
-				_outprecImg.Content().Refer(_newLogPolarImage); ////Here I have to send logpolar
+				_outprecImg.Content().Refer(_newLogPolarImage); 
 				_outprecImg.Write(1);
 			}
 			else {
 				_outprecImg.Content().SetID(YARP_PIXEL_MONO);
-				_outprecImg.Content().Refer(_inputLogPolarImage); ////Here I have to sent orig logpolar
+				_outprecImg.Content().Refer(_inputLogPolarImage); 
 				_outprecImg.Write(1);
 			}
 
@@ -724,6 +789,85 @@ void SoundIdentificationThread::Body (void)
 			_outHSHistogramPort.Content().SetID(YARP_PIXEL_MONO);
 			_outHSHistogramPort.Content().Refer(scaledimage);
 			_outHSHistogramPort.Write();
+		}
+
+		if ( learningPhase == 0 ) {
+			 
+			double _rmsMean     = 0.0;
+			int    _machingPair = 0;
+			int _result;
+			double _dtwValue    = 0.0;
+			int _vectorSize = _soundTemplate.Length(); 
+			int	_pairWithMinimumDistance = 0;
+
+			// Get the sound mean
+			CalculateRMSMean( 
+				_vRms, 
+				_vectorSize,
+				_rmsMean
+				);
+			
+			_pairListIterator.go_head();
+			
+			// If there is an strong sound try to identified it
+			if ( _rmsMean > __rmsthreshold ) {
+
+				_maxRmsMean = _rmsMean;
+				_pairWithMinimumDistance = 0;
+
+				for ( i = 0; i < _pairList.size(); i++ ) {
+
+					SoundImagePair &pair = *_pairListIterator;
+
+					_dtwValue = pair.soundTemplate.Dtw( 
+						_soundTemplate,
+						&_result
+						); 
+
+					ACE_OS::fprintf(stdout," DTW value = %f \n", _dtwValue);
+
+					// This pair correlates more
+					if ( _dtwValue < _minDtwValue) {
+						_minDtwValue = _dtwValue;
+						_pairWithMinimumDistance = i;
+
+						_newLogPolarImage.CastCopy( pair.image );
+					}
+					_pairListIterator++;
+				}
+
+				ACE_OS::fprintf(stdout," MININUM DTW value = %f \n", _minDtwValue);
+				ACE_OS::fprintf(stdout,"\n");
+
+				_iMemoryFactor = 0;
+
+				// Send the received image into the network
+				_outprecImg.Content().SetID(YARP_PIXEL_MONO);
+				_outprecImg.Content().Refer(_inputLogPolarImage); 
+				_outprecImg.Write(1);
+			}
+			else {
+
+				if ( _iMemoryFactor < MEMORYMAX ) {
+
+					_outprecImg.Content().SetID(YARP_PIXEL_MONO);
+					_outprecImg.Content().Refer(_newLogPolarImage); 
+					_outprecImg.Write(1);
+
+					_iMemoryFactor++;
+				}
+				else {
+					// Send the received image into the network
+					_outprecImg.Content().SetID(YARP_PIXEL_MONO);
+					_outprecImg.Content().Refer(_inputLogPolarImage); 
+					_outprecImg.Write(1);
+
+					_minDtwValue = HUGE;
+					//_maxRmsMean = 0.0;
+				}
+
+			}
+
 		}
 		
 		//----------------------------------------------------------------------

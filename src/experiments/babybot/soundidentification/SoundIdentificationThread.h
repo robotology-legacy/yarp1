@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.h,v 1.4 2004-11-01 12:59:22 beltran Exp $
+/// $Id: SoundIdentificationThread.h,v 1.5 2004-11-12 10:05:47 beltran Exp $
 ///
 
 /** 
@@ -84,8 +84,20 @@ extern int  _protocol;
 
 class SoundImagePair
 {
+public:
+	int weight;
 	YARPSoundTemplate soundTemplate;
 	YARPImageOf<YarpPixelBGR> image;
+
+	SoundImagePair() {
+		weight = 0; 
+	}
+
+	SoundImagePair& operator=( const SoundImagePair & srcpair) {
+		soundTemplate = srcpair.soundTemplate; 
+		image.CastCopy(srcpair.image);
+		return (*this);
+	}
 };
 
 /** 
@@ -95,6 +107,7 @@ class SoundIdentificationThread: public YARPThread
 {
 private:
 	
+	int learningPhase;
 	typedef YARPImageOf<YarpPixelBGR> ColorImage ;
 	typedef YARPImageOf<YarpPixelMono> MonoImage;
 	int _iSValue;								   /** Contains the time samples used for the time buffers.		  */
@@ -111,6 +124,7 @@ private:
 	YARPLogpolar _logPolarMapper;
 	YARPList<ColorImage> _imagesList;
 	YARPList<MonoImage> _logPolarImagesList;
+	YARPList<SoundImagePair> _pairList;
 	const int __sizex;
 	const int __sizey; 
 	const int __histoWidth;
@@ -143,6 +157,23 @@ public:
 	void setDecaingFactor(const double &dfactor);
 
 	/** 
+	  * sets value of the learningPhase variable.
+	  * 
+	  * @param value The value to be set.
+	  */
+	void setLearningState(const int value);
+
+	/** 
+	  * Get the value of the learning state.
+	  * 
+	  * @param value The value to be returned.
+	  */
+	int getLearningState() {
+		 LOCAL_TRACE("SoundIdentification: Entering getLearningState");
+		 return learningPhase;
+	}
+
+	/** 
 	  * Returns the S value.
 	  * 
 	  * @return The S value.
@@ -167,6 +198,17 @@ public:
 	virtual void Body (void);
 
 private:
+
+	/** 
+	  * Computes the mean of a vector of sound RMS (Root Mean Square)
+	  * values.
+	  * 
+	  * @param rmsvector A pointer to the vector.
+	  */
+	void CalculateRMSMean(
+		const double * rmsvector,
+		const int vectorSize,
+		double &rmsMean);
 
 	/** 
 	  * Transforms the RGB values into HSV values.

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: soundidentification.cpp,v 1.21 2004-10-28 15:20:42 beltran Exp $
+/// $Id: soundidentification.cpp,v 1.22 2004-11-12 10:04:03 beltran Exp $
 ///
 
 /** 
@@ -64,6 +64,7 @@ int main(int argc, char* argv[]) {
 
 	int iSValue = 15;
 	double dDecayFactor = 0.99;
+	int learningState = 1;
 	YARPString c;
 	SoundIdentificationThread _thread;
 	_thread.Begin();
@@ -96,6 +97,20 @@ int main(int argc, char* argv[]) {
 			else{
 				dDecayFactor = atof(value.c_str());
 				_thread.setDecaingFactor(dDecayFactor);
+			}
+			continue;
+		}	
+
+		// Gets and set the learning state
+		if ( (pos = c.strstr("Learning")) != -1){
+			YARPString value = c.substring(pos+1, -1);
+			// Is the user asking for the value
+			if (value.strstr("?") != -1){
+				 cout << "Current learning state = " << _thread.getLearningState() << endl;
+			}
+			else{
+				learningState = atoi(value.c_str());
+				_thread.setLearningState( learningState );
 			}
 			continue;
 		}	
