@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloOnEurobotAdapter.h,v 1.1 2003-06-19 18:05:07 beltran Exp $
+/// $Id: YARPPicoloOnEurobotAdapter.h,v 1.2 2003-06-30 16:56:48 beltran Exp $
 ///
 ///
 
@@ -86,6 +86,8 @@ public:
 	int initialize (YARPEurobotGrabberParams& params)
 	{
 		/// need additional initialization, put it here.
+		params._video_type = 2;
+		params._size = 128;
 		return open ((void *)&params);
 	}
 
