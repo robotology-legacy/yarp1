@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.14 2003-08-02 07:46:15 gmetta Exp $
+/// $Id: LocalNameServer.cpp,v 1.15 2003-08-20 08:23:31 natta Exp $
 ///
 
 #include "LocalNameServer.h"
@@ -130,7 +130,7 @@ PortEntry IpEntry::ask_new_port()
 
 bool IpEntry::check_port(PortEntry p)
 {
-	PORT_IT it;
+	PORT_IT it(ports);
 	if (find_port(p.port, it) != -1)
 		return true;
 	else
@@ -139,7 +139,8 @@ bool IpEntry::check_port(PortEntry p)
 
 int IpEntry::find_port(int port, PORT_IT &it)
 {
-	for(PORT_IT i = ports.begin(); i != ports.end(); i++)
+	PORT_IT i(ports);
+	for(; !i.done(); i++)
 	{
 		if ((*i).port == port)
 		{
@@ -155,7 +156,7 @@ void IpEntry::release_port(int port)
 	PortEntry port_entry;
 	port_entry.port = port;
 
-	PORT_IT it;
+	PORT_IT it(ports);
 	if (find_port(port, it) != -1)
 	{
 		ports.erase(it);		
@@ -169,7 +170,7 @@ void IpEntry::release_port(int port)
 
 void resources::release (const YARPString &ip)
 {
-	IP_IT it;
+	IP_IT it(*this);
 	if (find_ip(ip, it) != -1)
 	{
 		erase(it);
@@ -181,12 +182,12 @@ void resources::release (const YARPString &ip)
 
 void resources::release(const YARPString &ip, int port)
 {
-	IP_IT it;
+	IP_IT it(*this);
 	if (find_ip(ip, it) != -1)
 	{
-		it->release_port(port);
+		(*it).release_port(port);
 		NAME_SERVER_DEBUG(("%s:%d no longer used, releasing\n", ip.c_str(), port));
-		if (it->ports.empty())
+		if ((*it).ports.empty())
 			erase(it);
 	}
 	else
@@ -195,13 +196,13 @@ void resources::release(const YARPString &ip, int port)
 
 bool resources::check_port(const YARPString &ip, int port)
 {
-	IP_IT it;
+	IP_IT it(*this);
 	PortEntry temp;
 	temp.port = port;
 
 	if (find_ip(ip, it) != -1)
 	{
-		it->check_port(temp);
+		(*it).check_port(temp);
 		return true;
 	}
 	else
@@ -229,12 +230,12 @@ void resources::sign_in(const YARPString &ip)
 
 int resources::ask_new(const YARPString &ip, int *port)
 {
-	IP_IT it;
+	IP_IT it(*this);
 	PortEntry temp;
 		
 	if (find_ip(ip, it) != -1)
 	{
-		temp = it->ask_new_port();
+		temp = (*it).ask_new_port();
 		*port = temp.port;
 		return 0;
 	}
@@ -247,13 +248,13 @@ int resources::ask_new(const YARPString &ip, int *port)
 
 int resources::ask_new(const YARPString &ip, PORT_LIST &ports, int n)
 {
-	IP_IT it;
+	IP_IT it(*this);
 	PortEntry temp;
 		
 	if (find_ip(ip, it) != -1)
 	{
 		for(int i = 0; i < n; i++) {
-			temp = it->ask_new_port();
+			temp = (*it).ask_new_port();
 			if (temp.port == __portNotFound)
 			{
 				// port not found: destroy list, add first entry as __PortNotFound, return -1
@@ -275,14 +276,15 @@ int resources::ask_new(const YARPString &ip, PORT_LIST &ports, int n)
 	
 int resources::find_ip(const YARPString &ip)
 {
-	IP_IT dummy;
+	IP_IT dummy(*this);
 
 	return find_ip(ip, dummy);
 }
 
 int resources::find_ip(const YARPString &ip, IP_IT &it)
 {
-	for(IP_IT i = begin(); i != end(); i++)
+	IP_IT i(*this);
+	for(; !i.done(); i++)
 	{
 		if ((*i).ip == ip)
 		{
@@ -299,9 +301,10 @@ int resources::find_ip(const YARPString &ip, IP_IT &it)
 
 int services::find_service(const YARPString &n, SVC_IT &it)
 {
-	for(SVC_IT i = begin(); i != end(); i++)
+	SVC_IT i(*this);
+	for(; !i.done(); i++)
 	{
-		if (i->name == n)
+		if ((*i).name == n)
 		{
 			it = i;
 			return 0;
@@ -312,13 +315,13 @@ int services::find_service(const YARPString &n, SVC_IT &it)
 
 int services::check_out(const YARPString &name, YARPString &ip, PORT_LIST &ports)
 {
-	SVC_IT it;
+	SVC_IT it(*this);
 	if (find_service(name, it) != -1)
 	{
-		ip = it->ip;
-		ports = it->ports;
+		ip = (*it).ip;
+		ports = (*it).ports;
 
-		if (it->release_ref())
+		if ((*it).release_ref())
 		{
 			erase(it);
 			return 1;	// resource no longer used
@@ -336,7 +339,7 @@ int services::check_out(const YARPString &name, YARPString &ip, PORT_LIST &ports
 // Note: service must not exist !
 void services::check_in(const YARPString &name, const YARPString &ip, int type, const PORT_LIST &ports, int max_ref)
 {
-	SVC_IT it;
+	SVC_IT it(*this);
 	if (find_service(name, it) != -1)
 	{
 		NAME_SERVER_DEBUG(("TCP/UDP/MCAST name %s already registered\n", name.c_str()));
@@ -356,13 +359,13 @@ void services::check_in(const YARPString &name, const YARPString &ip, int type, 
 
 bool services::check(const YARPString &name, YARPString &ip, int *type, PORT_LIST &ports, int *max)
 {
-	SVC_IT it;
+	SVC_IT it(*this);
 	if(find_service(name, it) != -1)
 	{
-		ip = it->ip;
-		ports = it->ports;
-		*type = it->type;
-		*max = it->get_max_ref();
+		ip = (*it).ip;
+		ports = (*it).ports;
+		*type = (*it).type;
+		*max = (*it).get_max_ref();
 		return true;
 	}
 	else
@@ -381,14 +384,14 @@ bool services::check(const YARPString &name, YARPString &ip, int *type, PORT_LIS
 // < 0, not found
 int services::take_ref(const YARPString &name, YARPString &ip, int *type, PORT_LIST &ports)
 {
-	SVC_IT it;
+	SVC_IT it(*this);
 	if(find_service(name, it) != -1)
 	{
 		bool ref = true;
 		// ref = it->take_ref();	// use ref count
-		ip = it->ip;
-		ports = it->ports;
-		*type = it->type;
+		ip = (*it).ip;
+		ports = (*it).ports;
+		*type = (*it).type;
 
 		if (ref)
 			return 1;	// found, resources avaiable
@@ -407,7 +410,7 @@ int services::take_ref(const YARPString &name, YARPString &ip, int *type, PORT_L
 
 int qnxServices::check_in(const YARPString &name, YARPNameQnx &entry)
 {
-	QNXSVC_IT it;
+	QNXSVC_IT it(*this);
 	if (find_service(name, it) != -1)
 	{
 		entry = *it;
@@ -438,9 +441,10 @@ int qnxServices::check_out(const YARPString &name)
 
 int qnxServices::find_service(const YARPString &name, QNXSVC_IT &it)
 {
-	for (QNXSVC_IT i = begin (); i != end(); i++)
+	QNXSVC_IT i(*this);
+	for (; !i.done(); i++)
 	{
-		if (strcmp(i->getName(), name.c_str()) == 0)
+		if (strcmp((*i).getName(), name.c_str()) == 0)
 		{
 			it = i;
 			return 0;
@@ -499,8 +503,9 @@ int LocalNameServer::queryName(const YARPString &name, YARPString &ip, int *type
 		else
 		{
 			// found, resources availables
+			PORT_IT tmp_ports_it(tmp_ports);
 			ip = tmp_ip;
-			*port = tmp_ports.begin()->port;
+			*port = (*tmp_ports_it).port;
 			*type = protocol;
 			return 0;
 		}
@@ -543,7 +548,8 @@ int LocalNameServer::registerName(const YARPString &name, const IpEntry &entry, 
 	//  if name is already registered
 	_checkAndRemove(name);
 	ret = _registerName(name, entry, type, new_ports, 1);
-	*port = new_ports.begin()->port;
+	PORT_IT it(new_ports);
+	*port = (*it).port;
 	return ret;
 }	
 
@@ -578,7 +584,8 @@ int LocalNameServer::registerNameDIp(const YARPString &name, YARPString &ip, int
 	else {
 		ret = _registerName(name, new_ip, type, new_ports, 1);
 		ip = new_ip.ip;
-		*port = new_ports.begin()->port;
+		PORT_IT it(new_ports);
+		*port = (*it).port;
 	}
 	return ret;
 }
@@ -600,11 +607,13 @@ void LocalNameServer::_checkAndRemove(const YARPString &name)
 	int dtype;
 	if (names.check(name, sdummy, &dtype, pdummy))
 	{
+		PORT_IT it(pdummy);
 		// name already registered, destroy it
-		NAME_SERVER_DEBUG(("WARNING: %s already registered as %s(%s):%d\n", name.c_str(), sdummy.c_str(), servicetypeConverter(dtype), pdummy.begin()->port));
+		NAME_SERVER_DEBUG(("WARNING: %s already registered as %s(%s):%d\n", name.c_str(), sdummy.c_str(), servicetypeConverter(dtype), (*it).port));
 		names.destroy(name, sdummy, pdummy);
-		for(PORT_IT i = pdummy.begin(); i != pdummy.end(); i++)
-			addresses.release(sdummy, i->port);
+		it.reset(pdummy);
+		for(; !it.done(); it++)
+			addresses.release(sdummy, (*it).port);
 	}
 }
 
@@ -639,7 +648,9 @@ int LocalNameServer::_registerName(const YARPString &name, const IpEntry &entry,
 		// get new resources
 		addresses.ask_new(tmp_ip, ports, nPorts);
 	
-		if ((ports.begin()) != (PORT_IT) __portNotFound)
+		PORT_IT it(ports);
+		
+		if ((*it).port != __portNotFound)
 		{
 		///if ((ports.begin()) == NULL){ /// wrong!
 			// register new resource

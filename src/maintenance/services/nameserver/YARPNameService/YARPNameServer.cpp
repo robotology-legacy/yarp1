@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.19 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: YARPNameServer.cpp,v 1.20 2003-08-20 08:23:10 natta Exp $
 ///
 ///
 
@@ -93,36 +93,41 @@ void YARPNameServer::dump_statics()
 {
 	cout << "\n-Static entries: " << endl;
 	
-	for(SVC_IT i = ns.statics.begin(); i != ns.statics.end(); i++)
+	SVC_IT i(ns.statics);
+	for(; !i.done(); i++)
 	{
-		cout << i->name << "\t\t";
-		cout << i->ip << "\tmax ref:" << i->get_max_ref() << endl;
+		cout << (*i).name << "\t\t";
+		cout << (*i).ip << "\tmax ref:" << (*i).get_max_ref() << endl;
 	}
 }
 
 void YARPNameServer::dump_names()
 {
 	cout << "-Names: " << endl;
+
+	SVC_IT i(ns.names);
 	
-	for(SVC_IT i = ns.names.begin(); i != ns.names.end(); i++)
+	for(; !i.done(); i++)
 	{
-		cout << i->name << "\t\t";
-		cout << i->ip;
+		cout << (*i).name << "\t\t";
+		cout << (*i).ip;
 		cout << ":";
 
-		///int length = i->ports.size();
-		for(PORT_IT j = i->ports.begin(); j != i->ports.end(); j++)
-			cout << j->port << "," ;
-		cout << "ref:" << (i->get_max_ref()-i->get_ref());
-		cout << ",(" << servicetypeConverter(i->type) << ")"<< endl;
+		PORT_IT j ( (*i).ports );
+		for(; !j.done(); j++)
+			cout << (*j).port << "," ;
+		cout << "ref:" << ((*i).get_max_ref()-(*i).get_ref());
+		cout << ",(" << servicetypeConverter((*i).type) << ")"<< endl;
 	}
 
-	for(QNXSVC_IT j = ns.qnx_names.begin(); j != ns.qnx_names.end(); j++)
+	QNXSVC_IT j(ns.qnx_names);
+
+	for(; !j.done(); j++)
 	{
-		cout << j->getName() << "\t\t";
-		cout << j->getNode() << "\t";
-		cout << j->getPid() << "\t";
-		cout << j->getChan() << "\t";
+		cout << (*j).getName() << "\t\t";
+		cout << (*j).getNode() << "\t";
+		cout << (*j).getPid() << "\t";
+		cout << (*j).getChan() << "\t";
 		cout << "(" << servicetypeConverter(YARP_QNET) << ")";
 		cout << endl;
 	}
@@ -131,32 +136,36 @@ void YARPNameServer::dump_names()
 void YARPNameServer::dump_resources()
 {
 	cout << "-Resources: " << endl;
-	
-	for(IP_IT i = ns.addresses.begin(); i != ns.addresses.end(); i++)
-	{
-		cout << i->ip << ":" << endl;
+	IP_IT i(ns.addresses);
 
-		for(PORT_IT j = i->ports.begin(); j != i->ports.end(); j++)
-			cout << "\t" << j->port << endl;
+	for(; !i.done(); i++)
+	{
+		cout << (*i).ip << ":" << endl;
+
+		PORT_IT j((*i).ports);
+		for(; !j.done(); j++)
+			cout << "\t" << (*j).port << endl;
 	}
 }
 
 void YARPNameServer::handle_dump_request()
 {
 	YARPString text;
-
-	for(SVC_IT i = ns.names.begin(); i != ns.names.end(); i++)
+	SVC_IT i(ns.names);
+	for(; !i.done(); i++)
 	{
 		///text.append(i->name);
-		text += i->name;
+		text += (*i).name;
 		///text.append("\n");
 		text += "\n";
 	}
 
-	for(QNXSVC_IT j = ns.qnx_names.begin(); j != ns.qnx_names.end(); j++)
+	QNXSVC_IT j(ns.qnx_names);
+
+	for(; !j.done(); j++)
 	{
 		///text.append(j->getName());
-		text += j->getName();
+		text += (*j).getName();
 		///text.append("\n");
 		text += "\n";
 	}
@@ -171,40 +180,55 @@ void YARPNameServer::handle_exdump_request()
 	YARPString text;
 
 	char dummy[255];
-	for(SVC_IT i = ns.names.begin(); i != ns.names.end(); i++)
+	SVC_IT i(ns.names);
+	for(; !i.done(); i++)
 	{
-		text.append(i->name);
+		text.append((*i).name);
 		text.append("\t");
-		text.append(i->ip);
+		text.append((*i).ip);
 		text.append(":");
 		///int length = i->ports.size();
-		PORT_IT j;
+		PORT_IT j((*i).ports);
 		// first port
+<<<<<<< YARPNameServer.cpp
+		itoa((*j).port, dummy, 10);
+=======
 		j = i->ports.begin();
 		ACE_OS::sprintf(dummy, "%d\0", j->port);
 		///itoa(j->port, dummy, 10);
+>>>>>>> 1.19
 		text.append (dummy);
 		text.append (",");
 
 		text.append (" (");
-		text.append (servicetypeConverter(i->type));
+		text.append (servicetypeConverter((*i).type));
 		text.append (")");
 		text.append ("\n");
 		
 	}
 
-	for(QNXSVC_IT j = ns.qnx_names.begin(); j != ns.qnx_names.end(); j++)
+	QNXSVC_IT j(ns.qnx_names);
+
+	for(; !j.done(); j++)
 	{
-		text.append(j->getName());
+		text.append((*j).getName());
 		text.append("\t");
-		text.append(j->getNode());
+		text.append((*j).getNode());
 		text.append("\t");
+<<<<<<< YARPNameServer.cpp
+		itoa((*j).getPid(), dummy, 10);
+=======
 		ACE_OS::sprintf(dummy, "%d\0", j->getPid()); 
 		///itoa(j->getPid(), dummy, 10);
+>>>>>>> 1.19
 		text.append(dummy);
 		text.append("\t");
+<<<<<<< YARPNameServer.cpp
+		itoa((*j).getChan(),dummy, 10);
+=======
 		ACE_OS::sprintf(dummy, "%d\0", j->getChan());
 		///itoa(j->getChan(),dummy, 10);
+>>>>>>> 1.19
 		text.append(dummy);
 		text.append (" (");
 		text.append (servicetypeConverter(YARP_QNET));
@@ -225,9 +249,10 @@ void YARPNameServer::handle_registration(const YARPString &service_name, const Y
 	tmpEntry.ip = ip;
 	ns.registerName(service_name, tmpEntry, type, ports, np);
 	
-	for(PORT_IT i = ports.begin(); i != ports.end(); i++)
+	PORT_IT i(ports);
+	for(; !i.done(); i++)
 	{
-		NAME_SERVER_DEBUG(("Registered %s as %s(%s):%d\n", service_name.c_str(), tmpEntry.ip.c_str(), servicetypeConverter(type), i->port));
+		NAME_SERVER_DEBUG(("Registered %s as %s(%s):%d\n", service_name.c_str(), tmpEntry.ip.c_str(), servicetypeConverter(type), (*i).port));
 	}	
 	_handle_reply(tmpEntry.ip, type, ports);
 }
@@ -270,9 +295,10 @@ void YARPNameServer::handle_registration_dbg(const YARPString &service_name, con
 
 	ns.registerName(service_name, tmpEntry, type, ports, n);
 
-	for(PORT_IT i = ports.begin(); i != ports.end(); i++)
+	PORT_IT i(ports);
+	for(; !i.done(); i++)
 	{
-		NAME_SERVER_DEBUG(("Registered %s as %s(%s):%d\n", service_name.c_str(), tmpEntry.ip.c_str(), servicetypeConverter(type), i->port));
+		NAME_SERVER_DEBUG(("Registered %s as %s(%s):%d\n", service_name.c_str(), tmpEntry.ip.c_str(), servicetypeConverter(type), (*i).port));
 	}
 }
 
@@ -372,9 +398,11 @@ void YARPNameServer::_handle_reply(const YARPString &ip, int type, const PORT_LI
 	YARPNameUDP rpl;
 
 	int j = 0;
-	for(CONST_PORT_IT i = ports.begin(); i != ports.end(); i++)
+	PORT_LIST &tmp = PORT_LIST (ports);
+	PORT_IT i (tmp);
+	for(; !i.done(); i++)
 	{
-		rpl.setPorts(j, i->port);
+		rpl.setPorts(j, (*i).port);
 		j++;
 	}
 	rpl.setIp(ip);

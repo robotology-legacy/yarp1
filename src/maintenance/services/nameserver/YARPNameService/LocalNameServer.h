@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.16 2003-08-02 07:46:15 gmetta Exp $
+/// $Id: LocalNameServer.h,v 1.17 2003-08-20 08:23:31 natta Exp $
 ///
 ///
 
@@ -75,8 +75,9 @@
 #include <conf/YARPConfig.h>
 #include <wide_nameloc.h>
 #include <YARPString.h>
+#include <YARPList.h>
 
-#include <list>
+// #include <list>
 
 #define NAME_SERVER_VERBOSE
 #ifdef NAME_SERVER_VERBOSE
@@ -145,7 +146,7 @@ public:
 	int flag;
 };
 
-typedef std::list<PortEntry> PORT_LIST;
+typedef YARPList<PortEntry> PORT_LIST;
 typedef PORT_LIST::const_iterator CONST_PORT_IT;
 typedef PORT_LIST::iterator PORT_IT;
 
@@ -173,7 +174,8 @@ public:
 private:
 	bool _check(T_LIST &l, T &item)
 	{
-		for(T_IT i = l.begin(); i != l.end(); i++)
+		T_IT i(l);
+		for(; !i.done(); i++)
 		{
 			if ((*i) == item)
 				return true;
@@ -246,7 +248,7 @@ public:
 	}
 };
 
-typedef std::list<IpEntry> IP_LIST;
+typedef YARPList<IpEntry> IP_LIST;
 typedef IP_LIST::iterator IP_IT;
 
 class resources : public IP_LIST
@@ -338,7 +340,7 @@ public:
 	}
 };
 
-typedef std::list<service> SVC_LIST;
+typedef YARPList<service> SVC_LIST;
 typedef SVC_LIST::iterator SVC_IT;
 
 class services: public SVC_LIST
@@ -365,11 +367,11 @@ public:
 	// find name and destroy entry, return ip and port(s)
 	int destroy(const YARPString &name, YARPString &ip, PORT_LIST &ports)
 	{
-		SVC_IT it;
+		SVC_IT it(*this);
 		if (find_service(name, it) != -1)
 		{
-			ip = it->ip;
-			ports = it->ports;
+			ip = (*it).ip;
+			ports = (*it).ports;
 
 			erase(it);
 			return 1;		// resource destroyed
@@ -389,7 +391,7 @@ public:
 	int take_ref(const YARPString &name, YARPString &ip, int *type, PORT_LIST &ports);
 };
 
-typedef std::list<YARPNameQnx> QNXSVC_LIST;
+typedef YARPList<YARPNameQnx> QNXSVC_LIST;
 typedef QNXSVC_LIST::iterator QNXSVC_IT;
 typedef QNXSVC_LIST::const_iterator  CONST_QNXSVC_IT;
 
@@ -400,7 +402,7 @@ public:
 	// find name and destroy entry
 	int destroy(const YARPString &name)
 	{
-		QNXSVC_IT it;
+		QNXSVC_IT it(*this);
 		if (find_service(name, it) != -1)
 		{
 			NAME_SERVER_DEBUG(("QNX name %s no longer used, releasing\n", name.c_str()));
@@ -454,8 +456,9 @@ public:
 
 		if (names.check_out(name, ip, ports) == 1){
 			//resource no longer used, release it
-			for(PORT_IT i = ports.begin(); i != ports.end(); i++)
-					addresses.release(ip, i->port);	
+			PORT_IT i (ports);
+			for(; !i.done(); i++)
+					addresses.release(ip, (*i).port);	
 		}
 	}
 
