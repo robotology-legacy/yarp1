@@ -13,19 +13,19 @@
 #include <yarp/YARPScheduler.h>
 #include <yarp/YARPConfigFile.h>
 
+#include <yarp/debug.h>
+
 #include "ArmBehavior.h"
 
 char menu();
 
 using namespace std;
 
-extern int __debug_level;
-
 char __filename[256] = "arm.ini";
 
 int main(int argc, char* argv[])
 {
-	//__debug_level = 100;
+	set_yarp_debug(100,100);
 
 	YARPScheduler::setHighResScheduling();
 
@@ -111,6 +111,8 @@ int main(int argc, char* argv[])
 	_arm.Begin();
 	_arm.loop();	// block here until quit command is received
 
+	printf("Arm SM terminated\n");
 	arm_thread.terminate(false);	// no timeout here, important !
+	printf("ArmThread terminated\n");
 	return 0;
 }

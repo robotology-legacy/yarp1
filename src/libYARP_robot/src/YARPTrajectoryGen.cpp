@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPTrajectoryGen.cpp,v 1.1 2004-07-28 17:17:35 babybot Exp $
+/// $Id: YARPTrajectoryGen.cpp,v 1.2 2004-08-02 17:06:00 babybot Exp $
 ///
 ///
 
@@ -101,13 +101,20 @@ YARPTrajectoryGen::YARPTrajectoryGen(int size, int npnts)
 
 YARPTrajectoryGen::~YARPTrajectoryGen()
 {
-	for (int i = 0; i < _size ; i++)
-		delete [] _commands[i];
+	int i;
+	if (_commands != NULL)
+	{
+		for (i = 0; i < _steps ; i++)
+			delete [] _commands[i];
+		
+		delete [] _commands;
+	}
 
-	delete [] _commands;
+	if (_lastCommand != NULL)
+		delete [] _lastCommand;
 
-	delete [] _lastCommand;
-	delete [] _finalCommand;
+	if (_finalCommand != NULL)
+		delete [] _finalCommand;
 }
 
 int YARPTrajectoryGen::_resize(int size, int npnts)

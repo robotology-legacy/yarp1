@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.2 2004-07-30 09:56:28 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.3 2004-08-02 17:06:00 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -111,6 +111,12 @@ class YARPBehaviorSharedData
 		  {
 			  _data.writeYVector(v);
 			  send();
+		  }
+		  ~YARPBehaviorSharedData()
+		  {
+			printf("--> YARPBehaviorSharedData output port calling unregister\n\n\n");
+			_outPort.Unregister();
+			printf("--> YARPBehaviorSharedData output port unregisterd successfully\n\n\n");
 		  }
 
 	YARPBabyBottle _data;
@@ -192,6 +198,10 @@ public:
 			delete (*it);
 			it++;
 		}
+	
+		printf("--> YARPBehavior: calling unregister for BEHAVIOR input port\n\n\n");
+		_inport.Unregister();
+		printf("--> YARPBehavior: input port unregistered successfully\n\n\n");
 	}
 
 	// thread body
@@ -228,7 +238,7 @@ public:
 	void updateFunctionTable(FunctionTableEntry entry)
 	{ _functions.push_back(entry); }
 
-private:
+protected:
 	// parse message
 	int _parse(YARPBabyBottle &bottle);
 	// handle exit message
@@ -255,7 +265,7 @@ private:
 	ACE_Auto_Event	_stopEvent;
 	
 	YBVocab			_tmpVocab;				// temp variable to avoid using a local var within _parse method
-	YARPBabyBottle		_bottle;				// ths is the bottle used for the communication
+	YARPBabyBottle	_bottle;				// ths is the bottle used for the communication
 	YARPInputPortOf<YARPBabyBottle> _inport;	// input port
 	YARPSemaphore	_mutex;
 	inline void _lock(){ _mutex.Wait(); }

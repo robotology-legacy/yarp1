@@ -1,13 +1,15 @@
 // handcontrol.cpp : Defines the entry point for the console application.
 //
 
-#include "HandThread.h"
 #include <iostream>
 
+#include <yarp/YARPConfig.h>
 #include <yarp/YARPScheduler.h>
 #include <yarp/YARPConfigFile.h>
 
+#include "HandThread.h"
 #include "HandBehavior.h"
+#include <yarp/debug.h>
 
 char menu();
 
@@ -17,13 +19,18 @@ char __configFile[] = "hand.ini";
 
 int main(int argc, char* argv[])
 {
+	set_yarp_debug(100,100);
 	YARPScheduler::setHighResScheduling();
 
 	cout << "Starting hand control...\n";
 	int _hand_thread_rate;
 	
+	char path[256];
+	ACE_OS::sprintf (path, "%s/%s", GetYarpRoot(), ConfigFilePath); 
+
 	YARPConfigFile file;
-	file.set("Y:\\conf\\babybot\\", __configFile);
+	file.set(path, __configFile);
+
 	file.get("[THREAD]", "Rate", &_hand_thread_rate, 1);
 		
 	HandThread hand_thread(_hand_thread_rate,

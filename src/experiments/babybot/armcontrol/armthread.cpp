@@ -98,8 +98,11 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 }
 
 ArmThread::~ArmThread()
-{
-
+{/*
+	printf("--> ArmThread: Entering ArmThread destructor\n");
+	printf("--> ArmThread: Unregistering output behavior port\n\n\n");
+	YARPBehaviorSharedData::_outPort.Unregister();
+	printf("--> ArmThread: Output behavior port unregistered\n\n\n");*/
 }
 
 void ArmThread::resetEncoders(const double *p)
@@ -152,7 +155,7 @@ void ArmThread::doRelease()
 	// park arm
 	park(2);
 	_arm.uninitialize();
-
+/*
 	char *root = GetYarpRoot();
     char path[256];
     char filename[256];
@@ -164,6 +167,11 @@ void ArmThread::doRelease()
     _gravity2.save(filename);
     ACE_OS::sprintf (filename, "%s/%s/gravity3.ini", ConfigFilePath);
     _gravity3.save(filename);
+	*/
+
+	printf("---> ARMThread: unregistering port\n\n\n");
+	_armStatusPort.Unregister();
+	printf("---> ARMThread: port unregistered\n\n\n");
 
 	//_gravity1.save("Y:\\conf\\babybot\\gravity1.ini");
 	//_gravity2.save("Y:\\conf\\babybot\\gravity2.ini");
