@@ -2,165 +2,107 @@
 //
 
 #include <YARPPort.h>
-#include <YARPBottleContent.h>
 #include <YARPBottle.h>
+#include <YARPBottleContent.h>
 #include <./conf/YARPVocab.h>
+#include "functionList.h"
 
 YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+COMMAND_TABLE _commands;
 
-struct COMMAND_TABLE_ENTRY
+void _fillTable()
 {
-	YARPString verbose;
-	YB;
+	// global commands
+	REG_VOCAB(sendSimpleVocab, YBVIsAlive, "broadcast alive message");
+	REG_VOCAB(sendSimpleVocab, YBVExit, "broadcast exit message (obsolete)");
 
-};
+	// arm rnd
+	REG_VOCAB(sendSimpleVocab, YBVArmRndStart, "start arm random thread");
+	REG_VOCAB(sendSimpleVocab, YBVArmRndStop, "stop arm random thread");
+	
+	// arm control
+	REG_VOCAB(sendSimpleVocab, YBVArmZeroG, "arm goes/exit to/from zero g mode");
+	REG_VOCAB(sendSimpleVocab, YBVArmInhibitResting, "inhibit arm resting (dangerous)");
+	REG_VOCAB(sendSimpleVocab, YBVArmForceResting, "force arm resting");
+	REG_VOCAB(sendSimpleVocab, YBVArmQuit, "quit arm control");
+	REG_VOCAB(sendArmJointCommand, YBVArmNewCmd, "send arm position command");
+	REG_VOCAB(sendArmJointCommand, YBVArmShake, "send arm shake command");
+
+	// head
+	REG_VOCAB(sendHeadJointCommand, YBVHeadNewCmd, "send head new position command");
+	REG_VOCAB(sendSimpleVocab, YBVHeadStop, "stop head");
+	REG_VOCAB(sendSimpleVocab, YBVHeadQuit, "quit head control");
+	
+	// hand
+	REG_VOCAB(sendHandJointCommand, YBVHandNewCmd, "send hand new position command");
+	REG_VOCAB(sendSimpleVocab, YBVHandQuit, "quit hand control");
+	REG_VOCAB(sendSimpleVocab, YBVHandShake, "shake hand");
+	REG_VOCAB(sendSimpleVocab, YBVHandResetEncoders, "reset hand encoders");
+}
+
+void _help()
+{
+	COMMAND_TABLE_IT it(_commands);
+	cout << "--------- MENU ---------\n";
+	cout << "- Program commands:\n";
+	cout << "enter: this menu\n";
+	cout << "q!: quit program\n";
+	cout << "- Currently registered robot commands:\n";
+	while(!it.done())
+	{
+		cout << (*it).verbose << ": " << (*it).help << "\n";
+		it++;
+	}
+	cout << "------------------------\n";
+}
+
+bool _parse(const YARPString &c, YARPBottle &b)
+{
+	COMMAND_TABLE_IT it(_commands);
+	while(!it.done())
+	{
+		COMMAND_TABLE_ENTRY &tmp = (*it);
+
+		if (tmp.verbose == c)
+		{
+			// command registered
+			return tmp.f(tmp.command, b);
+		}
+		it++;
+	}
+
+	cout << "Sorry, " << c << " command not supported\n";
+	return false;
+}
 
 int main(int argc, char* argv[])
 {
+	_fillTable();
+	
 	_outPort.Register("/motorcmd/o");
 	YARPBottle tmp;
+	tmp.setID(YBVMotorLabel);	// set bottle label
 	YARPString c;
 	bool quit = false;
+	
+	_help();
 	while(cin>> c)
 	{
 		tmp.reset();
-		bool send = false;
-		tmp.setID(YBVMotorLabel);
-		if (c == "start")
+		
+		if (c=="")
+			_help();
+		else if (c=="q!")
+			break;
+		else
 		{
-			tmp.writeVocab(YBVArmRndStart);
-			send = true;
-		}
-		else if (c == "stop")
-		{
-			tmp.writeVocab(YBVArmRndStop);
-			send = true;
-		}
-		else if (c == "quit")
-		{
-			tmp.writeVocab(YBVExit);
-			send = true;
-		}
-		else if (c == "exit")
-		{
-			quit = true;
-			send = false;
-		}
-		else if (c == "alive")
-		{
-			tmp.writeVocab(YBVIsAlive);
-			send = true;
-		}
-		else if (c == "hand")
-		{
-			tmp.writeVocab(YBVHandNewCmd);
-			YVector cmd;
-			cmd.Resize(6);
-			for (int i = 0; i < 6; i++)
-				cin >> cmd(i+1);
-
-			tmp.writeYVector(cmd);
-			send = true;
-		}
-		else if (c == "arm")
-		{
-			tmp.writeVocab(YBVArmNewCmd);
-			YVector cmd;
-			cmd.Resize(6);
-			for (int i = 0; i < 6; i++)
+			if (_parse(c, tmp))
 			{
-				cin >> cmd(i+1);
-				cmd(i+1) = cmd(i+1)*degToRad;
+				_outPort.Content() = tmp;
+				_outPort.Write();
 			}
-
-			tmp.writeYVector(cmd);
-			send = true;
 		}
-		else if (c == "shakehand")
-		{
-			tmp.writeVocab(YBVHandShake);
-			send = true;
-		}
-		else if (c == "shakearm")
-		{
-			tmp.writeVocab(YBVArmShake);
-			YVector cmd;
-			cmd.Resize(6);
-			for (int i = 0; i < 6; i++)
-			{
-				cin >> cmd(i+1);
-				cmd(i+1) = cmd(i+1)*degToRad;
-			}
-			tmp.writeYVector(cmd);
-			send = true;
-		}
-		else if (c == "resethand")
-		{
-			tmp.writeVocab(YBVHandResetEncoders);
-			send = true;
-		}
-		else if (c == "armrest")
-		{
-			tmp.writeVocab(YBVArmForceResting);
-			send = true;
-		}
-		else if (c == "arminhibit")
-		{
-			tmp.writeVocab(YBVArmInhibitResting);
-			send = true;
-		}
-		else if (c == "armzerog")
-		{
-			tmp.writeVocab(YBVArmZeroG);
-			send = true;
-		}
-		else if (c == "head")
-		{
-			tmp.writeVocab(YBVHeadNewCmd);
-			YVector cmd;
-			cmd.Resize(5);
-			for (int i = 0; i < 5; i++)
-			{
-				cin >> cmd(i+1);
-				cmd(i+1) = cmd(i+1)*degToRad;
-			}
-
-			tmp.writeYVector(cmd);
-			send = true;
-		}
-		else if (c == "headquit")
-		{
-			tmp.writeVocab(YBVHeadQuit);
-			send = true;
-		}
-		else if (c == "headstop")
-		{
-			tmp.writeVocab(YBVHeadStop);
-			send = true;
-		}
-		else if (c == "armquit")
-		{
-			tmp.writeVocab(YBVArmQuit);
-			send = true;
-		}
-		else if (c == "handquit")
-		{
-			tmp.writeVocab(YBVHandQuit);
-			send = true;
-		}
-	
-		if (send)
-		{
-			_outPort.Content() = tmp;
-			_outPort.Write();
-			printf("Sent:\n");
-			tmp.display();
-			printf("\n");
-		}
-
-		if (quit)
-			return 0;
-	};	
+	}
 
 	return 0;
 }
