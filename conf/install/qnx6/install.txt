@@ -1,6 +1,6 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.23 2003-10-30 11:59:20 beltran Exp $
+$Id: install.txt,v 1.24 2003-12-17 17:34:59 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
@@ -69,7 +69,7 @@ REQUIRES:
 	- unzip ACE on top of ACE_wrappers under %YARP_ROOT%\src\libraries\
 		NOTE for UNZIP: and UNCHECK the option to overwrite the files (this leaves
 		the modified files from the repository inplace)
-	i.e.:tar xvfzk ACE-5.3.tar.gz
+	i.e.:tar xvfzk ACE-5.3.3.tar.gz
 	  *** check out the correct ACE files from the repository ***
 
 	- in $YARP_ROOT/src/libraries/ACE_wrappers/include/makeinclude create the next link:
@@ -92,10 +92,20 @@ REQUIRES:
 
 		run "make_all_lib.sh release" in %YARP_ROOT%/src/libraries/
 
-3) What to include/link for building an application is YARP.
-	TO BE COMPLETED, templates?
+	services
 
-4) Stuff under %YARP_ROOT%/conf
+		run "make_services.sh release" in %YARP_ROOT%/src/maintenance/services/
+
+	applications
+
+		run "make_applications.sh release" in %YARP_ROOT/src/applications/
+
+	daemons
+
+		run "make_daemons.sh release <robotsetup>" in %YARP_ROOT/src/hardware/daemons/
+
+
+3) Stuff under %YARP_ROOT%/conf
 	- namer.conf.template: to be compied into namer.conf
 		it contains the name and port of the machine running the yarp name
 		service
@@ -116,16 +126,3 @@ procedure where a kernel images is built an inserted in the disk. (add here proc
 	     due to the -v option
 	1.3. Introduce a floppy disk a make it bootable with the new image
 		dinit -f my.ifs /dev/fd0 
-
----NOTES IN COMPILING-RUNNING FRAMEGRABBER STUFF---
-
-	Nameserver + Porter + Framegrabber daemon + Viewer
-		run "make_all_lib.sh framegrab" in %YARP_ROOT%/src/libraries/
-
-	NOTE: It is important the communications mode used to compile (hardcoded in the code)
-
-	i.e.: How to use all this (this should go into a script)
-	./YARPNameService
-	./framegrabber -l -w 256 -h 256
-        ./camview -l -w 256	
-	./porter /framegrab/o:img /images:i
