@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.21 2003-07-02 07:54:22 gmetta Exp $
+/// $Id: main.cpp,v 1.22 2003-07-02 14:40:05 babybot Exp $
 ///
 ///
 
@@ -84,16 +84,19 @@
 
 #	include <YARPEurobotGrabber.h>
 #	define Grabber YARPEurobotGrabber
+#	define Outport(x) YARPOutputPortOf<YARPGenericImage> ##x
 
 #elif defined(__WIN32Babybot__)
 
 #	include <YARPBabybotGrabber.h>
 #	define Grabber YARPBabybotGrabber
+#	define Outport(x) YARPOutputPortOf<YARPGenericImage> ##x
 
 #elif defined(__QNXBabybot__)
 
 #	include <YARPBabybotGrabber.h>
 #	define Grabber YARPBabybotGrabber
+#	define Outport(x) YARPOutputPortOf<YARPGenericImage> ##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 
 #else
 
@@ -464,7 +467,8 @@ int _runAsCartesian (void)
 	YARPImageOf<YarpPixelBGR> img;
 	img.Resize (_size, _size);
 
-	YARPOutputPortOf<YARPGenericImage> outport;
+	Outport(outport);
+
 	bool finished = false;
 
 	outport.Register (_name);

@@ -37,7 +37,13 @@ BUILD = $(VBIN)
 
 eurobot:
 	@make ROBOT=__QNXEurobot__ all
+
+babybot:
+	@make ROBOT=__QNXBabybot__ all
 	
+install:
+	$(CP) main $(YARP_ROOT)/bin/$(OS)/framegrab
+
 # For make depend.
 SRC = $(addsuffix .cpp, $(BIN))
 
