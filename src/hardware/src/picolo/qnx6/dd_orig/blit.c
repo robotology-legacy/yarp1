@@ -195,7 +195,7 @@ main(int argc,char *argv[])
     int n;
 	int error;
 	int counter = 0;
-	int file = 2;
+	int file = 0;
 
 
 	//Timing calculation
