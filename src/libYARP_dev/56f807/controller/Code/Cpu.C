@@ -186,6 +186,8 @@ byte Cpu_GetSpeedMode(void)
 extern void init_56800_(void);         /* Forward declaration of external startup function declared in file FSTART.ASM */
 void _EntryPoint(void)
 {
+  int i;
+  
   /*** ### 56F807 "Cpu" init code ... ***/
   /*** PE initialization code after reset ***/
   /* System clock initialization */
