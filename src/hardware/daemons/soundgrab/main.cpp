@@ -10,29 +10,39 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: main.cpp,v 1.12 2004-06-04 12:54:07 beltran Exp $
+//         Version:  $Id: main.cpp,v 1.13 2004-08-30 10:15:36 beltran Exp $
 // 
 //          Author:  Eng. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
 // 
 // =====================================================================================
 
-#include <conf/YARPConfig.h>
+
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
-#include <YARPThread.h>
-#include <YARPSemaphore.h>
-#include <YARPScheduler.h>
-#include <YARPTime.h>
+#include <yarp/YARPThread.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPTime.h>
 
-#include <YARPImages.h>
-#include <YARPSound.h>
-#include <YARPSoundPortContent.h>
-#include <YARPLogpolar.h>
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
-#include <YARPConfigFile.h>
+#include <yarp/YARPImages.h>
+#include <yarp/YARPSound.h>
+#include <yarp/YARPSoundPortContent.h>
+#include <yarp/YARPLogpolar.h>
+#include <yarp/YARPBottle.h>
+#include <yarp/YARPBottleContent.h>
+#include <yarp/YARPConfigFile.h>
+
+#include <windows.h>
+#include <stdio.h>
+#include <conio.h>
+#include <mmsystem.h>
+
+#include <iostream>
+
+using namespace std;
 
 #if defined(__QNXEurobot__)
 
@@ -41,7 +51,7 @@
 
 #elif defined(__WIN32Babybot__)
 
-#	include <YARPBabybotSoundGrabber.h>
+#	include <yarp/YARPBabybotSoundGrabber.h>
 #	define DeclareOutport(x) YARPOutputPortOf<YARPSoundBuffer>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #elif defined(__QNXBabybot__)
