@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\*.h ..\..\..\include	lib ..\obj\Release\tools.lib ..\obj\Release\imagesx.lib ..\..\ipl\lib\ipl.lib /out:..\obj\Release\images.lib	copy ..\obj\Release\images.lib ..\..\..\..\lib\winnt
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\tools.lib ..\obj\Release\imagesx.lib ..\..\ipl\lib\ipl.lib /out:..\obj\Release\images.lib	copy ..\obj\Release\images.lib ..\..\..\..\lib\winnt
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "tools - Win32 Debug"
@@ -83,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\*.h ..\..\..\include	lib ..\obj\Debug\toolsDB.lib ..\obj\Debug\imagesDBx.lib ..\..\ipl\lib\ipl.lib /out:..\obj\Debug\imagesDB.lib	copy ..\obj\Debug\imagesDB.lib ..\..\..\..\lib\winnt
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Debug\toolsDB.lib ..\obj\Debug\imagesDBx.lib ..\..\ipl\lib\ipl.lib /out:..\obj\Debug\imagesDB.lib	copy ..\obj\Debug\imagesDB.lib ..\..\..\..\lib\winnt
 # End Special Build Tool
 
 !ENDIF 
