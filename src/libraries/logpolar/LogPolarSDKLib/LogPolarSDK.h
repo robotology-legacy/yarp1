@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.12 2003-10-01 17:12:37 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.13 2003-10-03 17:09:52 fberton Exp $
 ///
 ///
 
@@ -81,7 +81,7 @@
 #define DOWNSAMPLE  1
 #define SIMULATE 0
 
-#define ALLMAPS  255
+#define ALLMAPS  1023
 
 #define RED   0
 #define GREEN 1
@@ -135,6 +135,8 @@ struct Image_Data{
 	bool Remap_LandScape;
 
 	int padding;
+
+	float Ratio;  //Used just for naming purpose
 };
 
 struct Neighborhood{
@@ -236,14 +238,7 @@ void Save_Bitmap(unsigned char *image,
 				 int planes,
 				 char * filename);
 
-int Build_Ang_Shift_Map (Image_Data * Parameters,char * Path);
 
-int Build_Color_Map (char * Path);
-
-int Build_Pad_Map (Image_Data * Parameters,char * Path);
-
-int Build_XY_Map (Image_Data * Parameters,
-		 		   char * Path);
 
 
 void Reconstruct_Color(unsigned char * Out_Image,
@@ -262,29 +257,23 @@ void Reconstruct_Grays(unsigned char * Out_Image,
 					   Neighborhood * Weights_Map,
 					   int Pix_Numb);
 
-int Build_Neighborhood_Map(Image_Data * Par,
-							char * Path);
 
-int Build_Neighborhood_Map_NoFov(Image_Data * Par,
-							char * Path);
+//int Build_Neighborhood_Map_NoFov(Image_Data * Par,
+//							char * Path);
 
-unsigned char Build_Weights_Map(Image_Data * Par,
-								char * Path);
 
-IntNeighborhood * Build_Fast_Weights_Map(Image_Data * Par,
-								char * Path);
+//IntNeighborhood * Build_Fast_Weights_Map(Image_Data * Par,
+//								char * Path);
 
-unsigned char Build_Weights_Map_NoFov(Image_Data * Par,
-								char * Path);
+//unsigned char Build_Weights_Map_NoFov(Image_Data * Par,
+//								char * Path);
 
-int Build_Remap_Map (Image_Data * Parameters,
-					  char * Path);
 
-int Build_Remap_Map_No_Fov (Image_Data * Parameters,
-					  char * Path);
+//int Build_Remap_Map_No_Fov (Image_Data * Parameters,
+//					  char * Path);
 
-int Crop_Remap_Map(Image_Data *Par, char* Path);
-
+//int Crop_Remap_Map(Image_Data *Par, char* Path);
+//
 void Remap(unsigned char * Out_Image,
 		   unsigned char * In_Image,
 		   Image_Data * Par,
@@ -297,7 +286,6 @@ long Get_Time();
 double Compute_Index(int Resolution, int Fovea, int SizeRho);
 
 //int Build_DownSample_Map (Image_Data * Parameters, char * Path);
-int  Build_DS_Map(Image_Data * LParam,char * Path, float Ratio);
 
 void RGB_2_YUV(unsigned char * OutImageYUV,
 			   unsigned char * InImageRGB,
@@ -343,10 +331,7 @@ double Get_Y_Center(double rho, double theta, Image_Data *par, double *Ang_Shift
 
 int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, double *Ang_Shift);
 
-unsigned char Build_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,unsigned char List);
 
-int Build_Cart2LP_Map(Image_Data * Par,
-		 			  char * Path);
 
 Cart2LPInterp * Load_Cart2LP_Map(Image_Data * Param, char * Path);
 
@@ -363,5 +348,29 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 					   int padding,
 					   IntNeighborhood * WeightsMap,
 					   int Pix_Numb);
+
+//Functions defined in TableGeneration.cpp
+
+unsigned short Build_Tables (Image_Data * Param, LUT_Ptrs * Tables,char * Path, unsigned short List);
+
+int Build_Ang_Shift_Map (Image_Data * Par, char * Path);
+
+int Build_Cart2LP_Map(Image_Data * Par, char * Path);
+
+int Build_Color_Map (Image_Data * Par, char * Path);
+
+int Build_Pad_Map (Image_Data * Par, char * Path);
+
+int Build_XY_Map (Image_Data * Par, char * Path);
+
+int Build_Neighborhood_Map (Image_Data * Par, char * Path);
+
+int Build_Remap_Map (Image_Data * Par, char * Path);
+
+int Build_Cart2LP_Map (Image_Data * Par, char * Path);
+
+int Build_Weights_Map(Image_Data * Par, char * Path);
+
+int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio);
 
 #endif

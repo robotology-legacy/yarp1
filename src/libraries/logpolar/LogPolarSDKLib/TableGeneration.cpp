@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.19 2003-10-02 16:44:14 beltran Exp $
+/// $Id: TableGeneration.cpp,v 1.20 2003-10-03 17:09:52 fberton Exp $
 ///
 ///
 
@@ -103,72 +103,72 @@
 *																			*
 ****************************************************************************/	
 
-unsigned char Build_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,unsigned char List)
+unsigned short Build_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsigned short List)
 {
 	unsigned char retval = 0;
 	int testval;
 	
-	if (List&1==1)
+	if (List&1==1)			//I need: Nothing
 	{
-		testval = Build_Ang_Shift_Map(Param,Path);
+		testval = Build_Ang_Shift_Map(Par,Path);
 		if (testval)
 			retval = retval | 1;
 	}
 
-	if ((List&2)==2)
+	if ((List&2)==2)		//I need: Reference Image
 	{
-		testval = Build_Color_Map(Path);
+		testval = Build_Color_Map(Par,Path);
 		if (testval)
 			retval = retval | 2;
 	}
 
-	if ((List&16)==16)
+	if ((List&16)==16)		//I need: Reference Image
 	{
-		testval = Build_Pad_Map(Param,Path);
+		testval = Build_Pad_Map(Par,Path);
 		if (testval)
 			retval = retval | 16;
 	}
 
-	if ((List&128)==128)
+	if ((List&128)==128)	//I need: PadMap, AngShiftMap
 	{
-		testval = Build_XY_Map(Param,Path);
+		testval = Build_XY_Map(Par,Path);
 		if (testval)
 			retval = retval | 128;
 	}
 
-	if ((List&8)==8)
+	if ((List&8)==8)		//I need: ColorMap, XYMap
 	{
-		testval = Build_Neighborhood_Map(Param,Path);
+		testval = Build_Neighborhood_Map(Par,Path);
 		if (testval)
 			retval = retval | 8;
 	}
 
-	if ((List&32)==32)
+	if ((List&32)==32)		//I need: PadMap, AngShiftMap
 	{
-		testval = Build_Remap_Map(Param,Path);
-		if (testval)
-			testval = Crop_Remap_Map(Param,Path);
+		testval = Build_Remap_Map(Par,Path);
+//		if (testval)
+//			testval = Crop_Remap_Map(Par,Path);
 		if (testval)
 			retval = retval | 32;
 	}
 
-	if ((List&64)==64)
+	if ((List&64)==64)		//I need: NeighborhoodMap
 	{
-		testval = Build_Weights_Map(Param,Path);
+		testval = Build_Weights_Map(Par,Path);
 		if (testval)
 			retval = retval | 64;
 	}
 
 	if ((List&256)==256)
 	{
-		testval = Build_DS_Map(Param,Path,2.00);
+		testval = Build_DS_Map(Par,Path,2.00);
 		if (testval)
 			retval = retval | 256;
 	}
 
 	if ((List&4)==4)
 	{
-		testval = Build_DS_Map(Param,Path,4.00);
+		testval = Build_DS_Map(Par,Path,4.00);
 		if (testval)
 			retval = retval | 4;
 	}
@@ -176,27 +176,22 @@ unsigned char Build_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,uns
 	return retval;
 }
 
-
-
 /************************************************************************
 *																		*
 * Build_Ang_Shift_Map     												*
 *																		*
 * Builds a Look-up Table with the information needed for a correct		*
 * absolute angular shift of each ring and saves it in the working		*
-* folder with the file name AngularShiftMap.gio							*																		*
+* folder with the file name AngularShiftMap.gio							*
 *																		*
-* Input: Fovea Type: it can be:     									*
-*					 0. Giotto 2.0 (33k pixels, old fovea)				*
-*					 1. Giotto 2.1 (33k pixels, new fovea)				*
-* 		 Parameters														*
+* Input: Parameters														*
 * 			Set of all the needed parameters							*
 *		 Path															*
 * 			Working folder												*
 * 																		*
-************************************************************************/	
+************************************************************************/
 
-int Build_Ang_Shift_Map (Image_Data * Parameters,char * Path)
+int Build_Ang_Shift_Map (Image_Data * Par,char * Path)
 {
 	int i;
 	double * Ang_Shift_Map;
@@ -204,36 +199,217 @@ int Build_Ang_Shift_Map (Image_Data * Parameters,char * Path)
 
 	FILE * fout;
 	
-	Ang_Shift_Map = (double *)calloc(Parameters->Size_Rho,sizeof(double));
+	Ang_Shift_Map = (double *)calloc(Par->Size_Rho,sizeof(double));
 
-	if (Parameters->Fovea_Type < 4)
+	if (Par->Fovea_Type < 4)
 	{
-		for (i=1; i<Parameters->Size_Fovea; i+=2)
+		for (i=1; i<Par->Size_Fovea; i+=2)
 		{
 			Ang_Shift_Map[i+1] = - 2.0 * PI/(6*(i+1));
 			Ang_Shift_Map[i]   = +       PI/(6* (i) );
 		}
 
-		for (i=Parameters->Size_Fovea; i<Parameters->Size_Rho-1; i+=2)
+		for (i=Par->Size_Fovea; i<Par->Size_Rho-1; i+=2)
 		{
-			Ang_Shift_Map[i+1] = +     PI/(Parameters->Size_Theta);
+			Ang_Shift_Map[i+1] = +     PI/(Par->Size_Theta);
 		}
 	}
 	else
 	{
 		// Write here the code for Giotto 2.1
 	}
-
-	sprintf(File_Name,"%s%s",Path,"AngularShiftMap.gio");
+	
+	if (Par->Ratio == 1.00)
+		sprintf(File_Name,"%s%s",Path,"AngularShiftMap.gio");
+	else
+		sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"AngularShiftMap.gio");
 	
 	fout = fopen(File_Name,"wb");
-	fwrite(Ang_Shift_Map,sizeof(double),Parameters->Size_Rho,fout);
+	fwrite(Ang_Shift_Map,sizeof(double),Par->Size_Rho,fout);
 	fclose (fout);
 
 	free (Ang_Shift_Map);
 
 	return 1;
 }
+
+/************************************************************************
+*																		*
+* Build_Cart2LP_Map     												*
+*																		*
+* Builds a Look-up Table with the information needed for the			*
+* Cartesian to LP transformation and saves it in the working			*
+* folder with the file name Cart2LPMap.gio								*
+*																		*
+* Input: Parameters														*
+* 			Set of all the needed parameters							*
+*		 Path															*
+* 			Working folder												*
+* 																		*
+************************************************************************/
+
+int Build_Cart2LP_Map(Image_Data * Par, char * Path)
+{
+	int i,j,k,l;
+//	int PadSizeTheta;
+	int x,y; 
+	int rho,theta;
+	int retval;
+	int Total_Size = 0;
+	LUT_Ptrs Tables;
+	Cart2LPInterp * Temp_Array;
+	Cart2LPInterp * Cart2LP_Map;
+	unsigned short  * Pad_Map;
+	double * Ang_Shift_Map;
+	char File_Name [256];
+	FILE * fout;
+	double Temp_ZoomLev = Par->Zoom_Level;
+	Par->Zoom_Level = (double)Par->Size_X_Orig/(double)Par->Resolution;
+	Par->Valid_Log_Index = false;
+
+	retval = Load_Tables(Par,&Tables,Path,17);
+
+	if (retval != 17)
+	{
+		if ((retval&&1)==0)
+			Build_Ang_Shift_Map(Par,Path);
+
+		if ((retval&&16)==0)
+			Build_Pad_Map(Par,Path);
+
+		retval = Load_Tables(Par,&Tables,Path,17);
+	}
+
+	if (retval != 17)
+	{
+		if (Tables.AngShiftMap!=NULL)
+			free(Tables.AngShiftMap);
+		if (Tables.PadMap!=NULL)
+			free(Tables.PadMap);
+		return 0;
+	}
+	else
+	{
+//		PadSizeTheta = (((Par->Size_Theta * Par->LP_Planes) % Par->padding) + (Par->Size_Theta * Par->LP_Planes));
+//		offset = (Par->Size_Theta * Par->LP_Planes) % Par->padding;
+		Temp_Array = (Cart2LPInterp *)malloc(Par->Size_LP * sizeof(Cart2LPInterp));
+		Cart2LP_Map = (Cart2LPInterp *)malloc(Par->Size_LP * sizeof(Cart2LPInterp));
+		for (j=0; j<Par->Size_LP; j++)
+		{
+			Temp_Array[j].position = (unsigned int *)malloc(256 * sizeof(unsigned int));
+			Temp_Array[j].NofPixels = 0;
+			Temp_Array[j].position[0] = 0;
+		}
+
+		Ang_Shift_Map = Tables.AngShiftMap;
+		Pad_Map = Tables.PadMap;
+
+		for (k=0; k<Par->Size_Fovea; k++)
+		{
+			for (l=0; l<Par->Size_Theta; l++)
+			{
+				x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+				y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+				if ((x<Par->Size_X_Orig/2)&&(x>=-Par->Size_X_Orig/2)&&(y<Par->Size_Y_Orig/2)&&(y>=-Par->Size_Y_Orig/2))
+					Temp_Array [k*Par->Size_Theta+l].position[0] = 3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2);
+			}
+		}
+/*		if  (Par->Fovea_Type == 0)
+		{
+			for (k=0; k<Par->Size_Fovea; k++)
+			{
+				for (l=0; l<Par->Size_Theta; l++)
+				{
+					x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+					y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+					Temp_Array[Pad_Map[k*Par->Size_Theta+l]].position[0] = 3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2);
+				}
+			}
+		}
+		else if (Par->Fovea_Type == 1)
+		{
+			for (k=0; k<Par->Size_Fovea; k++)
+			{
+				for (l=0; l<Par->Size_Theta; l++)
+				{
+					x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+					y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+					Temp_Array[Pad_Map[k*Par->Size_Theta+l]].position[0] = 3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2);
+				}
+			}
+		}
+*/
+		for (j=0; j<Par->Size_Y_Orig; j++)
+			for (i=0; i<Par->Size_X_Orig; i++)
+			{
+				rho = Get_Rho(i-Par->Size_X_Orig/2,Par->Size_Y_Orig/2-j,Par);
+				if ((rho>=0)&&(rho<Par->Size_Rho))
+				{
+					theta = Get_Theta(i-Par->Size_X_Orig/2,Par->Size_Y_Orig/2-j,rho,Par,Ang_Shift_Map,Pad_Map);
+					Temp_Array[rho*Par->Size_Theta+theta].position[Temp_Array[rho*Par->Size_Theta+theta].NofPixels] = 3*(j*Par->Size_X_Orig+i);
+					Temp_Array[rho*Par->Size_Theta+theta].NofPixels ++;
+//					ImageArray[3*(rho*Par->Size_Theta+theta)+0].value += InCartImage[3*((j)*Par->Size_X_Orig+(i))+0];
+//					ImageArray[3*(rho*Par->Size_Theta+theta)+0].counter ++;
+				}
+			}
+//		for (j=0; j<Par->Size_LP; j++)
+		for (k=0; k<Par->Size_Rho; k++)
+		{
+			for (l=0; l<Par->Size_Theta; l++)
+			{
+//				k = j/Par->Size_Theta;
+//				l = j%Par->Size_Theta;
+				if (Temp_Array[k*Par->Size_Theta+l].NofPixels == 0)
+				{
+					Temp_Array[k*Par->Size_Theta+l].NofPixels = 1;
+					if (k>=Par->Size_Fovea)
+					{
+						x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+						y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+						Temp_Array[k*Par->Size_Theta+l].position[0] = 3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2);
+					}
+				}
+				Cart2LP_Map[k*Par->Size_Theta+l].position = (unsigned int *)malloc(Temp_Array[k*Par->Size_Theta+l].NofPixels * sizeof(unsigned int));
+				Cart2LP_Map[k*Par->Size_Theta+l].NofPixels = Temp_Array[k*Par->Size_Theta+l].NofPixels;
+				Total_Size += Temp_Array[k*Par->Size_Theta+l].NofPixels;			
+				for (i=0; i<Temp_Array[k*Par->Size_Theta+l].NofPixels; i++)
+					Cart2LP_Map[k*Par->Size_Theta+l].position[i] = Temp_Array[k*Par->Size_Theta+l].position[i];
+			}
+		}
+
+		if (Par->Ratio= 1.00)
+			sprintf(File_Name,"%s%s",Path,"Cart2LPMap.gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"Cart2LPMap.gio");
+
+
+		fout = fopen(File_Name,"wb");
+//		for (j=0; j<Par->Size_LP; j++)
+//		{
+		for (k=0; k<Par->Size_Rho; k++)
+		{
+			for (l=0; l<Par->Size_Theta; l++)
+			{
+				fwrite(&Cart2LP_Map[k*Par->Size_Theta+l].NofPixels,sizeof(unsigned char),1,fout);
+				fwrite(Cart2LP_Map[k*Par->Size_Theta+l].position  ,sizeof(unsigned  int),Cart2LP_Map[k*Par->Size_Theta+l].NofPixels,fout);
+			}
+		}
+		fclose (fout);
+		Par->Zoom_Level = Temp_ZoomLev;
+		free (Pad_Map);
+		free (Ang_Shift_Map);
+		free (Cart2LP_Map);
+		free (Temp_Array);
+
+		return 1;
+	}
+}
+
+//				sumR += Input_Image[Cart2LP_Map[k*PadSizeTheta+3*l].position[i]];
+//				sumG += Input_Image[Cart2LP_Map[k*PadSizeTheta+3*l].position[i]+1];
+//				sumB += Input_Image[Cart2LP_Map[k*PadSizeTheta+3*l].position[i]+2];
+//				TablePtr[0].position++;
+
 
 /************************************************************************
 *																		*
@@ -245,12 +421,14 @@ int Build_Ang_Shift_Map (Image_Data * Parameters,char * Path)
 *																		*
 * The information is taken from an image which has been built off-line.	*
 *																		*
-* Input: Path															*
+* Input: Parameters														*
+* 			Set of all the needed parameters							*
+*		 Path															*
 * 			Working folder												*
 * 																		*
 ************************************************************************/	
 
-int Build_Color_Map (char * Path)
+int Build_Color_Map (Image_Data * Par, char * Path)
 {
 	int i,j;
 	int XSize,YSize,planes;
@@ -260,28 +438,37 @@ int Build_Color_Map (char * Path)
 
 	FILE * fout;
 
-	sprintf(File_Name,"%s%s",Path,"ReferenceImage.bmp");
+	if (Par->Ratio == 1.00)
+		sprintf(File_Name,"%s%s",Path,"ReferenceImage.bmp");
+	else
+		sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"ReferenceImage.bmp");		
 
 	Image = Read_Bitmap(&XSize,&YSize,&planes,File_Name);
 
+	if ((XSize!=Par->Size_Theta)||(YSize!=Par->Size_Rho)||(planes != Par->LP_Planes))
+		return 0;
+
 	if (Image != NULL)
 	{
-		Color_Map = (char *)malloc(XSize * YSize * sizeof(char));
+		Color_Map = (char *)malloc(Par->Size_LP * sizeof(char));
 
-		for (i=0; i< XSize * YSize; i++)
+		for (i=0; i< Par->Size_LP; i++)
 		{
 			Color_Map[i] = -1;
-			for (j=0; j<planes; j++)
+			for (j=0; j<Par->LP_Planes; j++)
 				if (Image[3*i+j] == 255)
 					Color_Map[i] = j;
 		}
 
 		free (Image);
 
-		sprintf(File_Name,"%s%s",Path,"ColorMap.gio");
+		if (Par->Ratio == 1.00)
+			sprintf(File_Name,"%s%s",Path,"ColorMap.gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"ColorMap.gio");
 
 		fout = fopen(File_Name,"wb");
-		fwrite(Color_Map,sizeof(char),XSize * YSize,fout);
+		fwrite(Color_Map,sizeof(char),Par->Size_LP,fout);
 		fclose (fout);
 
 		free (Color_Map);
@@ -292,73 +479,7 @@ int Build_Color_Map (char * Path)
 		return 0;
 }
 
-/************************************************************************
-* Build_DownSample_Map													*
-* Costruisce una tabella che permette di trasformare l'immagine			*
-* originale a 33k pixel in una ridotta a 11k pixel						*
-* e salva la tabella su file.											*
-*																		*
-* Input: Path															*
-* 		 Percorso della directory di lavoro								*
-* 																		*
-************************************************************************/	
-/*
-int Build_DownSample_Map (Image_Data * Parameters, char * Path)
-{
-	int i,j;
-	unsigned short * DownSample_Map;
-	char           * Color_Map;
-	unsigned short * DS_Map;
-	char File_Name [256];
-	int retval;
-	LUT_Ptrs Tables;
 
-	FILE * fout;
-
-	retval = Load_Tables(Parameters,&Tables,Path,2);
-
-	if (retval != 2)
-		return 0;
-	else
-	{
-		Color_Map = Tables.ColorMap;
-
-		DownSample_Map = (unsigned short *)calloc(Parameters->Size_LP, sizeof(unsigned short));
-
-		DS_Map = DownSample_Map;
-		
-		for (j=0; j< 2 * Parameters->Size_Fovea; j+=2)
-			for (i=0; i< 2 * Parameters->Size_Theta; i+=2)
-				if (Color_Map[(j/2)*Parameters->Size_Theta+(i/2)] != -1)
-					*DS_Map++ = j * 2 * Parameters->Size_Theta + i; 
-				else 
-					*DS_Map++ = 0;
-
-		for (j=2 * Parameters->Size_Fovea; j<2 * Parameters->Size_Rho; j+=2)
-		{
-			for (i=0; i<2 * Parameters->Size_Theta; i+=2)
-				if (j%4==2)
-					*DS_Map++ = j * 2 * Parameters->Size_Theta + i; 
-				else
-					*DS_Map++ = j * 2 * Parameters->Size_Theta + i + 1; 
-
-		}
-
-
-		sprintf(File_Name,"%s%s",Path,"DownsampleMap.gio");
-
-		fout = fopen(File_Name,"wb");
-		fwrite(DownSample_Map,sizeof(unsigned short),Parameters->Size_LP,fout);
-		fclose (fout);
-
-		free(Color_Map);
-		free (DownSample_Map);
-
-		return 1;
-	}
-
-}
-*/
 /************************************************************************
 * Build_Neighborhood_Map  												*
 *																		*
@@ -367,8 +488,7 @@ int Build_DownSample_Map (Image_Data * Parameters, char * Path)
 * 																		*
 ************************************************************************/	
 
-int Build_Neighborhood_Map(Image_Data * Par,
-							char * Path)
+int Build_Neighborhood_Map(Image_Data * Par, char * Path)
 {
 	int j,k;
 	int ii,jj,kk;
@@ -391,10 +511,21 @@ int Build_Neighborhood_Map(Image_Data * Par,
 
 	FILE * fout;
 
+	Neighbor_Map_RGB = (Neighborhood *)malloc(Par->Size_LP * Pix_Numb * 3 * sizeof(Neighborhood));
+
 	retval = Load_Tables(Par,&Tables,Path,130);
 
+	if (retval != 130)
+	{
+		if ((retval&&128)==0)
+			Build_XY_Map(Par,Path);
+
+		if ((retval&&2)==0)
+			Build_Color_Map(Par,Path);
+
+		retval = Load_Tables(Par,&Tables,Path,130);
+	}
 	
-	Neighbor_Map_RGB = (Neighborhood *)malloc(Par->Size_LP * Pix_Numb * 3 * sizeof(Neighborhood));
 
 	if (retval != 130)
 	{
@@ -493,7 +624,10 @@ int Build_Neighborhood_Map(Image_Data * Par,
 		}
 
 
-		sprintf(File_Name,"%s%s",Path,"NeighborhoodMap.gio");
+		if (Par->Ratio == 1.00)
+			sprintf(File_Name,"%s%s",Path,"NeighborhoodMap.gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"NeighborhoodMap.gio");
 
 		fout = fopen(File_Name,"wb");
 		fwrite(Neighbor_Map_RGB,sizeof(Neighborhood),Par->Size_LP * Pix_Numb * 3,fout);
@@ -527,7 +661,7 @@ int Build_Neighborhood_Map(Image_Data * Par,
 * 																		*
 ************************************************************************/	
 
-int Build_Pad_Map (Image_Data * Parameters,char * Path)
+int Build_Pad_Map (Image_Data * Par,char * Path)
 {
 	int i,j,k=0;
 	int XSize,YSize,planes;
@@ -537,33 +671,39 @@ int Build_Pad_Map (Image_Data * Parameters,char * Path)
 
 	FILE * fout;
 	
-	sprintf(File_Name,"%s%s",Path,"ReferenceImage.bmp");
+	if (Par->Ratio == 1.00)
+		sprintf(File_Name,"%s%s",Path,"ReferenceImage.bmp");
+	else
+		sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"ReferenceImage.bmp");		
 
 	Image = Read_Bitmap(&XSize,&YSize,&planes,File_Name);
 
 	if (Image != NULL)
 	{
-		Pad_Map = (unsigned short *)malloc(Parameters->Size_Theta * Parameters->Size_Fovea * sizeof(unsigned short));
+		Pad_Map = (unsigned short *)malloc(Par->Size_Theta * Par->Size_Fovea * sizeof(unsigned short));
 
-		for (j=0; j<Parameters->Size_Fovea; j++)
+		for (j=0; j<Par->Size_Fovea; j++)
 		{	
-			for (i=0; i<Parameters->Size_Theta; i++)
+			for (i=0; i<Par->Size_Theta; i++)
 			{
-				Pad_Map[j*Parameters->Size_Theta+i] = 1;
-				if(Image[3*(j*Parameters->Size_Theta+i)] != 128)
+				Pad_Map[j*Par->Size_Theta+i] = 1;
+				if(Image[3*(j*Par->Size_Theta+i)] != 128)
 				{
-					Pad_Map[k] = j*Parameters->Size_Theta+i;
+					Pad_Map[k] = j*Par->Size_Theta+i;
 					k++;
 				}
 			}
-			k=Parameters->Size_Theta*(j+1);
+			k=Par->Size_Theta*(j+1);
 		}
 		
 
-		sprintf(File_Name,"%s%s",Path,"PadMap.gio");
+		if (Par->Ratio == 1.00)
+			sprintf(File_Name,"%s%s",Path,"PadMap.gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"PadMap.gio");
 
 		fout = fopen(File_Name,"wb");
-		fwrite(Pad_Map,sizeof(unsigned short),Parameters->Size_Theta * Parameters->Size_Fovea,fout);
+		fwrite(Pad_Map,sizeof(unsigned short),Par->Size_Theta * Par->Size_Fovea,fout);
 		fclose (fout);
 
 		free (Pad_Map);
@@ -579,16 +719,11 @@ int Build_Pad_Map (Image_Data * Parameters,char * Path)
 /************************************************************************
 * Build_Remap_Map     													*
 * Costruisce una tabella di corrispondenza tra coordinate Log-Polari  	*
-* e cartesiane. (per adesso di intende la fovea paddata)				*
+* e cartesiane.															*
 *																		*
-* Input: Fovea Type: it can be:     									*
-*					 0. Giotto 2.0 (33k pixels, old fovea)				*
-*					 1. Giotto 2.1 (33k pixels, new fovea)				*
-* 																		*
 ************************************************************************/	
 
-int Build_Remap_Map (Image_Data * Parameters,
-					  char * Path)
+int Build_Remap_Map (Image_Data * Par, char * Path)
 {
 	int i,j;
 	char File_Name [256];
@@ -607,7 +742,18 @@ int Build_Remap_Map (Image_Data * Parameters,
 
 	FILE * fout;
 
-	retval = Load_Tables(Parameters,&Tables,Path,17);
+	retval = Load_Tables(Par,&Tables,Path,17);
+
+	if (retval != 17)
+	{
+		if ((retval&&1)==0)
+			Build_Ang_Shift_Map(Par,Path);
+
+		if ((retval&&16)==0)
+			Build_Pad_Map(Par,Path);
+
+		retval = Load_Tables(Par,&Tables,Path,17);
+	}
 
 	if (retval != 17)
 	{
@@ -622,18 +768,18 @@ int Build_Remap_Map (Image_Data * Parameters,
 		Ang_Shift_Map = Tables.AngShiftMap;
 		Pad_Map = Tables.PadMap;
 
-		PadSizeTheta = (((Parameters->Size_Theta * Parameters->LP_Planes) % Parameters->padding) + (Parameters->Size_Theta * Parameters->LP_Planes));
-		XSize = (int)(Parameters->Resolution * Parameters->Zoom_Level + 0.5);
+		PadSizeTheta = (((Par->Size_Theta * Par->LP_Planes) % Par->padding) + (Par->Size_Theta * Par->LP_Planes));
+		XSize = (int)(Par->Resolution * Par->Zoom_Level + 0.5);
 		YSize = XSize;
 
 //		Remap_Map = (int *)malloc(XSize * YSize * sizeof(int));
-		Remap_Map = (int *)malloc(Parameters->Size_Img_Remap * sizeof(int));
+		Remap_Map = (int *)malloc(Par->Size_Img_Remap * sizeof(int));
 
-		startX = (XSize/2)-Parameters->Size_X_Remap/2;
-		startY = (YSize/2)-Parameters->Size_Y_Remap/2;
-		endX   = (XSize/2)+Parameters->Size_X_Remap/2;
-		endY   = (YSize/2)+Parameters->Size_Y_Remap/2;
-	//	if (Parameters->Fovea_Type == 0)
+		startX = (XSize/2)-Par->Size_X_Remap/2;
+		startY = (YSize/2)-Par->Size_Y_Remap/2;
+		endX   = (XSize/2)+Par->Size_X_Remap/2;
+		endY   = (YSize/2)+Par->Size_Y_Remap/2;
+	//	if (Par->Fovea_Type == 0)
 		if (1)
 		{
 //			for (j=0; j<YSize; j++)
@@ -641,24 +787,27 @@ int Build_Remap_Map (Image_Data * Parameters,
 			for (j=startY; j<endY; j++)
 				for (i=startX; i<endX; i++)
 				{
-					rho   = (int)(Get_Rho  (i-XSize/2,YSize/2-j,Parameters));
-					theta = (int)(Get_Theta(i-XSize/2,YSize/2-j,rho,Parameters,Ang_Shift_Map,Pad_Map));
-					if ((rho<Parameters->Size_Rho)&&(rho>=0)&&(theta<Parameters->Size_Theta)&&(theta>=0))
-//						Remap_Map[j*XSize+i] = 3*(rho*Parameters->Size_Theta+theta);
+					rho   = (int)(Get_Rho  (i-XSize/2,YSize/2-j,Par));
+					theta = (int)(Get_Theta(i-XSize/2,YSize/2-j,rho,Par,Ang_Shift_Map,Pad_Map));
+					if ((rho<Par->Size_Rho)&&(rho>=0)&&(theta<Par->Size_Theta)&&(theta>=0))
+//						Remap_Map[j*XSize+i] = 3*(rho*Par->Size_Theta+theta);
 //						Remap_Map[j*XSize+i] = (rho*PadSizeTheta+3*theta);
-						Remap_Map[(j-startY)*Parameters->Size_X_Remap+i-startX] = (rho*PadSizeTheta+3*theta);
+						Remap_Map[(j-startY)*Par->Size_X_Remap+i-startX] = (rho*PadSizeTheta+3*theta);
 					else
-						Remap_Map[(j-startY)*Parameters->Size_X_Remap+i-startX] = 0;
+						Remap_Map[(j-startY)*Par->Size_X_Remap+i-startX] = 0;
 				}
 
 		}
 
-//		sprintf(File_Name,"%s%s_%2.3f%s",Path,"RemapMap",Parameters->Zoom_Level,".gio");
-		sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",Path,"RemapMap",Parameters->Zoom_Level,Parameters->Size_X_Remap,Parameters->Size_Y_Remap,".gio");
+//		sprintf(File_Name,"%s%s_%2.3f%s",Path,"RemapMap",Par->Zoom_Level,".gio");
+		if (Par->Ratio == 1.00)
+			sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",Path,"RemapMap",Par->Zoom_Level,Par->Size_X_Remap,Par->Size_Y_Remap,".gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%s_%2.3f_%dx%d%s",Path,Par->Ratio,"RemapMap",Par->Zoom_Level,Par->Size_X_Remap,Par->Size_Y_Remap,".gio");
 		
 		fout = fopen(File_Name,"wb");
 //		fwrite(Remap_Map,sizeof(int),XSize * YSize,fout);
-		fwrite(Remap_Map,sizeof(int),Parameters->Size_Img_Remap,fout);
+		fwrite(Remap_Map,sizeof(int),Par->Size_Img_Remap,fout);
 		fclose (fout);
 
 		free (Pad_Map);
@@ -673,7 +822,7 @@ int Build_Remap_Map (Image_Data * Parameters,
 * Build_Weights_Map		  												*
 ************************************************************************/	
 
-unsigned char Build_Weights_Map(Image_Data * Par,
+int Build_Weights_Map(Image_Data * Par,
 								char * Path)
 {
 	int i,j,k;
@@ -695,7 +844,17 @@ unsigned char Build_Weights_Map(Image_Data * Par,
 	retval = Load_Tables(Par,&Tables,Path,8);
 
 	if (retval != 8)
+	{
+		Build_Neighborhood_Map(Par,Path);
+		retval = Load_Tables(Par,&Tables,Path,8);
+	}
+
+	if (retval != 8)
+	{
+		if (Tables.NeighborMap!=NULL)
+			free(Tables.NeighborMap);
 		return 0;
+	}
 	else
 	{
 		Neighbor_Map_RGB = Tables.NeighborMap;
@@ -766,7 +925,10 @@ unsigned char Build_Weights_Map(Image_Data * Par,
 
 
 
-		sprintf(File_Name,"%s%s%02d%s",Path,"WeightsMap",Par->Pix_Numb,".gio");
+		if (Par->Ratio == 1.00)
+			sprintf(File_Name,"%s%s%02d%s",Path,"WeightsMap",Par->Pix_Numb,".gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%s%02d%s",Path,Par->Ratio,"WeightsMap",Par->Pix_Numb,".gio");
 
 		fout = fopen(File_Name,"wb");
 		fwrite(Weights_Map,sizeof(Neighborhood),Par->Size_LP * Par->Pix_Numb * 3,fout);
@@ -784,21 +946,14 @@ unsigned char Build_Weights_Map(Image_Data * Par,
 * Costruisce una tabella di corrispondenza tra coordinate Log-Polari  	*
 * e cartesiane. (per adesso di intende la fovea paddata)				*
 *																		*
-* Input: Fovea Type: it can be:     									*
-*					 0. Giotto 2.0 (33k pixels, old fovea)				*
-*					 1. Giotto 2.1 (33k pixels, new fovea)				*
-*        Table File Name												*
-* 		 Ang_Shift_Filename												*
-* 																		*
 ************************************************************************/	
 
-int Build_XY_Map (Image_Data * Parameters,
-		 		   char * Path)
+int Build_XY_Map (Image_Data * Par, char * Path)
 {
 	int i,j;
 	unsigned short * Pad_Map;
 	double * Ang_Shift_Map;
-	double * One_Line;
+//	double * One_Line;
 	double * X_Map;
 	double * Y_Map;
 	char File_Name [256];
@@ -808,7 +963,18 @@ int Build_XY_Map (Image_Data * Parameters,
 	int retval;
 	LUT_Ptrs Tables;
 
-	retval = Load_Tables(Parameters,&Tables,Path,17);
+	retval = Load_Tables(Par,&Tables,Path,17);
+
+	if (retval != 17)
+	{
+		if ((retval&&1)==0)
+			Build_Ang_Shift_Map(Par,Path);
+
+		if ((retval&&16)==0)
+			Build_Pad_Map(Par,Path);
+
+		retval = Load_Tables(Par,&Tables,Path,17);
+	}
 
 	if (retval != 17)
 	{
@@ -822,57 +988,60 @@ int Build_XY_Map (Image_Data * Parameters,
 	{
 		Ang_Shift_Map = Tables.AngShiftMap;
 		Pad_Map = Tables.PadMap;
-		One_Line = (double *)calloc(Parameters->Size_Theta,sizeof(double));
+//		One_Line = (double *)calloc(Par->Size_Theta,sizeof(double));
 		
 
-		X_Map = (double *)calloc(Parameters->Size_LP,sizeof(double));
-		Y_Map = (double *)calloc(Parameters->Size_LP,sizeof(double));
+		X_Map = (double *)calloc(Par->Size_LP,sizeof(double));
+		Y_Map = (double *)calloc(Par->Size_LP,sizeof(double));
 
-		for (j=1; j< Parameters->Size_Rho; j++)
-			for (i=0; i<Parameters->Size_Theta; i++)
+		for (j=1; j< Par->Size_Rho; j++)
+			for (i=0; i<Par->Size_Theta; i++)
 			{
-				X_Map[j*Parameters->Size_Theta+i] = Get_X_Center(j,i,Parameters,Ang_Shift_Map,Pad_Map);
-				Y_Map[j*Parameters->Size_Theta+i] = Get_Y_Center(j,i,Parameters,Ang_Shift_Map,Pad_Map);
+				X_Map[j*Par->Size_Theta+i] = Get_X_Center(j,i,Par,Ang_Shift_Map,Pad_Map);
+				Y_Map[j*Par->Size_Theta+i] = Get_Y_Center(j,i,Par,Ang_Shift_Map,Pad_Map);
 			}
 /*
-		for (j=1; j< Parameters->Size_Fovea; j++)
+		for (j=1; j< Par->Size_Fovea; j++)
 			for (i=0; i<6*j; i++)
 			{
-				X_Map[j*Parameters->Size_Theta+i] = Get_X_Center(j,i,Parameters,Ang_Shift_Map,Pad_Map);
-				Y_Map[j*Parameters->Size_Theta+i] = Get_Y_Center(j,i,Parameters,Ang_Shift_Map,Pad_Map);
+				X_Map[j*Par->Size_Theta+i] = Get_X_Center(j,i,Par,Ang_Shift_Map,Pad_Map);
+				Y_Map[j*Par->Size_Theta+i] = Get_Y_Center(j,i,Par,Ang_Shift_Map,Pad_Map);
 			}
-		for (j=Parameters->Size_Fovea; j< Parameters->Size_Rho; j++)
-			for (i=0; i<Parameters->Size_Theta; i++)
+		for (j=Par->Size_Fovea; j< Par->Size_Rho; j++)
+			for (i=0; i<Par->Size_Theta; i++)
 			{
-				X_Map[j*Parameters->Size_Theta+i] = Get_X_Center(j,i,Parameters,Ang_Shift_Map,Pad_Map);
-				Y_Map[j*Parameters->Size_Theta+i] = Get_Y_Center(j,i,Parameters,Ang_Shift_Map,Pad_Map);
+				X_Map[j*Par->Size_Theta+i] = Get_X_Center(j,i,Par,Ang_Shift_Map,Pad_Map);
+				Y_Map[j*Par->Size_Theta+i] = Get_Y_Center(j,i,Par,Ang_Shift_Map,Pad_Map);
 			}
 		
 		//Unpadding
 
-		for (j=0;j<Parameters->Size_Fovea;j++)
+		for (j=0;j<Par->Size_Fovea;j++)
 		{
-			memcpy(One_Line,X_Map + j*Parameters->Size_Theta,Parameters->Size_Theta * sizeof(double));
+			memcpy(One_Line,X_Map + j*Par->Size_Theta,Par->Size_Theta * sizeof(double));
 
-			memset(X_Map + j*Parameters->Size_Theta,0,Parameters->Size_Theta * sizeof(double));
+			memset(X_Map + j*Par->Size_Theta,0,Par->Size_Theta * sizeof(double));
 
-			for (i=0;i<Parameters->Size_Theta;i++)
-				X_Map[Pad_Map[j*Parameters->Size_Theta+i]] = One_Line[i];
+			for (i=0;i<Par->Size_Theta;i++)
+				X_Map[Pad_Map[j*Par->Size_Theta+i]] = One_Line[i];
 
-			memcpy(One_Line,Y_Map+j*Parameters->Size_Theta,Parameters->Size_Theta * sizeof(double));
-			memset(Y_Map+j*Parameters->Size_Theta,0,Parameters->Size_Theta*sizeof(double));
-			for (i=0;i<Parameters->Size_Theta;i++)
-				Y_Map[Pad_Map[j*Parameters->Size_Theta+i]] = One_Line[i];
+			memcpy(One_Line,Y_Map+j*Par->Size_Theta,Par->Size_Theta * sizeof(double));
+			memset(Y_Map+j*Par->Size_Theta,0,Par->Size_Theta*sizeof(double));
+			for (i=0;i<Par->Size_Theta;i++)
+				Y_Map[Pad_Map[j*Par->Size_Theta+i]] = One_Line[i];
 		}
 */		
-		sprintf(File_Name,"%s%s",Path,"XYMap.gio");
+		if (Par->Ratio = 1.00)
+			sprintf(File_Name,"%s%s",Path,"XYMap.gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"XYMap.gio");
 
 		fout = fopen(File_Name,"wb");
-		fwrite(X_Map,sizeof(double),Parameters->Size_LP,fout);
-		fwrite(Y_Map,sizeof(double),Parameters->Size_LP,fout);
+		fwrite(X_Map,sizeof(double),Par->Size_LP,fout);
+		fwrite(Y_Map,sizeof(double),Par->Size_LP,fout);
 		fclose (fout);
 
-		free (One_Line);
+//		free (One_Line);
 		free (Pad_Map);
 		free (Ang_Shift_Map);
 		free (X_Map);
@@ -882,7 +1051,7 @@ int Build_XY_Map (Image_Data * Parameters,
 	}
 
 }
-
+/*
 int Crop_Remap_Map(Image_Data *Par, char* Path)
 {
 	int x,y;
@@ -940,7 +1109,7 @@ int Crop_Remap_Map(Image_Data *Par, char* Path)
 
 }
 
-
+*/
 /************************************************************************
 * Build_Remap_Map_No_Fov												*
 * Costruisce una tabella di corrispondenza tra coordinate Log-Polari  	*
@@ -951,8 +1120,8 @@ int Crop_Remap_Map(Image_Data *Par, char* Path)
 *					 1. Giotto 2.1 (33k pixels, new fovea)				*
 * 																		*
 ************************************************************************/	
-
-int Build_Remap_Map_No_Fov (Image_Data * Parameters,
+/*
+int Build_Remap_Map_No_Fov (Image_Data * Par,
 					  char * Path)
 {
 	int i,j;
@@ -969,7 +1138,7 @@ int Build_Remap_Map_No_Fov (Image_Data * Parameters,
 
 	FILE * fout;
 
-	retval = Load_Tables(Parameters,&Tables,Path,17);
+	retval = Load_Tables(Par,&Tables,Path,17);
 
 	if (retval != 17)
 	{
@@ -981,34 +1150,34 @@ int Build_Remap_Map_No_Fov (Image_Data * Parameters,
 	}
 	else
 	{
-		PadSizeTheta = (((Parameters->Size_Theta * Parameters->LP_Planes) % Parameters->padding) + (Parameters->Size_Theta * Parameters->LP_Planes));
+		PadSizeTheta = (((Par->Size_Theta * Par->LP_Planes) % Par->padding) + (Par->Size_Theta * Par->LP_Planes));
 		Ang_Shift_Map = Tables.AngShiftMap;
 		Pad_Map = Tables.PadMap;
 
-		XSize = (int)(Parameters->Resolution * Parameters->Zoom_Level + 0.5);
+		XSize = (int)(Par->Resolution * Par->Zoom_Level + 0.5);
 		YSize = XSize;
 
 		Remap_Map = (int *)malloc(XSize * YSize * sizeof(int));
 
-	//	if (Parameters->Fovea_Type == 0)
+	//	if (Par->Fovea_Type == 0)
 		if (1)
 		{
 			for (j=0; j<YSize; j++)
 				for (i=0; i<XSize; i++)
 				{
-					rho   = (int)(Get_Rho  (i-XSize/2,YSize/2-j,Parameters));
-					theta = (int)(Get_Theta(i-XSize/2,YSize/2-j,rho,Parameters,Ang_Shift_Map,Pad_Map));
-					if ((rho<Parameters->Size_Rho)&&(rho>=Parameters->Size_Fovea)&&(theta<Parameters->Size_Theta)&&(theta>=0))
-//						Remap_Map[j*XSize+i] = 3*((rho-Parameters->Size_Fovea)*Parameters->Size_Theta+theta);
+					rho   = (int)(Get_Rho  (i-XSize/2,YSize/2-j,Par));
+					theta = (int)(Get_Theta(i-XSize/2,YSize/2-j,rho,Par,Ang_Shift_Map,Pad_Map));
+					if ((rho<Par->Size_Rho)&&(rho>=Par->Size_Fovea)&&(theta<Par->Size_Theta)&&(theta>=0))
+//						Remap_Map[j*XSize+i] = 3*((rho-Par->Size_Fovea)*Par->Size_Theta+theta);
 //						Remap_Map[j*XSize+i] = (rho*PadSizeTheta+3*theta);
-						Remap_Map[j*XSize+i] = ((rho-Parameters->Size_Fovea)*PadSizeTheta+3*theta);
+						Remap_Map[j*XSize+i] = ((rho-Par->Size_Fovea)*PadSizeTheta+3*theta);
 					else
 						Remap_Map[j*XSize+i] = -1;
 				}
 
 		}
 
-		sprintf(File_Name,"%s%s_%2.3f%s",Path,"RemapMapNoFov",Parameters->Zoom_Level,".gio");
+		sprintf(File_Name,"%s%s_%2.3f%s",Path,"RemapMapNoFov",Par->Zoom_Level,".gio");
 		
 		fout = fopen(File_Name,"wb");
 		fwrite(Remap_Map,sizeof(int),XSize * YSize,fout);
@@ -1022,7 +1191,7 @@ int Build_Remap_Map_No_Fov (Image_Data * Parameters,
 
 }
 
-
+*/
 /************************************************************************
 * Build_Neighborhood_Map_No_Fov											*
 *																		*
@@ -1030,7 +1199,7 @@ int Build_Remap_Map_No_Fov (Image_Data * Parameters,
 * 		 Path															*
 * 																		*
 ************************************************************************/	
-
+/*
 int Build_Neighborhood_Map_NoFov(Image_Data * Par,
 							char * Path)
 {
@@ -1160,11 +1329,11 @@ int Build_Neighborhood_Map_NoFov(Image_Data * Par,
 
 }
 
-
+*/
 /************************************************************************
 * Build_Weights_Map_NoFov	  											*
 ************************************************************************/	
-
+/*
 unsigned char Build_Weights_Map_NoFov(Image_Data * Par,
 								char * Path)
 {
@@ -1283,11 +1452,11 @@ unsigned char Build_Weights_Map_NoFov(Image_Data * Par,
 		return Par->Pix_Numb;
 	}
 }
-
+*/
 /************************************************************************
 * Build_Fast_Weights_Map		  												*
 ************************************************************************/	
-
+/*
 //unsigned char Build_Fast_Weights_Map(Image_Data * Par,
 //								char * Path)
 IntNeighborhood * Build_Fast_Weights_Map(Image_Data * Par,
@@ -1426,7 +1595,7 @@ IntNeighborhood * Build_Fast_Weights_Map(Image_Data * Par,
 	}
 */
 //Weight Quantization
-		
+/*		
 	for (j=0; j<Par->Size_LP * Par->Pix_Numb * 3; j++)
 		if (Weights_Map[j].weight>(1/sqrt((double)2)))
 			Weights_Map[j].weight = 1.0;
@@ -1552,7 +1721,7 @@ IntNeighborhood * Build_Fast_Weights_Map(Image_Data * Par,
 		return Fast_Weights_Map;
 	}
 }
-	
+*/	
 int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 {
 	Image_Data SParam;
@@ -1560,46 +1729,48 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	//Tables
 	double * FakeAngShift;
 	unsigned short FakePadMap;
-	int * LRemapMap,* SRemapMap;
+//	int * LRemapMap,* SRemapMap;
 	unsigned char * LRem, * SRem;
 	Neighborhood ** DownSampleTable;
 	IntNeighborhood * IntDownSampleTable;
 
+	LUT_Ptrs STables, LTables;
 
 	int rho,theta;
 	int rhosmall, thetasmall, valid;
 	int x,y;
 	int i,j,k;
 	int step;
+	int retval;
 
 	int LRho,LTheta,LPlanes;
 	int SRho,STheta,SPlanes;
 
-	char LocalPath [256]; 
+//	char LocalPath [256]; 
 	char File_Name [256]; 
-	FILE * fin, * fout;
+	FILE * fout;
 
-	char SearchString [] = ".00";
-	char * pointer = NULL;
-	bool modpath = false;
+//	char SearchString [] = ".00";
+//	char * pointer = NULL;
+//	bool modpath = false;
 	
-	pointer = strstr(Path,SearchString);
+//	pointer = strstr(Path,SearchString);
 
-	if (pointer != NULL)
-	{
-		*(--pointer) = 0;
-		modpath = true;
-	}
+//	if (pointer != NULL)
+//	{
+//		*(--pointer) = 0;
+//		modpath = true;
+//	}
 
 //Loads the Reference Images
 
-	sprintf(File_Name,"%s%2.2f\\ReferenceImage.bmp",Path,1.00);
+	sprintf(File_Name,"%s\\ReferenceImage.bmp",Path);
 	unsigned char * LLP = Read_Bitmap(&LTheta,&LRho,&LPlanes,File_Name);
 
-	sprintf(File_Name,"%s%2.2f\\ReferenceImage.bmp",Path,Ratio);
+	sprintf(File_Name,"%s\\%1.2f_ReferenceImage.bmp",Path,Ratio);
 	unsigned char * SLP = Read_Bitmap(&STheta,&SRho,&SPlanes,File_Name);
 
-//Sets the parameters
+//Sets the Par
 	
 	LParam->Zoom_Level = 1090.0/83.0; //83 is (SizeFovea*2)-1
 
@@ -1613,6 +1784,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	LParam->Fovea_Type = 2;
 	SParam.padding = LParam->padding;
 	SParam.Fovea_Type = 0;
+	SParam.Ratio = Ratio;
 
 	int ListSize = (int)((Ratio + 2) * (Ratio + 2));
 
@@ -1689,63 +1861,87 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 				SLP[3*j+2] = 255;
 		}
 
-		sprintf(LocalPath,"%s%2.2f\\",Path,1.00);
-		sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",	LocalPath,
-												"RemapMap",
-												LParam->Zoom_Level,
-												LParam->Size_X_Remap,
-												LParam->Size_Y_Remap,
-												".gio");
+		retval = Load_Tables(LParam,&LTables,Path,32);
 
-		if ((fin = fopen(File_Name,"rb")) != NULL)
+		if (retval!=32)
 		{
-			LRemapMap = (int *) malloc (LParam->Size_Img_Remap * sizeof(int));
-			fread(LRemapMap,sizeof(int),LParam->Size_Img_Remap,fin);
-			fclose (fin);
-		}
-		else
-		{
-			Build_Remap_Map(LParam,LocalPath);
-			if ((fin = fopen(File_Name,"rb")) != NULL)
-			{
-				LRemapMap = (int *) malloc (LParam->Size_Img_Remap * sizeof(int));
-				fread(LRemapMap,sizeof(int),LParam->Size_Img_Remap,fin);
-				fclose (fin);
-			}
-			else
-				LRemapMap = NULL;
+			Build_Remap_Map(LParam,Path);
+			retval = Load_Tables(LParam,&LTables,Path,32);
+			if (retval !=32)
+				LTables.RemapMap = NULL;
 		}
 
-		Remap(LRem,LLP,LParam,LRemapMap);
+//		sprintf(LocalPath,"%s",Path);
+//		sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",	LocalPath,
+//												"RemapMap",
+//												LParam->Zoom_Level,
+//												LParam->Size_X_Remap,
+//												LParam->Size_Y_Remap,
+//												".gio");
 
-		sprintf(LocalPath,"%s%2.2f\\",Path,Ratio);
-		sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",	LocalPath,
-												"RemapMap",
-												SParam.Zoom_Level,
-												SParam.Size_X_Remap,
-												SParam.Size_Y_Remap,
-												".gio");
+//		if ((fin = fopen(File_Name,"rb")) != NULL)
+//		{
+//			LRemapMap = (int *) malloc (LParam->Size_Img_Remap * sizeof(int));
+//			fread(LRemapMap,sizeof(int),LParam->Size_Img_Remap,fin);
+//			fclose (fin);
+//		}
+//		else
+//		{
+//			Build_Remap_Map(LParam,LocalPath);
+//			if ((fin = fopen(File_Name,"rb")) != NULL)
+//			{
+//				LRemapMap = (int *) malloc (LParam->Size_Img_Remap * sizeof(int));
+//				fread(LRemapMap,sizeof(int),LParam->Size_Img_Remap,fin);
+//				fclose (fin);
+//			}
+//			else
+//				LRemapMap = NULL;
+//		}
 
-		if ((fin = fopen(File_Name,"rb")) != NULL)
+		Remap(LRem,LLP,LParam,LTables.RemapMap);
+
+
+		retval = Load_Tables(&SParam,&STables,Path,32);
+
+		if (retval!=32)
 		{
-			SRemapMap = (int *) malloc (SParam.Size_Img_Remap * sizeof(int));
-			fread(SRemapMap,sizeof(int),SParam.Size_Img_Remap,fin);
-			fclose (fin);
-		}
-		else
-		{
-			Build_Remap_Map(&SParam,LocalPath);
-			if ((fin = fopen(File_Name,"rb")) != NULL)
-			{
-				SRemapMap = (int *) malloc (SParam.Size_Img_Remap * sizeof(int));
-				fread(SRemapMap,sizeof(int),SParam.Size_Img_Remap,fin);
-				fclose (fin);
-			}
-			else
-				SRemapMap = NULL;
+			Build_Remap_Map(&SParam,Path);
+			retval = Load_Tables(&SParam,&STables,Path,32);
+			if (retval !=32)
+				STables.RemapMap = NULL;
 		}
 
-		Remap(SRem,SLP,&SParam,SRemapMap);
+//		sprintf(LocalPath,"%s",Path);
+//		sprintf(File_Name,"%s%1.2f_%s_%2.3f_%dx%d%s",	LocalPath,
+//												"RemapMap",
+//												SParam.Zoom_Level,
+//												SParam.Size_X_Remap,
+//												SParam.Size_Y_Remap,
+//												".gio");
+
+//		if ((fin = fopen(File_Name,"rb")) != NULL)
+//		{
+//			SRemapMap = (int *) malloc (SParam.Size_Img_Remap * sizeof(int));
+///			fread(SRemapMap,sizeof(int),SParam.Size_Img_Remap,fin);
+//			fclose (fin);
+//		}
+//		else
+//		{
+//			Build_Remap_Map(&SParam,LocalPath);
+//			if ((fin = fopen(File_Name,"rb")) != NULL)
+//			{
+//				SRemapMap = (int *) malloc (SParam.Size_Img_Remap * sizeof(int));
+//				fread(SRemapMap,sizeof(int),SParam.Size_Img_Remap,fin);
+//				fclose (fin);
+//			}
+//			else
+//				SRemapMap = NULL;
+//		}
+
+		Remap(SRem,SLP,&SParam,STables.RemapMap);
+
+		Save_Bitmap(LRem,1090,1090,3,"c:\\temp\\images\\reml.bmp");
+		Save_Bitmap(SRem,1090,1090,3,"c:\\temp\\images\\rems.bmp");
 		
 		for (y = 0; y<LParam->Size_Y_Remap; y++)
 			for (x=0; x<LParam->Size_X_Remap; x++)
@@ -1768,8 +1964,8 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 					DownSampleTable[rhosmall*STheta+thetasmall][i].weight ++;
 				}
 			}
-		free(LRemapMap);
-		free(SRemapMap);
+		free(LTables.RemapMap);
+		free(STables.RemapMap);
 	}
 
 //Now "weight" stores the number of pixels for each position
@@ -1932,7 +2128,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			}
 	}
 	
-	sprintf(File_Name,"%s1.00\\%s%1.2f%s",Path,"DSMap_",Ratio,".gio");
+	sprintf(File_Name,"%s%s%1.2f_%s",Path,"DSMap_",Ratio,".gio");
 
 
 	MAXIndex = 0;
@@ -1971,19 +2167,19 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	free (*DownSampleTable);
 	free (DownSampleTable);
 
-	if (modpath)
-		sprintf(Path,"%s1.00\\",Path);
+//	if (modpath)
+//		sprintf(Path,"%s1.00\\",Path);
 
 	return 1;
 }
 	
 
 
-void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Param, float Ratio,IntNeighborhood * IntDownSampleTable)
+void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Par, float Ratio,IntNeighborhood * IntDownSampleTable)
 {	
 	int i,j,k;
 
-	const int SizeLP = (int)(Param->Size_LP / (Ratio*Ratio));
+	const int SizeLP = (int)(Par->Size_LP / (Ratio*Ratio));
 	const int div = (int)(Ratio);
 	
 	int i_SumR,i_SumG,i_SumB;
@@ -2009,3 +2205,72 @@ void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, 
 		OutImage[k+2] = (unsigned char) (i_SumB>>div);
 	}
 }
+
+
+/************************************************************************
+* Build_DownSample_Map	(Not used)										*
+* Costruisce una tabella che permette di trasformare l'immagine			*
+* originale a 33k pixel in una ridotta a 11k pixel						*
+* e salva la tabella su file.											*
+*																		*
+* Input: Path															*
+* 		 Percorso della directory di lavoro								*
+* 																		*
+************************************************************************/	
+/*
+int Build_DownSample_Map (Image_Data * Par, char * Path)
+{
+	int i,j;
+	unsigned short * DownSample_Map;
+	char           * Color_Map;
+	unsigned short * DS_Map;
+	char File_Name [256];
+	int retval;
+	LUT_Ptrs Tables;
+
+	FILE * fout;
+
+	retval = Load_Tables(Par,&Tables,Path,2);
+
+	if (retval != 2)
+		return 0;
+	else
+	{
+		Color_Map = Tables.ColorMap;
+
+		DownSample_Map = (unsigned short *)calloc(Par->Size_LP, sizeof(unsigned short));
+
+		DS_Map = DownSample_Map;
+		
+		for (j=0; j< 2 * Par->Size_Fovea; j+=2)
+			for (i=0; i< 2 * Par->Size_Theta; i+=2)
+				if (Color_Map[(j/2)*Par->Size_Theta+(i/2)] != -1)
+					*DS_Map++ = j * 2 * Par->Size_Theta + i; 
+				else 
+					*DS_Map++ = 0;
+
+		for (j=2 * Par->Size_Fovea; j<2 * Par->Size_Rho; j+=2)
+		{
+			for (i=0; i<2 * Par->Size_Theta; i+=2)
+				if (j%4==2)
+					*DS_Map++ = j * 2 * Par->Size_Theta + i; 
+				else
+					*DS_Map++ = j * 2 * Par->Size_Theta + i + 1; 
+
+		}
+
+
+		sprintf(File_Name,"%s%s",Path,"DownsampleMap.gio");
+
+		fout = fopen(File_Name,"wb");
+		fwrite(DownSample_Map,sizeof(unsigned short),Par->Size_LP,fout);
+		fclose (fout);
+
+		free(Color_Map);
+		free (DownSample_Map);
+
+		return 1;
+	}
+
+}
+*/
