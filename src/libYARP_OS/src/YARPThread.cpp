@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.4 2004-07-07 10:34:40 eshuy Exp $
+/// $Id: YARPThread.cpp,v 1.5 2004-07-07 20:31:15 eshuy Exp $
 ///
 ///
 
@@ -73,6 +73,7 @@
 ///
 #include <yarp/YARPThread.h>
 #include <yarp/YARPSemaphore.h>
+#include <yarp/YARPTime.h>
 
 #ifdef __QNX6__
 #include <sys/neutrino.h>
@@ -93,9 +94,7 @@ unsigned ExecuteThread (void *args)
 	
 	//signal(SIGTERM,&HandleSignal);  // argh, no way to send a signal to the thread :(
 	
-	printf("yyyyyyyyyyyyyyyyyyyyyyyy %d\n", __LINE__);
 	thread->Body();
-	printf("yyyyyyyyyyyyyyyyyyyyyyyy %d\n", __LINE__);
 	
 	return 0;
 }
@@ -169,29 +168,20 @@ void YARPBareThread::Begin (int stack_size)
 
 int YARPBareThread::Join (int timeout)
 {
-  printf("XXXXXX %d\n", __LINE__);
 	sema.Wait();
-  printf("XXXXXX %d\n", __LINE__);
 	if (shutdown_state == YT_AskedEnd)
 		shutdown_state = YT_Joining;
-  printf("XXXXXX %d\n", __LINE__);
 	sema.Post();
-  printf("XXXXXX %d\n", __LINE__);
 
 	ACE_UNUSED_ARG (timeout);
-  printf("XXXXXX %d\n", __LINE__);
 	int r = ACE_Thread::join ((ACE_hthread_t)system_resource);
-  printf("XXXXXX %d\n", __LINE__);
 
 	/// if joined (otherwise hung!)
-  printf("XXXXXX %d\n", __LINE__);
 	sema.Wait();
 	system_resource = NULL;
 	identifier = -1;
 	shutdown_state = YT_None;
-  printf("XXXXXX %d\n", __LINE__);
 	sema.Post();
-  printf("XXXXXX %d\n", __LINE__);
 
 	return r;
 }

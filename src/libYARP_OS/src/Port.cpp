@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.5 2004-07-07 10:34:40 eshuy Exp $
+/// $Id: Port.cpp,v 1.6 2004-07-07 20:31:14 eshuy Exp $
 ///
 ///
 
@@ -224,8 +224,9 @@ void OutputTarget::Body ()
 	/// implicit wait mutex for this thread.
 	/// see overridden Begin()
 
-#if defined(__QNX6__) || defined(__LINUX__)
-	signal (SIGPIPE, SIG_IGN);
+#if defined(__QNX6__)
+  // || defined(__LINUX__)
+  signal (SIGPIPE, SIG_IGN);
 #endif
 	int success = YARP_OK;
 	NewFragmentHeader header;
@@ -672,8 +673,9 @@ void _strange_select::Body ()
 	ACE_DEBUG ((LM_DEBUG, "***** _strange_select::Body : starting\n"));
 
 #if defined(__QNX6__) || defined(__LINUX__)
-	signal (SIGCHLD, SIG_IGN);
-	signal (SIGPIPE, SIG_IGN);
+	//signal (SIGCHLD, SIG_IGN);
+	//signal (SIGPIPE, SIG_IGN);
+	// check this again on QNX
 #endif
 
 	OutputTarget *target, *next;
@@ -1347,24 +1349,17 @@ void Port::Body()
 						}
 					}
 
-					printf(":::::::::::: %d\n", __LINE__);
 					list_mutex.Post ();
 
 					/// signal the SelfEnd that the msg has been received.
 
-					printf(":::::::::::: %d\n", __LINE__);
 					complete_msg_thread.Signal ();
 
-					printf(":::::::::::: %d\n", __LINE__);
-
 					/// wait for closure of SelfEnd socket and relative thread.
-					printf(":::::::::::: %d\n", __LINE__);
 					complete_terminate.Wait();
-					printf(":::::::::::: %d\n", __LINE__);
 
 					/// only now asks for End.
 					AskForEnd ();
-					printf(":::::::::::: %d\n", __LINE__);
 				}
 				break;
 
@@ -1387,37 +1382,24 @@ void Port::Body()
 		}
 	} /// if !terminated
 
-					printf(":::::::::::: %d\n", __LINE__);
-
 	/// since this is started in this thread close it here.
 	tsender.AskForEnd();
-					printf(":::::::::::: %d\n", __LINE__);
 	tsender.pulseGo();
-					printf(":::::::::::: %d\n", __LINE__);
 	tsender.Join();
-
-					printf(":::::::::::: %d\n", __LINE__);
 
 	/// tries to shut down the input socket threads.
 	YARPEndpointManager::Close (*pid);
 
-					printf(":::::::::::: %d\n", __LINE__);
-
 	/// unregister the port name here.
 	YARPNameService::UnregisterName (pid);
-
-					printf(":::::::::::: %d\n", __LINE__);
 
 	/// free memory.
 	YARPNameService::DeleteName (pid);
 	pid = NULL;
 
-					printf(":::::::::::: %d\n", __LINE__);
-
 	/// wakes up a potential thread waiting on a blocking Read().
 	has_input = 1;
 	something_to_read.Post();
-					printf(":::::::::::: %d\n", __LINE__);
 
 	ACE_DEBUG ((LM_DEBUG, "***** main port thread 0x%x returning\n", GetIdentifier()));
 }
@@ -1710,40 +1692,26 @@ int Port::SaySelfEnd(void)
 
 	if (self_id != NULL)
 	{
-		printf(">>>>>>>> %d\n", __LINE__);
-
 		if (self_id->isValid())
 		{
 			result = SendHelper (*self_id, NULL, 0, MSG_ID_DETACH_ALL);
 		}
 
-		printf(">>>>>>>> %d\n", __LINE__);
-
 		/// wait for message to be received.
 		complete_msg_thread.Wait();
 
-		printf(">>>>>>>> %d\n", __LINE__);
-	
 		/// deletes the endpoint.
 		YARPEndpointManager::Close (*self_id);
 
-		printf(">>>>>>>> %d\n", __LINE__);
-
 		YARPNameService::DeleteName (self_id);
 		self_id = NULL;
-
-		printf(">>>>>>>> %d\n", __LINE__);
 
 		///YARPScheduler::yield();
 
 		/// tell the main thread to complete the termination function.
 		complete_terminate.Signal();
 
-		printf(">>>>>>>> %d\n", __LINE__);
-
 		YARPThread::Join ();
-
-		printf(">>>>>>>> %d\n", __LINE__);
 	}
 
 	return result;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.3 2004-07-07 10:34:40 eshuy Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.4 2004-07-07 20:31:14 eshuy Exp $
 ///
 ///
 
@@ -71,6 +71,7 @@
 #include <ace/Handle_Set.h>
 #include <ace/Time_Value.h>
 #include <ace/Sched_Params.h>
+#include <yarp/YARPTime.h>
 
 #if defined(__QNX6__) || defined(__LINUX__)
 #include <signal.h>
@@ -157,6 +158,9 @@ public:
 } PACKED_FOR_NET;
 
 #include <yarp/end_pack_for_net.h>
+
+//#define printf if (0) printf
+
 
 class YARPInputSocketMulti;
 class _SocketThreadListMulti;
@@ -707,9 +711,7 @@ void _SocketThreadMulti::End (int dontkill /* = -1 */)
 {
 	ACE_UNUSED_ARG (dontkill);
 
-	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
 	_mutex.Wait ();
-	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
 
 	///
 	/// closing strategy:
@@ -720,15 +722,11 @@ void _SocketThreadMulti::End (int dontkill /* = -1 */)
 	if (_local_acceptor.get_handle() != ACE_INVALID_HANDLE)
 		_local_acceptor.close();
 
-	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
-
 	switch (_socket_addr->getServiceType())
 	{
 	case YARP_TCP:
 		{
-	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
 			AskForEnd ();
-	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
 
 			_socket = NULL;
 
@@ -751,9 +749,7 @@ void _SocketThreadMulti::End (int dontkill /* = -1 */)
 			_wakeup.Post ();
 
 			/// the thread should have been terminated anyway!
-	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
 			YARPBareThread::Join();
-	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
 		}
 		break;
 
@@ -863,8 +859,9 @@ void _SocketThreadMulti::End (int dontkill /* = -1 */)
 ///	error check is not consistent.
 void _SocketThreadMulti::Body (void)
 {
-#if defined(__QNX6__) || defined(__LINUX__)
-	signal (SIGPIPE, SIG_IGN);
+#if defined(__QNX6__)
+  // || defined(__LINUX__)
+  //signal (SIGPIPE, SIG_IGN);
 #endif
 
 	_mutex.Wait();
@@ -880,7 +877,7 @@ void _SocketThreadMulti::Body (void)
 	{
 	case YARP_TCP:
 		_mutex.Post();
-		ACE_DEBUG ((LM_DEBUG, "***** _SocketThreadMulti::Body : starting a TCP reader thread\n"));
+		ACE_DEBUG ((LM_DEBUG, "***** _SocketThreadMulti::Body : starting a TCP reader thread (id 0x%x)\n", GetIdentifier()));
 		BodyTcp ();			/// tcp only connection.
 		break;
 
@@ -945,7 +942,18 @@ void _SocketThreadMulti::BodyTcp (void)
 
 		/// I wonder whether this can be made to read the current packet instead of...
 		/// better packing all the sends in a single send_n - what about the NODELAY option?.
-		r = _stream->recv_n (&hdr, sizeof(hdr), 0);
+		r = 0;
+		double now = YARPTime::GetTimeAsSeconds();
+		double prev = now-1000;
+		while (r==0 && (now-prev>YARP_SHORT_SOCK_TIMEOUT/2.0)) {
+		  // repeat loop so long as it is willing to block.
+		  // could just check errno once I work out what ACE does with it
+		  ACE_Time_Value timeout (YARP_SHORT_SOCK_TIMEOUT, 0);
+		  prev = now;
+		  r = _stream->recv_n (&hdr, sizeof(hdr), &timeout);
+		  now = YARPTime::GetTimeAsSeconds();
+		}
+		//r = _stream->recv_n (&hdr, sizeof(hdr), 0);
 		
 		if (r <= 0)
 		{
@@ -1766,7 +1774,7 @@ void _SocketThreadListMulti::addSocket (void)
 	ACE_ASSERT (_initialized != 0);
 
 #if defined(__QNX__) || defined(__LINUX__)
-	signal( SIGCHLD, SIG_IGN );     /* Ignore condition */
+	//signal( SIGCHLD, SIG_IGN );     /* Ignore condition */
 #endif
 
 	YARPScheduler::yield();
@@ -2239,7 +2247,7 @@ void _SocketThreadListMulti::declareDataWritten (void)
 int _SocketThreadListMulti::read(char *buf, int len, ACE_HANDLE *reply_pid)
 {
 #if defined(__QNX__) || defined(__LINUX__)
-	signal( SIGCHLD, SIG_IGN );     /* Ignore condition */
+  //signal( SIGCHLD, SIG_IGN );     /* Ignore condition */
 #endif
 
 	ACE_HANDLE save_pid = ACE_INVALID_HANDLE;

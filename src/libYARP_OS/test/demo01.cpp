@@ -24,7 +24,7 @@ extern int __debug_level;
 
 
 int main() {
-   __debug_level = 100;
+  //__debug_level = 100;
 
   in_port.Register("/test/demo01/in");
   out_port.Register("/test/demo01/out");
