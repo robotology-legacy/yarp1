@@ -10,7 +10,7 @@
 // 
 //     Description:  Implements all the sound processing algorithms.
 // 
-//         Version:  $Id: soundprocessing.cpp,v 1.9 2004-04-29 08:42:16 beltran Exp $
+//         Version:  $Id: soundprocessing.cpp,v 1.10 2004-04-29 15:12:14 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -236,6 +236,7 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 		if ( ptempcross[i] > tempCorr)
 		{
 			tempCorr = ptempcross[i];
+			ind = i;
 		}
 
 	corrMax   = tempCorr;

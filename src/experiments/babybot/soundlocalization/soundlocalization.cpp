@@ -11,7 +11,7 @@
 //     Description:  This is the main loop receiving the sound streams. Another class called
 //     soundprocessing is used to perform all the analysis.
 // 
-//         Version:  $Id: soundlocalization.cpp,v 1.6 2004-04-29 09:58:53 beltran Exp $
+//         Version:  $Id: soundlocalization.cpp,v 1.7 2004-04-29 15:12:14 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -26,12 +26,16 @@
 #include <YARPTime.h>
 #include <YARPSound.h>
 #include <YARPSoundPortContent.h>
+#include <YARPImageDraw.h>
 
 #include "soundprocessing.h"
 
 const int   __outSize    = 5;
 const char *__baseName   = "/soundlocalization/";
 const char *__configFile = "sound.ini";
+const int imgsizex  = 300;
+const int imgsizey  = 255;
+const int functionx = 50;
 
 int main(int argc, char* argv[])
 {
@@ -50,8 +54,10 @@ int main(int argc, char* argv[])
 	double sccvector[100]; // scaled cross correlation vector
 	double sccvector2[100]; // scaled cross correlation vector
 	char * ppixel;
+	int x, y;
 	YARPImageOf<YarpPixelBGR> _sl_img; // Image to create the sound localization map
-	_sl_img.Resize (100, 255);
+	//_sl_img.Resize (100, 255);
+	_sl_img.Resize (imgsizex, imgsizey);
 	YARPScheduler::setHighResScheduling();
 
 	YVector _out(__outSize); 
@@ -80,7 +86,8 @@ int main(int argc, char* argv[])
 
 	time1 = YARPTime::GetTimeAsSeconds();
 
-
+    YarpPixelBGR pixr(128,64,0);
+    YarpPixelBGR pixg(0,128,0);
 	//----------------------------------------------------------------------
 	// Main loop.
 	//----------------------------------------------------------------------
@@ -88,19 +95,35 @@ int main(int argc, char* argv[])
 	{
 		int i;
 		int j  = 0;
+		double ild, left, right;
 		counter++;
 		_inPort.Read();
         _soundprocessor.apply(_inPort.Content(), v); // This is the sound buffer
 
+		x = _soundprocessor.GetITD();
+		_soundprocessor.GetILD(ild, left, right);
+		y = ild;
+
+		//x *= 10;
+		//y *= 10;
+
+		// Move the origin to the center of the image
+		x = (imgsizex/2 + functionx) - x;
+		y = (imgsizey/2) - y;
+
+		_sl_img.Zero(); // clear the image 
+
+		AddCircle(_sl_img,pixr,x,y,10);
+		AddCrossHair(_sl_img,pixg, (imgsizex/2 + functionx), (imgsizey/2), 5);
 		//----------------------------------------------------------------------
-		//  soundlocalization image calculation
+		// crosscorrelation painting in the image 
 		//----------------------------------------------------------------------
 		_pcrosscorrelation     = _soundprocessor.GetCrossCorrelationBuffer(0);
 		_pfreccrosscorrelation = _soundprocessor.GetCrossCorrelationBuffer(1);
 		double max  = 0.0;
 		double max2 = 0.0;
 	
-		for ( i = 0; i < 100; i++)
+		for ( i = 0; i < functionx; i++)
 		{
 			// maping the crosscorrelation vector in the scaled crosscorrelation vector
             sccvector[i]  = (0.5 * sccvector[i])  + (0.5 * _pcrosscorrelation[i]);
@@ -112,10 +135,10 @@ int main(int argc, char* argv[])
 				max2 = sccvector2[i];
 		}
 	
-		_sl_img.Zero(); // clear the image 
+		//sl_img.Zero(); // clear the image 
 
 		// Paint the scaled crosscorrelation function in the image
-		for ( i = 0; i < 100; i++)
+		for ( i = 0; i < functionx; i++)
 		{
 			int y  = (int)((double)(sccvector[i]*125)/(double)max);
 			int y2 = (int)((double)(sccvector2[i]*125)/(double)max2);
@@ -131,6 +154,7 @@ int main(int argc, char* argv[])
 			for ( j = 125; j > y2 && j > 0; j-- )
 			{
 				ppixel  = _sl_img.RawPixel(i,j);
+				ppixel++; ppixel++;
 				*ppixel = 130;
 			}
 		}
