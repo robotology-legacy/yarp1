@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.13 2003-06-13 15:30:17 babybot Exp $
+/// $Id: main.cpp,v 1.14 2003-06-13 22:49:55 gmetta Exp $
 ///
 ///
 
@@ -275,6 +275,77 @@ int _runAsSimulation (void)
 }
 
 
+int _runAsLogpolarSimulation (void)
+{
+	using namespace _logpolarParams;
+
+///	YARPBabybotGrabber grabber;
+	YARPImageOf<YarpPixelBGR> img;
+	YARPImageOf<YarpPixelBGR> fovea;
+	YARPImageOf<YarpPixelBGR> periphery;
+	
+	YARPLogpolarSampler sampler;
+
+	ACE_ASSERT (_xsize == _ysize);
+
+	img.Resize (_xsize, _ysize);
+	fovea.Resize (128, 128);
+	periphery.Resize (_stheta, _srho - _sfovea);
+
+	YARPOutputPortOf<YARPGenericImage> outport;
+
+	outport.Register (_name);
+
+	int frame_no = 0;
+
+	ACE_OS::fprintf (stderr, "starting up simulation of a grabber...\n");
+	ACE_OS::fprintf (stderr, "acq size: w=%d h=%d\n", _xsize, _ysize);
+
+	double start = YARPTime::GetTimeAsSeconds ();
+	double cur = start;
+
+	YARPImageFile::Read (".\\conf\\test1.ppm", img);
+
+	while (!finished)
+	{
+		YARPTime::DelayInSeconds (0.04);
+
+///		img.Zero ();
+///		*(img.GetRawBuffer() + (frame_no % img.GetAllocatedDataSize())) = -1;
+		
+		if ((frame_no % 2) == 0)
+			*(img.GetRawBuffer() + 128 * 256 * 3 + 128 * 3) = -1;
+		else
+			*(img.GetRawBuffer() + 128 * 256 * 3 + 128 * 3) = 0;
+
+		sampler.Cartesian2Logpolar (img, fovea, periphery);
+
+#if 0
+		if (frame_no == 0)
+		{
+			YARPImageFile::Write ("pippo.ppm", img);
+			YARPImageFile::Write ("pipp.ppm", fovea);
+			YARPImageFile::Write ("pip.ppm", periphery);
+		}
+#endif
+
+		outport.Content().Refer (fovea);
+		outport.Write();
+
+		frame_no++;
+		if ((frame_no % 250) == 0)
+		{
+			cur = YARPTime::GetTimeAsSeconds ();
+			ACE_OS::fprintf (stderr, "average frame time: %lf\n", (cur-start)/250);
+			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
+			start = cur;
+		}
+	}
+
+	return YARP_OK;
+}
+
+
 int _runAsLogpolar (void)
 {
 	using namespace _logpolarParams;
@@ -283,6 +354,7 @@ int _runAsLogpolar (void)
 	YARPImageOf<YarpPixelBGR> img;
 	YARPImageOf<YarpPixelBGR> fovea;
 	YARPImageOf<YarpPixelBGR> periphery;
+	
 	YARPLogpolarSampler sampler;
 
 	ACE_ASSERT (_xsize == _ysize);
@@ -328,7 +400,7 @@ int _runAsLogpolar (void)
 
 		grabber.releaseBuffer ();
 
-///		sampler.Cartesian2Logpolar (img, fovea, periphery);
+		sampler.Cartesian2Logpolar (img, fovea, periphery);
 
 		/// sends the buffer.
 		outport.Content().Refer (fovea);
@@ -425,9 +497,14 @@ int main (int argc, char *argv[])
 		return _runAsClient ();
 	}
 	else
-	if (_simu)
+	if (_simu && !_logp)
 	{
 		return _runAsSimulation ();
+	}
+	else
+	if (_simu && _logp)
+	{
+		return _runAsLogpolarSimulation ();
 	}
 	else
 	if (_logp)
