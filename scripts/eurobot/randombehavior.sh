@@ -3,4 +3,4 @@
 #
 #
 #
-behaviorRnd
+pterm behaviorRnd &
