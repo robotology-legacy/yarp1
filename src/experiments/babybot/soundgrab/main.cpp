@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.4 2004-10-26 16:54:36 beltran Exp $
+/// $Id: main.cpp,v 1.5 2004-11-17 09:36:23 beltran Exp $
 ///
 
 #include <yarp/YARPConfig.h>
@@ -47,6 +47,7 @@
 #include <yarp/YARPBottleContent.h>
 #include <yarp/YARPConfigFile.h>
 #include <yarp/YARPParseParameters.h>
+#include <yarp/YARPLogPolar.h>
 
 #ifdef __WIN__
 #include <windows.h>
@@ -636,12 +637,20 @@ mainthread::_runAsNormally (void)
 {
 	int frame_no   = 0;
 	int mute_value = 1;
+	using namespace _logpolarParams;
 
-	YARPSoundGrabber soundgrabber;
-	YARPSoundBuffer  soundbuffer;
-	YARPGrabber      imagegrabber;
+	YARPLogpolarSampler _logPolarSampler;
+	YARPSoundGrabber    soundgrabber;
+	YARPSoundBuffer     soundbuffer;
+	YARPGrabber         imagegrabber;
 	YARPImageOf<YarpPixelBGR> img;
-	img.Resize (_sizex, _sizey);
+	YARPImageOf<YarpPixelMono> _logPolarImage;
+
+	//----------------------------------------------------------------------
+	// Resize images  
+	//----------------------------------------------------------------------
+	img.Resize (_xsize, _ysize);
+	_logPolarImage.Resize(_stheta,_srho);
 
 	//----------------------------------------------------------------------
 	//  Sound Port initialization
@@ -673,8 +682,8 @@ mainthread::_runAsNormally (void)
 	// Imagegrabber initialization stuff 
 	//----------------------------------------------------------------------
 	params._unit_number = _board_no;
-	params._size_x      = _sizex;
-	params._size_y      = _sizey;
+	params._size_x      = _xsize;
+	params._size_y      = _ysize;
 	params._video_type  = _videotype;
 	imagegrabber.initialize(params);
 	
@@ -718,7 +727,7 @@ mainthread::_runAsNormally (void)
 		soundgrabber.acquireBuffer(&tmp);
 		ACE_OS::memcpy (soundbuffer.GetRawBuffer(), tmp, sizeof(unsigned char) * _BufferLength);
 		soundgrabber.releaseBuffer (); 
-
+		
 		//----------------------------------------------------------------------
 		//  Insert the acquisition time in the first sound buffer bytes.
 		//----------------------------------------------------------------------
@@ -731,8 +740,13 @@ mainthread::_runAsNormally (void)
 		imagegrabber.waitOnNewFrame();
 		cur2 = YARPTime::GetTimeAsSeconds();
 		imagegrabber.acquireBuffer(&buffer);
-		ACE_OS::memcpy((unsigned char *)img.GetRawBuffer(), buffer, _sizex * _sizey * 3);
+		ACE_OS::memcpy((unsigned char *)img.GetRawBuffer(), buffer, _xsize * _ysize * 3);
 		imagegrabber.releaseBuffer ();
+		
+		//----------------------------------------------------------------------
+		//  Log polar transformation
+		//----------------------------------------------------------------------
+		_logPolarSampler.Cartesian2Logpolar(img, _logPolarImage);
 
 		//----------------------------------------------------------------------
 		//  Insert the acquisition time in the first images bytes.
@@ -754,7 +768,7 @@ mainthread::_runAsNormally (void)
 		//----------------------------------------------------------------------
 		//  Sent image frame through the network waiting for reception confirmation
 		//----------------------------------------------------------------------
-		imgoutport.Content().Refer(img);
+		imgoutport.Content().Refer(_logPolarImage);
 		imgoutport.Write(1);
 		
 		//----------------------------------------------------------------------
