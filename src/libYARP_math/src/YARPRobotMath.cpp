@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPRobotMath.cpp,v 1.1 2004-07-27 10:52:35 babybot Exp $
+/// $Id: YARPRobotMath.cpp,v 1.2 2005-03-01 17:57:06 babybot Exp $
 ///
 ///
 
@@ -76,7 +76,7 @@ YHmgTrsf::YHmgTrsf(const double d) : YMatrix(4,4) { (*this)=d; }
 
 Y3DVector YHmgTrsf::Position(void) const 
 {
-	assert (NRows() != 4 && NCols() != 4);
+	ACE_ASSERT(NRows() == 4 && NCols() == 4);
 	Y3DVector retMatrix;
 
 	for (int i=1;i<=3;i++)
@@ -87,7 +87,7 @@ Y3DVector YHmgTrsf::Position(void) const
 
 YRotMatrix YHmgTrsf::Rotation(void) const 
 { 
-	assert (NRows() != 4 && NCols() != 4);
+	ACE_ASSERT(NRows() == 4 && NCols() == 4);
 	YRotMatrix retMatrix;
 
 	for (int i=1;i<=3;i++)
@@ -99,7 +99,7 @@ YRotMatrix YHmgTrsf::Rotation(void) const
 
 Y3DVector YHmgTrsf::Z(void) const 
 {
-	assert (NRows() != 4 && NCols() != 4);
+	ACE_ASSERT(NRows() == 4 && NCols() == 4);
 	Y3DVector retV;
 
 	for (int i=1;i<=3;i++)
@@ -110,7 +110,7 @@ Y3DVector YHmgTrsf::Z(void) const
 
 Y3DVector YHmgTrsf::X(void) const 
 { 
-	assert (NRows() != 4 && NCols() != 4);
+	ACE_ASSERT(NRows() == 4 && NCols() == 4);
 	Y3DVector retV;
 
 	for (int i=1;i<=3;i++)
@@ -120,7 +120,7 @@ Y3DVector YHmgTrsf::X(void) const
 }
 Y3DVector YHmgTrsf::Y(void) const 
 { 
-	assert (NRows() != 4 && NCols() != 4);
+	ACE_ASSERT(NRows() == 4 && NCols() == 4);
 	Y3DVector retV;
 
 	for (int i=1;i<=3;i++)
@@ -143,7 +143,7 @@ YRotMatrix::YRotMatrix(void) : YMatrix(3,3)
 
 Y3DVector YRotMatrix::Z(void) const 
 { 
-	assert (NRows() != 3 && NCols() != 3);
+	ACE_ASSERT(NRows() == 3 && NCols() == 3);
 	
 	Y3DVector retV;
 
@@ -155,7 +155,7 @@ Y3DVector YRotMatrix::Z(void) const
 
 Y3DVector YRotMatrix::X(void) const 
 { 
-	assert (NRows() != 3 && NCols() != 3);
+	ACE_ASSERT(NRows() == 3 && NCols() == 3);
 	
 	Y3DVector retV;
 
@@ -167,7 +167,7 @@ Y3DVector YRotMatrix::X(void) const
 
 Y3DVector YRotMatrix::Y(void) const 
 { 
-	assert (NRows() != 3 && NCols() != 3);
+	ACE_ASSERT(NRows() == 3 && NCols() == 3);
 	
 	Y3DVector retV;
 
@@ -188,7 +188,7 @@ Y3DVector::Y3DVector(void) : YVector(3)
 
 inline YRotMatrix Y3DVector::CrossMatrix(void) const
 {
-	assert (Length() != 0);
+	ACE_ASSERT(Length() != 0);
 
 	YRotMatrix rot;
 	rot=0.0;
@@ -204,7 +204,7 @@ inline YRotMatrix Y3DVector::CrossMatrix(void) const
 
 Y3DVector Y3DVector::Cross(const Y3DVector& v) const 
 {
-	assert (v.Length() != 0);
+	ACE_ASSERT(v.Length() != 0);
 
 	Y3DVector ret;
 	ret(1)=(*this)(2)*v(3)-(*this)(3)*v(2);
