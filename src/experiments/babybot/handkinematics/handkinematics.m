@@ -3,6 +3,9 @@
 %
 %
 
+%% load network from disk
+load 'vq1'
+
 idVector = port('create', 'vector', 0, 'mcast');
 if (idVector == -1)
     disp('cannot create hand posture input port');
@@ -59,12 +62,24 @@ if (e == -1)
     return;
 end
 
+idOutBottle = port('create', 'bottle', 1, 'udp');
+if (idOutBottle == -1)
+    disp('cannot create output port');
+    return;
+end
+e = port('register', idOutBottle, '/handkinematics/o:bot', 'default');
+if (e == -1)
+    disp('cannot register output bottle port');
+    return;
+end
+
 %%%% disconnect (if needed) before
 porter ('/handcontrol/o:status', '!/handkinematics/i');
 porter ('/repeater/o', '!/handkinematics/behavior/i');
 porter ('/touch/o', '!/handkinematics/touch/i');
 porter ('/handcontrol/o:force', '!/handkinematics/force/i');
 porter ('/wristforce/o', '!/handkinematics/forcewrist/i');
+porter ('/handkinematics/o:bot', '!/repeater/i');
 
 %%%% connect
 porter('/handcontrol/o:status', '/handkinematics/i');
@@ -72,6 +87,7 @@ porter ('/handcontrol/o:force', '/handkinematics/force/i');
 porter('/repeater/o', '/handkinematics/behavior/i');
 porter('/touch/o', '/handkinematics/touch/i');
 porter ('/wristforce/o', '/handkinematics/forcewrist/i');
+porter ('/handkinematics/o:bot', '/repeater/i');
 
 qh = zeros(1,16);
 qtouch = zeros(1,17);
@@ -136,8 +152,23 @@ while(~exit)
             end
             if(strcmp(bottle{2}, 'ReachingDone'))
                 disp('Reaching done !');
-                play_beeps(5);
-                appendToFile(qh, qtouch, wristForce);
+                data = [qh(2:16) wristForce]';
+                % ask network
+                a = sim(vq1, data);
+                
+                % prepare bottle
+                outBottle{1} = 'Motor';
+                if(a(1) == 1)
+                    disp('--> not grasped !\n');
+                    play_beeps(1);
+                    outBottle{2} = 'HandKinGraspFailure1';
+                else
+                    disp('--> grasped ! \n');
+                    play_beeps(10);
+                    outBottle{2} = 'HandKinGraspSuccess1';
+                end
+               % appendToFile(qh, qtouch, wristForce);
+               port('write', idOutBottle, outBottle);
             end
             if ( (strcmp(bottle{2}, 'HandKinSavePosture')) )
                 %% || (strcmp(bottle{2}, 'GraspRflxClutch')))
@@ -180,5 +211,9 @@ port('destroy', idTouch);
 porter ('/wristforce/o', '!/handkinematics/forcewrist/i');
 port('unregister', idWristForce);
 port('destroy', idWristForce);
+
+porter ('/handkinematics/o:bot', '!/repeater/i');
+port('unregister', idOutBottle);
+port('destroy', idOutBottle);
 
 clear port;

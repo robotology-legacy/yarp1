@@ -166,18 +166,18 @@ void ArmMap::_formTrajectory(const YVector &cmd)
 	_trajectory[0](1) = _command(1)+__shoulderOffset1;
 	_trajectory[0](2) = _command(2)+__armOffset1;
 	_trajectory[0](3) = _command(3)+__foreArmOffset1;
-	_trajectory[0](4) = __wrist1;
-	_trajectory[0](5) = __wrist2;
-	_trajectory[0](6) = __wrist3;
+	_trajectory[0](4) = __wrist1a;
+	_trajectory[0](5) = __wrist2a;
+	_trajectory[0](6) = __wrist3a;
 
 	// actual reaching
 	_trajectory[1] = _command;
 	_trajectory[1](1) = _command(1)+__shoulderOffset2;
 	_trajectory[1](2) = _command(2)+__armOffset2;
 	_trajectory[1](3) = _command(3)+__foreArmOffset2;
-	_trajectory[1](4) = __wrist1;
-	_trajectory[1](5) = __wrist2;
-	_trajectory[1](6) = __wrist3;
+	_trajectory[1](4) = __wrist1b;
+	_trajectory[1](5) = __wrist2b;
+	_trajectory[1](6) = __wrist3b;
 
 	// go back
 	_trajectory[2] = _trajectory[0];

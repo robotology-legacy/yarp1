@@ -81,6 +81,9 @@ int main(int argc, char* argv[])
 	GRBInhibitCommand inhibitOutput;
 	GRBReleaseCommand enableOutput;
 	GRBOutputSignal	sendClutching(YBVGraspRflxClutch);
+	GRBOutputSignal inhibitReaching(YBVReachingInhibit);
+	GRBOutputSignal enableReaching(YBVReachingEnable);
+	
 	GRBInit init;
 	GRBSimpleInput motionDone(YBVHandDone);
 	GRBSimpleInput inhibit(YBVGraspRflxInhibit);
@@ -92,7 +95,7 @@ int main(int argc, char* argv[])
 	behavior.setInitialState(&loopTouch);
 	behavior.add(&inhibit, &inhibitOutput);
 	behavior.add(&release, &enableOutput);
-	behavior.add(&init, &loopTouch, &pickRnd);
+	behavior.add(&init, &loopTouch, &pickRnd, &inhibitReaching);
 	behavior.add(NULL, &loopTouch, &loopTouch);	// loopTouch is a blocking state
 	behavior.add(NULL, &pickRnd, &waitOpen1, &openCmd);
 	behavior.add(&motionDone, &waitOpen1, &grasp, &closeCmd);
@@ -106,6 +109,8 @@ int main(int argc, char* argv[])
 		behavior.add(&forceOpen, &waitT[N-1], &waitOpen2, &openCmd);
 	else
 		behavior.add(NULL, &waitT[N-1], &waitOpen2, &openCmd);
+
+	behavior.add(&motionDone, &waitOpen2, &loopTouch, &enableReaching);
 	
 	behavior.Begin();
 	behavior.loop();

@@ -34,6 +34,9 @@ int main(int argc, char* argv[])
 	SBSimpleInput enableTrackerInput(YBVSinkEnableTracker);
 	SBSimpleInput enableVergenceInput(YBVSinkEnableVergence);
 
+	SBSimpleInput trackingMode(YBVSinkTrackingMode);
+	SBSimpleInput saccadeMode(YBVSinkSaccadeMode);
+
 	SBSimpleInput displayStatusInput(YBVSinkDisplayStatus);
 	
 	SBOutputInhibitAll			inhibitAllCmd;
@@ -50,6 +53,8 @@ int main(int argc, char* argv[])
 	SBOutputEnableVergence		enableVergenceCmd;
 	SBOutputEnableSaccade		enableSaccadeCmd;
 
+	SBOutputTrackingMode		trackingModeCmd;
+	SBOutputSaccadeMode			saccadeModeCmd;
 
 	SBOutputDisplayStatus		displayStatusCmd;
 
@@ -69,6 +74,9 @@ int main(int argc, char* argv[])
 	behavior.add(&displayStatusInput, &displayStatusCmd);
 	behavior.add(&suppress, &suppressCmd);
 	behavior.add(&release, &releaseCmd);
+	
+	behavior.add(&trackingMode, &trackingModeCmd);
+	behavior.add(&saccadeMode, &saccadeModeCmd);
 	
 	// start sink thread
 	headSink.start();

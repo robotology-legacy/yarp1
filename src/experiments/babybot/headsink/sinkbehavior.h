@@ -45,7 +45,8 @@ DECLARE_OUTPUT_STATE(SBOutputEnableTracker);
 DECLARE_OUTPUT_STATE(SBOutputEnableVergence);
 DECLARE_OUTPUT_STATE(SBOutputEnableVor);
 DECLARE_OUTPUT_STATE(SBOutputEnableSaccade);
-
+DECLARE_OUTPUT_STATE(SBOutputTrackingMode);
+DECLARE_OUTPUT_STATE(SBOutputSaccadeMode);
 DECLARE_OUTPUT_STATE(SBOutputDisplayStatus);
 
 class SBSimpleInput: public SinkBehaviorBaseInput

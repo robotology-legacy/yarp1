@@ -19,26 +19,35 @@ int main(int argc, char* argv[])
 	TBWaitIdle				_waitAck1("ack1");
 	TBWaitIdle				_waitAck2("ack2");
 	TBWaitIdle				_waitPrep("prep");
+	TBWaitIdle				_inhibitedState("arm trigger inhibited");
 	TBSimpleOutput			_prepareReaching(YBVReachingPrepare);
 	TBSimpleOutput			_reaching(YBVReachingReach);
-	TBArmInput				_armAck(YBVArmIssuedCmd);
+	TBArmInput				_reachingAck(YBVReachingAck);
 	TBArmInput				_armDone(YBVArmDone);
 	TBArmInput				_armRest(YBVArmRest);			
 	TBArmInput				_armRestDone(YBVArmRestDone);			
 	TBArmInput				_armIsBusy(YBVArmIsBusy);		
 	TBArmInput				_newSaccade(YBVSaccadeNewImpTarget);		
 	TBArmInput				_reachingAbort(YBVReachingAbort);		
+	TBArmInput				_reachingInhibit(YBVReachingInhibit);
+	TBArmInput				_reachingEnable(YBVReachingEnable);
 
 	_behavior.setInitialState(&_waitSaccade);
 	// _behavior.add(&_armAck, &_waitAck, &_waitAck);
 
 	// _behavior.add(&_isAlmostFixated, &_wait, &_waitAFixated, &_prepareReaching);
 
+	_behavior.add(&_reachingInhibit, &_waitSaccade, &_inhibitedState);
+	_behavior.add(&_reachingEnable, &_inhibitedState, &_waitSaccade);
+
 	_behavior.add(&_newSaccade, &_waitSaccade, &_waitFixated);
+	
+	_behavior.add(&_reachingInhibit, &_waitSaccade, &_inhibitedState);
 	_behavior.add(&_isFixated, &_waitFixated, &_waitAck1, &_reaching);
 	_behavior.add(&_armIsBusy, &_waitAck1, &_waitRest);
-	_behavior.add(&_armAck, &_waitAck1, &_waitReaching);
+	_behavior.add(&_reachingAck, &_waitAck1, &_waitReaching);
 	_behavior.add(&_reachingAbort, &_waitAck1, &_waitSaccade);
+	_behavior.add(&_reachingInhibit, &_waitAck1, &_inhibitedState);
 	_behavior.add(NULL, &_waitReaching, &_waitSaccade);
 	// _behavior.add(NULL, &_wait, &_wait);
 	// _behavior.add(NULL, &_wait, &_waitAck1, &_reaching);

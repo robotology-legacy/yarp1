@@ -36,30 +36,28 @@
 ///
 
 ///
-/// $Id: YARPGenericForceSensor.h,v 1.1 2004-07-29 22:11:46 babybot Exp $
+/// $Id: YARPGenericForceSensor.h,v 1.2 2004-09-10 15:14:06 babybot Exp $
 ///
 ///
 
-#ifndef __YARPForceSensorh__
-#define __YARPForceSensorh__
+#ifndef __YARPGenericForceSensorh__
+#define __YARPGenericForceSensorh__
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
-///#include "YARPJR3Adapter.h"
-///#include <YARPMath.h>
 
 template <class  ADAPTER, class PARAMETERS>
-class YARPForceSensor
+class YARPGenericForceSensor
 {
 	public:
-		YARPForceSensor()
+		YARPGenericForceSensor()
 		{
 			_reading = new short [6];
 		}
 
-		~YARPForceSensor()
+		~YARPGenericForceSensor()
 		{
 			delete [] _reading;
 		}
@@ -143,7 +141,5 @@ class YARPForceSensor
 		short *_reading;
 
 };
-
-///typedef YARPForceSensor<YARPJR3Adapter, YARPJR3Params> YARPBabybotForceSensor;
 
 #endif

@@ -43,6 +43,22 @@ void SBOutputRelease::output(Sink *d)
 	d->releaseHead();
 }
 
+void SBOutputSaccadeMode::output(Sink *d)
+{
+	ACE_OS::printf("Saccade mode\n");
+	d->inhibitChannel(SINK_INHIBIT_VOR);
+	d->inhibitChannel(SINK_INHIBIT_SMOOTH);
+	d->enableChannel(SINK_INHIBIT_SACCADES);
+}
+
+void SBOutputTrackingMode::output(Sink *d)
+{
+	ACE_OS::printf("Tracking mode\n");
+	d->inhibitChannel(SINK_INHIBIT_SACCADES);
+	d->enableChannel(SINK_INHIBIT_VOR);
+	d->enableChannel(SINK_INHIBIT_SMOOTH);
+}
+
 void SBOutputInhibitTracker::output(Sink *d)
 {
 	ACE_OS::printf("SinkBehavior: inhibit TRACKER channel\n");

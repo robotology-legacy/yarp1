@@ -1,21 +1,25 @@
 // by nat June 2003
 
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
-#include <YARPRateThread.h>
-#include <YARPSemaphore.h>
-#include <YARPScheduler.h>
-#include <YARPTime.h>
-#include <YARPPort.h>
-#include <YARPMath.h>
-#include <YARPVectorPortContent.h>
+#include <yarp/YARPRobotHardware.h>
 
-#include <YARPForceSensor.h>
-#include <YARPParseParameters.h>
+#include <yarp/YARPRateThread.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPTime.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPMath.h>
+
+//#include <yarp/YARPGenericForceSensor.h>
+//#include <yarp/YARPJR3Adapter.h>
+#include <yarp/YARPParseParameters.h>
 #include <string>
+
+//typedef YARPForceSensor<YARPJR3Adapter, YARPJR3Params> YARPBabybotForceSensor;
 
 using namespace std;
 
@@ -46,7 +50,7 @@ public:
 	void doLoop()
 	{
 	
-		fs.read(_forces);
+		fs.read(_forces.data());
 
 		_outPort.Content() = _forces;
 				

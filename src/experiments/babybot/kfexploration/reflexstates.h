@@ -118,27 +118,14 @@ public:
 	YBVocab _signal;
 };
 
-class EBStartKF: public EBehaviorBaseOutputState
-{
-public:
-	EBStartKF()
-	{
-		_bottle.writeVocab(YBVKFStart);
-	}
-	void output(ExplorationShared *d)
-	{
-		d->_outBehavior.Content() = _bottle;
-		d->_outBehavior.Write(0);
-	}
-
-	YARPBabyBottle _bottle;
-};
-
 class EBEnableTracker: public EBehaviorBaseOutputState
 {
 public:
 	EBEnableTracker()
 	{
+		_bottleSaccade.setID(YBVMotorLabel);
+		_bottleSaccade.writeVocab(YBVSinkInhibitSaccade);
+
 		_bottleVor.setID(YBVMotorLabel);
 		_bottleVor.writeVocab(YBVSinkEnableVor);
 
@@ -147,6 +134,9 @@ public:
 	}
 	void output(ExplorationShared *d)
 	{
+		d->_data = _bottleSaccade;
+		d->send();
+		
 		d->_data = _bottleVor;
 		d->send();
 
@@ -156,6 +146,7 @@ public:
 
 	YARPBabyBottle _bottleVor;
 	YARPBabyBottle _bottleTracker;
+	YARPBabyBottle _bottleSaccade;
 };
 
 class EBInhibitTracker: public EBehaviorBaseOutputState
@@ -168,6 +159,9 @@ public:
 
 		_bottleTracker.setID(YBVMotorLabel);
 		_bottleTracker.writeVocab(YBVSinkInhibitTracker);
+
+		_bottleSaccade.setID(YBVMotorLabel);
+		_bottleSaccade.writeVocab(YBVSinkEnableSaccade);
 	}
 	void output(ExplorationShared *d)
 	{
@@ -176,24 +170,27 @@ public:
 
 		d->_data = _bottleTracker;
 		d->send();
+
+		d->_data = _bottleSaccade;
+		d->send();
 	}
 
 	YARPBabyBottle _bottleVor;
 	YARPBabyBottle _bottleTracker;
+	YARPBabyBottle _bottleSaccade;
 };
 
-class EBStopKF: public EBehaviorBaseOutputState
+class EBBehaviorOutput: public EBehaviorBaseOutputState
 {
 public:
-	EBStopKF()
+	EBBehaviorOutput(const YBVocab &v)
 	{
-		_bottle.writeVocab(YBVKFStop);
+		_bottle.writeVocab(v);
 	}
-
 	void output(ExplorationShared *d)
 	{
 		d->_outBehavior.Content() = _bottle;
-		d->_outBehavior.Write(0);
+		d->_outBehavior.Write(1);
 	}
 
 	YARPBabyBottle _bottle;

@@ -1,5 +1,7 @@
 #define SINGLE_OBJECT_MODE
 
+#define YOU_SHUT_UP
+
 #include <stdio.h>
 #include <assert.h>
 
@@ -177,7 +179,9 @@ int flipper_main(int argc, char *argv[])
       fin.getline(buf,sizeof(buf));
       if (!fin.eof())
 	{
+#ifndef YOU_SHUT_UP
 	  cout << "Processing image for training " << buf << endl;
+#endif
 	  TrainProcess(buf);
 	}
     }
@@ -206,7 +210,9 @@ int flipper_main(int argc, char *argv[])
       fin.getline(buf,sizeof(buf));
       if (!fin.eof())
 	{
+#ifndef YOU_SHUT_UP
 	  cout << "Processing image " << buf << endl;
+#endif
 	  Process(buf);
 	}
     }
@@ -255,7 +261,9 @@ void flipper_apply(YARPImageOf<YarpPixelBGR>& src,
 	int y = spot.GetY();
 	int found = spot.Found();
 	float val = spot.GetStrength();
+#ifndef YOU_SHUT_UP
 	cout << "value of match " << val << endl;
+#endif
 	int offset = found?0:20;
 	AddCircleOutline(dest,pix2,x,y,15+offset);
 	AddCircleOutline(dest,pix1,x,y,13+offset);

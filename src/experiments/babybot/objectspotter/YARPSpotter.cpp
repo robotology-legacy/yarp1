@@ -1,4 +1,5 @@
 #define SINGLE_OBJECT_MODE
+#define YOU_SHUT_UP
 
 
 #include <assert.h>
@@ -151,7 +152,7 @@ typedef long int longint;
 #endif
 
 
-#define CAN_EXPLAIN
+// #define CAN_EXPLAIN
 
 static int g_use_graph = 1;
 static int g_found = 0;
@@ -2056,12 +2057,18 @@ public:
 		{
 		  printf("GOT IT!\n");	
 		  fflush(stdout);
+#ifndef YOU_SHUT_UP
 		  cout << id << endl;
 		  cout << geo.r << " " << geo.g << " " << geo.b << endl;
+#endif
 		  geo.p1.Write(cout);
+#ifndef YOU_SHUT_UP
 		  cout << " // ";
+#endif
 		  geo.p2.Write(cout);
+#ifndef YOU_SHUT_UP
 		  cout << endl;
+#endif
 		  geo.Explain();
 		  fflush(stdout);
 		  exit(1);
@@ -2909,11 +2916,13 @@ public:
 #if 0
 			  if (r)
 			    {
+#ifndef YOU_SHUT_UP
 			      printf("%d Match id is %ld\n", r, g.GetHash());	
 			      g.p1.Write(cout);
 			      printf(" // ");
 			      g.p2.Write(cout);
 			      printf("\n");
+#endif YOU_SHUT_UP
 			    }
 #endif
 			  rx = oracle_bank[oo].ox;
@@ -3005,12 +3014,16 @@ public:
 	}
       if (match)
 	{
+#ifndef YOU_SHUT_UP
 	  printf("%d matches\n", match_ct);
+#endif
 	}
       if (implicate)
 	{
+#ifndef YOU_SHUT_UP
 	  printf("scale is %g (area %g, radius %g)\n", scale, scale_area,
 		 sqrt(scale_area));
+#endif
 	  for (hash_iu::iterator it=implicated_units.begin();
 	       it!=implicated_units.end(); it++)
 	    {
@@ -3148,8 +3161,10 @@ void Smooth(YARPImageOf<YarpPixelFloat>& destf,int strength=20) {
 	    }
 	}
       */
+#ifndef YOU_SHUT_UP
       printf("Max size ID is %d\n", r);
       printf("reasonably sized blobs: %d\n", label.interest);
+#endif
       int cutoff = 40;
       //int use_triplets = (label.interest<cutoff);
       //use_triplets = 0;
@@ -3158,7 +3173,9 @@ void Smooth(YARPImageOf<YarpPixelFloat>& destf,int strength=20) {
 #endif
       if (label.interest>cutoff)
 	{
+#ifndef YOU_SHUT_UP
 	  printf("Chopping some smaller sized regions\n");
+#endif
 	  hash_ip np = label.patches;
 	  label.patches = hash_ip();
 #define MAX_CTS (40)
@@ -3199,7 +3216,9 @@ void Smooth(YARPImageOf<YarpPixelFloat>& destf,int strength=20) {
 		  ct++;
 		}
 	    }
+#ifndef YOU_SHUT_UP
 	  printf("left with reasonably sized blobs: %d\n", ct);
+#endif
 	}
     }
 
@@ -3320,8 +3339,9 @@ void Smooth(YARPImageOf<YarpPixelFloat>& destf,int strength=20) {
 		}
 	      first = 0;
 	    }
-
+#ifndef YOU_SHUT_UP
 	  printf(">>> %s : ", name_label);
+#endif 
 	  int besti = 0;
 	  double best = -1;
 	  int bestflati = 0;
@@ -3364,7 +3384,9 @@ void Smooth(YARPImageOf<YarpPixelFloat>& destf,int strength=20) {
 	      worth_response[i] = accum;
 	      worth_stable[i] = d2;
 
+#ifndef YOU_SHUT_UP
 	      printf("%g (%g) ", accum, d2);
+#endif
 
 	      if (accum>bestflat)
 		{
@@ -3386,8 +3408,10 @@ void Smooth(YARPImageOf<YarpPixelFloat>& destf,int strength=20) {
 		  besti = beststablei;
 		}
 	    }
+#ifndef YOU_SHUT_UP
 	  printf(": %d (%d)", besti, bestflati);
 	  printf("\n");
+#endif
 
 	  YarpPixelBGR pix(255,128,0);
 	  YarpPixelBGR pix2(0,128,255);
@@ -3641,7 +3665,9 @@ void Smooth(YARPImageOf<YarpPixelFloat>& destf,int strength=20) {
 		      double xa, ya;
 		      double la, lb;
 		      fit_ellipse(xe,ye,pct,xc,yc,xa,ya,la,lb);
+#ifndef YOU_SHUT_UP
 		      printf("(%g,%g) %gx%g (%g,%g)\n", xc, yc, la, lb, xa, ya);
+#endif
 		      YARPImageOf<YarpPixelMono> foo;
 		      SatisfySize(src,foo);
 		      EllipseDrawer ed;
@@ -3746,7 +3772,9 @@ void Smooth(YARPImageOf<YarpPixelFloat>& destf,int strength=20) {
 		      if (it==label.patches.end())
 			{
 			  // illusory contour
-			  printf("Illusory match\n");
+#ifndef YOU_SHUT_UP
+				printf("Illusory match\n");
+#endif
 			}
 		      if (it!=label.patches.end())
 			{
@@ -3870,7 +3898,9 @@ void Smooth(YARPImageOf<YarpPixelFloat>& destf,int strength=20) {
 	    //if (dist(ptopx,ptopy,topx,topy)<25 && pbesti==besti && bestflat>1000) //PFHIT
 	    {
 	      stable++;
+#ifndef YOU_SHUT_UP
 		  printf("stable %d\n", stable);
+#endif
 	      if (stable>=4)
 		{
 #ifdef SHOW_WIDE_CIRCLE
@@ -3965,7 +3995,9 @@ static void Process(YARPImageOf<YarpPixelBGR>& src,
   //return;
 
 #ifdef RIGHT_ALIGN
+#ifndef YOU_SHUT_UP
   printf("WARNING RIGHT_ALIGN\n");
+#endif
   if (!match)
     {
       x0 = -1;
@@ -4008,7 +4040,9 @@ static void Process(YARPImageOf<YarpPixelBGR>& src,
   //printf("*** step1b\n");  fflush(stdout);
 
   YARPImageOf<YarpPixelBGR> src2;
+#ifndef YOU_SHUT_UP
   printf("***** setting orientation parameters\n");
+#endif
   fine.SetDemocracy(0);
   //fine.SetLuminanceFilter(11);
   fine.SetLuminanceFilter(8);
@@ -4145,7 +4179,10 @@ static void ellipse_main()
   double xa, ya;
   double la, lb;
   fit_ellipse(x,y,MYN,xc,yc,xa,ya,la,lb);
+#ifdef YOU_SHUT_UP
   printf("(%g,%g) %gx%g (%g,%g)\n", xc, yc, la, lb, xa, ya);
+#endif
+
   YARPImageOf<YarpPixelMono> foo;
   foo.Resize(128,128);
   EllipseDrawer ed;
@@ -4294,7 +4331,9 @@ void YARPSpotter::PruneOverlap()
 	{
 	  if (i!=j)
 	    {
+#ifndef YOU_SHUT_UP
 	      printf("Compare %d and %d\n", i, j);
+#endif
 	      oracle_bank2[i].Compare(oracle_bank[j]);
 	    }
 	}
@@ -4421,12 +4460,14 @@ public:
 		    }
 		}
 #if 1
+#ifndef YOU_SHUT_UP
 	      printf("Call: ");
 	      for (int i=1; i<index; i++)
 		{
 		  printf("[%s] ", bufs[i]);
 		}
 	      printf("\n");
+#endif
 #endif
 	      Apply(index, bufs2);
 	    }
@@ -4499,7 +4540,9 @@ void YARPSpotter::SetTarget(int target)
 void YARPSpotter::Add(YARPImageOf<YarpPixelBGR>& src,
 		      YARPImageOf<YarpPixelMono>& mask)
 {
+#ifndef YOU_SHUT_UP
   dprintf("*** ADDING\n");
+#endif
   double best_cmp = -1;
   int best_idx = -1;
   for (int i=0; i<oracle_count; i++)
@@ -4535,7 +4578,7 @@ void YARPSpotter::Add(YARPImageOf<YarpPixelBGR>& src,
       RedirectTrainer(oracle_bank[best_idx]);
       //UpdateOracle(best_idx,src,mask);
       YARPImageOf<YarpPixelBGR> dest;
-      dprintf("*** train phase\n");
+	  dprintf("*** train phase\n");
       Train(src,mask,dest);
       oracle_proto[best_idx].Set(src,mask);
 #if 0

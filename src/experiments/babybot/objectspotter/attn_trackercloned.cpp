@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_trackercloned.cpp,v 1.3 2004-09-07 15:31:22 babybot Exp $
+/// $Id: attn_trackercloned.cpp,v 1.4 2004-09-10 15:14:06 babybot Exp $
 ///
 ///
 
@@ -78,6 +78,7 @@
 #include <yarp/YARPSemaphore.h>
 #include <yarp/YARPImageDraw.h>
 #include <yarp/YARPParseParameters.h>
+#include <yarp/YARPConfigRobot.h>
 #include <yarp/YARPBottle.h>
 
 #include <yarp/YARPFineOrientation.h>
@@ -93,49 +94,128 @@
 ///
 ///
 ///
+const int __numberOfTrials = 3;
+const int __numOfSaccades = 3;
+const int __delay = 10;
+
 YARPInputPortOf<YARPGenericImage> in_img; //YARPInputPort::NO_BUFFERS);
 YARPOutputPortOf<YARPGenericImage> out_img;
 
 static int global_grasping = 0;
 static YARPSemaphore global_mutex(1);
+static int global_search = 1;
+static int global_trials = __numberOfTrials;
+static int global_saccading = 1;
+static int global_delay = __delay;
+
+#define TRACKER_CLONED_SILENT
 
 class MyBot : public YARPInputPortOf<YARPBottle> 
 {
+public:
+	MyBot():YARPInputPortOf<YARPBottle>(YARPInputPort::DOUBLE_BUFFERS, YARP_UDP){}
 public:
 	virtual void OnRead() 
 	{
 		if (Read()) 
 		{
 			YARPBottle& bot = Content();
-			printf("Got a bottle!\n");
-			bot.display();
-			bot.rewind();
 			// interested in:
 			// KFStart
 			// KFStop
-			const char *buf = bot.tryReadText();
+			// ReachingAbort
+			// ReachingAck
 			YBVocab vocab;
 			if (bot.tryReadVocab(vocab)) 
 			{
-				buf = vocab.c_str();
-			}
-
-			if (buf!=NULL) 
-			{
-				printf("read text %s\n", buf);
-				if (strcmp(buf,"KFStart")==0) 
+				// we have a vocab
+				if (vocab == YBVKFStart)
 				{
+					printf("Cool... I have a new object\n");
+					global_search = 0;	// inhibit search
+					global_grasping = 0;
+				}
+				if (vocab == YBVKFTrain) 
+				{
+					printf("Beginning train\n");
 					global_mutex.Wait();
 					global_grasping = 1;
+					global_search = 0;
 					global_mutex.Post();
-					printf("Beginning exploration\n");
 				}
-				if (strcmp(buf,"KFStop")==0) 
+				if (vocab == YBVKFTrainStop) 
 				{
 					global_mutex.Wait();
 					global_grasping = 0;
+					global_search = 0;
+					global_mutex.Post();
+					printf("Ending training\n");
+				}
+				if (vocab == YBVReachingAbort)
+				{
+					printf("Reaching was aborted\n");
+					global_mutex.Wait();
+					printf("Trials: %d (0 means stop)\n", global_trials);
+					if (global_trials > 0)
+					{
+						printf("... still willing to try again: begin searching\n");
+						global_search = __numOfSaccades;	// start searching
+					}
+					else
+						printf("I'm bored, may I ask another object ?\n");
+					global_mutex.Post();
+				}
+				if (vocab == YBVReachingAck)
+				{
+					printf("Reaching was started, waiting\n");
+					global_mutex.Wait();
+					global_search = 0;
+					global_trials--;
+					printf("Trials: %d (0 means stop)\n", global_trials);
+					global_mutex.Post();
+				}
+				if (vocab == YBVKFStop) 
+				{
+					printf("Beginning searching for a target\n");
+					global_mutex.Wait();
+					global_grasping = 0;
+					global_search = __numOfSaccades;
+					global_delay = __delay;
+					global_trials = __numberOfTrials;
+					printf("Trials: %d (0 means stop)\n", global_trials);
 					global_mutex.Post();
 					printf("Ending exploration\n");
+				}
+				if (vocab == YBVReachingSuccess)
+				{
+					printf("Good news ! I was told reaching was successful, we can stop searching\n");
+					global_mutex.Wait();
+					global_search = 0;	// inhibit search
+					global_grasping = 0;
+					global_trials = 0;
+					global_mutex.Post();
+				}
+				if (vocab == YBVReachingFailure)
+				{
+					printf("Doh ! I was told reaching failed, searching again\n");
+					global_mutex.Wait();
+					if (global_trials > 0)
+						global_search = __numOfSaccades;	// start searching
+					else
+					{
+						printf("On second thought... I give up\n");
+						printf("May I ask another object ?\n");
+					}
+
+					global_grasping = 0;
+					global_mutex.Post();
+				}
+				if (vocab == YBVSaccadeFixated)
+				{
+					global_mutex.Wait();
+						global_saccading = 0;
+						printf("Fixated (saccading = %d)\n", global_saccading);
+					global_mutex.Post();
 				}
 			}
 		}
@@ -224,6 +304,10 @@ int main(int argc, char *argv[])
 		
 		global_mutex.Wait();
 		int grasping = global_grasping;
+		int trials = global_trials;
+		global_delay--;
+		if (global_delay<0)
+			global_delay = 0;
 		global_mutex.Post();
 
 		in_img.Read();
@@ -243,7 +327,9 @@ int main(int argc, char *argv[])
 					pix.r = pix.g = pix.b = 0;
 				}
 			}
+#ifndef TRACKER_CLONED_SILENT
 			if (msg1) { printf("Got an image %dx%d\n",in.GetWidth(),in.GetHeight()); msg1 = 0; }
+#endif
 
 			SatisfySize (in, remapped);
 			remapped.CastCopy(in);
@@ -254,7 +340,9 @@ int main(int argc, char *argv[])
 			int xx = 128, yy = 128, ff = 0;
 #ifndef BYPASS
 			flipper_apply(remapped,out, xx, yy, ff);
-			printf("Done with flipper_apply()\n");
+			#ifndef TRACKER_CLONED_SILENT
+				printf("Done with flipper_apply()\n");
+			#endif
 			out_img.Content().PeerCopy(out);
 #else
 			out = remapped;
@@ -265,53 +353,49 @@ int main(int argc, char *argv[])
 			static int at = 0;
 			at = (at+1)%out.GetHeight();
 
-			printf("Writing image of size %d %d\n",
-					out_img.Content().GetWidth(),
-					out_img.Content().GetHeight());
+			#ifndef TRACKER_CLONED_SILENT
+				printf("Writing image of size %d %d\n",
+						out_img.Content().GetWidth(),
+						out_img.Content().GetHeight());
+			#endif
 			out_img.Write ();
 
 			double now = YARPTime::GetTimeAsSeconds();
 			static int fixct = 0;
-			if (now-down_time<20 && now-down_time>3) 
-			{
-				fixct++;
-				int go = 0;
-				if (fixct==3) 
-				{
-					go = 1;
-					down_time = -10000;
-				} 
-				else 
-				{
-					down_time = now-1.5;
-				}
-
-				printf(">>> %d %d %d\n", xx, yy, go);
-				if (xx>=0 && yy>=0 && xx<256 && yy<256) 
-				{
-					out_bot.Content().rewind();
-					out_bot.Content().writeInt(xx);
-					out_bot.Content().writeInt(yy);
-					// add an interger to avoid grasping
-					if (!go) 
-					{
-						out_bot.Content().writeInt(255);
-					}
-					out_bot.Write();
-				}
-			}
-
 			if (now-train_time<3) 
 			{
-				fixct = 0;
 				train_time = -100000;
 				down_time = now;
+			}
+
+			global_mutex.Wait();
+		//	printf("%d %d search:%d (search = 1 means grasp)\n", xx, yy, global_search);
+			if ((global_search>=1)&&(global_search<=__numOfSaccades) && (xx>=0 && yy>=0 && xx<256 && yy<256) &&
+				(global_delay <= 0)&&
+				(global_saccading != 1) )
+			{
+				// if (now-down_time<20 && now-down_time>3) 
+				global_saccading = 1;
+				
+				int search = global_search;
+				global_search--;
+				if (global_search <= 0)
+					global_search = 0;
+				global_mutex.Post();
+							
+				down_time = now-1.5;
+				printf("Saccading to %d %d search:%d (search = 1 means grasp)\n", xx, yy, search);
 				out_bot.Content().rewind();
-				out_bot.Content().writeInt(128);
-				out_bot.Content().writeInt(128);
-				out_bot.Content().writeInt(255);
+				out_bot.Content().writeInt(xx);
+				out_bot.Content().writeInt(yy);
+
+				if (search != 1)
+					out_bot.Content().writeInt(255);		// no grasping
+
 				out_bot.Write();
 			}
+			else
+				global_mutex.Post();
 		} 
 		else 
 		{

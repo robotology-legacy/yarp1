@@ -19,6 +19,8 @@ const double __handOpen[] = {100.0*degToRad, 0.0, 0.0, 0.0, 0.0, 0.0};
 const double __handClose[] = {100.0*degToRad, 50.0*degToRad, -80.0*degToRad, -80.0*degToRad, -80.0*degToRad, -80.0*degToRad};
 const double __handAtRest[] = {0.0*degToRad, 50.0*degToRad, 0.0, 0.0, 0.0, 0.0};
 
+const double __armDrop[] = {30*degToRad, -25*degToRad, 0.0, 0.0, -50*degToRad, -190.0*degToRad};
+
 int main(int argc, char* argv[])
 {
 	YARPBabyBottle _outputTrainBottle;
@@ -36,8 +38,12 @@ int main(int argc, char* argv[])
 	
 	RBWaitIdle reachingSeq31("Waiting for arm done (actually reaching1)");
 	RBWaitIdle reachingSeq32("Waiting for arm done (actually reaching2)");
+	RBWaitIdle inhibitedState("Reaching inhibited");
 	// RBWaitIdle reachingSeq33("Waiting for arm done (actually reaching3)");
 	RBWaitDeltaT reachingSeq33("Waiting for arm done (actually reaching3)", 2);
+
+	RBWaitDeltaT finalDropState1("Arm going to rest", 3);
+	RBWaitIdle finalDropState2("Enabling saccade");
 	
 	// NO HAND
 	// RBWaitDeltaT waitDeltaT1("Waiting for hand", 0.5);
@@ -48,20 +54,32 @@ int main(int argc, char* argv[])
 	RBWaitIdle reachingSeq7("Re-positioning hand");
 	RBWaitIdle waitHandDone("Waiting for hand done");
 	// RBWaitDeltaT checkReaching("Checking reaching", 1);
-	RBWaitIdle checkReaching("Checking reaching");
+	RBWaitIdle checkReaching("Checking reaching");	// success failure
+	RBWaitIdle checkACK("Check ack");				// check if reaching is feasible
+	
+	RBWaitIdle signalReachSuccess("Signaling reaching success");
+	RBWaitIdle signalReachFailure("Signaling reaching failure");
 
-	RBOutputCommand			reachingPrepareOutput(YBVHandNewCmd, YVector(6, __handOpen));
+	RBWaitIdle reachingDropState1("dropping state 1");
+	RBWaitIdle reachingDropState2("dropping state 2");
+	RBWaitIdle reachingDropState3("dropping state 3");
+	RBWaitIdle reachingDropState4("dropping state 4");
+		
+	RBOutputCommand			reachingPrepareOutput(YBVReachingAck, YBVHandNewCmd, YVector(6, __handOpen));
 	RBOutputReaching1		reachingOutput1;
 	RBOutputReaching2		reachingOutput2;
 	RBOutputReaching3		reachingOutput3;
 	RBOutputBack			reachingBack;
+	RBMotorCommand			reachingDropOut (YBVArmForceNewCmd, YVector(6, __armDrop));
 	RBLearnOutputCommand	learnOutput;
 	RBInputCommand			learnInput(YBVReachingLearn);
 	RBInputCommand			armDone(YBVArmDone);
 	RBInputCommand			handDone(YBVHandDone);
 	RBInputCommand			reachingInput(YBVReachingReach);
 	RBInputCommand			reachingAbort(YBVReachingAbort);
+	RBInputCommand			reachingAck(YBVReachingAck);
 	RB2Output				inhibitAll(YBVSinkSuppress, YBVGraspRflxInhibit);
+	RB2Output				enableHandTracking(YBVSinkRelease, YBVSinkTrackingMode);
 	RB4Output				enableAll(YBVSinkRelease, YBVGraspRflxRelease,
 										YBVArmForceRestingTrue, 
 										YBVHandNewCmd, YVector(6, __handAtRest));
@@ -70,18 +88,34 @@ int main(int argc, char* argv[])
 	RBInputCommand			armRest(YBVArmRest);
 	RBInputCommand			armIsBusy(YBVArmIsBusy);
 	RBOutputMessage			checkReachingOutput(YBVReachingDone);
+	RBOutputMessage			inhibitGraspReflex(YBVGraspRflxInhibit);
+	RBOutputMessage			enableGraspReflex(YBVGraspRflxRelease);
 	
-
+	RBOutputMessage			reachingSuccess(YBVReachingSuccess);
+	RBOutputMessage			reachingFailed(YBVReachingFailure);
+	RBOutputMessage			enableSaccade(YBVSinkSaccadeMode);
+	RBOutputMessage			armForceRest(YBVArmForceRestingTrue);
+	
 	RBInputCommand			reachingPrepareInput(YBVReachingPrepare);
+	RBInputCommand			reachingInhibit(YBVReachingInhibit);
+	RBInputCommand			reachingEnable(YBVReachingEnable);
+	RBInputString			graspSuccess("HandKinGraspSuccess");
+	RBInputString			graspFailure("HandKinGraspFailure");
 
 	_behavior.setInitialState(&waitIdle);
 	_behavior.add(&learnInput, &learnOutput);
 	// _behavior.add(&reachingInput, &waitIdle, &reachingSeq1, &reachingPrepare);
 	// _behavior.add(NULL, &reachingSeq1, &reachingSeq2, &inhibitHead);
 	// _behavior.add(&reachingInput, &waitIdle, &reachingSeq1, &handOpen);
-	_behavior.add(&reachingInput, &waitIdle, &reachingSeq1);
-	_behavior.add(NULL, &reachingSeq1, &reachingSeq1b, &reachingPrepareOutput);
-	_behavior.add(&reachingAbort, &reachingSeq1b, &waitIdle);
+	_behavior.add(&reachingInput, &waitIdle, &reachingSeq1, &inhibitGraspReflex);
+	_behavior.add(NULL, &reachingSeq1, &checkACK, &reachingPrepareOutput);
+	_behavior.add(&reachingAbort, &checkACK, &waitIdle, &enableGraspReflex);
+	
+	_behavior.add(&reachingAck, &checkACK, &reachingSeq1b);
+	
+	_behavior.add(&reachingInhibit, &waitIdle, &inhibitedState);
+	_behavior.add(&reachingEnable, &inhibitedState, &waitIdle);
+
 	_behavior.add(&armDone, &reachingSeq1b, &reachingSeq2);
 	_behavior.add(&armIsBusy, &reachingSeq1b, &waitHandDone);
 	_behavior.add(&armRest, &reachingSeq1b, &waitHandDone);
@@ -102,8 +136,14 @@ int main(int argc, char* argv[])
 
 	_behavior.add(&armDone, &reachingSeq33, &checkReaching, &checkReachingOutput);
 	// add here instead of NULL message back from SOM
-	_behavior.add(NULL, &checkReaching, &reachingSeq5, &reachingBack);
-	
+	// _behavior.add(NULL, &checkReaching, &reachingDrop/*&reachingSeq5*/, &reachingBack);
+	_behavior.add(&graspSuccess, &checkReaching, &signalReachSuccess, &reachingDropOut);
+	_behavior.add(&graspFailure, &checkReaching, &signalReachFailure, &reachingBack);
+
+	_behavior.add(NULL, &signalReachFailure, &reachingSeq5, &reachingFailed);
+	_behavior.add(NULL, &signalReachSuccess, &reachingDropState1, &reachingSuccess);
+	_behavior.add(NULL, &reachingDropState1, &reachingDropState2, &enableHandTracking);
+		
 	// AUTO
 	// _behavior.add(NULL, &waitDeltaT1, &reachingSeq33, &reachingOutput3); // NO HAND
 	//_behavior.add(NULL, &waitDeltaT1, &reachingSeq33);
@@ -118,7 +158,12 @@ int main(int argc, char* argv[])
 	_behavior.add(&armDone, &reachingSeq5, &reachingSeq6, &handOpen);
 	_behavior.add(&handDone, &reachingSeq6, &waitIdle, &enableAll);
 	_behavior.add(&handDone, &waitHandDone, &waitIdle, &enableAll);
-	
+
+	_behavior.add(&armDone, &reachingDropState2, &reachingDropState3, &handOpen);
+	_behavior.add(&handDone, &reachingDropState3, &finalDropState1, &armForceRest);
+	_behavior.add(NULL, &finalDropState1, &finalDropState2, &enableSaccade);
+	_behavior.add(NULL, &finalDropState2, &waitIdle, &enableAll);
+		
 	//// end NO AUTO
 	
 	_behavior.add(&armIsBusy, &reachingSeq5, &waitIdle, &enableAll);

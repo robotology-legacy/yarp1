@@ -68,7 +68,7 @@ private:
 class RBInputCommand: public RBBaseInput
 {
 public:
-	RBInputCommand(YBVocab k)
+	RBInputCommand(const YBVocab &k)
 	{
 		key = k;
 	}
@@ -78,17 +78,33 @@ public:
 	YBVocab tmpK;
 };
 
+class RBInputString: public RBBaseInput
+{
+public:
+	RBInputString(const YARPString &s)
+	{
+		key = s;
+	}
+	bool input(YARPBabyBottle *in, ABSharedData *d);
+	
+	YARPString key;
+	YARPString tmpK;
+};
+
 class RBOutputCommand: public RBBaseOutput
 {
 public:
-	RBOutputCommand(const YBVocab &v1, const YVector &hand)
+	RBOutputCommand(const YBVocab &v1, const YBVocab &v2, const YVector &hand)
 	{
 		_bottle1.setID(YBVMotorLabel);
 		_bottle2.setID(YBVMotorLabel);
+		_bottle3.setID(YBVMotorLabel);
 		
 		// bottle1 will be filled "on the fly"
-		_bottle2.writeVocab(v1);
+		_bottle2.writeVocab(v2);
 		_bottle2.writeYVector(hand);
+		/////
+		_bottle3.writeVocab(v1);
 	}
 	void output(ABSharedData *d);
 
@@ -98,7 +114,7 @@ private:
 
 	YARPBabyBottle _bottle1;
 	YARPBabyBottle _bottle2;
-	
+	YARPBabyBottle _bottle3;
 };
 
 class RB2Output: public RBBaseOutput
@@ -206,7 +222,6 @@ public:
 	YARPBabyBottle _bottle;
 	
 };
-
 
 class RBLearnOutputCommand: public RBBaseOutput
 {

@@ -10,7 +10,7 @@ const int _nJoints = 6;
 
 
 	// const double pos1[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
-	const double pos1[_nJoints] = {5.0 * degToRad, 0.0*degToRad, 45.0*degToRad, 0.0, 0.0, -40.0*degToRad};
+	const double pos1[_nJoints] = {5.0 * degToRad, 10.0*degToRad, 25.0*degToRad, 0.0, 0.0, -40.0*degToRad};
 	const double pos2[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, -70.0*degToRad};
 	const double pos3[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0.0};
 	const double pos4[_nJoints] = {10.0 * degToRad, 20.0*degToRad, 5.0*degToRad, 0.0, -20.0*degToRad, 0.0};
@@ -43,6 +43,8 @@ int main(int argc, char* argv[])
 	EBWaitIdle waitMotion6("Turn5");
 	EBWaitIdle waitMotion7("Final pos");
 	EBWaitIdle waitMotion8("Going back to rest");
+	EBWaitIdle endState1("end1");
+	EBWaitIdle endState2("end2");
 
 	EBWaitIdle stateInhibitHandTracking("Inhibit hand tracking");
 	EBWaitIdle stateEnableHandTracking("Enable hand tracking");
@@ -50,12 +52,14 @@ int main(int argc, char* argv[])
 
 	EBWaitDeltaT dT1(3);
 	EBWaitDeltaT dT2(0.2);
-	EBWaitDeltaT dT3OneSecond(1);
+	EBWaitDeltaT dT3OneSecond(3);
 
 	EBWaitDeltaT dTHandClosing(0.1);
 	EBWaitDeltaT waitArmSeemsToRest(5);
-	EBStartKF	startKF;
-	EBStopKF	stopKF;
+	EBBehaviorOutput	startTrain(YBVKFTrain);
+	EBBehaviorOutput	startSequence(YBVKFStart);
+	EBBehaviorOutput    stopTrain(YBVKFTrainStop);
+	EBBehaviorOutput    stop(YBVKFStop);
 	EBSimpleOutput	forceOpen(YBVGraspRflxForceOpen);
 	EBSimpleOutput  parkArm(YBVArmForceRestingTrue);
 	
@@ -80,22 +84,22 @@ int main(int argc, char* argv[])
 
 	behavior.setInitialState(&waitStart);
 	behavior.add(&start, &waitStart, &waitMotion1, &cmd1);
-	behavior.add(&start2, &waitStart, &dTHandClosing);
+	behavior.add(&start2, &waitStart, &dTHandClosing, &enableHandTracking);
 	behavior.add(NULL, &dTHandClosing, &waitArmAck, &cmd1);
 
-	behavior.add(&armAck, &waitArmAck, &stateEnableHandTracking);
-	behavior.add(&armNAck, &waitArmAck, &waitArmSeemsToRest);
+	behavior.add(&armAck, &waitArmAck, &stateEnableHandTracking, &startSequence);
+	behavior.add(&armNAck, &waitArmAck, &waitArmSeemsToRest, &inhibitHandTracking);
 	behavior.add(NULL, &waitArmSeemsToRest, &waitStart, &forceOpen);
 	behavior.add(NULL, &stateEnableHandTracking, &waitMotion1, &enableHandTracking);
 
 	behavior.add(&armDone, &waitMotion1, &dT3OneSecond);
 	// wait some extra time before issueing the startKF signal
-	behavior.add(NULL, &dT3OneSecond, &dT1, &startKF);
+	behavior.add(NULL, &dT3OneSecond, &dT1, &startTrain);
 	
 	// july 21/04
 	behavior.add(NULL, &dT1, &waitMotion6);
-	behavior.add(NULL, &waitMotion6, &stateInhibitHandTracking, &stopKF);
-	behavior.add(NULL, &stateInhibitHandTracking, &dT2, &inhibitHandTracking);
+	behavior.add(NULL, &waitMotion6, &stateInhibitHandTracking, &stop);
+	behavior.add(NULL, &stateInhibitHandTracking, &dT2);
 
 	/*
 	behavior.add(NULL, &dT1, &waitMotion2, &cmd2);
@@ -109,7 +113,9 @@ int main(int argc, char* argv[])
 	*/
 	behavior.add(NULL, &dT2, &waitMotion7, &cmd7);
 	behavior.add(&armDone, &waitMotion7, &waitMotion8, &forceOpen);
-	behavior.add(&handDone, &waitMotion8, &waitStart, &parkArm);
+	behavior.add(&handDone, &waitMotion8, &endState1, &parkArm);
+	behavior.add(NULL, &endState1, &endState2, &inhibitHandTracking);
+	behavior.add(NULL, &endState2, &waitStart, &stop);
 
 	behavior.Begin();
 	behavior.loop();

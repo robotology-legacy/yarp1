@@ -61,6 +61,9 @@ void _fillTable()
 	REG_VOCAB(sendSimpleVocab, YBVSinkEnableVergence, "enable VERGENCE sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkEnableSaccade, "enable SACCADE sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkDisplayStatus, "display channel status");
+	
+	REG_VOCAB(sendSimpleVocab, YBVSinkSaccadeMode, "goes in saccade mode");
+	REG_VOCAB(sendSimpleVocab, YBVSinkTrackingMode, "goes in tracking mode");
 
 	// attention
 	REG_VOCAB(sendSimpleVocab, YBVAttentionQuit, "attention: quit module");

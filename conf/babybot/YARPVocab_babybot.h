@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPVocab_babybot.h,v 1.8 2004-09-07 21:30:01 babybot Exp $
+/// $Id: YARPVocab_babybot.h,v 1.9 2004-09-10 15:14:06 babybot Exp $
 ///
 ///
 
@@ -71,6 +71,10 @@ const char *const YBVReachingPrepare = "ReachingPrepare";
 const char *const YBVReachingAbort = "ReachingAbort";
 const char *const YBVReachingAck = "ReachingAck";
 const char *const YBVReachingQuit = "ReachingQuit";
+const char *const YBVReachingInhibit = "ReachingInhibit";
+const char *const YBVReachingEnable= "ReachingEnable";
+const char *const YBVReachingSuccess= "ReachingSuccess";
+const char *const YBVReachingFailure= "ReachingFailure";
 
 // arm trigger behavior
 const char *const YBVTriggerQuit = "TriggerQuit";
@@ -118,6 +122,8 @@ const char *const YBVSinkEnableSaccade = "SinkEnableSaccade";
 const char *const YBVSinkSuppress = "SinkSuppress";
 const char *const YBVSinkRelease = "SinkRelease";
 const char *const YBVSinkDisplayStatus = "SinkDisplayStatus";
+const char *const YBVSinkTrackingMode = "SinkTrackingMode";
+const char *const YBVSinkSaccadeMode = "SinkSaccadeMode";
 
 // grasprflx
 const char *const YBVGraspRflxQuit = "GraspRflxQuit";
@@ -135,6 +141,8 @@ const char *const YBVHandKinView = "HandKinView";
 const char *const YBVHandKinFreeze = "HandKinFreeze";
 const char *const YBVHandKinSetFile = "HandKinSetFile";
 const char *const YBVHandKinSavePosture = "HandKinSavePosture";
+const char *const YBVHandKinGraspSuccess = "HandKinGraspSuccess";
+const char *const YBVHandKinGraspFailure = "HandKinGraspFailure";
 
 // egomap
 const char *const YBVEgoMapAdd = "EgoMapAdd";

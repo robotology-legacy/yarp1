@@ -45,18 +45,22 @@ const double __armOffset2 = 0*degToRad;
 const double __foreArmOffset1 = -8*degToRad;
 const double __foreArmOffset2 = -8*degToRad;
 // offset in the shoulder to reach "from above"
-const double __shoulderOffset1 = 30*degToRad;
-const double __shoulderOffset2 = 23*degToRad;
+const double __shoulderOffset1 = 40*degToRad;
+const double __shoulderOffset2 = 30*degToRad;
 
 // to turn the hand downwardly
 // const double __wrist1 = -10*degToRad;	
 // const double __wrist2 = -30*degToRad;
 // const double __wrist3 = -170*degToRad;
 
-const double __wrist1 = 0*degToRad;	
-const double __wrist2 = -35*degToRad;
-const double __wrist3 = -170*degToRad;
+const double __wrist1a = 0*degToRad;	
+const double __wrist2a = 0*degToRad;
+const double __wrist3a = -170*degToRad;
 // const double __wrist3 = 0*degToRad;
+
+const double __wrist1b = 0*degToRad;	
+const double __wrist2b = -45*degToRad;
+const double __wrist3b = -170*degToRad;
 
 // offset in the head space, for reaching
 const double __azimuthOffset = -6*degToRad;

@@ -28,6 +28,32 @@ bool RBInputCommand::input(YARPBabyBottle *in, ABSharedData *d)
 	return true;
 }
 
+bool RBInputString::input(YARPBabyBottle *in, ABSharedData *d)
+{
+	char tmp[255];
+	printf("Checking input string\n");
+
+	if (!in->tryReadText(tmp))
+	{
+		printf("not a string\n");
+		return false;
+	}
+
+	printf("Received %s\n", tmp);
+
+	tmpK = YARPString(tmp);
+	
+	if (key != tmpK)
+	{
+		printf("Returning false\n");
+		return false;
+	}
+
+	in->moveOn();
+	printf("Returning true\n");
+	return true;
+}
+
 void RBLearnOutputCommand::output(ABSharedData *d)
 {
 	if (d->_headPort.Read(0))
@@ -84,6 +110,11 @@ void RBOutputCommand::_sendAbort(ABSharedData *d)
 
 void RBOutputCommand::_sendReachingCommand(ABSharedData *d, const YVector &cmd)
 {
+	cout << "Reaching has started\n";
+	/////// 
+	d->_outPort.Content() = _bottle3;
+	d->_outPort.Write(1);
+
 	cout << "Opening hand\n";
 	/////// 
 	d->_outPort.Content() = _bottle2;
