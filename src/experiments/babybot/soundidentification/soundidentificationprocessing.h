@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.12 2004-11-23 11:41:51 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.13 2004-12-30 10:49:29 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -29,7 +29,7 @@
 #include <yarp/YARPString.h>
 #include <yarp/YARPSound.h>
 #include <yarp/YARPImages.h>
-#include <yarp/YARPLogPolar.h>
+#include <yarp/YARPLogpolar.h>
 #include <yarp/YARPFft.h>
 
 #define LOCAL_NTRACE 1

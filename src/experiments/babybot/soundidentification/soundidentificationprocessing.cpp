@@ -12,7 +12,7 @@
 //     This implementatin is partially based in the sound software used by Lorenzo Natale
 //     is his master thesis.
 // 
-//         Version:  $Id: soundidentificationprocessing.cpp,v 1.10 2004-11-23 11:41:51 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.cpp,v 1.11 2004-12-30 10:49:29 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -291,7 +291,7 @@ SoundIdentificationProcessing::idct(
 				* cos( (double) i * (2*k+1) * ((PI/(double)2) / (double)size_in) );                                                           
 		data_out[i] *= ((double)1.0/(double)sqrt(size_in/(double)2));                                                                                 
 		if( i == 0)                                                                                                                           
-			data_out[i] *= (sqrt(2)/(double)2);                                                                                                       
+			data_out[i] *= (sqrt(2.0)/(double)2);                                                                                                       
 	}                                                                                                                                         
 }
 
