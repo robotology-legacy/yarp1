@@ -20,90 +20,43 @@ as long as is necessary to send it on the slowest link.
 \label{fig:yarp-port}
 \end{figure}
 
-\section{From adapt...}
+\section{Some details}
 
-OS independent software interface
-
-Broadly speaking, the lowest level software components should aim at
-encapsulating as much as possible the details of the communication and
-computing layer. The hardware interface should be as seamless
-integrated into computation as possible. And, finally, most of the
-code should easily run on different operating systems depending on the
-requirements of the specific installation. The language of choice in
-our case was C++. Development tools are Microsoft Visual Studio for
-Windows and gcc for QNX and Linux.
-
-For the task of encapsulating the operating system we naturally relied
-on existing software. In particular we found convenient to base our
-implementation on ACE, an open-source library that among many things
-provides a tiny object-oriented OS wrapper. For more information about
-ACE please refer to: http://www.cs.wustl.edu/~schmidt/ACE.html.
-
-ACE runs on Windows, Linux, and QNX that were also our target
-operating systems. Basing our implementation on ACE allowed clearly
-running all our code on any of these operating systems. From our point
-of view ACE provided a common C++ class interface for the
-communication code and the OS wrapper. Advanced ACE functionalities
-were not fully exploited. We preferred to take a minimalist approach
-and rely on the minimum subset of ACE that allowed solving our
-tasks. Following the open-source philosophy, our software was made
-freely available on SourceForge:
-
-http://yarp0.sourceforge.net/
-
-The most part of the communication code is profoundly inspired [and
-recycled] from a previous version developed at MIT (Paul
-Fitzpatrick. From First Contact to Close Encounters: A developmentally
-deep perceptual system for a humanoid robot. PhD thesis at MIT, 2003)
-and was tested extensively on the humanoid robot Cog on QNX4.25. The
-latest implementation has been completely rewritten (using ACE) but it
-maintains the same high level interface. The distribution is not
-completely user friendly yet as the only way of obtaining the code is
-through the CVS interface provided by SourceForge. The library in its
-entirety has been called YARP (Yet Another Robot Platform).
-
-The communication code is a C++ templatized set of classes contained
-in a specific static library. The main abstraction for inter-process
-communication is called a port. A port template class can be
-specialized to send any data type across an IP-network relying on a
-set of different protocols. Depending on the protocol different
-behaviors can be obtained the implemented protocols include TCP, UDP,
-MCAST, QNET1, and shared memory. A port can either send to many target
-ports or receive simultaneously from many other ports. A port is an
-active object: a thread continuously services the port object. Being
-an active object allows responding to external events at run time, and
-for example it is possible to send commands to port objects to change
-their behavior. Commands include connecting to another remote port or
+The main abstraction for inter-process communication is called a
+port. A port template class can be specialized to send any data type
+across an IP-network relying on a set of different
+protocols. Depending on the protocol different behaviors can be
+obtained the implemented protocols include TCP, UDP, MCAST, QNET1, and
+shared memory. A port can either send to many target ports or receive
+simultaneously from many other ports. A port is an active object: a
+thread continuously services the port object. Being an active object
+allows responding to external events at run time, and for example it
+is possible to send commands to port objects to change their
+behavior. Commands include connecting to another remote port or
 receiving an incoming request for connection and since all this can be
 done at run-time it naturally enables connecting/disconnecting parts
 of the control system on the fly.
 
 
-Figure 7 shows an exemplar structure of the port abstraction. Each
-port is, in practice, a complex object managing many communication
-channels of the same data type. Each port is potentially both an input
-and output device although for simplicity of use only one modality is
-actually allowed in practice. This is enforced by the class definition
-and the C++ type check. Each communication channel is managed by a
-portlet object within the main port. Different situations are
-illustrated in Figure 7: for example an MCAST port relies on the
-protocol itself to send to multiple targets while on the contrary a
-TCP port has to instantiate multiple portlets to connect to multiple
-targets. In cases where the code detects that two ports are running on
-the same machine the IP protocol is replaced by a shared memory
-connection. In Figure 7 a special portlet is shown: this is indicated
-as command receiver. As already mentioned its function is that of
-receiving commands to connect, disconnect, or generically operating on
-the port. Further ports can run independently without blocking the
-calling process (if desired) or they can wake up the calling process
-on the occurrence of new data. In some cases synchronous communication
-is allowed (TCP protocol).
-
-
-Figure 7: The YARP communication architecture.
-
-
-
+Figure~\ref{fig:yarp-port} shows an exemple structure of the port
+abstraction. Each port is, in practice, a complex object managing many
+communication channels of the same data type. Each port is potentially
+both an input and output device although for simplicity of use only
+one modality is actually allowed in practice. This is enforced by the
+class definition and the C++ type check. Each communication channel is
+managed by a portlet object within the main port. Different situations
+are illustrated in Figure~\ref{fig:yarp-port}: for example an MCAST
+port relies on the protocol itself to send to multiple targets while
+on the contrary a TCP port has to instantiate multiple portlets to
+connect to multiple targets. In cases where the code detects that two
+ports are running on the same machine the IP protocol is replaced by a
+shared memory connection. In Figure~\ref{fig:yarp-port} a special
+portlet is shown: this is indicated as command receiver. As already
+mentioned its function is that of receiving commands to connect,
+disconnect, or generically operating on the port. Further ports can
+run independently without blocking the calling process (if desired) or
+they can wake up the calling process on the occurrence of new data. In
+some cases synchronous communication is allowed (TCP protocol).
 
 Protocols can be intermixed following certain rules. Different
 operating systems can of course communicate to each other. QNET
@@ -125,28 +78,23 @@ scriptable modules complete seamlessly the architecture allowing the
 design of scripts to bring up the whole control structure and connect
 many modules together.
 
-As an aside lately a Matlab interface to ports has been
-implemented. This allows building Matlab modules (e.g. .m files) that
-connect to the robot to read/write data. There are basically two
-advantages: i) complex algorithms can be quickly implemented and
-tested relying on Matlab existing toolboxes, ii) an additional level
-of scripting can be realized within Matlab. Matlab provides a
-relatively efficient and easy to use display library that can be used
-to visualize the functioning and performance of an ongoing experiment.
+A Matlab interface to ports has been implemented. This allows building
+Matlab modules (e.g. .m files) that connect to the robot to read/write
+data. There are basically two advantages: i) complex algorithms can be
+quickly implemented and tested relying on Matlab existing toolboxes,
+ii) an additional level of scripting can be realized within
+Matlab. Matlab provides a relatively efficient and easy to use display
+library that can be used to visualize the functioning and performance
+of an ongoing experiment.
 
-In summary, Figure 8 presents schematically the link and dependences
-between the YARP libraries.
-
-Figure 8 YARP libraries: dependence chart.
-
-Robot independent code
+\subsection{Robot independent code}
 
 One of the goals in writing our control architecture has been that of
 simplifying the programming of a complex robotic structure such as a
-humanoid robot. As described in section 3, control cards come in many
-different flavors and programming them is usually painful. It would be
-much better if a standardized interface were provided. It would be
-even better if a suitable abstraction were available.
+humanoid robot. Control cards come in many different flavors and
+programming them is usually painful. It would be much better if a
+standardized interface were provided. It would be even better if a
+suitable abstraction were available.
 
 To solve the first problem we defined a virtual device driver
 interface into YARP. To solve the second, we encapsulated the control
@@ -168,25 +116,22 @@ includes both the specification of the controlling device driver
 (e.g. the head is controlled through a certain control card) and the
 idiosyncrasies of the particular setup (e.g. wiring of the robot might
 differ, or initialization might require different calibration
-procedures). This hierarchy is shown in Figure 9.
+procedures). 
 
 
-Figure 9: The structure of a control class for a generic device.
-
-Robot specific interface
+\subsection{Robot specific interface}
 
 The real communication with the robot is carried out through a set of
-binary modules that use the device driver structure described in
-section 5. Module customization is at this stage accomplished through
-configuration files. In the YARP language these modules are called
-daemons (a term borrowed from UNIX). The daemons directly interact
-with the remainder of the robot software through YARP ports and in
-general they export very specialized communication channels. For
-example the frame grabber has an output port of type image and the
-head control daemon an input port that accepts velocity
-commands. There are no specific restrictions on the type of ports
-exported by a daemon since any type of state information about the
-modules might be required.
+binary modules that use a device driver structure. Module
+customization is at this stage accomplished through configuration
+files. In the YARP language these modules are called daemons (a term
+borrowed from UNIX). The daemons directly interact with the remainder
+of the robot software through YARP ports and in general they export
+very specialized communication channels. For example the frame grabber
+has an output port of type image and the head control daemon an input
+port that accepts velocity commands. There are no specific
+restrictions on the type of ports exported by a daemon since any type
+of state information about the modules might be required.
 
 Further, some of the daemons accept or send commands of a special type
 that are generally used to communicate status information. A bus
