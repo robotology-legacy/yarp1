@@ -18,7 +18,7 @@ _inPixelCoord(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 _segmentedImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 _blobDetector(0.5)
 {
-	_inPort.Register((portName+"/i:img").c_str());
+	_inPort.Register((portName+"/i:img").c_str(), "Net1");
 	_outPort.Register((portName+"/o:img").c_str());
 	_outPixelPort.Register((portName+"/o:pixel").c_str());
 	_handStatusPort.Register((portName+"/i:hand").c_str());
@@ -161,6 +161,11 @@ void FindHand::_segmentation()
 			tmpLp++;
 		}
 	}
+
+	// fit a circle in to the segmented region
+	int r0, t0, R;
+	_fit.fitCircle(tmp, &r0,  &t0, &R);
+	_fit.plotCircle(r0, t0, R, _actualLp);
 	
 	YARPImageFile::Write(segmented, _actualLp);
 }

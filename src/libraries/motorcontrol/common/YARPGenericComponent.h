@@ -61,15 +61,15 @@
 ///
 
 ///
-/// $Id: YARPGenericComponent.h,v 1.13 2003-06-30 21:09:20 babybot Exp $
+/// $Id: YARPGenericComponent.h,v 1.14 2003-09-04 09:32:58 babybot Exp $
 ///
 ///
 
 /// LATER: perhaps this class needs to be renamed (GenericComponed is a 
 ///			bit too Generic).
 
-#ifndef __YARPGENERICCOMPONENTHH__ 
-#define __YARPGENERICCOMPONENTHH__
+#ifndef __YARPGenericControlBoardhh__ 
+#define __YARPGenericControlBoardhh__
 
 #include <conf/YARPConfig.h>
 #include <YARPControlBoardUtils.h> // required for LowLevelPID class
@@ -79,24 +79,24 @@
 #include <vector>
 #include <string>
 
-#define YARP_GEN_COMPONENT_VERBOSE
+#define YARP_GEN_CB_VERBOSE
 
-#ifdef YARP_GEN_COMPONENT_VERBOSE
-#define YARP_GEN_COMPONENT_DEBUG(string) YARP_DEBUG("GEN_COMPONENT_DEBUG :", string)
-#else YARP_GEN_COMPONENT_DEBUG(string) YARP_NULL_DEBUG
+#ifdef YARP_GEN_CB_VERBOSE
+#define YARP_GEN_CB_DEBUG(string) YARP_DEBUG("GEN_COMPONENT_DEBUG :", string)
+#else YARP_GEN_CB_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
 template <class ADAPTER, class PARAMETERS>
-class YARPGenericComponent
+class YARPGenericControlBoard
 {
 public:
-	YARPGenericComponent<ADAPTER, PARAMETERS> ()
+	YARPGenericControlBoard<ADAPTER, PARAMETERS> ()
 	{
 		_temp_double = NULL;
 		_currentLimits = NULL;
 		_newLimits = NULL;
 	}
-	~YARPGenericComponent<ADAPTER, PARAMETERS>()
+	~YARPGenericControlBoard<ADAPTER, PARAMETERS>()
 	{
 		if (_temp_double != NULL)
 			delete [] _temp_double;
@@ -155,11 +155,11 @@ public:
 		_newLimits = NULL;
 
 		if (_adapter.uninitialize() == YARP_FAIL) {
-			YARP_GEN_COMPONENT_DEBUG(("Error un-initializing control board!\n"));
+			YARP_GEN_CB_DEBUG(("Error un-initializing control board!\n"));
 			_unlock();
 			return YARP_FAIL;
 		}
-		YARP_GEN_COMPONENT_DEBUG(("Control board uninitialized!\n"));
+		YARP_GEN_CB_DEBUG(("Control board uninitialized!\n"));
 		_unlock();
 		return YARP_OK;
 	}
@@ -326,11 +326,11 @@ protected:
 		_newLimits = new double [_parameters._nj];
 
 		if (_adapter.initialize(&_parameters) == YARP_FAIL) {
-			YARP_GEN_COMPONENT_DEBUG(("Error initializing Control board!\n"));
+			YARP_GEN_CB_DEBUG(("Error initializing Control board!\n"));
 			_unlock();
 			return YARP_FAIL;
 		}
-		YARP_GEN_COMPONENT_DEBUG(("Control board initialized!\n"));
+		YARP_GEN_CB_DEBUG(("Control board initialized!\n"));
 		return YARP_OK;
 	}
 
@@ -350,7 +350,7 @@ protected:
 // Here we take the maximum value between the actual and the new one.
 // "finalPIDs" are scaled accordingly.
 template <class ADAPTER, class PARAMETERS>
-int YARPGenericComponent<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *finalPIDs, int s)
+int YARPGenericControlBoard<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *finalPIDs, int s)
 {
 	ACE_OS::printf("Setting gains");
 
@@ -413,7 +413,7 @@ int YARPGenericComponent<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *fin
 	return -1;
 }
 template <class ADAPTER, class PARAMETERS>
-inline double YARPGenericComponent<ADAPTER, PARAMETERS>::
+inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 angleToEncoder(double angle, double encParam, int zero, int sign)
 {
 	if (sign == 1)
@@ -423,7 +423,7 @@ angleToEncoder(double angle, double encParam, int zero, int sign)
 }
 
 template <class ADAPTER, class PARAMETERS>
-inline double YARPGenericComponent<ADAPTER, PARAMETERS>::
+inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 encoderToAngle(double encoder, double encParam, int zero, int sign)
 {
 	if (sign == 1)
@@ -433,7 +433,7 @@ encoderToAngle(double encoder, double encParam, int zero, int sign)
 }
 
 template <class ADAPTER, class PARAMETERS>
-inline bool YARPGenericComponent<ADAPTER, PARAMETERS>::
+inline bool YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 decMaxTorque(int axis, double delta, double value)
 {
 	bool ret = false;
@@ -465,7 +465,7 @@ decMaxTorque(int axis, double delta, double value)
 }
 
 template <class ADAPTER, class PARAMETERS>
-inline bool YARPGenericComponent<ADAPTER, PARAMETERS>::
+inline bool YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 incMaxTorque(int axis, double delta, double value)
 {
 	double maxTorque = _parameters._maxDAC[_parameters._axis_map[axis]];
@@ -499,7 +499,7 @@ incMaxTorque(int axis, double delta, double value)
 }
 
 template <class ADAPTER, class PARAMETERS>
-inline bool YARPGenericComponent<ADAPTER, PARAMETERS>::
+inline bool YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 decMaxTorques(double delta, double value, int nj)
 {
 	bool ret = true;
@@ -539,7 +539,7 @@ decMaxTorques(double delta, double value, int nj)
 }
 
 template <class ADAPTER, class PARAMETERS>
-inline bool YARPGenericComponent<ADAPTER, PARAMETERS>::
+inline bool YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 incMaxTorques(double delta, double value, int nj)
 {
 	bool ret = true;

@@ -40,8 +40,8 @@ RSC=rc.exe
 # PROP Output_Dir ".\obj\Release"
 # PROP Intermediate_Dir ".\obj\Release"
 # PROP Target_Dir ""
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I ".\common" /I ".\babybot" /I "..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
@@ -70,8 +70,8 @@ PostBuild_Cmds=copy .\babybot\*.h ..\..\..\include	copy .\common\*.h ..\..\..\in
 # PROP Output_Dir ".\obj\Debug"
 # PROP Intermediate_Dir ".\obj\Debug"
 # PROP Target_Dir ""
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\common" /I ".\babybot" /I "..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /X /YX
@@ -104,7 +104,7 @@ SOURCE=.\common\YARPForceSensor.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\YARPGenericComponent.h
+SOURCE=.\common\YARPGenericControlBoard.h
 # End Source File
 # Begin Source File
 

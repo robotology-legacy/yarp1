@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARP3DHistogram.h,v 1.1 2003-09-02 13:57:29 natta Exp $ 
+/// $Id: YARP3DHistogram.h,v 1.2 2003-09-04 09:32:58 babybot Exp $ 
 ///
 /// August 2003 -- by nat
 
@@ -213,7 +213,7 @@ public:
 
 	void Resize(unsigned char max, unsigned char min, unsigned char n);
 	void Resize(unsigned char max, unsigned char min, unsigned char *n);
-	inline void Apply(unsigned char r, unsigned char g, unsigned char b);
+	void Apply(unsigned char r, unsigned char g, unsigned char b);
 	
 	int dump(YARPString &basename);
 	
@@ -273,69 +273,5 @@ private:
 	Histo1D _glut;
 	Histo1D _blut;
 };
-
-inline void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
-{
-	HistoEntry *tmpEntryP = NULL;
-	// HistoKey tmpKey;
-	unsigned int it;
-
-	// check int threshold
-	if ((r+g+b) < 5)
-		return;
-
-	/*if ( (r == 85) && (g == 85) && (b == 85) )
-		return;*/
-
-	_pixelToKey(r, g, b, &it);
-
-	/////////////////// 3d histo
-	_3dlut.find(it, &tmpEntryP);
-	if (tmpEntryP != NULL)
-	{
-		(*tmpEntryP)++;
-		double tmpMax = tmpEntryP->value();
-		if (tmpMax > _3dlut._maximum)
-			_3dlut._maximum = tmpMax;
-	}
-
-	_pixelToKey(r, 0, 0, &it);
-	
-	/////////////////// r histo
-	_rlut.find(it, &tmpEntryP);
-	if (tmpEntryP != NULL)
-	{
-		(*tmpEntryP)++;
-		double tmpMax = tmpEntryP->value();
-		if (tmpMax > _rlut._maximum)
-			_rlut._maximum = tmpMax;
-	}
-	
-	_pixelToKey(0, g, 0, &it);
-
-	/////////////////// g histo
-	_glut.find(it, &tmpEntryP);
-	if (tmpEntryP != NULL)
-	{
-		(*tmpEntryP)++;
-		double tmpMax = tmpEntryP->value();
-		if (tmpMax > _glut._maximum)
-			_glut._maximum = tmpMax;
-	}
-			
-	_pixelToKey(0, 0, b, &it);
-
-	/////////////////// b histo
-	_blut.find(it, &tmpEntryP);
-	if (tmpEntryP != NULL)
-	{
-		(*tmpEntryP)++;
-		double tmpMax = tmpEntryP->value();
-		if (tmpMax > _blut._maximum)
-			_blut._maximum = tmpMax;
-	}
-
-}
-
 
 #endif

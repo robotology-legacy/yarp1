@@ -7,6 +7,7 @@
 #include <YARPImages.h>
 #include <YARPBlobDetector.h>
 #include <YARPSemaphore.h>
+#include <YARPConicFitter.h>
 #include "zerocrossing.h"
 
 class FindHand: public YARPThread
@@ -54,6 +55,8 @@ public:
 
 	ZeroCrossing *_zeroCrossing;
 	ZeroCrossing *_zeroCrossingHand;
+	
+	YARPLpConicFitter _fit;
 	
 	void startShake()
 	{

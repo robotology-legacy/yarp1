@@ -1,12 +1,12 @@
 #ifndef __YARPBABYBOTHEAD__
 #define __YARPBABYBOTHEAD__
 
-// $Id: YARPBabybotHead.h,v 1.3 2003-05-21 13:29:10 natta Exp $
+// $Id: YARPBabybotHead.h,v 1.4 2003-09-04 09:32:58 babybot Exp $
 
 #include <conf/YARPConfig.h>
-#include <YarpGenericComponent.h>
+#include <YARPGenericControlBoard.h>
 #include "YARPMEIOnBabybotHeadAdapter.h"
 
-typedef YARPGenericComponent<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters> YARPBabybotHead;
+typedef YARPGenericControlBoard<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters> YARPBabybotHead;
 
 #endif

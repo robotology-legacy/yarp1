@@ -238,3 +238,66 @@ void YARP3DHistogram::clean()
 	_glut.clean();
 	_blut.clean();
 }
+
+void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
+{
+	HistoEntry *tmpEntryP = NULL;
+	// HistoKey tmpKey;
+	unsigned int it;
+
+	// check int threshold
+	if ((r+g+b) < 5)
+		return;
+
+	/*if ( (r == 85) && (g == 85) && (b == 85) )
+		return;*/
+
+	_pixelToKey(r, g, b, &it);
+
+	/////////////////// 3d histo
+	_3dlut.find(it, &tmpEntryP);
+	if (tmpEntryP != NULL)
+	{
+		(*tmpEntryP)++;
+		double tmpMax = tmpEntryP->value();
+		if (tmpMax > _3dlut._maximum)
+			_3dlut._maximum = tmpMax;
+	}
+
+	_pixelToKey(r, 0, 0, &it);
+	
+	/////////////////// r histo
+	_rlut.find(it, &tmpEntryP);
+	if (tmpEntryP != NULL)
+	{
+		(*tmpEntryP)++;
+		double tmpMax = tmpEntryP->value();
+		if (tmpMax > _rlut._maximum)
+			_rlut._maximum = tmpMax;
+	}
+	
+	_pixelToKey(0, g, 0, &it);
+
+	/////////////////// g histo
+	_glut.find(it, &tmpEntryP);
+	if (tmpEntryP != NULL)
+	{
+		(*tmpEntryP)++;
+		double tmpMax = tmpEntryP->value();
+		if (tmpMax > _glut._maximum)
+			_glut._maximum = tmpMax;
+	}
+			
+	_pixelToKey(0, 0, b, &it);
+
+	/////////////////// b histo
+	_blut.find(it, &tmpEntryP);
+	if (tmpEntryP != NULL)
+	{
+		(*tmpEntryP)++;
+		double tmpMax = tmpEntryP->value();
+		if (tmpMax > _blut._maximum)
+			_blut._maximum = tmpMax;
+	}
+
+}
