@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.4 2004-09-05 22:27:55 babybot Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.5 2004-09-06 15:34:48 babybot Exp $
 ///
 ///
 
@@ -105,7 +105,7 @@ namespace _RobotcubArm
 	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
 
-	const int CANBUS_DEVICE_NUM			= 1;
+	const int CANBUS_DEVICE_NUM			= 0;
 	const int CANBUS_ARBITRATION_ID		= 0;
 	const int CANBUS_MY_ADDRESS			= 0;
 	const int CANBUS_POLLING_INTERVAL	= 2;			/// [ms]

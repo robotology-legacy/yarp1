@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: mCan.cpp,v 1.1 2004-07-12 23:40:29 babybot Exp $
+/// $Id: mCan.cpp,v 1.2 2004-09-06 15:34:48 babybot Exp $
 ///
 ///
 
@@ -43,93 +43,104 @@ typedef INT (CALLBACK* LPFSNDCFG)(int,unsigned char *,int);
 typedef INT (CALLBACK* LPFGETCFG)(int,unsigned char *,int *);
 typedef INT (CALLBACK* LPFGETERR)(int,int *,int *);
 
-HINSTANCE hDLL = NULL;
-LPFOPEN open_F = NULL;
-LPFCLOSE close_F = NULL;
-LPFFREEOBJ freeObject_F = NULL;
-LPFGETMSG getMessages_F = NULL;
-LPFPUTMSG putMessages_F = NULL;
-LPFGETDEV getDevices_F = NULL;
-LPFSNDCFG sendConfig_F = NULL;
-LPFGETCFG getConfig_F = NULL;
-LPFGETERR getErrors_F = NULL;
+static HINSTANCE hDLL = NULL;
+static LPFOPEN open_F = NULL;
+static LPFCLOSE close_F = NULL;
+static LPFFREEOBJ freeObject_F = NULL;
+static LPFGETMSG getMessages_F = NULL;
+static LPFPUTMSG putMessages_F = NULL;
+static LPFGETDEV getDevices_F = NULL;
+static LPFSNDCFG sendConfig_F = NULL;
+static LPFGETCFG getConfig_F = NULL;
+static LPFGETERR getErrors_F = NULL;
+
+static int instance_counter = 0;
+
 
 bool canInitLibrary(void)
 {
-	hDLL = LoadLibrary("icsneo40.dll");
-	if (hDLL < (HINSTANCE)HINSTANCE_ERROR)
-		return false;
+	if (instance_counter == 0)
+	{
+		hDLL = LoadLibrary("icsneo40.dll");
+		if (hDLL < (HINSTANCE)HINSTANCE_ERROR)
+			return false;
 
-	open_F = (LPFOPEN)GetProcAddress(hDLL, "icsneoOpenPortEx");
-	if (!open_F)
-	{
-		FreeLibrary(hDLL);       
-		return false;
-	}
-	
-	close_F = (LPFCLOSE)GetProcAddress(hDLL, "icsneoClosePort");
-	if (!close_F)
-	{
-		FreeLibrary(hDLL);       
-		return false;
+		open_F = (LPFOPEN)GetProcAddress(hDLL, "icsneoOpenPortEx");
+		if (!open_F)
+		{
+			FreeLibrary(hDLL);       
+			return false;
+		}
+		
+		close_F = (LPFCLOSE)GetProcAddress(hDLL, "icsneoClosePort");
+		if (!close_F)
+		{
+			FreeLibrary(hDLL);       
+			return false;
+		}
+
+		freeObject_F = (LPFFREEOBJ)GetProcAddress(hDLL, "icsneoFreeObject");
+		if (!freeObject_F)
+		{
+			FreeLibrary(hDLL);       
+			return false;
+		}
+
+		getMessages_F = (LPFGETMSG)GetProcAddress(hDLL, "icsneoGetMessages");
+		if (!getMessages_F)
+		{
+			FreeLibrary(hDLL);       
+			return false;
+		}
+
+		putMessages_F = (LPFPUTMSG)GetProcAddress(hDLL, "icsneoTxMessages");
+		if (!putMessages_F)
+		{
+			FreeLibrary(hDLL);       
+			return false;
+		}
+		
+		getDevices_F = (LPFGETDEV)GetProcAddress(hDLL, "icsneoFindAllCOMDevices");
+		if (!getDevices_F)
+		{
+			FreeLibrary(hDLL);       
+			return false;
+		}
+
+		sendConfig_F = (LPFSNDCFG)GetProcAddress(hDLL, "icsneoSendConfiguration");
+		if (!sendConfig_F)
+		{
+			FreeLibrary(hDLL);       
+			return false;
+		}
+		
+		getConfig_F = (LPFGETCFG)GetProcAddress(hDLL, "icsneoGetConfiguration");
+		if (!getConfig_F)
+		{
+			FreeLibrary(hDLL);       
+			return false;
+		}
+		
+		getErrors_F = (LPFGETERR)GetProcAddress(hDLL, "icsneoGetErrorMessages");
+		if (!getErrors_F)
+		{
+			FreeLibrary(hDLL);       
+			return false;
+		}
 	}
 
-	freeObject_F = (LPFFREEOBJ)GetProcAddress(hDLL, "icsneoFreeObject");
-	if (!freeObject_F)
-	{
-		FreeLibrary(hDLL);       
-		return false;
-	}
-
-	getMessages_F = (LPFGETMSG)GetProcAddress(hDLL, "icsneoGetMessages");
-	if (!getMessages_F)
-	{
-		FreeLibrary(hDLL);       
-		return false;
-	}
-
-	putMessages_F = (LPFPUTMSG)GetProcAddress(hDLL, "icsneoTxMessages");
-	if (!putMessages_F)
-	{
-		FreeLibrary(hDLL);       
-		return false;
-	}
-	
-	getDevices_F = (LPFGETDEV)GetProcAddress(hDLL, "icsneoFindAllCOMDevices");
-	if (!getDevices_F)
-	{
-		FreeLibrary(hDLL);       
-		return false;
-	}
-
-	sendConfig_F = (LPFSNDCFG)GetProcAddress(hDLL, "icsneoSendConfiguration");
-	if (!sendConfig_F)
-	{
-		FreeLibrary(hDLL);       
-		return false;
-	}
-	
-	getConfig_F = (LPFGETCFG)GetProcAddress(hDLL, "icsneoGetConfiguration");
-	if (!getConfig_F)
-	{
-		FreeLibrary(hDLL);       
-		return false;
-	}
-	
-	getErrors_F = (LPFGETERR)GetProcAddress(hDLL, "icsneoGetErrorMessages");
-	if (!getErrors_F)
-	{
-		FreeLibrary(hDLL);       
-		return false;
-	}
-
+	instance_counter ++;
 	return true;
 }
 
 void canReleaseLibrary(void)
 {
-	if (hDLL != NULL)
+	instance_counter --;
+	if (instance_counter <= 0 && hDLL != NULL)
+	{
+		instance_counter = 0;
 		FreeLibrary(hDLL);
+	}
 }
 
 int canOpenPort( int lPortSerialNumber, int lPortType, int lDriverType, int lIPAddressMSB, int lIPAddressLSBOrBaudRate, int bConfigRead, unsigned char * bNetworkID, int * hObject)

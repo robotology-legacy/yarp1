@@ -283,6 +283,7 @@ BOOL CTestControlDlg::OnInitDialog()
 
 	// sort of initialization.
 	m_entry_ctrl.SetCurSel(0);
+	m_entry_ctrl_arm.SetCurSel(0);
 
 	int i;
 	for (i = 0; i < MAX_HEAD_JNTS; i++)

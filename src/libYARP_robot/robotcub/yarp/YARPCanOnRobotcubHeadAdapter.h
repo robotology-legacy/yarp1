@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.14 2004-09-05 22:27:55 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.15 2004-09-06 15:34:48 babybot Exp $
 ///
 ///
 
@@ -713,6 +713,8 @@ public:
 		s.parameters = &position;
 		IOCtl(CMDGetPosition, (void *)&s);
 
+		MY_DEBUG("Got position: %.2f\n", position);
+
 		delete[] tmpv;
 
 		return position;
@@ -738,15 +740,16 @@ public:
 	/**
 	 * Just a generic calibration helper function. WARNING: errors are not handled!
 	 * @param joint is the joint to be calibrated.
+	 * @param offset is the offset with respect to the zero. 
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
-	int genericCalibrate (int joint)
+	int genericCalibrate (int joint, double offset)
 	{
 		MY_DEBUG("Starting calibration for axis: %d\n", joint);
 
 		const double DESIRED_ACC = 4;
 		const double DESIRED_SPEED = 10;
-		const double THRESHOLD = 10000;
+		const double THRESHOLD = 25000;
 		const double MARGIN = 500;
 
 		double max_position = 0;
@@ -759,10 +762,10 @@ public:
 
 		// disables limits first (more elegant by implementing the
 		// disbale limit check command!).
-		tmp = 0x7fffffff;
+		tmp = 500000;
 		IOCtl(CMDSetSWPositiveLimit, &cmd);
 
-		tmp = 0x80000000;
+		tmp = -500000;
 		IOCtl(CMDSetSWNegativeLimit, &cmd);
 
 		max_position = speedMove (joint, DESIRED_SPEED, DESIRED_ACC, THRESHOLD);
@@ -771,7 +774,7 @@ public:
 		min_position = speedMove (joint, -DESIRED_SPEED, DESIRED_ACC, THRESHOLD);
 		servoToPos (joint, min_position);
 
-		const double center = (max_position+min_position)/2;
+		const double center = (max_position+min_position)/2 + offset;
 		MY_DEBUG("Determined max: %f min: %f center: %f\n", max_position, min_position, center);
 
 		tmp = DESIRED_SPEED;
@@ -781,7 +784,7 @@ public:
 		IOCtl(CMDSetPosition, &cmd);
 		
 		// should wait for movement completion instead.
-		YARPTime::DelayInSeconds (2.0);
+		YARPTime::DelayInSeconds (5.0);
 
 		// zero encoder here.
 		tmp = 0;
@@ -789,9 +792,9 @@ public:
 		IOCtl(CMDSetCommand, &cmd);
 
 		// can set limits, right?
-		tmp = (max_position-min_position)/2 - MARGIN;
+		tmp = (max_position-min_position)/2 - MARGIN - offset;
 		IOCtl(CMDSetSWPositiveLimit, &cmd);
-		tmp = -(max_position-min_position)/2 + MARGIN;
+		tmp = -(max_position-min_position)/2 + MARGIN - offset;
 		IOCtl(CMDSetSWNegativeLimit, &cmd);
 
 		MY_DEBUG("New limits are: min %f max %f\n", (max_position-min_position)/2 - MARGIN, -(max_position-min_position)/2 + MARGIN);
@@ -820,8 +823,10 @@ public:
 		case 0:
 		case 1:
 		case 2:
+			return genericCalibrate (_parameters->_axis_map[joint], 0);
+
 		case 3:
-			return genericCalibrate (_parameters->_axis_map[joint]);
+			return genericCalibrate (_parameters->_axis_map[joint], -5000);
 			break;
 		}
 

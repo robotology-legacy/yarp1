@@ -44,6 +44,8 @@
 #include "Controller.h"
 #include "Messages.h"
 
+#include "prototype.h"
+
 /* stable global data */
 bool _calibrated[JN] = { false, false };
 bool _pad_enabled[JN] = { false, false };
@@ -100,11 +102,63 @@ volatile bool _wait = true;				/* wait on timer variable */
 extern _ended[];						/* trajectory completed flag */
 #define IS_DONE(jj) (_ended[jj])
 
+/* Local prototypes */
+int compute_pid2(byte j);
+
+
 /*
- *	inline functions
+ * macro functions variables.
  */
 long saturate;
 int u0, u1, ud;
+
+/*
+ * new version of the macro.
+ */
+int compute_pid2(byte j)
+{
+	long ProportionalPortion, PIDoutput;
+	int InputError;
+
+	/* the error @ previous cycle */
+	_error_old[j] = _error[j];
+
+	PIDoutput = L_sub(_desired[j], _position[j]);
+	
+	if (PIDoutput > MAX_16)
+		InputError = MAX_16;
+	else
+	if (PIDoutput < MIN_16) 
+		InputError = MIN_16;
+	else
+		InputError = extract_l(PIDoutput);
+
+	ProportionalPortion = L_mult(_kp[j], InputError) >> _kr[j];
+	_error[j] = InputError;
+
+	PIDoutput = L_sub(L_deposit_l(InputError), L_deposit_l(_error_old[j]));
+	
+	if (PIDoutput > MAX_16)
+		InputError = MAX_16;
+	else
+	if(PIDoutput < MIN_16)  
+		InputError = MIN_16;
+	else
+		InputError = extract_l(PIDoutput);
+
+	PIDoutput = L_mult(_kd[j], InputError) >> _kr[j];
+	PIDoutput = L_add(PIDoutput, ProportionalPortion);
+
+	if (PIDoutput > _pid_limit[j])
+    	PIDoutput = _pid_limit[j];
+	else
+    if (PIDoutput < -_pid_limit[j])
+		PIDoutput =  -_pid_limit[j];
+	else
+		_pid[j] = extract_l(PIDoutput);
+		
+	return (extract_l(PIDoutput));
+}
 
 /* compute PID macro: j can only be 0 or 1 */
 /* requires global var saturate */
@@ -127,7 +181,7 @@ int u0, u1, ud;
 	if (saturate < -32768) \
 		_error[j] = -32768; \
 	else \
-		_error[j] = (int)saturate; \
+		_error[j] = __extract_l(saturate); \
 	\
 	u1 = __shr (_error[j], 8); \
 	u0 = (_error[j] & 0x00ff); \
@@ -365,8 +419,19 @@ void generatePwm (byte i)
 		}
 			
 		/* computes PID control */
-		compute_pid (i);
-					
+		compute_pid2 (i);
+		if (_verbose && i == 0)
+		{
+			DSP_SendDWordAsCharsDec (L_deposit_l(_pid[i]));
+			DSP_SendDataEx(" ");
+			DSP_SendDWordAsCharsDec (L_deposit_l(_error[i]));
+			DSP_SendDataEx(" ");
+			DSP_SendDWordAsCharsDec (_desired[i]);
+			DSP_SendDataEx(" ");
+			DSP_SendDWordAsCharsDec (_position[i]);
+			DSP_SendDataEx("\r\n");
+		}
+		
 		/* set PWM, _pid becomes the PWM value */
 		if (_calibrated[i])
 		{
@@ -584,7 +649,7 @@ byte can_interface (void)
 		CAN1_ReadFrame (&CAN_messID, &CAN_frameType, &CAN_frameFormat, &CAN_length, CAN_data);
 		if (_verbose)
 		{
-			print_can (CAN_data, CAN_length, 'i');
+			//print_can (CAN_data, CAN_length, 'i');
 			//CAN1_GetError (&err);
 			//print_can_error (&err);
 		}
@@ -659,7 +724,7 @@ byte can_interface (void)
 
 		if (_verbose)
 		{
-			print_can (CAN_data, CAN_length, 'o'); 
+			//print_can (CAN_data, CAN_length, 'o'); 
 		}
 
 ///		if (_general_board_error != ERROR_NONE)
@@ -694,7 +759,7 @@ byte serial_interface (void)
 		case 'H':
 		case '\r':
 			DSP_SendDataEx ("\r\n\n");
-			DSP_SendDataEx ("Firmware - ver 1.0\r\n");
+			DSP_SendDataEx ("Firmware - ver 1.1\r\n");
 			DSP_SendDataEx ("h, H: help\r\n");
 			
 			DSP_SendDataEx ("a, set card address\r\n");
