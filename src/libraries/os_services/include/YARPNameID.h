@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.12 2003-08-26 07:40:49 gmetta Exp $
+/// $Id: YARPNameID.h,v 1.13 2004-07-01 15:27:49 eshuy Exp $
 ///
 ///
 /*
@@ -91,15 +91,39 @@
 /// Defines the endpoint name id. encapsulates the socket id and network mode flag.
 ///	Pasa: moved int variables to protected.
 ///
+
+/**
+ * Encapsulates an identifier of a specific port.
+ * This may include a socket id and network mode flag.
+ * Generally, the user should not care about this at all.
+ */
 class YARPNameID
 {
 protected:
+  /**
+   * Type of connection.
+   */
 	int _mode;			// mode socket, Qnet, etc.
+
+	/**
+	 * Connection-specific identifier.  Typically a socket handle.
+	 */
 	ACE_HANDLE _raw_id;	// OS id, e.g. socket id.
 
 public:
+	/**
+	 * Default constructor.
+	 */
 	YARPNameID () { _raw_id = ACE_INVALID_HANDLE;  _mode = YARP_NO_SERVICE_AVAILABLE; }
+
+	/**
+	 * Constructor.
+	 *
+	 * @param n_mode Type of connection.
+	 * @param n_raw_id Connection-specific handle.
+	 */
 	YARPNameID (int n_mode, ACE_HANDLE n_raw_id) { _mode = n_mode;  _raw_id = n_raw_id; }
+
 	virtual ~YARPNameID() {}
 
 	int operator == (const YARPNameID& other) { return (_raw_id == other._raw_id) && (_mode == other._mode); }
