@@ -180,7 +180,7 @@ BttvxReleaseBuffer()
 int
 BttvxSetImageBuffer(int dev,unsigned char * buff)
 {
-	struct bttv * btv = &bttvs[dev];
+	struct bttv * btv = &bttvs[0];
 	
 	btv->image_buffer = buff;
 }
