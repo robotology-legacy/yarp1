@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.10 2003-04-10 15:01:24 gmetta Exp $
+$Id: README.txt,v 1.11 2003-04-18 09:41:45 gmetta Exp $
 
 Before you do anything else.
 YARP assumes you have correctly set up the following variables (ALSO WINNT):
@@ -108,3 +108,7 @@ ACE Apr 2003:
 
 	- DONT FORGET, add path of the DLL to environment variables.
 	- $YARP_ROOT/bin/winnt
+
+	- ACE is used by YARP and thus it is now MANDATORY.
+	--- it's too radical of a change. too much effort to keep also the old 
+		non-ACE version available.
