@@ -7,10 +7,16 @@ class YARPHistoSegmentation: public YARP3DHistogram
 {
 public:
 	YARPHistoSegmentation(double lumaTh, unsigned char max, unsigned char min, unsigned char n):
-	 YARP3DHistogram(max, min, n)
+	  YARP3DHistogram(max, min, n)
 	{
 		_lumaThreshold = lumaTh;
 	
+	}
+
+	YARPHistoSegmentation(double lumaTh, unsigned char max, unsigned char min, unsigned char *n):
+	  YARP3DHistogram(max, min, n)
+	{
+		_lumaThreshold = lumaTh;
 	}
 	
 	inline void _normalize (unsigned char r, unsigned char g, unsigned char b,

@@ -107,6 +107,21 @@ public:
 
 		resize(tmpMax, tmpMin, tmpSize);
 	}
+
+	void resize(unsigned char max, unsigned char min, unsigned char *size)
+	{ 
+		unsigned char tmpMax[3];
+		unsigned char tmpMin[3];
+		
+		int i;
+		for (i = 0; i < 3; i++)
+		{
+			tmpMax[i] = max;
+			tmpMin[i] = min;
+		}
+
+		resize(tmpMax, tmpMin, size);
+	}
 	
 	void resize(unsigned char *max, unsigned char *min, unsigned char *size)
 	{
@@ -115,7 +130,10 @@ public:
 			_max[i] = max[i];
 			_min[i] = min[i];
 			_size[i] = size[i];
-			_delta[i] = (_max[i]-_min[i])/_size[i] + 0.5;
+			_delta[i] = (_max[i]-_min[i])/_size[i];
+			if (((_max[i]-_min[i])%_size[i]) != 0)
+				_delta[i] += 1;
+		
 		}
 
 		_nElem = _size[0]*_size[1]*_size[2];
@@ -147,11 +165,11 @@ public:
 		}
 	}
 
-	int find(unsigned int it, HistoEntry *v)
+	int find(unsigned int it, HistoEntry **v)
 	{
 		if (it < _nElem)
 		{
-			v = &_lut[it];
+			*v = &_lut[it];
 			return 0;
 		}
 		else
@@ -204,7 +222,9 @@ public:
 		_max = max;
 		_min = min;
 		_size = size;
-		_delta = (_max-_min)/_size + 0.5;
+		_delta = (_max-_min)/_size;
+		if (((_max-_min)%_size) != 0)
+			_delta += 1;
 		
 		if (_lut != NULL)
 			delete [] _lut;
@@ -226,11 +246,11 @@ public:
 		}
 	}
 
-	int find(unsigned int it, HistoEntry *v)
+	int find(unsigned int it, HistoEntry **v)
 	{
 		if (it < _nElem)
 		{
-			v = &_lut[it];
+			*v = &_lut[it];
 			return 0;
 		}
 		else
@@ -270,6 +290,7 @@ public:
 	YARP3DHistogram();
 
 	YARP3DHistogram(unsigned char max, unsigned char min, unsigned char n);
+	YARP3DHistogram(unsigned char max, unsigned char min, unsigned char *n);
 	
 	~YARP3DHistogram(){};
 
@@ -282,6 +303,16 @@ public:
 		_rlut.resize(max, min, n);
 		_glut.resize(max, min, n);
 		_blut.resize(max, min, n);
+	}
+
+	void Resize(unsigned char max, unsigned char min, unsigned char *n)
+	{
+		clean();
+		
+		_3dlut.resize(max, min, n);
+		_rlut.resize(max, min, n[0]);
+		_glut.resize(max, min, n[1]);
+		_blut.resize(max, min, n[2]);
 	}
 
 	void Apply(unsigned char r, unsigned char g, unsigned char b);
@@ -323,14 +354,14 @@ private:
 		
 		_pixelToKey(r, g, b, &it);
 
-		_3dlut.find(it, tmpEntryP);
+		_3dlut.find(it, &tmpEntryP);
 		if (tmpEntryP != NULL)
 		{
 			return tmpEntryP->value()/_3dlut._maximum;
 		}
 		else
 		{
-			cout << "Error\n";
+			cout << "Warning, index out of limit this should not happen. Check bin size.\n";
 			return 0;
 		}
 		return 0;

@@ -10,7 +10,13 @@ YARP3DHistogram::YARP3DHistogram(unsigned char max, unsigned char min, unsigned 
 	clean();
 
 	Resize(max, min, n);
+}
 
+YARP3DHistogram::YARP3DHistogram(unsigned char max, unsigned char min, unsigned char *n)
+{
+	clean();
+
+	Resize(max, min, n);
 }
 
 void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
@@ -29,7 +35,8 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 	_pixelToKey(r, g, b, &it);
 
 	/////////////////// 3d histo
-	if (_3dlut.find(it, tmpEntryP) == -1)
+	_3dlut.find(it, &tmpEntryP);
+	if (tmpEntryP != NULL)
 	{
 		(*tmpEntryP)++;
 		double tmpMax = tmpEntryP->value();
@@ -40,7 +47,8 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 	_pixelToKey(r, 0, 0, &it);
 	
 	/////////////////// r histo
-	if (_rlut.find(it, tmpEntryP) == -1)
+	_rlut.find(it, &tmpEntryP);
+	if (tmpEntryP != NULL)
 	{
 		(*tmpEntryP)++;
 		double tmpMax = tmpEntryP->value();
@@ -51,7 +59,8 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 	_pixelToKey(0, g, 0, &it);
 
 	/////////////////// g histo
-	if (_glut.find(it, tmpEntryP) == -1)
+	_glut.find(it, &tmpEntryP);
+	if (tmpEntryP != NULL)
 	{
 		(*tmpEntryP)++;
 		double tmpMax = tmpEntryP->value();
@@ -62,7 +71,8 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 	_pixelToKey(0, 0, b, &it);
 
 	/////////////////// b histo
-	if (_blut.find(it, tmpEntryP) == -1)
+	_blut.find(it, &tmpEntryP);
+	if (tmpEntryP != NULL)
 	{
 		(*tmpEntryP)++;
 		double tmpMax = tmpEntryP->value();
@@ -87,7 +97,7 @@ int YARP3DHistogram::_dumpFull(const char *file)
 			
 	unsigned int it = _3dlut.begin();
 
-	while  (_3dlut.find(it, tmpEntry));
+	while  (_3dlut.find(it, tmpEntry)!=-1)
 	{
 		tmpKey.B++;
 
@@ -102,7 +112,7 @@ int YARP3DHistogram::_dumpFull(const char *file)
 			}
 		}
 
-		ACE_OS::fprintf(fp, "%d %d %d\t%lf\n", tmpKey.R, tmpKey.G, tmpKey.B, tmpEntry.value());
+		ACE_OS::fprintf(fp, "%d %d %d %lf\n", tmpKey.R, tmpKey.G, tmpKey.B, tmpEntry.value());
 		it++;
 	}
 
@@ -123,7 +133,7 @@ int YARP3DHistogram::_dump1D(const char *file, Histo1D &lut)
 				
 	unsigned int it = lut.begin();
 
-	while  (lut.find(it, tmpEntry));
+	while  (lut.find(it, tmpEntry)!=-1)
 	{
 		ACE_OS::fprintf(fp, "%d \t%lf\n", it, tmpEntry.value());
 		it++;
