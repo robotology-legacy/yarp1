@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.3 2004-09-04 22:01:30 babybot Exp $
+///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.4 2004-10-18 14:35:54 babybot Exp $
 ///
 ///
 
@@ -139,7 +139,26 @@ namespace _BabybotArm
  * - Since the axis map is only used internally this should be of no concern for
  * the user.
  *
+ * Note on the wrist mechanical coupling:
+ * 
+ *			1/G00	0		0		0		0		0
+ *			0		1/G11	0		0		0		0
+ *	joint =	0		0		1/G22	0		0		0       * [motor0 motor1 ... motor5]'
+ *			0		0		0		1/G33	0		0
+ *			0		0		0		-G34	1/G44	0
+ *			0		0		0		-G35	-G45	1/G55
+ *
+ * Where: [G00 G11 G22 ... G55] = _encoders[]	// gear ratios
+ *		  [0 0 0 -G34 -G45 -G55] = fwdCouple[]	// coupling between joints
+ * 
+ * Consider also: 
+ * - motor[j] = 2*pi*enc[j]/encWheels[j]
+ * - In the code _fwdCouple is substituted with _fwdCouple *= encWheels
+ *
+ * This leads to the encoderToAngles() and anglesToEncoders() functions as they are in the YARPBabybotArm class.
+ * 
  */
+
 class YARPBabybotArmParameters
 {
 public:
@@ -305,9 +324,15 @@ public:
 			return YARP_FAIL;
 		for(i = 0; i< _nj; i++)
 			_encoderToAngles[i] = encoders[i]*encWheels[i];
+		
+		_fwdCouple[3] = _fwdCouple[3]*encWheels[3];
+		_fwdCouple[4] = _fwdCouple[4]*encWheels[4];
+		_fwdCouple[5] = _fwdCouple[5]*encWheels[5];
+
 		delete [] encoders;
 		delete [] encWheels;
 		///////////////////////////////////////////////////
+
 
 		// build _invCouple
 		for (i = 0; i < 3; i++)
