@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.18 2004-03-12 16:12:41 gmetta Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.19 2004-03-12 18:02:37 babybot Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -144,12 +144,15 @@ int YARPMEIDeviceDriver::open(void *d)
 	
 	_winding = new int16[_njoints];
 	ACE_ASSERT (_winding != NULL);
+	memset (_winding, 0, sizeof(int16) * _njoints);
 
 	_16bit_oldpos = new double[_njoints];
 	ACE_ASSERT (_16bit_oldpos != NULL);
+	memset (_16bit_oldpos, 0, sizeof(double) * _njoints);
 
 	_position_zero = new double[_njoints];
 	ACE_ASSERT (_position_zero != NULL);
+	memset (_position_zero, 0, sizeof(double) * _njoints);
 
 	return rc;
 }
@@ -220,6 +223,7 @@ int YARPMEIDeviceDriver::definePosition (void *cmd)
 	/// this is to reset the encoder ref value.
 	/// LATER: need to verify whether summing pos is the right thing to do.
 	_position_zero[tmp->axis] = double(dsp_encoder (tmp->axis)) + *pos;
+	_winding[tmp->axis] = 0;
 
 	return rc;
 }
@@ -264,19 +268,13 @@ int YARPMEIDeviceDriver::getPositions(void *j)
 				break;
 
 			case -1:
-				out[i] = -65535.0 + out[i] - _position_zero[i];
+				out[i] = -65536.0 + out[i] - _position_zero[i];
 				break;
 
 			case 0:
 				out[i] -= _position_zero[i];
 				break;
 		}
-
-		/// testing.
-		double tmp_pos;
-		get_position(i, &tmp_pos);
-
-		ACE_DEBUG ((LM_DEBUG, "%f %f\n", tmp_pos, out[i]));
 	}
 
 	return 0;
@@ -377,7 +375,7 @@ int YARPMEIDeviceDriver::getPosition(void *cmd)
 			break;
 
 		case -1:
-			tmpd = -65535.0 + tmpd - _position_zero[axis];
+			tmpd = -65536.0 + tmpd - _position_zero[axis];
 			break;
 
 		case 0:
@@ -458,6 +456,7 @@ int YARPMEIDeviceDriver::definePositions (void *param)
 		/// this is to reset the encoder ref value.
 		/// LATER: need to verify whether summing cmds[i] is the right thing to do.
 		_position_zero[i] = double(dsp_encoder (i)) + cmds[i];
+		_winding[i] = 0;
 	}
 
 	return rc;
