@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// config-linux.h,v 4.41 2004/04/22 20:54:00 shuston Exp
+// config-linux.h,v 4.40 2004/03/31 15:21:09 dhinton Exp
 
 // The following configuration file is designed to work for Linux
 // platforms using GNU C++.
@@ -26,18 +26,19 @@
 #define ACE_HAS_THREADS
 // And they're even POSIX pthreads (LinuxThreads implementation)
 #define ACE_HAS_PTHREADS
-// ... and the final standard even!
-#define ACE_HAS_PTHREADS_STD
 
 #if !defined (ACE_HAS_PTHREADS_UNIX98_EXT)
-#  define ACE_LACKS_RWLOCK_T
-#else
-#  define ACE_HAS_RECURSIVE_MUTEXES
+#  define ACE_LACKS_RWLOCK_T 
 #endif  /* !ACE_HAS_PTHREADS_UNIX98_EXT */
 
+// ... and the final standard even!
+#define ACE_HAS_PTHREADS_STD
 #define ACE_HAS_THREAD_SPECIFIC_STORAGE     // jcej 12/22/96         #2
 
 #define ACE_HAS_RECURSIVE_THR_EXIT_SEMANTICS    // JCEJ 1/7-8/96
+#define ACE_HAS_RECURSIVE_MUTEXES
+#define ACE_HAS_NONRECURSIVE_MUTEXES
+#define ACE_HAS_PTHREAD_MUTEXATTR_SETTYPE
 
 #if defined(__GLIBC__)
 // Platform supports reentrant functions (i.e., all the POSIX *_r
