@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.13 2004-07-06 19:41:39 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.14 2004-07-09 10:48:54 babybot Exp $
 ///
 ///
 
@@ -425,9 +425,9 @@ public:
 	}
 
 	// reset encoders to a specified value; NULL (default) means reset to 0.0s
-	int resetEncoders(double *pos = NULL)
+	int resetEncoders(const double *pos = NULL)
 	{
-		_lock();
+	    _lock();
 		for(int i = 0; i < _parameters._nj; i++)
 		{
 			if (pos == NULL)

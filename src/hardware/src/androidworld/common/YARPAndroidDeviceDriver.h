@@ -38,6 +38,8 @@ struct AndroidSingleChannel
 	unsigned char *data;
 };
 
+const int __trials = 1;
+
 class YARPAndroidDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPAndroidDeviceDriver > 
 {
 public:
@@ -60,7 +62,9 @@ private:
 		c += (chip & 0x3);				// 1st and 2nd bits
 		c += ((board << 2) & 0xC);		// 3rd and 4th bits
 		c += ((enable << 6) & 0x40);	// 7th bit
-		_outp(_pport, c);
+		int trials = __trials;
+		while(trials--)
+			_outp(_pport, c);
 	}
 
 	unsigned char readMSB()
@@ -79,13 +83,21 @@ private:
 			c += 1;
 		if (d == 0)
 			c += 2;
-		_outp(_pport+2,c);
+		int trials = __trials;
+		while(trials--)
+			_outp(_pport+2,c);
 	}
 
 	unsigned char _parOut(unsigned char ck, unsigned char d)
 	{
-		selChip(_chipSel, _boardSel, _enable);
-		outPort2(ck, d);
+		int trials = __trials;
+		while(trials--)
+			selChip(_chipSel, _boardSel, _enable);
+		
+		trials = __trials;
+		while(trials--)
+			outPort2(ck, d);
+		
 		return readMSB();
 	}
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.25 2004-06-29 08:43:31 babybot Exp $
+/// $Id: YARPDisparity.cpp,v 1.26 2004-07-09 10:48:54 babybot Exp $
 ///
 ///
 
@@ -78,6 +78,14 @@
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
+
+inline bool isWithin(int v,int max, int min)
+{
+	if ( (v<=max) && (v>=min) )
+		return true;
+	else
+		return false;
+}
 
 inline float colorToSaturation(float r, float g, float b)
 {
@@ -137,6 +145,7 @@ YARPDisparityTool::YARPDisparityTool()
 
 	_dsTable		= NULL;
 	_shiftFunction	= NULL;
+	_shiftFunctionInv = NULL;
 	_gaussFunction	= NULL;
 	_shiftMap		= NULL;
 	_corrFunct		= NULL;
@@ -150,6 +159,8 @@ YARPDisparityTool::YARPDisparityTool()
 	_varFunct = NULL;
 
 	_maxCount = 0.0;
+	_shiftMax = 0.0;
+	_shiftMin = 0.0;
 
 	_varMax = 800000;
 	_varMin = 14000;
@@ -198,6 +209,9 @@ YARPDisparityTool::~YARPDisparityTool()
 	
 	if (_varFunct != NULL)
 		delete [] _varFunct;
+
+	if (_shiftFunctionInv == NULL)
+		delete [] _shiftFunctionInv;
 }
 
 int YARPDisparityTool::loadShiftTable(Image_Data * Par)
@@ -220,7 +234,6 @@ int YARPDisparityTool::loadShiftTable(Image_Data * Par)
 		_shiftFunction = new int [_shiftLevels];
 		ACE_OS::fread (_shiftFunction,sizeof(int),_shiftLevels,fin); //List
 		ACE_OS::fclose(fin);
-
 		ACE_OS::printf("Found shift table...\n");
 	}
 	else
@@ -231,6 +244,46 @@ int YARPDisparityTool::loadShiftTable(Image_Data * Par)
 		_shiftFunction = new int [_shiftLevels];
 		for (j=0; j<mult*_shiftLevels; j+=mult)
 			_shiftFunction[j/mult] = j-mult*(_shiftLevels/2);
+	}
+
+	_shiftMax = _shiftLevels-1;
+	_shiftMin = 0;
+
+	int dummy = _shiftLevels;
+	// make the inverse of shift function
+	_shiftFunctionInv = new int[2*Par->Resolution];
+	float dispRef = 0;
+	for(int l = 0; l < 2*Par->Resolution; l++)
+	{
+		bool found = false;
+		int m = 0;
+		// check first and last
+		float conf = _shiftToDisparity(0);
+		dispRef = (l-Par->Resolution)*Par->Size_X_Remap/Par->Resolution;
+		if (dispRef<=conf)
+		{
+			found = true;
+			m = 0;
+		}
+		conf = _shiftToDisparity(_shiftLevels-1);
+		if (dispRef>=conf)
+		{
+			found = true;
+			m = _shiftLevels-1;
+		}
+
+		while((!found) && (m+1 <= (_shiftLevels-1)) )
+		{
+			float tmpDisp1 = _shiftToDisparity(m);
+			float tmpDisp2 = _shiftToDisparity(m+1);
+			if ( (tmpDisp1<=dispRef) && (dispRef<=tmpDisp2) )
+				found = true;
+			else
+				m++;
+		}
+		
+		if (found)
+			_shiftFunctionInv[l] = m;
 	}
 
 	if (Par->Ratio == 1.00)
@@ -296,31 +349,31 @@ int YARPDisparityTool::loadShiftTable(Image_Data * Par)
 	return 0;
 }
 
-int YARPDisparityTool::loadDSTable(Image_Data * Par)
+int YARPDisparityTool::loadDSTable(Image_Data * Par, Image_Data* ParDS)
 {
 	char File_Name[256];
 	FILE * fin;
 
 	int j,k;
 
-	sprintf(File_Name,"%s%s%1.2f_P%d%s",_path,"DSMap_",4.00,Par->padding,".gio");
+	sprintf(File_Name,"%s%s%1.2f_P%d%s",_path,"DSMap_",ParDS->Ratio,Par->padding,".gio");
 
 	if ((fin = fopen(File_Name,"rb")) != NULL)
 	{
-		_dsTable = new IntNeighborhood [Par->Size_LP / 16];
+		_dsTable = new IntNeighborhood [Par->Size_LP / (ParDS->Ratio*ParDS->Ratio)];
 		fread(&k,sizeof(int),1,fin);
 		_dsTable[0].position = NULL;
-		_dsTable[0].position = new unsigned int  [k * (Par->Size_LP/16)];
+		_dsTable[0].position = new unsigned int  [k * (Par->Size_LP/(ParDS->Ratio*ParDS->Ratio))];
 		_dsTable[0].weight   = NULL;
-		_dsTable[0].weight   = new unsigned char [k * (Par->Size_LP/16)];
+		_dsTable[0].weight   = new unsigned char [k * (Par->Size_LP/(ParDS->Ratio*ParDS->Ratio))];
 
-		for (j=0; j<Par->Size_LP/16; j++)
+		for (j=0; j<Par->Size_LP/(ParDS->Ratio*ParDS->Ratio); j++)
 			fread(&(_dsTable[j].NofPixels) ,sizeof(unsigned short),1,fin);
 
-		fread((_dsTable[0].position) ,sizeof(unsigned int),k * (Par->Size_LP/16),fin);
-		fread((_dsTable[0].weight)   ,sizeof(unsigned char) ,k * (Par->Size_LP/16),fin);
+		fread((_dsTable[0].position) ,sizeof(unsigned int),k * (Par->Size_LP/(ParDS->Ratio*ParDS->Ratio)),fin);
+		fread((_dsTable[0].weight)   ,sizeof(unsigned char) ,k * (Par->Size_LP/(ParDS->Ratio*ParDS->Ratio)),fin);
 
-		for (j=0; j<Par->Size_LP/16; j++)
+		for (j=0; j<Par->Size_LP/(ParDS->Ratio*ParDS->Ratio); j++)
 		{
 			_dsTable[j].position = _dsTable[0].position + k*j;
 			_dsTable[j].weight   = _dsTable[0].weight   + k*j;
@@ -330,7 +383,10 @@ int YARPDisparityTool::loadDSTable(Image_Data * Par)
 		return 1;
 	}
 	else
+	{
+		printf("%s not found!\n", File_Name);
 		_dsTable = NULL;
+	}
 
 	return 0;
 }
@@ -541,11 +597,29 @@ int YARPDisparityTool::computeMono (YARPImageOf<YarpPixelBGR> & inRImg,
 				fovPtr+=AddedPadSize;
 			}
 
-			_corrFunct[k] = (numr-sum1R*sum2R/nElem)/sqrt((den_1r-sum1R*sum1R/nElem)*(den_2r-sum2R*sum2R/nElem));
-			_corrFunct[k] += (numg-sum1G*sum2G/nElem)/sqrt((den_1g-sum1G*sum1G/nElem)*(den_2g-sum2G*sum2G/nElem));
-			_corrFunct[k] += (numb-sum1B*sum2B/nElem)/sqrt((den_1b-sum1B*sum1B/nElem)*(den_2b-sum2B*sum2B/nElem));
+			double tmpR;
+			double tmpG;
+			double tmpB;
+			
+			tmpR = (den_1r-sum1R*sum1R/nElem)*(den_2r-sum2R*sum2R/nElem);
+			tmpG = (den_1g-sum1G*sum1G/nElem)*(den_2g-sum2G*sum2G/nElem);
+			tmpB = (den_1b-sum1B*sum1B/nElem)*(den_2b-sum2B*sum2B/nElem);
+
+			_corrFunct[k] = 0;
+			if (tmpR>0)
+				_corrFunct[k] += (numr-sum1R*sum2R/nElem)/sqrt(tmpR);
+
+			if (tmpG>0)
+				_corrFunct[k] += (numg-sum1G*sum2G/nElem)/sqrt(tmpG);
+
+			if (tmpB>0)
+				_corrFunct[k] += (numb-sum1B*sum2B/nElem)/sqrt(tmpB);
+				
 			_corrFunct[k] /= 3.0;
 
+			if (_isnan(_corrFunct[k]))
+				printf("WARNING: found a NAN\n");
+				
 			_std2[k] = (1/nElem)*(sigma2-grayAv2*grayAv2/nElem)/(128*128);
 			_std1[k]= (1/nElem)*(sigma1-grayAv1*grayAv1/nElem)/(128*128);
 			
@@ -559,10 +633,168 @@ int YARPDisparityTool::computeMono (YARPImageOf<YarpPixelBGR> & inRImg,
 	}
 
 	// search max
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
+}
+
+int YARPDisparityTool::computeCorrProd (YARPImageOf<YarpPixelBGR> & inRImg,
+											YARPImageOf<YarpPixelBGR> & inLImg, double *value)
+{
+	int i,j,k, k1;
+	int i2,i1;//iR,iL
+	
+	double numr   = 0;
+	double den_1r = 0;
+	double den_2r = 0;
+	double numg   = 0;
+	double den_1g = 0;
+	double den_2g = 0;
+	double numb   = 0;
+	double den_1b = 0;
+	double den_2b = 0;
+
+	double sigma2 = 0;
+	double sigma1 = 0;
+	double grayAv1 = 0;
+	double grayAv2 = 0;
+
+	YarpPixelRGBFloat pixel1;
+	YarpPixelRGBFloat pixel2;
+
+	double sum1R = 0;
+	double sum2R = 0;
+	double sum1G = 0;
+	double sum2G = 0;
+	double sum1B = 0;
+	double sum2B = 0;
+	double nElem = 0;
+
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+	fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(_imgS.Size_Theta*_imgS.LP_Planes,_imgS.padding) - _imgS.Size_Theta*_imgS.LP_Planes;
+
+	for (k=0; k<_shiftLevels; k++)
+	{
+		k1 = k * _imgS.Size_LP; //Positioning on the table
+
+		numr   = 0;
+		den_1r = 0;
+		den_2r = 0;
+		numg   = 0;
+		den_1g = 0;
+		den_2g = 0;
+		numb   = 0;
+		den_1b = 0;
+		den_2b = 0;
+
+		sum1R = 0;
+		sum2R = 0;
+		sum1G = 0;
+		sum2G = 0;
+		sum1B = 0;
+		sum2B = 0;
+		nElem = 0;
+
+		sigma1 = 0;
+		sigma2 = 0;
+		grayAv1 = 0;
+		grayAv2 = 0;
+
+		fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+		fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+		if (_count[k] == _maxCount)
+		{
+			for (j=0; j<_actRings; j++)
+			{
+				tIndex = j*_imgS.Size_Theta;
+				for (i=0; i<_imgS.Size_Theta; i++)
+				{
+					i2 = _shiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+
+					if (i2 > 0)
+					{
+						pixel1.r = *fovPtr++;
+						pixel2.r = fullPtr[i2];
+						pixel1.g = *fovPtr++;
+						pixel2.g = fullPtr[i2+1];
+						pixel1.b = *fovPtr++;
+						pixel2.b = fullPtr[i2+2];
+
+						double gray1 = (pixel1.r + pixel1.g+pixel1.b)/3.0;
+						double gray2 = (pixel2.r+pixel2.g+pixel2.b)/3.0;
+
+						numr   += (pixel1.r * pixel2.r);
+						sum1R += pixel1.r;
+						sum2R += pixel2.r;
+						den_1r += (pixel1.r * pixel1.r);
+						den_2r += (pixel2.r * pixel2.r);
+
+						numg   += (pixel1.g * pixel2.g);
+						sum1G += pixel1.g;
+						sum2G += pixel2.g;
+						den_1g += (pixel1.g * pixel1.g);
+						den_2g += (pixel2.g * pixel2.g);
+
+						numb   += (pixel1.b * pixel2.b);
+						sum1B += pixel1.b;
+						sum2B += pixel2.b;
+						den_1b += (pixel1.b * pixel1.b);
+						den_2b += (pixel2.b * pixel2.b);
+
+						sigma1 += gray1*gray1;
+						sigma2 += gray2*gray2;
+						grayAv1 += gray1;
+						grayAv2 += gray2;
+
+						nElem++;
+					}
+					else fovPtr +=3;
+				}
+				fovPtr+=AddedPadSize;
+			}
+
+			_corrFunct[k] = (numr-sum1R*sum2R/nElem)/sqrt((den_1r-sum1R*sum1R/nElem)*(den_2r-sum2R*sum2R/nElem));
+			_corrFunct[k] *= (numg-sum1G*sum2G/nElem)/sqrt((den_1g-sum1G*sum1G/nElem)*(den_2g-sum2G*sum2G/nElem));
+			_corrFunct[k] *= (numb-sum1B*sum2B/nElem)/sqrt((den_1b-sum1B*sum1B/nElem)*(den_2b-sum2B*sum2B/nElem));
+
+			if (_isnan(_corrFunct[k])) _corrFunct[k]=0;
+			
+			_std2[k] = (1/nElem)*(sigma2-grayAv2*grayAv2/nElem)/(128*128);
+			_std1[k]= (1/nElem)*(sigma1-grayAv1*grayAv1/nElem)/(128*128);
+			
+		}
+		else
+		{
+			_corrFunct[k] = 0;
+			_std2[k] = 0;
+			_std1[k] = 0;
+		}
+	}
+
+	// search max
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
+	
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeMonoNorm (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -582,10 +814,15 @@ int YARPDisparityTool::computeMonoNorm (YARPImageOf<YarpPixelBGR> & inRImg,
 	
 	_cleanCorr();
 	// search max
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeFullAverage (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -609,10 +846,15 @@ int YARPDisparityTool::computeFullAverage (YARPImageOf<YarpPixelBGR> & inRImg,
 
 	_cleanCorr();
 	// search max
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 void YARPDisparityTool::makeHistogram(YARPImageOf<YarpPixelMono>& hImg)
@@ -1098,10 +1340,16 @@ int YARPDisparityTool::computeSSDRGB (YARPImageOf<YarpPixelBGR> & inRImg,
 
 	}
 	
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	// search max
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeSSDRGBUN (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -1182,10 +1430,16 @@ int YARPDisparityTool::computeSSDRGBUN (YARPImageOf<YarpPixelBGR> & inRImg,
 
 	}
 	
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	// search max
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeSSDRGBxVar (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -1341,10 +1595,16 @@ int YARPDisparityTool::computeSSDRGBxVar (YARPImageOf<YarpPixelBGR> & inRImg,
 		}
 	}
 
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	// search max
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeSSDRGBxVar2 (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -1481,8 +1741,6 @@ int YARPDisparityTool::computeSSDRGBxVar2 (YARPImageOf<YarpPixelBGR> & inRImg,
 		}
 		else
 		{
-			_ssdFunct[k] = 0;
-			_varFunct[k] = 0;
 			_phase[k] = 0;
 		}
 	}
@@ -1504,38 +1762,46 @@ int YARPDisparityTool::computeSSDRGBxVar2 (YARPImageOf<YarpPixelBGR> & inRImg,
 
 	for (k=0; k<_shiftLevels; k++)
 	{
-		_varFunct[k]=1-0.5*_varFunct[k]/varFunctMean;
-		_ssdFunct[k]=1-0.5*_ssdFunct[k]/ssdFunctMean;
-		if (_varFunct[k] < 0)
-			_varFunct[k] = 0;
-		if (_varFunct[k] > 1)
-			_varFunct[k] = 1;
-		
-		if (_ssdFunct[k] < 0)
-			_ssdFunct[k] = 0;
-		if (_ssdFunct[k] > 1)
-			_ssdFunct[k] = 1;
-	}
-	
-	for (k=0; k<_shiftLevels; k++)
-	{
-		if (_count[k] == _maxCount)
-		{
+		if (_count[k] == _maxCount) {
+			_varFunct[k]=1-0.5*_varFunct[k]/varFunctMean;
+			_ssdFunct[k]=1-0.5*_ssdFunct[k]/ssdFunctMean;
+			if (_varFunct[k] < 0)
+				_varFunct[k] = 0;
+			else if (_varFunct[k] > 1)
+				_varFunct[k] = 1;
+			
+			if (_ssdFunct[k] < 0)
+				_ssdFunct[k] = 0;
+			else if (_ssdFunct[k] > 1)
+				_ssdFunct[k] = 1;
+
 			double a;
-			if (_varFunct[k]>=0.5 && _ssdFunct[k]>=0.5) {
+			//if (_varFunct[k]>=0.5 && _ssdFunct[k]>=0.5) {
 				a=_varFunct[k]<_ssdFunct[k]?_varFunct[k]:_ssdFunct[k];
 				a-=0.5;
-			} else
-				a=0;
-			_corrFunct[k] = pow(_varFunct[k]*_ssdFunct[k],1/(3*a+1));
-		} else
+			//} else
+			//	a=0;
+			if (a<0) 
+				_corrFunct[k] = pow(_varFunct[k]*_ssdFunct[k],3*(-a)+1);
+			else	
+				_corrFunct[k] = pow(_varFunct[k]*_ssdFunct[k],1/(3*a+1));
+		} else {
+			_ssdFunct[k] = 0;
+			_varFunct[k] = 0;
 			_corrFunct[k] = 0;
+		}
 	}
 	
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	// search max
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeSSDRGBVar (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -1647,10 +1913,16 @@ int YARPDisparityTool::computeSSDRGBVar (YARPImageOf<YarpPixelBGR> & inRImg,
 
 	}
 
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	// search max
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeSSDRGBTH (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -1725,10 +1997,16 @@ int YARPDisparityTool::computeSSDRGBTH (YARPImageOf<YarpPixelBGR> & inRImg,
 
 	}
 	
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	// search max
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeABSRGB (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -1801,10 +2079,16 @@ int YARPDisparityTool::computeABSRGB (YARPImageOf<YarpPixelBGR> & inRImg,
 
 	}
 	
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	// search max
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeRGB (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -1980,10 +2264,15 @@ int YARPDisparityTool::computeRGB (YARPImageOf<YarpPixelBGR> & inRImg,
 	
 
 	// search max
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeRGBAv (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -2148,10 +2437,15 @@ int YARPDisparityTool::computeRGBAv (YARPImageOf<YarpPixelBGR> & inRImg,
 	
 
 	// search max
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeSSDWorstCase (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -2266,10 +2560,15 @@ int YARPDisparityTool::computeSSDWorstCase (YARPImageOf<YarpPixelBGR> & inRImg,
 	}
 
 	// search max
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeSSDMono (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -2348,10 +2647,16 @@ int YARPDisparityTool::computeSSDMono (YARPImageOf<YarpPixelBGR> & inRImg,
 	}
 
 	// search max
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	// search max
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeRGBVar2 (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -2435,10 +2740,16 @@ int YARPDisparityTool::computeRGBVar2 (YARPImageOf<YarpPixelBGR> & inRImg,
 
 	}
 	
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	// search max
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeRGBChainVar (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -2517,10 +2828,16 @@ int YARPDisparityTool::computeRGBChainVar (YARPImageOf<YarpPixelBGR> & inRImg,
 
 	}
 	
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	// search max
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 int YARPDisparityTool::computeRGBChain (YARPImageOf<YarpPixelBGR> & inRImg,
@@ -2611,10 +2928,16 @@ int YARPDisparityTool::computeRGBChain (YARPImageOf<YarpPixelBGR> & inRImg,
 
 	}
 	
-	_shift = _findShift(_corrFunct, _shiftLevels);
-	*value = (double) _corrFunct[_shift];
+	// search max
+	_findShift(_corrFunct, _shiftLevels);
+	_findSecondMax(_corrFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _corrFunct[tmpShift];
 	
-	return _shiftToDisparity(_shift);
+	return _shiftToDisparity(tmpShift);
 }
 
 void YARPDisparityTool::plotRegion(const YARPImageOf<YarpPixelBGR> &imageRight, YARPImageOf<YarpPixelBGR> &out, int shift)
@@ -2900,16 +3223,118 @@ void YARPDisparityTool::plotSSDMap(const YARPImageOf<YarpPixelBGR> &inRight, con
 	}
 }
 
-int YARPDisparityTool::init(int rings)
+void YARPDisparityTool::_findSecondMax(const double *corr, int lv, int posMax)
+{
+	// search max
+	double corrMax;
+	int shMin;
+	int max1;
+	int max2;
+
+	int ret = 0;
+	int l;
+
+	if (_shiftMax<lv)
+		lv = _shiftMax;
+	shMin = _shiftMin;		// = 0
+	
+
+	l = posMax-1;
+	while(l>shMin && corr[l]<=corr[l+1]+0.02)
+		l--;
+	
+	corrMax=corr[l];
+	max1=l;
+	for(; l>=shMin; l--)
+	{
+		if (corr[l]>corrMax)
+		{
+			corrMax = corr[l];
+			max1 = l;
+		}
+	}
+
+	l = posMax+1;
+	while(l<lv && 0.02+corr[l-1]>=corr[l])
+		l++;
+
+	corrMax=corr[l];
+	max2 = l;
+	for(; l<lv; l++)
+	{
+		if (corr[l]>corrMax)
+		{
+			corrMax = corr[l];
+			max2 = l;
+		}
+	}
+
+	if (max1>max2)
+	{
+		_shifts[1] = max1;
+		_shifts[2] = max2;
+	}
+	else
+	{
+		_shifts[2] = max1;
+		_shifts[1] = max2;
+	}
+
+	_shifts[3] = zeroShift();
+}
+
+int YARPDisparityTool::init(int rings, float ratio)
 {
 	using namespace _logpolarParams;
 	_imgL = lpInfo (_xsize, _ysize, _srho, _stheta, _sfovea, 1090, 1.00, YarpImageAlign);
-	_imgS = lpInfo (_xsize, _ysize, _srho, _stheta, _sfovea, 1090, 4.00, YarpImageAlign);
-	_imgFovea = lpInfo (_xsize, _ysize, _srho, _stheta, _sfovea, 1090, 4.00, YarpImageAlign, 4);
-	_actRings = rings;
+	_imgS = lpInfo (_xsize, _ysize, _srho, _stheta, _sfovea, 1090, ratio, YarpImageAlign);
+	_imgFovea = lpInfo (_xsize, _ysize, _srho, _stheta, _sfovea, 1090, ratio, YarpImageAlign, 4);
+	_actRings = int (rings/ratio + 0.5);
 	loadShiftTable();
 	loadDSTable();
 	loadRemapTable();
 	_computeCountVector(_count);
+
+	_shiftMax = _shiftLevels;
+	_shiftMin = 0;
 	return YARP_OK;
+}
+
+int YARPDisparityTool::filterMaxes()
+{
+	int maxIndex;
+	int closest;
+	
+	float threshold = 0.2f;
+	float threshold2 = 0.1f;
+	float vals[__nShifts+1];
+
+	for (int i = 0; i < __nShifts-1; i++)
+	{
+		vals[i] = _corrFunct[_shifts[i]];
+		
+		if ( !isWithin(_shifts[i], _shiftMax, _shiftMin) || (vals[i]<threshold) )
+			vals[i] = -1;
+	}
+	vals[__nShifts-1] = 0;
+
+	// find closest
+	closest = 0;
+	int zs = zeroShift();
+	for (i = 0; i < (__nShifts-1); i++)
+	{
+		if (abs(_shifts[i]-zs)<(_shifts[closest]-zs))
+			closest = i;
+	}
+
+	// find higher, starting from closest, so that if no best matches are found we go 
+	// to the closest peak
+	maxIndex = closest;
+	for (i = 0; i < __nShifts; i++)
+	{
+		if (vals[i]>vals[maxIndex]+threshold2)
+			maxIndex = i;
+	}
+
+	return _shifts[maxIndex];
 }

@@ -54,16 +54,7 @@ public:
 	}
 
 	void setAcceleration(const YVector &acc)
-	{
-		_head.setAccs(acc.data());
-		ACE_OS::printf("****** ACCELERATION_DEBUG:\n");
-		YVector tmpAcc;
-		tmpAcc = acc;
-		_head.getAccs(tmpAcc.data());
-		for(int l=1; l<=tmpAcc.Length(); l++)
-			ACE_OS::printf("%lf\t", tmpAcc(l)*radToDeg);
-		ACE_OS::printf("\n");
-	}
+	{ _head.setAccs(acc.data()); }
 
 	void stop()
 	{

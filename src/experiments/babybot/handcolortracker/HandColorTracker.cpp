@@ -28,7 +28,7 @@ YARPLogpolar _mapper;
 const char *__nnetFile1 = "handfk1.ini";
 const char *__nnetFile2 = "handfk2.ini";
 
-const int __xOffset = -7;
+const int __xOffset = 0;
 const int __yOffset = -8;
 
 const double __threshold = 150000;

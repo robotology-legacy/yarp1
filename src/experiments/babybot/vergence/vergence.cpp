@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.16 2004-06-29 08:43:29 babybot Exp $
+/// $Id: vergence.cpp,v 1.17 2004-07-09 10:48:54 babybot Exp $
 ///
 ///
 
@@ -85,29 +85,41 @@
 #include <YARPParseParameters.h>
 #include <YARPVectorPortContent.h>
 #include <YARPDisparity.h>
-// DEBUG
 #include <YARPImageFile.h>
+
+#include "headvergencelimits.h"
 
 ///
 ///
 ///
 YARPInputPortOf<YARPGenericImage> in_left;
 YARPInputPortOf<YARPGenericImage> in_right;
+YARPInputPortOf<YVector> in_head;
 
 YARPOutputPortOf<YARPGenericImage> out_img1 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-YARPOutputPortOf<YARPGenericImage> out_img2 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-YARPOutputPortOf<YARPGenericImage> out_img3 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-YARPOutputPortOf<YARPGenericImage> out_img4 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-YARPOutputPortOf<YARPGenericImage> out_img5 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-YARPOutputPortOf<YARPGenericImage> out_img6 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+//YARPOutputPortOf<YARPGenericImage> out_img2 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+//YARPOutputPortOf<YARPGenericImage> out_img3 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+//YRPOutputPortOf<YARPGenericImage> out_img4 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+//YARPOutputPortOf<YARPGenericImage> out_img5 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+//YARPOutputPortOf<YARPGenericImage> out_img6 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 YARPOutputPortOf<YVector> out_disp (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
 const char *DEFAULT_NAME = "/vergence";
 
-const int __nScales = 6;
-const int __nRings[] = {21, 21, 21, 21, 21, 21}; // 15, 20};
+const int __nScales = 1;
+const int __nRings[] = {80, 80, 80, 80, 80, 80};
+const float __ratios[] = {4.0, 4.0, 4.0, 4.0, 4.0, 4.0};
+const int __histoHeight = 64;
+const int __histoWidth = 256;
+
+//const float __ratios[] = {2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
 
 void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr1, const double *corr2, const double *corr3, int sl, double val);
+void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr, int sl);
+void addLimits2Histogram(YARPImageOf<YarpPixelMono>& hImg, int max, int min, int sl);
+void addMax2Histogram(YARPImageOf<YarpPixelMono>& hImg, int max1, int max2, int max3, int sl);
+
+HeadVergenceLimits _limits;
 
 int main(int argc, char *argv[])
 {
@@ -139,17 +151,20 @@ int main(int argc, char *argv[])
 	sprintf(buf, "%s/i:right", name.c_str());
 	in_right.Register(buf, network_i.c_str());
 
+	sprintf(buf, "%s/head/i", name.c_str());
+	in_head.Register(buf, "default");
+
 	sprintf(buf, "%s/o:histo", name.c_str());
 	out_img1.Register(buf, network_i.c_str());
-	sprintf(buf, "%s/o:histo2", name.c_str());
-	out_img2.Register(buf, network_i.c_str());
-	sprintf(buf, "%s/o:img", name.c_str());
-	out_img3.Register(buf, network_i.c_str());
-	sprintf(buf, "%s/o:img2", name.c_str());
-	out_img4.Register(buf, network_i.c_str());
-	sprintf(buf, "%s/o:img3", name.c_str());
+//	sprintf(buf, "%s/o:histo2", name.c_str());
+//	out_img2.Register(buf, network_i.c_str());
+//	sprintf(buf, "%s/o:img", name.c_str());
+//	out_img3.Register(buf, network_i.c_str());
+//	sprintf(buf, "%s/o:img2", name.c_str());
+//	out_img4.Register(buf, network_i.c_str());
+//	sprintf(buf, "%s/o:img3", name.c_str());
 //	out_img5.Register(buf, network_i.c_str());
-	sprintf(buf, "%s/o:img4", name.c_str());
+//	sprintf(buf, "%s/o:img4", name.c_str());
 //	out_img6.Register(buf, network_i.c_str());
 
 	sprintf(buf, "%s/o:disparity", name.c_str());
@@ -179,12 +194,12 @@ int main(int argc, char *argv[])
 
 	col_left.Resize (_stheta, _srho);
 	col_right.Resize (_stheta, _srho);
-	sub_left.Resize (_stheta/4, _srho/4);
-	sub_right.Resize (_stheta/4, _srho/4);
-	outImageLp.Resize(_stheta/4, _srho/4);
-	outImageLp2.Resize(_stheta/4, _srho/4);
-	outImageMapLp.Resize(_stheta/4, _srho/4);
-	outImageCorrMapLp.Resize(_stheta/4, _srho/4);
+	sub_left.Resize (_stheta/__ratios[0], _srho/__ratios[0]);
+	sub_right.Resize (_stheta/__ratios[0], _srho/__ratios[0]);
+	outImageLp.Resize(_stheta/__ratios[0], _srho/__ratios[0]);
+	outImageLp2.Resize(_stheta/__ratios[0], _srho/__ratios[0]);
+	outImageMapLp.Resize(_stheta/__ratios[0], _srho/__ratios[0]);
+	outImageCorrMapLp.Resize(_stheta/__ratios[0], _srho/__ratios[0]);
 	outImageCart.Resize(_xsize, _ysize);
 	outImageCart2.Resize(_xsize, _ysize);
 		
@@ -196,8 +211,11 @@ int main(int argc, char *argv[])
 	outImageLp.Zero();
 	outImageLp2.Zero();
 	
-	out1.Resize (256, 64*3);
-	out2.Resize (256, 64*3);
+	//out1.Resize (512, 64*3);
+	//out2.Resize (512, 64*3);
+
+	out1.Resize (__histoWidth, __histoHeight);
+	// out2.Resize (256, 64*3);
 
 	YARPLogpolar mapper;
 	YARPDisparityTool disparity[__nScales];
@@ -205,7 +223,7 @@ int main(int argc, char *argv[])
 	for(s=0; s<__nScales;s++)
 	{
 		ACE_OS::printf("Flag: %d\n",s);
-		disparity[s].init(__nRings[s]);
+		disparity[s].init(__nRings[s], __ratios[s]);
 		// disparity[s].setRings(__nRings[s]);
 
 	//	histo[s].Resize(256, 64);
@@ -216,12 +234,25 @@ int main(int argc, char *argv[])
 	ACE_ASSERT (fp != NULL);
 	*/
 
+	
 	YVector disparityval(2);
+
+	float max, min;
 	
 	while (1)
 	{
 		in_left.Read();
 		in_right.Read();
+
+		// poll head position
+		if (in_head.Read(0))
+		{
+			_limits.update(in_head.Content());
+			_limits.computeLimits(max, min);
+			
+			disparity[0].setLimits(max, min);
+			//	printf("Max: %lf\tMin: %lf\n", max(1), min(1)); 
+		}
 
 		inl.Refer (in_left.Content());
 		inr.Refer (in_right.Content());
@@ -236,21 +267,29 @@ int main(int argc, char *argv[])
 		disparity[0].downSample (col_right, sub_right);
 
 		double value;
-		//disparityval(1) = (double)disparity[0].computeSSDRGBxVar2 (sub_right, sub_left, &value);
-		//disparity[0].plotRegion(sub_right, outImageLp, disparity[0].getShift());
-		//disparity[0].remap(outImageLp, outImageCart);
+		// disparity[0].computeSSDRGBxVar2 (sub_right, sub_left, &value);
+		// disparity[0].plotRegion(sub_right, outImageLp2, disparity[0].getShift());
+		// disparity[0].remap(outImageLp2, outImageCart2);
 
-		//disparityval(1) = (double)disparity[1].computeRGBChain (sub_right, sub_left, &value);
+		//disparity[3].computeRGBChain (sub_right, sub_left, &value);
 		//disparity[1].plotRegion(sub_right, outImageLp, disparity[1].getShift());
 		//disparity[1].remap(outImageLp, outImageCart);
+
+//		disparity[1].computeCorrProd (sub_right, sub_left, &value);
+//		disparity[1].plotRegion(sub_right, outImageLp, disparity[1].getShift());
+//		disparity[1].remap(outImageLp, outImageCart);
+		
+		disparityval(1) = (double)disparity[0].computeMono (sub_right, sub_left, &value);
+//		disparity[2].plotRegion(sub_right, outImageLp, disparity[1].getShift());
+//		disparity[2].remap(outImageLp, outImageCart);
 		
 		// disparityval(1) = (double)disparity[1].computeABSRGB (sub_right, sub_left, &value);
 		// disparityval(1) = (double)disparity[2].computeRGBAv (sub_left, sub_left, &value);
 
-		//	disparity[0].plotCorrelationMap (sub_right, sub_left, outImageCorrMapLp, disparity[0].zeroShift());
+		//disparity[0].plotCorrelationMap (sub_right, sub_left, outImageCorrMapLp, disparity[0].zeroShift());
 		//	disparity[0].remap(outImageCorrMapLp, outImageCorrMapCart);
 		
-		disparityval(1) = (double)disparity[3].computeSSDRGBxVar (sub_right, sub_left, &value);
+		// disparity[3].computeSSDRGBxVar (sub_right, sub_left, &value);
 		//disparity[3].plotRegion(sub_right, outImageLp2, disparity[3].getShift());
 		//disparity[3].remap(outImageLp2, outImageCart2);
 		//	disparity[3].plotSSDMap(sub_right, sub_left, outImageMapLp, disparity[3].zeroShift());
@@ -263,48 +302,39 @@ int main(int argc, char *argv[])
 		
 		disparityval(2) = 1.0;
 		
-		/*
-		int c;
-		for(c = 0; c < disparity[0].getShiftLevels(); c++)
-		{
-			if (s == 0)
-				correlation[c] = tmpc[c];
-			else
-			{
-				correlation[c] = correlation[c]*(s) + tmpc[c];
-				correlation[c] /= (s+1);
-			}
-		}
-		*/
-
 		const double *correlation0 = disparity[0].getCorrFunction();
-		const double *correlation1 = disparity[1].getCorrFunction();
-		const double *correlation2 = disparity[3].getPhase(); //disparity[2].getCorrFunction();
+		// const double *correlation1 = disparity[0].getCorrFunction();
+		// const double *correlation2 = disparity[0].getCorrFunction();
 
-		const double *correlation3 = disparity[3].getCorrFunction();
-		const double *correlation4 = disparity[3].getSSDFunction();
-		const double *correlation5 = disparity[3].getVarFunction();
-			
-		makeHistogram(out1, correlation0, correlation1, correlation2, disparity[0].getShiftLevels(), 1);
-		makeHistogram(out2, correlation3, correlation4, correlation5, disparity[0].getShiftLevels(), value);
+		// const double *correlation3 = disparity[0].getCorrFunction();
+		// const double *correlation4 = disparity[0].getSSDFunction();
+		// const double *correlation5 = disparity[0].getVarFunction();
+		
+		
+		out1.Zero();
+		makeHistogram(out1, correlation0, disparity[0].getShiftLevels());
+	//	makeHistogram(out2, correlation3, correlation4, correlation5, disparity[0].getShiftLevels(), value);
+
+		addLimits2Histogram(out1, disparity[0].getLimitsMax(), disparity[0].getLimitsMin(), disparity[0].getShiftLevels());
+		addMax2Histogram(out1, disparity[0].getShift(0), disparity[0].getShift(1), disparity[0].getShift(2), disparity[0].getShiftLevels()); 
 	
 		out_img1.Content().Refer(out1);
 		out_img1.Write();
 
-		out_img2.Content().Refer(out2);
-		out_img2.Write();
+	//	out_img2.Content().Refer(out2);
+	//	out_img2.Write();
 
-		out_img3.Content().Refer(outImageCart);
-		out_img3.Write();
+		// out_img3.Content().Refer(outImageCart);
+		// out_img3.Write();
 
-		out_img4.Content().Refer(outImageCart2);
-		out_img4.Write();
+		// out_img4.Content().Refer(outImageCart2);
+		// out_img4.Write();
 
-	//	out_img5.Content().Refer(outImageMapCart);
-	//	out_img5.Write();
+		//	out_img5.Content().Refer(outImageMapCart);
+		//	out_img5.Write();
 
-	//	out_img6.Content().Refer(outImageCorrMapCart);
-	//	out_img6.Write();
+		//	out_img6.Content().Refer(outImageCorrMapCart);
+		//	out_img6.Write();
 
 		out_disp.Content() = disparityval;
 		out_disp.Write();
@@ -322,8 +352,6 @@ void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr1, const 
 	unsigned char * hist = (unsigned char *)hImg.GetRawBuffer();
 
 	int offset = (width-sl+1)/2;
-
-	hImg.Zero();
 
 	unsigned char color;
 	if (val>0.16)
@@ -380,4 +408,114 @@ void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr1, const 
 
 	for(i=0; i<width; i++)
 		hist[(2*height/3)*width+i] = 255;
+}
+
+void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr, int sl)
+{
+	int i,j;
+	int height = hImg.GetHeight();
+	int width = hImg.GetWidth();
+
+	unsigned char * hist = (unsigned char *)hImg.GetRawBuffer();
+
+	int offset = (width-sl+1)/2;
+
+	unsigned char color = 128;
+	
+	for (i=0; i<sl-1; i++)
+	{
+		if ((i+offset >=0)&&(i+offset<width))
+		{
+			if (corr[i]>=0 && corr[i]<=1)
+				for (j=height-(int)(height*(corr[i])); j<height; j++)
+					hist[(j*width+i+offset)] = color;
+			else if (corr[i]>1)
+				for (j=height-(int)(height); j<height; j++)
+					hist[(j*width+i+offset)] = 255;
+		}
+	}
+
+	for (j=0; j<height; j++)
+		hist[(j*width+width/2)] = 255;
+}
+
+void addLimits2Histogram(YARPImageOf<YarpPixelMono> &hImg, int max, int min, int sl)
+{
+	// printf("Shift: %d\t %d\n", max, min);
+	int j;
+	int height = hImg.GetHeight();
+	int width = hImg.GetWidth();
+
+	int offset = (width-sl+1)/2;
+
+	int v1 = max+offset;
+	int v2 = min+offset;
+
+	if (v1<0)
+		v1 = 0;
+	if (v2<0)
+		v2 = 0;
+
+	if (v1>=width)
+		v1 = width;
+	if (v2>=width)
+		v2 = width;
+
+	for(j=0; j < height; j++)
+	{
+		hImg(v1, j) = 255;
+		hImg(v2, j) = 255;
+		hImg(v1-1, j) = 255;
+		hImg(v2-1, j) = 255;
+		hImg(v1+1, j) = 255;
+		hImg(v2+1, j) = 255;
+	}
+}
+
+void addMax2Histogram(YARPImageOf<YarpPixelMono>& hImg, int max1, int max2, int max3, int sl)
+{
+	int j;
+	int height = hImg.GetHeight();
+	int width = hImg.GetWidth();
+
+	int offset = (width-sl+1)/2;
+
+	int v1 = max1+offset;
+	int v2 = max2+offset;
+	int v3 = max3+offset;
+
+	if (v1<0)
+		v1 = 0;
+	if (v2<0)
+		v2 = 0;
+	if (v3<0)
+		v3 = 0;
+
+	if (v1>=width)
+		v1 = width;
+	if (v2>=width)
+		v2 = width;
+	if (v3>=width)
+		v3 = width;
+
+	for(j=0; j < (int) 3*height/10.0; j++)
+	{
+		hImg(v1-1, j) = 255;
+		hImg(v1, j) = 255;
+		hImg(v1+1, j) = 255;
+	}
+	
+	for(j=0; j < (int) 2*height/10.0; j++)
+	{
+		hImg(v2-1, j) = 255;
+		hImg(v2, j) = 255;
+		hImg(v2+1, j) = 255;
+	}
+
+	for(j=0; j < (int) 2*height/10.0; j++)
+	{
+		hImg(v3-1, j) = 255;
+		hImg(v3, j) = 255;
+		hImg(v3+1, j) = 255;
+	}
 }

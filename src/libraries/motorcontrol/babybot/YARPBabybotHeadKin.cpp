@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.cpp,v 1.7 2004-05-21 14:29:29 babybot Exp $
+/// $Id: YARPBabybotHeadKin.cpp,v 1.8 2004-07-09 10:48:54 babybot Exp $
 ///
 ///
 
@@ -91,7 +91,7 @@ const double DH_right[_dh_nrf][5] = {
 	{71.5, 0, 0, pi/2, -1},
 };
 
-/// maybe not needed now. Height of the neck?
+/// maybe not needed now. Height of the neck
 const double TBaseline[4][4] = {
 	{1, 0, 0, 0},
 	{0, 1, 0, 0},

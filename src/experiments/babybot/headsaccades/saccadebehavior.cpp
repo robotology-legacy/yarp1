@@ -129,6 +129,10 @@ void SBStop:: handle(SBSharedData *d)
 
 	d->_out.Write();
 
+	// signal the fixation program we have done (error should be zero, now)
+	d->_outFixation.Content() = d->_saccade.getError();
+	d->_outFixation.Write();
+
 	// send update to the attentional system
 	d->updateIORTable();
 }

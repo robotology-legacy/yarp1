@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.10 2004-05-21 14:29:29 babybot Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.11 2004-07-09 10:48:54 babybot Exp $
 ///
 ///
 
@@ -133,6 +133,7 @@ public:
 	/// right describes the structure from base to the right eye (camera).
 	/// the third parameter is the base to T0 transform. It's simply premultiplied to the 
 	/// final T.
+	YARPBabybotHeadKin(const YARPString &cfgFile);
 	YARPBabybotHeadKin (const YMatrix &dh_left, const YMatrix &dh_right, const YHmgTrsf &bline);
 	virtual ~YARPBabybotHeadKin ();
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.h,v 1.14 2004-06-29 08:43:31 babybot Exp $
+/// $Id: YARPDisparity.h,v 1.15 2004-07-09 10:48:54 babybot Exp $
 ///
 ///
 // disparity.h: interface for the YARPDisparityTool class.
@@ -89,6 +89,8 @@
 #	pragma once
 #endif
 
+const int __nShifts = 4;
+
 ///
 ///
 ///
@@ -113,9 +115,9 @@ public:
 		{ return _std1;}
 	inline const double *getStd2()
 		{ return _std2;}
-	inline int getShift()
-		{ return _shift; }
-
+	inline int getShift(int i = 0)
+		{ return _shifts[i]; }
+	
 	inline const double *getSSDFunction()
 		{ return _ssdFunct; }
 
@@ -125,13 +127,13 @@ public:
 	inline void setInhibition(int max, int min)
 	{ _shiftMax = max; _shiftMin = min; }
 
-	int init(int rings = 21);
+	int init(int rings, float ratio);
 
 	int loadShiftTable()
 		{ return loadShiftTable(&_imgS); }
 
 	int loadDSTable()
-		{ return loadDSTable(&_imgL); }
+		{ return loadDSTable(&_imgL, &_imgS); }
 
 	int loadRemapTable()
 		{ return loadRemapTable(&_imgFovea); }
@@ -142,9 +144,9 @@ public:
 	int shiftLevels()
 	{ return _shiftLevels; }
 
-	// to keep compatiility with old code (if any...)
+	// to keep compatinbility with old code (if any...)
 	int loadShiftTable(Image_Data* Par);
-	int loadDSTable(Image_Data* Par);
+	int loadDSTable(Image_Data* Par, Image_Data* ParDS);
 	int loadRemapTable(Image_Data* Par);
 
 	void downSample(YARPImageOf<YarpPixelBGR> &inImg, YARPImageOf<YarpPixelBGR> & outImg);
@@ -152,6 +154,10 @@ public:
 	int computeMono (YARPImageOf<YarpPixelBGR> & inRImg,
 						 YARPImageOf<YarpPixelBGR> & inLImg, 
 						 double *value);
+
+	int computeCorrProd (YARPImageOf<YarpPixelBGR> & inRImg,
+						YARPImageOf<YarpPixelBGR> & inLImg,
+						double *value);
 
 	int computeMonoNorm (YARPImageOf<YarpPixelBGR> & inRImg,
 							  YARPImageOf<YarpPixelBGR> & inLImg, 
@@ -260,9 +266,27 @@ public:
 				double *chisq,
 				void (YARPDisparityTool::*fittingFunct)(double, YVector&, double *, YVector&, int));
 
-private:
-	inline int _findShift(const double *corr, int lv);
-	inline int _shiftToDisparity(int shift);
+	void setLimits (float dispMax, float dispMin)
+	{
+		_shiftMax = _disparityToShift(dispMax);
+		_shiftMin = _disparityToShift(dispMin);
+	}
+
+	int getLimitsMax()
+	{ return _shiftMax;}
+
+	int getLimitsMin()
+	{ return _shiftMin;}
+
+	int filterMaxes();
+	
+// private:
+	public:
+	inline void _findShift(const double *corr, int lv);
+	void _findSecondMax(const double *corr, int lv, int posMax);
+	void _findAllMax(const double *corr, int lv);
+	inline float _shiftToDisparity(int shift);
+	inline int _disparityToShift(float disp);
 	inline void _computeCountVector(int *count);
 	inline void _cleanCorr();
 	void _setRings(int r)
@@ -275,6 +299,7 @@ private:
 	int   _shiftLevels;
 	int * _shiftMap;
 	int * _shiftFunction;
+	int * _shiftFunctionInv;
 	int * _remapMap;
 	IntNeighborhood * _dsTable;
 	double * _corrFunct;
@@ -286,8 +311,8 @@ private:
 	double *_varFunct;
 	double * _gaussFunction;
 	double _corrTreshold;
-	int _shift;
-
+	int _shifts[__nShifts];
+	
 	int *_count;
 	int _maxCount;
 		
@@ -309,13 +334,20 @@ protected:
 };
 
 
-inline int YARPDisparityTool::_findShift(const double *corr, int lv)
+inline void YARPDisparityTool::_findShift(const double *corr, int lv)
 {
 	// search max
 	double corrMax = 0;
 	int ret = 0;
 	int l;
-	for(l = 0; l<lv; l++)
+	int maxIndex;
+
+	if (_shiftMax<lv)
+		maxIndex = _shiftMax;
+	else
+		maxIndex = lv-1;
+
+	for(l = _shiftMin; l <= maxIndex; l++)
 	{
 		if (corr[l]>corrMax)
 		{
@@ -323,15 +355,36 @@ inline int YARPDisparityTool::_findShift(const double *corr, int lv)
 			ret = l;
 		}
 	}
+	
+	_shifts[0] = ret;
+}
+
+inline float YARPDisparityTool::_shiftToDisparity(int sh)
+{
+	float ret;
+	ret = _shiftFunction[sh];
+	ret = ret * _imgS.Size_X_Remap / (float) _imgS.Resolution;
 	return ret;
 }
 
-inline int YARPDisparityTool::_shiftToDisparity(int sh)
+inline int YARPDisparityTool::_disparityToShift(float disp)
 {
-	int ret;
-	ret = _shiftFunction[sh];
-	ret = (int)(0.5 + ret * _imgS.Size_X_Remap / (float)_imgS.Resolution);
-	return ret;
+	float tmpf = disp*_imgS.Resolution/ (float) _imgS.Size_X_Remap;
+	int tmp;
+	if (tmpf>=0)
+		tmp = (int) (tmpf + 0.5);
+	else
+		tmp = (int) (tmpf - 0.5);
+
+	tmp += _imgS.Resolution;
+
+	// be sure we are within the vector limits
+	if (tmp<0)
+		tmp = 0;
+	else if (tmp>=2*_imgS.Resolution)
+		tmp = (2*_imgS.Resolution-1);
+
+	return _shiftFunctionInv[tmp];
 }
 
 inline void YARPDisparityTool::_cleanCorr()

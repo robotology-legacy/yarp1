@@ -1,6 +1,9 @@
 #ifndef __saccadecontrolhh__
 #define __saccadecontrolhh__
 
+// saccades
+// May 2004, by nat
+
 #include <YARPMatrix.h>
 #include <YARPBabybotHeadKin.h>
 #include <YARPConfigFile.h>
@@ -9,46 +12,17 @@
 
 using namespace _logpolarParams;
 
-const int __nj = 5;	// LATER REMOVE THIS
-
+// closed loop control of the neck (copied from smoothcontrol)
+// this is used by SaccadeControl class to simulate neck motion within the computeNew loop 
 class NeckControl
 {
 public:
-	NeckControl(const YARPString &iniFile, int insize, int outsize)
-	{
-		_iniFile = iniFile;
-		_inSize = insize;
-		_outSize = outsize;
-
-		YARPConfigFile file;
-		char *root = GetYarpRoot();
-		_path.append(root);
-		_path.append("/conf/babybot/"); 
-	
-		file.set(_path, _iniFile);
-		file.get("[NECKCONTROL]", "nPids", &_nPids);
-
-		_pids = new YARPPidFilter[_nPids];
-		double temp[3];
-		int i;
-		for(i = 0; i < _nPids; i++)
-		{
-			char tmpField[80];
-			sprintf(tmpField, "Pid%d", i);
-			file.get("[NECKCONTROL]", tmpField, temp, 3);
-			_pids[i].setKs(temp[0], temp[1], temp[2]);
-		}
-
-		_cmd.Resize(outsize);
-		_cmd = 0.0;
-	}
-	
+	NeckControl(const YARPString &iniFile, int insize, int outsize);
+		
 	~NeckControl()
-	{
-		delete [] _pids;
-	}
+	{ delete [] _pids; }
 
-	const YVector & apply(const YVector &in)
+	inline const YVector & apply(const YVector &in)
 	{
 		double pred_r = in(4);
 		double pred_l = in(5);
@@ -82,31 +56,7 @@ public:
 		_neckControl("headcontrol.ini",5,5),
 		_smooth("headcontrol.ini")
 		{
-			// LATER
-			_temp.Resize(__nj);
-			_command.Resize(__nj);
-			_vRef.Resize(3);
-			_predictedPosition.Resize(__nj);
-			_position.Resize(__nj);
-			_stop.Resize(__nj);
-			_closedLoop.Resize(__nj);
-			_eyesClosedLoop.Resize(__nj);
-			_openLoopSpeed.Resize(__nj);
-			_neckClosedLoop.Resize(__nj);
-
-			_openLoopDone = false;
-			_saccadeDone = true;
-			_openLoopCounter = 0;
-			_closedLoopCounter = 0;
-
-			_openLoopSteps = 1;
-			_closedLoopSteps = 1;
-			_openLoopError = 2;
-			_closedLoopError = 2;
-
-			_retinal.Resize(2);
-
-			readCnfFile("headcontrol.ini");
+			init("headcontrol.ini");
 		}
 private:
 	YARPBabybotHeadKin _gaze;
@@ -137,32 +87,21 @@ private:
 	YVector _vRef;
 	YVector _stop;
 	YVector _retinal;
+	// this stores a vector of zeros and it is returned by getError()
+	// when the the saccade is done
+	YVector _zeroError;
 	int _x;
 	int _y;
-	
+
+	int _nj;
+
+	// read parameters from file and call _allocVectors()
+	void init(const YARPString &filename);
+	// perform allocation of vectors and general initialization
+	void _allocVectors();
+
 public:
 	~SaccadeControl(){}
-
-	void readCnfFile(const YARPString &filename)
-	{
-		_iniFile = filename;
-	
-		YARPConfigFile file;
-		char *root = GetYarpRoot();
-		_path.append(root);
-		_path.append("/conf/babybot/"); 
-	
-		file.set(_path, _iniFile);
-
-		// file.get("[SACCADES]", "SaccadeSteps", &_openLoopSteps);
-		file.get("[SACCADES]", "ClosedLoopSteps", &_closedLoopSteps);
-		file.get("[SACCADES]", "ClosedLoopError", &_closedLoopError);
-		file.get("[SACCADES]", "SaccadeError", &_openLoopError);
-		file.get("[SACCADES]", "MaxSpeed", _openLoopSpeed.data(), __nj);
-		_openLoopSpeed *= degToRad;
-
-	//	_log.open("c:/temp/log.txt");
-	}
 
 	void computeNew(int x, int y)
 	{
@@ -272,7 +211,12 @@ public:
 	}
 
 	const YVector &getError()
-	{ return _retinal; }
+	{ 
+		if (_saccadeDone)
+			return _zeroError;
+		else 
+			return _retinal; 
+	}
 
 	inline const YVector &closedLoopStep()
 	{
@@ -353,7 +297,7 @@ public:
 
 	inline const YVector &stopStep()
 	{
-		_log.flush();
+//		_log.flush();
 		return _stop;
 	}
 

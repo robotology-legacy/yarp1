@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.18 2004-06-07 18:32:18 babybot Exp $
+/// $Id: main.cpp,v 1.19 2004-07-09 10:48:54 babybot Exp $
 ///
 ///
 
@@ -191,7 +191,7 @@ int main (int argc, char *argv[])
 	else 
 		printf ("\t\tFailed !  \n");
 
-
+	// DS map 4.0
 	Param.padding = _salign;
 	Param.Fovea_Type = 0;
 	printf ("Creating DS map ...");
@@ -200,8 +200,20 @@ int main (int argc, char *argv[])
 		printf ("\t\t\tDone !  \n");
 	else 
 		printf ("\t\t\tFailed !  \n");
+	///////////////////////////////////////
 
+	// DS map 2.0
+	Param.padding = _salign;
+	Param.Fovea_Type = 0;
+	printf ("Creating DS map ...");
+	rval = Build_DS_Map (&Param, Path, 2.0);
+	if (rval)
+		printf ("\t\t\tDone !  \n");
+	else 
+		printf ("\t\t\tFailed !  \n");
+	///////////////////////////////////////
 
+	//// SHIFT MAP 4x
 	Param = Set_Param(
 		_xsize, _ysize,
 		256, 256,
@@ -221,18 +233,32 @@ int main (int argc, char *argv[])
 	else 
 		printf ("\t\t\tFailed !  \n");
 
+	////// SHIFT MAP 2x
+	Param = Set_Param(
+		_xsize, _ysize,
+		256, 256,
+		_srho/2, _stheta/2, _sfovea/2,
+		1090/2,
+		CUST,
+		1024.0/1090.0);
+
+	Param.padding = _salign;
+	Param.Fovea_Type = 0;
+	Param.Ratio = 2.0f;
+	Param.dres = 1090.0/2.0;
+
+	printf ("Creating Shift map ...");
+	rval = Build_Shift_Map (&Param, Path);
+	if (rval)
+		printf ("\t\t\tDone !  \n");
+	else 
+		printf ("\t\t\tFailed !  \n");
+
 	printf ("Creating Step Function ...");
 
 	Build_Step_Function (Path, &Param);
 	printf ("\t\tDone !  \n\n");
 
-	/////////////////////
-	printf ("Creating remap map (4x)...");
-	rval = Build_Remap_Map (&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
 	//////////
 
 	////// fovea x4
@@ -249,6 +275,27 @@ int main (int argc, char *argv[])
 	Param.dres = 1090.0/4.0;
 
 	printf ("Creating remap map (4x center)...");
+	rval = Build_Remap_Map (&Param, Path);
+	if (rval)
+		printf ("\t\t\tDone !  \n");
+	else 
+		printf ("\t\t\tFailed !  \n");
+	//////////
+
+	////// fovea x2
+	Param = Set_Param(
+		_xsize, _ysize,
+		256, 256,
+		_srho/2, _stheta/2, _sfovea/2,
+		1090/2,
+		CUST,
+		2*1024.0/1090.0);
+	Param.padding = _salign;
+	Param.Fovea_Type = 0;
+	Param.Ratio = 2.0f;
+	Param.dres = 1090.0/2.0;
+
+	printf ("Creating remap map (2x center)...");
 	rval = Build_Remap_Map (&Param, Path);
 	if (rval)
 		printf ("\t\t\tDone !  \n");

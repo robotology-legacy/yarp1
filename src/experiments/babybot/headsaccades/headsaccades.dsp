@@ -107,6 +107,10 @@ SOURCE=.\saccadebehavior.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\saccadecontrol.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\smoothcontrol.cpp
 # End Source File
 # End Group

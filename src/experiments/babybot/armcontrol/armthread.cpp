@@ -21,12 +21,7 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	char *root = GetYarpRoot();
 	char path[256];
 	
-
-#if defined(__QNXEurobot__)
-	ACE_OS::sprintf (path, "%s/conf/eurobot/\0",root);
-#else
-	ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
-#endif
+	ACE_OS::sprintf (path, "%s/%s/\0",root, ConfigFilePath);
 	
 	strncpy(_iniFile, ini_file, 80);
 	strncpy(_path, path, 256);
@@ -98,6 +93,11 @@ ArmThread::~ArmThread()
 
 }
 
+void ArmThread::resetEncoders(const double *p)
+{
+	_arm.resetEncoders(p);
+}
+
 void ArmThread::doInit()
 {
 	// wait for power on
@@ -148,24 +148,13 @@ void ArmThread::doRelease()
     char path[256];
     char filename[256];
 
-#if defined(__QNXEurobot__)
-		ACE_OS::sprintf (path, "%s/conf/eurobot/\0", root);
-	    ACE_OS::sprintf (filename, "%s/conf/eurobot/gravity1.ini\0", root);
-        _gravity1.save(filename);
-        ACE_OS::sprintf (filename, "%s/conf/eurobot/gravity2.ini\0", root);
-        _gravity2.save(filename);
-        ACE_OS::sprintf (filename, "%s/conf/eurobot/gravity3.ini\0", root);
-        _gravity3.save(filename);
-#else
-        ACE_OS::sprintf (path, "%s/conf/babybot/\0", root);
-        ACE_OS::sprintf (filename, "%s/conf/babybot/gravity1.ini\0", root);
-        _gravity1.save(filename);
-        ACE_OS::sprintf (filename, "%s/conf/babybot/gravity2.ini\0", root);
-        _gravity2.save(filename);
-        ACE_OS::sprintf (filename, "%s/conf/babybot/gravity3.ini\0", root);
-        _gravity3.save(filename);
-#endif
-
+	ACE_OS::sprintf (path, "%s/%s/", root, ConfigFilePath);
+    ACE_OS::sprintf (filename, "%s/%s/gravity1.ini", root, ConfigFilePath);
+    _gravity1.save(filename);
+    ACE_OS::sprintf (filename, "%s/%s/gravity2.ini", root, ConfigFilePath);
+    _gravity2.save(filename);
+    ACE_OS::sprintf (filename, "%s/%s/gravity3.ini", ConfigFilePath);
+    _gravity3.save(filename);
 
 	//_gravity1.save("Y:\\conf\\babybot\\gravity1.ini");
 	//_gravity2.save("Y:\\conf\\babybot\\gravity2.ini");

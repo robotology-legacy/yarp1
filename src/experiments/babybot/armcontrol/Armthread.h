@@ -138,6 +138,8 @@ public:
 
 	void park(int index);	// park arm
 
+	void resetEncoders(const double *pos);
+
 private:
 	friend class	AState;
 	friend class	ASRestingInit;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: ImgTrack.cpp,v 1.9 2004-01-13 16:39:20 beltran Exp $
+/// $Id: ImgTrack.cpp,v 1.10 2004-07-09 10:48:54 babybot Exp $
 ///
 ///
 
@@ -692,11 +692,7 @@ void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<
 	{
 		/// not a new target set the estimated offset.
 		int predx = 0, predy = 0;
-#if defined(__QNXEurobot__)
-		_gaze.intersectRay (YARPEurobotHeadKin::KIN_LEFT, _prevRay, predx, predy);
-#else      // ----- #ifdef __QNXEurobot__  ----- 
-		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT, _prevRay, predx, predy);
-#endif     // ----- #ifdef __QNXEurobot__  ----- 
+		_gaze.intersectRay (YARPHeadKinematics::KIN_LEFT, _prevRay, predx, predy);
 
 		///predx += ISIZE/2;
 		///predy += ISIZE/2;

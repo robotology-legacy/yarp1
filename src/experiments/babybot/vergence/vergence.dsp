@@ -105,6 +105,10 @@ SOURCE=.\vergence.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\headvergencelimits.h
+# End Source File
 # End Group
 # End Target
 # End Project

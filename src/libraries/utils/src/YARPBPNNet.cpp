@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBPNNet.cpp,v 1.6 2004-01-17 00:15:15 gmetta Exp $
+///  $Id: YARPBPNNet.cpp,v 1.7 2004-07-09 10:48:54 babybot Exp $
 ///
 ///
 
@@ -229,7 +229,7 @@ int YARPBPNNet::load(const char *filename)
 	cf.set("", filename);
 
 	// nLayer
-	int ret = cf.get("[NET]", "NLayers", &nLayer);
+	int ret = cf.get("[NET]", "NLayers=", &nLayer);
 	if (ret != YARP_OK)
 		return ret;
 	
@@ -239,7 +239,7 @@ int YARPBPNNet::load(const char *filename)
 	CHECK_PTR(nUnit);
 
 	// struct
-	ret = cf.get("[NET]", "NUnits", nUnit, nLayer+1);
+	ret = cf.get("[NET]", "NUnits=", nUnit, nLayer+1);
 	if (ret != YARP_OK)
 		return ret;
 
@@ -250,32 +250,32 @@ int YARPBPNNet::load(const char *filename)
 
 	n_epoch = 0;
 	// read limits and norm factors
-	ret = cf.get("[NET]", "InputMax", max_input, nUnit[0]);
+	ret = cf.get("[NET]", "InputMax=", max_input, nUnit[0]);
 	if (ret != YARP_OK)
 		return ret;
-	ret = cf.get("[NET]", "InputMin", min_input, nUnit[0]);
-	if (ret != YARP_OK)
-		return ret;
-
-	ret = cf.get("[NET]", "TargetMax", max_output, nUnit[nLayer]);
+	ret = cf.get("[NET]", "InputMin=", min_input, nUnit[0]);
 	if (ret != YARP_OK)
 		return ret;
 
-	ret = cf.get("[NET]", "TargetMin", min_output, nUnit[nLayer]);
+	ret = cf.get("[NET]", "TargetMax=", max_output, nUnit[nLayer]);
 	if (ret != YARP_OK)
 		return ret;
 
-	ret = cf.get("[NET]", "OutputMax", max_limit, nUnit[nLayer]);
+	ret = cf.get("[NET]", "TargetMin=", min_output, nUnit[nLayer]);
 	if (ret != YARP_OK)
 		return ret;
-	ret = cf.get("[NET]", "OutputMin", min_limit, nUnit[nLayer]);
+
+	ret = cf.get("[NET]", "OutputMax=", max_limit, nUnit[nLayer]);
+	if (ret != YARP_OK)
+		return ret;
+	ret = cf.get("[NET]", "OutputMin=", min_limit, nUnit[nLayer]);
 	if (ret != YARP_OK)
 		return ret;
 	////////////////////////////////////////////////////////
 	
 	cf.get("[NET]", "Epoch", &n_epoch, 1);
 	////////////////////////////////////////////////////////
-	if (cf.getString("[NET]", "LogFile", logfilename) != YARP_OK)
+	if (cf.getString("[NET]", "LogFile=", logfilename) != YARP_OK)
 		savelog = false;
 	else
 		savelog = true;
@@ -286,10 +286,10 @@ int YARPBPNNet::load(const char *filename)
 	{
 
 		char tmp[255];
-		sprintf(tmp, "%s[%d]", "Weights", i);
+		sprintf(tmp, "%s[%d]=", "Weights", i);
 		if (cf.get("[NET]", tmp, Weight[i], nUnit[i]*nUnit[i-1]) != YARP_OK)
 			savedOK = false;
-		sprintf(tmp, "%s[%d]", "Biases", i);
+		sprintf(tmp, "%s[%d]=", "Biases", i);
 		if (cf.get("[NET]", tmp, Bias[i], nUnit[i]) != YARP_OK)
 			savedOK = false;
 	}

@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPConfigFile.cpp,v 1.8 2004-01-17 00:15:15 gmetta Exp $
+///  $Id: YARPConfigFile.cpp,v 1.9 2004-07-09 10:48:54 babybot Exp $
 ///
 ///
 
@@ -297,7 +297,7 @@ bool YARPConfigFile::_findString(const char *str)
 		if (row[0] == '[')
 			return false;		//end of section
 		
-		if (strncmp(row, str, l) == 0)
+		if (strcmp(row, str) == 0)
 			return true;
 	}
 

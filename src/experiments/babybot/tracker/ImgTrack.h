@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: ImgTrack.h,v 1.4 2004-01-13 16:39:20 beltran Exp $
+/// $Id: ImgTrack.h,v 1.5 2004-07-09 10:48:54 babybot Exp $
 ///
 ///
 
@@ -81,9 +81,11 @@
 ///
 /// LATER: from motor control library.
 #if defined(__QNXEurobot__)
-#include "YARPEurobotHeadKin.h"
+	#include "YARPEurobotHeadKin.h"
+	typedef YARPEurobotHeadKin YARPHeadKinematics;
 #else      // ----- #ifdef __QNXEurobot__  ----- 
-#include "YARPBabybotHeadKin.h"
+	#include "YARPBabybotHeadKin.h"
+	typedef YARPBabybotHeadKin YARPHeadKinematics;
 #endif     // ----- #ifdef __QNXEurobot__  ----- 
 
 ///
@@ -225,11 +227,8 @@ protected:
 	bool _movement;
 	int _low_q_ct;
 
-#if defined(__QNXEurobot__)
-	YARPEurobotHeadKin _gaze;
-#else      // ----- #ifdef __QNXEurobot__  ----- 
-	YARPBabybotHeadKin _gaze;
-#endif     // ----- #ifdef __QNXEurobot__  ----- 
+	YARPHeadKinematics _gaze;
+
 	YVector _prevRay;
 	int _prev_gaze_x, _prev_gaze_y;
 
