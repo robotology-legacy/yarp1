@@ -436,7 +436,9 @@ bt848_set_size(struct bttv *btv)
   if (!btv->win.height)
     return;
 
-  
+  //btv->win.width = 341;
+  //btv->win.height = 460;
+
   tvn=&tvnorms[btv->win.norm];
 
   btv->pll.pll_ofreq = tvn->Fsc;
@@ -500,17 +502,27 @@ bt848_set_size(struct bttv *btv)
       btaor(BT848_IFORM_PAL_BDGHI, ~BT848_IFORM_NORM, BT848_IFORM);
     }
     btaor(BT848_IFORM_XT1, ~0x18, BT848_IFORM);
-    xsf = ((btv->win.width)*36875UL)/30000UL;
-    //hscale = ((1135UL*4096UL)/xsf-4096);
-	hscale = ((922UL*4096UL)/xsf-4096);
+    //xsf = ((btv->win.width)*36875UL)/30000UL;
+	xsf = ((341)*36875UL)/30000UL;
+    hscale = ((1135UL*4096UL)/xsf-4096);
+	/////hscale = 0x29A0; //256
+	/////hscale = (((922UL/256UL)-1)*4096UL);
+
+	printf("hscale: %d\n",hscale);
 	
     vdelay=btv->win.cropy+0x20;
-    hdelay=(((hactive*186)/922)+13)&0x3fe;
+    //hdelay=(((hactive*186)/922))&0x3fe;
+	/////hdelay=(((256*186)/922))&0x3fe;
+	hdelay = ((341*186)/922)&0x3fe;
+	
   }
     
 
   sr=((btv->win.cropheight>>inter)*512)/btv->win.height-512;
+  ///sr=(((btv->win.cropheight>>inter)/btv->win.height)-1)*512;
   vscale=(0x10000UL-sr)&0x1fff;
+  //vscale = 0x1600;
+
   vactive=btv->win.cropheight;
 
   if (btv->win.interlace) 
@@ -837,7 +849,7 @@ attach_bt848(int device_id)
 	
 	SIGEV_THREAD_INIT((&event), InterruptEvent,&attr, NULL);
 
-	btv->id =InterruptAttachEvent(info.Irq, &event, _NTO_INTR_FLAGS_TRK_MSK);
+	btv->id =InterruptAttachEvent(info.Irq, &event, _NTO_INTR_FLAGS_PROCESS);
 
 	if (btv->id==-1)
     {
