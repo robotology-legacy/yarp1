@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.4 2003-06-26 16:47:32 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.5 2003-06-27 12:19:06 beltran Exp $
 ///
 ///
 
@@ -72,7 +72,6 @@
 #include <YARPThread.h>
 #include <YARPSemaphore.h>
 #include <YARPDeviceDriver.h>
-#include <YARPSemaphore.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -96,7 +95,7 @@ struct PicoloOpenParameters
 };
 
 
-class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>, public YARPThread
+class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>
 {
 private:
 	YARPPicoloDeviceDriver(const YARPPicoloDeviceDriver&);
@@ -120,7 +119,7 @@ protected:
 	void *system_resources;
 
 	//  functions
-	virtual void Body(void);
+	//virtual void Body(void);
 };
 
 
