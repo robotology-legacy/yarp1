@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPAll.cpp,v 1.3 2003-04-22 09:06:30 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #pasa, paulfitz, nat#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPAll.cpp,v 1.4 2003-05-12 23:32:43 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>

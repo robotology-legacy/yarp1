@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.6 2003-04-27 16:54:35 natta Exp $
+/// $Id: YARPNameClient.h,v 1.7 2003-05-12 23:32:43 gmetta Exp $
 ///
 ///
 
@@ -75,7 +75,10 @@
 #include <conf/YARPConfig.h>
 #include <YARPAll.h>
 #include <ace/config.h>
-#include <wide_nameloc.h>
+
+#include "wide_nameloc.h"
+#include "YARPTime.h"
+#include "YARPSemaphore.h"
 
 #include <ace/SOCK_Acceptor.h>
 #include <ace/SOCK_Connector.h>
@@ -112,79 +115,104 @@ public:
 
 	int check_in_mcast(const std::string &s, ACE_INET_Addr &addr)
 	{
-		int ret;
+		int ret = YARP_FAIL;
+		mutex_.Wait();
 		ret = _checkInMcast(s, addr);
+		mutex_.Post();
 		return ret;
 	}
 	int check_in (const std::string &s, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr)
 	{
-		int ret;
+		int ret = YARP_FAIL;
+		mutex_.Wait();
 		ACE_INET_Addr tmpAddr = reg_addr;
 		ret = _checkIn(s, tmpAddr);
 		addr = tmpAddr;
+		mutex_.Post();
 		return ret;
 	}
 
 	int check_in (const std::string &s, ACE_INET_Addr &addr)
 	{
-		int ret;
+		int ret = YARP_FAIL;
+		mutex_.Wait();
 		ret = _checkIn(s, addr);
+		mutex_.Post();
 		return ret;
 	}
 		
 	int check_in (const std::string &s, std::string &ip, NetInt32 *port)
 	{
-		int ret;
+		int ret = YARP_FAIL;
+		mutex_.Wait();
 		ACE_INET_Addr tmpAddr(ip.c_str());
 		ret = _checkIn(s, tmpAddr);
 		*port = tmpAddr.get_port_number();
 		ip = std::string(tmpAddr.get_host_name());
+		mutex_.Post();
 		return ret;
 	}
 
 	int check_in_udp(const std::string &name, std::string &addr, NetInt32 *ports, NetInt32 n)
 	{
-		int ret;
+		int ret = YARP_FAIL;
+		mutex_.Wait();
 		ret = _checkInUdp(name, addr, ports, n);
+		mutex_.Post();
 		return ret;
 	}
 
 	int check_in_udp(const std::string &name, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr, NetInt32 *ports, NetInt32 n)
 	{
-		int ret;
+		int ret = YARP_FAIL;
+		mutex_.Wait();
 		std::string ip = reg_addr.get_host_addr();
 		ret = _checkInUdp(name, ip, ports, n);
 		addr.set (ports[0], ip.c_str());
+		mutex_.Post();
 		return ret;
 	}
 
 	int check_in_qnx(const YARPNameQnx &entry)
 	{
-		int ret = _checkInQnx(entry);
+		int ret = YARP_FAIL;
+		mutex_.Wait();
+		ret = _checkInQnx(entry);
+		mutex_.Post();
 		return ret;
 	}
 
 	int query (const std::string &s, ACE_INET_Addr &addr, int *type)
 	{
-		int ret = _query(s, addr, type);
+		int ret = YARP_FAIL;
+		mutex_.Wait();
+		ret = _query(s, addr, type);
+		mutex_.Post();
 		return ret;
 	}
 
 	int query_qnx (const std::string &s, YARPNameQnx &entry, int *type)
 	{
-		int ret = _queryQnx(s, entry, type);
+		int ret = YARP_FAIL;
+		mutex_.Wait();
+		ret = _queryQnx(s, entry, type);
+		mutex_.Post();
 		return ret;
 	}
 
 	int check_out (const std::string &s)
 	{
+		mutex_.Wait();
 		// send data to server
 		YARPNameServiceCmd tmpCmd;
 		YARPNameTCP tmpRqst;
 		
 		if (connect_to_server()!=0)
+		{
+			mutex_.Post();
 			return YARP_FAIL;
-		
+		}
+
 		tmpRqst.setName(s);
 		tmpCmd.cmd = YARPNSRelease;
 		tmpCmd.type = YARP_TCP;	// MCAST, TCP and UDP releases are handled in the same way
@@ -200,23 +228,31 @@ public:
 		int sent = client_stream_.sendv_n (iov, 1);
 
 		if (sent == -1)
-			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"),0);
+		{
+			mutex_.Post();
+			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"), YARP_FAIL);
+		}
 
 		// close the connection
 		close();
 				
+		mutex_.Post();
 		return YARP_OK;
 	}
 
 	int check_out_qnx (const std::string &s)
 	{
+		mutex_.Wait();
 		// send data to server
 		YARPNameServiceCmd tmpCmd;
 		YARPNameQnx tmpRqst;
 		
 		if (connect_to_server()!=0)
+		{
+			mutex_.Post();
 			return YARP_FAIL;
-		
+		}
+
 		tmpRqst.setName(s);
 		tmpCmd.cmd = YARPNSRelease;
 		tmpCmd.type = YARP_QNET;	// MCAST, TCP and UDP releases are handled in the same way
@@ -232,11 +268,15 @@ public:
 		int sent = client_stream_.sendv_n (iov, 1);
 
 		if (sent == -1)
-			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"),0);
+		{
+			mutex_.Post();
+			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"), YARP_FAIL);
+		}
 
 		// close the connection
 		close();
-				
+		
+		mutex_.Post();
 		return YARP_OK;
 	}
 
@@ -245,7 +285,9 @@ private:
 	int connect_to_server ()
 	{
 		if (connector_.connect (client_stream_, remote_addr_) == -1)
+		{
 			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","connection failed"), -1);
+		}
 		return 0;
 	}
 
@@ -263,7 +305,7 @@ private:
 		YARPNameServiceCmd tmpCmd;
 		YARPNameTCP tmpRqst;
 		
-		if (connect_to_server()!=0)
+		if (connect_to_server() != 0)
 			return YARP_FAIL;
 				
 		tmpRqst.setName(s);
@@ -542,6 +584,7 @@ private:
 	ACE_SOCK_Stream client_stream_;
 	ACE_INET_Addr remote_addr_;
 	ACE_SOCK_Connector connector_;
+	YARPSemaphore mutex_;
 	
 	char *data_buf_;
 	char *reply_buf_;

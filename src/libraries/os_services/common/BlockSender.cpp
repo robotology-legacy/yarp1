@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.cpp,v 1.4 2003-04-22 09:06:30 gmetta Exp $
+/// $Id: BlockSender.cpp,v 1.5 2003-05-12 23:32:43 gmetta Exp $
 ///
 ///
 
@@ -115,7 +115,7 @@ int BlockSender::AddPiece(char *buffer, int len)
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Adding piece, length %d (avail %d)\n", len, available));
 	if (cursor == entries.end ())
 	{
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** NEW stl %s : %s\n", __FILE__, __LINE__));
+		///YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** NEW stl %s : %s\n", __FILE__, __LINE__));
 		cursor = entries.insert (cursor, BlockUnit(buffer,len));
 	}
 	else

@@ -15,6 +15,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "exec_test10"=.\exec_test10\exec_test10.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "exec_test2"=.\exec_test2\exec_test2.dsp - Package Owner=<4>
 
 Package=<5>
@@ -51,6 +63,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "exec_test4bis"=.\exec_test4bis\exec_test4bis.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "exec_test5"=.\exec_test5\exec_test5.dsp - Package Owner=<4>
 
 Package=<5>
@@ -75,7 +99,31 @@ Package=<4>
 
 ###############################################################################
 
+Project: "exec_test7"=.\exec_test7\exec_test7.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "exec_test8"=.\exec_test8\exec_test8.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "exec_test9"=.\exec_test9\exec_test9.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

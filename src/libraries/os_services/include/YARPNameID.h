@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.7 2003-05-01 22:51:19 gmetta Exp $
+/// $Id: YARPNameID.h,v 1.8 2003-05-12 23:32:43 gmetta Exp $
 ///
 ///
 /*
@@ -119,9 +119,19 @@ public:
 /// contains the assigned port/IP address.
 ///	a bit more generic than the address/port pair only.
 ///
+///
+/// for sockets:
 /// <_p1> is used to store the number of ports managed by the ID.
 /// <_p2> is the array of ports managed by the ID.
 /// 
+/// for qnet
+/// <_p1> is = 2.
+/// <_p2[0]> is the pid of the thread handling the comm channel.
+/// <_p2[1]> is the channel ID.
+/// set also the IP number.
+/// the raw ID of the address is the channle ID.
+///
+
 class YARPUniqueNameID : public YARPNameID
 {
 protected:

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketNameService.h,v 1.6 2003-05-01 22:51:19 gmetta Exp $
+/// $Id: YARPSocketNameService.h,v 1.7 2003-05-12 23:32:43 gmetta Exp $
 ///
 ///
 
@@ -94,10 +94,10 @@ class YARPSocketNameService
 public:
 	/* zero if successful */
 	/// register on the remote server and get the port and IP.
-	static YARPUniqueNameID RegisterName (YARPNameClient& namer, const char *name, int reg_type = YARP_TCP, int num_ports_needed = 1);
+	static YARPUniqueNameID RegisterName (YARPNameClient& namer, const char *name, int reg_type = YARP_DEFAULT_PROTOCOL, int num_ports_needed = YARP_PROTOCOL_REGPORTS);
 
 	/// get a remote port and ID of a given channel.
-	static YARPUniqueNameID LocateName (YARPNameClient& namer, const char *name, int reg_type);
+	static YARPUniqueNameID LocateName (YARPNameClient& namer, const char *name, int reg_type = YARP_DEFAULT_PROTOCOL);
 
 	// static int GetAssignedPort();
 	// static YARPNameID LocateName(const char *name);

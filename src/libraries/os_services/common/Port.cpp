@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.12 2003-05-01 22:51:19 gmetta Exp $
+/// $Id: Port.cpp,v 1.13 2003-05-12 23:32:43 gmetta Exp $
 ///
 ///
 
@@ -480,7 +480,7 @@ void Port::Body()
 			/// right things to the right places.
 			///
 			///
-			pid = YARPNameService::RegisterName(name.c_str(), YARP_UDP, 11); 
+			pid = YARPNameService::RegisterName(name.c_str(), YARP_UDP, YARP_UDP_REGPORTS); 
 			if (pid.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));

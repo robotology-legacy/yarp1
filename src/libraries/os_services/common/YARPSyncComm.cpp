@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSyncComm.cpp,v 1.3 2003-04-24 08:49:32 gmetta Exp $
+/// $Id: YARPSyncComm.cpp,v 1.4 2003-05-12 23:32:43 gmetta Exp $
 ///
 ///
 
@@ -70,6 +70,7 @@
 
 ///
 /// Native, at least for QNX is the QNet stuff.
+///	pls, do not call this. it's not longer used/needed.
 ///
 static void Complete(YARPNameID& dest)
 {

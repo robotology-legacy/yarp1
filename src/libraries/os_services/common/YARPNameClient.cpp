@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.3 2003-04-24 16:54:44 gmetta Exp $
+/// $Id: YARPNameClient.cpp,v 1.4 2003-05-12 23:32:43 gmetta Exp $
 ///
 ///
 
@@ -75,12 +75,12 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-YARPNameClient::YARPNameClient(const std::string server, int port) : remote_addr_(port, server.c_str())
+YARPNameClient::YARPNameClient(const std::string server, int port) : remote_addr_(port, server.c_str()), mutex_(1)
 {
 	data_buf_ = new char [SIZE_BUF];
 }
 
-YARPNameClient::YARPNameClient(const ACE_INET_Addr &addr) : remote_addr_(addr)
+YARPNameClient::YARPNameClient(const ACE_INET_Addr &addr) : remote_addr_(addr), mutex_(1)
 {
 	data_buf_ = new char [SIZE_BUF];
 }

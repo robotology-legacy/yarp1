@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test1.cpp,v 1.5 2003-05-02 22:56:11 gmetta Exp $
+/// $Id: exec_test1.cpp,v 1.6 2003-05-12 23:32:43 gmetta Exp $
 ///
 
 #include <conf/YARPConfig.h>
@@ -89,146 +89,146 @@ YARPSemaphore print(1);
 class MyThread1 : public YARPThread
 {
 public:
-  virtual void Body()
-    {
-      int ct = 0;
-      while (1)
+	virtual void Body()
 	{
-	  print.Wait();
-	  cout << "*** thread 1 at count " << ct << endl;
-	  cout << "*** thread 1 POSTING at " << ct << endl;
-	  print.Post();
-	  goofy.Wait();
-	  val = ct;
-	  goofy.Post();
-	  product.Post();
-	  print.Wait();
-	  cout << "*** thread 1 POSTED at " << ct << endl;
-	  print.Post();
-	  print.Wait();
-	  cout << "*** thread 1 DELAYING at " << ct << endl;
-	  print.Post();
-	  YARPTime::DelayInSeconds(3.0);
-	  ct++;
+		int ct = 0;
+		while (1)
+		{
+			print.Wait();
+			cout << "*** thread 1 at count " << ct << endl;
+			cout << "*** thread 1 POSTING at " << ct << endl;
+			print.Post();
+			goofy.Wait();
+			val = ct;
+			goofy.Post();
+			product.Post();
+			print.Wait();
+			cout << "*** thread 1 POSTED at " << ct << endl;
+			print.Post();
+			print.Wait();
+			cout << "*** thread 1 DELAYING at " << ct << endl;
+			print.Post();
+			YARPTime::DelayInSeconds(3.0);
+			ct++;
+		}
 	}
-    }
 };
 
 class MyThread2 : public YARPThread
 {
 public:
-  int operator == (const MyThread2& other)
+	int operator == (const MyThread2& other)
     {
-      return 0;
+		return 0;
     }
-  int operator != (const MyThread2& other)
-    {
-      return 0;
-    }
-  int operator > (const MyThread2& other)
-    {
-      return 0;
-    }
-  int operator < (const MyThread2& other)
-    {
-      return 0;
-    }
-  int operator >= (const MyThread2& other)
-    {
-      return 0;
-    }
-  int operator <= (const MyThread2& other)
-    {
-      return 0;
-    }
-
-  virtual void Body()
-    {
-      int ct = 0;
-      YARPTime::DelayInSeconds(0.01);
-      while (1)
+	int operator != (const MyThread2& other)
 	{
-	  print.Wait();
-	  cout << "thread 2 at count " << ct << endl;
-	  print.Post();
-	  YARPTime::DelayInSeconds(1.0);
-	  ct++;
+		return 0;
 	}
-    }
+	int operator > (const MyThread2& other)
+	{
+		return 0;
+	}
+	int operator < (const MyThread2& other)
+	{
+		return 0;
+	}
+	int operator >= (const MyThread2& other)
+	{
+		return 0;
+	}
+	int operator <= (const MyThread2& other)
+	{
+		return 0;
+	}
+
+	virtual void Body()
+	{
+		int ct = 0;
+		YARPTime::DelayInSeconds(0.01);
+		while (1)
+		{
+			print.Wait();
+			cout << "thread 2 at count " << ct << endl;
+			print.Post();
+			YARPTime::DelayInSeconds(1.0);
+			ct++;
+		}
+	}
 };
 
 class MyThread3 : public YARPThread
 {
 public:
-  virtual void Body()
-    {
-      int ct = 0;
-      while (1)
+	virtual void Body()
 	{
-	  product.Wait();
-	  print.Wait();
-	  cout << "*** thread 3 at count " << ct << endl;
-	  print.Post();
-	  goofy.Wait();
-	  print.Wait();
-	  cout << "*** reading val is " << val << endl;
-	  print.Post();
-	  goofy.Post();
-	  ct++;
+		int ct = 0;
+		while (1)
+		{
+			product.Wait();
+			print.Wait();
+			cout << "*** thread 3 at count " << ct << endl;
+			print.Post();
+			goofy.Wait();
+			print.Wait();
+			cout << "*** reading val is " << val << endl;
+			print.Post();
+			goofy.Post();
+			ct++;
+		}
 	}
-    }
 };
 
 
 int main()
 {
-//  mig4nto_init();
-  MyThread1 t1;
-  MyThread2 t2;
-  MyThread3 t3;
+	//  mig4nto_init();
+	MyThread1 t1;
+	MyThread2 t2;
+	MyThread3 t3;
 
-  if (1)
-  {
-    t3.Begin();
-    cout << "Starting t3" << endl;
-    YARPTime::DelayInSeconds(0.5);
-    YARPScheduler::yield();
-    cout << "Starting t1,t2" << endl;
-    t1.Begin();
-    t2.Begin();
-
-    cout << "About to wait 10 sec" << endl;
-    YARPTime::DelayInSeconds(10.0);
-    cout << "Ending t3\n";
-    t3.End();
-    YARPTime::DelayInSeconds(5.0);
-    cout << "Ending t2,t1" << endl;
-    t2.End();
-    t1.End();
-  }
-
-  if (0)
-    {
-      list<MyThread2> v;
-#define sz 100
-      //MyThread2 v[sz];
-
-      for (int i=0; i<sz; i++)
+	if (1)
 	{
-	  v.push_back(MyThread2());
-	  v.back().Begin();
+		t3.Begin();
+		cout << "Starting t3" << endl;
+		YARPTime::DelayInSeconds(0.5);
+		YARPScheduler::yield();
+		cout << "Starting t1,t2" << endl;
+		t1.Begin();
+		t2.Begin();
+
+		cout << "About to wait 10 sec" << endl;
+		YARPTime::DelayInSeconds(10.0);
+		cout << "Ending t3\n";
+		t3.End();
+		YARPTime::DelayInSeconds(5.0);
+		cout << "Ending t2,t1" << endl;
+		t2.End();
+		t1.End();
 	}
 
-      YARPTime::DelayInSeconds(2.7);
-      
-      for (list<MyThread2>::iterator it=v.begin(); it!=v.end(); it++)
+	if (0)
 	{
-	  (*it).End();
-	}
-      
-      YARPTime::DelayInSeconds(2.0);
-    }
+		list<MyThread2> v;
+		#define sz 100
+		//MyThread2 v[sz];
 
-  return 0;
+		for (int i=0; i<sz; i++)
+		{
+			v.push_back(MyThread2());
+			v.back().Begin();
+		}
+
+		YARPTime::DelayInSeconds(2.7);
+
+		for (list<MyThread2>::iterator it=v.begin(); it!=v.end(); it++)
+		{
+			(*it).End();
+		}
+
+		YARPTime::DelayInSeconds(2.0);
+	}
+
+	return 0;
 }
 
