@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.32 2003-06-23 08:05:55 gmetta Exp $
+/// $Id: Port.cpp,v 1.33 2003-06-25 23:30:28 babybot Exp $
 ///
 ///
 
@@ -319,6 +319,8 @@ void OutputTarget::Body ()
 			/// LATER: need to figure out whether this is always ok.
 			/// multiple connection requests might overlap?
 
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "-------- msg_type is %d\n", msg_type));
+
 			/// process connect/disconnect messages.
 			switch (msg_type)
 			{
@@ -328,8 +330,11 @@ void OutputTarget::Body ()
 					YARPUniqueNameID udp_channel;
 					udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
 					/// misusing P2 array to pass the actual symbolic name to the socket.
-					udp_channel.allocP2(strlen(cmdname)/sizeof(int)+1);
+					
+					const int siz = ((strlen(cmdname)+1)/sizeof(int))+1;
+					udp_channel.allocP2(siz);
 					char *dname = (char *)udp_channel.getP2Ptr();
+					memset (dname, 0, siz*sizeof(int));
 					memcpy (dname, cmdname, strlen(cmdname));
 
 					YARPEndpointManager::ConnectEndpoints (udp_channel);
@@ -344,8 +349,10 @@ void OutputTarget::Body ()
 					YARPUniqueNameID udp_channel;
 					udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
 
-					udp_channel.allocP2(strlen(cmdname)/sizeof(int)+1);
+					const int siz = ((strlen(cmdname)+1)/sizeof(int))+1;
+					udp_channel.allocP2(siz);
 					char *dname = (char *)udp_channel.getP2Ptr();
+					memset (dname, 0, siz*sizeof(int));
 					memcpy (dname, cmdname, strlen(cmdname));
 
 					YARPEndpointManager::Close (udp_channel);

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.23 2003-06-25 10:01:05 babybot Exp $
+/// $Id: exec_test8.cpp,v 1.24 2003-06-25 23:30:29 babybot Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -166,6 +166,17 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	if (argc == 3 && s)
+	{
+		ACE_OS::sprintf (name, "%s:s", argv[2]);
+		ACE_OS::printf ("name is %s\n", name);
+	}
+	else
+	{
+		ACE_OS::sprintf (name, "%s:c", argv[2]);
+		ACE_OS::printf ("name is %s\n", name);
+	}
+
 	if (s)
 	{
 		t1.Begin();
@@ -186,17 +197,6 @@ int main(int argc, char *argv[])
 		t2.End();
 		ACE_OS::printf ("can't be server and client at the same time\n");
 		return -1;
-	}
-
-	if (argc == 3 && s)
-	{
-		ACE_OS::sprintf (name, "%s:s", argv[2]);
-		ACE_OS::printf ("name is %s\n", name);
-	}
-	else
-	{
-		ACE_OS::sprintf (name, "%s:c", argv[2]);
-		ACE_OS::printf ("name is %s\n", name);
 	}
 
 	YARPTime::DelayInSeconds(6000.0);

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.13 2003-06-23 16:35:55 babybot Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.14 2003-06-25 23:30:29 babybot Exp $
 ///
 ///
 
@@ -1395,7 +1395,7 @@ void _SocketThreadListMcast::declareDataWritten (void)
 ///	returns also the number of bytes read.
 int _SocketThreadListMcast::read(char *buf, int len, ACE_HANDLE *reply_pid)
 {
-	ACE_ASSERT (_initialized != 0);
+	////ACE_ASSERT (_initialized != 0);
 
 	ACE_HANDLE save_pid = ACE_INVALID_HANDLE;
 
@@ -1410,6 +1410,10 @@ int _SocketThreadListMcast::read(char *buf, int len, ACE_HANDLE *reply_pid)
 	{
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "### Waiting for new data\n"));
 		_new_data.Wait();
+
+		/// checks for proper initialization. maybe should move the wait for new data
+		/// at the very beginning in this case?
+		ACE_ASSERT (_initialized != 0);
 
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "### Got new data\n"));
 
@@ -1834,8 +1838,24 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	ACE_INET_Addr& nm = ((YARPUniqueNameID &)name).getAddressRef();
 	char *sname = (char *)((YARPUniqueNameID &)name).getP2Ptr();
 
+	ACE_DEBUG ((LM_DEBUG, "comparing with %s:%d --- %s\n", nm.get_host_addr(), nm.get_port_number(), sname));
+
+	ACE_OS::printf ("------- address of _client_names 0x%0x\n", (int)d._client_names);	
+
 	for (i = 0; i < d._max_num_clients; i++)
 	{
+		ACE_OS::printf ("----- >>>>> addr of str %d 0x%0x\n", i, &(d._client_names[i]));
+		ACE_OS::fflush (stdout);
+		ACE_OS::printf ("----- >>>>> len of %d = %d\n", i, d._client_names[i].size());
+		ACE_OS::fflush (stdout);
+#if 0
+		if (d._clients[i].get_host_addr() == nm.get_host_addr())
+		{
+			ACE_DEBUG ((LM_DEBUG, "strcmp of 0x%0x len %d\n", (int)d._client_names[i].c_str(), d._client_names[i].size()));
+			ACE_DEBUG ((LM_DEBUG, "entry %d --- %s:%d --- %s\n", i, d._clients[i].get_host_addr(), d._clients[i].get_port_number(), d._client_names[i].c_str()));
+		}
+#endif
+		
 		if (d._clients[i].get_host_addr() == nm.get_host_addr() &&
 			d._client_names[i].compare(sname) == 0)
 		{
@@ -1875,7 +1895,6 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	d._clients[j].set ((u_short)0, INADDR_ANY);
 	d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
 
-	///ACE_OS::shutdown (d._udp_socket.get_handle(), ACE_SHUTDOWN_BOTH);
 	d._udp_socket.close ();
 
 	return YARP_OK;
@@ -1939,6 +1958,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	ACE_INET_Addr nm = ((YARPUniqueNameID&)name).getAddressRef();
 
 	char *sname = (char *)((YARPUniqueNameID&)name).getP2Ptr();
+
 	int i, firstempty = -1;
 	for (i = 0; i < d._max_num_clients; i++)
 	{
@@ -1999,7 +2019,6 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	int r = d._udp_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
 	if (r < 0)
 	{
-		///ACE_OS::shutdown (d._udp_socket.get_handle(), ACE_SHUTDOWN_BOTH);
 		d._udp_socket.close ();
 		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
 		return YARP_FAIL;
@@ -2011,7 +2030,6 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	if (port_number == -1)
 	{
 		/// there might be a real -1 port number -> 65535.
-		///ACE_OS::shutdown (d._udp_socket.get_handle(), ACE_SHUTDOWN_BOTH);
 		d._udp_socket.close ();
 		ACE_DEBUG ((LM_DEBUG, "got garbage back from remote %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
 		return YARP_FAIL;
@@ -2021,11 +2039,11 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	d._clients[firstempty].set_port_number (port_number);
 
 	/// stores also the full symbolic name as index.
+	ACE_DEBUG ((LM_DEBUG, "----- name of connection is %s ---- inserting position %d, len %d\n", sname, firstempty, strlen(sname)));
 	string& s = d._client_names[firstempty];
-	s.erase(s.begin(), s.end());
-	s = string(sname);
+	s = sname;
+	ACE_OS::printf ("----- string has len of %d\n", s.size());
 
-	///ACE_OS::shutdown (d._udp_socket.get_handle(), ACE_SHUTDOWN_BOTH);
 	d._udp_socket.close ();
 
 	return YARP_OK;

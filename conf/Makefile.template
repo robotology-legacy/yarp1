@@ -8,46 +8,48 @@ ifeq ($(shell uname),QNX)
   
   SYSLIB = 
   ifneq (,$(findstring $(shell uname -r),$(QNX_VER)))
-	 SYSDIR = qnx6
-     CC = g++
-     CC1 = gcc
-     CDEFS = -D__QNX__ -D__QNX6__
-     CFASTSTRUCT =
-	 CFAST = -O3
+	SYSDIR = qnx6
+	EXTRA_OPTS = -fexceptions -pipe -W -Wall -Wpointer-arith -gstabs -Wno-uninitialized
+	CC = g++
+	CC1 = gcc
+	CDEFS = $(EXTRA_OPTS) -D__QNX__ -D__QNX6__ -I/usr/local/include/g++-3/
+	CFASTSTRUCT =
+	CFAST = -O3
   else
-     SYSDIR = qnx
-	 CC = cc
-	 CC1 = $(CC)
-     CDEFS = -D__QNX__ -D__QNX4__
-     CFASTSTRUCT = -zp4
-	 CFAST = -Oneaxt $(CFASTSTRUCT)
+	SYSDIR = qnx
+	CC = cc
+	CC1 = $(CC)
+	CDEFS = -D__QNX__ -D__QNX4__
+	CFASTSTRUCT = -zp4
+	CFAST = -Oneaxt $(CFASTSTRUCT)
   endif
   
   LIBADD = 
 else
   ifeq ($(shell uname),Linux)
-    CC = g++
-    CC1 = gcc
-    SYSDIR = linux
-    SYSLIB = -lpthread
-    CDEFS = -D__LINUX__
-    CFAST = -O3
-    LIBADD = -lpthread
+	CC = g++
+	CC1 = gcc
+	SYSDIR = linux
+	SYSLIB = -lpthread
+	CDEFS = -D__LINUX__
+	CFAST = -O3
+	LIBADD = -lpthread
   else
-    CC = g++
-    CC1 = gcc
-    SYSDIR = winnt
-    CDEFS = -D__WIN__
-    CFAST = -O3
-    LIBADD = 
-    SYSLIB = 
+	CC = g++
+	CC1 = gcc
+	SYSDIR = winnt
+	CDEFS = -D__WIN__
+	CFAST = -O3
+	LIBADD = 
+	SYSLIB = 
   endif
 endif
 
 OS=$(SYSDIR)
 
 ifeq ($(OS),qnx)
-  CP=cp -t
+  CP=cp 
+#-t old stuff
 else
   CP=cp
 endif

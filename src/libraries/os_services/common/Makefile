@@ -1,11 +1,7 @@
 include $(YARP_ROOT)/conf/Makefile.template
 
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))
-ifeq ($(SYSDIR), qnx6)
-CFLAGS = -g $(CFAST) $(CDEFS) -I../include -I../sys_include -I$(YARP_ROOT)/include
-else
-CFLAGS = -g $(CFAST) $(CDEFS) -I../include -I../sys_include -I/home/cog/include/cpp -I/usr/include
-endif
+CFLAGS = -g $(CFAST2) $(CDEFS) -I../include -I../sys_include -I$(YARP_ROOT)/include
 
 #cpp is just there for the stl
 #LIBS = ../lib/$(SYSDIR)/os_services.lib $(SYSLIB)

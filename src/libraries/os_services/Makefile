@@ -35,7 +35,7 @@ install: subinstall
 	$(CP) lib/$(SYSDIR)/os_services.lib $(YARP_ROOT)/lib/$(SYSDIR)
 
 clean: subclean
-	rm -f obj/$(SYSDIR)/*
+	rm -f obj/$(SYSDIR)/*.o
 
 w:
 	@echo -n
