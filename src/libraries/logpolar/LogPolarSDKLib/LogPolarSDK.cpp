@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.38 2004-04-29 17:34:43 babybot Exp $
+/// $Id: LogPolarSDK.cpp,v 1.39 2004-05-18 14:54:16 beltran Exp $
 ///
 ///
 
@@ -73,7 +73,8 @@
 #include <conio.h>
 #include <io.h>
 #include <windows.h>
-
+#else
+#include <string.h>
 #endif
 
 #include <math.h>
