@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.19 2003-06-30 16:48:32 beltran Exp $
+/// $Id: main.cpp,v 1.20 2003-07-01 16:55:17 beltran Exp $
 ///
 ///
 
@@ -410,7 +410,13 @@ int _runAsLogpolar (void)
 		grabber.acquireBuffer (&buffer);
 	
 		/// fills the actual image buffer.
+#ifdef __QNX6__
+		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _size*_size*3);
+#else
+		/// fills the actual image buffer.
 		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _xsize);
+#endif
+		
 
 		grabber.releaseBuffer ();
 
@@ -475,13 +481,10 @@ int _runAsCartesian (void)
 	while (!finished)
 	{
 		grabber.waitOnNewFrame ();
-		
-#ifdef __QNX6__
 		grabber.acquireBuffer(&buffer);
+#ifdef __QNX6__
 		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _size*_size*3);
 #else
-		grabber.acquireBuffer (&buffer);
-	
 		/// fills the actual image buffer.
 		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _size);
 #endif
