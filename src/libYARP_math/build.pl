@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# compiling libYARP_sig
+# compiling libYARP_math
 #
 # options --debug compile the DEBUG version
 #		  --release to compile optimized
@@ -16,7 +16,7 @@ use Getopt::Long;
 use File::Copy;
 use Cwd;
 
-print "Entering compile process of YARP signal processing libraries...\n";
+print "Entering compile process of YARP log-polar libraries...\n";
 
 chomp ($ver = `ver`);
 chomp ($uname = `uname`);
@@ -78,10 +78,10 @@ my $os = $options{"Architecture<-OS"};
 
 #
 # override.
-$debug = ($options{"Compile_Sig<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
-$release = ($options{"Compile_Sig<-Lib_Release"} eq "TRUE") ? 1 : $release;
-$install = ($options{"Compile_Sig<-Lib_Install"} eq "TRUE") ? 1 : $install;
-$clean = ($options{"Compile_Sig<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
+$debug = ($options{"Compile_Math<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
+$release = ($options{"Compile_Math<-Lib_Release"} eq "TRUE") ? 1 : $release;
+$install = ($options{"Compile_Math<-Lib_Install"} eq "TRUE") ? 1 : $install;
+$clean = ($options{"Compile_Math<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
 
 #
 #
@@ -116,8 +116,8 @@ if ($release)
 
 if ($install)
 {
-	print "\nInstalling YARP signal processing libraries to default install directory.\n";
-	@my_headers = glob "./include/yarp/*.h";
+	print "\nInstalling YARP math libraries to default install directory.\n";
+	@my_headers = glob "./include/yarp/*.h ./include/yarp/*.inl";
 	foreach $file (@my_headers) 
 	{
 		print "Copying $file\n";
@@ -138,7 +138,7 @@ sub call_msdev_and_print
 {
 	my ($version, $operation) = @_;
 
-	open MSDEV, "msdev libYARP_sig.dsp /MAKE \"libYARP_sig - Win32 ".$version."\" /".$operation."|";
+	open MSDEV, "msdev libYARP_math.dsp /MAKE \"libYARP_math - Win32 ".$version."\" /".$operation."|";
 	while (<MSDEV>)
 	{
 		print;

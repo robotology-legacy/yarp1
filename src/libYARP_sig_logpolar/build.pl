@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# compiling libYARP_OS
+# compiling libYARP_sig_logpolar
 #
 # options --debug compile the DEBUG version
 #		  --release to compile optimized
@@ -78,10 +78,10 @@ my $os = $options{"Architecture<-OS"};
 
 #
 # override.
-$debug = ($options{"Compile_OS<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
-$release = ($options{"Compile_OS<-Lib_Release"} eq "TRUE") ? 1 : $release;
-$install = ($options{"Compile_OS<-Lib_Install"} eq "TRUE") ? 1 : $install;
-$clean = ($options{"Compile_OS<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
+$debug = ($options{"Compile_Sig_Logpolar<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
+$release = ($options{"Compile_Sig_Logpolar<-Lib_Release"} eq "TRUE") ? 1 : $release;
+$install = ($options{"Compile_Sig_Logpolar<-Lib_Install"} eq "TRUE") ? 1 : $install;
+$clean = ($options{"Compile_Sig_Logpolar<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
 
 #
 #
@@ -116,7 +116,7 @@ if ($release)
 
 if ($install)
 {
-	print "\nInstalling YARP signal processing libraries to default install directory.\n";
+	print "\nInstalling YARP log-polar libraries to default install directory.\n";
 	@my_headers = glob "./include/yarp/*.h";
 	foreach $file (@my_headers) 
 	{
