@@ -184,11 +184,15 @@ if ($install)
 		copy ($file, "$yarp_root/include/yarp/") or warn "Can't copy $file\n"; 
 	}
 
-	@my_libs = glob "./lib/$os/*.lib";
+	@my_libs = glob "./lib/$os/*.lib ./lib/$os/*.a";
 	foreach $file (@my_libs)
 	{
 		print "Copying $file\n";
 		copy ($file, "$yarp_root/lib/$os/") or warn "Can't copy $file\n";
+		if ($os eq "darwin")
+		{
+			print `ar -s $yarp_root/$file`; 
+		}
 	}
 }
 
