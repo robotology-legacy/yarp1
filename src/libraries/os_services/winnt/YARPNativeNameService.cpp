@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.cpp,v 1.5 2003-05-16 21:57:08 gmetta Exp $
+/// $Id: YARPNativeNameService.cpp,v 1.6 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 //// #include <ace/OS.h>
@@ -84,26 +84,25 @@ int YARPNativeEndpointManager::CreateQnetChannel (void)
 ///
 ///
 ///
-YARPNameID YARPNativeEndpointManager::CreateInputEndpoint (YARPUniqueNameID& name)
+int YARPNativeEndpointManager::CreateInputEndpoint (YARPUniqueNameID& name)
 {
 	ACE_UNUSED_ARG(name);
-	return YARPNameID();
-}
-
-
-
-YARPNameID YARPNativeEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
-{
-	ACE_UNUSED_ARG(name);
-	return YARPNameID();
-}
-
-int YARPNativeEndpointManager::ConnectEndpoints(YARPNameID& dest)
-{
 	return YARP_FAIL;
 }
 
-int YARPNativeEndpointManager::Close(const YARPNameID& id)
+int YARPNativeEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
+{
+	ACE_UNUSED_ARG(name);
+	return YARP_FAIL;
+}
+
+int YARPNativeEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest)
+{
+	ACE_UNUSED_ARG(dest);
+	return YARP_FAIL;
+}
+
+int YARPNativeEndpointManager::Close(YARPUniqueNameID& id)
 {
 	ACE_UNUSED_ARG(id);
 	return YARP_FAIL;
@@ -112,20 +111,20 @@ int YARPNativeEndpointManager::Close(const YARPNameID& id)
 ///
 ///
 ///
-int YARPNativeNameService::RegisterName(const char *name)
+YARPUniqueNameID* YARPNativeNameService::RegisterName(const char *name)
 {
 	ACE_UNUSED_ARG(name);
-	return -1;
+	return NULL;
 }
 
-YARPNameID YARPNativeNameService::LocateName(const char *name)
+YARPUniqueNameID* YARPNativeNameService::LocateName(const char *name)
 {
 	ACE_UNUSED_ARG(name);
-	return YARPNameID();
+	return NULL;
 }
 
 
-int YARPNativeNameService::IsNonTrivial()
+int YARPNativeNameService::IsNonTrivial(void)
 {
 	return 0;
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.h,v 1.8 2003-07-01 12:49:57 gmetta Exp $
+/// $Id: YARPSocket.h,v 1.9 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 
@@ -105,118 +105,60 @@ enum
 	YARP_O_SOCKET = 2,
 };
 
+///
+/// base class of all socket communication classes.
+///	- not pure virtual because this is base of both In and Out sockets.
+///
 class YARPNetworkObject
 {
+private:
+	YARPNetworkObject (const YARPNetworkObject&);
+	YARPNetworkObject& operator= (const YARPNetworkObject&);
+
 protected:
 	int _socktype;
 	enum { NOT_IMPLEMENTED = 0 };
 
 public:
+	YARPNetworkObject () { _socktype = YARP_NO_SOCKET; }
+
 	static int getHostname(char *buffer, int buffer_length);
 	static int setSocketBufSize(ACE_SOCK& sock, int size);
-	int getSocketType (void) const { return _socktype; }
 
-	virtual int Close(void) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int Close(ACE_HANDLE reply_id) { ACE_UNUSED_ARG(reply_id); ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int Close (const YARPUniqueNameID& name) { ACE_UNUSED_ARG(name); ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int CloseAll(void) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
+	virtual int getSocketType (void) const { return _socktype; }
 
-	virtual int Prepare (const YARPUniqueNameID& name) { ACE_UNUSED_ARG(name); ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL) 
-	{ 
-		ACE_UNUSED_ARG(buffer); 
-		ACE_UNUSED_ARG(buffer_length);
-		ACE_UNUSED_ARG(reply_id);
-		ACE_ASSERT (NOT_IMPLEMENTED); 
-		return YARP_FAIL; 
-	}
-	virtual int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL) 
-	{
-		ACE_UNUSED_ARG(buffer);
-		ACE_UNUSED_ARG(buffer_length);
-		ACE_UNUSED_ARG(reply_id); 
-		ACE_ASSERT (NOT_IMPLEMENTED); 
-		return YARP_FAIL; 
-	}
-	virtual int ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length) 
-	{
-		ACE_UNUSED_ARG(reply_id);
-		ACE_UNUSED_ARG(buffer);
-		ACE_UNUSED_ARG(buffer_length); 
-		ACE_ASSERT (NOT_IMPLEMENTED); 
-		return YARP_FAIL; 
-	}
-	virtual int ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length) 
-	{
-		ACE_UNUSED_ARG(reply_id);
-		ACE_UNUSED_ARG(reply_buffer);
-		ACE_UNUSED_ARG(reply_buffer_length); 
-		ACE_ASSERT (NOT_IMPLEMENTED); 
-		return YARP_FAIL; 
-	}
-	virtual int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length) 
-	{
-		ACE_UNUSED_ARG(reply_id);
-		ACE_UNUSED_ARG(reply_buffer);
-		ACE_UNUSED_ARG(reply_buffer_length); 
-		ACE_ASSERT (NOT_IMPLEMENTED); 
-		return YARP_FAIL; 
-	}
+	///virtual void SetIdentifier(int n_identifier) { ACE_UNUSED_ARG(n_identifier); ACE_ASSERT (NOT_IMPLEMENTED); }
+	///virtual int GetAssignedPort(void) const { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
+	///virtual int Prepare (const YARPUniqueNameID& name) { ACE_UNUSED_ARG(name); ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
 
-	virtual ACE_HANDLE GetIdentifier(void) const { ACE_ASSERT (NOT_IMPLEMENTED); return ACE_INVALID_HANDLE; }
-	virtual void SetIdentifier(int n_identifier) { ACE_UNUSED_ARG(n_identifier); ACE_ASSERT (NOT_IMPLEMENTED); }
-	virtual int GetAssignedPort(void) const { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-
-	virtual int Connect(void) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	virtual int Connect (const YARPUniqueNameID& name) 
-	{
-		ACE_UNUSED_ARG(name);
-		ACE_ASSERT (NOT_IMPLEMENTED);
-		return YARP_FAIL;
-	}
-
-	virtual int SendBegin(char *buffer, int buffer_length) 
-	{
-		ACE_UNUSED_ARG(buffer);
-		ACE_UNUSED_ARG(buffer_length); 
-		ACE_ASSERT (NOT_IMPLEMENTED); 
-		return YARP_FAIL; 
-	}
-	virtual int SendContinue(char *buffer, int buffer_length) 
-	{
-		ACE_UNUSED_ARG(buffer);
-		ACE_UNUSED_ARG(buffer_length); 
-		ACE_ASSERT (NOT_IMPLEMENTED); 
-		return YARP_FAIL; 
-	}
-///	virtual int SendReceivingReply(YARPMultipartMessage& return_msg)
-///	{
-///		ACE_UNUSED_ARG(return_msg);
-///		return YARP_FAIL;
-///	}
-	virtual int SendReceivingReply(char *reply_buffer, int reply_buffer_length) 
-	{
-		ACE_UNUSED_ARG(reply_buffer);
-		ACE_UNUSED_ARG(reply_buffer_length); 
-		ACE_ASSERT (NOT_IMPLEMENTED); 
-		return YARP_FAIL; 
-	}
-	virtual int SendEnd(char *reply_buffer, int reply_buffer_length) 
-	{
-		ACE_UNUSED_ARG(reply_buffer);
-		ACE_UNUSED_ARG(reply_buffer_length); 
-		ACE_ASSERT (NOT_IMPLEMENTED); 
-		return YARP_FAIL; 
-	}
-
-	virtual int GetServiceType (void) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
+	virtual ACE_HANDLE GetIdentifier(void) const = 0;
+	virtual int GetServiceType (void) = 0;
 };
 
+class YARPNetworkInputObject : public YARPNetworkObject
+{
+private:
+	YARPNetworkInputObject (const YARPNetworkInputObject&);
+	YARPNetworkInputObject& operator=(const YARPNetworkInputObject&);
+
+public:
+	YARPNetworkInputObject() : YARPNetworkObject() { _socktype = YARP_I_SOCKET; }
+	virtual ~YARPNetworkInputObject() {}
+
+	virtual int Close(ACE_HANDLE reply_id) = 0;
+	virtual int CloseAll(void) = 0;
+
+	virtual int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL) = 0;
+	virtual int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL) = 0;
+	virtual int ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length) = 0;
+	virtual int ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length) = 0;
+	virtual int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length) = 0;
+};
 
 ///
 ///
 ///
-class YARPInputSocket : public YARPNetworkObject
+class YARPInputSocket : public YARPNetworkInputObject
 {
 protected:
 	void *system_resources;
@@ -225,40 +167,57 @@ public:
 	YARPInputSocket();
 	virtual ~YARPInputSocket();
 
+	/// virtual override.
 	int Close(ACE_HANDLE reply_id);
 	int CloseAll(void);
-
-	int Prepare (const YARPUniqueNameID& name);
 
 	int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
 	int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
 	int ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length);
 	int ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
 	int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
-
-	ACE_HANDLE GetIdentifier(void) const;		/// { return identifier; }
-	int GetAssignedPort(void) const;	/// { return assigned_port; }
-	
+	ACE_HANDLE GetIdentifier(void) const;
 	int GetServiceType (void) { return YARP_TCP; }
+
+	/// other.
+	int Prepare (const YARPUniqueNameID& name);
+	int GetAssignedPort(void) const;
 };
 
+class YARPNetworkOutputObject : public YARPNetworkObject
+{
+private:
+	YARPNetworkOutputObject (const YARPNetworkOutputObject&);
+	YARPNetworkOutputObject& operator=(const YARPNetworkOutputObject&);
+
+public:
+	YARPNetworkOutputObject (void) : YARPNetworkObject() { _socktype = YARP_O_SOCKET; }
+	virtual ~YARPNetworkOutputObject () {}
+
+	virtual int Close (const YARPUniqueNameID& name) = 0;
+	virtual int Connect (const YARPUniqueNameID& name) = 0;
+	virtual int SendBegin(char *buffer, int buffer_length) = 0;
+	virtual int SendContinue(char *buffer, int buffer_length) = 0;
+	virtual int SendReceivingReply(char *reply_buffer, int reply_buffer_length) = 0;
+	virtual int SendEnd(char *reply_buffer, int reply_buffer_length) = 0;
+};
 
 ///
 ///
 ///
-class YARPOutputSocket : public YARPNetworkObject
+class YARPOutputSocket : public YARPNetworkOutputObject
 {
 protected:
 	void *system_resources;
-	ACE_HANDLE identifier;		/// still unclear how to get this.
+	ACE_HANDLE identifier;
 
 public:
 	YARPOutputSocket();
 	virtual ~YARPOutputSocket();
 
-	int Prepare (const YARPUniqueNameID& name);
-	int Close(void);
-	int Connect(void);
+	/// virtual override.
+	int Close(const YARPUniqueNameID& name);
+	int Connect(const YARPUniqueNameID& name);
 	
 	int SendBegin(char *buffer, int buffer_length);
 	int SendContinue(char *buffer, int buffer_length);
@@ -266,10 +225,11 @@ public:
 	int SendEnd(char *reply_buffer, int reply_buffer_length);
 
 	ACE_HANDLE GetIdentifier(void) const;
-
-	int SetTCPNoDelay (void);
-
 	int GetServiceType (void) { return YARP_TCP; }
+
+	/// specific stuff.
+	int Prepare (const YARPUniqueNameID& name);
+	int SetTCPNoDelay (void);
 };
 
 #endif

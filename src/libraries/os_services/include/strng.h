@@ -61,12 +61,14 @@
 ///
 
 ///
-/// $Id: strng.h,v 1.5 2003-04-27 21:57:41 gmetta Exp $
+/// $Id: strng.h,v 1.6 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 
 #ifndef STRNG_INC
 #define STRNG_INC
+
+#error "strng.h: perhaps this file is obsolete, please use the stl string instead"
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>

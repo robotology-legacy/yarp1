@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test3.cpp,v 1.4 2003-05-15 21:10:51 gmetta Exp $
+/// $Id: exec_test3.cpp,v 1.5 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 
@@ -94,7 +94,7 @@ public:
 		char txt[128] = "Hello there";
 		char reply[128] = "Not set";
 
-		YARPUniqueNameID id;
+		YARPUniqueNameID* id;
 
 		do 
 		{
@@ -104,15 +104,15 @@ public:
 			out.Post();
 
 			id = YARPNameService::LocateName(REG_LOCATE_NAME);
-			YARPEndpointManager::CreateOutputEndpoint (id);
-			YARPEndpointManager::ConnectEndpoints (id);
+			YARPEndpointManager::CreateOutputEndpoint (*id);
+			YARPEndpointManager::ConnectEndpoints (*id);
 
-			if (!id.isValid())
+			if (!id->isValid())
 			{
 				YARPTime::DelayInSeconds(0.2);
 			}
 		} 
-		while (!id.isValid());
+		while (!id->isValid());
 
 		int x = 42;
 		while (1)
@@ -132,7 +132,7 @@ public:
 			cout << "***sending: " << txt << endl;
 			cout.flush();
 
-			YARPSyncComm::Send(id.getNameID(),smsg,rmsg);
+			YARPSyncComm::Send(id->getNameID(),smsg,rmsg);
 			x++;
 
 			out.Wait();
@@ -159,11 +159,11 @@ public:
 
 		YARPTime::DelayInSeconds(0.01);
 #ifdef __QNX6__
-		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel());
+		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel());
 #else
-		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME);
+		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, YARP_UDP_REGPORTS);
 #endif
-		YARPEndpointManager::CreateInputEndpoint (id);
+		YARPEndpointManager::CreateInputEndpoint (*id);
 
 		while (1)
 		{
@@ -177,8 +177,8 @@ public:
 			imsg.Set(0,buf,sizeof(buf));
 			imsg.Set(1,(char*)(&x),sizeof(x));
 
-			YARPNameID idd = YARPSyncComm::BlockingReceive (id.getNameID(), imsg);
-			ACE_UNUSED_ARG(idd);
+			YARPNameID idd = YARPSyncComm::BlockingReceive (id->getNameID(), imsg);
+			///ACE_UNUSED_ARG(idd);
 
 			out.Wait();
 			

@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.26 2003-07-01 12:49:57 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.27 2003-07-06 23:25:45 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -39,7 +39,7 @@
 #define YARP_TCP_NO_DELAY		1
 
 /// set the default protocol in port creation.
-#define YARP_DEFAULT_PROTOCOL	YARP_MCAST
+#define YARP_DEFAULT_PROTOCOL	YARP_UDP
 
 /// set here how many ports are requested by the def protocol.
 #define YARP_PROTOCOL_REGPORTS  11
@@ -52,6 +52,9 @@
 
 /// read short timeout on socket transport (in seconds). - used for waiting short latency delay.
 #define YARP_SHORT_SOCK_TIMEOUT	1
+
+/// stale connections timeout.
+#define YARP_STALE_TIMEOUT		3600
 
 /// alignment bytes required for mmx/ipl instructions.
 #define YARP_IMAGE_ALIGN 8

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.36 2003-07-01 21:26:19 gmetta Exp $
+/// $Id: Port.cpp,v 1.37 2003-07-06 23:25:45 gmetta Exp $
 ///
 ///
 
@@ -93,6 +93,7 @@
 #include "YARPSyncComm.h"
 #include "YARPScheduler.h"
 #include "YARPTime.h"
+#include "YARPSocket.h"
 
 #ifdef __QNX6__
 #include <signal.h>
@@ -220,27 +221,28 @@ void OutputTarget::Body ()
 	}
 #endif
 
-	/// need to know what is the protocol of the owner.
-
+	/// needs to know what is the protocol of the owner.
 	switch (protocol_type)
 	{
 	case YARP_QNET:
 	case YARP_TCP:
 		{
+			/// LATER: must do proper bailout if locate fails.
+			///
 			target_pid = YARPNameService::LocateName (GetLabel().c_str());
-			if (target_pid.getServiceType() != protocol_type)
+			if (target_pid->getServiceType() != protocol_type)
 			{
 				/// problems.
 				ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
-				target_pid.invalidate();
+				target_pid->invalidate();
 			}
 
-			YARPEndpointManager::CreateOutputEndpoint (target_pid);
-			YARPEndpointManager::ConnectEndpoints (target_pid); ///.getNameID());
+			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
+			YARPEndpointManager::ConnectEndpoints (*target_pid);
 
 #ifdef YARP_TCP_NO_DELAY
 			/// disables Nagle's algorithm... 
-			YARPEndpointManager::SetTCPNoDelay (target_pid); ///.getNameID());
+			YARPEndpointManager::SetTCPNoDelay (*target_pid);
 #endif
 		}
 		break;
@@ -249,36 +251,55 @@ void OutputTarget::Body ()
 		{
 			target_pid = YARPNameService::LocateName (GetLabel().c_str());
 
-			/// needed because the port changes from that of the incoming call
-			/// it is used to accept data (pretend a connection to the remote).
-			if (target_pid.getServiceType() != YARP_UDP)
+			/// requires a query to dns unfortunately (maybe not?).
+			char myhostname[YARP_STRING_LEN];
+			YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+			ACE_INET_Addr local ((u_short)0, myhostname);
+
+			if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
 			{
-				/// problems.
-				ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
-				target_pid.invalidate();
+				/// 
+				ACE_DEBUG ((LM_DEBUG, "$$$$ this goes into SHMEM mode\n"));
+				/// need to change the target_pid of course.
+			}
+			else
+			{
+				/// needed because the port changes from that of the incoming call
+				/// it is used to accept data (pretend a connection to the remote).
+				if (target_pid->getServiceType() != YARP_UDP)
+				{
+					/// problems.
+					ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
+					target_pid->invalidate();
+				}
 			}
 
-			/// local port number into P2[0] param.
-			target_pid.allocP2 (1);
-			target_pid.getP2Ptr()[0] = port_number;
+			/// this mightn't be required for SHMEM socket.
+			((YARPUniqueNameSock *)target_pid)->setPorts (&port_number, 1);
 
-			YARPEndpointManager::CreateOutputEndpoint (target_pid);
-			YARPEndpointManager::ConnectEndpoints (target_pid); ///.getNameID());
+			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
+			YARPEndpointManager::ConnectEndpoints (*target_pid);
 		}
 		break;
 
 	case YARP_MCAST:
 		{
-			/// this is crazy!
+			/// MCAST is different! Locate prepares the MCAST group and registers it.
+			/// additional commands are sent to "clients" to ask to join the specific group.
 			target_pid = YARPNameService::LocateName(GetLabel().c_str(), YARP_MCAST);
-			YARPEndpointManager::CreateOutputEndpoint (target_pid);
+			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
 
-			if (target_pid.getServiceType() != YARP_MCAST)
+			if (target_pid->getServiceType() != YARP_MCAST)
 			{
 				/// problems.
 				ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
-				target_pid.invalidate();
+				target_pid->invalidate();
 			}
+
+			/// to fall back into SHMEM from here need to change the label of the mesh object.
+			/// - the thread needs to be named after the connection rather than the generic MCAST.
+			///			otherwise, do the test before starting the thread at the price of
+			///			an extra call to the name server.
 		}
 		break;
 	}
@@ -290,7 +311,7 @@ void OutputTarget::Body ()
 	/// MUST complain if connection fails.
 	///
 	///
-	if (!target_pid.isValid())
+	if (!target_pid->isValid())
 	{
 		WaitMutex();
 		active = 0;
@@ -314,6 +335,9 @@ void OutputTarget::Body ()
 
 		WaitMutex();
 
+		///
+		/// MCAST commands follow: 
+		///		- these are sent and processed by contacting the UDP channel of the port.
 		if (protocol_type == YARP_MCAST)
 		{
 			/// LATER: need to figure out whether this is always ok.
@@ -327,37 +351,18 @@ void OutputTarget::Body ()
 			case 1:
 				{
 					/// connect
-					YARPUniqueNameID udp_channel;
-					udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
-					/// misusing P2 array to pass the actual symbolic name to the socket.
-					
-					const int siz = ((strlen(cmdname)+1)/sizeof(int))+1;
-					udp_channel.allocP2(siz);
-					char *dname = (char *)udp_channel.getP2Ptr();
-					memset (dname, 0, siz*sizeof(int));
-					memcpy (dname, cmdname, strlen(cmdname));
-
-					YARPEndpointManager::ConnectEndpoints (udp_channel);
-
-					udp_channel.freeP2();
+					YARPUniqueNameID* udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
+					YARPEndpointManager::ConnectEndpoints (*udp_channel);
+					YARPNameService::DeleteName (udp_channel);
 				}
 				break;
 
 			case 2:
 				{
 					/// disconnect
-					YARPUniqueNameID udp_channel;
-					udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
-
-					const int siz = ((strlen(cmdname)+1)/sizeof(int))+1;
-					udp_channel.allocP2(siz);
-					char *dname = (char *)udp_channel.getP2Ptr();
-					memset (dname, 0, siz*sizeof(int));
-					memcpy (dname, cmdname, strlen(cmdname));
-
-					YARPEndpointManager::Close (udp_channel);
-
-					udp_channel.freeP2();
+					YARPUniqueNameID* udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
+					YARPEndpointManager::Close (*udp_channel);
+					YARPNameService::DeleteName (udp_channel);
 				}
 				break;
 
@@ -385,7 +390,7 @@ void OutputTarget::Body ()
 		PostMutex();
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Waiting for sema to send <<< sema okay!\n"));
 
-		sender.Begin(target_pid.getNameID());
+		sender.Begin(target_pid->getNameID());
 		header.tag = MSG_ID_DATA;
 		header.length = 0;
 		header.first = 1;
@@ -426,15 +431,17 @@ void OutputTarget::Body ()
 		OnSend();
 	}
 
-	//// LATER: must handle close depending on protocol.
 	if (protocol_type == YARP_MCAST)
 	{
 		YARPEndpointManager::CloseMcastAll ();
 	}
 	else
 	{
-		YARPEndpointManager::Close (target_pid); ///.getNameID());	
+		YARPEndpointManager::Close (*target_pid);
 	}
+
+	/// but see also what I said on closing the Port thread.
+	YARPNameService::DeleteName(target_pid);
 
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "thread %d bailing out\n", GetIdentifier()));
 }
@@ -620,26 +627,26 @@ void Port::Body()
 ///	signal (SIGPIPE, SIG_IGN);
 #endif
 
-	///int failed = 0;
 	int tag = 0;
-	char *buf;
+	char *buf = NULL;
 	Fragments cmd;
-	OutputTarget *target, *next;
+	OutputTarget *target = NULL, *next = NULL;
 	BlockReceiver receiver;
 	NewFragmentHeader hdr;
 	int ok;
 	int assume_data;
 	int call_on_read = 0;
 
-	YARPUniqueNameID pid;
+	YARPUniqueNameID* pid = NULL;
 	name_set = 1;
 
+	/// LATER: must actually jump to the end of the thread for proper cleanup instead of returning.
 	switch (protocol_type)
 	{
 	case YARP_QNET:
 		{
 			pid = YARPNameService::RegisterName(name.c_str(), YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel()); 
-			if (pid.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
 				name_set = 0;
@@ -656,7 +663,7 @@ void Port::Body()
 	case YARP_TCP:
 		{
 			pid = YARPNameService::RegisterName(name.c_str(), YARP_TCP); 
-			if (pid.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
 				name_set = 0;
@@ -675,12 +682,9 @@ void Port::Body()
 			/// ask 11 ports overall:
 			/// 1 as in channel for asking connections
 			/// 10 for incoming connections
-			/// there's a bit of messy handling of the numbers here to allocate the
-			/// right things to the right places.
-			///
 			///
 			pid = YARPNameService::RegisterName(name.c_str(), YARP_UDP, YARP_UDP_REGPORTS); 
-			if (pid.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
 				name_set = 0;
@@ -697,7 +701,7 @@ void Port::Body()
 	case YARP_MCAST:
 		{
 			pid = YARPNameService::RegisterName(name.c_str(), YARP_MCAST, YARP_UDP_REGPORTS);
-			if (pid.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
 				name_set = 0;
@@ -712,11 +716,20 @@ void Port::Body()
 		break;
 
 	default:
-		ACE_DEBUG ((LM_DEBUG, "troubles in acquiring ports (?)\n"));
+		{
+			ACE_DEBUG ((LM_DEBUG, "troubles in acquiring ports (?)\n"));
+			name_set = 0;
+			if (asleep)
+			{
+				asleep = 0;
+				okay_to_send.Post();
+			}
+			return;
+		}
 		break;
 	}
 
-	YARPEndpointManager::CreateInputEndpoint (pid);
+	YARPEndpointManager::CreateInputEndpoint (*pid);
 	
 	/// ok, ready to create the sending thread (_strange_select).
 	/// all this to avoid sending a message through the port socket.
@@ -730,7 +743,7 @@ void Port::Body()
 
 	while (!IsTerminated())
     {
-		receiver.Begin(pid.getNameID());
+		receiver.Begin(pid->getNameID());
 
 		receiver.Get();
 		out_mutex.Wait();
@@ -834,7 +847,7 @@ void Port::Body()
 		}
         list_mutex.Post ();
 
-		if (pid.isValid())
+		if (pid->isValid())
 		{
 			switch(tag)
 			{
@@ -854,7 +867,7 @@ void Port::Body()
 							
 							ACE_ASSERT(target != NULL);
 							
-							target->target_pid.invalidate();
+							target->target_pid = NULL; ///->invalidate();
 							target->protocol_type = protocol_type;
 
 							target->Begin();
@@ -867,14 +880,14 @@ void Port::Body()
 					else
 					{
 						/// mcast out port thread.
-						target = targets.GetByLabel ("mcast-thread\0");
+						target = targets.GetByLabel ("mcast-thread");
 						if (target == NULL)
 						{
-							ACE_DEBUG ((LM_DEBUG, "Starting MCAST singleton (hopefully) thread\n"));
-							target = targets.NewLink("mcast-thread\0");
+							ACE_DEBUG ((LM_DEBUG, "Starting MCAST singleton (to be verified) thread\n"));
+							target = targets.NewLink("mcast-thread");
 
 							ACE_ASSERT(target != NULL);
-							target->target_pid.invalidate();
+							target->target_pid = NULL; ///->invalidate();
 							target->protocol_type = protocol_type;
 
 							target->Begin();
@@ -884,6 +897,11 @@ void Port::Body()
 						else
 						{
 							ACE_DEBUG ((LM_DEBUG, "MCAST: Starting connection between %s and %s\n", name.c_str(), buf));
+						
+							/// verifies whether it can start a SHMEM thread.
+							/// Procedure:
+							///		- if local == remote address (ip)
+							///		- start a thread and force it to go into SHMEM mode.
 							
 							target->ConnectMcast (buf);
 						}
@@ -910,8 +928,11 @@ void Port::Body()
 					}
 					else
 					{
+						/// check here first for SHMEM connection.
+						/// if target is !NULL then close that connection (simple deactivate).
+
 						/// mcast
-						target = targets.GetByLabel("mcast-thread\0"); ///buf+1);
+						target = targets.GetByLabel("mcast-thread");
 						if (target != NULL)
 						{
 							ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and (%s) via %s\n", name.c_str(), buf+1, target->GetLabel().c_str()));
@@ -967,7 +988,6 @@ void Port::Body()
 					}
 
 					out_mutex.Post();
-					//OnRead();
 					call_on_read = 1;
 				}
 				break;
@@ -999,13 +1019,15 @@ void Port::Body()
 					else
 					{
 						/// mcast
-						target = targets.GetByLabel("mcast-thread\0"); ///buf+1);
+						target = targets.GetByLabel("mcast-thread");
 						if (target != NULL)
 						{
 							ACE_DEBUG ((LM_DEBUG, "Removing all mcast connections\n"));
 							
 							target->DeactivateMcastAll();
 						}
+
+						/// and finally perhaps delete all the remaining SHMEM stuff.
 					}
 
 					list_mutex.Post ();
@@ -1031,6 +1053,11 @@ void Port::Body()
 		}
 	} /// if it's valid
 
+
+	/// unregister the port name here.
+	/// can design a method of YARPEndpointManager to take care of everything (including the delete)
+	/// e.g. pid = YARPEndpointManager::DeleteEndpoint (pid);
+	if (pid != NULL) delete pid;
 
 	ACE_DEBUG ((LM_DEBUG, "port thread returning\n"));
 }

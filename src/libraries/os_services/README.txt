@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.20 2003-07-02 12:00:11 gmetta Exp $
+$Id: README.txt,v 1.21 2003-07-06 23:25:45 gmetta Exp $
 
 
 =============
@@ -32,10 +32,6 @@ Things under development:
 3- initialization MFC+os_services might fail under some circumstances
 	- solution: do explicit init and fini
 
-3.1- rationalize YARPUniqueNameID class with additional functions and data.
-
-4- rationalize multiple protocol handling (single object to handle many protocols).
-
 5- implement shared mem communication protocol.
 
 6.2- reply messages, exploit iovec structure, maintaining compatibility w/ YARP multipart msg.
@@ -52,6 +48,8 @@ Things under development:
 
 12- check out from name server.
 
+13- noted a sigsegv on exit of the grabber application, perhaps while closing down the Port threads?
+	- perhaps remove the SIGINT handling, it appears to upset the libc.
 
 ===
 0- QNET

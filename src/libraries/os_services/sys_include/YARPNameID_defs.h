@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID_defs.h,v 1.4 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: YARPNameID_defs.h,v 1.5 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 
@@ -92,6 +92,8 @@ enum
 	YARP_MCAST = 2,
 	YARP_QNET = 3,
 	YARP_QNX4 = 4,
+	YARP_SHMEM = 5,
+	YARP_MULTI = 6,
 };
 
 const char __udpString[] = "UDP";

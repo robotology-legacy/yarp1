@@ -209,6 +209,10 @@ SOURCE=..\..\include\YARPSocketMcast.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\YARPSocketMulti.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\YARPSocketNameService.h
 # End Source File
 # Begin Source File
@@ -306,6 +310,17 @@ SOURCE=..\..\common\YARPSocketDgram.cpp
 # Begin Source File
 
 SOURCE=..\..\common\YARPSocketMcast.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\common\YARPSocketMulti.cpp
+
+!IF  "$(CFG)" == "os_services - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "os_services - Win32 Debug"
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 

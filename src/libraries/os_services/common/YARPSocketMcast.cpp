@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.20 2003-07-01 21:58:59 babybot Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.21 2003-07-06 23:25:45 gmetta Exp $
 ///
 ///
 
@@ -210,9 +210,9 @@ protected:
 	ACE_SOCK_Dgram _local_socket;			/// a generic dgram socket.
 	ACE_SOCK_Dgram_Mcast _mcast_socket;		/// the mcast socket.
 
-	YARPUniqueNameID _local_addr;			/// both MCAST and UDP local addr.
-	YARPUniqueNameID _mcast_addr;			/// mcast group.
-	YARPUniqueNameID _remote_endpoint;		/// udp remote peer.
+	YARPUniqueNameSock _local_addr;			/// both MCAST and UDP local addr.
+	YARPUniqueNameSock _mcast_addr;			/// mcast group.
+	YARPUniqueNameSock _remote_endpoint;		/// udp remote peer.
 
 	_SocketThreadListMcast *_owner;
 
@@ -233,11 +233,11 @@ protected:
 	int _reply_preamble;
 	YARPSemaphore _wakeup, _mutex, _reply_made;
 
-	int _begin (const YARPUniqueNameID *remid, const YARPUniqueNameID *group, int port);
+	int _begin (const YARPUniqueNameSock *remid, const YARPUniqueNameSock *group, int port);
 
 public:
 	/// ctors.
-	_SocketThreadMcast (const YARPUniqueNameID *remid, const YARPUniqueNameID *group, int port) : _wakeup(0), _mutex(1), _reply_made(0)
+	_SocketThreadMcast (const YARPUniqueNameSock *remid, const YARPUniqueNameSock *group, int port) : _wakeup(0), _mutex(1), _reply_made(0)
     {
 		_begin (remid, group, port);
     }
@@ -261,8 +261,8 @@ public:
 
 	/// call it reconnect (recycle the thread).
 	/// the thread shouldn't be running.
-	int reuse(const YARPUniqueNameID& remid, const YARPUniqueNameID& group, int port);
-	YARPUniqueNameID& getRemoteID(void) { return _remote_endpoint; }
+	int reuse(const YARPUniqueNameSock& remid, const YARPUniqueNameSock& group, int port);
+	YARPUniqueNameSock& getRemoteID(void) { return _remote_endpoint; }
 	bool isMcast(void) const { return (_mcast_addr.getServiceType() == YARP_MCAST) ? true : false; }
 	ACE_HANDLE getID () const {	return  _local_socket.get_handle (); }
 
@@ -339,7 +339,7 @@ public:
 	///
 	/// creates the acceptor socket and listens to port.
 	/// simply prepares the socket.
-	ACE_HANDLE connect(const YARPUniqueNameID& id);
+	ACE_HANDLE connect(const YARPUniqueNameSock& id);
 
 	/// actually the assigned is what provided by the name server but this
 	/// is done on another class.
@@ -413,7 +413,7 @@ public:
 /// METHODS IMPLEMENTATION
 ///
 ///
-int _SocketThreadMcast::_begin (const YARPUniqueNameID *remid, const YARPUniqueNameID *group, int port = 0)
+int _SocketThreadMcast::_begin (const YARPUniqueNameSock *remid, const YARPUniqueNameSock *group, int port = 0)
 {
 	_owner = NULL;
 	_extern_buffer = NULL;
@@ -440,9 +440,9 @@ int _SocketThreadMcast::_begin (const YARPUniqueNameID *remid, const YARPUniqueN
 	if (port != 0)
 	{
 		/// listen to this new port.
-		char buf[YARP_STRING_LEN];
-		YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
-		_local_addr.getAddressRef().set (port, buf);
+		char myhostname[YARP_STRING_LEN];
+		YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+		_local_addr.getAddressRef().set (port, myhostname);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
 		
 		YARPNetworkObject::setSocketBufSize (_local_socket, MAX_PACKET);
@@ -454,7 +454,8 @@ int _SocketThreadMcast::_begin (const YARPUniqueNameID *remid, const YARPUniqueN
 			_mcast_socket.join (_mcast_addr.getAddressRef(), 1, 0);
 		}
 
-		_local_addr.getNameID() = YARPNameID (YARP_UDP, _local_socket.get_handle());
+		_local_addr.setServiceType (YARP_UDP);
+		_local_addr.setRawIdentifier (_local_socket.get_handle());
 
 		if (_local_socket.get_handle() == ACE_INVALID_HANDLE || _mcast_socket.get_handle() == ACE_INVALID_HANDLE)
 		{
@@ -480,7 +481,7 @@ void _SocketThreadMcast::setOwner(const _SocketThreadListMcast& n_owner)
 
 /// call it reconnect (recycle the thread).
 /// the thread shouldn't be running.
-int _SocketThreadMcast::reuse(const YARPUniqueNameID& remid, const YARPUniqueNameID& group, int port)
+int _SocketThreadMcast::reuse(const YARPUniqueNameSock& remid, const YARPUniqueNameSock& group, int port)
 {
 	/// remid contains the mcast addr, or the remote endpoint in udp.
 	/// port is the udp channel, for mcast it is used to shud down the connection.
@@ -495,9 +496,9 @@ int _SocketThreadMcast::reuse(const YARPUniqueNameID& remid, const YARPUniqueNam
 		_port = port;
 
 		/// listen to this new port.
-		char buf[YARP_STRING_LEN];
-		YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
-		_local_addr.getAddressRef().set (port, buf);
+		char myhostname[YARP_STRING_LEN];
+		YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+		_local_addr.getAddressRef().set (port, myhostname);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
 		YARPNetworkObject::setSocketBufSize (_local_socket, MAX_PACKET);
 
@@ -567,7 +568,7 @@ void _SocketThreadMcast::Body (void)
 	_reply_preamble = 0;
 
 
-	if (_mcast_addr.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+	if (_mcast_addr.getServiceType() == YARP_UDP)
 	{
 		BodyUdp ();			/// udp only connection.
 	}
@@ -600,6 +601,7 @@ void _SocketThreadMcast::Body (void)
 void _SocketThreadMcast::BodyUdp (void)
 {
 	///ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	ACE_Time_Value long_timeout (YARP_STALE_TIMEOUT, 0);
 
 	int finished = 0;
 	
@@ -617,8 +619,34 @@ void _SocketThreadMcast::BodyUdp (void)
 
 	while (!finished)
 	{
+		MyMessageHeader& hdr = *((MyMessageHeader *)_local_buffer);
+
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread of remote port %s:%d waiting\n", _remote_endpoint.getAddressRef().get_host_name(), _remote_endpoint.getAddressRef().get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread waiting on port %d waiting\n", _local_addr.getAddressRef().get_port_number()));
+
+		ACE_Handle_Set set;
+		set.reset ();
+		set.set_bit (_local_socket.get_handle());
+		int max = (int)_local_socket.get_handle();
+
+		int rr = ACE_OS::select (max + 1, set, 0, 0, &long_timeout);
+
+		if (rr <= 0)
+		{
+			if (rr == 0)
+			{
+				ACE_DEBUG ((LM_DEBUG, "select on MCAST-UDP reader timed out, perhaps this is a stale connection, closing down\n"));
+			}
+			else
+			{
+				ACE_DEBUG ((LM_DEBUG, "this is shouldn't happen, a bug???\n"));
+			}
+
+			_local_socket.close ();
+
+			finished = 1;
+			goto DgramSocketMsgSkip;
+		}
 
 		iovec iov[1];
 		iov[0].iov_base = _local_buffer;
@@ -627,7 +655,6 @@ void _SocketThreadMcast::BodyUdp (void)
 		r = _local_socket.recv (iov, 1, incoming, 0);
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
 
-		MyMessageHeader& hdr = *((MyMessageHeader *)_local_buffer);
 		_local_buffer_counter = sizeof(MyMessageHeader);
 
 		if (r >= 0 && hdr.GetLength() == (_MAGIC_NUMBER + 1))
@@ -816,7 +843,8 @@ DgramSocketMsgSkip:
 void _SocketThreadMcast::BodyMcast (void)
 {
 	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
-	
+	ACE_Time_Value long_timeout (YARP_STALE_TIMEOUT, 0);
+
 	ACE_INET_Addr incoming;
 	
 	int finished = 0;
@@ -839,12 +867,21 @@ void _SocketThreadMcast::BodyMcast (void)
 		int max = ((int)_local_socket.get_handle() > (int)_mcast_socket.get_handle()) 
 			? (int)_local_socket.get_handle() : (int)_mcast_socket.get_handle();
 
-		int rr = ACE_OS::select (max + 1, set, 0, 0, NULL);	///&timeout);	/// shouldn't timeout here.
+		int rr = ACE_OS::select (max + 1, set, 0, 0, &long_timeout);
 
 		if (rr <= 0)
 		{
-			ACE_DEBUG ((LM_DEBUG, "main select failed\n"));
-			ACE_DEBUG ((LM_DEBUG, "proper bailout required here\n"));
+			if (rr == 0)
+			{
+				ACE_DEBUG ((LM_DEBUG, "select on MCAST reader timed out, perhaps this is a stale connection, closing down\n"));
+			}
+			else
+			{
+				ACE_DEBUG ((LM_DEBUG, "this is shouldn't happen, a bug???\n"));
+			}
+
+			_local_socket.close ();
+			_mcast_socket.close ();
 
 			finished = 1;
 			goto McastSocketMsgSkip;
@@ -914,7 +951,6 @@ void _SocketThreadMcast::BodyMcast (void)
 				finished = 1;
 			}
 			else
-			///if (len >= 0)
 			{
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got a header\n"));
 				if (_owner != NULL)
@@ -1020,9 +1056,9 @@ _SocketThreadListMcast::~_SocketThreadListMcast (void)
 ///
 /// creates the acceptor socket and listens to port.
 /// simply prepares the socket.
-ACE_HANDLE _SocketThreadListMcast::connect (const YARPUniqueNameID& id)
+ACE_HANDLE _SocketThreadListMcast::connect (const YARPUniqueNameSock& id)
 {
-	_local_addr = ((YARPUniqueNameID &)id).getAddressRef();
+	_local_addr = ((YARPUniqueNameSock&)id).getAddressRef();
 	_acceptor_socket.open (_local_addr, ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
 
 	if (_acceptor_socket.get_handle() == ACE_INVALID_HANDLE)
@@ -1139,13 +1175,13 @@ void _SocketThreadListMcast::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				(*it_avail)->reuse (YARPUniqueNameID(YARP_UDP, incoming), YARPUniqueNameID(), port_number);
+				(*it_avail)->reuse (YARPUniqueNameSock(YARP_UDP, incoming), YARPUniqueNameSock(YARP_UDP), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
 				(*it_avail)->End();
-				(*it_avail)->reuse (YARPUniqueNameID(YARP_UDP, incoming), YARPUniqueNameID(), port_number);
+				(*it_avail)->reuse (YARPUniqueNameSock(YARP_UDP, incoming), YARPUniqueNameSock(YARP_UDP), port_number);
 				(*it_avail)->Begin();
 			}
 
@@ -1241,13 +1277,13 @@ void _SocketThreadListMcast::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				(*it_avail)->reuse (YARPUniqueNameID(YARP_UDP, incoming), YARPUniqueNameID(YARP_MCAST, group), port_number);
+				(*it_avail)->reuse (YARPUniqueNameSock(YARP_UDP, incoming), YARPUniqueNameSock(YARP_MCAST, group), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
 				(*it_avail)->End();
-				(*it_avail)->reuse (YARPUniqueNameID(YARP_UDP, incoming), YARPUniqueNameID(YARP_MCAST, group), port_number);
+				(*it_avail)->reuse (YARPUniqueNameSock(YARP_UDP, incoming), YARPUniqueNameSock(YARP_MCAST, group), port_number);
 				(*it_avail)->Begin();
 			}
 
@@ -1554,9 +1590,9 @@ static ISDataMcast& ISDATA(void *x)
 }
 
 ///
-/// Input socket + stream + handling threads.
+/// Input socket handling threads.
 ///
-YARPInputSocketMcast::YARPInputSocketMcast (void)
+YARPInputSocketMcast::YARPInputSocketMcast (void) : YARPNetworkInputObject ()
 { 
 	system_resources = NULL; 
 	system_resources = new ISDataMcast;
@@ -1580,9 +1616,9 @@ int YARPInputSocketMcast::Prepare (const YARPUniqueNameID& name, int *ports, int
 {
 	ISDataMcast& d = ISDATA(system_resources);
 	ACE_ASSERT (ports != NULL && number_o_ports >= 2);
-	ACE_ASSERT (((YARPUniqueNameID&)name).getAddressRef().get_port_number() == ports[0]);
+	ACE_ASSERT (((YARPUniqueNameSock&)name).getAddressRef().get_port_number() == ports[0]);
 
-	d._list.connect (name);
+	d._list.connect ((const YARPUniqueNameSock&)name);
 	/// set the ports -1 that is used as pricipal receiving port.
 	d._list.setPool (ports+1, number_o_ports-1);
 
@@ -1675,7 +1711,7 @@ static OSDataMcast& OSDATA(void *x)
 	return *((OSDataMcast*)x);
 }
 
-YARPOutputSocketMcast::YARPOutputSocketMcast (void)
+YARPOutputSocketMcast::YARPOutputSocketMcast (void) : YARPNetworkOutputObject ()
 { 
 	system_resources = NULL;
 	identifier = ACE_INVALID_HANDLE;
@@ -1703,7 +1739,7 @@ YARPOutputSocketMcast::~YARPOutputSocketMcast (void)
 	OSDataMcast& d = OSDATA(system_resources);
 	int i;
 	for (i = 0; i < d._max_num_clients; i++)
-		Close (YARPUniqueNameID(YARP_NO_SERVICE_AVAILABLE, d._clients[i]));
+		Close (YARPUniqueNameSock(YARP_NO_SERVICE_AVAILABLE, d._clients[i]));
 
 	ACE_DEBUG ((LM_DEBUG, "Pretending to close all connections to port %d on %s\n", 
 		d._mcast_addr.get_port_number(), 
@@ -1776,8 +1812,8 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 
 	int i;
 	int j = -1;
-	ACE_INET_Addr& nm = ((YARPUniqueNameID &)name).getAddressRef();
-	char *sname = (char *)((YARPUniqueNameID &)name).getP2Ptr();
+	ACE_INET_Addr& nm = ((YARPUniqueNameSock &)name).getAddressRef();
+	const char *sname = ((YARPUniqueNameSock&)name).getName().c_str();
 
 	for (i = 0; i < d._max_num_clients; i++)
 	{
@@ -1843,10 +1879,10 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 
 
 /// this is called only once to create the group.
-int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name) ///, int local_port)
+int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name)
 {
 	OSDataMcast& d = OSDATA(system_resources);
-	d._mcast_addr = ((YARPUniqueNameID&)name).getAddressRef();
+	d._mcast_addr = ((YARPUniqueNameSock&)name).getAddressRef();
 
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Starting mcast group on port %d and ip %s\n", 
 		d._mcast_addr.get_port_number(), 
@@ -1895,9 +1931,8 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	hdr.SetLength (_MAGIC_NUMBER + 1);
 
 	/// verifies it's a new connection.
-	ACE_INET_Addr nm = ((YARPUniqueNameID&)name).getAddressRef();
-
-	char *sname = (char *)((YARPUniqueNameID&)name).getP2Ptr();
+	ACE_INET_Addr nm = ((YARPUniqueNameSock&)name).getAddressRef();
+	const char *sname = ((YARPUniqueNameSock&)name).getName().c_str();
 
 	int i, firstempty = -1;
 	for (i = 0; i < d._max_num_clients; i++)
@@ -1908,6 +1943,9 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 			/// it's already there...
 			ACE_DEBUG ((LM_DEBUG, "the specific client is already connected %s:%d\n", d._clients[i].get_host_addr(), d._clients[i].get_port_number()));
 
+			/// momentarily raise the connection count to prevent closing the thread.
+			d._num_connected_clients ++;
+
 			/// tries to shut down the connection first.
 			if (Close (name) == YARP_FAIL)
 			{
@@ -1917,6 +1955,9 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 				d._clients[i].set ((u_short)0, INADDR_ANY);
 				d._client_names[i].erase(d._client_names[i].begin(), d._client_names[i].end());
 			}
+
+			/// see comment above.
+			d._num_connected_clients --;
 
 			/// 250 ms delay.
 			YARPTime::DelayInSeconds (.25);
@@ -1931,9 +1972,9 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 		}
 	}
 
-	char buf[YARP_STRING_LEN];
-	YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
-	ACE_INET_Addr local ((u_short)0, buf);
+	char myhostname[YARP_STRING_LEN];
+	YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+	ACE_INET_Addr local ((u_short)0, myhostname);
 	d._udp_socket.open (local, ACE_PROTOCOL_FAMILY_INET, 0, 1);
 
 	/// ask for a connection.
@@ -1941,6 +1982,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	
 	/// send mcast ip and port #.
 	/// exactly 6 bytes.
+	char buf[6];
 	int ip = d._mcast_addr.get_ip_address();
 	buf[0] = (ip & 0xff000000) >> 24;
 	buf[1] = (ip & 0x00ff0000) >> 16;

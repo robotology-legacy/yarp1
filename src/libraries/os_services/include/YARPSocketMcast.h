@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.h,v 1.4 2003-05-29 00:39:27 gmetta Exp $
+/// $Id: YARPSocketMcast.h,v 1.5 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 
@@ -92,25 +92,11 @@
 ///	YARP_O_SOCKET = 2,
 ///};
 
-/*
-	same as above.
-
-class YARPNetworkObject
-{
-protected:
-	int _socktype;
-
-public:
-	static int getHostname(char *buffer, int buffer_length);
-	int getSocketType (void) const { return _socktype; }
-};
-*/
-
 ///
 /// still requires the fancy mthread stuff to read from multiple groups.
 ///	- connect becomes a join to the group.
 ///
-class YARPInputSocketMcast : public YARPNetworkObject
+class YARPInputSocketMcast : public YARPNetworkInputObject
 {
 protected:
 	void *system_resources;
@@ -119,10 +105,9 @@ public:
 	YARPInputSocketMcast();
 	virtual ~YARPInputSocketMcast();
 
+	/// virtual override.
 	int Close(ACE_HANDLE reply_id);
 	int CloseAll(void);
-
-	int Prepare (const YARPUniqueNameID& name, int *ports, int number_o_ports);
 
 	int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
 	int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
@@ -130,9 +115,12 @@ public:
 	int ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
 	int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
 
-	ACE_HANDLE GetIdentifier(void) const;		/// { return identifier; }
-	int GetAssignedPort(void) const;	/// { return assigned_port; }
+	ACE_HANDLE GetIdentifier(void) const;
 	int GetServiceType (void) { return YARP_MCAST; }
+
+	/// specific.
+	int Prepare (const YARPUniqueNameID& name, int *ports, int number_o_ports);
+	int GetAssignedPort(void) const;
 };
 
 
@@ -140,7 +128,7 @@ public:
 /// only a single thread is required since the output is already multiple.
 /// - the output socket connects 
 ///
-class YARPOutputSocketMcast : public YARPNetworkObject
+class YARPOutputSocketMcast : public YARPNetworkOutputObject
 {
 protected:
 	void *system_resources;
@@ -150,9 +138,8 @@ public:
 	YARPOutputSocketMcast();
 	virtual ~YARPOutputSocketMcast();
 
-	int Prepare (const YARPUniqueNameID& name);
+	/// virtual override.
 	int Close(const YARPUniqueNameID& name);
-	int CloseMcastAll (void);
 	int Connect(const YARPUniqueNameID& name);
 	
 	int SendBegin(char *buffer, int buffer_length);
@@ -160,10 +147,12 @@ public:
 	int SendReceivingReply(char *reply_buffer, int reply_buffer_length);
 	int SendEnd(char *reply_buffer, int reply_buffer_length);
 
-	/// what is it for?
 	ACE_HANDLE GetIdentifier(void) const;
-
 	int GetServiceType (void) { return YARP_MCAST; }
+
+	/// specific.
+	int Prepare (const YARPUniqueNameID& name);
+	int CloseMcastAll (void);
 };
 
 #endif

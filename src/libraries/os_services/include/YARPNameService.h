@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.9 2003-05-29 00:39:27 gmetta Exp $
+/// $Id: YARPNameService.h,v 1.10 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 /*
@@ -102,11 +102,10 @@ public:
 	static int Initialize (void);
 	static int Finalize (void);
 
-	/* zero if successful */
 	///// OLD: if native flag set, register with native name service only
 	/// YARP_QNX4 flag is used to ask a name to the native QNX4 name service.
 	/// static int RegisterName(const char *name, int native=1);
-	static YARPUniqueNameID RegisterName (const char *name, int reg_type = YARP_DEFAULT_PROTOCOL, int num_ports_needed = YARP_PROTOCOL_REGPORTS);
+	static YARPUniqueNameID* RegisterName (const char *name, int reg_type = YARP_DEFAULT_PROTOCOL, int num_ports_needed = YARP_PROTOCOL_REGPORTS);
 	/// reg_type is one of the enumeration in YARPNameID_defs.h
 
 	/// recover the name ID assigned by the server.
@@ -114,7 +113,11 @@ public:
 
 	// if native flag set, search native name service first, then global
 	/// it does a search on various protocols instead asking for a type.
-	static YARPUniqueNameID LocateName(const char *name, int name_type = YARP_NO_SERVICE_AVAILABLE);
+	static YARPUniqueNameID* LocateName (const char *name, int name_type = YARP_NO_SERVICE_AVAILABLE);
+
+	///
+	/// unregister. doesn't really call the name server, but it can be improved.
+	static int DeleteName (YARPUniqueNameID* pid);
 };
 
 
@@ -125,14 +128,12 @@ public:
 class YARPEndpointManager
 {
 public:
-	static YARPNameID CreateInputEndpoint(YARPUniqueNameID& name);
-	static YARPNameID CreateOutputEndpoint(YARPUniqueNameID& name);
+	static int CreateInputEndpoint(YARPUniqueNameID& name);
+	static int CreateOutputEndpoint(YARPUniqueNameID& name);
 	static int ConnectEndpoints(YARPUniqueNameID& dest);
 	static int Close(YARPUniqueNameID& endp);
 	static int CloseMcastAll(void);
 	static int SetTCPNoDelay (const YARPUniqueNameID& endp);
-
-	/// static int SetStackBuffer (int new_size);
 };
 
 #endif

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test12.cpp,v 1.3 2003-05-18 22:34:44 gmetta Exp $
+/// $Id: exec_test12.cpp,v 1.4 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 
@@ -97,7 +97,7 @@ public:
 		char txt[128] = "Hello there";
 		char reply[128] = "Not set";
 
-		YARPUniqueNameID id;
+		YARPUniqueNameID* id;
 
 		do 
 		{
@@ -107,15 +107,15 @@ public:
 			out.Post();
 
 			id = YARPNameService::LocateName(REG_LOCATE_NAME);
-			YARPEndpointManager::CreateOutputEndpoint (id);
-			YARPEndpointManager::ConnectEndpoints (id);
+			YARPEndpointManager::CreateOutputEndpoint (*id);
+			YARPEndpointManager::ConnectEndpoints (*id);
 
-			if (!id.isValid())
+			if (!id->isValid())
 			{
 				YARPTime::DelayInSeconds(1);
 			}
 		} 
-		while (!id.isValid());
+		while (!id->isValid());
 
 		int x = 42;
 		while (1)
@@ -134,7 +134,7 @@ public:
 			rmsg.Set(1,(char*)(&y),sizeof(y));
 			cout << "***sending: " << txt << endl;
 			cout.flush();
-			int result = YARPSyncComm::Send(id,smsg,rmsg);
+			int result = YARPSyncComm::Send(*id,smsg,rmsg);
 			x++;
 
 			if (result>=0)
@@ -167,14 +167,14 @@ public:
 		int ct = 0;
 		YARPTime::DelayInSeconds(0.01);
 		
-		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
+		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
 
 		///int result = YARPNameService::RegisterName(REG_TEST_NAME);
 
-		YARPEndpointManager::CreateInputEndpoint (id);
+		YARPEndpointManager::CreateInputEndpoint (*id);
 
 		out.Wait();
-		cout << "*** The assigned port is " << id.getAddressRef().get_port_number() << endl;
+		///cout << "*** The assigned port is " << id->getAddressRef().get_port_number() << endl;
 		cout.flush();
 		out.Post();
 
@@ -189,7 +189,7 @@ public:
 			imsg.Set(0,buf,sizeof(buf));
 			imsg.Set(1,(char*)(&x),sizeof(x));
 
-			YARPNameID idd = YARPSyncComm::BlockingReceive(id.getNameID(), imsg);
+			YARPNameID idd = YARPSyncComm::BlockingReceive(id->getNameID(), imsg);
 			
 			out.Wait();
 			sprintf(reply,"<%s,%d>", buf, x);
@@ -211,7 +211,7 @@ public:
 
 int main(int argc, char *argv[])
 {
-	__debug_level = 100;
+///	__debug_level = 100;
 
 	int s = 1, c = 1;
 	if (argc>=2)

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketNameService.h,v 1.9 2003-05-29 00:39:27 gmetta Exp $
+/// $Id: YARPSocketNameService.h,v 1.10 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 
@@ -92,15 +92,11 @@
 class YARPSocketNameService
 {
 public:
-	/* zero if successful */
 	/// register on the remote server and get the port and IP.
-	static YARPUniqueNameID RegisterName (YARPNameClient& namer, const char *name, int reg_type = YARP_DEFAULT_PROTOCOL, int num_ports_needed = YARP_PROTOCOL_REGPORTS);
+	static YARPUniqueNameID* RegisterName (YARPNameClient& namer, const char *name, int reg_type = YARP_DEFAULT_PROTOCOL, int extra_param = YARP_PROTOCOL_REGPORTS);
 
 	/// get a remote port and ID of a given channel.
-	static YARPUniqueNameID LocateName (YARPNameClient& namer, const char *name, int reg_type = YARP_DEFAULT_PROTOCOL);
-
-	// static int GetAssignedPort();
-	// static YARPNameID LocateName(const char *name);
+	static YARPUniqueNameID* LocateName (YARPNameClient& namer, const char *name, int reg_type = YARP_DEFAULT_PROTOCOL);
 };
 
 
@@ -113,11 +109,9 @@ class YARPSocketEndpointManager
 public:
 	static YARPNetworkObject *GetThreadSocket(void);
 
-	///static int GetAssignedPort(void);	/// do I need it?
-
 	/// allocates socket (either in or out).
-	static YARPNameID CreateInputEndpoint(YARPUniqueNameID& name);
-	static YARPNameID CreateOutputEndpoint(YARPUniqueNameID& name);
+	static int CreateInputEndpoint(YARPUniqueNameID& name);
+	static int CreateOutputEndpoint(YARPUniqueNameID& name);
 	static int ConnectEndpoints(YARPUniqueNameID& dest);
 	static int Close(YARPUniqueNameID& dest);
 	static int CloseMcastAll(void);

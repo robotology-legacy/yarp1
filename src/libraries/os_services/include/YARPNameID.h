@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.8 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: YARPNameID.h,v 1.9 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 /*
@@ -81,6 +81,8 @@
 #include "YARPAll.h"
 #include "YARPNameID_defs.h"
 
+#include <string>
+
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
@@ -98,17 +100,17 @@ protected:
 public:
 	YARPNameID () { _raw_id = ACE_INVALID_HANDLE;  _mode = YARP_NO_SERVICE_AVAILABLE; }
 	YARPNameID (int n_mode, ACE_HANDLE n_raw_id) { _mode = n_mode;  _raw_id = n_raw_id; }
+	virtual ~YARPNameID() {}
 
 	int operator == (const YARPNameID& other) { return (_raw_id == other._raw_id) && (_mode == other._mode); }
 	int operator != (const YARPNameID& other) { return !(operator == (other)); }
 
 	inline int getServiceType (void) const { return _mode; }
+	inline void setServiceType (int type) { _mode = type; }
 	inline ACE_HANDLE getRawIdentifier (void) const { return _raw_id; }
 	inline void setRawIdentifier (ACE_HANDLE id) { _raw_id = id; }
 	inline int isValid(void) const { return (_raw_id != ACE_INVALID_HANDLE) ? 1 : 0; }
-	///int IsGeneric() { return raw_id == 0; } buggy maybe never used
 	inline int isError(void) const { return (_raw_id == ACE_INVALID_HANDLE); }
-	//inline int isConsistent(int n_mode) const { return (_mode == n_mode) || (_mode == YARP_NO_SERVICE_AVAILABLE); }
 	inline int isConsistent(int n_mode) const { return (_mode == n_mode); }
 	void invalidate() { _raw_id = ACE_INVALID_HANDLE;  _mode = YARP_NO_SERVICE_AVAILABLE; }
 };
@@ -116,82 +118,162 @@ public:
 #define YARP_NAMEID_NULL YARPNameID()
 
 ///
-/// contains the assigned port/IP address.
-///	a bit more generic than the address/port pair only.
 ///
 ///
-/// for sockets:
-/// <_p1> is used to store the number of ports managed by the ID.
-/// <_p2> is the array of ports managed by the ID.
-/// 
-/// for qnet
-/// <_p1> is = 2.
-/// <_p2[0]> is the pid of the thread handling the comm channel.
-/// <_p2[1]> is the channel ID.
-/// set also the IP number.
-/// the raw ID of the address is the channle ID.
+///
 ///
 
 class YARPUniqueNameID : public YARPNameID
 {
 protected:
-	ACE_INET_Addr _address;
-	int _p1;
-	int *_p2;
+	std::string _symbolic_name;
 
 public:
-	YARPUniqueNameID () : YARPNameID(), _address(1111) 
-	{ 
-		_p1 = 0;
-		_p2 = NULL; 
+	YARPUniqueNameID (void) : YARPNameID() { _symbolic_name = "__null"; }
+	YARPUniqueNameID (int service) : YARPNameID(service, ACE_INVALID_HANDLE) { _symbolic_name = "__null"; }
+	virtual ~YARPUniqueNameID() {}
+
+	inline YARPNameID& getNameID(void) { return (YARPNameID &)(*this); }
+	inline void setName (const char *name) { _symbolic_name = name; }
+	inline void setName (const std::string& name) { _symbolic_name = name; }
+	inline std::string getName(void) const { return _symbolic_name; }
+
+	YARPUniqueNameID& operator= (const YARPUniqueNameID& other) 
+	{
+		_symbolic_name = other._symbolic_name;
+		YARPNameID::operator= (other);
+		return *this;
 	}
-	YARPUniqueNameID (int service, int port, char *hostname) : YARPNameID(service, ACE_INVALID_HANDLE), _address (port, hostname) 
-	{ 
-		_p1 = 0;
-		_p2 = NULL; 
+};
+
+
+
+///
+///	
+///
+///
+
+class YARPUniqueNameQnx : public YARPUniqueNameID
+{
+protected:
+	int _pid;
+	int _channel_id;
+	std::string _node;
+
+public:
+	YARPUniqueNameQnx (int service = YARP_QNET) : YARPUniqueNameID(service)
+	{
+		ACE_ASSERT (service == YARP_QNET || service == YARP_NO_SERVICE_AVAILABLE);
+		_pid = -1;
+		_channel_id = -1;
 	}
-	YARPUniqueNameID (int service, const ACE_INET_Addr& addr) : YARPNameID(service, ACE_INVALID_HANDLE), _address (addr) 
+
+	YARPUniqueNameQnx (int service, int pid, int channel, std::string node) : YARPUniqueNameID(service)
+	{
+		_pid = pid;
+		_channel_id = channel;
+		_node = node;
+	}
+
+	virtual ~YARPUniqueNameQnx() {}
+
+	int getPid() const { return _pid; }
+	int getChannelID() const { return _channel_id; }
+	void setPid(int pid) { _pid = pid; }
+	void setChannelID(int channel) 
 	{ 
-		_p1 = 0;
-		_p2 = NULL; 
+		_channel_id = channel; 
+		setRawIdentifier ((ACE_HANDLE)channel);
+	} 
+	std::string getNode (void) const { return _node; }
+	void setNode (const std::string& node) { _node = node; }
+};
+
+
+class YARPUniqueNameSock : public YARPUniqueNameID
+{
+protected:
+	ACE_INET_Addr _address;
+	int _nports;
+	int *_ports;
+
+public:
+	YARPUniqueNameSock (int service = YARP_MCAST) : YARPUniqueNameID(service), _address(1111) 
+	{
+		ACE_ASSERT (service != YARP_QNET);
+		_nports = -1;
+		_ports = NULL;
+	}
+	YARPUniqueNameSock (int service, int port, char *hostname) : YARPUniqueNameID(service), _address (port, hostname) 
+	{
+		ACE_ASSERT (service != YARP_QNET);
+		_nports = -1;
+		_ports = NULL;
+	}
+	YARPUniqueNameSock (int service, const ACE_INET_Addr& addr) : YARPUniqueNameID(service), _address (addr) 
+	{
+		ACE_ASSERT (service != YARP_QNET);
+		_nports = -1;
+		_ports = NULL;
+	}
+	virtual ~YARPUniqueNameSock() 
+	{
+		if (_ports != NULL)	delete[] _ports;
 	}
 
 	inline ACE_INET_Addr& getAddressRef (void) { return _address; }
-	inline YARPNameID& getNameID(void) { return (YARPNameID &)(*this); }
-	inline int& getP1Ref (void) { return _p1; }
-	inline int* getP2Ptr (void) { return _p2; }
 
-	inline int allocP2 (int size) 
+	inline int& getNPorts (void) { return _nports; }
+	inline int* getPorts (void) { return _ports; }
+
+	inline int setPorts (int *p, int size) 
 	{
-		if (_p2 != NULL) delete[] _p2;
-		ACE_ASSERT (size > 0);
-		_p1 = size;
-		_p2 = new int[_p1];
-		ACE_ASSERT (_p2 != NULL);
-		memset (_p2, 0, sizeof(int) * _p1);
+		ACE_ASSERT (p != NULL && size > 0);
+
+		if (_nports != size)
+			delete[] _ports;
+		_nports = size;
+		_ports = new int[_nports];
+		ACE_ASSERT (_ports != NULL);
+
+		memcpy (_ports, p, sizeof(int) * _nports); 
+		return YARP_OK; 
+	}
+	
+	inline int releasePorts (void)
+	{
+		if (_ports != NULL)
+			delete[] _ports;
+		_ports = NULL;
+		_nports = -1;
+
 		return YARP_OK;
 	}
 
-	inline int freeP2 (void)
+	YARPUniqueNameSock& operator= (const YARPUniqueNameSock& other)
 	{
-		if (_p2 != NULL) delete[] _p2;
-		_p2 = NULL;
-		_p1 = 0;
-		return YARP_OK;
-	}
+		if (_nports != other._nports)
+		{
+			delete[] _ports;
+			_nports = other._nports;
+			if (_nports > 0)
+			{
+				_ports = new int[_nports];
+				ACE_ASSERT (_ports != NULL);
+			}
+			else
+				_ports = NULL;
+		}
 
-	YARPUniqueNameID& operator= (const YARPUniqueNameID& other) 
-	{ 
-		_address = other._address; 
-		_mode = other._mode;
-		_raw_id = other._raw_id;
+		if (_nports > 0)
+		{
+			memcpy (_ports, other._ports, sizeof(int) * _nports);
+		}
 
-		if (_p2 != NULL) delete[] _p2;
-		_p1 = other._p1;
-		_p2 = (_p1 > 0) ? new int[_p1] : NULL;
-		memcpy (_p2, other._p2, sizeof(int) * _p1);
+		_address = other._address;
 
-		return (*this);
+		YARPUniqueNameID::operator= (other);
+		return *this;
 	}
 };
 
@@ -203,6 +285,13 @@ public:
 ///	YARP_TCP					= 1,
 ///	YARP_MCAST					= 2,
 ///	YARP_QNET					= 3,
+///
+
+
+///
+/// contains the assigned port/IP address.
+///	a bit more generic than the address/port pair only.
+///
 ///
 
 #endif

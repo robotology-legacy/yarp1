@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test4.cpp,v 1.3 2003-05-16 00:02:31 gmetta Exp $
+/// $Id: exec_test4.cpp,v 1.4 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 
@@ -94,7 +94,7 @@ public:
 		char txt[128] = "Hello there";
 		char reply[128] = "Not set";
 
-		YARPUniqueNameID id;
+		YARPUniqueNameID* id = NULL;
 
 		do 
 		{
@@ -103,18 +103,18 @@ public:
 			cout.flush();
 			out.Post();
 			id = YARPNameService::LocateName(REG_LOCATE_NAME);
-			if (id.getServiceType () == YARP_NO_SERVICE_AVAILABLE)
+			if (id->getServiceType () == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, "can't locate name, bailing out\n"));
 				return;
 			}
 
-			YARPEndpointManager::CreateOutputEndpoint (id);
-			YARPEndpointManager::ConnectEndpoints (id);
+			YARPEndpointManager::CreateOutputEndpoint (*id);
+			YARPEndpointManager::ConnectEndpoints (*id);
 
 			YARPTime::DelayInSeconds(0.2);
 		} 
-		while (!id.isValid());
+		while (!id->isValid());
 
 		int x = 42;
 		while (1)
@@ -133,7 +133,7 @@ public:
 			rmsg.Set(1,(char*)(&y),sizeof(y));
 			cout << "***sending: " << txt << endl;
 			cout.flush();
-			YARPSocketSyncComm::Send(id,smsg,rmsg);
+			YARPSocketSyncComm::Send(*id,smsg,rmsg);
 			x++;
 
 			out.Wait();
@@ -159,18 +159,18 @@ public:
 		int ct = 0;
 		YARPTime::DelayInSeconds(0.01);
 
-		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
-		if (id.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_TCP, -1);
+		if (id->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 		{
 			ACE_DEBUG ((LM_DEBUG, "can't register name, bailing out\n"));
 			return;
 		}
 
 		/// create the input endpoint.
-		YARPEndpointManager::CreateInputEndpoint (id);
+		YARPEndpointManager::CreateInputEndpoint (*id);
 
 		out.Wait();
-		cout << "*** The assigned port is " << id.getP2Ptr()[0] << endl;
+		///cout << "*** The assigned port is " << ((YARPUniqueNameSock *)id)->getPorts()[0] << endl;
 		cout.flush();
 		out.Post();
 
@@ -184,7 +184,7 @@ public:
 			int x = 999;
 			imsg.Set(0,buf,sizeof(buf));
 			imsg.Set(1,(char*)(&x),sizeof(x));
-			YARPNameID reply_id = YARPSocketSyncComm::BlockingReceive(id.getNameID(),imsg);
+			YARPNameID reply_id = YARPSocketSyncComm::BlockingReceive(id->getNameID(),imsg);
 			out.Wait();
 			sprintf(reply,"<%s,%d>", buf, x);
 			cout << "Received message: " << buf << " and number " << x << endl;

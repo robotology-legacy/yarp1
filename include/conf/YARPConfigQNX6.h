@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigQNX6.h,v 1.15 2003-06-28 16:40:01 babybot Exp $
+// $Id: YARPConfigQNX6.h,v 1.16 2003-07-06 23:25:45 gmetta Exp $
 // YARP config file QNX6.
 //
 //
@@ -33,10 +33,13 @@
 #define YARP_UDP_REGPORTS       11
 
 /// read timeout on socket transport (in seconds).
-#define YARP_SOCK_TIMEOUT	5
+#define YARP_SOCK_TIMEOUT		5
 
 /// read short timeout on socket transport (in seconds). - used for waiting short latency delay.
 #define YARP_SHORT_SOCK_TIMEOUT	1
+
+/// stale connections timeout.
+#define YARP_STALE_TIMEOUT		3600
 
 /// alignment bytes required for mmx/ipl instructions.
 #define YARP_IMAGE_ALIGN 8

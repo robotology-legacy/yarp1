@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.32 2003-07-01 21:58:58 babybot Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.33 2003-07-06 23:25:45 gmetta Exp $
 ///
 ///
 
@@ -216,8 +216,8 @@ protected:
 	int _available;
 	int _port;
 	ACE_SOCK_Dgram _local_socket;
-	YARPUniqueNameID _local_addr;
-	YARPUniqueNameID _remote_endpoint;	
+	YARPUniqueNameSock _local_addr;
+	YARPUniqueNameSock _remote_endpoint;	
 
 	_SocketThreadListDgram *_owner;
 
@@ -235,11 +235,11 @@ protected:
 	char _local_buffer[MAX_PACKET];
 	int _local_buffer_counter;
 
-	int _begin (const YARPUniqueNameID *remid, int port);
+	int _begin (const YARPUniqueNameSock *remid, int port);
 
 public:
 	/// ctors.
-	_SocketThreadDgram (const YARPUniqueNameID *remid, int port) : _wakeup(0), _mutex(1), _reply_made(0)
+	_SocketThreadDgram (const YARPUniqueNameSock *remid, int port) : _wakeup(0), _mutex(1), _reply_made(0)
     {
 		_begin (remid, port);
     }
@@ -263,13 +263,10 @@ public:
 
 	/// call it reconnect (recycle the thread).
 	/// the thread shouldn't be running.
-	int reuse(const YARPUniqueNameID& remid, int port);
-	YARPUniqueNameID& getRemoteID(void) { return _remote_endpoint; }
-
-	ACE_HANDLE getID () const
-    {
-		return  _local_socket.get_handle ();
-    }
+	int reuse(const YARPUniqueNameSock& remid, int port);
+	
+	YARPUniqueNameSock& getRemoteID(void) { return _remote_endpoint; }
+	ACE_HANDLE getID () const {	return  _local_socket.get_handle (); }
 
 	virtual void End (int donkill = 0);
 
@@ -342,7 +339,7 @@ public:
 	///
 	/// creates the acceptor socket and listens to port.
 	/// simply prepares the socket.
-	ACE_HANDLE connect(const YARPUniqueNameID& id);
+	ACE_HANDLE connect(const YARPUniqueNameSock& id);
 
 	/// actually the assigned is what provided by the name server but this
 	/// is done on another class.
@@ -417,7 +414,7 @@ public:
 /// WARNING: requires a mutex to handle the stream deletion.
 ///
 ///
-int _SocketThreadDgram::_begin (const YARPUniqueNameID *remid, int port = 0)
+int _SocketThreadDgram::_begin (const YARPUniqueNameSock *remid, int port = 0)
 {
 	_owner = NULL;
 	_extern_buffer = NULL;
@@ -439,14 +436,15 @@ int _SocketThreadDgram::_begin (const YARPUniqueNameID *remid, int port = 0)
 	if (port != 0)
 	{
 		/// listen to this new port.
-		char buf[YARP_STRING_LEN];
-		YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
-		_local_addr.getAddressRef().set (port, buf);
+		char myhostname[YARP_STRING_LEN];
+		YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+		_local_addr.getAddressRef().set (port, myhostname);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled?
 
 		YARPNetworkObject::setSocketBufSize (_local_socket, MAX_PACKET);
 
-		_local_addr.getNameID() = YARPNameID (YARP_UDP, _local_socket.get_handle());
+		_local_addr.setRawIdentifier (_local_socket.get_handle());
+		_local_addr.setServiceType (YARP_UDP);
 
 		if (_local_socket.get_handle() == ACE_INVALID_HANDLE)
 		{
@@ -472,7 +470,7 @@ void _SocketThreadDgram::setOwner(const _SocketThreadListDgram& n_owner)
 
 /// call it reconnect (recycle the thread).
 /// the thread shouldn't be running.
-int _SocketThreadDgram::reuse(const YARPUniqueNameID& remid, int port)
+int _SocketThreadDgram::reuse(const YARPUniqueNameSock& remid, int port)
 {
 	_remote_endpoint = remid;
 
@@ -486,14 +484,16 @@ int _SocketThreadDgram::reuse(const YARPUniqueNameID& remid, int port)
 		_port = port;
 
 		/// listen to this new port.
-		char buf [YARP_STRING_LEN];
-		YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
-		_local_addr.getAddressRef().set (port, buf);
+		char myhostname [YARP_STRING_LEN];
+		YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+		_local_addr.getAddressRef().set (port, myhostname);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled?
 
 		YARPNetworkObject::setSocketBufSize (_local_socket, MAX_PACKET);
 
-		_local_addr.getNameID() = YARPNameID (YARP_UDP, _local_socket.get_handle());
+		///_local_addr.getNameID() = YARPNameID (YARP_UDP, _local_socket.get_handle());
+		_local_addr.setRawIdentifier (_local_socket.get_handle());
+		_local_addr.setServiceType (YARP_UDP);
 
 		if (_local_socket.get_handle() == ACE_INVALID_HANDLE)
 		{
@@ -533,6 +533,7 @@ void _SocketThreadDgram::Body (void)
 	signal (SIGPIPE, SIG_IGN);
 #endif
 	///ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	ACE_Time_Value long_timeout (YARP_STALE_TIMEOUT, 0);
 
 #if 0
 	int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
@@ -569,8 +570,34 @@ void _SocketThreadDgram::Body (void)
 
 	while (!finished)
 	{
+		MyMessageHeader& hdr = *((MyMessageHeader *)_local_buffer);
+
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread of remote port %s:%d waiting\n", _remote_endpoint.getAddressRef().get_host_addr(), _remote_endpoint.getAddressRef().get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread waiting on port %d waiting\n", _local_addr.getAddressRef().get_port_number()));
+
+		ACE_Handle_Set set;
+		set.reset ();
+		set.set_bit (_local_socket.get_handle());
+		int max = (int)_local_socket.get_handle();
+
+		int rr = ACE_OS::select (max + 1, set, 0, 0, &long_timeout);
+
+		if (rr <= 0)
+		{
+			if (rr == 0)
+			{
+				ACE_DEBUG ((LM_DEBUG, "select on UDP reader timed out, perhaps this is a stale connection, closing down\n"));
+			}
+			else
+			{
+				ACE_DEBUG ((LM_DEBUG, "this is shouldn't happen, a bug???\n"));
+			}
+
+			_local_socket.close ();
+
+			finished = 1;
+			goto DgramSocketMsgSkip;
+		}
 
 		iovec iov[1];
 		iov[0].iov_base = _local_buffer;
@@ -579,7 +606,6 @@ void _SocketThreadDgram::Body (void)
 		r = _local_socket.recv (iov, 1, incoming, 0);
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
 
-		MyMessageHeader& hdr = *((MyMessageHeader *)_local_buffer);
 		_local_buffer_counter = sizeof(MyMessageHeader);
 
 		if (r >= 0 && hdr.GetLength() == (_MAGIC_NUMBER + 1))
@@ -802,15 +828,15 @@ _SocketThreadListDgram::~_SocketThreadListDgram (void)
 ///
 /// creates the acceptor socket and listens to port.
 /// simply prepares the socket.
-ACE_HANDLE _SocketThreadListDgram::connect (const YARPUniqueNameID& id)
+ACE_HANDLE _SocketThreadListDgram::connect (const YARPUniqueNameSock& id)
 {
-	_local_addr = ((YARPUniqueNameID &)id).getAddressRef();
+	_local_addr = ((YARPUniqueNameSock &)id).getAddressRef();
 	_acceptor_socket.open (_local_addr, ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
 
 	if (_acceptor_socket.get_handle() == ACE_INVALID_HANDLE)
 	{
 		ACE_DEBUG ((LM_DEBUG, ">>>>> problems with opening receiving UDP at %s:%d\n", _local_addr.get_host_addr(), _local_addr.get_port_number()));
-		/// ACE_DEBUG ((LM_DEBUG, "thread 0x%x (%P:%t) %p\n", GetCurrentThreadId(), "can't open socket"));
+
 		return ACE_INVALID_HANDLE;
 
 		/// and the thread is not started.
@@ -927,13 +953,13 @@ void _SocketThreadListDgram::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				(*it_avail)->reuse (YARPUniqueNameID(YARP_UDP, incoming), port_number);
+				(*it_avail)->reuse (YARPUniqueNameSock(YARP_UDP, incoming), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
 				(*it_avail)->End();
-				(*it_avail)->reuse (YARPUniqueNameID(YARP_UDP, incoming), port_number);
+				(*it_avail)->reuse (YARPUniqueNameSock(YARP_UDP, incoming), port_number);
 				(*it_avail)->Begin();
 			}
 
@@ -1223,7 +1249,7 @@ static ISDataDgram& ISDATA(void *x)
 ///
 /// Input socket + stream + handling threads.
 ///
-YARPInputSocketDgram::YARPInputSocketDgram (void)
+YARPInputSocketDgram::YARPInputSocketDgram (void) : YARPNetworkInputObject ()
 { 
 	system_resources = NULL; 
 	system_resources = new ISDataDgram;
@@ -1247,9 +1273,9 @@ int YARPInputSocketDgram::Prepare (const YARPUniqueNameID& name, int *ports, int
 {
 	ISDataDgram& d = ISDATA(system_resources);
 	ACE_ASSERT (ports != NULL && number_o_ports >= 2);
-	ACE_ASSERT (((YARPUniqueNameID&)name).getAddressRef().get_port_number() == ports[0]);
+	ACE_ASSERT (((YARPUniqueNameSock&)name).getAddressRef().get_port_number() == ports[0]);
 
-	d._list.connect (name);
+	d._list.connect ((const YARPUniqueNameSock&)name);
 	/// set the ports -1 that is used as pricipal receiving port.
 	d._list.setPool (ports+1, number_o_ports-1);
 
@@ -1344,7 +1370,7 @@ static OSDataDgram& OSDATA(void *x)
 	return *((OSDataDgram*)x);
 }
 
-YARPOutputSocketDgram::YARPOutputSocketDgram (void)
+YARPOutputSocketDgram::YARPOutputSocketDgram (void) : YARPNetworkOutputObject ()
 { 
 	system_resources = NULL;
 	identifier = ACE_INVALID_HANDLE;
@@ -1367,7 +1393,7 @@ YARPOutputSocketDgram::YARPOutputSocketDgram (void)
 
 YARPOutputSocketDgram::~YARPOutputSocketDgram (void)
 {
-	Close ();
+	Close (YARPUniqueNameSock());
 
 	if (system_resources != NULL)
 	{
@@ -1377,8 +1403,10 @@ YARPOutputSocketDgram::~YARPOutputSocketDgram (void)
 }
 
 
-int YARPOutputSocketDgram::Close (void)
+int YARPOutputSocketDgram::Close (const YARPUniqueNameID& name)
 {
+	ACE_UNUSED_ARG (name);
+
 	OSDataDgram& d = OSDATA(system_resources);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Pretending to close a connection to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 
@@ -1409,20 +1437,22 @@ int YARPOutputSocketDgram::Close (void)
 }
 
 
-int YARPOutputSocketDgram::Prepare (const YARPUniqueNameID& name) ///, int local_port)
+int YARPOutputSocketDgram::Prepare (const YARPUniqueNameID& name)
 {
 	/// local_port might not be needed by the socket layer.
 	char buf[YARP_STRING_LEN];
 	YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
 	OSDATA(system_resources)._local_addr.set ((u_short)0, buf);
-	OSDATA(system_resources)._remote_addr = ((YARPUniqueNameID&)name).getAddressRef();
+	OSDATA(system_resources)._remote_addr = ((YARPUniqueNameSock&)name).getAddressRef();
 	return YARP_OK;
 }
 
 ///
 /// pretend a connection.
-int YARPOutputSocketDgram::Connect (void)
+int YARPOutputSocketDgram::Connect (const YARPUniqueNameID& name)
 {
+	ACE_UNUSED_ARG (name);
+
 	OSDataDgram& d = OSDATA(system_resources);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Pretending a connection to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 

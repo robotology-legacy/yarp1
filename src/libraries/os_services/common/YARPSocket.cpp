@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.20 2003-07-01 21:58:58 babybot Exp $
+/// $Id: YARPSocket.cpp,v 1.21 2003-07-06 23:25:45 gmetta Exp $
 ///
 ///
 
@@ -98,7 +98,6 @@ using namespace std;
 
 #include <list>
 
-///#include "TinySocket.h"
 #include "YARPSocket.h"
 #include "YARPThread.h"
 #include "YARPSemaphore.h"
@@ -229,10 +228,14 @@ class _SocketThreadList;
 ///
 class _SocketThread : public YARPBareThread
 {
+private:
+	_SocketThread (const _SocketThread&);
+	_SocketThread& operator= (const _SocketThread&);
+
 protected:
 	int _available;
 	ACE_SOCK_Stream *_stream;
-	YARPUniqueNameID _remote_endpoint;	
+	YARPUniqueNameSock _remote_endpoint;	
 
 	_SocketThreadList *_owner;
 
@@ -247,18 +250,18 @@ protected:
 	int _reply_preamble;
 	YARPSemaphore _wakeup, _mutex, _reply_made;
 
-	void _begin (const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream);
+	void _begin (const YARPUniqueNameSock& remid, ACE_SOCK_Stream *stream);
 
 public:
 	/// ctors.
-	_SocketThread (const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream) : _wakeup(0), _mutex(1), _reply_made(0)
+	_SocketThread (const YARPUniqueNameSock& remid, ACE_SOCK_Stream *stream) : _wakeup(0), _mutex(1), _reply_made(0)
     {
 		_begin (remid, stream);
     }
 
 	_SocketThread (void) : _wakeup(0), _mutex(1), _reply_made(0)
     {
-		_begin (YARPUniqueNameID(), NULL);
+		_begin (YARPUniqueNameSock(), NULL);
     }
 
 	~_SocketThread () {}
@@ -272,7 +275,7 @@ public:
 
 	/// call it reconnect (recycle the thread).
 	/// the thread shouldn't be running.
-	void reuse(const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream);
+	void reuse(const YARPUniqueNameSock& remid, ACE_SOCK_Stream *stream);
 
 	ACE_HANDLE getID () const { return  _stream->get_handle (); }
 
@@ -316,6 +319,10 @@ public:
 class _SocketThreadList : public YARPBareThread
 {
 private:
+	_SocketThreadList (const _SocketThreadList&);
+	_SocketThreadList& operator= (const _SocketThreadList&);
+
+private:
 	ACE_INET_Addr _local_addr;
 	ACE_SOCK_Acceptor _acceptor;
 
@@ -331,16 +338,13 @@ public:
 		_initialized = 0;
 	}
 
-	/// what is this for?
-	_SocketThreadList (const _SocketThreadList& other);
-
 	/// among other things, should correctly terminate threads.
 	virtual ~_SocketThreadList ();
 
 	///
 	/// creates the acceptor socket and listens to port.
 	/// simply prepare the socket.
-	ACE_HANDLE connect(const YARPUniqueNameID& id);
+	ACE_HANDLE connect(const YARPUniqueNameSock& id);
 
 	/// actually the assigned is what provided by the name server but this
 	/// is done on another class.
@@ -383,7 +387,7 @@ public:
 /// WARNING: requires a mutex to handle the stream deletion.
 ///
 ///
-void _SocketThread::_begin (const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream)
+void _SocketThread::_begin (const YARPUniqueNameSock& remid, ACE_SOCK_Stream *stream)
 {
 	_owner = NULL;
 	_extern_buffer = NULL;
@@ -411,7 +415,7 @@ void _SocketThread::setOwner(_SocketThreadList& n_owner)
 
 /// call it reconnect (recycle the thread).
 /// the thread shouldn't be running.
-void _SocketThread::reuse(const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream)
+void _SocketThread::reuse(const YARPUniqueNameSock& remid, ACE_SOCK_Stream *stream)
 {
 	_remote_endpoint = remid;
 	_stream = stream;
@@ -642,9 +646,9 @@ _SocketThreadList::~_SocketThreadList ()
 ///
 /// creates the acceptor socket and listens to port.
 /// simply prepares the socket.
-ACE_HANDLE _SocketThreadList::connect(const YARPUniqueNameID& id)
+ACE_HANDLE _SocketThreadList::connect(const YARPUniqueNameSock& id)
 {
-	_local_addr = ((YARPUniqueNameID &)id).getAddressRef();
+	_local_addr = ((YARPUniqueNameSock &)id).getAddressRef();
 	_acceptor.open (_local_addr, 1);	// REUSE_ADDR enabled.
 
 	/// closes down any still open thread (just in case?).
@@ -733,7 +737,7 @@ void _SocketThreadList::addSocket()
 	}
 
 	/// needs to be here, in case End destroys the old stream.
-	(*it_avail)->reuse (YARPUniqueNameID(YARP_TCP, incoming), newstream);
+	(*it_avail)->reuse (YARPUniqueNameSock(YARP_TCP, incoming), newstream);
 
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "888888 post postbegin %d\n", errno));
 }
@@ -1010,11 +1014,9 @@ static ISData& ISDATA(void *x)
 ///
 /// Input socket + stream + handling threads.
 ///
-YARPInputSocket::YARPInputSocket()
+YARPInputSocket::YARPInputSocket (void) : YARPNetworkInputObject ()
 { 
 	system_resources = NULL; 
-//	identifier = -1; 
-//	assigned_port = -1;
 	system_resources = new ISData;
 	ACE_ASSERT (system_resources!=NULL);
 	
@@ -1035,7 +1037,7 @@ YARPInputSocket::~YARPInputSocket()
 int YARPInputSocket::Prepare (const YARPUniqueNameID& name)
 {
 	ISData& d = ISDATA(system_resources);
-	d._list.connect (name);
+	d._list.connect ((YARPUniqueNameSock&)name);
 
 	/// LATER: requires error handling here.
 	return YARP_OK;
@@ -1047,15 +1049,10 @@ int YARPInputSocket::Prepare (const YARPUniqueNameID& name)
 int YARPInputSocket::CloseAll (void)
 {
 	return ISDATA(system_resources)._list.closeAll();
-
-	//int result = ISDATA(system_resources).owner.Close();
-	//return result;
 }
 
 int YARPInputSocket::Close (ACE_HANDLE reply_id)
 {
-	///int result = ISDATA(system_resources).owner.Close(reply_id);
-	///return result;
 	return ISDATA(system_resources)._list.close (reply_id);
 }
 
@@ -1116,7 +1113,7 @@ static OSData& OSDATA(void *x)
 	return *((OSData*)x);
 }
 
-YARPOutputSocket::YARPOutputSocket()
+YARPOutputSocket::YARPOutputSocket() : YARPNetworkOutputObject ()
 { 
 	system_resources = NULL;
 	identifier = ACE_INVALID_HANDLE;
@@ -1128,7 +1125,7 @@ YARPOutputSocket::YARPOutputSocket()
 
 YARPOutputSocket::~YARPOutputSocket()
 {
-	Close ();
+	Close (YARPUniqueNameSock());
 
 	if (system_resources != NULL)
 	{
@@ -1138,15 +1135,16 @@ YARPOutputSocket::~YARPOutputSocket()
 }
 
 
-int YARPOutputSocket::Close (void)
+int YARPOutputSocket::Close (const YARPUniqueNameID& name)
 {
+	ACE_UNUSED_ARG (name);
 	return OSDATA(system_resources)._stream.close ();
 }
 
 
 int YARPOutputSocket::Prepare (const YARPUniqueNameID& name)
 {
-	OSDATA(system_resources)._remote_addr = ((YARPUniqueNameID&)name).getAddressRef();
+	OSDATA(system_resources)._remote_addr = ((YARPUniqueNameSock&)name).getAddressRef();
 	return YARP_OK;
 }
 
@@ -1157,8 +1155,10 @@ int YARPOutputSocket::SetTCPNoDelay (void)
 	return d._stream.set_option (ACE_IPPROTO_TCP, TCP_NODELAY, &one, sizeof(int));
 }
 
-int YARPOutputSocket::Connect (void)
+int YARPOutputSocket::Connect (const YARPUniqueNameID& name)
 {
+	ACE_UNUSED_ARG (name);
+
 	OSData& d = OSDATA(system_resources);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Connecting to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 

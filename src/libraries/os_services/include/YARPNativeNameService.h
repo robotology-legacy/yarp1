@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.h,v 1.4 2003-05-16 21:57:08 gmetta Exp $
+/// $Id: YARPNativeNameService.h,v 1.5 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 /*
@@ -85,9 +85,9 @@ class YARPNativeNameService
 {
 public:
 	/* zero if successful */
-	static int RegisterName(const char *name);
-	static YARPNameID LocateName(const char *name);
-	static int IsNonTrivial();
+	static YARPUniqueNameID *RegisterName (const char *name);
+	static YARPUniqueNameID *LocateName (const char *name);
+	static int IsNonTrivial (void);
 };
 
 ///
@@ -98,10 +98,10 @@ class YARPNativeEndpointManager
 public:
 	/// allocates comm channel (in and out).
 	static int CreateQnetChannel(void); 
-	static YARPNameID CreateInputEndpoint(YARPUniqueNameID& name);
-	static YARPNameID CreateOutputEndpoint(YARPUniqueNameID& name);
-	static int ConnectEndpoints(YARPNameID& dest);
-	static int Close(const YARPNameID& id);
+	static int CreateInputEndpoint(YARPUniqueNameID& name);
+	static int CreateOutputEndpoint(YARPUniqueNameID& name);
+	static int ConnectEndpoints(YARPUniqueNameID& dest);
+	static int Close(YARPUniqueNameID& id);
 };
 
 #endif

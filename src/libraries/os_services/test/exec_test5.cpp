@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.15 2003-06-30 13:37:43 babybot Exp $
+/// $Id: exec_test5.cpp,v 1.16 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -104,8 +104,8 @@ public:
 		char txt[128] = "Hello there";
 		char reply[128] = "Not set";
 
-		YARPUniqueNameID id;
-		YARPUniqueNameID idc;
+		YARPUniqueNameID* id;
+		YARPUniqueNameID* idc;
 
 		do 
 		{
@@ -114,27 +114,17 @@ public:
 			cout.flush();
 			out.Post();
 			id = YARPNameService::LocateName(REG_LOCATE_NAME, YARP_MCAST);
-			YARPEndpointManager::CreateOutputEndpoint (id);
+			YARPEndpointManager::CreateOutputEndpoint (*id);
 
 			idc = YARPNameService::LocateName(REG_LOCATE_NAME, YARP_UDP);
-			
-			/// misusing P2 array to pass the actual symbolic name to the soc
-                                        
-			const int siz = ((strlen(REG_LOCATE_NAME)+1)/sizeof(int))+1;
-			idc.allocP2(siz);
-			char *dname = (char *)idc.getP2Ptr();
-			memset (dname, 0, siz*sizeof(int));
-			memcpy (dname, REG_LOCATE_NAME, strlen(REG_LOCATE_NAME));
+			YARPEndpointManager::ConnectEndpoints (*idc);
 
-			YARPEndpointManager::ConnectEndpoints (idc);
-			idc.freeP2();
-
-			if (!id.isValid() || !idc.isValid())
+			if (!id->isValid() || !idc->isValid())
 			{
 				YARPTime::DelayInSeconds(1);
 			}
 		} 
-		while (!id.isValid() || !idc.isValid());
+		while (!id->isValid() || !idc->isValid());
 
 		int x = 42;
 		while (1)
@@ -157,7 +147,7 @@ public:
 			cout << "*** sending: " << txt << " and number " << x << endl;
 			cout.flush();
 #endif
-			int result = YARPSyncComm::Send(id.getNameID(),smsg,rmsg);
+			int result = YARPSyncComm::Send(id->getNameID(),smsg,rmsg);
 			x++;
 
 			if (result>=0)
@@ -194,7 +184,7 @@ class MyThread2 : public YARPThread
 public:
 	virtual void Body()
 	{
-		YARPUniqueNameID id;
+		YARPUniqueNameID* id;
 
 		char buf[128] = "Not set";
 		char reply[128] = "Not set";
@@ -208,11 +198,11 @@ public:
 #else
 		id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_TCP, 1);
 #endif
-		YARPEndpointManager::CreateInputEndpoint (id);
+		YARPEndpointManager::CreateInputEndpoint (*id);
 
 		out.Wait();
-		cout << "*** The assigned port is " << id.getAddressRef().get_port_number() << endl;
-		cout.flush();
+		///cout << "*** The assigned port is " << id->getAddressRef().get_port_number() << endl;
+		///cout.flush();
 		out.Post();
 
 		double start = YARPTime::GetTimeAsSeconds();
@@ -234,7 +224,7 @@ public:
 			imsg.Set(0,buf,sizeof(buf));
 			imsg.Set(1,(char*)(&x),sizeof(x));
 
-			YARPNameID idd = YARPSyncComm::BlockingReceive(id.getNameID(), imsg);
+			YARPNameID idd = YARPSyncComm::BlockingReceive(id->getNameID(), imsg);
 			if (first)
 			{
 				start = YARPTime::GetTimeAsSeconds();
@@ -282,7 +272,7 @@ int main(int argc, char *argv[])
 	int s = 1, c = 1;
 	YARPScheduler::setHighResScheduling();
  
-///	__debug_level = 80;
+	__debug_level = 80;
 
 	if (argc>=2)
 	{

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: conditional_porter.cpp,v 1.4 2003-06-30 11:26:34 babybot Exp $
+/// $Id: conditional_porter.cpp,v 1.5 2003-07-06 23:25:47 gmetta Exp $
 ///
 ///
 
@@ -68,13 +68,13 @@ int main(int argc, char *argv[])
 {
 	if (argc == 3)
 	{
-		YARPUniqueNameID r1 = YARPNameService::LocateName(argv[1]);
-		if (r1.getServiceType() != YARP_NO_SERVICE_AVAILABLE)
+		YARPUniqueNameID* r1 = YARPNameService::LocateName(argv[1]);
+		if (r1->getServiceType() != YARP_NO_SERVICE_AVAILABLE)
 		{
 			if (argv[2][0] == '/')
 			{
-				YARPUniqueNameID r2 = YARPNameService::LocateName(argv[2]);
-				if (r2.getServiceType() != YARP_NO_SERVICE_AVAILABLE)
+				YARPUniqueNameID* r2 = YARPNameService::LocateName(argv[2]);
+				if (r2->getServiceType() != YARP_NO_SERVICE_AVAILABLE)
 				{
 					YARPPort::Connect(argv[1], argv[2]);
 				}
@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
 				{
 					printf("Skipping <%s>\n", argv[2]);
 				}
+				YARPNameService::DeleteName (r2);
 			}
 			else
 			{
@@ -92,6 +93,7 @@ int main(int argc, char *argv[])
 		{
 			printf("Skipping <%s>\n", argv[1]);
 		}
+		YARPNameService::DeleteName (r1);
 	}
 
 	return 0;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.17 2003-06-28 16:40:01 babybot Exp $
+/// $Id: YARPNameService.cpp,v 1.18 2003-07-06 23:25:45 gmetta Exp $
 ///
 ///
 
@@ -182,13 +182,14 @@ int YARPNameService::Finalize (void)
 	return YARP_OK;
 }
 
+#define NAMER_FAIL (new YARPUniqueNameID())
 
-YARPUniqueNameID YARPNameService::RegisterName(const char *name, int reg_type, int num_ports_needed)
+YARPUniqueNameID* YARPNameService::RegisterName(const char *name, int reg_type, int num_ports_needed)
 {
 	if (reg_type == YARP_QNET && !YARPNativeNameService::IsNonTrivial())
 	{
 		ACE_DEBUG ((LM_DEBUG, "YARPNameService: asked QNX under !QNX OS, of course, it failed\n"));
-		return YARPUniqueNameID();
+		return NAMER_FAIL;
 	}
 
 	switch (reg_type)
@@ -213,37 +214,35 @@ YARPUniqueNameID YARPNameService::RegisterName(const char *name, int reg_type, i
 
 	case YARP_QNX4:
 		{
-			return YARPUniqueNameID ();
+			return NAMER_FAIL;
 		}
 		break;
 	}
 
-	return YARPUniqueNameID ();
+	return NAMER_FAIL;
 }
 
-YARPUniqueNameID YARPNameService::LocateName(const char *name, int name_type)
+YARPUniqueNameID* YARPNameService::LocateName(const char *name, int name_type)
 {
 	/// goes through a sequence asking to the QNX native (if inside QNX)
 	/// or otherwise it goes global.
 	if (name_type == YARP_QNET && !YARPNativeNameService::IsNonTrivial())
 	{
 		ACE_DEBUG ((LM_DEBUG, "YARPNameService: asked QNX under !QNX OS, of course, it failed\n"));
-		return YARPUniqueNameID();
+		return NAMER_FAIL;
 	}
 
 	/// search mode.
 	return YARPSocketNameService::LocateName (*_namer, name, name_type);
 }
 
-/*
-int YARPNameService::ReadOffset(int delta, int absolute)
+int YARPNameService::DeleteName(YARPUniqueNameID* pid)
 {
-  return YARPSocketNameService::ReadOffset(delta,absolute);
+	if (pid != NULL) delete pid;
+	return YARP_OK;
 }
-*/
 
-
-YARPNameID YARPEndpointManager::CreateInputEndpoint(YARPUniqueNameID& name)
+int YARPEndpointManager::CreateInputEndpoint(YARPUniqueNameID& name)
 {
 	switch (name.getServiceType())
 	{
@@ -256,10 +255,10 @@ YARPNameID YARPEndpointManager::CreateInputEndpoint(YARPUniqueNameID& name)
 		return YARPNativeEndpointManager::CreateInputEndpoint (name);
 	}
 
-	return YARPNameID();
+	return YARP_FAIL;
 }
 
-YARPNameID YARPEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
+int YARPEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
 {
 	switch (name.getServiceType())
 	{
@@ -272,7 +271,7 @@ YARPNameID YARPEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
 		return YARPNativeEndpointManager::CreateOutputEndpoint (name);
 	}
 
-	return YARPNameID();
+	return YARP_FAIL;
 }
 
 int YARPEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest)

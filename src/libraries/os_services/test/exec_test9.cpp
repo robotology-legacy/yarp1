@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test9.cpp,v 1.4 2003-05-18 22:34:44 gmetta Exp $
+/// $Id: exec_test9.cpp,v 1.5 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 
@@ -75,6 +75,9 @@
 #include "YARPNetworkTypes.h"
 
 NetInt32 foo;
+
+///YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+///YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
 YARPInputPortOf<NetInt32> in;
 YARPOutputPortOf<NetInt32> out;
@@ -133,7 +136,7 @@ int main(int argc, char *argv[])
 	Thread2 t2;
 	int s = 1, c = 1;
 
-	///__debug_level = 100;
+	__debug_level = 80;
 
 	if (argc>=2)
 	{

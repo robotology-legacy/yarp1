@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.6 2003-06-30 09:30:06 babybot Exp $
+/// $Id: YARPPort.h,v 1.7 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 
@@ -156,7 +156,7 @@ class YARPInputPortOf : public YARPInputPort
 {
 public:
 	YARPInputPortOf(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
-		: YARPInputPort(n_service_type, n_protocol_type) {}
+		: YARPInputPort(n_service_type, n_protocol_type) { ACE_ASSERT (n_protocol_type != YARP_SHMEM && n_protocol_type != YARP_MULTI); }
   
 	virtual YARPPortContent *CreateContent() { return new YARPPortContentOf<T>; }
 
@@ -172,7 +172,7 @@ class YARPOutputPortOf : public YARPOutputPort
 {
 public:
 	YARPOutputPortOf(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
-		: YARPOutputPort(n_service_type, n_protocol_type) {}
+		: YARPOutputPort(n_service_type, n_protocol_type) { ACE_ASSERT (n_protocol_type != YARP_SHMEM && n_protocol_type != YARP_MULTI); }
 
 	virtual YARPPortContent *CreateContent() { return new YARPPortContentOf<T>; }
 
@@ -189,7 +189,7 @@ class YARPBasicInputPort : public YARPInputPort
 {
 public:
 	YARPBasicInputPort(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
-		: YARPInputPort(n_service_type, n_protocol_type) {}
+		: YARPInputPort(n_service_type, n_protocol_type) { ACE_ASSERT (n_protocol_type != YARP_SHMEM && n_protocol_type != YARP_MULTI); }
 
 	virtual YARPPortContent *CreateContent() { return new T; }
 
@@ -201,7 +201,7 @@ class YARPBasicOutputPort : public YARPOutputPort
 {
 public:
 	YARPBasicOutputPort(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
-		: YARPOutputPort(n_service_type, n_protocol_type) {}
+		: YARPOutputPort(n_service_type, n_protocol_type) { ACE_ASSERT (n_protocol_type != YARP_SHMEM && n_protocol_type != YARP_MULTI); }
 
 	virtual YARPPortContent *CreateContent() { return new T; }
 

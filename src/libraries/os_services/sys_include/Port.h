@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.15 2003-07-01 12:49:57 gmetta Exp $
+/// $Id: Port.h,v 1.16 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 
@@ -116,9 +116,11 @@ enum
 class OutputTarget : public BasedLink<OutputTarget>, public YARPBareThread
 {
 public:
-	YARPUniqueNameID target_pid;		/// for MCAST this is the MCAST group.
+	YARPUniqueNameID *target_pid;
+
 	double check_tick;
 	int ticking;
+	
 	int active;
 	int sending;
 	int add_header;
@@ -126,6 +128,7 @@ public:
 	int deactivated;
 	int port_number;
 	int protocol_type;
+
 	Sema something_to_send;
 #ifdef UPDATED_PORT
 	Sema space_available;
@@ -133,6 +136,7 @@ public:
 	Sema mutex;
 
 	CountedPtr<Sendable> p_sendable;
+	
 	int msg_type;
 	char cmdname[2*YARP_STRING_LEN];
 
@@ -141,8 +145,9 @@ public:
                    space_available(1),
 #endif
                    mutex(1)
-    { 
-		target_pid.invalidate(); add_header = 1;  active = 1; sending = 0; 
+    {
+		target_pid = NULL;
+		add_header = 1;  active = 1; sending = 0; 
 		deactivate = 0;  deactivated = 0;
 		check_tick = 0;  ticking = 0;
 		port_number = 0;
@@ -200,6 +205,8 @@ public:
 		PostMutex();
 	}
 
+	/// special extra commands for MCAST protocol.
+	/// this is required to forward clients MCAST request to join/release the group.
 	int ConnectMcast (const char *name);
 	int DeactivateMcast (const char *name);
 	int DeactivateMcastAll (void);
@@ -294,7 +301,7 @@ public:
 
 	string name;
 	HeaderedBlockSender<NewFragmentHeader> sender;
-	YARPUniqueNameID self_id;
+	YARPUniqueNameID *self_id;
 
 #ifdef UPDATED_PORT
 	int require_complete_send;
@@ -345,6 +352,7 @@ public:
 		out_mutex(1),
 		name(nname)
 	{ 
+		self_id = NULL;
 		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
 		add_header = 1;
 		expect_header = 1;
@@ -355,7 +363,7 @@ public:
 		if (autostart) Begin(); 
 	}
 
-	Port () : 
+	Port (void) : 
 		tsender(this),
 		something_to_send(0), 
 		something_to_read(0),
@@ -364,6 +372,7 @@ public:
 		list_mutex(1),
 		out_mutex(1)
 	{
+		self_id = NULL;
 		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
 		add_header = 1;
 		expect_header = 1;
@@ -421,94 +430,117 @@ public:
 	///
 	/// this is called by YARPPort::Connect, and <buf> contains the
 	/// destination name, the self_is is the destination socket, being this
-	/// a command to the port.
+	/// a command to the port. This connects to the port itself.
 	///
 	int Say(const char *buf)
     {
 		int result = YARP_FAIL;
-		if (!self_id.isValid())
+		if (self_id == NULL)
 		{
 			if (protocol_type == YARP_MCAST)
 			{
 				self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
-				YARPEndpointManager::CreateOutputEndpoint (self_id);
-				YARPEndpointManager::ConnectEndpoints (self_id);
+				YARPEndpointManager::CreateOutputEndpoint (*self_id);
+				YARPEndpointManager::ConnectEndpoints (*self_id);
 			}
 			else
 			{
 				self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
-				YARPEndpointManager::CreateOutputEndpoint (self_id);
-				YARPEndpointManager::ConnectEndpoints (self_id);
+				YARPEndpointManager::CreateOutputEndpoint (*self_id);
+				YARPEndpointManager::ConnectEndpoints (*self_id);
+			}
+		}
+		else
+		/// silly but to guarantee self_id is !NULL.
+		if (self_id != NULL && !self_id->isValid())
+		{
+			if (protocol_type == YARP_MCAST)
+			{
+				self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+				YARPEndpointManager::CreateOutputEndpoint (*self_id);
+				YARPEndpointManager::ConnectEndpoints (*self_id);
+			}
+			else
+			{
+				self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+				YARPEndpointManager::CreateOutputEndpoint (*self_id);
+				YARPEndpointManager::ConnectEndpoints (*self_id);
 			}
 		}
 
-		if (self_id.isValid())
+		if (self_id->isValid())
 		{
-			result = SayServer(self_id, buf);
+			result = SayServer(*self_id, buf);
 		}
+
+		YARPNameService::DeleteName (self_id);
+		self_id = NULL;
 		return result;
     }
 
+	///
+	/// this commands the port to terminate gracefully.
 	int SaySelfEnd(void)
 	{
 		int result = YARP_FAIL;
-		if (!self_id.isValid())
+		if (!self_id->isValid())
 		{
 			if (protocol_type == YARP_MCAST)
 			{
 				self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
-				YARPEndpointManager::CreateOutputEndpoint (self_id);
-				YARPEndpointManager::ConnectEndpoints (self_id);
+				YARPEndpointManager::CreateOutputEndpoint (*self_id);
+				YARPEndpointManager::ConnectEndpoints (*self_id);
 			}
 			else
 			{
 				self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
-				YARPEndpointManager::CreateOutputEndpoint (self_id);
-				YARPEndpointManager::ConnectEndpoints (self_id);
+				YARPEndpointManager::CreateOutputEndpoint (*self_id);
+				YARPEndpointManager::ConnectEndpoints (*self_id);
 			}
 		}
 
-		if (self_id.isValid())
+		if (self_id->isValid())
 		{
-			result = SendHelper (self_id, NULL, 0, MSG_ID_DETACH_ALL);
+			result = SendHelper (*self_id, NULL, 0, MSG_ID_DETACH_ALL);
 		}
+
+		YARPNameService::DeleteName (self_id);
+		self_id = NULL;
 		return result;
 	}
 
-	void Fire()
+	void Fire (void)
     {
-		///char buf[2] = { MSG_ID_GO, 0 };
 		okay_to_send.Wait(); 
 		out_mutex.Wait();
 		pending = 1;
 		out_mutex.Post();
-		///Say(buf);
 		tsender.pulseGo ();
     }
 
-	void Deactivate()
+	void Deactivate (void)
     {
 		char buf[2] = { MSG_ID_DETACH_ALL, 0 };
 		okay_to_send.Wait(); 
 		Say(buf);
     }
 
-	void Share(Sendable *nsendable);
+	void Share (Sendable *nsendable);
 
-	void TakeReceiverAccess(Receivable *nreceiver);
-	void TakeReceiverLatest(Receivable *nreceiver);
-	void TakeReceiverIncoming(Receivable *nreceiver);
+	void TakeReceiverAccess (Receivable *nreceiver);
+	void TakeReceiverLatest (Receivable *nreceiver);
+	void TakeReceiverIncoming (Receivable *nreceiver);
 
-	Sendable *Acquire(int wait=1);
-	void Relinquish();
+	Sendable *Acquire (int wait = 1);
+	void Relinquish (void);
 
-	void WaitInput()
+	void WaitInput (void)
     {
 		something_to_read.Wait();
     }
 
-	int IsSending();
-	void FinishSend();
+	int IsSending (void);
+	void FinishSend (void);
 };
 
 

@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.8 2003-06-28 16:40:01 babybot Exp $
+/// $Id: YARPPort.cpp,v 1.9 2003-07-06 23:25:45 gmetta Exp $
 ///
 ///
 
@@ -181,7 +181,6 @@ class YARPSendablesOf : public Sendables
 public:
 	YARPPort *port;
 
-	//YARPSendables() { port = NULL; }
 	YARPSendablesOf() { port = NULL; }
 
 	void Attach(YARPPort& yp) { port = &yp; }
@@ -193,26 +192,15 @@ public:
 
 	T *Get()
 	{
-		//printf("***Get() > 1\n");
 		T *t = (T*)GetSendable();
-		/*
-		if (t!=NULL)
-		{
-		printf("***Get() > 2a %ld (%d)\n", (long int) t, t->ref_count);
-		printf("***Get() > 2a %ld (%d)\n", (long int) t, ((Sendable*)t)->ref_count);
-		}
-		*/
-		if (t==NULL)
+		if (t == NULL)
 		{
 			ACE_ASSERT(port!=NULL);
 			t = new T(port->CreateContent());
-			//printf("***Get() > 3\n");
-			ACE_ASSERT(t!=NULL);
+			ACE_ASSERT (t != NULL);
 			t->ZeroRef();
 		}
-		//printf("***Get() > 3b\n");
-		ACE_ASSERT(t!=NULL);
-		//printf("***Get() > 4\n");
+		ACE_ASSERT(t != NULL);
 		t->owner = this;
 		return t;
 	}
@@ -271,7 +259,6 @@ YARPPort::~YARPPort()
 int YARPPort::Register(const char *name)
 {
 	return PD.SetName (name);
-	///return 0;
 }
 
 int YARPPort::IsReceiving()
@@ -291,24 +278,36 @@ void YARPPort::FinishSend()
 
 int YARPPort::Connect(const char *name)
 {
+	if (strcmp (name, PD.name.c_str()) == 0)
+	{
+		ACE_DEBUG ((LM_DEBUG, "Try to be serious please\n"));
+		return YARP_FAIL;
+	}
+
 	return PD.Say(name);
 }
 
 
 int YARPPort::Connect(const char *src_name, const char *dest_name)
 {
-	YARPUniqueNameID id = YARPNameService::LocateName (src_name);
-	YARPEndpointManager::CreateOutputEndpoint (id);
-	YARPEndpointManager::ConnectEndpoints (id);
-
-	if (id.isValid())
+	if (strcmp (src_name, dest_name) == 0)
 	{
-		Port p;
-		p.SayServer (id.getNameID(), dest_name);
+		ACE_DEBUG ((LM_DEBUG, "Silly you, you tried it, didn't you?\n"));
+		return YARP_FAIL;
 	}
 
-	YARPEndpointManager::Close (id);
+	YARPUniqueNameID* id = YARPNameService::LocateName (src_name);
+	YARPEndpointManager::CreateOutputEndpoint (*id);
+	YARPEndpointManager::ConnectEndpoints (*id);
 
+	if (id->isValid())
+	{
+		Port p;
+		p.SayServer (id->getNameID(), dest_name);
+	}
+
+	YARPEndpointManager::Close (*id);
+	YARPNameService::DeleteName (id);
 	return YARP_OK;
 }
 

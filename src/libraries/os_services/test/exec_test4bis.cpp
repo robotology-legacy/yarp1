@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test4bis.cpp,v 1.2 2003-05-16 00:02:31 gmetta Exp $
+/// $Id: exec_test4bis.cpp,v 1.3 2003-07-06 23:25:46 gmetta Exp $
 ///
 ///
 
@@ -100,7 +100,7 @@ public:
 		char txt[128] = "Hello there";
 		char reply[128] = "Not set";
 
-		YARPUniqueNameID id;
+		YARPUniqueNameID* id = NULL;
 		cout << "Here" << endl;
 		cout.flush();
 
@@ -112,23 +112,21 @@ public:
 			out.Post();
 			
 			id = YARPNameService::LocateName(REG_LOCATE_NAME);
-			if (id.getServiceType () == YARP_NO_SERVICE_AVAILABLE)
+			if (id->getServiceType () == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, "can't locate name, bailing out\n"));
 				return;
 			}
 
-///			id.allocP2(1);
-///			id.getP2Ptr()[0] = 3000;
-			YARPEndpointManager::CreateOutputEndpoint (id);
-			YARPEndpointManager::ConnectEndpoints (id);
+			YARPEndpointManager::CreateOutputEndpoint (*id);
+			YARPEndpointManager::ConnectEndpoints (*id);
 
-			if (!id.isValid())
+			if (!id->isValid())
 			{
 				YARPTime::DelayInSeconds(0.2);
 			}
 		} 
-		while (!id.isValid());
+		while (!id->isValid());
 
 		while (1)
 		{
@@ -137,7 +135,7 @@ public:
 			cout.flush();
 			out.Post();
 
-			YARPSyncComm::Send(id.getNameID(),txt,sizeof(txt),reply,sizeof(reply));
+			YARPSyncComm::Send(id->getNameID(),txt,sizeof(txt),reply,sizeof(reply));
 
 			out.Wait();
 			cout << "Got reply : " << reply << endl;
@@ -163,19 +161,19 @@ public:
 		YARPTime::DelayInSeconds(0.01);
 
 #ifdef __QNX6__
-		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel());
+		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel());
 #else
 		/// connect to name server and get ip and port.
-		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
+		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
 #endif
-		if (id.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+		if (id->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 		{
 			ACE_DEBUG ((LM_DEBUG, "can't register name, bailing out\n"));
 			return;
 		}
 
 		/// create the input endpoint.
-		YARPEndpointManager::CreateInputEndpoint (id);
+		YARPEndpointManager::CreateInputEndpoint (*id);
 
 		while (1)
 		{
@@ -185,7 +183,7 @@ public:
 			out.Post();
 			
 			///YARPNameID id = YARPSyncComm::BlockingReceive(YARPNameID(),buf,sizeof(buf));
-			YARPNameID reply_id = YARPSyncComm::BlockingReceive(id.getNameID(), buf, sizeof(buf));
+			YARPNameID reply_id = YARPSyncComm::BlockingReceive(id->getNameID(), buf, sizeof(buf));
 
 			sprintf(reply,"Got %s", buf);
 			out.Wait();
