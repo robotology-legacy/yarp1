@@ -6,6 +6,13 @@ default:
 		test -d $$d && ( cd $$d ; $(MAKE) ) ; done
 
 
+topinstall:
+	@for d in $(SUBDIRS) ; do \
+		test -d $$d && ( cd $$d ; $(MAKE) topinstall ) ; done
+
+
+install: topinstall
+
 clean:
 	@for d in $(SUBDIRS) ; do \
 		test -d $$d && ( cd $$d ; $(MAKE) clean ) ; done

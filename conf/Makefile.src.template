@@ -18,7 +18,7 @@ LIBGENDIR = ../lib/$(SYSDIR)
 
 VPATH += $(GENDIR)
 
-default: all
+default: topinstall
 #	echo $(MYCODELIB)
 
 all: target
@@ -45,6 +45,13 @@ $(LIBGENDIR)/$(CODELIB): $(TARGETS)
 clean: subclean
 	rm -f $(TARGETS) $(EXEC_TARGETS) $(CODE_LIB)
 	rm -f *.o
+
+# install to top dir
+topinstall: $(LIBGENDIR)/$(CODELIB)
+	mkdir -p $(YARP_ROOT)/lib/$(SYSDIR)
+	mkdir -p $(YARP_ROOT)/include/yarp
+	$(CP) $< $(YARP_ROOT)/lib/$(SYSDIR)
+	$(CP) -f ../include/yarp/*.h $(YARP_ROOT)/include/yarp
 
 install: target subinstall
 	@echo Doing nothing as yet
