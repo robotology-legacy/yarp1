@@ -41,7 +41,7 @@ cd ./logpolar/BuildTablesSmall/
 make $MODE
 Check $?
 $INSTALL
-$RUN_BUILD_TABLES
+# $RUN_BUILD_TABLES
 cd ../../
 
 echo "$PHRASE os_services library"
