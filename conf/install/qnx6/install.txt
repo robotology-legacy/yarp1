@@ -1,6 +1,6 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.21 2003-09-17 13:59:17 beltran Exp $
+$Id: install.txt,v 1.22 2003-10-03 15:38:01 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
@@ -65,56 +65,32 @@ REQUIRES:
 		%YARP_ROOT%\conf\licence.template
 
 1) before compiling:
-	- Check out from cvs on sourceforge: www.sourceforge.net
+	- Check out YARP from cvs on sourceforge: www.sourceforge.net
 	- unzip ACE on top of ACE_wrappers under %YARP_ROOT%\src\libraries\
 		NOTE for UNZIP: and UNCHECK the option to overwrite the files (this leaves
 		the modified files from the repository inplace)
 	i.e.:tar xvfzk ACE-5.3.tar.gz
 	  *** check out the correct ACE files from the repository ***
+
+	- in $YARP_ROOT/src/libraries/ACE_wrappers/include/makeinclude clean the next link:
+		ln -s platform_qnx_rtp_gcc.GNU platform_macros.GNU
+
 	- use the %YARP_ROOT%/conf/YARPConfigTemplate.h and include the correct 
 		config file (found in %YARP_ROOT%/include/conf)
 		Copy the template into: %YARP_ROOT%/include/conf/YARPConfig.h
 
-1.1) make sure:
+1.1) make sure: (this is really optional depending how you have imported the cvs files)
 	- you RUN something like DOS2UNIX on cpp, h, inl, i, and Makefile's.
 	- it won't compile otherwise.
 
 2) Compile:
 	ACE, this copies also the .h, .i, and .cpp files into %YARP_ROOT%\include
-		- use "make" from: %YARP_ROOT%\src\libraries\ACE_wrappers\ace (this can take several minutes)
+		- use "make" from: %YARP_ROOT%/src/libraries/ACE_wrappers/ace (this can take several minutes)
 		- do "make yarpize" from the same place (it copies all necesary things..etc)
 
-	os_services
-		- use "make" from: %YARP_ROOT%\src\libraries\os_services\
-		- use "make install"
-		
-	hardware
-		-use "make" from %YARP_ROOT%/src/hardware/src
-		(this makes also the installation)
-				 
-	images
-		* Install fake ipl
-			- by running %YARP_ROOT/src/libraries/ipl/install_fake_ipl script.
-		* Install log polar
-			- use "make" in %YARP_ROOT%/src/libraries/logpolar
-			- use "make install" in the same place
-			- use "make" in  %YARP_ROOT%/src/libraries/logpolar/BuildTablesSmall
-			- run %YARP_ROOT%/src/libraries/logpolar/BuildTablesSmall/BuildTablesSmall /home/cbeltran/YARP/conf/
-		* Install images
-			- use "make" in %YARP_ROOT%/src/libraries/images
-			- use "make install" in the same place
+	libraries + hardware 
 
-	utils
-		-use "make" in %YARP_ROOT/src/libraries/utils
-		-use "make install" in the same place	
-		
-	motorcontrol
-			- use "make" in %YARP_ROOT/src/libraries/motorcontrol	
-			- use "make install" in %YARP_ROOT/src/libraries/motorcontrol
-
-	math
-			-usual process make; make install in the directory:
-				%YARP_ROOT/src/libraries/math	
+		run "make_all_lib.sh release" in %YARP_ROOT%/src/libraries/
 
 3) What to include/link for building an application is YARP.
 	TO BE COMPLETED, templates?
@@ -143,25 +119,12 @@ procedure where a kernel images is built an inserted in the disk. (add here proc
 
 ---NOTES IN COMPILING-RUNNING FRAMEGRABBER STUFF---
 
-	Nameserver
-	%YARP_ROOT/src/maintenance/services/nameserver/YARPNameService/make
-								       make install
+	Nameserver + Porter + Framegrabber daemon + Viewer
+		run "make_all_lib.sh framegrab" in %YARP_ROOT%/src/libraries/
 
-	Porter
-	%YARP_ROOT/src/maintenance/services/porter/porter/make
-							  make install
+	NOTE: It is important the communications mode used to compile (hardcoded in the code)
 
-	Framegrabber
-	%YARP_ROOT/src/hardware/daemons/framegrab/make
-						  make install
-
-	Viewer
-	%YARP_ROOT/src/applications/viewers/camview/qnx6/make
-							 make install
-
-	NOTE: It is important the communications mode used to compile
-
-	i.e.: How to use all this
+	i.e.: How to use all this (this should go into a script)
 	./YARPNameService
 	./framegrabber -l -w 256 -h 256
         ./camview -l -w 256	
