@@ -15,10 +15,10 @@ include $(YARP_ROOT)/conf/Makefile.template
 # Invoke Makefile.ace first to build libACE, and then
 # invoke Makefile.dirs to recurse through subdirectories
 all:
-	@$(MAKE) -f Makefile.ace
+	@$(MAKE) -f Makefile.ace $@
 
 ace_only:
-	@$(MAKE) -f Makefile.ace
+	@$(MAKE) -f Makefile.ace $@
 
 yarpize:
 	cp libACE.so.5.3.3 $(YARP_ROOT)/bin/$(OS)/

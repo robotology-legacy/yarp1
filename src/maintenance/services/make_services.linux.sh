@@ -12,8 +12,8 @@
 EXECUTABLES="./nameserver/YARPNameService/		
 			./nameserver/nameclient/		
 			./porter/porter/	
-			./porter/conditional_porter		
-			./repeater/"	
+			./porter/conditional_porter"		
+# ./repeater/"	
 
 All()
 {

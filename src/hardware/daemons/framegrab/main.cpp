@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.49 2004-01-29 09:56:17 beltran Exp $
+/// $Id: main.cpp,v 1.50 2004-02-12 13:27:03 babybot Exp $
 ///
 ///
 
@@ -100,9 +100,9 @@
 #	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #elif defined(__LinuxTest__)
-
+/// apparently small difference in macro subst, need to investigate, weird.
 #	define Grabber
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
+#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>(x)(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #else
 
@@ -262,6 +262,8 @@ int _grabber2rgb (const unsigned char *in, unsigned char *out, int szx, int szy)
 //      Created:  15/01/2003 10:36:00 W. Europe Standard Time
 //     Revision:  21/01/2004: Removed some prints
 // =====================================================================================
+
+#if !defined(__LinuxTest__)
 class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 {
 	protected:
@@ -342,6 +344,8 @@ void FgNetDataPort::OnRead(void)
 	m_gb->setGamma(m_gamma);
 	m_gb->setDithFrame(m_dithf);
 }
+
+#endif
 
 ///
 ///
@@ -504,6 +508,8 @@ int mainthread::_runAsLogpolarSimulation (void)
 	img.Resize (_xsize, _ysize);
 	lp.Resize (_stheta, _srho);
 
+
+///	YARPOutputPortOf<YARPGenericImage> (out)(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
 	DeclareOutport(out);
 
 	out.Register (_name, _netname);

@@ -9,8 +9,8 @@
 #----------------------------------------------------------------------------
 
 include $(YARP_ROOT)/conf/Makefile.template
-CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS) $(CFAST)
-#CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS)
+#CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS) $(CFAST)
+CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS)
 
 BIN     = YARPNameService
 	
@@ -33,6 +33,10 @@ BUILD = $(VBIN)
 #----------------------------------------------------------------------------
 #	Include macros and targets
 #----------------------------------------------------------------------------
+
+optimize = 0
+debug = 1
+threads = 1
 
 include	$(ACE_ROOT)/include/makeinclude/wrapper_macros.GNU
 include	$(ACE_ROOT)/include/makeinclude/macros.GNU

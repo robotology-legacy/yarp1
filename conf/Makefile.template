@@ -6,15 +6,17 @@ QNX_VER = 6.1.0 6.2.0 6.2.1
 
 ifeq ($(shell uname),QNX)
   
-  SYSLIB = 
+#  SYSLIB = 
   ifneq (,$(findstring $(shell uname -r),$(QNX_VER)))
 	SYSDIR = qnx6
-	EXTRA_OPTS = $(YARP_DEBUG) -Y_gpp -fexceptions -pipe -Wpointer-arith -gstabs -Wno-uninitialized 
+	EXTRA_OPTS = $(YARP_DEBUG) -Y_gpp -fexceptions -pipe -Wpointer-arith -Wno-uninitialized 
+# -gstabs
 	CC = QCC
 	CC1 = qcc
 	CDEFS = $(EXTRA_OPTS) -D__QNX__ -D__QNX6__ -I/usr/local/include/g++-3/
 	CFASTSTRUCT =
 	CFAST = -O3
+  	LIBADD = 
   else
 	SYSDIR = qnx
 	CC = cc
@@ -22,16 +24,18 @@ ifeq ($(shell uname),QNX)
 	CDEFS = -D__QNX__ -D__QNX4__
 	CFASTSTRUCT = -zp4
 	CFAST = -Oneaxt $(CFASTSTRUCT)
+  	LIBADD = 
   endif
-  
-  LIBADD = 
+
 else
+
   ifeq ($(shell uname),Linux)
+	SYSDIR = linux
+	EXTRA_OPTS = $(YARP_DEBUG) -fexceptions -pipe -Wpointer-arith -Wno-uninitialized 
 	CC = g++
 	CC1 = gcc
-	SYSDIR = linux
-	SYSLIB = -lpthread
-	CDEFS = -D__LINUX__
+#	SYSLIB = -lpthread
+	CDEFS = $(EXTRA_OPTS) -D__LINUX__ -I/usr/include/g++/
 	CFAST = -O3
 	LIBADD = -lpthread
   else
@@ -41,8 +45,9 @@ else
 	CDEFS = -D__WIN__
 	CFAST = -O3
 	LIBADD = 
-	SYSLIB = 
+#	SYSLIB = 
   endif
+
 endif
 
 OS=$(SYSDIR)

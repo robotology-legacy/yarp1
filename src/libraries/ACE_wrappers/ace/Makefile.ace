@@ -10,6 +10,10 @@
 include $(YARP_ROOT)/conf/Makefile.template
 CPPFLAGS     += -I$(YARP_ROOT)/include
 
+#
+# remember to call it with debug/optimize flags set.
+#
+
 MAKEFILE = Makefile.ace
 LIBACE   = libACE
 LIB      = $(LIBACE).a
