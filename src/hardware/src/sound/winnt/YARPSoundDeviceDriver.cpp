@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.3 2004-02-24 17:24:55 beltran Exp $
+//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.4 2004-02-25 17:20:58 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -21,6 +21,17 @@
 
 #include "YARPSoundResources.h"
 #include <YARPSoundCardUtils.h>
+
+// ===  FUNCTION  ======================================================================
+// 
+//         Name: RES  
+// 
+//  Description: This is a convenient function to recover 
+// 
+//    Author:  Ing. Carlos Beltran
+//  Revision:  none
+// =====================================================================================
+SoundResources& RES(void *res) { return *(SoundResources *)res; }
 
 //--------------------------------------------------------------------------------------
 //       Class:  YARPSoundDeviceDriver

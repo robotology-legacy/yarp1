@@ -10,7 +10,7 @@
 // 
 //     Description:  This file encapsulates the SoundResources class and the its methods
 // 
-//         Version:  $Id: YARPSoundResources.h,v 1.3 2004-02-24 17:24:56 beltran Exp $
+//         Version:  $Id: YARPSoundResources.h,v 1.4 2004-02-25 17:20:58 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -119,15 +119,5 @@ protected:
 	void _prepareBuffers (void);
 };
 
-// ===  FUNCTION  ======================================================================
-// 
-//         Name: RES  
-// 
-//  Description: This is a convenient function to recover 
-// 
-//    Author:  Ing. Carlos Beltran
-//  Revision:  none
-// =====================================================================================
-SoundResources& RES(void *res) { return *(SoundResources *)res; }
 
 #endif
