@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableLoading.cpp,v 1.10 2003-10-03 17:09:52 fberton Exp $
+/// $Id: TableLoading.cpp,v 1.11 2003-10-06 17:28:46 fberton Exp $
 ///
 ///
 
@@ -106,7 +106,7 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 	int j,k;
 	FILE * fin;
 	
-	if (List&1==1)
+	if ((List&1)==1)
 	{
 		if (Par->Ratio == 1.00)
 			sprintf(File_Name,"%s%s",Path,"AngularShiftMap.gio");
@@ -144,7 +144,7 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 
 	if ((List&4)==4)
 	{
-		sprintf(File_Name,"%s%s%1.2f_%s",Path,"DSMap_",4.00,".gio");
+		sprintf(File_Name,"%s%s%1.2f%s",Path,"DSMap_",4.00,".gio");
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			Tables->DownSampleMap = (IntNeighborhood *) malloc ((Par->Size_LP / 16) * sizeof(IntNeighborhood));
@@ -261,7 +261,7 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 
 	if ((List&256)==256)
 	{
-		sprintf(File_Name,"%s%s%1.2f_%s",Path,"DSMap_",2.00,".gio");
+		sprintf(File_Name,"%s%s%1.2f%s",Path,"DSMap_",2.00,".gio");
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			Tables->DownSampleMap = (IntNeighborhood *) malloc ((Par->Size_LP / 4) * sizeof(IntNeighborhood));
@@ -294,6 +294,25 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 		else
 			Tables->DownSampleMap = NULL;
 	}
+
+	if ((List&512)==512)
+	{
+		if (Par->Ratio == 1.00)
+			sprintf(File_Name,"%s%dx%d_%s",Path,Par->Size_X_Remap,Par->Size_Y_Remap,"ShiftMap.gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%dx%d_%s",Path,Par->Ratio,Par->Size_X_Remap,Par->Size_Y_Remap,"ShiftMap.gio");
+
+		if ((fin = fopen(File_Name,"rb")) != NULL)
+		{
+			Tables->ShiftMap = (int *) malloc ((Par->Resolution/2)*3*Par->Size_LP * sizeof(int));
+			fread(Tables->ShiftMap,sizeof(int),(Par->Resolution/2)*3*Par->Size_LP,fin);
+			fclose (fin);
+			retval = retval | 512;
+		}
+		else
+			Tables->ShiftMap = NULL;
+	}
+
 	return retval;
 }
 

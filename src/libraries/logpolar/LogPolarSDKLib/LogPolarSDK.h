@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.13 2003-10-03 17:09:52 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.14 2003-10-06 17:28:46 fberton Exp $
 ///
 ///
 
@@ -164,6 +164,7 @@ struct LUT_Ptrs{
 	int				* RemapMap;
 	Neighborhood	* WeightsMap;
 	double			* XYMap;
+	int				* ShiftMap;
 };
 
 typedef struct tag_vchannel 
@@ -372,5 +373,7 @@ int Build_Cart2LP_Map (Image_Data * Par, char * Path);
 int Build_Weights_Map(Image_Data * Par, char * Path);
 
 int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio);
+
+int Build_Shift_Map(Image_Data * Par, char * Path);
 
 #endif

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.20 2003-10-03 17:09:52 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.21 2003-10-06 17:28:46 fberton Exp $
 ///
 ///
 
@@ -105,7 +105,7 @@
 
 unsigned short Build_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsigned short List)
 {
-	unsigned char retval = 0;
+	unsigned short retval = 0;
 	int testval;
 	
 	if (List&1==1)			//I need: Nothing
@@ -143,7 +143,7 @@ unsigned short Build_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsi
 			retval = retval | 8;
 	}
 
-	if ((List&32)==32)		//I need: PadMap, AngShiftMap
+	if ((List&32)==32)		
 	{
 		testval = Build_Remap_Map(Par,Path);
 //		if (testval)
@@ -152,7 +152,7 @@ unsigned short Build_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsi
 			retval = retval | 32;
 	}
 
-	if ((List&64)==64)		//I need: NeighborhoodMap
+	if ((List&64)==64)	
 	{
 		testval = Build_Weights_Map(Par,Path);
 		if (testval)
@@ -171,6 +171,13 @@ unsigned short Build_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsi
 		testval = Build_DS_Map(Par,Path,4.00);
 		if (testval)
 			retval = retval | 4;
+	}
+
+	if ((List&512)==512)
+	{
+		testval = Build_Shift_Map(Par,Path);
+		if (testval)
+			retval = retval | 512;
 	}
 
 	return retval;
@@ -1940,9 +1947,6 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 
 		Remap(SRem,SLP,&SParam,STables.RemapMap);
 
-		Save_Bitmap(LRem,1090,1090,3,"c:\\temp\\images\\reml.bmp");
-		Save_Bitmap(SRem,1090,1090,3,"c:\\temp\\images\\rems.bmp");
-		
 		for (y = 0; y<LParam->Size_Y_Remap; y++)
 			for (x=0; x<LParam->Size_X_Remap; x++)
 			{
@@ -2128,7 +2132,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			}
 	}
 	
-	sprintf(File_Name,"%s%s%1.2f_%s",Path,"DSMap_",Ratio,".gio");
+	sprintf(File_Name,"%s%s%1.2f%s",Path,"DSMap_",Ratio,".gio");
 
 
 	MAXIndex = 0;
@@ -2174,7 +2178,91 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 }
 	
 
+int Build_Shift_Map(Image_Data * Par, char * Path)
+{
+	int i,j,k,l;
+	double tempX,tempY;
+	int newRho, newTheta;
+	float shiftlev = 1.0/Par->Resolution;
+	int * ShiftMap;
+	LUT_Ptrs Tables;
+	char File_Name [256];
+	FILE * fout;
+	int steps;
 
+	steps = Par->Resolution/4;
+
+	unsigned short retval = Load_Tables(Par,&Tables,Path,17);
+
+	ShiftMap = (int*) malloc((Par->Resolution/2)*3*Par->Size_LP*sizeof(int));
+
+	if (retval != 17)
+	{
+		if ((retval&&1)==0)
+			Build_Ang_Shift_Map(Par,Path);
+
+		if ((retval&&16)==0)
+			Build_Pad_Map(Par,Path);
+
+		retval = Load_Tables(Par,&Tables,Path,17);
+	}
+
+	if (retval != 17)
+	{
+		if (Tables.AngShiftMap!=NULL)
+			free(Tables.AngShiftMap);
+		if (Tables.PadMap!=NULL)
+			free(Tables.PadMap);
+		return 0;
+	}
+	else
+	{
+		for (k=0; k<2*steps*Par->Size_LP*3; k++)
+			ShiftMap[k] = 0;
+
+		for (l = -steps; l<-steps+Par->Resolution/2; l++)
+		{
+			printf("%d\n",l);
+			for(j=0; j<Par->Size_Rho; j++)
+				for(i=0; i<Par->Size_Theta; i++)
+				{
+					tempX = l*Par->Size_X_Remap*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+					tempY = Get_Y_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+					if ((tempX<Par->Size_X_Remap/2)&&(tempY<Par->Size_Y_Remap/2))
+					{
+						if ((tempX>=-Par->Size_X_Remap/2)&&(tempY>=-Par->Size_Y_Remap/2))
+						{
+							newRho = Get_Rho(tempX,tempY,Par);
+							newTheta = Get_Theta(tempX,tempY,newRho,Par,Tables.AngShiftMap,Tables.PadMap);
+							if ((newRho>=0)&&(newRho<Par->Size_Rho))
+								if ((newTheta>=0)&&(newTheta<Par->Size_Theta))
+								{
+									for (k=0; k<3; k++)
+										ShiftMap[(l+steps)*(3*Par->Size_LP)+3*(j*Par->Size_Theta+i)+k] = 3*(newRho*Par->Size_Theta+newTheta)+k;
+	//								New_LP_Image[3*(j*Par->Size_Theta+i)] = LP_Image[3*(newRho*Par->Size_Theta+newTheta)];
+	//								New_LP_Image[3*(j*Par->Size_Theta+i)+1] = LP_Image[3*(newRho*Par->Size_Theta+newTheta)+1];
+	//								New_LP_Image[3*(j*Par->Size_Theta+i)+2] = LP_Image[3*(newRho*Par->Size_Theta+newTheta)+2];
+								}
+						}
+					}
+				}
+		}
+
+		if (Par->Ratio == 1.00)
+			sprintf(File_Name,"%s%dx%d_%s",Path,Par->Size_X_Remap,Par->Size_Y_Remap,"ShiftMap.gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%dx%d_%s",Path,Par->Ratio,Par->Size_X_Remap,Par->Size_Y_Remap,"ShiftMap.gio");
+		
+		fout = fopen(File_Name,"wb");
+		fwrite(ShiftMap,sizeof(int),(Par->Resolution/2)*3*Par->Size_LP,fout);
+		fclose (fout);
+
+		free (Tables.PadMap);
+		free (Tables.AngShiftMap);
+		free (ShiftMap);
+		return 1;
+	}
+}
 void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Par, float Ratio,IntNeighborhood * IntDownSampleTable)
 {	
 	int i,j,k;
