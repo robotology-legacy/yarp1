@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.cpp,v 1.4 2005-02-24 22:12:08 natta Exp $
+/// $Id: YARPSciDeviceDriver.cpp,v 1.5 2005-02-25 03:47:40 natta Exp $
 ///
 ///
 
@@ -80,34 +80,44 @@ int YARPSciDeviceDriver::close (void)
 
 int YARPSciDeviceDriver::getPosition(void *cmd)
 {
+	int ret;
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
 	int value;
 
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_ADC));
 
-	if (_readWord(SCI_READ_POTENTIOMETERS, axis, value) == YARP_OK)
-	{
-		*((double *)tmp->parameters) = (double) (value);
-		return YARP_OK;
-	}
-	else
-	{
-		*((double *)tmp->parameters) = 0.0;
-		return YARP_FAIL;
-	}
+	ret = _readWord(SCI_READ_POTENTIOMETERS, axis, value);
+	// if ret != YARP_OK value == 0, so no need to check ret
+	*((double *)tmp->parameters) = (double) (value);
+	
+	return ret;
 }
 
 int YARPSciDeviceDriver::_readWord(int msg, int joint, int &value)
 {
+	int ret;
+
 	_serialPort._rawData2Send[0] = msg;
 	_serialPort._rawData2Send[1] = joint;
 
-	_serialPort.writeFormat2bytes();
+	ret = _serialPort.writeFormat2bytes();
 
-	_serialPort.readFormat2bytes();
+	if (ret != YARP_OK)
+		return ret;
 
-	value = _serialPort._dataIn[0]+_serialPort._dataIn[1]*256;
+	ret = _serialPort.readFormat2bytes();
+
+	if (ret != YARP_OK)
+	{
+		value = 0.0;
+		return YARP_FAIL;
+	}
+	else
+	{
+		value = _serialPort._dataIn[0]+_serialPort._dataIn[1]*256;
+		return YARP_OK;
+	}
 }
 
 // SerialProtocol.cpp: implementation of the SerialProtocol class.
@@ -144,7 +154,6 @@ int SerialProtocol::readFormat2bytes()
 	{
 		if(_readbytes(&byte,1)==1)
 		{
-		  //printf("Count= %d Data %X\n",count,byte);
 		  if(((byte>>4)&0x0F)==_count)
 		  {
 		      if(_count&0x01)
@@ -153,11 +162,11 @@ int SerialProtocol::readFormat2bytes()
 				  _half=(byte<<4)&0xF0;
 		  
 			  _count++;
-			  if (_count==16)
+			  if (_count==__spPacketSize)
 			  {
-				_count=0;
-				r=1;
-				sw=0;
+				  _count=0;
+				  r=1;
+				  sw=0;
 			  }
 		  }
 		  else
@@ -177,7 +186,7 @@ int SerialProtocol::readFormat2bytes()
 		}
 	}
 
-	return((int)r);
+	return (int)r;
 }
 
 int SerialProtocol::writeFormat2bytes()
@@ -185,7 +194,7 @@ int SerialProtocol::writeFormat2bytes()
 	unsigned char byte;  
 	int countb;
 
-	for(countb=0;countb<16;countb++)
+	for(countb=0;countb<__spPacketSize;countb++)
 	{
 	    if(countb&0x01)
 			byte= _rawData2Send[countb>>1]&0x0F;
@@ -195,13 +204,15 @@ int SerialProtocol::writeFormat2bytes()
 	    _formatedData2Send[countb]=byte;
 	}
 
-	_writebytes(_formatedData2Send,16);
-	return(1);
+	if (_writebytes(_formatedData2Send, __spPacketSize) == __spPacketSize)
+		return YARP_OK;
+	else
+		return YARP_FAIL;
 }
 
 int SerialProtocol::close()
 {
-	return 1;
+	return YARP_OK;
 }
 
 int SerialProtocol::open(const char* PortName)
@@ -210,14 +221,15 @@ int SerialProtocol::open(const char* PortName)
 	speed_t speed;
 
 	_fd = ::open(PortName, O_RDWR | O_NDELAY);
-	printf("Serial Port Open. ID= %d\n",_fd);
-
-  //Program the serial port
+	
+    //Program the serial port
 	if( tcgetattr(_fd,&p_termios) )
 	{
-		printf("Serial Port no working\n");
-		return(-1);
+		ACE_OS::printf("Problem opening serial port\n");
+		return YARP_FAIL;
 	}
+	ACE_OS::printf("Serial Port Open. ID= %d\n",_fd);
+
 	//RAW mode
 	//revisar
 	p_termios.c_cc[VMIN]=0;
@@ -236,29 +248,5 @@ int SerialProtocol::open(const char* PortName)
 
 	tcsetattr(_fd,TCSADRAIN,&p_termios);
 
-	return (1);
+	return YARP_OK;
 }
-
-int SerialProtocol::_readbytes(unsigned char * sBuffer, char num)
-{
-	int n;
-	n = read(_fd,  sBuffer, num );
-	//if(n==1) printf("[%x],(%d)",sBuffer[0],n);
-	if (n<0) n=0;
-
-	return(n);
-}
-
-int SerialProtocol::_writebytes(unsigned char *strTB, char cSize)
-{
-	int	iNbytesWritten;
-
-	iNbytesWritten=write(_fd,strTB,cSize);
-	//printf("writing: %d, %s\n",iNbytesWritten,strTB);
-	return(iNbytesWritten);
-}
-
-
-
-
-

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.h,v 1.5 2005-02-24 22:12:08 natta Exp $
+/// $Id: YARPSciDeviceDriver.h,v 1.6 2005-02-25 03:47:40 natta Exp $
 ///
 ///
 
@@ -152,17 +152,11 @@ public: //later private:
 	*/
 	
 	// LATER: inline
-	inline int _write(int msg, int joint);
 	int _readWord(int msg, int joint, int &value);
 	
 protected:
 	YARPSemaphore _mutex;
 	SerialProtocol _serialPort;
 };
-
-inline int
-YARPSciDeviceDriver::_write(int msg, int joint)
-{
-}
 
 #endif

@@ -193,7 +193,6 @@ sub verify_bool
 sub call_make_and_print
 {
 	my ($project, $operation) = @_;
-	print "\n\n$operation\n\n";
 	open MK, "make -f Makefile $operation"."|";
 	while (<MK>)
 	{
