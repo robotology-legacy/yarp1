@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.3 2004-07-02 08:47:06 eshuy Exp $
+///	$Id: YARPThread.h,v 1.4 2004-07-03 21:03:27 gmetta Exp $
 ///
 ///
 /*
@@ -103,6 +103,9 @@ protected:
 	 */
 	int identifier;
 
+	/**
+	 * To disappear, unused variable.
+	 */
 	int size;
 
 	/**
@@ -173,7 +176,7 @@ public:
 	 * Asks for thread termination.
 	 * It changes the state of the thread termination sequence depending on the value of the
 	 * parameter. The procedure for terminating a thread requires the active cooperation of
-	 * the thread. The thread should be polling termination requests by calling IsTerminated
+	 * the thread Body(). The thread should be polling termination requests by calling IsTerminated()
 	 * periodically.
 	 * @param dontkill can have various values that affect the behavior at termination. 
 	 * If dontkill is equal to -1 then the method changes the shutdown state and waits for the 
@@ -185,6 +188,7 @@ public:
 
 	/**
 	 * The thread body.
+	 * Put here your thread code.
 	 */
 	virtual void Body() = 0;
 
@@ -194,6 +198,11 @@ public:
 	 */
 	int GetIdentifier() { return identifier; }
 
+	/**
+	 * This is the actual thread function as required by the OS.
+	 * The user is not required to know about its existence.
+	 * @param args is a pointer to the argument data.
+	 */
 #ifdef __WIN32__
 	friend static unsigned __stdcall ExecuteThread (void *args);
 #else
@@ -231,7 +240,7 @@ public:
 	/**
 	 * Allows recycling of the thread after unclean exit.
 	 * Call this function to reset the thread shutdown state and
-	 * recycle the class.
+	 * recycle the instance of the class.
 	 */
 	void CleanState (void);
 
@@ -276,6 +285,8 @@ public:
  * A template class for the thread local storage.
  * Use this template to declare a thread local storage of type T. The actual
  * data could be accessed through the Content() method.
+ * The thread local storage is a memory area only accessible to a specific thread
+ * usually through a key mechanism.
  */
 template <class T>
 class YARPThreadSpecific : public ACE_TSS<ACE_TSS_Type_Adapter <T> >

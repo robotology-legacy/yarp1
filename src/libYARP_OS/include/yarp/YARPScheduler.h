@@ -52,12 +52,13 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPScheduler.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPScheduler.h,v 1.3 2004-07-03 21:03:27 gmetta Exp $
 ///
 ///
-/*
-	paulfitz Mon May 21 14:08:59 EDT 2001
-*/
+
+/**
+ * \file YARPScheduler.h A few functions related to thread scheduling.
+ */
 
 #ifndef YARPScheduler_INC
 #define YARPScheduler_INC
@@ -69,11 +70,24 @@
 #	pragma once
 #endif
 
+/**
+ * A simple container class for functions related to scheduling.
+ */
 class YARPScheduler
 {
 public:
+	/**
+	 * The calling thread releases its remaining quantum upon calling
+	 * this function and sleeps.
+	 */
 	static void yield ();
-	static void setHighResScheduling ();	// WIN32 only?
+
+	/**
+	 * For OS where it makes sense sets the scheduler to be called more often.
+	 * This sets the scheduler to be run to the maximum possible rate based
+	 * on the capability of the hardware.
+	 */
+	static void setHighResScheduling ();
 };
 
 #endif

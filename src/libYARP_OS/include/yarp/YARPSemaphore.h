@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPSemaphore.h,v 1.3 2004-07-02 09:47:04 eshuy Exp $
+///	$Id: YARPSemaphore.h,v 1.4 2004-07-03 21:03:27 gmetta Exp $
 ///
 ///
 /*
@@ -76,10 +76,6 @@
 
 /**
  * \file YARPSemaphore.h Resources for synchronizing threads.
- */
-
-/*
-Ideally, would use POSIX semaphores, threads etc.
  */
 
 /**
@@ -186,25 +182,57 @@ public:
 	void Post();
 };
 
-///
-///
-///
+/**
+ * A simple template class that adds a semaphore to another class.
+ * Use this template to add a mutual exclusion semaphore to a generic
+ * class <OBJ>. The template provides a public semaphore and two
+ * methods to get ownership of the semaphore or to release it.
+ */
 template <class OBJ> class YARPProtect : public OBJ
 {
 public:
+	/**
+	 * The semaphore instance.
+	 */
 	YARPSemaphore _sema;
 
+	/**
+	 * Constructor.
+	 * Note that the semaphore is initialized to 1 allowing for
+	 * mutual exclusion.
+	 */
 	YARPProtect () : _sema(1) {}
+
+	/**
+	 * Destructor.
+	 */
 	~YARPProtect () {}
 
+	/**
+	 * Wait on the semaphore.
+	 * Call this method to decrement the value of the semaphore and
+	 * possibly wait for its value to become positive.
+	 * @param blocking specifies whether this is an actual request of
+	 * decrement or rather just a polling of the semaphore value.
+	 * @return if polling, returns 1 if the semaphore can be decremented
+	 * without blocking.
+	 */
 	int lock (int blocking = 1) { return _sema.Wait(blocking); }
+
+	/**
+	 * Release the semaphore.
+	 * Increments the semaphore and potentially wakes up a waiting
+	 * thread.
+	 */
 	void unlock (void) { _sema.Post(); }
 };
 
 
-///
-///
-///
+/**
+ * Event-like sinchronization object.
+ * The event is a lightweight semaphore, mostly to be used as an optimization
+ * as a replacement for semaphores.
+ */
 class YARPEvent : public ACE_Event
 {
 protected:
@@ -212,12 +240,54 @@ protected:
 	void operator= (const YARPEvent&);
 
 public:
+	/**
+	 * Constructor.
+	 * @param manual_reset if not zero the event object must be reset manually by calling
+	 * Reset() otherwise the event is automatically Reset() depending on how the object
+	 * is signalled: Pulse() or Signal().
+	 * @param initial_state whether the event is initially signalled.
+	 */
 	YARPEvent (int manual_reset = 0, int initial_state = 0) : ACE_Event (manual_reset, initial_state) {}
+
+	/**
+	 * Destructor.
+	 */
 	~YARPEvent () {}
 
+	/**
+	* If MANUAL reset
+	*    sleep till the event becomes signaled
+	*    event remains signaled after Wait() completes.
+	* If AUTO reset
+	*    sleep till the event becomes signaled
+	*    event resets Wait() completes.
+	*/
 	inline int Wait (void) { return wait(); }
+
+	/**
+	* If MANUAL reset
+	*    wake up all waiting threads
+	*    set to signaled state.
+	* If AUTO reset
+	*    if no thread is waiting, set to signaled state
+	*    if thread(s) are waiting, wake up one waiting thread and
+	*    reset event.
+	*/
 	inline int Signal (void) { return signal(); }
+
+	/**
+	* If MANUAL reset
+	*    wakeup all waiting threads and
+	*    reset event.
+	* If AUTO reset
+	*    wakeup one waiting thread (if present) and
+	*    reset event.
+	*/
 	inline int Pulse (void) { return pulse(); }
+
+	/**
+	* Resets the event object.
+	*/
 	inline int Reset (void) { return reset(); }
 };
 
