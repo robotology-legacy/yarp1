@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 	RBWaitIdle reachingSeq32("Waiting for arm done (actually reaching2)");
 	RBWaitIdle reachingSeq33("Waiting for arm done (actually reaching3)");
 	
-	RBWaitDeltaT waitDeltaT1("AS state, wait some time", 0.5);
+	RBWaitDeltaT waitDeltaT1("Waiting for hand", 0.5);
 	RBWaitDeltaT reachingSeq4("AS state, issue withdraw arm", 0.5);
 	RBWaitIdle reachingSeq5("Waiting for arm done (withdrawing arm)");
 	RBWaitIdle reachingSeq6("Open hand");
@@ -75,6 +75,7 @@ int main(int argc, char* argv[])
 	_behavior.add(&armIsBusy, &reachingSeq32, &waitIdle, &enableAll);
 	// wait
 	_behavior.add(&handDone, &waitDeltaT1, &reachingSeq33, &reachingOutput3);
+	_behavior.add(&armRest, &waitDeltaT1, &waitIdle, &enableAll);
 	_behavior.add(&armDone, &reachingSeq33, &reachingSeq5, &reachingBack);
 	_behavior.add(&armIsBusy, &reachingSeq33, &waitIdle, &enableAll);
 
@@ -90,7 +91,7 @@ int main(int argc, char* argv[])
 	_behavior.add(&armRest, &reachingSeq31, &waitIdle, &enableAll);
 	_behavior.add(&armRest, &reachingSeq32, &waitIdle, &enableAll);
 	_behavior.add(&armRest, &reachingSeq33, &waitIdle, &enableAll);
-
+	
 	_behavior.Begin();
 	_behavior.loop();
 

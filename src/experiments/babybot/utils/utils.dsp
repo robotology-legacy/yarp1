@@ -40,8 +40,8 @@ RSC=rc.exe
 # PROP Output_Dir ".\obj\winnt\release"
 # PROP Intermediate_Dir ".\obj\winnt\release"
 # PROP Target_Dir ""
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I ".\include" /I "..\..\..\..\include" /I "..\..\..\..\include\winnt" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
 # ADD BASE RSC /l 0x410 /d "NDEBUG"
@@ -66,8 +66,8 @@ LIB32=link.exe -lib
 # PROP Output_Dir ".\obj\winnt\debug"
 # PROP Intermediate_Dir ".\obj\winnt\debug"
 # PROP Target_Dir ""
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\include" /I "..\..\..\..\include" /I "..\..\..\..\include\winnt" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -92,6 +92,10 @@ LIB32=link.exe -lib
 # Begin Source File
 
 SOURCE=.\src\YARPBPNNet.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\YARPDebugUtils.cpp
 # End Source File
 # Begin Source File
 
@@ -140,6 +144,10 @@ SOURCE=.\include\yarp\YARPBehavior.h
 # Begin Source File
 
 SOURCE=.\include\yarp\YARPBPNNet.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\yarp\YARPDebugUtils.h
 # End Source File
 # Begin Source File
 

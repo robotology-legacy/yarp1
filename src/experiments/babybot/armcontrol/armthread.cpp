@@ -173,10 +173,6 @@ void ArmThread::doRelease()
     _gravity3.save(filename);
 	*/
 
-	fprintf(stderr, "\n\n\n--> ARMThread: unregistering port");
-	_armStatusPort.Unregister();
-	fprintf(stderr, "--> ARMThread: port unregistered\n\n\n");
-
 	//_gravity1.save("Y:\\conf\\babybot\\gravity1.ini");
 	//_gravity2.save("Y:\\conf\\babybot\\gravity2.ini");
 	//_gravity3.save("Y:\\conf\\babybot\\gravity3.ini");

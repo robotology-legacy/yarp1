@@ -10,8 +10,6 @@
 #include <yarp/YARPControlBoardNetworkData.h>
 #include <yarp/YARPBabyBottle.h>
 
-#include <vector>
-
 #include "ArmForwardKinematics.h"
 
 using namespace _logpolarParams;
@@ -33,7 +31,7 @@ int __headCounter = 0;
 
 using std::vector;
 
-void plotTrajectory(const vector<int *> &tr, YARPImageOf<YarpPixelBGR> &img);
+void plotTrajectory(const Trajectories &tr, YARPImageOf<YarpPixelBGR> &img);
 
 inline bool pollPort(YARPInputPortOf<YVector> &port, YVector &out, int *counter)
 {
@@ -139,7 +137,9 @@ int main(int argc, char* argv[])
 	YARPLogpolar _mapper;
 	YARPBPNNet _openLoopReaching;			// reaching nnetwork
 	YARPBabybotHeadKin _headKinematics (YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]));		// head kinematics
-	ArmForwardKinematics _armJacobian(__nnetFile1);
+
+	ACE_OS::sprintf (tmp, "%s/conf/babybot/%s", root, __nnetFile1);
+	ArmForwardKinematics _armJacobian(tmp);
 	YARPImageOf<YarpPixelMono> _left;
 	YARPImageOf<YarpPixelBGR> _leftColored;
 	_left.Resize(_stheta, _srho);
@@ -203,6 +203,7 @@ int main(int argc, char* argv[])
 
 
 		// update handlocalization class
+		
 		_armJacobian.update(_arm, _head);
 		_headKinematics.update(_head);
 		
@@ -223,6 +224,8 @@ int main(int argc, char* argv[])
 			YARPSimpleOperation::DrawCross(_outSeg2, x, y, YarpPixelBGR(0, 255, 0), 5, 1);
 
 			printf("Computing Jacobian...\n");
+			x = 128;
+			y = 128;
 			_armJacobian.computeJacobian(x, y);
 			int h = 0;
 			const YVector *tmpPoints = _armJacobian.getPoints();
@@ -254,7 +257,7 @@ int main(int argc, char* argv[])
 			tmpArm(6) = _arm(6);
 
 			// overwrite command
-			newCmd = _armJacobian.computeCommand(tmpArm , x, y);	// to center
+			newCmd = _armJacobian.computeCommandThreshold(tmpArm , x, y);	// to center
 		
 			/*
 			// trajectory
@@ -270,6 +273,8 @@ int main(int argc, char* argv[])
 			_bottle.setID(YBVMotorLabel);
 			_bottle.writeVocab(YBVArmNewCmd);
 			_bottle.writeYVector(newCmd);
+
+			_bottle.display();
 
 			_armCommand.Content() = _bottle;
 			_armCommand.Write(1);
@@ -320,11 +325,11 @@ void printFrameStatus(int n)
 		ACE_OS::printf("HeadFrame# %d\tArmFrame# %d\n", __headCounter, __armCounter);
 }
 
-void plotTrajectory(const vector<int *> &v, YARPImageOf<YarpPixelBGR> &img)
+void plotTrajectory(const Trajectories &v, YARPImageOf<YarpPixelBGR> &img)
 {
 	YARPShapeEllipse tmpEl;
 
-	for (int i = 0; i < v.size(); i++)
+	for (int i = 0; i < v.length; i++)
 	{
 		tmpEl.x = v[i][0];
 		tmpEl.y = v[i][1];

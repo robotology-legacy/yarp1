@@ -1,23 +1,29 @@
 #include "armmap.h"
 
-ArmMap::ArmMap(const char *nnetFile):
+ArmMap::ArmMap(const char *reachingNNet, const char *handlocNNet):
 _headKinematics(YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) ),
 YARPInputPortOf<YARPBabyBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP),
 _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 {
 	char *root = GetYarpRoot();
-	char filename1[256];
+	char filename[256];
 	
 	// load nnets
-	ACE_OS::sprintf (filename1, "%s/conf/babybot/%s", root, nnetFile);
-	if (_nnet.load(filename1)!=YARP_OK)
+	ACE_OS::sprintf (filename, "%s/conf/babybot/%s", root, reachingNNet);
+	if (_nnet.load(filename)!=YARP_OK)
 	{
-		ACE_OS::printf("Error, cannot read neural network file %s", filename1);
+		ACE_OS::printf("Error, cannot read neural network file %s", filename);
 		exit(-1);
 	}
-	ACE_OS::printf("Reading neural network from %s\n", filename1);
+	ACE_OS::printf("Read neural network from %s\n", filename);
 
-	_fkinematics.load(nnetFile);
+	ACE_OS::sprintf (filename, "%s/conf/babybot/%s", root, handlocNNet);
+	if (_fkinematics.load(filename) != YARP_OK)
+	{
+		ACE_OS::printf("Error, cannot read neural network file %s", filename);
+		exit(-1);
+	}
+	ACE_OS::printf("Read neural network from %s\n", filename);
 
 	// register input
 	Register("/reaching/nnet/i");
@@ -58,6 +64,10 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 //	tmp(2) = tmp(2) + __elevationOffset;
 //	tmp(3) = tmp(3) + __distanceOffset;
 
+	int x, y;	//retinal position (for closed loo)
+	x = 128;
+	y = 128;
+
 
 	if (_mode == atnr)
 		_command = _atr.query(head) + _noise.query();
@@ -69,7 +79,7 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 	else
 	{
 		_nnet.sim(tmp.data(), _command.data());
-		_fkinematics.computeJacobian(128,128);		// compute from center
+		_fkinematics.computeJacobian(x,y);		// compute from center
 		YVector tmpArm(6);
 		tmpArm(1) = _command(1);	 	//copy 1 joint from map
 		tmpArm(2) = arm(2);
@@ -79,17 +89,15 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 		tmpArm(6) = arm(6);
 
 		// overwrite command
-		_command = _fkinematics.computeCommand(tmpArm , 128, 128);	// to center
+		printf("Query with arm:\n");
+		for(int i = 1; i <= 3; i++)
+			printf("%lf\t", tmpArm(i));
+			
+		printf("\nx: %d\ty: %d\n", x, y);
+
+		_command = _fkinematics.computeCommandThreshold(tmpArm , x, y);	// to center
 
 		// DEBUG, dump current command
-		int k = 0;
-		printf("\nNewCmd\n");
-		for(k = 1; k <= 3; k++)
-		{
-			printf("%.1lf\t", _command(k)*radToDeg);
-		}
-		printf("\n");
-		
 		_formTrajectory(_command);
 	}
 }

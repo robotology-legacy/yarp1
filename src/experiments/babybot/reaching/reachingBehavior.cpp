@@ -1,11 +1,12 @@
 #include "reachingBehavior.h"
 
-const char *__nnetFile1 = "reaching.ini";
+const char *__reachingNNet = "reaching.ini";
+const char *__handlocNNet = "handfk1.ini";
 
 using namespace std;
 
 ABSharedData::ABSharedData():
-_map(__nnetFile1),
+_map(__reachingNNet, __handlocNNet),
 _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
 _armPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
 _headPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
@@ -67,6 +68,7 @@ void RBOutputCommand::output(ABSharedData *d)
 			cout << "Preparing arm\n";
 
 			_bottle.writeYVector(cmd);
+			_bottle.display();
 			d->_outPort.Content() = _bottle;
 			d->_outPort.Write(1);
 		}
@@ -159,12 +161,14 @@ void RBOutputBack::output(ABSharedData *d)
 
 void RBHandClose::output(ABSharedData *d)
 {
+	ACE_OS::printf("Closing hand\n");
 	d->_outPort.Content() = _bottle;
 	d->_outPort.Write(1);
 }
 
 void RBHandOpen::output(ABSharedData *d)
 {
+	ACE_OS::printf("Opening hand\n");
 	d->_outPort.Content() = _bottle;
 	d->_outPort.Write(1);
 }

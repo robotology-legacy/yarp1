@@ -61,11 +61,11 @@
 ///
 
 ///
-///  $Id: YARPRecursiveLS.cpp,v 1.1 2004-07-29 13:09:14 babybot Exp $
+///  $Id: YARPRecursiveLS.cpp,v 1.2 2004-08-09 16:56:58 babybot Exp $
 ///
 ///
 
-#include <yarp/YARPRecursiveLS.h>
+#include "yarp/YARPRecursiveLS.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

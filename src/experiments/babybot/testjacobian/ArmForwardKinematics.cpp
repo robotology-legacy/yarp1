@@ -1,8 +1,10 @@
+#include <yarp/YARPDebugUtils.h>
 #include "ArmForwardKinematics.h"
 
 const int __nPoints = 10;
 const double __explStd = 5;
 const int __nSteps = 1500;
+const int __pixelThreshold = 4;
 
 ArmForwardKinematics::ArmForwardKinematics():
 _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
@@ -14,21 +16,17 @@ ArmForwardKinematics::ArmForwardKinematics(const char *f1):
 _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
 {
 	// load nnets if name was specified
-	load(f1);
+	if (load(f1) != YARP_OK)
+	{
+		ACE_OS::printf("Error reading nnet file in %s", f1);
+		exit(-1);
+	}
 	_init();
 }
 
-void ArmForwardKinematics::load(const char *f1)
+int ArmForwardKinematics::load(const char *f1)
 {
-	char *root = GetYarpRoot();
-	char filename1[256];
-
-	ACE_OS::sprintf (filename1, "%s/conf/babybot/%s", root, f1);
-	if (_center.load(filename1)!=YARP_OK)
-	{
-		ACE_OS::printf("Error, cannot read neural network file %s", filename1);
-		exit(-1);
-	}
+	return _center.load(f1);
 }
 
 void ArmForwardKinematics::_init()
@@ -61,6 +59,7 @@ void ArmForwardKinematics::_init()
 		_trajectory[i][0] = 0;
 		_trajectory[i][1] = 0;
 	}
+	_trajectory.length = i;
 }
 
 ArmForwardKinematics::~ArmForwardKinematics()
@@ -122,7 +121,7 @@ void ArmForwardKinematics::computeJacobian(int x0, int y0)
 
 }
 
-YVector ArmForwardKinematics::computeCommand(YVector initialArm, int targetX, int targetY)
+YVector ArmForwardKinematics::computeCommandFixedSteps(YVector initialArm, int targetX, int targetY)
 {
 	YVector dT(2);
 	YVector &tmpArm = initialArm;
@@ -149,5 +148,57 @@ YVector ArmForwardKinematics::computeCommand(YVector initialArm, int targetX, in
 		computeJacobian(tmpEl.x, tmpEl.y);
 	}
 
+	_trajectory.length = i;
+
+	return tmpArm;
+}
+
+YVector ArmForwardKinematics::computeCommandThreshold(YVector initialArm, int targetX, int targetY)
+{
+	ACE_OS::printf("Computing trajectory");
+	YVector dT(2);
+	YVector &tmpArm = initialArm;
+	YARPShapeEllipse tmpEl = query(tmpArm, _head);
+	int i = 0;
+	bool done = false;
+	while(!done)
+	{	
+		// planning trajectory
+		dT(1) = targetX-tmpEl.x;
+		dT(2) = targetY-tmpEl.y;
+		YVector dQ = plan(dT);
+		dQ(2) = dQ(2) * 0.05;
+		dQ(3) = dQ(3) * 0.05;
+		tmpArm = tmpArm+dQ;
+
+		update(tmpArm, _head);
+		tmpEl = query(tmpArm, _head);
+	
+		// current
+		_trajectory[i][0] = tmpEl.x;
+		_trajectory[i][1] = tmpEl.y;
+
+		// this is to recompute the jacobian every time
+		computeJacobian(tmpEl.x, tmpEl.y);
+
+		if ( (dT(1)*dT(1) + dT(2)*dT(2))<__pixelThreshold)
+			done = true;
+		
+		// it
+		if (i==(__nSteps-1))
+		{
+			ACE_OS::printf("given up ! (max # steps reached)\n");
+			done = true;
+			_trajectory.length = __nSteps;
+			return initialArm;
+		}
+		i++;
+		ACE_OS::printf(".");
+	}
+	
+	_trajectory.length = i-1;
+	ACE_OS::printf("done !\nTrajectory computed in %d steps\n", _trajectory.length);
+
+	YARPDebugUtils::print(tmpArm, "Arm command:");
 	return tmpArm;
 }

@@ -14,6 +14,13 @@
 
 #include <vector>
 
+class Trajectories: public std::vector<int *>
+{
+public:
+	int length;
+};
+
+
 class ArmForwardKinematics
 {
 public:
@@ -40,9 +47,10 @@ public:
 	const YVector *getPoints(){return _data;}
 	int getNPoints(){return _nPoints;}
 
-	void ArmForwardKinematics::load(const char *f1);
+	int load(const char *f1);
 	
-	YVector computeCommand(YVector initialArm, int targetX, int targetY);
+	YVector computeCommandThreshold(YVector initialArm, int targetX, int targetY);
+	YVector computeCommandFixedSteps(YVector initialArm, int targetX, int targetY);
 	
 	YVector plan(const YVector &dT)
 	{
@@ -57,7 +65,7 @@ public:
 		return tmpArm;
 	}
 
-	const std::vector<int *> &getTrajectory()
+	const Trajectories &getTrajectory()
 	{ return _trajectory; }
 	
 private:
@@ -82,7 +90,6 @@ private:
 		// compute retinal position
 		int predx = 0, predy = 0;
 		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v, predx, predy);
-
 		//////////////////////////////////////
 
 		el.x = predx;		
@@ -117,7 +124,7 @@ private:
 	YMatrix _jacobianInv;
 
 	YARPRndGaussVector _random;
-	std::vector<int *> _trajectory;
+	Trajectories _trajectory;
 };
 
 #endif

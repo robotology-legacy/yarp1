@@ -103,7 +103,7 @@ const int __trajectoryLength = 3;
 class ArmMap: public YARPInputPortOf<YARPBabyBottle>
 {
 public:
-	ArmMap(const char *nnetFile);
+	ArmMap(const char *reachingNNet, const char *handlocNNet);
 	~ArmMap();
 
 	void load(YARPBPNNetState &p)
