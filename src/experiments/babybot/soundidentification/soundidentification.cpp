@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: soundidentification.cpp,v 1.4 2004-07-08 14:47:30 beltran Exp $
+//         Version:  $Id: soundidentification.cpp,v 1.5 2004-07-28 17:35:23 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -33,65 +33,116 @@ const int   __outSize    = 5;
 const char *__baseName   = "/soundidentification/";
 const char *__configFile = "sound.ini";
 
-int main(int argc, char* argv[])
+
+// =====================================================================================
+//        Class:  mainthread
+// 
+//  Description:  Runs the main control loop
+// 
+//       Author:  Eng. Carlos Beltran
+//      Created:  28/07/2004
+//     Revision:  none
+// =====================================================================================
+class mainthread : public YARPThread
 {
-	const int N   = 200;
-	
-	int    counter = 0;
-	int    size    = 0;
-	double time1   = 0.0;
-	double time2   = 0.0;
-	double period  = 0.0;
-	
-	YARPScheduler::setHighResScheduling();
-
-	//----------------------------------------------------------------------
-	// Port declarations 
-	//----------------------------------------------------------------------
-	YARPInputPortOf<YARPSoundBuffer> _inPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP); 	
-	YARPOutputPortOf<YVector> _outPort_srm(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-
-	SoundIdentificationProcessing _soundIndprocessor(__configFile,  __outSize);
-	
-	size = _soundIndprocessor.GetSize();
-
-	YARPString base1(__baseName);
-	YARPString base2(__baseName);
-	_inPort.Register(base1.append("i").c_str());
-	_outPort_srm.Register(base2.append("srmo").c_str());
-
-	// The vector for the MFCC coefficients
-	YVector _out_mfcc(L_VECTOR_MFCC);
-
-	time1 = YARPTime::GetTimeAsSeconds();
-
-	//----------------------------------------------------------------------
-	// Main loop.
-	//----------------------------------------------------------------------
-	while(true)
+public:
+	virtual void Body (void)
 	{
-		counter++;
-		_inPort.Read(); // Read sound stream from the network
+		const int N   = 200;
 
-        _soundIndprocessor.apply(_inPort.Content(),_out_mfcc); 
-		
-		// Sends the mfcc coefficients
-		_outPort_srm.Content() = _out_mfcc;
-		_outPort_srm.Write();
+		int    counter = 0;
+		int    size    = 0;
+		double time1   = 0.0;
+		double time2   = 0.0;
+		double period  = 0.0;
+
+		YARPScheduler::setHighResScheduling();
 
 		//----------------------------------------------------------------------
-		//  Time calculation stuff
+		// Port declarations 
 		//----------------------------------------------------------------------
-		time2 = time1;
+		YARPInputPortOf<YARPSoundBuffer> _inPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP); 	
+		YARPOutputPortOf<YVector> _outPort_srm(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+
+		SoundIdentificationProcessing _soundIndprocessor(__configFile,  __outSize);
+
+		size = _soundIndprocessor.GetSize();
+
+		YARPString base1(__baseName);
+		YARPString base2(__baseName);
+		_inPort.Register(base1.append("i").c_str());
+		_outPort_srm.Register(base2.append("srmo").c_str());
+
+		// The vector for the MFCC coefficients
+		YVector _out_mfcc(L_VECTOR_MFCC);
+
 		time1 = YARPTime::GetTimeAsSeconds();
 
-		period += (time1-time2);
-		if (counter == N)
+		//----------------------------------------------------------------------
+		// Main loop.
+		//----------------------------------------------------------------------
+		bool received = false;
+		bool first_read = true;
+		FILE * f = fopen("mfcc.txt","a");
+
+		while(!IsTerminated())
 		{
-			printf("average= %lf \n", period/N);
-			period = 0.0;
-			counter = 0;
+			counter++;
+
+			received = _inPort.Read(); // Read sound stream 
+			_soundIndprocessor.apply(_inPort.Content(),_out_mfcc); 
+
+			// Sends the mfcc coefficients
+			////_outPort_srm.Content() = _out_mfcc;
+			////_outPort_srm.Write();
+			for ( int i = 0; i < _out_mfcc.Length(); i++)
+				fprintf(f,"%f ",_out_mfcc[i]);
+			fprintf(f,"\n");
+
+			//----------------------------------------------------------------------
+			//  Time calculation stuff
+			//----------------------------------------------------------------------
+			time2 = time1;
+			time1 = YARPTime::GetTimeAsSeconds();
+
+			period += (time1-time2);
+			if (counter == N)
+			{
+				printf("average= %lf \n", period/N);
+				period = 0.0;
+				counter = 0;
+			}
 		}
+
+		fclose(f);
+		return ;
 	}
+};
+
+// ===  FUNCTION  ======================================================================
+// 
+//         Name:  Main
+// 
+//  Description:  
+// 
+//    Author:  Carlos Beltran
+//  Revision:  28/07/2004 19:10:18 W. Europe Daylight Time
+// =====================================================================================
+int 
+main(int argc, char* argv[])
+{
+	mainthread _thread;
+	_thread.Begin();
+
+	char c = 0;
+
+	do {
+		cout << "Type q+return to quit" << endl;
+		cin >> c;
+	}
+	while (c != 'q');
+
+	_thread.End(-1);
+	
 	return 0;
 }
