@@ -1,21 +1,49 @@
 
 \section{Installation}
 
-some words on how to install YARP.
+\label{sect:install}
 
-\subsection{The ACE library}
+We suggest that, if you are a first-time user of YARP, you install it
+on one or two machines first, before trying to set it up for a cluster.
 
-First need ACE.
+To set YARP up on a single machine, first install the ACE library,
+then libYARP\_OS, then test your installation before moving on to 
+other YARP components.  To set YARP up on a cluster, you may 
+wish to place ACE and the YARP libraries in a common shared directory
+rather than installing on each machine.  We have a few tips for this 
+process, particularly if you are using multiple operating systems (as
+is common because of hardware support constraints).
 
-Debian: ``apt-get install libACE'' (currently the version in stable is
-older than we support, use unstable if you can, otherwise compile from
-source) -- (should document the dependencies for a fresh machine by watching
-what apt-get loads).
+\subsection{Installing the ACE library}
 
+We require ACE version 5.3.3 or greater.
 
-SuSE: before compiling ACE source, get packages ``openssl'' and
+On Debian-based linux machines, ACE is available as a binary package;
+simply type ``apt-get install libace-dev'' as super-user.  Please
+check (e.g. by searching at {\tt http://packages.debian.org}) that the version available is 5.3.3 or greater.  At the time of
+writing, this is true for Debian unstable but not true for Debian
+stable.
+
+For all other scenarios, we suggest you go to the ACE homepage, and
+download and compile the source package:
+
+\begin{quote}
+{\tt http://www.cs.wustl.edu/~schmidt/ACE.html}
+\end{quote}
+
+On SuSE Linux, before compiling the ACE source, get packages ``openssl'' and
 ``openssl-devel'' (from command-line: ``yast -i openssl'' and ``yast
--i openssl-devel'') if they are not already present.  Perhaps only
-need to do the second one and the first will be automatically
-downloaded.
+-i openssl-devel'') if they are not already present.
+
+
+\subsection{Installing the libYARP\_OS library}
+
+
+Download the latest package from the sourceforge site:
+
+\begin{quote}
+{\tt http://yarp0.sourceforge.net}
+\end{quote}
+
+Unpack it and, err, install it.
 

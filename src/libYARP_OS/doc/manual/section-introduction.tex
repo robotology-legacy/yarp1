@@ -1,23 +1,63 @@
 
 \section{What is YARP?}
 
-YARP is a set of libraries and utilities for developing robot control
-software on PCs.  It addresses the following issues:
+YARP is written by and for researchers in robotics, particularly
+humanoid robotics, who find themselves with a complicated body to
+control.  At the time of writing (2004), running decent visual,
+auditory, and tactile perception while performing elaborate motor
+control in real-time requires a lot of computation.  The easiest and
+most scalable way to do this right now is to have a cluster of 
+computers.  Every year what one machine can do grows, but so do
+our demands.  YARP is a set of tools we have found useful for 
+meeting our computational needs for controlling various humanoid robots.
+
+The components of YARP can be broken down into:
 
 \begin{itemize}
 
-\item communications
+\item {\bf libYARP\_OS} -- interfacing with the operating system(s)
+to support easy streaming of data across many threads across many
+machines.  YARP is written to be OS neutral, and explicitly supports
+Linux, Microsoft Windows, and the QNX realtime operating system.
 
-\item image processing
+\item {\bf libYARP\_dev} -- interfacing with common devices used in robotics:
+framegrabbers, digital cameras, motor control boards, etc.
 
-\item motor control
+\item {\bf libYARP\_sig} -- performing common signal processing tasks
+(visual, auditory) in an open manner easily interfaced with other
+commonly used libraries.
 
-\item and so on
+\item {\bf ...} --- more documentation to come.
 
 \end{itemize}
 
-This document contains a bunch of chapters on each of these topics.
+These components are maintained separately.  The core component
+is {\bf libYARP\_OS}, which must be available before the other 
+components can be used.  This manual describes how to install and
+use that component first, then the others.
 
 
+
+\section{Requirements}
+
+YARP is tested on Windows (2000/XP), Linux (Debian/SuSE), and QNX6.
+It is based on the open-source ACE (ADAPTIVE Communication
+Environment) library, which is portable across a very broad range of
+environments, and YARP should inherit that portability.
+
+For real-time operation, network overhead has to be minimized, so YARP
+is designed to operate on an isolated network or behind a firewall.
+If you expose machines running YARP to the internet, expect your robot
+to one day be commanded to make a crude gesture at your funders by a
+script kiddie in New Zealand (or, if you are in New Zealand, New
+York).
+
+For interfacing with hardware, we are at the mercy of which operating
+systems particular companies choose to support~-- few are enlightened
+enough to provide source.  The {\bf libYARP\_dev} library is structured
+to interface easily with vendor-supplied code, but to shield the rest
+of your system from that code so that future hardware replacements
+are possible.  Check the requirements imposed by your current hardware;
+YARP will not reduce these, only make future changes easier.
 
 
