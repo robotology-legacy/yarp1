@@ -106,6 +106,10 @@ SOURCE=.\src\YARPConfigFile.cpp
 
 SOURCE=.\src\YARPLogFile.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\src\YARPParseParameters.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -121,6 +125,10 @@ SOURCE=.\include\YARPFSM.h
 # Begin Source File
 
 SOURCE=.\include\YARPLogFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\YARPParseParameters.h
 # End Source File
 # End Group
 # End Target
