@@ -519,6 +519,7 @@ int Build_Remap_Map (Image_Data * Parameters,
 	int      * Remap_Map;
 
 	int retval;
+	int PadSizeTheta;
 	LUT_Ptrs Tables;
 
 	FILE * fout;
@@ -538,6 +539,7 @@ int Build_Remap_Map (Image_Data * Parameters,
 		Ang_Shift_Map = Tables.AngShiftMap;
 		Pad_Map = Tables.PadMap;
 
+		PadSizeTheta = (((Parameters->Size_Theta * Parameters->LP_Planes) % Parameters->padding) + (Parameters->Size_Theta * Parameters->LP_Planes));
 		XSize = (int)(Parameters->Resolution * Parameters->Zoom_Level + 0.5);
 		YSize = XSize;
 
@@ -552,7 +554,8 @@ int Build_Remap_Map (Image_Data * Parameters,
 					rho   = (int)(Get_Rho  (i-XSize/2,YSize/2-j,Parameters));
 					theta = (int)(Get_Theta(i-XSize/2,YSize/2-j,rho,Parameters,Ang_Shift_Map,Pad_Map));
 					if ((rho<Parameters->Size_Rho)&&(rho>=0)&&(theta<Parameters->Size_Theta)&&(theta>=0))
-						Remap_Map[j*XSize+i] = 3*(rho*Parameters->Size_Theta+theta);
+//						Remap_Map[j*XSize+i] = 3*(rho*Parameters->Size_Theta+theta);
+						Remap_Map[j*XSize+i] = (rho*PadSizeTheta+3*theta);
 					else
 						Remap_Map[j*XSize+i] = 0;
 				}
@@ -847,6 +850,7 @@ int Build_Remap_Map_No_Fov (Image_Data * Parameters,
 	double   * Ang_Shift_Map;
 	short    * Pad_Map;
 	int      * Remap_Map;
+	int PadSizeTheta;
 
 	int retval;
 	LUT_Ptrs Tables;
@@ -865,6 +869,7 @@ int Build_Remap_Map_No_Fov (Image_Data * Parameters,
 	}
 	else
 	{
+		PadSizeTheta = (((Parameters->Size_Theta * Parameters->LP_Planes) % Parameters->padding) + (Parameters->Size_Theta * Parameters->LP_Planes));
 		Ang_Shift_Map = Tables.AngShiftMap;
 		Pad_Map = Tables.PadMap;
 
@@ -882,7 +887,9 @@ int Build_Remap_Map_No_Fov (Image_Data * Parameters,
 					rho   = (int)(Get_Rho  (i-XSize/2,YSize/2-j,Parameters));
 					theta = (int)(Get_Theta(i-XSize/2,YSize/2-j,rho,Parameters,Ang_Shift_Map,Pad_Map));
 					if ((rho<Parameters->Size_Rho)&&(rho>=Parameters->Size_Fovea)&&(theta<Parameters->Size_Theta)&&(theta>=0))
-						Remap_Map[j*XSize+i] = 3*((rho-Parameters->Size_Fovea)*Parameters->Size_Theta+theta);
+//						Remap_Map[j*XSize+i] = 3*((rho-Parameters->Size_Fovea)*Parameters->Size_Theta+theta);
+//						Remap_Map[j*XSize+i] = (rho*PadSizeTheta+3*theta);
+						Remap_Map[j*XSize+i] = ((rho-Parameters->Size_Fovea)*PadSizeTheta+3*theta);
 					else
 						Remap_Map[j*XSize+i] = 0;
 				}

@@ -427,8 +427,6 @@ void Remap(unsigned char * Out_Image,
 //		LPImgPtr = &Rem_LUT[(j+startj)*Par->Resolution+starti];
 		for (i=0; i<SizeRemapX; i++)
 		{
-			if ((j==272)&&(i==542))
-				j=272;
 			*RemImgPtr++ = In_Image[*LPImgPtr];
 			*RemImgPtr++ = In_Image[(*LPImgPtr)+1];
 			*RemImgPtr++ = In_Image[(*LPImgPtr++)+2];
@@ -960,7 +958,7 @@ int Build_Cart2LP_Map(Image_Data * Par,
 
 int Make_LP_Real (unsigned char * Output_Image, unsigned char * Input_Image, Image_Data * Par, Cart2LPInterp * Cart2LP_Map)
 {
-	int i,j,k,l;
+	int i,k,l;
 	int sumR,sumG,sumB;
 	Cart2LPInterp * TablePtr = Cart2LP_Map;	
 	int PadSizeTheta = (((Par->Size_Theta * Par->LP_Planes) % Par->padding) + (Par->Size_Theta * Par->LP_Planes));

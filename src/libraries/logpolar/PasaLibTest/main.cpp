@@ -35,7 +35,7 @@ void main ()
 						1090,
 						CUSTOM,256.0/1090.0);
 
-	Param.padding = 21;
+	Param.padding = 1;
 
 	Rem_Fovea = (unsigned char *) malloc (3*Param.Size_Img_Remap * sizeof(unsigned char));	
 	
@@ -101,7 +101,7 @@ void main ()
 	else
 		RemapMap = NULL;
 
-	Remap(Rem_Image,LP_Image +252*42*3,&Param,RemapMap);
+	Remap(Rem_Image,LP_Image +760*42,&Param,RemapMap);
 	sprintf(File_Name,"%s","C:\\Temp\\Test4.bmp");
 	Save_Bitmap(Rem_Image,256,256,3,File_Name);
 
