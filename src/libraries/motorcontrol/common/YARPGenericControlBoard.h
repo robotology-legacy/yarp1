@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericComponent.h,v 1.14 2003-09-04 09:32:58 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.1 2003-09-04 10:19:20 babybot Exp $
 ///
 ///
 
