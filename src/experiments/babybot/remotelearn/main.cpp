@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
 	{
 		_inputPort.Read();
 		_learner.add(_inputPort.Content());
-		// _inputPort.Content().display();
+		_inputPort.Content().display();
 		
 		ACE_OS::printf("Received new sample:#%d\n", _learner.howMany());
 

@@ -26,8 +26,8 @@ void train(int argc, char *argv[]);
 int read_set (const char *filename, double **in, double **t, int inSize, int outSize);
 void help();
 
-const char __outputPortName[] = "/nnet/o";
-const char __inputPortName[] = "/nnet/i";
+const char __outputPortName[] = "/client/nnet/o";
+const char __inputPortName[] = "/client/nnet/i";
 
 int main(int argc, char* argv[])
 {
@@ -54,12 +54,12 @@ void train(int argc, char *argv[])
 	int nPatterns = read_set(trainFile,
 							&input_train_set_raw,
 							&target_train_set_raw,
-							11,
-							5);
+							3,
+							3);
 	
-	double *input_train_set;
-	double *target_train_set;
-	parsePatternsCenters(input_train_set_raw, target_train_set_raw, &input_train_set, &target_train_set, nPatterns);
+	double *input_train_set = input_train_set_raw;
+	double *target_train_set = target_train_set_raw;
+	
 
 	ACE_OS::printf("Please connect me...\n");
 	char c;
@@ -108,8 +108,8 @@ void train(int argc, char *argv[])
 	net.save("y:\\zgarbage\\temp.ini");
 	*/
 
-	delete [] input_train_set;
-	delete [] target_train_set;
+	// delete [] input_train_set;
+	// delete [] target_train_set;
 	delete [] input_train_set_raw;
 	delete [] target_train_set_raw;
 }

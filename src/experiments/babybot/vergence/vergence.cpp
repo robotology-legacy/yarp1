@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.7 2004-01-17 11:38:15 gmetta Exp $
+/// $Id: vergence.cpp,v 1.8 2004-01-19 19:03:23 babybot Exp $
 ///
 ///
 
@@ -162,13 +162,14 @@ int main(int argc, char *argv[])
 	disparity.loadDSTable (&disparity._imgL);
 
 	// DEBUG 
+	/*
 	YARPImageOf<YarpPixelMono> previousLeft;
 	YARPImageOf<YarpPixelMono> previousRight;
 	previousLeft.Resize(_stheta, _srho);
 	previousRight.Resize(_stheta, _srho);
 	int counter = 0;
-	///char tmpName[255];
-	
+	char tmpName[255];
+*/	
 	while (1)
 	{
 		in_left.Read();
@@ -176,6 +177,13 @@ int main(int argc, char *argv[])
 
 		inl.Refer (in_left.Content());
 		inr.Refer (in_right.Content());
+
+		// const char *LEFT_NAME = "y:/DEBUG_VERGENZA/R2/leftC2373.ppm";
+		// const char *RIGHT_NAME = "y:/DEBUG_VERGENZA/R2/rightC2373.ppm";
+
+		// YARPImageFile::Read(LEFT_NAME, inl);
+		// YARPImageFile::Read(RIGHT_NAME, inr);
+
 
 		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)inl, col_left);
 		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)inr, col_right);
@@ -187,6 +195,7 @@ int main(int argc, char *argv[])
 		disparity.downSample (col_right, sub_right);
 		
 		YVector disparityval(1);
+		disparity._actRings = 21;
 		disparityval(1) = (double)disparity.computeDisparity (sub_left, sub_right);
 
 		out_img.Content().SetID (YARP_PIXEL_MONO);

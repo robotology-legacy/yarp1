@@ -7,9 +7,11 @@ _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMa
 	char filename1[256];
 	char filename2[256];
 
-	// char filename[256];
-	// ACE_OS::sprintf (filename, "%s/conf/babybot/handforward.dat\0", root);
-	// _log.append(filename);
+	/* char filename[256];
+	ACE_OS::sprintf (filename, "%s/conf/babybot/handforward.dat\0", root);
+	_log.append(filename);
+	*/
+
 	_npoints = 0;
 
 	// 
@@ -83,6 +85,8 @@ void HandKinematics::prepareRemoteTrainData(YARPBottle &input, YARPBottle &out1,
 	input.readFloat(&a11);
 	input.readFloat(&a12);
 	input.readFloat(&a22);
+
+	input.rewind();
 
 	// convert head position + (x,y) coordinates into head centered ref frame
 	_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v, (double) ix, (double) iy);

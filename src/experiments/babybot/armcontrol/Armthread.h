@@ -172,6 +172,10 @@ private:
 			_trajectory.setFinal(cmd.data(), nst);
 		
 		_arm.setPositions(cmd.data());
+
+		YARPBehaviorSharedData::_data.writeVocab(YBVArmIssuedCmd);
+		YARPBehaviorSharedData::_data.writeYVector(cmd);
+		YARPBehaviorSharedData::send();
 	}
 
 	inline void send_commands();

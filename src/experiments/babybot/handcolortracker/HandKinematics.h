@@ -9,6 +9,45 @@
 #include <YARPBPNNet.h>
 #include <YARPBabybotHeadKin.h>
 
+#include <YARPPort.h>
+#include <YARPBottleContent.h>
+#include <./conf/YARPBabybotVocab.h>
+
+class ArmPredictionPort: public YARPInputPortOf<YARPBottle>
+{
+public:
+	ArmPredictionPort(): YARPInputPortOf<YARPBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
+	{
+		YARPString tmp = "/handtracker/prediction/i";
+		Register(tmp.c_str());
+
+		_position.Resize(6);
+		_position = 0.0;
+	}
+
+	virtual void OnRead(void)
+	{
+		YBVocab	tmpVocab;
+
+		Read();
+		YARPBottle &tmpBottle = Content();
+
+		if (tmpBottle.getID() != YBVMotorLabel)
+			return;
+
+		if (tmpBottle.tryReadVocab(tmpVocab))
+			tmpBottle.moveOn();
+
+		if (tmpVocab == YBVArmIssuedCmd)
+			tmpBottle.readYVector(_position);
+	
+		ACE_OS::printf("DEBUG: received a new final position\n");
+	}
+
+	YVector _position;
+	
+};
+
 class HandKinematics
 {
 public:
@@ -32,6 +71,21 @@ public:
 		return el;
 	}
 
+	YARPShapeEllipse queryPrediction()
+	{
+		YARPShapeEllipse el;
+		_center.sim(_armPredictionPort._position.data(), _v.data());
+
+		// compute retinal position
+		int predx = 0, predy = 0;
+		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v, predx, predy);
+
+		el.x = predx;
+		el.y = predy;
+
+		return el;
+	}
+
 	void loadCenter(YARPBPNNetState &p)
 	{
 		ACE_OS::printf("Loading center nnet from memory:");
@@ -50,9 +104,6 @@ public:
 private:
 	void _query(const YVector &arm, const YVector &head, YARPShapeEllipse &el)
 	{
-		// update head kinematics
-		_gaze.update(head);
-
 		// compute _v()
 		_center.sim(arm.data(),	// uses only the first 3 joints
 				    _v.data());
@@ -80,6 +131,8 @@ private:
 	
 	YARPBPNNet _center;
 	YARPBPNNet _ellipse;
+
+	ArmPredictionPort _armPredictionPort;
 
 	YARPBabybotHeadKin _gaze;
 	YVector _v;

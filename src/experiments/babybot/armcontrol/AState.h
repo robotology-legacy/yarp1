@@ -72,7 +72,6 @@ public:
 		_j5Ls.Resize(2);
 		
 		char *root = GetYarpRoot();
-		char filename[256];
 
 #if defined(__QNXEurobot__)
 		ACE_OS::sprintf (filename, "%s/conf/eurobot/errors.txt", root);

@@ -3,7 +3,6 @@
 
 #include <YARPImage.h>
 #include <YARPLogpolar.h>
-#include <YARPPort.h>
 #include <YARPConicFitter.h>
 
 const double __scale = 1.0;
@@ -13,10 +12,8 @@ class HandSegmenter
 {
 public:
 	HandSegmenter():
-	outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
 	histo(255, 0, 15)
 	{
-		outPort.Register("/handtracker/segmentation/o:img");
 		tmpImage.Resize(_logpolarParams::_xsize, _logpolarParams::_ysize);
 		outImage.Resize(_logpolarParams::_xsize/__scale, _logpolarParams::_ysize/__scale);
 		tmpLp.Resize(_logpolarParams::_stheta, _logpolarParams::_srho);
@@ -49,8 +46,7 @@ public:
 		if (v>threshold)
 			YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(0, 255, 0), 10, 2);
 		else
-			YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(192, 192, 192), 10, 2);
-		_send();
+			YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(255, 0, 0), 10, 2);
 	}
 
 	void mergeColor(YARPImageOf<YarpPixelBGR> &in, const YARPShapeEllipse &el)
@@ -71,8 +67,8 @@ public:
 		// x = (x + _logpolarParams::_xsize/2)/__scale;
 		// y = (_logpolarParams::_ysize/2-y)/__scale;
 		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(0, 255, 0), 10, 2);
-		_send();
 	}
+
 /*
 	void search(YARPImageOf<YarpPixelHSV> &src, YARPLpHistoSegmentation &target, const YARPShapeEllipse &el)
 	{
@@ -129,13 +125,12 @@ public:
 		return sum;
 	}*/
 	
-private:
-	void _send()
+	YARPImageOf<YarpPixelBGR> &getImage()
 	{
-		outPort.Content().Refer(outImage);
-		outPort.Write();
+		return outImage;
 	}
 
+private:
 	double _accumulate(YARPImageOf<YarpPixelMono> &in, YARPLpShapeRegion &region)
 	{
 		int i;
@@ -184,7 +179,6 @@ private:
 		}
 	}*/
 
-	YARPOutputPortOf<YARPGenericImage>	outPort;
 	YARPImageOf<YarpPixelBGR> tmpImage;
 	YARPImageOf<YarpPixelMono> mask;
 	YARPImageOf<YarpPixelBGR> outImage;

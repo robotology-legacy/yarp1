@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.15 2003-12-16 15:20:49 beltran Exp $
+$Id: install.txt,v 1.16 2004-01-19 19:03:23 babybot Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -23,6 +23,9 @@ What to do on each machine of the network
 	- you need to copy the logon.bat from this folder and logon.js 
 		in \Winnt\System32\Repl\Import\Scripts\ 
 	(what a weird place!)
+		Note1: Win2k/WinXP don't have this folder by default, you have to create it manually.
+		(MS suggests to share it also as netlogon, but it doesn't seem to be required)
+		Note2: check logon.bat for the correct path of logon.js
 	- in the PDC go to user properties inser "logon.bat" in the Logon 
 		Script name field (this because the USER is actually a
 		domain user).

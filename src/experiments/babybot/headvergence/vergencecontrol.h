@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergencecontrol.h,v 1.2 2003-11-21 17:03:05 babybot Exp $
+/// $Id: vergencecontrol.h,v 1.3 2004-01-19 19:03:23 babybot Exp $
 ///
 ///
 
@@ -92,8 +92,8 @@ public:
 		out(2) = 0.0;
 		out(3) = 0.0;
 
-		out(5) = _pids.pid(v);
-		out(4) = out(5);
+		out(5) = 0.0;	// _pids.pid(v)
+		out(4) = _pids.pid(v);
 	}
 
 private:

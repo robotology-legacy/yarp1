@@ -20,6 +20,7 @@ const char *const YBVArmInhibitResting = "ArmInhibitResting";
 const char *const YBVArmZeroG = "ArmZeroG";
 const char *const YBVArmHibernate = "ArmHibernate";
 const char *const YBVArmResume = "ArmResume";
+const char *const YBVArmIssuedCmd = "ArmIssuedCmd";
 const char *const YBVArmQuit = "ArmQuit";
 
 // reaching behavior
