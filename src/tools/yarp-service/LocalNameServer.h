@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.3 2004-07-09 16:42:42 eshuy Exp $
+/// $Id: LocalNameServer.h,v 1.4 2004-07-12 13:34:42 eshuy Exp $
 ///
 ///
 
@@ -423,8 +423,11 @@ public:
 
 class LocalNameServer  
 {
+ private:
+  YARPString local_name;
 public:
-	LocalNameServer(){};
+	LocalNameServer(const YARPString& local) : 
+	  local_name(local) {};
 	virtual ~LocalNameServer(){};
 
 	// sign in a service, specify name/IpEntry/type get port back

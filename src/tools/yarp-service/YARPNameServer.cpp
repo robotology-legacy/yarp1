@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.5 2004-07-12 12:05:02 eshuy Exp $
+/// $Id: YARPNameServer.cpp,v 1.6 2004-07-12 13:34:42 eshuy Exp $
 ///
 ///
 
@@ -378,7 +378,18 @@ void YARPNameServer::_handle_reply(const YARPString &ip, int type, int port)
 {
 	YARPNameServiceCmd rplCmd;
 	YARPNameTCP rpl;
-	rpl.setAddr(ACE_INET_Addr(port, ip.c_str()));
+
+	// avoid this!  replaces host with 127.0.0.1 if we are unlucky
+	// in the interface order...
+	//rpl.setAddr(ACE_INET_Addr(port, ip.c_str()));
+
+	if (ip==YARPString("127.0.0.1")) {
+	  rpl.setIp(local_name);
+	} else {
+	  rpl.setIp(ip);
+	}
+	rpl.setPort(port);
+
 	rplCmd.cmd = YARPNSRpl;
 	rplCmd.type = type;
 	rplCmd.length = rpl.length();

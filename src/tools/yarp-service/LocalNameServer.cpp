@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.4 2004-07-12 12:05:01 eshuy Exp $
+/// $Id: LocalNameServer.cpp,v 1.5 2004-07-12 13:34:42 eshuy Exp $
 ///
 
 #include "LocalNameServer.h"
@@ -518,9 +518,9 @@ int LocalNameServer::queryName(const YARPString &name, YARPString &ip, int *type
 		  printf("Found name ... [%s]\n", ip.c_str());
 		  if (ip == YARPString("127.0.0.1")) {
 		    printf("oops localhost... better make it global\n");
-		    char buf[256];
-		    gethostname(buf,sizeof(buf));
-		    ip = buf;
+		    //char buf[256];
+		    //gethostname(buf,sizeof(buf));
+		    ip = local_name;
 		  }
 			return 0;
 		}

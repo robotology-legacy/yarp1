@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.8 2004-07-12 12:04:19 eshuy Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.9 2004-07-12 13:34:32 eshuy Exp $
 ///
 ///
 
@@ -593,7 +593,7 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 
 	default:
 		{
-			ACE_DEBUG ((LM_DEBUG, "protocol not supported, can't register name %s\n", name));
+			ACE_DEBUG ((LM_WARNING, "protocol not supported, can't register name %s\n", name));
 		}
 		break;
 	}
@@ -606,13 +606,26 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 ///	same machine.
 bool YARPSocketNameService::VerifySame (YARPNameClient& namer, const char *ip, const char *netname, YARPString& if_name)
 {
+  /*
 	YARPString new_ip, new_nic;
 	namer.query_nic (ip, netname, new_nic, new_ip);
 	if_name = new_nic;
-	//if (strcmp (new_ip.c_str(), ip) == 0)
-	//return true;
+	if (strcmp (new_nic.c_str(), netname) == 0)
+	   return true;
+	return false;
+	*/
 
 
+    // original code
+	YARPString new_ip, new_nic;
+	namer.query_nic (ip, netname, new_nic, new_ip);
+	if_name = new_nic;
+	if (strcmp (new_ip.c_str(), ip) == 0)
+	   return true;
+	return false;
+
+
+  /*
 	ACE_INET_Addr addr1, addr2;
 	addr1.set((short unsigned int)0,(const char *)new_ip.c_str());
 	addr2.set((short unsigned int)0,(const char *)ip);
@@ -621,6 +634,7 @@ bool YARPSocketNameService::VerifySame (YARPNameClient& namer, const char *ip, c
 	}
 
 	return false;
+  */
 }
 
 bool YARPSocketNameService::VerifyLocal (YARPNameClient& namer, const char *rem_ip, const char *loc_ip, const char *netname)
@@ -705,12 +719,16 @@ YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const
 	case YARP_TCP:
 	case YARP_UDP:
 		{
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG,"Trying to locate name\n"));
 			///
 			int reg_type = YARP_NO_SERVICE_AVAILABLE;
 			if (namer.query (sname, addr, &reg_type) != YARP_OK)
 			{
 				YARP_DBG(THIS_DBG) ((LM_WARNING, ">>>> Problems locating %s\n", sname.c_str()));
 				return NAMER_FAIL;	/// invalid name id.
+			}
+			else {
+			  YARP_DBG(THIS_DBG) ((LM_DEBUG,"got %s\n", addr.get_host_addr()));
 			}
 
 			if (network_name != NULL)

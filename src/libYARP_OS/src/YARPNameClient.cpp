@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.7 2004-07-12 12:04:19 eshuy Exp $
+/// $Id: YARPNameClient.cpp,v 1.8 2004-07-12 13:34:32 eshuy Exp $
 ///
 ///
 
@@ -74,6 +74,17 @@
 #include <yarp/YARPNameClient.h>
 
 #include <ace/OS.h>
+
+//#define NAME_CLIENT_VERBOSE 
+
+#ifdef NAME_CLIENT_VERBOSE
+	#define NAME_CLIENT_DEBUG(string) do { ACE_OS::printf("NAME_CLIENT: "), ACE_OS::printf string; } while(0)
+#else
+	#define NAME_CLIENT_DEBUG(string) do {} while(0)
+#endif
+
+//#define YNC if(1) printf
+#define YNC if(0) printf
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -149,6 +160,7 @@ int YARPNameClient::check_in_mcast(const YARPString &s, ACE_INET_Addr &addr)
 
 int YARPNameClient::check_in (const YARPString &s, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr)
 {
+  YNC("YNC %s:%d --> check in %s\n",__FILE__,__LINE__,s.c_str());
 	int ret = YARP_FAIL;
 	mutex_.Wait();
 	ACE_INET_Addr tmpAddr = reg_addr;
@@ -160,6 +172,7 @@ int YARPNameClient::check_in (const YARPString &s, const ACE_INET_Addr &reg_addr
 
 int YARPNameClient::check_in (const YARPString &s, ACE_INET_Addr &addr)
 {
+  YNC("YNC %s:%d --> check in %s\n",__FILE__,__LINE__,s.c_str());
 	int ret = YARP_FAIL;
 	mutex_.Wait();
 	ret = _checkIn(s, addr);
@@ -169,6 +182,7 @@ int YARPNameClient::check_in (const YARPString &s, ACE_INET_Addr &addr)
 		
 int YARPNameClient::check_in (const YARPString &s, YARPString &ip, NetInt32 *port)
 {
+  YNC("YNC %s:%d --> check in %s\n",__FILE__,__LINE__,s.c_str());
 	int ret = YARP_FAIL;
 	mutex_.Wait();
 	ACE_INET_Addr tmpAddr(ip.c_str());
@@ -181,6 +195,7 @@ int YARPNameClient::check_in (const YARPString &s, YARPString &ip, NetInt32 *por
 
 int YARPNameClient::check_in_udp(const YARPString &name, YARPString &addr, NetInt32 *ports, NetInt32 n)
 {
+  YNC("YNC %s:%d --> check in %s\n",__FILE__,__LINE__,name.c_str());
 	int ret = YARP_FAIL;
 	mutex_.Wait();
 	ret = _checkInUdp(name, addr, ports, n);
@@ -190,6 +205,7 @@ int YARPNameClient::check_in_udp(const YARPString &name, YARPString &addr, NetIn
 
 int YARPNameClient::check_in_udp(const YARPString &name, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr, NetInt32 *ports, NetInt32 n)
 {
+  YNC("YNC %s:%d --> check in %s\n",__FILE__,__LINE__,name.c_str());
 	int ret = YARP_FAIL;
 	mutex_.Wait();
 	YARPString ip = reg_addr.get_host_addr();
@@ -201,6 +217,7 @@ int YARPNameClient::check_in_udp(const YARPString &name, const ACE_INET_Addr &re
 
 int YARPNameClient::check_in_qnx(const YARPNameQnx &entry)
 {
+  YNC("YNC %s:%d --> check in \n",__FILE__,__LINE__);
 	int ret = YARP_FAIL;
 	mutex_.Wait();
 	ret = _checkInQnx(entry);
@@ -210,6 +227,7 @@ int YARPNameClient::check_in_qnx(const YARPNameQnx &entry)
 
 int YARPNameClient::query (const YARPString &s, ACE_INET_Addr &addr, int *type)
 {
+  YNC("YNC %s:%d --> query %s\n",__FILE__,__LINE__,s.c_str());
 	int ret = YARP_FAIL;
 	mutex_.Wait();
 	ret = _query(s, addr, type);
@@ -219,6 +237,7 @@ int YARPNameClient::query (const YARPString &s, ACE_INET_Addr &addr, int *type)
 
 int YARPNameClient::query_qnx (const YARPString &s, YARPNameQnx &entry, int *type)
 {
+  YNC("YNC %s:%d --> query %s\n",__FILE__,__LINE__,s.c_str());
 	int ret = YARP_FAIL;
 	mutex_.Wait();
 	ret = _queryQnx(s, entry, type);
@@ -228,10 +247,18 @@ int YARPNameClient::query_qnx (const YARPString &s, YARPNameQnx &entry, int *typ
 
 int YARPNameClient::query_nic(const YARPString &inIp, const YARPString &netId, YARPString &outNic, YARPString &outIp)
 {
+  YARPString myIp = inIp;
+  YNC("YNC %s:%d --> query_nic %s\n",__FILE__,__LINE__,inIp.c_str());
+  if (myIp==YARPString("127.0.0.1")) {
+    // localhost is no good, no good at all
+    char buf[256];
+    gethostname(buf,sizeof(buf));
+    myIp = buf;
+  }
 	int ret = YARP_FAIL;
 	mutex_.Wait();
 	YARPNSNic tmp;
-	tmp.set(inIp, netId);
+	tmp.set(myIp, netId);
 	ret = _query_nic(tmp, outNic, outIp);
 	mutex_.Post();
 	return ret;
@@ -239,6 +266,7 @@ int YARPNameClient::query_nic(const YARPString &inIp, const YARPString &netId, Y
 
 int YARPNameClient::check_out (const YARPString &s)
 {
+  YNC("YNC %s:%d --> check_out %s\n",__FILE__,__LINE__,s.c_str());
 	mutex_.Wait();
 	// send data to server
 	YARPNameServiceCmd tmpCmd;
@@ -279,6 +307,7 @@ int YARPNameClient::check_out (const YARPString &s)
 
 int YARPNameClient::check_out_qnx (const YARPString &s)
 {
+  YNC("YNC %s:%d --> check_out %s\n",__FILE__,__LINE__,s.c_str());
 	mutex_.Wait();
 	// send data to server
 	YARPNameServiceCmd tmpCmd;
@@ -344,6 +373,7 @@ int YARPNameClient::close()
 
 int YARPNameClient::_checkIn(const YARPString &s, ACE_INET_Addr &addr)
 {
+  YNC("YNC %s:%d --> _checkIn %s\n",__FILE__,__LINE__,s.c_str());
 	YARPNameServiceCmd tmpCmd;
 	YARPNameTCP tmpRqst;
 	
@@ -393,6 +423,7 @@ int YARPNameClient::_checkIn(const YARPString &s, ACE_INET_Addr &addr)
 
 int YARPNameClient::_checkInUdp(const YARPString &name, const YARPString &ip, NetInt32 *ports, NetInt32 n)
 {
+  YNC("YNC %s:%d --> _checkIn %s\n",__FILE__,__LINE__,name.c_str());
 	YARPNameServiceCmd tmpCmd;
 	YARPNameUDP tmpRqst;
 	
@@ -446,6 +477,7 @@ int YARPNameClient::_checkInUdp(const YARPString &name, const YARPString &ip, Ne
 
 int YARPNameClient::_checkInMcast(const YARPString &s, ACE_INET_Addr &addr)
 {
+  YNC("YNC %s:%d --> _checkIn %s\n",__FILE__,__LINE__,s.c_str());
 	YARPNameServiceCmd tmpCmd;
 	YARPNameTCP tmpRqst;
 	
@@ -495,6 +527,7 @@ int YARPNameClient::_checkInMcast(const YARPString &s, ACE_INET_Addr &addr)
 
 int YARPNameClient::_checkInQnx(const YARPNameQnx &entry)
 {
+  YNC("YNC %s:%d --> _checkIn \n",__FILE__,__LINE__);
 	YARPNameServiceCmd tmpCmd;
 	YARPNameQnx tmpRqst;
 	
@@ -526,6 +559,7 @@ int YARPNameClient::_checkInQnx(const YARPNameQnx &entry)
 
 int YARPNameClient::_query(const YARPString &s, ACE_INET_Addr &addr, int *type)
 {
+  YNC("YNC %s:%d --> _query %s\n",__FILE__,__LINE__,s.c_str());
 	YARPNameServiceCmd tmpCmd;
 	YARPNameTCP tmpRqst;
 	
@@ -567,6 +601,8 @@ int YARPNameClient::_query(const YARPString &s, ACE_INET_Addr &addr, int *type)
 	YARPNameTCP *srvRpl = (YARPNameTCP *)data_buf_;
 	srvRpl->getAddr(addr);
 						
+	NAME_CLIENT_DEBUG(("underlying ip %s port %d\n",
+			   srvRpl->_ip, srvRpl->_port));
 	NAME_CLIENT_DEBUG(("Received %s(%s):%d\n", addr.get_host_addr(), servicetypeConverter(*type), addr.get_port_number()));
 			
 	// close the connection
@@ -577,7 +613,8 @@ int YARPNameClient::_query(const YARPString &s, ACE_INET_Addr &addr, int *type)
 
 int YARPNameClient::_query_nic(const YARPNSNic &in, YARPString &outNic, YARPString &outIp)
 {
-  //printf("Oi! Nic!\n");
+  YNC("YNC %s:%d --> _query_nic\n",__FILE__,__LINE__);
+  ACE_DEBUG((LM_DEBUG,"Oi! Nic!\n"));
 	YARPString reply;
 	YARPNameServiceCmd tmpCmd;
 	if (connect_to_server()!=0)
@@ -609,7 +646,7 @@ int YARPNameClient::_query_nic(const YARPNSNic &in, YARPString &outNic, YARPStri
 	outNic = YARPString(tmp1);
 	outIp = YARPString(tmp2);
 
-	//printf("Oi! Nic! got %s // %s\n", outNic.c_str(), outIp.c_str());
+	ACE_DEBUG((LM_DEBUG,"Oi! Nic! got %s // %s\n", outNic.c_str(), outIp.c_str()));
 
 	// close the connection
 	close();
@@ -619,6 +656,7 @@ int YARPNameClient::_query_nic(const YARPNSNic &in, YARPString &outNic, YARPStri
 
 int YARPNameClient::_queryQnx(const YARPString &s, YARPNameQnx &entry, int *type)
 {
+  YNC("YNC %s:%d --> _query\n",__FILE__,__LINE__);
 	YARPNameServiceCmd tmpCmd;
 	YARPNameQnx tmpRqst;
 	
@@ -668,6 +706,7 @@ int YARPNameClient::_queryQnx(const YARPString &s, YARPNameQnx &entry, int *type
 
 int YARPNameClient::_handle_reply(YARPString &out)
 {
+  YNC("YNC %s:%d --> _handle_reply\n",__FILE__,__LINE__);
 	unsigned int byte_count = 0;
 	int res = 0;
 	out = "";

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.5 2004-07-10 22:10:41 gmetta Exp $
+/// $Id: YARPNameServer.h,v 1.6 2004-07-12 13:34:42 eshuy Exp $
 ///
 ///
 
@@ -95,12 +95,16 @@ using namespace std;
 
 class YARPNameServer: public YARPRateThread
 {
+ private:
+  YARPString local_name;
 public:
 	YARPNameServer(const YARPString &file, const YARPString& local, int port):
 	  YARPRateThread("name server thread", 0),
-		nmap(file, local),
+	  nmap(file, local),
+	  ns(local),
 	  server_addr_(port), peer_acceptor_(server_addr_, 1)
 	{
+	  local_name = local;
 		  //ns.init(file);
 		  data_buf_ = new char [SIZE_BUF];
 

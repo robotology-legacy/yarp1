@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.4 2004-07-09 16:10:13 eshuy Exp $
+/// $Id: YARPNameClient.h,v 1.5 2004-07-12 13:34:32 eshuy Exp $
 ///
 ///
 
@@ -91,13 +91,6 @@
 
 #include <yarp/YARPString.h>
 
-///#define NAME_CLIENT_VERBOSE 
-
-#ifdef NAME_CLIENT_VERBOSE
-	#define NAME_CLIENT_DEBUG(string) do { ACE_OS::printf("NAME_CLIENT: "), ACE_OS::printf string; } while(0)
-#else
-	#define NAME_CLIENT_DEBUG(string) do {} while(0)
-#endif
 
 #ifndef SIZE_BUF
 	#define SIZE_BUF 4096
