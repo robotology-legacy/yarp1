@@ -78,12 +78,12 @@ inline int BttvxReleaseBuffer();
 int BttvxSetImageBuffer(int,unsigned char *);
 int BttvxWaitEvent();
 int init_bttvx(int, int, int, int);
-static inline void bt848_bright(uint bright);
+inline void bt848_bright(uint bright);
 int get_bt848_bright();
-static inline void bt848_hue( uint hue);
-static inline void bt848_contrast( uint cont);
-static inline void bt848_sat_u( ulong data);
-static inline void bt848_sat_v( ulong data);
+inline void bt848_hue( uint hue);
+inline void bt848_contrast( uint cont);
+inline void bt848_sat_u( ulong data);
+inline void bt848_sat_v( ulong data);
 
 /* maximum needed buffer size for extended VBI frame mode capturing */
 /*#define BTTV_MAX_FBUF	0x190000*/
