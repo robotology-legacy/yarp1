@@ -1,4 +1,4 @@
-// $Id: YARPEurobotArm.cpp,v 1.7 2003-11-24 17:04:36 beltran Exp $
+// $Id: YARPEurobotArm.cpp,v 1.8 2003-12-18 16:37:25 beltran Exp $
 
 #include "YARPEurobotArm.h"
 

@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPEurobotArm.h,v 1.6 2003-11-24 17:04:37 beltran Exp $
+// $Id: YARPEurobotArm.h,v 1.7 2003-12-18 16:37:25 beltran Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -127,4 +127,3 @@ inline void YARPEurobotArm::_encoderToAngles(const double *enc, double *ang, con
 }
 
 #endif
-
