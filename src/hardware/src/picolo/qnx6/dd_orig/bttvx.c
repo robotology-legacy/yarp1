@@ -661,39 +661,19 @@ void InterruptEvent()
 	if(astat & BT848_INT_FMTCHG) //Change of video input
 	{
 		btv->win.norm &= (dstat & BT848_DSTATUS_NUML) ? (~1) : (~0); 
+		bt848_cap(btv,0);
 		bt848_set_size(btv);
+		bt848_cap(btv,1);
+		printf("bttvx: Changed input format");
  	}
 
 	if(astat & BT848_INT_SCERR) //Error, reset capture.
 	{
-		printf("Erro\n");
+		printf("Error\n");
 		fflush(stdout);
 		bt848_cap(btv,0);
 		bt848_cap(btv,1);
 	}
-
-	
-
-	/*
-	if (double_buffer_tag == 0)
-	{
-		  make_rawrisctab(btv, 
-		  (unsigned int *) btv->risc_odd,
-		  (unsigned int *) btv->risc_even, 
-		  (unsigned int *) btv->imagebuf_odd,
-		  (unsigned int *) btv->imagebuf_even);
-
-		  double_buffer_tag = 1;
-	}else
-	{	
-		make_rawrisctab(btv, 
-		  (unsigned int *) btv->risc_odd,
-		  (unsigned int *) btv->risc_even, 
-		  (unsigned int *) btv->imagebuf_even,
-		  (unsigned int *) btv->imagebuf_even);
-		double_buffer_tag = 0;
-	}
-	*/
 }
 
 
@@ -1171,19 +1151,15 @@ init_bt848(struct bttv * btv, int video_format)
 
   bt848_set_size(btv);
 
-  //bt848_bright(btv, 0x10);
+  bt848_bright(btv, 0x25);
   //bt848_bright(btv, 0x7f);
-  //bt848_sat_u(btv,511);
-  //bt848_sat_v(btv,511);	
+  //bt848_sat_u(btv,1);
+  //bt848_sat_v(btv,1);	
+  //bt848_hue(btv,0);
   btwrite(0xd8, BT848_CONTRAST_LO);
-  //btwrite(0xE0,BT848_OFORM);
+  //btwrite(0x80,BT848_OFORM);
 
-
-
-  ////btwrite(0x60,BT848_E_VSCALE_HI); //This was creating problems with the scalling
-  ////btwrite(0x60,BT848_O_VSCALE_HI);
-  btwrite(/*BT848_ADC_SYNC_T|*/
-	  BT848_ADC_RESERVED|BT848_ADC_CRUSH, BT848_ADC);
+  btwrite(BT848_ADC_RESERVED|BT848_ADC_CRUSH, BT848_ADC);
 
   btwrite(BT848_CONTROL_LDEC, BT848_E_CONTROL);
   btwrite(BT848_CONTROL_LDEC, BT848_O_CONTROL);
@@ -1326,71 +1302,6 @@ int init_bttvx(int video_mode, int device_number, int w, int h) //Video format, 
 	
 	i = init_bt848(&bttvs[0],video_format); 
 
-	/* initialize dispatch interface */
-	/*
-	if((dpp = dispatch_create()) == NULL) 
-	{
-		fprintf(stderr, 
-			    "%s: Unable to allocate dispatch handle.\n",
-				argv[0]);
-		return EXIT_FAILURE;
-	}
-	*/
-
-	/* initialize resource manager attributes */
-	///memset(&resmgr_attr, 0, sizeof resmgr_attr);
-	
-	///resmgr_attr.nparts_max = 1;
-	//resmgr_attr.msg_max_size = 2048;
-	///resmgr_attr.msg_max_size=VBIBUF_SIZE;
-
-	/* initialize functions for handling messages */
-	/*
-	iofunc_func_init(_RESMGR_CONNECT_NFUNCS, 
-					 &connect_funcs,
-					 _RESMGR_IO_NFUNCS, 
-					 &io_funcs);
-
-	io_funcs.read = io_read;
-	io_funcs.devctl = io_devctl;
-	connect_funcs.open = io_open;
-	*/
-	/* initialize attribute structure used by the device */
-	///iofunc_attr_init(&attr, 
-	///				 S_IFNAM | 0666, 
-	///				 0, 0);
-	//attr.nbytes = strlen(buffer)+1;
-	///attr.nbytes = VBIBUF_SIZE + 1;
-
-    /* attach our device name */
-    ///id = resmgr_attach(dpp,            /* dispatch handle        */
-    ///                   &resmgr_attr,   /* resource manager attrs */
-    ///                   device_name,  /* device name            */
-    ///                   _FTYPE_ANY,     /* open type              */
-    ///                   0,              /* flags                  */
-    ///                   &connect_funcs, /* connect routines       */
-    ///                   &io_funcs,      /* I/O routines           */
-    ///                   &attr);         /* handle                 */
-    ///if(id == -1) {
-    ///    fprintf(stderr, "%s: Unable to attach name.\n", argv[0]);
-    ///    return EXIT_FAILURE;
-    ///}
-
-	/* allocate a context structure */
-	///ctp = dispatch_context_alloc(dpp);
-
-	/* start the resource manager message loop */
-	/*
-	while(1) 
-	{
-		if((ctp = dispatch_block(ctp)) == NULL) 
-		{
-			fprintf(stderr, "block error\n");
-			return EXIT_FAILURE;
-		}
-		dispatch_handler(ctp);
-	}
-	*/
 }
 
 #ifdef  __cplusplus
