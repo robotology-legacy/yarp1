@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Port.cpp,v 1.4 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: Port.cpp,v 1.5 2003-04-18 15:51:46 gmetta Exp $
 ///
 ///
 
@@ -107,6 +107,7 @@ void safe_printf(char *format,...)
 #define HEADER_CT (4)
 #define MAX_FRAGMENT (4)
 
+#if 0
 ///
 ///
 /// return type was YARPNameID
@@ -121,7 +122,7 @@ YARPUniqueNameID MakeServer(const char *name)
 {
 	return YARPNameService::RegisterName(name);
 }
-
+#endif
 
 int Port::SendHelper(const YARPNameID& pid, const char *buf, int len, int tag)
 {
@@ -146,18 +147,21 @@ int Port::SayServer(const YARPNameID& pid, const char *buf)
 	return result;
 }
 
+#if 0
 ////
 //// changed return type
 YARPUniqueNameID Port::GetServer(const char *name)
 {
 	return ::GetServer(name);
 }
+#endif
 
+#if 0
 YARPUniqueNameID Port::MakeServer(const char *name)
 {
 	return ::MakeServer(name);
 }
-
+#endif
 
 void OutputTarget::Body()
 {
@@ -166,7 +170,8 @@ void OutputTarget::Body()
 	BlockSender sender;
 	CountedPtr<Sendable> p_local_sendable;
 
-	YARPUniqueNameID target_pid = GetServer(GetLabel().c_str());
+	///YARPUniqueNameID target_pid = GetServer(GetLabel().c_str());
+	YARPUniqueNameID target_pid = YARPNameService::LocateName(GetLabel().c_str());
 	YARPEndpointManager::CreateOutputEndpoint (target_pid);
 	YARPEndpointManager::ConnectEndpoints (target_pid);
 
@@ -259,8 +264,16 @@ void Port::Body()
 	int assume_data;
 	int call_on_read = 0;
 
-	YARPUniqueNameID pid;
-	pid = MakeServer(name.c_str());
+	///MakeServer(name.c_str());
+	YARPUniqueNameID pid = YARPNameService::RegisterName(name.c_str()); 
+	if (pid.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+	{
+		ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
+		name_set = 0;
+		okay_to_send.Post();
+		return;
+	}
+
 	YARPEndpointManager::CreateInputEndpoint (pid);
 	
 /// QNX6?
@@ -486,7 +499,8 @@ void Port::Body()
 							target->PostMutex();
 							if (!active)
 							{
-								dbg_printf(40)("Removing connection between %s and %s (%s)\n", name.c_str(), target->GetLabel().c_str(),
+								dbg_printf(40)("Removing connection between %s and %s (%s)\n", 
+									name.c_str(), target->GetLabel().c_str(),
 									deactivated ? "as requested" : "target stopped responding");
 								delete target;
 							}
@@ -502,7 +516,7 @@ void Port::Body()
 					{
 						dbg_printf(80)("Sending a message from %s to target %s\n",
 						name.c_str(), target->GetLabel().c_str());
-						if (p_sendable.Ptr()!=NULL)
+						if (p_sendable.Ptr() != NULL)
 						{
 	#ifdef UPDATED_PORT
 							if (require_complete_send)
@@ -535,15 +549,13 @@ void Port::Body()
 
 			case MSG_ID_DETACH_ALL:
 				{
-					dbg_printf(70)("Received detach_all request (%s)\n", 
-					name.c_str());
+					dbg_printf(70)("Received detach_all request (%s)\n", name.c_str());
 					target = targets.GetRoot();
 
 					while (target!=NULL)
 					{
 						next = target->GetMeshNext();
-						dbg_printf(70)("Removing connection between %s and %s\n", 
-						name.c_str(), target->GetLabel().c_str());
+						dbg_printf(70)("Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str());
 						target->Deactivate();
 						target = next;
 					}

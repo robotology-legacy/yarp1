@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPSemaphore.h,v 1.4 2003-04-18 15:17:16 natta Exp $
+///	$Id: YARPSemaphore.h,v 1.5 2003-04-18 15:51:46 gmetta Exp $
 ///
 ///
 /*
@@ -74,26 +74,29 @@
 Ideally, would use POSIX semaphores, threads etc.
  */
 
+///
+/// the Null sema can be used in place of a real sema where synchro is not needed.
+/// 
 class YARPNullSemaphore
 {
 private:
 
 public:
 	// Assertion fails if insufficient resources at initialization
-	YARPNullSemaphore(int initial_count=1){}
-	YARPNullSemaphore(const YARPNullSemaphore& yt){}
+	YARPNullSemaphore(int initial_count = 1) {}
+	YARPNullSemaphore(const YARPNullSemaphore& yt) {}
 
-	virtual ~YARPNullSemaphore(){}
+	virtual ~YARPNullSemaphore() {}
 
-	void BlockingWait(){}
-	int PollingWait(){return YARP_OK; }  // returns true if Wait() occurred
-
-	int Wait(int blocking = 1)
-	{ return 1; }
-
-	void Post(){}
+	void BlockingWait() {}
+	int PollingWait() { return YARP_OK; }  // returns true if Wait() occurred
+	int Wait(int blocking = 1) { return 1; }
+	void Post() {}
 };
 
+///
+///
+///
 class YARPSemaphore
 {
 private:

@@ -52,12 +52,13 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: exec_test8.cpp,v 1.2 2003-04-18 09:25:49 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.3 2003-04-18 15:51:46 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
+#include <YARPAll.h>
 #include <ace/config.h>
-#include <ace/Object_Manager.h>
+#include <ace/OS.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -79,7 +80,9 @@ public:
 //	YARPInputPortOf<NetInt32> in;
 	virtual void Body()
 	{
-		in.Register("/foo/the/rampaging/frog");
+		int er = in.Register("/foo/the/rampaging/frog");
+		ACE_ASSERT (er == YARP_OK);
+
 		YARPTime::DelayInSeconds(2);
 
 		while (1)
@@ -97,7 +100,9 @@ public:
 //	YARPOutputPortOf<NetInt32> out;
 	virtual void Body()
 	{
-		out.Register("/foo/the/rampaging/fly");
+		int er = out.Register("/foo/the/rampaging/fly");
+		ACE_ASSERT (er == YARP_OK);
+
 		YARPTime::DelayInSeconds(2);
 		printf("Step1\n");
 		out.Connect("/foo/the/rampaging/frog");

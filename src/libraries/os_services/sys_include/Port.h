@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Port.h,v 1.3 2003-04-18 09:25:49 gmetta Exp $
+/// $Id: Port.h,v 1.4 2003-04-18 15:51:46 gmetta Exp $
 ///
 ///
 
@@ -181,7 +181,6 @@ public:
 	int add_header;
 	int expect_header;
 	MeshOf<OutputTarget> targets;
-	virtual void Body();
 	Sema something_to_send;
 	Sema something_to_read;
 	Sema okay_to_send;
@@ -226,6 +225,9 @@ public:
 	CountedPtr<Receivable> p_receiver_latest;
 	CountedPtr<Receivable> p_receiver_incoming;
 
+	///
+	virtual void Body();
+
 	Port (const char *nname, int autostart = 1) : 
 		something_to_send(0), 
 		something_to_read(0),
@@ -259,22 +261,25 @@ public:
 		expect_header = 1;
 	}
 
-	void SetName(const char *nname)
+	int SetName(const char *nname)
 	{
 		//assert(name.c_str() == NULL);
+		int ret = YARP_OK;
 		name = nname;
 		asleep = 1;
 		okay_to_send.Wait();
 		Begin();
 		okay_to_send.Wait();
+		if (!name_set) { ret = YARP_FAIL; }
 		okay_to_send.Post();
+		return ret;
 	}
   
 	int SendHelper(const YARPNameID& pid, const char *buf, int len, int tag=MSG_ID_NULL);
 	int SayServer(const YARPNameID& pid, const char *buf);
 
-	YARPUniqueNameID MakeServer(const char *name);
-	YARPUniqueNameID GetServer(const char *name);
+///	YARPUniqueNameID MakeServer(const char *name);
+///	YARPUniqueNameID GetServer(const char *name);
 
 	void AddHeaders(int flag)
     {
@@ -303,7 +308,8 @@ public:
 		int result = YARP_FAIL;
 		if (!self_id.isValid())
 		{
-			self_id = GetServer(name.c_str());
+			///self_id = GetServer(name.c_str());
+			self_id = YARPNameService::LocateName(name.c_str());
 			YARPEndpointManager::CreateOutputEndpoint (self_id);
 			YARPEndpointManager::ConnectEndpoints (self_id);
 		}

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.cpp,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: BlockSender.cpp,v 1.3 2003-04-18 15:51:45 gmetta Exp $
 ///
 ///
 
@@ -100,12 +100,12 @@ int BlockSender::Fire()
 		DBG(95) ACE_OS::printf("Sent %d pieces\n",pieces);
 	}
 	cursor = entries.begin();
-	if (result==-1)
+	if (result == YARP_FAIL)
 	{
 		failed = 1;
 		DBG(45) ACE_OS::printf("*** BlockSender::Fire() failed, err# %d\n");
 	}
-	return (result!=-1);
+	return (result != YARP_FAIL);
 }
 
 int BlockSender::AddPiece(char *buffer, int len)

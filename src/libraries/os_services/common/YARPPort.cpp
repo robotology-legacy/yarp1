@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPort.cpp,v 1.3 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.4 2003-04-18 15:51:46 gmetta Exp $
 ///
 ///
 
@@ -256,8 +256,8 @@ YARPPort::~YARPPort()
 
 int YARPPort::Register(const char *name)
 {
-	PD.SetName (name);
-	return 0;
+	return PD.SetName (name);
+	///return 0;
 }
 
 int YARPPort::IsReceiving()
