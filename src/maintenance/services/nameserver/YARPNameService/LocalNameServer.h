@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.15 2003-07-01 09:48:44 babybot Exp $
+/// $Id: LocalNameServer.h,v 1.16 2003-08-02 07:46:15 gmetta Exp $
 ///
 ///
 
@@ -68,18 +68,14 @@
 #if !defined __LOCALNAMESERVER__
 #define __LOCALNAMESERVER__
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
 
 #include <conf/YARPConfig.h>
+#include <wide_nameloc.h>
+#include <YARPString.h>
 
-#ifndef _NOLIB
-#define _NOLIB 1
-#endif
-#include "wide_nameloc.h"
-
-#include <string>
 #include <list>
 
 #define NAME_SERVER_VERBOSE
@@ -106,9 +102,9 @@ const char __endIpPool[] = {"224.255.255.255"};
 const int _max_ref = 9999;
 
 // return the ip address right after 'i'
-std::string getNextIp(const std::string &i);
+YARPString getNextIp(const YARPString &i);
 // return the distance between two ip address (count the number of ip)
-int getDistance(const std::string &current, const std::string &start);
+int getDistance(const YARPString &current, const YARPString &start);
 
 class PortEntry
 {
@@ -201,20 +197,20 @@ public:
 
 	IpEntry(const char *i, int startPort, int endPort)
 	{
-		ip = std::string(i);
+		ip = YARPString(i);
 		_portPool._min = PortEntry(startPort);
 		_portPool._max = PortEntry(endPort);
 	}
 
 	IpEntry(const char *i, const char *s)
 	{
-		ip = std::string(i);
+		ip = YARPString(i);
 		int dist = getDistance(ip,s);
 		_portPool._min = dist+__startDynPortPool;
 		_portPool._max = dist+__startDynPortPool;
 	}
 
-	std::string	ip;
+	YARPString	ip;
 	PORT_LIST ports;
 	pool<PortEntry, PORT_LIST, PORT_IT> _portPool;
 
@@ -264,15 +260,15 @@ public:
 		_ipPool._max = IpEntry(__endIpPool, __startIpPool);
 	}
 
-	void release (const std::string &ip);
-	void release(const std::string &ip, int port);
-	bool check_port(const std::string &ip, int port);
+	void release (const YARPString &ip);
+	void release(const YARPString &ip, int port);
+	bool check_port(const YARPString &ip, int port);
 	void sign_in(const IpEntry &ip);
-	void sign_in(const std::string &ip);
-	int ask_new(const std::string &ip, int *port);
-	int ask_new(const std::string &ip, PORT_LIST &ports, int n);
-	int find_ip(const std::string &ip);
-	int find_ip(const std::string &ip, IP_IT &it);
+	void sign_in(const YARPString &ip);
+	int ask_new(const YARPString &ip, int *port);
+	int ask_new(const YARPString &ip, PORT_LIST &ports, int n);
+	int find_ip(const YARPString &ip);
+	int find_ip(const YARPString &ip, IP_IT &it);
 
 public:
 	pool<IpEntry, IP_LIST, IP_IT> _ipPool;
@@ -287,10 +283,10 @@ public:
 		max_ref = _max_ref;
 	}
 
-	std::string name;
-	// std::string type;
+	YARPString name;
+	// YARPString type;
 	int type;
-	std::string ip;
+	YARPString ip;
 	PORT_LIST ports;
 
 private:
@@ -348,26 +344,26 @@ typedef SVC_LIST::iterator SVC_IT;
 class services: public SVC_LIST
 {
 public:
-	int find_service(const std::string &n, SVC_IT &it);
+	int find_service(const YARPString &n, SVC_IT &it);
 	
 	// release a name service -- return ip and port(s)
-	int check_out(const std::string &name, std::string &ip, PORT_LIST &ports);
+	int check_out(const YARPString &name, YARPString &ip, PORT_LIST &ports);
 	
 	// check in: increase ref count for a specified ip, port(s) and max_ref
 	// Note: service must not exist !
-	void check_in(const std::string &name, const std::string &ip, int type, const PORT_LIST &ports, int max_ref);
+	void check_in(const YARPString &name, const YARPString &ip, int type, const PORT_LIST &ports, int max_ref);
 	
 	// check only: return ip, port(s) and type associated with a service name
-	bool check(const std::string &name, std::string &ip, int *type, PORT_LIST &ports)
+	bool check(const YARPString &name, YARPString &ip, int *type, PORT_LIST &ports)
 	{
 		int dummy;
 		return check(name, ip, type, ports, &dummy);
 	}
 	// check only: return ip, port(s), type and current ref associated with a service name
-	bool check(const std::string &name, std::string &ip, int *type, PORT_LIST &ports, int *ref);
+	bool check(const YARPString &name, YARPString &ip, int *type, PORT_LIST &ports, int *ref);
 
 	// find name and destroy entry, return ip and port(s)
-	int destroy(const std::string &name, std::string &ip, PORT_LIST &ports)
+	int destroy(const YARPString &name, YARPString &ip, PORT_LIST &ports)
 	{
 		SVC_IT it;
 		if (find_service(name, it) != -1)
@@ -390,7 +386,7 @@ public:
 	// > 0, found, resources av.
 	// 0, found, resoursec not av.
 	// < 0, not found
-	int take_ref(const std::string &name, std::string &ip, int *type, PORT_LIST &ports);
+	int take_ref(const YARPString &name, YARPString &ip, int *type, PORT_LIST &ports);
 };
 
 typedef std::list<YARPNameQnx> QNXSVC_LIST;
@@ -400,9 +396,9 @@ typedef QNXSVC_LIST::const_iterator  CONST_QNXSVC_IT;
 class qnxServices: public QNXSVC_LIST 
 {
 public:
-	int find_service(const std::string &name, QNXSVC_IT &it);
+	int find_service(const YARPString &name, QNXSVC_IT &it);
 	// find name and destroy entry
-	int destroy(const std::string &name)
+	int destroy(const YARPString &name)
 	{
 		QNXSVC_IT it;
 		if (find_service(name, it) != -1)
@@ -418,8 +414,8 @@ public:
 		}
 	}
 	// release a name service
-	int check_out(const std::string &name);
-	int check_in(const std::string &name, YARPNameQnx &entry);
+	int check_out(const YARPString &name);
+	int check_in(const YARPString &name, YARPNameQnx &entry);
 	int check_in(const YARPNameQnx &entry);
 };
 
@@ -430,11 +426,11 @@ public:
 	virtual ~LocalNameServer(){};
 
 	// sign in a service, specify name/IpEntry/type get port back
-	int registerName(const std::string &name, const IpEntry &entry, int type, int *port);
+	int registerName(const YARPString &name, const IpEntry &entry, int type, int *port);
 	// sign in a service, specify name/IpEntry get 'n' ports
-	int registerName(const std::string &name, const IpEntry &entry, int type, PORT_LIST &port, int n);
+	int registerName(const YARPString &name, const IpEntry &entry, int type, PORT_LIST &port, int n);
 	// sign in a service, specify name/ip get port back
-	int registerName(const std::string &name, const std::string &ip, int type, int *port)
+	int registerName(const YARPString &name, const YARPString &ip, int type, int *port)
 	{
 		IpEntry tmpEntry;
 		tmpEntry.ip = ip;
@@ -442,18 +438,18 @@ public:
 	}
 	
 	// sign in a service, specify name only, get back ip from pool
-	int registerNameDIp(const std::string &name, std::string &ip, int type, int *port);
+	int registerNameDIp(const YARPString &name, YARPString &ip, int type, int *port);
 	// sign in a qnx service
 	int registerNameQnx(const YARPNameQnx &entry);
 	// just check TCP, UDP, MCAST
-	int queryName(const std::string &name, std::string &ip, int *type, int *port);
+	int queryName(const YARPString &name, YARPString &ip, int *type, int *port);
 	// just check QNX
-	int queryNameQnx(const std::string &name, YARPNameQnx &entry, int *type);
+	int queryNameQnx(const YARPString &name, YARPNameQnx &entry, int *type);
 	
 	// release a service TCP, UDP, MCAST
-	void check_out(const std::string &name)
+	void check_out(const YARPString &name)
 	{
-		std::string ip;
+		YARPString ip;
 		PORT_LIST ports;
 
 		if (names.check_out(name, ip, ports) == 1){
@@ -466,12 +462,12 @@ public:
 	// release a QNX name
 	// NOTE: no ref count is implemented for QNX, a single check out
 	// remove the name
-	void check_out_qnx(const std::string &name)
+	void check_out_qnx(const YARPString &name)
 	{
 		qnx_names.destroy(name);
 	}
 	
-	int check_static(const std::string &name, std::string &ip, int *max)
+	int check_static(const YARPString &name, YARPString &ip, int *max)
 	{
 		ACE_UNUSED_ARG (name);
 		ACE_UNUSED_ARG (ip);
@@ -486,7 +482,7 @@ public:
 	}
 
 	// load initial resources from file (static entries)
-	void init(const std::string &filename);
+	void init(const YARPString &filename);
 
 	resources addresses;
 	services  names;
@@ -495,12 +491,12 @@ public:
 
 private:
 	// check if name already exists and remove it, TCP, UDP, MCAST
-	void _checkAndRemove(const std::string &name);
+	void _checkAndRemove(const YARPString &name);
 	// check if name already exists and remove it, QNX
-	void _checkAndRemoveQnx(const std::string &name);
+	void _checkAndRemoveQnx(const YARPString &name);
 
 	// actual registration routine, TCP, UDP, MCAST
-	int _registerName(const std::string &name, const IpEntry &entry, int type, PORT_LIST &ports, int nPorts);
+	int _registerName(const YARPString &name, const IpEntry &entry, int type, PORT_LIST &ports, int nPorts);
 	// actual registration routine, QNX
 	int _registerNameQnx(const YARPNameQnx &entry);
 };

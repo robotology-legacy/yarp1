@@ -62,25 +62,23 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.13 2003-07-31 21:40:08 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.14 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
 
-///#include <assert.h>
-///#include <stdio.h>
-
 #include "Port.h"
-#include "YARPPort.h"
-#include "YARPNameService.h"
 #include "Sendables.h"
-#include "YARPSemaphore.h"
-#include "YARPAll.h"
 #include "debug.h"
 
-#include <list>
+#include "YARPPort.h"
+#include "YARPNameService.h"
+#include "YARPSemaphore.h"
+#include "YARPAll.h"
+
+#include "YARPList.h"
 
 #ifdef __WIN32__
 /// library initialization.
@@ -89,10 +87,7 @@
 
 using namespace std;
 
-//int __debug_level = 40;
-//int __debug_level = 40;
-
-typedef list<YARPPort *> PortList;
+typedef YARPList<YARPPort *> PortList;
 static PortList port_list;
 static YARPSemaphore port_list_mutex(1);
 
@@ -129,7 +124,7 @@ public:
 	YARPSendable(YARPPortContent *n_ypc, int n_owned = 1)
 	{
 		ypc = NULL;  owned = 0;
-		Attach(n_ypc,n_owned);
+		Attach(n_ypc, n_owned);
 	}
 
 	virtual ~YARPSendable() 
@@ -352,10 +347,20 @@ void YARPPort::Deactivate()
 void YARPPort::DeactivateAll()
 {
 	port_list_mutex.Wait();
-	for (PortList::iterator it=port_list.begin(); it!=port_list.end(); it++)
+
+	PortList::iterator it(port_list);
+	it.go_head();		/// might not be required.
+
+	while (!it.done())
 	{
 		(*it)->Deactivate();
+		it++;
 	}
+
+///	for (PortList::iterator it=port_list.begin(); it!=port_list.end(); it++)
+///	{
+///		(*it)->Deactivate();
+///	}
 	port_list_mutex.Post();
 }
 

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.cpp,v 1.8 2003-06-28 16:40:01 babybot Exp $
+/// $Id: BlockSender.cpp,v 1.9 2003-08-02 07:46:13 gmetta Exp $
 ///
 ///
 
@@ -60,21 +60,11 @@
 #include <ace/OS.h>
 #include <ace/Synch.h>
 
-#ifndef __QNX4__
-using namespace std;
-#endif
-
-//#include <sys/kernel.h>
-//#include <sys/sendmx.h>
 #include "BlockSender.h"
-
-#include "debug.h"
-#include <errno.h>
-
 #include "YARPSyncComm.h"
+#include "debug.h"
 
-//#undef DEBUG_LEVEL
-//#define DEBUG_LEVEL 100
+#include <errno.h>
 
 #ifdef __WIN32__
 /// library initialization.
@@ -92,7 +82,8 @@ int BlockSender::Fire()
 	{
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Sending %d pieces\n",pieces));
 		errno = 0;
-		BlockUnit *bu = entries.begin();
+		///BlockUnit *bu = entries.begin();
+		BlockUnit *bu = &entries[0];
 		YARPMultipartMessage msg(bu, pieces);	// this are allocated whenever there's a Fire...
 		YARPMultipartMessage reply_msg(1);		// LATER: optimize by allocating in advance.
 		
@@ -102,7 +93,8 @@ int BlockSender::Fire()
 		pieces = 0;
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Sent %d pieces\n", pieces));
 	}
-	cursor = entries.begin();
+	///cursor = entries.begin();
+	cursor = 0;
 	if (result == YARP_FAIL)
 	{
 		failed = 1;
@@ -114,17 +106,30 @@ int BlockSender::Fire()
 
 int BlockSender::AddPiece(char *buffer, int len)
 {
-	///YARP_DBG(THIS_DBG) ((LM_DEBUG, "Adding piece, length %d (avail -infinite-)\n", len)); ///available));
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Adding piece, length %d (avail %d)\n", len, available));
+
+	int cursz = entries.size();
+	if (cursor == cursz)
+	{
+		cursz++;
+		entries.size (cursz);
+		entries[cursor] = BlockUnit(buffer,len);
+	}
+	else
+	{
+		entries[cursor].Set (buffer, len);
+	}
+
+#if 0
 	if (cursor == entries.end ())
 	{
-		///YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** NEW stl %s : %s\n", __FILE__, __LINE__));
 		cursor = entries.insert (cursor, BlockUnit(buffer,len));
 	}
 	else
 	{
 		cursor->Set (buffer, len);
 	}
+#endif
 
 	pieces++;
 	cursor++;

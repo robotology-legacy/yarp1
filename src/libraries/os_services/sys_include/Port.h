@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.22 2003-07-27 05:47:17 gmetta Exp $
+/// $Id: Port.h,v 1.23 2003-08-02 07:46:15 gmetta Exp $
 ///
 ///
 
@@ -302,7 +302,7 @@ public:
 	Sema list_mutex;
 	Sema out_mutex;
 
-	string name;
+	YARPString name;
 	HeaderedBlockSender<NewFragmentHeader> sender;
 	YARPUniqueNameID *self_id;
 

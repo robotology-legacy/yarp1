@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.37 2003-07-30 22:43:07 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.38 2003-08-02 07:46:15 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -136,7 +136,7 @@ public:
 		YARPTime::DelayInSeconds(2);
 		int ct = 1;
 
-		for (int i = 0; i < 50; i++)
+		for (int i = 0; i < 10; i++)
 ///		while (1)
 		{
 			printf("Step2\n");

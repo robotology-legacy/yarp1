@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: mesh.cpp,v 1.3 2003-06-28 16:40:01 babybot Exp $
+/// $Id: mesh.cpp,v 1.4 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -72,8 +72,7 @@ Description This file defines classes to be used when setting up a Mesh
 //--Includes-------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-#include <string.h>
-
+#include "YARPString.h"
 #include "mesh.h"
 
 //--Constants------------------------------------------------------------------
@@ -81,7 +80,7 @@ Description This file defines classes to be used when setting up a Mesh
 
 const char
 	TabChar = '\x09';
-const std::string
+const YARPString
 	NullName = "-";
 
 
@@ -288,7 +287,7 @@ Input		lbl				The new label of the link
 
 Returns		-
 -----------------------------------------------------------------------------*/
-void MeshLink::SetLabel ( const std::string& lbl )
+void MeshLink::SetLabel ( const YARPString& lbl )
 {
 	label = lbl;
 }
@@ -425,7 +424,7 @@ Input		label			The name to search for.
 
 Returns		A pointer to the link if it was found, otherwise NULL
 -----------------------------------------------------------------------------*/
-MeshLink *Mesh::FindByLabel ( const std::string& label )
+MeshLink *Mesh::FindByLabel ( const YARPString& label )
 {
 	int
 		found = 0;
@@ -462,7 +461,7 @@ Returns		A pointer to the new link if it was created successfully,
 			If any of the links named already exist, their current
             definition is used.
 -----------------------------------------------------------------------------*/
-MeshLink *Mesh::AddLink ( const std::string& label, const std::string& srcLabel, const std::string& destLabel )
+MeshLink *Mesh::AddLink ( const YARPString& label, const YARPString& srcLabel, const YARPString& destLabel )
 {
 	int
 		success = 0;
@@ -501,7 +500,7 @@ Input		label			The name of thelink
 Returns		A pointer to the new if it was created successfully or found,
 			otherwise NULL
 -----------------------------------------------------------------------------*/
-MeshLink *Mesh::LabelledLink ( const std::string& label )
+MeshLink *Mesh::LabelledLink ( const YARPString& label )
 {
 	MeshLink
 		*link = NULL;
@@ -548,7 +547,7 @@ int Mesh::Load ( istream& is, int style )
 		verbose = ( ( style & FORMAT ) == PROSE_FORMAT ),
 		failed = 0,
 		done = 0;
-	std::string
+	YARPString
 		label,
 		srcLabel,
 		destLabel;

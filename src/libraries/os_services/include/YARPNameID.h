@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.10 2003-07-08 22:04:20 gmetta Exp $
+/// $Id: YARPNameID.h,v 1.11 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 /*
@@ -81,8 +81,7 @@
 
 #include "YARPAll.h"
 #include "YARPNameID_defs.h"
-
-#include <string>
+#include "YARPString.h"
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
@@ -127,7 +126,7 @@ public:
 class YARPUniqueNameID : public YARPNameID
 {
 protected:
-	std::string _symbolic_name;
+	YARPString _symbolic_name;
 
 public:
 	YARPUniqueNameID (void) : YARPNameID() { _symbolic_name = "__null"; }
@@ -136,8 +135,8 @@ public:
 
 	inline YARPNameID& getNameID(void) { return (YARPNameID &)(*this); }
 	inline void setName (const char *name) { _symbolic_name = name; }
-	inline void setName (const std::string& name) { _symbolic_name = name; }
-	inline std::string getName(void) const { return _symbolic_name; }
+	inline void setName (const YARPString& name) { _symbolic_name = name; }
+	inline YARPString getName(void) const { return _symbolic_name; }
 
 	YARPUniqueNameID& operator= (const YARPUniqueNameID& other) 
 	{
@@ -159,7 +158,7 @@ class YARPUniqueNameQnx : public YARPUniqueNameID
 protected:
 	int _pid;
 	int _channel_id;
-	std::string _node;
+	YARPString _node;
 
 public:
 	YARPUniqueNameQnx (int service = YARP_QNET) : YARPUniqueNameID(service)
@@ -169,7 +168,7 @@ public:
 		_channel_id = -1;
 	}
 
-	YARPUniqueNameQnx (int service, int pid, int channel, std::string node) : YARPUniqueNameID(service)
+	YARPUniqueNameQnx (int service, int pid, int channel, YARPString node) : YARPUniqueNameID(service)
 	{
 		_pid = pid;
 		_channel_id = channel;
@@ -186,8 +185,8 @@ public:
 		_channel_id = channel; 
 		setRawIdentifier ((ACE_HANDLE)channel);
 	} 
-	std::string getNode (void) const { return _node; }
-	void setNode (const std::string& node) { _node = node; }
+	YARPString getNode (void) const { return _node; }
+	void setNode (const YARPString& node) { _node = node; }
 };
 
 

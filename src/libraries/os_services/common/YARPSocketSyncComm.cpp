@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.18 2003-07-29 02:26:52 gmetta Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.19 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -78,7 +78,6 @@
 #include "YARPSocketNameService.h"
 #include "YARPScheduler.h"
 
-///#include "ThreadInput.h"
 #include "YARPNameID_defs.h"
 #include "BlockPrefix.h"
 

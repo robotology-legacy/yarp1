@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Sendables.h,v 1.5 2003-06-28 16:40:01 babybot Exp $
+/// $Id: Sendables.h,v 1.6 2003-08-02 07:46:15 gmetta Exp $
 ///
 ///
 #ifndef SENDABLES_H_INC
@@ -66,13 +66,7 @@
 #	pragma once
 #endif
 
-#include <list>
-#ifndef __QNX__
-using namespace std;
-#endif
-
-/// #include <assert.h>
-
+#include "YARPList.h"
 #include "Sendable.h"
 #include "YARPSemaphore.h"
 
@@ -105,53 +99,48 @@ public:
 class Sendables
 {
 public:
-	list<PSendable> sendables;
+	YARPList<PSendable> sendables;
 
 	void PutSendable(Sendable *s)
 	{
 		refcounted_sema.Wait();
-		list<PSendable>::iterator cursor;
-		//cout << "*** NEW stl " << __FILE__ << ":" << __LINE__ << endl;
-		//sendables.insert(sendables.begin(),PSendable());
-		//printf("PutSendable() > 1\n");
+		YARPList<PSendable>::iterator cursor(sendables);
 		sendables.push_back(PSendable());
+
 		ACE_ASSERT (s!=NULL);
-		//printf("PutSendable() > 2\n");
-		//      sendables.insert(sendables.begin(),*s);
-		ACE_ASSERT (sendables.begin() != sendables.end());
-		//printf("PutSendable() > 3\n");
-		cursor = sendables.end();
-		--cursor;
-		//printf("PutSendable() > 4\n");
+		///ACE_ASSERT (sendables.begin() != sendables.end());
+
+		cursor.go_tail();
+		///cursor = sendables.end();
+		///--cursor;
 		(*cursor).sendable = s;
 		s->owner = this;
-		//printf("PutSendable() > 1\n");
+
 		refcounted_sema.Post();
 	}
 
 	void TakeBack(Sendable *s)
 	{
-		//printf("##### Take back called for %ld (%d)\n", (long int) s, s->ref_count);
 		PutSendable(s);
-		//printf("##### POST Take back called for %ld (%d)\n", (long int) s, s->ref_count);
 	}
   
 	Sendable *GetSendable()
 	{
 		Sendable *s = NULL;
 		refcounted_sema.Wait();
-		list<PSendable>::iterator cursor = sendables.end();
-		if (sendables.begin() != sendables.end())
+		YARPList<PSendable>::iterator cursor(sendables); ///= sendables.end();
+		cursor.go_tail();
+
+		if (!sendables.is_empty()) ///sendables.begin() != sendables.end())
 		{
-			--cursor;
+			///--cursor;
 			s = (*cursor).sendable;
-			//printf("### %d for %d\n", s->ref_count, (long int)s);
 			(*cursor).sendable = NULL;
 			sendables.pop_back();	
 			ACE_ASSERT (s!=NULL);
-			//printf("### %d for %d\n", s->ref_count, (long int)s);
 			s->ref_count = 0;
 		}
+
 		refcounted_sema.Post();
 		return s;
 	}

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: wide_nameloc.cpp,v 1.3 2003-07-16 16:06:31 natta Exp $
+/// $Id: wide_nameloc.cpp,v 1.4 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -73,13 +73,13 @@
 ///
 ///
 ///
-void YARPNameQnx::set(const std::string &str, const std::string &node, NetInt32 pid, NetInt32 ch)
+void YARPNameQnx::set(const YARPString &str, const YARPString &node, NetInt32 pid, NetInt32 ch)
 {
 	setName(str);
 	setAddr(node, pid, ch);
 }
 
-void YARPNameQnx::setName(const std::string &str)
+void YARPNameQnx::setName(const YARPString &str)
 {	
 	int len = strlen(str.c_str());
 	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
@@ -87,7 +87,7 @@ void YARPNameQnx::setName(const std::string &str)
 	_name[len] = 0;
 }
 
-void YARPNameQnx::setAddr(const std::string &node, NetInt32 pid, NetInt32 ch)
+void YARPNameQnx::setAddr(const YARPString &node, NetInt32 pid, NetInt32 ch)
 {
 	int len = strlen(node.c_str());
 	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
@@ -97,9 +97,9 @@ void YARPNameQnx::setAddr(const std::string &node, NetInt32 pid, NetInt32 ch)
 	_chan = ch;
 }
 
-void YARPNameQnx::getAddr(std::string &node, NetInt32 *pid, NetInt32 *ch)
+void YARPNameQnx::getAddr(YARPString &node, NetInt32 *pid, NetInt32 *ch)
 {
-	node = std::string(_node);
+	node = YARPString(_node);
 	*pid = _pid;
 	*ch = _chan;
 }
@@ -107,13 +107,13 @@ void YARPNameQnx::getAddr(std::string &node, NetInt32 *pid, NetInt32 *ch)
 ///
 ///
 ///
-void YARPNameTCP::set(const std::string &str, const ACE_INET_Addr &addr)
+void YARPNameTCP::set(const YARPString &str, const ACE_INET_Addr &addr)
 {
 	setName(str);
 	setAddr(addr);
 }
 
-void YARPNameTCP::setName(const std::string &str)
+void YARPNameTCP::setName(const YARPString &str)
 {
 	int len = strlen (str.c_str());
 	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
@@ -127,7 +127,7 @@ void YARPNameTCP::setAddr(const ACE_INET_Addr &addr)
 	setPort(addr.get_port_number());
 }
 
-void YARPNameTCP::setIp(const std::string &ip)
+void YARPNameTCP::setIp(const YARPString &ip)
 {
 	int len = strlen(ip.c_str());
 	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
@@ -148,13 +148,13 @@ void YARPNameTCP::getAddr(ACE_INET_Addr &addr)
 ///
 ///
 ///
-void YARPNameUDP::set(const std::string &str, const ACE_INET_Addr &addr)
+void YARPNameUDP::set(const YARPString &str, const ACE_INET_Addr &addr)
 {
 	setName(str);
 	setAddr(addr);
 }
 
-void YARPNameUDP::setName(const std::string &str)
+void YARPNameUDP::setName(const YARPString &str)
 {
 	int len =  strlen(str.c_str());
 	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
@@ -168,7 +168,7 @@ void YARPNameUDP::setAddr(const ACE_INET_Addr &addr)
 	setPorts(0, addr.get_port_number());
 }
 
-void YARPNameUDP::setIp(const std::string &ip)
+void YARPNameUDP::setIp(const YARPString &ip)
 {
 	int len = strlen(ip.c_str());
 	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
@@ -200,7 +200,7 @@ NetInt32 YARPNameUDP::getPorts(NetInt32 index)
 }
 
 //
-void YARPNSNic::set(const std::string &ip, const std::string &netId)
+void YARPNSNic::set(const YARPString &ip, const YARPString &netId)
 {
 	int len = strlen (ip.c_str());
 	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.h,v 1.11 2003-07-30 22:43:06 gmetta Exp $
+/// $Id: YARPSocket.h,v 1.12 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -115,6 +115,7 @@ protected:
 
 public:
 	YARPNetworkObject () { _socktype = YARP_NO_SOCKET; }
+	virtual ~YARPNetworkObject() {}
 
 	static int setSocketBufSize(ACE_SOCK& sock, int size);
 

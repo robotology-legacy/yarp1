@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: RefCounted.cpp,v 1.3 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: RefCounted.cpp,v 1.4 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -62,9 +62,7 @@
 #include <ace/Synch.h>
 
 #include "RefCounted.h"
-
-///#include <stdio.h>
-#include <string.h>
+#include "YARPString.h"
 
 #ifdef __WIN32__
 /// library initialization.

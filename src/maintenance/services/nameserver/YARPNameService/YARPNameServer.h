@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.14 2003-07-16 16:06:31 natta Exp $
+/// $Id: YARPNameServer.h,v 1.15 2003-08-02 07:46:15 gmetta Exp $
 ///
 ///
 
@@ -68,9 +68,9 @@
 #if !defined __YARPNAMESERVER__
 #define __YARPNAMESERVER__
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
 
 #include <conf/YARPConfig.h>
 #ifndef _NOLIB
@@ -93,7 +93,7 @@
 class YARPNameServer: public CThreadImpl
 {
 public:
-	YARPNameServer(const std::string &file, int port):
+	YARPNameServer(const YARPString &file, int port):
 	  CThreadImpl("name server thread",0),
 		nmap(file),
 	  server_addr_(port), peer_acceptor_(server_addr_, 1)
@@ -130,17 +130,17 @@ public:
 	
 	void handle_dump_request();
 	void handle_exdump_request();
-	void handle_nic_query(const std::string &ip, const std::string &netId);
-	void handle_registration(const std::string &service_name, const std::string &ip, int type, int n = 1);
-	void handle_query(const std::string &service_name);
-	void handle_query_qnx(const std::string &name);
-	void handle_registration_dip(const std::string &service_name, int type);
+	void handle_nic_query(const YARPString &ip, const YARPString &netId);
+	void handle_registration(const YARPString &service_name, const YARPString &ip, int type, int n = 1);
+	void handle_query(const YARPString &service_name);
+	void handle_query_qnx(const YARPString &name);
+	void handle_registration_dip(const YARPString &service_name, int type);
 	void handle_registration_qnx(const YARPNameQnx &entry);
-	void handle_registration_dip_dbg(const std::string &service_name, int type);
-	void handle_registration_dbg(const std::string &service_name, const std::string &ip, int type, int n = 1);
-	void query_dbg(const std::string &service_name);
-	void handle_release(const std::string &service_name);
-	void handle_release_qnx(const std::string &service_name);
+	void handle_registration_dip_dbg(const YARPString &service_name, int type);
+	void handle_registration_dbg(const YARPString &service_name, const YARPString &ip, int type, int n = 1);
+	void query_dbg(const YARPString &service_name);
+	void handle_release(const YARPString &service_name);
+	void handle_release_qnx(const YARPString &service_name);
 
 	// usual thread methods
 	virtual void doInit()
@@ -162,9 +162,9 @@ public:
 			{/* release, if any */}
 
 private:
-	void _handle_reply(const std::string &text);
-	void _handle_reply(const std::string &ip, int type, int port);
-	void _handle_reply(const std::string &ip, int type, const PORT_LIST &ports);
+	void _handle_reply(const YARPString &text);
+	void _handle_reply(const YARPString &ip, int type, int port);
+	void _handle_reply(const YARPString &ip, int type, const PORT_LIST &ports);
 	void _handle_reply(const YARPNameQnx &entry, int type);
 	LocalNameServer ns;
 	NetworkMap nmap;

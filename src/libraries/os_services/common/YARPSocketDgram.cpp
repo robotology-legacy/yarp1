@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.40 2003-07-31 22:21:10 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.41 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -98,21 +98,15 @@
 #ifndef __QNX__
 /// WIN32, Linux
 
-#	include <string>
-using namespace std;
-
 #ifndef __WIN_MSVC__
 #	include <unistd.h>  // just for gethostname
 #endif
 
 #else
 
-#	include <string>
 #	include <unix.h>  // just for gethostname
 
 #endif
-
-#include <list>
 
 #include "YARPSocket.h"
 #include "YARPSocketDgram.h"
@@ -121,6 +115,7 @@ using namespace std;
 #include "YARPNameID.h"
 #include "YARPScheduler.h"
 #include "YARPTime.h"
+#include "YARPString.h"
 
 ///
 #define THIS_DBG 80
@@ -236,7 +231,8 @@ YARPOutputSocketDgram::YARPOutputSocketDgram (void) : YARPNetworkOutputObject ()
 
 YARPOutputSocketDgram::~YARPOutputSocketDgram (void)
 {
-	Close (YARPUniqueNameSock());
+	if (identifier != ACE_INVALID_HANDLE)
+		Close (YARPUniqueNameSock());
 
 	if (system_resources != NULL)
 	{
@@ -266,6 +262,9 @@ int YARPOutputSocketDgram::Close (const YARPUniqueNameID& name)
 	if (r < 0)
 	{
 		ACE_DEBUG ((LM_DEBUG, "cannot connect to remote peer %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
+		ACE_DEBUG ((LM_DEBUG, "close will complete anyway\n"));
+		d._connector_socket.close ();
+		identifier = ACE_INVALID_HANDLE;
 		return YARP_FAIL;
 	}
 
@@ -280,6 +279,7 @@ int YARPOutputSocketDgram::Close (const YARPUniqueNameID& name)
 	{
 		stream.close ();
 		d._connector_socket.close ();
+		identifier = ACE_INVALID_HANDLE;
 		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 		return YARP_FAIL;
 	}
@@ -290,6 +290,7 @@ int YARPOutputSocketDgram::Close (const YARPUniqueNameID& name)
 
 	stream.close ();
 	d._connector_socket.close ();
+	identifier = ACE_INVALID_HANDLE;
 
 	return YARP_OK;
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID_defs.h,v 1.5 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: YARPNameID_defs.h,v 1.6 2003-08-02 07:46:15 gmetta Exp $
 ///
 ///
 
@@ -72,15 +72,6 @@
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
-#endif
-
-#if 0
-enum 
-{
-	YARP_NAME_MODE_NULL = -1,
-	YARP_NAME_MODE_SOCKET = 1,
-	YARP_NAME_MODE_NATIVE = 2,
-};
 #endif
 
 /// service type.

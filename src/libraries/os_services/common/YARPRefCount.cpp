@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPRefCount.cpp,v 1.3 2003-04-22 09:06:31 gmetta Exp $
+/// $Id: YARPRefCount.cpp,v 1.4 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -136,32 +136,4 @@ void YARPRefCount::RemoveRef()
 		YR_POST;
 	}
 }
-
-/*
-void *YARPRefCount::Clone(int always_clone)
-{
-  // Need to be careful to do everything atomically
-  YR_WAIT;
-
-  Buffer *ptr = NULL;
-  int copy = (GetReferenceCount()>1);
-
-  if (needed!=NULL)
-    {
-      *needed = copy;
-    }
-  if (copy)
-    {
-      assert(memory!=NULL);
-      ptr = new Buffer(GetLength());
-      assert(ptr!=NULL);
-      memcpy(ptr->memory,memory,GetLength());
-      ref_count--;
-    }
-
-  YR_POST;
-  return ptr;
-}
-*/
-
 

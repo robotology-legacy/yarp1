@@ -52,7 +52,11 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPString.h,v 1.3 2003-06-28 16:40:01 babybot Exp $
+///	YARPString wrapper by pasa.
+///
+
+///
+/// $Id: YARPString.h,v 1.4 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -60,6 +64,9 @@
 #define YARPString_INC
 
 #include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <iostream>
+
 #include "YARPAll.h"
 
 #ifdef YARP_HAS_PRAGMA_ONCE
@@ -67,14 +74,50 @@
 #endif
 
 #ifndef __QNX4__
-#include <string>
-using namespace std;
+/// WINDOWS/LINUX/QNX6
+
+#include <ace/OS.h>
+#include <ace/String_Base.h>
+
+class YARPString : public ACE_String_Base<char>
+{
+public:
+	YARPString () : ACE_String_Base<char> () {}
+	YARPString (const char *s) : ACE_String_Base<char> (s) {}
+	YARPString (const char *s, size_t len) : ACE_String_Base<char> (s, len) {}
+	YARPString (const ACE_String_Base<char>& s) : ACE_String_Base<char> (s) {}
+	YARPString (const YARPString& s) : ACE_String_Base<char> (s) {}
+	YARPString (char c) : ACE_String_Base<char> (c) {}
+	YARPString (size_t len, char c = 0) : ACE_String_Base<char> (len, c) {}
+
+	~YARPString () { clear(1); }
+
+	YARPString& operator= (const YARPString& s) { ACE_String_Base<char>::operator= (s); return *this; }
+	
+	YARPString& append(const char *s) { ACE_String_Base<char>::operator+=(s); return *this; }
+	YARPString& append(const YARPString& s) { ACE_String_Base<char>::operator+=(s); return *this; }
+	bool empty (void) { return (length() == 0) ? true : false; }
+};
+
+///
+inline std::ostream& operator<< (std::ostream& os, YARPString& s) { os << s.c_str(); return os; }
+inline std::ostream& operator<< (std::ostream& os, const YARPString& s) { os << s.c_str(); return os; }
+inline std::istream& operator>> (std::istream& is, YARPString& s) 
+{
+	char _buf[1024]; memset (_buf, 0, 1024);
+	is.getline(_buf, 1024, '\n');
+	s = _buf; 
+	return is; 
+}
+
 #else
+
 #include "strng.h"
 #define string String
 #define c_str AsChars
+
 #endif
 
-typedef std::string YARPString;
+///typedef std::string YARPString;
 
 #endif

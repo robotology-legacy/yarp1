@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.8 2003-07-16 16:06:31 natta Exp $
+/// $Id: YARPNameClient.cpp,v 1.9 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -77,7 +77,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-YARPNameClient::YARPNameClient(const std::string server, int port) : remote_addr_(port, server.c_str()), mutex_(1)
+YARPNameClient::YARPNameClient(const YARPString& server, int port) : remote_addr_(port, server.c_str()), mutex_(1)
 {
 	data_buf_ = new char [SIZE_BUF];
 }
@@ -92,9 +92,9 @@ YARPNameClient::~YARPNameClient()
 	delete [] data_buf_;
 }
 
-std::string YARPNameClient::dump (int i)
+YARPString YARPNameClient::dump (int i)
 {
-	std::string text;
+	YARPString text;
 	
 	YARPNameServiceCmd tmpCmd;
 	tmpCmd.cmd = YARPNSDumpRqs;
@@ -136,7 +136,7 @@ std::string YARPNameClient::dump (int i)
 	return text;
 }
 
-int YARPNameClient::check_in_mcast(const std::string &s, ACE_INET_Addr &addr)
+int YARPNameClient::check_in_mcast(const YARPString &s, ACE_INET_Addr &addr)
 {
 	int ret = YARP_FAIL;
 	mutex_.Wait();
@@ -145,7 +145,7 @@ int YARPNameClient::check_in_mcast(const std::string &s, ACE_INET_Addr &addr)
 	return ret;
 }
 
-int YARPNameClient::check_in (const std::string &s, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr)
+int YARPNameClient::check_in (const YARPString &s, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr)
 {
 	int ret = YARP_FAIL;
 	mutex_.Wait();
@@ -156,7 +156,7 @@ int YARPNameClient::check_in (const std::string &s, const ACE_INET_Addr &reg_add
 	return ret;
 }
 
-int YARPNameClient::check_in (const std::string &s, ACE_INET_Addr &addr)
+int YARPNameClient::check_in (const YARPString &s, ACE_INET_Addr &addr)
 {
 	int ret = YARP_FAIL;
 	mutex_.Wait();
@@ -165,19 +165,19 @@ int YARPNameClient::check_in (const std::string &s, ACE_INET_Addr &addr)
 	return ret;
 }
 		
-int YARPNameClient::check_in (const std::string &s, std::string &ip, NetInt32 *port)
+int YARPNameClient::check_in (const YARPString &s, YARPString &ip, NetInt32 *port)
 {
 	int ret = YARP_FAIL;
 	mutex_.Wait();
 	ACE_INET_Addr tmpAddr(ip.c_str());
 	ret = _checkIn(s, tmpAddr);
 	*port = tmpAddr.get_port_number();
-	ip = std::string(tmpAddr.get_host_name());
+	ip = YARPString(tmpAddr.get_host_name());
 	mutex_.Post();
 	return ret;
 }
 
-int YARPNameClient::check_in_udp(const std::string &name, std::string &addr, NetInt32 *ports, NetInt32 n)
+int YARPNameClient::check_in_udp(const YARPString &name, YARPString &addr, NetInt32 *ports, NetInt32 n)
 {
 	int ret = YARP_FAIL;
 	mutex_.Wait();
@@ -186,11 +186,11 @@ int YARPNameClient::check_in_udp(const std::string &name, std::string &addr, Net
 	return ret;
 }
 
-int YARPNameClient::check_in_udp(const std::string &name, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr, NetInt32 *ports, NetInt32 n)
+int YARPNameClient::check_in_udp(const YARPString &name, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr, NetInt32 *ports, NetInt32 n)
 {
 	int ret = YARP_FAIL;
 	mutex_.Wait();
-	std::string ip = reg_addr.get_host_addr();
+	YARPString ip = reg_addr.get_host_addr();
 	ret = _checkInUdp(name, ip, ports, n);
 	addr.set (ports[0], ip.c_str());
 	mutex_.Post();
@@ -206,7 +206,7 @@ int YARPNameClient::check_in_qnx(const YARPNameQnx &entry)
 	return ret;
 }
 
-int YARPNameClient::query (const std::string &s, ACE_INET_Addr &addr, int *type)
+int YARPNameClient::query (const YARPString &s, ACE_INET_Addr &addr, int *type)
 {
 	int ret = YARP_FAIL;
 	mutex_.Wait();
@@ -215,7 +215,7 @@ int YARPNameClient::query (const std::string &s, ACE_INET_Addr &addr, int *type)
 	return ret;
 }
 
-int YARPNameClient::query_qnx (const std::string &s, YARPNameQnx &entry, int *type)
+int YARPNameClient::query_qnx (const YARPString &s, YARPNameQnx &entry, int *type)
 {
 	int ret = YARP_FAIL;
 	mutex_.Wait();
@@ -224,7 +224,7 @@ int YARPNameClient::query_qnx (const std::string &s, YARPNameQnx &entry, int *ty
 	return ret;
 }
 
-int YARPNameClient::query_nic(const std::string &inIp, const std::string &netId, std::string &outIp)
+int YARPNameClient::query_nic(const YARPString &inIp, const YARPString &netId, YARPString &outIp)
 {
 	int ret = YARP_FAIL;
 	mutex_.Wait();
@@ -235,7 +235,7 @@ int YARPNameClient::query_nic(const std::string &inIp, const std::string &netId,
 	return ret;
 }
 
-int YARPNameClient::check_out (const std::string &s)
+int YARPNameClient::check_out (const YARPString &s)
 {
 	mutex_.Wait();
 	// send data to server
@@ -275,7 +275,7 @@ int YARPNameClient::check_out (const std::string &s)
 	return YARP_OK;
 }
 
-int YARPNameClient::check_out_qnx (const std::string &s)
+int YARPNameClient::check_out_qnx (const YARPString &s)
 {
 	mutex_.Wait();
 	// send data to server
@@ -338,7 +338,7 @@ int YARPNameClient::close()
 		return YARP_OK;
 }
 
-int YARPNameClient::_checkIn(const std::string &s, ACE_INET_Addr &addr)
+int YARPNameClient::_checkIn(const YARPString &s, ACE_INET_Addr &addr)
 {
 	YARPNameServiceCmd tmpCmd;
 	YARPNameTCP tmpRqst;
@@ -387,7 +387,7 @@ int YARPNameClient::_checkIn(const std::string &s, ACE_INET_Addr &addr)
 	return YARP_OK;
 }
 
-int YARPNameClient::_checkInUdp(const std::string &name, const std::string &ip, NetInt32 *ports, NetInt32 n)
+int YARPNameClient::_checkInUdp(const YARPString &name, const YARPString &ip, NetInt32 *ports, NetInt32 n)
 {
 	YARPNameServiceCmd tmpCmd;
 	YARPNameUDP tmpRqst;
@@ -440,7 +440,7 @@ int YARPNameClient::_checkInUdp(const std::string &name, const std::string &ip, 
 	return YARP_OK;
 }
 
-int YARPNameClient::_checkInMcast(const std::string &s, ACE_INET_Addr &addr)
+int YARPNameClient::_checkInMcast(const YARPString &s, ACE_INET_Addr &addr)
 {
 	YARPNameServiceCmd tmpCmd;
 	YARPNameTCP tmpRqst;
@@ -520,7 +520,7 @@ int YARPNameClient::_checkInQnx(const YARPNameQnx &entry)
 	return YARP_OK;
 }
 
-int YARPNameClient::_query(const std::string &s, ACE_INET_Addr &addr, int *type)
+int YARPNameClient::_query(const YARPString &s, ACE_INET_Addr &addr, int *type)
 {
 	YARPNameServiceCmd tmpCmd;
 	YARPNameTCP tmpRqst;
@@ -571,7 +571,7 @@ int YARPNameClient::_query(const std::string &s, ACE_INET_Addr &addr, int *type)
 	return YARP_OK;
 }
 
-int YARPNameClient::_query_nic(const YARPNSNic &in, std::string &outIp)
+int YARPNameClient::_query_nic(const YARPNSNic &in, YARPString &outIp)
 {
 	YARPNameServiceCmd tmpCmd;
 	if (connect_to_server()!=0)
@@ -603,7 +603,7 @@ int YARPNameClient::_query_nic(const YARPNSNic &in, std::string &outIp)
 	return YARP_OK;
 }
 
-int YARPNameClient::_queryQnx(const std::string &s, YARPNameQnx &entry, int *type)
+int YARPNameClient::_queryQnx(const YARPString &s, YARPNameQnx &entry, int *type)
 {
 	YARPNameServiceCmd tmpCmd;
 	YARPNameQnx tmpRqst;
@@ -652,7 +652,7 @@ int YARPNameClient::_queryQnx(const std::string &s, YARPNameQnx &entry, int *typ
 	return YARP_OK;
 }
 
-int YARPNameClient::_handle_reply(std::string &out)
+int YARPNameClient::_handle_reply(YARPString &out)
 {
 	unsigned int byte_count = 0;
 	int res = 0;
@@ -678,7 +678,8 @@ int YARPNameClient::_handle_reply(std::string &out)
 		// ith vector
 		iov[0].iov_len = SIZE_BUF;
 		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
-		out.append(data_buf_,byte_count);
+		///out.append(data_buf_,byte_count);
+		out += YARPString(data_buf_, byte_count);
 	}
 	
 	if (lastVectLength > 0)
@@ -686,7 +687,8 @@ int YARPNameClient::_handle_reply(std::string &out)
 		// last vector
 		iov[0].iov_len = lastVectLength;
 		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
-		out.append(data_buf_,byte_count);
+		///out.append(data_buf_,byte_count);
+		out += YARPString(data_buf_, byte_count);
 	}
 							
 	// close the connection

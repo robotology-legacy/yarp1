@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.14 2003-07-16 16:06:31 natta Exp $
+/// $Id: YARPNameClient.h,v 1.15 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -89,7 +89,7 @@
 #	pragma once
 #endif
 
-#include <string>
+#include <YARPString.h>
 
 ///#define NAME_CLIENT_VERBOSE 
 
@@ -106,37 +106,37 @@
 class YARPNameClient  
 {
 public:
-	YARPNameClient(const std::string server, int port);
+	YARPNameClient(const YARPString& server, int port);
 	YARPNameClient(const ACE_INET_Addr &addr);
 	virtual ~YARPNameClient();
 
-	int check_in_mcast(const std::string &s, ACE_INET_Addr &addr);
-	int check_in (const std::string &s, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr);
-	int check_in (const std::string &s, ACE_INET_Addr &addr);
-	int check_in (const std::string &s, std::string &ip, NetInt32 *port);
-	int check_in_udp(const std::string &name, std::string &addr, NetInt32 *ports, NetInt32 n);
-	int check_in_udp(const std::string &name, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr, NetInt32 *ports, NetInt32 n);
+	int check_in_mcast(const YARPString &s, ACE_INET_Addr &addr);
+	int check_in (const YARPString &s, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr);
+	int check_in (const YARPString &s, ACE_INET_Addr &addr);
+	int check_in (const YARPString &s, YARPString &ip, NetInt32 *port);
+	int check_in_udp(const YARPString &name, YARPString &addr, NetInt32 *ports, NetInt32 n);
+	int check_in_udp(const YARPString &name, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr, NetInt32 *ports, NetInt32 n);
 	int check_in_qnx(const YARPNameQnx &entry);
-	int query (const std::string &s, ACE_INET_Addr &addr, int *type);
-	int query_qnx (const std::string &s, YARPNameQnx &entry, int *type);
-	int query_nic(const std::string &inIp, const std::string &netId, std::string &outIp);
-	int check_out (const std::string &s);
-	int check_out_qnx (const std::string &s);
-	std::string dump(int i = 0);	// 0 short, 1 extended
-	int _handle_reply(std::string &out);
+	int query (const YARPString &s, ACE_INET_Addr &addr, int *type);
+	int query_qnx (const YARPString &s, YARPNameQnx &entry, int *type);
+	int query_nic(const YARPString &inIp, const YARPString &netId, YARPString &outIp);
+	int check_out (const YARPString &s);
+	int check_out_qnx (const YARPString &s);
+	YARPString dump(int i = 0);	// 0 short, 1 extended
+	int _handle_reply(YARPString &out);
 
 private:
 	// connect to server
 	int connect_to_server ();
 	// close down the connection properly
 	int close();
-	int _checkIn(const std::string &s, ACE_INET_Addr &addr);
-	int _checkInUdp(const std::string &name, const std::string &ip, NetInt32 *ports, NetInt32 n);
-	int _checkInMcast(const std::string &s, ACE_INET_Addr &addr);
+	int _checkIn(const YARPString &s, ACE_INET_Addr &addr);
+	int _checkInUdp(const YARPString &name, const YARPString &ip, NetInt32 *ports, NetInt32 n);
+	int _checkInMcast(const YARPString &s, ACE_INET_Addr &addr);
 	int _checkInQnx(const YARPNameQnx &entry);
-	int _query(const std::string &s, ACE_INET_Addr &addr, int *type);
-	int _queryQnx(const std::string &s, YARPNameQnx &entry, int *type);
-	int _query_nic(const YARPNSNic &in, std::string &outIp);
+	int _query(const YARPString &s, ACE_INET_Addr &addr, int *type);
+	int _queryQnx(const YARPString &s, YARPNameQnx &entry, int *type);
+	int _query_nic(const YARPNSNic &in, YARPString &outIp);
 
 private:
 	ACE_SOCK_Stream client_stream_;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.27 2003-07-31 21:40:08 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.28 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -69,11 +69,7 @@
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Synch.h>
-
-
-#ifdef __WIN_MSVC__
-#	include <windows.h>
-#endif
+#include <ace/Map_Manager.h>
 
 #include "YARPSocketNameService.h"
 #include "YARPSocket.h"
@@ -81,7 +77,6 @@
 #include "YARPSocketMcast.h"
 #include "YARPSocketMulti.h"
 #include "YARPTime.h"
-//#include "ThreadInput.h"
 #include "YARPNameID_defs.h"
 #include "YARPNameService.h"
 #include "YARPNativeNameService.h"
@@ -99,14 +94,6 @@
 
 #ifndef __WIN32__
 #include <unistd.h>
-#endif
-
-#include <map>
-
-#ifdef __WIN_MSVC__
-#include <process.h>
-#include <functional>
-using namespace std;
 #endif
 
 #include "YARPSemaphore.h"
@@ -178,7 +165,7 @@ public:
 	YARPSemaphore mutex;
 
 	typedef YARPNetworkObject *PYARPNetworkObject;
-	typedef map<int, PYARPNetworkObject, less<int> > SMap;
+	typedef ACE_Map_Manager<int, PYARPNetworkObject, ACE_Null_Mutex> SMap;
 
 	SMap _map;
 
@@ -187,35 +174,22 @@ public:
 	_yarp_endpoint () : mutex (1) {}
 	~_yarp_endpoint () {}
 
-
 	/// get the socket from the map of all in sockets.
 	inline YARPNetworkObject *GetThreadSocket(void)
 	{
 		int pid = my_gettid();
 		YARPNetworkObject *result = NULL;
 		mutex.Wait();
-		if (_map.find(pid) != _map.end())
+	
+		if (_map.find(pid, result) == 0)
 		{
-			result = _map[pid];
+			mutex.Post();
+			return result;
 		}
-		mutex.Post();
-		return result;
-	}
 
-#if 0
-	/// the calling thread gets it input socket if any, -1 if no socket is associated w/
-	///		current thread.
-	inline int GetAssignedPort(void)
-	{
-		int result = YARP_FAIL;
-		YARPNetworkObject *is = GetThreadSocket();
-		if (is != NULL)
-		{
-			result = is->GetAssignedPort ();
-		}
-		return result;
+		mutex.Post();
+		return NULL;
 	}
-#endif
 };
 
 
@@ -253,49 +227,25 @@ int YARPSocketEndpointManager::CreateInputEndpoint (YARPUniqueNameID& name)
 
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ creating\n"));
 
-		YARPNetworkObject *no = NULL;
-		switch (name.getServiceType())
+		if (name.getServiceType() != YARP_TCP &&
+			name.getServiceType() != YARP_UDP &&
+			name.getServiceType() != YARP_MCAST)
 		{
-		case YARP_TCP:
-			{
-				_endpointmanager._map[pid] = new YARPInputSocketMulti;
-				no = _endpointmanager._map[pid];
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing input socket\n"));
-
-				// prepare the socket for the connection (bind).
-				((YARPInputSocketMulti *)no)->Prepare (sname, sname.getPorts(), sname.getNPorts());
-			}
-			break;
-
-		case YARP_UDP:
-			{
-				_endpointmanager._map[pid] = new YARPInputSocketMulti;
-				no = _endpointmanager._map[pid];
-
-				/// NPorts is the size of the pool (e.g. 11 (1+10))
-				/// Ports is an array of ports (of size NPorts)
-				/// cast is required because this version of prepare is not in base class (similar in spirit to a ctor).
-				((YARPInputSocketMulti *)no)->Prepare (sname, sname.getPorts(), sname.getNPorts());
-			}
-			break;
-
-		case YARP_MCAST:
-			{
-				_endpointmanager._map[pid] = new YARPInputSocketMulti;
-				no = _endpointmanager._map[pid];
-
-				/// NPorts is the size of the pool (e.g. 11 (1+10))
-				/// Ports is an array of ports (of size NPorts)
-				/// cast is required because this version of prepare is not in base class (similar in spirit to a ctor).
-				((YARPInputSocketMulti *)no)->Prepare (sname, sname.getPorts(), sname.getNPorts());
-			}
-			break;
-
-		default:
-			ACE_DEBUG ((LM_DEBUG, "YARPSocketEndpointManager::CreateInputEndpoint, service type not implemented\n"));
+			ACE_DEBUG ((LM_DEBUG, "YARPSocketEndpointManager::CreateInputEndpoint, service type not supported\n"));
 			return YARP_FAIL;
-			break;
 		}
+
+		YARPNetworkObject *no = NULL;
+
+		no = new YARPInputSocketMulti;
+		ACE_ASSERT (no != NULL);
+
+		_endpointmanager._map.rebind (pid, no);
+
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing input socket\n"));
+
+		// prepare the socket for the connection (bind).
+		((YARPInputSocketMulti *)no)->Prepare (sname, sname.getPorts(), sname.getNPorts());
 
 		_endpointmanager.mutex.Post();
 		
@@ -329,8 +279,9 @@ int YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& name)
 		{
 		case YARP_TCP:
 			{
-				_endpointmanager._map[pid] = new YARPOutputSocket;
-				no = _endpointmanager._map[pid];
+				no = new YARPOutputSocket;
+				ACE_ASSERT (no != NULL);
+				_endpointmanager._map.rebind (pid, no);
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing output socket\n"));
 
@@ -341,8 +292,9 @@ int YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& name)
 
 		case YARP_UDP:
 			{
-				_endpointmanager._map[pid] = new YARPOutputSocketDgram;
-				no = (YARPNetworkObject *) _endpointmanager._map[pid];
+				no = new YARPOutputSocketDgram;
+				ACE_ASSERT (no != NULL);
+				_endpointmanager._map.rebind (pid, no);
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing output socket\n"));
 
@@ -353,8 +305,9 @@ int YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& name)
 
 		case YARP_MCAST:
 			{
-				_endpointmanager._map[pid] = new YARPOutputSocketMcast;
-				no = (YARPNetworkObject *) _endpointmanager._map[pid];
+				no = new YARPOutputSocketMcast;
+				ACE_ASSERT (no != NULL);
+				_endpointmanager._map.rebind (pid, no);
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing output socket\n"));
 
@@ -364,8 +317,9 @@ int YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& name)
 
 		case YARP_SHMEM:
 			{
-				_endpointmanager._map[pid] = new YARPOutputSocketMulti;
-				no = (YARPNetworkObject *) _endpointmanager._map[pid];
+				no = new YARPOutputSocketMulti;
+				ACE_ASSERT (no != NULL);
+				_endpointmanager._map.rebind (pid, no);
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing output socket\n"));
 
@@ -444,7 +398,9 @@ int YARPSocketEndpointManager::CloseMcastAll (void)
 
 	int pid = my_gettid();
 	_endpointmanager.mutex.Wait();
-	_endpointmanager._map.erase(pid);
+	_endpointmanager._map.unbind (pid, sock);
+	delete sock;
+
 	_endpointmanager.mutex.Post();
 
 	return YARP_OK;
@@ -474,11 +430,15 @@ int YARPSocketEndpointManager::Close (YARPUniqueNameID& dest)
 		}
 	}
 
-///	if (sock->GetIdentifier() == ACE_INVALID_HANDLE)
+	/// this is tricky here. Apparently some of the pid's in some situations
+	/// aren't released blocking the possibility of further connecting new sockets
+	/// from the same thread.
+	if (sock->GetIdentifier() == ACE_INVALID_HANDLE)
 	{
 		int pid = my_gettid();
 		_endpointmanager.mutex.Wait();
-		_endpointmanager._map.erase(pid);
+		_endpointmanager._map.unbind (pid, sock);
+		delete sock;
 		_endpointmanager.mutex.Post();
 	}
 
@@ -520,7 +480,7 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 	reg_addr.set((u_short)0, myhostname);
 	
 	ACE_DEBUG((LM_DEBUG, "registering name %s of (%s) protocol %s\n", name, reg_addr.get_host_addr(), servicetypeConverter(reg_type)));
-	std::string tname (name);
+	YARPString tname (name);
 
 	switch (reg_type)
 	{
@@ -535,7 +495,7 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 			YARPNameQnx tmp;
 			tmp.setName (name);
 			/// LATER: isn't get_host_name here == myhostname?
-			tmp.setAddr (std::string(reg_addr.get_host_name()), my_getpid(), chid);
+			tmp.setAddr (YARPString(reg_addr.get_host_name()), my_getpid(), chid);
 
 			if (namer.check_in_qnx (tmp) != YARP_OK)
 			{
@@ -641,7 +601,7 @@ YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const
 	/// handle the connection w/ the remote name server.
 	///
 	ACE_INET_Addr addr;
-	std::string sname = name;
+	YARPString sname = name;
 
 	switch (name_type)
 	{
@@ -682,14 +642,6 @@ YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> Problems locating %s\n", sname.c_str()));
 				return NAMER_FAIL;	/// invalid name id.
 			}
-
-#if 0
-			if (reg_type != name_type)
-			{
-				ACE_DEBUG ((LM_DEBUG, ">>>> the requested type differs from the actual one %s\n", sname.c_str()));
-				return NAMER_FAIL;
-			}
-#endif
 
 			YARPUniqueNameSock *n = new YARPUniqueNameSock (reg_type);
 			
@@ -732,7 +684,7 @@ YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const
 			while (addr.get_port_number() != 0);
 
 			/// can't locate a name -> it's a new one.
-			std::string tname (fullname);
+			YARPString tname (fullname);
 			if (namer.check_in_mcast(tname, addr) != YARP_OK)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>>> can't get an MCAST group for %s\n", sname.c_str()));

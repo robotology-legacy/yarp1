@@ -11,7 +11,7 @@ using namespace std;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-NetworkMap::NetworkMap(const std::string &configFile)
+NetworkMap::NetworkMap(const YARPString &configFile)
 {
 	if (configFile != "")
 		_load(configFile);
@@ -22,7 +22,7 @@ NetworkMap::~NetworkMap()
 
 }
 
-int NetworkMap::_load(const std::string &filename)
+int NetworkMap::_load(const YARPString &filename)
 {
 	// open
 	FILE *fp = fopen(filename.c_str(), "r");
@@ -54,7 +54,7 @@ int NetworkMap::_load(const std::string &filename)
 
 		networkMapEntry tmpMapEntry;
 		//
-		tmpMapEntry.nodeName = std::string(row1);
+		tmpMapEntry.nodeName = YARPString(row1);
 		// while
 		while (true)
 		{
@@ -78,8 +78,8 @@ int NetworkMap::_load(const std::string &filename)
 			else if (chk == 1) // new node
 				break;
 
-			tmpTableEntry.netID = string(row1);
-			tmpTableEntry.ip = string(row2);
+			tmpTableEntry.netID = YARPString(row1);
+			tmpTableEntry.ip = YARPString(row2);
 
 			tmpMapEntry.table.push_back(tmpTableEntry);
 		}
@@ -106,7 +106,7 @@ int NetworkMap::_readAndCheck(FILE * fp, char *row)
 		return 0;
 }
 
-void NetworkMap::findIp(const std::string &inIp, const std::string &net, std::string &outIp)
+void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPString &outIp)
 {
 	NETWORK_MAP_IT mapIt;
 	NODE_TABLE_IT nodeIt;
@@ -115,7 +115,8 @@ void NetworkMap::findIp(const std::string &inIp, const std::string &net, std::st
 
 	bool foundNode = false;
 	bool foundNet = false;
-	string tmpIp;
+	YARPString tmpIp;
+
 	// for each node
 	while (mapIt != _networkMap.end() && !(foundNet&&foundNode))
 	{

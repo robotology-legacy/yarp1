@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: debug.h,v 1.5 2003-06-04 12:03:13 beltran Exp $
+/// $Id: debug.h,v 1.6 2003-08-02 07:46:15 gmetta Exp $
 ///
 ///
 /// WARNING. this file name is looking for a name clash.
@@ -68,18 +68,10 @@
 #	pragma once
 #endif
 
-///#include <stdio.h>
-
 extern int __debug_level;
 
 #define DEBUG_LEVEL (__debug_level)
-
-///#define dbg_printf(x) if(DEBUG_LEVEL>=x) printf
-///#define dbg_fprintf(x) if(DEBUG_LEVEL>=x) fprintf
-///#define DBG(x) if(DEBUG_LEVEL>=x) 
-
 #define YARP_DBG(x) if(DEBUG_LEVEL>=x) ACE_DEBUG
-
 #define YARP_DEBUG(string1, string2) do {ACE_OS::printf(string1),ACE_OS::printf string2;} while(0)
 #define YARP_NULL_DEBUG do {} while(0)
 

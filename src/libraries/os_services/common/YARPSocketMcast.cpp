@@ -61,21 +61,13 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.27 2003-07-30 22:43:06 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.28 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
 ///
 /// YARP incapsulates some socket (or any other OS communication features) into two 
 ///		externally visible classes YARPInputSocketMcast and YARPOutputSocketMcast
-///
-///	As of Apr 2003 this code is NOT tested under QNX.
-///
-///
-///
-
-///
-///
 ///
 ///
 ///
@@ -94,21 +86,15 @@
 #ifndef __QNX__
 /// WIN32, Linux
 
-#	include <string>
-using namespace std;
-
 #ifndef __WIN_MSVC__
 #	include <unistd.h>  // just for gethostname
 #endif
 
 #else
 
-#	include <string>
 #	include <unix.h>  // just for gethostname
 
 #endif
-
-#include <list>
 
 #include "YARPSocket.h"
 #include "YARPSocketMcast.h"
@@ -117,6 +103,7 @@ using namespace std;
 #include "YARPNameID.h"
 #include "YARPScheduler.h"
 #include "YARPTime.h"
+#include "YARPString.h"
 
 ///
 #define THIS_DBG 80
@@ -190,7 +177,7 @@ public:
 
 	enum { _max_num_clients = 256 };
 	ACE_INET_Addr _clients[_max_num_clients];
-	std::string _client_names[_max_num_clients];
+	YARPString _client_names[_max_num_clients];
 	int _num_connected_clients;
 
 	MyMessageHeader _hdr;
@@ -233,13 +220,17 @@ YARPOutputSocketMcast::YARPOutputSocketMcast (void) : YARPNetworkOutputObject ()
 YARPOutputSocketMcast::~YARPOutputSocketMcast (void)
 {
 	OSDataMcast& d = OSDATA(system_resources);
-	int i;
-	for (i = 0; i < d._max_num_clients; i++)
-		Close (YARPUniqueNameSock(YARP_NO_SERVICE_AVAILABLE, d._clients[i]));
 
-	ACE_DEBUG ((LM_DEBUG, "Pretending to close all connections to port %d on %s\n", 
-		d._mcast_addr.get_port_number(), 
-		d._mcast_addr.get_host_name()));
+	if (identifier != ACE_INVALID_HANDLE)
+	{
+		ACE_DEBUG ((LM_DEBUG, "Closing all connections to port %d on %s\n", 
+			d._mcast_addr.get_port_number(), 
+			d._mcast_addr.get_host_name()));
+
+		int i;
+		for (i = 0; i < d._max_num_clients; i++)
+			Close (YARPUniqueNameSock(YARP_NO_SERVICE_AVAILABLE, d._clients[i]));
+	}
 
 	d._connector_socket.leave (d._mcast_addr, 0);
 
@@ -291,6 +282,7 @@ int YARPOutputSocketMcast::CloseMcastAll (void)
 
 	d._connector_socket.close ();
 	d._num_connected_clients = 0;
+	identifier = ACE_INVALID_HANDLE;
 
 	return YARP_OK;
 }
@@ -307,14 +299,13 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 
 	int i;
 	int j = -1;
-	const char *sname = ((YARPUniqueNameSock&)name).getName().c_str();
+	///const char *sname = ((YARPUniqueNameSock&)name).getName().c_str();
 	ACE_INET_Addr& nm = ((YARPUniqueNameSock &)name).getAddressRef();
 
 	for (i = 0; i < d._max_num_clients; i++)
 	{
-		///if (d._clients[i].get_host_addr() == nm.get_host_addr() &&
-		///	d._client_names[i].compare(sname) == 0)
-		if (d._client_names[i].compare(sname) == 0)
+		///if (d._client_names[i].compare(sname) == 0)
+		if (d._client_names[i] == ((YARPUniqueNameSock&)name).getName())
 		{
 			j = i;
 			break;
@@ -337,7 +328,7 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 		ACE_DEBUG ((LM_DEBUG, "cannot connect to %s:%d\n", nm.get_host_addr(), nm.get_port_number()));
 
 		d._clients[j].set ((u_short)0, INADDR_ANY);
-		d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
+		d._client_names[j].clear(1);
 	
 		d._num_connected_clients --;
 
@@ -362,7 +353,7 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._clients[j].get_host_addr(), d._clients[j].get_port_number()));
 
 		d._clients[j].set ((u_short)0, INADDR_ANY);
-		d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
+		d._client_names[j].clear(1);
 
 		stream.close ();
 		d._num_connected_clients --;
@@ -378,7 +369,7 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 	}
 
 	d._clients[j].set ((u_short)0, INADDR_ANY);
-	d._client_names[j].erase(d._client_names[j].begin(), d._client_names[j].end());
+	d._client_names[j].clear(1);
 
 	stream.close ();
 	d._num_connected_clients --;
@@ -424,6 +415,10 @@ int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name)
 	return YARP_OK;
 }
 
+///
+///
+/// keeping this piece of code for future use. It was needed to smoothly reconnect an MCAST
+///	port... semantic has been changed since then.
 #if 0
 	/// momentarily raise the connection count to prevent closing the thread.
 	d._num_connected_clients ++;
@@ -454,7 +449,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 
 	/// verifies it's a new connection.
 	ACE_INET_Addr nm = ((YARPUniqueNameSock&)name).getAddressRef();
-	const char *sname = ((YARPUniqueNameSock&)name).getName().c_str();
+	///const char *sname = ((YARPUniqueNameSock&)name).getName().c_str();
 
 	int i, firstempty = -1;
 	for (i = 0; i < d._max_num_clients; i++)
@@ -462,9 +457,8 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 		/// don't compare the IP addr because the remote might have already unregistered
 		/// in that case, name doesn't contain the IP of the remote.
 
-		///if (d._clients[i].get_host_addr() == nm.get_host_addr() &&
-		///	d._client_names[i].compare(sname) == 0)
-		if (d._client_names[i].compare(sname) == 0)
+		///if (d._client_names[i].compare(sname) == 0)
+		if (d._client_names[i] == ((YARPUniqueNameSock&)name).getName())
 		{
 			/// it's already there...
 			ACE_DEBUG ((LM_DEBUG, "the specific client is already connected %s:%d\n", d._clients[i].get_host_addr(), d._clients[i].get_port_number()));
@@ -531,7 +525,8 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	if (port_number == -1)
 	{
 		d._clients[firstempty].set ((u_short)0, INADDR_ANY);
-		d._client_names[firstempty].erase(d._client_names[firstempty].begin(), d._client_names[firstempty].end());
+		///d._client_names[firstempty].erase(d._client_names[firstempty].begin(), d._client_names[firstempty].end());
+		d._client_names[firstempty].clear(1);
 
 		/// there might be a real -1 port number -> 65535.
 		stream.close ();
@@ -544,8 +539,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 
 	/// stores also the full symbolic name as index.
 	/// this can be changed into a string copy since the name now contains a string.
-	std::string& s = d._client_names[firstempty];
-	s = sname;
+	d._client_names[firstempty] = ((YARPUniqueNameSock&)name).getName();
 
 	stream.close ();
 	d._num_connected_clients ++;

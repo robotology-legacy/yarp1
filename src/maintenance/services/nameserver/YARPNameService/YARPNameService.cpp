@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.11 2003-07-16 16:06:31 natta Exp $
+/// $Id: YARPNameService.cpp,v 1.12 2003-08-02 07:46:15 gmetta Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -63,9 +63,8 @@
 #define NAME_SERVER_VERBOSE
 #include "YARPNameServer.h"
 
+#include <YARPString.h>
 #include <iostream>
-#include <string>
-
 using namespace std;
 
 #ifdef __WIN32__
@@ -93,7 +92,7 @@ void print_menu()
 	cout << ":" << flush;
 }
 
-int parse(const std::string &str)
+int parse(const YARPString &str)
 {
 	if (str == "q!")
 		return 0;
@@ -146,7 +145,7 @@ int main(int argc, char* argv[])
 		
 	fin.close ();
 
-	string str;
+	YARPString str;
 	print_menu();
 	
 	while (cin >> str)
@@ -157,19 +156,19 @@ int main(int argc, char* argv[])
 			break;
 		else if (ret == 1)
 		{
-			string str1, str2;
+			YARPString str1, str2;
 			cin >> str1;
 			cin >> str2;
 			dns.handle_registration_dbg(str1,str2, YARP_TCP);
 		}
 		else if (ret == 2){
-			string str1;
+			YARPString str1;
 			cin >> str1;
 			
 			dns.handle_release(str1);
 		}
 		else if (ret == 3){
-			string str1;
+			YARPString str1;
 			cin >> str1;
 			dns.query_dbg(str1);
 		}
@@ -177,12 +176,12 @@ int main(int argc, char* argv[])
 			dns.dump();
 		}
 		else if (ret == 5){
-			string str1;
+			YARPString str1;
 			cin >> str1;
 			dns.handle_registration_dip_dbg(str1, YARP_MCAST);
 		}
 		else if (ret == 6){
-			string str1,str2;
+			YARPString str1,str2;
 			int n;
 			cin >> str1;
 			cin >> str2;

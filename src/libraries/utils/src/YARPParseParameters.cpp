@@ -1,17 +1,17 @@
-// $Id: YARPParseParameters.cpp,v 1.2 2003-07-20 14:46:28 natta Exp $
+// $Id: YARPParseParameters.cpp,v 1.3 2003-08-02 07:46:15 gmetta Exp $
 
 #include "YARPParseParameters.h"
 
-using namespace std;
+///using namespace std;
 
-bool YARPParseParameters::parse (int argc, char *argv[], const string &key, string &out)
+bool YARPParseParameters::parse (int argc, char *argv[], const YARPString &key, YARPString &out)
 {
 	for (int i = 1; i < argc; i++)
 	{
 		if (argv[i][0] == '-')
 		{
 			// found parameter, check key
-			if (key == string(argv[i]+1)) 
+			if (key == YARPString(argv[i]+1)) 
 			{
 				// found key
 				i++;
@@ -19,16 +19,16 @@ bool YARPParseParameters::parse (int argc, char *argv[], const string &key, stri
 					return false;
 				else if (argv[i][0] == '-')
 					return false;
-				else if (key == string("name"))	// exception, "name"
+				else if (key == YARPString("name"))	// exception, "name"
 				{
 					// append "/"
 					out = "/";	
-					out.append(string(argv[i]));
+					out.append(YARPString(argv[i]));
 					return true;
 				}
 				else
 				{
-					out = string (argv[i]);
+					out = YARPString (argv[i]);
 					return true;
 				}
 			}
@@ -37,23 +37,23 @@ bool YARPParseParameters::parse (int argc, char *argv[], const string &key, stri
 	return false; 
 }
 
-bool YARPParseParameters::parse (int argc, char *argv[], const string &key)
+bool YARPParseParameters::parse (int argc, char *argv[], const YARPString &key)
 {
 	for (int i = 1; i < argc; i++)
 	{
 		if (argv[i][0] == '-')
 		{
 			// found parameter, check key
-			if (key == string(argv[i]+1))
+			if (key == YARPString(argv[i]+1))
 				return true;
 		}
 	}
 	return false; 
 }
 
-bool YARPParseParameters::parse (int argc, char *argv[], const string &key, int *out) 
+bool YARPParseParameters::parse (int argc, char *argv[], const YARPString &key, int *out) 
 {
-	string dummy;
+	YARPString dummy;
 	if (YARPParseParameters::parse(argc, argv, key, dummy))
 	{
 		*out = atoi(dummy.c_str());
@@ -64,9 +64,9 @@ bool YARPParseParameters::parse (int argc, char *argv[], const string &key, int 
 
 }
 
-bool YARPParseParameters::parse (int argc, char *argv[], const string &key, double *out) 
+bool YARPParseParameters::parse (int argc, char *argv[], const YARPString &key, double *out) 
 {
-	string dummy;
+	YARPString dummy;
 	if (YARPParseParameters::parse(argc, argv, key, dummy))
 	{
 		*out = atof(dummy.c_str());
@@ -77,9 +77,9 @@ bool YARPParseParameters::parse (int argc, char *argv[], const string &key, doub
 
 }
 
-bool YARPParseParameters::parse (int argc, char *argv[], const string &key, char *out) 
+bool YARPParseParameters::parse (int argc, char *argv[], const YARPString &key, char *out) 
 {
-	string dummy;
+	YARPString dummy;
 	if (YARPParseParameters::parse(argc, argv, key, dummy))
 	{
 		strcpy(out, dummy.c_str());

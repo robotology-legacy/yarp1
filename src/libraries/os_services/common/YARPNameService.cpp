@@ -61,19 +61,14 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.21 2003-07-16 13:10:21 babybot Exp $
+/// $Id: YARPNameService.cpp,v 1.22 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
 #include <conf/YARPConfig.h>
 #include <ace/OS.h>
 
-#include <string.h>
 #include <fstream>
-
-#ifndef __QNX4__
-using namespace std;
-#endif
 
 #include "YARPNameService.h"
 #include "YARPSemaphore.h"
@@ -85,6 +80,7 @@ using namespace std;
 
 #include "wide_nameloc.h"
 #include "YARPNameID_defs.h"
+#include "YARPString.h"
 
 #ifdef __WIN32__
 /// library initialization.

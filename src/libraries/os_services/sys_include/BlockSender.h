@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.h,v 1.7 2003-06-28 16:40:01 babybot Exp $
+/// $Id: BlockSender.h,v 1.8 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -67,13 +67,14 @@
 #	pragma once
 #endif
 
-#include <vector>
-#ifdef __WIN32__
-//#include <iostream>
-#endif
+/// LATER: Need remove this -- use ACE equivalent.
+///#include <vector>
+
+///
+/// STILL under testing especially for efficiency.
+#include <ace/Containers_T.h>
 
 #include "RefCounted.h"
-
 #include "YARPNameID.h"
 #include "YARPNameID_defs.h"
 #include "YARPPortContent.h"
@@ -140,8 +141,10 @@ public:
 	int available;
 	int pieces;
 	int failed;
-	vector<BlockUnit> entries;
-	vector<BlockUnit>::iterator cursor;
+	///vector<BlockUnit> entries;
+	///vector<BlockUnit>::iterator cursor;
+	ACE_Array<BlockUnit> entries;
+	int cursor;
 
 	BlockSender()
 	{
@@ -161,7 +164,8 @@ public:
 	void Begin(const YARPNameID& npid)
 	{
 		pid = npid;
-		cursor = entries.begin();
+		///cursor = entries.begin();
+		cursor = 0;
 		available = max_packet;
 		pieces = 0;
 		failed = 0;
@@ -190,19 +194,23 @@ class HeaderedBlockSender : public BlockSender
 {
 public:
 	int add_header;
-	vector<T> headers;
-	vector<T>::iterator header_cursor;
+	///vector<T> headers;
+	///vector<T>::iterator header_cursor;
+	ACE_Array<T> headers;
+	int header_cursor;
 
 	HeaderedBlockSender()
 	{
 		add_header = 0;
-		header_cursor = headers.begin();
+		///header_cursor = headers.begin();
+		header_cursor = 0;
 	}
 
 	void Begin(const YARPNameID& pid)
 	{
 		add_header = 0;
-		header_cursor = headers.begin();
+		///header_cursor = headers.begin();
+		header_cursor = 0;
 		BlockSender::Begin(pid);
 	}
 
@@ -227,7 +235,8 @@ public:
 	{
 		if (add_header)
 		{
-			BlockSender::Add((char*)(header_cursor),sizeof(T));
+			///BlockSender::Add((char*)(header_cursor),sizeof(T));
+			BlockSender::Add((char*)(&headers[header_cursor]),sizeof(T));
 			add_header = 0;
 			header_cursor++;
 		}
@@ -236,18 +245,25 @@ public:
 	T *AddHeader()
 	{
 		Check();
-		if (header_cursor == headers.end())
-		{
-			///if (__debug_level >= 50)
-			///{
-				//cout << "*** NEW stl " << __FILE__ << ":" << __LINE__ << endl;
-			///}
 
-			header_cursor = headers.insert(header_cursor,T());
+		int sz = headers.size();
+		if (header_cursor == sz)
+		{
+			sz++;
+			headers.size(sz);
+			headers[header_cursor] = T();
 		}
 
+#if 0
+		if (header_cursor == headers.end())
+		{
+			header_cursor = headers.insert(header_cursor,T());
+		}
+#endif
+
 		add_header = 1;
-		return header_cursor;
+///		return header_cursor;
+		return &headers[header_cursor];
 	}
 };
 

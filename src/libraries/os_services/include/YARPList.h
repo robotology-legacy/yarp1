@@ -52,100 +52,61 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///
-///       YARP - Yet Another Robotic Platform (c) 2001-2003 
-///
-///                    #paulfitz, pasa#
-///
-///     "Licensed under the Academic Free License Version 1.0"
+/// YARPList wrapped by pasa.
 ///
 
 ///
-/// $Id: YARPSemaphore.cpp,v 1.3 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: YARPList.h,v 1.1 2003-08-02 07:46:14 gmetta Exp $
 ///
-///
-///
-/// pasa Apr 2003
 ///
 
-#include "YARPSemaphore.h"
+#ifndef __YARPListh__
+#define __YARPListh__
 
-/// ACE inclusion
+#include <conf/YARPConfig.h>
 #include <ace/config.h>
-#include <ace/Synch.h>
+#include <ace/OS.h>
+#include <ace/Containers_T.h>
 
 
-YARPSemaphore::YARPSemaphore (int initial_count)
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
+
+template <class T>
+class YARPListIterator : public ACE_DLList_Iterator<T>
 {
-	ACE_Semaphore *sema = new ACE_Semaphore (initial_count);
-	system_resource = (void *)sema;
+public:
+	YARPListIterator(ACE_DLList<T>& i) : ACE_DLList_Iterator<T>(i) {}
+	YARPListIterator(const YARPListIterator& i) : ACE_DLList_Iterator<T>(i.dllist_) {}
+	~YARPListIterator() {}
 
-	ACE_ASSERT (system_resource != NULL);
-}
+	int go_head(void) { return ACE_DLList_Iterator<T>::go_head(); }
+	int go_tail(void) { return ACE_DLList_Iterator<T>::go_tail(); }
 
-///
-/// clone the semaphore 
-///		polls the copied sema, 
-/// 
-YARPSemaphore::YARPSemaphore (const YARPSemaphore& yt)
+	T& operator *() const { return *(T*)(ACE_DLList_Iterator<T>::operator*().item_); }
+};
+
+template <class T>
+class YARPList : public ACE_DLList<T>
 {
-	ACE_Semaphore *sema = new ACE_Semaphore (0);
-	system_resource = (void *)sema;
-	ACE_ASSERT (system_resource != NULL);
+public:
+	friend class YARPListIterator<T>;
+
+	YARPList(void) : ACE_DLList<T> () {}
+	YARPList(const YARPList<T>& l) : ACE_DLList<T> (l) {}
 	
-	if (yt.system_resource != NULL)
-	{
-		int ct = 0;
-		YARPSemaphore& danger_yt = *((YARPSemaphore *)&yt);
+	void operator= (const ACE_DLList<T> &l) { ACE_DLList<T>::operator=(l); } 
+	void operator= (const YARPList<T> &l) { ACE_DLList<T>::operator=(l); } 
 
-		while (danger_yt.PollingWait())
-		{
-			ct++;
-		}
+	~YARPList() { reset(); }
 
-		while (ct)
-		{
-			danger_yt.Post();
-			Post();
-			ct--;
-		}
-	}
-}
+	void push_back (const T& new_item) { T* el = new T; *el = new_item; insert_tail(el); }
+	void push_front (const T& new_item) { T* el = new T; *el = new_item; insert_head(el); }
+	void pop_back (void) { T* el = delete_tail(); delete el; }
+	void pop_front (void) { T* el = delete_head(); delete el; }
 
-YARPSemaphore::~YARPSemaphore ()
-{
-	if (system_resource!=NULL)
-	{
-		//CloseHandle(system_resource);
-		if (system_resource != NULL) delete (ACE_Semaphore *)system_resource; 
+	typedef YARPListIterator<T> iterator;
+};
 
-	    system_resource = NULL; // not necessary, just coding style
-	}
-}
-
-void YARPSemaphore::BlockingWait ()
-{
-	((ACE_Semaphore *)system_resource)->acquire();
-}
-
-int YARPSemaphore::PollingWait ()
-{
-	if (((ACE_Semaphore *)system_resource)->tryacquire() < 0)
-	{
-		///if (errno == EBUSY)
-		///	ACE_DEBUG ((LM_DEBUG, "%p\n", "Semaphore is already acquired, can't decrement"));
-
-		return 0;
-	}
-	else
-	{
-		return 1;
-	}
-}
-
-
-void YARPSemaphore::Post ()
-{
-	int ret = ((ACE_Semaphore *)system_resource)->release();
-	ACE_ASSERT (ret == 0);   // not interested in previous count
-}
+#endif

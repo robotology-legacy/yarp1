@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeSyncComm.h,v 1.3 2003-05-01 22:51:19 gmetta Exp $
+/// $Id: YARPNativeSyncComm.h,v 1.4 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 /*
@@ -77,8 +77,6 @@
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
-
-//#include <stdlib.h>
 
 #include "YARPNameService.h"
 #include "YARPMultipartMessage.h"

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.24 2003-07-30 22:43:06 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.25 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -84,20 +84,20 @@
 #endif
 
 #ifndef __QNX__
-#include <string>
-using namespace std;
+	/// WINDOWS/LINUX
+
 #ifndef __WIN_MSVC__
-#include <unistd.h>  // just for gethostname
+#	include <unistd.h>  // just for gethostname
 #else
-#include <winsock2.h>
-#endif
-#else
-///#include "strng.h"
-#include <string>
-#include <unix.h>  // just for gethostname
+#	include <winsock2.h>
 #endif
 
-#include <list>
+#else
+	/// QNX4, and QNX6
+
+#	include <unix.h>  // just for gethostname
+
+#endif
 
 #include "YARPSocket.h"
 #include "YARPThread.h"
@@ -105,6 +105,7 @@ using namespace std;
 #include "YARPNameID.h"
 #include "YARPScheduler.h"
 #include "YARPTime.h"
+#include "YARPString.h"
 
 #define THIS_DBG 80
 
@@ -245,7 +246,8 @@ YARPOutputSocket::YARPOutputSocket() : YARPNetworkOutputObject ()
 
 YARPOutputSocket::~YARPOutputSocket()
 {
-	Close (YARPUniqueNameSock());
+	if (identifier != ACE_INVALID_HANDLE)
+		Close (YARPUniqueNameSock());
 
 	if (system_resources != NULL)
 	{
@@ -258,6 +260,7 @@ YARPOutputSocket::~YARPOutputSocket()
 int YARPOutputSocket::Close (const YARPUniqueNameID& name)
 {
 	ACE_UNUSED_ARG (name);
+	identifier = ACE_INVALID_HANDLE;
 	return OSDATA(system_resources)._stream.close ();
 }
 

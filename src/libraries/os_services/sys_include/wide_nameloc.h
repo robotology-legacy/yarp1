@@ -61,22 +61,12 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.12 2003-07-29 02:26:52 gmetta Exp $
+/// $Id: wide_nameloc.h,v 1.13 2003-08-02 07:46:15 gmetta Exp $
 ///
 ///
 
 #ifndef wide_nameloc_INC
 #define wide_nameloc_INC
-
-/// I hate this, very unelegant style.
-///
-#if defined(_NOLIB)
-#	if defined(_ISLIB)
-#	undef _ISLIB
-#	endif
-#else
-#	define _ISLIB 1
-#endif
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
@@ -88,7 +78,7 @@
 #include "YARPNetworkTypes.h"
 #include "YARPNameID_defs.h"
 
-#include <string>
+#include <YARPString.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
@@ -133,44 +123,10 @@ struct YARPNameServiceCmd
 class YARPNameQnx
 {
 public:
-#ifdef _ISLIB
-	void set(const std::string &str, const std::string &node, NetInt32 pid, NetInt32 ch);
-	void setName(const std::string &str);
-	void setAddr(const std::string &node, NetInt32 pid, NetInt32 ch);
-	void getAddr(std::string &node, NetInt32 *pid, NetInt32 *ch);
-
-#else
-	void set(const std::string &str, const std::string &node, NetInt32 pid, NetInt32 ch)
-	{
-		setName(str);
-		setAddr(node, pid, ch);
-	}
-
-	void setName(const std::string &str)
-	{	
-		int len = strlen(str.c_str());
-		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
-		strcpy(_name, str.c_str());
-		_name[len] = 0;
-	}
-
-	void setAddr(const std::string &node, NetInt32 pid, NetInt32 ch)
-	{
-		int len = strlen(node.c_str());
-		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
-		strcpy(_node, node.c_str());
-		_node[len] = 0;
-		_pid = pid;
-		_chan = ch;
-	}
-
-	void getAddr(std::string &node, NetInt32 *pid, NetInt32 *ch)
-	{
-		node = std::string(_node);
-		*pid = _pid;
-		*ch = _chan;
-	}
-#endif
+	void set(const YARPString &str, const YARPString &node, NetInt32 pid, NetInt32 ch);
+	void setName(const YARPString &str);
+	void setAddr(const YARPString &node, NetInt32 pid, NetInt32 ch);
+	void getAddr(YARPString &node, NetInt32 *pid, NetInt32 *ch);
 
 	const char *getName() const { return _name; }
 	const char *getNode() const { return _node; }
@@ -187,23 +143,8 @@ public:
 class YARPNSNic
 {
 public:
-// this is crazy...
-#ifdef _ISLIB
-	void set(const std::string &ip, const std::string &netId);
-#else
-	void set(const std::string &ip, const std::string &netId)
-	{
-		int len = strlen (ip.c_str());
-		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
-		strcpy(_ip, ip.c_str());
-		_ip[len] = 0;
+	void set(const YARPString &ip, const YARPString &netId);
 
-		len = strlen (netId.c_str());
-		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
-		strcpy(_netId, netId.c_str());
-		_netId[len] = 0;
-	}
-#endif
 public:
 	char _ip[__YARP_NAMESERVICE_STRING_LEN];
 	char _netId[__YARP_NAMESERVICE_STRING_LEN];
@@ -212,53 +153,12 @@ public:
 class YARPNameTCP
 {
 public:
-#ifdef _ISLIB
-	void set(const std::string &str, const ACE_INET_Addr &addr);
-	void setName(const std::string &str);
+	void set(const YARPString &str, const ACE_INET_Addr &addr);
+	void setName(const YARPString &str);
 	void setAddr(const ACE_INET_Addr &addr);
-	void setIp(const std::string &ip);
+	void setIp(const YARPString &ip);
 	void setPort(NetInt32 p);
 	void getAddr(ACE_INET_Addr &addr);
-#else
-	void set(const std::string &str, const ACE_INET_Addr &addr)
-	{
-		setName(str);
-		setAddr(addr);
-	}
-
-	void setName(const std::string &str)
-	{
-		int len = strlen (str.c_str());
-		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
-		strcpy(_name, str.c_str());
-		_name[len] = 0;
-	}
-
-	void setAddr(const ACE_INET_Addr &addr)
-	{
-		setIp(addr.get_host_addr());
-		setPort(addr.get_port_number());
-	}
-
-	void setIp(const std::string &ip)
-	{
-		int len = strlen(ip.c_str());
-		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
-		strcpy(_ip, ip.c_str());
-		_ip[len] = 0;
-	}
-
-	void setPort(NetInt32 p)
-	{
-		_port = p;
-	}
-
-	void getAddr(ACE_INET_Addr &addr)
-	{
-		addr.set(_port, _ip);
-	}
-#endif
-
 	const char *getName() const { return _name; }
 	const char *getIp() const { return _ip; }
 	NetInt32 getPort() { return _port; }
@@ -275,68 +175,14 @@ public:
 class YARPNameUDP
 {
 public:
-#ifdef _ISLIB
-	void set(const std::string &str, const ACE_INET_Addr &addr);
-	void setName(const std::string &str);
+	void set(const YARPString &str, const ACE_INET_Addr &addr);
+	void setName(const YARPString &str);
 	void setAddr(const ACE_INET_Addr &addr);
-	void setIp(const std::string &ip);
+	void setIp(const YARPString &ip);
 	void setPorts(NetInt32 index, NetInt32 p);
 	void setNPorts(NetInt32 n);
 	void getAddr(ACE_INET_Addr &addr);
 	NetInt32 getPorts(NetInt32 index); 
-#else
-	void set(const std::string &str, const ACE_INET_Addr &addr)
-	{
-		setName(str);
-		setAddr(addr);
-	}
-
-	void setName(const std::string &str)
-	{
-		int len =  strlen(str.c_str());
-		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
-		strcpy(_name, str.c_str());
-		_name[len] = 0;
-	}
-
-	void setAddr(const ACE_INET_Addr &addr)
-	{
-		setIp(addr.get_host_addr());
-		setPorts(0, addr.get_port_number());
-	}
-
-	void setIp(const std::string &ip)
-	{
-		int len = strlen(ip.c_str());
-		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
-		strcpy(_ip, ip.c_str());
-		_ip[len] = 0;
-	}
-
-	void setPorts(NetInt32 index, NetInt32 p)
-	{
-		ACE_ASSERT( (index>=0) && (index<__YARP_NAMESERVICE_UDP_MAX_PORTS) );
-		_ports[index] = p;
-	}
-
-	void setNPorts(NetInt32 n)
-	{
-		ACE_ASSERT( (n>=1) && (n<=__YARP_NAMESERVICE_UDP_MAX_PORTS) );
-		_nPorts = n;
-	}
-
-	void getAddr(ACE_INET_Addr &addr)
-	{
-		addr.set(_ports[0], _ip);
-	}
-
-	NetInt32 getPorts(NetInt32 index) 
-	{
-		ACE_ASSERT( (index>=0) && (index<__YARP_NAMESERVICE_UDP_MAX_PORTS) );
-		return _ports[index];
-	}
-#endif
-
 	const char *getName() const { return _name; }
 	const char *getIp() const { return _ip; }
 

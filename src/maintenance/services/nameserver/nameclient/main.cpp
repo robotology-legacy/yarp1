@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.11 2003-07-16 16:06:31 natta Exp $
+/// $Id: main.cpp,v 1.12 2003-08-02 07:46:15 gmetta Exp $
 ///
 ///
 
@@ -78,7 +78,7 @@
 #include <YARPNameClient.h>
 #include <YARPParseParameters.h>
 
-#include <string>
+#include <YARPString.h>
 
 using namespace std;
 
@@ -108,7 +108,7 @@ void print_menu (void)
 	cout << ":" << flush;
 }
 
-int parse(const std::string &str)
+int parse(const YARPString &str)
 {
 	if (str == "q!")
 		return 0;
@@ -189,7 +189,7 @@ void commandLine(YARPNameClient& nc, int argc, char* argv[])
 		ok = true;
 	}
 	
-	std::string str;
+	YARPString str;
 	if (YARPParseParameters::parse(argc, argv, "rel", str))
 	{
 		if (nc.check_out(str) != 0)
@@ -197,12 +197,12 @@ void commandLine(YARPNameClient& nc, int argc, char* argv[])
 		ok = true;
 	}
 	
-	std::string ip;
-	std::string netId;
+	YARPString ip;
+	YARPString netId;
 	if ( (YARPParseParameters::parse(argc, argv, "net", netId)) &&
 		 (YARPParseParameters::parse(argc, argv, "ip", ip)) )
 	{
-		std::string outIp;
+		YARPString outIp;
 		if (nc.query_nic(ip, netId, outIp) != 0)
 			cout << "Error connecting to the server\n";
 		else
@@ -217,7 +217,7 @@ void commandLine(YARPNameClient& nc, int argc, char* argv[])
 
 void interactive(YARPNameClient& nc)
 {
-	string str;
+	YARPString str;
 	print_menu();
 	
 	while (cin >> str)
@@ -228,7 +228,7 @@ void interactive(YARPNameClient& nc)
 			break;
 		else if (ret == 1)
 		{
-			string str1,str2;
+			YARPString str1,str2;
 			cin >> str1;
 			cin >> str2;
 
@@ -241,14 +241,14 @@ void interactive(YARPNameClient& nc)
 				cout << "Error connecting to the server\n";
 		}
 		else if (ret == 2){
-			string str1;
+			YARPString str1;
 			cin >> str1;
 						
 			if (nc.check_out(str1) != 0)
 				cout << "Error connecting to the server\n";
 		}
 		else if (ret == 3){
-			string str1;
+			YARPString str1;
 			cin >> str1;
 			ACE_INET_Addr tmpAddr;
 			int tmpType;
@@ -256,14 +256,14 @@ void interactive(YARPNameClient& nc)
 				cout << "Error connecting to the server\n";
 		}
 		else if (ret == 4) {
-			string str1;
+			YARPString str1;
 			cin >> str1;
 			ACE_INET_Addr tmpAddr;
 			if (nc.check_in_mcast(str1, tmpAddr) != 0)
 				cout << "Error connecting to the server\n";
 		}
 		else if (ret == 5) {
-			string str1,str2;
+			YARPString str1,str2;
 			int n;
 			cin >> str1;	// name
 			cin >> str2;	// ip
@@ -273,7 +273,7 @@ void interactive(YARPNameClient& nc)
 				cout << "Error connecting to the server\n";
 		}
 		else if (ret == 6) {
-			string str1;
+			YARPString str1;
 			cin >> str1;	// name
 			YARPNameQnx tmp;
 			int type;
@@ -281,7 +281,7 @@ void interactive(YARPNameClient& nc)
 				cout << "Error connecting to the server\n";
 		}
 		else if (ret == 7) {
-			string name,node;
+			YARPString name,node;
 			int pid, chan;
 			cin >> name;
 			cin >> node;	// ip
@@ -294,7 +294,7 @@ void interactive(YARPNameClient& nc)
 				cout << "Error connecting to the server\n";
 		}
 		else if (ret == 8) {
-			string name;
+			YARPString name;
 			cin >> name;
 			if (nc.check_out_qnx(name) != 0)
 				cout << "Error connecting to the server\n";
@@ -312,9 +312,9 @@ void interactive(YARPNameClient& nc)
 			cout << "-------------------";
 		}
 		else if (ret == 11) {
-			string ip;
-			string netId;
-			string outIp;
+			YARPString ip;
+			YARPString netId;
+			YARPString outIp;
 			cin >> ip;
 			cin >> netId;
 			nc.query_nic(ip, netId, outIp);

@@ -1,4 +1,4 @@
-/// $Id: NetworkMap.h,v 1.1 2003-07-17 10:56:40 babybot Exp $
+/// $Id: NetworkMap.h,v 1.2 2003-08-02 07:46:15 gmetta Exp $
 // 
 // July 2003 -- by nat
 //////////////////////////////////////////////////////////////////////
@@ -8,8 +8,13 @@
 
 #include <ace/config.h>
 #include <ace/Log_Msg.h>
-#include <string>
+
+#include <YARPString.h>
 #include <list>
+
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
 
 #define NETWORK_MAP_VERBOSE
 #ifdef NETWORK_MAP_VERBOSE
@@ -27,8 +32,8 @@ public:
 	// typedef
 	struct tableEntry
 	{
-		std::string netID;
-		std::string ip;
+		YARPString netID;
+		YARPString ip;
 	};
 	
 	typedef std::list<tableEntry> NODE_TABLE;
@@ -36,7 +41,7 @@ public:
 
 	struct networkMapEntry
 	{
-		std::string nodeName;
+		YARPString nodeName;
 		NODE_TABLE table;
 	};
 
@@ -44,13 +49,13 @@ public:
 	typedef NETWORK_MAP::iterator NETWORK_MAP_IT;
 	//////////////////////////////////////////////
 
-	NetworkMap(const std::string &configFile = "");
+	NetworkMap(const YARPString &configFile = "");
 	virtual ~NetworkMap();
 
-	void findIp(const std::string &inIp, const std::string &net, std::string &outIp);
+	void findIp(const YARPString &inIp, const YARPString &net, YARPString &outIp);
 	
 private:
-	int _load(const std::string &filename);
+	int _load(const YARPString &filename);
 	int _readAndCheck(FILE * fp, char *row);
 
 	NETWORK_MAP _networkMap;

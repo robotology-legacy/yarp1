@@ -535,8 +535,8 @@ void CCamviewDlg::OnClose()
 	DrawDibClose (m_drawdib);
 
 	m_receiver.AskForEnd ();
-///	m_receiver.TryClosePort ();
-///	m_outPort.Unregister ();
+	m_receiver.TryClosePort ();
+	m_outPort.Unregister ();
 
 	CDialog::OnClose ();
 }

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: CThreadImpl.h,v 1.5 2003-06-25 12:23:08 babybot Exp $
+/// $Id: CThreadImpl.h,v 1.6 2003-08-02 07:46:15 gmetta Exp $
 ///
 ///
 //////////////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@
 #include <ace/Time_Value.h>
 #include <ace/High_Res_Timer.h>
 
-#include <string>
+#include <YARPString.h>
 
 const ACE_Time_Value _timeout_value(20,0);	// (20 sec) timeout value for the release (20 sec)
 
@@ -89,7 +89,7 @@ protected:
 	bool isRunningF;		// running flag.	
 	bool isSuspendedF;		// suspended flag
 	ACE_Time_Value period;	// period.
-	std::string name;		// thread name.
+	YARPString name;		// thread name.
 	int thread_id;			// thread id
 	int thread_priority;	// thread priority
 	ACE_hthread_t  handle;  // os internal descriptor, it is filled by the thread itself

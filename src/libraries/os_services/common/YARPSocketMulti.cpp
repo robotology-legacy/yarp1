@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.12 2003-07-31 22:21:10 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.13 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -79,21 +79,18 @@
 #ifndef __QNX__
 /// WIN32, Linux
 
-#	include <string>
-using namespace std;
-
 #ifndef __WIN_MSVC__
 #	include <unistd.h>  // just for gethostname
 #endif
 
 #else
 
-#	include <string>
 #	include <unix.h>  // just for gethostname
 
 #endif
 
-#include <list>
+#include "YARPList.h"
+///using namespace std;
 
 #include "YARPSocket.h"
 #include "YARPSocketMulti.h"
@@ -102,6 +99,7 @@ using namespace std;
 #include "YARPNameID.h"
 #include "YARPScheduler.h"
 #include "YARPTime.h"
+#include "YARPString.h"
 
 ///
 #define THIS_DBG 80
@@ -344,7 +342,7 @@ private:
 	ACE_INET_Addr _local_addr;						/// local address of the acceptor.
 	ACE_SOCK_Acceptor _acceptor_socket;				/// the acceptor TCP socket.
 
-	list<_SocketThreadMulti *> _list;				/// managed list of threads.
+	YARPList<_SocketThreadMulti *> _list;				/// managed list of threads.
 	YARPSemaphore _new_data, _new_data_written;
 
 	int _initialized;
@@ -1654,11 +1652,18 @@ _SocketThreadListMulti::~_SocketThreadListMulti (void)
 	_number_o_ports = 0;
 	_last_assigned = -1;
 
-	for (list<_SocketThreadMulti *>::iterator it = _list.begin(); it != _list.end(); it++)
+#if 0
+	/// taken care by closeAll() which is now called properly :)
+	YARPList<_SocketThreadMulti *>::iterator it(_list);
+	it.go_head();
+
+	while (!it.done())
 	{
-		(*it)->End ();
+		(*it)->End();
 		delete (*it);
+		it++;
 	}
+#endif
 
 	_initialized = 0;
 }
@@ -1740,19 +1745,12 @@ void _SocketThreadListMulti::addSocket (void)
 	/// MAGIC_NUMBER+2	-> SHMEM
 	/// MAGIC_NUMBER+3  -> TCP
 	///
-
-	///
-	/// LATER: checks for already connected thread are plainly wrong since the
-	///			port # of the actual connection not necessarily is the same
-	///			for successive connection attempts (as in TCP).
-	///	---> For Ports is fine because the check is made at a higher level
-	///		 then this check here no longer makes much sense.
-
 	if (hdr.GetLength() == YARP_MAGIC_NUMBER)
 	{
 		/// checks whether <incoming> already tried a connection
 		///		and it is still connected.
-		list<_SocketThreadMulti *>::iterator it_avail;
+		YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
+		it_avail.go_head();
 
 		/// check accept return value.
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
@@ -1761,7 +1759,7 @@ void _SocketThreadListMulti::addSocket (void)
 		/// get a new available port number associated to this IP.
 		/// recycle thread and port # if possible.
 		int reusing = 0;
-		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+		for (; !it_avail.done(); it_avail++)
 		{
 			if ((*it_avail)->isAvailable ())
 			{
@@ -1783,11 +1781,10 @@ void _SocketThreadListMulti::addSocket (void)
 		}
 		else
 		{
-			if (it_avail == _list.end())
+			if (it_avail.done())
 			{
 				_list.push_back(new _SocketThreadMulti());
-				it_avail = _list.end();
-				it_avail--;
+				it_avail.go_tail();
 			}
 
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
@@ -1849,8 +1846,9 @@ void _SocketThreadListMulti::addSocket (void)
 
 		/// checks whether <incoming> already tried a connection
 		///		and it is still connected.
-		list<_SocketThreadMulti *>::iterator it_avail;
- 
+		YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
+		it_avail.go_head();
+
 		/// check accept return value.
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
@@ -1858,7 +1856,7 @@ void _SocketThreadListMulti::addSocket (void)
 		/// get a new available port number associated to this IP.
 		/// recycle thread and port # if possible.
 		int reusing = 0;
-		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+		for (; !it_avail.done(); it_avail++)
 		{
 			if ((*it_avail)->isAvailable ())
 			{
@@ -1879,11 +1877,10 @@ void _SocketThreadListMulti::addSocket (void)
 		}
 		else
 		{
-			if (it_avail == _list.end())
+			if (it_avail.done())
 			{
 				_list.push_back(new _SocketThreadMulti());
-				it_avail = _list.end();
-				it_avail--;
+				it_avail.go_tail();
 			}
 
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
@@ -1924,7 +1921,8 @@ void _SocketThreadListMulti::addSocket (void)
 
 		/// checks whether <incoming> already tried a connection
 		///		and it is still connected.
-		list<_SocketThreadMulti *>::iterator it_avail;
+		YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
+		it_avail.go_head();
 
 		/// check accept return value.
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
@@ -1933,7 +1931,7 @@ void _SocketThreadListMulti::addSocket (void)
 		/// get a new available port number associated to this IP.
 		/// recycle thread and port # if possible.
 		int reusing = 0;
-		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+		for (; !it_avail.done(); it_avail++)
 		{
 			if ((*it_avail)->isAvailable ())
 			{
@@ -1955,11 +1953,10 @@ void _SocketThreadListMulti::addSocket (void)
 		}
 		else
 		{
-			if (it_avail == _list.end())
+			if (it_avail.done())
 			{
 				_list.push_back(new _SocketThreadMulti());
-				it_avail = _list.end();
-				it_avail--;
+				it_avail.go_tail();
 			}
 
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
@@ -2000,7 +1997,7 @@ void _SocketThreadListMulti::addSocket (void)
 		/// fictious port use although it's not really used since the SOCK_Stream is 
 		/// already connected. Optimize by freeing the port number.
 		///
-		list<_SocketThreadMulti *>::iterator it_avail;
+		YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
 
 		/// check accept return value.
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
@@ -2009,7 +2006,7 @@ void _SocketThreadListMulti::addSocket (void)
 		/// get a new available port number associated to this IP.
 		/// recycle thread and port # if possible.
 		int reusing = 0;
-		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+		for (; !it_avail.done(); it_avail++)
 		{
 			if ((*it_avail)->isAvailable ())
 			{
@@ -2033,11 +2030,10 @@ void _SocketThreadListMulti::addSocket (void)
 		}
 		else
 		{
-			if (it_avail == _list.end())
+			if (it_avail.done())
 			{
 				_list.push_back(new _SocketThreadMulti());
-				it_avail = _list.end();
-				it_avail--;
+				it_avail.go_tail();
 			}
 
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 new thread ready to go on port %d\n", port_number));
@@ -2085,9 +2081,9 @@ int _SocketThreadListMulti::closeAll (void)
 {
 	ACE_ASSERT (_initialized != 0);
 
-	list<_SocketThreadMulti *>::iterator it_avail;
+	YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
 
-	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+	for (; !it_avail.done(); it_avail++)
 	{
 		/// it's a thread, ask for termination.
 		(*it_avail)->End ();
@@ -2109,9 +2105,9 @@ int _SocketThreadListMulti::close (ACE_HANDLE reply_id)
 	ACE_ASSERT (_initialized != 0);
 
 	int result = -1;
-	list<_SocketThreadMulti *>::iterator it_avail;
+	YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
 
-	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+	for (; !it_avail.done(); it_avail++)
 	{
 		if (!((*it_avail)->isAvailable ()))
 		{
@@ -2146,13 +2142,11 @@ void _SocketThreadListMulti::declareDataWritten (void)
 ///	returns also the number of bytes read.
 int _SocketThreadListMulti::read(char *buf, int len, ACE_HANDLE *reply_pid)
 {
-	////ACE_ASSERT (_initialized != 0);
-
-	ACE_HANDLE save_pid = ACE_INVALID_HANDLE;
-
 #ifdef __QNX__
 	signal( SIGCHLD, SIG_IGN );     /* Ignore condition */
 #endif
+
+	ACE_HANDLE save_pid = ACE_INVALID_HANDLE;
 
 	int finished = 0;
 	int result = YARP_FAIL;
@@ -2168,8 +2162,8 @@ int _SocketThreadListMulti::read(char *buf, int len, ACE_HANDLE *reply_pid)
 
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "### Got new data\n"));
 
-		list<_SocketThreadMulti *>::iterator it_avail;
-		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+		YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
+		for (; !it_avail.done(); it_avail++)
 		{
 			/// WARNING: isAvailable is read here without mut exclusion!
 			if (!((*it_avail)->isAvailable()))
@@ -2228,8 +2222,8 @@ int _SocketThreadListMulti::pollingRead(char *buf, int len, ACE_HANDLE *reply_pi
 		*reply_pid = ACE_INVALID_HANDLE;
 	}
 
-	list<_SocketThreadMulti *>::iterator it_avail;
-	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+	YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
+	for (; !it_avail.done(); it_avail++)
 	{
 		if (!((*it_avail)->isAvailable()))
 		{
@@ -2249,8 +2243,8 @@ int _SocketThreadListMulti::beginReply(ACE_HANDLE reply_pid, char *buf, int len)
 
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& BEGINNING REPLY of %d bytes\n", len));
 
-	list<_SocketThreadMulti *>::iterator it_avail;
-	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+	YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
+	for (; !it_avail.done(); it_avail++)
 	{
 		if (!((*it_avail)->isAvailable()))
 		{
@@ -2289,8 +2283,8 @@ int _SocketThreadListMulti::reply(ACE_HANDLE reply_pid, char *buf, int len)
 	ACE_ASSERT (_initialized != 0);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "&&& BEGINNING FINAL REPLY of %d bytes\n", len));
 
-	list<_SocketThreadMulti *>::iterator it_avail;
-	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+	YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
+	for (; !it_avail.done(); it_avail++)
 	{
 		if (!((*it_avail)->isAvailable()))
 		{
@@ -2330,8 +2324,8 @@ int _SocketThreadListMulti::receiveMore(ACE_HANDLE reply_pid, char *buf, int len
 
 	ACE_ASSERT (_initialized != 0);
 
-	list<_SocketThreadMulti *>::iterator it_avail;
-	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
+	YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
+	for (; !it_avail.done(); it_avail++)
 	{
 		if (!((*it_avail)->isAvailable()))
 		{
@@ -2374,19 +2368,17 @@ static ISDataMulti& ISDATA(void *x)
 ///
 YARPInputSocketMulti::YARPInputSocketMulti (void) : YARPNetworkInputObject ()
 { 
-	system_resources = NULL; 
 	system_resources = new ISDataMulti;
-	ACE_ASSERT (system_resources!=NULL);
+	ACE_ASSERT (system_resources != NULL);
 	
 	_socktype = YARP_I_SOCKET;
 }
 
 YARPInputSocketMulti::~YARPInputSocketMulti (void)
 {
-	CloseAll ();
-
-	if (system_resources!=NULL)
+	if (system_resources != NULL)
 	{
+		///CloseAll ();
 		delete ((ISDataMulti*)system_resources);
 		system_resources = NULL;
 	}
@@ -2498,7 +2490,8 @@ YARPOutputSocketMulti::~YARPOutputSocketMulti (void)
 {
 	OSDataMulti& d = OSDATA(system_resources);
 
-	Close (YARPUniqueNameSock(YARP_NO_SERVICE_AVAILABLE, d._remote_addr));
+	if (identifier != ACE_INVALID_HANDLE)
+		Close (YARPUniqueNameSock(YARP_SHMEM, d._remote_addr));
 
 	if (system_resources != NULL)
 	{

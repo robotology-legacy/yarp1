@@ -61,11 +61,9 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.52 2003-07-31 22:21:10 gmetta Exp $
+/// $Id: Port.cpp,v 1.53 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
-
-//#include "debug-new.h"
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
@@ -127,7 +125,7 @@ void safe_printf(char *format,...)
 
 ///
 /// for testing only (possibly remove it completely).
-/// #define DEBUG_DISABLE_SHMEM 1
+///#define DEBUG_DISABLE_SHMEM 1
 
 /// this is because SHMEM alloc is not implemented in ACE for QNX6.
 #ifdef __QNX6__
@@ -497,7 +495,7 @@ void OutputTarget::Body ()
 	/// but see also what I said on closing the Port thread.
 	YARPNameService::DeleteName(target_pid);
 
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "thread %d bailing out\n", GetIdentifier()));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "output thread %d bailing out\n", GetIdentifier()));
 }
 
 ///

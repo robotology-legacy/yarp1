@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: mesh.h,v 1.3 2003-06-28 16:40:01 babybot Exp $
+/// $Id: mesh.h,v 1.4 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -129,9 +129,6 @@ Description This file declares classes to be used when setting up a Mesh
 //-----------------------------------------------------------------------------
 
 #include <iostream>
-#ifndef __QNX4__
-using namespace std;
-#endif
 #include <assert.h>
 
 #include "YARPString.h"
@@ -156,7 +153,7 @@ class MeshLink
 {
 protected:
   int pruneId;
-	std::string
+	YARPString
 		label;			//	Name of node
 	MeshLink
 		*src,			//	Source of link
@@ -210,7 +207,7 @@ public:
 	void SetOwner ( Mesh *mesh );
 
 	//	Sets or changes the name of the link
-	void SetLabel ( const std::string& lbl );
+	void SetLabel ( const YARPString& lbl );
 	void SetLabel ( const char *lbl );
 
 	//	Disconnects any links using this link as their source
@@ -220,7 +217,7 @@ public:
 	void RemoveAsDest();
 
 	//	Gets the name of the link
-	const std::string& GetLabel()	{	return label;		}
+	const YARPString& GetLabel()	{	return label;		}
 
 	Mesh *GetOwner()	{ return owner; }
 
@@ -273,7 +270,7 @@ public:
 
 
 
-extern const std::string
+extern const YARPString
 	NullName;		//	Sentinel name to signal the end of a list of
 					//	links		 
 
@@ -302,10 +299,10 @@ protected:
 
 	//	Makes sure that a link with the given label exists. If it doesn't,
     //	create it
-	MeshLink *LabelledLink ( const std::string& label );
+	MeshLink *LabelledLink ( const YARPString& label );
 
     //	Adds a new link from a given source to a given destination
-	MeshLink *AddLink ( const std::string& label, const std::string& srcLabel, const std::string& destLabel );
+	MeshLink *AddLink ( const YARPString& label, const YARPString& srcLabel, const YARPString& destLabel );
 
 public:
 
@@ -331,7 +328,7 @@ public:
 	virtual ~Mesh();
 
     //	Finds the link in the mesh with the given label
-	MeshLink *FindByLabel ( const std::string& label );
+	MeshLink *FindByLabel ( const YARPString& label );
 
 	//	Deletes all the links in the mesh
 	void Clear();
@@ -433,12 +430,12 @@ private:
 	{	return new LinkType;		}
 
 public:
-	LinkType *NewLink ( const std::string& label, const std::string& srcLabel, const std::string& destLabel )
+	LinkType *NewLink ( const YARPString& label, const YARPString& srcLabel, const YARPString& destLabel )
 	{	return ( LinkType * ) AddLink ( label, srcLabel, destLabel );	}
 
 	LinkType *GetRoot()		{	return ( LinkType * ) root;				}
 
-	LinkType *GetByLabel ( const std::string& label )
+	LinkType *GetByLabel ( const YARPString& label )
 	{	return ( LinkType * ) FindByLabel ( label );	}
 
 	LinkType *NewLink()

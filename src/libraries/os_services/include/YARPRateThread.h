@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRateThread.h,v 1.4 2003-07-01 12:49:57 gmetta Exp $
+/// $Id: YARPRateThread.h,v 1.5 2003-08-02 07:46:14 gmetta Exp $
 ///
 ///
 
@@ -101,7 +101,7 @@
 #include "IterativeStats.h" //from models lib link models.lib/modelsdb.lib
 #endif
 
-#include <string>
+#include <YARPString.h>
 
 #ifdef __QNX6__
 #include <sys/neutrino.h>
@@ -123,7 +123,7 @@ protected:
 	bool isRunningF;		// running flag.	
 	bool isSuspendedF;		// suspended flag
 	ACE_Time_Value period;	// period.
-	std::string name;		// thread name.
+	YARPString name;		// thread name.
 	int thread_id;			// thread id
 	int thread_priority;	// thread priority
 	ACE_hthread_t  handle;  // os internal descriptor, it is filled by the thread itself
