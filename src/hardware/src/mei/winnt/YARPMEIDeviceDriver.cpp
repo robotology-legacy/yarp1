@@ -1,15 +1,16 @@
 #include "YARPMEIDeviceDriver.h"
+// $ID$
 
 // MEI
 #define MEI_WINNT
-#include <pcdsp.h>
+#include <sys/pcdsp.h>
 #define MEI_MSVC40		
-#include <medexp.h>		
-#include <idsp.h>
+#include <sys/medexp.h>		
+#include <sys/idsp.h>
 //////
 
 YARPMEIDeviceDriver::YARPMEIDeviceDriver() :
-YARPDeviceDriver<YARPNULLSempahore, YARPMEIDeviceDriver>(CBNCmds)
+YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
 {
 	// fill function pointer table
 	m_cmds[CMDSetSpeed] = YARPMEIDeviceDriver::setSpeed;

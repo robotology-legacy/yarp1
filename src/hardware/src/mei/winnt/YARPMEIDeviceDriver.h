@@ -5,13 +5,14 @@
 // April 2003 -- by nat
 //
 // win32: link Medvc50f.lib 
-
+// $ID$
 #ifndef __YARP_MEI_DEVICE_DRIVER__
 #define __YARP_MEI_DEVICE_DRIVER__
 
-#include "YARPDeviceDriver.h"
-#include "YARPControlBoardUtils.h"
-#include "YARPSemaphore.h"
+#include <conf/YARPConfig.h>
+#include <YARPDeviceDriver.h>
+#include <YARPControlBoardUtils.h>
+#include <YARPSemaphore.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -34,7 +35,7 @@ struct MEIOpenParameters
 	int meiPortAddr;
 };
 
-class YARPMEIDeviceDriver : public YARPDeviceDriver<YARPNULLSempahore, YARPMEIDeviceDriver> 
+class YARPMEIDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver> 
 {
 public:
 	YARPMEIDeviceDriver();
