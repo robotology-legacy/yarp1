@@ -64,9 +64,9 @@ public:
 class ABInputCommand: public ArmBehaviorBaseInput
 {
 public:
-	ABInputCommand()
+	ABInputCommand(int k)
 	{
-		key = YBVArmNewCmd;
+		key = k;
 	}
 	bool input(YARPBottle *in, ArmBehaviorData *d);
 	

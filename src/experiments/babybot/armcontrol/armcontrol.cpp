@@ -53,11 +53,11 @@ int main(int argc, char* argv[])
 	ABWaitIdle waitIdle("command");
 	ABWaitIdle waitMotion("motion");
 	ABWaitIdle waitRest("resting");
-	ABInputCommand inputCmd;
 	ABSimpleInput checkMotionDone(YBVArmDone);
 	ABOutputCommand outputCmd;
 	ABOutputShakeCmd outputShk;
-	ABSimpleInput inputShk(YBVArmShake);
+	ABInputCommand inputCmd(YBVArmNewCmd);
+	ABInputCommand inputShk(YBVArmShake);
 	ABSimpleInput inputRest(YBVArmRest);
 	ABSimpleInput checkRestDone(YBVArmRestDone);
 
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 		
 	_arm.setInitialState(&waitIdle);
 	/////////////////////////////// config state machine
-	// shaked and arm command
+	// shake and arm command
 	_arm.add(&inputCmd, &waitIdle, &waitMotion, &outputCmd);
 	_arm.add(&inputShk, &waitIdle, &waitMotion, &outputShk);
 	_arm.add(&checkMotionDone, &waitMotion, &waitIdle);

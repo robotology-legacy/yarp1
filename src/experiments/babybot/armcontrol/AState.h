@@ -145,7 +145,6 @@ class ASShake: public AState
 		cmd.Resize(6);
 		firstPosition = 0.0;
 		secondPosition = 0.0;
-		firstPosition(4) = 7*degToRad;
 		currentPosition = 0.0;
 		cmd = 0.0;
 		n = 16;

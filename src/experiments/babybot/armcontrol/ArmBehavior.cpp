@@ -10,7 +10,7 @@ void ABOutputCommand::output(ArmBehaviorData *d)
 void ABOutputShakeCmd::output(ArmBehaviorData *d)
 {
 	cout << "Starting shaking sequence!\n";
-	d->shake();
+	d->shake(d->_cmd);
 }
 
 void ABForceResting:: output(ArmBehaviorData *d)

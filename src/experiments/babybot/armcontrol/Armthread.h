@@ -62,16 +62,26 @@ public:
 		return pid_done && tr_done;
 	}
 
-	void shake()
+	void shake(const YVector &delta)
 	{
 		// start shake sequence
 		_shaking = true;
 		ASShake *tmp = ASShake ::instance();
 		tmp->n = 16;
 		YVector pos;
+		YVector first;
+		YVector second;
+
 		pos.Resize(6);
+		first.Resize(6);
+		second.Resize(6);
+		// first = 0.0;
+		second = 0.0;
+
+		first = delta; // = 7*degToRad;
 		_trajectory.getCurrent(pos.data());
 		tmp->setActualPosition(pos);
+		tmp->setTrajectory(first, second);
 		// tmp->setActualPosition(_arm_status._current_position);
 		changeInitState(tmp);
 	}
