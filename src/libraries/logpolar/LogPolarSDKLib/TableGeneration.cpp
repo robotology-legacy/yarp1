@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.13 2003-09-24 15:39:31 babybot Exp $
+/// $Id: TableGeneration.cpp,v 1.14 2003-09-29 14:17:23 beltran Exp $
 ///
 ///
 
@@ -1419,12 +1419,12 @@ IntNeighborhood * Build_Fast_Weights_Map(Image_Data * Par,
 //Weight Quantization
 		
 	for (j=0; j<Par->Size_LP * Par->Pix_Numb * 3; j++)
-		if (Weights_Map[j].weight>(1/sqrt(2)))
+		if (Weights_Map[j].weight>(1/sqrt((double)2)))
 			Weights_Map[j].weight = 1.0;
-		else if (Weights_Map[j].weight<=(1/sqrt(256*512)))
+		else if (Weights_Map[j].weight<=(1/sqrt((double(256*512)))))
 			Weights_Map[j].weight = 0.0;
 		else for (k=1; k<256; k*=2)
-			if ((Weights_Map[j].weight<=(1/sqrt(k*(k*2))))&&(Weights_Map[j].weight>(1/sqrt((k*2)*(k*4)))))
+			if ((Weights_Map[j].weight<=(1/sqrt(double(k*(k*2)))))&&(Weights_Map[j].weight>(1/sqrt((double((k*2)*(k*4)))))))
 				Weights_Map[j].weight = (float)(1.0)/(k*2);
 
 
@@ -1524,7 +1524,7 @@ IntNeighborhood * Build_Fast_Weights_Map(Image_Data * Par,
 				if(Weights_Map[planes * Par->Size_LP * Par->Pix_Numb+Par->Pix_Numb*j+i].position!=Par->Size_LP)
 				{
 					Fast_Weights_Map[3*j+planes].position[i] = Weights_Map[planes * Par->Size_LP * Par->Pix_Numb+Par->Pix_Numb*j+i].position;
-					Fast_Weights_Map[3*j+planes].weight[i] = (unsigned char)(-log10(Weights_Map[planes * Par->Size_LP * Par->Pix_Numb+Par->Pix_Numb*j+i].weight)/log10(2));
+					Fast_Weights_Map[3*j+planes].weight[i] = (unsigned char)(-log10(double(Weights_Map[planes * Par->Size_LP * Par->Pix_Numb+Par->Pix_Numb*j+i].weight))/log10(double(2)));
 				}
 		}
 
