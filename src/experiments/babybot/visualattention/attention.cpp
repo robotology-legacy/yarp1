@@ -241,16 +241,16 @@ void mainthread::Body (void)
 	outBottle.Register(_outName3, _netname0);
 	//outImage3.Register(_outName4, _netname1);
 
+	const int frameToStabilize = 5;
+	
 	int frame_no = 0;
-	//bool moved = true;
-	int moved = 5;
+	int moved = frameToStabilize;
 	bool targetFound = false;
 	bool diffFound = true;
 	bool diffFoundValid = true;
 
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n"); // to stop the execution on this instruction
-	YARPTime::DelayInSeconds(0.5);
 
 	YarpPixelMono maxDiff;
 	int maxMass;
@@ -419,14 +419,13 @@ void mainthread::Body (void)
 			if (!isMoving) {
 				
 				//if (moved) {
-				if (moved==5) {
+				if (moved==frameToStabilize) {
 					// to skip the difference test on the first stable frame
 					// because I don't have a reference frame
 					// and to skip the temporal filter for the same reason
-					//moved = false;
 					moved--;
 				} else {
-					if (moved>0) moved--;
+					if (moved>=0) moved--;
 
 					iplSubtract(img, imgOld, tmp);
 					iplSubtract(imgOld, img, tmp2);
@@ -445,7 +444,7 @@ void mainthread::Body (void)
 						int cartx, carty;
 						mapper.Logpolar2Cartesian(y, x, cartx, carty);
 						diffFound = true;
-						moved=5;
+						moved=frameToStabilize;
 						targetFound = false;
 						if (!searching && att_mod.isWithinRange(cartx, carty)) {
 							out.Refer(tmp2);
@@ -508,6 +507,13 @@ endDiffCheck:
 							tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
 							tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);
 						}
+					} else if (moved==-1) {
+						// Point already sended
+						tmpBottle.writeInt(-1);
+						tmpBottle.writeInt(-1);
+						tmpBottle.writeInt(-1);
+						tmpBottle.writeInt(-1);
+						tmpBottle.writeInt(-1);
 					} else {
 						ACE_OS::printf("Waiting to stabilize\n");
 						tmpBottle.writeInt(-1);
@@ -556,8 +562,7 @@ endDiffCheck:
 				YARPImageUtils::GetRed(colored_s, out2);
 			} else {
 				ACE_OS::printf("No point: the robot is moving\n");
-				//moved = true;
-				moved = 5;
+				moved = frameToStabilize;
 				targetFound = false;
 				tmpBottle.writeInt(-1);
 				tmpBottle.writeInt(-1);

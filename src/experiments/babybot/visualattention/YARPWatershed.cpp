@@ -1332,12 +1332,12 @@ void YARPWatershed::RemoveNonValid(int last_tag, const int max_size, const int m
 	for (int i = 1; i <= last_tag;i++) {
 		int area = TotalArea(m_boxes[i]);
 		// eliminare i blob troppo piccoli nn è molto utile se
-		// i blob vengono comunque ordinati x grandezza
+		// i blob vengono comunque ordinati x grandezza.
 		if ( area < min_size ||	area > max_size ) {
 			m_boxes[i].valid=false;
 		} else {
-			/*if ( !isWithinRange((int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y, m_boxes[i].elev, m_boxes[i].az) )
-				m_boxes[i].valid=false;*/
+			if ( !isWithinRange((int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y, m_boxes[i].elev, m_boxes[i].az) )
+				m_boxes[i].valid=false;
 		}
 	}
 
@@ -2020,6 +2020,7 @@ void YARPWatershed::centerOfMassAndMass(YARPImageOf<YarpPixelInt> &in, YarpPixel
 void YARPWatershed::statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag, YARPBox &blob)
 {
 	int area=0;
+	int areaCart=0;
 	
 	unsigned long int rgSum=0;
 	unsigned long int grSum=0;
@@ -2028,12 +2029,14 @@ void YARPWatershed::statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobLi
 	for (int tag=1; tag<max_tag; tag++)
 		if (blobList[tag]) {
 			area+=m_boxes[tag].areaLP;
+			areaCart+=m_boxes[tag].areaCart;
 			rgSum+=m_boxes[tag].rgSum;
 			grSum+=m_boxes[tag].grSum;
 			bySum+=m_boxes[tag].bySum;
 		}
 	
 	blob.areaLP=area;
+	blob.areaCart=areaCart;
 	blob.rgSum=rgSum;
 	blob.grSum=grSum;
 	blob.bySum=bySum;
