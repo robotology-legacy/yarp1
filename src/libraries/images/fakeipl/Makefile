@@ -5,7 +5,7 @@ CODELIB = fakeipl
 OS = $(SYSDIR)
 
 #CFLAGS = -g3 -I. -I$(YARP_ROOT)/include -I$(YARP_ROOT)/include/sys $(CDEFS)
-CFLAGS = -I. $(CFAST) -I$(YARP_ROOT)/include -I$(YARP_ROOT)/include/sys $(CDEFS)
+CFLAGS = $(CFAST) $(CDEFS) -D__FAKEIPL__ -I. -I$(YARP_ROOT)/include -I$(YARP_ROOT)/include/sys
 
 all: $(CODELIB).a
 

@@ -19,6 +19,10 @@ all:
 	@for d in $(TARGETS) ; do \
 	( $(MAKE) $(MAKEFLAGS) -f Makefile.ace BIN=$$d ) ; done
 
+clean:
+	@for d in $(TARGETS) ; do \
+	( $(MAKE) $(MAKEFLAGS) -f Makefile.ace BIN=$$d clean ) ; done
+
 #----------------------------------------------------------------------------
 #       Dependencies
 #----------------------------------------------------------------------------

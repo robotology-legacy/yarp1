@@ -9,6 +9,7 @@ VPATH += $(OUT_SYS)
 VPATH += $(YARP_ROOT)/lib/$(SYSDIR)
 
 OBJS = $(OUT_SYS)/*.o
+FAKEIPL = ./fakeipl/fakeipl.a
 
 CODELIB = images.lib
 
@@ -25,7 +26,7 @@ ipl:
 	cd fakeipl; $(MAKE) $(MAKEFLAGS) all; $(MAKE) $(MAKEFLAGS) install; cd ..
 
 $(CODELIB): subtarget
-	$(AR) $(ARFLAGS) $(CODELIB) $(OBJS)
+	$(AR) $(ARFLAGS) $(CODELIB) $(OBJS) $(FAKEIPL)
 
 install: target subinstall
 	$(CP) $(CODELIB) $(YARP_ROOT)/lib/$(SYSDIR)
