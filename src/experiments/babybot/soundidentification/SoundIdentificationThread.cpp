@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.cpp,v 1.8 2004-11-19 13:26:06 beltran Exp $
+/// $Id: SoundIdentificationThread.cpp,v 1.9 2004-11-23 11:41:51 beltran Exp $
 ///
 
 /** 
@@ -124,7 +124,7 @@ void SoundIdentificationThread::CalculateRMSMean(
 	const int vectorSize,
 	double &rmsMean
 	) {
-	
+
 	int i = 0;
 	double rmsSum = 0.0; 
 	rmsIterator.go_head();
@@ -180,33 +180,30 @@ void SoundIdentificationThread::RGBtoHSV(
 //  BackProjectHSHistogram
 //----------------------------------------------------------------------
 int SoundIdentificationThread::BackProjectHSHistogram(
-	const int &hsMaximumWidth,
-	const int &hsMaximumHeight,
 	YARPImageOf<YarpPixelMono> &imageHSHistogram,
-	YARPImageOf<YarpPixelBGR> &coloredImage,
-	YARPImageOf<YarpPixelMono> &backProjectedImage
+	YARPImageOf<YarpPixelBGR>  &coloredImage,
+	YARPImageOf<YarpPixelMono> &inputLogPolar,
+	YARPImageOf<YarpPixelMono> &segmentedImage
 	) {
-
-	int imageWidth  = backProjectedImage.GetWidth();
-	int imageHeight = backProjectedImage.GetHeight();
+	int imageWidth      = segmentedImage.GetWidth();
+	int imageHeight     = segmentedImage.GetHeight();
 	int histogramHeight = imageHSHistogram.GetHeight();
-	int iHueWidthCoordinate = 0;
+	int iHueWidthCoordinate         = 0;
 	int iSaturationHeightCoordinate = 0;
-	float dHue        = 0.0;
-	float dSaturation = 0.0;
-	float dValue      = 0.0;
+	float  dHue           = 0.0;
+	float  dSaturation    = 0.0;
+	float  dValue         = 0.0;
 	double integerPart    = 0.0;
 	double fractionalPart = 0.0;
 	YarpPixelBGR pixelBGR;
 
-	 
 	for( int i = 0; i < imageWidth; i++) {
 		for ( int j = 0; j < imageHeight; j++){
 
 			pixelBGR.b = coloredImage.SafePixel(i,j).b;
 			pixelBGR.g = coloredImage.SafePixel(i,j).g;
 			pixelBGR.r = coloredImage.SafePixel(i,j).r;
-				 
+
 			RGBtoHSV(
 				pixelBGR.r / (float) 255,
 				pixelBGR.g / (float) 255,
@@ -228,8 +225,8 @@ int SoundIdentificationThread::BackProjectHSHistogram(
 				);
 
 			// Backproject pixel is HS values more than a threshold
-			if ( hspixel < 250 ) {
-				backProjectedImage(i,j) = 0;
+			if ( hspixel == 255 ) {
+				segmentedImage(i,j) = inputLogPolar(i,j);
 			}
 
 		}
@@ -277,7 +274,7 @@ int SoundIdentificationThread::ComputeHSHistogram (
 			if ( ( pixelBGR.b != 0 ) 
 				&& ( pixelBGR.g != 0 ) 
 				&& ( pixelBGR.r != 0 )) {
-				 
+
 				RGBtoHSV(
 					pixelBGR.r / (float) 255,
 					pixelBGR.g / (float) 255,
@@ -300,9 +297,9 @@ int SoundIdentificationThread::ComputeHSHistogram (
 				hspixel++;
 
 				if ( hspixel > hsmaxValue) {
-					 hsmaxValue = hspixel;
-					 hsMaximumWidth = iHueWidthCoordinate;
-					 hsMaximumHeight = histogramHeight - iSaturationHeightCoordinate;
+					hsmaxValue = hspixel;
+					hsMaximumWidth = iHueWidthCoordinate;
+					hsMaximumHeight = histogramHeight - iSaturationHeightCoordinate;
 				}
 			}
 		}
@@ -344,7 +341,6 @@ int SoundIdentificationThread::GetSegmentedImage (
 	const double decaingFactor,
 	YARPImageOf<YarpPixelMono> &segmentedImage
 	) {
-
 	int i = 0;
 	int j = 0;
 	int mixelValue   = 0;
@@ -390,17 +386,17 @@ int SoundIdentificationThread::calculateMixel(
 	) {
 	//LOCAL_TRACE("SoundIdentification: CalculateMixel2");
 
-    int n         = 0;  /** Sound number of componects.                          */
-    int m         = 0;  /** Image number of components.                          */
-    double _dSX   = 0.0;
-    double _dSX2  = 0.0;
-    double _dSY   = 0.0;
-    double _dSY2  = 0.0;
-    double _dSXY  = 0.0;
-    double _dR2   = 0.0; /* * Pearson correlation coeffiecient. */
-    double _dSSxy = 0.0;
-    double _dSSxx = 0.0;
-    double _dSSyy = 0.0;
+	int n         = 0;  /** Sound number of componects.                          */
+	int m         = 0;  /** Image number of components.                          */
+	double _dSX   = 0.0;
+	double _dSX2  = 0.0;
+	double _dSY   = 0.0;
+	double _dSY2  = 0.0;
+	double _dSXY  = 0.0;
+	double _dR2   = 0.0; /* * Pearson correlation coeffiecient. */
+	double _dSSxy = 0.0;
+	double _dSSxx = 0.0;
+	double _dSSyy = 0.0;
 	double _dMaxRms = 0.0;
 	double _dDampeningfactor = 0.0;
 	const double _dalpha = 100.0;
@@ -409,8 +405,8 @@ int SoundIdentificationThread::calculateMixel(
 
 	YVector _vV;        /** Vector containing the gray values of pixels samples. */
 
-    _vV.Resize(iSamples);
-	
+	_vV.Resize(iSamples);
+
 	imagesIterator.go_head();
 	rmsIterator.go_head();
 	//----------------------------------------------------------------------
@@ -426,7 +422,7 @@ int SoundIdentificationThread::calculateMixel(
 		_dSX2 += powf(prmsvalue,2);
 		if ( prmsvalue > _dMaxRms)
 			_dMaxRms = prmsvalue;
-		
+
 		//----------------------------------------------------------------------
 		//  Compute image associated values.
 		//----------------------------------------------------------------------
@@ -455,10 +451,10 @@ int SoundIdentificationThread::calculateMixel(
 	//----------------------------------------------------------------------
 	//  Compute Pearson correlation coefficient.
 	//----------------------------------------------------------------------
-    _dSSxy = _dSXY  - ((_dSX * _dSY)/(double)iSamples);
-    _dSSxx = _dSX2  - (powf(_dSX,2) /(double)iSamples);
-    _dSSyy = _dSY2  - (powf(_dSY,2) /(double)iSamples);
-    _dR2   = powf(_dSSxy,2)         /(double)(_dSSxx * _dSSyy);
+	_dSSxy = _dSXY  - ((_dSX * _dSY)/(double)iSamples);
+	_dSSxx = _dSX2  - (powf(_dSX,2) /(double)iSamples);
+	_dSSyy = _dSY2  - (powf(_dSY,2) /(double)iSamples);
+	_dR2   = powf(_dSSxy,2)         /(double)(_dSSxx * _dSSyy);
 	_dDampeningfactor = (1.0 - (1.0/(double)powf(2.0,(double)_dMaxRms*_dalpha)));
 
 	//----------------------------------------------------------------------
@@ -589,9 +585,8 @@ void SoundIdentificationThread::Body (void)
 		_soundIndprocessor.apply(_inpSound.Content(),_vOutMfcc, _dSoundRms); 
 		// Create shorter mfcc vector without first element
 		for ( i = 1; i < L_VECTOR_MFCC; i++) {
-			 _vShorterOutMfcc[i-1] = _vOutMfcc[i];
+			_vShorterOutMfcc[i-1] = _vOutMfcc[i];
 		}
-
 		//----------------------------------------------------------------------
 		//  Check size correctness.
 		//----------------------------------------------------------------------
@@ -674,29 +669,42 @@ void SoundIdentificationThread::Body (void)
 			_imgSoundHistogram.Zero();
 
 			//----------------------------------------------------------------------
-			//  Compute the normalized and truncated sound wave form. 
+			//  Compute, normalize, truncate and paint sound wave form. 
 			//----------------------------------------------------------------------
 			YVector _vNormalizedSoundSamples;
-			_soundIndprocessor.NormalizeSoundArray ( 32000 );
-			_soundIndprocessor.TruncateSoundToVector(
-				__histoWidth, 
-				_vNormalizedSoundSamples
-				);
+			try {
+				_soundIndprocessor.NormalizeSoundArray ( 32000 );
+				_soundIndprocessor.TruncateSoundToVector(
+					__histoWidth, 
+					_vNormalizedSoundSamples
+					);
 
-			//----------------------------------------------------------------------
-			//  Paint the sound wave form. 
-			//----------------------------------------------------------------------
-			for( i = 1; i <= _vNormalizedSoundSamples.Length(); i++){
-				int value = _vNormalizedSoundSamples[i] * _imgSoundHistogram.GetHeight();
-				value = fabs(value);
-				int valuerawmaxposition = _imgSoundHistogram.GetHeight() - value;
-				if ( valuerawmaxposition < 0){
-					valuerawmaxposition = 0;
+				for( i = 0; i < _vNormalizedSoundSamples.Length(); i++){
+
+					double _dvalue = _vNormalizedSoundSamples[i] * (_imgSoundHistogram.GetHeight() / 2);
+					int _ivalue = _soundIndprocessor.GetInteger( _dvalue );
+					int valuerawmaxposition = 0;
+					if ( _ivalue < 0)
+						valuerawmaxposition = (_imgSoundHistogram.GetHeight() / 2) + _ivalue;
+					else 
+						valuerawmaxposition = (_imgSoundHistogram.GetHeight() / 2) - _ivalue;
+
+					if ( valuerawmaxposition < 0){
+						for( int j = valuerawmaxposition; j > (_imgSoundHistogram.GetHeight() / 2); j--){
+							_imgSoundHistogram.SafePixel( i+1, j ) = 200;
+						}
+					}
+					else {
+						// Fill all the pixels in the column until the value
+						for( int j = valuerawmaxposition; j < (_imgSoundHistogram.GetHeight() / 2); j++){
+							_imgSoundHistogram.SafePixel( i+1, j ) = 200;
+						}
+					}
 				}
-				// Fill all the pixels in the column until the value
-				for( int j = valuerawmaxposition; j < _imgSoundHistogram.GetHeight(); j++){
-					_imgSoundHistogram.SafePixel(i,j) = 100;
-				}
+
+			}
+			catch (...) {
+				 ACE_OS::fprintf(stdout,"Body: Exception Sound Processing\n"); 
 			}
 
 			//----------------------------------------------------------------------
@@ -732,12 +740,32 @@ void SoundIdentificationThread::Body (void)
 					ACE_ASSERT(ret != YARP_FAIL);
 				}
 
+				_logPolarMapper.ReconstructColor (
+					(const YARPImageOf<YarpPixelMono>&)_newLogPolarImage, 
+					_coloredImage
+					);
+
+				ComputeHSHistogram ( 
+					_coloredImage, 
+					_imgHSHistogram,
+					_hsMaximumWidth,
+					_hsMaximumHeight,
+					1
+					);
+
 				_iMemoryFactor = 0;
 				_bContinuityFlag = true;
 			}
 			else {
 
 				if ( _bContinuityFlag == true ) {
+
+					BackProjectHSHistogram(
+						_imgHSHistogram,
+						_imgInput,
+						_inputLogPolarImage,
+						_newLogPolarImage
+						);
 
 					soundImagePair.soundTemplate = _soundTemplate;
 					soundImagePair.image.CastCopy( _newLogPolarImage ); 
@@ -754,32 +782,8 @@ void SoundIdentificationThread::Body (void)
 			//----------------------------------------------------------------------
 			//  Compute the HS histogram.
 			//----------------------------------------------------------------------
-			if ( numberMixels > MIXELSMAX || _iMemoryFactor < MEMORYMAX) {
+			if (  _iMemoryFactor > MEMORYMAX) {
 
-				_logPolarMapper.ReconstructColor (
-					(const YARPImageOf<YarpPixelMono>&)_newLogPolarImage, 
-					_coloredImage
-					);
-
-				if ( numberMixels > MIXELSMAX ) {
-					ComputeHSHistogram ( 
-						_coloredImage, 
-						_imgHSHistogram,
-						_hsMaximumWidth,
-						_hsMaximumHeight,
-						1
-						);
-				}
-
-				BackProjectHSHistogram(
-					_hsMaximumWidth,
-					_hsMaximumHeight,
-					_imgHSHistogram,
-					_imgInput,
-					_inputLogPolarImage
-					);
-			}
-			else {
 				ComputeHSHistogram( 
 					_imgInput, 
 					_imgHSHistogram,
@@ -800,17 +804,17 @@ void SoundIdentificationThread::Body (void)
 			//  Send the procesed image back to the network (the image remains
 			//  as received) or send modified image with object segmented.
 			//----------------------------------------------------------------------
-			//if ( numberMixels > MIXELSMAX || _iMemoryFactor < MEMORYMAX)
-			//{
-			//	_outprecImg.Content().SetID(YARP_PIXEL_MONO);
-			//	_outprecImg.Content().Refer(_newLogPolarImage); 
-			//	_outprecImg.Write(1);
-			//}
-			//else {
+			if ( numberMixels > MIXELSMAX || _iMemoryFactor < MEMORYMAX)
+			{
+				_outprecImg.Content().SetID(YARP_PIXEL_MONO);
+				_outprecImg.Content().Refer(_newLogPolarImage); 
+				_outprecImg.Write(1);
+			}
+			else {
 				_outprecImg.Content().SetID(YARP_PIXEL_MONO);
 				_outprecImg.Content().Refer(_inputLogPolarImage); 
 				_outprecImg.Write(1);
-			//}
+			}
 
 			//----------------------------------------------------------------------
 			//  Send sound histogram to the network

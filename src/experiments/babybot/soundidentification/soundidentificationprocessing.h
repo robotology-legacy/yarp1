@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.11 2004-11-16 17:56:32 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.12 2004-11-23 11:41:51 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -228,6 +228,7 @@ public:
 	inline int GetSize() { return numSamples;}
 	int TruncateSoundToVector(const int, YVector &);
 	int NormalizeSoundArray(const double);
+	int GetInteger(double);
 
 private:
 

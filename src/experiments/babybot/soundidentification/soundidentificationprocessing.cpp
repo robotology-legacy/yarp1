@@ -12,7 +12,7 @@
 //     This implementatin is partially based in the sound software used by Lorenzo Natale
 //     is his master thesis.
 // 
-//         Version:  $Id: soundidentificationprocessing.cpp,v 1.9 2004-11-16 17:56:32 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.cpp,v 1.10 2004-11-23 11:41:51 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -353,30 +353,37 @@ void SoundIdentificationProcessing::ComputeIDCMatrix (
   *         YARP_FAIL failiture
   */
 int 
-SoundIdentificationProcessing::TruncateSoundToVector(const int length,
-													 YVector &vector)
-{
-	LOCAL_TRACE("SoundIdentificationProcessing: Entering TruncateSoundToVector");
-	double _dPositionDiferential = 0.0; /** The position increment/decrement.       */
-	double _dAproxPosition       = 0.0; /** Aproximate new position.                */
-	double _dFractionalPart      = 0.0; /** Fractional part of the aprox position.  */
-	double _dIntegerPart         = 0.0; /** The integer part of the aprox position. */
-	int    _iPosition            = 0;   /** The position in integer format.         */
+SoundIdentificationProcessing::TruncateSoundToVector(
+	const int length,
+	YVector &vector
+	) {
+	try {
+		LOCAL_TRACE("SoundIdentificationProcessing: Entering TruncateSoundToVector");
+		double _dPositionDiferential = 0.0; /** The position increment/decrement.       */
+		double _dAproxPosition       = 0.0; /** Aproximate new position.                */
+		int    _iPosition            = 0;   /** The position in integer format.         */
 
-	vector.Resize(length); 
+		vector.Resize(length); 
 
-	_dPositionDiferential = (double)numSamples/(double)length;
+		_dPositionDiferential = (double)numSamples/(double)length;
 
-	int i;
-	for( i=0; i<length; i++){
-		_dAproxPosition  = _dAproxPosition + _dPositionDiferential;
-		_dFractionalPart = modf(_dAproxPosition,&_dIntegerPart);
-		_iPosition = (_dFractionalPart < 0.5) ? _dIntegerPart : (_dIntegerPart+1);
-		if (_iPosition < numSamples || _iPosition >= 0)
-			vector[i] = _pSoundData[_iPosition];
+		int i;
+		for( i = 0; i < length; i++){
+
+			_dAproxPosition  = _dAproxPosition + _dPositionDiferential;
+			_iPosition = GetInteger( _dAproxPosition );
+
+			if ((_iPosition < numSamples) && (_iPosition >= 0))
+				vector[i] = _pSoundData[_iPosition];
+		}
+
+		return YARP_OK;
+
 	}
-
-	return YARP_OK;
+	catch (...) {
+		 ACE_OS::fprintf(stdout,"SoundIdentificationProcessing: Exception TruncateSoundToVector\n");	 	 	  
+		 return YARP_FAIL;
+	}
 }
 
 /** 
@@ -388,11 +395,33 @@ SoundIdentificationProcessing::TruncateSoundToVector(const int length,
 int
 SoundIdentificationProcessing::NormalizeSoundArray( const double Limit)
 {
-	LOCAL_TRACE("SoundIdentificationProcessing: Entering NormalizeSoundArray");
-	int i;
+	try {
+		LOCAL_TRACE("SoundIdentificationProcessing: Entering NormalizeSoundArray");
+		int i;
 
-	for( i=0; i<numSamples; i++){
-		_pSoundData[i] = _pSoundData[i] / (double)Limit; 
+		for( i=0; i<numSamples; i++){
+			_pSoundData[i] = _pSoundData[i] / (double)Limit; 
+		}
+		return YARP_OK;
 	}
-	return YARP_OK;
+	catch (...) {
+		ACE_OS::fprintf(stdout,"SoundIdentificationProcessing: Exception NormalizeSoundArray\n");	 	 	  
+		return YARP_FAIL;
+	}
+}
+
+int
+SoundIdentificationProcessing::GetInteger( const double double_value) {
+
+	double _dFractionalPart      = 0.0; /** Fractional part of the aprox position.  */
+	double _dIntegerPart         = 0.0; /** The integer part of the aprox position. */
+	int result = 0;
+
+	_dFractionalPart = modf( double_value, &_dIntegerPart);
+	if ( _dIntegerPart > 0 )
+		result = (_dFractionalPart < 0.5) ? _dIntegerPart : (_dIntegerPart+1);
+	else
+		result = (_dFractionalPart < 0.5) ? _dIntegerPart : (_dIntegerPart-1);
+
+	return result;
 }

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.h,v 1.7 2004-11-19 13:26:06 beltran Exp $
+/// $Id: SoundIdentificationThread.h,v 1.8 2004-11-23 11:41:51 beltran Exp $
 ///
 
 /** 
@@ -238,11 +238,10 @@ private:
 	  * @return YARP_OK
 	  */
 	int BackProjectHSHistogram(
-		const int &,
-		const int &,
 		YARPImageOf<YarpPixelMono> &imageHSHistogram,
 		YARPImageOf<YarpPixelBGR> &coloredImage,
-		YARPImageOf<YarpPixelMono> &backProjectedImage
+		YARPImageOf<YarpPixelMono> &inputLogPolar,
+		YARPImageOf<YarpPixelMono> &segmentedImage
 		);
 
 	/** 
