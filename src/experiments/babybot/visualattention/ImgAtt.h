@@ -160,6 +160,8 @@ protected:
 
 	//YARPImageOf<YarpPixelMonoSigned> tmpScale;
 	
+	YARPImageOf<YarpPixelBGR> meanOppCol;
+
 	YARPImageOf<YarpPixelBGR> tmpBGR1;
 	//YARPImageOf<YarpPixelBGR> tmpBGR2;
 	
@@ -271,6 +273,7 @@ public:
 	void resetIORTable();
 
 	YARPBox* boxes;
+	YARPBox* max_boxes;
 };
 
 

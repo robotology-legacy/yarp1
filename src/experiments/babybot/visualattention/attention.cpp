@@ -185,7 +185,7 @@ void mainthread::Body (void)
 
 	//YARPBox* pos_max;
 
-	YVector v(2);
+	//YVector v(2);
 
 	YARPConicFitter fit;
 	YARPLpConicFitter fitlp;
@@ -224,10 +224,6 @@ void mainthread::Body (void)
 
 	int frame_no = 0;
 
-	//const int numBoxes = 5;
-	
-	//pos_max = new YARPBox[numBoxes];
-
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n");
 
@@ -237,6 +233,8 @@ void mainthread::Body (void)
 	//start = YARPTime::GetTimeAsSeconds();
 	
 	bool isStarted = true;
+	
+	att_mod.setParameters(109, 0, 18, 0, 1);
 	
 	while (!IsTerminated())
 	{
@@ -380,11 +378,11 @@ void mainthread::Body (void)
 			outImage2.Content().Refer(out2);
 			outImage2.Write();
 			
-			tmpBottle.writeInt(att_mod.boxes[0].centroid_x);
-			tmpBottle.writeInt(att_mod.boxes[0].centroid_y);
-			tmpBottle.writeInt(att_mod.boxes[0].meanRG);
-			tmpBottle.writeInt(att_mod.boxes[0].meanGR);
-			tmpBottle.writeInt(att_mod.boxes[0].meanBY);
+			tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
+			tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
+			tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
+			tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
+			tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);
 			outBottle.Content() = tmpBottle;
 			outBottle.Write();
 

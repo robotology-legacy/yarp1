@@ -1322,7 +1322,7 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 
 			//salienceBU=m_attn[i].cRG+m_attn[i].cGR+m_attn[i].cBY;
 
-			salienceTD=abs(m_attn[i].meanRG-prg);
+			/*salienceTD=abs(m_attn[i].meanRG-prg);
 							
 			if (salienceTD<abs(m_attn[i].meanGR-pgr))
 				salienceTD=abs(m_attn[i].meanGR-pgr);
@@ -1330,7 +1330,13 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 			if (salienceTD<abs(m_attn[i].meanBY-pby))
 				salienceTD=abs(m_attn[i].meanBY-pby);
 
-			salienceTD=255-salienceTD;
+			salienceTD=255-salienceTD;*/
+
+			salienceTD=sqrt((m_attn[i].meanRG-prg)*(m_attn[i].meanRG-prg)+
+			                (m_attn[i].meanGR-pgr)*(m_attn[i].meanGR-pgr)+
+			                (m_attn[i].meanBY-pby)*(m_attn[i].meanBY-pby));
+			salienceTD=255-salienceTD/sqrt(3);
+
 
 			//if (salienceTD<230) salienceTD=0;
 
@@ -1786,4 +1792,5 @@ void YARPWatershed::maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_t
 	}
 
 	box=m_attn[max];
+	_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, box.v , (int)box.centroid_x, (int)box.centroid_y);
 }

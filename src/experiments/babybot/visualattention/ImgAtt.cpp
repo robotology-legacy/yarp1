@@ -308,6 +308,8 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num)
 	tmp1s.Resize(x, y);
 	tmp2s.Resize(x, y);
 
+	meanOppCol.Resize(x, y);
+	
 	tmpBGR1.Resize(x, y);
 	//tmpBGR2.Resize(x, y);
 	((IplImage *)tmpBGR1)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
@@ -384,16 +386,20 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num)
 
 	boxes = new YARPBox[num];
 	num_boxes=num;
+
+	max_boxes = new YARPBox[3];
 }
 
 
 YARPImgAtt::~YARPImgAtt()
 {
-	delete lut.factor;
-	delete lut.value;
-	delete lut.key;
+	delete [] lut.factor;
+	delete [] lut.value;
+	delete [] lut.key;
 
 	delete [] blobList;
+	delete [] boxes;
+	delete [] max_boxes;
 }
 
 
@@ -972,6 +978,8 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 	quantizeColors();
 	drawIORTable();
 
+	rain.maxSalienceBlobs(tagged, max_tag, max_boxes, 3);
+
 	//saveImages(src);
 	
 	/*MinMax(edge, mn, mx);
@@ -1315,10 +1323,8 @@ void YARPImgAtt::findBlobs()
 	YARPImageFile::Write(savename, tmpBGR1);*/
 
 	
-	/*tmpBGR1.Zero();
-	rain.DrawMeanOpponentColorsLP(tmpBGR1, tagged);
-	ACE_OS::sprintf(savename, "./meanocol.ppm");
-	YARPImageFile::Write(savename, tmpBGR1);*/
+	/*meanOppCol.Zero();
+	rain.DrawMeanOpponentColorsLP(meanOppCol, tagged);*/
 
 
 	/*blobFinder.DrawGrayLP(tmp1, tagged, 200);
@@ -1463,6 +1469,9 @@ void YARPImgAtt::saveImages(YARPImageOf<YarpPixelBGR> &src)
 	/*ACE_OS::sprintf(savename, "./ii.ppm");
 	YARPImageFile::Write(savename, ii);*/
 
+	ACE_OS::sprintf(savename, "%smeanocol.ppm", path);
+	YARPImageFile::Write(savename, meanOppCol);
+	
 	/*ACE_OS::sprintf(savename, "./comb.ppm");
 	YARPImageFile::Write(savename, comb);*/
 	ACE_OS::sprintf(savename, "%sout.ppm", path);
