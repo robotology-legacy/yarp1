@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.11 2003-05-16 11:19:46 natta Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.12 2003-05-21 08:25:03 natta Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -124,7 +124,7 @@ int YARPMEIDeviceDriver::open(void *d)
 		_all_axes[i] = i;
 
 	_filter_coeffs = new int16* [_njoints];
-	for(i = 0; i < _njoints; i++)
+	for(int i = 0; i < _njoints; i++)
 		_filter_coeffs[i] = new int16 [COEFFICIENTS];
 
 	_dsp_rate = dsp_sample_rate();

@@ -66,7 +66,7 @@ int YARPTrajectoryGen::_resize(int size, int npnts)
 	_size = size;
 
 	_commands = new double * [_steps];
-	for (i = 0; i < npnts; i++)
+	for (int i = 0; i < npnts; i++)
 	{
 		_commands[i] = new double [_size];
 		for (int j = 0; j < _size; j++)
@@ -76,7 +76,7 @@ int YARPTrajectoryGen::_resize(int size, int npnts)
 	_lastCommand = new double [_size];
 	_finalCommand = new double [_size];
 
-	for (i = 0; i < _size; i++)
+	for (int i = 0; i < _size; i++)
 	{
 		_finalCommand[i] = 0;
 		_lastCommand[i]  = 0;
@@ -154,7 +154,7 @@ int YARPTrajectoryGen::setFinal(const double *actual, const double *final, int n
 		}
 
 		// compute activation vectors (that is: trajectory)
-		for (i = 1; i < _steps; i++)
+		for (int i = 1; i < _steps; i++)
 			for (int j = 0; j < _size; j++)
 				_commands[i][j] = _commands[i-1][j] + delta[j];
 		

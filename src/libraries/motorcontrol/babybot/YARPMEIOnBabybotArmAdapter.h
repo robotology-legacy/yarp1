@@ -1,7 +1,7 @@
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.13 2003-05-21 08:12:04 natta Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.14 2003-05-21 08:25:03 natta Exp $
 
 #include <ace/log_msg.h>
 #include <YarpMeiDeviceDriver.h>
@@ -65,7 +65,7 @@ public:
 		}
 
 		// compute inv couple
-		for (i = 0; i < 3; i++)
+		for (int i = 0; i < 3; i++)
 			_invCouple[i] = 0.0;	// first 3 joints are not coupled
 
 		_invCouple[3] = -_fwdCouple[3] / (_encoderToAngles[3] * _encoderToAngles[4]);
