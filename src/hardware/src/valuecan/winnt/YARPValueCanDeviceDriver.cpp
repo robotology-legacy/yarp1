@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.1 2004-04-30 13:19:36 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.2 2004-04-30 16:27:51 babybot Exp $
 ///
 ///
 
@@ -261,6 +261,27 @@ YARPValueCanDeviceDriver::~YARPValueCanDeviceDriver ()
 	if (system_resources != NULL)
 		delete (ValueCanResources *)system_resources;
 	system_resources = NULL;
+}
+
+int YARPValueCanDeviceDriver::open (void *res)
+{
+	ValueCanResources& d = RES(system_resources);
+	int ret = d._initialize (*(ValueCanOpenParameters *)res);
+
+	Begin ();
+
+	return ret;
+}
+
+int YARPValueCanDeviceDriver::close (void)
+{
+	ValueCanResources& d = RES(system_resources);
+
+	End ();	/// stops the thread first (joins too).
+
+	int ret = d._uninitialize ();
+
+	return ret;
 }
 
 ///

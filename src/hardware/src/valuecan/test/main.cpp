@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////
 ///                                                                   ///
-///       YARP - Yet Another Robotic Platform (c) 2001-2003           ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
 ///                    #Add our name(s) here#                         ///
 ///                                                                   ///
@@ -27,69 +27,66 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.2 2004-04-30 16:27:51 babybot Exp $
+/// $Id: main.cpp,v 1.1 2004-04-30 16:27:51 babybot Exp $
 ///
 ///
-
-#ifndef __YARPValueCanDeviceDriverh__
-#define __YARPValueCanDeviceDriverh__
 
 #include <conf/YARPConfig.h>
-#include <YARPDeviceDriver.h>
-#include <YARPSemaphore.h>
-#include <YARPThread.h>
-#include <YARPTime.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+#include <ace/Sched_Params.h>
 
+#include <YARPValueCanDeviceDriver.h>
+#include <YARPControlBoardUtils.h>
 
-/// max number of addressable cards in this implementation.
-const int MAX_CARDS		= 16;
+/// a simple test of the ValueCan device driver.
 
-struct ValueCanOpenParameters
+int main (int argc, char *argv[])
 {
-	ValueCanOpenParameters (void)
+	YARPValueCanDeviceDriver driver;
+	ValueCanOpenParameters params;
+
+	params._port_number = 0;
+	params._arbitrationID = 0;
+	params._destinations[0] = 1;				/// card 1.
+	params._my_address = 5;						/// my address
+	params._polling_interval = 10;				/// thread polling interval [ms]
+	params._timeout = 2;						/// 2*10 ms.
+
+	SingleAxisParameters tmp;
+	tmp.axis = 0;
+	double value = 0;
+	tmp.parameters = (void *)&value;
+		
+	driver.open ((void *)&params);
+	char c = 0;
+
+	for (;;)
 	{
-		_port_number = -1;
-		_arbitrationID = 0;
-		memset (_destinations, 0, sizeof(unsigned char) * MAX_CARDS);
-		_my_address = 0;
-		_polling_interval = 10;
-		_timeout = 2;
+		ACE_OS::printf ("-> ");
+		scanf ("%c", &c);
+		switch (c)
+		{
+		case 'h':
+			ACE_OS::printf ("h: this message\n");
+			ACE_OS::printf ("p: get position\n");
+			ACE_OS::printf ("q: quit\n");
+			break;
+
+		case 'p':
+			driver.IOCtl(CMDGetPosition, (void *)&tmp);
+			ACE_OS::printf ("got position: %lf\n", *((double *)tmp.parameters));
+			break;
+
+		case 'q':
+			goto SmoothEnd;
+			break;
+		}
 	}
 
-	int _port_number;							/// which of the many CAN interfaces to connect to
-	long _arbitrationID;						/// arbitration ID of the sent messages
-	unsigned char _destinations[MAX_CARDS];		/// destination addresses
-	unsigned char _my_address;					/// my address
-	int _polling_interval;						/// thread polling interval [ms]
-	int _timeout;								/// number of cycles before timing out
-};
 
+SmoothEnd:
 
-class YARPValueCanDeviceDriver : 
-	public YARPDeviceDriver<YARPNullSemaphore, YARPValueCanDeviceDriver>, public YARPThread
-{
-private:
-	YARPValueCanDeviceDriver(const YARPValueCanDeviceDriver&);
-	void operator=(const YARPValueCanDeviceDriver&);
-
-public:
-	YARPValueCanDeviceDriver();
-	virtual ~YARPValueCanDeviceDriver();
-
-	// overload open, close
-	virtual int open(void *d);
-	virtual int close(void);
-
-	virtual int getposition(void *cmd);
-
-protected:
-	void *system_resources;
-	YARPSemaphore _mutex;
-	YARPEvent _ev;
-	bool _request;
-
-	virtual void Body(void);
-};
-
-
-#endif
+	driver.close ();
+	return 0;
+}
