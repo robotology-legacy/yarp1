@@ -1,7 +1,7 @@
 // originally feb 2003 -- by nat
 // adapted to yarp June 2003 -- by nat
 
-// $Id: YARPBabybotHandParameters.h,v 1.4 2003-10-17 16:34:40 babybot Exp $
+// $Id: YARPBabybotHandParameters.h,v 1.5 2003-12-12 16:06:41 babybot Exp $
 
 #ifndef __YARPBABYBOTHANDPARAMETERSH__
 #define __YARPBABYBOTHANDPARAMETERSH__
@@ -9,11 +9,15 @@
 #include <YARPGalilDeviceDriver.h>
 #include <YARPNIDAQDeviceDriver.h> // required to define int16
 
+#include <YARPMath.h>
+
 namespace _BabybotHand
 {
-	const int __naj = 6;
-	const int __nj = 8;
-	const int __nidaq_ch = 15;
+	// these values are (almost) written in stone
+
+	const int __naj = 6;		// #motors
+	const int __nj = 8;			// galil # joints
+	const int __nidaq_ch = 15;	// hall sensors
 
 	const double __coupling[__naj][__naj] = {
 		{1.0, 0.0, 0.0, 0.0, 0.0, 0.0},
@@ -32,6 +36,9 @@ namespace _BabybotHand
 		{0.0, 0.0, 0.0, 0.0, 1.0, 0.0},
 		{0.0, 0.0, 0.0, 0.0, -1.0, 1.0},
 	};
+
+	const double __encoderToAngles[__naj] = {-0.015*degToRad, -0.0127*degToRad, -0.03*degToRad, -0.03*degToRad, 0.03*degToRad, 0.03*degToRad};
+
 }; // namespace
 
 class YARPBabybotHandParameters
@@ -52,6 +59,8 @@ public:
 
 		memcpy(_coupling, _BabybotHand::__coupling, sizeof(double)*_naj*_naj);
 		memcpy(_de_coupling, _BabybotHand::__de_coupling, sizeof(double)*_naj*_naj);
+
+		memcpy(_encoderToAngles, _BabybotHand::__encoderToAngles, sizeof(double)*_naj);
 	}
 
 	~YARPBabybotHandParameters()
@@ -170,6 +179,7 @@ public:
 
 	double _coupling[_BabybotHand::__naj][_BabybotHand::__naj];
 	double _de_coupling[_BabybotHand::__naj][_BabybotHand::__naj];
+	double _encoderToAngles[_BabybotHand::__naj];
 
 	LowLevelPID _highPIDs[_BabybotHand::__naj];
 };

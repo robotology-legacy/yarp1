@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
 	_hand.add(&checkMotionDone, &waitMotion, &waitIdle);
 	// multiple command (shake) sequence
 	_hand.add(&shkFingersIn, &waitIdle, &waitMotion, &shakeCmd);
-	_hand.add(&checkMotionDone, &waitMotion, &waitIdle);
+	// _hand.add(&checkMotionDone, &waitMotion, &waitIdle);
 	
 	// start
 	_hand.Begin();

@@ -17,6 +17,7 @@
 #include <YARPPort.h>
 
 #include <YARPBabybotHand.h>
+#include "hallparameters.h"
 
 #define HAND_THREAD_VERBOSE
 
@@ -39,8 +40,12 @@ public:
 
 	void singleMove(const YVector &pos, int time);
 	void shake();
-	
+
+	YVector _cmd;
 	HandSharedData _hand;
+
+private:
+	void _computeHandPosture();
 
 	ACE_High_Res_Timer	timer;
 	ACE_Time_Value		period;
@@ -71,10 +76,14 @@ public:
 	EndMotion _endMotionState;
 
 	//
-	YVector _cmd;
 	YARPOutputPortOf<YVector> _handStatusOut;
-	YVector _status;
+	YVector _posture;
+	YVector _motorJoints;
+	YVector _hallEncodersRaw;
+	YVector _hallDeltaTheta;
 
+	Polynomial _hallPoly[15];
+	
 	bool _shaking;
 };
 

@@ -50,14 +50,29 @@ bool sendHeadJointCommand(const YBVocab &vocab, YARPBottle &bottle)
 bool sendHandJointCommand(const YBVocab &vocab, YARPBottle &bottle)
 {
 	bottle.writeVocab(vocab);
-	cout << "Hand command requires now " << __handJoints << " joint position (encoder ticks)\n";
+	cout << "Hand command requires now " << __handJoints << " joint position (grad)\n";
 	YVector cmd;
 	cmd.Resize(__handJoints);
 	for (int i = 0; i < __handJoints; i++)
 	{
 		cin >> cmd(i+1);
+		cmd(i+1) = cmd(i+1)*degToRad;
 	}
 
+	bottle.writeYVector(cmd);
+	return true;
+}
+
+// send a vocab, ask for two double
+bool sendHandKinematicsView(const YBVocab &vocab, YARPBottle &bottle)
+{
+	bottle.writeVocab(vocab);
+	cout << "Command requires now two double (azimuth, elevation)\n";
+	YVector cmd;
+	cmd.Resize(2);
+	cin >> cmd(1);
+	cin >> cmd(2);
+		
 	bottle.writeYVector(cmd);
 	return true;
 }

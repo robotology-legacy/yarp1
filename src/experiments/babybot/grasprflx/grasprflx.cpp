@@ -39,8 +39,11 @@ void readConfigFile(ReflexShared &rflxShared)
 		_closePos[i].Resize(_nJoints);
 		_openPos[i].Resize(_nJoints);
 		
-		file.get("[SYNERGIES]", tmp1, _closePos[i].data(), _nJoints);
-		file.get("[SYNERGIES]", tmp2, _openPos[i].data(), _nJoints);
+		file.get("[SYNERGIES]", tmp1, _openPos[i].data(), _nJoints);
+		file.get("[SYNERGIES]", tmp2, _closePos[i].data(), _nJoints);
+
+		_openPos[i] = _openPos[i]*degToRad;
+		_closePos[i] = _closePos[i]*degToRad;
 	}
 
 	rflxShared.set(_nSynergies, _openPos, _closePos);
@@ -54,8 +57,9 @@ int main(int argc, char* argv[])
 	ReflexShared shared;
 	GRBehavior behavior(&shared);
 	GRBLoopTouch loopTouch;
-	GRBWaitIdle waitClose;
-	GRBWaitIdle waitOpen;
+	GRBWaitIdle waitClose1;
+	GRBWaitIdle waitOpen1;
+	GRBWaitIdle waitOpen2;
 	GRBPickRndAction pickRnd;
 
 	GRBWaitDeltaT waitT[] = {0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2,
@@ -69,17 +73,17 @@ int main(int argc, char* argv[])
 	readConfigFile(shared);
 
 	behavior.setInitialState(&loopTouch);
-	behavior.add(NULL, &loopTouch, &loopTouch);
 	behavior.add(&init, &loopTouch, &pickRnd);
-	behavior.add(NULL, &pickRnd, &waitOpen, &openCmd);
-	behavior.add(&motionDone, &waitOpen, &grasp, &closeCmd);
-	behavior.add(NULL, &grasp, &waitClose);
-	behavior.add(&motionDone, &waitClose, &waitT[0]);
+	behavior.add(NULL, &loopTouch, &loopTouch);	// loopTouch is a blocking state
+	behavior.add(NULL, &pickRnd, &waitOpen1, &openCmd);
+	behavior.add(&motionDone, &waitOpen1, &grasp, &closeCmd);
+	behavior.add(NULL, &grasp, &waitClose1);
+	behavior.add(&motionDone, &waitClose1, &waitT[0]);
 	for(int i = 0; i<(N-1); i++)
 		behavior.add(NULL, &waitT[i], &waitT[i+1]);
 
-	behavior.add(NULL, &waitT[N-1], &waitOpen, &openCmd);
-	behavior.add(&motionDone, &waitOpen, &loopTouch);
+	behavior.add(NULL, &waitT[N-1], &waitOpen2, &openCmd);
+	behavior.add(&motionDone, &waitOpen2, &loopTouch);
 
 	behavior.Begin();
 	behavior.loop();

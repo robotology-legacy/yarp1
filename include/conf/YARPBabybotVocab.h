@@ -50,6 +50,11 @@ const char *const YBVGraspRflxQuit = "GraspRflxQuit";
 // handlocalization
 const char *const YBVHandLocQuit = "HandLocQuit";
 
+// hand kinematics
+const char *const YBVHandKinQuit = "HandKinQuit";
+const char *const YBVHandKinView = "HandKinView";
+const char *const YBVHandKinFreeze = "HandKinFreeze";
+
 // general
 const char *const YBVExit = "GeneralExit";
 #endif

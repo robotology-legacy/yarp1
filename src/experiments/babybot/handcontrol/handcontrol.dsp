@@ -117,6 +117,10 @@ SOURCE=.\handthread.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\hallparameters.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\HandBehavior.h
 # End Source File
 # Begin Source File

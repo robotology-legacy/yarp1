@@ -5,12 +5,12 @@ void InitMoveState::handle(HandSharedData *t)
 {
 	HAND_THREAD_DEBUG(("Init move\n"));
 	
-	t->setPositionsRaw(_cmd.data());
+	t->setPositions(_cmd.data());
 }
 
 void IdleState::handle(HandSharedData *t)
 {
-/*	// signal idle state
+	/*	// signal idle state
 	int msg[2];
 	msg[0] = 0;	// hand
 	msg[1] = 0;	// idle
@@ -21,6 +21,8 @@ void IdleState::handle(HandSharedData *t)
 
 void EndMotion::handle(HandSharedData *t)
 {
+	HAND_THREAD_DEBUG(("End Motion\n"));
 	t->_data.writeVocab(YBVHandDone);
 	t->send();
+	HAND_THREAD_DEBUG(("Sent Hand Done\n"));
 }

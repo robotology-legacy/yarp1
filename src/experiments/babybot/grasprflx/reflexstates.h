@@ -21,6 +21,9 @@ public:
 
 		_openCmds = NULL;
 		_closeCmds = NULL;
+
+		_initialized = false;
+		_rndIndex = 0;
 	}
 
 	void read()
@@ -74,21 +77,31 @@ public:
 	void updateRnd()
 	{
 		// pick rnd open, close couple
-		// ACE_ASSERT(0);
+		if (!_initialized)
+			_initRnd();
+
+		double tmp = (_nSynergies-1)*((double) rand() )/RAND_MAX;
+		_rndIndex = (int) (tmp+0.5);
+
+		ACE_OS::printf("Selected action:%d\n", _rndIndex);
 	}
 
 	YVector getOpen()
 	{
 		// returns an open position
-		// ACE_ASSERT(0);
-		return _openCmds[0];
+		return _openCmds[_rndIndex];
 	}
 
 	YVector getClose()
 	{
 		// returns a close position
-		// ACE_ASSERT(0);
-		return _closeCmds[0];
+		return _closeCmds[_rndIndex];
+	}
+
+	void _initRnd()
+	{
+		srand((unsigned) time(NULL));
+		_initialized = true;
 	}
 
 public:
@@ -98,6 +111,10 @@ public:
 	int _nSynergies;
 	YVector *_openCmds;
 	YVector *_closeCmds;
+
+	bool _initialized;
+
+	int _rndIndex;
 
 };
 
@@ -128,7 +145,7 @@ class GRBWaitIdle: public GRBehaviorBaseState
 public:
 	void handle(ReflexShared *d)
 	{
-		// do nothing
+		ACE_OS::printf("Waiting idle\n");
 	}
 };
 

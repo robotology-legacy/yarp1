@@ -50,6 +50,11 @@ void _fillTable()
 	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitTracker, "inhibit TRACKER sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitVergence, "inhibit VERGENCE sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkDisplayStatus, "display channel status");
+
+	// hand kinematics.m
+	REG_VOCAB(sendSimpleVocab, YBVHandKinQuit, "quit handkinematics.m");
+	REG_VOCAB(sendHandKinematicsView, YBVHandKinView, "handkinematics.m change viewpoint");
+	REG_VOCAB(sendSimpleVocab, YBVHandKinFreeze, "freeze/resume handkinematics.m");
 }
 
 void _help()

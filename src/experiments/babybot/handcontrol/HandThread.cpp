@@ -64,8 +64,15 @@ _handStatusOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	_cmd = 0.0;
 	/////////////
 	_handStatusOut.Register("/handcontrol/o:status");
-	_status.Resize(6);
+	_posture.Resize(16);
+	_motorJoints.Resize(6);
+	_hallEncodersRaw.Resize(15);
+	_hallDeltaTheta.Resize(15);
 
+	///////
+	for(i = 0; i < 15; i++)
+		_hallPoly[i].setParameters(__hallParameters[i]);
+	
 	_hand._shaking = false;
 }
 
@@ -93,10 +100,12 @@ void HandThread::doLoop()
 
 	_fsm->doYourDuty();
 
-	_hand.getPositionsRaw(_status.data());
-	// _hand.getSpeedsRaw(_status.data());
+	_hand.getPositions(_motorJoints.data());
+	_hand.getHallRaw(_hallEncodersRaw.data());
 	
-	_handStatusOut.Content() = _status; // /3000;	// normalize between 0 and 1
+	_computeHandPosture();
+
+	_handStatusOut.Content() = _posture;
 	_handStatusOut.Write();
 	
 	_hand.output();
@@ -121,4 +130,40 @@ void HandThread::shake()
 {
 	_hand._shaking = true;
 	_startShake.set();
+}
+
+void HandThread::_computeHandPosture()
+{
+	// convert hall raw measurements into angles
+	int i = 0;
+	for (i = 0; i < 15; i++)
+		_hallDeltaTheta(i+1) = _hallPoly[i](_hallEncodersRaw(i+1));
+//	_hallDeltaTheta = 0.0;
+
+	// thumb
+	// CHECK OFFSETS for the thumb
+	_posture(1) = _motorJoints(1) + __offsets[0];
+	_posture(2) = _motorJoints(2) - _hallDeltaTheta(1) + __offsets[1];
+	_posture(3) = -_posture(2) - _hallDeltaTheta(2) + __offsets[2];
+	_posture(4) = _posture(3) - _hallDeltaTheta(3) + __offsets[3];
+
+	// index
+	_posture(5) = _motorJoints(3) + _hallDeltaTheta(4) + __offsets[4];
+	_posture(6) = _motorJoints(4) - _hallDeltaTheta(4) + _hallDeltaTheta(5) + __offsets[5];
+	_posture(7) = 0.5*_posture(6) + _hallDeltaTheta(6) + __offsets[6];
+
+	// medium
+	_posture(8) = _motorJoints(5) + _hallDeltaTheta(7) + __offsets[7];
+	_posture(9) = _motorJoints(6) - _hallDeltaTheta(7) + _hallDeltaTheta(8) + __offsets[8];
+	_posture(10) = 0.5*_posture(9) + _hallDeltaTheta(9) + __offsets[9];
+
+	// ring
+	_posture(11) = _motorJoints(5) + _hallDeltaTheta(10) + __offsets[10];
+	_posture(12) = _motorJoints(6) - _hallDeltaTheta(10) + _hallDeltaTheta(11) + __offsets[11];
+	_posture(13) = 0.5*_posture(12) + _hallDeltaTheta(12) + __offsets[12];
+
+	// small finger
+	_posture(14) = _motorJoints(5) + _hallDeltaTheta(13) + __offsets[13];
+	_posture(15) = _motorJoints(6) - _hallDeltaTheta(13) + _hallDeltaTheta(14) + __offsets[14];
+	_posture(16) = 0.5*_posture(15) + _hallDeltaTheta(15) + __offsets[15];
 }

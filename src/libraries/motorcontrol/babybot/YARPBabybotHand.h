@@ -4,7 +4,7 @@
 //
 // adapted for yarp June 2003 -- by nat
 
-// $Id: YARPBabybotHand.h,v 1.5 2003-10-17 16:34:40 babybot Exp $
+// $Id: YARPBabybotHand.h,v 1.6 2003-12-12 16:06:41 babybot Exp $
 
 #ifndef __YARPBABYBOTHANDH__
 #define __YARPBABYBOTHANDH__
@@ -126,6 +126,7 @@ public:
 	void _alloc()
 	{
 		_hall_encoders_raw = new double [_parameters._nidaq_ch];
+		_optic_encoders = new double [_parameters._naj];
 		_optic_encoders_raw = new double [_parameters._naj];
 		_optic_encoders_sp_raw = new double [_parameters._naj];
 		_reference_positions = new double [_parameters._naj];
@@ -145,11 +146,11 @@ public:
 		_offsets = new double [_parameters._naj];
 		_motor_torques = new double [_parameters._naj];
 		_max_torques = new double [_parameters._naj];
-
 	}
 	void _falloc()
 	{
 		delete [] _hall_encoders_raw;
+		delete [] _optic_encoders;
 		delete [] _optic_encoders_raw;
 		delete [] _optic_encoders_sp_raw;
 		delete [] _reference_positions;
@@ -180,32 +181,34 @@ public:
 		
 		// read Galil
 		rc = _control_board.IOCtl(CMDGetPositions, _tmp_command_double);
-		// _convert_and_decouple_output(_tmp_command_int, _optic_encoders_raw);
-		_convert_output(_tmp_command_double, _optic_encoders_raw);
-
+		// _convert_and_decouple_output_raw(_tmp_command_int, _optic_encoders_raw);
+		_convert_output_raw(_tmp_command_double, _optic_encoders_raw);
+		_convert_and_decouple_output(_tmp_command_double, _optic_encoders);
+		
 		rc = _control_board.IOCtl(CMDGetSpeeds, _tmp_command_double);
-		_convert_and_decouple_output(_tmp_command_double, _optic_encoders_sp_raw);
+		_convert_and_decouple_output_raw(_tmp_command_double, _optic_encoders_sp_raw);
+		
 		/*
 		for(i = 0; i < 6; i++)
 			printf("%lf ", _optic_encoders_sp_raw[i]);
 		printf("\n");*/
-		// _convert_output(_tmp_command_double, _optic_encoders_sp_raw);
-		// _convert_output(_tmp_command_int, _optic_encoders_sp_raw);
+		// _convert_output_raw(_tmp_command_double, _optic_encoders_sp_raw);
+		// _convert_output_raw(_tmp_command_int, _optic_encoders_sp_raw);
 
 		rc = _control_board.IOCtl(CMDGetTorques, _tmp_command_double);
-		_convert_output(_tmp_command_double, _motor_torques);
+		_convert_output_raw(_tmp_command_double, _motor_torques);
 
 		// errors
 		rc = _control_board.IOCtl(CMDGetErrors, _tmp_command_double);
-		_convert_output(_tmp_command_double, _motor_errors);
+		_convert_output_raw(_tmp_command_double, _motor_errors);
 
 		// reference positions
 		rc = _control_board.IOCtl(CMDGetRefPositions, _tmp_command_double);
-		_convert_output(_tmp_command_double, _reference_positions);
+		_convert_output_raw(_tmp_command_double, _reference_positions);
 
 		// switches // LATER: this should go in the adapter
 		rc = _control_board.IOCtl(CMDReadSwitches, _tmp_command_char);
-		_convert_output(_tmp_command_char, _switches);
+		_convert_output_raw(_tmp_command_char, _switches);
 		_moving = false;
 		for(i = 0; i < _naj; i++)
 		{
@@ -226,7 +229,7 @@ public:
 		lock();
 		if (_torqueControl.update(_motor_torques, _max_torques))
 		{
-			_convert_input(_max_torques, _tmp_command_double);
+			_convert_input_raw(_max_torques, _tmp_command_double);
 			_control_board.IOCtl(CMDSetTorqueLimits, _tmp_command_double);
 		}
 		unlock();
@@ -290,7 +293,7 @@ public:
 		rc = idleMode();
 
 		// clear offsets
-		_convert_input(_offsets, _tmp_command_double);
+		_convert_input_raw(_offsets, _tmp_command_double);
 		rc = _control_board.IOCtl(CMDSetOffsets, _tmp_command_double);
 
 		// stop axes
@@ -335,16 +338,16 @@ public:
 
 	int getPositions(double *pos)
 	{
-		// not implemented yet !
+		lock();
+		memcpy(pos, _optic_encoders, _naj*sizeof(_optic_encoders[0]));
+		unlock();
 		return 0;
 	}
 
 	int getPositionsRaw(double *pos)
 	{
 		lock();
-
 		memcpy(pos, _optic_encoders_raw, _naj*sizeof(_optic_encoders_raw[0]));
-
 		unlock();
 		return 0;
 	}
@@ -352,9 +355,7 @@ public:
 	int getMotorErrors(double *errs)
 	{
 		lock();
-
 		memcpy(errs, _motor_errors, _naj*sizeof(_motor_errors[0]));
-
 		unlock();
 		return 0;
 	}
@@ -404,9 +405,9 @@ public:
 		_torqueControl.reset();
 		_control_board.IOCtl(CMDSetTorqueLimits, _parameters._torque_limits);
 		// apply commands
-		_convert_and_couple_input(_reference_accs, _tmp_command_double);
+		_convert_and_couple_input_raw(_reference_accs, _tmp_command_double);
 		rc = _control_board.IOCtl(CMDSetAccelerations, _tmp_command_double);
-		_convert_and_couple_input(sp, _tmp_command_double);
+		_convert_and_couple_input_raw(sp, _tmp_command_double);
 		rc = _control_board.IOCtl(CMDVMove, _tmp_command_double);
 		unlock();
 		return rc;
@@ -422,10 +423,54 @@ public:
 		double tmp_pos[6];
 		double tmp_actual_pos[6];
 		
-		_convert_input(_optic_encoders_raw,tmp_actual_pos);
+		_convert_input_raw(_optic_encoders_raw,tmp_actual_pos);
+		_convert_and_couple_input_raw(pos, tmp_pos);
+		_convert_and_couple_input_raw(_reference_speeds, tmp_speeds);
+		_convert_and_couple_input_raw(_reference_accs, tmp_accs);
+		
+		// max t
+		double tmax = 0;
+		for(int i = 0; i < _parameters._naj; i++) {
+			double t = 0;
+			t = fabs((double) (tmp_actual_pos[i]-tmp_pos[i])/tmp_speeds[i]);
+			if (t>tmax)
+				tmax = t;
+		}
+		// compute new speeds and accs
+		for(i = 0; i < _parameters._naj; i++) {
+			tmp_speeds[i] = fabs((double) (tmp_actual_pos[i]-tmp_pos[i])/tmax);
+			if (tmp_speeds[i] == 0)
+				tmp_speeds[i] = 200;
+			tmp_accs[i] = tmp_speeds[i]*10;
+		}
+
+		// reset torque control
+		_torqueControl.reset();
+		_control_board.IOCtl(CMDSetTorqueLimits, _parameters._torque_limits);
+		_control_board.stop();
+		// apply commands
+		rc = _control_board.IOCtl(CMDSetSpeeds, tmp_speeds);
+		rc = _control_board.IOCtl(CMDSetAccelerations, tmp_accs);
+		rc = _control_board.IOCtl(CMDSetPositions, tmp_pos);
+
+		unlock();
+		return rc;
+	}
+
+	int setPositions(const double *pos)
+	{
+		int rc = 0;
+		lock();
+
+		double tmp_speeds[6];
+		double tmp_accs[6];
+		double tmp_pos[6];
+		double tmp_actual_pos[6];
+		
+		_convert_input_raw(_optic_encoders_raw, tmp_actual_pos);
 		_convert_and_couple_input(pos, tmp_pos);
-		_convert_and_couple_input(_reference_speeds, tmp_speeds);
-		_convert_and_couple_input(_reference_accs, tmp_accs);
+		_convert_and_couple_input_raw(_reference_speeds, tmp_speeds);
+		_convert_and_couple_input_raw(_reference_accs, tmp_accs);
 		
 		// max t
 		double tmax = 0;
@@ -486,7 +531,7 @@ public:
 		int rc = 0;
 		lock();
 		memcpy(_reference_speeds, spds, _naj*sizeof(_reference_speeds[0]));
-		_convert_input(spds, _tmp_command_double);
+		_convert_input_raw(spds, _tmp_command_double);
 		rc = _control_board.IOCtl(CMDSetSpeeds, _tmp_command_double);
 		unlock();
 		return rc;
@@ -510,7 +555,7 @@ public:
 		int rc = 0;
 		lock();
 		memcpy(_reference_accs, accs, _naj*sizeof(_reference_accs[0]));
-		_convert_input(accs, _tmp_command_double);
+		_convert_input_raw(accs, _tmp_command_double);
 		rc = _control_board.IOCtl(CMDSetAccelerations, _tmp_command_double);
 		unlock();
 		return rc;
@@ -521,7 +566,7 @@ public:
 		int rc = 0;
 		lock();
 		rc = _control_board.IOCtl(CMDGetRefAccelerations, _tmp_command_double);
-		_convert_output(_tmp_command_double, accs);
+		_convert_output_raw(_tmp_command_double, accs);
 		unlock();
 		return rc;
 	}
@@ -531,7 +576,7 @@ public:
 		int rc = 0;
 		lock();
 		rc = _control_board.IOCtl(CMDGetRefSpeeds, _tmp_command_double);
-		_convert_output(_tmp_command_double, sp);
+		_convert_output_raw(_tmp_command_double, sp);
 		unlock();
 		return rc;
 	}
@@ -549,7 +594,7 @@ public:
 	{
 		int rc = 0;
 		lock();
-		_convert_input(lmts, _tmp_command_double);
+		_convert_input_raw(lmts, _tmp_command_double);
 		rc = _control_board.IOCtl(CMDSetIntegratorLimits, _tmp_command_double);
 		unlock();
 		return rc;
@@ -559,7 +604,7 @@ public:
 	{
 		int rc = 0;
 		lock();
-		_convert_input(lmts, _tmp_command_double);
+		_convert_input_raw(lmts, _tmp_command_double);
 		rc = _control_board.IOCtl(CMDSetTorqueLimits, _tmp_command_double);
 		unlock();
 		return rc;
@@ -581,7 +626,7 @@ public:
 	{	
 		int rc = 0;
 		lock();
-		_convert_input(_optic_encoder_zeros, _tmp_command_double);
+		_convert_input_raw(_optic_encoder_zeros, _tmp_command_double);
 		rc = _control_board.IOCtl(CMDDefinePositions, _tmp_command_double);
 		unlock();
 		return rc;
@@ -637,27 +682,27 @@ protected:
 		return _parameters._axes_lut[index];
 	}
 
-	// convert input vector functions and various overloads
-	inline void _convert_input(const int *input, int *output)
+	// convert input vector functions and various overloads, raw versions
+	inline void _convert_input_raw(const int *input, int *output)
 	{
 		for (int i = 0; i<_naj; i++)
 			output[_parameters._vector_lut[i]] = input[i];
 	}
 
-	inline void _convert_input(const int *input, short *output)
+	inline void _convert_input_raw(const int *input, short *output)
 	{
 		for (int i = 0; i<_naj; i++)
 			output[_parameters._vector_lut[i]] = (short) input[i];
 	}
 
-	inline void _convert_input(const double *input, double *output)
+	inline void _convert_input_raw(const double *input, double *output)
 	{
 		for (int i = 0; i<_naj; i++)
 			output[_parameters._vector_lut[i]] = input[i];
 	}
 
 	// convert input into motor joint (take coupling into account)
-	inline void _convert_and_couple_input(const double *input, double *output)
+	inline void _convert_and_couple_input_raw(const double *input, double *output)
 	{
 		for (int i = 0; i<_naj; i++)
 		{
@@ -668,7 +713,7 @@ protected:
 	}
 
 	// convert input into motor joint (take coupling into account)
-	inline void _convert_and_decouple_output(const double *input, double *output)
+	inline void _convert_and_decouple_output_raw(const double *input, double *output)
 	{
 		for (int i = 0; i<_naj; i++)
 		{
@@ -679,24 +724,48 @@ protected:
 	}
 
 	// convert output vector functions, various overloads
-	inline void _convert_output(const int *input, int *output)
+	inline void _convert_output_raw(const int *input, int *output)
 	{
 		for (int i = 0; i<_naj; i++)
 			output[i] = input[_parameters._vector_lut[i]];
 
 	}
 
-	inline void _convert_output(const char *input, char *output)
+	inline void _convert_output_raw(const char *input, char *output)
 	{
 		for (int i = 0; i<_naj; i++)
 			output[i] = input[_parameters._vector_lut[i]];
 
 	}
-	inline void _convert_output(const double *input, double *output)
+	inline void _convert_output_raw(const double *input, double *output)
 	{
 		for (int i = 0; i<_naj; i++)
 			output[i] = input[_parameters._vector_lut[i]];
 
+	}
+
+	// convert input into motor joint (take coupling into account)
+	inline void _convert_and_couple_input(const double *input, double *output)
+	{
+		for (int i = 0; i<_naj; i++)
+		{
+			output[_parameters._vector_lut[i]] = 0;
+			for(int j = 0; j < _naj; j++)
+				output[_parameters._vector_lut[i]] += input[j]*_parameters._coupling[i][j]/_parameters._encoderToAngles[j];
+		}
+	}
+
+	// convert output from joint (take coupling into account)
+	inline void _convert_and_decouple_output(const double *input, double *output)
+	{
+		for (int i = 0; i<_naj; i++)
+		{
+			output[i] = 0;
+			for(int j = 0; j < _naj; j++)
+			{
+				output[i] += (_parameters._encoderToAngles[j] * input[_parameters._vector_lut[j]]*_parameters._de_coupling[i][j]);
+			}
+		}
 	}
 
 	inline void lock()
@@ -711,9 +780,10 @@ protected:
 	
 	double *_hall_encoders_raw;
 	
-	double *_optic_encoders_raw;
-	double *_optic_encoders_sp_raw;
-	double *_reference_positions;
+	double *_optic_encoders;			// store actual position, radiants, remapped
+	double *_optic_encoders_raw;		// store actual position, raw data, remapped
+	double *_optic_encoders_sp_raw;		// store actual speed, raw data, remapped
+	double *_reference_positions;		
 	double *_reference_speeds;
 	double *_reference_accs;
 	double *_motor_errors;

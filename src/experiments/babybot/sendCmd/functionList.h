@@ -25,4 +25,5 @@ bool sendSimpleVocab(const YBVocab &vocab, YARPBottle &bottle);
 bool sendArmJointCommand(const YBVocab &vocab, YARPBottle &bottle);
 bool sendHeadJointCommand(const YBVocab &vocab, YARPBottle &bottle);
 bool sendHandJointCommand(const YBVocab &vocab, YARPBottle &bottle);
+bool sendHandKinematicsView(const YBVocab &vocab, YARPBottle &bottle);
 
