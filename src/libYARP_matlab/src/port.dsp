@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include\yarp_private" /I "..\..\..\include" /I "..\..\..\include\winnt" /I "C:\Progra~1\Matlab6p5\extern\include" /I "C:\Progra~1\Matlab6p5\simulink\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS" /D "_USRDLL" /D "IBMPC" /D "MSVC" /D "MSWIND" /D "__STDC__" /D "MATLAB_MEX_FILE" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include\yarp_private" /I "..\..\..\include" /I "..\..\..\include\winnt" /I "C:\Progra~1\Matlab6p5\extern\include" /I "C:\Matlab6p5\extern\include" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /D "_MBCS" /D "_USRDLL" /D "IBMPC" /D "MSVC" /D "MSWIND" /D "__STDC__" /D "MATLAB_MEX_FILE" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /dll /machine:I386
-# ADD LINK32 libYARP_sig.lib libYARP_OS.lib libYARP_math.lib ace.lib winmm.lib libmx.lib libmex.lib libmatlb.lib libmat.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"..\..\..\lib\winnt" /libpath:"C:\Progra~1\Matlab6p5\extern\lib\win32\microsoft\msvc60" /export:"mexFunction"
+# ADD LINK32 libYARP_sig.lib libYARP_OS.lib libYARP_math.lib ace.lib winmm.lib libmx.lib libmex.lib libmatlb.lib libmat.lib /nologo /subsystem:windows /dll /machine:I386 /libpath:"..\..\..\lib\winnt" /libpath:"C:\Matlab6p5\extern\lib\win32\microsoft\msvc60" /export:"mexFunction"
 
 !ELSEIF  "$(CFG)" == "port - Win32 Debug"
 
@@ -69,7 +69,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_WINDLL" /D "_AFXDLL" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include\yarp_private" /I "..\..\..\include" /I "..\..\..\include\winnt" /I "C:\Progra~1\Matlab6p5\extern\include" /I "C:\Progra~1\Matlab6p5\simulink\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "IBMPC" /D "MSVC" /D "MSWIND" /D "__STDC__" /D "MATLAB_MEX_FILE" /D "NDEBUG" /D "_WINDLL" /D "_AFXDLL" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include\yarp_private" /I "..\..\..\include" /I "..\..\..\include\winnt" /I "C:\Progra~1\Matlab6p5\extern\include" /I "C:\Matlab6p5\extern\include" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "IBMPC" /D "MSVC" /D "MSWIND" /D "__STDC__" /D "MATLAB_MEX_FILE" /D "NDEBUG" /D "_WINDLL" /D "_AFXDLL" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -80,7 +80,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 libYARP_sigd.lib libYARP_OSd.lib libYARP_mathd.lib aced.lib winmm.lib libmx.lib libmex.lib libmatlb.lib libmat.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\lib\winnt" /libpath:"C:\Progra~1\Matlab6p5\extern\lib\win32\microsoft\msvc60" /export:"mexFunction"
+# ADD LINK32 libYARP_sigd.lib libYARP_OSd.lib libYARP_mathd.lib aced.lib winmm.lib libmx.lib libmex.lib libmatlb.lib libmat.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\lib\winnt" /libpath:"C:\Matlab6p5\extern\lib\win32\microsoft\msvc60" /export:"mexFunction"
 
 !ENDIF 
 

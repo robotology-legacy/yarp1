@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: global.cpp,v 1.1 2004-09-02 13:45:39 gmetta Exp $
+/// $Id: global.cpp,v 1.2 2004-09-07 15:28:52 babybot Exp $
 ///
 ///
 
@@ -91,6 +91,7 @@
 ///
 /// local internal prototypes.
 int stringToProtocol (const char *s);
+int stringToBuffering (const char *s, bool direction);
 char *typeToString(enum _dataType type, char *buffer);
 
 /// operation callbacks.
@@ -201,6 +202,45 @@ int stringToProtocol (const char *s)
 		return YARP_TCP;
 }
 
+int stringToBuffering (const char *s, bool direction)
+{
+	/*
+	also from yarp, the buffering
+
+	input port:
+		NO_BUFFERS,
+		DOUBLE_BUFFERS,
+		TRIPLE_BUFFERS,
+		DEFAULT_BUFFERS = TRIPLE_BUFFERS
+
+	output port:
+		MANY_OUTPUTS,
+		SINGLE_OUTPUT,
+		DEFAULT_OUTPUTS = MANY_OUTPUTS
+*/
+	if (strncmp (s, "no_buffers", 10) == 0)
+		return YARPInputPort::NO_BUFFERS;
+	else
+	if (strncmp (s, "double_buffers", 14) == 0)
+		return YARPInputPort::DOUBLE_BUFFERS;
+	else
+	if (strncmp (s, "triple_buffers", 14) == 0)
+		return YARPInputPort::TRIPLE_BUFFERS;
+	else
+	if (strncmp (s, "many_outputs", 12) == 0)
+		return YARPOutputPort::MANY_OUTPUTS;
+	else
+	if (strncmp (s, "single_output", 13) == 0)
+		return YARPOutputPort::SINGLE_OUTPUT;
+	else
+	{
+		if (direction) 
+			return YARPInputPort::DEFAULT_BUFFERS;
+		else
+			return YARPOutputPort::DEFAULT_OUTPUTS;
+	}
+}
+
 /// from the yarp protocol enumeration.
 ///	YARP_UDP					= 0,
 ///	YARP_TCP					= 1,
@@ -219,22 +259,6 @@ int dispatcher (const char *operation, void *params)
 	return -1;
 }
 
-
-/*
-	also from yarp, the buffering
-
-	input port:
-		NO_BUFFERS,
-		DOUBLE_BUFFERS,
-		TRIPLE_BUFFERS,
-		DEFAULT_BUFFERS = TRIPLE_BUFFERS
-
-	output port:
-		MANY_OUTPUTS,
-		SINGLE_OUTPUT,
-		DEFAULT_OUTPUTS = MANY_OUTPUTS
-*/
-
 ///
 ///
 /// messing up things here :)
@@ -243,9 +267,9 @@ int dispatcher (const char *operation, void *params)
 		case MX_YARP_##x: \
 		{ \
 				if (par._direction) \
-					myport._port = (void *) new YARPInputPortOf<##y> (YARPInputPort::DEFAULT_BUFFERS, stringToProtocol(par._protocol)); \
+					myport._port = (void *) new YARPInputPortOf<##y> (stringToBuffering(par._extra_content, par._direction), stringToProtocol(par._protocol)); \
 				else \
-					myport._port = (void *) new YARPOutputPortOf<##y> (YARPOutputPort::DEFAULT_OUTPUTS, stringToProtocol(par._protocol)); \
+					myport._port = (void *) new YARPOutputPortOf<##y> (stringToBuffering(par._extra_content, par._direction), stringToProtocol(par._protocol)); \
 				myport._type = MX_YARP_##x; \
 				myport._direction = par._direction; \
 				myport._name = NULL; \
