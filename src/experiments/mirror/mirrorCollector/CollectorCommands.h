@@ -61,114 +61,43 @@
 ///
 
 ///
-/// $Id: DrvTest.cpp,v 1.2 2005-02-18 10:15:36 babybot Exp $
+/// $Id: CollectorCommands.h,v 1.1 2005-02-18 10:15:36 babybot Exp $
 ///
 ///
 
+#ifndef __CollectorCommandsh__
+#define __CollectorCommandsh__
 
-
-#include <yarp/YARPConfig.h>
-
-#include <iostream>
-#include <stdio.h>
-#include <yarp/YARPThread.h>
-#include <yarp/YARPScheduler.h>
-
-#include <yarp/YARPParseParameters.h>
-
-#include <yarp/YARPRobotHardware.h>
-
-#define Sensor YARPDataGlove
-#define DataType DataGloveData
-
-///
-///
-///
-
-const char *DEFAULT_NAME = "collector";
-///
-///
-///
-
-///
-/// global params.
-
-///
-///
-///
-
-class mainthread : public YARPThread
+enum CollectorCmd
 {
-public:
-	virtual void Body (void);
+	CCMDGetData = 1,
+	CCMDStartStreaming = 2,
+	CCMDStopStreaming = 3,
+	CCMDGetLed = 4,
+	CCMDGetSwitch = 5,
+	CCMDResetGlove = 6,
+	CCMDSetLed = 7,
+	CCMDConnect = 8,
+	CCMDDisconnect = 9,
+	CCMDQuit = 10
 };
 
-void mainthread::Body (void)
+typedef enum CollectorCmd MCommands;
+
+struct CollectorData
 {
-	Sensor mSensor;
-	DataType mData;
-	int ret;
-	cout << "Setting up the sensor.." << endl;
-	mSensor.initialize ();
-	cout << "Starting the sensor streaming mode..." << endl;
-	//Sensor.startStreaming();
-	cout << "Data Collector thread is running." << endl;
-	cout << "Hit any key to quit." << endl;
+	PresSensData		pressure;
+	TrackerData			tracker;
+	DataGloveData		glove;
+};
 
-	while (!IsTerminated())
-	{
-		ret = mSensor.getData(&mData);
-		if (ret == YARP_FAIL)
-		{
-			cout << "error reading data!" << endl;
-			exit (1);
-		}
-		else
-			cout << "A = " << mData. << "	B = " << mData.channelB << endl;
-	}
-	cout << "Thread stopped." << endl;
+typedef struct CollectorData MNumData;
 
-	cout << "Stopping the sensor streamin mode..." << endl;
-	//Sensor.stopStreaming();
-	cout << "Releasing sensor..." << endl;  
-	mSensor.uninitialize ();
-	cout << "Done." << endl;
-	
-	return;
-}
+#define CMD_ACK		1
+#define CMD_FAILED	0
+#define HW_DATAGLOVE	0x01
+#define HW_TRACKER		0x02
+#define HW_PRESSENS		0x04
+#define HW_CAMERA		0x08
 
-///
-///
-///
-void sendHelp()
-{
-	cout << endl << "*** Mirror drivers thread ***" << endl  << endl;
-	cout << "USAGE: DrvTest.exe [parameters]" << endl;
-	cout << "parameters are:" << endl;
-	cout << "\t-help\t\t this help screen." << endl;
-}
-
-int main (int argc, char *argv[])
-{
-	if ( YARPParseParameters::parse(argc, argv, "help" ) )
-	{
-		sendHelp();
-		exit(YARP_OK);
-	}
-
-	YARPScheduler::setHighResScheduling ();
-
-	mainthread _thread;
-	_thread.Begin();
-	
-	char c = 0;
-
-	getchar();
-	
-	_thread.End(-1);
-	
-	cout << "Quitting..." << endl;
-
-	return YARP_OK;
-}
-
+#endif
