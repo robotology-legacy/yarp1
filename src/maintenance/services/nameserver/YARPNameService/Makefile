@@ -18,7 +18,7 @@ FILES 	= YARPNameServer \
 	  LocalNameServer \
 	  NetworkMap
 	  
-LDLIBS  = $(MATHLIB)
+LDLIBS  = $(MATHLIB) $(YARP_ROOT)/lib/$(OS)/os_services.lib
 
 SRC	= $(addsuffix .cpp,$(FILES))
 OBJ    = $(addsuffix .o,$(FILES))
