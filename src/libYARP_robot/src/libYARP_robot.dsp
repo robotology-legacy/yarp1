@@ -313,6 +313,42 @@ SOURCE=..\eurobot\yarp\YARPPicoloOnEurobotAdapter.h
 # PROP Exclude_From_Build 1
 # End Source File
 # End Group
+# Begin Group "mirror"
+
+# PROP Default_Filter "h;cpp"
+# Begin Source File
+
+SOURCE=..\mirror\yarp\YARPCyberGloveOnMirrorAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\mirror\yarp\YARPFoBOnMirrorAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\mirror\yarp\YARPJoyPresOnMirrorAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\mirror\yarp\YARPMirrorDataGlove.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\mirror\yarp\YARPMirrorGrabber.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\mirror\yarp\YARPMirrorMagneticTracker.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\mirror\yarp\YARPMirrorPresSens.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\mirror\yarp\YARPPicoloOnMirrorAdapter.h
+# End Source File
+# End Group
 # End Group
 # End Target
 # End Project

@@ -103,6 +103,10 @@ SOURCE=..\include\yarp\YARPControlBoardUtils.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\YARPDataGloveUtils.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\YARPDeviceDriver.h
 # End Source File
 # Begin Source File
@@ -115,6 +119,10 @@ SOURCE=..\include\yarp\YARPGenericControlBoard.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\YARPGenericDataGlove.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\YARPGenericForceSensor.h
 # End Source File
 # Begin Source File
@@ -123,11 +131,27 @@ SOURCE=..\include\yarp\YARPGenericGrabber.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\YARPGenericPresSens.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\YARPGenericSoundGrabber.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\YARPGenericTracker.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPPresSensUtils.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\YARPSoundCardUtils.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPTrackerUtils.h
 # End Source File
 # End Group
 # Begin Group "valuecan"
@@ -240,6 +264,42 @@ SOURCE=..\null\winnt\yarp\YARPNullDeviceDriver.h
 # Begin Source File
 
 SOURCE=..\null_grabber\winnt\yarp\YARPNullGrabberDeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "cyberglove"
+
+# PROP Default_Filter "cpp;h"
+# Begin Source File
+
+SOURCE=..\cyberglove\winnt\yarp\YARPCyberGloveDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\cyberglove\winnt\yarp\YARPCyberGloveDeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "fob"
+
+# PROP Default_Filter "cpp;h"
+# Begin Source File
+
+SOURCE=..\fob\winnt\yarp\YARPFoBDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\fob\winnt\yarp\YARPFoBDeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "joypres"
+
+# PROP Default_Filter "cpp;h"
+# Begin Source File
+
+SOURCE=..\joypres\winnt\yarp\YARPJoyPresDeviceDriver.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\joypres\winnt\yarp\YARPJoyPresDeviceDriver.h
 # End Source File
 # End Group
 # End Target
