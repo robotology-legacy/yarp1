@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.7 2003-05-01 22:51:19 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.8 2003-05-14 17:20:17 gmetta Exp $
 ///
 ///
 
@@ -229,7 +229,7 @@ int YARPNameService::Initialize (void)
 {
 	if (!_init_nameserver)
 	{
-		ACE_DEBUG ((LM_DEBUG, "Name client service alreast initialized\n"));
+		ACE_DEBUG ((LM_DEBUG, "Name client service already initialized\n"));
 		return YARP_FAIL;
 	}
 
