@@ -8,7 +8,7 @@ INSTALLINC = $(INSTALLROOT)/include/yarp
 include $(YARP_ROOT)/conf/Makefile.template
 
 
-SUBDIRS = $(wildcard libYARP_*) $(wildcard src) $(wildcard yarp-*) $(wildcard tools)
+SUBDIRS = $(wildcard libYARP_*) $(wildcard src) $(wildcard yarp-*) $(wildcard logpolar-*) $(wildcard tools)
 
 default:
 	@for d in $(SUBDIRS) ; do \
