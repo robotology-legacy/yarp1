@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.3 2003-07-10 23:28:32 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.4 2003-07-16 13:10:21 babybot Exp $
 ///
 ///
 
@@ -466,9 +466,9 @@ int _SocketThreadMulti::_begin (const YARPUniqueNameSock *remid, const YARPUniqu
 				
 				if (_socket_addr != NULL)
 				{
-					mcast.open (((YARPUniqueNameSock&)_socket_addr).getAddressRef(), 0, 1);	// reuse addr enabled
+					mcast.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), 0, 1);	// reuse addr enabled
 					YARPNetworkObject::setSocketBufSize (mcast, MAX_PACKET);
-					mcast.join (((YARPUniqueNameSock&)_socket_addr).getAddressRef(), 1, 0);
+					mcast.join (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), 1, 0);
 
 					if (mcast.get_handle() == ACE_INVALID_HANDLE)
 						return YARP_FAIL;
@@ -800,7 +800,7 @@ void _SocketThreadMulti::Body (void)
 ///
 void _SocketThreadMulti::BodyShmem (void)
 {
-	ACE_Time_Value long_timeout (YARP_STALE_TIMEOUT, 0);
+	///ACE_Time_Value long_timeout (YARP_STALE_TIMEOUT, 0);
 
 	int finished = 0;
 	int r = YARP_FAIL;

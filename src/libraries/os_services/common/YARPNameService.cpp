@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.20 2003-07-15 08:06:30 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.21 2003-07-16 13:10:21 babybot Exp $
 ///
 ///
 
@@ -311,6 +311,7 @@ int YARPEndpointManager::Close(YARPUniqueNameID& endp)
 	case YARP_UDP:
 	case YARP_MCAST:
 	case YARP_SHMEM:
+	default:
 		return YARPSocketEndpointManager::Close (endp);
 
 	case YARP_QNET:

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.43 2003-07-16 09:48:13 gmetta Exp $
+/// $Id: Port.cpp,v 1.44 2003-07-16 13:10:21 babybot Exp $
 ///
 ///
 
@@ -128,6 +128,11 @@ void safe_printf(char *format,...)
 ///
 /// for testing only (possibly remove it completely).
 ///#define DEBUG_DISABLE_SHMEM 1
+
+/// this is because SHMEM alloc is not implemented in ACE for QNX6.
+#ifdef __QNX6__
+#define DEBUG_DISABLE_SHMEM 1
+#endif
 
 ///
 /// prepares the connect command. the header is NewFragmentHeader. a sender is
@@ -373,6 +378,8 @@ void OutputTarget::Body ()
 				{
 					/// disconnect
 					YARPUniqueNameID* udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
+					if (udp_channel->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+						udp_channel->setName(cmdname);
 					YARPEndpointManager::Close (*udp_channel);
 					YARPNameService::DeleteName (udp_channel);
 				}

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.23 2003-07-15 08:06:31 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.24 2003-07-16 13:10:21 babybot Exp $
 ///
 ///
 
@@ -103,7 +103,6 @@ using namespace std;
 
 #else
 
-#	include "strng.h"
 #	include <string>
 #	include <unix.h>  // just for gethostname
 
@@ -1818,8 +1817,9 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 
 	for (i = 0; i < d._max_num_clients; i++)
 	{
-		if (d._clients[i].get_host_addr() == nm.get_host_addr() &&
-			d._client_names[i].compare(sname) == 0)
+		///if (d._clients[i].get_host_addr() == nm.get_host_addr() &&
+		///	d._client_names[i].compare(sname) == 0)
+		if (d._client_names[i].compare(sname) == 0)
 		{
 			j = i;
 			break;
@@ -1938,8 +1938,9 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	int i, firstempty = -1;
 	for (i = 0; i < d._max_num_clients; i++)
 	{
-		if (d._clients[i].get_host_addr() == nm.get_host_addr() &&
-			d._client_names[i].compare(sname) == 0)
+		///if (d._clients[i].get_host_addr() == nm.get_host_addr() &&
+		///	d._client_names[i].compare(sname) == 0)
+		if (d._client_names[i].compare(sname) == 0)
 		{
 			/// it's already there...
 			ACE_DEBUG ((LM_DEBUG, "the specific client is already connected %s:%d\n", d._clients[i].get_host_addr(), d._clients[i].get_port_number()));

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.22 2003-07-08 22:04:20 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.23 2003-07-16 13:10:21 babybot Exp $
 ///
 ///
 
@@ -92,7 +92,8 @@ using namespace std;
 #include <winsock2.h>
 #endif
 #else
-#include "strng.h"
+///#include "strng.h"
+#include <string>
 #include <unix.h>  // just for gethostname
 #endif
 

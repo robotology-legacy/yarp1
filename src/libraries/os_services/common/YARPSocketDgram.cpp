@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.34 2003-07-08 22:04:20 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.35 2003-07-16 13:10:21 babybot Exp $
 ///
 ///
 
@@ -107,7 +107,7 @@ using namespace std;
 
 #else
 
-#	include "strng.h"
+#	include <string>
 #	include <unix.h>  // just for gethostname
 
 #endif

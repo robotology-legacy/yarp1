@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.cpp,v 1.7 2003-07-16 09:48:13 gmetta Exp $
+/// $Id: YARPNativeNameService.cpp,v 1.8 2003-07-16 13:10:21 babybot Exp $
 ///
 ///
 
@@ -97,7 +97,7 @@ int YARPNativeEndpointManager::CreateQnetChannel (void)
 ///
 int YARPNativeEndpointManager::CreateInputEndpoint (YARPUniqueNameID& name)
 {
-	///return name.getNameID();
+	ACE_UNUSED_ARG (name);
 	return YARP_OK;
 }
 
@@ -105,18 +105,18 @@ int YARPNativeEndpointManager::CreateInputEndpoint (YARPUniqueNameID& name)
 
 int YARPNativeEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
 {
-	YARPUniqueNameQnx& nameq = name;
+	YARPUniqueNameQnx& nameq = (YARPUniqueNameQnx&)name;
 
 	int coid = ConnectAttach( 
-						netmgr_strtond (nameq.getNode(),NULL),
+						netmgr_strtond (nameq.getNode().c_str(),NULL),
 						nameq.getPid(),
 						nameq.getChannelID(),
 						0,
 						0);
 
 	ACE_DEBUG ((LM_DEBUG, "ConnectAttach: %s(%d), %d %d, returned %d\n",
-		nameq.getNode(),
-		netmgr_strtond (nameq.getNode(), NULL),
+		nameq.getNode().c_str(),
+		netmgr_strtond (nameq.getNode().c_str(), NULL),
 		nameq.getPid(), nameq.getChannelID(),
 		coid));
 
@@ -131,13 +131,13 @@ int YARPNativeEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
 	return YARP_OK;
 }
 
-int YARPNativeEndpointManager::ConnectEndpoints(YARPNameID& dest)
+int YARPNativeEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest)
 {
 	ACE_UNUSED_ARG(dest);
 	return YARP_OK;
 }
 
-int YARPNativeEndpointManager::Close(const YARPUniqueNameID& id)
+int YARPNativeEndpointManager::Close(YARPUniqueNameID& id)
 {
 	return ConnectDetach (id.getRawIdentifier());
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.34 2003-07-15 08:06:31 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.35 2003-07-16 13:10:22 babybot Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -84,10 +84,10 @@ extern int __debug_level;
 NetInt32 foo;
 char name[256];
 
-///YARPInputPortOf<NetInt32> in(YARPInputPort::DOUBLE_BUFFERS, YARP_TCP);
-///YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-YARPInputPortOf<NetInt32> in;
-YARPOutputPortOf<NetInt32> out;
+YARPInputPortOf<NetInt32> in(YARPInputPort::DOUBLE_BUFFERS, YARP_MCAST);
+YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
+///YARPInputPortOf<NetInt32> in;
+///YARPOutputPortOf<NetInt32> out;
 
 class Thread1 : public YARPThread
 {
@@ -105,8 +105,8 @@ public:
 
 		YARPTime::DelayInSeconds(2);
 
-		///while (1)
-		for (int i = 0; i < 2; i++)
+		while (1)
+		///for (int i = 0; i < 2; i++)
 		{
 			printf("Waiting for input\n");
 			in.Read();
@@ -129,11 +129,11 @@ public:
 			return;
 		}
 
-		///YARPTime::DelayInSeconds(2);
+		YARPTime::DelayInSeconds(2);
 		printf("Step1\n");
 ///		out.Connect("/foo/the/rampaging/frog");
 		printf("Step1.5\n");
-		///YARPTime::DelayInSeconds(2);
+		YARPTime::DelayInSeconds(2);
 		int ct = 1;
 
 		for (int i = 0; i < 50; i++)
@@ -145,7 +145,7 @@ public:
 			ct++;
 			printf("$$$$$$$$$$$$$$$$$$$$$$$$$Writing %d\n", (int)out.Content());
 			out.Write();
-			YARPTime::DelayInSeconds(.5);
+			YARPTime::DelayInSeconds(5);
 		}
 	}
 };
