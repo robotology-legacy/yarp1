@@ -20,7 +20,6 @@
 
 #define rad2deg 57.32484076
 
-
 int main(int argc, char argv[])
 {
 
@@ -35,7 +34,6 @@ int main(int argc, char argv[])
 		_arm_status = _armStatusPort.Content();
 
 		//cout << _arm_status._current_position;
-
 		
 		ACE_OS::fprintf (stdout, "Current Position: %f %f %f %f %f %f \r", 
 								  _arm_status._current_position(1)*rad2deg,
@@ -44,7 +42,6 @@ int main(int argc, char argv[])
 								  _arm_status._current_position(4)*rad2deg,
 								  _arm_status._current_position(5)*rad2deg,
 								  _arm_status._current_position(6)*rad2deg);
-		
 	}
 
 }
