@@ -314,8 +314,8 @@ int RunRemote()
 	YARPLogpolar m_mapper;
 
 	//YARPDIBConverter m_converter;
-	//YARPInputPortOf<YARPGenericImage> inport (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
-	YARPInputPortOf<YARPGenericImage> inport;
+	YARPInputPortOf<YARPGenericImage> inport (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+	//YARPInputPortOf<YARPGenericImage> inport;
 
 	inport.Register ("/images:i");
     
@@ -384,9 +384,9 @@ int RunRemote()
 				m_remapped.Resize (256, 256, YARP_PIXEL_RGB);
 			}
 
-			if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho - _sfovea)
+			if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho )
 			{
-				m_colored.Resize (_stheta, _srho-_sfovea);
+				m_colored.Resize (_stheta, _srho);
 			}
 
 			if (m_flipped.GetWidth() != m_remapped.GetWidth() || m_flipped.GetHeight() != m_remapped.GetHeight())
