@@ -82,7 +82,7 @@ LINK32=link.exe
 
 # Name "logpolar_mapper - Win32 Release"
 # Name "logpolar_mapper - Win32 Debug"
-# Begin Group "Source"
+# Begin Group "Source Files"
 
 # PROP Default_Filter ".cpp"
 # Begin Source File
@@ -98,7 +98,7 @@ SOURCE=.\DIBConverter.cpp
 SOURCE=".\logpolar_mapper.cpp"
 # End Source File
 # End Group
-# Begin Group "header"
+# Begin Group "Header Files"
 
 # PROP Default_Filter ".h"
 # Begin Source File
