@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.11 2004-10-04 12:41:50 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.12 2004-10-05 17:38:38 beltran Exp $
 ///
 
 /** 
@@ -49,7 +49,7 @@
 #include <math.h>
 #include "YARPExMatrix.h"
 
-#define ARRAY_MAX 20 // Aproximatelly 5 seconds sound (22 frames/second)
+#define ARRAY_MAX 15 // Aproximatelly 5 seconds sound (22 frames/second)
 
 #ifndef	HUGE
 	#define	HUGE	1e30

@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.8 2004-10-04 12:41:50 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.9 2004-10-05 17:38:40 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -36,7 +36,7 @@
 #define FREQ_T 10000     // up cutting filter frequency
 #define ILD_LOW_FREQ 1   // down cutting frequency for ILD calculation
 #define L_VECTOR_MFCC 13 // Lengh of the MFCC coefficients vector
-#define L_VECTOR_MFCC2 6 // Length of the sorter version of the MFCC coefficients vector
+#define L_VECTOR_MFCC2  // Length of the sorter version of the MFCC coefficients vector
 
 class SoundIdentificationProcessing
 {
@@ -49,11 +49,12 @@ public:
 	// Description: It transforms the buffer coming from the network, applies the FFT and 
 	// computes the energy signature of the frequency space 
 	//--------------------------------------------------------------------------------------
-	inline int apply(YARPSoundBuffer &in, YVector &out)
+	inline int apply(YARPSoundBuffer &in, YVector &out, double &rms)
 	{
 		unsigned char * buff = (unsigned char *) in.GetRawBuffer();
 		int dim[1] = {numSamples};
 		int i = 0;
+		double sum = 0.0;
 		
 		//----------------------------------------------------------------------
 		// Fill the Re and Im vectors from the sound buffer
@@ -68,12 +69,18 @@ public:
 		{
 			short temp;
 
-            temp  = buff[1] << 8;  // More significant byte
-            temp += buff[0];       // less significant byte
+            temp  = buff[1] << 8;            // More significant byte
+            temp += buff[0];                 // less significant byte
             Re[i] = (double) temp;
+            sum  += (double)(Re[i] * Re[i]);
             Im[i] = 0.0;
             buff += 4;
 		}
+
+		//----------------------------------------------------------------------
+		//  Return sound RMS value.
+		//----------------------------------------------------------------------
+		rms = sqrt(sum/(double)numSamples);
 
 		//----------------------------------------------------------------------
 		//  From here I implement the MFCC (Mel Frequency Ceptrum Coefficients)
