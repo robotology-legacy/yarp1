@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.25 2004-01-21 14:48:22 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.26 2004-01-21 17:37:31 fberton Exp $
 ///
 ///
 
@@ -387,6 +387,7 @@ rgbPixel computeAvg(int SizeRho,int SizeTheta, int padding, unsigned char * imag
 int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR);
 int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR, int Rows);
 void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data * par, unsigned short * padMap);
+void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data * par, unsigned short * padMap);
 
 //Functions defined in TableGeneration.cpp
 

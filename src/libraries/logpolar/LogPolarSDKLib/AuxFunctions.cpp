@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.11 2004-01-21 14:48:22 fberton Exp $
+/// $Id: AuxFunctions.cpp,v 1.12 2004-01-21 17:37:31 fberton Exp $
 ///
 ///
 
@@ -469,38 +469,42 @@ void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data 
 	float k;
 	unsigned char * oneLine;
 
-	oneLine = (unsigned char *) malloc (par->Size_LP * 3 * sizeof (unsigned char));
+	int PadLine = computePadSize(par->Size_Theta * 3, par->padding);
+
+	oneLine = (unsigned char *) malloc (PadLine * sizeof (unsigned char));
 
 //From sawtooth to triangular
 	
-	for (j=0; j<par->Size_Theta * par->Size_Fovea; j++)
-	{
-		outImage[3*j] = inImage[3*padMap[j]];
-		outImage[3*j+1] = inImage[3*padMap[j]+1];
-		outImage[3*j+2] = inImage[3*padMap[j]+2];
-	}
+	for (i=0; i<par->Size_Fovea; i++)
+		for (j=0; j<par->Size_Theta*3; j++)
+		{
+//				outImage[i*PadLine+j] = inImage[3*padMap[i*252+j/3]];
+				outImage[i*PadLine+j] = inImage[3*padMap[i*252+j/3]+4*i+j%3];
+	//		outImage[3*j+1] = inImage[3*padMap[j]+1];
+	//		outImage[3*j+2] = inImage[3*padMap[j]+2];
+		}
 	
 //Replication of the first pixel
-	for (j=1; j<par->Size_Theta; j++)
+	for (j=3; j<3*par->Size_Theta; j+=3)
 	{
-		outImage[3*j]= outImage[0];
-		outImage[3*j+1]= outImage[1];
-		outImage[3*j+2]= outImage[2];
+		outImage[j]= outImage[0];
+		outImage[j+1]= outImage[1];
+		outImage[j+2]= outImage[2];
 	}
 
 	for (i=2; i<par->Size_Fovea; i+=2)
 	{
 		//copy of one line
 		for (j=0; j<3*par->Size_Theta; j++)
-			oneLine[j] = outImage[i*3*par->Size_Theta+j];
+			oneLine[j] = outImage[i*PadLine+j];
 
 		for (j = 0; j<par->Size_Theta; j++)
 		{
 			if (1)
 			{
-				outImage[3*(i*par->Size_Theta+j)]   = oneLine[3*(i*j/par->Size_Fovea)];
-				outImage[3*(i*par->Size_Theta+j)+1] = oneLine[3*(i*j/par->Size_Fovea)+1];
-				outImage[3*(i*par->Size_Theta+j)+2] = oneLine[3*(i*j/par->Size_Fovea)+2];
+				outImage[(i*PadLine+3*j)]   = oneLine[3*((i*j)/(par->Size_Fovea))];
+				outImage[(i*PadLine+3*j)+1]   = oneLine[3*((i*j)/(par->Size_Fovea))+1];
+				outImage[(i*PadLine+3*j)+2]   = oneLine[3*((i*j)/(par->Size_Fovea))+2];
 			}
 			else
 			{
@@ -515,7 +519,82 @@ void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data 
 	{
 		//copy of one line
 		for (j=0; j<3*par->Size_Theta; j++)
-			oneLine[j] = outImage[i*3*par->Size_Theta+j];
+			oneLine[j] = outImage[i*PadLine+j];
+
+		for (j = 0; j<par->Size_Theta; j++)
+		{
+			k = (-1.5f+i*j/(par->Size_Fovea));
+			if (k<0)
+				k+=i*6;
+			if (1)
+			{
+				outImage[(i*PadLine+3*j)]   = oneLine[3*((int)k)];
+				outImage[(i*PadLine+3*j)+1] = oneLine[3*((int)k)+1];
+				outImage[(i*PadLine+3*j)+2] = oneLine[3*((int)k)+2];
+			}
+			else
+			{
+				outImage[i*PadLine+j]   = 0;
+//				outImage[3*(i*par->Size_Theta+j)+1] = 0;
+//				outImage[3*(i*par->Size_Theta+j)+2] = 0;
+			}
+		}
+	}
+	
+//Remaining Lines (non Fovea)
+	for (j=PadLine * par->Size_Fovea; j<PadLine * par->Size_Rho; j++)
+	{
+		outImage[j] = inImage[j];
+		outImage[j+1] = inImage[j+1];
+		outImage[j+2] = inImage[j+2];
+	}
+
+	free (oneLine);
+}
+
+void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data * par, unsigned short * padMap)
+{
+	int i,j;
+	float k;
+	unsigned char * Fovea;
+	unsigned char * oneLine;
+
+	Fovea = (unsigned char *) malloc (par->Size_Fovea * par->Size_Theta * 3 * sizeof (unsigned char));
+	oneLine = (unsigned char *) malloc (par->Size_Theta * 3 * sizeof (unsigned char));
+
+	for (j = 0; j<par->Size_Fovea * par->Size_Theta * 3; j++)
+		Fovea[j] = 0;
+
+
+	for (i=0; i<par->Size_Fovea; i+=2)
+	{
+		for (j=0; j<3*par->Size_Theta; j++)
+			oneLine[j] = 0;
+		for (j = 0; j<par->Size_Theta; j++)
+		{
+			if (1)
+			{
+				oneLine[3*(i*j/par->Size_Fovea)] = inImage[3*(i*par->Size_Theta+j)] ;
+				oneLine[3*(i*j/par->Size_Fovea)+1] = inImage[3*(i*par->Size_Theta+j)+1] ;
+				oneLine[3*(i*j/par->Size_Fovea)+2] = inImage[3*(i*par->Size_Theta+j)+2] ;
+			}
+			else
+			{
+				outImage[3*(i*par->Size_Theta+j)]   = 0;
+				outImage[3*(i*par->Size_Theta+j)+1] = 0;
+				outImage[3*(i*par->Size_Theta+j)+2] = 0;
+			}
+
+		}
+		//copy of one line
+		for (j=0; j<3*par->Size_Theta; j++)
+			outImage[i*3*par->Size_Theta+j]= oneLine[j];
+	}
+
+	for (i=1; i<par->Size_Fovea; i+=2)
+	{
+		for (j=0; j<3*par->Size_Theta; j++)
+			oneLine[j] = 0;
 
 		for (j = 0; j<par->Size_Theta; j++)
 		{
@@ -524,9 +603,11 @@ void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data 
 				k+=i*6;
 			if (1)
 			{
-				outImage[3*(i*par->Size_Theta+j)]   = oneLine[3*((int)k)];
-				outImage[3*(i*par->Size_Theta+j)+1] = oneLine[3*((int)k)+1];
-				outImage[3*(i*par->Size_Theta+j)+2] = oneLine[3*((int)k)+2];
+				oneLine[3*((int)k)]   = inImage[3*(i*par->Size_Theta+j)];
+				oneLine[3*((int)k)+1] = inImage[3*(i*par->Size_Theta+j)+1];
+				oneLine[3*((int)k)+2] = inImage[3*(i*par->Size_Theta+j)+2];
+//				outImage[3*(i*par->Size_Theta+j)+1] = oneLine[3*((int)k)+1];
+//				outImage[3*(i*par->Size_Theta+j)+2] = oneLine[3*((int)k)+2];
 			}
 			else
 			{
@@ -535,8 +616,40 @@ void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data 
 				outImage[3*(i*par->Size_Theta+j)+2] = 0;
 			}
 		}
+		//copy of one line
+		for (j=0; j<3*par->Size_Theta; j++)
+			outImage[i*3*par->Size_Theta+j] = oneLine[j];
+	}
+
+//Dereplication of the first pixel
+//	for (j=1; j<par->Size_Theta; j++)
+//	{
+//		outImage[3*j]= 0;
+//		outImage[3*j+1]= 0;
+//		outImage[3*j+2]= 0;
+//	}
+
+//From triangular to sawtooth
+	
+	for (j=0; j<  par->Size_Theta * par->Size_Fovea; j++)
+	{
+//		//copy of one line
+//		for (j=0; j<3*par->Size_Theta; j++)
+//			oneLine[j] = outImage[i*3*par->Size_Theta+j];
+		Fovea[3*padMap[j]] = outImage[3*j];
+		Fovea[3*padMap[j]+1] = outImage[3*j+1];
+		Fovea[3*padMap[j]+2] = outImage[3*j+2];
+	}
+
+	for (j=0; j< 3* par->Size_Theta * par->Size_Fovea; j++)
+	{
+		outImage[j] = Fovea[j];
 	}
 	
+
+
+/*	
+*/	
 //Remaining Lines (non Fovea)
 	for (j=par->Size_Theta * par->Size_Fovea; j<par->Size_LP; j++)
 	{
@@ -544,4 +657,7 @@ void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data 
 		outImage[3*j+1] = inImage[3*j+1];
 		outImage[3*j+2] = inImage[3*j+2];
 	}
+
+	free (oneLine);
+	free (Fovea);
 }

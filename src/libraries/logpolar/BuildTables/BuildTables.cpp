@@ -35,7 +35,7 @@ void main()
 					1090,CUSTOM,1);
 
 	Par.padding = 8;
-
+ 
 #ifndef __WIN__
 	assert(getenv("YARP_ROOT") != NULL);
 	sprintf(Path,"%s/%s",getenv("YARP_ROOT"),"conf/");
