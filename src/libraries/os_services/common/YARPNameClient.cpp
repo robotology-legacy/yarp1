@@ -52,12 +52,20 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.1 2003-04-18 14:42:33 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #nat#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPNameClient.cpp,v 1.2 2003-04-24 08:49:32 gmetta Exp $
 ///
 ///
 
-
-// YARPNameClient.cpp: implementation of the NameClient class.
+// NameClient.cpp: implementation of the NameClient class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -67,13 +75,12 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-NameClient::NameClient(const std::string server, int port) : remote_addr_(port, server.c_str()), _mutex(1)
+NameClient::NameClient(const std::string server, int port) : remote_addr_(port, server.c_str())
 {
 	data_buf_ = new char [SIZE_BUF];
 }
 
-NameClient::NameClient(const ACE_INET_Addr &addr):
-remote_addr_(addr)
+NameClient::NameClient(const ACE_INET_Addr &addr) : remote_addr_(addr)
 {
 	data_buf_ = new char [SIZE_BUF];
 }

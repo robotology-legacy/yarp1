@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameID.h,v 1.4 2003-04-22 17:01:18 gmetta Exp $
+/// $Id: YARPNameID.h,v 1.5 2003-04-24 08:49:33 gmetta Exp $
 ///
 ///
 /*
@@ -113,17 +113,49 @@ class YARPUniqueNameID : public YARPNameID
 {
 protected:
 	ACE_INET_Addr _address;
-	int _p1, _p2;
+	int _p1;
+	int *_p2;
 
 public:
-	YARPUniqueNameID () : YARPNameID(), _address(1111, "localhost") { _p1 = _p2 = 0; }
-	YARPUniqueNameID (int service, int port, char *hostname) : YARPNameID(service, ACE_INVALID_HANDLE), _address (port, hostname) { _p1 = _p2 = 0; }
-	YARPUniqueNameID (int service, const ACE_INET_Addr& addr) : YARPNameID(service, ACE_INVALID_HANDLE), _address (addr) { _p1 = _p2 = 0; }
+	YARPUniqueNameID () : YARPNameID(), _address(1111) 
+	{ 
+		_p1 = 0;
+		_p2 = NULL; 
+	}
+	YARPUniqueNameID (int service, int port, char *hostname) : YARPNameID(service, ACE_INVALID_HANDLE), _address (port, hostname) 
+	{ 
+		_p1 = 0;
+		_p2 = NULL; 
+	}
+	YARPUniqueNameID (int service, const ACE_INET_Addr& addr) : YARPNameID(service, ACE_INVALID_HANDLE), _address (addr) 
+	{ 
+		_p1 = 0;
+		_p2 = NULL; 
+	}
 
 	inline ACE_INET_Addr& getAddressRef (void) { return _address; }
 	inline YARPNameID& getNameID(void) { return (YARPNameID &)(*this); }
 	inline int& getP1Ref (void) { return _p1; }
-	inline int& getP2Ref (void) { return _p2; }
+	inline int* getP2Ptr (void) { return _p2; }
+
+	inline int allocP2 (int size) 
+	{
+		if (_p2 != NULL) delete[] _p2;
+		ACE_ASSERT (size > 0);
+		_p1 = size;
+		_p2 = new int[_p1];
+		ACE_ASSERT (_p2 != NULL);
+		memset (_p2, 0, sizeof(int) * _p1);
+		return YARP_OK;
+	}
+
+	inline int freeP2 (void)
+	{
+		if (_p2 != NULL) delete[] _p2;
+		_p2 = NULL;
+		_p1 = 0;
+		return YARP_OK;
+	}
 
 	YARPUniqueNameID& operator= (const YARPUniqueNameID& other) 
 	{ 
@@ -131,8 +163,10 @@ public:
 		_mode = other._mode;
 		_raw_id = other._raw_id;
 
+		if (_p2 != NULL) delete[] _p2;
 		_p1 = other._p1;
-		_p2 = other._p2;
+		_p2 = (_p1 > 0) ? new int[_p1] : NULL;
+		memcpy (_p2, other._p2, sizeof(int) * _p1);
 
 		return (*this);
 	}

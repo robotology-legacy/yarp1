@@ -52,34 +52,39 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameClient.h,v 1.3 2003-04-22 09:06:34 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #nat#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPNameClient.h,v 1.4 2003-04-24 08:49:32 gmetta Exp $
 ///
 ///
 
-// YARPNameClient.h: interface for the NameClient class.
+// NameClient.h: interface for the NameClient class.
 //
 //////////////////////////////////////////////////////////////////////
-///
-/// Thanks to Lorenzo.
 
-#if !defined __YARP_NAME_CLIENT__
-#define __YARP_NAME_CLIENT__
+#if !defined __NAME_CLIENT__
+#define __NAME_CLIENT__
 
 #include <conf/YARPConfig.h>
-
-#ifdef YARP_HAS_PRAGMA_ONCE
-#	pragma once
-#endif
-
 #include <YARPAll.h>
 #include <ace/config.h>
 #include <wide_nameloc.h>
-#include <YARPSemaphore.h>
 
 #include <ace/SOCK_Acceptor.h>
 #include <ace/SOCK_Connector.h>
 #include <ace/SOCK_Stream.h>
 #include <ace/Log_Msg.h>
+
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
 
 ///#include "..\YARPNameService\YARPNameServer.h"
 
@@ -88,7 +93,7 @@
 #ifdef NAME_CLIENT_VERBOSE
 	#include <stdio.h>
 	#define NAME_CLIENT_DEBUG(string) \
-do {ACE_OS::printf("NAME_CLIENT: "),ACE_OS::printf string;} while(0)
+		do {printf("NAME_CLIENT: "),printf string;} while(0)
 #else
 	#define NAME_CLIENT_DEBUG(string)\
 		do {} while(0)
@@ -105,61 +110,72 @@ public:
 	NameClient(const ACE_INET_Addr &addr);
 	virtual ~NameClient();
 
+	int check_in_mcast(const std::string &s, ACE_INET_Addr &addr)
+	{
+		int ret;
+		ret = _check_in_mcast(s, addr);
+		return ret;
+	}
 	int check_in (const std::string &s, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr)
 	{
-		_mutex.Wait();
 		int ret;
 		ACE_INET_Addr tmpAddr = reg_addr;
 		ret = _check_in(s, tmpAddr);
 		addr = tmpAddr;
-		_mutex.Post();
 		return ret;
 	}
 
 	int check_in (const std::string &s, ACE_INET_Addr &addr)
 	{
-		_mutex.Wait();
 		int ret;
 		ret = _check_in(s, addr);
-		_mutex.Post();
 		return ret;
 	}
 		
 	int check_in (const std::string &s, std::string &ip, NetInt32 *port)
 	{
-		_mutex.Wait();
 		int ret;
 		ACE_INET_Addr tmpAddr(ip.c_str());
 		ret = _check_in(s, tmpAddr);
 		*port = tmpAddr.get_port_number();
 		ip = std::string(tmpAddr.get_host_name());
-		_mutex.Post();
 		return ret;
 	}
 
-	int query (const std::string &s, ACE_INET_Addr &addr)
+	int check_in_udp(const std::string &name, std::string &addr, NetInt32 *ports, NetInt32 n)
 	{
-		_mutex.Wait();
-		int ret = _query(s,addr);
-		_mutex.Post();
+		int ret;
+		ret = _check_in_udp(name, addr, ports, n);
+		return ret;
+	}
+
+	int check_in_udp(const std::string &name, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr, NetInt32 *ports, NetInt32 n)
+	{
+		int ret;
+		std::string ip = reg_addr.get_host_addr();
+		ret = _check_in_udp(name, ip, ports, n);
+		addr.set (ports[0], ip.c_str());
+		return ret;
+	}
+
+	int query (const std::string &s, ACE_INET_Addr &addr, int *type)
+	{
+		int ret = _query(s, addr, type);
 		return ret;
 	}
 
 	int check_out (const std::string &s)
 	{
-		_mutex.Wait();
 		// send data to server
 		YARPNameServiceCmd tmpCmd;
 		YARPNameTCP tmpRqst;
 		
-		if (connect_to_server() != 0)
-		{
-			_mutex.Post();
+		if (connect_to_server()!=0)
 			return YARP_FAIL;
-		}
-
+		
 		tmpRqst.setName(s);
 		tmpCmd.cmd = YARPNSRelease;
+		tmpCmd.type = YARP_TCP;	// MCAST, TCP and UDP releases are handled in the same way
 		tmpCmd.length = tmpRqst.length();
 		// send message length
 		memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
@@ -172,15 +188,11 @@ public:
 		int sent = client_stream_.sendv_n (iov, 1);
 
 		if (sent == -1)
-		{
-			_mutex.Post();
-			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"), 0);
-		}
+			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"),0);
 
 		// close the connection
 		close();
 				
-		_mutex.Post();
 		return YARP_OK;
 	}
 
@@ -188,17 +200,8 @@ private:
 	// connect to server
 	int connect_to_server ()
 	{
-		// initiate blocking connection with server
-		// ACE_DEBUG((LM_DEBUG, "(%P|%t) starting connect to %s:%d\n"));
-			
-		// remote_addr_.get_host_name(), remote_addr_.get_port_number()));
-
 		if (connector_.connect (client_stream_, remote_addr_) == -1)
 			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","connection failed"), -1);
-		// else
-		//	ACE_DEBUG ((LM_DEBUG, "(%P|%t) connect to %s\n",
-		//	remote_addr_.get_host_name () ));
-		
 		return 0;
 	}
 
@@ -222,6 +225,7 @@ private:
 		tmpRqst.setName(s);
 		tmpRqst.setIp(addr.get_host_addr());
 		tmpCmd.cmd = YARPNSRegister;
+		tmpCmd.type = YARP_TCP;
 		tmpCmd.length = tmpRqst.length();
 		// send message length
 		memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
@@ -251,7 +255,7 @@ private:
 		YARPNameTCP *tmpRpl = (YARPNameTCP *)data_buf_;
 		tmpRpl->getAddr(addr);
 						
-		NAME_CLIENT_DEBUG(("Received %s:%d\n", addr.get_host_addr(), addr.get_port_number()));
+		NAME_CLIENT_DEBUG(("Received %s(%s):%d\n", addr.get_host_addr(), servicetypeConverter(tmpCmd.type), addr.get_port_number()));
 				
 		// close the connection
 		close();
@@ -259,7 +263,108 @@ private:
 		return YARP_OK;
 	}
 
-	int _query(const std::string &s, ACE_INET_Addr &addr)
+	int _check_in_udp(const std::string &name, const std::string &ip, NetInt32 *ports, NetInt32 n)
+	{
+		YARPNameServiceCmd tmpCmd;
+		YARPNameUDP tmpRqst;
+		
+		if (connect_to_server()!=0)
+			return YARP_FAIL;
+				
+		tmpRqst.setName(name);
+		tmpRqst.setIp(ip);
+		tmpRqst.setNPorts(n);
+		tmpCmd.cmd = YARPNSRegister;
+		tmpCmd.type = YARP_UDP;
+		tmpCmd.length = tmpRqst.length();
+		// send message length
+		memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+		memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+
+		iovec iov[1];
+		iov[0].iov_base = data_buf_;
+		iov[0].iov_len = sizeof(YARPNameServiceCmd)+tmpRqst.length();
+
+		int sent = client_stream_.sendv_n (iov, 1);
+
+		if (sent == -1)
+			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"),0);
+
+		//////////////////////////////////////////
+				
+		unsigned int byte_count = 0;
+		int res = 0;
+			
+		memset(data_buf_, 0, SIZE_BUF);
+		iov[0].iov_len = sizeof(YARPNameServiceCmd);
+		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+		
+		iov[0].iov_len = tmpCmd.length;
+		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+		
+		YARPNameUDP *tmpRpl = (YARPNameUDP *)data_buf_;
+		for (int i = 0; i < n; i++)
+		{
+			ports[i] = tmpRpl->getPorts(i);
+			NAME_CLIENT_DEBUG(("Received %s(%s):%d\n", ip.c_str(), tmpCmd.type, ports[i]));
+		}
+						
+		// close the connection
+		close();
+				
+		return YARP_OK;
+	}
+
+	int _check_in_mcast(const std::string &s, ACE_INET_Addr &addr)
+	{
+		YARPNameServiceCmd tmpCmd;
+		YARPNameTCP tmpRqst;
+		
+		if (connect_to_server()!=0)
+			return YARP_FAIL;
+				
+		tmpRqst.setName(s);
+		tmpRqst.setIp(addr.get_host_addr());
+		tmpCmd.cmd = YARPNSRegister;
+		tmpCmd.type = YARP_MCAST;
+		tmpCmd.length = tmpRqst.length();
+		// send message length
+		memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+		memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+
+		iovec iov[1];
+		iov[0].iov_base = data_buf_;
+		iov[0].iov_len = sizeof(YARPNameServiceCmd)+tmpRqst.length();
+
+		int sent = client_stream_.sendv_n (iov, 1);
+
+		if (sent == -1)
+			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"),0);
+
+		//////////////////////////////////////////
+				
+		unsigned int byte_count = 0;
+		int res = 0;
+			
+		memset(data_buf_, 0, SIZE_BUF);
+		iov[0].iov_len = sizeof(YARPNameServiceCmd);
+		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+		
+		iov[0].iov_len = tmpCmd.length;
+		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+		
+		YARPNameTCP *tmpRpl = (YARPNameTCP *)data_buf_;
+		tmpRpl->getAddr(addr);
+						
+		NAME_CLIENT_DEBUG(("Received %s(%s):%d\n", addr.get_host_addr(), servicetypeConverter(tmpCmd.type), addr.get_port_number()));
+				
+		// close the connection
+		close();
+				
+		return YARP_OK;
+	}
+
+	int _query(const std::string &s, ACE_INET_Addr &addr, int *type)
 	{
 		YARPNameServiceCmd tmpCmd;
 		YARPNameTCP tmpRqst;
@@ -269,6 +374,7 @@ private:
 		
 		tmpRqst.setName(s);
 		tmpCmd.cmd = YARPNSQuery;
+		tmpCmd.type = YARP_TCP;	// TCP, UDP, MCAST queries are handled in the same way
 		tmpCmd.length = tmpRqst.length();
 		// send message length
 		memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
@@ -287,18 +393,20 @@ private:
 				
 		unsigned int byte_count = 0;
 		int res = 0;
-			
+		
 		memset(data_buf_, 0, SIZE_BUF);
 		iov[0].iov_len = sizeof(YARPNameServiceCmd);
 		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+		YARPNameServiceCmd *srvCmd = (YARPNameServiceCmd *)data_buf_;
+		*type = srvCmd->type;		// get address type
 		
-		iov[0].iov_len = tmpCmd.length;
+		iov[0].iov_len = srvCmd->length;
 		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
 		
-		YARPNameTCP *tmpRpl = (YARPNameTCP *)data_buf_;
-		tmpRpl->getAddr(addr);
+		YARPNameTCP *srvRpl = (YARPNameTCP *)data_buf_;
+		srvRpl->getAddr(addr);
 						
-		NAME_CLIENT_DEBUG(("Received %s:%d\n", addr.get_host_addr(), addr.get_port_number()));
+		NAME_CLIENT_DEBUG(("Received %s(%s):%d\n", addr.get_host_addr(), servicetypeConverter(*type), addr.get_port_number()));
 				
 		// close the connection
 		close();
@@ -313,8 +421,6 @@ private:
 	
 	char *data_buf_;
 	char *reply_buf_;
-
-	YARPSemaphore _mutex;
 };
 
 #endif // .h

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.7 2003-04-22 17:01:22 gmetta Exp $
+/// $Id: Port.h,v 1.8 2003-04-24 08:49:33 gmetta Exp $
 ///
 ///
 
@@ -245,30 +245,39 @@ public:
 class PortPool 
 {
 protected:
-	int _first, _size;
+	int *_ports, _size;
 	bool *_used;
 
 public:
 	PortPool () 
 	{
 		_used = NULL;
-		_first = _size = 0;
+		_ports = NULL;
+		_size = 0;
 	}
 
-	~PortPool () { if (_used != NULL) delete[] _used; }
-
-	void resize (int first, int size) 
+	~PortPool () 
 	{ 
-		_first = first; 
+		if (_used != NULL) delete[] _used; 
+		if (_ports != NULL) delete[] _ports;
+	}
+
+	void resize (int *ports, int size) 
+	{
+		ACE_ASSERT (size > 0);
+		if (_ports != NULL) delete[] _ports;
+		if (_used != NULL) delete[] _used;
 		_size = size;
 		_used = new bool[size];
-		ACE_ASSERT (_used != NULL);
+		_ports = new int[size];
+		ACE_ASSERT (_used != NULL && _ports != NULL);
 		memset (_used, 0, sizeof(bool) * size);
+		memcpy (_ports, ports, sizeof(int) * size);
 	}
 
 	int getOne (void)
 	{
-		ACE_ASSERT (_used != NULL);
+		ACE_ASSERT (_used != NULL && _ports != NULL);
 
 		int i;
 		for (i = 0; i < _size; i++)
@@ -276,7 +285,7 @@ public:
 			if (_used[i] == false)
 			{
 				_used[i] = true;
-				return _first + i;
+				return _ports[i];
 			}
 		}
 
@@ -287,13 +296,18 @@ public:
 	int freeOne (int port)
 	{
 		ACE_ASSERT (_used != NULL);
-		ACE_ASSERT (port >= _first && port < _first + _size);
+		int i;
 
-		if (_used[port-_first] == false)
-			return YARP_FAIL;
+		for (i = 0; i < _size; i++)
+		{
+			if (_ports[i] == port)
+			{
+				_used[i] = false;
+				return YARP_OK;
+			}
+		}
 
-		_used[port-_first] = true;
-		return YARP_OK;
+		return YARP_FAIL;
 	}
 };
 
@@ -333,7 +347,7 @@ public:
 	HeaderedBlockSender<NewFragmentHeader> sender;
 	YARPUniqueNameID self_id;
 
-	PortPool output_pool;
+///	PortPool output_pool;
 
 #ifdef UPDATED_PORT
 	int require_complete_send;

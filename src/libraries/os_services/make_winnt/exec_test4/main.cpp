@@ -23,7 +23,7 @@
 /// Licensor, this list of conditions, and the following disclaimers  ///
 /// in the documentation and/or other materials provided with the     ///
 /// distribution.                                                     ///
-///                                                                   ///
+///
 /// Neither the names of Licensor, nor the names of any contributors  ///
 /// to the Software, nor any of their trademarks or service marks,    ///
 /// may be used to endorse or promote products derived from this      ///
@@ -52,16 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///
-///       YARP - Yet Another Robotic Platform (c) 2001-2003 
-///
-///                    #pasa#
-///
-///     "Licensed under the Academic Free License Version 1.0"
-///
-
-///
-/// $Id: main.cpp,v 1.1 2003-04-22 09:06:38 gmetta Exp $
+/// $Id: main.cpp,v 1.2 2003-04-24 08:49:33 gmetta Exp $
 ///
 ///
 
@@ -80,13 +71,14 @@
 #include "YARPSemaphore.h"
 #include "YARPThread.h"
 #include "YARPTime.h"
-#include "YARPSocketDgram.h"
+#include "YARPSyncComm.h"
+#include "YARPSocketNameService.h"
 
-#define T1_SO_PORT 1111
-#define T2_SI_PORT 2222
-#define T2_SI_POOLSIZE 10
-#define _LOCALNAME "localhost"
-#define _REMOTENAME "localhost"
+
+#define REG_TEST_NAME "/pippo1"
+#define REG_LOCATE_NAME "/pippo1"
+//#define REG_TEST_NAME "/test/exec_test2"
+//#define REG_LOCATE_NAME "/test/exec_test2"
 
 YARPSemaphore out(1);
 
@@ -103,29 +95,32 @@ public:
 		cout << "Here" << endl;
 		cout.flush();
 
-		YARPUniqueNameID name (YARP_UDP, T2_SI_PORT, _REMOTENAME);
-		YARPOutputSocketDgram so;
-
-		int ret = YARP_FAIL;
 		do 
 		{
 			out.Wait();
-			cout << "Starting out socket" << endl;
+			cout << "Looking up name" << endl;
 			cout.flush();
 			out.Post();
 			
-			so.Prepare (T1_SO_PORT, name);
-			ret = so.Connect ();
+			id = YARPNameService::LocateName(REG_LOCATE_NAME);
+			if (id.getServiceType () == YARP_NO_SERVICE_AVAILABLE)
+			{
+				ACE_DEBUG ((LM_DEBUG, "can't locate name, bailing out\n"));
+				return;
+			}
+
+///			id.allocP2(1);
+///			id.getP2Ptr()[0] = 3000;
+			YARPEndpointManager::CreateOutputEndpoint (id);
+			YARPEndpointManager::ConnectEndpoints (id);
+
+			if (!id.isValid())
+			{
+				YARPTime::DelayInSeconds(0.2);
+			}
 		} 
-		while (ret != YARP_OK);
+		while (!id.isValid());
 
-		while (1)
-		{
-			cout << "tick.\n" << endl;
-			YARPTime::DelayInSeconds(2.0);
-		}
-
-#if 0
 		while (1)
 		{
 			out.Wait();
@@ -145,7 +140,6 @@ public:
 			ct++;
 			sprintf(txt, "And a-%d", ct);
 		}
-#endif
 	}
 };
 
@@ -160,23 +154,26 @@ public:
 		YARPTime::DelayInSeconds(0.01);
 
 		/// connect to name server and get ip and port.
-		YARPUniqueNameID id (YARP_UDP, T2_SI_PORT, _LOCALNAME);
+		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
+		if (id.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+		{
+			ACE_DEBUG ((LM_DEBUG, "can't register name, bailing out\n"));
+			return;
+		}
 
-		YARPInputSocketDgram si;
-		si.Prepare (id, T2_SI_PORT, T2_SI_POOLSIZE);
-		
+		/// create the input endpoint.
+		YARPEndpointManager::CreateInputEndpoint (id);
+
 		while (1)
 		{
 			out.Wait();
 			cout << "Waiting for input" << endl;
 			cout.flush();
 			out.Post();
-
-			YARPTime::DelayInSeconds(2.0);
-
-#if 0
+			
 			///YARPNameID id = YARPSyncComm::BlockingReceive(YARPNameID(),buf,sizeof(buf));
 			YARPNameID reply_id = YARPSyncComm::BlockingReceive(id.getNameID(), buf, sizeof(buf));
+
 			sprintf(reply,"Got %s", buf);
 			out.Wait();
 			cout << "Received message: " << buf << endl;
@@ -186,7 +183,6 @@ public:
 			YARPSyncComm::Reply(reply_id, reply, sizeof(reply));
 			//YARPTime::DelayInSeconds(1.0);
 			ct++;
-#endif
 		}
 	}
 };
@@ -197,10 +193,10 @@ int main(int argc, char *argv[])
 //	MyThread1 t3;
 	MyThread2 t2;
 	t2.Begin();
-	YARPTime::DelayInSeconds(20.0);
+	YARPTime::DelayInSeconds(5.0);
 	t1.Begin();
 //	t3.Begin();
-	YARPTime::DelayInSeconds(1000.0);
+	YARPTime::DelayInSeconds(10.0);
 	///t2.End();
 	t1.End();
 //	t3.End();

@@ -23,7 +23,7 @@
 /// Licensor, this list of conditions, and the following disclaimers  ///
 /// in the documentation and/or other materials provided with the     ///
 /// distribution.                                                     ///
-///
+///                                                                   ///
 /// Neither the names of Licensor, nor the names of any contributors  ///
 /// to the Software, nor any of their trademarks or service marks,    ///
 /// may be used to endorse or promote products derived from this      ///
@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: exec_test8.cpp,v 1.5 2003-04-22 17:01:22 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: exec_test8.cpp,v 1.6 2003-04-24 08:49:34 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -71,8 +80,8 @@
 
 NetInt32 foo;
 
-YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
 class Thread1 : public YARPThread
 {

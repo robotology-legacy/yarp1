@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: exec_test2.cpp,v 1.3 2003-04-18 09:25:49 gmetta Exp $
+/// $Id: exec_test2.cpp,v 1.4 2003-04-24 08:49:33 gmetta Exp $
 ///
 ///
 
@@ -103,6 +103,12 @@ public:
 			out.Post();
 			
 			id = YARPNameService::LocateName(REG_LOCATE_NAME);
+			if (id.getServiceType () == YARP_NO_SERVICE_AVAILABLE)
+			{
+				ACE_DEBUG ((LM_DEBUG, "can't locate name, bailing out\n"));
+				return;
+			}
+			
 			YARPEndpointManager::CreateOutputEndpoint (id);
 			YARPEndpointManager::ConnectEndpoints (id);
 
@@ -147,6 +153,11 @@ public:
 
 		/// connect to name server and get ip and port.
 		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME);
+		if (id.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
+		{
+			ACE_DEBUG ((LM_DEBUG, "can't register name, bailing out\n"));
+			return;
+		}
 
 		/// create the input endpoint.
 		YARPEndpointManager::CreateInputEndpoint (id);

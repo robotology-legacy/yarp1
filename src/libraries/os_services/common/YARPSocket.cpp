@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.6 2003-04-22 17:01:17 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.7 2003-04-24 08:49:32 gmetta Exp $
 ///
 ///
 
@@ -122,9 +122,9 @@ public:
 	{
 		len = 0;
 		SetBad();
-		ACE_DEBUG((LM_DEBUG, ">>>> header created with size %d\n", sizeof(MyMessageHeader)));
-		ACE_DEBUG((LM_DEBUG, ">>>> len part has size %d\n", sizeof(NetInt32)));
-		ACE_DEBUG((LM_DEBUG, ">>>> one char has size %d\n", sizeof(char)));
+///		ACE_DEBUG((LM_DEBUG, ">>>> header created with size %d\n", sizeof(MyMessageHeader)));
+///		ACE_DEBUG((LM_DEBUG, ">>>> len part has size %d\n", sizeof(NetInt32)));
+///		ACE_DEBUG((LM_DEBUG, ">>>> one char has size %d\n", sizeof(char)));
 	}
 
 	void SetGood()
@@ -656,7 +656,7 @@ _SocketThreadList::~_SocketThreadList ()
 
 ///
 /// creates the acceptor socket and listens to port.
-/// simply prepare the socket.
+/// simply prepares the socket.
 ACE_HANDLE _SocketThreadList::connect(const YARPUniqueNameID& id)
 {
 	_local_addr = ((YARPUniqueNameID &)id).getAddressRef();

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.8 2003-04-22 17:01:13 gmetta Exp $
+/// $Id: Port.cpp,v 1.9 2003-04-24 08:49:32 gmetta Exp $
 ///
 ///
 
@@ -167,9 +167,9 @@ void OutputTarget::Body ()
 
 	target_pid = YARPNameService::LocateName (GetLabel().c_str());
 
-	/// local port number into P1 param.
-	target_pid.getP1Ref() = port_number;
-	target_pid.getP2Ref() = 0;
+	/// local port number into P2[0] param.
+	target_pid.allocP2 (1);
+	target_pid.getP2Ptr()[0] = port_number;
 
 	YARPEndpointManager::CreateOutputEndpoint (target_pid);
 	YARPEndpointManager::ConnectEndpoints (target_pid.getNameID());
@@ -319,8 +319,8 @@ void _strange_select::Body ()
 						deactivated ? "as requested" : "target stopped responding",
 						timeout?"/timeout":""));
 
-					if (_owner->protocol_type == YARP_UDP || _owner->protocol_type == YARP_MCAST)
-						_owner->output_pool.freeOne (target->GetAssignedPortNo ());
+///					if (_owner->protocol_type == YARP_UDP || _owner->protocol_type == YARP_MCAST)
+///						_owner->output_pool.freeOne (target->GetAssignedPortNo ());
 
 					delete target;
 				}
@@ -349,8 +349,8 @@ void _strange_select::Body ()
 						_owner->name.c_str(), target->GetLabel().c_str(),
 						deactivated ? "as requested" : "target stopped responding"));
 
-					if (_owner->protocol_type == YARP_UDP || _owner->protocol_type == YARP_MCAST)
-						_owner->output_pool.freeOne (target->GetAssignedPortNo ());
+///					if (_owner->protocol_type == YARP_UDP || _owner->protocol_type == YARP_MCAST)
+///						_owner->output_pool.freeOne (target->GetAssignedPortNo ());
 
 					delete target;
 				}
@@ -454,7 +454,15 @@ void Port::Body()
 
 	case YARP_UDP:
 		{
-			pid = YARPNameService::RegisterName(name.c_str(), YARP_UDP, 21); 
+			/// ask 21 ports overall:
+			/// 1 as in channel for asking connections
+			/// 10 for possible in connections
+			/// and 10 for output.
+			/// there's a bit of messy handling of the numbers here to allocate the
+			/// right things to the right places.
+			///
+			///
+			pid = YARPNameService::RegisterName(name.c_str(), YARP_UDP, 11); 
 			if (pid.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
@@ -463,8 +471,8 @@ void Port::Body()
 				return;
 			}
 
-			pid.getP2Ref() = 10;
-			output_pool.resize (pid.getP1Ref() + 11, 10);
+///			pid.getP1Ref() = 11;	// resize the in array of ports to 1 + 10.
+///			output_pool.resize (pid.getP2Ptr() + 11, 10);	// dim the out array to the last 10 ports.
 		}
 		break;
 
@@ -597,8 +605,8 @@ void Port::Body()
 						timeout?"/timeout":""));
 					/// remove the port no, from the list of used ports.
 
-					if (protocol_type == YARP_UDP || protocol_type == YARP_MCAST)
-						output_pool.freeOne (target->GetAssignedPortNo ());
+///					if (protocol_type == YARP_UDP || protocol_type == YARP_MCAST)
+///						output_pool.freeOne (target->GetAssignedPortNo ());
 					delete target;
 				}
 				target = next;
@@ -626,8 +634,10 @@ void Port::Body()
 						
 						target->target_pid.invalidate();
 						
-						if (protocol_type == YARP_UDP || protocol_type == YARP_MCAST)
-							target->AssignPortNo (output_pool.getOne ());
+///						if (protocol_type == YARP_UDP || protocol_type == YARP_MCAST)
+///						{
+///							target->AssignPortNo (output_pool.getOne ());
+///						}
 
 						target->Begin();
 					}

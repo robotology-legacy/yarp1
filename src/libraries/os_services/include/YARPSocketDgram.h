@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.h,v 1.2 2003-04-22 17:01:20 gmetta Exp $
+/// $Id: YARPSocketDgram.h,v 1.3 2003-04-24 08:49:33 gmetta Exp $
 ///
 ///
 
@@ -122,7 +122,7 @@ public:
 	int Close(ACE_HANDLE reply_id);
 	int CloseAll(void);
 
-	int Prepare (const YARPUniqueNameID& name, int port1, int number_o_ports);
+	int Prepare (const YARPUniqueNameID& name, int *ports, int number_o_ports);
 
 	int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
 	int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
@@ -149,7 +149,7 @@ public:
 	YARPOutputSocketDgram();
 	virtual ~YARPOutputSocketDgram();
 
-	int Prepare (const YARPUniqueNameID& name, int local_port);
+	int Prepare (const YARPUniqueNameID& name); ///, int local_port);
 	int Close(void);
 	int Connect(void);
 	
