@@ -35,7 +35,8 @@
 #include <math.h>
 
 #include <yarp/YARPParseParameters.h>
-#include <yarp/YARPRobotcubHead.h>
+//#include <yarp/YARPRobotcubHead.h>
+//#include <yarp/YARPRobotcubArm.h>
 #include <yarp/YARPMath.h>
 #include <yarp/YARPRobotMath.h>
 

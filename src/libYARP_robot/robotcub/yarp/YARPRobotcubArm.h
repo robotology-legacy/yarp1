@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPRobotcubArm.h,v 1.1 2004-09-03 22:34:12 gmetta Exp $
+///  $Id: YARPRobotcubArm.h,v 1.2 2004-09-03 22:48:42 gmetta Exp $
 ///
 ///
 
@@ -53,7 +53,7 @@
  * the abstraction to control the RobotCub hand and arm.
  */
 
-enum _virtualjoint
+namespace _virtualjoint
 {
 	const int shoulderRoll = 0;
 	const int shoulderPitch = 1;

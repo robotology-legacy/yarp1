@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.1 2004-09-03 22:34:12 gmetta Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.2 2004-09-03 22:48:42 gmetta Exp $
 ///
 ///
 
@@ -99,7 +99,7 @@ namespace _RobotcubArm
 	};
 
 	const double _zeros[_nj]			= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	const int _axis_map[_nj]			= { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+	const int _axis_map[_nj]			= { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 };
 	const int _signs[_nj]				= { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
@@ -249,7 +249,7 @@ public:
 		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 
-		///////////////// HEAD LIMITS
+		///////////////// ARM LIMITS
 		if (cfgFile.get("[LIMITS]", "Max", _limitsMax, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 		if (cfgFile.get("[LIMITS]", "Min", _limitsMin, _nj) == YARP_FAIL)
@@ -728,7 +728,7 @@ public:
 		switch (joint)
 		{
 		case -1:
-			YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(("Starting arm calibration routine"));
+			YARP_ROBOTCUB_ARM_ADAPTER_DEBUG(("Starting arm calibration routine"));
 			ACE_OS::printf("..done!\n");
 			return YARP_OK;
 		
