@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.1 2003-06-30 16:18:52 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.2 2003-06-30 21:08:06 babybot Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -87,12 +87,13 @@ int YARPGalilDeviceDriver::open(void *d)
 	controllerinfo.ulTimeout = 2000;
    /* If you have more than 1 Galil PCI bus controller, use the serial
       number to identify the controller you wish to connect to */
+	
 	controllerinfo.ulSerialNumber = 0;
 	controllerinfo.pid = getpid();
 	
 	DMCInitLibrary();
-#endif
 
+#endif
 	GalilOpenParameters *p = (GalilOpenParameters *)d;
 
 	m_all_axes = p->mask;
@@ -100,7 +101,9 @@ int YARPGalilDeviceDriver::open(void *d)
 #ifdef __QNX6__
 	rc = DMCOpen(&controllerinfo,(HANDLEDMC *)&m_handle);
 #else
+#ifdef __WIN32__
 	rc = DMCOpen(p->device_id, NULL, (HANDLEDMC *)&m_handle);
+#endif
 #endif
 
 	m_question_marks = new char [2*m_njoints];
@@ -139,7 +142,8 @@ int YARPGalilDeviceDriver::set_speed(void *cmd)
 	long rc = 0;
 	
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	int *speed = (int *) tmp->parameters;
+	// int *speed = (int *) tmp->parameters;
+	double *speed = (double *) tmp->parameters;
 
 	char *buff = m_buffer_out;
 
@@ -155,7 +159,7 @@ int YARPGalilDeviceDriver::set_speed(void *cmd)
 	// axis
 	buff = _append_cmd((char) dummy, buff);
 	// value
-	buff = _append_cmd(*speed, buff);
+	buff = _append_cmd_as_int(*speed, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, 8,
@@ -170,8 +174,8 @@ int YARPGalilDeviceDriver::set_acceleration(void *cmd)
 	long rc = 0;
 	
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	int *acceleration = (int *) tmp->parameters;
-
+	double *acceleration = (double *) tmp->parameters;
+	
 	char *buff = m_buffer_out;
 
 	///////////////////////////////////////////////////////////////////
@@ -186,7 +190,7 @@ int YARPGalilDeviceDriver::set_acceleration(void *cmd)
 	// axis
 	buff = _append_cmd((char) dummy, buff);
 	// PID value
-	buff = _append_cmd(*acceleration, buff);
+	buff = _append_cmd_as_int(*acceleration, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, 8,
@@ -201,7 +205,8 @@ int YARPGalilDeviceDriver::set_position(void *cmd)
 	long rc = 0;
 
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	int *position = (int *) tmp->parameters;
+	// int *position = (int *) tmp->parameters;
+	double *position = (double *) tmp->parameters;
 
 	char *buff = m_buffer_out;
 
@@ -217,12 +222,12 @@ int YARPGalilDeviceDriver::set_position(void *cmd)
 	// axis
 	buff = _append_cmd((char) dummy, buff);
 	// PID value
-	buff = _append_cmd(*position, buff);
+	buff = _append_cmd_as_int(*position, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, 8,
 							m_buffer_in, buff_length);
-	begin_motion(NULL);
+//	begin_motion(NULL);
 	return rc;
 }
 
@@ -491,7 +496,7 @@ int YARPGalilDeviceDriver::set_positions (void *param)
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, cmd_length ,
 							m_buffer_in, buff_length);
-	rc = begin_motion(NULL);							
+//	rc = begin_motion(NULL);							
 	return rc;
 }
 
@@ -502,7 +507,7 @@ int YARPGalilDeviceDriver::define_positions (void *param)
 
 	int cmd_length = 0;
 	
-	int *positions = (int *) param;
+	double *positions = (double *) param;
 
 	char *buff = m_buffer_out;
 
@@ -516,7 +521,7 @@ int YARPGalilDeviceDriver::define_positions (void *param)
 	buff = _append_cmd((char) m_all_axes, buff);
 	
 	// values
-	int n = _append_values(positions, buff);
+	int n = _append_values_as_int(positions, buff);
 
 	cmd_length = 4 + 4*n;
 
@@ -531,7 +536,8 @@ int YARPGalilDeviceDriver::define_position (void *cmd)
 	long rc = 0;
 
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	int *position = (int *) tmp->parameters;
+	// int *position = (int *) tmp->parameters;
+	double *position = (double *) tmp->parameters;
 
 	char *buff = m_buffer_out;
 
@@ -547,7 +553,7 @@ int YARPGalilDeviceDriver::define_position (void *cmd)
 	// axis
 	buff = _append_cmd((char) dummy, buff);
 	// PID value
-	buff = _append_cmd(*position, buff);
+	buff = _append_cmd_as_int(*position, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, 8,
@@ -565,8 +571,7 @@ int YARPGalilDeviceDriver::set_accelerations (void *param)
 	///int *accelerations = (int *) param;
 	
 	double * accelerations_double = (double *) param;	
-	//int * accelerations = new int [m_njoints];
-	
+		
 	double_to_int(m_temp_int_array, accelerations_double);
 
 	char *buff = m_buffer_out;
@@ -967,12 +972,13 @@ int YARPGalilDeviceDriver::servo_here(void *par)
 
 // these commands are ascii; I KNOW this is probably slow...
 // however these are methods which are executed once in a while and I didn't
-// want to waste time (someone would say I'm lazy :)
+// want to waste time (someone would say I'm lazy :) )
 int YARPGalilDeviceDriver::get_ref_speeds(void *spds)
 {
 	long rc = 0;
 
-	int *output = (int *) spds;
+	// int *output = (int *) spds;
+	double *output = (double *) spds;
 	
 	char cmd[] = "SP";
 	char *buff = m_buffer_out;
@@ -998,7 +1004,8 @@ int YARPGalilDeviceDriver::get_ref_accelerations(void *accs)
 {
 	long rc = 0;
 
-	int *output = (int *) accs;
+	// int *output = (int *) accs;
+	double *output = (double *) accs;
 	
 	char cmd[] = "AC";
 	char *buff = m_buffer_out;
@@ -1100,7 +1107,7 @@ YARPGalilDeviceDriver::error_limit(void *par)
 	long rc = 0;
 
 	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
-	int *error = (int *) tmp->parameters;
+	double *error = (double *) tmp->parameters;
 	
 	char *buff = m_buffer_out;
 
@@ -1116,7 +1123,7 @@ YARPGalilDeviceDriver::error_limit(void *par)
 	// axis
 	buff = _append_cmd((char) dummy, buff);
 	// value
-	buff = _append_cmd(*error, buff);
+	buff = _append_cmd_as_int(*error, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, 8,
@@ -1131,7 +1138,7 @@ YARPGalilDeviceDriver::off_on_error(void *par)
 	long rc = 0;
 	
 	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
-	int *value = (int *) tmp->parameters;
+	double *value = (double *) tmp->parameters;
 	
 	char *buff = m_buffer_out;
 
@@ -1147,7 +1154,7 @@ YARPGalilDeviceDriver::off_on_error(void *par)
 	// axis
 	buff = _append_cmd((char) dummy, buff);
 	// value
-	buff = _append_cmd(*value, buff);
+	buff = _append_cmd_as_int(*value, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, 8,
@@ -1187,7 +1194,7 @@ int YARPGalilDeviceDriver::set_jogs (void *spds)
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, cmd_length ,
 							m_buffer_in, buff_length);
-	rc = begin_motion(NULL);
+//	rc = begin_motion(NULL);
 	return rc;
 }
 
@@ -1225,7 +1232,7 @@ YARPGalilDeviceDriver::set_positive_limit(void *par)
 	long rc = 0;
 	
 	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
-	int *value = (int *) tmp->parameters;
+	double *value = (double *) tmp->parameters;
 	
 	char *buff = m_buffer_out;
 
@@ -1241,7 +1248,7 @@ YARPGalilDeviceDriver::set_positive_limit(void *par)
 	// axis
 	buff = _append_cmd((char) dummy, buff);
 	// value
-	buff = _append_cmd(*value, buff);
+	buff = _append_cmd_as_int(*value, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, 8,
@@ -1256,7 +1263,7 @@ YARPGalilDeviceDriver::set_negative_limit(void *par)
 	long rc = 0;
 	
 	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
-	int *value = (int *) tmp->parameters;
+	double *value = (double *) tmp->parameters;
 	
 	char *buff = m_buffer_out;
 
@@ -1272,7 +1279,7 @@ YARPGalilDeviceDriver::set_negative_limit(void *par)
 	// axis
 	buff = _append_cmd((char) dummy, buff);
 	// value
-	buff = _append_cmd(*value, buff);
+	buff = _append_cmd_as_int(*value, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, 8,

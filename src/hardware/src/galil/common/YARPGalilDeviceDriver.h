@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.2 2003-06-30 16:27:16 babybot Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.3 2003-06-30 21:08:06 babybot Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -119,10 +119,12 @@ protected:
 	inline char * _append_cmd(char data, char *buf);
 	inline char * _append_cmd(const char *cmd, char *buf);
 	inline char * _append_cmd(double data, char *buffer);
+	inline char * _append_cmd_as_int(double data, char *buffer);
 	inline char * _append_cmd(int data, char *buffer);
 	inline char * _append_cmd(short data, char *buffer);
 	inline int	_append_values(int *values, char *buffer);
 	inline int	_append_values(double *values, char *buffer);
+	inline int	_append_values_as_int(double *values, char *buffer);
 	inline char * _append_question_marks(char *buffer);
 	inline char * _append_question_mark(char *buffer, int axis);
 	inline char * _append_question_marks(char *buffer, char mask);
@@ -179,10 +181,46 @@ int YARPGalilDeviceDriver::_append_values(double *values, char *buff)
 	return j;
 }
 
+int YARPGalilDeviceDriver::_append_values_as_int(double *values, char *buff)
+{
+	char mask = 0x01;
+	int i;
+	int j;
+	for (i = 0, j = 0; i < m_njoints; i++)
+	{
+		if (mask & m_all_axes)
+		{
+			buff = _append_cmd_as_int(values[j], buff);
+			j++;
+		}
+
+		mask = mask << 1;
+	}
+
+	return j;
+}
+
 char *YARPGalilDeviceDriver::_append_cmd(const char *cmd, char *buf)
 {
 	strcpy(buf, cmd);
 	buf+=strlen(cmd);
+
+	return buf;
+}
+
+char *YARPGalilDeviceDriver::_append_cmd_as_int(double data, char *buf)
+{
+	// convert double to int
+	// don't care about loss of information, commands must be integral
+	int tmp = (int) data;
+	char *t = (char *) &tmp;
+
+	for(int i = 0; i < 4; i++)
+	{
+		buf[i] = t[3 - i];
+	}
+
+	buf+=4;
 
 	return buf;
 }
