@@ -437,12 +437,14 @@ void CAN1_interruptRx (void)
 		}
 	}
 	else
+#endif
+	
 	if (read_p == -1)
 	{
 		read_p = write_p;
 		//DSP_SendDataEx ("^\r\n");
 	}
-#endif	
+
 	setReg (CAN_RFLG, CAN_RFLG_RXF_MASK);
 	CAN_EI;
 }

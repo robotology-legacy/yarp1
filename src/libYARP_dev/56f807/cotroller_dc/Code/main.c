@@ -627,11 +627,12 @@ byte calibrate (byte jnt)
 	
 /* message table macros */
 #define BEGIN_MSG_TABLE(x) \
-	if (((x & 0x00000780) >> 7) != _board_ID) \
+	CAN_TEMP16 = (word)(x & 0xffff); \
+	if (((CAN_TEMP16 & 0x0780) >> 7) != _board_ID) \
 	{ \
 		return ERR_OK; \
 	} \
-	switch (x & 0x7f) \
+	switch (CAN_TEMP16 & 0x7f) \
 	{ \
 		default: \
 			return ERR_OK; \
@@ -739,7 +740,7 @@ byte can_interface (void)
 #define CAN_FRAME_FMT _canmsg.CAN_frameFormat
 #define CAN_LEN _canmsg.CAN_length
 #define CAN_ID _canmsg.CAN_messID
-
+#define CAN_TEMP16 i
 			/* interpret the messages */
 			//BEGIN_SPECIAL_MSG_TABLE (CAN_data)
 			//HANDLE_MSG (CAN_SET_BOARD_ID, CAN_SET_BOARD_ID_HANDLER)
