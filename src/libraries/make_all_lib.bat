@@ -51,6 +51,10 @@ nmake /f os_services.mak CFG="os_services - Win32 Debug" clean
 nmake /f os_services.mak CFG="os_services - Win32 Release" clean
 cd ..\..\..\
 echo Cleaning images libraries.
+cd .\images\
+nmake /f images.mak CFG="images - Win32 Debug" clean
+nmake /f images.mak CFG="images - Win32 Release" clean
+cd ..\
 cd .\images\tools\
 nmake /f tools.mak CFG="tools - Win32 Debug" clean
 nmake /f tools.mak CFG="tools - Win32 Release" clean
@@ -115,6 +119,9 @@ cd ..\
 
 :skipipld
 
+cd .\images\
+nmake /f images.mak CFG="images - Win32 Debug"
+cd ..\
 cd .\images\tools\
 nmake /f tools.mak CFG="tools - Win32 Debug"
 cd ..\..\
@@ -176,6 +183,9 @@ cd ..\
 
 :skipiplr
 
+cd .\images\
+nmake /f images.mak CFG="images - Win32 Release"
+cd ..\
 cd .\images\tools\
 nmake /f tools.mak CFG="tools - Win32 Release"
 cd ..\..\

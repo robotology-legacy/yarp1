@@ -17345,6 +17345,7 @@
 	".\Default_Constants.h"\
 	".\Global_Macros.h"\
 	".\Log_Msg.h"\
+	".\Log_Priority.h"\
 	".\Min_Max.h"\
 	".\OS.h"\
 	".\OS.i"\
@@ -17364,13 +17365,15 @@
 	".\pre.h"\
 	".\streams.h"\
 	".\SV_Message.i"\
-	".\SV_Message_Queue.i"\
+	".\SV_Message_Queue.h"\
 	".\Time_Value.h"\
 	".\Time_Value.inl"\
 	".\Trace.h"\
 	".\Typed_SV_Message.cpp"\
 	".\Typed_SV_Message.h"\
 	".\Typed_SV_Message.i"\
+	".\Typed_SV_Message_Queue.h"\
+	".\Typed_SV_Message_Queue.i"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	"c:\program files\microsoft visual studio\vc98\include\malloc.h"\
 	"c:\program files\microsoft visual studio\vc98\include\process.h"\

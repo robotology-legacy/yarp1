@@ -58,7 +58,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\tools.lib ..\..\ipl\lib\ipl.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\images.lib	copy ..\obj\Release\images.lib ..\..\..\..\lib\winnt
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\images.lib ..\obj\Release\tools.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\images.lib	copy ..\obj\Release\images.lib ..\..\..\..\lib\winnt
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "tools - Win32 Debug"
@@ -89,7 +89,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Debug\toolsDB.lib ..\..\ipl\lib\ipl.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Debug\imagesDB.lib	copy ..\obj\Debug\imagesDB.lib ..\..\..\..\lib\winnt
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Debug\imagesDB.lib ..\obj\Debug\toolsDB.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Debug\imagesDB.lib	copy ..\obj\Debug\imagesDB.lib ..\..\..\..\lib\winnt
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "tools - Win32 FakeIpl Debug"
@@ -121,7 +121,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\fakeipl\fakeiplDB.lib ..\obj\Debug\toolsDBf.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Debug\imagesDBf.lib	copy ..\obj\Debug\imagesDBf.lib ..\..\..\..\lib\winnt
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Debug\imagesDBf.lib ..\obj\Debug\toolsDBf.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Debug\imagesDBf.lib	copy ..\obj\Debug\imagesDBf.lib ..\..\..\..\lib\winnt
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "tools - Win32 FakeIpl Release"
@@ -153,7 +153,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\fakeipl\fakeipl.lib ..\obj\Release\toolsf.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\imagesf.lib	copy ..\obj\Release\imagesf.lib ..\..\..\..\lib\winnt
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\imagesf.lib ..\obj\Release\toolsf.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\imagesf.lib	copy ..\obj\Release\imagesf.lib ..\..\..\..\lib\winnt
 # End Special Build Tool
 
 !ENDIF 
