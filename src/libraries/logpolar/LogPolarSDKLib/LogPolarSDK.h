@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.27 2004-01-30 16:50:33 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.28 2004-01-30 17:23:46 fberton Exp $
 ///
 ///
 
@@ -315,7 +315,7 @@ void DownSampleFovea(unsigned char * InImage, unsigned char * OutImage, char * P
 
 long Get_Time();
 
-double Compute_Index(int Resolution, int Fovea, int SizeRho);
+double Compute_Index(double Resolution, int Fovea, int SizeRho);
 
 //int Build_DownSample_Map (Image_Data * Parameters, char * Path);
 

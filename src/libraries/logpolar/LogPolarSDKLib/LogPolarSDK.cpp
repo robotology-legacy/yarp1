@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.31 2004-01-30 17:11:10 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.32 2004-01-30 17:23:45 fberton Exp $
 ///
 ///
 
@@ -184,7 +184,7 @@ Image_Data Set_Param(int SXO,
 
 
 
-double Compute_Index(int Resolution, int Fovea, int SizeRho)
+double Compute_Index(double Resolution, int Fovea, int SizeRho)
 {
 	double DValue,Value, Tempt, Dx, ADx;
 	double x1,x2;
