@@ -59,162 +59,180 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPFSM.h,v 1.3 2003-07-08 17:41:13 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.1 2003-07-08 17:41:13 babybot Exp $
 ///  
-/// Finite State Machine class -- by nat July 2003
+/// Behavior class -- by nat July 2003
 //
 
-#ifndef __YARPFSMH__
-#define __YARPFSMH__
+#ifndef __YARPBEHAVIORCLASS__
+#define __YARPBEHAVIORCLASS__
 
-#include <list>
+#include <YARPFSM.h>
+#include <YARPPort.h>
+#include <string>
 
-template <class FSM_SHARED_DATA>
-class YARPFSMInput
-{	
-	public:
-		virtual bool input(FSM_SHARED_DATA *input) = 0;
-};
-
-// forward
-template <class MYFSM, class FSM_SHARED_DATA>
-class YARPFSMStateBase;
-
-template <class MYFSM, class FSM_SHARED_DATA>
-class YARPFSMTableEntry
+template <class OUT_DATA>
+class YARPBehaviorSharedData
 {
 	public:
-	YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *state;
-	YARPFSMInput<FSM_SHARED_DATA> *function;
+		YARPBehaviorSharedData(std::string portName):
+		  _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+		  {
+			  _outPort.Register(portName.c_str());
+		  };
 
-	// operator == used by <list> to remove entries
-	bool operator == (const YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> &i)
+		  void send(OUT_DATA &d)
+		  {
+			  printf("Sending data\n");
+			  memcpy(_outPort.Content(), d, sizeof(int)*2);
+			  _outPort.Write();
+		  }
+
+	YARPOutputPortOf<OUT_DATA> _outPort;
+};
+
+template <class MY_BEHAVIOR, class SHARED_DATA>
+class YARPBehavior: public YARPThread , public YARPFSM<MY_BEHAVIOR, SHARED_DATA>
+{
+public:
+	YARPBehavior(SHARED_DATA *s): YARPThread(), YARPFSM<MY_BEHAVIOR, SHARED_DATA>(s)
 	{
-		if ( (function == i.function) &&
-			(state == i.state) )
-			return true;
-		else
-			return false;
+		YARPThread::Begin();
 	}
 
+	~YARPBehavior()
+	{
+		YARPThread::End();	// check this
+	}
+
+	virtual void Body(void)
+	{
+		while(!IsTerminated())
+		{
+			// handle stuff
+			_stopEvent.wait();
+			doYourDuty();
+		}
+	}
+	
+	void pulse(YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *s)
+	{
+		// signal pulse event
+		if (checkState(s))
+			_stopEvent.signal();
+	}
+
+	ACE_Auto_Event _stopEvent;
 };
 
-template <class MYFSM, class FSM_SHARED_DATA>
-class YARPFSMStateBase
+template <class MY_BEHAVIOR, class SHARED_DATA>
+class YARPBehaviorMsgHandler
 {
-protected:
-	YARPFSMStateBase()
-	{ _default = this; }
-	virtual ~YARPFSMStateBase(){}
-
-	typedef YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> FSM_TABLE_ENTRY;
-	typedef std::list<FSM_TABLE_ENTRY> FSM_TABLE;
-	typedef FSM_TABLE::iterator FSM_TABLE_IT;
-
 public:
-	bool decideState(MYFSM *t, FSM_SHARED_DATA *d)
+	YARPBehaviorMsgHandler(MY_BEHAVIOR *fsm, int k, std::string pName):
+	_inport(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 	{
-		FSM_TABLE_IT it;
-		// if table is empty use default value
-		if (_table.empty())
+		_fsm = fsm;
+		_key = k;
+		init(pName);
+	}
+
+	void init(std::string name)
+	{
+		_inport.Register(name.c_str());	// register port
+	}
+	
+	void handle()
+	{
+		_inport.Read();
+		// read some data
+		memcpy(_data, _inport.Content(), sizeof(int) * 2);
+
+		_parse(_data);
+	}
+
+	void _parse(int *d)
+	{
+		if (d[0] != _key)
 		{
-			t->changeState(_default);
-			return false;
+			// this is not for you, return
+			return;
 		}
 
-		// else
-		bool flag = false;
+		// handle message
+		ENTRY_HANDLER_IT it;
 		it = _table.begin();
-	
-		while (it != _table.end())
+		while(it != _table.end())
 		{
-			flag = it->function->input(d);
-	
-			if (flag)
-			{
-				t->changeState(it->state);
-				return true;;
-			}
+			if (it->key == d[1])
+				it->function(_fsm);
 			it++;
 		}
-		// none of the input were valid, use default
-		t->changeState(_default);
-		return false;
+
+		// handle signals
+		ENTRY_SIGNALS_IT is;
+		is = _signals.begin();
+		while(is != _signals.end())
+		{
+			if (is->key == d[1])
+				is->function(_fsm, is->state);
+			is++;
+		}
 	}
 
-	// virtual functions
-	virtual void handle(void *) = 0;
+	void add(int k, void (*f)(MY_BEHAVIOR *fsm))
+	{
+		entryHandler tmp;
+		tmp.function = f;
+		tmp.key = k;
 
-	void setDefault(YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *n)
-	{ _default = n; }
+		_table.push_back(tmp);
+	}
+	
+	void add(int k, void (*f)(MY_BEHAVIOR * , YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *), YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *s)
+	{
+		sigHandler tmp;
+		tmp.function = f;
+		tmp.state = s;
+		tmp.key = k;
 
-	FSM_TABLE _table;
-	YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *_default;
+		_signals.push_back(tmp);
+	}
+
+
+	MY_BEHAVIOR *_fsm;
+	YARPInputPortOf<int [2]> _inport;
+	int _data[2];
+
+	struct entryHandler
+	{
+		int key;
+		void (*function)(MY_BEHAVIOR *);
+	};
+
+	struct sigHandler
+	{
+		int key;
+		YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *state;
+		void (*function)(MY_BEHAVIOR *, YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *);
+	};
+	
+	typedef std::list<entryHandler> ENTRY_HANDLER_LIST;
+	typedef ENTRY_HANDLER_LIST::iterator ENTRY_HANDLER_IT;
+
+	typedef std::list<sigHandler> ENTRY_SIGNALS;
+	typedef ENTRY_SIGNALS::iterator ENTRY_SIGNALS_IT;
+
+	ENTRY_HANDLER_LIST _table;
+	ENTRY_SIGNALS	   _signals;
+
+	int _key;
 };
 
-template <class MYFSM, class FSM_SHARED_DATA>
-class YARPFSM
+template <class MY_BEHAVIOR, class SHARED_DATA>
+void sigFunction(YARPBehavior<MY_BEHAVIOR, SHARED_DATA> *fsm, YARPFSMStateBase<MY_BEHAVIOR, SHARED_DATA> *s)
 {
-public:
-	typedef YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> FSM_STATE;
-
-	YARPFSM (FSM_SHARED_DATA *s)
-	{
-		_data = s;
-	}
-
-	void doYourDuty()
-	{
-		state->handle(_data);
-		state->decideState((MYFSM *) this, _data);
-	}
-
-	void add(YARPFSMInput<FSM_SHARED_DATA> *in,  FSM_STATE *s1, FSM_STATE *s2)
-	{
-		if (in == NULL)
-		{
-			s1->setDefault(s2);
-			s1->_table.clear();
-		}
-		else
-		{
-			YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> tmp;
-			tmp.function = in;
-			tmp.state = (FSM_STATE *) s2;
-			FSM_STATE *tmpS = (FSM_STATE *)s1;
-			tmpS->_table.push_back(tmp);
-		}
-	}
-
-	void remove(YARPFSMInput<FSM_SHARED_DATA> *in,  FSM_STATE *s1, FSM_STATE *s2)
-	{
-		if (in == NULL)
-			return;
-
-		YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> tmp;
-		tmp.function = in;
-		tmp.state = s2;
-	
-		s1->_table.remove(tmp);
-		
-	}
-
-	void changeState(FSM_STATE *n)
-	{ state = n; }
-
-	void setInitialState(FSM_STATE *n)
-	{ changeState(n); }
-	
-	bool checkState(FSM_STATE *n)
-	{ 
-		if (state == n)
-			return true;
-		else
-			return false;
-	}
-
-	FSM_SHARED_DATA *_data;
-	FSM_STATE *state;
+	fsm->pulse(s);
 };
 
 #endif

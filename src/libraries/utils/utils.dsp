@@ -116,6 +116,10 @@ SOURCE=.\src\YARPParseParameters.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\include\YARPBehavior.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\YARPConfigFile.h
 # End Source File
 # Begin Source File
