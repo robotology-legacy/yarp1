@@ -8,6 +8,8 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+#include "GainControlDlg.h"
+
 /////////////////////////////////////////////////////////////////////////////
 // CTestControlDlg dialog
 
@@ -18,7 +20,11 @@ public:
 	CTestControlDlg(CWnd* pParent = NULL);	// standard constructor
 	void EnableGUI (void);
 	void DisableGUI (void);
+
 	bool _headinitialized;
+	double **_headstore;
+
+	CGainControlDlg _gaincontroldlg;
 
 // Dialog Data
 	//{{AFX_DATA(CTestControlDlg)
@@ -54,6 +60,8 @@ protected:
 	afx_msg void OnUpdateFileOpenconsole(CCmdUI* pCmdUI);
 	afx_msg void OnFileCloseconsole();
 	afx_msg void OnUpdateFileCloseconsole(CCmdUI* pCmdUI);
+	afx_msg void OnInterfaceShowgain();
+	afx_msg void OnInterfaceHidegain();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

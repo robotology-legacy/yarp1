@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.2 2004-08-04 22:17:06 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.3 2004-09-01 13:21:18 gmetta Exp $
 ///
 ///
 
@@ -88,6 +88,7 @@ public:
 
 	/**
 	 * Destructor.
+	 * Frees memory but still requires uninitialization.
 	 */
 	~YARPGenericControlBoard<ADAPTER, PARAMETERS>()
 	{
@@ -182,14 +183,44 @@ public:
 		return ret;
 	}
 
-	int activatePID(bool reset = true)
+	/**
+	 * Sets the PID values for a specified axis. Beware that this method doesn't
+	 * stop the axis before executing the change. Make sure this is what you intend to
+	 * do.
+	 * @param axis is the axis to modify.
+	 * @param pid is a reference to a LowLevelPID structure containing the parameters.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int setPID(int axis, LowLevelPID& pid)
 	{
 		_lock();
-		int ret = _adapter.activatePID(reset);
+		SingleAxisParameters cmd;
+		cmd.axis = axis;
+		cmd.parameters = &pid;
+		int ret = _adapter.IOCtl(CMDSetPID, &cmd);
 		_unlock();
 		return ret;
 	}
 
+	/**
+	 * Activates the PID controller using the values stored in the internal structures.
+	 * @param reset tells whether to reset the encoder position.
+	 * @param pids is an array of LowLevelPID structures containing the gain of the controller.
+	 * @return YARP_OK on success.
+	 */
+	int activatePID(bool reset = true, LowLevelPID *pids = NULL)
+	{
+		_lock();
+		int ret = _adapter.activatePID(reset, pids);
+		_unlock();
+		return ret;
+	}
+
+	/**
+	 * Activates the PID controller using values stored internally as low gain PID's.
+	 * @param reset tells whether to reset the encoder position.
+	 * @return YARP_OK on success.
+	 */
 	int activateLowPID(bool reset = true)
 	{
 		_lock();
@@ -198,6 +229,13 @@ public:
 		return ret;
 	}
 
+	/**
+	 * Reads the analog inputs of the card. Many control cards have analog inputs to 
+	 * build feedback loops on analog sensors.
+	 * @param val is an array of double precision numbers returning the readings from
+	 * the A/D converters.
+	 * @return YARP_OK on success.
+	 */
 	int readAnalogs(double *val)
 	{
 		_lock();
@@ -206,6 +244,11 @@ public:
 		return ret;
 	}
 
+	/**
+	 * Uninitializes the control board and frees memory.
+	 * This function does all what the destructor has to do.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int uninitialize()
 	{
 		_lock();
@@ -232,7 +275,7 @@ public:
 	}
 
 	/**
-	 * move all axes to a certain position.
+	 * Moves all axes to a certain position.
 	 * @param pos an array of double precision number specifying the position in radians.
 	 * @return YARP_OK on success.
 	 */
@@ -251,7 +294,7 @@ public:
 	}
 
 	/**
-	 * move a specific joint to a certain position.
+	 * Moves a specific joint to a certain position.
 	 * @param i the axis to be moved.
 	 * @param pos the final position in radians.
 	 * @return YARP_OK on success.
@@ -276,7 +319,7 @@ public:
 	}
 
 	/**
-	 * set the speed for successive position movements.
+	 * Sets the speed for successive position movements.
 	 * @param vel the array of joint velocities expressed in rad/s.
 	 * @return YARP_OK on success.
 	 */
@@ -297,7 +340,7 @@ public:
 	}
 
 	/**
-	 * set the speed for successive position movements.
+	 * Sets the speed for successive position movements.
 	 * @param vel the array of joint velocities expressed in rad/s.
 	 * @return YARP_OK on success.
 	 */
@@ -317,6 +360,12 @@ public:
 		return YARP_OK;
 	}
 
+	/**
+	 * Sets the acceleration for the subsequent position or velocity move.
+	 * @param acc is an array of double precision values specifing the
+	 * acceleration value for all joints in rad/s^2.
+	 * @return YARP_OK on success.
+	 */
 	int setAccs(const double *acc)
 	{
 		_lock();
@@ -480,7 +529,14 @@ public:
 	double getMaxTorque(int axis) { return _adapter.getMaxTorque(axis); }
 	inline int nj() { return _parameters._nj; }
 
+	/**
+	 * Sets the PID gain smoothly (in small increments) to the final value.
+	 * @param finalPIDs is an array of LowLevelPID structures used as target value.
+	 * @param s is the number of steps.
+	 * @return 0.
+	 */
 	int setGainsSmoothly(LowLevelPID *finalPIDs, int s = 150);
+
 	// reduce max torque on axis of delta; returns true if current limit is equal to or less than value
 	bool decMaxTorque(int axis, double delta, double value);
 	// same as above, act on multiple joints (up to nj)

@@ -151,6 +151,8 @@ BEGIN_MESSAGE_MAP(CTestControlDlg, CDialog)
 	ON_UPDATE_COMMAND_UI(ID_FILE_OPENCONSOLE, OnUpdateFileOpenconsole)
 	ON_COMMAND(ID_FILE_CLOSECONSOLE, OnFileCloseconsole)
 	ON_UPDATE_COMMAND_UI(ID_FILE_CLOSECONSOLE, OnUpdateFileCloseconsole)
+	ON_COMMAND(ID_INTERFACE_SHOWGAIN, OnInterfaceShowgain)
+	ON_COMMAND(ID_INTERFACE_HIDEGAIN, OnInterfaceHidegain)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -186,6 +188,9 @@ BOOL CTestControlDlg::OnInitDialog()
 	
 	/// specific initialization.
 	YARPScheduler::setHighResScheduling();
+
+	/// modeless dialog boxes.
+	_gaincontroldlg.Create (CGainControlDlg::IDD, this);
 	
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -252,8 +257,8 @@ void CTestControlDlg::OnFileExit()
 
 void CTestControlDlg::OnClose() 
 {
-	// TODO: Add your message handler code here and/or call default
-	
+	OnInterfaceStop ();
+
 	CDialog::OnClose();
 }
 
@@ -303,10 +308,14 @@ void CTestControlDlg::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysM
 void CTestControlDlg::EnableGUI ()
 {
 	SetTimer (TIMER_ID, GUI_REFRESH_INTERVAL, NULL); 
+
+	_gaincontroldlg.EnableInterface();
 }
 
 void CTestControlDlg::DisableGUI ()
 {
+	_gaincontroldlg.DisableInterface();
+
 	KillTimer (TIMER_ID);
 }
 
@@ -337,8 +346,11 @@ void CTestControlDlg::OnInterfaceStop()
 {
 	close_console();
 
-	head.idleMode ();
-	head.uninitialize ();	
+	if (_headinitialized)
+	{
+		head.idleMode ();
+		head.uninitialize ();	
+	}
 	
 	DisableGUI ();
 	_headinitialized = false;
@@ -372,4 +384,14 @@ void CTestControlDlg::OnFileCloseconsole()
 void CTestControlDlg::OnUpdateFileCloseconsole(CCmdUI* pCmdUI) 
 {
 	pCmdUI->Enable (_headinitialized);
+}
+
+void CTestControlDlg::OnInterfaceShowgain() 
+{
+	_gaincontroldlg.ShowWindow(SW_SHOW);
+}
+
+void CTestControlDlg::OnInterfaceHidegain() 
+{
+	_gaincontroldlg.ShowWindow(SW_HIDE);
 }

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.5 2004-08-30 16:05:47 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.6 2004-09-01 13:21:18 gmetta Exp $
 ///
 ///
 
@@ -100,6 +100,12 @@ namespace _RobotcubHead
 }; // namespace
 
 
+/**
+ * YARPRobotcubHeadParameters is one of the components required to
+ * specialize the YARPGenericControlBoard template to do something useful.
+ * This class contains parameters that are used during initialization to
+ * bring the head up into a decent state.
+ */
 class YARPRobotcubHeadParameters
 {
 public:
@@ -277,23 +283,38 @@ public:
 
 
 
-///
-///
-///
+/**
+ * YARPCanOnRobotcubHeadAdapter is a specialization of the Can device driver
+ * to control the RobotCub head. This class especially implements initialize and
+ * uninitialize while it leaves much of the burden of calling the device driver
+ * to a generic template class called YARPGenericControlBoard.
+ */
 class YARPCanOnRobotcubHeadAdapter : public YARPValueCanDeviceDriver
 {
 public:
+	/**
+	 * Default constructor.
+	 */
 	YARPCanOnRobotcubHeadAdapter()
 	{
 		_initialized = false;
 	}
 	
+	/**
+	 * Destructor.
+	 */
 	~YARPCanOnRobotcubHeadAdapter()
 	{
 		if (_initialized)
 			uninitialize();
 	}
 
+	/**
+	 * Initializes the adapter and opens the device driver.
+	 * @param par is a pointer to the class containing the parameters that has
+	 * to be exactly YARPRobotcubHeadParameters.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int initialize(YARPRobotcubHeadParameters *par)
 	{
 		using namespace _RobotcubHead;
@@ -353,6 +374,10 @@ public:
 		return YARP_OK;
 	}
 
+	/**
+	 * Uninitializes the controller and closes the device driver.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int uninitialize()
 	{
 		if (YARPValueCanDeviceDriver::close() != 0)
@@ -380,6 +405,14 @@ public:
 		return activatePID(reset, _parameters->_lowPIDs);
 	}
 
+	/**
+	 * Sets the PID values.
+	 * @param reset if true resets the encoder values to zero.
+	 * @param pids is an array of PID data structures. If NULL the values
+	 * contained into an internal variable are used (presumably read from the
+	 * initialization file) otherwise the actual argument is used.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int activatePID(bool reset, LowLevelPID *pids = NULL)
 	{
 		for(int i = 0; i < _parameters->_nj; i++)
@@ -410,12 +443,21 @@ public:
 		return YARP_OK;
 	}
 
+	/**
+	 * Reads the analog value from the control card.
+	 * This method is not implemented at the moment.
+	 * @return YARP_FAIL always.
+	 */
 	int readAnalogs(double *val)
 	{
 		ACE_UNUSED_ARG(val);
 		return YARP_FAIL;
 	}
 
+	/**
+	 * Calibrate the control card if needed. This is not implemented at the moment.
+	 * @return YARP_OK always.
+	 */
 	int calibrate(void)
 	{
 		YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
