@@ -6,7 +6,7 @@ LIBS = Acquisition.o AuxFunctions.o LogPolarSDK.o TableGeneration.o TableLoading
 CODELIB = LogPolarSmallSDK
 OS = $(SYSDIR)
 
-CFLAGS = $(CFAST) -I. -I$(YARP_ROOT)/include $(CDEFS) -D__QNX__ -D__QNX6__
+CFLAGS = $(CFAST) -I. -I$(YARP_ROOT)/include $(CDEFS) -D__QNX__ -D__QNX6__ -llibc
 SRC = ../LogPolarSDKLib
 
 all: $(CODELIB).a
