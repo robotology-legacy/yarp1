@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.14 2003-06-28 16:40:01 babybot Exp $
+/// $Id: Port.h,v 1.15 2003-07-01 12:49:57 gmetta Exp $
 ///
 ///
 
@@ -113,7 +113,7 @@ enum
 /// the thread receives the data buf through the usual sendable ref/pointer.
 ///
 ///
-class OutputTarget : public BasedLink<OutputTarget>, public Thread
+class OutputTarget : public BasedLink<OutputTarget>, public YARPBareThread
 {
 public:
 	YARPUniqueNameID target_pid;		/// for MCAST this is the MCAST group.
@@ -165,7 +165,7 @@ public:
 	{
 		/// protect thread code at startup.
 		WaitMutex ();
-		YARPThread::Begin(stack_size);
+		YARPBareThread::Begin(stack_size);
 	}
 
 	void WaitMutex() { mutex.Wait(); }
@@ -235,7 +235,7 @@ class Port;
 ///	this thread is meant to substitute a "select" with mutex/sema and 
 /// socket demultiplexing capabilities (that doesn't exist in NT).
 ///
-class _strange_select : public YARPThread
+class _strange_select : public YARPBareThread
 {
 protected:
 	YARPSemaphore _ready_to_go;
@@ -243,14 +243,14 @@ protected:
 	bool _terminate;
 
 public:
-	_strange_select (Port *o) : YARPThread (), _ready_to_go(0) 
+	_strange_select (Port *o) : YARPBareThread (), _ready_to_go(0) 
 	{
 		_owner = o;
 		_terminate = false;
 		ACE_ASSERT (o != NULL); 
 	}
 
-	_strange_select () : YARPThread (), _ready_to_go(0) { _owner = NULL; _terminate = false; }
+	_strange_select () : YARPBareThread (), _ready_to_go(0) { _owner = NULL; _terminate = false; }
 
 	virtual ~_strange_select () {}
 	virtual void Body ();
@@ -259,77 +259,6 @@ public:
 	void pulseGo (void) { _ready_to_go.Post (); }
 };
 
-///
-///
-/// simple array of UDP/TCP port numbers.
-class PortPool 
-{
-protected:
-	int *_ports, _size;
-	bool *_used;
-
-public:
-	PortPool () 
-	{
-		_used = NULL;
-		_ports = NULL;
-		_size = 0;
-	}
-
-	~PortPool () 
-	{ 
-		if (_used != NULL) delete[] _used; 
-		if (_ports != NULL) delete[] _ports;
-	}
-
-	void resize (int *ports, int size) 
-	{
-		ACE_ASSERT (size > 0);
-		if (_ports != NULL) delete[] _ports;
-		if (_used != NULL) delete[] _used;
-		_size = size;
-		_used = new bool[size];
-		_ports = new int[size];
-		ACE_ASSERT (_used != NULL && _ports != NULL);
-		memset (_used, 0, sizeof(bool) * size);
-		memcpy (_ports, ports, sizeof(int) * size);
-	}
-
-	int getOne (void)
-	{
-		ACE_ASSERT (_used != NULL && _ports != NULL);
-
-		int i;
-		for (i = 0; i < _size; i++)
-		{
-			if (_used[i] == false)
-			{
-				_used[i] = true;
-				return _ports[i];
-			}
-		}
-
-		/// no port avail.
-		return YARP_FAIL;
-	}
-
-	int freeOne (int port)
-	{
-		ACE_ASSERT (_used != NULL);
-		int i;
-
-		for (i = 0; i < _size; i++)
-		{
-			if (_ports[i] == port)
-			{
-				_used[i] = false;
-				return YARP_OK;
-			}
-		}
-
-		return YARP_FAIL;
-	}
-};
 
 ///
 /// this is the main port thread.
@@ -362,7 +291,6 @@ public:
 	Sema wakeup;
 	Sema list_mutex;
 	Sema out_mutex;
-	Sema end_thread;
 
 	string name;
 	HeaderedBlockSender<NewFragmentHeader> sender;
@@ -415,7 +343,6 @@ public:
 		wakeup(0),
 		list_mutex(1),
 		out_mutex(1),
-		end_thread(0),
 		name(nname)
 	{ 
 		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
@@ -435,8 +362,7 @@ public:
 		okay_to_send(1),
 		wakeup(0),
 		list_mutex(1),
-		out_mutex(1),
-		end_thread(0)
+		out_mutex(1)
 	{
 		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
 		add_header = 1;
@@ -449,15 +375,7 @@ public:
 	virtual void End(int dontkill = 0)
 	{
 		ACE_UNUSED_ARG(dontkill);
-
-		if (name_set)
-		{
-			end_thread.Post();
-			SaySelfEnd ();
-
-			YARPTime::DelayInSeconds(1.0);
-			YARPThread::End(0);  
-		}
+		YARPThread::End (1000);	/// wait 1000 ms.
 	}
 
 	inline int& GetProtocolTypeRef() { return protocol_type; }

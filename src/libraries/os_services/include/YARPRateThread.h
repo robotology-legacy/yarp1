@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRateThread.h,v 1.3 2003-05-15 16:57:46 gmetta Exp $
+/// $Id: YARPRateThread.h,v 1.4 2003-07-01 12:49:57 gmetta Exp $
 ///
 ///
 
@@ -396,7 +396,7 @@ public:
 			// compute sleep time
 			sleep_period = context->period-est_time;
 			
-			if (sleep_period.usec() < 0)
+			if (sleep_period.usec() < 0 || sleep_period.sec() < 0)
 				sleep_period.set(0,0);
 
 			ACE_OS::sleep(sleep_period);
@@ -414,6 +414,8 @@ public:
 };
 
 #elif defined(__QNX4__)
+
+#error "YARPRateThread: can't compile QNX4, this code is no longer maintained"
 
 /// #ifdef __QNX__
 /// #ifdef __QNX4__		/// not quite sure it's ok on QNX6

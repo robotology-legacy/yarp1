@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.7 2003-06-30 09:30:06 babybot Exp $
+/// $Id: YARPThread.cpp,v 1.8 2003-07-01 12:49:57 gmetta Exp $
 ///
 ///
 
@@ -71,8 +71,8 @@
 #include <ace/Synch.h>
 
 ///
-#include "YARPSemaphore.h"
 #include "YARPThread.h"
+#include "YARPSemaphore.h"
 
 #ifdef __QNX6__
 #include <sys/neutrino.h>
@@ -82,22 +82,14 @@
 /// converted from #define.
 const size_t DEFAULT_THREAD_STACK_SIZE = 8000;
 
-/*
-static void HandleSignal(int sig)
-{
-  _endthreadex( 0 );
-}
-*/
 
-/// very simple thread wrapper.
-///
 #ifdef __WIN32__
 static unsigned __stdcall ExecuteThread (void *args)
 #else
 unsigned ExecuteThread (void *args)
 #endif
 {
-	YARPThread *thread = ((YARPThread *)args);
+	YARPBareThread *thread = ((YARPBareThread *)args);
 	
 	//signal(SIGTERM,&HandleSignal);  // argh, no way to send a signal to the thread :(
 	
@@ -111,32 +103,27 @@ unsigned ExecuteThread (void *args)
 }
 
 ///
-/// WARNING: this requires a mutex for start/end and system_resources variable.
 ///
-YARPThread::YARPThread ()
+///
+YARPBareThread::YARPBareThread (void)
 {
 	system_resource = NULL;
 	identifier = -1;
 	size = -1;
 }
 
-YARPThread::YARPThread (const YARPThread& yt)
+YARPBareThread::YARPBareThread (const YARPBareThread& yt)
 {
 	system_resource = NULL;
 	identifier = yt.identifier;
 }
 
-YARPThread::~YARPThread ()
+YARPBareThread::~YARPBareThread (void)
 {
 	End();
 }
 
-int YARPThread::IsTerminated ()
-{
-	return 0;
-}
-
-void YARPThread::Begin (int stack_size)
+void YARPBareThread::Begin (int stack_size)
 {
 	if (stack_size <= 0)
 	{
@@ -165,42 +152,86 @@ void YARPThread::Begin (int stack_size)
 	identifier = threadID;
 }
 
-int YARPThread::GetPriority (void)
+int YARPBareThread::GetPriority (void)
 {
 	int prio = YARP_FAIL;
 	ACE_Thread::getprio ((ACE_hthread_t)system_resource, prio);
 	return prio;
 }
 
-int YARPThread::SetPriority (int prio)
+int YARPBareThread::SetPriority (int prio)
 {
 	return ACE_Thread::setprio ((ACE_hthread_t)system_resource, prio);
 }
 
-void YARPThread::End(int dontkill)
+///
+/// parameter, if == 0 don't wait and kills the thread.
+///
+void YARPBareThread::End(int dontkill)
 {
 	if (identifier != -1 && dontkill == 0)
 	{
-		//TerminateThread(system_resource,0);  // and bang goes the thread's memory and resources:(
-
-#ifdef ACE_WIN32
-		// win32 doesn't support kill signal, so we have to use the API
+#if defined(__WIN32__)
+		
 		TerminateThread ((HANDLE)system_resource, -1);
-#else
-		// need to store the ID.
-		///ACE_Thread::kill (identifier, SIGKILL);
+
+#elif defined(__QNX6__)
+		
 		ThreadDestroy (identifier, -1, (void *)-1);
+
+#else
+
+#error "YARPBareThread::End - not implemented for the specified architecture"
+
 #endif
 		identifier = -1;
 	}
 
-	if (system_resource != NULL)
-	{
-		// CloseHandle(system_resource);
-		/// Should I join the thread?
-		ACE_Thread::join((ACE_hthread_t)system_resource);
-	}
-
 	system_resource = NULL;
 	identifier = -1;
+}
+
+
+///
+/// WARNING: this requires a mutex for start/end and system_resources variable.
+///
+YARPThread::YARPThread (void) : sema(0)
+{
+	system_resource = NULL;
+	identifier = -1;
+	size = -1;
+}
+
+YARPThread::YARPThread (const YARPThread& yt) : sema(0)
+{
+	system_resource = NULL;
+	identifier = yt.identifier;
+}
+
+YARPThread::~YARPThread (void)
+{
+	End();
+}
+
+int YARPThread::IsTerminated (void)
+{
+	return (sema.PollingWait() == 1) ? 1 : 0;
+}
+
+
+///
+/// parameter, if == 0 don't wait and kills the thread.
+///	otherwise it'll wait dontkill milliseconds before termination.
+///
+void YARPThread::End(int dontkill)
+{
+	/// termination "signal".
+	sema.Post();
+
+	if (dontkill)
+	{
+		YARPTime::DelayInSeconds(double(dontkill)/1000.0);
+	}
+
+	YARPBareThread::End (0);
 }

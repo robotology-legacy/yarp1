@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.25 2003-06-30 13:37:43 babybot Exp $
+/// $Id: exec_test8.cpp,v 1.26 2003-07-01 12:49:57 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -84,10 +84,10 @@ extern int __debug_level;
 NetInt32 foo;
 char name[256];
 
-///YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
-///YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
-YARPInputPortOf<NetInt32> in;
-YARPOutputPortOf<NetInt32> out;
+YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+///YARPInputPortOf<NetInt32> in;
+///YARPOutputPortOf<NetInt32> out;
 
 class Thread1 : public YARPThread
 {
@@ -171,10 +171,16 @@ int main(int argc, char *argv[])
 		ACE_OS::sprintf (name, "%s:s", argv[2]);
 		ACE_OS::printf ("name is %s\n", name);
 	}
-	else
+	else 
+	if (argc == 3 && c)
 	{
 		ACE_OS::sprintf (name, "%s:c", argv[2]);
 		ACE_OS::printf ("name is %s\n", name);
+	}
+	else
+	{
+		ACE_OS::printf ("pls, provide a channel name\n");
+		return -1;
 	}
 
 	if (s)

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.29 2003-06-28 16:40:01 babybot Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.30 2003-07-01 12:49:57 gmetta Exp $
 ///
 ///
 
@@ -141,9 +141,6 @@ public:
 	{
 		len = 0;
 		SetBad();
-///		ACE_DEBUG((LM_DEBUG, ">>>> header created with size %d\n", sizeof(MyMessageHeader)));
-///		ACE_DEBUG((LM_DEBUG, ">>>> len part has size %d\n", sizeof(NetInt32)));
-///		ACE_DEBUG((LM_DEBUG, ">>>> one char has size %d\n", sizeof(char)));
 	}
 
 	void SetGood()
@@ -211,7 +208,7 @@ class _SocketThreadListDgram;
 ///
 ///
 ///
-class _SocketThreadDgram : public YARPThread
+class _SocketThreadDgram : public YARPBareThread
 {
 protected:
 	int _available;
@@ -309,7 +306,7 @@ public:
 ///
 ///
 ///
-class _SocketThreadListDgram : public YARPThread
+class _SocketThreadListDgram : public YARPBareThread
 {
 private:
 	ACE_INET_Addr _local_addr;
@@ -508,7 +505,7 @@ int _SocketThreadDgram::reuse(const YARPUniqueNameID& remid, int port)
 
 void _SocketThreadDgram::End (void)
 {
-	YARPThread::End ();
+	YARPBareThread::End ();
 	_mutex.Wait ();
 	if (_local_socket.get_handle() != ACE_INVALID_HANDLE)
 	{
@@ -552,7 +549,6 @@ void _SocketThreadDgram::Body (void)
 	//// all variables used in the loop.
 	ACE_INET_Addr incoming;
 
-	MyMessageHeader hdr;
 	int r = YARP_FAIL, rr = YARP_FAIL;
 
 	int remaining = -1;
@@ -560,23 +556,37 @@ void _SocketThreadDgram::Body (void)
 	int retry = 0;
 	int was_preamble = 0;
 
-	MyMessageHeader hdr2;
-	char bufack[] = "acknowledged";
+///	const int _iov2_len = 256;
+///	iovec iov2[_iov2_len];
+///	memset (iov2, 0, sizeof(iovec) * _iov2_len);
+///	MyMessageHeader hdr2[_iov2_len];
+///	memset (hdr2, 0, sizeof(MyMessageHeader) * _iov2_len);
+
+	char bufack[] = "acknowledged\0";
 	char *buf3 = bufack;
 	int reply_len = 0;
 	int len = 0;
 
-	///
-	///
+	char *local_buffer = new char[MAX_PACKET];
+	ACE_ASSERT (local_buffer != 0);
+	memset (local_buffer, 0, MAX_PACKET);
+	int local_buffer_counter = 0;
 
 	while (!finished)
 	{
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread of remote port %s:%d waiting\n", _remote_endpoint.getAddressRef().get_host_name(), _remote_endpoint.getAddressRef().get_port_number()));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread of remote port %s:%d waiting\n", _remote_endpoint.getAddressRef().get_host_addr(), _remote_endpoint.getAddressRef().get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread waiting on port %d waiting\n", _local_addr.getAddressRef().get_port_number()));
 
-		hdr.SetBad();
-		r = _local_socket.recv (&hdr, sizeof(hdr), incoming, 0);  // &timeout); /// cannot timeout on this.
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_name(), incoming.get_port_number()));
+		iovec iov[1];
+		iov[0].iov_base = local_buffer;
+		iov[0].iov_len = MAX_PACKET;
+
+		r = _local_socket.recv (iov, 1, incoming, 0);
+		///r = _local_socket.recv (&hdr, sizeof(hdr), incoming, 0);  // &timeout); /// cannot timeout on this.
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
+
+		MyMessageHeader& hdr = *((MyMessageHeader *)local_buffer);
+		local_buffer_counter = sizeof(hdr);
 
 		if (r >= 0 && hdr.GetLength() == (_MAGIC_NUMBER + 1))
 		{
@@ -593,8 +603,7 @@ void _SocketThreadDgram::Body (void)
 		}
 
 		/// this is supposed to read the header, r must be > 0
-		if (r < 0 || 
-			incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
+		if (r < 0 || incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
 		{
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing (recv returned %d)\n", r));
 			if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
@@ -648,19 +657,24 @@ void _SocketThreadDgram::Body (void)
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read the data buffer\n"));
 
-				r = _local_socket.recv (_extern_buffer, len , incoming, 0, &timeout);
-				if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
-				{
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
-					_local_socket.close ();
-					finished = 1;
-				}
-				if (r < 0)
-				{
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? recv failed, time out?\n"));
-					_local_socket.close ();
-					finished = 1;
-				}
+
+				///r = _local_socket.recv (_extern_buffer, len , incoming, 0, &timeout);
+				///if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
+				///{
+				///	YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
+				///	_local_socket.close ();
+				///	finished = 1;
+				///}
+				///if (r < 0)
+				///{
+				///	YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? recv failed, time out?\n"));
+				///	_local_socket.close ();
+				///	finished = 1;
+				///}
+
+				memcpy (_extern_buffer, local_buffer+local_buffer_counter, len); 
+				local_buffer_counter += len;
+				r = len;
 			
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? received a buffer _SocketThreadDgram\n"));
 
@@ -684,49 +698,60 @@ void _SocketThreadDgram::Body (void)
 					rr = 0;
 					if (_extern_reply_length == 0)
 					{
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? read 0 len buffer, not waiting\n"));
+
+						///ACE_ASSERT (_extern_reply_length != 0);
 						/// then do a select.
-						ACE_Handle_Set set;
-						set.reset ();
-						set.set_bit (_local_socket.get_handle());
-						rr = ACE_OS::select (int(_local_socket.get_handle())+1, set, 0, 0, &timeout);
+						///ACE_Handle_Set set;
+						///set.reset ();
+						///set.set_bit (_local_socket.get_handle());
+						///rr = ACE_OS::select (int(_local_socket.get_handle())+1, set, 0, 0, &timeout);
 						/// wait here until next valid chunck of data.
 					}
 					else
 					{
 						///
-						remaining = _extern_reply_length;
-						tmp = _extern_reply_buffer;
-						retry = 0;
-						do 
-						{
-							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to recv %d\n", remaining));
+						///remaining = _extern_reply_length;
+						///tmp = _extern_reply_buffer;
+						///retry = 0;
 
-							rr = _local_socket.recv (tmp, remaining, incoming, 0, &timeout);
-							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? last read got %d bytes\n", rr));
-							if (rr < 0)
-							{
-								retry ++;
-								if (retry > 5)
-								{
-									ACE_DEBUG ((LM_DEBUG, "retried 5 times, potential source of troubles\n"));
-								}
-								rr = 0;
-							}
-							else
-							{
-								remaining -= rr;
-								tmp += rr;
-								int ack = 0x01020304;
-								_local_socket.send (&ack, sizeof(int), incoming);
+						///do 
+						///{
+						///	YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to recv %d\n", remaining));
 
-								YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? acknowledged\n"));
-							}
-						}
-						while (rr >= 0 && remaining > 0);
+						///	rr = _local_socket.recv (tmp, remaining, incoming, 0, &timeout);
+						///	YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? last read got %d bytes\n", rr));
+						///	if (rr < 0)
+						///	{
+						///		retry ++;
+						///		if (retry > 5)
+						///		{
+						///			ACE_DEBUG ((LM_DEBUG, "retried 5 times, potential source of troubles\n"));
+						///		}
+						///		rr = 0;
+						///	}
+						///	else
+						///	{
+						///		remaining -= rr;
+						///		tmp += rr;
+						///		int ack = 0x01020304;
+						///		_local_socket.send (&ack, sizeof(int), incoming);
+
+						///		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? acknowledged\n"));
+						///	}
+						///}
+						///while (rr >= 0 && remaining > 0);
+
 
 						///rr = _local_socket.recv (_extern_reply_buffer, _extern_reply_length, incoming, 0, &timeout); 
+
+						memcpy (_extern_reply_buffer, local_buffer+local_buffer_counter, _extern_reply_length);
+						local_buffer_counter += _extern_reply_length;
+						rr = _extern_reply_length;
+
 					}
 
+/*
 					if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
 					{
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing %d\n", rr));
@@ -750,6 +775,7 @@ void _SocketThreadDgram::Body (void)
 						_local_socket.close ();
 						finished = 1;
 					}
+*/
 
 					_read_more = 0;
 					_reply_made.Post();
@@ -761,6 +787,9 @@ void _SocketThreadDgram::Body (void)
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to go into sending reply\n"));
 
+				/// creates a local buffer and sends it.
+				local_buffer_counter = 0;
+
 				do
 				{
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? ---> iterating send(s)\n"));
@@ -768,9 +797,9 @@ void _SocketThreadDgram::Body (void)
 					{
 						rep = 1;
 					}
-
+	
+					MyMessageHeader hdr2;
 					hdr2.SetGood();
-					///char bufack[] = "acknowledged";
 					buf3 = bufack;
 					reply_len = 0;
 					if (rep)
@@ -782,11 +811,15 @@ void _SocketThreadDgram::Body (void)
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? sending reply _SocketThreadDgram\n"));
 
 					hdr2.SetLength(reply_len);
-					_local_socket.send (&hdr2, sizeof(hdr2), _remote_endpoint.getAddressRef());
+					memcpy (local_buffer + local_buffer_counter, &hdr2, sizeof(hdr2));
+					local_buffer_counter += sizeof(hdr2);
 
+					///_local_socket.send (&hdr2, sizeof(hdr2), _remote_endpoint.getAddressRef());
 					if (reply_len > 0)
 					{
-						_local_socket.send (buf3, reply_len, _remote_endpoint.getAddressRef());
+						///_local_socket.send (buf3, reply_len, _remote_endpoint.getAddressRef());
+						memcpy (local_buffer + local_buffer_counter, buf3, reply_len);
+						local_buffer_counter += reply_len;
 					}
 
 					int curr_preamble = _reply_preamble;
@@ -796,6 +829,7 @@ void _SocketThreadDgram::Body (void)
 						_reply_made.Post();
 					}
 
+/*
 					if (r >= 0)
 					{
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener got %d bytes\n", r));
@@ -807,7 +841,7 @@ void _SocketThreadDgram::Body (void)
 						_local_socket.close ();
 						finished = 1;
 					}
-
+*/
 					was_preamble = 0;
 					if (curr_preamble)
 					{
@@ -820,6 +854,13 @@ void _SocketThreadDgram::Body (void)
 					}
 				}
 				while (was_preamble);
+
+				/// sends reply as a single packet.
+				iovec iov;
+				iov.iov_base = local_buffer;
+				iov.iov_len = local_buffer_counter;
+
+				_local_socket.send (&iov, 1, _remote_endpoint.getAddressRef(), 0);
 			}
 		}
 
@@ -829,6 +870,9 @@ DgramSocketMsgSkip:
 	}	/// while !finished
 
 	/// exit thread.
+	if (local_buffer != NULL) delete[] local_buffer;
+	/// returning because the thread is closing down.
+
 	_mutex.Wait ();
 	/// the socket is closed already.
 	_available = 1;
@@ -877,7 +921,7 @@ ACE_HANDLE _SocketThreadListDgram::connect (const YARPUniqueNameID& id)
 
 	if (_acceptor_socket.get_handle() == ACE_INVALID_HANDLE)
 	{
-		ACE_DEBUG ((LM_DEBUG, ">>>>> problems with opening receiving UDP at %s:%d\n", _local_addr.get_host_name(), _local_addr.get_port_number()));
+		ACE_DEBUG ((LM_DEBUG, ">>>>> problems with opening receiving UDP at %s:%d\n", _local_addr.get_host_addr(), _local_addr.get_port_number()));
 		/// ACE_DEBUG ((LM_DEBUG, "thread 0x%x (%P:%t) %p\n", GetCurrentThreadId(), "can't open socket"));
 		return ACE_INVALID_HANDLE;
 
@@ -886,8 +930,6 @@ ACE_HANDLE _SocketThreadListDgram::connect (const YARPUniqueNameID& id)
 	
 	/// closes down any still open thread (just in case?).
 	if (_initialized) closeAll ();
-
-	/// ACE_DEBUG ((LM_DEBUG, "thread 0x%x server socket open on %s port %d\n", GetCurrentThreadId(), _local_addr.get_host_name(), _local_addr.get_port_number()));
 
 	_initialized = 1;
 
@@ -943,7 +985,7 @@ void _SocketThreadListDgram::addSocket (void)
 			{
 				if ((*it_avail)->getRemoteID().getAddressRef() == incoming)
 				{
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "thread already connected %s:%d\n", incoming.get_host_name(), incoming.get_port_number()));
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "thread already connected %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
 
 					/// needs to recycle the thread, and stop it first.
 					/// reconnecting!
@@ -956,7 +998,7 @@ void _SocketThreadListDgram::addSocket (void)
 		}
 
 		/// check accept return value.
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_name(), incoming.get_port_number()));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
 
 		/// get a new available port number associated to this IP.
@@ -1397,6 +1439,15 @@ public:
 	ACE_INET_Addr _remote_addr;
 	ACE_INET_Addr _local_addr;
 	ACE_SOCK_Dgram _connector_socket;
+
+	MyMessageHeader _hdr;
+
+	enum { _iov_buffer_size = 256 };
+	iovec _iov[_iov_buffer_size];
+	int _num_elements;
+	int _overall_msg_size;
+
+	char _buffer[MAX_PACKET];
 };
 
 static OSDataDgram& OSDATA(void *x)
@@ -1411,8 +1462,19 @@ YARPOutputSocketDgram::YARPOutputSocketDgram (void)
 	identifier = ACE_INVALID_HANDLE;
 	system_resources = new OSDataDgram;
 	ACE_ASSERT(system_resources!=NULL);
+	OSDataDgram& d = OSDATA(system_resources);
 
 	_socktype = YARP_O_SOCKET;
+
+	memset (d._iov, 0, sizeof(iovec) * d._iov_buffer_size);
+	d._num_elements = 0;
+	d._overall_msg_size = 0;
+
+	d._hdr.SetBad();
+
+	/// I hate this but there's no much choice unless the protocol is changed to allow
+	/// for nice iovec style sync comm.
+	memset (d._buffer, 0, MAX_PACKET);
 }
 
 YARPOutputSocketDgram::~YARPOutputSocketDgram (void)
@@ -1432,7 +1494,7 @@ int YARPOutputSocketDgram::Close (void)
 	OSDataDgram& d = OSDATA(system_resources);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Pretending to close a connection to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 
-		d._remote_addr.get_host_name()));
+		d._remote_addr.get_host_addr()));
 
 	/// send the header.
 	MyMessageHeader hdr;
@@ -1447,7 +1509,7 @@ int YARPOutputSocketDgram::Close (void)
 	if (r < 0)
 	{
 		d._connector_socket.close ();
-		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_name(), d._remote_addr.get_port_number()));
+		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 		return YARP_FAIL;
 	}
 
@@ -1476,12 +1538,12 @@ int YARPOutputSocketDgram::Connect (void)
 	OSDataDgram& d = OSDATA(system_resources);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Pretending a connection to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 
-		d._remote_addr.get_host_name()));
+		d._remote_addr.get_host_addr()));
 
 	int r = d._connector_socket.open (d._local_addr, ACE_PROTOCOL_FAMILY_INET, 0, 1);
 	if (r == -1)
 	{
-		ACE_DEBUG ((LM_DEBUG, "cannot open dgram socket %s:%d\n", d._local_addr.get_host_name(), d._local_addr.get_port_number()));
+		ACE_DEBUG ((LM_DEBUG, "cannot open dgram socket %s:%d\n", d._local_addr.get_host_addr(), d._local_addr.get_port_number()));
 		return YARP_FAIL;
 	}
 
@@ -1500,7 +1562,7 @@ int YARPOutputSocketDgram::Connect (void)
 	if (r < 0)
 	{
 		d._connector_socket.close ();
-		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_name(), d._remote_addr.get_port_number()));
+		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 		return YARP_FAIL;
 	}
 
@@ -1512,7 +1574,7 @@ int YARPOutputSocketDgram::Connect (void)
 	{
 		/// there might be a real -1 port number -> 65535.
 		d._connector_socket.close ();
-		ACE_DEBUG ((LM_DEBUG, "got garbage back from remote %s:%d\n", d._remote_addr.get_host_name(), d._remote_addr.get_port_number()));
+		ACE_DEBUG ((LM_DEBUG, "got garbage back from remote %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 		return YARP_FAIL;
 	}
 
@@ -1529,12 +1591,19 @@ int YARPOutputSocketDgram::Connect (void)
 int YARPOutputSocketDgram::SendBegin(char *buffer, int buffer_length)
 {
 	OSDataDgram& d = OSDATA(system_resources);
-	MyMessageHeader hdr;
-	hdr.SetGood ();
-    hdr.SetLength (buffer_length);
+	d._hdr.SetGood ();
+    d._hdr.SetLength (buffer_length);
 
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "sending to: %s:%d\n", d._remote_addr.get_host_name(), d._remote_addr.get_port_number()));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "sending to: %s:%d\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
 
+	d._iov[0].iov_base = (char *)&d._hdr;
+	d._iov[0].iov_len = sizeof(d._hdr);
+	d._iov[1].iov_base = buffer;
+	d._iov[1].iov_len = buffer_length;
+	d._num_elements = 2;
+	d._overall_msg_size = buffer_length + sizeof(d._hdr);
+
+#if 0
 	int sent = -1;
 	sent = d._connector_socket.send ((const void *)(&hdr), sizeof(hdr), d._remote_addr);
 	if (sent != sizeof(hdr))
@@ -1543,6 +1612,7 @@ int YARPOutputSocketDgram::SendBegin(char *buffer, int buffer_length)
 	sent = d._connector_socket.send (buffer, buffer_length, d._remote_addr);
 	if (sent != buffer_length)
 		return YARP_FAIL;
+#endif
 
 	return YARP_OK;
 }
@@ -1551,6 +1621,13 @@ int YARPOutputSocketDgram::SendBegin(char *buffer, int buffer_length)
 int YARPOutputSocketDgram::SendContinue(char *buffer, int buffer_length)
 {
 	OSDataDgram& d = OSDATA(system_resources);
+
+	d._iov[d._num_elements].iov_base = buffer;
+	d._iov[d._num_elements].iov_len = buffer_length;
+	d._num_elements ++;
+	d._overall_msg_size += buffer_length;
+		
+#if 0
 	/// without header.
 	int sent = 0, counter = 0;
 	do
@@ -1579,12 +1656,132 @@ int YARPOutputSocketDgram::SendContinue(char *buffer, int buffer_length)
 
 	///YARP_DBG(THIS_DBG) ((LM_DEBUG, "ack received for len = %d, 0x%x\n", buffer_length, ack));
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "ack received for len = %d, 0x%x\n", buffer_length, ack));
+#endif
+
 	return YARP_OK;
 }
+
+#if 0
+/// LATER: this cannot work unless also the protocol is changed. Keep it for next version.
+///
+int YARPOutputSocketDgram::SendReceivingReply(YARPMultipartMessage& return_msg)
+{
+	OSDataDgram& d = OSDATA(system_resources);
+
+	const int parts = return_msg.GetParts();
+	ACE_ASSERT (parts < _iov_buffer_size);
+	int i;
+
+	_num_elements = parts;
+	///_overall_msg_size = 0;
+	char c = -1;
+
+	_iov[0].iov_base = &c;
+	_iov[0].iov_len = sizeof(char);
+	_overall_msg_size = 1;
+
+	for (i = 0; i < parts-1; i++)
+	{
+		_iov[i+1].iov_base = return_msg.GetBuffer(i);
+		_iov[i+1].iov_len = return_msg.GetBufferLength(i);
+		_overall_msg_size += _iov[i+1].iov_len;
+	}
+
+	ACE_INET_Addr incoming;
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
+	int r = d._connector_socket.recv (_iov, parts, incoming, 0);	/// no timeout?
+
+	if (r != _overall_msg_size)
+		return YARP_FAIL;
+
+	return r;
+}
+#endif
 
 /// I'm afraid the reply might end up being costly to streaming communication.
 int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buffer_length)
 {
+	OSDataDgram& d = OSDATA(system_resources);
+	int result = YARP_FAIL;
+
+	if (d._overall_msg_size != 0)
+	{
+		/// it needs to send the message first.
+		if (d._overall_msg_size > MAX_PACKET)
+		{
+			ACE_DEBUG ((LM_DEBUG, "Implementation limit, pls, you should refrain from sending big MCAST packets\n"));
+			ACE_DEBUG ((LM_DEBUG, "Actual size is %d, allowed %d\n", d._overall_msg_size, MAX_PACKET));
+			ACE_ASSERT (1 == 0);
+		}
+
+		int sent = d._connector_socket.send (d._iov, d._num_elements, d._remote_addr, 0);
+		if (sent < 0)
+		{
+			ACE_DEBUG ((LM_DEBUG, "Actual send to %s:%d failed\n", d._remote_addr.get_host_addr(), d._remote_addr.get_port_number()));
+			return YARP_FAIL;
+		}
+
+		d._overall_msg_size = 0;
+		d._num_elements = 0;
+
+		d._iov[0].iov_base = d._buffer;
+		d._iov[0].iov_len = MAX_PACKET;
+		ACE_INET_Addr incoming;
+		int r = d._connector_socket.recv (d._iov, 1, incoming, 0);
+		if (r > 0)
+		{
+			MyMessageHeader *hdr2 = (MyMessageHeader *)(d._iov[0].iov_base);
+			d._iov[0].iov_base += sizeof(MyMessageHeader);
+
+			int len2 = hdr2->GetLength();
+			if (len2 > 0)
+			{
+				if (len2 < reply_buffer_length)
+				{
+					reply_buffer_length = len2;
+				}
+
+				memcpy (reply_buffer, d._iov[0].iov_base, reply_buffer_length);
+				d._iov[0].iov_base += reply_buffer_length;
+				result = reply_buffer_length;
+			}
+			else
+			{
+				if (len2 == 0) { result = 0; }
+			}
+		}
+		else
+		{
+			ACE_DEBUG ((LM_DEBUG, "Recv of reply msg failed\n"));
+			return YARP_FAIL;
+		}
+	}
+	else
+	{
+		MyMessageHeader *hdr2 = (MyMessageHeader *)(d._iov[0].iov_base);
+		d._iov[0].iov_base += sizeof(MyMessageHeader);
+
+		int len2 = hdr2->GetLength();
+		if (len2 > 0)
+		{
+			if (len2 < reply_buffer_length)
+			{
+				reply_buffer_length = len2;
+			}
+
+			memcpy (reply_buffer, d._iov[0].iov_base, reply_buffer_length);
+			d._iov[0].iov_base += reply_buffer_length;
+			result = reply_buffer_length;
+		}
+		else
+		{
+			if (len2 == 0) { result = 0; }
+		}
+	}
+
+	return result;
+
+#if 0
 	OSDataDgram& d = OSDATA(system_resources);
 	MyMessageHeader hdr2;
 	hdr2.SetBad ();
@@ -1612,6 +1809,7 @@ int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buff
 		}
 	}
 	return result;
+#endif
 }
 
 

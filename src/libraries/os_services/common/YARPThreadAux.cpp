@@ -52,21 +52,22 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPThreadAux.cpp,v 1.3 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPThreadAux.cpp,v 1.4 2003-07-01 12:49:57 gmetta Exp $
 ///
 ///
 
 #include <conf/YARPConfig.h>
+#include <ace/config.h>
 #include "YARPThread.h"
 
 static int app_death = 0;
 
-void YARPThread::PrepareForDeath()
+void YARPThread::PrepareForDeath(void)
 {
 	app_death = 1;
 }
 
-int YARPThread::IsDying()
+int YARPThread::IsDying(void)
 {
 	return app_death;
 }

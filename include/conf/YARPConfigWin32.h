@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.25 2003-06-22 15:47:42 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.26 2003-07-01 12:49:57 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -55,6 +55,9 @@
 
 /// alignment bytes required for mmx/ipl instructions.
 #define YARP_IMAGE_ALIGN 8
+
+/// default length for general purpose strings.
+#define YARP_STRING_LEN 256
 
 /// disables warning for init_seg(lib) very legitimate use of directive.
 #pragma warning (disable:4073)

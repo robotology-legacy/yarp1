@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.16 2003-06-20 12:31:04 gmetta Exp $
+$Id: README.txt,v 1.17 2003-07-01 12:49:57 gmetta Exp $
 
 
 =============
@@ -28,10 +28,18 @@ Things under development:
 
 2- extra commands for the name server.
 
+3- initialization MFC+os_services might fail under some circumstances
+	- solution: do explicit init and fini
 
-3- image transmission across different architectures - e.g. padding differences 
-	between QNX and WIN. Solution: pad everything to the same amount (8 bytes).
+4- rationalize multiple protocol handling (single object to handle many protocols).
 
+5- implement shared mem communication protocol.
+
+6.1- move channel communication on TCP if possible.
+
+6.2- reply messages, exploit iovec structure, maintaining compatibility w/ YARP multipart msg.
+
+6.3- Sendable definition for YVector, YMAtrix.
 
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating
 	the sender. USE test12 to see this condition.
@@ -59,5 +67,3 @@ Things under development:
 6- add windows DLL to the repository (these are the DLL's installed by visual C++).
 
 ***********
-7- CRAZY but GORGEOUS, multiple protocols from the same port. ACE allows also streams in
-	shared memory (very efficient).

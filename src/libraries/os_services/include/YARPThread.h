@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.10 2003-06-20 12:04:57 babybot Exp $
+///	$Id: YARPThread.h,v 1.11 2003-07-01 12:49:57 gmetta Exp $
 ///
 ///
 /*
@@ -69,32 +69,28 @@ Ideally, would use POSIX semaphores, threads etc.
 #include <ace/config.h>
 #include <ace/Synch.h>
 #include "YARPAll.h"
+#include "YARPSemaphore.h"
+#include "YARPTime.h"
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
 ///
+/// base class can be used where the extra termination sema is not required
+///	optimize resources consumption.
 ///
-///
-///
-class YARPThread
+class YARPBareThread
 {
-private:
+protected:
 	void *system_resource;
 	int identifier;
 	int size;
 
 public:
-	///
-	///
-	///
-	YARPThread();
-	YARPThread(const YARPThread& yt);
-	virtual ~YARPThread();
-
-	// Assertion fails if insufficient resources at initialization.
-	// stack_size of zero means use default stack size
+	YARPBareThread(void);
+	YARPBareThread(const YARPBareThread& yt);
+	virtual ~YARPBareThread(void);
 
 	/// Begin and End are now virtual, overridable.
 	virtual void Begin(int stack_size=0);
@@ -103,20 +99,6 @@ public:
 
 	int GetIdentifier() { return identifier; }
 
-	int IsTerminated();
-	// If you are in MS-Windows, you should call this
-	// every now and then, and leave Body() if the result
-	// is non-zero.  If you don't, you may be terminated
-	// forceably with loss of memory and resources you are
-	// holding.
-
-	// why... it might be fixed by using ACE under WIN32. 
-
-	// Forcibly halt all threads (late addition, just in QNX implementation)
-	static void TerminateAll();
-
-	static void PrepareForDeath();
-	static int IsDying();
 #ifdef __WIN32__
 	friend static unsigned __stdcall ExecuteThread (void *args);
 #else
@@ -125,6 +107,39 @@ public:
 
 	int GetPriority (void);
 	int SetPriority (int prio);
+};
+
+///
+///
+///
+///
+class YARPThread : public YARPBareThread
+{
+protected:
+	YARPSemaphore sema;
+
+public:
+	///
+	///
+	///
+	YARPThread(void);
+	YARPThread(const YARPThread& yt);
+	virtual ~YARPThread(void);
+
+	virtual void End(int dontkill = 0);
+
+	int IsTerminated(void);
+	// If you are in __WIN32__, you should call this
+	// every now and then, and leave Body() if the result
+	// is non-zero.  If you don't, you may be terminated
+	// forceably with loss of memory and resources you are
+	// holding.
+
+	// Forcibly halt all threads (late addition, just in QNX(4) implementation)
+	static void TerminateAll(void);
+
+	static void PrepareForDeath(void);
+	static int IsDying(void);
 };
 
 

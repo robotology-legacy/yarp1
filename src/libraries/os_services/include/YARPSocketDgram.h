@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.h,v 1.3 2003-04-24 08:49:33 gmetta Exp $
+/// $Id: YARPSocketDgram.h,v 1.4 2003-07-01 12:49:57 gmetta Exp $
 ///
 ///
 
@@ -155,6 +155,7 @@ public:
 	
 	int SendBegin(char *buffer, int buffer_length);
 	int SendContinue(char *buffer, int buffer_length);
+	///int SendReceivingReply(YARPMultipartMessage& return_msg);
 	int SendReceivingReply(char *reply_buffer, int reply_buffer_length);
 	int SendEnd(char *reply_buffer, int reply_buffer_length);
 

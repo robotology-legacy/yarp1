@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.15 2003-06-30 09:30:06 babybot Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.16 2003-07-01 12:49:57 gmetta Exp $
 ///
 ///
 
@@ -263,9 +263,6 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 
 	os->SendContinue ((char *)_buffer, sizeof(NetInt32) * (send_parts + return_parts));
 
-	///
-	/// just a wakeup required by the protocol under UDP.
-		
 	///YARPTime::DelayInSeconds(2.5);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "about to send buf 0 %d bytes\n", msg.GetBufferLength(0)));
 	os->SendContinue (msg.GetBuffer(0), msg.GetBufferLength(0));

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.17 2003-06-30 13:37:43 babybot Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.18 2003-07-01 12:49:57 gmetta Exp $
 ///
 ///
 
@@ -981,7 +981,7 @@ void _SocketThreadMcast::BodyMcast (void)
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read the data buffer\n"));
 
 					///r = _mcast_socket.recv (_extern_buffer, len , incoming, 0, &timeout);
-					/// shouldn't much different from the real recv.
+					/// shouldn't be much different from the real recv.
 					memcpy (_extern_buffer, local_buffer+local_buffer_counter, len); 
 					local_buffer_counter += len;
 					r = len;

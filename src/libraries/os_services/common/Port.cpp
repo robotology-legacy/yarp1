@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.34 2003-06-28 16:40:01 babybot Exp $
+/// $Id: Port.cpp,v 1.35 2003-07-01 12:49:57 gmetta Exp $
 ///
 ///
 
@@ -728,7 +728,7 @@ void Port::Body()
 		okay_to_send.Post();
 	}
 
-	while (end_thread.PollingWait() == 0)
+	while (!IsTerminated())
     {
 		receiver.Begin(pid.getNameID());
 
@@ -1036,39 +1036,6 @@ void Port::Body()
 		}
 	} /// if it's valid
 
-
-#if 0
-	ACE_DEBUG ((LM_DEBUG, "port thread closing all...\n"));
-	ACE_DEBUG ((LM_DEBUG, "Running detach_all request (%s)\n", name.c_str()));
-
-	list_mutex.Wait ();
-
-	if (protocol_type != YARP_MCAST)
-	{
-		target = targets.GetRoot();
-
-		while (target != NULL)
-		{
-			next = target->GetMeshNext();
-			ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
-			target->Deactivate();
-			target = next;
-		}
-	}
-	else
-	{
-		/// mcast
-		target = targets.GetByLabel("mcast-thread\0"); ///buf+1);
-		if (target != NULL)
-		{
-			ACE_DEBUG ((LM_DEBUG, "Removing all mcast connections\n"));
-			
-			target->DeactivateMcastAll();
-		}
-	}
-
-	list_mutex.Post ();
-#endif
 
 	ACE_DEBUG ((LM_DEBUG, "port thread returning\n"));
 }

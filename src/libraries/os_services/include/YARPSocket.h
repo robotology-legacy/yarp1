@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.h,v 1.7 2003-05-29 00:39:27 gmetta Exp $
+/// $Id: YARPSocket.h,v 1.8 2003-07-01 12:49:57 gmetta Exp $
 ///
 ///
 
@@ -189,6 +189,11 @@ public:
 		ACE_ASSERT (NOT_IMPLEMENTED); 
 		return YARP_FAIL; 
 	}
+///	virtual int SendReceivingReply(YARPMultipartMessage& return_msg)
+///	{
+///		ACE_UNUSED_ARG(return_msg);
+///		return YARP_FAIL;
+///	}
 	virtual int SendReceivingReply(char *reply_buffer, int reply_buffer_length) 
 	{
 		ACE_UNUSED_ARG(reply_buffer);
