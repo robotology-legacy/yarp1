@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.5 2003-06-17 20:20:36 babybot Exp $
+/// $Id: YARPLogpolar.h,v 1.6 2003-06-18 17:24:09 babybot Exp $
 ///
 ///
 
@@ -122,6 +122,7 @@ protected:
 	int * _remapMapNf;
 	double *_angShiftMap;
 	short *_padMap;
+	Neighborhood * _weightsMap;
 
 public:
 	YARPLogpolar (void);
@@ -133,6 +134,7 @@ public:
 	int Logpolar2Cartesian (const YARPGenericImage& in, YARPGenericImage& out);
 	int Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy);
 	int Cartesian2Logpolar (int ix, int iy, int& orho, int& otheta);
+	int ReconstructColor (const YARPImageOf<YarpPixelMono>& in, YARPGenericImage& out);
 
 	inline int GetCWidth (void) const { return _logpolarParams::_xsize; }
 	inline int GetCHeight (void) const { return _logpolarParams::_ysize; }

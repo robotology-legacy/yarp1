@@ -37,7 +37,8 @@ public:
 	YARPGenericImage m_img;
 	YARPGenericImage m_flipped;
 	YARPGenericImage m_remapped;
-	YARPImageOf<YarpPixelBGR> m_xxx;	/// temporary.
+	YARPImageOf<YarpPixelBGR> m_colored;
+
 	YARPLogpolar m_mapper;
 
 	YARPDIBConverter m_converter;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.5 2003-06-17 20:20:36 babybot Exp $
+/// $Id: main.cpp,v 1.6 2003-06-18 17:24:09 babybot Exp $
 ///
 ///
 
@@ -128,9 +128,12 @@ int main (int argc, char *argv[])
 	Crop_Remap_Map(&Param, Path);
 	Build_Color_Map(Path);
 
-	Build_XY_Map(&Param,Path);
-	Build_Neighborhood_Map(&Param,Path);
-	Build_Weights_Map(&Param,Path);	
+	///
+	Param.Pix_Numb = 2;
+
+	Build_XY_Map(&Param, Path);
+	Build_Neighborhood_Map_NoFov(&Param, Path);
+	Build_Weights_Map_NoFov(&Param, Path);	
 
 	return 0;
 }

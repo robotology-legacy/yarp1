@@ -19,6 +19,8 @@ const int _AVE = 20;
 
 void CRecv::Body (void)
 {
+	using namespace _logpolarParams;
+
 	/// 
 	m_inport.Register (m_name);
 
@@ -58,7 +60,7 @@ void CRecv::Body (void)
 		/// or logpolar.
 		else
 		{
-			if (m_img.GetWidth() != _logpolarParams::_stheta || m_img.GetHeight() != _logpolarParams::_srho - _logpolarParams::_sfovea)
+			if (m_img.GetWidth() != _stheta || m_img.GetHeight() != _srho - _sfovea)
 			{
 				/// falls back to cartesian mode.
 				m_logp = false;
@@ -70,14 +72,18 @@ void CRecv::Body (void)
 				m_remapped.Resize (256, 256, YARP_PIXEL_BGR);
 			}
 
+			if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho - _sfovea)
+			{
+				m_colored.Resize (_stheta, _srho-_sfovea);
+			}
+
 			if (m_flipped.GetWidth() != m_remapped.GetWidth() || m_flipped.GetHeight() != m_remapped.GetHeight())
 			{
 				m_flipped.Resize (m_remapped.GetWidth(), m_remapped.GetHeight(), m_remapped.GetID());
-				///m_flipped.PeerCopy(m_img);
 			}
 
-			m_xxx.CastCopy (m_img);
-			m_mapper.Logpolar2Cartesian (m_xxx, m_remapped);
+			m_mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)m_img, m_colored);
+			m_mapper.Logpolar2Cartesian (m_colored, m_remapped);
 			YARPSimpleOperation::Flip (m_remapped, m_flipped);
 
 			m_mutex.Wait();

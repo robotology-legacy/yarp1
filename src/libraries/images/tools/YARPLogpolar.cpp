@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.7 2003-06-17 20:20:36 babybot Exp $
+/// $Id: YARPLogpolar.cpp,v 1.8 2003-06-18 17:24:09 babybot Exp $
 ///
 ///
 
@@ -178,6 +178,7 @@ YARPLogpolar::YARPLogpolar (void)
 		256.0/1090.0);
 
 	_periphery.padding = YarpImageAlign;
+	_periphery.Pix_Numb = 2;
 
 	char *path = GetYarpRoot ();
 
@@ -213,6 +214,14 @@ YARPLogpolar::YARPLogpolar (void)
 
 	ACE_OS::fread(_padMap, sizeof(short), _periphery.Size_Theta * _periphery.Size_Fovea, fin);
 	ACE_OS::fclose (fin);
+
+	ACE_OS::sprintf(filename, "%s\\conf\\%s%02d%s", path, "WeightsMapNoFov", _periphery.Pix_Numb, ".gio");
+	fin = ACE_OS::fopen(filename, "rb");
+
+	_weightsMap = (Neighborhood *) malloc ((_periphery.Size_LP-(_sfovea*_stheta)) * _periphery.Pix_Numb * 3 * sizeof(Neighborhood));
+
+	ACE_OS::fread(_weightsMap, sizeof(Neighborhood), (_periphery.Size_LP-(_sfovea*_stheta)) * _periphery.Pix_Numb * 3, fin);
+	ACE_OS::fclose (fin);
 }
 
 YARPLogpolar::~YARPLogpolar ()
@@ -220,6 +229,7 @@ YARPLogpolar::~YARPLogpolar ()
 	if (_remapMapNf != NULL) free (_remapMapNf);
 	if (_angShiftMap != NULL) free (_angShiftMap);
 	if (_padMap != NULL) free (_padMap);
+	if (_weightsMap != NULL) free (_weightsMap);
 }
 
 int YARPLogpolar::Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy)
@@ -255,3 +265,10 @@ int YARPLogpolar::Cartesian2Logpolar (int ix, int iy, int& orho, int& otheta)
 	return YARP_OK;
 }
 
+int YARPLogpolar::ReconstructColor (const YARPImageOf<YarpPixelMono>& in, YARPGenericImage& out)
+{
+	using namespace _logpolarParams;
+
+	Reconstruct_Color((unsigned char *)out.GetRawBuffer(), (unsigned char *)in.GetRawBuffer(), _srho-_sfovea, _stheta, _periphery.padding, _weightsMap, _periphery.Pix_Numb);
+	return YARP_OK;
+}
