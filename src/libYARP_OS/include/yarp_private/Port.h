@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.4 2004-07-07 20:31:14 eshuy Exp $
+/// $Id: Port.h,v 1.5 2004-07-08 19:15:27 eshuy Exp $
 ///
 ///
 
@@ -162,7 +162,7 @@ public:
 	virtual ~OutputTarget() 
 	{ 
 		End(); 
-		ACE_OS::printf ("OutputTarget destroyed\n");
+		/// ACE_OS::printf ("OutputTarget destroyed\n");
 		/// supposedly closes the actual connection.
 	}
 

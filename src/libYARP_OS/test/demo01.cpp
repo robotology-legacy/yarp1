@@ -4,6 +4,8 @@
 #include <yarp/YARPThread.h>
 #include <yarp/YARPTime.h>
 
+#include <ace/Log_Msg.h>
+
 YARPInputPortOf<int> in_port;
 YARPOutputPortOf<int> out_port;
 
@@ -20,12 +22,8 @@ public:
   }
 };
 
-extern int __debug_level;
-
-
 int main() {
-  //__debug_level = 100;
-
+  // drop out debug messages
   in_port.Register("/test/demo01/in");
   out_port.Register("/test/demo01/out");
   out_port.Connect("/test/demo01/in");
@@ -41,7 +39,7 @@ int main() {
     YARPTime::DelayInSeconds(1);
   }
   in_port.Unregister();
-  //out_port.Unregister();
+  out_port.Unregister();
 
   return 0;
 }

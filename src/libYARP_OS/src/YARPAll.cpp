@@ -61,13 +61,14 @@
 ///
 
 ///
-/// $Id: YARPAll.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPAll.cpp,v 1.3 2004-07-08 19:15:27 eshuy Exp $
 ///
 ///
 #include <yarp/conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/ACE.h>
 #include <ace/OS.h>
+#include <yarp/YARPNameService.h>
 
 ///#include <stdio.h>
 #include <stdarg.h>
@@ -88,9 +89,17 @@ static YARPSemaphore services_sema(1);
 class YARPFooInitializer
 {
 public:
-	YARPFooInitializer () { ACE::init(); ACE_OS::srand(ACE_OS::time(0)); }
+	YARPFooInitializer () { 
+	  ACE::init(); 
+	  // by default won't see debug messages anymore
+	  ACE_LOG_MSG->priority_mask (((ACE_LOG_MSG->priority_mask(ACE_Log_Msg::PROCESS))&(~LM_DEBUG))|LM_WARNING, ACE_Log_Msg::PROCESS);
+
+	  ACE_OS::srand(ACE_OS::time(0)); 
+	}
 	~YARPFooInitializer () { ACE::fini(); }
 } _fooinitializer;
+
+static YARPNameService _justtoinitialize;
 
 
 /// -1 = disabled.

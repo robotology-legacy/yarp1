@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.3 2004-07-08 19:15:28 eshuy Exp $
 ///
 ///
 
@@ -237,6 +237,7 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Get %d send_parts, %d return_parts\n", send_parts, return_parts));
 	const int _bufsize = 64;
+
 	ACE_ASSERT (send_parts + return_parts <= _bufsize);
 
 	/* preamble code begins */
@@ -261,7 +262,6 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 
 	os->SendContinue ((char *)_buffer, sizeof(NetInt32) * (send_parts + return_parts));
 
-	///YARPTime::DelayInSeconds(2.5);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "about to send buf 0 %d bytes\n", msg.GetBufferLength(0)));
 	os->SendContinue (msg.GetBuffer(0), msg.GetBufferLength(0));
 

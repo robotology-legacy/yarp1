@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-read.cpp,v 1.2 2004-07-06 13:47:13 eshuy Exp $
+/// $Id: yarp-read.cpp,v 1.3 2004-07-08 19:15:41 eshuy Exp $
 ///
 ///
 
@@ -61,8 +61,12 @@
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBottleContent.h>
 
+//extern int __debug_level;
+
 int main(int argc, char *argv[])
 {
+  //__debug_level = 100;
+
   argc--;
   argv++;
 
@@ -77,16 +81,19 @@ int main(int argc, char *argv[])
 
   int eof = 0;
   while (!eof) {
-    in_port.Read();
-    YARPBottle& bottle = in_port.Content();
-    int eof = 0;
-    if (bottle.tryReadInt(&eof)) {
-      bottle.moveOn();
-    }
-    if (!eof) {
-      cout << bottle.readText() << endl;
+    if (in_port.Read()) {
+      YARPBottle& bottle = in_port.Content();
+      if (bottle.tryReadInt(&eof)) {
+	bottle.moveOn();
+      }
+      if (!eof) {
+	cout << bottle.readText() << endl;
+	cout.flush();
+      }
     }
   }
+
+  in_port.Unregister();
 
   return YARP_OK;
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.3 2004-07-06 09:15:24 eshuy Exp $
+/// $Id: YARPNameService.cpp,v 1.4 2004-07-08 19:15:28 eshuy Exp $
 ///
 ///
 
@@ -93,7 +93,6 @@ static YARPSemaphore mutex(1);
 /// LATER: do it differently.
 static bool _init_nameserver = true;
 static YARPNameClient * _namer = NULL;
-static YARPNameService _justtoinitialize;
 
 ///#define SCATTERSHOT
 
@@ -202,10 +201,33 @@ int YARPNameService::Finalize (void)
 
 YARPUniqueNameID* YARPNameService::RegisterName(const char *name, const char *network_name, int reg_type, int num_ports_needed)
 {
-  printf("Trying to register name %s for %s (%d/%d)\n", name, network_name, reg_type, num_ports_needed);
+  const char *reg_type_text = "unknown";
+  switch (reg_type) {
+  case YARP_NO_SERVICE_AVAILABLE:
+    reg_type_text = "none";
+    break;
+  case YARP_TCP:
+    reg_type_text = "tcp";
+    break;
+  case YARP_UDP:
+    reg_type_text = "udp";
+    break;
+  case YARP_MCAST:
+    reg_type_text = "mcast";
+    break;
+  case YARP_QNET:
+    reg_type_text = "qnet";
+    break;
+  case YARP_QNX4:
+    reg_type_text = "qnx4";
+    break;
+  }
+
+  ACE_DEBUG((LM_INFO, "*** making port %s on %s network [%s, %d port%s]\n", name, network_name, reg_type_text, num_ports_needed,
+	  (num_ports_needed==1)?"":"s"));
 	if (reg_type == YARP_QNET && !YARPNativeNameService::IsNonTrivial())
 	{
-		ACE_DEBUG ((LM_DEBUG, "YARPNameService: asked QNX under !QNX OS, of course, it failed\n"));
+		ACE_DEBUG ((LM_WARNING, "YARPNameService: asked QNX under !QNX OS, of course, it failed\n"));
 		return NAMER_FAIL;
 	}
 
@@ -245,7 +267,7 @@ YARPUniqueNameID* YARPNameService::LocateName(const char *name, const char *netw
 	/// or otherwise it goes global.
 	if (name_type == YARP_QNET && !YARPNativeNameService::IsNonTrivial())
 	{
-		ACE_DEBUG ((LM_DEBUG, "YARPNameService: asked QNX under !QNX OS, of course, it failed\n"));
+		ACE_DEBUG ((LM_WARNING, "YARPNameService: asked QNX under !QNX OS, of course, it failed\n"));
 		return NAMER_FAIL;
 	}
 
@@ -290,7 +312,7 @@ int YARPEndpointManager::CreateInputEndpoint(YARPUniqueNameID& name)
 		return YARPNativeEndpointManager::CreateInputEndpoint (name);
 
 	default:
-		ACE_DEBUG ((LM_DEBUG, "it doesn't exist an input endpoint for the protocol specified\n"));
+		ACE_DEBUG ((LM_WARNING, "it doesn't exist an input endpoint for the protocol specified\n"));
 	}
 
 	return YARP_FAIL;

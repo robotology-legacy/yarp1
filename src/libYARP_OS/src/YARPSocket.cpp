@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.3 2004-07-06 09:15:24 eshuy Exp $
+/// $Id: YARPSocket.cpp,v 1.4 2004-07-08 19:15:28 eshuy Exp $
 ///
 ///
 
@@ -188,7 +188,6 @@ int YARPNetworkObject::setSocketBufSize (ACE_SOCK& sock, int size)
 int getHostname(char *buffer, int buffer_length)
 {
 	int result = gethostname (buffer, buffer_length);
-  printf("*** HOST NAME result was %s\n", buffer);
 #ifndef __QNX4__
 #ifndef __WIN32__
 #ifndef __QNX6__

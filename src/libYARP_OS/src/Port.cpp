@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.6 2004-07-07 20:31:14 eshuy Exp $
+/// $Id: Port.cpp,v 1.7 2004-07-08 19:15:27 eshuy Exp $
 ///
 ///
 
@@ -224,8 +224,7 @@ void OutputTarget::Body ()
 	/// implicit wait mutex for this thread.
 	/// see overridden Begin()
 
-#if defined(__QNX6__)
-  // || defined(__LINUX__)
+#if defined(__QNX6__) || defined(__LINUX__)
   signal (SIGPIPE, SIG_IGN);
 #endif
 	int success = YARP_OK;
@@ -274,7 +273,11 @@ void OutputTarget::Body ()
 			target_pid = YARPNameService::LocateName (GetLabel().c_str(), network_name.c_str());
 			if (!target_pid->isConsistent(YARP_UDP))
 			{
-				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : can't connect - target on different network, output thread 0x%x bailing out\n", GetIdentifier()));
+			  if (target_pid->getServiceType()==YARP_NO_SERVICE_AVAILABLE) {
+			    ACE_DEBUG ((LM_INFO, "*** FAILED to make connection to %s, port not found\n",GetLabel().c_str()));
+			  } else {
+			    ACE_DEBUG ((LM_INFO, "***** OutputTarget::Body : can't connect - target on different network, output thread 0x%x bailing out\n", GetIdentifier()));
+			  }
 				YARPNameService::DeleteName(target_pid);
 				target_pid = NULL;
 
@@ -284,7 +287,7 @@ void OutputTarget::Body ()
 				return;	
 			}
 
-#ifndef __LINUX__
+#ifndef __LINUXFOOO__
 #ifndef DEBUG_DISABLE_SHMEM
 			/// involves a query to dns or to the /etc/hosts file.
 			char myhostname[YARP_STRING_LEN];
@@ -361,7 +364,11 @@ void OutputTarget::Body ()
 			target_pid = YARPNameService::LocateName (GetLabel().c_str(), network_name.c_str());
 			if (!target_pid->isConsistent(YARP_UDP))
 			{
-				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : can't connect - target on different network, output thread 0x%x bailing out\n", GetIdentifier()));
+			  if (target_pid->getServiceType()==YARP_NO_SERVICE_AVAILABLE) {
+			    ACE_DEBUG ((LM_INFO, "*** FAILED to make connection to %s, port not found\n",GetLabel().c_str()));
+			  } else {
+			    ACE_DEBUG ((LM_INFO, "***** OutputTarget::Body : can't connect - target on different network, output thread 0x%x bailing out\n", GetIdentifier()));
+			  }
 				YARPNameService::DeleteName(target_pid);
 				target_pid = NULL;
 
@@ -675,7 +682,6 @@ void _strange_select::Body ()
 #if defined(__QNX6__) || defined(__LINUX__)
 	//signal (SIGCHLD, SIG_IGN);
 	//signal (SIGPIPE, SIG_IGN);
-	// check this again on QNX
 #endif
 
 	OutputTarget *target, *next;
@@ -723,9 +729,9 @@ void _strange_select::Body ()
 
 				if (!active)
 				{
-					ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s (%s%s)\n",
+					ACE_DEBUG ((LM_INFO, "*** disconnecting %s and %s (%s%s)\n",
 						_owner->name.c_str(), target->GetLabel().c_str(),
-						deactivated ? "as requested" : "target stopped responding",
+						deactivated ? "commanded" : "target stopped responding",
 						timeout?"/timeout":""));
 
 					delete target;
@@ -751,9 +757,9 @@ void _strange_select::Body ()
 
 				if (!active)
 				{
-					ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s (%s)\n", 
+					ACE_DEBUG ((LM_INFO, "*** disconnecting %s and %s (%s)\n", 
 						_owner->name.c_str(), target->GetLabel().c_str(),
-						deactivated ? "as requested" : "target stopped responding"));
+						deactivated ? "commanded" : "target stopped responding"));
 
 					delete target;
 				}
@@ -1041,9 +1047,9 @@ void Port::Body()
 
 				if (!active)
 				{
-					ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s (%s%s)\n",
+					ACE_DEBUG ((LM_INFO, "*** disconnecting %s and %s (%s%s)\n",
 						name.c_str(), target->GetLabel().c_str(),
-						deactivated ? "as requested" : "target stopped responding",
+						deactivated ? "commanded" : "target stopped responding",
 						timeout?"/timeout":""));
 					/// remove the port no, from the list of used ports.
 
@@ -1069,7 +1075,7 @@ void Port::Body()
 						target = targets.GetByLabel (buf);
 						if (target == NULL)
 						{
-							ACE_DEBUG ((LM_DEBUG, "Starting connection between %s and %s\n", name.c_str(), buf));
+							ACE_DEBUG ((LM_INFO, "*** connecting %s to %s\n", name.c_str(), buf));
 
 							target = targets.NewLink(buf);
 							ACE_ASSERT(target != NULL);
@@ -1163,7 +1169,7 @@ void Port::Body()
 								}
 								else
 								{
-									ACE_DEBUG ((LM_DEBUG, "MCAST: Starting connection between %s and %s\n", name.c_str(), buf));
+									ACE_DEBUG ((LM_INFO, "*** MCAST: connecting %s to %s\n", name.c_str(), buf));
 									target->ConnectMcast (buf);
 								}
 							}
@@ -1239,9 +1245,9 @@ void Port::Body()
 
 						if (!active)
 						{
-							ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s (%s%s)\n",
+							ACE_DEBUG ((LM_INFO, "disconnecting %s and %s (%s%s)\n",
 								name.c_str(), target->GetLabel().c_str(),
-								deactivated ? "as requested" : "target stopped responding",
+								deactivated ? "commanded" : "target stopped responding",
 								timeout?"/timeout":""));
 
 							delete target;

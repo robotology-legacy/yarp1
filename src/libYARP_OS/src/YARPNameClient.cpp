@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.4 2004-07-06 18:38:29 eshuy Exp $
+/// $Id: YARPNameClient.cpp,v 1.5 2004-07-08 19:15:28 eshuy Exp $
 ///
 ///
 
@@ -239,10 +239,7 @@ int YARPNameClient::query_nic(const YARPString &inIp, const YARPString &netId, Y
 
 int YARPNameClient::check_out (const YARPString &s)
 {
-  printf("1 Check out %s\n", s.c_str()); fflush(stdout);
-
 	mutex_.Wait();
-  printf("2 Check out %s\n", s.c_str()); fflush(stdout);
 	// send data to server
 	YARPNameServiceCmd tmpCmd;
 	YARPNameTCP tmpRqst;
@@ -325,7 +322,9 @@ int YARPNameClient::connect_to_server ()
 {
 	if (connector_.connect (client_stream_, remote_addr_) == -1)
 	{
-		ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","connection failed"), -1);
+	  //ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","connection failed"), -1);
+	  ACE_DEBUG ((LM_DEBUG, "(%P|%t) %p\n","connection failed"));
+	  return YARP_FAIL;
 	}
 
 	int one = 1;

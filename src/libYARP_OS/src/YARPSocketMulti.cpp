@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.4 2004-07-07 20:31:14 eshuy Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.5 2004-07-08 19:15:28 eshuy Exp $
 ///
 ///
 
@@ -859,9 +859,8 @@ void _SocketThreadMulti::End (int dontkill /* = -1 */)
 ///	error check is not consistent.
 void _SocketThreadMulti::Body (void)
 {
-#if defined(__QNX6__)
-  // || defined(__LINUX__)
-  //signal (SIGPIPE, SIG_IGN);
+#if defined(__QNX6__) || defined(__LINUX__)
+  //  signal (SIGPIPE, SIG_IGN);
 #endif
 
 	_mutex.Wait();
@@ -952,6 +951,9 @@ void _SocketThreadMulti::BodyTcp (void)
 		  prev = now;
 		  r = _stream->recv_n (&hdr, sizeof(hdr), &timeout);
 		  now = YARPTime::GetTimeAsSeconds();
+		  if (r == -1 && errno==ETIME && !IsTerminated()) {
+		    r = 0;  prev = now-1000;
+		  }
 		}
 		//r = _stream->recv_n (&hdr, sizeof(hdr), 0);
 		
@@ -1751,8 +1753,12 @@ ACE_HANDLE _SocketThreadListMulti::connect (const YARPUniqueNameSock& id)
 
 	if (_acceptor_socket.get_handle() == ACE_INVALID_HANDLE)
 	{
-		ACE_DEBUG ((LM_DEBUG, ">>>>> problems with opening receiving TCP at %s:%d\n", _local_addr.get_host_addr(), _local_addr.get_port_number()));
-		return ACE_INVALID_HANDLE;
+	  //ACE_DEBUG ((LM_DEBUG, ">>>>> problems with opening receiving TCP at %s:%d\n", _local_addr.get_host_addr(), _local_addr.get_port_number()));
+	  ACE_DEBUG ((LM_WARNING, "*** FAILED to open tcp connection (%s:%d)\n", _local_addr.get_host_addr(), _local_addr.get_port_number()));
+	  ACE_DEBUG ((LM_WARNING, "*** --- This can happen if the requested socket-port is already in use.\n", _local_addr.get_host_addr(), _local_addr.get_port_number()));
+	  ACE_DEBUG ((LM_WARNING, "*** --- This, in turn, can happen if the name server is restarted...\n", _local_addr.get_host_addr(), _local_addr.get_port_number()));
+	  ACE_DEBUG ((LM_WARNING, "*** --- without first stopping any processes that talked to the old server.\n", _local_addr.get_host_addr(), _local_addr.get_port_number()));
+	  return ACE_INVALID_HANDLE;
 
 		/// and the thread is not started.
 	}
@@ -2733,6 +2739,9 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 	r = d._connector_socket.connect (d._stream, d._mem_addr);
 	if (r == -1)
 	{
+	  ACE_DEBUG ((LM_ERROR, "*** CHECK that your machine's domain name is configured\n"));
+	  ACE_DEBUG ((LM_ERROR, "*** A lack of domain name can make the two sides of a connection seem ...\n"));
+	  ACE_DEBUG ((LM_ERROR, "*** ... to be on different machines, and prevent shared memory from kicking in\n"));
 		ACE_DEBUG ((LM_DEBUG, "cannot connect shmem socket %s:%d\n", d._mem_addr.get_host_addr(), d._mem_addr.get_port_number()));
 		identifier = ACE_INVALID_HANDLE;
 		return YARP_FAIL;

@@ -4,6 +4,9 @@
 #include <yarp/YARPBottle.h>
 
 int main() {
+  //extern int __debug_level;
+  //__debug_level = 100;
+
   YARPOutputPortOf<YARPBottle> out_port;
   out_port.Register("/test/demo00");
   out_port.Connect("/test/reader");

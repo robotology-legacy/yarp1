@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.3 2004-07-06 18:38:29 eshuy Exp $
+/// $Id: YARPPort.cpp,v 1.4 2004-07-08 19:15:28 eshuy Exp $
 ///
 ///
 
@@ -265,7 +265,6 @@ int YARPPort::Register(const char *name, const char *net_name /* = YARP_DEFAULT_
 
 int YARPPort::Unregister(void)
 {
-  printf("Unregister called\n");
 	PD.End ();
 	return YARP_OK;
 }
@@ -336,6 +335,7 @@ YARPPortContent& YARPPort::Content()
 	{
 		ACE_OS::fprintf(stderr,"Content requested for port %s when it was not available\n", PD.name.c_str());
 		ACE_OS::fprintf(stderr,"Please make sure you understand the lifetime of the content associated with\nan input or output port\n");
+		fflush(stderr); YARPTime::DelayInSeconds(1);
 		ACE_OS::exit (1);
 	}
 
