@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPVectorPortContent.h,v 1.2 2003-07-02 12:00:11 gmetta Exp $
+/// $Id: YARPVectorPortContent.h,v 1.3 2003-07-02 15:32:00 gmetta Exp $
 ///
 ///
 
@@ -111,7 +111,8 @@ public:
 	{
 		if (reader.Read ((char*)(&header), sizeof(header)))
 		{
-			Resize (header.len);
+			if (header.len != Length()) 
+				Resize (header.len);
 
 			char *mem = (char *)data();
 			ACE_ASSERT (mem != NULL);
@@ -149,6 +150,8 @@ public:
 
 class YARPOutputPortOf<YVector> : public YARPBasicOutputPort<YARPVectorPortContent>
 {
+	YARPOutputPortOf<YVector>(int n_service_type = DEFAULT_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
+		YARPBasicOutputPort<YARPVectorPortContent> (n_service_type, n_protocol_type) {}
 };
 
 class YARPMatrixPortContent : public YMatrix, public YARPPortContent
@@ -166,7 +169,8 @@ public:
 	{
 		if (reader.Read ((char*)(&header), sizeof(header)))
 		{
-			Resize (header.r, header.c);
+			if (header.r != NRows() || header.c != NCols())
+				Resize (header.r, header.c);
 
 			char *mem = (char *)(data()[0]);		/// mem is contiguous.
 			ACE_ASSERT (mem != NULL);
@@ -205,6 +209,8 @@ public:
 
 class YARPOutputPortOf<YMatrix> : public YARPBasicOutputPort<YARPMatrixPortContent>
 {
+	YARPOutputPortOf<YMatrix>(int n_service_type = DEFAULT_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
+		YARPBasicOutputPort<YARPMatrixPortContent> (n_service_type, n_protocol_type) {}
 };
 
 
