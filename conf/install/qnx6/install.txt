@@ -1,12 +1,12 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.4 2003-06-05 07:48:53 beltran Exp $
+$Id: install.txt,v 1.5 2003-06-18 23:49:05 babybot Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
 ---INTRODUCTION---
 
-In the robot network two kind of QNX machines are installed.There is a machine considered to be the 
+The network consists of two types of QNX machines. There is a machine that acts as 
 "server" and the rest are "nodes".
 The server has the more complex installation and will run commands and programs in the nodes.
 (for the future NFS support will be added)
@@ -26,7 +26,7 @@ This adds the QNET to the network qnx manager called io-net. It is better to cre
 The tcp-ip, i think, is started automatically once configured in the GUI interface. 
 It is important to notice that YARP needs to configure manually the next files:
 
--/etc/host-
+-/etc/hosts-
 
 #
 # Host Database
@@ -73,6 +73,10 @@ REQUIRES:
 	- use the %YARP_ROOT%/conf/YARPConfigTemplate.h and include the correct 
 		config file (found in %YARP_ROOT%/include/conf)
 		Copy the template into: %YARP_ROOT%/include/conf/YARPConfig.h
+
+1.1) make sure:
+	- you RUN something like DOS2UNIX on cpp, h, inl, i, and Makefile's.
+	- it won't compile otherwise.
 
 2) Compile:
 	ACE, this copies also the .h, .i, and .cpp files into %YARP_ROOT%\include
