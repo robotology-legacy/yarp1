@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigQNX6.h,v 1.3 2003-05-01 22:51:19 gmetta Exp $
+// $Id: YARPConfigQNX6.h,v 1.4 2003-05-13 22:38:04 gmetta Exp $
 // YARP config file QNX6.
 //
 //
@@ -24,6 +24,12 @@
 
 /// set the default protocol in port creation.
 #define YARP_DEFAULT_PROTOCOL	YARP_QNET
+
+/// set the def protocol number of req ports.
+#define YARP_PROTOCOL_REGPORTS  1
+
+/// set the number of ports used by UDP for a single port.
+#define YARP_UDP_REGPORTS       11
 
 #include <ace/config.h>
 

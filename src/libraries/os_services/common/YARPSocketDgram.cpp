@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.9 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.10 2003-05-13 22:38:04 gmetta Exp $
 ///
 ///
 
@@ -760,7 +760,7 @@ ACE_HANDLE _SocketThreadListDgram::connect (const YARPUniqueNameID& id)
 	if (_acceptor_socket.get_handle() == ACE_INVALID_HANDLE)
 	{
 		ACE_DEBUG ((LM_DEBUG, ">>>>> problems with opening receiving UDP at %s:%d\n", _local_addr.get_host_name(), _local_addr.get_port_number()));
-		ACE_DEBUG ((LM_DEBUG, "thread 0x%x (%P:%t) %p\n", GetCurrentThreadId(), "can't open socket"));
+		/// ACE_DEBUG ((LM_DEBUG, "thread 0x%x (%P:%t) %p\n", GetCurrentThreadId(), "can't open socket"));
 		return ACE_INVALID_HANDLE;
 
 		/// and the thread is not started.
@@ -769,7 +769,7 @@ ACE_HANDLE _SocketThreadListDgram::connect (const YARPUniqueNameID& id)
 	/// closes down any still open thread (just in case?).
 	if (_initialized) closeAll ();
 
-	ACE_DEBUG ((LM_DEBUG, "thread 0x%x server socket open on %s port %d\n", GetCurrentThreadId(), _local_addr.get_host_name(), _local_addr.get_port_number()));
+	/// ACE_DEBUG ((LM_DEBUG, "thread 0x%x server socket open on %s port %d\n", GetCurrentThreadId(), _local_addr.get_host_name(), _local_addr.get_port_number()));
 
 	_initialized = 1;
 
