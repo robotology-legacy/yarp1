@@ -1,4 +1,4 @@
-// $Id: YARPNIDAQDeviceDriver.cpp,v 1.3 2003-04-20 21:36:25 natta Exp $
+// $Id: YARPNIDAQDeviceDriver.cpp,v 1.4 2003-07-09 18:03:59 babybot Exp $
 
 #include "YARPNIDAQDeviceDriver.h"
 
@@ -16,10 +16,9 @@ int YARPNIDAQDeviceDriver::open(void *d)
 
 int YARPNIDAQDeviceDriver::close(void)
 {
-	// empty
+	m_handle = 0;
 
 	// TODO: check whether we need a SCAN stop or something like that ...
-
 	return 0;	// no error
 }
 

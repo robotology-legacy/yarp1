@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.4 2003-07-01 21:29:43 babybot Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.5 2003-07-09 18:00:26 babybot Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -72,6 +72,9 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDAbortAxes]		= &YARPGalilDeviceDriver::abort_axes;
 			
 	m_cmds[CMDDummy] 			= &YARPGalilDeviceDriver::dummy;
+	
+	m_question_marks = NULL;
+	m_temp_int_array = NULL;
 }
 
 int YARPGalilDeviceDriver::open(void *d)
@@ -134,9 +137,11 @@ int YARPGalilDeviceDriver::close(void)
 	rc = DMCClose((HANDLEDMC) m_handle);
 	m_handle = NULL;
 
-	delete [] m_question_marks;
-	delete [] m_temp_int_array;
-
+	if (m_question_marks != NULL)
+		delete [] m_question_marks;
+	if (m_temp_int_array != NULL)
+		delete [] m_temp_int_array;
+	
 	return rc;
 }
 
