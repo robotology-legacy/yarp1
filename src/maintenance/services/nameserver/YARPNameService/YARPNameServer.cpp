@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.14 2003-07-10 13:33:46 babybot Exp $
+/// $Id: YARPNameServer.cpp,v 1.15 2003-07-15 14:25:55 babybot Exp $
 ///
 ///
 
@@ -185,7 +185,6 @@ void YARPNameServer::handle_exdump_request()
 	char dummy[255];
 	for(SVC_IT i = ns.names.begin(); i != ns.names.end(); i++)
 	{
-		text.append("-");
 		text.append(i->name);
 		text.append("\t");
 		text.append(i->ip);
@@ -206,7 +205,6 @@ void YARPNameServer::handle_exdump_request()
 
 	for(QNXSVC_IT j = ns.qnx_names.begin(); j != ns.qnx_names.end(); j++)
 	{
-		text.append("-");
 		text.append(j->getName());
 		text.append("\t");
 		text.append(j->getNode());
