@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.8 2004-07-09 08:53:57 eshuy Exp $
+/// $Id: Port.cpp,v 1.9 2004-07-09 13:33:20 eshuy Exp $
 ///
 ///
 
@@ -678,8 +678,8 @@ void _strange_select::Body ()
 	ACE_DEBUG ((LM_DEBUG, "***** _strange_select::Body : starting\n"));
 
 #if defined(__QNX6__) || defined(__LINUX__)
-	//signal (SIGCHLD, SIG_IGN);
-	//signal (SIGPIPE, SIG_IGN);
+	signal (SIGCHLD, SIG_IGN);
+	signal (SIGPIPE, SIG_IGN);
 #endif
 
 	OutputTarget *target, *next;
@@ -727,10 +727,10 @@ void _strange_select::Body ()
 
 				if (!active)
 				{
-					ACE_DEBUG ((LM_INFO, "*** disconnecting %s and %s (%s%s)\n",
+					ACE_DEBUG ((LM_INFO, "*** disconnecting %s and %s %s%s\n",
 						_owner->name.c_str(), target->GetLabel().c_str(),
-						deactivated ? "commanded" : "target stopped responding",
-						timeout?"/timeout":""));
+						deactivated ? "" : "(target stopped responding)",
+						timeout?" (timeout)":""));
 
 					delete target;
 				}
@@ -755,9 +755,9 @@ void _strange_select::Body ()
 
 				if (!active)
 				{
-					ACE_DEBUG ((LM_INFO, "*** disconnecting %s and %s (%s)\n", 
+					ACE_DEBUG ((LM_INFO, "*** disconnecting %s and %s %s\n", 
 						_owner->name.c_str(), target->GetLabel().c_str(),
-						deactivated ? "commanded" : "target stopped responding"));
+						deactivated ? "" : "(target stopped responding)"));
 
 					delete target;
 				}
@@ -1045,10 +1045,10 @@ void Port::Body()
 
 				if (!active)
 				{
-					ACE_DEBUG ((LM_INFO, "*** disconnecting %s and %s (%s%s)\n",
+					ACE_DEBUG ((LM_INFO, "*** disconnecting %s and %s %s%s\n",
 						name.c_str(), target->GetLabel().c_str(),
-						deactivated ? "commanded" : "target stopped responding",
-						timeout?"/timeout":""));
+						deactivated ? "" : "(target stopped responding)",
+						timeout?" (timeout)":""));
 					/// remove the port no, from the list of used ports.
 
 					delete target;
@@ -1243,10 +1243,10 @@ void Port::Body()
 
 						if (!active)
 						{
-							ACE_DEBUG ((LM_INFO, "disconnecting %s and %s (%s%s)\n",
+							ACE_DEBUG ((LM_INFO, "disconnecting %s and %s %s%s\n",
 								name.c_str(), target->GetLabel().c_str(),
-								deactivated ? "commanded" : "target stopped responding",
-								timeout?"/timeout":""));
+								deactivated ? "" : "(target stopped responding)",
+								timeout?" (timeout)":""));
 
 							delete target;
 						}

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.6 2004-07-09 08:53:57 eshuy Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.7 2004-07-09 13:33:20 eshuy Exp $
 ///
 ///
 
@@ -860,7 +860,7 @@ void _SocketThreadMulti::End (int dontkill /* = -1 */)
 void _SocketThreadMulti::Body (void)
 {
 #if defined(__QNX6__) || defined(__LINUX__)
-  //  signal (SIGPIPE, SIG_IGN);
+  signal (SIGPIPE, SIG_IGN);
 #endif
 
 	_mutex.Wait();
@@ -946,7 +946,6 @@ void _SocketThreadMulti::BodyTcp (void)
 		double prev = now-1000;
 		while (r==0 && (now-prev>YARP_SHORT_SOCK_TIMEOUT/2.0)) {
 		  // repeat loop so long as it is willing to block.
-		  // could just check errno once I work out what ACE does with it
 		  ACE_Time_Value timeout (YARP_SHORT_SOCK_TIMEOUT, 0);
 		  prev = now;
 		  r = _stream->recv_n (&hdr, sizeof(hdr), &timeout);

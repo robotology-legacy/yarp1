@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.5 2004-07-07 20:31:15 eshuy Exp $
+/// $Id: YARPThread.cpp,v 1.6 2004-07-09 13:33:20 eshuy Exp $
 ///
 ///
 
@@ -155,7 +155,7 @@ void YARPBareThread::Begin (int stack_size)
 							 (size_t)stack_size // not sure about this.
 							 ) == -1)
 		{
-			ACE_DEBUG((LM_DEBUG, "%p\n", "Error in spawning thread"));
+			ACE_DEBUG((LM_WARNING, "%p\n", "Error in spawning thread"));
 		}
 	}
 
@@ -171,10 +171,16 @@ int YARPBareThread::Join (int timeout)
 	sema.Wait();
 	if (shutdown_state == YT_AskedEnd)
 		shutdown_state = YT_Joining;
+	int ok = (system_resource!=NULL);
 	sema.Post();
 
 	ACE_UNUSED_ARG (timeout);
-	int r = ACE_Thread::join ((ACE_hthread_t)system_resource);
+
+	int r = 0;
+
+	if (ok) {
+	  r = ACE_Thread::join ((ACE_hthread_t)system_resource);
+	}
 
 	/// if joined (otherwise hung!)
 	sema.Wait();

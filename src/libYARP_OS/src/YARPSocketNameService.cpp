@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.4 2004-07-08 19:15:28 eshuy Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.5 2004-07-09 13:33:20 eshuy Exp $
 ///
 ///
 
@@ -488,6 +488,7 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 
 	char myhostname[YARP_STRING_LEN];
 	getHostname (myhostname, YARP_STRING_LEN);
+	//printf("*** %s\n", myhostname);
 	reg_addr.set((u_short)0, myhostname);
 	
 	YARPString tname (name);
@@ -541,11 +542,24 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 			/// uses the new IP for registration in the name server.
 			YARPString new_ip, new_nic;
 			YARPUniqueNameSock *n = new YARPUniqueNameSock (reg_type);
-			namer.query_nic (reg_addr.get_host_addr(), network_name, new_nic, new_ip);
+
+			//printf("Trying to get my (%s) IP addr from the name server (network %s ip %s)\n", myhostname, network_name, reg_addr.get_host_addr());
+			
+			if ((strcmp(reg_addr.get_host_addr(),"127.0.0.1")==0)||
+			    (strcmp(reg_addr.get_host_addr(),"0.0.0.0")==0)) {
+			  // localhost 127.0.0.1 IP is no good, no good at all
+			  // dud 0.0.0.0 IP is no good, no good at all
+			  // host name is marginally better
+			  namer.query_nic (myhostname, network_name, new_nic, new_ip);
+			} else {
+			  namer.query_nic (reg_addr.get_host_addr(), network_name, new_nic, new_ip);
+			}
+
+			//printf("my IP addr from the name server --> network %s ip %s\n", new_nic.c_str(), new_ip.c_str());
 			
 			if (strcmp (new_ip.c_str(), "0.0.0.0") == 0)
 			{
-				ACE_DEBUG ((LM_DEBUG, ">>>> Can't find the net name %s\n", network_name));
+				ACE_DEBUG ((LM_WARNING, ">>>> Can't find the net name %s\n", network_name));
 				delete[] ports;
 				delete n;
 				return NAMER_FAIL;	/// invalid name id.

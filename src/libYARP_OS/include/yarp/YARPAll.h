@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPAll.h,v 1.3 2004-07-02 08:47:05 eshuy Exp $
+/// $Id: YARPAll.h,v 1.4 2004-07-09 13:33:20 eshuy Exp $
 ///
 ///
 
@@ -108,5 +108,24 @@ extern char * GetYarpRoot (void);
  * @return a non-negative value if successful.
  */
 extern int getHostname(char *buffer, int buffer_length);
+
+
+#include <ace/config.h>
+// need to fix assertion behavior...
+#ifdef ACE_NDEBUG
+#undef ACE_NDEBUG
+#endif
+
+#ifdef ACE_ASSERT
+#undef ACE_ASSERT
+#define ACE_ASSERT(X) \
+  do { if(!(X)) { \
+  int __ace_error = ACE_Log_Msg::last_error_adapter (); \
+  ACE_Log_Msg *ace___ = ACE_Log_Msg::instance (); \
+  ace___->set (__FILE__, __LINE__, -1, __ace_error, ace___->restart (), \
+               ace___->msg_ostream (), ace___->msg_callback ()); \
+  ace___->log (LM_ERROR, ACE_LIB_TEXT ("ACE_ASSERT: file %N, line %l assertion failed for '%s'.%a\n"), #X, -1); \
+  } } while (0)
+#endif
 
 #endif
