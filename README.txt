@@ -1,3 +1,4 @@
+$Id: README.txt,v 1.4 2002-09-17 21:24:47 gmetta Exp $
 
 Before you do anything else.
 YARP assumes you have correctly set up the following variables:
