@@ -9,7 +9,7 @@
 #----------------------------------------------------------------------------
 
 include $(YARP_ROOT)/conf/Makefile.template
-CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS)# $(CFAST)
+CPPFLAGS     += -I$(YARP_ROOT)/include -I$(YARP_ROOT)/include/$(SYSDIR) -I../utils/include $(CDEFS)# $(CFAST)
 
 BIN     = sendCmd
 
@@ -17,19 +17,14 @@ BIN     = sendCmd
 
 FILES 	= functionList
 
-LDLIBS  =	 $(YARP_ROOT)/lib/$(OS)/MotorCtrl.lib	\
-			 $(YARP_ROOT)/lib/$(OS)/YARPGalilDeviceDriver.lib	\
-			 $(YARP_ROOT)/lib/$(OS)/dmcqnx.lib	\
-			 $(YARP_ROOT)/lib/$(OS)/utils.lib	\
-			 $(YARP_ROOT)/lib/$(OS)/images.lib	\
-			 $(YARP_ROOT)/lib/$(OS)/LogPolarSmallSDK.lib	\
-			 $(YARP_ROOT)/lib/$(OS)/fakeipl.lib	\
-			 $(YARP_ROOT)/lib/$(OS)/os_services.lib	\
-			 $(YARP_ROOT)/lib/$(OS)/math.lib	
+LDLIBS  =	 $(YARP_ROOT)/lib/$(OS)/libYARP_robot.a	\
+			 $(YARP_ROOT)/lib/$(OS)/utils.a \
+			 $(YARP_ROOT)/lib/$(OS)/libYARP_OS.a \
+			 $(YARP_ROOT)/lib/$(OS)/libYARP_math.a	
 
-SRC    = $(addsuffix .cpp,$(FILES))
-OBJ    = $(addsuffix .o,$(FILES))
-LSRC    = $(SRC) $(addsuffix .cpp,$(BIN))
+SRC  = $(addsuffix .cpp,$(FILES))
+OBJ  = $(addsuffix .o,$(FILES))
+LSRC = $(SRC) $(addsuffix .cpp,$(BIN))
 
 #LDLIBS  +=  $(addprefix .shobj/,$(SHOBJ))
 
