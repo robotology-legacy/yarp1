@@ -42,12 +42,15 @@ public:
 
 	YARPDIBConverter m_converter;
 	YARPSemaphore m_mutex;
+	YARPSemaphore m_end_sema;
 
-	CRecv (CCamviewDlg *owner = NULL) : YARPThread (), m_mutex(1) 
+	CRecv (CCamviewDlg *owner = NULL) : YARPThread (), m_mutex(1), m_end_sema(0)
 	{
 		m_owner = owner;
 		memset (m_name, 0, 512);
-		m_x = m_y = -1;
+		///m_x = m_y = 256;
+		m_x = 252;
+		m_y = 110;
 		m_frozen = false;
 		m_period = 0;
 		m_est_interval = 0;
@@ -81,6 +84,11 @@ public:
 	}
 
 	virtual void Body (void);
+	virtual void End (bool donkill = true)
+	{
+		m_end_sema.Post ();
+		YARPThread::End (true);
+	}
 
 	void Freeze (bool fr)
 	{

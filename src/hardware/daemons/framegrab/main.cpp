@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.17 2003-06-17 20:20:35 babybot Exp $
+/// $Id: main.cpp,v 1.18 2003-06-17 22:10:52 gmetta Exp $
 ///
 ///
 
@@ -246,8 +246,8 @@ int _runAsSimulation (void)
 
 	int frame_no = 0;
 
-	ACE_OS::fprintf (stderr, "starting up simulation of a grabber...\n");
-	ACE_OS::fprintf (stderr, "acq size: w=%d h=%d\n", _size, _size);
+	ACE_OS::fprintf (stdout, "starting up simulation of a grabber...\n");
+	ACE_OS::fprintf (stdout, "acq size: w=%d h=%d\n", _size, _size);
 
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
@@ -267,8 +267,8 @@ int _runAsSimulation (void)
 		if ((frame_no % 250) == 0)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
-			ACE_OS::fprintf (stderr, "average frame time: %lf\n", (cur-start)/250);
-			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
+			ACE_OS::fprintf (stdout, "average frame time: %lf\n", (cur-start)/250);
+			ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
 	}
@@ -283,7 +283,7 @@ int _runAsLogpolarSimulation (void)
 
 	YARPImageOf<YarpPixelBGR> img;
 	YARPImageOf<YarpPixelBGR> fovea;
-	YARPImageOf<YarpPixelBGR> periphery;
+	YARPImageOf<YarpPixelMono> periphery;
 	
 	YARPLogpolarSampler sampler;
 
@@ -293,14 +293,19 @@ int _runAsLogpolarSimulation (void)
 	fovea.Resize (128, 128);
 	periphery.Resize (_stheta, _srho - _sfovea);
 
-	YARPOutputPortOf<YARPGenericImage> outport;
+	YARPOutputPortOf<YARPGenericImage> out_fovea;
+	YARPOutputPortOf<YARPGenericImage> out_periphery;
 
-	outport.Register (_name);
+	out_fovea.Register (_name);
+	char name_p[512];
+	sprintf (name_p, "%sp\0", _name);
+	out_periphery.Register (name_p);
 
 	int frame_no = 0;
 
-	ACE_OS::fprintf (stderr, "starting up simulation of a grabber...\n");
-	ACE_OS::fprintf (stderr, "acq size: w=%d h=%d\n", _xsize, _ysize);
+	ACE_OS::fprintf (stdout, "starting up simulation of a grabber...\n");
+	ACE_OS::fprintf (stdout, "grabber is logpolar\n");
+	ACE_OS::fprintf (stdout, "acq size: w=%d h=%d\n", _xsize, _ysize);
 
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
@@ -322,15 +327,19 @@ int _runAsLogpolarSimulation (void)
 
 		sampler.Cartesian2Logpolar (img, fovea, periphery);
 
-		outport.Content().Refer (fovea);
-		outport.Write();
+		/// sends the buffer.
+		out_fovea.Content().Refer (fovea);
+		out_fovea.Write();
+
+		out_periphery.Content().Refer (periphery);
+		out_periphery.Write();
 
 		frame_no++;
 		if ((frame_no % 250) == 0)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
-			ACE_OS::fprintf (stderr, "average frame time: %lf\n", (cur-start)/250);
-			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
+			ACE_OS::fprintf (stdout, "average frame time: %lf\n", (cur-start)/250);
+			ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
 	}
@@ -376,8 +385,9 @@ int _runAsLogpolar (void)
 	unsigned char *buffer = NULL;
 	int frame_no = 0;
 
-	ACE_OS::fprintf (stderr, "starting up grabber...\n");
-	ACE_OS::fprintf (stderr, "acq size: w=%d h=%d\n", w, h);
+	ACE_OS::fprintf (stdout, "starting up grabber...\n");
+	ACE_OS::fprintf (stdout, "grabber is logpolar\n");
+	ACE_OS::fprintf (stdout, "acq size: w=%d h=%d\n", w, h);
 
 	if (w != _xsize || h != 2 * _xsize) ///2 * _size)
 	{
@@ -411,12 +421,10 @@ int _runAsLogpolar (void)
 		if ((frame_no % 250) == 0)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
-			ACE_OS::fprintf (stderr, "average frame time: %lf\n", (cur-start)/250);
-			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
+			ACE_OS::fprintf (stdout, "average frame time: %lf\n", (cur-start)/250);
+			ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
-
-		///YARPTime::DelayInSeconds(10);
 	}
 
 	grabber.uninitialize ();
@@ -445,8 +453,9 @@ int _runAsCartesian (void)
 	unsigned char *buffer = NULL;
 	int frame_no = 0;
 
-	ACE_OS::fprintf (stderr, "starting up grabber...\n");
-	ACE_OS::fprintf (stderr, "acq size: w=%d h=%d\n", w, h);
+	ACE_OS::fprintf (stdout, "starting up grabber...\n");
+	ACE_OS::fprintf (stdout, "grabber is cartesian\n");
+	ACE_OS::fprintf (stdout, "acq size: w=%d h=%d\n", w, h);
 
 	if (w != _size || h != 2 * _size) ///2 * _size)
 	{
@@ -473,8 +482,8 @@ int _runAsCartesian (void)
 		if ((frame_no % 250) == 0)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
-			ACE_OS::fprintf (stderr, "average frame time: %lf\n", (cur-start)/250);
-			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
+			ACE_OS::fprintf (stdout, "average frame time: %lf\n", (cur-start)/250);
+			ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
 

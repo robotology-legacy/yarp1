@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.cpp,v 1.4 2003-06-17 20:20:36 babybot Exp $
+/// $Id: YARPImage.cpp,v 1.5 2003-06-17 22:10:52 gmetta Exp $
 ///
 ///
 
@@ -1017,7 +1017,10 @@ void YARPGenericImage::Refer(YARPGenericImage& src)
 	{
 		ACE_OS::printf("*** Tried to Refer() to an incompatible image type.\n");
 		ACE_OS::printf("*** Please copy instead, using CastCopy().\n");
-		ACE_OS::exit(1);
+		///ACE_OS::exit(1);
+
+		SetID (other_id);
+		my_id = GetID();
 	}
 
 	DBGPF1 cout << "HIT Starting refer" << endl;

@@ -26,7 +26,7 @@ void CRecv::Body (void)
 	double cur = -1;
 	int frame_no = 0;
 
-	while (1)
+	while (m_end_sema.PollingWait() != 1)
 	{
 		m_inport.Read();
 		m_img.Refer (m_inport.Content());
@@ -37,7 +37,6 @@ void CRecv::Body (void)
 			if (m_flipped.GetWidth() != m_img.GetWidth() || m_flipped.GetHeight() != m_img.GetHeight())
 			{
 				m_flipped.Resize (m_img.GetWidth(), m_img.GetHeight(), m_img.GetID());
-				///YARPImageFile::Write ("pippo.pgm", m_img);
 			}
 
 			YARPSimpleOperation::Flip (m_img, m_flipped);
@@ -59,6 +58,13 @@ void CRecv::Body (void)
 		/// or logpolar.
 		else
 		{
+			if (m_img.GetWidth() != _logpolarParams::_stheta || m_img.GetHeight() != _logpolarParams::_srho - _logpolarParams::_sfovea)
+			{
+				/// falls back to cartesian mode.
+				m_logp = false;
+				continue;
+			}
+
 			if (m_remapped.GetWidth() != 256 || m_remapped.GetHeight() != 256)
 			{
 				m_remapped.Resize (256, 256, YARP_PIXEL_BGR);
@@ -368,24 +374,23 @@ void CCamviewDlg::OnPaint()
 		double zx = double(rect.Width() - 2 * _BORDER) / double(m_receiver.GetWidth());
 		double zy = double(rect.Height() - 2 * _BORDER - rect2.Height() - 2) / double(m_receiver.GetHeight());
 
-		int fx = int (m_receiver.GetWidth() * zx + .5);
-		int fy = int (m_receiver.GetHeight() * zy +.5);
-
-		if (fx > fy)
+		if (zx > zy)
 		{
 			zx = zy;
-			fx = fy;
 		}
 
+		int fx = int (m_receiver.GetWidth() * zx + .5);
+		int fy = int (m_receiver.GetHeight() * zx +.5);
+
 		int x = ((rect.Width() - 2 * _BORDER) - fx) / 2 + _BORDER;
-		int y = ((rect.Height() - 2 * _BORDER - rect2.Height() - 2) - fx) / 2 + _BORDER;
+		int y = ((rect.Height() - 2 * _BORDER - rect2.Height() - 2) - fy) / 2 + _BORDER;
 
 		if (dib != NULL)
 			CopyToScreen(m_drawdib, dc.GetSafeHdc(), dib, x, y, zx, zx);
 		else
 		{
 			CGdiObject * old = dc.SelectStockObject (GRAY_BRUSH);
-			dc.Rectangle (x, y, x+fx, y+fx);
+			dc.Rectangle (x, y, x+fx, y+fy);
 			dc.SelectObject (old);
 		}
 		
