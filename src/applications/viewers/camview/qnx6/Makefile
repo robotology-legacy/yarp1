@@ -11,7 +11,7 @@
 include $(YARP_ROOT)/conf/Makefile.template
 CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS) -lph
 
-BIN     = blit
+BIN     = camview
  
 
 LDLIBS	=	$(YARP_ROOT)/lib/$(SYSDIR)/YARPPicoloDeviceDriver.lib	\
@@ -40,7 +40,8 @@ include	$(ACE_ROOT)/include/makeinclude/rules.local.GNU
 #----------------------------------------------------------------------------
 #	Local targets
 #----------------------------------------------------------------------------
-
+install:
+	$(CP) camview $(YARP_ROOT)/bin/
 #----------------------------------------------------------------------------
 #	Dependencies
 #----------------------------------------------------------------------------
