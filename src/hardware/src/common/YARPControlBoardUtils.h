@@ -4,7 +4,7 @@
 //
 // feb 2003 -- by nat and pasa
 
-// $Id: YARPControlBoardUtils.h,v 1.8 2003-05-17 10:46:52 beltran Exp $
+// $Id: YARPControlBoardUtils.h,v 1.9 2003-05-21 13:26:55 natta Exp $
 #include <conf/YARPConfig.h>
 
 #ifndef __YARP_CONTROL_BOARD_UTILS__
@@ -52,45 +52,50 @@ enum ControlBoardCmd
 	
 	CMDSetIntegratorLimits 	= 27,	// int. limit
 	CMDSetTorqueLimits 		= 28,	// torque limit
+	CMDSetIntegratorLimit   = 29,	// int limit, single joint
+	CMDSetTorqueLimit		= 30,   // torque limit, single joint
 	
-	CMDGetErrors 			= 29,	// read current error
+	CMDGetErrors 			= 31,	// read current error
 	
-	CMDReadInput 			= 30,	// read all ? (not yet impl)
-	CMDInitPortAsInput 		= 31,	// I/O
-	CMDInitPortAsOutput 	= 32,	// I/O
-	CMDGetOutputPort 		= 33,	// I/O
+	CMDReadInput 			= 32,	// read all ? (not yet impl)
+	CMDInitPortAsInput 		= 33,	// I/O
+	CMDInitPortAsOutput 	= 34,	// I/O
+	CMDGetOutputPort 		= 35,	// I/O
 	
-	CMDSetAmpEnableLevel 	= 34,	// set amp enable level
-	CMDSetAmpEnable 		= 35,	// set amp enable
-	CMDDisableAmp 			= 36,	// disable amp
-	CMDEnableAmp 			= 37,	// enable amp
-	CMDControllerIdle 		= 38,	// see MEI
-	CMDControllerRun 		= 39,	// see MEI
-	CMDClearStop 			= 40,	// on MEI -> clear_status
+	CMDSetAmpEnableLevel 	= 36,	// set amp enable level
+	CMDSetAmpEnable 		= 37,	// set amp enable
+	CMDDisableAmp 			= 38,	// disable amp
+	CMDEnableAmp 			= 39,	// enable amp
+	CMDControllerIdle 		= 40,	// see MEI
+	CMDControllerRun 		= 41,	// see MEI
+	CMDClearStop 			= 42,	// on MEI -> clear_status
 	// limits
-	CMDSetPositiveLimit 	= 41,
-	CMDSetNegativeLimit 	= 42,
-	CMDSetPositiveLevel 	= 43,
-	CMDSetNegativeLevel 	= 44,
-	CMDVMove 				= 45,	// set move vel mode (begin motion)
-	CMDCheckMotionDone 		= 46,	// check for motion done
-	CMDWaitForMotionDone 	= 47,	// wait (loop with sleep)
-	CMDSetCommands 			= 48,	// set current commands (watch out! dangerous)
-	CMDSetCommand 			= 49,	// set current commands (watch out! dangerous)
+	CMDSetPositiveLimit 	= 43,
+	CMDSetNegativeLimit 	= 44,
+	CMDSetPositiveLevel 	= 45,
+	CMDSetNegativeLevel 	= 46,
+	CMDVMove 				= 47,	// set move vel mode (begin motion)
+	CMDCheckMotionDone 		= 48,	// check for motion done
+	CMDWaitForMotionDone 	= 49,	// wait (loop with sleep)
+	CMDSetCommands 			= 50,	// set current commands (watch out! dangerous)
+	CMDSetCommand 			= 51,	// set current commands (watch out! dangerous)
 	// home/index 
-	CMDSetHomeIndexConfig 	= 50,
-	CMDSetHomeLevel 		= 51,
-	CMDSetHome 				= 52,
-	CMDSetStopRate 			= 53,	// stop rate1
+	CMDSetHomeIndexConfig 	= 52,
+	CMDSetHomeLevel 		= 53,
+	CMDSetHome 				= 54,
+	CMDSetStopRate 			= 55,	// stop rate1
 	
-	CMDResetController 		= 54,	//used to reset the Galil Controller
-	CMDErrorLimit			= 55,	//Error limit
-	CMDOffOnError			= 56,	//This command causes the controller to shut off
+	CMDResetController 		= 56,	//used to reset the Galil Controller
+	CMDErrorLimit			= 57,	//Error limit
+	CMDOffOnError			= 58,	//This command causes the controller to shut off
 									//the  motor command if a position error exceeds
 									//the limit specified by the ErrorLimit command
 	
-	CMDDummy 				= 57,	// dummy command for debug purpose
-	CBNCmds 				= 58 	// required! tells the total number of commands
+	CMDGetTorqueLimit		= 59,   // get torque limit, single joint
+	CMDGetTorqueLimits		= 60,   // get torque limit, multiple joints
+
+	CMDDummy 				= 61,	// dummy command for debug purpose
+	CBNCmds 				= 62 	// required! tells the total number of commands
 };
 
 enum ControlBoardEvents

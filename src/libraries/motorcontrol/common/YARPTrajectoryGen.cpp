@@ -53,7 +53,8 @@ int YARPTrajectoryGen::_resize(int size, int npnts)
 		return -1;
 	}
 
-	for (int i = 0; i < _steps ; i++)
+	int i;
+	for (i = 0; i < _steps ; i++)
 	{
 		if (_commands[i] != NULL)
 			delete [] _commands[i];
@@ -66,7 +67,7 @@ int YARPTrajectoryGen::_resize(int size, int npnts)
 	_size = size;
 
 	_commands = new double * [_steps];
-	for (int i = 0; i < npnts; i++)
+	for (i = 0; i < npnts; i++)
 	{
 		_commands[i] = new double [_size];
 		for (int j = 0; j < _size; j++)
@@ -76,7 +77,7 @@ int YARPTrajectoryGen::_resize(int size, int npnts)
 	_lastCommand = new double [_size];
 	_finalCommand = new double [_size];
 
-	for (int i = 0; i < _size; i++)
+	for (i = 0; i < _size; i++)
 	{
 		_finalCommand[i] = 0;
 		_lastCommand[i]  = 0;
@@ -146,7 +147,8 @@ int YARPTrajectoryGen::setFinal(const double *actual, const double *final, int n
 
 		double *delta;
 		delta = new double [_size];
-		for(int i = 0; i < _size; i++)
+		int i;
+		for(i = 0; i < _size; i++)
 		{
 			delta[i] = (_finalCommand[i] - actual[i])/_steps;
 			// first act value...
@@ -154,7 +156,7 @@ int YARPTrajectoryGen::setFinal(const double *actual, const double *final, int n
 		}
 
 		// compute activation vectors (that is: trajectory)
-		for (int i = 1; i < _steps; i++)
+		for (i = 1; i < _steps; i++)
 			for (int j = 0; j < _size; j++)
 				_commands[i][j] = _commands[i-1][j] + delta[j];
 		

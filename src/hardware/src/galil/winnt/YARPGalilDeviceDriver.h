@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.3 2003-05-21 08:25:03 natta Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.4 2003-05-21 13:27:08 natta Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -182,7 +182,8 @@ char *YARPGalilDeviceDriver::_append_cmd(double data, char *buf)
 
 	char *t = (char *) &i_tmp;
 
-	for(int i = 0; i < 4; i++)
+	int i;
+	for(i = 0; i < 4; i++)
 	{
 		buf[i] = t[3 - i];
 	}
@@ -192,7 +193,7 @@ char *YARPGalilDeviceDriver::_append_cmd(double data, char *buf)
 	short s_tmp = _convert_float_to_bin(data);
 	t = (char *) &s_tmp;
 	
-	for(int i = 0; i < 2; i++)
+	for(i = 0; i < 2; i++)
 	{
 		buf[i] = t[1 - i];
 	}

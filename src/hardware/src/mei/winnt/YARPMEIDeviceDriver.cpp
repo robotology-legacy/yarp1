@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.12 2003-05-21 08:25:03 natta Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.13 2003-05-21 13:27:22 natta Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -54,6 +54,11 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
 
 	m_cmds[CMDSetIntegratorLimits] = &YARPMEIDeviceDriver::setIntLimits;
 	m_cmds[CMDSetTorqueLimits] = &YARPMEIDeviceDriver::setTorqueLimits;
+	m_cmds[CMDSetTorqueLimit] = &YARPMEIDeviceDriver::setTorqueLimit;
+	m_cmds[CMDSetIntegratorLimit] = &YARPMEIDeviceDriver::setIntLimit;
+	m_cmds[CMDGetTorqueLimit] = &YARPMEIDeviceDriver::getTorqueLimit;
+	m_cmds[CMDGetTorqueLimits] = &YARPMEIDeviceDriver::getTorqueLimits;
+	m_cmds[CMDSetStopRate] = &YARPMEIDeviceDriver::setStopRate;
 	m_cmds[CMDGetErrors] = &YARPMEIDeviceDriver::getErrors;
 
 	m_cmds[CMDReadInput] = &YARPMEIDeviceDriver::readInput;
@@ -120,11 +125,12 @@ int YARPMEIDeviceDriver::open(void *d)
 	_ref_positions = new double [_njoints];
 
 	_all_axes = new int16[_njoints];
-	for(int i = 0; i < _njoints; i++)
+	int i;
+	for(i = 0; i < _njoints; i++)
 		_all_axes[i] = i;
 
 	_filter_coeffs = new int16* [_njoints];
-	for(int i = 0; i < _njoints; i++)
+	for(i = 0; i < _njoints; i++)
 		_filter_coeffs[i] = new int16 [COEFFICIENTS];
 
 	_dsp_rate = dsp_sample_rate();
@@ -503,6 +509,44 @@ int YARPMEIDeviceDriver::setOffsets(void *offs)
 	return rc;
 }
 
+int YARPMEIDeviceDriver::setTorqueLimit(void *cmd)
+{
+	int16 rc = 0;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	int axis = tmp->axis;
+
+	double val = *((double *) tmp->parameters);
+
+	_filter_coeffs[axis][DF_DAC_LIMIT] = (int16) round(val);
+	rc = set_filter(axis, _filter_coeffs[axis]);
+	
+	return rc;
+}
+
+int YARPMEIDeviceDriver::getTorqueLimit(void *cmd)
+{
+	int16 rc = 0;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	int axis = tmp->axis;
+
+	double *val = ((double *) tmp->parameters);
+
+	*val = _filter_coeffs[axis][DF_DAC_LIMIT];
+		
+	return rc;
+}
+
+int YARPMEIDeviceDriver::getTorqueLimits(void *trqs)
+{
+	int16 rc = 0;
+	double *out = (double *) trqs;
+
+	for (int i = 0; i<_njoints; i++)
+		out[i] = _filter_coeffs[i][DF_DAC_LIMIT];
+	
+	return rc;
+}
+
 int YARPMEIDeviceDriver::setTorqueLimits(void *trqs)
 {
 	int16 rc = 0;
@@ -529,6 +573,20 @@ int YARPMEIDeviceDriver::setIntLimits(void *lmts)
 		_filter_coeffs[i][DF_I_LIMIT] = (int16) round(cmd[i]);
 		rc = set_filter(i, _filter_coeffs[i]);
 	}
+	
+	return rc;
+}
+
+int YARPMEIDeviceDriver::setIntLimit(void *cmd)
+{
+	int16 rc = 0;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	int axis = tmp->axis;
+
+	double val = *((double *) tmp->parameters);
+
+	_filter_coeffs[axis][DF_I_LIMIT] = (int16) round(val);
+	rc = set_filter(axis, _filter_coeffs[axis]);
 	
 	return rc;
 }

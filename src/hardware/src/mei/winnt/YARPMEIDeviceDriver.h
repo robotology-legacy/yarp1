@@ -5,7 +5,7 @@
 // April 2003 -- by nat
 //
 // win32: link Medvc50f.lib 
-// $Id: YARPMEIDeviceDriver.h,v 1.7 2003-05-13 20:14:32 natta Exp $
+// $Id: YARPMEIDeviceDriver.h,v 1.8 2003-05-21 13:27:22 natta Exp $
 #ifndef __YARP_MEI_DEVICE_DRIVER__
 #define __YARP_MEI_DEVICE_DRIVER__
 
@@ -83,9 +83,14 @@ public:
 
 	int getTorques(void *trqs);
 
+	int getTorqueLimit(void *cmd);
+	int getTorqueLimits(void *trqs);
+
+	int setTorqueLimit(void *cmd);
 	int setTorqueLimits(void *trqs);
 	int getErrors(void *errs);
 	int setIntLimits(void *lmts);
+	int setIntLimit(void *cmd);
 
 	int readInput(void *input);
 	
