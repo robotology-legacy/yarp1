@@ -21,7 +21,11 @@ class YARPGenericComponent
 {
 public:
 	YARPGenericComponent<ADAPTER, PARAMETERS> ()
-	{_temp_double = NULL;}
+	{
+		_temp_double = NULL;
+		_currentLimits = NULL;
+		_newLimits = NULL;
+	}
 	~YARPGenericComponent<ADAPTER, PARAMETERS>(){}
 
 	int initialize()
@@ -63,7 +67,14 @@ public:
 		_lock();
 		if (_temp_double != NULL)
 			delete [] _temp_double;
+		if (_newLimits != NULL)
+			delete [] _newLimits;
+		if (_currentLimits != NULL)
+			delete [] _currentLimits;
+
 		_temp_double = NULL;
+		_currentLimits = NULL;
+		_newLimits = NULL;
 
 		if (_adapter.uninitialize() == YARP_FAIL) {
 			YARP_GEN_COMPONENT_DEBUG(("Error un-initializing control board!\n"));
@@ -210,8 +221,12 @@ public:
 	int setGainsSmoothly(LowLevelPID *finalPIDs, int s = 150);
 	// reduce max torque on axis of delta; returns true if current limit is equal to or less than value
 	bool decMaxTorque(int axis, double delta, double value);
+	// same as above, act on multiple joints (up to nj)
+	bool decMaxTorques(double delta, double value, int nj);
 	// increase max torque on axis of delta; returns true if current limit is equal to or more than value
 	bool incMaxTorque(int axis, double delta, double value);
+	// same as above, act on multiple joints (up to nj)
+	bool incMaxTorques(double delta, double value, int nj);
 
 	inline double angleToEncoder(double angle, double encParam, int zero, int sign);
 	inline double encoderToAngle(double encoder, double encParam, int zero, int sign);
@@ -229,6 +244,9 @@ protected:
 	int _initialize()
 	{
 		_temp_double = new double [_parameters._nj];
+		_currentLimits = new double [_parameters._nj];
+		_newLimits = new double [_parameters._nj];
+
 		if (_adapter.initialize(&_parameters) == YARP_FAIL) {
 			YARP_GEN_COMPONENT_DEBUG(("Error initializing Control board!\n"));
 			_unlock();
@@ -243,6 +261,9 @@ protected:
 	int *_tmp_int;
 	ADAPTER _adapter;
 	double *_temp_double;
+
+	double *_currentLimits;
+	double *_newLimits;
 
 };
 
@@ -395,6 +416,85 @@ incMaxTorque(int axis, double delta, double value)
 
 	cmd.parameters = &newLimit;
 	_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
+
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+inline bool YARPGenericComponent<ADAPTER, PARAMETERS>::
+decMaxTorques(double delta, double value, int nj)
+{
+	bool ret = true;
+	
+	_adapter.IOCtl(CMDGetTorqueLimits, _currentLimits);
+
+	int i;
+	// set new limits to "_currentLimits" for all joints
+	for(i = 0; i < _parameters._nj; i++)
+		_newLimits[i] = _currentLimits[i];
+	
+	// only reduce limits for specified joints
+	for(i = 0; i < nj; i++)
+	{
+		int j = _parameters._axis_map[i];
+		_newLimits[j] = _currentLimits[j] - (fabs(delta));
+	
+		// check newLimit to see it we are done
+		// be sure we are not going below zero
+		if (_newLimits[j] < 0.0)
+		{
+			_newLimits[j] = 0.0;
+			ret = ret && true;
+		}
+		else if (_newLimits[j] <= value)
+		{
+			_newLimits[j] = value;
+			ret = ret && true;
+		}
+		else
+			ret = false;
+	}
+
+	_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
+
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+inline bool YARPGenericComponent<ADAPTER, PARAMETERS>::
+incMaxTorques(double delta, double value, int nj)
+{
+	bool ret = true;
+		
+	_adapter.IOCtl(CMDGetTorqueLimits, _currentLimits);
+
+	int i;
+	// set new limits to "_currentLimits" for all joints
+	for(i = 0; i < _parameters._nj; i++)
+		_newLimits[i] = _currentLimits[i];
+	
+	// increase limit only for the specified joints
+	for(i = 0; i < nj; i++)
+	{
+		int j = _parameters._axis_map[i];
+		_newLimits[j] = _currentLimits[j] + (fabs(delta));
+	
+		// be sure we are not going above max torque
+		if (_newLimits[j] >=  _parameters._maxDAC[j])
+		{
+			_newLimits[j] = _parameters._maxDAC[j];
+			ret = ret && true;
+		}
+		else if (_newLimits[j] >= value)
+		{
+			_newLimits[j] = value;
+			ret = ret && true;
+		}
+		else
+			ret = false;
+	}
+
+	_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
 
 	return ret;
 }
