@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2003-07-01 23:05:25 gmetta Exp $
+/// $Id: main.cpp,v 1.2 2003-07-02 12:00:10 gmetta Exp $
 ///
 ///
 
@@ -91,8 +91,8 @@ char name[256];
 
 ///YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 ///YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-YARPInputPortOf<YVector> in;
-YARPOutputPortOf<YVector> out;
+YARPInputPortOf<YMatrix> in;
+YARPOutputPortOf<YMatrix> out;
 
 class Thread1 : public YARPThread
 {
@@ -112,11 +112,12 @@ public:
 		{
 			printf("Waiting for input\n");
 			in.Read();
-			YVector& tmp = in.Content();
-			ACE_OS::printf ("$$$$$$$$$$$$$$$$$$$$$$$$$$$$Read %d\n", tmp.Length());
-			for (int i = 0; i < tmp.Length(); i++)
+			YMatrix& tmp = in.Content();
+			ACE_OS::printf ("$$$$$$$$$$$$$$$$$$$$$$$$$$$$Read %d\n", tmp.NRows() * tmp.NCols());
+			for (int i = 0; i < tmp.NRows(); i++)
+				for (int j = 0; j < tmp.NCols(); j++)
 			{
-				ACE_OS::printf ("%d -- %lf\n", i, tmp[i]);
+				ACE_OS::printf ("%d -- %lf\n", i, tmp[i][j]);
 			}
 		}
 	}
@@ -138,13 +139,14 @@ public:
 
 		while (1)
 		{
-			YVector tmp(ct);
+			YMatrix tmp(3, 3);
 			tmp = 0;
-			tmp(ct-1) = 3.2222 + ct;
+			for (int i = 1; i <= 3; i++)
+				tmp(i,i) = 3.2222 + ct;
 
 			out.Content() = tmp;
 
-			printf("$$$$$$$$$$$$$$$$$$$$$$$$$Writing %d\n", out.Content().Length());
+			printf("$$$$$$$$$$$$$$$$$$$$$$$$$Writing %d\n", out.Content().NRows());
 
 			out.Write();
 			ct++;

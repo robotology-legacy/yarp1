@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPVectorPortContent.h,v 1.1 2003-07-01 23:05:25 gmetta Exp $
+/// $Id: YARPVectorPortContent.h,v 1.2 2003-07-02 12:00:11 gmetta Exp $
 ///
 ///
 
@@ -85,6 +85,13 @@ class YARPVectorPortContentHeader
 {
 public:
   NetInt32 len;
+} PACKED_FOR_NET;
+
+class YARPMatrixPortContentHeader
+{
+public:
+  NetInt32 r;
+  NetInt32 c;
 } PACKED_FOR_NET;
 
 #include "end_pack_for_net.h"
@@ -141,6 +148,62 @@ public:
 };
 
 class YARPOutputPortOf<YVector> : public YARPBasicOutputPort<YARPVectorPortContent>
+{
+};
+
+class YARPMatrixPortContent : public YMatrix, public YARPPortContent
+{
+public:
+	YARPMatrixPortContentHeader header;
+
+	virtual ~YARPMatrixPortContent () 
+	{
+		ACE_DEBUG ((LM_DEBUG, "destroying a YARPMatrixPortContent\n"));
+	}
+
+	//// of course this only works on machines w/ the same floating point representation.
+	virtual int Read (YARPPortReader& reader)
+	{
+		if (reader.Read ((char*)(&header), sizeof(header)))
+		{
+			Resize (header.r, header.c);
+
+			char *mem = (char *)(data()[0]);		/// mem is contiguous.
+			ACE_ASSERT (mem != NULL);
+			reader.Read (mem, header.r * header.c * sizeof(double));
+		}
+		return 1;
+	}
+
+	virtual int Write (YARPPortWriter& writer)
+	{
+		header.r = NRows();
+		header.c = NCols();
+		writer.Write ((char*)(&header), sizeof(header));
+
+		char *mem = (char *)(data()[0]);
+		ACE_ASSERT (mem != NULL);
+		writer.Write (mem, header.r * header.c * sizeof(double));
+		return 1;
+	}
+
+	// Called when communications code is finished with the object, and
+	// it will be passed back to the user.
+	// Often fine to do nothing here.
+	virtual int Recycle() { return 0; }
+
+    YMatrix& operator=(const YMatrix &mat) { return YMatrix::operator= (mat); }
+};
+
+
+class YARPInputPortOf<YMatrix> : public YARPBasicInputPort<YARPMatrixPortContent>
+{
+public:
+	YARPInputPortOf<YMatrix>(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
+		YARPBasicInputPort<YARPMatrixPortContent> (n_service_type, n_protocol_type) {}
+};
+
+class YARPOutputPortOf<YMatrix> : public YARPBasicOutputPort<YARPMatrixPortContent>
 {
 };
 

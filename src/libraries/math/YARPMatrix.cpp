@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.cpp,v 1.5 2003-07-02 10:43:13 babybot Exp $
+/// $Id: YARPMatrix.cpp,v 1.6 2003-07-02 12:00:10 gmetta Exp $
 ///
 ///
 
@@ -121,6 +121,8 @@ static void VisGaussJordanSolveDMatrix(YMatrix& A);
 
 #ifdef __QNX6__
 #define UNUSED(x) do {} while (&x == 0)
+#else
+#define UNUSED(x)
 #endif
 
 //
