@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.12 2003-09-24 15:31:59 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.13 2003-09-24 15:39:31 babybot Exp $
 ///
 ///
 
@@ -1292,12 +1292,12 @@ IntNeighborhood * Build_Fast_Weights_Map(Image_Data * Par,
 	Neighborhood * Weights_Map;
 	IntNeighborhood * Fast_Weights_Map;
 	Neighborhood * Neighbor_Map_RGB;
-	char File_Name [256];
+///	char File_Name [256];
 
 	int retval;
 	LUT_Ptrs Tables;
 
-	FILE * fout;
+///	FILE * fout;
 		
 	int PadSizeTheta = ((Par->Size_Theta * 1) % Par->padding);
 

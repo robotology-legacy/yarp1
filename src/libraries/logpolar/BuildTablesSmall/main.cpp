@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.8 2003-07-17 15:50:22 gmetta Exp $
+/// $Id: main.cpp,v 1.9 2003-09-24 15:37:00 babybot Exp $
 ///
 ///
 
@@ -108,6 +108,7 @@ int main (int argc, char *argv[])
 		256.0/1090.0);
 	
 	Param.padding = _salign;
+	Param.Fovea_Type = 0;
 
 	printf ("Creating Ang_Shift_Map map \n");
 	Build_Ang_Shift_Map(&Param, Path);
@@ -127,11 +128,12 @@ int main (int argc, char *argv[])
 		512.0/1090.0);
 
 	Param.padding = _salign;
+	Param.Fovea_Type = 0;
 
 	printf ("Creating Build_Remap map \n");
 	Build_Remap_Map(&Param, Path);
-	printf ("Creating Crop_Remap map \n");
-	Crop_Remap_Map(&Param, Path);
+	///printf ("Creating Crop_Remap map \n");
+	///Crop_Remap_Map(&Param, Path);
 	printf ("Creating Color map \n");
 	Build_Color_Map(Path);
 
