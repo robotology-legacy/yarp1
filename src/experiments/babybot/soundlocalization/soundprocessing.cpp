@@ -10,7 +10,7 @@
 // 
 //     Description:  Implements all the sound processing algorithms.
 // 
-//         Version:  $Id: soundprocessing.cpp,v 1.4 2004-04-16 14:08:57 beltran Exp $
+//         Version:  $Id: soundprocessing.cpp,v 1.5 2004-04-23 09:43:58 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -40,6 +40,7 @@ SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
 	_BufferLength  = 8192;
 	_iniFile       = iniFile;
 	_outSize       = outsize;
+	_SCOTfiltering  = 0;
 
 	_path.append(root);
 	_path.append("/conf/babybot/"); 
@@ -54,6 +55,7 @@ SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
 	file.get("[GENERAL]" , "BitsPerSample"       , &_BitsPerSample       , 1);
 	file.get("[GENERAL]" , "BufferLength"        , &_BufferLength        , 1);
 	file.get("[GENERAL]" , "MicrophonesDistance" , &_microphonesdistance , 1);
+	file.get("[GENERAL]" , "SCOTfiltering"       , &_SCOTfiltering        , 1);
 
 	double maxITD = _microphonesdistance/331.7;
 	shift         = int((maxITD * _SamplesPerSec) + 0.5 );   // what is the 0.5 for?
@@ -83,8 +85,8 @@ SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
 	leftcorrelation_Im  = new double[numSamples];
 	rightcorrelation_Re = new double[numSamples];
 	rightcorrelation_Im = new double[numSamples];
-	Re     = new double[2 * numSamples];
-	Im     = new double[2 * numSamples];
+	Re = new double[2 * numSamples];
+	Im = new double[2 * numSamples];
 }
 
 //--------------------------------------------------------------------------------------
@@ -97,8 +99,8 @@ SoundProcessing::~SoundProcessing()
 	delete fft;
 	delete[] Re;
 	delete[] Im;
-	delete[] crosscorrelation_Re;
-	delete[] crosscorrelation_Im;
+	delete[] crosscorrelation_Re; 
+    delete[] crosscorrelation_Im; 
 	delete[] leftcorrelation_Re;
 	delete[] leftcorrelation_Im;
 	delete[] rightcorrelation_Re;
@@ -107,33 +109,50 @@ SoundProcessing::~SoundProcessing()
 
 //--------------------------------------------------------------------------------------
 //       Class: SoundProcessing 
-//      Method: ComputeCorrelation2 
+//      Method: ComputeCrossCorrelation 
 // Description: Calculate the correlation function using the Fourier Transform 
 //--------------------------------------------------------------------------------------
-int SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
-											 double * right_Re, double * right_Im)
+int 
+SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
+										 double * right_Re, double * right_Im)
 {
 	int i = 0;
 	int dim[1] = {numSamples};
-	
 
-	ConjMultiplication(left_Re, left_Im,
-					   right_Re, right_Im,
-					   crosscorrelation_Re,
-					   crosscorrelation_Im);
-	ConjMultiplication(left_Re, left_Im,
-					   left_Re, left_Im,
-					   leftcorrelation_Re,
-					   leftcorrelation_Im);
-	ConjMultiplication(left_Re, left_Im,
-					   right_Re, right_Im,
-					   rightcorrelation_Re,
-					   rightcorrelation_Im);
+	ConjComplexMultiplication(left_Re, left_Im,
+							  right_Re, right_Im,
+							  crosscorrelation_Re,
+							  crosscorrelation_Im);
+	ConjComplexMultiplication(left_Re, left_Im,
+							  left_Re, left_Im,
+							  leftcorrelation_Re,
+							  leftcorrelation_Im);
+	ConjComplexMultiplication(left_Re, left_Im,
+							  right_Re, right_Im,
+							  rightcorrelation_Re,
+							  rightcorrelation_Im);
 
 	
 	//----------------------------------------------------------------------
 	//  Consider here to apply the SCOT filtering
 	//----------------------------------------------------------------------
+	if ( _SCOTfiltering )
+	{
+		for( int i=0; i<numSamples; i++)
+		{
+			if ((rightcorrelation_Re[i] > 0.6) && (leftcorrelation_Re[i] > 0.6))
+				SCOToperator_Re[i] = 1/sqrt(rightcorrelation_Re[i] * leftcorrelation_Re[i]);
+			else
+				SCOToperator_Re[i] = 0.0;
+
+			SCOToperator_Im[i] = 0.0;
+		}
+
+		ComplexMultiplication(crosscorrelation_Re, 
+							  crosscorrelation_Im,
+							  SCOToperator_Re, 
+							  SCOToperator_Im);
+	}
 	
 	//----------------------------------------------------------------------
 	//  Calculate the inverse Fast Fourier Transform
@@ -146,24 +165,88 @@ int SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 }
 
 //--------------------------------------------------------------------------------------
+//       Class: SoundProcessing
+//      Method: ComputeLevels 
+// Description: This method calculates the ILD 
+//--------------------------------------------------------------------------------------
+int
+SoundProcessing::ComputeLevels()
+{
+	//----------------------------------------------------------------------
+	//  The left and right correlation spectrums have been already calculated 
+	//  in the CrossCorrelation computation
+	//----------------------------------------------------------------------
+	squareMiddleValLeft  = squareMean(leftcorrelation_Re,
+									  leftcorrelation_Im,
+									  ILD_LOW_FREQ,
+									  FREQ_T);
+	squareMiddleValRight = squareMean(rightcorrelation_Re,
+									  rightcorrelation_Im,
+									  ILD_LOW_FREQ,
+									  FREQ_T);
+
+	return 0;
+}
+//--------------------------------------------------------------------------------------
 //       Class: SoundProcessing 
-//      Method: ConjMultiplication 
+//      Method: ConjComplexMultiplication 
 // Description: Multiplication between the spectrum of the first signal and the complex
 // conjugation of the spectrum of the second (discrete correlation theorem) 
 // (a+ib)(c-id)=(ac+bd)+i(bc-ad)
 //--------------------------------------------------------------------------------------
-int SoundProcessing::ConjMultiplication(double * fft1_Re, double * fft1_Im,
-										double * fft2_Re, double * fft2_Im,
-										double * ans_Re , double * ans_Im)
+int 
+SoundProcessing::ConjComplexMultiplication(double * a, double * b,
+										   double * c, double * d,
+										   double * ans_Re , double * ans_Im)
 {
-	int i;
-	
-	for	( i = 0; i < numSamples; i++) 
+	for	( int i = 0; i < numSamples; i++) 
 	{
-		*(ans_Re+i) = ((*fft1_Re) * (*fft2_Re) + (*fft1_Im) * (*fft2_Im))/numSamples;
-		*(ans_Im+i) = ((*fft1_Im) * (*fft2_Re) - (*fft1_Re) * (*fft2_Im))/numSamples;
-		fft1_Re++; fft1_Im++; fft2_Re++; fft2_Im++;
+		*(ans_Re+i) = ((*a) * (*c) + (*b) * (*d))/numSamples;
+		*(ans_Im+i) = ((*b) * (*c) - (*a) * (*d))/numSamples;
+		a++; b++; c++; d++;
 	}
 
 	return 0;
+}
+
+//--------------------------------------------------------------------------------------
+//       Class: SoundProcessing 
+//      Method: ComplexMultiplication 
+// Description: Complex multiplication
+// (a+ib)(c+id)=(ac+bd)+i(bc+ad)
+//--------------------------------------------------------------------------------------
+int 
+SoundProcessing::ComplexMultiplication(double * a, double * b,
+										   double * c, double * d)
+{
+	double temp_a;
+	
+	for	(int i = 0; i < numSamples; i++) 
+	{
+		temp_a = (*a);
+		*(a)   = ((*a) * (*c) + (*b)     * (*d))/numSamples;
+		*(b)   = ((*b) * (*c) + (temp_a) * (*d))/numSamples;
+		a++; b++; c++; d++;
+	}
+
+	return 0;
+}
+
+//--------------------------------------------------------------------------------------
+//       Class: SoundProcessing 
+//      Method: squareMean 
+// Description:  
+//--------------------------------------------------------------------------------------
+double 
+SoundProcessing::squareMean(double * channel_Re, double * channel_Im, double lowFreq, double highFreq)
+{
+	double energy = 0.0;
+
+	int lowIndex  = int ((lowFreq/_SamplesPerSec)*numSamples);
+	int highIndex = int ((highFreq/_SamplesPerSec)*numSamples);
+
+	for(int i= lowIndex; i < highIndex; i++)
+		energy = energy + 2*channel_Re[i];
+
+	return energy;
 }

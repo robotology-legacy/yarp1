@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.4 2004-04-16 14:08:57 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.5 2004-04-23 09:43:58 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -46,6 +46,7 @@ public:
 		// Fill the Re and Im vectors from the sound buffer
 		// The sound buffer is in unsigned chars. Each sound sample occupies 
 		// two bytes. Right and left channel alternate inside the buffer
+		// The bytes are reorganice in the correct order
 		//----------------------------------------------------------------------
 		for (int i = 0, j = numSamples; i < numSamples; i++, j++)
 		{
@@ -68,11 +69,15 @@ public:
         fft->Fft(1, dim, Re + numSamples, Im + numSamples, 1, -1); // Calculate second signal FFT
 
 		ComputeCrossCorrelation( Re, Im, Re + numSamples, Im + numSamples);
+		ComputeLevels();
 	}
 
 private:
 	int ComputeCrossCorrelation(double *,double *,double *,double *);
-	int ConjMultiplication(double *,double *,double *,double *,double *,double *);
+	int ConjComplexMultiplication(double *,double *,double *,double *,double *,double *);
+	int ComplexMultiplication(double *, double *, double *, double *);
+	double squareMean(double * , double * , double, double);
+	int ComputeLevels();
 	void _threshold(double *v, double th)
 	{
 		// Surely, this is not necessary
@@ -89,16 +94,24 @@ private:
 	int _SamplesPerSec;
 	int _BitsPerSample;
 	int _BufferLength;
+	int _SCOTfiltering;
 	double _microphonesdistance;
+
+    double squareMiddleValLeft;  // E{l-E{l}^2}
+    double squareMiddleValRight; // E{r-E{r}^2}
 
 	double * Re;
 	double * Im;
-	double * crosscorrelation_Re; //this is also used as a working vector
-	double * crosscorrelation_Im;
-	double * leftcorrelation_Re; //this is also used as a working vector
-	double * leftcorrelation_Im;
-	double * rightcorrelation_Re; //this is also used as a working vector
-	double * rightcorrelation_Im;
+    double * crosscorrelation_Re;   // The correlation buffer (it is also used to store the spectrum when calculating the fft)
+    double * crosscorrelation_Im;   // Well, really, the crosscorralation has not an imaginary part
+                                    // this is just used to store the imaginary part of the fft that is later used
+                                    // to obtain the crosscorrelation using the inverse fft
+    double * leftcorrelation_Re;    // This is for the auto correlation of the left audio signal
+    double * leftcorrelation_Im;    // Here applies the same discusion than in the crosscorrelation case
+    double * rightcorrelation_Re;   // The same but for the right audio signal
+    double * rightcorrelation_Im;
+    double * SCOToperator_Re;       // The buffer for the SCOToperator
+    double * SCOToperator_Im;       
 
     int numSamples;     // number of samples for channel
     int numFreqSamples; // length of the trasformations (N/2 + 1??)
