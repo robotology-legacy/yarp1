@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.7 2003-05-29 13:50:51 gmetta Exp $
+/// $Id: LocalNameServer.h,v 1.8 2003-06-23 16:39:57 babybot Exp $
 ///
 ///
 
@@ -447,6 +447,11 @@ public:
 	
 	int check_static(const std::string &name, std::string &ip, int *max)
 	{
+		ACE_UNUSED_ARG (name);
+		ACE_UNUSED_ARG (ip);
+		ACE_UNUSED_ARG (max);
+		return -1;
+
 		/*PORT_LIST dummy;
 		if (statics.check(name, ip, dummy, max))
 			return 0;

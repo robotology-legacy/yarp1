@@ -9,25 +9,23 @@
 #----------------------------------------------------------------------------
 
 include $(YARP_ROOT)/conf/Makefile.template
-CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS)
+CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS) -g
 
 BIN     = YARPNameService
 	
-
-FILES 	= YARPNameServer	\
-	LocalNameServer
+FILES 	= YARPNameServer LocalNameServer
 	  
-LDLIBS  = $(MATHLIB) $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib
+LDLIBS  = $(MATHLIB)
 
 LSRC    = $(addsuffix .cpp,$(FILES))
 LOBJ    = $(addsuffix .o,$(FILES))
 SHOBJ   = $(addsuffix .so,$(FILES))
 
 #LDLIBS  =  $(addprefix .shobj/,$(SHOBJ))
-LDLIBS  =  $(addprefix .obj/,$(LOBJ))
+LDLIBS  +=  $(addprefix .obj/,$(LOBJ))
 
 
-VLDLIBS = $(LDLIBS:%=%$(VAR))
+#VLDLIBS = $(LDLIBS:%=%$(VAR))
 
 BUILD = $(VBIN)
 

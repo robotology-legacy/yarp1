@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: CThreadImpl.h,v 1.3 2003-06-18 21:45:00 gmetta Exp $
+/// $Id: CThreadImpl.h,v 1.4 2003-06-23 16:39:57 babybot Exp $
 ///
 ///
 //////////////////////////////////////////////////////////////////////////
@@ -164,6 +164,8 @@ public:
 
 	virtual void start(bool wait = true)
 	{
+		ACE_UNUSED_ARG (wait);
+
 		lock ();
 
 		// create suspended.
@@ -335,7 +337,7 @@ public:
 		ACE_High_Res_Timer	begin_timer;	// timer to estimate period
 		ACE_High_Res_Timer	thread_timer;	// timer to estimate thread time
 		ACE_Time_Value		est_time;		// thread time
-		ACE_Time_Value		est_period;		// thread period
+		///ACE_Time_Value		est_period;		// thread period
 		ACE_Time_Value		sleep_period;	// thread sleep
 
 		context->end = false;		

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.21 2003-05-29 15:57:38 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.22 2003-06-23 16:39:57 babybot Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 		t2.Begin();
 	}
 
-	YARPTime::DelayInSeconds(1000000.0);
+	YARPTime::DelayInSeconds(60.0);
 	return 0;
 }
 

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.9 2003-06-18 10:03:14 beltran Exp $
+/// $Id: YARPNameServer.h,v 1.10 2003-06-23 16:39:57 babybot Exp $
 ///
 ///
 
@@ -90,8 +90,10 @@ class YARPNameServer: public CThreadImpl
 public:
 	YARPNameServer(const std::string &file, int port):
 	  CThreadImpl("name server thread",0),
-	  server_addr_(port), peer_acceptor_(server_addr_)
+	  server_addr_(port)	///, peer_acceptor_(server_addr_, 1)
 	{
+		  peer_acceptor_.open(server_addr_, 1);
+
 		  ns.init(file);
 		  data_buf_ = new char [SIZE_BUF];
 
@@ -144,11 +146,17 @@ public:
 		else
 			NAME_SERVER_DEBUG (("Error: cannot get local address\n"));
 
+		new_stream_ = NULL;
 	}
 	virtual void doLoop()
 	{
+		new_stream_ = new ACE_SOCK_Stream;
+
 		if (accept_connection() != -1)
 			handle_connection();
+
+		delete new_stream_;
+		new_stream_ = NULL;
 	}
 	virtual void doRelease()
 			{/* release, if any */}
@@ -162,7 +170,7 @@ private:
 	ACE_INET_Addr		server_addr_;
 	ACE_INET_Addr		client_addr_;
 	ACE_SOCK_Acceptor	peer_acceptor_;
-	ACE_SOCK_Stream		new_stream_;
+	ACE_SOCK_Stream		*new_stream_;
 
 	char *data_buf_;
 };

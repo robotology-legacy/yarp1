@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.9 2003-04-27 16:54:35 natta Exp $
+/// $Id: YARPNameServer.cpp,v 1.10 2003-06-23 16:39:57 babybot Exp $
 ///
 ///
 
@@ -80,8 +80,14 @@ char * GetYarpRoot (void)
 
 int YARPNameServer::accept_connection()
 {
-	ACE_Time_Value timeout (5, 0);
-	return peer_acceptor_.accept(new_stream_, &client_addr_, &timeout);
+	///ACE_Time_Value timeout (5, 0);
+	int ret = peer_acceptor_.accept (*new_stream_, &client_addr_);
+
+	ACE_OS::printf ("incoming connection: %s:%d\n", client_addr_.get_host_name(), client_addr_.get_port_number());
+	ACE_OS::fflush (stdout);
+
+	return ret;
+	///return peer_acceptor_.accept(new_stream_, &client_addr_);	///, &timeout);
 }
 
 void YARPNameServer::dump_statics()
@@ -105,7 +111,7 @@ void YARPNameServer::dump_names()
 		cout << i->ip;
 		cout << ":";
 
-		int length = i->ports.size();
+		///int length = i->ports.size();
 		for(PORT_IT j = i->ports.begin(); j != i->ports.end(); j++)
 			cout << j->port << "," ;
 		cout << "ref:" << (i->get_max_ref()-i->get_ref());
@@ -165,7 +171,7 @@ void YARPNameServer::handle_query_qnx(const std::string &name)
 	YARPNameQnx entry;
 	int type;
 	ns.queryNameQnx(name, entry, &type);
-	NAME_SERVER_DEBUG(("Reply %s %s(%s) %d %d\n", entry.getName(), entry.getNode(), servicetypeConverter(type), entry.getPid(), entry.getChan()));
+	NAME_SERVER_DEBUG(("Reply %s %s(%s) %ld %ld\n", entry.getName(), entry.getNode(), servicetypeConverter(type), entry.getPid(), entry.getChan()));
 	_handle_reply(entry, type);
 }
 
@@ -209,7 +215,7 @@ void YARPNameServer::handle_registration_dip(const std::string &service_name, in
 void YARPNameServer::handle_registration_qnx(const YARPNameQnx &entry)
 {
 	ns.registerNameQnx(entry);
-	NAME_SERVER_DEBUG(("Registered %s %s(%s) %d %d\n", entry.getName(), entry.getNode(), servicetypeConverter(YARP_QNET), entry.getPid(), entry.getChan()));
+	NAME_SERVER_DEBUG(("Registered %s %s(%s) %ld %ld\n", entry.getName(), entry.getNode(), servicetypeConverter(YARP_QNET), entry.getPid(), entry.getChan()));
 	// _handle_reply(entry, type);
 }
 
@@ -236,7 +242,8 @@ void YARPNameServer::_handle_reply(const std::string &ip, int type, int port)
 	iov[0].iov_base = data_buf_;
 	iov[0].iov_len = rplCmd.length+sizeof(YARPNameServiceCmd);
 
-	int sent = new_stream_.sendv_n (iov, 1);
+	///int sent = new_stream_.sendv_n (iov, 1);
+	new_stream_->sendv_n (iov, 1);
 }
 
 void YARPNameServer::_handle_reply(const std::string &ip, int type, const PORT_LIST &ports)
@@ -263,7 +270,8 @@ void YARPNameServer::_handle_reply(const std::string &ip, int type, const PORT_L
 	iov[0].iov_base = data_buf_;
 	iov[0].iov_len = rplCmd.length+sizeof(YARPNameServiceCmd);
 
-	int sent = new_stream_.sendv_n (iov, 1);
+	///int sent = new_stream_.sendv_n (iov, 1);
+	new_stream_->sendv_n (iov, 1);
 }
 
 void YARPNameServer::_handle_reply(const YARPNameQnx &entry, int type)
@@ -282,7 +290,8 @@ void YARPNameServer::_handle_reply(const YARPNameQnx &entry, int type)
 	iov[0].iov_base = data_buf_;
 	iov[0].iov_len = rplCmd.length+sizeof(YARPNameServiceCmd);
 
-	int sent = new_stream_.sendv_n (iov, 1);
+	///int sent = new_stream_.sendv_n (iov, 1);
+	new_stream_->sendv_n (iov, 1);
 }
 
 void YARPNameServer::query_dbg(const std::string &service_name)
@@ -317,13 +326,13 @@ int YARPNameServer::handle_connection()
 
 	iov[0].iov_base = data_buf_;
 	iov[0].iov_len = sizeof(YARPNameServiceCmd);
-	res = new_stream_.recvv_n(iov, 1, 0, &byte_count);
+	res = new_stream_->recvv_n(iov, 1, 0, &byte_count);
 	
 	tmpCmd = *(YARPNameServiceCmd *) (data_buf_);
 
 	iov[0].iov_base = data_buf_;
 	iov[0].iov_len = tmpCmd.length;	//message length
-	res = new_stream_.recvv_n(iov, 1, 0, &byte_count);
+	res = new_stream_->recvv_n(iov, 1, 0, &byte_count);
 
 	if ( (tmpCmd.cmd == YARPNSQuery) &&
 		((tmpCmd.type == YARP_UDP) || (tmpCmd.type == YARP_TCP) || (tmpCmd.type == YARP_MCAST)))
@@ -381,9 +390,14 @@ int YARPNameServer::handle_connection()
 	}
 	else
 		NAME_SERVER_DEBUG(("Sorry: command not recognized\n"));
-	
+
+	///int ret = ACE_OS::shutdown (new_stream_.get_handle(), ACE_SHUTDOWN_BOTH);
+	///ACE_OS::printf ("shutdonw called: %d\n", ret);
+
+	new_stream_->close_reader();
+
 	// close new endpoint
-	if (new_stream_.close() == -1)
+	if (new_stream_->close() == -1)
 		ACE_ERROR ((LM_ERROR, "%p\n", "close"));
 	return 0;
 }

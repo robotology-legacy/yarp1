@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.7 2003-06-20 17:38:12 beltran Exp $
+/// $Id: YARPNameService.cpp,v 1.8 2003-06-23 16:39:57 babybot Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -117,6 +117,9 @@ int parse(const std::string &str)
 
 int main(int argc, char* argv[])
 {
+	ACE_UNUSED_ARG (argc);
+	ACE_UNUSED_ARG (argv);
+
 	/// This is NT only, usual idiosincrasy between // and \\ Unix/NT clash.
 	/// handle the connection w/ the remote name server.
 	char buf[256];

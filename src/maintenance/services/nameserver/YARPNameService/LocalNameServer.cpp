@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.8 2003-06-20 17:38:13 beltran Exp $
+/// $Id: LocalNameServer.cpp,v 1.9 2003-06-23 16:39:57 babybot Exp $
 ///
 
 #include "LocalNameServer.h"
@@ -86,7 +86,7 @@ std::string getNextIp(const std::string &i)
 			{
 				b = 0;
 				a++;
-				if (a = 256)
+				if (a == 256)
 					a = 0;
 			}
 		}
@@ -413,6 +413,8 @@ int qnxServices::check_in(const YARPNameQnx &entry)
 
 int qnxServices::check_out(const string &name)
 {
+	ACE_UNUSED_ARG (name);
+
 	// LATER
 	return 0;
 }
@@ -465,7 +467,7 @@ int LocalNameServer::queryName(const std::string &name, std::string &ip, int *ty
 	std::string tmp_ip;
 	PORT_LIST tmp_ports;
 	int protocol;
-	int max_ref = 0;
+	///int max_ref = 0;
 	if (names.check(name, tmp_ip, &protocol, tmp_ports))
 	{
 		int ref = names.take_ref(name, tmp_ip, &protocol, tmp_ports);

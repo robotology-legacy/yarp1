@@ -9,7 +9,8 @@
 
 include $(YARP_ROOT)/conf/Makefile.template
 
-TARGETS = $(patsubst %.cpp, %, $(wildcard *.cpp)) 
+#TARGETS = $(patsubst %.cpp, %, $(wildcard *.cpp)) 
+TARGETS = exec_test8
 
 # For make depend.
 #SRC = $(addsuffix .cpp, $(TARGETS))
