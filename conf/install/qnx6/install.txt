@@ -1,6 +1,6 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.24 2003-12-17 17:34:59 beltran Exp $
+$Id: install.txt,v 1.25 2004-05-18 15:50:48 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
@@ -103,6 +103,12 @@ REQUIRES:
 	daemons
 
 		run "make_daemons.sh release <robotsetup>" in %YARP_ROOT/src/hardware/daemons/
+
+	experiments (babybot for the moment)
+		run "make_all.sh" release <robotsetup>" in %YARP_ROOT/src/experiments/babybot/
+
+	sendCmd ( babybot-experiments)
+		run "make" in %YARP_ROOT/src/experiments/babybot/sendCmd
 
 
 3) Stuff under %YARP_ROOT%/conf
