@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPRobotcubHead.h,v 1.3 2004-08-30 16:05:47 babybot Exp $
+///  $Id: YARPRobotcubHead.h,v 1.4 2004-09-02 22:05:46 gmetta Exp $
 ///
 ///
 
@@ -71,9 +71,15 @@ namespace _joint
 	const int neckRoll = 5;
 };
 
-///
-///
-///
+
+/**
+ * YARPRobotcubHead is the specialization of the generic control board to control
+ * the RobotCub head (as of 2004). It should include things such as kinematic 
+ * control of the neck, calibration of the joints (where feasible), etc. Also, 
+ * it defines a virtual joint control mode where joints are coupled according to the
+ * head kinematics to simplify control.
+ *
+ */
 class YARPRobotcubHead: public YARPGenericControlBoard<YARPCanOnRobotcubHeadAdapter, YARPRobotcubHeadParameters>
 {
 public:

@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBottleCodes.h,v 1.2 2004-08-21 17:53:46 gmetta Exp $
+///  $Id: YARPBottleCodes.h,v 1.3 2004-09-02 22:05:45 gmetta Exp $
 ///
 ///
 
@@ -87,8 +87,8 @@ enum __YBTypeCodes
 	YBTypeString = 5,
 };
 
-// who's including from C anyway?
-//#ifdef __cplusplus
+// who's including from C anyway? Matlab libraries (mex) are including from C!
+#ifdef __cplusplus
 
 #include <yarp/YARPString.h>
 
@@ -181,6 +181,6 @@ public:
 	bool empty (void) { return (length() == 0) ? true : false; }
 };
 
-//#endif
+#endif /* cplusplus */
 
 #endif

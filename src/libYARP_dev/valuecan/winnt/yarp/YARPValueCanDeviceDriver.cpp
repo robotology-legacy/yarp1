@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.2 2004-08-04 07:50:38 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.3 2004-09-02 22:05:46 gmetta Exp $
 ///
 ///
 
@@ -320,6 +320,7 @@ YARPValueCanDeviceDriver::YARPValueCanDeviceDriver(void)
 	m_cmds[CMDSetCommand] = &YARPValueCanDeviceDriver::setCommand;
 	m_cmds[CMDSetCommands] = &YARPValueCanDeviceDriver::setCommands;
 
+	m_cmds[CMDGetTorque] = &YARPValueCanDeviceDriver::getTorque;
 	m_cmds[CMDGetTorques] = &YARPValueCanDeviceDriver::getTorques;
 	m_cmds[CMDLoadBootMemory] = &YARPValueCanDeviceDriver::readBootMemory;
 	m_cmds[CMDSaveBootMemory] = &YARPValueCanDeviceDriver::writeBootMemory;
@@ -572,7 +573,7 @@ int YARPValueCanDeviceDriver::getPositions (void *cmd)
 		}
 		else
 		{
-			tmp[i] = 0;
+			ACE_OS::memset (tmp, 0, sizeof(double) * r._njoints); //tmp[i] = 0;
 			return YARP_FAIL;
 		}
 	}
@@ -1031,6 +1032,25 @@ int YARPValueCanDeviceDriver::getTorques (void *cmd)
 
 	return YARP_OK;
 }
+
+/// cmd is a SingleAxisParameters struct with a double argument.
+int YARPValueCanDeviceDriver::getTorque (void *cmd)
+{
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	short value;
+
+	if (_readWord16 (CAN_GET_PID_OUTPUT, axis, value) != YARP_OK)
+	{
+		*((double *)tmp->parameters) = 0;
+		return YARP_FAIL;
+	}
+
+	*((double *)tmp->parameters) = double(value);
+	return YARP_OK;
+}
+
 
 /// cmd is a pointer to SingleAxisParameters struct with no argument.
 int YARPValueCanDeviceDriver::readBootMemory (void *cmd)

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.1 2004-07-12 23:40:29 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.2 2004-09-02 22:05:46 gmetta Exp $
 ///
 ///
 
@@ -152,6 +152,7 @@ protected:
 	int velocityMove(void *cmd);
 	int setCommand(void *cmd);
 	int setCommands(void *cmd);
+	int getTorque(void *cmd);
 	int getTorques(void *cmd);
 	int readBootMemory(void *cmd);
 	int writeBootMemory(void *cmd);
@@ -227,6 +228,8 @@ protected:
 		else
 			return int(x + .5);
 	}
+
+	inline double getMaxTorque(int axis) const { ACE_UNUSED_ARG(axis); return 100.0; }
 };
 
 

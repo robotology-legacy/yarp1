@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.1 2004-07-12 23:40:29 babybot Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.2 2004-09-02 22:05:45 gmetta Exp $
 ///
 ///
 
@@ -45,119 +45,150 @@
 #define __YARP_CONTROL_BOARD_UTILS__
 
 
-// command list
+/**
+ * ControlBoardCmd is the list of possible commands for a generic 
+ * motor control card.
+ *
+ */
 enum ControlBoardCmd
 {
-	CMDSetSpeed				= 0,	// ref speed for position control
-	CMDSetPosition			= 1,	// position control
-	CMDSetAcceleration 		= 2,	// ref acc for positiona and vel control
-	CMDSetPID 				= 3,	// set pid
-	CMDGetPosition 			= 4,	// read actual position
-	CMDSetSpeeds 			= 5,	// see above, all axes
-	CMDSetPositions			= 6,	// see above, all axes
-	CMDSetAccelerations 	= 7,	// see above, all axes
-	CMDGetPositions 		= 8,	// see above, all axes
+	//
+	// set/get state information about a specific axis or about
+	// many axes including position limit values.
+	//
+	CMDDefinePosition 		= 16,	// set encoder value, single axis.
+	CMDDefinePositions 		= 17,	// set encoder values, all axes simultaneously.
 
-	CMDSetOutputPort 		= 9,	// set output port to a spec value
-	CMDSetOutputBit 		= 10,	// set single bit to 1
-	CMDClearOutputBit 		= 11,	// set single bit to 0
+	CMDGetPosition 			= 4,	// read actual encoder position.
+	CMDGetPositions 		= 8,	// see above, all axes.
+	
+	CMDSetSpeed				= 0,	// set the reference speed for position control.
+	CMDSetSpeeds 			= 5,	// see above, all axes.
+	CMDGetSpeeds			= 21,	// istantaneous speed, read from encoders.
+	CMDSetAcceleration 		= 2,	// reference acceleration for position and velocity control.
+	CMDSetAccelerations 	= 7,	// see above, all axes.
 
-	CMDSetOffset 			= 12,	// set output offset
-	CMDSetOffsets 			= 13,	// same as above, all axes
+	CMDGetRefPositions 		= 24,	// get reference position (commanded).
+	CMDGetRefSpeeds 		= 22,	// get reference speed.
+	CMDGetRefAccelerations 	= 23,	// get reference acceleration.
 
-	CMDBeginMotion 			= 14,	// start motion (Galil)
-	CMDBeginMotions 		= 15,	// same all axes
+	CMDSetCommands 			= 50,	// set current commands (watch out! dangerous)
+	CMDSetCommand 			= 51,	// set current commands (watch out! dangerous)
 
-	CMDDefinePosition 		= 16,	// set encoder, single axis
-	CMDDefinePositions 		= 17,	// set encoders
+	CMDGetSWPositiveLimit 	= 79,	// gets positive limit value.
+	CMDGetSWNegativeLimit 	= 80,	// gets negative limit value.
+	CMDSetSWPositiveLimit 	= 81,	// sets positive limit value.
+	CMDSetSWNegativeLimit 	= 82,	// sets negative limit value.
+
+	CMDSetPositiveLimit 	= 43,	// sets positive limit event (what to do in case a limit is reached).
+	CMDSetNegativeLimit 	= 44,	// sets negative limit event.
+	CMDSetPositiveLevel 	= 45,	// sets level signal for limit switch.
+	CMDSetNegativeLevel 	= 46,	// sets level signal for limit switch.
+
+	//
+	//
+	// set/get the PID gain values including limits.
+	CMDSetPID 				= 3,	// set the PID for a given axis.
+	CMDGetPID 				= 25,	// read current PID gain values.
+
+	CMDSetOffset 			= 12,	// set the output offset.
+	CMDSetOffsets 			= 13,	// same as above, all axes.
+	CMDSetIntegratorLimit   = 29,	// integrator limit, single joint.
+	CMDSetIntegratorLimits 	= 27,	// integrator limit, all axes.
 	
-	CMDStopAxes				= 18,	// issue a stop
-	CMDReadSwitches 		= 19,	// read switched (Galil)
-	CMDServoHere 			= 20,	// set current position as current 
-	CMDGetSpeeds			= 21,	// istantaneous speed
+	CMDGetTorque			= 83,	// read the output from a single axis.
+	CMDGetTorques 			= 26,	// read the output voltage for all axes.
+	CMDSetTorqueLimit		= 30,   // torque limit, single joint (PWM maximum value).
+	CMDSetTorqueLimits 		= 28,	// torque limit, all axes.
+	CMDGetTorqueLimit		= 60,   // get torque limit, single joint
+	CMDGetTorqueLimits		= 61,   // get torque limit, multiple joints
+
+	//
+	// actual motion commands.
+	//
+	CMDSetPosition			= 1,	// position control (start a movement).
+	CMDSetPositions			= 6,	// see above, all axes.
+	CMDBeginMotion 			= 14,	// start motion (only for the Galil control card).
+	CMDBeginMotions 		= 15,	// same as above but all axes.
+
+	CMDStopAxes				= 18,	// issue a stop command to all axes.
+	CMDSetStopRate 			= 55,	// stop rate, at what rate to stop motion (deceleration).
+	CMDServoHere 			= 20,	// set current position as current.
+	CMDClearStop 			= 42,	// on MEI -> clear_status
+
+	CMDVMove 				= 47,	// set move using the velocity mode (begin motion).
+	CMDSafeVMove			= 71,	// velocity move, check frames left before submitting command.
+
+	CMDCheckMotionDone 		= 48,	// check for motion done.
+	CMDWaitForMotionDone 	= 49,	// wait (loop with sleep).
+
+	//
+	// I/O commands.
+	//
+	CMDSetOutputPort 		= 9,	// set output port to a specific value.
+	CMDSetOutputBit 		= 10,	// set single bit to 1.
+	CMDClearOutputBit 		= 11,	// set single bit to 0.
 	
-	CMDGetRefSpeeds 		= 22,	// get reference speed
-	CMDGetRefAccelerations 	= 23,	// get ref acc
-	CMDGetRefPositions 		= 24,	// get ref pos
+	CMDReadSwitches 		= 19,	// read switched (Galil).
 	
-	CMDGetPID 				= 25,	// read current pid val
-	CMDGetTorques 			= 26,	// read ist torques (output voltage)
-	
-	CMDSetIntegratorLimits 	= 27,	// int. limit
-	CMDSetTorqueLimits 		= 28,	// torque limit
-	CMDSetIntegratorLimit   = 29,	// int limit, single joint
-	CMDSetTorqueLimit		= 30,   // torque limit, single joint
-	
-	CMDGetErrors 			= 31,	// read current error
-	
+	CMDReadAnalog			= 66,	// read analog input.
+	CMDSetAxisAnalog		= 67,	// configure axis analog.
+
 	CMDReadInput 			= 32,	// read all ? (not yet impl)
 	CMDInitPortAsInput 		= 33,	// I/O
 	CMDInitPortAsOutput 	= 34,	// I/O
 	CMDGetOutputPort 		= 35,	// I/O
-	
-	CMDSetAmpEnableLevel 	= 36,	// set amp enable level
-	CMDSetAmpEnable 		= 37,	// set amp enable
-	CMDDisableAmp 			= 38,	// disable amp
-	CMDEnableAmp 			= 39,	// enable amp
-	CMDControllerIdle 		= 40,	// see MEI
-	CMDControllerRun 		= 41,	// see MEI
-	CMDClearStop 			= 42,	// on MEI -> clear_status
 
-	CMDSetPositiveLimit 	= 43,	// sets positive limit event
-	CMDSetNegativeLimit 	= 44,	// sets negative limit event
-	CMDSetPositiveLevel 	= 45,	// sets level signal for limit switch
-	CMDSetNegativeLevel 	= 46,	// sets level signal for limit switch
-	CMDVMove 				= 47,	// set move vel mode (begin motion)
-	CMDCheckMotionDone 		= 48,	// check for motion done
-	CMDWaitForMotionDone 	= 49,	// wait (loop with sleep)
-	CMDSetCommands 			= 50,	// set current commands (watch out! dangerous)
-	CMDSetCommand 			= 51,	// set current commands (watch out! dangerous)
+	CMDGetErrors 			= 31,	// read current error.
+	CMDAbortAxes			= 62,	// abort motion, Galil
 
 	CMDSetHomeIndexConfig 	= 52,
 	CMDSetHomeLevel 		= 53,
 	CMDSetHome 				= 54,
-	CMDSetStopRate 			= 55,	// stop rate1
 	CMDIndexSearch		    = 56,	// Galil Index Search (Index search + jog move = search for indexes)
-	
+
+	//
+	// Amplifier/PWM control.
+	//
+	CMDSetAmpEnableLevel 	= 36,	// set amplifier enable level (high/low).
+	CMDSetAmpEnable 		= 37,	// set amplifier enable.
+	CMDDisableAmp 			= 38,	// disable amplifier.
+	CMDEnableAmp 			= 39,	// enable amplifier.
+	CMDControllerIdle 		= 40,	// disables the PID computation and output.
+	CMDControllerRun 		= 41,	// starts the PID computation and output.
+
+	//
+	// Miscellaneous.
+	//
 	CMDResetController 		= 57,	// used to reset the Galil Controller
 	CMDErrorLimit			= 58,	// Error limit
 	CMDOffOnError			= 59,	// This command causes the controller to shut off
 									// the  motor command if a position error exceeds
 									// the limit specified by the ErrorLimit command
-	
-	CMDGetTorqueLimit		= 60,   // get torque limit, single joint
-	CMDGetTorqueLimits		= 61,   // get torque limit, multiple joints
-	CMDAbortAxes			= 62,	// abort motion, Galil
 
-	CMDDummy 				= 63,	// dummy command for debug purpose
-
-	CMDMotorType			= 64,	// Used to set the motor type
+	CMDMotorType			= 64,	// Used to set the motor type (e.g. DC, stepper)
 	CMDGetMotorType			= 65,
 
-	CMDReadAnalog			= 66,	// read analog input
-	CMDSetAxisAnalog		= 67,	// configure axis analog
-	
-	CMDSetDR				= 68,	// Configures the second communication channel and the data update
-	CMDCheckFramesLeft		= 69,	// return true if frames are left to be executed for one or more axes
+	CMDSetDR				= 68,	// Configures the second communication channel and the data update (Galil).
+	CMDCheckFramesLeft		= 69,	// return true if frames are left to be executed for one or more axes.
 	CMDWaitForFramesLeft	= 70,	// wait, loop with sleep(time), see .h for details
-	CMDSafeVMove			= 71,	// velocity move, check frames left
 
-	CMDLoadBootMemory		= 72,	// loads control values from permanent storage
-	CMDSaveBootMemory		= 73,	// saves important parameters to permanent storage
-	CMDGetErrorStatus		= 74,	// gets the error status of the control card
-	CMDSetBoardID			= 75,	// broadcasts a set board ID command
-	CMDGetBoardID			= 76,	// broadcasts a get board ID command
+	CMDLoadBootMemory		= 72,	// loads control values from permanent storage.
+	CMDSaveBootMemory		= 73,	// saves important parameters to permanent storage.
+	CMDGetErrorStatus		= 74,	// gets the error status of the control card.
+	CMDSetBoardID			= 75,	// broadcasts a set board ID command.
+	CMDGetBoardID			= 76,	// broadcasts a get board ID command.
 
 	CMDSetDebugMessageFilter = 77,	// sets the debug message filter.
 	CMDSetDebugPrintFunction = 78,	// sets the debug print function.
-
-	CMDGetSWPositiveLimit 	 = 79,	// gets positive limit value.
-	CMDGetSWNegativeLimit 	 = 80,	// gets negative limit value.
-	CMDSetSWPositiveLimit 	 = 81,	// sets positive limit value.
-	CMDSetSWNegativeLimit 	 = 82,	// sets negative limit value.
 	
-	CBNCmds 				= 83 	// required! tells the total number of commands
+	//
+	// Make sure the CBNCmds is always up to date.
+	//
+	CMDDummy 				= 63,	// dummy command for debug purposes.
+	CBNCmds 				= 84 	// required! tells the total number of commands
 };
+
 
 enum ControlBoardEvents
 {	
@@ -177,10 +208,16 @@ enum ControlBoardHomeConfig
 	CBNHomeConfig = 4	// required for future use ?
 };
 
-// PID class
+
+/**
+ * LowLevelPID is a simple PID class to contain the control board
+ * PID parameters. This class is not doing any computation, it is just
+ * a storage for managing the parameters.
+ */
 struct LowLevelPID
 {
-	LowLevelPID(){
+	LowLevelPID()
+	{
 		KP = 0.0;
 		KD = 0.0;
 		KI = 0.0;

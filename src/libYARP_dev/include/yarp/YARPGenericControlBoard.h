@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.3 2004-09-01 13:21:18 gmetta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.4 2004-09-02 22:05:46 gmetta Exp $
 ///
 ///
 
@@ -41,7 +41,6 @@
 #include <yarp/YARPSemaphore.h>
 
 #include <math.h>
-///#include <YARPRobotMath.h>
 #include <yarp/YARPString.h>
 
 #define YARP_GEN_CB_VERBOSE
@@ -70,6 +69,8 @@
  * YARPControlBoardUtils.h. The parameters class allows adding some further specialization
  * without changing the device driver. This class also allows multithread access.
  *
+ * WARNING: YARPGenericControlBoard is NOT consistently checking for bounds in arrays,
+ * joint numbers, arguments, etc.
  */
 
 template <class ADAPTER, class PARAMETERS>
@@ -132,11 +133,11 @@ public:
 	 * Device driver specific calibration routine.
 	 * @return YARP_OK on success.
 	 */
-	int calibrate()
+	int calibrate(int joint = -1)
 	{
 		int ret;
 		_lock();
-		ret = _adapter.calibrate();
+		ret = _adapter.calibrate(joint);
 		_unlock();
 		return ret;
 	}
@@ -154,7 +155,7 @@ public:
 	}
 
 	/**
-	 * Initializes the control card.
+	 * Initializes the control card (reading paramters values from a file).
 	 * @param path is the path of the config file.
 	 * @param init_file is the initialization file. This file contains many
 	 * head specific parameters that are then used to initialize the robot
@@ -168,6 +169,138 @@ public:
 		int ret = _initialize();
 		_unlock();
 		return ret;
+	}
+
+	/**
+	 * Initializes the control card.
+	 * @param par is the reference to the parameter type structure (one of
+	 * the arguments of the template).
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int initialize(PARAMETERS &par)
+	{
+		_lock();
+		_parameters.copy (par);
+		int ret = _initialize();
+		_unlock();
+		return ret;
+	}
+
+	/**
+	 * Saves current parameters to boot memory (typically a flash memory in the
+	 * card).
+	 * @param axis specifies the axis. Depending on the board configuration this
+	 * command might actually save one or many axes.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int saveToBootMemory (int axis)
+	{
+		int ret = YARP_FAIL;
+		_lock ();
+		if (axis >= 0 && axis < _parameters._nj)
+		{
+			axis = _parameters._axis_map[axis];
+			ret = _adapter.IOCtl(CMDSaveBootMemory, &axis);
+		}
+		_unlock ();
+		return ret;
+	}
+
+	/**
+	 * Reads parameters from boot memory to RAM.
+	 * @param axis specifies the axis' memory to read from. Depending on the board
+	 * configuration, brand, and random factors :) this method acually reads one
+	 * or more axes simultaneously.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int loadFromBootMemory (int axis)
+	{
+		int ret = YARP_FAIL;
+		_lock ();
+		if (axis >= 0 && axis < _parameters._nj)
+		{
+			axis = _parameters._axis_map[axis];
+			ret = _adapter.IOCtl(CMDLoadBootMemory, &axis);
+		}
+		_unlock ();
+		return ret;
+	}
+
+	/**
+	 * Sets the software limits for a given axis: many control cards allow for 
+	 * checking limits directly inside the PID loop.
+	 * @param axis is axis to change/set the limits for.
+	 * @param min is the minimum value of the joint position in radians.
+	 * @param max is the maximum value of the joint position in radians.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int setSoftwareLimits (int axis, double min, double max)
+	{
+		_lock ();
+		if (axis >= 0 && axis < _parameters._nj)
+		{
+			min = angleToEncoder(min,
+								_parameters._encoderToAngles[axis],
+								_parameters._zeros[axis],
+								_parameters._signs[axis]);
+
+			max = angleToEncoder(max,
+								_parameters._encoderToAngles[axis],
+								_parameters._zeros[axis],
+								_parameters._signs[axis]);
+
+			SingleAxisParameters x;
+			x.axis = _parameters._axis_map[axis];
+			x.parameters = &min;
+			_adapter.IOCtl(CMDSetSWNegativeLimit, (void *)&x);
+
+			x.parameters = &max;
+			_adapter.IOCtl(CMDSetSWPositiveLimit, (void *)&x);
+			
+			_unlock ();
+			return YARP_OK;
+		}
+
+		_unlock ();
+		return YARP_FAIL;
+	}
+
+	/**
+	 * Gets the software limits for a given axis: many control cards allow for 
+	 * checking limits directly inside the PID loop.
+	 * @param axis is axis to change/set the limits for.
+	 * @param min is the minimum value of the joint position in radians.
+	 * @param max is the maximum value of the joint position in radians.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int getSoftwareLimits (int axis, double& min, double& max)
+	{
+		_lock ();
+		if (axis >= 0 && axis < _parameters._nj)
+		{
+			SingleAxisParameters par;
+			par.axis = _parameters._axis_map[axis];
+
+			par.parameters = (void *)&max;
+			_adapter.IOCtl(CMDGetSWPositiveLimit, (void *)&par);
+			max = encoderToAngle(max, 	
+								_parameters._encoderToAngles[axis],
+								_parameters._zeros[axis],
+								_parameters._signs[axis]);
+
+			par.parameters = (void *)&min;
+			_adapter.IOCtl(CMDGetSWNegativeLimit, (void *)&par);
+			min = encoderToAngle(min, 	
+								_parameters._encoderToAngles[axis],
+								_parameters._zeros[axis],
+								_parameters._signs[axis]);
+
+			_unlock ();
+			return YARP_OK;
+		}
+
+		_unlock ();
+		return YARP_FAIL;
 	}
 
 	/**
@@ -195,9 +328,26 @@ public:
 	{
 		_lock();
 		SingleAxisParameters cmd;
-		cmd.axis = axis;
+		cmd.axis = _parameters._axis_map[axis];
 		cmd.parameters = &pid;
 		int ret = _adapter.IOCtl(CMDSetPID, &cmd);
+		_unlock();
+		return ret;
+	}
+
+	/**
+	 * Gets the PID values for a specified axis. 
+	 * @param axis is the axis to modify.
+	 * @param pid is a reference to a LowLevelPID structure returning the parameters.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int getPID(int axis, LowLevelPID& pid)
+	{
+		_lock();
+		SingleAxisParameters cmd;
+		cmd.axis = _parameters._axis_map[axis];
+		cmd.parameters = &pid;
+		int ret = _adapter.IOCtl(CMDGetPID, &cmd);
 		_unlock();
 		return ret;
 	}
@@ -294,28 +444,33 @@ public:
 	}
 
 	/**
-	 * Moves a specific joint to a certain position.
+	 * Moves a specific joint to a certain position by employing some
+	 * predefined trajectory profile (trapezoidal typically).
 	 * @param i the axis to be moved.
 	 * @param pos the final position in radians.
 	 * @return YARP_OK on success.
 	 */
 	int setPosition(int i, double pos)
 	{
-		ACE_ASSERT (i >= 0 && i < _parameters._nj);
 		_lock();
+		if (i >= 0 && i < _parameters._nj)
+		{
+			SingleAxisParameters cmd;
+			cmd.axis = _parameters._axis_map[i];
+			pos = angleToEncoder(pos,
+		 						 _parameters._encoderToAngles[i],
+								 _parameters._zeros[i],
+								 _parameters._signs[i]);
+			cmd.parameters = &pos;
 
-		SingleAxisParameters cmd;
-		cmd.axis = i;
-		pos = angleToEncoder(pos,
-		 					 _parameters._encoderToAngles[i],
-							 _parameters._zeros[i],
-							 _parameters._signs[i]);
-		cmd.parameters = &pos;
+			_adapter.IOCtl(CMDSetPosition, &cmd);
+			_unlock();
 
-		_adapter.IOCtl(CMDSetPosition, &cmd);
-		_unlock();
+			return YARP_OK;
+		}
 
-		return YARP_OK;
+		_unlock ();
+		return YARP_FAIL;
 	}
 
 	/**
@@ -340,24 +495,33 @@ public:
 	}
 
 	/**
-	 * Sets the speed for successive position movements.
-	 * @param vel the array of joint velocities expressed in rad/s.
+	 * Sets the speed for successive position movements: single axis version.
+	 * @param i is the axis to be controlled.
+	 * @param vel is the joint speed expressed in radians/s.
 	 * @return YARP_OK on success.
 	 */
 	int setVelocity(int i, double vel)
 	{
 		_lock();
-		for (int i = 0; i < _parameters._nj; i++) 
+		if (i >= 0 && i < _parameters._nj)
 		{
-			_temp_double[i] = angleToEncoder(vel[_parameters._axis_map[i]],
-											_parameters._encoderToAngles[i],
-											0.0,
-											_parameters._signs[i]);
+			SingleAxisParameters cmd;
+			cmd.axis = _parameters._axis_map[i];
+
+			vel = angleToEncoder(vel,
+								 _parameters._encoderToAngles[i],
+								 0.0,
+								 _parameters._signs[i]);
+
+			cmd.parameters = &vel;
+
+			_adapter.IOCtl(CMDSetSpeed, &cmd);
+			_unlock();
+			return YARP_OK;
 		}
 
-		_adapter.IOCtl(CMDSetSpeeds, _temp_double);
 		_unlock();
-		return YARP_OK;
+		return YARP_FAIL;
 	}
 
 	/**
@@ -382,6 +546,12 @@ public:
 		return -1;
 	}
 
+	/**
+	 * Starts a velocity motion of all joints.
+	 * @param vel is an array of double precision values representing
+	 * the speed of each joint. Speed is in radians/s.
+	 * @return -1 always (I wonder why). 
+	 */
 	int velocityMove(const double *vel)
 	{
 		_lock();
@@ -398,6 +568,16 @@ public:
 		return -1;
 	}
 
+
+	/**
+	 * Starts a velocity motion of all joints and check first whether other
+	 * commands might be pending for execution. This is very specific to the
+	 * control card although it's safe to be called, it'll revert to a velocityMove()
+	 * if this feature is not supported.
+	 * @param vel is an array of double precision values representing
+	 * the speed of each joint. Speed is in radians/s.
+	 * @return -1 always (I wonder why). 
+	 */
 	int safeVelocityMove(const double *vel)
 	{
 		_lock();
@@ -414,6 +594,14 @@ public:
 		return -1;
 	}
 
+	/**
+	 * Sets the command value/reference position for all axes. Beware that changing
+	 * the commanded position abruptly will generate a possibly fast and high-acceleration
+	 * movement of the joint. Make sure you know the value of the
+	 * new reference position with respect to the actual position of the axis.
+	 * @param pos is the array containing the position values in radians.
+	 * @return -1 always.
+	 */
 	int setCommands(const double *pos)
 	{
 		_lock();
@@ -430,6 +618,12 @@ public:
 		return -1;
 	}
 
+	/**
+	 * Checks whether the last command has been completed.
+	 * Useful if certain positions have to be achieved precisely to wait
+	 * before sending other commands.
+	 * @return true if the motion is terminated, false otherwise.
+	 */
 	bool checkMotionDone()
 	{
 		bool ret;
@@ -439,6 +633,13 @@ public:
 		return ret;
 	}
 
+	/**
+	 * Checks whether are there commands pending in the motion queue.
+	 * Some cards have buffering (queues) between the card and the host computer to 
+	 * improve performances. This method is useful to avoid an overflow of the
+	 * communication buffers.
+	 * @return true if there are commands left to be executed.
+	 */
 	bool checkFramesLeft()
 	{
 		bool ret;
@@ -448,6 +649,12 @@ public:
 		return ret;
 	}
 
+	/**
+	 * Gets the position (angle) of all joints.
+	 * @param pos is an array to contain the joint angles. Joint angles are measured
+	 * in radians.
+	 * @return -1 always.
+	 */
 	int getPositions(double *pos)
 	{
 		_lock();
@@ -464,6 +671,11 @@ public:
 		return -1;
 	}
 
+	/**
+	 * Gets the velocities of all joints (encoder velocities).
+	 * @param vel is an array that receives the joint velocities.
+	 * @return -1 always.
+	 */
 	int getVelocities(double *vel)
 	{
 		_lock();
@@ -480,6 +692,11 @@ public:
 		return -1;
 	}
 
+	/**
+	 * Gets the acceleration set point for all joints.
+	 * @param accs is an array to receive the acceleration values (radians/s^2).
+	 * @return -1 always.
+	 */
 	int getAccs(double *accs)
 	{
 		_lock();
@@ -496,7 +713,14 @@ public:
 		return -1;
 	}
 
-	// read dac output
+	/**
+	 * Reads the control value from the board that for current control
+	 * correseponds (approximately) to the generated torque. In some cases this
+	 * is the PWM value, in other just the output of the DAC.
+	 * @param t is an array of double precision values that will contain the
+	 * torque values.
+	 * @return -1 always.
+	 */
 	int getTorques(double *t)
 	{
 		_lock();
@@ -509,7 +733,13 @@ public:
 		return -1;
 	}
 
-	// reset encoders to a specified value; NULL (default) means reset to 0.0s
+	/**
+	 * Sets the encoder positions for all joints. This can either set them to
+	 * zero or to some specified values.
+	 * @param pos is an array with the encoder values (not angles!), if NULL
+	 * (default) it will set all to zero.
+	 * @return -1 always.
+	 */
 	int resetEncoders(const double *pos = NULL)
 	{
 	    _lock();
@@ -518,15 +748,26 @@ public:
 			if (pos == NULL)
 				_temp_double[i] = 0.0;
 			else
-				_temp_double[i] = pos[i];
+				_temp_double[i] = pos[_parameters._axis_map[i]];
 		}
 		_adapter.IOCtl(CMDDefinePositions, _temp_double);
 		_unlock();
 		return -1;
 	}
 
-	// return max torque for the control board (i.e. MEI is 32767.0, Galil 9.999)
+	/**
+	 * Gets the card's max torque: this value is a function of the specific 
+	 * output device of the control card and of resolution and firmware implementation
+	 * (i.e. MEI is 32767.0, Galil 9.999).
+	 * @param axis is the axis to request the value for.
+	 * @return a double precision value representing the maximum output value.
+	 */
 	double getMaxTorque(int axis) { return _adapter.getMaxTorque(axis); }
+
+	/**
+	 * Gets the number of axis controlled by this interface.
+	 * @return an integer value (0 or negative if not initialized).
+	 */
 	inline int nj() { return _parameters._nj; }
 
 	/**
@@ -546,17 +787,48 @@ public:
 	// same as above, act on multiple joints (up to nj)
 	bool incMaxTorques(double delta, double value, int nj);
 
+	/**
+	 * Converts angles in radians into encoder values in ticks.
+	 * @param angle is the angle to be converted.
+	 * @param encParam is the multiplication factor (linear).
+	 * @param zero is the encoder's zero value (i.e. a value in ticks to
+	 * align the encoder's zero with the actual angular zero.
+	 * @param sign tells whether the encoder counts on the same direction
+	 * as the angle.
+	 * @return the converted value in encoder ticks.
+	 */
 	inline double angleToEncoder(double angle, double encParam, int zero, int sign);
+
+	/**
+	 * Converts encoder values into angles in radians.
+	 * @param encoder is the angle measured in encoder ticks.
+	 * @param encParam is the multiplication factor (linear).
+	 * @param zero is the encoder's zero value (i.e. a value in ticks to
+	 * align the encoder's zero with the actual angular zero.
+	 * @param sign tells whether the encoder counts on the same direction
+	 * as the angle.
+	 * @return the converted value of the angle in radians.
+	 */
 	inline double encoderToAngle(double encoder, double encParam, int zero, int sign);
 
 public:
 	PARAMETERS _parameters;
 
 protected:
-	inline void _lock(void) { _mutex.Wait(); }	// add timeout ?
+	/**
+	 * Waits on the internal mutex (for multithread access).
+	 */
+	inline void _lock(void) { _mutex.Wait(); }
+
+	/**
+	 * Posts on the internal mutex (for multithread access).
+	 */
 	inline void _unlock(void) { _mutex.Post(); }
 
-	int _initialize()
+	/**
+	 * Helper function to intialize the device driver.
+	 */
+	int _initialize(void)
 	{
 		_temp_double = new double [_parameters._nj];
 		_currentLimits = new double [_parameters._nj];
@@ -574,9 +846,10 @@ protected:
 
 	YARPSemaphore _mutex;
 
-	int *_tmp_int;
-	ADAPTER _adapter;
+	//int *_tmp_int;
 	double *_temp_double;
+
+	ADAPTER _adapter;
 
 	double *_currentLimits;
 	double *_newLimits;
@@ -610,9 +883,10 @@ int YARPGenericControlBoard<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *
 	// getPositions(currentPos);
 	// setCommands(currentPos);
 
-	for(int i = 0; i < _parameters._nj; i++) {
+	for(int i = 0; i < _parameters._nj; i++) 
+	{
 		SingleAxisParameters cmd;
-		cmd.axis = i;
+		cmd.axis = _parameters._axis_map[i];
 		cmd.parameters = &actualPIDs[i];
 		_adapter.IOCtl(CMDGetPID, &cmd);
 
@@ -641,7 +915,7 @@ int YARPGenericControlBoard<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *
 			actualPIDs[i].SHIFT = shift[i];
 		
 			SingleAxisParameters cmd;
-			cmd.axis = i;
+			cmd.axis = _parameters._axis_map[i];
 			cmd.parameters = &actualPIDs[i];
 			_adapter.IOCtl(CMDSetPID, &cmd);
 		}

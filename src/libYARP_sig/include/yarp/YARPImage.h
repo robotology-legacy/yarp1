@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.5 2004-08-09 09:59:56 gmetta Exp $
+/// $Id: YARPImage.h,v 1.6 2004-09-02 22:05:46 gmetta Exp $
 ///
 ///
 
@@ -108,10 +108,11 @@ enum __PixelTypesEnum
 	// in bytes
 };
 
-///
-///
-///
-///#ifdef __cplusplus
+//
+//
+// This is required since matlab libraries include from C and need this
+// file to have definition of data types.
+#ifdef __cplusplus
 
 #include <yarp/begin_pack_for_net.h>
 
@@ -676,9 +677,9 @@ __YARPIMAGE_ASSOCIATE_TAG(YARP_PIXEL_INT,YarpPixelInt)
 
 #undef __YARPIMAGE_ASSOCIATE_TAG
 
-
-///#endif	/// of __cplusplus
 #include <yarp/YARPImagePort.h>
+
+#endif	// of __cplusplus: this is required for Matlab code!
 
 #endif
 
