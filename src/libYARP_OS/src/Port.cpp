@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.16 2004-08-04 15:38:05 eshuy Exp $
+/// $Id: Port.cpp,v 1.17 2004-08-04 15:50:42 eshuy Exp $
 ///
 ///
 
@@ -1719,21 +1719,27 @@ int Port::SaySelfEnd(void)
 			result = SendHelper (*self_id, NULL, 0, MSG_ID_DETACH_ALL);
 		}
 
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 		/// wait for message to be received.
 		complete_msg_thread.Wait();
 
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 		/// deletes the endpoint.
 		YARPEndpointManager::Close (*self_id);
 
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 		YARPNameService::DeleteName (self_id);
 		self_id = NULL;
 
 		///YARPScheduler::yield();
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 
 		/// tell the main thread to complete the termination function.
 		complete_terminate.Signal();
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 
 		YARPThread::Join ();
+		  YARP_DBG(THIS_DBG) ((LM_DEBUG, "Preparing to shutdown Port (%s:%d)\n",__FILE__,__LINE__));
 	}
 
 	return result;
