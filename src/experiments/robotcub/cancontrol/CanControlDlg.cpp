@@ -772,6 +772,7 @@ void CCanControlDlg::OnButtonGo()
 				double param = 0;
 				x.parameters = &param;
 
+#if 0
 				double d = fabs(m_desired_position - m_current_displayed_position);
 				d /= m_desired_speed;
 				/// d /= 1; DSP control loop runs @ 1ms period.
@@ -784,6 +785,8 @@ void CCanControlDlg::OnButtonGo()
 
 				if (m_desired_speed < 1)
 					m_desired_speed = 1;
+#endif
+
 				param = m_desired_speed;
 				m_driver.IOCtl(CMDSetSpeed, (void *)&x);
 

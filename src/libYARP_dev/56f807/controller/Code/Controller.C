@@ -582,9 +582,12 @@ byte can_interface (void)
 	if (CAN1_GetStateRX () != 0)
 	{
 		CAN1_ReadFrame (&CAN_messID, &CAN_frameType, &CAN_frameFormat, &CAN_length, CAN_data);
-///		print_can (CAN_data, CAN_length, 'i');
-///		CAN1_GetError (&err);
-///		print_can_error (&err);
+		if (_verbose)
+		{
+			print_can (CAN_data, CAN_length, 'i');
+			//CAN1_GetError (&err);
+			//print_can_error (&err);
+		}
 		
 #define CAN_DATA CAN_data
 #define CAN_FRAME_TYPE CAN_frameType
@@ -653,7 +656,10 @@ byte can_interface (void)
 		
 		END_MSG_TABLE		
 
-///		print_can (CAN_data, CAN_length, 'o'); 
+		if (_verbose)
+		{
+			print_can (CAN_data, CAN_length, 'o'); 
+		}
 
 ///		if (_general_board_error != ERROR_NONE)
 ///		{
@@ -695,10 +701,22 @@ byte serial_interface (void)
 			
 			DSP_SendDataEx ("w2, write control params to FLASH mem\r\n");
 			DSP_SendDataEx ("w3, read control params from FLASH mem\r\n");
+			
+			DSP_SendDataEx ("v, toggle verbose flag\r\n");
 						
 			c = 0;
 			break;
 
+		case 'v':
+			_verbose = !_verbose;
+			if (_verbose)
+				DSP_SendDataEx ("verbose is now ON\r\n");
+			else
+				DSP_SendDataEx ("verbose is now OFF\r\n");
+				
+			c = 0;
+			break;
+			
 		case 'a':
 			DSP_SendDataEx ("address [1-15]: ");
 			DSP_ReceiveDataEx (buffer, SMALL_BUFFER_SIZE, true);

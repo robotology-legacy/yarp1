@@ -26,12 +26,12 @@ CGainControlDlg::CGainControlDlg(CWnd* pParent /*=NULL*/)
 	m_dgain = 0.0;
 	m_igain = 0.0;
 	m_ilimit = 0.0;
-	m_max = 0.0;
-	m_min = 0.0;
 	m_offset = 0.0;
 	m_pgain = 0.0;
 	m_shift = 0.0;
 	m_tlimit = 0.0;
+	m_max = 0;
+	m_min = 0;
 	//}}AFX_DATA_INIT
 
 	m_parent = (CTestControlDlg *)pParent;
@@ -63,8 +63,6 @@ void CGainControlDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxDouble(pDX, m_igain, 0., 32767.);
 	DDX_Text(pDX, IDC_EDIT_ILIMIT, m_ilimit);
 	DDV_MinMaxDouble(pDX, m_ilimit, 0., 32767.);
-	DDX_Text(pDX, IDC_EDIT_MAX, m_max);
-	DDX_Text(pDX, IDC_EDIT_MIN, m_min);
 	DDX_Text(pDX, IDC_EDIT_OFFSET, m_offset);
 	DDV_MinMaxDouble(pDX, m_offset, -32768., 32767.);
 	DDX_Text(pDX, IDC_EDIT_PGAIN, m_pgain);
@@ -73,6 +71,8 @@ void CGainControlDlg::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxDouble(pDX, m_shift, 0., 16.);
 	DDX_Text(pDX, IDC_EDIT_TLIMIT, m_tlimit);
 	DDV_MinMaxDouble(pDX, m_tlimit, 0., 32767.);
+	DDX_Text(pDX, IDC_EDIT_MAX, m_max);
+	DDX_Text(pDX, IDC_EDIT_MIN, m_min);
 	//}}AFX_DATA_MAP
 }
 
@@ -198,6 +198,7 @@ void CGainControlDlg::UpdateAxisParams (int bus, int axis)
 {
 	LowLevelPID pid;
 	m_min = m_max = -1;
+	double tmin = -1, tmax = -1;
 
 	switch (bus)
 	{
@@ -206,7 +207,15 @@ void CGainControlDlg::UpdateAxisParams (int bus, int axis)
 			// head.
 			memset (&pid, 0, sizeof(LowLevelPID));
 			head.getPID (axis, pid);
-			head.getSoftwareLimits (axis, m_min, m_max);
+			head.getSoftwareLimits (axis, tmin, tmax);
+			if (tmin > 0)
+				m_min = int(tmin + .5);
+			else
+				m_min = int(tmin - .5);
+			if (tmax > 0) 
+				m_max = int(tmax + .5);
+			else
+				m_max = int(tmax - .5);
 		}
 		break;
 	case 1:

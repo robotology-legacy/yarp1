@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.5 2004-09-03 21:22:54 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.6 2004-09-04 15:20:41 babybot Exp $
 ///
 ///
 
@@ -441,7 +441,7 @@ public:
 	{
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++)
-			_temp_double[i] = angleToEncoder(pos[_parameters._axis_map[i]],
+			_temp_double[_parameters._axis_map[i]] = angleToEncoder(pos[i],
 											_parameters._encoderToAngles[i],
 											_parameters._zeros[i],
 											_parameters._signs[i]);
@@ -491,7 +491,7 @@ public:
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
-			_temp_double[i] = angleToEncoder(vel[_parameters._axis_map[i]],
+			_temp_double[_parameters._axis_map[i]] = angleToEncoder(vel[i],
 											_parameters._encoderToAngles[i],
 											0.0,
 											_parameters._signs[i]);
@@ -543,7 +543,7 @@ public:
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
-			_temp_double[i] = angleToEncoder(acc[_parameters._axis_map[i]],
+			_temp_double[_parameters._axis_map[i]] = angleToEncoder(acc[i],
 											_parameters._encoderToAngles[i],
 											0.0,
 											_parameters._signs[i]);
@@ -565,7 +565,7 @@ public:
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
-			_temp_double[i] = angleToEncoder(vel[_parameters._axis_map[i]],
+			_temp_double[_parameters._axis_map[i]] = angleToEncoder(vel[i],
 											_parameters._encoderToAngles[i],
 											0.0,
 											_parameters._signs[i]);
@@ -591,7 +591,7 @@ public:
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
-			_temp_double[i] = angleToEncoder(vel[_parameters._axis_map[i]],
+			_temp_double[_parameters._axis_map[i]] = angleToEncoder(vel[i],
 											_parameters._encoderToAngles[i],
 											0.0,
 											_parameters._signs[i]);
@@ -615,7 +615,7 @@ public:
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
-			_temp_double[i] = angleToEncoder(pos[_parameters._axis_map[i]],
+			_temp_double[_parameters._axis_map[i]] = angleToEncoder(pos[i],
 											_parameters._encoderToAngles[i],
 											0.0,
 											_parameters._signs[i]);
@@ -669,7 +669,7 @@ public:
 		_adapter.IOCtl(CMDGetPositions, _temp_double);
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
-			pos[_parameters._axis_map[i]] = encoderToAngle(_temp_double[i],
+			pos[_parameters._inv_axis_map[i]] = encoderToAngle(_temp_double[i],
 												_parameters._encoderToAngles[i],
 												_parameters._zeros[i],
 												_parameters._signs[i]);
@@ -690,7 +690,7 @@ public:
 		_adapter.IOCtl(CMDGetSpeeds, _temp_double);
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
-			vel[_parameters._axis_map[i]] = encoderToAngle(_temp_double[i],
+			vel[_parameters._inv_axis_map[i]] = encoderToAngle(_temp_double[i],
 												_parameters._encoderToAngles[i],
 												0.0,
 												_parameters._signs[i]);
@@ -711,7 +711,7 @@ public:
 		_adapter.IOCtl(CMDGetRefAccelerations, _temp_double);
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
-			accs[_parameters._axis_map[i]] = encoderToAngle(_temp_double[i],
+			accs[_parameters._inv_axis_map[i]] = encoderToAngle(_temp_double[i],
 												_parameters._encoderToAngles[i],
 												0.0,
 												_parameters._signs[i]);
@@ -735,7 +735,7 @@ public:
 		_adapter.IOCtl(CMDGetTorques, _temp_double);
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
-			t[_parameters._axis_map[i]] = _temp_double[i];		
+			t[_parameters._inv_axis_map[i]] = _temp_double[i];		
 		}
 		_unlock();
 		return -1;
@@ -754,9 +754,9 @@ public:
 		for(int i = 0; i < _parameters._nj; i++)
 		{
 			if (pos == NULL)
-				_temp_double[i] = 0.0;
+				_temp_double[_parameters._axis_map[i]] = 0.0;
 			else
-				_temp_double[i] = pos[_parameters._axis_map[i]];
+				_temp_double[_parameters._axis_map[i]] = pos[i];
 		}
 		_adapter.IOCtl(CMDDefinePositions, _temp_double);
 		_unlock();
@@ -881,12 +881,14 @@ int YARPGenericControlBoard<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *
 	LowLevelPID *deltaPIDs;
 	actualPIDs = new LowLevelPID [_parameters._nj];
 	deltaPIDs = new LowLevelPID [_parameters._nj];
+	ACE_ASSERT (actualPIDs != NULL && deltaPIDs != NULL);
 
 	double *shift;
 	double *currentPos;
 	shift = new double[_parameters._nj];
 	currentPos = new double[_parameters._nj];
-	
+	ACE_ASSERT (shift != NULL && currentPos != NULL);
+
 	// set command "here"
 	// getPositions(currentPos);
 	// setCommands(currentPos);
@@ -934,6 +936,7 @@ int YARPGenericControlBoard<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *
 	}
 	ACE_OS::printf("done !\n");
 
+	// if !NULL...
 	delete [] actualPIDs;
 	delete [] deltaPIDs;
 	delete [] shift;

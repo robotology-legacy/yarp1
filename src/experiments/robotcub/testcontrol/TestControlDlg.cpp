@@ -849,6 +849,8 @@ void CTestControlDlg::OnButton0encoders()
 {
 	// safely disables amplifiers first!
 	head.idleMode ();
-	head.resetEncoders ();	
-	head.activatePID ();
+	head.resetEncoders ();
+	ACE_OS::memset (_headjointstore, 0, sizeof(double) * _headjoints);
+	head.setCommands (_headjointstore);
+	//head.activatePID (); and it leaves it disabled.
 }

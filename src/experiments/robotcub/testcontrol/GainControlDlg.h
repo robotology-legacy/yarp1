@@ -45,12 +45,12 @@ public:
 	double	m_dgain;
 	double	m_igain;
 	double	m_ilimit;
-	double	m_max;
-	double	m_min;
 	double	m_offset;
 	double	m_pgain;
 	double	m_shift;
 	double	m_tlimit;
+	int		m_max;
+	int		m_min;
 	//}}AFX_DATA
 
 
