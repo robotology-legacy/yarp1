@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.16 2004-07-01 17:11:56 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.17 2004-07-06 19:42:25 babybot Exp $
 ///
 ///
 
@@ -345,6 +345,11 @@ int YARPValueCanDeviceDriver::open (void *res)
 	_p = ((ValueCanOpenParameters *)res)->_p;
 	_filter = -1;
 
+	_ref_positions = new double [d._njoints];		
+	_ref_speeds = new double [d._njoints];
+	_ref_accs = new double [d._njoints];
+	ACE_ASSERT (_ref_positions != NULL && _ref_speeds != NULL && _ref_accs != NULL);
+
 	if (ret >= 0)
 		Begin ();
 
@@ -356,6 +361,10 @@ int YARPValueCanDeviceDriver::close (void)
 	ValueCanResources& d = RES(system_resources);
 
 	End ();	/// stops the thread first (joins too).
+
+	if (_ref_positions != NULL) delete[] _ref_positions;
+	if (_ref_speeds != NULL) delete[] _ref_speeds;
+	if (_ref_accs != NULL) delete[] _ref_accs;
 
 	int ret = d._uninitialize ();
 
@@ -580,7 +589,7 @@ int YARPValueCanDeviceDriver::getPosition (void *cmd)
 	return YARP_FAIL;
 }
 
-/// cmd is an array of double (2*njoints)
+/// cmd is an array of double (njoints long)
 int YARPValueCanDeviceDriver::setPositions (void *cmd)
 {
 	ValueCanResources& r = RES(system_resources);
@@ -591,7 +600,7 @@ int YARPValueCanDeviceDriver::setPositions (void *cmd)
 	{
 		SingleAxisParameters x;
 		x.axis = i;
-		x.parameters = tmp+i*2;	
+		x.parameters = tmp+i;	
 		/// speed is contained in the next entry of tmp
 		if (setPosition ((void *)&x) != YARP_OK)
 			return YARP_FAIL;
@@ -602,7 +611,7 @@ int YARPValueCanDeviceDriver::setPositions (void *cmd)
 
 ///
 ///
-/// cmd is a SingleAxisParameters pointer with two double args
+/// cmd is a SingleAxisParameters pointer to a double argument
 int YARPValueCanDeviceDriver::setPosition (void *cmd)
 {
 	/// prepare can message.
@@ -619,8 +628,11 @@ int YARPValueCanDeviceDriver::setPosition (void *cmd)
 	r._cmdBuffer.Data[0] += (r._destinations[axis/2] & 0x0f); 
 	r._cmdBuffer.Data[1] = CAN_POSITION_MOVE | ((axis % 2) << 7);
 
-	*((int*)(r._cmdBuffer.Data+2)) = S_32(*((double *)tmp->parameters));		/// pos
-	*((short*)(r._cmdBuffer.Data+6)) = S_16(*(((double *)tmp->parameters)+1));	/// speed
+	_ref_positions[axis] = *((double *)tmp->parameters);
+	*((int*)(r._cmdBuffer.Data+2)) = S_32(_ref_positions[axis]);		/// pos
+	*((short*)(r._cmdBuffer.Data+6)) = S_16(_ref_speeds[axis]);			/// speed
+		
+	///*((short*)(r._cmdBuffer.Data+6)) = S_16(*(((double *)tmp->parameters)+1));	/// speed
 
 	r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
 	r._cmdBuffer.NumberBytesData = 8;
@@ -636,7 +648,7 @@ int YARPValueCanDeviceDriver::setPosition (void *cmd)
 	return YARP_OK;
 }
 
-/// cmd is an array of double of length 2*njoints specifying speed and accel
+/// cmd is an array of double of length njoints specifying speed 
 /// for each axis
 int YARPValueCanDeviceDriver::velocityMove (void *cmd)
 {
@@ -654,8 +666,10 @@ int YARPValueCanDeviceDriver::velocityMove (void *cmd)
 		r._cmdBuffer.Data[0] += (r._destinations[i/2] & 0x0f); 
 		r._cmdBuffer.Data[1] = CAN_VELOCITY_MOVE | ((i % 2) << 7);
 
-		*((short*)(r._cmdBuffer.Data+2)) = S_16(*(tmp+i*2));		/// speed
-		*((short*)(r._cmdBuffer.Data+4)) = S_16(*(tmp+i*2+1));		/// accel
+		_ref_speeds[i] = tmp[i];
+		*((short*)(r._cmdBuffer.Data+2)) = S_16(_ref_speeds[i]);		/// speed
+		*((short*)(r._cmdBuffer.Data+4)) = S_16(_ref_accs[i]);			/// accel
+		///*((short*)(r._cmdBuffer.Data+4)) = S_16(*(tmp+i*2+1));		/// accel
 
 		r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
 		r._cmdBuffer.NumberBytesData = 6;
@@ -750,8 +764,9 @@ int YARPValueCanDeviceDriver::setSpeed (void *cmd)
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
-	const short s = S_16(*((double *)tmp->parameters));
 	
+	_ref_speeds[axis] = *((double *)(tmp->parameters));
+	const short s = S_16(_ref_speeds[axis]);
 	return _writeWord16 (CAN_SET_DESIRED_VELOCITY, axis, s);
 }
 
@@ -764,6 +779,7 @@ int YARPValueCanDeviceDriver::setSpeeds (void *cmd)
 	int i;
 	for (i = 0; i < r._njoints; i++)
 	{
+		_ref_speeds[i] = tmp[i];
 		if (_writeWord16 (CAN_SET_DESIRED_VELOCITY, i, S_16(tmp[i])) != YARP_OK)
 			return YARP_FAIL;
 	}
@@ -801,7 +817,7 @@ int YARPValueCanDeviceDriver::getRefSpeeds (void *cmd)
 	for(i = 0; i < r._njoints; i++)
 	{
 		if (_readWord16 (CAN_GET_DESIRED_VELOCITY, i, value) == YARP_OK)
-			out[i] = double (value);
+			_ref_speeds[i] = out[i] = double (value);
 		else
 			return YARP_FAIL;
 	}
@@ -815,7 +831,9 @@ int YARPValueCanDeviceDriver::setAcceleration (void *cmd)
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
-	const short s = S_16(*((double *)tmp->parameters));
+
+	_ref_accs[axis] = *((double *)tmp->parameters);
+	const short s = S_16(_ref_accs[axis]);
 	
 	return _writeWord16 (CAN_SET_DESIRED_ACCELER, axis, s);
 }
@@ -829,7 +847,8 @@ int YARPValueCanDeviceDriver::setAccelerations (void *cmd)
 	int i;
 	for (i = 0; i < r._njoints; i++)
 	{
-		if (_writeWord16 (CAN_SET_DESIRED_ACCELER, i, S_16(tmp[i])) != YARP_OK)
+		_ref_accs[i] = tmp[i];
+		if (_writeWord16 (CAN_SET_DESIRED_ACCELER, i, S_16(_ref_accs[i])) != YARP_OK)
 			return YARP_FAIL;
 	}
 
@@ -847,7 +866,7 @@ int YARPValueCanDeviceDriver::getRefAccelerations (void *cmd)
 	for(i = 0; i < r._njoints; i++)
 	{
 		if (_readWord16 (CAN_GET_DESIRED_ACCELER, i, value) == YARP_OK)
-			out[i] = double (value);
+			_ref_accs[i] = out[i] = double (value);
 		else
 			return YARP_FAIL;
 	}

@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: headtest.cpp,v 1.2 2004-07-01 17:13:16 babybot Exp $
+/// $Id: headtest.cpp,v 1.3 2004-07-06 19:42:48 babybot Exp $
 ///
 ///
 
@@ -97,17 +97,22 @@ int main(int argc, char *argv[])
 			ACE_OS::printf ("h, ?: prints this message\n");
 			ACE_OS::printf ("q: quits the application\n");
 			ACE_OS::printf ("e: reads encoders\n");
+			ACE_OS::printf ("g j, position, speed\n");
 			break;
 
 		case 'g':
 			{
 				int j;
 				double where;
+				double speed;
 				ACE_OS::printf ("axis: ");
 				scanf ("%d", &j);
 				ACE_OS::printf ("go to: ");
 				scanf ("%lf", &where);
-				ACE_OS::printf ("moving joint %d to %f\n", j, where);
+				ACE_OS::printf ("with speed: ");
+				scanf ("%lf", &speed);
+				ACE_OS::printf ("moving joint %d to %f with speed %f\n", j, where, speed);
+
 
 			}
 			break;

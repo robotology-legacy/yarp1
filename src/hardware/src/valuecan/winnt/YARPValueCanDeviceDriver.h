@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.12 2004-07-01 17:11:56 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.13 2004-07-06 19:42:25 babybot Exp $
 ///
 ///
 
@@ -40,10 +40,19 @@
 #include <YARPThread.h>
 #include <YARPTime.h>
 
+/**
+ * \file YARPValueCanDeviceDriver.h 
+ * class for interfacing with the value can device driver.
+ */
 
-/// max number of addressable cards in this implementation.
+/**
+ * Max number of addressable cards in this implementation.
+ */
 const int MAX_CARDS		= 16;
 
+/**
+ * The open parameter class containing the initialization values.
+ */
 struct ValueCanOpenParameters
 {
 	ValueCanOpenParameters (void)
@@ -75,7 +84,11 @@ const short MIN_SHORT = -32768;
 const int MAX_INT = 0x7fffffff;
 const int MIN_INT = 0x80000000;
 
-
+/**
+ * The value can device driver.
+ * Contains a thread that takes care of polling the can bus for incoming messages.
+ * The class is derived from the standard YARP device driver base class.
+ */
 class YARPValueCanDeviceDriver : 
 	public YARPDeviceDriver<YARPNullSemaphore, YARPValueCanDeviceDriver>, public YARPThread
 {
@@ -84,7 +97,14 @@ private:
 	void operator=(const YARPValueCanDeviceDriver&);
 
 public:
+	/**
+	 * Constructor.
+	 */
 	YARPValueCanDeviceDriver();
+
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPValueCanDeviceDriver();
 
 	// overload open, close
@@ -155,6 +175,11 @@ protected:
 	int _readDWord (int msg, int axis, int& value);
 	int _writeDWord (int msg, int axis, int value);
 	int _writeNone (int msg, int axis);
+
+	/// internal stuff.
+	double *_ref_speeds;
+	double *_ref_accs;
+	double *_ref_positions;
 
 	inline short S_16(double x) const 
 	{
