@@ -486,45 +486,84 @@ void print_version(void)
 void can_send_request(void)
 {
 	const byte _neighbor = 11;
+	const byte _step = 4;
 	int i;
 	
 	_counter ++;
-	if (_counter > 5)
+	if (_counter == 1)
 	{
-	
-		for (i = 0; i < JN; i++)
+		i = 0;
+		if (!_pending_request[i])
 		{
-			if (!_pending_request[i])
+			_timeout[i] = 0;
+			CAN_data[0] = _neighbor;
+			CAN_data[0] |= (_board_ID << 4);
+			
+			CAN_data[1] = CAN_GET_ACTIVE_ENCODER_POSITION;		/* position joint 0 */
+			//if (i) CHANNEL_1(CAN_data[1]);
+			
+			while (CAN1_GetStateTX () == 0) ;
+			
+//			if (CAN1_GetStateTX () != 0)
+//			{
+				CAN_length = 2;
+				CAN_frameType = DATA_FRAME;
+				CAN_messID = 0;
+				CAN1_SendFrame (0, CAN_messID, CAN_frameType, CAN_length, CAN_data);
+				_pending_request[i] = true;
+//			}
+		}
+		else
+		{
+			_timeout[i] ++;
+			if (_timeout[i] > 10)
 			{
 				_timeout[i] = 0;
-				CAN_data[0] = _neighbor;
-				CAN_data[0] |= (_board_ID << 4);
-				
-				CAN_data[1] = CAN_GET_ACTIVE_ENCODER_POSITION;		/* position joint 0 */
-				if (i) CHANNEL_1(CAN_data[1]);
-				
-				if (CAN1_GetStateTX () != 0)
-				{
-					CAN_length = 2;
-					CAN_frameType = DATA_FRAME;
-					CAN_messID = 0;
-					CAN1_SendFrame (0, CAN_messID, CAN_frameType, CAN_length, CAN_data);
-					_pending_request[i] = true;
-				}
-			}
-			else
-			{
-				_timeout[i] ++;
-				if (_timeout[i] > 10)
-				{
-					_timeout[i] = 0;
-					_pending_request[i] = false;
-					if (_verbose) 
-						if (i) DSP_SendDataEx ("to - 1\r\n"); else DSP_SendDataEx ("to - 0\r\n");
-				}
+				_pending_request[i] = false;
+				if (_verbose) 
+					if (i) DSP_SendDataEx ("to - 1\r\n"); else DSP_SendDataEx ("to - 0\r\n");
 			}
 		}
-		
+	}
+	else
+	if (_counter == 2+_step)
+	{
+		i = 1;
+		if (!_pending_request[i])
+		{
+			_timeout[i] = 0;
+			CAN_data[0] = _neighbor;
+			CAN_data[0] |= (_board_ID << 4);
+			
+			CAN_data[1] = CAN_GET_ACTIVE_ENCODER_POSITION;		/* position joint 0 */
+			CHANNEL_1(CAN_data[1]);
+
+			while (CAN1_GetStateTX () == 0) ;
+	
+//			if (CAN1_GetStateTX () != 0)
+//			{
+				CAN_length = 2;
+				CAN_frameType = DATA_FRAME;
+				CAN_messID = 0;
+				CAN1_SendFrame (0, CAN_messID, CAN_frameType, CAN_length, CAN_data);
+				_pending_request[i] = true;
+//			}
+		}
+		else
+		{
+			_timeout[i] ++;
+			if (_timeout[i] > 10)
+			{
+				_timeout[i] = 0;
+				_pending_request[i] = false;
+				if (_verbose) 
+					if (i) DSP_SendDataEx ("to - 1\r\n"); else DSP_SendDataEx ("to - 0\r\n");
+			}
+		}
+	}
+	else
+	if (_counter > 2+2*_step)
+	{
 		_counter = 0;
 	}
 }
@@ -596,7 +635,7 @@ void main(void)
 		_position[0] = L_sub(_position[0], _position[1]);
 
 #elif VERSION == 0x0113
-		if (_verbose)
+		if (_verbose && _counter == 0)
 		{
 			DSP_SendDWordAsCharsDec (_other_position[0]);
 			DSP_SendDataEx(" ");
@@ -604,6 +643,8 @@ void main(void)
 			DSP_SendDataEx("\r\n");
 		}
 		
+		_position[0] = L_add (_position[0], _other_position[0] >> 1);
+		_position[0] = L_sub (_position[0], _other_position[1] >> 2);
 		///_position[0] = L_sub (_position[0], _other_position[0]);
 #endif
 
