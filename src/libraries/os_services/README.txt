@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.18 2003-07-01 21:26:19 gmetta Exp $
+$Id: README.txt,v 1.19 2003-07-02 07:54:22 gmetta Exp $
 
 
 =============
@@ -40,7 +40,7 @@ Things under development:
 
 6.2- reply messages, exploit iovec structure, maintaining compatibility w/ YARP multipart msg.
 
-6.3- Sendable definition for YVector, YMAtrix.
+6.3- Sendable definition for YMAtrix.
 
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating
 	the sender. USE test12 to see this condition.

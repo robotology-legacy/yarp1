@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.20 2003-07-01 16:55:17 beltran Exp $
+/// $Id: main.cpp,v 1.21 2003-07-02 07:54:22 gmetta Exp $
 ///
 ///
 
@@ -80,13 +80,27 @@
 #include <YARPLogpolar.h>
 
 
-#ifdef __QNXEurobot__
-#include <YARPEurobotGrabber.h>
-#define Grabber YARPEurobotGrabber
-#else //Qnx or Win on Babybot
-#include <YARPBabybotGrabber.h>
-#define Grabber YARPBabybotGrabber
+#if defined(__QNXEurobot__)
+
+#	include <YARPEurobotGrabber.h>
+#	define Grabber YARPEurobotGrabber
+
+#elif defined(__WIN32Babybot__)
+
+#	include <YARPBabybotGrabber.h>
+#	define Grabber YARPBabybotGrabber
+
+#elif defined(__QNXBabybot__)
+
+#	include <YARPBabybotGrabber.h>
+#	define Grabber YARPBabybotGrabber
+
+#else
+
+#error "pls specify a setup by defining symbol, see code above"
+
 #endif
+
 ///
 /// global params.
 int _size = 128;
