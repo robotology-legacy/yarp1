@@ -55,209 +55,156 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #fberton, pasa#
+///                    #pasa#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: main.cpp,v 1.18 2004-06-07 18:32:18 babybot Exp $
+/// $Id: checkFixation.cpp,v 1.1 2004-06-07 18:32:17 babybot Exp $
 ///
 ///
 
+#include <conf/YARPConfig.h>
+#include <YARPMath.h>
 
-#include <stdio.h>
-#include "LogPolarSDK.h"
+#include <YARPParseParameters.h>
+#include <YARPVectorPortContent.h>
 
-/// as copied from YARPLogpolar.h
 ///
+YARPInputPortOf<YVector> _inDisp (YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+YARPInputPortOf<YVector> _inTarget (YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+YARPOutputPortOf<YVector> _out (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
-namespace _logpolarParams
+const char *DEFAULT_NAME = "/checkfixation";
+
+double __vergenceTh = 2;
+double __trackTh = (128/13 * 128/13)*2;
+int __abortingTime = (int) (3/20.0)*1000;
+double __correlationThreshold = 0.16;
+
+bool _checkVergence(const YVector &in);
+bool _checkTrack(const YVector &in);
+
+int main(int argc, char *argv[])
 {
-	const int _xsize = 256;
-	const int _ysize = 256;
-	const int _srho = 152;
-	const int _stheta = 252;
-	const int _sfovea = 42;
-	const int _salign = 8;
-};
+	YARPString name;
+	YARPString network_i;
+	YARPString network_o;
+	char buf[256];
 
-///
-///
-int main (int argc, char *argv[])
-{
-	using namespace _logpolarParams;
+	if (!YARPParseParameters::parse(argc, argv, "name", name))
+		name = DEFAULT_NAME;
+	
+	if (!YARPParseParameters::parse(argc, argv, "neti", network_i))
+		network_i = "default";
+	
+	if (!YARPParseParameters::parse(argc, argv, "neto", network_o))
+		network_o = "default";
+	
+	/// images are coming from the input network.
+	sprintf(buf, "%s/disparity/i", name.c_str());
+	_inDisp.Register(buf, network_i.c_str());
+	sprintf(buf, "%s/target/i", name.c_str());
+	_inTarget.Register(buf, network_i.c_str());
 
-	char Path[512];
+	sprintf(buf, "%s/out", name.c_str());
+	_out.Register(buf, network_o.c_str());
 
-	int rval;
+	YVector out(1);
+	YVector target(2);
+	YVector disp;
 
-	if (argc < 2)
+	target(1) = 128;
+	target(2) = 128;
+
+	out(1) = 0;
+
+	bool dispF = false;
+	bool trackF = false;
+	bool abortF = false;
+	int count = 0;
+
+	while (1)
 	{
-		printf ("Use %s <path> (with trailing backslash!)\n", argv[0]);
-		return -1;
+		_inDisp.Read();
+		//ACE_OS::printf("received\n");
+		if (_inTarget.Read(0))
+			target = _inTarget.Content();
+
+
+		double vergence = _inDisp.Content()(1);
+		
+		if (_checkVergence(_inDisp.Content()))
+		{
+			out(1) = 0.5;
+			dispF = true;
+		}
+		else
+		{
+			out(1) = 0.0;
+			dispF = false;
+		}
+
+		if (_checkTrack(target))
+		{
+			out(1) += 0.5;
+			trackF = true;
+		}
+		else
+		{
+			trackF = false;
+		}
+
+		/// check timeout
+		if (_inDisp.Content()(2) < __correlationThreshold)
+		{
+			count++;
+			if (count > __abortingTime)
+			{
+				out(1) = -1;
+				abortF = true;
+			}
+		}
+		else
+		{
+			count = 0;
+			abortF = 0;
+		}
+
+		double tmp = target(1)*target(1) + target(2)*target(2);
+		// print status
+		if (abortF)
+			ACE_OS::printf("%lf\t%lf\t-> ABORTED: %lf\t\n", vergence, tmp, out(1));
+		else if (trackF&&dispF)
+			ACE_OS::printf("%lf\t%lf\t-> FIXATED: %lf\t\r", vergence, tmp, out(1));
+		else if (trackF)
+			ACE_OS::printf("%lf\t%lf\t-> ALMOST_FIXATED: %lf\r", vergence, tmp, out(1));
+		else
+			ACE_OS::printf("%lf\t%lf\t-> TRACKING: %lf\t\t\r", vergence, tmp, out(1));
+
+		_out.Content() = out;
+		_out.Write();
 	}
-
-	sprintf (Path, "%s\0", argv[1]);
-	printf ("Creating maps in : %s\n", Path);
-
-	Image_Data Param = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho, _stheta, _sfovea,
-		1090,
-		CUST,
-		256.0/1090.0);
-	
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-
-	printf ("Creating Angular Shift map ...");
-	rval = Build_Ang_Shift_Map(&Param, Path);
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-	printf ("Creating Pad map ...");
-	rval = Build_Pad_Map(&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-	printf ("Creating Remap map (Whole Image) ...", Path);
-	rval = Build_Remap_Map (&Param, Path);
-	if (rval)
-		printf ("\tDone !  \n");
-	else 
-		printf ("\tFailed !  \n");
-
-	
-	printf ("Creating Cart2LP map ...", Path);
-	rval = Build_Cart2LP_Map(&Param, Path);
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-	Param = Set_Param(
-		_xsize, _ysize,
-		128, 128,
-		_srho, _stheta, _sfovea,
-		1090,
-		CUST,
-		512.0/1090.0);
-
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-
-	printf ("Creating Remap map (Center) ...");
-	rval = Build_Remap_Map(&Param, Path);
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-	printf ("Creating Color map ...");
-	rval = Build_Color_Map(&Param,Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-
-	///
-	Param.Pix_Numb = 2;
-
-	printf ("Creating XY map ...");
-	rval = Build_XY_Map(&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-	printf ("Creating Neigborhood map ...");
-	rval = Build_Neighborhood_Map(&Param, Path);
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-	printf ("Creating Weights map ...");
-	rval = Build_Weights_Map(&Param, Path);	
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-	printf ("Creating DS map ...");
-	rval = Build_DS_Map (&Param, Path, 4.0);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-
-	Param = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho/4, _stheta/4, _sfovea/4,
-		1090/4,
-		CUST,
-		1024.0/1090.0);
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-	Param.Ratio = 4.0f;
-	Param.dres = 1090.0/4.0;
-
-	printf ("Creating Shift map ...");
-	rval = Build_Shift_Map (&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-	printf ("Creating Step Function ...");
-
-	Build_Step_Function (Path, &Param);
-	printf ("\t\tDone !  \n\n");
-
-	/////////////////////
-	printf ("Creating remap map (4x)...");
-	rval = Build_Remap_Map (&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-	//////////
-
-	////// fovea x4
-	Param = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho/4, _stheta/4, _sfovea/4,
-		1090/4,
-		CUST,
-		4*1024.0/1090.0);
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-	Param.Ratio = 4.0f;
-	Param.dres = 1090.0/4.0;
-
-	printf ("Creating remap map (4x center)...");
-	rval = Build_Remap_Map (&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-	//////////
-
-	printf("Generation Completed.\n\n");
-
 	return 0;
 }
 
+bool _checkVergence(const YVector &in)
+{
+	if ( fabs(in(1)) <= __vergenceTh )
+		return true;
+
+	return false;
+}
+
+bool _checkTrack(const YVector &in)
+{
+	double tmp;
+	tmp = in(1)*in(1);
+	tmp += in(2)*in(2);
+
+	if (tmp < __trackTh)
+		return true;
+
+	return false;
+}

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.13 2004-04-29 17:34:42 babybot Exp $
+/// $Id: vergence.cpp,v 1.14 2004-06-07 18:32:18 babybot Exp $
 ///
 ///
 
@@ -94,15 +94,20 @@
 YARPInputPortOf<YARPGenericImage> in_left;
 YARPInputPortOf<YARPGenericImage> in_right;
 
-YARPOutputPortOf<YARPGenericImage> out_img (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPOutputPortOf<YARPGenericImage> out_img1 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPOutputPortOf<YARPGenericImage> out_img2 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPOutputPortOf<YARPGenericImage> out_img3 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPOutputPortOf<YARPGenericImage> out_img4 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPOutputPortOf<YARPGenericImage> out_img5 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPOutputPortOf<YARPGenericImage> out_img6 (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 YARPOutputPortOf<YVector> out_disp (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
 const char *DEFAULT_NAME = "/vergence";
 
-const int __nScales = 1;
-const int __nRings[] = {15, 20};
+const int __nScales = 6;
+const int __nRings[] = {21, 21, 21, 21, 21, 21}; // 15, 20};
 
-void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr, const double *phase, int sl, double val);
+void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr1, const double *corr2, const double *corr3, int sl, double val);
 
 int main(int argc, char *argv[])
 {
@@ -135,14 +140,26 @@ int main(int argc, char *argv[])
 	in_right.Register(buf, network_i.c_str());
 
 	sprintf(buf, "%s/o:histo", name.c_str());
-	out_img.Register(buf, network_i.c_str());
+	out_img1.Register(buf, network_i.c_str());
+	sprintf(buf, "%s/o:histo2", name.c_str());
+	out_img2.Register(buf, network_i.c_str());
+	sprintf(buf, "%s/o:img", name.c_str());
+//	out_img3.Register(buf, network_i.c_str());
+	sprintf(buf, "%s/o:img2", name.c_str());
+//	out_img4.Register(buf, network_i.c_str());
+	sprintf(buf, "%s/o:img3", name.c_str());
+//	out_img5.Register(buf, network_i.c_str());
+	sprintf(buf, "%s/o:img4", name.c_str());
+//	out_img6.Register(buf, network_i.c_str());
+
 	sprintf(buf, "%s/o:disparity", name.c_str());
 	out_disp.Register(buf, network_o.c_str());
 
 	YARPImageOf<YarpPixelMono> inl;
 	YARPImageOf<YarpPixelMono> inr;
 
-	YARPImageOf<YarpPixelMono> out;
+	YARPImageOf<YarpPixelMono> out1;
+	YARPImageOf<YarpPixelMono> out2;
 	// YARPImageOf<YarpPixelMono> histo[__nScales];
 	
 	YARPImageOf<YarpPixelBGR> col_left;
@@ -151,30 +168,48 @@ int main(int argc, char *argv[])
 	YARPImageOf<YarpPixelBGR> sub_left;
 	YARPImageOf<YarpPixelBGR> sub_right;
 
+	YARPImageOf<YarpPixelBGR> outImageLp;
+	YARPImageOf<YarpPixelBGR> outImageCart;
+	YARPImageOf<YarpPixelBGR> outImageLp2;
+	YARPImageOf<YarpPixelBGR> outImageCart2;
+	YARPImageOf<YarpPixelBGR> outImageMapLp;
+	YARPImageOf<YarpPixelBGR> outImageMapCart;
+	YARPImageOf<YarpPixelBGR> outImageCorrMapLp;
+	YARPImageOf<YarpPixelBGR> outImageCorrMapCart;
+
 	col_left.Resize (_stheta, _srho);
 	col_right.Resize (_stheta, _srho);
 	sub_left.Resize (_stheta/4, _srho/4);
 	sub_right.Resize (_stheta/4, _srho/4);
-
-	out.Resize (256, 64*3);
+	outImageLp.Resize(_stheta/4, _srho/4);
+	outImageLp2.Resize(_stheta/4, _srho/4);
+	outImageMapLp.Resize(_stheta/4, _srho/4);
+	outImageCorrMapLp.Resize(_stheta/4, _srho/4);
+	outImageCart.Resize(_xsize, _ysize);
+	outImageCart2.Resize(_xsize, _ysize);
+		
+	
+	outImageMapCart.Resize(_xsize, _ysize);
+	outImageCorrMapCart.Resize(_xsize, _ysize);
+	outImageCorrMapLp.Zero();
+	outImageMapLp.Zero();
+	outImageLp.Zero();
+	outImageLp2.Zero();
+	
+	out1.Resize (256, 64*3);
+	out2.Resize (256, 64*3);
 
 	YARPLogpolar mapper;
 	YARPDisparityTool disparity[__nScales];
 	int s = 0;
 	for(s=0; s<__nScales;s++)
 	{
-		disparity[s]._imgL = disparity[s].lpInfo (_xsize, _ysize, _srho, _stheta, _sfovea, 1090, 1.00, YarpImageAlign);
-		disparity[s]._imgS = disparity[s].lpInfo (_xsize, _ysize, _srho, _stheta, _sfovea, 1090, 4.00, YarpImageAlign);
-		disparity[s].loadShiftTable (&disparity[s]._imgS);
-		disparity[s].loadDSTable (&disparity[s]._imgL);
-
-		disparity[s].setRings(__nRings[s]);
+		ACE_OS::printf("Flag: %d\n",s);
+		disparity[s].init(__nRings[s]);
+		// disparity[s].setRings(__nRings[s]);
 
 	//	histo[s].Resize(256, 64);
 	}
-
-	double *correlation = new double [disparity[0].getShiftLevels()];
-	memset(correlation, 0, sizeof(double)*disparity[0].getShiftLevels());
 
 	/*
 	FILE *fp = fopen ("Y:/conf/vergence_bugs.txt", "w");
@@ -182,8 +217,7 @@ int main(int argc, char *argv[])
 	*/
 
 	YVector disparityval(2);
-	const double *phase;
-
+	
 	while (1)
 	{
 		in_left.Read();
@@ -191,17 +225,6 @@ int main(int argc, char *argv[])
 
 		inl.Refer (in_left.Content());
 		inr.Refer (in_right.Content());
-
-		/*
-		YARPImageUtils::SetBlue(inl, col_left);
-		YARPImageUtils::SetRed(inl, col_left);
-		YARPImageUtils::SetGreen(inl, col_left);
-
-		YARPImageUtils::SetBlue(inr, col_right);
-		YARPImageUtils::SetRed(inr, col_right);
-		YARPImageUtils::SetGreen(inr, col_right);
-
-		*/
 
 		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)inl, col_left);
 		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)inr, col_right);
@@ -211,52 +234,75 @@ int main(int argc, char *argv[])
 		/// subsample
 		disparity[0].downSample (col_left, sub_left);
 		disparity[0].downSample (col_right, sub_right);
+
+		double value;
+	//	disparityval(1) = (double)disparity[0].computeRGB (sub_right, sub_left, &value);
+		// disparity[0].plotRegion(sub_right, outImageLp, disparity[0].getShift());
+		// disparity[0].remap(outImageLp, outImageCart);
+
+		// disparityval(1) = (double)disparity[1].computeMono (sub_right, sub_left, &value);
+		// disparityval(1) = (double)disparity[2].computeRGBAv (sub_left, sub_left, &value);
+
+	//	disparity[0].plotCorrelationMap (sub_right, sub_left, outImageCorrMapLp, disparity[0].zeroShift());
+	//	disparity[0].remap(outImageCorrMapLp, outImageCorrMapCart);
 		
-		for(s=0; s<__nScales;s++)
+		disparityval(1) = (double)disparity[3].computeSSDRGBxVar (sub_right, sub_left, &value);
+		// disparity[3].plotRegion(sub_right, outImageLp2, disparity[3].getShift());
+		// disparity[3].remap(outImageLp2, outImageCart2);
+		disparityval(2) = value;
+	//	disparity[3].plotSSDMap(sub_right, sub_left, outImageMapLp, disparity[3].zeroShift());
+	//	disparity[3].remap(outImageMapLp, outImageMapCart);
+
+		// disparityval(1) = (double)disparity[4].computeSSDRGBxVar (sub_right, sub_left, &value);
+		// disparityval(1) = (double)disparity[5].computeSSDRGBVar (sub_right, sub_left, &value);
+
+		// const double *tmpc = disparity[s].getCorrFunction();
+		/*
+		int c;
+		for(c = 0; c < disparity[0].getShiftLevels(); c++)
 		{
-			// disparityval(1) = -(double)disparity.computeDisparity (sub_left, sub_right);
-			double value;
-			disparityval(1) = (double)disparity[s].computeDisparityRGB (sub_right, sub_left, &value);
-			disparityval(2) = value;
-
-			const double *tmpc = disparity[s].getCorrFunction();
-			phase = disparity[s].getPhase();
-
-			int c;
-			for(c = 0; c < disparity[0].getShiftLevels(); c++)
+			if (s == 0)
+				correlation[c] = tmpc[c];
+			else
 			{
-				if (s == 0)
-					correlation[c] = tmpc[c];
-				else
-				{
-					correlation[c] = correlation[c]*(s) + tmpc[c];
-					correlation[c] /= (s+1);
-				}
+				correlation[c] = correlation[c]*(s) + tmpc[c];
+				correlation[c] /= (s+1);
 			}
-			
-		}
-
-		makeHistogram(out, correlation, phase, disparity[0].getShiftLevels(), disparityval(2));
-		///
-		/*	printf ("xm: %f s: %f a: %f err: %f s/n: %f\n", 
-			disparity._gMean, disparity._gSigma, disparity._gMagn, 
-			disparity._squareError, disparity._snRatio);
-
-
-		/// temporary.
-		if (disparity._gSigma > 1000)
-		{
-			fwrite (disparity._corrFunct, sizeof(double)*141, 1, fp);
-			fflush (fp);
 		}
 		*/
 
-		// printf("value: %lf\n", disparityval(1));
+		const double *correlation0 = disparity[0].getCorrFunction(); 
+		const double *correlation1 = disparity[1].getCorrFunction();
+		const double *correlation2 = disparity[2].getCorrFunction();
 
-		out_img.Content().Refer(out);
-		out_img.Write();
+		correlation2 = disparity[3].getPhase();
+		
+		const double *correlation3 = disparity[3].getCorrFunction();
+		const double *correlation4 = disparity[3].getSSDFunction();
+		const double *correlation5 = disparity[3].getVarFunction();
+		// const double *correlation2 = correlation1;
+	
+		makeHistogram(out1, correlation0, correlation1, correlation2, disparity[0].getShiftLevels(), 1);
+		makeHistogram(out2, correlation3, correlation4, correlation5, disparity[0].getShiftLevels(), value);
+	
+		out_img1.Content().Refer(out1);
+		out_img1.Write();
 
-	//	printf ("d = %d\n", int(disparityval(1)+.5));
+		out_img2.Content().Refer(out2);
+		out_img2.Write();
+
+//		out_img3.Content().Refer(outImageCart);
+//		out_img3.Write();
+
+//		out_img4.Content().Refer(outImageCart2);
+//		out_img4.Write();
+
+	//	out_img5.Content().Refer(outImageMapCart);
+	//	out_img5.Write();
+
+	//	out_img6.Content().Refer(outImageCorrMapCart);
+	//	out_img6.Write();
+
 		out_disp.Content() = disparityval;
 		out_disp.Write();
 	}
@@ -264,7 +310,7 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr, const double *phase, int sl, double val)
+void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr1, const double *corr2, const double *corr3, int sl, double val)
 {
 	int i,j;
 	int height = hImg.GetHeight();
@@ -286,8 +332,14 @@ void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr, const d
 	{
 		if ((i+offset >=0)&&(i+offset<width))
 		{
-			for (j=height-(int)(height/3*(corr[i])); j<height; j++)
+			if (corr1[i]>=0 && corr1[i]<=1)
+				for (j=height-(int)(height/3*(corr1[i])); j<height; j++)
 					hist[(j*width+i+offset)] = color;
+			else if (corr1[i]>1)
+				for (j=height-(int)(height/3); j<height; j++)
+					hist[(j*width+i+offset)] = 255;
+
+				// printf("Warning corr1[%d] would have been %lf\n", i, corr1[i]);
 		}
 	}
 
@@ -295,7 +347,11 @@ void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr, const d
 	{
 		if ((i+offset >=0)&&(i+offset<width))
 		{
-			for (j=(2*height/3)-(int)(height/3*(phase[i])); j<2*height/3; j++)
+			if (corr2[i]>=0 && corr2[i]<=1)
+				for (j=(2*height/3)-(int)(height/3*(corr2[i])); j<2*height/3; j++)
+					hist[j*width+i+offset] = color;
+			else if (corr2[i]>1)
+				for (j=(2*height/3)-(int)(height/3); j<2*height/3; j++)
 					hist[j*width+i+offset] = color;
 		}
 	}
@@ -304,7 +360,11 @@ void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr, const d
 	{
 		if ((i+offset >=0)&&(i+offset<width))
 		{
-			for (j=(1*height/3)-(int)(height/3*(corr[i]*phase[i])); j<height/3; j++)
+			if (corr3[i]>=0 && corr3[i]<=1)
+				for (j=(1*height/3)-(int)(height/3*(corr3[i])); j<height/3; j++)
+					hist[j*width+i+offset] = color;
+			else if (corr3[i]>1)
+				for (j=(1*height/3)-(int)(height/3); j<height/3; j++)
 					hist[j*width+i+offset] = color;
 		}
 	}

@@ -55,209 +55,76 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #fberton, pasa#
+///                    #pasa#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: main.cpp,v 1.18 2004-06-07 18:32:18 babybot Exp $
+/// $Id: headsaccades.cpp,v 1.1 2004-06-07 18:32:17 babybot Exp $
 ///
 ///
 
+// headsaccades.cpp : Defines the entry point for the console application.
+//
 
-#include <stdio.h>
-#include "LogPolarSDK.h"
+#include <YARPScheduler.h>
+#include <YARPRobotMath.h>
+#include <YARPPort.h>
+#include <YARPVectorPortContent.h>
+#include <YARPString.h>
+#include <YARPTime.h>
 
-/// as copied from YARPLogpolar.h
+#include "SaccadeBehavior.h"
+
+const int __inSize = 2;
+const int __outSize = 5;
+const char *__baseName = "/headsaccades/";
+const char *__configFile = "headcontrol.ini";
+
+///
+///
 ///
 
-namespace _logpolarParams
+// const int __openLoopSteps = 8;
+// const int __closedLoopSteps = 50;
+
+int main(int argc, char* argv[])
 {
-	const int _xsize = 256;
-	const int _ysize = 256;
-	const int _srho = 152;
-	const int _stheta = 252;
-	const int _sfovea = 42;
-	const int _salign = 8;
-};
+	YARPScheduler::setHighResScheduling();
 
-///
-///
-int main (int argc, char *argv[])
-{
-	using namespace _logpolarParams;
+	SBSharedData _sdata;
+	SaccadeBehavior _behavior(&_sdata);
+	SBOpenLoop		_openLoop;
+	SBClosedLoop	_closedLoop;
+	SBStop			_stop;
+	SBWaitIdle		_wait("WaitIdle");
+	// SBManualInitSaccade	_start("Init saccade");
+	SBWaitFixation	_fixation("Wait fixation");
+	SBWaitIdle		_refract("Refractory time\n", 1);
+	SBWaitIdle		_waitNewTarget("Wait for new target\n", 0.5);
+	SBInitSaccade   _initSaccade;
+	// SBSimpleOutput  _outRef;
+	SBCheckOpenLoopDone _olDone;
+	SBCheckSaccadeDone  _saccadeDone;
 
-	char Path[512];
+	SBNewTarget		_newTarget;
 
-	int rval;
-
-	if (argc < 2)
+	_behavior.setInitialState(&_waitNewTarget);
+	_behavior.add(&_newTarget, &_waitNewTarget, &_initSaccade);
+	_behavior.add(NULL, &_initSaccade, &_openLoop);
+	_behavior.add(&_olDone, &_openLoop, &_closedLoop);
+	_behavior.add(&_saccadeDone, &_closedLoop, &_stop);
+	_behavior.add(NULL, &_stop, &_wait);
+	_behavior.add(&_fixation, &_wait, &_refract);
+	_behavior.add(NULL, &_refract, &_waitNewTarget);
+	
+	//	_behavior.add(&_start, &_wait, &_openLoop);
+	// _behavior.Begin();
+	while(true)
 	{
-		printf ("Use %s <path> (with trailing backslash!)\n", argv[0]);
-		return -1;
+		_behavior.doYourDuty();
 	}
-
-	sprintf (Path, "%s\0", argv[1]);
-	printf ("Creating maps in : %s\n", Path);
-
-	Image_Data Param = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho, _stheta, _sfovea,
-		1090,
-		CUST,
-		256.0/1090.0);
-	
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-
-	printf ("Creating Angular Shift map ...");
-	rval = Build_Ang_Shift_Map(&Param, Path);
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-	printf ("Creating Pad map ...");
-	rval = Build_Pad_Map(&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-	printf ("Creating Remap map (Whole Image) ...", Path);
-	rval = Build_Remap_Map (&Param, Path);
-	if (rval)
-		printf ("\tDone !  \n");
-	else 
-		printf ("\tFailed !  \n");
-
-	
-	printf ("Creating Cart2LP map ...", Path);
-	rval = Build_Cart2LP_Map(&Param, Path);
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-	Param = Set_Param(
-		_xsize, _ysize,
-		128, 128,
-		_srho, _stheta, _sfovea,
-		1090,
-		CUST,
-		512.0/1090.0);
-
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-
-	printf ("Creating Remap map (Center) ...");
-	rval = Build_Remap_Map(&Param, Path);
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-	printf ("Creating Color map ...");
-	rval = Build_Color_Map(&Param,Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-
-	///
-	Param.Pix_Numb = 2;
-
-	printf ("Creating XY map ...");
-	rval = Build_XY_Map(&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-	printf ("Creating Neigborhood map ...");
-	rval = Build_Neighborhood_Map(&Param, Path);
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-	printf ("Creating Weights map ...");
-	rval = Build_Weights_Map(&Param, Path);	
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-	printf ("Creating DS map ...");
-	rval = Build_DS_Map (&Param, Path, 4.0);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-
-	Param = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho/4, _stheta/4, _sfovea/4,
-		1090/4,
-		CUST,
-		1024.0/1090.0);
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-	Param.Ratio = 4.0f;
-	Param.dres = 1090.0/4.0;
-
-	printf ("Creating Shift map ...");
-	rval = Build_Shift_Map (&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-	printf ("Creating Step Function ...");
-
-	Build_Step_Function (Path, &Param);
-	printf ("\t\tDone !  \n\n");
-
-	/////////////////////
-	printf ("Creating remap map (4x)...");
-	rval = Build_Remap_Map (&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-	//////////
-
-	////// fovea x4
-	Param = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho/4, _stheta/4, _sfovea/4,
-		1090/4,
-		CUST,
-		4*1024.0/1090.0);
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-	Param.Ratio = 4.0f;
-	Param.dres = 1090.0/4.0;
-
-	printf ("Creating remap map (4x center)...");
-	rval = Build_Remap_Map (&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-	//////////
-
-	printf("Generation Completed.\n\n");
-
+		
 	return 0;
 }
-

@@ -6,71 +6,47 @@
 int main(int argc, char* argv[])
 {
 	TBSharedData _data;
-	
-	TBWaitRead	waitTarget("Target");
-	TBWaitRead	waitHand("Hand");
-	TBWaitRead	waitEgoMap("EgoMap");
-	TBTransition trLookTarget("LookTarget");
-	
-	TBTransition trStore("store location to ego map");
-	TBTransition trRemove("remove location to ego map");
-	TBTransition trSetCurrent("set current location to ego map");
-
-	TBTransition trLookHand("LookHand");
-	TBTransition trArmRest("ArmRest");
-	TBTransition waitReaching("WaitReaching");
-	TBTransition waitArmRest("WaitArmRest");
-	TBIsTargetCentered checkTarget;
-	TBIsTargetCentered checkHand;
-	TBIsTargetCentered checkEgoMap;
-	// TBIsHandCentered checkHand;
-
-	TBOutputStoreEgoMap storePoint("reaching1");
-	// TBOutputRemoveEgoMap removePoint("reaching1");
-	// TBOutputSetCurrentEgoMap setCurrentEgomap("reaching1");
-
-	TBOutputCommand lookHand(YBVAttentionLookHand);
-	TBOutputCommand lookTarget(YBVAttentionLookTarget);
-	TBOutputCommand lookEgoMap(YBVAttentionLookEgoMap);
-
-	TBOutputCommand reach(YBVReachingReach);
-	TBOutputCommand learn(YBVReachingLearn);
-	TBSimpleInput	checkArmDone(YBVArmDone);
-	TBSimpleInput	checkArmRest(YBVArmRest);
-	TBSimpleInput	checkArmRestDone(YBVArmRestDone);
 	TriggerBehavior _behavior(&_data);
-
-	TBOutputCommand armRest(YBVArmForceResting);
-
-	_behavior.setInitialState(&waitTarget);
-	_behavior.add(&checkTarget, &waitTarget, &trStore, &storePoint);
-	_behavior.add(NULL, &trStore, &waitReaching, &reach);
-	_behavior.add(&checkArmRest, &waitTarget, &waitArmRest, &lookTarget);
-
-	_behavior.add(&checkEgoMap, &waitEgoMap, &waitArmRest, &lookTarget);
-	_behavior.add(NULL, &waitEgoMap, &waitEgoMap);
-		
-	_behavior.add(NULL, &waitTarget, &waitTarget);	// loop here
-	_behavior.add(&checkArmDone, &waitReaching, &trLookHand);
-	_behavior.add(&checkArmRest, &waitReaching, &waitArmRest, &lookTarget);
 	
-	_behavior.add(&checkArmRest, &trLookHand, &waitArmRest, &lookTarget);
-	_behavior.add(NULL, &trLookHand, &waitHand, &lookHand);
-	// _behavior.add(&checkHand, &waitHand, &trArmRest, &learn);
-	_behavior.add(&checkHand, &waitHand, &trLookTarget, &learn);
-	_behavior.add(&checkArmRest, &waitHand, &waitArmRest, &lookHand);
-	_behavior.add(NULL, &waitHand, &waitHand);	// loop here
-	
-	_behavior.add(&checkArmRest, &trLookTarget, &waitArmRest, &lookTarget);
-	_behavior.add(NULL, &trLookTarget, &waitTarget, &lookTarget);
-	
-	// _behavior.add(NULL, &trArmRest, &trLookTarget, &armRest);
+	TBCheckFixated			_isFixated;
+	TBCheckAlmostFixated	_isAlmostFixated;
+	TBWaitIdle				_wait("wait", 0.4);
+	TBWaitIdle				_waitRest("wait rest");
+	TBWaitIdle				_waitFixated("fixation", 0.4);
+	//TBWaitIdle				_waitAFixated("almost fixation", 0.4);
+	TBWaitIdle				_waitReaching("reaching", 6);
+	TBWaitIdle				_waitAck1("ack1");
+	TBWaitIdle				_waitAck2("ack2");
+	TBWaitIdle				_waitPrep("prep");
+	TBSimpleOutput			_prepareReaching(YBVReachingPrepare);
+	TBSimpleOutput			_reaching(YBVReachingReach);
+	TBArmInput				_armAck(YBVArmIssuedCmd);
+	TBArmInput				_armDone(YBVArmDone);
+	TBArmInput				_armRest(YBVArmRest);			
+	TBArmInput				_armRestDone(YBVArmRestDone);			
 
-	_behavior.add(&checkArmRestDone, &waitArmRest, &trLookTarget);
+	_behavior.setInitialState(&_waitRest);
+	// _behavior.add(&_armAck, &_waitAck, &_waitAck);
 
+	// _behavior.add(&_isAlmostFixated, &_wait, &_waitAFixated, &_prepareReaching);
+
+	_behavior.add(&_isFixated, &_wait, &_waitAck1, &_reaching);
+	_behavior.add(&_armRest, &_waitAck1, &_waitRest);
+	_behavior.add(&_armAck, &_waitAck1, &_waitReaching);
+	_behavior.add(NULL, &_waitReaching, &_wait);
+	_behavior.add(NULL, &_wait, &_wait);
+	_behavior.add(&_armRest, &_wait, &_waitReaching);
+	
+	_behavior.add(&_armRestDone, &_waitRest, &_wait);
+
+//	_behavior.add(&_armDone, &_waitAck, &_wait);
+	// _behavior.add(&_armRestDone, &_waitAck, &_wait);
+	// _behavior.add(&_armAck, &_waitAck, &_waitReaching);
+	
 	_behavior.Begin();
 	_behavior.loop();
-
+	
 	return 0;
 }
+
 

@@ -6,6 +6,7 @@
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
 #include <YARPBottleContent.h>
+#include <YARPLogFile.h>
 
 class NeckControl;
 
@@ -53,9 +54,18 @@ public:
 	// enable all channels
 	void enableAll();
 
+	void suppressHead();
+	void releaseHead();
+
 	void printChannelsStatus();
 
 private:
+	inline void _saveInhibition()
+	{ _storedInhibition = _manualInhibition; }
+
+	inline void _restoreInhibition()
+	{ _manualInhibition = _storedInhibition; }
+
 	inline void _polPort(YARPInputPortOf<YARPBottle> &port, YVector &v, int &inhibition)
 	{
 		if (port.Read(0))
@@ -88,12 +98,17 @@ private:
 	int _inhibitions[SinkChN];	// these are received from channels
 	int _manualInhibition;		// this is set manually from external commands
 	int _globalInhibition;		// global vector which is computed at each frame
+	int	_storedInhibition;		// temp value to store current inhibition
 	YVector _position;
 
 	YARPString _iniFile;
 	YARPString _path;
 	
 	int _nj;
+
+	// YARPLogFile _log;
+
+	unsigned int _counter;
 };
 
 #include <YARPPidFilter.h>

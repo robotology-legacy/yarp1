@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.33 2004-04-29 17:34:43 babybot Exp $
+/// $Id: LogPolarSDK.h,v 1.34 2004-06-07 18:32:18 babybot Exp $
 ///
 ///
 
@@ -387,8 +387,13 @@ int computePadSize(int width,int padding);
 
 rgbPixel computeAvg(int SizeRho,int SizeTheta, int padding, unsigned char * image);
 int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR);
-void shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR, int Rows, int * count);
-void shiftnCorrFoveaRGB (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, double *phase, double *coeff, rgbPixel aL, rgbPixel aR, int Rows, int * count);
+void shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR, int Rows, int * count);
+void shiftnCorrFoveaRGB (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, double *phase, double *coeff, rgbPixel aL, rgbPixel aR, int Rows, int * count);
+void shiftnCorrFoveaNoAverage (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, double *std1, double *std2, int Rows, int * count);
+void shiftnCorrFoveaNoAverageNorm (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, double *std1, double *std2, int Rows, int * count);
+void shiftSSDRGB (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr, int Rows, int * count);
+void shiftSSD (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr, int Rows, int * count);
+void shiftSSDWorstCase (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr, int Rows, int * count);
 void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data * par, unsigned short * padMap);
 void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data * par, unsigned short * padMap);
 

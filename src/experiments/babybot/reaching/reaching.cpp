@@ -27,28 +27,39 @@ int main(int argc, char* argv[])
 	RBWaitIdle waitIdle;
 	RBWaitDeltaT reachingSeq1(0.5);
 	RBWaitIdle reachingSeq2;
+	RBWaitIdle reachingSeq2b;
 	RBWaitIdle reachingSeq3;
 	RBWaitDeltaT reachingSeq4(3);
 	RBWaitIdle reachingSeq5;
 
-	RBOutputCommand			reachingPrepare;
+	RBOutputCommand			reachingPrepareOutput;
 	RBOutputReaching		reachingOutput;
 	RBOutputBack			reachingBack;
 	RBLearnOutputCommand	learnOutput;
 	RBInputCommand			learnInput(YBVReachingLearn);
 	RBInputCommand			armDone(YBVArmDone);
 	RBInputCommand			reachingInput(YBVReachingReach);
-	RBSimpleOutput			inhibitHead(YBVSinkInhibitAll);
-	RBSimpleOutput			enableHead(YBVSinkEnableAll);
+	RBSimpleOutput			inhibitHead(YBVSinkSuppress);
+	RBSimpleOutput			enableHead(YBVSinkRelease);
+	RBInputCommand			armRest(YBVArmRest);
+
+	RBInputCommand			reachingPrepareInput(YBVReachingPrepare);
 
 	_behavior.setInitialState(&waitIdle);
 	_behavior.add(&learnInput, &learnOutput);
-	_behavior.add(&reachingInput, &waitIdle, &reachingSeq1, &reachingPrepare);
-	_behavior.add(NULL, &reachingSeq1, &reachingSeq2, &inhibitHead);
-	_behavior.add(&armDone, &reachingSeq2, &reachingSeq3, &reachingOutput);
+	// _behavior.add(&reachingInput, &waitIdle, &reachingSeq1, &reachingPrepare);
+	// _behavior.add(NULL, &reachingSeq1, &reachingSeq2, &inhibitHead);
+	_behavior.add(&reachingInput, &waitIdle, &reachingSeq1, &reachingPrepareOutput);
+	_behavior.add(&armDone, &reachingSeq1, &reachingSeq2);
+	_behavior.add(&armRest, &reachingSeq1, &waitIdle, &enableHead);
+
+	_behavior.add(NULL, &reachingSeq2, &reachingSeq2b, &inhibitHead);
+	_behavior.add(NULL, &reachingSeq2b, &reachingSeq3, &reachingOutput);
 	_behavior.add(&armDone, &reachingSeq3, &reachingSeq4);
+	_behavior.add(&armRest, &reachingSeq3, &waitIdle, &enableHead);
 	_behavior.add(NULL, &reachingSeq4, &reachingSeq5, &reachingBack);
 	_behavior.add(&armDone, &reachingSeq5, &waitIdle, &enableHead);
+	_behavior.add(&armRest, &reachingSeq5, &waitIdle, &enableHead);
 
 	_behavior.Begin();
 	_behavior.loop();

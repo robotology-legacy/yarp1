@@ -21,6 +21,8 @@ int main(int argc, char* argv[])
 	SBWaitIdle waitIdle("idle state");
 	SBSimpleInput inhibitAllInput(YBVSinkInhibitAll);
 	SBSimpleInput enableAllInput(YBVSinkEnableAll);
+	SBSimpleInput suppress(YBVSinkSuppress);
+	SBSimpleInput release(YBVSinkRelease);
 	SBSimpleInput inhibitVorInput(YBVSinkInhibitVor);
 	SBSimpleInput inhibitTrackerInput(YBVSinkInhibitTracker);
 	SBSimpleInput inhibitVergenceInput(YBVSinkInhibitVergence);
@@ -28,6 +30,8 @@ int main(int argc, char* argv[])
 	
 	SBOutputInhibitAll			inhibitAllCmd;
 	SBOutputEnableAll			enableAllCmd;
+	SBOutputSuppress			suppressCmd;
+	SBOutputRelease				releaseCmd;
 	SBOutputInhibitVor			inhibitVorCmd;
 	SBOutputInhibitTracker		inhibitTrackerCmd;
 	SBOutputInhibitVergence		inhibitVergenceCmd;

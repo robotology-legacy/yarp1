@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.39 2004-05-18 14:54:16 beltran Exp $
+/// $Id: LogPolarSDK.cpp,v 1.40 2004-06-07 18:32:18 babybot Exp $
 ///
 ///
 
@@ -1624,21 +1624,16 @@ void shiftnCorrFoveaRGB (unsigned char * fullImg, unsigned char * fovImg, Image_
 		fovPtr = fovImg;
 		fullPtr = fullImg;
 
-//		for (j=0; j<Par->Size_Fovea; j++)
 		for (j=0; j<Rows; j++)
 		{
 			tIndex = j*Par->Size_Theta;
 			for (i=0; i<Par->Size_Theta; i++)
 			{
-//					i2 = ShiftMap[k1 + 3 * i];
-//					i1 = 3 * i;
 					i2 = ShiftMap[k1 + tIndex+i];
 					i1 = 3 * (tIndex+i);
 
 					if (i2 > 0)
 					{
-//						d_1 = *img2ptr++ - average_Rr;
-//						d_2 = Left[i1] - average_Lr;
 						pX[0] = *fovPtr++ - aFov.Red;
 						pY[0] = fullPtr[i2] - aFull.Red;
 
@@ -1674,9 +1669,9 @@ void shiftnCorrFoveaRGB (unsigned char * fullImg, unsigned char * fovImg, Image_
 		double absRxxSq=rxx[0]*rxx[0] + rxx[1]*rxx[1] + rxx[2]*rxx[2] + rxx[3]*rxx[3];  
 		double absRyySq=ryy[0]*ryy[0] + ryy[1]*ryy[1] + ryy[2]*ryy[2] + ryy[3]*ryy[3];  
 
-		corr_val[k]  = (absRxySq/(sqrt(absRxxSq)*sqrt(absRyySq)));
-		phase[k] = fabs(atan2(absV,rxy[0])/PI);
-		coeff[k] = corr_val[k]*phase[k];
+		coeff[k]  = (absRxySq/(sqrt(absRxxSq)*sqrt(absRyySq)));
+		phase[k] = (atan2(absV,rxy[0])/PI);
+		corr_val[k] = coeff[k]*phase[k];
 	}
 }
 
@@ -1845,6 +1840,14 @@ void shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Dat
 	double den_1b = 0;
 	double den_2b = 0;
 
+	double sum1R = 0;
+	double sum2R = 0;
+	double sum1G = 0;
+	double sum2G = 0;
+	double sum1B = 0;
+	double sum2B = 0;
+	double nElem = 0;
+
 	unsigned char * fullPtr,* fovPtr;
 
 	fullPtr = fullImg;
@@ -1857,7 +1860,6 @@ void shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Dat
 	for (k=0; k<Steps; k++)
 	{
 
-//		k1 = k * 1 * Par->Size_Theta * Par->Size_Fovea; //Positioning on the table
 		k1 = k * Par->Size_LP; //Positioning on the table
 
 		count[k] = 0;
@@ -1868,17 +1870,10 @@ void shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Dat
 			for (i=0; i<Par->Size_Theta; i++)
 			{
 				i2 = ShiftMap[k1 + tIndex+i];
-//				i1 = 3 * (tIndex+i);
 				if (i2 > 0)
 					count[k]++;
-//				else 
-//					img2ptr +=3;
 			}
-//			img2ptr += AddedPadSize;
 		}
-//		if (ShiftMap[k1]!=0)
-//			count[k] -=1;
-
 
 		numr   = 0;
 		den_1r = 0;
@@ -1890,27 +1885,31 @@ void shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Dat
 		den_1b = 0;
 		den_2b = 0;
 
+		sum1R = 0;
+		sum2R = 0;
+		sum1G = 0;
+		sum2G = 0;
+		sum1B = 0;
+		sum2B = 0;
+		nElem = 0;
+
 		fovPtr = fovImg;
 		fullPtr = fullImg;
 
-//		for (j=0; j<Par->Size_Fovea; j++)
 		for (j=0; j<Rows; j++)
 		{
 			tIndex = j*Par->Size_Theta;
 			for (i=0; i<Par->Size_Theta; i++)
 			{
-//					i2 = ShiftMap[k1 + 3 * i];
-//					i1 = 3 * i;
 					i2 = ShiftMap[k1 + tIndex+i];
 					i1 = 3 * (tIndex+i);
 
 					if (i2 > 0)
 					{
-//						d_1 = *img2ptr++ - average_Rr;
-//						d_2 = Left[i1] - average_Lr;
-						d_1 = *fovPtr++ - aFov.Red;
+						d_1 = (*fovPtr++) - aFov.Red;
 						d_2 = fullPtr[i2] - aFull.Red;
 						numr   += (d_1 * d_2);
+						
 						den_1r += (d_1 * d_1);
 						den_2r += (d_2 * d_2);
 
@@ -1925,73 +1924,27 @@ void shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Dat
 						numb   += (d_1 * d_2);
 						den_1b += (d_1 * d_1);
 						den_2b += (d_2 * d_2);
+
+						nElem++;
 					}
 					else fovPtr +=3;
 				}
 			fovPtr+=AddedPadSize;
 		}
 
-		corr_val[k]  = (1.0 - (numr * numr) / (den_1r * den_2r + 0.00001));	
-		corr_val[k] += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
-		corr_val[k] += (1.0 - (numb * numb) / (den_1b * den_2b + 0.00001));	
-
-//		if (count[k]>MAX)
-//			MAX = count[k];
-
-//		printf("%03d     %2.5f\n",k-SParam.Resolution/2,corr_val);
-//			corr_val[k] = (3-corr_val[k])*count;
-			corr_val[k] = (3-corr_val[k]);
-
+		if (nElem>0)
+		{
+			corr_val[k] = numr/sqrt(den_1r*den_2r);
+			corr_val[k] += numg/sqrt(den_1g*den_2g);
+			corr_val[k] += numb/sqrt(den_1b*den_2b);
+			corr_val[k] /= 3.0;
 		}
-
-/*
-	for (k=0; k<Steps; k++)
-	{
-		if (count[k]<MAX)
-			corr_val[k] = 3.0;
 		else
-			corr_val[k] = 3.0-(count[k]*corr_val[k]/MAX);
-
+			corr_val[k] = 0;
 	}
-
-	for (k=0; k<Steps; k++)
-		if (corr_val[k]<MIN)
-		{
-			MIN = corr_val[k];
-			minindex = k;
-		}
-*/
-
-/*	int counter = 0;
-
-	{
-		if (count[k]==MAX)
-		{
-			counter ++;
-		}
-	}
-
-	avg = 1-(avg / (3 * counter));
-
-	for (k=0; k<Steps; k++)
-	{
-		if (count[k]==MAX)
-		{
-			corr_val[k]	= corr_val[k] / avg;
-//			corr_val[k]	= (3.0 - corr_val[k])	/ avg;
-//			corr_val[k]	= 3.0 - corr_val[k];
-		}
-	}
-*/
-//	free(count);
-
-/*	if (corr_val[minindex] > treshold)
-		minindex = -1;
-*/	
-//	return minindex;
 }
 
-void Make_Disp_Histogram(unsigned char * hist,int height, int width, int shiftLevels, double * corrFunct)
+void Make_Disp_Histogram (unsigned char * hist,int height, int width, int shiftLevels, double * corrFunct)
 {
 	int i,j;
 //	int height = 64;
@@ -2012,4 +1965,620 @@ void Make_Disp_Histogram(unsigned char * hist,int height, int width, int shiftLe
 		
 	for (j=0; j<height; j++)
 		hist[(j*width+width/2)] = 255;
+}
+
+void shiftnCorrFoveaNoAverage (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double *corr_val, double *std1, double *std2, int Rows, int * count)
+{
+	int i,j,k,k1;
+	int i2,i1;//iR,iL
+	
+	double numr   = 0;
+	double den_1r = 0;
+	double den_2r = 0;
+	double numg   = 0;
+	double den_1g = 0;
+	double den_2g = 0;
+	double numb   = 0;
+	double den_1b = 0;
+	double den_2b = 0;
+
+	double sigma2 = 0;
+	double sigma1 = 0;
+	double grayAv1 = 0;
+	double grayAv2 = 0;
+
+	struct pixelDouble
+	{double Red; double Gre; double Blu; };
+	pixelDouble pixel1;
+	pixelDouble pixel2;
+
+	double sum1R = 0;
+	double sum2R = 0;
+	double sum1G = 0;
+	double sum2G = 0;
+	double sum1B = 0;
+	double sum2B = 0;
+	double nElem = 0;
+
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = fullImg;
+	fovPtr = fovImg;
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(Par->Size_Theta*Par->LP_Planes,Par->padding) - Par->Size_Theta*Par->LP_Planes;
+
+	for (k=0; k<Steps; k++)
+	{
+
+		k1 = k * Par->Size_LP; //Positioning on the table
+
+		count[k] = 0;
+
+		for (j=0; j<Rows; j++)
+		{
+			tIndex = j*Par->Size_Theta;
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+				i2 = ShiftMap[k1 + tIndex+i];
+				if (i2 > 0)
+					count[k]++;
+			}
+		}
+
+		numr   = 0;
+		den_1r = 0;
+		den_2r = 0;
+		numg   = 0;
+		den_1g = 0;
+		den_2g = 0;
+		numb   = 0;
+		den_1b = 0;
+		den_2b = 0;
+
+		sum1R = 0;
+		sum2R = 0;
+		sum1G = 0;
+		sum2G = 0;
+		sum1B = 0;
+		sum2B = 0;
+		nElem = 0;
+
+		sigma1 = 0;
+		sigma2 = 0;
+		grayAv1 = 0;
+		grayAv2 = 0;
+
+		fovPtr = fovImg;
+		fullPtr = fullImg;
+
+		for (j=0; j<Rows; j++)
+		{
+			tIndex = j*Par->Size_Theta;
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+					i2 = ShiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+
+					if (i2 > 0)
+					{
+						pixel1.Red = *fovPtr++;
+						pixel2.Red = fullPtr[i2];
+						pixel1.Gre = *fovPtr++;
+						pixel2.Gre = fullPtr[i2+1];
+						pixel1.Blu = *fovPtr++;
+						pixel2.Blu = fullPtr[i2+2];
+
+						double gray1 = (pixel1.Red + pixel1.Gre+pixel1.Blu)/3.0;
+						double gray2 = (pixel2.Red+pixel2.Gre+pixel2.Blu)/3.0;
+
+						numr   += (pixel1.Red * pixel2.Red);
+						sum1R += pixel1.Red;
+						sum2R += pixel2.Red;
+						den_1r += (pixel1.Red * pixel1.Red);
+						den_2r += (pixel2.Red * pixel2.Red);
+
+						numg   += (pixel1.Gre * pixel2.Gre);
+						sum1G += pixel1.Gre;
+						sum2G += pixel2.Gre;
+						den_1g += (pixel1.Gre * pixel1.Gre);
+						den_2g += (pixel2.Gre * pixel2.Gre);
+
+						numb   += (pixel1.Blu * pixel2.Blu);
+						sum1B += pixel1.Blu;
+						sum2B += pixel2.Blu;
+						den_1b += (pixel1.Blu * pixel1.Blu);
+						den_2b += (pixel2.Blu * pixel2.Blu);
+
+						sigma1 += gray1*gray1;
+						sigma2 += gray2*gray2;
+						grayAv1 += gray1;
+						grayAv2 += gray2;
+
+						nElem++;
+					}
+					else fovPtr +=3;
+				}
+			fovPtr+=AddedPadSize;
+		}
+
+		if (nElem>0)
+		{
+			corr_val[k] = (numr-sum1R*sum2R/nElem)/sqrt((den_1r-sum1R*sum1R/nElem)*(den_2r-sum2R*sum2R/nElem));
+			corr_val[k] += (numg-sum1G*sum2G/nElem)/sqrt((den_1g-sum1G*sum1G/nElem)*(den_2g-sum2G*sum2G/nElem));
+			corr_val[k] += (numb-sum1B*sum2B/nElem)/sqrt((den_1b-sum1B*sum1B/nElem)*(den_2b-sum2B*sum2B/nElem));
+			corr_val[k] /= 3.0;
+
+			std2[k] = (1/nElem)*(sigma2-grayAv2*grayAv2/nElem)/(128*128);
+			std1[k]= (1/nElem)*(sigma1-grayAv1*grayAv1/nElem)/(128*128);
+			
+		}
+		else
+		{
+			corr_val[k] = 0;
+			std2[k] = 0;
+			std1[k] = 0;
+		}
+	}
+}
+
+void shiftnCorrFoveaNoAverageNorm (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double *corr_val, double *std1, double *std2, int Rows, int * count)
+{
+	int i,j,k,k1;
+	int i2,i1;//iR,iL
+	
+	double numr   = 0;
+	double den_1r = 0;
+	double den_2r = 0;
+	double numg   = 0;
+	double den_1g = 0;
+	double den_2g = 0;
+	double numb   = 0;
+	double den_1b = 0;
+	double den_2b = 0;
+
+	double sigma2 = 0;
+	double sigma1 = 0;
+	double grayAv1 = 0;
+	double grayAv2 = 0;
+
+	struct pixelDouble
+	{double Red; double Gre; double Blu; };
+	pixelDouble pixel1;
+	pixelDouble pixel2;
+
+	double sum1R = 0;
+	double sum2R = 0;
+	double sum1G = 0;
+	double sum2G = 0;
+	double sum1B = 0;
+	double sum2B = 0;
+	double nElem = 0;
+
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = fullImg;
+	fovPtr = fovImg;
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(Par->Size_Theta*Par->LP_Planes,Par->padding) - Par->Size_Theta*Par->LP_Planes;
+
+	for (k=0; k<Steps; k++)
+	{
+
+		k1 = k * Par->Size_LP; //Positioning on the table
+
+		count[k] = 0;
+
+		for (j=0; j<Rows; j++)
+		{
+			tIndex = j*Par->Size_Theta;
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+				i2 = ShiftMap[k1 + tIndex+i];
+				if (i2 > 0)
+					count[k]++;
+			}
+		}
+
+		numr   = 0;
+		den_1r = 0;
+		den_2r = 0;
+		numg   = 0;
+		den_1g = 0;
+		den_2g = 0;
+		numb   = 0;
+		den_1b = 0;
+		den_2b = 0;
+
+		sum1R = 0;
+		sum2R = 0;
+		sum1G = 0;
+		sum2G = 0;
+		sum1B = 0;
+		sum2B = 0;
+		nElem = 0;
+
+		sigma1 = 0;
+		sigma2 = 0;
+		grayAv1 = 0;
+		grayAv2 = 0;
+
+		fovPtr = fovImg;
+		fullPtr = fullImg;
+
+		for (j=0; j<Rows; j++)
+		{
+			tIndex = j*Par->Size_Theta;
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+					i2 = ShiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+
+					if (i2 > 0)
+					{
+						pixel1.Red = *fovPtr++;
+						pixel2.Red = fullPtr[i2];
+						pixel1.Gre = *fovPtr++;
+						pixel2.Gre = fullPtr[i2+1];
+						pixel1.Blu = *fovPtr++;
+						pixel2.Blu = fullPtr[i2+2];
+
+						double gray1 = (pixel1.Red + pixel1.Gre+pixel1.Blu)/3.0;
+						double gray2 = (pixel2.Red+pixel2.Gre+pixel2.Blu)/3.0;
+
+						numr   += (pixel1.Red * pixel2.Red);
+						sum1R += pixel1.Red;
+						sum2R += pixel2.Red;
+						den_1r += (pixel1.Red * pixel1.Red);
+						den_2r += (pixel2.Red * pixel2.Red);
+
+						numg   += (pixel1.Gre * pixel2.Gre);
+						sum1G += pixel1.Gre;
+						sum2G += pixel2.Gre;
+						den_1g += (pixel1.Gre * pixel1.Gre);
+						den_2g += (pixel2.Gre * pixel2.Gre);
+
+						numb   += (pixel1.Blu * pixel2.Blu);
+						sum1B += pixel1.Blu;
+						sum2B += pixel2.Blu;
+						den_1b += (pixel1.Blu * pixel1.Blu);
+						den_2b += (pixel2.Blu * pixel2.Blu);
+
+						sigma1 += gray1*gray1;
+						sigma2 += gray2*gray2;
+						grayAv1 += gray1;
+						grayAv2 += gray2;
+
+						nElem++;
+					}
+					else fovPtr +=3;
+				}
+			fovPtr+=AddedPadSize;
+		}
+
+		if (nElem>0)
+		{
+			corr_val[k] = (numr-sum1R*sum2R/nElem)/sqrt((den_1r-sum1R*sum1R/nElem)*(den_1r-sum1R*sum1R/nElem));
+			corr_val[k] += (numg-sum1G*sum2G/nElem)/sqrt((den_1g-sum1G*sum1G/nElem)*(den_1g-sum1G*sum1G/nElem));
+			corr_val[k] += (numb-sum1B*sum2B/nElem)/sqrt((den_1b-sum1B*sum1B/nElem)*(den_1b-sum1B*sum1B/nElem));
+			corr_val[k] /= 3.0;
+
+			std2[k] = (1/nElem)*(sigma2-grayAv2*grayAv2/nElem)/(128*128);
+			std1[k]= (1/nElem)*(sigma1-grayAv1*grayAv1/nElem)/(128*128);
+			
+		}
+		else
+		{
+			corr_val[k] = 0;
+			std2[k] = 0;
+			std1[k] = 0;
+		}
+	}
+}
+
+void shiftSSDRGB (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr, int Rows, int * count)
+{
+	int i,j,k,k1;
+	int i2,i1;//iR,iL
+
+	double ssd;
+	double den1,den2;
+	int nElem;
+	struct pixelDouble
+	{double Red; double Gre; double Blu; };
+
+	pixelDouble first, second;
+	
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = fullImg;
+	fovPtr = fovImg;
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(Par->Size_Theta*Par->LP_Planes,Par->padding) - Par->Size_Theta*Par->LP_Planes;
+
+	for (k=0; k<Steps; k++)
+	{
+
+		k1 = k * Par->Size_LP; //Positioning on the table
+
+		count[k] = 0;
+
+		for (j=0; j<Rows; j++)
+		{
+			tIndex = j*Par->Size_Theta;
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+				i2 = ShiftMap[k1 + tIndex+i];
+				if (i2 > 0)
+					count[k]++;
+			}
+		}
+
+		fovPtr = fovImg;
+		fullPtr = fullImg;
+
+		ssd = 0.0;
+		den1 = 0.0;
+		den2 = 0.0;
+		nElem = 0;
+		
+		for (j=0; j<Rows; j++)
+		{
+			tIndex = j*Par->Size_Theta;
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+					i2 = ShiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+
+					if (i2 > 0)
+					{
+						first.Red = fovPtr[0];
+						first.Gre = fovPtr[1];
+						first.Blu = fovPtr[2];
+					
+						second.Red = fullPtr[i2];
+						second.Gre = fullPtr[i2+1];
+						second.Blu = fullPtr[i2+2];
+						
+						ssd += (first.Red-second.Red)*(first.Red-second.Red);
+						ssd += (first.Gre-second.Gre)*(first.Gre-second.Gre);
+						ssd += (first.Blu-second.Blu)*(first.Blu-second.Blu);
+
+						den1 += (first.Red*first.Red);
+						den1 += (first.Gre*first.Gre);
+						den1 += (first.Blu*first.Blu);
+
+						den2 += (second.Red*second.Red);
+						den2 += (second.Gre*second.Gre);
+						den2 += (second.Blu*second.Blu);
+
+						nElem++;
+						fovPtr+=3;
+					}
+					else fovPtr +=3;
+			}
+			fovPtr+=AddedPadSize;
+		}
+
+		corr[k] = 1-ssd/sqrt(den1*den1);
+	}
+}
+
+void shiftSSD (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr, int Rows, int * count)
+{
+	int i,j,k,k1;
+	int i2,i1;//iR,iL
+
+	double ssd;
+	double den1,den2;
+	int nElem;
+	struct pixelDouble
+	{double Red; double Gre; double Blu; };
+
+	pixelDouble first, second;
+	
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = fullImg;
+	fovPtr = fovImg;
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(Par->Size_Theta*Par->LP_Planes,Par->padding) - Par->Size_Theta*Par->LP_Planes;
+
+	for (k=0; k<Steps; k++)
+	{
+
+		k1 = k * Par->Size_LP; //Positioning on the table
+
+		count[k] = 0;
+
+		for (j=0; j<Rows; j++)
+		{
+			tIndex = j*Par->Size_Theta;
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+				i2 = ShiftMap[k1 + tIndex+i];
+				if (i2 > 0)
+					count[k]++;
+			}
+		}
+
+		fovPtr = fovImg;
+		fullPtr = fullImg;
+
+		ssd = 0.0;
+		den1 = 0.0;
+		den2 = 0.0;
+		nElem = 0;
+		
+		for (j=0; j<Rows; j++)
+		{
+			tIndex = j*Par->Size_Theta;
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+					i2 = ShiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+
+					if (i2 > 0)
+					{
+						first.Red = fovPtr[0];
+						first.Gre = fovPtr[1];
+						first.Blu = fovPtr[2];
+					
+						second.Red = fullPtr[i2];
+						second.Gre = fullPtr[i2+1];
+						second.Blu = fullPtr[i2+2];
+						
+						double gray1 = (first.Red+first.Gre+first.Blu)/3.0;
+						double gray2 = (second.Red+second.Gre+second.Blu)/3.0;
+
+						ssd += (gray1-gray2)*(gray1-gray2);
+						den1 += (gray1*gray1);
+						den2 += (gray2*gray2);
+						
+						nElem++;
+						fovPtr+=3;
+					}
+					else fovPtr +=3;
+			}
+			fovPtr+=AddedPadSize;
+		}
+
+		// corr[k] = 1-ssd/sqrt(den1*den2);	old normalization
+		corr[k] = 1-ssd/sqrt(den1*den1);
+	}
+}
+
+void shiftSSDWorstCase (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr, int Rows, int * count)
+{
+	int i,j,k,k1;
+	int i2,i1;//iR,iL
+
+	int nElem;
+	struct pixelDouble
+	{double Red; double Gre; double Blu; };
+	pixelDouble ssd;
+	pixelDouble den1,den2;
+
+	pixelDouble first, second;
+	
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = fullImg;
+	fovPtr = fovImg;
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(Par->Size_Theta*Par->LP_Planes,Par->padding) - Par->Size_Theta*Par->LP_Planes;
+
+	for (k=0; k<Steps; k++)
+	{
+
+		k1 = k * Par->Size_LP; //Positioning on the table
+
+		count[k] = 0;
+
+		for (j=0; j<Rows; j++)
+		{
+			tIndex = j*Par->Size_Theta;
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+				i2 = ShiftMap[k1 + tIndex+i];
+				if (i2 > 0)
+					count[k]++;
+			}
+		}
+
+		fovPtr = fovImg;
+		fullPtr = fullImg;
+
+		ssd.Red = 0.0;
+		ssd.Gre = 0.0;
+		ssd.Blu = 0.0;
+
+		den1.Red = 0.0;
+		den1.Gre = 0.0;
+		den1.Blu = 0.0;
+		
+		den2.Red = 0.0;
+		den2.Gre = 0.0;
+		den2.Blu = 0.0;
+		
+		nElem = 0;
+		
+		for (j=0; j<Rows; j++)
+		{
+			tIndex = j*Par->Size_Theta;
+			for (i=0; i<Par->Size_Theta; i++)
+			{
+					i2 = ShiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+					if (i2 > 0)
+					{
+						first.Red = fovPtr[0];
+						first.Gre = fovPtr[1];
+						first.Blu = fovPtr[2];
+					
+						second.Red = fullPtr[i2];
+						second.Gre = fullPtr[i2+1];
+						second.Blu = fullPtr[i2+2];
+						
+						ssd.Red += (first.Red-second.Red)*(first.Red-second.Red);
+						ssd.Gre += (first.Gre-second.Gre)*(first.Gre-second.Gre);
+						ssd.Blu += (first.Blu-second.Blu)*(first.Blu-second.Blu);
+					
+						den1.Red += (first.Red)*(first.Red);
+						den1.Gre += (first.Gre)*(first.Gre);
+						den1.Blu += (first.Blu)*(first.Blu);
+
+						den2.Red += (second.Red)*(second.Red);
+						den2.Gre += (second.Gre)*(second.Gre);
+						den2.Blu += (second.Blu)*(second.Blu);
+						
+						nElem++;
+						fovPtr+=3;
+					}
+					else fovPtr +=3;
+			}
+			fovPtr+=AddedPadSize;
+		}
+
+		// printf("%d\n", nElem);
+
+		pixelDouble corrTmp;
+		// corrTmp.Red = 1-ssd.Red/sqrt(den1.Red*den2.Red);
+		// corrTmp.Gre = 1-ssd.Gre/sqrt(den1.Gre*den2.Gre);
+		// corrTmp.Blu = 1-ssd.Blu/sqrt(den1.Blu*den2.Blu);
+
+		corrTmp.Red = 1-ssd.Red/sqrt(den1.Red*den1.Red);
+		corrTmp.Gre = 1-ssd.Gre/sqrt(den1.Gre*den1.Gre);
+		corrTmp.Blu = 1-ssd.Blu/sqrt(den1.Blu*den1.Blu);
+
+		// corr[k] = corrTmp.Blu;
+
+		// find worst case
+		
+		double min1;
+		double min2;
+		if (corrTmp.Red < corrTmp.Gre)
+			min1 = corrTmp.Red;
+		else
+			min1 = corrTmp.Gre;
+	
+		if (corrTmp.Gre < corrTmp.Blu)
+			min2 = corrTmp.Gre;
+		else
+			min2 = corrTmp.Blu;
+
+		if (min1<min2)
+			corr[k] = min1;
+		else
+			corr[k] = min2;
+	}
 }

@@ -55,209 +55,158 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #fberton, pasa#
+///                    #nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: main.cpp,v 1.18 2004-06-07 18:32:18 babybot Exp $
+/// $Id: seqgrabber.cpp,v 1.1 2004-06-07 18:32:18 babybot Exp $
+/// 
+/// Test stereo match by mergin together left and right channels (fovea)
+/// January 04 -- by nat
+
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+
+#include <YARPImages.h>
+#include <YARPImagePortContent.h>
+
+#include <iostream>
+#include <math.h>
+
+#include <YARPLogpolar.h>
+#include <YARPMath.h>
+
+#include <YARPParseParameters.h>
+#include <YARPImageFile.h>
+#include <YARPImageUtils.h>
+
 ///
 ///
-
-
-#include <stdio.h>
-#include "LogPolarSDK.h"
-
-/// as copied from YARPLogpolar.h
 ///
+YARPInputPortOf<YARPGenericImage> _image1Port(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+YARPInputPortOf<YARPGenericImage> _image2Port(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 
-namespace _logpolarParams
-{
-	const int _xsize = 256;
-	const int _ysize = 256;
-	const int _srho = 152;
-	const int _stheta = 252;
-	const int _sfovea = 42;
-	const int _salign = 8;
-};
+const char *DEFAULT_NAME = "seqgrabber";
+const char *DEFAULT_FOLDER = "C:/temp/";
 
+const int DEFAULT_LENGTH = 30;	// seconds
+const double timeFrame = 0.04;	// seconds
 ///
 ///
-int main (int argc, char *argv[])
+///
+///
+void printFrame(int c, int &time1);
+
+int main(int argc, char *argv[])
 {
 	using namespace _logpolarParams;
+	YARPLogpolar mapper;
 
-	char Path[512];
+	YARPString name;
+	YARPString network_i;
+	YARPString network_o;
+	YARPString outdir;
+	char buf[256];
+	bool stereo = false;
 
-	int rval;
+	int length;
 
-	if (argc < 2)
+	if (!YARPParseParameters::parse(argc, argv, "name", name))
 	{
-		printf ("Use %s <path> (with trailing backslash!)\n", argv[0]);
-		return -1;
+		name = DEFAULT_NAME;
 	}
 
-	sprintf (Path, "%s\0", argv[1]);
-	printf ("Creating maps in : %s\n", Path);
+	if (!YARPParseParameters::parse(argc, argv, "neti", network_i))
+	{
+		network_i = "Net1";
+	}
 
-	Image_Data Param = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho, _stheta, _sfovea,
-		1090,
-		CUST,
-		256.0/1090.0);
+	if (!YARPParseParameters::parse(argc, argv, "neto", network_o))
+	{
+		network_o = "default";
+	}
+
+	if (!YARPParseParameters::parse(argc, argv, "dir", outdir))
+	{
+		outdir = YARPString(DEFAULT_FOLDER);
+	}
+
+	if (!YARPParseParameters::parse(argc, argv, "length", &length))
+	{
+		length = DEFAULT_LENGTH;
+		
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "stereo"))
+	{
+		stereo = true;
+	}
+
+	/// images are coming from the input network.
+	sprintf(buf, "%s/i:left", name.c_str());
+	ACE_OS::printf("%s\n", name.c_str());
+	_image1Port.Register(buf, network_i.c_str());
+
+	sprintf(buf, "%s/i:right", name.c_str());
+	ACE_OS::printf("%s\n", name.c_str());
+	_image2Port.Register(buf, network_i.c_str());
+		
+	int frameCounter = 0;
+	int nFrame = (int) length/timeFrame;
+
+	char tmpName[255];
+
+	if (!stereo)
+		ACE_OS::printf("Going to save %d frames (estimated time %d) on %s\n", nFrame, length, outdir.c_str());
+	else
+		ACE_OS::printf("Going to save %d frames (left and right) (estimated time %d) on %s\n", nFrame, length, outdir.c_str());
+
 	
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
+	ACE_OS::printf("Please connect me...\n");
 
-	printf ("Creating Angular Shift map ...");
-	rval = Build_Ang_Shift_Map(&Param, Path);
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-	printf ("Creating Pad map ...");
-	rval = Build_Pad_Map(&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-	printf ("Creating Remap map (Whole Image) ...", Path);
-	rval = Build_Remap_Map (&Param, Path);
-	if (rval)
-		printf ("\tDone !  \n");
-	else 
-		printf ("\tFailed !  \n");
-
+	int time1;
+	float deltaT = 0;
 	
-	printf ("Creating Cart2LP map ...", Path);
-	rval = Build_Cart2LP_Map(&Param, Path);
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
+	time1 = YARPTime::GetTimeAsSeconds ();
+	while (frameCounter < nFrame)
+	{		
+		_image1Port.Read();
+		if (stereo)
+			_image2Port.Read();
+		
+		printFrame(frameCounter, time1);
 
-	Param = Set_Param(
-		_xsize, _ysize,
-		128, 128,
-		_srho, _stheta, _sfovea,
-		1090,
-		CUST,
-		512.0/1090.0);
+		if (stereo)
+		{
+			sprintf(tmpName, "%s%sL%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+			YARPImageFile::Write(tmpName, _image1Port.Content());
+			
+			sprintf(tmpName, "%s%sR%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+			YARPImageFile::Write(tmpName, _image2Port.Content());
+		}
+		else
+		{
+			sprintf(tmpName, "%s%s%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+			YARPImageFile::Write(tmpName, _image1Port.Content());
+		}
 
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-
-	printf ("Creating Remap map (Center) ...");
-	rval = Build_Remap_Map(&Param, Path);
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-	printf ("Creating Color map ...");
-	rval = Build_Color_Map(&Param,Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-
-	///
-	Param.Pix_Numb = 2;
-
-	printf ("Creating XY map ...");
-	rval = Build_XY_Map(&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-	printf ("Creating Neigborhood map ...");
-	rval = Build_Neighborhood_Map(&Param, Path);
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-	printf ("Creating Weights map ...");
-	rval = Build_Weights_Map(&Param, Path);	
-	if (rval)
-		printf ("\t\tDone !  \n");
-	else 
-		printf ("\t\tFailed !  \n");
-
-
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-	printf ("Creating DS map ...");
-	rval = Build_DS_Map (&Param, Path, 4.0);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-
-	Param = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho/4, _stheta/4, _sfovea/4,
-		1090/4,
-		CUST,
-		1024.0/1090.0);
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-	Param.Ratio = 4.0f;
-	Param.dres = 1090.0/4.0;
-
-	printf ("Creating Shift map ...");
-	rval = Build_Shift_Map (&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-
-	printf ("Creating Step Function ...");
-
-	Build_Step_Function (Path, &Param);
-	printf ("\t\tDone !  \n\n");
-
-	/////////////////////
-	printf ("Creating remap map (4x)...");
-	rval = Build_Remap_Map (&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-	//////////
-
-	////// fovea x4
-	Param = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho/4, _stheta/4, _sfovea/4,
-		1090/4,
-		CUST,
-		4*1024.0/1090.0);
-	Param.padding = _salign;
-	Param.Fovea_Type = 0;
-	Param.Ratio = 4.0f;
-	Param.dres = 1090.0/4.0;
-
-	printf ("Creating remap map (4x center)...");
-	rval = Build_Remap_Map (&Param, Path);
-	if (rval)
-		printf ("\t\t\tDone !  \n");
-	else 
-		printf ("\t\t\tFailed !  \n");
-	//////////
-
-	printf("Generation Completed.\n\n");
+		frameCounter++;
+	}
 
 	return 0;
 }
 
+void printFrame(int c, int &time1)
+{	
+	if (c%100 == 0)
+	{
+		ACE_OS::printf("Frame #:%d\n", c);
+		int time2 = YARPTime::GetTimeAsSeconds ();
+		float deltaT = (time2 - time1)/(float) (100);
+		ACE_OS::printf("Estimated time frame %lf\n", deltaT);
+		time1 = time2;
+	}
+}

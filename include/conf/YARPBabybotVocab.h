@@ -27,6 +27,7 @@ const char *const YBVArmQuit = "ArmQuit";
 // reaching behavior
 const char *const YBVReachingLearn = "ReachingLearn";
 const char *const YBVReachingReach = "ReachingReach";
+const char *const YBVReachingPrepare = "ReachingPrepare";
 const char *const YBVReachingQuit = "ReachingQuit";
 
 // arm trigger behavior
@@ -67,6 +68,8 @@ const char *const YBVSinkEnableAll = "SinkEnableAll";
 const char *const YBVSinkInhibitVor = "SinkInhibitVor";
 const char *const YBVSinkInhibitTracker = "SinkInhibitTracker";
 const char *const YBVSinkInhibitVergence = "SinkInhibitVergence";
+const char *const YBVSinkSuppress = "SinkSuppress";
+const char *const YBVSinkRelease = "SinkRelease";
 const char *const YBVSinkDisplayStatus = "SinkDisplayStatus";
 
 // grasprflx

@@ -55,13 +55,13 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #Add our name(s) here#
+///                    #fabio + nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: YARPDisparity.h,v 1.11 2004-04-29 17:34:43 babybot Exp $
+/// $Id: YARPDisparity.h,v 1.12 2004-06-07 18:32:18 babybot Exp $
 ///
 ///
 // disparity.h: interface for the YARPDisparityTool class.
@@ -95,32 +95,11 @@
 
 class YARPDisparityTool
 {
-private:
-
 public:
-	Image_Data _imgL,_imgS;
+	YARPDisparityTool();
+	virtual ~YARPDisparityTool();
 
-	Image_Data lpInfo (int SXR, int SYR, int rho, int theta, int fovea, int res, double ratio, int pad);
-
-	int   _shiftLevels;
-	int * _shiftMap;
-	int * _shiftFunction;
-	IntNeighborhood * _dsTable;
-	double * _corrFunct;
-	double * _phase;
-	double * _coeff;
-	double * _gaussFunction;
-	double _corrTreshold;
-
-	int *_count;
-		
-	int _actRings;
-	double _gMean;
-	double _gSigma;
-	double _gMagn;
-	double _squareError;
-	double _snRatio;
-
+	Image_Data lpInfo (int SXR, int SYR, int rho, int theta, int fovea, int res, double ratio, int pad, int zoom = 1);
 
 	inline int getShiftLevels()
 		{ return _shiftLevels; }
@@ -129,26 +108,99 @@ public:
 	inline const double *getPhase()
 		{ return _phase; }
 	inline const double *getCoeff()
-	{ return _coeff;}
+		{ return _coeff;}
+	inline const double *getStd1()
+		{ return _std1;}
+	inline const double *getStd2()
+		{ return _std2;}
+	inline int getShift()
+		{ return _shift; }
 
-	void setRings(int r)
-	{ _actRings = r; }
+	inline const double *getSSDFunction()
+		{ return _ssdFunct; }
 
+	inline const double *getVarFunction()
+		{ return _varFunct; }
+
+	inline void setInhibition(int max, int min)
+	{ _shiftMax = max; _shiftMin = min; }
+
+	int init(int rings = 21);
+
+	int loadShiftTable()
+		{ return loadShiftTable(&_imgS); }
+
+	int loadDSTable()
+		{ return loadDSTable(&_imgL); }
+
+	int loadRemapTable()
+		{ return loadRemapTable(&_imgFovea); }
+
+	int zeroShift()
+	{ return (_shiftLevels/2); }
+
+	int shiftLevels()
+	{ return _shiftLevels; }
+
+	// to keep compatiility with old code (if any...)
 	int loadShiftTable(Image_Data* Par);
 	int loadDSTable(Image_Data* Par);
+	int loadRemapTable(Image_Data* Par);
 
-	void downSample(YARPImageOf<YarpPixelBGR> & inImg, YARPImageOf<YarpPixelBGR> & outImg);
-	int computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
-						 YARPImageOf<YarpPixelBGR> & inLImg);
+	void downSample(YARPImageOf<YarpPixelBGR> &inImg, YARPImageOf<YarpPixelBGR> & outImg);
+	void remap(YARPImageOf<YarpPixelBGR> &inImg, YARPImageOf<YarpPixelBGR> &out);
+	int computeMono (YARPImageOf<YarpPixelBGR> & inRImg,
+						 YARPImageOf<YarpPixelBGR> & inLImg, 
+						 double *value);
 
-	int computeDisparityRGB (YARPImageOf<YarpPixelBGR> & inRImg,
-						     YARPImageOf<YarpPixelBGR> & inLImg, 
+	int computeMonoNorm (YARPImageOf<YarpPixelBGR> & inRImg,
+							  YARPImageOf<YarpPixelBGR> & inLImg, 
+							   double *value);
+
+	int computeSSDMono (YARPImageOf<YarpPixelBGR> & inRImg,
+						 YARPImageOf<YarpPixelBGR> & inLImg, 
+						 double *value);
+
+	int computeSSDRGB (YARPImageOf<YarpPixelBGR> & inRImg,
+						 YARPImageOf<YarpPixelBGR> & inLImg, 
+						 double *value);
+
+	int computeSSDRGBxVar (YARPImageOf<YarpPixelBGR> & inRImg,
+						  YARPImageOf<YarpPixelBGR> & inLImg, 
+						  double *value);
+
+	int computeSSDRGBVar (YARPImageOf<YarpPixelBGR> & inRImg,
+						  YARPImageOf<YarpPixelBGR> & inLImg, 
+							double *value);
+
+	int computeSSDWorstCase (YARPImageOf<YarpPixelBGR> & inRImg,
+									  YARPImageOf<YarpPixelBGR> & inLImg, 
+										double *value);
+
+	int computeFullAverage (YARPImageOf<YarpPixelBGR> & inRImg,
+							 YARPImageOf<YarpPixelBGR> & inLImg, 
 							 double *value);
 
-	int corrAdjust(int * count);
+	int computeRGB (YARPImageOf<YarpPixelBGR> & inRImg,
+				     YARPImageOf<YarpPixelBGR> & inLImg, 
+					 double *value);
+
+	int computeRGBAv (YARPImageOf<YarpPixelBGR> & inRImg,
+				     YARPImageOf<YarpPixelBGR> & inLImg, 
+					 double *value);
+
 	double computeSNRatio(int disparity);
 
 	void makeHistogram(YARPImageOf<YarpPixelMono> & hImg);
+
+	void plotRegion(const YARPImageOf<YarpPixelBGR> &imageRight, YARPImageOf<YarpPixelBGR> &out, int shift);
+	void plotCorrelationMap(const YARPImageOf<YarpPixelBGR> &inRight, 
+							const YARPImageOf<YarpPixelBGR> &inLeft, 
+							YARPImageOf<YarpPixelBGR> &out, int shift);
+
+	void plotSSDMap(const YARPImageOf<YarpPixelBGR> &inRight, 
+							const YARPImageOf<YarpPixelBGR> &inLeft, 
+							YARPImageOf<YarpPixelBGR> &out, int shift);
 
 	void (YARPDisparityTool::*fittingFunct)(double, YVector&, double *, YVector&, int);	
 
@@ -173,7 +225,6 @@ public:
 
 	int gaussJordan(YMatrix& a, int n, YMatrix& b, int m);
 
-		
 	void mrqCof(YVector& x, 
 				double y[], 
 				YVector& sig, 
@@ -186,12 +237,121 @@ public:
 				double *chisq,
 				void (YARPDisparityTool::*fittingFunct)(double, YVector&, double *, YVector&, int));
 
+private:
+	inline int _findShift(const double *corr, int lv);
+	inline int _shiftToDisparity(int shift);
+	inline void _computeCountVector(int *count);
+	inline void _cleanCorr();
+	void _setRings(int r)
+	{ _actRings = r; }
+			
+	Image_Data _imgL;
+	Image_Data _imgS;
+	Image_Data _imgFovea;
 
-	YARPDisparityTool();
-	virtual ~YARPDisparityTool();
+	int   _shiftLevels;
+	int * _shiftMap;
+	int * _shiftFunction;
+	int * _remapMap;
+	IntNeighborhood * _dsTable;
+	double * _corrFunct;
+	double * _phase;
+	double * _coeff;
+	double *_std1;
+	double *_std2;
+	double *_ssdFunct;
+	double *_varFunct;
+	double * _gaussFunction;
+	double _corrTreshold;
+	int _shift;
+
+	int *_count;
+	int _maxCount;
+		
+	int _actRings;
+	double _gMean;
+	double _gSigma;
+	double _gMagn;
+	double _squareError;
+	double _snRatio;
+
+	int _shiftMax;
+	int _shiftMin;
+
+	float _varMax;
+	float _varMin;
 
 protected:
 	char _path[256];
 };
+
+
+inline int YARPDisparityTool::_findShift(const double *corr, int lv)
+{
+	// search max
+	double corrMax = 0;
+	int ret = 0;
+	int l;
+	for(l = 0; l<lv; l++)
+	{
+		if (corr[l]>corrMax)
+		{
+			corrMax = corr[l];
+			ret = l;
+		}
+	}
+	return ret;
+}
+
+inline int YARPDisparityTool::_shiftToDisparity(int sh)
+{
+	int ret;
+	ret = _shiftFunction[sh];
+	ret = (int)(0.5 + ret * _imgS.Size_X_Remap / (float)_imgS.Resolution);
+	return ret;
+}
+
+inline void YARPDisparityTool::_cleanCorr()
+{
+	// search max
+	int l;
+	for(l = 0; l<_shiftLevels; l++)
+	{
+		if (_count[l] < _maxCount)
+			_corrFunct[l] = 0;
+	}
+}
+
+inline void YARPDisparityTool::_computeCountVector(int *count)
+{
+	int tIndex;
+	int k,i,j,k1, i2;
+	for (k = 0; k < _shiftLevels; k++)
+	{
+		k1 = k * _imgS.Size_LP; //Positioning on the table
+		count[k] = 0;
+
+		for (j=0; j<_actRings; j++)
+		{
+			tIndex = j*_imgS.Size_Theta;
+			for (i=0; i<_imgS.Size_Theta; i++)
+			{
+				i2 = _shiftMap[k1 + tIndex+i];
+				if (i2 > 0)
+					count[k]++;
+			}
+		}
+	}
+
+	// find max
+	_maxCount = 0;
+	for (k = 0; k < _shiftLevels; k++)
+	{
+		if (count[k] > _maxCount)
+			_maxCount = count[k];
+	}
+
+}
+
 
 #endif // !defined(AFX_DISPARITY_H__E3019D2A_4BC3_4AD0_8355_AAA601391249__INCLUDED_)

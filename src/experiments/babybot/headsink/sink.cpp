@@ -31,6 +31,7 @@ _inPortPosition (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 
 	_globalInhibition = SINK_INHIBIT_NONE;
 	_manualInhibition = SINK_INHIBIT_ALL;
+	_saveInhibition();
 
 	// position port
 	_inPortPosition.Register(YARPString(base).append(__portPositionNameSuffix).c_str());
@@ -44,6 +45,10 @@ _inPortPosition (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 	
 	// control of the neck
 	_neckControl = new NeckControl(_iniFile, _nj, _nj);
+
+	// 
+	_counter = 0;
+//	_log.open("c:/temp/head.log");
 }
 
 Sink::~Sink()
@@ -108,6 +113,15 @@ void Sink::doLoop()
 		_outCmd = _outCmd + _inVectors[SinkChSaccades];
 	}
 
+	/* if (_counter%2 == 0)
+	{
+		_log.dump(_position);
+		_log.dump(_outCmd);
+		_log.newLine();
+	}*/
+
+	_counter++;
+
 	_outPort.Content() = _outCmd;
 	_outPort.Write();
 }
@@ -120,18 +134,34 @@ void Sink::doRelease()
 void Sink::inhibitAll()
 {
 	_manualInhibition = SINK_INHIBIT_ALL;
+	_saveInhibition();
 	ACE_OS::printf("Manual inhibition set to %d\n", _manualInhibition);
 }
 
 void Sink::enableAll()
 {
 	_manualInhibition = SINK_INHIBIT_NONE;
+	_saveInhibition();
 	ACE_OS::printf("Manual inhibition set to %d\n", _manualInhibition);
+}
+
+void Sink::suppressHead()
+{
+	_saveInhibition();
+	_manualInhibition = SINK_INHIBIT_ALL;
+	ACE_OS::printf("Head suppressed\n");
+}
+
+void Sink::releaseHead()
+{
+	_restoreInhibition();
+	ACE_OS::printf("Head released\n");
 }
 
 void Sink::inhibitChannel(int n)
 {
 	_manualInhibition = _manualInhibition | n;
+	_saveInhibition();
 }
 
 void Sink::printChannelsStatus()

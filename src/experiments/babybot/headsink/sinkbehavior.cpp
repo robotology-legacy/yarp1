@@ -37,6 +37,18 @@ void SBOutputInhibitVor::output(Sink *d)
 	d->inhibitChannel(SINK_INHIBIT_VOR);
 }
 
+void SBOutputSuppress::output(Sink *d)
+{
+	ACE_OS::printf("Suppress head\n");
+	d->suppressHead();
+}
+
+void SBOutputRelease::output(Sink *d)
+{
+	ACE_OS::printf("Release head\n");
+	d->releaseHead();
+}
+
 void SBOutputInhibitTracker::output(Sink *d)
 {
 	ACE_OS::printf("SinkBehavior: inhibit/enable TRACKER channel\n");

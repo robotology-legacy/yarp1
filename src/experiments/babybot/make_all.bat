@@ -37,6 +37,9 @@ nmake /f behaviorRnd.mak CFG="behaviorRnd - Win32 Release" clean
 cd ..\bottlesender\
 nmake /f bottlesender.mak CFG="bottlesender - Win32 Debug" clean
 nmake /f bottlesender.mak CFG="bottlesender - Win32 Release" clean
+cd ..\checkfixation\
+nmake /f checkfixation.mak CFG="checkfixation - Win32 Debug" clean
+nmake /f checkfixation.mak CFG="checkfixation - Win32 Release" clean
 cd ..\collectpoints\
 nmake /f collectpoints.mak CFG="collectpoints - Win32 Debug" clean
 nmake /f collectpoints.mak CFG="collectpoints - Win32 Release" clean
@@ -125,6 +128,8 @@ cd ..\behaviorRnd\
 nmake /f behaviorRnd.mak CFG="behaviorRnd - Win32 Debug"
 cd ..\bottlesender\
 nmake /f bottlesender.mak CFG="bottlesender - Win32 Debug"
+cd ..\checkfixation\
+nmake /f checkfixation.mak CFG="checkfixation - Win32 Debug"
 cd ..\collectpoints\
 nmake /f collectpoints.mak CFG="collectpoints - Win32 Debug"
 cd ..\datacollector\
@@ -190,6 +195,8 @@ cd ..\behaviorRnd\
 nmake /f behaviorRnd.mak CFG="behaviorRnd - Win32 Release"
 cd ..\bottlesender\
 nmake /f bottlesender.mak CFG="bottlesender - Win32 Release"
+cd ..\checkfixation\
+nmake /f checkfixation.mak CFG="checkfixation - Win32 Release"
 cd ..\collectpoints\
 nmake /f collectpoints.mak CFG="collectpoints - Win32 Release"
 cd ..\datacollector\

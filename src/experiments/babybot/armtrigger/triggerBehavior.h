@@ -1,14 +1,12 @@
 #ifndef __ARMTRIGGER__
 #define __ARMTRIGGER__
 
-#include <YARPBehavior.h>
+#include <YARPFSM.h>
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
-#include <YARPBottle.h>
+#include <YARPBottleContent.h>
+#include <YARPBehavior.h>
 #include <./conf/YARPVocab.h>
-
-const double __vergenceTh = 2;
-const double __trackTh = (128/8 * 128/8)*2;
 
 class TBSharedData
 {
@@ -21,134 +19,127 @@ class TBSharedData
 	bool checkHand();
 
 	YARPOutputPortOf<YARPBottle> _outPort;
-	YARPOutputPortOf<YARPBottle> _egoMapPort;
-	YARPInputPortOf<YVector> _vergencePort;
-	YARPInputPortOf<YVector> _handTrackingPort;
-	YARPInputPortOf<YVector> _targetTrackingPort;
+	YARPInputPortOf<YVector> _fixationPort;
+	// YARPInputPortOf<YVector> _handTrackingPort;
+	// YARPInputPortOf<YVector> _targetTrackingPort;
 
 	private:
-	bool _checkVergence(const YVector &in)
-	{
-		if ( fabs(in(1)) <= __vergenceTh )
-			return true;
-
-		return false;
-	}
-
-	bool _checkTrack(const YVector &in)
-	{
-		double tmp;
-		tmp = in(1)*in(1);
-		tmp += in(2)*in(2);
-
-		if (tmp < __trackTh)
-			return true;
-	
-		return false;
-	}
-
-	YVector _vergence;
-	YVector _hand;
-	YVector _target;
 };
 
 class TriggerBehavior: public YARPBehavior<TriggerBehavior, TBSharedData>
 {
 public:
 	TriggerBehavior(TBSharedData *d):
-	YARPBehavior<TriggerBehavior, TBSharedData>(d, "/trigger/behavior/i", YBVMotorLabel, YBVTriggerQuit){}
+	YARPBehavior<TriggerBehavior, TBSharedData>(d, "/armtrigger/behavior/i", YBVMotorLabel, YBVExit){}
 };
 
 typedef YARPFSMStateBase<TriggerBehavior, TBSharedData> TBStateBase;
 typedef YARPFSMOutput<TBSharedData> TBBaseOutput;
 typedef YARPBaseBehaviorInput<TBSharedData> TBBaseInput;
 
-class TBWaitRead: public TBStateBase
+class TBWaitIdle: public TBStateBase
 {
 public:
-	TBWaitRead(const YARPString &msg)
-	{ 
-		_message = msg;
-		_count = 0;
-	}
-
-	void handle(TBSharedData *d);
-	
-	YARPString _message;
-	int _count;
-};
-
-class TBTransition: public TBStateBase
-{
-public:
-	TBTransition(const YARPString &msg)
+	TBWaitIdle(const YARPString &m, double dt=0.0)
 	{
-		_message = msg;
-		_count = 0;
+		_msg = m;
+		_deltaT = dt;
 	}
 	void handle(TBSharedData *d)
 	{
-		ACE_OS::printf("%s:%d\n", _message.c_str(), _count);
-		_count ++;
-		Sleep(1000);
+		ACE_OS::printf("Wait state: %s\n", _msg.c_str());
+		if (_deltaT != 0)
+			YARPTime::DelayInSeconds(_deltaT);
 	}
 
-	YARPString _message;
-	int _count;
+	YARPString _msg;
+	double _deltaT;
 };
 
-class TBIsTargetCentered: public TBBaseInput
+class TBSimpleOutput: public TBBaseOutput
 {
 public:
-	bool input(YARPBottle *in, TBSharedData *d);
+	TBSimpleOutput(const YBVocab &v)
+	{
+		_vocab = v;
+		_label = YBVMotorLabel;
+	}
+
+	void output(TBSharedData *d)
+	{
+		d->_outPort.Content().reset();
+		d->_outPort.Content().setID(_label);
+		d->_outPort.Content().writeVocab(_vocab);
+		d->_outPort.Content().display();
+		d->_outPort.Write();
+	}
+
+	YBVocab _vocab;
+	YBVocab _label;
 };
 
-class TBIsHandCentered: public TBBaseInput
+class TBArmInput: public TBBaseInput
 {
 public:
-	bool input(YARPBottle *in, TBSharedData *d);
-};
-
-class TBSimpleInput: public TBBaseInput
-{
-public:
-	TBSimpleInput(YBVocab k)
+	TBArmInput(const YBVocab &k)
 	{
 		key = k;
 	}
 
-	bool input(YARPBottle *in, TBSharedData *d);
-
+	bool input(YARPBottle *b, TBSharedData *d)
+	{
+		YBVocab tmpVocab;
+		if (b->tryReadVocab(tmpVocab))
+		{
+			b->moveOn();
+		
+			ACE_OS::printf("Received %s returning ", tmpVocab.c_str());
+			// check command
+			if (tmpVocab == key)
+			{
+				ACE_OS::printf("true\n");
+				return true;
+			}
+			else
+			{
+				ACE_OS::printf("false\n");
+				b->rewind();
+				return false;
+			}
+		}
+		else
+			b->rewind();
+			return false;
+	}
 
 	YBVocab key;
-	YBVocab tmpKey;
+
 };
 
-class TBOutputCommand: public TBBaseOutput
+class TBCheckAlmostFixated: public TBBaseInput
 {
 public:
-	TBOutputCommand(YBVocab cmd)
+	bool input(YARPBottle *b, TBSharedData *d)
 	{
-		_cmd = cmd;
+		if (d->_fixationPort.Read(0))
+			if (d->_fixationPort.Content()(1) > 0)
+				return true;
+		return false;
 	}
-	void output(TBSharedData *d);
-	
-	YARPBottle _bottle;
-	YBVocab _cmd;
+
 };
 
-class TBOutputStoreEgoMap: public TBBaseOutput
+class TBCheckFixated: public TBBaseInput
 {
 public:
-	TBOutputStoreEgoMap(const YARPString &name)
+	bool input(YARPBottle *b, TBSharedData *d)
 	{
-		_name = name;
+		if (d->_fixationPort.Read(0))
+			if (d->_fixationPort.Content()(1) > 0.5)
+				return true;
+		return false;
 	}
-	
-	void output(TBSharedData *d);
-	
-	YARPBottle _bottle;
-	YARPString _name;
+
 };
 
 #endif
