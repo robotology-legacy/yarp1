@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.6 2003-05-02 10:43:57 natta Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.7 2003-05-02 11:12:31 natta Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -13,7 +13,7 @@
 YARPMEIDeviceDriver::YARPMEIDeviceDriver() :
 YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
 {
-	// fill function pointer table
+	// fill function  pointer table
 	m_cmds[CMDSetSpeed] = &YARPMEIDeviceDriver::setSpeed;
 	m_cmds[CMDSetAcceleration] = &YARPMEIDeviceDriver::setAcceleration;
 	m_cmds[CMDSetPosition] = &YARPMEIDeviceDriver::setPosition;
