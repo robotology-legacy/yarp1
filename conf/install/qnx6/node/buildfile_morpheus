@@ -15,7 +15,7 @@ setconf CS_HOSTNAME morpheus
 setconf CS_DOMAIN lira.dist.unige.it
 waitfor /dev/pci
 #put in your actual IP,netmask and gateway
-io-net -del900 -ptcpip
+io-net -del900 -ptcpip multicast=1
 waitfor /dev/io-net 
 ifconfig en0 130.251.43.12 netmask 255.255.255.0
 route add default 130.251.43.126 
