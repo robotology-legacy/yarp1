@@ -44,10 +44,10 @@ public:
 	
 		fs.read(_forces, _torques);
 
-		for(int i = 0; i < 3; i++)
-			printf("%.3lf\t",_torques[i]);
+		// for(int i = 0; i < 3; i++)
+		//	printf("%.3lf\t",_torques[i]);
 
-		cout << "\n";
+		//	cout << "\n";
 		
 		memcpy(_outPort.Content(), _torques, sizeof(double)*3);
 		
