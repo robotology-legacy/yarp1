@@ -1,4 +1,6 @@
 
+MAIN = YARP
+
 ZIPS = $(patsubst %.dir, %.tar.gz, $(wildcard *.dir))
 TARGETS =  $(patsubst %.dir, %, $(wildcard *.dir)) $(ZIPS)
 
@@ -6,7 +8,7 @@ TARGETS =  $(patsubst %.dir, %, $(wildcard *.dir)) $(ZIPS)
 
 default: all
 
-all: $(TARGETS)
+all: $(TARGETS) $(MAIN).tar.gz
 
 %: %.dir
 	mkdir -p backup
@@ -22,12 +24,18 @@ all: $(TARGETS)
 %.tar.gz: %.tar
 	gzip $<
 
-test: $(ZIPS)
+unpacked.tag: $(ZIPS)
 	rm -rf tmp
 	mkdir -p tmp
 	@cd tmp && for d in $(ZIPS); do \
 		echo $$d && tar xvzf - < ../$$d ; done
+	echo -n | tee unpacked.tag
+
+$(MAIN).tar: unpacked.tag
+	cd tmp && tar cvf ../$@ YARP
+
+test: deploy
 	@cd tmp/YARP && make
 
 clean:
-	rm -rf $(TARGETS)
+	rm -rf $(TARGETS) unpacked.tag

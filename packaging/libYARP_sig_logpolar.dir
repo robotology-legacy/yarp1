@@ -1,4 +1,6 @@
 root ..
 package libYARP_sig_logpolar
 copy dir src/libYARP_sig_logpolar
+copy file src/tools/tools_logpolar.dsw
+copy dir src/tools/logpolar-table-builder
 endpackage

@@ -16,8 +16,10 @@ copy file src/tools/Makefile
 copy file src/tools/README.TXT
 copy file src/tools/tools-os.dsw
 #copy file src/tools/tools-dev.dsw
-copy file README.txt
-copy file naming.txt
 copy file src/Makefile
 copy file Makefile
+copy file INSTALL
+copy file README
+copy file AUTHORS
+copy file TODO
 endpackage
