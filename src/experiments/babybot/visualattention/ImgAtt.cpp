@@ -1260,7 +1260,7 @@ void YARPImgAtt::normalize()
 	//YARPImageFile::Write(savename, out);
 	//FullRange((IplImage *)comb, (IplImage *)comb);
 
-	iplClose(edge, edge, 1);
+	//iplClose(edge, edge, 1);
 }
 	
 
@@ -1338,11 +1338,12 @@ void YARPImgAtt::findBlobs()
 	rain.removeBlobList(blobList, max_tag);
 	//rain.removeFoveaBlob(tagged);
 	//rain.RemoveNonValid(max_tag, 3800, 100);
-	rain.RemoveNonValid(max_tag, 4000, 300);
+	rain.ComputeSalienceAll(max_tag, max_tag);
+	rain.RemoveNonValid(max_tag, 4000, 200);
 
 	
 	//rain.ComputeSalience(max_tag, max_tag);
-	rain.ComputeSalienceAll(max_tag, max_tag);
+	
 	//rain.SortAndComputeSalience(200, max_tag);
 	//rain.SortAndComputeSalience(100, max_tag);
 	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3

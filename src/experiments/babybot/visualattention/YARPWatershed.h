@@ -11,7 +11,7 @@
 
 class YARPBox {
 public:
-	YARPBox() {	valid = false; v.Resize(3); }
+	YARPBox() { valid = false; }
 
 	~YARPBox() {}
 
@@ -44,6 +44,8 @@ public:
 	double centroid_x;
 	double centroid_y;
 
+	bool cutted;
+	
 	long int id;
 
 	//bool edge;
@@ -71,13 +73,13 @@ public:
 	int salienceTD;
 	YarpPixelMono salienceTotal;
 
-	YVector v;
+	double elev;
+	double az;
 };
 
 
 class YARPWatershed {
 	YARPBox *m_boxes;
-	YARPBox *m_attn;
 	
 	int neighSize;
 	int *neigh;
@@ -128,6 +130,7 @@ class YARPWatershed {
 
 public:
 	//YARPWatershed::YARPWatershed();
+	YARPWatershed::~YARPWatershed();
 	YARPWatershed::YARPWatershed(const int width1, const int height1, const int wstep, const YarpPixelMono th);
 	void resize(const int width1, const int height1, const int wstep, const YarpPixelMono th);
 

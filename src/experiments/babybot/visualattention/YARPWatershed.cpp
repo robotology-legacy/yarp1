@@ -121,8 +121,8 @@ void YARPWatershed::resize(const int width1, const int height1, const int wstep,
 	m_boxes = new YARPBox[imageSize];
 	ACE_ASSERT(m_boxes != NULL);
 
-	m_attn = new YARPBox[imageSize];
-	ACE_ASSERT(m_attn != NULL);
+	//m_attn = new YARPBox[imageSize];
+	//ACE_ASSERT(m_attn != NULL);
 
 	
 	tmpMsk = iplCreateImageHeader(
@@ -145,6 +145,12 @@ void YARPWatershed::resize(const int width1, const int height1, const int wstep,
 	integralRG.resize(width1, height1);
 	integralGR.resize(width1, height1);
 	integralBY.resize(width1, height1);
+}
+
+YARPWatershed::~YARPWatershed()
+{
+	if (m_boxes!=NULL)
+		delete [] m_boxes;
 }
 
 
@@ -1035,6 +1041,8 @@ void YARPWatershed::blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<Y
 		m_boxes[i].xsum = m_boxes[i].ysum = 0;
 		m_boxes[i].valid = false;
 		
+		m_boxes[i].cutted = false;
+		
 		m_boxes[i].id = i;
 		
 		//m_boxes[i].edge = false;
@@ -1058,9 +1066,12 @@ void YARPWatershed::blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<Y
 	m_boxes[0].salienceTotal=0;
 	m_boxes[0].valid = true;
 
-	// pixels are logpolar, averaging is done in cartesian.
-	//short *tmp = tagged;
 	for(int r = 0; r < height; r++)
+		if (tagged(0, r)==tagged(width-1, r))
+			m_boxes[tagged(0, r)].cutted=true;
+		
+	// pixels are logpolar, averaging is done in cartesian.
+	for(r = 0; r < height; r++)
 		for(int c = 0; c < width; c++) {
 			long int tag_index = tagged(c, r);
 			if (tag_index != 0) {
@@ -1083,10 +1094,17 @@ void YARPWatershed::blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<Y
 				m_boxes[tag_index].ysum += y;
 				m_boxes[tag_index].xsum += x;
 
-				if (m_boxes[tag_index].rmax < r) m_boxes[tag_index].rmax = r;
-				if (m_boxes[tag_index].rmin > r) m_boxes[tag_index].rmin = r;
-				if (m_boxes[tag_index].cmax < c) m_boxes[tag_index].cmax = c;
-				if (m_boxes[tag_index].cmin > c) m_boxes[tag_index].cmin = c;
+				if (m_boxes[tag_index].cutted) {
+					if (m_boxes[tag_index].rmax < r) m_boxes[tag_index].rmax = r;
+					if (m_boxes[tag_index].rmin > r) m_boxes[tag_index].rmin = r;
+					if (m_boxes[tag_index].cmax < c) m_boxes[tag_index].cmax = c;
+					if (m_boxes[tag_index].cmin > c) m_boxes[tag_index].cmin = c;
+				} else {
+					if (m_boxes[tag_index].rmax < r) m_boxes[tag_index].rmax = r;
+					if (m_boxes[tag_index].rmin > r) m_boxes[tag_index].rmin = r;
+					if (m_boxes[tag_index].cmax < c) m_boxes[tag_index].cmax = c;
+					if (m_boxes[tag_index].cmin > c) m_boxes[tag_index].cmin = c;
+				}
 
 				m_boxes[tag_index].rgSum += rg(c, r);
 				m_boxes[tag_index].grSum += gr(c, r);
@@ -1100,7 +1118,7 @@ void YARPWatershed::blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<Y
 }	
 
 
-void YARPWatershed::SortAndComputeSalience(int num_tag, int last_tag)
+/*void YARPWatershed::SortAndComputeSalience(int num_tag, int last_tag)
 {	
 	//double max_areaCart;
 	int max_areaCart;
@@ -1156,7 +1174,7 @@ void YARPWatershed::SortAndComputeSalience(int num_tag, int last_tag)
 	// remember that there's a bias because of logpolar.
 
 	delete [] taken;
-}
+}*/
 
 
 // Total number of blobs
@@ -1165,29 +1183,34 @@ void YARPWatershed::ComputeSalience(int num_blob, int last_tag)
 {	
 	int i=1;
 
-	m_attn[0].valid=false;
-	m_attn[0].salienceTotal=0;
-	
+	//int badboxes=0;
+
 	for (; i <= last_tag; i++) {
 	//while (i<=last_tag && num_blob>0) {
 		if (m_boxes[i].valid) {
-			m_attn[i] = m_boxes[i];
 
 			// Maybe I can calculate this values only when it is useful...
 			//int area=TotalArea(m_boxes[i]);
-			m_attn[i].centroid_y = (double)m_boxes[i].ysum / m_boxes[i].areaLP;
-			m_attn[i].centroid_x = (double)m_boxes[i].xsum / m_boxes[i].areaLP;
+			m_boxes[i].centroid_y = (double)m_boxes[i].ysum / m_boxes[i].areaLP;
+			m_boxes[i].centroid_x = (double)m_boxes[i].xsum / m_boxes[i].areaLP;
 
 			// mean values are calculated only for biggest blobs
-			m_attn[i].meanRG = m_boxes[i].rgSum / m_boxes[i].areaLP;
-			m_attn[i].meanGR = m_boxes[i].grSum / m_boxes[i].areaLP;
-			m_attn[i].meanBY = m_boxes[i].bySum / m_boxes[i].areaLP;
+			m_boxes[i].meanRG = m_boxes[i].rgSum / m_boxes[i].areaLP;
+			m_boxes[i].meanGR = m_boxes[i].grSum / m_boxes[i].areaLP;
+			m_boxes[i].meanBY = m_boxes[i].bySum / m_boxes[i].areaLP;
 			
-			//m_attn[box_num].id = max_tag;
+			//m_boxes[box_num].id = max_tag;
+
+			/*if (m_boxes[i].xmin<126 && m_boxes[i].xmax>126 &&
+				m_boxes[i].ymin<126 && m_boxes[i].ymax>126)
+				badboxes++;*/
 		} else
-			m_attn[i].valid=false;
+			m_boxes[i].valid=false;
 		//i++;
 	}
+	
+	//cout<<badboxes<<endl;
+
 }
 
 
@@ -1195,29 +1218,37 @@ void YARPWatershed::ComputeSalienceAll(int num_blob, int last_tag)
 {	
 	int i=1;
 
-	m_attn[0].valid=false;
-	m_attn[0].salienceTotal=0;
-	
+	//int badboxes=0;
+
 	for (; i <= last_tag; i++) {
 	//while (i<=last_tag && num_blob>0) {
 		if (m_boxes[i].areaLP) {
-			m_attn[i] = m_boxes[i];
+			m_boxes[i] = m_boxes[i];
 
 			// Maybe I can calculate this values only when it is useful...
 			//int area=TotalArea(m_boxes[i]);
-			m_attn[i].centroid_y = (double)m_boxes[i].ysum / m_boxes[i].areaLP;
-			m_attn[i].centroid_x = (double)m_boxes[i].xsum / m_boxes[i].areaLP;
+			m_boxes[i].centroid_y = (double)m_boxes[i].ysum / m_boxes[i].areaLP;
+			m_boxes[i].centroid_x = (double)m_boxes[i].xsum / m_boxes[i].areaLP;
 
 			// mean values are calculated only for biggest blobs
-			m_attn[i].meanRG = m_boxes[i].rgSum / m_boxes[i].areaLP;
-			m_attn[i].meanGR = m_boxes[i].grSum / m_boxes[i].areaLP;
-			m_attn[i].meanBY = m_boxes[i].bySum / m_boxes[i].areaLP;
+			m_boxes[i].meanRG = m_boxes[i].rgSum / m_boxes[i].areaLP;
+			m_boxes[i].meanGR = m_boxes[i].grSum / m_boxes[i].areaLP;
+			m_boxes[i].meanBY = m_boxes[i].bySum / m_boxes[i].areaLP;
 			
-			//m_attn[box_num].id = max_tag;
+			//m_boxes[box_num].id = max_tag;
+
+			/*if (m_boxes[i].xmin<126 && m_boxes[i].xmax>126 &&
+				m_boxes[i].ymin<126 && m_boxes[i].ymax>126 &&
+				m_boxes[i].valid)
+				badboxes++;*/
+
 		} else
-			m_attn[i].valid=false;
+			m_boxes[i].valid=false;
 		//i++;
 	}
+
+	//cout<<badboxes<<endl;
+
 }
 
 
@@ -1229,7 +1260,7 @@ void YARPWatershed::checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, 
 			int x, y;
 			cout<<"box #"<<i<<endl;
 			
-			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].v, x, y);
+			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].elev, boxes[i].az, x, y);
 			m_lp.Cartesian2Logpolar(x, y, r, c);
 			if (r>=height) {
 				cout<<"out of sight!"<<endl;	
@@ -1237,14 +1268,14 @@ void YARPWatershed::checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, 
 			}
 			YarpPixelInt index=tagged(c, r);
 			
-			cout<<"RG : "<<(int)m_attn[index].meanRG<<endl;
-			cout<<"GR : "<<(int)m_attn[index].meanGR<<endl;
-			cout<<"BY : "<<(int)m_attn[index].meanBY<<endl;
-			cout<<"RG diff: "<<abs((int)m_attn[index].meanRG-(int)boxes[i].meanRG)<<endl;
-			cout<<"GR diff: "<<abs((int)m_attn[index].meanGR-(int)boxes[i].meanGR)<<endl;
-			cout<<"BY diff: "<<abs((int)m_attn[index].meanBY-(int)boxes[i].meanBY)<<endl;
+			cout<<"RG : "<<(int)m_boxes[index].meanRG<<endl;
+			cout<<"GR : "<<(int)m_boxes[index].meanGR<<endl;
+			cout<<"BY : "<<(int)m_boxes[index].meanBY<<endl;
+			cout<<"RG diff: "<<abs((int)m_boxes[index].meanRG-(int)boxes[i].meanRG)<<endl;
+			cout<<"GR diff: "<<abs((int)m_boxes[index].meanGR-(int)boxes[i].meanGR)<<endl;
+			cout<<"BY diff: "<<abs((int)m_boxes[index].meanBY-(int)boxes[i].meanBY)<<endl;
 			// the log area changes due to log polar mapping and distance
-			cout<<"areaLP diff: "<<abs(m_attn[index].areaLP-boxes[i].areaLP)<<endl;
+			cout<<"areaLP diff: "<<abs(m_boxes[index].areaLP-boxes[i].areaLP)<<endl;
 			cout<<endl;
 		}
 	}
@@ -1258,7 +1289,7 @@ void YARPWatershed::doIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int
 			int r1, c1, r, c;
 			int x, y;
 			
-			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].v, x, y);
+			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].elev, boxes[i].az, x, y);
 			m_lp.Cartesian2Logpolar(x, y, r1, c1);
 			for (int i=-1; i<=1; i++)
 				for (int j=-1; j<=1; j++) {
@@ -1268,12 +1299,12 @@ void YARPWatershed::doIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int
 						if (c<0) c=width+c;
 						else if (c>width) c=c-width-1;
 						YarpPixelInt index=tagged(c, r);
-						int crg=m_attn[index].meanRG-boxes[i].meanRG;
-						int cgr=m_attn[index].meanGR-boxes[i].meanGR;
-						int cby=m_attn[index].meanBY-boxes[i].meanBY;
+						int crg=m_boxes[index].meanRG-boxes[i].meanRG;
+						int cgr=m_boxes[index].meanGR-boxes[i].meanGR;
+						int cby=m_boxes[index].meanBY-boxes[i].meanBY;
 
 						if (crg*crg+cgr*cgr+cby*cby<150) {
-							m_attn[index].valid=false;
+							m_boxes[index].valid=false;
 						}
 					}
 				}
@@ -1288,7 +1319,7 @@ void YARPWatershed::drawIOR(YARPImageOf<YarpPixelMono>& out, YARPBox* boxes, int
 		if (boxes[i].valid) {
 			int r, c;
 			int x, y;
-			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].v, x, y);
+			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].elev, boxes[i].az, x, y);
 			m_lp.Cartesian2Logpolar(x, y, r, c);
 			if (r>=height) {
 				continue;
@@ -1319,12 +1350,18 @@ void YARPWatershed::RemoveNonValid(int last_tag, const int max_size, const int m
 
 	for (int i = 1; i <= last_tag;i++) {
 		int area = TotalArea(m_boxes[i]);
+		//_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, m_boxes[i].elev, m_boxes[i].az , (int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y);
 		if (// in effetti eliminare i blob troppo piccoli nn è molto utile se
 			// i blob vengono comunque ordinati x grandezza
 			area < min_size ||
 			area > max_size )
 		{
 			m_boxes[i].valid=false;
+		} else {
+			_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, m_boxes[i].elev, m_boxes[i].az , (int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y);
+			if (m_boxes[i].elev<2*PI*(-65)/360 || m_boxes[i].elev>2*PI*(-20)/360 ||
+				m_boxes[i].az<2*PI*(-50)/360 || m_boxes[i].az>2*PI*50/360)
+				m_boxes[i].valid=false;
 		}
 	}
 
@@ -1396,9 +1433,9 @@ int YARPWatershed::DrawMeanOpponentColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPI
 	for (int r=0; r<height; r++)
 		for (int c=0; c<width; c++)
 			if (m_boxes[tagged(c, r)].valid) {
-				id(c ,r).r=m_attn[tagged(c, r)].meanRG;
-				id(c ,r).g=m_attn[tagged(c, r)].meanGR;
-				id(c ,r).b=m_attn[tagged(c, r)].meanBY;
+				id(c ,r).r=m_boxes[tagged(c, r)].meanRG;
+				id(c ,r).g=m_boxes[tagged(c, r)].meanGR;
+				id(c ,r).b=m_boxes[tagged(c, r)].meanBY;
 			}
 	
 	return 1;
@@ -1448,56 +1485,56 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 	if (numBlob>imageSize) numBlob=imageSize;
 	
 	for (int i = 0; i < numBlob; i++) {
-		if (m_attn[i].valid) {
-			int rdim=(m_attn[i].rmax-m_attn[i].rmin+1);
-			int cdim=(m_attn[i].cmax-m_attn[i].cmin+1);
+		if (m_boxes[i].valid) {
+			int rdim=(m_boxes[i].rmax-m_boxes[i].rmin+1);
+			int cdim=(m_boxes[i].cmax-m_boxes[i].cmin+1);
 
-			//zdi.xOffset=m_attn[i].cmin;
-			//zdi.yOffset=m_attn[i].rmin;
+			//zdi.xOffset=m_boxes[i].cmin;
+			//zdi.yOffset=m_boxes[i].rmin;
 
-			iplPutPixel((IplImage*) tmpMsk, m_attn[i].cmin, m_attn[i].rmin, &pixel1);
+			iplPutPixel((IplImage*) tmpMsk, m_boxes[i].cmin, m_boxes[i].rmin, &pixel1);
 
 			iplBlur((IplImage*) rg, (IplImage*) tmp, 3*cdim, 3*rdim, cdim, rdim);
-			m_attn[i].cRG=abs(tmp(m_attn[i].cmin, m_attn[i].rmin)-m_attn[i].meanRG);
-			//m_attn[i].cRG=min(tmp(m_attn[i].cmin, m_attn[i].rmin), m_attn[i].meanRG)*prg;
+			m_boxes[i].cRG=abs(tmp(m_boxes[i].cmin, m_boxes[i].rmin)-m_boxes[i].meanRG);
+			//m_boxes[i].cRG=min(tmp(m_boxes[i].cmin, m_boxes[i].rmin), m_boxes[i].meanRG)*prg;
 
 			iplBlur((IplImage*) gr, (IplImage*) tmp, 3*cdim, 3*rdim, cdim, rdim);
-			m_attn[i].cGR=abs(tmp(m_attn[i].cmin, m_attn[i].rmin)-m_attn[i].meanGR);
-			//m_attn[i].cGR=min(tmp(m_attn[i].cmin, m_attn[i].rmin), m_attn[i].meanGR)*pgr;
+			m_boxes[i].cGR=abs(tmp(m_boxes[i].cmin, m_boxes[i].rmin)-m_boxes[i].meanGR);
+			//m_boxes[i].cGR=min(tmp(m_boxes[i].cmin, m_boxes[i].rmin), m_boxes[i].meanGR)*pgr;
 			
 			iplBlur((IplImage*) by, (IplImage*) tmp, 3*cdim, 3*rdim, cdim, rdim);
-			m_attn[i].cBY=abs(tmp(m_attn[i].cmin, m_attn[i].rmin)-m_attn[i].meanBY);
-			//m_attn[i].cBY=min(tmp(m_attn[i].cmin, m_attn[i].rmin), m_attn[i].meanBY)*pby;
+			m_boxes[i].cBY=abs(tmp(m_boxes[i].cmin, m_boxes[i].rmin)-m_boxes[i].meanBY);
+			//m_boxes[i].cBY=min(tmp(m_boxes[i].cmin, m_boxes[i].rmin), m_boxes[i].meanBY)*pby;
 
-			salienceBU=sqrt(m_attn[i].cRG*m_attn[i].cRG+
-			                m_attn[i].cGR*m_attn[i].cGR+
-			                m_attn[i].cBY*m_attn[i].cBY);
+			salienceBU=sqrt(m_boxes[i].cRG*m_boxes[i].cRG+
+			                m_boxes[i].cGR*m_boxes[i].cGR+
+			                m_boxes[i].cBY*m_boxes[i].cBY);
 			salienceBU=salienceBU/sqrt(3);
 
-			/*salienceBU=m_attn[i].cRG;
+			/*salienceBU=m_boxes[i].cRG;
 
-			if (salienceBU<m_attn[i].cGR)
-				salienceBU=m_attn[i].cGR;
+			if (salienceBU<m_boxes[i].cGR)
+				salienceBU=m_boxes[i].cGR;
 
-			if (salienceBU<m_attn[i].cBY)
-				salienceBU=m_attn[i].cBY;*/
+			if (salienceBU<m_boxes[i].cBY)
+				salienceBU=m_boxes[i].cBY;*/
 
-			//salienceBU=m_attn[i].cRG+m_attn[i].cGR+m_attn[i].cBY;
+			//salienceBU=m_boxes[i].cRG+m_boxes[i].cGR+m_boxes[i].cBY;
 
 
-			/*salienceTD=abs(m_attn[i].meanRG-prg);
+			/*salienceTD=abs(m_boxes[i].meanRG-prg);
 							
-			if (salienceTD<abs(m_attn[i].meanGR-pgr))
-				salienceTD=abs(m_attn[i].meanGR-pgr);
+			if (salienceTD<abs(m_boxes[i].meanGR-pgr))
+				salienceTD=abs(m_boxes[i].meanGR-pgr);
 				
-			if (salienceTD<abs(m_attn[i].meanBY-pby))
-				salienceTD=abs(m_attn[i].meanBY-pby);
+			if (salienceTD<abs(m_boxes[i].meanBY-pby))
+				salienceTD=abs(m_boxes[i].meanBY-pby);
 
 			salienceTD=255-salienceTD;*/
 
-			salienceTD=sqrt((m_attn[i].meanRG-prg)*(m_attn[i].meanRG-prg)+
-			                (m_attn[i].meanGR-pgr)*(m_attn[i].meanGR-pgr)+
-			                (m_attn[i].meanBY-pby)*(m_attn[i].meanBY-pby));
+			salienceTD=sqrt((m_boxes[i].meanRG-prg)*(m_boxes[i].meanRG-prg)+
+			                (m_boxes[i].meanGR-pgr)*(m_boxes[i].meanGR-pgr)+
+			                (m_boxes[i].meanBY-pby)*(m_boxes[i].meanBY-pby));
 			salienceTD=255-salienceTD/sqrt(3);
 
 			// if the color is too different it isn't in the scene!
@@ -1505,8 +1542,8 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 
 			//if (salienceTD<0) salienceTD=0;
 			
-			m_attn[i].salienceBU=salienceBU;
-			m_attn[i].salienceTD=salienceTD;
+			m_boxes[i].salienceBU=salienceBU;
+			m_boxes[i].salienceTD=salienceTD;
 
 			if (salienceBU<minSalienceBU)
 				minSalienceBU=salienceBU;
@@ -1518,7 +1555,7 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 			else if (salienceTD>maxSalienceTD)
 				maxSalienceTD=salienceTD;
 
-			iplPutPixel((IplImage*) tmpMsk, m_attn[i].cmin, m_attn[i].rmin, &pixel0);
+			iplPutPixel((IplImage*) tmpMsk, m_boxes[i].cmin, m_boxes[i].rmin, &pixel0);
 		}
 	}
 
@@ -1543,17 +1580,17 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 	}
 
 	for (i = 0; i < numBlob; i++) {
-		if (m_attn[i].valid) {
-			m_attn[i].salienceTotal=pBU*(a1*m_attn[i].salienceBU/255+b1)+pTD*(a2*m_attn[i].salienceTD/255+b2);
-			for (int r=m_attn[i].rmin; r<=m_attn[i].rmax; r++)
-				for (int c=m_attn[i].cmin; c<=m_attn[i].cmax; c++)
-					if (tagged(c, r)==m_attn[i].id) {
-						//unsigned char sal=(a1*m_attn[i].salienceBU/255+b1+a2*m_attn[i].salienceTD/255+b2)/2;
+		if (m_boxes[i].valid) {
+			m_boxes[i].salienceTotal=pBU*(a1*m_boxes[i].salienceBU/255+b1)+pTD*(a2*m_boxes[i].salienceTD/255+b2);
+			for (int r=m_boxes[i].rmin; r<=m_boxes[i].rmax; r++)
+				for (int c=m_boxes[i].cmin; c<=m_boxes[i].cmax; c++)
+					if (tagged(c, r)==m_boxes[i].id) {
+						//unsigned char sal=(a1*m_boxes[i].salienceBU/255+b1+a2*m_boxes[i].salienceTD/255+b2)/2;
 						//if (sal>th) dst(c ,r)=sal;
 						//else dst(c ,r)=0;
-						dst(c ,r)=m_attn[i].salienceTotal;
-						//dst(c ,r)=a1*m_attn[i].salienceBU/255+b1;
-						/*dst(c ,r)=a2*m_attn[i].salienceTD/255+b2;
+						dst(c ,r)=m_boxes[i].salienceTotal;
+						//dst(c ,r)=a1*m_boxes[i].salienceBU/255+b1;
+						/*dst(c ,r)=a2*m_boxes[i].salienceTD/255+b2;
 						if (dst(c ,r)<240) dst(c ,r)=1;
 						else dst(c ,r)=dst(c ,r)-240;*/
 					}
@@ -1590,71 +1627,71 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 	integralBY.computeCartesian(by);
 	
 	for (int i = 0; i < numBlob; i++) {
-		if (m_attn[i].valid) {
+		if (m_boxes[i].valid) {
 			int tmp;
 			
 			/*int r, c;
 			int xdim, ydim;
 			int xmax, xmin ,ymin, ymax;
 			
-			Cartesian2Logpolar(m_attn[i].centroid_x, m_attn[i].centroid_y, r, c);
-			Cartesian2Logpolar(m_attn[i].xmin, m_attn[i].ymin, r, c);
-			Cartesian2Logpolar(m_attn[i].xmin, m_attn[i].ymin, r, c);
-			Cartesian2Logpolar(m_attn[i].xmin, m_attn[i].ymin, r, c);
-			Cartesian2Logpolar(m_attn[i].xmin, m_attn[i].ymin, r, c);*/
+			Cartesian2Logpolar(m_boxes[i].centroid_x, m_boxes[i].centroid_y, r, c);
+			Cartesian2Logpolar(m_boxes[i].xmin, m_boxes[i].ymin, r, c);
+			Cartesian2Logpolar(m_boxes[i].xmin, m_boxes[i].ymin, r, c);
+			Cartesian2Logpolar(m_boxes[i].xmin, m_boxes[i].ymin, r, c);
+			Cartesian2Logpolar(m_boxes[i].xmin, m_boxes[i].ymin, r, c);*/
 
-			int rdim=(m_attn[i].rmax-m_attn[i].rmin+1);
-			int cdim=(m_attn[i].cmax-m_attn[i].cmin+1); //BUG: se va da parte a parte esce una dimensione enorme!
+			int rdim=(m_boxes[i].rmax-m_boxes[i].rmin+1);
+			int cdim=(m_boxes[i].cmax-m_boxes[i].cmin+1); //BUG: se va da parte a parte esce una dimensione enorme!
 
-			//zdi.xOffset=m_attn[i].cmin;
-			//zdi.yOffset=m_attn[i].rmin;
+			//zdi.xOffset=m_boxes[i].cmin;
+			//zdi.yOffset=m_boxes[i].rmin;
 
-			tmp=255*252*152*integralRG.getSaliencyLp(m_attn[i].cmax+cdim,
-				m_attn[i].cmin-cdim,
-				m_attn[i].rmax+rdim,
-				m_attn[i].rmin-rdim)/(rdim*cdim);
-			m_attn[i].cRG=abs(tmp-m_attn[i].meanRG);
+			tmp=255*height*width*integralRG.getSaliencyLp(m_boxes[i].cmax+cdim,
+				m_boxes[i].cmin-cdim,
+				m_boxes[i].rmax+rdim,
+				m_boxes[i].rmin-rdim)/(rdim*cdim);
+			m_boxes[i].cRG=abs(tmp-m_boxes[i].meanRG);
 
-			tmp=255*252*152*integralGR.getSaliencyLp(m_attn[i].cmax+cdim,
-				m_attn[i].cmin-cdim,
-				m_attn[i].rmax+rdim,
-				m_attn[i].rmin-rdim)/(rdim*cdim);
-			m_attn[i].cGR=abs(tmp-m_attn[i].meanGR);
+			tmp=255*height*width*integralGR.getSaliencyLp(m_boxes[i].cmax+cdim,
+				m_boxes[i].cmin-cdim,
+				m_boxes[i].rmax+rdim,
+				m_boxes[i].rmin-rdim)/(rdim*cdim);
+			m_boxes[i].cGR=abs(tmp-m_boxes[i].meanGR);
 			
-			tmp=255*252*152*integralBY.getSaliencyLp(m_attn[i].cmax+cdim,
-				m_attn[i].cmin-cdim,
-				m_attn[i].rmax+rdim,
-				m_attn[i].rmin-rdim)/(rdim*cdim);
-			m_attn[i].cBY=abs(tmp-m_attn[i].meanBY);
+			tmp=255*height*width*integralBY.getSaliencyLp(m_boxes[i].cmax+cdim,
+				m_boxes[i].cmin-cdim,
+				m_boxes[i].rmax+rdim,
+				m_boxes[i].rmin-rdim)/(rdim*cdim);
+			m_boxes[i].cBY=abs(tmp-m_boxes[i].meanBY);
 
-			salienceBU=sqrt(m_attn[i].cRG*m_attn[i].cRG+
-			                m_attn[i].cGR*m_attn[i].cGR+
-			                m_attn[i].cBY*m_attn[i].cBY);
-			salienceBU=salienceBU/sqrt(3);
+			/*salienceBU=sqrt(m_boxes[i].cRG*m_boxes[i].cRG+
+			                m_boxes[i].cGR*m_boxes[i].cGR+
+			                m_boxes[i].cBY*m_boxes[i].cBY);
+			salienceBU=salienceBU/sqrt(3);*/
 
-			/*salienceBU=m_attn[i].cRG;
+			salienceBU=m_boxes[i].cRG;
 
-			if (salienceBU<m_attn[i].cGR)
-				salienceBU=m_attn[i].cGR;
+			if (salienceBU<m_boxes[i].cGR)
+				salienceBU=m_boxes[i].cGR;
 
-			if (salienceBU<m_attn[i].cBY)
-				salienceBU=m_attn[i].cBY;*/
+			if (salienceBU<m_boxes[i].cBY)
+				salienceBU=m_boxes[i].cBY;
 
-			//salienceBU=m_attn[i].cRG+m_attn[i].cGR+m_attn[i].cBY;
+			//salienceBU=m_boxes[i].cRG+m_boxes[i].cGR+m_boxes[i].cBY;
 
 
-			salienceTD=sqrt((m_attn[i].meanRG-prg)*(m_attn[i].meanRG-prg)+
-			                (m_attn[i].meanGR-pgr)*(m_attn[i].meanGR-pgr)+
-			                (m_attn[i].meanBY-pby)*(m_attn[i].meanBY-pby));
+			salienceTD=sqrt((m_boxes[i].meanRG-prg)*(m_boxes[i].meanRG-prg)+
+			                (m_boxes[i].meanGR-pgr)*(m_boxes[i].meanGR-pgr)+
+			                (m_boxes[i].meanBY-pby)*(m_boxes[i].meanBY-pby));
 			salienceTD=255-salienceTD/sqrt(3);
 			
-			/*salienceTD=abs(m_attn[i].meanRG-prg);
+			/*salienceTD=abs(m_boxes[i].meanRG-prg);
 							
-			if (salienceTD<abs(m_attn[i].meanGR-pgr))
-				salienceTD=abs(m_attn[i].meanGR-pgr);
+			if (salienceTD<abs(m_boxes[i].meanGR-pgr))
+				salienceTD=abs(m_boxes[i].meanGR-pgr);
 				
-			if (salienceTD<abs(m_attn[i].meanBY-pby))
-				salienceTD=abs(m_attn[i].meanBY-pby);
+			if (salienceTD<abs(m_boxes[i].meanBY-pby))
+				salienceTD=abs(m_boxes[i].meanBY-pby);
 
 			salienceTD=255-salienceTD;*/
 
@@ -1663,8 +1700,8 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 
 			//if (salienceTD<0) salienceTD=0;
 			
-			m_attn[i].salienceBU=salienceBU;
-			m_attn[i].salienceTD=salienceTD;
+			m_boxes[i].salienceBU=salienceBU;
+			m_boxes[i].salienceTD=salienceTD;
 
 			if (salienceBU<minSalienceBU)
 				minSalienceBU=salienceBU;
@@ -1699,19 +1736,17 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 	}
 
 	for (i = 0; i < numBlob; i++) {
-		if (m_attn[i].valid) {
-			m_attn[i].salienceTotal=pBU*(a1*m_attn[i].salienceBU/255+b1)+pTD*(a2*m_attn[i].salienceTD/255+b2);
-			for (int r=m_attn[i].rmin; r<=m_attn[i].rmax; r++)
-				for (int c=m_attn[i].cmin; c<=m_attn[i].cmax; c++)
-					if (tagged(c, r)==m_attn[i].id) {
-						//unsigned char sal=(a1*m_attn[i].salienceBU/255+b1+a2*m_attn[i].salienceTD/255+b2)/2;
+		if (m_boxes[i].valid) {
+			m_boxes[i].salienceTotal=pBU*(a1*m_boxes[i].salienceBU/255+b1)+pTD*(a2*m_boxes[i].salienceTD/255+b2);
+			//m_boxes[i].salienceTotal=pBU*m_boxes[i].salienceBU+pTD*m_boxes[i].salienceTD;
+			//m_boxes[i].salienceTotal=pBU*m_boxes[i].salienceBU+pTD*(a2*m_boxes[i].salienceTD/255+b2);
+			//m_boxes[i].salienceTotal=pBU*255+pTD*(a2*m_boxes[i].salienceTD/255+b2);
+			for (int r=m_boxes[i].rmin; r<=m_boxes[i].rmax; r++)
+				for (int c=m_boxes[i].cmin; c<=m_boxes[i].cmax; c++)
+					if (tagged(c, r)==m_boxes[i].id) {
 						//if (sal>th) dst(c ,r)=sal;
 						//else dst(c ,r)=0;
-						dst(c ,r)=m_attn[i].salienceTotal;
-						//dst(c ,r)=a1*m_attn[i].salienceBU/255+b1;
-						/*dst(c ,r)=a2*m_attn[i].salienceTD/255+b2;
-						if (dst(c ,r)<240) dst(c ,r)=1;
-						else dst(c ,r)=dst(c ,r)-240;*/
+						dst(c ,r)=m_boxes[i].salienceTotal;
 					}
 		}
 	}
@@ -1725,10 +1760,10 @@ int YARPWatershed::DrawGrayLP(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPi
 	if (numBlob>256) numBlob=256;
 	
 	for (int i = 0; i < numBlob; i++) {
-		if (m_attn[i].valid) { // Is this check necessary?
-			for (int r=m_attn[i].rmin; r<=m_attn[i].rmax; r++)
-				for (int c=m_attn[i].cmin; c<=m_attn[i].cmax; c++)
-					if (tagged(c, r)==m_attn[i].id)
+		if (m_boxes[i].valid) { // Is this check necessary?
+			for (int r=m_boxes[i].rmin; r<=m_boxes[i].rmax; r++)
+				for (int c=m_boxes[i].cmin; c<=m_boxes[i].cmax; c++)
+					if (tagged(c, r)==m_boxes[i].id)
 						id(c ,r)=255-i;
 		}
 	}
@@ -1879,9 +1914,9 @@ void YARPWatershed::fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, bool *blobL
 {
 	memset(blobList, false, sizeof(bool)*max_tag);
 	
-	/*const YarpPixelMono rg0=m_attn[1].meanRG;
-	const YarpPixelMono gr0=m_attn[1].meanGR;
-	const YarpPixelMono by0=m_attn[1].meanBY;*/
+	/*const YarpPixelMono rg0=m_boxes[1].meanRG;
+	const YarpPixelMono gr0=m_boxes[1].meanGR;
+	const YarpPixelMono by0=m_boxes[1].meanBY;*/
 	
 	for (int c=0; c<width; c++) {
 		YarpPixelInt seed=1;
@@ -1891,16 +1926,16 @@ void YARPWatershed::fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, bool *blobL
 
 		int r=1;
 		while(1) {
-			rg0=m_attn[seed].meanRG;
-			gr0=m_attn[seed].meanGR;
-			by0=m_attn[seed].meanBY;
+			rg0=m_boxes[seed].meanRG;
+			gr0=m_boxes[seed].meanGR;
+			by0=m_boxes[seed].meanBY;
 
 			while(r<height && tagged(c, r)==seed)
 				r++;
 			if (r==height) break;
 			seed=tagged(c, r);
-			//if (abs(m_attn[seed].meanRG-rg0)+abs(m_attn[seed].meanGR-gr0)+abs(m_attn[seed].meanBY-by0)<13 )
-			if ((m_attn[seed].meanRG-rg0)*(m_attn[seed].meanRG-rg0)+(m_attn[seed].meanGR-gr0)*(m_attn[seed].meanGR-gr0)+(m_attn[seed].meanBY-by0)*(m_attn[seed].meanBY-by0)<150 )
+			//if (abs(m_boxes[seed].meanRG-rg0)+abs(m_boxes[seed].meanGR-gr0)+abs(m_boxes[seed].meanBY-by0)<13 )
+			if ((m_boxes[seed].meanRG-rg0)*(m_boxes[seed].meanRG-rg0)+(m_boxes[seed].meanGR-gr0)*(m_boxes[seed].meanGR-gr0)+(m_boxes[seed].meanBY-by0)*(m_boxes[seed].meanBY-by0)<150 )
 				blobList[seed]=true;
 			else
 				break;
@@ -1913,13 +1948,13 @@ void YARPWatershed::fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, bool *blobL
 // If I use the function I shouldn't strecth the color opponency maps
 void YARPWatershed::fuseFoveaBlob2(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag)
 {
-	const YarpPixelMono rg0=m_attn[1].meanRG;
-	const YarpPixelMono gr0=m_attn[1].meanGR;
-	const YarpPixelMono by0=m_attn[1].meanBY;
+	const YarpPixelMono rg0=m_boxes[1].meanRG;
+	const YarpPixelMono gr0=m_boxes[1].meanGR;
+	const YarpPixelMono by0=m_boxes[1].meanBY;
 	
 	for (int i=0; i<max_tag; i++) {
 		if (blobList[i])
-			if ((m_attn[i].meanRG-rg0)*(m_attn[i].meanRG-rg0)+(m_attn[i].meanGR-gr0)*(m_attn[i].meanGR-gr0)+(m_attn[i].meanBY-by0)*(m_attn[i].meanBY-by0)>=110 )
+			if ((m_boxes[i].meanRG-rg0)*(m_boxes[i].meanRG-rg0)+(m_boxes[i].meanGR-gr0)*(m_boxes[i].meanGR-gr0)+(m_boxes[i].meanBY-by0)*(m_boxes[i].meanBY-by0)>=110 )
 				blobList[i]=false;
 	}
 }
@@ -1948,10 +1983,10 @@ void YARPWatershed::statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobLi
 
 	for (int tag=1; tag<max_tag; tag++)
 		if (blobList[tag]) {
-			area+=m_attn[tag].areaLP;
-			rgSum+=m_attn[tag].rgSum;
-			grSum+=m_attn[tag].grSum;
-			bySum+=m_attn[tag].bySum;
+			area+=m_boxes[tag].areaLP;
+			rgSum+=m_boxes[tag].rgSum;
+			grSum+=m_boxes[tag].grSum;
+			bySum+=m_boxes[tag].bySum;
 		}
 	
 	blob.areaLP=area;
@@ -1968,7 +2003,7 @@ void YARPWatershed::statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobLi
 
 void YARPWatershed::getBlob(YARPImageOf<YarpPixelInt>& tagged, int x, int y, YARPBox &blob)
 {
-	blob=m_attn[tagged(x, y)];
+	blob=m_boxes[tagged(x, y)];
 }
 
 
@@ -1979,9 +2014,9 @@ void YARPWatershed::maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_
 	memset(pos, 0, sizeof(int)*num);
 	
 	for (int l = 0; l < max_tag; l++) {
-		if (m_attn[l].valid) {
+		if (m_boxes[l].valid) {
 			for (int i=0; i<num; i++) {
-				if (m_attn[l].salienceTotal>m_attn[pos[i]].salienceTotal) {
+				if (m_boxes[l].salienceTotal>m_boxes[pos[i]].salienceTotal) {
 					for (int j=num-1; j>i; j--)
 						pos[j]=pos[j-1];
 					pos[i]=l;
@@ -1992,8 +2027,8 @@ void YARPWatershed::maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_
 	}
 
 	for (l=0; l<num; l++) {
-		boxes[l]=m_attn[pos[l]];
-		_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[l].v , (int)boxes[l].centroid_x, (int)boxes[l].centroid_y);
+		boxes[l]=m_boxes[pos[l]];
+		_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[l].elev, boxes[l].az , (int)boxes[l].centroid_x, (int)boxes[l].centroid_y);
 	}
 
 	delete [] pos;
@@ -2006,20 +2041,20 @@ void YARPWatershed::maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_t
 	int max=0;
 	
 	for (int l = 1; l < max_tag; l++) {
-		if (m_attn[l].valid)
-			if (m_attn[l].salienceTotal>m_attn[max].salienceTotal)
+		if (m_boxes[l].valid)
+			if (m_boxes[l].salienceTotal>m_boxes[max].salienceTotal)
 				max=l;
 	}
 
-	box=m_attn[max];
-	_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, box.v , (int)box.centroid_x, (int)box.centroid_y);
+	box=m_boxes[max];
+	_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, box.elev, box.az, (int)box.centroid_x, (int)box.centroid_y);
 }
 
 
 void YARPWatershed::foveaBlob(YARPImageOf<YarpPixelInt>& tagged, YARPBox &box)
 {
-	box=m_attn[1];
-	_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, box.v , (int)box.centroid_x, (int)box.centroid_y);
+	box=m_boxes[1];
+	_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, box.elev, box.az , (int)box.centroid_x, (int)box.centroid_y);
 }
 
 
