@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPJoyPresDeviceDriver.cpp,v 1.1 2004-09-13 23:22:49 babybot Exp $
+/// $Id: YARPJoyPresDeviceDriver.cpp,v 1.2 2004-10-05 14:29:55 babybot Exp $
 ///
 ///
 
@@ -70,38 +70,17 @@
 #include <ace/OS.h>
 #include <ace/Sched_Params.h>
 
+// Hardware Specific includes
 #include "YARPJoyPresDeviceDriver.h"
 #include <yarp/YARPPresSensUtils.h>
-
 #include "../dd_orig/include/Joystick.h"
 
 class JoyPresResources
 {
 public:
-	JoyPresResources (void) : _bmutex(1)
-	{
-		_data.x = 0;
-		_data.y = 0;
-		_data.z = 0;
-		_data.u = 0;
-		_data.buttons = 0;
-		_bStreamStarted = false;
-		_bError = false;
-	}
-
-	~JoyPresResources () { }
-
 	CJoystick _sensor;
-
 	JoyData _data;
-
-	bool _bStreamStarted;
-	bool _bError;
-
 	int _sensN;
-	
-	YARPSemaphore _bmutex;
-
 };
 
 inline JoyPresResources& RES(void *res) { return *(JoyPresResources *)res; }
@@ -111,27 +90,30 @@ inline JoyPresResources& RES(void *res) { return *(JoyPresResources *)res; }
 YARPJoyPresDeviceDriver::YARPJoyPresDeviceDriver(void) : YARPDeviceDriver<YARPNullSemaphore, YARPJoyPresDeviceDriver>(PSCMDNCmds)
 {
 	system_resources = (void *) new JoyPresResources;
-	ACE_ASSERT (system_resources != NULL);
+	ACE_ASSERT(system_resources != NULL);
 
 	/// for the IOCtl call.
 	m_cmds[PSCMDGetData] = &YARPJoyPresDeviceDriver::getData;
-	m_cmds[PSCMDStartStreaming] = &YARPJoyPresDeviceDriver::startStreaming;
-	m_cmds[PSCMDStopStreaming] = &YARPJoyPresDeviceDriver::stopStreaming;
 }
 
 YARPJoyPresDeviceDriver::~YARPJoyPresDeviceDriver()
 {
-	if (system_resources != NULL)
-		delete (JoyPresResources *)system_resources;
-	system_resources = NULL;
+
 }
 
 ///
 ///
 int YARPJoyPresDeviceDriver::open (void *res)
 {
-	int *param = (int*) res;
 	JoyPresResources& d = RES(system_resources);
+	int * pN = (int *) res;
+	d._data.x = 0;
+	d._data.y = 0;
+	d._data.z = 0;
+	d._data.u = 0;
+	d._data.buttons = 0;
+
+	d._sensN = *pN;
 
 	return YARP_OK;
 }
@@ -141,70 +123,20 @@ int YARPJoyPresDeviceDriver::close (void)
 	return YARP_OK;
 }
 
-///
-///
-/// acquisition thread for real!
-void YARPJoyPresDeviceDriver::Body (void)
-{
-	JoyPresResources& d = RES(system_resources);
-	JoyData* pData = &(d._data);
-	while (!IsTerminated())	
-	{
-		d._bmutex.Wait();
-		d._bError = d._sensor.getRawData(pData);
-		d._bmutex.Post();
-	}
-
-	ACE_DEBUG ((LM_DEBUG, "acquisition thread returning...\n"));
-}
-
-int YARPJoyPresDeviceDriver::startStreaming (void *)
-{
-	JoyPresResources& d = RES(system_resources);
-
-	d._bStreamStarted = true;
-	
-	Begin ();
-
-	return YARP_OK;
-}
-
-int YARPJoyPresDeviceDriver::stopStreaming (void *)
-{
-	JoyPresResources& d = RES(system_resources);
-
-	d._bStreamStarted = true;
-	
-	End ();
-
-	return YARP_OK;
-}
-
 int YARPJoyPresDeviceDriver::getData (void *cmd)
 {
 	JoyPresResources& d = RES(system_resources);
 	struct PresSensData * data = (struct PresSensData *)cmd;
-	if (d._bStreamStarted)
-	{
-		d._bmutex.Wait();
-		data->channelA = d._data.x;
-		data->channelB = d._data.y;
-		data->channelC = d._data.z;
-		data->channelD = d._data.u;
-		d._bmutex.Post();
-	}
-	else
-	{
-		JoyData* pData = &(d._data);
-		d._bError = d._sensor.getRawData(pData);
-		data->channelA = d._data.x;
-		data->channelB = d._data.y;
-		data->channelC = d._data.z;
-		data->channelD = d._data.u;
-	}
+	bool bRes;
 
-	if (d._bError)
-		return YARP_FAIL;
-	else
+	bRes = d._sensor.getRawData(&d._data);
+	data->channelA = d._data.x;
+	data->channelB = d._data.y;
+	data->channelC = d._data.z;
+	data->channelD = d._data.u;
+
+	if (bRes)
 		return YARP_OK;
+	else
+		return YARP_FAIL;
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPJoyPresDeviceDriver.h,v 1.1 2004-09-13 23:22:49 babybot Exp $
+/// $Id: YARPJoyPresDeviceDriver.h,v 1.2 2004-10-05 14:29:55 babybot Exp $
 ///
 ///
 
@@ -69,11 +69,12 @@
 #define __YARPJoyPresDeviceDriverh__
 
 #include <yarp/YARPConfig.h>
-#include <yarp/YARPThread.h>
 #include <yarp/YARPSemaphore.h>
 #include <yarp/YARPDeviceDriver.h>
 
-class YARPJoyPresDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPJoyPresDeviceDriver>, public YARPThread
+//#include "../dd_orig/include/Joystick.h"
+
+class YARPJoyPresDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPJoyPresDeviceDriver>
 {
 private:
 	YARPJoyPresDeviceDriver(const YARPJoyPresDeviceDriver&);
@@ -88,13 +89,9 @@ public:
 	virtual int close(void);
 
 	virtual int getData(void *cmd);
-	virtual int startStreaming(void *);
-	virtual int stopStreaming(void *);
 
 protected:
 	void *system_resources;
-
-	virtual void Body(void);
 };
 
 
