@@ -1,5 +1,7 @@
 
 if you are on linux, try typing
   make
-  make install
+  make install  (as superuser)
 
+if you wish to install libraries and header files, try typing
+  make devinstall  (as superuser)
