@@ -18,6 +18,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "BuildTablesSmall"=.\BuildTablesSmall\BuildTablesSmall.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "Cart2LP"=.\Cart2LP\Cart2LP.dsp - Package Owner=<4>
 
 Package=<5>

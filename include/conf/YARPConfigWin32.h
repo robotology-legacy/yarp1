@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.22 2003-06-09 21:36:35 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.23 2003-06-13 12:45:38 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -60,5 +60,61 @@
 /// ACE inclusion
 ///
 #include <ace/config.h>
+
+
+#if 0
+#include <ace/OS.h>
+
+///
+/// need for testing.
+/// 
+inline void *
+operator new (size_t size)
+{
+	void *ret = calloc(1, size);
+	ACE_OS::fprintf (stdout, "NEW_DEBUG: allocating %d bytes, ptr 0x%x\n", size, ret);
+	ACE_OS::fflush (stdout);
+	return ret;
+}
+
+inline void *
+operator new[] (size_t size)
+{
+	void *ret = calloc(1, size);
+	ACE_OS::fprintf (stdout, "NEW_DEBUG: allocating %d bytes, ptr 0x%x\n", size, ret);
+	ACE_OS::fflush (stdout);
+	return ret;
+}
+
+inline void operator delete (void * ptr)
+{
+	if (ptr != NULL)
+	{
+		ACE_OS::fprintf (stdout, "NEW_DEBUG: deleting ptr 0x%x\n", ptr);
+		ACE_OS::fflush (stdout);
+		free (ptr);
+	}
+	else
+	{
+		ACE_OS::fprintf (stdout, "NEW_DEBUG: trying to delete a new pointer\n");
+		ACE_OS::fflush (stdout);
+	}
+}
+
+inline void operator delete[] (void * ptr)
+{
+	if (ptr != NULL)
+	{
+		ACE_OS::fprintf (stdout, "NEW_DEBUG: deleting ptr 0x%x\n", ptr);
+		ACE_OS::fflush (stdout);
+		free (ptr);
+	}
+	else
+	{
+		ACE_OS::fprintf (stdout, "NEW_DEBUG: trying to delete a new pointer\n");
+		ACE_OS::fflush (stdout);
+	}
+}
+#endif
 
 #endif

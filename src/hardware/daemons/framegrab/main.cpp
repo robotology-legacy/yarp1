@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.11 2003-06-11 16:40:01 gmetta Exp $
+/// $Id: main.cpp,v 1.12 2003-06-13 12:45:39 gmetta Exp $
 ///
 ///
 
@@ -79,6 +79,7 @@
 #include <YARPBabybotGrabber.h>
 
 #include <YARPImages.h>
+#include <YARPLogpolar.h>
 
 ///
 /// global params.
@@ -86,6 +87,7 @@ int _size = 128;
 char _name[512];
 bool _client = false;
 bool _simu = false;
+bool _logp = false;
 int _board_no = 0;
 
 /// LATER: used to parse command line options.
@@ -132,6 +134,11 @@ int ParseParams (int argc, char *argv[])
 				ACE_OS::fprintf (stdout, "simulating a grabber...\n");
 				_simu = true;
 				_client = false;
+				break;
+
+			case 'l':
+				ACE_OS::fprintf (stdout, "logpolar mode\n");
+				_logp = true;
 				break;
 			}
 		}
@@ -244,6 +251,7 @@ int _runAsSimulation (void)
 	double cur = start;
 
 	while (!finished)
+	///for (int i = 0; i < 10; i++)
 	{
 		YARPTime::DelayInSeconds (0.04);
 	
@@ -267,25 +275,82 @@ int _runAsSimulation (void)
 }
 
 
-///
-///
-///
-int main (int argc, char *argv[])
+int _runAsLogpolar (void)
 {
-	YARPScheduler::setHighResScheduling ();
+	using namespace _logpolarParams;
 
-	ParseParams (argc, argv);
+	YARPBabybotGrabber grabber;
+	YARPImageOf<YarpPixelBGR> img;
+	YARPImageOf<YarpPixelBGR> fovea;
+	YARPImageOf<YarpPixelBGR> periphery;
+	YARPLogpolarSampler sampler;
 
-	if (_client)
+	ACE_ASSERT (_xsize == _ysize);
+
+	img.Resize (_xsize, _ysize);
+	fovea.Resize (128, 128);
+	periphery.Resize (_srho - _sfovea, _stheta);
+
+	YARPOutputPortOf<YARPGenericImage> outport;
+	bool finished = false;
+
+	outport.Register (_name);
+
+	/// params to be passed from the command line.
+	grabber.initialize (_board_no, _xsize);
+
+	int w = -1, h = -1;
+	grabber.getWidth (&w);
+	grabber.getHeight (&h);
+
+	unsigned char *buffer = NULL;
+	int frame_no = 0;
+
+	ACE_OS::fprintf (stderr, "starting up grabber...\n");
+	ACE_OS::fprintf (stderr, "acq size: w=%d h=%d\n", w, h);
+
+	if (w != _xsize || h != 2 * _xsize) ///2 * _size)
 	{
-		return _runAsClient ();
-	}
-	else
-	if (_simu)
-	{
-		return _runAsSimulation ();
+		ACE_OS::fprintf (stderr, "pls, specify a different size, application will now exit\n");
+		finished = true;
 	}
 
+	double start = YARPTime::GetTimeAsSeconds ();
+	double cur = start;
+
+	while (!finished)
+	{
+		grabber.waitOnNewFrame ();
+		grabber.acquireBuffer (&buffer);
+	
+		/// fills the actual image buffer.
+		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _xsize);
+
+		sampler.Cartesian2Logpolar (img, fovea, periphery);
+
+		/// sends the buffer.
+		outport.Content().Refer (fovea);
+		outport.Write();
+
+		frame_no++;
+		if ((frame_no % 250) == 0)
+		{
+			cur = YARPTime::GetTimeAsSeconds ();
+			ACE_OS::fprintf (stderr, "average frame time: %lf\n", (cur-start)/250);
+			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
+			start = cur;
+		}
+
+		grabber.releaseBuffer ();
+	}
+
+	grabber.uninitialize ();
+
+	return YARP_OK;
+}
+
+int _runAsCartesian (void)
+{
 	YARPBabybotGrabber grabber;
 	YARPImageOf<YarpPixelBGR> img;
 	img.Resize (_size, _size);
@@ -342,6 +407,37 @@ int main (int argc, char *argv[])
 	}
 
 	grabber.uninitialize ();
+
+	return YARP_OK;
+}
+
+///
+///
+///
+int main (int argc, char *argv[])
+{
+	YARPScheduler::setHighResScheduling ();
+
+	ParseParams (argc, argv);
+
+	if (_client)
+	{
+		return _runAsClient ();
+	}
+	else
+	if (_simu)
+	{
+		return _runAsSimulation ();
+	}
+	else
+	if (_logp)
+	{
+		return _runAsLogpolar ();
+	}
+	else
+	{
+		return _runAsCartesian ();
+	}
 
 	return YARP_OK;
 }

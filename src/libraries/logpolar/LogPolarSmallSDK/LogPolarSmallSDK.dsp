@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\Release\LogPolarSmallSDK.lib ..\..\..\..\lib\winnt	copy ..\LogPolarSDKLib\LogPolarSDK.h ..\..\..\..\include
+PostBuild_Cmds=copy .\Release\LogPolarSmallSDK.lib ..\..\..\..\lib\winnt	copy ..\LogPolarSDKLib\LogPolarSDK.h ..\..\..\..\include	copy ..\Tables\ReferenceImage.bmp ..\..\..\..\conf\babybot
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "LogPolarSmallSDK - Win32 Debug"
@@ -69,8 +69,8 @@ PostBuild_Cmds=copy .\Release\LogPolarSmallSDK.lib ..\..\..\..\lib\winnt	copy ..
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ  /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ  /c
+# ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -83,7 +83,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\Debug\LogPolarSmallSDKDB.lib ..\..\..\..\lib\winnt	copy ..\LogPolarSDKLib\LogPolarSDK.h ..\..\..\..\include
+PostBuild_Cmds=copy .\Debug\LogPolarSmallSDKDB.lib ..\..\..\..\lib\winnt	copy ..\LogPolarSDKLib\LogPolarSDK.h ..\..\..\..\include	copy ..\Tables\ReferenceImage.bmp ..\..\..\..\conf\babybot
 # End Special Build Tool
 
 !ENDIF 
@@ -95,6 +95,10 @@ PostBuild_Cmds=copy .\Debug\LogPolarSmallSDKDB.lib ..\..\..\..\lib\winnt	copy ..
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=..\LogPolarSDKLib\Acquisition.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=..\LogPolarSDKLib\AuxFunctions.cpp

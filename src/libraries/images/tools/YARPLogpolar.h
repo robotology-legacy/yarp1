@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.3 2003-06-11 22:39:20 gmetta Exp $
+/// $Id: YARPLogpolar.h,v 1.4 2003-06-13 12:45:39 gmetta Exp $
 ///
 ///
 
@@ -91,7 +91,6 @@ namespace _logpolarParams
 	const int _srho = 152;
 	const int _stheta = 252;
 	const int _sfovea = 42;
-
 };
 
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.2 2003-06-11 16:40:01 gmetta Exp $
+/// $Id: YARPLogpolar.cpp,v 1.3 2003-06-13 12:45:39 gmetta Exp $
 ///
 ///
 
@@ -81,6 +81,8 @@ YARPLogpolarSampler::YARPLogpolarSampler (void)
 		CUSTOM,
 		256.0/1090.0);
 
+	_fovea.padding = 8;
+
 	char *path = GetYarpRoot ();
 
 	/// loads cart to logpolar lookup table.
@@ -88,7 +90,7 @@ YARPLogpolarSampler::YARPLogpolarSampler (void)
 
 	/// logpolar to cartesian lookup table for the fovea.
 	char filename[256];
-	ACE_OS::sprintf(filename, "%s\\%s_%2.3f_%dx%d%s", path, "RemapMap", _fovea.Zoom_Level, _fovea.Size_X_Remap, _fovea.Size_Y_Remap, ".gio");
+	ACE_OS::sprintf(filename, "%s\\conf\\babybot\\%s_%2.3f_%dx%d%s", path, "RemapMap", _fovea.Zoom_Level, _fovea.Size_X_Remap, _fovea.Size_Y_Remap, ".gio");
 
 	FILE *fin;
 	fin = ACE_OS::fopen(filename,"rb");
@@ -143,13 +145,15 @@ YARPLogpolar::YARPLogpolar (void)
 		CUSTOM,
 		256.0/1090.0);
 
+	_periphery.padding = 8;
+
 	char *path = GetYarpRoot ();
 
 	/// logpolar to cartesian lookup table for the fovea.
 	char filename[256];
 
 	/// logpolar to cartesian lut for the periphery.
-	ACE_OS::sprintf(filename,"%s\\%s_%2.3f%s", path, "RemapMapNoFov", _periphery.Zoom_Level, ".gio");
+	ACE_OS::sprintf(filename,"%s\\conf\\babybot\\%s_%2.3f%s", path, "RemapMapNoFov", _periphery.Zoom_Level, ".gio");
 	FILE *fin = ACE_OS::fopen(filename,"rb");
 	ACE_ASSERT (fin != NULL);
 

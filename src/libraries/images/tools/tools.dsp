@@ -40,6 +40,8 @@ RSC=rc.exe
 # PROP Output_Dir "..\obj\Release"
 # PROP Intermediate_Dir "..\obj\Release"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
@@ -54,7 +56,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\tools.lib ..\..\ipl\lib\ipl.lib /out:..\obj\Release\images.lib	copy ..\obj\Release\images.lib ..\..\..\..\lib\winnt
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\tools.lib ..\..\ipl\lib\ipl.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\images.lib	copy ..\obj\Release\images.lib ..\..\..\..\lib\winnt
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "tools - Win32 Debug"
@@ -69,6 +71,8 @@ PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\tools.lib ..\..
 # PROP Output_Dir "..\obj\Debug"
 # PROP Intermediate_Dir "..\obj\Debug"
 # PROP Target_Dir ""
+LINK32=link.exe -lib
+MTL=midl.exe
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -83,7 +87,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing library...
-PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Debug\toolsDB.lib ..\..\ipl\lib\ipl.lib /out:..\obj\Debug\imagesDB.lib	copy ..\obj\Debug\imagesDB.lib ..\..\..\..\lib\winnt
+PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Debug\toolsDB.lib ..\..\ipl\lib\ipl.lib ..\..\..\..\lib\winnt\LogPolarSmallSDKDB.lib /out:..\obj\Debug\imagesDB.lib	copy ..\obj\Debug\imagesDB.lib ..\..\..\..\lib\winnt
 # End Special Build Tool
 
 !ENDIF 
