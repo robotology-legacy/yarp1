@@ -958,7 +958,7 @@ void CCanControlDlg::OnFileLoadconfiguration()
 
 	char *root = GetYarpRoot();
 	char path[256];
-	ACE_OS::sprintf (path, "%s/%s/", root, ConfigFilePath); 
+	ACE_OS::sprintf (path, "%s/%s", root, ConfigFilePath); 
 
 	file.set(path, CANBUS_INIFILE);
 

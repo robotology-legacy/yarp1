@@ -36,12 +36,14 @@
 ///
 
 ///
-/// $Id: headtest.cpp,v 1.3 2004-07-06 19:42:48 babybot Exp $
+/// $Id: headtest.cpp,v 1.4 2004-08-03 14:42:53 babybot Exp $
 ///
 ///
 
-#include <conf/YARPConfig.h>
-#include <YARPRateThread.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPRateThread.h>
+#include <yarp/YARPConfigRobot.h>
+#include <yarp/YARPRobotHardware.h>
 
 #include <ace/config.h>
 #include <ace/OS.h>
@@ -49,10 +51,10 @@
 #include <iostream>
 #include <math.h>
 
-#include <YARPParseParameters.h>
-#include <YARPRobotcubHead.h>
-#include <YARPMath.h>
-#include <YARPRobotMath.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPRobotcubHead.h>
+#include <yarp/YARPMath.h>
+#include <yarp/YARPRobotMath.h>
 
 
 ///
