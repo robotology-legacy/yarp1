@@ -12,11 +12,11 @@
 
 #if defined(__QNXEurobot__)
 
-	#include <YARPEurobotHead.h>
+	#include <yarp/YARPEurobotHead.h>
 
 #else
 
-	#include <YARPBabybotHead.h>
+	#include <yarp/YARPBabybotHead.h>
 
 #endif
 #include <yarp/YARPPort.h>

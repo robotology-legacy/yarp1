@@ -1,14 +1,23 @@
+
+
 #ifndef __HEADFSMCLASS__
 #define __HEADFSMCLASS__
 
-#include <YARPFSM.h>
-#include <YARPRobotMath.h>
+#include <yarp/YARPFSM.h>
+#include <yarp/YARPRobotMath.h>
+
+
 
 #if defined(__QNXEurobot__)
-	#include <YARPEurobotHead.h>
+
+	#include <yarp/YARPEurobotHead.h>
+
 #else
-	#include <YARPBabybotHead.h>
+
+	#include <yarp/YARPBabybotHead.h>
+
 #endif
+
 
 
 

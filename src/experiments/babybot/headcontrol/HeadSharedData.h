@@ -3,17 +3,17 @@
 
 
 #if defined(__QNXEurobot__)
-	#include <YARPEurobotHead.h>
+	#include <yarp/YARPEurobotHead.h>
 	typedef YARPEurobotHead MY_HEAD;
 #else
-	#include <YARPBabybotHead.h>
+	#include <yarp/YARPBabybotHead.h>
 	typedef YARPBabybotHead MY_HEAD;
 #endif
 
 
-#include <YARPBehavior.h>
-#include <YARPControlBoardNetworkData.h>
-#include <YARPString.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPControlBoardNetworkData.h>
+#include <yarp/YARPString.h>
 
 
 class HeadSharedData: public MY_HEAD, public YARPBehaviorSharedData

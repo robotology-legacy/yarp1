@@ -3,7 +3,7 @@
 
 #include <yarp/YARPBehavior.h>
 #include <yarp/YARPBottle.h>
-#include <yarp/YARPVocab.h>
+#include <yarp/YARPConfigRobot.h>
 #include "HeadThread.h"
 
 class HeadBehavior: public YARPBehavior<HeadBehavior, HeadThread>

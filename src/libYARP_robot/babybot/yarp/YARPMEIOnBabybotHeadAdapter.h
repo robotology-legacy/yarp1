@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.2 2004-07-30 10:33:24 babybot Exp $
 ///
 ///
 
@@ -74,7 +74,7 @@
 #include <yarp/YARPMeiDeviceDriver.h>
 #include <yarp/YARPConfigFile.h>
 
-#include "YARPBabybotInertialSensor.h"
+#include <yarp/YARPBabybotInertialSensor.h>
 
 #define YARP_BABYBOT_HEAD_ADAPTER_VERBOSE
 

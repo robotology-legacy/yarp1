@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPNIDAQOnBabybotHandAdapter.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+///  $Id: YARPNIDAQOnBabybotHandAdapter.h,v 1.2 2004-07-30 10:33:24 babybot Exp $
 ///
 ///
 
@@ -77,7 +77,7 @@
 
 #include <yarp/YARPConfigFile.h>
 
-#include "YARPBabybotHandParameters.h"
+#include <yarp/YARPBabybotHandParameters.h>
 
 #define YARP_NIDAQ_ON_BABYBOT_HAND_ADAPTER_VERBOSE
 

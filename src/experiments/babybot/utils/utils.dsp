@@ -53,6 +53,10 @@ LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /out:".\lib\winnt\utils.lib"
 # SUBTRACT LIB32 /nologo
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy  .\include\yarp\*.h  y:\include\yarp\ 	copy  .\lib\winnt\*.lib  y:\lib\winnt\ 
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "utils - Win32 Debug"
 
@@ -79,6 +83,10 @@ BSC32=bscmake.exe
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo /out:".\lib\winnt\utilsd.lib"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Cmds=copy  .\include\yarp\*.h  y:\include\yarp\ 	copy  .\lib\winnt\*.lib  y:\lib\winnt\ 
+# End Special Build Tool
 
 !ENDIF 
 
