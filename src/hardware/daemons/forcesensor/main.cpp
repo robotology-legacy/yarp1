@@ -9,6 +9,7 @@
 #include <YARPSemaphore.h>
 #include <YARPScheduler.h>
 #include <YARPTime.h>
+#include <YARPPort.h>
 
 #include <YARPForceSensor.h>
 
@@ -22,20 +23,20 @@ int ParseParams (int argc, char *argv[])
 class Thread : public YARPRateThread
 {
 public:
-	Thread():YARPRateThread("force", 100)
+	Thread():YARPRateThread("force", 100),
+	_outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	{
-		_forces = new double[3];
-		_torques = new double [3];
 	}
 	~Thread()
 	{
-		delete [] _forces;
-		delete [] _torques;
 	}
 
 	void doInit()
 	{
 		fs.initialize();
+
+		_outPort.Register("/force");
+
 	}
 
 	void doLoop()
@@ -44,6 +45,10 @@ public:
 		fs.read(_forces, _torques);
 		for(int i = 0; i < 3; i++)
 			cout << _forces[i] << '\t';
+
+		memcpy(_outPort.Content(), _forces, sizeof(double)*3);
+		
+		_outPort.Write();
 
 		cout << '\n';
 	}
@@ -55,8 +60,9 @@ public:
 
 	
 	YARPBabybotForceSensor fs;
-	double *_forces;
-	double *_torques;
+	YARPOutputPortOf<double [3]> _outPort;
+	double _forces[3];
+	double _torques[3];
 };
 
 
