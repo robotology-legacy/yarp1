@@ -173,6 +173,10 @@ SOURCE=.\YARPBlobDetector.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPColorConverter.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPDIBConverter.cpp
 # End Source File
 # Begin Source File
@@ -194,6 +198,10 @@ SOURCE=.\YARPLogpolar.cpp
 # Begin Source File
 
 SOURCE=.\YARPBlobDetector.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPColorConverter.h
 # End Source File
 # Begin Source File
 

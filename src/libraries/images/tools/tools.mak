@@ -44,6 +44,7 @@ ALL : "$(OUTDIR)\tools.lib"
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\YARPBlobDetector.obj"
+	-@erase "$(INTDIR)\YARPColorConverter.obj"
 	-@erase "$(INTDIR)\YARPDIBConverter.obj"
 	-@erase "$(INTDIR)\YARPImageFile.obj"
 	-@erase "$(INTDIR)\YARPIntegralImage.obj"
@@ -67,7 +68,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPLogpolar.obj"
+	"$(INTDIR)\YARPLogpolar.obj" \
+	"$(INTDIR)\YARPColorConverter.obj"
 
 "$(OUTDIR)\tools.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -105,6 +107,7 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
 	-@erase "$(INTDIR)\YARPBlobDetector.obj"
+	-@erase "$(INTDIR)\YARPColorConverter.obj"
 	-@erase "$(INTDIR)\YARPDIBConverter.obj"
 	-@erase "$(INTDIR)\YARPImageFile.obj"
 	-@erase "$(INTDIR)\YARPIntegralImage.obj"
@@ -128,7 +131,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPLogpolar.obj"
+	"$(INTDIR)\YARPLogpolar.obj" \
+	"$(INTDIR)\YARPColorConverter.obj"
 
 "$(OUTDIR)\toolsDB.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -166,6 +170,7 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
 	-@erase "$(INTDIR)\YARPBlobDetector.obj"
+	-@erase "$(INTDIR)\YARPColorConverter.obj"
 	-@erase "$(INTDIR)\YARPDIBConverter.obj"
 	-@erase "$(INTDIR)\YARPImageFile.obj"
 	-@erase "$(INTDIR)\YARPIntegralImage.obj"
@@ -189,7 +194,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPLogpolar.obj"
+	"$(INTDIR)\YARPLogpolar.obj" \
+	"$(INTDIR)\YARPColorConverter.obj"
 
 "$(OUTDIR)\toolsDBf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -226,6 +232,7 @@ ALL : "$(OUTDIR)\toolsf.lib"
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\YARPBlobDetector.obj"
+	-@erase "$(INTDIR)\YARPColorConverter.obj"
 	-@erase "$(INTDIR)\YARPDIBConverter.obj"
 	-@erase "$(INTDIR)\YARPImageFile.obj"
 	-@erase "$(INTDIR)\YARPIntegralImage.obj"
@@ -249,7 +256,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPLogpolar.obj"
+	"$(INTDIR)\YARPLogpolar.obj" \
+	"$(INTDIR)\YARPColorConverter.obj"
 
 "$(OUTDIR)\toolsf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -318,6 +326,11 @@ $(DS_POSTBUILD_DEP) : "$(OUTDIR)\toolsf.lib"
 SOURCE=.\YARPBlobDetector.cpp
 
 "$(INTDIR)\YARPBlobDetector.obj" : $(SOURCE) "$(INTDIR)"
+
+
+SOURCE=.\YARPColorConverter.cpp
+
+"$(INTDIR)\YARPColorConverter.obj" : $(SOURCE) "$(INTDIR)"
 
 
 SOURCE=.\YARPDIBConverter.cpp
