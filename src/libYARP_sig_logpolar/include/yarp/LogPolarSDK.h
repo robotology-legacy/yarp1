@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.2 2004-07-27 09:45:03 babybot Exp $
+/// $Id: LogPolarSDK.h,v 1.3 2004-07-29 22:11:46 babybot Exp $
 ///
 ///
 
@@ -98,8 +98,8 @@
 #define REMAP		 32
 #define WEIGHTS		 64
 #define DS2			256
-#define SHIFT	   1024
-#define SHIFTF	   2048
+///#define SHIFT	   1024
+///#define SHIFTF	   2048
 
 struct Image_Data
 {

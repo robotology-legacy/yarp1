@@ -127,10 +127,6 @@ SOURCE=..\include\yarp\YARPGenericSoundGrabber.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\include\yarp\YARPNullDeviceDriver.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\include\yarp\YARPSoundCardUtils.h
 # End Source File
 # End Group
@@ -228,6 +224,22 @@ SOURCE=..\sound\winnt\yarp\YARPSoundDeviceDriver.cpp
 # Begin Source File
 
 SOURCE=..\sound\winnt\yarp\YARPSoundDeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "null"
+
+# PROP Default_Filter "h;cpp"
+# Begin Source File
+
+SOURCE=..\null\winnt\yarp\YARPNullDeviceDriver.h
+# End Source File
+# End Group
+# Begin Group "null_grabber"
+
+# PROP Default_Filter "h;cpp"
+# Begin Source File
+
+SOURCE=..\null_grabber\winnt\yarp\YARPNullGrabberDeviceDriver.h
 # End Source File
 # End Group
 # End Target

@@ -25,26 +25,65 @@
 /// CONNECTION WITH THE SOFTWARE.                                     ///
 ///                                                                   ///
 /////////////////////////////////////////////////////////////////////////
-///
-///
-///       YARP - Yet Another Robotic Platform (c) 2001-2003 
-///
-///                    #Add our name(s) here#
-///
-///     "Licensed under the Academic Free License Version 1.0"
-///
 
 ///
-/// $Id: YARPBabybotGrabber.h,v 1.2 2004-07-29 22:11:46 babybot Exp $
+/// $Id: YARPNullDeviceDriver.h,v 1.1 2004-07-29 22:11:46 babybot Exp $
 ///
 ///
 
-#ifndef __YARPBabybotGrabberh__
-#define __YARPBabybotGrabberh__
+#ifndef __YARPNullDeviceDriver__
+#define __YARPNullDeviceDriver__
 
-#include <yarp/YARPGenericGrabber.h>
-#include <yarp/YARPPicoloOnBabybotAdapter.h>
+/**
+ * \file YARPNullDeviceDriver.h dummy device driver to be used as replacement for real devices. 
+ */
 
-typedef YARPGenericGrabber<YARPPicoloOnBabybotAdapter, YARPBabybotGrabberParams> YARPBabybotGrabber;
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPSemaphore.h>
+#include <yarp/YARPDeviceDriver.h>
+
+/**
+ * The maximum number of messages allowed by the null driver.
+ */
+const int YARP_NULL_DD_CMDS = 256;
+
+/**
+ * A dummy device driver class. This can be used in place of a real device driver in cases where
+ * the hardware is not available. Any call to this device driver will return 0 without complaints. 
+ * Messages are simply ignored.
+ */
+class YARPNullDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPNullDeviceDriver>
+{
+private:
+	YARPNullDeviceDriver(const YARPNullDeviceDriver&);
+	void operator=(const YARPNullDeviceDriver&);
+
+public:
+	/**
+	 * Constructor.
+	 */
+	YARPNullDeviceDriver() 
+		: YARPDeviceDriver<YARPNullSemaphore, YARPNullDeviceDriver>(YARP_NULL_DD_CMDS)
+	{}
+
+	/**
+	 * Destructor.
+	 */
+	virtual ~YARPNullDeviceDriver() {}
+
+	/**
+	 * Opens the device driver.
+	 * @param d is any pointer, the argument is not used of course.
+	 * @return always returns YARP_OK.
+	 */
+	virtual int open(void *d) { ACE_UNUSED_ARG(d); return YARP_OK; }
+
+	/**
+	 * Closes the device driver.
+	 * @return always returns YARP_OK.
+	 */
+	virtual int close(void) { return YARP_OK; }
+};
+
 
 #endif

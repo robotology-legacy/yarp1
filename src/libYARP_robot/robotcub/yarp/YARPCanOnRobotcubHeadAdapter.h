@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.2 2004-07-29 16:35:31 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.3 2004-07-29 22:11:46 babybot Exp $
 ///
 ///
 
@@ -40,7 +40,7 @@
 
 #include <yarp/YARPValueCanDeviceDriver.h>
 #include <yarp/YARPConfigFile.h>
-
+#include <yarp/YARPRobotMath.h>
 
 #define YARP_ROBOTCUB_HEAD_ADAPTER_VERBOSE
 

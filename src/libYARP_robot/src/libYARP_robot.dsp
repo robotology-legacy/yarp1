@@ -206,6 +206,14 @@ SOURCE=..\robotcub\yarp\YARPCanOnRobotcubHeadAdapter.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\robotcub\yarp\YARPNullOnRobotcubAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\robotcub\yarp\YARPRobotcubGrabber.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\robotcub\yarp\YARPRobotcubHead.h
 # End Source File
 # End Group
