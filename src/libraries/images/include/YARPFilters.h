@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPFilters.h,v 1.2 2003-06-05 10:51:10 gmetta Exp $
+/// $Id: YARPFilters.h,v 1.3 2003-06-20 13:33:02 babybot Exp $
 ///
 ///
 
@@ -147,9 +147,10 @@ void YARPFilterOf<T>::AddBorderLP(YARPImageOf<T>& id, const YARPImageOf<T>& is, 
 	case 1:
 		{
 			// left border
-			for (int c = 0; c < kLR ; c++)
+			int r, c;
+			for (c = 0; c < kLR ; c++)
 			{
-				for (int r = 0; r < (nAng/2); r++)
+				for (r = 0; r < (nAng/2); r++)
 					dst[kUD+nAng/2+r][(kLR-1-c)] = src[r][c];
 
 				for (r = nAng/2; r < nAng; r++)
@@ -159,7 +160,7 @@ void YARPFilterOf<T>::AddBorderLP(YARPImageOf<T>& id, const YARPImageOf<T>& is, 
 			// top & bottom borders.	
 			for (c = 0; c < nEcc+kLR; c++)
 			{
-				for (int r = 0; r < kUD; r++)
+				for (r = 0; r < kUD; r++)
 					dst[kUD+nAng+r][c] = dst[r+kUD][c];
 
 				int t;
@@ -172,9 +173,10 @@ void YARPFilterOf<T>::AddBorderLP(YARPImageOf<T>& id, const YARPImageOf<T>& is, 
 	case 3:
 		{
 			// left border
-			for (int c = 0; c < kLR ; c++)
+			int r, c;
+			for (c = 0; c < kLR ; c++)
 			{
-				for (int r = 0; r < (nAng/2); r++)
+				for (r = 0; r < (nAng/2); r++)
 				{
 					dst[kUD+nAng/2+r][(kLR-1-c)*3] = src[r][c*3];
 					dst[kUD+nAng/2+r][(kLR-1-c)*3+1] = src[r][c*3+1];
@@ -192,7 +194,7 @@ void YARPFilterOf<T>::AddBorderLP(YARPImageOf<T>& id, const YARPImageOf<T>& is, 
 			// top & bottom borders.	
 			for (c=0; c<nEcc+kLR; c++)
 			{
-				for (int r = 0; r < kUD; r++)
+				for (r = 0; r < kUD; r++)
 				{
 					dst[kUD+nAng+r][c*3] = dst[r+kUD][c*3];
 					dst[kUD+nAng+r][c*3+1] = dst[r+kUD][c*3+1];
@@ -213,9 +215,10 @@ void YARPFilterOf<T>::AddBorderLP(YARPImageOf<T>& id, const YARPImageOf<T>& is, 
 	default:
 		{
 			// left border
-			for (int c = 0; c < kLR ; c++)
+			int r, c;
+			for (c = 0; c < kLR ; c++)
 			{
-				for (int r = 0; r < (nAng/2); r++)
+				for (r = 0; r < (nAng/2); r++)
 				{
 					memcpy (&dst[kUD+nAng/2+r][(kLR-1-c)*d], 
 							&src[r][c*d],
@@ -233,7 +236,7 @@ void YARPFilterOf<T>::AddBorderLP(YARPImageOf<T>& id, const YARPImageOf<T>& is, 
 			// top & bottom borders.	
 			for (c=0; c<nEcc+kLR; c++)
 			{
-				for (int r = 0; r < kUD; r++)
+				for (r = 0; r < kUD; r++)
 				{
 					memcpy (&dst[kUD+nAng+r][c*d],
 							&dst[r+kUD][c*d],
@@ -252,7 +255,5 @@ void YARPFilterOf<T>::AddBorderLP(YARPImageOf<T>& id, const YARPImageOf<T>& is, 
 		break;
 	}
 }
-
-
 
 #endif
