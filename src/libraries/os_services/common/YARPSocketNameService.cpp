@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.23 2003-07-24 07:56:52 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.24 2003-07-29 02:26:52 gmetta Exp $
 ///
 ///
 
@@ -280,7 +280,7 @@ int YARPSocketEndpointManager::CreateInputEndpoint (YARPUniqueNameID& name)
 				/// NPorts is the size of the pool (e.g. 11 (1+10))
 				/// Ports is an array of ports (of size NPorts)
 				/// cast is required because this version of prepare is not in base class (similar in spirit to a ctor).
-				((YARPInputSocketDgram *)no)->Prepare (sname, sname.getPorts(), sname.getNPorts());
+				((YARPInputSocketMulti *)no)->Prepare (sname, sname.getPorts(), sname.getNPorts());
 			}
 			break;
 
@@ -292,7 +292,7 @@ int YARPSocketEndpointManager::CreateInputEndpoint (YARPUniqueNameID& name)
 				/// NPorts is the size of the pool (e.g. 11 (1+10))
 				/// Ports is an array of ports (of size NPorts)
 				/// cast is required because this version of prepare is not in base class (similar in spirit to a ctor).
-				((YARPInputSocketMcast *)no)->Prepare (sname, sname.getPorts(), sname.getNPorts());
+				((YARPInputSocketMulti *)no)->Prepare (sname, sname.getPorts(), sname.getNPorts());
 			}
 			break;
 
@@ -479,11 +479,13 @@ int YARPSocketEndpointManager::Close (YARPUniqueNameID& dest)
 		}
 	}
 
-	int pid = my_gettid();
-	_endpointmanager.mutex.Wait();
-	_endpointmanager._map.erase(pid);
-	_endpointmanager.mutex.Post();
-
+	if (sock->GetIdentifier() == ACE_INVALID_HANDLE)
+	{
+		int pid = my_gettid();
+		_endpointmanager.mutex.Wait();
+		_endpointmanager._map.erase(pid);
+		_endpointmanager.mutex.Post();
+	}
 
 	dest.setRawIdentifier (ACE_INVALID_HANDLE);
 	return YARP_OK;

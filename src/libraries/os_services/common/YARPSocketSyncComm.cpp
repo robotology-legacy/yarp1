@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.17 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.18 2003-07-29 02:26:52 gmetta Exp $
 ///
 ///
 
@@ -91,8 +91,8 @@
   is otherwise ignored completely. since the QNX spec doesn't have it.
  */
 
-const int _bufsize = 256;
-NetInt32 YARPSocketSyncComm::_buffer[_bufsize];
+///const int _bufsize = 256;
+///NetInt32 YARPSocketSyncComm::_buffer[_bufsize];
 
 int YARPSocketSyncComm::Send(const YARPNameID& dest, char *buffer, int buffer_length, char *return_buffer, int return_buffer_length)
 {
@@ -126,6 +126,9 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, char *buff
 	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
 	ACE_ASSERT (ts != NULL);
 
+	const int _bufsize = 64;
+	NetInt32 _buffer[_bufsize];
+
 	BlockPrefix prefix;
 	ACE_HANDLE id = ACE_INVALID_HANDLE;
 	int ct = ts->ReceiveBegin ((char*)(&prefix), sizeof(prefix), &id);
@@ -155,6 +158,9 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, char *buffe
 	YARPNetworkInputObject *ts = (YARPNetworkInputObject *)YARPSocketEndpointManager::GetThreadSocket();
 	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
 	ACE_ASSERT (ts != NULL);
+
+	const int _bufsize = 64;
+	NetInt32 _buffer[_bufsize];
 
 	BlockPrefix prefix;
 	ACE_HANDLE id = ACE_INVALID_HANDLE;
@@ -217,7 +223,12 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 {
 	YARPNetworkOutputObject *os = (YARPNetworkOutputObject *)YARPSocketEndpointManager::GetThreadSocket();
 	ACE_ASSERT (!dest.isConsistent(YARP_NO_SERVICE_AVAILABLE));
-	ACE_ASSERT (os != NULL);
+
+	if (os == NULL) 
+	{
+		ACE_DEBUG ((LM_DEBUG, "Just a warning: attempted a send on a non-existing (NULL) socket\n"));
+		return YARP_FAIL;
+	}
 
 	int send_parts = msg.GetParts();
 	int return_parts = return_msg.GetParts();
@@ -226,6 +237,7 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 	int i;
 
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Get %d send_parts, %d return_parts\n", send_parts, return_parts));
+	const int _bufsize = 64;
 	ACE_ASSERT (send_parts + return_parts <= _bufsize);
 
 	/* preamble code begins */
@@ -234,6 +246,8 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 	prefix.reply_blocks = return_parts;
 	prefix.size = -1;
 	prefix.reply_size = -1;
+
+	NetInt32 _buffer[_bufsize];
 
 	os->SendBegin ((char*)(&prefix), sizeof(prefix));
 	
@@ -288,6 +302,9 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultip
 	ACE_ASSERT (receive_parts >= 1);
 
 	/* preamble code begins */
+	const int _bufsize = 64;
+	NetInt32 _buffer[_bufsize];
+
 	BlockPrefix prefix;
 	ts->ReceiveBegin ((char*)(&prefix), sizeof(prefix), &id);
 
@@ -324,6 +341,9 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, YARPMultipa
 	ACE_ASSERT (ts != NULL);
 
 	ACE_HANDLE id = ACE_INVALID_HANDLE;
+	const int _bufsize = 64;
+	NetInt32 _buffer[_bufsize];
+
 	int receive_parts = msg.GetParts();
 	ACE_ASSERT(receive_parts>=1);
 

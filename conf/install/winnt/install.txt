@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.9 2003-07-25 08:13:28 babybot Exp $
+$Id: install.txt,v 1.10 2003-07-29 02:26:52 gmetta Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -45,6 +45,7 @@ What to do on each machine of the network
 5) define:
 	- YARP_ROOT env variable: e.g. Q:\yarp
 	- add to PATH: %YARP_ROOT%\bin\winnt (location of binaries and DLLs)
+	- add to PATH: %YARP_ROOT%\scripts (and subdirs that you need)
 
 6) install specific device drivers:
 	- For this you need your original CDs.
@@ -61,11 +62,11 @@ What to do on each machine of the network
 8) Disable Windows priority boost for foreground processes.
 	- merge nopriorityboost.reg 
 
---> NOTE for points 7) and 8): after you successfully install and enable remote scripting host you can use mergeRemote.js
-to include a .reg on a remote machine:
+--> NOTE for points 7) and 8): after you successfully install and enable remote scripting 
+host you can use mergeRemote.js to include a .reg on a remote machine:
 	-example: mergeRemote remoteMachine nopriorityboost.reg
-The scripts looks in %YARP_ROOT%\conf\install\winnt for .regs, remember to define YARP_ROOT on the remote
-machine before you use the script.
+The scripts looks in %YARP_ROOT%\conf\install\winnt for .regs, remember to define YARP_ROOT on 
+the remote machine before you use the script.
 		
 ----
 End of MACHINE specific configuration/install
@@ -95,6 +96,7 @@ REQUIRES:
 	- install IPL to get the DLLs, libs, and .h files
 		WHERE TO COPY THEM?
 		copy .h files into %YARP_ROOT%\include\sys
+		ALSO: look at the script under library\ipl for installation of IPL. see below.
 	- use the %YARP_ROOT%/YARPConfigTemplate.h and include the correct 
 		config file (found in %YARP_ROOT%/include/conf)
 		Copy the template into: %YARP_ROOT%/include/conf/YARPConfig.h

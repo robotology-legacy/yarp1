@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigQNX6.h,v 1.16 2003-07-06 23:25:45 gmetta Exp $
+// $Id: YARPConfigQNX6.h,v 1.17 2003-07-29 02:26:52 gmetta Exp $
 // YARP config file QNX6.
 //
 //
@@ -38,8 +38,8 @@
 /// read short timeout on socket transport (in seconds). - used for waiting short latency delay.
 #define YARP_SHORT_SOCK_TIMEOUT	1
 
-/// stale connections timeout.
-#define YARP_STALE_TIMEOUT		3600
+/// magic number for handshaking connections.
+#define YARP_MAGIC_NUMBER	7777
 
 /// alignment bytes required for mmx/ipl instructions.
 #define YARP_IMAGE_ALIGN 8

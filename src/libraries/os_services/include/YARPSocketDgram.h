@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.h,v 1.5 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: YARPSocketDgram.h,v 1.6 2003-07-29 02:26:52 gmetta Exp $
 ///
 ///
 
@@ -90,36 +90,6 @@
 ///	YARP_I_SOCKET = 1,
 ///	YARP_O_SOCKET = 2,
 ///};
-
-///
-///
-///
-class YARPInputSocketDgram : public YARPNetworkInputObject
-{
-protected:
-	void *system_resources;
-
-public:
-	YARPInputSocketDgram();
-	virtual ~YARPInputSocketDgram();
-
-	/// virtual override.
-	int Close(ACE_HANDLE reply_id);
-	int CloseAll(void);
-	int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
-	int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
-	int ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length);
-	int ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
-	int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
-
-	ACE_HANDLE GetIdentifier(void) const;
-	int GetServiceType (void) { return YARP_UDP; }
-
-	/// specific.
-	int Prepare (const YARPUniqueNameID& name, int *ports, int number_o_ports);
-	int GetAssignedPort(void) const;
-};
-
 
 ///
 ///

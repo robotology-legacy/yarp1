@@ -61,13 +61,15 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.11 2003-07-16 16:06:31 natta Exp $
+/// $Id: wide_nameloc.h,v 1.12 2003-07-29 02:26:52 gmetta Exp $
 ///
 ///
 
 #ifndef wide_nameloc_INC
 #define wide_nameloc_INC
 
+/// I hate this, very unelegant style.
+///
 #if defined(_NOLIB)
 #	if defined(_ISLIB)
 #	undef _ISLIB

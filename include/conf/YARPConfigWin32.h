@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.27 2003-07-06 23:25:45 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.28 2003-07-29 02:26:52 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -53,8 +53,8 @@
 /// read short timeout on socket transport (in seconds). - used for waiting short latency delay.
 #define YARP_SHORT_SOCK_TIMEOUT	1
 
-/// stale connections timeout.
-#define YARP_STALE_TIMEOUT		3600
+/// magic number for handshaking connections.
+#define YARP_MAGIC_NUMBER	7777
 
 /// alignment bytes required for mmx/ipl instructions.
 #define YARP_IMAGE_ALIGN 8
@@ -69,61 +69,5 @@
 /// ACE inclusion
 ///
 #include <ace/config.h>
-
-
-#if 0
-#include <ace/OS.h>
-
-///
-/// need for testing.
-/// 
-inline void *
-operator new (size_t size)
-{
-	void *ret = calloc(1, size);
-	ACE_OS::fprintf (stdout, "NEW_DEBUG: allocating %d bytes, ptr 0x%x\n", size, ret);
-	ACE_OS::fflush (stdout);
-	return ret;
-}
-
-inline void *
-operator new[] (size_t size)
-{
-	void *ret = calloc(1, size);
-	ACE_OS::fprintf (stdout, "NEW_DEBUG: allocating %d bytes, ptr 0x%x\n", size, ret);
-	ACE_OS::fflush (stdout);
-	return ret;
-}
-
-inline void operator delete (void * ptr)
-{
-	if (ptr != NULL)
-	{
-		ACE_OS::fprintf (stdout, "NEW_DEBUG: deleting ptr 0x%x\n", ptr);
-		ACE_OS::fflush (stdout);
-		free (ptr);
-	}
-	else
-	{
-		ACE_OS::fprintf (stdout, "NEW_DEBUG: trying to delete a new pointer\n");
-		ACE_OS::fflush (stdout);
-	}
-}
-
-inline void operator delete[] (void * ptr)
-{
-	if (ptr != NULL)
-	{
-		ACE_OS::fprintf (stdout, "NEW_DEBUG: deleting ptr 0x%x\n", ptr);
-		ACE_OS::fflush (stdout);
-		free (ptr);
-	}
-	else
-	{
-		ACE_OS::fprintf (stdout, "NEW_DEBUG: trying to delete a new pointer\n");
-		ACE_OS::fflush (stdout);
-	}
-}
-#endif
 
 #endif

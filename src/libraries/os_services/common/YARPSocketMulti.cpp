@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.6 2003-07-24 07:56:52 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.7 2003-07-29 02:26:52 gmetta Exp $
 ///
 ///
 
@@ -105,7 +105,6 @@ using namespace std;
 
 ///
 #define THIS_DBG 80
-const int _MAGIC_NUMBER = 7777;
 
 ///
 /// yarp message header.
@@ -981,7 +980,7 @@ ShmemSocketMsgSkip:
 
 void _SocketThreadMulti::BodyUdp (void)
 {
-	ACE_Time_Value long_timeout (YARP_STALE_TIMEOUT, 0);
+	///ACE_Time_Value long_timeout (YARP_STALE_TIMEOUT, 0);
 
 	int finished = 0;
 	
@@ -1009,7 +1008,7 @@ void _SocketThreadMulti::BodyUdp (void)
 		set.set_bit (_local_socket.get_handle());
 		int max = (int)_local_socket.get_handle();
 
-		int rr = ACE_OS::select (max + 1, set, 0, 0, &long_timeout);
+		int rr = ACE_OS::select (max + 1, set, 0, 0, NULL); ///&long_timeout);
 
 		if (rr <= 0)
 		{
@@ -1037,7 +1036,7 @@ void _SocketThreadMulti::BodyUdp (void)
 
 		_local_buffer_counter = sizeof(MyMessageHeader);
 
-		if (r >= 0 && hdr.GetLength() == (_MAGIC_NUMBER + 1))
+		if (r >= 0 && hdr.GetLength() == (YARP_MAGIC_NUMBER + 1))
 		{
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "received a message to close the thread\n"));
 			/// a legitimate message to close down the thread.
@@ -1228,7 +1227,7 @@ DgramSocketMsgSkip:
 void _SocketThreadMulti::BodyMcast (void)
 {
 	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
-	ACE_Time_Value long_timeout (YARP_STALE_TIMEOUT, 0);
+	///ACE_Time_Value long_timeout (YARP_STALE_TIMEOUT, 0);
 
 	ACE_INET_Addr incoming;
 	
@@ -1256,7 +1255,7 @@ void _SocketThreadMulti::BodyMcast (void)
 		int max = ((int)_local_socket.get_handle() > (int)mcast_socket.get_handle()) 
 			? (int)_local_socket.get_handle() : (int)mcast_socket.get_handle();
 
-		int rr = ACE_OS::select (max + 1, set, 0, 0, &long_timeout);
+		int rr = ACE_OS::select (max + 1, set, 0, 0, NULL); ///&long_timeout);
 
 		if (rr <= 0)
 		{
@@ -1282,7 +1281,7 @@ void _SocketThreadMulti::BodyMcast (void)
 			r = _local_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_addr(), incoming.get_port_number()));
 
-			if (r >= 0 && hdr.GetLength() == (_MAGIC_NUMBER + 1))
+			if (r >= 0 && hdr.GetLength() == (YARP_MAGIC_NUMBER + 1))
 			{
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "received a message to close the thread\n"));
 				/// a legitimate message to close down the thread.
@@ -1506,7 +1505,7 @@ void _SocketThreadListMulti::addSocket (void)
 	/// MAGIC_NUMBER+2	-> SHMEM
 	///
 	///
-	if (hdr.GetLength() == _MAGIC_NUMBER)
+	if (hdr.GetLength() == YARP_MAGIC_NUMBER)
 	{
 		/// checks whether <incoming> already tried a connection
 		///		and it is still connected.
@@ -1587,7 +1586,7 @@ void _SocketThreadListMulti::addSocket (void)
 		}
 	}
 	else
-	if (hdr.GetLength() == (_MAGIC_NUMBER + 1))
+	if (hdr.GetLength() == (YARP_MAGIC_NUMBER + 1))
 	{
 		/// ask an MCAST connection.
 
@@ -1689,7 +1688,7 @@ void _SocketThreadListMulti::addSocket (void)
 		}
 	}
 	else
-	if (hdr.GetLength() == (_MAGIC_NUMBER + 2))
+	if (hdr.GetLength() == (YARP_MAGIC_NUMBER + 2))
 	{
 		/// ask a SHMEM connection.
 
@@ -2219,7 +2218,7 @@ int YARPOutputSocketMulti::Close (const YARPUniqueNameID& name)
 		/// send the header.
 		MyMessageHeader hdr;
 		hdr.SetGood ();
-		hdr.SetLength (_MAGIC_NUMBER + 1);
+		hdr.SetLength (YARP_MAGIC_NUMBER + 1);
 
 		d._udp_socket.open (d._local_addr, ACE_PROTOCOL_FAMILY_INET, 0, 1);
 		d._udp_socket.send (&hdr, sizeof(hdr), d._remote_addr);
@@ -2274,7 +2273,7 @@ int YARPOutputSocketMulti::Connect (const YARPUniqueNameID& name)
 	int port_number = 0;
 	MyMessageHeader hdr;
 	hdr.SetGood ();
-	hdr.SetLength (_MAGIC_NUMBER + 2);
+	hdr.SetLength (YARP_MAGIC_NUMBER + 2);
 
 	/// verifies it's a new connection.
 	ACE_INET_Addr nm = ((YARPUniqueNameSock&)name).getAddressRef();

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.h,v 1.5 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: YARPSocketMcast.h,v 1.6 2003-07-29 02:26:52 gmetta Exp $
 ///
 ///
 
@@ -93,40 +93,7 @@
 ///};
 
 ///
-/// still requires the fancy mthread stuff to read from multiple groups.
-///	- connect becomes a join to the group.
-///
-class YARPInputSocketMcast : public YARPNetworkInputObject
-{
-protected:
-	void *system_resources;
-
-public:
-	YARPInputSocketMcast();
-	virtual ~YARPInputSocketMcast();
-
-	/// virtual override.
-	int Close(ACE_HANDLE reply_id);
-	int CloseAll(void);
-
-	int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
-	int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
-	int ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length);
-	int ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
-	int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
-
-	ACE_HANDLE GetIdentifier(void) const;
-	int GetServiceType (void) { return YARP_MCAST; }
-
-	/// specific.
-	int Prepare (const YARPUniqueNameID& name, int *ports, int number_o_ports);
-	int GetAssignedPort(void) const;
-};
-
-
-///
 /// only a single thread is required since the output is already multiple.
-/// - the output socket connects 
 ///
 class YARPOutputSocketMcast : public YARPNetworkOutputObject
 {
