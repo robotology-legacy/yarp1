@@ -11,6 +11,8 @@
 #endif // _MSC_VER > 1000
 
 #define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
+#define _WIN32_WINNT 0x0400
+#define WINVER 0x0400
 
 #include <afxwin.h>         // MFC core and standard components
 #include <afxext.h>         // MFC extensions
@@ -20,14 +22,16 @@
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
 #define ACE_HAS_MFC 0
-#include <conf/YARPConfig.h>
+
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPRobotHardware.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 
-#include <YARPScheduler.h>
-#include <YARPValueCanDeviceDriver.h>
-#include <YARPControlBoardUtils.h>
-#include <YARPConfigFile.h>
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPValueCanDeviceDriver.h>
+#include <yarp/YARPControlBoardUtils.h>
+#include <yarp/YARPConfigFile.h>
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.

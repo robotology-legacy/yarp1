@@ -577,9 +577,9 @@ void CCanControlDlg::UpdateAxisParams (int axis)
 	m_tlimit = pid.T_LIMIT;
 
 	par.parameters = (void *)&m_max_position;
-	m_driver.IOCtl(CMDGetPositiveLimit, (void *)&par);
+	m_driver.IOCtl(CMDGetSWPositiveLimit, (void *)&par);
 	par.parameters = (void *)&m_min_position;
-	m_driver.IOCtl(CMDGetNegativeLimit, (void *)&par);
+	m_driver.IOCtl(CMDGetSWNegativeLimit, (void *)&par);
 
 	UpdateData(FALSE);
 }
