@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.32 2004-01-30 17:23:45 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.33 2004-02-02 16:25:27 fberton Exp $
 ///
 ///
 
@@ -158,6 +158,7 @@ Image_Data Set_Param(int SXO,
 	image.Pix_Numb = 4;
 	image.Fovea_Type = 0;
 	image.Ratio = 1.00;
+	image.dres = (double) image.Resolution;
 
 
 	return image;
