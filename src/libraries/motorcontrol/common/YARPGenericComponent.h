@@ -1,4 +1,3 @@
-// class for babybot head 
 #ifndef __YARPGENERICCOMPONENTHH__
 #define __YARPGENERICCOMPONENTHH__
 
@@ -172,12 +171,13 @@ public:
 		return -1;
 	}
 
+	inline int nj(){ return _parameters._nj;}
 	int setGainsSmoothly(LowLevelPID *finalPIDs, int s = 150);
 	
 public:
 	PARAMETERS _parameters;
 
-private:
+protected:
 	inline void _lock(void)
 	{_mutex.Wait();}	// add timeout ?
 
