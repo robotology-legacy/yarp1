@@ -583,7 +583,7 @@ int Build_Remap_Map (Image_Data * Parameters,
 unsigned char Build_Weights_Map(Image_Data * Par,
 								char * Path)
 {
-	int j,k;
+	int i,j,k;
 	int rho,theta;
 	int CurrPix;
 	float DistSumRGB[3];
@@ -596,6 +596,8 @@ unsigned char Build_Weights_Map(Image_Data * Par,
 	LUT_Ptrs Tables;
 
 	FILE * fout;
+		
+	int PadSizeTheta = (((Par->Size_Theta * 1) % Par->padding) + (Par->Size_Theta * 1));
 
 	retval = Load_Tables(Par,&Tables,Path,8);
 
@@ -661,6 +663,13 @@ unsigned char Build_Weights_Map(Image_Data * Par,
 					}
 				}
 			}
+
+		for (k=0; k<3*Par->Size_LP*Par->Pix_Numb; k++)
+		{
+			i = Weights_Map[k].position % Par->Size_Theta;				
+			j = Weights_Map[k].position / Par->Size_Theta;	
+			Weights_Map[k].position = j*(Par->Size_Theta+PadSizeTheta)+i;
+		}
 
 		sprintf(File_Name,"%s%s%02d%s",Path,"WeightsMap",Par->Pix_Numb,".gio");
 

@@ -35,7 +35,7 @@ void main ()
 						1090,
 						CUSTOM,256.0/1090.0);
 
-	Param.padding = 1;
+	Param.padding = 8;
 
 	Rem_Fovea = (unsigned char *) malloc (3*Param.Size_Img_Remap * sizeof(unsigned char));	
 	
@@ -60,8 +60,9 @@ void main ()
 
 //	sprintf(File_Name,"%s","C:\\Temp\\Test2.bmp");
 //	Save_Bitmap(LP_Image+252*42*3,252,110,3,File_Name);
-	sprintf(File_Name,"%s","C:\\Temp\\TestPad.bmp");
-	Save_Bitmap(LP_Image,252,152,3,File_Name);
+	sprintf(File_Name,"%s","C:\\Temp\\TestPad2.bmp");
+	Save_Bitmap(LP_Image,760,152,1,File_Name);
+
 
 //	Param.Zoom_Level *= 2.0; 
 	Build_Remap_Map(&Param,Path);
