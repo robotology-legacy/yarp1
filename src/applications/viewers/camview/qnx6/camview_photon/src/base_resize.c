@@ -91,6 +91,13 @@ base_resize( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
 			1);
 	phimage_vis->bpl = W * 3;
 
+	PhPoint_t new_pos;
+
+	new_pos.x = 10;
+	new_pos.y = H +5;
+
+	PtSetResource( ABW_name_text, Pt_ARG_POS, &new_pos, 0 );
+
 	return( Pt_CONTINUE );
 }
 

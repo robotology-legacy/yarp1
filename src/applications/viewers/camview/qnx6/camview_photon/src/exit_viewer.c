@@ -32,6 +32,7 @@ exit_viewer( PtWidget_t *widget, ApInfo_t *apinfo, PtCallbackInfo_t *cbinfo )
   if (uu!=NULL)
     delete []uu;
   t1.End(0);
+		delay(1000); //Wait a little so the thread exits from the current loop
 
   PtExit( EXIT_SUCCESS );
 

@@ -66,12 +66,6 @@ class ReadingThread: public YARPThread
 			//inport.Register ("/images:i");
 			inport.Register(_name);
 
-			if (_logp && !_fov)
-			{
-				net_img_w = 256;
-				net_img_h = 256;
-			}
-
 			while (!IsTerminated())
 			{
 				if (m_exit)

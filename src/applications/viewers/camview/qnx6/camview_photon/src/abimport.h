@@ -3,7 +3,7 @@
 #include "abdefine.h"
 
 extern ApWindowLink_t base;
-extern ApWidget_t AbWidgets[ 6 ];
+extern ApWidget_t AbWidgets[ 9 ];
 
 extern ApMenuLink_t filemenu;
 extern ApMenuLink_t imagemenu;

@@ -57,15 +57,15 @@ VPATH = ..
 BIN     = abmain
 
 FILES =	
-	  
+
 LDLIBS  =	$(YARP_ROOT)/lib/$(OS)/MotorCtrl.lib	\
-			$(YARP_ROOT)/lib/$(OS)/utils.lib	\
-			$(YARP_ROOT)/lib/$(OS)/images.lib	\
-			$(YARP_ROOT)/lib/$(OS)/LogPolarSmallSDK.lib	\
-			$(YARP_ROOT)/lib/$(OS)/fakeipl.lib	\
-			$(YARP_ROOT)/lib/$(OS)/os_services.lib	\
-			$(YARP_ROOT)/lib/$(OS)/math.lib	
-	
+										$(YARP_ROOT)/lib/$(OS)/utils.lib	\
+										$(YARP_ROOT)/lib/$(OS)/images.lib	\
+										$(YARP_ROOT)/lib/$(OS)/LogPolarSmallSDK.lib	\
+										$(YARP_ROOT)/lib/$(OS)/fakeipl.lib	\
+										$(YARP_ROOT)/lib/$(OS)/os_services.lib	\
+										$(YARP_ROOT)/lib/$(OS)/math.lib	
+
 #SRC    = $(addsuffix .cpp,$(FILES))
 #OBJ    = $(addsuffix .o,$(FILES))
 #LSRC    = $(SRC) $(addsuffix .cpp,$(BIN))
@@ -95,24 +95,24 @@ ttt:
 	/usr/photon/appbuilder/phabbind abmain $(ABMOD)
 
 shr:	
-		make
+	make
 		make ttt
 		#usemsg test ../Usemsg
 		#phabbind test $(ABMOD)
 
 app:
-		make
+	make
 		make ttt
 		#usemsg test ../Usemsg
 		#phabbind test $(ABMOD)
 
 clean:
-		#make clean
+	#make clean
 		rm -f *.o *.err *.map abmain
 		rm -f -r .obj/
 
 install:
-		-cp -vnf test /usr/photon/bin
+	-cp -vnf test /usr/photon/bin
 ##################################################
 
 # IF YOU PUT ANYTHING HERE IT WILL GO AWAY
@@ -129,4 +129,4 @@ $(ABOBJ) $(MYOBJ):	$(MYHDR)
 #
 
 proto:
-		approto -p $(ABSRC) $(MYSRC) > proto.h
+	approto -p $(ABSRC) $(MYSRC) > proto.h

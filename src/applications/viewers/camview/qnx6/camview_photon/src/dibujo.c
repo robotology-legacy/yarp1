@@ -33,36 +33,38 @@ extern int H;
 extern double * vv;
 extern double * uu;
 extern bool m_exit;
+extern char _name[512];
 //Dibujo is the spanish work for draw. Sorry for the inconvenience but it is not very easy
 //to change this name now
 void dibujo( PtWidget_t *widget, PhTile_t *damage )  
 {
-   PhPoint_t pos;
+	PhPoint_t pos;
 
-   /* snap the time */
-   pos.x = 0;
-   pos.y = 0;
-   if ( phimage != NULL && !m_exit)   
-   {
-     if( net_img_w != W || net_img_h != H )
-     {
-      ulong_t value;
-      for (int i = 0; i < H; i++)
-	for (int j = 0; j < W; j++)
+	/* snap the time */
+	pos.x = 0;
+	pos.y = 0;
+	if ( phimage != NULL && !m_exit)   
 	{
-	  PiGetPixel(phimage,(ushort_t)uu[j],(ushort_t)vv[i],&value);
-	  PiSetPixel(phimage_vis,j,i,value);
+		if( net_img_w != W || net_img_h != H )
+		{
+			ulong_t value;
+			for (int i = 0; i < H; i++)
+				for (int j = 0; j < W; j++)
+				{
+					PiGetPixel(phimage,(ushort_t)uu[j],(ushort_t)vv[i],&value);
+					PiSetPixel(phimage_vis,j,i,value);
+				}
+
+			PgDrawPhImagemx(&pos,phimage_vis,0);
+			PtTextModifyText(ABW_name_text,0,sizeof(_name),0,_name,sizeof(_name));
+
+		}else
+		{
+			PgDrawPhImagemx( &pos, phimage, 0);
+		}
 	}
-
-      PgDrawPhImagemx(&pos,phimage_vis,0);
-
-     }else
-     {
-      PgDrawPhImagemx( &pos, phimage, 0);
-     }
-   }
-   //PgDrawPhImagemx(&pos, phimage,0);
-   /* Reset the clipping area. */
-   PgFlush();
+	//PgDrawPhImagemx(&pos, phimage,0);
+	/* Reset the clipping area. */
+	PgFlush();
 }
 

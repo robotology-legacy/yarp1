@@ -22,7 +22,7 @@ ApMenuLink_t filemenu = {
 	ApItems_filemenu,
 	& AbContext,
 	AbLinks_filemenu,
-	6, 2, 2
+	9, 2, 2
 	};
 
 static ApItem_t ApItems_imagemenu[ 3 ] = {
@@ -39,6 +39,6 @@ ApMenuLink_t imagemenu = {
 	ApItems_imagemenu,
 	& AbContext,
 	AbLinks_imagemenu,
-	9, 1, 2
+	12, 1, 2
 	};
 
