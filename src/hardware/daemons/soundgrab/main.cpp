@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: main.cpp,v 1.5 2004-03-09 18:01:26 gmetta Exp $
+//         Version:  $Id: main.cpp,v 1.6 2004-03-22 17:46:59 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -71,6 +71,14 @@ bool _fgnetdata       = false;
 int  _board_no        = 0;
 char __filename[256]  = "sound.ini";
 
+//----------------------------------------------------------------------
+//  Default Sound paramters
+//----------------------------------------------------------------------
+int _Channels      = 2;
+int _SamplesPerSec = 44100;
+int _BitsPerSample = 16;
+int _BufferLength  = 8192;
+
 extern int __debug_level;
 
 // ===  FUNCTION  ======================================================================
@@ -83,7 +91,7 @@ extern int __debug_level;
 //  Revision:  none
 // =====================================================================================
 int 
-ParseParams (int argc, char *argv[]) 
+ParseParams (int argc, char *argv[], int visualize = 0) 
 {
 	int i;
 	
@@ -91,8 +99,29 @@ ParseParams (int argc, char *argv[])
 	ACE_OS::sprintf (_fgdataname , "/%s/i:fgdata" , argv[0]);
 	ACE_OS::sprintf (_netname    , "default");
 
+	if (visualize)
+	{
+		ACE_OS::fprintf(stdout,"USE: soundgrab <+name -Parameters>\n"); 
+		ACE_OS::fprintf(stdout,"c -> Channels\n");
+		ACE_OS::fprintf(stdout,"a -> SamplesPerSecond\n");
+		ACE_OS::fprintf(stdout,"i -> BitsPerSample\n");
+		ACE_OS::fprintf(stdout,"l -> BufferLength\n");
+		ACE_OS::fprintf(stdout,"b -> BoardNumber\n");
+		ACE_OS::fprintf(stdout,"t -> Receiver client modality\n");
+		ACE_OS::fprintf(stdout,"s -> Server Simulation\n");
+		ACE_OS::fprintf(stdout,"n -> Network\n");
+		ACE_OS::fprintf(stdout,"f -> Open port for volume/gain/mute data\n");
+
+		return YARP_OK;
+   	}
+
 	for (i = 1; i < argc; i++)
 	{
+		if (argv[i][0] == '?') { 
+			ParseParams(argc, argv, 1);
+			exit(0);
+		}
+		else
 		if (argv[i][0] == '+') {
 			ACE_OS::sprintf (_name       , "/%s/o:sound"  , argv[i]+1);
 			ACE_OS::sprintf (_fgdataname , "/%s/i:fgdata" , argv[i]+1);
@@ -101,11 +130,25 @@ ParseParams (int argc, char *argv[])
 		if (argv[i][0] == '-') {
 			switch (argv[i][1])
 			{
-			case 'w':
-				break;
+            case 'c':                                     // Channels
+                _Channels = ACE_OS::atoi(argv[i+1]);
+                i++;
+                break;
 
-			case 'h':
-				break;
+            case 'a':                                     // SamplesPerSecond
+                _SamplesPerSec = ACE_OS::atoi(argv[i+1]);
+                i++;
+                break;
+
+            case 'i':                                     // BitsPerSample
+                _BitsPerSample = ACE_OS::atoi(argv[i+1]);
+                i++;
+                break;
+
+            case 'l':                                     // BufferLength
+                _BufferLength = ACE_OS::atoi(argv[i+1]);
+                i++;
+                break;
 
 			case 'b':
 				_board_no = ACE_OS::atoi (argv[i+1]);
@@ -187,6 +230,10 @@ class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 //--------------------------------------------------------------------------------------
 void FgNetDataPort::OnRead(void)
 {
+	/*************************************************************
+	 * Here the reading of adjusting data must be done.          *
+	 * The bottle object is used to send the data in the network *
+	 *************************************************************/
 	Read ();
 	m_bottle = Content();
 	m_bottle.rewind();
@@ -238,7 +285,8 @@ public:
 //--------------------------------------------------------------------------------------
 //       Class:  mainthread
 //      Method:  _runAsClient
-// Description:  This method acts as client of other soundgrabber
+// Description:  This method acts as client of other soundgrabber. Simply reads the sound
+// buffer from the network and puts it in a WAVE file
 //--------------------------------------------------------------------------------------
 int 
 mainthread::_runAsClient (void)
@@ -246,23 +294,72 @@ mainthread::_runAsClient (void)
 	YARPSoundBuffer buffer;
 	YARPInputPortOf<YARPSoundBuffer> inport(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
+	HMMIO        hmmio;
+	MMCKINFO     ckRIFF;
+	MMCKINFO     ck;
+	WAVEFORMATEX waveFormat;
+
 	inport.Register (_name, _netname);
 	int frame_no = 0;
 
 	char savename[512];
 	memset (savename, 0, 512);
+	ACE_OS::sprintf (savename, "./soundgrab_test.wav");
+
+	//----------------------------------------------------------------------
+	//  Initialize the WAVEFORMATEX ini sound file data
+	//----------------------------------------------------------------------
+	waveFormat.wFormatTag      = WAVE_FORMAT_PCM;
+	waveFormat.nChannels       = _Channels;
+	waveFormat.nSamplesPerSec  = _SamplesPerSec;
+	waveFormat.wBitsPerSample  = _BitsPerSample;
+	waveFormat.nBlockAlign     = waveFormat.nChannels * (waveFormat.wBitsPerSample/8);
+	waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
+	waveFormat.cbSize          = 0;
+
+	//----------------------------------------------------------------------
+	//  Open and initialize a WAVE file
+	//  Note: I am using mmio functions. I have to figure out how to do
+	//  this in QNX and Linux
+	//----------------------------------------------------------------------
+	hmmio = mmioOpen(savename,
+					 NULL,
+					 MMIO_CREATE | MMIO_WRITE | MMIO_EXCLUSIVE |
+					 MMIO_ALLOCBUF);
+
+	ckRIFF.fccType = mmioFOURCC('W', 'A', 'V', 'E');
+	ckRIFF.cksize  = 0;
+	mmioCreateChunk(hmmio, &ckRIFF, MMIO_CREATERIFF);
+
+	ck.ckid   = mmioFOURCC('f', 'm', 't', ' ');
+	ck.cksize = 0L;
+	mmioCreateChunk(hmmio, &ck, 0);
+
+	mmioWrite(hmmio, (HPSTR)&waveFormat, sizeof(WAVEFORMATEX));
+	mmioAscend(hmmio, &ck, 0);
+
+	ck.ckid   = mmioFOURCC('d', 'a', 't', 'a');
+	ck.cksize = 0;
+	mmioCreateChunk(hmmio, &ck, 0);	
 
 	while (!IsTerminated())
 	{
 		inport.Read ();
 		buffer.Refer (inport.Content());
 
-		frame_no++;
-		ACE_OS::printf (">>> got a frame %d\n", frame_no);
+		mmioWrite(hmmio, 
+				  (const char *)buffer.GetRawBuffer(),
+				  _BufferLength);
 
-		ACE_OS::sprintf (savename, "./soundgrab_test%04d.wav", frame_no);
-		//YARPImageFile::Write (savename, img);
+		frame_no++;
 	}
+
+	//----------------------------------------------------------------------
+	//  Close the WAVE file
+	//----------------------------------------------------------------------
+	mmioAscend(hmmio, &ck, 0);
+	mmioAscend(hmmio, &ckRIFF, 0);
+	mmioClose(hmmio, 0);
 
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
 	return YARP_OK;
@@ -277,6 +374,12 @@ mainthread::_runAsClient (void)
 int 
 mainthread::_runAsSimulation (void)
 {
+	ACE_OS::fprintf (stdout, "SORRY: This is not implemented\n");
+
+	/**************************************************************
+	 * Read a stream from a WAVE file and send it to the  network *
+	 **************************************************************/
+#if 0
 	YARPSoundBuffer buffer;
 	DeclareOutport(outport);
 
@@ -312,7 +415,9 @@ mainthread::_runAsSimulation (void)
 	}
 
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
+#endif
 	return YARP_OK;
+
 }
 
 //--------------------------------------------------------------------------------------
@@ -324,17 +429,6 @@ mainthread::_runAsSimulation (void)
 int 
 mainthread::_runAsNormally (void)
 {
-	int _Channels      = 0;
-	int _SamplesPerSec = 0;
-	int _BitsPerSample = 0;
-	int _BufferLength  = 0;
-
-///	HMMIO        hmmio;
-///	MMCKINFO     ckRIFF;
-///	MMCKINFO     ck;
-///	WAVEFORMATEX waveFormat;
-
-///	unsigned char *buffer = NULL;
 	int frame_no = 0;
 
 	YARPSoundGrabber soundgrabber;
@@ -345,30 +439,6 @@ mainthread::_runAsNormally (void)
 	//----------------------------------------------------------------------
 	DeclareOutport(outport);
 	outport.Register (_name, _netname);
-
-
-	////
-	///
-	/// from command line, not from file!
-
-	//----------------------------------------------------------------------
-	//  Get sound information from ini file
-	//----------------------------------------------------------------------
-	YARPConfigFile file;
-	char *root = GetYarpRoot();
-	char path[256];
-
-#if defined(__QNXEurobot__)
-	ACE_OS::sprintf (path, "%s/conf/eurobot/\0", root); 
-#else
-	ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
-#endif
-
-	file.set(path, __filename);
-	file.get("[GENERAL]" , "Channels"      , &_Channels      , 1);
-	file.get("[GENERAL]" , "SamplesPerSec" , &_SamplesPerSec , 1);
-	file.get("[GENERAL]" , "BitsPerSample" , &_BitsPerSample , 1);
-	file.get("[GENERAL]" , "BufferLength"  , &_BufferLength  , 1);
 
 	//----------------------------------------------------------------------
 	//  Initialize the grabber
@@ -381,7 +451,6 @@ mainthread::_runAsNormally (void)
 
 	/// alloc buffer.
 	buffer.Resize (_BufferLength);
-
 
 	//----------------------------------------------------------------------
 	//  Start the data reception port in the case the option is active
@@ -398,48 +467,6 @@ mainthread::_runAsNormally (void)
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur   = start;
 
-
-#if 0
-
-	//----------------------------------------------------------------------
-	//  Initialize the WAVEFORMATEX ini sound file data
-	//----------------------------------------------------------------------
-	waveFormat.wFormatTag      = WAVE_FORMAT_PCM;
-	waveFormat.nChannels       = _Channels;
-	waveFormat.nSamplesPerSec  = _SamplesPerSec;
-	waveFormat.wBitsPerSample  = _BitsPerSample;
-	waveFormat.nBlockAlign     = waveFormat.nChannels * (waveFormat.wBitsPerSample/8);
-	waveFormat.nAvgBytesPerSec = waveFormat.nSamplesPerSec * waveFormat.nBlockAlign;
-	waveFormat.cbSize          = 0;
-
-	//----------------------------------------------------------------------
-	//  Open and initialize a WAVE file
-	//  Note: I am using mmio functions. I have to figure out how to do
-	//  this in QNX and Linux
-	//----------------------------------------------------------------------
-	hmmio = mmioOpen("dest.wav",
-					 NULL,
-					 MMIO_CREATE | MMIO_WRITE | MMIO_EXCLUSIVE |
-					 MMIO_ALLOCBUF);
-
-	ckRIFF.fccType = mmioFOURCC('W', 'A', 'V', 'E');
-	ckRIFF.cksize  = 0;
-	mmioCreateChunk(hmmio, &ckRIFF, MMIO_CREATERIFF);
-
-	ck.ckid   = mmioFOURCC('f', 'm', 't', ' ');
-	ck.cksize = 0L;
-	mmioCreateChunk(hmmio, &ck, 0);
-
-	mmioWrite(hmmio, (HPSTR)&waveFormat, sizeof(WAVEFORMATEX));
-	mmioAscend(hmmio, &ck, 0);
-
-	ck.ckid   = mmioFOURCC('d', 'a', 't', 'a');
-	ck.cksize = 0;
-	mmioCreateChunk(hmmio, &ck, 0);	
-
-#endif
-
-
 	//----------------------------------------------------------------------
 	// Main loop 
 	//----------------------------------------------------------------------
@@ -453,13 +480,7 @@ mainthread::_runAsNormally (void)
 		outport.Content().Refer (buffer);
 		outport.Write();
 
-#if 0
-		mmioWrite(hmmio, 
-				  (const char *)buffer,
-				  _BufferLength);
-#endif
-
-		soundgrabber.releaseBuffer ();
+		soundgrabber.releaseBuffer (); // this could be release earlier?
 
 		//----------------------------------------------------------------------
 		//  Time measurement stuff
@@ -472,15 +493,6 @@ mainthread::_runAsNormally (void)
 			start = cur;
 		}
 	}
-
-#if 0
-	//----------------------------------------------------------------------
-	//  Close the WAVE file
-	//----------------------------------------------------------------------
-	mmioAscend(hmmio, &ck, 0);
-	mmioAscend(hmmio, &ckRIFF, 0);
-	mmioClose(hmmio, 0);
-#endif
 
 	//----------------------------------------------------------------------
 	//  destroy fg_net_data port
@@ -523,6 +535,7 @@ main (int argc, char *argv[])
 	do {
 		cout << "Type q+return to quit" << endl;
 		cin >> c;
+		ParseParams(argc, argv, 1);
 	}
 	while (c != 'q');
 
