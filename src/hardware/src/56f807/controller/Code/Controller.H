@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.5 2004-05-04 23:04:20 babybot Exp $
+/// $Id: Controller.H,v 1.6 2004-05-06 20:19:15 babybot Exp $
 ///
 ///
 
@@ -170,7 +170,8 @@ byte calibrate (int jnt);
 byte writeToFlash (void);
 byte readFromFlash (void);
 
-void print_can (byte data[], char c);
+void print_can (byte data[], byte len, char c);
+void print_can_error ();
 
 #endif
 

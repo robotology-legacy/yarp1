@@ -463,27 +463,35 @@ byte calibrate (int jnt)
 #define END_MSG_TABLE \
 	}
 	
-void print_can (byte data[], char c)
+void print_can (byte data[], byte len, char c)
 {
+	int i;
 	DSP_SendData (&c, 1);
 	DSP_SendDataEx (": ");
-	DSP_SendByteAsChars (data[0]);
-	DSP_SendDataEx (" ");
-	DSP_SendByteAsChars (data[1]);
-	DSP_SendDataEx (" ");
-	DSP_SendByteAsChars (data[2]);
-	DSP_SendDataEx (" ");
-	DSP_SendByteAsChars (data[3]);
-	DSP_SendDataEx (" ");
-	DSP_SendByteAsChars (data[4]);
-	DSP_SendDataEx (" ");
-	DSP_SendByteAsChars (data[5]);
-	DSP_SendDataEx (" ");
-	DSP_SendByteAsChars (data[6]);
-	DSP_SendDataEx (" ");
-	DSP_SendByteAsChars (data[7]);
+	
+	for (i = 0; i < len; i++)
+	{
+		DSP_SendByteAsChars (data[i]);
+		DSP_SendDataEx (" ");
+	}
 	DSP_SendDataEx ("\r\n");
 }
+
+#define SEND_BOOL(x) ((x) ? DSP_SendDataEx("1") : DSP_SendDataEx("0"))
+
+void print_can_error(CAN1_TError *e)
+{
+	DSP_SendDataEx ("f: ");
+	SEND_BOOL(e->errName.BusOff);
+	SEND_BOOL(e->errName.TxPassive);
+	SEND_BOOL(e->errName.RxPassive);
+	SEND_BOOL(e->errName.TxWarning);
+	SEND_BOOL(e->errName.RxWarning);
+	SEND_BOOL(e->errName.OverRun);
+	DSP_SendDataEx ("\r\n");
+}
+
+CAN1_TError err;
 
 /* */
 byte can_interface (void)
@@ -491,7 +499,9 @@ byte can_interface (void)
 	if (CAN1_GetStateRX () != 0)
 	{
 		CAN1_ReadFrame (&CAN_messID, &CAN_frameType, &CAN_frameFormat, &CAN_length, CAN_data);
-		print_can (CAN_data, 'x');
+		print_can (CAN_data, CAN_length, 'i');
+		CAN1_GetError (&err);
+		print_can_error (&err);
 		
 #define CAN_DATA CAN_data
 #define CAN_FRAME_TYPE CAN_frameType
@@ -540,10 +550,11 @@ byte can_interface (void)
 
 		HANDLE_MSG (CAN_POSITION_MOVE, CAN_POSITION_MOVE_HANDLER)
 		HANDLE_MSG (CAN_VELOCITY_MOVE, CAN_VELOCITY_MOVE_HANDLER)
-
 	
 		END_MSG_TABLE		
-		
+
+		print_can (CAN_data, CAN_length, 'o');
+
 		if (_general_board_error != ERROR_NONE)
 		{
 			DSP_SendDataEx ("error in processing message\r\n");
