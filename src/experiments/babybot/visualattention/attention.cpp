@@ -248,6 +248,7 @@ void mainthread::Body (void)
 	int frame_no = 0;
 	bool moved = false;
 	bool targetFound = false;
+	bool diffFound;
 
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n"); // to stop the execution on this instruction
@@ -260,25 +261,35 @@ testDiff:
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n");
 
-	imgOld.Refer(inImage.Content());
+	img.Refer(inImage.Content());
+	imgOld=img;
 	
 	// check for difference in "original" image or in grayscale?
-	for (int i=0; i<60; i++)
+	for (int i=0; i<90; i++)
 	{
 		if (!inImage.Read())
 			ACE_OS::printf(">>> ERROR: frame not read\n");
 		img.Refer(inImage.Content());			
 
 		iplSubtract(img, imgOld, tmp);
-		iplSubtract(imgOld, img, imgOld);
-		iplAdd(imgOld, tmp, tmp);
+		iplSubtract(imgOld, img, tmp2);
+		iplAdd(tmp2, tmp, tmp);
 		
 		for (int y=0; y<_srho; y++)
 			for (int x=0; x<_stheta; x++)
 				if (tmp(x,y)>maxDiff)
 					maxDiff=tmp(x,y);
 		
-		imgOld.Refer(img);
+		/*if (maxDiff==255) {
+			ACE_OS::sprintf(savename, "./diff.ppm");
+			YARPImageFile::Write(savename, tmp);
+			ACE_OS::sprintf(savename, "./img.ppm");
+			YARPImageFile::Write(savename, img);
+			ACE_OS::sprintf(savename, "./imgold.ppm");
+			YARPImageFile::Write(savename, imgOld);
+		}*/
+
+		imgOld=img;
 	}
 	if (maxDiff>127) {
 		ACE_OS::printf("Warning! Max=%d, it is too high!\nI'm going to recalculate it.\n", maxDiff);
@@ -289,10 +300,8 @@ testDiff:
 	//att_mod.setParameters(109, 0, 18, 0, 1);
 	bool isStarted = true;
 			
-	if (!inImage.Read())
-		ACE_OS::printf(">>> ERROR: frame not read\n");
-	imgOld.Refer(inImage.Content());			
-	
+	out2.Refer(att_mod.BlobFov());
+
 	start = YARPTime::GetTimeAsSeconds();
 	
 	while (!IsTerminated())	{
@@ -355,6 +364,7 @@ testDiff:
 				ACE_OS::printf(">>> ERROR: frame not read\n");
 		
 			img.Refer(inImage.Content());
+			frame_no++;
 			DBGPF1 ACE_OS::printf(">>> got a frame\n");
 
 			/*iplRShiftS(img, img, 1);
@@ -374,20 +384,16 @@ testDiff:
 			
 			//if (checkFix(1)==1) {
 			if (!isMoving) {
-				frame_no++;
 				
 				if (moved) {
+					// to skip the difference test on the first stable frame
+					// because I don't have a reference frame
+					// and to skip the temporal filter for the same reason
 					moved = false;
 				} else {
 					iplSubtract(img, imgOld, tmp);
 					iplSubtract(imgOld, img, tmp2);
 					iplAdd(tmp2, tmp, tmp2);
-				
-					// 0.25*current frame + 0.75*previous frame
-					iplRShiftS(imgOld, tmp, 2);
-					iplSubtract(imgOld, tmp, tmp);
-					iplRShiftS(img, imgOld, 2);
-					iplAdd(tmp, imgOld, img);
 
 					// Posso
 					//1) mettere a 1 tutti i pixel > di maxDiff, taggare
@@ -396,21 +402,24 @@ testDiff:
 					// filtro a mediana x eliminare i pixel isolati? Ma è lento...
 					// se c'è solo un pixel ignoralo?
 					// se c'è stato un movimento lo dovresti ricordare e spostarsi lì in ogni caso?
+					diffFound = false;
 					for (int y=0; y<_srho; y++) {
 						for (int x=0; x<_stheta; x++) {
 							// points near the fovea are privileged?
 							// should I calculare the center of mass of the variations and the area?
 							if (tmp2(x,y)>maxDiff && att_mod.isWithinRange(x,y)) {
 								// TO DO: Add a check on the limits
-								ACE_OS::printf("Difference detected at (%d,%d)=%d\n",x,y,tmp(x,y));
+								int cartx, carty;
 								out.Zero();
+								ACE_OS::printf("Difference detected at (%d,%d)=%d\n",x,y,tmp2(x,y));
 								out(x,y)=255;
 								out.SafePixel(x+1,y)=255;
 								out.SafePixel(x-1,y)=255;
 								out.SafePixel(x,y-1)=255;
 								out.SafePixel(x,y+1)=255;
-								tmpBottle.writeInt(x);
-								tmpBottle.writeInt(y);
+								mapper.Logpolar2Cartesian(y, x, cartx, carty);
+								tmpBottle.writeInt(cartx);
+								tmpBottle.writeInt(carty);
 								tmpBottle.writeInt(-1);
 								tmpBottle.writeInt(-1);
 								tmpBottle.writeInt(-1);
@@ -420,18 +429,24 @@ testDiff:
 								tmpBottle.writeInt(-1);
 								tmpBottle.writeInt(-1);
 								targetFound = false;
-								imgOld.Refer(img);
-								goto printFrame;
+								diffFound = true;
+								goto endDiffCheck;
 							}
 						}
 					}
+
+					// 0.25*current frame + 0.75*previous frame
+					iplRShiftS(imgOld, tmp, 2);
+					iplSubtract(imgOld, tmp, tmp);
+					iplRShiftS(img, imgOld, 2);
+					iplAdd(tmp, imgOld, img);
+
 				}
 
+endDiffCheck:
 				DBGPF1 ACE_OS::printf(">>> reconstruct colors\n");
 				//mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)imgOld, colored_s);
 				mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)img, colored_s);
-
-				imgOld.Refer(img);
 
 				//ACE_OS::sprintf(savename, "./col.ppm\0");
 				//YARPImageFile::Write(savename, colored);
@@ -440,41 +455,38 @@ testDiff:
 				//mapper.Sawt2TriCentral(colored_s, colored_u);
 				
 				DBGPF1 ACE_OS::printf(">>> call attention module\n");
-				found=att_mod.Apply(colored_u);
-				//if (checkFix(1)==1 && found) {
-				if (found) {
-					ACE_OS::printf("No point: target found\n");
-					tmpBottle.writeInt(-1);
-					tmpBottle.writeInt(-1);
-					tmpBottle.writeInt(-1);
-					tmpBottle.writeInt(-1);
-					tmpBottle.writeInt(-1);
-					targetFound = true;
-				} else {
-					//ACE_OS::printf("Sending point\n");
-					tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
-					tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
-					tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
-					tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
-					tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);
+				found=(att_mod.Apply(colored_u) | targetFound);
+				
+				if (!diffFound) {
+					//if (checkFix(1)==1 && found) {
+					if (found) {
+						ACE_OS::printf("No point: target found\n");
+						tmpBottle.writeInt(-1);
+						tmpBottle.writeInt(-1);
+						tmpBottle.writeInt(-1);
+						tmpBottle.writeInt(-1);
+						tmpBottle.writeInt(-1);
+						targetFound = true;
+					} else {
+						//ACE_OS::printf("Sending point\n");
+						tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
+						tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
+						tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
+						tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
+						tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);
+					}
+					// blob in fovea
+					tmpBottle.writeInt(att_mod.fovBox.meanRG);
+					tmpBottle.writeInt(att_mod.fovBox.meanGR);
+					tmpBottle.writeInt(att_mod.fovBox.meanBY);
+					out = att_mod.Saliency();
+					//out.Refer(att_mod.Saliency());
 				}
-				// blob in fovea
-				tmpBottle.writeInt(att_mod.fovBox.meanRG);
-				tmpBottle.writeInt(att_mod.fovBox.meanGR);
-				tmpBottle.writeInt(att_mod.fovBox.meanBY);
 
-				out.Refer(att_mod.Saliency());
-				out2.Refer(att_mod.BlobFov());
-			
 				//att_mod.FindNMax(7, pos_max);
 
 				//ACE_OS::printf("max position: x=%d y=%d max=%d\n", pos_x, pos_y, max);
 				//DBGPF1 ACE_OS::printf("max position: x=%d y=%d\n", pos_max[0].centroid_x, pos_max[0].centroid_y);
-
-				//ARRONZAMENTO
-				YARPImageUtils::SetRed(out, colored_u);
-				mapper.Uniform2Sawt(colored_u, colored_s);
-				YARPImageUtils::GetRed(colored_s, out);
 
 				/*out2.Zero();
 				memset(out2.GetRawBuffer(), 255, 50*((IplImage*)out2)->widthStep);
@@ -505,9 +517,15 @@ testDiff:
 				tmpBottle.writeInt(-1);
 				tmpBottle.writeInt(-1);
 			}
+			
+			//imgOld.Refer(img);
+			imgOld = img;
 
+			//ARRONZAMENTO
+			YARPImageUtils::SetRed(out, colored_u);
+			mapper.Uniform2Sawt(colored_u, colored_s);
+			YARPImageUtils::GetRed(colored_s, out);
 
-printFrame:
 			YARPImageUtils::SetRed(out2, colored_u);
 			mapper.Uniform2Sawt(colored_u, colored_s);
 			YARPImageUtils::GetRed(colored_s, out2);

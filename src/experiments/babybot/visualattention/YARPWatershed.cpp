@@ -1223,7 +1223,7 @@ void YARPWatershed::ComputeSalienceAll(int num_blob, int last_tag)
 	for (; i <= last_tag; i++) {
 	//while (i<=last_tag && num_blob>0) {
 		if (m_boxes[i].areaLP) {
-			m_boxes[i] = m_boxes[i];
+			//m_boxes[i] = m_boxes[i];
 
 			// Maybe I can calculate this values only when it is useful...
 			//int area=TotalArea(m_boxes[i]);
@@ -1250,16 +1250,6 @@ void YARPWatershed::ComputeSalienceAll(int num_blob, int last_tag)
 	//cout<<badboxes<<endl;
 
 }
-
-
-/*bool YARPWatershed::isWithinRange(int x, int y, double &elev, double &az)
-{
-	_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, elev, az , x, y);
-	if (elev<2.*PI*(-65.)/360. || elev>2.*PI*(-20.)/360. || az<2.*PI*(-40.)/360. || az>2.*PI*50./360.)
-		return false;
-	else
-		return true;
-}*/
 
 
 void YARPWatershed::checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num)
@@ -1365,7 +1355,8 @@ void YARPWatershed::RemoveNonValid(int last_tag, const int max_size, const int m
 		if ( area < min_size ||	area > max_size ) {
 			m_boxes[i].valid=false;
 		} else {
-			m_boxes[i].valid=isWithinRange((int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y, m_boxes[i].elev, m_boxes[i].az);
+			if ( !isWithinRange((int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y, m_boxes[i].elev, m_boxes[i].az) )
+				m_boxes[i].valid=false;
 			/*_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, m_boxes[i].elev, m_boxes[i].az , (int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y);
 			if (m_boxes[i].elev<2.*PI*(-65.)/360. || m_boxes[i].elev>2.*PI*(-20.)/360. ||
 				m_boxes[i].az<2.*PI*(-40.)/360. || m_boxes[i].az>2.*PI*50./360.)
@@ -1493,7 +1484,7 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 	
 	if (numBlob>imageSize) numBlob=imageSize;
 	
-	for (int i = 0; i < numBlob; i++) {
+	for (int i = 1; i < numBlob; i++) {
 		if (m_boxes[i].valid) {
 			int rdim=(m_boxes[i].rmax-m_boxes[i].rmin+1);
 			int cdim=(m_boxes[i].cmax-m_boxes[i].cmin+1);
@@ -1635,7 +1626,7 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 	integralGR.computeCartesian(gr);
 	integralBY.computeCartesian(by);
 	
-	for (int i = 0; i < numBlob; i++) {
+	for (int i = 1; i < numBlob; i++) {
 		if (m_boxes[i].valid) {
 			int tmp;
 			

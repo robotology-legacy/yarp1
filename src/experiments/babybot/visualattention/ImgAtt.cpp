@@ -1359,11 +1359,11 @@ void YARPImgAtt::findBlobs()
 	YARPImageFile::Write(savename, blobFov);*/
 	blobList[1]=true;
 	rain.statBlobList(tagged, blobList, max_tag, fovBox);
-	rain.removeBlobList(blobList, max_tag);
+	//rain.removeBlobList(blobList, max_tag);
+	rain.removeFoveaBlob(tagged);
 
 	/*int CoMX, CoMY;
 	double u00, u11, u20, u02;
-
 	moments.centerOfMassAndMass(blobFov, &CoMX, &CoMY, &u00);
 	moments.centralMomentsOrder2(blobFov, CoMX, CoMY, &u11, &u20, &u02);*/
 	
@@ -1379,7 +1379,6 @@ void YARPImgAtt::findBlobs()
 	//fovBox.ect=sqrt((u20-u02)*(u20-u02)+4*u11*u11)/(u20+u02);
 
 	
-	//rain.removeFoveaBlob(tagged);
 	//rain.RemoveNonValid(max_tag, 3800, 100);
 	rain.ComputeSalienceAll(max_tag, max_tag);
 	rain.RemoveNonValid(max_tag, 6000, 200);
