@@ -1,41 +1,47 @@
-# platform_qnx_rtp_gcc.GNU,v 1.10 2002/09/04 21:05:35 crodrigu Exp
-
-# QNX/RTP hosted, using gcc-2.95.2
-# QNX/RTP hosted, using QCC the native compiler
-# modified by pasa and carlos somehow to fit the QCC compiler
+# platform_qnx_rtp_gcc.GNU,v 1.18 2004/06/03 21:43:55 mbrudka Exp
 #
+# QNX/RTP hosted, using gcc-2.95.2
+
+nto_version := $(shell uname -a | awk '{ gsub("\\.","", $$3 ); print $$3;}')
 
 inline = 1
-debug = 1
-optimize = 1
-exceptions = 1
+debug ?= 1
+optimize ?= 0
+exceptions ?= 1
+threads ?= 1
+static_libs_only = 1
 
 ifeq ($(exceptions),1)
   CCFLAGS += -fexceptions
   LDFLAGS += -fexceptions
 else
-  CCLAGS += -fno-exceptions
-  LDLAGS += -fno-exceptions
+  CCFLAGS += -fno-exceptions
+  LDFLAGS += -fno-exceptions
 endif # ! exceptions
 
-#CC      = gcc
-CXX     = QCC
+ifeq ($(inline),1)
+  CCFLAGS += -finline-functions
+else
+  CCFLAGS += -fno-inline
+endif # inline
 
-include $(ACE_ROOT)/include/makeinclude/platform_g++_common.GNU
+ifeq ($(debug),1)
+	DCFLAGS += -gdwarf-2
+else # debug excludes optimize due to g++ internal compiler error
+  ifeq ($(optimize),1)
+	OCFLAGS += -O3
+  endif #optimize
+endif #debug
+CC      = gcc
+CXX     = g++
 
-#DCFLAGS += -gstabs
-
-#CFLAGS  += -pipe -W -Wall -Wpointer-arith
-CFLAGS  += -pipe -Wall -Wpointer-arith
-CCFLAGS += $(CFLAGS) -Y_gpp #$(TEMPLATES_FLAG)
-#CCFLAGS += $(CFLAGS) -Y_gpp #-fno_implicit_templates
-
-
+CFLAGS  += -pipe -W -Wall -Wpointer-arith -DACE_NTO_VERS=$(nto_version)
+CPPFLAGS += -DACE_NTO_VERS=$(nto_version)
 
 DLD     = $(CXX)
 LD      = $(CXX)
 LIBS    += -lsocket -lstdc++ -lm
-OCFLAGS += -O3
+
 PIC     = -fPIC
 AR      = ar
 ARFLAGS = ruv
@@ -43,3 +49,9 @@ ARFLAGS = ruv
 SOFLAGS += $(CPPFLAGS) -shared
 SOBUILD = $(COMPILE.cc) $(PIC) -o $(VSHDIR)$*.so $<
 PRELIB  = @true
+
+# Test for template  instantiation, add to SOFLAGS if SONAME set,   
+# add -E to LDFLAGS if using GNU ld
+#
+include $(ACE_ROOT)/include/makeinclude/platform_g++_common.GNU
+CCFLAGS += $(CFLAGS) $(TEMPLATES_FLAG)
