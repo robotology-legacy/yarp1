@@ -159,6 +159,10 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 	{
 		outIp = "0.0.0.0";		// nothing was found, return 0.0.0.0
 		outNic = "not_found";	// nothing was found, return "not found"
+
+		//PFHIT
+		outIp = "127.0.0.1";
+		outNic = "127.0.0.1";
 	}
 	else
 	{
