@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPRepeater.h,v 1.1 2004-07-29 13:09:14 babybot Exp $
+/// $Id: YARPRepeater.h,v 1.2 2004-08-06 08:26:27 babybot Exp $
 ///  
 //
 
@@ -94,15 +94,27 @@ public:
 	{
 		while(!IsTerminated())
 		{
-			_inputPort.Read();
-			ACE_OS::printf("Received:\n");
-			_inputPort.Content().display();	// this is ok only if DATATYPE is a YARPBottle
+			if (_inputPort.Read())
+			{
+				ACE_OS::printf("Received:\n");
+				_inputPort.Content().display();	// this is ok only if DATATYPE is a YARPBottle
 
-			_outputPort.Content() = _inputPort.Content();
-			ACE_OS::printf("Sent:\n");
-			_outputPort.Content().display();
-			_outputPort.Write(1);
+				_outputPort.Content() = _inputPort.Content();
+				ACE_OS::printf("Sent:\n");
+				_outputPort.Content().display();
+				_outputPort.Write(1);
+			}
 		}
+	}
+
+	virtual void End(int dontkill = -1)
+	{
+		YARPThread::AskForEnd();
+
+		_inputPort.End();
+		_outputPort.End();
+
+		YARPThread::Join();
 	}
 
 	YARPInputPortOf<DATATYPE> _inputPort;
