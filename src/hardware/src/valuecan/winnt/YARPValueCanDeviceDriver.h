@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.6 2004-05-04 23:04:21 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.7 2004-05-07 01:40:16 babybot Exp $
 ///
 ///
 
@@ -116,6 +116,11 @@ public:
 	virtual int velocityMove(void *cmd);
 	virtual int setCommand(void *cmd);
 	virtual int setCommands(void *cmd);
+	virtual int getTorques(void *cmd);
+	virtual int readBootMemory(void *cmd);
+	virtual int writeBootMemory(void *cmd);
+	virtual int setPositiveLimit(void *cmd);
+	virtual int setNegativeLimit(void *cmd);
 
 protected:
 	void *system_resources;

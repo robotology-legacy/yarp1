@@ -68,6 +68,20 @@ int init_trajectory (byte jj, long current, long final, int speed)
 		
 	_curt[jj] = 0;
 	_curstep[jj] = 0;
+	_ended[jj] = false;
+		
+	return 0;
+}
+
+int abort_trajectory (byte jj, long limit)
+{
+	if (!_ended[jj])
+	{
+		_ended[jj] = true;
+		_curt[jj] = 0;
+		_curstep[jj] = 0;
+		_xf[jj] = limit;
+	}
 	
 	return 0;
 }
@@ -80,7 +94,9 @@ long step_trajectory (byte jj)
 	unsigned int ia;
 	
 	/* (10 * (t/T)^3 - 15 * (t/T)^4 + 6 * (t/T)^5) * (x0-xf) + x0 */
-
+	if (_ended[jj])
+		return _xf[jj];
+		
 	if (_curt[jj] == 0)
 	{
 		_curt[jj] += _step;
@@ -105,8 +121,6 @@ long step_trajectory (byte jj)
 		u0 = _L_shl (u0, 6);
 		u0 += _x0[jj];
 		return u0;
-		
-		//return _x0[jj] + (_distance[jj] / ia) << 6;
 	}			
 
 	_ended[jj] = true;	

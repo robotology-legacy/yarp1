@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.6 2004-05-06 20:19:15 babybot Exp $
+/// $Id: Controller.H,v 1.7 2004-05-07 01:40:15 babybot Exp $
 ///
 ///
 
@@ -57,6 +57,8 @@
 
 #define DEFAULT_VELOCITY 10
 #define DEFAULT_ACCELERATION 10
+#define DEFAULT_MAX_POSITION 5000
+#define DEFAULT_MAX_VELOCITY 0x7fff
 
 #define FLASH_START_ADDR 0x2000
 
@@ -83,7 +85,7 @@
 /* CAN bus messages (our protocol) */
 #define CHANNEL_0(x)	((x) &= 0x7F)
 #define CHANNEL_1(x)	((x) |= 0x80)
-#define CHANNEL(x)		((x) & 0x80)
+#define CHANNEL(x)		(((x) & 0x80) ? 1 : 0)
 
 /* CAN packet (our protocol):
  * 
@@ -142,6 +144,16 @@
 
 #define CAN_GET_ERROR_STATUS		60
 
+#define CAN_GET_PID_OUTPUT			63
+
+#define CAN_SET_MIN_POSITION		64
+#define CAN_GET_MIN_POSITION		65
+#define CAN_SET_MAX_POSITION		66
+#define CAN_GET_MAX_POSITION		67
+#define CAN_SET_MAX_VELOCITY		68
+#define CAN_GET_MAX_VELOCITY		69
+
+#define NUM_OF_MESSAGES				70
 
 /* error status values */
 #define ERROR_NONE					0			/* no error, all ok */
@@ -162,6 +174,7 @@
 /* prototypes from trajectory.c */
 int init_trajectory (byte jj, long current, long final, int speed);
 long step_trajectory (byte jj);
+int abort_trajectory (byte jj, long limit);
 
 /* prototypes from controller.c */
 byte serial_interface (void);
@@ -169,6 +182,8 @@ byte can_interface (void);
 byte calibrate (int jnt);
 byte writeToFlash (void);
 byte readFromFlash (void);
+void generatePwm (byte i);
+long step_velocity (byte jj);
 
 void print_can (byte data[], byte len, char c);
 void print_can_error ();

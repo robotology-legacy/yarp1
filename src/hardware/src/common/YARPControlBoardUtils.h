@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 
 
-// $Id: YARPControlBoardUtils.h,v 1.19 2003-12-22 12:23:27 beltran Exp $
+// $Id: YARPControlBoardUtils.h,v 1.20 2004-05-07 01:40:15 babybot Exp $
 
 #include <conf/YARPConfig.h>
 
@@ -103,7 +103,6 @@ enum ControlBoardCmd
 	CMDDummy 				= 63,	// dummy command for debug purpose
 
 	CMDMotorType			= 64,	// Used to set the motor type
-
 	CMDGetMotorType			= 65,
 
 	/////////////////
@@ -114,8 +113,11 @@ enum ControlBoardCmd
 	CMDCheckFramesLeft		= 69,	// return true if frames are left to be executed for one or more axes
 	CMDWaitForFramesLeft	= 70,	// wait, loop with sleep(time), see .h for details
 	CMDSafeVMove			= 71,	// velocity move, check frames left
-	CBNCmds 				= 72 	// required! tells the total number of commands
 
+	CMDLoadBootMemory		= 72,	// loads control values from permanent storage
+	CMDSaveBootMemory		= 73,	// saves important parameters to permanent storage
+
+	CBNCmds 				= 74 	// required! tells the total number of commands
 };
 
 enum ControlBoardEvents

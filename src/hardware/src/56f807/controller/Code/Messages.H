@@ -21,9 +21,10 @@
 
 #define CAN_CONTROLLER_RUN_HANDLER(x) \
 { \
-	if (_control_mode == MODE_IDLE) \
+	int i = CHANNEL(CAN_DATA[1]); \
+	if (_control_mode[i] == MODE_IDLE) \
 	{ \
-		_control_mode = MODE_POSITION; \
+		_control_mode[i] = MODE_POSITION; \
 	} \
 	else \
 		_general_board_error = ERROR_MODE; \
@@ -31,9 +32,10 @@
 
 #define CAN_CONTROLLER_IDLE_HANDLER(x) \
 { \
-	if (_control_mode != MODE_IDLE) \
+	int i = CHANNEL(CAN_DATA[1]); \
+	if (_control_mode[i] != MODE_IDLE) \
 	{ \
-		_control_mode = MODE_IDLE; \
+		_control_mode[i] = MODE_IDLE; \
 	} \
 	else \
 		_general_board_error = ERROR_MODE; \
@@ -46,7 +48,7 @@
 
 #define CAN_CALIBRATE_ENCODER_HANDLER(x) \
 { \
-	if (CHANNEL(x[1]) == 0) \
+	if (CHANNEL(CAN_DATA[1]) == 0) \
 		calibrate (0); \
 	else \
 		calibrate (1); \
@@ -54,7 +56,7 @@
 
 #define CAN_ENABLE_PWM_PAD_HANDLER(x) \
 { \
-	if (CHANNEL(x[1]) == 0) \
+	if (CHANNEL(CAN_DATA[1]) == 0) \
 	{ \
 		if (_calibrated[0]) \
 		{ \
@@ -78,7 +80,7 @@
 
 #define CAN_DISABLE_PWM_PAD_HANDLER(x) \
 { \
-	if (CHANNEL(x[1]) == 0) \
+	if (CHANNEL(CAN_DATA[1]) == 0) \
 	{ \
 		if (_calibrated[0]) \
 		{ \
@@ -102,13 +104,14 @@
 
 #define CAN_GET_CONTROL_MODE_HANDLER(x) \
 { \
+	int i = CHANNEL(CAN_DATA[1]); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
 		CAN_LEN = 3; \
 		CAN_DATA[0] = CAN_DATA[0] >> 4; \
 		CAN_DATA[0] |= (_board_ID << 4); \
 		/* CAN_DATA[1] untouched */ \
-		CAN_DATA[2] = _control_mode; \
+		CAN_DATA[2] = _control_mode[i]; \
 		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 	} \
 	else \
@@ -131,7 +134,7 @@
 	CAN_DATA[0] |= (_board_ID << 4); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(x[1]); \
+		int i = CHANNEL(CAN_DATA[1]); \
 		CAN_LEN = 8; \
 		CAN_DATA[2] = BYTE_4(_position[i]); \
 		CAN_DATA[3] = BYTE_3(_position[i]); \
@@ -147,7 +150,7 @@
 
 #define CAN_SET_ENCODER_POSITION_HANDLER(x) \
 { \
-	int i = CHANNEL(x[1]); \
+	int i = CHANNEL(CAN_DATA[1]); \
 	int value; \
 	if (CAN_LEN == 6) \
 	{ \
@@ -156,6 +159,8 @@
 			QD1_SetPosition (value); \
 		else \
 			QD2_SetPosition (value); \
+		_position[i] = value; \
+		_position_old[i] = value; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -163,7 +168,7 @@
 
 #define CAN_SET_COMMAND_POSITION_HANDLER(x) \
 { \
-	int i = CHANNEL(x[1]); \
+	int i = CHANNEL(CAN_DATA[1]); \
 	int value; \
 	if (CAN_LEN == 6) \
 		_desired[i] = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \
@@ -173,47 +178,10 @@
 
 #define CAN_SET_DESIRED_POSITION_HANDLER(x) \
 { \
-	int i = CHANNEL(x[1]); \
+	int i = CHANNEL(CAN_DATA[1]); \
 	if (CAN_LEN == 6) \
 	{ \
 		_set_point[i] = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \
-	} \
-	else \
-		_general_board_error = ERROR_FMT; \
-}
-
-#define CAN_POSITION_MOVE_HANDLER(x) \
-{ \
-	int i = CHANNEL(x[1]); \
-	if (CAN_LEN == 8) \
-	{ \
-		if (_control_mode != MODE_IDLE && IS_DONE(i)) \
-		{ \
-			_control_mode = MODE_POSITION; \
-			_set_point[i] = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \
-			_set_vel[i] = BYTE_W(CAN_DATA[6], CAN_DATA[7]); \
-			init_trajectory (i, _position[i], _set_point[i], _set_vel[i]); \
-		} \
-		else \
-			_general_board_error = ERROR_MODE; \
-	} \
-	else \
-		_general_board_error = ERROR_FMT; \
-}
-
-#define CAN_VELOCITY_MOVE_HANDLER(x) \
-{ \
-	int i = CHANNEL(x[1]); \
-	if (CAN_LEN == 6) \
-	{ \
-		if (_control_mode != MODE_IDLE && IS_DONE(i)) \
-		{ \
-			_control_mode = MODE_VELOCITY; \
-			_set_vel[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
-			_set_acc[i] = BYTE_W(CAN_DATA[4], CAN_DATA[5]); \
-		} \
-		else \
-			_general_board_error = ERROR_MODE; \
 	} \
 	else \
 		_general_board_error = ERROR_FMT; \
@@ -225,7 +193,7 @@
 	CAN_DATA[0] |= (_board_ID << 4); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(x[1]); \
+		int i = CHANNEL(CAN_DATA[1]); \
 		CAN_LEN = 6; \
 		CAN_DATA[2] = BYTE_4(_set_point[i]); \
 		CAN_DATA[3] = BYTE_3(_set_point[i]); \
@@ -237,9 +205,143 @@
 		_general_board_error = ERROR_SEND; \
 }
 
+#define CAN_SET_MIN_POSITION_HANDLER(x) \
+{ \
+	int i = CHANNEL(CAN_DATA[1]); \
+	int value; \
+	if (CAN_LEN == 6) \
+	{ \
+		_min_position[i] = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \
+	} \
+	else \
+		_general_board_error = ERROR_FMT; \
+}
+
+#define CAN_GET_MIN_POSITION_HANDLER(x) \
+{ \
+	CAN_DATA[0] = CAN_DATA[0] >> 4; \
+	CAN_DATA[0] |= (_board_ID << 4); \
+	if (CAN1_GetStateTX () != 0) \
+	{ \
+		int i = CHANNEL(CAN_DATA[1]); \
+		CAN_LEN = 6; \
+		CAN_DATA[2] = BYTE_4(_min_position[i]); \
+		CAN_DATA[3] = BYTE_3(_min_position[i]); \
+		CAN_DATA[4] = BYTE_2(_min_position[i]); \
+		CAN_DATA[5] = BYTE_1(_min_position[i]); \
+		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+	} \
+	else \
+		_general_board_error = ERROR_SEND; \
+}
+
+#define CAN_SET_MAX_POSITION_HANDLER(x) \
+{ \
+	int i = CHANNEL(CAN_DATA[1]); \
+	int value; \
+	if (CAN_LEN == 6) \
+	{ \
+		_max_position[i] = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \
+	} \
+	else \
+		_general_board_error = ERROR_FMT; \
+}
+
+#define CAN_GET_MAX_POSITION_HANDLER(x) \
+{ \
+	CAN_DATA[0] = CAN_DATA[0] >> 4; \
+	CAN_DATA[0] |= (_board_ID << 4); \
+	if (CAN1_GetStateTX () != 0) \
+	{ \
+		int i = CHANNEL(CAN_DATA[1]); \
+		CAN_LEN = 6; \
+		CAN_DATA[2] = BYTE_4(_max_position[i]); \
+		CAN_DATA[3] = BYTE_3(_max_position[i]); \
+		CAN_DATA[4] = BYTE_2(_max_position[i]); \
+		CAN_DATA[5] = BYTE_1(_max_position[i]); \
+		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+	} \
+	else \
+		_general_board_error = ERROR_SEND; \
+}
+
+#define CAN_SET_MAX_VELOCITY_HANDLER(x) \
+{ \
+	int i = CHANNEL(CAN_DATA[1]); \
+	if (CAN_LEN == 4) \
+	{ \
+		_max_vel[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
+	} \
+	else \
+		_general_board_error = ERROR_FMT; \
+}
+
+#define CAN_GET_MAX_VELOCITY_HANDLER(x) \
+{ \
+	CAN_DATA[0] = CAN_DATA[0] >> 4; \
+	CAN_DATA[0] |= (_board_ID << 4); \
+	if (CAN1_GetStateTX () != 0) \
+	{ \
+		int i = CHANNEL(CAN_DATA[1]); \
+		CAN_LEN = 4; \
+		CAN_DATA[2] = BYTE_H(_max_vel[i]); \
+		CAN_DATA[3] = BYTE_L(_max_vel[i]); \
+		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+	} \
+	else \
+		_general_board_error = ERROR_SEND; \
+}
+
+#define CAN_POSITION_MOVE_HANDLER(x) \
+{ \
+	int i = CHANNEL(CAN_DATA[1]); \
+	if (CAN_LEN == 8) \
+	{ \
+		if (_control_mode[i] != MODE_IDLE && IS_DONE(i)) \
+		{ \
+			_control_mode[i] = MODE_POSITION; \
+			_set_point[i] = BYTE_C(CAN_DATA[2], CAN_DATA[3], CAN_DATA[4], CAN_DATA[5]); \
+			if (_set_point[i] < _min_position[i]) \
+				_set_point[i] = _min_position[i]; \
+			else \
+			if (_set_point[i] > _max_position[i]) \
+				_set_point[i] = _max_position[i]; \
+			_set_vel[i] = BYTE_W(CAN_DATA[6], CAN_DATA[7]); \
+			/* _set_vel needs to be checked */ \
+			_set_acc[i] = 0; \
+			init_trajectory (i, _position[i], _set_point[i], _set_vel[i]); \
+		} \
+		else \
+			_general_board_error = ERROR_MODE; \
+	} \
+	else \
+		_general_board_error = ERROR_FMT; \
+}
+
+#define CAN_VELOCITY_MOVE_HANDLER(x) \
+{ \
+	int i = CHANNEL(CAN_DATA[1]); \
+	if (CAN_LEN == 6) \
+	{ \
+		if (_control_mode[i] != MODE_IDLE && IS_DONE(i)) \
+		{ \
+			if (_control_mode[i] == MODE_POSITION) \
+				_desired_vel[i] = 0; \
+			_control_mode[i] = MODE_VELOCITY; \
+			_set_point[i] = 0; \
+			_set_vel[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
+			_set_acc[i] = BYTE_W(CAN_DATA[4], CAN_DATA[5]); \
+		} \
+		else \
+			_general_board_error = ERROR_MODE; \
+	} \
+	else \
+		_general_board_error = ERROR_FMT; \
+}
+
 #define CAN_SET_DESIRED_VELOCITY_HANDLER(x) \
 { \
-	int i = CHANNEL(x[1]); \
+	int i = CHANNEL(CAN_DATA[1]); \
 	if (CAN_LEN == 4) \
 	{ \
 		_set_vel[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
@@ -254,7 +356,7 @@
 	CAN_DATA[0] |= (_board_ID << 4); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(x[1]); \
+		int i = CHANNEL(CAN_DATA[1]); \
 		CAN_LEN = 4; \
 		CAN_DATA[2] = BYTE_H(_set_vel[i]); \
 		CAN_DATA[3] = BYTE_L(_set_vel[i]); \
@@ -270,7 +372,7 @@
 	CAN_DATA[0] |= (_board_ID << 4); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(x[1]); \
+		int i = CHANNEL(CAN_DATA[1]); \
 		CAN_LEN = 4; \
 		CAN_DATA[2] = BYTE_H(_speed[i]); \
 		CAN_DATA[3] = BYTE_L(_speed[i]); \
@@ -282,7 +384,7 @@
 
 #define CAN_SET_DESIRED_ACCELER_HANDLER(x) \
 { \
-	int i = CHANNEL(x[1]); \
+	int i = CHANNEL(CAN_DATA[1]); \
 	if (CAN_LEN == 4) \
 	{ \
 		_set_acc[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
@@ -297,7 +399,7 @@
 	CAN_DATA[0] |= (_board_ID << 4); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(x[1]); \
+		int i = CHANNEL(CAN_DATA[1]); \
 		CAN_LEN = 4; \
 		CAN_DATA[2] = BYTE_H(_set_acc[i]); \
 		CAN_DATA[3] = BYTE_L(_set_acc[i]); \
@@ -307,9 +409,25 @@
 		_general_board_error = ERROR_SEND; \
 }
 
+#define CAN_GET_PID_OUTPUT_HANDLER(x) \
+{ \
+	CAN_DATA[0] = CAN_DATA[0] >> 4; \
+	CAN_DATA[0] |= (_board_ID << 4); \
+	if (CAN1_GetStateTX () != 0) \
+	{ \
+		int i = CHANNEL(CAN_DATA[1]); \
+		CAN_LEN = 4; \
+		CAN_DATA[2] = BYTE_H(_pid[i]); \
+		CAN_DATA[3] = BYTE_L(_pid[i]); \
+		CAN1_SendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+	} \
+	else \
+		_general_board_error = ERROR_SEND; \
+}
+
 #define CAN_SET_P_GAIN_HANDLER(x) \
 { \
-	int i = CHANNEL(x[1]); \
+	int i = CHANNEL(CAN_DATA[1]); \
 	if (CAN_LEN == 4) \
 	{ \
 		_kp[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
@@ -324,7 +442,7 @@
 	CAN_DATA[0] |= (_board_ID << 4); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(x[1]); \
+		int i = CHANNEL(CAN_DATA[1]); \
 		CAN_LEN = 4; \
 		CAN_DATA[2] = BYTE_H(_kp[i]); \
 		CAN_DATA[3] = BYTE_L(_kp[i]); \
@@ -336,7 +454,7 @@
 
 #define CAN_SET_D_GAIN_HANDLER(x) \
 { \
-	int i = CHANNEL(x[1]); \
+	int i = CHANNEL(CAN_DATA[1]); \
 	if (CAN_LEN == 4) \
 	{ \
 		_kd[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
@@ -351,7 +469,7 @@
 	CAN_DATA[0] |= (_board_ID << 4); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(x[1]); \
+		int i = CHANNEL(CAN_DATA[1]); \
 		CAN_LEN = 4; \
 		CAN_DATA[2] = BYTE_H(_kd[i]); \
 		CAN_DATA[3] = BYTE_L(_kd[i]); \
@@ -363,7 +481,7 @@
 
 #define CAN_SET_I_GAIN_HANDLER(x) \
 { \
-	int i = CHANNEL(x[1]); \
+	int i = CHANNEL(CAN_DATA[1]); \
 	if (CAN_LEN == 4) \
 	{ \
 		_ki[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
@@ -378,7 +496,7 @@
 	CAN_DATA[0] |= (_board_ID << 4); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(x[1]); \
+		int i = CHANNEL(CAN_DATA[1]); \
 		CAN_LEN = 4; \
 		CAN_DATA[2] = BYTE_H(_ki[i]); \
 		CAN_DATA[3] = BYTE_L(_ki[i]); \
@@ -390,7 +508,7 @@
 
 #define CAN_SET_ILIM_GAIN_HANDLER(x) \
 { \
-	int i = CHANNEL(x[1]); \
+	int i = CHANNEL(CAN_DATA[1]); \
 	if (CAN_LEN == 4) \
 	{ \
 		_integral_limit[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
@@ -405,7 +523,7 @@
 	CAN_DATA[0] |= (_board_ID << 4); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(x[1]); \
+		int i = CHANNEL(CAN_DATA[1]); \
 		CAN_LEN = 4; \
 		CAN_DATA[2] = BYTE_H(_integral_limit[i]); \
 		CAN_DATA[3] = BYTE_L(_integral_limit[i]); \
@@ -417,7 +535,7 @@
 
 #define CAN_SET_OFFSET_HANDLER(x) \
 { \
-	int i = CHANNEL(x[1]); \
+	int i = CHANNEL(CAN_DATA[1]); \
 	if (CAN_LEN == 4) \
 	{ \
 		_ko[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
@@ -432,7 +550,7 @@
 	CAN_DATA[0] |= (_board_ID << 4); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(x[1]); \
+		int i = CHANNEL(CAN_DATA[1]); \
 		CAN_LEN = 4; \
 		CAN_DATA[2] = BYTE_H(_ko[i]); \
 		CAN_DATA[3] = BYTE_L(_ko[i]); \
@@ -444,7 +562,7 @@
 
 #define CAN_SET_SCALE_HANDLER(x) \
 { \
-	int i = CHANNEL(x[1]); \
+	int i = CHANNEL(CAN_DATA[1]); \
 	if (CAN_LEN == 4) \
 	{ \
 		_kr[i] = BYTE_W(CAN_DATA[2], CAN_DATA[3]); \
@@ -459,7 +577,7 @@
 	CAN_DATA[0] |= (_board_ID << 4); \
 	if (CAN1_GetStateTX () != 0) \
 	{ \
-		int i = CHANNEL(x[1]); \
+		int i = CHANNEL(CAN_DATA[1]); \
 		CAN_LEN = 4; \
 		CAN_DATA[2] = BYTE_H(_kr[i]); \
 		CAN_DATA[3] = BYTE_L(_kr[i]); \

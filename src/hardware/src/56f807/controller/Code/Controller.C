@@ -48,7 +48,8 @@
 bool _calibrated[JN] = { false, false };
 bool _pad_enabled[JN] = { false, false };
 bool _verbose = false;
-byte _control_mode = 0;					/* control mode (e.g. position, velocity, etc.) */
+byte _control_mode[JN] = { MODE_IDLE, MODE_IDLE };
+										/* control mode (e.g. position, velocity, etc.) */
 
 long _position[JN] = { 0, 0 };			/* encoder position */
 long _position_old[JN] = { 0, 0 };		/* do I need to add bits for taking into account multiple rotations */
@@ -56,9 +57,17 @@ long _speed[JN] = { 0, 0 };				/* encoder speed */
 
 long _desired[JN] = { 0, 0 };			/* PID ref value, computed by the trajectory generator */
 long _set_point[JN] = { 0, 0 };			/* set point for position [user specified] */
+
+long _min_position[JN] = { -DEFAULT_MAX_POSITION, -DEFAULT_MAX_POSITION };
+long _max_position[JN] = { DEFAULT_MAX_POSITION, DEFAULT_MAX_POSITION };
+										/* software position limits */
+										
 int  _desired_vel[JN] = { 0, 0 };		/* speed reference value, computed by the trajectory gen. */
 int  _set_vel[JN] = { DEFAULT_VELOCITY, DEFAULT_VELOCITY };	
 										/* set point for velocity [user specified] */
+int  _max_vel[JN] = { DEFAULT_MAX_VELOCITY, DEFAULT_MAX_VELOCITY };
+										/* assume this limit is symmetric */
+										
 int  _set_acc[JN] = { DEFAULT_ACCELERATION, DEFAULT_ACCELERATION };
 										/* set point for acceleration [too low!] */
 int  _integral[JN] = { 0, 0 };			/* store the sum of the integral component */
@@ -151,32 +160,46 @@ int u0, u1, ud;
 }	
 /* end of macro */
 
-long step_velocity (byte jj);
-
+/*
+ * 
+ */
 long step_velocity (byte jj)
 {
 	long u0;
+	int dv, da;
 	
 	/* dv is a signed 16 bit value, need to be checked for overflow */
-	int dv = _set_vel[jj] - _desired_vel[jj];
-	int da = _set_acc[jj] * CONTROLLER_PERIOD;
+	if (_set_vel[jj] < -_max_vel[jj])
+		_set_vel[jj] = -_max_vel[jj];
+	else
+	if (_set_vel[jj] > _max_vel[jj])
+		_set_vel[jj] = _max_vel[jj];
+	
+	dv = _set_vel[jj] - _desired_vel[jj];
+	da = _set_acc[jj] * CONTROLLER_PERIOD;
 	
 	if (__abs(dv) < da)
-		dv = 0;
+	{
+		_desired_vel[jj] = _set_vel[jj];
+	}
 	else
 	if (dv > 0)
-		dv = da;
+	{
+		_desired_vel[jj] += da;
+	}
 	else
-		dv = -da;
-	
-	_desired_vel[jj] += dv;
+	{
+		_desired_vel[jj] -= da;
+	}
 	
 	u0 = _desired[jj] + _desired_vel[jj] * CONTROLLER_PERIOD;
 	return u0;
 }
-/* end of macro */
 
-
+/*
+ * flash memory functions.
+ * LATER: add all relevant variables.
+ */
 byte writeToFlash (void)
 {
 	dword ptr = FLASH_START_ADDR;
@@ -242,6 +265,116 @@ byte readFromFlash (void)
 	return ERR_OK;
 }
 
+#define SPIKEREMOVE(i) \
+	if (_speed[i] < -32768) \
+	{ \
+		_position[i] += 65536; \
+		_speed[i] += 65536; \
+	} \
+	else \
+	if (_speed[i] > 32767) \
+	{ \
+		_position[i] -= 65535; \
+		_speed[i] -= 65535; \
+	}
+	
+
+#define DUTYCYCLE(axis, ch, value) \
+ if (axis == 0) \
+	PWMC1_SetDutyPercent (ch, value); \
+ else \
+	PWMC2_SetDutyPercent (ch, value);
+ 
+#define LOADDUTYCYCLE(axis) \
+ if (axis == 0) \
+	PWMC1_Load(); \
+ else \
+	PWMC2_Load();
+
+/*
+ * helper function to generate PWM values according to controller status.
+ */
+void generatePwm (byte i)
+{
+	long cd;
+	
+	if (_control_mode[i] != MODE_IDLE)
+	{
+		cd = _desired[i];
+		
+		/* compute trajectory and control mode */
+		switch (_control_mode[i])
+		{
+		case MODE_POSITION:
+			_desired[i] = step_trajectory (i);
+			
+			/* IT DOESN'T WORK LIKE THIS
+			if (_desired[i] < _min_position[i] && (_desired[i] - cd) < 0) 
+			{
+				_desired[i] = _min_position[i];
+				abort_trajectory (i, _min_position[i]);
+			}
+			else
+			if (_desired[i] > _max_position[i] && (_desired[i] - cd) > 0)
+			{
+				_desired[i] = _max_position[i];
+				abort_trajectory (i, _max_position[i]);
+			}
+			*/
+			break;
+			
+		case MODE_VELOCITY:
+			_desired[i] = step_velocity (i);
+			if (_desired[i] < _min_position[i] && (_desired[i] - cd) < 0) 
+			{
+				_desired[i] = _min_position[i];
+				_set_vel[i] = 0;
+			}
+			else
+			if (_desired[i] > _max_position[i] && (_desired[i] - cd) > 0)
+			{
+				_desired[i] = _max_position[i];
+				_set_vel[i] = 0;
+			}
+			break;
+		}
+			
+		/* computes PID control */
+		compute_pid (i);
+					
+		/* set PWM, _pid becomes the PWM value */
+		if (_calibrated[i])
+		{
+			if (_pid[i] >= 0)
+			{
+				if (_pid[i] > 100) 
+					_pid[i] = 100;
+				DUTYCYCLE (i, 0, (unsigned char)(_pid[i] & 0x00ff));
+				DUTYCYCLE (i, 2, 0);
+				DUTYCYCLE (i, 4, 0);
+			}
+			else
+			{
+				_pid[i] = -_pid[i];
+				if (_pid[i] > 100) 
+					_pid[i] = 100;
+				DUTYCYCLE (i, 0, 0);
+				DUTYCYCLE (i, 2, (unsigned char)(_pid[0] & 0x00ff));
+				DUTYCYCLE (i, 4, 0);
+			}
+			
+			LOADDUTYCYCLE(i);
+		}
+	} /* end of !IDLE */
+	else
+	{
+		DUTYCYCLE (i, 0, 0);
+		DUTYCYCLE (i, 2, 0);
+		DUTYCYCLE (i, 4, 0);
+	}
+}
+
+
 /* 
 	This is the main controller loop.
 	sequences of operations:
@@ -267,7 +400,9 @@ void main(void)
 	QD1_InitPosition ();
 	QD2_InitPosition ();
 
+	/* reads the PID parameters from flash memory */
 	readFromFlash ();
+	
 	/* reset encoders, LATER: should do something more than this */
 	calibrate(0);
 	calibrate(1);
@@ -287,123 +422,37 @@ void main(void)
 		   the serial line and other devices shouldn't be doing
 		   much processing in case the receive external commands */
 
-		/* read encoders, 32 bits should be enough */
+		/* read encoders, 32 bit values */
 		_position_old[0] = _position[0];
 		_position_old[1] = _position[1];
 		QD1_GetPosition ((dword *)_position);
 		QD2_GetPosition ((dword *)(_position+1));
 
 		/* this can be useful to estimate speed later on */
-		_speed[0] = _position[0] - _position_old[0];
+		_speed[0] = _position[0] - _position_old[0]; /// divide by CONTROLLER_PERIOD
 		_speed[1] = _position[1] - _position_old[1];
 		
 		/* adjust zero crossing @ position counter */
-		if (_speed[0] < -32768)
-		{
-			_position[0] += 65536;
-			_speed[0] += 65536;
-		}
-		else
-		if (_speed[0] > 32767)
-		{
-			_position[0] -= 65535;
-			_speed[0] -= 65535;
-		}
-
-		if (_speed[1] < -32768)
-		{
-			_position[1] += 65536;
-			_speed[1] += 65536;
-		}
-		else
-		if (_speed[1] > 32767)
-		{
-			_position[1] -= 65535;
-			_speed[1] -= 65535;
-		}
+		SPIKEREMOVE (0);
+		SPIKEREMOVE (1);
 
 		/* read ADC or other ports */
 		/* to be inserted here */
-		  
-		if (_control_mode != MODE_IDLE)
-		{
-			/* compute trajectory and control mode */
-			switch (_control_mode)
-			{
-			case MODE_POSITION:
-				_desired[0] = step_trajectory (0);
-				break;
-				
-			case MODE_VELOCITY:
-				_desired[0] = step_velocity (0);
-				break;
-			}
 
-			/* check for trajectory limits here */
-		
-			compute_pid (0);
-			compute_pid (1);
-						
-			/* check limits or errors */
-			/* TO BE DONE! */
-
-			/* set PWM, _pid becomes the PWM values */
-			if (_calibrated[0])
-			{
-				if (_pid[0] >= 0)
-				{
-					if (_pid[0] > 100) 
-						_pid[0] = 100;
-					PWMC1_SetDutyPercent (0, (unsigned char)(_pid[0] & 0x00ff));
-					PWMC1_SetDutyPercent (2, 0);
-					PWMC1_SetDutyPercent (4, 0);
-				}
-				else
-				{
-					_pid[0] = -_pid[0];
-					if (_pid[0] > 100) 
-						_pid[0] = 100;
-					PWMC1_SetDutyPercent (0, 0);
-					PWMC1_SetDutyPercent (2, (unsigned char)(_pid[0] & 0x00ff));
-					PWMC1_SetDutyPercent (4, 0);
-				}
-				
-				PWMC1_Load();
-			}
-			
-			if (_calibrated[1])
-			{			
-				if (_pid[1] >= 0)
-				{
-					if (_pid[1] > 100) 
-						_pid[1] = 100;
-					PWMC2_SetDutyPercent (0, (unsigned char)(_pid[1] & 0x00ff));
-					PWMC2_SetDutyPercent (2, 0);
-					PWMC2_SetDutyPercent (4, 0);
-				}
-				else
-				{
-					_pid[1] = -_pid[1];
-					if (_pid[1] > 100) 
-						_pid[1] = 100;
-					PWMC2_SetDutyPercent (0, 0);
-					PWMC2_SetDutyPercent (2, (unsigned char)(_pid[1] & 0x00ff));
-					PWMC2_SetDutyPercent (4, 0);
-				}
-				PWMC2_Load();
-			}
-		} /* end of !IDLE */
-		else
-		{
-			PWMC1_SetDutyPercent (0, 0);
-			PWMC1_SetDutyPercent (2, 0);
-			PWMC1_SetDutyPercent (4, 0);
-			PWMC2_SetDutyPercent (0, 0);
-			PWMC2_SetDutyPercent (2, 0);
-			PWMC2_SetDutyPercent (4, 0);
-		}
+		/*
+		 * 
+		 */		  
+		generatePwm (0);
+		generatePwm (1);
 		
 		/* do extra functions, communicate, etc. */
+		if (_verbose)
+		{
+			DSP_SendDWordAsCharsDec (_position[0]);
+			DSP_SendDataEx (" ");
+			DSP_SendDWordAsCharsDec (_desired[0]);
+			DSP_SendDataEx ("\r\n");
+		}
 		
 		/* tells that the control cycle is completed */
 		_wait = true;	
@@ -462,6 +511,7 @@ byte calibrate (int jnt)
 	
 #define END_MSG_TABLE \
 	}
+
 	
 void print_can (byte data[], byte len, char c)
 {
@@ -499,9 +549,9 @@ byte can_interface (void)
 	if (CAN1_GetStateRX () != 0)
 	{
 		CAN1_ReadFrame (&CAN_messID, &CAN_frameType, &CAN_frameFormat, &CAN_length, CAN_data);
-		print_can (CAN_data, CAN_length, 'i');
-		CAN1_GetError (&err);
-		print_can_error (&err);
+///		print_can (CAN_data, CAN_length, 'i');
+///		CAN1_GetError (&err);
+///		print_can_error (&err);
 		
 #define CAN_DATA CAN_data
 #define CAN_FRAME_TYPE CAN_frameType
@@ -551,15 +601,24 @@ byte can_interface (void)
 		HANDLE_MSG (CAN_POSITION_MOVE, CAN_POSITION_MOVE_HANDLER)
 		HANDLE_MSG (CAN_VELOCITY_MOVE, CAN_VELOCITY_MOVE_HANDLER)
 	
+		HANDLE_MSG (CAN_GET_PID_OUTPUT, CAN_GET_PID_OUTPUT_HANDLER)
+		
+		HANDLE_MSG (CAN_SET_MIN_POSITION, CAN_SET_MIN_POSITION_HANDLER)
+		HANDLE_MSG (CAN_GET_MIN_POSITION, CAN_GET_MIN_POSITION_HANDLER)
+		HANDLE_MSG (CAN_SET_MAX_POSITION, CAN_SET_MAX_POSITION_HANDLER)
+		HANDLE_MSG (CAN_GET_MAX_POSITION, CAN_GET_MAX_POSITION_HANDLER)
+		HANDLE_MSG (CAN_SET_MAX_VELOCITY, CAN_SET_MAX_VELOCITY_HANDLER)
+		HANDLE_MSG (CAN_GET_MAX_VELOCITY, CAN_GET_MAX_VELOCITY_HANDLER)
+				
 		END_MSG_TABLE		
 
-		print_can (CAN_data, CAN_length, 'o');
+///		print_can (CAN_data, CAN_length, 'o');
 
-		if (_general_board_error != ERROR_NONE)
-		{
-			DSP_SendDataEx ("error in processing message\r\n");
-			_general_board_error = ERROR_NONE;
-		}	
+///		if (_general_board_error != ERROR_NONE)
+///		{
+///			DSP_SendDataEx ("error in processing message\r\n");
+///			_general_board_error = ERROR_NONE;
+///		}	
 	}
 			
 	return ERR_OK;
@@ -595,99 +654,28 @@ byte serial_interface (void)
 			DSP_SendDataEx ("2, toggle velocity mode\r\n");
 			DSP_SendDataEx ("3, verbose on/off\r\n");
 			
-			DSP_SendDataEx ("c, calibrate encoders\r\n");
 			DSP_SendDataEx ("w0, enable PWM 0\n\r");
 			DSP_SendDataEx ("w1, enable PWM 1\n\r");
-			DSP_SendDataEx ("p0, set desired position PWM 0\r\n");
-			DSP_SendDataEx ("v0, set desired velocity PWM 1\r\n");
-			DSP_SendDataEx ("p1, set desired position PWM 1\r\n");
 			DSP_SendDataEx ("w2, write control params to FLASH mem\r\n");
 			DSP_SendDataEx ("w3, read control params from FLASH mem\r\n");
-			
-			DSP_SendDataEx ("\nxp, set proportional gain channel 0\r\n");
-			DSP_SendDataEx ("xd, set derivative gain channel 0\r\n");
-			DSP_SendDataEx ("xo, set offset channel 0\r\n");
-			DSP_SendDataEx ("xs, set scale channel 0\r\n");
-			
+						
 			DSP_SendDataEx ("e, get current position 0\r\n");
-			DSP_SendDataEx ("s, print gain settings\r\n");
-			
-			DSP_SendDataEx ("\nii, init trajectory channel 0\r\n");
-			DSP_SendDataEx ("is, calculate next step trajectory 0\r\n");
-			DSP_SendDataEx ("t, start test vmode channel 0\r\n");
-			DSP_SendDataEx ("q, stop test vmode channel 0\r\n");
-			DSP_SendDataEx ("l, invert test vmode channel 0\r\n");
 			
 			c = 0;
 			break;
 		
-		case 't':
-			_verbose = true;
-			if (_control_mode == MODE_VELOCITY && _calibrated[0] && _pad_enabled[0])
-			{
-				DSP_SendDataEx ("velocity set point? ");
-				retval = DSP_ReceiveDataEx (buffer, SMALL_BUFFER_SIZE, true);
-				_set_vel[0] = DSP_atol (buffer, DSP_strlen(buffer, SMALL_BUFFER_SIZE));
-				DSP_SendDataEx ("velocity set point= ");
-				DSP_SendDWordAsChars (_set_vel[0]);
-				DSP_SendDataEx ("\r\n");
-			}
-			else
-				DSP_SendDataEx ("go to velocity mode and calibrate first\r\n");
-			c = 0;
-			break;
-
-		case 'l':
-			if (_control_mode == MODE_VELOCITY && _calibrated[0] && _pad_enabled[0])
-				_set_vel[0] = -_set_vel[0];
-			else
-				DSP_SendDataEx ("go to velocity mode and calibrate first\r\n");
-			c = 0;
-			break;
-
-		case 'q':
-			_verbose = false;
-			_set_vel[0] = 0;
-			c = 0;
-			break;
-						
-		case 'i':
-			if (AS1_RecvChar(&d) == ERR_OK)
-			{
-				if (d == 'i')
-				{
-					/* speed is in ticks/ms */
-					iretval = init_trajectory (0, _position[0], _set_point[0], _set_vel[0]);
-					DSP_SendDataEx ("trajectory initialized\r\n");
-					c = 0;
-				}
-				else
-				if (d == 's')
-				{
-					DSP_SendDataEx ("s= ");
-					DSP_SendDWordAsChars (step_trajectory(0));
-					DSP_SendDataEx ("\r\n");
-					c = 'i';
-				}
-				else
-				{
-					c = d = 0;
-				}
-			}
-			break;
-								
 		case '1':
-			if (_control_mode == MODE_IDLE)
+			if (_control_mode[0] == MODE_IDLE)
 			{
-				_control_mode = MODE_POSITION;
+				_control_mode[0] = MODE_POSITION;
 				_set_vel[0] = DEFAULT_VELOCITY;
 				_set_vel[1] = DEFAULT_VELOCITY;
 				DSP_SendDataEx ("mode = position\r\n");
 			}
 			else
-			if (_control_mode == MODE_POSITION)
+			if (_control_mode[0] == MODE_POSITION)
 			{
-				_control_mode = MODE_IDLE;
+				_control_mode[0] = MODE_IDLE;
 				DSP_SendDataEx ("mode = idle\r\n");
 			}
 			else
@@ -696,17 +684,17 @@ byte serial_interface (void)
 			break;
 			
 		case '2':
-			if (_control_mode == MODE_IDLE)
+			if (_control_mode[0] == MODE_IDLE)
 			{
-				_control_mode = MODE_VELOCITY;
+				_control_mode[0] = MODE_VELOCITY;
 				_set_vel[0] = 0;
 				_set_vel[1] = 0;
 				DSP_SendDataEx ("mode = velocity\r\n");
 			}
 			else
-			if (_control_mode == MODE_VELOCITY)
+			if (_control_mode[0] == MODE_VELOCITY)
 			{
-				_control_mode = MODE_IDLE;
+				_control_mode[0] = MODE_IDLE;
 				DSP_SendDataEx ("mode = idle\r\n");
 			}
 			else
@@ -723,17 +711,6 @@ byte serial_interface (void)
 			c = 0;
 			break;
 			
-		case 'c':
-			DSP_SendDataEx ("calibrating encoder 0\r\n");
-			calibrate (0);
-			DSP_SendDataEx ("done!\r\n");
-			
-			DSP_SendDataEx ("calibrating encoder 1\r\n");
-			calibrate (1);
-			DSP_SendDataEx ("done!\r\n");
-			c = 0;
-			break;
-				
 		case 'w':
 			if (AS1_RecvChar(&d) == ERR_OK)
 			{
@@ -795,175 +772,15 @@ byte serial_interface (void)
 			}
 			break;
 				
-		case 'p':
-			if (AS1_RecvChar(&d) == ERR_OK)
-			{
-				if (d == '0')
-				{
-					DSP_SendDataEx ("set point? ");
-					retval = DSP_ReceiveDataEx (buffer, SMALL_BUFFER_SIZE, true);
-					_set_point[0] = DSP_atol (buffer, DSP_strlen(buffer, SMALL_BUFFER_SIZE));
-					DSP_SendDataEx ("set point= ");
-					DSP_SendDWordAsChars (_set_point[0]);
-					DSP_SendDataEx ("\r\n");
-					c = 0;
-				}
-				else
-				if (d == '1')
-				{
-					c = 0;
-				}
-				else
-					c = 0;
-			}
-			break;
-			
-		case 'v':
-			if (AS1_RecvChar(&d) == ERR_OK)
-			{
-				if (d == '0')
-				{
-					DSP_SendDataEx ("velocity set point? ");
-					retval = DSP_ReceiveDataEx (buffer, SMALL_BUFFER_SIZE, true);
-					_set_vel[0] = DSP_atol (buffer, DSP_strlen(buffer, SMALL_BUFFER_SIZE));
-					DSP_SendDataEx ("velocity set point= ");
-					DSP_SendDWordAsChars (_set_vel[0]);
-					DSP_SendDataEx ("\r\n");
-					c = 0;
-				}
-				else
-				if (d == '1')
-				{
-					c = 0;
-				}
-				else
-					c = 0;
-			}
-			break;
-				
-		case 'x':
-			if (AS1_RecvChar(&d) == ERR_OK)
-			{
-				if (d == 'p')
-				{
-					if (!_pad_enabled[0])
-					{
-						DSP_SendDataEx ("proportional gain? ");
-						retval = DSP_ReceiveDataEx (buffer, SMALL_BUFFER_SIZE, true);
-						_kp[0] = (int)DSP_atoi (buffer, DSP_strlen(buffer, SMALL_BUFFER_SIZE));
-						DSP_SendDataEx ("proportional gain= ");
-						DSP_SendWord16AsChars (_kp[0]);
-						DSP_SendDataEx ("\r\n");
-					}
-					else
-						DSP_SendDataEx ("PWM must be disabled first\r\n");					
-					c = 0;
-				}
-				else
-				if (d == 'd')
-				{
-					if (!_pad_enabled[0])
-					{
-						DSP_SendDataEx ("derivative gain? ");
-						retval = DSP_ReceiveDataEx (buffer, SMALL_BUFFER_SIZE, true);
-						_kd[0] = (int)DSP_atoi (buffer, DSP_strlen(buffer, SMALL_BUFFER_SIZE));
-						DSP_SendDataEx ("derivative gain= ");
-						DSP_SendWord16AsChars (_kd[0]);
-						DSP_SendDataEx ("\r\n");
-					}
-					else
-						DSP_SendDataEx ("PWM must be disabled first\r\n");					
-					c = 0;
-				}
-				else
-				if (d == 'o')
-				{
-					if (!_pad_enabled[0])
-					{
-						DSP_SendDataEx ("offset? ");
-						retval = DSP_ReceiveDataEx (buffer, SMALL_BUFFER_SIZE, true);
-						_ko[0] = (int)DSP_atoi (buffer, DSP_strlen(buffer, SMALL_BUFFER_SIZE));
-						if (_ko[0] < -100)
-							_ko[0] = -100;
-						else
-						if (_ko[0] > 100)
-							_ko[0] = 100;
-						DSP_SendDataEx ("offset= ");
-						DSP_SendWord16AsChars (_ko[0]);
-						DSP_SendDataEx ("\r\n");
-					}
-					else
-						DSP_SendDataEx ("PWM must be disabled first\r\n");					
-					c = 0;
-				}
-				else
-				if (d == 's')
-				{
-					if (!_pad_enabled[0])
-					{
-						DSP_SendDataEx ("scale factor? ");
-						retval = DSP_ReceiveDataEx (buffer, SMALL_BUFFER_SIZE, true);
-						_kr[0] = (int)DSP_atoi (buffer, DSP_strlen(buffer, SMALL_BUFFER_SIZE));
-						if (_kr[0] < 0)
-							_kr[0] = 0;
-						DSP_SendDataEx ("scale factor= ");
-						DSP_SendWord16AsChars (_kr[0]);
-						DSP_SendDataEx ("\r\n");
-					}
-					else
-						DSP_SendDataEx ("PWM must be disabled first\r\n");					
-					c = 0;
-				}
-				else
-					c = 0;
-			}
-			break;					
-
 		case 'e':
-			DSP_SendDataEx ("position 0: ");
-			DSP_SendDWordAsChars (_position[0]);
+			DSP_SendDataEx ("position: ");
+			DSP_SendDWordAsCharsDec (_position[0]);
+			DSP_SendDataEx (" ");
+			DSP_SendDWordAsCharsDec (_position[1]);
 			DSP_SendDataEx ("\r\n");
 			c = 0;
 			break;
 			
-		case 's':
-			DSP_SendDataEx ("\r\ngen settings\r\n");
-			DSP_SendDataEx ("mode: ");
-			DSP_SendDataEx (GetModeAsString(_control_mode));
-			DSP_SendDataEx ("\r\n");
-			DSP_SendDataEx ("verbose: ");
-			DSP_SendByteAsChars (_verbose);
-			DSP_SendDataEx ("\r\n");
-
-			DSP_SendDataEx ("status channel 0\r\n");
-			DSP_SendDataEx ("calibrated: ");
-			DSP_SendByteAsChars (_calibrated[0]);
-			DSP_SendDataEx ("\r\n");
-			DSP_SendDataEx ("pad_enabled: ");
-			DSP_SendByteAsChars (_pad_enabled[0]);
-			DSP_SendDataEx ("\r\n");
-			
-			DSP_SendDataEx ("gain channel 0\r\n");
-			DSP_SendDataEx ("p: ");
-			DSP_SendWord16AsChars (_kp[0]);
-			DSP_SendDataEx ("\r\n");
-			DSP_SendDataEx ("d: ");
-			DSP_SendWord16AsChars (_kd[0]);
-			DSP_SendDataEx ("\r\n");
-			DSP_SendDataEx ("i: ");
-			DSP_SendWord16AsChars (_ki[0]);
-			DSP_SendDataEx ("\r\n");
-			DSP_SendDataEx ("i_limit: ");
-			DSP_SendWord16AsChars (_integral_limit[0]);
-			DSP_SendDataEx ("\r\n");
-			DSP_SendDataEx ("offset: ");
-			DSP_SendWord16AsChars (_ko[0]);
-			DSP_SendDataEx ("\r\n");
-			DSP_SendDataEx ("scale: ");
-			DSP_SendWord16AsChars (_kr[0]);
-			DSP_SendDataEx ("\r\n");
-			c = 0;
-			break;
 	}	/* end switch/case */
 }
 

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.6 2004-05-04 23:04:21 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.7 2004-05-07 01:40:16 babybot Exp $
 ///
 ///
 
@@ -56,7 +56,7 @@
 #define FRAME_LENGHT_ERR 1<<17
 
 ///
-///
+/// LATER: to be verified according to the value can manual.
 ///
 const int MAX_CHANNELS	= 255;
 const int MAX_NID		= 16;
@@ -296,9 +296,17 @@ YARPValueCanDeviceDriver::YARPValueCanDeviceDriver(void)
 	m_cmds[CMDControllerRun] = &YARPValueCanDeviceDriver::controllerRun;
 
 	m_cmds[CMDVMove] = &YARPValueCanDeviceDriver::velocityMove;
+	m_cmds[CMDSafeVMove] = &YARPValueCanDeviceDriver::velocityMove;
 
 	m_cmds[CMDSetCommand] = &YARPValueCanDeviceDriver::setCommand;
 	m_cmds[CMDSetCommands] = &YARPValueCanDeviceDriver::setCommands;
+
+	m_cmds[CMDGetTorques] = &YARPValueCanDeviceDriver::getTorques;
+	m_cmds[CMDLoadBootMemory] = &YARPValueCanDeviceDriver::readBootMemory;
+	m_cmds[CMDSaveBootMemory] = &YARPValueCanDeviceDriver::writeBootMemory;
+
+	m_cmds[CMDSetPositiveLimit] = &YARPValueCanDeviceDriver::setPositiveLimit;
+	m_cmds[CMDSetNegativeLimit] = &YARPValueCanDeviceDriver::setNegativeLimit;
 }
 
 YARPValueCanDeviceDriver::~YARPValueCanDeviceDriver ()
@@ -336,7 +344,6 @@ int YARPValueCanDeviceDriver::close (void)
 void YARPValueCanDeviceDriver::Body(void)
 {
 	ValueCanResources& r = RES(system_resources);
-	///unsigned long timestamp = 0;
 	unsigned char messagetype = 0;
 	bool pending = false;
 	double now = -1, before = -1;
@@ -359,16 +366,12 @@ void YARPValueCanDeviceDriver::Body(void)
 		/// filters messages, no buffering allowed here.
 		if (pending)
 		{
-			/// answer pending.
-			if (n != 0)
-				ACE_DEBUG ((LM_DEBUG, "got %d messages\n", n));
-
 			int i;
 			for (i = 0; i < n; i++)
 			{
 				icsSpyMessage& m = r._canMsg[i];
 				if (m.StatusBitField & SPY_STATUS_GLOBAL_ERR)
-					ACE_DEBUG ((LM_DEBUG, "troubles w/ message %x\n", m.StatusBitField));
+					ACE_DEBUG ((LM_DEBUG, "CAN: troubles w/ message %x\n", m.StatusBitField));
 
 				if (r._error (m))
 				{	
@@ -376,19 +379,13 @@ void YARPValueCanDeviceDriver::Body(void)
 					continue;		/// skip this message.
 				}
 
-				//ACE_DEBUG ((LM_DEBUG, "msg: %x %x %x %x\n", m.Data[0], m.Data[1], m.Data[2], m.Data[3]));
-
-				///
-				///if (r.MYSELF(m.Data[0]))
 				if (m.StatusBitField & SPY_STATUS_TX_MSG)
 				{
 					/// my last sent message.
-					///timestamp = m.TimeHardware;
 					if (_noreply)
 					{
 						_noreply = false;
 						pending = false;
-						ACE_DEBUG ((LM_DEBUG, "signal my own msg\n"));
 						_ev.Signal();
 					}
 					continue;
@@ -400,7 +397,6 @@ void YARPValueCanDeviceDriver::Body(void)
 				{
 					/// ok, this is my reply.
 					/// write reply and signal event.
-		//			ACE_DEBUG ((LM_DEBUG, "CAN: got a nicely formed message!\n"));
 					memcpy (&r._cmdBuffer, &m, sizeof(icsSpyMessage));
 					pending = false;
 					_ev.Signal();
@@ -425,10 +421,8 @@ void YARPValueCanDeviceDriver::Body(void)
 		_mutex.Wait();
 		if (_request && !pending)
 		{
-			int ret = r._write ();
-			ACE_DEBUG ((LM_DEBUG, "ret: %d\n", ret));
+			r._write ();
 
-			///timestamp = 0;
 			pending = true;
 			messagetype = r._cmdBuffer.Data[1];
 			cyclecount = 0;
@@ -864,48 +858,94 @@ int YARPValueCanDeviceDriver::getPid (void *cmd)
 	return YARP_OK;
 }
 
-/// cmd is a SingleAxis pointer with no params
+/// cmd is an int *
 int YARPValueCanDeviceDriver::enableAmp (void *cmd)
 {
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
+	const int axis = *((int *)cmd);
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
 	
 	return _writeNone (CAN_ENABLE_PWM_PAD, axis);
 }
 
-/// cmd is a SingleAxis pointer with no params
+/// cmd is an int *
 int YARPValueCanDeviceDriver::disableAmp (void *cmd)
 {
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
+	const int axis = *((int *)cmd);
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
 	
 	return _writeNone (CAN_DISABLE_PWM_PAD, axis);
 }
 
-/// cmd is a SingleAxis pointer with no params
+/// cmd is an int *
 int YARPValueCanDeviceDriver::controllerRun (void *cmd)
 {
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
+	const int axis = *((int *)cmd);
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
 	
 	return _writeNone (CAN_CONTROLLER_RUN, axis);
 }
 
-/// cmd is a SingleAxis pointer with no params
+/// cmd is an int *
 int YARPValueCanDeviceDriver::controllerIdle (void *cmd)
 {
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
+	const int axis = *((int *)cmd);
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
 	
 	return _writeNone (CAN_CONTROLLER_IDLE, axis);
 }
 
+/// cmd is an array of double
+int YARPValueCanDeviceDriver::getTorques (void *cmd)
+{
+	ValueCanResources& r = RES(system_resources);
+	double *out = (double *) cmd;
+	int i;
+	short value = 0;
 
+	for(i = 0; i < r._njoints; i++)
+	{
+		if (_readWord16 (CAN_GET_PID_OUTPUT, i, value) == YARP_OK)
+			out[i] = double (value);
+		else
+			return YARP_FAIL;
+	}
 
+	return YARP_OK;
+}
+
+/// no cmd.
+int YARPValueCanDeviceDriver::readBootMemory (void *cmd)
+{
+	ACE_UNUSED_ARG(cmd);
+	return _writeNone (CAN_READ_FLASH_MEM, 0);
+}
+
+/// no cmd.
+int YARPValueCanDeviceDriver::writeBootMemory (void *cmd)
+{
+	ACE_UNUSED_ARG(cmd);
+	return _writeNone (CAN_WRITE_FLASH_MEM, 0);
+}
+
+/// cmd is a pointer to SingleAxisParameters struct with a single double arg.
+int YARPValueCanDeviceDriver::setPositiveLimit (void *cmd)
+{
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	
+	return _writeDWord (CAN_SET_MAX_POSITION, axis, S_32(*((double *)tmp->parameters)));
+}
+
+/// cmd is a pointer to SingleAxisParameters struct with a single double arg.
+int YARPValueCanDeviceDriver::setNegativeLimit (void *cmd)
+{
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	
+	return _writeDWord (CAN_SET_MIN_POSITION, axis, S_32(*((double *)tmp->parameters)));
+}
 
 
 
