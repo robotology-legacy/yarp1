@@ -1,4 +1,4 @@
-// $ID$
+// $Id: readme.txt,v 1.2 2003-05-22 09:17:58 natta Exp $
 YARP device driver, tree structure.
 
 For each board a folder:
