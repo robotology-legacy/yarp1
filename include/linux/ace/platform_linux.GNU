@@ -20,6 +20,7 @@ ifeq (,$(optimize))
 endif
 
 threads ?= 1
+static_libs_only = 1
 
 PLATFORM_XT_CPPFLAGS=
 PLATFORM_XT_LIBS=-lXt

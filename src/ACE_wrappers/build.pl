@@ -10,7 +10,7 @@
 #		  --distribution <PATH> is the path where ACE was unpacked
 #		  --os <OS> is the operating system you're compiling for
 #
-# $Id: build.pl,v 1.6 2004-10-15 00:21:26 babybot Exp $
+# $Id: build.pl,v 1.7 2004-10-15 22:11:30 gmetta Exp $
 #
 # This script can be (at least in theory) configured to
 # do some useful thing in Linux and/or Qnx too. It's definitely
@@ -37,9 +37,9 @@ my $yarp_root;
 chomp ($ver = `ver`);
 chomp ($uname = `uname`);
 if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0
-	&& index ($uname, "QNX") < 0)
+	&& index ($uname, "QNX") < 0 && index ($uname, "Linux") < 0)
 {
-	die "This script is specific to Windows 2000/XP, Cygwin, or Qnx version 6\n";
+	die "This script is specific to Windows 2000/XP, Cygwin, Linux, or Qnx version 6\n";
 }
 
 $yarp_root = $ENV{'YARP_ROOT'};
@@ -71,7 +71,7 @@ unless (defined $distribution)
 	die "This script requires the parameter --distribution <path>\n";
 }
 
-if ($os ne "winnt" && $os ne "qnx6")
+if ($os ne "winnt" && $os ne "qnx6" && $os ne "linux")
 {
 	die "This script is not yet tuned for OSes apart \"winnt\" and \"qnx6\"\n";
 }
@@ -104,8 +104,14 @@ if ($clean)
 	}
 	elsif ($os eq "qnx6")
 	{
-		symlink ("$yarp_root/include/qnx6/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
-		symlink ("$yarp_root/include/qnx6/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
+		symlink ("$yarp_root/include/$os/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		symlink ("$yarp_root/include/$os/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
+		call_make_and_print ('', 'clean');
+	}
+	elsif ($os eq "linux")
+	{
+		symlink ("$yarp_root/include/$os/ace/platform_linux.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		symlink ("$yarp_root/include/$os/ace/config-linux.h", "$distribution/ace/config.h");
 		call_make_and_print ('', 'clean');
 	}
 
@@ -119,7 +125,7 @@ if ($debug)
 
 	if ($os eq "winnt")
 	{
-		copy ("$yarp_root/include/winnt/ace/config.h", "$distribution/ace/") or die "Can't copy config.h file\n"; 
+		copy ("$yarp_root/include/$os/ace/config.h", "$distribution/ace/") or die "Can't copy config.h file\n"; 
 		chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
 
 		call_msdev_and_print ("Debug", "BUILD", $project_name, $file_name);
@@ -130,11 +136,21 @@ if ($debug)
 	elsif ($os eq "qnx6" && $release == 0)
 	{
 		chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
-		symlink ("$yarp_root/include/qnx6/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
-		symlink ("$yarp_root/include/qnx6/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
+		symlink ("$yarp_root/include/$os/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		symlink ("$yarp_root/include/$os/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
 
 		call_make_and_print ('', 'debug=1 optimize=0');
 	
+		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
+	}
+	elsif ($os eq "linux")
+	{
+		chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
+		symlink ("$yarp_root/include/$os/ace/platform_linux.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		symlink ("$yarp_root/include/$os/ace/config-linux.h", "$distribution/ace/config.h");
+
+		call_make_and_print ('', 'debug=1 optimize=0');
+
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
 }
@@ -145,7 +161,7 @@ if ($release)
 
 	if ($os eq "winnt")
 	{
-		copy ("$yarp_root/include/winnt/ace/config.h", "$distribution/ace/") or die "Can't copy config.h file\n"; 
+		copy ("$yarp_root/include/$os/ace/config.h", "$distribution/ace/") or die "Can't copy config.h file\n"; 
 		chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
 
 		call_msdev_and_print ("Release", "BUILD", $project_name, $file_name);
@@ -156,11 +172,21 @@ if ($release)
 	elsif ($os eq "qnx6")
 	{
 		chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
-		symlink ("$yarp_root/include/qnx6/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
-		symlink ("$yarp_root/include/qnx6/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
+		symlink ("$yarp_root/include/$os/ace/platform_qnx_rtp_gcc.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		symlink ("$yarp_root/include/$os/ace/config-qnx-rtp-62x.h", "$distribution/ace/config.h");
 
 		call_make_and_print ('', 'optimize=1 debug=0');
 	
+		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
+	}
+	elsif ($os eq "linux")
+	{
+		chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
+		symlink ("$yarp_root/include/$os/ace/platform_linux.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
+		symlink ("$yarp_root/include/$os/ace/config-linux.h", "$distribution/ace/config.h");
+
+		call_make_and_print ('', 'optimize=1 debug=0');
+
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
 }
@@ -188,11 +214,11 @@ if ($install)
 		copy ($file, "$yarp_root/bin/$os/") or die "Can't copy any .dll file\n";
 	}
 
-	@my_libs = glob "*.lib";
+	@my_libs = glob "*.lib *.a";
 	foreach my $file (@my_libs)
 	{
 		print "Copying $file\n";
-		copy ($file, "$yarp_root/lib/$os/") or die "Can't copy any .lib file\n";
+		copy ($file, "$yarp_root/lib/$os/") or die "Can't copy any .lib or .a file\n";
 	}
 
 	chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";

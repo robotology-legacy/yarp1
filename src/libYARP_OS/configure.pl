@@ -3,6 +3,9 @@
 #	--file <config_file>
 #		where <config_file> is the filename of the context config file.
 #
+# $Id: configure.pl,v 1.14 2004-10-15 22:11:30 gmetta Exp $
+# The libYARP_OS configure script.
+#
 
 use Getopt::Long;
 use File::Copy;
@@ -46,6 +49,8 @@ print "Please, use always the forward slash as separator!\n";
 print "I determined already that you're running on a supported OS: $exp_os\n";
 
 get_option_hash ("Architecture<-OS", $exp_os, "What's your OS?", 0, \%options);
+die "Cross-compile is not supported, the auto-detected OS must be also selected\n" if ($options{"Architecture<-OS"} ne $exp_os);
+
 get_option_hash ("Compile_OS<-ACE_PATH", "\$YARP_ROOT/src/ACE_wrappers", "Where has ACE been unpacked?", 0, \%options);
 get_option_hash ("Compile_OS<-ACE_Rebuild", "NO", "Do you want to rebuild ACE, i.e. clean before building?", 1, \%options);
 
