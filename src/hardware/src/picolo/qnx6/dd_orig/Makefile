@@ -1,6 +1,6 @@
 # Makefile for bbtvx and blit (visualization)
 
-CC=qcc
+CC=gcc
 #CFLAGS= -ggdb3
 LDFLAGS=
 SRC=bttvx.c
@@ -16,7 +16,11 @@ bttvx: $(OBJS)
 	   $(AR) $(ARFLAGS) $@.lib $@.o
 
 blit:  $(OBJS2)
-	   $(CC) $(LDFLAGS) $(OBJS2) bttvx.lib -o $@ -lph 
+	   $(CC) $(LDFLAGS) $(OBJS2) bttvx.lib -o $@ -lph
+	   
+install:
+	cp *.h $(YARP_ROOT)/include 
+	cp *.lib $(YARP_ROOT)/lib/$(OS)
 
 clean:
 	rm -f bttvx
