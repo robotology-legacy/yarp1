@@ -119,7 +119,9 @@ extern "C" {
   #if defined( linux )
     #include <sys/types.h>
   #elif defined( _VXWORKS )
-    typedef unsigned int    uint; 
+    typedef unsigned int    uint;
+  #elif defined(__QNX6__)
+    //do nothing 
   #else
     typedef unsigned short  ushort;
     typedef unsigned int    uint; 
