@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.10 2003-07-02 10:43:13 babybot Exp $
+#$Id: Makefile,v 1.11 2003-07-02 10:55:50 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -34,9 +34,7 @@ install:
 	@echo
 	@echo ---------------Instaling YARPPicoloDEviceDriver.ib --------------
 	@echo
-	$(CP) *.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
 	$(CP) *.lib $(YARP_ROOT)/lib/$(OS)
-	$(CP) *.h	 $(YARP_ROOT)/src/hardware/include
 	$(CP) *.h 	 $(YARP_ROOT)/include
 	#cp ./dd_orig/*.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
 	#cp ./dd_orig/*.lib $(YARP_ROOT)/lib/$(OS)
