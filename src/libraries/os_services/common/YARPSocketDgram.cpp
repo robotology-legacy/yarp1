@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.21 2003-05-23 08:24:02 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.22 2003-05-23 13:52:39 gmetta Exp $
 ///
 ///
 
@@ -235,6 +235,25 @@ protected:
 
 	int _begin (const YARPUniqueNameID *remid, int port);
 
+	/// helper function to close the socket after <_comm_failure_limit> failures.
+	int _comm_failure_counter;
+	enum { _comm_failure_limit = 10 };
+	bool _abort_message_mode;
+
+	inline bool checkFailureLimit (void)
+	{
+		ACE_DEBUG ((LM_DEBUG, "a packet drop has been detected\n"));
+
+		_comm_failure_counter ++;
+		if (_comm_failure_counter >= _comm_failure_limit)
+		{
+			ACE_DEBUG ((LM_DEBUG, "terminating thread because failed more than %d times\n", _comm_failure_limit));
+			_local_socket.close();
+			return true;
+		}
+		return false;
+	}
+
 public:
 	/// ctors.
 	_SocketThreadDgram (const YARPUniqueNameID *remid, int port) : _wakeup(0), _mutex(1), _reply_made(0)
@@ -266,7 +285,7 @@ public:
 
 	ACE_HANDLE getID () const
     {
-		return  _local_socket.get_handle ();
+		return  (_abort_message_mode == true) ? ACE_INVALID_HANDLE : _local_socket.get_handle ();
     }
 
 	virtual void End (void);
@@ -294,7 +313,7 @@ public:
 	inline void setReplyPreamble (int i) { _reply_preamble = i; }
 
 	inline void setExternalReplyBuffer (char *b) { _extern_reply_buffer = b; }
-	inline int getExternalReplyLength (void) const { return _extern_reply_length; }
+	inline int getExternalReplyLength (void) const { return (_abort_message_mode == true) ? YARP_FAIL : _extern_reply_length; }
 	inline void setExternalReplyLength (int l) { _extern_reply_length = l; }
 
 	inline void waitOnMutex (void) { _mutex.Wait (); }
@@ -455,6 +474,7 @@ int _SocketThreadDgram::_begin (const YARPUniqueNameID *remid, int port = 0)
 
 	_read_more = 0;
 	_reply_preamble = 0;
+	_comm_failure_counter = 0;
 
 	return YARP_OK;
 }
@@ -514,6 +534,8 @@ void _SocketThreadDgram::End (void)
 
 
 
+
+
 /// thread Body.
 ///	error check is not consistent.
 void _SocketThreadDgram::Body (void)
@@ -538,18 +560,36 @@ void _SocketThreadDgram::Body (void)
 	_needs_reply = 0;
 	_read_more = 0;
 	_reply_preamble = 0;
+	_comm_failure_counter = 0;
+	_abort_message_mode = false;
 
+	////
+	//// all variables used in the loop.
 	ACE_INET_Addr incoming;
+
+	MyMessageHeader hdr;
+	int r = YARP_FAIL, rr = YARP_FAIL;
+
+	int remaining = -1;
+	char *tmp = NULL;
+	int retry = 0;
+	int was_preamble = 0;
+
+	MyMessageHeader hdr2;
+	char bufack[] = "acknowledged";
+	char *buf3 = bufack;
+	int reply_len = 0;
+	int len = 0;
+
+	///
+	///
 
 	while (!finished)
 	{
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread of remote port %s:%d waiting\n", _remote_endpoint.getAddressRef().get_host_name(), _remote_endpoint.getAddressRef().get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread waiting on port %d waiting\n", _local_addr.getAddressRef().get_port_number()));
 
-		MyMessageHeader hdr;
 		hdr.SetBad();
-		int r = YARP_FAIL;
-
 		r = _local_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_name(), incoming.get_port_number()));
 
@@ -563,7 +603,8 @@ void _SocketThreadDgram::Body (void)
 			_local_socket.send (&hdr, sizeof(hdr), incoming);
 			_local_socket.close ();
 			finished = 1;
-			continue;
+
+			goto DgramSocketMsgSkip;
 		}
 
 		/// this is supposed to read the header, r must be > 0
@@ -574,20 +615,33 @@ void _SocketThreadDgram::Body (void)
 			if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
 			{
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "returning because incoming diffs from remote addr\n"));
+			
+				_local_socket.close ();
+				finished = 1;
 			}
-			_local_socket.close ();
-			finished = 1;
+
+			/// finished = 0;
+			/// skip rest of packet.
+			finished = checkFailureLimit() ? 1 : 0;
+			goto DgramSocketMsgSkip;
 		}
 
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? received header _SocketThreadDgram, len = %d\n", hdr.GetLength()));
 
-		int len = hdr.GetLength();
+		_abort_message_mode = false;
+
+		len = hdr.GetLength();
 		if (len < 0)
 		{
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "{{}} Corrupt/empty header received\n"));
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing thread\n"));
-			_local_socket.close ();
-			finished = 1;
+			
+			///_local_socket.close ();
+			///finished = 1;
+
+			_abort_message_mode = true;
+			finished = checkFailureLimit() ? 1 : 0;
+			goto DgramSocketMsgSkip;
 		}
 
 		if (len >= 0)
@@ -624,12 +678,20 @@ void _SocketThreadDgram::Body (void)
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
 					_local_socket.close ();
 					finished = 1;
+					goto DgramSocketMsgSkip;
 				}
 				if (r < 0)
 				{
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? recv failed, time out?\n"));
-					_local_socket.close ();
-					finished = 1;
+					///_local_socket.close ();
+					///finished = 1;
+					
+					/// recv failed...
+					_abort_message_mode = true;
+					_owner->declareDataWritten();
+					
+					finished = checkFailureLimit() ? 1 : 0;
+					goto DgramSocketMsgSkip;
 				}
 			
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? received a buffer _SocketThreadDgram\n"));
@@ -651,7 +713,7 @@ void _SocketThreadDgram::Body (void)
 					/// this was r too, a bit confusing.
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read more data\n"));
 
-					int rr = 0;
+					rr = 0;
 					if (_extern_reply_length == 0)
 					{
 						/// then do a select.
@@ -664,9 +726,9 @@ void _SocketThreadDgram::Body (void)
 					else
 					{
 						///
-						int remaining = _extern_reply_length;
-						char *tmp = _extern_reply_buffer;
-						int retry = 0;
+						remaining = _extern_reply_length;
+						tmp = _extern_reply_buffer;
+						retry = 0;
 						do 
 						{
 							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to recv %d\n", remaining));
@@ -678,8 +740,14 @@ void _SocketThreadDgram::Body (void)
 								retry ++;
 								if (retry > 5)
 								{
-									ACE_DEBUG ((LM_DEBUG, "retried 5 times, exit now\n"));
-									break;
+									ACE_DEBUG ((LM_DEBUG, "retried 5 times, skipping message\n"));
+									finished = checkFailureLimit() ? 1 : 0;
+
+									_read_more = 0;
+									_abort_message_mode = true;
+									_reply_made.Post();
+								
+									goto DgramSocketMsgSkip;
 								}
 								rr = 0;
 							}
@@ -704,22 +772,35 @@ void _SocketThreadDgram::Body (void)
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
 						_local_socket.close ();
 						finished = 1;
+						goto DgramSocketMsgSkip;
 					}
 					else
 					if (_extern_reply_length > 0 && rr < 0)
 					{
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing %d\n", rr));
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? recv failed\n"));
-						_local_socket.close ();
-						finished = 1;
+						///_local_socket.close ();
+						///finished = 1;
+						_read_more = 0;
+						_abort_message_mode = true;
+						_reply_made.Post();
+
+						finished = checkFailureLimit() ? 1 : 0;
+						goto DgramSocketMsgSkip;
 					}
 					else
 					if (_extern_reply_length == 0 && rr <= 0)
 					{
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing %d\n", rr));
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? select failed\n"));
-						_local_socket.close ();
-						finished = 1;
+						///_local_socket.close ();
+						///finished = 1;
+						_abort_message_mode = true;
+						_read_more = 0;
+						_reply_made.Post();
+
+						finished = checkFailureLimit() ? 1 : 0;
+						goto DgramSocketMsgSkip;
 					}
 
 					_read_more = 0;
@@ -728,7 +809,7 @@ void _SocketThreadDgram::Body (void)
 					_needs_reply = 0;
 				}
 
-				int was_preamble = 0;
+				was_preamble = 0;
 
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to go into sending reply\n"));
 
@@ -740,11 +821,10 @@ void _SocketThreadDgram::Body (void)
 						rep = 1;
 					}
 
-					MyMessageHeader hdr2;
 					hdr2.SetGood();
-					char bufack[] = "acknowledged";
-					char *buf3 = bufack;
-					int reply_len = 0;
+					///char bufack[] = "acknowledged";
+					buf3 = bufack;
+					reply_len = 0;
 					if (rep)
 					{
 						buf3 = _extern_reply_buffer;
@@ -776,8 +856,13 @@ void _SocketThreadDgram::Body (void)
 					if (r < 0)
 					{
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing because r = %d\n", r));
-						_local_socket.close ();
-						finished = 1;
+						///_local_socket.close ();
+						///finished = 1;
+
+						ACE_DEBUG ((LM_DEBUG, "situation not properly handled in receiver thread\n"));
+
+						finished = checkFailureLimit() ? 1 : 0;
+						goto DgramSocketMsgSkip;
 					}
 
 					was_preamble = 0;
@@ -794,11 +879,13 @@ void _SocketThreadDgram::Body (void)
 				while (was_preamble);
 			}
 		}
+
+DgramSocketMsgSkip:
+		/// this is to skip the rest of the message.
+		;
 	}	/// while !finished
 
-
-///DgramSocketThreadExit:
-
+	/// exit thread.
 	_mutex.Wait ();
 	/// the socket is closed already.
 	_available = 1;
@@ -1540,7 +1627,7 @@ int YARPOutputSocketDgram::SendContinue(char *buffer, int buffer_length)
 	int recvd = d._connector_socket.recv ((void *)&ack, sizeof(int), incoming, 0, &timeout); 
 	if (recvd != sizeof(int) || ack != 0x01020304)
 	{
-		ACE_DEBUG ((LM_DEBUG, "UDP dropped a packet, need abort...\n"));
+		ACE_DEBUG ((LM_DEBUG, "UDP dropped a packet, should give up with message...\n"));
 		return YARP_FAIL;
 	}
 
