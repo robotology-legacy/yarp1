@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.cpp,v 1.2 2003-05-31 06:02:58 gmetta Exp $
+/// $Id: YARPMatrix.cpp,v 1.3 2003-06-03 13:29:51 beltran Exp $
 ///
 ///
 
@@ -103,6 +103,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "YARPMatrix.h"
+#include <string.h>
 
 
 //  IMSL routines used (double precision)
@@ -1411,9 +1412,11 @@ VisMatrixExport void VISAPI VisDMatrixLeastSquares(const YMatrix& A,
     // Form the normal equations
     YMatrix An(A.NCols(), A.NCols()), Bn(B.NCols(), A.NCols());
     An = 0.0, Bn = 0.0;
+    int k = 0;
+    int i = 0;
     for (int i = 0; i < A.NRows(); i++) {
         for (int j = 0; j < A.NCols(); j++) {
-            for (int k = 0; k < A.NCols(); k++)
+            for (k = 0; k < A.NCols(); k++)
                 An[j][k] += A[i][j] * A[i][k];
             for (k = 0; k < B.NCols(); k++)
                 Bn[k][j] += A[i][j] * B[i][k];
@@ -1424,7 +1427,7 @@ VisMatrixExport void VISAPI VisDMatrixLeastSquares(const YMatrix& A,
     YVector b(X.NRows());
     for (int j = 0; j < X.NCols(); j++) {
         // Copy the input (rhs)
-        for (int i = 0; i < X.NRows(); i++)
+        for (i = 0; i < X.NRows(); i++)
             b[i] = Bn[i][j];
 
         // Solve the system
@@ -1699,12 +1702,13 @@ VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& a,
 	YMatrix u = a;
 	YMatrix v(a.NCols(),a.NCols());
 	YVector w(a.NCols());
+	int k;
 
 	SVD(u,w,v);
 
 	double wmax,wmin;
 	wmax=wmin=0.0;
-	for (int k=1;k<=a.NCols();k++) 
+	for (k=1;k<=a.NCols();k++) 
 		if (w(k)>wmax) wmax=w(k);
 
 	wmin=wmax*Tolerance;

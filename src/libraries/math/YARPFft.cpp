@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPFft.cpp,v 1.2 2003-05-31 06:02:58 gmetta Exp $
+/// $Id: YARPFft.cpp,v 1.3 2003-06-03 13:29:50 beltran Exp $
 ///
 ///
 
@@ -240,8 +240,9 @@ void YARPFft::Fft2DShift (const double *in, double *out, int w, int h)
 	double *q2 = (double *)in + w/2;
 	double *q3 = out + h/2 * w + w/2;
 	double *q4 = out + h/2 * w;
+	int i = 0;
 
-	for (int i = 0; i < h/2; i++)
+	for (i = 0; i < h/2; i++)
 	{
 		memcpy (q3, q1, sizeof(double) * w/2);
 		memcpy (q4, q2, sizeof(double) * w/2);
@@ -255,7 +256,8 @@ void YARPFft::Fft2DShift (const double *in, double *out, int w, int h)
 	q2 = out + w/2;
 	q3 = (double *)in + h/2 * w + w/2;
 	q4 = (double *)in + h/2 * w;
-
+	
+	
 	for (i = 0; i < h/2; i++)
 	{
 		memcpy (q1, q3, sizeof(double) * w/2);
