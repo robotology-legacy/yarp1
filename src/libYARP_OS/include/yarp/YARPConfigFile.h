@@ -34,7 +34,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPConfigFile.h,v 1.1 2004-07-28 21:46:20 babybot Exp $
+/// $Id: YARPConfigFile.h,v 1.2 2004-08-10 17:08:23 gmetta Exp $
 ///  
 /// very simple class to handle config files... by nat May 2003
 //
@@ -238,7 +238,7 @@ private:
 	void _close()
 	{
 		if (_openFlag) {
-			fclose(_pFile);
+			ACE_OS::fclose(_pFile);
 			_openFlag = false;
 		}
 	}

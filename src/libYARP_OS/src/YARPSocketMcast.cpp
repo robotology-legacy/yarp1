@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.7 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.8 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -602,7 +602,7 @@ int YARPOutputSocketMcast::SendContinue(char *buffer, int buffer_length)
 /// I'm afraid the reply might end up being costly to streaming communication.
 int YARPOutputSocketMcast::SendReceivingReply(char *reply_buffer, int reply_buffer_length)
 {
-	memset (reply_buffer, 0, reply_buffer_length);
+	ACE_OS::memset (reply_buffer, 0, reply_buffer_length);
 	return reply_buffer_length;
 }
 
@@ -627,7 +627,7 @@ int YARPOutputSocketMcast::SendEnd(char *reply_buffer, int reply_buffer_length)
 	if (sent < 0)
 		return YARP_FAIL;
 
-	memset (reply_buffer, 0, reply_buffer_length);
+	ACE_OS::memset (reply_buffer, 0, reply_buffer_length);
 	return reply_buffer_length;
 }
 

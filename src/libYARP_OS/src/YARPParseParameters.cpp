@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPParseParameters.cpp,v 1.3 2004-07-30 13:39:48 babybot Exp $
+///  $Id: YARPParseParameters.cpp,v 1.4 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -148,7 +148,7 @@ bool YARPParseParameters::parse (int argc, char *argv[], const YARPString &key, 
 	YARPString dummy;
 	if (YARPParseParameters::parse(argc, argv, key, dummy))
 	{
-		strcpy(out, dummy.c_str());
+		ACE_OS::strcpy(out, dummy.c_str());
 		return true;
 	}
 	else

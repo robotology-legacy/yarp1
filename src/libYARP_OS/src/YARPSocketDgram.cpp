@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.7 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.8 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -218,7 +218,7 @@ YARPOutputSocketDgram::YARPOutputSocketDgram (void) : YARPNetworkOutputObject ()
 
 	_socktype = YARP_O_SOCKET;
 
-	memset (d._iov, 0, sizeof(iovec) * d._iov_buffer_size);
+	ACE_OS::memset (d._iov, 0, sizeof(iovec) * d._iov_buffer_size);
 	d._num_elements = 0;
 	d._overall_msg_size = 0;
 
@@ -226,7 +226,7 @@ YARPOutputSocketDgram::YARPOutputSocketDgram (void) : YARPNetworkOutputObject ()
 
 	/// I hate this but there's no much choice unless the protocol is changed to allow
 	/// for nice iovec style sync comm.
-	memset (d._buffer, 0, MAX_PACKET);
+	ACE_OS::memset (d._buffer, 0, MAX_PACKET);
 }
 
 YARPOutputSocketDgram::~YARPOutputSocketDgram (void)
@@ -424,7 +424,7 @@ int YARPOutputSocketDgram::SendContinue(char *buffer, int buffer_length)
 /// I'm afraid the reply might end up being costly to streaming communication.
 int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buffer_length)
 {
-	memset (reply_buffer, 0, reply_buffer_length);
+	ACE_OS::memset (reply_buffer, 0, reply_buffer_length);
 	return reply_buffer_length;
 }
 
@@ -448,7 +448,7 @@ int YARPOutputSocketDgram::SendEnd(char *reply_buffer, int reply_buffer_length)
 		return YARP_FAIL;
 	}
 
-	memset (reply_buffer, 0, reply_buffer_length);
+	ACE_OS::memset (reply_buffer, 0, reply_buffer_length);
 	return reply_buffer_length;
 }
 

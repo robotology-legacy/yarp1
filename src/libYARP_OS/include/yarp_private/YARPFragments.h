@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPFragments.h,v 1.3 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPFragments.h,v 1.4 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -176,14 +176,14 @@ template <class T>
 void CopyToFragments(Fragments& Fragments, const T& t)
 {
 	Fragments.Require(sizeof(t));
-	memcpy(Fragments.GetBuffer(),(char *)(&t),sizeof(t));
+	ACE_OS::memcpy(Fragments.GetBuffer(),(char *)(&t),sizeof(t));
 }
 
 template <class T>
 void CopyFromFragments(Fragments& Fragments, const T& t)
 {
 	ACE_ASSERT (Fragments.GetLength()==sizeof(t));
-	memcpy((char *)(&t),Fragments.GetBuffer(),sizeof(t));
+	ACE_OS::memcpy((char *)(&t),Fragments.GetBuffer(),sizeof(t));
 }
 
 

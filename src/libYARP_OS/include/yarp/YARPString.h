@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPString.h,v 1.4 2004-07-09 13:45:59 eshuy Exp $
+/// $Id: YARPString.h,v 1.5 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -200,7 +200,7 @@ inline std::ostream& operator<< (std::ostream& os, const YARPString& s) { os << 
  */
 inline std::istream& operator>> (std::istream& is, YARPString& s) 
 {
-	char _buf[1024]; memset (_buf, 0, 1024);
+	char _buf[1024]; ACE_OS::memset (_buf, 0, 1024);
 	is.getline(_buf, 1024, '\n');
 	s = _buf; 
 	return is; 

@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.2 2004-07-09 16:42:32 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.3 2004-08-10 17:08:23 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -27,7 +27,6 @@
 /// Configuration flags
 ///
 #define SINGLE_MUTEX_FOR_REFCOUNTED 1
-#define UPDATED_PORT 1
 #define MAX_PACKET (128*128*3+100)
 
 /// although the limit for communicating across a net is set to MAX_PACKET

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.5 2004-07-30 14:55:46 babybot Exp $
+/// $Id: YARPBottle.h,v 1.6 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -99,9 +99,9 @@ class YARPBottle
 
 		void set(const char *s)
 		{ 
-			strncpy(text, s , __maxBottleID-1);
+			ACE_OS::strncpy(text, s , __maxBottleID-1);
 			text[__maxBottleID-1] = '\0';	// paranoid ?
-			length = strlen(text)+1;
+			length = ACE_OS::strlen(text)+1;
 		}
 
 		void set(const YBVocab &s)
@@ -116,7 +116,7 @@ class YARPBottle
 		
 		bool operator==(const BottleId &l) const
 		{
-			if (strcmp(text, l.c_str()) == 0)
+			if (ACE_OS::strcmp(text, l.c_str()) == 0)
 				return true;
 			else
 				return false;
@@ -129,7 +129,7 @@ class YARPBottle
 		
 		bool operator==(const YBVocab &l) const
 		{
-			if (strcmp(text, l.c_str()) == 0)
+			if (ACE_OS::strcmp(text, l.c_str()) == 0)
 				return true;
 			else
 				return false;
@@ -207,23 +207,6 @@ public:
 		index = oldIndex;
 		return true;
 	}
-
-	/*
-	bool tryReadYVector(YVector &v)
-	{
-		int oldIndex = index;
-		lastReadSeq = 0;
-		if (!assertType(YBTypeYVector))
-			return false;
-		index+=sizeof(YBTypeYVector);
-		int l = readRawInt();
-		index+=sizeof(int);
-		v.Resize(l);
-		memcpy(v.data(), readRawBlock(l*sizeof(double)), l*sizeof(double)); 
-		index = oldIndex;
-		return true;
-	}
-	*/
 
 	bool tryReadFloat(double *f)
 	{
@@ -364,13 +347,13 @@ protected:
 	void readRawBlock(char *buf, int len)
     {
 		char *src = readRawBlock(len);
-		memcpy(buf,src,len);
+		ACE_OS::memcpy(buf,src,len);
     }
  
 	void writeRawBlock(char *buf, int l)
     {
 		text.resize(index+l);
-		memcpy(&text[index],buf,l);
+		ACE_OS::memcpy(&text[index],buf,l);
 		index+=l;
 		top = index;
 		len = top;
@@ -426,14 +409,14 @@ protected:
       //printf("*** please supply a buffer size to YARPBottle::readRawText and related fns\n");
 		NetInt32 len = readRawInt();
 		index += sizeof(int);
-		memcpy(s, readRawBlock(len), len);
+		ACE_OS::memcpy(s, readRawBlock(len), len);
 		index -= sizeof(int);
     }
 
 	void writeRawText(const char *text)
     {
-		writeRawInt(strlen(text)+1);
-		writeRawBlock((char*)(&text[0]),strlen(text)+1);      
+		writeRawInt(ACE_OS::strlen(text)+1);
+		writeRawBlock((char*)(&text[0]),ACE_OS::strlen(text)+1);      
     }
 	
 	bool assertType(int ch)

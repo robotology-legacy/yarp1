@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBottle.cpp,v 1.3 2004-07-12 08:23:41 eshuy Exp $
+///  $Id: YARPBottle.cpp,v 1.4 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -115,7 +115,7 @@ void YARPBottle::display()
 	    case YBTypeVocab:
 	      str = (char *) readRawText();
 	      printf("<%s>", str);
-		  _moveOn(strlen(str)+1+sizeof(int));
+		  _moveOn(ACE_OS::strlen(str)+1+sizeof(int));
 	      break;
 	    case YBTypeDouble:
 	      printf("%g", readRawFloat());
@@ -124,25 +124,8 @@ void YARPBottle::display()
 	    case YBTypeString:
 		  str = (char *) readRawText();
 	      printf("(%s)", str);
-		  _moveOn(strlen(str)+1+sizeof(int));
+		  _moveOn(ACE_OS::strlen(str)+1+sizeof(int));
 	      break;
-	      /*
-		case YBTypeYVector:
-		{
-		  index = index-sizeof(int);
-		  YVector tmp;
-		  tryReadYVector(tmp);
-		  int i;
-		  printf("<");
-		  for(i = 1; i < tmp.Length(); i++)
-		  {
-			  printf("%g ", tmp(i));
-		  }
-		  printf("%g>", tmp(i)); // last item
-		  moveOn();
-		  break;
-		}
-	      */
 	    default:
 	      printf("???");
 	      break;

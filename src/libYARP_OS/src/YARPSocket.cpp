@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.10 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.11 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -391,7 +391,7 @@ int YARPOutputSocket::SendReceivingReply(char *reply_buffer, int reply_buffer_le
 	return result;
 #ifdef DONT_WAIT_UP
   } else {
-	memset (reply_buffer, 0, reply_buffer_length);
+	ACE_OS::memset (reply_buffer, 0, reply_buffer_length);
 	return reply_buffer_length;
   }
 #endif

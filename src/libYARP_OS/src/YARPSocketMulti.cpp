@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.18 2004-08-10 13:42:07 babybot Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.19 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -73,20 +73,27 @@
 #include <ace/Sched_Params.h>
 #include <yarp/YARPTime.h>
 
-#if defined(__QNX6__) || defined(__LINUX__)
-#include <signal.h>
-#endif
+///
+///
+///
+#if defined(__QNX6__)
 
-#ifndef __QNX__
-/// WIN32, Linux
+#	include <signal.h>
+#	include <unix.h>
 
-#ifndef __WIN_MSVC__
+#elif defined (__WIN32__)
+
+
+#elif defined (__LINUX__)
+
 #	include <unistd.h>  // just for gethostname
-#endif
 
 #else
-#	include <unix.h>	// just for gethostname
+
+#	error "Your architecture requires a configuration"
+
 #endif
+
 
 #include <yarp/YARPList.h>
 #include <yarp/YARPSocket.h>
@@ -104,8 +111,16 @@
 
 /**
  * \file YARPSocketMulti.cpp contains classes supporting an input socket/endpoint.
+ * The input socket is a structure containing a thread for each input connection 
+ * (possibly running at a different rate) and a manager thread polling periodically 
+ * (not really polling though) to see which is ready to receive a message.
+ * Perhaps there would be a more efficient implementation of this server pattern
+ * but this looks efficient for now.
  */
 
+/*
+ * This flag enables new code to remove reply messages.
+ */
 #define DONT_WAIT_UP
 
 #include <yarp/begin_pack_for_net.h>
@@ -120,12 +135,18 @@ public:
 	NetInt32 len;
 	char key2[2];
 
+	/**
+	 * Constructor.
+	 */
 	MyMessageHeader()
 	{
 		len = 0;
 		SetBad();
 	}
 
+	/**
+	 * Sets the header to represent a valid message.
+	 */
 	void SetGood()
     {
 		key[0] = 'Y';
@@ -134,6 +155,9 @@ public:
 		key2[1] = 'P';
     }
   
+	/**
+	 * Sets the header to represent an error message.
+	 */
 	void SetBad()
     {
 		key[0] = 'y';
@@ -142,11 +166,21 @@ public:
 		key2[1] = 'p';
     }
 
+	/**
+	 * Sets the length parameter of the message. The length
+	 * represents the length of the next message block.
+	 * @param n_len is the length in bytes.
+	 */
 	void SetLength(int n_len)
 	{
 		len = n_len;
 	}
   
+	/**
+	 * Gets the length of the message block. 
+	 * @return the length in bytes of the following chunk only if
+	 * the message is a good one.
+	 */
 	int GetLength()
 	{
 		if (key[0] == 'Y' && key[1] == 'A' && key2[0] == 'R' && key2[1] == 'P')
@@ -385,24 +419,103 @@ public:
 	 */
 	inline int isAvailable (void) const { return _available; }
 
+	/**
+	 * Tests whether the thread is waiting for new data.
+	 * @return 1 if the thread is waiting, 0 otherwise.
+	 */
 	inline int isWaiting (void) const { return _waiting; }
+
+	/**
+	 * Sets the wating flag to a specific value.
+	 * @param w is the new value.
+	 */
 	inline void setWaiting (int w) { _waiting = w; }
 
+	/**
+	 * Sets the external buffer for the message. A pointer to
+	 * a valid memory buffer is given to the thread to copy 
+	 * (through a recv on a socket) the incoming message part into.
+	 * @param b is the pointer to the buffer.
+	 */
 	inline void setExternalBuffer (char *b) { _extern_buffer = b; }
+
+	/**
+	 * Gets the length of the buffer. This method is used to
+	 * determine how many bytes is the message composed of.
+	 * @return the length of the buffer in bytes.
+	 */
 	inline int getExternalBufferLength (void) const { return _extern_length; }
+
+	/**
+	 * Sets the length of the buffer. This method is used to
+	 * tell the thread how big is the buffer.
+	 * @param l is the length of the buffer in bytes.
+	 */
 	inline void setExternalBufferLength (int l) { _extern_length = l; }
 
+	/**
+	 * Sets a flag to tell the thread code that a reply to the
+	 * message is required.
+	 * @param i 1 means that the reply is required, 0 otherwise.
+	 */
 	inline void setNeedsReply (int i) { _needs_reply = i; }
+
+	/**
+	 * Sets a flag to tell the thread code that another message
+	 * part has to be read from the socket.
+	 * @param i 1 means that there is more data to read, 0 otherwise.
+	 */
 	inline void setReadMore (int i) { _read_more = i; }
+
+	/**
+	 * Sets a flag to tell the thread code the next buffer contains
+	 * the preamble of the reply message.
+	 * @param i 1 means that the next buffer is the reply preamble, 0 otherwise.
+	 */
 	inline void setReplyPreamble (int i) { _reply_preamble = i; }
 
+	/**
+	 * Sets the external buffer for the reply to a message. A pointer to
+	 * a valid memory buffer is given to the thread.
+	 * @param b is the pointer to the buffer.
+	 */
 	inline void setExternalReplyBuffer (char *b) { _extern_reply_buffer = b; }
+
+	/**
+	 * Gets the length of the reply buffer. This method is used to
+	 * determine how many bytes is the reply composed of.
+	 * @return the length of the reply message in bytes.
+	 */
 	inline int getExternalReplyLength (void) const { return _extern_reply_length; }
+
+	/**
+	 * Sets the length of the reply buffer. This method tells the 
+	 * thread code how long is the next reply message.
+	 * @param l the length of the reply message in bytes.
+	 */
 	inline void setExternalReplyLength (int l) { _extern_reply_length = l; }
 
+	/**
+	 * The calling thread waits on a mutex. This method is used
+	 * to access shared variables in the thread class.
+	 */
 	inline void waitOnMutex (void) { _mutex.Wait (); }
+
+	/**
+	 * The calling thread releases the mutex. This method is used
+	 * to tell the thread that the access to shared variables is
+	 * terminated.
+	 */
 	inline void postToMutex (void) { _mutex.Post (); }
+
+	/**
+	 * Posts the wakeup semaphore to tell the thread to continue processing.
+	 */
 	inline void postToWakeup (void) { _wakeup.Post (); }
+
+	/**
+	 * The caller blocks until a reply is completed.
+	 */
 	inline void waitOnReplyMade (void) { _reply_made.Wait (); }
 };
 
@@ -617,7 +730,7 @@ public:
 		if (_ports != NULL) delete[] _ports;
 		_ports = new int[number_o_ports];
 		ACE_ASSERT (_ports != NULL);
-		memcpy (_ports, ports, sizeof(int) * number_o_ports);
+		ACE_OS::memcpy (_ports, ports, sizeof(int) * number_o_ports);
 		_number_o_ports = number_o_ports;
 		_last_assigned = -1;
 		return YARP_OK;
@@ -1209,7 +1322,7 @@ void _SocketThreadMulti::BodyTcp (void)
 	char bufack[] = "acknowledged";
 	char *buf3 = bufack;
 
-///	memset (_local_buffer, 0, MAX_PACKET);
+///	ACE_OS::memset (_local_buffer, 0, MAX_PACKET);
 ///	_local_buffer_counter = 0;
 
 	ACE_ASSERT (_socket == NULL);
@@ -1301,7 +1414,7 @@ void _SocketThreadMulti::BodyTcp (void)
 				rep = _needs_reply;
 				if (r <= 0)
 				{
-					memset (_extern_buffer, 0, _extern_length);
+					ACE_OS::memset (_extern_buffer, 0, _extern_length);
 					AskForEnd();
 				}
 
@@ -1486,7 +1599,7 @@ void _SocketThreadMulti::BodyShmem (void)
 				r = stream.recv_n (_extern_buffer, len , 0);
 				if (r <= 0)
 				{
-					memset (_extern_buffer, 0, _extern_length);
+					ACE_OS::memset (_extern_buffer, 0, _extern_length);
 					AskForEnd();
 				}
 
@@ -1610,7 +1723,7 @@ void _SocketThreadMulti::BodyUdp (void)
 	char bufack[] = "acknowledged";
 	char *buf3 = bufack;
 
-	memset (_local_buffer, 0, MAX_PACKET);
+	ACE_OS::memset (_local_buffer, 0, MAX_PACKET);
 	_local_buffer_counter = 0;
 
 	ACE_ASSERT (_socket != NULL);
@@ -1757,7 +1870,7 @@ void _SocketThreadMulti::BodyUdp (void)
 
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read the data buffer\n"));
 
-					memcpy (_extern_buffer, _local_buffer+_local_buffer_counter, len); 
+					ACE_OS::memcpy (_extern_buffer, _local_buffer+_local_buffer_counter, len); 
 					_local_buffer_counter += len;
 					r = len;
 				
@@ -1786,7 +1899,7 @@ void _SocketThreadMulti::BodyUdp (void)
 						}
 						else
 						{
-							memcpy (_extern_reply_buffer, _local_buffer+_local_buffer_counter, _extern_reply_length);
+							ACE_OS::memcpy (_extern_reply_buffer, _local_buffer+_local_buffer_counter, _extern_reply_length);
 							_local_buffer_counter += _extern_reply_length;
 						}
 
@@ -1823,7 +1936,7 @@ void _SocketThreadMulti::BodyMcast (void)
 	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 	ACE_INET_Addr incoming;
 	
-	memset (_local_buffer, 0, MAX_PACKET);
+	ACE_OS::memset (_local_buffer, 0, MAX_PACKET);
 	_local_buffer_counter = 0;
 
 	ACE_ASSERT (_socket != NULL);
@@ -1967,7 +2080,7 @@ void _SocketThreadMulti::BodyMcast (void)
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read the data buffer\n"));
 
 					/// shouldn't be much different from the real recv.
-					memcpy (_extern_buffer, _local_buffer + _local_buffer_counter, len); 
+					ACE_OS::memcpy (_extern_buffer, _local_buffer + _local_buffer_counter, len); 
 					_local_buffer_counter += len;
 					_extern_length = len;
 					int rep = _needs_reply;
@@ -1989,7 +2102,7 @@ void _SocketThreadMulti::BodyMcast (void)
 
 						if (_extern_reply_length != 0)
 						{
-							memcpy (_extern_reply_buffer, _local_buffer + _local_buffer_counter, _extern_reply_length);
+							ACE_OS::memcpy (_extern_reply_buffer, _local_buffer + _local_buffer_counter, _extern_reply_length);
 							_local_buffer_counter += _extern_reply_length;
 						}
 
@@ -2797,7 +2910,7 @@ int _SocketThreadListMulti::beginReply(ACE_HANDLE reply_pid, char *buf, int len)
 				}
 				else
 				{
-					memset (buf, 0, len);
+					ACE_OS::memset (buf, 0, len);
 				}
 			}
 		}
@@ -2838,7 +2951,7 @@ int _SocketThreadListMulti::reply(ACE_HANDLE reply_pid, char *buf, int len)
 				}
 				else
 				{
-					memset (buf, 0, len);
+					ACE_OS::memset (buf, 0, len);
 					(*it_avail)->postToWakeup ();				///wakeup.Post();
 				}
 			}
@@ -3265,7 +3378,7 @@ int YARPOutputSocketMulti::SendReceivingReply(char *reply_buffer, int reply_buff
 	return result;
 #ifdef DONT_WAIT_UP
   } else {
-	memset (reply_buffer, 0, reply_buffer_length);
+	ACE_OS::memset (reply_buffer, 0, reply_buffer_length);
 	return reply_buffer_length;
   }
 #endif

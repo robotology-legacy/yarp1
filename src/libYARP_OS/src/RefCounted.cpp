@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: RefCounted.cpp,v 1.3 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: RefCounted.cpp,v 1.4 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -247,7 +247,7 @@ void *Buffer::Clone(int *needed)
 		ACE_ASSERT (memory != NULL);
 		ptr = new Buffer(GetLength());
 		ACE_ASSERT (ptr != NULL);
-		memcpy(ptr->memory, memory, GetLength());
+		ACE_OS::memcpy(ptr->memory, memory, GetLength());
 		ref_count--;
 	}
 

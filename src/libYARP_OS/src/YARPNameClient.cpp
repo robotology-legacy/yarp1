@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.8 2004-07-12 13:34:32 eshuy Exp $
+/// $Id: YARPNameClient.cpp,v 1.9 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -120,7 +120,7 @@ YARPString YARPNameClient::dump (int i)
 		return text;
 	}
 
-	memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+	ACE_OS::memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
 	
 	iovec iov[1];
 	iov[0].iov_base = data_buf_;
@@ -283,8 +283,8 @@ int YARPNameClient::check_out (const YARPString &s)
 	tmpCmd.type = YARP_TCP;	// MCAST, TCP and UDP releases are handled in the same way
 	tmpCmd.length = tmpRqst.length();
 	// send message length
-	memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
-	memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+	ACE_OS::memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+	ACE_OS::memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
 
 	iovec iov[1];
 	iov[0].iov_base = data_buf_;
@@ -324,8 +324,8 @@ int YARPNameClient::check_out_qnx (const YARPString &s)
 	tmpCmd.type = YARP_QNET;	// MCAST, TCP and UDP releases are handled in the same way
 	tmpCmd.length = tmpRqst.length();
 	// send message length
-	memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
-	memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+	ACE_OS::memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+	ACE_OS::memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
 
 	iovec iov[1];
 	iov[0].iov_base = data_buf_;
@@ -386,8 +386,8 @@ int YARPNameClient::_checkIn(const YARPString &s, ACE_INET_Addr &addr)
 	tmpCmd.type = YARP_TCP;
 	tmpCmd.length = tmpRqst.length();
 	// send message length
-	memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
-	memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+	ACE_OS::memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+	ACE_OS::memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
 
 	iovec iov[1];
 	iov[0].iov_base = data_buf_;
@@ -403,7 +403,7 @@ int YARPNameClient::_checkIn(const YARPString &s, ACE_INET_Addr &addr)
 	unsigned int byte_count = 0;
 	int res = 0;
 		
-	memset(data_buf_, 0, SIZE_BUF);
+	ACE_OS::memset(data_buf_, 0, SIZE_BUF);
 	iov[0].iov_len = sizeof(YARPNameServiceCmd);
 	res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
 	
@@ -437,8 +437,8 @@ int YARPNameClient::_checkInUdp(const YARPString &name, const YARPString &ip, Ne
 	tmpCmd.type = YARP_UDP;
 	tmpCmd.length = tmpRqst.length();
 	// send message length
-	memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
-	memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+	ACE_OS::memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+	ACE_OS::memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
 
 	iovec iov[1];
 	iov[0].iov_base = data_buf_;
@@ -454,7 +454,7 @@ int YARPNameClient::_checkInUdp(const YARPString &name, const YARPString &ip, Ne
 	unsigned int byte_count = 0;
 	int res = 0;
 		
-	memset(data_buf_, 0, SIZE_BUF);
+	ACE_OS::memset(data_buf_, 0, SIZE_BUF);
 	iov[0].iov_len = sizeof(YARPNameServiceCmd);
 	res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
 	
@@ -490,8 +490,8 @@ int YARPNameClient::_checkInMcast(const YARPString &s, ACE_INET_Addr &addr)
 	tmpCmd.type = YARP_MCAST;
 	tmpCmd.length = tmpRqst.length();
 	// send message length
-	memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
-	memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+	ACE_OS::memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+	ACE_OS::memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
 
 	iovec iov[1];
 	iov[0].iov_base = data_buf_;
@@ -507,7 +507,7 @@ int YARPNameClient::_checkInMcast(const YARPString &s, ACE_INET_Addr &addr)
 	unsigned int byte_count = 0;
 	int res = 0;
 		
-	memset(data_buf_, 0, SIZE_BUF);
+	ACE_OS::memset(data_buf_, 0, SIZE_BUF);
 	iov[0].iov_len = sizeof(YARPNameServiceCmd);
 	res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
 	
@@ -539,8 +539,8 @@ int YARPNameClient::_checkInQnx(const YARPNameQnx &entry)
 	tmpCmd.type = YARP_QNET;
 	tmpCmd.length = tmpRqst.length();
 	// send message length
-	memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
-	memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+	ACE_OS::memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+	ACE_OS::memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
 
 	iovec iov[1];
 	iov[0].iov_base = data_buf_;
@@ -572,8 +572,8 @@ int YARPNameClient::_query(const YARPString &s, ACE_INET_Addr &addr, int *type)
 	tmpCmd.type = YARP_TCP;	// TCP, UDP, MCAST queries are handled in the same way
 	tmpCmd.length = tmpRqst.length();
 	// send message length
-	memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
-	memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+	ACE_OS::memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+	ACE_OS::memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
 
 	iovec iov[1];
 	iov[0].iov_base = data_buf_;
@@ -589,7 +589,7 @@ int YARPNameClient::_query(const YARPString &s, ACE_INET_Addr &addr, int *type)
 	unsigned int byte_count = 0;
 	int res = 0;
 		
-	memset(data_buf_, 0, SIZE_BUF);
+	ACE_OS::memset(data_buf_, 0, SIZE_BUF);
 	iov[0].iov_len = sizeof(YARPNameServiceCmd);
 	res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
 	YARPNameServiceCmd *srvCmd = (YARPNameServiceCmd *)data_buf_;
@@ -624,8 +624,8 @@ int YARPNameClient::_query_nic(const YARPNSNic &in, YARPString &outNic, YARPStri
 	tmpCmd.length = sizeof(YARPNSNic);
 
 	// send message length
-	memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
-	memcpy(data_buf_+sizeof(YARPNameServiceCmd), &in, tmpCmd.length);
+	ACE_OS::memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+	ACE_OS::memcpy(data_buf_+sizeof(YARPNameServiceCmd), &in, tmpCmd.length);
 
 	iovec iov[1];
 	iov[0].iov_base = data_buf_;
@@ -668,8 +668,8 @@ int YARPNameClient::_queryQnx(const YARPString &s, YARPNameQnx &entry, int *type
 	tmpCmd.type = YARP_QNET;	// TCP, UDP, MCAST queries are handled in the same way
 	tmpCmd.length = tmpRqst.length();
 	// send message length
-	memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
-	memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+	ACE_OS::memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+	ACE_OS::memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
 
 	iovec iov[1];
 	iov[0].iov_base = data_buf_;
@@ -685,7 +685,7 @@ int YARPNameClient::_queryQnx(const YARPString &s, YARPNameQnx &entry, int *type
 	unsigned int byte_count = 0;
 	int res = 0;
 		
-	memset(data_buf_, 0, SIZE_BUF);
+	ACE_OS::memset(data_buf_, 0, SIZE_BUF);
 	iov[0].iov_len = sizeof(YARPNameServiceCmd);
 	res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
 	YARPNameServiceCmd *srvCmd = (YARPNameServiceCmd *)data_buf_;
@@ -711,7 +711,7 @@ int YARPNameClient::_handle_reply(YARPString &out)
 	int res = 0;
 	out = "";
 		
-	memset(data_buf_, 0, SIZE_BUF);
+	ACE_OS::memset(data_buf_, 0, SIZE_BUF);
 	
 	// first vector
 	iovec iov[1];

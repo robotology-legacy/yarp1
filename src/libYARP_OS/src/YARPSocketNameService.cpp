@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.12 2004-08-10 13:42:07 babybot Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.13 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -80,43 +80,25 @@
 #include <yarp/YARPNameID_defs.h>
 #include <yarp/YARPNameService.h>
 #include <yarp/YARPNativeNameService.h>
-#include <yarp/debug.h>
 
-
-#ifdef __WIN32__
-/// library initialization.
-#pragma init_seg(lib)
-#endif
+/**
+ * \file YARPSocketNameService.cpp contains classes and functions to interface to
+ * the name server.
+ */
 
 #define THIS_DBG 50
 
 #include <sys/types.h>
-
-#ifndef __WIN32__
-#include <unistd.h>
-#endif
-
 #include <yarp/YARPSemaphore.h>
 
-#define times ignore
+/*
+ * OS specific configuration.
+ */
+#if defined(__QNX6__)
 
-///
-///
-/// LATER: have a look at this. ACEize later...
-///
-#if defined(__QNX4__)
+#	include <unistd.h>
+#	include <pthread.h>
 
-#include <sys/psinfo.h>
-static int my_getpid()
-{
-	struct _psinfo2 info;
-	qnx_getids (0, &info);
-	return info.pid;
-}
-
-#elif defined(__QNX6__) || defined (__LINUX__)
-
-#include <pthread.h>
 static int my_getpid()
 {
 	return getpid();
@@ -130,6 +112,9 @@ static int my_gettid()
 
 #elif defined(__WIN32__)
 
+/// library initialization.
+#	pragma init_seg(lib)
+
 static int my_getpid()
 {
 #ifdef __WIN_MSVC__
@@ -141,13 +126,39 @@ static int my_getpid()
 
 static inline int my_gettid() { return my_getpid(); }
 
+
+#elif defined(__LINUX__)
+
+#	include <unistd.h>
+#	include <pthread.h>
+
+static int my_getpid()
+{
+	return getpid();
+}
+
+/// returns the thread Id.
+static int my_gettid()
+{
+	return (int)pthread_self();
+}
+
+#else
+
+#	error "Your architecture requires a configuration"
+
 #endif
 
 
-///
-///
-///
-///
+#define times ignore
+
+/**
+ * A class that contains a map between threads and network objects associated
+ * with the thread. The index into the map is the thread ID which is obtained 
+ * from the OS. The pointer to the socket/network object is obtained by calling
+ * GetThreadSocket().
+ * @see also YARPNetworkObject.
+ */
 class _yarp_endpoint
 {
 public:
@@ -159,11 +170,21 @@ public:
 	SMap _map;
 
 public:
-	////
+	/**
+	 * Constructor.
+	 */
 	_yarp_endpoint () : mutex (1) {}
+
+	/**
+	 * Destructor.
+	 */
 	~_yarp_endpoint () {}
 
-	/// get the socket from the map of all in sockets.
+	/**
+	 * Gets the socket from the map of all sockets.
+	 * @return a pointer to the YARPNetworkObject associated with the
+	 * calling thread or NULL on failure.
+	 */
 	inline YARPNetworkObject *GetThreadSocket(void)
 	{
 		int pid = my_gettid();
@@ -187,8 +208,6 @@ public:
 /// global variables.
 ///
 _yarp_endpoint _endpointmanager;		/// per-process instance.
-
-
 
 
 ///
@@ -569,7 +588,7 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 			/// requested symbolic network name.
 			NetInt32 *ports = new NetInt32[extra_param];
 			ACE_ASSERT (ports != NULL);
-			memset (ports, 0, sizeof(int) * extra_param);
+			ACE_OS::memset (ports, 0, sizeof(int) * extra_param);
 
 			/// uses the new IP for registration in the name server.
 			YARPString new_ip, new_nic;
@@ -577,8 +596,8 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 
 			//printf("Trying to get my (%s) IP addr from the name server (network %s ip %s)\n", myhostname, network_name, reg_addr.get_host_addr());
 			
-			if ((strcmp(reg_addr.get_host_addr(),"127.0.0.1")==0)||
-			    (strcmp(reg_addr.get_host_addr(),"0.0.0.0")==0)) {
+			if ((ACE_OS::strcmp(reg_addr.get_host_addr(),"127.0.0.1")==0)||
+				(ACE_OS::strcmp(reg_addr.get_host_addr(),"0.0.0.0")==0)) {
 			  // localhost 127.0.0.1 IP is no good, no good at all
 			  // dud 0.0.0.0 IP is no good, no good at all
 			  // host name is marginally better
@@ -591,7 +610,7 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 			
 			//printf("my IP addr from the name server --> network %s ip %s\n", new_nic.c_str(), new_ip.c_str());
 			
-			if (strcmp (new_ip.c_str(), "0.0.0.0") == 0)
+			if (ACE_OS::strcmp (new_ip.c_str(), "0.0.0.0") == 0)
 			{
 				ACE_DEBUG ((LM_WARNING, ">>>> Can't find the net name %s\n", network_name));
 				delete[] ports;
@@ -642,7 +661,7 @@ bool YARPSocketNameService::VerifySame (YARPNameClient& namer, const char *ip, c
 	YARPString new_ip, new_nic;
 	namer.query_nic (ip, netname, new_nic, new_ip);
 	if_name = new_nic;
-	if (strcmp (new_nic.c_str(), netname) == 0)
+	if (ACE_OS::strcmp (new_nic.c_str(), netname) == 0)
 	   return true;
 	return false;
 	*/
@@ -652,7 +671,7 @@ bool YARPSocketNameService::VerifySame (YARPNameClient& namer, const char *ip, c
 	YARPString new_ip, new_nic;
 	namer.query_nic (ip, netname, new_nic, new_ip);
 	if_name = new_nic;
-	if (strcmp (new_ip.c_str(), ip) == 0)
+	if (ACE_OS::strcmp (new_ip.c_str(), ip) == 0)
 	   return true;
 	return false;
 
@@ -676,10 +695,10 @@ bool YARPSocketNameService::VerifyLocal (YARPNameClient& namer, const char *rem_
 	namer.query_nic (rem_ip, netname, nic1, ip1);
 	namer.query_nic (loc_ip, netname, nic2, ip2);
 
-	//if (strcmp (ip1.c_str(), ip2.c_str()) == 0 && strcmp (ip1.c_str(), "0.0.0.0") != 0)
+	//if (ACE_OS::strcmp (ip1.c_str(), ip2.c_str()) == 0 && ACE_OS::strcmp (ip1.c_str(), "0.0.0.0") != 0)
 	//return true;
 
-	if (strcmp (ip1.c_str(), "0.0.0.0") != 0) {
+	if (ACE_OS::strcmp (ip1.c_str(), "0.0.0.0") != 0) {
 	  ACE_INET_Addr addr1, addr2;
 	  addr1.set((short unsigned int)0,(const char *)ip1.c_str());
 	  addr2.set((short unsigned int)0,(const char *)ip2.c_str());

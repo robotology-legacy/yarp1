@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.21 2004-08-10 13:42:07 babybot Exp $
+/// $Id: Port.cpp,v 1.22 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -168,8 +168,8 @@ int Port::SayServer (const YARPNameID& pid, const char *buf)
 int OutputTarget::ConnectMcast (const char *name)
 {
 	WaitMutex ();
-	memcpy (cmdname, name, strlen(name));
-	cmdname[strlen(name)] = 0;
+	ACE_OS::memcpy (cmdname, name, ACE_OS::strlen(name));
+	cmdname[ACE_OS::strlen(name)] = 0;
 	msg_type = 1;
 	something_to_send.Post();
 	PostMutex ();
@@ -182,8 +182,8 @@ int OutputTarget::ConnectMcast (const char *name)
 int OutputTarget::DeactivateMcast (const char *name)
 {
 	WaitMutex ();
-	memcpy (cmdname, name, strlen(name));
-	cmdname[strlen(name)] = 0;
+	ACE_OS::memcpy (cmdname, name, ACE_OS::strlen(name));
+	cmdname[ACE_OS::strlen(name)] = 0;
 	msg_type = 2;
 	something_to_send.Post();
 	PostMutex ();
@@ -231,7 +231,7 @@ void OutputTarget::Body ()
 	BlockSender sender;
 	CountedPtr<Sendable> p_local_sendable;
 
-	memset (cmdname, 0, 2*YARP_STRING_LEN);
+	ACE_OS::memset (cmdname, 0, 2*YARP_STRING_LEN);
 	msg_type = 0;
 
 	/// needs to know what is the protocol of the owner.
@@ -295,8 +295,8 @@ void OutputTarget::Body ()
 			/// this test is carried out by the nameserver relying on the
 			/// subnetwork structure.
 			char iplocal[17];
-			memset (iplocal, 0, 17);
-			memcpy (iplocal, local.get_host_addr(), 17);
+			ACE_OS::memset (iplocal, 0, 17);
+			ACE_OS::memcpy (iplocal, local.get_host_addr(), 17);
 
 			bool same_machine = YARPNameService::VerifyLocal (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_host_addr(), iplocal, network_name.c_str());
 
@@ -385,8 +385,8 @@ void OutputTarget::Body ()
 			ACE_INET_Addr local ((u_short)0, myhostname);
 
 			char iplocal[17];
-			memset (iplocal, 0, 17);
-			memcpy (iplocal, local.get_host_addr(), 17);
+			ACE_OS::memset (iplocal, 0, 17);
+			ACE_OS::memcpy (iplocal, local.get_host_addr(), 17);
 
 			/// this test is carried out by the name server.
 			bool same_machine = YARPNameService::VerifyLocal (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_host_addr(), iplocal, network_name.c_str());
@@ -628,10 +628,8 @@ void OutputTarget::Body ()
 		ticking = 0;
 		PostMutex();
 		p_local_sendable.Reset();
-
-#ifdef UPDATED_PORT
 		space_available.Post();
-#endif
+
 		OnSend();
 	} /// while (!deactivated)
 
@@ -764,7 +762,6 @@ void _strange_select::Body ()
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "Sending a message from %s to target %s\n", _owner->name.c_str(), target->GetLabel().c_str()));
 			if (_owner->p_sendable.Ptr() != NULL)
 			{
-#ifdef UPDATED_PORT
 				if (_owner->require_complete_send)
 				{
 					target->space_available.Wait ();
@@ -773,10 +770,6 @@ void _strange_select::Body ()
 
 				target->Share (_owner->p_sendable.Ptr());
 				target->add_header = _owner->add_header;
-#else
-				target->Share (_owner->p_sendable.Ptr());
-				target->add_header = _owner->add_header;
-#endif
 			}
 			else
 			{
@@ -1096,8 +1089,8 @@ void Port::Body()
 						ACE_INET_Addr local ((u_short)0, myhostname);
 						
 						char iplocal[17];
-						memset (iplocal, 0, 17);
-						strcpy (iplocal, local.get_host_addr());
+						ACE_OS::memset (iplocal, 0, 17);
+						ACE_OS::strcpy (iplocal, local.get_host_addr());
 
 						bool same_machine = YARPNameService::VerifyLocal (((YARPUniqueNameSock *)rem_pid)->getAddressRef().get_host_addr(), iplocal, network_name.c_str());
 
@@ -1461,7 +1454,6 @@ void Port::Body()
 ///
 void Port::Share(Sendable *nsendable)
 {
-#ifdef UPDATED_PORT
 	okay_to_send.Wait();
 	out_mutex.Wait();
 	p_sendable.Set(nsendable);
@@ -1471,13 +1463,6 @@ void Port::Share(Sendable *nsendable)
 	/// cost an additional thread but hopefully saves a costly message
 	/// through the port socket.
 	tsender.pulseGo ();
-
-#else
-	out_mutex.Wait();
-	p_sendable.Set(nsendable);
-	out_mutex.Post();
-	Fire();
-#endif
 }
 
 

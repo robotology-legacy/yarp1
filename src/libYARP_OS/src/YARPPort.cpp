@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.9 2004-08-10 13:42:07 babybot Exp $
+/// $Id: YARPPort.cpp,v 1.10 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -291,7 +291,7 @@ void YARPPort::FinishSend()
 
 int YARPPort::Connect(const char *name)
 {
-	if (strcmp (name, PD.name.c_str()) == 0)
+	if (ACE_OS::strcmp (name, PD.name.c_str()) == 0)
 	{
 	  ACE_DEBUG ((LM_ERROR, "Try to be serious please\n"));
 	  return YARP_FAIL;
@@ -303,7 +303,7 @@ int YARPPort::Connect(const char *name)
 
 int YARPPort::Connect(const char *src_name, const char *dest_name)
 {
-	if (strcmp (src_name, dest_name) == 0)
+	if (ACE_OS::strcmp (src_name, dest_name) == 0)
 	{
 		ACE_DEBUG ((LM_ERROR, "Silly you, you tried it, didn't you?\n"));
 		return YARP_FAIL;

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRateThread.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
+/// $Id: YARPRateThread.h,v 1.4 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -508,7 +508,7 @@ public:
 		if (ret < 0)
 		{
 			cout << "set priority failed... abort" << endl;
-			exit (-1);
+			ACE_OS::exit (-1);
 		}
 	}
 

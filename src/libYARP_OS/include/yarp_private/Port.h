@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.12 2004-08-10 13:42:07 babybot Exp $
+/// $Id: Port.h,v 1.13 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -133,9 +133,7 @@ public:
 	int require_ack;
 
 	Sema something_to_send;
-#ifdef UPDATED_PORT
 	Sema space_available;
-#endif
 	Sema mutex;
 
 	CountedPtr<Sendable> p_sendable;
@@ -147,14 +145,11 @@ public:
 	YARPString own_name;
 
 	OutputTarget() : something_to_send(0), 
-#ifdef UPDATED_PORT
-					space_available(1),
-#endif
-					mutex(1),
-					require_ack(0),
-					network_name(YARP_DEFAULT_NET),
-					own_name("__null")
-
+					 space_available(1),
+					 mutex(1),
+					 require_ack(0),
+					 network_name(YARP_DEFAULT_NET),
+					 own_name("__null")
     {
 		target_pid = NULL;
 		add_header = 1;  active = 1; sending = 0; 
@@ -162,7 +157,7 @@ public:
 		check_tick = 0;  ticking = 0;
 		port_number = 0;
 		protocol_type = YARP_NO_SERVICE_AVAILABLE;
-		memset (cmdname, 0, 2*YARP_STRING_LEN);
+		ACE_OS::memset (cmdname, 0, 2*YARP_STRING_LEN);
 		msg_type = 0;
     }
 
@@ -199,9 +194,7 @@ public:
 		WaitMutex();
 		if (!sending)
 		{
-#ifdef UPDATED_PORT
 			space_available.Wait();
-#endif
 			p_sendable.Set(nsendable);
 			something_to_send.Post();
 			sending = 1;
@@ -351,7 +344,6 @@ public:
 	HeaderedBlockSender<NewFragmentHeader> sender;
 	YARPUniqueNameID *self_id;
 
-#ifdef UPDATED_PORT
 	int require_complete_send;
 	void RequireCompleteSend(int flag = 1)
 	{
@@ -372,7 +364,6 @@ public:
 		list_mutex.Post();
 		return ct;
 	}
-#endif
 
 	CountedPtr<Sendable> p_sendable;
 
@@ -403,8 +394,8 @@ public:
 		complete_terminate(0,0),
 		complete_msg_thread(0,0),
 		name(nname),
-  	        require_ack(0),
-   	        ignore_data(0),
+		require_ack(0),
+		ignore_data(0),
 		network_name(YARP_DEFAULT_NET)
 	{ 
 		_started = false;
@@ -412,9 +403,7 @@ public:
 		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
 		add_header = 1;
 		expect_header = 1;
-#ifdef UPDATED_PORT
 		require_complete_send = 0;
-#endif
 		pending = 0;
 		ACE_ASSERT (n_protocol_type != YARP_NO_SERVICE_AVAILABLE);
 		if (autostart) Begin(); 
@@ -428,8 +417,8 @@ public:
 		wakeup(0),
 		list_mutex(1),
 		out_mutex(1),
-  	        require_ack(0),
-   	        ignore_data(0),
+		require_ack(0),
+		ignore_data(0),
 		complete_terminate(0,0),
 		complete_msg_thread(0,0),
 		network_name(YARP_DEFAULT_NET)
@@ -439,9 +428,7 @@ public:
 		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
 		add_header = 1;
 		expect_header = 1;
-#ifdef UPDATED_PORT
 		require_complete_send = 0;
-#endif
 		pending = 0;
 		protocol_type = YARP_NO_SERVICE_AVAILABLE;
 	}

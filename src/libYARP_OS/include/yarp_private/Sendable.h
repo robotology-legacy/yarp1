@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Sendable.h,v 1.3 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: Sendable.h,v 1.4 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -121,7 +121,7 @@ class TextSendable : public SimpleSendable<SimpleTextMsg>
 public:
 	virtual int Write(BlockSender& sender)
 	{
-		sender.Add((char*)(Content()),1+strlen(Content()));
+		sender.Add((char*)(Content()),1+ACE_OS::strlen(Content()));
 		return 1;
 	}
 };

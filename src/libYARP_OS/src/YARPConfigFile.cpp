@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPConfigFile.cpp,v 1.2 2004-08-02 12:31:55 eshuy Exp $
+///  $Id: YARPConfigFile.cpp,v 1.3 2004-08-10 17:08:23 gmetta Exp $
 ///
 ///
 
@@ -55,7 +55,7 @@ bool YARPConfigFile::_open(const YARPString &path, const YARPString &filename)
 {
 	YARPString tmp = path;
 	tmp.append(filename);
-	_pFile = fopen(tmp.c_str(), "r");
+	_pFile = ACE_OS::fopen(tmp.c_str(), "r");
 	if (_pFile != NULL)
 	{
 		_openFlag = true;
@@ -272,7 +272,7 @@ bool YARPConfigFile::_findSection(const char *sec)
 	
 	while (fscanf(_pFile, "%s", row) != EOF)
 	{
-		if (strcmp(sec, row) == 0)
+		if (ACE_OS::strcmp(sec, row) == 0)
 			return true;
 	}
 
@@ -283,7 +283,7 @@ bool YARPConfigFile::_findString(const char *str)
 {
 	char row[255];
 
-	int l = strlen(str);
+	int l = ACE_OS::strlen(str);
 	if (l == 0)
 		return false;
 	
@@ -292,7 +292,7 @@ bool YARPConfigFile::_findString(const char *str)
 		if (row[0] == '[')
 			return false;		//end of section
 		
-		if (strcmp(row, str) == 0)
+		if (ACE_OS::strcmp(row, str) == 0)
 			return true;
 	}
 
