@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.14 2003-05-13 22:14:16 gmetta Exp $
+/// $Id: Port.cpp,v 1.15 2003-05-15 21:16:49 gmetta Exp $
 ///
 ///
 
@@ -418,7 +418,7 @@ void _strange_select::Body ()
 /// this is the main port thread, it instantiates an input socket for receiving
 ///	both commands and data (in case it is input). it manages a list (mesh) of threads
 /// (OutputTarget) for dealing with multiple targets output connections.
-/// it synchro with other threads (the calling Read/Write - user level) by means of sema
+/// it synchros with other threads (the calling Read/Write - user level) by means of sema
 ///	it uses sema too for synchro with output threads. further the input socket
 ///	generates at least onother thread dealing with the acceptance of incoming connections
 /// and a list of connected threads internally dealing with the actual stream.
@@ -453,7 +453,11 @@ void Port::Body()
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
 				name_set = 0;
-				okay_to_send.Post();
+				if (asleep)
+				{
+					asleep = 0;
+					okay_to_send.Post();
+				}
 				return;
 			}
 		}
@@ -466,7 +470,11 @@ void Port::Body()
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
 				name_set = 0;
-				okay_to_send.Post();
+				if (asleep)
+				{
+					asleep = 0;
+					okay_to_send.Post();
+				}
 				return;
 			}
 		}
@@ -486,7 +494,11 @@ void Port::Body()
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
 				name_set = 0;
-				okay_to_send.Post();
+				if (asleep)
+				{
+					asleep = 0;
+					okay_to_send.Post();
+				}
 				return;
 			}
 
