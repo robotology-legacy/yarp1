@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.9 2004-10-04 15:08:23 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.10 2005-03-10 21:37:48 natta Exp $
 ///
 ///
 
@@ -242,12 +242,12 @@ public:
 			min = angleToEncoder(min,
 								_parameters._encoderToAngles[axis],
 								_parameters._zeros[axis],
-								_parameters._signs[axis]);
+								(int) _parameters._signs[axis]);
 
 			max = angleToEncoder(max,
 								_parameters._encoderToAngles[axis],
 								_parameters._zeros[axis],
-								_parameters._signs[axis]);
+								(int) _parameters._signs[axis]);
 
 			SingleAxisParameters x;
 			x.axis = _parameters._axis_map[axis];
@@ -286,14 +286,14 @@ public:
 			max = encoderToAngle(max, 	
 								_parameters._encoderToAngles[axis],
 								_parameters._zeros[axis],
-								_parameters._signs[axis]);
+								(int) _parameters._signs[axis]);
 
 			par.parameters = (void *)&min;
 			_adapter.IOCtl(CMDGetSWNegativeLimit, (void *)&par);
 			min = encoderToAngle(min, 	
 								_parameters._encoderToAngles[axis],
 								_parameters._zeros[axis],
-								_parameters._signs[axis]);
+								(int) _parameters._signs[axis]);
 
 			_unlock ();
 			return YARP_OK;
@@ -454,7 +454,7 @@ public:
 			_temp_double[_parameters._axis_map[i]] = angleToEncoder(pos[i],
 											_parameters._encoderToAngles[i],
 											_parameters._zeros[i],
-											_parameters._signs[i]);
+											(int) _parameters._signs[i]);
 
 		_adapter.IOCtl(CMDSetPositions, _temp_double);
 		_unlock();
@@ -478,7 +478,7 @@ public:
 			pos = angleToEncoder(pos,
 		 						 _parameters._encoderToAngles[i],
 								 _parameters._zeros[i],
-								 _parameters._signs[i]);
+								 (int) _parameters._signs[i]);
 			cmd.parameters = &pos;
 
 			_adapter.IOCtl(CMDSetPosition, &cmd);
@@ -504,7 +504,7 @@ public:
 			_temp_double[_parameters._axis_map[i]] = angleToEncoder(vel[i],
 											_parameters._encoderToAngles[i],
 											0.0,
-											_parameters._signs[i]);
+											(int) _parameters._signs[i]);
 		}
 
 		_adapter.IOCtl(CMDSetSpeeds, _temp_double);
@@ -529,7 +529,7 @@ public:
 			vel = angleToEncoder(vel,
 								 _parameters._encoderToAngles[i],
 								 0.0,
-								 _parameters._signs[i]);
+								 (int) _parameters._signs[i]);
 
 			cmd.parameters = &vel;
 
@@ -556,7 +556,7 @@ public:
 			_temp_double[_parameters._axis_map[i]] = angleToEncoder(acc[i],
 											_parameters._encoderToAngles[i],
 											0.0,
-											_parameters._signs[i]);
+											(int) _parameters._signs[i]);
 		}
 
 		_adapter.IOCtl(CMDSetAccelerations, _temp_double);
@@ -578,7 +578,7 @@ public:
 			_temp_double[_parameters._axis_map[i]] = angleToEncoder(vel[i],
 											_parameters._encoderToAngles[i],
 											0.0,
-											_parameters._signs[i]);
+											(int) _parameters._signs[i]);
 		}
 
 		_adapter.IOCtl(CMDVMove, _temp_double);
@@ -604,7 +604,7 @@ public:
 			_temp_double[_parameters._axis_map[i]] = angleToEncoder(vel[i],
 											_parameters._encoderToAngles[i],
 											0.0,
-											_parameters._signs[i]);
+											(int) _parameters._signs[i]);
 		}
 
 		_adapter.IOCtl(CMDSafeVMove, _temp_double);
@@ -628,7 +628,7 @@ public:
 			_temp_double[_parameters._axis_map[i]] = angleToEncoder(pos[i],
 											_parameters._encoderToAngles[i],
 											0.0,
-											_parameters._signs[i]);
+											(int) _parameters._signs[i]);
 		}
 
 		_adapter.IOCtl(CMDSetCommands, _temp_double);
@@ -682,7 +682,7 @@ public:
 			pos[_parameters._inv_axis_map[i]] = encoderToAngle(_temp_double[i],
 												_parameters._encoderToAngles[i],
 												_parameters._zeros[i],
-												_parameters._signs[i]);
+												(int) _parameters._signs[i]);
 		
 		}
 		_unlock();
@@ -703,7 +703,7 @@ public:
 			vel[_parameters._inv_axis_map[i]] = encoderToAngle(_temp_double[i],
 												_parameters._encoderToAngles[i],
 												0.0,
-												_parameters._signs[i]);
+												(int) _parameters._signs[i]);
 		
 		}
 		_unlock();
@@ -724,7 +724,7 @@ public:
 			accs[_parameters._inv_axis_map[i]] = encoderToAngle(_temp_double[i],
 												_parameters._encoderToAngles[i],
 												0.0,
-												_parameters._signs[i]);
+												(int) _parameters._signs[i]);
 		
 		}
 		_unlock();
@@ -815,7 +815,7 @@ public:
 	 * as the angle.
 	 * @return the converted value in encoder ticks.
 	 */
-	inline double angleToEncoder(double angle, double encParam, int zero, int sign);
+	inline double angleToEncoder(double angle, double encParam, double zero, int sign);
 
 	/**
 	 * Converts encoder values into angles in radians.
@@ -827,7 +827,7 @@ public:
 	 * as the angle.
 	 * @return the converted value of the angle in radians.
 	 */
-	inline double encoderToAngle(double encoder, double encParam, int zero, int sign);
+	inline double encoderToAngle(double encoder, double encParam, double zero, int sign);
 
 public:
 	PARAMETERS _parameters;
@@ -956,7 +956,7 @@ int YARPGenericControlBoard<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *
 
 template <class ADAPTER, class PARAMETERS>
 inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
-angleToEncoder(double angle, double encParam, int zero, int sign)
+angleToEncoder(double angle, double encParam, double zero, int sign)
 {
 	if (sign == 1)
 		return -(angle * encParam) / (2.0 * pi) + zero;
@@ -966,7 +966,7 @@ angleToEncoder(double angle, double encParam, int zero, int sign)
 
 template <class ADAPTER, class PARAMETERS>
 inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
-encoderToAngle(double encoder, double encParam, int zero, int sign)
+encoderToAngle(double encoder, double encParam, double zero, int sign)
 {
 	if (sign == 1)
 		return (-encoder - zero) * 2.0 * pi / encParam;

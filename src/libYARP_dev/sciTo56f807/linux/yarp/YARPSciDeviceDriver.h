@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.h,v 1.9 2005-03-03 23:07:34 natta Exp $
+/// $Id: YARPSciDeviceDriver.h,v 1.10 2005-03-10 21:37:48 natta Exp $
 ///
 ///
 
@@ -60,6 +60,7 @@ struct SciOpenParameters
 	}
 	
 	char _portname[80];
+	int _njoints;
 };
 
 /**
