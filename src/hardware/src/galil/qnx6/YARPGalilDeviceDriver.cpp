@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPGalilDeviceDriver.cpp,v 1.17 2003-12-23 16:21:36 beltran Exp $
+//         Version:  $Id: YARPGalilDeviceDriver.cpp,v 1.18 2004-01-07 13:42:46 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -1344,21 +1344,35 @@ int YARPGalilDeviceDriver::set_jogs (void *spds)
 	return rc;
 }
 
-int YARPGalilDeviceDriver::set_safe_jogs (void *spds) 
+//--------------------------------------------------------------------------------------
+//       Class:  YARPGalilDeviceDriver
+//      Method:  set_safe_jogs()
+// Description:  It is not clear how to implement this kind of control in the Galil card
+// 				 For the moment I am liking the safe_velocity movement into the normal
+// 				 velocity movement. This should be corrected when the correct implementation
+// 				 of the safe_velocity movement is fully understood in the galil.
+//--------------------------------------------------------------------------------------
+int 
+YARPGalilDeviceDriver::set_safe_jogs (void *spds) 
+{
+	long rc = 0;
+	// TODO: Implement adequate save jogs in the galil
+	
+	set_jogs(spds);
+	
+	return rc;
+}
+
+int 
+YARPGalilDeviceDriver::check_frames_left (void *flag) 
 {
 	long rc = 0;
 	// NOT IMPLEMENTED YET !!
 	return rc;
 }
 
-int YARPGalilDeviceDriver::check_frames_left (void *flag) 
-{
-	long rc = 0;
-	// NOT IMPLEMENTED YET !!
-	return rc;
-}
-
-int YARPGalilDeviceDriver::wait_for_frames_left(void *cmd) 
+int 
+YARPGalilDeviceDriver::wait_for_frames_left(void *cmd) 
 {
 	long rc = 0;
 	// NOT IMPLEMENTED YET !!
