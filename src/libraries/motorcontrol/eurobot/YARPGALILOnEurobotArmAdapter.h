@@ -3,7 +3,7 @@
 #ifndef __GALILONEUROBOTARMADAPTER__
 #define __GALILONEUROBOTARMADAPTER__
 
-// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.6 2003-10-17 16:34:40 babybot Exp $
+// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.7 2003-11-17 11:20:23 beltran Exp $
 
 #include <ace/Log_Msg.h>
 #include <YARPGalilDeviceDriver.h>
@@ -268,11 +268,14 @@ public:
 		if (YARPGalilDeviceDriver::open(&op_par) != 0)
 			return YARP_FAIL;
 
-
+		delay(1000);
 
 		/* First the card needs to be reseted */
 
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Reseting control card\n"));
 		IOCtl(CMDResetController, NULL);
+
+		delay(1000);
 
 		//idleMode();
 
@@ -394,8 +397,10 @@ public:
 
 
 
-		IOCtl(CMDSetOutputPort,&cmd);		
-
+		IOCtl(CMDSetOutputPort,&cmd);
+		
+		int frec = -3;
+		IOCtl(CMDSetDR,&frec); //Set second FIFO refresh frecuency (DR command)
 	
 		_initialized = true;
 		return YARP_OK;
