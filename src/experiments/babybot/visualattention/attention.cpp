@@ -153,11 +153,17 @@ void secondthread::Body(void)
 		//cout<<joints(1)<<" "<<joints(2)<<" "<<joints(3)<<" "<<joints(4)<<" "<<joints(5)<<endl;
 		//cout<<joints.Length()<<endl;
 		bool changed=false;
-		for (int i=1; i<=5;i++)
+		// It must skip the 4th joint
+		for (int i=1; i<=3;i++)
 			if (fabs(joints(i)-jointsOld(i))>diffJoints) {
 				diffJoints=fabs(joints(i)-jointsOld(i));
 				changed=true;
 			}
+		if (fabs(joints(5)-jointsOld(5))>diffJoints) {
+			diffJoints=fabs(joints(5)-jointsOld(5));
+			changed=true;
+		}
+
 		/*if (changed)
 			cout<<diffJoints<<endl;*/
 		if (diffJoints<0.0001)
@@ -201,8 +207,6 @@ void mainthread::Body (void)
 	
 	char savename[512];
 
-	//YARPBox* pos_max;
-
 	//YVector v(2);
 
 	YARPConicFitter fit;
@@ -241,13 +245,14 @@ void mainthread::Body (void)
 	outBottle.Register(_outName3, _netname0);
 	//outImage3.Register(_outName4, _netname1);
 
-	const int frameToStabilize = 5;
+	const int frameToStabilize = 6;
 	
 	int frame_no = 0;
 	int moved = frameToStabilize;
 	bool targetFound = false;
 	bool diffFound = true;
 	bool diffFoundValid = true;
+	bool mustMove = false;
 
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n"); // to stop the execution on this instruction
@@ -339,10 +344,9 @@ void mainthread::Body (void)
 
 	while (!IsTerminated())	{
 		YARPTime::DelayInSeconds(0.010);
-		////////// HANDLE MESSAGES
-		////// wait untill start message is received
+		
+		// HANDLE MESSAGES
 		if (inBottle.Read(0)) {
-			// parse message
 			ACE_OS::printf("Port received:");
 			YARPBottle &bottle = inBottle.Content();
 			bottle.display();
@@ -355,19 +359,38 @@ void mainthread::Body (void)
 				} else if (message == YBVVAStop) {
 					ACE_OS::printf("stopping\n");
 					isStarted = false;
+				} else if (message == YBVVAFreeze) {
+					ACE_OS::printf("Freezing\n");
+					moved = -2;
+				} else if (message == YBVVAUnFreeze) {
+					ACE_OS::printf("Unfreezing\n");
+					moved = frameToStabilize;
 				} else if (message == YBVVASet) {
 					ACE_OS::printf("set new parameters\n");
 					bottle.readInt(&searchRG);
 					bottle.readInt(&searchGR);
 					bottle.readInt(&searchBY);
-					
 					bottle.readFloat(&cmp);
 					bottle.readFloat(&ect);
-					
 					bottle.readFloat(&salienceBU);
 					bottle.readFloat(&salienceTD);
-
 					att_mod.setParameters(searchRG, searchGR, searchBY, salienceBU, cmp, ect, salienceTD);
+				} else if (message == YBVVisMem) {
+					YarpPixelMono mRG=att_mod.fovBox.meanRG;
+					YarpPixelMono mGR=att_mod.fovBox.meanGR;
+					YarpPixelMono mBY=att_mod.fovBox.meanBY;
+
+					double cmp=att_mod.fovBox.cmp;
+					double ect=att_mod.fovBox.ect;
+
+					cout<<"Searching for blobs similar to that in the fovea in this moment"<<endl;
+					cout<<"mRG:"<<(int)mRG<<", mGR:"<<(int)mGR<<", mBY:"<<(int)mBY<<endl;
+					cout<<"CMP:"<<cmp<<", ECT:"<<ect<<endl;
+					att_mod.setParameters(mRG, mGR, mBY, cmp, ect, 0, 1);
+					searching=true;
+				} else if (message == YBVVAMove) {
+					cout<<"Moving to a new target"<<endl;
+					mustMove=true;
 				} else if (message == YBVVAUpdateIORTable) {
 					ACE_OS::printf("updating IOR table\n");
 					att_mod.updateIORTable();
@@ -384,8 +407,7 @@ void mainthread::Body (void)
 
 			}
 		}
-		/////////////////////////////////////
-		//////// MAIN LOOP
+
 		if (isStarted) {
 			bool found;
 			
@@ -418,7 +440,6 @@ void mainthread::Body (void)
 			//if (checkFix(1)==1) {
 			if (!isMoving) {
 				
-				//if (moved) {
 				if (moved==frameToStabilize) {
 					// to skip the difference test on the first stable frame
 					// because I don't have a reference frame
@@ -444,22 +465,23 @@ void mainthread::Body (void)
 						int cartx, carty;
 						mapper.Logpolar2Cartesian(y, x, cartx, carty);
 						diffFound = true;
-						moved=frameToStabilize;
+						if (moved!=-2) moved=frameToStabilize;
 						targetFound = false;
-						if (!searching && att_mod.isWithinRange(cartx, carty)) {
+						// If the robot is searching the movement doesn't displayed
+						if (!searching && att_mod.isWithinRange(cartx, carty) && moved!=-2) {
 							out.Refer(tmp2);
 							ACE_OS::printf("Valid difference detected at (%d,%d)\n",cartx,carty);
 						
 							tmpBottle.writeInt(cartx);
 							tmpBottle.writeInt(carty);
 							tmpBottle.writeInt(-1);
+							/*tmpBottle.writeInt(-1);
 							tmpBottle.writeInt(-1);
 							tmpBottle.writeInt(-1);
 							tmpBottle.writeInt(-1);
 							tmpBottle.writeInt(-1);
 							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);*/
 							diffFoundValid = true;
 						} else
 							ACE_OS::printf("Difference detected at (%d,%d)\n",cartx,carty);
@@ -487,54 +509,89 @@ endDiffCheck:
 				DBGPF1 ACE_OS::printf(">>> call attention module\n");
 				// if I have found the target before and there isn't a difference, the
 				// target is found again!
-				found=(att_mod.Apply(colored_u) | targetFound) & searching;
-
+				found=(att_mod.Apply(colored_u) | targetFound) & searching & !mustMove;
+				
 				if (!diffFoundValid) {
-					if (moved==0) {
+					if (moved==1) {
+						/*tmpBottle.writeInt(-2);
+						tmpBottle.writeInt(-2);
+						tmpBottle.writeInt(-2);
+						tmpBottle.writeInt(-2);
+						tmpBottle.writeInt(-2);*/
+					} else if (moved==0) {
 						if (found) {
 							ACE_OS::printf("No point: target found\n");
+							tmpBottle.writeInt(att_mod.fovBox.centroid_x);
+							tmpBottle.writeInt(att_mod.fovBox.centroid_y);
+							/*tmpBottle.writeInt(-1);
 							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);*/
+							outBottle.Content() = tmpBottle;
+							outBottle.Write();
 							targetFound = true;
 						} else {
-							//ACE_OS::printf("Sending point: blob# %ld @ (%d,%d)\n", att_mod.max_boxes[0].id, (int)att_mod.max_boxes[0].centroid_x, (int)att_mod.max_boxes[0].centroid_y);
+							ACE_OS::printf("Sending point: blob# %ld @ (%d,%d)\n", att_mod.max_boxes[0].id, (int)att_mod.max_boxes[0].centroid_x, (int)att_mod.max_boxes[0].centroid_y);
 							tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
 							tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
 							tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
-							tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
-							tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);
+							/*tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
+							tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);*/
+							outBottle.Content() = tmpBottle;
+							outBottle.Write();
+							mustMove = false;
 						}
 					} else if (moved==-1) {
-						// Point already sended
+						// Point already sended or not sended if target found
+						if (found) {
+							/*tmpBottle.writeInt(-3);
+							tmpBottle.writeInt(-3);
+							tmpBottle.writeInt(-3);
+							tmpBottle.writeInt(-3);
+							tmpBottle.writeInt(-3);*/
+						} else if (mustMove) {
+							ACE_OS::printf("Sending point: blob# %ld @ (%d,%d)\n", att_mod.max_boxes[0].id, (int)att_mod.max_boxes[0].centroid_x, (int)att_mod.max_boxes[0].centroid_y);
+							tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
+							tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
+							tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
+							/*tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
+							tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);*/
+							outBottle.Content() = tmpBottle;
+							outBottle.Write();
+							mustMove = false;
+						} else {
+							/*tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);*/
+						}
+					} else if (moved==-2) {
+						// Freezed
+						ACE_OS::printf("Freezed\n");
+						/*tmpBottle.writeInt(-1);
 						tmpBottle.writeInt(-1);
 						tmpBottle.writeInt(-1);
 						tmpBottle.writeInt(-1);
-						tmpBottle.writeInt(-1);
-						tmpBottle.writeInt(-1);
+						tmpBottle.writeInt(-1);*/
 					} else {
 						ACE_OS::printf("Waiting to stabilize\n");
+						/*tmpBottle.writeInt(-1);
 						tmpBottle.writeInt(-1);
 						tmpBottle.writeInt(-1);
 						tmpBottle.writeInt(-1);
-						tmpBottle.writeInt(-1);
-						tmpBottle.writeInt(-1);
+						tmpBottle.writeInt(-1);*/
 					}
 
 					// blob in fovea
-					tmpBottle.writeInt(att_mod.fovBox.meanRG);
+					/*tmpBottle.writeInt(att_mod.fovBox.meanRG);
 					tmpBottle.writeInt(att_mod.fovBox.meanGR);
-					tmpBottle.writeInt(att_mod.fovBox.meanBY);
+					tmpBottle.writeInt(att_mod.fovBox.meanBY);*/
 					out.Refer(att_mod.Saliency());
 					//ARRONZAMENTO
 					YARPImageUtils::SetRed(out, colored_u);
 					mapper.Uniform2Sawt(colored_u, colored_s);
 					YARPImageUtils::GetRed(colored_s, out);
 				}
-
-				//att_mod.FindNMax(7, pos_max);
 
 				//ACE_OS::printf("max position: x=%d y=%d max=%d\n", pos_x, pos_y, max);
 				//DBGPF1 ACE_OS::printf("max position: x=%d y=%d\n", pos_max[0].centroid_x, pos_max[0].centroid_y);
@@ -562,28 +619,29 @@ endDiffCheck:
 				YARPImageUtils::GetRed(colored_s, out2);
 			} else {
 				ACE_OS::printf("No point: the robot is moving\n");
-				moved = frameToStabilize;
+				if (moved!=-2) moved = frameToStabilize;
 				targetFound = false;
-				tmpBottle.writeInt(-1);
-				tmpBottle.writeInt(-1);
-				tmpBottle.writeInt(-1);
-				tmpBottle.writeInt(-1);
-				tmpBottle.writeInt(-1);
-				tmpBottle.writeInt(-1);
-				tmpBottle.writeInt(-1);
-				tmpBottle.writeInt(-1);
+				/*tmpBottle.writeInt(-4);
+				tmpBottle.writeInt(-4);
+				tmpBottle.writeInt(-4);
+				tmpBottle.writeInt(-4);
+				tmpBottle.writeInt(-4);
+				tmpBottle.writeInt(-4);
+				tmpBottle.writeInt(-4);
+				tmpBottle.writeInt(-4);*/
 			}
 			
 			//imgOld.Refer(img);
 			imgOld = img;
 
-			outBottle.Content() = tmpBottle;
-			outBottle.Write();
+			/*outBottle.Content() = tmpBottle;
+			outBottle.Write();*/
 
 			outImage.Content().Refer(out);
 			outImage.Write();
 
 			outImage2.Content().Refer(out2);
+			if (moved==1) out2(0, 0)=127;
 			outImage2.Write();
 
 			//mapper.Logpolar2Cartesian(att_mod.ColorQuantiz(), out3);

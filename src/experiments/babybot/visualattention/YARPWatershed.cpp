@@ -1284,7 +1284,7 @@ void YARPWatershed::doIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int
 						int cgr=m_boxes[index].meanGR-boxes[l].meanGR;
 						int cby=m_boxes[index].meanBY-boxes[l].meanBY;
 
-						if (crg*crg+cgr*cgr+cby*cby<1000) {
+						if (crg*crg+cgr*cgr+cby*cby<1500) {
 							m_boxes[index].valid=false;
 						}
 					}
@@ -2045,6 +2045,10 @@ void YARPWatershed::statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobLi
 		blob.meanGR=grSum/area;
 		blob.meanBY=bySum/area;
 	}
+
+	//ARRONZAMENTO
+	blob.centroid_x=m_boxes[1].centroid_x;
+	blob.centroid_y=m_boxes[1].centroid_y;
 }
 
 
