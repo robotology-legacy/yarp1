@@ -77,7 +77,6 @@
 #include <yarp/YARPTime.h>
 #include <yarp/YARPParseParameters.h>
 #include <yarp/YARPBabyBottle.h>
-#include <yarp/YARPImages.h>
 #include <yarp/YARPLogpolar.h>
 #include <yarp/YARPMatrix.h>
 
