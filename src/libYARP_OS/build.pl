@@ -3,6 +3,9 @@
 # compiling libYARP_OS
 #
 # options --debug compile the DEBUG version
+#		  --release to compile optimized
+#		  --clean to clean obj files
+#		  --install to copy files to the defaul installation path
 #
 #
 #
@@ -36,8 +39,10 @@ if ($clean)
 {
 	print "\nCleaning...\n";
 	chdir "./src" or die "Cannot chdir to src: $!";
-	print `msdev libYARP_OS.dsw /MAKE "libYARP_OS - Win32 Debug" /CLEAN`;
-	print `msdev libYARP_OS.dsw /MAKE "libYARP_OS - Win32 Release" /CLEAN`;
+
+	call_msdev_and_print ("Debug", "CLEAN");
+	call_msdev_and_print ("Release", "CLEAN");
+	
 	print "\n";
 	chdir "../" or die "Cannot chdir to ..: $!";
 }
@@ -46,7 +51,7 @@ if ($debug)
 {
 	print "\nCompiling debug\n";
 	chdir "./src" or die "Cannot chdir to src: $!";
-	system 'msdev libYARP_OS.dsw /MAKE "libYARP_OS - Win32 Debug" /BUILD';
+	call_msdev_and_print ("Debug", "BUILD");
 	chdir "../" or die "Cannot chdir to ..: $!";
 }
 
@@ -54,7 +59,7 @@ if ($release)
 {
 	print "\nCompiling optimized\n";
 	chdir "./src" or die "Cannot chdir to src: $!";
-	system 'msdev libYARP_OS.dsw /MAKE "libYARP_OS - Win32 Release" /BUILD';
+	call_msdev_and_print ("Release", "BUILD");
 	chdir ".." or die "Cannot chdir to ..: $!";
 }
 
@@ -75,4 +80,16 @@ if ($install)
 		print "Copying $file\n";
 		copy ($file, "$yarp_root/lib/winnt/") or die "Can't copy any .lib file\n";
 	}
+}
+
+sub call_msdev_and_print
+{
+	my ($version, $operation) = @_;
+
+	open MSDEV, "msdev libYARP_OS.dsw /MAKE \"libYARP_OS - Win32 ".$version."\" /".$operation."|";
+	while (<MSDEV>)
+	{
+		print;
+	}
+	close MSDEV;	
 }
