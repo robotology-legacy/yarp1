@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.3 2003-11-08 21:54:59 gmetta Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.4 2003-11-11 11:29:49 babybot Exp $
 ///
 ///
 
@@ -116,7 +116,7 @@ const double TBaseline[4][4] = {
 /// these params are very approximate.
 const double F = 4;						/// camera F length.
 const double PixScaleX = 120;			/// camera mm to pixel conversion factor.
-const double PixScaleY = 120;			/// same along the y coord.
+const double PixScaleY = 98;			/// same along the y coord.
 
 const double Periphery2Fovea = 2.0;		/// conversione from foval to peripheral.
 
