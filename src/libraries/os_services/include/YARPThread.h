@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.7 2003-05-15 16:57:46 gmetta Exp $
+///	$Id: YARPThread.h,v 1.8 2003-05-21 15:31:08 gmetta Exp $
 ///
 ///
 /*
@@ -122,6 +122,9 @@ public:
 #else
 	friend unsigned ExecuteThread (void *args);
 #endif
+
+	int GetPriority (void);
+	int SetPriority (int prio);
 };
 
 

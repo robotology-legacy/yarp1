@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.17 2003-05-20 01:18:05 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.18 2003-05-21 15:31:08 gmetta Exp $
 ///
 ///
 
@@ -89,6 +89,7 @@
 #include <ace/OS.h>
 #include <ace/Handle_Set.h>
 #include <ace/Time_Value.h>
+#include <ace/Sched_Params.h>
 
 #ifdef __QNX6__
 #include <signal.h>
@@ -358,6 +359,13 @@ public:
 
 	virtual void Body (void)
 	{
+		int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
+		ACE_DEBUG ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
+		if (SetPriority(prio) == YARP_FAIL)
+		{
+			ACE_DEBUG ((LM_DEBUG, "can't raise priority of acceptor thread, potential source of troubles\n"));
+		}
+
 		while (1)
 		{
 			addSocket();
@@ -514,7 +522,14 @@ void _SocketThreadDgram::Body (void)
 	signal (SIGPIPE, SIG_IGN);
 #endif
 	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
-	
+
+	int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
+	ACE_DEBUG ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
+	if (SetPriority(prio) == YARP_FAIL)
+	{
+		ACE_DEBUG ((LM_DEBUG, "can't raise priority of reader thread, potential source of troubles\n"));
+	}
+
 	int finished = 0;
 
 	_extern_buffer = NULL;
@@ -1544,7 +1559,8 @@ int YARPOutputSocketDgram::SendContinue(char *buffer, int buffer_length)
 		return YARP_FAIL;
 	}
 
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "ack received for len = %d, 0x%x\n", buffer_length, ack));
+	///YARP_DBG(THIS_DBG) ((LM_DEBUG, "ack received for len = %d, 0x%x\n", buffer_length, ack));
+	YARP_DBG(0) ((LM_DEBUG, "ack received for len = %d, 0x%x\n", buffer_length, ack));
 	return YARP_OK;
 }
 

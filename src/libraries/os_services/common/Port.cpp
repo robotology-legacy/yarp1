@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.20 2003-05-19 20:39:55 gmetta Exp $
+/// $Id: Port.cpp,v 1.21 2003-05-21 15:31:07 gmetta Exp $
 ///
 ///
 
@@ -71,6 +71,7 @@
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Synch.h>
+#include <ace/Sched_Params.h>
 
 #include <stdarg.h>
 
@@ -171,6 +172,13 @@ void OutputTarget::Body ()
 	NewFragmentHeader header;
 	BlockSender sender;
 	CountedPtr<Sendable> p_local_sendable;
+
+	int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
+	ACE_DEBUG ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
+	if (SetPriority(prio) == YARP_FAIL)
+	{
+		ACE_DEBUG ((LM_DEBUG, "can't raise priority of OutputTarget thread, potential source of troubles\n"));
+	}
 
 	target_pid = YARPNameService::LocateName (GetLabel().c_str());
 
@@ -287,6 +295,16 @@ void _strange_select::Body ()
 	signal (SIGCHLD, SIG_IGN);
 	signal (SIGPIPE, SIG_IGN);
 #endif
+
+	int prio = ACE_Sched_Params::priority_max(ACE_SCHED_OTHER);
+	///ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
+	///prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, prio, ACE_SCOPE_THREAD);
+
+	ACE_DEBUG ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
+	if (SetPriority(prio) == YARP_FAIL)
+	{
+		ACE_DEBUG ((LM_DEBUG, "can't raise priority of OutputTarget thread, potential source of troubles\n"));
+	}
 
 	OutputTarget *target, *next;
 

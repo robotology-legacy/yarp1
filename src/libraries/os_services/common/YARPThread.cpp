@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.3 2003-05-02 22:56:10 gmetta Exp $
+/// $Id: YARPThread.cpp,v 1.4 2003-05-21 15:31:08 gmetta Exp $
 ///
 ///
 
@@ -169,6 +169,18 @@ void YARPThread::Begin (int stack_size)
 
 	ACE_ASSERT (system_resource != NULL);
 	identifier = threadID;
+}
+
+int YARPThread::GetPriority (void)
+{
+	int prio = YARP_FAIL;
+	int ret = ACE_Thread::getprio ((ACE_hthread_t)system_resource, prio);
+	return prio;
+}
+
+int YARPThread::SetPriority (int prio)
+{
+	return ACE_Thread::setprio ((ACE_hthread_t)system_resource, prio);
 }
 
 void YARPThread::End()

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.13 2003-05-21 13:08:37 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.14 2003-05-21 15:31:08 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -77,7 +77,8 @@
 #include "YARPPort.h"
 #include "YARPThread.h"
 #include "YARPNetworkTypes.h"
- 
+#include "YARPScheduler.h"
+
 extern int __debug_level;
 
 NetInt32 foo;
@@ -138,7 +139,7 @@ public:
 			ct++;
 			printf("$$$$$$$$$$$$$$$$$$$$$$$$$Writing %d\n", (int)out.Content());
 			out.Write();
-			YARPTime::DelayInSeconds(.5);
+			YARPTime::DelayInSeconds(.1);
 		}
 	}
 };
@@ -148,7 +149,7 @@ int main(int argc, char *argv[])
 	ACE_UNUSED_ARG (argc);
 	ACE_UNUSED_ARG (argv);
 
-	__debug_level = 80;
+	__debug_level = 0;
 
 	Thread1 t1;
 	Thread2 t2;
