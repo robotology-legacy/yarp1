@@ -45,7 +45,6 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\YARPImage.obj"
 	-@erase "$(INTDIR)\YARPImageUtils.obj"
-	-@erase "$(INTDIR)\YARPSimpleOperations.obj"
 	-@erase "$(OUTDIR)\imagesx.lib"
 
 "$(OUTDIR)" :
@@ -62,8 +61,7 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\imagesx.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPImage.obj" \
-	"$(INTDIR)\YARPImageUtils.obj" \
-	"$(INTDIR)\YARPSimpleOperations.obj"
+	"$(INTDIR)\YARPImageUtils.obj"
 
 "$(OUTDIR)\imagesx.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -102,7 +100,6 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.pdb"
 	-@erase "$(INTDIR)\YARPImage.obj"
 	-@erase "$(INTDIR)\YARPImageUtils.obj"
-	-@erase "$(INTDIR)\YARPSimpleOperations.obj"
 	-@erase "$(OUTDIR)\imagesDBx.lib"
 
 "$(OUTDIR)" :
@@ -119,8 +116,7 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\imagesDBx.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPImage.obj" \
-	"$(INTDIR)\YARPImageUtils.obj" \
-	"$(INTDIR)\YARPSimpleOperations.obj"
+	"$(INTDIR)\YARPImageUtils.obj"
 
 "$(OUTDIR)\imagesDBx.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -159,7 +155,6 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.pdb"
 	-@erase "$(INTDIR)\YARPImage.obj"
 	-@erase "$(INTDIR)\YARPImageUtils.obj"
-	-@erase "$(INTDIR)\YARPSimpleOperations.obj"
 	-@erase "$(OUTDIR)\images_fakeipl_DBx.lib"
 
 "$(OUTDIR)" :
@@ -176,8 +171,7 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\images_fakeipl_DBx.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPImage.obj" \
-	"$(INTDIR)\YARPImageUtils.obj" \
-	"$(INTDIR)\YARPSimpleOperations.obj"
+	"$(INTDIR)\YARPImageUtils.obj"
 
 "$(OUTDIR)\images_fakeipl_DBx.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -215,7 +209,6 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\YARPImage.obj"
 	-@erase "$(INTDIR)\YARPImageUtils.obj"
-	-@erase "$(INTDIR)\YARPSimpleOperations.obj"
 	-@erase "$(OUTDIR)\images_fakeipl_x.lib"
 
 "$(OUTDIR)" :
@@ -232,8 +225,7 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\images_fakeipl_x.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPImage.obj" \
-	"$(INTDIR)\YARPImageUtils.obj" \
-	"$(INTDIR)\YARPSimpleOperations.obj"
+	"$(INTDIR)\YARPImageUtils.obj"
 
 "$(OUTDIR)\images_fakeipl_x.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -308,12 +300,6 @@ SOURCE=.\src\YARPImage.cpp
 SOURCE=.\src\YARPImageUtils.cpp
 
 "$(INTDIR)\YARPImageUtils.obj" : $(SOURCE) "$(INTDIR)"
-	$(CPP) $(CPP_PROJ) $(SOURCE)
-
-
-SOURCE=.\src\YARPSimpleOperations.cpp
-
-"$(INTDIR)\YARPSimpleOperations.obj" : $(SOURCE) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 

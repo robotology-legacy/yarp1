@@ -53,6 +53,7 @@ CLEAN :
 	-@erase "$(INTDIR)\YARPImageMoments.obj"
 	-@erase "$(INTDIR)\YARPIntegralImage.obj"
 	-@erase "$(INTDIR)\YARPLogpolar.obj"
+	-@erase "$(INTDIR)\YARPSimpleOperations.obj"
 	-@erase "$(OUTDIR)\tools.lib"
 
 "$(OUTDIR)" :
@@ -71,13 +72,14 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARP3DHistogram.obj" \
 	"$(INTDIR)\YARPBlobDetector.obj" \
 	"$(INTDIR)\YARPColorConverter.obj" \
+	"$(INTDIR)\YARPConicFitter.obj" \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPHistoSegmentation.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
+	"$(INTDIR)\YARPImageMoments.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
 	"$(INTDIR)\YARPLogpolar.obj" \
-	"$(INTDIR)\YARPImageMoments.obj" \
-	"$(INTDIR)\YARPConicFitter.obj"
+	"$(INTDIR)\YARPSimpleOperations.obj"
 
 "$(OUTDIR)\tools.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -124,6 +126,7 @@ CLEAN :
 	-@erase "$(INTDIR)\YARPImageMoments.obj"
 	-@erase "$(INTDIR)\YARPIntegralImage.obj"
 	-@erase "$(INTDIR)\YARPLogpolar.obj"
+	-@erase "$(INTDIR)\YARPSimpleOperations.obj"
 	-@erase "$(OUTDIR)\toolsDB.lib"
 
 "$(OUTDIR)" :
@@ -142,13 +145,14 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARP3DHistogram.obj" \
 	"$(INTDIR)\YARPBlobDetector.obj" \
 	"$(INTDIR)\YARPColorConverter.obj" \
+	"$(INTDIR)\YARPConicFitter.obj" \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPHistoSegmentation.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
+	"$(INTDIR)\YARPImageMoments.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
 	"$(INTDIR)\YARPLogpolar.obj" \
-	"$(INTDIR)\YARPImageMoments.obj" \
-	"$(INTDIR)\YARPConicFitter.obj"
+	"$(INTDIR)\YARPSimpleOperations.obj"
 
 "$(OUTDIR)\toolsDB.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -195,6 +199,7 @@ CLEAN :
 	-@erase "$(INTDIR)\YARPImageMoments.obj"
 	-@erase "$(INTDIR)\YARPIntegralImage.obj"
 	-@erase "$(INTDIR)\YARPLogpolar.obj"
+	-@erase "$(INTDIR)\YARPSimpleOperations.obj"
 	-@erase "$(OUTDIR)\toolsDBf.lib"
 
 "$(OUTDIR)" :
@@ -213,13 +218,14 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARP3DHistogram.obj" \
 	"$(INTDIR)\YARPBlobDetector.obj" \
 	"$(INTDIR)\YARPColorConverter.obj" \
+	"$(INTDIR)\YARPConicFitter.obj" \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPHistoSegmentation.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
+	"$(INTDIR)\YARPImageMoments.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
 	"$(INTDIR)\YARPLogpolar.obj" \
-	"$(INTDIR)\YARPImageMoments.obj" \
-	"$(INTDIR)\YARPConicFitter.obj"
+	"$(INTDIR)\YARPSimpleOperations.obj"
 
 "$(OUTDIR)\toolsDBf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -265,6 +271,7 @@ CLEAN :
 	-@erase "$(INTDIR)\YARPImageMoments.obj"
 	-@erase "$(INTDIR)\YARPIntegralImage.obj"
 	-@erase "$(INTDIR)\YARPLogpolar.obj"
+	-@erase "$(INTDIR)\YARPSimpleOperations.obj"
 	-@erase "$(OUTDIR)\toolsf.lib"
 
 "$(OUTDIR)" :
@@ -283,13 +290,14 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARP3DHistogram.obj" \
 	"$(INTDIR)\YARPBlobDetector.obj" \
 	"$(INTDIR)\YARPColorConverter.obj" \
+	"$(INTDIR)\YARPConicFitter.obj" \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPHistoSegmentation.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
+	"$(INTDIR)\YARPImageMoments.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
 	"$(INTDIR)\YARPLogpolar.obj" \
-	"$(INTDIR)\YARPImageMoments.obj" \
-	"$(INTDIR)\YARPConicFitter.obj"
+	"$(INTDIR)\YARPSimpleOperations.obj"
 
 "$(OUTDIR)\toolsf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -403,6 +411,11 @@ SOURCE=.\YARPIntegralImage.cpp
 SOURCE=.\YARPLogpolar.cpp
 
 "$(INTDIR)\YARPLogpolar.obj" : $(SOURCE) "$(INTDIR)"
+
+
+SOURCE=.\YARPSimpleOperations.cpp
+
+"$(INTDIR)\YARPSimpleOperations.obj" : $(SOURCE) "$(INTDIR)"
 
 
 

@@ -42,8 +42,8 @@ RSC=rc.exe
 # PROP Output_Dir "obj\Release"
 # PROP Intermediate_Dir "obj\Release"
 # PROP Target_Dir ""
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I ".\include" /I "..\..\..\include" /D "_LIB" /D "NDEBUG" /D "WIN32" /D "_MBCS" /FD /c
 # SUBTRACT CPP /YX
@@ -73,8 +73,8 @@ PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Release\imagesx.lib
 # PROP Output_Dir "obj\Debug"
 # PROP Intermediate_Dir "obj\Debug"
 # PROP Target_Dir ""
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\include" /I "..\..\..\include" /D "_LIB" /D "_DEBUG" /D "WIN32" /D "_MBCS" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -104,8 +104,8 @@ PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Debug\imagesDBx.lib
 # PROP Output_Dir "obj\Debug"
 # PROP Intermediate_Dir "obj\Debug"
 # PROP Target_Dir ""
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\include" /I "..\..\..\include" /I "C:\Program Files\Intel\plsuite\include" /D "_DEBUG" /D "WIN32" /D "_UNICODE" /D "_LIB" /D "__WIN__" /D "__WIN_MSVC__" /FD /GZ /c
 # SUBTRACT BASE CPP /YX
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\include" /I "..\..\..\include" /I ".\fakeipl" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "__FAKEIPL__" /FD /GZ /c
@@ -136,8 +136,8 @@ PostBuild_Cmds=copy .\include\*.h ..\..\..\include	lib .\obj\Debug\images_fakeip
 # PROP Output_Dir "obj\Release"
 # PROP Intermediate_Dir "obj\Release"
 # PROP Target_Dir ""
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /I ".\include" /I "..\..\..\include" /I "C:\Program Files\Intel\plsuite\include" /D "NDEBUG" /D "WIN32" /D "_UNICODE" /D "_LIB" /D "__WIN__" /D "__WIN_MSVC__" /FD /c
 # SUBTRACT BASE CPP /YX
 # ADD CPP /nologo /MD /W3 /GX /O2 /I ".\include" /I "..\..\..\include" /I ".\fakeipl" /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "__FAKEIPL__" /FD /c
@@ -175,10 +175,6 @@ SOURCE=.\src\YARPImage.cpp
 
 SOURCE=.\src\YARPImageUtils.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\src\YARPSimpleOperations.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -206,10 +202,6 @@ SOURCE=.\include\YARPImagePortContent.h
 # Begin Source File
 
 SOURCE=.\include\YARPImageUtils.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\include\YARPSimpleOperations.h
 # End Source File
 # End Group
 # Begin Source File

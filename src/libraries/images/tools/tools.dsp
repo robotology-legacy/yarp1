@@ -207,6 +207,10 @@ SOURCE=.\YARPIntegralImage.cpp
 
 SOURCE=.\YARPLogpolar.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\YARPSimpleOperations.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -250,6 +254,10 @@ SOURCE=.\YARPIntegralImage.h
 # Begin Source File
 
 SOURCE=.\YARPLogpolar.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPSimpleOperations.h
 # End Source File
 # End Group
 # End Target

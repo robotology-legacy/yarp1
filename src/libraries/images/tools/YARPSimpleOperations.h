@@ -61,48 +61,65 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.cpp,v 1.3 2003-06-09 12:11:13 gmetta Exp $
+/// $Id: YARPSimpleOperations.h,v 1.1 2003-09-11 14:54:43 gmetta Exp $
 ///
 ///
 
 //
-// YARPSimpleOperations.cpp
+// YARPSimpleOperations.h
 //
 
-#include "YARPSimpleOperations.h"
+#ifndef __YARPSimpleOperationsh__
+#define __YARPSimpleOperationsh__
 
-void YARPSimpleOperation::Scale (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out, double scale)
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
+
+//
+// add here simple image manipulation stuff. Scaling, sum, diff.
+// It's not by any mean exhaustive...
+
+#include "YARPImage.h"
+#include "YARPFilters.h"
+
+class YARPSimpleOperation
 {
-	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
-	ACE_ASSERT (in.GetWidth() == out.GetWidth() && in.GetHeight() == out.GetHeight());
-	ACE_ASSERT (scale <= 1 && scale >= 0);
+public:
+	static void Scale (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out, double scale);
+	static void Flip (const YARPGenericImage& in, YARPGenericImage& out);
 
-	const int csize = out.GetIplPointer()->imageSize;
-	char *tmpo = out.GetIplPointer()->imageData;
-	char *tmpi = in.GetIplPointer()->imageData;
-
-	// not sure about the correctness of this.
-	for (int i = 0; i < csize; i++, tmpo++, tmpi++)
+	inline static void Fill (YARPGenericImage &img, int value)
 	{
-		*tmpo = char(*tmpi * scale);
+		// image type is not checked!
+		char *pointer = img.GetRawBuffer();
+		ACE_ASSERT (pointer != NULL);
+		
+		memset (pointer, value, img.GetAllocatedDataSize());
 	}
-}
 
-void YARPSimpleOperation::Flip (const YARPGenericImage& in, YARPGenericImage& out)
-{
-	ACE_ASSERT (in.GetIplPointer() != NULL && out.GetIplPointer() != NULL);
-	ACE_ASSERT (in.GetWidth() == out.GetWidth() && in.GetHeight() == out.GetHeight());
+	static void DrawLine (YARPImageOf<YarpPixelMono>& dest, int xstart, int ystart, int xend, int yend, const YarpPixelMono& pixel);
+	static void DrawLine (YARPImageOf<YarpPixelBGR>& dest, int xstart, int ystart, int xend, int yend, const YarpPixelBGR& pixel);
+	static void DrawLine (YARPImageOf<YarpPixelRGB>& dest, int xstart, int ystart, int xend, int yend, const YarpPixelRGB& pixel);
 
-	const int w = out.GetAllocatedLineSize();
-	const int h = out.GetHeight();
-	
-	char *tmpo = out.GetIplPointer()->imageData + out.GetAllocatedDataSize() - w;
-	char *tmpi = in.GetIplPointer()->imageData;
-
-	int i;
-	for (i = 0; i < h; i++, tmpi += w, tmpo -= w)
+	inline static void DrawCross(YARPImageOf<YarpPixelRGB> &img, double dx, double dy, const YarpPixelRGB &pixel)
 	{
-		memcpy (tmpo, tmpi, w);
-	}
-}
+		// coordinate center is top-left
+		int x = (int) (dx + 0.5);
+		int y = (int) (dy + 0.5);
 
+		for(int i = -2; i <= 2; i++) img.Pixel(x+i,y) = pixel;
+		for (int j = -2; j <= 2; j++) img.Pixel(x,y+j) = pixel;
+	}
+
+	inline static int ComputePadding (int linesize, int align)
+	{
+		int rem = linesize % align;
+		return (rem != 0) ? (align - rem) : rem;
+	}
+};
+
+#endif
