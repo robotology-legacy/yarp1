@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.5 2003-11-25 13:53:19 fberton Exp $
+/// $Id: YARPDisparity.cpp,v 1.6 2003-11-25 14:09:20 fberton Exp $
 ///
 ///
 
@@ -253,9 +253,6 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
 										 YARPImageOf<YarpPixelBGR> & inRImg)
 {
 	int disparity;
-<<<<<<< YARPDisparity.cpp
-
-	_corrFunct = new double [_shiftLevels];
 
 	if (inLImg.GetHeight() == _imgS.Size_Rho)
 		disparity = Shift_and_Corr(	(unsigned char*)inLImg.GetRawBuffer(),
@@ -271,14 +268,6 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
 									_shiftLevels,
 									_shiftMap,
 									_corrFunct);
-=======
-	disparity = Shift_and_Corr(	(unsigned char*)inLImg.GetRawBuffer(),
-								(unsigned char*)inRImg.GetRawBuffer(),
-								&_imgS,
-								_shiftLevels,
-								_shiftMap,
-								_corrFunct);
->>>>>>> 1.4
 
 	disparity = _shiftFunction[disparity];
 	return disparity;
