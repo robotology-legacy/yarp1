@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.10 2004-01-16 15:51:07 fberton Exp $
+/// $Id: AuxFunctions.cpp,v 1.11 2004-01-21 14:48:22 fberton Exp $
 ///
 ///
 
@@ -273,8 +273,11 @@ void Save_Bitmap(unsigned char *image,
 }
 
 /************************************************************************
-* Get_Theta		  														*
+* Get_Theta_Old		  														*
 ************************************************************************/	
+/*
+* OLD VERSION
+*********************
 
 int Get_Theta_Old(double x,
 			  double y,
@@ -328,7 +331,7 @@ int Get_Theta_Old(double x,
 
 	return theta;
 }
-
+*/
 
 /************************************************************************
 * Get_Theta		  														*
@@ -458,4 +461,87 @@ rgbPixel computeAvg(int SizeRho,int SizeTheta, int padding, unsigned char * imag
 	avg.Blu = sumB/Size;
 
 	return avg;
+}
+
+void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data * par, unsigned short * padMap)
+{
+	int i,j;
+	float k;
+	unsigned char * oneLine;
+
+	oneLine = (unsigned char *) malloc (par->Size_LP * 3 * sizeof (unsigned char));
+
+//From sawtooth to triangular
+	
+	for (j=0; j<par->Size_Theta * par->Size_Fovea; j++)
+	{
+		outImage[3*j] = inImage[3*padMap[j]];
+		outImage[3*j+1] = inImage[3*padMap[j]+1];
+		outImage[3*j+2] = inImage[3*padMap[j]+2];
+	}
+	
+//Replication of the first pixel
+	for (j=1; j<par->Size_Theta; j++)
+	{
+		outImage[3*j]= outImage[0];
+		outImage[3*j+1]= outImage[1];
+		outImage[3*j+2]= outImage[2];
+	}
+
+	for (i=2; i<par->Size_Fovea; i+=2)
+	{
+		//copy of one line
+		for (j=0; j<3*par->Size_Theta; j++)
+			oneLine[j] = outImage[i*3*par->Size_Theta+j];
+
+		for (j = 0; j<par->Size_Theta; j++)
+		{
+			if (1)
+			{
+				outImage[3*(i*par->Size_Theta+j)]   = oneLine[3*(i*j/par->Size_Fovea)];
+				outImage[3*(i*par->Size_Theta+j)+1] = oneLine[3*(i*j/par->Size_Fovea)+1];
+				outImage[3*(i*par->Size_Theta+j)+2] = oneLine[3*(i*j/par->Size_Fovea)+2];
+			}
+			else
+			{
+				outImage[3*(i*par->Size_Theta+j)]   = 0;
+				outImage[3*(i*par->Size_Theta+j)+1] = 0;
+				outImage[3*(i*par->Size_Theta+j)+2] = 0;
+			}
+		}
+	}
+
+	for (i=1; i<par->Size_Fovea; i+=2)
+	{
+		//copy of one line
+		for (j=0; j<3*par->Size_Theta; j++)
+			oneLine[j] = outImage[i*3*par->Size_Theta+j];
+
+		for (j = 0; j<par->Size_Theta; j++)
+		{
+			k = (-1.5f+i*j/par->Size_Fovea);
+			if (k<0)
+				k+=i*6;
+			if (1)
+			{
+				outImage[3*(i*par->Size_Theta+j)]   = oneLine[3*((int)k)];
+				outImage[3*(i*par->Size_Theta+j)+1] = oneLine[3*((int)k)+1];
+				outImage[3*(i*par->Size_Theta+j)+2] = oneLine[3*((int)k)+2];
+			}
+			else
+			{
+				outImage[3*(i*par->Size_Theta+j)]   = 0;
+				outImage[3*(i*par->Size_Theta+j)+1] = 0;
+				outImage[3*(i*par->Size_Theta+j)+2] = 0;
+			}
+		}
+	}
+	
+//Remaining Lines (non Fovea)
+	for (j=par->Size_Theta * par->Size_Fovea; j<par->Size_LP; j++)
+	{
+		outImage[3*j] = inImage[3*j];
+		outImage[3*j+1] = inImage[3*j+1];
+		outImage[3*j+2] = inImage[3*j+2];
+	}
 }

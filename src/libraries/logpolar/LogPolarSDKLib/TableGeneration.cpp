@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.33 2004-01-16 15:51:07 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.34 2004-01-21 14:48:22 fberton Exp $
 ///
 ///
 
@@ -732,8 +732,9 @@ int Build_Pad_Map (Image_Data * Par,char * Path)
 
 /************************************************************************
 * Build_Remap_Map     													*
-* Costruisce una tabella di corrispondenza tra coordinate Log-Polari  	*
-* e cartesiane.															*
+*																		*
+* Builds a Lookup Table used for the transformation from the LogPolar	*
+* to the cartesian coordinates										  	*
 *																		*
 ************************************************************************/	
 
@@ -1929,7 +1930,10 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			Build_Remap_Map(LParam,Path);
 			retval = Load_Tables(LParam,&LTables,Path,32);
 			if (retval !=32)
+			{
 				LTables.RemapMap = NULL;
+				return 0;
+			}
 		}
 
 //		sprintf(LocalPath,"%s",Path);
@@ -1969,7 +1973,10 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			Build_Remap_Map(&SParam,Path);
 			retval = Load_Tables(&SParam,&STables,Path,32);
 			if (retval !=32)
+			{
 				STables.RemapMap = NULL;
+				return 0;
+			}
 		}
 
 //		sprintf(LocalPath,"%s",Path);

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.28 2004-01-16 17:52:32 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.29 2004-01-21 14:48:22 fberton Exp $
 ///
 ///
 
@@ -670,7 +670,7 @@ void Remap(unsigned char * Out_Image,
 	}
 }
 /************************************************************************
-* Remap					  												*
+* Remap_Mono				  												*
 ************************************************************************/
 	
 void Remap_Mono(unsigned char * Out_Image,
@@ -688,6 +688,8 @@ void Remap_Mono(unsigned char * Out_Image,
 	for (j=0; j<SizeRemap; j++)
 		*RemImgPtr++ = In_Image[(*LPImgPtr++)/3];
 }
+
+
 long Get_Time()
 {
 #if !defined(__QNX__) && !defined(__LINUX__)
@@ -1528,7 +1530,7 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 {
 	int i,j,k,k1;
 	int iR,iL;
-	int count;
+	int *count;
 	double d_1;
 	double d_2;
 	double MIN = 10000;
@@ -1537,6 +1539,8 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 //aggiungere il check sul fatto che si sia in fovea o fuori (step function)
 	unsigned char * Lptr,* Rptr;
 
+	count = (int*) malloc (Steps*sizeof(int));
+
 	Lptr = Left;
 	Rptr = Right;
 
@@ -1544,18 +1548,18 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 
 	for (k=0; k<Steps; k++)
 	{
-		double average_Lr = 0;
-		double average_Lg = 0;
-		double average_Lb = 0;
-		double average_Rr = 0;
-		double average_Rg = 0;
-		double average_Rb = 0;
+//		double average_Lr = 0;
+//		double average_Lg = 0;
+//		double average_Lb = 0;
+//		double average_Rr = 0;
+//		double average_Rg = 0;
+//		double average_Rb = 0;
 
 //		k1 = k * 1 * Par->Size_Theta * Par->Size_Fovea; //Positioning on the table
 		k1 = k * 1 * Par->Size_LP; //Positioning on the table
 		Rptr = Right;
 
-		count = 0;
+		count[k] = 0;
 
 		for (j=0; j<Rows; j++)
 		{
@@ -1565,28 +1569,28 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 				iR = 3 * (j*Par->Size_Theta+i);
 				if (iL > 0)
 				{
-					average_Rr += *Rptr++;//Right [iR];
-					average_Lr += Left[iL];
-					average_Rg += *Rptr++;//Right [iR+1];
-					average_Lg += Left[iL+1];
-					average_Rb += *Rptr++;//Right [iR+2];
-					average_Lb += Left[iL+2];
-					count++;
+//					average_Rr += *Rptr++;//Right [iR];
+//					average_Lr += Left[iL];
+//					average_Rg += *Rptr++;//Right [iR+1];
+//					average_Lg += Left[iL+1];
+//					average_Rb += *Rptr++;//Right [iR+2];
+//					average_Lb += Left[iL+2];
+					count[k]++;
 				}
 				else Rptr +=3;
 			}
 			Rptr += AddedPadSize;
 		}
 		
-		if (count != 0)
-			{
-				average_Rr /= count;
-				average_Lr /= count;
-				average_Rg /= count;
-				average_Lg /= count;
-				average_Rb /= count;
-				average_Lb /= count;
-			}
+//		if (count != 0)
+//			{
+//				average_Rr /= count;
+//				average_Lr /= count;
+//				average_Rg /= count;
+//				average_Lg /= count;
+//				average_Rb /= count;
+//				average_Lb /= count;
+//			}
 
 			double numr   = 0;
 			double den_1r = 0;
@@ -1640,14 +1644,22 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 			corr_val[k] += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
 			corr_val[k] += (1.0 - (numb * numb) / (den_1b * den_2b + 0.00001));	
 
-			if (count>MAX)
-				MAX = count;
+			if (count[k]>MAX)
+				MAX = count[k];
 //		printf("%03d     %2.5f\n",k-SParam.Resolution/2,corr_val);
-			corr_val[k] = (3-corr_val[k])*count;
+//			corr_val[k] = (3-corr_val[k])*count;
+			corr_val[k] = (3-corr_val[k]);
 		}
 
 	for (k=0; k<Steps; k++)
-		corr_val[k] = 3-(corr_val[k]/((double)MAX+0.00001));
+	{
+		if (count[k]!=MAX)
+			corr_val[k] = 3.0;
+		else
+		corr_val[k] = 3-(corr_val[k]);
+
+//		corr_val[k] = 1.0-(corr_val[k]/(double)MAX);
+	}
 //		corr_val[k] = 3-((3-corr_val[k])*pixCount[k]/(double)MAX);
 
 //	MAX = -10.0;
@@ -1657,7 +1669,9 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 			MIN = corr_val[k];
 			minindex = k;
 		}
+	free(count);
 
+	
 	return minindex;
 }
 
@@ -1675,7 +1689,8 @@ void Make_Disp_Histogram(unsigned char * hist,int height, int width, int shiftLe
 
 	for (i=0; i<shiftLevels-1; i++)
 		if ((i+offset >=0)&&(i+offset<width))
-			for (j=height-(int)(height/3.0*(3-corrFunct[i])); j<height; j++)
+//			for (j=height-(int)(height/3.0*(3-corrFunct[i])); j<height; j++)
+			for (j=height-(int)(height/1.0*(1-corrFunct[i])); j<height; j++)
 //			for (j=0;j<height*(corrFunct[i]-2); j++)
 					hist[(j*width+i+offset)] = 128;
 		
