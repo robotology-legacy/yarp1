@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.7 2004-04-26 15:51:10 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.8 2004-04-28 17:32:10 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -71,10 +71,12 @@ public:
 			buff += 2;
 		}
 
-        fft->Fft(1, dim, Re, Im, 1, -1);                           // Calculate first signal FFT
-        fft->Fft(1, dim, Re + numSamples, Im + numSamples, 1, -1); // Calculate second signal FFT
+		CrossCorrelation(Re, Re + numSamples);
 
+		fft->Fft(1, dim, Re, Im, 1, -1);                           // Calculate first signal FFT
+		fft->Fft(1, dim, Re + numSamples, Im + numSamples, 1, -1); // Calculate second signal FFT
 		ComputeCrossCorrelation( Re, Im, Re + numSamples, Im + numSamples);
+
 		ComputeLevels();
 	}
 
@@ -100,17 +102,24 @@ public:
 		return(((double (corrShift - shift)) / _SamplesPerSec) * 1e6);
 	}
 
-	inline double * GetCrossCorrelationBuffer() { return crosscorrelation_Re;}
+	inline double * GetCrossCorrelationBuffer(int tag) 
+	{ 
+        if ( !tag ) return corrVect;     // Return correlation calculated in the time space
+        else return crosscorrelation_Re; // Return correlation calculated in the frequency space
+	}
 
 	inline int GetSize() { return numSamples;}
 	inline double GetMaxCC() { return corrMax; }
 
 private:
+	int CrossCorrelation(double *, double *);
 	int ComputeCrossCorrelation(double *,double *,double *,double *);
 	int ConjComplexMultiplication(double *,double *,double *,double *,double *,double *);
 	int ComplexMultiplication(double *, double *, double *, double *);
 	double squareMean(double * , double * , double, double);
 	int ComputeLevels();
+	double scalarProduct(double *, double *, int);
+	double correlation(double *, double *, int);
 	void _threshold(double *v, double th)
 	{
 		// Surely, this is not necessary
@@ -128,6 +137,7 @@ private:
 	int _BitsPerSample;
 	int _BufferLength;
 	int _SCOTfiltering;
+	int _TempCC;
 	double _microphonesdistance;
 
     double squareMiddleValLeft;  // E{l-E{l}^2}
@@ -143,8 +153,11 @@ private:
     double * leftcorrelation_Im;     // Here applies the same discusion than in the crosscorrelation case
     double * rightcorrelation_Re;    // The same but for the right audio signal
     double * rightcorrelation_Im;
+	double * middleSampleRight;
+	double * middleSampleLeft;
     double * SCOToperator_Re;        // The buffer for the SCOToperator
     double * SCOToperator_Im;
+	double * corrVect;
     double corrMax;                  // Maximum value in the correlation vector
 
     int numSamples;     // number of samples for channel

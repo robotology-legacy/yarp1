@@ -10,7 +10,7 @@
 // 
 //     Description:  Implements all the sound processing algorithms.
 // 
-//         Version:  $Id: soundprocessing.cpp,v 1.7 2004-04-26 15:51:10 beltran Exp $
+//         Version:  $Id: soundprocessing.cpp,v 1.8 2004-04-28 17:32:10 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -55,7 +55,8 @@ SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
 	file.get("[GENERAL]" , "BitsPerSample"       , &_BitsPerSample       , 1);
 	file.get("[GENERAL]" , "BufferLength"        , &_BufferLength        , 1);
 	file.get("[GENERAL]" , "MicrophonesDistance" , &_microphonesdistance , 1);
-	file.get("[GENERAL]" , "SCOTfiltering"       , &_SCOTfiltering        , 1);
+	file.get("[GENERAL]" , "SCOTfiltering"       , &_SCOTfiltering       , 1);
+	file.get("[GENERAL]" , "TempCrossCorrelation", &_TempCC              , 1);
 
 	double maxITD = _microphonesdistance/331.7;
 	shift         = int((maxITD * _SamplesPerSec) + 0.5 );   // what is the 0.5 for?
@@ -79,12 +80,15 @@ SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
 	fft = new YARPFft(numSamples, numSamples);
 
 	// allocate vectors
+	corrVect            = new double[numSamples];
 	crosscorrelation_Re = new double[numSamples];
 	crosscorrelation_Im = new double[numSamples];
 	leftcorrelation_Re  = new double[numSamples];
 	leftcorrelation_Im  = new double[numSamples];
 	rightcorrelation_Re = new double[numSamples];
 	rightcorrelation_Im = new double[numSamples];
+	middleSampleRight   = new double[windowSize];
+	middleSampleLeft    = new double[windowSize];
 	SCOToperator_Re     = new double[numSamples];
 	SCOToperator_Im     = new double[numSamples];
 	Re = new double[2 * numSamples]; // this contains the Re of both channels
@@ -100,6 +104,7 @@ SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
 SoundProcessing::~SoundProcessing()
 {
 	delete fft;
+	delete[] corrVect;
 	delete[] Re;
 	delete[] Im;
 	delete[] crosscorrelation_Re; 
@@ -108,10 +113,52 @@ SoundProcessing::~SoundProcessing()
 	delete[] leftcorrelation_Im;
 	delete[] rightcorrelation_Re;
 	delete[] rightcorrelation_Im;
+	delete[] middleSampleRight;
+	delete[] middleSampleLeft;
 	delete[] SCOToperator_Re;
 	delete[] SCOToperator_Im;
 }
 
+
+//--------------------------------------------------------------------------------------
+//       Class: SoundProcessing 
+//      Method: CrossCorralation 
+// Description: Calculates the crosscorrelation in the time space 
+//--------------------------------------------------------------------------------------
+int
+SoundProcessing::CrossCorrelation(double *lChannel, double *rChannel)
+{
+	int middleValLeft = 0;	//mean(lChannel, shift, timeMax);
+	int middleValRight = 0; //mean(rChannel, shift, timeMax);
+
+	double tempCorr = 0;
+	int ind = shift; 
+	
+	for (int i=(shift+bias); i<(timeMax+bias); i++)
+	{
+		middleSampleLeft[i-(shift+bias)]=lChannel[i]; 
+	}
+
+	for (int z=0; z<windowMax; z++)
+	{
+		for (int i=windowMax-z; i<(windowMax-z+windowSize); i++)
+		{
+			middleSampleRight[i-windowMax+z]=rChannel[i]-middleValRight;
+		}
+
+		corrVect[z]=correlation(middleSampleLeft, middleSampleRight, windowSize);
+		if (corrVect[z] > tempCorr)
+		{
+			tempCorr=corrVect[z];
+			ind=z;
+		}
+	}
+
+    corrMax=tempCorr; // correlation peak
+    corrShift=ind;    // shift between the two waves (itd)
+	
+	return 1;
+}
 //--------------------------------------------------------------------------------------
 //       Class: SoundProcessing 
 //      Method: ComputeCrossCorrelation 
@@ -163,10 +210,11 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 	//  At the end the crosscorrelation vector should contain the crosscorre-
 	//  lation data
 	//----------------------------------------------------------------------
-	fft->Fft(1, dim, crosscorrelation_Re, crosscorrelation_Im, 1, -1);
+	fft->Fft(1, dim, crosscorrelation_Re, crosscorrelation_Im, -1, -1);
 	
 	double tempCorr = 0.0;
 	int ind = shift;
+	/*
 	double * ptempcross = crosscorrelation_Re + (numSamples/2) - shift + bias;
 
 	for ( i =0; i <windowMax; i++)
@@ -174,6 +222,14 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 		{
 			tempCorr = ptempcross[i];
 			ind = i;
+		}
+	*/
+	double * ptempcross = crosscorrelation_Re;
+
+	for ( i = 0; i < numSamples; i++)
+		if ( ptempcross[i] > tempCorr)
+		{
+			tempCorr = ptempcross[i];
 		}
 
 	corrMax   = tempCorr;
@@ -266,4 +322,35 @@ SoundProcessing::squareMean(double * channel_Re, double * channel_Im, double low
 		energy = energy + 2*channel_Re[i];
 
 	return energy;
+}
+
+//--------------------------------------------------------------------------------------
+//       Class:  SoundProcessing
+//      Method:  scalarProduct
+// Description:  
+//--------------------------------------------------------------------------------------
+double
+SoundProcessing::scalarProduct(double * channel1, double *channel2, int sizeChannel)
+{
+	double scalar = 0;
+	for (int i = 0; i < sizeChannel; i++)
+	{
+		scalar += double (channel1[i]) * channel2[i];
+	}
+	return scalar;
+}
+
+//--------------------------------------------------------------------------------------
+//       Class:  SoundProcessing
+//      Method:  correlation
+// Description:  Performs the temporal correlation 
+//--------------------------------------------------------------------------------------
+double
+SoundProcessing::correlation(double *channel1, double *channel2, int sizeChannel)
+{
+	double llScalar = scalarProduct(channel1, channel1, sizeChannel);
+	double lrScalar = scalarProduct(channel1, channel2, sizeChannel);
+	double rrScalar = scalarProduct(channel2, channel2, sizeChannel);
+
+	return lrScalar/ (sqrt(llScalar * rrScalar));
 }
