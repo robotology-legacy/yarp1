@@ -9,10 +9,10 @@ ifeq ($(shell uname),QNX)
   SYSLIB = 
   ifneq (,$(findstring $(shell uname -r),$(QNX_VER)))
 	SYSDIR = qnx6
-	EXTRA_OPTS = -fexceptions -pipe -W -Wpointer-arith -gstabs -Wno-uninitialized 
+	EXTRA_OPTS = -Y_gpp -fexceptions -pipe -Wall -Wpointer-arith -gstabs -Wno-uninitialized 
 #-Wall
-	CC = g++
-	CC1 = gcc
+	CC = QCC
+	CC1 = qcc
 	CDEFS = $(EXTRA_OPTS) -D__QNX__ -D__QNX6__ -I/usr/local/include/g++-3/
 	CFASTSTRUCT =
 	CFAST = -O3

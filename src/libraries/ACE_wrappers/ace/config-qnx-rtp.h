@@ -106,6 +106,8 @@
 #define ACE_HAS_UCONTEXT_T
 #define ACE_HAS_VOIDPTR_MMAP
 #define ACE_HAS_VOIDPTR_SOCKOPT
+#define ACE_HAS_SOCKLEN_T
+#define ACE_HAS_UNIX_DOMAIN_SOCKETS
 
 /////////////////////////////////////////////////////////////////
 //    Definition of the features that are not available.
@@ -147,9 +149,8 @@
 #define ACE_LACKS_T_ERRNO
 #define ACE_LACKS_UALARM_PROTOTYPE
 #define ACE_LACKS_UCONTEXT_H
-#define ACE_LACKS_UNIX_DOMAIN_SOCKETS
+//#define ACE_LACKS_UNIX_DOMAIN_SOCKETS
 #define ACE_LACKS_U_LONGLONG_T
-#define ACE_LACKS_CUSERID		//Carlos. This is for qnx 6.2.1
 
 #define ACE_LACKS_RLIMIT         // QNX rlimit syscalls don't work properly with ACE.
 
@@ -193,7 +194,7 @@
 # define ACE_NTRACE 1
 #endif /* ACE_NTRACE */
 
-#define ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION
+//#define ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION
 #define ACE_LACKS_ACE_IOSTREAM
 
 #include "ace/post.h"

@@ -3,7 +3,7 @@ include $(YARP_ROOT)/conf/Makefile.template
 SYSDIR = qnx6
 
 OBJS = $(patsubst %.cpp, %.o, $(wildcard *.cpp))
-CC = g++
+#CC = g++
 #CFLAGS = -g -I../include -I../sys_include -I$(YARP_ROOT)/include
 CFLAGS = $(CFAST) $(CDEFS) -I../include -I../sys_include -I$(YARP_ROOT)/include
 
