@@ -1,7 +1,7 @@
 # Makefile for bbtvx and blit (visualization)
 
-#CC=gcc
-#CFLAGS= -ggdb3
+CC=qcc
+CFLAGS= -g
 LDFLAGS= -g
 SRC=bttvx.c
 SRC2=blit.c
