@@ -12,32 +12,27 @@
 #include <YARPHistoSegmentation.h>
 
 #include "HandKinematics.h"
+#include "HandSegmenter.h"
 
 using namespace _logpolarParams;
 
 YARPLogpolar _mapper;
 
-using namespace _logpolarParams;
-
 int main(int argc, char* argv[])
 {
 	YARPLpHistoSegmentation _histo(65, 50, 255, 0, 15);
-//	YARPHandSegmentation _hand(65, 50, 255, 0, 15);
 
 	YARPInputPortOf<YARPGenericImage> _inPortImage(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 	YARPInputPortOf<YARPGenericImage> _inPortSeg(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
-	YARPOutputPortOf<YARPGenericImage> _outPortSeg(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-	YARPInputPortOf<YARPBottle>  _armSegmentationPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	YARPBlobDetector _blobber(5.0);
-	_blobber.resize(_stheta, _srho, _sfovea);
+	YARPInputPortOf<YARPBottle>			_armSegmentationPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	HandKinematics _handLocalization;
+	HandSegmenter _segmenter;
 	
 	_inPortImage.Register("/handtracker/i:img", "Net1");
 	_inPortSeg.Register("/handtracker/segmentation/i:img");
-	_outPortSeg.Register("/handtracker/segmentation/o:img");
 	_armSegmentationPort.Register("/handtracker/segmentation/i:armdata");
 	
-
 	YARPImageOf<YarpPixelMono> _left;
 	YARPImageOf<YarpPixelMono> _leftSeg;
 	YARPImageOf<YarpPixelBGR> _leftColored;
@@ -53,13 +48,8 @@ int main(int argc, char* argv[])
 
 	YARPImageOf<YarpPixelMono> _outSeg;
 	YARPImageOf<YarpPixelMono> _outSeg2;
-	// YARPImageOf<YarpPixelMono> _blobs;
 	_outSeg.Resize(_stheta, _srho);
 	_outSeg2.Resize(_stheta, _srho);
-
-	HandLocalization _handLocalization;
-
-	// _blobs.Resize(_stheta, _srho);
 
 	char tmp[128];
 	sprintf(tmp, "%s%d", "y:\\zgarbage\\exp19\\histo", 90);
@@ -99,20 +89,10 @@ int main(int argc, char* argv[])
 		// reconstruct color
 		_mapper.ReconstructColor (_left, _leftColored);
 
-
 		YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
 		_histo.backProjection(_leftHSV, _outSeg);
 
-		_handLocalization.query(_outSeg);
-
-		_outPortSeg.Content().Refer(_outSeg);
-		_outPortSeg.Write();
-		
-
-		/*_nHistos++;
-		if ((_frame%100)==0)
-			ACE_OS::printf("frame #%5d\r", _nHistos);*/
+		_segmenter.merge(_outSeg, _handLocalization.query());
 	}
 	return 0;
 }
-
