@@ -228,7 +228,7 @@ main(int argc,char *argv[])
 	
 	if (file != 2)
 	{
-	init_bttvx(2,0);
+	init_bttvx(0,0);
 	open_bttvx();
 	
 	BttvxSetImageBuffer(0, image->buffer);

@@ -683,8 +683,8 @@ attach_bt848(int device_id)
      * graphics adapter.
      */
     info.VendorId = 0x109e;
-    info.DeviceId = 0x36e;
-	//info.DeviceId = 0x350;
+    //info.DeviceId = 0x36e;
+	info.DeviceId = 0x350;
 
 	hdl = pci_attach_device(0,
 							PCI_SHARE|PCI_INIT_ALL|PCI_SEARCH_VEND|PCI_SEARCH_VENDEV, 

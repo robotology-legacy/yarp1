@@ -35,7 +35,7 @@ include $(ACE_ROOT)/include/makeinclude/rules.local.GNU
 #----------------------------------------------------------------------------
 
 install:
-	cp porter $(YARP_ROOT)/bin/qnx6
+	cp porter $(YARP_ROOT)/bin/$(OS)
 
 #----------------------------------------------------------------------------
 #       Dependencies
