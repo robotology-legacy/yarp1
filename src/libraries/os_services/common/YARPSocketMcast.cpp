@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.6 2003-05-29 13:50:50 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.7 2003-05-29 14:12:52 gmetta Exp $
 ///
 ///
 
@@ -1938,8 +1938,8 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 			/// tries to shut down the connection first.
 			if (Close (name) == YARP_FAIL)
 			{
-				ACE_DEBUG ((LM_DEBUG, "can't close the mcast connection\n"));
-				return YARP_FAIL;
+				ACE_DEBUG ((LM_DEBUG, "can't close the mcast connection, it can happen if the server died unexpectedly\n"));
+				///return YARP_FAIL;
 			}
 
 			/// 250 ms delay.
