@@ -10,7 +10,7 @@
 #		  --distribution <PATH> is the path where ACE was unpacked
 #		  --os <OS> is the operating system you're compiling for
 #
-# $Id: build.pl,v 1.8 2004-10-16 20:15:48 gmetta Exp $
+# $Id: build.pl,v 1.9 2004-12-01 15:49:25 babybot Exp $
 #
 # This script can be (at least in theory) configured to
 # do some useful thing in Linux and/or Qnx too. It's definitely
@@ -207,14 +207,20 @@ if ($install)
 
 	recursive_copy ("./os_include", "$yarp_root/include/ace/os_include");
 
-	my @my_libs = glob "../bin/*.dll";
+	my $output_path = './';
+	if ($os eq "winnt")
+	{
+		$output_path = search_output($project_name);
+	}
+
+	my @my_libs = glob "$output_path/*.dll";
 	foreach my $file (@my_libs)
 	{
 		print "Copying $file\n";
 		copy ($file, "$yarp_root/bin/$os/") or die "Can't copy any .dll file\n";
 	}
 
-	@my_libs = glob "*.lib *.a";
+	@my_libs = glob "$output_path/*.lib $output_path/*.a";
 	foreach my $file (@my_libs)
 	{
 		print "Copying $file\n";
@@ -225,6 +231,47 @@ if ($install)
 }
 
 select STDOUT;
+
+#
+#
+#
+sub search_output
+{
+	my ($filename) = @_;
+	my $path = '';
+
+	if (open FILE, "$distribution/ace/$filename".'.dsp')
+	{
+		my @matching_lines = grep { /\/out:/ } <FILE>;
+		foreach my $line (@matching_lines)
+		{
+			if ($line =~ /\/out:\"([\w\s\\.]+)\"/)
+			{
+				$path = $1;
+				my @pieces = split(/\\/, $path);
+				
+				if (@pieces > 1)
+				{
+					$path = $pieces[0];
+					for (my $i = 1; $i < @pieces-1; $i++)
+					{
+						$path = join ('/', $path, $pieces[$i]);
+					}
+				}
+				else
+				{
+					$path = '.';
+				}
+			}
+		}
+
+		close FILE;
+	}
+
+	print "the destination path is: $path\n\n";
+	return $path;
+}
+
 
 #
 # since ACE might have different project names I'm searching
