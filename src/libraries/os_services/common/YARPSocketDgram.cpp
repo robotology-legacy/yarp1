@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.18 2003-05-21 15:31:08 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.19 2003-05-21 15:57:46 gmetta Exp $
 ///
 ///
 
@@ -360,7 +360,7 @@ public:
 	virtual void Body (void)
 	{
 		int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
-		ACE_DEBUG ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
+		ACE_DEBUG ((LM_DEBUG, "acceptor thread at priority %d -> %d\n", GetPriority(), prio));
 		if (SetPriority(prio) == YARP_FAIL)
 		{
 			ACE_DEBUG ((LM_DEBUG, "can't raise priority of acceptor thread, potential source of troubles\n"));
