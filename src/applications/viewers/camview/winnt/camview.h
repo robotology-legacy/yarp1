@@ -28,6 +28,8 @@ public:
 	int m_x;
 	int m_y;
 	bool m_lp;
+	int m_width;
+	int m_height;
 
 // Overrides
 	// ClassWizard generated virtual function overrides

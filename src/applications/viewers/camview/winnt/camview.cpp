@@ -72,6 +72,16 @@ BOOL CCamviewApp::InitInstance()
 	else
 		m_y = -1;
 
+	if (cmdInfo.GetOption("w", tmp))
+		m_width = atoi(tmp);
+	else
+		m_width = -1;
+
+	if (cmdInfo.GetOption("h", tmp))
+		m_height = atoi(tmp);
+	else
+		m_height = -1;
+	
 	m_lp = (cmdInfo.GetOption("l")) ? true : false;
 
 	/// not really needed.

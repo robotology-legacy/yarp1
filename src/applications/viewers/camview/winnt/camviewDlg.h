@@ -83,11 +83,11 @@ public:
 	}
 
 	virtual void Body (void);
-	virtual void End (bool donkill = true)
+	virtual void End (int donkill = 1)
 	{
 		m_end_sema.Post ();
 		YARPTime::DelayInSeconds (1.0);
-		YARPThread::End (false);
+		YARPThread::End (0);
 	}
 
 	void Freeze (bool fr)

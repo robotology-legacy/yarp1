@@ -274,8 +274,10 @@ BOOL CCamviewDlg::OnInitDialog()
 
 	if (p->m_x < 0) p->m_x = wpos.left;
 	if (p->m_y < 0) p->m_y = wpos.top;
+	if (p->m_width < 0) p->m_width = wpos.Width();
+	if (p->m_height < 0) p->m_height = wpos.Height();
 
-	MoveWindow (p->m_x, p->m_y, wpos.Width(), wpos.Height(), TRUE);
+	MoveWindow (p->m_x, p->m_y, p->m_width, p->m_height, TRUE);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
