@@ -1,5 +1,6 @@
 
 QUICK START for Debian Linux users:
+-----------------------------------
 
   YARP requires the ACE package.
     apt-get install libace-dev libace5.4 (as superuser)
@@ -16,6 +17,7 @@ in advance if you have to go fiddle with that.
 
 
 MORE GENERAL method:
+--------------------
 
 We require ACE version 5.3.3 or greater.
 
@@ -35,3 +37,19 @@ are a unix user, fiddle with Makefiles.
 
 If you feel inspired, please send us better installation
 instructions -- because boy do we need them.
+
+
+INTEGRATION with Intel IPL:
+---------------------------
+
+YARP is compatible with but does not include (or require) the Intel 
+Image Processing Library.  Here are tips for using IPL and YARP 
+together.
+
+ * include the IPL header files before any of the YARP image headers
+
+ * Make sure you define HAVE_IPL before including any of the YARP image
+   headers
+
+ * Link with the IPL library
+
