@@ -77,7 +77,7 @@
 
 
 YARPWatershed::YARPWatershed(const int width1, const int height1, const int wstep, const YarpPixelMono th):
-	_gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
+	_gaze( YMatrix(_dh_nrf, 5, DH_left[0]), YMatrix(_dh_nrf, 5, DH_right[0]), YMatrix(4, 4, TBaseline[0]) )
 {
 	neighborhood8=true;
 
@@ -90,7 +90,7 @@ YARPWatershed::YARPWatershed(const int width1, const int height1, const int wste
 }
 
 
-YARPWatershed::YARPWatershed():
+/*YARPWatershed::YARPWatershed():
 	_gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
 {
 	neighborhood8=true;
@@ -99,7 +99,7 @@ YARPWatershed::YARPWatershed():
 	basinColor=255;
 
 	neigh=NULL;
-}
+}*/
 
 
 void YARPWatershed::resize(const int width1, const int height1, const int wstep, const YarpPixelMono th)
@@ -1221,7 +1221,7 @@ void YARPWatershed::ComputeSalienceAll(int num_blob, int last_tag)
 }
 
 
-void YARPWatershed::IOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num)
+void YARPWatershed::checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num)
 {
 	for (int i=0; i<num; i++) {
 		if (boxes[i].valid) {
@@ -1247,6 +1247,32 @@ void YARPWatershed::IOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int n
 			// the log area changes due to log polare mapping and distance
 			cout<<"areaLP diff: "<<abs(m_attn[index].areaLP-boxes[i].areaLP)<<endl;
 			cout<<endl;
+		}
+	}
+}
+
+
+void YARPWatershed::doIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num)
+{
+	for (int i=0; i<num; i++) {
+		if (boxes[i].valid) {
+			int r, c;
+			int x, y;
+			//TO DO: transform to "local" axis
+			//cout<<"box #"<<i<<endl;
+			
+			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].v, x, y);
+			m_lp.Cartesian2Logpolar(x, y, r, c);
+			if (r<height) {
+				YarpPixelInt index=tagged(c, r);
+				int crg=m_attn[index].meanRG-boxes[i].meanRG;
+				int cgr=m_attn[index].meanGR-boxes[i].meanGR;
+				int cby=m_attn[index].meanBY-boxes[i].meanBY;
+
+				if (crg*crg+cgr*cgr+cby*cby<150) {
+					m_attn[index].valid=false;
+				}
+			}
 		}
 	}
 }
@@ -1982,6 +2008,13 @@ void YARPWatershed::maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_t
 	}
 
 	box=m_attn[max];
+	_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, box.v , (int)box.centroid_x, (int)box.centroid_y);
+}
+
+
+void YARPWatershed::foveaBlob(YARPImageOf<YarpPixelInt>& tagged, YARPBox &box)
+{
+	box=m_attn[1];
 	_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, box.v , (int)box.centroid_x, (int)box.centroid_y);
 }
 

@@ -427,9 +427,9 @@ int main (int argc, char *argv[])
 	YARPScheduler::setHighResScheduling();
 
 	mainthread _thread;
-	_thread.Begin();
-
 	secondthread _thread2;
+
+	_thread.Begin();
 	_thread2.Begin();
 
 	char c = 0;

@@ -127,7 +127,7 @@ class YARPWatershed {
 	inline int TotalArea(YARPBox& box) { return (box.xmax - box.xmin + 1) * (box.ymax - box.ymin + 1); }
 
 public:
-	YARPWatershed::YARPWatershed();
+	//YARPWatershed::YARPWatershed();
 	YARPWatershed::YARPWatershed(const int width1, const int height1, const int wstep, const YarpPixelMono th);
 	void resize(const int width1, const int height1, const int wstep, const YarpPixelMono th);
 
@@ -146,7 +146,7 @@ public:
 	void SortAndComputeSalience(int num_tag, int last_tag);
 	void ComputeSalience(int num_blob, int last_tag);
 	void ComputeSalienceAll(int num_blob, int last_tag);
-	void IOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num);
+	void checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num);
 	void ComputeMeanColors(int last_tag);
 	void RemoveNonValid(int last_tag, const int max_size, const int min_size);
 	int DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
@@ -168,7 +168,9 @@ public:
 	void maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox* boxes, int num);
 	void maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox &box);
 
+	void doIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num);
 	void drawIOR(YARPImageOf<YarpPixelMono>& out, YARPBox* boxes, int num);
+	void foveaBlob(YARPImageOf<YarpPixelInt>& tagged, YARPBox &box);
 
 	void setPosition(const YVector &p) { _gaze.update(p); }
 };

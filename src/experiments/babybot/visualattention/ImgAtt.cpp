@@ -72,7 +72,8 @@
 #define DBGPF1 if (0)
 
 
-YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num)
+YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
+	rain(x, y, x+x%8, 15)
 {
 	int i;
 
@@ -385,7 +386,7 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num)
 
 	tagged.Resize(x+x%8, y);
 
-	rain.resize(x, y, x+x%8, 15);
+	//rain.resize(x, y, x+x%8, 15);
 	//rain.resize(x, y, x+x%8, 13);
 
 	blobList = new bool [x*y+1];
@@ -1342,8 +1343,9 @@ void YARPImgAtt::findBlobs()
 	//rain.SortAndComputeSalience(200, max_tag);
 	//rain.SortAndComputeSalience(100, max_tag);
 	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
-	//rain.IOR(tagged, boxes, num_boxes);
-	
+	rain.checkIOR(tagged, IORBoxes, num_IORBoxes);
+	//rain.doIOR(tagged, IORBoxes, num_IORBoxes);
+
 
 	rain.DrawContrastLP2(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
 	//rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
@@ -1405,12 +1407,12 @@ void YARPImgAtt::resetIORTable()
 
 void YARPImgAtt::updateIORTable()
 {
-	//YARPBox tmpBox;
-	//rain.maxSalienceBlob(tagged, max_tag, tmpBox);
+	rain.maxSalienceBlob(tagged, max_tag, IORBoxes[0]);
 
 	for (int j=num_IORBoxes-1; j>0; j--)
 		IORBoxes[j]=IORBoxes[j-1];
-	IORBoxes[0]=fovBox;
+
+	IORBoxes[0].valid=true;
 }
 
 
