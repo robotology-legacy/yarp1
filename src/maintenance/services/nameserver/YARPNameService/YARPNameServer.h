@@ -1,0 +1,374 @@
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
+///                                                                   ///
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, /// 
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+
+///
+/// $Id: YARPNameServer.h,v 1.1 2003-04-18 08:52:33 gmetta Exp $
+///
+///
+
+// YARPNameServer.h: interface for the YARPNameServer class.
+//
+// 
+// 
+// -- January 2003 -- by nat 
+// -- Modified for YARP April 2003 -- by nat 
+//////////////////////////////////////////////////////////////////////
+
+#if !defined __YARPNAMESERVER__
+#define __YARPNAMESERVER__
+
+#if _MSC_VER > 1000
+#pragma once
+#endif // _MSC_VER > 1000
+
+#include <conf/YARPConfig.h>
+#include "wide_nameloc.h"
+
+#include "ace\config.h"
+#include "ace\SOCK_Acceptor.h"
+#include "ace\SOCK_Connector.h"
+#include "ace\SOCK_Stream.h"
+#include "ace\Log_Msg.h"
+
+#include "CThreadImpl.h"
+
+#define NAME_SERVER_VERBOSE
+#define SIZE_BUF 4096
+
+#include <string>
+#include <list>
+
+#ifdef NAME_SERVER_VERBOSE
+	#include <stdio.h>
+	#define NAME_SERVER_DEBUG(string) \
+		do {ACE_OS::printf("NAME_SERVER: "),printf string;} while(0)
+#else
+	#define NAME_SERVER_DEBUG(string)\
+		do {} while(0)
+#endif
+
+
+const int _start_port = 1001;
+const int _end_port = 1999;
+
+const int _max_ref = 9999;
+
+const int __portNotFound = 0;
+
+struct PortEntry
+{
+	int port;
+	int flag;
+
+};
+
+typedef std::list<PortEntry> PORT_LIST;
+typedef PORT_LIST::iterator PORT_IT;
+
+struct IpEntry
+{
+	std::string	ip;
+	PORT_LIST ports;
+
+	PortEntry ask_new_port();
+	bool check_port(PortEntry p);
+	int find_port(int port, PORT_IT &it);
+		
+	void release_port(int port);
+};
+
+typedef std::list<IpEntry> IP_LIST;
+typedef IP_LIST::iterator IP_IT;
+
+struct resources:public IP_LIST
+{
+	void release (const std::string &ip);
+	void release(const std::string &ip, int port);
+	bool check_port(const std::string &ip, int port);
+	void sign_in(const std::string &ip);
+	int ask_new(const std::string &ip, int *port);
+	int find_ip(const std::string &ip);
+	int find_ip(const std::string &ip, IP_IT &it);
+};
+
+struct service
+{
+	service()
+	{
+		ref_count = _max_ref;
+		max_ref = _max_ref;
+	}
+
+	std::string name;
+	std::string ip;
+	int port;
+
+private:
+	int ref_count;
+	int max_ref;
+		
+public:
+	void set_max_ref(int mr)
+	{
+		if (mr == -1)
+		{
+			ref_count = _max_ref;
+			max_ref = _max_ref;
+		}
+		else
+		{
+			ref_count = mr;
+			max_ref = mr;
+		}
+	}
+
+	int get_max_ref()
+	{return max_ref;}
+
+	int get_ref()
+	{return ref_count;}
+
+	bool take_ref()
+	{
+		ref_count --;
+
+		if (ref_count < 0)
+		{
+			ref_count++;
+			return false;
+		}
+
+		return true;
+	}
+
+	bool release_ref()
+	{
+		ref_count ++;
+
+		if (ref_count == max_ref)
+			return true;	// resource no longer used
+		else	
+			return false;	// resource still used
+	}
+};
+
+typedef std::list<service> SVC_LIST;
+typedef SVC_LIST::iterator SVC_IT;
+
+struct services: public SVC_LIST
+{
+	int find_service(const std::string &n, SVC_IT &it);
+	
+	// release a name service -- return ip and port
+	int check_out(const std::string &name, std::string &ip, int *port);
+	
+	// check in: increase ref count for a specified port, ip and max_ref
+	// Note: service must not exist !
+	void check_in(const std::string &name, const std::string &ip, int port, int max_ref);
+	
+	// check only: return ip, port and current associated with a service name
+	bool check(const std::string &name, std::string &ip, int *port)
+	{
+		int dummy;
+		return check(name, ip, port, &dummy);
+	}
+
+	// find name and destroy entry, return ip and port
+	int destroy(const std::string &name, std::string &ip, int *port)
+	{
+		SVC_IT it;
+		if (find_service(name, it) != -1)
+		{
+			ip = it->ip;
+			*port = it->port;
+
+			erase(it);
+			return 1;		// resource destroyed
+		}
+		else
+		{
+			NAME_SERVER_DEBUG(("Sorry, cannot find: %s\n", name.c_str()));
+			return -1;		// error: resource not found
+		}
+	}
+
+	// check only: return ip, port and current ref associated with a service name
+	bool check(const std::string &name, std::string &ip, int *port, int *ref);
+	
+	// check if reference exits; return ip associated with a particular name
+	// increase reference count returns:
+	// > 0, found, resources av.
+	// 0, found, resoursec not av.
+	// < 0, not found
+	int take_ref(const std::string &name, std::string &ip, int *port);
+};
+
+class LocalNameServer  
+{
+public:
+	LocalNameServer();
+	virtual ~LocalNameServer();
+
+	// sign in a service, specify name/ip get port back
+	int registerName(const std::string &name, const std::string &ip, int *port);
+
+	// just check
+	int queryName(const std::string &name, std::string &ip, int *port);
+	
+	// release a service
+	void check_out(const std::string &name)
+	{
+		std::string ip;
+		int port;
+
+		if (names.check_out(name, ip, &port) == 1){
+			//resource no longer used, release it
+			addresses.release(ip, port);
+		}
+	}
+	
+	int check_static(const std::string &name, std::string &ip, int *max)
+	{
+		int dummy;
+		if (statics.check(name, ip, &dummy, max))
+			return 0;
+		else
+			return -1;
+	}
+
+	// load initial resources from file (static entries)
+	void init(const std::string &filename);
+
+	resources addresses;
+	services  names;
+	services  statics;
+};
+
+class YARPNameServer: public CThreadImpl
+{
+public:
+	YARPNameServer(const std::string &file, int port):
+	  CThreadImpl("name server thread",0),
+	  server_addr_(port), peer_acceptor_(server_addr_)
+	{
+		  ns.init(file);
+		  data_buf_ = new char [SIZE_BUF];
+
+		  start();
+	}
+	~YARPNameServer()
+	{
+		///peer_acceptor_.close();
+		terminate();
+		delete [] data_buf_;
+	}
+
+	int accept_connection();
+	int handle_connection();
+
+	// dump current status
+	void dump_resources();
+	void dump_names();
+	void dump_statics();
+	void dump()
+	{
+		cout << "\n\n-Dumping current status:";
+		dump_statics();
+		cout << "\n";
+		dump_names();
+		cout << "\n";
+		dump_resources();
+		cout << "-End";
+	};
+	
+	void handle_registration(const std::string &service_name);
+	void handle_query(const std::string &service_name);
+	void handle_registration(const std::string &service_name, const std::string &ip);
+	void handle_registration_dbg(const std::string &service_name);
+	void handle_registration_dbg(const std::string &service_name, std::string &ip);
+	void query_dbg(const std::string &service_name);
+	void handle_release(const std::string &service_name);
+
+	// usual thread methods
+	virtual void doInit()
+	{
+		// wait 0.5 sec...
+		ACE_OS::sleep(ACE_Time_Value(0,500000));
+		// just print port used
+		if (peer_acceptor_.get_local_addr (server_addr_) != -1)
+			NAME_SERVER_DEBUG (("Starting server at port %d\n", server_addr_.get_port_number ()));
+		else
+			NAME_SERVER_DEBUG (("Error: cannot get local address\n"));
+
+	}
+	virtual void doLoop()
+	{
+		if (accept_connection() != -1)
+			handle_connection();
+	}
+	virtual void doRelease()
+			{/* release, if any */}
+
+private:
+	void _handle_reply(const std::string &ip, int port);
+	LocalNameServer ns;
+
+	ACE_INET_Addr		server_addr_;
+	ACE_INET_Addr		client_addr_;
+	ACE_SOCK_Acceptor	peer_acceptor_;
+	ACE_SOCK_Stream		new_stream_;
+
+	char *data_buf_;
+};
+
+#endif // 
