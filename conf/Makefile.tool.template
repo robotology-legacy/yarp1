@@ -27,7 +27,7 @@ w:
 
 $(EXEC_TARGET): $(TARGETS)
 	mkdir -p $(EXECDIR)
-	$(CC) $(CFLAGS) $^ -o $@ $(LIBS) -lACE -L../../libYARP_OS/lib/$(SYSDIR) -lYARP_OS -L$(YARP_ROOT)/lib/$(SYSDIR) $(MYLIBS)
+	$(CC) $(CFLAGS) $^ -o $@ $(LIBS) -lACE -L../../libYARP_OS/lib/$(SYSDIR)  $(MYLIBS) -lYARP_OS -L$(YARP_ROOT)/lib/$(SYSDIR)
 
 # install to top dir
 topinstall: $(EXEC_TARGET)
