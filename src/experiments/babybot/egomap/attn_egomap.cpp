@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_egomap.cpp,v 1.2 2003-11-11 11:28:25 babybot Exp $
+/// $Id: attn_egomap.cpp,v 1.3 2003-11-11 17:54:12 babybot Exp $
 ///
 ///
 
@@ -172,8 +172,8 @@ public:
 			{
 				int predx = 0, predy = 0;
 				_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _rays[i], predx, predy);
-				predx += FULLSIZE/2;
-				predy += FULLSIZE/2;
+				///predx += FULLSIZE/2;
+				///predy += FULLSIZE/2;
 
 				///
 				YarpPixelBGR green (0, 255, 0);
@@ -194,7 +194,7 @@ public:
 			{
 				_rays[_nextfree].Resize(3);
 				/// get the current ray.
-				_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _rays[_nextfree], 0, 0);
+				_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _rays[_nextfree], FULLSIZE/2, FULLSIZE/2);
 				/// the new ray is also stored.
 				_nextfree++;
 			}

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.4 2003-11-11 11:29:49 babybot Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.5 2003-11-11 17:53:28 babybot Exp $
 ///
 ///
 
@@ -81,6 +81,7 @@
 
 #include <YARPMath.h>
 #include <YARPKinematics.h>
+#include <YARPLogpolar.h>
 
 ///
 ///
@@ -119,6 +120,10 @@ const double PixScaleX = 120;			/// camera mm to pixel conversion factor.
 const double PixScaleY = 98;			/// same along the y coord.
 
 const double Periphery2Fovea = 2.0;		/// conversione from foval to peripheral.
+const int CenterPeripheryX = _logpolarParams::_xsize/2;
+const int CenterPeripheryY = _logpolarParams::_ysize/2;
+const int CenterFoveaX = _logpolarParams::_xsizefovea/2;
+const int CenterFoveaY = _logpolarParams::_ysizefovea/2;
 
 ///
 ///

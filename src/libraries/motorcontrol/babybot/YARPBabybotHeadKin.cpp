@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.cpp,v 1.3 2003-11-08 21:54:59 gmetta Exp $
+/// $Id: YARPBabybotHeadKin.cpp,v 1.4 2003-11-11 17:53:28 babybot Exp $
 ///
 ///
 
@@ -129,6 +129,9 @@ void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
 {
 	if (k == KIN_LEFT)
 	{
+		x -= CenterFoveaX;
+		y -= CenterFoveaY;
+
 		YHmgTrsf ep = _leftCamera.endFrame();
 
 		/// pixels -> mm
@@ -144,6 +147,9 @@ void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
 	else
 	if (k == KIN_LEFT_PERI)
 	{
+		x -= CenterPeripheryX;
+		y -= CenterPeripheryY;
+
 		int rx, ry;
 		peripheryToFovea (x, y, rx, ry);
 
@@ -162,6 +168,9 @@ void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
 	else
 	if (k == KIN_RIGHT)
 	{
+		x -= CenterFoveaX;
+		y -= CenterFoveaY;
+
 		YHmgTrsf ep = _rightCamera.endFrame();
 
 		/// pixels -> mm
@@ -177,6 +186,9 @@ void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
 	else
 	if (k == KIN_RIGHT_PERI)
 	{
+		x -= CenterPeripheryX;
+		y -= CenterPeripheryY;
+
 		int rx, ry;
 		peripheryToFovea (x, y, rx, ry);
 
@@ -235,6 +247,14 @@ void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, in
 		{
 			int rx = x, ry = y;
 			foveaToPeriphery (rx, ry, x, y);
+
+			x += CenterPeripheryX;
+			y += CenterPeripheryY;
+		}
+		else
+		{
+			x += CenterFoveaX;
+			y += CenterFoveaY;
 		}
 	}
 	else
@@ -273,6 +293,13 @@ void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, in
 		{
 			int rx = x, ry = y;
 			foveaToPeriphery (rx, ry, x, y);
+			x += CenterPeripheryX;
+			y += CenterPeripheryY;
+		}
+		else
+		{
+			x += CenterFoveaX;
+			y += CenterFoveaY;
 		}
 	}
 	else
