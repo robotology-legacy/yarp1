@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.18 2003-06-17 22:10:52 gmetta Exp $
+/// $Id: main.cpp,v 1.19 2003-06-30 16:48:32 beltran Exp $
 ///
 ///
 
@@ -76,11 +76,17 @@
 #include <YARPScheduler.h>
 #include <YARPTime.h>
 
-#include <YARPBabybotGrabber.h>
-
 #include <YARPImages.h>
 #include <YARPLogpolar.h>
 
+
+#ifdef __QNXEurobot__
+#include <YARPEurobotGrabber.h>
+#define Grabber YARPEurobotGrabber
+#else //Qnx or Win on Babybot
+#include <YARPBabybotGrabber.h>
+#define Grabber YARPBabybotGrabber
+#endif
 ///
 /// global params.
 int _size = 128;
@@ -168,9 +174,9 @@ int _grabber2rgb (const unsigned char *in, unsigned char *out, int sz)
 		/// needed to remove the extra byte of the 32 bit representation.
 		for (int c = 0; c < sz; c++)
 		{
-			*out++ = unsigned char((*ptr & 0x000000ff));
-			*out++ = unsigned char((*ptr & 0x0000ff00) >> 8);
-			*out++ = unsigned char((*ptr & 0x00ff0000) >> 16);
+			*out++ = (unsigned char)((*ptr & 0x000000ff));
+			*out++ = (unsigned char)((*ptr & 0x0000ff00) >> 8);
+			*out++ = (unsigned char)((*ptr & 0x00ff0000) >> 16);
 
 			ptr ++;
 		}
@@ -352,7 +358,7 @@ int _runAsLogpolar (void)
 {
 	using namespace _logpolarParams;
 
-	YARPBabybotGrabber grabber;
+	Grabber grabber;
 	YARPImageOf<YarpPixelBGR> img;
 	YARPImageOf<YarpPixelBGR> fovea;
 	YARPImageOf<YarpPixelMono> periphery;
@@ -434,7 +440,7 @@ int _runAsLogpolar (void)
 
 int _runAsCartesian (void)
 {
-	YARPBabybotGrabber grabber;
+	Grabber grabber;
 	YARPImageOf<YarpPixelBGR> img;
 	img.Resize (_size, _size);
 
@@ -457,11 +463,11 @@ int _runAsCartesian (void)
 	ACE_OS::fprintf (stdout, "grabber is cartesian\n");
 	ACE_OS::fprintf (stdout, "acq size: w=%d h=%d\n", w, h);
 
-	if (w != _size || h != 2 * _size) ///2 * _size)
-	{
-		ACE_OS::fprintf (stderr, "pls, specify a different size, application will now exit\n");
-		finished = true;
-	}
+	//if (w != _size || h != 2 * _size) ///2 * _size)
+	//{
+	//		ACE_OS::fprintf (stderr, "pls, specify a different size, application will now exit\n");
+	//	finished = true;
+	//}
 
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
@@ -469,10 +475,16 @@ int _runAsCartesian (void)
 	while (!finished)
 	{
 		grabber.waitOnNewFrame ();
+		
+#ifdef __QNX6__
+		grabber.acquireBuffer(&buffer);
+		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _size*_size*3);
+#else
 		grabber.acquireBuffer (&buffer);
 	
 		/// fills the actual image buffer.
 		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _size);
+#endif
 
 		/// sends the buffer.
 		outport.Content().Refer (img);
