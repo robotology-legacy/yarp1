@@ -20,7 +20,7 @@ extern int __debug_level;
 // Should find out exactly what this is
 #define MAX_PACKET (128*128*3+100)
 
-#ifdef __QNX__
+#ifdef __QNX4__
 #include <sys/sendmx.h>
 #else
 using namespace std;

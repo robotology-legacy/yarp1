@@ -706,7 +706,11 @@ void SocketOwner::AddSocket()
   struct sockaddr sockaddr;
 #ifndef __WIN__
 #ifndef __QNX4__
+#ifdef __QNX6__
+  socklen_t addrlen = sizeof(sockaddr);
+#else
   unsigned int addrlen = sizeof(sockaddr);
+#endif
 #else
   int addrlen = sizeof(sockaddr);
 #endif

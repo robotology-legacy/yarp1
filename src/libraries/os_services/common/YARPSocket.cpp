@@ -45,6 +45,7 @@ int YARPNetworkObject::GetHostName(char *buffer, int buffer_length)
   int result = gethostname(buffer,buffer_length);
 #ifndef __QNX4__
 #ifndef __WIN__
+#ifndef __QNX6__
   // QNX4 just doesn't have getdomainname or any obvious equivalent
   // cygwin version doesn't have getdomainname or any obvious equivalent
   if (result==0)
@@ -63,6 +64,7 @@ int YARPNetworkObject::GetHostName(char *buffer, int buffer_length)
 	  result = getdomainname(buffer,buffer_length);
 	}
     }
+#endif
 #endif
 #endif
   return result;

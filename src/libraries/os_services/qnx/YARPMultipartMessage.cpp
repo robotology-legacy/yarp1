@@ -1,5 +1,8 @@
 #include <assert.h>
+#ifdef __QNX4__
 #include <sys/sendmx.h>
+#endif
+
 
 #include "YARPMultipartMessage.h"
 

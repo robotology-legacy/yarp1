@@ -1,7 +1,16 @@
+
+QNX_VER = 6.1.0 6.2.0 6.2.1
+
 ifeq ($(shell uname),QNX)
-  CC = cc -l socket -l unix -D__QNX__ -D__QNX4__
-  SYSDIR = qnx
-  SYSLIB = 
+	ifneq (,$(findstring $(shell uname -r),$(QNX_VER)))
+	 CC = g++  -lsocket -D__QNX6__
+	 SYSDIR = qnx6
+	 SYSLIB = /usr/lib/libmig4nto.a
+	else
+	 CC = cc -l socket -l unix -D__QNX__ -D__QNX4__
+	 SYSDIR = qnx
+	 SYSLIB = 
+	endif
 else
   ifeq ($(shell uname),Linux)
     CC = g++ -D__LINUX__
@@ -18,7 +27,9 @@ TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp))
 EXEC_TARGETS = $(patsubst %.cpp, $(GENDIR)/%, $(wildcard exec_*.cpp))
 CFLAGS = -g -I../include -I/home/cog/include/cpp -I/usr/include
 #cpp is just there for the stl
-LIBS = ../lib/$(SYSDIR)/os_services.lib $(SYSLIB)
+#LIBS = ../lib/$(SYSDIR)/os_services.lib $(SYSLIB)
+LIBS = $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib $(SYSLIB)
+
 
 SUBDIRS =
 
@@ -36,8 +47,11 @@ test: target
 
 target: $(TARGETS) $(EXEC_TARGETS) subtarget
 
+#$(GENDIR)/%.o: %.cpp
+#	$(CC) $(CFLAGS) -c $^ -o $@
+
 $(GENDIR)/%.o: %.cpp
-	$(CC) $(CFLAGS) -c $^ -o $@
+	$(CC) $(CFLAGS) -c $^ 
 
 $(GENDIR)/%: %.o
 	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)

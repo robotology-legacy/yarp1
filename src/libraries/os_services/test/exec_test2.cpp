@@ -24,6 +24,8 @@ public:
       char reply[128] = "Not set";
 
       YARPNameID id;
+	  cout << "Here" << endl;
+	cout.flush();
       
       do {
 	out.Wait();

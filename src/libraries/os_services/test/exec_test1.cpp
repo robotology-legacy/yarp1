@@ -1,4 +1,5 @@
 #include <iostream.h>
+#include <mig4nto.h>
 
 #include "YARPSemaphore.h"
 #include "YARPThread.h"
@@ -112,6 +113,7 @@ public:
 
 int main()
 {
+  mig4nto_init();
   MyThread1 t1;
   MyThread2 t2;
   MyThread3 t3;

@@ -284,7 +284,17 @@ void Port::Body()
   int assume_data;
   int call_on_read = 0;
 
+#ifdef __QNX6__     
+  YARPNameID m_pid; ///Carlos
+#endif
+
+
+#ifndef __QNX6__
   MakeServer(name.c_str());
+#else
+  m_pid.raw_id = MakeServer(name.c_str());
+  m_pid.mode = 2;
+#endif
   
   if (asleep)
     {
@@ -295,6 +305,10 @@ void Port::Body()
   while(1)
     {
       receiver.Begin();
+#ifdef __QNX6__     
+      receiver.pid.mode = m_pid.mode; //Carlos
+      receiver.pid.raw_id = m_pid.raw_id;
+#endif
       receiver.Get();
       out_mutex.Wait();
       assume_data = !expect_header;

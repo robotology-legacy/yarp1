@@ -142,7 +142,9 @@ using namespace std;
 #define times ignore
 
 #ifndef __WIN__
+#ifndef __QNX6__
 #include <sys/psinfo.h>
+#endif
 #endif
 
 YARPSemaphore mutex(1);
@@ -173,12 +175,19 @@ ISMap is_map;
 
 
 #ifndef __WIN__
+#ifdef __QX4__
 static int my_getpid()
 {
   struct _psinfo2 info;
   qnx_getids(0,&info);
   return info.pid;
 }
+#else //QNX6
+static int my_getpid()
+{
+  return getpid();
+}
+#endif
 #else
 static int my_getpid()
 {

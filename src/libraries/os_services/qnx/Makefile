@@ -4,7 +4,7 @@ SYSDIR = qnx
 
 OBJS = $(patsubst %.cpp, %.o, $(wildcard *.cpp))
 CC = cc
-CFLAGS = $(CFAST) -I../include -I/usr/include -I/home/cog/include/cpp -I../sys_include
+CFLAGS = -I../include -I/usr/include -I/home/cog/include/cpp -I../sys_include
 
 SUBDIRS =
 
