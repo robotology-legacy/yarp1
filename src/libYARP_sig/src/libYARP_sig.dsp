@@ -1,6 +1,7 @@
 # Microsoft Developer Studio Project File - Name="libYARP_sig" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
-# ** DO NOT EDIT **
+# ** foo **
+
 
 # TARGTYPE "Win32 (x86) Static Library" 0x0104
 
@@ -19,13 +20,13 @@ CFG=libYARP_sig - Win32 Debug
 !MESSAGE 
 !MESSAGE "libYARP_sig - Win32 Release" (based on "Win32 (x86) Static Library")
 !MESSAGE "libYARP_sig - Win32 Debug" (based on "Win32 (x86) Static Library")
-!MESSAGE 
 
 # Begin Project
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
+MTL=midl.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "libYARP_sig - Win32 Release"
@@ -85,6 +86,7 @@ LIB32=link.exe -lib
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+
 # Begin Source File
 
 SOURCE=.\YARPImage.cpp
@@ -109,5 +111,7 @@ SOURCE=.\YARPSimpleOperations.cpp
 
 SOURCE=..\build.bat
 # End Source File
+
+# End Group
 # End Target
 # End Project
