@@ -67,3 +67,17 @@ void TI1_interrupt (void)
 	_wait = false;
 	//TI1_OnInterrupt();                   /* Invoke user event */
 }
+
+/**
+ * TimerC init, this is used to sync the ADC with the PWM.
+ */
+void TIC_init (void)
+{
+	setReg (TMRC2_CMP1, 256);           /* Set the Compare register 1 */ 
+	setReg (TMRC2_CMP2, 0);             /* Set the Compare register 2 */ 
+	setReg (TMRC2_LOAD, 0);             /* Set the Load register */ 
+	setReg (TMRC2_CNTR, 0);             /* Set the Counter register */ 
+	
+	setReg (TMRC2_SCR, 0);              /* Set the Status and control register */ 
+	setReg (TMRC2_CTRL, 0x2423);        /* Set the Control register */ 
+} 

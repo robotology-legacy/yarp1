@@ -19,5 +19,6 @@
  */
 void TI1_init (void);
 void TI1_interrupt (void);
+void TIC_init (void);
 
 #endif /* ifndef __TI1 */
