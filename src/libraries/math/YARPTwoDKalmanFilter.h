@@ -60,14 +60,10 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
-// $Id: YARPTwoDKalmanFilter.h,v 1.1 2003-06-27 13:17:41 babybot Exp $
+// $Id: YARPTwoDKalmanFilter.h,v 1.2 2003-07-02 10:43:15 babybot Exp $
 
 #if !defined __TWODKALMANFILTERH__
 #define __TWODKALMANFILTERH__
-
-#ifdef __QNX__
-#include <YARPSafeNew.h>
-#endif
 
 #include "YARPRobotMath.h"
 

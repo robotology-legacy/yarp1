@@ -35,5 +35,5 @@ clean:
 	@echo
 	rm -f bttvx
 	rm -f ${DIST}.tgz
-	rm -rf *.o
+	rm -f *.o
 	rm -f blit

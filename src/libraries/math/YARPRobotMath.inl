@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPRobotMath.inl,v 1.2 2003-05-31 06:02:59 gmetta Exp $
+/// $Id: YARPRobotMath.inl,v 1.3 2003-07-02 10:43:15 babybot Exp $
 ///
 ///
 
@@ -148,8 +148,9 @@ inline double Y3DVector::Scalar(const Y3DVector& v) const
 //
 inline YDiff& YDiff::TransYDiff(const YHmgTrsf& t)  // trasformazione di coordinate
 {
+	do {} while (&t == 0);
 	return *this;
-	// da implementare!
+	// to be implemented!
 #if 0
 	Matrix jt(6,6);
 	jt=0.0;
@@ -167,6 +168,7 @@ inline YDiff& YDiff::TransYDiff(const YHmgTrsf& t)  // trasformazione di coordin
 //
 inline YForce& YForce::TransForce(const YHmgTrsf& t)
 {
+	do {} while (&t == 0);
 	return *this;
 	// da implementare!
 #if 0

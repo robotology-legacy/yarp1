@@ -60,16 +60,12 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
-// $Id: YARPRecursiveLS.h,v 1.1 2003-06-27 13:17:41 babybot Exp $
+// $Id: YARPRecursiveLS.h,v 1.2 2003-07-02 10:43:15 babybot Exp $
 
 #if !defined __YARPRECURSIVELSH__
 #define __YARPRECURSIVELSH__
 
-#ifdef __QNX__
-#include <YARPSafeNew.h>
-#endif
-
-#include <YARPRobotmath.h>
+#include <YARPRobotMath.h>
 
 // this is general enough if data vector are
 // inserted one row at a time.
@@ -128,7 +124,8 @@ inline void YARPRecursiveLS::SetInitialState (const YMatrix& P0, const YVector& 
 inline YVector YARPRecursiveLS::Estimate (double Yt, const YVector& new_psi)
 {
 	// new psi.
-	for (int i = 1; i <= m_size; i++)
+	int i;
+	for (i = 1; i <= m_size; i++)
 	{
 		m_psi (i, 1) = new_psi (i);
 	}

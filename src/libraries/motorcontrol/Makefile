@@ -1,19 +1,5 @@
 include $(YARP_ROOT)/conf/Makefile.template
 
-#I dont understand why this is included everywhere when it is already in the Makefile.Template
-#ifeq ($(shell uname),QNX)
-#  CC = cc
-#  SYSDIR = qnx
-#else
-#  ifeq ($(shell uname),Linux)
-#    CC = g++
-#    SYSDIR = linux
-#  else
-#    CC = g++
-#    SYSDIR = winnt
-#  endif
-#endif
-
 SUBDIRS = src
 # $(SYSDIR)
 

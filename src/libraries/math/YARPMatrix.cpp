@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.cpp,v 1.4 2003-06-05 10:03:03 gmetta Exp $
+/// $Id: YARPMatrix.cpp,v 1.5 2003-07-02 10:43:13 babybot Exp $
 ///
 ///
 
@@ -119,6 +119,9 @@ static void VisGaussJordanSolveDMatrix(YMatrix& A);
 // operators to do the right thing when the arguments are not the same
 // size.  (For example, adding a 3-vector to a 4-vector.)
 
+#ifdef __QNX6__
+#define UNUSED(x) do {} while (&x == 0)
+#endif
 
 //
 // Constructors (default destructor and copy constructor)
@@ -1146,6 +1149,8 @@ VisMatrixExport void VISAPI VisDMatrixSqrtInverse(const YMatrix& A,
     }
 
 #else // VIS_USE_IMSL
+	UNUSED(A);
+	UNUSED(AsqrtInv);
 
 	// Not implemented!
 	assert(0);
@@ -1638,6 +1643,12 @@ VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& A, YVector& s,
     }
 #else // VIS_USE_IMSL
 	assert (0);
+	UNUSED (A);
+	UNUSED (s);
+	UNUSED (U);
+	UNUSED (V);
+	UNUSED (compute_left);
+	UNUSED (compute_right);
     //throw CVisError(
 	//		"Singular value decomposition only works with IMSL for now",
       //              eviserrorOpFailed, "VisDMatrixSVD",
@@ -1773,7 +1784,7 @@ VisMatrixExport void VISAPI VisMinEigenValue(YMatrix& A, YVector& x)
 	for (int i = 0; i < N; i++)
 		x[i] = Evec[N-1][i]; 
 #else // OLDANDSLOW
-    double emin = VisMinMaxEigenValue(A, x, true); 
+    VisMinMaxEigenValue(A, x, true); 
 #endif // OLDANDSLOW
 }
 
@@ -1789,7 +1800,7 @@ VisMatrixExport void VISAPI VisMaxEigenValue(YMatrix& A, YVector& x)
 	for (int i = 0; i < N; i++)
 		x[i] = Evec[0][i]; 
 #else // OLDANDSLOW
-    double emax = VisMinMaxEigenValue(A, x, false); 
+    VisMinMaxEigenValue(A, x, false); 
 #endif // OLDANDSLOW
 }
 
@@ -1805,6 +1816,10 @@ VisMatrixExport double VISAPI VisMinMaxEigenValue(YMatrix& A, YVector& x,
 	VisIMSL_devesf(n, 1, A[0], n, (fMin & 1 : 0), &e, &x[0], n);
 #else // VIS_USE_IMSL
 	assert (0);
+	UNUSED (A);
+	UNUSED (x);
+	UNUSED (fMin);
+
     //throw CVisError("Eigenvalues only work with IMSL for now",
       ///              eviserrorOpFailed, "VisMinMaxEigenValue",
          //           "VisDMatrix.cpp", __LINE__);
@@ -1912,6 +1927,12 @@ VisMatrixExport void VISAPI VisDMatrixEQConstrainedLS(YMatrix& A, YVector& b,
     //delete dPermu; 
 #else // VIS_USE_IMSL
 	assert (0);
+	UNUSED (A);
+	UNUSED (b);
+	UNUSED (C);
+	UNUSED (d);
+	UNUSED (x);
+	
     //throw CVisError("Constrained least squares only works with IMSL for now",
       //              eviserrorOpFailed, "VisDMatrixEQConstrainedLS",
         //            "VisDMatrix.cpp", __LINE__);

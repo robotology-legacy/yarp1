@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPRobotMath.cpp,v 1.2 2003-05-31 06:02:58 gmetta Exp $
+/// $Id: YARPRobotMath.cpp,v 1.3 2003-07-02 10:43:15 babybot Exp $
 ///
 ///
 
@@ -259,6 +259,7 @@ YForce::YForce(void) : YVector(6)
 //
 YForce TransForce(const YForce& f,const YHmgTrsf& t)
 {
+	do {} while (&t == 0);
 	return f;
 
 #if 0
@@ -277,6 +278,7 @@ YForce TransForce(const YForce& f,const YHmgTrsf& t)
 
 YDiff TransDiff(const YDiff& d,const YHmgTrsf& t)
 {
+	do {} while (&t == 0);
 	return d; // just to avoid complaints by the compiler.
 
 #if 0

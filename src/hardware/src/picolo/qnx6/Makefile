@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.9 2003-07-01 10:31:07 beltran Exp $
+#$Id: Makefile,v 1.10 2003-07-02 10:43:13 babybot Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -6,7 +6,7 @@ include $(YARP_ROOT)/conf/Makefile.template
 
 OBJS =
 CC = g++
-CFLAGS = -g -I $(YARP_ROOT)/include -I ../../common -I ./dd_orig/include
+CFLAGS = -g -I $(YARP_ROOT)/include -I ../../common -I ./dd_orig
 #LIBS = $(YARP_ROOT)/lib/$(OS)/bttvx.lib
 
 SUBDIRS =
@@ -26,18 +26,18 @@ clean:
 	@echo
 	@echo ---------------Cleaning YARPPicoloDeviceDriver.lib --------------
 	@echo
-	rm *.o
-	rm *.lib
+	rm -f *.o
+	rm -f *.lib
 	+cd ./dd_orig; make clean
 	
 install:
 	@echo
 	@echo ---------------Instaling YARPPicoloDEviceDriver.ib --------------
 	@echo
-	cp *.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
-	cp *.lib $(YARP_ROOT)/lib/$(OS)
-	cp *.h	 $(YARP_ROOT)/src/hardware/include
-	cp *.h 	 $(YARP_ROOT)/include
+	$(CP) *.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
+	$(CP) *.lib $(YARP_ROOT)/lib/$(OS)
+	$(CP) *.h	 $(YARP_ROOT)/src/hardware/include
+	$(CP) *.h 	 $(YARP_ROOT)/include
 	#cp ./dd_orig/*.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
 	#cp ./dd_orig/*.lib $(YARP_ROOT)/lib/$(OS)
 	+cd ./dd_orig; make install

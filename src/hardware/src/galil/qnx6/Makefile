@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.6 2003-07-01 10:30:20 beltran Exp $
+#$Id: Makefile,v 1.7 2003-07-02 10:43:13 babybot Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -25,19 +25,19 @@ clean:
 	@echo
 	@echo ---------------Cleaning YARPGalilDeviceDriver.lib --------------
 	@echo
-	rm *.o
-	rm *.lib
+	rm -f *.o
+	rm -f *.lib
 	
 install:
 	@echo
 	@echo ---------------Installing YARPGalilDeviceDriver and dd_orig --------------
 	@echo
-	cp *.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
-	cp *.lib $(YARP_ROOT)/lib/$(OS)
-	cp *.h	 $(YARP_ROOT)/src/hardware/include
-	cp *.h 	 $(YARP_ROOT)/include
-	cp ./dd_orig/lib/*.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
-	cp ./dd_orig/lib/*.lib $(YARP_ROOT)/lib/$(OS)
+	$(CP) *.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
+	$(CP) *.lib $(YARP_ROOT)/lib/$(OS)
+	$(CP) *.h	 $(YARP_ROOT)/src/hardware/include
+	$(CP) *.h 	 $(YARP_ROOT)/include
+	$(CP) ./dd_orig/lib/*.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
+	$(CP) ./dd_orig/lib/*.lib $(YARP_ROOT)/lib/$(OS)
 
 
 
