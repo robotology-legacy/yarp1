@@ -5,12 +5,12 @@
 #include <YARPConfigFile.h>
 
 const int N = 20;
+const int _nJoints = 6;
 
-YVector _closePos(6);
-YVector _openPos(6);
 double _threshold = 0.0;
+int _nSynergies = 0;
 
-void readConfigFile()
+void readConfigFile(ReflexShared &rflxShared)
 {
 	YARPConfigFile file;
 
@@ -20,9 +20,33 @@ void readConfigFile()
 	ACE_OS::sprintf (path, "%s/conf/babybot/", root); 
 
 	file.set(path, "grasprflx.ini");
-	file.get("[GRASPREFLEX]", "Threshold", &_threshold, 1);
-	file.get("[GRASPREFLEX]", "ClosePosition", _closePos.data(), 6);
-	file.get("[GRASPREFLEX]", "OpenPosition", _openPos.data(), 6);
+	file.get("[GRASPREFLEX]", "Threshold", &_threshold);
+	file.get("[SYNERGIES]", "N", &_nSynergies);
+
+	// alloc commands
+	YVector *_closePos = new YVector [_nSynergies];
+	YVector *_openPos = new YVector [_nSynergies];
+
+	int i = 0;
+	for(i = 0; i < _nSynergies; i++)
+	{
+		char tmp1[80];
+		char tmp2[80];
+
+		sprintf(tmp1, "Open%d", i);
+		sprintf(tmp2, "Close%d", i);
+
+		_closePos[i].Resize(_nJoints);
+		_openPos[i].Resize(_nJoints);
+		
+		file.get("[SYNERGIES]", tmp1, _closePos[i].data(), _nJoints);
+		file.get("[SYNERGIES]", tmp2, _openPos[i].data(), _nJoints);
+	}
+
+	rflxShared.set(_nSynergies, _openPos, _closePos);
+
+	delete [] _closePos;
+	delete [] _openPos;
 }
 
 int main(int argc, char* argv[])
@@ -32,23 +56,23 @@ int main(int argc, char* argv[])
 	GRBLoopTouch loopTouch;
 	GRBWaitIdle waitClose;
 	GRBWaitIdle waitOpen;
+	GRBPickRndAction pickRnd;
 
 	GRBWaitDeltaT waitT[] = {0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2,
 							 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2 };
 	GRBGrasp grasp;
-	GRBOutputCommand closeCmd;
-	GRBOutputCommand openCmd;
+	GRBCloseOutputCommand closeCmd;
+	GRBOpenOutputCommand openCmd;
 	GRBInit init;
 	GRBSimpleInput motionDone(YBVHandDone);
 
-	readConfigFile();
-
-	closeCmd.cmd = _closePos;
-	openCmd.cmd = _openPos;
+	readConfigFile(shared);
 
 	behavior.setInitialState(&loopTouch);
-	behavior.add(&init, &loopTouch, &grasp, &closeCmd); 
 	behavior.add(NULL, &loopTouch, &loopTouch);
+	behavior.add(&init, &loopTouch, &pickRnd);
+	behavior.add(NULL, &pickRnd, &waitOpen, &openCmd);
+	behavior.add(&motionDone, &waitOpen, &grasp, &closeCmd);
 	behavior.add(NULL, &grasp, &waitClose);
 	behavior.add(&motionDone, &waitClose, &waitT[0]);
 	for(int i = 0; i<(N-1); i++)

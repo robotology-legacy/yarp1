@@ -1,13 +1,20 @@
 #include "reflexstates.h"
 
-GRBOutputCommand::GRBOutputCommand(const YVector &c)
-{
-	cmd = c;
-}
-
-void GRBOutputCommand::output (ReflexShared *d)
+void GRBOpenOutputCommand::output (ReflexShared *d)
 {
 	// send command
+	cmd = d->getOpen();
+
+	d->_data.writeVocab(YBVHandNewCmd);//writeAndSend(cmd);
+	d->_data.writeYVector(cmd);
+	d->send();
+}
+
+void GRBCloseOutputCommand::output (ReflexShared *d)
+{
+	// send command
+	cmd = d->getClose();
+
 	d->_data.writeVocab(YBVHandNewCmd);//writeAndSend(cmd);
 	d->_data.writeYVector(cmd);
 	d->send();

@@ -18,6 +18,9 @@ public:
 	{
 		_touchPort.Register(__inputPortName.c_str());
 		_touch.Resize(32);
+
+		_openCmds = NULL;
+		_closeCmds = NULL;
 	}
 
 	void read()
@@ -48,9 +51,54 @@ public:
 
 	}
 
+	void set(int n, YVector *open, YVector *close)
+	{
+		_nSynergies = n;
+		if (_openCmds != NULL)
+			delete [] _openCmds;
+
+		if (_closeCmds != NULL)
+			delete [] _closeCmds;
+
+		_openCmds = new YVector[n];
+		_closeCmds = new YVector[n];
+
+		int i = 0;
+		for(i = 0; i < n; i++)
+		{
+			_openCmds[i] = open[i];
+			_closeCmds[i] = close[i];
+		}
+	}
+
+	void updateRnd()
+	{
+		// pick rnd open, close couple
+		// ACE_ASSERT(0);
+	}
+
+	YVector getOpen()
+	{
+		// returns an open position
+		// ACE_ASSERT(0);
+		return _openCmds[0];
+	}
+
+	YVector getClose()
+	{
+		// returns a close position
+		// ACE_ASSERT(0);
+		return _closeCmds[0];
+	}
+
 public:
 	YARPInputPortOf<YVector> _touchPort;
 	YVector _touch;
+
+	int _nSynergies;
+	YVector *_openCmds;
+	YVector *_closeCmds;
+
 };
 
 // BEHAVIOR
@@ -81,6 +129,15 @@ public:
 	void handle(ReflexShared *d)
 	{
 		// do nothing
+	}
+};
+
+class GRBPickRndAction: public GRBehaviorBaseState
+{
+public:
+	void handle(ReflexShared *d)
+	{
+		d->updateRnd();
 	}
 };
 
@@ -135,12 +192,20 @@ public:
 	double _deltaT;
 };
 
-class GRBOutputCommand: public GRBehaviorBaseOutputState
+class GRBOpenOutputCommand: public GRBehaviorBaseOutputState
 {
 public:
-	GRBOutputCommand(){};
-	GRBOutputCommand(const YVector &c);
-	
+	GRBOpenOutputCommand(){};
+		
+	void output(ReflexShared *d);
+	YVector cmd;
+};
+
+class GRBCloseOutputCommand: public GRBehaviorBaseOutputState
+{
+public:
+	GRBCloseOutputCommand(){};
+		
 	void output(ReflexShared *d);
 	YVector cmd;
 };
