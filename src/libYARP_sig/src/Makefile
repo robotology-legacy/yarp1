@@ -70,3 +70,47 @@ depend:
 
 
 # DO NOT DELETE
+
+../obj/linux/YARPImage.o: ../../libYARP_OS/include/yarp/YARPTime.h
+../obj/linux/YARPImage.o: ../../../include/linux/yarp/YARPConfig.h
+../obj/linux/YARPImage.o: ../../libYARP_OS/include/yarp/YARPAll.h
+../obj/linux/YARPImage.o: ../../../include/linux/yarp/YARPConfig.h
+../obj/linux/YARPImage.o: ../../libYARP_OS/include/yarp/YARPErrorCodes.h
+../obj/linux/YARPImage.o: ../../libYARP_OS/include/yarp/debug.h
+../obj/linux/YARPImage.o: ../include/yarp/YARPImage.h
+../obj/linux/YARPImage.o: ../../libYARP_OS/include/yarp/begin_pack_for_net.h
+../obj/linux/YARPImage.o: ../../libYARP_OS/include/yarp/YARPNetworkTypes.h
+../obj/linux/YARPImage.o: ../../libYARP_OS/include/yarp/end_pack_for_net.h
+../obj/linux/YARPImage.o: ../../libYARP_OS/include/yarp/YARPRefCount.h
+../obj/linux/YARPImageFile.o: ../include/yarp/YARPImageFile.h
+../obj/linux/YARPImageFile.o: ../../../include/linux/yarp/YARPConfig.h
+../obj/linux/YARPImageFile.o: ../include/yarp/YARPImage.h
+../obj/linux/YARPImageFile.o: ../../libYARP_OS/include/yarp/begin_pack_for_net.h
+../obj/linux/YARPImageFile.o: ../../libYARP_OS/include/yarp/YARPNetworkTypes.h
+../obj/linux/YARPImageFile.o: ../../libYARP_OS/include/yarp/YARPAll.h
+../obj/linux/YARPImageFile.o: ../../libYARP_OS/include/yarp/YARPErrorCodes.h
+../obj/linux/YARPImageFile.o: ../../libYARP_OS/include/yarp/debug.h
+../obj/linux/YARPImageFile.o: ../../libYARP_OS/include/yarp/end_pack_for_net.h
+../obj/linux/YARPImageFile.o: ../include/yarp/YARPSimpleOperations.h
+../obj/linux/YARPImageFile.o: ../include/yarp/YARPFilters.h
+../obj/linux/YARPImageUtils.o: ../include/yarp/YARPImageUtils.h
+../obj/linux/YARPImageUtils.o: ../../../include/linux/yarp/YARPConfig.h
+../obj/linux/YARPImageUtils.o: ../include/yarp/YARPImage.h
+../obj/linux/YARPImageUtils.o: ../../libYARP_OS/include/yarp/begin_pack_for_net.h
+../obj/linux/YARPImageUtils.o: ../../libYARP_OS/include/yarp/YARPNetworkTypes.h
+../obj/linux/YARPImageUtils.o: ../../libYARP_OS/include/yarp/YARPAll.h
+../obj/linux/YARPImageUtils.o: ../../libYARP_OS/include/yarp/YARPErrorCodes.h
+../obj/linux/YARPImageUtils.o: ../../libYARP_OS/include/yarp/debug.h
+../obj/linux/YARPImageUtils.o: ../../libYARP_OS/include/yarp/end_pack_for_net.h
+../obj/linux/YARPSimpleOperations.o: ../include/yarp/YARPSimpleOperations.h
+../obj/linux/YARPSimpleOperations.o: ../../../include/linux/yarp/YARPConfig.h
+../obj/linux/YARPSimpleOperations.o: ../include/yarp/YARPImage.h
+../obj/linux/YARPSimpleOperations.o: ../../libYARP_OS/include/yarp/begin_pack_for_net.h
+../obj/linux/YARPSimpleOperations.o: ../../libYARP_OS/include/yarp/YARPNetworkTypes.h
+../obj/linux/YARPSimpleOperations.o: ../../libYARP_OS/include/yarp/YARPAll.h
+../obj/linux/YARPSimpleOperations.o: ../../libYARP_OS/include/yarp/YARPErrorCodes.h
+../obj/linux/YARPSimpleOperations.o: ../../libYARP_OS/include/yarp/debug.h
+../obj/linux/YARPSimpleOperations.o: ../../libYARP_OS/include/yarp/end_pack_for_net.h
+../obj/linux/YARPSimpleOperations.o: ../include/yarp/YARPFilters.h
+../obj/linux/cvbase.o: ../include/yarp/cvbase.h
+../obj/linux/cvbase.o: ../../../include/linux/yarp/YARPConfig.h

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.2 2004-07-13 10:17:44 eshuy Exp $
+/// $Id: YARPImage.h,v 1.3 2004-07-13 17:30:43 eshuy Exp $
 ///
 ///
 
@@ -628,6 +628,25 @@ public:
 			return Pixel(x,y);
 		return null_pixel;
 	}
+
+
+	/**
+	 * Check if coordinate is in range.
+	 * @param x the horizontal coordinate of the pixel
+	 * @param y the vertical coordinate of the pixel
+	 * @return true is pixel (x,y) exists in the image
+	 */
+	bool IsSafePixel(int x, int y)
+	{
+		ACE_ASSERT(Data != NULL && pImage != NULL);
+		if (x >= 0 &&
+			x < pImage->width &&
+			y >= 0 &&
+			y < pImage->height)  
+		  return true;
+		return false;
+	}
+
 
 	/**
 	 * Access the null pixel.
