@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.2 2003-04-20 21:35:39 natta Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.3 2003-04-29 17:47:17 natta Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -78,6 +78,10 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetCommands] = YARPMEIDeviceDriver::setCommands;
 	m_cmds[CMDCheckMotionDone] = YARPMEIDeviceDriver::checkMotionDone;
 	m_cmds[CMDWaitForMotionDone] = YARPMEIDeviceDriver::waitForMotionDone;
+
+	m_cmds[CMDSetHomeIndexConfig] = YARPMEIDeviceDriver::setHomeIndexConfig;
+	m_cmds[CMDSetHomeLevel] = YARPMEIDeviceDriver::setHomeLevel;
+	m_cmds[CMDSetHome] = YARPMEIDeviceDriver::setHome;
 			
 	m_cmds[CMDDummy] = YARPMEIDeviceDriver::dummy;
 
@@ -628,8 +632,52 @@ int YARPMEIDeviceDriver::waitForMotionDone(void *flag)
 	int16 rc = 0;
 
 	for(int i = 0; i < _njoints; i++)
-		 while(!motion_done(i)) Sleep(50);
+		while(!motion_done(i)) ACE_OS::sleep(ACE_Time_Value(0,50000));
 	
+	return rc;
+}
+
+int YARPMEIDeviceDriver::setHomeIndexConfig(void *cmd)
+{
+	int16 rc;
+	SingleAxisParameters *par = (SingleAxisParameters *) cmd;
+	int conf = *(int *)(par->parameters);
+	int16 config;
+	switch (conf)
+	{
+	case CBHomeOnly:
+		config = HOME_ONLY;
+		break;
+	case CBIndexOnly:
+		config = INDEX_ONLY;
+		break;
+	case CBHighHomeAndIndex:
+		config = HIGH_HOME_AND_INDEX;
+		break;
+	case CBLowHomeAndIndex:
+	default:
+		config = LOW_HOME_AND_INDEX;
+	}
+	rc = set_home_index_config(par->axis, config);
+	return rc;
+}
+
+int YARPMEIDeviceDriver::setHomeLevel(void *cmd)
+{
+	int16 rc = 0;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	int16 value = *((int16 *)tmp->parameters);
+	rc = set_home_level(tmp->axis, value);
+	return rc;
+}
+
+int YARPMEIDeviceDriver::setHome(void *cmd)
+{
+	int16 rc = 0;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	int axis = tmp->axis;
+	ControlBoardEvents *event = (ControlBoardEvents *) tmp->parameters;
+	rc = set_positive_limit(axis, _events[*event]);
 	return rc;
 }
 

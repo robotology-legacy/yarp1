@@ -104,11 +104,27 @@ SOURCE=.\common\dummy.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\babybot\YARPBabybotArm.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\babybot\YARPBabybotHead.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\common\YARPGenericComponent.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\babybot\YARPMEIOnBabybotArmAdapter.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\babybot\YARPMEIOnBabybotHead.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\babybot\YARPMEIOnBabybotHeadAdapter.h
 # End Source File
 # End Group
 # End Target

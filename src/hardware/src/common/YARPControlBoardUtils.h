@@ -4,7 +4,7 @@
 //
 // feb 2003 -- by nat and pasa
 
-// $ID$
+// $Id: YARPControlBoardUtils.h,v 1.3 2003-04-29 17:47:15 natta Exp $
 #include <conf/YARPConfig.h>
 
 #ifndef __YARP_CONTROL_BOARD_UTILS__
@@ -75,8 +75,11 @@ enum ControlBoardCmd
 	CMDCheckMotionDone = 46,
 	CMDWaitForMotionDone = 47,
 	CMDSetCommands = 48,
-	CMDDummy = 49,	 // dummy command for debug purpose
-	CBNCmds = 50 // required! tells the total number of commands
+	CMDSetHomeIndexConfig = 49,
+	CMDSetHomeLevel = 50,
+	CMDSetHome = 51,
+	CMDDummy = 52,	 // dummy command for debug purpose
+	CBNCmds = 53 // required! tells the total number of commands
 };
 
 enum ControlBoardEvents
@@ -86,6 +89,15 @@ enum ControlBoardEvents
 	CBEStopEvent = 2,
 	CBAbortEvent = 3,
 	CBNEvents = 4	// required ! tells the total number of events
+};
+
+enum ControlBoardHomeConfig
+{
+	CBHomeOnly = 0,
+	CBLowHomeAndIndex = 1,
+	CBIndexOnly = 2,
+	CBHighHomeAndIndex = 3,
+	CBNHomeConfig = 4	// required for future use ?
 };
 
 // PID class
@@ -158,7 +170,6 @@ struct SingleAxisParameters
 {
 	int axis;
 	void *parameters;
-	
 };
 
 struct IOParameters
