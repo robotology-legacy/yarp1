@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPExMatrix.h,v 1.5 2004-10-04 12:41:50 beltran Exp $
+/// $Id: YARPExMatrix.h,v 1.6 2004-10-15 14:35:28 beltran Exp $
 ///
 #ifndef __YARPExMatrixh__
 #define __YARPExMatrixh__
@@ -200,7 +200,7 @@ public:
 		for( i = 1; i <= _mR.NCols(); i++)
 			determinant *= _mR(i,i);
 
-		det = pow(determinant,2);
+		det = powf(determinant,2);
 		
 		return YARP_OK;
 	}

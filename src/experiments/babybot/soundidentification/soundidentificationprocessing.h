@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.9 2004-10-05 17:38:40 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.10 2004-10-15 14:35:28 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -32,11 +32,20 @@
 #include <yarp/YARPLogPolar.h>
 #include <yarp/YARPFft.h>
 
+#define LOCAL_NTRACE 1
 
-#define FREQ_T 10000     // up cutting filter frequency
-#define ILD_LOW_FREQ 1   // down cutting frequency for ILD calculation
+# define ACE_TRACE_IMPL(X) ACE_Trace ____ (ACE_LIB_TEXT (X), __LINE__, ACE_LIB_TEXT (__FILE__))
+
+# if (LOCAL_NTRACE == 1)
+#   define LOCAL_TRACE(X)
+# else
+#   define LOCAL_TRACE(X) ACE_TRACE_IMPL(X) 
+#   include<ace/Trace.h>
+# endif /* MY_NTRACE */
+
+#define FREQ_T 10000	 // up cutting filter frequency
+#define ILD_LOW_FREQ 1	 // down cutting frequency for ILD calculation
 #define L_VECTOR_MFCC 13 // Lengh of the MFCC coefficients vector
-#define L_VECTOR_MFCC2  // Length of the sorter version of the MFCC coefficients vector
 
 class SoundIdentificationProcessing
 {
@@ -51,6 +60,7 @@ public:
 	//--------------------------------------------------------------------------------------
 	inline int apply(YARPSoundBuffer &in, YVector &out, double &rms)
 	{
+		//LOCAL_TRACE("SoundIdentificationProcessing: Entering apply");
 		unsigned char * buff = (unsigned char *) in.GetRawBuffer();
 		int dim[1] = {numSamples};
 		int i = 0;
@@ -71,8 +81,8 @@ public:
 
             temp  = buff[1] << 8;            // More significant byte
             temp += buff[0];                 // less significant byte
-            Re[i] = (double) temp;
-            sum  += (double)(Re[i] * Re[i]);
+            Re[i] = _pSoundData[i] = (double) temp;
+			sum  += (double)(Re[i] * Re[i]);
             Im[i] = 0.0;
             buff += 4;
 		}
@@ -86,10 +96,10 @@ public:
 		//  From here I implement the MFCC (Mel Frequency Ceptrum Coefficients)
 		//----------------------------------------------------------------------
 		
+#ifdef SAVEDATA
 		/*----------------------------------------------------------------------
 		 *  Write the signal in a file for comparation
 		 *----------------------------------------------------------------------*/
-#ifdef SAVEDATA
 		{
 			FILE *f = fopen ("signal.txt", "a");
 			for ( i = 0; i < numSamples; i++)
@@ -105,10 +115,10 @@ public:
 			//Re[i] = PreAccent(Re[i]) * HammingPonderation(numSamples, i);
 			Re[i] = Re[i] * HammingPonderation(numSamples,i);
 
+#ifdef SAVEDATA
 		/*----------------------------------------------------------------------
 		 *  Write the signal in a file for comparation
 		 *----------------------------------------------------------------------*/
-#ifdef SAVEDATA
 		{
 			FILE *f = fopen ("signalhamming.txt", "a");
 			for ( i = 0; i < numSamples; i++)
@@ -127,10 +137,10 @@ public:
 		//----------------------------------------------------------------------
 		ConjComplexMultiplication(Re, Im);
 
+#ifdef SAVEDATA
 		/*----------------------------------------------------------------------
 		 *  Write the signal in a file for comparation
 		 *----------------------------------------------------------------------*/
-#ifdef SAVEDATA
 		{
 			FILE *f = fopen ("fftenergy.txt", "a");
 			for ( i = 0; i < numSamples; i++)
@@ -179,6 +189,8 @@ public:
 	}
 
 	inline int GetSize() { return numSamples;}
+	int TruncateSoundToVector(const int, YVector &);
+	int NormalizeSoundArray(const double);
 
 private:
 
@@ -214,6 +226,7 @@ private:
                  // (3) next the energy of the FFT
 
     double * Im; // Contains the imaginary part of the FFT
+	double * _pSoundData; /** Contains the sound data for one of the channels. */
 	int counter;
 
     int numSamples;       // number of samples for channel in the incoming sound stream

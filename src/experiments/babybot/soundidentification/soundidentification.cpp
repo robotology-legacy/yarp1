@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: soundidentification.cpp,v 1.17 2004-10-06 15:48:14 beltran Exp $
+/// $Id: soundidentification.cpp,v 1.18 2004-10-15 14:35:28 beltran Exp $
 ///
 
 /** 
@@ -39,7 +39,6 @@
  * @author Carlos Beltran
  * @date 2004-08-24
  */
-#define ACE_NTRACE 1
 
 #include <iostream>
 #include <ace/Log_Msg.h>
@@ -64,6 +63,10 @@
 #define MIN(a,b) (a>b ? b : a)
 #define MAX(a,b) (a>b ? a : b)
 
+#define MEMORYMAX 60
+#define MIXELSMAX 40
+#define MIXELTHRESHOLD 180
+
 using namespace std;
 
 int calculateMixel(YARPCovMatrix &, 
@@ -76,6 +79,9 @@ const char *__baseName   = "/soundidentification/";
 const char *__configFile = "sound.ini";
 int _sizex = 250;
 int _sizey = 270; /** @todo Put this as an external parameter?. */
+int _histoWidth  = 250;
+int _histoHeigth = 100;
+int _iSoundHistogramHeight = 100;
 const double __rmsthreshold = 300.0;
 
 /**
@@ -89,10 +95,56 @@ int  _protocol  = YARP_MCAST;
  */
 class mainthread : public YARPThread
 {
+private:
+	int _iSValue;					  /** Contains the time samples used for the time buffers.		 */
+	double _dDecayValue;			  /** Decay value for the temporal images decay.				 */
+	YARPSemaphore _sema;			  /** Semaphore to synchronize access to class data.			 */
+	YARPSoundTemplate _soundTemplate; /** The sound template containing the mfcc parametrized sound. */
+
 public:
+	void setSValue(const int &svalue)
+	{
+		LOCAL_TRACE("SoundIdenfication: Entering setSValue");
+		if ( _iSValue > ARRAY_MAX )
+			ACE_OS::fprintf(stdout,"Sorry, max S value superated\n");
+		_sema.Wait(1); {
+			ACE_OS::fprintf(stdout,"Setting SValue = %d\n", svalue);
+			_iSValue = svalue;
+			_soundTemplate.Resize(_iSValue);
+		}_sema.Post();
+	}
+
+	void setDecaingFactor(const double &dfactor)
+	{
+		LOCAL_TRACE("SoundIdentification: Entering setDecaingFactor");
+		 if( dfactor > 1.0 || dfactor < 0.0)
+			 ACE_OS::fprintf(stdout,"Sorry, decaing factor must be between 0.0 and 1.0\n");
+
+		 _sema.Wait(1); {
+			 ACE_OS::fprintf(stdout,"Setting Decaying factor = %f\n",dfactor);
+			 _dDecayValue = dfactor;
+		 }_sema.Post();
+	}
+
+	int getSValue() 
+	{ 
+		LOCAL_TRACE("SoundIdentification: Entering getSValue");
+		return _iSValue;
+   	}
+
+	double getDecaingFactor()
+	{ 
+		LOCAL_TRACE("SoundIdentification: Entering getDecaingFactor");
+		return _dDecayValue; 
+	}
+
 	virtual void Body (void)
 	{
-		const int N   = 200;
+		//LOCAL_TRACE("SoundIdenfication: Entering Body");
+		const int N  = 200;
+		const int N2 = 10 ;
+		_iSValue = 15;
+		_dDecayValue = 0.98;
 
 		int    counter = 0;
 		int    size    = 0;
@@ -102,41 +154,49 @@ public:
 		YarpPixelBGR _auxpix(0,0,0); /** Temporal pixel.  */
 		char * ppixel;
 		//YARPVectorBuffer vector_buff;
-		YARPSoundTemplate _soundTemplate;
         YARPBottle _botActions;            // This bottle is used to control externally the
                                            // action to be taken.
         YVector _vOutMfcc(L_VECTOR_MFCC);  // The vector for the MFCC coefficients
 		YARPCovMatrix _mSoundCov;
 		YMatrix _mLocVar;
 
-        YARPImageOf<YarpPixelBGR> _imgMixelgram; /** The mixelgram image.    */
-        YARPImageOf<YarpPixelBGR> _imgInput;    /** The normal input image. */
+		YARPImageOf<YarpPixelBGR> _imgMixelgram;  /** The mixelgram image.	  */
+		YARPImageOf<YarpPixelBGR> _imgInput;	  /** The normal input image. */
+		YARPImageOf<YarpPixelMono> _imgHistogram; /** The Sound histogram.	  */
 
         /** Vector of pointers to images. */
 		//YARPImageOf<YarpPixelBGR> ** _vImages = new YARPImageOf<YarpPixelBGR> *[_soundTemplate.Size()]; 
 		YARPImageOf<YarpPixelBGR> _vImages[ARRAY_MAX]; 
 
-        _imgMixelgram.Resize(_sizex,_sizey);
-        //_imgInput.Resize(_sizex,_sizey);
+        _imgInput.Resize(_sizex,_sizey);
+		_imgHistogram.Resize(_histoWidth, _histoHeigth);
 
 		YARPScheduler::setHighResScheduling();
+
+		//
+		// Initialize sound template.
+		//
+		_soundTemplate.Resize(_iSValue);
 		
 		//----------------------------------------------------------------------
 		// Port declarations 
 		//----------------------------------------------------------------------
+		//LOCAL_TRACE("SoundIdentification: Declaring ports");
         YARPInputPortOf<YARPSoundBuffer>   _inpSound(YARPInputPort::NO_BUFFERS ,YARP_TCP);
         //YARPInputPortOf<YARPBottle>        _inpAction(YARPInputPort::DEFAULT_BUFFERS ,YARP_UDP);
 		YARPInputPortOf<YARPGenericImage>  _inpImg(YARPInputPort::NO_BUFFERS, YARP_TCP);
         //YARPOutputPortOf<YVector>          _outpMfcc (YARPOutputPort::DEFAULT_OUTPUTS,YARP_UDP);
         YARPOutputPortOf<YARPGenericImage> _outpImg;
         YARPOutputPortOf<YARPGenericImage> _outprecImg;
+		YARPOutputPortOf<YARPGenericImage> _outHistogramPort;
 
         //_inpSound.SetAllowShmem (_sharedmem);
         //_inpAction.SetAllowShmem(_sharedmem);
         //_inpImg.SetAllowShmem   (_sharedmem);
         //_outpMfcc.SetAllowShmem (_sharedmem);
         _outpImg.SetAllowShmem  (_sharedmem);
-        _outprecImg.SetAllowShmem  (_sharedmem);
+        _outprecImg.SetAllowShmem(_sharedmem);
+		_outHistogramPort.SetAllowShmem(_sharedmem);
 
 		SoundIdentificationProcessing _soundIndprocessor(__configFile,  __outSize);
 		size = _soundIndprocessor.GetSize();
@@ -145,20 +205,19 @@ public:
 		YARPString base1(__baseName); YARPString base2(__baseName);
 		YARPString base3(__baseName); YARPString base4(__baseName); 
 		YARPString base5(__baseName); YARPString base6(__baseName);
+		YARPString base7(__baseName);
 
+		//LOCAL_TRACE("SoundIdentification: Registering ports");
         _inpSound.Register (base1.append("i"     ).c_str());
         //_inpAction.Register(base2.append("action").c_str());
         _inpImg.Register   (base3.append("i:img").c_str());
         //_outpMfcc.Register (base4.append("mfcc"  ).c_str());
         _outpImg.Register  (base5.append("o:img"  ).c_str());
         _outprecImg.Register(base6.append("o:img2"  ).c_str());
+        _outHistogramPort.Register(base7.append("o:histo"  ).c_str());
 
 		time1 = YARPTime::GetTimeAsSeconds();
 		
-		//test
-		double valor = 0.55;
-		ACE_OS::fprintf(stdout,"value of log2 = %f\n",logf(1.0 - valor)/(double)logf(2));
-
 		//----------------------------------------------------------------------
 		// Main loop.
 		//----------------------------------------------------------------------
@@ -179,33 +238,56 @@ public:
 		//		it goal is that to detect the start-end of a sound template that needs to
 		//		be identified.
 		//----------------------------------------------------------------------
-        int  _sound_order          = 0;
-        int  _sound_save           = 0;
-        int  _pre_sound_save       = 0;
-        int  _sound_identificate   = 0;
-        int  _pre_sound_idenficate = 0;
-        bool _save                 = false;
-        bool _identify             = false;
-        int _dMixelValue           = 0;
-		double _dSoundRms = 0.0;
-		double _vRms[ARRAY_MAX];
+        int    _sound_order          = 0;
+        int    _sound_save           = 0;
+        int    _pre_sound_save       = 0;
+        int    _sound_identificate   = 0;
+        int    _pre_sound_idenficate = 0;
+        bool   _save                 = false;
+        bool   _identify             = false;
+        int    _dMixelValue          = 0;
+        double _dSoundRms            = 0.0;
+        double _vRms[ARRAY_MAX];
+        int    _iMemoryFactor         = 0;
+        bool   _first                = true;
+        double _rmsmean              = __rmsthreshold + 1;
+        double _rmsmeansum           = 0.0;
+        int    _circleradius         = 0;
+        double _imgtimeacquisition   = 0.0;
+        double _soundtimeacquisition = 0.0;
+		double _imgtimeacquisitionold = 0.0;
+		double _soundtimeacquisitionold = 0.0;
 		YARPImageOf<YarpPixelBGR> newimg;
-		int memory_factor = 0;
-		bool _first = true;
-		double _rmsmean = __rmsthreshold + 1;
-		double _rmsmeansum = 0.0;
 
 		while(!IsTerminated())
 		{
 			int i,j,y;
 			counter++;
 
+			_sema.Wait(1); //Just block the access to common variables.
+
 			//----------------------------------------------------------------------
 			//  Read sound stream  and image from the network.
 			//----------------------------------------------------------------------
+			//LOCAL_TRACE("SoundIdentification: Reading from ports");
             _inpSound.Read(1); // Read sound stream
             _inpImg.Read(1);   // Read the image
             _imgInput.Refer(_inpImg.Content()); 
+
+			//----------------------------------------------------------------------
+			//  Get acquisition time for the image. This double is travelling in the 
+			//  first bytes of the image.
+			//----------------------------------------------------------------------
+			//double * _pimgtimeacq = (double *)_imgInput.GetRawBuffer();
+			//_imgtimeacquisition   =  *_pimgtimeacq;
+
+			//
+			//Check image sequence correctness
+			//
+			//if ( _imgtimeacquisition < _imgtimeacquisitionold)
+			// 	ACE_OS::fprintf(stdout,"ALERT: error in image sequence time order\n");
+
+			//_imgtimeacquisitionold = _imgtimeacquisition; //Refresh the old variable
 
 			//----------------------------------------------------------------------
 			//  Calculate MFCC vector and add it into the sound template.
@@ -214,11 +296,36 @@ public:
             int ret = _soundTemplate.Add(_vOutMfcc, 2);  // Adds new vector; bufferize if necessary
             ACE_ASSERT(ret != 0);
 			
+			//
+			//Check sound sequence correctness
+			//
+			//if ( _soundtimeacquisition < _soundtimeacquisitionold)
+			//	ACE_OS::fprintf(stdout,"ALERT: error in sound sequence time order\n");
+
+			//_soundtimeacquisitionold = _soundtimeacquisition; //Refresh the old variable
+		
+			//
+			//Chenk syncronization
+			//
+			//if (abs(_soundtimeacquisition - _imgtimeacquisition) > 0.010)
+			//	ACE_OS::fprintf(stdout,"ALERT: Unacceptable image/sound desynchronization.\n");
+			
 			//----------------------------------------------------------------------
 			// Check images sizes.
 			//----------------------------------------------------------------------
+			/*
+			int _iRealMixelImgHeight = _imgMixelgram.GetHeight() - _iSoundHistogramHeight;
+			if ( _imgInput.GetWidth() != _imgMixelgram.GetWidth() || _imgInput.GetHeight() != _iRealMixelImgHeight)
+				_imgMixelgram.Resize(_imgInput.GetWidth(),_imgInput.GetHeight() + _iSoundHistogramHeight);
+			if (_first)
+			{
+				newimg.Resize(_imgInput.GetWidth(), _imgInput.GetHeight());
+				_first = false;
+			}
+			*/
 			if ( _imgInput.GetWidth() != _imgMixelgram.GetWidth() || _imgInput.GetHeight() != _imgMixelgram.GetHeight())
 				_imgMixelgram.Resize(_imgInput.GetWidth(),_imgInput.GetHeight());
+
 			if (_first)
 			{
 				newimg.Resize(_imgInput.GetWidth(), _imgInput.GetHeight());
@@ -253,7 +360,7 @@ public:
 				//----------------------------------------------------------------------
 				//  Calculate sound covariance matrix.
 				//----------------------------------------------------------------------
-				//////_soundTemplate.CovarianceMatrix(_mSoundCov,0); 
+				_soundTemplate.CovarianceMatrix(_mSoundCov,0); 
 				
 				int w = _imgInput.GetWidth();
 				int h = _imgInput.GetHeight();
@@ -261,7 +368,7 @@ public:
 				int wend   = w - (w * 1/3);
 				int hstart = h - (h * 2/3);
 				int hend   = h - (h * 1/3);
-				int number_pixels = 0;
+				int numberMixels = 0;
 				//----------------------------------------------------------------------
 				//  Navigate through the pixels and calculate the Mixel for each one. 
 				//----------------------------------------------------------------------
@@ -272,16 +379,15 @@ public:
 					{
 						///////_dMixelValue = calculateMixel(_mSoundCov, _vImages,_soundTemplate.Length(), i, j);
 						_dMixelValue = calculateMixel2(_vRms, _vImages,_soundTemplate.Length(), i, j, _rmsmean);
-						//_dMixelValue = counter;
-						if (_dMixelValue > 180) //Threshold
+						if (_dMixelValue > MIXELTHRESHOLD) 
 						{
 							//----------------------------------------------------------------------
-							//  Paint all the sorrounding pixels
+							//  Paint the pixel and all its sorrounding pixels
 							//----------------------------------------------------------------------
 							for ( int ni = i-2; ni < i+2; ni++ )
 								for (int nj = j-2; nj < j+2; nj++)
 									_imgMixelgram.SafePixel(ni,nj).r = _dMixelValue;
-							number_pixels++;
+							numberMixels++;
 						}
 						else
 						{
@@ -295,22 +401,52 @@ public:
 
 				_rmsmeansum += _rmsmean;
 
-				if ( memory_factor > 60)
-					newimg.Zero();
-				memory_factor++;
-				double alpha = 0.95; // Decaing factor
+				//  Clean histogram
+				_imgHistogram.Zero();
 
-				if (number_pixels > 40)
+				//----------------------------------------------------------------------
+				//  Calculate the sound histogram. 
+				//----------------------------------------------------------------------
+				YVector _vNormalizedSoundSamples;
+				_soundIndprocessor.NormalizeSoundArray(32000);
+				//_soundIndprocessor.NormalizeSoundArray(16000.0);
+				_soundIndprocessor.TruncateSoundToVector(_histoWidth, _vNormalizedSoundSamples);
+
+				//----------------------------------------------------------------------
+				//  Paint the sound image.
+				//----------------------------------------------------------------------
+				for( i = 1; i <= _vNormalizedSoundSamples.Length(); i++){
+					 int value = _vNormalizedSoundSamples[i] * _imgHistogram.GetHeight();
+					 value = fabs(value);
+					 int valuerawmaxposition = _imgHistogram.GetHeight() - value;
+					 if ( valuerawmaxposition < 0)
+						 valuerawmaxposition = 0;
+					 // Fill all the pixels in the column until the value
+					 for( int j = valuerawmaxposition; j < _imgHistogram.GetHeight(); j++)
+						 _imgHistogram.SafePixel(i,j) = 200;
+				}
+
+				//----------------------------------------------------------------------
+				//  Keep a detected object in the image for some time.
+				//  When the number of mixel is over a particular threshold I asume
+				//  that an object has been detected.
+				//----------------------------------------------------------------------
+				if ( _iMemoryFactor > MEMORYMAX)
+					newimg.Zero();
+				_iMemoryFactor++;
+				double alpha = _dDecayValue; 
+
+				if (numberMixels > MIXELSMAX)
 				{
 					YARPImageOf<YarpPixelBGR>& tmpimg2 = _vImages[_soundTemplate.Length()-1];
 	
 					for(i = 0; i < w; i++ )
 						for( j = 0; j < h; j++)
-							if ( _imgMixelgram.SafePixel(i,j).r > 180)
+							if ( _imgMixelgram.SafePixel(i,j).r > MIXELTHRESHOLD)
 								newimg.SafePixel(i,j) = tmpimg2.SafePixel(i,j);
 							else
 							{
-								if ( memory_factor > 60)
+								if ( _iMemoryFactor > MEMORYMAX)
 								{
 									newimg.SafePixel(i,j).r = 0;
 									newimg.SafePixel(i,j).g = 0;
@@ -323,22 +459,25 @@ public:
 									newimg.SafePixel(i,j).b = alpha * newimg.SafePixel(i,j).b;
 								}
 							}
-					memory_factor = 0;
+					_iMemoryFactor = 0;
 					 
 				}
 
-
 				//----------------------------------------------------------------------
-				//  Paint a little green mark to see that images are being received.
+				//  Paint a little circle mark to see that images are being received.
 				//----------------------------------------------------------------------
-				if (counter < _imgInput.GetWidth())
+				/*
+				if (counter == N2)
 				{
-					int r,c;
-					r = _imgInput.GetHeight()-10;
-					c = counter;
-					_imgMixelgram.SafePixel(c,r).g = 255;
-				}
+					int r = _imgInput.GetHeight() - 5;
+					int c = _imgInput.GetWidth() - 5;
+					YarpPixelBGR _apix(0,255,0); 
+					AddCircle(_imgMixelgram,_apix,r,c,_circleradius++);
 
+					if (_circleradius > 5) _circleradius = 0; 
+				}
+				*/
+				
 				//----------------------------------------------------------------------
 				//  Send the mixelgram image into the network
 				//----------------------------------------------------------------------
@@ -348,9 +487,9 @@ public:
 				
 				//----------------------------------------------------------------------
 				//  Send the procesed image back to the network (the image remains
-				//  as received)
+				//  as received) or send modified image with object segmented.
 				//----------------------------------------------------------------------
-				if ( number_pixels > 40 || memory_factor < 60)
+				if ( numberMixels > MIXELSMAX || _iMemoryFactor < MEMORYMAX)
 				{
 					_outprecImg.Content().SetID(YARP_PIXEL_BGR);
 					_outprecImg.Content().Refer(newimg);
@@ -362,6 +501,13 @@ public:
 					_outprecImg.Content().Refer(tempp);
 					_outprecImg.Write(1);
 				}
+
+				//----------------------------------------------------------------------
+				//  Send the histogram to the network
+				//----------------------------------------------------------------------
+				_outHistogramPort.Content().SetID(YARP_PIXEL_MONO);
+				_outHistogramPort.Content().Refer(_imgHistogram); 
+				_outHistogramPort.Write();
 			}
 			/*
 			//----------------------------------------------------------------------
@@ -429,6 +575,8 @@ public:
 				_rmsmeansum = 0.0;
 				counter = 0;
 			}
+
+			_sema.Post();
 		}
 
 
@@ -459,7 +607,7 @@ calculateMixel(YARPCovMatrix &mXtX,
 			   int iSamples,
 			   int i, int j)
 {
-	ACE_TRACE("calculateMixel");
+	//LOCAL_TRACE("SoundIdentification: Entering calculateMixel");
 
     int n         = 0;        /** Sound number of componects.                           */
     int m         = 0;        /** Image number of components.                           */
@@ -495,7 +643,7 @@ calculateMixel(YARPCovMatrix &mXtX,
 		//_mV(z,3) = pimg.SafePixel(i,j).b;
 		mean += _mV(z,1);
 	}
-	mean /= _mV.NRows();
+	mean /= (double)_mV.NRows();
 		
 	//----------------------------------------------------------------------
 	//  Calculate pixel covariance matrix.
@@ -503,7 +651,7 @@ calculateMixel(YARPCovMatrix &mXtX,
 	////_mV.covarianceMatrix(_mYtY,0); //Calculate only variance matrix.
 
 	////YMatrix& _mY = _mYtY.getOriginalVariancesMatrix(); /** The local variances matrix of mYtY. */
-	_mV -= mean;
+	_mV  -= mean;
 	_mVtV = _mV.Transposed() * _mV;
 
 	//----------------------------------------------------------------------
@@ -538,7 +686,8 @@ calculateMixel(YARPCovMatrix &mXtX,
 	//----------------------------------------------------------------------
 	//  Compute mutual information
 	//----------------------------------------------------------------------
-	double value = (1/2.0) * ACE::log2((_dDetXtX * _dDetVtV) / (double)_dDetCtC);
+	//double value = (1/2.0) * ACE::log2((_dDetXtX * _dDetVtV) / (double)_dDetCtC);
+	double value = 0.5 * ((logf((_dDetXtX * _dDetVtV) / (double)_dDetCtC))/(double)logf(2));
 
 	////int pixel = min(255,max(0,255*mixel)) /////from Vuppla
 	return(MIN(255,MAX(0,255*value)));
@@ -566,7 +715,7 @@ calculateMixel2(double * vRms,
 			   int i, int j,
 			   double &rmsmean)
 {
-	ACE_TRACE("calculateMixel2");
+	//LOCAL_TRACE("SoundIdentification: CalculateMixel2");
 
     int n         = 0;  /** Sound number of componects.                          */
     int m         = 0;  /** Image number of components.                          */
@@ -647,16 +796,52 @@ calculateMixel2(double * vRms,
 int 
 main(int argc, char* argv[])
 {
+	int iSValue = 15;
+	double dDecayFactor = 0.99;
+	YARPString c;
 	mainthread _thread;
 	_thread.Begin();
 
-	char c = 0;
-
 	do {
-		cout << "Type q+return to quit" << endl;
 		cin >> c;
+		int pos = 0;
+
+		// Get and sets SValue (temporal variable)
+		if ( (pos = c.strstr("S")) != -1){
+			YARPString value = c.substring(pos+1, -1);
+			// Is the user asking for the current value?
+			if (value.strstr("?") != -1){
+				cout << "Current SValue = " << _thread.getSValue() << endl;  
+			}
+			else{
+				iSValue= atoi(value.c_str());
+				_thread.setSValue(iSValue);
+			}
+			continue;
+		}
+
+		// Gets and set decaing factor value
+		if ( (pos = c.strstr("D")) != -1){
+			YARPString value = c.substring(pos+1, -1);
+			// Is the user asking for the value
+			if (value.strstr("?") != -1){
+				 cout << "Current decaing factor = " << _thread.getDecaingFactor() << endl;
+			}
+			else{
+				dDecayFactor = atof(value.c_str());
+				_thread.setDecaingFactor(dDecayFactor);
+			}
+			continue;
+		}	
+		
+		if ( c != "q!")
+		cout << "Type S <value> to set the S value(value must be between 2 and 30)" << endl;
+		cout << "Type D <value> to set the Decaing factor(value must be between 0.0 and 1.0)" << endl;
+		cout << "Type S ? to get the S value" << endl;
+		cout << "Type D ? to get the Decaing factor" << endl;
+		cout << "Type q!+return to quit" << endl;
 	}
-	while (c != 'q');
+	while (c != "q!");
 
 	_thread.End(-1);
 	

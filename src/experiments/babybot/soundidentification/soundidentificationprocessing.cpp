@@ -12,7 +12,7 @@
 //     This implementatin is partially based in the sound software used by Lorenzo Natale
 //     is his master thesis.
 // 
-//         Version:  $Id: soundidentificationprocessing.cpp,v 1.7 2004-08-24 13:32:43 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.cpp,v 1.8 2004-10-15 14:35:28 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -88,6 +88,8 @@ SoundIdentificationProcessing::SoundIdentificationProcessing(const YARPString &i
 
 	Re = new double[numSamples]; // this contains the Re of both channels
 	Im = new double[numSamples]; // this contains the Im of both channels
+	_pSoundData = new double[numSamples]; // This contains the sound samples of
+										  // one of the channels.
 }
 
 //--------------------------------------------------------------------------------------
@@ -99,6 +101,7 @@ SoundIdentificationProcessing::~SoundIdentificationProcessing()
 {
 	delete fft;
 	delete[] Re;
+	delete[] _pSoundData;
 	delete[] Im;
 }
 
@@ -243,16 +246,70 @@ SoundIdentificationProcessing::idct(int size_in,
 									double * data_in, 
 									double * data_out)
 {
-    int i = 0;                                                                                                                                
-    int k = 0;                                                                                                                                
-                                                                                                                                              
-    memset(data_out,0,sizeof(double)*size_out);                                                                                               
-    for (  i=0; i < size_out; i++ )                                                                                                           
-    {                                                                                                                                         
-        for (  k=0 ; k < size_in ; k++ )                                                                                                      
-             data_out[i] += data_in[k]*cos((double)(PI*i*(k+0.5))/(double)size_in);                                                           
-        data_out[i] *= ((double)1.0/(double)sqrt(size_in/2));                                                                                 
-        if( i == 0)                                                                                                                           
-            data_out[i] *= (sqrt(2)/2);                                                                                                       
-    }                                                                                                                                         
+	int i = 0;                                                                                                                                
+	int k = 0;                                                                                                                                
+
+	memset(data_out,0,sizeof(double)*size_out);                                                                                               
+	for (  i=0; i < size_out; i++ )                                                                                                           
+	{                                                                                                                                         
+		for (  k=0 ; k < size_in ; k++ )                                                                                                      
+			data_out[i] += data_in[k]*cos((double)(PI*i*(k+0.5))/(double)size_in);                                                           
+		data_out[i] *= ((double)1.0/(double)sqrt(size_in/2));                                                                                 
+		if( i == 0)                                                                                                                           
+			data_out[i] *= (sqrt(2)/2);                                                                                                       
+	}                                                                                                                                         
+}
+
+/** 
+  * Truncates the sound array into a vector. The vector is resized internally.
+  * 
+  * @param length The length of the vector.
+  * @param vector A refence vector where to truncate the sound samples.
+  * 
+  * @return YARP_OK success
+  *         YARP_FAIL failiture
+  */
+int 
+SoundIdentificationProcessing::TruncateSoundToVector(const int length,
+													 YVector &vector)
+{
+	LOCAL_TRACE("SoundIdentificationProcessing: Entering TruncateSoundToVector");
+	double _dPositionDiferential = 0.0; /** The position increment/decrement.       */
+	double _dAproxPosition       = 0.0; /** Aproximate new position.                */
+	double _dFractionalPart      = 0.0; /** Fractional part of the aprox position.  */
+	double _dIntegerPart         = 0.0; /** The integer part of the aprox position. */
+	int    _iPosition            = 0;   /** The position in integer format.         */
+
+	vector.Resize(length); 
+
+	_dPositionDiferential = (double)numSamples/(double)length;
+
+	int i;
+	for( i=0; i<length; i++){
+		_dAproxPosition  = _dAproxPosition + _dPositionDiferential;
+		_dFractionalPart = modf(_dAproxPosition,&_dIntegerPart);
+		_iPosition = (_dFractionalPart < 0.5) ? _dIntegerPart : (_dIntegerPart+1);
+		if (_iPosition < numSamples || _iPosition >= 0)
+			vector[i] = _pSoundData[_iPosition];
+	}
+
+	return YARP_OK;
+}
+
+/** 
+  * Normalize the sound array into a giving limit.
+  * 
+  * @param topLimit The top limit of the normalized range 
+  * values.
+  */
+int
+SoundIdentificationProcessing::NormalizeSoundArray( const double Limit)
+{
+	LOCAL_TRACE("SoundIdentificationProcessing: Entering NormalizeSoundArray");
+	int i;
+
+	for( i=0; i<numSamples; i++){
+		_pSoundData[i] = _pSoundData[i] / (double)Limit; 
+	}
+	return YARP_OK;
 }

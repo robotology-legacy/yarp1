@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.12 2004-10-05 17:38:38 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.13 2004-10-15 14:35:28 beltran Exp $
 ///
 
 /** 
@@ -48,8 +48,9 @@
 #include <stddef.h>
 #include <math.h>
 #include "YARPExMatrix.h"
+#include "soundidentificationprocessing.h"
 
-#define ARRAY_MAX 15 // Aproximatelly 5 seconds sound (22 frames/second)
+#define ARRAY_MAX 30 // Aproximatelly 5 seconds sound (22 frames/second)
 
 #ifndef	HUGE
 	#define	HUGE	1e30
@@ -68,7 +69,7 @@ private:
     int m_currentsize;     /** This stores the real size of the used part of the m_parray.          */
     int m_totalsize;       /** This is the real total size of the m_parray.                         */
     int m_vectors_length;  /** This is the size of the internal vectors; This length is defined by. */
-                           /** the first vector introduced in the template.                         */
+                            /** the first vector introduced in the template.                         */
     YVector ** m_parray;   /** This is the actual pointer to the array of vectors.                  */
 
 public:
@@ -231,6 +232,7 @@ public:
 	inline int
 	Add(YVector &in, int flag = 0)
 	{
+		LOCAL_TRACE("YARPSoundTemplate: Entering Add");
         int vectorsize        = 0;    /** The size of the vector we want to add.             */
         YVector * new_pvector = NULL; /** A pointer to create a new vector for the template. */
 
@@ -241,19 +243,19 @@ public:
 		}
         
 		vectorsize = in.Length();
-        if (m_currentsize == 0)                 // This is the first vector in the template
-            m_vectors_length = vectorsize;      // Define the template vector length
-        else                                    // There are some other vectors to compare with
-            if (vectorsize != m_vectors_length) // The 'in' vector has a different size of that
-                return (-1);                    // of the other vectors in the template
+		if (m_currentsize == 0)                 // This is the first vector in the template
+			m_vectors_length = vectorsize;      // Define the template vector length
+		else                                    // There are some other vectors to compare with
+			if (vectorsize != m_vectors_length) // The 'in' vector has a different size of that
+				return (-1);                    // of the other vectors in the template
 
         if (m_currentsize == m_totalsize)       // The Template is full
 		{
 			switch(flag)
 			{
-                case 0: return(0);break;                // Nothing to do just returning with error
-                case 1: Resize(m_totalsize+1);break;    // Making just one space for one new vector
-                case 2: Bufferize(in); return(1);break; // Force the introduction of the new vector
+				case 0: return(0);break;                // Nothing to do just returning with error
+				case 1: Resize(m_totalsize+1);break;    // Making just one space for one new vector
+				case 2: Bufferize(in); return(1);break; // Force the introduction of the new vector
 			}
 		}
 
@@ -279,8 +281,9 @@ public:
 	inline 
 	int Bufferize(YVector &vector)
 	{
+		LOCAL_TRACE("YARPSoundTemplate: Entering bufferize");
 		int i = 0;
-        YVector * new_pvector = NULL; /** A pointer to create a new vector for the template. */
+		YVector * new_pvector = NULL; /** A pointer to create a new vector for the template. */
 
 		delete m_parray[0]; // Just eliminate the first element
 
@@ -311,6 +314,7 @@ public:
 	inline
 	int Delete(int index)
 	{
+		LOCAL_TRACE("YARPSoundTemplate: Entering Delete");
 		int i = 0;
 		int j = 0;
 
@@ -340,6 +344,7 @@ public:
 	void 
 	Save(YARPString name)
 	{
+		LOCAL_TRACE("YARPSoundTemplate: Entering Save");
 		FILE * pfile;
 		int i = 0;
 		int j = 0;
@@ -367,6 +372,7 @@ public:
 	void 
 	Destroy()
 	{
+		LOCAL_TRACE("YARPSoundTemplate: Entering Destroy");
 		int i = 0;
 		YVector * pvector = NULL;
 
@@ -403,6 +409,7 @@ public:
 	int
 	CovarianceMatrix(YARPCovMatrix &mCov, int fullcov, int flag = 0)
 	{
+		LOCAL_TRACE("YARPSoundTemplate: Entering CovarianceMatrix");
 		int i;
 		int j;
 		double sum = 0.0;
@@ -487,6 +494,7 @@ public:
 	inline double 
 	Dtw(YARPSoundTemplate &unknow_template, int * result)
 	{
+		LOCAL_TRACE("YARPSoundTemplate: Entering Dtw");
 		int i = 0;
 		int j = 0;
 		int k = 0;
