@@ -48,6 +48,7 @@ CLEAN :
 	-@erase "$(INTDIR)\YARPPidFilter.obj"
 	-@erase "$(INTDIR)\YARPRecursiveLS.obj"
 	-@erase "$(INTDIR)\YARPRnd.obj"
+	-@erase "$(INTDIR)\YARPRndUtils.obj"
 	-@erase "$(INTDIR)\YARPTwoDKalmanFilter.obj"
 	-@erase ".\lib\winnt\utils.lib"
 
@@ -107,6 +108,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPPidFilter.obj" \
 	"$(INTDIR)\YARPRecursiveLS.obj" \
 	"$(INTDIR)\YARPRnd.obj" \
+	"$(INTDIR)\YARPRndUtils.obj" \
 	"$(INTDIR)\YARPTwoDKalmanFilter.obj" \
 	"$(INTDIR)\mbp.obj" \
 	"$(INTDIR)\Mm.obj" \
@@ -152,6 +154,7 @@ CLEAN :
 	-@erase "$(INTDIR)\YARPPidFilter.obj"
 	-@erase "$(INTDIR)\YARPRecursiveLS.obj"
 	-@erase "$(INTDIR)\YARPRnd.obj"
+	-@erase "$(INTDIR)\YARPRndUtils.obj"
 	-@erase "$(INTDIR)\YARPTwoDKalmanFilter.obj"
 	-@erase ".\lib\winnt\utilsdb.lib"
 
@@ -211,6 +214,7 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPPidFilter.obj" \
 	"$(INTDIR)\YARPRecursiveLS.obj" \
 	"$(INTDIR)\YARPRnd.obj" \
+	"$(INTDIR)\YARPRndUtils.obj" \
 	"$(INTDIR)\YARPTwoDKalmanFilter.obj" \
 	"$(INTDIR)\mbp.obj" \
 	"$(INTDIR)\Mm.obj" \
@@ -301,6 +305,12 @@ SOURCE=.\src\YARPRecursiveLS.cpp
 SOURCE=.\src\YARPRnd.cpp
 
 "$(INTDIR)\YARPRnd.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\src\YARPRndUtils.cpp
+
+"$(INTDIR)\YARPRndUtils.obj" : $(SOURCE) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 

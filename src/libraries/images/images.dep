@@ -49,8 +49,8 @@
 	"..\..\..\include\ace\Time_Value.h"\
 	"..\..\..\include\ace\Time_Value.inl"\
 	"..\..\..\include\begin_pack_for_net.h"\
-	"..\..\..\include\conf\YARPConfig.h"\
-	"..\..\..\include\conf\YARPConfigWin32.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
 	"..\..\..\include\debug.h"\
 	"..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\include\sys\ipl.h"\
@@ -103,8 +103,8 @@
 	"..\..\..\include\ace\Time_Value.h"\
 	"..\..\..\include\ace\Time_Value.inl"\
 	"..\..\..\include\begin_pack_for_net.h"\
-	"..\..\..\include\conf\YARPConfig.h"\
-	"..\..\..\include\conf\YARPConfigWin32.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
 	"..\..\..\include\debug.h"\
 	"..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\include\sys\ipl.h"\

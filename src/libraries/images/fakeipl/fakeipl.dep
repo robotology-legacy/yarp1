@@ -14,8 +14,13 @@
 	"..\..\..\..\include\ace\Basic_Types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
 	"..\..\..\..\include\ace\config-borland-common.h"\
+	"..\..\..\..\include\ace\config-cxx-common.h"\
 	"..\..\..\..\include\ace\config-g++-common.h"\
 	"..\..\..\..\include\ace\config-ghs-common.h"\
+	"..\..\..\..\include\ace\config-icc-common.h"\
+	"..\..\..\..\include\ace\config-kcc-common.h"\
+	"..\..\..\..\include\ace\config-linux-common.h"\
+	"..\..\..\..\include\ace\config-linux.h"\
 	"..\..\..\..\include\ace\config-qnx-rtp.h"\
 	"..\..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
@@ -74,8 +79,8 @@
 	"..\..\..\..\include\ace\Unbounded_Queue.cpp"\
 	"..\..\..\..\include\ace\Unbounded_Queue.h"\
 	"..\..\..\..\include\ace\Unbounded_Queue.inl"\
-	"..\..\..\..\include\conf\YARPConfig.h"\
-	"..\..\..\..\include\conf\YARPConfigWin32.h"\
+	"..\..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\sys\ipl.h"\
 	"..\..\..\..\include\sys\iplerror.h"\
