@@ -150,6 +150,7 @@ void secondthread::Body(void)
 		inVector.Read();
 		YVector &joints = inVector.Content();
 		//cout<<joints(1)<<" "<<joints(2)<<" "<<joints(3)<<" "<<joints(4)<<" "<<joints(5)<<endl;
+		//cout<<joints.Length()<<endl;
 		_lock();
 		att_mod.setPosition(joints);
 		_unlock();
@@ -433,8 +434,7 @@ int main (int argc, char *argv[])
 
 	char c = 0;
 
-	do
-	{
+	do {
 		cin >> c;
 		if (c<='9' && c>='0')
 			att_mod.setWatershedTh((c-'0')*3);
@@ -449,14 +449,15 @@ int main (int argc, char *argv[])
 			cout<<"Searching for blobs similar to that in the fovea in this moment"<<endl;
 			cout<<"mRG: "<<(int)mRG<<", mGR: "<<(int)mGR<<", mBY: "<<(int)mBY<<endl;
 			att_mod.setParameters(mRG, mGR, mBY, 0, 1);
-
 		} else if (c=='e') {
 			cout<<"Exploring the scene"<<endl;
 			att_mod.setParameters(0, 0, 0, 1, 0);
+		} else if (c=='u') {
+			ACE_OS::printf("updating IOR table\n");
+			att_mod.updateIORTable();
 		} else
 			cout << "Type q+return to quit" << endl;
-	}
-	while (c != 'q');
+	} while (c != 'q');
 
 	_thread.End(-1);
 	_thread2.End(-1);

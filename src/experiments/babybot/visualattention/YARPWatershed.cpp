@@ -77,7 +77,7 @@
 
 
 YARPWatershed::YARPWatershed(const int width1, const int height1, const int wstep, const YarpPixelMono th):
-	_gaze(YMatrix(_dh_nrf, 5, DH_left[0]), YMatrix(_dh_nrf, 5, DH_right[0]), YMatrix(4, 4, TBaseline[0]) )
+	_gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
 {
 	neighborhood8=true;
 
@@ -91,7 +91,7 @@ YARPWatershed::YARPWatershed(const int width1, const int height1, const int wste
 
 
 YARPWatershed::YARPWatershed():
-	_gaze(YMatrix(_dh_nrf, 5, DH_left[0]), YMatrix(_dh_nrf, 5, DH_right[0]), YMatrix(4, 4, TBaseline[0]) )
+	_gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
 {
 	neighborhood8=true;
 
@@ -1563,6 +1563,16 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 		if (m_attn[i].valid) {
 			int tmp;
 			
+			/*int r, c;
+			int xdim, ydim;
+			int xmax, xmin ,ymin, ymax;
+			
+			Cartesian2Logpolar(m_attn[i].centroid_x, m_attn[i].centroid_y, r, c);
+			Cartesian2Logpolar(m_attn[i].xmin, m_attn[i].ymin, r, c);
+			Cartesian2Logpolar(m_attn[i].xmin, m_attn[i].ymin, r, c);
+			Cartesian2Logpolar(m_attn[i].xmin, m_attn[i].ymin, r, c);
+			Cartesian2Logpolar(m_attn[i].xmin, m_attn[i].ymin, r, c);*/
+
 			int rdim=(m_attn[i].rmax-m_attn[i].rmin+1);
 			int cdim=(m_attn[i].cmax-m_attn[i].cmin+1); //BUG: se va da parte a parte esce una dimensione enorme!
 
@@ -1590,7 +1600,7 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 			salienceBU=sqrt(m_attn[i].cRG*m_attn[i].cRG+
 			                m_attn[i].cGR*m_attn[i].cGR+
 			                m_attn[i].cBY*m_attn[i].cBY);
-			salienceBU=salienceBU/sqrt(3); // it is < 256?????
+			salienceBU=salienceBU/sqrt(3);
 
 			/*salienceBU=m_attn[i].cRG;
 
@@ -1619,7 +1629,7 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 			salienceTD=255-salienceTD;*/
 
 			//if the color is too different it isn't in the scene!
-			if (salienceTD<200) salienceTD=0;
+			if (salienceTD<200) salienceTD=200;
 
 			//if (salienceTD<0) salienceTD=0;
 			
@@ -1638,8 +1648,10 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 		}
 	}
 
+	const int maxDest=200;
+
 	if (maxSalienceBU!=minSalienceBU) {
-		a1=255*254/(maxSalienceBU-minSalienceBU);
+		a1=255*(maxDest-1)/(maxSalienceBU-minSalienceBU);
 		b1=1-a1*minSalienceBU/255;
 	} else {
 		a1=0;
@@ -1647,7 +1659,7 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 	}
 
 	if (maxSalienceTD!=minSalienceTD) {
-		a2=255*254/(maxSalienceTD-minSalienceTD);
+		a2=255*(maxDest-1)/(maxSalienceTD-minSalienceTD);
 		b2=1-a2*minSalienceTD/255;
 		//a2=255*254/(minSalienceTD-maxSalienceTD);
 		//b2=1-a2*maxSalienceTD/255;
@@ -1907,16 +1919,16 @@ void YARPWatershed::statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobLi
 	for (int tag=1; tag<max_tag; tag++)
 		if (blobList[tag]) {
 			area+=m_attn[tag].areaLP;
-			rgSum=m_attn[tag].rgSum;
-			grSum=m_attn[tag].grSum;
-			bySum=m_attn[tag].bySum;
+			rgSum+=m_attn[tag].rgSum;
+			grSum+=m_attn[tag].grSum;
+			bySum+=m_attn[tag].bySum;
 		}
 	
 	blob.areaLP=area;
+	blob.rgSum=rgSum;
+	blob.grSum=grSum;
+	blob.bySum=bySum;
 	if (area!=0) {
-		blob.rgSum=rgSum;
-		blob.grSum=grSum;
-		blob.bySum=bySum;
 		blob.meanRG=rgSum/area;
 		blob.meanGR=grSum/area;
 		blob.meanBY=bySum/area;
@@ -1977,14 +1989,9 @@ void YARPWatershed::maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_t
 int YARPWatershed::DrawVQColor(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged)
 {
 	for (int r=0; r<height; r++)
-		for (int c=0; c<width; c++)
-			if (m_boxes[tagged(c, r)].valid) {
-				YarpPixelBGR src;
-				src.r=m_attn[tagged(c, r)].meanRG;
-				src.g=m_attn[tagged(c, r)].meanGR;
-				src.b=m_attn[tagged(c, r)].meanBY;
-				colorVQ.DominantQuantization(src, id(c,r), 0.3*255);
-			}
+		for (int c=0; c<width; c++) {
+			colorVQ.DominantQuantization(m_boxes[tagged(c, r)].meanColors, id(c,r), 0.3*255);
+		}
 	
 	return 1;
 }

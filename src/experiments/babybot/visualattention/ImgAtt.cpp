@@ -385,8 +385,8 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num)
 
 	tagged.Resize(x+x%8, y);
 
-	//rain.resize(x, y, x+x%8, 15);
-	rain.resize(x, y, x+x%8, 13);
+	rain.resize(x, y, x+x%8, 15);
+	//rain.resize(x, y, x+x%8, 13);
 
 	blobList = new bool [x*y+1];
 
@@ -989,7 +989,7 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 
 	normalize();
 	findBlobs();
-	quantizeColors();
+	//quantizeColors();
 	drawIORTable();
 
 	rain.maxSalienceBlobs(tagged, max_tag, max_boxes, 3);
@@ -1334,7 +1334,7 @@ void YARPImgAtt::findBlobs()
 	rain.removeBlobList(blobList, max_tag);
 	//rain.removeFoveaBlob(tagged);
 	//rain.RemoveNonValid(max_tag, 3800, 100);
-	rain.RemoveNonValid(max_tag, 3800, 200);
+	rain.RemoveNonValid(max_tag, 4000, 300);
 
 	
 	//rain.ComputeSalience(max_tag, max_tag);
@@ -1356,9 +1356,9 @@ void YARPImgAtt::findBlobs()
 	//ZeroLow(out, 230);
 
 	
-	tmpBGR1.Zero();
-	rain.ComputeMeanColors(max_tag);
-	rain.DrawMeanColorsLP(tmpBGR1, tagged);
+	/*tmpBGR1.Zero();
+	rain.ComputeMeanColors(max_tag);*/
+	//rain.DrawMeanColorsLP(tmpBGR1, tagged);
 	/*ACE_OS::sprintf(savename, "./meancol.ppm");
 	YARPImageFile::Write(savename, tmpBGR1);*/
 
@@ -1385,6 +1385,8 @@ void YARPImgAtt::quantizeColors()
 {
 	//colorVQ.DominantQuantization(meanCol, imgVQ, 0.3*255);
 	DBGPF1 ACE_OS::printf(">>> color quantization\n");
+	imgVQ.Zero();
+	rain.DrawVQColor(imgVQ, tagged);
 	//colorVQ.Variance(rg, imgVQ, 3);
 	//FindMax(imgVQ, pos2);
 	//iplSubtractS(imgVQ, imgVQ, , false);
@@ -1403,13 +1405,12 @@ void YARPImgAtt::resetIORTable()
 
 void YARPImgAtt::updateIORTable()
 {
-	YARPBox tmpBox;
-	rain.maxSalienceBlob(tagged, max_tag, tmpBox);
+	//YARPBox tmpBox;
+	//rain.maxSalienceBlob(tagged, max_tag, tmpBox);
 
 	for (int j=num_IORBoxes-1; j>0; j--)
 		IORBoxes[j]=IORBoxes[j-1];
-	IORBoxes[0]=tmpBox;
-
+	IORBoxes[0]=fovBox;
 }
 
 
@@ -1486,6 +1487,8 @@ void YARPImgAtt::saveImages(YARPImageOf<YarpPixelBGR> &src)
 	YARPImageFile::Write(savename, meanOppCol);
 	ACE_OS::sprintf(savename, "%smeancol.ppm", path);
 	YARPImageFile::Write(savename, meanCol);
+	ACE_OS::sprintf(savename, "%simgvq.ppm", path);
+	YARPImageFile::Write(savename, imgVQ);
 	
 	/*ACE_OS::sprintf(savename, "./comb.ppm");
 	YARPImageFile::Write(savename, comb);*/

@@ -246,8 +246,6 @@ protected:
 	void lineMax2(YARPImageOf<YarpPixelMono> &src, YARPImageOf<YarpPixelMono> &dst);
 	void LineStat(YARPImageOf<YarpPixelMono> &src, int *vett);
 	
-	void drawIORTable();
-
 public:
 	YARPImgAtt(int x, int y, int fovea, int num);
 	~YARPImgAtt();
@@ -274,6 +272,7 @@ public:
 	inline void setPosition(const YVector &p) { rain.setPosition(p); }
 	void updateIORTable();
 	void resetIORTable();
+	void drawIORTable();
 
 	YARPBox* IORBoxes;
 	YARPBox* max_boxes;
