@@ -27,5 +27,3 @@ yarpize:
 	cp *.cpp $(YARP_ROOT)/include/ace/
 	cp *.inl $(YARP_ROOT)/include/ace/
 	ln -s -f $(YARP_ROOT)/bin/$(OS)/libACE.so.5.3.3 $(YARP_ROOT)/bin/$(OS)/libACE.so
-
-install: yarpize
