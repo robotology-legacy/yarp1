@@ -8,9 +8,6 @@ DBG_DEBUG = -O -gdwarf-2
 DEBUG=$(DBG_$(DBG))
 endif
 
-YARP_ROOT=/home/cbeltran/DEVELOPMENT/yarp
-ACE_ROOT=$(YARP_ROOT)/src/libraries/ACE_wrappers
-
 include $(YARP_ROOT)/conf/Makefile.template
 
 ifndef DEBUG

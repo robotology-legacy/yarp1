@@ -8,9 +8,6 @@ DBG_DEBUG = -O -gdwarf-2
 DEBUG=$(DBG_$(DBG))
 endif
 
-YARP_ROOT=/home/cbeltran/DEVELOPMENT/yarp
-ACE_ROOT=$(YARP_ROOT)/src/libraries/ACE_wrappers
-
 include $(YARP_ROOT)/conf/Makefile.template
 
 ifndef DEBUG
@@ -40,11 +37,6 @@ CC  = QCC
 CXX = QCC
 LD  = QCC
 
-#CFLAGS  = -V$(PLATFORM) -w5 $(OPTIM) $(DEBUG) $(PHABOPTS) -I.
-#CXXFLAGS = $(CFLAGS)
-#LDFLAGS = -V$(PLATFORM) -Bstatic $(DEBUG) -l phexlib $(ABLIB) $(PHABOPTS)
-#SDFLAGS = -V$(PLATFORM)          $(DEBUG) -l phexlib $(ABLIB) $(PHABOPTS)
-
 CFLAGS  =  -w5 $(OPTIM) $(DEBUG) $(PHABOPTS) -I.
 CXXFLAGS = $(CFLAGS)
 LDFLAGS =  $(DEBUG) -l phexlib $(ABLIB) $(PHABOPTS)
@@ -66,9 +58,6 @@ LDLIBS  =	$(YARP_ROOT)/lib/$(OS)/MotorCtrl.lib	\
 			$(YARP_ROOT)/lib/$(OS)/os_services.lib	\
 			$(YARP_ROOT)/lib/$(OS)/math.lib	
 
-#SRC    = $(addsuffix .cpp,$(FILES))
-#OBJ    = $(addsuffix .o,$(FILES))
-#LSRC    = $(SRC) $(addsuffix .cpp,$(BIN))
 SRC    = $(ABSRC) $(MYSRC)
 OBJ    = $(ABOBJ) $(MYOBJ)
 LSRC    = $(SRC) $(addsuffix .cpp,$(BIN))
@@ -97,22 +86,14 @@ ttt:
 shr:	
 		make
 		make ttt
-		#usemsg test ../Usemsg
-		#phabbind test $(ABMOD)
-
 app:
 		make
 		make ttt
-		#usemsg test ../Usemsg
-		#phabbind test $(ABMOD)
-
 clean:
-		#make clean
 		rm -f *.o *.err *.map abmain
 		rm -f -r .obj/
-
 install:
-		cp -vnf test /usr/photon/bin
+	cp ./abmain $(YARP_ROOT)/bin/$(OS)/fgadjuster
 ##################################################
 
 # IF YOU PUT ANYTHING HERE IT WILL GO AWAY
@@ -128,5 +109,5 @@ $(ABOBJ) $(MYOBJ):	$(MYHDR)
 # Prototype Generation
 #
 proto:
-	-rm -f proto.h
+	rm -f proto.h
 	approto -p $(ABSRC) $(MYSRC) > proto.h
