@@ -105,5 +105,14 @@ const char *const YBVKFDump = "KFDump";
 const char *const YBVKFExplorationStart = "KFExplorationStart";
 const char *const YBVKFExplorationQuit = "KFExplorationQuit";
 
+// Visual attention messages
+const char *const YBVVAStart = "VAStart";
+const char *const YBVVAStop = "VAStop";
+const char *const YBVVAQuit = "VAQuit";
+const char *const YBVVADump = "VADump";
+
+const char *const YBVVASet = "VASet";
+const char *const YBVVAUpdateIORTable = "VAUpdateIORTable";
+const char *const YBVVAResetIORTable = "VAResetIORTable";
 
 #endif
