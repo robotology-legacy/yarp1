@@ -440,10 +440,19 @@ void Remap(unsigned char * Out_Image,
 		{
 //			if (*LPImgPtr>max)
 //				max = *LPImgPtr;
-
-			*RemImgPtr++ = In_Image[*LPImgPtr];
-			*RemImgPtr++ = In_Image[(*LPImgPtr)+1];
-			*RemImgPtr++ = In_Image[(*LPImgPtr++)+2];
+			if (*LPImgPtr!=-1)
+			{
+				*RemImgPtr++ = In_Image[*LPImgPtr];
+				*RemImgPtr++ = In_Image[(*LPImgPtr)+1];
+				*RemImgPtr++ = In_Image[(*LPImgPtr++)+2];
+			}
+			else
+			{
+				*RemImgPtr++ = 192;
+				*RemImgPtr++ = 192;
+				*RemImgPtr++ = 192;
+				LPImgPtr++;
+			}
 		}
 	}
 }

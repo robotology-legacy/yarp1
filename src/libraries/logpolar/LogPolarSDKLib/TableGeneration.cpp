@@ -559,7 +559,7 @@ int Build_Remap_Map (Image_Data * Parameters,
 //						Remap_Map[j*XSize+i] = 3*(rho*Parameters->Size_Theta+theta);
 						Remap_Map[j*XSize+i] = (rho*PadSizeTheta+3*theta);
 					else
-						Remap_Map[j*XSize+i] = 0;
+						Remap_Map[j*XSize+i] = -1;
 				}
 
 		}
@@ -902,7 +902,7 @@ int Build_Remap_Map_No_Fov (Image_Data * Parameters,
 //						Remap_Map[j*XSize+i] = (rho*PadSizeTheta+3*theta);
 						Remap_Map[j*XSize+i] = ((rho-Parameters->Size_Fovea)*PadSizeTheta+3*theta);
 					else
-						Remap_Map[j*XSize+i] = 0;
+						Remap_Map[j*XSize+i] = -1;
 				}
 
 		}
