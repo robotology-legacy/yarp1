@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.5 2004-07-11 11:22:40 eshuy Exp $
+/// $Id: YARPNameService.cpp,v 1.6 2004-07-12 10:08:36 eshuy Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -84,7 +84,7 @@ const char *_name_file_path = "conf/namer.conf";
 
 static int _server_port = 1000;
 
-void print_menu()
+void print_menu(int ok=0)
 {
 	cout << "\n-----------------------\n";
 	cout << "\nName server menu\n";
@@ -98,6 +98,10 @@ void print_menu()
 	cout << "any key: this menu\n";
 	cout << "q!: exit\n";
 	cout << "-----------------------\n";
+	if (ok) {
+	  cout << endl;
+	  cout << "*** YARP name service started OK" << endl;
+	}
 	cout << ":" << flush;
 }
 
@@ -277,7 +281,7 @@ static void check() {
   p1.Connect("/yarp-service/2");
   YARPTime::DelayInSeconds(1);
 
-  printf("==================================================================\n");
+  printf("=================================================================\n");
   printf("=== Trying to write some data\n");
   YARPTime::DelayInSeconds(1);
 
@@ -332,7 +336,7 @@ void run() {
 
 
 	YARPString str;
-	print_menu();
+	print_menu(1);
 	
 	while (cin >> str)
 	{

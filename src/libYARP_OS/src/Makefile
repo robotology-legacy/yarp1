@@ -72,7 +72,6 @@ depend:
 # DO NOT DELETE
 
 ../obj/linux/BlockReceiver.o: ../../../include/linux/yarp/YARPConfig.h
-../obj/linux/BlockReceiver.o: ../../../include/linux/yarp/YARPConfigWin32.h
 ../obj/linux/BlockReceiver.o: ../include/yarp_private/BlockReceiver.h
 ../obj/linux/BlockReceiver.o: ../../../include/linux/yarp/YARPConfig.h
 ../obj/linux/BlockReceiver.o: ../include/yarp/YARPNameService.h
