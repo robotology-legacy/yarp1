@@ -72,8 +72,9 @@ FindHand::~FindHand()
 
 void FindHand::Body()
 {
-	cout << "loop\n";
-	//_lock();
+	while (!IsTerminated())
+	{
+	_lock();
 	// read ports
 	_readInputPorts();
 	// new image
@@ -127,11 +128,12 @@ void FindHand::Body()
 	
 	_writeOutputPorts();
 
-//	_unlock();
+	_unlock();
 
 	_frame++;
 	if ((_frame%100)==0)
 		printf("frame #%5d\r", _frame);
+	}
 }
 
 void FindHand::_dumpDetection()

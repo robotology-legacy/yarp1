@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.32 2003-08-01 06:57:28 babybot Exp $
+/// $Id: main.cpp,v 1.33 2003-08-01 07:16:10 babybot Exp $
 ///
 ///
 
@@ -283,8 +283,8 @@ int _runAsSimulation (void)
 		if ((frame_no % 250) == 0)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
-			ACE_OS::fprintf (stdout, "average frame time: %lf\n", (cur-start)/250);
-			ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
+			ACE_OS::fprintf (stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
+			// ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
 	}
@@ -350,8 +350,8 @@ int _runAsLogpolarSimulation (void)
 		if ((frame_no % 250) == 0)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
-			ACE_OS::fprintf (stdout, "average frame time: %lf\n", (cur-start)/250);
-			ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
+			ACE_OS::fprintf (stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
+			// ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
 	}
@@ -421,8 +421,8 @@ int _runAsLogpolar (void)
 		if ((frame_no % 250) == 0)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
-			ACE_OS::fprintf (stdout, "average frame time: %lf\n", (cur-start)/250);
-			ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
+			ACE_OS::fprintf (stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
+			//ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
 	}
