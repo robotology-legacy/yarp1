@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPEurobotArm.h,v 1.3 2003-08-01 08:56:38 beltran Exp $
+// $Id: YARPEurobotArm.h,v 1.4 2003-09-08 16:59:00 beltran Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -11,12 +11,12 @@
 #endif
 
 #include <conf/YARPConfig.h>
-#include <YARPGenericComponent.h>
+#include <YARPGenericControlBoard.h>
 //#include "YARPMEIOnBabybotArmAdapter.h"
 #include "YARPGALILOnEurobotArmAdapter.h"
 
 //class YARPBabybotArm : public YARPGenericComponent<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters>
-class YARPEurobotArm : public YARPGenericComponent<YARPGALILOnEurobotArmAdapter, YARPEurobotArmParameters>
+class YARPEurobotArm : public YARPGenericControlBoard<YARPGALILOnEurobotArmAdapter, YARPEurobotArmParameters>
 {
 public:
 	// override activatePID
