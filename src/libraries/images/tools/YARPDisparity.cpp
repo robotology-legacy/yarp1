@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.7 2003-11-25 16:57:48 fberton Exp $
+/// $Id: YARPDisparity.cpp,v 1.8 2003-11-25 17:15:28 fberton Exp $
 ///
 ///
 
@@ -268,7 +268,7 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
 									_shiftLevels,
 									_shiftMap,
 									_corrFunct,
-									_pixCount);
+									_pixelCount);
 	else
 		disparity = shiftnCorrFovea((unsigned char*)inLImg.GetRawBuffer(),
 									(unsigned char*)inRImg.GetRawBuffer(),
