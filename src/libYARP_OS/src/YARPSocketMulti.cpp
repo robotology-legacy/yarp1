@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.15 2004-08-05 17:11:56 babybot Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.16 2004-08-06 16:51:09 babybot Exp $
 ///
 ///
 
@@ -692,21 +692,20 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 		case YARP_SHMEM:
 			{
-			  YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 %d setting up shared memory\n", __LINE__));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 %d setting up shared memory\n", __LINE__));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 11 SHMEM on port %d (%s) num %d\n", ((YARPUniqueNameMem *)socket)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)socket)->getAddressRef().get_host_addr(),port));
 
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 11 SHMEM on port %d (%s) num %d\n", ((YARPUniqueNameMem *)socket)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)socket)->getAddressRef().get_host_addr(),port));
+				_socket_addr = new YARPUniqueNameMem ((YARPUniqueNameMem*)socket);
 
-	_socket_addr = new YARPUniqueNameMem ((YARPUniqueNameMem*)socket);
-	
-	((YARPUniqueNameMem*)_socket_addr)->getAddressRef().set(port); // just in case 
+				((YARPUniqueNameMem*)_socket_addr)->getAddressRef().set(port); // just in case 
 
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 12 SHMEM on port %d (%s)\n", ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_host_addr()));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 12 SHMEM on port %d (%s)\n", ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_host_addr()));
 
 				ACE_ASSERT (_socket_addr != NULL);
 
 				_socket = (void *)new ACE_MEM_Acceptor (((YARPUniqueNameMem&)*_socket_addr).getAddressRef(), 1);
 				ACE_ASSERT (_socket != NULL);
-				
+
 				/// the size of the SHMEM buff.
 				((ACE_MEM_Acceptor *)_socket)->init_buffer_size (10 * MAX_SHMEM_BUFFER);
 
@@ -715,8 +714,7 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 				_socket_addr->setRawIdentifier (((ACE_MEM_Acceptor *)_socket)->get_handle());
 
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 15 SHMEM on port %d (%s)\n", ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_host_addr()));
-
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "55555 15 SHMEM on port %d (%s)\n", ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_port_number(), ((YARPUniqueNameMem *)_socket_addr)->getAddressRef().get_host_addr()));
 			}
 			break;
 
@@ -1916,7 +1914,6 @@ void _SocketThreadListMulti::addSocket (void)
 		it_avail.go_head();
 
 		/// check accept return value.
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
 
 		/// get a new available port number associated to this IP.
@@ -1934,6 +1931,8 @@ void _SocketThreadListMulti::addSocket (void)
 
 		if (!reusing)
 			port_number = getNewPortNumberFromPool ();
+
+		ACE_OS::printf ("*** accepting UDP:%s:%d assigned port %d\n", incoming.get_host_addr(), incoming.get_port_number(), port_number);
 
 		if (port_number == 0)
 		{
@@ -2027,7 +2026,6 @@ void _SocketThreadListMulti::addSocket (void)
 		it_avail.go_head();
 
 		/// check accept return value.
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
 
 		/// get a new available port number associated to this IP.
@@ -2045,6 +2043,8 @@ void _SocketThreadListMulti::addSocket (void)
 
 		if (!reusing)
 			port_number = getNewPortNumberFromPool ();
+
+		ACE_OS::printf ("*** accepting MCAST:%s:%d assigned port %d\n", incoming.get_host_addr(), incoming.get_port_number(), port_number);
 
 		if (port_number == 0)
 		{
@@ -2117,7 +2117,6 @@ void _SocketThreadListMulti::addSocket (void)
 		it_avail.go_head();
 
 		/// check accept return value.
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
 
 		/// get a new available port number associated to this IP.
@@ -2135,6 +2134,8 @@ void _SocketThreadListMulti::addSocket (void)
 
 		if (!reusing)
 			port_number = getNewPortNumberFromPool ();
+
+		ACE_OS::printf ("*** accepting SHMEM:%s:%d assigned port %d\n", incoming.get_host_addr(), incoming.get_port_number(), port_number);
 
 		if (port_number == 0)
 		{
@@ -2208,7 +2209,6 @@ void _SocketThreadListMulti::addSocket (void)
 		YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
 
 		/// check accept return value.
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>> accepting a new socket from %s:%d\n", incoming.get_host_addr(), incoming.get_port_number()));
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
 
 		/// get a new available port number associated to this IP.
@@ -2226,6 +2226,8 @@ void _SocketThreadListMulti::addSocket (void)
 
 		if (!reusing)
 			port_number = getNewPortNumberFromPool ();
+
+		ACE_OS::printf ("*** accepting TCP:%s:%d assigned port %d\n", incoming.get_host_addr(), incoming.get_port_number(), port_number);
 
 		if (port_number == 0)
 		{

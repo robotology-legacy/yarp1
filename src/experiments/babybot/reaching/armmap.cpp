@@ -71,7 +71,7 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 		_nnet.sim(tmp.data(), _command.data());
 		_fkinematics.computeJacobian(128,128);		// compute from center
 		YVector tmpArm(6);
-		tmpArm(1) = _command(1);		//copy 1 joint from map
+		tmpArm(1) = _command(1);	 	//copy 1 joint from map
 		tmpArm(2) = arm(2);
 		tmpArm(3) = arm(3);
 		tmpArm(4) = arm(4);
@@ -80,6 +80,15 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 
 		// overwrite command
 		_command = _fkinematics.computeCommand(tmpArm , 128, 128);	// to center
+
+		// DEBUG, dump current command
+		int k = 0;
+		printf("\nNewCmd\n");
+		for(k = 1; k <= 3; k++)
+		{
+			printf("%.1lf\t", _command(k)*radToDeg);
+		}
+		printf("\n");
 		
 		_formTrajectory(_command);
 	}

@@ -16,15 +16,6 @@ class ArmBehavior: public YARPBehavior<ArmBehavior, ArmBehaviorData>
 public:
 	ArmBehavior(ArmBehaviorData *d):
 	YARPBehavior<ArmBehavior, ArmBehaviorData>(d, "/armcontrol/behavior/i", YBVMotorLabel, YBVArmQuit){}
-	
-	/*~ArmBehavior()
-	{
-		printf("---> Entering ARMBEHAVIOR destructor\n");
-
-		printf("---> ARMBEHAVIOR: unregistering input port\n\n\n");
-		_inport.Unregister();
-		printf("---> ARMBEHAVIOR: input port unregistered\n\n\n");
-	}*/
 };
 
 typedef YARPFSMStateBase<ArmBehavior, ArmBehaviorData> ArmBehaviorStateBase;

@@ -137,11 +137,23 @@ int main(int argc, char* argv[])
 	/////////////////////
 	
 	YARPLogpolar _mapper;
-	ArmForwardKinematics _handLocalization(__nnetFile1);
+	YARPBPNNet _openLoopReaching;			// reaching nnetwork
+	YARPBabybotHeadKin _headKinematics (YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]));		// head kinematics
+	ArmForwardKinematics _armJacobian(__nnetFile1);
 	YARPImageOf<YarpPixelMono> _left;
 	YARPImageOf<YarpPixelBGR> _leftColored;
 	_left.Resize(_stheta, _srho);
 	_leftColored.Resize(_stheta, _srho);
+
+	// READ NNET FROM FILE
+	char filename1[255];
+	ACE_OS::sprintf (filename1, "%s/conf/babybot/%s", root, "reaching.ini");
+	if (_openLoopReaching.load(filename1)!=YARP_OK)
+	{
+		ACE_OS::printf("Error, cannot read neural network file %s", filename1);
+		exit(-1);
+	}
+	ACE_OS::printf("Reading neural network from %s\n", filename1);
 	
 	YVector _arm(6);
 	YVector _head(5);
@@ -183,7 +195,7 @@ int main(int argc, char* argv[])
 //		_arm = _arm*degToRad;
 
 		YARPShapeEllipse tmpEl;
-		tmpEl = _handLocalization.query(_arm, _head);
+		tmpEl = _armJacobian.query(_arm, _head);
 	
 		// current
 		_conicFitter.plotEllipse(tmpEl, _outSeg2, YarpPixelBGR(255, 0, 0));
@@ -191,7 +203,9 @@ int main(int argc, char* argv[])
 
 
 		// update handlocalization class
-		_handLocalization.update(_arm, _head);
+		_armJacobian.update(_arm, _head);
+		_headKinematics.update(_head);
+		
 
 		YVector tmpArm = _arm;
 		tmpArm(4) = 0.0;
@@ -209,10 +223,10 @@ int main(int argc, char* argv[])
 			YARPSimpleOperation::DrawCross(_outSeg2, x, y, YarpPixelBGR(0, 255, 0), 5, 1);
 
 			printf("Computing Jacobian...\n");
-			_handLocalization.computeJacobian(x, y);
+			_armJacobian.computeJacobian(x, y);
 			int h = 0;
-			const YVector *tmpPoints = _handLocalization.getPoints();
-			for(h = 0; h < _handLocalization.getNPoints(); h++)
+			const YVector *tmpPoints = _armJacobian.getPoints();
+			for(h = 0; h < _armJacobian.getNPoints(); h++)
 			{
 				YARPSimpleOperation::DrawCross(_outSeg2, tmpPoints[h](1), tmpPoints[h](2), YarpPixelBGR(128, 0, 0), 3, 1);
 			}
@@ -227,14 +241,29 @@ int main(int argc, char* argv[])
 			// _left.Refer (_inPortImage.Content());
 			// reconstruct color
 			// _mapper.ReconstructColor (_left, _leftColored);
+
+			const Y3DVector &cart = _headKinematics.fixationPolar();
+			_openLoopReaching.sim(cart.data(), newCmd.data());
+			_armJacobian.computeJacobian(x,y);		// compute from center
+			YVector tmpArm(6);
+			tmpArm(1) = newCmd(1);	 	//copy 1 joint from map
+			tmpArm(2) = _arm(2);
+			tmpArm(3) = _arm(3);
+			tmpArm(4) = _arm(4);
+			tmpArm(5) = _arm(5);
+			tmpArm(6) = _arm(6);
+
+			// overwrite command
+			newCmd = _armJacobian.computeCommand(tmpArm , x, y);	// to center
 		
+			/*
 			// trajectory
 			tmpArm(1) = -1*degToRad;  // pick a fixed shoulder joint position
 			newCmd = _handLocalization.computeCommand(tmpArm, x, y);
 			newCmd(1) = tmpArm(1);	// override shoulder
 			newCmd(4) = 0.0;
 			newCmd(5) = 0.0;
-			newCmd(5) = 0.0;
+			newCmd(5) = 0.0;*/
 		
 			// done, send arm command
 			_bottle.reset();
@@ -246,7 +275,7 @@ int main(int argc, char* argv[])
 			_armCommand.Write(1);
 		}
 		
-		plotTrajectory(_handLocalization.getTrajectory(), _outSeg2);
+		plotTrajectory(_armJacobian.getTrajectory(), _outSeg2);
 		_outPortColor.Content().Refer(_outSeg2);
 		_outPortColor.Write();
 			

@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 	Repeater rep(iname, oname, YARP_UDP, YARP_MCAST);
 	rep.Begin();
 	
-	cout << "q! to exit";
+	cout << "q! to exit\n";
 	YARPString c;
 	while (cin >> c)
 	{

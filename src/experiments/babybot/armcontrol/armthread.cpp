@@ -41,23 +41,27 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	_speed = 0.0;	
 	_acc = 0.0;
 	_parkSpeed = 0.0;
+	
 	file.get("[THREAD]", "Speeds", _speed.data(), _nj);
 	file.get("[THREAD]", "ParkSpeeds", _parkSpeed.data(), _nj);
 	file.get("[THREAD]", "Accelerations", _acc.data(), _nj);
-
-	// DEBUG
-	printf("DEBUG -- speeds:");
-	for(int ll = 1; ll <= _nj; ll++)
-	{
-		printf("%lf\t", _speed(ll));
-	}
-	printf("\n");
-
 	_parkSpeed = _parkSpeed * degToRad;
 	_speed = _speed * degToRad;
 	_acc = _acc*degToRad;
-	//////////////
+	////////////////////////////////////////////////////////////
 
+	// LIMITS
+	_limitsMax.Resize(_nj);
+	_limitsMin.Resize(_nj);
+	_limitsMax = 0.0;
+	_limitsMin = 0.0;
+
+	file.get("[LIMITS]", "Max", _limitsMax.data(), _nj);
+	file.get("[LIMITS]", "Min", _limitsMin.data(), _nj);
+	_limitsMax = _limitsMax*degToRad;
+	_limitsMin = _limitsMin*degToRad;
+	////////////////////////////////////////////////////////////
+	
 	_cmd.Resize(_nj);
 	_shakeCmd.Resize(_nj);
 	_shakeCmd = 0.0;
@@ -84,7 +88,7 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	file.get("[GRAVITY]", "Learn", &learn);
 	ASDirectCommandMove::instance()->_learn = learn;
 
-	//////////////////////
+	// PORT
 	char armStatusPortname[255];
 	file.getString("[THREAD]", "ArmStatusPortName", armStatusPortname);
 	_armStatusPort.Register(armStatusPortname, "Net0");
@@ -277,4 +281,60 @@ void ArmThread::park(int index)
 	delete [] pos;
 	delete [] acc;
 	delete [] vel;
+}
+
+void ArmThread::_directCommand(const YVector &cmd, int nst)
+{
+	YVector tmpCmd;
+	tmpCmd = cmd;
+	if (_checkLimits(cmd, tmpCmd))
+	{
+		// limits were applied, send a message
+		ARM_THREAD_DEBUG(("Sorry, the desired command was out of limits:\n"));
+		int j = 0;
+		for(j = 1; j <= _nj; j++)
+			ACE_OS::printf("%.1lf\t", cmd(j)*radToDeg);
+
+		ACE_OS::printf("\n");
+	}
+		
+	_trajectory.stop();
+	if (nst == 0)
+		_trajectory.setFinalSpecSpeed(tmpCmd.data(), _speed.data());	// use default
+	else 
+		_trajectory.setFinalSpecSpeed(tmpCmd.data(), _speed.data());
+	
+	_arm.setPositions(tmpCmd.data());
+
+	YARPBehaviorSharedData::_data.writeVocab(YBVArmIssuedCmd);
+	YARPBehaviorSharedData::_data.writeYVector(tmpCmd);
+	YARPBehaviorSharedData::send();
+}
+
+bool ArmThread::_checkLimits(const YVector &inCmd, YVector &outCmd)
+{
+	int j = 1;
+	bool ret = false;
+	for(j = 1; j <= _nj; j++)
+	{
+		// check max
+		if (inCmd(j) > _limitsMax(j))
+		{
+			outCmd(j) = _limitsMax(j);
+			ret = ret || true;
+		}
+		else
+			outCmd(j) = inCmd(j);
+
+		// check min
+		if (inCmd(j) < _limitsMin(j))
+		{
+			outCmd(j) = _limitsMin(j);
+			ret = ret || true;
+		}
+		else
+			outCmd(j) = inCmd(j);
+	}
+
+	return ret;
 }

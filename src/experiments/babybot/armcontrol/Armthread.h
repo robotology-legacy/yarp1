@@ -165,26 +165,11 @@ private:
 		{_init_state = s;}
 
 	// this is a private function, it can be called only from within the thread
-	void _directCommand(const YVector &cmd, int nst = 0)
-	{
-		_trajectory.stop();
-		if (nst == 0)
-			// _trajectory.setFinal(cmd.data(), _nSteps);	// use default
-			_trajectory.setFinalSpecSpeed(cmd.data(), _speed.data());	// use default
-		else 
-			_trajectory.setFinalSpecSpeed(cmd.data(), _speed.data());
-		
-		_arm.setPositions(cmd.data());
-
-		ACE_OS::printf("---> Sending ArmIssued...");
-		YARPBehaviorSharedData::_data.writeVocab(YBVArmIssuedCmd);
-		YARPBehaviorSharedData::_data.writeYVector(cmd);
-		YARPBehaviorSharedData::send();
-		ACE_OS::printf("done\n");
-	}
-
+	void _directCommand(const YVector &cmd, int nst = 0);
 	inline void send_commands();
 	inline void read_status();
+
+	bool _checkLimits(const YVector &inCmd, YVector &outCmd);
 
 	AState *_arm_state;
 	AState *_init_state;
@@ -211,7 +196,7 @@ private:
 
 public: //later: make it private
 	YARPControlBoardNetworkData _arm_status;
-
+	
 	YARPArmClass _arm;
 
 	J1GravityEstimator _gravity1;
@@ -223,6 +208,8 @@ public: //later: make it private
 	YVector _speed;
 	YVector _parkSpeed;
 	YVector _acc;
+	YVector _limitsMax;
+	YVector _limitsMin;
 
 	YVector _shakeCmd; //this is used only by AB
 };
