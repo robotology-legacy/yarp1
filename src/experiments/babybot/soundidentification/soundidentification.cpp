@@ -15,7 +15,7 @@
 //     map that learns the vector. Hopfully, this can be used to recognize sounds.
 //     
 // 
-//         Version:  $Id: soundidentification.cpp,v 1.1 2004-06-03 17:13:29 beltran Exp $
+//         Version:  $Id: soundidentification.cpp,v 1.2 2004-06-14 16:33:14 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -77,12 +77,11 @@ int main(int argc, char* argv[])
 		counter++;
 		_inPort.Read(); // Read sound stream from the network
 
-        if (_soundIndprocessor.apply(_inPort.Content(),_out_srm)) 
-		{
-			// Sends energy mapping vector for the self reorganizing network
-			_outPort_srm.Content() = _out_srm;
-			_outPort_srm.Write();
-		}
+        _soundIndprocessor.apply(_inPort.Content(),_out_srm); 
+		
+		// Sends energy mapping vector for the self reorganizing network
+		_outPort_srm.Content() = _out_srm;
+		_outPort_srm.Write();
 
 		//----------------------------------------------------------------------
 		//  Time calculation stuff

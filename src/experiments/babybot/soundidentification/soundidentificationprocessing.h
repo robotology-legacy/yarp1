@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.1 2004-06-03 17:13:29 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.2 2004-06-14 16:33:14 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -32,9 +32,9 @@
 #include <YARPFft.h>
 
 
-#define FREQ_T 10000      // up cutting filter frequency
-#define ILD_LOW_FREQ 2000 // down cutting frequency for ILD calculation
-#define L_VECTOR_SRM 20   // Lengh of the self reorganizing map vector data
+#define FREQ_T 10000    // up cutting filter frequency
+#define ILD_LOW_FREQ 1  // down cutting frequency for ILD calculation
+#define L_VECTOR_SRM 20 // Lengh of the self reorganizing map vector data
 
 class SoundIdentificationProcessing
 {
@@ -50,7 +50,7 @@ public:
 	inline int apply(YARPSoundBuffer &in, YVector &out)
 	{
 		unsigned char * buff = (unsigned char *) in.GetRawBuffer();
-		int dim[1] = {total_numSamples};
+		int dim[1] = {numSamples};
 		
 		//----------------------------------------------------------------------
 		// Fill the Re and Im vectors from the sound buffer
@@ -60,7 +60,7 @@ public:
 		// In this case I get only the data from one of the channels enough for
 		// sound indentification.
 		//----------------------------------------------------------------------
-		for (int i = counter; i < (counter + input_numSamples); i++)
+		for (int i = 0; i < numSamples; i++)
 		{
 			short temp;
 
@@ -70,34 +70,35 @@ public:
 			Im[i] = 0.0;
 			buff += 4;
 		}
-		counter += i;
 
-		if (counter >= total_numSamples)
-		{
-			//----------------------------------------------------------------------
-			//  Compute correlation in the frequency space
-			//----------------------------------------------------------------------
-			fft->Fft(1, dim, Re, Im, 1, -1); // Calculate FFT of the signal
+		//----------------------------------------------------------------------
+		//  Compute correlation in the frequency space
+		//----------------------------------------------------------------------
+		fft->Fft(1, dim, Re, Im, 1, -1); // Calculate FFT of the signal
 
-			//----------------------------------------------------------------------
-			//  Compute discrete mapping of the energy.
-			//  It generates a vector used to fill a self-organizing map to learn 
-			//  sounds from different objects.
-			//----------------------------------------------------------------------
-			ComputeDiscreteLevels(out);
-			counter = 0;
-			return 1; //We have a vector output
-		}
-		return 0;
+		//----------------------------------------------------------------------
+		//  Compute the energy for the signal
+		//----------------------------------------------------------------------
+		ConjComplexMultiplication(Re, Im);
+
+		//----------------------------------------------------------------------
+		//  Compute discrete mapping of the energy.
+		//  It generates a vector used to fill a self-organizing map to learn 
+		//  sounds from different objects.
+		//----------------------------------------------------------------------
+		ComputeDiscreteLevels(out);
+		
+		return 1; //We have a vector output
 	}
 
-	inline int GetSize() { return input_numSamples;}
+	inline int GetSize() { return numSamples;}
 
 private:
 	int ComputeDiscreteLevels(YVector &);
 	double squareMean(double * , double * , double, double);
 	void filter(double *, double *,double, double);
-	
+	int ConjComplexMultiplication(double *, double *);
+
 	int _inSize;
 	int _outSize;
 
@@ -116,7 +117,7 @@ private:
     double * Im;
 	int counter;
 
-    int input_numSamples; // number of samples for channel in the incoming sound stream
+    int numSamples; // number of samples for channel in the incoming sound stream
     int numFreqSamples;   // length of the trasformations (N/2 + 1??)
     int total_numSamples; // The number of samples being analised by the Self Organizing Map
 

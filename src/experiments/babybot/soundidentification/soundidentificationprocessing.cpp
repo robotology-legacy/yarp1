@@ -12,7 +12,7 @@
 //     This implementatin is partially based in the sound software used by Lorenzo Natale
 //     is his master thesis.
 // 
-//         Version:  $Id: soundidentificationprocessing.cpp,v 1.1 2004-06-03 17:13:29 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.cpp,v 1.2 2004-06-14 16:33:14 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -53,15 +53,14 @@ SoundIdentificationProcessing::SoundIdentificationProcessing(const YARPString &i
 	//  is using  
 	//----------------------------------------------------------------------
 	file.set(_path, _iniFile);
-	file.get("[GENERAL]"   , "Channels"             , &_Channels             , 1);
-	file.get("[GENERAL]"   , "SamplesPerSec"        , &_SamplesPerSec        , 1);
-	file.get("[GENERAL]"   , "BitsPerSample"        , &_BitsPerSample        , 1);
-	file.get("[GENERAL]"   , "BufferLength"         , &_InputBufferLength    , 1);
-	file.get("[SOMBUFFER]" , "BufferLengthInSec"    , &_sombufferlengthinsec , 1);
+	file.get("[GENERAL]"   , "Channels"          , &_Channels             , 1);
+	file.get("[GENERAL]"   , "SamplesPerSec"     , &_SamplesPerSec        , 1);
+	file.get("[GENERAL]"   , "BitsPerSample"     , &_BitsPerSample        , 1);
+	file.get("[GENERAL]"   , "BufferLength"      , &_InputBufferLength    , 1);
+	file.get("[SOMBUFFER]" , "BufferLengthInSec" , &_sombufferlengthinsec , 1);
 
-    input_numSamples = _InputBufferLength/4;
-    numFreqSamples   = input_numSamples/2 + 1;                      
-    total_numSamples  = _SamplesPerSec * _sombufferlengthinsec;
+    numSamples     = _InputBufferLength/4;
+    numFreqSamples = numSamples/2 + 1;
 
 	counter = 0; 
 
@@ -70,11 +69,10 @@ SoundIdentificationProcessing::SoundIdentificationProcessing(const YARPString &i
 	//  May be to ajust this was necessary in the original fortran code to be
 	//  use in computers with low memory.
 	//----------------------------------------------------------------------
-	fft = new YARPFft(total_numSamples, total_numSamples);
+	fft = new YARPFft(numSamples, numSamples);
 
-	Re = new double[total_numSamples]; // this contains the Re of both channels
-	Im = new double[total_numSamples]; // this contains the Im of both channels
-
+	Re = new double[numSamples]; // this contains the Re of both channels
+	Im = new double[numSamples]; // this contains the Im of both channels
 }
 
 //--------------------------------------------------------------------------------------
@@ -133,8 +131,8 @@ SoundIdentificationProcessing::squareMean(double * channel_Re, double * channel_
 {
 	double energy = 0.0;
 
-	int lowIndex  = int ((lowFreq/_SamplesPerSec)*total_numSamples);
-	int highIndex = int ((highFreq/_SamplesPerSec)*total_numSamples);
+	int lowIndex  = int ((lowFreq/_SamplesPerSec)*numSamples);
+	int highIndex = int ((highFreq/_SamplesPerSec)*numSamples);
 
 	for(int i= lowIndex; i < highIndex; i++)
 		energy = energy + 2*channel_Re[i];
@@ -151,11 +149,11 @@ SoundIdentificationProcessing::squareMean(double * channel_Re, double * channel_
 // input - pointer to the frequencies vector. The fucntion modifies this input vector
 //--------------------------------------------------------------------------------------
 void SoundIdentificationProcessing::filter(double *input_Re, double *input_Im,
-							 double lowFreq, double highFreq)
+										   double lowFreq, double highFreq)
 {
 	int i = 0;
-	int lowIndex  = int ((lowFreq  / _SamplesPerSec)*total_numSamples);
-	int highIndex = int ((highFreq / _SamplesPerSec)*total_numSamples);
+	int lowIndex  = int ((lowFreq  / _SamplesPerSec)*numSamples);
+	int highIndex = int ((highFreq / _SamplesPerSec)*numSamples);
 
 	ACE_ASSERT(highIndex < numFreqSamples);
 	ACE_ASSERT(lowIndex  < highIndex);
@@ -190,4 +188,30 @@ void SoundIdentificationProcessing::filter(double *input_Re, double *input_Im,
 	 * if (lowIndex>0)                     *
 	 * nspzbZero(input+lowIndex,lowIndex); *
 	 ***************************************/
+}
+
+//--------------------------------------------------------------------------------------
+//       Class: SoundIdentificationProcessing 
+//      Method: ConjComplexMultiplication 
+// Description: Multiplication between the normal spectrum and the conj of the same spectrum.
+// This is used to optain printable spectrum (usual fourier graphical representation)
+// (a+ib)(a-ib)=(aa+bb)+i(ba-ab) = (aa+bb)
+//--------------------------------------------------------------------------------------
+int 
+SoundIdentificationProcessing::ConjComplexMultiplication(double * a, 
+														 double * b)
+{
+	double temp_a = 0.0;
+ 	double temp_b = 0.0;
+
+	for	( int i = 0; i < numSamples; i++) 
+	{
+		temp_a = *a;
+		temp_b = *b;
+		*a = ((temp_a) * (temp_a) + (temp_b) * (temp_b))/numSamples;
+		*b = ((temp_b) * (temp_a) - (temp_a) * (temp_b))/numSamples;
+		a++; b++; 
+	}
+
+	return 0;
 }
