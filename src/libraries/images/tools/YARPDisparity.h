@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.h,v 1.5 2003-11-26 14:41:54 fberton Exp $
+/// $Id: YARPDisparity.h,v 1.6 2004-01-16 15:51:07 fberton Exp $
 ///
 ///
 // disparity.h: interface for the YARPDisparityTool class.
@@ -106,6 +106,8 @@ public:
 	int * _shiftFunction;
 	IntNeighborhood * _dsTable;
 	double * _corrFunct;
+
+	int _actRings;
 
 	int loadShiftTable(Image_Data* Par);
 	int loadDSTable(Image_Data* Par);

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.9 2003-12-03 14:53:39 fberton Exp $
+/// $Id: AuxFunctions.cpp,v 1.10 2004-01-16 15:51:07 fberton Exp $
 ///
 ///
 
@@ -344,7 +344,7 @@ int Get_Theta(double x,
 	
 	int theta;
 	double temp;
-	float castval = 0.01;
+	float castval = 0.01f;
 //	int jj;
 //	int counter;
 
@@ -429,3 +429,33 @@ int computePadSize(int width,int padding)
 	return (width + AddedPad);
 }
 
+rgbPixel computeAvg(int SizeRho,int SizeTheta, int padding, unsigned char * image)
+{
+	rgbPixel avg;
+
+	int Size = SizeRho*SizeTheta;
+	int SizeFovea = SizeTheta/6;
+	int diff = SizeTheta-SizeFovea*6;
+	Size -= (SizeFovea*(SizeFovea-1))*3+(SizeFovea-1)*diff+SizeTheta-1;
+//	Size = (SizeRho-5)*SizeTheta;
+	int paddedLine = computePadSize(3 * SizeTheta,padding);
+
+	int i,j;
+	int sumR = 0;
+	int sumG = 0;
+	int sumB = 0;
+
+	for (j=0; j<SizeRho; j++)
+		for (i=0; i<3*SizeTheta; i+=3)
+		{
+			sumR += image[j*paddedLine+i];
+			sumG += image[j*paddedLine+i+1];
+			sumB += image[j*paddedLine+i+2];
+		}
+	
+	avg.Red = sumR/Size;
+	avg.Gre = sumG/Size;
+	avg.Blu = sumB/Size;
+
+	return avg;
+}

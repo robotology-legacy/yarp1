@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.32 2003-12-03 14:53:39 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.33 2004-01-16 15:51:07 fberton Exp $
 ///
 ///
 
@@ -2624,7 +2624,7 @@ void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, 
 
 }
 
-void DownSampleFovea(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Par, float Ratio,IntNeighborhood * IntDownSampleTable)
+void DownSampleFovea(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Par, float Ratio,IntNeighborhood * IntDownSampleTable,int Rows)
 {	
 	int i,j,l;
 
@@ -2643,7 +2643,7 @@ void DownSampleFovea(unsigned char * InImage, unsigned char * OutImage, char * P
 	AddedPadSize = PadSizeSmall - 3*THETA;
 	unsigned char * SmallImgPtr = OutImage;
 
-	for (j=0; j<FOV; j++)
+	for (j=0; j<Rows; j++)
 	{
 		for (l=0; l<THETA; l++)
 		{

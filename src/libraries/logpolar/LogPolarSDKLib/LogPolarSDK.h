@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.22 2003-12-02 18:03:12 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.23 2004-01-16 15:51:07 fberton Exp $
 ///
 ///
 
@@ -99,6 +99,7 @@
 #define WEIGHTS		 64
 #define DS2			256
 #define SHIFT	   1024
+#define SHIFTF	   2048
 
 struct Image_Data{
 
@@ -180,6 +181,13 @@ struct LUT_Ptrs{
 	double			* CorrLevels;
 //	int				* PixelCount;
 };
+struct rgbPixel
+{
+	unsigned char Red;
+	unsigned char Gre;
+	unsigned char Blu;
+};
+
 
 typedef struct tag_vchannel 
 {
@@ -300,7 +308,7 @@ void Remap_Mono(unsigned char * Out_Image,
 		   int * Rem_LUT);
 
 void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Param, float Ratio,IntNeighborhood * IntDownSampleTable);
-void DownSampleFovea(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Param, float Ratio,IntNeighborhood * IntDownSampleTable);
+void DownSampleFovea(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Param, float Ratio,IntNeighborhood * IntDownSampleTable,int Rows);
 
 long Get_Time();
 
@@ -370,10 +378,12 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 					   IntNeighborhood * WeightsMap,
 					   int Pix_Numb);
 
-int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val);
-int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val);
 void Make_Disp_Histogram(unsigned char * hist,int height, int width, int shiftLevels, double * corrFunct);
 int computePadSize(int width,int padding);
+
+rgbPixel computeAvg(int SizeRho,int SizeTheta, int padding, unsigned char * image);
+int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR);
+int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR, int Rows);
 
 //Functions defined in TableGeneration.cpp
 

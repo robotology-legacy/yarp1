@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.26 2003-12-03 14:53:39 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.27 2004-01-16 15:51:07 fberton Exp $
 ///
 ///
 
@@ -1376,7 +1376,7 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 }
 
 
-int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val)//, int * pixCount)
+int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR)//, int * pixCount)
 {
 	int i,j,k,k1;
 	int iR,iL;
@@ -1469,20 +1469,22 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 
 					if (iR > 0)
 					{
-						d_1 = *Lptr++ - average_Lr;
-						d_2 = Right[iR] - average_Rr;
+//						d_1 = *Lptr++ - average_Lr;
+//						d_2 = Right[iR] - average_Rr;
+						d_1 = *Lptr++ - aL.Red;
+						d_2 = Right[iR] - aR.Red;
 						numr   += (d_1 * d_2);
 						den_1r += (d_1 * d_1);
 						den_2r += (d_2 * d_2);
 
-						d_1 = *Lptr++ - average_Lg;
-						d_2 = Right[iR+1] - average_Rg;
+						d_1 = *Lptr++ - aL.Gre;
+						d_2 = Right[iR+1] - aR.Gre;
 						numg   += (d_1 * d_2);
 						den_1g += (d_1 * d_1);
 						den_2g += (d_2 * d_2);
 
-						d_1 = *Lptr++ - average_Lb;
-						d_2 = Right[iR+2] - average_Rb;
+						d_1 = *Lptr++ - aL.Blu;
+						d_2 = Right[iR+2] - aR.Blu;
 						numb   += (d_1 * d_2);
 						den_1b += (d_1 * d_1);
 						den_2b += (d_2 * d_2);
@@ -1495,26 +1497,34 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 			corr_val[k] += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
 			corr_val[k] += (1.0 - (numb * numb) / (den_1b * den_2b + 0.00001));	
 
-			if (corr_val[k]<MIN)
+/*			if (corr_val[k]<MIN)
 			{
 				MIN = corr_val[k];
 				minindex = k;
 			}
-			if (count>MAX)
+*/			if (count>MAX)
 				MAX = count;
 //		printf("%03d     %2.5f\n",k-SParam.Resolution/2,corr_val);
 			corr_val[k] = (3-corr_val[k])*count;
 		}
 	
 	for (k=0; k<Steps; k++)
-		corr_val[k] = 3-(corr_val[k]/(double)MAX);
+		corr_val[k] = 3-(corr_val[k]/((double)MAX+0.00001));
 //		corr_val[k] = 3-((3-corr_val[k])*pixCount[k]/(double)MAX);
 
-	return minindex;
+	for (k=0; k<Steps; k++)
+		if (corr_val[k]<MIN)
+		{
+			MIN = corr_val[k];
+			minindex = k;
+		}
+
+		
+		return minindex;
 }
 
 
-int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val)
+int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aL, rgbPixel aR,int Rows)
 {
 	int i,j,k,k1;
 	int iR,iL;
@@ -1522,6 +1532,7 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 	double d_1;
 	double d_2;
 	double MIN = 10000;
+	int MAX = 0;
 	int minindex;
 //aggiungere il check sul fatto che si sia in fovea o fuori (step function)
 	unsigned char * Lptr,* Rptr;
@@ -1540,12 +1551,13 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 		double average_Rg = 0;
 		double average_Rb = 0;
 
-		k1 = k * 1 * Par->Size_Theta * Par->Size_Fovea; //Positioning on the table
+//		k1 = k * 1 * Par->Size_Theta * Par->Size_Fovea; //Positioning on the table
+		k1 = k * 1 * Par->Size_LP; //Positioning on the table
 		Lptr = Left;
 
 		count = 0;
 
-		for (j=0; j<Par->Size_Fovea; j++)
+		for (j=0; j<Rows; j++)
 		{
 			for (i=0; i<Par->Size_Theta; i++)
 			{
@@ -1588,7 +1600,8 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 
 			Lptr = Left;
 
-		for (j=0; j<Par->Size_Fovea; j++)
+//		for (j=0; j<Par->Size_Fovea; j++)
+		for (j=0; j<Rows; j++)
 		{
 			for (i=0; i<Par->Size_Theta; i++)
 			{
@@ -1599,20 +1612,22 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 
 					if (iR > 0)
 					{
-						d_1 = *Lptr++ - average_Lr;
-						d_2 = Right[iR] - average_Rr;
+//						d_1 = *Lptr++ - average_Lr;
+//						d_2 = Right[iR] - average_Rr;
+						d_1 = *Lptr++ - aL.Red;
+						d_2 = Right[iR] - aR.Red;
 						numr   += (d_1 * d_2);
 						den_1r += (d_1 * d_1);
 						den_2r += (d_2 * d_2);
 
-						d_1 = *Lptr++ - average_Lg;
-						d_2 = Right[iR+1] - average_Rg;
+						d_1 = *Lptr++ - aL.Gre;
+						d_2 = Right[iR+1] - aR.Gre;
 						numg   += (d_1 * d_2);
 						den_1g += (d_1 * d_1);
 						den_2g += (d_2 * d_2);
 
-						d_1 = *Lptr++ - average_Lb;
-						d_2 = Right[iR+2] - average_Rb;
+						d_1 = *Lptr++ - aL.Blu;
+						d_2 = Right[iR+2] - aR.Blu;
 						numb   += (d_1 * d_2);
 						den_1b += (d_1 * d_1);
 						den_2b += (d_2 * d_2);
@@ -1625,11 +1640,22 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 			corr_val[k] += (1.0 - (numg * numg) / (den_1g * den_2g + 0.00001));	
 			corr_val[k] += (1.0 - (numb * numb) / (den_1b * den_2b + 0.00001));	
 
-			if (corr_val[k]<MIN)
-			{
-				MIN = corr_val[k];
-				minindex = k;
-			}
+			if (count>MAX)
+				MAX = count;
+//		printf("%03d     %2.5f\n",k-SParam.Resolution/2,corr_val);
+			corr_val[k] = (3-corr_val[k])*count;
+		}
+
+	for (k=0; k<Steps; k++)
+		corr_val[k] = 3-(corr_val[k]/((double)MAX+0.00001));
+//		corr_val[k] = 3-((3-corr_val[k])*pixCount[k]/(double)MAX);
+
+//	MAX = -10.0;
+	for (k=0; k<Steps; k++)
+		if (corr_val[k]<MIN)
+		{
+			MIN = corr_val[k];
+			minindex = k;
 		}
 
 	return minindex;

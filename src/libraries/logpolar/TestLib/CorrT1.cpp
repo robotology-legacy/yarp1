@@ -6,7 +6,7 @@
 
 #include "LogPolarSDK.h"
 
-//#define JUSTF 
+#define JUSTF 
 
 struct Images{
 	unsigned char * BW;
@@ -24,6 +24,8 @@ struct Images{
 	unsigned char * Histogram;
 	unsigned char * TestImg;
 };
+
+
 
 void addPad(unsigned char * out,unsigned char * in, Image_Data * LParam, int PadSize)
 {
@@ -56,7 +58,7 @@ void allocateImages(Images * img, Image_Data * LPar, Image_Data * SPar)
 	img->DSPad	  = (unsigned char *) malloc (computePadSize(3 * SPar->Size_Theta,SPar->padding) * SPar->Size_Rho * sizeof(unsigned char));
 	img->Shift	  = (unsigned char *) malloc (SPar->Size_LP * 3 * sizeof(unsigned char));
 	img->ShiftPad = (unsigned char *) malloc (computePadSize(3 * SPar->Size_Theta,SPar->padding) * SPar->Size_Rho * sizeof(unsigned char));
-	img->Histogram= (unsigned char *) malloc (128 * 512 * sizeof(unsigned char));
+	img->Histogram= (unsigned char *) malloc (128 * 1024 * sizeof(unsigned char));
 	img->TestImg  = (unsigned char *) calloc (SPar->Size_LP , sizeof(unsigned char));
 }
 
@@ -77,26 +79,21 @@ void RBSwap(unsigned char * Image, Image_Data * Par)
 
 void paramInit(Image_Data * Small,Image_Data * Large, int XSize, int YSize, int planes)
 {
+
+	int Rat = 4;
+
 	*Large = Set_Param(1090,1090,256,256,
 						YSize,XSize,42,
 						1090,
 						CUST,256.0/1090.0);
 
 	*Small = Set_Param(256,256,256,256,
-						YSize/4,XSize/4,42/4,
-						1090/4,
-						CUST,4*256.0/1090.0);
+						YSize/Rat,XSize/Rat,42/Rat,
+						1090/Rat,
+						CUST,Rat*256.0/1090.0);
 
-	Small->Ratio = 4.00;
+	Small->Ratio = (float)(Rat);
 
-/*
-	*Small = Set_Param(256,256,256,256,
-						YSize/2,XSize/2,42/2,
-						1090/2,
-						CUST,2*256.0/1090.0);
-
-	Small->Ratio = 2.00;
-*/
 	Large->padding = 8;
 	Small->padding = Large->padding;
 
@@ -139,6 +136,7 @@ void main()
 
 
 	Images Left,Right;
+	rgbPixel avgL, avgR;
 
 //	unsigned char * Shifted;
 //	int i,j,k;
@@ -146,18 +144,30 @@ void main()
 	int retval;
 
 	Image_Data LParam,SParam;
+	Image_Data TParam;
+
+	TParam = Set_Param(1090,1090,128,128,152,252,42,1090,CUST,512.0/1090.0);
+
+//	int tr = Get_Rho((TParam.Size_X_Remap/2)+40,(TParam.Size_Y_Remap/2)+0,&TParam);
+	int tr = Get_Rho(64,0,&TParam);
+
+	tr  = tr;
 
 	LUT_Ptrs Tables;
 
 	char File_Name [256];
 	char Path [256];
 
+	int ActiveRows = 126;
+
 	//Loads BW images
-	sprintf(File_Name,"%s","c:/temp/images/testpad2/Sim_BWLP_R.bmp");
+	sprintf(File_Name,"%s","c:/temp/images/testpad2/left.bmp");
+//	sprintf(File_Name,"%s","c:/temp/images/testpad2/Sim_BWLP_R.bmp");
 //	sprintf(File_Name,"%s","c:/temp/images/testpad2/Test2_BWLP_L.bmp");
 	Right.BW = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
 
-	sprintf(File_Name,"%s","c:/temp/images/testpad2/Sim_BWLP_L.bmp");
+	sprintf(File_Name,"%s","c:/temp/images/testpad2/right.bmp");
+//	sprintf(File_Name,"%s","c:/temp/images/testpad2/Sim_BWLP_L.bmp");
 //	sprintf(File_Name,"%s","c:/temp/images/testpad2/Test2_BWLP_L.bmp");
 	Left.BW = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
 
@@ -181,13 +191,13 @@ void main()
 
 	sprintf(Path,"%s","c:/temp/tables/prefix/");
 //	Build_Tables(&LParam,&Tables,Path,WEIGHTS|REMAP|DS4);
-//	Build_Tables(&LParam,&Tables,Path,DS4);
+//	Build_Tables(&LParam,&Tables,Path,DS2);
 	Load_Tables(&LParam,&Tables,Path,WEIGHTS|REMAP);
 	Load_Tables(&LParam,&Tables,Path,DS4);
 //	Build_Tables(&SParam,&Tables,Path,SHIFT);
 //	Build_Tables(&SParam,&Tables,Path,2048);
-//	Build_Step_Function(Path,&SParam);
-	Load_Tables(&SParam,&Tables,Path,SHIFT|ANGSHIFT|PAD);
+	Build_Step_Function(Path,&SParam);
+	Load_Tables(&SParam,&Tables,Path,SHIFT|SHIFTF|ANGSHIFT|PAD);
 
 
 //Color Reconstruction
@@ -219,14 +229,19 @@ void main()
 	DownSample( Left.ColorPad, Left.DSPad,Path,&LParam,SParam.Ratio,Tables.DownSampleMap);
 	DownSample(Right.ColorPad,Right.DSPad,Path,&LParam,SParam.Ratio,Tables.DownSampleMap);
 
-	for (int j = 0; j<SParam.Size_Rho; j++)
+	avgL = computeAvg(SParam.Size_Rho,SParam.Size_Theta,SParam.padding,Left.DSPad);
+	avgR = computeAvg(SParam.Size_Rho,SParam.Size_Theta,SParam.padding,Right.DSPad);
+
+	DownSampleFovea( Left.ColorPad, Left.DSPad,Path,&LParam,SParam.Ratio,Tables.DownSampleMap,(int)(ActiveRows/SParam.Ratio));
+
+/*	for (int j = 0; j<SParam.Size_Rho; j++)
 		for (int i = 0; i<192; i++)
 			if (i == 20)
 			{
 				Right.DSPad[j*192+i] = 255;
 				Left.DSPad[j*192+i] = 255;
 			}
-
+*/
 
 	removePad( Left.DS, Left.DSPad,SParam.Size_Theta,SParam.Size_Rho,3,computePadSize(3 * SParam.Size_Theta,SParam.padding));
 	removePad(Right.DS,Right.DSPad,SParam.Size_Theta,SParam.Size_Rho,3,computePadSize(3 * SParam.Size_Theta,SParam.padding));
@@ -236,18 +251,18 @@ void main()
 	Save_Bitmap(Left.DSPad,computePadSize(3*SParam.Size_Theta,SParam.padding),SParam.Size_Rho,1,"c:/temp/images/testpad2/DS_L_Pad.bmp");
 	Save_Bitmap(Right.DSPad,computePadSize(3*SParam.Size_Theta,SParam.padding),SParam.Size_Rho,1,"c:/temp/images/testpad2/DS_R_Pad.bmp");
 
-	retval = Shift_and_Corr(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMap,Tables.CorrLevels);
-//	retval = shiftnCorrFovea(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMapF,Tables.CorrLevels);
+//	retval = Shift_and_Corr(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMap,Tables.CorrLevels);
+	retval = shiftnCorrFovea(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMap,Tables.CorrLevels,avgL,avgR,(int)(ActiveRows/SParam.Ratio));
 
 	int actshift = Tables.ShiftFunction[retval];
 
 	int realshift = (actshift*SParam.Size_X_Remap/SParam.Resolution)+SParam.Size_X_Remap/2;
 
-	Make_Disp_Histogram(Left.Histogram,128,512,Tables.ShiftLevels,Tables.CorrLevels);
+	Make_Disp_Histogram(Left.Histogram,128,1024,Tables.ShiftLevels,Tables.CorrLevels);
 
-	Save_Bitmap(Left.Histogram,512,128,1,"c:/temp/images/testpad2/Histogram.bmp");
+	Save_Bitmap(Left.Histogram,1024,128,1,"c:/temp/images/testpad2/Histogram.bmp");
 
-	shiftImage(&Right,retval,Tables.ShiftMap,&SParam);
+	shiftImage(&Right,retval,Tables.ShiftMapF,&SParam);
     removePad(Right.Shift,Right.ShiftPad,SParam.Size_Theta,SParam.Size_Rho,3,computePadSize(3*SParam.Size_Theta,SParam.padding));
 	Save_Bitmap(Right.Shift,SParam.Size_Theta,SParam.Size_Rho,3,"c:/temp/images/testpad2/Shift_R.bmp");
 
@@ -256,18 +271,22 @@ void main()
 	Build_Tables(&SParam,&Tables,Path,REMAP);
 	Load_Tables(&SParam,&Tables,Path,REMAP);
 
+	DownSample( Left.ColorPad, Left.DSPad,Path,&LParam,SParam.Ratio,Tables.DownSampleMap);
 	Remap( Left.RemShPad, Left.DSPad,   &SParam,Tables.RemapMap);
-	Remap(Right.RemShPad,Right.ShiftPad,&SParam,Tables.RemapMap);
-//	Remap(Right.RemShPad,Right.DSPad,&SParam,Tables.RemapMap);
+//	Remap(Right.RemShPad,Right.ShiftPad,&SParam,Tables.RemapMap);
+	Remap(Right.RemShPad,Right.DSPad,&SParam,Tables.RemapMap);
 
 	removePad( Left.RemSh, Left.RemShPad,SParam.Size_X_Remap,SParam.Size_Y_Remap,SParam.Remap_Planes,computePadSize(3*SParam.Size_X_Remap,SParam.padding));
 	removePad(Right.RemSh,Right.RemShPad,SParam.Size_X_Remap,SParam.Size_Y_Remap,SParam.Remap_Planes,computePadSize(3*SParam.Size_X_Remap,SParam.padding));
-/*
+
 	Right.RemSh[3*((SParam.Size_Y_Remap/2)*SParam.Size_Y_Remap+realshift)+0]=255;
 	Right.RemSh[3*((SParam.Size_Y_Remap/2)*SParam.Size_Y_Remap+realshift)+1]=0;
 	Right.RemSh[3*((SParam.Size_Y_Remap/2)*SParam.Size_Y_Remap+realshift)+2]=0;
+	Left.RemSh[3*((SParam.Size_Y_Remap/2)*SParam.Size_Y_Remap+(SParam.Size_X_Remap/2))+0]=255;
+	Left.RemSh[3*((SParam.Size_Y_Remap/2)*SParam.Size_Y_Remap+(SParam.Size_X_Remap/2))+1]=255;
+	Left.RemSh[3*((SParam.Size_Y_Remap/2)*SParam.Size_Y_Remap+(SParam.Size_X_Remap/2))+2]=0;
 
-	float FovRadius = SParam.Size_Fovea * SParam.Size_X_Remap/SParam.Resolution;
+	float FovRadius = ((int)(ActiveRows/SParam.Ratio)) * SParam.Size_X_Remap/(float)SParam.Resolution;
 
 	int x,y;
 
@@ -280,7 +299,73 @@ void main()
 		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]=0;
 
 	}
-*/
+
+	for (j=0; j<PI*2.0; j+= 0.01f)
+	{
+		x = (int)(0.5+realshift+(1.0+FovRadius)*cos(j));
+		y = (int)(0.5+(SParam.Size_Y_Remap/2)+(1.0+FovRadius)*sin(j));
+		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]=(3*Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]+255)/4;
+		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]=(3*Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+1])/4;
+		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]=(3*Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+2])/4;
+
+		x = (int)(0.5+realshift+(-1.0+FovRadius)*cos(j));
+		y = (int)(0.5+(SParam.Size_Y_Remap/2)+(-1.0+FovRadius)*sin(j));
+		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]=(3*Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]+255)/4;
+		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]=(3*Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]+0)/4;
+		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]=(3*Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]+0)/4;
+
+		x = (int)(0.5+realshift+(2.0+FovRadius)*cos(j));
+		y = (int)(0.5+(SParam.Size_Y_Remap/2)+(2.0+FovRadius)*sin(j));
+		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]=(7*Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]+255)/8;
+		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]=(7*Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+1])/8;
+		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]=(7*Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+2])/8;
+
+		x = (int)(0.5+realshift+(-2.0+FovRadius)*cos(j));
+		y = (int)(0.5+(SParam.Size_Y_Remap/2)+(-2.0+FovRadius)*sin(j));
+		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]=(7*Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]+255)/8;
+		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]=(7*Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]+0)/8;
+		Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]=(7*Right.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]+0)/8;
+
+	}
+
+	for (j=0; j<PI*2.0; j+= 0.01f)
+	{
+		x = (int)(0.5+(SParam.Size_X_Remap/2)+FovRadius*cos(j));
+		y = (int)(0.5+(SParam.Size_Y_Remap/2)+FovRadius*sin(j));
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]=255;
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]=255;
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]=0;
+
+	}
+
+	for (j=0; j<PI*2.0; j+= 0.01f)
+	{
+		x = (int)(0.5+(SParam.Size_X_Remap/2)+(1.0+FovRadius)*cos(j));
+		y = (int)(0.5+(SParam.Size_Y_Remap/2)+(1.0+FovRadius)*sin(j));
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]=(3*Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]+255)/4;
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]=(3*Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]+255)/4;
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]=(3*Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+2])/4;
+
+		x = (int)(0.5+(SParam.Size_X_Remap/2)+(-1.0+FovRadius)*cos(j));
+		y = (int)(0.5+(SParam.Size_Y_Remap/2)+(-1.0+FovRadius)*sin(j));
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]=(3*Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]+255)/4;
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]=(3*Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]+255)/4;
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]=(3*Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]+0)/4;
+
+		x = (int)(0.5+(SParam.Size_X_Remap/2)+(2.0+FovRadius)*cos(j));
+		y = (int)(0.5+(SParam.Size_Y_Remap/2)+(2.0+FovRadius)*sin(j));
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]=(7*Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]+255)/8;
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]=(7*Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]+255)/8;
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]=(7*Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+2])/8;
+
+		x = (int)(0.5+(SParam.Size_X_Remap/2)+(-2.0+FovRadius)*cos(j));
+		y = (int)(0.5+(SParam.Size_Y_Remap/2)+(-2.0+FovRadius)*sin(j));
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]=(7*Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+0]+255)/8;
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]=(7*Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+1]+255)/8;
+		Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]=(7*Left.RemSh[3*(y*SParam.Size_Y_Remap+x)+2]+0)/8;
+
+	}
+
 	Save_Bitmap(Left.RemSh,SParam.Size_X_Remap,SParam.Size_Y_Remap,3,
 				"c:/temp/images/testpad2/Final_L.bmp");
 	Save_Bitmap(Right.RemSh,SParam.Size_X_Remap,SParam.Size_Y_Remap,3,
