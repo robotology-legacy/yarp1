@@ -2343,7 +2343,7 @@ SOURCE=.\Basic_Stats.cpp
 
 SOURCE=.\Basic_Types.cpp
 
-"$(INTDIR)\Basic_Types.obj" : $(SOURCE) "$(INTDIR)" ".\Template_Instantiations.cpp"
+"$(INTDIR)\Basic_Types.obj" : $(SOURCE) "$(INTDIR)"
 
 
 SOURCE=.\Capabilities.cpp
@@ -3343,7 +3343,7 @@ SOURCE=.\Typed_SV_Message.cpp
 
 SOURCE=.\Typed_SV_Message_Queue.cpp
 
-"$(INTDIR)\Typed_SV_Message_Queue.obj" : $(SOURCE) "$(INTDIR)" ".\Typed_SV_Message.cpp"
+"$(INTDIR)\Typed_SV_Message_Queue.obj" : $(SOURCE) "$(INTDIR)"
 
 
 SOURCE=.\UNIX_Addr.cpp

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.8 2003-09-03 15:15:26 babybot Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.9 2004-01-16 17:34:10 gmetta Exp $
 ///
 ///
 
@@ -114,6 +114,14 @@ public:
 	virtual int waitOnNewFrame (void *cmd);
 	virtual int getWidth(void *cmd);
 	virtual int getHeight(void *cmd);
+	virtual int setBrightness (void *cmd);
+	virtual int setHue (void *cmd);
+	virtual int setContrast (void *cmd);
+	virtual int setSatU (void *cmd);
+	virtual int setSatV (void *cmd);
+	virtual int setLNotch (void *cmd);
+	virtual int setLDec (void *cmd);
+	virtual int setCrush (void *cmd);
 
 protected:
 	void *system_resources;

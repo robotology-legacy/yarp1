@@ -6,12 +6,12 @@
 
 ..\LogPolarSDKLib\AuxFunctions.cpp : \
 	"..\LogPolarSDKLib\LogPolarSDK.h"\
-	"c:\progra~1\micros~3\vc98\include\basetsd.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 ..\LogPolarSDKLib\LogPolarSDK.cpp : \
 	"..\LogPolarSDKLib\LogPolarSDK.h"\
-	"c:\progra~1\micros~3\vc98\include\basetsd.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 ..\LogPolarSDKLib\TableGeneration.cpp : \

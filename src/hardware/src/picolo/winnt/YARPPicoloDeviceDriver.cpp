@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.11 2003-09-09 10:25:11 babybot Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.12 2004-01-16 17:34:10 gmetta Exp $
 ///
 ///
 
@@ -342,6 +342,15 @@ YARPPicoloDeviceDriver::YARPPicoloDeviceDriver(void) : YARPDeviceDriver<YARPNull
 	m_cmds[FCMDWaitNewFrame] = &YARPPicoloDeviceDriver::waitOnNewFrame;
 	m_cmds[FCMDGetSizeX] = &YARPPicoloDeviceDriver::getWidth;
 	m_cmds[FCMDGetSizeY] = &YARPPicoloDeviceDriver::getHeight;
+	m_cmds[FCMDSetBright] = &YARPPicoloDeviceDriver::setBrightness;
+	m_cmds[FCMDSetHue] = &YARPPicoloDeviceDriver::setHue;
+	m_cmds[FCMDSetContrast] = &YARPPicoloDeviceDriver::setContrast;
+	m_cmds[FCMDSetSatU] = &YARPPicoloDeviceDriver::setSatU;
+	m_cmds[FCMDSetSatV] = &YARPPicoloDeviceDriver::setSatV;
+	m_cmds[FCMDSetLNotch] = &YARPPicoloDeviceDriver::setLNotch;
+	m_cmds[FCMDSetLDec] = &YARPPicoloDeviceDriver::setLDec;
+	m_cmds[FCMDSetCrush] = &YARPPicoloDeviceDriver::setCrush;
+
 }
 
 YARPPicoloDeviceDriver::~YARPPicoloDeviceDriver()
@@ -480,6 +489,54 @@ int YARPPicoloDeviceDriver::getWidth (void *cmd)
 int YARPPicoloDeviceDriver::getHeight (void *cmd)
 {
 	*(int *)cmd = RES(system_resources)._nHeight;
+	return YARP_OK;
+}
+
+int YARPPicoloDeviceDriver::setBrightness (void *cmd)
+{
+	/// RES(system_resources)._setBrightness(*cmd);
+	return YARP_OK;
+}
+
+int YARPPicoloDeviceDriver::setHue (void *cmd)
+{
+	/// RES(system_resources)._setHue(*cmd);
+	return YARP_OK;
+}
+
+int YARPPicoloDeviceDriver::setContrast (void *cmd)
+{
+	/// RES(system_resources)._setContrast(*cmd);
+	return YARP_OK;
+}
+
+int YARPPicoloDeviceDriver::setSatU (void *cmd)
+{
+	/// RES(system_resources)._setSatU(*cmd);
+	return YARP_OK;
+}
+
+int YARPPicoloDeviceDriver::setSatV (void *cmd)
+{
+	/// RES(system_resources)._setSatV(*cmd);
+	return YARP_OK;
+}
+
+int YARPPicoloDeviceDriver::setLNotch (void *cmd)
+{
+	/// RES(system_resources)._setLNotch(*cmd);
+	return YARP_OK;
+}
+
+int YARPPicoloDeviceDriver::setLDec (void *cmd)
+{
+	/// RES(system_resources)._setLDec(*cmd);
+	return YARP_OK;
+}
+
+int YARPPicoloDeviceDriver::setCrush (void *cmd)
+{
+	/// RES(system_resources)._setCrush(*cmd);
 	return YARP_OK;
 }
 

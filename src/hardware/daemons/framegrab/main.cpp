@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.44 2003-12-17 09:54:10 beltran Exp $
+/// $Id: main.cpp,v 1.45 2004-01-16 17:34:10 gmetta Exp $
 ///
 ///
 
@@ -78,14 +78,13 @@
 
 #include <YARPImages.h>
 #include <YARPLogpolar.h>
+#include <YARPBottle.h>
+#include <YARPBottleContent.h>
 
 #if defined(__QNXEurobot__)
 
-# include <YARPBottle.h>
-# include <YARPBottleContent.h>
 #	include <YARPEurobotGrabber.h>
 #	define Grabber YARPEurobotGrabber
-//#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x
 #	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #elif defined(__WIN32Babybot__)
