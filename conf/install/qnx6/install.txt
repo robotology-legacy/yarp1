@@ -1,6 +1,6 @@
 Configuring YARP for QNX6
 
-$Id: install.txt,v 1.16 2003-08-26 08:15:34 beltran Exp $
+$Id: install.txt,v 1.17 2003-09-08 17:19:21 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\qnx6
 
@@ -107,6 +107,7 @@ REQUIRES:
 	utils
 		*for the momment
 			-use "make install" in %YARP_ROOT/src/libraries/utils
+			(an error appears because the library is not present but this is ok for the moment)
 			
 	motorcontrol
 			- use "make" in %YARP_ROOT/src/libraries/motorcontrol	
@@ -134,3 +135,28 @@ A node is only adding computational power. It neither needs to compile YARP nor 
 A floppy disk can be used to start the computer. This disk can be created from the server with a particular 
 procedure where a kernel images is built an inserted in the disk. (add here procedure to create a boot disk).
 
+---NOTES IN COMPILING-RUNNING FRAMEGRABBER STUFF---
+
+	Nameserver
+	%YARP_ROOT/src/maintenance/services/nameserver/YARPNameService/make
+								       make install
+
+	Porter
+	%YARP_ROOT/src/maintenance/services/porter/porter/make
+							  make install
+
+	Framegrabber
+	%YARP_ROOT/src/hardware/daemons/framegrab/make
+						  make install
+
+	Viewer
+	%YARP_ROOT/src/applications/viewers/camview/qnx6/make
+							 make install
+
+	NOTE: It is important the communications mode used to compile
+
+	i.e.: How to use all this
+	./YARPNameService
+	./framegrabber -l
+        ./camview -l -w 256	
+	./porter /framegrab/o:img /images:i
