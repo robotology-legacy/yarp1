@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.4 2004-07-06 18:38:29 eshuy Exp $
+/// $Id: Port.cpp,v 1.5 2004-07-07 10:34:40 eshuy Exp $
 ///
 ///
 
@@ -283,7 +283,7 @@ void OutputTarget::Body ()
 				return;	
 			}
 
-#ifndef __LINUXFOO__
+#ifndef __LINUX__
 #ifndef DEBUG_DISABLE_SHMEM
 			/// involves a query to dns or to the /etc/hosts file.
 			char myhostname[YARP_STRING_LEN];

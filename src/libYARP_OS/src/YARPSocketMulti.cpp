@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.3 2004-07-07 10:34:40 eshuy Exp $
 ///
 ///
 
@@ -707,7 +707,9 @@ void _SocketThreadMulti::End (int dontkill /* = -1 */)
 {
 	ACE_UNUSED_ARG (dontkill);
 
+	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
 	_mutex.Wait ();
+	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
 
 	///
 	/// closing strategy:
@@ -718,11 +720,15 @@ void _SocketThreadMulti::End (int dontkill /* = -1 */)
 	if (_local_acceptor.get_handle() != ACE_INVALID_HANDLE)
 		_local_acceptor.close();
 
+	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
+
 	switch (_socket_addr->getServiceType())
 	{
 	case YARP_TCP:
 		{
+	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
 			AskForEnd ();
+	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
 
 			_socket = NULL;
 
@@ -745,7 +751,9 @@ void _SocketThreadMulti::End (int dontkill /* = -1 */)
 			_wakeup.Post ();
 
 			/// the thread should have been terminated anyway!
+	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
 			YARPBareThread::Join();
+	printf("uuuuuuuuuuuuuuu %d\n", __LINE__);
 		}
 		break;
 

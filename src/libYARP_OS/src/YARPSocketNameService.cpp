@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.3 2004-07-07 10:34:40 eshuy Exp $
 ///
 ///
 
@@ -512,6 +512,7 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 			if (namer.check_in_qnx (tmp) != YARP_OK)
 			{
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> problems registering %s\n", name));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> PLEASE CHECK THAT THE YARP NAME SERVER (yarp-service) IS RUNNING\n"));
 				return NAMER_FAIL;	/// invalid name id.
 			}
 
@@ -558,6 +559,7 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 			if (namer.check_in_udp (tname, reg_addr, addr, ports, extra_param) != YARP_OK)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>>> Problems registering %s\n", name));
+				ACE_DEBUG ((LM_DEBUG, ">>>> PLEASE CHECK THAT THE YARP NAME SERVER (yarp-service) IS RUNNING\n"));
 				delete[] ports;
 				delete n;
 				return NAMER_FAIL;	/// invalid name id.

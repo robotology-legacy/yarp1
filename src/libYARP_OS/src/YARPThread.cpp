@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.3 2004-07-06 18:38:29 eshuy Exp $
+/// $Id: YARPThread.cpp,v 1.4 2004-07-07 10:34:40 eshuy Exp $
 ///
 ///
 
@@ -93,7 +93,9 @@ unsigned ExecuteThread (void *args)
 	
 	//signal(SIGTERM,&HandleSignal);  // argh, no way to send a signal to the thread :(
 	
+	printf("yyyyyyyyyyyyyyyyyyyyyyyy %d\n", __LINE__);
 	thread->Body();
+	printf("yyyyyyyyyyyyyyyyyyyyyyyy %d\n", __LINE__);
 	
 	return 0;
 }
