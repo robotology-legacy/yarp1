@@ -166,7 +166,8 @@ BttvxAcquireBuffer(unsigned char * buf)
 	struct bttv * btv = &bttvs[0];
 	
 	pthread_mutex_lock(&buf_mutex);
-	//buf = btv->image_buffer;
+
+
 }	
 
 inline int
@@ -175,6 +176,7 @@ BttvxReleaseBuffer()
 	struct bttv * btv = &bttvs[0];
 	
 	pthread_mutex_unlock(&buf_mutex);
+
 }
 
 int
@@ -188,8 +190,10 @@ BttvxSetImageBuffer(int dev,unsigned char * buff)
 int 
 BttvxWaitEvent()
 {
+
 	pthread_mutex_lock(&mutex);
 	pthread_cond_wait(&condvar, &mutex);
+
 }
 
 
@@ -444,9 +448,6 @@ bt848_set_size(struct bttv *btv)
     return;
   if (!btv->win.height)
     return;
-
-  //btv->win.width = 341;
-  //btv->win.height = 460;
 
   tvn=&tvnorms[btv->win.norm];
 
@@ -725,7 +726,9 @@ attach_bt848(int device_id)
 
     memset(&info, 0, sizeof (info));
 
-    if (pci_attach(0) < 0) 
+	btv->phdl = pci_attach( 0 );
+
+    if (btv->phdl < 0) 
 	{
         perror("pci_attach");
         exit(EXIT_FAILURE);
@@ -739,23 +742,26 @@ attach_bt848(int device_id)
     
 	info.DeviceId = 0x350;
 
-	hdl = pci_attach_device(0,
-							PCI_SHARE|PCI_INIT_ALL|PCI_SEARCH_VEND|PCI_SEARCH_VENDEV, 
+	btv->hdl = pci_attach_device(0,
+							PCI_INIT_ALL|PCI_SEARCH_VEND|PCI_SEARCH_VENDEV, 
 							device_id, 
 							&info); 
 
-	if (hdl == NULL)
+	if (btv->hdl == NULL)
 	{
 		//Second chance
 		info.DeviceId = 0x36e;
-		hdl = pci_attach_device(0,
-							PCI_SHARE|PCI_INIT_ALL|PCI_SEARCH_VEND|PCI_SEARCH_VENDEV, 
+		btv->hdl = pci_attach_device(0,
+							PCI_INIT_ALL|PCI_SEARCH_VEND|PCI_SEARCH_VENDEV, 
 							device_id, 
 							&info); 
-		if (hdl == NULL)
+		if (btv->hdl == NULL)
 			return 0;
 	}
+
+	
 	/* Enable bus mastering*/
+	/*
 	pci_read_config32(info.BusNumber,
 					 info.DevFunc,
 					 PCI_COMMAND,
@@ -800,11 +806,12 @@ attach_bt848(int device_id)
 						1,
 						&latency);
     }
+	*/
 
-	printf("bttvx: Vendor and device ID  0x%llx\n",command2);
-	printf("bttvx: REG ADRESS = 0x%llx\n",reg_adress);
+	//printf("bttvx: Vendor and device ID  0x%llx\n",command2);
+	//printf("bttvx: REG ADRESS = 0x%llx\n",reg_adress);
 
-    if (hdl == 0) 
+    if (btv->hdl == 0) 
 	{
         perror("pci_attach_device");
         exit(EXIT_FAILURE);
@@ -851,6 +858,7 @@ attach_bt848(int device_id)
 	//Interrupt mask register = 0 (INT_MASK)
 	regbase[65]=0;
 
+	
 	ThreadCtl( _NTO_TCTL_IO, 0 );
 
 	pthread_attr_init(&attr);
@@ -977,14 +985,34 @@ open_bttvx()
 int
 close_bttvx()
 {
+	uint32_t stat,astat;
+	uint32_t dstat;
 	struct bttv *btv;
+	int error;
 	btv = &bttvs[0];
 
 	BttvxAcquireBuffer(NULL);
 
+	InterruptMask(btv->irq, btv->id);
+
 	bt848_cap(btv, 0);
 	bt848_dma(btv,0);
-	InterruptDetach(btv->id);
+	regbase[65]=0;
+
+	stat = regbase[64];
+	astat = stat & regbase[65];
+	regbase[64] = stat;
+
+	error = InterruptDetach(btv->id);
+	if (error)
+		printf("bttvx: error detaching interrupt %d\n",error);
+
+	printf("bttvx: Detaching pci\n");
+	pci_detach_device(btv->hdl);
+	pci_detach(btv->phdl );
+
+	printf("bttvx: Closing driver\n");
+	InterruptUnmask(btv->irq, btv->id);
 
 	BttvxReleaseBuffer();
 	
@@ -1144,7 +1172,7 @@ init_bt848(struct bttv * btv, int video_format)
   bt848_set_size(btv);
 
   //bt848_bright(btv, 0x10);
-  //bt848_bright(btv, 0x80);
+  //bt848_bright(btv, 0x7f);
   //bt848_sat_u(btv,511);
   //bt848_sat_v(btv,511);	
   btwrite(0xd8, BT848_CONTRAST_LO);
