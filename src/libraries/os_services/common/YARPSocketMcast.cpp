@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.32 2004-01-27 15:38:39 babybot Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.33 2004-05-26 17:13:33 gmetta Exp $
 ///
 ///
 
@@ -314,7 +314,7 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 		if (d._client_names[i] == ((YARPUniqueNameSock&)name).getName())
 		{
 			j = i;
-			ACE_OS::printf("Returned true\n");
+			///ACE_OS::printf("Returned true\n");
 			break;
 		}
 	}
