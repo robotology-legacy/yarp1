@@ -103,6 +103,10 @@ SOURCE=..\include\yarp\YARPKinematics.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\YARPRobotHardware.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\YARPTrajectoryGen.h
 # End Source File
 # End Group

@@ -85,8 +85,7 @@ if ($release)
 
 if ($install)
 {
-	print "\nInstalling YARP signal libraries to default install directory.\n";
-	print "Later this might change to something smarter.\n";
+	print "\nInstalling YARP_OS tools to default install directory.\n";
 
 	foreach my $project (@projects)
 	{

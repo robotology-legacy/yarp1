@@ -166,14 +166,14 @@ if ($options{"Compile_OS<-Tools_Rebuild"} eq "YES")
 	{
 		my $current_dir = getcwd;
 		chdir "../tools/" or die "Can't chdir to tools directory\n";
-		do_tools_compile ("build.pl --clean --debug --install --os $os");
+		do_tools_compile ("build-os.pl --clean --debug --install --os $os");
 		chdir $current_dir or die "Can't chdir to $current_dir\n";
 	}
 	else
 	{
 		my $current_dir = getcwd;
 		chdir "../tools/" or die "Can't chdir to tools directory\n";
-		do_tools_compile ("build.pl --clean --release --install --os $os");
+		do_tools_compile ("build-os.pl --clean --release --install --os $os");
 		chdir $current_dir or die "Can't chdir to $current_dir\n";
 	}
 }

@@ -132,7 +132,49 @@ if ($install)
 	print "\nLibraries installed in $yarp_root/lib/$os\n";
 }
 
+
+#
+# tools compile.
+#
+if ($options{"Compile_Robot<-Tools_Rebuild"} eq "YES")
+{
+	if ($options{"Compile_Robot<-Tools_Debug"} eq "TRUE")
+	{
+		my $current_dir = getcwd;
+		chdir "../tools/" or die "Can't chdir to tools directory\n";
+		do_tools_compile ("build-robot.pl --clean --debug --install --os $os");
+		chdir $current_dir or die "Can't chdir to $current_dir\n";
+	}
+	else
+	{
+		my $current_dir = getcwd;
+		chdir "../tools/" or die "Can't chdir to tools directory\n";
+		do_tools_compile ("build-robot.pl --clean --release --install --os $os");
+		chdir $current_dir or die "Can't chdir to $current_dir\n";
+	}
+}
+else
+{
+	print "You didn't ask to recompile the YARP tools\n";
+}
+
+
 print "\nDone!\n";
+
+#
+#
+#
+sub do_tools_compile
+{
+	my ($exe) = @_;
+	open TOOLS, "$exe|";
+	while (<TOOLS>)
+	{
+		print;
+	}
+	close TOOLS;
+}
+
 
 sub call_msdev_and_print
 {

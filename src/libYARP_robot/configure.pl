@@ -98,6 +98,18 @@ if ($options{"Compile_Robot<-Lib_Clean"} eq "TRUE" &&
 	$options{"Compile_Robot<-Lib_Debug"} = "TRUE";
 }
 
+get_option_hash ("Compile_Robot<-Tools_Rebuild", "NO", "Would you like to recompile the tools?");
+
+if ($options{"Compile_Robot<-Tools_Rebuild"} eq "NO" &&
+	$options{"Compile_Robot<-Lib_Clean"} eq "TRUE")
+{
+	print "You're rebuilding, you need to compile the tools too. ";
+	print "I'm doing it for you.\n";
+	$options{"Compile_Robot<-Tools_Rebuild"} = "YES";
+}
+
+get_option_hash ("Compile_Robot<-Tools_Debug", "FALSE", "Would you like to compile the tools with debug enabled?");
+
 print "Browsing through the list of available device drivers\n";
 print "I'll be looking for classes you might have used device drivers in ";
 print "and for some of them I'll be typedef\'ining to a standard name. ";
@@ -159,8 +171,10 @@ foreach my $device (glob "*")
 
 		%searchfor = ("001" => "YARP\u\L$robotname\E$mnemo");
 
-		$best_match = "999";
+		my $best_match = "999";
 		my $filename = '';
+		my $params_class_name = '';
+
 		foreach my $file (glob "$cur_dir/$robotname/yarp/*.h")
 		{
 			if (!open FILE, "$file")
@@ -192,6 +206,13 @@ foreach my $device (glob "*")
 								{
 									$filename = $&;
 								}
+
+								print "Looking for other classes\n";
+								if ($line =~ /<YARP\w+,\s+(YARP\w+)>/)
+								{
+									# it could be also matched for Params termination.
+									$params_class_name = $1;
+								}
 							}
 						}
 					}
@@ -208,6 +229,9 @@ foreach my $device (glob "*")
 			print "#include <yarp/$filename.h>\n";
 			print "#ifndef $app_class_name\n";
 			print "#define $app_class_name $searchfor{$best_match}\n";
+			print "#endif\n";
+			print "#ifndef $app_class_name"."Params\n";
+			print "#define $app_class_name"."Params $params_class_name\n";
 			print "#endif\n\n\n";
 
 			print "Confirm addition to YARPRobotHardware.h, type SKIP to skip this definition or NO to enter a new one [YES]? ";
@@ -218,6 +242,9 @@ foreach my $device (glob "*")
 				print CONFIG "#include <yarp/$filename.h>\n";
 				print CONFIG "#ifndef $app_class_name\n";
 				print CONFIG "#define $app_class_name $searchfor{$best_match}\n";
+				print CONFIG "#endif\n";
+				print CONFIG "#ifndef $app_class_name"."Params\n";
+				print CONFIG "#define $app_class_name"."Params $params_class_name\n";
 				print CONFIG "#endif\n\n\n";
 			}
 			elsif ($answer eq "SKIP")
@@ -226,7 +253,7 @@ foreach my $device (glob "*")
 			}
 			else
 			{
-				print "Ok, you didn't like my suggestion, type your own then, I close my eyes ";
+				print "Ok, you didn't like my suggestion, type your own then, I'll close my eyes :)";
 				print "[Enter class name e.g. YARPYourArchitectureYourDeviceDriver] ";
 				chomp ($answer = <STDIN>);
 				if (answer ne '')
@@ -244,12 +271,18 @@ foreach my $device (glob "*")
 
 					print CONFIG "#ifndef $app_class_name\n";
 					print CONFIG "#define $app_class_name $answer\n";
+					print CONFIG "#endif\n";
+					print CONFIG "#ifndef $app_class_name"."Params\n";
+					print CONFIG "#define $app_class_name"."Params $answer"."Params\n";
 					print CONFIG "#endif\n\n\n";
 
 					print "Added:\n\n";
 					print "#include <yarp/$ans2>\n";
 					print "#ifndef $app_class_name\n";
 					print "#define $app_class_name $answer\n";
+					print "#endif\n";
+					print "#ifndef $app_class_name"."Params\n";
+					print "#define $app_class_name"."Params $answer"."Params\n";
 					print "#endif\n\n\n";
 				}
 				else
@@ -257,6 +290,10 @@ foreach my $device (glob "*")
 					print "Nothing added to this configuration for device \"$device\"\n";
 				}
 			}
+		}
+		else
+		{
+			print "Can't find anything appropriate for \"$device\"\n";
 		}
 	}
 }
@@ -266,7 +303,7 @@ chdir "$cur_dir" or die "Can't change back to my home dir: $cur_dir $!\n";
 print CONFIG "#endif\n";
 close CONFIG;
 
-print "I've created $yarp_root/src/libYARP_robot/include/yarp/YARPRobotHardware.h which is ";
+print "\nI've created $yarp_root/src/libYARP_robot/include/yarp/YARPRobotHardware.h which is ";
 print "needed by certain applications. It contains #defines for the robot components you might ";
 print "likely use often.\n\n";
 

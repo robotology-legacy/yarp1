@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: grabber.cpp,v 1.2 2004-07-28 23:02:59 babybot Exp $
+/// $Id: grabber.cpp,v 1.3 2004-07-29 09:48:36 babybot Exp $
 ///
 ///
 
@@ -136,7 +136,6 @@ int ParseParams (int argc, char *argv[])
 	{
 		ACE_OS::fprintf (stdout, "simulating a grabber...\n");
 		_simu = true;
-		_client = false;
 	}
 	
 	if (YARPParseParameters::parse(argc, argv, "net", tmps))
