@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.4 2004-07-09 18:52:17 eshuy Exp $
+/// $Id: YARPNameServer.cpp,v 1.5 2004-07-12 12:05:02 eshuy Exp $
 ///
 ///
 
@@ -257,10 +257,10 @@ void YARPNameServer::handle_query(const YARPString &service_name)
 	YARPString ip;
 	int port;
 	int type;
-	printf("mmmm %s/%d name %s\n", __FILE__, __LINE__, service_name.c_str());
+	//printf("mmmm %s/%d name %s\n", __FILE__, __LINE__, service_name.c_str());
 	ns.queryName(service_name, ip, &type, &port);
 	NAME_SERVER_DEBUG(("Reply %s as %s(%s):%d\n", service_name.c_str(), ip.c_str(), servicetypeConverter(type), port));
-	printf("mmmm %s/%d\n", __FILE__, __LINE__);
+	//printf("mmmm %s/%d\n", __FILE__, __LINE__);
 	_handle_reply(ip, type, port);
 }
 

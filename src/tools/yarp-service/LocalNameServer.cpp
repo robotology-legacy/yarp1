@@ -61,19 +61,25 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.3 2004-07-09 16:42:42 eshuy Exp $
+/// $Id: LocalNameServer.cpp,v 1.4 2004-07-12 12:05:01 eshuy Exp $
 ///
 
 #include "LocalNameServer.h"
 
 #include <fstream>
 
+#include <ace/OS.h>
+
 using namespace std;
 
 YARPString getNextIp(const YARPString &i)
 {
 	char tmp[255];
-	int a,b,c,d;
+	int a=0,b=0,c=0,d=0;
+	int ch = i.c_str()[0];
+	if (!(ch>=0 && ch<=9)) {
+	  return i;
+	}
 	sscanf(i.c_str(),"%d.%d.%d.%d", &a,&b,&c,&d);
 	d++;
 	if (d == 256)
@@ -99,8 +105,8 @@ YARPString getNextIp(const YARPString &i)
 
 int getDistance(const YARPString &current, const YARPString &start)
 {
-	int cA,cB,cC,cD;
-	int sA,sB,sC,sD;
+	int cA=0,cB=0,cC=0,cD=0;
+	int sA=0,sB=0,sC=0,sD=0;
 	int ret;
 	sscanf(current.c_str(),"%d.%d.%d.%d", &cA,&cB,&cC,&cD);
 	sscanf(start.c_str(), "%d.%d.%d.%d", &sA, &sB, &sC, &sD);
@@ -510,6 +516,12 @@ int LocalNameServer::queryName(const YARPString &name, YARPString &ip, int *type
 			*port = (*tmp_ports_it).port;
 			*type = protocol;
 		  printf("Found name ... [%s]\n", ip.c_str());
+		  if (ip == YARPString("127.0.0.1")) {
+		    printf("oops localhost... better make it global\n");
+		    char buf[256];
+		    gethostname(buf,sizeof(buf));
+		    ip = buf;
+		  }
 			return 0;
 		}
 	}

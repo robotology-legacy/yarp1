@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.6 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPNameClient.cpp,v 1.7 2004-07-12 12:04:19 eshuy Exp $
 ///
 ///
 
@@ -577,6 +577,7 @@ int YARPNameClient::_query(const YARPString &s, ACE_INET_Addr &addr, int *type)
 
 int YARPNameClient::_query_nic(const YARPNSNic &in, YARPString &outNic, YARPString &outIp)
 {
+  //printf("Oi! Nic!\n");
 	YARPString reply;
 	YARPNameServiceCmd tmpCmd;
 	if (connect_to_server()!=0)
@@ -607,6 +608,8 @@ int YARPNameClient::_query_nic(const YARPNSNic &in, YARPString &outNic, YARPStri
 	sscanf(reply.c_str(), "%s\n%s", tmp1, tmp2);
 	outNic = YARPString(tmp1);
 	outIp = YARPString(tmp2);
+
+	//printf("Oi! Nic! got %s // %s\n", outNic.c_str(), outIp.c_str());
 
 	// close the connection
 	close();

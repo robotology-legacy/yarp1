@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-write.cpp,v 1.4 2004-07-09 16:42:59 eshuy Exp $
+/// $Id: yarp-write.cpp,v 1.5 2004-07-12 12:05:02 eshuy Exp $
 ///
 ///
 
@@ -65,8 +65,12 @@
 #include <iostream>
 using namespace std;
 
+extern int __debug_level;
+
 int main(int argc, char *argv[])
 {
+  //__debug_level = 100;
+
   argc--;
   argv++;
 
