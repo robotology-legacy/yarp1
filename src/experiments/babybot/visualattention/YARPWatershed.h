@@ -179,6 +179,14 @@ public:
 	void foveaBlob(YARPImageOf<YarpPixelInt>& tagged, YARPBox &box);
 
 	void setPosition(const YVector &p) { _gaze.update(p); }
+	inline bool isWithinRange(int x, int y, double &elev, double &az)
+	{
+		_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, elev, az , x, y);
+		if (elev<2.*PI*(-65.)/360. || elev>2.*PI*(-20.)/360. || az<2.*PI*(-40.)/360. || az>2.*PI*50./360.)
+			return false;
+		else
+			return true;
+	}
 };
 
 #endif

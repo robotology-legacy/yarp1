@@ -142,6 +142,7 @@ public:
 	YARPSemaphore _sema;
 };
 
+
 void secondthread::Body(void)
 {
 	YARPInputPortOf<YVector> inVector;
@@ -236,8 +237,6 @@ void mainthread::Body (void)
 	out3.Resize(_xsize, _ysize);
 	col_cart.Resize(_xsize, _ysize);
 
-	//YARPConvKernelFile::Write("./prewitt.yck\0",prewitt);
-	
 	inImage.Register(_inName1, _netname1);
 	inBottle.Register(_inName2, _netname0);
 	inVector.Register(_inName4, _netname0);
@@ -248,6 +247,7 @@ void mainthread::Body (void)
 
 	int frame_no = 0;
 	bool moved = false;
+	bool targetFound = false;
 
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n"); // to stop the execution on this instruction
@@ -287,12 +287,13 @@ testDiff:
 		ACE_OS::printf("done! Max=%d\n", maxDiff);
 	
 	//att_mod.setParameters(109, 0, 18, 0, 1);
-	start = YARPTime::GetTimeAsSeconds();
 	bool isStarted = true;
-	
+			
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n");
 	imgOld.Refer(inImage.Content());			
+	
+	start = YARPTime::GetTimeAsSeconds();
 	
 	while (!IsTerminated())	{
 		YARPTime::DelayInSeconds(0.010);
@@ -395,11 +396,11 @@ testDiff:
 					// filtro a mediana x eliminare i pixel isolati? Ma è lento...
 					// se c'è solo un pixel ignoralo?
 					// se c'è stato un movimento lo dovresti ricordare e spostarsi lì in ogni caso?
-					/*for (int y=0; y<_srho; y++)
-						for (int x=0; x<_stheta; x++)
+					for (int y=0; y<_srho; y++) {
+						for (int x=0; x<_stheta; x++) {
 							// points near the fovea are privileged?
 							// should I calculare the center of mass of the variations and the area?
-							if (tmp2(x,y)>maxDiff) {
+							if (tmp2(x,y)>maxDiff && att_mod.isWithinRange(x,y)) {
 								// TO DO: Add a check on the limits
 								ACE_OS::printf("Difference detected at (%d,%d)=%d\n",x,y,tmp(x,y));
 								out.Zero();
@@ -418,9 +419,12 @@ testDiff:
 								tmpBottle.writeInt(-1);
 								tmpBottle.writeInt(-1);
 								tmpBottle.writeInt(-1);
+								targetFound = false;
 								imgOld.Refer(img);
 								goto printFrame;
-							}*/
+							}
+						}
+					}
 				}
 
 				DBGPF1 ACE_OS::printf(">>> reconstruct colors\n");
@@ -439,15 +443,14 @@ testDiff:
 				found=att_mod.Apply(colored_u);
 				//if (checkFix(1)==1 && found) {
 				if (found) {
-					// no next target
 					ACE_OS::printf("No point: target found\n");
 					tmpBottle.writeInt(-1);
 					tmpBottle.writeInt(-1);
 					tmpBottle.writeInt(-1);
 					tmpBottle.writeInt(-1);
 					tmpBottle.writeInt(-1);
+					targetFound = true;
 				} else {
-					// next target
 					//ACE_OS::printf("Sending point\n");
 					tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
 					tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
@@ -492,6 +495,7 @@ testDiff:
 			} else {
 				ACE_OS::printf("No point: the robot is moving\n");
 				moved = true;
+				targetFound = false;
 				tmpBottle.writeInt(-1);
 				tmpBottle.writeInt(-1);
 				tmpBottle.writeInt(-1);

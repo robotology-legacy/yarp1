@@ -1252,6 +1252,16 @@ void YARPWatershed::ComputeSalienceAll(int num_blob, int last_tag)
 }
 
 
+/*bool YARPWatershed::isWithinRange(int x, int y, double &elev, double &az)
+{
+	_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, elev, az , x, y);
+	if (elev<2.*PI*(-65.)/360. || elev>2.*PI*(-20.)/360. || az<2.*PI*(-40.)/360. || az>2.*PI*50./360.)
+		return false;
+	else
+		return true;
+}*/
+
+
 void YARPWatershed::checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num)
 {
 	for (int i=0; i<num; i++) {
@@ -1350,18 +1360,16 @@ void YARPWatershed::RemoveNonValid(int last_tag, const int max_size, const int m
 
 	for (int i = 1; i <= last_tag;i++) {
 		int area = TotalArea(m_boxes[i]);
-		//_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, m_boxes[i].elev, m_boxes[i].az , (int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y);
-		if (// in effetti eliminare i blob troppo piccoli nn è molto utile se
-			// i blob vengono comunque ordinati x grandezza
-			area < min_size ||
-			area > max_size )
-		{
+		// eliminare i blob troppo piccoli nn è molto utile se
+		// i blob vengono comunque ordinati x grandezza
+		if ( area < min_size ||	area > max_size ) {
 			m_boxes[i].valid=false;
 		} else {
-			_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, m_boxes[i].elev, m_boxes[i].az , (int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y);
-			if (m_boxes[i].elev<2*PI*(-65.)/360 || m_boxes[i].elev>2*PI*(-20.)/360 ||
-				m_boxes[i].az<2*PI*(-40.)/360 || m_boxes[i].az>2*PI*50./360)
-				m_boxes[i].valid=false;
+			m_boxes[i].valid=isWithinRange((int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y, m_boxes[i].elev, m_boxes[i].az);
+			/*_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, m_boxes[i].elev, m_boxes[i].az , (int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y);
+			if (m_boxes[i].elev<2.*PI*(-65.)/360. || m_boxes[i].elev>2.*PI*(-20.)/360. ||
+				m_boxes[i].az<2.*PI*(-40.)/360. || m_boxes[i].az>2.*PI*50./360.)
+				m_boxes[i].valid=false;*/
 		}
 	}
 

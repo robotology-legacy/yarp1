@@ -278,6 +278,8 @@ public:
 		salienceTD=sTD;
 	}
 	inline void setPosition(const YVector &p) { rain.setPosition(p); }
+	inline bool isWithinRange(int x, int y) { double elev, az; return rain.isWithinRange(x, y, elev, az); }
+	inline bool isWithinRange(int x, int y, double &elev, double &az) { return rain.isWithinRange(x, y, elev, az); }
 	void updateIORTable();
 	void resetIORTable();
 	void drawIORTable();
