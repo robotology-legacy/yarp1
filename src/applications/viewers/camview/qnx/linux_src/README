@@ -1,0 +1,146 @@
+/*
+  Bits and bobs to construct a cheap linux cogcam based on Zut!.
+  Not set up for a "make install".
+*/
+
+Zut! A graphical back-end
+=========================
+
+Copyright 1999 by Sebastien Loisel
+
+Time and time again I've needed a quick and dirty way to visualize some data
+interactively and simply, a quick 30 minute hack. X is intricate enough to
+make this hard. Zut attempts to solve this problem. You can put RGB
+picture on the screen by feeding it the RGB values, 8 bits for each of R,
+G and B (total 24 bits). It can also put PMB pictures on the screen.
+
+If you wish to animate something, you can just keep feeding it new pixels.
+
+Zut is french for something like "dang!" It's not pronounced "zoot";
+unfortunately, the french "u" sound does not exist in english. So until
+you meet a french speaking person you can ask, just say it however you want.
+
+License
+=======
+
+This is GPL stuff. See gpl.txt.
+
+Building
+========
+
+make
+
+Testing
+=======
+
+Try these. Hint: ctrl-c at the command-line of the shell that you're using
+should kill zut if you need it.
+
+zut -l
+mandel | zut -v
+mandel 300 300 | zut 300 300 -v
+boing | zut -vfb
+boing 400 300 100 | zut 400 300 -fbv
+
+Installing
+==========
+
+If you want you can put the zut binary in your /usr/local/bin by typing
+
+make install
+
+Documentation
+=============
+
+This is it baby. Look at mandel.c for an example.
+
+To put a picture on the screen:
+
+for(i=0;i<height;i++)
+  for(j=0;j<width;j++)
+    { putchar(red[i][j]); putchar(green[i][j]); putchar(blue[i][j]); }
+
+pipe that into zut. You need to tell zut the size of the picture. If
+width=30 and height=93 then you do
+
+zut 30 93
+
+For a list of command-line options for zut, type
+
+zut -h
+
+FAQ and Troubleshooting
+=======================
+
+Q: Can't compile!
+A:
+If it's complaining about some libraries or symbols, make sure your linker
+and stuff is ok and that libXext is getting linked properly to zut.
+You may have to edit the Makefile (hey, it's twenty lines long).
+
+---
+
+Q: It's not working at all!
+A:
+Try with the -n or -x options if something funny is going on. WARNING:
+-x is VERY slow.
+
+---
+
+Q: It display random colors!
+A:
+Make certain you are outputting the right stuff. For example if you do
+boing 250 250 | zut 300 300 -fbv, that will be pretty random. The problem
+is that boing is outputting in the wrong resolution. Make certain that you
+start zut in the proper resolution.
+
+---
+
+Q: How do I tell Zut what size window to open?
+A:
+If you want your program to be able to tell zut what size window to open,
+you could try giving the -p option to zut and writing an appropriate header
+to stdout (see zut -h to see what I'm talking about). Otherwise, you can
+give the width and height as a parameter to zut. See zut -h for a full
+list of options.
+
+---
+
+Q: Zut is giving me a cryptic error message; something about shmget
+or shmctl.
+A:
+If you think you're having problems because you're running out of shared
+memory resources, try looking at the man page for ipcs(8) and ipcrm(8).
+Zut 1.1 would not free its shared memory resources at termination, perhaps
+some other programs have the same problem.
+
+---
+
+Q: It's slow!
+A:
+For a double-buffered kind of feeling, try -b. It won't draw the scanlines
+as it receives them, only after a screenful has been received. This way
+you won't get any partially drawn picture on the screen.
+
+If it's still too slow, make sure you're running locally and if possible
+using MIT-SHM. To make zut output more information, use the -v option
+(verbose). Zut can also print a frames-per-second count with the -f option.
+I can get 11fps in 500x500 on my machine and that's a crappy machine.
+
+---
+
+Q: Why are my programs slower than boing.c?
+A:
+First off boing is very simple so that helps being fast. Second, if you
+actually put all your data to stdout using putchar(), that's slow. That's
+because each putchar generates a kernel trip. If instead you put all your
+data in a buffer and then blast it to the pipe with fwrite or write, it
+will be much faster. That's what boing does.
+
+---
+
+Q: Contact?
+A:
+Sebastien Loisel
+http://www.math.mcgill.ca/~loisel/zut/zut.html
+loisel@math.mcgill.ca
