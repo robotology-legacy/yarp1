@@ -7,14 +7,14 @@
 // October 2003 -- by nat
 //////////////////////////////////////////////////////////////////////
 
-// $Id: YARPPidFilter.h,v 1.1 2003-10-21 14:34:51 babybot Exp $
+// $Id: YARPPidFilter.h,v 1.2 2003-10-30 13:32:07 beltran Exp $
 
 #ifndef __YARPPidFilterh__
 #define __YARPPidFilterh__
 
-#ifdef __QNX__
-#include <YARPSafeNew.h>
-#endif
+//#ifdef __QNX__
+//#include <YARPSafeNew.h>
+//#endif
 
 #include <assert.h>
 #include <math.h>
