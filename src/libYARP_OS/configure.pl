@@ -47,7 +47,7 @@ if (-e $config_file)
 	#		print "Matched: $`<$&>$'\n";
 			$contextual = $1;
 		}
-		elsif (/^([A-Z0-9_]+)= ?/)
+		elsif (/^([A-Za-z0-9_]+)= ?/)
 		{
 			$options{$contextual."<-".$1} = $';
 		}
@@ -60,7 +60,6 @@ if (-e $config_file)
 #
 #
 
-my $line = undef;
 print "Now I'm going to ask a few questions to help the configuration\n";
 print "So, let's start...\n";
 print "For pathnames you can use (type) the pre-defined value \$YARP_ROOT\n";
@@ -69,24 +68,37 @@ print "Please, use always the forward slash as a separator!\n";
 
 print "I determined already that you're running on Windows\n";
 
-$options{"Architecture<-OS"} = "winnt";
-print "Just to make sure, what's your OS [$options{\"Architecture<-OS\"}]? ";
-chomp($line = <STDIN>);
-$options{"Architecture<-OS"} = $line if (defined($line) && $line ne '');
+get_option_hash ("Architecture<-OS", "winnt", "Just to make sure, what's your OS?");
+get_option_hash ("Compile_OS<-ACE_PATH", "\$YARP_ROOT/src/ACE_wrappers", "Where has ACE been unpacked?");
+get_option_hash ("Compile_OS<-ACE_Rebuild", "NO", "Do you want to rebuild ACE, i.e. clean before building?");
 
-print "Where has ACE been unpacked [$options{\"Compile_OS<-ACE_PATH\"}]? "; 
-chomp($line = <STDIN>);
-$options{"Compile_OS<-ACE_PATH"} = $line if (defined($line) && $line ne '');
-
-$options{"Compile_OS<-ACE_Rebuild"} = "NO";
-print "Do you want to rebuild ACE, i.e. clean before building [$options{\"Compile_OS<-ACE_Rebuild\"}]? ";
-chomp($line = <STDIN>);
-$options{"Compile_OS<-ACE_Rebuild"} = $line if (defined($line) && $line ne '');
+print "Would you like to set a default for library compilation?\n";
+get_option_hash ("Compile_OS<-Debug", "FALSE", "Debug mode?");
+get_option_hash ("Compile_OS<-Release", "FALSE", "Release mode (optimization ON)?");
+get_option_hash ("Compile_OS<-Install", "FALSE", "Install after compile?");
 
 print "We're done for now, the context file is being created: \"$config_file\"\n";
 
 #
-# re-creating the config file.
+# uses global value %options
+#
+sub get_option_hash
+{
+	my ($key, $default_value, $message) = @_;
+	my $line = undef;
+
+	$options{$key} = $default_value if (!exists($options{$key}));
+
+	print "$message [$options{$key}] ";
+	chomp($line = <STDIN>);
+	$options{$key} = $line if (defined($line) && $line ne '');
+
+	0;
+}
+
+
+#
+# creating a new config file.
 # 
 open CONFIG, "> $config_file";
 select CONFIG;

@@ -65,8 +65,9 @@ while (<CONFIG>)
 #		print "Matched: $`<$&>$'\n";
 		$contextual = $1;
 	}
-	elsif (/^([A-Z0-9_]+)= ?/)
+	elsif (/^([A-Za-z0-9_]+)= ?/)
 	{
+#		print "Matched: $`<$&>$'\n";
 		$options{$contextual."<-".$1} = $';
 	}
 }
@@ -79,29 +80,30 @@ close CONFIG;
 #	print "$key => $value\n";
 #}
 
-if (exists $options{"Compile_OS<-ACE_PATH"})
+if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
 {
-	print "Looking for ACE...\n";
-	$options{"Compile_OS<-ACE_PATH"} =~ s/\$YARP_ROOT/$yarp_root/;
-	if (-e $options{"Compile_OS<-ACE_PATH"} &&
-		-e "$yarp_root/include/$options{\"Architecture<-OS\"}/ace" )
+	if (exists $options{"Compile_OS<-ACE_PATH"})
 	{
-		# print "Compiling ACE...\n";
-		if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
+		print "Looking for ACE...\n";
+		$options{"Compile_OS<-ACE_PATH"} =~ s/\$YARP_ROOT/$yarp_root/;
+		if (-e $options{"Compile_OS<-ACE_PATH"} &&
+			-e "$yarp_root/include/$options{\"Architecture<-OS\"}/ace" )
 		{
 			do_ace_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"}|");
 		}
-		else
-		{
-			print "Not compiling/installing ACE, I assume it's already installed\n";
-		}
+	}
+	else
+	{
+		print "I'm assuming you've got ACE installed already!\n";
+		print "Make sure this is the case to continue compilation\n";
 	}
 }
-else
-{
-	print "I'm assuming you've got ACE installed already!\n";
-	print "Make sure this is the case to continue compilation\n";
-}
+
+#
+# override.
+$debug = ($options{"Compile_OS<-Debug"} eq "TRUE") ? '1' : '';
+$release = ($options{"Compile_OS<-Release"} eq "TRUE") ? '1' : '';
+$install = ($options{"Compile_OS<-Install"} eq "TRUE") ? '1' : '';
 
 #
 #
