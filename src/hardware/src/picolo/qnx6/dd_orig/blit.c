@@ -32,8 +32,8 @@
 #include <devctl.h>
 #include <sys/dcmd_chr.h>
 
-#define m_W 256
-#define m_H 256
+#define m_W 50 
+#define m_H 50 
 
 
 // we'll be testing three different types of blits, defaulting to the first

@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.12 2003-07-03 09:27:20 beltran Exp $
+#$Id: Makefile,v 1.13 2003-07-29 13:40:57 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -32,12 +32,10 @@ clean:
 	
 install:
 	@echo
-	@echo ---------------Instaling YARPPicoloDEviceDriver.ib --------------
+	@echo ---------------Instaling YARPPicoloDeviceDriver.lib --------------
 	@echo
 	$(CP) *.lib $(YARP_ROOT)/lib/$(OS)
 	$(CP) *.h 	 $(YARP_ROOT)/include
-	#cp ./dd_orig/*.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
-	#cp ./dd_orig/*.lib $(YARP_ROOT)/lib/$(OS)
 	+cd ./dd_orig; make install
 	
 subdirs:

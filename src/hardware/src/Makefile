@@ -7,15 +7,15 @@ all: compile drivers
 
 clean:
 	@for d in $(SUBDIRS) ; do \
-		( cd $$d/$(OS) ; $(MAKE) $(MAKEFLAGS) clean ) ; done
+		( cd $$d ; $(MAKE) $(MAKEFLAGS) clean ); done
 
 install: drivers
 
 compile:
 	@for d in $(SUBDIRS) ; do \
-		( cd $$d/$(OS) ; $(MAKE) $(MAKEFLAGS) ) ; done
+		( cd $$d ; $(MAKE) $(MAKEFLAGS) ); done
 
 drivers: 
 	@for d in $(SUBDIRS) ; do \
-		( cd $$d/$(OS) ; $(MAKE) $(MAKEFLAGS) install ) ; done
+		( cd $$d ; $(MAKE) $(MAKEFLAGS) install ) ; done
 	+cd ./common; make install
