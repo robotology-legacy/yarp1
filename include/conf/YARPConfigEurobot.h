@@ -27,21 +27,21 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPConfigRobotcub.h,v 1.2 2004-06-02 22:18:59 gmetta Exp $
+/// $Id: YARPConfigEurobot.h,v 1.1 2004-06-02 22:18:59 gmetta Exp $
 ///
 ///
 
-#ifndef __YARPConfigRobotcubh__
-#define __YARPConfigRobotcubh__
+#ifndef __YARPConfigEuroboth__
+#define __YARPConfigEuroboth__
 
 ///
 /// a global define to detect the robot type.
-#ifndef __ROBOTCUB__
-#define __ROBOTCUB__ 1
+#ifndef __EUROBOT__
+#define __EUROBOT__ 1
 #endif
 
 /// config path, relative to YARP_ROOT
-const char *const ConfigFilePath = "conf/robotcub";
+const char *const ConfigFilePath = "conf/eurobot";
 
 
 

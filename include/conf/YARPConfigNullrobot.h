@@ -27,11 +27,15 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPConfigNullrobot.h,v 1.1 2004-06-01 13:02:06 babybot Exp $
+/// $Id: YARPConfigNullrobot.h,v 1.2 2004-06-02 22:18:59 gmetta Exp $
 ///
 ///
 
 #ifndef __YARPConfigNullroboth__
 #define __YARPConfigNullroboth__
+
+#ifndef __NOROBOT__
+#define __NOROBOT__ 1
+#endif
 
 #endif

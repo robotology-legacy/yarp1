@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.52 2004-05-19 14:09:46 babybot Exp $
+/// $Id: main.cpp,v 1.53 2004-06-02 22:18:59 gmetta Exp $
 ///
 ///
 
@@ -80,27 +80,24 @@
 #include <YARPLogpolar.h>
 #include <YARPBottle.h>
 #include <YARPBottleContent.h>
+#include <YARPParseParameters.h>
 
-#if defined(__QNXEurobot__)
+
+#if defined(__QNX6__) && defined(__EUROBOT__)
 
 #	include <YARPEurobotGrabber.h>
 #	define Grabber YARPEurobotGrabber
 #	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
-#elif defined(__WIN32Babybot__)
+#elif defined(__BABYBOT__)
 
 #	include <YARPBabybotGrabber.h>
 #	define Grabber YARPBabybotGrabber
 #	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
-#elif defined(__QNXBabybot__)
-
-#	include <YARPBabybotGrabber.h>
-#	define Grabber YARPBabybotGrabber
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
-
-#elif defined(__LinuxTest__)
-/// apparently small difference in macro subst, need to investigate, weird.
+#elif defined(__NOROBOT__)
+/// apparently small differences in macro subst for Linux, need to investigate, weird!
+/// LATER: this macro part is not completed - need to check macro subst. on Linux.
 #	define Grabber
 #	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>(x)(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
@@ -123,88 +120,102 @@ bool	_simu		= false;
 bool	_logp		= false;
 int		_board_no	= 0;
 bool	_fgnetdata	= false;
+bool	_help		= false;
 
 extern int __debug_level;
 
+int PrintHelp (void)
+{
+	ACE_OS::fprintf (stdout, "USAGE:\n");
+	ACE_OS::fprintf (stdout, "-help, print help and exit\n");
+	ACE_OS::fprintf (stdout, "-name <str>, use <str> as port name prefix (the leading / is added automatically)\n");
+	ACE_OS::fprintf (stdout, "-w <int>, set the acquisition width\n");
+	ACE_OS::fprintf (stdout, "-h <int>, set the acquisition height\n");
+	ACE_OS::fprintf (stdout, "-b <int>, board number (0 or 1)\n");
+	ACE_OS::fprintf (stdout, "-t <str>, run in client mode and define a new port with name <str>\n");
+	ACE_OS::fprintf (stdout, "-s, simulation mode\n");
+	ACE_OS::fprintf (stdout, "-l, output log polar images\n");
+	ACE_OS::fprintf (stdout, "-net <str>, define the network name (in a multi-network configuration)\n");
+	ACE_OS::fprintf (stdout, "-o <int>, set acquisition vertical offset\n");
+	ACE_OS::fprintf (stdout, "-f, activate external control of acquisition parameters (through YARPBottle messages)\n");
 
-/// LATER: used to parse command line options.
+	return YARP_OK;
+}
+
+
 int ParseParams (int argc, char *argv[]) 
 {
 	ACE_OS::sprintf (_name, "/%s/o:img", argv[0]);
 	ACE_OS::sprintf (_fgdataname,"/%s/i:fgdata", argv[0]);
 	ACE_OS::sprintf (_netname, "default");
-	int i;
 
-	for (i = 1; i < argc; i++)
+	YARPString tmps;
+
+	if (YARPParseParameters::parse(argc, argv, "help") ||
+		argc == 1 ||
+		YARPParseParameters::parse(argc, argv, "?") ||
+		YARPParseParameters::parse(argc, argv, "-help"))
 	{
-		if (argv[i][0] == '+')
-		{
-			ACE_OS::sprintf (_name, "/%s/o:img", argv[i]+1);
-			ACE_OS::sprintf (_fgdataname,"/%s/i:fgdata", argv[i]+1);
-		}
-		else
-		if (argv[i][0] == '-')
-		{
-			switch (argv[i][1])
-			{
-			case 'w':
-				_sizex = ACE_OS::atoi (argv[i+1]);
-				ACE_ASSERT (_sizex <= 384);
-				ACE_ASSERT ((_sizex % 8) == 0);
-				i++;
-				break;
-
-			case 'h':
-				_sizey = ACE_OS::atoi (argv[i+1]);
-				ACE_ASSERT (_sizey <= 272);
-				i++;
-				break;
-
-			case 'b':
-				_board_no = ACE_OS::atoi (argv[i+1]);
-				i++;
-				break;
-
-			case 't':
-				ACE_OS::fprintf (stdout, "grabber acting as a receiver client...\n");
-				ACE_OS::sprintf (_name, "%s", argv[i+1]);
-				i++;
-				_client = true;
-				_simu = false;
-				break;
-
-			case 's':
-				ACE_OS::fprintf (stdout, "simulating a grabber...\n");
-				_simu = true;
-				_client = false;
-				break;
-
-			case 'l':
-				ACE_OS::fprintf (stdout, "logpolar mode\n");
-				_logp = true;
-				break;
-
-			case 'n':
-				ACE_OS::fprintf (stdout, "sending to network : %s\n", argv[i+1]);
-				ACE_OS::sprintf (_netname, "%s", argv[i+1]);
-				i++;
-				break;
-
-			case 'f':
-				ACE_OS::fprintf(stdout, "grabber receiving data from network mode...\n");
-				_fgnetdata = true;
-				break;
-			case 'o':
-				_yoffset = ACE_OS::atoi (argv[i+1]);
-				i++;
-				break;
-			}
-		}
-		else
-		{
-			ACE_OS::fprintf (stderr, "unrecognized parameter %d:%s\n", i, argv[i]);
-		}
+		_help = true;
+		return YARP_OK;
 	}
+
+	if (YARPParseParameters::parse(argc, argv, "name", tmps))
+	{
+		ACE_OS::sprintf (_name, "/%s/o:img", tmps.c_str());
+		ACE_OS::sprintf (_fgdataname,"/%s/i:fgdata", tmps.c_str());
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "w", &_sizex))
+	{
+		ACE_ASSERT (_sizex <= 384 && _sizex > 0);
+		ACE_ASSERT ((_sizex % 8) == 0);
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "h", &_sizey))
+	{
+		ACE_ASSERT (_sizey <= 272 && _sizey > 0);
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "b", &_board_no))
+	{
+		ACE_ASSERT (_board_no >= 0 && _board_no <= 1);
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "t", tmps))
+	{
+		ACE_OS::fprintf (stdout, "grabber acting as a receiver client...\n");
+		ACE_OS::sprintf (_name, "/%s/i:img", tmps.c_str());
+		_client = true;
+		_simu = false;
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "s"))
+	{
+		ACE_OS::fprintf (stdout, "simulating a grabber...\n");
+		_simu = true;
+		_client = false;
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "l"))
+	{
+		ACE_OS::fprintf (stdout, "logpolar mode\n");
+		_logp = true;
+	}
+	
+	if (YARPParseParameters::parse(argc, argv, "net", tmps))
+	{
+		ACE_OS::fprintf (stdout, "sending to network : %s\n", tmps.c_str());
+		ACE_OS::sprintf (_netname, "%s", tmps.c_str());
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "f"))
+	{
+		ACE_OS::fprintf(stdout, "grabber receiving data from network mode...\n");
+		_fgnetdata = true;
+	}
+			
+	YARPParseParameters::parse(argc, argv, "o", &_yoffset);
 
 	if (_sizex == -1 && _sizey != -1)
 		_sizex = _sizey;
@@ -263,7 +274,7 @@ int _grabber2rgb (const unsigned char *in, unsigned char *out, int szx, int szy)
 //     Revision:  21/01/2004: Removed some prints
 // =====================================================================================
 
-#if !defined(__LinuxTest__)
+#if !defined(__NOROBOT__)
 class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 {
 	protected:
@@ -350,23 +361,6 @@ void FgNetDataPort::OnRead(void)
 ///
 ///
 ///
-#if 0
-#include <signal.h>
-
-bool finished = false;
-
-void _hh (int sig)
-{
-	ACE_UNUSED_ARG(sig);
-
-	finished = true;
-	ACE_OS::signal (SIGINT, _hh);
-}
-#endif
-
-///
-///
-///
 ///
 class mainthread : public YARPThread
 {
@@ -390,7 +384,7 @@ public:
 			_runAsLogpolarSimulation ();
 			return;
 		}
-#if !defined(__LinuxTest__)
+#if !defined(__NOROBOT__)
 		else
 		if (_logp)
 		{
@@ -479,7 +473,6 @@ int mainthread::_runAsSimulation (void)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
 			ACE_OS::fprintf (stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
-			// ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
 	}
@@ -503,8 +496,6 @@ int mainthread::_runAsLogpolarSimulation (void)
 	img.Resize (_xsize, _ysize);
 	lp.Resize (_stheta, _srho);
 
-
-///	YARPOutputPortOf<YARPGenericImage> (out)(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
 	DeclareOutport(out);
 
 	out.Register (_name, _netname);
@@ -543,7 +534,6 @@ int mainthread::_runAsLogpolarSimulation (void)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
 			ACE_OS::fprintf (stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
-			// ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
 	}
@@ -552,14 +542,15 @@ int mainthread::_runAsLogpolarSimulation (void)
 	return YARP_OK;
 }
 
-#if !defined(__LinuxTest__)
+#if !defined(__NOROBOT__)
 int mainthread::_runAsLogpolar (void)
 {
-#if defined(__QNXEurobot__)
+#if defined(__QNX6__) && defined(__EUROBOT__)
 	YARPEurobotGrabberParams params;
 #else
 	YARPBabybotGrabberParams params;
-#endif	
+#endif
+
 	using namespace _logpolarParams;
 
 	Grabber grabber;
@@ -630,7 +621,6 @@ int mainthread::_runAsLogpolar (void)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
 			ACE_OS::fprintf (stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
-			//ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
 	}
@@ -699,7 +689,6 @@ int mainthread::_runAsCartesian (void)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
 			ACE_OS::fprintf (stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
-			// ACE_OS::fprintf (stdout, "frame number %d acquired\r", frame_no);
 			start = cur;
 		}
 	}
@@ -723,13 +712,14 @@ int mainthread::_runAsCartesian (void)
 ///
 int main (int argc, char *argv[])
 {
-	///__debug_level = 80;
-
 	YARPScheduler::setHighResScheduling ();
 
 	ParseParams (argc, argv);
-
-///	ACE_OS::signal (SIGINT, _hh);
+	if (_help)
+	{
+		PrintHelp ();
+		return YARP_OK;
+	}
 
 	mainthread _thread;
 	_thread.Begin();
