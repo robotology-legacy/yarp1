@@ -1,7 +1,7 @@
 #ifndef __YARPEUROBOTHEAD__
 #define __YARPEUROBOTHEAD__
 
-// $Id: YARPEurobotHead.h,v 1.7 2004-01-07 17:27:52 beltran Exp $
+// $Id: YARPEurobotHead.h,v 1.8 2004-01-08 16:09:48 beltran Exp $
 
 #include <conf/YARPConfig.h>
 #include <YARPGenericControlBoard.h>
@@ -18,8 +18,8 @@ namespace _limits
 namespace _joints
 {
 	const int neckTilt = 0;
-	const int rightEye = 1;
-	const int leftEye = 2;
+	const int leftEye = 1;
+	const int rightEye = 2;
 	const int neckPan = 3;
 };
 
