@@ -11,6 +11,7 @@
 #include <YARPBabybotHead.h>
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
+#include <YARPString.h>
 
 #define HEAD_THREAD_VERBOSE
 
@@ -61,26 +62,18 @@ private:
 	YVector _inertial;
 	bool _directCmdFlag;
 
-	char _iniFile[80];
-	char _path[255];
+	YARPString _iniFile;
+	YARPString _path;
 
 	// output ports
 	YARPOutputPortOf<YVector> _inertialPort;
 	YARPOutputPortOf<YARPControlBoardNetworkData> _statusPort;
-//	YARPOutputPortOf<YVector> _positionPort;
+	YARPOutputPortOf<YVector> _positionPort;
 	
 	//
 	YARPInputPortOf<YVector> _inPort;
 	//	YARPInputPortOf<YVector> _directCmdPort;
 	
-	/*HeadStatus		head_status;			//collect status information
-	Vergence		*p_control_vergence;	//vergence
-	SaccadeBehavior	*p_control_saccade;		//saccade
-	GazeShift		*p_control_smooth;		//gaze control
-	Avoidance		*p_avoid;				//limit avoidance
-	Inertial		*p_vor;					//vor 
-	*/
-
 	// FSM
 	HIDirectCmdStart	_hiDirectCmdStart;
 	HODirectCmdEnd		_hoDirectCmdEnd;
@@ -88,6 +81,8 @@ private:
 	HSDirectCmd			_hsDirectCmd;
 	HSDirectCmdStop		_hsDirectCmdStop;
 	HSTrack				_hsTrack;
+
+	unsigned int _count;
 
 };
 
@@ -113,6 +108,15 @@ inline void HeadThread::write_status()
 	_inertialPort.Content() = _inertial;
 	_inertialPort.Write();
 
+	_positionPort.Content() = _head._status._current_position;
+	_positionPort.Write();
+
+	if (_head.checkLimits(_head._status._current_position.data(), _deltaQ.data()))
+	{
+//		HEAD_THREAD_DEBUG(("limit reached #%u\n", _count));
+	}
+
+//	printf("#%u %lf\n", _count, _deltaQ(3));
 	_head.velocityMove(_deltaQ.data());
 }
 

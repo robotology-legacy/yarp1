@@ -1,5 +1,5 @@
 // by nat
-// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.6 2003-10-24 14:52:48 babybot Exp $
+// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.7 2003-10-28 18:01:28 babybot Exp $
 
 #ifndef __MEIONBABYBOTHEAD__
 #define __MEIONBABYBOTHEAD__
@@ -61,6 +61,8 @@ public:
 		_encoderToAngles = NULL;
 		_stiffPID = NULL;
 		_maxDAC = NULL;
+		_limitsMax = NULL;
+		_limitsMin = NULL;
 		_nj = 0;
 		
 		_nj = _BabybotHead::_nj;
@@ -96,6 +98,10 @@ public:
 			delete [] _stiffPID;
 		if (_maxDAC != NULL)
 			delete [] _maxDAC;
+		if (_limitsMax != NULL)
+			delete [] _limitsMax;
+		if (_limitsMin != NULL)
+			delete [] _limitsMin;
 	}
 
 	int load(const YARPString &path, const YARPString &init_file)
@@ -144,6 +150,20 @@ public:
 		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 
+		///////////////// HEAD LIMITS
+		if (cfgFile.get("[LIMITS]", "Max", _limitsMax, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+		if (cfgFile.get("[LIMITS]", "Min", _limitsMin, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+
+		// convert limits to radiants
+		for(i = 0; i < _nj; i++)
+		{
+			_limitsMax[i] = _limitsMax[i] * degToRad;
+			_limitsMin[i] = _limitsMin[i] * degToRad;
+		}
+		//////////////////////////////////////////////////////////////////
+
 		// build encoder to angles
 		if (cfgFile.get("[GENERAL]", "Encoder", _encoderToAngles, _nj) == YARP_FAIL)
 			return YARP_FAIL;
@@ -171,6 +191,10 @@ private:
 			delete [] _stiffPID;
 		if (_maxDAC != NULL)
 			delete [] _maxDAC;
+		if (_limitsMax != NULL)
+			delete [] _limitsMax;
+		if (_limitsMin != NULL)
+			delete [] _limitsMin;
 		
 		_highPIDs = new LowLevelPID [nj];
 		_lowPIDs = new LowLevelPID [nj];
@@ -178,6 +202,8 @@ private:
 		_signs = new double [nj];
 		_axis_map = new int [nj];
 		_encoderToAngles = new double [nj];
+		_limitsMax = new double [nj];
+		_limitsMin = new double [nj];
 		_stiffPID = new int [nj];
 		_maxDAC = new double [nj];
 	}
@@ -193,6 +219,8 @@ public:
 	int _nj;
 	double *_maxDAC;
 	YARPString _inertialConfig;
+	double *_limitsMax;
+	double *_limitsMin;
 };
 
 class YARPMEIOnBabybotHeadAdapter : public YARPMEIDeviceDriver

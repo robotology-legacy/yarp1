@@ -10,10 +10,11 @@
 
 const int __rate = 20;
 const char *__name = "headsink";
+const char *__inifile = "headcontrol.ini";
 
 int main(int argc, char* argv[])
 {
-	Sink _headSink(__rate, __name);
+	Sink _headSink(__rate, __name, __inifile);
 	_headSink.start();
 
 	while(true)

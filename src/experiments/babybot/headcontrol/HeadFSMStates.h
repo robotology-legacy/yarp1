@@ -91,14 +91,14 @@ public:
 		_command = cmd;
 	}
 
-	void setPIDs(int nj, double *k)
+	void setPIDs(int nj, const YARPPidFilter *p)
 	{
 		_nj = nj;
 		_pids = new YARPPidFilter[nj];
 		int i;
 		for(i = 0; i < _nj; i++)
 		{
-			_pids[i].setKs(k[i]);
+			_pids[i] = p[i];
 		}
 		
 	}
@@ -107,7 +107,7 @@ public:
 		int i;
 		for(i = 1; i<=_nj; i++)
 		{
-			t->_directCmd(i) = 0.06*_pids[i-1].pid(t->_status._current_position(i) - _command(i));
+			t->_directCmd(i) = _pids[i-1].pid(t->_status._current_position(i) - _command(i));
 		}
 	}
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: ImgTrack.cpp,v 1.5 2003-10-27 17:43:54 babybot Exp $
+/// $Id: ImgTrack.cpp,v 1.6 2003-10-28 18:01:27 babybot Exp $
 ///
 ///
 
@@ -539,7 +539,7 @@ void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<
 
 	if (quality < QTHRESHOLD)
 	{
-		printf("low match quality (%g)\n", quality);
+		///printf("low match quality (%g)\n", quality);
 
 		if (_low_q_ct < QTHR2)
 		{

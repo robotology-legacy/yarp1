@@ -15,83 +15,46 @@ HeadThread::HeadThread(int rate, const char *name, const char *ini_file):
 YARPRateThread(name, rate),
 _inPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 // _directCmdPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
-_inertialPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
-// _positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+_inertialPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
+_positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 {
 	char *root = GetYarpRoot();
 	char path[256];
+	ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
+	_iniFile = YARPString(ini_file);
+	_path = YARPString(path);
 
 	// register ports
 	// _directCmdPort.Register("/headcontrol/direct/i");
 	_inPort.Register("/headcontrol/i");
 
 	_inertialPort.Register("/headcontrol/inertial/o");
-	// _positionPort.Register("/headcontrol/position/o");
+	_positionPort.Register("/headcontrol/position/o");
 
 	_directCmdFlag = false;
-
-	
-	#if defined(__WIN32__)
-		ACE_OS::sprintf (path, "%s\\conf\\babybot\\\0", root); 
-	#elif defined (__QNX6__)
-		ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
-	#endif
-	
+		
+	YARPConfigFile file;
+	file.set(_path, _iniFile);
 	_fsm = new HeadFSM(&_head);
-	strcpy(_iniFile, ini_file);
-	strcpy(_path, path);
 	_head.initialize(_path, _iniFile);
 
 	_inertial.Resize(3);
 	_deltaQ.Resize(_head.nj());
-		
-	// now we can create controls
-	/*
-
-	p_control_vergence = new Vergence(&head_status, PIDFilter(0.009));
-	p_control_saccade = new SaccadeBehavior(&head_status);
-	p_control_saccade->load();
-
-	p_avoid = new Avoidance(&head_status); 
-	
-	p_control_smooth = new GazeShift(&head_status, PIDFilter(0.02),		//eye pan pid
-												 PIDFilter(0.02),		//eye tilt pid
-												 PIDFilter(0.6),		//neck pan pid
-												 PIDFilter(1.0));		//neck tilt pid
-											
-	p_vor = new Inertial(&head_status, 1.0);
-													 
-	// transmission
-	p_head_sender = new MulticastSender(2,
-										head_status,
-										__head_thread_rate,
-										"head status sender");
-	
-	p_segmentation1 = new MulticastReceiver(2,
-										  target1,
-										  0, //__seg_tr_rate,
-										  "color sementation receiver 1");
-
-										  
-	p_segmentation1->start(seg1_addr);
-	
-	p_segmentation2 = new MulticastReceiver(2,
-										  target2,
-										  0, //__seg_tr_rate,
-										  "color sementation receiver 2");
-
-										  
-	p_segmentation2->start(seg2_addr);
-
-	// initial state
-	_init_state = HStateSmooth::Instance();
-	_head_state = _init_state;
-	*/
 
 	// FSM
 	_hsDirectCmd.set(_head._directCmd);
-	double tmp[] = {-10.0, -8.0, -10.0, -15.0, -15.0};
-	_hsDirectCmd.setPIDs(_head.nj(), tmp);
+	double *tmp = new double [3];
+	YARPPidFilter *tmpPid = new YARPPidFilter [_head.nj()];
+	int i;
+	for(i = 0; i < _head.nj(); i++)
+	{
+		char k[80];
+		sprintf(k, "Pid%d", i);
+		file.get("[POSITIONCONTROL]", k, tmp, 3);
+		tmpPid[i].setKs(tmp[0], tmp[1], tmp[2]);
+	}
+		
+	_hsDirectCmd.setPIDs(_head.nj(), tmpPid);
 	_hiDirectCmdStart.set(&_directCmdFlag);
 	_hoDirectCmdEnd.set(&_directCmdFlag);
 	_hiDirectCmdEnd.set(_head._directCmd);
@@ -100,6 +63,11 @@ _inertialPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	_fsm->add(&_hiDirectCmdStart, &_hsTrack, &_hsDirectCmd);
 	_fsm->add(&_hiDirectCmdEnd, &_hsDirectCmd, &_hsDirectCmdStop);
 	_fsm->add(NULL, &_hsDirectCmdStop, &_hsTrack, &_hoDirectCmdEnd);
+
+	_count = 0;
+
+	delete [] tmp;
+	delete [] tmpPid;
 }
 
 HeadThread::~HeadThread()
@@ -123,6 +91,7 @@ void HeadThread::doInit()
 	park(1);
 
 	_head.calibrate();
+	_count = 0;
 }
 
 void HeadThread::doRelease()
@@ -138,13 +107,16 @@ void HeadThread::doLoop()
 {
 	// read data from MEI board
 	read_status();
+
+	_count++;
 	
-	// gaze
+	// this is the position control
 	_fsm->doYourDuty();
 
-	// printf("%lf\n", _inertial(1));
-	// _command = _vor->handle(_inertial);
-	_deltaQ = _head._inCmd + _head._directCmd;
+	if (_directCmdFlag)
+		_deltaQ = _head._directCmd;
+	else
+		_deltaQ = _head._inCmd;
 	/////////////
 	// vergence
 	write_status();

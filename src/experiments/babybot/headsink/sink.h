@@ -6,6 +6,8 @@
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
 
+class NeckControl;
+
 #define SINK_VERBOSE
 
 #ifdef SINK_THREAD_VERBOSE
@@ -33,14 +35,88 @@ private:
 			v = port.Content();
 	}
 
+	NeckControl *_neckControl;
+	
 	YARPOutputPortOf<YVector>  _outPort;
+	YARPInputPortOf<YVector>   _inPortPosition;
 	YARPInputPortOf<YVector>   _inPortVor;
 	YARPInputPortOf<YVector>   _inPortTrack;
+
+	YARPString _iniFile;
+	YARPString _path;
 	
 	YVector _inVor;
+	YVector _inPosition;
 	YVector _inTrack;
 	YVector _outCmd;
 	int _nj;
+};
+
+#include <YARPPidFilter.h>
+#include <YARPConfigFile.h>
+
+class NeckControl
+{
+public:
+	NeckControl(const YARPString &iniFile, int insize, int outsize)
+	{
+		_iniFile = iniFile;
+		_inSize = insize;
+		_outSize = outsize;
+
+		YARPConfigFile file;
+		char *root = GetYarpRoot();
+		_path.append(root);
+		_path.append("/conf/babybot/"); 
+	
+		file.set(_path, _iniFile);
+		file.get("[NECKCONTROL]", "nPids", &_nPids);
+
+		_pids = new YARPPidFilter[_nPids];
+		double temp[3];
+		int i;
+		for(i = 0; i < _nPids; i++)
+		{
+			char tmpField[80];
+			sprintf(tmpField, "Pid%d", i);
+			file.get("[NECKCONTROL]", tmpField, temp, 3);
+			_pids[i].setKs(temp[0], temp[1], temp[2]);
+		}
+
+		_cmd.Resize(outsize);
+		_cmd = 0.0;
+	}
+	
+	~NeckControl()
+	{
+		delete [] _pids;
+	}
+
+	const YVector & apply(const YVector &in, const YVector &cmd)
+	{
+
+		double pred_r = in(4);
+		double pred_l = in(5);
+
+		double pred_tilt = in(3);
+
+		_cmd(1) = _pids[0].pid(pred_r-pred_l);
+		_cmd(2) = _pids[1].pid(pred_tilt-in(2));
+		_cmd(3) = 0.0;
+		_cmd(4) = 0.0;
+		_cmd(5) = 0.0;
+
+		return _cmd;
+	}
+
+private:
+	YARPPidFilter *_pids;
+	int _nPids;
+	YVector _cmd;
+	YARPString _iniFile;
+	YARPString _path;
+	int _inSize;
+	int _outSize;
 };
 
 #endif
