@@ -32,8 +32,7 @@ BUILD = $(VBIN)
 # For make depend.
 SRC = $(addsuffix .cpp, $(BIN))
 
-install:
-	cp $(BIN) $(YARP_ROOT)/bin/$(OS)/
+
 
 #----------------------------------------------------------------------------
 #	Include macros and targets
@@ -49,6 +48,9 @@ include	$(ACE_ROOT)/include/makeinclude/rules.local.GNU
 #----------------------------------------------------------------------------
 #	Local targets
 #----------------------------------------------------------------------------
+
+install:
+	cp $(BIN) $(YARP_ROOT)/bin/$(OS)/
 
 #----------------------------------------------------------------------------
 #	Dependencies
