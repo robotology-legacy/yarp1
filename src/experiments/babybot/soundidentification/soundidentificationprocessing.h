@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.10 2004-10-15 14:35:28 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.11 2004-11-16 17:56:32 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -65,6 +65,16 @@ public:
 		int dim[1] = {numSamples};
 		int i = 0;
 		double sum = 0.0;
+		int bufferIncrement = 0; 
+
+		switch ( _BitsPerSample ) {
+			case 8: bufferIncrement  = 1; break;
+			case 16: bufferIncrement = 2; break;
+			default: bufferIncrement = 2; break;
+		}
+
+		if ( _Channels == 2)
+			bufferIncrement *= 2;
 		
 		//----------------------------------------------------------------------
 		// Fill the Re and Im vectors from the sound buffer
@@ -77,14 +87,20 @@ public:
 		//----------------------------------------------------------------------
 		for ( i = 0; i < numSamples; i++)
 		{
-			short temp;
+			short shortemp;
 
-            temp  = buff[1] << 8;            // More significant byte
-            temp += buff[0];                 // less significant byte
-            Re[i] = _pSoundData[i] = (double) temp;
+			if ( _BitsPerSample == 16 ) {
+				shortemp  = buff[1] << 8;            // More significant byte
+				shortemp += buff[0];                 // less significant byte
+				Re[i] = _pSoundData[i] = (double) shortemp;
+			}
+			else { //I assume the samples is 8 bits
+				Re[i] = _pSoundData[i] = (double) buff[0];
+			}
+
 			sum  += (double)(Re[i] * Re[i]);
             Im[i] = 0.0;
-            buff += 4;
+            buff += bufferIncrement;
 		}
 
 		//----------------------------------------------------------------------
@@ -120,7 +136,7 @@ public:
 		 *  Write the signal in a file for comparation
 		 *----------------------------------------------------------------------*/
 		{
-			FILE *f = fopen ("signalhamming.txt", "a");
+			FILE *f = fopen ("./output/signalhamming.txt", "w");
 			for ( i = 0; i < numSamples; i++)
 				fprintf(f,"%f ",Re[i]);
 			fclose(f);
@@ -142,8 +158,8 @@ public:
 		 *  Write the signal in a file for comparation
 		 *----------------------------------------------------------------------*/
 		{
-			FILE *f = fopen ("fftenergy.txt", "a");
-			for ( i = 0; i < numSamples; i++)
+			FILE *f = fopen ("./output/fftenergy.txt", "a");
+			for ( i = 0; i < numSamples/2; i++)
 				fprintf(f,"%f ",Re[i]);
 			fprintf(f,"\n");
 			fclose(f);
@@ -155,15 +171,36 @@ public:
 		//  energy for each filter
 		//----------------------------------------------------------------------
 		for ( i = 0; i < totalfilters; i++)
-			filters_energy_vector[i] = Triangularfilter(Re, i);
+			filters_energy_vector(1,i+1) = Triangularfilter(Re, i);
+		
+// Printing the mel filter result
+#ifdef SAVEDATA
+		{
+			FILE *f = fopen ("./output/melscale.txt", "a");
+			for ( i = 0; i < totalfilters; i++)
+				fprintf(f,"%f ",filters_energy_vector(1,i+1));
+			fprintf(f,"\n");
+			fclose(f);
+		}
+#endif
 
 		//----------------------------------------------------------------------
 		//  Calulate ceptral coefficients
 		//----------------------------------------------------------------------
+		/*
         idct( filters_energy_vector.Length(), // the size of the filters_energy_vector
               out.Length(),                   // the size of the ccoefficients_vector
               filters_energy_vector.data(),   // the pointer to the vector of filters
               out.data());                    // the pointer to the vector of coefficients
+		 */
+		YMatrix result;
+		result.Resize(1, cepstralCoefficients);
+		result = filters_energy_vector * _mIdctMatrix;
+
+		for ( i = 0; i < cepstralCoefficients; i++)
+			out[i] = result(1,i+1);
+				 
+		//out = filters_energy_vector * _mIdctMatrix;
 		
 		//----------------------------------------------------------------------
 		//  Testing to seee if the triangular filter is beeing generated correctly
@@ -198,6 +235,7 @@ private:
 	//  Private Functions
 	//----------------------------------------------------------------------
 	int ConjComplexMultiplication(double *, double *);
+	void ComputeIDCMatrix( int, int, YMatrix &, int write = 0);
 	void idct(int, int, double *, double *);
 	double Triangularfilter(const double *, int);
 	double HammingPonderation(const unsigned int, const unsigned int);
@@ -245,8 +283,11 @@ private:
 
 	int totalfilters;
 
+	YMatrix _mIdctMatrix;
+
 	YARPString _iniFile;
 	YARPString _path;
-	YVector filters_energy_vector;
+	//YVector filters_energy_vector;
+	YMatrix filters_energy_vector;
 };
 #endif

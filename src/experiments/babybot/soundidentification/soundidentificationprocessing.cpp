@@ -12,7 +12,7 @@
 //     This implementatin is partially based in the sound software used by Lorenzo Natale
 //     is his master thesis.
 // 
-//         Version:  $Id: soundidentificationprocessing.cpp,v 1.8 2004-10-15 14:35:28 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.cpp,v 1.9 2004-11-16 17:56:32 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -42,7 +42,7 @@ SoundIdentificationProcessing::SoundIdentificationProcessing(const YARPString &i
 	_iniFile       = iniFile;
 	_outSize       = outsize;
 	_sombufferlengthinsec = 10;
-	_InputBufferLength    = 8192;
+	_InputBufferLength    = 7056;
 
 	//----------------------------------------------------------------------
 	//  Initialization of the filter bank parameters, this should be added
@@ -57,7 +57,7 @@ SoundIdentificationProcessing::SoundIdentificationProcessing(const YARPString &i
 
 	totalfilters = linearFilters + logFilters;
 
-	filters_energy_vector.Resize(totalfilters);
+	filters_energy_vector.Resize(1,totalfilters);
 
 	_path.append(root);
 	_path.append("/conf/babybot/"); 
@@ -66,17 +66,36 @@ SoundIdentificationProcessing::SoundIdentificationProcessing(const YARPString &i
 	//  Just recover from the configuration file the real sound parameters the user
 	//  is using  
 	//----------------------------------------------------------------------
-	file.set(_path, _iniFile);
-	file.get("[GENERAL]"   , "Channels"          , &_Channels             , 1);
-	file.get("[GENERAL]"   , "SamplesPerSec"     , &_SamplesPerSec        , 1);
-	file.get("[GENERAL]"   , "BitsPerSample"     , &_BitsPerSample        , 1);
-	file.get("[GENERAL]"   , "BufferLength"      , &_InputBufferLength    , 1);
-	file.get("[SOMBUFFER]" , "BufferLengthInSec" , &_sombufferlengthinsec , 1);
+	//file.set(_path, _iniFile);
+	//file.get("[GENERAL]"   , "Channels"          , &_Channels             , 1);
+	//file.get("[GENERAL]"   , "SamplesPerSec"     , &_SamplesPerSec        , 1);
+	//file.get("[GENERAL]"   , "BitsPerSample"     , &_BitsPerSample        , 1);
+	//file.get("[GENERAL]"   , "BufferLength"      , &_InputBufferLength    , 1);
+	//file.get("[SOMBUFFER]" , "BufferLengthInSec" , &_sombufferlengthinsec , 1);
 
-    numSamples     = _InputBufferLength/4;
+	switch( _Channels ) {
+		case 1: 
+			if ( _BitsPerSample == 16 )
+				numSamples = _InputBufferLength/2; 
+			else
+				numSamples = _InputBufferLength;
+			break;
+		case 2:
+			if ( _BitsPerSample == 16)
+				numSamples = _InputBufferLength/4;
+			else
+				numSamples = _InputBufferLength/2;
+			break;
+	}
     numFreqSamples = numSamples/2 + 1;
 
 	counter = 0; 
+
+	ComputeIDCMatrix (
+		totalfilters,
+		cepstralCoefficients,
+		_mIdctMatrix
+		);
 
 	//----------------------------------------------------------------------
 	//  I give the max possible value to the parameters max_factors and max_perm
@@ -84,7 +103,8 @@ SoundIdentificationProcessing::SoundIdentificationProcessing(const YARPString &i
 	//  use in computers with low memory.
 	//----------------------------------------------------------------------
 	//fft = new YARPFft(numSamples, numSamples);
-	fft = new YARPFft(2, 11);
+	//fft = new YARPFft(2, 11);
+	fft = new YARPFft(7, 4);
 
 	Re = new double[numSamples]; // this contains the Re of both channels
 	Im = new double[numSamples]; // this contains the Im of both channels
@@ -123,9 +143,10 @@ SoundIdentificationProcessing::~SoundIdentificationProcessing()
 //		log-energy of the 'k' filter
 //--------------------------------------------------------------------------------------
 double 
-SoundIdentificationProcessing::Triangularfilter(const double *input_Re, 
-												int k)
-{
+SoundIdentificationProcessing::Triangularfilter(
+	const double *input_Re, 
+	int k
+	) {
 	int i                   = 0;
 	double filter_output    = 0.0;
 	double energy           = 0.0;
@@ -176,7 +197,7 @@ SoundIdentificationProcessing::Triangularfilter(const double *input_Re,
 		energy += filter_output;
 	}
 
-	return log10(energy);
+	return log10f(energy);
 }
 
 //--------------------------------------------------------------------------------------
@@ -186,10 +207,22 @@ SoundIdentificationProcessing::Triangularfilter(const double *input_Re,
 // This is used to optain printable spectrum (usual fourier graphical representation)
 // (a+ib)(a-ib)=(aa+bb)+i(ba-ab) = (aa+bb)
 //--------------------------------------------------------------------------------------
-int 
-SoundIdentificationProcessing::ConjComplexMultiplication(double * a, 
-														 double * b)
-{
+int SoundIdentificationProcessing::ConjComplexMultiplication (
+	double * a, 
+	double * b
+	) {
+	double temp_a = 0.0;
+	double temp_b = 0.0;
+
+	for (int i = 0; i < numSamples; i++) {
+		temp_a = *a;
+		temp_b = *b;
+		*a = sqrt( (temp_a * temp_a) + (temp_b * temp_b) );
+		a++;
+		b++;
+	}
+
+	/*
 	double temp_a = 0.0;
  	double temp_b = 0.0;
 
@@ -201,7 +234,7 @@ SoundIdentificationProcessing::ConjComplexMultiplication(double * a,
 		*b = ((temp_b) * (temp_a) - (temp_a) * (temp_b))/numSamples;
 		a++; b++; 
 	}
-
+	 */
 	return 0;
 }
 
@@ -241,11 +274,12 @@ SoundIdentificationProcessing::PreAccent(double z)
 // Ref: "Numerical Recipes in C", page 519
 //--------------------------------------------------------------------------------------
 void 
-SoundIdentificationProcessing::idct(int size_in, 
-									int size_out,
-									double * data_in, 
-									double * data_out)
-{
+SoundIdentificationProcessing::idct(
+	int size_in, 
+	int size_out,
+	double * data_in, 
+	double * data_out
+	) {
 	int i = 0;                                                                                                                                
 	int k = 0;                                                                                                                                
 
@@ -253,11 +287,60 @@ SoundIdentificationProcessing::idct(int size_in,
 	for (  i=0; i < size_out; i++ )                                                                                                           
 	{                                                                                                                                         
 		for (  k=0 ; k < size_in ; k++ )                                                                                                      
-			data_out[i] += data_in[k]*cos((double)(PI*i*(k+0.5))/(double)size_in);                                                           
-		data_out[i] *= ((double)1.0/(double)sqrt(size_in/2));                                                                                 
+			data_out[i] += data_in[k]
+				* cos( (double) i * (2*k+1) * ((PI/(double)2) / (double)size_in) );                                                           
+		data_out[i] *= ((double)1.0/(double)sqrt(size_in/(double)2));                                                                                 
 		if( i == 0)                                                                                                                           
-			data_out[i] *= (sqrt(2)/2);                                                                                                       
+			data_out[i] *= (sqrt(2)/(double)2);                                                                                                       
 	}                                                                                                                                         
+}
+
+/** 
+  * Computes the matrix with the Discrete Cosine Transform.
+  * 
+  * @param rows The rows of the matrix.
+  * @param columns The columns of the matrix.
+  * @param idctMatrix The matrix to be filled.
+  * @param writeToFile Flag to write the calculated matrix in a file.
+  */
+void SoundIdentificationProcessing::ComputeIDCMatrix (
+	const int rows,
+	const int columns,
+	YMatrix &idctMatrix,
+	int writeToFile
+	) {
+	
+	int i = 0;
+	int k = 0;
+
+	idctMatrix.Resize ( 
+		rows,
+		columns
+		);
+
+	
+	for ( i = 0; i < rows; i++ ) {
+		for ( k = 0; k < columns; k++) {
+			idctMatrix( i+1, k+1 ) =  cos ( k * (2 * i +1) * (PI / 2.0f) / (double) rows);
+			idctMatrix( i+1, k+1 ) *= ( 1.0f / (double) sqrtf( rows / 2.0f ));
+		}
+	}
+
+	for ( k = 1; k <= rows; k++)
+		idctMatrix ( k, 1 ) = idctMatrix ( k, 1 ) * (sqrtf(2.0f) / 2.0f);
+
+	if ( writeToFile ) {
+		FILE *f = fopen ("./output/idctmatrix.txt", "a");
+
+		for ( i = 0; i < rows; i++ ) {
+			for ( k = 0; k < columns; k++) {
+				fprintf(f,"%f ", idctMatrix( i+1, k+1));
+			}
+			fprintf( f, "\n");
+		}
+		fclose( f );
+	}
+
 }
 
 /** 

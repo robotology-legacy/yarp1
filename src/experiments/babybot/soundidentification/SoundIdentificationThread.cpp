@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.cpp,v 1.6 2004-11-12 10:05:47 beltran Exp $
+/// $Id: SoundIdentificationThread.cpp,v 1.7 2004-11-16 17:56:31 beltran Exp $
 ///
 
 /** 
@@ -56,7 +56,7 @@ SoundIdentificationThread::SoundIdentificationThread():
 	__iSoundHistogramHeight(100),
 	__rmsthreshold(300) {
 
-	_iSValue     = 15;
+	_iSValue     = MUTUALINFORMATIONMEMORY;
 	_dDecayValue = 0.98;
 	learningPhase = 1;
 }
@@ -67,14 +67,21 @@ SoundIdentificationThread::SoundIdentificationThread():
 void SoundIdentificationThread::setSValue(const int &svalue) {
 	LOCAL_TRACE("SoundIdenfication: Entering setSValue");
 
-	if ( _iSValue > ARRAY_MAX )
+	if ( _iSValue > MUTUALINFORMATIONMEMORY )
 		ACE_OS::fprintf(stdout,"Sorry, max S value superated\n");
 
 	_sema.Wait(1); // Start Semaphore
 
 	ACE_OS::fprintf(stdout,"Setting SValue = %d\n", svalue);
 	_iSValue = svalue;
-	_soundTemplate.Resize(_iSValue);
+
+	if ( _imagesList.size() > _iSValue) {
+		while ( _imagesList.size() != _iSValue ) {
+			_imagesList.pop_front(); 
+			_logPolarImagesList.pop_front();
+			_rmsList.pop_front();
+		}
+	}
 
 	_sema.Post(); // End Semaphore
 }
@@ -111,17 +118,22 @@ void SoundIdentificationThread::setLearningState( const int value ) {
 //----------------------------------------------------------------------
 // CalculateRMSMean 
 //----------------------------------------------------------------------
-void SoundIdentificationThread::CalculateRMSMean (
-	const double * rmsVector,
+void SoundIdentificationThread::CalculateRMSMean(
+	//const double * rmsVector,
+	YARPListIterator<double> &rmsIterator,
 	const int vectorSize,
 	double &rmsMean
 	) {
 	
 	int i = 0;
 	double rmsSum = 0.0; 
+	rmsIterator.go_head();
 
 	for ( i = 0; i < vectorSize; i++ ) {
-		rmsSum += rmsVector[i]; 
+		double &rmsvalue = *rmsIterator;
+		//rmsSum += rmsVector[i]; 
+		rmsSum += rmsvalue;
+		rmsIterator++;
 	}
 
 	rmsMean = rmsSum / (double) vectorSize;
@@ -130,7 +142,7 @@ void SoundIdentificationThread::CalculateRMSMean (
 //----------------------------------------------------------------------
 //  RGBtoHSV
 //----------------------------------------------------------------------
-void SoundIdentificationThread::RGBtoHSV ( 
+void SoundIdentificationThread::RGBtoHSV( 
 	float r, 
 	float g, 
 	float b, 
@@ -233,6 +245,8 @@ int SoundIdentificationThread::GetSegmentedImage (
 	int mixelValue   = 0;
 	double pixelsSum = 0.0;
 
+	ACE_ASSERT( numberOfSamples != 0);
+
 	for(i = 2; i < width-2; i++ )
 		for( j = 2; j < height-3; j++) {
 			mixelValue = mixelGramImage(i,j);
@@ -257,110 +271,12 @@ int SoundIdentificationThread::GetSegmentedImage (
 		}
 	return YARP_OK;
 }
-
+ 
 //----------------------------------------------------------------------
 //  calculateMixel
 //----------------------------------------------------------------------
-int SoundIdentificationThread::calculateMixel (
-	YARPCovMatrix &mXtX, 
-	YARPImageOf<YarpPixelBGR> * vImgs, 
-	int iSamples,
-	int i, 
-	int j
-	) {
-
-	//LOCAL_TRACE("SoundIdentification: Entering calculateMixel");
-
-    int n   = 0; /** Sound number of componects. */
-    int m   = 0; /** Image number of components. */
-    int ret = 0; /** Return variable.            */
-    
-	//YARPExMatrix  _mV;        /** Matrix with the pixel samples (in the time domain).   */
-    //YARPCovMatrix _mYtY;      /** Covariance matrix of _mV.                             */
-    YMatrix _mV;         /** Vector containing the gray values of pixels samples.  */
-    YMatrix _mVtV;       /** Variance of V.                                        */
-    YARPCovMatrix _mCtC; /** Mutual covariance matrix.                             */
-    YMatrix _mC;         /** The local variances matrix for the mutual covariance. */
-
-	YMatrix& _mX = mXtX.getOriginalVariancesMatrix(); /** The local variances matrix of mXtX. */
-
-    n = _mX.NCols();          // The soundcovariance matrix determinates the
-                              // number of parameters used to parametrice the sound
-    m = 1;                    // The pixel contains 3 bytes for RGB data
-
-    _mV.Resize(iSamples,1);
-	_mVtV.Resize(1,1);
-	_mC.Resize(iSamples,n+m);
-	
-	//----------------------------------------------------------------------
-	//  Fill PixelSamples matrix
-	//----------------------------------------------------------------------
-	double mean = 0.0;
-	for (int z = 1; z <= iSamples; z++)
-	{
-		YARPImageOf<YarpPixelBGR>& pimg = vImgs[z-1];
-		_mV(z,1) = 0.299 * pimg.SafePixel(i,j).r + 0.587 * pimg.SafePixel(i,j).g + 0.114 * pimg.SafePixel(i,j).b;
-		//_mV(z,1) = pimg.SafePixel(i,j).r;
-		//_mV(z,2) = pimg.SafePixel(i,j).g;
-		//_mV(z,3) = pimg.SafePixel(i,j).b;
-		mean += _mV(z,1);
-	}
-	mean /= (double)_mV.NRows();
-		
-	//----------------------------------------------------------------------
-	//  Calculate pixel covariance matrix.
-	//----------------------------------------------------------------------
-	////_mV.covarianceMatrix(_mYtY,0); //Calculate only variance matrix.
-
-	////YMatrix& _mY = _mYtY.getOriginalVariancesMatrix(); /** The local variances matrix of mYtY. */
-	_mV  -= mean;
-	_mVtV = _mV.Transposed() * _mV;
-
-	//----------------------------------------------------------------------
-	//  Calculate local mutual variances matrix.
-	//----------------------------------------------------------------------
-	for (int r = 1; r <= iSamples; r++)
-		for (int c = 1; c <= _mC.NCols(); c++)
-		{
-			if ( c <= n)
-				_mC(r,c) = _mX(r,c); 
-			else
-				_mC(r,c) = _mV(r,1);
-		}
-
-	//----------------------------------------------------------------------
-	//  Compute mutual covariance
-	//----------------------------------------------------------------------
-	_mCtC.setOriginalVariancesMatrix(_mC);
-	
-	//----------------------------------------------------------------------
-	//  Compute determinants
-	//----------------------------------------------------------------------
-	double _dDetCtC = 0.0;
-	double _dDetXtX = 0.0;
-	double _dDetVtV = 0.0;
-	////double _dDetYtY = 0.0;
-    _mCtC.determinant(_dDetCtC);
-    mXtX.determinant (_dDetXtX);
-    ////_mYtY.determinant(_dDetYtY);
-	_dDetVtV = _mVtV(1,1);
-
-	//----------------------------------------------------------------------
-	//  Compute mutual information
-	//----------------------------------------------------------------------
-	//double value = (1/2.0) * ACE::log2((_dDetXtX * _dDetVtV) / (double)_dDetCtC);
-	double value = 0.5 * ((logf((_dDetXtX * _dDetVtV) / (double)_dDetCtC))/(double)logf(2));
-
-	////int pixel = min(255,max(0,255*mixel)) /////from Vuppla
-	return(MIN(255,MAX(0,255*value)));
-	//return(value);
-}
- 
-//----------------------------------------------------------------------
-//  calculateMixel2
-//----------------------------------------------------------------------
-int SoundIdentificationThread::calculateMixel2 (
-	double * vRms, 
+int SoundIdentificationThread::calculateMixel(
+	YARPListIterator<double> &rmsIterator,
 	YARPListIterator<ColorImage> &imagesIterator,
 	int iSamples,
 	int i, 
@@ -383,11 +299,15 @@ int SoundIdentificationThread::calculateMixel2 (
 	double _dMaxRms = 0.0;
 	double _dDampeningfactor = 0.0;
 	const double _dalpha = 100.0;
+
+	ACE_ASSERT( iSamples != 0 );
+
 	YVector _vV;        /** Vector containing the gray values of pixels samples. */
 
     _vV.Resize(iSamples);
 	
 	imagesIterator.go_head();
+	rmsIterator.go_head();
 	//----------------------------------------------------------------------
 	//  Fill PixelSamples matrix
 	//----------------------------------------------------------------------
@@ -396,10 +316,16 @@ int SoundIdentificationThread::calculateMixel2 (
 		//----------------------------------------------------------------------
 		//  Compute sound associated values
 		//----------------------------------------------------------------------
-		_dSX  += vRms[z-1];
-		_dSX2 += powf(vRms[z-1],2);
-		if ( vRms[z-1] > _dMaxRms)
-			_dMaxRms = vRms[z-1];
+		double &prmsvalue = *rmsIterator;
+		_dSX  += prmsvalue;
+		_dSX2 += powf(prmsvalue,2);
+		if ( prmsvalue > _dMaxRms)
+			_dMaxRms = prmsvalue;
+		
+		//////_dSX  += vRms[z-1];
+		//////_dSX2 += powf(vRms[z-1],2);
+		//////if ( vRms[z-1] > _dMaxRms)
+		//////	_dMaxRms = vRms[z-1];
 
 		//----------------------------------------------------------------------
 		//  Compute image associated values.
@@ -413,13 +339,16 @@ int SoundIdentificationThread::calculateMixel2 (
 			+ 0.114 * pimg.SafePixel(i,j).b;
 
 		imagesIterator++;
+		rmsIterator++;
+
 		_dSY  += _vV(z);
 		_dSY2 += powf(_vV(z),2);
 
 		//----------------------------------------------------------------------
 		//  Compute common values.
 		//----------------------------------------------------------------------
-		_dSXY += (vRms[z-1] * _vV(z));
+		//_dSXY += (vRms[z-1] * _vV(z));
+		_dSXY += ( prmsvalue * _vV(z) );
 	}
 
 	//Return rmsmean
@@ -460,11 +389,11 @@ void SoundIdentificationThread::Body (void)
 
 	YVector _vOutMfcc(L_VECTOR_MFCC);
 	YVector _vShorterOutMfcc( L_VECTOR_MFCC - 1 );
-	YARPCovMatrix _mSoundCov;
 
 	YARPListIterator<ColorImage> _imagesListIterator(_imagesList);
 	YARPListIterator<MonoImage> _logPolarImagesListIterator(_logPolarImagesList);
 	YARPListIterator<SoundImagePair> _pairListIterator( _pairList );
+	YARPListIterator<double> _rmsListIterator( _rmsList );
 
 	//----------------------------------------------------------------------
 	//  Resize some of the images.
@@ -475,11 +404,6 @@ void SoundIdentificationThread::Body (void)
 	_imgHSHistogram.Resize(__hsHistoWidth, __hsHistoHeight);
 
 	YARPScheduler::setHighResScheduling();
-
-	//----------------------------------------------------------------------
-	//  Initialize sound template.
-	//----------------------------------------------------------------------
-	_soundTemplate.Resize(_iSValue);
 
 	//----------------------------------------------------------------------
 	// Port declarations 
@@ -528,18 +452,16 @@ void SoundIdentificationThread::Body (void)
 	// Main loop.
 	//----------------------------------------------------------------------
 
-	int    _dMixelValue   = 0;
-	double _dSoundRms     = 0.0;
-	double _vRms[ARRAY_MAX];
-	int    _iMemoryFactor = 0;
-	bool   _first         = true;
-	double _rmsmean       = __rmsthreshold + 1;
-	double _maxRmsMean = 0.0;
-	double _rmsmeansum    = 0.0;
-	int _mixelsMaximum    = 0;
-	bool _bAlreadyInMemory = false;
+	int    _dMixelValue     = 0;
+	double _dSoundRms       = 0.0;
+	int    _iMemoryFactor   = 0;
+	bool   _first           = true;
+	bool   _bContinuityFlag = false;
+	double _rmsmean         = __rmsthreshold + 1;
+	double _rmsmeansum      = 0.0;
+	double _minDtwValue     = HUGE;
+	bool _bFoundTemplate = false;
 	SoundImagePair soundImagePair;
-	double _minDtwValue = HUGE;
 
 	while(!IsTerminated())
 	{
@@ -556,7 +478,7 @@ void SoundIdentificationThread::Body (void)
 		_inpImg.Read(1);  
 		_inputLogPolarImage.Refer(_inpImg.Content());
 
-		_logPolarMapper.ReconstructColor (
+		_logPolarMapper.ReconstructColor(
 			(const YARPImageOf<YarpPixelMono>&)_inputLogPolarImage, 
 			_imgInput
 			);
@@ -566,13 +488,14 @@ void SoundIdentificationThread::Body (void)
 		//----------------------------------------------------------------------
 		_soundIndprocessor.apply(_inpSound.Content(),_vOutMfcc, _dSoundRms); 
 		// Create shorter mfcc vector without first element
+		
 		for ( i = 1; i < L_VECTOR_MFCC; i++) {
 			 _vShorterOutMfcc[i-1] = _vOutMfcc[i];
 		}
+	
 
-		//int ret = _soundTemplate.Add(_vOutMfcc, 2);  // Adds new vector; bufferize if necessary
-		int ret = _soundTemplate.Add(_vShorterOutMfcc, 2);  // Adds new vector; bufferize if necessary
-		ACE_ASSERT(ret != 0);
+		//int ret = _soundTemplate.Add(_vOutMfcc, 1);  // Adds new vector
+		//ACE_ASSERT(ret != 0);
 
 		//----------------------------------------------------------------------
 		//  Check size correctness.
@@ -600,27 +523,28 @@ void SoundIdentificationThread::Body (void)
 		//----------------------------------------------------------------------
 		_imagesList.push_back(_imgInput);
 		_logPolarImagesList.push_back(_inputLogPolarImage);
+		_rmsList.push_back( _dSoundRms );
 
-		_vRms[_soundTemplate.Length()-1] = _dSoundRms;
 
-		if ( _imagesList.size() > _soundTemplate.Length() ) {
+		if ( _imagesList.size() > _iSValue) {
 			_imagesList.pop_front(); 
 			_logPolarImagesList.pop_front();
+			_rmsList.pop_front();
 		}
 
-		if ( _soundTemplate.isFull()) {
-			for (i = 1; i < _soundTemplate.Length();i++) {
-				_vRms[i-1] = _vRms[i];
-			}
-		}
+		//_vRms[ _imagesList.size() - 1 ] = _dSoundRms;
+
+		//// Slay RMS sound values one position to the left
+		//if ( _imagesList.size() >= _iSValue ) {
+		//	for (i = 1; i < _imagesList.size(); i++) {
+		//		_vRms[i-1] = _vRms[i];
+		//	}
+		//}
 
 		//----------------------------------------------------------------------
 		//  Go to calculate the mixel for each pixel in the image.
 		//----------------------------------------------------------------------
-		if (_soundTemplate.Length() > 3 && learningPhase == 1)
-		{
-			//  Calculate sound covariance matrix.
-			_soundTemplate.CovarianceMatrix(_mSoundCov,0); 
+		if ( _imagesList.size() > 3 && learningPhase == 1) {
 
 			int w = _imgInput.GetWidth();
 			int h = _imgInput.GetHeight();
@@ -631,18 +555,16 @@ void SoundIdentificationThread::Body (void)
 			for(i = 2; i < w-2; i+=4 )
 				for( j = 2; j < h-2; j+=4)
 				{
-					///////_dMixelValue = calculateMixel(_mSoundCov, _vImages,_soundTemplate.Length(), i, j);
-					_dMixelValue = calculateMixel2 (
-						_vRms, 
+					_dMixelValue = calculateMixel(
+						_rmsListIterator, 
 						_imagesListIterator,
-						_soundTemplate.Length(), 
+						_imagesList.size(),
 						i, 
 						j, 
 						_rmsmean
 						);
 
-					if (_dMixelValue > MIXELTHRESHOLD) 
-					{
+					if (_dMixelValue > MIXELTHRESHOLD) {
 						//----------------------------------------------------------------------
 						//  Paint the pixel and all its sorrounding pixels
 						//----------------------------------------------------------------------
@@ -670,7 +592,7 @@ void SoundIdentificationThread::Body (void)
 			//----------------------------------------------------------------------
 			YVector _vNormalizedSoundSamples;
 			_soundIndprocessor.NormalizeSoundArray ( 32000 );
-			_soundIndprocessor.TruncateSoundToVector (
+			_soundIndprocessor.TruncateSoundToVector(
 				__histoWidth, 
 				_vNormalizedSoundSamples
 				);
@@ -702,53 +624,67 @@ void SoundIdentificationThread::Body (void)
 			_iMemoryFactor++;
 
 			if (numberMixels > MIXELSMAX) {
-				GetSegmentedImage (
+
+				// Get the segmented image
+				GetSegmentedImage(
 					_logPolarImagesListIterator, 
 					_imgMixelgram,
 					w,
 					h,
-					_soundTemplate.Length(),
+					_imagesList.size(),
 					_iMemoryFactor,
 					_dDecayValue,
 					_newLogPolarImage
 					);
 
+				if ( _bContinuityFlag == true ) {
+
+					// Where are continually detecting sound image
+					// correlations; therefore, lets store the sound
+					// vector in the template 
+					int ret = _soundTemplate.Add(_vShorterOutMfcc, 1);
+					ACE_ASSERT(ret != YARP_FAIL);
+				}
 
 				_iMemoryFactor = 0;
+				_bContinuityFlag = true;
+			}
+			else {
+
+				if ( _bContinuityFlag == true ) {
+
+					soundImagePair.soundTemplate = _soundTemplate;
+					soundImagePair.image.CastCopy( _newLogPolarImage ); 
+
+					ACE_OS::fprintf(stdout," Memorizing a pair sound-image!! \n");
+					_pairList.push_back( soundImagePair );  
+
+					_soundTemplate.Destroy();
+				}
+
+				_bContinuityFlag = false; 
 			}
 
 			//----------------------------------------------------------------------
 			//  Compute the HS histogram.
 			//----------------------------------------------------------------------
 			if ( numberMixels > MIXELSMAX || _iMemoryFactor < MEMORYMAX) {
-				_logPolarMapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)_newLogPolarImage, 
-					_coloredImage);
-				ComputeHSHistogram( _coloredImage, _imgHSHistogram);
-				
-				//----------------------------------------------------------------------
-				// Memorizing a pair colorhistogram-sound template 
-				//----------------------------------------------------------------------
-				if ( numberMixels > _mixelsMaximum ) {
-					 _mixelsMaximum = numberMixels;
-					 soundImagePair.soundTemplate = _soundTemplate;
-					 soundImagePair.image.CastCopy( _newLogPolarImage ); 
-					 if (_bAlreadyInMemory) {
-						 ACE_OS::fprintf(stdout," Sustitution of pair sound-image!! \n");
-						 _pairList.pop_back(); 	  
-						 _pairList.push_back( soundImagePair ); 
-					 }
-					 else {
-						 ACE_OS::fprintf(stdout," Memorizing a pair sound-image!! \n");
-						 _pairList.push_back( soundImagePair );  
-						 _bAlreadyInMemory = true;
-						  
-					 }
-				}
+
+				_logPolarMapper.ReconstructColor (
+					(const YARPImageOf<YarpPixelMono>&)_newLogPolarImage, 
+					_coloredImage
+					);
+
+				ComputeHSHistogram ( 
+					_coloredImage, 
+					_imgHSHistogram
+					);
 			}
 			else {
-				ComputeHSHistogram( _imgInput, _imgHSHistogram); 	
-				_mixelsMaximum = 0;
-				_bAlreadyInMemory = false;
+				ComputeHSHistogram( 
+					_imgInput, 
+					_imgHSHistogram
+					); 	
 			}
 
 			//----------------------------------------------------------------------
@@ -795,14 +731,13 @@ void SoundIdentificationThread::Body (void)
 			 
 			double _rmsMean     = 0.0;
 			int    _machingPair = 0;
-			int _result;
+			int    _result      = 0;
 			double _dtwValue    = 0.0;
-			int _vectorSize = _soundTemplate.Length(); 
-			int	_pairWithMinimumDistance = 0;
+			int _vectorSize = _imagesList.size(); 
 
 			// Get the sound mean
 			CalculateRMSMean( 
-				_vRms, 
+				_rmsListIterator,
 				_vectorSize,
 				_rmsMean
 				);
@@ -812,34 +747,16 @@ void SoundIdentificationThread::Body (void)
 			// If there is an strong sound try to identified it
 			if ( _rmsMean > __rmsthreshold ) {
 
-				_maxRmsMean = _rmsMean;
-				_pairWithMinimumDistance = 0;
+				if ( _bContinuityFlag == true ) {
 
-				for ( i = 0; i < _pairList.size(); i++ ) {
-
-					SoundImagePair &pair = *_pairListIterator;
-
-					_dtwValue = pair.soundTemplate.Dtw( 
-						_soundTemplate,
-						&_result
-						); 
-
-					ACE_OS::fprintf(stdout," DTW value = %f \n", _dtwValue);
-
-					// This pair correlates more
-					if ( _dtwValue < _minDtwValue) {
-						_minDtwValue = _dtwValue;
-						_pairWithMinimumDistance = i;
-
-						_newLogPolarImage.CastCopy( pair.image );
-					}
-					_pairListIterator++;
+					// Where are continually detecting sound image
+					// correlations; therefore, lets store the sound
+					// vector in the template 
+					int ret = _soundTemplate.Add(_vShorterOutMfcc, 1);
+					ACE_ASSERT(ret != 0);
 				}
 
-				ACE_OS::fprintf(stdout," MININUM DTW value = %f \n", _minDtwValue);
-				ACE_OS::fprintf(stdout,"\n");
-
-				_iMemoryFactor = 0;
+				_bContinuityFlag = true;
 
 				// Send the received image into the network
 				_outprecImg.Content().SetID(YARP_PIXEL_MONO);
@@ -847,6 +764,38 @@ void SoundIdentificationThread::Body (void)
 				_outprecImg.Write(1);
 			}
 			else {
+
+				// We have been detecting a sound and sudently
+				// it has stoped; therefore lets identify it.
+				if ( _bContinuityFlag == true && 
+				  _soundTemplate.Length() > 3 ) {
+					 
+					ACE_OS::fprintf(stdout,"SEARCHING FOR A SIMILAR TEMPLATE\n");
+					for ( i = 0; i < _pairList.size(); i++ ) {
+
+						SoundImagePair &pair = *_pairListIterator;
+
+						_dtwValue = pair.soundTemplate.Dtw( 
+							_soundTemplate,
+							&_result
+							); 
+
+						ACE_OS::fprintf(stdout," DTW value = %f \n", _dtwValue);
+
+						// This pair correlates more
+						if ( _dtwValue < _minDtwValue) {
+							_minDtwValue = _dtwValue;
+
+							_newLogPolarImage.CastCopy( pair.image );
+							_iMemoryFactor = 0;
+						}
+						_pairListIterator++;
+					}
+
+					_soundTemplate.Destroy();
+				}
+
+				_bContinuityFlag = false;
 
 				if ( _iMemoryFactor < MEMORYMAX ) {
 
@@ -863,7 +812,6 @@ void SoundIdentificationThread::Body (void)
 					_outprecImg.Write(1);
 
 					_minDtwValue = HUGE;
-					//_maxRmsMean = 0.0;
 				}
 
 			}

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.14 2004-11-12 10:05:47 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.15 2004-11-16 17:56:32 beltran Exp $
 ///
 
 /** 
@@ -42,12 +42,10 @@
 
 #include <yarp/YARPConfig.h>
 #include <yarp/YARPConfigFile.h>
-#include <yarp/YARPMatrix.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
-#include "YARPExMatrix.h"
 #include "soundidentificationprocessing.h"
 
 #define ARRAY_MAX 30 // Aproximatelly 5 seconds sound (22 frames/second)
@@ -66,11 +64,11 @@ class YARPSoundTemplate
 {
 private:
 
-    int m_currentsize;     /** This stores the real size of the used part of the m_parray.          */
     int m_totalsize;       /** This is the real total size of the m_parray.                         */
     int m_vectors_length;  /** This is the size of the internal vectors; This length is defined by. */
                             /** the first vector introduced in the template.                         */
-    YVector ** m_parray;   /** This is the actual pointer to the array of vectors.                  */
+    //YVector ** m_parray;   /** This is the actual pointer to the array of vectors.                  */
+	YARPList<YVector> m_parray; /** This is the list of pointers to vectors. */
 
 public:
 	/** 
@@ -79,11 +77,8 @@ public:
 	YARPSoundTemplate()
 	{
 		//YARPSoundTemplate(ARRAY_MAX);
-		m_currentsize    = 0;
 		m_vectors_length = 0;
 		m_totalsize      = ARRAY_MAX;
-		m_parray         = new YVector *[ARRAY_MAX];
-		memset(m_parray, 0 , sizeof(YVector *) * ARRAY_MAX);
 	}
 	/** 
 	 * Overloaded constructor.
@@ -92,23 +87,16 @@ public:
 	 */
 	YARPSoundTemplate(int size)
 	{
-		m_currentsize    = 0;
 		m_vectors_length = 0;
 		m_totalsize      = size;
-		m_parray         = new YVector *[size];
-		memset(m_parray, 0 , sizeof(YVector *) * size);
 	}
 	/** 
 	 * Destructor.
 	 */
 	~YARPSoundTemplate()
 	{
-		if (m_parray != NULL)
-		{
-			for( int i = 0; i < m_currentsize; i++)	
-				if ( m_parray[i] != NULL ) delete m_parray[i];
-			delete[] m_parray;
-		}
+		if ( !m_parray.empty())
+			m_parray.clear();
 	}
 
 	/** 
@@ -116,7 +104,7 @@ public:
 	 * 
 	 * @return 
 	 */
-	inline YVector ** data(void) const { return m_parray; }
+	//inline YVector ** data(void) const { return m_parray; }
 
 	/** 
 	 * Resize the array with a standart size.
@@ -137,38 +125,20 @@ public:
 	 * @param new_size The new size of the array of sound vectors
 	 */
 	inline void 
-	Resize( int new_size)
-	{
-		if ( new_size == m_totalsize) //The user is asking for the same size!
-			return;
+	Resize( int new_size) {
 
-		YVector ** temp_parray = new YVector *[new_size];
-		memset(temp_parray, 0 , sizeof(YVector *) * new_size);
+		ACE_ASSERT ( new_size != 0 );
+		if ( m_totalsize > new_size) {
 
-		if( m_parray != NULL)
-		{
-			for( int i = 0; i < m_currentsize; i++)
-				if ( i < new_size)
-					temp_parray[i] = m_parray[i]; 
-				else // Atention some data is beeing lost because there is no space in the new array 
-					delete m_parray[i];
-
-			if ( new_size < m_currentsize)
-			{
-				ACE_OS::fprintf(stdout, "YARPSoundTemplate: Atention! You are problably losing data in a resize\n");
-				m_currentsize = new_size;
+			if ( m_parray.size() > new_size ) {
+				while ( m_parray.size() != new_size) {
+					m_parray.pop_back();
+				}
 			}
-
 			m_totalsize = new_size;
-
-			delete[] m_parray;      // Delete the old pointers array
-			m_parray = temp_parray; // Get the address of the new pointers array
-
-		}else //The template has not any previous reserved memory
-		{
-			m_parray = temp_parray;
-			m_currentsize = 0;
-			m_totalsize = new_size;
+		}
+		else {
+			m_totalsize = new_size; 
 		}
 	}
 
@@ -181,7 +151,7 @@ public:
 	  */
 	bool isFull () const
 	{
-		if (m_currentsize == m_totalsize)
+		if (m_parray.size() >= m_totalsize)
 			return true;
 		else 
 			return false;
@@ -194,7 +164,7 @@ public:
 	 * @return  the current size of the template
 	 */
 	inline int
-	Length() const { return m_currentsize; }
+	Length() const { return m_parray.size(); }
 
 	/** 
 	 * Returns the total available size of the template.
@@ -234,70 +204,33 @@ public:
 	{
 		LOCAL_TRACE("YARPSoundTemplate: Entering Add");
         int vectorsize        = 0;    /** The size of the vector we want to add.             */
-        YVector * new_pvector = NULL; /** A pointer to create a new vector for the template. */
 
-		if ( m_parray == NULL)
-		{
-			ACE_OS::fprintf(stdout,"YARPSoundTemplate: Sorry, the sound template has not memory available\n");
-			return (-2);
-		}
-        
 		vectorsize = in.Length();
-		if (m_currentsize == 0)                 // This is the first vector in the template
+		ACE_ASSERT( vectorsize != 0 );
+		
+		if (m_parray.size() == 0)                 // This is the first vector in the template
 			m_vectors_length = vectorsize;      // Define the template vector length
 		else                                    // There are some other vectors to compare with
-			if (vectorsize != m_vectors_length) // The 'in' vector has a different size of that
-				return (-1);                    // of the other vectors in the template
+			if (vectorsize != m_vectors_length) {
+				ACE_OS::fprintf(stdout,"YARPSoundTemplate: Error, adding a vector with an erroneous vector size\n"); 
+				return (YARP_FAIL);                    // of the other vectors in the template
+			}
 
-        if (m_currentsize == m_totalsize)       // The Template is full
+        if (m_parray.size() == m_totalsize)       // The Template is full
 		{
 			switch(flag)
 			{
 				case 0: return(0);break;                // Nothing to do just returning with error
 				case 1: Resize(m_totalsize+1);break;    // Making just one space for one new vector
-				case 2: Bufferize(in); return(1);break; // Force the introduction of the new vector
+				case 2: m_parray.pop_front();break; // Delete the firts vector to make space. 
 			}
 		}
 
-		new_pvector = new YVector();
-		new_pvector->Resize(m_vectors_length);
+		m_parray.push_back( in );
 
-		(*new_pvector) = in;
-
-		m_parray[m_currentsize] = new_pvector;
-		m_currentsize++;
 		return 1;
 	}
 
-	/** 
-	  * Adds a vector in the position of the last element; it moves left-size all the vectors to make space 
-	  * to the new element. In other words, the oldest vector is eliminated to make space to the new arrival
-	  * that is stored at the end of the template.
-	  * 
-	  * @param vector A reference to the new vector.
-	  * 
-	  * @return YARP_OK
-	  */
-	inline 
-	int Bufferize(YVector &vector)
-	{
-		LOCAL_TRACE("YARPSoundTemplate: Entering bufferize");
-		int i = 0;
-		YVector * new_pvector = NULL; /** A pointer to create a new vector for the template. */
-
-		delete m_parray[0]; // Just eliminate the first element
-
-		for( i = 0; i < m_currentsize-1; i++)
-			m_parray[i] = m_parray[i+1];
-
-		new_pvector = new YVector();
-		new_pvector->Resize(m_vectors_length);
-		(*new_pvector) = vector;
-
-		m_parray[m_currentsize-1] = new_pvector;
-
-		return YARP_OK;
-	}
 
 	/** 
 	  * Deletes a vector in the template; "element" determinates the position of the vector
@@ -315,23 +248,22 @@ public:
 	int Delete(int index)
 	{
 		LOCAL_TRACE("YARPSoundTemplate: Entering Delete");
+		YARPListIterator<YVector> soundTemplateIterator(m_parray);
 		int i = 0;
 		int j = 0;
 
-		if (index >= m_currentsize || index < 0)
+		if (index >= m_parray.size() || index < 0)
 		{
 			ACE_OS::fprintf(stdout, "YARPSoundTemplate: Sorry! Element %d can not be removed \n",index);
 			return YARP_FAIL;
 		}
 
-		ACE_ASSERT( m_parray != NULL);
+		soundTemplateIterator.go_head();
+		for ( i = 0; i < index; i++) {
+			soundTemplateIterator++; 
+		}
+		m_parray.erase( soundTemplateIterator );
 
-		delete m_parray[index];
-
-		for( i = index; i < m_currentsize-1; i++)
-			m_parray[i] = m_parray[i+1];
-
-		m_currentsize -= 1;
 
 		return YARP_OK;
 	}
@@ -350,15 +282,20 @@ public:
 		int j = 0;
 		YVector * pvector = NULL;
 		double  * pdata   = NULL;
+		YARPListIterator<YVector> soundTemplateIterator(m_parray);
 
+		// Open file
 		pfile = fopen(name.c_str(),"w");
 		ACE_ASSERT(pfile != NULL);
 
-		for ( i = 0; i < m_currentsize; i++)
+		soundTemplateIterator.go_head();
+		
+		for ( i = 0; i < m_parray.size(); i++)
 		{
-			pvector = m_parray[i];
-			pdata = pvector->data();
-			for ( j = 0; j < pvector->Length(); j++)
+			YVector &pvector = *soundTemplateIterator;
+			*soundTemplateIterator++;
+			pdata = pvector.data();
+			for ( j = 0; j < pvector.Length(); j++)
 				fprintf(pfile,"%f ",pdata[j]);
 			fprintf(pfile,"\n");
 		}
@@ -376,20 +313,15 @@ public:
 	YARPSoundTemplate& operator=(const YARPSoundTemplate& soundTemplate)
 	{
 		int i = 0;
-		YVector ** pSourceVector;
 		YVector tempVector;
 
 		Destroy();
 		if ( m_totalsize != soundTemplate.Size() ) 
 			Resize(soundTemplate.Size());
 
-		pSourceVector = soundTemplate.data();
-
-		for ( i = 0; i < soundTemplate.Length(); i++ ) {
-			tempVector = *pSourceVector[i]; 
-			Add(tempVector);
-		}
 		
+		m_parray = soundTemplate.m_parray;
+		m_vectors_length = soundTemplate.m_vectors_length;
 		return *this;
 	}
 
@@ -400,107 +332,15 @@ public:
 	Destroy()
 	{
 		LOCAL_TRACE("YARPSoundTemplate: Entering Destroy");
-		int i = 0;
-		YVector * pvector = NULL;
 
-		// Delete the individual vectors
-		for( i = 0; i < m_currentsize; i++ )
-		{
-			pvector = m_parray[i];
-			delete pvector;
-		}
+		int size = m_parray.size();
+		//ACE_ASSERT( size != 0 );
 
-		// Delete the vector pointers array
-		delete[] m_parray;
-		m_parray         = NULL;
-		m_currentsize    = 0;
+		if ( size != 0)
+			m_parray.clear();
+
 		m_vectors_length = 0;
-		m_totalsize      = 0;
-	}
-
-	/** 
-	  * Calculates the covariance matrix of the sound template.
-	  * 
-	  * @param mCov A reference to an external matrix to put the covariance data.
-	  * @param fullcov 
-	  * 	-# 0 Calculates only the variance matrix A
-	  * 	-# 1 Calculates the full covariance doint also A'A
-	  * @param flag Determinates if the data in normalized with N or N-1
-	  * 	-# 0 N-1 is used
-	  * 	-# 1 N is used
-	  * 
-	  * @return 
-	  * 	-# YARP_OK
-	  * 	-# YARP_FAIL
-	  */
-	int
-	CovarianceMatrix(YARPCovMatrix &mCov, int fullcov, int flag = 0)
-	{
-		LOCAL_TRACE("YARPSoundTemplate: Entering CovarianceMatrix");
-		int i;
-		int j;
-		double sum = 0.0;
-        YVector _means;           /** Local temporal vector to store the mean values.   */
-        YMatrix _xvars;           /** Temporal matrix to store the local variances.     */
-        YMatrix _xvarst;          /** Temporal transpose.                               */
-		YMatrix _mcov;          /** Temporal covariance.                               */
-        YVector * pvector = NULL; /** Temporal pointer to YVector.                      */
-        double  * pdata   = NULL; /** Temporal pointer to access YVector internal data. */
-
-		_means.Resize(m_vectors_length);
-        _xvars.Resize(m_currentsize,m_vectors_length);
-		_mcov.Resize(m_vectors_length, m_vectors_length);
-		
-		//----------------------------------------------------------------------
-		// Calculate means. 
-		// We navigate in the template structure to calculate the means of the
-		// coefficients in the "time" dimension. This is, we calculate the mean
-		// of each coefficient of the YVectors using the values of that coeficient 
-		// in the different YVectors (samples) of the template.
-		//----------------------------------------------------------------------
-		for ( i = 0; i < m_vectors_length; i++)
-		{
-			sum = 0.0;
-			for( j = 0; j < m_currentsize; j++)
-			{
-                pvector = m_parray[j];     // Get the pointer to the vector data
-                sum += (*pvector)[i];           // Add the i value of the vector to the sum
-            }
-            _means[i] = (double)sum/(double)m_currentsize; // We store the mean in the means vector
-		}
-
-		//----------------------------------------------------------------------
-		//  Calculate the local variances matrix.
-		//----------------------------------------------------------------------
-		for ( i = 1; i <= m_currentsize; i++)
-		{
-			// Get the pointer to the vector data
-			pvector = m_parray[i-1];
-
-			for( j = 1; j <= m_vectors_length; j++)
-				_xvars(i,j) = (*pvector)(j) - _means(j);
-		}
-
-
-		//----------------------------------------------------------------------
-		//  Calculate the full covariance matrix (A'A / m_currentsize)
-		//----------------------------------------------------------------------
-		if (fullcov)
-		{
-			_xvarst = _xvars.Transposed();
-			_mcov   = _xvarst * _xvars;
-			mCov    = _mcov;
-
-			// Calculate the final covariance matrix
-			if (flag)
-				mCov /= (double)(m_currentsize); 
-			else
-				mCov /= (double)(m_currentsize-1);
-		}
-
-		mCov.setOriginalVariancesMatrix(_xvars);
-
-		return YARP_OK;
+		m_totalsize      = ARRAY_MAX;
 	}
 
 	/** 
@@ -533,13 +373,18 @@ public:
 		double sum      = 0.0;
 		double   *p_unkTemp       = NULL;
 		double   *p_refTemp       = NULL;
-		YVector **punkvectorarray = NULL;
+		//YVector **punkvectorarray = NULL;
+		YARPListIterator<YVector> unknownIterator(unknow_template.m_parray);
+		YARPListIterator<YVector> localIterator(m_parray);
 		YMatrix   localDist;
 		YMatrix   globalDist;
 
 		nunkTemp = unknow_template.Length();
+		ACE_ASSERT( nunkTemp != 0 );
 		nrefTemp = Length();
+		ACE_ASSERT( nrefTemp != 0 );
         tempSize = m_vectors_length; // This assigns the length of the template vectors. This length has to be the same in both templates
+		ACE_ASSERT( tempSize != 0 );
 
 		//----------------------------------------------------------------------
 		//  Check if both template vectors length are equal
@@ -557,30 +402,40 @@ public:
 		//----------------------------------------------------------------------
 		// Get the pointer to the array of vector pointers of the unknown template
 		//----------------------------------------------------------------------
-        punkvectorarray = unknow_template.data(); 
+        //punkvectorarray = unknow_template.data(); 
+
 
 		//----------------------------------------------------------------------
 		// Check if the templates have the data
 		//----------------------------------------------------------------------
+		/*
 		if ((m_parray           ==  NULL ) || 
 			(m_parray[0]        ==  NULL ) || 
 			(punkvectorarray    ==  NULL ) || 
-			(punkvectorarray[0] ==  NULL ))
-		{
+			(punkvectorarray[0] ==  NULL )
+			) {
 			ACE_OS::fprintf(stdout,"YARPSoundTemplate: Error, trying to compare against an empty template");
 			*result = YARP_FAIL;
 			return -1.0;
 		}
+		*/
 
 		//----------------------------------------------------------------------
 		//  Compute all the local distances
 		//----------------------------------------------------------------------
-		for(i = 1; i <= nunkTemp; i++)
+		unknownIterator.go_head();
+		for(i = 1; i <= nunkTemp; i++) {
+			localIterator.go_head();
 			for(j = 1; j <= nrefTemp; j++)
 			{
 				sum = 0.0;
-				p_unkTemp = punkvectorarray[i-1]->data();
-				p_refTemp = m_parray[j-1]->data();
+				//p_unkTemp = punkvectorarray[i-1]->data();
+				//p_refTemp = m_parray[j-1]->data();
+				YVector &unknownVectorReference = *unknownIterator;
+				YVector &localVectorReference   = *localIterator;
+				localIterator++;
+				p_unkTemp = unknownVectorReference.data(); 
+				p_refTemp = localVectorReference.data();
 
 				//Just calculate the distance between the vectors
 				for ( k = 0; k < tempSize; k++)
@@ -590,6 +445,8 @@ public:
 				}
 				localDist(i,j) = sum;
 			}
+			unknownIterator++;
+		}
 
 		//----------------------------------------------------------------------
 		// For the first frame the only possible mathc is at (1,1) 

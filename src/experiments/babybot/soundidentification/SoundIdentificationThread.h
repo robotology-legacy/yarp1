@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.h,v 1.5 2004-11-12 10:05:47 beltran Exp $
+/// $Id: SoundIdentificationThread.h,v 1.6 2004-11-16 17:56:32 beltran Exp $
 ///
 
 /** 
@@ -62,13 +62,13 @@
 
 #include "YARPSoundTemplate.h"
 #include "soundidentificationprocessing.h"
-#include "YARPExMatrix.h"
 
 #define MIN(a,b) (a>b ? b : a)
 #define MAX(a,b) (a>b ? a : b)
 #define MIN3(a,b,c) MIN(MIN(a,b),c)
 #define MAX3(a,b,c) MAX(MAX(a,b),c)
 
+#define MUTUALINFORMATIONMEMORY 15 
 #define MEMORYMAX 60
 #define MIXELSMAX 40
 #define MIXELTHRESHOLD 180
@@ -125,6 +125,7 @@ private:
 	YARPList<ColorImage> _imagesList;
 	YARPList<MonoImage> _logPolarImagesList;
 	YARPList<SoundImagePair> _pairList;
+	YARPList<double> _rmsList;
 	const int __sizex;
 	const int __sizey; 
 	const int __histoWidth;
@@ -203,10 +204,15 @@ private:
 	  * Computes the mean of a vector of sound RMS (Root Mean Square)
 	  * values.
 	  * 
-	  * @param rmsvector A pointer to the vector.
+	  * @param rmsIterator The iterator to the list of doubles with the sound
+	  * samples.
+	  * @param vectorSize The size of the samples list.
+	  * @param rmsMean A reference where to returm the rms values of the sound.
+	  * @todo avoid the use of vectorSize using the properties of the iterator.
 	  */
 	void CalculateRMSMean(
-		const double * rmsvector,
+		//const double * rmsvector,
+		YARPListIterator<double> &rmsIterator,
 		const int vectorSize,
 		double &rmsMean);
 
@@ -262,30 +268,13 @@ private:
 		const double decaingFactor,
 		YARPImageOf<YarpPixelMono> &segmentedImage
 		); 
-	/** 
-	 * Calculates the mixel using the mutual information from a sound stream and an image.
-	 * @todo add mutual information formula.
-	 * 
-	 * @param mXtX The sound covariance matrix.
-	 * @param vImgs Array of pointer to the images. 
-	 * @param iSamples Number of samples.
-	 * @param i     The mixel/pixel 'w' position in the image
-	 * @param j     The mixel/pixel 'h' position in the image
-	 * 
-	 * @return The value of the mixel using the mutual information formula between the sound
-	 * and the image.
-	 */
-	int calculateMixel(YARPCovMatrix &mXtX, 
-		YARPImageOf<YarpPixelBGR> * vImgs, 
-		int iSamples,
-		int i, int j);
 
 	/** 
 	 * Calculates the mixel using the mutual information from a sound stream and an image.
 	 * In this case we use the Rms of the sound sample.
 	 * @todo add mutual information formula.
 	 * 
-	 * @param vRms A vector with the RMS sound values.
+	 * @param rmsIterator The iterator to the list of doubles with sound samples.
 	 * @param vImgs Array of pointer to the images. 
 	 * @param iSamples Number of samples.
 	 * @param i     The mixel/pixel 'w' position in the image
@@ -294,8 +283,9 @@ private:
 	 * @return The value of the mixel using the mutual information formula between the sound
 	 * and the image.
 	 */
-	int calculateMixel2(
-		double * vRms, 
+	int calculateMixel(
+		//double * vRms, 
+		YARPListIterator<double> &rmsIterator,
 		YARPListIterator<ColorImage> &imagesIterator,
 		int iSamples,
 		int i, int j,
