@@ -269,6 +269,122 @@ void YARPWatershed::createNeighborhood(const int widthStep, const bool neigh8)
 }*/
 
 
+void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPImageOf<YarpPixelMono>& dest)
+{
+	YarpPixelInt *p_src=(YarpPixelInt *)src.GetRawBuffer();
+	YarpPixelMono *p_dst;
+	int i,j,n,pos,p;
+
+	const YarpPixelMono val = 25;
+
+	//dest.Resize(width,height);
+	p_dst=(YarpPixelMono *)dest.GetRawBuffer();
+
+	dest.Zero();
+
+	// first row
+	// first pixel
+	p=0;
+	for(n=neighSize/2-1; n<neighSize; n++) {
+		pos = p + neighL[n];
+		if (p_src[p]!=p_src[pos]) {
+			p_dst[p] = val;
+			break;
+		}
+	}
+	p++;
+	// first row, 1->150
+	// Note that the pixel of the first row are all the same, so it is
+	// useless to check the "far" neighborhoods
+	for(i=1; i<width-1; i++) {
+		for(n=neighSize/2-1; n<neighSize; n++) { // no top Neighbor
+			pos = p + neigh[n];
+			if (p_src[p]!=p_src[pos]) {
+				p_dst[p] = val;
+				break;
+			}
+		}
+		p++;
+	}
+	// last pixel of the first row
+	for(n=neighSize/2-1; n<neighSize; n++) {
+		pos = p + neighR[n];
+		if (p_src[p]!=p_src[pos]) {
+			p_dst[p] = val;
+			break;
+		}
+	}
+	p++;
+	p+=padding;
+
+	// inner part
+	for(j=1; j<height-1; j++) {
+		// first pixel of the inner part
+		for(n=0; n<neighSize; n++) {
+			pos = p + neighL[n];
+			if (p_src[p]!=p_src[pos]) {
+				p_dst[p] = val;
+				break;
+			}
+		}
+		p++;
+		
+		for(i=1; i<width-1; i++) {
+			for(n=0; n<neighSize; n++) {
+				pos = p + neigh[n];
+				if (p_src[p]!=p_src[pos]) {
+					p_dst[p] = val;
+					break;
+				}
+			}
+			p++;
+		}
+		
+		//last pixel of the inner part
+		for(n=0; n<neighSize; n++) {
+			pos = p + neighR[n];
+			if (p_src[p]!=p_src[pos]) {
+				p_dst[p] = val;
+				break;
+			}
+		}
+		p++;
+		
+		p+=padding;
+	}
+
+	// last row
+	// first pixel
+	for(n=0; n<neighSize/2+1; n++) {
+		pos = p + neighL[n];
+		if (p_src[p]!=p_src[pos]) {
+			p_dst[p] = val;
+			break;
+		}
+	}
+	p++;
+	// last row, 1->150
+	for(i=1; i<width-1; i++) {
+		for(n=0; n<neighSize/2+1; n++) { // no top Neighbor
+			pos = p + neigh[n];
+			if (p_src[p]!=p_src[pos]) {
+				p_dst[p] = val;
+				break;
+			}
+		}
+		p++;
+	}
+	// last pixel of the last row
+	for(n=0; n<neighSize/2+1; n++) {
+		pos = p + neighR[n];
+		if (p_src[p]!=p_src[pos]) {
+			p_dst[p] = val;
+			break;
+		}
+	}
+}
+
+
 /*void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPImageOf<YarpPixelMono>& dest)
 {
 	const int WSHED =  0; // watersheds have value 0
@@ -1749,6 +1865,40 @@ void YARPWatershed::drawBlobList(YARPImageOf<YarpPixelMono>& id, YARPImageOf<Yar
 				for (int c=m_boxes[tag].cmin; c<=m_boxes[tag].cmax; c++)
 					if (tagged(c, r)==tag)
 						id(c ,r)=gray;
+}
+
+
+void YARPWatershed::statBlobList(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag, YARPBox &blob)
+{
+	int area=0;
+	
+	unsigned long int rgSum=0;
+	unsigned long int grSum=0;
+	unsigned long int bySum=0;
+
+	for (int tag=1; tag<max_tag; tag++)
+		if (blobList[tag]) {
+			area+=m_attn[tag].areaLP;
+			rgSum=m_attn[tag].rgSum;
+			grSum=m_attn[tag].grSum;
+			bySum=m_attn[tag].bySum;
+		}
+	
+	blob.areaLP=area;
+	if (area!=0) {
+		blob.rgSum=rgSum;
+		blob.grSum=grSum;
+		blob.bySum=bySum;
+		blob.meanRG=rgSum/area;
+		blob.meanGR=grSum/area;
+		blob.meanBY=bySum/area;
+	}
+}
+
+
+void YARPWatershed::getBlob(YARPImageOf<YarpPixelInt>& tagged, int x, int y, YARPBox &blob)
+{
+	blob=m_attn[tagged(x, y)];
 }
 
 

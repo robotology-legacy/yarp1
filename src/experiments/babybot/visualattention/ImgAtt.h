@@ -177,6 +177,8 @@ protected:
 	
 	YARPImageOf<YarpPixelMono> blobFov;
 	
+	YARPImageOf<YarpPixelMono> oldWshed;
+
 	YARPArrayConvKernel prewitt_diag1;
 	YARPArrayConvKernel prewitt_diag2;
 	//YARPArrayConvKernel prewitt_o_s;
@@ -274,6 +276,8 @@ public:
 
 	YARPBox* IORBoxes;
 	YARPBox* max_boxes;
+
+	YARPBox fovBox;
 };
 
 

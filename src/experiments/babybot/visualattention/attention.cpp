@@ -232,7 +232,7 @@ void mainthread::Body (void)
 	
 	bool isStarted = true;
 	
-	att_mod.setParameters(109, 0, 18, 0, 1);
+	//att_mod.setParameters(109, 0, 18, 0, 1);
 	
 	while (!IsTerminated())
 	{
@@ -376,11 +376,16 @@ void mainthread::Body (void)
 			outImage2.Content().Refer(out2);
 			outImage2.Write();
 			
+			// next target
 			tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
 			tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
 			tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
 			tmpBottle.writeInt(att_mod.max_boxes[0].meanGR);
 			tmpBottle.writeInt(att_mod.max_boxes[0].meanBY);
+			// blob in fovea
+			tmpBottle.writeInt(att_mod.fovBox.meanRG);
+			tmpBottle.writeInt(att_mod.fovBox.meanGR);
+			tmpBottle.writeInt(att_mod.fovBox.meanBY);
 			outBottle.Content() = tmpBottle;
 			outBottle.Write();
 
@@ -434,8 +439,14 @@ int main (int argc, char *argv[])
 		if (c<='9' && c>='0')
 			att_mod.setWatershedTh((c-'0')*3);
 		else if (c=='r') {
-			cout<<"Resetting IOR table";
+			cout<<"Resetting IOR table"<<endl;
 			att_mod.resetIORTable();
+		} else if (c=='s') {
+			cout<<"Searching for blobs similar to that in the fovea in this moment"<<endl;
+			att_mod.setParameters(att_mod.fovBox.meanRG, att_mod.fovBox.meanGR, att_mod.fovBox.meanBY, 0, 1);
+		} else if (c=='e') {
+			cout<<"Exploring the scene"<<endl;
+			att_mod.setParameters(0, 0, 0, 1, 0);
 		} else
 			cout << "Type q+return to quit" << endl;
 	}

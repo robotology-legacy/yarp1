@@ -258,10 +258,16 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num)
 	//iif.Resize(x, y);
 	((IplImage *)rg)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)rg)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
+	((IplImage *)rg)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;
+	((IplImage *)rg)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=IPL_BORDER_REPLICATE;
 	((IplImage *)gr)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)gr)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
+	((IplImage *)gr)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;
+	((IplImage *)gr)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=IPL_BORDER_REPLICATE;
 	((IplImage *)by)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)by)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
+	((IplImage *)by)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;
+	((IplImage *)by)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=IPL_BORDER_REPLICATE;
 	/*((IplImage *)ii)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
 	((IplImage *)ii)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;*/
 
@@ -305,6 +311,8 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num)
 	tmp15.Resize(x, y);
 	tmp16.Resize(x, y);*/
 
+	oldWshed.Resize(x, y);
+	
 	tmp1s.Resize(x, y);
 	tmp2s.Resize(x, y);
 
@@ -376,7 +384,8 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num)
 
 	tagged.Resize(x+x%8, y);
 
-	rain.resize(x, y, x+x%8, 15);
+	//rain.resize(x, y, x+x%8, 15);
+	rain.resize(x, y, x+x%8, 13);
 
 	blobList = new bool [x*y+1];
 
@@ -973,6 +982,10 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 
 	colorOpponency(src);
 	findEdges();
+	
+	//iplMultiplyScale(oldWshed, edge, oldWshed);
+	//iplAdd(edge, oldWshed, edge);
+
 	normalize();
 	findBlobs();
 	quantizeColors();
@@ -1264,12 +1277,6 @@ void YARPImgAtt::findBlobs()
 	//ACE_OS::sprintf(savename, "./out.ppm");
 	//YARPImageFile::Write(savename, out);
 	
-
-	/*MinMax((IplImage *)comb, mx[0], mn[0]);
-	FullRange((IplImage *)comb, (IplImage *)out, mn[0], mx[0]);
-	ZeroFovea(out, 0);
-	FindNMax(num, pos);*/
-	
 	/*tmp1=edge;
 	//tmp1.Zero();
 	//tmp1=ii;
@@ -1357,8 +1364,9 @@ void YARPImgAtt::findBlobs()
 	/*ACE_OS::sprintf(savename, "./blob_fov2.ppm");
 	YARPImageFile::Write(savename, blobFov);*/
 
+	rain.statBlobList(tagged, blobList, max_tag, fovBox);
 
-	//rain.maxSalienceBlobs(tagged, max_tag, boxes, num);
+	//rain.tags2Watershed(tagged, oldWshed);
 }
 
 
