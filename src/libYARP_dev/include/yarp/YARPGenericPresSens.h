@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericPresSens.h,v 1.1 2004-09-13 23:22:49 babybot Exp $
+/// $Id: YARPGenericPresSens.h,v 1.2 2004-10-07 15:47:51 babybot Exp $
 ///
 ///
 
@@ -91,8 +91,6 @@ public:
 	int initialize (const PARAMETERS &param);
 	int uninitialize (void);
 	int getData(PresSensData* data);
-	int startStreaming(void);
-	int stopStreaming(void);
 	
 };
 
@@ -126,18 +124,5 @@ int YARPGenericPresSens<ADAPTER, PARAMETERS>::getData (PresSensData *data)
 {
 	return _adapter.IOCtl (PSCMDGetData, (void *)data);
 }
-
-template <class ADAPTER, class PARAMETERS>
-int YARPGenericPresSens<ADAPTER, PARAMETERS>::startStreaming (void)
-{
-	return _adapter.IOCtl (PSCMDStartStreaming, NULL);
-}
-
-template <class ADAPTER, class PARAMETERS>
-int YARPGenericPresSens<ADAPTER, PARAMETERS>::stopStreaming (void)
-{
-	return _adapter.IOCtl (PSCMDStopStreaming, NULL);
-}
-
 
 #endif

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPresSensUtils.h,v 1.1 2004-09-13 23:22:49 babybot Exp $
+/// $Id: YARPPresSensUtils.h,v 1.2 2004-10-07 15:47:51 babybot Exp $
 ///
 ///
 
@@ -73,10 +73,8 @@
 enum PresSensCmd
 {
 	PSCMDGetData = 1,
-	PSCMDStartStreaming = 2,
-	PSCMDStopStreaming = 3,
 	
-	PSCMDNCmds = 4
+	PSCMDNCmds = 2
 };
 
 struct PresSensData
