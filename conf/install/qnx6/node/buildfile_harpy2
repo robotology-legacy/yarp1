@@ -1,0 +1,84 @@
+[virtual=x86,bios +compress] .bootstrap={
+startup-bios  
+#ROBOT_SERVER=europa.lira.dist.unige.it
+PATH=/proc/boot:/net/europa/usr/local/bin:/net/europa/bin:/net/europa/usr/photon/bin:/net/europa/usr/local/bin procnto
+}
+
+[+script] .script={
+LD_LIBRARY_PATH=/proc/boot:/usr/lib:/net/europa/lib:/net/europa/usr/lib:/net/europa/lib/dll:/net/europa/usr/local/lib:/net/europa/home/cbeltran/DEVELOPMENT/yarp/src/libraries/ACE_wrappers/ace
+YARP_ROOT=/net/europa/home/cbeltran/DEVELOPMENT/yarp
+display_msg "YARP QNX *harpy2* Network image"
+seedres
+pipe &
+pci-bios &
+setconf CS_HOSTNAME harpy2 
+setconf CS_DOMAIN lira.dist.unige.it
+waitfor /dev/pci
+#put in your actual IP,netmask and gateway
+io-net -dspeedo vid=0x8086,did=0x103a -ptcpip
+waitfor /dev/io-net 
+mount -Tio-net -o "vid=0x8086,did=0x1209" /proc/boot/devn-speedo.so
+waitfor /dev/io-net/en1
+ifconfig en0 130.251.43.22 netmask 255.255.255.0
+route add default 130.251.43.126 
+#Activate QNET
+mount -Tio-net npm-qnet.so
+waitfor /net
+
+#If you´re using ssh, start random daemon
+random -t -p &
+devc-con -n2 &
+reopen /dev/con2
+[+session] HOME=/ TERM=qansi-m ksh &
+reopen /dev/con1
+[+session] HOME=/ TERM=qansi-m ksh &
+}
+
+# the following is an example of inline file
+# you are doing this because non-QNX machines
+# won't recognise our "qansi-m" terminal. "ansi" terminal
+# is found on most machines
+[perms=+r,+x] /.kshrc = {
+alias telnet="TERM=ansi /proc/boot/telnet"
+}
+
+libc.so
+libsocket.so
+#libstdc++.so
+# required for ssh
+#libz.so
+npm-tcpip.so
+npm-qnet.so
+#devn-tulip.so
+devn-speedo.so
+/etc/hosts=/etc/hosts
+/etc/termcap=/etc/termcap
+/etc/passwd=/etc/passwd
+[type=link] /usr/lib/ldqnx.so.2=/proc/boot/libc.so
+#[type=link] /usr=/net/europa.lira.dist.unige.it/usr
+#[type=link] /home=/net/europa.lira.dist.unige.it/home
+
+[code=uip data=copy perms=+r,+x]
+seedres
+pipe
+ksh
+devc-con
+io-net
+ls
+pidin
+mount
+pci-bios
+hostname
+env
+ifconfig
+route
+setconf
+#netstat
+pci
+more
+less
+#cat
+#/usr/bin/ftp
+#/usr/bin/telnet
+#/usr/bin/ssh
+#/usr/bin/ping
