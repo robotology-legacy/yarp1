@@ -8,11 +8,11 @@
 
 \section{Getting started}
 
-Make sure you have installed libYARP\_OS as described in Section~\ref{sect:install}.
-We will now exercise your installation to make sure everything
-is okay and correctly configured.  First, please open two terminal
-windows; we'll refer to these as A and B.  
-
+Make sure you have installed libYARP\_OS as described in
+Section~\ref{sect:install}.  We will now exercise your installation to
+make sure everything is okay and correctly configured.  First, please
+open two terminal windows; we'll refer to these as A and B.
+%
 Before doing any communication, is is necessary to start the YARP name
 service -- this is a program which keeps track of what YARP resources
 are currently available and how to access them.
@@ -26,7 +26,7 @@ yarp-service --run
 If all goes well, you will see a series of messages finishing in ``***
 YARP name service started OK'' -- if not, check the configuration file
 mentioned in the messages, or follow the advice given.
-
+%
 Next, in terminal B, type:
 %
 \begin{verbatim}
@@ -35,8 +35,9 @@ yarp-service --check
 %
 This will try to communicate with the name server, send a message,
 receive a message, and basically make sure that everything is
-working well.  Here is what happens when all is well:
+working well.  Here is what you should see:
 
+\begin{quote}
 {\small
 \begin{verbatim}
 =================================================================
@@ -58,11 +59,12 @@ working well.  Here is what happens when all is well:
 *** YARP seems okay!
 \end{verbatim}
 }
-
-If everything is okay, the last message wiil be ``*** YARP seems
-okay!'' -- otherwise it will give some advice.  
+\end{quote}
+%
+\noindent
 Here is an example of things going wrong:
-
+%
+\begin{quote}
 {\small
 \begin{verbatim}
 =================================================================
@@ -97,6 +99,7 @@ Here is an example of things going wrong:
 ***
 \end{verbatim}
 }
+\end{quote}
 
 If networking is broken on your machine, then YARP will have trouble.
 If you are running the YARP name server on a machine that does not
@@ -121,7 +124,7 @@ yarp-read /port1
 %
 This will report \ctt{making port /port1 ...} in terminal B and in
 terminal A some corresponding message will also appear.
-
+%
 Next, in terminal C, type:
 
 \begin{verbatim}
@@ -131,7 +134,7 @@ yarp-write /port2
 If all goes well, this will report \ctt{making port /port2} in
 terminal C and in terminal A some corresponding message will also
 appear.
-
+%
 Now, in terminal D, type:
 
 \begin{verbatim}
@@ -149,12 +152,16 @@ terminal on it (let's call that terminal E) and type:
 yarp-service --remote machinename
 \end{verbatim}
 
-where machinename is the full name or IP address of the first machine
-on which the YARP name service is running.  If all goes well it should
-report \ctt{connection established with YARP name service running on
-{\bf machinename}}.
+where machinename is the full name or (better still) IP address of the
+first machine on which the YARP name service is running.  If all goes
+well it should report \ctt{connection established with YARP name
+service running on {\bf machinename}}.  If things do not go well, 
+try running ``yarp-service --check'' in terminal E.  You now have
+two configuration files, one on each machine, which should both
+refer to the IP address of the first machine (since that is the one
+on which the server is running on).
 
-Now on terminal E type:
+If everything is going okay so far, type on terminal E:
 %
 \begin{verbatim}
 yarp_read /port3
