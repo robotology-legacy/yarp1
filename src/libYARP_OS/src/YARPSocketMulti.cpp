@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.25 2004-08-24 17:22:55 babybot Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.26 2004-12-17 15:22:34 micheletavella Exp $
 ///
 ///
 
@@ -84,7 +84,7 @@
 #elif defined (__WIN32__)
 
 
-#elif defined (__LINUX__)
+#elif defined (__LINUX__) || defined(__DARWIN__)
 
 #	include <unistd.h>  // just for gethostname
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.13 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.14 2004-12-17 15:22:35 micheletavella Exp $
 ///
 ///
 
@@ -127,7 +127,7 @@ static int my_getpid()
 static inline int my_gettid() { return my_getpid(); }
 
 
-#elif defined(__LINUX__)
+#elif defined(__LINUX__) || defined(__DARWIN__)
 
 #	include <unistd.h>
 #	include <pthread.h>

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.12 2004-08-21 17:53:46 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.13 2004-12-17 15:22:34 micheletavella Exp $
 ///
 ///
 
@@ -84,7 +84,7 @@
 #include <ace/OS.h>
 #include <ace/Handle_Set.h>
 
-#if defined(__QNX6__) || defined(__LINUX__)
+#if defined(__QNX6__) || defined(__LINUX__) || defined(__DARWIN__)
 #include <signal.h>
 #endif
 

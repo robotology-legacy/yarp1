@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.9 2004-08-21 17:53:46 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.10 2004-12-17 15:22:34 micheletavella Exp $
 ///
 ///
 
@@ -91,7 +91,7 @@
 #include <ace/Time_Value.h>
 #include <ace/Sched_Params.h>
 
-#if defined(__QNX6__) || defined(__LINUX__)
+#if defined(__QNX6__) || defined(__LINUX__) || defined(__DARWIN__)
 #include <signal.h>
 #endif
 
