@@ -32,6 +32,7 @@ include	../abLfiles
 
 PLATFORM=gcc_ntox86
 PHABOPTS= 
+APPROTOPATH=/usr/photon/appbuilder/
 
 CC  = QCC
 CXX = QCC
@@ -127,4 +128,4 @@ $(ABOBJ) $(MYOBJ):	$(MYHDR)
 #
 
 proto:
-	approto -p $(ABSRC) $(MYSRC) > proto.h
+	$(APPROTOPATH)approto -p $(ABSRC) $(MYSRC) > proto.h
