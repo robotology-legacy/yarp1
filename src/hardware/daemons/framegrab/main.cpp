@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.46 2004-01-21 09:41:43 beltran Exp $
+/// $Id: main.cpp,v 1.47 2004-01-21 15:27:08 babybot Exp $
 ///
 ///
 
@@ -129,17 +129,17 @@ extern int __debug_level;
 /// LATER: used to parse command line options.
 int ParseParams (int argc, char *argv[]) 
 {
-	ACE_OS::sprintf (_name, "/%s/o:img\0", argv[0]);
-	ACE_OS::sprintf (_fgdataname,"/%s/i:fgdata\0", argv[0]);
-	ACE_OS::sprintf (_netname, "default\0");
+	ACE_OS::sprintf (_name, "/%s/o:img", argv[0]);
+	ACE_OS::sprintf (_fgdataname,"/%s/i:fgdata", argv[0]);
+	ACE_OS::sprintf (_netname, "default");
 	int i;
 
 	for (i = 1; i < argc; i++)
 	{
 		if (argv[i][0] == '+')
 		{
-			ACE_OS::sprintf (_name, "/%s/o:img\0", argv[i]+1);
-			ACE_OS::sprintf (_fgdataname,"/%s/i:fgdata\0", argv[i]+1);
+			ACE_OS::sprintf (_name, "/%s/o:img", argv[i]+1);
+			ACE_OS::sprintf (_fgdataname,"/%s/i:fgdata", argv[i]+1);
 		}
 		else
 		if (argv[i][0] == '-')
@@ -166,7 +166,7 @@ int ParseParams (int argc, char *argv[])
 
 			case 't':
 				ACE_OS::fprintf (stdout, "grabber acting as a receiver client...\n");
-				ACE_OS::sprintf (_name, "%s\0", argv[i+1]);
+				ACE_OS::sprintf (_name, "%s", argv[i+1]);
 				i++;
 				_client = true;
 				_simu = false;
@@ -185,7 +185,7 @@ int ParseParams (int argc, char *argv[])
 
 			case 'n':
 				ACE_OS::fprintf (stdout, "sending to network : %s\n", argv[i+1]);
-				ACE_OS::sprintf (_netname, "%s\0", argv[i+1]);
+				ACE_OS::sprintf (_netname, "%s", argv[i+1]);
 				i++;
 				break;
 
@@ -284,9 +284,10 @@ class FgNetDataPort : public YARPInputPortOf<YARPBottle>
 
 void FgNetDataPort::OnRead(void)
 {
-	//printf("Accesing OnRead\n");
+	///printf("Accesing OnRead\n");
 	Read ();
 	m_bottle = Content();
+	m_bottle.rewind();
 	m_bottle.readInt((int *)&m_bright);
 	m_bottle.readInt((int *)&m_hue);
 	m_bottle.readInt((int *)&m_contrast);
@@ -296,7 +297,7 @@ void FgNetDataPort::OnRead(void)
 	m_bottle.readInt((int *)&m_ldec);
 	m_bottle.readInt((int *)&m_crush);
 
-	//m_bottle.display();
+	///m_bottle.display();
 
 	m_gb->setBright((unsigned int)m_bright);
 	m_gb->setHue((unsigned int)m_hue);
@@ -398,7 +399,7 @@ int mainthread::_runAsClient (void)
 
 		frame_no++;
 
-		ACE_OS::sprintf (savename, "./grab_test%04d.ppm\0", frame_no);
+		ACE_OS::sprintf (savename, "./grab_test%04d.ppm", frame_no);
 		YARPImageFile::Write (savename, img);
 
 ///		if (frame_no > 10)
@@ -484,11 +485,7 @@ int mainthread::_runAsLogpolarSimulation (void)
 
 	char * path = ACE_OS::getenv ("YARP_ROOT");
 	char filename[512];
-#ifdef __WIN32__
-	ACE_OS::sprintf (filename, "%s\\conf\\test_grabber.ppm\0", path);
-#else
-	ACE_OS::sprintf (filename, "%s/conf/test_grabber.ppm\0", path);
-#endif
+	ACE_OS::sprintf (filename, "%s/conf/test_grabber.ppm", path);
 	YARPImageFile::Read (filename, img);
 
 	while (!IsTerminated())
