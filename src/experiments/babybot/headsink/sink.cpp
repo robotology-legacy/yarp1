@@ -96,7 +96,7 @@ void Sink::doLoop()
 		_outCmd = _outCmd + _inVectors[SinkChVergence];
 	
 	// finally compute neck
-	if (!(_globalInhibition & SINK_INHIBIT_NECK))
+	if (!(_globalInhibition & SINK_INHIBIT_SMOOTH))	// it used to be NECK
 	{
 		const YVector &neck = _neckControl->apply(_position);
 		_outCmd = _outCmd + neck;

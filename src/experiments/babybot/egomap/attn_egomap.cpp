@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_egomap.cpp,v 1.7 2004-05-05 17:55:36 babybot Exp $
+/// $Id: attn_egomap.cpp,v 1.8 2004-05-21 14:01:10 babybot Exp $
 ///
 ///
 
@@ -211,6 +211,13 @@ public:
 
 		_lock();
 			_gaze.update(pos);
+			/* double az, el;
+			YVector tmp(3);
+			// _gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT_PERI, tmp, 128, 128);
+			_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT_PERI, el, az, 128, 128);
+			printf("Elevation:%lf\tAzimuth:%lf\n", el*180/PI, az*180/PI);
+			// printf("%lf\t%lf\t%lf\n", tmp(1), tmp(2), tmp(3));
+			*/
 		_unlock();
 
 		if (_inPortImage.Read(0))

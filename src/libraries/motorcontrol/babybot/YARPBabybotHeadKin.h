@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.8 2004-05-20 08:08:07 gmetta Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.9 2004-05-21 13:59:59 babybot Exp $
 ///
 ///
 
@@ -144,10 +144,12 @@ public:
 	///
 	/// given an up to date kinematic matrix, it returns the ray passing from an image plane point x,y.
 	void computeRay (__kinType k, YVector& v, int x, int y);
+	void computeRay (__kinType k, double &el, double &az, int x, int y);
 
 	///
 	/// given an up to date kin matrix, it computes the x,y point where a given ray v intersects the img plane.
 	void intersectRay (__kinType k, const YVector& v, int& x, int& y);
+	void intersectRay (__kinType k, double elev, double az, int& x, int& y);
 
 	/// given an up to data kin matrix, it returns the x,y,z cartesian coordinate of the fixation point
 	const Y3DVector &fixation()
@@ -160,6 +162,8 @@ public:
 
 protected:
 	inline void _computeFixation (const YHmgTrsf &T1, const YHmgTrsf &T2);
+	inline void _polarToCartesian(double el, double az, YVector &v);
+	inline void _cartesianToPolar(const YVector &v, double &el, double &az);
 
 	YARPRobotKinematics _leftCamera;
 	YARPRobotKinematics _rightCamera;
@@ -169,6 +173,20 @@ protected:
 	Y3DVector _fixationPoint;
 	int _nFrame;
 };
+
+inline void YARPBabybotHeadKin::_polarToCartesian(double el, double az, YVector &v)
+{
+	v(1) = -cos(el)*cos(az);	//x
+	v(2) = cos(el)*sin(az);		//y
+	v(3) = sin(el);				//z
+}
+
+inline void YARPBabybotHeadKin::_cartesianToPolar(const YVector &v, double &el, double &az)
+{
+	az = atan2(v(2), -v(1));							// azimuth
+	double tmp = sqrt(v(1)*v(1) + v(2)*v(2));			
+	el = atan2(v(3),tmp);								// elevation
+}
 
 ///
 ///

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.cpp,v 1.5 2004-05-20 08:08:07 gmetta Exp $
+/// $Id: YARPBabybotHeadKin.cpp,v 1.6 2004-05-21 13:59:59 babybot Exp $
 ///
 ///
 
@@ -156,6 +156,21 @@ void YARPBabybotHeadKin::computeDirect (const YVector &joints)
 	_computeFixation (_rightCamera.endFrame(), _leftCamera.endFrame());
 }
 
+void YARPBabybotHeadKin::computeRay(__kinType k, double& el, double& az, int x, int y)
+{
+	YVector tmpV(3);
+	computeRay(k, tmpV, x, y);
+	// convert tmpV -> (el,az)
+	_cartesianToPolar(tmpV, el, az);
+}
+
+void YARPBabybotHeadKin::intersectRay (__kinType k, double el, double az, int& x, int& y)
+{
+	YVector tmpV(3);
+	// convert (el, az) -> tmpV
+	_polarToCartesian(el, az, tmpV);
+	intersectRay(k, tmpV, x, y);
+}
 ///
 /// given an up to date kinematic matrix, returns the ray passing from an image plane point x,y.
 void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
