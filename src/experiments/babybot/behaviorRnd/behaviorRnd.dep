@@ -121,10 +121,8 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
-	"..\..\..\..\include\conf\yarpbabybotmotorvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
-	"..\..\..\..\include\conf\yarpmotorvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
@@ -156,7 +154,7 @@
 	"..\..\..\..\include\yarpthread.h"\
 	"..\..\..\..\include\yarptime.h"\
 	".\rndBehavior.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	
 
 .\rndBehavior.cpp : \
@@ -280,10 +278,8 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
-	"..\..\..\..\include\conf\yarpbabybotmotorvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
-	"..\..\..\..\include\conf\yarpmotorvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
@@ -315,5 +311,5 @@
 	"..\..\..\..\include\yarpthread.h"\
 	"..\..\..\..\include\yarptime.h"\
 	".\rndBehavior.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	

@@ -141,8 +141,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
@@ -195,7 +197,7 @@
 	".\AState.h"\
 	".\tirednessControl.h"\
 	".\YARPGravityEstimator.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	
 
 .\armcontrol.cpp : \
@@ -339,8 +341,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
@@ -395,7 +399,7 @@
 	".\RandomThread.h"\
 	".\tirednessControl.h"\
 	".\YARPGravityEstimator.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	
 
 .\ArmFSMStates.cpp : \
@@ -539,8 +543,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
@@ -595,7 +601,7 @@
 	".\AState.h"\
 	".\tirednessControl.h"\
 	".\YARPGravityEstimator.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	
 
 .\armthread.cpp : \
@@ -739,8 +745,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
@@ -793,7 +801,7 @@
 	".\AState.h"\
 	".\tirednessControl.h"\
 	".\YARPGravityEstimator.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	
 
 .\AState.cpp : \
@@ -937,8 +945,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
@@ -991,7 +1001,7 @@
 	".\AState.h"\
 	".\tirednessControl.h"\
 	".\YARPGravityEstimator.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	
 
 .\RandomThread.cpp : \
@@ -1135,8 +1145,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
@@ -1190,7 +1202,7 @@
 	".\RandomThread.h"\
 	".\tirednessControl.h"\
 	".\YARPGravityEstimator.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	
 
 .\YARPGravityEstimator.cpp : \
@@ -1294,5 +1306,5 @@
 	"..\..\..\..\include\yarprobotmath.inl"\
 	"..\..\..\..\include\yarpstring.h"\
 	".\YARPGravityEstimator.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	

@@ -7,6 +7,7 @@
 	"..\..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\..\include\ace\addr.h"\
+	"..\..\..\..\include\ace\addr.i"\
 	"..\..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\..\include\ace\array_base.h"\
 	"..\..\..\..\include\ace\array_base.inl"\
@@ -14,7 +15,9 @@
 	"..\..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\..\include\ace\auto_ptr.i"\
 	"..\..\..\..\include\ace\base_thread_adapter.h"\
+	"..\..\..\..\include\ace\base_thread_adapter.inl"\
 	"..\..\..\..\include\ace\basic_types.h"\
+	"..\..\..\..\include\ace\basic_types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
@@ -22,14 +25,17 @@
 	"..\..\..\..\include\ace\config-win32.h"\
 	"..\..\..\..\include\ace\config.h"\
 	"..\..\..\..\include\ace\containers.h"\
+	"..\..\..\..\include\ace\containers.i"\
 	"..\..\..\..\include\ace\containers_t.cpp"\
 	"..\..\..\..\include\ace\containers_t.h"\
 	"..\..\..\..\include\ace\containers_t.i"\
 	"..\..\..\..\include\ace\default_constants.h"\
 	"..\..\..\..\include\ace\event_handler.h"\
+	"..\..\..\..\include\ace\event_handler.i"\
 	"..\..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\..\include\ace\framework_component.h"\
+	"..\..\..\..\include\ace\framework_component.inl"\
 	"..\..\..\..\include\ace\framework_component_t.cpp"\
 	"..\..\..\..\include\ace\framework_component_t.h"\
 	"..\..\..\..\include\ace\framework_component_t.inl"\
@@ -40,7 +46,9 @@
 	"..\..\..\..\include\ace\handle_ops.h"\
 	"..\..\..\..\include\ace\handle_ops.i"\
 	"..\..\..\..\include\ace\high_res_timer.h"\
+	"..\..\..\..\include\ace\high_res_timer.i"\
 	"..\..\..\..\include\ace\inet_addr.h"\
+	"..\..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\..\include\ace\init_ace.h"\
 	"..\..\..\..\include\ace\init_ace.i"\
 	"..\..\..\..\include\ace\ipc_sap.h"\
@@ -49,7 +57,9 @@
 	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
+	"..\..\..\..\include\ace\malloc.i"\
 	"..\..\..\..\include\ace\malloc_allocator.h"\
+	"..\..\..\..\include\ace\malloc_allocator.i"\
 	"..\..\..\..\include\ace\malloc_base.h"\
 	"..\..\..\..\include\ace\malloc_t.cpp"\
 	"..\..\..\..\include\ace\malloc_t.h"\
@@ -58,22 +68,34 @@
 	"..\..\..\..\include\ace\managed_object.h"\
 	"..\..\..\..\include\ace\managed_object.i"\
 	"..\..\..\..\include\ace\mem_addr.h"\
+	"..\..\..\..\include\ace\mem_addr.i"\
 	"..\..\..\..\include\ace\mem_map.h"\
+	"..\..\..\..\include\ace\mem_map.i"\
 	"..\..\..\..\include\ace\memory_pool.h"\
+	"..\..\..\..\include\ace\memory_pool.i"\
 	"..\..\..\..\include\ace\min_max.h"\
 	"..\..\..\..\include\ace\node.cpp"\
 	"..\..\..\..\include\ace\node.h"\
 	"..\..\..\..\include\ace\object_manager.h"\
+	"..\..\..\..\include\ace\object_manager.i"\
 	"..\..\..\..\include\ace\os.h"\
+	"..\..\..\..\include\ace\os.i"\
 	"..\..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\..\include\ace\os_dirent.inl"\
 	"..\..\..\..\include\ace\os_errno.h"\
+	"..\..\..\..\include\ace\os_errno.inl"\
 	"..\..\..\..\include\ace\os_export.h"\
 	"..\..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\..\include\ace\os_log_msg_attributes.inl"\
 	"..\..\..\..\include\ace\os_memory.h"\
+	"..\..\..\..\include\ace\os_memory.inl"\
 	"..\..\..\..\include\ace\os_string.h"\
+	"..\..\..\..\include\ace\os_string.inl"\
 	"..\..\..\..\include\ace\os_tli.h"\
+	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
+	"..\..\..\..\include\ace\signal.i"\
 	"..\..\..\..\include\ace\singleton.cpp"\
 	"..\..\..\..\include\ace\singleton.h"\
 	"..\..\..\..\include\ace\singleton.i"\
@@ -95,15 +117,21 @@
 	"..\..\..\..\include\ace\string_base.i"\
 	"..\..\..\..\include\ace\string_base_const.h"\
 	"..\..\..\..\include\ace\synch.h"\
+	"..\..\..\..\include\ace\synch.i"\
 	"..\..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\..\include\ace\synch_t.h"\
 	"..\..\..\..\include\ace\synch_t.i"\
 	"..\..\..\..\include\ace\thread.h"\
+	"..\..\..\..\include\ace\thread.i"\
 	"..\..\..\..\include\ace\thread_adapter.h"\
+	"..\..\..\..\include\ace\thread_adapter.inl"\
 	"..\..\..\..\include\ace\thread_control.h"\
+	"..\..\..\..\include\ace\thread_control.inl"\
 	"..\..\..\..\include\ace\thread_exit.h"\
 	"..\..\..\..\include\ace\thread_manager.h"\
+	"..\..\..\..\include\ace\thread_manager.i"\
 	"..\..\..\..\include\ace\time_value.h"\
+	"..\..\..\..\include\ace\time_value.inl"\
 	"..\..\..\..\include\ace\unbounded_queue.cpp"\
 	"..\..\..\..\include\ace\unbounded_queue.h"\
 	"..\..\..\..\include\ace\unbounded_queue.inl"\
@@ -113,18 +141,17 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
 	"..\..\..\..\include\port.h"\
 	"..\..\..\..\include\refcounted.h"\
 	"..\..\..\..\include\sendable.h"\
-	"..\..\..\..\include\yarpadcutils.h"\
 	"..\..\..\..\include\yarpall.h"\
-	"..\..\..\..\include\yarpbabybothand.h"\
-	"..\..\..\..\include\yarpbabybothandparameters.h"\
 	"..\..\..\..\include\yarpbabybothead.h"\
 	"..\..\..\..\include\yarpbabybotinertialsensor.h"\
 	"..\..\..\..\include\yarpbehavior.h"\
@@ -139,8 +166,6 @@
 	"..\..\..\..\include\yarpfft.h"\
 	"..\..\..\..\include\yarpfragments.h"\
 	"..\..\..\..\include\yarpfsm.h"\
-	"..\..\..\..\include\yarpgalildevicedriver.h"\
-	"..\..\..\..\include\yarpgalilonbabybothandadapter.h"\
 	"..\..\..\..\include\yarpgenericcontrolboard.h"\
 	"..\..\..\..\include\yarplist.h"\
 	"..\..\..\..\include\yarplowpassfilter.h"\
@@ -153,8 +178,6 @@
 	"..\..\..\..\include\yarpnameid_defs.h"\
 	"..\..\..\..\include\yarpnameservice.h"\
 	"..\..\..\..\include\yarpnetworktypes.h"\
-	"..\..\..\..\include\yarpnidaqdevicedriver.h"\
-	"..\..\..\..\include\yarpnidaqonbabybothandadapter.h"\
 	"..\..\..\..\include\yarppidfilter.h"\
 	"..\..\..\..\include\yarpport.h"\
 	"..\..\..\..\include\yarpportcontent.h"\
@@ -171,7 +194,7 @@
 	".\HeadFSMStates.h"\
 	".\HeadSharedData.h"\
 	".\HeadThread.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	
 
 .\headcontrol.cpp : \
@@ -181,6 +204,7 @@
 	"..\..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\..\include\ace\addr.h"\
+	"..\..\..\..\include\ace\addr.i"\
 	"..\..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\..\include\ace\array_base.h"\
 	"..\..\..\..\include\ace\array_base.inl"\
@@ -188,7 +212,9 @@
 	"..\..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\..\include\ace\auto_ptr.i"\
 	"..\..\..\..\include\ace\base_thread_adapter.h"\
+	"..\..\..\..\include\ace\base_thread_adapter.inl"\
 	"..\..\..\..\include\ace\basic_types.h"\
+	"..\..\..\..\include\ace\basic_types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
@@ -196,14 +222,17 @@
 	"..\..\..\..\include\ace\config-win32.h"\
 	"..\..\..\..\include\ace\config.h"\
 	"..\..\..\..\include\ace\containers.h"\
+	"..\..\..\..\include\ace\containers.i"\
 	"..\..\..\..\include\ace\containers_t.cpp"\
 	"..\..\..\..\include\ace\containers_t.h"\
 	"..\..\..\..\include\ace\containers_t.i"\
 	"..\..\..\..\include\ace\default_constants.h"\
 	"..\..\..\..\include\ace\event_handler.h"\
+	"..\..\..\..\include\ace\event_handler.i"\
 	"..\..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\..\include\ace\framework_component.h"\
+	"..\..\..\..\include\ace\framework_component.inl"\
 	"..\..\..\..\include\ace\framework_component_t.cpp"\
 	"..\..\..\..\include\ace\framework_component_t.h"\
 	"..\..\..\..\include\ace\framework_component_t.inl"\
@@ -214,7 +243,9 @@
 	"..\..\..\..\include\ace\handle_ops.h"\
 	"..\..\..\..\include\ace\handle_ops.i"\
 	"..\..\..\..\include\ace\high_res_timer.h"\
+	"..\..\..\..\include\ace\high_res_timer.i"\
 	"..\..\..\..\include\ace\inet_addr.h"\
+	"..\..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\..\include\ace\init_ace.h"\
 	"..\..\..\..\include\ace\init_ace.i"\
 	"..\..\..\..\include\ace\ipc_sap.h"\
@@ -223,7 +254,9 @@
 	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
+	"..\..\..\..\include\ace\malloc.i"\
 	"..\..\..\..\include\ace\malloc_allocator.h"\
+	"..\..\..\..\include\ace\malloc_allocator.i"\
 	"..\..\..\..\include\ace\malloc_base.h"\
 	"..\..\..\..\include\ace\malloc_t.cpp"\
 	"..\..\..\..\include\ace\malloc_t.h"\
@@ -232,22 +265,34 @@
 	"..\..\..\..\include\ace\managed_object.h"\
 	"..\..\..\..\include\ace\managed_object.i"\
 	"..\..\..\..\include\ace\mem_addr.h"\
+	"..\..\..\..\include\ace\mem_addr.i"\
 	"..\..\..\..\include\ace\mem_map.h"\
+	"..\..\..\..\include\ace\mem_map.i"\
 	"..\..\..\..\include\ace\memory_pool.h"\
+	"..\..\..\..\include\ace\memory_pool.i"\
 	"..\..\..\..\include\ace\min_max.h"\
 	"..\..\..\..\include\ace\node.cpp"\
 	"..\..\..\..\include\ace\node.h"\
 	"..\..\..\..\include\ace\object_manager.h"\
+	"..\..\..\..\include\ace\object_manager.i"\
 	"..\..\..\..\include\ace\os.h"\
+	"..\..\..\..\include\ace\os.i"\
 	"..\..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\..\include\ace\os_dirent.inl"\
 	"..\..\..\..\include\ace\os_errno.h"\
+	"..\..\..\..\include\ace\os_errno.inl"\
 	"..\..\..\..\include\ace\os_export.h"\
 	"..\..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\..\include\ace\os_log_msg_attributes.inl"\
 	"..\..\..\..\include\ace\os_memory.h"\
+	"..\..\..\..\include\ace\os_memory.inl"\
 	"..\..\..\..\include\ace\os_string.h"\
+	"..\..\..\..\include\ace\os_string.inl"\
 	"..\..\..\..\include\ace\os_tli.h"\
+	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
+	"..\..\..\..\include\ace\signal.i"\
 	"..\..\..\..\include\ace\singleton.cpp"\
 	"..\..\..\..\include\ace\singleton.h"\
 	"..\..\..\..\include\ace\singleton.i"\
@@ -269,15 +314,21 @@
 	"..\..\..\..\include\ace\string_base.i"\
 	"..\..\..\..\include\ace\string_base_const.h"\
 	"..\..\..\..\include\ace\synch.h"\
+	"..\..\..\..\include\ace\synch.i"\
 	"..\..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\..\include\ace\synch_t.h"\
 	"..\..\..\..\include\ace\synch_t.i"\
 	"..\..\..\..\include\ace\thread.h"\
+	"..\..\..\..\include\ace\thread.i"\
 	"..\..\..\..\include\ace\thread_adapter.h"\
+	"..\..\..\..\include\ace\thread_adapter.inl"\
 	"..\..\..\..\include\ace\thread_control.h"\
+	"..\..\..\..\include\ace\thread_control.inl"\
 	"..\..\..\..\include\ace\thread_exit.h"\
 	"..\..\..\..\include\ace\thread_manager.h"\
+	"..\..\..\..\include\ace\thread_manager.i"\
 	"..\..\..\..\include\ace\time_value.h"\
+	"..\..\..\..\include\ace\time_value.inl"\
 	"..\..\..\..\include\ace\unbounded_queue.cpp"\
 	"..\..\..\..\include\ace\unbounded_queue.h"\
 	"..\..\..\..\include\ace\unbounded_queue.inl"\
@@ -287,18 +338,17 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
 	"..\..\..\..\include\port.h"\
 	"..\..\..\..\include\refcounted.h"\
 	"..\..\..\..\include\sendable.h"\
-	"..\..\..\..\include\yarpadcutils.h"\
 	"..\..\..\..\include\yarpall.h"\
-	"..\..\..\..\include\yarpbabybothand.h"\
-	"..\..\..\..\include\yarpbabybothandparameters.h"\
 	"..\..\..\..\include\yarpbabybothead.h"\
 	"..\..\..\..\include\yarpbabybotinertialsensor.h"\
 	"..\..\..\..\include\yarpbehavior.h"\
@@ -313,8 +363,6 @@
 	"..\..\..\..\include\yarpfft.h"\
 	"..\..\..\..\include\yarpfragments.h"\
 	"..\..\..\..\include\yarpfsm.h"\
-	"..\..\..\..\include\yarpgalildevicedriver.h"\
-	"..\..\..\..\include\yarpgalilonbabybothandadapter.h"\
 	"..\..\..\..\include\yarpgenericcontrolboard.h"\
 	"..\..\..\..\include\yarplist.h"\
 	"..\..\..\..\include\yarplowpassfilter.h"\
@@ -327,8 +375,6 @@
 	"..\..\..\..\include\yarpnameid_defs.h"\
 	"..\..\..\..\include\yarpnameservice.h"\
 	"..\..\..\..\include\yarpnetworktypes.h"\
-	"..\..\..\..\include\yarpnidaqdevicedriver.h"\
-	"..\..\..\..\include\yarpnidaqonbabybothandadapter.h"\
 	"..\..\..\..\include\yarppidfilter.h"\
 	"..\..\..\..\include\yarpport.h"\
 	"..\..\..\..\include\yarpportcontent.h"\
@@ -346,7 +392,7 @@
 	".\HeadFSMStates.h"\
 	".\HeadSharedData.h"\
 	".\HeadThread.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	
 
 .\HeadThread.cpp : \
@@ -356,6 +402,7 @@
 	"..\..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\..\include\ace\addr.h"\
+	"..\..\..\..\include\ace\addr.i"\
 	"..\..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\..\include\ace\array_base.h"\
 	"..\..\..\..\include\ace\array_base.inl"\
@@ -363,7 +410,9 @@
 	"..\..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\..\include\ace\auto_ptr.i"\
 	"..\..\..\..\include\ace\base_thread_adapter.h"\
+	"..\..\..\..\include\ace\base_thread_adapter.inl"\
 	"..\..\..\..\include\ace\basic_types.h"\
+	"..\..\..\..\include\ace\basic_types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
@@ -371,14 +420,17 @@
 	"..\..\..\..\include\ace\config-win32.h"\
 	"..\..\..\..\include\ace\config.h"\
 	"..\..\..\..\include\ace\containers.h"\
+	"..\..\..\..\include\ace\containers.i"\
 	"..\..\..\..\include\ace\containers_t.cpp"\
 	"..\..\..\..\include\ace\containers_t.h"\
 	"..\..\..\..\include\ace\containers_t.i"\
 	"..\..\..\..\include\ace\default_constants.h"\
 	"..\..\..\..\include\ace\event_handler.h"\
+	"..\..\..\..\include\ace\event_handler.i"\
 	"..\..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\..\include\ace\framework_component.h"\
+	"..\..\..\..\include\ace\framework_component.inl"\
 	"..\..\..\..\include\ace\framework_component_t.cpp"\
 	"..\..\..\..\include\ace\framework_component_t.h"\
 	"..\..\..\..\include\ace\framework_component_t.inl"\
@@ -389,7 +441,9 @@
 	"..\..\..\..\include\ace\handle_ops.h"\
 	"..\..\..\..\include\ace\handle_ops.i"\
 	"..\..\..\..\include\ace\high_res_timer.h"\
+	"..\..\..\..\include\ace\high_res_timer.i"\
 	"..\..\..\..\include\ace\inet_addr.h"\
+	"..\..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\..\include\ace\init_ace.h"\
 	"..\..\..\..\include\ace\init_ace.i"\
 	"..\..\..\..\include\ace\ipc_sap.h"\
@@ -398,7 +452,9 @@
 	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
+	"..\..\..\..\include\ace\malloc.i"\
 	"..\..\..\..\include\ace\malloc_allocator.h"\
+	"..\..\..\..\include\ace\malloc_allocator.i"\
 	"..\..\..\..\include\ace\malloc_base.h"\
 	"..\..\..\..\include\ace\malloc_t.cpp"\
 	"..\..\..\..\include\ace\malloc_t.h"\
@@ -407,22 +463,34 @@
 	"..\..\..\..\include\ace\managed_object.h"\
 	"..\..\..\..\include\ace\managed_object.i"\
 	"..\..\..\..\include\ace\mem_addr.h"\
+	"..\..\..\..\include\ace\mem_addr.i"\
 	"..\..\..\..\include\ace\mem_map.h"\
+	"..\..\..\..\include\ace\mem_map.i"\
 	"..\..\..\..\include\ace\memory_pool.h"\
+	"..\..\..\..\include\ace\memory_pool.i"\
 	"..\..\..\..\include\ace\min_max.h"\
 	"..\..\..\..\include\ace\node.cpp"\
 	"..\..\..\..\include\ace\node.h"\
 	"..\..\..\..\include\ace\object_manager.h"\
+	"..\..\..\..\include\ace\object_manager.i"\
 	"..\..\..\..\include\ace\os.h"\
+	"..\..\..\..\include\ace\os.i"\
 	"..\..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\..\include\ace\os_dirent.inl"\
 	"..\..\..\..\include\ace\os_errno.h"\
+	"..\..\..\..\include\ace\os_errno.inl"\
 	"..\..\..\..\include\ace\os_export.h"\
 	"..\..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\..\include\ace\os_log_msg_attributes.inl"\
 	"..\..\..\..\include\ace\os_memory.h"\
+	"..\..\..\..\include\ace\os_memory.inl"\
 	"..\..\..\..\include\ace\os_string.h"\
+	"..\..\..\..\include\ace\os_string.inl"\
 	"..\..\..\..\include\ace\os_tli.h"\
+	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
+	"..\..\..\..\include\ace\signal.i"\
 	"..\..\..\..\include\ace\singleton.cpp"\
 	"..\..\..\..\include\ace\singleton.h"\
 	"..\..\..\..\include\ace\singleton.i"\
@@ -444,15 +512,21 @@
 	"..\..\..\..\include\ace\string_base.i"\
 	"..\..\..\..\include\ace\string_base_const.h"\
 	"..\..\..\..\include\ace\synch.h"\
+	"..\..\..\..\include\ace\synch.i"\
 	"..\..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\..\include\ace\synch_t.h"\
 	"..\..\..\..\include\ace\synch_t.i"\
 	"..\..\..\..\include\ace\thread.h"\
+	"..\..\..\..\include\ace\thread.i"\
 	"..\..\..\..\include\ace\thread_adapter.h"\
+	"..\..\..\..\include\ace\thread_adapter.inl"\
 	"..\..\..\..\include\ace\thread_control.h"\
+	"..\..\..\..\include\ace\thread_control.inl"\
 	"..\..\..\..\include\ace\thread_exit.h"\
 	"..\..\..\..\include\ace\thread_manager.h"\
+	"..\..\..\..\include\ace\thread_manager.i"\
 	"..\..\..\..\include\ace\time_value.h"\
+	"..\..\..\..\include\ace\time_value.inl"\
 	"..\..\..\..\include\ace\unbounded_queue.cpp"\
 	"..\..\..\..\include\ace\unbounded_queue.h"\
 	"..\..\..\..\include\ace\unbounded_queue.inl"\
@@ -470,10 +544,7 @@
 	"..\..\..\..\include\port.h"\
 	"..\..\..\..\include\refcounted.h"\
 	"..\..\..\..\include\sendable.h"\
-	"..\..\..\..\include\yarpadcutils.h"\
 	"..\..\..\..\include\yarpall.h"\
-	"..\..\..\..\include\yarpbabybothand.h"\
-	"..\..\..\..\include\yarpbabybothandparameters.h"\
 	"..\..\..\..\include\yarpbabybothead.h"\
 	"..\..\..\..\include\yarpbabybotinertialsensor.h"\
 	"..\..\..\..\include\yarpbehavior.h"\
@@ -488,8 +559,6 @@
 	"..\..\..\..\include\yarpfft.h"\
 	"..\..\..\..\include\yarpfragments.h"\
 	"..\..\..\..\include\yarpfsm.h"\
-	"..\..\..\..\include\yarpgalildevicedriver.h"\
-	"..\..\..\..\include\yarpgalilonbabybothandadapter.h"\
 	"..\..\..\..\include\yarpgenericcontrolboard.h"\
 	"..\..\..\..\include\yarplist.h"\
 	"..\..\..\..\include\yarplowpassfilter.h"\
@@ -502,8 +571,6 @@
 	"..\..\..\..\include\yarpnameid_defs.h"\
 	"..\..\..\..\include\yarpnameservice.h"\
 	"..\..\..\..\include\yarpnetworktypes.h"\
-	"..\..\..\..\include\yarpnidaqdevicedriver.h"\
-	"..\..\..\..\include\yarpnidaqonbabybothandadapter.h"\
 	"..\..\..\..\include\yarppidfilter.h"\
 	"..\..\..\..\include\yarpport.h"\
 	"..\..\..\..\include\yarpportcontent.h"\
@@ -519,5 +586,5 @@
 	".\HeadFSMStates.h"\
 	".\HeadSharedData.h"\
 	".\HeadThread.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	

@@ -13,7 +13,6 @@ public:
 
 	void apply(const YVector &in, YVector &out)
 	{
-		int i;
 		double x = in(1);
 		double y = in(2);
 		out(1) = 0.0;

@@ -4,10 +4,10 @@ HandKinematics::HandKinematics(const char *f1, const char *f2):
 _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
 {
 	char *root = GetYarpRoot();
-	char filename[256];
 	char filename1[256];
 	char filename2[256];
 
+	// char filename[256];
 	// ACE_OS::sprintf (filename, "%s/conf/babybot/handforward.dat\0", root);
 	// _log.append(filename);
 	_npoints = 0;

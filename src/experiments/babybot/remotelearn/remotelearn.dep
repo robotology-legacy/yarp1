@@ -170,10 +170,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\BlockReceiver.h"\
 	"..\..\..\..\include\BlockSender.h"\
-	"..\..\..\..\include\conf\YARPBabybotMotorVocab.h"\
+	"..\..\..\..\include\conf\YARPBabybotVocab.h"\
 	"..\..\..\..\include\conf\YARPConfig.h"\
 	"..\..\..\..\include\conf\YARPConfigWin32.h"\
-	"..\..\..\..\include\conf\YARPMotorVocab.h"\
+	"..\..\..\..\include\conf\YARPVocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
@@ -380,10 +380,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\BlockReceiver.h"\
 	"..\..\..\..\include\BlockSender.h"\
-	"..\..\..\..\include\conf\YARPBabybotMotorVocab.h"\
+	"..\..\..\..\include\conf\YARPBabybotVocab.h"\
 	"..\..\..\..\include\conf\YARPConfig.h"\
 	"..\..\..\..\include\conf\YARPConfigWin32.h"\
-	"..\..\..\..\include\conf\YARPMotorVocab.h"\
+	"..\..\..\..\include\conf\YARPVocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\

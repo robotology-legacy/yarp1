@@ -121,8 +121,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
@@ -157,7 +159,7 @@
 	"..\..\..\..\include\yarptime.h"\
 	"..\..\..\..\include\yarpvectorportcontent.h"\
 	".\reflexstates.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	
 
 .\reflexstates.cpp : \
@@ -281,8 +283,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
@@ -316,5 +320,5 @@
 	"..\..\..\..\include\yarptime.h"\
 	"..\..\..\..\include\yarpvectorportcontent.h"\
 	".\reflexstates.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	"c:\progra~1\micros~4\vc98\include\basetsd.h"\
 	
