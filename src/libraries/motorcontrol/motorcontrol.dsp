@@ -55,7 +55,7 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo /out:".\lib\winnt\motorcontrol.lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy .\babybot\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy .\lib\winnt\motorcontrol.lib ..\..\..\lib\winnt
+PostBuild_Cmds=copy .\common\*.h ..\..\..\include	copy .\babybot\*.h ..\..\..\include	copy .\robotcub\*.h ..\..\..\include	copy .\lib\winnt\motorcontrol.lib ..\..\..\lib\winnt
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "motorcontrol - Win32 Debug"
@@ -86,7 +86,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing lib
-PostBuild_Cmds=copy .\common\*.h ..\..\..\include	copy .\babybot\*.h ..\..\..\include	copy .\lib\winnt\motorcontroldb.lib ..\..\..\lib\winnt
+PostBuild_Cmds=copy .\common\*.h ..\..\..\include	copy .\babybot\*.h ..\..\..\include	copy .\robotcub\*.h ..\..\..\include	copy .\lib\winnt\motorcontroldb.lib ..\..\..\lib\winnt
 # End Special Build Tool
 
 !ENDIF 
@@ -250,6 +250,10 @@ SOURCE=.\babybot\YARPPicoloOnBabybotAdapter.h
 # Begin Source File
 
 SOURCE=.\robotcub\YARPCanOnRobotcubHeadAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\robotcub\YARPRobotcubHead.h
 # End Source File
 # End Group
 # End Target

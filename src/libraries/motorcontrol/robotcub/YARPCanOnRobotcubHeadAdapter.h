@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.1 2004-06-30 11:03:11 gmetta Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.2 2004-06-30 13:37:51 gmetta Exp $
 ///
 ///
 
@@ -49,7 +49,9 @@
 #else  YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
-
+///
+///
+///
 namespace _RobotcubHead
 {
 	const int _nj = 8;
@@ -83,6 +85,16 @@ namespace _RobotcubHead
 	const double _encoderToAngles[_nj]	= { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1 };
 	const double _maxDAC[_nj]			= { 32767.0, 32767.0, 32767.0, 32767.0, 32767.0, 32767.0, 32767.0, 32767.0 };
+
+	const int CANBUS_DEVICE_NUM			= 0;
+	const int CANBUS_ARBITRATION_ID		= 0;
+	const int CANBUS_MY_ADDRESS			= 0;
+	const int CANBUS_POLLING_INTERVAL	= 2;			/// [ms]
+	const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
+	const int CANBUS_MAXCARDS			= MAX_CARDS;
+
+	const char _destinations[_nj]		= { 0xf, 0xe, 0xd, 0xc, 0xb, 0xa, 0x9, 0x8 };
+
 }; // namespace
 
 
@@ -280,34 +292,43 @@ public:
 			uninitialize();
 	}
 
-	/// LATER:
-	/// requires some different initialization.
 	int initialize(YARPRobotcubHeadParameters *par)
 	{
 		_parameters = par;
-		MEIOpenParameters op_par;
-		op_par.nj= _parameters->_nj; 
-		if (YARPMEIDeviceDriver::open(&op_par) != 0)
+		
+		ValueCanOpenParameters op_par;
+		op_par._port_number = CANBUS_DEVICE_NUM;
+		op_par._arbitrationID = CANBUS_ARBITRATION_ID;
+		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
+		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
+		op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
+		op_par._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
+
+		op_par._njoints = _parameters->_nj;
+		op_par._p = NULL;
+
+
+		if (YARPValueCanDeviceDriver::open ((void *)&op_par) < 0)
+		{
+			YARPValueCanDeviceDriver::close();
 			return YARP_FAIL;
-
-		// inertial sensor
-		_inertial = new YARPBabybotInertialSensor;
-		_inertial->load("",par->_inertialConfig);
-
-		_tmpShort = new short [_inertial->_ns];
+		}
 
 		for(int i=0; i < _parameters->_nj; i++)
 		{
 			SingleAxisParameters cmd;
 			cmd.axis=i;
+			
 			// amp enable level
 			short level = 1;
 			cmd.parameters=&level;
 			IOCtl(CMDSetAmpEnableLevel, &cmd);
+			
 			// limit levels
 			cmd.parameters=&level;
 			IOCtl(CMDSetPositiveLevel, &cmd);
 			IOCtl(CMDSetNegativeLevel, &cmd);
+			
 			// limit events
 			ControlBoardEvents event;
 			event = CBNoEvent;
@@ -330,9 +351,6 @@ public:
 		if (YARPMEIDeviceDriver::close() != 0)
 			return YARP_FAIL;
 
-		delete _inertial;
-		delete [] _tmpShort;
-
 		_initialized = false;
 		return YARP_OK;
 	}
@@ -345,11 +363,7 @@ public:
 		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			IOCtl(CMDControllerIdle, &i);
-			SingleAxisParameters cmd;
-			cmd.axis = i;
-			short level = 0;
-			cmd.parameters=&level;
-			IOCtl(CMDSetAmpEnable, &cmd);
+			IOCtl(CMDDisableAmp, &i);
 		}
 		return YARP_OK;
 	}
@@ -390,55 +404,20 @@ public:
 
 	int readAnalogs(double *val)
 	{
-		int i;
-		int ret;
-		SingleAxisParameters cmd;
-		for(i = 0; i < _inertial->_ns; i++)
-		{
-			cmd.axis = i;
-			cmd.parameters = &_tmpShort[i];;
-			ret = IOCtl(CMDReadAnalog, &cmd);
-		}
-		_inertial->convert(_tmpShort, val);
-		return ret;
+		ACE_UNUSED_ARG(val);
+		return YARP_FAIL;
 	}
 
-	int calibrate()
+	int calibrate(void)
 	{
-		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
+		YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
 		ACE_OS::printf("..done!\n");
-
-		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting inertial sensor calibration:\n"));
-
-		int p = 0;
-		bool cal = false;
-		while (!cal)
-		{
-			// read new values from analog input
-			int i;
-			int ret;
-			SingleAxisParameters cmd;
-			for(i = 0; i < _inertial->_ns; i++)
-			{
-				cmd.axis = i;
-				cmd.parameters = &_tmpShort[i];;
-				ret = IOCtl(CMDReadAnalog, &cmd);
-			}
-
-			cal = _inertial->calibrate(_tmpShort, &p);
-
-			ACE_OS::printf("%d\r",p);
-			ACE_OS::sleep(ACE_Time_Value(0,40000));
-		}
-		ACE_OS::printf("\n..done!\n");
 		return YARP_OK;
 	}
 
 private:
 	bool _initialized;
-	short *_tmpShort;
 	YARPBabybotHeadParameters *_parameters;
-	///YARPBabybotInertialSensor *_inertial;
 };
 
 #endif	// .h
