@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.h,v 1.9 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: YARPSocket.h,v 1.10 2003-07-08 22:04:20 gmetta Exp $
 ///
 ///
 
@@ -86,17 +86,11 @@
 
 #include "YARPAll.h"
 #include "YARPNameID.h"
+#include "YARPNetworkTypes.h" // not strictly necessary here
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
-
-//#include <stdlib.h>
-
-/// LATER: requires error handling for broken connections.
-///
-
-#include "YARPNetworkTypes.h" // not strictly necessary here
 
 enum
 {
@@ -122,15 +116,9 @@ protected:
 public:
 	YARPNetworkObject () { _socktype = YARP_NO_SOCKET; }
 
-	static int getHostname(char *buffer, int buffer_length);
 	static int setSocketBufSize(ACE_SOCK& sock, int size);
 
 	virtual int getSocketType (void) const { return _socktype; }
-
-	///virtual void SetIdentifier(int n_identifier) { ACE_UNUSED_ARG(n_identifier); ACE_ASSERT (NOT_IMPLEMENTED); }
-	///virtual int GetAssignedPort(void) const { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	///virtual int Prepare (const YARPUniqueNameID& name) { ACE_UNUSED_ARG(name); ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-
 	virtual ACE_HANDLE GetIdentifier(void) const = 0;
 	virtual int GetServiceType (void) = 0;
 };

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.20 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.21 2003-07-08 22:04:20 gmetta Exp $
 ///
 ///
 
@@ -367,6 +367,18 @@ int YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& name)
 			}
 			break;
 
+		case YARP_SHMEM:
+			{
+				_endpointmanager._map[pid] = new YARPOutputSocketMulti;
+				no = (YARPNetworkObject *) _endpointmanager._map[pid];
+
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing output socket\n"));
+
+				/// this actually is only a shmem socket-like class.
+				((YARPOutputSocketMulti *)no)->Prepare (sname);
+			}
+			break;
+
 		default:
 			ACE_DEBUG ((LM_DEBUG, "YARPSocketEndpointManager::CreateOutputEndpoint, service type not implemented\n"));
 			return YARP_FAIL;
@@ -496,7 +508,7 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 	ACE_INET_Addr reg_addr;		/// who I am.
 
 	char myhostname[YARP_STRING_LEN];
-	YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+	getHostname (myhostname, YARP_STRING_LEN);
 	reg_addr.set((u_short)0, myhostname);
 	
 	ACE_DEBUG((LM_DEBUG, "registering name %s of (%s) protocol %s\n", name, reg_addr.get_host_addr(), servicetypeConverter(reg_type)));

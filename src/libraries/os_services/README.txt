@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.21 2003-07-06 23:25:45 gmetta Exp $
+$Id: README.txt,v 1.22 2003-07-08 22:04:20 gmetta Exp $
 
 
 =============
@@ -26,13 +26,12 @@ Things under development:
 	- see also point 9.
 1.2- something wrong when starting grabber + viewer on hermes, it tends to slow
 	down over time (if connecting and disconnecting many times).
+1.3- proper shutdown of extra port threads.
 
 2- extra commands for the name server.
 
 3- initialization MFC+os_services might fail under some circumstances
 	- solution: do explicit init and fini
-
-5- implement shared mem communication protocol.
 
 6.2- reply messages, exploit iovec structure, maintaining compatibility w/ YARP multipart msg.
 

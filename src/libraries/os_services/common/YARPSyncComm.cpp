@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSyncComm.cpp,v 1.6 2003-06-30 09:30:06 babybot Exp $
+/// $Id: YARPSyncComm.cpp,v 1.7 2003-07-08 22:04:20 gmetta Exp $
 ///
 ///
 
@@ -80,8 +80,6 @@ static void Complete(YARPNameID& dest)
 ///
 int YARPSyncComm::Send (const YARPNameID& dest, char *buffer, int buffer_length, char *return_buffer, int return_buffer_length)
 {
-///	Complete(dest);
-
 	switch (dest.getServiceType ())
 	{
 	case YARP_QNET:
@@ -90,6 +88,7 @@ int YARPSyncComm::Send (const YARPNameID& dest, char *buffer, int buffer_length,
 	case YARP_TCP:
 	case YARP_UDP:
 	case YARP_MCAST:
+	case YARP_SHMEM:
 		return YARPSocketSyncComm::Send (dest, buffer, buffer_length, return_buffer, return_buffer_length);
 
 	default:
@@ -102,8 +101,6 @@ int YARPSyncComm::Send (const YARPNameID& dest, char *buffer, int buffer_length,
 
 YARPNameID YARPSyncComm::BlockingReceive (const YARPNameID& src, char *buffer, int buffer_length)
 {
-///	Complete(src);
-
 	switch (src.getServiceType ())
 	{
 	case YARP_QNET:
@@ -112,6 +109,7 @@ YARPNameID YARPSyncComm::BlockingReceive (const YARPNameID& src, char *buffer, i
 	case YARP_TCP:
 	case YARP_UDP:
 	case YARP_MCAST:
+	case YARP_SHMEM:
 		return YARPSocketSyncComm::BlockingReceive (src, buffer, buffer_length);
 
 	default:
@@ -124,8 +122,6 @@ YARPNameID YARPSyncComm::BlockingReceive (const YARPNameID& src, char *buffer, i
 
 YARPNameID YARPSyncComm::PollingReceive (const YARPNameID& src, char *buffer, int buffer_length)
 {
-///	Complete(src);
-
 	switch (src.getServiceType ())
 	{
 	case YARP_QNET:
@@ -134,6 +130,7 @@ YARPNameID YARPSyncComm::PollingReceive (const YARPNameID& src, char *buffer, in
 	case YARP_TCP:
 	case YARP_UDP:
 	case YARP_MCAST:
+	case YARP_SHMEM:
 		return YARPSocketSyncComm::PollingReceive (src, buffer, buffer_length);
 
 	default:
@@ -146,8 +143,6 @@ YARPNameID YARPSyncComm::PollingReceive (const YARPNameID& src, char *buffer, in
 
 int YARPSyncComm::ContinuedReceive (const YARPNameID& src, char *buffer, int buffer_length)
 {
-///	Complete(src);
-
 	switch (src.getServiceType ())
 	{
 	case YARP_QNET:
@@ -156,6 +151,7 @@ int YARPSyncComm::ContinuedReceive (const YARPNameID& src, char *buffer, int buf
 	case YARP_TCP:
 	case YARP_UDP:
 	case YARP_MCAST:
+	case YARP_SHMEM:
 		return YARPSocketSyncComm::ContinuedReceive (src, buffer, buffer_length);
 
 	default:
@@ -168,8 +164,6 @@ int YARPSyncComm::ContinuedReceive (const YARPNameID& src, char *buffer, int buf
 
 int YARPSyncComm::Reply (const YARPNameID& src, char *buffer, int buffer_length)
 {
-///	Complete(src);
-
 	switch (src.getServiceType ())
 	{
 	case YARP_QNET:
@@ -178,6 +172,7 @@ int YARPSyncComm::Reply (const YARPNameID& src, char *buffer, int buffer_length)
 	case YARP_TCP:
 	case YARP_UDP:
 	case YARP_MCAST:
+	case YARP_SHMEM:
 		return YARPSocketSyncComm::Reply (src, buffer, buffer_length);
 
 	default:
@@ -190,8 +185,6 @@ int YARPSyncComm::Reply (const YARPNameID& src, char *buffer, int buffer_length)
 
 int YARPSyncComm::Send (const YARPNameID& dest, YARPMultipartMessage& msg, YARPMultipartMessage& return_msg)
 {
-///	Complete(dest);
-
 	switch (dest.getServiceType ())
 	{
 	case YARP_QNET:
@@ -200,6 +193,7 @@ int YARPSyncComm::Send (const YARPNameID& dest, YARPMultipartMessage& msg, YARPM
 	case YARP_TCP:
 	case YARP_UDP:
 	case YARP_MCAST:
+	case YARP_SHMEM:
 		return YARPSocketSyncComm::Send (dest, msg, return_msg);
 
 	default:
@@ -212,8 +206,6 @@ int YARPSyncComm::Send (const YARPNameID& dest, YARPMultipartMessage& msg, YARPM
 
 YARPNameID YARPSyncComm::BlockingReceive (const YARPNameID& src, YARPMultipartMessage& msg)
 {
-///	Complete(src);
-
 	switch (src.getServiceType ())
 	{
 	case YARP_QNET:
@@ -222,6 +214,7 @@ YARPNameID YARPSyncComm::BlockingReceive (const YARPNameID& src, YARPMultipartMe
 	case YARP_TCP:
 	case YARP_UDP:
 	case YARP_MCAST:
+	case YARP_SHMEM:
 		return YARPSocketSyncComm::BlockingReceive (src, msg);
 
 	default:
@@ -234,8 +227,6 @@ YARPNameID YARPSyncComm::BlockingReceive (const YARPNameID& src, YARPMultipartMe
 
 YARPNameID YARPSyncComm::PollingReceive (const YARPNameID& src, YARPMultipartMessage& msg)
 {
-///	Complete(src);
-
 	switch (src.getServiceType ())
 	{
 	case YARP_QNET:
@@ -244,6 +235,7 @@ YARPNameID YARPSyncComm::PollingReceive (const YARPNameID& src, YARPMultipartMes
 	case YARP_TCP:
 	case YARP_UDP:
 	case YARP_MCAST:
+	case YARP_SHMEM:
 		return YARPSocketSyncComm::PollingReceive (src, msg);
 
 	default:
@@ -256,8 +248,6 @@ YARPNameID YARPSyncComm::PollingReceive (const YARPNameID& src, YARPMultipartMes
 
 int YARPSyncComm::Reply (const YARPNameID& src, YARPMultipartMessage& msg)
 {
-///	Complete(src);
-
 	switch (src.getServiceType ())
 	{
 	case YARP_QNET:
@@ -266,6 +256,7 @@ int YARPSyncComm::Reply (const YARPNameID& src, YARPMultipartMessage& msg)
 	case YARP_TCP:
 	case YARP_UDP:
 	case YARP_MCAST:
+	case YARP_SHMEM:
 		return YARPSocketSyncComm::Reply (src, msg);
 
 	default:

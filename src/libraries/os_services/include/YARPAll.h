@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPAll.h,v 1.5 2003-04-30 13:22:41 beltran Exp $
+/// $Id: YARPAll.h,v 1.6 2003-07-08 22:04:20 gmetta Exp $
 ///
 ///
 
@@ -94,5 +94,6 @@ void YARP_output_post();
 ///
 ///
 extern char * GetYarpRoot (void);
+extern int getHostname(char *buffer, int buffer_length);
 
 #endif

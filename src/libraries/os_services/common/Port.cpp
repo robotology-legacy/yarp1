@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.37 2003-07-06 23:25:45 gmetta Exp $
+/// $Id: Port.cpp,v 1.38 2003-07-08 22:04:20 gmetta Exp $
 ///
 ///
 
@@ -253,14 +253,17 @@ void OutputTarget::Body ()
 
 			/// requires a query to dns unfortunately (maybe not?).
 			char myhostname[YARP_STRING_LEN];
-			YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+			getHostname (myhostname, YARP_STRING_LEN);
 			ACE_INET_Addr local ((u_short)0, myhostname);
 
 			if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
 			{
+				/// going into SHMEM mode.
+				protocol_type = YARP_SHMEM;
+				((YARPUniqueNameSock *)target_pid)->setServiceType (YARP_SHMEM);
+
 				/// 
 				ACE_DEBUG ((LM_DEBUG, "$$$$ this goes into SHMEM mode\n"));
-				/// need to change the target_pid of course.
 			}
 			else
 			{
@@ -274,8 +277,7 @@ void OutputTarget::Body ()
 				}
 			}
 
-			/// this mightn't be required for SHMEM socket.
-			((YARPUniqueNameSock *)target_pid)->setPorts (&port_number, 1);
+			///((YARPUniqueNameSock *)target_pid)->setPorts (&port_number, 1);
 
 			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
 			YARPEndpointManager::ConnectEndpoints (*target_pid);

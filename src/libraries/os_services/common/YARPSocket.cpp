@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.21 2003-07-06 23:25:45 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.22 2003-07-08 22:04:20 gmetta Exp $
 ///
 ///
 
@@ -180,7 +180,10 @@ int YARPNetworkObject::setSocketBufSize (ACE_SOCK& sock, int size)
 	return ret;
 }
 
-int YARPNetworkObject::getHostname(char *buffer, int buffer_length)
+///
+///
+///
+int getHostname(char *buffer, int buffer_length)
 {
 	int result = gethostname (buffer, buffer_length);
 #ifndef __QNX4__
@@ -581,6 +584,7 @@ void _SocketThread::Body (void)
 						_reply_made.Post();
 					}
 
+					/// dubious code?
 					if (r >= 0)
 					{
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** listener got %d bytes\n", r));

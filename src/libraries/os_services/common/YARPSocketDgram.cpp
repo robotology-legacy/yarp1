@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.33 2003-07-06 23:25:45 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.34 2003-07-08 22:04:20 gmetta Exp $
 ///
 ///
 
@@ -437,7 +437,7 @@ int _SocketThreadDgram::_begin (const YARPUniqueNameSock *remid, int port = 0)
 	{
 		/// listen to this new port.
 		char myhostname[YARP_STRING_LEN];
-		YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+		getHostname (myhostname, YARP_STRING_LEN);
 		_local_addr.getAddressRef().set (port, myhostname);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled?
 
@@ -485,7 +485,7 @@ int _SocketThreadDgram::reuse(const YARPUniqueNameSock& remid, int port)
 
 		/// listen to this new port.
 		char myhostname [YARP_STRING_LEN];
-		YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+		getHostname (myhostname, YARP_STRING_LEN);
 		_local_addr.getAddressRef().set (port, myhostname);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled?
 
@@ -1405,6 +1405,7 @@ YARPOutputSocketDgram::~YARPOutputSocketDgram (void)
 
 int YARPOutputSocketDgram::Close (const YARPUniqueNameID& name)
 {
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 	ACE_UNUSED_ARG (name);
 
 	OSDataDgram& d = OSDATA(system_resources);
@@ -1419,9 +1420,10 @@ int YARPOutputSocketDgram::Close (const YARPUniqueNameID& name)
 	d._connector_socket.send (&hdr, sizeof(hdr), d._remote_addr);
 
 	/// wait response.
+	/// need a timeout here!
 	hdr.SetBad ();
 	ACE_INET_Addr incoming;
-	int r = d._connector_socket.recv (&hdr, sizeof(hdr), incoming);
+	int r = d._connector_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
 	if (r < 0)
 	{
 		d._connector_socket.close ();
@@ -1441,7 +1443,7 @@ int YARPOutputSocketDgram::Prepare (const YARPUniqueNameID& name)
 {
 	/// local_port might not be needed by the socket layer.
 	char buf[YARP_STRING_LEN];
-	YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
+	getHostname (buf, YARP_STRING_LEN);
 	OSDATA(system_resources)._local_addr.set ((u_short)0, buf);
 	OSDATA(system_resources)._remote_addr = ((YARPUniqueNameSock&)name).getAddressRef();
 	return YARP_OK;

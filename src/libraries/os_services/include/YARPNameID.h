@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.9 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: YARPNameID.h,v 1.10 2003-07-08 22:04:20 gmetta Exp $
 ///
 ///
 /*
@@ -77,6 +77,7 @@
 #include <ace/SOCK_Acceptor.h>
 #include <ace/SOCK_Connector.h>
 #include <ace/SOCK_Stream.h>
+#include <ace/MEM_Addr.h>
 
 #include "YARPAll.h"
 #include "YARPNameID_defs.h"
@@ -204,18 +205,27 @@ public:
 		_nports = -1;
 		_ports = NULL;
 	}
+	
 	YARPUniqueNameSock (int service, int port, char *hostname) : YARPUniqueNameID(service), _address (port, hostname) 
 	{
 		ACE_ASSERT (service != YARP_QNET);
 		_nports = -1;
 		_ports = NULL;
 	}
+	
 	YARPUniqueNameSock (int service, const ACE_INET_Addr& addr) : YARPUniqueNameID(service), _address (addr) 
 	{
 		ACE_ASSERT (service != YARP_QNET);
 		_nports = -1;
 		_ports = NULL;
 	}
+
+	YARPUniqueNameSock (const YARPUniqueNameSock *other) : YARPUniqueNameID (other->getServiceType()), _address (other->_address)
+	{
+		_nports = -1;
+		_ports = NULL;
+	}
+
 	virtual ~YARPUniqueNameSock() 
 	{
 		if (_ports != NULL)	delete[] _ports;
@@ -278,6 +288,23 @@ public:
 };
 
 
+class YARPUniqueNameMem : public YARPUniqueNameID
+{
+protected:
+	ACE_MEM_Addr _address;
+
+public:
+	YARPUniqueNameMem (int service = YARP_SHMEM) : YARPUniqueNameID(service), _address() {}
+	YARPUniqueNameMem (int service, int port) : YARPUniqueNameID(service), _address (port) {}
+	YARPUniqueNameMem (int service, const ACE_MEM_Addr& addr) : YARPUniqueNameID(service), _address (addr) {}
+	YARPUniqueNameMem (const YARPUniqueNameMem *other) : YARPUniqueNameID(YARP_SHMEM), _address(other->_address) {}
+	
+	virtual ~YARPUniqueNameMem() {}
+
+	inline ACE_MEM_Addr& getAddressRef (void) { return _address; }
+};
+
+
 /// service types.
 ///
 ///	YARP_NO_SERVICE_AVAILABLE	= -1,
@@ -285,6 +312,7 @@ public:
 ///	YARP_TCP					= 1,
 ///	YARP_MCAST					= 2,
 ///	YARP_QNET					= 3,
+/// YARP_SHMEM					= 4,
 ///
 
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.18 2003-07-06 23:25:45 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.19 2003-07-08 22:04:20 gmetta Exp $
 ///
 ///
 
@@ -265,6 +265,7 @@ int YARPEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
 	case YARP_TCP:
 	case YARP_UDP:
 	case YARP_MCAST:
+	case YARP_SHMEM:
 		return YARPSocketEndpointManager::CreateOutputEndpoint (name);
 
 	case YARP_QNET:
@@ -281,6 +282,7 @@ int YARPEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest)
 	case YARP_TCP:
 	case YARP_UDP:
 	case YARP_MCAST:
+	case YARP_SHMEM:
 		return YARPSocketEndpointManager::ConnectEndpoints (dest);
 
 	case YARP_QNET:
@@ -297,6 +299,7 @@ int YARPEndpointManager::Close(YARPUniqueNameID& endp)
 	case YARP_TCP:
 	case YARP_UDP:
 	case YARP_MCAST:
+	case YARP_SHMEM:
 		return YARPSocketEndpointManager::Close (endp);
 
 	case YARP_QNET:

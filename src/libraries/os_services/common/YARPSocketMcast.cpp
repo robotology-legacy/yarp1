@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.21 2003-07-06 23:25:45 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.22 2003-07-08 22:04:20 gmetta Exp $
 ///
 ///
 
@@ -441,7 +441,7 @@ int _SocketThreadMcast::_begin (const YARPUniqueNameSock *remid, const YARPUniqu
 	{
 		/// listen to this new port.
 		char myhostname[YARP_STRING_LEN];
-		YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+		getHostname (myhostname, YARP_STRING_LEN);
 		_local_addr.getAddressRef().set (port, myhostname);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
 		
@@ -497,7 +497,7 @@ int _SocketThreadMcast::reuse(const YARPUniqueNameSock& remid, const YARPUniqueN
 
 		/// listen to this new port.
 		char myhostname[YARP_STRING_LEN];
-		YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+		getHostname (myhostname, YARP_STRING_LEN);
 		_local_addr.getAddressRef().set (port, myhostname);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
 		YARPNetworkObject::setSocketBufSize (_local_socket, MAX_PACKET);
@@ -1757,6 +1757,7 @@ YARPOutputSocketMcast::~YARPOutputSocketMcast (void)
 int YARPOutputSocketMcast::CloseMcastAll (void)
 {
 	OSDataMcast& d = OSDATA(system_resources);
+	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 
 	/// send the header.
 	MyMessageHeader hdr;
@@ -1765,7 +1766,7 @@ int YARPOutputSocketMcast::CloseMcastAll (void)
 
 	/// calling gethostname is not required since I can use INET_ADDR_ANY
 	char buf[YARP_STRING_LEN];
-	YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
+	getHostname (buf, YARP_STRING_LEN);
 	ACE_INET_Addr local ((u_short)0, buf);
 	d._udp_socket.open (local, ACE_PROTOCOL_FAMILY_INET, 0, 1);
 
@@ -1779,7 +1780,7 @@ int YARPOutputSocketMcast::CloseMcastAll (void)
 			/// wait response.
 			hdr.SetBad ();
 			ACE_INET_Addr incoming;
-			int r = d._udp_socket.recv (&hdr, sizeof(hdr), incoming);
+			int r = d._udp_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
 			if (r < 0)
 			{
 				ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._clients[i].get_host_addr(), d._clients[i].get_port_number()));
@@ -1806,7 +1807,7 @@ int YARPOutputSocketMcast::Close (const YARPUniqueNameID& name)
 
 	/// calling gethostname is not required since I can use INET_ADDR_ANY
 	char buf[YARP_STRING_LEN];
-	YARPNetworkObject::getHostname (buf, YARP_STRING_LEN);
+	getHostname (buf, YARP_STRING_LEN);
 	ACE_INET_Addr local ((u_short)0, buf);
 	d._udp_socket.open (local, ACE_PROTOCOL_FAMILY_INET, 0, 1);
 
@@ -1973,7 +1974,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	}
 
 	char myhostname[YARP_STRING_LEN];
-	YARPNetworkObject::getHostname (myhostname, YARP_STRING_LEN);
+	getHostname (myhostname, YARP_STRING_LEN);
 	ACE_INET_Addr local ((u_short)0, myhostname);
 	d._udp_socket.open (local, ACE_PROTOCOL_FAMILY_INET, 0, 1);
 
