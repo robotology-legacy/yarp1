@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPSemaphore.h,v 1.3 2003-04-18 09:25:48 gmetta Exp $
+///	$Id: YARPSemaphore.h,v 1.4 2003-04-18 15:17:16 natta Exp $
 ///
 ///
 /*
@@ -64,6 +64,7 @@
 
 #include <conf/YARPConfig.h>
 #include "YARPAll.h"
+#include "YARPErrorCodes.h"
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
@@ -72,6 +73,26 @@
 /*
 Ideally, would use POSIX semaphores, threads etc.
  */
+
+class YARPNullSemaphore
+{
+private:
+
+public:
+	// Assertion fails if insufficient resources at initialization
+	YARPNullSemaphore(int initial_count=1){}
+	YARPNullSemaphore(const YARPNullSemaphore& yt){}
+
+	virtual ~YARPNullSemaphore(){}
+
+	void BlockingWait(){}
+	int PollingWait(){return YARP_OK; }  // returns true if Wait() occurred
+
+	int Wait(int blocking = 1)
+	{ return 1; }
+
+	void Post(){}
+};
 
 class YARPSemaphore
 {
