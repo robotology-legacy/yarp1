@@ -1,0 +1,107 @@
+Configuring YARP for WINNT
+
+$Id: install.txt,v 1.1 2003-05-22 10:24:42 gmetta Exp $
+
+This file is in: %YARP_ROOT%\conf\install\winnt
+
+What to do on each machine of the network
+
+1) Install autologon reg key: 
+	- start from the template provided: automaticLogon.template.reg
+	- replace USERNAME, DOMAIN, PASSWD with your specific definitions
+	(the user you'd like to logon automatically at startup).
+	- it's convenient to define a domain user with the right amount of 
+	privileges to install device drivers, start and stop them.
+
+2) Install lmhosts file to facilitate locating the PDC for the NT domain.
+	- you'll find the example in the install dir: lmhosts.template
+	- replace the IP, PDC name and domain name
+	- see also WINNT\system32\drivers\etc
+
+3) Logon script: e.g. mount net drives etc.
+	- there's a .bat and a .js file.
+	- you need to copy the logon.bat from this folder and logon.js 
+		in \Winnt\System32\Repl\Import\Scripts\ 
+	(what a weird place!)
+	- in the PDC go to user properties inser "logon.bat" in the Logon 
+		Script name field (this because the USER is actually a
+		domain user).
+	- the logon.js is a template example (logon.template.js).
+
+4) What do you need from the resource kit (resource kit for W2k).
+	- rconsole: allows running a remote shell/command
+		install using the rsetup (that works remotely too)
+	- in case of troubles authenticating have a look at \\MACHINE\IPC$, 
+		a proper mapping (for a valid user I guess) is required
+		to use the remote tool(s).
+	- try always to use the same user (e.g. the domain one).
+	
+	- remote kill.
+
+	
+
+5) define:
+	- YARP_ROOT env variable: e.g. Q:\yarp
+	- add to PATH: %YARP_ROOT%\bin\winnt (location of binaries and DLLs)
+
+6) install specific device drivers:
+	- For this you need your original CDs.
+	- Libraries for some of the stuff we're using are included under 
+		%YARP_ROOT%\hardware (lib/dll/.h files).
+
+----
+End of MACHINE specific configuration/install
+
+----
+
+YARP proper install/configuration
+
+REQUIRES:
+	- ACE 5.3 from: http://www.cs.wustl.edu/~schmidt/ACE.html
+	- IPL 2.5 from Intel ----> or IPP (not for free!)
+
+	- DLLs from Visual Studio 6.0: strangely enough the default win install
+		doesn't have the correct version.
+		-
+		-
+
+0) licensing:
+	- the template of the academic free licence can be found in
+		%YARP_ROOT%\conf\licence.template
+
+1) before compiling:
+	- Check out from cvs on sourceforge: www.sourceforge.net
+	- unzip ACE on top of ACE_wrappers under %YARP_ROOT%\src\libraries\
+		and UNCHECK the option to overwrite the files (this leaves
+		the modified files from the repository inplace)
+	- install IPL to get the DLLs, libs, and .h files
+		WHERE TO COPY THEM?
+	copy .h files into %YARP_ROOT%\include\sys
+
+2) Compile:
+	ACE, this copies also the .h, .i, and .cpp files into %YARP_ROOT%\include
+		- use dsw from: %YARP_ROOT%\src\libraries\ACE_wrappers\ace
+	os_services
+		- use dsw from: %YARP_ROOT%\src\libraries\os_services\make_winnt
+	=== these two projects do also install the libraries and DLLs.
+
+	images
+		- NOT DEFINED YET!
+
+	hardware
+		- dsw project in:
+		
+	motorcontrol
+
+
+3) What to include/link for building an application is YARP.
+	TO BE COMPLETED, templates?
+
+4) Stuff under %YARP_ROOT%/conf
+	- namer.conf.template: to be compied into namer.conf
+		it contains the name and port of the machine running the yarp name
+		service
+	- ROBOTNAME directories, one for each robot we ever used with yarp (new version)
+		
+
+

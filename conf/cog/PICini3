@@ -1,0 +1,15 @@
+//gains, remember to enter backward b/c daemon number and virtual number are
+//in opposite direction
+300 3000 0 0 
+100 1000 0 0 
+//limits_max
+0 80000
+//limits_min
+-2000 -80000
+//velocity
+120000 180000
+
+
+
+
+
