@@ -1,6 +1,6 @@
 #
 # Template to be included by all YARP makefiles.
-# $Id: Makefile.template,v 1.20 2004-12-06 22:39:35 gmetta Exp $
+# $Id: Makefile.template,v 1.21 2004-12-08 01:00:15 gmetta Exp $
 #
 
 QNX_VER = 6.1.0 6.2.0 6.2.1
@@ -65,5 +65,7 @@ endif
 
 YARPSYSINC = -I$(YARP_ROOT)/include/$(SYSDIR)
 
-MYCODELIB = $(notdir $(patsubst %/src, %, $(PWD)))
-
+# this only works on certain shells (or at least it seems to fail on qnx sh).
+ifndef MYCODELIB
+  MYCODELIB = $(notdir $(patsubst %/src, %, $(PWD)))
+endif
