@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2003-06-19 18:06:53 beltran Exp $
+# $Id: Makefile,v 1.3 2003-06-20 09:53:36 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -44,19 +44,6 @@ clean: subclean
 	rm -f $(OUTDIR)/*.o *.o $(CODELIB) 
 	rm cardtest
 
-install: subinstall target
-#	@echo Doing nothing as yet
-
-subtarget :
-	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) $(MAKEFLAGS) target ) ; done
-
-subclean :
-	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) $(MAKEFLAGS) clean ) ; done
-
-subinstall :
-	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) $(MAKEFLAGS) install ) ; done
-
+install:
+	cp *.h $(YARP_ROOT)/include
 
