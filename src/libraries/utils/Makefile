@@ -22,14 +22,15 @@ target: subtarget local
 local: $(CODELIB)
 
 $(CODELIB): subtarget
-	$(AR) $(ARFLAGS) $(CODELIB) $(OBJS)
+	$(AR) $(ARFLAGS) ./lib/$(OS)/$(CODELIB) $(OBJS)
 
 install: target subinstall
-	$(CP) $(CODELIB) $(YARP_ROOT)/lib/$(SYSDIR)
+	$(CP) ./lib/$(OS)/$(CODELIB) $(YARP_ROOT)/lib/$(SYSDIR)
 	$(CP) include/*.h $(YARP_ROOT)/include
 
 clean: subclean
-	rm -f $(CODELIB) obj/$(SYSDIR)/*
+	rm -f $(CODELIB) 
+#obj/$(SYSDIR)/*
 
 subtarget :
 	@for d in $(SUBDIRS) ; do \
