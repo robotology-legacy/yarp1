@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
 
 	DECLARE_OUTPUT_PORT (YVector, _outputPortHandPosition, YARP_UDP);
 	DECLARE_OUTPUT_PORT (YVector, _outputPortHandPredicted, YARP_UDP);
-	
+		
 	DECLARE_INPUT_PORT (YARPControlBoardNetworkData, _armPort, YARP_UDP);
 	DECLARE_INPUT_PORT (YVector, _headPort, YARP_UDP);
 
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 	_inputPortTrain2.Register("/handtracker/nnet2/i");
 	_outputPortTrain2.Register("/handtracker/nnet2/o");
 	_outputPortHandPosition.Register("/handtracker/position/o");
-	_outputPortHandPredicted.Register("/handtracker/predicted/o");
+	_outputPortHandPredicted.Register("/handtracker/prediction/o");
 	_outPortColor.Register("/handtracker/segmentation/o:img");
 	
 	YARPImageOf<YarpPixelMono> _left;
@@ -239,7 +239,6 @@ int main(int argc, char* argv[])
 		_handPosition(2) = (tmpEl2.y - 128);
 		_outputPortHandPredicted.Content() = _handPosition;
 		_outputPortHandPredicted.Write();
-
 
 		// poll remote learning ports
 		if (_inputPortTrain1.Read(0))

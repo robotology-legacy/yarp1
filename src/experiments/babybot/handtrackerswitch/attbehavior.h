@@ -13,36 +13,43 @@ public:
 	AttSharedData();
 	~AttSharedData();
 
-	YARPInputPortOf<YVector> _handPort;
-	YARPInputPortOf<YVector> _handPredictionPort;
-	YARPInputPortOf<YVector> _targetPort;
-	YARPOutputPortOf<YVector> _out;
+	YARPInputPortOf<YVector> _positionPort;
+	YARPInputPortOf<YVector> _predictionPort;
+	YARPOutputPortOf<YARPBottle> _out;
 };
 
 class AttBehavior: public YARPBehavior<AttBehavior, AttSharedData>
 {
 public:
 	AttBehavior(AttSharedData *d):
-	YARPBehavior<AttBehavior, AttSharedData>(d, "/attention/behavior/i", YBVMotorLabel, YBVAttentionQuit){}
+	YARPBehavior<AttBehavior, AttSharedData>(d, "/hts/i", YBVMotorLabel, YBVExit){}
 };
 
 typedef YARPFSMStateBase<AttBehavior, AttSharedData> AttBStateBase;
 typedef YARPFSMOutput<AttSharedData> AttBBaseOutput;
 typedef YARPBaseBehaviorInput<AttSharedData> AttBBaseInput;
 
-class AttBHand: public AttBStateBase
+class AttBWait: public AttBStateBase
+{
+public:
+	AttBWait(const YARPString &m)
+	{
+		_msg = m;
+	}
+
+	void handle(AttSharedData *d);
+
+private:
+	YARPString _msg;
+};
+
+class AttBPollCurrent: public AttBStateBase
 {
 public:
 	void handle(AttSharedData *d);
 };
 
-class AttBTarget: public AttBStateBase
-{
-public:
-	void handle(AttSharedData *d);
-};
-
-class AttBHandPrediction: public AttBStateBase
+class AttBPollPrediction: public AttBStateBase
 {
 public:
 	void handle(AttSharedData *d);
@@ -59,6 +66,21 @@ public:
 	
 	YBVocab key;
 	YBVocab newK;
+};
+
+class AttBSimpleOutput: public AttBBaseOutput
+{
+public:
+	AttBSimpleOutput(const YBVocab &m)
+	{
+		_bottle.setID(YBVMotorLabel);
+		_bottle.writeVocab(m);
+		_msg = m;
+	}
+	void output(AttSharedData *d);
+	
+	YARPBottle _bottle;
+	YBVocab _msg;
 };
 
 #endif

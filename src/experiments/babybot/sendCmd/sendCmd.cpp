@@ -55,12 +55,17 @@ void _fillTable()
 	REG_VOCAB(sendSimpleVocab, YBVAttentionQuit, "attention: quit module");
 	REG_VOCAB(sendSimpleVocab, YBVAttentionLookHand, "attention: switch to hand");
 	REG_VOCAB(sendSimpleVocab, YBVAttentionLookTarget, "attention: switch to target");
+	REG_VOCAB(sendSimpleVocab, YBVAttentionLookPrediction, "attention: switch to hand prediction");
+
+	// hand tracker switch
+	REG_VOCAB(sendSimpleVocab, YBVHTSPrediction, "hand tracker switch: prediction");
+	REG_VOCAB(sendSimpleVocab, YBVHTSCurrent, "hand tracker switch: current position");
+	REG_VOCAB(sendSimpleVocab, YBVHTSAuto, "hand tracker switch: auto");
 
 	// reaching
 	REG_VOCAB(sendSimpleVocab, YBVReachingQuit, "reaching: quit module");
 	REG_VOCAB(sendSimpleVocab, YBVReachingReach, "reaching: reach out");
 	REG_VOCAB(sendSimpleVocab, YBVReachingLearn, "reaching: learn current point");
-
 
 	// hand kinematics.m
 	REG_VOCAB(sendSimpleVocab, YBVHandKinQuit, "quit handkinematics.m");

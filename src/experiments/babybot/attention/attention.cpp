@@ -15,15 +15,23 @@ int main(int argc, char* argv[])
 
 	AttBHand hand;
 	AttBTarget target;
+	AttBHandPrediction prediction;
 	AttBSimpleInput lookHand(YBVAttentionLookHand);
 	AttBSimpleInput lookTarget(YBVAttentionLookTarget);
+	AttBSimpleInput lookHPrediction(YBVAttentionLookPrediction);
 	
 	_behavior.setInitialState(&target);
 	_behavior.add(&lookHand, &target, &hand);
+	_behavior.add(&lookHPrediction, &target, &prediction);
 	_behavior.add(NULL, &target, &target);
 
 	_behavior.add(&lookTarget, &hand, &target);
+	_behavior.add(&lookHPrediction, &hand, &prediction);
 	_behavior.add(NULL, &hand, &hand);
+
+	_behavior.add(&lookHand, &prediction, &hand);
+	_behavior.add(&lookTarget, &prediction, &target);
+	_behavior.add(NULL, &prediction, &prediction);
 
 	// start behavior
 	_behavior.Begin();
