@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.h,v 1.6 2005-02-25 03:47:40 natta Exp $
+/// $Id: YARPSciDeviceDriver.h,v 1.7 2005-02-25 17:04:34 natta Exp $
 ///
 ///
 
@@ -38,7 +38,7 @@
 #include <yarp/YARPDeviceDriver.h>
 #include <yarp/YARPControlBoardUtils.h>
 #include <yarp/YARPSemaphore.h>
-#include <yarp/SerialProtocol.h>
+#include <yarp/YARPSerialProtocol.h>
 /**
  * \file YARPSciDeviceDriver.h 
  * class for interfacing with the value can device driver.
