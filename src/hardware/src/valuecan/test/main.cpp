@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.1 2004-04-30 16:27:51 babybot Exp $
+/// $Id: main.cpp,v 1.2 2004-05-02 09:21:52 babybot Exp $
 ///
 ///
 
@@ -38,11 +38,14 @@
 
 #include <YARPValueCanDeviceDriver.h>
 #include <YARPControlBoardUtils.h>
+#include <YARPScheduler.h>
 
 /// a simple test of the ValueCan device driver.
 
 int main (int argc, char *argv[])
 {
+	YARPScheduler::setHighResScheduling();
+
 	YARPValueCanDeviceDriver driver;
 	ValueCanOpenParameters params;
 
@@ -51,7 +54,7 @@ int main (int argc, char *argv[])
 	params._destinations[0] = 1;				/// card 1.
 	params._my_address = 5;						/// my address
 	params._polling_interval = 10;				/// thread polling interval [ms]
-	params._timeout = 2;						/// 2*10 ms.
+	params._timeout = 5;						/// approx this value times the polling interval [ms].
 
 	SingleAxisParameters tmp;
 	tmp.axis = 0;
@@ -70,6 +73,8 @@ int main (int argc, char *argv[])
 		case 'h':
 			ACE_OS::printf ("h: this message\n");
 			ACE_OS::printf ("p: get position\n");
+			ACE_OS::printf ("s: set position\n");
+
 			ACE_OS::printf ("q: quit\n");
 			break;
 
@@ -78,10 +83,21 @@ int main (int argc, char *argv[])
 			ACE_OS::printf ("got position: %lf\n", *((double *)tmp.parameters));
 			break;
 
+		case 's':
+			value = double(0x12345678);
+			driver.IOCtl(CMDSetPosition, (void *)&tmp);
+			break;
+
 		case 'q':
 			goto SmoothEnd;
 			break;
 		}
+
+		do
+		{
+			scanf ("%c", &c);
+		}
+		while (c != '\n');
 	}
 
 

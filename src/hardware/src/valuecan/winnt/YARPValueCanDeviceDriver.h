@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.2 2004-04-30 16:27:51 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.3 2004-05-02 09:21:52 babybot Exp $
 ///
 ///
 
@@ -80,13 +80,15 @@ public:
 	virtual int open(void *d);
 	virtual int close(void);
 
-	virtual int getposition(void *cmd);
+	virtual int getPosition(void *cmd);
+	virtual int setPosition(void *cmd);
 
 protected:
 	void *system_resources;
 	YARPSemaphore _mutex;
 	YARPEvent _ev;
 	bool _request;
+	bool _noreply;
 
 	virtual void Body(void);
 };

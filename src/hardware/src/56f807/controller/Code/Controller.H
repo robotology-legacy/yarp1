@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.1 2004-04-30 13:19:36 babybot Exp $
+/// $Id: Controller.H,v 1.2 2004-05-02 09:21:52 babybot Exp $
 ///
 ///
 
@@ -46,7 +46,7 @@
 #define true 1
 #endif
 
-#define DEFAULT_BOARD_ID	0		/* default ID for receiving messages */
+#define DEFAULT_BOARD_ID	1		/* default ID for receiving messages (4 bit field) */
 #define SMALL_BUFFER_SIZE 	10		/* for serial I/O */
 #define CONTROLLER_PERIOD 	1		/* espressed in ms */
 #define JN 2						/* number of axes, can't be changed anyway */
@@ -60,14 +60,21 @@
 
 #define FLASH_START_ADDR 0x2000
 
-/* deals with the endianism */
-#define BYTE_4(x) ((x) >> 24)
-#define BYTE_3(x) (((x) & 0xff0000) >> 16)
-#define BYTE_2(x) (((x) & 0xff00) >> 8)
-#define BYTE_1(x) (((x) & 0xff))
+#ifndef __ONLY_DEF
+/* deals with the endianism - byte 4 is the MSB on the Pentium */
+#define BYTE_1(x) (__shr(__extract_h(x), 8))
+#define BYTE_2(x) (__extract_h(x) & 0xff)
+#define BYTE_3(x) (__shr(__extract_l(x), 8))
+#define BYTE_4(x) (__extract_l(x) & 0xff)
 
-#define BYTE_C(x4, x3, x2, x1) (x4<<24 | x3<<16 | x2<<8 | x1) 
-#define BYTE_W(x2, x1) (x2<<8 | x1)
+/* same as above, deals also with endianism */
+#define BYTE_C(x4, x3, x2, x1) \
+	(_L_deposit_h(__shl(x1,8) | x2) | \
+	 _L_deposit_l(__shl(x3,8) | x4))
+	 
+#define BYTE_W(x2, x1) (__shl(x1,8) | x2)
+
+#endif
 
 /* CAN bus messages (our protocol) */
 #define CHANNEL_0(x)	((x) &= 0x7FFF)
@@ -76,7 +83,7 @@
 
 /* CAN packet (our protocol):
  * 
- * byte 0, board ID 
+ * byte 0, source ID (4 bits) + dest ID (4 bits)
  * byte 1, MSB, channel no 
  * byte 2, 7LSB, command ID 
  * byte 3-7, payload
@@ -152,6 +159,8 @@ byte can_interface (void);
 byte calibrate (int jnt);
 byte writeToFlash (void);
 byte readFromFlash (void);
+
+void print_can (byte data[]);
 
 #endif
 
