@@ -1,7 +1,0 @@
-#!/bin/sh
-
-echo copying IPL files...
- 
-cp ./include/*.h ../../../include/sys
-
-echo IPL is installed
