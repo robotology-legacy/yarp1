@@ -1,33 +1,46 @@
-// =====================================================================================
-//
-//       YARP - Yet Another Robotic Platform (c) 2001-2003 
-//
-//                    #Carlos Beltran#
-//
-//     "Licensed under the Academic Free License Version 1.0"
-// 
-//        Filename:  soundprocessing.cpp
-// 
-//     Description:  Implements all the sound processing algorithms.
-//     This implementatin is partially based in the sound software used by Lorenzo Natale
-//     is his master thesis.
-// 
-//         Version:  $Id: soundprocessing.cpp,v 1.15 2004-06-03 17:09:43 beltran Exp $
-// 
-//          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
-//         Company:  Lira-Lab
-// 
-// =====================================================================================
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
+///                                                                   ///
+///                    #Carlos Beltran Gonzalez#                      ///
+///                                                                   ///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+
+///
+/// $Id: soundprocessing.cpp,v 1.16 2004-08-30 17:51:44 beltran Exp $
+///
 
 #include "soundprocessing.h"
-#include <YARPConfigFile.h>
+#include <yarp/YARPConfigFile.h>
 
 const double __soundgain = 0.01;
-//--------------------------------------------------------------------------------------
-//       Class: SoundProcessing
-//      Method: SoundProcessing
-// Description: The constructor of the class
-//--------------------------------------------------------------------------------------
+
+/** 
+  * Constructor.
+  * 
+  * @param iniFile The name of the initialization file
+  * @param outsize The outsize
+  */
 SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize):
 ild(NUM_ILD), itd(NUM_ITD)
 {
@@ -114,11 +127,9 @@ ild(NUM_ILD), itd(NUM_ITD)
 	thresholds.min_right    = 1000;
 }
 
-//--------------------------------------------------------------------------------------
-//       Class: SoundProcessing
-//      Method: ~SoundProcessing 
-// Description: The destructor 
-//--------------------------------------------------------------------------------------
+/** 
+  * Destructor.
+  */
 SoundProcessing::~SoundProcessing()
 {
 	delete fft;
@@ -137,12 +148,12 @@ SoundProcessing::~SoundProcessing()
 	delete[] SCOToperator_Im;
 }
 
-
-//--------------------------------------------------------------------------------------
-//       Class: SoundProcessing 
-//      Method: CrossCorralation 
-// Description: Calculates the crosscorrelation in the time space 
-//--------------------------------------------------------------------------------------
+/** 
+  * Calculates the crosscorrelation in the time space.
+  * 
+  * @param lChannel The left channel
+  * @param rChannel The right channel
+  */
 int
 SoundProcessing::CrossCorrelation(double *lChannel, double *rChannel)
 {
@@ -177,11 +188,17 @@ SoundProcessing::CrossCorrelation(double *lChannel, double *rChannel)
 	
 	return 1;
 }
-//--------------------------------------------------------------------------------------
-//       Class: SoundProcessing 
-//      Method: ComputeCrossCorrelation 
-// Description: Calculate the correlation function using the Fourier Transform 
-//--------------------------------------------------------------------------------------
+
+/** 
+  * Calculates the correlation function using the Fourier Transform.
+  * 
+  * @param left_Re The array pointer for the real part of the left channel transform
+  * @param left_Im The array pointer for the imaginary part of the left channel transform
+  * @param right_Re The array pointer for the real part of the right channel transform
+  * @param right_Im The array pointer for the imaginary part of the right channel transform
+  * 
+  * @return 0 the calculation was OK.
+  */
 int 
 SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 										 double * right_Re, double * right_Im)
@@ -278,11 +295,11 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 	return 0;
 }
 
-//--------------------------------------------------------------------------------------
-//       Class: SoundProcessing
-//      Method: ComputeLevels 
-// Description: This method calculates the ILD 
-//--------------------------------------------------------------------------------------
+/** 
+  * This method calculates the ILD.
+  *
+  * @return 0 OK
+  */
 int
 SoundProcessing::ComputeLevels()
 {
@@ -302,15 +319,21 @@ SoundProcessing::ComputeLevels()
 	return 0;
 }
 
-//--------------------------------------------------------------------------------------
-//       Class: SoundProcessing 
-//      Method: ConjComplexMultiplication 
-// Description: Multiplication between the spectrum of the first signal and the complex
-// conjugation of the spectrum of the second (discrete correlation theorem). To find ins-
-// piration have a look at Numerical Recipies book. Chapter "Correlation and Autocorrelation
-// using the FFT (pag 545). 
-// (a+ib)(c-id)=(ac+bd)+i(bc-ad)
-//--------------------------------------------------------------------------------------
+/** 
+  * Multiplication between the spectrum of the first signal and the complex conjugation
+  * of the spectrum of the second (discrete correlation theorem).
+  * Have a look at Numerical Recipies book. Chapter "Correlation and Autocorrelation
+  * using the Fast Fourier Transform (pag 545).
+  * \f[ (a+ib)(c-id)=(ac+bd)+i(bc-ad) \f]
+  * @param a The real part of the first signal
+  * @param b The imaginary part of the first signal
+  * @param c The real part of the second signal
+  * @param d The imaginary part of the second signal
+  * @param ans_Re The real part of the answer
+  * @param ans_Im The imaginary part of the answer
+  * 
+  * @return 0
+  */
 int 
 SoundProcessing::ConjComplexMultiplication(double * a, double * b,
 										   double * c, double * d,
@@ -326,12 +349,17 @@ SoundProcessing::ConjComplexMultiplication(double * a, double * b,
 	return 0;
 }
 
-//--------------------------------------------------------------------------------------
-//       Class: SoundProcessing 
-//      Method: ComplexMultiplication 
-// Description: Complex multiplication
-// (a+ib)(c+id)=(ac+bd)+i(bc+ad)
-//--------------------------------------------------------------------------------------
+/** 
+  * ComplexMultiplication.
+  * The result is stored in the a and b arrays. \f[ (a+ib)(c+id)=(ac+bd)+i(bc+ad) \f]
+  * 
+  * @param a The real part of the first signal
+  * @param b The imaginary parto fo the first signal
+  * @param c The real part of the second signal
+  * @param d The imaginary part of the second signal
+  * 
+  * @return 0
+  */
 int 
 SoundProcessing::ComplexMultiplication(double * a, double * b, double * c, double * d)
 {

@@ -10,7 +10,7 @@
 // 
 //     Description:  CITDBuffer class definition
 // 
-//         Version:  $Id: ITDBuffer.h,v 1.1 2004-04-30 12:52:50 beltran Exp $
+//         Version:  $Id: ITDBuffer.h,v 1.2 2004-08-30 17:51:44 beltran Exp $
 // 
 //          Author:  Lorenzo Natale, YARP adaptation by Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -25,7 +25,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include "corr_data.h"
 
 class CITDBuffer {

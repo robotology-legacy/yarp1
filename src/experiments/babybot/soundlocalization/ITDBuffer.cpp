@@ -10,7 +10,7 @@
 // 
 //     Description:  Implementation of the CITDBuffer class 
 // 
-//         Version:  $Id: ITDBuffer.cpp,v 1.1 2004-04-30 12:52:50 beltran Exp $
+//         Version:  $Id: ITDBuffer.cpp,v 1.2 2004-08-30 17:51:44 beltran Exp $
 // 
 //          Author:  Lorenzo Natale. YARP adaptation from Carlos Beltran
 //         Company:  Lira-Lab
@@ -20,7 +20,7 @@
 //#include "stdafx.h"
 //#include "resource.h"
 #include "ITDBuffer.h"
-#include <YARPConfigFile.h>
+#include <yarp/YARPConfigFile.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include "math.h"

@@ -10,7 +10,7 @@
 // 
 //     Description: This class implements a buffer of level data items 
 // 
-//         Version:  $Id: ILDBuffer.cpp,v 1.2 2004-05-05 15:03:57 beltran Exp $
+//         Version:  $Id: ILDBuffer.cpp,v 1.3 2004-08-30 17:51:44 beltran Exp $
 // 
 //          Author:  Lorenzo Natale. YARP adaptation by Carlos Beltran
 //         Company:  Lira-Lab
@@ -19,7 +19,7 @@
 
 //#include "stdafx.h"
 //#include "resource.h"
-#include <YARPConfigFile.h>
+#include <yarp/YARPConfigFile.h>
 #include "ILDBuffer.h"
 #include <ace/config.h>
 #include <ace/OS.h>

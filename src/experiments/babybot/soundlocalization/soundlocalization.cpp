@@ -1,32 +1,46 @@
-// =====================================================================================
-//
-//       YARP - Yet Another Robotic Platform (c) 2001-2003 
-//
-//                    #Carlos Beltran#
-//
-//     "Licensed under the Academic Free License Version 1.0"
-// 
-//        Filename:  soundlocalization.cpp
-// 
-//     Description:  This is the main loop receiving the sound streams. Another class called
-//     soundprocessing is used to perform all the analysis.
-// 
-//         Version:  $Id: soundlocalization.cpp,v 1.11 2004-06-03 17:09:43 beltran Exp $
-// 
-//          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
-//         Company:  Lira-Lab
-// 
-// =====================================================================================
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
+///                                                                   ///
+///                    #Carlos Beltran Gonzalez#                      ///
+///                                                                   ///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
 
-#include <YARPScheduler.h>
-#include <YARPRobotMath.h>
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
-#include <YARPString.h>
-#include <YARPTime.h>
-#include <YARPSound.h>
-#include <YARPSoundPortContent.h>
-#include <YARPImageDraw.h>
+///
+/// $Id: soundlocalization.cpp,v 1.12 2004-08-30 17:51:44 beltran Exp $
+///
+
+/** @todo Fix compilation warning */
+
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPRobotMath.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPVectorPortContent.h>
+#include <yarp/YARPString.h>
+#include <yarp/YARPTime.h>
+#include <yarp/YARPSound.h>
+#include <yarp/YARPSoundPortContent.h>
+#include <yarp/YARPImageDraw.h>
 
 #include "soundprocessing.h"
 
