@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.13 2004-05-31 17:38:12 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.14 2004-06-16 17:02:44 babybot Exp $
 ///
 ///
 
@@ -1003,18 +1003,22 @@ int YARPValueCanDeviceDriver::getTorques (void *cmd)
 	return YARP_OK;
 }
 
-/// no cmd.
+/// cmd is a pointer to SingleAxisParameters struct with no argument.
 int YARPValueCanDeviceDriver::readBootMemory (void *cmd)
 {
-	ACE_UNUSED_ARG(cmd);
-	return _writeNone (CAN_READ_FLASH_MEM, 0);
+	const int axis = *((int *)cmd);
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+
+	return _writeNone (CAN_READ_FLASH_MEM, axis);
 }
 
-/// no cmd.
+/// cmd is a pointer to SingleAxisParameters struct with no argument.
 int YARPValueCanDeviceDriver::writeBootMemory (void *cmd)
 {
-	ACE_UNUSED_ARG(cmd);
-	return _writeNone (CAN_WRITE_FLASH_MEM, 0);
+	const int axis = *((int *)cmd);
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+
+	return _writeNone (CAN_WRITE_FLASH_MEM, axis);
 }
 
 /// cmd is a pointer to SingleAxisParameters struct with a single double arg.
@@ -1159,7 +1163,7 @@ int YARPValueCanDeviceDriver::_writeNone (int msg, int axis)
 	memset (&(r._cmdBuffer), 0, sizeof(icsSpyMessage));
 	r._cmdBuffer.Data[0] = ((r._my_address << 4) & 0xf0);
 	r._cmdBuffer.Data[0] += (r._destinations[axis/2] & 0x0f); 
-	r._cmdBuffer.Data[1] =  msg | ((axis % 2) << 7);
+	r._cmdBuffer.Data[1] = msg | ((axis % 2) << 7);
 
 	r._cmdBuffer.ArbIDOrHeader = r._arbitrationID;
 	r._cmdBuffer.NumberBytesData = 2;

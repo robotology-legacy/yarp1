@@ -87,7 +87,7 @@ int  _kr[JN] = { 3, 3 };				/* scale factor (negative power of two) */
 
 /* CAN bus communication global vars */
 byte 	CAN_data[8];					/* CAN bus message */
-dword 	CAN_messID = 0;						/* arbitration */
+dword 	CAN_messID = 0;					/* arbitration */
 byte 	CAN_frameType;
 byte 	CAN_frameFormat;
 byte 	CAN_length;						/* len of the data */

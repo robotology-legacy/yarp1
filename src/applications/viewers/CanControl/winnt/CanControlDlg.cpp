@@ -654,12 +654,20 @@ void CCanControlDlg::OnUpdateDriverSendaddress(CCmdUI* pCmdUI)
 
 void CCanControlDlg::OnFlash() 
 {
-	m_driver.IOCtl(CMDSaveBootMemory, NULL);	
+	int index = m_axis_ctrl.GetCurSel();
+	if (index < m_njoints && index != CB_ERR)
+	{
+		m_driver.IOCtl(CMDSaveBootMemory, &index);
+	}
 }
 
 void CCanControlDlg::OnFlashRead() 
 {
-	m_driver.IOCtl(CMDLoadBootMemory, NULL);
+	int index = m_axis_ctrl.GetCurSel();
+	if (index < m_njoints && index != CB_ERR)
+	{
+		m_driver.IOCtl(CMDLoadBootMemory, &index);
+	}
 }
 
 void CCanControlDlg::OnTimer(UINT nIDEvent) 
