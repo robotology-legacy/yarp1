@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2003-09-09 10:32:23 babybot Exp $
+# $Id: Makefile,v 1.6 2003-10-26 22:48:56 babybot Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 

@@ -8,18 +8,9 @@
 	"..\..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\..\include\ace\addr.h"\
 	"..\..\..\..\include\ace\addr.i"\
-	"..\..\..\..\include\ace\ARGV.h"\
-	"..\..\..\..\include\ace\ARGV.i"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.h"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.inl"\
 	"..\..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\..\include\ace\array_base.h"\
 	"..\..\..\..\include\ace\array_base.inl"\
-	"..\..\..\..\include\ace\Atomic_Op.h"\
-	"..\..\..\..\include\ace\Atomic_Op.i"\
-	"..\..\..\..\include\ace\Atomic_Op_T.cpp"\
-	"..\..\..\..\include\ace\Atomic_Op_T.h"\
-	"..\..\..\..\include\ace\Atomic_Op_T.i"\
 	"..\..\..\..\include\ace\auto_ptr.cpp"\
 	"..\..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\..\include\ace\auto_ptr.i"\
@@ -28,21 +19,10 @@
 	"..\..\..\..\include\ace\basic_types.h"\
 	"..\..\..\..\include\ace\basic_types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
-	"..\..\..\..\include\ace\config-borland-common.h"\
-	"..\..\..\..\include\ace\config-g++-common.h"\
-	"..\..\..\..\include\ace\config-ghs-common.h"\
-	"..\..\..\..\include\ace\config-qnx-rtp.h"\
-	"..\..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\..\include\ace\config-win32-ghs.h"\
-	"..\..\..\..\include\ace\config-win32-mingw.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-5.h"\
 	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-7.h"\
 	"..\..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\..\include\ace\config-win32-visualage.h"\
 	"..\..\..\..\include\ace\config-win32.h"\
-	"..\..\..\..\include\ace\config-WinCE.h"\
 	"..\..\..\..\include\ace\config.h"\
 	"..\..\..\..\include\ace\containers.h"\
 	"..\..\..\..\include\ace\containers.i"\
@@ -52,8 +32,6 @@
 	"..\..\..\..\include\ace\default_constants.h"\
 	"..\..\..\..\include\ace\event_handler.h"\
 	"..\..\..\..\include\ace\event_handler.i"\
-	"..\..\..\..\include\ace\File_Lock.h"\
-	"..\..\..\..\include\ace\File_Lock.inl"\
 	"..\..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\..\include\ace\framework_component.h"\
@@ -73,15 +51,12 @@
 	"..\..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\..\include\ace\init_ace.h"\
 	"..\..\..\..\include\ace\init_ace.i"\
-	"..\..\..\..\include\ace\iosfwd.h"\
 	"..\..\..\..\include\ace\ipc_sap.h"\
 	"..\..\..\..\include\ace\ipc_sap.i"\
 	"..\..\..\..\include\ace\lib_find.h"\
 	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
-	"..\..\..\..\include\ace\Log_Msg_Callback.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
-	"..\..\..\..\include\ace\Malloc.h"\
 	"..\..\..\..\include\ace\malloc.i"\
 	"..\..\..\..\include\ace\malloc_allocator.h"\
 	"..\..\..\..\include\ace\malloc_allocator.i"\
@@ -120,13 +95,6 @@
 	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
-	"..\..\..\..\include\ace\Process_Mutex.h"\
-	"..\..\..\..\include\ace\Process_Mutex.inl"\
-	"..\..\..\..\include\ace\Process_Semaphore.h"\
-	"..\..\..\..\include\ace\Process_Semaphore.inl"\
-	"..\..\..\..\include\ace\RW_Process_Mutex.h"\
-	"..\..\..\..\include\ace\RW_Process_Mutex.inl"\
-	"..\..\..\..\include\ace\Signal.h"\
 	"..\..\..\..\include\ace\signal.i"\
 	"..\..\..\..\include\ace\singleton.cpp"\
 	"..\..\..\..\include\ace\singleton.h"\
@@ -148,18 +116,11 @@
 	"..\..\..\..\include\ace\string_base.h"\
 	"..\..\..\..\include\ace\string_base.i"\
 	"..\..\..\..\include\ace\string_base_const.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Complex.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Complex.i"\
-	"..\..\..\..\include\ace\SV_Semaphore_Simple.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Simple.i"\
 	"..\..\..\..\include\ace\synch.h"\
 	"..\..\..\..\include\ace\synch.i"\
 	"..\..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\..\include\ace\synch_t.h"\
 	"..\..\..\..\include\ace\synch_t.i"\
-	"..\..\..\..\include\ace\Test_and_Set.cpp"\
-	"..\..\..\..\include\ace\Test_and_Set.h"\
-	"..\..\..\..\include\ace\Test_and_Set.i"\
 	"..\..\..\..\include\ace\thread.h"\
 	"..\..\..\..\include\ace\thread.i"\
 	"..\..\..\..\include\ace\thread_adapter.h"\
@@ -167,12 +128,10 @@
 	"..\..\..\..\include\ace\thread_control.h"\
 	"..\..\..\..\include\ace\thread_control.inl"\
 	"..\..\..\..\include\ace\thread_exit.h"\
-	"..\..\..\..\include\ace\Thread_Hook.h"\
 	"..\..\..\..\include\ace\thread_manager.h"\
 	"..\..\..\..\include\ace\thread_manager.i"\
 	"..\..\..\..\include\ace\time_value.h"\
 	"..\..\..\..\include\ace\time_value.inl"\
-	"..\..\..\..\include\ace\Trace.h"\
 	"..\..\..\..\include\ace\unbounded_queue.cpp"\
 	"..\..\..\..\include\ace\unbounded_queue.h"\
 	"..\..\..\..\include\ace\unbounded_queue.inl"\
@@ -190,16 +149,15 @@
 	"..\..\..\..\include\port.h"\
 	"..\..\..\..\include\refcounted.h"\
 	"..\..\..\..\include\sendable.h"\
-	"..\..\..\..\include\strng.h"\
 	"..\..\..\..\include\wide_nameloc.h"\
 	"..\..\..\..\include\yarpall.h"\
 	"..\..\..\..\include\yarpbabybotarm.h"\
 	"..\..\..\..\include\yarpbehavior.h"\
-	"..\..\..\..\include\YARPBool.h"\
 	"..\..\..\..\include\yarpbottle.h"\
 	"..\..\..\..\include\yarpbottlecodes.h"\
 	"..\..\..\..\include\yarpbottlecontent.h"\
 	"..\..\..\..\include\yarpconfigfile.h"\
+	"..\..\..\..\include\yarpcontrolboardnetworkdata.h"\
 	"..\..\..\..\include\yarpcontrolboardutils.h"\
 	"..\..\..\..\include\yarpdevicedriver.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
@@ -237,6 +195,7 @@
 	".\AState.h"\
 	".\tirednessControl.h"\
 	".\YARPGravityEstimator.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\armcontrol.cpp : \
@@ -247,18 +206,9 @@
 	"..\..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\..\include\ace\addr.h"\
 	"..\..\..\..\include\ace\addr.i"\
-	"..\..\..\..\include\ace\ARGV.h"\
-	"..\..\..\..\include\ace\ARGV.i"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.h"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.inl"\
 	"..\..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\..\include\ace\array_base.h"\
 	"..\..\..\..\include\ace\array_base.inl"\
-	"..\..\..\..\include\ace\Atomic_Op.h"\
-	"..\..\..\..\include\ace\Atomic_Op.i"\
-	"..\..\..\..\include\ace\Atomic_Op_T.cpp"\
-	"..\..\..\..\include\ace\Atomic_Op_T.h"\
-	"..\..\..\..\include\ace\Atomic_Op_T.i"\
 	"..\..\..\..\include\ace\auto_ptr.cpp"\
 	"..\..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\..\include\ace\auto_ptr.i"\
@@ -267,21 +217,10 @@
 	"..\..\..\..\include\ace\basic_types.h"\
 	"..\..\..\..\include\ace\basic_types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
-	"..\..\..\..\include\ace\config-borland-common.h"\
-	"..\..\..\..\include\ace\config-g++-common.h"\
-	"..\..\..\..\include\ace\config-ghs-common.h"\
-	"..\..\..\..\include\ace\config-qnx-rtp.h"\
-	"..\..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\..\include\ace\config-win32-ghs.h"\
-	"..\..\..\..\include\ace\config-win32-mingw.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-5.h"\
 	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-7.h"\
 	"..\..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\..\include\ace\config-win32-visualage.h"\
 	"..\..\..\..\include\ace\config-win32.h"\
-	"..\..\..\..\include\ace\config-WinCE.h"\
 	"..\..\..\..\include\ace\config.h"\
 	"..\..\..\..\include\ace\containers.h"\
 	"..\..\..\..\include\ace\containers.i"\
@@ -291,8 +230,6 @@
 	"..\..\..\..\include\ace\default_constants.h"\
 	"..\..\..\..\include\ace\event_handler.h"\
 	"..\..\..\..\include\ace\event_handler.i"\
-	"..\..\..\..\include\ace\File_Lock.h"\
-	"..\..\..\..\include\ace\File_Lock.inl"\
 	"..\..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\..\include\ace\framework_component.h"\
@@ -312,15 +249,12 @@
 	"..\..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\..\include\ace\init_ace.h"\
 	"..\..\..\..\include\ace\init_ace.i"\
-	"..\..\..\..\include\ace\iosfwd.h"\
 	"..\..\..\..\include\ace\ipc_sap.h"\
 	"..\..\..\..\include\ace\ipc_sap.i"\
 	"..\..\..\..\include\ace\lib_find.h"\
 	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
-	"..\..\..\..\include\ace\Log_Msg_Callback.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
-	"..\..\..\..\include\ace\Malloc.h"\
 	"..\..\..\..\include\ace\malloc.i"\
 	"..\..\..\..\include\ace\malloc_allocator.h"\
 	"..\..\..\..\include\ace\malloc_allocator.i"\
@@ -359,13 +293,6 @@
 	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
-	"..\..\..\..\include\ace\Process_Mutex.h"\
-	"..\..\..\..\include\ace\Process_Mutex.inl"\
-	"..\..\..\..\include\ace\Process_Semaphore.h"\
-	"..\..\..\..\include\ace\Process_Semaphore.inl"\
-	"..\..\..\..\include\ace\RW_Process_Mutex.h"\
-	"..\..\..\..\include\ace\RW_Process_Mutex.inl"\
-	"..\..\..\..\include\ace\Signal.h"\
 	"..\..\..\..\include\ace\signal.i"\
 	"..\..\..\..\include\ace\singleton.cpp"\
 	"..\..\..\..\include\ace\singleton.h"\
@@ -387,18 +314,11 @@
 	"..\..\..\..\include\ace\string_base.h"\
 	"..\..\..\..\include\ace\string_base.i"\
 	"..\..\..\..\include\ace\string_base_const.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Complex.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Complex.i"\
-	"..\..\..\..\include\ace\SV_Semaphore_Simple.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Simple.i"\
 	"..\..\..\..\include\ace\synch.h"\
 	"..\..\..\..\include\ace\synch.i"\
 	"..\..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\..\include\ace\synch_t.h"\
 	"..\..\..\..\include\ace\synch_t.i"\
-	"..\..\..\..\include\ace\Test_and_Set.cpp"\
-	"..\..\..\..\include\ace\Test_and_Set.h"\
-	"..\..\..\..\include\ace\Test_and_Set.i"\
 	"..\..\..\..\include\ace\thread.h"\
 	"..\..\..\..\include\ace\thread.i"\
 	"..\..\..\..\include\ace\thread_adapter.h"\
@@ -406,12 +326,10 @@
 	"..\..\..\..\include\ace\thread_control.h"\
 	"..\..\..\..\include\ace\thread_control.inl"\
 	"..\..\..\..\include\ace\thread_exit.h"\
-	"..\..\..\..\include\ace\Thread_Hook.h"\
 	"..\..\..\..\include\ace\thread_manager.h"\
 	"..\..\..\..\include\ace\thread_manager.i"\
 	"..\..\..\..\include\ace\time_value.h"\
 	"..\..\..\..\include\ace\time_value.inl"\
-	"..\..\..\..\include\ace\Trace.h"\
 	"..\..\..\..\include\ace\unbounded_queue.cpp"\
 	"..\..\..\..\include\ace\unbounded_queue.h"\
 	"..\..\..\..\include\ace\unbounded_queue.inl"\
@@ -429,16 +347,15 @@
 	"..\..\..\..\include\port.h"\
 	"..\..\..\..\include\refcounted.h"\
 	"..\..\..\..\include\sendable.h"\
-	"..\..\..\..\include\strng.h"\
 	"..\..\..\..\include\wide_nameloc.h"\
 	"..\..\..\..\include\yarpall.h"\
 	"..\..\..\..\include\yarpbabybotarm.h"\
 	"..\..\..\..\include\yarpbehavior.h"\
-	"..\..\..\..\include\YARPBool.h"\
 	"..\..\..\..\include\yarpbottle.h"\
 	"..\..\..\..\include\yarpbottlecodes.h"\
 	"..\..\..\..\include\yarpbottlecontent.h"\
 	"..\..\..\..\include\yarpconfigfile.h"\
+	"..\..\..\..\include\yarpcontrolboardnetworkdata.h"\
 	"..\..\..\..\include\yarpcontrolboardutils.h"\
 	"..\..\..\..\include\yarpdevicedriver.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
@@ -478,6 +395,7 @@
 	".\RandomThread.h"\
 	".\tirednessControl.h"\
 	".\YARPGravityEstimator.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\ArmFSMStates.cpp : \
@@ -488,18 +406,9 @@
 	"..\..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\..\include\ace\addr.h"\
 	"..\..\..\..\include\ace\addr.i"\
-	"..\..\..\..\include\ace\ARGV.h"\
-	"..\..\..\..\include\ace\ARGV.i"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.h"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.inl"\
 	"..\..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\..\include\ace\array_base.h"\
 	"..\..\..\..\include\ace\array_base.inl"\
-	"..\..\..\..\include\ace\Atomic_Op.h"\
-	"..\..\..\..\include\ace\Atomic_Op.i"\
-	"..\..\..\..\include\ace\Atomic_Op_T.cpp"\
-	"..\..\..\..\include\ace\Atomic_Op_T.h"\
-	"..\..\..\..\include\ace\Atomic_Op_T.i"\
 	"..\..\..\..\include\ace\auto_ptr.cpp"\
 	"..\..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\..\include\ace\auto_ptr.i"\
@@ -508,21 +417,10 @@
 	"..\..\..\..\include\ace\basic_types.h"\
 	"..\..\..\..\include\ace\basic_types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
-	"..\..\..\..\include\ace\config-borland-common.h"\
-	"..\..\..\..\include\ace\config-g++-common.h"\
-	"..\..\..\..\include\ace\config-ghs-common.h"\
-	"..\..\..\..\include\ace\config-qnx-rtp.h"\
-	"..\..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\..\include\ace\config-win32-ghs.h"\
-	"..\..\..\..\include\ace\config-win32-mingw.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-5.h"\
 	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-7.h"\
 	"..\..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\..\include\ace\config-win32-visualage.h"\
 	"..\..\..\..\include\ace\config-win32.h"\
-	"..\..\..\..\include\ace\config-WinCE.h"\
 	"..\..\..\..\include\ace\config.h"\
 	"..\..\..\..\include\ace\containers.h"\
 	"..\..\..\..\include\ace\containers.i"\
@@ -532,8 +430,6 @@
 	"..\..\..\..\include\ace\default_constants.h"\
 	"..\..\..\..\include\ace\event_handler.h"\
 	"..\..\..\..\include\ace\event_handler.i"\
-	"..\..\..\..\include\ace\File_Lock.h"\
-	"..\..\..\..\include\ace\File_Lock.inl"\
 	"..\..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\..\include\ace\framework_component.h"\
@@ -553,15 +449,12 @@
 	"..\..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\..\include\ace\init_ace.h"\
 	"..\..\..\..\include\ace\init_ace.i"\
-	"..\..\..\..\include\ace\iosfwd.h"\
 	"..\..\..\..\include\ace\ipc_sap.h"\
 	"..\..\..\..\include\ace\ipc_sap.i"\
 	"..\..\..\..\include\ace\lib_find.h"\
 	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
-	"..\..\..\..\include\ace\Log_Msg_Callback.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
-	"..\..\..\..\include\ace\Malloc.h"\
 	"..\..\..\..\include\ace\malloc.i"\
 	"..\..\..\..\include\ace\malloc_allocator.h"\
 	"..\..\..\..\include\ace\malloc_allocator.i"\
@@ -600,13 +493,6 @@
 	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
-	"..\..\..\..\include\ace\Process_Mutex.h"\
-	"..\..\..\..\include\ace\Process_Mutex.inl"\
-	"..\..\..\..\include\ace\Process_Semaphore.h"\
-	"..\..\..\..\include\ace\Process_Semaphore.inl"\
-	"..\..\..\..\include\ace\RW_Process_Mutex.h"\
-	"..\..\..\..\include\ace\RW_Process_Mutex.inl"\
-	"..\..\..\..\include\ace\Signal.h"\
 	"..\..\..\..\include\ace\signal.i"\
 	"..\..\..\..\include\ace\singleton.cpp"\
 	"..\..\..\..\include\ace\singleton.h"\
@@ -628,18 +514,11 @@
 	"..\..\..\..\include\ace\string_base.h"\
 	"..\..\..\..\include\ace\string_base.i"\
 	"..\..\..\..\include\ace\string_base_const.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Complex.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Complex.i"\
-	"..\..\..\..\include\ace\SV_Semaphore_Simple.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Simple.i"\
 	"..\..\..\..\include\ace\synch.h"\
 	"..\..\..\..\include\ace\synch.i"\
 	"..\..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\..\include\ace\synch_t.h"\
 	"..\..\..\..\include\ace\synch_t.i"\
-	"..\..\..\..\include\ace\Test_and_Set.cpp"\
-	"..\..\..\..\include\ace\Test_and_Set.h"\
-	"..\..\..\..\include\ace\Test_and_Set.i"\
 	"..\..\..\..\include\ace\thread.h"\
 	"..\..\..\..\include\ace\thread.i"\
 	"..\..\..\..\include\ace\thread_adapter.h"\
@@ -647,12 +526,10 @@
 	"..\..\..\..\include\ace\thread_control.h"\
 	"..\..\..\..\include\ace\thread_control.inl"\
 	"..\..\..\..\include\ace\thread_exit.h"\
-	"..\..\..\..\include\ace\Thread_Hook.h"\
 	"..\..\..\..\include\ace\thread_manager.h"\
 	"..\..\..\..\include\ace\thread_manager.i"\
 	"..\..\..\..\include\ace\time_value.h"\
 	"..\..\..\..\include\ace\time_value.inl"\
-	"..\..\..\..\include\ace\Trace.h"\
 	"..\..\..\..\include\ace\unbounded_queue.cpp"\
 	"..\..\..\..\include\ace\unbounded_queue.h"\
 	"..\..\..\..\include\ace\unbounded_queue.inl"\
@@ -670,16 +547,15 @@
 	"..\..\..\..\include\port.h"\
 	"..\..\..\..\include\refcounted.h"\
 	"..\..\..\..\include\sendable.h"\
-	"..\..\..\..\include\strng.h"\
 	"..\..\..\..\include\wide_nameloc.h"\
 	"..\..\..\..\include\yarpall.h"\
 	"..\..\..\..\include\yarpbabybotarm.h"\
 	"..\..\..\..\include\yarpbehavior.h"\
-	"..\..\..\..\include\YARPBool.h"\
 	"..\..\..\..\include\yarpbottle.h"\
 	"..\..\..\..\include\yarpbottlecodes.h"\
 	"..\..\..\..\include\yarpbottlecontent.h"\
 	"..\..\..\..\include\yarpconfigfile.h"\
+	"..\..\..\..\include\yarpcontrolboardnetworkdata.h"\
 	"..\..\..\..\include\yarpcontrolboardutils.h"\
 	"..\..\..\..\include\yarpdevicedriver.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
@@ -713,12 +589,13 @@
 	"..\..\..\..\include\yarpvectorportcontent.h"\
 	".\ArmBehavior.h"\
 	".\armfsm.h"\
-	".\armfsmstates.h"\
+	".\ArmFSMStates.h"\
 	".\armstatus.h"\
 	".\Armthread.h"\
 	".\AState.h"\
 	".\tirednessControl.h"\
 	".\YARPGravityEstimator.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\armthread.cpp : \
@@ -729,18 +606,9 @@
 	"..\..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\..\include\ace\addr.h"\
 	"..\..\..\..\include\ace\addr.i"\
-	"..\..\..\..\include\ace\ARGV.h"\
-	"..\..\..\..\include\ace\ARGV.i"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.h"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.inl"\
 	"..\..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\..\include\ace\array_base.h"\
 	"..\..\..\..\include\ace\array_base.inl"\
-	"..\..\..\..\include\ace\Atomic_Op.h"\
-	"..\..\..\..\include\ace\Atomic_Op.i"\
-	"..\..\..\..\include\ace\Atomic_Op_T.cpp"\
-	"..\..\..\..\include\ace\Atomic_Op_T.h"\
-	"..\..\..\..\include\ace\Atomic_Op_T.i"\
 	"..\..\..\..\include\ace\auto_ptr.cpp"\
 	"..\..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\..\include\ace\auto_ptr.i"\
@@ -749,21 +617,10 @@
 	"..\..\..\..\include\ace\basic_types.h"\
 	"..\..\..\..\include\ace\basic_types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
-	"..\..\..\..\include\ace\config-borland-common.h"\
-	"..\..\..\..\include\ace\config-g++-common.h"\
-	"..\..\..\..\include\ace\config-ghs-common.h"\
-	"..\..\..\..\include\ace\config-qnx-rtp.h"\
-	"..\..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\..\include\ace\config-win32-ghs.h"\
-	"..\..\..\..\include\ace\config-win32-mingw.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-5.h"\
 	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-7.h"\
 	"..\..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\..\include\ace\config-win32-visualage.h"\
 	"..\..\..\..\include\ace\config-win32.h"\
-	"..\..\..\..\include\ace\config-WinCE.h"\
 	"..\..\..\..\include\ace\config.h"\
 	"..\..\..\..\include\ace\containers.h"\
 	"..\..\..\..\include\ace\containers.i"\
@@ -773,8 +630,6 @@
 	"..\..\..\..\include\ace\default_constants.h"\
 	"..\..\..\..\include\ace\event_handler.h"\
 	"..\..\..\..\include\ace\event_handler.i"\
-	"..\..\..\..\include\ace\File_Lock.h"\
-	"..\..\..\..\include\ace\File_Lock.inl"\
 	"..\..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\..\include\ace\framework_component.h"\
@@ -794,15 +649,12 @@
 	"..\..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\..\include\ace\init_ace.h"\
 	"..\..\..\..\include\ace\init_ace.i"\
-	"..\..\..\..\include\ace\iosfwd.h"\
 	"..\..\..\..\include\ace\ipc_sap.h"\
 	"..\..\..\..\include\ace\ipc_sap.i"\
 	"..\..\..\..\include\ace\lib_find.h"\
 	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
-	"..\..\..\..\include\ace\Log_Msg_Callback.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
-	"..\..\..\..\include\ace\Malloc.h"\
 	"..\..\..\..\include\ace\malloc.i"\
 	"..\..\..\..\include\ace\malloc_allocator.h"\
 	"..\..\..\..\include\ace\malloc_allocator.i"\
@@ -841,13 +693,6 @@
 	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
-	"..\..\..\..\include\ace\Process_Mutex.h"\
-	"..\..\..\..\include\ace\Process_Mutex.inl"\
-	"..\..\..\..\include\ace\Process_Semaphore.h"\
-	"..\..\..\..\include\ace\Process_Semaphore.inl"\
-	"..\..\..\..\include\ace\RW_Process_Mutex.h"\
-	"..\..\..\..\include\ace\RW_Process_Mutex.inl"\
-	"..\..\..\..\include\ace\Signal.h"\
 	"..\..\..\..\include\ace\signal.i"\
 	"..\..\..\..\include\ace\singleton.cpp"\
 	"..\..\..\..\include\ace\singleton.h"\
@@ -869,18 +714,11 @@
 	"..\..\..\..\include\ace\string_base.h"\
 	"..\..\..\..\include\ace\string_base.i"\
 	"..\..\..\..\include\ace\string_base_const.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Complex.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Complex.i"\
-	"..\..\..\..\include\ace\SV_Semaphore_Simple.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Simple.i"\
 	"..\..\..\..\include\ace\synch.h"\
 	"..\..\..\..\include\ace\synch.i"\
 	"..\..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\..\include\ace\synch_t.h"\
 	"..\..\..\..\include\ace\synch_t.i"\
-	"..\..\..\..\include\ace\Test_and_Set.cpp"\
-	"..\..\..\..\include\ace\Test_and_Set.h"\
-	"..\..\..\..\include\ace\Test_and_Set.i"\
 	"..\..\..\..\include\ace\thread.h"\
 	"..\..\..\..\include\ace\thread.i"\
 	"..\..\..\..\include\ace\thread_adapter.h"\
@@ -888,12 +726,10 @@
 	"..\..\..\..\include\ace\thread_control.h"\
 	"..\..\..\..\include\ace\thread_control.inl"\
 	"..\..\..\..\include\ace\thread_exit.h"\
-	"..\..\..\..\include\ace\Thread_Hook.h"\
 	"..\..\..\..\include\ace\thread_manager.h"\
 	"..\..\..\..\include\ace\thread_manager.i"\
 	"..\..\..\..\include\ace\time_value.h"\
 	"..\..\..\..\include\ace\time_value.inl"\
-	"..\..\..\..\include\ace\Trace.h"\
 	"..\..\..\..\include\ace\unbounded_queue.cpp"\
 	"..\..\..\..\include\ace\unbounded_queue.h"\
 	"..\..\..\..\include\ace\unbounded_queue.inl"\
@@ -911,16 +747,15 @@
 	"..\..\..\..\include\port.h"\
 	"..\..\..\..\include\refcounted.h"\
 	"..\..\..\..\include\sendable.h"\
-	"..\..\..\..\include\strng.h"\
 	"..\..\..\..\include\wide_nameloc.h"\
 	"..\..\..\..\include\yarpall.h"\
 	"..\..\..\..\include\yarpbabybotarm.h"\
 	"..\..\..\..\include\yarpbehavior.h"\
-	"..\..\..\..\include\YARPBool.h"\
 	"..\..\..\..\include\yarpbottle.h"\
 	"..\..\..\..\include\yarpbottlecodes.h"\
 	"..\..\..\..\include\yarpbottlecontent.h"\
 	"..\..\..\..\include\yarpconfigfile.h"\
+	"..\..\..\..\include\yarpcontrolboardnetworkdata.h"\
 	"..\..\..\..\include\yarpcontrolboardutils.h"\
 	"..\..\..\..\include\yarpdevicedriver.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
@@ -958,6 +793,7 @@
 	".\AState.h"\
 	".\tirednessControl.h"\
 	".\YARPGravityEstimator.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\AState.cpp : \
@@ -968,18 +804,9 @@
 	"..\..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\..\include\ace\addr.h"\
 	"..\..\..\..\include\ace\addr.i"\
-	"..\..\..\..\include\ace\ARGV.h"\
-	"..\..\..\..\include\ace\ARGV.i"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.h"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.inl"\
 	"..\..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\..\include\ace\array_base.h"\
 	"..\..\..\..\include\ace\array_base.inl"\
-	"..\..\..\..\include\ace\Atomic_Op.h"\
-	"..\..\..\..\include\ace\Atomic_Op.i"\
-	"..\..\..\..\include\ace\Atomic_Op_T.cpp"\
-	"..\..\..\..\include\ace\Atomic_Op_T.h"\
-	"..\..\..\..\include\ace\Atomic_Op_T.i"\
 	"..\..\..\..\include\ace\auto_ptr.cpp"\
 	"..\..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\..\include\ace\auto_ptr.i"\
@@ -988,21 +815,10 @@
 	"..\..\..\..\include\ace\basic_types.h"\
 	"..\..\..\..\include\ace\basic_types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
-	"..\..\..\..\include\ace\config-borland-common.h"\
-	"..\..\..\..\include\ace\config-g++-common.h"\
-	"..\..\..\..\include\ace\config-ghs-common.h"\
-	"..\..\..\..\include\ace\config-qnx-rtp.h"\
-	"..\..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\..\include\ace\config-win32-ghs.h"\
-	"..\..\..\..\include\ace\config-win32-mingw.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-5.h"\
 	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-7.h"\
 	"..\..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\..\include\ace\config-win32-visualage.h"\
 	"..\..\..\..\include\ace\config-win32.h"\
-	"..\..\..\..\include\ace\config-WinCE.h"\
 	"..\..\..\..\include\ace\config.h"\
 	"..\..\..\..\include\ace\containers.h"\
 	"..\..\..\..\include\ace\containers.i"\
@@ -1012,8 +828,6 @@
 	"..\..\..\..\include\ace\default_constants.h"\
 	"..\..\..\..\include\ace\event_handler.h"\
 	"..\..\..\..\include\ace\event_handler.i"\
-	"..\..\..\..\include\ace\File_Lock.h"\
-	"..\..\..\..\include\ace\File_Lock.inl"\
 	"..\..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\..\include\ace\framework_component.h"\
@@ -1033,15 +847,12 @@
 	"..\..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\..\include\ace\init_ace.h"\
 	"..\..\..\..\include\ace\init_ace.i"\
-	"..\..\..\..\include\ace\iosfwd.h"\
 	"..\..\..\..\include\ace\ipc_sap.h"\
 	"..\..\..\..\include\ace\ipc_sap.i"\
 	"..\..\..\..\include\ace\lib_find.h"\
 	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
-	"..\..\..\..\include\ace\Log_Msg_Callback.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
-	"..\..\..\..\include\ace\Malloc.h"\
 	"..\..\..\..\include\ace\malloc.i"\
 	"..\..\..\..\include\ace\malloc_allocator.h"\
 	"..\..\..\..\include\ace\malloc_allocator.i"\
@@ -1080,13 +891,6 @@
 	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
-	"..\..\..\..\include\ace\Process_Mutex.h"\
-	"..\..\..\..\include\ace\Process_Mutex.inl"\
-	"..\..\..\..\include\ace\Process_Semaphore.h"\
-	"..\..\..\..\include\ace\Process_Semaphore.inl"\
-	"..\..\..\..\include\ace\RW_Process_Mutex.h"\
-	"..\..\..\..\include\ace\RW_Process_Mutex.inl"\
-	"..\..\..\..\include\ace\Signal.h"\
 	"..\..\..\..\include\ace\signal.i"\
 	"..\..\..\..\include\ace\singleton.cpp"\
 	"..\..\..\..\include\ace\singleton.h"\
@@ -1108,18 +912,11 @@
 	"..\..\..\..\include\ace\string_base.h"\
 	"..\..\..\..\include\ace\string_base.i"\
 	"..\..\..\..\include\ace\string_base_const.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Complex.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Complex.i"\
-	"..\..\..\..\include\ace\SV_Semaphore_Simple.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Simple.i"\
 	"..\..\..\..\include\ace\synch.h"\
 	"..\..\..\..\include\ace\synch.i"\
 	"..\..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\..\include\ace\synch_t.h"\
 	"..\..\..\..\include\ace\synch_t.i"\
-	"..\..\..\..\include\ace\Test_and_Set.cpp"\
-	"..\..\..\..\include\ace\Test_and_Set.h"\
-	"..\..\..\..\include\ace\Test_and_Set.i"\
 	"..\..\..\..\include\ace\thread.h"\
 	"..\..\..\..\include\ace\thread.i"\
 	"..\..\..\..\include\ace\thread_adapter.h"\
@@ -1127,12 +924,10 @@
 	"..\..\..\..\include\ace\thread_control.h"\
 	"..\..\..\..\include\ace\thread_control.inl"\
 	"..\..\..\..\include\ace\thread_exit.h"\
-	"..\..\..\..\include\ace\Thread_Hook.h"\
 	"..\..\..\..\include\ace\thread_manager.h"\
 	"..\..\..\..\include\ace\thread_manager.i"\
 	"..\..\..\..\include\ace\time_value.h"\
 	"..\..\..\..\include\ace\time_value.inl"\
-	"..\..\..\..\include\ace\Trace.h"\
 	"..\..\..\..\include\ace\unbounded_queue.cpp"\
 	"..\..\..\..\include\ace\unbounded_queue.h"\
 	"..\..\..\..\include\ace\unbounded_queue.inl"\
@@ -1150,16 +945,15 @@
 	"..\..\..\..\include\port.h"\
 	"..\..\..\..\include\refcounted.h"\
 	"..\..\..\..\include\sendable.h"\
-	"..\..\..\..\include\strng.h"\
 	"..\..\..\..\include\wide_nameloc.h"\
 	"..\..\..\..\include\yarpall.h"\
 	"..\..\..\..\include\yarpbabybotarm.h"\
 	"..\..\..\..\include\yarpbehavior.h"\
-	"..\..\..\..\include\YARPBool.h"\
 	"..\..\..\..\include\yarpbottle.h"\
 	"..\..\..\..\include\yarpbottlecodes.h"\
 	"..\..\..\..\include\yarpbottlecontent.h"\
 	"..\..\..\..\include\yarpconfigfile.h"\
+	"..\..\..\..\include\yarpcontrolboardnetworkdata.h"\
 	"..\..\..\..\include\yarpcontrolboardutils.h"\
 	"..\..\..\..\include\yarpdevicedriver.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
@@ -1197,6 +991,7 @@
 	".\AState.h"\
 	".\tirednessControl.h"\
 	".\YARPGravityEstimator.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\RandomThread.cpp : \
@@ -1207,18 +1002,9 @@
 	"..\..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\..\include\ace\addr.h"\
 	"..\..\..\..\include\ace\addr.i"\
-	"..\..\..\..\include\ace\ARGV.h"\
-	"..\..\..\..\include\ace\ARGV.i"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.h"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.inl"\
 	"..\..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\..\include\ace\array_base.h"\
 	"..\..\..\..\include\ace\array_base.inl"\
-	"..\..\..\..\include\ace\Atomic_Op.h"\
-	"..\..\..\..\include\ace\Atomic_Op.i"\
-	"..\..\..\..\include\ace\Atomic_Op_T.cpp"\
-	"..\..\..\..\include\ace\Atomic_Op_T.h"\
-	"..\..\..\..\include\ace\Atomic_Op_T.i"\
 	"..\..\..\..\include\ace\auto_ptr.cpp"\
 	"..\..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\..\include\ace\auto_ptr.i"\
@@ -1227,21 +1013,10 @@
 	"..\..\..\..\include\ace\basic_types.h"\
 	"..\..\..\..\include\ace\basic_types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
-	"..\..\..\..\include\ace\config-borland-common.h"\
-	"..\..\..\..\include\ace\config-g++-common.h"\
-	"..\..\..\..\include\ace\config-ghs-common.h"\
-	"..\..\..\..\include\ace\config-qnx-rtp.h"\
-	"..\..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\..\include\ace\config-win32-ghs.h"\
-	"..\..\..\..\include\ace\config-win32-mingw.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-5.h"\
 	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-7.h"\
 	"..\..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\..\include\ace\config-win32-visualage.h"\
 	"..\..\..\..\include\ace\config-win32.h"\
-	"..\..\..\..\include\ace\config-WinCE.h"\
 	"..\..\..\..\include\ace\config.h"\
 	"..\..\..\..\include\ace\containers.h"\
 	"..\..\..\..\include\ace\containers.i"\
@@ -1251,8 +1026,6 @@
 	"..\..\..\..\include\ace\default_constants.h"\
 	"..\..\..\..\include\ace\event_handler.h"\
 	"..\..\..\..\include\ace\event_handler.i"\
-	"..\..\..\..\include\ace\File_Lock.h"\
-	"..\..\..\..\include\ace\File_Lock.inl"\
 	"..\..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\..\include\ace\framework_component.h"\
@@ -1272,15 +1045,12 @@
 	"..\..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\..\include\ace\init_ace.h"\
 	"..\..\..\..\include\ace\init_ace.i"\
-	"..\..\..\..\include\ace\iosfwd.h"\
 	"..\..\..\..\include\ace\ipc_sap.h"\
 	"..\..\..\..\include\ace\ipc_sap.i"\
 	"..\..\..\..\include\ace\lib_find.h"\
 	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
-	"..\..\..\..\include\ace\Log_Msg_Callback.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
-	"..\..\..\..\include\ace\Malloc.h"\
 	"..\..\..\..\include\ace\malloc.i"\
 	"..\..\..\..\include\ace\malloc_allocator.h"\
 	"..\..\..\..\include\ace\malloc_allocator.i"\
@@ -1319,13 +1089,6 @@
 	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
-	"..\..\..\..\include\ace\Process_Mutex.h"\
-	"..\..\..\..\include\ace\Process_Mutex.inl"\
-	"..\..\..\..\include\ace\Process_Semaphore.h"\
-	"..\..\..\..\include\ace\Process_Semaphore.inl"\
-	"..\..\..\..\include\ace\RW_Process_Mutex.h"\
-	"..\..\..\..\include\ace\RW_Process_Mutex.inl"\
-	"..\..\..\..\include\ace\Signal.h"\
 	"..\..\..\..\include\ace\signal.i"\
 	"..\..\..\..\include\ace\singleton.cpp"\
 	"..\..\..\..\include\ace\singleton.h"\
@@ -1347,18 +1110,11 @@
 	"..\..\..\..\include\ace\string_base.h"\
 	"..\..\..\..\include\ace\string_base.i"\
 	"..\..\..\..\include\ace\string_base_const.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Complex.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Complex.i"\
-	"..\..\..\..\include\ace\SV_Semaphore_Simple.h"\
-	"..\..\..\..\include\ace\SV_Semaphore_Simple.i"\
 	"..\..\..\..\include\ace\synch.h"\
 	"..\..\..\..\include\ace\synch.i"\
 	"..\..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\..\include\ace\synch_t.h"\
 	"..\..\..\..\include\ace\synch_t.i"\
-	"..\..\..\..\include\ace\Test_and_Set.cpp"\
-	"..\..\..\..\include\ace\Test_and_Set.h"\
-	"..\..\..\..\include\ace\Test_and_Set.i"\
 	"..\..\..\..\include\ace\thread.h"\
 	"..\..\..\..\include\ace\thread.i"\
 	"..\..\..\..\include\ace\thread_adapter.h"\
@@ -1366,12 +1122,10 @@
 	"..\..\..\..\include\ace\thread_control.h"\
 	"..\..\..\..\include\ace\thread_control.inl"\
 	"..\..\..\..\include\ace\thread_exit.h"\
-	"..\..\..\..\include\ace\Thread_Hook.h"\
 	"..\..\..\..\include\ace\thread_manager.h"\
 	"..\..\..\..\include\ace\thread_manager.i"\
 	"..\..\..\..\include\ace\time_value.h"\
 	"..\..\..\..\include\ace\time_value.inl"\
-	"..\..\..\..\include\ace\Trace.h"\
 	"..\..\..\..\include\ace\unbounded_queue.cpp"\
 	"..\..\..\..\include\ace\unbounded_queue.h"\
 	"..\..\..\..\include\ace\unbounded_queue.inl"\
@@ -1389,16 +1143,15 @@
 	"..\..\..\..\include\port.h"\
 	"..\..\..\..\include\refcounted.h"\
 	"..\..\..\..\include\sendable.h"\
-	"..\..\..\..\include\strng.h"\
 	"..\..\..\..\include\wide_nameloc.h"\
 	"..\..\..\..\include\yarpall.h"\
 	"..\..\..\..\include\yarpbabybotarm.h"\
 	"..\..\..\..\include\yarpbehavior.h"\
-	"..\..\..\..\include\YARPBool.h"\
 	"..\..\..\..\include\yarpbottle.h"\
 	"..\..\..\..\include\yarpbottlecodes.h"\
 	"..\..\..\..\include\yarpbottlecontent.h"\
 	"..\..\..\..\include\yarpconfigfile.h"\
+	"..\..\..\..\include\yarpcontrolboardnetworkdata.h"\
 	"..\..\..\..\include\yarpcontrolboardutils.h"\
 	"..\..\..\..\include\yarpdevicedriver.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
@@ -1437,52 +1190,59 @@
 	".\RandomThread.h"\
 	".\tirednessControl.h"\
 	".\YARPGravityEstimator.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\YARPGravityEstimator.cpp : \
+	"..\..\..\..\include\ace\ace.h"\
+	"..\..\..\..\include\ace\ace.i"\
 	"..\..\..\..\include\ace\ace_export.h"\
 	"..\..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\..\include\ace\ace_wchar.inl"\
-	"..\..\..\..\include\ace\ARGV.h"\
-	"..\..\..\..\include\ace\ARGV.i"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.h"\
-	"..\..\..\..\include\ace\Argv_Type_Converter.inl"\
+	"..\..\..\..\include\ace\auto_ptr.cpp"\
+	"..\..\..\..\include\ace\auto_ptr.h"\
+	"..\..\..\..\include\ace\auto_ptr.i"\
 	"..\..\..\..\include\ace\base_thread_adapter.h"\
 	"..\..\..\..\include\ace\base_thread_adapter.inl"\
 	"..\..\..\..\include\ace\basic_types.h"\
 	"..\..\..\..\include\ace\basic_types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
-	"..\..\..\..\include\ace\config-borland-common.h"\
-	"..\..\..\..\include\ace\config-g++-common.h"\
-	"..\..\..\..\include\ace\config-ghs-common.h"\
-	"..\..\..\..\include\ace\config-qnx-rtp.h"\
-	"..\..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\..\include\ace\config-win32-ghs.h"\
-	"..\..\..\..\include\ace\config-win32-mingw.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-5.h"\
 	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\..\include\ace\config-win32-msvc-7.h"\
 	"..\..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\..\include\ace\config-win32-visualage.h"\
 	"..\..\..\..\include\ace\config-win32.h"\
-	"..\..\..\..\include\ace\config-WinCE.h"\
 	"..\..\..\..\include\ace\config.h"\
 	"..\..\..\..\include\ace\default_constants.h"\
+	"..\..\..\..\include\ace\event_handler.h"\
+	"..\..\..\..\include\ace\event_handler.i"\
+	"..\..\..\..\include\ace\flag_manip.h"\
+	"..\..\..\..\include\ace\flag_manip.i"\
+	"..\..\..\..\include\ace\free_list.cpp"\
+	"..\..\..\..\include\ace\free_list.h"\
+	"..\..\..\..\include\ace\free_list.i"\
 	"..\..\..\..\include\ace\global_macros.h"\
-	"..\..\..\..\include\ace\iosfwd.h"\
+	"..\..\..\..\include\ace\handle_ops.h"\
+	"..\..\..\..\include\ace\handle_ops.i"\
+	"..\..\..\..\include\ace\init_ace.h"\
+	"..\..\..\..\include\ace\init_ace.i"\
+	"..\..\..\..\include\ace\lib_find.h"\
+	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
-	"..\..\..\..\include\ace\Log_Msg_Callback.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
+	"..\..\..\..\include\ace\malloc.i"\
+	"..\..\..\..\include\ace\malloc_allocator.h"\
+	"..\..\..\..\include\ace\malloc_allocator.i"\
 	"..\..\..\..\include\ace\malloc_base.h"\
-	"..\..\..\..\include\ace\managed_object.cpp"\
-	"..\..\..\..\include\ace\managed_object.h"\
-	"..\..\..\..\include\ace\managed_object.i"\
+	"..\..\..\..\include\ace\malloc_t.cpp"\
+	"..\..\..\..\include\ace\malloc_t.h"\
+	"..\..\..\..\include\ace\malloc_t.i"\
+	"..\..\..\..\include\ace\mem_map.h"\
+	"..\..\..\..\include\ace\mem_map.i"\
+	"..\..\..\..\include\ace\memory_pool.h"\
+	"..\..\..\..\include\ace\memory_pool.i"\
 	"..\..\..\..\include\ace\min_max.h"\
 	"..\..\..\..\include\ace\node.cpp"\
 	"..\..\..\..\include\ace\node.h"\
-	"..\..\..\..\include\ace\object_manager.h"\
-	"..\..\..\..\include\ace\object_manager.i"\
 	"..\..\..\..\include\ace\os.h"\
 	"..\..\..\..\include\ace\os.i"\
 	"..\..\..\..\include\ace\os_dirent.h"\
@@ -1500,29 +1260,39 @@
 	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
+	"..\..\..\..\include\ace\signal.i"\
+	"..\..\..\..\include\ace\sock_connect.h"\
+	"..\..\..\..\include\ace\sock_connect.i"\
 	"..\..\..\..\include\ace\streams.h"\
+	"..\..\..\..\include\ace\string_base.cpp"\
+	"..\..\..\..\include\ace\string_base.h"\
+	"..\..\..\..\include\ace\string_base.i"\
+	"..\..\..\..\include\ace\string_base_const.h"\
+	"..\..\..\..\include\ace\synch.h"\
+	"..\..\..\..\include\ace\synch.i"\
+	"..\..\..\..\include\ace\synch_t.cpp"\
+	"..\..\..\..\include\ace\synch_t.h"\
+	"..\..\..\..\include\ace\synch_t.i"\
+	"..\..\..\..\include\ace\thread.h"\
+	"..\..\..\..\include\ace\thread.i"\
 	"..\..\..\..\include\ace\thread_adapter.h"\
 	"..\..\..\..\include\ace\thread_adapter.inl"\
-	"..\..\..\..\include\ace\thread_control.h"\
-	"..\..\..\..\include\ace\thread_control.inl"\
-	"..\..\..\..\include\ace\thread_exit.h"\
-	"..\..\..\..\include\ace\Thread_Hook.h"\
 	"..\..\..\..\include\ace\time_value.h"\
 	"..\..\..\..\include\ace\time_value.inl"\
-	"..\..\..\..\include\ace\Trace.h"\
-	"..\..\..\..\include\ace\unbounded_queue.cpp"\
-	"..\..\..\..\include\ace\unbounded_queue.h"\
-	"..\..\..\..\include\ace\unbounded_queue.inl"\
+	"..\..\..\..\include\ace\unbounded_set.cpp"\
+	"..\..\..\..\include\ace\unbounded_set.h"\
+	"..\..\..\..\include\ace\unbounded_set.inl"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\yarpall.h"\
-	"..\..\..\..\include\YARPBool.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
 	"..\..\..\..\include\yarpmatrix.h"\
 	"..\..\..\..\include\yarpmatrix.inl"\
 	"..\..\..\..\include\yarprecursivels.h"\
 	"..\..\..\..\include\yarprobotmath.h"\
 	"..\..\..\..\include\yarprobotmath.inl"\
+	"..\..\..\..\include\yarpstring.h"\
 	".\YARPGravityEstimator.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
