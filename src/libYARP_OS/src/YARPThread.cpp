@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.7 2004-12-13 10:22:15 micheletavella Exp $
+/// $Id: YARPThread.cpp,v 1.8 2004-12-13 10:49:22 micheletavella Exp $
 ///
 ///
 
@@ -277,6 +277,10 @@ void YARPBareThread::End(int dontkill)
 #elif defined(__LINUX__)
 
 		ACE_Thread::kill (identifier, SIGKILL);
+
+#elif defined(__DARWIN__)
+
+                ACE_Thread::kill (identifier, SIGKILL);
 #else
 
 #error "YARPBareThread::End - not implemented for the specified architecture"
