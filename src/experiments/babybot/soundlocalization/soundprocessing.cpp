@@ -10,7 +10,7 @@
 // 
 //     Description:  Implements all the sound processing algorithms.
 // 
-//         Version:  $Id: soundprocessing.cpp,v 1.8 2004-04-28 17:32:10 beltran Exp $
+//         Version:  $Id: soundprocessing.cpp,v 1.9 2004-04-29 08:42:16 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -81,7 +81,8 @@ SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
 
 	// allocate vectors
 	corrVect            = new double[numSamples];
-	crosscorrelation_Re = new double[numSamples];
+	crosscorrelation_Re = new double[2 * numSamples];
+	corrVectFreq        = &crosscorrelation_Re[numSamples];
 	crosscorrelation_Im = new double[numSamples];
 	leftcorrelation_Re  = new double[numSamples];
 	leftcorrelation_Im  = new double[numSamples];
@@ -211,22 +212,27 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 	//  lation data
 	//----------------------------------------------------------------------
 	fft->Fft(1, dim, crosscorrelation_Re, crosscorrelation_Im, -1, -1);
+
+	//----------------------------------------------------------------------
+	//  Rearange the crosscorrelation_Re to have a coheren visualization of
+	//  the crosscorrelation. Assign the corrVectFreq to the correct position
+	//  inside crosscorrelation_Re
+	//----------------------------------------------------------------------
+	
+	for (i = 0; i < numSamples; i++)
+		crosscorrelation_Re[i + numSamples] = crosscorrelation_Re[i];
+
+	corrVectFreq = &crosscorrelation_Re[numSamples - shift - bias];
 	
 	double tempCorr = 0.0;
 	int ind = shift;
-	/*
-	double * ptempcross = crosscorrelation_Re + (numSamples/2) - shift + bias;
+	
+	//----------------------------------------------------------------------
+	//  Calculate the crosscorrelation maximum 
+	//----------------------------------------------------------------------
+	double * ptempcross = corrVectFreq;
 
-	for ( i =0; i <windowMax; i++)
-		if ( ptempcross[i] > tempCorr)
-		{
-			tempCorr = ptempcross[i];
-			ind = i;
-		}
-	*/
-	double * ptempcross = crosscorrelation_Re;
-
-	for ( i = 0; i < numSamples; i++)
+	for ( i = 0; i < windowMax; i++)
 		if ( ptempcross[i] > tempCorr)
 		{
 			tempCorr = ptempcross[i];

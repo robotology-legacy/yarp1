@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.8 2004-04-28 17:32:10 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.9 2004-04-29 08:42:16 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -105,7 +105,7 @@ public:
 	inline double * GetCrossCorrelationBuffer(int tag) 
 	{ 
         if ( !tag ) return corrVect;     // Return correlation calculated in the time space
-        else return crosscorrelation_Re; // Return correlation calculated in the frequency space
+        else return corrVectFreq; // Return correlation calculated in the frequency space
 	}
 
 	inline int GetSize() { return numSamples;}
@@ -158,6 +158,7 @@ private:
     double * SCOToperator_Re;        // The buffer for the SCOToperator
     double * SCOToperator_Im;
 	double * corrVect;
+	double * corrVectFreq;
     double corrMax;                  // Maximum value in the correlation vector
 
     int numSamples;     // number of samples for channel
