@@ -73,8 +73,8 @@
 #include <ace/OS.h>
 #include <YARPImage.h>
 #include <YARPLogpolar.h>
-#include <YARPBlobDetector.h>
-#include <YARPIntegralImage.h>
+//#include <YARPBlobDetector.h>
+//#include <YARPIntegralImage.h>
 #include <YARPConicFitter.h>
 #include "YARPConvKernel.h"
 #include "YARPConvKernelFile.h"
@@ -211,12 +211,14 @@ protected:
 
 	YARPLpConicFitter fit;
 
+	int num_boxes;
+
 	char savename[512];
 	
 	inline void colorOpponency(YARPImageOf<YarpPixelBGR> &src);
 	inline void findEdges();
 	inline void normalize();
-	inline void findBlobs(int num, YARPBox* boxes);
+	inline void findBlobs();
 	inline void quantizeColors();
 	
 	float DenteDiSega(short x);
@@ -239,11 +241,13 @@ protected:
 	void lineMax2(YARPImageOf<YarpPixelMono> &src, YARPImageOf<YarpPixelMono> &dst);
 	void LineStat(YARPImageOf<YarpPixelMono> &src, int *vett);
 	
+	void drawIORTable();
+
 public:
-	YARPImgAtt(int x, int y, int fovea);
+	YARPImgAtt(int x, int y, int fovea, int num);
 	~YARPImgAtt();
 	
-	void Apply(YARPImageOf<YarpPixelBGR> &src, int num, YARPBox* boxes);
+	void Apply(YARPImageOf<YarpPixelBGR> &src);
 	void FindNMax(int num, Vett* pos);
 	void FindMax(YARPImageOf<YarpPixelMono> &src, Vett &pos);
 	void FindMax(YARPImageOf<YarpPixelInt> &src, Vett &pos);
@@ -263,8 +267,10 @@ public:
 		salienceTD=sTD;
 	}
 	inline void setPosition(const YVector &p) { rain.setPosition(p); }
-	void updateIORTable(const int num, YARPBox* boxes);
-	void resetIORTable(const int num, YARPBox* boxes);
+	void updateIORTable();
+	void resetIORTable();
+
+	YARPBox* boxes;
 };
 
 

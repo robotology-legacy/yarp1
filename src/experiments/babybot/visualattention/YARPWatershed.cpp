@@ -141,6 +141,10 @@ void YARPWatershed::resize(const int width1, const int height1, const int wstep,
 		NULL,
 		NULL);
 	iplAllocateImage(tmpMsk,1,0);
+
+	integralRG.resize(width1, height1);
+	integralGR.resize(width1, height1);
+	integralBY.resize(width1, height1);
 }
 
 
@@ -1109,18 +1113,42 @@ void YARPWatershed::IOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int n
 			int r, c;
 			int x, y;
 			//TO DO: transform to "local" axis
+			cout<<"box #"<<i<<endl;
+			
 			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].v, x, y);
 			m_lp.Cartesian2Logpolar(x, y, r, c);
+			if (r>=height) {
+				cout<<"out of sight!"<<endl;	
+				continue;
+			}
 			YarpPixelInt index=tagged(c, r);
-			cout<<"box #"<<i<<endl;
+			
 			cout<<"RG : "<<(int)m_attn[index].meanRG<<endl;
 			cout<<"GR : "<<(int)m_attn[index].meanGR<<endl;
 			cout<<"BY : "<<(int)m_attn[index].meanBY<<endl;
 			cout<<"RG diff: "<<abs((int)m_attn[index].meanRG-(int)boxes[i].meanRG)<<endl;
 			cout<<"GR diff: "<<abs((int)m_attn[index].meanGR-(int)boxes[i].meanGR)<<endl;
 			cout<<"BY diff: "<<abs((int)m_attn[index].meanBY-(int)boxes[i].meanBY)<<endl;
+			// the log area changes due to log polare mapping and distance
 			cout<<"areaLP diff: "<<abs(m_attn[index].areaLP-boxes[i].areaLP)<<endl;
 			cout<<endl;
+		}
+	}
+}
+
+
+void YARPWatershed::drawIOR(YARPImageOf<YarpPixelMono>& out, YARPBox* boxes, int num)
+{
+	for (int i=0; i<num; i++) {
+		if (boxes[i].valid) {
+			int r, c;
+			int x, y;
+			_gaze.intersectRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[i].v, x, y);
+			m_lp.Cartesian2Logpolar(x, y, r, c);
+			if (r>=height) {
+				continue;
+			}
+			out(c, r)=255;
 		}
 	}
 }
@@ -1325,6 +1353,141 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 		}
 	}
 
+	const int maxDest=200;
+	
+	if (maxSalienceBU!=minSalienceBU) {
+		a1=255*(maxDest-1)/(maxSalienceBU-minSalienceBU);
+		b1=1-a1*minSalienceBU/255;
+	} else {
+		a1=0;
+		b1=0;
+	}
+
+	if (maxSalienceTD!=minSalienceTD) {
+		a2=255*(maxDest-1)/(maxSalienceTD-minSalienceTD);
+		b2=1-a2*minSalienceTD/255;
+		//a2=255*254/(minSalienceTD-maxSalienceTD);
+		//b2=1-a2*maxSalienceTD/255;
+	} else {
+		a2=0;
+		b2=0;
+	}
+
+	for (i = 0; i < numBlob; i++) {
+		if (m_attn[i].valid) {
+			m_attn[i].salienceTotal=pBU*(a1*m_attn[i].salienceBU/255+b1)+pTD*(a2*m_attn[i].salienceTD/255+b2);
+			for (int r=m_attn[i].rmin; r<=m_attn[i].rmax; r++)
+				for (int c=m_attn[i].cmin; c<=m_attn[i].cmax; c++)
+					if (tagged(c, r)==m_attn[i].id) {
+						//unsigned char sal=(a1*m_attn[i].salienceBU/255+b1+a2*m_attn[i].salienceTD/255+b2)/2;
+						//if (sal>th) dst(c ,r)=sal;
+						//else dst(c ,r)=0;
+						dst(c ,r)=m_attn[i].salienceTotal;
+						//dst(c ,r)=a1*m_attn[i].salienceBU/255+b1;
+						/*dst(c ,r)=a2*m_attn[i].salienceTD/255+b2;
+						if (dst(c ,r)<240) dst(c ,r)=1;
+						else dst(c ,r)=dst(c ,r)-240;*/
+					}
+		}
+	}
+	
+	((IplImage *)rg)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=borderRG;
+	((IplImage *)gr)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=borderGR;
+	((IplImage *)by)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=borderBY;
+
+	return numBlob;
+}
+
+
+int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby)
+{
+	//IplROI zdi;
+	int salienceBU, salienceTD;
+
+	int a1,b1,a2,b2;
+
+	int minSalienceBU=INT_MAX;
+	int maxSalienceBU=INT_MIN;
+
+	int minSalienceTD=INT_MAX;
+	int maxSalienceTD=INT_MIN;
+
+	dst.Zero();
+	
+	if (numBlob>imageSize) numBlob=imageSize;
+
+	integralRG.computeCartesian(rg);
+	integralGR.computeCartesian(gr);
+	integralBY.computeCartesian(by);
+	
+	for (int i = 0; i < numBlob; i++) {
+		if (m_attn[i].valid) {
+			int tmp;
+			
+			int rdim=(m_attn[i].rmax-m_attn[i].rmin+1);
+			int cdim=(m_attn[i].cmax-m_attn[i].cmin+1); //BUG: se va da parte a parte esce una dimensione enorme!
+
+			//zdi.xOffset=m_attn[i].cmin;
+			//zdi.yOffset=m_attn[i].rmin;
+
+			tmp=255*252*152*integralRG.getSaliencyLp(m_attn[i].cmax+cdim,
+				m_attn[i].cmin-cdim,
+				m_attn[i].rmax+rdim,
+				m_attn[i].rmin-rdim)/(rdim*cdim);
+			m_attn[i].cRG=abs(tmp-m_attn[i].meanRG);
+
+			tmp=255*252*152*integralGR.getSaliencyLp(m_attn[i].cmax+cdim,
+				m_attn[i].cmin-cdim,
+				m_attn[i].rmax+rdim,
+				m_attn[i].rmin-rdim)/(rdim*cdim);
+			m_attn[i].cGR=abs(tmp-m_attn[i].meanGR);
+			
+			tmp=255*252*152*integralBY.getSaliencyLp(m_attn[i].cmax+cdim,
+				m_attn[i].cmin-cdim,
+				m_attn[i].rmax+rdim,
+				m_attn[i].rmin-rdim)/(rdim*cdim);
+			m_attn[i].cBY=abs(tmp-m_attn[i].meanBY);
+
+			// con il max se un blob è rosso e verde nn va molto bene (????)
+			salienceBU=m_attn[i].cRG;
+
+			if (salienceBU<m_attn[i].cGR)
+				salienceBU=m_attn[i].cGR;
+
+			if (salienceBU<m_attn[i].cBY)
+				salienceBU=m_attn[i].cBY;
+
+			//salienceBU=m_attn[i].cRG+m_attn[i].cGR+m_attn[i].cBY;
+
+			salienceTD=abs(m_attn[i].meanRG-prg);
+							
+			if (salienceTD<abs(m_attn[i].meanGR-pgr))
+				salienceTD=abs(m_attn[i].meanGR-pgr);
+				
+			if (salienceTD<abs(m_attn[i].meanBY-pby))
+				salienceTD=abs(m_attn[i].meanBY-pby);
+
+			salienceTD=255-salienceTD;
+
+			//if (salienceTD<230) salienceTD=0;
+
+			//if (salienceTD<0) salienceTD=0;
+			
+			m_attn[i].salienceBU=salienceBU;
+			m_attn[i].salienceTD=salienceTD;
+
+			if (salienceBU<minSalienceBU)
+				minSalienceBU=salienceBU;
+			else if (salienceBU>maxSalienceBU)
+				maxSalienceBU=salienceBU;
+
+			if (salienceTD<minSalienceTD)
+				minSalienceTD=salienceTD;
+			else if (salienceTD>maxSalienceTD)
+				maxSalienceTD=salienceTD;
+		}
+	}
+
 	if (maxSalienceBU!=minSalienceBU) {
 		a1=255*254/(maxSalienceBU-minSalienceBU);
 		b1=1-a1*minSalienceBU/255;
@@ -1361,10 +1524,6 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 		}
 	}
 	
-	((IplImage *)rg)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=borderRG;
-	((IplImage *)gr)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=borderGR;
-	((IplImage *)by)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=borderBY;
-
 	return numBlob;
 }
 
@@ -1608,7 +1767,7 @@ void YARPWatershed::maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_
 
 	for (l=0; l<num; l++) {
 		boxes[l]=m_attn[pos[l]];
-		_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT, boxes[l].v , (int)boxes[l].centroid_x, (int)boxes[l].centroid_y);
+		_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, boxes[l].v , (int)boxes[l].centroid_x, (int)boxes[l].centroid_y);
 	}
 
 	delete [] pos;

@@ -5,11 +5,12 @@
 #include <YARPlogpolar.h>
 #include <YARPBabybotHeadKin.h>
 #include <YARPMath.h>
+#include <YARPIntegralImage.h>
 
 
 class YARPBox {
 public:
-	YARPBox() {	valid = false; v.Resize(3); }
+	YARPBox() {	valid = false; v.Resize(5); }
 
 	~YARPBox() {}
 
@@ -106,6 +107,10 @@ class YARPWatershed {
 	YARPImageOf<YarpPixelMono> tmp;
 	IplImage *tmpMsk;
 
+	YARPIntegralImage integralRG;
+	YARPIntegralImage integralGR;
+	YARPIntegralImage integralBY;
+
 	YARPBabybotHeadKin _gaze;
 
     void createNeighborhood(const int widthStep, const bool neigh8);
@@ -143,6 +148,7 @@ public:
 	int DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
 	int DrawMeanOpponentColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
 	int DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
+	int DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
 	int DrawGrayLP(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, int numBlob);
 	void DrawFoveaBlob(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, const YarpPixelMono gray=255);
 	void drawBlobList(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag, const YarpPixelMono gray=255);
@@ -153,6 +159,8 @@ public:
 
 	void maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox* boxes, int num);
 	void maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox &box);
+
+	void drawIOR(YARPImageOf<YarpPixelMono>& out, YARPBox* boxes, int num);
 
 	void setPosition(const YVector &p) { _gaze.update(p); }
 };

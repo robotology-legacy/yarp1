@@ -72,7 +72,7 @@
 #define DBGPF1 if (0)
 
 
-YARPImgAtt::YARPImgAtt(int x, int y, int fovea)
+YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num)
 {
 	int i;
 
@@ -368,7 +368,9 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea)
 	//imgVQ.Resize(x, y);
 
 	//blob.resize(x, y, fovea);
-	//integral.resize(x, y, fovea);
+	/*integralRG.resize(x, y, fovea);
+	integralGR.resize(x, y, fovea);
+	integralBY.resize(x, y, fovea);*/
 
 	tagged.Resize(x+x%8, y);
 
@@ -379,6 +381,9 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea)
 	searchRG=searchGR=searchBY=0;
 	salienceBU=1.0;
 	salienceTD=0;
+
+	boxes = new YARPBox[num];
+	num_boxes=num;
 }
 
 
@@ -936,7 +941,7 @@ void YARPImgAtt::GetTarget(int &x, int &y)
 }
 
 
-void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, int num, YARPBox* boxes)
+void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 {
 	int mn;
 	int mx;
@@ -963,10 +968,11 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, int num, YARPBox* boxes)
 	colorOpponency(src);
 	findEdges();
 	normalize();
-	findBlobs(num, boxes);
+	findBlobs();
 	quantizeColors();
-	
-	saveImages(src);
+	drawIORTable();
+
+	//saveImages(src);
 	
 	/*MinMax(edge, mn, mx);
 	FullRange(edge, edge, mn, mx);
@@ -1232,7 +1238,7 @@ void YARPImgAtt::normalize()
 }
 	
 
-void YARPImgAtt::findBlobs(int num, YARPBox* boxes)
+void YARPImgAtt::findBlobs()
 {
 	//int i;
 
@@ -1282,15 +1288,17 @@ void YARPImgAtt::findBlobs(int num, YARPBox* boxes)
 	max_tag=rain.apply(edge, tagged);
 	rain.blobCatalog(tagged, rg, gr, by, r1, g1, b1, max_tag);
 	rain.removeFoveaBlob(tagged);
-	rain.RemoveNonValid(max_tag, 3800, 100);
+	//rain.RemoveNonValid(max_tag, 3800, 100);
+	rain.RemoveNonValid(max_tag, 3800, 200);
 	//rain.ComputeSalience(max_tag, max_tag);
 	rain.ComputeSalienceAll(max_tag, max_tag);
 	//rain.SortAndComputeSalience(200, max_tag);
 	//rain.SortAndComputeSalience(100, max_tag);
 	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
-	rain.IOR(tagged, boxes, num);
+	//rain.IOR(tagged, boxes, num_boxes);
 	
-	rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
+	rain.DrawContrastLP2(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
+	//rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
 	//pOldZdi=((IplImage *)tmp1)->roi;
 	//((IplImage *)tmp1)->roi=&zdi;
 	//MinMax((IplImage *)tmp1, mn[0], mx[0]);
@@ -1332,10 +1340,10 @@ void YARPImgAtt::findBlobs(int num, YARPBox* boxes)
 	// - faster
 	// - it considers also "lateral" pixels
 	// - it doesn't add pixels iteratively
-	/*rain.findNeighborhood(tagged, 0, 0, blobList, max_tag);
-	rain.fuseFoveaBlob2(tagged, blobList, max_tag);*/
+	rain.findNeighborhood(tagged, 0, 0, blobList, max_tag);
+	rain.fuseFoveaBlob2(tagged, blobList, max_tag);
 	
-	rain.fuseFoveaBlob(tagged, blobList, max_tag);
+	//rain.fuseFoveaBlob(tagged, blobList, max_tag);
 	
 	
 	blobList[1]=false;
@@ -1345,6 +1353,12 @@ void YARPImgAtt::findBlobs(int num, YARPBox* boxes)
 
 
 	//rain.maxSalienceBlobs(tagged, max_tag, boxes, num);
+}
+
+
+void YARPImgAtt::drawIORTable()
+{
+	rain.drawIOR(out, boxes, num_boxes);
 }
 
 
@@ -1362,18 +1376,18 @@ void YARPImgAtt::quantizeColors()
 }
 
 
-void YARPImgAtt::resetIORTable(const int num, YARPBox* boxes)
+void YARPImgAtt::resetIORTable()
 {
-	rain.maxSalienceBlobs(tagged, max_tag, boxes, num);
+	rain.maxSalienceBlobs(tagged, max_tag, boxes, num_boxes);
 }
 
 
-void YARPImgAtt::updateIORTable(const int num, YARPBox* boxes)
+void YARPImgAtt::updateIORTable()
 {
 	YARPBox tmpBox;
 	rain.maxSalienceBlob(tagged, max_tag, tmpBox);
 
-	for (int j=num-1; j>0; j--)
+	for (int j=num_boxes-1; j>0; j--)
 		boxes[j]=boxes[j-1];
 	boxes[0]=tmpBox;
 

@@ -71,6 +71,10 @@
 #include <ace/config.h>
 #include <ace/OS.h>
 
+#include <YARPPort.h>
+#include <YARPImages.h>
+#include <YARPList.h>
+
 #include <YARPThread.h>
 #include <YARPSemaphore.h>
 #include <YARPScheduler.h>
@@ -109,7 +113,9 @@ char _outName3[512];
 char _netname0[512];
 char _netname1[512];
 
-YARPImgAtt att_mod(_stheta, _srho, _sfovea);
+const int numBoxes = 5;
+
+YARPImgAtt att_mod(_stheta, _srho, _sfovea, numBoxes);
 
 class mainthread : public YARPThread
 {
@@ -117,6 +123,38 @@ public:
 	virtual void Body (void);
 };
 
+
+class secondthread : public YARPThread
+{
+	void inline _lock()
+	{ _sema.Wait(); }
+
+	void inline _unlock()
+	{ _sema.Post(); }
+
+public:
+	secondthread():
+	  _sema(1)
+	  {}
+	virtual void Body (void);
+	YARPSemaphore _sema;
+};
+
+void secondthread::Body(void)
+{
+	YARPInputPortOf<YVector> inVector;
+	
+	inVector.Register(_inName3, _netname0);
+
+	while (!IsTerminated()) {
+		inVector.Read();
+		YVector &joints = inVector.Content();
+		//cout<<joints(1)<<" "<<joints(2)<<" "<<joints(3)<<joints(4)<<" "<<joints(5)<<endl;
+		_lock();
+		att_mod.setPosition(joints);
+		_unlock();
+	}
+}
 
 void mainthread::Body (void)
 {
@@ -132,7 +170,7 @@ void mainthread::Body (void)
 	YARPImageOf<YarpPixelBGR> col_cart;
 	YARPInputPortOf<YARPGenericImage> inImage(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 	YARPInputPortOf<YARPBottle> inBottle(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-	YARPInputPortOf<YVector> inVector;
+	//YARPInputPortOf<YVector> inVector;
 	DeclareOutport(outImage);
 	DeclareOutport(outImage2);
 	YARPOutputPortOf<YARPBottle> outBottle(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
@@ -145,7 +183,7 @@ void mainthread::Body (void)
 	
 	char savename[512];
 
-	YARPBox* pos_max;
+	//YARPBox* pos_max;
 
 	YVector v(2);
 
@@ -179,16 +217,16 @@ void mainthread::Body (void)
 	
 	inImage.Register(_inName1, _netname1);
 	inBottle.Register(_inName2, _netname0);
-	inVector.Register(_inName3, _netname0);
+	//inVector.Register(_inName3, _netname0);
 	outImage.Register(_outName1, _netname1);
 	outImage2.Register(_outName2, _netname1);
 	outBottle.Register(_outName3, _netname0);
 
 	int frame_no = 0;
 
-	const int numBoxes = 5;
+	//const int numBoxes = 5;
 	
-	pos_max = new YARPBox[numBoxes];
+	//pos_max = new YARPBox[numBoxes];
 
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n");
@@ -203,6 +241,7 @@ void mainthread::Body (void)
 	while (!IsTerminated())
 	{
 		
+		YARPTime::DelayInSeconds(0.020);
 		////////// HANDLE MESSAGES
 		////// wait untill start message is received
 		if (inBottle.Read(0))
@@ -240,12 +279,12 @@ void mainthread::Body (void)
 				else if (message == YBVVAUpdateIORTable)
 				{
 					ACE_OS::printf("updating IOR table\n");
-					att_mod.updateIORTable(numBoxes, pos_max);
+					att_mod.updateIORTable();
 				}
 				else if (message == YBVVAResetIORTable)
 				{
 					ACE_OS::printf("resetting IOR table\n");
-					att_mod.resetIORTable(numBoxes, pos_max);
+					att_mod.resetIORTable();
 				}
 				/*else if (message == YBVDump)
 				{
@@ -262,8 +301,10 @@ void mainthread::Body (void)
 		{
 			tmpBottle.reset();
 
-			inVector.Read();
-			att_mod.setPosition(inVector.Content());
+			/*inVector.Read();
+			YVector &joints = inVector.Content();
+			//cout<<joints(1)<<" "<<joints(2)<<" "<<joints(3)<<joints(4)<<" "<<joints(5)<<endl;
+			att_mod.setPosition(joints);*/
 			
 			if (inImage.Read())
 				cur = YARPTime::GetTimeAsSeconds();
@@ -272,10 +313,6 @@ void mainthread::Body (void)
 		
 			img.Refer(inImage.Content());
 			DBGPF1 ACE_OS::printf(">>> got a frame\n");
-
-			// with '3' the segmentation is worse
-			//iplRShiftS(img, img, 2);
-			//iplLShiftS(img, img, 2);
 
 			/*iplRShiftS(img, img, 1);
 			iplAdd(img, imgOld, imgOld);*/
@@ -304,14 +341,14 @@ void mainthread::Body (void)
 			//mapper.Sawt2TriCentral(colored_s, colored_u);
 			
 			DBGPF1 ACE_OS::printf(">>> call attention module\n");
-			att_mod.Apply(colored_u, numBoxes, pos_max);
+			att_mod.Apply(colored_u);
 			out.Refer(att_mod.Saliency());
 			out2.Refer(att_mod.BlobFov());
 		
 			//att_mod.FindNMax(7, pos_max);
 
 			//ACE_OS::printf("max position: x=%d y=%d max=%d\n", pos_x, pos_y, max);
-			DBGPF1 ACE_OS::printf("max position: x=%d y=%d\n", pos_max[0].centroid_x, pos_max[0].centroid_y);
+			//DBGPF1 ACE_OS::printf("max position: x=%d y=%d\n", pos_max[0].centroid_x, pos_max[0].centroid_y);
 
 			//ARRONZAMENTO
 			YARPImageUtils::SetRed(out, colored_u);
@@ -343,11 +380,11 @@ void mainthread::Body (void)
 			outImage2.Content().Refer(out2);
 			outImage2.Write();
 			
-			tmpBottle.writeInt(pos_max[0].centroid_x);
-			tmpBottle.writeInt(pos_max[0].centroid_y);
-			tmpBottle.writeInt(pos_max[0].meanRG);
-			tmpBottle.writeInt(pos_max[0].meanGR);
-			tmpBottle.writeInt(pos_max[0].meanBY);
+			tmpBottle.writeInt(att_mod.boxes[0].centroid_x);
+			tmpBottle.writeInt(att_mod.boxes[0].centroid_y);
+			tmpBottle.writeInt(att_mod.boxes[0].meanRG);
+			tmpBottle.writeInt(att_mod.boxes[0].meanGR);
+			tmpBottle.writeInt(att_mod.boxes[0].meanBY);
 			outBottle.Content() = tmpBottle;
 			outBottle.Write();
 
@@ -390,6 +427,9 @@ int main (int argc, char *argv[])
 	mainthread _thread;
 	_thread.Begin();
 
+	secondthread _thread2;
+	_thread2.Begin();
+
 	char c = 0;
 
 	do
@@ -397,7 +437,10 @@ int main (int argc, char *argv[])
 		cin >> c;
 		if (c<='9' && c>='0')
 			att_mod.setWatershedTh((c-'0')*3);
-		else
+		else if (c=='r') {
+			cout<<"Resetting IOR table";
+			att_mod.resetIORTable();
+		} else
 			cout << "Type q+return to quit" << endl;
 	}
 	while (c != 'q');
