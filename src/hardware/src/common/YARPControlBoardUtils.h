@@ -4,7 +4,7 @@
 //
 // feb 2003 -- by nat and pasa
 
-// $Id: YARPControlBoardUtils.h,v 1.6 2003-05-04 18:09:33 natta Exp $
+// $Id: YARPControlBoardUtils.h,v 1.7 2003-05-13 20:14:07 natta Exp $
 #include <conf/YARPConfig.h>
 
 #ifndef __YARP_CONTROL_BOARD_UTILS__
@@ -75,14 +75,15 @@ enum ControlBoardCmd
 	CMDVMove = 45,					// set move vel mode (begin motion)
 	CMDCheckMotionDone = 46,		// check for motion done
 	CMDWaitForMotionDone = 47,		// wait (loop with sleep)
-	CMDSetCommands = 48,			// set current command (watch out! dangerous)
+	CMDSetCommands = 48,			// set current commands (watch out! dangerous)
+	CMDSetCommand = 49,			// set current commands (watch out! dangerous)
 	// home/index 
-	CMDSetHomeIndexConfig = 49,
-	CMDSetHomeLevel = 50,
-	CMDSetHome = 51,
-	CMDSetStopRate = 52,			// stop rate1
-	CMDDummy = 53,	 // dummy command for debug purpose
-	CBNCmds = 54 // required! tells the total number of commands
+	CMDSetHomeIndexConfig = 50,
+	CMDSetHomeLevel = 51,
+	CMDSetHome = 52,
+	CMDSetStopRate = 53,			// stop rate1
+	CMDDummy = 54,	 // dummy command for debug purpose
+	CBNCmds = 55 // required! tells the total number of commands
 };
 
 enum ControlBoardEvents

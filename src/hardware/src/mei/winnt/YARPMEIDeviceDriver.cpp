@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.8 2003-05-02 11:13:24 natta Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.9 2003-05-13 20:14:32 natta Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -76,6 +76,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPMEIDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetNegativeLimit] = &YARPMEIDeviceDriver::setNegativeLimit;
 	m_cmds[CMDVMove] = &YARPMEIDeviceDriver::vMove;
 	m_cmds[CMDSetCommands] = &YARPMEIDeviceDriver::setCommands;
+	m_cmds[CMDSetCommand] = &YARPMEIDeviceDriver::setCommand;
 	m_cmds[CMDCheckMotionDone] = &YARPMEIDeviceDriver::checkMotionDone;
 	m_cmds[CMDWaitForMotionDone] = &YARPMEIDeviceDriver::waitForMotionDone;
 
@@ -622,6 +623,18 @@ int YARPMEIDeviceDriver::setCommands(void *pos)
 	double *tmpPos = (double *) pos;
 	for(int i = 0; i < _njoints; i++)
 		rc = set_command(i, tmpPos[i]);
+
+	return rc;
+}
+
+int YARPMEIDeviceDriver::setCommand(void *cmd)
+{
+	int16 rc = 0;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	int axis = tmp->axis;
+	double *tmpPos = (double *) tmp->parameters;
+	
+	rc = set_command(axis, *tmpPos);
 
 	return rc;
 }

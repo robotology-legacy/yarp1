@@ -5,7 +5,7 @@
 // April 2003 -- by nat
 //
 // win32: link Medvc50f.lib 
-// $Id: YARPMEIDeviceDriver.h,v 1.6 2003-04-30 16:04:29 natta Exp $
+// $Id: YARPMEIDeviceDriver.h,v 1.7 2003-05-13 20:14:32 natta Exp $
 #ifndef __YARP_MEI_DEVICE_DRIVER__
 #define __YARP_MEI_DEVICE_DRIVER__
 
@@ -109,6 +109,7 @@ public:
 	int checkMotionDone(void *cmd);
 	int waitForMotionDone(void *cmd);
 	int setCommands(void *cmd);
+	int setCommand(void *cmd);
 
 	int setHomeIndexConfig(void *cmd);
 	int setHomeLevel(void *cmd);
@@ -117,7 +118,7 @@ public:
 	int dummy(void *d);	// dummy function, for debug purpose
 
 protected:
-	int _njoints;
+	int _njoints;   
 	int _dsp_rate;
 
 	double *_ref_speeds;
