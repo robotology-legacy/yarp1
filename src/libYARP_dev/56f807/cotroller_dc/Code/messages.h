@@ -165,6 +165,7 @@
 	PREPARE_HEADER; \
 	if (CAN1_getStateTX () != 0) \
 	{ \
+		CAN_ID |= 0x100; \
 		CAN_LEN = 8; \
 		CAN_DATA[0] = BYTE_4(_position[0]); \
 		CAN_DATA[1] = BYTE_3(_position[0]); \

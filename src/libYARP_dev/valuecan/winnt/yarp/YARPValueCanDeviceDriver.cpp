@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.14 2005-04-05 07:16:27 gmetta Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.15 2005-04-05 13:44:13 babybot Exp $
 ///
 ///
 
@@ -89,6 +89,7 @@ public:
 	
 	icsSpyMessage _canMsg[BUF_SIZE];			/// read buffer.
 	icsSpyMessage _cmdBuffer;					/// write buffer (one element only).
+	icsSpyMessage _replyBuffer;					///
 	long _arbitrationID;
 
 	int (*_p) (char *fmt, ...);					///	pointer to a printf type function
@@ -109,6 +110,7 @@ public:
 		memset (_bNetworkID, 0, MAX_NID * sizeof(int));
 		memset (_canMsg, 0, sizeof(icsSpyMessage) * BUF_SIZE);
 		memset (&_cmdBuffer, 0, sizeof(icsSpyMessage));
+		memset (&_replyBuffer, 0, sizeof(icsSpyMessage));
 		_dllLoaded = false;
 		_portHandle = 0;
 		_my_address = 0;
@@ -412,12 +414,15 @@ void YARPValueCanDeviceDriver::_debugMsg (int n, void *msg, int (*p) (char *fmt,
 
 	if (p)
 	{
+		(*p) ("nmsg: %d\n", n);
+
+#if 0
 		/// minimal debug, actual debug would require interpreting messages.
 		for (i = 0; i < n; i++)
 		{
 			ValueCanResources& r = RES(system_resources);
-			if ((m[i].Data[0] & 0x7f) != r._filter &&
-				(m[i].ArbIDOrHeader & 0x0f) == r._my_address)
+			//if ((m[i].Data[0] & 0x7f) != r._filter &&
+			//	(m[i].ArbIDOrHeader & 0x0f) == r._my_address)
 			{
 				(*p) 
 					("class: %2d s: %2x d: %2x c: %1d msg: %3d (%x) ",
@@ -442,6 +447,41 @@ void YARPValueCanDeviceDriver::_debugMsg (int n, void *msg, int (*p) (char *fmt,
 				(*p)("id: %x\n", m[i].ArbIDOrHeader);
 			}
 		}
+#endif
+	}
+}
+
+///
+///
+///
+void YARPValueCanDeviceDriver::_printMessage (void *msg, int (*p) (char *fmt, ...))
+{
+	icsSpyMessage m = *(icsSpyMessage *)msg;
+
+	//if ((m[i].Data[0] & 0x7f) != r._filter &&
+	//	(m[i].ArbIDOrHeader & 0x0f) == r._my_address)
+	{
+		(*p) 
+			("class: %2d s: %2x d: %2x c: %1d msg: %3d (%x) ",
+			  (m.ArbIDOrHeader & 0x700) >> 8,
+			  (m.ArbIDOrHeader & 0xf0) >> 4, 
+			  (m.ArbIDOrHeader & 0x0f), 
+			  ((m.Data[0] & 0x80)==0)?0:1,
+			  (m.Data[0] & 0x7f),
+			  (m.Data[0] & 0x7f));
+
+		if (m.NumberBytesData > 1)
+		{
+			(*p)("x: "); 
+		}
+
+		int j;
+		for (j = 1; j < m.NumberBytesData; j++)
+		{
+			(*p)("%x ", m.Data[j]);
+		}
+
+		(*p)("id: %x\n", m.ArbIDOrHeader);
 	}
 }
 
@@ -480,9 +520,15 @@ void YARPValueCanDeviceDriver::Body(void)
 		if (pending)
 		{
 			int i;
+			if (r._p)
+				(*r._p)("cycle count: %d\n", cyclecount);
+
 			for (i = 0; i < n; i++)
 			{
 				icsSpyMessage& m = r._canMsg[i];
+				if (r._p) 
+					_printMessage ((void*)&m, r._p);
+
 				if (m.StatusBitField & SPY_STATUS_GLOBAL_ERR)
 					if (r._p) (*r._p)("CAN: troubles w/ message %x\n", m.StatusBitField);
 
@@ -501,7 +547,7 @@ void YARPValueCanDeviceDriver::Body(void)
 						_noreply = false;
 						pending = false;
 						_mutex.Post();
-						_ev.Signal();
+						///_ev.Signal();
 					}
 					else
 						_mutex.Post();
@@ -511,15 +557,19 @@ void YARPValueCanDeviceDriver::Body(void)
 
 				/// check first to see whether <m> was addressed here.
 				if (((m.ArbIDOrHeader & 0x0f) == r._my_address) &&
-					(m.Data[0] == messagetype))
+					(m.Data[0] == messagetype) &&
+					!(m.ArbIDOrHeader & 0x700))
 				{
 					/// ok, this is my reply.
 					/// write reply and signal event.
 					_mutex.Wait();
 					memcpy (&r._cmdBuffer, &m, sizeof(icsSpyMessage));
+					if (r._p)
+						(*r._p)("previous msg was a reply\n");
+
 					pending = false;
 					_mutex.Post();
-					_ev.Signal();
+					///_ev.Signal();
 				}
 			}
 
@@ -535,15 +585,19 @@ void YARPValueCanDeviceDriver::Body(void)
 					(messagetype & 0x80)?1:0);
 
 				r._cmdBuffer.Data[0] = CAN_NO_MESSAGE;
-				//r._cmdBuffer.ArbIDOrHeader = CAN_NO_MESSAGE; // | (r._my_address << 7);
-				//r._cmdBuffer.Data[1] = CAN_NO_MESSAGE;
 				pending = false;
 				_mutex.Post();
-				_ev.Signal();
+				///_ev.Signal();
 			}
 		}
 		/// else !pending, silently forget the messages...
 		/// LATER: add callbacks here.
+
+		/// finished with the pending message (for any reason).
+		if (!pending)
+		{
+			_ev.Signal();
+		}
 
 		_mutex.Wait();
 		
@@ -553,8 +607,12 @@ void YARPValueCanDeviceDriver::Body(void)
 
 		if (_request && !pending)
 		{
-			r._write ();
+			if (r._write () == 0)
+			{
+				if (r._p) (*r._p)("problems sending message\n"); 
+			}
 
+			if (r._p) (*r._p)("there was a write\n");
 			pending = true;
 			messagetype = r._cmdBuffer.Data[0];
 			cyclecount = 0;
@@ -569,7 +627,7 @@ void YARPValueCanDeviceDriver::Body(void)
 		}
 		else 
 		{
-			if (r._p) (*r._p)("CAN: thread can't poll fast enough\n");
+			if (r._p) (*r._p)("CAN: thread can't poll fast enough (time: %f)\n", now-before);
 		}
 		before = now;
 	}

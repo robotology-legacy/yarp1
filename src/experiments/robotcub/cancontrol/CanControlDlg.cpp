@@ -63,6 +63,50 @@ static int xprintf(char *fmt, ...)
 }
 
 
+static FILE *	__file_handle = NULL;
+
+static BOOL init_log (void)
+{
+	if (__file_handle == NULL)
+	{
+		__file_handle = fopen ("log.txt", "w");
+		if (__file_handle != NULL)
+			return TRUE;
+		else
+			return FALSE;
+	}
+	else
+		return FALSE;
+}
+
+static BOOL close_log (void)
+{
+	if (__file_handle != NULL)
+		fclose (__file_handle);
+	__file_handle = NULL;
+
+	return TRUE;
+}
+
+/// Use wprintf like TRACE0, TRACE1, ... (The arguments are the same as printf)
+static int xfprintf(char *fmt, ...)
+{
+	if (__file_handle == NULL)
+		return -1;
+
+	char s[300];
+	va_list argptr;
+	int cnt;
+
+	va_start(argptr, fmt);
+	cnt = vsprintf(s, fmt, argptr);
+	va_end(argptr);
+
+	fprintf (__file_handle, "%s", s);
+	return(cnt);
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CAboutDlg dialog used for App About
 
@@ -449,7 +493,8 @@ void CCanControlDlg::ActivateGUI ()
 void CCanControlDlg::DeactivateGUI ()
 {
 	KillTimer (TIMER_ID);
-	close_console ();
+	//close_console ();
+	close_log();
 
 	m_update_ctrl.EnableWindow(FALSE);
 	m_axis_ctrl.EnableWindow(FALSE);
@@ -504,7 +549,8 @@ void CCanControlDlg::OnDriverRun()
 	m_params._timeout = CANBUS_TIMEOUT;							/// approx this value times the polling interval [ms].
 
 	m_params._njoints = m_njoints;
-	m_params._p = xprintf;
+	//m_params._p = xprintf;
+	m_params._p = xfprintf;
 
 	if (m_driver.open ((void *)&m_params) < 0)
 	{
@@ -920,12 +966,14 @@ void CCanControlDlg::OnButtonSetminmax()
 
 void CCanControlDlg::OnButtonSpy() 
 {
-	init_console();
+	//init_console();
+	init_log();
 }
 
 void CCanControlDlg::OnFileOpenconsole() 
 {
-	init_console();
+	//init_console();
+	init_log();
 }
 
 void CCanControlDlg::OnUpdateFileOpenconsole(CCmdUI* pCmdUI) 
@@ -935,7 +983,8 @@ void CCanControlDlg::OnUpdateFileOpenconsole(CCmdUI* pCmdUI)
 
 void CCanControlDlg::OnFileCloseconsole() 
 {
-	close_console();
+	//close_console();
+	close_log();
 }
 
 void CCanControlDlg::OnUpdateFileCloseconsole(CCmdUI* pCmdUI) 

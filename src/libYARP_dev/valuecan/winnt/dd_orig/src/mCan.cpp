@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: mCan.cpp,v 1.2 2004-09-06 15:34:48 babybot Exp $
+/// $Id: mCan.cpp,v 1.3 2005-04-05 13:44:13 babybot Exp $
 ///
 ///
 
@@ -163,9 +163,9 @@ int canGetMessages(int hObject, icsSpyMessage * pMsg, int * pNumberOfMessages, i
 	return (*getMessages_F)(hObject, pMsg, pNumberOfMessages, pNumberOfErrors);	
 }
 
-int canPutMessages(int hObject, icsSpyMessage * Msg, int pNumberOfMessages, int pNumberOfErrors)
+int canPutMessages(int hObject, icsSpyMessage * Msg, int lNetworkID, int lNumberOfMessages)
 {
-	return (*putMessages_F)(hObject, Msg, pNumberOfMessages, pNumberOfErrors);	
+	return (*putMessages_F)(hObject, Msg, lNetworkID, lNumberOfMessages);	
 }
 
 int canFindAllDevices(int lDriverType, int lGetSerialNumbers, int lStopAtFirst, int lUSBCommOnly, int *p_lDeviceTypes, int *p_lComPorts, int *p_lSerialNumbers, int *lNumDevices)
