@@ -10,6 +10,10 @@ WshShell.Run ("porter /handtracker/segmentation/o:img /view008/i:img", 7, true);
 WshShell.Run ("porter /handtracker/backprojection/o:img /view009/i:img", 7, true);
 WshShell.Run ("porter /repeater/o /handtracker/prediction/i", 7, true);
 
+WshShell.Run ("porter /handtracker/prediction/o /attention/handprediction/i", 7, true);
+WshShell.Run ("porter /handtracker/position/o /attention/hand/i", 7, true);
+
+
 
 
 
