@@ -37,8 +37,8 @@ RSC=rc.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Release"
-# PROP Intermediate_Dir "Release"
+# PROP Output_Dir ".\obj\Release"
+# PROP Intermediate_Dir ".\obj\Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I ".\common" /I "..\..\..\include" /I "..\..\..\include\sys" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
@@ -50,11 +50,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:".\release\alldrivers.lib"
+# ADD LIB32 /nologo /out:"..\lib\winnt\yarpdrivers.lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Desc=installing library and build library
-PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	make_lib.bat
+PostBuild_Desc=installing library
+PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "alldrivers - Win32 Debug"
@@ -66,8 +66,8 @@ PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\.
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "Debug"
-# PROP Intermediate_Dir "Debug"
+# PROP Output_Dir ".\obj\Debug"
+# PROP Intermediate_Dir ".\obj\Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\common" /I "..\..\..\include" /I "..\..\..\include\sys" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
@@ -78,11 +78,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:".\debug\alldriversdb.lib"
+# ADD LIB32 /nologo /out:"..\lib\winnt\yarpdriversdb.lib"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing library
-PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	make_lib_db.bat
+PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include
 # End Special Build Tool
 
 !ENDIF 

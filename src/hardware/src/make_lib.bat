@@ -1,2 +1,2 @@
 echo make library...
-lib .\release\alldrivers.lib .\galil\winnt\dd_orig\lib\*.lib .\mei\winnt\dd_orig\lib\*.lib .\nidaq\winnt\dd_orig\lib\*.lib /out:..\..\..\lib\winnt\alldrivers.lib
+lib ..\lib\winnt\yarpdrivers.lib .\galil\winnt\dd_orig\lib\*.lib .\mei\winnt\dd_orig\lib\*.lib .\nidaq\winnt\dd_orig\lib\*.lib /out:..\..\..\lib\winnt\alldrivers.lib
