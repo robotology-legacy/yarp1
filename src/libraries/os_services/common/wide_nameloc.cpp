@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: wide_nameloc.cpp,v 1.2 2003-06-30 13:37:43 babybot Exp $
+/// $Id: wide_nameloc.cpp,v 1.3 2003-07-16 16:06:31 natta Exp $
 ///
 ///
 
@@ -197,4 +197,18 @@ NetInt32 YARPNameUDP::getPorts(NetInt32 index)
 {
 	ACE_ASSERT( (index>=0) && (index<__YARP_NAMESERVICE_UDP_MAX_PORTS) );
 	return _ports[index];
+}
+
+//
+void YARPNSNic::set(const std::string &ip, const std::string &netId)
+{
+	int len = strlen (ip.c_str());
+	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+	strcpy(_ip, ip.c_str());
+	_ip[len] = 0;
+
+	len = strlen (netId.c_str());
+	ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+	strcpy(_netId, netId.c_str());
+	_netId[len] = 0;
 }

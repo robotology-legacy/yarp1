@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.15 2003-07-15 14:25:55 babybot Exp $
+/// $Id: YARPNameServer.cpp,v 1.16 2003-07-16 16:06:31 natta Exp $
 ///
 ///
 
@@ -149,28 +149,12 @@ void YARPNameServer::handle_dump_request()
 	{
 		text.append(i->name);
 		text.append("\n");
-		// cout << i->ip;
-		// cout << ":";
-		/*
-		///int length = i->ports.size();
-		for(PORT_IT j = i->ports.begin(); j != i->ports.end(); j++)
-			cout << j->port << "," ;
-		cout << "ref:" << (i->get_max_ref()-i->get_ref());
-		cout << ",(" << servicetypeConverter(i->type) << ")"<< endl;
-		*/
 	}
 
 	for(QNXSVC_IT j = ns.qnx_names.begin(); j != ns.qnx_names.end(); j++)
 	{
 		text.append(j->getName());
 		text.append("\n");
-		/*
-		cout << j->getNode() << "\t";
-		cout << j->getPid() << "\t";
-		cout << j->getChan() << "\t";
-		cout << "(" << servicetypeConverter(YARP_QNET) << ")";
-		cout << endl;
-		*/
 	}
 	if (text.empty())
 		text = "No names registered !\n";
@@ -190,12 +174,13 @@ void YARPNameServer::handle_exdump_request()
 		text.append(i->ip);
 		text.append(":");
 		int length = i->ports.size();
-		for(PORT_IT j = i->ports.begin(); j != i->ports.end(); j++)
-		{
-			itoa(j->port, dummy, 10);
-			text.append (dummy);
-			text.append (",");
-		}
+		PORT_IT j;
+		// first port
+		j = i->ports.begin();
+		itoa(j->port, dummy, 10);
+		text.append (dummy);
+		text.append (",");
+
 		text.append (" (");
 		text.append (servicetypeConverter(i->type));
 		text.append (")");
@@ -257,6 +242,14 @@ void YARPNameServer::handle_query_qnx(const std::string &name)
 	ns.queryNameQnx(name, entry, &type);
 	NAME_SERVER_DEBUG(("Reply %s %s(%s) %ld %ld\n", entry.getName(), entry.getNode(), servicetypeConverter(type), entry.getPid(), entry.getChan()));
 	_handle_reply(entry, type);
+}
+
+void YARPNameServer::handle_nic_query(const std::string &ip, const std::string &netId)
+{
+	std::string reply;
+	nmap.findIp(ip, netId, reply);
+	NAME_SERVER_DEBUG(("Reply: %s on %s is %s\n", ip.c_str(), netId.c_str(), reply.c_str()));
+	_handle_reply(reply);
 }
 
 void YARPNameServer::handle_registration_dbg(const std::string &service_name, const std::string &ip, int type, int n)
@@ -450,6 +443,7 @@ int YARPNameServer::handle_connection()
 		
 	tmpCmd = *(YARPNameServiceCmd *) (data_buf_);
 
+	////// remote dump ?
 	if (tmpCmd.cmd == YARPNSDumpRqs)
 	{
 		NAME_SERVER_DEBUG(("Handle remote dump\n"));
@@ -462,6 +456,7 @@ int YARPNameServer::handle_connection()
 			ACE_ERROR ((LM_ERROR, "%p\n", "close"));
 		return 0;
 	}
+	///////////////////////
 
 	iov[0].iov_base = data_buf_;
 	iov[0].iov_len = tmpCmd.length;	//message length
@@ -521,7 +516,13 @@ int YARPNameServer::handle_connection()
 		YARPNameQnx *tmpRqst = (YARPNameQnx*) (data_buf_);
 		handle_registration_qnx(*tmpRqst);
 	}
+	else if (tmpCmd.cmd == YARPNSNicQuery)
+	{
+		YARPNSNic *tmpRqs = (YARPNSNic*) (data_buf_);
+		handle_nic_query(std::string(tmpRqs->_ip), std::string(tmpRqs->_netId));
+	}
 	else
+
 		NAME_SERVER_DEBUG(("Sorry: command not recognized\n"));
 	
 	// close new endpoint

@@ -103,6 +103,10 @@ SOURCE=.\LocalNameServer.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\NetworkMap.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPNameServer.cpp
 # End Source File
 # Begin Source File
@@ -120,6 +124,10 @@ SOURCE=.\CThreadImpl.h
 # Begin Source File
 
 SOURCE=.\LocalNameServer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\NetworkMap.h
 # End Source File
 # Begin Source File
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.10 2003-07-10 13:33:46 babybot Exp $
+/// $Id: wide_nameloc.h,v 1.11 2003-07-16 16:06:31 natta Exp $
 ///
 ///
 
@@ -113,7 +113,8 @@ enum
 	YARPNSQuery = 2,
 	YARPNSRpl = 3,
 	YARPNSDumpRqs = 4,
-	YARPNSDumpRpl = 5
+	YARPNSDumpRpl = 5,
+	YARPNSNicQuery = 6
 };
 
 #include "begin_pack_for_net.h"
@@ -179,6 +180,31 @@ public:
 	char _node[__YARP_NAMESERVICE_STRING_LEN];
 	NetInt32 _pid;
 	NetInt32 _chan;
+} PACKED_FOR_NET;
+
+class YARPNSNic
+{
+public:
+// this is crazy...
+#ifdef _ISLIB
+	void set(const std::string &ip, const std::string &netId);
+#else
+	void set(const std::string &ip, const std::string &netId)
+	{
+		int len = strlen (ip.c_str());
+		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+		strcpy(_ip, ip.c_str());
+		_ip[len] = 0;
+
+		len = strlen (netId.c_str());
+		ACE_ASSERT (len < __YARP_NAMESERVICE_STRING_LEN);
+		strcpy(_netId, netId.c_str());
+		_netId[len] = 0;
+	}
+#endif
+public:
+	char _ip[__YARP_NAMESERVICE_STRING_LEN];
+	char _netId[__YARP_NAMESERVICE_STRING_LEN];
 } PACKED_FOR_NET;
 
 class YARPNameTCP

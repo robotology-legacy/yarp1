@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.13 2003-07-10 13:33:47 babybot Exp $
+/// $Id: YARPNameServer.h,v 1.14 2003-07-16 16:06:31 natta Exp $
 ///
 ///
 
@@ -61,7 +61,8 @@
 // 
 // 
 // -- January 2003 -- by nat 
-// -- Modified for YARP April 2003 -- by nat 
+// -- Modified for YARP April 2003 -- by nat
+// -- July 2003: network description for multiple NIC added -- by nat
 //////////////////////////////////////////////////////////////////////
 
 #if !defined __YARPNAMESERVER__
@@ -85,6 +86,7 @@
 
 #include "CThreadImpl.h"
 #include "LocalNameServer.h"
+#include "NetworkMap.h"
 
 #define SIZE_BUF 4096
 
@@ -93,9 +95,10 @@ class YARPNameServer: public CThreadImpl
 public:
 	YARPNameServer(const std::string &file, int port):
 	  CThreadImpl("name server thread",0),
+		nmap(file),
 	  server_addr_(port), peer_acceptor_(server_addr_, 1)
 	{
-		  ns.init(file);
+		  //ns.init(file);
 		  data_buf_ = new char [SIZE_BUF];
 
 		  start();
@@ -127,6 +130,7 @@ public:
 	
 	void handle_dump_request();
 	void handle_exdump_request();
+	void handle_nic_query(const std::string &ip, const std::string &netId);
 	void handle_registration(const std::string &service_name, const std::string &ip, int type, int n = 1);
 	void handle_query(const std::string &service_name);
 	void handle_query_qnx(const std::string &name);
@@ -163,6 +167,7 @@ private:
 	void _handle_reply(const std::string &ip, int type, const PORT_LIST &ports);
 	void _handle_reply(const YARPNameQnx &entry, int type);
 	LocalNameServer ns;
+	NetworkMap nmap;
 
 	ACE_INET_Addr		server_addr_;
 	ACE_INET_Addr		client_addr_;

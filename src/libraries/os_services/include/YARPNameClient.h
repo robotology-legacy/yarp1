@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.13 2003-07-10 13:33:46 babybot Exp $
+/// $Id: YARPNameClient.h,v 1.14 2003-07-16 16:06:31 natta Exp $
 ///
 ///
 
@@ -119,6 +119,7 @@ public:
 	int check_in_qnx(const YARPNameQnx &entry);
 	int query (const std::string &s, ACE_INET_Addr &addr, int *type);
 	int query_qnx (const std::string &s, YARPNameQnx &entry, int *type);
+	int query_nic(const std::string &inIp, const std::string &netId, std::string &outIp);
 	int check_out (const std::string &s);
 	int check_out_qnx (const std::string &s);
 	std::string dump(int i = 0);	// 0 short, 1 extended
@@ -135,6 +136,7 @@ private:
 	int _checkInQnx(const YARPNameQnx &entry);
 	int _query(const std::string &s, ACE_INET_Addr &addr, int *type);
 	int _queryQnx(const std::string &s, YARPNameQnx &entry, int *type);
+	int _query_nic(const YARPNSNic &in, std::string &outIp);
 
 private:
 	ACE_SOCK_Stream client_stream_;

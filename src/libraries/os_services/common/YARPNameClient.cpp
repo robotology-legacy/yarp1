@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.7 2003-07-10 13:33:46 babybot Exp $
+/// $Id: YARPNameClient.cpp,v 1.8 2003-07-16 16:06:31 natta Exp $
 ///
 ///
 
@@ -220,6 +220,17 @@ int YARPNameClient::query_qnx (const std::string &s, YARPNameQnx &entry, int *ty
 	int ret = YARP_FAIL;
 	mutex_.Wait();
 	ret = _queryQnx(s, entry, type);
+	mutex_.Post();
+	return ret;
+}
+
+int YARPNameClient::query_nic(const std::string &inIp, const std::string &netId, std::string &outIp)
+{
+	int ret = YARP_FAIL;
+	mutex_.Wait();
+	YARPNSNic tmp;
+	tmp.set(inIp, netId);
+	ret = _query_nic(tmp, outIp);
 	mutex_.Post();
 	return ret;
 }
@@ -557,6 +568,38 @@ int YARPNameClient::_query(const std::string &s, ACE_INET_Addr &addr, int *type)
 	// close the connection
 	close();
 				
+	return YARP_OK;
+}
+
+int YARPNameClient::_query_nic(const YARPNSNic &in, std::string &outIp)
+{
+	YARPNameServiceCmd tmpCmd;
+	if (connect_to_server()!=0)
+		return YARP_FAIL;
+	
+	tmpCmd.cmd = YARPNSNicQuery;
+	tmpCmd.length = sizeof(YARPNSNic);
+
+	// send message length
+	memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+	memcpy(data_buf_+sizeof(YARPNameServiceCmd), &in, tmpCmd.length);
+
+	iovec iov[1];
+	iov[0].iov_base = data_buf_;
+	iov[0].iov_len = sizeof(YARPNameServiceCmd)+tmpCmd.length;
+
+	int sent = client_stream_.sendv_n (iov, 1);
+
+	if (sent == -1)
+		ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"),0);
+
+	//////////////////////////////////////////
+			
+	_handle_reply(outIp);
+
+	// close the connection
+	close();
+
 	return YARP_OK;
 }
 

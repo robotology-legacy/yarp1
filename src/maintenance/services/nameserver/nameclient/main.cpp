@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.10 2003-07-16 13:25:40 babybot Exp $
+/// $Id: main.cpp,v 1.11 2003-07-16 16:06:31 natta Exp $
 ///
 ///
 
@@ -97,6 +97,7 @@ void print_menu (void)
 	cout << "query name: query name\n";
 	cout << "rel name: release name\n";
 	cout << "queryqnx name: query a QNX name\n";
+	cout << "quuerynic ip netid: query ip-netid couple\n";
 	cout << "regqnx name, node, pid, channel: register QNX name\n";
 	cout << "releaseqnx name: release a QNX name\n";
 	cout << "dump: remote dump\n";
@@ -131,6 +132,8 @@ int parse(const std::string &str)
 		return 9;
 	else if (str == "xdump")
 		return 10;
+	else if (str == "querynic")
+		return 11;	
 	else
 		return -1;
 }
@@ -194,6 +197,20 @@ void commandLine(YARPNameClient& nc, int argc, char* argv[])
 		ok = true;
 	}
 	
+	std::string ip;
+	std::string netId;
+	if ( (YARPParseParameters::parse(argc, argv, "net", netId)) &&
+		 (YARPParseParameters::parse(argc, argv, "ip", ip)) )
+	{
+		std::string outIp;
+		if (nc.query_nic(ip, netId, outIp) != 0)
+			cout << "Error connecting to the server\n";
+		else
+			cout << ip << " on " << netId << " is " << outIp << endl;
+
+		ok = true;
+	}
+
 	if (!ok)
 		printHelp();
 }
@@ -294,6 +311,16 @@ void interactive(YARPNameClient& nc)
 			cout << nc.dump(1);
 			cout << "-------------------";
 		}
+		else if (ret == 11) {
+			string ip;
+			string netId;
+			string outIp;
+			cin >> ip;
+			cin >> netId;
+			nc.query_nic(ip, netId, outIp);
+			cout << "Reply:" << outIp;
+			cout << endl;
+		}
 		print_menu();
 	}
 }
@@ -303,5 +330,6 @@ void printHelp()
 	cout << "Use: \n";
 	cout << "-i (interactive mode)\n";
 	cout << "-d (dump) -xd (extended dump)\n";
+	cout << "-net netid -ip address (query address for specified netid)\n"; 
 	cout << "-rel name (release name)\n";
 }

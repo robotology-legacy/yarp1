@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.10 2003-07-10 13:33:47 babybot Exp $
+/// $Id: YARPNameService.cpp,v 1.11 2003-07-16 16:06:31 natta Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -70,10 +70,8 @@ using namespace std;
 
 #ifdef __WIN32__
 const char *_name_file_path = "conf\\namer.conf";
-const char *_name_static_init = "conf\\namer.static.conf";
 #else
 const char *_name_file_path = "conf/namer.conf";
-const char *_name_static_init = "conf/namer.static.conf";
 #endif
 
 static int _server_port = 1000;
@@ -144,11 +142,6 @@ int main(int argc, char* argv[])
 	ACE_DEBUG ((LM_DEBUG, "name server at %s port %d\n", hostname, _server_port));
 
 	///
-#ifdef __WIN32__
-	ACE_OS::sprintf (buf, "%s\\%s\0", GetYarpRoot(), _name_static_init);
-#else
-	ACE_OS::sprintf (buf, "%s/%s\0", GetYarpRoot(), _name_static_init);
-#endif
 	YARPNameServer dns(buf, _server_port);
 		
 	fin.close ();
