@@ -17,6 +17,8 @@ endif
 with_ld = macosx
 
 pipes ?= 1
+static_libs_only = 1
+
 
 CC              = gcc
 CXX             = g++
