@@ -23,7 +23,7 @@
 #include <assert.h>
 
 
-#include "bttvx.h"
+#include "bttv.h"
 
 /* For "devctl()" */
 #include <devctl.h>
@@ -144,6 +144,40 @@ inline void BlitBuffer(PtWidget_t *win,CoolImage *i)
 
 }
 
+inline void SaveImage(int cnt, CoolImage *i)
+{	
+	char file_name[100] = "image";
+	char temp[100];
+	int fd;
+	
+	strcat(file_name,itoa(cnt,temp,10));
+	strcat(file_name,".raw");
+	fd = open(file_name,O_WRONLY | O_CREAT | O_APPEND,
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP
+        | S_IROTH | S_IWOTH );
+        
+	write(fd, i->buffer, W*H*3);
+	close(fd);
+}
+
+inline void LoadImage(int cnt, CoolImage *i)
+{	
+	char file_name[100] = "image";
+	char temp[100];
+	int fd;
+	
+	strcat(file_name,itoa(cnt,temp,10));
+	strcat(file_name,".raw");
+	fd = open(file_name,O_RDONLY ,
+        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP
+        | S_IROTH | S_IWOTH );
+        
+	read(fd, i->buffer, W*H*3);
+	printf("%s\n",file_name);
+	fflush(stdout);
+	close(fd);
+}
+
 main(int argc,char *argv[])
 {
 	CoolImage *image;
@@ -160,6 +194,8 @@ main(int argc,char *argv[])
     fd_set rfd;
     int n;
 	int error;
+	int counter = 0;
+	int file = 2;
 
 
 	//Timing calculation
@@ -188,9 +224,15 @@ main(int argc,char *argv[])
     tv.tv_usec = 0;
 
 	image = AllocBuffer(W,H,fd);	
-	assert(image!=0);	
+	assert(image!=0);
+	
+	if (file != 2)
+	{
 	init_bttvx(2,0);
 	open_bttvx();
+	
+	BttvxSetImageBuffer(0, image->buffer);
+	}
 	fd_temp = fd;
 	FD_ZERO( &rfd );
 	FD_SET( fd, &rfd );
@@ -223,35 +265,33 @@ main(int argc,char *argv[])
 
 				//lseek(fd,0L,SEEK_SET);
 			///	size_read = read( fd, image->buffer, W*H*deep );
-			BttvxWaitEvent();
-			read_bttvx(image->buffer);
-			//////memcpy(image->buffer, temp_buffer_p, W*H*deep);
-			//delay(40);
-			///	fd = fd_temp;
-
-				//cycle2=ClockCycles( );
-
-				////if ( !size_read )
-				/////	printf("Attention: read 0 bytes");
-    
-				//printf("READ: %d",size_read);
-				/* Test for error */
-				/*
-			   if( size_read == -1 ) 
-			   {
-				 perror( "Error reading myfile.dat" );
-				 return EXIT_FAILURE;
-			   }*/
-
-			///}
-
-		   //close( fd );
-
+		   if (file != 2)
+		   {
+		   BttvxWaitEvent();
+		   BttvxAcquireBuffer(image->buffer);	
 		   cycle1=ClockCycles( );
+		    }
 		   
-		   BlitBuffer(win,image);
-
+		   switch(file)
+		   {
+		   	case 0:
+		   		BlitBuffer(win,image);
+		   		break;
+		   	case 1:
+		   		SaveImage(counter,image);
+		   		break;
+		   	case 2:
+		   		
+		   		LoadImage(counter,image);
+		   		BlitBuffer(win,image);
+		   		getchar();
+		   		break;
+		   };
+		   
+		   if (file!=2)
+		   	BttvxReleaseBuffer();
 		   cycle2=ClockCycles( );
+		   counter++;
 
 		   
 		   ncycles=cycle2-cycle1;

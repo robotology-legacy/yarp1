@@ -99,58 +99,7 @@ BttvxWaitEvent()
 	pthread_cond_wait(&condvar, &mutex);
 }
 
-/*******************************************************************************
-Devctl's
-*******************************************************************************/
-/*int
-io_devctl(resmgr_context_t *ctp, io_devctl_t *msg, RESMGR_OCB_T *ocb)
-{
-	int *data;
-	int nbytes=0;
-	int status=0;
 
-	if((status= iofunc_devctl_default(ctp,msg,ocb)) != _RESMGR_DEFAULT) {
-		return status;
-	}
-	status=0;
-
-	data = _DEVCTL_DATA(msg->i);
-
-	switch(msg->i.dcmd) {
-		case BTTVX_DEVCTL_SET_BRIGHTNESS:
-			bt848_bright(&bttvs[0],*data);	
-			nbytes=0;
-		break;
-		case BTTVX_DEVCTL_GET_BRIGHTNESS:
-			nbytes=sizeof(data);
-			*data=get_bt848_bright(&bttvs[0]);
-		break;
-		case BTTVX_DEVCTL_GET_HUE:
-			nbytes=0;
-		break;
-		case BTTVX_DEVCTL_SET_HUE:
-			bt848_hue(&bttvs[0],*data);	
-			nbytes=0;
-		break;
-		case BTTVX_DEVCTL_SET_CONTRAST:
-			bt848_contrast(&bttvs[0],*data);
-			nbytes=0;
-		case BTTVX_DEVCTL_GET_CONTRAST:
-			nbytes=0;
-		break;
-
-		///case BTTVX_DEVCTL_GET_SAT_U:
-		///case BTTVX_DEVCTL_SET_SAT_U:
-		///case BTTVX_DEVCTL_GET_SAT_V:
-		///case BTTVX_DEVCTL_SET_SAT_V:
-		default: return(ENOSYS);
-		}
-	memset(&msg->o,0,sizeof(msg->o));
-	msg->o.ret_val=status;
-	msg->o.nbytes=nbytes;
-	return(_RESMGR_PTR(ctp,&msg->o,sizeof(msg->o)+nbytes));
-}
-*/
 
  /******************************************************************************** 
         Tvnorms   
@@ -1158,7 +1107,7 @@ init_bt848(struct bttv * btv, int video_format)
  *
  *************************************************************************/
 
-init_bttvx(int argc1, int argc2)
+int init_bttvx(int argc1, int argc2)
 {
 	int i; 
 	/* declare variables we'll be using */

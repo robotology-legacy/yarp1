@@ -65,7 +65,12 @@ volatile uint32_t    *regbase;    /* device has 32-bit registers */
 typedef unsigned long  u32;
 typedef unsigned short u16;
 
-
+int open_bttvx();
+inline int BttvxAcquireBuffer(unsigned char *);
+inline int BttvxReleaseBuffer();
+int BttvxSetImageBuffer(int,unsigned char *);
+int BttvxWaitEvent();
+int init_bttvx(int, int);
 /* maximum needed buffer size for extended VBI frame mode capturing */
 /*#define BTTV_MAX_FBUF	0x190000*/
 /* maximum buffer size 922x576 with 32bpp for grabbing display mode */
