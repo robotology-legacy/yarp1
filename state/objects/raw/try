@@ -1,3 +1,0 @@
-send_image +/foveal_egomap/i:img $*
-read x
-xv $YARP_ROOT/src/applications/foveal_egomap/best.ppm
