@@ -3,7 +3,7 @@
 
 #include <YARPPort.h>
 #include <YARPRepeater.h>
-#include <YARPPArseParameters.h>
+#include <YARPParseParameters.h>
 #include <YARPBottle.h>
 
 #include <iostream>
