@@ -2,16 +2,16 @@
 
 using namespace _logpolarParams;
 
-void YARPLpConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, int *r0,  int *t0, int *Rmin, int *Rmax, int *Rav)
+void YARPLpConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, int *t0,  int *r0, int *Rmin, int *Rmax, int *Rav)
 {
 	int x,y;
 	_moments.centerOfMass(in, &x, &y);
 	_moments.Cartesian2Logpolar(x, y, *r0, *t0);
 	
-	_radius(in, *r0, *t0, Rmin, Rmax, Rav);
+	_radius(in, *t0, *r0, Rmin, Rmax, Rav);
 }
 
-void YARPLpConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, int *r0,  int *t0, int *R)
+void YARPLpConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, int *t0,  int *r0, int *R)
 {
 	int x,y;
 	_moments.centerOfMass(in, &x, &y);
@@ -20,7 +20,7 @@ void YARPLpConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, int *r0,  int 
 	*R = _radiusOfGyration(in, x, y);
 }
 
-void YARPLpConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, int *r0,  int *t0, double *a11, double *a12, double *a22)
+void YARPLpConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, int *t0,  int *r0, double *a11, double *a12, double *a22)
 {
 	int x,y;
 	_moments.centerOfMass(in, &x, &y);
@@ -51,7 +51,7 @@ void YARPLpConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, int *r0,  int
 	*a12 = (1/(a*a) - 1/(b*b)) * sinth*costh;
 }
 
-void YARPLpConicFitter::_radius(YARPImageOf<YarpPixelMono> &in, int rho,  int theta, int *Rmin, int *Rmax, int *Rav)
+void YARPLpConicFitter::_radius(YARPImageOf<YarpPixelMono> &in, int theta,  int rho, int *Rmin, int *Rmax, int *Rav)
 {
 	int t,c;
 	double avR = 0.0;

@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 	YARPBlobDetector _blobber(5.0);
 	_blobber.resize(_stheta, _srho, _sfovea);
 	
-	_inPortImage.Register("/handtracker/i:img");
+	_inPortImage.Register("/handtracker/i:img", "Net1");
 	_inPortSeg.Register("/handtracker/segmentation/i:img");
 	_outPortSeg.Register("/handtracker/segmentation/o:img");
 

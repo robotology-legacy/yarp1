@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPConicFitter.h,v 1.1 2003-09-02 13:57:29 natta Exp $
+/// $Id: YARPConicFitter.h,v 1.2 2003-09-04 13:05:17 babybot Exp $
 ///
 /// Fit simple conics to a segmented region. Logpolar version.
 /// September 2003 -- by nat
@@ -76,24 +76,24 @@ class YARPLpConicFitter
 public:
 	// fit a circle to a segmented region; r0, t0 is the center of the circle (center of mass)
 	// Rmin, Rmax, Rav are respectively min, max and av radius of the region.
-	void fitCircle(YARPImageOf<YarpPixelMono> &in, int *r0,  int *t0, int *Rmin, int *Rmax, int *Rav);
+	void fitCircle(YARPImageOf<YarpPixelMono> &in, int *t0,  int *r0, int *Rmin, int *Rmax, int *Rav);
 	// fit a circle to a segmented region; r0, t0 is the center of the circle (center of mass)
 	// r here is the radius of gyration
-	void fitCircle(YARPImageOf<YarpPixelMono> &in, int *r0,  int *t0, int *r);
+	void fitCircle(YARPImageOf<YarpPixelMono> &in, int *t0,  int *r0, int *r);
 	// fit an ellipse to the segmented region. a11, a12, a22 are the parameters of the conic matrix
 	// computed from the central moments (see code for the formulas)
-	void fitEllipse(YARPImageOf<YarpPixelMono> &in, int *r0,  int *t0, double *a11, double *a12, double *a22);
+	void fitEllipse(YARPImageOf<YarpPixelMono> &in, int *t0,  int *r0, double *a11, double *a12, double *a22);
 
 	// plot a circle; 
 	// (T0, R0) is the center (logpolar coordinates), R is the radius (cartesian coordinates)
-	void plotCircle(int T0, int R0, double R, YARPImageOf<YarpPixelMono> &output);
+	void plotCircle(int t0, int r0, double R, YARPImageOf<YarpPixelMono> &output);
 	// plot an ellipse from the coefficients of the quadratic form
 	// (T0, R0) is the center (logpolar coordinates)
-	void plotEllipse(int T0, int R0, double a11, double a12, double a22, YARPImageOf<YarpPixelMono> &output);
+	void plotEllipse(int t0, int r0, double a11, double a12, double a22, YARPImageOf<YarpPixelMono> &output);
 
 private:
 	// compute minimum, maximum and average radius of the seg region
-	void _radius(YARPImageOf<YarpPixelMono> &in, int rho,  int theta, int *Rmin, int *Rmax, int *Rav);
+	void _radius(YARPImageOf<YarpPixelMono> &in, int theta,  int rho, int *Rmin, int *Rmax, int *Rav);
 	// compute the radius of gyration of the segmented region
 	double _radiusOfGyration(YARPImageOf<YarpPixelMono> &in, int x, int y);
 

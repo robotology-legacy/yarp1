@@ -164,8 +164,8 @@ void FindHand::_segmentation()
 
 	// fit a circle in to the segmented region
 	int r0, t0, R;
-	_fit.fitCircle(tmp, &r0,  &t0, &R);
-	_fit.plotCircle(r0, t0, R, _actualLp);
+	_fit.fitCircle(tmp, &t0,  &r0, &R);
+	_fit.plotCircle(t0, r0, R, _actualLp);
 	
 	YARPImageFile::Write(segmented, _actualLp);
 }
