@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: main.cpp,v 1.11 2004-06-04 08:48:39 beltran Exp $
+//         Version:  $Id: main.cpp,v 1.12 2004-06-04 12:54:07 beltran Exp $
 // 
 //          Author:  Eng. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -399,104 +399,123 @@ mainthread::_runAsSimulation (void)
 
 	int frame_no = 0;
 
-	char savename[512];
-	memset (savename, 0, 512);
-	ACE_OS::sprintf (savename, "./input_test.wav");
+	//----------------------------------------------------------------------
+	//  Names for the input test files
+	//----------------------------------------------------------------------
+	char savename[512]; memset (savename, 0, 512); ACE_OS::sprintf (savename, "./input_test" );
+	int file_number = 0;
 
-	//----------------------------------------------------------------------
-	//  Open and initialize a WAVE file
-	//  Note: I am using mmio functions. I have to figure out how to do
-	//  this in QNX and Linux
-	//----------------------------------------------------------------------
-	hmmio = mmioOpen(savename,
-					 NULL,
-					 MMIO_READ | MMIO_ALLOCBUF);
-
-	ACE_ASSERT( hmmio != NULL);
-
-	//----------------------------------------------------------------------
-	//  Read the WAVE header
-	//----------------------------------------------------------------------
-	ckRIFF.fccType = mmioFOURCC('W', 'A', 'V', 'E');
-	ckRIFF.cksize  = 0;
-	if (mmioDescend(hmmio, (LPMMCKINFO)&ckRIFF, 0, MMIO_FINDRIFF)) 
-	{
-		ACE_OS::fprintf (stdout, "soundgrabber: This file doesn't contain a WAVE!\n");
-		return YARP_FAIL;
-	} 
-
-	//----------------------------------------------------------------------
-	//  Read the FMT stuff
-	//----------------------------------------------------------------------
-	ck.ckid   = mmioFOURCC('f', 'm', 't', ' ');
-	ck.cksize = 0L;
-	if (mmioDescend(hmmio, &ck, &ckRIFF, MMIO_FINDCHUNK)) 
-	{
-		printf("Required fmt chunk was not found!\n");
-		ACE_OS::fprintf(stdout, "soundgrabber: This files doesn't contain a FMT chuck!\n");
-		return YARP_FAIL;
-	}
-	
-	//----------------------------------------------------------------------
-	//  Read FMT chuck
-	//----------------------------------------------------------------------
-	if (mmioRead(hmmio, (HPSTR)&waveFormat, ck.cksize) != (LRESULT)ck.cksize)
-	{
-		ACE_OS::fprintf(stdout, "soundgrabber: Error reading the FMT chuck\n");
-		return YARP_FAIL;
-	}
-
-	mmioAscend(hmmio, &ck, 0);
-
-	//----------------------------------------------------------------------
-	//  Read the Data chuck
-	//----------------------------------------------------------------------
-	ck.ckid   = mmioFOURCC('d', 'a', 't', 'a');
-	ck.cksize = 0;
-	
-	if (mmioDescend(hmmio, &ck, &ckRIFF, MMIO_FINDCHUNK)) 
-	{
-		ACE_OS::fprintf(stdout,"soundgrabber: There is not Data chuck!\n");
-		return YARP_FAIL;
-	}
-	
-	int data_size   = 0;
-	int readed_data = 0;
 	//----------------------------------------------------------------------
 	//  Main loop
 	//----------------------------------------------------------------------
 	while (!IsTerminated())
 	{
-		YARPTime::DelayInSeconds (0.04); //Delay 40 milliseconds
-		
-		readed_data = mmioRead(hmmio, (char *)buffer.GetRawBuffer(), _BufferLength);
-		data_size += readed_data;
+		//----------------------------------------------------------------------
+		//  Compose the file name
+		//----------------------------------------------------------------------
+		memset (savename, 0, 512); ACE_OS::sprintf (savename, "./input_test%d.wav", file_number);
+		file_number++;
+		if (file_number == 4) file_number=0;
 
-		if (!readed_data)
-		{
-			ACE_OS::fprintf(stdout,"soundgrabber: I have finish reading the Wave file\n");
-			ACE_OS::fprintf(stdout,"soundgrabber: going back to the start of the file\n");
-			mmioSeek(hmmio, data_size, SEEK_CUR);
-		}
-		
-		outport.Content().Refer (buffer);
-		outport.Write();
+		//----------------------------------------------------------------------
+		//  Open and initialize a WAVE file
+		//  Note: I am using mmio functions. I have to figure out how to do
+		//  this in QNX and Linux
+		//----------------------------------------------------------------------
+		hmmio = mmioOpen(savename,
+						 NULL,
+						 MMIO_READ | MMIO_ALLOCBUF);
 
-		frame_no++;
-		if ((frame_no % 250) == 0)
+		if ( hmmio == NULL)
 		{
-			cur = YARPTime::GetTimeAsSeconds ();
-			ACE_OS::fprintf (stdout, "soundgrabber: average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
-			start = cur;
+			ACE_OS::fprintf(stdout, "soundgrabber: %s file doesn't exits\n",savename);
+			break;
 		}
+
+		//----------------------------------------------------------------------
+		//  Read the WAVE header
+		//----------------------------------------------------------------------
+		ckRIFF.fccType = mmioFOURCC('W', 'A', 'V', 'E');
+		ckRIFF.cksize  = 0;
+		if (mmioDescend(hmmio, (LPMMCKINFO)&ckRIFF, 0, MMIO_FINDRIFF)) 
+		{
+			ACE_OS::fprintf (stdout, "soundgrabber: This file doesn't contain a WAVE!\n");
+			return YARP_FAIL;
+		} 
+
+		//----------------------------------------------------------------------
+		//  Read the FMT stuff
+		//----------------------------------------------------------------------
+		ck.ckid   = mmioFOURCC('f', 'm', 't', ' ');
+		ck.cksize = 0L;
+		if (mmioDescend(hmmio, &ck, &ckRIFF, MMIO_FINDCHUNK)) 
+		{
+			ACE_OS::fprintf(stdout, "soundgrabber: This files doesn't contain a FMT chuck!\n");
+			return YARP_FAIL;
+		}
+
+		//----------------------------------------------------------------------
+		//  Read FMT chuck
+		//----------------------------------------------------------------------
+		if (mmioRead(hmmio, (HPSTR)&waveFormat, ck.cksize) != (LRESULT)ck.cksize)
+		{
+			ACE_OS::fprintf(stdout, "soundgrabber: Error reading the FMT chuck\n");
+			return YARP_FAIL;
+		}
+
+		mmioAscend(hmmio, &ck, 0);
+
+		//----------------------------------------------------------------------
+		//  Read the Data chuck
+		//----------------------------------------------------------------------
+		ck.ckid   = mmioFOURCC('d', 'a', 't', 'a');
+		ck.cksize = 0;
+
+		if (mmioDescend(hmmio, &ck, &ckRIFF, MMIO_FINDCHUNK)) 
+		{
+			ACE_OS::fprintf(stdout,"soundgrabber: There is not Data chuck!\n");
+			return YARP_FAIL;
+		}
+
+		int data_size   = 0;
+		int readed_data = 0;
+		int z = 0;
+		
+		for(z = 0; z < 250; z++) //Ten seconds of sound idependently of the size of the file
+		{
+			YARPTime::DelayInSeconds (0.04); //Delay 40 milliseconds
+
+			readed_data = mmioRead(hmmio, (char *)buffer.GetRawBuffer(), _BufferLength);
+			data_size += readed_data;
+
+			if (!readed_data)
+			{
+				//ACE_OS::fprintf(stdout,"soundgrabber: I have finish reading the Wave file\n");
+				//ACE_OS::fprintf(stdout,"soundgrabber: going back to the start of the file\n");
+				mmioSeek(hmmio, data_size, SEEK_END); // Go back to the start position
+				data_size = 0;
+			}else
+			{
+				outport.Content().Refer (buffer);
+				outport.Write();
+			}
+
+			frame_no++;
+			if ((frame_no % 250) == 0)
+			{
+				cur = YARPTime::GetTimeAsSeconds ();
+				ACE_OS::fprintf (stdout, "soundgrabber: average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
+				start = cur;
+			}
+		}
+
+		//----------------------------------------------------------------------
+		//  Close the WAVE file
+		//----------------------------------------------------------------------
+		mmioAscend(hmmio, &ck, 0);
+		mmioAscend(hmmio, &ckRIFF, 0);
+		mmioClose(hmmio, 0);
 	}
-
-	//----------------------------------------------------------------------
-	//  Close the WAVE file
-	//----------------------------------------------------------------------
-	mmioAscend(hmmio, &ck, 0);
-	mmioAscend(hmmio, &ckRIFF, 0);
-	mmioClose(hmmio, 0);
 
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
 	return YARP_OK;
