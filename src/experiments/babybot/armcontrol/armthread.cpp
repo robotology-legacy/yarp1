@@ -16,7 +16,8 @@ YARPRateThread(name, rate),
 _tirednessControl(23000.0, 10000.0, rate, 0.5),
 _arm_status(ini_file),
 _wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
-_behaviorsPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+_behaviorsOutPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
+_behaviorsInPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 {
 	strncpy(_iniFile, ini_file, 80);
 
@@ -49,7 +50,8 @@ _behaviorsPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	_restingInhibited = false;
 
 	//
-	_behaviorsPort.Register("/behaviors/o:1");
+	_behaviorsOutPort.Register("/behaviors/o:arm");
+	_behaviorsInPort.Register("/behaviors/i:arm");
 }
 
 ArmThread::~ArmThread()

@@ -43,6 +43,7 @@ public:
 	IdleState _shake2;
 	InitMoveState _shake3;
 	IdleState _shake4;
+	EndMotion _endMotion;
 	WaitNSteps _wait1;
 	Pulse _startShake;
 };

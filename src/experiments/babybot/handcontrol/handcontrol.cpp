@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 	_behavior.add(NULL, &wait, &move);
 	_behavior.add(NULL, &move, &wait);
 
-	HandMsgHandler _messageH(&_behavior, 0, "/behaviors/i:1");
+	HandMsgHandler _messageH(&_behavior, 0, "/behaviors/i:hand");
 	_messageH.add(1, sigFunction, &wait);
 	_messageH.add(0, sigFunction, &move);
 	

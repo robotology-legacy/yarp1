@@ -34,7 +34,8 @@ namespace _armThread
 			move = 7,
 			directCommandMove = 8,
 			zeroGInit = 9,
-			zeroGEnd = 10
+			zeroGEnd = 10,
+			waitForHand = 11
 	};
 
 	enum __pidState

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.7 2003-07-01 09:48:44 babybot Exp $
+/// $Id: main.cpp,v 1.8 2003-07-10 13:33:47 babybot Exp $
 ///
 ///
 
@@ -70,10 +70,16 @@
 
 #define NAME_CLIENT_VERBOSE
 #include <YarpNameClient.h>
+#include <YARPParseParameters.h>
 
 #include <string>
 
 using namespace std;
+
+void interactive();
+void printHelp();
+void commandLine(int argc, char* argv[]);
+
 void print_menu()
 {
 	cout << "\n-----------------------\n";
@@ -87,6 +93,8 @@ void print_menu()
 	cout << "queryqnx name: query a QNX name\n";
 	cout << "regqnx name, node, pid, channel: register QNX name\n";
 	cout << "releaseqnx name: release a QNX name\n";
+	cout << "dump: remote dump\n";
+	cout << "xdump: extended dump\n";
 	cout << "any key: this menu\n";
 	cout << "q!: exit\n";
 	cout << "-----------------------\n";
@@ -113,16 +121,57 @@ int parse(const std::string &str)
 		return 7;
 	else if (str == "releaseqnx")
 		return 8;
+	else if (str == "dump")
+		return 9;
+	else if (str == "xdump")
+		return 10;
 	else
 		return -1;
 }
 
+YARPNameClient nc("130.251.43.254", 10000);
+
 int main(int argc, char* argv[])
 {
-	// NameClient nc("130.251.43.254", 1000);
-	YARPNameClient nc("localhost", 1000);
-	// YARPNameClient nc("130.251.43.254", 10000);
+	if (YARPParseParameters::parse(argc, argv, "i"))
+		interactive();
+	else
+		commandLine(argc, argv);
 		
+	return 0;
+}
+void commandLine(int argc, char* argv[])
+{
+	bool ok = false;
+	if (YARPParseParameters::parse(argc, argv, "d"))
+	{
+		cout << "--Starting name server short dump\n";
+		cout << nc.dump();
+		cout << "--end\n";
+		ok = true;
+	}
+	if (YARPParseParameters::parse(argc, argv, "dx") || YARPParseParameters::parse(argc, argv, "xd"))
+	{
+		cout << "--Starting name server extended dump\n";
+		cout << nc.dump(1);
+		cout << "--end\n";
+		ok = true;
+	}
+	std::string str;
+	if (YARPParseParameters::parse(argc, argv, "rel", str))
+	{
+		if (nc.check_out(str) != 0)
+			cout << "Error connecting to the server\n";
+		ok = true;
+	}
+	
+	
+	if (!ok)
+		printHelp();
+}
+
+void interactive()
+{
 	string str;
 	print_menu();
 	
@@ -205,8 +254,26 @@ int main(int argc, char* argv[])
 			if (nc.check_out_qnx(name) != 0)
 				cout << "Error connecting to the server\n";
 		}
+		else if (ret == 9) {
+			cout << "-------------------\n";
+			cout << "Name server dump:\n";
+			cout << nc.dump();
+			cout << "-------------------";
+		}
+		else if (ret == 10) {
+			cout << "-------------------\n";
+			cout << "Extended dump:\n";
+			cout << nc.dump(1);
+			cout << "-------------------";
+		}
 		print_menu();
 	}
+}
 
-	return 0;
+void printHelp()
+{
+	cout << "Use: \n";
+	cout << " -i (interactive mode)\n";
+	cout << "-d (dump) -xd (extended dump)\n";
+	cout << "-rel name (release name)\n";
 }

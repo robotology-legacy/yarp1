@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.12 2003-06-30 09:30:06 babybot Exp $
+/// $Id: YARPNameServer.h,v 1.13 2003-07-10 13:33:47 babybot Exp $
 ///
 ///
 
@@ -125,6 +125,8 @@ public:
 		cout << "-End";
 	};
 	
+	void handle_dump_request();
+	void handle_exdump_request();
 	void handle_registration(const std::string &service_name, const std::string &ip, int type, int n = 1);
 	void handle_query(const std::string &service_name);
 	void handle_query_qnx(const std::string &name);
@@ -156,6 +158,7 @@ public:
 			{/* release, if any */}
 
 private:
+	void _handle_reply(const std::string &text);
 	void _handle_reply(const std::string &ip, int type, int port);
 	void _handle_reply(const std::string &ip, int type, const PORT_LIST &ports);
 	void _handle_reply(const YARPNameQnx &entry, int type);

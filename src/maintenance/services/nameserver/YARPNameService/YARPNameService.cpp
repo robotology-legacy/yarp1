@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.9 2003-07-01 09:48:44 babybot Exp $
+/// $Id: YARPNameService.cpp,v 1.10 2003-07-10 13:33:47 babybot Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
 	ACE_OS::sprintf (buf, "%s/%s\0", GetYarpRoot(), _name_static_init);
 #endif
 	YARPNameServer dns(buf, _server_port);
-	
+		
 	fin.close ();
 
 	string str;

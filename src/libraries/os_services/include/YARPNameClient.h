@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.12 2003-06-30 09:30:06 babybot Exp $
+/// $Id: YARPNameClient.h,v 1.13 2003-07-10 13:33:46 babybot Exp $
 ///
 ///
 
@@ -121,6 +121,8 @@ public:
 	int query_qnx (const std::string &s, YARPNameQnx &entry, int *type);
 	int check_out (const std::string &s);
 	int check_out_qnx (const std::string &s);
+	std::string dump(int i = 0);	// 0 short, 1 extended
+	int _handle_reply(std::string &out);
 
 private:
 	// connect to server

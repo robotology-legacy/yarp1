@@ -10,7 +10,7 @@ public:
 	HandSharedData():
 	_behaviorsPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	{
-		_behaviorsPort.Register("/behaviors/o:2");
+		_behaviorsPort.Register("/behaviors/o:hand");
 	}
 	YARPOutputPortOf<int [2]> _behaviorsPort;
 };

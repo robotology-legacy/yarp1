@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.9 2003-06-30 13:37:43 babybot Exp $
+/// $Id: wide_nameloc.h,v 1.10 2003-07-10 13:33:46 babybot Exp $
 ///
 ///
 
@@ -111,7 +111,9 @@ enum
 	YARPNSRegister = 0,
 	YARPNSRelease = 1,
 	YARPNSQuery = 2,
-	YARPNSRpl = 3
+	YARPNSRpl = 3,
+	YARPNSDumpRqs = 4,
+	YARPNSDumpRpl = 5
 };
 
 #include "begin_pack_for_net.h"

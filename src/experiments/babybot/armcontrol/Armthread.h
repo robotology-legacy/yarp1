@@ -99,6 +99,7 @@ private:
 	friend class	ASZeroGWait;
 	friend class	ASZeroGEnd;
 	friend class	ASMove;
+	friend class	ASWaitForHand;
 	
 	// change reaching state
 	void changeReachingState(AState *s)
@@ -136,7 +137,8 @@ private:
 	
 	char _iniFile[80];						// config file
 
-	YARPOutputPortOf<int [2]> _behaviorsPort;
+	YARPOutputPortOf<int [2]> _behaviorsOutPort;
+	YARPInputPortOf<int [2]> _behaviorsInPort;
 	
 public: //later: make it private
 	ArmStatus _arm_status;

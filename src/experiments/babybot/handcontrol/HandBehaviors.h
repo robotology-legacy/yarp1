@@ -34,7 +34,7 @@ class WaitState: public HandBehaviorBaseStates
 	public:
 		void handle(HandThread*t)
 		{
-			printf("Wait... !\n");
+		//	printf("Wait... !\n");
 		}
 };
 

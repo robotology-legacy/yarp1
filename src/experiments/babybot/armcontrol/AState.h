@@ -146,6 +146,24 @@ class ASZeroGInit: public AState
 		{return &_instance;}
 };
 
+class ASWaitForHand: public AState
+{
+	public:
+	ASWaitForHand() {
+		_nSteps = 0;
+		_timeout = 500;
+	}
+	static ASWaitForHand _instance;
+
+	virtual void handle(ArmThread *t);
+
+	inline static ASWaitForHand* instance()
+		{return &_instance;}
+
+	int _nSteps;
+	int _timeout;
+};
+
 class ASZeroGWait: public AState
 {
 	public:

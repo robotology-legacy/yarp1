@@ -14,19 +14,20 @@ YARPRateThread(name, rate)
 	_fsm->add(NULL, &_shake1, &_shake2);
 	_fsm->add(&_wait1, &_shake2, &_shake3);
 	_fsm->add(NULL, &_shake3, &_shake4);
-	_fsm->add(&_wait1, &_shake4, &_waitState);
+	_fsm->add(&_wait1, &_shake4, &_endMotion);
+	_fsm->add(NULL, &_endMotion, &_waitState);
 
 	YVector tmp(6);
 	tmp(1) = 0.0;
 	tmp(2) = 0.0;
-	tmp(3) = 2000;
-	tmp(4) = 2000;
-	tmp(5) = -2000;
-	tmp(6) = -2000;
+	tmp(3) = 1500;
+	tmp(4) = 1500;
+	tmp(5) = -1500;
+	tmp(6) = -1500;
 	_shake1.setCmd(tmp);
 	tmp = 0.0;
 	_shake3.setCmd(tmp);
-	_wait1.setNSteps(60);
+	_wait1.setNSteps(35);
 	///////
 }
 

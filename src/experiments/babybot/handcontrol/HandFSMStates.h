@@ -69,6 +69,12 @@ public:
 	void handle(HandSharedData *t);
 };
 
+class EndMotion: public HandFSMStates
+{
+public:
+	void handle(HandSharedData *t);
+};
+
 class InitMoveState: public HandFSMStates
 {
 public:

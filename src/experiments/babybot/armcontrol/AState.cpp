@@ -13,6 +13,7 @@ ASDirectCommandMove ASDirectCommandMove::_instance;
 ASZeroGInit			ASZeroGInit::_instance;
 ASZeroGWait			ASZeroGWait::_instance;
 ASZeroGEnd			ASZeroGEnd::_instance;
+ASWaitForHand		ASWaitForHand::_instance;
 
 void AState::changeState (ArmThread *t, AState *s)
 {
@@ -100,14 +101,40 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 				int _msg[2];
 				_msg[0] = 0;
 				_msg[1] = 1;
-				memcpy(t->_behaviorsPort.Content(), _msg, sizeof(int) * 2);
-				t->_behaviorsPort.Write();
+				memcpy(t->_behaviorsOutPort.Content(), _msg, sizeof(int) * 2);
+				t->_behaviorsOutPort.Write();
 				//////////////////
 			}
 
-			changeState(t, t->_init_state); //ASDirectCommand::instance());
+			changeState(t, ASWaitForHand::instance()); //ASDirectCommand::instance());
 		}
 	}
+}
+
+void ASWaitForHand:: handle(ArmThread *t)
+{
+	t->_arm_status._state._thread = _armThread::waitForHand;
+	
+	_nSteps++;
+	int msg[2];
+	if(t->_behaviorsInPort.Read(0))
+	{
+		memcpy(msg, t->_behaviorsInPort.Content(), sizeof(msg));
+		if (msg[0] == 0)
+			if (msg[1] == 2)
+			{
+				_nSteps = 0;
+				changeState(t,t->_init_state);
+			}
+	}
+
+	if (_nSteps>=_timeout)
+	{
+		ARM_STATE_DEBUG(("Wait for hand timed out... giving up !\n"));
+		_nSteps = 0;
+		changeState(t,t->_init_state);
+	}
+
 }
 
 void ASRestingInit:: handle(ArmThread *t)

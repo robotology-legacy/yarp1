@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.6 2003-06-30 13:37:43 babybot Exp $
+/// $Id: YARPNameClient.cpp,v 1.7 2003-07-10 13:33:46 babybot Exp $
 ///
 ///
 
@@ -90,6 +90,50 @@ YARPNameClient::YARPNameClient(const ACE_INET_Addr &addr) : remote_addr_(addr), 
 YARPNameClient::~YARPNameClient()
 {
 	delete [] data_buf_;
+}
+
+std::string YARPNameClient::dump (int i)
+{
+	std::string text;
+	
+	YARPNameServiceCmd tmpCmd;
+	tmpCmd.cmd = YARPNSDumpRqs;
+	tmpCmd.type = i;
+	tmpCmd.length = sizeof(YARPNameServiceCmd);
+	
+	if (connect_to_server()!=0)
+	{
+		text = "Sorry, could not connect to the server.";
+		return text;
+	}
+
+	memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+	
+	iovec iov[1];
+	iov[0].iov_base = data_buf_;
+	iov[0].iov_len = sizeof(YARPNameServiceCmd);
+
+	int sent = client_stream_.sendv_n (iov, 1);
+
+	if (sent == -1)
+	{
+		text = "Sorry, an error accoured while getting server reply.";
+		close();
+		return text;
+	}
+
+	int ret = _handle_reply(text);
+	if (ret == YARP_FAIL)
+	{
+		text = "Sorry, an error accoured while getting server reply.";
+		close();
+		return text;
+	}
+	
+	// close the connection
+	close();
+			
+	return text;
 }
 
 int YARPNameClient::check_in_mcast(const std::string &s, ACE_INET_Addr &addr)
@@ -562,5 +606,48 @@ int YARPNameClient::_queryQnx(const std::string &s, YARPNameQnx &entry, int *typ
 	// close the connection
 	close();
 			
+	return YARP_OK;
+}
+
+int YARPNameClient::_handle_reply(std::string &out)
+{
+	unsigned int byte_count = 0;
+	int res = 0;
+	out = "";
+		
+	memset(data_buf_, 0, SIZE_BUF);
+	
+	// first vector
+	iovec iov[1];
+	iov[0].iov_len = sizeof(YARPNameServiceCmd);
+	iov[0].iov_base = data_buf_;
+	res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+	
+	YARPNameServiceCmd *srvCmd = (YARPNameServiceCmd *)data_buf_;
+	int length = srvCmd->length;
+	int nVectors = length/SIZE_BUF;
+	int lastVectLength = length%SIZE_BUF;
+	
+	int i = 0;
+
+	for(i=0; i<nVectors;i++)
+	{
+		// ith vector
+		iov[0].iov_len = SIZE_BUF;
+		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+		out.append(data_buf_,byte_count);
+	}
+	
+	if (lastVectLength > 0)
+	{
+		// last vector
+		iov[0].iov_len = lastVectLength;
+		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+		out.append(data_buf_,byte_count);
+	}
+							
+	// close the connection
+	close();
+				
 	return YARP_OK;
 }
