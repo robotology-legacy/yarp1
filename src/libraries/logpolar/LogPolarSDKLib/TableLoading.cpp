@@ -178,3 +178,8 @@ Cart2LPInterp * Load_Cart2LP_Map(Image_Data * Param, char * Path)
 
 	return Cart2LP_Map;
 }
+
+void Free_Cart2LP_Map (Cart2LPInterp *map)
+{
+	if (map != NULL) free (map);
+}

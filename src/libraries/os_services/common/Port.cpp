@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.27 2003-06-09 09:56:46 gmetta Exp $
+/// $Id: Port.cpp,v 1.28 2003-06-11 16:40:05 gmetta Exp $
 ///
 ///
 
@@ -601,6 +601,13 @@ void _strange_select::Body ()
 ///	travel from the user layer to the comm layer. The only one copy is done at
 /// the level of send/recv.
 ///
+void Port::End()
+{
+	end_thread.Post();
+
+	YARPThread::End(true);	
+}
+
 void Port::Body()
 {
 #ifdef __QNX6__
@@ -716,7 +723,7 @@ void Port::Body()
 		okay_to_send.Post();
 	}
 
-	while(1)
+	while (end_thread.PollingWait() == 0)
     {
 		receiver.Begin(pid.getNameID());
 
@@ -1023,6 +1030,40 @@ void Port::Body()
 			call_on_read = 0;
 		}
 	} /// if it's valid
+
+
+	ACE_DEBUG ((LM_DEBUG, "port thread closing all...\n"));
+	ACE_DEBUG ((LM_DEBUG, "Running detach_all request (%s)\n", name.c_str()));
+
+	list_mutex.Wait ();
+
+	if (protocol_type != YARP_MCAST)
+	{
+		target = targets.GetRoot();
+
+		while (target != NULL)
+		{
+			next = target->GetMeshNext();
+			ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
+			target->Deactivate();
+			target = next;
+		}
+	}
+	else
+	{
+		/// mcast
+		target = targets.GetByLabel("mcast-thread\0"); ///buf+1);
+		if (target != NULL)
+		{
+			ACE_DEBUG ((LM_DEBUG, "Removing all mcast connections\n"));
+			
+			target->DeactivateMcastAll();
+		}
+	}
+
+	list_mutex.Post ();
+
+	ACE_DEBUG ((LM_DEBUG, "port thread returning\n"));
 }
 
 

@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.6 2003-06-05 12:40:02 gmetta Exp $
+$Id: install.txt,v 1.7 2003-06-11 16:40:00 gmetta Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -91,6 +91,10 @@ REQUIRES:
 	os_services
 		- use dsw from: %YARP_ROOT%\src\libraries\os_services\make_winnt
 	=== these two projects do also install the libraries and DLLs.
+
+	compile logpolar library, this is now the actual simulation of one of
+		the CMOS chips. ONLY LogPolarSmallSDK is required to compile 
+		images.
 
 	images
 		- go to $YARP_ROOT\src\libraries\ipl and run script to install

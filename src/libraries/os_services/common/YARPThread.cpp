@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.4 2003-05-21 15:31:08 gmetta Exp $
+/// $Id: YARPThread.cpp,v 1.5 2003-06-11 16:40:06 gmetta Exp $
 ///
 ///
 
@@ -183,9 +183,9 @@ int YARPThread::SetPriority (int prio)
 	return ACE_Thread::setprio ((ACE_hthread_t)system_resource, prio);
 }
 
-void YARPThread::End()
+void YARPThread::End(bool dontkill)
 {
-	if (identifier != -1)
+	if (identifier != -1 && dontkill == false)
 	{
 		//TerminateThread(system_resource,0);  // and bang goes the thread's memory and resources:(
 

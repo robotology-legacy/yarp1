@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.10 2003-06-10 08:12:11 gmetta Exp $
+/// $Id: main.cpp,v 1.11 2003-06-11 16:40:01 gmetta Exp $
 ///
 ///
 
@@ -213,22 +213,25 @@ void _handler (void)
 	return;
 }
 
-void _hh (int)
+bool finished = false;
+
+void _hh (int sig)
 {
-	exit(1);
+	finished = true;
+	ACE_OS::signal (SIGINT, _hh);
 }
 
 int _runAsSimulation (void)
 {
-	signal (SIGINT, _hh);
-	atexit (_handler);
+	ACE_OS::signal (SIGINT, _hh);
+	///ACE_OS::atexit (_handler);
 
 	YARPImageOf<YarpPixelBGR> img;
 	img.Resize (_size, _size);
 	img.Zero ();
 
 	YARPOutputPortOf<YARPGenericImage> outport;
-	bool finished = false;
+	///bool finished = false;
 
 	outport.Register (_name);
 

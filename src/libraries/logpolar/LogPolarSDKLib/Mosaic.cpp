@@ -37,37 +37,6 @@ unsigned char * Crop_Image (unsigned char * Input_Image,Image_Data * Par,int Ori
 	return Output_Image;
 }
 
-unsigned char * Make_LP_Real (unsigned char * Input_Image,Image_Data * Par,Cart2LPInterp * Cart2LP_Map)
-{
-	int i,j;
-	int sumR,sumG,sumB;
-	unsigned char * Output_Image;
-
-	Output_Image  = (unsigned char *)malloc(3 * Par->Size_LP * sizeof(unsigned char));	
-	
-	for (j=0; j<Par->Size_LP; j++)
-	{
-		sumR = 0;
-		sumG = 0;
-		sumB = 0;
-		for (i=0; i<Cart2LP_Map[j].NofPixels; i++)
-		{
-			sumR += Input_Image[3*Cart2LP_Map[j].position[i]];
-			sumG += Input_Image[3*Cart2LP_Map[j].position[i]+1];
-			sumB += Input_Image[3*Cart2LP_Map[j].position[i]+2];
-		}
-		Output_Image[3*j]   = sumR/Cart2LP_Map[j].NofPixels;
-		Output_Image[3*j+1] = sumG/Cart2LP_Map[j].NofPixels;
-		Output_Image[3*j+2] = sumB/Cart2LP_Map[j].NofPixels;
-	}
-	
-	Output_Image[0] = 0;
-	Output_Image[1] = 0;
-	Output_Image[2] = 0;
-
-	return Output_Image;
-}
-
 void Add_to_Full_Image (unsigned char * Input_Image,
 						unsigned char * Full_Image, 
 						unsigned char * Mos_Map, 

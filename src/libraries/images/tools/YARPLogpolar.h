@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.1 2003-06-10 15:49:49 babybot Exp $
+/// $Id: YARPLogpolar.h,v 1.2 2003-06-11 16:40:01 gmetta Exp $
 ///
 ///
 
@@ -79,6 +79,11 @@
 #include <YARPImages.h>
 #include <LogPolarSDK.h>
 
+///
+/// embeds the logpolar library for YARP. The librery is a relatively accurate simulation
+///		of one of the latest logpolar CMOS chips.
+///
+
 namespace _logpolarParams
 {
 	const int _xsize = 256;
@@ -90,24 +95,43 @@ namespace _logpolarParams
 };
 
 
-class YARPLogpolar : public YARPFilter
+class YARPLogpolarSampler : public YARPFilter
 {
 protected:
 	Image_Data _fovea;
-	Image_Data _periphery;
 	Cart2LPInterp * _cart2LP_Map;
 	int * _remapMap;
-	int * _remapMapNf;
+	unsigned char * _outimage;
 
 public:
-	YARPLogpolar ();
+	YARPLogpolarSampler (void);
+	virtual ~YARPLogpolarSampler ();
+
+	virtual void Cleanup () {}
+	virtual bool InPlace () const { return false; }
+
+	int Cartesian2Logpolar (const YARPGenericImage& in, YARPGenericImage& fovea, YARPGenericImage& periphery);
+};
+
+
+class YARPLogpolar : public YARPFilter
+{
+protected:
+	Image_Data _periphery;
+	int * _remapMapNf;
+	double *_angShiftMap;
+	short *_padMap;
+
+public:
+	YARPLogpolar (void);
 	virtual ~YARPLogpolar ();
 
 	virtual void Cleanup () {}
 	virtual bool InPlace () const { return false; }
 
-	int Initialize (void);
-	int Finalize (void);
+	int Logpolar2Cartesian (const YARPGenericImage& in, YARPGenericImage& out);
+	int Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy);
+	int Cartesian2Logpolar (int ix, int iy, int& orho, int& otheta);
 };
 
 

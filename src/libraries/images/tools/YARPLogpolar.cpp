@@ -61,14 +61,15 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.1 2003-06-10 15:49:49 babybot Exp $
+/// $Id: YARPLogpolar.cpp,v 1.2 2003-06-11 16:40:01 gmetta Exp $
 ///
 ///
 
 #include "YARPLogpolar.h"
+#include "YARPAll.h"
 
 
-YARPLogpolar::YARPLogpolar (void)
+YARPLogpolarSampler::YARPLogpolarSampler (void)
 {
 	using namespace _logpolarParams;
 
@@ -80,24 +81,14 @@ YARPLogpolar::YARPLogpolar (void)
 		CUSTOM,
 		256.0/1090.0);
 
-	_periphery = Set_Param(
-		_xsize, _ysize,
-		256, 256,
-		_srho, _stheta, _sfovea,
-		1090,
-		CUSTOM,
-		256.0/1090.0);
+	char *path = GetYarpRoot ();
 
-
-	char path[256];
-	/// get path from env variable.
-
-	/// load cart to logpolar lookup table.
-	_cart2LP_Map = Load_Cart2LP_Map(&_periphery, path);
+	/// loads cart to logpolar lookup table.
+	_cart2LP_Map = Load_Cart2LP_Map(&_fovea, path);
 
 	/// logpolar to cartesian lookup table for the fovea.
 	char filename[256];
-	ACE_OS::sprintf(filename, "%s%s_%2.3f_%dx%d%s", path,"RemapMap", _fovea.Zoom_Level, _fovea.Size_X_Remap, _fovea.Size_Y_Remap, ".gio");
+	ACE_OS::sprintf(filename, "%s\\%s_%2.3f_%dx%d%s", path, "RemapMap", _fovea.Zoom_Level, _fovea.Size_X_Remap, _fovea.Size_Y_Remap, ".gio");
 
 	FILE *fin;
 	fin = ACE_OS::fopen(filename,"rb");
@@ -109,9 +100,57 @@ YARPLogpolar::YARPLogpolar (void)
 	ACE_OS::fread(_remapMap, sizeof(int), _fovea.Size_Img_Remap, fin);
 	ACE_OS::fclose (fin);
 
+	_outimage = (unsigned char *)malloc (_srho * _stheta * 3);
+	ACE_ASSERT (_outimage != NULL);
+}
+
+YARPLogpolarSampler::~YARPLogpolarSampler ()
+{
+	Free_Cart2LP_Map (_cart2LP_Map);
+
+	if (_remapMap != NULL) free (_remapMap);
+	if (_outimage != NULL) free (_outimage);
+}
+
+int YARPLogpolarSampler::Cartesian2Logpolar (const YARPGenericImage& in, YARPGenericImage& fovea, YARPGenericImage& periphery)
+{
+	using namespace _logpolarParams;
+	ACE_ASSERT (in.GetWidth() == _xsize && in.GetHeight() == _ysize);
+	ACE_ASSERT (fovea.GetWidth() == 128 && fovea.GetHeight() == 128);
+	ACE_ASSERT (periphery.GetWidth() == _stheta && fovea.GetHeight() == (_srho - _sfovea));
+
+	Make_LP_Real (_outimage, (unsigned char *)in.GetRawBuffer(), &_fovea, _cart2LP_Map);
+	
+	memcpy (periphery.GetRawBuffer(), _outimage + _sfovea * _stheta * 3, (_srho - _sfovea) * _stheta * 3);
+
+	Remap ((unsigned char *)fovea.GetRawBuffer(), _outimage, &_fovea, _remapMap);
+
+	return YARP_OK;
+}
+
+///
+///
+///
+YARPLogpolar::YARPLogpolar (void)
+{
+	using namespace _logpolarParams;
+
+	_periphery = Set_Param(
+		_xsize, _ysize,
+		256, 256,
+		_srho, _stheta, _sfovea,
+		1090,
+		CUSTOM,
+		256.0/1090.0);
+
+	char *path = GetYarpRoot ();
+
+	/// logpolar to cartesian lookup table for the fovea.
+	char filename[256];
+
 	/// logpolar to cartesian lut for the periphery.
-	ACE_OS::sprintf(filename,"%s%s_%2.3f%s", path, "RemapMapNoFov", _periphery.Zoom_Level, ".gio");
-	fin = ACE_OS::fopen(filename,"rb");
+	ACE_OS::sprintf(filename,"%s\\%s_%2.3f%s", path, "RemapMapNoFov", _periphery.Zoom_Level, ".gio");
+	FILE *fin = ACE_OS::fopen(filename,"rb");
 	ACE_ASSERT (fin != NULL);
 
 	_remapMapNf = (int *) malloc (_periphery.Size_Img_Remap * sizeof(int));
@@ -119,10 +158,64 @@ YARPLogpolar::YARPLogpolar (void)
 
 	ACE_OS::fread(_remapMapNf, sizeof(int), _periphery.Size_Img_Remap, fin);
 	ACE_OS::fclose (fin);
+
+	ACE_OS::sprintf(filename, "%s\\%s", path, "AngularShiftMap.gio");
+	fin = ACE_OS::fopen(filename, "rb");
+	ACE_ASSERT (fin != NULL);
+
+	_angShiftMap = (double *) malloc (_periphery.Size_Rho * sizeof(double));
+	ACE_ASSERT (_angShiftMap != NULL);
+	ACE_OS::fread(_angShiftMap, sizeof(double), _periphery.Size_Rho, fin);
+	ACE_OS::fclose (fin);
+
+	ACE_OS::sprintf(filename, "%s\\%s", path, "PadMap.gio");
+	fin = ACE_OS::fopen(filename, "rb");
+	ACE_ASSERT (fin != NULL);
+
+	_padMap = (short *) malloc (_periphery.Size_Theta * _periphery.Size_Fovea * sizeof(short));
+	ACE_ASSERT (_padMap != NULL);
+
+	ACE_OS::fread(_padMap, sizeof(short), _periphery.Size_Theta * _periphery.Size_Fovea, fin);
+	ACE_OS::fclose (fin);
 }
 
 YARPLogpolar::~YARPLogpolar ()
 {
-	if (_remapMap != NULL) free (_remapMap);
+	if (_remapMapNf != NULL) free (_remapMapNf);
+	if (_angShiftMap != NULL) free (_angShiftMap);
+	if (_padMap != NULL) free (_padMap);
+}
+
+int YARPLogpolar::Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy)
+{
+	double xx = 0;
+	double yy = 0;
+
+	Get_XY_Center(&xx, &yy, irho, itheta, &_periphery, _angShiftMap);
+
+	ox = int(xx + .5);
+	oy = int(yy + .5);
+
+	return YARP_OK;
+}
+
+/// out -> 256 x 256, in 110 x 256.
+///
+int YARPLogpolar::Logpolar2Cartesian (const YARPGenericImage& in, YARPGenericImage& out)
+{
+	using namespace _logpolarParams;
+	ACE_ASSERT (in.GetWidth() == 256 && in.GetHeight() == _srho - _sfovea);
+	ACE_ASSERT (in.GetWidth() == _xsize && in.GetHeight() == _ysize);
+
+	Remap ((unsigned char *)out.GetRawBuffer(), (unsigned char *)in.GetRawBuffer(), &_periphery, _remapMapNf);
+	return YARP_OK;
+}
+
+int YARPLogpolar::Cartesian2Logpolar (int ix, int iy, int& orho, int& otheta)
+{
+	orho = Get_Rho (ix, iy, &_periphery);
+	otheta = Get_Theta(ix, iy, orho, &_periphery, _angShiftMap, _padMap);
+
+	return YARP_OK;
 }
 

@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.14 2003-06-09 21:36:36 gmetta Exp $
+$Id: README.txt,v 1.15 2003-06-11 16:40:03 gmetta Exp $
 
 
 =============
@@ -25,6 +25,9 @@ Things under development:
 	- see also point 9.
 1.2- something wrong when starting grabber + viewer on hermes, it tends to slow
 	down over time (if connecting and disconnecting many times).
+
+2- extra commands for the name server.
+3- prepare default params for remote shutdown from command line.
 
 
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating

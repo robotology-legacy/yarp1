@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.10 2003-05-28 17:42:01 gmetta Exp $
+/// $Id: Port.h,v 1.11 2003-06-11 16:40:08 gmetta Exp $
 ///
 ///
 
@@ -360,6 +360,7 @@ public:
 	Sema wakeup;
 	Sema list_mutex;
 	Sema out_mutex;
+	Sema end_thread;
 
 	string name;
 	HeaderedBlockSender<NewFragmentHeader> sender;
@@ -412,6 +413,7 @@ public:
 		okay_to_send(1),
 		out_mutex(1),
 		list_mutex(1),
+		end_thread(0),
 		name(nname),
 		tsender(this),
 		protocol_type(n_protocol_type)
@@ -433,6 +435,7 @@ public:
 		okay_to_send(1),
 		out_mutex(1),
 		list_mutex(1),
+		end_thread(0),
 		tsender(this)
 	{
 		skip=1; has_input = 0; asleep=0; name_set=1; accessing = 0; receiving=0;  
@@ -442,6 +445,8 @@ public:
 	}
 
 	virtual ~Port();
+
+	virtual void End();
 
 	inline int& GetProtocolTypeRef() { return protocol_type; }
 

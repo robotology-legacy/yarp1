@@ -173,6 +173,63 @@ int Get_Rho(double x,
 	return rho;
 }
 
+/************************************************************************
+* Get_XY_Center  														*
+************************************************************************/	
+int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, double *Ang_Shift)
+{
+	double scalefactor;
+	int Temp_Size_Theta;
+	double A,B;
+	double mod;
+	double rd, td;
+
+	if (rho != 0)
+	{
+		rd = rho+0.5;
+		td = theta+0.5;
+	}
+	else
+	{
+		rd = rho;
+		td = theta;
+	}
+
+	if (!par->Valid_Log_Index){
+		par->Log_Index = Compute_Index(par->Resolution,par->Size_Fovea,par->Size_Rho);
+		par->Valid_Log_Index = true;
+	}
+
+	scalefactor = par->Zoom_Level;
+	B = par->Log_Index/(par->Log_Index-1);
+	A = par->Size_Fovea - B - 0.5;
+
+	if (rho<par->Size_Fovea)
+	{
+		Temp_Size_Theta = par->Size_Theta;
+		mod = rd-0.5;
+		if (rho==0)
+		{
+			Temp_Size_Theta = 1;
+			mod = 0;
+		}
+		else if (par->Fovea_Display_Mode < 2)
+			Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * rho;
+	}
+	else
+	{
+		Temp_Size_Theta = par->Size_Theta;
+		mod = A+B*pow(par->Log_Index,rd-par->Size_Fovea);
+	}
+		if (Temp_Size_Theta>par->Size_Theta)
+			Temp_Size_Theta = par->Size_Theta;
+
+	*xx = mod * cos(Ang_Shift[rho]+td*PI/(Temp_Size_Theta/2.0)) * scalefactor;
+	*yy = mod * sin(Ang_Shift[rho]+td*PI/(Temp_Size_Theta/2.0)) * scalefactor;
+
+	return 0;
+}
+
 
 
 /************************************************************************
@@ -883,4 +940,33 @@ int Build_Cart2LP_Map(Image_Data * Par,
 
 		return 1;
 	}
+}
+
+
+int Make_LP_Real (unsigned char * Output_Image, unsigned char * Input_Image, Image_Data * Par, Cart2LPInterp * Cart2LP_Map)
+{
+	int i,j;
+	int sumR,sumG,sumB;
+
+	for (j=0; j<Par->Size_LP; j++)
+	{
+		sumR = 0;
+		sumG = 0;
+		sumB = 0;
+		for (i=0; i<Cart2LP_Map[j].NofPixels; i++)
+		{
+			sumR += Input_Image[3*Cart2LP_Map[j].position[i]];
+			sumG += Input_Image[3*Cart2LP_Map[j].position[i]+1];
+			sumB += Input_Image[3*Cart2LP_Map[j].position[i]+2];
+		}
+		Output_Image[3*j]   = sumR/Cart2LP_Map[j].NofPixels;
+		Output_Image[3*j+1] = sumG/Cart2LP_Map[j].NofPixels;
+		Output_Image[3*j+2] = sumB/Cart2LP_Map[j].NofPixels;
+	}
+	
+	Output_Image[0] = 0;
+	Output_Image[1] = 0;
+	Output_Image[2] = 0;
+
+	return 0;
 }

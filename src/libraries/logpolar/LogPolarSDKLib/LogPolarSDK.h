@@ -245,6 +245,8 @@ double Get_X_Center(int rho, int theta, Image_Data *par, double *Ang_Shift);
 
 double Get_Y_Center(int rho, int theta, Image_Data *par, double *Ang_Shift);
 
+int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, double *Ang_Shift);
+
 unsigned char Build_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,unsigned char List);
 
 int Build_Cart2LP_Map(Image_Data * Par,
@@ -252,8 +254,10 @@ int Build_Cart2LP_Map(Image_Data * Par,
 
 Cart2LPInterp * Load_Cart2LP_Map(Image_Data * Param, char * Path);
 
+void Free_Cart2LP_Map (Cart2LPInterp *map);
+
 unsigned char * Crop_Image (unsigned char * Input_Image,Image_Data * Par,int OrigXSize, int DestSize);
 
-unsigned char * Make_LP_Real (unsigned char * Input_Image,Image_Data * Par,Cart2LPInterp * Cart2LP_Map);
+int Make_LP_Real (unsigned char * Output_Image, unsigned char * Input_Image, Image_Data * Par, Cart2LPInterp * Cart2LP_Map);
 
 #endif
