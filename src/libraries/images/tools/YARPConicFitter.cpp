@@ -35,20 +35,32 @@ void YARPLpConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, int *t0,  int
 	double bSq;
 	double theta;
 
-	double tmp = u20-u02;
+	double tmp = (u20-u02);
 	if (tmp != 0)
 		theta = 0.5*atan(2*u11/tmp);
 	else 
-		theta = 3.14/4;
+		theta = PI/4;
 
-	aSq = (2/u00)*(u20+u02 + sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
-	bSq = (2/u00)*(u20+u02 - sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
+	aSq = (1/u00)*(u20+u02 + sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
+	bSq = (1/u00)*(u20+u02 - sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
+
+	printf("u: %lf %lf %lf %lf\n", u20, u11, u02, u00);
+	printf("theta: %lf\n", theta);
 	
 	double costh = cos(theta);
 	double sinth = sin(theta);
-	*a11 = (costh*costh)/(aSq) + (sinth*sinth)/(bSq);
-	*a22 = (sinth*sinth)/(aSq) + (costh*costh)/(bSq);
-	*a12 = (1/(aSq) - 1/(bSq)) * sinth*costh;
+	if (u20 > u02)
+	{
+		*a11 = (costh*costh)/(aSq) + (sinth*sinth)/(bSq);
+		*a22 = (sinth*sinth)/(aSq) + (costh*costh)/(bSq);
+		*a12 = (1/(bSq) - 1/(aSq)) * sinth*costh;
+	}
+	else
+	{
+		*a22 = (costh*costh)/(aSq) + (sinth*sinth)/(bSq);
+		*a11 = (sinth*sinth)/(aSq) + (costh*costh)/(bSq);
+		*a12 = (1/(aSq) - 1/(bSq)) * sinth*costh;
+	}
 }
 
 void YARPLpConicFitter::_radius(YARPImageOf<YarpPixelMono> &in, int theta,  int rho, int *Rmin, int *Rmax, int *Rav)
@@ -110,7 +122,7 @@ void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, doub
 {
 	int theta;
 	int rho;
-	int r0;
+	double r0;
 
 	if ( !_checkDet(a11, a12, a22) )
 	{
@@ -118,7 +130,7 @@ void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, doub
 		return;
 	}
 	
-	r0 = (int) _moments.CsiToRo(R0);
+	r0 = _moments.CsiToRo(R0);
 	double c0 = cos((T0)/_q);
 	double s0 = sin((T0)/_q);
 
@@ -164,7 +176,7 @@ void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, doub
 {
 	int theta;
 	int rho;
-	int r0;
+	double r0;
 
 	if ( !_checkDet(a11, a12, a22) )
 	{
@@ -172,7 +184,7 @@ void YARPLpConicFitter::plotEllipse(int T0, int R0, double a11, double a12, doub
 		return;
 	}
 
-	r0 = (int) _moments.CsiToRo(R0);
+	r0 = _moments.CsiToRo(R0);
 	double c0 = cos((T0)/_q);
 	double s0 = sin((T0)/_q);
 
@@ -218,8 +230,9 @@ void YARPLpConicFitter::plotCircle(int T0, int R0, double R, YARPImageOf<YarpPix
 {
 	int theta;
 	int rho;
-	int r0;
-	r0 = (int)(_moments.CsiToRo(R0)+0.5);
+	double r0;
+	r0 = _moments.CsiToRo(R0);
+	
 	for(theta = 0; theta < _logpolarParams::_stheta; theta++)
 	{
 		double c = cos((theta-T0)/_q);
@@ -251,7 +264,7 @@ void YARPLpConicFitter::plotCircle(int T0, int R0, double R, YARPImageOf<YarpPix
 {
 	int theta;
 	int rho;
-	int r0;
+	double r0;
 	r0 = _moments.CsiToRo(R0);
 	for(theta = 0; theta < _logpolarParams::_stheta; theta++)
 	{
@@ -286,7 +299,7 @@ void YARPLpConicFitter::findCircle(int T0, int R0, double R, YARPLpShapeRegion &
 	int theta;
 	int rho2;
 	int rho1;
-	int r0;
+	double r0;
 	r0 = _moments.CsiToRo(R0);
 	for(theta = 0; theta < _logpolarParams::_stheta; theta++)
 	{
@@ -327,7 +340,7 @@ void YARPLpConicFitter::findEllipse(int T0, int R0, double a11, double a12, doub
 	int theta;
 	int rho2;
 	int rho1;
-	int r0;
+	double r0;
 
 	if ( !_checkDet(a11, a12, a22) )
 	{
@@ -412,7 +425,7 @@ void YARPConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, int *x0,  int *
 	if (tmp != 0)
 		theta = 0.5*atan(2*u11/tmp);
 	else 
-		theta = 3.14/4;
+		theta = PI/4;
 
 	aSq = (2/u00)*(u20+u02 + sqrt((u20-u02)*(u20-u02) + 4*u11*u11));
 	bSq = (2/u00)*(u20+u02 - sqrt((u20-u02)*(u20-u02) + 4*u11*u11));

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.18 2003-12-05 16:16:21 babybot Exp $
+/// $Id: YARPLogpolar.h,v 1.19 2004-01-03 16:29:13 natta Exp $
 ///
 ///
 
@@ -179,21 +179,28 @@ public:
 	inline int GetCWidth (void) const { return _logpolarParams::_xsize; }
 	inline int GetCHeight (void) const { return _logpolarParams::_ysize; }
 
-	inline int CsiToRo(double csi)
+	inline double CsiToRo(double csi)
 	{
-		return (int) (_logpolarParams::_alfa*exp(_logpolarParams::_beta*csi)+0.5);
+		return (_logpolarParams::_alfa*(exp(_logpolarParams::_beta*csi)-1));
 	}
 
 	inline int RoToCsi(double r)
 	{
-		return (int) (_logpolarParams::_beta_inv*log(_logpolarParams::_alfa_inv*r)+0.5);
+		double tmp = _logpolarParams::_alfa_inv*r;
+		if (tmp >= 1)
+			return (int) (_logpolarParams::_beta_inv*log(tmp)+0.5);
+		else
+			return 0;
 	}
 
 	inline double Jacobian(int csi, int eta)
 	{
 		eta;	// keep the compiler happy
 		double ret;
-		ret = _logpolarParams::_jacob1 * exp(2*_logpolarParams::_beta*csi);
+		if (csi >= _logpolarParams::_sfovea)
+			ret = _logpolarParams::_jacob1 * (exp(2*_logpolarParams::_beta*csi));
+		else
+			ret = _logpolarParams::_jacob1 * (exp(2*_logpolarParams::_beta*_logpolarParams::_sfovea));
 		return ret;
 	}
 

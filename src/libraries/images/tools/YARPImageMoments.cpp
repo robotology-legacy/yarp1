@@ -15,16 +15,17 @@ void YARPLpImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, in
 		src = (unsigned char *)in.GetArray()[c];
 		for(t = 0; t < _stheta; t++)
 		{
-			int x = 0;
-			int y = 0;
+			int tmpX = 0;
+			int tmpY = 0;
 			double J = 0.0;
 			if ( *src == 255 )
 			{
-				Logpolar2Cartesian(c, t, x, y);
+				Logpolar2Cartesian(c, t, tmpX, tmpY);
+
 				J = Jacobian(c, t);
 
-				sumX += x*J;
-				sumY += y*J;
+				sumX += tmpX*J;
+				sumY += tmpY*J;
 				area += J;
 			}
 			src++;
