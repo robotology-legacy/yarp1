@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.15 2004-11-16 17:56:32 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.16 2004-11-19 13:20:05 beltran Exp $
 ///
 
 /** 
@@ -399,27 +399,6 @@ public:
 		localDist.Resize  ( nunkTemp,nrefTemp);
 		globalDist.Resize ( nunkTemp,nrefTemp);
 		
-		//----------------------------------------------------------------------
-		// Get the pointer to the array of vector pointers of the unknown template
-		//----------------------------------------------------------------------
-        //punkvectorarray = unknow_template.data(); 
-
-
-		//----------------------------------------------------------------------
-		// Check if the templates have the data
-		//----------------------------------------------------------------------
-		/*
-		if ((m_parray           ==  NULL ) || 
-			(m_parray[0]        ==  NULL ) || 
-			(punkvectorarray    ==  NULL ) || 
-			(punkvectorarray[0] ==  NULL )
-			) {
-			ACE_OS::fprintf(stdout,"YARPSoundTemplate: Error, trying to compare against an empty template");
-			*result = YARP_FAIL;
-			return -1.0;
-		}
-		*/
-
 		//----------------------------------------------------------------------
 		//  Compute all the local distances
 		//----------------------------------------------------------------------
