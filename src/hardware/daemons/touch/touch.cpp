@@ -1,9 +1,7 @@
 // touch.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
 // by nat June 2003
-
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
@@ -19,20 +17,20 @@
 
 #include <YARPTouchBoard.h>
 #include <YARPParseParameters.h>
-#include <string>
+#include <YARPString.h>
 
 using namespace std;
 
 const int __defaultRate = 40;
-const string __defaultName = "/touch/o:1";
+const YARPString __defaultName = "/touch/o:1";
 
 class MyThread : public YARPRateThread
 {
 public:
-	MyThread (const char *name, int rate):YARPRateThread(name, rate),
+	MyThread (const char *name, int rate) : YARPRateThread(name, rate),
 	_outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	{
-		_name = string(name);
+		_name = YARPString(name);
 		_readings.Resize(32);
 		_readings = 0.0;
 	}
@@ -67,7 +65,7 @@ public:
 	YARPTouchBoard _touchBoard;
 	YARPOutputPortOf<YVector> _outPort;
 	YVector _readings;
-	string _name;
+	YARPString _name;
 };
 
 
@@ -77,7 +75,7 @@ int main(int argc, char* argv[])
 
 	// parse command line
 	int rate;
-	string name;
+	YARPString name;
 	if (!YARPParseParameters::parse(argc, argv, "p", &rate))
 		rate = __defaultRate;
 
