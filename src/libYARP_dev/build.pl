@@ -136,17 +136,26 @@ if ($install)
 		}
 	}
 
-	print "\nNow building libraries...\n";
+	if ($libraries ne '')
+	{
+		print "\nNow building libraries...\n";
 
-	$libraries =~ s# #\"#;
-	$libraries =~ s# #\" \"#g;
-	$libraries = "$libraries"."\"";
-	
-	print `lib \".\\lib\\$os\\libYARP_dev_x.lib\" $libraries /out:\".\\lib\\$os\\libYARP_dev.lib\"`;
-	print `lib \".\\lib\\$os\\libYARP_devd_x.lib\" $libraries /out:\".\\lib\\$os\\libYARP_devd.lib\"`;
+		$libraries =~ s# #\"#;
+		$libraries =~ s# #\" \"#g;
+		$libraries = "$libraries"."\"";
+		
+		print `lib \".\\lib\\$os\\libYARP_dev_x.lib\" $libraries /out:\".\\lib\\$os\\libYARP_dev.lib\"`;
+		print `lib \".\\lib\\$os\\libYARP_devd_x.lib\" $libraries /out:\".\\lib\\$os\\libYARP_devd.lib\"`;
+	}
+	else
+	{
+		copy ("./lib/$os/libYARP_devd_x.lib", "./lib/$os/libYARP_devd.lib") or warn "Can't copy \"./lib/$os/libYARP_devd_x.lib\"\n";
+		copy ("./lib/$os/libYARP_dev_x.lib", "./lib/$os/libYARP_dev.lib") or warn "Can't copy \"./lib/$os/libYARP_dev_x.lib\"\n";
+	}
 
 	copy ("./lib/$os/libYARP_dev.lib", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_dev.lib\"\n";
 	copy ("./lib/$os/libYARP_devd.lib", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_devd.lib\"\n";
+
 	print "\nLibraries installed in $yarp_root/lib/$os\n";
 }
 
