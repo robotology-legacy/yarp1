@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.13 2003-09-24 11:02:54 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.14 2003-09-24 11:12:17 fberton Exp $
 ///
 ///
 
@@ -603,7 +603,7 @@ void Remap(unsigned char * Out_Image,
 		   Image_Data * Par,
 		   int * Rem_LUT)
 {
-	int i,j;
+	int j;
 //	int max;
 
 	//const int SizeRemapX = Par->Size_X_Remap;
@@ -638,15 +638,15 @@ void Remap(unsigned char * Out_Image,
 				*RemImgPtr++ = In_Image[*LPImgPtr];
 				*RemImgPtr++ = In_Image[(*LPImgPtr)+1];
 				*RemImgPtr++ = In_Image[(*LPImgPtr++)+2];
-			}
-			else
-			{
-				*RemImgPtr++ = 0;
-				*RemImgPtr++ = 0;
-				*RemImgPtr++ = 0;
-				LPImgPtr++;
-			}
-		}
+//			}
+//			else
+//			{
+//				*RemImgPtr++ = 0;
+//				*RemImgPtr++ = 0;
+//				*RemImgPtr++ = 0;
+//				LPImgPtr++;
+//			}
+//		}
 	}
 }
 
