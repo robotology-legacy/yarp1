@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: headvergence.cpp,v 1.1 2003-11-21 16:49:33 babybot Exp $
+/// $Id: headvergence.cpp,v 1.2 2003-11-21 17:03:05 babybot Exp $
 ///
 ///
 
@@ -77,7 +77,7 @@
 
 #include "vergencecontrol.h"
 
-const int __inSize = 2;
+const int __inSize = 1;
 const int __outSize = 5;
 const char *__baseName = "/headvergence/";
 const char *__configFile = "headcontrol.ini";

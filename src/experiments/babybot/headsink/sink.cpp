@@ -5,7 +5,8 @@ YARPRateThread(name, rate),
 _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
 _inPortVor(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 _inPortTrack(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
-_inPortPosition(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
+_inPortPosition(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
+_inPortVergence(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 {
 	_iniFile = YARPString(ini_file);
 	
@@ -14,17 +15,20 @@ _inPortPosition(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 	_inTrack.Resize(_nj);
 	_outCmd.Resize(_nj);
 	_inPosition.Resize(_nj);
+	_inVergence(_nj);
 
 	_inVor = 0.0;
 	_inTrack = 0.0;
 	_outCmd = 0.0;
 	_inPosition = 0.0;
+	_inVergence = 0.0;
 
 	YARPString base = __baseName;
 	_outPort.Register(YARPString(base).append("o").c_str());
 	_inPortVor.Register(YARPString(base).append("vor/i").c_str());
 	_inPortTrack.Register(YARPString(base).append("track/i").c_str());
 	_inPortPosition.Register(YARPString(base).append("position/i").c_str());
+	_inPortVergence.Register(YARPString(base).append("vergence/i").c_str());
 
 	_neckControl = new NeckControl(_iniFile, _nj, _nj);
 
@@ -34,7 +38,6 @@ _inPortPosition(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 Sink::~Sink()
 {
 	delete _neckControl;
-
 }
 
 void Sink::doInit()
@@ -44,19 +47,17 @@ void Sink::doInit()
 
 void Sink::doLoop()
 {
-	/// polls ports.
-
+	/// polls all ports.
 	_polPort(_inPortVor, _inVor);
 	_polPort(_inPortTrack, _inTrack);
 	_polPort(_inPortPosition, _inPosition);
+	_polPort(_inPortVergence, _inVergence);
 
 	// form command
-		
-	_outCmd = _inVor + _inTrack;
+	_outCmd = _inVor + _inTrack + _inVergence;
 
 	// compute neck
 	const YVector &neck = _neckControl->apply(_inPosition, _outCmd);
-
 	_outCmd = _outCmd + neck;
 
 	if (_inhibitAll)
@@ -73,6 +74,7 @@ void Sink::doRelease()
 
 void Sink::inhibitAll()
 {
+	/// WARNING: no mutual exclusion!
 	if (_inhibitAll)
 		_inhibitAll = 0;
 	else

@@ -44,6 +44,7 @@ private:
 	YARPInputPortOf<YVector>   _inPortPosition;
 	YARPInputPortOf<YVector>   _inPortVor;
 	YARPInputPortOf<YVector>   _inPortTrack;
+	YARPInputPortOf<YVector>   _inPortVergence;
 
 	YARPString _iniFile;
 	YARPString _path;
@@ -52,6 +53,7 @@ private:
 	YVector _inPosition;
 	YVector _inTrack;
 	YVector _outCmd;
+	YVector _inVergence;
 	int _nj;
 
 	int _inhibitAll;
@@ -99,7 +101,6 @@ public:
 
 	const YVector & apply(const YVector &in, const YVector &cmd)
 	{
-
 		double pred_r = in(4);
 		double pred_l = in(5);
 
