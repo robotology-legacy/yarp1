@@ -25,9 +25,6 @@ NULL=
 NULL=nul
 !ENDIF 
 
-CPP=cl.exe
-RSC=rc.exe
-
 !IF  "$(CFG)" == "LogPolarSDKLib - Win32 Release"
 
 OUTDIR=.\Release
@@ -55,7 +52,40 @@ CLEAN :
 
 LINK32=link.exe -lib
 MTL=midl.exe
+CPP=cl.exe
 CPP_PROJ=/nologo /G6 /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /Fp"$(INTDIR)\LogPolarSDKLib.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
+
+.c{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.c{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+RSC=rc.exe
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\LogPolarSDKLib.bsc" 
 BSC32_SBRS= \
@@ -104,28 +134,8 @@ CLEAN :
 
 LINK32=link.exe -lib
 MTL=midl.exe
+CPP=cl.exe
 CPP_PROJ=/nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\LogPolarSDKLib" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /Fp"$(INTDIR)\LogPolarSDKLib.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
-BSC32=bscmake.exe
-BSC32_FLAGS=/nologo /o"$(OUTDIR)\LogPolarSDKLib.bsc" 
-BSC32_SBRS= \
-	
-LIB32=link.exe -lib
-LIB32_FLAGS=/nologo /out:"$(OUTDIR)\LogPolarSDKD.lib" 
-LIB32_OBJS= \
-	"$(INTDIR)\Acquisition.obj" \
-	"$(INTDIR)\AuxFunctions.obj" \
-	"$(INTDIR)\LogPolarSDK.obj" \
-	"$(INTDIR)\Mosaic.obj" \
-	"$(INTDIR)\TableGeneration.obj" \
-	"$(INTDIR)\TableLoading.obj" \
-	"$(INTDIR)\TestFunctions.obj"
-
-"$(OUTDIR)\LogPolarSDKD.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
-    $(LIB32) @<<
-  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
-<<
-
-!ENDIF 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -156,6 +166,29 @@ LIB32_OBJS= \
    $(CPP) @<<
    $(CPP_PROJ) $< 
 <<
+
+RSC=rc.exe
+BSC32=bscmake.exe
+BSC32_FLAGS=/nologo /o"$(OUTDIR)\LogPolarSDKLib.bsc" 
+BSC32_SBRS= \
+	
+LIB32=link.exe -lib
+LIB32_FLAGS=/nologo /out:"$(OUTDIR)\LogPolarSDKD.lib" 
+LIB32_OBJS= \
+	"$(INTDIR)\Acquisition.obj" \
+	"$(INTDIR)\AuxFunctions.obj" \
+	"$(INTDIR)\LogPolarSDK.obj" \
+	"$(INTDIR)\Mosaic.obj" \
+	"$(INTDIR)\TableGeneration.obj" \
+	"$(INTDIR)\TableLoading.obj" \
+	"$(INTDIR)\TestFunctions.obj"
+
+"$(OUTDIR)\LogPolarSDKD.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
+<<
+
+!ENDIF 
 
 
 !IF "$(NO_EXTERNAL_DEPS)" != "1"

@@ -6,17 +6,15 @@
 
 .\AuxFunctions.cpp : \
 	".\LogPolarSDK.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\LogPolarSDK.cpp : \
 	".\LogPolarSDK.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\Mosaic.cpp : \
 	".\LogPolarSDK.h"\
-	".\mosaic.h"\
+	".\Mosaic.h"\
 	
 
 .\TableGeneration.cpp : \

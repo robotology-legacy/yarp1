@@ -1,33 +1,31 @@
 # Microsoft Developer Studio Generated Dependency File, included by math.mak
 
-.\YARPMatrix.cpp : \
-	"..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\include\ace\config-win32.h"\
-	"..\..\..\include\ace\config.h"\
-	"..\..\..\include\ace\post.h"\
-	"..\..\..\include\ace\pre.h"\
+.\YARPLU.cpp : \
 	"..\..\..\include\conf\YARPConfig.h"\
 	"..\..\..\include\conf\YARPConfigWin32.h"\
 	".\YARPMatrix.h"\
 	".\YARPMatrix.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	
+
+.\YARPMatrix.cpp : \
+	"..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\include\conf\YARPConfigWin32.h"\
+	".\YARPMatrix.h"\
+	".\YARPMatrix.inl"\
 	
 
 .\YARPRobotMath.cpp : \
-	"..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\include\ace\config-win32.h"\
-	"..\..\..\include\ace\config.h"\
-	"..\..\..\include\ace\post.h"\
-	"..\..\..\include\ace\pre.h"\
 	"..\..\..\include\conf\YARPConfig.h"\
 	"..\..\..\include\conf\YARPConfigWin32.h"\
 	".\YARPMatrix.h"\
 	".\YARPMatrix.inl"\
 	".\YARPRobotMath.h"\
 	".\YARPRobotMath.inl"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	
+
+.\YARPSVD.cpp : \
+	"..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\include\conf\YARPConfigWin32.h"\
+	".\YARPMatrix.h"\
+	".\YARPMatrix.inl"\
 	

@@ -1,119 +1,22 @@
 # Microsoft Developer Studio Generated Dependency File, included by images.mak
 
 .\src\YARPImage.cpp : \
-	"..\..\..\include\ace\ace_export.h"\
-	"..\..\..\include\ace\ace_wchar.h"\
-	"..\..\..\include\ace\ace_wchar.inl"\
-	"..\..\..\include\ace\base_thread_adapter.h"\
-	"..\..\..\include\ace\base_thread_adapter.inl"\
-	"..\..\..\include\ace\basic_types.h"\
-	"..\..\..\include\ace\basic_types.i"\
-	"..\..\..\include\ace\config-all.h"\
-	"..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\include\ace\config-win32.h"\
-	"..\..\..\include\ace\config.h"\
-	"..\..\..\include\ace\default_constants.h"\
-	"..\..\..\include\ace\global_macros.h"\
-	"..\..\..\include\ace\log_msg.h"\
-	"..\..\..\include\ace\log_priority.h"\
-	"..\..\..\include\ace\min_max.h"\
-	"..\..\..\include\ace\os.h"\
-	"..\..\..\include\ace\os.i"\
-	"..\..\..\include\ace\os_dirent.h"\
-	"..\..\..\include\ace\os_dirent.inl"\
-	"..\..\..\include\ace\os_errno.h"\
-	"..\..\..\include\ace\os_errno.inl"\
-	"..\..\..\include\ace\os_export.h"\
-	"..\..\..\include\ace\os_log_msg_attributes.h"\
-	"..\..\..\include\ace\os_log_msg_attributes.inl"\
-	"..\..\..\include\ace\os_memory.h"\
-	"..\..\..\include\ace\os_memory.inl"\
-	"..\..\..\include\ace\os_string.h"\
-	"..\..\..\include\ace\os_string.inl"\
-	"..\..\..\include\ace\os_tli.h"\
-	"..\..\..\include\ace\os_tli.inl"\
-	"..\..\..\include\ace\post.h"\
-	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\ace\streams.h"\
-	"..\..\..\include\ace\synch.h"\
-	"..\..\..\include\ace\synch.i"\
-	"..\..\..\include\ace\synch_t.cpp"\
-	"..\..\..\include\ace\synch_t.h"\
-	"..\..\..\include\ace\synch_t.i"\
-	"..\..\..\include\ace\thread.h"\
-	"..\..\..\include\ace\thread.i"\
-	"..\..\..\include\ace\thread_adapter.h"\
-	"..\..\..\include\ace\thread_adapter.inl"\
-	"..\..\..\include\ace\time_value.h"\
-	"..\..\..\include\ace\time_value.inl"\
-	"..\..\..\include\begin_pack_for_net.h"\
-	"..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\include\conf\yarpconfigwin32.h"\
-	"..\..\..\include\debug.h"\
-	"..\..\..\include\end_pack_for_net.h"\
+	"..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\include\sys\ipl.h"\
 	"..\..\..\include\sys\iplerror.h"\
 	"..\..\..\include\sys\iplmisc.h"\
-	"..\..\..\include\yarpall.h"\
-	"..\..\..\include\yarperrorcodes.h"\
-	"..\..\..\include\yarpnetworktypes.h"\
-	"..\..\..\include\yarprefcount.h"\
-	"..\..\..\include\yarptime.h"\
+	"..\..\..\include\sys\iplwind.h"\
 	".\include\YARPImage.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
 .\src\YARPImageUtils.cpp : \
-	"..\..\..\include\ace\ace_export.h"\
-	"..\..\..\include\ace\ace_wchar.h"\
-	"..\..\..\include\ace\ace_wchar.inl"\
-	"..\..\..\include\ace\basic_types.h"\
-	"..\..\..\include\ace\basic_types.i"\
-	"..\..\..\include\ace\config-all.h"\
-	"..\..\..\include\ace\config-win32-common.h"\
-	"..\..\..\include\ace\config-win32-msvc-6.h"\
-	"..\..\..\include\ace\config-win32-msvc.h"\
-	"..\..\..\include\ace\config-win32.h"\
-	"..\..\..\include\ace\config.h"\
-	"..\..\..\include\ace\default_constants.h"\
-	"..\..\..\include\ace\global_macros.h"\
-	"..\..\..\include\ace\log_msg.h"\
-	"..\..\..\include\ace\log_priority.h"\
-	"..\..\..\include\ace\min_max.h"\
-	"..\..\..\include\ace\os.h"\
-	"..\..\..\include\ace\os.i"\
-	"..\..\..\include\ace\os_dirent.h"\
-	"..\..\..\include\ace\os_dirent.inl"\
-	"..\..\..\include\ace\os_errno.h"\
-	"..\..\..\include\ace\os_errno.inl"\
-	"..\..\..\include\ace\os_export.h"\
-	"..\..\..\include\ace\os_log_msg_attributes.h"\
-	"..\..\..\include\ace\os_log_msg_attributes.inl"\
-	"..\..\..\include\ace\os_memory.h"\
-	"..\..\..\include\ace\os_memory.inl"\
-	"..\..\..\include\ace\os_string.h"\
-	"..\..\..\include\ace\os_string.inl"\
-	"..\..\..\include\ace\os_tli.h"\
-	"..\..\..\include\ace\os_tli.inl"\
-	"..\..\..\include\ace\post.h"\
-	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\ace\streams.h"\
-	"..\..\..\include\ace\time_value.h"\
-	"..\..\..\include\ace\time_value.inl"\
-	"..\..\..\include\begin_pack_for_net.h"\
-	"..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\include\conf\yarpconfigwin32.h"\
-	"..\..\..\include\debug.h"\
-	"..\..\..\include\end_pack_for_net.h"\
+	"..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\include\sys\ipl.h"\
 	"..\..\..\include\sys\iplerror.h"\
 	"..\..\..\include\sys\iplmisc.h"\
-	"..\..\..\include\yarpall.h"\
-	"..\..\..\include\yarperrorcodes.h"\
-	"..\..\..\include\yarpnetworktypes.h"\
+	"..\..\..\include\sys\iplwind.h"\
 	".\include\YARPImage.h"\
 	".\include\YARPImageUtils.h"\
-	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
