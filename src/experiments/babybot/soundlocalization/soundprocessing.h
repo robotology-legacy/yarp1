@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.13 2004-05-04 18:07:23 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.14 2004-05-05 15:03:57 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -36,9 +36,10 @@
 #define FREQ_T 10000      // up cutting filter frequency
 #define ILD_LOW_FREQ 2000 // down cutting frequency for ILD calculation
 #define CORR_THRESHOLD 0
-#define ILD_THRESHOLD 10
-#define NUM_ILD 6
-#define NUM_ITD 4
+//#define ILD_THRESHOLD 10
+#define ILD_THRESHOLD 3
+#define NUM_ILD 10
+#define NUM_ITD 10
 
 typedef struct Thrshlds
 {

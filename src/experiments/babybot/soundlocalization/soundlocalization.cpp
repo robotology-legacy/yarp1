@@ -11,7 +11,7 @@
 //     Description:  This is the main loop receiving the sound streams. Another class called
 //     soundprocessing is used to perform all the analysis.
 // 
-//         Version:  $Id: soundlocalization.cpp,v 1.8 2004-04-30 16:43:17 beltran Exp $
+//         Version:  $Id: soundlocalization.cpp,v 1.9 2004-05-05 15:03:57 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -102,6 +102,8 @@ int main(int argc, char* argv[])
 
 		_x = _soundprocessor.GetFilteredITD();
 		_y = _soundprocessor.GetFilteredILD();
+
+		_y *= 10;
 
 		// Move the origin to the center of the image
 		_x = (imgsizex/2 + functionx) - _x;

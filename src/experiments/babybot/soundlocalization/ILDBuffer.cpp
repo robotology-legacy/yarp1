@@ -10,7 +10,7 @@
 // 
 //     Description: This class implements a buffer of level data items 
 // 
-//         Version:  $Id: ILDBuffer.cpp,v 1.1 2004-04-30 12:52:50 beltran Exp $
+//         Version:  $Id: ILDBuffer.cpp,v 1.2 2004-05-05 15:03:57 beltran Exp $
 // 
 //          Author:  Lorenzo Natale. YARP adaptation by Carlos Beltran
 //         Company:  Lira-Lab
@@ -31,22 +31,21 @@
 //--------------------------------------------------------------------------------------
 CILDBuffer::CILDBuffer()
 {
-	int i=0;
+	int i  = 0;
+	m_size = 1;
+	actual = 0;
 	global_valid=0;
-	m_size=1;
-	actual=0;
 
 	pointer = new LEVEL_DATA [m_size];
 
 	ACE_ASSERT(pointer!=NULL);
 	for (i=0;i<m_size;i++) 
 	{
-		pointer[i].ild=0;
-		pointer[i].left_level=0;
-		pointer[i].right_level=0;
-		pointer[i].valid=0;
+		pointer[i].ild         = 0;
+		pointer[i].left_level  = 0;
+		pointer[i].right_level = 0;
+		pointer[i].valid       = 0;
 	}
-
 }	
 
 //--------------------------------------------------------------------------------------
@@ -69,10 +68,10 @@ CILDBuffer::CILDBuffer(int size)
 
 		for (i=0;i<m_size;i++)
 		{
-			pointer[i].ild=0;
-			pointer[i].left_level=0;
-			pointer[i].right_level=0;
-			pointer[i].valid=0;
+			pointer[i].ild         = 0;
+			pointer[i].left_level  = 0;
+			pointer[i].right_level = 0;
+			pointer[i].valid       = 0;
 		}
 
 		ACE_ASSERT (pointer != NULL);
@@ -85,10 +84,10 @@ CILDBuffer::CILDBuffer(int size)
 
 		for (i=0;i<m_size;i++) 	
 		{
-			pointer[i].ild=0;
-			pointer[i].left_level=0;
-			pointer[i].right_level=0;
-			pointer[i].valid=0;
+			pointer[i].ild         = 0;
+			pointer[i].left_level  = 0;
+			pointer[i].right_level = 0;
+			pointer[i].valid       = 0;
 		}
 		ACE_ASSERT (pointer != NULL);
 	}
@@ -124,10 +123,10 @@ int CILDBuffer::Resize(int new_size)
 			return 0;
 	for (int i=0;i<m_size;i++) 	
 	{
-		pointer[i].ild=0;
-		pointer[i].left_level=0;
-		pointer[i].right_level=0;
-		pointer[i].valid=0;
+		pointer[i].ild         = 0;
+		pointer[i].left_level  = 0;
+		pointer[i].right_level = 0;
+		pointer[i].valid       = 0;
 	}
 
 	global_valid=0;
