@@ -1,15 +1,18 @@
 [virtual=x86,bios +compress] .bootstrap={
 startup-bios  
 #ROBOT_SERVER=europa.lira.dist.unige.it
-PATH=/proc/boot:/net/europa.lira.dist.unige.it/usr/local/bin:/net/europa.lira.dist.unige.it/bin:/net/europa.lira.dist.unige.it/usr/photon/bin:/net/europa.lira.dist.unige.it/usr/local/bin LD_LIBRARY_PATH=/proc/boot:/usr/lib:/net/europa.lira.dist.unige.it/lib:/net/europa.lira.dist.unige.it/usr/lib:/net/europa.lira.dist.unige.it/lib/dll:/net/europa.lira.dist.unige.it/usr/local/lib YARP_ROOT=/net/europa.lira.dist.unige.it/home/cbeltran/DEVELOPMENT/yarp procnto
+PATH=/proc/boot:/net/europa/usr/local/bin:/net/europa/bin:/net/europa/usr/photon/bin:/net/europa/usr/local/bin procnto
 }
 
 [+script] .script={
-display_msg "My QNX Network image"
+LD_LIBRARY_PATH=/proc/boot:/usr/lib:/net/europa/lib:/net/europa/usr/lib:/net/europa/lib/dll:/net/europa/usr/local/lib:/net/europa/home/cbeltran/DEVELOPMENT/yarp/src/libraries/ACE_wrappers/ace
+YARP_ROOT=/net/europa/home/cbeltran/DEVELOPMENT/yarp
+display_msg "YARP QNX Network image"
 seedres
 pipe &
 pci-bios &
-hostname morpheus 
+setconf CS_HOSTNAME morpheus
+setconf CS_DOMAIN lira.dist.unige.it
 waitfor /dev/pci
 #put in your actual IP,netmask and gateway
 io-net -del900 -pttcpip if=en0:130.251.43.12:255.255.255.0 default=130.251.43.126 
@@ -65,6 +68,7 @@ hostname
 env
 ifconfig
 route
+setconf
 #netstat
 #pci
 #cat
