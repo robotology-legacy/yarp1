@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.3 2003-05-19 13:06:32 beltran Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.4 2003-05-21 12:22:05 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -95,6 +95,8 @@ public:
 	int error_limit(void *input);
 	int off_on_error(void *input);
 	
+	int controller_idle(void *input);
+	
 	int set_positive_limit(void * input);
 	int set_negative_limit(void * input);
 
@@ -124,6 +126,7 @@ protected:
 	inline void _ascii_to_binary(const char *in, double *out);
 	inline short _convert_float_to_bin (float f);
 	inline short _convert_float_to_bin (double d);
+	inline void double_to_int(int * int_array, double * double_array);
 };
 
 char *YARPGalilDeviceDriver::_append_cmd(char data, char *buf)
@@ -339,6 +342,14 @@ void YARPGalilDeviceDriver::_ascii_to_binary(const char *in, double *out)
 		}
 				
 		in++;
+	}
+}
+
+void YARPGalilDeviceDriver::double_to_int(int * int_array, double * double_array)
+{
+	for (int i = 0; i < m_njoints; i++)
+	{
+		*(int_array + i) = (int) *(double_array + i);
 	}
 }
 
