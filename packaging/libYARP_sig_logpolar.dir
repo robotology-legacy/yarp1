@@ -1,0 +1,4 @@
+root ..
+package libYARP_sig_logpolar
+copy dir src/libYARP_sig_logpolar
+endpackage
