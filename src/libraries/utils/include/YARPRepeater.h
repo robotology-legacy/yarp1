@@ -59,9 +59,8 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPRepeater.h,v 1.4 2003-07-24 07:56:52 gmetta Exp $
+/// $Id: YARPRepeater.h,v 1.5 2003-07-24 17:28:32 babybot Exp $
 ///  
-/// very simple class to handle config files... by nat May 2003
 //
 
 #ifndef __YARPREPEATER__
@@ -93,13 +92,10 @@ public:
 
 	virtual void Body(void)
 	{
-		///YARPBottle tmp;
 		while(!IsTerminated())
 		{
 			_inputPort.Read();
-			_inputPort.Content().display();
-			///tmp = _inputPort.Content();
-			///_outputPort.Content() = tmp;
+			_inputPort.Content().display();	// this is ok only if DATATYPE is a YARPBottle
 
 			_outputPort.Content() = _inputPort.Content();
 			_outputPort.Write();

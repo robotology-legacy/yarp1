@@ -25,6 +25,7 @@ enum {
 	YBVArmDone,
 	YBVArmRndStart,
 	YBVArmRndStop,
+	YBVIsAlive,
 	YBVExit
 };
 
@@ -36,6 +37,7 @@ const char *ybc_label(T x) {
 	case YBVArmDone: return "armdone";
 	case YBVArmRndStart: return "armrndstart";
 	case YBVArmRndStop: return "armrndstop";
+	case YBVIsAlive: return "I'm alive!";
   }
   return "UNKNOWN";
 };

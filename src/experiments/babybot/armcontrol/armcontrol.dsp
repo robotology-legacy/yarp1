@@ -97,6 +97,10 @@ PostBuild_Cmds=copy .\debug\armcontrol.exe ..\..\..\..\..\bin\winnt
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\ArmBehavior.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\armcontrol.cpp
 # End Source File
 # Begin Source File
@@ -124,6 +128,10 @@ SOURCE=.\YARPGravityEstimator.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\ArmBehavior.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\armstatus.h

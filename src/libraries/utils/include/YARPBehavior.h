@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.8 2003-07-23 17:18:57 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.9 2003-07-24 17:28:32 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -74,6 +74,13 @@
 
 #include "YARPBottle.h"
 #include "YARPBottleContent.h"
+
+#define YARP_BEHAVIOR_VERBOSE
+
+#ifdef YARP_BEHAVIOR_VERBOSE
+#define YARP_BEHAVIOR_DEBUG(string) YARP_DEBUG("YARP_BEHAVIOR :", string)
+#else YARP_BEHAVIOR_DEBUG(string) YARP_NULL_DEBUG
+#endif
 
 const int __exitCode = -1;
 
@@ -92,6 +99,7 @@ class YARPBehaviorSharedData
 			  printf("Sending data\n");
 			  _outPort.Content() = _data;
 			  _outPort.Write();
+			  _data.reset();
 		  }
 
 	YARPBottle _data;
@@ -258,11 +266,17 @@ _parse(YARPBottle &bottle)
 
 	// handle exit code
 	int vocab = -1;
-	if ( bottle.tryReadVocab(&vocab) &&
-		(vocab == YBVExit) )
+	if ( bottle.tryReadVocab(&vocab) )
 	{
-		_quit();
-		return -1;
+		if (vocab == YBVExit)
+		{
+			_quit();
+			return -1;
+		}
+		else if (vocab ==YBVIsAlive)
+		{
+			YARP_BEHAVIOR_DEBUG(("I'm Alive!\n"));
+		}
 	}
 			
 	// handle signals
@@ -296,9 +310,8 @@ handleMsg()
 	YARPBottle tmp;
 	tmp = _inport.Content();
 
-	tmp.display();
-	// printf("->HandleMsg: received %d %d\n", tmp[0], tmp[1]);
-		
+	// tmp.display();
+	
 	return _parse(tmp);
 }
 

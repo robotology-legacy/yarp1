@@ -150,6 +150,10 @@ void ASRestingInit:: handle(ArmThread *t)
 	
 	// chenge to wait state
 	changeState(t,waitState);
+
+	// signal end of motion
+	t->_data.writeVocab(YBVArmDone);
+	t->send();
 }
 
 void ASMove:: handle(ArmThread *t)
