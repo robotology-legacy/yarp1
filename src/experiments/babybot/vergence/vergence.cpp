@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.3 2003-11-21 17:53:02 babybot Exp $
+/// $Id: vergence.cpp,v 1.4 2003-11-25 10:37:24 babybot Exp $
 ///
 ///
 
@@ -186,6 +186,7 @@ int main(int argc, char *argv[])
 		disparity.makeHistogram (out);
 		out_img.Write();
 
+		printf ("d = %d\n", int(disparityval(1)+.5));
 		out_disp.Content() = disparityval;
 		out_disp.Write();
 	}

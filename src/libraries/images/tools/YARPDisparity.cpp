@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.3 2003-11-21 17:53:02 babybot Exp $
+/// $Id: YARPDisparity.cpp,v 1.4 2003-11-25 10:37:25 babybot Exp $
 ///
 ///
 
@@ -141,6 +141,10 @@ int YARPDisparityTool::loadShiftTable(Image_Data * Par)
 		ACE_OS::sprintf(File_Name,"%s%s_P%d%s",_path,"ShiftMap",Par->padding,".gio");
 	else
 		ACE_OS::sprintf(File_Name,"%s%1.2f_%s_P%d%s",_path,Par->Ratio,"ShiftMap",Par->padding,".gio");
+
+	/// alloc _corrFunct array.
+	_corrFunct = new double [_shiftLevels];
+	ACE_ASSERT (_corrFunct != NULL);
 
 	if ((fin = ACE_OS::fopen(File_Name,"rb")) != NULL)
 	{
@@ -241,9 +245,6 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
 										 YARPImageOf<YarpPixelBGR> & inRImg)
 {
 	int disparity;
-
-	_corrFunct = new double [_shiftLevels];
-	
 	disparity = Shift_and_Corr(	(unsigned char*)inLImg.GetRawBuffer(),
 								(unsigned char*)inRImg.GetRawBuffer(),
 								&_imgS,
@@ -255,7 +256,7 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
 	return disparity;
 }
 
-void YARPDisparityTool::makeHistogram(YARPImageOf<YarpPixelMono> & hImg)
+void YARPDisparityTool::makeHistogram(YARPImageOf<YarpPixelMono>& hImg)
 {
 	int i,j;
 	int height = 64;
@@ -276,5 +277,4 @@ void YARPDisparityTool::makeHistogram(YARPImageOf<YarpPixelMono> & hImg)
 		
 	for (j=0; j<height; j++)
 		hist[(j*width+width/2)] = 255;
-
 }
