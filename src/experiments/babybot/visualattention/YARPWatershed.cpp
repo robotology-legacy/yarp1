@@ -84,17 +84,6 @@ YARPWatershed::YARPWatershed(const int width1, const int height1, const int wste
 }
 
 
-/*YARPWatershed::YARPWatershed():
-{
-	neighborhood8=true;
-
-	watershedColor=0;
-	basinColor=255;
-
-	neigh=NULL;
-}*/
-
-
 void YARPWatershed::resize(const int width1, const int height1, const int wstep, const YarpPixelMono th)
 {
 	width=width1;
@@ -108,7 +97,6 @@ void YARPWatershed::resize(const int width1, const int height1, const int wstep,
 	threshold=th;
 	
 	createNeighborhood(wstep, neighborhood8);
-	//initBorderLUT(width, height);
 
 	downPos.Resize(widthStep,height);
 	downPos2.Resize(widthStep,height);
@@ -363,12 +351,19 @@ void YARPWatershed::connectivityGraph(const YARPImageOf<YarpPixelInt>& src, bool
 
 	// first row
 	// first pixel
-	// no check!
+	/*p=0;
+	for(n=neighSize/2-1; n<neighSize; n++) {
+		pos = p + neighL[n];
+		if (p_src[p]!=p_src[pos]) {
+			p_dst[p] = val;
+			break;
+		}
+	}*/
 	p=1;
 
 	// first row, 1->150
 	// Note that the pixel of the first row are all the same, so it is
-	// useless to check the "far" neighborhoods
+	// useless to check the "far" neighborhoods...
 	for(i=1; i<width-1; i++) {
 		for(n=neighSize/2-1; n<neighSize; n++) { // no top Neighbor
 			pos = p + neigh[n];
@@ -438,23 +433,22 @@ void YARPWatershed::connectivityGraph(const YARPImageOf<YarpPixelInt>& src, bool
 	p++;
 	// last row, 1->150
 	for(i=1; i<width-1; i++) {
-		for(n=0; n<neighSize/2+1; n++) { // no top Neighbor
-			pos = p + neigh[n];
-			if (p_src[p]!=p_src[pos]) {
-				matr[max_tag*p_src[p]+p_src[pos]]=true;
-				matr[max_tag*p_src[pos]+p_src[p]]=true;
-			}
+		n = neighSize/2;
+		pos = p + neigh[n];
+		if (p_src[p]!=p_src[pos]) {
+			matr[max_tag*p_src[p]+p_src[pos]]=true;
+			matr[max_tag*p_src[pos]+p_src[p]]=true;
 		}
 		p++;
 	}
 	// last pixel of the last row
-	for(n=0; n<neighSize/2+1; n++) {
+	/*for(n=0; n<neighSize/2+1; n++) {
 		pos = p + neighR[n];
 		if (p_src[p]!=p_src[pos]) {
 			matr[max_tag*p_src[p]+p_src[pos]]=true;
 			matr[max_tag*p_src[pos]+p_src[p]]=true;
 		}
-	}
+	}*/
 }
 
 

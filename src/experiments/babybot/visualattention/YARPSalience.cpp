@@ -726,7 +726,6 @@ int YARPSalience::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Yar
 
 int YARPSalience::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby)
 {
-	//IplROI zdi;
 	int salienceBU, salienceTD;
 
 	int a1,b1,a2,b2;
@@ -753,16 +752,6 @@ int YARPSalience::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 		if (m_boxes[i].valid) {
 			int tmp;
 			
-			/*int r, c;
-			int xdim, ydim;
-			int xmax, xmin ,ymin, ymax;
-			
-			Cartesian2Logpolar(m_boxes[i].centroid_x, m_boxes[i].centroid_y, r, c);
-			Cartesian2Logpolar(m_boxes[i].xmin, m_boxes[i].ymin, r, c);
-			Cartesian2Logpolar(m_boxes[i].xmin, m_boxes[i].ymin, r, c);
-			Cartesian2Logpolar(m_boxes[i].xmin, m_boxes[i].ymin, r, c);
-			Cartesian2Logpolar(m_boxes[i].xmin, m_boxes[i].ymin, r, c);*/
-
 			int rdim=(double)(m_boxes[i].rmax-m_boxes[i].rmin+1)*.75;
 			int cdim=(double)(m_boxes[i].cmax-m_boxes[i].cmin+1)*.75;
 
@@ -878,9 +867,8 @@ int YARPSalience::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 				m_boxes[i].salienceTotal=255;
 			else
 				m_boxes[i].salienceTotal=pBU*(a1*m_boxes[i].salienceBU/255+b1)+pTD*(a2*m_boxes[i].salienceTD/255+b2);
-			//m_boxes[i].salienceTotal=pBU*m_boxes[i].salienceBU+pTD*m_boxes[i].salienceTD;
-			//m_boxes[i].salienceTotal=pBU*m_boxes[i].salienceBU+pTD*(a2*m_boxes[i].salienceTD/255+b2);
-			//m_boxes[i].salienceTotal=pBU*255+pTD*(a2*m_boxes[i].salienceTD/255+b2);
+				//m_boxes[i].salienceTotal=pBU*m_boxes[i].salienceBU+pTD*(a2*m_boxes[i].salienceTD/255+b2);
+				//m_boxes[i].salienceTotal=pBU*255+pTD*(a2*m_boxes[i].salienceTD/255+b2);
 			for (int r=m_boxes[i].rmin; r<=m_boxes[i].rmax; r++)
 				for (int c=m_boxes[i].cmin; c<=m_boxes[i].cmax; c++)
 					if (tagged(c, r)==m_boxes[i].id) {

@@ -1108,8 +1108,7 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, bool stable)
 		ACE_OS::printf("Diff: %d\n", crg*crg+cgr*cgr+cby*cby);
 		ACE_OS::printf("Area: %lf\n", fovBox.areaCart);*/
 
-		//if (fovBox.areaCart>150 && crg*crg+cgr*cgr+cby*cby<500)
-		if (fovBox.areaCart>150 && crg*crg+cgr*cgr+cby*cby<maxError)
+		if (fovBox.areaCart>200 && crg*crg+cgr*cgr+cby*cby<maxError)
 			found=true;
 	}	
 	
@@ -1130,11 +1129,6 @@ void YARPImgAtt::resetObject()
 
 int YARPImgAtt::learnObject()
 {
-	if (connGraph!=NULL) delete [] connGraph;
-	connGraph = new bool [(max_tag+1)*(max_tag+1)];
-	
-	rain.connectivityGraph(tagged, connGraph, max_tag+1);
-	
 	memset(blobList, 0, sizeof(char)*(max_tag+1));
 	rain.findNeighborhood(tagged, 0, 0, blobList);
 	ACE_OS::printf("%d neigh boxes found\n", countBlobList(blobList, max_tag));
@@ -1143,12 +1137,14 @@ int YARPImgAtt::learnObject()
 		for (int i=2; i<=max_tag; i++) {
 			// Note that boxes not within range aren't considered...
 			//if (blobList[i]==1 && salience.getBlobNum(i).valid) {
-			if (blobList[i]==1 && salience.getBlobNum(i).areaCart>100 && salience.getBlobNum(i).areaCart<6000 && !isHand(salience.getBlobNum(i))) {
+			if (blobList[i]==1 && salience.getBlobNum(i).areaCart>minBoundingArea && salience.getBlobNum(i).areaCart<6000 && !isHand(salience.getBlobNum(i))) {
 				neighBoxes[numNeighBoxes]=salience.getBlobNum(i);
 				neighProb[numNeighBoxes]=2./3.;
-				//neighProb2[numNeighBoxes]=2./3.;
+				
+				// background blobs
 				neighEpoch2[numNeighBoxes]=0;
 				neighFounded2[numNeighBoxes]=0;
+				
 				numNeighBoxes++;
 			}
 		}
@@ -1167,8 +1163,8 @@ int YARPImgAtt::learnObject()
 			for (int n=0; n<numNeighBoxes; n++) {
 				if (!neighTaken[n]) {
 					for (int b=2; b<=max_tag; b++) {
-						//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
-						if (blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000) {
+						//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
+						if (blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000) {
 							YARPBox tmp;
 							salience.getBlobNum(b, tmp);
 			
@@ -1203,23 +1199,14 @@ int YARPImgAtt::learnObject()
 		if (numNeighBoxes<width*height) {
 			int added=0;
 			for (int b=2; b<=max_tag; b++) {
-				/*if (!neighTaken[b] && blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000) {
+				if (blobListObject[b]==0 && blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000 && !isHand(salience.getBlobNum(b))) {
 					neighBoxes[numNeighBoxes]=salience.getBlobNum(b);
-					// più ke altro potrei stabilire ke un box è buono se è utilizzato
-					// da almeno tot sessioni di addestramento
-					//neighProb[numNeighBoxes]=1./epoch;
-					neighProb[numNeighBoxes]=1;
-					numNeighBoxes++;
-					added++;
-				}*/
-				if (blobListObject[b]==0 && blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000 && !isHand(salience.getBlobNum(b))) {
-					neighBoxes[numNeighBoxes]=salience.getBlobNum(b);
-					// più ke altro potrei stabilire ke un box è buono se è utilizzato
-					// da almeno tot sessioni di addestramento
 					neighProb[numNeighBoxes]=2./(epoch+2);
-					//neighProb2[numNeighBoxes]=2./(epoch+2);
+					
+					// background blobs
 					neighEpoch2[numNeighBoxes]=0;
 					neighFounded2[numNeighBoxes]=0;
+					
 					numNeighBoxes++;
 					added++;
 				}
@@ -1238,23 +1225,30 @@ int YARPImgAtt::learnObject()
 
 void YARPImgAtt::learnBackground()
 {
+	if (connGraph!=NULL) delete [] connGraph;
+	connGraph = new bool [(max_tag+1)*(max_tag+1)];
+	rain.connectivityGraph(tagged, connGraph, max_tag+1);
+
 	memset(neighTaken, false, sizeof(bool)*(max_tag+1));
 	memset(blobListBack, 0, sizeof(char)*(max_tag+1));
 	
 	memset(neighTemp, false, sizeof(bool)*(max_tag+1));
 	int recognized=0;
 
+	// mark blobs that are near target blob
 	for (int b=2; b<=max_tag; b++) {
 		YARPBox tmp;
 		salience.getBlobNum(b, tmp);
-		
-		int crg=searchRG-tmp.meanRG;
-		int cgr=searchGR-tmp.meanGR;
-		int cby=searchBY-tmp.meanBY;
 
-		if (crg*crg+cgr*cgr+cby*cby<maxError) {
-			neighTemp[b]=true;
-			recognized++;
+		if (tmp.areaCart>minBoundingArea && tmp.areaCart<6000) {
+			int crg=searchRG-tmp.meanRG;
+			int cgr=searchGR-tmp.meanGR;
+			int cby=searchBY-tmp.meanBY;
+
+			if (crg*crg+cgr*cgr+cby*cby<maxError) {
+				neighTemp[b]=true;
+				recognized++;
+			}
 		}
 	}
 	
@@ -1266,8 +1260,8 @@ void YARPImgAtt::learnBackground()
 			for (int n=0; n<numNeighBoxes; n++) {
 				if (!neighTaken[n]) {
 					for (int b=2; b<=max_tag; b++) {
-						//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
-						if (blobList[b]!=1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000 && blobListBack[b]==0) {
+						//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
+						if (blobList[b]!=1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000 && blobListBack[b]==0) {
 							for (int c=2; c<=max_tag; c++) {
 								if (connGraph[b*(max_tag+1)+c] && neighTemp[c]) {
 									break;
@@ -1294,14 +1288,11 @@ void YARPImgAtt::learnBackground()
 			if (min<maxError) {
 				neighTaken[minModelBlob]=true;
 				blobListBack[minBlob]=2;
-				//recognized++;
 			} else
 				break;
 		}
 
 		for (int n=0; n<numNeighBoxes; n++) {
-			//if (neighTaken[n]) neighProb2[n]=neighProb2[n]*(epoch+1)/(epoch+2)+1./(epoch+2);
-			//else neighProb2[n]=neighProb2[n]*(epoch+1)/(epoch+2);
 			neighEpoch2[n]++;
 			if (neighTaken[n]) neighFounded2[n]++;
 		}
@@ -1317,7 +1308,7 @@ int YARPImgAtt::learnHand()
 
 	if (numNeighBoxesHand==0) {
 		for (int i=2; i<=max_tag; i++) {
-			if (blobList[i]==1 && salience.getBlobNum(i).areaCart>100 && salience.getBlobNum(i).areaCart<6000) {
+			if (blobList[i]==1 && salience.getBlobNum(i).areaCart>minBoundingArea && salience.getBlobNum(i).areaCart<6000) {
 				neighBoxesHand[numNeighBoxesHand]=salience.getBlobNum(i);
 				neighProbHand[numNeighBoxesHand]=2./3.;
 				numNeighBoxesHand++;
@@ -1338,8 +1329,8 @@ int YARPImgAtt::learnHand()
 			for (int n=0; n<numNeighBoxesHand; n++) {
 				if (!neighTaken[n]) {
 					for (int b=2; b<=max_tag; b++) {
-						//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
-						if (blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000) {
+						//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
+						if (blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000) {
 							YARPBox tmp;
 							salience.getBlobNum(b, tmp);
 			
@@ -1374,7 +1365,7 @@ int YARPImgAtt::learnHand()
 		if (numNeighBoxesHand<width*height) {
 			int added=0;
 			for (int b=2; b<=max_tag; b++) {
-				/*if (!neighTaken[b] && blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000) {
+				/*if (!neighTaken[b] && blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000) {
 					neighBoxes[numNeighBoxes]=salience.getBlobNum(b);
 					// più ke altro potrei stabilire ke un box è buono se è utilizzato
 					// da almeno tot sessioni di addestramento
@@ -1383,7 +1374,7 @@ int YARPImgAtt::learnHand()
 					numNeighBoxes++;
 					added++;
 				}*/
-				if (blobListObject[b]==0 && blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000) {
+				if (blobListObject[b]==0 && blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000) {
 					neighBoxesHand[numNeighBoxesHand]=salience.getBlobNum(b);
 					// più ke altro potrei stabilire ke un box è buono se è utilizzato
 					// da almeno tot sessioni di addestramento
@@ -1422,15 +1413,11 @@ bool YARPImgAtt::isHand(YARPBox &box)
 bool YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src)
 {
 	if (numNeighBoxes!=0) {
-		double totalScore=0;
-		double totalScore2=0;
-		//double totalScore3=0;
 		double totalScore4=1;
 		double totalScore5=1;
 		double totalScore6=1;
 		double confidence=1;
 		int k=0;
-		//int kk=0;
 
 		memset(blobList, 0, sizeof(char)*(max_tag+1));
 		rain.findNeighborhood(tagged, 0, 0, blobList);
@@ -1445,8 +1432,8 @@ bool YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src)
 			for (int n=0; n<numNeighBoxes; n++) {
 				if (!neighTaken[n]) {
 					for (int b=2; b<=max_tag; b++) {
-						//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
-						if (blobList[b]==1 && salience.getBlobNum(b).areaCart>100 && salience.getBlobNum(b).areaCart<6000) {
+						//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
+						if (blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000) {
 							YARPBox tmp;
 							salience.getBlobNum(b, tmp);
 			
@@ -1472,61 +1459,23 @@ bool YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src)
 				break;
 		}
 			
-		bool atLeastOne=false;
 		for (int n=0; n<numNeighBoxes; n++) {
 			// se il punteggio è basso il fatto ke nn ci sia nn dovrebbe influire
 			// altrimenti 2000 blob con prob 0.1 di esserci ke nn ci sono mi abbassa tantissimo
 			// il punteggio!
 			if (neighTaken[n]) {
 				confidence*=neighProb[n];
-				//confidence*=(double)neighFounded[n]/neighEpoch[n];
-				//totalScore4*=(0.9*neighProb[n]+0.5*(1-neighProb[n]));
-				//totalScore4*=__min(neighProb[n]+sqrt(neighProb[n]*(1-neighProb[n])/epoch)+0.1,1);
 				totalScore4*=neighProb[n];
 				totalScore5*=(double)(neighFounded2[n]+1)/(neighEpoch2[n]+2);
 			} else {
 				confidence*=(1-neighProb[n]*(1-0.2));
-				//confidence*=(1-(double)neighFounded[n]/neighEpoch[n]);
-				//totalScore4*=(1-neighProb[n]*(1-0.2));
-				//totalScore4*=(1-(0.9*neighProb[n]+0.5*(1-neighProb[n])));
-				//totalScore4*=__min(1-neighProb[n]+sqrt(neighProb[n]*(1-neighProb[n])/epoch)+0.1,1);
 				totalScore4*=1-neighProb[n];
 				totalScore5*=1-(double)(neighFounded2[n]+1)/(neighEpoch2[n]+2);
 			}
-
-			if (neighProb[n]>=.75 || neighProb[n]<=0.25) {
-			//if ((double)neighFounded[n]/neighEpoch[n]>=0.75 || (double)neighFounded[n]/neighEpoch[n]<=0.25) {
-				k++;
-				atLeastOne=true;
-				if (neighTaken[n]) {
-					totalScore+=(neighProb[n]>=0.75);
-					//totalScore+=((double)neighFounded[n]/neighEpoch[n]>=0.75);
-					if (neighProb[n]>=0.75) totalScore2+=((neighProb[n]-0.75)*4);
-					//confidence*=neighProb[n];
-					//confidence*=(double)neighFounded[n]/neighEpoch[n];
-					//totalScore4*=neighProb[n];
-				} else {
-					totalScore+=(neighProb[n]<=0.25);
-					//totalScore+=((double)neighFounded[n]/neighEpoch[n]<=0.25);
-					if (neighProb[n]<=0.25) totalScore2+=((0.25-neighProb[n])*4);
-					//confidence*=(1-neighProb[n]*(1-0.2));
-					//confidence*=(1-(double)neighFounded[n]/neighEpoch[n]);
-					//totalScore4*=(1-neighProb[n]*(1-0.2));
-				}
-			}
 		}
 		
-		totalScore/=k;
-		totalScore2/=k;
-		//totalScore3/=kk;
 		if (totalScore4!=0) totalScore6=totalScore4/(totalScore4+totalScore5);
 		else totalScore6=0;
-
-		if (!atLeastOne) {
-			totalScore=0.5;
-			totalScore2=0.5;
-			confidence=0;
-		}
 
 		objectFov.Zero();
 		if (totalScore6>=0.5) {
@@ -1535,14 +1484,9 @@ bool YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src)
 			salience.drawBlobListMask(src, objectFov, tagged, blobListObject, max_tag);
 		}
 
-		//totalScore/=k;
-		//ACE_OS::printf("Total Score: %lf\n", totalScore);
-		//ACE_OS::printf("Total Score2: %lf\n", totalScore2);
-		//ACE_OS::printf("Total Score3: %lf\n", totalScore3);
 		ACE_OS::printf("Total Score4: %lf\n", totalScore4);
 		ACE_OS::printf("Total Score5: %lf\n", totalScore5);
 		ACE_OS::printf("Total Score6: %lf\n", totalScore6);
-		//ACE_OS::printf("Confidence: %lf\n", confidence);
 		/*if (totalScore<.8) ACE_OS::printf(" too low, moving\n");
 		else ACE_OS::printf("\n");*/
 		//return (totalScore<.8 && epoch>30);
@@ -1559,8 +1503,6 @@ void YARPImgAtt::dumpLearnObject()
 	ACE_OS::printf("Epochs: %lu\n", epoch);
 	ACE_OS::printf("Boxes: %d\n", numNeighBoxes);
 	for (int i=0; i<numNeighBoxes; i++) {
-		//ACE_OS::printf("Box #%d: %lf RG:%d  GR:%d  BY:%d  %lf ", i, neighProb[i], neighBoxes[i].meanRG, neighBoxes[i].meanGR, neighBoxes[i].meanBY, neighProb2[i]);
-		//ACE_OS::printf("Box #%d: %lf RG:%d  GR:%d  BY:%d ", i, (double)neighFounded[i]/neighEpoch[i], neighBoxes[i].meanRG, neighBoxes[i].meanGR, neighBoxes[i].meanBY);
 		ACE_OS::printf("Box #%d: %lf RG:%d  GR:%d  BY:%d  %lf ", i, neighProb[i], neighBoxes[i].meanRG, neighBoxes[i].meanGR, neighBoxes[i].meanBY, (double)(neighFounded2[i]+1)/(neighEpoch2[i]+2));
 		if (neighTaken[i])
 			ACE_OS::printf("found");
@@ -1575,8 +1517,6 @@ void YARPImgAtt::dumpLearnHand()
 	ACE_OS::printf("Epochs: %lu\n", epochHand);
 	ACE_OS::printf("Boxes: %d\n", numNeighBoxesHand);
 	for (int i=0; i<numNeighBoxesHand; i++) {
-		//ACE_OS::printf("Box #%d: %lf RG:%d  GR:%d  BY:%d  %lf ", i, neighProb[i], neighBoxes[i].meanRG, neighBoxes[i].meanGR, neighBoxes[i].meanBY, neighProb2[i]);
-		//ACE_OS::printf("Box #%d: %lf RG:%d  GR:%d  BY:%d ", i, (double)neighFounded[i]/neighEpoch[i], neighBoxes[i].meanRG, neighBoxes[i].meanGR, neighBoxes[i].meanBY);
 		ACE_OS::printf("Box #%d: %lf RG:%d  GR:%d  BY:%d\n", i, neighProbHand[i], neighBoxesHand[i].meanRG, neighBoxesHand[i].meanGR, neighBoxesHand[i].meanBY);
 	}
 }
@@ -1585,7 +1525,6 @@ void YARPImgAtt::dumpLearnHand()
 void YARPImgAtt::colorOpponency(YARPImageOf<YarpPixelBGR> &src)
 {
 	//YARPConvKernelFile::Write("./prewitt.yck\0",prewitt);
-	
 
 	DBGPF1 ACE_OS::printf(">>> getting planes\n");
 	//YARPImageUtils::GetAllPlanes(src, b1, g1, r1);
@@ -1849,7 +1788,7 @@ void YARPImgAtt::drawBlobs(bool stable)
 
 	YarpPixelBGR varFoveaBlob = salience.varBlob(tagged, rg, gr, by, 1);
 
-	salience.drawFoveaBlob(blobFov, tagged);
+	//salience.drawFoveaBlob(blobFov, tagged);
 	//salience.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
 	
 	//blobFov.Zero();
@@ -1877,7 +1816,13 @@ void YARPImgAtt::drawBlobs(bool stable)
 	if (stable) {
 		memset(blobList, 0, sizeof(char)*(max_tag+1));
 		rain.findNeighborhood(tagged, 0, 0, blobList);
-		int num = salience.countSmallBlobs(tagged, blobList, max_tag, 100);
+		salience.countSmallBlobs(tagged, blobList, max_tag, minBoundingArea);
+		blobList[1]=0;
+		salience.mergeBlobs(tagged, blobList, max_tag, 1);
+
+		memset(blobList, 0, sizeof(char)*(max_tag+1));
+		rain.findNeighborhood(tagged, 0, 0, blobList);
+		salience.countSmallBlobs(tagged, blobList, max_tag, minBoundingArea);
 		blobList[1]=0;
 		salience.mergeBlobs(tagged, blobList, max_tag, 1);
 
@@ -1886,12 +1831,15 @@ void YARPImgAtt::drawBlobs(bool stable)
 			salience.mergeBlobs(tagged, blobList, max_tag, 1);
 			memset(blobList, 0, sizeof(char)*max_tag);
 			rain.findNeighborhood(tagged, 0, 0, blobList);
-			num = salience.checkSmallBlobs(tagged, blobList, max_tag, 100);
+			num = salience.checkSmallBlobs(tagged, blobList, max_tag, minBoundingArea);
 		}*/
 	}
 		
+	salience.drawFoveaBlob(blobFov, tagged);
+	//salience.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
+	
 	// Comment the following line to disable the elimination of non valid blob
-	salience.RemoveNonValid(max_tag, 6000, 100);
+	salience.RemoveNonValid(max_tag, 6000, minBoundingArea);
 	
 	//salience.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
 	//salience.checkIOR(tagged, IORBoxes, num_IORBoxes);

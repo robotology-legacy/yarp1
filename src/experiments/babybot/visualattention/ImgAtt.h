@@ -96,6 +96,7 @@
 
 const int range = 256;
 const int maxError=1000;
+const int minBoundingArea=100;
 
 typedef struct { int x; int y; } Vett;
 

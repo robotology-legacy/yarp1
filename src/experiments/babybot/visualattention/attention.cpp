@@ -92,7 +92,7 @@ using namespace std;
 
 using namespace _logpolarParams;
 
-///
+
 /// global params.
 char _inName1[512];
 char _inName2[512];
@@ -157,7 +157,7 @@ void secondthread::Body(void)
 		//cout<<joints(1)<<" "<<joints(2)<<" "<<joints(3)<<" "<<joints(4)<<" "<<joints(5)<<endl;
 		//cout<<joints.Length()<<endl;
 		bool changed=false;
-		// It must skip the 4th joint
+		// It must skip the 4th joint, right camera
 		for (int i=1; i<=3;i++)
 			if (fabs(joints(i)-jointsOld(i))>diffJoints) {
 				diffJoints=fabs(joints(i)-jointsOld(i));
@@ -168,8 +168,6 @@ void secondthread::Body(void)
 			changed=true;
 		}
 
-		/*if (changed)
-			cout<<diffJoints<<endl;*/
 		if (diffJoints<0.001)
 		//if (diffJoints<0.0005)
 		//if (diffJoints<0.0001)
@@ -213,8 +211,6 @@ void mainthread::Body (void)
 	double cur;
 	
 	char savename[512];
-
-	//YVector v(2);
 
 	YARPConicFitter fit;
 	YARPLpConicFitter fitlp;
@@ -441,12 +437,12 @@ void mainthread::Body (void)
 		//} while (targetFound && (message!=YBVReachingAck && message!=YBVReachingAbort) && !noOutput);
 
 		////////////////////
-		if (message==YBVReachingAbort)
+		/*if (message==YBVReachingAbort)
 			ACE_OS::printf("-------------->Reaching aborted\n");
 		else if (message==YBVReachingAck)
 			ACE_OS::printf("-------------->Reaching started! YUU-HUU!!!\n");
 		if (exploring && targetFound) att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
-		targetFound = false;
+		targetFound = false;*/
 		////////////////////
 		
 		if (isStarted) {
@@ -511,7 +507,6 @@ void mainthread::Body (void)
 												
 						targetFound = false;
 						// If the robot is searching the movement isn't displayed
-						//if (!searching && att_mod.isWithinRange(cartx, carty) && moved!=-2) {
 						if (!searching && att_mod.isWithinRange(cartx, carty)) {
 							out.Refer(tmp2);
 													
@@ -558,7 +553,7 @@ endDiffCheck:
 				
 				if (!diffFoundValid) {
 					if (moved<=0 && toMem>0) {
-						if (found | !searching) { // I'm searching and found or this is the first time
+						if (found | !searching) { // I'm searching and target blob found or this is the first time
 							mRG=att_mod.fovBox.meanRG;
 							mGR=att_mod.fovBox.meanGR;
 							mBY=att_mod.fovBox.meanBY;
@@ -592,6 +587,7 @@ endDiffCheck:
 							moved = 2;
 						}
 					} else if (moved==0) {
+						// Special frame: now decision and data could be sent
 						if (found) {
 							mustMove=!att_mod.checkObject(img);
 							att_mod.dumpLearnObject();
@@ -603,7 +599,7 @@ endDiffCheck:
 									outBottle.Content() = tmpBottle;
 									outBottle.Write();*/
 								} else
-									ACE_OS::printf("Target found but freezed!\n");
+									ACE_OS::printf("Target found but I'm freezed!\n");
 							}
 							targetFound = !mustMove;
 						} else {
@@ -627,7 +623,7 @@ endDiffCheck:
 								outBottle.Content() = tmpBottle;
 								outBottle.Write();
 							} else
-								ACE_OS::printf("Sending point but freezed!\n");
+								ACE_OS::printf("I should send a new point but I'm freezed!\n");
 							mustMove = false;
 						}
 					} else if (moved==-1) {
@@ -642,9 +638,6 @@ endDiffCheck:
 								att_mod.dumpLearnObject();
 								learnObject=false;
 							}
-							/*tmpBottle.writeInt(-3);
-							tmpBottle.writeInt(-3);
-							tmpBottle.writeInt(-3);*/
 						} else if (mustMove) {
 							if (!noOutput) {
 								if (exploring) {
@@ -666,7 +659,7 @@ endDiffCheck:
 								outBottle.Content() = tmpBottle;
 								outBottle.Write();
 							} else 
-								ACE_OS::printf("Must move but freezed!\n");
+								ACE_OS::printf("I must move but I'm freezed!\n");
 							mustMove = false;
 						} else {
 							/*tmpBottle.writeInt(-1);
@@ -681,9 +674,6 @@ endDiffCheck:
 					}
 
 					// blob in fovea
-					/*tmpBottle.writeInt(att_mod.fovBox.meanRG);
-					tmpBottle.writeInt(att_mod.fovBox.meanGR);
-					tmpBottle.writeInt(att_mod.fovBox.meanBY);*/
 					out.Refer(att_mod.Saliency());
 					//ARRONZAMENTO
 					YARPImageUtils::SetRed(out, colored_u);
@@ -719,9 +709,6 @@ endDiffCheck:
 				ACE_OS::printf("No point: the robot is moving\r");
 				moved = frameToStabilize;
 				targetFound = false;
-				/*tmpBottle.writeInt(-4);
-				tmpBottle.writeInt(-4);
-				tmpBottle.writeInt(-4);*/
 			}
 			
 			//imgOld.Refer(img);
