@@ -1,7 +1,7 @@
 #ifndef __YARPEUROBOTHEAD__
 #define __YARPEUROBOTHEAD__
 
-// $Id: YARPEurobotHead.h,v 1.4 2003-11-13 18:22:41 beltran Exp $
+// $Id: YARPEurobotHead.h,v 1.5 2003-12-22 17:57:49 beltran Exp $
 
 #include <conf/YARPConfig.h>
 #include <YARPGenericControlBoard.h>

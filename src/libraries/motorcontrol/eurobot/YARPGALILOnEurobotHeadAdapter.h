@@ -1,4 +1,4 @@
-//$Id: YARPGALILOnEurobotHeadAdapter.h,v 1.6 2003-11-14 13:48:35 beltran Exp $
+//$Id: YARPGALILOnEurobotHeadAdapter.h,v 1.7 2003-12-22 17:57:49 beltran Exp $
 
 #ifndef __GALILONEUROBOTHEAD__
 #define __GALILONEUROBOTHEAD__
@@ -82,6 +82,9 @@ public:
 			_axis_map[i] = _EurobotHead::_axis_map[i];
 			_signs[i] = _EurobotHead::_signs[i];
 			_encoderToAngles[i] = _EurobotHead::_encoderToAngles[i];
+			_encoderToAngles[i] = _EurobotHead::_encoderToAngles[i];
+			_stiffPID[i] = _EurobotHead::_stiffPID[i];
+			_maxDAC[i] = _EurobotHead::_maxDAC[i];
 		}
 	}
 
@@ -108,7 +111,6 @@ public:
 		if (_limitsMin != NULL)
 			delete [] _limitsMin;
 	}
-
 
 	int load(const YARPString &path, const YARPString &init_file)
 	{
@@ -310,18 +312,32 @@ public:
 		return YARP_OK;
 	}
 
-	int activatePID()
+	int activateLowPID(bool reset = true)
+	{
+		return activatePID(reset, _parameters->_lowPIDs);
+	}
+
+	int activatePID(bool reset, LowLevelPID *pids = NULL)
 	{
 		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			IOCtl(CMDControllerIdle, &i);
 			SingleAxisParameters cmd;
 			cmd.axis = i;
-			cmd.parameters = &_parameters->_highPIDs[i];
+
+			if (pids == NULL)
+				cmd.parameters = &_parameters->_highPIDs[i];
+			else
+				cmd.parameters = &pids[i];
+				
 			IOCtl(CMDSetPID, &cmd);
-			double pos = 0.0;
-			cmd.parameters = &pos;
-			IOCtl(CMDDefinePosition, &cmd);
+
+			// reset encoders
+			if (reset) {
+				double pos = 0.0;
+				cmd.parameters = &pos;
+				IOCtl(CMDDefinePosition, &cmd);
+			}
 			IOCtl(CMDServoHere,NULL); //Start the motors
 			//IOCtl(CMDControllerRun, &i);
 			//IOCtl(CMDEnableAmp, &i);
@@ -332,7 +348,6 @@ public:
 
 	int readAnalogs(double *val)
 	{
-		
 		int i;
 		int ret;
 
