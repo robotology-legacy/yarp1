@@ -12,8 +12,9 @@ include $(YARP_ROOT)/conf/Makefile.template
 CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS)
 
 BIN     = YARPNameService
+	
 
-FILES 	= YARPNameServer \
+FILES 	= YARPNameServer	\
 	LocalNameServer
 	  
 LDLIBS  = $(MATHLIB) $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib
@@ -22,7 +23,9 @@ LSRC    = $(addsuffix .cpp,$(FILES))
 LOBJ    = $(addsuffix .o,$(FILES))
 SHOBJ   = $(addsuffix .so,$(FILES))
 
-LDLIBS  =  $(addprefix .shobj/,$(SHOBJ))
+#LDLIBS  =  $(addprefix .shobj/,$(SHOBJ))
+LDLIBS  =  $(addprefix .obj/,$(LOBJ))
+
 
 VLDLIBS = $(LDLIBS:%=%$(VAR))
 
@@ -53,8 +56,9 @@ include	$(ACE_ROOT)/include/makeinclude/rules.local.GNU
 # DO NOT DELETE THIS LINE -- g++dep uses it.
 # DO NOT PUT ANYTHING AFTER THIS LINE, IT WILL GO AWAY.
 
-.obj/YARPNameServer.o .shobj/YARPNameServer.so:  YARPNameServer.cpp 
-.obj/LocalNameServer.o .shobj/LocalNameServer.so: LocalNameServer.cpp
+.obj/YARPNameService.o	:	.obj/YARPNameServer.o	.obj/LocalNameServer.o
+.obj/YARPNameServer.o .shobj/YARPNameServer.so :  YARPNameServer.cpp YARPNameServer.h
+.obj/LocalNameServer.o .shobj/YARPNameServer.so : LocalNameServer.cpp LocalNameServer.h
 
 
 

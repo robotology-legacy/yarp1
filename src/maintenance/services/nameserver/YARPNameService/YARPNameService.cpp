@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.6 2003-06-18 10:17:24 beltran Exp $
+/// $Id: YARPNameService.cpp,v 1.7 2003-06-20 17:38:12 beltran Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
 #ifdef __WIN32__
 	ACE_OS::sprintf (buf, "%s\\%s\0", GetYarpRoot(), _name_file_path);
 #else
-	ACE_OS::sprintf (buf, "%s/%s", GetYarpRoot(), _name_file_path);
+	ACE_OS::sprintf (buf, "%s/%s\0", GetYarpRoot(), _name_file_path);
 #endif
 
 	ifstream fin(buf);
@@ -144,6 +144,7 @@ int main(int argc, char* argv[])
 #ifdef __WIN32__
 	ACE_OS::sprintf (buf, "%s\\%s\0", GetYarpRoot(), _name_static_init);
 #else
+	ACE_OS::sprintf (buf, "%s/%s\0", GetYarpRoot(), _name_static_init);
 #endif
 	YARPNameServer dns(buf, _server_port);
 

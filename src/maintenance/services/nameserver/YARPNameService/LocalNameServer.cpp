@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.7 2003-06-18 21:45:00 gmetta Exp $
+/// $Id: LocalNameServer.cpp,v 1.8 2003-06-20 17:38:13 beltran Exp $
 ///
 
 #include "LocalNameServer.h"
@@ -450,12 +450,11 @@ void LocalNameServer::init(const std::string &filename)
 		input >> ip;	// ip address
 		input >> n;		// max_references
 
-		////Carlos. This doesn´t work for the gcc, buh?
 		// just check to be sure both name and size are not empty
-		////if ((name.size != 0) && (ip.size != 0) )
-		////{
-	//		statics.check_in(name, ip, 0, n);
-		////}
+		//if ((name.size != 0) && (ip.size != 0) )
+		//{
+		//	statics.check_in(name, ip, 0, n);
+		//}
 	}
 	input.close();
 }
@@ -611,7 +610,7 @@ int LocalNameServer::_registerName(const std::string &name, const IpEntry &entry
 		// get new resources
 		addresses.ask_new(tmp_ip, ports, nPorts);
 	
-		if ((ports.begin()) != __portNotFound)
+		if ((ports.begin()) != (PORT_IT) __portNotFound)
 		{
 		///if ((ports.begin()) == NULL){ /// wrong!
 			// register new resource
