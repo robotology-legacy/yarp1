@@ -86,11 +86,12 @@ The examples here are drawn from a frame grabber wrapper.
 
 		this represents all that can be done with the device driver:
 		the actual interface between the HW and our software layer.
+		NOTE: this is a separate file because many devices may share the same messages
 
 3- things to do in the implementation:
 	XXXXDeviceDriver.cpp
 
-		- create your own system_resources class suited to your needs: this is just a convenience class
+		- create the system_resources class suited to your needs: this is just a convenience class
 		dealing with the HW details.
 
 		example:
@@ -263,6 +264,19 @@ The examples here are drawn from a frame grabber wrapper.
 			return _adapter.IOCtl (FCMDAcquireBuffer, (void *)buffer);
 		}
 
+8- finally use the device driver following this example:
+		- Usually add a .h file specific to the architecture such as:
+			YARPBabybotGrabber.h
+		which for example contains:
+
+		#include <YARPGenericGrabber.h>
+		#include <YARPPicoloOnBabybotAdapter.h>
+
+		typedef YARPGenericGrabber<YARPPicoloOnBabybotAdapter, YARPBabybotGrabberParams> YARPBabybotGrabber;
+
+		to simplify things redefine the type passing the appropriate classes to the template.
+		The nice thing is that the same YARPGenericGrabber can be recycled onto different architecture/grabber
+		types.
 
 USE this file and the examples to implement your own YARP compatible device driver.
 
