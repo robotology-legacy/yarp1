@@ -1,13 +1,12 @@
-#$Id: Makefile,v 1.4 2003-06-09 15:15:57 beltran Exp $
+#$Id: Makefile,v 1.5 2003-06-19 17:40:39 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
-SYSDIR = qnx6
+#SYSDIR = qnx6
 
 OBJS =
 CC = g++
-CFLAGS = --static -g -I $(YARP_ROOT)/include -I ../../common -I $(YARP_ROOT)/src/libraries/os_services/include \
--I $(YARP_ROOT)/src/libraries/os_services/sys_include -I ./dd_orig/include 
+CFLAGS = --static -g -I $(YARP_ROOT)/include -I ../../common -I ./dd_orig/include 
 
 SUBDIRS =
 
@@ -23,10 +22,12 @@ clean:
 	rm *.o
 	
 install:
-	cp *.lib $(YARP_ROOT)/src/hardware/lib
+	cp *.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
+	cp *.lib $(YARP_ROOT)/lib/$(OS)
 	cp *.h	 $(YARP_ROOT)/src/hardware/include
 	cp *.h 	 $(YARP_ROOT)/include
-	cp ./dd_orig/lib/*.lib $(YARP_ROOT)/src/hardware/lib
+	cp ./dd_orig/lib/*.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
+	cp ./dd_orig/lib/*.lib $(YARP_ROOT)/lib/$(OS)
 
 
 
