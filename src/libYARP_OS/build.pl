@@ -7,34 +7,105 @@
 #		  --clean to clean obj files
 #		  --install to copy files to the defaul installation path
 #
+#		  --file <config_file>
+#			where <config_file> is the filename of the context config file.
 #
 #
 
 use Getopt::Long;
 use File::Copy;
 
-print "Entering build process of YARP libraries...\n";
+print "Entering compile process of YARP OS libraries...\n";
+
 chomp ($tmp = `ver`);
 if (index ($tmp, "Windows") < 0)
 {
+	print "This is a Windows 2000/XP specific script\n";
+	print "Perhaps this procedure can be simply extended to\n"; 
+	print "other OSes but for now, this is all experimental...\n";
+	
 	die "This script is specific to Windows 2000/XP\n";
 }
 
 $yarp_root = $ENV{'YARP_ROOT'};
 if (!defined($yarp_root))
 {
-	die "YARP_ROOT env var must be defined!\n";
+	die "YARP_ROOT environment variable must be defined!\nto point to the path of the yarp source distribution\n";
 }
+
+print "Ready to start...\n";
 
 my $debug = '';
 my $release = '';
 my $clean = '';
 my $install = '';
-GetOptions ('debug' => sub { $debug = 1; $release = 0; },
-            'release' => sub { $debug = 0; $release = 1; },
-			'clean' => \$clean,
-			'install' => \$install );
+my $config_file = "$yarp_root/conf/context.conf";
+my %options = ();
 
+GetOptions ('debug' => \$debug,
+            'release' => \$release,
+			'clean' => \$clean,
+			'install' => \$install,
+			'file=s' => \$config_file );
+
+unless (-e $config_file)
+{
+	die "Can't find configuration file: $config_file\nPlease make sure a config file exists in \$YARP_ROOT/conf/\n";
+}
+
+open CONFIG, $config_file or die "Can't open config file $!";
+print "Working with: $config_file\n";
+
+my $contextual;
+while (<CONFIG>)
+{
+	chomp;
+	if (/^\[(\w+)\]$/)
+	{
+#		print "Matched: $`<$&>$'\n";
+		$contextual = $1;
+	}
+	elsif (/^([A-Z0-9_]+)= ?/)
+	{
+		$options{$contextual."<-".$1} = $';
+	}
+}
+
+close CONFIG;
+
+#print "dumping my hash table\n";
+#while ( ($key, $value) = each %options )
+#{
+#	print "$key => $value\n";
+#}
+
+if (exists $options{"Compile_OS<-ACE_PATH"})
+{
+	print "Looking for ACE...\n";
+	$options{"Compile_OS<-ACE_PATH"} =~ s/\$YARP_ROOT/$yarp_root/;
+	if (-e $options{"Compile_OS<-ACE_PATH"} &&
+		-e "$yarp_root/include/$options{\"Architecture<-OS\"}/ace" )
+	{
+		# print "Compiling ACE...\n";
+		if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
+		{
+			do_ace_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"}|");
+		}
+		else
+		{
+			print "Not compiling/installing ACE, I assume it's already installed\n";
+		}
+	}
+}
+else
+{
+	print "I'm assuming you've got ACE installed already!\n";
+	print "Make sure this is the case to continue compilation\n";
+}
+
+#
+#
+#
 if ($clean)
 {
 	print "\nCleaning...\n";
@@ -82,6 +153,19 @@ if ($install)
 	}
 }
 
+
+sub do_ace_compile
+{
+	my ($exe) = @_;
+	open ACE, "$exe";
+	while (<ACE>)
+	{
+		print;
+	}
+	close ACE;
+}
+
+
 sub call_msdev_and_print
 {
 	my ($version, $operation) = @_;
@@ -93,3 +177,7 @@ sub call_msdev_and_print
 	}
 	close MSDEV;	
 }
+
+
+
+

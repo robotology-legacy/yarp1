@@ -9,6 +9,8 @@
 #
 #		  --distribution is the path where ACE was unpacked.
 #
+# $Id: build.pl,v 1.1 2004-07-25 22:16:39 babybot Exp $
+#
 
 use Getopt::Long;
 use File::Copy;
@@ -46,8 +48,8 @@ my $clean = '';
 my $install = '';
 my $distribution = undef;
 
-GetOptions ('debug' => sub { $debug = 1; $release = 0; },
-            'release' => sub { $debug = 0; $release = 1; },
+GetOptions ('debug' => \$debug,
+            'release' => \$release,
 			'clean' => \$clean,
 			'install' => \$install,
 			'distribution=s' => \$distribution );
@@ -56,6 +58,12 @@ unless (defined $distribution)
 {
 	die "This script requires the parameter --distribution <path>\n";
 }
+
+#
+# this is my personal trick to avoid buffering on output since
+# I'm piping the scripts I'd like to get the output all on the same terminal.
+#
+select STDERR;
 
 if ($clean)
 {
@@ -84,7 +92,7 @@ if ($debug)
 
 if ($release)
 {
-	print "\nCompiling debug\n";
+	print "\nCompiling release\n";
 
 	copy ("$yarp_root/include/winnt/ace/config.h", "$distribution/ace/") or die "Can't copy config.h file\n"; 
 	chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
