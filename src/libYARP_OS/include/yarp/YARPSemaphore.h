@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPSemaphore.h,v 1.4 2004-07-03 21:03:27 gmetta Exp $
+///	$Id: YARPSemaphore.h,v 1.5 2004-07-09 13:45:59 eshuy Exp $
 ///
 ///
 /*
@@ -62,7 +62,7 @@
 #ifndef YARPSemaphore_INC
 #define YARPSemaphore_INC
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Synch.h>
 

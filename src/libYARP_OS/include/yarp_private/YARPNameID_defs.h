@@ -61,14 +61,14 @@
 ///
 
 ///
-/// $Id: YARPNameID_defs.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPNameID_defs.h,v 1.3 2004-07-09 13:46:03 eshuy Exp $
 ///
 ///
 
 #ifndef YARPNameID_defs_INC
 #define YARPNameID_defs_INC
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once

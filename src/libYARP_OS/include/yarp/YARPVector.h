@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPVector.h,v 1.1 2004-07-06 13:48:27 eshuy Exp $
+/// $Id: YARPVector.h,v 1.2 2004-07-09 13:45:59 eshuy Exp $
 ///
 ///
 
@@ -112,7 +112,7 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 
 #include <iostream>
 

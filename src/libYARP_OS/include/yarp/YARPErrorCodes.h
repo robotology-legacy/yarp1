@@ -52,14 +52,14 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPErrorCodes.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPErrorCodes.h,v 1.3 2004-07-09 13:45:58 eshuy Exp $
 ///
 ///
 
 #ifndef __YARPErrorCodesh__
 #define __YARPErrorCodesh__
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.5 2004-07-09 08:53:57 eshuy Exp $
+/// $Id: YARPSocket.cpp,v 1.6 2004-07-09 13:46:03 eshuy Exp $
 ///
 ///
 
@@ -74,7 +74,7 @@
 ///
 ///
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Handle_Set.h>

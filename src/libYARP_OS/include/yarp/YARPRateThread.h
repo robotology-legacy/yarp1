@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRateThread.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPRateThread.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
 ///
 ///
 
@@ -90,7 +90,7 @@
 
 #if defined(__WIN32__) || defined(__QNX6__) || defined(__LINUX__)
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Thread_Manager.h>
 #include <ace/Synch.h>

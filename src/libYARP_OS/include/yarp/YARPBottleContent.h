@@ -61,14 +61,14 @@
 ///
 
 ///
-/// $Id: YARPBottleContent.h,v 1.1 2004-07-06 13:48:27 eshuy Exp $
+/// $Id: YARPBottleContent.h,v 1.2 2004-07-09 13:45:58 eshuy Exp $
 ///
 ///
 
 #ifndef __YARPBOTTLEPORTCONTENT__
 #define __YARPBOTTLEPORTCONTENT__
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE

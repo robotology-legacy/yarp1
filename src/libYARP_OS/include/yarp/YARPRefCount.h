@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRefCount.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPRefCount.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
 ///
 ///
 /*
@@ -62,7 +62,7 @@
 #ifndef YARPRefCounted_INC
 #define YARPRefCounted_INC
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Synch.h>
 #include <ace/Log_Msg.h>

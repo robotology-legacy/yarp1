@@ -61,11 +61,11 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.7 2004-07-09 13:33:20 eshuy Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.8 2004-07-09 13:46:03 eshuy Exp $
 ///
 ///
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Handle_Set.h>

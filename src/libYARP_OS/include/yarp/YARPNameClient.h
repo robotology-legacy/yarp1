@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPNameClient.h,v 1.3 2004-07-09 13:45:58 eshuy Exp $
 ///
 ///
 
@@ -72,7 +72,7 @@
 #if !defined __NAME_CLIENT__
 #define __NAME_CLIENT__
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <yarp/YARPAll.h>
 #include <ace/config.h>
 

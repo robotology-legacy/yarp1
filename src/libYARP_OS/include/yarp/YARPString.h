@@ -56,14 +56,14 @@
 ///
 
 ///
-/// $Id: YARPString.h,v 1.3 2004-07-06 09:15:23 eshuy Exp $
+/// $Id: YARPString.h,v 1.4 2004-07-09 13:45:59 eshuy Exp $
 ///
 ///
 
 #ifndef YARPString_INC
 #define YARPString_INC
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <iostream>
 

@@ -61,14 +61,14 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.5 2004-07-08 19:15:27 eshuy Exp $
+/// $Id: Port.h,v 1.6 2004-07-09 13:46:02 eshuy Exp $
 ///
 ///
 
 #ifndef __PORT_H_INC
 #define __PORT_H_INC
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE

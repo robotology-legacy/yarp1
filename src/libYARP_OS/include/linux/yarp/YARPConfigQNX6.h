@@ -1,24 +1,21 @@
 //
-// $Id: YARPConfigLinux.h,v 1.3 2004-07-06 10:12:58 eshuy Exp $
-// YARP config file Linux.
+// $Id: YARPConfigQNX6.h,v 1.1 2004-07-09 13:45:58 eshuy Exp $
+// YARP config file QNX6.
 //
 //
 
-#ifndef __YARPConfigLinuxh__
-#define __YARPConfigLinuxh__
+#ifndef __YARPConfigQNX6h__
+#define __YARPConfigQNX6h__
 
 //
 // included by YARPConfig.h
 
-#ifndef __LINUX__
+#ifndef __QNX6__
 
-#	define __LINUX__
+#	define __QNX6__
 
 #endif
 
-///
-/// configuration flags.
-///
 #define SINGLE_MUTEX_FOR_REFCOUNTED 1
 #define UPDATED_PORT 1
 #define MAX_PACKET (128*128*3+100)
@@ -29,13 +26,13 @@
 #define MAX_SHMEM_BUFFER (384*288*3+100)		
 
 /// disable TCP Nagle's algorithm (experimental).
-#define YARP_TCP_NO_DELAY 1
+///#define YARP_TCP_NO_DELAY 1
 
 /// set the default protocol in port creation.
-#define YARP_DEFAULT_PROTOCOL	YARP_TCP
+#define YARP_DEFAULT_PROTOCOL	YARP_QNET
 
 /// set the def protocol number of req ports.
-#define YARP_PROTOCOL_REGPORTS  11
+#define YARP_PROTOCOL_REGPORTS  1
 
 /// set the number of ports used by UDP for a single port.
 #define YARP_UDP_REGPORTS       11

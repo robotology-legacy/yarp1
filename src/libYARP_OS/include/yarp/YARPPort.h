@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.3 2004-07-06 13:30:38 eshuy Exp $
+/// $Id: YARPPort.h,v 1.4 2004-07-09 13:45:59 eshuy Exp $
 ///
 ///
 
@@ -78,7 +78,7 @@
 #ifndef YARPPort_INC
 #define YARPPort_INC
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Log_Msg.h>
 

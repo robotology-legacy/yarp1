@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPScheduler.h,v 1.3 2004-07-03 21:03:27 gmetta Exp $
+/// $Id: YARPScheduler.h,v 1.4 2004-07-09 13:45:59 eshuy Exp $
 ///
 ///
 
@@ -63,7 +63,7 @@
 #ifndef YARPScheduler_INC
 #define YARPScheduler_INC
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <yarp/YARPAll.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE

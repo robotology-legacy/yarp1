@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPTime.h,v 1.3 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPTime.h,v 1.4 2004-07-09 13:45:59 eshuy Exp $
 ///
 ///
 /*
@@ -62,7 +62,7 @@
 #ifndef YARPTime_INC
 #define YARPTime_INC
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <yarp/YARPAll.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE

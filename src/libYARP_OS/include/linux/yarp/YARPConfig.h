@@ -1,6 +1,6 @@
 
 //
-// $Id: YARPConfig.h,v 1.3 2004-07-06 10:12:58 eshuy Exp $
+// $Id: YARPConfig.h,v 1.1 2004-07-09 13:45:58 eshuy Exp $
 // YARP config file (template).
 //
 //
@@ -17,8 +17,8 @@
 // Select the operating system by externally defining
 // YARP_OS_CONFIG as LINUX, WIN32 etc.
 // The default in WIN32
-#define YARP_OS_CONFIG_FILE_LINUX <yarp/conf/YARPConfigLinux.h>
-#define YARP_OS_CONFIG_FILE_WIN32 <yarp/conf/YARPConfigWin32.h>
+#define YARP_OS_CONFIG_FILE_LINUX <yarp/YARPConfigLinux.h>
+#define YARP_OS_CONFIG_FILE_WIN32 <yarp/YARPConfigWin32.h>
 
 #define YARP_FORCE_EVAL_CONCAT(x) YARP_FORCE_EVAL_CONCAT2(x)
 #define YARP_FORCE_EVAL_CONCAT2(x) YARP_OS_CONFIG_FILE_ ## x
@@ -36,8 +36,8 @@
 
 #ifdef YARP_ROBOT_CONFIG
 
-#include <yarp/conf/YARPConfigBabybot.h>
-#include <yarp/conf/YARPBabybotVocab.h>
+#include <yarp/YARPConfigBabybot.h>
+#include <yarp/YARPBabybotVocab.h>
 
 #endif
 

@@ -52,14 +52,14 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPAll.h,v 1.4 2004-07-09 13:33:20 eshuy Exp $
+/// $Id: YARPAll.h,v 1.5 2004-07-09 13:45:58 eshuy Exp $
 ///
 ///
 
 #ifndef YARPAll_INC
 #define YARPAll_INC
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <yarp/YARPErrorCodes.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE

@@ -61,14 +61,14 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: wide_nameloc.h,v 1.3 2004-07-09 13:46:03 eshuy Exp $
 ///
 ///
 
 #ifndef wide_nameloc_INC
 #define wide_nameloc_INC
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/SOCK_Acceptor.h>
 #include <ace/SOCK_Connector.h>

@@ -52,11 +52,11 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: RefCounted.cpp,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: RefCounted.cpp,v 1.3 2004-07-09 13:46:03 eshuy Exp $
 ///
 ///
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Synch.h>

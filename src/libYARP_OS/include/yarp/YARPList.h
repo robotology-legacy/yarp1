@@ -56,14 +56,14 @@
 ///
 
 ///
-/// $Id: YARPList.h,v 1.3 2004-07-09 13:42:55 gmetta Exp $
+/// $Id: YARPList.h,v 1.4 2004-07-09 13:45:58 eshuy Exp $
 ///
 ///
 
 #ifndef __YARPListh__
 #define __YARPListh__
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/Containers_T.h>

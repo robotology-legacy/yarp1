@@ -7,9 +7,9 @@ include $(YARP_ROOT)/conf/Makefile.template
 
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))
 
-CFLAGS = -D_REENTRANT $(CFAST) $(CDEFS) -I../include
+CFLAGS = -D_REENTRANT $(CFAST) $(CDEFS) -I../include -I../include/$(SYSDIR)
 
-#CFLAGS = $(CFAST) $(CDEFS) -I../include/yarp -I../include/yarp_private -I../include/conf -I../include
+#CFLAGS = $(CFAST) $(CDEFS) -I../include/yarp -I../include/yarp_private -I../include/$(SYSDIR) -I../include
 
 SUBDIRS =
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeSyncComm.cpp,v 1.1 2004-07-02 09:13:16 eshuy Exp $
+/// $Id: YARPNativeSyncComm.cpp,v 1.2 2004-07-09 13:46:03 eshuy Exp $
 ///
 ///
 
@@ -69,7 +69,7 @@
 // only applies to QNX6
 #ifdef __QNX6__
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
 

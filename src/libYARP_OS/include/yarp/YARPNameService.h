@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: YARPNameService.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
 ///
 ///
 /*
@@ -71,7 +71,7 @@
 #ifndef YARPNameService_INC
 #define YARPNameService_INC
 
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <yarp/YARPAll.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE

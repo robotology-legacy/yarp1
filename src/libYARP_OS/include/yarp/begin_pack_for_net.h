@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: begin_pack_for_net.h,v 1.2 2004-07-02 08:47:06 eshuy Exp $
+/// $Id: begin_pack_for_net.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
 ///
 
 /**
@@ -72,7 +72,7 @@
  * communication between compilers.
  * @see end_pack_for_net.h
  */
-#include <yarp/conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 
 #include <yarp/YARPNetworkTypes.h>
 
