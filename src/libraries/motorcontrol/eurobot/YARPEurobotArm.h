@@ -8,7 +8,7 @@
 ///
 
 //
-// $Id: YARPEurobotArm.h,v 1.8 2003-12-18 16:41:20 beltran Exp $
+// $Id: YARPEurobotArm.h,v 1.9 2003-12-22 17:24:17 beltran Exp $
 //
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
@@ -22,10 +22,8 @@
 
 #include <conf/YARPConfig.h>
 #include <YARPGenericControlBoard.h>
-//#include "YARPMEIOnBabybotArmAdapter.h"
 #include "YARPGALILOnEurobotArmAdapter.h"
 
-//class YARPBabybotArm : public YARPGenericComponent<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters>
 class YARPEurobotArm : public YARPGenericControlBoard<YARPGALILOnEurobotArmAdapter, YARPEurobotArmParameters>
 {
 public:
@@ -77,13 +75,11 @@ public:
 	{ _angleToEncoders(ang, enc, _parameters, _parameters._zeros); } 
 	inline void encoderToAngles(const double *enc, double *ang)
 	{ _encoderToAngles(enc, ang, _parameters, _parameters._zeros); }
-	//inline void angleVelToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters)
 	inline void angleVelToEncoders(const double *ang, double *enc, const YARPEurobotArmParameters &_parameters)
 	{	
 		double zeros[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 		_angleToEncoders(ang, enc, _parameters, zeros);
 	}
-	//inline void encoderVelToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters)
 	inline void encoderVelToAngles(const double *enc, double *ang, const YARPEurobotArmParameters &_parameters)
 	{ 
 		double zeros[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -91,48 +87,50 @@ public:
 	}
 
 private:
-	//inline void _angleToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters, const double *zeros);
-	//inline void _encoderToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters, const double *zeros);
 	inline void _angleToEncoders(const double *ang, double *enc, const YARPEurobotArmParameters &_parameters, const double *zeros);
 	inline void _encoderToAngles(const double *enc, double *ang, const YARPEurobotArmParameters &_parameters, const double *zeros);
 };
 
-//inline void YARPBabybotArm::_angleToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters, const double *zeros)
 inline void YARPEurobotArm::_angleToEncoders(const double *ang, double *enc, const YARPEurobotArmParameters &_parameters, const double *zeros)
 {
 	// 6 joints only.
-	for (int i = 0; i < 4; i++)
+	int i;
+	int j;
+	for (i = 0; i < 4; i++)
 	{
-		enc[i] = (ang[i] * _parameters._encoderToAngles[i] / (2.0 * pi) + zeros[i]);
+		j = _parameters._axis_map[i];
+		enc[i] = (ang[j] * _parameters._encoderToAngles[i] / (2.0 * pi) + zeros[i]);
 	}
 
-	enc[4] = (ang[4] * _parameters._encoderToAngles[4] / (2.0 * pi)) +
-			 (ang[3] * _parameters._fwdCouple[3] / (2.0 * pi)) +
+	enc[4] = (ang[_parameters._axis_map[4]] * _parameters._encoderToAngles[4] / (2.0 * pi)) +
+			 (ang[_parameters._axis_map[3]] * _parameters._fwdCouple[3] / (2.0 * pi)) +
 			  zeros[4];
 
-	enc[5] = (ang[5] * _parameters._encoderToAngles[5] / (2.0 * pi)) +
-		     (ang[3] * _parameters._fwdCouple[4] / (2.0 * pi)) +
-			 (ang[4] * _parameters._fwdCouple[5] / (2.0 * pi)) +
+	enc[5] = (ang[_parameters._axis_map[5]] * _parameters._encoderToAngles[5] / (2.0 * pi)) +
+		     (ang[_parameters._axis_map[3]] * _parameters._fwdCouple[4] / (2.0 * pi)) +
+			 (ang[_parameters._axis_map[4]] * _parameters._fwdCouple[5] / (2.0 * pi)) +
 			  zeros[5];
 }
 
-//inline void YARPBabybotArm::_encoderToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters, const double *zeros)
 inline void YARPEurobotArm::_encoderToAngles(const double *enc, double *ang, const YARPEurobotArmParameters &_parameters, const double *zeros)
 {
 	// 6 joints only.
-	for (int i = 0; i < 4; i++)
+	int i;
+	int j;
+	for (i = 0; i < 4; i++)
 	{
-		ang[i] = (enc[i] - zeros[i]) * 2.0 * pi / _parameters._encoderToAngles[i];
+		j = _parameters._axis_map[i];
+		ang[j] = (enc[i] - zeros[i]) * 2.0 * pi / _parameters._encoderToAngles[i];
 	}
 
 	double e3, e4;
 	e3 = (enc[3] - zeros[3]) * 2.0 * pi;
 	e4 = (enc[4] - zeros[4]) * 2.0 * pi;
 
-	ang[4] =  e4 / _parameters._encoderToAngles[4] +
+	ang[_parameters._axis_map[4]] =  e4 / _parameters._encoderToAngles[4] +
 			    e3 * _parameters._invCouple[3];
 
-	ang[5] = (enc[5] - zeros[5]) * 2.0 * pi / _parameters._encoderToAngles[5] +
+	ang[_parameters._axis_map[5]] = (enc[5] - zeros[5]) * 2.0 * pi / _parameters._encoderToAngles[5] +
 			   e3 * _parameters._invCouple[4] + e4 * _parameters._invCouple[5];
 }
 

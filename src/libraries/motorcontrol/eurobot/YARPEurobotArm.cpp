@@ -8,7 +8,7 @@
 ///
 
 //
-// $Id: YARPEurobotArm.cpp,v 1.9 2003-12-18 16:41:20 beltran Exp $
+// $Id: YARPEurobotArm.cpp,v 1.10 2003-12-22 17:24:17 beltran Exp $
 //
 
 #include "YARPEurobotArm.h"
@@ -62,9 +62,7 @@ int YARPEurobotArm::velocityMove(const double *vel)
 {
 	_lock();
 	angleToEncoders(vel, _temp_double);
-	printf(" Vel in Encoders: %f %f %f %f \n",_temp_double[0],_temp_double[1],_temp_double[2],_temp_double[3]);
 	_adapter.IOCtl(CMDVMove, _temp_double);
-	printf(" Vel in Encoders2: %f %f %f %f \n",_temp_double[0],_temp_double[1],_temp_double[2],_temp_double[3]);
 	_unlock();
 	return -1;
 }
@@ -75,16 +73,6 @@ int YARPEurobotArm::setCommands(const double *pos)
 	angleToEncoders(pos, _temp_double);
 
 	_adapter.IOCtl(CMDSetCommands,_temp_double);
-	/*
-	for(int i = 0; i < _parameters._nj; i++)
-	{
-		SingleAxisParameters cmd;
-		cmd.axis = i;
-		cmd.parameters = &_temp_double[i];
-		if (_parameters._stiffPID[i] != 1)
-			_adapter.IOCtl(CMDSetCommand, &cmd);
-	}
-	*/
 	_unlock();
 	return -1;
 }
@@ -133,4 +121,3 @@ int YARPEurobotArm::setGs(double *g)
 	_unlock();
 	return -1;
 }
-

@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.12 2003-12-22 15:38:09 beltran Exp $
+//         Version:  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.13 2003-12-22 17:24:17 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -372,14 +372,24 @@ public:
 		return YARP_OK;
 	}
 
-	int activatePID()
+	int activateLowPID()
+	{
+		return activatePID(_parameters->_lowPIDs);
+	}
+
+	int activatePID(LowLevelPID *pids = NULL)
 	{
 		for(int i = 0; i < _parameters->_nj; i++)
 		{
 			IOCtl(CMDControllerIdle, &i);
 			SingleAxisParameters cmd;
 			cmd.axis = i;
-			cmd.parameters = &_parameters->_highPIDs[i];
+
+			if (pids == NULL)
+				cmd.parameters = &_parameters->_highPIDs[i];
+			else
+				cmd.parameters = &pids[i];
+
 			IOCtl(CMDSetPID, &cmd);
 			double pos = 0.0;
 			cmd.parameters = &pos;
