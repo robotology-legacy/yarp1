@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.8 2003-11-20 01:42:39 gmetta Exp $
+/// $Id: YARPImage.h,v 1.9 2004-04-27 08:46:53 orfra Exp $
 ///
 ///
 
@@ -260,7 +260,7 @@ public:
 	void Resize (int x, int y, int pixel_type);
 	void Resize (int x, int y) { Resize(x,y,GetID()); }
 	void Clear (void);
-	void Zero (void);
+	inline void Zero (void) { ACE_ASSERT(pImage != NULL); memset(pImage->imageData, 0, pImage->imageSize); }
 
 	void UncountedRefer(void *buf, int x, int y, int pixel_type) { _alloc_complete_extern(buf,x,y,pixel_type); }
 	void UncountedRefer(void *buf, int x, int y) { _alloc_complete_extern(buf,x,y,GetID()); }

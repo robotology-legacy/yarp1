@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.cpp,v 1.10 2004-03-26 14:49:58 orfra Exp $
+/// $Id: YARPImage.cpp,v 1.11 2004-04-27 08:46:37 orfra Exp $
 ///
 ///
 
@@ -969,11 +969,11 @@ void YARPGenericImage::Clear()
 	_free_data();
 }
 
-void YARPGenericImage::Zero ()
+/*void YARPGenericImage::Zero ()
 {
 	ACE_ASSERT (pImage != NULL);
 	memset (pImage->imageData, 0, pImage->imageSize);
-}
+}*/
 
 void YARPGenericImage::Resize(int x, int y, int pixel_type)
 {
