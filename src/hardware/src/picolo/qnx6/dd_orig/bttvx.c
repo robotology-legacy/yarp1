@@ -1198,6 +1198,8 @@ int init_bttvx(int argc1, int argc2) //Video format, device id
 	///strcpy(device_name,"/dev/bttvx");
 	///strcat(device_name,itoa(device_id,buffer,10)); //Complete the name
 
+	printf("bttvx: attaching device id : %d\n",device_id);
+	fflush(stdout);
 	i = attach_bt848(device_id);
 
 	if ( i == 0)
@@ -1206,6 +1208,9 @@ int init_bttvx(int argc1, int argc2) //Video format, device id
 		exit(0);
 	}
 
+	printf("bttvx: initializing with video format : %d\n", video_format);
+	fflush(stdout);
+	
 	i = init_bt848(&bttvs[0],video_format); 
 
 	/* initialize dispatch interface */
