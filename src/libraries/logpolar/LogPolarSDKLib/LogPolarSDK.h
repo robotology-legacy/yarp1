@@ -185,7 +185,13 @@ void Reconstruct_Color(unsigned char * Out_Image,
 int Build_Neighborhood_Map(Image_Data * Par,
 							char * Path);
 
+int Build_Neighborhood_Map_NoFov(Image_Data * Par,
+							char * Path);
+
 unsigned char Build_Weights_Map(Image_Data * Par,
+								char * Path);
+
+unsigned char Build_Weights_Map_NoFov(Image_Data * Par,
 								char * Path);
 
 int Build_Remap_Map (Image_Data * Parameters,

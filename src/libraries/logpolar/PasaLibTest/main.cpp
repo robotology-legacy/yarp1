@@ -141,11 +141,11 @@ void main ()
 	Save_Bitmap(LP_Image_BW,256,152,1,File_Name);
 
 	Neighborhood * WeightsMap;
-	sprintf(File_Name,"%s%s%02d%s",Path,"WeightsMap",Param.Pix_Numb,".gio");
+	sprintf(File_Name,"%s%s%02d%s",Path,"WeightsMapNoFov",Param.Pix_Numb,".gio");
 	if ((fin = fopen(File_Name,"rb")) != NULL)
 	{
-		WeightsMap = (Neighborhood *) malloc (Param.Size_LP * Param.Pix_Numb * 3 * sizeof(Neighborhood));
-		fread(WeightsMap,sizeof(Neighborhood),Param.Size_LP * Param.Pix_Numb * 3,fin);
+		WeightsMap = (Neighborhood *) malloc ((Param.Size_LP-(42*252)) * Param.Pix_Numb * 3 * sizeof(Neighborhood));
+		fread(WeightsMap,sizeof(Neighborhood),(Param.Size_LP-(42*252)) * Param.Pix_Numb * 3,fin);
 		fclose (fin);
 	}
 
@@ -153,9 +153,9 @@ void main ()
 //		if (WeightsMap[j].weight>0.1)
 //			i=i;
 
-	Reconstruct_Color(LP_Image,LP_Image_BW,Param.Size_Rho,Param.Size_Theta,Param.padding,WeightsMap,4);
+	Reconstruct_Color(LP_Image,LP_Image_BW+256*42,Param.Size_Rho-42,Param.Size_Theta,Param.padding,WeightsMap,4);
 
 	sprintf(File_Name,"%s","C:\\Temp\\TestBW5.bmp");
-	Save_Bitmap(LP_Image,760,152,1,File_Name);
+	Save_Bitmap(LP_Image,760,110,1,File_Name);
 
 }

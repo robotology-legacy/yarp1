@@ -53,13 +53,15 @@ void main()
 
 	printf("Building Neighborhood Map (%d pixels) for Giotto 2.0\n",Pix_Numb);
 
+//	Build_Neighborhood_Map_NoFov(&Par,Path);	
+	Build_Weights_Map_NoFov(&Par,Path);	
 	Build_Neighborhood_Map(&Par,Path);
 
-//	for (i=1; i<=10; i++)
-//	{
+	for (i=1; i<=1; i++)
+	{
 		printf("Building Weights Map (%d pixels) for Giotto 2.0\n",i);
 		Build_Weights_Map(&Par,Path);	
-//	}
+	}
 
 	printf("Building Remap LUT for Zoom Level = %2.2f for Giotto 2.0\n",Par.Zoom_Level);
 
