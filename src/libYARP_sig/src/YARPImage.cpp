@@ -61,17 +61,18 @@
 ///
 
 ///
-/// $Id: YARPImage.cpp,v 1.1 2004-07-12 16:45:57 eshuy Exp $
+/// $Id: YARPImage.cpp,v 1.2 2004-07-27 13:14:59 babybot Exp $
 ///
 ///
 
 ///#define __YARPSafeNewh__
-#include <iostream>
-using namespace std;
 
 #include <yarp/YARPTime.h>
 #include <yarp/YARPImage.h>
 #include <yarp/YARPRefCount.h>
+
+#include <iostream>
+using namespace std;
 
 #define DBGPF1 if (0)
 
