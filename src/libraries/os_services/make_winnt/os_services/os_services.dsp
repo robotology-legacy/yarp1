@@ -314,13 +314,6 @@ SOURCE=..\..\common\YARPSocketMcast.cpp
 # Begin Source File
 
 SOURCE=..\..\common\YARPSocketMulti.cpp
-
-!IF  "$(CFG)" == "os_services - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "os_services - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 

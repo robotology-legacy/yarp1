@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing library
-PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\common\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\picolo\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy .\jr3\winnt\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	make_lib.bat
+PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\common\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\picolo\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy .\jr3\winnt\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	copy .\androidworld\common\*.h ..\..\..\include	make_lib.bat
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "alldrivers - Win32 Debug"
@@ -82,7 +82,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing library
-PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\common\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\picolo\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy .\jr3\winnt\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	make_lib_db.bat
+PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\common\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\picolo\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy .\jr3\winnt\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	copy .\androidworld\common\*.h ..\..\..\include	make_lib_db.bat
 # End Special Build Tool
 
 !ENDIF 
@@ -94,6 +94,10 @@ PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\common\*.h ..\
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\androidworld\common\YARPAndroidDeviceDriver.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\common\YARPControlBoardUtils.cpp
@@ -122,6 +126,14 @@ SOURCE=.\picolo\winnt\YARPPicoloDeviceDriver.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\common\YARPADCUtils.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\androidworld\common\YARPAndroidDeviceDriver.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\common\YARPControlBoardUtils.h

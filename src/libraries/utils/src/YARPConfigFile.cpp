@@ -1,6 +1,6 @@
 //
 // YARPIniFile.cpp
-// $Id: YARPConfigFile.cpp,v 1.3 2003-07-04 16:25:57 babybot Exp $
+// $Id: YARPConfigFile.cpp,v 1.4 2003-07-11 14:12:03 babybot Exp $
 
 #include "YARPConfigFile.h"
 
@@ -62,8 +62,52 @@ int YARPConfigFile::get(const char *section, const char *name, char *out, int n)
 		return YARP_FAIL;
 
 	int i = 0;
-	while ( (i<n) && (fscanf(_pFile, "%x", out++) != EOF) )
+	while ( (i<n) && (fscanf(_pFile, "%c", out++) != EOF) )
 		i++;
+			
+	_close();
+	
+	if (i == n)
+		return YARP_OK;		// found all the values
+	else	
+		return YARP_FAIL;	
+}
+
+int YARPConfigFile::getHex(const char *section, const char *name, char *out, int n)
+{
+	if (_get(section, name) == YARP_FAIL)
+		return YARP_FAIL;
+
+	int i = 0;
+	int tmp;
+	while ( (i<n) && (fscanf(_pFile, "%x", &tmp) != EOF) )
+	{
+		*out = (char) tmp;
+		out++;
+		i++;
+	}
+			
+	_close();
+	
+	if (i == n)
+		return YARP_OK;		// found all the values
+	else	
+		return YARP_FAIL;	
+}
+
+int YARPConfigFile::getHex(const char *section, const char *name, short *out, int n)
+{
+	if (_get(section, name) == YARP_FAIL)
+		return YARP_FAIL;
+
+	int i = 0;
+	int tmp;
+	while ( (i<n) && (fscanf(_pFile, "%x", &tmp) != EOF) )
+	{
+		*out = (short) tmp;
+		i++;
+		out++;
+	}
 			
 	_close();
 	

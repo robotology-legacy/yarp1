@@ -116,6 +116,14 @@ SOURCE=.\common\YARPJR3Adapter.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\common\YARPTouchBoard.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\common\YARPTouchBoardParameters.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\common\YARPTrajectoryGen.cpp
 # End Source File
 # Begin Source File

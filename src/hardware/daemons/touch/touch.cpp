@@ -1,0 +1,105 @@
+// touch.cpp : Defines the entry point for the console application.
+//
+
+#include "stdafx.h"
+// by nat June 2003
+
+
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+
+#include <YARPRateThread.h>
+#include <YARPSemaphore.h>
+#include <YARPScheduler.h>
+#include <YARPTime.h>
+#include <YARPPort.h>
+#include <YARPMath.h>
+#include <YARPVectorPortContent.h>
+
+#include <YARPTouchBoard.h>
+#include <YARPParseParameters.h>
+#include <string>
+
+using namespace std;
+
+const int __defaultRate = 40;
+const string __defaultName = "/touch/o:1";
+
+class Thread : public YARPRateThread
+{
+public:
+	Thread (const char *name, int rate):YARPRateThread(name, rate),
+	_outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+	{
+		_name = string(name);
+		_readings.Resize(32);
+		_readings = 0.0;
+	}
+	~Thread()
+	{
+	}
+
+	void doInit()
+	{
+		_touchBoard.initialize("Y:\\conf\\babybot\\touch.ini");
+
+		_outPort.Register(_name.c_str());
+
+	}
+
+	void doLoop()
+	{
+	
+		_touchBoard.read(_readings.data());
+
+		_outPort.Content() = _readings;
+				
+		_outPort.Write();
+	}
+
+	void doRelease()
+	{
+		_touchBoard.uninitialize();
+	}
+
+	
+	YARPTouchBoard _touchBoard;
+	YARPOutputPortOf<YVector> _outPort;
+	YVector _readings;
+	string _name;
+};
+
+
+int main(int argc, char* argv[])
+{
+	YARPScheduler::setHighResScheduling ();
+
+	// parse command line
+	int rate;
+	string name;
+	if (!YARPParseParameters::parse(argc, argv, "p", &rate))
+		rate = __defaultRate;
+
+	if (!YARPParseParameters::parse(argc, argv, "name", name))
+		name = __defaultName;
+
+	Thread _thread(name.c_str(), rate);
+
+	_thread.start();
+	
+	char c;
+	cout << "Type 'e' to exit\n";
+	while(cin >> c)
+	{
+		cout << "Type 'e' to exit\n";
+		if (c == 'e')
+			break;
+	}
+	
+	_thread.terminate();
+	return YARP_OK;
+	
+	return 0;
+}
+

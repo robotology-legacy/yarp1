@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPConfigFile.h,v 1.5 2003-07-04 16:25:57 babybot Exp $
+/// $Id: YARPConfigFile.h,v 1.6 2003-07-11 14:12:03 babybot Exp $
 ///  
 /// very simple class to handle config files... by nat May 2003
 //
@@ -100,6 +100,8 @@ public:
 	int get(const char *section, const char *name, int *out, int n = 1);
 	int get(const char *section, const char *name, short *out, int n = 1);
 	int get(const char *section, const char *name, char *out, int n = 1);
+	int getHex(const char *section, const char *name, char *out, int n = 1);
+	int getHex(const char *section, const char *name, short *out, int n = 1);
 	int getString(const char *section, const char *name, char *out);
 
 	void set(const char *path, const char *name)

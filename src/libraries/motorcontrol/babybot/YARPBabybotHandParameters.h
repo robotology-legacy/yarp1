@@ -1,7 +1,7 @@
 // originally feb 2003 -- by nat
 // adapted to yarp June 2003 -- by nat
 
-// $Id: YARPBabybotHandParameters.h,v 1.2 2003-07-01 21:29:44 babybot Exp $
+// $Id: YARPBabybotHandParameters.h,v 1.3 2003-07-11 14:12:03 babybot Exp $
 
 #ifndef __YARPBABYBOTHANDPARAMETERSH__
 #define __YARPBABYBOTHANDPARAMETERSH__
@@ -77,7 +77,7 @@ public:
 		if (cfgFile.get("[GALIL]", "AxesLut", _axes_lut, _naj) == YARP_FAIL)
 			return YARP_FAIL;
 
-		if (cfgFile.get("[GALIL]", "Mask", &_mask, 1) == YARP_FAIL)
+		if (cfgFile.getHex("[GALIL]", "Mask", &_mask, 1) == YARP_FAIL)
 			return YARP_FAIL;
 
 		if (cfgFile.get("[GALIL]", "Id", &_galil_id, 1) == YARP_FAIL)

@@ -5,7 +5,7 @@
 // Feb 2003 -- by nat
 //
 // win32: link nidaq32.lib
-// $Id: YARPNIDAQDeviceDriver.h,v 1.3 2003-04-20 21:36:25 natta Exp $
+// $Id: YARPNIDAQDeviceDriver.h,v 1.4 2003-07-11 14:12:03 babybot Exp $
 
 #ifndef __YARPNIDAQDeviceDriver__
 #define __YARPNIDAQDeviceDriver__
@@ -13,6 +13,7 @@
 #include <conf/YARPConfig.h>
 #include "YARPSemaphore.h"
 #include "YARPDeviceDriver.h"
+#include "YARPADCUtils.h"
 
 #ifndef _NIDAQ_Header_
 typedef char           i8;
@@ -24,16 +25,6 @@ typedef unsigned long  u32;
 typedef float          f32;
 typedef double         f64;
 #endif
-
-// command list
-enum NIDAQCmd
-{
-	CMDAIConfigure = 0,
-	CMDScanSetup = 1,
-	CMDAIVReadScan = 2,
-	CMDAIReadScan = 3,
-	NIDAQNCmds = 4, // required! tells the total number of commands
-};
 
 struct NIDAQOpenParameters
 {
@@ -76,7 +67,7 @@ struct NIDAQScanSetupParameters
 class YARPNIDAQDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPNIDAQDeviceDriver> 
 {
 public:
-	YARPNIDAQDeviceDriver() : YARPDeviceDriver<YARPNullSemaphore, YARPNIDAQDeviceDriver>(NIDAQNCmds)
+	YARPNIDAQDeviceDriver() : YARPDeviceDriver<YARPNullSemaphore, YARPNIDAQDeviceDriver>(ADCCmds)
 	{
 		m_cmds[CMDAIConfigure] = YARPNIDAQDeviceDriver::ai_configure;
 		m_cmds[CMDScanSetup] = YARPNIDAQDeviceDriver::scan_setup;
