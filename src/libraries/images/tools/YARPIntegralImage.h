@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.h,v 1.8 2003-09-04 16:57:40 babybot Exp $
+/// $Id: YARPIntegralImage.h,v 1.9 2004-07-12 10:46:59 orfra Exp $
 ///
 /// August 2003 -- by nat
 
@@ -85,6 +85,8 @@ public:
 	inline float get(int c, int r)
 	{ return _integralImg(c,r)/_max; }
 
+	inline double getMeanLp(int maxT, int minT, int maxR, int minR);
+	
 	inline double getSaliency(int maxX, int minX, int maxY, int minY);
 	inline double getSaliencyLp(int maxT, int minT, int maxR, int minR);
 	
@@ -119,9 +121,9 @@ inline void YARPIntegralImage::get(YARPImageOf<YarpPixelMono> &out)
 	}
 }
 
-inline double YARPIntegralImage::getSaliencyLp(int maxT, int minT, int maxR, int minR)
+inline double YARPIntegralImage::getMeanLp(int maxT, int minT, int maxR, int minR)
 {
-	double tmp1, tmp2, tmp3, tmp4; 
+	double tmp1, tmp2, tmp3, tmp4;
 	
 	if (minR < 0)
 		minR = 0;
@@ -131,7 +133,6 @@ inline double YARPIntegralImage::getSaliencyLp(int maxT, int minT, int maxR, int
 		
 	if ( (minT>=0) && (maxT<_nCols) )
 	{
-		
 		tmp1 = get(minT, minR);
 		tmp2 = -get(maxT, minR);
 		tmp3 = -get(minT, maxR);
@@ -160,7 +161,53 @@ inline double YARPIntegralImage::getSaliencyLp(int maxT, int minT, int maxR, int
 		tmp2 += -get(maxT-_nCols, minR);
 		tmp3 += -get(0, maxR);
 		tmp4 += get(maxT-_nCols, maxR);
+	}
+	else
+		return 0;		// case not supported
+
+	return (tmp4 + tmp3 + tmp1 + tmp2)/((maxR-minR+1)*(maxT-minT+1));
+}
+
+inline double YARPIntegralImage::getSaliencyLp(int maxT, int minT, int maxR, int minR)
+{
+	double tmp1, tmp2, tmp3, tmp4; 
+	
+	if (minR < 0)
+		minR = 0;
+				
+	if (maxR > _nRows-1)
+		maxR = _nRows-1;
 		
+	if ( (minT>=0) && (maxT<_nCols) )
+	{
+		tmp1 = get(minT, minR);
+		tmp2 = -get(maxT, minR);
+		tmp3 = -get(minT, maxR);
+		tmp4 = get(maxT, maxR);
+	}
+	else if ( (minT<0) && (maxT<_nCols) )
+	{
+		tmp1 = get(0, minR);
+		tmp2 = -get(maxT, minR);
+		tmp3 = -get(0, maxR);
+		tmp4 = get(maxT, maxR);
+		
+		tmp1 += get(_nCols-1+minT, minR);
+		tmp2 += -get(_nCols-1, minR);
+		tmp3 += -get(_nCols-1+minT, maxR);
+		tmp4 += get(_nCols-1, maxR);
+	}
+	else if ( (minT>0) && (maxT>=_nCols) )
+	{
+		tmp1 = get(minT, minR);
+		tmp2 = -get(_nCols-1, minR);
+		tmp3 = -get(minT, maxR);
+		tmp4 = get(_nCols-1, maxR);
+
+		tmp1 += get(0, minR);
+		tmp2 += -get(maxT-_nCols, minR);
+		tmp3 += -get(0, maxR);
+		tmp4 += get(maxT-_nCols, maxR);
 	}
 	else
 		return 0;		// case not supported
