@@ -16,7 +16,7 @@ BIN     = galil_term
 FILES 	= 
 	  
 LDLIBS  =  $(YARP_ROOT)/lib/$(OS)/dmcqnx.lib \
-	$(YARP_ROOT)/lib/$(OS)/utils.lib
+	$(YARP_ROOT)/lib/$(OS)/utils.lib \
 
 
 SRC	= $(addsuffix .cpp,$(FILES))
@@ -46,6 +46,11 @@ include	$(ACE_ROOT)/include/makeinclude/rules.local.GNU
 
 install:
 	cp $(BIN) $(YARP_ROOT)/bin/$(OS)/
+	@echo
+	@echo ---------------Installing Galil dd_orig --------------
+	@echo
+	$(CP) ./dd_orig/lib/*.lib $(YARP_ROOT)/lib/$(OS)
+	$(CP) ./dd_orig/include/*.h $(YARP_ROOT)/include/
 
 # don't really care about deps. Unless we test the g++def program.
 
