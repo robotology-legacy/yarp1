@@ -11,7 +11,7 @@
 //     Description:  This is the main loop receiving the sound streams. Another class called
 //     soundprocessing is used to perform all the analysis.
 // 
-//         Version:  $Id: soundlocalization.cpp,v 1.5 2004-04-28 17:32:10 beltran Exp $
+//         Version:  $Id: soundlocalization.cpp,v 1.6 2004-04-29 09:58:53 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -35,10 +35,10 @@ const char *__configFile = "sound.ini";
 
 int main(int argc, char* argv[])
 {
-	const int N   = 200;
-	int counter = 0;
-	int size    = 0;
-	int tempfactor = 0; //used to clean the image in function of a time variable
+	const int N    = 200;
+	int counter    = 0;
+	int size       = 0;
+	int tempfactor = 0;   // used to clean the image in function of a time variable
 	double time1;
 	double time2;
 	double period = 0.0;
@@ -47,13 +47,11 @@ int main(int argc, char* argv[])
 	double scalefactor     = 0.0;
 	double integer_part    = 0.0;
 	double fractional_part = 0.0;
-	int scalevector[2048];
-	double temp_scalevector[2048];
-	double sccvector[2048]; // scaled cross correlation vector
-	double sccvector2[2048]; // scaled cross correlation vector
+	double sccvector[100]; // scaled cross correlation vector
+	double sccvector2[100]; // scaled cross correlation vector
 	char * ppixel;
 	YARPImageOf<YarpPixelBGR> _sl_img; // Image to create the sound localization map
-	_sl_img.Resize (2048, 255);
+	_sl_img.Resize (100, 255);
 	YARPScheduler::setHighResScheduling();
 
 	YVector _out(__outSize); 
@@ -82,20 +80,6 @@ int main(int argc, char* argv[])
 
 	time1 = YARPTime::GetTimeAsSeconds();
 
-	//----------------------------------------------------------------------
-	//  calculate the scalevector. Used later to map the crosscorrelation data
-	//  into the soundlocalization image
-	//----------------------------------------------------------------------
-	scalefactor         = (double)size / (double)2048;
-	scalevector[0]      = 0.0;
-	temp_scalevector[0] = 0.0;
-
-	for (int i = 1; i < 2048; i++)
-	{
-		temp_scalevector[i] = temp_scalevector[i-1] + scalefactor;
-		fractional_part     = modf(temp_scalevector[i], &integer_part);
-		scalevector[i]      = (fractional_part < 0.5) ? integer_part : (integer_part + 1);
-	}
 
 	//----------------------------------------------------------------------
 	// Main loop.
@@ -103,6 +87,7 @@ int main(int argc, char* argv[])
 	while(true)
 	{
 		int i;
+		int j  = 0;
 		counter++;
 		_inPort.Read();
         _soundprocessor.apply(_inPort.Content(), v); // This is the sound buffer
@@ -118,8 +103,8 @@ int main(int argc, char* argv[])
 		for ( i = 0; i < 100; i++)
 		{
 			// maping the crosscorrelation vector in the scaled crosscorrelation vector
-            sccvector[i]  = (0.4) * sccvector[i]  + (0.6) * _pcrosscorrelation[scalevector[i]];
-            sccvector2[i] = (0.4) * sccvector2[i] + (0.6) * _pfreccrosscorrelation[scalevector[i]];
+            sccvector[i]  = (0.5 * sccvector[i])  + (0.5 * _pcrosscorrelation[i]);
+            sccvector2[i] = (0.5 * sccvector2[i]) + (0.5 * _pfreccrosscorrelation[i]);
 			
 			if (sccvector[i] > max)
 				max = sccvector[i];
@@ -134,13 +119,10 @@ int main(int argc, char* argv[])
 		{
 			int y  = (int)((double)(sccvector[i]*125)/(double)max);
 			int y2 = (int)((double)(sccvector2[i]*125)/(double)max2);
-			int j  = 0;
-			//if ( y < 0 )  y = 0;
-			//if ( y > 255) y = 255;
-			y  = 250 - y;  // invert coordinates system. Just in the lower-half part of the image
-			y2 = 125 - y2; // invert coordinates system. Just in the upper-half part of the image
-			//ppixel =  _sl_img.RawPixel(i,y);
-			//*ppixel = 200; // Just paint a white pixel
+
+			y  = 250 - y;  // invert coordinates system. Painting in the lower-half part of the image
+			y2 = 125 - y2; // invert coordinates system. Painting in the upper-half part of the image
+
 			for ( j = 250; j > y && j > 0; j-- )
 			{
 				ppixel  = _sl_img.RawPixel(i,j);
