@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.6 2003-05-20 01:18:31 gmetta Exp $
+$Id: README.txt,v 1.7 2003-05-27 22:37:30 gmetta Exp $
 
 
 =============
@@ -21,9 +21,11 @@ Things under development:
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating
 	the sender. USE test12 to see this condition.
 
-8- UDP fails with big messages. USE test13 to see this condition.
-
+8- set the socket buffer size to a % of the max packet defined in the lib.
 8.1- Set buffer size (recv/send), seems to work w/ 8192 bytes (not verified).
+
+9- release version crashes on exit. USE test 13 to show this problem, and close the 
+	receiver first.
 
 
 ===
@@ -38,8 +40,6 @@ Things under development:
 1- MCAST code?
 
 2- speed up by removing all reply to message issues (sort of mandatory for MCAST anyway).
-2.1- also sending header + data in a single gather wide send should improve perf. especially
-	since the Nagle's algorithm is disabled now.
 
 3- what to do with the QNX4 code.
 

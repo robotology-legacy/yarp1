@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSyncComm.cpp,v 1.4 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: YARPSyncComm.cpp,v 1.5 2003-05-27 22:37:30 gmetta Exp $
 ///
 ///
 
@@ -113,6 +113,7 @@ int YARPSyncComm::Send (const YARPNameID& dest, char *buffer, int buffer_length,
 
 	case YARP_TCP:
 	case YARP_UDP:
+	case YARP_MCAST:
 		return YARPSocketSyncComm::Send (dest, buffer, buffer_length, return_buffer, return_buffer_length);
 
 	default:
@@ -134,6 +135,7 @@ YARPNameID YARPSyncComm::BlockingReceive (const YARPNameID& src, char *buffer, i
 
 	case YARP_TCP:
 	case YARP_UDP:
+	case YARP_MCAST:
 		return YARPSocketSyncComm::BlockingReceive (src, buffer, buffer_length);
 
 	default:
@@ -155,6 +157,7 @@ YARPNameID YARPSyncComm::PollingReceive (const YARPNameID& src, char *buffer, in
 
 	case YARP_TCP:
 	case YARP_UDP:
+	case YARP_MCAST:
 		return YARPSocketSyncComm::PollingReceive (src, buffer, buffer_length);
 
 	default:
@@ -176,6 +179,7 @@ int YARPSyncComm::ContinuedReceive (const YARPNameID& src, char *buffer, int buf
 
 	case YARP_TCP:
 	case YARP_UDP:
+	case YARP_MCAST:
 		return YARPSocketSyncComm::ContinuedReceive (src, buffer, buffer_length);
 
 	default:
@@ -197,6 +201,7 @@ int YARPSyncComm::Reply (const YARPNameID& src, char *buffer, int buffer_length)
 	
 	case YARP_TCP:
 	case YARP_UDP:
+	case YARP_MCAST:
 		return YARPSocketSyncComm::Reply (src, buffer, buffer_length);
 
 	default:
@@ -218,6 +223,7 @@ int YARPSyncComm::Send (const YARPNameID& dest, YARPMultipartMessage& msg, YARPM
 
 	case YARP_TCP:
 	case YARP_UDP:
+	case YARP_MCAST:
 		return YARPSocketSyncComm::Send (dest, msg, return_msg);
 
 	default:
@@ -239,6 +245,7 @@ YARPNameID YARPSyncComm::BlockingReceive (const YARPNameID& src, YARPMultipartMe
 
 	case YARP_TCP:
 	case YARP_UDP:
+	case YARP_MCAST:
 		return YARPSocketSyncComm::BlockingReceive (src, msg);
 
 	default:
@@ -260,6 +267,7 @@ YARPNameID YARPSyncComm::PollingReceive (const YARPNameID& src, YARPMultipartMes
 
 	case YARP_TCP:
 	case YARP_UDP:
+	case YARP_MCAST:
 		return YARPSocketSyncComm::PollingReceive (src, msg);
 
 	default:
@@ -281,6 +289,7 @@ int YARPSyncComm::Reply (const YARPNameID& src, YARPMultipartMessage& msg)
 
 	case YARP_TCP:
 	case YARP_UDP:
+	case YARP_MCAST:
 		return YARPSocketSyncComm::Reply (src, msg);
 
 	default:

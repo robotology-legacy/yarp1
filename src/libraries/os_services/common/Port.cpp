@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.23 2003-05-23 08:24:01 gmetta Exp $
+/// $Id: Port.cpp,v 1.24 2003-05-27 22:37:30 gmetta Exp $
 ///
 ///
 
@@ -192,11 +192,11 @@ void OutputTarget::Body ()
 	}
 
 	YARPEndpointManager::CreateOutputEndpoint (target_pid);
-	YARPEndpointManager::ConnectEndpoints (target_pid.getNameID());
+	YARPEndpointManager::ConnectEndpoints (target_pid); ///.getNameID());
 
 #ifdef YARP_TCP_NO_DELAY
 	/// disables Nagle's algorithm... 
-	YARPEndpointManager::SetTCPNoDelay (target_pid.getNameID());
+	YARPEndpointManager::SetTCPNoDelay (target_pid); ///.getNameID());
 #endif
 
 	/// MUST complain if connection fails.
@@ -275,7 +275,7 @@ void OutputTarget::Body ()
 		OnSend();
 	}
 
-	YARPEndpointManager::Close (target_pid.getNameID());	
+	YARPEndpointManager::Close (target_pid); ///.getNameID());	
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "thread %d bailing out\n", GetIdentifier()));
 }
 
@@ -663,7 +663,7 @@ void Port::Body()
 
 				if (!active)
 				{
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "Removing connection between %s and %s (%s%s)\n",
+					ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s (%s%s)\n",
 						name.c_str(), target->GetLabel().c_str(),
 						deactivated ? "as requested" : "target stopped responding",
 						timeout?"/timeout":""));
@@ -690,7 +690,7 @@ void Port::Body()
 					target = targets.GetByLabel (buf);
 					if (target == NULL)
 					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "Starting connection between %s and %s\n", name.c_str(), buf));
+						ACE_DEBUG ((LM_DEBUG, "Starting connection between %s and %s\n", name.c_str(), buf));
 
 						target = targets.NewLink(buf);
 						
@@ -707,7 +707,7 @@ void Port::Body()
 					}
 					else
 					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "Ignoring %s, already connected\n", buf));
+						ACE_DEBUG ((LM_DEBUG, "Ignoring %s, already connected\n", buf));
 					}
 
 					list_mutex.Post ();
@@ -723,7 +723,7 @@ void Port::Body()
 					target = targets.GetByLabel(buf+1);
 					if (target != NULL)
 					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
+						ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
 						target->Deactivate();
 					}
 
@@ -796,7 +796,7 @@ void Port::Body()
 					while (target!=NULL)
 					{
 						next = target->GetMeshNext();
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
+						ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
 						target->Deactivate();
 						target = next;
 					}
@@ -845,7 +845,7 @@ void Port::Share(Sendable *nsendable)
 #endif
 
 	/// this simply pulses the mutex on the sender thread.
-	/// costed an additional thread but hopefully saves a costly message
+	/// cost an additional thread but hopefully saves a costly message
 	/// through the port socket.
 	tsender.pulseGo ();
 

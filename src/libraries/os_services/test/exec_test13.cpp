@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test13.cpp,v 1.10 2003-05-23 16:33:24 babybot Exp $
+/// $Id: exec_test13.cpp,v 1.11 2003-05-27 22:37:32 gmetta Exp $
 ///
 ///
 
@@ -76,6 +76,7 @@
 #include "YARPPort.h"
 #include "YARPThread.h"
 #include "YARPNetworkTypes.h"
+#include "YARPScheduler.h"
 
 NetInt32 foo;
 
@@ -162,6 +163,8 @@ extern int __debug_level;
 
 int main(int argc, char *argv[])
 {
+	YARPScheduler::setHighResScheduling();
+
 ///	__debug_level = 80;
 	Thread1 t1;
 	Thread2 t2;

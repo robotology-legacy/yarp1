@@ -61,11 +61,9 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.h,v 1.2 2003-05-23 23:31:32 gmetta Exp $
+/// $Id: YARPSocketMcast.h,v 1.3 2003-05-27 22:37:31 gmetta Exp $
 ///
 ///
-
-#if 0	/// doesn't compile yet.
 
 #ifndef __YARPSocketMcasth__
 #define __YARPSocketMcasth__
@@ -74,6 +72,7 @@
 #include <ace/config.h>
 #include <ace/OS.h>
 #include <ace/SOCK_Dgram.h>
+#include <ace/SOCK_Dgram_Mcast.h>
 #include <ace/Synch.h>
 
 #include "YARPAll.h"
@@ -139,6 +138,7 @@ public:
 
 ///
 /// only a single thread is required since the output is already multiple.
+/// - the output socket connects 
 ///
 class YARPOutputSocketMcast : public YARPNetworkObject
 {
@@ -150,10 +150,12 @@ public:
 	YARPOutputSocketMcast();
 	virtual ~YARPOutputSocketMcast();
 
-	int Prepare (const YARPUniqueNameID& name); ///, int local_port);
-	int Close(void);
-	int Connect(void);
+	int Prepare (const YARPUniqueNameID& name);
+	int Close(const YARPUniqueNameID& name);
+	int Connect(const YARPUniqueNameID& name);
 	
+	/// int Send (const iovec *iov, int len);
+
 	int SendBegin(char *buffer, int buffer_length);
 	int SendContinue(char *buffer, int buffer_length);
 	int SendReceivingReply(char *reply_buffer, int reply_buffer_length);
@@ -167,4 +169,3 @@ public:
 
 #endif
 
-#endif

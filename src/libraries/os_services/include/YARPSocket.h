@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.h,v 1.5 2003-05-14 17:17:24 gmetta Exp $
+/// $Id: YARPSocket.h,v 1.6 2003-05-27 22:37:31 gmetta Exp $
 ///
 ///
 
@@ -117,6 +117,7 @@ public:
 
 	virtual int Close(void) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
 	virtual int Close(ACE_HANDLE reply_id) { ACE_UNUSED_ARG(reply_id); ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
+	virtual int Close (const YARPUniqueNameID& name) { ACE_UNUSED_ARG(name); ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
 	virtual int CloseAll(void) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
 
 	virtual int Prepare (const YARPUniqueNameID& name) { ACE_UNUSED_ARG(name); ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
@@ -164,8 +165,22 @@ public:
 	virtual ACE_HANDLE GetIdentifier(void) const { ACE_ASSERT (NOT_IMPLEMENTED); return ACE_INVALID_HANDLE; }
 	virtual void SetIdentifier(int n_identifier) { ACE_UNUSED_ARG(n_identifier); ACE_ASSERT (NOT_IMPLEMENTED); }
 	virtual int GetAssignedPort(void) const { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
+
 	virtual int Connect(void) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
-	
+	virtual int Connect (const YARPUniqueNameID& name) 
+	{
+		ACE_UNUSED_ARG(name);
+		ACE_ASSERT (NOT_IMPLEMENTED);
+		return YARP_FAIL;
+	}
+
+///	virtual int Send(const iovec *iov, int len) 
+///	{
+///		ACE_UNUSED_ARG(iov);
+///		ACE_UNUSED_ARG(len); 
+///		ACE_ASSERT (NOT_IMPLEMENTED); 
+///		return YARP_FAIL; 
+///	}
 	virtual int SendBegin(char *buffer, int buffer_length) 
 	{
 		ACE_UNUSED_ARG(buffer);

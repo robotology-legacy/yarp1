@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketNameService.h,v 1.7 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: YARPSocketNameService.h,v 1.8 2003-05-27 22:37:31 gmetta Exp $
 ///
 ///
 
@@ -118,8 +118,9 @@ public:
 	/// allocates socket (either in or out).
 	static YARPNameID CreateInputEndpoint(YARPUniqueNameID& name);
 	static YARPNameID CreateOutputEndpoint(YARPUniqueNameID& name);
-	static int ConnectEndpoints(YARPNameID& dest);
-	static int Close(void);
+	static int ConnectEndpoints(YARPUniqueNameID& dest);
+	///static int Close(void);
+	static int Close(YARPUniqueNameID& dest);
 	static int SetTCPNoDelay(void);
 };
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.13 2003-05-16 21:57:08 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.14 2003-05-27 22:37:30 gmetta Exp $
 ///
 ///
 
@@ -78,6 +78,7 @@
 #include "YARPSocketNameService.h"
 #include "YARPSocket.h"
 #include "YARPSocketDgram.h"
+#include "YARPSocketMcast.h"
 #include "YARPTime.h"
 #include "ThreadInput.h"
 #include "YARPNameID_defs.h"
@@ -279,6 +280,18 @@ YARPNameID YARPSocketEndpointManager::CreateInputEndpoint (YARPUniqueNameID& nam
 			}
 			break;
 
+		case YARP_MCAST:
+			{
+				_endpointmanager._map[pid] = new YARPInputSocketMcast;
+				no = _endpointmanager._map[pid];
+
+				/// P1 is the size of the pool (e.g. 11 (1+10))
+				/// P2 is an array of ports (of size P1)
+				/// cast is required because this version of prepare is not in base class (similar in spirit to a ctor).
+				((YARPInputSocketMcast *)no)->Prepare (name, name.getP2Ptr(), name.getP1Ref());
+			}
+			break;
+
 		default:
 			ACE_DEBUG ((LM_DEBUG, "YARPSocketEndpointManager::CreateInputEndpoint, service type not implemented\n"));
 			return YARPNameID();
@@ -332,6 +345,7 @@ YARPNameID YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& na
 			break;
 
 		case YARP_UDP:
+			{
 				_endpointmanager._map[pid] = new YARPOutputSocketDgram;
 				no = (YARPNetworkObject *) _endpointmanager._map[pid];
 
@@ -342,6 +356,18 @@ YARPNameID YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& na
 				///ACE_ASSERT (name.getP1Ref() == 1);
 				///((YARPOutputSocketDgram *)no)->Prepare (name); ///, name.getP2Ptr()[0]);
 				no->Prepare (name); ///, name.getP2Ptr()[0]);
+			}
+			break;
+
+		case YARP_MCAST:
+			{
+				_endpointmanager._map[pid] = new YARPOutputSocketMcast;
+				no = (YARPNetworkObject *) _endpointmanager._map[pid];
+
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^^^^^^ preparing output socket\n"));
+
+				no->Prepare (name);
+			}
 			break;
 
 		default:
@@ -370,7 +396,7 @@ YARPNameID YARPSocketEndpointManager::CreateOutputEndpoint (YARPUniqueNameID& na
 	return YARPNameID ();
 }
 
-int YARPSocketEndpointManager::ConnectEndpoints(YARPNameID& dest)
+int YARPSocketEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest)
 {
 	YARPNetworkObject *sock = GetThreadSocket();
 	if (sock == NULL)
@@ -389,13 +415,19 @@ int YARPSocketEndpointManager::ConnectEndpoints(YARPNameID& dest)
 
 	/// I've got a socket!
 	///YARPOutputSocket *os = (YARPOutputSocket *)sock;
-	sock->Connect ();
+	if (dest.getServiceType() == YARP_MCAST)
+	{
+		sock->Connect (dest);
+	}
+	else
+		sock->Connect ();
+	
 	dest.setRawIdentifier (sock->GetIdentifier ());
 
 	return YARP_OK;
 }
 
-int YARPSocketEndpointManager::Close (void)
+int YARPSocketEndpointManager::Close (YARPUniqueNameID& dest)
 {
 	YARPNetworkObject *sock = GetThreadSocket();
 	if (sock == NULL)
@@ -408,19 +440,25 @@ int YARPSocketEndpointManager::Close (void)
 	{
 	case YARP_O_SOCKET:
 		{
-			///YARPOutputSocket *os = (YARPOutputSocket *)sock;
-			sock->Close ();
+			if (dest.getServiceType() == YARP_MCAST)
+			{
+				sock->Close (dest);
+			}
+			else
+			{
+				sock->Close ();
+			}
 			break;
 		}
 
 	case YARP_I_SOCKET:
 		{
-			///YARPInputSocket *is = (YARPInputSocket *)sock;
 			sock->CloseAll ();
 			break;
 		}
 	}
 
+	dest.setRawIdentifier (ACE_INVALID_HANDLE);
 	return YARP_OK;
 }
 
@@ -432,7 +470,6 @@ int YARPSocketEndpointManager::SetTCPNoDelay (void)
 		return YARP_FAIL;
 	}
 
-	/// LATER: should check whether the function can actually be called for this socket.
 	if (sock->getSocketType() == YARP_O_SOCKET && sock->GetServiceType() == YARP_TCP)
 	{
 		return ((YARPOutputSocket *)sock)->SetTCPNoDelay ();
@@ -508,6 +545,7 @@ YARPUniqueNameID YARPSocketNameService::RegisterName(YARPNameClient& namer, cons
 		break;
 
 	case YARP_UDP:
+	case YARP_MCAST:
 		{
 			NetInt32 *ports = new NetInt32[num_ports_needed];
 			ACE_ASSERT (ports != NULL);
@@ -579,19 +617,33 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 			int reg_type = YARP_NO_SERVICE_AVAILABLE;
 			if (namer.query (name, addr, &reg_type) != YARP_OK)
 			{
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s\n", name));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> Problems locating %s\n", name));
 				return YARPUniqueNameID ();	/// invalid name id.
 			}
 
 			if (reg_type != name_type)
 			{
-				ACE_DEBUG ((LM_DEBUG, ">>>The requested type differs from the actual one %s\n", name));
+				ACE_DEBUG ((LM_DEBUG, ">>> The requested type differs from the actual one %s\n", name));
 				return YARPUniqueNameID ();
 			}
 			
 			/// query must return also the registration type.
 			///
 			return YARPUniqueNameID (reg_type, addr);
+		}
+		break;
+
+	case YARP_MCAST:
+		{
+			/// 1. use the query name to register an MCAST entry (ip + port # returned).
+			/// - use the query name + a postfix (is this a suitable strategy?) + a rnd number.
+			/// - if it exists generate a new rnd number.
+
+			/// 2. return it. This is used to call the CreateOutputEndpoint().
+
+			/// 3. the corresponding UDP entry is queried separately and used in the 
+			///		ConnectEndpoint().
+
 		}
 		break;
 
@@ -622,13 +674,13 @@ YARPUniqueNameID YARPSocketNameService::LocateName(YARPNameClient& namer, const 
 					return n;
 				}
 
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s in QNET protocol\n", name));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> Problems locating %s in QNET protocol\n", name));
 			}
 
 			reg_type = YARP_NO_SERVICE_AVAILABLE;
 			if (namer.query (name, addr, &reg_type) != YARP_OK)
 			{
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems locating %s also in TCP/UPD protocol\n", name));
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> Problems locating %s also in TCP/UPD protocol\n", name));
 				return YARPUniqueNameID ();	/// invalid name id.
 			}
 			

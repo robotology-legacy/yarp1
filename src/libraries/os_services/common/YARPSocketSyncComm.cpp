@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.12 2003-05-23 23:31:32 gmetta Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.13 2003-05-27 22:37:30 gmetta Exp $
 ///
 ///
 
@@ -91,7 +91,8 @@
   is otherwise ignored completely. since the QNX spec doesn't have it.
  */
 
-NetInt32 YARPSocketSyncComm::_buffer[256];
+const int _bufsize = 256;
+NetInt32 YARPSocketSyncComm::_buffer[_bufsize];
 
 int YARPSocketSyncComm::Send(const YARPNameID& dest, char *buffer, int buffer_length, char *return_buffer, int return_buffer_length)
 {
@@ -142,14 +143,8 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, char *buff
 	{
 		if (prefix.size < 0)
 		{
+			ACE_ASSERT (prefix.total_blocks + prefix.reply_blocks <= _bufsize);
 			ct = ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks + prefix.reply_blocks));
-#if 0
-			for (int i = 0; i < prefix.total_blocks + prefix.reply_blocks && ct >= 0; i++)
-			{
-				NetInt32 x;
-				ct = ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
-			}
-#endif
 		}
 
 		ct = ts->ReceiveContinue (id, buffer, buffer_length);
@@ -182,15 +177,8 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, char *buffe
 	{
 		if (prefix.size < 0)
 		{
-
+			ACE_ASSERT (prefix.total_blocks + prefix.reply_blocks <= _bufsize);
 			ct = ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks + prefix.reply_blocks));
-#if 0
-			for (int i = 0; i < prefix.total_blocks + prefix.reply_blocks && ct >= 0; i++)
-			{
-				NetInt32 x;
-				ct = ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
-			}
-#endif
 		}
 
 		ct = ts->ReceiveContinue (id, buffer, buffer_length);
@@ -246,8 +234,6 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 	ACE_ASSERT (!dest.isConsistent(YARP_NO_SERVICE_AVAILABLE));
 	ACE_ASSERT (os != NULL);
 
-	//os->SetIdentifier(dest.GetRawIdentifier());
-	//os->InhibitDisconnect();
 	int send_parts = msg.GetParts();
 	int return_parts = return_msg.GetParts();
 	ACE_ASSERT (send_parts >= 1);
@@ -255,6 +241,7 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 	int i;
 
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Get %d send_parts, %d return_parts\n", send_parts, return_parts));
+	ACE_ASSERT (send_parts + return_parts <= _bufsize);
 
 	/* preamble code begins */
 	BlockPrefix prefix;
@@ -275,21 +262,6 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 	}
 
 	os->SendContinue ((char *)_buffer, sizeof(NetInt32) * (send_parts + return_parts));
-
-
-#if 0
-	for (i = 0; i < send_parts; i++)
-	{
-		NetInt32 x = msg.GetBufferLength(i);
-		os->SendContinue ((char*)(&x), sizeof(x));
-	}
-
-	for (i = 0; i < return_parts; i++)
-	{
-		NetInt32 x = return_msg.GetBufferLength(i);
-		os->SendContinue ((char*)(&x), sizeof(x));
-	}
-#endif
 
 	///
 	/// just a wakeup required by the protocol under UDP.
@@ -348,19 +320,8 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultip
 		{
 			///int i;
 			///NetInt32 x;
+			ACE_ASSERT (prefix.total_blocks + prefix.reply_blocks <= _bufsize);
 			ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks+prefix.reply_blocks));
-
-#if 0
-			for (i = 0;i < prefix.total_blocks; i++)
-			{
-				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
-			}
-
-			for (i = 0; i < prefix.reply_blocks; i++)
-			{
-				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
-			}
-#endif
 		}
 
 		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
@@ -402,20 +363,8 @@ YARPNameID YARPSocketSyncComm::PollingReceive(const YARPNameID& src, YARPMultipa
 		if (prefix.size < 0)
 		{
 			///int i;
+			ACE_ASSERT (prefix.total_blocks + prefix.reply_blocks <= _bufsize);
 			ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks+prefix.reply_blocks));
-
-#if 0
-			NetInt32 x;
-			for (i = 0; i < prefix.total_blocks; i++)
-			{
-				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
-			}
-
-			for (i=0;i<prefix.reply_blocks; i++)
-			{
-				ts->ReceiveContinue (id, (char*)(&x), sizeof(x));
-			}
-#endif
 		}
 
 		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
@@ -456,6 +405,291 @@ int YARPSocketSyncComm::Reply(const YARPNameID& src, YARPMultipartMessage& msg)
 
 	return ts->ReceiveEnd (src.getRawIdentifier(), msg.GetBuffer(reply_parts-1), msg.GetBufferLength(reply_parts-1));
 }
+
+
+
+
+
+
+
+
+
+#if 0
+
+///
+/// implementation of UDP multicast protocol - note: it need to be asynchronous.
+///
+///
+///
+///
+///
+int YARPMcastAsyncComm::Send(const YARPNameID& dest, char *buffer, int buffer_length)
+{
+	YARPNetworkObject *os = YARPSocketEndpointManager::GetThreadSocket ();
+	ACE_ASSERT (!dest.isConsistent(YARP_NO_SERVICE_AVAILABLE));
+	ACE_ASSERT (os != NULL);
+
+	BlockPrefix prefix;
+	prefix.total_blocks = 1;
+	prefix.reply_blocks = 0;
+	prefix.size = buffer_length;
+	prefix.reply_size = 0;
+
+	/// send an iovec
+	iovec iov[2];
+	iov[0].iov_base = (char *)&prefix;
+	iov[0].iov_len = sizeof(prefix);
+	iov[1].iov_base = buffer;
+	iov[1].iov_len = buffer_length;
+
+	return os->Send (iov, 2);
+}
+
+
+YARPNameID YARPMcastAsyncComm::BlockingReceive(const YARPNameID& src, char *buffer, int buffer_length)
+{
+	YARPNetworkObject *ts = YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
+	ACE_ASSERT(ts != NULL);
+
+	BlockPrefix prefix;
+	ACE_HANDLE id = ACE_INVALID_HANDLE;
+	int ct = ts->ReceiveBegin ((char*)(&prefix), sizeof(prefix), &id);
+	if (ct >= 0)
+	{
+		if (prefix.size < 0)
+		{
+			ACE_ASSERT (prefix.total_blocks + prefix.reply_blocks <= _bufsize);
+			ct = ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks + prefix.reply_blocks));
+		}
+
+		ct = ts->ReceiveContinue (id, buffer, buffer_length);
+	}
+
+	if (ct < 0) 
+	{
+		//printf("Failed in YARPMcastAsyncComm::BlockingReceive\n");
+		id = ACE_INVALID_HANDLE;
+	}
+
+	return YARPNameID (src.getServiceType(), id);
+}
+
+
+YARPNameID YARPMcastAsyncComm::PollingReceive(const YARPNameID& src, char *buffer, int buffer_length)
+{
+	YARPNetworkObject *ts = YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
+	ACE_ASSERT (ts != NULL);
+
+	BlockPrefix prefix;
+	ACE_HANDLE id = ACE_INVALID_HANDLE;
+	int ct = ts->PollingReceiveBegin ((char*)(&prefix), sizeof(prefix), &id);
+	if (ct >= 0)
+	{
+		if (prefix.size < 0)
+		{
+			ACE_ASSERT (prefix.total_blocks + prefix.reply_blocks <= _bufsize);
+			ct = ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks + prefix.reply_blocks));
+		}
+
+		ct = ts->ReceiveContinue (id, buffer, buffer_length);
+	}
+	
+	if (ct < 0) id = ACE_INVALID_HANDLE;
+
+	return YARPNameID (src.getServiceType(), id);
+}
+
+
+int YARPMcastAsyncComm::ContinuedReceive(const YARPNameID& src, char *buffer, int buffer_length)
+{
+	YARPNetworkObject *ts = (YARPNetworkObject *)YARPSocketEndpointManager::GetThreadSocket();
+	///ACE_ASSERT (src.isConsistent(YARP_TCP));
+	ACE_ASSERT (ts != NULL);
+
+	int ct = YARP_FAIL;
+	if (src.isValid())
+	{
+		ct = ts->ReceiveContinue (src.getRawIdentifier(), buffer, buffer_length);
+	}
+	return ct;
+}
+
+
+int YARPMcastAsyncComm::Reply(const YARPNameID& src, char *buffer, int buffer_length)
+{
+	YARPNetworkObject *ts = (YARPNetworkObject *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
+	ACE_ASSERT (ts != NULL);
+
+	char ch = 0;
+	ts->ReceiveReplying (src.getRawIdentifier(), &ch, 1);
+	return ts->ReceiveEnd (src.getRawIdentifier(), buffer, buffer_length);
+}
+
+
+int YARPMcastAsyncComm::InvalidReply(const YARPNameID& src)
+{
+	YARPNetworkObject *ts = (YARPNetworkObject *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
+	ACE_ASSERT (ts != NULL);
+
+	char ch = 0;
+	return ts->ReceiveEnd (src.getRawIdentifier(), &ch, 1);
+}
+
+
+int YARPMcastAsyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg)
+{
+	YARPNetworkObject *os = (YARPNetworkObject *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!dest.isConsistent(YARP_NO_SERVICE_AVAILABLE));
+	ACE_ASSERT (os != NULL);
+
+	int send_parts = msg.GetParts();
+	int return_parts = 0;
+	ACE_ASSERT (send_parts >= 1);
+	int i;
+
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Get %d send_parts, %d return_parts\n", send_parts, return_parts));
+	ACE_ASSERT (send_parts + return_parts <= _bufsize);
+
+	/* preamble code begins */
+	BlockPrefix prefix;
+	prefix.total_blocks = send_parts;
+	prefix.reply_blocks = 0;
+	prefix.size = -1;
+	prefix.reply_size = -1;
+
+	for (i = 0; i < send_parts; i++)
+	{
+		_buffer[i] = msg.GetBufferLength(i);
+	}
+
+	os->SendContinue ((char *)_buffer, sizeof(NetInt32) * (send_parts + return_parts));
+
+	/// can only send a signle part (at least for now).
+	ACE_ASSERT (send_parts == 1);
+
+	iovec iov[3];
+	iov[0].iov_base = (char *)&prefix;
+	iov[0].iov_len = sizeof(prefix);
+	iov[1].iov_base = (char *)_buffer;
+	iov[1].iov_len = sizeof(NetInt32) * send_parts;
+	iov[2].iov_base = msg.GetBuffer(0);
+	iov[2].iov_len = msg.GetBufferLength(0);
+	return os->Send (iov, 3);
+}
+
+
+YARPNameID YARPMcastAsyncComm::BlockingReceive(const YARPNameID& src, YARPMultipartMessage& msg)
+{
+	YARPNetworkObject *ts = YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (ts != NULL);
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
+
+	ACE_HANDLE id = ACE_INVALID_HANDLE;
+	int receive_parts = msg.GetParts();
+	ACE_ASSERT (receive_parts >= 1);
+
+	/* preamble code begins */
+	BlockPrefix prefix;
+	ts->ReceiveBegin ((char*)(&prefix), sizeof(prefix), &id);
+
+	if (id != ACE_INVALID_HANDLE)
+	{
+		if (prefix.size < 0)
+		{
+			///int i;
+			///NetInt32 x;
+			ACE_ASSERT (prefix.total_blocks + prefix.reply_blocks <= _bufsize);
+			ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks+prefix.reply_blocks));
+		}
+
+		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
+	}
+	/* preamble code ends */
+
+	/// no proper error check/handling here.
+
+	//  int ct = ts->ReceiveBegin(msg.GetBuffer(0),msg.GetBufferLength(0), &id);
+	if (id != ACE_INVALID_HANDLE)
+	{
+		for (int i = 1; i < receive_parts; i++)
+		{
+			int ct2 = ts->ReceiveContinue (id, msg.GetBuffer(i), msg.GetBufferLength(i));
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^ additional receive of %d bytes\n", ct2));
+		}
+	}
+
+	return YARPNameID (src.getServiceType(),id);
+}
+
+
+YARPNameID YARPMcastAsyncComm::PollingReceive(const YARPNameID& src, YARPMultipartMessage& msg)
+{
+	YARPNetworkObject *ts = (YARPNetworkObject *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
+	ACE_ASSERT (ts != NULL);
+
+	ACE_HANDLE id = ACE_INVALID_HANDLE;
+	int receive_parts = msg.GetParts();
+	ACE_ASSERT(receive_parts>=1);
+
+	/* preamble code begins */
+	BlockPrefix prefix;
+	ts->PollingReceiveBegin((char*)(&prefix),sizeof(prefix), &id);
+
+	if (id != ACE_INVALID_HANDLE)
+	{
+		if (prefix.size < 0)
+		{
+			///int i;
+			ACE_ASSERT (prefix.total_blocks + prefix.reply_blocks <= _bufsize);
+			ts->ReceiveContinue (id, (char *)_buffer, sizeof(NetInt32) * (prefix.total_blocks+prefix.reply_blocks));
+		}
+
+		int ct = ts->ReceiveContinue (id, msg.GetBuffer(0), msg.GetBufferLength(0));
+	}
+	/* preamble code ends */
+
+	//int ct = ts->PollingReceiveBegin(msg.GetBuffer(0),msg.GetBufferLength(0), 
+	//			   &id);
+	if (id != ACE_INVALID_HANDLE)
+	{
+		for (int i = 1; i < receive_parts; i++)
+		{
+			ts->ReceiveContinue (id, msg.GetBuffer(i), msg.GetBufferLength(i));
+		}
+	}
+
+	return YARPNameID (src.getServiceType(),id);
+}
+
+
+
+int YARPMcastAsyncComm::Reply(const YARPNameID& src, YARPMultipartMessage& msg)
+{
+	YARPNetworkObject *ts = (YARPNetworkObject *)YARPSocketEndpointManager::GetThreadSocket();
+	ACE_ASSERT (!src.isConsistent(YARP_NO_SERVICE_AVAILABLE));
+	ACE_ASSERT (ts != NULL);
+
+	int reply_parts = msg.GetParts();
+	ACE_ASSERT (reply_parts >= 1);
+
+	char ch = 0;
+
+	ts->ReceiveReplying (src.getRawIdentifier(), &ch, 1);
+	for (int i = 0; i < reply_parts-1; i++)
+	{
+		ts->ReceiveReplying (src.getRawIdentifier(), msg.GetBuffer(i), msg.GetBufferLength(i));
+	}
+
+	return ts->ReceiveEnd (src.getRawIdentifier(), msg.GetBuffer(reply_parts-1), msg.GetBufferLength(reply_parts-1));
+}
+
+
+#endif
 
 
 #undef THIS_DBG
