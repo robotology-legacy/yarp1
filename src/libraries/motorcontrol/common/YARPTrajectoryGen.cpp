@@ -170,7 +170,7 @@ int YARPTrajectoryGen::setFinal(const double *actual, const double *final, int n
 	}
 }
 
-YARPTrajectoryGen::setFinal(const double *actual, const double *viaPoint, const double *final, int nstp)
+int YARPTrajectoryGen::setFinal(const double *actual, const double *viaPoint, const double *final, int nstp)
 {
 	// NOT IMPLEMENTED YET !
 

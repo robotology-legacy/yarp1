@@ -1,4 +1,4 @@
-// $Id: YARPEurobotArm.cpp,v 1.4 2003-08-19 08:14:29 beltran Exp $
+// $Id: YARPEurobotArm.cpp,v 1.5 2003-09-12 16:57:05 beltran Exp $
 
 #include "YARPEurobotArm.h"
 
@@ -79,6 +79,15 @@ int YARPEurobotArm::getPositions(double *pos)
 	_lock();
 	_adapter.IOCtl(CMDGetPositions, _temp_double);
 	encoderToAngles(_temp_double, pos);
+	_unlock();
+	return -1;
+}
+
+int YARPEurobotArm::getVelocities(double *vel)
+{
+	_lock();
+	_adapter.IOCtl(CMDGetSpeeds, _temp_double);
+	encoderVelToAngles(_temp_double, vel, _parameters);
 	_unlock();
 	return -1;
 }

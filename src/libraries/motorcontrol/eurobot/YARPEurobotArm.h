@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPEurobotArm.h,v 1.4 2003-09-08 16:59:00 beltran Exp $
+// $Id: YARPEurobotArm.h,v 1.5 2003-09-12 16:57:05 beltran Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -55,6 +55,7 @@ public:
 	int velocityMove(const double *vel);
 	int setCommands(const double *pos);
 	int getPositions(double *pos);
+	int getVelocities(double *vel);
 	
 	// set offset to i-th joint
 	int setG(int i, double g);
