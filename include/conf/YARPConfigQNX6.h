@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigQNX6.h,v 1.7 2003-05-18 22:34:43 gmetta Exp $
+// $Id: YARPConfigQNX6.h,v 1.8 2003-05-18 23:10:55 gmetta Exp $
 // YARP config file QNX6.
 //
 //
@@ -32,7 +32,7 @@
 #define YARP_UDP_REGPORTS       11
 
 /// read timeout on socket transport (in seconds).
-#define YARP_SOCK_TIMEOUT	2
+#define YARP_SOCK_TIMEOUT	200
 
 #include <ace/config.h>
 

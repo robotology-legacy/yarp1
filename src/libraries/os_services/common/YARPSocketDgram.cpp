@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.12 2003-05-18 22:34:43 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.13 2003-05-18 23:10:56 gmetta Exp $
 ///
 ///
 
@@ -639,7 +639,7 @@ void _SocketThreadDgram::Body (void)
 						ACE_Handle_Set set;
 						set.reset ();
 						set.set_bit (_local_socket.get_handle());
-						ACE_OS::select (int(_local_socket.get_handle())+1, set, 0, 0, &timeout);
+						rr = ACE_OS::select (int(_local_socket.get_handle())+1, set, 0, 0, &timeout);
 						/// wait here until next valid chunck of data.
 					}
 					else
@@ -654,11 +654,19 @@ void _SocketThreadDgram::Body (void)
 						_local_socket.close ();
 						finished = 1;
 					}
-
-					if (rr < 0)
+					else
+					if (_extern_reply_length > 0 && rr < 0)
 					{
 						ACE_DEBUG ((LM_DEBUG, "??? closing %d\n", rr));
-						ACE_DEBUG ((LM_DEBUG, "??? recv or select failed\n"));
+						ACE_DEBUG ((LM_DEBUG, "??? recv failed\n"));
+						_local_socket.close ();
+						finished = 1;
+					}
+					else
+					if (_extern_reply_length == 0 && rr <= 0)
+					{
+						ACE_DEBUG ((LM_DEBUG, "??? closing %d\n", rr));
+						ACE_DEBUG ((LM_DEBUG, "??? select failed\n"));
 						_local_socket.close ();
 						finished = 1;
 					}
