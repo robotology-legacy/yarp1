@@ -105,6 +105,10 @@ SOURCE=.\armcontrol.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ArmFSMStates.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\armthread.cpp
 # End Source File
 # Begin Source File

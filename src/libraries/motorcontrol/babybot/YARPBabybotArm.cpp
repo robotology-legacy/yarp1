@@ -1,4 +1,4 @@
-// $Id: YARPBabybotArm.cpp,v 1.4 2003-05-29 13:14:24 natta Exp $
+// $Id: YARPBabybotArm.cpp,v 1.5 2003-08-01 15:17:51 babybot Exp $
 
 #include "YARPBabybotArm.h"
 
@@ -77,6 +77,15 @@ int YARPBabybotArm::getPositions(double *pos)
 	_lock();
 	_adapter.IOCtl(CMDGetPositions, _temp_double);
 	encoderToAngles(_temp_double, pos);
+	_unlock();
+	return -1;
+}
+
+int YARPBabybotArm::getVelocities(double *vel)
+{
+	_lock();
+	_adapter.IOCtl(CMDGetSpeeds, _temp_double);
+	encoderVelToAngles(_temp_double, vel, _parameters);
 	_unlock();
 	return -1;
 }

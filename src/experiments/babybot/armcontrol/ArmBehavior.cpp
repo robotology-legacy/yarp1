@@ -7,6 +7,12 @@ void ABOutputCommand::output(ArmBehaviorData *d)
 	d->directCommand(d->_cmd);
 }
 
+void ABOutputShakeCmd::output(ArmBehaviorData *d)
+{
+	cout << "Starting shaking sequence!\n";
+	d->shake();
+}
+
 bool ABInputCommand::input(YARPBottle *in, ArmBehaviorData *d)
 {
 	int k;
@@ -24,6 +30,20 @@ bool ABInputCommand::input(YARPBottle *in, ArmBehaviorData *d)
 	in->moveOn();
 	return true;
 			
+}
+
+bool ABInputShakeCmd::input(YARPBottle *in, ArmBehaviorData *d)
+{
+	int k;
+	if (!in->tryReadVocab(&k))
+		return false;
+	
+	if (k != key)
+		return false;
+
+	in->moveOn();
+
+	return true;
 }
 
 bool ABCheckMotionDone::input(YARPBottle *in, ArmBehaviorData *d)

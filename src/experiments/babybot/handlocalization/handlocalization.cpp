@@ -31,11 +31,18 @@ int main(int argc, char *argv[])
 	HLBehavior _hlbehavior(&_findHand, YBLabelMotor, "/handlocalization/behavior/i");
 	HLDoMotion doMotion;
 	HLFind find;
-	HLShakeStart start;
-	HLShakeStop stop;
+	HLShakeStart startFingers(YBVHandShake);
+	HLShakeStop stopFingers(YBVHandDone);
+	HLShakeStart startWrist(YBVArmShake);
+	HLShakeStop stopWrist(YBVArmDone);
+
 	_hlbehavior.setInitialState(&doMotion);
-	_hlbehavior.add(&start, &doMotion, &find);
-	_hlbehavior.add(&stop, &find, &doMotion);
+	// fingers (hand)
+	_hlbehavior.add(&startFingers, &doMotion, &find);
+	_hlbehavior.add(&stopFingers, &find, &doMotion);
+	// wrist (arm)
+	_hlbehavior.add(&startWrist, &doMotion, &find);
+	_hlbehavior.add(&stopWrist, &find, &doMotion);
 
 	_findHand.Begin();
 	_hlbehavior.Begin();

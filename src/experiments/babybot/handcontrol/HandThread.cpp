@@ -57,7 +57,7 @@ _handStatusOut(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	_cmd = 0.0;
 	/////////////
 	_handStatusOut.Register("/handcontrol/o:status");
-	_status.Resize(7);
+	_status.Resize(6);
 
 	_hand._shaking = false;
 }
@@ -88,14 +88,8 @@ void HandThread::doLoop()
 
 	// _hand.getPositionsRaw(_status.data());
 	_hand.getSpeedsRaw(_status.data());
-	if (_hand._shaking)
-	{
-		_status(7) = 1;
-	}
-	else
-		_status(7) = 0;
-
-	_handStatusOut.Content() = _status;
+	
+	_handStatusOut.Content() = _status/3000;	// normalize between 0 and 1
 	_handStatusOut.Write();
 	
 	_hand.output();

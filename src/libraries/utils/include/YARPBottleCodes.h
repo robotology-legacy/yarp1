@@ -25,6 +25,7 @@ enum {
 	YBVArmDone,
 	YBVArmRndStart,
 	YBVArmRndStop,
+	YBVArmShake,
 	YBVIsAlive,
 	YBVHandNewCmd,
 	YBVHandDone,

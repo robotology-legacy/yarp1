@@ -56,6 +56,15 @@ public:
 		return pid_done && tr_done;
 	}
 
+	void shake()
+	{
+		// start shake sequence
+		_shaking = true;
+		ASShake *tmp = ASShake ::instance();
+		tmp->n = 16;
+		changeInitState(tmp);
+	}
+
 	// set a new position in the ASDirectCommand state... the command will be
 	// executed only if the thread goes or is in this state.
 	void directCommand(const YVector &cmd)
@@ -100,7 +109,8 @@ private:
 	friend class	ASZeroGEnd;
 	friend class	ASMove;
 	friend class	ASWaitForHand;
-	
+	friend class	ASShake;
+
 	// change reaching state
 	void changeReachingState(AState *s)
 		{_arm_state = s;}
@@ -110,10 +120,14 @@ private:
 		{_init_state = s;}
 
 	// this is a private function, it can be called only from within the thread
-	void _directCommand(const YVector &cmd)
+	void _directCommand(const YVector &cmd, int nst = 0)
 	{
 		_trajectory.stop();
-		_trajectory.setFinal(cmd.data(), _nSteps);
+		if (nst == 0)
+			_trajectory.setFinal(cmd.data(), _nSteps);	// use default
+		else 
+			_trajectory.setFinal(cmd.data(), nst);
+		
 		_arm.setPositions(cmd.data());
 	}
 
@@ -126,11 +140,16 @@ private:
 	YVector _actual_command;			// actual arm command, joint space
 	YVector _wristF;
 	YARPInputPortOf<YVector> _wristPort;
+
+	////////
+	YARPOutputPortOf<YVector> _armStatusPort;
 	
 	bool _restingInhibited;
 
 	YARPTrajectoryGen _trajectory;
 	TirednessControl _tirednessControl;
+
+	bool _shaking;
 
 	int _nj;
 	int _nSteps;
@@ -146,6 +165,8 @@ public: //later: make it private
 	J5GravityEstimator _gravity5;
 
 	YVector _cmd;	//move it from here !
+	YVector _speed;
+	YVector _acc;
 };
 
 #endif //.h

@@ -3,7 +3,7 @@
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.17 2003-06-30 21:09:19 babybot Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.18 2003-08-01 15:17:51 babybot Exp $
 
 #include <ace/log_msg.h>
 #include <YARPMeiDeviceDriver.h>
@@ -155,6 +155,8 @@ public:
 		if (cfgFile.get("[GENERAL]", "FwdCouple", _fwdCouple, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "MaxDAC", _maxDAC, _nj) == YARP_FAIL)
+			return YARP_FAIL;
+		if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 
 		// build encoder to angles

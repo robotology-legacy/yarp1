@@ -21,6 +21,7 @@ public:
 	YARPOutputPortOf<YVector> _outPixelPort;
 	YARPInputPortOf<int[2]> _inPixelCoord;
 	YARPInputPortOf<YVector> _handStatusPort;
+	YARPInputPortOf<YVector> _armStatusPort;
 
 	YARPImageOf<YarpPixelMono> _actualLp;
 	YARPImageOf<YarpPixelBGR> _actualColored;
@@ -36,6 +37,7 @@ public:
 	unsigned char _threshold;
 	
 	YVector _handSpeed;
+	YVector _armSpeed;
 	YVector _pixelOut;
 	YVector _zeros;
 	void Body();
@@ -45,8 +47,8 @@ public:
 	double _alpha;
 
 	ZeroCrossing *_zeroCrossing;
-	ZeroCrossing *_zeroCrossingMotor;
-
+	ZeroCrossing *_zeroCrossingHand;
+	
 	void startShake()
 	{
 		_lock();
@@ -89,7 +91,7 @@ private:
 
 		///////////////// read hand status
 		if (_handStatusPort.Read(0))
-			memcpy(_handSpeed.data(), _handStatusPort.Content().data(), 7*sizeof(double));
+			memcpy(_handSpeed.data(), _handStatusPort.Content().data(), 6*sizeof(double));
 	}
 
 	void _writeOutputPorts()
@@ -121,12 +123,12 @@ private:
 				j++;
 			}
 			
-		_zeroCrossingMotor[0].find(fabs(_handSpeed(1))/3000.0, &dummy);
-		_zeroCrossingMotor[1].find(fabs(_handSpeed(2))/3000.0, &dummy);
-		_zeroCrossingMotor[2].find(fabs(_handSpeed(3))/3000.0, &dummy);
-		_zeroCrossingMotor[3].find(fabs(_handSpeed(4))/3000.0, &dummy);
-		_zeroCrossingMotor[4].find(fabs(_handSpeed(5))/3000.0, _pixelOut.data()+3);//_pixelOut.data()+1);
-		_zeroCrossingMotor[5].find(fabs(_handSpeed(6))/3000.0, &dummy);
+		_zeroCrossingHand[0].find(fabs(_handSpeed(1)), &dummy);
+		_zeroCrossingHand[1].find(fabs(_handSpeed(2)), &dummy);
+		_zeroCrossingHand[2].find(fabs(_handSpeed(3)), &dummy);
+		_zeroCrossingHand[3].find(fabs(_handSpeed(4)), &dummy);
+		_zeroCrossingHand[4].find(fabs(_handSpeed(5)), _pixelOut.data()+3);//_pixelOut.data()+1);
+		_zeroCrossingHand[5].find(fabs(_handSpeed(6)), &dummy);
 	}
 };
 

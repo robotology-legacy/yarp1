@@ -16,7 +16,8 @@ YARPRateThread(name, rate),
 YARPBehaviorSharedData(YBLabelMotor, "/armcontrol/behavior/o"),
 _tirednessControl(23000.0, 10000.0, rate, 0.5),
 _arm_status(ini_file),
-_wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
+_wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
+_armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 {
 	strncpy(_iniFile, ini_file, 80);
 
@@ -27,6 +28,16 @@ _wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 	
 	_trajectory.resize(_nj, _nSteps);
 	_actual_command.Resize(_nj);
+	//////// speed and accelerations (used by stiff pid only)
+	_speed.Resize(_nj);
+	_acc.Resize(_nj);
+	_speed = 0.0;	// paranoid
+	_acc = 0.0;		// paranoid
+	file.get("[THREAD]", "Speeds", _speed.data(), _nj);
+	file.get("[THREAD]", "Accelerations", _acc.data(), _nj);
+	_speed = _speed * degToRad;
+	_acc = _acc*(degToRad);
+	//////////////
 
 	/////////// Resting states
 	YVector tmp1,tmp2;
@@ -43,10 +54,17 @@ _wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 	_wristF.Resize(6);
 	_wristF = 0.0;
 	///////////////////
+
+	//////////////////////
+	char armStatusPortname[255];
+	file.getString("[THREAD]", "ArmStatusPortName", armStatusPortname);
+	_armStatusPort.Register(armStatusPortname);
+	///////////////////////
 	
 	changeInitState(ASDirectCommand::instance());
 	_arm_state = _init_state;
 	_restingInhibited = false;
+	_shaking = false;
 
 }
 
@@ -70,13 +88,16 @@ void ArmThread::doInit()
 	park(1);
 	_arm.resetEncoders();		// set this new position
 
+	_arm.setVelocities(_speed.data());
+	_arm.setAccs(_acc.data());
+
 	_arm._parameters._lowPIDs[0].KP = -5.0;
 	_arm._parameters._lowPIDs[0].KD = -600.0;
 	// _arm._parameters._lowPIDs[0].OFFSET = g[0];	//the first value for g has to be applied smoothly
 	_arm.setGainsSmoothly(_arm._parameters._lowPIDs,200);
 	_arm_status._pidStatus = _armThread::high;
 	_arm.getPositions(_arm_status._current_position.data());
-	
+
 	_trajectory.setFinal(_arm_status._current_position.data(), _arm_status._current_position.data(), _nSteps);
 }
 
@@ -111,6 +132,7 @@ void ArmThread::doLoop()
 	// read data from MEI board
 	read_status();
 	
+	/*
 	// check tiredness
 	if (_tirednessControl.high() && !_restingInhibited)
 	{
@@ -121,7 +143,7 @@ void ArmThread::doLoop()
 		{
 			_arm_state = ASZeroGEnd::instance();
 		}
-	}
+	}*/
 		
 	/////////////
 	_arm_state->handle(this);
@@ -145,6 +167,12 @@ inline void ArmThread::send_commands()
 	for(int i = 0; i < 6; i++)
 		_arm.setG(i,g[i]);
 
+	/*if (_shaking)
+	{*/
+		_armStatusPort.Content() = _arm_status._velocity*radToDeg/10;
+		_armStatusPort.Write();
+	/*}*/
+
 	_arm.setCommands(_actual_command.data());
 }
 
@@ -152,6 +180,7 @@ inline void ArmThread::read_status()
 {
 	/// get arm
 	_arm.getPositions(_arm_status._current_position.data());
+	_arm.getVelocities(_arm_status._velocity.data());
 	_arm.getTorques(_arm_status._torques.data());
 	_tirednessControl.add(_arm_status._torques(1));
 	// get from wrist

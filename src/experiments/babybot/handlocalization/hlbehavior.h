@@ -36,9 +36,9 @@ public:
 class HLShakeStart: public HLBehaviorBaseInput
 {
 public:
-	HLShakeStart()
+	HLShakeStart(int k)
 	{
-		key = YBVHandShake;
+		key = k;
 	}
 	bool input(YARPBottle *in, FindHand *d)
 	{
@@ -61,9 +61,9 @@ public:
 class HLShakeStop: public HLBehaviorBaseInput
 {
 public:
-	HLShakeStop()
+	HLShakeStop(int k)
 	{
-		key = YBVHandDone;
+		key = k;
 	}
 	bool input(YARPBottle *in, FindHand *d)
 	{

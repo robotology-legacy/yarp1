@@ -14,6 +14,7 @@ ASZeroGInit			ASZeroGInit::_instance;
 ASZeroGWait			ASZeroGWait::_instance;
 ASZeroGEnd			ASZeroGEnd::_instance;
 ASWaitForHand		ASWaitForHand::_instance;
+ASShake				ASShake::_instance;
 
 void AState::changeState (ArmThread *t, AState *s)
 {
@@ -283,4 +284,44 @@ void ASZeroGEnd:: handle(ArmThread *t)
 			changeState(t, t->_init_state);
 		}
 	}
+}
+
+void ASShake:: handle(ArmThread *t)
+{
+	// t->_arm_status._state._thread = _armThread::shake;
+
+	n--;
+
+	ARM_STATE_DEBUG(("ASShake\n"));
+	t->_restingInhibited = true;
+
+	// check n
+	if (n<=0) 
+	{
+		// end shaking sequence
+		t->changeInitState(ASDirectCommand::instance());
+		changeState(t,t->_init_state);
+		t->_shaking = false;
+		t->_restingInhibited = false;
+		// signal end of motion
+		t->_data.writeVocab(YBVArmDone);
+		t->send();
+		return;
+	}
+	else if ( (n%2) == 0)
+	{
+		// first
+		cmd = firstPosition;
+	}
+	else
+	{
+		cmd = secondPosition;
+	}
+
+	t->_directCommand(cmd, 10);
+	// prepare wait state
+	ASWaitForMotion *waitState = ASWaitForMotion::instance();
+	waitState->setNext(this);
+	// chenge to wait state
+	changeState(t,waitState);
 }

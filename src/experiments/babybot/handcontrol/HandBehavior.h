@@ -76,9 +76,9 @@ public:
 class HBShakeCmdInput: public HandBehaviorBaseInput
 {
 public:
-	HBShakeCmdInput()
+	HBShakeCmdInput(int k)
 	{
-		key = YBVHandShake;
+		key = k;
 	}
 	bool input(YARPBottle *in, HandBehaviorData *d);
 		
@@ -88,9 +88,9 @@ public:
 class HBCheckMotionDone: public HandBehaviorBaseInput
 {
 public:
-	HBCheckMotionDone()
+	HBCheckMotionDone(int k)
 	{
-		key = YBVHandDone;
+		key = k;
 	}
 
 	bool input(YARPBottle *in, HandBehaviorData *d);

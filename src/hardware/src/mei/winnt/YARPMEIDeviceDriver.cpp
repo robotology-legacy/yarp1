@@ -1,4 +1,4 @@
-// $Id: YARPMEIDeviceDriver.cpp,v 1.14 2003-05-30 14:26:18 natta Exp $
+// $Id: YARPMEIDeviceDriver.cpp,v 1.15 2003-08-01 15:17:51 babybot Exp $
 
 #include "YARPMEIDeviceDriver.h"
 
@@ -260,7 +260,7 @@ int YARPMEIDeviceDriver::getSpeeds(void *spds)
 	DSP_DM vel;
 	for(int i = 0; i < _njoints; i++) {
 		P_DSP_DM current_v_addr = dspPtr->data_struct + DS_CURRENT_VEL + DS(i);
-		pcdsp_transfer_block(dspPtr, TRUE, FALSE, current_v_addr, _njoints, &vel);
+		pcdsp_transfer_block(dspPtr, TRUE, FALSE, current_v_addr, 1, &vel);
 		out[i] =  vel*_dsp_rate;
 	}
 

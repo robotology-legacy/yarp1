@@ -25,7 +25,6 @@ int main(int argc, char* argv[])
 
 	cout << "Starting arm control...\n";
 	int _arm_thread_rate;
-	int _random_thread_rate;
 
 	YARPConfigFile file;
 
@@ -44,8 +43,6 @@ int main(int argc, char* argv[])
 	file.set(path, "arm.ini");
 	file.get("[THREAD]", "Rate", &_arm_thread_rate, 1);
 
-	// file.get("[RANDOMTHREAD]", "Rate", &_random_thread_rate, 1);
-	
 	ArmThread arm_thread(_arm_thread_rate,
 						"arm thread",
 						filename);
@@ -58,15 +55,16 @@ int main(int argc, char* argv[])
 	ABInputCommand inputCmd;
 	ABCheckMotionDone checkMotionDone;
 	ABOutputCommand outputCmd;
+	ABOutputShakeCmd outputShk;
+	ABInputShakeCmd inputShk;
 	
 	_arm.setInitialState(&waitIdle);
 	_arm.Begin();
 	_arm.add(&inputCmd, &waitIdle, &waitMotion, &outputCmd);
+	_arm.add(&inputShk, &waitIdle, &waitMotion, &outputShk);
 	_arm.add(&checkMotionDone, &waitMotion, &waitIdle);
-
 	_arm.loop();
-
-	_arm.End();
+	// _arm.End();
 	// stop arm
 	arm_thread.terminate(false);	// no timeout here, important !
 	return 0;

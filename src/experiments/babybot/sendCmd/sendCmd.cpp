@@ -50,12 +50,31 @@ int main(int argc, char* argv[])
 			tmp.writeYVector(cmd);
 			send = true;
 		}
-		else if (c == "shake")
+		else if (c == "arm")
+		{
+			tmp.writeVocab(YBVArmNewCmd);
+			YVector cmd;
+			cmd.Resize(6);
+			for (int i = 0; i < 6; i++)
+			{
+				cin >> cmd(i+1);
+				cmd(i+1) = cmd(i+1)*degToRad;
+			}
+
+			tmp.writeYVector(cmd);
+			send = true;
+		}
+		else if (c == "shakehand")
 		{
 			tmp.writeVocab(YBVHandShake);
 			send = true;
 		}
-		else if (c == "reset")
+		else if (c == "shakearm")
+		{
+			tmp.writeVocab(YBVArmShake);
+			send = true;
+		}
+		else if (c == "resethand")
 		{
 			tmp.writeVocab(YBVHandResetEncoders);
 			send = true;

@@ -45,12 +45,31 @@ public:
 	void output(ArmBehaviorData *d);
 };
 
+
+class ABOutputShakeCmd: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
 class ABInputCommand: public ArmBehaviorBaseInput
 {
 public:
 	ABInputCommand()
 	{
 		key = YBVArmNewCmd;
+	}
+	bool input(YARPBottle *in, ArmBehaviorData *d);
+	
+	int key;
+};
+
+class ABInputShakeCmd: public ArmBehaviorBaseInput
+{
+public:
+	ABInputShakeCmd()
+	{
+		key = YBVArmShake;
 	}
 	bool input(YARPBottle *in, ArmBehaviorData *d);
 	

@@ -19,6 +19,7 @@ _segmentedImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 	_outPort.Register((portName+"/o:img").c_str());
 	_outPixelPort.Register((portName+"/o:pixel").c_str());
 	_handStatusPort.Register((portName+"/i:hand").c_str());
+	_armStatusPort.Register((portName+"/i:arm").c_str());
 	_inPixelCoord.Register((portName+"/i:point").c_str());
 	_segmentedImagePort.Register((portName+"/segmentation/o:img").c_str());
 
@@ -29,7 +30,8 @@ _segmentedImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 	_background.Resize(_stheta, _srho);
 	_background.Zero();
 
-	_handSpeed.Resize(7);
+	_handSpeed.Resize(6);
+	_armSpeed.Resize(6);
 	_pixelOut.Resize(4);
 	
 	_frame = 0;
@@ -40,14 +42,14 @@ _segmentedImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 	_shaking = false;
 
 	_zeroCrossing = new ZeroCrossing[_npixels];
-	_zeroCrossingMotor = new ZeroCrossing[6];
+	_zeroCrossingHand= new ZeroCrossing[6];
 
 	int i;
 	for(i = 0; i < _npixels; i++)
 		_zeroCrossing[i].setThreshold(__threshold);
 
 	for(i = 0; i < 6; i ++)
-		_zeroCrossingMotor[i].setThreshold(__thresholdMotor);
+		_zeroCrossingHand[i].setThreshold(__thresholdMotor);
 
 	_output = new YARPImageOf<YarpPixelMono>[3];
 	for(i = 0; i < 3; i ++)
@@ -60,7 +62,7 @@ _segmentedImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 FindHand::~FindHand()
 {
 	delete [] _zeroCrossing;
-	delete [] _zeroCrossingMotor;
+	delete [] _zeroCrossingHand;
 
 	int i;
 	for(i = 0; i < 3; i ++)
@@ -82,9 +84,9 @@ void FindHand::Body()
 	_actualLp.Refer (_inPort.Content());
 
 	// reconstruct color
-	_mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)_actualLp, _actualColored);
+	_mapper.ReconstructColor (_actualLp, _actualColored);
 	iplColorToGray(_actualColored, _actualGrayscale);
-//	iplSubtract(_actualGrayscale, _background, _motion);
+	// iplSubtract(_actualGrayscale, _background, _motion);
 	// iplAbs(_motion, _motion);
 	
 	// background
@@ -95,16 +97,12 @@ void FindHand::Body()
 	for(i = 0; i < _background.GetAllocatedDataSize(); i++)
 	{
 		*motion = abs(*bck-*img);						// difference, img and background
-		*bck = (*img)*_alpha + (*bck)*(1-_alpha);	// new background
+		*bck = (*img)*_alpha + (*bck)*(1-_alpha);		// new background
 		bck++;
 		img++;
 		motion++;
 	}
-	//	_background(x,y) = (unsigned char) ( (_actualGrayscale(x,y) * _alpha) + (1-_alpha)*_background(x,y) );
-	
-
 	// store old img
-	
 	/*
 	iplMultiplySScale(_actualGrayscale, _actualGrayscale, int (255*_alpha+0.5));
 	iplMultiplySScale(_background, _background, int (255*(1-_alpha)+0.5));
@@ -112,16 +110,9 @@ void FindHand::Body()
 	
 
 	_pixelOut(1) = _motion(_x, _y)/255.0;
-	_pixelOut(3) = fabs(_handSpeed(1)/3000.0);
+	_pixelOut(3) = fabs(_handSpeed(4));
 
 	_computePeriodicity();
-	
-	/*}
-	else
-		if (_shaking)
-		{
-		
-		}*/
 		
 	// prepare motion for display
 	iplMultiplyS(_motion, _motion, 4/*_threshold*/);
@@ -146,16 +137,15 @@ void FindHand::_dumpDetection()
 
 	// erase images
 	int m;
-	for(m = 0; m < 3; m++)
+	for(m = 0; m < 6; m++)
 	{
 		double motorMean;
 		double motorStd;
 		int nMotor;
-		nMotor = _zeroCrossingMotor[m*2].result(&motorMean, &motorStd);
+		nMotor = _zeroCrossingHand[m].result(&motorMean, &motorStd);
 
 		cout << "--> " << m << endl;
 		cout << nMotor << "\t" << motorMean << "\t" << motorStd << endl;
-		_output[m].Zero();
 	}
 
 	_segmented.Zero();
@@ -178,16 +168,15 @@ void FindHand::_dumpDetection()
 			}
 		
 			int m;
-			for(m = 0; m < 3; m++)
+			for(m = 0; m < 6; m++)
 			{
 				double motorMean;
 				double motorStd;
 				int nMotor;
-				nMotor = _zeroCrossingMotor[m*2].result(&motorMean, &motorStd);
-				if ( (fabs(motionMean-motorMean) < 0.3) && (abs(nMotor-n) < 2) )
+				nMotor = _zeroCrossingHand[m].result(&motorMean, &motorStd);
+				if ( (fabs(motionMean-motorMean) < 0.3) && (abs(nMotor-n) < 2) && (nMotor > 0) )
 				{
 					// segmented image, B/N
-					_output[0](x,y) = 255;
 					_segmented(x,y) = 255;//_actualLp(x,y);
 				}
 			}
@@ -195,9 +184,9 @@ void FindHand::_dumpDetection()
 		}
 
 	// reset motor zero crossing
-	for(m = 0; m < 3; m++)
+	for(m = 0; m < 6; m++)
 	{
-		_zeroCrossingMotor[m*2].reset();
+		_zeroCrossingHand[m].reset();
 
 	}
 	// display

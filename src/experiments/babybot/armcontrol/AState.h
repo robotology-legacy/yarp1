@@ -134,6 +134,38 @@ class ASRestingInit: public AState
 	YVector secondPosition;
 };
 
+class ASShake: public AState
+{
+	public:
+	ASShake() {
+		firstPosition.Resize(6);
+		secondPosition.Resize(6);
+		cmd.Resize(6);
+		firstPosition = 0.0;
+		secondPosition = 0.0;
+		firstPosition(4) = 7*degToRad;
+		cmd = 0.0;
+		n = 16;
+	}
+	static ASShake _instance;
+
+	virtual void handle(ArmThread *t);
+
+	inline static ASShake* instance()
+		{return &_instance;}
+
+	inline setTrajectory(const YVector &first, const YVector &second)
+	{
+		firstPosition = first;
+		secondPosition = second;
+	}
+
+	YVector firstPosition;
+	YVector secondPosition;
+	YVector cmd;
+	int n;
+};
+
 class ASZeroGInit: public AState
 {
 	public:

@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPBabybotArm.h,v 1.9 2003-05-29 13:14:24 natta Exp $
+// $Id: YARPBabybotArm.h,v 1.10 2003-08-01 15:17:51 babybot Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -48,6 +48,7 @@ public:
 	int velocityMove(const double *vel);
 	int setCommands(const double *pos);
 	int getPositions(double *pos);
+	int getVelocities(double *vel);
 	
 	// set offset to i-th joint
 	int setG(int i, double g);
