@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.30 2003-11-26 13:43:39 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.31 2003-12-02 18:03:12 fberton Exp $
 ///
 ///
 
@@ -96,7 +96,7 @@
 *			   64	WeightsMap.gio 											*
 *			  128	XYMap.gio												*
 *			  256	DownsampleMap.gio, ratio = 2							*
-*			  512	ShiftMap												*
+*			 1024	ShiftMap												*
 *																			*
 *		The values have to be summed when building more than one table.		*
 *		Use the ALLMAPS value to build all the LUT's.						*
@@ -173,11 +173,18 @@ unsigned short Build_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsi
 			retval = retval | 4;
 	}
 
-	if ((List&512)==512)
+	if ((List&1024)==1024)
 	{
 		testval = Build_Shift_Map(Par,Path);
 		if (testval)
-			retval = retval | 512;
+			retval = retval | 1024;
+	}
+
+	if ((List&2048)==2048)
+	{
+		testval = Build_Shift_Map_Fovea(Par,Path);
+		if (testval)
+			retval = retval | 2048;
 	}
 
 	return retval;
@@ -2342,12 +2349,16 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 	char File_Name [256];
 	FILE * fout;
 	int steps;
+	double OldZLevel = Par->Zoom_Level;
+	Par->Zoom_Level = 1.0;
 
 	int AddedPad = computePadSize(Par->LP_Planes * Par->Size_Theta,Par->padding) - (Par->LP_Planes * Par->Size_Theta);
 
-	steps = 3*Par->Resolution/4;
+//	steps = 3*Par->Resolution/4;
+	steps = (int)(0.5+3*Par->Resolution/4);
 
-	ShiftMap = (int*) malloc((1+3*Par->Resolution/2)*1*Par->Size_LP*sizeof(int));
+//	ShiftMap = (int*) malloc((1+3*Par->Resolution/2)*1*Par->Size_LP*sizeof(int));
+	ShiftMap = (int*) malloc((1+2*steps)*1*Par->Size_LP*sizeof(int));
 
 	unsigned short retval = Load_Tables(Par,&Tables,Path,17);
 
@@ -2375,7 +2386,8 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 		for (k=0; k<(2*steps+1)*Par->Size_LP*1; k++)
 			ShiftMap[k] = 0;
 
-		for (l = -steps; l<=-steps+(3*Par->Resolution/2); l++)
+//		for (l = -steps; l<=-steps+(3*Par->Resolution/2); l++)
+		for (l = -steps; l<steps+1; l++)
 		{
 //			printf("%d\n",l);
 			for(j=0; j<Par->Size_Rho; j++)
@@ -2414,8 +2426,113 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 //			sprintf(File_Name,"%s%1.2f_%s_%d%s",Path,Par->Ratio,"ShiftMap",Par->Resolution,".gio");
 
 		fout = fopen(File_Name,"wb");
-		fwrite(ShiftMap,sizeof(int),(1+3*Par->Resolution/2)*1*Par->Size_LP,fout);
+//		fwrite(ShiftMap,sizeof(int),(1+3*Par->Resolution/2)*1*Par->Size_LP,fout);
+		fwrite(ShiftMap,sizeof(int),(1+2*steps)*1*Par->Size_LP,fout);
 		fclose (fout);
+
+		free (Tables.PadMap);
+		free (Tables.AngShiftMap);
+		free (ShiftMap);
+
+		Par->Zoom_Level = OldZLevel;
+
+		return 1;
+	}
+}
+
+int Build_Shift_Map_Fovea(Image_Data * Par, char * Path)
+{
+	int i,j,k,l;
+	double tempX,tempY;
+	int newRho, newTheta;
+	double shiftlev = 1.0/Par->Resolution;
+	int * ShiftMap;
+	LUT_Ptrs Tables;
+	char File_Name [256];
+	FILE * fout;
+	int steps;
+	double OldZLevel = Par->Zoom_Level;
+	Par->Zoom_Level = 1.0;
+
+	int AddedPad = computePadSize(Par->LP_Planes * Par->Size_Theta,Par->padding) - (Par->LP_Planes * Par->Size_Theta);
+
+	steps = (int)(0.5+3*Par->Resolution/4);
+//	steps = 1;
+
+//	ShiftMap = (int*) malloc((1+3*Par->Resolution/2)*1*Par->Size_Fovea*Par->Size_Theta*sizeof(int));
+	ShiftMap = (int*) malloc((1+2*steps)*1*Par->Size_Fovea*Par->Size_Theta*sizeof(int));
+	
+	unsigned short retval = Load_Tables(Par,&Tables,Path,17);
+
+	if (retval != 17)
+	{
+		if ((retval&&1)==0)
+			Build_Ang_Shift_Map(Par,Path);
+
+		if ((retval&&16)==0)
+			Build_Pad_Map(Par,Path);
+
+		retval = Load_Tables(Par,&Tables,Path,17);
+	}
+
+	if (retval != 17)
+	{
+		if (Tables.AngShiftMap!=NULL)
+			free(Tables.AngShiftMap);
+		if (Tables.PadMap!=NULL)
+			free(Tables.PadMap);
+		return 0;
+	}
+	else
+	{
+		for (k=0; k<(2*steps+1)*Par->Size_Fovea*Par->Size_Theta*1; k++)
+			ShiftMap[k] = 0;
+
+//		for (l = -steps; l<=-steps+(3*Par->Resolution/2); l++)
+		for (l = -steps; l<steps+1; l++)
+		{
+//			printf("%d\n",l);
+			for(j=0; j<Par->Size_Fovea; j++)
+				for(i=0; i<Par->Size_Theta; i++)
+				{
+					tempX = l*Par->Resolution*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+//					tempX = l*Par->Size_X_Remap*shiftlev + Get_X_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+					tempY = Get_Y_Center(j,i,Par,Tables.AngShiftMap,Tables.PadMap);
+					if ((tempX<Par->Zoom_Level*Par->Resolution/2)&&(tempY<Par->Zoom_Level*Par->Resolution/2))
+//					if ((tempX<Par->Size_X_Remap/2)&&(tempY<Par->Size_Y_Remap/2))
+					{
+						if ((tempX>=-Par->Zoom_Level*Par->Resolution/2)&&(tempY>=-Par->Zoom_Level*Par->Resolution/2))
+//						if ((tempX>=-Par->Size_X_Remap/2)&&(tempY>=-Par->Size_Y_Remap/2))
+						{
+							newRho = Get_Rho(tempX,tempY,Par);
+							newTheta = Get_Theta(tempX,tempY,newRho,Par,Tables.AngShiftMap,Tables.PadMap);
+							if ((newRho>=0)&&(newRho<Par->Size_Rho))
+								if ((newTheta>=0)&&(newTheta<Par->Size_Theta))
+								{
+//									for (k=0; k<3; k++)
+										ShiftMap[(l+steps)*(1*Par->Size_Fovea*Par->Size_Theta)+1*(j*Par->Size_Theta+i)] = 3*(newRho*Par->Size_Theta+newTheta)+newRho * AddedPad;
+	//								New_LP_Image[3*(j*Par->Size_Theta+i)] = LP_Image[3*(newRho*Par->Size_Theta+newTheta)];
+	//								New_LP_Image[3*(j*Par->Size_Theta+i)+1] = LP_Image[3*(newRho*Par->Size_Theta+newTheta)+1];
+	//								New_LP_Image[3*(j*Par->Size_Theta+i)+2] = LP_Image[3*(newRho*Par->Size_Theta+newTheta)+2];
+								}
+						}
+					}
+				}
+		}
+
+		if (Par->Ratio == 1.00)
+			sprintf(File_Name,"%s%s_P%d%s",Path,"ShiftMapF",Par->padding,".gio");
+//			sprintf(File_Name,"%s%s_%d",Path,"ShiftMap",Par->Resolution,".gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%s_P%d%s",Path,Par->Ratio,"ShiftMapF",Par->padding,".gio");
+//			sprintf(File_Name,"%s%1.2f_%s_%d%s",Path,Par->Ratio,"ShiftMap",Par->Resolution,".gio");
+
+		fout = fopen(File_Name,"wb");
+//		fwrite(ShiftMap,sizeof(int),(1+3*Par->Resolution/2)*1*Par->Size_Fovea*Par->Size_Theta,fout);
+		fwrite(ShiftMap,sizeof(int),(1+2*steps)*1*Par->Size_Fovea*Par->Size_Theta,fout);
+		fclose (fout);
+
+		Par->Zoom_Level = OldZLevel;
 
 		free (Tables.PadMap);
 		free (Tables.AngShiftMap);

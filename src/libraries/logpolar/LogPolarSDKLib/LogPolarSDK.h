@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.21 2003-11-26 14:30:08 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.22 2003-12-02 18:03:12 fberton Exp $
 ///
 ///
 
@@ -94,11 +94,11 @@
 #define ANGSHIFT	  1
 #define COL			  2
 #define DS4			  4
-#define PAD		 16
+#define PAD			 16
 #define REMAP		 32
 #define WEIGHTS		 64
 #define DS2			256
-#define SHIFT		512
+#define SHIFT	   1024
 
 struct Image_Data{
 
@@ -174,6 +174,7 @@ struct LUT_Ptrs{
 	Neighborhood	* WeightsMap;
 	double			* XYMap;
 	int				* ShiftMap;
+	int				* ShiftMapF;
 	int				  ShiftLevels;
 	int				* ShiftFunction;
 	double			* CorrLevels;
@@ -399,6 +400,8 @@ int Build_Weights_Map(Image_Data * Par, char * Path);
 int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio);
 
 int Build_Shift_Map(Image_Data * Par, char * Path);
+
+int Build_Shift_Map_Fovea(Image_Data * Par, char * Path);
 
 void Build_Step_Function(char * Path, Image_Data * Par);
 

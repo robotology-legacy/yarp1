@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.24 2003-11-26 14:30:08 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.25 2003-12-02 18:03:12 fberton Exp $
 ///
 ///
 
@@ -1538,7 +1538,7 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 		double average_Rg = 0;
 		double average_Rb = 0;
 
-		k1 = k * 1 * Par->Size_LP; //Positioning on the table
+		k1 = k * 1 * Par->Size_Theta * Par->Size_Fovea; //Positioning on the table
 		Lptr = Left;
 
 		count = 0;

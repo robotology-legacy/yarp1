@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableLoading.cpp,v 1.17 2003-11-26 14:30:08 fberton Exp $
+/// $Id: TableLoading.cpp,v 1.18 2003-12-02 18:03:12 fberton Exp $
 ///
 ///
 
@@ -262,7 +262,8 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 
 	if ((List&256)==256)
 	{
-		sprintf(File_Name,"%s%s%1.2f%s",Path,"DSMap_",2.00,".gio");
+//		sprintf(File_Name,"%s%s%1.2f%s",Path,"DSMap_",2.00,".gio");
+		sprintf(File_Name,"%s%s%1.2f_P%d%s",Path,"DSMap_",2.00,Par->padding,".gio");
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			Tables->DownSampleMap = (IntNeighborhood *) malloc ((Par->Size_LP / 4) * sizeof(IntNeighborhood));
@@ -370,6 +371,64 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 
 		else
 			Tables->ShiftMap = NULL;
+	}	
+	
+	
+	if ((List&2048)==2048)
+	{
+		if (Par->Ratio == 1.00)
+			sprintf(File_Name,"%s%s",Path,"StepList.gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"StepList.gio");
+
+		if ((fin = fopen(File_Name,"rb")) != NULL)
+		{
+			fread (&Tables->ShiftLevels,sizeof(int),1,fin); //Lenght of the list
+			Tables->ShiftFunction = (int *) malloc (Tables->ShiftLevels * sizeof (int));
+			fread (Tables->ShiftFunction,sizeof(int),Tables->ShiftLevels,fin); //List
+			fclose(fin);
+		}
+		else
+		{
+			int mult = 1;
+			Tables->ShiftLevels = 1+(int)(6.0*Par->Resolution/(4.0*mult)+0.5);
+			Tables->ShiftLevels = 1+6*Par->Resolution/(4*mult);
+			Tables->ShiftFunction = (int *) malloc (Tables->ShiftLevels * sizeof (int));
+			for (j=0; j<mult*Tables->ShiftLevels; j+=mult)
+				Tables->ShiftFunction[j/mult] = j-mult*(Tables->ShiftLevels/2);
+		}
+
+		if (Par->Ratio == 1.00)
+			sprintf(File_Name,"%s%s_P%d%s",Path,"ShiftMapF",Par->padding,".gio");
+		else
+			sprintf(File_Name,"%s%1.2f_%s_P%d%s",Path,Par->Ratio,"ShiftMapF",Par->padding,".gio");
+
+		Tables->CorrLevels = (double *)malloc(Tables->ShiftLevels*sizeof(double));
+//		Tables->PixelCount = (int *)malloc(Tables->ShiftLevels*sizeof(int));
+		if ((fin = fopen(File_Name,"rb")) != NULL)
+		{
+			Tables->ShiftMapF = (int *) malloc ((Tables->ShiftLevels)*1*Par->Size_Theta * Par->Size_Fovea * sizeof(int));
+
+			k = 0;
+
+			for(j=0; j<1+3*Par->Resolution/2; j++)
+			{
+				if (k<Tables->ShiftLevels)
+				{
+					fread(&Tables->ShiftMapF[k*1*Par->Size_Theta * Par->Size_Fovea],sizeof(int),1*Par->Size_Theta * Par->Size_Fovea,fin);
+
+					if (Tables->ShiftFunction[k]+(int)(3*Par->Resolution/4.0+0.5) == j)
+						k++;
+				}
+			}
+
+			fclose (fin);
+			retval = retval | 2048;
+		}
+		
+
+		else
+			Tables->ShiftMapF = NULL;
 	}
 
 	return retval;
