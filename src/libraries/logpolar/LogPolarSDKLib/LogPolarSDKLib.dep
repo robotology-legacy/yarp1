@@ -1,0 +1,30 @@
+# Microsoft Developer Studio Generated Dependency File, included by LogPolarSDKLib.mak
+
+.\Acquisition.cpp : \
+	".\LogPolarSDK.h"\
+	
+
+.\AuxFunctions.cpp : \
+	".\LogPolarSDK.h"\
+	
+
+.\LogPolarSDK.cpp : \
+	".\LogPolarSDK.h"\
+	
+
+.\Mosaic.cpp : \
+	".\LogPolarSDK.h"\
+	".\Mosaic.h"\
+	
+
+.\TableGeneration.cpp : \
+	".\LogPolarSDK.h"\
+	
+
+.\TableLoading.cpp : \
+	".\LogPolarSDK.h"\
+	
+
+.\TestFunctions.cpp : \
+	".\LogPolarSDK.h"\
+	

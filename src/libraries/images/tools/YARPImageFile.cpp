@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageFile.cpp,v 1.1 2003-06-22 11:35:24 gmetta Exp $
+/// $Id: YARPImageFile.cpp,v 1.2 2003-08-07 01:19:47 gmetta Exp $
 ///
 ///
 
@@ -221,7 +221,7 @@ static int ImageRead(YARPGenericImage& img, const char *filename)
 	{
 		img.SetID(color?YARP_PIXEL_RGB:YARP_PIXEL_MONO);
 		img.Resize(width,height);
-		ACE_ASSERT(img.GetPadding() == 0);
+		///ACE_ASSERT(img.GetPadding() == 0);
 		ACE_ASSERT(img.GetRawBuffer()!=NULL);
 
 		const int w = img.GetWidth() * img.GetPixelSize();
@@ -241,7 +241,7 @@ static int ImageRead(YARPGenericImage& img, const char *filename)
 	{
 		img.SetID(YARP_PIXEL_BGR);
 		img.Resize(width,height);
-		ACE_ASSERT(img.GetPadding() == 0);
+		///ACE_ASSERT(img.GetPadding() == 0);
 		ACE_ASSERT(img.GetRawBuffer()!=NULL);
 
 		const int w = img.GetWidth() * img.GetPixelSize();

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.13 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.14 2003-08-07 01:19:48 gmetta Exp $
 ///
 ///
 
@@ -178,7 +178,6 @@ protected:
 											///		communication (control messages).
 											/// this is TCP protocol.
 
-	YARPUniqueNameSock _local_addr;			/// local addr.
 	YARPUniqueNameSock _remote_endpoint;	/// remote peer for TCP communication (is it needed?).
 
 	void *_socket;							/// a general purpose acceptor (server socket).
@@ -208,13 +207,6 @@ protected:
 
 public:
 	/// ctors.
-#if 0
-	_SocketThreadMulti (const YARPUniqueNameSock *remid, const YARPUniqueNameID *socket, int port) : _wakeup(0), _mutex(1), _reply_made(0)
-    {
-		_begin (remid, socket, port);
-    }
-#endif
-
 	_SocketThreadMulti (void) : _wakeup(0), _mutex(1), _reply_made(0)
     {
 		_begin (NULL, NULL, 0);
@@ -286,7 +278,7 @@ public:
 	int reuse(const YARPUniqueNameSock* remid, const YARPUniqueNameID* socket, int port);
 
 	YARPUniqueNameSock& getRemoteID(void) { return _remote_endpoint; }
-	ACE_HANDLE getID () const {	return  _local_acceptor.get_handle (); }
+	ACE_HANDLE getID () const {	return  (_socket_addr != NULL) ? _socket_addr->getRawIdentifier () : ACE_INVALID_HANDLE; }
 	int getServiceType (void) const { return (_socket_addr != NULL) ? _socket_addr->getServiceType() : YARP_NO_SERVICE_AVAILABLE; }
 
 	virtual void End (int dontkill = 0);
@@ -597,12 +589,6 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 		_port = port;
 
-		/// listen to this new port.
-		char myhostname[YARP_STRING_LEN];
-		getHostname (myhostname, YARP_STRING_LEN);
-		_local_addr.getAddressRef().set (port, myhostname);
-		_local_acceptor.open (_local_addr.getAddressRef(), 1);
-
 		switch (socket->getServiceType())
 		{
 		case YARP_TCP:
@@ -614,11 +600,25 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 				ACE_ASSERT (_socket_addr != NULL);
 
 				ACE_ASSERT (_stream != NULL);
+
+				/// since socket is NULL use the _stream ID.
+				_socket_addr->setRawIdentifier (_stream->get_handle());
 			}
 			break;
 
 		case YARP_MCAST:
 			{
+				char myhostname[YARP_STRING_LEN];
+				getHostname (myhostname, YARP_STRING_LEN);
+				ACE_INET_Addr local (port, myhostname);
+
+				/// opens the local socket (for termination).
+				if (_local_acceptor.open (local, 1))
+				{
+					_available = 1;
+					return YARP_FAIL;
+				}
+
 				_socket_addr = new YARPUniqueNameSock ((YARPUniqueNameSock*)socket);
 				ACE_ASSERT (_socket_addr != NULL);
 
@@ -630,13 +630,30 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 				mcast.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), 0, 1);	// reuse addr enabled
 				YARPNetworkObject::setSocketBufSize (mcast, MAX_PACKET);
 				mcast.join (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), 1, 0);
+
 				if (mcast.get_handle() == ACE_INVALID_HANDLE)
+				{
+					_available = 1;
 					return YARP_FAIL;
+				}
+
+				_socket_addr->setRawIdentifier (mcast.get_handle());
 			}
 			break;
 
 		case YARP_UDP:
-			{			
+			{
+				char myhostname[YARP_STRING_LEN];
+				getHostname (myhostname, YARP_STRING_LEN);
+				ACE_INET_Addr local (port, myhostname);
+
+				/// opens the local socket (for termination).
+				if (_local_acceptor.open (local, 1) < 0)
+				{
+					_available = 1;
+					return YARP_FAIL;
+				}
+
 				_socket_addr = new YARPUniqueNameSock ((YARPUniqueNameSock*)socket);
 				ACE_ASSERT (_socket_addr != NULL);
 
@@ -646,14 +663,13 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 				
 				ACE_SOCK_Dgram& dgram = *((ACE_SOCK_Dgram *)_socket);
 				
-				if (_socket_addr != NULL)
-				{
-					dgram.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
-					YARPNetworkObject::setSocketBufSize (dgram, MAX_PACKET);
+				dgram.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
+				YARPNetworkObject::setSocketBufSize (dgram, MAX_PACKET);
 
-					if (dgram.get_handle() == ACE_INVALID_HANDLE)
-						return YARP_FAIL;
-				}
+				if (dgram.get_handle() == ACE_INVALID_HANDLE)
+					return YARP_FAIL;
+
+				_socket_addr->setRawIdentifier (dgram.get_handle());
 			}
 			break;
 
@@ -664,11 +680,14 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 				_socket = (void *)new ACE_MEM_Acceptor (((YARPUniqueNameMem&)*_socket_addr).getAddressRef(), 1);
 				ACE_ASSERT (_socket != NULL);
-				/// the size of the SHMEM buff (needs to be big?).
-				/// this is for version 5.3.3, tomorrow's fix.
+				
+				/// the size of the SHMEM buff.
 				((ACE_MEM_Acceptor *)_socket)->init_buffer_size (2 * MAX_PACKET);
+
 				///((ACE_MEM_Acceptor *)_socket)->malloc_options().minimum_bytes_ = 2 * MAX_PACKET;
-				((ACE_MEM_Acceptor *)_socket)->preferred_strategy (ACE_MEM_IO::MT);
+				///((ACE_MEM_Acceptor *)_socket)->preferred_strategy (ACE_MEM_IO::MT);
+
+				_socket_addr->setRawIdentifier (((ACE_MEM_Acceptor *)_socket)->get_handle());
 			}
 			break;
 
@@ -678,12 +697,12 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 			break;
 		}
 
-		_local_addr.getNameID() = YARPNameID (YARP_TCP, _local_acceptor.get_handle());
-
-		if (_local_acceptor.get_handle() == ACE_INVALID_HANDLE)
+		if (_socket_addr->getRawIdentifier() == ACE_INVALID_HANDLE)
 		{
+			ACE_DEBUG ((LM_DEBUG, "SocketThreadMulti::reuse: trouble creating proper socket\n"));
 			return YARP_FAIL;
 		}
+
 		_available = 0;
 	}
 	else
@@ -1065,7 +1084,7 @@ void _SocketThreadMulti::BodyShmem (void)
 	while (!finished)
 	{
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread SHMEM of remote port %s:%d waiting\n", _remote_endpoint.getAddressRef().get_host_addr(), _remote_endpoint.getAddressRef().get_port_number()));
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread SHMEM waiting on port %d waiting\n", _local_addr.getAddressRef().get_port_number()));
+		///YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread SHMEM waiting on port %d waiting\n", _local_addr.getAddressRef().get_port_number()));
 
 		MyMessageHeader hdr;
 		r = stream.recv_n (&hdr, sizeof(hdr), 0);
@@ -1246,7 +1265,7 @@ void _SocketThreadMulti::BodyUdp (void)
 		MyMessageHeader& hdr = *((MyMessageHeader *)_local_buffer);
 
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread of remote port %s:%d waiting\n", _remote_endpoint.getAddressRef().get_host_addr(), _remote_endpoint.getAddressRef().get_port_number()));
-		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread waiting on port %d waiting\n", _local_addr.getAddressRef().get_port_number()));
+///		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread waiting on port %d waiting\n", _local_addr.getAddressRef().get_port_number()));
 
 		ACE_Handle_Set set;
 		set.reset ();

@@ -1,0 +1,5 @@
+# Microsoft Developer Studio Generated Dependency File, included by BuildTablesSmall.mak
+
+.\main.cpp : \
+	"..\LogPolarSDKLib\LogPolarSDK.h"\
+	

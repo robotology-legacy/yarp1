@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.28 2003-08-02 07:46:13 gmetta Exp $
+$Id: README.txt,v 1.29 2003-08-07 01:19:48 gmetta Exp $
 
 
 =============
@@ -18,13 +18,23 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 =============
 Things under development:
 
+1.2.3- check Image lib float allocation.
+1.2.4- check logpolar, what happens if no tables?
+1.2.5- SHMEM fails if not net?
+
+1.2.5- bugs in fg, thread stuff?
+
 1.1- there's still a possibility for the connection to fail in MCAST. This is because
 	multiple connection messages might overlap. One mightn't get accepted, and silently
 	dropped. Not sure about this story!
 
+
 1.2- still troubles when closing ports smoothly.
 1.2.1- proper shutdown of extra port threads.
 	--- HOW TO DO IT: self connect to socket and send a close MSG!
+1.2.2- vector use (ACE_Array) try testing the max_size instead of the actual size to 
+	avoid re-allocating memory if already allocated.
+
 
 1.3- IMPORTANT! specify the nic, for multiple parallel connections in MCAST.
 

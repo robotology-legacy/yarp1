@@ -1,0 +1,281 @@
+# Microsoft Developer Studio Generated Dependency File, included by alldrivers.mak
+
+.\androidworld\common\YARPAndroidDeviceDriver.cpp : \
+	"..\..\..\include\ace\ace_export.h"\
+	"..\..\..\include\ace\ace_wchar.h"\
+	"..\..\..\include\ace\ace_wchar.inl"\
+	"..\..\..\include\ace\basic_types.h"\
+	"..\..\..\include\ace\config-all.h"\
+	"..\..\..\include\ace\config-win32-common.h"\
+	"..\..\..\include\ace\config-win32-msvc-6.h"\
+	"..\..\..\include\ace\config-win32-msvc.h"\
+	"..\..\..\include\ace\config-win32.h"\
+	"..\..\..\include\ace\config.h"\
+	"..\..\..\include\ace\default_constants.h"\
+	"..\..\..\include\ace\global_macros.h"\
+	"..\..\..\include\ace\log_msg.h"\
+	"..\..\..\include\ace\log_priority.h"\
+	"..\..\..\include\ace\min_max.h"\
+	"..\..\..\include\ace\os.h"\
+	"..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\include\ace\os_errno.h"\
+	"..\..\..\include\ace\os_export.h"\
+	"..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\include\ace\os_memory.h"\
+	"..\..\..\include\ace\os_string.h"\
+	"..\..\..\include\ace\os_tli.h"\
+	"..\..\..\include\ace\post.h"\
+	"..\..\..\include\ace\pre.h"\
+	"..\..\..\include\ace\streams.h"\
+	"..\..\..\include\ace\time_value.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\debug.h"\
+	"..\..\..\include\yarpall.h"\
+	"..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\include\yarpsemaphore.h"\
+	".\androidworld\common\YARPAndroidDeviceDriver.h"\
+	".\common\YARPADCUtils.h"\
+	".\common\YARPDeviceDriver.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	
+
+.\common\YARPControlBoardUtils.cpp : \
+	"..\..\..\include\ace\config-win32-common.h"\
+	"..\..\..\include\ace\config-win32-msvc-6.h"\
+	"..\..\..\include\ace\config-win32-msvc.h"\
+	"..\..\..\include\ace\config-win32.h"\
+	"..\..\..\include\ace\config.h"\
+	"..\..\..\include\ace\post.h"\
+	"..\..\..\include\ace\pre.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
+	".\common\YARPControlBoardUtils.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	
+
+.\galil\common\YARPGalilDeviceDriver.cpp : \
+	"..\..\..\include\ace\ace_export.h"\
+	"..\..\..\include\ace\ace_wchar.h"\
+	"..\..\..\include\ace\ace_wchar.inl"\
+	"..\..\..\include\ace\basic_types.h"\
+	"..\..\..\include\ace\config-all.h"\
+	"..\..\..\include\ace\config-win32-common.h"\
+	"..\..\..\include\ace\config-win32-msvc-6.h"\
+	"..\..\..\include\ace\config-win32-msvc.h"\
+	"..\..\..\include\ace\config-win32.h"\
+	"..\..\..\include\ace\config.h"\
+	"..\..\..\include\ace\default_constants.h"\
+	"..\..\..\include\ace\global_macros.h"\
+	"..\..\..\include\ace\log_msg.h"\
+	"..\..\..\include\ace\log_priority.h"\
+	"..\..\..\include\ace\min_max.h"\
+	"..\..\..\include\ace\os.h"\
+	"..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\include\ace\os_errno.h"\
+	"..\..\..\include\ace\os_export.h"\
+	"..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\include\ace\os_memory.h"\
+	"..\..\..\include\ace\os_string.h"\
+	"..\..\..\include\ace\os_tli.h"\
+	"..\..\..\include\ace\post.h"\
+	"..\..\..\include\ace\pre.h"\
+	"..\..\..\include\ace\streams.h"\
+	"..\..\..\include\ace\time_value.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\debug.h"\
+	"..\..\..\include\sys\dmccom.h"\
+	"..\..\..\include\sys\dmcdrc.h"\
+	"..\..\..\include\sys\dmcdrco.h"\
+	"..\..\..\include\sys\dmcmlib.h"\
+	"..\..\..\include\yarpall.h"\
+	"..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\include\yarpsemaphore.h"\
+	".\common\YARPControlBoardUtils.h"\
+	".\common\YARPDeviceDriver.h"\
+	".\galil\common\YARPGalilDeviceDriver.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	
+
+.\jr3\winnt\YARPJR3DeviceDriver.cpp : \
+	"..\..\..\include\ace\ace_export.h"\
+	"..\..\..\include\ace\ace_wchar.h"\
+	"..\..\..\include\ace\ace_wchar.inl"\
+	"..\..\..\include\ace\basic_types.h"\
+	"..\..\..\include\ace\config-all.h"\
+	"..\..\..\include\ace\config-win32-common.h"\
+	"..\..\..\include\ace\config-win32-msvc-6.h"\
+	"..\..\..\include\ace\config-win32-msvc.h"\
+	"..\..\..\include\ace\config-win32.h"\
+	"..\..\..\include\ace\config.h"\
+	"..\..\..\include\ace\default_constants.h"\
+	"..\..\..\include\ace\global_macros.h"\
+	"..\..\..\include\ace\log_msg.h"\
+	"..\..\..\include\ace\log_priority.h"\
+	"..\..\..\include\ace\min_max.h"\
+	"..\..\..\include\ace\os.h"\
+	"..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\include\ace\os_errno.h"\
+	"..\..\..\include\ace\os_export.h"\
+	"..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\include\ace\os_memory.h"\
+	"..\..\..\include\ace\os_string.h"\
+	"..\..\..\include\ace\os_tli.h"\
+	"..\..\..\include\ace\post.h"\
+	"..\..\..\include\ace\pre.h"\
+	"..\..\..\include\ace\streams.h"\
+	"..\..\..\include\ace\time_value.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\debug.h"\
+	"..\..\..\include\sys\jr3pci_ft.h"\
+	"..\..\..\include\yarpall.h"\
+	"..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\include\yarpsemaphore.h"\
+	".\common\YARPDeviceDriver.h"\
+	".\jr3\winnt\YARPJR3DeviceDriver.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	
+
+.\mei\winnt\YARPMEIDeviceDriver.cpp : \
+	"..\..\..\include\ace\ace_export.h"\
+	"..\..\..\include\ace\ace_wchar.h"\
+	"..\..\..\include\ace\ace_wchar.inl"\
+	"..\..\..\include\ace\basic_types.h"\
+	"..\..\..\include\ace\config-all.h"\
+	"..\..\..\include\ace\config-win32-common.h"\
+	"..\..\..\include\ace\config-win32-msvc-6.h"\
+	"..\..\..\include\ace\config-win32-msvc.h"\
+	"..\..\..\include\ace\config-win32.h"\
+	"..\..\..\include\ace\config.h"\
+	"..\..\..\include\ace\default_constants.h"\
+	"..\..\..\include\ace\global_macros.h"\
+	"..\..\..\include\ace\log_msg.h"\
+	"..\..\..\include\ace\log_priority.h"\
+	"..\..\..\include\ace\min_max.h"\
+	"..\..\..\include\ace\os.h"\
+	"..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\include\ace\os_errno.h"\
+	"..\..\..\include\ace\os_export.h"\
+	"..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\include\ace\os_memory.h"\
+	"..\..\..\include\ace\os_string.h"\
+	"..\..\..\include\ace\os_tli.h"\
+	"..\..\..\include\ace\post.h"\
+	"..\..\..\include\ace\pre.h"\
+	"..\..\..\include\ace\streams.h"\
+	"..\..\..\include\ace\time_value.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\debug.h"\
+	"..\..\..\include\sys\idsp.h"\
+	"..\..\..\include\sys\medexp.h"\
+	"..\..\..\include\sys\pcdsp.h"\
+	"..\..\..\include\sys\sercos.h"\
+	"..\..\..\include\sys\sercrset.h"\
+	"..\..\..\include\yarpall.h"\
+	"..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\include\yarpsemaphore.h"\
+	".\common\YARPControlBoardUtils.h"\
+	".\common\YARPDeviceDriver.h"\
+	".\mei\winnt\YARPMEIDeviceDriver.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	
+
+.\nidaq\winnt\YARPNIDAQDeviceDriver.cpp : \
+	"..\..\..\include\ace\ace_export.h"\
+	"..\..\..\include\ace\ace_wchar.h"\
+	"..\..\..\include\ace\ace_wchar.inl"\
+	"..\..\..\include\ace\basic_types.h"\
+	"..\..\..\include\ace\config-all.h"\
+	"..\..\..\include\ace\config-win32-common.h"\
+	"..\..\..\include\ace\config-win32-msvc-6.h"\
+	"..\..\..\include\ace\config-win32-msvc.h"\
+	"..\..\..\include\ace\config-win32.h"\
+	"..\..\..\include\ace\config.h"\
+	"..\..\..\include\ace\default_constants.h"\
+	"..\..\..\include\ace\global_macros.h"\
+	"..\..\..\include\ace\log_msg.h"\
+	"..\..\..\include\ace\log_priority.h"\
+	"..\..\..\include\ace\min_max.h"\
+	"..\..\..\include\ace\os.h"\
+	"..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\include\ace\os_errno.h"\
+	"..\..\..\include\ace\os_export.h"\
+	"..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\include\ace\os_memory.h"\
+	"..\..\..\include\ace\os_string.h"\
+	"..\..\..\include\ace\os_tli.h"\
+	"..\..\..\include\ace\post.h"\
+	"..\..\..\include\ace\pre.h"\
+	"..\..\..\include\ace\streams.h"\
+	"..\..\..\include\ace\time_value.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\debug.h"\
+	"..\..\..\include\sys\nidaq.h"\
+	"..\..\..\include\sys\nidaqcns.h"\
+	"..\..\..\include\sys\nidaqerr.h"\
+	"..\..\..\include\sys\nidaqex.h"\
+	"..\..\..\include\sys\olderror.h"\
+	"..\..\..\include\yarpall.h"\
+	"..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\include\yarpsemaphore.h"\
+	".\common\YARPADCUtils.h"\
+	".\common\YARPDeviceDriver.h"\
+	".\nidaq\winnt\YARPNIDAQDeviceDriver.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	
+
+.\picolo\winnt\YARPPicoloDeviceDriver.cpp : \
+	"..\..\..\include\ace\ace_export.h"\
+	"..\..\..\include\ace\ace_wchar.h"\
+	"..\..\..\include\ace\ace_wchar.inl"\
+	"..\..\..\include\ace\base_thread_adapter.h"\
+	"..\..\..\include\ace\basic_types.h"\
+	"..\..\..\include\ace\config-all.h"\
+	"..\..\..\include\ace\config-win32-common.h"\
+	"..\..\..\include\ace\config-win32-msvc-6.h"\
+	"..\..\..\include\ace\config-win32-msvc.h"\
+	"..\..\..\include\ace\config-win32.h"\
+	"..\..\..\include\ace\config.h"\
+	"..\..\..\include\ace\default_constants.h"\
+	"..\..\..\include\ace\global_macros.h"\
+	"..\..\..\include\ace\log_msg.h"\
+	"..\..\..\include\ace\log_priority.h"\
+	"..\..\..\include\ace\min_max.h"\
+	"..\..\..\include\ace\os.h"\
+	"..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\include\ace\os_errno.h"\
+	"..\..\..\include\ace\os_export.h"\
+	"..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\include\ace\os_memory.h"\
+	"..\..\..\include\ace\os_string.h"\
+	"..\..\..\include\ace\os_tli.h"\
+	"..\..\..\include\ace\post.h"\
+	"..\..\..\include\ace\pre.h"\
+	"..\..\..\include\ace\sched_params.h"\
+	"..\..\..\include\ace\streams.h"\
+	"..\..\..\include\ace\synch.h"\
+	"..\..\..\include\ace\synch_t.cpp"\
+	"..\..\..\include\ace\synch_t.h"\
+	"..\..\..\include\ace\synch_t.i"\
+	"..\..\..\include\ace\thread.h"\
+	"..\..\..\include\ace\thread_adapter.h"\
+	"..\..\..\include\ace\time_value.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\debug.h"\
+	"..\..\..\include\sys\e_type.h"\
+	"..\..\..\include\sys\picolo32.h"\
+	"..\..\..\include\yarpall.h"\
+	"..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\include\yarpsemaphore.h"\
+	"..\..\..\include\yarpthread.h"\
+	"..\..\..\include\yarptime.h"\
+	".\common\YARPDeviceDriver.h"\
+	".\common\YARPFrameGrabberUtils.h"\
+	".\picolo\winnt\YARPPicoloDeviceDriver.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	

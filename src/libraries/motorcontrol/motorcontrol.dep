@@ -1,0 +1,83 @@
+# Microsoft Developer Studio Generated Dependency File, included by motorcontrol.mak
+
+.\common\YARPTrajectoryGen.cpp : \
+	"..\..\..\include\ace\ace_export.h"\
+	"..\..\..\include\ace\ace_wchar.h"\
+	"..\..\..\include\ace\ace_wchar.inl"\
+	"..\..\..\include\ace\basic_types.h"\
+	"..\..\..\include\ace\config-all.h"\
+	"..\..\..\include\ace\config-win32-common.h"\
+	"..\..\..\include\ace\config-win32-msvc-6.h"\
+	"..\..\..\include\ace\config-win32-msvc.h"\
+	"..\..\..\include\ace\config-win32.h"\
+	"..\..\..\include\ace\config.h"\
+	"..\..\..\include\ace\default_constants.h"\
+	"..\..\..\include\ace\global_macros.h"\
+	"..\..\..\include\ace\log_msg.h"\
+	"..\..\..\include\ace\log_priority.h"\
+	"..\..\..\include\ace\min_max.h"\
+	"..\..\..\include\ace\os.h"\
+	"..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\include\ace\os_errno.h"\
+	"..\..\..\include\ace\os_export.h"\
+	"..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\include\ace\os_memory.h"\
+	"..\..\..\include\ace\os_string.h"\
+	"..\..\..\include\ace\os_tli.h"\
+	"..\..\..\include\ace\post.h"\
+	"..\..\..\include\ace\pre.h"\
+	"..\..\..\include\ace\streams.h"\
+	"..\..\..\include\ace\time_value.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\debug.h"\
+	"..\..\..\include\yarpall.h"\
+	"..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\include\yarpsemaphore.h"\
+	".\common\YARPTrajectoryGen.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	
+
+.\babybot\YARPBabybotArm.cpp : \
+	"..\..\..\include\ace\ace_export.h"\
+	"..\..\..\include\ace\ace_wchar.h"\
+	"..\..\..\include\ace\ace_wchar.inl"\
+	"..\..\..\include\ace\basic_types.h"\
+	"..\..\..\include\ace\config-all.h"\
+	"..\..\..\include\ace\config-win32-common.h"\
+	"..\..\..\include\ace\config-win32-msvc-6.h"\
+	"..\..\..\include\ace\config-win32-msvc.h"\
+	"..\..\..\include\ace\config-win32.h"\
+	"..\..\..\include\ace\config.h"\
+	"..\..\..\include\ace\default_constants.h"\
+	"..\..\..\include\ace\global_macros.h"\
+	"..\..\..\include\ace\log_msg.h"\
+	"..\..\..\include\ace\log_priority.h"\
+	"..\..\..\include\ace\min_max.h"\
+	"..\..\..\include\ace\os.h"\
+	"..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\include\ace\os_errno.h"\
+	"..\..\..\include\ace\os_export.h"\
+	"..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\include\ace\os_memory.h"\
+	"..\..\..\include\ace\os_string.h"\
+	"..\..\..\include\ace\os_tli.h"\
+	"..\..\..\include\ace\post.h"\
+	"..\..\..\include\ace\pre.h"\
+	"..\..\..\include\ace\streams.h"\
+	"..\..\..\include\ace\time_value.h"\
+	"..\..\..\include\conf\yarpconfig.h"\
+	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\debug.h"\
+	"..\..\..\include\yarpall.h"\
+	"..\..\..\include\yarpconfigfile.h"\
+	"..\..\..\include\yarpcontrolboardutils.h"\
+	"..\..\..\include\yarpdevicedriver.h"\
+	"..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\include\yarpmeidevicedriver.h"\
+	"..\..\..\include\yarpsemaphore.h"\
+	".\babybot\YARPBabybotArm.h"\
+	".\babybot\YARPMEIOnBabybotArmAdapter.h"\
+	".\common\YARPGenericComponent.h"\
+	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
+	
