@@ -1,39 +1,43 @@
+#----------------------------------------------------------------------------
+#       Makefile,v 1.27 2002/11/16 15:37:16 bala Exp
+#
+#       Makefile for tests of the miscellaneous ACE performance tests
+#----------------------------------------------------------------------------
 
-QNX_VER = 6.1.0 6.2.0 6.2.1
+#----------------------------------------------------------------------------
+#       Local macros
+#----------------------------------------------------------------------------
 
-ifeq ($(shell uname),QNX)
-	ifneq (,$(findstring $(shell uname -r),$(QNX_VER)))
-	 CC = g++  -lsocket -D__QNX6__
-	 SYSDIR = qnx6
-	 SYSLIB = /usr/lib/libmig4nto.a
-	else
-	 CC = cc -l socket -l unix -D__QNX__ -D__QNX4__
-	 SYSDIR = qnx
-	 SYSLIB = 
-	endif
-else
-  ifeq ($(shell uname),Linux)
-    CC = g++ -D__LINUX__
-    SYSDIR = linux
-    SYSLIB = -lpthread
-  else
-    CC = g++ -D__WINNT__
-    SYSDIR = winnt
-    SYSLIB = 
-  endif
-endif
+include $(YARP_ROOT)/conf/Makefile.template
+CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS)
+
+#BIN     = exec_test1
+LDLIBS  = $(MATHLIB) $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib
+
+BUILD = $(VBIN)
+
+
+#----------------------------------------------------------------------------
+#       Include macros and targets
+#----------------------------------------------------------------------------
+
+include $(ACE_ROOT)/include/makeinclude/wrapper_macros.GNU
+include $(ACE_ROOT)/include/makeinclude/macros.GNU
+include $(ACE_ROOT)/include/makeinclude/rules.common.GNU
+include $(ACE_ROOT)/include/makeinclude/rules.nonested.GNU
+include $(ACE_ROOT)/include/makeinclude/rules.bin.GNU
+include $(ACE_ROOT)/include/makeinclude/rules.local.GNU
+
+GENDIR = obj/$(SYSDIR)
 
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp))
 EXEC_TARGETS = $(patsubst %.cpp, $(GENDIR)/%, $(wildcard exec_*.cpp))
-CFLAGS = -g -I../include -I/home/cog/include/cpp -I/usr/include
-#cpp is just there for the stl
-#LIBS = ../lib/$(SYSDIR)/os_services.lib $(SYSLIB)
-LIBS = $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib $(SYSLIB)
 
+BIN	= exec_test1
 
-SUBDIRS =
+# For make depend.
+SRC = $(addsuffix .cpp, $(BIN))
 
-GENDIR = obj/$(SYSDIR)
 
 VPATH += $(GENDIR)
 

@@ -36,7 +36,7 @@ clean: subclean
 	rm -f $(TARGETS) $(EXEC_TARGETS)
 	rm -f *.o
 
-install: subinstall
+install: target subinstall
 	@echo Doing nothing as yet
 
 subtarget :

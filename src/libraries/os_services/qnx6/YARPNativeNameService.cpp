@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.cpp,v 1.2 2003-05-01 22:51:20 gmetta Exp $
+/// $Id: YARPNativeNameService.cpp,v 1.3 2003-05-02 22:56:11 gmetta Exp $
 ///
 ///
 
@@ -71,6 +71,7 @@
 
 #include <sys/dispatch.h> //+QNX6+
 #include <sys/iofunc.h>
+#include <sys/netmgr.h>
 
 #include "YARPTime.h"
 #include "YARPNativeNameService.h"
@@ -83,7 +84,7 @@
 int YARPNativeEndpointManager::CreateQnetChannel (void)
 {
 	int chid;
-	if ((chid = ChannelCreate(NULL)) != -1)
+	if ((chid = ChannelCreate(0)) != -1)
 		return chid;
 	
 	return YARP_FAIL;
@@ -101,24 +102,25 @@ YARPNameID YARPNativeEndpointManager::CreateInputEndpoint (YARPUniqueNameID& nam
 
 YARPNameID YARPNativeEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
 {
-	return name.getNameID();
-}
-
-int YARPNativeEndpointManager::ConnectEndpoints(YARPNameID& dest)
-{
-	coid = ConnectAttach( 
-						netmgr_strtond (dest.getAddressRef().get_addr(),NULL),
-						(int)dest.getP2Ptr()[0],
-						(int)dest.getRawIdentifier(),
+	int coid = ConnectAttach( 
+						netmgr_strtond (name.getAddressRef().get_host_addr(),NULL),
+						(int)name.getP2Ptr()[0],
+						(int)name.getRawIdentifier(),
 						0,
 						0);
 	if (coid != -1)
 	{
-		dest.setRawIdentifier(coid);
-		return coid;
+		name.setRawIdentifier(coid);
+		return name.getNameID();
 	}
 
-	return YARP_FAIL;
+	/// failed.
+	return YARPNameID();
+}
+
+int YARPNativeEndpointManager::ConnectEndpoints(YARPNameID& dest)
+{
+	return YARP_OK;
 }
 
 int YARPNativeEndpointManager::Close(void)

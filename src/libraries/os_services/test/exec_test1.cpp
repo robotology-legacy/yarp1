@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test1.cpp,v 1.4 2003-04-24 08:49:33 gmetta Exp $
+/// $Id: exec_test1.cpp,v 1.5 2003-05-02 22:56:11 gmetta Exp $
 ///
 
 #include <conf/YARPConfig.h>
@@ -190,14 +190,19 @@ int main()
   if (1)
   {
     t3.Begin();
+    cout << "Starting t3" << endl;
     YARPTime::DelayInSeconds(0.5);
     YARPScheduler::yield();
+    cout << "Starting t1,t2" << endl;
     t1.Begin();
     t2.Begin();
+
+    cout << "About to wait 10 sec" << endl;
     YARPTime::DelayInSeconds(10.0);
     cout << "Ending t3\n";
     t3.End();
     YARPTime::DelayInSeconds(5.0);
+    cout << "Ending t2,t1" << endl;
     t2.End();
     t1.End();
   }

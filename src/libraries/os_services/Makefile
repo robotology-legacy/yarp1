@@ -1,3 +1,7 @@
+#
+#
+#
+
 include $(YARP_ROOT)/conf/Makefile.template
 
 SUBDIRS = common $(SYSDIR)
@@ -27,7 +31,8 @@ $(CODELIB): $(OBJS)
 
 install: subinstall
 	$(CP) include/*.h $(YARP_ROOT)/include
-	$(CP) lib/$(SYSDIR)/* $(YARP_ROOT)/lib/$(SYSDIR)
+	$(CP) sys_include/*.h $(YARP_ROOT)/include
+	$(CP) lib/$(SYSDIR)/os_services.lib $(YARP_ROOT)/lib/$(SYSDIR)
 
 clean: subclean
 	rm -f obj/$(SYSDIR)/*

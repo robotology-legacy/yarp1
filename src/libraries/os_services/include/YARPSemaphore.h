@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPSemaphore.h,v 1.5 2003-04-18 15:51:46 gmetta Exp $
+///	$Id: YARPSemaphore.h,v 1.6 2003-05-02 22:56:10 gmetta Exp $
 ///
 ///
 /*
@@ -83,14 +83,14 @@ private:
 
 public:
 	// Assertion fails if insufficient resources at initialization
-	YARPNullSemaphore(int initial_count = 1) {}
-	YARPNullSemaphore(const YARPNullSemaphore& yt) {}
+	YARPNullSemaphore(int initial_count = 1) { ACE_UNUSED_ARG(initial_count); }
+	YARPNullSemaphore(const YARPNullSemaphore& yt) { ACE_UNUSED_ARG(yt); }
 
 	virtual ~YARPNullSemaphore() {}
 
 	void BlockingWait() {}
 	int PollingWait() { return YARP_OK; }  // returns true if Wait() occurred
-	int Wait(int blocking = 1) { return 1; }
+	int Wait(int blocking = 1) { ACE_UNUSED_ARG(blocking); return 1; }
 	void Post() {}
 };
 

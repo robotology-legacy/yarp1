@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.2 2003-05-01 12:23:54 gmetta Exp $
+/// $Id: YARPThread.cpp,v 1.3 2003-05-02 22:56:10 gmetta Exp $
 ///
 ///
 
@@ -79,6 +79,10 @@
 
 #include "YARPSemaphore.h"
 #include "YARPThread.h"
+
+#ifdef __QNX6__
+#include <sys/neutrino.h>
+#endif
 
 ///
 /// converted from #define.
@@ -178,9 +182,9 @@ void YARPThread::End()
 		TerminateThread ((HANDLE)system_resource, -1);
 #else
 		// need to store the ID.
-		kill (identifier, SIGKILL);
+		///ACE_Thread::kill (identifier, SIGKILL);
+		ThreadDestroy (identifier, -1, (void *)-1);
 #endif
-
 		identifier = -1;
 	}
 

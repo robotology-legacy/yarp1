@@ -4,7 +4,11 @@ SYSDIR = qnx6
 
 OBJS = $(patsubst %.cpp, %.o, $(wildcard *.cpp))
 CC = g++
+ifeq ($(SYSDIR), qnx6)
+CFLAGS = -g -I../include -I../sys_include -I$(YARP_ROOT)/include
+else
 CFLAGS = -g -I../include -I/usr/include -I/home/cog/include/cpp -I../sys_include
+endif
 
 SUBDIRS =
 

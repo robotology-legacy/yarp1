@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeSyncComm.cpp,v 1.2 2003-05-01 22:51:20 gmetta Exp $
+/// $Id: YARPNativeSyncComm.cpp,v 1.3 2003-05-02 22:56:11 gmetta Exp $
 ///
 ///
 
@@ -82,11 +82,13 @@
 #undef Reply
 #endif
 
-class TSData
-{
-public:
-	int offset;
-};
+///class TSData
+///{
+///public:
+///	int offset;
+///};
+
+typedef int TSData;
 
 // only one reader per thread, a the raw QNX protocol, so can use thread-global
 // variable
@@ -106,7 +108,7 @@ int YARPNativeSyncComm::Send(YARPNameID dest, char *buffer, int buffer_length, c
 	return __send(dest.GetRawIdentifier(),buffer,return_buffer,
 		buffer_length,return_buffer_length);
 	*/
-	return MsgSend(dest.GetRawIdentifier(),
+	return MsgSend(dest.getRawIdentifier(),
   					(const void *)buffer,
   					buffer_length,
   					(void *)return_buffer,
@@ -120,8 +122,8 @@ YARPNameID YARPNativeSyncComm::BlockingReceive(YARPNameID src, char *buffer, int
 	//  printf("^^^^ blocking receive for id %d\n", src.GetRawIdentifier());
 	///int result =  __receive(src.GetRawIdentifier(),buffer,buffer_length);
 
-	int result =  MsgReceive(src.GetRawIdentifier(),buffer,buffer_length,NULL);
-	ts_data.Content().offset = buffer_length; //no way to know real transfer :(
+	int result =  MsgReceive(src.getRawIdentifier(),buffer,buffer_length,NULL);
+	ts_data.Content() = buffer_length; //no way to know real transfer :(
 
 	return YARPNameID(YARP_QNET, result);
 }
@@ -138,8 +140,8 @@ YARPNameID YARPNativeSyncComm::PollingReceive(YARPNameID src, char *buffer, int 
   //int result = ::Creceive(src.GetRawIdentifier(),buffer,buffer_length);
 	event.sigev_notify = SIGEV_UNBLOCK;//+QNX6+
 	TimerTimeout(CLOCK_REALTIME, _NTO_TIMEOUT_RECEIVE,&event, NULL, NULL );//+QNX6+
-	int result = MsgReceive(src.GetRawIdentifier(),buffer,buffer_length,NULL);//+QNX6+
-	ts_data.Content().offset = buffer_length; //no way to know real transfer :(
+	int result = MsgReceive(src.getRawIdentifier(),buffer,buffer_length,NULL);//+QNX6+
+	ts_data.Content() = buffer_length; //no way to know real transfer :(
 	return YARPNameID(YARP_QNET, result);
 }
 
@@ -149,7 +151,7 @@ int YARPNativeSyncComm::ContinuedReceive(YARPNameID src, char *buffer, int buffe
 	int result = -1;
 	if (src.isValid())
 	{
-		int offset = ts_data.Content().offset;
+		int offset = ts_data.Content();
 		/* MIG4NTO          Readmsg Use MsgRead() instead.  Note that this takes the */
 		/* MIG4NTO                  receive id returned from MsgReceive() instead of a */
 		/* MIG4NTO                  process id. See the migration guide as a starting */
@@ -159,7 +161,7 @@ int YARPNativeSyncComm::ContinuedReceive(YARPNameID src, char *buffer, int buffe
 		if (more>=0)
 		{
 			offset += more;
-			ts_data.Content().offset = offset;
+			ts_data.Content() = offset;
 			result = more;
 		}
 	}
@@ -263,7 +265,7 @@ int YARPNativeSyncComm::Reply(YARPNameID src, YARPMultipartMessage& msg)
   
 	return MsgReplyv(src.getRawIdentifier(),
 				0,
-				(const iovec *) msg.getRawBuffer(),
+				(const iovec *) msg.GetRawBuffer(),
 				msg.GetParts());  				 
 }
 
