@@ -136,6 +136,7 @@
 	"..\..\..\..\include\yarperrorcodes.h"\
 	"..\..\..\..\include\yarpfragments.h"\
 	"..\..\..\..\include\yarplist.h"\
+	"..\..\..\..\include\yarplogfile.h"\
 	"..\..\..\..\include\yarpmatrix.h"\
 	"..\..\..\..\include\yarpmatrix.inl"\
 	"..\..\..\..\include\yarpnameid.h"\
@@ -275,8 +276,10 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
+	"..\..\..\..\include\conf\yarpbabybotvocab.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\yarpvocab.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\mesh.h"\
@@ -293,14 +296,17 @@
 	"..\..\..\..\include\yarpfragments.h"\
 	"..\..\..\..\include\yarpfsm.h"\
 	"..\..\..\..\include\yarplist.h"\
+	"..\..\..\..\include\yarplogfile.h"\
 	"..\..\..\..\include\yarpmatrix.h"\
 	"..\..\..\..\include\yarpmatrix.inl"\
 	"..\..\..\..\include\yarpnameid.h"\
 	"..\..\..\..\include\yarpnameid_defs.h"\
 	"..\..\..\..\include\yarpnameservice.h"\
 	"..\..\..\..\include\yarpnetworktypes.h"\
+	"..\..\..\..\include\yarpparseparameters.h"\
 	"..\..\..\..\include\yarpport.h"\
 	"..\..\..\..\include\yarpportcontent.h"\
+	"..\..\..\..\include\yarprnd.h"\
 	"..\..\..\..\include\yarprobotmath.h"\
 	"..\..\..\..\include\yarprobotmath.inl"\
 	"..\..\..\..\include\yarpsemaphore.h"\

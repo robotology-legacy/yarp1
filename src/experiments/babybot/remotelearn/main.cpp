@@ -18,7 +18,7 @@ const char __filename[] = "test.ini";
 const char __outFilename[] = "out.ini";
 const char __basePortName[] = "/remotelearn";
 const int __nIterations = 100000;
-const int __nSamples = 50;
+const int __nSamples = -1;
 
 #include <YARPRnd.h>
 
@@ -125,7 +125,9 @@ void parse(Learner &learner, YARPBottle &b)
 
 		ACE_OS::printf("Received new sample:#%d\n", learner.howMany());
 		// CHECK train condition
-		if (learner.howMany()%nSamples== 0)
+		if (nSamples < 0)
+			return;	// no training allowed
+		else if (learner.howMany()%nSamples== 0)
 			learner.train((int) nIterations, true);
 		return;
 	}
