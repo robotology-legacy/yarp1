@@ -27,7 +27,7 @@ enum __SinkCh
 	SinkChN = 4,
 };
 
-const char const __portNameSuffixes[SinkChN][255] = {
+const char __portNameSuffixes[SinkChN][255] = {
 										"vor/i",
 										"position/i",
 										"track/i",
