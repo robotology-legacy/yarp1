@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.14 2004-02-02 16:28:10 babybot Exp $
+/// $Id: main.cpp,v 1.15 2004-02-02 17:47:33 fberton Exp $
 ///
 ///
 
@@ -160,7 +160,7 @@ int main (int argc, char *argv[])
 	Param.padding = _salign;
 	Param.Fovea_Type = 0;
 	Param.Ratio = 4.0f;
-	Param.dres = (float)(1090.0/4.0);
+	Param.dres = (double)(1090.0/4.0);
 
 	printf ("Creating Shift map\n");
 	Build_Shift_Map (&Param, Path);
