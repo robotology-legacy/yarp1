@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.8 2003-05-27 22:37:31 gmetta Exp $
+/// $Id: YARPNameService.h,v 1.9 2003-05-29 00:39:27 gmetta Exp $
 ///
 ///
 /*
@@ -129,6 +129,7 @@ public:
 	static YARPNameID CreateOutputEndpoint(YARPUniqueNameID& name);
 	static int ConnectEndpoints(YARPUniqueNameID& dest);
 	static int Close(YARPUniqueNameID& endp);
+	static int CloseMcastAll(void);
 	static int SetTCPNoDelay (const YARPUniqueNameID& endp);
 
 	/// static int SetStackBuffer (int new_size);

@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.7 2003-05-27 22:37:30 gmetta Exp $
+$Id: README.txt,v 1.8 2003-05-29 00:39:26 gmetta Exp $
 
 
 =============
@@ -27,19 +27,14 @@ Things under development:
 9- release version crashes on exit. USE test 13 to show this problem, and close the 
 	receiver first.
 
+10- IMPORTANT! specify the nic, for multiple parallel connections.
 
 ===
 0- QNET
 	Destroying channel is not implemented (where? destructor?).
 
-0.1- QNET complete test under QNX.
-
 0.5- implement check_out from name server.
 
-
-1- MCAST code?
-
-2- speed up by removing all reply to message issues (sort of mandatory for MCAST anyway).
 
 3- what to do with the QNX4 code.
 
@@ -47,3 +42,6 @@ Things under development:
 
 6- add windows DLL to the repository (these are the DLL's installed by visual C++).
 
+***********
+7- CRAZY but GORGEOUS, multiple protocols from the same port. ACE allows also streams in
+	shared memory (very efficient).

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.h,v 1.3 2003-05-27 22:37:31 gmetta Exp $
+/// $Id: YARPSocketMcast.h,v 1.4 2003-05-29 00:39:27 gmetta Exp $
 ///
 ///
 
@@ -152,10 +152,9 @@ public:
 
 	int Prepare (const YARPUniqueNameID& name);
 	int Close(const YARPUniqueNameID& name);
+	int CloseMcastAll (void);
 	int Connect(const YARPUniqueNameID& name);
 	
-	/// int Send (const iovec *iov, int len);
-
 	int SendBegin(char *buffer, int buffer_length);
 	int SendContinue(char *buffer, int buffer_length);
 	int SendReceivingReply(char *reply_buffer, int reply_buffer_length);

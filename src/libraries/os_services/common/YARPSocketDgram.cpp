@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.24 2003-05-23 16:32:01 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.25 2003-05-29 00:39:27 gmetta Exp $
 ///
 ///
 
@@ -440,6 +440,8 @@ int _SocketThreadDgram::_begin (const YARPUniqueNameID *remid, int port = 0)
 		_local_addr.getAddressRef().set (port, buf);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled?
 
+		YARPNetworkObject::setSocketBufSize (_local_socket, MAX_PACKET);
+
 		_local_addr.getNameID() = YARPNameID (YARP_UDP, _local_socket.get_handle());
 
 		if (_local_socket.get_handle() == ACE_INVALID_HANDLE)
@@ -484,6 +486,8 @@ int _SocketThreadDgram::reuse(const YARPUniqueNameID& remid, int port)
 		YARPNetworkObject::getHostname (buf, 256);
 		_local_addr.getAddressRef().set (port, buf);
 		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled?
+
+		YARPNetworkObject::setSocketBufSize (_local_socket, MAX_PACKET);
 
 		_local_addr.getNameID() = YARPNameID (YARP_UDP, _local_socket.get_handle());
 
@@ -1511,6 +1515,8 @@ int YARPOutputSocketDgram::Connect (void)
 	/// the connect changes the remote port number to the actual assigned channel.
 	d._remote_addr.set_port_number (port_number);
 	identifier = d._connector_socket.get_handle ();
+
+	YARPNetworkObject::setSocketBufSize (d._connector_socket, MAX_PACKET);
 
 	return YARP_OK;
 }

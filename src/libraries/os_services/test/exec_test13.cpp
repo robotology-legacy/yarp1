@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test13.cpp,v 1.11 2003-05-27 22:37:32 gmetta Exp $
+/// $Id: exec_test13.cpp,v 1.12 2003-05-29 00:39:27 gmetta Exp $
 ///
 ///
 
@@ -80,24 +80,30 @@
 
 NetInt32 foo;
 
-#define LEN 120000
+#define LEN MAX_PACKET-100
+
 class Msg
 {
 public:
 	char msg[LEN];
 };
 
-YARPInputPortOf<Msg> in(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-YARPOutputPortOf<Msg> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-///YARPInputPortOf<Msg> in;
-///YARPOutputPortOf<Msg> out;
+///YARPInputPortOf<Msg> in(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+///YARPOutputPortOf<Msg> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPInputPortOf<Msg> in;
+YARPOutputPortOf<Msg> out;
 
 class Thread1 : public YARPThread
 {
 public:
+	Thread1 (const char *name) : YARPThread()
+	{
+		in.Register(name);
+	}
+
 	virtual void Body()
 	{
-		in.Register("/foo/the/rampaging/frog");
+		///in.Register("/foo/the/rampaging/frog");
 		//YARPTime::DelayInSeconds(2);
 		double start = YARPTime::GetTimeAsSeconds();
 		double prevtime = start;
@@ -138,10 +144,10 @@ class Thread2 : public YARPThread
 public:
 	virtual void Body()
 	{
-		out.Register("/foo/the/rampaging/fly");
+		out.Register("/foo/send");
 		//YARPTime::DelayInSeconds(2);
 		///printf("Step1\n");
-		out.Connect("/foo/the/rampaging/frog");
+		///out.Connect("/foo/the/rampaging/frog");
 		///printf("Step1.5\n");
 		//YARPTime::DelayInSeconds(2);
 		int ct = 1;
@@ -166,7 +172,8 @@ int main(int argc, char *argv[])
 	YARPScheduler::setHighResScheduling();
 
 ///	__debug_level = 80;
-	Thread1 t1;
+	Thread1 *t1 = NULL;
+
 	Thread2 t2;
 	int s = 1, c = 1;
 	if (argc>=2)
@@ -179,9 +186,16 @@ int main(int argc, char *argv[])
 		}
 	}
 
+	if (s && argc == 3 && !c)
+	{
+		t1 = new Thread1(argv[2]);
+		t1->Begin();
+	}
+	else
 	if (s)
 	{
-		t1.Begin();
+		t1 = new Thread1("/foo/recv");
+		t1->Begin();
 	}
 
 	if (c)

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.17 2003-05-28 17:42:01 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.18 2003-05-29 00:39:27 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -83,10 +83,10 @@ extern int __debug_level;
 
 NetInt32 foo;
 
-///YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-///YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-YARPInputPortOf<NetInt32> in;
-YARPOutputPortOf<NetInt32> out;
+YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+///YARPInputPortOf<NetInt32> in;
+///YARPOutputPortOf<NetInt32> out;
 
 class Thread1 : public YARPThread
 {
@@ -127,7 +127,7 @@ public:
 
 		YARPTime::DelayInSeconds(2);
 		printf("Step1\n");
-		out.Connect("/foo/the/rampaging/frog");
+///		out.Connect("/foo/the/rampaging/frog");
 		printf("Step1.5\n");
 		YARPTime::DelayInSeconds(2);
 		int ct = 1;
@@ -139,7 +139,7 @@ public:
 			ct++;
 			printf("$$$$$$$$$$$$$$$$$$$$$$$$$Writing %d\n", (int)out.Content());
 			out.Write();
-			YARPTime::DelayInSeconds(.1);
+			YARPTime::DelayInSeconds(1);
 		}
 	}
 };
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 	ACE_UNUSED_ARG (argc);
 	ACE_UNUSED_ARG (argv);
 
-	__debug_level = 80;
+///	__debug_level = 80;
 
 	Thread1 t1;
 	Thread2 t2;

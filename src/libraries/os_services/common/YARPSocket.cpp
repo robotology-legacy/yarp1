@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.16 2003-05-19 20:39:55 gmetta Exp $
+/// $Id: YARPSocket.cpp,v 1.17 2003-05-29 00:39:26 gmetta Exp $
 ///
 ///
 
@@ -164,6 +164,23 @@ public:
 } PACKED_FOR_NET;
 #include "end_pack_for_net.h"
 
+///
+/// sets recv and send <sock> buffers to <size>
+int YARPNetworkObject::setSocketBufSize (ACE_SOCK& sock, int size)
+{
+	int ret = YARP_OK;
+	if (sock.set_option (SOL_SOCKET, SO_RCVBUF, &size, sizeof(int)) < 0)
+	{
+		ACE_DEBUG ((LM_DEBUG, "can't change recv buffer size to %d\n", MAX_PACKET));
+		ret = YARP_FAIL;
+	}
+	if (sock.set_option (SOL_SOCKET, SO_SNDBUF, &size, sizeof(int)) < 0)
+	{
+		ACE_DEBUG ((LM_DEBUG, "can't change send buffer size to %d\n", MAX_PACKET));
+		ret = YARP_FAIL;
+	}
+	return ret;
+}
 
 int YARPNetworkObject::getHostname(char *buffer, int buffer_length)
 {
@@ -247,28 +264,6 @@ public:
 
 	~_SocketThread () {}
 
-	/// needs a method to recycle the thread since
-	/// thread creation might be a relatively costly process.
-
-	/*
-	// hack to deal with stl unpleasantness
-	/// LATER: it might be required for STL.
-	///
-	SocketThread(const SocketThread& other)
-	{
-		owner = NULL;
-		extern_buffer = NULL;
-		extern_length = 0;
-		extern_reply_buffer = NULL;
-		extern_reply_length = 0;
-		waiting = 0;
-		needs_reply = 0;      
-		available = 1;
-		read_more = 0;
-		reply_preamble = 0;
-	}
-	*/
-
 	/// required by stl interface.
 	int operator == (const _SocketThread& other) { return 0; }
 	int operator != (const _SocketThread& other) { return 0; }
@@ -279,25 +274,6 @@ public:
 	/// call it reconnect (recycle the thread).
 	/// the thread shouldn't be running.
 	void reuse(const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream);
-
-	/*
-	/// this is now obsolete, REUSE does the job.
-	void SetPID (ACE_HANDLE n_pid)
-    {
-		/// this might translate to something like:
-		_stream.set_handle (n_pid)
-
-		IFVERB printf("$$$ changing from %d to %d\n", socket.GetSocketPID(), n_pid);
-		socket.ForcePID(n_pid);
-		//owner = NULL;
-		extern_buffer = NULL;
-		extern_length = 0;
-		waiting = 0;
-		needs_reply = 0;
-		read_more = 0;
-		reply_preamble = 0;
-    }
-	*/
 
 	ACE_HANDLE getID () const
     {
@@ -430,6 +406,9 @@ void _SocketThread::_begin (const YARPUniqueNameID& remid, ACE_SOCK_Stream *stre
 	_remote_endpoint = remid;
 	_stream = stream;
 
+	if (stream != NULL)
+		YARPNetworkObject::setSocketBufSize (*_stream, MAX_PACKET);
+
 	_available = 1;
 	_read_more = 0;
 	_reply_preamble = 0;
@@ -446,6 +425,10 @@ void _SocketThread::reuse(const YARPUniqueNameID& remid, ACE_SOCK_Stream *stream
 {
 	_remote_endpoint = remid;
 	_stream = stream;
+
+	if (stream != NULL)
+		YARPNetworkObject::setSocketBufSize (*_stream, MAX_PACKET);
+
 	_available = 0;
 }
 
@@ -707,24 +690,6 @@ void _SocketThreadList::addSocket()
 	signal( SIGCHLD, SIG_IGN );     /* Ignore condition */
 #endif
 
-	/*
-struct sockaddr sockaddr;
-#ifndef __WIN__
-#ifndef __QNX4__
-#ifdef __QNX6__
-socklen_t addrlen = sizeof(sockaddr);
-#else
-unsigned int addrlen = sizeof(sockaddr);
-#endif
-#else
-int addrlen = sizeof(sockaddr);
-#endif
-#else
-int addrlen = sizeof(sockaddr);
-#endif 
-int newsock;
-	*/
-
 	/// need to assert that _acceptor is actually created and connected.
 	/// ACE_ASSERT (_acceptor != NULL);
 
@@ -755,26 +720,6 @@ int newsock;
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "invalid stream after accept, returning from addSocket\n"));
 		return;
 	}
-
-/*
-static int count = 0;
-count ++;
-if (count>=0)
-{
-  printf("======================================================\n");
-  printf("RUNNING TESTS\n");
-  TinySocket is;
-  is.ForcePID(newsock);
-  char buf[256];
-  is.Read(buf,100);
-  printf("======================================================\n");
-}
-*/
-
-	// YARPScheduler::Yield();
-	//assert(system_resources!=NULL);
-	//if (newsock != -1) {
-	//MySocketInfo& info = *((MySocketInfo*)system_resources);
 
 	list<_SocketThread *>::iterator it_avail;
 	int reusing = 0;
@@ -816,17 +761,6 @@ if (count>=0)
 	(*it_avail)->reuse (YARPUniqueNameID(YARP_TCP, incoming), newstream);
 
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "888888 post postbegin %d\n", errno));
-
-	/*
-	for (list<_SocketThread *>::iterator it = _list.begin(); it != _list.end(); it++)
-	{
-		ACE_DEBUG ((LM_DEBUG, "   pid %d...\n", (*it)->getID() ));
-		//int pre = errno;
-		//int v = eof((*it).GetID());
-		//int post = errno;
-		//IFVERB printf("   --> %d %d %d\n", pre, v, post);
-	}
-	*/
 }
 
 /// closes everything.
@@ -875,14 +809,6 @@ int _SocketThreadList::close (ACE_HANDLE reply_id)
 		}
 	}
 
-	/*
-	if (reply_id != -1)
-	{
-		/// MUST close the socket here.
-		//sockclose(reply_id);
-		IFVERB printf("!!!!!!!!!!!!! closed handle %d\n", reply_id);
-	}
-	*/
 	return result;
 }
 
@@ -1122,19 +1048,6 @@ YARPInputSocket::YARPInputSocket()
 	_socktype = YARP_I_SOCKET;
 }
 
-/*
-YARPInputSocket::YARPInputSocket(const YARPInputSocket& other)
-{
-	system_resources = NULL; 
-	identifier = -1; 
-	assigned_port = -1;
-	system_resources = new ISData(ISDATA(other.system_resources));
-	ACE_ASSERT(system_resources!=NULL);
-
-	_socktype = YARP_I_SOCKET;
-}
-*/
-
 YARPInputSocket::~YARPInputSocket()
 {
 	CloseAll ();
@@ -1172,19 +1085,6 @@ int YARPInputSocket::Close (ACE_HANDLE reply_id)
 	///return result;
 	return ISDATA(system_resources)._list.close (reply_id);
 }
-
-/* CHANGED INTO Connect.
-int YARPInputSocket::Register(const char *name)
-{
-	DBG printf ("Registering port with name %s\n", name);
-	int port = GetPort(name);
-	DBG printf ("Registering port %d\n", port);
-	int result = ISDATA(system_resources).owner.Connect(port);
-	assigned_port = ISDATA(system_resources).owner.GetAssignedPort();
-	DBG printf ("Assigned port is %d\n", assigned_port);
-	return result;
-}
-*/
 
 int YARPInputSocket::PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id)
 {
@@ -1232,8 +1132,6 @@ int YARPInputSocket::GetAssignedPort(void) const
 class OSData
 {
 public:
-	//TinySocket sock;
-
 	ACE_INET_Addr _remote_addr;
 	ACE_SOCK_Connector _connector;
 	ACE_SOCK_Stream _stream;
@@ -1270,11 +1168,6 @@ YARPOutputSocket::~YARPOutputSocket()
 int YARPOutputSocket::Close (void)
 {
 	return OSDATA(system_resources)._stream.close ();
-
-/*
-	int result = OSDATA(system_resources).sock.Close();
-	return result;
-*/
 }
 
 
@@ -1302,25 +1195,9 @@ int YARPOutputSocket::Connect (void)
 
 	identifier = d._stream.get_handle ();
 
-	//identifier = OSDATA(system_resources).sock.GetSocketPID();
-	//return identifier;
-	
-	return YARP_OK;
+	YARPNetworkObject::setSocketBufSize (d._stream, MAX_PACKET);
 
-/*
-	string machine = GetBase(name);
-	int port = GetPort(name);
-	const char *str;
-#ifndef __QNX__
-	str = machine.c_str();
-#else
-	str = machine.AsChars();
-#endif
-	DBG printf ("Connecting to port %d on %s\n", port, str);
-	OSDATA(system_resources).sock.Connect(str,port);
-	identifier = OSDATA(system_resources).sock.GetSocketPID();
-	return identifier;
-*/
+	return YARP_OK;
 }
 
 
@@ -1340,7 +1217,6 @@ int YARPOutputSocket::SendBegin(char *buffer, int buffer_length)
 		return YARP_FAIL;
 
 	return YARP_OK;
-	//return SendBlock(OSDATA(system_resources).sock,buffer,buffer_length);
 }
 
 
@@ -1352,8 +1228,6 @@ int YARPOutputSocket::SendContinue(char *buffer, int buffer_length)
 		return YARP_FAIL;
 
 	return YARP_OK;
-
-	//return SendBlock(OSDATA(system_resources).sock,buffer,buffer_length,0);
 }
 
 /// I'm afraid the reply might end up being costly to streaming communication.
@@ -1382,30 +1256,17 @@ int YARPOutputSocket::SendReceivingReply(char *reply_buffer, int reply_buffer_le
 		}
 	}
 	return result;
-
-	//return ::SendBeginEnd(OSDATA(system_resources).sock,reply_buffer,reply_buffer_length);
 }
 
 
 int YARPOutputSocket::SendEnd(char *reply_buffer, int reply_buffer_length)
 {
 	return SendReceivingReply (reply_buffer, reply_buffer_length);
-	//return ::SendEnd(OSDATA(system_resources).sock,reply_buffer,reply_buffer_length);
 }
-
-/// ACE I guess requires the object all the time.
-/*
-void YARPOutputSocket::InhibitDisconnect()
-{
-	OSDATA(system_resources).sock.InhibitDisconnect();
-}
-*/
 
 ACE_HANDLE YARPOutputSocket::GetIdentifier(void) const
 {
 	return identifier;
-	///return _connector.get_handle ();
-	//return OSDATA(system_resources).sock.GetSocketPID();
 }
 
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.15 2003-05-28 17:42:00 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.16 2003-05-29 00:39:27 gmetta Exp $
 ///
 ///
 
@@ -428,6 +428,32 @@ int YARPSocketEndpointManager::ConnectEndpoints(YARPUniqueNameID& dest)
 	return YARP_OK;
 }
 
+int YARPSocketEndpointManager::CloseMcastAll (void)
+{
+	YARPNetworkObject *sock = GetThreadSocket();
+	if (sock == NULL)
+	{
+		ACE_DEBUG ((LM_DEBUG, "CloseMcastAll: no socket associated with current thread\n"));
+		return YARP_FAIL;
+	}
+
+	if (sock->getSocketType() != YARP_O_SOCKET)
+	{
+		ACE_DEBUG ((LM_DEBUG, "CloseMcastAll: this thread doesn't hold an out socket\n"));
+		return YARP_FAIL;
+	}
+
+	if (sock->GetServiceType() != YARP_MCAST)
+	{
+		ACE_DEBUG ((LM_DEBUG, "CloseMcastAll: this only applies to MCAST sockets\n"));
+		return YARP_FAIL;
+	}
+
+	((YARPOutputSocketMcast *)sock)->CloseMcastAll ();
+
+	return YARP_OK;
+}
+
 int YARPSocketEndpointManager::Close (YARPUniqueNameID& dest)
 {
 	YARPNetworkObject *sock = GetThreadSocket();
@@ -441,7 +467,7 @@ int YARPSocketEndpointManager::Close (YARPUniqueNameID& dest)
 	{
 	case YARP_O_SOCKET:
 		{
-			if (dest.getServiceType() == YARP_MCAST)
+			if (sock->GetServiceType() == YARP_MCAST && dest.getServiceType() == YARP_UDP)
 			{
 				sock->Close (dest);
 			}

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.15 2003-05-28 17:42:00 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.16 2003-05-29 00:39:26 gmetta Exp $
 ///
 ///
 
@@ -319,4 +319,10 @@ int YARPEndpointManager::SetTCPNoDelay(const YARPUniqueNameID& endp)
 	}
 
 	return YARP_FAIL;
+}
+
+/// should fail if !MCAST.
+int YARPEndpointManager::CloseMcastAll(void)
+{
+	return YARPSocketEndpointManager::CloseMcastAll();
 }

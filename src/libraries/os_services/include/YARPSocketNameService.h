@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketNameService.h,v 1.8 2003-05-27 22:37:31 gmetta Exp $
+/// $Id: YARPSocketNameService.h,v 1.9 2003-05-29 00:39:27 gmetta Exp $
 ///
 ///
 
@@ -119,8 +119,8 @@ public:
 	static YARPNameID CreateInputEndpoint(YARPUniqueNameID& name);
 	static YARPNameID CreateOutputEndpoint(YARPUniqueNameID& name);
 	static int ConnectEndpoints(YARPUniqueNameID& dest);
-	///static int Close(void);
 	static int Close(YARPUniqueNameID& dest);
+	static int CloseMcastAll(void);
 	static int SetTCPNoDelay(void);
 };
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.25 2003-05-28 17:42:00 gmetta Exp $
+/// $Id: Port.cpp,v 1.26 2003-05-29 00:39:26 gmetta Exp $
 ///
 ///
 
@@ -323,7 +323,14 @@ void OutputTarget::Body ()
 					/// connect
 					YARPUniqueNameID udp_channel;
 					udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
+					/// misusing P2 array to pass the actual symbolic name to the socket.
+					udp_channel.allocP2(strlen(cmdname)/sizeof(int)+1);
+					char *dname = (char *)udp_channel.getP2Ptr();
+					memcpy (dname, cmdname, strlen(cmdname));
+
 					YARPEndpointManager::ConnectEndpoints (udp_channel);
+
+					udp_channel.freeP2();
 				}
 				break;
 
@@ -332,14 +339,23 @@ void OutputTarget::Body ()
 					/// disconnect
 					YARPUniqueNameID udp_channel;
 					udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
+
+					udp_channel.allocP2(strlen(cmdname)/sizeof(int)+1);
+					char *dname = (char *)udp_channel.getP2Ptr();
+					memcpy (dname, cmdname, strlen(cmdname));
+
 					YARPEndpointManager::Close (udp_channel);
+
+					udp_channel.freeP2();
 				}
 				break;
 
 			case 3:
 				{
 					/// disconnect all
-					//// YARPEndpointManager::CloseMcastAll ();
+					YARPEndpointManager::CloseMcastAll ();
+					active = 0;
+					deactivated = 1;
 				}
 				break;
 			}
@@ -402,7 +418,7 @@ void OutputTarget::Body ()
 	//// LATER: must handle close depending on protocol.
 	if (protocol_type == YARP_MCAST)
 	{
-		/// YARPEndpointManager::CloseMcastAll ();
+		YARPEndpointManager::CloseMcastAll ();
 	}
 	else
 	{
@@ -762,9 +778,6 @@ void Port::Body()
 			tag = MSG_ID_DATA;
 		}
 
-		// What was this for?
-		//pid = 0;
-
 		if (tag != MSG_ID_DATA)
 		{
 			receiver.End();
@@ -889,7 +902,7 @@ void Port::Body()
 						target = targets.GetByLabel("mcast-thread\0"); ///buf+1);
 						if (target != NULL)
 						{
-							ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
+							ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and (%s) via %s\n", name.c_str(), buf+1, target->GetLabel().c_str()));
 							
 							target->DeactivateMcast(buf+1);
 						}

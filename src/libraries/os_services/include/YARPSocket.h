@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.h,v 1.6 2003-05-27 22:37:31 gmetta Exp $
+/// $Id: YARPSocket.h,v 1.7 2003-05-29 00:39:27 gmetta Exp $
 ///
 ///
 
@@ -113,6 +113,7 @@ protected:
 
 public:
 	static int getHostname(char *buffer, int buffer_length);
+	static int setSocketBufSize(ACE_SOCK& sock, int size);
 	int getSocketType (void) const { return _socktype; }
 
 	virtual int Close(void) { ACE_ASSERT (NOT_IMPLEMENTED); return YARP_FAIL; }
@@ -174,13 +175,6 @@ public:
 		return YARP_FAIL;
 	}
 
-///	virtual int Send(const iovec *iov, int len) 
-///	{
-///		ACE_UNUSED_ARG(iov);
-///		ACE_UNUSED_ARG(len); 
-///		ACE_ASSERT (NOT_IMPLEMENTED); 
-///		return YARP_FAIL; 
-///	}
 	virtual int SendBegin(char *buffer, int buffer_length) 
 	{
 		ACE_UNUSED_ARG(buffer);
