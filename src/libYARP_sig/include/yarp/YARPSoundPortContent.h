@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSoundPortContent.h,v 1.1 2004-07-12 16:45:57 eshuy Exp $
+/// $Id: YARPSoundPortContent.h,v 1.2 2004-08-24 13:38:29 beltran Exp $
 ///
 ///
 
@@ -159,7 +159,7 @@ public:
 	YARPInputPortOf<YARPSoundBuffer>(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicInputPort<YARPSoundPortContent> (n_service_type, n_protocol_type) {}
 
-	virtual ~YARPInputPortOf<YARPSoundBuffer> () { ((Port *)system_resource)->End(); }
+	virtual ~YARPInputPortOf<YARPSoundBuffer> () { YARPPort::End(); }
 };
 
 class YARPOutputPortOf<YARPSoundBuffer> : public YARPBasicOutputPort<YARPSoundPortContent>
@@ -168,7 +168,7 @@ public:
 	YARPOutputPortOf<YARPSoundBuffer>(int n_service_type = DEFAULT_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicOutputPort<YARPSoundPortContent> (n_service_type, n_protocol_type) {}
 
-	virtual ~YARPOutputPortOf<YARPSoundBuffer> () { ((Port *)system_resource)->End(); }
+	virtual ~YARPOutputPortOf<YARPSoundBuffer> () { YARPPort::End(); }
 };
 
 
