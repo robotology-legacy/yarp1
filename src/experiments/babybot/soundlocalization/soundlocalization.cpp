@@ -11,7 +11,7 @@
 //     Description:  This is the main loop receiving the sound streams. Another class called
 //     soundprocessing is used to perform all the analysis.
 // 
-//         Version:  $Id: soundlocalization.cpp,v 1.10 2004-05-24 16:55:41 beltran Exp $
+//         Version:  $Id: soundlocalization.cpp,v 1.11 2004-06-03 17:09:43 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -79,16 +79,12 @@ int main(int argc, char* argv[])
 
 	_inPort.Register(base1.append("i").c_str());
 	_outPort.Register(base2.append("o").c_str());
-	_outPort_srm.Register(base3.append("srmo").c_str());
 	_slimageoutPort.Register(base4.append("image:o").c_str());
 
 	// Control vector declaration and initializantion
 	YVector v(__outSize);
 	v = 0.0;
 	
-	// The vector for the self reorganizing algorithm
-	YVector _out_srm(L_VECTOR_SRM);
-
 	time1 = YARPTime::GetTimeAsSeconds();
 
     YarpPixelBGR pixr(128,64,0);
@@ -103,7 +99,7 @@ int main(int argc, char* argv[])
 		double ild, left, right;
 		counter++;
 		_inPort.Read();
-        _soundprocessor.apply(_inPort.Content(), v, _out_srm); // This is the sound buffer
+        _soundprocessor.apply(_inPort.Content(), v); // This is the sound buffer
 
 		_x = _soundprocessor.GetFilteredITD();
 		_y = _soundprocessor.GetFilteredILD();
@@ -168,10 +164,6 @@ int main(int argc, char* argv[])
 		/// sends the image.
 		_slimageoutPort.Content().Refer(_sl_img);
 		_slimageoutPort.Write();
-
-		// Sends energy mapping vector for the self reorganizing network
-		_outPort_srm.Content() = _out_srm;
-		_outPort_srm.Write();
 
 		// sends the control vector
         _outPort.Content() = v;                    

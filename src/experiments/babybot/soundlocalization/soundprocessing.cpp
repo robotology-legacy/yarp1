@@ -12,7 +12,7 @@
 //     This implementatin is partially based in the sound software used by Lorenzo Natale
 //     is his master thesis.
 // 
-//         Version:  $Id: soundprocessing.cpp,v 1.14 2004-05-24 16:55:41 beltran Exp $
+//         Version:  $Id: soundprocessing.cpp,v 1.15 2004-06-03 17:09:43 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -303,41 +303,6 @@ SoundProcessing::ComputeLevels()
 }
 
 //--------------------------------------------------------------------------------------
-//       Class: SoundProcessing
-//      Method: ComputeDiscreteLevels 
-// Description: Divides the spectrum in zones between the ILD_LOW_FREQ and FREQ_T. It calculates
-// the energy in those chucks to create a vector of the energy distribution along the signal.
-// This vector is later used to feed a Self Organizing map that learns diferent sounds. 
-// We use only the data from the left channel.
-//--------------------------------------------------------------------------------------
-int
-SoundProcessing::ComputeDiscreteLevels(YVector &vector)
-{
-	int size = vector.Length();
-	int chuck_freq = (FREQ_T - ILD_LOW_FREQ)/size;
-	int low_freq   = ILD_LOW_FREQ;
-	int high_freq  = ILD_LOW_FREQ + chuck_freq;
-	int i = 0;
-	//----------------------------------------------------------------------
-	//  The left and right correlation spectrums have been already calculated 
-	//  in the CrossCorrelation computation
-	//----------------------------------------------------------------------
-
-	while ( high_freq < FREQ_T)
-	{
-		vector(i) = squareMean(leftcorrelation_Re,
-							   leftcorrelation_Im,
-							   low_freq,
-							   high_freq);
-		i++;
-		low_freq = high_freq;
-		high_freq += chuck_freq;
-	}
-
-	return 0;
-}
-
-//--------------------------------------------------------------------------------------
 //       Class: SoundProcessing 
 //      Method: ConjComplexMultiplication 
 // Description: Multiplication between the spectrum of the first signal and the complex
@@ -523,4 +488,3 @@ void SoundProcessing::filter(double *input_Re, double *input_Im,
 	 * nspzbZero(input+lowIndex,lowIndex); *
 	 ***************************************/
 }
-

@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.16 2004-05-24 16:55:41 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.17 2004-06-03 17:09:43 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -63,7 +63,7 @@ public:
 	// Description: It transforms the buffer coming from the network, applies the FFT and the 
 	// it calls the crosscorrlation and computelevel methods.
 	//--------------------------------------------------------------------------------------
-	inline void apply(YARPSoundBuffer &in, YVector &out, YVector &out_srm)
+	inline void apply(YARPSoundBuffer &in, YVector &out)
 	{
 		unsigned char * buff = (unsigned char *) in.GetRawBuffer();
 		int dim[1] = {numSamples};
@@ -122,13 +122,6 @@ public:
 		//----------------------------------------------------------------------
 		ComputeLevels();
 
-		//----------------------------------------------------------------------
-		//  Compute discrete mapping of the energy.
-		//  It generates a vector used to fill a self-organizing map to learn 
-		//  sounds from different objects.
-		//----------------------------------------------------------------------
-		ComputeDiscreteLevels(out_srm);
-		
 		//----------------------------------------------------------------------
 		//  Fill the itd and ild buffers controlling the thresholds 
 		//----------------------------------------------------------------------
@@ -227,7 +220,6 @@ private:
 	int ConjComplexMultiplication(double *,double *,double *,double *,double *,double *);
 	int ComplexMultiplication(double *, double *, double *, double *);
 	int ComputeLevels();
-	int ComputeDiscreteLevels(YVector &);
 	double squareMean(double * , double * , double, double);
 	double scalarProduct(double *, double *, int);
 	double correlation(double *, double *, int);
