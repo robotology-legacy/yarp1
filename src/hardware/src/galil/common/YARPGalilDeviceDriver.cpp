@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.10 2003-10-14 08:04:02 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.11 2003-10-27 10:21:20 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -82,6 +82,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	
 	m_question_marks = NULL;
 	m_temp_int_array = NULL;
+	m_temp_double_array = NULL;
 }
 
 int YARPGalilDeviceDriver::open(void *d)
@@ -97,7 +98,8 @@ int YARPGalilDeviceDriver::open(void *d)
 	controllerinfo.cbSize = sizeof(controllerinfo);
 	controllerinfo.usModelID = MODEL_1800;
 	controllerinfo.fControllerType = ControllerTypePCIBus;
-	controllerinfo.ulTimeout = 2000;
+	controllerinfo.ulTimeout = 3000;
+	//controllerinfo.ulTimeout = 0;
    /* If you have more than 1 Galil PCI bus controller, use the serial
       number to identify the controller you wish to connect to */
 	
@@ -121,6 +123,11 @@ int YARPGalilDeviceDriver::open(void *d)
 
 	m_question_marks = new char [2*m_njoints];
 	m_temp_int_array = new int[m_njoints];
+	m_temp_double_array = new double[m_njoints];
+
+	_current_positions = new double [m_njoints];
+	_current_vel	   = new double [m_njoints];
+	_current_accel	   = new double [m_njoints];
 
 	int i;
 	int j;
@@ -148,6 +155,16 @@ int YARPGalilDeviceDriver::close(void)
 		delete [] m_question_marks;
 	if (m_temp_int_array != NULL)
 		delete [] m_temp_int_array;
+
+	if (m_temp_double_array != NULL)
+		delete [] m_temp_double_array;
+
+	if (_current_positions != NULL)
+		delete [] _current_positions;
+	if (_current_vel != NULL)
+		delete [] _current_vel;
+	if (_current_accel != NULL)
+		delete [] _current_accel;
 	
 	return rc;
 }
@@ -245,35 +262,49 @@ int YARPGalilDeviceDriver::set_position(void *cmd)
 	return rc;
 }
 
+
+
+
 int YARPGalilDeviceDriver::set_command(void *cmd) 
 {
 	long rc = 0;
+	bool motion_done=false;
 
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	double *position = (double *) tmp->parameters;
+	double m_position = *position;
+
+	//The position passed to the set_command is in absolute coordinates
+	//we need to transform it (into relative) in order to use the IP command	
+
+	get_ref_positions(_current_positions);
+
+	m_position = m_position - _current_positions[tmp->axis];
+
+	//set jog mode. This is necesary to run the IP command in the adecuate mode
+	set_jog_mode();
+
+	//The IP command is cumulative so we have to check if it has finished
+	//check_motion_done(&motion_done,tmp->axis);
 
 	char *buff = m_buffer_out;
+	char *buff_ini = m_buffer_out;
 
-	///////////////////////////////////////////////////////////////////
-	// set PR
-	buff = _append_cmd((char) 0xA7, buff);		//PR
-	buff = _append_cmd((char) 0x04, buff);		//04 long format
-	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
+	//A binary version of the IP command does not seem to exist. I am using the
+	//ASCII version. This will slow down the command, but, do we have any other 
+	//alternative??
 
-	// axis
-	unsigned char dummy = 0x01;	//bit
-	dummy <<= tmp->axis;
-	// axis
-	buff = _append_cmd((char) dummy, buff);
-	// PID value
-	buff = _append_cmd_as_int(*position, buff);
+	buff = _append_cmd("IP",buff);
+	buff = _append_commas(buff, tmp->axis);
+	buff = _append_cmd(itoa((int) m_position,m_aux_buffer,10),buff);
 
-	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, 8,
-							m_buffer_in, buff_length);
-	begin_motion(NULL);
+	rc = DMCCommand((HANDLEDMC) m_handle,
+					m_buffer_out,
+					m_buffer_in, buff_length);
+
 	return rc;
 }
+
 
 int YARPGalilDeviceDriver::set_pid(void *cmd)
 {
@@ -536,6 +567,20 @@ int YARPGalilDeviceDriver::set_positions (void *param)
 	return rc;
 }
 
+/*
+int YARPGalilDeviceDriver::set_commands (void *param) 
+{
+
+	double max_speeds[6] = {1000000,1000000,1000000,2000,2000,2000}; 
+	double max_accel[6]  = {1000000,1000000,1000000,2000,2000,2000};
+
+	set_speeds(max_speeds);
+	set_accelerations(max_accel);
+
+	return set_positions (param); 
+	
+}
+*/
 
 int YARPGalilDeviceDriver::set_commands (void *param) 
 {
@@ -543,31 +588,54 @@ int YARPGalilDeviceDriver::set_commands (void *param)
 
 	int cmd_length = 0;
 
+	//double max_speeds[6] = {1000000,1000000,1000000,2000,2000,2000}; 
+	//double max_accel[6]  = {1000000,1000000,1000000,2000,2000,2000};
+
+	bool motion_done = false;
+
+	///double _jog_vels[6] = {0,0,0,0,0,0};
+
 	double * positions_double = (double *) param;	
-	
-	double_to_int(m_temp_int_array, positions_double);
-	
-	char *buff = m_buffer_out;
 
-	///////////////////////////////////////////////////////////////////
-	// set pos
-	buff = _append_cmd((char) 0xA7, buff);		//PR
-	buff = _append_cmd((char) 0x04, buff);		//04 long format
-	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
-	
-	// axes
-	buff = _append_cmd((char) m_all_axes, buff);
-	
-	// values
-	int n = _append_values(m_temp_int_array, buff);
+	///set_speeds(max_speeds);
+	///set_accelerations(max_accel);
 
-	cmd_length = 4 + 4*n;
+	///set_jogs(_jog_vels);
 
-	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
-							(unsigned char *) m_buffer_out, cmd_length ,
-							m_buffer_in, buff_length);
-	rc = begin_motion(NULL);							
+	///check_motion_done(&motion_done);
+
+	get_ref_positions(_current_positions);
+	///get_positions(_current_positions);
+
+	for (int i = 0; i <  m_njoints; i++)
+	//{
+			m_temp_double_array[i] = positions_double[i] - _current_positions[i];
+	//		if (m_temp_double_array[i] > 0)
+	//			_jog_vels[i] = 1;
+	//		else
+	//			_jog_vels[i] = -1;
+	//}
+
+	//set jog mode. This is necesary to run the IP command in the adecuate mode
+	
+		
+	double_to_int(m_temp_int_array, m_temp_double_array);
+	
+	sprintf(m_buffer_out,"IP %d,%d,%d,%d,%d,%d",m_temp_int_array[0]
+											   ,m_temp_int_array[1]
+											   ,m_temp_int_array[2]
+											   ,m_temp_int_array[3]
+											   ,m_temp_int_array[4]
+											   ,m_temp_int_array[5]);
+
+	//if(motion_done)
+
+	rc = DMCCommand((HANDLEDMC) m_handle,
+					m_buffer_out,
+					m_buffer_in, buff_length);
+
 	return rc;
+
 }
 
 //TODO: int to double transformation
@@ -1265,6 +1333,32 @@ YARPGalilDeviceDriver::off_on_error(void *par)
 	return rc;
 }
 
+int YARPGalilDeviceDriver::set_jog_mode()
+{
+
+	long rc = 0;
+
+	int cmd_length = 0;
+	
+	char *buff = m_buffer_out;
+
+	///////////////////////////////////////////////////////////////////
+	// set velocity
+	buff = _append_cmd((char) 0xA8, buff);		//JG
+	buff = _append_cmd((char) 0x00, buff);		//0 byte format
+	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
+	buff = _append_cmd((char) 0x00, buff);		//00 no axis
+	
+	cmd_length = 4;
+
+	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+							(unsigned char *) m_buffer_out, cmd_length ,
+							m_buffer_in, buff_length);
+
+	return rc;
+
+}
+
 int YARPGalilDeviceDriver::set_jogs (void *spds) 
 {
 	long rc = 0;
@@ -1452,6 +1546,20 @@ int YARPGalilDeviceDriver::check_motion_done(void *flag)
 {
 	long rc = 0;
 
+	bool *tmp = (bool *)flag;
+	*tmp = true;
+	bool subflag = false;
+
+	for (int i = 0; i < m_njoints; i++)
+	{
+		rc = check_motion_done(&subflag,i);
+		*tmp = *tmp && subflag;
+	}
+
+	return rc;
+/*
+	long rc = 0;
+
 	bool *tmp = (bool *) flag;
 	
 	char cmd[] = "MG _BGABCDEFGH";
@@ -1471,6 +1579,36 @@ int YARPGalilDeviceDriver::check_motion_done(void *flag)
 		*tmp = false;
 	else	*tmp = true;
 	//_ascii_to_binary(m_buffer_in, tmp);
+
+	return rc;
+*/
+}
+
+int YARPGalilDeviceDriver::check_motion_done(void *flag, int axis)
+{
+	char axis_names[] = "ABCDEFGH";
+	long rc = 0;
+
+	bool *tmp = (bool *) flag;
+	
+	char cmd[] = "MG _BG ";		//<-- an space left for the axis
+	cmd[6] = axis_names[axis];	//Adding the axis letter.
+
+	char *buff = m_buffer_out;
+
+	memcpy(buff, cmd, sizeof(cmd)); //we include also the \0 in cmd 
+	buff+=(sizeof(cmd));
+
+	// close command
+	//buff = _append_cmd('\0', buff);
+	
+	rc = DMCCommand((HANDLEDMC) m_handle,
+					m_buffer_out,
+					m_buffer_in, buff_length);
+
+	if (atoi(m_buffer_in))	//a '1' from the card means motion running
+		*tmp = false;
+	else	*tmp = true;	//a '0' means motion complete
 
 	return rc;
 }

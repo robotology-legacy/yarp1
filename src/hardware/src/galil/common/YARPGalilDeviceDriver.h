@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.7 2003-10-10 08:23:39 beltran Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.8 2003-10-27 10:21:50 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -62,7 +62,7 @@ public:
 
 	int set_speeds(void *spds);
 	int set_positions(void *pos);
-	int set_commands(void *pos);
+	inline int set_commands(void *pos);
 	int set_accelerations(void *acc);
 	int get_positions(void *j);
 	int set_offsets(void *offs);
@@ -83,7 +83,7 @@ public:
 	
 	int get_ref_speeds(void *sps);
 	int get_ref_accelerations(void *accs);
-	int get_ref_positions(void *pos);
+	inline int get_ref_positions(void *pos);
 	int get_pid(void *par);
 
 	int get_torques(void *trqs);
@@ -99,6 +99,7 @@ public:
 	int error_limit(void *input);
 	int off_on_error(void *input);
 	
+	int set_jog_mode();
 	int set_jogs(void *input);
 	
 	int controller_idle(void *input);
@@ -110,6 +111,7 @@ public:
 	int get_motor_type(void * input);
 		
 	int check_motion_done(void *flag);
+	int check_motion_done(void *flag,int axis);
 
 	int dummy(void *d);	// dummy function, for debug purpose
 
@@ -117,7 +119,13 @@ protected:
 	int m_njoints;
 	char m_buffer_in[buff_length];
 	char m_buffer_out[buff_length];
+	char m_aux_buffer[buff_length];
 	int * m_temp_int_array;
+	double * m_temp_double_array;
+
+	double * _current_positions;
+	double * _current_vel;
+	double * _current_accel;
 
 	char *m_question_marks;
 
@@ -135,6 +143,7 @@ protected:
 	inline char * _append_question_marks(char *buffer);
 	inline char * _append_question_mark(char *buffer, int axis);
 	inline char * _append_question_marks(char *buffer, char mask);
+	inline char * _append_commas(char *buffer, int axis);
 	inline void _ascii_to_binary(const char *in, int *out);
 	inline void _ascii_to_binary(const char *in, char *out);
 	inline void _ascii_to_binary(const char *in, double *out);
@@ -310,6 +319,17 @@ char *YARPGalilDeviceDriver::_append_question_mark(char *buffer, int axis)
 	}
 
 	buffer = _append_cmd('?', buffer);
+
+	return buffer;
+}
+
+char *YARPGalilDeviceDriver::_append_commas(char *buffer, int axis)
+{
+	// add question marks
+	for(int i = 0; i<m_njoints && i < axis; i++)
+	{
+		buffer = _append_cmd(',', buffer);
+	}
 
 	return buffer;
 }
