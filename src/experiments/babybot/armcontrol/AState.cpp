@@ -182,13 +182,13 @@ void ASRestingLowerGains:: handle(ArmThread *t)
 	t->_arm_status._state = _armThread::restingLowerGains;
 		
 	double max = t->_arm.getMaxTorque(0);
-	double delta = max/60.0;
+	double delta = max/30.0;
 
 	bool done[4];
 	done[0] = t->_arm.decMaxTorques(delta, 0.0, t->_nj);
-	done[1] = t->_gravity1.reduce(60);
-	done[2] = t->_gravity2.reduce(60);
-	done[3] = t->_gravity3.reduce(60);
+	done[1] = t->_gravity1.reduce(30);
+	done[2] = t->_gravity2.reduce(30);
+	done[3] = t->_gravity3.reduce(30);
 
 	// reduce max torques to 0.0
 	if (done[0]&&done[1]&&done[2]&&done[3])
@@ -216,13 +216,13 @@ void ASRestingRaiseGains:: handle(ArmThread *t)
 	t->_arm_status._state = _armThread::restingRaiseGains;
 		
 	double max = t->_arm.getMaxTorque(0);
-	double delta = max/60.0;
+	double delta = max/30.0;
 
 	bool done[4];
 	done[0] = t->_arm.incMaxTorques(delta, max, t->_nj);
-	done[1] = t->_gravity1.increase(60);
-	done[2] = t->_gravity2.increase(60);
-	done[3] = t->_gravity3.increase(60);
+	done[1] = t->_gravity1.increase(30);
+	done[2] = t->_gravity2.increase(30);
+	done[3] = t->_gravity3.increase(30);
 
 	// increase max torques to max torques
 	if (done[0]&&done[1]&&done[2]&&done[3])

@@ -22,12 +22,25 @@ const char *const YBVArmHibernate = "ArmHibernate";
 const char *const YBVArmResume = "ArmResume";
 const char *const YBVArmQuit = "ArmQuit";
 
+// reaching behavior
+const char *const YBVReachingLearn = "ReachingLearn";
+const char *const YBVReachingReach = "ReachingReach";
+const char *const YBVReachingQuit = "ReachingQuit";
+
+// arm trigger behavior
+const char *const YBVTriggerQuit = "TriggerQuit";
+
 // hand behavior
 const char *const YBVHandNewCmd = "HandNewCmd";
 const char *const YBVHandDone = "HandDone";
 const char *const YBVHandShake = "HandShake";
 const char *const YBVHandResetEncoders = "HandResetEncoders";
 const char *const YBVHandQuit = "HandQuit";
+
+// attention behavior
+const char *const YBVAttentionQuit = "AttentionQuit";
+const char *const YBVAttentionLookHand = "AttentionLookHand";
+const char *const YBVAttentionLookTarget = "AttentionLookTarget";
 
 // head behavior
 const char *const YBVHeadNewCmd = "HeadNewCmd";

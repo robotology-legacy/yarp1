@@ -11,7 +11,9 @@ const char __filename[] = "test.ini";
 const char __outFilename[] = "out.ini";
 const char __basePortName[] = "/remotelearn";
 const int __nIterations = 100000;
+const int __nSamples = 50;
 
+#include <YARPRnd.h>
 int main(int argc, char* argv[])
 {
 	// parse input parameters and form port names
@@ -68,6 +70,12 @@ int main(int argc, char* argv[])
 		_learner.setTrainSetFile(filename);
 	}
 	
+	int nSamples = __nSamples;
+	if (!YARPParseParameters::parse(argc, argv, "batchSize", &nSamples))
+	{
+		nSamples = __nSamples;
+	}
+
 	/////////////////////////////////////////////
 	
 	YARPInputPortOf<YARPBottle> _inputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
@@ -86,9 +94,8 @@ int main(int argc, char* argv[])
 		
 		ACE_OS::printf("Received new sample:#%d\n", _learner.howMany());
 
-		if (_learner.howMany()%10 == 0)
+		if (_learner.howMany()%nSamples== 0)
 			_learner.train((int) nIterations, true);
 	}
-
 	return 0;
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.5 2003-11-25 13:53:19 fberton Exp $
+/// $Id: vergence.cpp,v 1.6 2004-01-16 14:59:26 babybot Exp $
 ///
 ///
 
@@ -85,6 +85,8 @@
 #include <YARPParseParameters.h>
 #include <YARPVectorPortContent.h>
 #include <YARPDisparity.h>
+// DEBUG
+#include <YARPImageFile.h>
 
 ///
 ///
@@ -159,6 +161,14 @@ int main(int argc, char *argv[])
 	disparity.loadShiftTable (&disparity._imgS);
 	disparity.loadDSTable (&disparity._imgL);
 
+	// DEBUG 
+	YARPImageOf<YarpPixelMono> previousLeft;
+	YARPImageOf<YarpPixelMono> previousRight;
+	previousLeft.Resize(_stheta, _srho);
+	previousRight.Resize(_stheta, _srho);
+	int counter = 0;
+	char tmpName[255];
+	
 	while (1)
 	{
 		in_left.Read();
@@ -189,6 +199,29 @@ int main(int argc, char *argv[])
 		printf ("d = %d\n", int(disparityval(1)+.5));
 		out_disp.Content() = disparityval;
 		out_disp.Write();
+
+	/*	// DEBUG
+		if (disparityval == 185)
+		{
+			// previous images
+			sprintf(tmpName, "C:\\leftP%d.ppm", counter);
+				YARPImageFile::Write(tmpName, previousLeft);
+			sprintf(tmpName, "C:\\rightP%d.ppm", counter);
+				YARPImageFile::Write(tmpName, previousRight);
+
+			// current images
+			sprintf(tmpName, "C:\\leftC%d.ppm", counter);
+				YARPImageFile::Write(tmpName, inl);
+			sprintf(tmpName, "C:\\rightC%d.ppm", counter);
+				YARPImageFile::Write(tmpName, inr);
+
+		}
+
+		previousLeft = inl;
+		previousRight = inr;
+
+		counter++;
+		*/
 	}
 
 	return 0;

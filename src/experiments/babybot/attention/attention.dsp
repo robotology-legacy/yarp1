@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="reaching" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="attention" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=reaching - Win32 Debug
+CFG=attention - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "reaching.mak".
+!MESSAGE NMAKE /f "attention.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "reaching.mak" CFG="reaching - Win32 Debug"
+!MESSAGE NMAKE /f "attention.mak" CFG="attention - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "reaching - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "reaching - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "attention - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "attention - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=reaching - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "reaching - Win32 Release"
+!IF  "$(CFG)" == "attention - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,13 +51,14 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 motorcontrol.lib math.lib utils.lib winmm.lib images.lib ace.lib os_services.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386 /nodefaultlib:"libcmt.lib" /nodefaultlib:"libc.lib" /libpath:"..\..\..\..\lib\winnt"
+# ADD LINK32 math.lib utils.lib winmm.lib os_services.lib ace.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386 /libpath:"..\..\..\..\lib\winnt"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy .\release\reaching.exe ..\..\..\..\bin\winnt\reaching.exe
+PostBuild_Desc=Installing...
+PostBuild_Cmds=copy .\Release\attention.exe ..\..\..\..\bin\winnt
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "reaching - Win32 Debug"
+!ELSEIF  "$(CFG)" == "attention - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -80,33 +81,33 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 imagesdb.lib mathdb.lib motorcontroldb.lib mathdb.lib utilsdb.lib alldriversdb.lib winmm.lib os_servicesDB.lib ipl.lib aced.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /nodefaultlib:"libcmt.lib" /nodefaultlib:"libc.lib" /pdbtype:sept /libpath:"..\..\..\..\lib\winnt"
+# ADD LINK32 aced.lib motorcontroldb.lib mathdb.lib utilsdb.lib alldriversdb.lib winmm.lib os_servicesDB.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\..\lib\winnt"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Desc=install executable
-PostBuild_Cmds=copy .\debug\reaching.exe ..\..\..\..\bin\winnt\reaching.exe
+PostBuild_Desc=Installing...
+PostBuild_Cmds=copy .\debug\attention.exe ..\..\..\..\bin\winnt
 # End Special Build Tool
 
 !ENDIF 
 
 # Begin Target
 
-# Name "reaching - Win32 Release"
-# Name "reaching - Win32 Debug"
+# Name "attention - Win32 Release"
+# Name "attention - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\armmap.cpp
+SOURCE=.\att.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\reaching.cpp
+SOURCE=.\attbehavior.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\reachingBehavior.cpp
+SOURCE=.\attention.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -114,11 +115,11 @@ SOURCE=.\reachingBehavior.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\armmap.h
+SOURCE=.\att.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\reachingBehavior.h
+SOURCE=.\attbehavior.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

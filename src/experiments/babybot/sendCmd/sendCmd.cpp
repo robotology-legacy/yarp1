@@ -51,6 +51,17 @@ void _fillTable()
 	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitVergence, "inhibit VERGENCE sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkDisplayStatus, "display channel status");
 
+	// attention
+	REG_VOCAB(sendSimpleVocab, YBVAttentionQuit, "attention: quit module");
+	REG_VOCAB(sendSimpleVocab, YBVAttentionLookHand, "attention: switch to hand");
+	REG_VOCAB(sendSimpleVocab, YBVAttentionLookTarget, "attention: switch to target");
+
+	// reaching
+	REG_VOCAB(sendSimpleVocab, YBVReachingQuit, "reaching: quit module");
+	REG_VOCAB(sendSimpleVocab, YBVReachingReach, "reaching: reach out");
+	REG_VOCAB(sendSimpleVocab, YBVReachingLearn, "reaching: learn current point");
+
+
 	// hand kinematics.m
 	REG_VOCAB(sendSimpleVocab, YBVHandKinQuit, "quit handkinematics.m");
 	REG_VOCAB(sendHandKinematicsView, YBVHandKinView, "handkinematics.m change viewpoint");

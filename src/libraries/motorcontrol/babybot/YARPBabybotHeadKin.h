@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.5 2003-11-11 17:53:28 babybot Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.6 2004-01-16 14:59:26 babybot Exp $
 ///
 ///
 
@@ -168,6 +168,10 @@ public:
 	///
 	/// given an up to date kin matrix, it computes the x,y point where a given ray v intersects the img plane.
 	void intersectRay (__kinType k, const YVector& v, int& x, int& y);
+
+	/// given an up to data kin matrix, it returns the x,y,z cartesian coordinate of the fixation point
+	const Y3DVector &fixation()
+		{ return _fixationPoint; }
 
 	///
 	/// given a point in the peripheral img returns the corresp foval one.
