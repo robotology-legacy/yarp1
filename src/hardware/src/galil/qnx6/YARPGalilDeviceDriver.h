@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.10 2003-11-11 11:36:15 beltran Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.11 2003-11-17 11:16:55 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -112,6 +112,8 @@ public:
 		
 	int check_motion_done(void *flag);
 	int check_motion_done(void *flag,int axis);
+
+	int set_dr(void * value);
 
 	int dummy(void *d);	// dummy function, for debug purpose
 
