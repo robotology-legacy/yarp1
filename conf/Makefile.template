@@ -1,6 +1,6 @@
 #
 # Template to be included by all YARP makefiles.
-# $Id: Makefile.template,v 1.23 2004-12-13 08:01:00 micheletavella Exp $
+# $Id: Makefile.template,v 1.24 2004-12-13 10:03:22 micheletavella Exp $
 #
 
 QNX_VER = 6.1.0 6.2.0 6.2.1
@@ -41,7 +41,7 @@ else
     ifeq ($(shell uname),Darwin)
 
         SYSDIR = darwin
-        EXTRA_OPTS = $(YARP_DEBUG)  -pipe -Wpointer-arith 
+        EXTRA_OPTS = $(YARP_DEBUG)  -pipe -Wpointer-arith -Wno-long-double 
         CC = g++
         CC1 = gcc
         CDEFS = $(EXTRA_OPTS) -D__DARWIN__ -DYARP_OS_CONFIG=DARWIN -I/usr/include/gcc/darwin/default/c++/ -I$(YARP_ROOT)/include/
