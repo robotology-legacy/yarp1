@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.8 2003-11-25 17:15:28 fberton Exp $
+/// $Id: YARPDisparity.cpp,v 1.9 2003-11-26 14:35:22 fberton Exp $
 ///
 ///
 
@@ -267,8 +267,7 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
 									&_imgS,
 									_shiftLevels,
 									_shiftMap,
-									_corrFunct,
-									_pixelCount);
+									_corrFunct);
 	else
 		disparity = shiftnCorrFovea((unsigned char*)inLImg.GetRawBuffer(),
 									(unsigned char*)inRImg.GetRawBuffer(),
@@ -295,7 +294,8 @@ void YARPDisparityTool::makeHistogram(YARPImageOf<YarpPixelMono>& hImg)
 
 	for (i=0; i<_shiftLevels-1; i++)
 		if ((i+offset >=0)&&(i+offset<width))
-			for (j=height-(int)(height/2*(3-_corrFunct[i])); j<height; j++)
+//			for (j=height-(int)(height/2*(3-_corrFunct[i])); j<height; j++)
+			for (j=height-(int)(height/3.0*(3-_corrFunct[i])); j<height; j++)
 				{
 					hist[(j*width+i+offset)] = 128;
 				}

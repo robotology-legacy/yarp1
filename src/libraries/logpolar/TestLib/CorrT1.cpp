@@ -93,7 +93,7 @@ void main()
 	char Path [256];
 
 	//Loads BW images
-	sprintf(File_Name,"%s","c:/temp/images/testpad/left.bmp");
+	sprintf(File_Name,"%s","c:/temp/images/testpad/right.bmp");
 	Right.BW = Load_Bitmap(&XSize,&YSize,&planes,File_Name);
 
 
@@ -245,7 +245,7 @@ void main()
 	Load_Tables(&SParam,&Tables,Path,1024);
 
 
-	retval = Shift_and_Corr(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMap,Tables.CorrLevels,Tables.PixelCount);
+	retval = Shift_and_Corr(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMap,Tables.CorrLevels);
 
 	Make_Disp_Histogram(Left.Histogram,128,512,Tables.ShiftLevels,Tables.CorrLevels);
 
