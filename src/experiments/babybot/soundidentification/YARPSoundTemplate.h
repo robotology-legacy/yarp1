@@ -1,21 +1,42 @@
-// =====================================================================================
-//
-//       YARP - Yet Another Robotic Platform (c) 2001-2004 
-//
-//                    #Carlos Beltran#
-//
-//     "Licensed under the Academic Free License Version 1.0"
-// 
-//        Filename:  YARPSoundTemplate.h
-// 
-//     Description:  This class implements a sound template.  
-// 
-//         Version:  $Id: YARPSoundTemplate.h,v 1.2 2004-08-24 13:32:43 beltran Exp $
-// 
-//          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
-//         Company:  Lira-Lab
-// 
-// =====================================================================================
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
+///                                                                   ///
+///                    #Carlos Beltran Gonzalez#                      ///
+///                                                                   ///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+
+///
+/// $Id: YARPSoundTemplate.h,v 1.3 2004-08-24 19:54:40 beltran Exp $
+///
+
+/** 
+ * @file YARPSoundTemplate.h Implements a sound template
+ * 
+ * @author Carlos Beltran
+ * @date 2004-08-24
+ */
+
 #ifndef __YARPSoundTemplateh__
 #define __YARPSoundTemplateh__
 
@@ -33,21 +54,16 @@
 	#define	HUGE	1e30
 #endif
 
-// =====================================================================================
-//        Class:  YARPSoundTemplate
-// 
-//  Description:  YARPSoundTemplate has an array of YVector * pointing to a serie of YVectors
-//				  representing a sound template; originally it has been thought to work with
-//				  sound parametrization known as MFCC (Mel-Frequency Cepstral Coefficients) but
-//				  it can support any other kind of sound parametrization. 
-// 
-//       Author:  Carlos Beltran
-//      Created:  03/08/2004 16:08:13 W. Europe Daylight Time
-//     Revision:  none
-// =====================================================================================
+/** 
+ * A class that implements sound template.
+ * This class has an array of YVector * pointing to a serie of YVectors representing a sound 
+ * template; originally it has been thougth to work with sound parametrization known as MFCC
+ * (Mel-Frequency Cepstral Coefficients) but it can support any other kind of sound parametrization.
+ */
 class YARPSoundTemplate
 {
 private:
+
     int m_currentsize;    // This stores the real size of the used part of the m_parray
     int m_totalsize;      // This is the real total size of the m_parray
     int m_vectors_length; // This is the size of the internal vectors. This length is defined by
@@ -55,10 +71,18 @@ private:
     YVector ** m_parray;  // This is the actual pointer to the array of vectors
 
 public:
+	/** 
+	 * Constructor.
+	 */
 	YARPSoundTemplate()
 	{
 		YARPSoundTemplate(ARRAY_MAX);
 	}
+	/** 
+	 * Overloaded constructor.
+	 * 
+	 * @param size the size of the internal vectors array
+	 */
 	YARPSoundTemplate(int size)
 	{
 		m_currentsize    = 0;
@@ -67,6 +91,9 @@ public:
 		m_parray         = new YVector *[size];
 		memset(m_parray, 0 , sizeof(YVector *) * size);
 	}
+	/** 
+	 * Destructor.
+	 */
 	~YARPSoundTemplate()
 	{
 		if (m_parray != NULL)
@@ -77,22 +104,31 @@ public:
 		}
 	}
 
-	// Returns a pointer to the array of vectors
+	/** 
+	 * Returns a pointer to the array of vectors.
+	 * 
+	 * @return 
+	 */
 	inline YVector ** data(void) { return m_parray; }
 
-	//--------------------------------------------------------------------------------------
-	//       Class:  YARPSoundTemplate
-	//      Method:  Resize
-	// Description:  Resize the array with the new size. It copies all the pointers from the 
-	//				 old array to the new one. This should be efficient. If the new size is
-    // 				 smaller that the previous one some data is being lost.	
-	//--------------------------------------------------------------------------------------
+	/** 
+	 * Resize the array with a standart size.
+	 * It copies all the pointers form the old array to the new one. This should be efficient.
+	 * It resizes with the standart size (ARRAY_MAX) 
+	 */
 	inline void
 	Resize()
 	{
 		Resize(m_totalsize + ARRAY_MAX);  // Just add some more time storing capacity to the template
 	}
 
+	/** 
+	 * Resizes with a new size.
+	 * If the new size is smaller that the previous one some data is being lost.
+	 * 
+	 *
+	 * @param new_size The new size of the array of sound vectors
+	 */
 	inline void 
 	Resize( int new_size)
 	{
@@ -129,42 +165,42 @@ public:
 		}
 	}
 
-	//--------------------------------------------------------------------------------------
-	//       Class:  YARPSoundTemplate
-	//      Method:  Length
-	// Description:  Returns the "current" size of the template
-	//--------------------------------------------------------------------------------------
+	/** 
+	 * Returns the "current" size of the template.
+	 * 
+	 * @return  the current size of the template
+	 */
 	inline int
 	Length(){ return m_currentsize; }
 
-	//--------------------------------------------------------------------------------------
-	//       Class:  YARPSoundTemplate
-	//      Method:  Size
-	// Description:  Returns the total available size of the template
-	//--------------------------------------------------------------------------------------
+	/** 
+	 * Returns the total available size of the template.
+	 * 
+	 * @return the total available size of the template
+	 */
 	inline int
 	Size(){ return m_totalsize; }
 	
-	//--------------------------------------------------------------------------------------
-	//       Class:  YARPSoundTemplate
-	//      Method:  VectorLength
-	// Description:  Returns the length of the vectors inside the template
-	//--------------------------------------------------------------------------------------
+	/** 
+	 * Returns the length of the vectors inside the template.
+	 * 
+	 * @return the length of the vector inside the template
+	 */
 	inline int
 	VectorLength(){ return m_vectors_length; }
 
-	//--------------------------------------------------------------------------------------
-	//       Class:  YARPSoundTemplate
-	//      Method:  Add
-	// Description:  Just add a new vector at the end of the array
-	// Parameters: 
-	//		in : the YVector to be added to the template, the vector is copied to a local copy
-	//		out: 0 if the Template is already full ()
-	//			 -1 the added vector has a different length of those already inside the template
-	//			 1 if the new vector was added successfully
-	//			 -2 The template has not reserved memory, a resize is needed for the new data
-	//			    this could happen in the case a Destroy is called before an Add
-	//--------------------------------------------------------------------------------------
+	/** 
+	 * Just add a new vector at the end of the array.
+	 * 
+	 * @param in the YVector to be added to the template, the vector is copied to a local copy
+	 * 
+	 * @return The result of the operation
+	 * 	-# 0  The template is already full
+	 * 	-# -1 The added vector has a differnt length of those already inside the template
+	 * 	-# 1  The new vector was added succesfully
+	 * 	-# -2 The template has not reserved memory, a resize is needed for the new data
+	 * 		  this could happen in the case a Destroy is called before an Add
+	 */
 	inline int
 	Add(YVector &in)
 	{
@@ -197,12 +233,12 @@ public:
 		m_currentsize++;
 		return 1;
 	}
-
-	//--------------------------------------------------------------------------------------
-	//       Class:  YARPSoundTemplate
-	//      Method:  Save
-	// Description:  Save the template to a file
-	//--------------------------------------------------------------------------------------
+	
+	/** 
+	  * Save the template to a file.
+	  * 
+	  * @param name The name of the file to save the template
+	  */
 	void 
 	Save(YARPString name)
 	{
@@ -227,11 +263,9 @@ public:
 		fclose(pfile);
 	}
 
-	//--------------------------------------------------------------------------------------
-	//       Class:  YARPSoundTemplate
-	//      Method:  destroy
-	// Description:  Delete all the content of the buffer and deallocated the memory
-	//--------------------------------------------------------------------------------------
+	/** 
+	  * Delete all the content of the buffer and deallocated the memory.
+	  */
 	void 
 	Destroy()
 	{
@@ -253,17 +287,21 @@ public:
 		m_totalsize      = 0;
 	}
 
-	//--------------------------------------------------------------------------------------
-	//       Class: YARPSoundTemplate
-	//      Method: Dtw 
-	// Description: Dynamic Time Warping algorithm. For a detailed description have a look
-    // at the next reference:
-	// 		"Fundamentals of Speech Recognition"
-    //		Lawrence Rabiner, Biing-Hwang Juang
-	//		Prentice Hall Signal Precessing Series	
-	// It performs the comparison between this template and another template beeing passed as
-	// a parameter. It return an optimal distance measurement
-	//--------------------------------------------------------------------------------------
+	/** 
+	  * Dynamic Time Warping algorithm.
+	  * It performs the comparison between this template and another template beeing passed as
+	  * a parameter. For a detailed description have a look at the next reference.
+	  * \latexonly
+	  * \bibitem{Rabiner93} Lawrence Rabiner,%
+	  * 	\emph{Fundamental of Speech Recognition}, 1993, Prentice Hall Signal Processing Series
+	  * \endlatexonly
+	  * 
+	  * @param unknow_template The unknown sound template to be compared
+	  * @param result 
+	  * 	-# YARP_OK if the result is ok
+	  * 	-# YARP_FAIL if there is some problem comparing the templates
+	  * @return optimal distance measurement between the local and the external templates
+	  */
 	inline double 
 	Dtw(YARPSoundTemplate &unknow_template, int * result)
 	{

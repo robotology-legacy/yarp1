@@ -1,25 +1,44 @@
-// =====================================================================================
-//
-//       YARP - Yet Another Robotic Platform (c) 2001-2003 
-//
-//                    #Carlos Beltran#
-//
-//     "Licensed under the Academic Free License Version 1.0"
-// 
-//        Filename:  soundidentification.cpp
-// 
-//     Description:  This code is inteded to implement a sound processing front-end. This 
-//					 consist in a sound parametrization throuth a Short Time Fast Fourier
-//					 Transform procedure. Later a MFCC (Mel-Frequency Cepstral Coefficients)
-//					 is implemeted to provide a sound representation with a parameter reducted
-//					 representation.
-// 
-//         Version:  $Id: soundidentification.cpp,v 1.8 2004-08-24 13:32:43 beltran Exp $
-// 
-//          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
-//         Company:  Lira-Lab
-// 
-// =====================================================================================
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
+///                                                                   ///
+///                    #Carlos Beltran Gonzalez#                      ///
+///                                                                   ///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+
+///
+/// $Id: soundidentification.cpp,v 1.9 2004-08-24 19:54:40 beltran Exp $
+///
+
+/** 
+ * @file soundidentification.cpp Implements a soundprocessing front-end.
+ * This consist in a sound parametrization throuth a Short Time Fast Fourier
+ * Transform procedure. Later, a MFCC (Mel-Frequency Cepstral Coefficients) is
+ * implemented to provide a sound representation with a parameter reduced representation.
+ * 
+ * @author Carlos Beltran
+ * @date 2004-08-24
+ */
 
 #include <iostream>
 #include <yarp/YARPScheduler.h>
@@ -36,7 +55,6 @@
 #include <yarp/YARPThread.h>
 
 #include "YARPDtw.h"
-//#include "YARPVectorBuffer.h"
 #include "YARPSoundTemplate.h"
 #include "soundidentificationprocessing.h"
 
@@ -46,15 +64,9 @@ const int   __outSize    = 5;
 const char *__baseName   = "/soundidentification/";
 const char *__configFile = "sound.ini";
 
-// =====================================================================================
-//        Class:  mainthread
-// 
-//  Description:  Runs the main processing loop 
-// 
-//       Author:  Eng. Carlos Beltran
-//      Created:  28/07/2004
-//     Revision:  none
-// =====================================================================================
+/** 
+ * Runs the main processing loop. 
+ */
 class mainthread : public YARPThread
 {
 public:
@@ -192,15 +204,14 @@ public:
 	}
 };
 
-// ===  FUNCTION  ======================================================================
-// 
-//         Name:  Main
-// 
-//  Description:  
-// 
-//    Author:  Carlos Beltran
-//  Revision:  28/07/2004 19:10:18 W. Europe Daylight Time
-// =====================================================================================
+/** 
+ * The main function.
+ * 
+ * @param argc The number of parameters
+ * @param argv The buffer of parameters
+ * 
+ * @return 0 always
+ */
 int 
 main(int argc, char* argv[])
 {
