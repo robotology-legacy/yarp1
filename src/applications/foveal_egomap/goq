@@ -1,8 +1,0 @@
-(
-sleep 7
-#porter /yarp/right/fovea2 /foveal_egomap/i:img
-porter /foveal_egomap/o:img /yarp/view/speculate
-conditional_porter /yarp/shlc/o:img /foveal_egomap/i:img
-#porter /foveal_egomap/o:bot /attn_tracker/i:bot
-) &
-on -n16 ./foveal_egomap

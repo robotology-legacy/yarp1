@@ -1,6 +1,0 @@
-(
- sleep 1
- porter /yarp/left/wide1 /camcal/i:img
- porter /camcal/o:img /cogcam
-) &
-on -n14 ./camcal

@@ -1,6 +1,0 @@
-(
-sleep 6
-porter /yarp/right/fovea2 /foveal_egomap/i:img
-porter /foveal_egomap/o:img /view1
-) &
-on -n16 ./foveal_egomap

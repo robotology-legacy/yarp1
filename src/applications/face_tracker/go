@@ -1,7 +1,0 @@
-(
-  sleep 2
-  porter /yarp/left/wide1 /face_tracker/i:img
-  porter /face_tracker/o:img /roo
-  porter /yarp/skin/left/out/boxes /face_tracker/i:box
-) &
-on -n26 ./face_tracker
