@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.13 2004-01-16 23:08:34 babybot Exp $
+/// $Id: YARPDisparity.cpp,v 1.14 2004-01-30 17:11:10 fberton Exp $
 ///
 ///
 
@@ -78,14 +78,15 @@
 YARPDisparityTool::YARPDisparityTool()
 {
 	char *yarproot = GetYarpRoot();
-	ACE_OS::sprintf(_path,"%s/%s/\0", yarproot, "conf");
-//	ACE_OS::sprintf(_path,"%s","c:/temp/tables/prefix/");
+//	ACE_OS::sprintf(_path,"%s/%s/\0", yarproot, "conf");
+	ACE_OS::sprintf(_path,"%s","c:/temp/tables/prefix/");
 
 	_dsTable		= NULL;
 	_shiftFunction	= NULL;
 	_shiftMap		= NULL;
 	_corrFunct		= NULL;
 	_actRings		= 21;
+	_corrTreshold   = 2.5;
 }
 
 YARPDisparityTool::~YARPDisparityTool()
@@ -162,12 +163,77 @@ int YARPDisparityTool::loadShiftTable(Image_Data * Par)
 			if (k<_shiftLevels)
 			{
 				ACE_OS::fread(&_shiftMap[k*1*Par->Size_LP],sizeof(int),1 * Par->Size_LP,fin);
-				_shiftMap[k*1*Par->Size_LP] = j;
+//				_shiftMap[k*1*Par->Size_LP] = j;
 
 				if (_shiftFunction[k]+3*Par->Resolution/4 == j)
 					k++;
 			}
 		}
+/*		int l,m, valuesm;
+
+		int r, t1,t2,t3,t4;
+		int plus1r,plus2r,plus3r,plus4r;
+		int minus1r,minus2r,minus3r,minus4r;
+
+		int plus1t,plus2t,plus3t,plus4t;
+//		int minus1t,minus2t,minus3t,minus4t;
+
+		for (l=Par->Size_Fovea; l<Par->Size_Rho; l++)
+		{
+			for (m=0; m<Par->Size_Theta; m++)
+			{
+				r = l;
+				t1 = m;
+				if (m>Par->Size_Theta/2)
+				{
+					t2 = m - (Par->Size_Theta/2);
+					t3 = 3 * (Par->Size_Theta/2) - m;
+				}
+				else
+				{
+					t2 = (Par->Size_Theta/2) - m;
+					t3 = (Par->Size_Theta/2) + m;
+				}
+
+				t4 = (Par->Size_Theta) - m - 1;
+
+				plus1r = ((_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t1]-(_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t1]/192)*3)/3)/63;
+				plus2r = ((_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t2]-(_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t1]/192)*3)/3)/63;
+				plus3r = ((_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t3]-(_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t1]/192)*3)/3)/63;
+				plus4r = ((_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t4]-(_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t1]/192)*3)/3)/63;
+
+				minus1r = ((_shiftMap[184*Par->Size_LP+Par->Size_Theta*r+t1]-(_shiftMap[184*Par->Size_LP+Par->Size_Theta*r+t1]/192)*3)/3)/63;
+				minus2r = ((_shiftMap[184*Par->Size_LP+Par->Size_Theta*r+t2]-(_shiftMap[184*Par->Size_LP+Par->Size_Theta*r+t2]/192)*3)/3)/63;
+				minus3r = ((_shiftMap[184*Par->Size_LP+Par->Size_Theta*r+t3]-(_shiftMap[184*Par->Size_LP+Par->Size_Theta*r+t3]/192)*3)/3)/63;
+				minus4r = ((_shiftMap[184*Par->Size_LP+Par->Size_Theta*r+t4]-(_shiftMap[184*Par->Size_LP+Par->Size_Theta*r+t4]/192)*3)/3)/63;
+
+				plus1t = ((_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t1]-(_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t1]/192)*3)/3)%63;
+
+				plus2t = (Par->Size_Theta/2)-(((_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t2]-(_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t2]/192)*3)/3)%63);
+				if (plus2t<0)
+					plus2t += Par->Size_Theta;
+
+				plus3t = (((_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t3]-(_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t3]/192)*3)/3)%63)-(Par->Size_Theta/2);
+				if (plus3t<0)
+					plus3t += Par->Size_Theta;
+
+				plus4t = (Par->Size_Theta) - (((_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t4]-(_shiftMap[224*Par->Size_LP+Par->Size_Theta*r+t4]/192)*3)/3)%63) -1;
+
+				if (_shiftMap[204*Par->Size_LP+Par->Size_Theta*l+m]!= 0)
+					if (((_shiftMap[204*Par->Size_LP+Par->Size_Theta*l+m]-l*3)/3)!=(Par->Size_Theta*l+m))
+						valuesm = (_shiftMap[204*Par->Size_LP+Par->Size_Theta*l+m]-l*3)/3;
+					else
+						valuesm = 0;
+			}
+
+				//set the 4 points
+		}
+
+		valuesm = 0;
+
+*/
+
+
 		ACE_OS::fclose (fin);
 		return 1;
 	}
@@ -232,6 +298,7 @@ Image_Data YARPDisparityTool::lpInfo(int SXR, int SYR, int rho, int theta, int f
 
 	Par.Ratio = ratio;
 	Par.padding = pad;
+	Par.dres = 1090.0 / ratio;
 
 	return Par;
 }
@@ -256,15 +323,15 @@ void YARPDisparityTool::downSample(YARPImageOf<YarpPixelBGR> & inImg, YARPImageO
 						_imgS.Size_Fovea);
 }
 
-int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
-										 YARPImageOf<YarpPixelBGR> & inRImg)
+int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
+										 YARPImageOf<YarpPixelBGR> & inLImg)
 {
 	int disparity;
 
 	rgbPixel avgLeft,avgRight;
 
-	avgLeft  = computeAvg(inLImg.GetHeight(),inLImg.GetWidth(),inLImg.GetPadding(),(unsigned char*)inLImg.GetRawBuffer());
 	avgRight = computeAvg(inRImg.GetHeight(),inRImg.GetWidth(),inRImg.GetPadding(),(unsigned char*)inRImg.GetRawBuffer());
+	avgLeft  = computeAvg(inLImg.GetHeight(),inLImg.GetWidth(),inLImg.GetPadding(),(unsigned char*)inLImg.GetRawBuffer());
 
 //	if (inLImg.GetHeight() == _imgS.Size_Rho)
 //		disparity = Shift_and_Corr(	(unsigned char*)inLImg.GetRawBuffer(),
@@ -274,19 +341,52 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
 //									_shiftMap,
 //									_corrFunct);
 //	else
-		disparity = shiftnCorrFovea((unsigned char*)inLImg.GetRawBuffer(),
-									(unsigned char*)inRImg.GetRawBuffer(),
+		disparity = shiftnCorrFovea((unsigned char*)inRImg.GetRawBuffer(),
+									(unsigned char*)inLImg.GetRawBuffer(),
 									&_imgS,
 									_shiftLevels,
 									_shiftMap,
 									_corrFunct,
-									avgLeft,
 									avgRight,
-									_actRings);
+									avgLeft,
+									_actRings,
+									500); // pixel limit. Under it => No correlation
 
-	disparity = _shiftFunction[disparity];
+	double avg = 0.0;
+	int k;
 
-	disparity = (int)(0.5 + disparity * _imgS.Size_X_Remap / (float)_imgS.Resolution);
+	for (k=0; k<_shiftLevels; k++)
+		avg += (3.0-_corrFunct[k]);
+
+	avg /= _shiftLevels;
+
+	for (k=0; k<_shiftLevels; k++)
+		_corrFunct[k] = 3-((3.0-_corrFunct[k])/(avg+0.00001));
+
+	double min = _corrFunct [disparity];
+
+	for (k=0; k<_shiftLevels; k++)
+		_corrFunct[k] = 3.0*(_corrFunct[k]-min)/(3.0-min);
+
+
+	avg = 0.0;
+	for (k=0; k<_shiftLevels; k++)
+		avg += (3.0-_corrFunct[k]);
+
+	avg /= _shiftLevels;		
+	
+	if (avg>_corrTreshold)
+		disparity = -1;
+	
+	if (disparity != -1)
+		{
+			disparity = _shiftFunction[disparity];
+
+			disparity = (int)(0.5 + disparity * _imgS.Size_X_Remap / (float)_imgS.Resolution);
+		}
+		else 
+			disparity = 0;
+
 	return disparity;
 }
 
@@ -295,52 +395,60 @@ void YARPDisparityTool::makeHistogram(YARPImageOf<YarpPixelMono>& hImg)
 	int i,j;
 	int height = 64;
 	int width = 256;
+//	int height = 512;
+//	int width = 512;
 	unsigned char * hist = (unsigned char *)hImg.GetRawBuffer();
+	double * dispCopy;
+
+	dispCopy  = (double*) malloc ((_shiftLevels-1)*sizeof(double));
 
 	int offset = (width-_shiftLevels+1)/2;
 
 	for (j=0;j<height*width;j++)
 		hist[j] = 0;
 
-	float sum=0;
-	for (i=0; i<_shiftLevels-1; i++)
-		sum += _corrFunct[i];
-	sum /= (_shiftLevels-1);
+//	float sum=0;
+//	for (i=0; i<_shiftLevels-1; i++)
+//		sum += _corrFunct[i];
+//	sum /= (_shiftLevels-1);
+//
+//	float MAX = 1000;
+//
+//	for (i=0; i<_shiftLevels-1; i++)
+//	{
+//		if (_corrFunct[i]<MAX)
+//		{
+//			MAX = _corrFunct[i];
+//		}
+//	}
+//
+//	MAX = MAX/sum;
+//
+//	MAX = height * (MAX);
 
-	float MAX = 1000;
-
-	for (i=0; i<_shiftLevels-1; i++)
-	{
-		if (_corrFunct[i]<MAX)
-		{
-			MAX = _corrFunct[i];
-		}
-	}
-
-	MAX = MAX/sum;
-
-	MAX = height * (MAX);
-
-	int value = height - (int) (height / 3.0*(3-sum));
+//	int value = height - (int) (height / 3.0*(3-sum));
 
 	for (i=0; i<_shiftLevels-1; i++)
 	{
 		if ((i+offset >=0)&&(i+offset<width))
 		{
 			for (j=height-(int)(height/3.0*(3-_corrFunct[i])); j<height; j++)
+//			for (j=height-(int)(height/1.0*(1-_corrFunct[i])); j<height; j++)
 				{
 					hist[(j*width+i+offset)] = 128;
 				}
 		}
 	}
 
-	for (i=0; i<width; i++)
-	{
-		hist [value*width+i] = 192;
-		hist [(int)MAX*width+i] = 64;
-	}
+//	for (i=0; i<width; i++)
+//	{
+//		hist [value*width+i] = 192;
+//		hist [(int)MAX*width+i] = 64;
+//	}
 
 		
 	for (j=0; j<height; j++)
 		hist[(j*width+width/2)] = 255;
+
+	free (dispCopy);
 }

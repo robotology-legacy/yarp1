@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.30 2004-01-30 16:50:33 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.31 2004-01-30 17:11:10 fberton Exp $
 ///
 ///
 
@@ -1845,7 +1845,7 @@ int shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Data
 
 	for (k=0; k<Steps; k++)
 	{
-		if (count[k]!=MAX)
+		if (count[k]<treshold)
 			corr_val[k] = 3.0;
 		else
 			corr_val[k] = 3-(corr_val[k]);
@@ -1862,27 +1862,7 @@ int shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Data
 			minindex = k;
 		}
 
-	double avg = 0.0;
-	for (k=0; k<Steps; k++)
-		avg += (3.0-corr_val[k]);
 
-	avg /= Steps;
-
-	for (k=0; k<Steps; k++)
-		corr_val[k] = 3-((3.0-corr_val[k])/(avg+0.00001));
-
-	double min = corr_val [minindex];
-
-	for (k=0; k<Steps; k++)
-//		corr_val[k] = 3.0-(3.0*((3.0-corr_val[k])/(3.0-corr_val[minindex])));
-		corr_val[k] = 3.0*(corr_val[k]-min)/(3.0-min);
-
-
-	avg = 0.0;
-	for (k=0; k<Steps; k++)
-		avg += (3.0-corr_val[k]);
-
-	avg /= Steps;
 /*	int counter = 0;
 
 	{
@@ -1905,8 +1885,6 @@ int shiftnCorrFovea (unsigned char * fullImg, unsigned char * fovImg, Image_Data
 	}
 */
 	free(count);
-	if (avg>treshold)
-		minindex = -1;
 
 /*	if (corr_val[minindex] > treshold)
 		minindex = -1;
