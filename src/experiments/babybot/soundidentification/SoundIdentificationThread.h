@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.h,v 1.6 2004-11-16 17:56:32 beltran Exp $
+/// $Id: SoundIdentificationThread.h,v 1.7 2004-11-19 13:26:06 beltran Exp $
 ///
 
 /** 
@@ -69,7 +69,7 @@
 #define MAX3(a,b,c) MAX(MAX(a,b),c)
 
 #define MUTUALINFORMATIONMEMORY 15 
-#define MEMORYMAX 60
+#define MEMORYMAX 40
 #define MIXELSMAX 40
 #define MIXELTHRESHOLD 180
 
@@ -229,6 +229,23 @@ private:
 	void RGBtoHSV( float, float, float, float &, float &, float & );
 
 	/** 
+	  * Backproject the HS histogram in the image; in this
+	  * way the image is "filtered" with the HS values.
+	  * 
+	  * @param imageHSHistogram The HS histogram.
+	  * @param backProjectedImage The image that is filtered.
+	  * 
+	  * @return YARP_OK
+	  */
+	int BackProjectHSHistogram(
+		const int &,
+		const int &,
+		YARPImageOf<YarpPixelMono> &imageHSHistogram,
+		YARPImageOf<YarpPixelBGR> &coloredImage,
+		YARPImageOf<YarpPixelMono> &backProjectedImage
+		);
+
+	/** 
 	  * Computes the histogram. 
 	  * 
 	  * @param originalImage The original image.
@@ -238,7 +255,10 @@ private:
 	  */
 	int ComputeHSHistogram(
 		YARPImageOf<YarpPixelBGR> &inputImage,
-		YARPImageOf<YarpPixelMono> &imageHSHistogram
+		YARPImageOf<YarpPixelMono> &imageHSHistogram,
+		int &,
+		int &,
+		int
 		);
 
 	/** 
