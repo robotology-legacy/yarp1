@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.28 2003-07-17 17:20:55 babybot Exp $
+/// $Id: main.cpp,v 1.29 2003-07-22 17:33:42 babybot Exp $
 ///
 ///
 
@@ -498,7 +498,7 @@ int _runAsCartesian (void)
 ///
 int main (int argc, char *argv[])
 {
-	///__debug_level = 80;
+	// __debug_level = 80;
 
 	YARPScheduler::setHighResScheduling ();
 

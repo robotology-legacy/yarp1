@@ -137,9 +137,6 @@ private:
 	
 	char _iniFile[80];						// config file
 
-	YARPOutputPortOf<int [2]> _behaviorsOutPort;
-	YARPInputPortOf<int [2]> _behaviorsInPort;
-	
 public: //later: make it private
 	ArmStatus _arm_status;
 	YARPBabybotArm _arm;
@@ -147,6 +144,8 @@ public: //later: make it private
 	J2GravityEstimator _gravity2;
 	J3GravityEstimator _gravity3;
 	J5GravityEstimator _gravity5;
+
+	YVector _cmd;	//move it from here !
 };
 
 #endif //.h

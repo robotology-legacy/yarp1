@@ -15,9 +15,48 @@
 #include "YARPScheduler.h"
 #include "YARPConfigFile.h"
 
+#include "ArmBehavior.h"
+
 char menu();
 
 using namespace std;
+
+int main(int argc, char* argv[])
+{
+	YARPScheduler::setHighResScheduling();
+
+	cout << "Starting arm control...\n";
+	int _arm_thread_rate;
+	int _random_thread_rate;
+
+	YARPConfigFile file;
+	file.set("Y:\\conf\\babybot\\", "arm.ini");
+	file.get("[THREAD]", "Rate", &_arm_thread_rate, 1);
+
+	// file.get("[RANDOMTHREAD]", "Rate", &_random_thread_rate, 1);
+	
+	ArmBehaviorData arm_thread(_arm_thread_rate,
+								"arm thread",
+								"Y:\\conf\\babybot\\arm.ini",
+								"/armcontrol/o");
+
+	ArmBehavior _arm(&arm_thread, YBLabelMotor, "/armcontrol/i");
+
+	ABWaitIdle waitIdle;
+	ABWaitMotion waitMotion;
+	ABInputCommand inputCmd;
+	ABCheckMotionDone checkMotionDone;
+	ABOutputCommand outputCmd;
+	
+	_arm.add(&inputCmd, &waitIdle, &waitMotion, &outputCmd);
+	_arm.add(&checkMotionDone, &waitMotion, &waitIdle);
+
+	_arm.loop();
+
+	return 0;
+}
+
+/*
 
 int main(int argc, char* argv[])
 {
@@ -123,3 +162,5 @@ char menu()
 	cin >> c;
 	return c;
 }
+
+  */

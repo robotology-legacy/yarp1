@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.5 2003-07-18 16:14:06 natta Exp $
+/// $Id: YARPBehavior.h,v 1.6 2003-07-22 17:33:42 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -97,10 +97,11 @@ class YARPBehaviorSharedData
 	YARPOutputPortOf<OUT_DATA> _outPort;
 };
 
+template<class MY_SHARED_DATA>
 class YARPBaseBehaviorInput
 {
 public:
-	virtual bool input(YARPBottle &) = 0; 
+	virtual bool input(YARPBottle *, MY_SHARED_DATA *) = 0; 
 };
 
 template <class MY_SHARED_DATA>
@@ -130,10 +131,11 @@ public:
 	typedef YARPPulseState<MY_SHARED_DATA> PulseStates;
 	typedef YARPFSMStateBase<MY_BEHAVIOR, MY_SHARED_DATA> MyBaseStates;
 	typedef YARPFSMOutput<MY_SHARED_DATA> BaseBehaviorOutput;
+	typedef YARPBaseBehaviorInput<MY_SHARED_DATA> BaseBehaviorInput;
 
 	struct BTableEntry
 	{
-		YARPBaseBehaviorInput *input;		
+		BaseBehaviorInput *input;		
 		MyBaseStates *s;
 		PulseStates *activation;
 	};
@@ -178,8 +180,17 @@ public:
 
 	// handle messages
 	int handleMsg();
+	// loop untile exit message is received
+	void loop()
+	{
+		while(true)
+		{
+			if (handleMsg() == -1)
+				return ;
+		}
+	}
 	// add a transition
-	void add(YARPBaseBehaviorInput *in, MyBaseStates *s1, MyBaseStates *s2, BaseBehaviorOutput *out = NULL);
+	void add(BaseBehaviorInput *in, MyBaseStates *s1, MyBaseStates *s2, BaseBehaviorOutput *out = NULL);
 	
 	void updateTable(BTableEntry entry)
 	{ _table.push_back(entry); }
@@ -212,7 +223,7 @@ private:
 
 template <class MY_BEHAVIOR, class MY_SHARED_DATA> 
 void YARPBehavior<MY_BEHAVIOR, MY_SHARED_DATA>::
-add(YARPBaseBehaviorInput *in, MyBaseStates *s1, MyBaseStates *s2, BaseBehaviorOutput *out)
+add(BaseBehaviorInput *in, MyBaseStates *s1, MyBaseStates *s2, BaseBehaviorOutput *out)
 {
 	PulseStates *tmp = new PulseStates;
 	_pulse_table.push_back(tmp);	// keep track of the state so that later we can delete them
@@ -264,7 +275,7 @@ _parse(YARPBottle &bottle)
 				// as state, return without executing anything
 				return 1;
 			}
-			else  if (is->input->input(bottle))
+			else  if (is->input->input(&bottle, _data))
 			{
 				is->activation->post();	// enable input
 				pulse(is->s);

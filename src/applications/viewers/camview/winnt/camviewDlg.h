@@ -30,6 +30,7 @@ public:
 	bool m_frozen;
 	bool m_logp;
 	bool m_fov;
+	bool m_normal;
 	int m_period;
 	double m_est_interval;
 	CRect m_rect;

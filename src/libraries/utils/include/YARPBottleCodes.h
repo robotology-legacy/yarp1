@@ -21,6 +21,8 @@ enum {
 };
 
 enum {
+	YBVArmNewCmd,
+	YBVArmDone,
 	YBVExit
 };
 

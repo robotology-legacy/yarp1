@@ -144,7 +144,6 @@ void CRecv::Body (void)
 				m_converter.ConvertToDIB (m_flipped);
 			}
 		}
-
 		frame_no ++;
 		if (start == -1)
 		{

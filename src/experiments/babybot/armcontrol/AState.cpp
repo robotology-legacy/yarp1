@@ -94,16 +94,6 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 				_pointsFile.dump(t->_wristF);
 				_pointsFile.newLine();
 				////////////////////
-
-				YARPOutputPortOf<int [2]> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
-	
-				// signal state
-				int _msg[2];
-				_msg[0] = 0;
-				_msg[1] = 1;
-				memcpy(t->_behaviorsOutPort.Content(), _msg, sizeof(int) * 2);
-				t->_behaviorsOutPort.Write();
-				//////////////////
 			}
 
 			changeState(t, ASWaitForHand::instance()); //ASDirectCommand::instance());
@@ -113,6 +103,7 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 
 void ASWaitForHand:: handle(ArmThread *t)
 {
+	/*
 	t->_arm_status._state._thread = _armThread::waitForHand;
 	
 	_nSteps++;
@@ -133,7 +124,7 @@ void ASWaitForHand:: handle(ArmThread *t)
 		ARM_STATE_DEBUG(("Wait for hand timed out... giving up !\n"));
 		_nSteps = 0;
 		changeState(t,t->_init_state);
-	}
+	}*/
 
 }
 
