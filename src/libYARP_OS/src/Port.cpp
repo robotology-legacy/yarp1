@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.20 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: Port.cpp,v 1.21 2004-08-10 13:42:07 babybot Exp $
 ///
 ///
 
@@ -500,22 +500,6 @@ void OutputTarget::Body ()
 		PostMutex ();
 
 		return;	
-
-		//// LATER: TO BE REMOVED!
-#if 0
-		WaitMutex();
-		active = 0;
-		PostMutex();
-		while(1)
-		{
-			something_to_send.Wait();
-			YARPScheduler::yield();
-#ifdef UPDATED_PORT
-			space_available.Post();
-#endif
-		}
-#endif
-
 	}
 
 	while (!deactivated)
@@ -1123,22 +1107,16 @@ void Port::Body()
 						if (same_net)
 						{
 #endif
-							///
+
 							
 #ifndef DEBUG_DISABLE_SHMEM
-							///char myhostname[YARP_STRING_LEN];
-							///getHostname (myhostname, YARP_STRING_LEN);
-							///ACE_INET_Addr local ((u_short)0, myhostname);
-
-							///ACE_DEBUG((LM_DEBUG, "temporary ::::::::::: remote IP 0x%x local IP 0x%x\n", ((YARPUniqueNameSock *)pid)->getAddressRef().get_ip_address(), local.get_ip_address()));
-							///if (((YARPUniqueNameSock *)rem_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
 							if (same_machine)
 							{
 								/// go into UDP-SHMEM.
 								target = targets.GetByLabel (buf);
 								if (target == NULL)
 								{
-									ACE_DEBUG ((LM_INFO, "*** starting (possibly SHMEM) connection between %s and %s\n", name.c_str(), buf));
+									ACE_DEBUG ((LM_INFO, "*** connecting SHMEM between %s and %s\n", name.c_str(), buf));
 
 									target = targets.NewLink(buf);
 									ACE_ASSERT(target != NULL);
@@ -1162,7 +1140,7 @@ void Port::Body()
 								target = targets.GetByLabel ("mcast-thread");
 								if (target == NULL)
 								{
-									ACE_DEBUG ((LM_INFO, "*** starting MCAST transmission thread\n"));
+									ACE_DEBUG ((LM_INFO, "*** connecting MCAST %s to %s\n", name.c_str(), buf));
 									target = targets.NewLink("mcast-thread");
 
 									ACE_ASSERT(target != NULL);
@@ -1177,7 +1155,7 @@ void Port::Body()
 								}
 								else
 								{
-									ACE_DEBUG ((LM_INFO, "*** MCAST: connecting %s to %s\n", name.c_str(), buf));
+									ACE_DEBUG ((LM_INFO, "*** connecting MCAST %s to %s\n", name.c_str(), buf));
 									target->ConnectMcast (buf);
 								}
 							}
@@ -1396,6 +1374,35 @@ void Port::Body()
 					needclose.setName (buf+1);
 					YARPEndpointManager::Close (needclose);
 				}
+				break;
+
+			case MSG_ID_DUMP_CONNECTIONS:
+				{
+					ACE_DEBUG ((LM_INFO, "*** dumping connections for %s\n", name.c_str()));
+					ACE_DEBUG ((LM_INFO, "*** output connections:\n"));
+
+					list_mutex.Wait ();
+					target = targets.GetRoot();
+					int i = 0;
+					while (target != NULL)
+					{
+						target->WaitMutex();
+						ACE_DEBUG ((LM_INFO, "***   %d: %s %s:%d\n", 
+							i, 
+							target->GetLabel().c_str(),
+							target->GetOwnAddress().get_host_addr(),
+							target->GetOwnAddress().get_port_number()));
+						target->PostMutex();
+						next = target->GetMeshNext();
+						target = next;
+						i++;
+					}
+
+					list_mutex.Post ();
+
+					ACE_DEBUG ((LM_INFO, "*** input connections:\n"));
+					YARPEndpointManager::PrintConnections (*pid);
+				}	
 				break;
 
 			case MSG_ID_ERROR:

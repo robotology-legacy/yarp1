@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.11 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: Port.h,v 1.12 2004-08-10 13:42:07 babybot Exp $
 ///
 ///
 
@@ -105,6 +105,7 @@ enum
 	MSG_ID_ATTACH       = '/',
 	MSG_ID_DETACH_ALL   = 'k',		/// can only be used by SaySelfEnd --- WARNING.
 	MSG_ID_DETACH_IN	= '~',
+	MSG_ID_DUMP_CONNECTIONS = '*',
 	MSG_ID_ERROR        = -1
 };
 
@@ -231,6 +232,26 @@ public:
 	int GetRequireAck (void) const { return require_ack; }
 
 	void SetOwnName (const YARPString& s) { own_name = s; }
+
+	ACE_INET_Addr GetOwnAddress (void)
+	{
+		if (target_pid != NULL)
+			switch (target_pid->getServiceType())
+			{
+				case YARP_QNET:
+					return ACE_INET_Addr((u_short)0);
+
+				case YARP_TCP:
+				case YARP_UDP:
+				case YARP_MCAST:
+					return ((YARPUniqueNameSock *)target_pid)->getAddressRef();
+
+				case YARP_SHMEM:
+					return ((YARPUniqueNameSock *)target_pid)->getAddressRef();
+			}
+
+		return ACE_INET_Addr((u_short)0);
+	}
 };
 
 
@@ -538,21 +559,13 @@ public:
 	Sendable *Acquire (int wait = 1);
 	void Relinquish (void);
 
-	void WaitInput (void)
-    {
-		something_to_read.Wait();
-    }
+	void WaitInput (void) {	something_to_read.Wait(); }
 
 	int IsSending (void);
 	void FinishSend (void);
 
-	void SetRequireAck(int flag) {
-	  require_ack = flag;
-	}
-
-	int GetRequireAck() {
-	  return require_ack;
-	}
+	void SetRequireAck(int flag) { require_ack = flag; }
+	int GetRequireAck() { return require_ack; }
 };
 
 

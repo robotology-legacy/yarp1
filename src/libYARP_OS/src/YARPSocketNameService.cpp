@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.11 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.12 2004-08-10 13:42:07 babybot Exp $
 ///
 ///
 
@@ -483,6 +483,23 @@ int YARPSocketEndpointManager::SetTCPNoDelay (void)
 	if (sock->getSocketType() == YARP_O_SOCKET && sock->GetServiceType() == YARP_TCP)
 	{
 		return ((YARPOutputSocket *)sock)->SetTCPNoDelay ();
+	}
+
+	return YARP_FAIL;
+}
+
+int YARPSocketEndpointManager::PrintConnections (void)
+{
+	YARPNetworkObject *sock = GetThreadSocket();
+	if (sock == NULL)
+	{
+		return YARP_FAIL;
+	}
+
+	if (sock->getSocketType() == YARP_I_SOCKET)
+	{
+		((YARPInputSocketMulti *)sock)->PrintThreadList ();		
+		return YARP_OK;
 	}
 
 	return YARP_FAIL;

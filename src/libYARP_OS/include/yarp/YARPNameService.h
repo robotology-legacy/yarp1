@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.5 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPNameService.h,v 1.6 2004-08-10 13:42:07 babybot Exp $
 ///
 ///
 /*
@@ -249,6 +249,13 @@ public:
 	 * @return YARP_OK on success.
 	 */
 	static int SetTCPNoDelay (const YARPUniqueNameID& endp);
+
+	/**
+	 * Print existing connection parameters to stdout.
+	 * @param endp is the endpoint to print data for.
+	 * @return YARP_OK on success.
+	 */
+	static int PrintConnections (const YARPUniqueNameID& endp);
 };
 
 #endif

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketNameService.h,v 1.5 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPSocketNameService.h,v 1.6 2004-08-10 13:42:07 babybot Exp $
 ///
 ///
 
@@ -126,6 +126,12 @@ public:
 	static int CloseMcastAll(void);
 	static int GetNumberOfClients(void);
 	static int SetTCPNoDelay(void);
+
+	/**
+	 * Prints existing connection parameters to stdout.
+	 * @return YARP_OK on success.
+	 */
+	static int PrintConnections(void);
 };
 
 #endif

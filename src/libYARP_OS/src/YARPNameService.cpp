@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.8 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.9 2004-08-10 13:42:07 babybot Exp $
 ///
 ///
 
@@ -391,4 +391,23 @@ int YARPEndpointManager::CloseMcastAll(void)
 int YARPEndpointManager::GetNumberOfClients(void)
 {
 	return YARPSocketEndpointManager::GetNumberOfClients();
+}
+
+///
+int YARPEndpointManager::PrintConnections(const YARPUniqueNameID& endp)
+{
+	switch (endp.getServiceType())
+	{
+	case YARP_TCP:
+	case YARP_UDP:
+	case YARP_MCAST:
+	case YARP_SHMEM:
+	default:
+		return YARPSocketEndpointManager::PrintConnections ();
+
+	case YARP_QNET:
+		return YARP_FAIL;
+	}
+
+	return YARP_FAIL;
 }

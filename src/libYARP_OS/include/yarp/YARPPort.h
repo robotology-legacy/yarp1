@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.6 2004-08-02 12:31:55 eshuy Exp $
+/// $Id: YARPPort.h,v 1.7 2004-08-10 13:42:07 babybot Exp $
 ///
 ///
 
@@ -102,9 +102,9 @@
 class YARPPort
 {
 protected:
-  /**
-   * Internal helper object.
-   */
+	/**
+	 * Internal helper object.
+	 */
 	void *system_resource;  
 
 	/**

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-connect.cpp,v 1.3 2004-07-09 16:42:59 eshuy Exp $
+/// $Id: yarp-connect.cpp,v 1.4 2004-08-10 13:42:07 babybot Exp $
 ///
 ///
 
@@ -64,12 +64,25 @@ extern int __debug_level;
 
 int main(int argc, char *argv[])
 {
-//  __debug_level = 100;
 	if (argc == 3)
 	{
 		YARPPort::Connect (argv[1], argv[2]);
-		//int pid = p.GetServer(argv[1]);
-		//p.SayServer(pid,argv[2]);
+	}
+	else
+	if (argc == 2)
+	{
+		YARPPort::Connect (argv[1], "__null");
+	}
+	else
+	{
+		ACE_DEBUG ((LM_INFO, "Use: yarp-connect <name1> <name2>\n"));
+		ACE_DEBUG ((LM_INFO, "where <name1> is an output port name (source of messages)\n"));
+		ACE_DEBUG ((LM_INFO, "and <name2> is an input port name (destination of messages)\n"));
+		ACE_DEBUG ((LM_INFO, "prefix <name2> with '!' to detach port <name2> from <name1>\n"));
+		ACE_DEBUG ((LM_INFO, "prefix <name1> with '*' to ask the port to display its connections\n"));
+		ACE_DEBUG ((LM_INFO, "note that the display is simply made on the stdout of the port\n"));
+		ACE_DEBUG ((LM_INFO, "that receives the request and not on the terminal where \nyarp-connect is called.\n"));
+		ACE_DEBUG ((LM_INFO, "Have a nice day!\n"));
 	}
 
 	return YARP_OK;

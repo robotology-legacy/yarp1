@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.h,v 1.4 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPSocketMulti.h,v 1.5 2004-08-10 13:42:07 babybot Exp $
 ///
 ///
 
@@ -123,6 +123,7 @@ public:
 	/// specific.
 	int Prepare (const YARPUniqueNameID& name, int *ports, int number_o_ports);
 	int GetAssignedPort(void) const;
+	int PrintThreadList(void);
 };
 
 ///

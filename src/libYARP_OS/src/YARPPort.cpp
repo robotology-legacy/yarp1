@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.8 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.9 2004-08-10 13:42:07 babybot Exp $
 ///
 ///
 
@@ -309,46 +309,87 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 		return YARP_FAIL;
 	}
 
-	/// NULL 2nd param means no net specified, only IP addr.
-	YARPUniqueNameID* id = YARPNameService::LocateName (src_name, NULL);
-
-	if (id->getServiceType() != YARP_QNET)
+	/// checking syntax.
+	if (src_name[0] != '*' && src_name[0] != '/')
 	{
-		/// go always in TCP mode for the connection creation procedure.
-		/// if it's QNET does a QNET connection.
-		id->setServiceType (YARP_TCP);
+		ACE_DEBUG ((LM_ERROR, "The syntax of port connect is wrong\n"));
+		ACE_DEBUG ((LM_ERROR, "Please remember that valid names must start with\n"));
+		ACE_DEBUG ((LM_ERROR, "/ [forward slash]\n"));
+		ACE_DEBUG ((LM_ERROR, "The special symbol '*' is allowed when requesting\n"));
+		ACE_DEBUG ((LM_ERROR, "the active port connections\n"));
+		return YARP_FAIL;
 	}
 
-	YARPEndpointManager::CreateOutputEndpoint (*id);
-	int ret = YARP_OK;
-	ret = YARPEndpointManager::ConnectEndpoints (*id, "explicit_connect");
-
-	if (ret == YARP_OK)
+	/// request port connections.
+	if (src_name[0] == '*')
 	{
-		if (id->isValid())
+		YARPUniqueNameID* id = YARPNameService::LocateName (src_name+1, NULL);
+		if (id->getServiceType() != YARP_QNET) id->setServiceType (YARP_TCP);
+
+		YARPEndpointManager::CreateOutputEndpoint (*id);
+		int ret = YARPEndpointManager::ConnectEndpoints (*id, "explicit_connect");
+
+		if (ret == YARP_OK)
 		{
-			Port p;
-			p.SayServer (id->getNameID(), dest_name);
+			if (id->isValid())
+			{
+				Port p;
+				p.SayServer (id->getNameID(), src_name);
+			}
+
+			YARPEndpointManager::Close (*id);
+			YARPNameService::DeleteName (id);
+
+			return YARP_OK;
 		}
 
 		YARPEndpointManager::Close (*id);
 		YARPNameService::DeleteName (id);
+
+		return YARP_FAIL;
 	}
-	else if (dest_name[0] == '!')
+
+	/// assuming a valid name starting with /
+	if (src_name[0] == '/')
 	{
-		ACE_DEBUG ((LM_INFO, "trying again with direct connection\n"));
+		/// NULL 2nd param means no net specified, only IP addr.
+		YARPUniqueNameID* id = YARPNameService::LocateName (src_name, NULL);
+		if (id->getServiceType() != YARP_QNET) id->setServiceType (YARP_TCP);
+
+		YARPEndpointManager::CreateOutputEndpoint (*id);
+		int ret = YARPEndpointManager::ConnectEndpoints (*id, "explicit_connect");
+
+		if (ret == YARP_OK)
+		{
+			if (id->isValid())
+			{
+				Port p;
+				p.SayServer (id->getNameID(), dest_name);
+			}
+
+			YARPEndpointManager::Close (*id);
+			YARPNameService::DeleteName (id);
+
+			return YARP_OK;
+		}
 
 		YARPEndpointManager::Close (*id);
 		YARPNameService::DeleteName (id);
 
-		/// tries again...
-		id = YARPNameService::LocateName (dest_name+1, NULL);
+		/// continues to next 'if'.
+	}
 
+	/// can't connect, try a different strategy.
+	if (dest_name[0] == '!')
+	{
+		ACE_DEBUG ((LM_INFO, "trying again with direct connection\n"));
+
+		/// tries again...
+		YARPUniqueNameID* id = YARPNameService::LocateName (dest_name+1, NULL);
 		if (id->getServiceType() != YARP_QNET) id->setServiceType (YARP_TCP);
 
 		YARPEndpointManager::CreateOutputEndpoint (*id);
-		ret = YARP_OK;
-		ret = YARPEndpointManager::ConnectEndpoints (*id, "explicit_connect");
+		int ret = YARPEndpointManager::ConnectEndpoints (*id, "explicit_connect");
 		if (ret == YARP_OK)
 		{
 			if (id->isValid())
@@ -365,18 +406,19 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 
 				delete[] tmp_name;
 			}
+
+			YARPEndpointManager::Close (*id);
+			YARPNameService::DeleteName (id);
+			return YARP_OK;
 		}
 
 		YARPEndpointManager::Close (*id);
 		YARPNameService::DeleteName (id);
-	}
-	else
-	{
-		YARPEndpointManager::Close (*id);
-		YARPNameService::DeleteName (id);
+
+		return YARP_FAIL;
 	}
 
-	return YARP_OK;
+	return YARP_FAIL;
 }
 
 

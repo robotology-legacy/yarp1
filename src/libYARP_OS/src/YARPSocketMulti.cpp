@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.17 2004-08-09 23:29:44 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.18 2004-08-10 13:42:07 babybot Exp $
 ///
 ///
 
@@ -211,18 +211,44 @@ protected:
 public:
 
 	/**
-	 * Prints the socket name and service type. To be used only for debug.
+	 * Prints the socket name and service type. To be used for debug.
 	 */
-	void _printSocket (void)
+	void printSocketData (void)
 	{
 		if (_socket_addr == NULL)
 		{
-			ACE_DEBUG ((LM_ERROR, "The socket is NULL\n"));
+			ACE_DEBUG ((LM_INFO, "socket is NULL\n"));
 		}
 		else
 		{
-			ACE_DEBUG ((LM_ERROR, "Socket name: %s ", _socket_addr->getName().c_str()));
-			ACE_DEBUG ((LM_ERROR, "Service type: %d ", _socket_addr->getServiceType()));
+			ACE_DEBUG ((LM_INFO, "%s ", _socket_addr->getName().c_str()));
+			switch (_socket_addr->getServiceType())
+			{
+			case YARP_UDP:
+			case YARP_TCP:
+			case YARP_MCAST:
+				{
+					YARPUniqueNameSock *a = (YARPUniqueNameSock *)_socket_addr;
+					ACE_DEBUG ((LM_INFO, "%s:%d ", 
+						a->getAddressRef().get_host_addr(),
+						a->getAddressRef().get_port_number() ));
+				}
+				break;
+
+			case YARP_SHMEM:
+				{
+					YARPUniqueNameMem *a = (YARPUniqueNameMem *)_socket_addr;
+					ACE_DEBUG ((LM_INFO, "%s:%d ", 
+						a->getAddressRef().get_local_addr().get_host_addr(),
+						a->getAddressRef().get_local_addr().get_port_number() ));
+				}
+				break;
+
+			default:
+				ACE_DEBUG ((LM_INFO, "unknown protocol "));
+				break;
+			}
+
 		}
 	}
 
@@ -628,6 +654,12 @@ public:
 	 * @return the name of the owner port as a YARPString.
 	 */
 	YARPString getOwnerName (void) { return _own_name; }
+
+	/**
+	 * Prints the list of threads managed by the class.
+	 * @return YARP_OK always.
+	 */
+	int printThreadList (void);
 };
 
 
@@ -1111,6 +1143,10 @@ void _SocketThreadMulti::Body (void)
 	_needs_reply = 0;
 	_read_more = 0;
 	_reply_preamble = 0;
+	
+	/// to store the thread remote peer name and recover it
+	/// before termination to print the quit message (see code below).
+	YARPString ownname = getRemoteName();
 
 	switch (_socket_addr->getServiceType())
 	{
@@ -1144,18 +1180,18 @@ void _SocketThreadMulti::Body (void)
 		break;
 	}
 
-	_mutex.Wait ();
-	_available = 1;
-	_mutex.Post ();
-
 	if (_owner != NULL && 
-		ACE_OS::strncmp (getRemoteName().c_str(), "explicit_connect", 16) != 0)
+		ACE_OS::strncmp (ownname.c_str(), "explicit_connect", 16) != 0)
 	{
 		ACE_DEBUG ((LM_INFO, "*** detaching %s from %s [me being %s]\n", 
-			getRemoteName().c_str(), 
+			ownname.c_str(), 
 			_owner->getOwnerName().c_str(), 
 			_owner->getOwnerName().c_str()));
 	}
+
+	_mutex.Wait ();
+	_available = 1;
+	_mutex.Post ();
 }
 
 ///
@@ -2027,27 +2063,27 @@ ACE_HANDLE _SocketThreadListMulti::connect (const YARPUniqueNameSock& id)
 }
 
 ///
-/// FOR DEBUG ONLY!
 ///
 ///
-inline void _printList (YARPList<_SocketThreadMulti *>& _list, const char *c)
+int _SocketThreadListMulti::printThreadList (void)
 {
 	YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
 	it_avail.go_head();
 
-	ACE_DEBUG ((LM_ERROR, "Attempted connection: %s\n", c));
-	ACE_DEBUG ((LM_ERROR, "Thread table:\n"));
 	int i = 0;
-
 	for (; !it_avail.done(); it_avail++)
 	{
-		ACE_DEBUG ((LM_ERROR, "Thread no: %d ", i));
-		ACE_DEBUG ((LM_ERROR, "Available: %d ", ((*it_avail)->isAvailable ())));
-		ACE_DEBUG ((LM_ERROR, "Port number: %d ", (*it_avail)->getOldPortNumber ()));
-		(*it_avail)->_printSocket ();
-		ACE_DEBUG ((LM_ERROR, "\n"));
+		(*it_avail)->waitOnMutex ();
+
+		ACE_DEBUG ((LM_INFO, "***   %d: ", i));
+		(*it_avail)->printSocketData ();
+		ACE_DEBUG ((LM_INFO, "\n"));
 		i++;
+
+		(*it_avail)->postToMutex ();
 	}
+
+	return YARP_OK;
 }
 
 
@@ -2165,11 +2201,11 @@ void _SocketThreadListMulti::addSocket (void)
 		if (!reusing)
 			port_number = getNewPortNumberFromPool ();
 
-		ACE_DEBUG ((LM_INFO, "*** accepting UDP:%s(%s):%d assigned port %d\n", buf.c_str(), incoming.get_host_addr(), incoming.get_port_number(), port_number));
+		ACE_DEBUG ((LM_INFO, "*** accepting from %s UDP:%s:%d assigned port %d\n", buf.c_str(), incoming.get_host_addr(), incoming.get_port_number(), port_number));
 
 		if (port_number == 0)
 		{
-			_printList (_list, "UDP");
+			printThreadList ();
 
 			/// failed connection, for any reason (likely too many connections).
 			ACE_DEBUG ((LM_ERROR, "*** error, can't get a port, too many connections\n"));
@@ -2279,11 +2315,11 @@ void _SocketThreadListMulti::addSocket (void)
 		if (!reusing)
 			port_number = getNewPortNumberFromPool ();
 
-		ACE_DEBUG ((LM_INFO, "*** accepting MCAST:%s(%s):%d assigned port %d\n", buf.c_str(), incoming.get_host_addr(), incoming.get_port_number(), port_number));
+		ACE_DEBUG ((LM_INFO, "*** accepting from %s MCAST:%s:%d assigned port %d\n", buf.c_str(), incoming.get_host_addr(), incoming.get_port_number(), port_number));
 
 		if (port_number == 0)
 		{
-			_printList (_list, "MCAST");
+			printThreadList ();
 
 			///
 			ACE_DEBUG ((LM_ERROR, "*** error, can't get a port, too many connections\n"));
@@ -2372,11 +2408,11 @@ void _SocketThreadListMulti::addSocket (void)
 		if (!reusing)
 			port_number = getNewPortNumberFromPool ();
 
-		ACE_DEBUG ((LM_INFO, "*** accepting SHMEM:%s(%s):%d assigned port %d\n", buf.c_str(), incoming.get_host_addr(), incoming.get_port_number(), port_number));
+		ACE_DEBUG ((LM_INFO, "*** accepting from %s SHMEM:%s:%d assigned port %d\n", buf.c_str(), incoming.get_host_addr(), incoming.get_port_number(), port_number));
 
 		if (port_number == 0)
 		{
-			_printList (_list, "SHMEM");
+			printThreadList ();
 
 			/// failed connection, for any reason (likely too many connections).
 			ACE_DEBUG ((LM_ERROR, "*** error, can't get a port, too many connections\n"));
@@ -2466,11 +2502,12 @@ void _SocketThreadListMulti::addSocket (void)
 		if (!reusing)
 			port_number = getNewPortNumberFromPool ();
 
-		ACE_DEBUG ((LM_INFO, "*** accepting TCP:%s(%s):%d assigned port %d\n", buf.c_str(), incoming.get_host_addr(), incoming.get_port_number(), port_number));
+		if (ACE_OS::strncmp(buf.c_str(), "explicit_connect", 16) != 0)
+			ACE_DEBUG ((LM_INFO, "*** accepting from %s TCP:%s:%d assigned port %d\n", buf.c_str(), incoming.get_host_addr(), incoming.get_port_number(), port_number));
 
 		if (port_number == 0)
 		{
-			_printList (_list, "TCP");
+			printThreadList ();
 
 			/// failed connection, for any reason (likely too many connections).
 			ACE_DEBUG ((LM_ERROR, "*** error, can't get a port, too many connections\n"));
@@ -2546,8 +2583,6 @@ int _SocketThreadListMulti::closeAll (void)
 {
 	ACE_ASSERT (_initialized != 0);
 
-	ACE_DEBUG ((LM_INFO, ">>>>>>> closeAll called\n"));
-
 	YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
 
 	for (; !it_avail.done(); it_avail++)
@@ -2596,21 +2631,15 @@ int _SocketThreadListMulti::closeByName (const YARPString& name)
 {
 	ACE_ASSERT (_initialized != 0);
 
-	///ACE_DEBUG ((LM_INFO, ">>>>>>> closeByName called for: %s\n", name.c_str()));
-
 	int result = YARP_FAIL;
 	YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
 
 	for (; !it_avail.done(); it_avail++)
 	{
-		///ACE_OS::printf ("comparing %s with %s\n",(*it_avail)->getRemoteName().c_str(),name.c_str());
-
 		if (!((*it_avail)->isAvailable ()))
 		{
 			if (ACE_OS::strcmp((*it_avail)->getRemoteName().c_str(), name.c_str()) == 0)
 			{
-				///ACE_DEBUG ((LM_INFO, ">>>>>>> thread found, End() called for: %s\n", name.c_str()));
-
 				(*it_avail)->End ();
 				(*it_avail)->setAvailable (1);
 				result = YARP_OK;
@@ -2961,6 +2990,10 @@ int YARPInputSocketMulti::GetAssignedPort(void) const
 	return ISDATA(system_resources)._list.getAssignedPort ();
 }
 
+int YARPInputSocketMulti::PrintThreadList(void)
+{
+	return ISDATA(system_resources)._list.printThreadList();
+}
 
 ///
 /// Output SHMEM socket + stream incapsulation.
