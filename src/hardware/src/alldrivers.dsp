@@ -54,7 +54,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing library
-PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	make_lib.bat
+PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\picolo\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	make_lib.bat
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "alldrivers - Win32 Debug"
@@ -82,7 +82,7 @@ LIB32=link.exe -lib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing library
-PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	make_lib_db.bat
+PostBuild_Cmds=copy .\mei\winnt\*.h ..\..\..\include	copy .\galil\winnt\*.h ..\..\..\include	copy .\nidaq\winnt\*.h ..\..\..\include	copy .\picolo\winnt\*.h ..\..\..\include	copy .\common\*.h ..\..\..\include	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt	make_lib_db.bat
 # End Special Build Tool
 
 !ENDIF 
@@ -110,6 +110,10 @@ SOURCE=.\mei\winnt\YARPMEIDeviceDriver.cpp
 
 SOURCE=.\nidaq\winnt\YARPNIDAQDeviceDriver.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\picolo\winnt\YARPPicoloDeviceDriver.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -124,6 +128,10 @@ SOURCE=.\common\YARPDeviceDriver.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\common\YARPFrameGrabberUtils.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\galil\winnt\YARPGalilDeviceDriver.h
 # End Source File
 # Begin Source File
@@ -133,6 +141,10 @@ SOURCE=.\mei\winnt\YARPMEIDeviceDriver.h
 # Begin Source File
 
 SOURCE=.\nidaq\winnt\YARPNIDAQDeviceDriver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\picolo\winnt\YARPPicoloDeviceDriver.h
 # End Source File
 # End Group
 # End Target

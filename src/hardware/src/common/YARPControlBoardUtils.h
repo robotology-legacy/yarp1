@@ -4,13 +4,13 @@
 //
 // feb 2003 -- by nat and pasa
 
-// $Id: YARPControlBoardUtils.h,v 1.9 2003-05-21 13:26:55 natta Exp $
+// $Id: YARPControlBoardUtils.h,v 1.10 2003-05-30 17:28:28 gmetta Exp $
 #include <conf/YARPConfig.h>
 
 #ifndef __YARP_CONTROL_BOARD_UTILS__
 #define __YARP_CONTROL_BOARD_UTILS__
 
-#define pi 3.14
+#define pi 3.14159265358
 
 // command list
 enum ControlBoardCmd

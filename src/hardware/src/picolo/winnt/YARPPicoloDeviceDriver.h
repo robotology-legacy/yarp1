@@ -34,7 +34,7 @@
 /// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
 /// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
 /// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
-/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, /// 
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
 /// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
 /// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
 /// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
@@ -55,103 +55,66 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #paulfitz, pasa#
+///                    #pasa#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: YARPSemaphore.cpp,v 1.2 2003-05-30 17:28:28 gmetta Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.1 2003-05-30 17:28:28 gmetta Exp $
 ///
 ///
-///
-/// pasa Apr 2003
-///
 
-#include "YARPSemaphore.h"
+#ifndef __YARPPicoloDeviceDriverh__
+#define __YARPPicoloDeviceDriverh__
 
-/// ACE inclusion
-#include <ace/config.h>
-#include <ace/Synch.h>
+#include <conf/YARPConfig.h>
+#include <YARPThread.h>
+#include <YARPSemaphore.h>
+#include <YARPDeviceDriver.h>
+#include <YARPSemaphore.h>
 
+#include <stdlib.h>
+#include <string.h>
 
-///
-///#include <windows.h>
+///#include <sys/Picolo32.h>	maybe only in cpp file.
 
-
-///	ACE_Lock_Adapter<ACE_Thread_Mutex> mutex;
-
-YARPSemaphore::YARPSemaphore (int initial_count)
+struct PicoloOpenParameters
 {
-	ACE_Semaphore *sema = new ACE_Semaphore (initial_count);
-	system_resource = (void *)sema;
-
-	ACE_ASSERT (system_resource != NULL);
-}
-
-///
-/// clone the semaphore 
-///		polls the copied sema, 
-/// 
-YARPSemaphore::YARPSemaphore (const YARPSemaphore& yt)
-{
-	ACE_Semaphore *sema = new ACE_Semaphore (0);
-	system_resource = (void *)sema;
-	ACE_ASSERT (system_resource != NULL);
-	
-	if (yt.system_resource != NULL)
+	/// add here params for the open.
+	PicoloOpenParameters()
 	{
-		int ct = 0;
-		YARPSemaphore& danger_yt = *((YARPSemaphore *)&yt);
-
-		while (danger_yt.PollingWait())
-		{
-			ct++;
-		}
-
-		while (ct)
-		{
-			danger_yt.Post();
-			Post();
-			ct--;
-		}
 	}
-}
 
-YARPSemaphore::~YARPSemaphore ()
+	int _unit_number;		/// board number 0, 1, 2, etc.
+	int _video_type;		/// 0 composite, 1 svideo.
+	int _size;				/// requested size.
+};
+
+
+class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>, public YARPThread
 {
-	if (system_resource!=NULL)
-	{
-		//CloseHandle(system_resource);
-		if (system_resource != NULL) delete (ACE_Semaphore *)system_resource; 
+private:
+	YARPPicoloDeviceDriver(const YARPPicoloDeviceDriver&);
+	void operator=(const YARPPicoloDeviceDriver&);
 
-	    system_resource = NULL; // not necessary, just coding style
-	}
-}
+public:
+	YARPPicoloDeviceDriver();
+	~YARPPicoloDeviceDriver();
 
-void YARPSemaphore::BlockingWait ()
-{
-	((ACE_Semaphore *)system_resource)->acquire();
-}
+	// overload open, close
+	virtual int open(void *d);
+	virtual int close(void);
 
-int YARPSemaphore::PollingWait ()
-{
-	if (((ACE_Semaphore *)system_resource)->tryacquire() < 0)
-	{
-		///if (errno == EBUSY)
-		///	ACE_DEBUG ((LM_DEBUG, "%p\n", "Semaphore is already acquired, can't decrement"));
+	virtual int acquireBuffer(unsigned char **buffer);
+	virtual int releaseBuffer(void);
 
-		return 0;
-	}
-	else
-	{
-		return 1;
-	}
-}
+protected:
+	void *system_resources;
+
+	//  functions
+	virtual void Body(void);
+};
 
 
-void YARPSemaphore::Post ()
-{
-	int ret = ((ACE_Semaphore *)system_resource)->release();
-	ACE_ASSERT (ret == 0);   // not interested in previous count
-}
+#endif

@@ -1,2 +1,2 @@
 echo make library...
-lib ..\lib\winnt\yarpdriversdb.lib .\galil\winnt\dd_orig\lib\*.lib .\mei\winnt\dd_orig\lib\*.lib .\nidaq\winnt\dd_orig\lib\*.lib /out:..\..\..\lib\winnt\alldriversdb.lib
+lib ..\lib\winnt\yarpdriversdb.lib .\galil\winnt\dd_orig\lib\*.lib .\mei\winnt\dd_orig\lib\*.lib .\nidaq\winnt\dd_orig\lib\*.lib .\picolo\winnt\dd_orig\lib\*.lib /out:..\..\..\lib\winnt\alldriversdb.lib
