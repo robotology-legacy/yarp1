@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.27 2003-07-17 15:50:22 gmetta Exp $
+/// $Id: main.cpp,v 1.28 2003-07-17 17:20:55 babybot Exp $
 ///
 ///
 
@@ -414,7 +414,7 @@ int _runAsLogpolar (void)
 		sampler.Cartesian2Logpolar (img, lp);
 
 		/// sends the buffer.
-		out.Content().Refer (img);
+		out.Content().Refer (lp);
 		out.Write();
 
 		frame_no++;
@@ -498,7 +498,7 @@ int _runAsCartesian (void)
 ///
 int main (int argc, char *argv[])
 {
-	__debug_level = 80;
+	///__debug_level = 80;
 
 	YARPScheduler::setHighResScheduling ();
 
