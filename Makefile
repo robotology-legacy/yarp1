@@ -1,11 +1,6 @@
+ifndef  YARP_ROOT
+YARP_ROOT = $(PWD)
+endif
 
-SUBDIRS = src
-
-default:
-	@for d in $(SUBDIRS) ; do \
-		( test -d $$d && ( cd $$d; $(MAKE) ) ) ; done
-
-clean:
-	@for d in $(SUBDIRS) ; do \
-		( test -d $$d && ( cd $$d; $(MAKE) clean ) ) ; done
+include $(YARP_ROOT)/conf/Makefile.recursive.template
 

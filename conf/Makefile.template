@@ -58,3 +58,7 @@ else
   CP=cp
 endif
 
+YARPSYSINC = -I$(YARP_ROOT)/include/$(SYSDIR)
+
+MYCODELIB = $(notdir $(patsubst %/src, %, $(PWD)))
+
