@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.8 2003-06-23 16:39:57 babybot Exp $
+/// $Id: LocalNameServer.h,v 1.9 2003-06-23 17:34:42 babybot Exp $
 ///
 ///
 
@@ -118,7 +118,7 @@ public:
 		flag = false;
 	}
 
-	bool operator == (const PortEntry &item)
+	bool operator== (const PortEntry &item)
 	{
 		if (port == item.port)
 			return true;
@@ -131,7 +131,7 @@ public:
 		flag = false;
 		return *this;
 	}
-	const PortEntry &operator = (const PortEntry &i)
+	const PortEntry& operator= (const PortEntry &i)
 	{
 		port = i.port;
 		flag = i.flag;
@@ -166,6 +166,7 @@ public:
 		} 
 		return false;
 	}
+
 private:
 	bool _check(T_LIST &l, T &item)
 	{
@@ -176,6 +177,7 @@ private:
 		}
 		return false;
 	}
+
 public:
 	T _min;
 	T _max;
@@ -231,7 +233,7 @@ public:
 typedef std::list<IpEntry> IP_LIST;
 typedef IP_LIST::iterator IP_IT;
 
-class resources:public IP_LIST
+class resources : public IP_LIST
 {
 public:
 	resources()
@@ -239,6 +241,7 @@ public:
 		_ipPool._min = IpEntry(__startIpPool,__startDynPortPool, __endDynPortPool);
 		_ipPool._max = IpEntry(__endIpPool, __startDynPortPool, __endDynPortPool);
 	}
+
 	void release (const std::string &ip);
 	void release(const std::string &ip, int port);
 	bool check_port(const std::string &ip, int port);
@@ -466,6 +469,7 @@ public:
 	services  names;
 	services  statics;
 	qnxServices qnx_names;
+
 private:
 	// check if name already exists and remove it, TCP, UDP, MCAST
 	void _checkAndRemove(const std::string &name);
