@@ -1,8 +1,10 @@
+#
+# $Id: Makefile.src.template,v 1.4 2004-12-06 17:00:14 gmetta Exp $
+#
+
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))
 
 CFLAGS = -D_REENTRANT $(CFAST) $(INCS) $(CDEFS)
-
-#CFLAGS = $(CFAST) $(CDEFS) -I../include/yarp -I../include/yarp_private -I../include/$(SYSDIR) -I../include
 
 SUBDIRS =
 
@@ -12,9 +14,7 @@ INCS = $(MYINCS) $(YARPSYSINC)
 
 GENDIR = ../obj/$(SYSDIR)
 
-
 LIBGENDIR = ../lib/$(SYSDIR)
-
 
 VPATH += $(GENDIR)
 

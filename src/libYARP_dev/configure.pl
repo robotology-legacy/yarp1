@@ -80,12 +80,15 @@ if ($options{"Compile_Dev<-Lib_Clean"} eq "TRUE" &&
 print "Browsing through the list of available device drivers\n";
 print "In case you don't know what to do, it's no harm including all available drivers\n";
 
+# this calls the main construction functions.
 if ($os eq "winnt")
 {
-
-
+	generate_dsp_project();
 }
-
+elsif ($os eq "linux" || $os eq "qnx6")
+{
+	generate_makefile_project();
+}
 
 print "We're done for now, the context file has been updated: \"$config_file\"\n";
 print "A new project reflecting your choices has been created in \"./src\"\n";
@@ -175,15 +178,90 @@ else
 
 
 #
-# creating a new config file.
+# creating the new config file.
 # 
 save_config_file (\%options, $config_file);
 
 print "Done!\n";
 
+#
+# function to create a new makefile project.
+#
+sub generate_makefile_project
+{
+	open MODEL, "Makefile.model" or die "Can't open model Makefile: $!\n";
+	open PROJECT, ">Makefile" or die "Can't open destination project Makefile: $!\n";
+
+	while (<MODEL>)
+	{
+		if (/SUBDIRS =/)
+		{
+			print PROJECT "SUBDIRS = ";
+
+			foreach my $device (glob "*")
+			{
+				if (-d "$device/$os/yarp" && -e "$device/Makefile")
+				{
+					print "Would you like to add \"$device\" to the project [YES]? ";
+					chomp(my $answer = <STDIN>);
+					if ($answer =~ /\b[YyTt1]\w*/ || $answer eq '')
+					{
+						$options{"Compile_Dev<-DD_$device"} = "YES";
+						print PROJECT "$device ";
+					}
+					else
+					{
+						$options{"Compile_Dev<-DD_$device"} = "NO";
+					}
+				}
+			}
+			
+			print PROJECT "src\n";
+		}
+		else
+		{
+			print PROJECT $_;
+		}
+	}
+
+	close MODEL;
+	close PROJECT;
+
+	open MODEL, "./src/Makefile.model" or die "Can't open model src/Makefile: $!\n";
+	open PROJECT, ">./src/Makefile" or die "Can't open destination project src/Makefile: $!\n";
+
+	while (<MODEL>)
+	{
+		if (/TARGETS \+=/)
+		{
+			print PROJECT "TARGETS += ";
+
+			foreach my $device (glob "*")
+			{
+				if (-d "$device/$os/yarp" && -e "$device/Makefile" && $options{"Compile_Dev<-DD_$device"} eq "YES")
+				{
+					foreach my $filename (glob "./$device/$os/yarp/*.cpp")
+					{
+						$filename =~ /(YARP[\w\s_]+.)cpp/;
+						print PROJECT "../obj/$os/$1o";
+					}
+				}
+			}
+			
+			print PROJECT "\n";
+		}
+		else
+		{
+			print PROJECT $_;
+		}
+	}
+
+	close MODEL;
+	close PROJECT;
+}
 
 #
-# function to create a new project.
+# function to create a new visual c++ project.
 #
 sub generate_dsp_project
 {

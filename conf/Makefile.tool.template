@@ -6,7 +6,6 @@ include $(YARP_ROOT)/conf/Makefile.template
 
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))
 
-#INCS = $(MYINCS) -I../../libYARP_OS/include -I../../libYARP_sig/include  -I../../libYARP_dev/include -I$(YARP_ROOT)/include/$(SYSDIR) -I$(YARP_ROOT)/include -I.
 INCS = $(MYINCS) -I$(YARP_ROOT)/include/$(SYSDIR) -I$(YARP_ROOT)/include -I.
 
 CFLAGS = $(CFAST) $(INCS) $(CDEFS) 
@@ -28,7 +27,6 @@ w:
 
 $(EXEC_TARGET): $(TARGETS)
 	mkdir -p $(EXECDIR)
-#	$(CC) $(CFLAGS) $^ -o $@ $(LIBS) -lACE -L../../libYARP_OS/lib/$(SYSDIR)  $(MYLIBS) -lYARP_OS -L$(YARP_ROOT)/lib/$(SYSDIR)
 	$(CC) $(CFLAGS) $^ -o $@ -L$(YARP_ROOT)/lib/$(SYSDIR) $(MYLIBS) -lYARP_OS -lACE $(LIBADD)
 
 # install to top dir

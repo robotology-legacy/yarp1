@@ -1,0 +1,29 @@
+#
+# $Id: Makefile.driver.template,v 1.1 2004-12-06 17:00:14 gmetta Exp $
+#
+
+include $(YARP_ROOT)/conf/Makefile.template
+
+CFLAGS = -I ../dd_orig/include -I ../../../include -I ../ -I $(YARP_ROOT)/include -I $(YARP_ROOT)/include/$(OS)
+CFLAGS += $(CFAST) $(CDEFS)
+
+TARGETS = $(patsubst %.cpp, %.o, $(wildcard *.cpp)) $(patsubst %.c, %.o, $(wildcard *.c))
+
+GENDIR = ../../../obj/$(OS)
+
+all: target
+
+target: $(TARGETS)
+
+w:
+	@echo -n
+
+clean:
+	rm -f *.o
+
+.cpp.o:
+	$(CC) $(CFLAGS) -c $< -o $(GENDIR)/$@
+	
+.c.o:
+	$(CC1) $(CFLAGS) -c $< -o $(GENDIR)/$@
+

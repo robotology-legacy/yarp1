@@ -6,20 +6,19 @@ endif
 
 include $(YARP_ROOT)/conf/Makefile.template
 
-SUBDIRS = picolo galil 
+SUBDIRS = null_grabber src
 
-all: compile drivers
+all: target
+
+target:
+	@for d in $(SUBDIRS) ; do \
+		( cd $$d ; $(MAKE) target ); done
 
 clean:
 	@for d in $(SUBDIRS) ; do \
 		( cd $$d ; $(MAKE) clean ); done
 
-install: drivers
-
-compile:
-	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) ); done
-
-drivers: 
+install:
 	@for d in $(SUBDIRS) ; do \
 		( cd $$d ; $(MAKE) install ) ; done
+

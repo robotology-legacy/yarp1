@@ -74,35 +74,67 @@ unless ($force)
 if ($clean)
 {
 	print "\nCleaning...\n";
-	chdir "./src" or die "Cannot chdir to src: $!";
+	if ($os eq "winnt")
+	{
+		chdir "./src" or die "Cannot chdir to src: $!";
 
-	call_msdev_and_print ($project_name, "Debug", "CLEAN");
-	call_msdev_and_print ($project_name, "Release", "CLEAN");
+		call_msdev_and_print ($project_name, "Debug", "CLEAN");
+		call_msdev_and_print ($project_name, "Release", "CLEAN");
 	
-	print "\n";
-	chdir "../" or die "Cannot chdir to ..: $!";
+		print "\n";
+		chdir "../" or die "Cannot chdir to ..: $!";
+	}
+	elsif ($os eq "linux")
+	{
+		call_make_and_print ('', "clean");
+	}
+	elsif ($os eq "qnx6")
+	{
+		call_make_and_print ('', "clean");
+	}
 }
 
 if ($debug)
 {
 	print "\nCompiling debug\n";
-	chdir "./src" or die "Cannot chdir to src: $!";
-	call_msdev_and_print ($project_name, "Debug", "BUILD");
-	chdir "../" or die "Cannot chdir to ..: $!";
+	if ($os eq "winnt")
+	{
+		chdir "./src" or die "Cannot chdir to src: $!";
+		call_msdev_and_print ($project_name, "Debug", "BUILD");
+		chdir "../" or die "Cannot chdir to ..: $!";
+	}
+	elsif ($os eq "linux")
+	{
+		call_make_and_print ('', "CFAST=-g");
+	}
+	elsif ($os eq "qnx6")
+	{
+		call_make_and_print ('', "CFAST=-g");
+	}
 }
 
 if ($release)
 {
 	print "\nCompiling optimized\n";
-	chdir "./src" or die "Cannot chdir to src: $!";
-	call_msdev_and_print ($project_name, "Release", "BUILD");
-	chdir ".." or die "Cannot chdir to ..: $!";
+	if ($os eq "winnt")
+	{
+		chdir "./src" or die "Cannot chdir to src: $!";
+		call_msdev_and_print ($project_name, "Release", "BUILD");
+		chdir ".." or die "Cannot chdir to ..: $!";
+	}
+	elsif ($os eq "linux")
+	{
+		call_make_and_print ('', "CFAST=-O3");
+	}
+	elsif ($os eq "qnx6")
+	{
+		call_make_and_print ('', "CFAST=-O3");
+	}
 }
 
 if ($install)
 {
 	print "\nInstalling YARP_dev libraries to default install directory.\n";
-
 	@my_headers = glob "./include/yarp/*.h";
 	foreach my $file (@my_headers) 
 	{
@@ -110,6 +142,68 @@ if ($install)
 		copy ($file, "$yarp_root/include/yarp/") or warn "Can't copy $file\n"; 
 	}
 
+	if ($os eq "winnt")
+	{
+		install_libs_winnt();
+	}
+	elsif ($os eq "linux")
+	{
+		install_libs_generic();
+	}
+	elsif ($os eq "qnx6")
+	{
+		install_libs_generic();
+	}
+
+	print "\nLibraries installed in $yarp_root/lib/$os\n";
+}
+
+print "\nDone!\n";
+
+#
+# specific install for unixes.
+#
+sub install_libs_generic
+{
+	$libraries = '';
+	foreach my $device (glob "*")
+	{
+		if (-d "$device/$os/yarp" && $options{"Compile_Dev<-DD_$device"} eq "YES")
+		{
+			foreach my $file (glob "./$device/$os/yarp/*.h")
+			{
+				copy($file, "$yarp_root/include/yarp/") or warn "Can't copy $file\n";
+			}
+
+			foreach my $file (glob "./$device/$os/dd_orig/lib/*.a")
+			{
+				$file =~ s#/#\\#g;
+				$libraries = "$libraries $file";
+			}
+
+			foreach my $file (glob "./$device/$os/dd_orig/bin/*.so")
+			{
+				copy($file, "$yarp_root/bin/$os/") or warn "Can't copy $file\n";
+			}
+		}
+	}
+	
+	if ($libraries ne '')
+	{
+		print "\nNow building libraries...\n";
+
+		print `ar -r ./lib/$(os)/libYARP_dev.a $libraries`;
+	}
+
+	copy ("./lib/$os/libYARP_dev.a", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_dev.a\"\n";
+}
+
+
+#
+# specific library install for winnt.
+#
+sub install_libs_winnt
+{
 	move ("./lib/$os/$project_name"."d_x.lib", "./lib/$os/libYARP_devd_x.lib") or warn "Can't move \"./lib/$os/$project_name"."d_x.lib\"\n";
 	move ("./lib/$os/$project_name"."_x.lib", "./lib/$os/libYARP_dev_x.lib") or warn "Can't move \"./lib/$os/$project_name"."_x.lib\"\n";
 
@@ -156,7 +250,7 @@ if ($install)
 	copy ("./lib/$os/libYARP_dev.lib", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_dev.lib\"\n";
 	copy ("./lib/$os/libYARP_devd.lib", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_devd.lib\"\n";
 
-	print "\nLibraries installed in $yarp_root/lib/$os\n";
+#
+#
+	0;
 }
-
-print "\nDone!\n";

@@ -1,0 +1,6 @@
+#
+# $Id: yarpdevices-makefile-howto.txt,v 1.1 2004-12-06 17:00:15 gmetta Exp $
+#
+
+In case you want to prepare the Makefile by hand, copy the Makefile.model and fill in the SUBDIRS= with the directory names of the device drivers you'd like to compile into the library.
+

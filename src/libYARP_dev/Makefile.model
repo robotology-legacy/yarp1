@@ -8,7 +8,11 @@ include $(YARP_ROOT)/conf/Makefile.template
 
 SUBDIRS = 
 
-all: compile
+all: target
+
+target:
+	@for d in $(SUBDIRS) ; do \
+		( cd $$d ; $(MAKE) target ); done
 
 clean:
 	@for d in $(SUBDIRS) ; do \
@@ -17,9 +21,4 @@ clean:
 install:
 	@for d in $(SUBDIRS) ; do \
 		( cd $$d ; $(MAKE) install ) ; done
-
-compile:
-	@for d in $(SUBDIRS) ; do \
-		( cd $$d ; $(MAKE) ); done
-
 
