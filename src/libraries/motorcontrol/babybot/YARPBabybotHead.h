@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTHEAD__
 #define __YARPBABYBOTHEAD__
 
-// $Id: YARPBabybotHead.h,v 1.6 2003-10-28 18:01:28 babybot Exp $
+// $Id: YARPBabybotHead.h,v 1.7 2003-10-30 09:41:43 babybot Exp $
 
 #include <conf/YARPConfig.h>
 #include <YARPGenericControlBoard.h>
@@ -51,13 +51,21 @@ public:
 		bool ret = false;
 		bool tmp = false;
 	
-		// check eyes
+		// check eyes, vergence and version
 		tmp = checkSingleJoint(vergence(pos), dot_vergence(cmd), _parameters._limitsMax[_limits::eyeVergence], _parameters._limitsMin[_limits::eyeVergence], -1);
 		tmp |= checkSingleJoint(version(pos), dot_version(cmd), _parameters._limitsMax[_limits::eyeVersion], _parameters._limitsMin[_limits::eyeVersion], 1);
 		if (tmp)
 		{
 			cmd[_joints::rightEye] = 0.0;
 			cmd[_joints::leftEye] = 0.0;
+			ret = true;
+		}
+
+		// check eyes, tilt
+		tmp = checkSingleJoint(pos[_joints::eyeTilt], cmd[_joints::eyeTilt], _parameters._limitsMax[_limits::neckPan], _parameters._limitsMin[_limits::eyeTilt], 1);
+		if (tmp)
+		{
+			cmd[_joints::eyeTilt] = 0.0;
 			ret = true;
 		}
 

@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.17 2003-09-23 17:51:42 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.18 2003-10-30 09:41:43 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -99,7 +99,6 @@ class YARPBehaviorSharedData
 			  // printf("YARB_BEHAVIOR: sending ");
 			  // _data.display();
 			  _outPort.Content() = _data;
-			  // _outPort.Content().display();
 			  _outPort.Write(1);
 			  _data.reset();
 		  }
@@ -253,6 +252,7 @@ private:
 
 	YARPInputPortOf<YARPBottle> _inport;
 	int _key;
+	int _exitCode;
 	ACE_Auto_Event _stopEvent;
 };
 
