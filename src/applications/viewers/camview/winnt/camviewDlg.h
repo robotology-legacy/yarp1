@@ -43,9 +43,8 @@ public:
 
 	YARPDIBConverter m_converter;
 	YARPSemaphore m_mutex;
-	YARPSemaphore m_end_sema;
 
-	CRecv (CCamviewDlg *owner = NULL) : YARPThread (), m_mutex(1), m_end_sema(0)
+	CRecv (CCamviewDlg *owner = NULL) : YARPThread (), m_mutex(1)
 	{
 		m_owner = owner;
 		memset (m_name, 0, 512);

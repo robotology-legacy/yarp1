@@ -28,7 +28,7 @@ void CRecv::Body (void)
 	double cur = -1;
 	int frame_no = 0;
 
-	while (m_end_sema.PollingWait() != 1)
+	while (!IsTerminated())
 	{
 		m_inport.Read();
 		m_img.Refer (m_inport.Content());
