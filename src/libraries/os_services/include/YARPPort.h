@@ -52,7 +52,17 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPort.h,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+
+///
+/// $Id: YARPPort.h,v 1.3 2003-04-22 09:06:34 gmetta Exp $
 ///
 ///
 
@@ -64,13 +74,16 @@
 #define YARPPort_INC
 
 #include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/Log_Msg.h>
+
 #include "YARPAll.h"
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
-#include <assert.h>
+///#include <assert.h>
 
 #include "YARPBool.h"
 #include "YARPPortContent.h"
@@ -150,7 +163,7 @@ public:
 
 	T& Content()
 	{
-		assert(content!=NULL);
+		ACE_ASSERT(content!=NULL);
 		return ((YARPPortContentOf<T>*)content)->Content();
 	}
 };
@@ -164,7 +177,7 @@ public:
 	T& Content()
     {
 		YARPOutputPort::Content();
-		assert(content!=NULL);
+		ACE_ASSERT (content!=NULL);
 		return ((YARPPortContentOf<T>*)content)->Content();
     }
 };

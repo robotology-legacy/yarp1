@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPAll.cpp,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPAll.cpp,v 1.3 2003-04-22 09:06:30 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -81,6 +81,10 @@ public:
 	YARPFooInitializer () { ACE::init(); }
 	~YARPFooInitializer () { ACE::fini(); }
 } _fooinitializer;
+
+
+/// -1 = disabled.
+int __debug_level = -1;
 
 
 // thread-safe version of printf

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameID.h,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPNameID.h,v 1.3 2003-04-22 09:06:34 gmetta Exp $
 ///
 ///
 /*
@@ -122,6 +122,14 @@ public:
 	inline ACE_INET_Addr& getAddressRef (void) { return _address; }
 //	inline int isValid (void) const { return (_mode != YARP_NO_SERVICE_AVAILABLE) ? 1 : 0; }
 	inline YARPNameID& getNameID(void) { return (YARPNameID &)(*this); }
+
+	YARPUniqueNameID& operator= (const YARPUniqueNameID& other) 
+	{ 
+		_address = other._address; 
+		_mode = other._mode;
+		_raw_id = other._raw_id;
+		return (*this);
+	}
 };
 
 

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: strng.h,v 1.3 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: strng.h,v 1.4 2003-04-22 09:06:36 gmetta Exp $
 ///
 ///
 
@@ -60,10 +60,12 @@
 #define STRNG_INC
 
 #include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/Log_Msg.h>
 
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
+///#include <assert.h>
 
 //#include "String.h"
 
@@ -111,7 +113,7 @@ public:
 		SetNull(); 
 		if ( val != NULL ) 
 		{
-			str = strdup ( val ); assert(str!=NULL);
+			str = strdup ( val ); ACE_ASSERT (str!=NULL);
 		} 
 		return *this; 
 	}
@@ -127,7 +129,7 @@ public:
 		String old;
 		old.str = str;
 		str = (char*)malloc(length()+strlen(val)+1);
-		assert(str!=NULL);
+		ACE_ASSERT (str!=NULL);
 		strcpy(str,old.str);
 		strcat(str,val);
 	}

@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPFragments.h,v 1.2 2003-04-18 09:25:49 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPFragments.h,v 1.3 2003-04-22 09:06:41 gmetta Exp $
 ///
 ///
 
@@ -61,7 +70,7 @@
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
-#include <ace/Synch.h>
+#include <ace/Log_Msg.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
@@ -101,7 +110,7 @@ public:
 		{
 			Clear();
 			buffer = new char[nlen];
-			assert(buffer!=NULL);
+			ACE_ASSERT (buffer!=NULL);
 			len = nlen;
 			clen = nlen;
 			owned = 1;
@@ -147,7 +156,7 @@ public:
 	Fragments *AddNext()
 	{ 
 		if (next==NULL) next = new Fragments;  
-		assert(next!=NULL); 
+		ACE_ASSERT (next!=NULL); 
 		return next;
 	}
 
@@ -173,7 +182,7 @@ void CopyToFragments(Fragments& Fragments, const T& t)
 template <class T>
 void CopyFromFragments(Fragments& Fragments, const T& t)
 {
-	assert(Fragments.GetLength()==sizeof(t));
+	ACE_ASSERT (Fragments.GetLength()==sizeof(t));
 	memcpy((char *)(&t),Fragments.GetBuffer(),sizeof(t));
 }
 

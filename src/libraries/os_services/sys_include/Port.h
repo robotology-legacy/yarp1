@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Port.h,v 1.5 2003-04-19 21:04:51 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: Port.h,v 1.6 2003-04-22 09:06:39 gmetta Exp $
 ///
 ///
 
@@ -68,7 +77,7 @@
 
 #include "YARPString.h"
 
-#include <assert.h>
+///#include <assert.h>
 #include "mesh.h"
 #include "YARPSemaphore.h"
 #define Sema YARPSemaphore
@@ -97,11 +106,16 @@ enum
 	MSG_ID_ERROR        = -1
 };
 
-
+///
+/// this is the OutputTarget. A thread that handles a single out connection.
+/// these are part of a pool (MeshOf) of threads handled by the Port main thread.
+/// the thread receives the data buf through the usual sendable ref/pointer.
+///
+///
 class OutputTarget : public BasedLink<OutputTarget>, public Thread
 {
 public:
-	YARPNameID target_pid;
+	YARPUniqueNameID target_pid;
 	double check_tick;
 	int ticking;
 	int active;
@@ -127,7 +141,12 @@ public:
 		check_tick = 0;  ticking = 0;
     }
 
-	virtual ~OutputTarget() { End(); }
+	virtual ~OutputTarget() 
+	{ 
+		End(); 
+		ACE_OS::printf ("OutputTarget destroyed\n");
+		/// supposedly closes the actual connection.
+	}
 	virtual void Body();
 
 	void WaitMutex() { mutex.Wait(); }
@@ -135,6 +154,7 @@ public:
 
 	virtual void OnSend() {}
 
+	/// passes a new Sendable to the thread.
 	void Share(Sendable *nsendable)
 	{
 		WaitMutex();
@@ -150,6 +170,7 @@ public:
 		PostMutex();
 	}
 
+	/// this simply asks the thread to close itself down.
 	void Deactivate()
 	{
 		WaitMutex();
@@ -180,6 +201,14 @@ public:
 ///
 class Port;
 
+///
+/// this is a thread that takes care of sending data. It waits for a
+///	go signal (_ready_to_go), it activates by scanning the list of
+///	output targets, and eventually for all active targets sends the
+/// data.
+///	this thread is meant to substitute a "select" with mutex/sema and 
+/// socket demultiplexing capabilities (that doesn't exist in NT).
+///
 class _strange_select : public YARPThread
 {
 protected:
@@ -204,7 +233,18 @@ public:
 	void pulseGo (void) { _ready_to_go.Post (); }
 };
 
-
+///
+/// this is the main port thread.
+///	- starts an input channel for receiving commands.
+/// - manages the list of output targets.
+/// - manages the _strange_select thread.
+/// - commands are sent either remotely or locally through the input socket.
+///	- the GO command (data send) is handled by the _strange_select (efficiency).
+///	- writing to the port is done through the Say/SayServer (for commands).
+/// - writing the GO/data is done through Fire/Share.
+/// - reading is done through Acquire/Relinquish.
+///
+///
 class Port : public Thread
 {
 public:
@@ -233,7 +273,7 @@ public:
 		require_complete_send = flag;
     }
   
-	int CountClients()
+	int CountClients(void)
     {
 		int ct = 0;
 		MeshLink *ptr;
@@ -316,9 +356,6 @@ public:
 	int SendHelper(const YARPNameID& pid, const char *buf, int len, int tag = MSG_ID_NULL);
 	int SayServer(const YARPNameID& pid, const char *buf);
 
-///	YARPUniqueNameID MakeServer(const char *name);
-///	YARPUniqueNameID GetServer(const char *name);
-
 	void AddHeaders(int flag)
     {
 		out_mutex.Wait();
@@ -386,7 +423,6 @@ public:
 	void TakeReceiverAccess(Receivable *nreceiver);
 	void TakeReceiverLatest(Receivable *nreceiver);
 	void TakeReceiverIncoming(Receivable *nreceiver);
-
 
 	Sendable *Acquire(int wait=1);
 	void Relinquish();

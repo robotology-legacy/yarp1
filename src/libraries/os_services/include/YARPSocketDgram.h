@@ -23,7 +23,7 @@
 /// Licensor, this list of conditions, and the following disclaimers  ///
 /// in the documentation and/or other materials provided with the     ///
 /// distribution.                                                     ///
-///
+///                                                                   ///
 /// Neither the names of Licensor, nor the names of any contributors  ///
 /// to the Software, nor any of their trademarks or service marks,    ///
 /// may be used to endorse or promote products derived from this      ///
@@ -52,137 +52,114 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Sendables.h,v 1.4 2003-04-22 09:06:40 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #pasa, nat#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPSocketDgram.h,v 1.1 2003-04-22 09:06:36 gmetta Exp $
 ///
 ///
-#ifndef SENDABLES_H_INC
-#define SENDABLES_H_INC
+
+#ifndef __YARPSocketDgramh__
+#define __YARPSocketDgramh__
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
-#include <ace/Log_Msg.h>
+#include <ace/OS.h>
+#include <ace/SOCK_Dgram.h>
+#include <ace/Synch.h>
+
+#include "YARPAll.h"
+#include "YARPNameID.h"
+#include "YARPSocket.h"
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
-#include <list>
-#ifndef __QNX__
-using namespace std;
-#endif
+#include "YARPNetworkTypes.h" // not strictly necessary here
 
-/// #include <assert.h>
+/// SocketTypes
+///{
+///	YARP_NO_SOCKET = 0,
+///	YARP_I_SOCKET = 1,
+///	YARP_O_SOCKET = 2,
+///};
 
-#include "Sendable.h"
-#include "YARPSemaphore.h"
+/*
+	same as above.
 
-extern YARPSemaphore refcounted_sema;
-
-
-class PSendable
+class YARPNetworkObject
 {
+protected:
+	int _socktype;
+
 public:
-	Sendable *sendable;
-	PSendable(Sendable *nsendable=NULL) { sendable = nsendable; }
+	static int getHostname(char *buffer, int buffer_length);
+	int getSocketType (void) const { return _socktype; }
+};
+*/
 
-	Sendable *Content() { return sendable; }
+///
+///
+///
+class YARPInputSocketDgram : public YARPNetworkObject
+{
+protected:
+	void *system_resources;
+///	int identifier;
+///	int assigned_port;
 
-	~PSendable()
-	{
-		if (sendable!=NULL)
-		{
-			//	  printf("!!!!!!!!!!!! PSendable DESTRUCTOR! %ld\n", (long int) sendable);
-			delete sendable;
-		}
-		sendable = NULL;
-	}
+public:
+	YARPInputSocketDgram();
+	virtual ~YARPInputSocketDgram();
 
-	int operator == (const PSendable& s) const { return 1; }
-	int operator != (const PSendable& s) const { return 0; }
-	int operator < (const PSendable& s) const { return 0; }
+	int Close(ACE_HANDLE reply_id);
+	int CloseAll(void);
+
+	int Prepare (const YARPUniqueNameID& name, int port1, int number_o_ports);
+
+	int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
+	int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
+	int ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length);
+	int ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
+	int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
+
+	ACE_HANDLE GetIdentifier(void) const;		/// { return identifier; }
+	int GetAssignedPort(void) const;	/// { return assigned_port; }
 };
 
-class Sendables
+
+///
+///
+///
+class YARPOutputSocketDgram : public YARPNetworkObject
 {
+protected:
+	void *system_resources;
+	ACE_HANDLE identifier;
+
 public:
-	list<PSendable> sendables;
+	YARPOutputSocketDgram();
+	virtual ~YARPOutputSocketDgram();
 
-	void PutSendable(Sendable *s)
-    {
-		refcounted_sema.Wait();
-		list<PSendable>::iterator cursor;
-		//cout << "*** NEW stl " << __FILE__ << ":" << __LINE__ << endl;
-		//sendables.insert(sendables.begin(),PSendable());
-		//printf("PutSendable() > 1\n");
-		sendables.push_back(PSendable());
-		ACE_ASSERT (s!=NULL);
-		//printf("PutSendable() > 2\n");
-		//      sendables.insert(sendables.begin(),*s);
-		ACE_ASSERT (sendables.begin() != sendables.end());
-		//printf("PutSendable() > 3\n");
-		cursor = sendables.end();
-		--cursor;
-		//printf("PutSendable() > 4\n");
-		(*cursor).sendable = s;
-		s->owner = this;
-		//printf("PutSendable() > 1\n");
-		refcounted_sema.Post();
-    }
+	int Prepare (int local_port, const YARPUniqueNameID& name);
+	int Close(void);
+	int Connect(void);
+	
+	int SendBegin(char *buffer, int buffer_length);
+	int SendContinue(char *buffer, int buffer_length);
+	int SendReceivingReply(char *reply_buffer, int reply_buffer_length);
+	int SendEnd(char *reply_buffer, int reply_buffer_length);
 
-	void TakeBack(Sendable *s)
-    {
-		//printf("##### Take back called for %ld (%d)\n", (long int) s, s->ref_count);
-		PutSendable(s);
-		//printf("##### POST Take back called for %ld (%d)\n", (long int) s, s->ref_count);
-    }
-  
-	Sendable *GetSendable()
-    {
-		Sendable *s = NULL;
-		refcounted_sema.Wait();
-		list<PSendable>::iterator cursor = sendables.end();
-		if (sendables.begin() != sendables.end())
-		{
-			--cursor;
-			s = (*cursor).sendable;
-			//printf("### %d for %d\n", s->ref_count, (long int)s);
-			(*cursor).sendable = NULL;
-			sendables.pop_back();	
-			ACE_ASSERT (s!=NULL);
-			//printf("### %d for %d\n", s->ref_count, (long int)s);
-			s->ref_count = 0;
-		}
-		refcounted_sema.Post();
-		return s;
-    }
+	/// what is it for?
+	ACE_HANDLE GetIdentifier();
+	void SetIdentifier(int n_identifier);
 };
-
-template <class T>
-class SendablesOf : public Sendables
-{
-public:
-	void Put(T *s)
-	{
-		PutSendable(s);
-	}
-
-	T *Get()
-	{
-		T *t = (T*)GetSendable();
-		if (t==NULL)
-		{
-			//T *buf = (T *)new char[sizeof(T)];
-			//assert(buf!=NULL);
-			//t = new (buf) T;
-			t = new T;	
-			ACE_ASSERT (t!=NULL);
-			t->ZeroRef();
-		}
-		ACE_ASSERT (t!=NULL);
-		t->owner = this;
-		return t;
-	}
-};
-
 
 #endif

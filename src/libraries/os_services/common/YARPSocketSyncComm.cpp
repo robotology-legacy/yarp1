@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.3 2003-04-22 09:06:32 gmetta Exp $
 ///
 ///
 
@@ -73,6 +73,8 @@
 #include "BlockPrefix.h"
 
 #include "debug.h"
+
+#define THIS_DBG 50
 
 /*
   Code sends along a preamble to permit transparent bridging.  Preamble
@@ -232,7 +234,7 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 	ACE_ASSERT (return_parts >= 1);
 	int i;
 
-	DBG(50) printf("Get %d send_parts, %d return_parts\n", send_parts, return_parts);
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Get %d send_parts, %d return_parts\n", send_parts, return_parts));
 
 	/* preamble code begins */
 	BlockPrefix prefix;
@@ -323,7 +325,7 @@ YARPNameID YARPSocketSyncComm::BlockingReceive(const YARPNameID& src, YARPMultip
 		for (int i = 1; i < receive_parts; i++)
 		{
 			int ct2 = ts->ReceiveContinue (id, msg.GetBuffer(i), msg.GetBufferLength(i));
-			DBG(5) printf("^^^ additional receive of %d bytes\n", ct2);
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "^^^ additional receive of %d bytes\n", ct2));
 		}
 	}
 
@@ -402,4 +404,4 @@ int YARPSocketSyncComm::Reply(const YARPNameID& src, YARPMultipartMessage& msg)
 }
 
 
-
+#undef THIS_DBG

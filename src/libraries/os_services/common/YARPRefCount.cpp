@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRefCount.cpp,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPRefCount.cpp,v 1.3 2003-04-22 09:06:31 gmetta Exp $
 ///
 ///
 
@@ -80,7 +89,9 @@ PYARPRefCount AddYarpRefCount(PYARPRefCount& ref)
 	{
 		ref = new YARPRefCount;
 	}
-	assert(ref!=NULL);
+
+	ACE_ASSERT (ref!=NULL);
+	
 	ref->ref_count++;
 	result = ref;
 	YR_POST;
@@ -113,7 +124,7 @@ void YARPRefCount::ZeroRef()
 void YARPRefCount::RemoveRef()
 {
 	YR_WAIT;
-	assert(ref_count>0);
+	ACE_ASSERT (ref_count>0);
 	ref_count--;
 	if (ref_count==0)
 	{

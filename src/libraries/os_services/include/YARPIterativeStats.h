@@ -23,7 +23,7 @@
 /// Licensor, this list of conditions, and the following disclaimers  ///
 /// in the documentation and/or other materials provided with the     ///
 /// distribution.                                                     ///
-///
+///                                                                   ///
 /// Neither the names of Licensor, nor the names of any contributors  ///
 /// to the Software, nor any of their trademarks or service marks,    ///
 /// may be used to endorse or promote products derived from this      ///
@@ -52,137 +52,77 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Sendables.h,v 1.4 2003-04-22 09:06:40 gmetta Exp $
+/// $Id: YARPIterativeStats.h,v 1.1 2003-04-22 09:06:33 gmetta Exp $
 ///
 ///
-#ifndef SENDABLES_H_INC
-#define SENDABLES_H_INC
+
+// YARPIterativeStats.h: interface for the IterativeStats class.
+//
+// Commpute mean and std of samples in a iterative way
+//
+// Sept 2002 by nat
+//
+// TODO: check out n_elem for wrapping
+//////////////////////////////////////////////////////////////////////
+
+#ifndef __iterativestats__
+#define __iterativestats__
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
-#include <ace/Log_Msg.h>
+#include <math.h>
 
-#ifdef YARP_HAS_PRAGMA_ONCE
-#	pragma once
-#endif
-
-#include <list>
-#ifndef __QNX__
-using namespace std;
-#endif
-
-/// #include <assert.h>
-
-#include "Sendable.h"
-#include "YARPSemaphore.h"
-
-extern YARPSemaphore refcounted_sema;
-
-
-class PSendable
+///
+///
+/// this is only used by YARPRateThread to compute mean and stddev of
+///	thread rate/interval.
+///
+class IterativeStats  
 {
 public:
-	Sendable *sendable;
-	PSendable(Sendable *nsendable=NULL) { sendable = nsendable; }
+	IterativeStats();
+	virtual ~IterativeStats();
 
-	Sendable *Content() { return sendable; }
-
-	~PSendable()
+	void add_point(double new_elem)
 	{
-		if (sendable!=NULL)
+		n_elem++;
+
+		if (n_elem == 1)
 		{
-			//	  printf("!!!!!!!!!!!! PSendable DESTRUCTOR! %ld\n", (long int) sendable);
-			delete sendable;
+			mean = new_elem;
+			sum_square = new_elem*new_elem;
+		    var = 0.0;
 		}
-		sendable = NULL;
+		else
+		{
+			mean = (mean*(n_elem-1) + new_elem)/(n_elem);
+			
+			sum_square = sum_square + new_elem * new_elem;
+			var = (sum_square - n_elem * mean * mean)/(n_elem-1);
+		}
 	}
 
-	int operator == (const PSendable& s) const { return 1; }
-	int operator != (const PSendable& s) const { return 0; }
-	int operator < (const PSendable& s) const { return 0; }
-};
-
-class Sendables
-{
-public:
-	list<PSendable> sendables;
-
-	void PutSendable(Sendable *s)
-    {
-		refcounted_sema.Wait();
-		list<PSendable>::iterator cursor;
-		//cout << "*** NEW stl " << __FILE__ << ":" << __LINE__ << endl;
-		//sendables.insert(sendables.begin(),PSendable());
-		//printf("PutSendable() > 1\n");
-		sendables.push_back(PSendable());
-		ACE_ASSERT (s!=NULL);
-		//printf("PutSendable() > 2\n");
-		//      sendables.insert(sendables.begin(),*s);
-		ACE_ASSERT (sendables.begin() != sendables.end());
-		//printf("PutSendable() > 3\n");
-		cursor = sendables.end();
-		--cursor;
-		//printf("PutSendable() > 4\n");
-		(*cursor).sendable = s;
-		s->owner = this;
-		//printf("PutSendable() > 1\n");
-		refcounted_sema.Post();
-    }
-
-	void TakeBack(Sendable *s)
-    {
-		//printf("##### Take back called for %ld (%d)\n", (long int) s, s->ref_count);
-		PutSendable(s);
-		//printf("##### POST Take back called for %ld (%d)\n", (long int) s, s->ref_count);
-    }
-  
-	Sendable *GetSendable()
-    {
-		Sendable *s = NULL;
-		refcounted_sema.Wait();
-		list<PSendable>::iterator cursor = sendables.end();
-		if (sendables.begin() != sendables.end())
-		{
-			--cursor;
-			s = (*cursor).sendable;
-			//printf("### %d for %d\n", s->ref_count, (long int)s);
-			(*cursor).sendable = NULL;
-			sendables.pop_back();	
-			ACE_ASSERT (s!=NULL);
-			//printf("### %d for %d\n", s->ref_count, (long int)s);
-			s->ref_count = 0;
-		}
-		refcounted_sema.Post();
-		return s;
-    }
-};
-
-template <class T>
-class SendablesOf : public Sendables
-{
-public:
-	void Put(T *s)
+	operator +=(double new_elem) { add_point(new_elem); }
+	double get_mean() { return mean; }
+	double get_var() { return var; }
+	double get_std() { return sqrt(var); }
+	
+	void reset()
 	{
-		PutSendable(s);
-	}
+		n_elem = 0;
+		mean = 0.0;
+		var = 0.0;
+		sum_square = 0.0;
+	};
 
-	T *Get()
-	{
-		T *t = (T*)GetSendable();
-		if (t==NULL)
-		{
-			//T *buf = (T *)new char[sizeof(T)];
-			//assert(buf!=NULL);
-			//t = new (buf) T;
-			t = new T;	
-			ACE_ASSERT (t!=NULL);
-			t->ZeroRef();
-		}
-		ACE_ASSERT (t!=NULL);
-		t->owner = this;
-		return t;
-	}
+	int elem() { return n_elem; }
+
+private:
+	double mean;		 // actual mean
+	double var;			 // actual std
+	double sum_square;	 // actual sum_square (to be used to compute std)
+
+	unsigned int n_elem; // number of actual elem
 };
 
-
-#endif
+#endif // __iteractivestats__

@@ -23,7 +23,7 @@
 /// Licensor, this list of conditions, and the following disclaimers  ///
 /// in the documentation and/or other materials provided with the     ///
 /// distribution.                                                     ///
-///
+///                                                                   ///
 /// Neither the names of Licensor, nor the names of any contributors  ///
 /// to the Software, nor any of their trademarks or service marks,    ///
 /// may be used to endorse or promote products derived from this      ///
@@ -52,137 +52,26 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Sendables.h,v 1.4 2003-04-22 09:06:40 gmetta Exp $
+/// $Id: YARPIterativeStats.cpp,v 1.1 2003-04-22 09:06:30 gmetta Exp $
 ///
 ///
-#ifndef SENDABLES_H_INC
-#define SENDABLES_H_INC
 
-#include <conf/YARPConfig.h>
-#include <ace/config.h>
-#include <ace/Log_Msg.h>
+// YARPIteractiveStats.cpp: implementation of the IteractiveStats class.
+//
+//////////////////////////////////////////////////////////////////////
 
-#ifdef YARP_HAS_PRAGMA_ONCE
-#	pragma once
-#endif
+#include "YARPIterativeStats.h"
 
-#include <list>
-#ifndef __QNX__
-using namespace std;
-#endif
+//////////////////////////////////////////////////////////////////////
+// Construction/Destruction
+//////////////////////////////////////////////////////////////////////
 
-/// #include <assert.h>
-
-#include "Sendable.h"
-#include "YARPSemaphore.h"
-
-extern YARPSemaphore refcounted_sema;
-
-
-class PSendable
+IterativeStats::IterativeStats()
 {
-public:
-	Sendable *sendable;
-	PSendable(Sendable *nsendable=NULL) { sendable = nsendable; }
+	reset();
+}
 
-	Sendable *Content() { return sendable; }
-
-	~PSendable()
-	{
-		if (sendable!=NULL)
-		{
-			//	  printf("!!!!!!!!!!!! PSendable DESTRUCTOR! %ld\n", (long int) sendable);
-			delete sendable;
-		}
-		sendable = NULL;
-	}
-
-	int operator == (const PSendable& s) const { return 1; }
-	int operator != (const PSendable& s) const { return 0; }
-	int operator < (const PSendable& s) const { return 0; }
-};
-
-class Sendables
+IterativeStats::~IterativeStats()
 {
-public:
-	list<PSendable> sendables;
 
-	void PutSendable(Sendable *s)
-    {
-		refcounted_sema.Wait();
-		list<PSendable>::iterator cursor;
-		//cout << "*** NEW stl " << __FILE__ << ":" << __LINE__ << endl;
-		//sendables.insert(sendables.begin(),PSendable());
-		//printf("PutSendable() > 1\n");
-		sendables.push_back(PSendable());
-		ACE_ASSERT (s!=NULL);
-		//printf("PutSendable() > 2\n");
-		//      sendables.insert(sendables.begin(),*s);
-		ACE_ASSERT (sendables.begin() != sendables.end());
-		//printf("PutSendable() > 3\n");
-		cursor = sendables.end();
-		--cursor;
-		//printf("PutSendable() > 4\n");
-		(*cursor).sendable = s;
-		s->owner = this;
-		//printf("PutSendable() > 1\n");
-		refcounted_sema.Post();
-    }
-
-	void TakeBack(Sendable *s)
-    {
-		//printf("##### Take back called for %ld (%d)\n", (long int) s, s->ref_count);
-		PutSendable(s);
-		//printf("##### POST Take back called for %ld (%d)\n", (long int) s, s->ref_count);
-    }
-  
-	Sendable *GetSendable()
-    {
-		Sendable *s = NULL;
-		refcounted_sema.Wait();
-		list<PSendable>::iterator cursor = sendables.end();
-		if (sendables.begin() != sendables.end())
-		{
-			--cursor;
-			s = (*cursor).sendable;
-			//printf("### %d for %d\n", s->ref_count, (long int)s);
-			(*cursor).sendable = NULL;
-			sendables.pop_back();	
-			ACE_ASSERT (s!=NULL);
-			//printf("### %d for %d\n", s->ref_count, (long int)s);
-			s->ref_count = 0;
-		}
-		refcounted_sema.Post();
-		return s;
-    }
-};
-
-template <class T>
-class SendablesOf : public Sendables
-{
-public:
-	void Put(T *s)
-	{
-		PutSendable(s);
-	}
-
-	T *Get()
-	{
-		T *t = (T*)GetSendable();
-		if (t==NULL)
-		{
-			//T *buf = (T *)new char[sizeof(T)];
-			//assert(buf!=NULL);
-			//t = new (buf) T;
-			t = new T;	
-			ACE_ASSERT (t!=NULL);
-			t->ZeroRef();
-		}
-		ACE_ASSERT (t!=NULL);
-		t->owner = this;
-		return t;
-	}
-};
-
-
-#endif
+}

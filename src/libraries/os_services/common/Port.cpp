@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Port.cpp,v 1.6 2003-04-19 21:04:49 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: Port.cpp,v 1.7 2003-04-22 09:06:30 gmetta Exp $
 ///
 ///
 
@@ -91,6 +100,9 @@
 
 Sema services_sema(1);
 
+/// local adjustment, change for enabling/disabling single class debug.
+#define THIS_DBG 80
+
 
 void safe_printf(char *format,...)
 {
@@ -107,22 +119,6 @@ void safe_printf(char *format,...)
 #define HEADER_CT (4)
 #define MAX_FRAGMENT (4)
 
-#if 0
-///
-///
-/// return type was YARPNameID
-YARPUniqueNameID GetServer(const char *name)
-{
-	///
-	return YARPNameService::LocateName(name);
-}
-
-/// return type was int.
-YARPUniqueNameID MakeServer(const char *name)
-{
-	return YARPNameService::RegisterName(name);
-}
-#endif
 
 ///
 /// prepares the connect command. the header is NewFragmentHeader. a sender is
@@ -169,10 +165,14 @@ void OutputTarget::Body ()
 	BlockSender sender;
 	CountedPtr<Sendable> p_local_sendable;
 
-	///YARPUniqueNameID target_pid = GetServer(GetLabel().c_str());
-	YARPUniqueNameID target_pid = YARPNameService::LocateName (GetLabel().c_str());
+	target_pid = YARPNameService::LocateName (GetLabel().c_str());
 	YARPEndpointManager::CreateOutputEndpoint (target_pid);
-	YARPEndpointManager::ConnectEndpoints (target_pid);
+	YARPEndpointManager::ConnectEndpoints (target_pid.getNameID());
+
+#ifdef YARP_TCP_NO_DELAY
+	/// disables Nagle's algorithm... 
+	YARPEndpointManager::SetTCPNoDelay (target_pid.getNameID());
+#endif
 
 	/// MUST complain if connection fails.
 	///
@@ -192,12 +192,13 @@ void OutputTarget::Body ()
 		}
 	}
 
-	while(1)
+	while(!deactivated)
 	{
-		dbg_printf(80)("Waiting for sema to send\n");
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Waiting for sema to send\n"));
 		something_to_send.Wait();
 
-		dbg_printf(80)("Done waiting for sema to send\n");
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Done waiting for sema to send\n"));
+
 		WaitMutex();
 
 		check_tick = YARPTime::GetTimeAsSeconds();
@@ -206,7 +207,7 @@ void OutputTarget::Body ()
 		p_sendable.Reset();
 		
 		PostMutex();
-		dbg_printf(80)("Waiting for sema to send <<< sema okay!\n");
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Waiting for sema to send <<< sema okay!\n"));
 
 		sender.Begin(target_pid.getNameID());
 		header.tag = MSG_ID_DATA;
@@ -220,7 +221,8 @@ void OutputTarget::Body ()
 		}
 
 		success = p_local_sendable.Ptr()->Write(sender);
-		DBG(45) if (!success) cout << "*** Fire failed" << endl;
+		if (!success)
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** Fire failed\n"));
 		success = success && sender.End();
 
 		WaitMutex();
@@ -233,7 +235,7 @@ void OutputTarget::Body ()
 
 		if (!success)
 		{
-			DBG(45) cout << "*** Send failed" << endl;
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** Send failed\n"));
 			active = 0;
 		}
 		
@@ -247,6 +249,9 @@ void OutputTarget::Body ()
 #endif
 		OnSend();
 	}
+
+	YARPEndpointManager::Close (target_pid.getNameID());	
+	ACE_DEBUG ((LM_DEBUG, "thread %d bailing out\n", GetIdentifier()));
 }
 
 ///
@@ -267,7 +272,7 @@ void _strange_select::Body ()
 	{
 		_ready_to_go.Wait ();
 
-		ACE_DEBUG ((LM_DEBUG, "Go! --- from a new thread --- \n"));
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Go! --- from a new thread --- \n"));
 
 		/// access to targets must be protected, in case, the port
 		/// thread decides to delete a link ;)
@@ -473,19 +478,19 @@ void Port::Body()
 					if (tag != MSG_ID_DATA)
 					{
 						ok = receiver.Get(cmd.GetBuffer(),hdr.length);
-						DBG(95) cout << "Got some form of command (" << ((int)tag) << "," << ok << ")" << endl;
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "Got some form of command ( %d, %d )\n", ((int)tag), ok));
 					}
 				}
 				else
 				{
 					if (hdr.checker != '/')
 					{
-						cerr << "Error - command received in unknown protocol (" << name << ")"	<< endl;
+						ACE_DEBUG ((LM_ERROR, "Error - command received in unknown protocol ( %s )\n", name.c_str()));
 						ok = 0;
 					}
 					else
 					{
-						dbg_printf(0)("%s received unsupported old format request: %s\n", name.c_str());
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "%s received unsupported old format request: %s\n", name.c_str()));
 					}
 				}
 			}
@@ -507,7 +512,7 @@ void Port::Body()
 		}
 		else
 		{
-			dbg_printf(95)("Auto assume data\n");
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "Auto assume data\n"));
 			tag = MSG_ID_DATA;
 		}
 
@@ -544,10 +549,10 @@ void Port::Body()
 
 				if (!active)
 				{
-					dbg_printf(40)("Removing connection between %s and %s (%s%s)\n",
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "Removing connection between %s and %s (%s%s)\n",
 						name.c_str(), target->GetLabel().c_str(),
 						deactivated ? "as requested" : "target stopped responding",
-						timeout?"/timeout":"");
+						timeout?"/timeout":""));
 					delete target;
 				}
 				target = next;
@@ -567,7 +572,7 @@ void Port::Body()
 					target = targets.GetByLabel (buf);
 					if (target == NULL)
 					{
-						dbg_fprintf(40)(stderr, "Starting connection between %s and %s\n", name.c_str(), buf);
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "Starting connection between %s and %s\n", name.c_str(), buf));
 
 						target = targets.NewLink(buf);
 						
@@ -578,7 +583,7 @@ void Port::Body()
 					}
 					else
 					{
-						dbg_printf(45)("Ignoring %s, already connected\n", buf);
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "Ignoring %s, already connected\n", buf));
 					}
 
 					list_mutex.Post ();
@@ -587,14 +592,14 @@ void Port::Body()
 
 			case MSG_ID_DETACH:
 				{
-					dbg_printf(70)("Received detach request for %s\n", buf+1);
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "Received detach request for %s\n", buf+1));
 
 					list_mutex.Wait ();
 
 					target = targets.GetByLabel(buf+1);
 					if (target!=NULL)
 					{
-						dbg_printf(70)("Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str());
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
 						target->Deactivate();
 					}
 
@@ -604,14 +609,14 @@ void Port::Body()
 
 			case MSG_ID_DATA:
 				{
-					dbg_printf(70)("Gosh, someone sent me data! Me being %s in case you're curious\n", name.c_str());
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "Gosh, someone sent me data! Me being %s in case you're curious\n", name.c_str()));
 
 					out_mutex.Wait();
 					receiving = 1;
 					
 					while (p_receiver_incoming.Ptr() == NULL)
 					{
-						dbg_printf(70)("%%% Waiting for incoming space\n");
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "%%% Waiting for incoming space\n"));
 						// HIT - should have way to convey back skip
 						// request to sender
 						// (can't just ignore, don't know how many)
@@ -635,7 +640,7 @@ void Port::Body()
 					out_mutex.Wait();
 					receiving = 0;
 					
-					dbg_printf(70)("%%% Received. Switching with latest space\n");
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "%%% Received. Switching with latest space\n"));
 					p_receiver_latest.Switch(p_receiver_incoming);
 					
 					if (!has_input)
@@ -652,13 +657,13 @@ void Port::Body()
 
 			case MSG_ID_GO:
 				{
-					ACE_DEBUG ((LM_DEBUG, "this shouldn't get here, the new version don't accept MSG_ID_GO\n"));
+					ACE_DEBUG ((LM_ERROR, "this shouldn't get here, the new version don't accept MSG_ID_GO\n"));
 				}
 				break;
 
 			case MSG_ID_DETACH_ALL:
 				{
-					dbg_printf(70)("Received detach_all request (%s)\n", name.c_str());
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "Received detach_all request (%s)\n", name.c_str()));
 
 					list_mutex.Wait ();
 
@@ -667,7 +672,7 @@ void Port::Body()
 					while (target!=NULL)
 					{
 						next = target->GetMeshNext();
-						dbg_printf(70)("Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str());
+						YARP_DBG(THIS_DBG) ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
 						target->Deactivate();
 						target = next;
 					}
@@ -677,12 +682,12 @@ void Port::Body()
 				break;
 
 			case MSG_ID_ERROR:
-				dbg_printf(50)("Error message received by %s!\n", name.c_str());
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "Error message received by %s!\n", name.c_str()));
 				break;
 
 			default:
 				{
-					dbg_printf(80)("Unknown message received by %s (tag is %d-->'%c')!\n", name.c_str(), tag, tag);
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, "Unknown message received by %s (tag is %d-->'%c')!\n", name.c_str(), tag, tag));
 				}
 				break;
 			}
@@ -720,7 +725,6 @@ void Port::Share(Sendable *nsendable)
 	/// through the port socket.
 	tsender.pulseGo ();
 
-	//printf("*** debug 7\n");
 #else
 	out_mutex.Wait();
 	p_sendable.Set(nsendable);
@@ -733,7 +737,7 @@ void Port::Share(Sendable *nsendable)
 void Port::TakeReceiverAccess(Receivable *nreceiver)
 {
 	out_mutex.Wait();
-	assert(!accessing);
+	ACE_ASSERT (!accessing);
 	p_receiver_access.Set(nreceiver);
 	out_mutex.Post();
 }
@@ -750,7 +754,7 @@ void Port::TakeReceiverLatest(Receivable *nreceiver)
 void Port::TakeReceiverIncoming(Receivable *nreceiver)
 {
 	out_mutex.Wait();
-	assert(!receiving);
+	ACE_ASSERT (!receiving);
 	p_receiver_incoming.Set(nreceiver);
 	out_mutex.Post();
 }
@@ -785,10 +789,10 @@ Sendable *Port::Acquire(int wait)
 	if (go)
 	{
 		out_mutex.Wait();
-		assert(!accessing);
+		ACE_ASSERT (!accessing);
 		if (p_receiver_latest.Ptr()!=NULL)
 		{
-			dbg_printf(70)("%%% READ from latest space\n");
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "%%% READ from latest space\n"));
 			p_receiver_latest.Switch(p_receiver_access);
 			has_input = 0;
 		}
@@ -812,18 +816,18 @@ void Port::Relinquish()
     {
 		if (p_receiver_incoming.Ptr()==NULL)
 		{
-			dbg_printf(70)("%%% READ relinquish to incoming space\n");
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "%%% READ relinquish to incoming space\n"));
 			p_receiver_incoming.Switch(p_receiver_access);
 		}
 		else 
 		if (p_receiver_latest.Ptr()==NULL)
 		{
-			dbg_printf(70)("%%% READ relinquish to latest space\n");
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "%%% READ relinquish to latest space\n"));
 			p_receiver_latest.Switch(p_receiver_access);
 		}
 		else
 		{
-			dbg_printf(70)("%%% READ relinquish to access space\n");
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "%%% READ relinquish to access space\n"));
 		}
 	
 		if (asleep)
@@ -894,3 +898,6 @@ void Port::FinishSend ()
 		target = target->GetMeshNext();
 	}
 }
+
+
+#undef THIS_DBG

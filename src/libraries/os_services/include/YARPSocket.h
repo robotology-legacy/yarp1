@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocket.h,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPSocket.h,v 1.3 2003-04-22 09:06:36 gmetta Exp $
 ///
 ///
 
@@ -102,7 +102,7 @@ protected:
 	int _socktype;
 
 public:
-	static int GetHostName(char *buffer, int buffer_length);
+	static int getHostname(char *buffer, int buffer_length);
 	int getSocketType (void) const { return _socktype; }
 };
 
@@ -166,6 +166,8 @@ public:
 	/// what is it for?
 	ACE_HANDLE GetIdentifier();
 	void SetIdentifier(int n_identifier);
+
+	int SetTCPNoDelay (void);
 };
 
 #endif

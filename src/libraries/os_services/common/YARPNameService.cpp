@@ -52,15 +52,22 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPNameService.cpp,v 1.3 2003-04-22 09:06:30 gmetta Exp $
 ///
 ///
 
 #include <conf/YARPConfig.h>
 #include <ace/OS.h>
 
-///#include <stdio.h>
-///#include <assert.h>
 #include <string.h>
 #include <fstream>
 
@@ -160,7 +167,7 @@ int YARPNameService::ConnectNameServer(const char *name)
 
 		if (name == NULL)
 		{
-			fprintf(stderr,"Could not connect name server, check %s\n", NAMER_CONFIG_FILE);
+			ACE_OS::fprintf(stderr,"Could not connect name server, check %s\n", NAMER_CONFIG_FILE);
 		}
 		tried_to_connect = 1;
 		mutex.Post();
@@ -197,7 +204,7 @@ int ConnectNameServer(YARPOutputSocket& namer)
 	}
       if (!is_connected)
 	{
-	  fprintf(stderr,"Could not connect name server, check %s\n", NAMER_CONFIG_FILE);
+		  ACE_OS::fprintf(stderr,"Could not connect name server, check %s\n", NAMER_CONFIG_FILE);
 	}
     }
   return is_connected;
@@ -274,18 +281,9 @@ YARPUniqueNameID YARPNameService::RegisterName(const char *name, int reg_type)
 		break;
 
 	case YARP_TCP:
+	case YARP_UDP:
 		{
 			return YARPSocketNameService::RegisterName (*_namer, name, reg_type);
-
-#if 0
-			int all_result = YARPSocketNameService::RegisterName(name);
-			int in_port = YARPSocketNameService::GetAssignedPort();
-			fprintf(stderr,"Socket name registration of <%s>\n", name);
-			mutex.Wait();
-			registration_mode = YARP_NAME_MODE_SOCKET;
-			mutex.Post();
-			return all_result;
-#endif
 		}		
 		break;
 
@@ -324,20 +322,20 @@ YARPUniqueNameID YARPNameService::RegisterName(const char *name, int reg_type)
 
 				if (result>=0)
 				{
-					fprintf(stderr,"Registered <%s> as [%s]\n", name, reply);
+					ACE_OS::fprintf(stderr,"Registered <%s> as [%s]\n", name, reply);
 				}
 				else
 				{
-					fprintf(stderr,"Couldn't contact name server to register %s\n", name);
+					ACE_OS::fprintf(stderr,"Couldn't contact name server to register %s\n", name);
 				}
 
-				fprintf(stderr,"Remote name registration of <%s>\n", name);
+				ACE_OS::fprintf(stderr,"Remote name registration of <%s>\n", name);
 				return all_result;
 			}
 			else
 			{
 				// Otherwise, native registration
-				fprintf(stderr,"Native name registration of <%s>\n", name);
+				ACE_OS::fprintf(stderr,"Native name registration of <%s>\n", name);
 				int all_result = YARPNativeNameService::RegisterName(name);
 				mutex.Wait();
 				registration_mode = YARP_NAME_MODE_NATIVE;
@@ -371,12 +369,12 @@ YARPUniqueNameID YARPNameService::LocateName(const char *name)
       if (native && YARPNativeNameService::IsNonTrivial())
 	{
 	  all_result = YARPNativeNameService::LocateName(name);
-	  fprintf(stderr,"Native name lookup of <%s>\n", name);
+	  ACE_OS::fprintf(stderr,"Native name lookup of <%s>\n", name);
 	}
       
       if (!all_result.IsValid())
 	{
-	  fprintf(stderr,"Remote name lookup of <%s>\n", name);
+	  ACE_OS::fprintf(stderr,"Remote name lookup of <%s>\n", name);
 	  //ConnectNameServer(NULL);
 	  YARPOutputSocket namer;
 	  ::ConnectNameServer(namer);
@@ -396,25 +394,25 @@ YARPUniqueNameID YARPNameService::LocateName(const char *name)
 	  mutex.Post();
 	  if (result>=0 && reply[0]!='?')
 	    {
-	      fprintf(stderr,"Name <%s> is being directed to [%s]\n", name, reply);
+	      ACE_OS::fprintf(stderr,"Name <%s> is being directed to [%s]\n", name, reply);
 	      all_result = YARPSocketNameService::LocateName(reply);
 	    }
 	  else
 	    {
 	      if (result>=0)
 		{
-		  fprintf(stderr,"Couldn't find <%s>\n", name);
+		  ACE_OS::fprintf(stderr,"Couldn't find <%s>\n", name);
 		}
 	      else
 		{
-		  fprintf(stderr,"Couldn't connect to name service to lookup <%s>\n", name);
+		  ACE_OS::fprintf(stderr,"Couldn't connect to name service to lookup <%s>\n", name);
 		}
 	    }
 	}
     }
   else
     {
-      fprintf(stderr,"Socket name lookup of <%s>\n", name);
+      ACE_OS::fprintf(stderr,"Socket name lookup of <%s>\n", name);
       all_result = YARPSocketNameService::LocateName(name);
     }
 
@@ -485,6 +483,21 @@ int YARPEndpointManager::Close(const YARPNameID& endp)
 
 	case YARP_QNET:
 		/// LATER: need a class for the native QNX protocol.
+		return YARP_FAIL;
+	}
+
+	return YARP_FAIL;
+}
+
+int YARPEndpointManager::SetTCPNoDelay(const YARPNameID& endp)
+{
+	switch (endp.getServiceType())
+	{
+	case YARP_TCP:
+		/// disables Nagle's algorithm.
+		return YARPSocketEndpointManager::SetTCPNoDelay ();
+
+	default:
 		return YARP_FAIL;
 	}
 

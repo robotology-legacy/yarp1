@@ -112,6 +112,10 @@ SOURCE=..\..\winnt\YARPSemaphore.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\common\YARPSocketDgram.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\winnt\YARPThread.cpp
 # End Source File
 # Begin Source File
@@ -209,6 +213,10 @@ SOURCE=..\..\include\YARPSemaphore.h
 # Begin Source File
 
 SOURCE=..\..\include\YARPSocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\YARPSocketDgram.h
 # End Source File
 # Begin Source File
 
@@ -355,5 +363,9 @@ SOURCE=..\..\sys_include\YARPFragments.h
 SOURCE=..\..\sys_include\YARPNameID_defs.h
 # End Source File
 # End Group
+# Begin Source File
+
+SOURCE=..\..\README.txt
+# End Source File
 # End Target
 # End Project

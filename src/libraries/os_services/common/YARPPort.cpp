@@ -52,7 +52,17 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPort.cpp,v 1.4 2003-04-18 15:51:46 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+
+///
+/// $Id: YARPPort.cpp,v 1.5 2003-04-22 09:06:31 gmetta Exp $
 ///
 ///
 
@@ -68,6 +78,7 @@
 #include "Sendables.h"
 #include "YARPSemaphore.h"
 #include "YARPAll.h"
+#include "debug.h"
 
 #include <list>
 
@@ -79,7 +90,7 @@
 using namespace std;
 
 //int __debug_level = 40;
-int __debug_level = 40;
+//int __debug_level = 40;
 
 typedef list<YARPPort *> PortList;
 static PortList port_list;
@@ -116,7 +127,6 @@ public:
 	{
 		ypc = NULL;  owned = 0;
 		Attach(n_ypc,n_owned);
-		//printf("####### sendable %ld (%d)\n", (long int)(this), ref_count);
 	}
 
 	virtual ~YARPSendable() 
@@ -277,8 +287,6 @@ void YARPPort::FinishSend()
 
 int YARPPort::Connect(const char *name)
 {
-	//maddog  PD.Say(name);
-	//maddog  return 0;
 	return PD.Say(name);
 }
 
@@ -303,8 +311,8 @@ YARPPortContent& YARPPort::Content()
 {
 	if (content == NULL)
 	{
-		fprintf(stderr,"Content requested for port %s when it was not available\n", PD.name.c_str());
-		fprintf(stderr,"Please make sure you understand the lifetime of the content associated with\nan input or output port\n");
+		ACE_OS::fprintf(stderr,"Content requested for port %s when it was not available\n", PD.name.c_str());
+		ACE_OS::fprintf(stderr,"Please make sure you understand the lifetime of the content associated with\nan input or output port\n");
 		ACE_OS::exit (1);
 	}
 
@@ -368,7 +376,7 @@ bool YARPInputPort::Read(bool wait)
 	{
 		content = ptr->Content();
 	}
-	return (content!=NULL);
+	return (content != NULL);
 }
 
 

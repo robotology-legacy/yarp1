@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRefCount.h,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPRefCount.h,v 1.3 2003-04-22 09:06:35 gmetta Exp $
 ///
 ///
 /*
@@ -65,6 +65,8 @@
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Synch.h>
+#include <ace/Log_Msg.h>
+
 #include "YARPAll.h"
 #include "YARPBool.h"
 

@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.h,v 1.2 2003-04-18 09:25:48 gmetta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #paulfitz, pasa#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPNameService.h,v 1.3 2003-04-22 09:06:34 gmetta Exp $
 ///
 ///
 /*
@@ -114,6 +123,7 @@ public:
 	static YARPNameID CreateOutputEndpoint(YARPUniqueNameID& name);
 	static int ConnectEndpoints(YARPNameID& dest);
 	static int Close(const YARPNameID& endp);
+	static int SetTCPNoDelay (const YARPNameID& endp);
 };
 
 #endif

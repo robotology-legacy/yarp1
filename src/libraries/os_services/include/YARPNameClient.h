@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameClient.h,v 1.2 2003-04-18 14:42:47 gmetta Exp $
+/// $Id: YARPNameClient.h,v 1.3 2003-04-22 09:06:34 gmetta Exp $
 ///
 ///
 
@@ -88,7 +88,7 @@
 #ifdef NAME_CLIENT_VERBOSE
 	#include <stdio.h>
 	#define NAME_CLIENT_DEBUG(string) \
-		do {printf("NAME_CLIENT: "),printf string;} while(0)
+do {ACE_OS::printf("NAME_CLIENT: "),ACE_OS::printf string;} while(0)
 #else
 	#define NAME_CLIENT_DEBUG(string)\
 		do {} while(0)

@@ -52,17 +52,20 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockReceiver.cpp,v 1.2 2003-04-18 09:25:47 gmetta Exp $
+/// $Id: BlockReceiver.cpp,v 1.3 2003-04-22 09:06:29 gmetta Exp $
 ///
 ///
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
-#include <ace/OS.h>
+#include <ace/ACE.h>
 
 #include "BlockReceiver.h"
 #include "debug.h"
 #include "YARPSyncComm.h"
+
+/// class/unit specific debug level.
+#define THIS_DBG 50
 
 int BlockReceiver::End()
 {
@@ -74,7 +77,7 @@ int BlockReceiver::End()
 			int r = YARPSyncComm::Reply(pid, buf, sizeof(buf));
 			if (r == YARP_FAIL)
 			{
-				DBG(50) ACE_OS::printf("BlockReceiver failed 1\n");
+				YARP_DBG(THIS_DBG) ((LM_DEBUG, "BlockReceiver failed 1\n"));
 				failed = 1;
 			}
 		}
@@ -87,7 +90,8 @@ int BlockReceiver::Get()
 {
 	if (!has_msg && !failed)
 	{
-		DBG(95) ACE_OS::printf("Receiving...\n");
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Receiving...\n"));
+
 		char buf[100];
 		pid = YARPSyncComm::BlockingReceive(pid, buf, 0);
 		if (pid.isValid())
@@ -98,7 +102,7 @@ int BlockReceiver::Get()
 		}
 		else
 		{
-			DBG(50) ACE_OS::printf("BlockReceiver failed 2\n");
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "BlockReceiver failed 2\n"));
 			failed = 1;
 			pid.invalidate();
 		}
@@ -117,7 +121,7 @@ int BlockReceiver::Get(char *buffer, int len)
 		Get();
 		if (has_msg)
 		{
-			DBG(95) ACE_OS::printf("Reading %d, %d remaining...\n",target,len);
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "Reading %d, %d remaining...\n",target,len));
 			//bytes = Readmsg(pid,offset,buffer,len);
 			bytes = YARPSyncComm::ContinuedReceive(pid,buffer,len);
 			if (bytes==0)
@@ -130,7 +134,7 @@ int BlockReceiver::Get(char *buffer, int len)
 					bytes = YARPSyncComm::ContinuedReceive(pid,buffer,len);
 				}
 			}
-			DBG(95) ACE_OS::printf("Got %d of %d...\n",bytes,target);
+			YARP_DBG(THIS_DBG) ((LM_DEBUG, "Got %d of %d...\n",bytes,target));
 
 			if (bytes<0)
 			{
@@ -157,7 +161,11 @@ int BlockReceiver::Get(char *buffer, int len)
 			terminated = 1;
 		}
 	}
-	DBG(95) ACE_OS::printf("Stopping %d failed=%d terminated=%d...\n",target, failed,terminated);
+
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Stopping %d failed=%d terminated=%d...\n",target, failed,terminated));
+	
 	return !failed;
 }
 
+
+#undef THIS_DBG

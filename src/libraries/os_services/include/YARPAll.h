@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPAll.h,v 1.3 2003-04-18 09:25:48 gmetta Exp $
+/// $Id: YARPAll.h,v 1.4 2003-04-22 09:06:32 gmetta Exp $
 ///
 ///
 
@@ -74,6 +74,7 @@
 #endif
 
 #include <stdio.h>
+#include <debug.h>
 
 // thread-safe version of printf
 void YARP_safe_printf(char *format,...);

@@ -52,29 +52,32 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: debug.h,v 1.2 2003-04-18 09:25:49 gmetta Exp $
+/// $Id: debug.h,v 1.3 2003-04-22 09:06:42 gmetta Exp $
 ///
 ///
-/// WARNING. this file name it's looking for a name clash.
+/// WARNING. this file name is looking for a name clash.
 
 #ifndef DEBUG_H_INC
 #define DEBUG_H_INC
 
 #include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/Log_Msg.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
-#include <stdio.h>
+///#include <stdio.h>
 
 extern int __debug_level;
 
 #define DEBUG_LEVEL (__debug_level)
 
-#define dbg_printf(x) if(DEBUG_LEVEL>=x) printf
-#define dbg_fprintf(x) if(DEBUG_LEVEL>=x) fprintf
-#define DBG(x) if(DEBUG_LEVEL>=x) 
+///#define dbg_printf(x) if(DEBUG_LEVEL>=x) printf
+///#define dbg_fprintf(x) if(DEBUG_LEVEL>=x) fprintf
+///#define DBG(x) if(DEBUG_LEVEL>=x) 
 
+#define YARP_DBG(x) if(DEBUG_LEVEL>=x) ACE_DEBUG
 
 #endif

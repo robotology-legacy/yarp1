@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.cpp,v 1.3 2003-04-18 15:51:45 gmetta Exp $
+/// $Id: BlockSender.cpp,v 1.4 2003-04-22 09:06:30 gmetta Exp $
 ///
 ///
 
@@ -81,6 +81,8 @@ using namespace std;
 #pragma init_seg(lib)
 #endif
 
+#define THIS_DBG 50
+
 static char _buf[100];
 
 int BlockSender::Fire()
@@ -88,7 +90,7 @@ int BlockSender::Fire()
 	int result = 0;
 	if (pieces > 0)
 	{
-		DBG(95) ACE_OS::printf("Sending %d pieces\n",pieces);
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Sending %d pieces\n",pieces));
 		errno = 0;
 		BlockUnit *bu = entries.begin();
 		YARPMultipartMessage msg(bu, pieces);	// this are allocated whenever there's a Fire...
@@ -97,26 +99,23 @@ int BlockSender::Fire()
 		reply_msg.Set(0,_buf,sizeof(_buf));
 		result = YARPSyncComm::Send(pid, msg, reply_msg);
 		pieces = 0;
-		DBG(95) ACE_OS::printf("Sent %d pieces\n",pieces);
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Sent %d pieces\n",pieces));
 	}
 	cursor = entries.begin();
 	if (result == YARP_FAIL)
 	{
 		failed = 1;
-		DBG(45) ACE_OS::printf("*** BlockSender::Fire() failed, err# %d\n");
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** BlockSender::Fire() failed, err# %P\n"));
 	}
 	return (result != YARP_FAIL);
 }
 
 int BlockSender::AddPiece(char *buffer, int len)
 {
-	DBG(95) printf("Adding piece, length %d (avail %d)\n", len, available);
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Adding piece, length %d (avail %d)\n", len, available));
 	if (cursor == entries.end ())
 	{
-		if (__debug_level >= 50)
-		{
-			ACE_OS::printf("*** NEW stl %s : %s\n", __FILE__, __LINE__);
-		}
+		YARP_DBG(THIS_DBG) ((LM_DEBUG, "*** NEW stl %s : %s\n", __FILE__, __LINE__));
 		cursor = entries.insert (cursor, BlockUnit(buffer,len));
 	}
 	else
@@ -162,4 +161,4 @@ int BlockSender::Add(char *buffer, int len)
 	return 1;
 }
 
-
+#undef THIS_DBG

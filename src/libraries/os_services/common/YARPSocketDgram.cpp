@@ -61,17 +61,27 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.5 2003-04-22 09:06:31 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.1 2003-04-22 09:06:32 gmetta Exp $
 ///
 ///
 
 ///
 /// YARP incapsulates some socket (or any other OS communication features) into two 
-///		externally visible classes YARPInputSocket and YARPOutputSocket
+///		externally visible classes YARPInputSocketDgram and YARPOutputSocketDgram
 ///
 ///	As of Apr 2003 this code is NOT tested under QNX.
 ///
 ///
+///
+
+///
+/// name server allocation policy for dgrams.
+///	1) the input socket is created with a max number of acceptable connections.
+///	2) the name server allocates a pool of ports for each IP asking a registration in UDP mode.
+/// 3) the port simply sends back a port number for each connection attempt.
+///	4) the port complains if a given remote is already connected.
+///	5) this structure working in UDP mimics the corresponding TCP accept with less
+///		exception handling though.
 ///
 
 #include <conf/YARPConfig.h>
@@ -80,31 +90,30 @@
 
 
 #ifndef __QNX__
-#include <string>
+/// WIN32, Linux
+
+#	include <string>
 using namespace std;
+
 #ifndef __WIN_MSVC__
-#include <unistd.h>  // just for gethostname
-#else
-#include <winsock2.h>
+#	include <unistd.h>  // just for gethostname
 #endif
+
 #else
-#include "strng.h"
-#include <unix.h>  // just for gethostname
+
+#	include "strng.h"
+#	include <unix.h>  // just for gethostname
+
 #endif
 
 #include <list>
 
-///#include "TinySocket.h"
 #include "YARPSocket.h"
+#include "YARPSocketDgram.h"
 #include "YARPThread.h"
 #include "YARPSemaphore.h"
 #include "YARPNameID.h"
 #include "YARPScheduler.h"
-
-
-///int TINY_VERBOSE = 0;
-///#define DBG if (TINY_VERBOSE)
-//#define DBG if (0)
 
 
 ///
@@ -163,46 +172,28 @@ public:
 } PACKED_FOR_NET;
 #include "end_pack_for_net.h"
 
-
-int YARPNetworkObject::getHostname(char *buffer, int buffer_length)
-{
-	int result = gethostname (buffer, buffer_length);
-#ifndef __QNX4__
-#ifndef __WIN__
-#ifndef __QNX6__
-	// QNX4 just doesn't have getdomainname or any obvious equivalent
-	// cygwin version doesn't have getdomainname or any obvious equivalent
-	if (result==0)
-	{
-		if (strchr(buffer,'.')==NULL)
-		{
-			int delta = strlen(buffer);
-			buffer += delta;
-			buffer_length -= delta;
-			if (buffer_length>=1)
-			{
-				*buffer = '.';
-				buffer++;
-				buffer_length--;
-			}
-			result = getdomainname(buffer,buffer_length);
-		}
-	}
-#endif
-#endif
-#endif
-	return result;
-}
-
+///
+///
+///
+const int _MAGIC_NUMBER = 7777;
 
 ///
-/// structure:  socket thread handles an input connection.
-///				_SocketThreadList is a simple stl container and handles the incoming connection (accept).
-///				YARPInputSocket contains the list and provides the external interface.
+/// structure:  
+///      socket thread handles an input connection.
+///		 _SocketThreadListDgram is a simple stl container and handles the incoming connection.
+///		 YARPInputSocketDgram contains the list and provides the external interface.
+///
+/// because dgram are connectionless, we open a socket on a port to wait for connection and
+///	then return the newly allocated port to the caller. The caller then instantiate the
+///	usual (fake though) connection to the new port number (e.g. it starts sending data).
+///	this maintains roughly a TCP-like structure and separates the incoming packets from 
+///	multiple senders. there's a bit of handshaking at the beginning when the "connection" is
+///	enstablished. additional calls to the name server might be required.
+///
 ///
 
-class YARPInputSocket;
-class _SocketThreadList;
+class YARPInputSocketDgram;
+class _SocketThreadListDgram;
 
 ///
 /// CLASS DEFINITIONS.
@@ -210,14 +201,16 @@ class _SocketThreadList;
 ///
 ///
 ///
-class _SocketThread : public YARPThread
+class _SocketThreadDgram : public YARPThread
 {
 protected:
 	int _available;
-	ACE_SOCK_Stream *_stream;
-	YARPUniqueNameID *_remote_endpoint;	
+	int _port;
+	ACE_SOCK_Dgram _local_socket;
+	YARPUniqueNameID _local_addr;
+	YARPUniqueNameID _remote_endpoint;	
 
-	_SocketThreadList *_owner;
+	_SocketThreadListDgram *_owner;
 
 	char *_extern_buffer;
 	int _extern_length;
@@ -230,77 +223,39 @@ protected:
 	int _reply_preamble;
 	YARPSemaphore _wakeup, _mutex, _reply_made;
 
-	void _begin (YARPUniqueNameID *remid, ACE_SOCK_Stream *stream);
+	int _begin (const YARPUniqueNameID *remid, int port);
 
 public:
 	/// ctors.
-	_SocketThread (YARPUniqueNameID *remid, ACE_SOCK_Stream *stream) : _wakeup(0), _mutex(1), _reply_made(0)
+	_SocketThreadDgram (const YARPUniqueNameID *remid, int port) : _wakeup(0), _mutex(1), _reply_made(0)
     {
-		_begin (remid, stream);
+		_begin (remid, port);
     }
 
-	_SocketThread (void) : _wakeup(0), _mutex(1), _reply_made(0)
+	_SocketThreadDgram (void) : _wakeup(0), _mutex(1), _reply_made(0)
     {
 		_begin (NULL, NULL);
     }
 
-	~_SocketThread () {}
+	~_SocketThreadDgram (void) {}
 
 	/// needs a method to recycle the thread since
 	/// thread creation might be a relatively costly process.
 
-	/*
-	// hack to deal with stl unpleasantness
-	/// LATER: it might be required for STL.
-	///
-	SocketThread(const SocketThread& other)
-	{
-		owner = NULL;
-		extern_buffer = NULL;
-		extern_length = 0;
-		extern_reply_buffer = NULL;
-		extern_reply_length = 0;
-		waiting = 0;
-		needs_reply = 0;      
-		available = 1;
-		read_more = 0;
-		reply_preamble = 0;
-	}
-	*/
-
 	/// required by stl interface.
-	int operator == (const _SocketThread& other) { return 0; }
-	int operator != (const _SocketThread& other) { return 0; }
-	int operator <  (const _SocketThread& other) { return 0; }
+	int operator == (const _SocketThreadDgram& other) { return 0; }
+	int operator != (const _SocketThreadDgram& other) { return 0; }
+	int operator <  (const _SocketThreadDgram& other) { return 0; }
 
-	void setOwner(_SocketThreadList& n_owner);
+	void setOwner(const _SocketThreadListDgram& n_owner);
 
 	/// call it reconnect (recycle the thread).
 	/// the thread shouldn't be running.
-	void reuse(YARPUniqueNameID *remid, ACE_SOCK_Stream *stream);
-
-	/*
-	/// this is now obsolete, REUSE does the job.
-	void SetPID (ACE_HANDLE n_pid)
-    {
-		/// this might translate to something like:
-		_stream.set_handle (n_pid)
-
-		IFVERB printf("$$$ changing from %d to %d\n", socket.GetSocketPID(), n_pid);
-		socket.ForcePID(n_pid);
-		//owner = NULL;
-		extern_buffer = NULL;
-		extern_length = 0;
-		waiting = 0;
-		needs_reply = 0;
-		read_more = 0;
-		reply_preamble = 0;
-    }
-	*/
+	int reuse(const YARPUniqueNameID *remid, int port);
 
 	ACE_HANDLE getID () const
     {
-		return  _stream->get_handle (); /// socket.GetSocketPID();
+		return  _local_socket.get_handle ();
     }
 
 	virtual void End (void);
@@ -308,6 +263,9 @@ public:
 	/// thread Body.
 	///	error check is not consistent.
 	virtual void Body (void);
+
+	/// returns the last used port number for this thread.
+	int getOldPortNumber (void) { return _port; } 
 
 	/// 
 	inline void setAvailable (int flag) { _available = flag; }
@@ -340,35 +298,31 @@ public:
 ///
 ///
 ///
-class _SocketThreadList : public YARPThread
+class _SocketThreadListDgram : public YARPThread
 {
 private:
-	/// int pid; what is this for?
-	/// int assigned_port; replaced by ACE_SOCK_Addr
-	
 	ACE_INET_Addr _local_addr;
-	ACE_SOCK_Acceptor _acceptor;
+	ACE_SOCK_Dgram _acceptor_socket;
 
-	list<_SocketThread *> _list;
+	list<_SocketThreadDgram *> _list;
 	YARPSemaphore _new_data, _new_data_written;
 
 	int _initialized;
+	
+	int _port1;
+	int _number_o_ports;
+	int _last_assigned;
 
 public:
 	/// ctors
-	_SocketThreadList () : _local_addr (1111), _new_data(0), _new_data_written(0)
+	_SocketThreadListDgram () : _local_addr (1111), _new_data(0), _new_data_written(0)
 	{
-		///pid = -1;  
-		///system_resources = NULL; 
-		///assigned_port = -1; 
+		_port1 = _number_o_ports = _last_assigned = 0;
 		_initialized = 0;
 	}
 
-	/// what is this for?
-	_SocketThreadList (const _SocketThreadList& other);
-
 	/// among other things, should correctly terminate threads.
-	virtual ~_SocketThreadList ();
+	virtual ~_SocketThreadListDgram ();
 
 	///
 	/// creates the acceptor socket and listens to port.
@@ -378,7 +332,7 @@ public:
 	/// actually the assigned is what provided by the name server but this
 	/// is done on another class.
 	int getAssignedPort (void) { return _local_addr.get_port_number(); }
-	ACE_HANDLE getID (void) { return (!_initialized) ? ACE_INVALID_HANDLE : _acceptor.get_handle(); }
+	ACE_HANDLE getID (void) { return (!_initialized) ? ACE_INVALID_HANDLE : _acceptor_socket.get_handle(); }
 
 	void addSocket(void);
 	int closeAll (void);
@@ -405,8 +359,30 @@ public:
 	int beginReply(ACE_HANDLE reply_pid, char *buf, int len);
 	int reply(ACE_HANDLE reply_pid, char *buf, int len);
 
-	// this demands exact number of bytes
+	/// this demands exact number of bytes.
 	int receiveMore(ACE_HANDLE reply_pid, char *buf, int len);
+
+	/// set a pool of port numbers to get ports for incoming connections.
+	int setPool (int port1, int number_o_ports) 
+	{
+		_port1 = port1;
+		_number_o_ports = number_o_ports;
+		_last_assigned = 0;
+		return YARP_OK;
+	}
+	
+	int getNewPortNumberFromPool (void)
+	{
+		if (_last_assigned == 0)
+			_last_assigned = _port1; 
+		else
+			_last_assigned ++;
+
+		if (_last_assigned >= _port1 + _number_o_ports)
+			return 0;
+
+		return _last_assigned;
+	}
 };
 
 
@@ -416,7 +392,7 @@ public:
 /// WARNING: requires a mutex to handle the stream deletion.
 ///
 ///
-void _SocketThread::_begin (YARPUniqueNameID *remid, ACE_SOCK_Stream *stream)
+int _SocketThreadDgram::_begin (const YARPUniqueNameID *remid, int port = 0)
 {
 	_owner = NULL;
 	_extern_buffer = NULL;
@@ -426,44 +402,95 @@ void _SocketThread::_begin (YARPUniqueNameID *remid, ACE_SOCK_Stream *stream)
 	_waiting = 0;
 	_needs_reply = 0;
 
-	_remote_endpoint = remid;
-	_stream = stream;
+	/// stores the address of the remote endpoint, the IP and port are used to reply to it
+	/// and also check whether new data is coming from the same source.
+	if (remid != NULL)
+		_remote_endpoint = *remid;
+	else
+		_remote_endpoint.invalidate();
 
-	_available = 1;
+	_port = port;
+	if (port != 0)
+	{
+		/// listen to this new port.
+		_local_addr.getAddressRef().set (port, "localhost");
+		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled?
+
+		_local_addr.getNameID() = YARPNameID (YARP_UDP, _local_socket.get_handle());
+
+		if (_local_socket.get_handle() == ACE_INVALID_HANDLE)
+		{
+			return YARP_FAIL;
+		}
+		_available = 0;
+	}
+	else
+	{
+		_available = 1;
+	}
+
 	_read_more = 0;
 	_reply_preamble = 0;
+
+	return YARP_OK;
 }
 
-void _SocketThread::setOwner(_SocketThreadList& n_owner)
+void _SocketThreadDgram::setOwner(const _SocketThreadListDgram& n_owner)
 {
-	_owner = &n_owner;
+	_owner = (_SocketThreadListDgram *)(&n_owner);
 }
 
 /// call it reconnect (recycle the thread).
 /// the thread shouldn't be running.
-void _SocketThread::reuse(YARPUniqueNameID *remid, ACE_SOCK_Stream *stream)
+int _SocketThreadDgram::reuse(const YARPUniqueNameID *remid, int port)
 {
-	_remote_endpoint = remid;
-	_stream = stream;
-	_available = 0;
+	_remote_endpoint = *remid;
+
+	if (_port != 0)
+	{
+		_local_socket.close();
+	}
+
+	if (port != 0)
+	{
+		_port = port;
+
+		/// listen to this new port.
+		_local_addr.getAddressRef().set (port, "localhost");
+		_local_socket.open (_local_addr.getAddressRef(), ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled?
+
+		_local_addr.getNameID() = YARPNameID (YARP_UDP, _local_socket.get_handle());
+
+		if (_local_socket.get_handle() == ACE_INVALID_HANDLE)
+		{
+			return YARP_FAIL;
+		}
+		_available = 0;
+	}
+	else
+	{
+		_available = 1;
+	}
+
+	return YARP_OK;
 }
 
-void _SocketThread::End (void)
+void _SocketThreadDgram::End (void)
 {
 	YARPThread::End ();
 	_mutex.Wait ();
-	if (_stream != NULL)
+	if (_local_socket.get_handle() != ACE_INVALID_HANDLE)
 	{
-		_stream->close ();
-		delete _stream;
-		_stream = NULL;
+		_local_socket.close();
 	}
 	_mutex.Post ();
 }
 
-	/// thread Body.
-	///	error check is not consistent.
-void _SocketThread::Body (void)
+
+
+/// thread Body.
+///	error check is not consistent.
+void _SocketThreadDgram::Body (void)
 {
 	int finished = 0;
 
@@ -474,22 +501,22 @@ void _SocketThread::Body (void)
 	_read_more = 0;
 	_reply_preamble = 0;
 
+	ACE_INET_Addr incoming;
+
 	while (!finished)
 	{
-		ACE_DEBUG ((LM_DEBUG, "*** listener %d waiting\n", _remote_endpoint->getAddressRef().get_port_number()));
+		ACE_DEBUG ((LM_DEBUG, "*** listener %d waiting\n", _remote_endpoint.getAddressRef().get_port_number()));
 
 		MyMessageHeader hdr;
 		hdr.SetBad();
 		int r = -1;
 
-		r = _stream->recv_n (&hdr, sizeof(hdr), 0);
-		//socket.Read((char*)(&hdr),sizeof(hdr),1);
+		r = _local_socket.recv (&hdr, sizeof(hdr), incoming);
 		
-		if (r < 0)
+		if (r < 0 || incoming != _remote_endpoint.getAddressRef())
 		{
 			ACE_DEBUG ((LM_DEBUG, "*** closing %d\n", r));
-			_stream->close ();
-			//socket.Close();
+			_local_socket.close ();
 			finished = 1;
 		}
 
@@ -499,8 +526,7 @@ void _SocketThread::Body (void)
 			ACE_DEBUG ((LM_DEBUG, "{{}} Corrupt/empty header received\n"));
 
 			ACE_DEBUG ((LM_DEBUG, "*** closing\n", r));
-			_stream->close ();
-			//socket.Close();
+			_local_socket.close ();
 			finished = 1;
 		}
 
@@ -530,8 +556,14 @@ void _SocketThread::Body (void)
 					len = _extern_length;
 				}
 
-				r = _stream->recv_n (_extern_buffer, len , 0);
-				// r = socket.Read(extern_buffer,len,1);
+				r = _local_socket.recv (_extern_buffer, len , incoming);
+				if (r < 0 || incoming != _remote_endpoint.getAddressRef())
+				{
+					ACE_DEBUG ((LM_DEBUG, "*** closing %d\n", r));
+					_local_socket.close ();
+					finished = 1;
+				}
+
 				_extern_length = r;
 				int rep = _needs_reply;
 				
@@ -545,8 +577,14 @@ void _SocketThread::Body (void)
 				while (_read_more)
 				{
 					/// this was r too, a bit confusing.
-					int rr = _stream->recv_n (_extern_reply_buffer, _extern_reply_length, 0); 
-					//socket.Read(extern_reply_buffer, extern_reply_length,1);
+					int rr = _local_socket.recv (_extern_reply_buffer, _extern_reply_length, incoming); 
+					if (rr < 0 || incoming != _remote_endpoint.getAddressRef())
+					{
+						ACE_DEBUG ((LM_DEBUG, "*** closing %d\n", r));
+						_local_socket.close ();
+						finished = 1;
+					}
+
 					_extern_reply_length = rr;
 					_read_more = 0;
 					_reply_made.Post();
@@ -567,7 +605,7 @@ void _SocketThread::Body (void)
 					hdr2.SetGood();
 					char bufack[] = "acknowledged";
 					char *buf3 = bufack;
-					int reply_len = 0; //strlen(bufack)+1;
+					int reply_len = 0;
 					if (rep)
 					{
 						buf3 = _extern_reply_buffer;
@@ -575,13 +613,11 @@ void _SocketThread::Body (void)
 					}
 
 					hdr2.SetLength(reply_len);
-					_stream->send_n (&hdr2, sizeof(hdr2), 0);
-					//socket.Write((char*)(&hdr2),sizeof(hdr2));
+					_local_socket.send (&hdr2, sizeof(hdr2), _remote_endpoint.getAddressRef());
 
 					if (reply_len > 0)
 					{
-						//socket.Write(buf3,reply_len);
-						_stream->send_n (buf3, reply_len);
+						_local_socket.send (buf3, reply_len, _remote_endpoint.getAddressRef());
 					}
 
 					int curr_preamble = _reply_preamble;
@@ -599,8 +635,7 @@ void _SocketThread::Body (void)
 					if (r < 0)
 					{
 						ACE_DEBUG ((LM_DEBUG, "*** closing\n", r));
-						_stream->close ();
-						//socket.Close();
+						_local_socket.close ();
 						finished = 1;
 					}
 
@@ -618,13 +653,10 @@ void _SocketThread::Body (void)
 				while (was_preamble);
 			}
 		}
-
-		//YARPTime::DelayInSeconds(1);
-	}	///
+	}	/// while !finished
 
 	_mutex.Wait ();
-	delete _stream;
-	_stream = NULL;
+	/// the socket is closed already.
 	_available = 1;
 	_mutex.Post ();
 
@@ -642,9 +674,9 @@ void _SocketThread::Body (void)
 ///
 
 /// among other things, should correctly terminate threads.
-_SocketThreadList::~_SocketThreadList ()
+_SocketThreadListDgram::~_SocketThreadListDgram (void)
 {
-	for (list<_SocketThread *>::iterator it = _list.begin(); it != _list.end(); it++)
+	for (list<_SocketThreadDgram *>::iterator it = _list.begin(); it != _list.end(); it++)
 	{
 		(*it)->End ();
 		delete (*it);
@@ -657,30 +689,32 @@ _SocketThreadList::~_SocketThreadList ()
 ///
 /// creates the acceptor socket and listens to port.
 /// simply prepare the socket.
-ACE_HANDLE _SocketThreadList::connect(const YARPUniqueNameID& id)
+ACE_HANDLE _SocketThreadListDgram::connect (const YARPUniqueNameID& id)
 {
 	_local_addr = ((YARPUniqueNameID &)id).getAddressRef();
-	_acceptor.open (_local_addr, 1);	// REUSE_ADDR enabled.
+	_acceptor_socket.open (_local_addr, ACE_PROTOCOL_FAMILY_INET, 0, 1);	// reuse addr enabled
 
+	if (_acceptor_socket.get_handle() == ACE_INVALID_HANDLE)
+	{
+		return ACE_INVALID_HANDLE;
+
+		/// and the thread is not started.
+	}
+	
 	/// closes down any still open thread (just in case?).
 	if (_initialized) closeAll ();
 
-	// pid = sock;	/// if needed stores the ACE_HANDLE in pid.
-	
 	ACE_DEBUG ((LM_DEBUG, "server socket open on %s port %d\n", _local_addr.get_host_name(), _local_addr.get_port_number()));
-
-	// pid = sock;
 
 	Begin();
 
 	_initialized = 1;
 
-	//IFVERB printf("Server socket is %d\n", sock);
-	return _acceptor.get_handle ();
+	return _acceptor_socket.get_handle ();
 }
 
 
-void _SocketThreadList::addSocket()
+void _SocketThreadListDgram::addSocket (void)
 {
 	// need to keep calling this to get next incoming socket
 	ACE_ASSERT (_initialized != 0);
@@ -689,99 +723,80 @@ void _SocketThreadList::addSocket()
 	signal( SIGCHLD, SIG_IGN );     /* Ignore condition */
 #endif
 
-	/*
-struct sockaddr sockaddr;
-#ifndef __WIN__
-#ifndef __QNX4__
-#ifdef __QNX6__
-socklen_t addrlen = sizeof(sockaddr);
-#else
-unsigned int addrlen = sizeof(sockaddr);
-#endif
-#else
-int addrlen = sizeof(sockaddr);
-#endif
-#else
-int addrlen = sizeof(sockaddr);
-#endif 
-int newsock;
-	*/
-
-	/// need to assert that _acceptor is actually created and connected.
-	/// ACE_ASSERT (_acceptor != NULL);
+	/// need to assert that _acceptor_socket is actually created and connected.
+	/// ACE_ASSERT (_acceptor_socket != NULL);
 
 	YARPScheduler::yield();
-	ACE_DEBUG ((LM_DEBUG, "888888 pre accept %d\n", errno));
+	ACE_DEBUG ((LM_DEBUG, "7777777 pre accept %d\n", errno));
 
 	ACE_INET_Addr incoming;
-	ACE_SOCK_Stream *newstream = new ACE_SOCK_Stream;
+	int port_number = 0;
+	MyMessageHeader hdr;
+
+	hdr.SetBad();
 
 	int ra = -1;
 	do
 	{
-		ra = _acceptor.accept (*newstream, &incoming, 0);		/// wait forever.
-		if (ra == -1)
+		ra = _acceptor_socket.recv (&hdr, sizeof(hdr), incoming);		/// wait forever.
+		if (ra < 0)
 		{
-			ACE_DEBUG ((LM_DEBUG, "-------->>>>> accept got garbage, trying again\n"));
+			ACE_DEBUG ((LM_DEBUG, "-------->>>>> acceptor_socket got garbage, trying again\n"));
 		}
+		else
+		{
+			int len = hdr.GetLength ();
+			if (len != _MAGIC_NUMBER)
+			{
+				ACE_DEBUG ((LM_DEBUG, "corrupted header received, abort connection attempt, listening\n"));
+			}
+		}
+
+		/// LATER: must check whether incoming already tried a connection
+		///		and it is still connected.
 	}
 	while (ra == -1);
 
 	/// check accept return value.
-	ACE_DEBUG ((LM_DEBUG, ">>> accepting a new socket %d (from in %s)\n", newstream->get_handle(), incoming.get_host_name()));
-	ACE_DEBUG ((LM_DEBUG, "888888 post accept %d\n", errno));
+	ACE_DEBUG ((LM_DEBUG, ">>> accepting a new socket from %s\n", incoming.get_host_name()));
+	ACE_DEBUG ((LM_DEBUG, "777777 post accept %d, going to determine port number\n", errno));
 
-	if (newstream->get_handle() == ACE_INVALID_HANDLE)
-	{
-		ACE_DEBUG ((LM_DEBUG, "invalid stream after accept, returning from addSocket\n"));
-		return;
-	}
-
-/*
-static int count = 0;
-count ++;
-if (count>=0)
-{
-  printf("======================================================\n");
-  printf("RUNNING TESTS\n");
-  TinySocket is;
-  is.ForcePID(newsock);
-  char buf[256];
-  is.Read(buf,100);
-  printf("======================================================\n");
-}
-*/
-
-	// YARPScheduler::Yield();
-	//assert(system_resources!=NULL);
-	//if (newsock != -1) {
-	//MySocketInfo& info = *((MySocketInfo*)system_resources);
-
-	list<_SocketThread *>::iterator it_avail;
+	/// get a new available port number associated to this IP.
+	/// recycle thread and port # if possible.
+	list<_SocketThreadDgram *>::iterator it_avail;
 	int reusing = 0;
 	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 	{
 		if ((*it_avail)->isAvailable ())
 		{
 			reusing = 1;
+			port_number = (*it_avail)->getOldPortNumber (); 
 			break;
 		}
 	}
 
-	ACE_DEBUG ((LM_DEBUG, "888888 pre pushback %d\n", errno));
+	if (!reusing)
+		port_number = getNewPortNumberFromPool ();
 
 	if (it_avail == _list.end())
 	{
-		_list.push_back(new _SocketThread());
+		_list.push_back(new _SocketThreadDgram());
 		it_avail = _list.end();
 		it_avail--;
 	}
 
-	ACE_DEBUG ((LM_DEBUG, "888888 post pushback %d\n", errno));
+	ACE_DEBUG ((LM_DEBUG, "777777 new thread ready to go\n"));
 	(*it_avail)->setAvailable (0);
 	(*it_avail)->setOwner (*this);
+	(*it_avail)->reuse (&YARPUniqueNameID(YARP_UDP, incoming), port_number);
 
-	ACE_DEBUG ((LM_DEBUG, "888888 pre postbegin %d\n", errno));
+	/// send reply to incoming socket.
+	/// LATER: to refuse the connection simply send back a SetBad() header.
+	hdr.SetGood ();
+	hdr.SetLength (port_number);
+	_acceptor_socket.send (&hdr, sizeof(hdr), incoming);
+
+	ACE_DEBUG ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 	if (!reusing)
 	{
 		(*it_avail)->Begin();
@@ -790,32 +805,17 @@ if (count>=0)
 	{
 		(*it_avail)->End();
 		(*it_avail)->Begin();
-		//(*it_avail).wakeup.Post();
 	}
 
-	/// needs to be here, in case End destroys the old stream.
-	(*it_avail)->reuse (&YARPUniqueNameID(YARP_TCP, incoming), newstream);
-
-	ACE_DEBUG ((LM_DEBUG, "888888 post postbegin %d\n", errno));
-
-	/*
-	for (list<_SocketThread *>::iterator it = _list.begin(); it != _list.end(); it++)
-	{
-		ACE_DEBUG ((LM_DEBUG, "   pid %d...\n", (*it)->getID() ));
-		//int pre = errno;
-		//int v = eof((*it).GetID());
-		//int post = errno;
-		//IFVERB printf("   --> %d %d %d\n", pre, v, post);
-	}
-	*/
+	ACE_DEBUG ((LM_DEBUG, "777777 post postbegin %d\n", errno));
 }
 
 /// closes everything.
-int _SocketThreadList::closeAll (void)
+int _SocketThreadListDgram::closeAll (void)
 {
 	ACE_ASSERT (_initialized != 0);
 
-	list<_SocketThread *>::iterator it_avail;
+	list<_SocketThreadDgram *>::iterator it_avail;
 
 	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 	{
@@ -826,22 +826,20 @@ int _SocketThreadList::closeAll (void)
 	/// terminates itself.
 	End ();
 
-	/// sockclose(pid);
-	_acceptor.close ();
+	_acceptor_socket.close ();
 	_initialized = 0;
 
-	///pid = 0;
 	return 1;
 }
 
 /// closes a particular thread identified by its socket id. 
 ///	the ACE_HANDLE is used as index into the list.
-int _SocketThreadList::close (ACE_HANDLE reply_id)
+int _SocketThreadListDgram::close (ACE_HANDLE reply_id)
 {
 	ACE_ASSERT (_initialized != 0);
 
 	int result = -1;
-	list<_SocketThread *>::iterator it_avail;
+	list<_SocketThreadDgram *>::iterator it_avail;
 
 	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 	{
@@ -856,25 +854,17 @@ int _SocketThreadList::close (ACE_HANDLE reply_id)
 		}
 	}
 
-	/*
-	if (reply_id != -1)
-	{
-		/// MUST close the socket here.
-		//sockclose(reply_id);
-		IFVERB printf("!!!!!!!!!!!!! closed handle %d\n", reply_id);
-	}
-	*/
 	return result;
 }
 
-void _SocketThreadList::declareDataAvailable (void)
+void _SocketThreadListDgram::declareDataAvailable (void)
 {
 	ACE_ASSERT (_initialized != 0);
 	ACE_DEBUG ((LM_DEBUG, "$$$ Declaring data available\n"));
 	_new_data.Post ();	
 }
 
-void _SocketThreadList::declareDataWritten (void)
+void _SocketThreadListDgram::declareDataWritten (void)
 {
 	ACE_ASSERT (_initialized != 0);
 	ACE_DEBUG ((LM_DEBUG, "$$$ Declaring new data written\n"));
@@ -884,7 +874,7 @@ void _SocketThreadList::declareDataWritten (void)
 
 /// return the ACE_HANDLE as id for further reply.
 ///
-int _SocketThreadList::read(char *buf, int len, ACE_HANDLE *reply_pid)
+int _SocketThreadListDgram::read(char *buf, int len, ACE_HANDLE *reply_pid)
 {
 	ACE_ASSERT (_initialized != 0);
 
@@ -904,7 +894,7 @@ int _SocketThreadList::read(char *buf, int len, ACE_HANDLE *reply_pid)
 
 		ACE_DEBUG ((LM_DEBUG, "### Got new data\n"));
 
-		list<_SocketThread *>::iterator it_avail;
+		list<_SocketThreadDgram *>::iterator it_avail;
 		for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 		{
 			/// WARNING: isAvailable is read here without mut exclusion!
@@ -955,7 +945,7 @@ int _SocketThreadList::read(char *buf, int len, ACE_HANDLE *reply_pid)
 	return result;
 }
 
-int _SocketThreadList::pollingRead(char *buf, int len, ACE_HANDLE *reply_pid)
+int _SocketThreadListDgram::pollingRead(char *buf, int len, ACE_HANDLE *reply_pid)
 {
 	ACE_ASSERT (_initialized != 0);
 
@@ -964,7 +954,7 @@ int _SocketThreadList::pollingRead(char *buf, int len, ACE_HANDLE *reply_pid)
 		*reply_pid = 0;
 	}
 
-	list<_SocketThread *>::iterator it_avail;
+	list<_SocketThreadDgram *>::iterator it_avail;
 	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 	{
 		if (!((*it_avail)->isAvailable()))
@@ -979,13 +969,13 @@ int _SocketThreadList::pollingRead(char *buf, int len, ACE_HANDLE *reply_pid)
 	return 0;
 }
 
-int _SocketThreadList::beginReply(ACE_HANDLE reply_pid, char *buf, int len)
+int _SocketThreadListDgram::beginReply(ACE_HANDLE reply_pid, char *buf, int len)
 {
 	ACE_ASSERT (_initialized != 0);
 
 	ACE_DEBUG ((LM_DEBUG, "&&& BEGINNING REPLY of %d bytes\n", len));
 
-	list<_SocketThread *>::iterator it_avail;
+	list<_SocketThreadDgram *>::iterator it_avail;
 	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 	{
 		if (!((*it_avail)->isAvailable()))
@@ -1012,12 +1002,12 @@ int _SocketThreadList::beginReply(ACE_HANDLE reply_pid, char *buf, int len)
 	return 0;
 }
 
-int _SocketThreadList::reply(ACE_HANDLE reply_pid, char *buf, int len)
+int _SocketThreadListDgram::reply(ACE_HANDLE reply_pid, char *buf, int len)
 {
 	ACE_ASSERT (_initialized != 0);
 	ACE_DEBUG ((LM_DEBUG, "&&& BEGINNING FINAL REPLY of %d bytes\n", len));
 
-	list<_SocketThread *>::iterator it_avail;
+	list<_SocketThreadDgram *>::iterator it_avail;
 	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 	{
 		if (!((*it_avail)->isAvailable()))
@@ -1043,13 +1033,13 @@ int _SocketThreadList::reply(ACE_HANDLE reply_pid, char *buf, int len)
 }
 
 // this demands exact number of bytes
-int _SocketThreadList::receiveMore(ACE_HANDLE reply_pid, char *buf, int len)
+int _SocketThreadListDgram::receiveMore(ACE_HANDLE reply_pid, char *buf, int len)
 {
 	int result = YARP_FAIL;
 
 	ACE_ASSERT (_initialized != 0);
 
-	list<_SocketThread *>::iterator it_avail;
+	list<_SocketThreadDgram *>::iterator it_avail;
 	for (it_avail = _list.begin(); it_avail != _list.end(); it_avail++)
 	{
 		if (!((*it_avail)->isAvailable()))
@@ -1079,7 +1069,7 @@ int _SocketThreadList::receiveMore(ACE_HANDLE reply_pid, char *buf, int len)
 class ISData
 {
 public:
-	_SocketThreadList _list;
+	_SocketThreadListDgram _list;
 };
 
 static ISData& ISDATA(void *x)
@@ -1088,35 +1078,19 @@ static ISData& ISDATA(void *x)
 	return *((ISData*)x);
 }
 
-
 ///
 /// Input socket + stream + handling threads.
 ///
-YARPInputSocket::YARPInputSocket()
+YARPInputSocketDgram::YARPInputSocketDgram (void)
 { 
 	system_resources = NULL; 
-//	identifier = -1; 
-//	assigned_port = -1;
 	system_resources = new ISData;
 	ACE_ASSERT (system_resources!=NULL);
 	
 	_socktype = YARP_I_SOCKET;
 }
 
-/*
-YARPInputSocket::YARPInputSocket(const YARPInputSocket& other)
-{
-	system_resources = NULL; 
-	identifier = -1; 
-	assigned_port = -1;
-	system_resources = new ISData(ISDATA(other.system_resources));
-	ACE_ASSERT(system_resources!=NULL);
-
-	_socktype = YARP_I_SOCKET;
-}
-*/
-
-YARPInputSocket::~YARPInputSocket()
+YARPInputSocketDgram::~YARPInputSocketDgram (void)
 {
 	CloseAll ();
 
@@ -1127,10 +1101,13 @@ YARPInputSocket::~YARPInputSocket()
 	}
 }
 
-int YARPInputSocket::Prepare (const YARPUniqueNameID& name)
+int YARPInputSocketDgram::Prepare (const YARPUniqueNameID& name, int port1, int number_o_ports)
 {
 	ISData& d = ISDATA(system_resources);
+	ACE_ASSERT (((YARPUniqueNameID&)name).getAddressRef().get_port_number() == port1);
+
 	d._list.connect (name);
+	d._list.setPool (port1+1, number_o_ports);
 
 	/// LATER: requires error handling here.
 	return YARP_OK;
@@ -1139,7 +1116,7 @@ int YARPInputSocket::Prepare (const YARPUniqueNameID& name)
 ////
 ////
 ////
-int YARPInputSocket::CloseAll (void)
+int YARPInputSocketDgram::CloseAll (void)
 {
 	return ISDATA(system_resources)._list.closeAll();
 
@@ -1147,61 +1124,50 @@ int YARPInputSocket::CloseAll (void)
 	//return result;
 }
 
-int YARPInputSocket::Close (ACE_HANDLE reply_id)
+
+int YARPInputSocketDgram::Close (ACE_HANDLE reply_id)
 {
 	///int result = ISDATA(system_resources).owner.Close(reply_id);
 	///return result;
 	return ISDATA(system_resources)._list.close (reply_id);
 }
 
-/* CHANGED INTO Connect.
-int YARPInputSocket::Register(const char *name)
-{
-	DBG printf ("Registering port with name %s\n", name);
-	int port = GetPort(name);
-	DBG printf ("Registering port %d\n", port);
-	int result = ISDATA(system_resources).owner.Connect(port);
-	assigned_port = ISDATA(system_resources).owner.GetAssignedPort();
-	DBG printf ("Assigned port is %d\n", assigned_port);
-	return result;
-}
-*/
 
-int YARPInputSocket::PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id)
+int YARPInputSocketDgram::PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id)
 {
 	return ISDATA(system_resources)._list.pollingRead (buffer, buffer_length, reply_id);
 }
 
 
-int YARPInputSocket::ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id)
+int YARPInputSocketDgram::ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id)
 {
 	return ISDATA(system_resources)._list.read (buffer, buffer_length, reply_id);
 }
 
 
-int YARPInputSocket::ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length)
+int YARPInputSocketDgram::ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length)
 {
 	return ISDATA(system_resources)._list.receiveMore (reply_id, buffer, buffer_length);
 }
 
 
-int YARPInputSocket::ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length)
+int YARPInputSocketDgram::ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length)
 {
 	return ISDATA(system_resources)._list.beginReply (reply_id, reply_buffer, reply_buffer_length);
 }
 
 
-int YARPInputSocket::ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length)
+int YARPInputSocketDgram::ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length)
 {
 	return ISDATA(system_resources)._list.reply (reply_id, reply_buffer, reply_buffer_length);
 }
 
-ACE_HANDLE YARPInputSocket::GetIdentifier(void) const
+ACE_HANDLE YARPInputSocketDgram::GetIdentifier(void) const
 {
 	return ISDATA(system_resources)._list.getID ();
 }
 
-int YARPInputSocket::GetAssignedPort(void) const
+int YARPInputSocketDgram::GetAssignedPort(void) const
 {
 	return ISDATA(system_resources)._list.getAssignedPort ();
 }
@@ -1213,11 +1179,9 @@ int YARPInputSocket::GetAssignedPort(void) const
 class OSData
 {
 public:
-	//TinySocket sock;
-
 	ACE_INET_Addr _remote_addr;
-	ACE_SOCK_Connector _connector;
-	ACE_SOCK_Stream _stream;
+	ACE_INET_Addr _local_addr;
+	ACE_SOCK_Dgram _connector_socket;
 };
 
 static OSData& OSDATA(void *x)
@@ -1226,7 +1190,7 @@ static OSData& OSDATA(void *x)
 	return *((OSData*)x);
 }
 
-YARPOutputSocket::YARPOutputSocket()
+YARPOutputSocketDgram::YARPOutputSocketDgram (void)
 { 
 	system_resources = NULL;
 	identifier = ACE_INVALID_HANDLE;
@@ -1236,7 +1200,7 @@ YARPOutputSocket::YARPOutputSocket()
 	_socktype = YARP_O_SOCKET;
 }
 
-YARPOutputSocket::~YARPOutputSocket()
+YARPOutputSocketDgram::~YARPOutputSocketDgram (void)
 {
 	Close ();
 
@@ -1248,75 +1212,82 @@ YARPOutputSocket::~YARPOutputSocket()
 }
 
 
-int YARPOutputSocket::Close (void)
+int YARPOutputSocketDgram::Close (void)
 {
-	return OSDATA(system_resources)._stream.close ();
-
-/*
-	int result = OSDATA(system_resources).sock.Close();
-	return result;
-*/
+	return OSDATA(system_resources)._connector_socket.close ();
 }
 
 
-int YARPOutputSocket::Prepare (const YARPUniqueNameID& name)
+int YARPOutputSocketDgram::Prepare (int local_port, const YARPUniqueNameID& name)
 {
+	OSDATA(system_resources)._local_addr.set (local_port, "localhost");
 	OSDATA(system_resources)._remote_addr = ((YARPUniqueNameID&)name).getAddressRef();
 	return YARP_OK;
 }
 
-int YARPOutputSocket::SetTCPNoDelay (void)
+///
+/// pretend a connection.
+int YARPOutputSocketDgram::Connect (void)
 {
 	OSData& d = OSDATA(system_resources);
-	int one = 1;
-	return d._stream.set_option (ACE_IPPROTO_TCP, TCP_NODELAY, &one, sizeof(int));
-}
-
-int YARPOutputSocket::Connect (void)
-{
-	OSData& d = OSDATA(system_resources);
-	ACE_DEBUG ((LM_DEBUG, "Connecting to port %d on %s\n", 
+	ACE_DEBUG ((LM_DEBUG, "Pretending a connecting to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 
 		d._remote_addr.get_host_name()));
 
-	d._connector.connect (d._stream, d._remote_addr);
+	int r = d._connector_socket.open (d._local_addr, ACE_PROTOCOL_FAMILY_INET, 0, 1);
+	if (r == -1)
+	{
+		ACE_DEBUG ((LM_DEBUG, "cannot open dgram socket %s:%d\n", d._local_addr.get_host_name(), d._local_addr.get_port_number()));
+		return YARP_FAIL;
+	}
 
-	identifier = d._stream.get_handle ();
+	/// send the header.
+	int port_number = 0;
+	MyMessageHeader hdr;
+	hdr.SetGood ();
+	hdr.SetLength (_MAGIC_NUMBER);
+	d._connector_socket.send (&hdr, sizeof(hdr), d._remote_addr);
 
-	//identifier = OSDATA(system_resources).sock.GetSocketPID();
-	//return identifier;
-	
+	/// wait response.
+	hdr.SetBad ();
+	ACE_INET_Addr incoming;
+	r = d._connector_socket.recv (&hdr, sizeof(hdr), incoming);
+	if (r < 0)
+	{
+		d._connector_socket.close ();
+		ACE_DEBUG ((LM_DEBUG, "cannot handshake with remote %s:%d\n", d._remote_addr.get_host_name(), d._remote_addr.get_port_number()));
+		return YARP_FAIL;
+	}
+
+	port_number = hdr.GetLength();
+	if (port_number == -1)
+	{
+		/// there might be a real -1 port number -> 65535.
+		d._connector_socket.close ();
+		ACE_DEBUG ((LM_DEBUG, "got garbage back from remote %s:%d\n", d._remote_addr.get_host_name(), d._remote_addr.get_port_number()));
+		return YARP_FAIL;
+	}
+
+	/// the connect changes the remote port number to the actual assigned channel.
+	d._remote_addr.set (port_number);
+	identifier = d._connector_socket.get_handle ();
+
 	return YARP_OK;
-
-/*
-	string machine = GetBase(name);
-	int port = GetPort(name);
-	const char *str;
-#ifndef __QNX__
-	str = machine.c_str();
-#else
-	str = machine.AsChars();
-#endif
-	DBG printf ("Connecting to port %d on %s\n", port, str);
-	OSDATA(system_resources).sock.Connect(str,port);
-	identifier = OSDATA(system_resources).sock.GetSocketPID();
-	return identifier;
-*/
 }
 
 
-int YARPOutputSocket::SendBegin(char *buffer, int buffer_length)
+int YARPOutputSocketDgram::SendBegin(char *buffer, int buffer_length)
 {
 	MyMessageHeader hdr;
 	hdr.SetGood ();
     hdr.SetLength (buffer_length);
 
 	int sent = -1;
-	sent = OSDATA(system_resources)._stream.send_n ((const void *)(&hdr), sizeof(hdr), 0);
+	sent = OSDATA(system_resources)._connector_socket.send ((const void *)(&hdr), sizeof(hdr), OSDATA(system_resources)._remote_addr);
 	if (sent != sizeof(hdr))
 		return YARP_FAIL;
 
-	sent = OSDATA(system_resources)._stream.send_n (buffer, buffer_length, 0);
+	sent = OSDATA(system_resources)._connector_socket.send (buffer, buffer_length, OSDATA(system_resources)._remote_addr);
 	if (sent != buffer_length)
 		return YARP_FAIL;
 
@@ -1325,10 +1296,10 @@ int YARPOutputSocket::SendBegin(char *buffer, int buffer_length)
 }
 
 
-int YARPOutputSocket::SendContinue(char *buffer, int buffer_length)
+int YARPOutputSocketDgram::SendContinue(char *buffer, int buffer_length)
 {
 	/// without header.
-	int sent = OSDATA(system_resources)._stream.send_n (buffer, buffer_length, 0);
+	int sent = OSDATA(system_resources)._connector_socket.send (buffer, buffer_length, OSDATA(system_resources)._remote_addr);
 	if (sent != buffer_length)
 		return YARP_FAIL;
 
@@ -1338,13 +1309,15 @@ int YARPOutputSocket::SendContinue(char *buffer, int buffer_length)
 }
 
 /// I'm afraid the reply might end up being costly to streaming communication.
-int YARPOutputSocket::SendReceivingReply(char *reply_buffer, int reply_buffer_length)
+int YARPOutputSocketDgram::SendReceivingReply(char *reply_buffer, int reply_buffer_length)
 {
 	MyMessageHeader hdr2;
 	hdr2.SetBad ();
 
 	int result = -1;
-	int r = OSDATA(system_resources)._stream.recv_n ((void *)(&hdr2), sizeof(hdr2), 0);
+	ACE_INET_Addr incoming;
+
+	int r = OSDATA(system_resources)._connector_socket.recv ((void *)(&hdr2), sizeof(hdr2), incoming);
 	if (r == sizeof(hdr2))
 	{
 		int len2 = hdr2.GetLength();
@@ -1355,7 +1328,7 @@ int YARPOutputSocket::SendReceivingReply(char *reply_buffer, int reply_buffer_le
 				reply_buffer_length = len2;
 			}
 
-			result = OSDATA(system_resources)._stream.recv_n ((void *)reply_buffer, reply_buffer_length, 0);
+			result = OSDATA(system_resources)._connector_socket.recv ((void *)reply_buffer, reply_buffer_length, incoming);
 		}
 		else
 		{
@@ -1368,28 +1341,21 @@ int YARPOutputSocket::SendReceivingReply(char *reply_buffer, int reply_buffer_le
 }
 
 
-int YARPOutputSocket::SendEnd(char *reply_buffer, int reply_buffer_length)
+int YARPOutputSocketDgram::SendEnd(char *reply_buffer, int reply_buffer_length)
 {
 	return SendReceivingReply (reply_buffer, reply_buffer_length);
 	//return ::SendEnd(OSDATA(system_resources).sock,reply_buffer,reply_buffer_length);
 }
 
-/// ACE I guess requires the object all the time.
-/*
-void YARPOutputSocket::InhibitDisconnect()
-{
-	OSDATA(system_resources).sock.InhibitDisconnect();
-}
-*/
 
-ACE_HANDLE YARPOutputSocket::GetIdentifier()
+ACE_HANDLE YARPOutputSocketDgram::GetIdentifier()
 {
 	return identifier;
 	///return _connector.get_handle ();
 	//return OSDATA(system_resources).sock.GetSocketPID();
 }
 
-void YARPOutputSocket::SetIdentifier(int n_identifier)
+void YARPOutputSocketDgram::SetIdentifier(int n_identifier)
 {
 	int notimplemented = 1;
 	ACE_ASSERT (notimplemented != 1);
@@ -1398,72 +1364,4 @@ void YARPOutputSocket::SetIdentifier(int n_identifier)
 	/// OSDATA(system_resources).sock.ForcePID(n_identifier);
 	/// identifier = n_identifier;
 }
-
-
-//#include "YARPTime.h"
-
-/*
-void server(const char *name)
-{
-  YARPInputSocket s;
-  s.Register(name);
-  while (1)
-    {
-      char buf[1000] = "not set";
-      int reply_id = -1;
-      int len = s.ReceiveBegin(buf,sizeof(buf),&reply_id);
-      printf("Get data (%d): %s\n", len, buf);
-      char reply[1000];
-      sprintf(reply,"I acknowledge --> %s", buf);
-      s.ReceiveEnd(reply_id,reply,strlen(reply)+1);
-    }
-}
-
-void client(const char *name)
-{
-  YARPOutputSocket s;
-  s.Connect(name);
-
-  char buf[1000];
-  char buf2[1000];
-
-  for (int i=1; i<=20; i++)
-    {
-      sprintf(buf, "hello there time #%d", i);
-      int len = strlen(buf)+1;
-      //int len2 = Send(c,buf,len,buf2,sizeof(buf2));
-      s.SendBegin(buf,len);
-      int len2 = s.SendEnd(buf2,sizeof(buf2));
-      if (len2>0)
-	{
-	  printf("Got response (%d): %s\n", len2, buf2);
-	}
-      else
-	{
-	  printf("Got response (%d)\n", len2);
-	}
-      YARPTime::DelayInSeconds(2.0);
-    }
-}
-*/
-/*
-int main(int argc, char *argv[])
-{
-  //    TinySocket::Verbose();
-
-    if (argc == 2)
-      {
-	if (argv[1][0] == '+')
-	  {
-	    server(argv[1]+1);
-	  }
-	else
-	  {
-	    client(argv[1]);
-	  }
-      }
-    return 0;
-}
-
-*/
 
