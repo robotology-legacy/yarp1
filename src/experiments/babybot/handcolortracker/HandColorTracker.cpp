@@ -82,6 +82,7 @@ int main(int argc, char* argv[])
 	YARPInputPortOf<YVector>  _headPort;
 
 	YARPInputPortOf<YARPBottle>	_armSegmentationPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	YARPInputPortOf<YARPBottle>	_remoteLearnInputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
 	HandKinematics _handLocalization;
 	HandSegmenter _segmenter;
 	
@@ -91,6 +92,7 @@ int main(int argc, char* argv[])
 	_outPortBackprojection.Register("/handtracker/backprojection/o:img");
 	_headPort.Register("/handtracker/head/i");
 	_armPort.Register("/handtracker/arm/i");
+	_remoteLearnInputPort.Register("/handtracker/nnet/i");
 	
 	YARPImageOf<YarpPixelMono> _left;
 	YARPImageOf<YarpPixelMono> _leftSeg;
@@ -170,6 +172,15 @@ int main(int argc, char* argv[])
 
 		_outPortBackprojection.Content().Refer(_outSeg);
 		_outPortBackprojection.Write();
+
+		if (_remoteLearnInputPort.Read(0))
+		{
+			ACE_OS::printf("Loading new trained nnet");
+			YARPBPNNetState tmp;
+			extract(_remoteLearnInputPort.Content(), tmp);
+			_handLocalization.load(tmp);
+			ACE_OS::printf("...done!\n");
+		}
 
 		printFrameStatus(_nFrames);
 		_nFrames++;

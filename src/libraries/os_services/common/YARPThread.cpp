@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.16 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: YARPThread.cpp,v 1.17 2003-11-18 15:30:13 babybot Exp $
 ///
 ///
 
@@ -311,5 +311,6 @@ void YARPBareThread::CleanState (void)
 	shutdown_state = YT_None;
 	system_resource = NULL;
 	identifier = -1;
+	running = false;
 	sema.Post();
 }

@@ -99,18 +99,6 @@ void BatchData::add(YARPBottle &n)
 
 	BatchDataSample *tmp = new BatchDataSample(tmpIn, tmpOut, _inSize, _outSize);
 
-	for(i = 0; i < _inSize; i++)
-	{
-		// extract input data sample
-		cout << tmpIn[i] << '\t';
-	}
-	for(i = 0; i < _outSize; i++)
-	{
-		// extract output (target) data samples
-		cout << tmpOut[i] << '\t';
-	}
-	cout << '\n';
-
 	push_back(tmp);
 	_nSamples++;
 
@@ -252,9 +240,13 @@ int Learner::send()
 	
 	YARPBPNNetState state;
 	save(state);
+
+	ACE_OS::printf("Sending result of training:");
 	extract(state, *_outputBottle);
 	_outPort->Content() = *_outputBottle;
-	_outPort->Write();
+	_outPort->Write(1);
+
+	ACE_OS::printf("...done\n");
 
 	return YARP_OK;
 }

@@ -142,6 +142,11 @@ YARPBPNNet::YARPBPNNet(const char* filename)
 	tmp_input = NULL; 
 	tmp_output = NULL; 
 
+	savelog = false;
+	n_epoch = 0;
+	analogCost = 0.0;
+	gradient = 0.0;
+
 	_matrixAllocated = false;
 	_batchAllocated = false;
 
@@ -246,8 +251,6 @@ int YARPBPNNet::load(const YARPBPNNetState &p)
 	
 	_allocMatrix();
 
-	n_epoch = 0;
-
 	memcpy(max_input, p.max_input, sizeof(double)*nUnit[0]);
 	memcpy(min_input, p.min_input, sizeof(double)*nUnit[0]);
 	memcpy(max_output, p.max_output, sizeof(double)*nUnit[nLayer]);
@@ -265,6 +268,10 @@ int YARPBPNNet::load(const YARPBPNNetState &p)
 		memcpy(Weight[i], p.Weight[i], nUnit[i]*nUnit[i-1]*sizeof(double));
 		memcpy(Bias[i], p.Bias[i], nUnit[i]*sizeof(double));
 	}
+
+	n_epoch = p.n_epoch;
+	gradient = p.gradient;
+	analogCost = p.analogCost;
 
 	return YARP_OK;
 }
@@ -292,6 +299,10 @@ void YARPBPNNet::save(YARPBPNNetState &p)
 		memcpy(p.Weight[i], Weight[i], nUnit[i]*nUnit[i-1]*sizeof(double));
 		memcpy(p.Bias[i], Bias[i], nUnit[i]*sizeof(double));
 	}
+
+	p.n_epoch = n_epoch; 
+	p.gradient = gradient;
+	p.analogCost = analogCost;
 }
 
 /* Matrix allocation */
@@ -671,7 +682,7 @@ void YARPBPNNet::trainBatch(REAL* input,REAL* output)
 			DigCost      LE _batchTrainOptions.DigTh  OR
 			analogCost   LE _batchTrainOptions.AnaTh  OR
 			MaxCost      LE _batchTrainOptions.MaxTh  OR
-			n_epoch      GE maxEpoch )
+			n_epoch      GE maxEpoch-1 )
 		{
 
 			/* Stop the timer */
@@ -1006,7 +1017,7 @@ void YARPBPNNet::save(const char* filename)
 
 	// #epochs
 	output << "Epoch= ";
-	output << (n_epoch-1);
+	output << (n_epoch);
 	output << "\n";
 
 	// cost gradient

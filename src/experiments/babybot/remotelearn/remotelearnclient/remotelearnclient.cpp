@@ -14,6 +14,7 @@
 #include <YARPBottle.h>
 #include <YARPBottleContent.h>
 #include <YARPPort.h>
+#include <YARPBPNNet.h>
 
 #include <YARPBabybotHeadKin.h>
 
@@ -25,7 +26,8 @@ void train(int argc, char *argv[]);
 int read_set (const char *filename, double **in, double **t, int inSize, int outSize);
 void help();
 
-const char __portName[] = "/nnet/o";
+const char __outputPortName[] = "/nnet/o";
+const char __inputPortName[] = "/nnet/i";
 
 int main(int argc, char* argv[])
 {
@@ -41,7 +43,9 @@ void train(int argc, char *argv[])
 {
 	char trainFile[255];
 	YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-	_outPort.Register(__portName);
+	_outPort.Register(__outputPortName);
+	YARPInputPortOf<YARPBottle> _inPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+	_inPort.Register(__inputPortName);
 		
 	YARPParseParameters::parse(argc, argv, "set", trainFile);
 		
@@ -91,6 +95,18 @@ void train(int argc, char *argv[])
 		ACE_OS::printf("done !\n");
 		Sleep(100);
 	}
+
+	// block to receive network back from remote program
+	/*
+	_inPort.Read();
+	
+	ACE_OS::printf("Received new trained nnet\n");
+	YARPBPNNetState tmp;
+	YARPBPNNet net;
+	extract(_inPort.Content(), tmp);
+	net.load(tmp);
+	net.save("y:\\zgarbage\\temp.ini");
+	*/
 
 	delete [] input_train_set;
 	delete [] target_train_set;

@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBPNNet.h,v 1.2 2003-11-17 17:27:32 babybot Exp $
+/// $Id: YARPBPNNet.h,v 1.3 2003-11-18 15:30:13 babybot Exp $
 ///  
 
 /// Original implementation of the Matrix Back Propagation code by Davide
@@ -186,6 +186,7 @@ struct YARPBPNNetState
 		allocated = false;
 	}
 
+	// net state
 	int nLayer;
 	int *nUnit;
 	REAL **Weight;
@@ -200,19 +201,26 @@ struct YARPBPNNetState
 	REAL *max_limit;
 	REAL *min_limit;
 
+	unsigned int n_epoch;
+	double analogCost;
+	double gradient;
+
+	// local variables
 	bool allocated;
 };
 
 inline void extract(YARPBottle &bottle, YARPBPNNetState &state)
 {
-	bottle.readInt(&state.nLayer);
-	int *tmp = new int[state.nLayer];
+	int nL;
+	bottle.readInt(&nL);
+	int *tmp = new int[nL+1];
 	int i,j;
-	for(i = 0; i<state.nLayer; i++)
-		bottle.readInt(&state.nUnit[i]);
+	for(i = 0; i<=nL; i++)
+		bottle.readInt(&tmp[i]);
 	
-	state.resize(state.nLayer, state.nUnit);
+	state.resize(nL, tmp);
 
+	// now state.nLayer and state.nUnit are filled we can use them
 	for(i = 0; i<state.nUnit[0]; i++)
 	{
 		bottle.readFloat(&state.max_input[i]);
@@ -235,13 +243,21 @@ inline void extract(YARPBottle &bottle, YARPBPNNetState &state)
 		for(j = 0; j < state.nUnit[i]; j++)
 			bottle.readFloat(&state.Bias[i][j]);
 	}
+
+	int iTmp;
+	bottle.readInt(&iTmp);
+	state.n_epoch = (unsigned int) iTmp;
+	bottle.readFloat(&state.analogCost);
+	bottle.readFloat(&state.gradient);
+
+	delete [] tmp;
 }
 
 inline void extract(const YARPBPNNetState &state, YARPBottle &bottle)
 {
 	bottle.writeInt(state.nLayer);
 	int i,j;
-	for(i = 0; i<state.nLayer; i++)
+	for(i = 0; i<=state.nLayer; i++)
 		bottle.writeInt(state.nUnit[i]);
 	
 	for(i = 0; i<state.nUnit[0]; i++)
@@ -266,6 +282,11 @@ inline void extract(const YARPBPNNetState &state, YARPBottle &bottle)
 		for(j = 0; j < state.nUnit[i]; j++)
 			bottle.writeFloat(state.Bias[i][j]);
 	}
+
+	int iTmp = state.n_epoch;
+	bottle.writeInt(iTmp);
+	bottle.writeFloat(state.analogCost);
+	bottle.writeFloat(state.gradient);
 }
 
 class YARPBPNNet  
@@ -287,6 +308,10 @@ protected:
 
 	REAL	*max_limit;
 	REAL	*min_limit;
+
+	unsigned int n_epoch;
+	double analogCost;
+	double gradient;
 
 	/////////////////////////////////////////
 
@@ -317,10 +342,6 @@ protected:
 	MBPOptions _batchTrainOptions;
 	
 	int nBatchPattern;
-
-	unsigned int n_epoch;
-	double analogCost;
-	double gradient;
 
 	char logfilename[128];
 	bool savelog;

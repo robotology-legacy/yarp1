@@ -29,6 +29,18 @@ public:
 		return el;
 	}
 
+	void load(YARPBPNNetState &p)
+	{
+		ACE_OS::printf("Loading nnet from memory:");
+		ACE_OS::printf("#Layers:%d\t#Input:%d\t#Output:%d\n", p.nLayer, p.nUnit[0], p.nUnit[p.nLayer]);
+		_center.load(p);
+	}
+
+	void save(const char *t)
+	{
+		_center.save(t);
+	}
+
 private:
 	void _query(const YVector &arm, const YVector &head, YARPShapeEllipse &el)
 	{

@@ -9,7 +9,7 @@
 const char __filename[] = "test.ini";
 const char __inputPort[] = "/remotelearn/i";
 const char __outputPort[] = "/remotelearn/o";
-const int __nIterations = 10000;
+const int __nIterations = 100000;
 
 int main(int argc, char* argv[])
 {
