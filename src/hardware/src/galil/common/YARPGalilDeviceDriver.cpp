@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.5 2003-07-09 18:00:26 babybot Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.6 2003-07-30 09:23:26 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -607,7 +607,10 @@ int YARPGalilDeviceDriver::set_output_port(void *cmd)
 
 	///////////////////////////////////////////////////////////////////
 	// set output port
-	buff = _append_cmd((char) 0xE8, buff);		//PO
+	// The OP command sends data to the output ports of the controller. You can use
+	// the output port to control external switches and relays
+	//////////////////////////////////////////////////////////////////
+	buff = _append_cmd((char) 0xE8, buff);		//OP
 	buff = _append_cmd((char) 0x04, buff);		//04 two words
 	buff = _append_cmd((char) 0x00, buff);
 
