@@ -53,7 +53,7 @@ extern "C" {
 #define LDEC   0
 #define CRUSH  0
 #define PEAK   0
-#define CAGC   0
+#define CAGC   1
 #define CKILL  0
 #define RANGE  1
 #define YSLEEP 0
@@ -1323,6 +1323,20 @@ extern "C" {
 		}
 
 		bt848_set_size(btv);
+		
+		btwrite(BT848_ADC_RESERVED, BT848_ADC);
+
+		btwrite(BT848_CONTROL_LDEC , BT848_E_CONTROL);
+		btwrite(BT848_CONTROL_LDEC , BT848_O_CONTROL);
+
+		if (btv->win.norm == 2) //S-video; Y/C configuration
+		{
+			btwrite(BT848_CONTROL_COMP | BT848_CONTROL_LDEC, BT848_E_CONTROL);
+			btwrite(BT848_CONTROL_COMP | BT848_CONTROL_LDEC, BT848_O_CONTROL);
+		}
+		
+btwrite(0x00, BT848_E_SCLOOP);
+		btwrite(0x00, BT848_O_SCLOOP);
 
 		//----------------------------------------------------------------------
 		//	Insert default bright and contrast values. Also add adequate filters
@@ -1344,23 +1358,6 @@ extern "C" {
 		bt848_set_crush(CRUSH);
 		bt848_set_gamma(GAMMA);
 		bt848_set_dithframe(DITH_FRAME);
-
-
-
-		//btwrite(BT848_ADC_RESERVED|BT848_ADC_CRUSH, BT848_ADC);
-		btwrite(BT848_ADC_RESERVED, BT848_ADC);
-
-		btwrite(BT848_CONTROL_LDEC , BT848_E_CONTROL);
-		btwrite(BT848_CONTROL_LDEC , BT848_O_CONTROL);
-
-		if (btv->win.norm == 2) //S-video; Y/C configuration
-		{
-			btwrite(BT848_CONTROL_COMP | BT848_CONTROL_LDEC, BT848_E_CONTROL);
-			btwrite(BT848_CONTROL_COMP | BT848_CONTROL_LDEC, BT848_O_CONTROL);
-		}
-
-		btwrite(0x00, BT848_E_SCLOOP);
-		btwrite(0x00, BT848_O_SCLOOP);
 
 		//This is the interrupt part, It blocks the QNX system. ??
 
