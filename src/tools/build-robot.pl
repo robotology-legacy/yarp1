@@ -13,7 +13,7 @@
 use Getopt::Long;
 use File::Copy;
 
-print "Entering build process of YARP_sig_logpolar library tools...\n";
+print "Entering build process of YARP_robot library tools...\n";
 chomp ($ver = `ver`);
 chomp ($uname = `uname`);
 
