@@ -95,21 +95,73 @@ PostBuild_Cmds=copy .\common\*.h ..\..\..\include	copy .\babybot\*.h ..\..\..\in
 
 # Name "motorcontrol - Win32 Release"
 # Name "motorcontrol - Win32 Debug"
-# Begin Group "Source Files"
+# Begin Group "common"
 
-# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat;h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\babybot\YARPBabybotArm.cpp
+SOURCE=.\common\YARPForceSensor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\common\YARPGenericComponent.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\common\YARPGenericGrabber.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\common\YARPJR3Adapter.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\common\YARPTrajectoryGen.cpp
 # End Source File
-# End Group
-# Begin Group "Header Files"
+# Begin Source File
 
-# PROP Default_Filter "h;hpp;hxx;hm;inl"
+SOURCE=.\common\YARPTrajectoryGen.h
+# End Source File
+# End Group
+# Begin Group "eurobot"
+
+# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat;h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\eurobot\YARPEurobotArm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\eurobot\YARPEurobotArm.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\eurobot\YARPEurobotGrabber.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\eurobot\YARPEurobotHead.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\eurobot\YARPGALILOnEurobotArmAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\eurobot\YARPGALILOnEurobotHeadAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\eurobot\YARPPicoloOnEurobotAdapter.h
+# End Source File
+# End Group
+# Begin Group "babybot"
+
+# PROP Default_Filter "h;hpp;hxx;hm;inl;cpp"
+# Begin Source File
+
+SOURCE=.\babybot\YARPBabybotArm.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\babybot\YARPBabybotArm.h
@@ -132,26 +184,6 @@ SOURCE=.\babybot\YARPBabybotHead.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\common\YARPForceSensor.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\babybot\YARPGalilOnBabybotHandAdapter.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\common\YARPGenericComponent.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\common\YARPGenericGrabber.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\common\YARPJR3Adapter.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\babybot\YARPMEIOnBabybotArmAdapter.h
 # End Source File
 # Begin Source File
@@ -165,10 +197,6 @@ SOURCE=.\babybot\YARPNIDAQOnBabybotHandAdapter.h
 # Begin Source File
 
 SOURCE=.\babybot\YARPPicoloOnBabybotAdapter.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\common\YARPTrajectoryGen.h
 # End Source File
 # End Group
 # End Target
