@@ -1,3 +1,9 @@
+///
+/// $Id: begin_pack_for_net.h,v 1.2 2003-04-10 15:01:32 gmetta Exp $
+///
+
+#include <conf/YARPConfig.h>
+
 #include "YARPNetworkTypes.h"
 
 // pending -- need to deal with endian changes between machines

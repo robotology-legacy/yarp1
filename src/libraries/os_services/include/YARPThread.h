@@ -1,80 +1,90 @@
 /*
-paulfitz Mon May 21 13:42:24 EDT 2001
+	paulfitz Mon May 21 13:42:24 EDT 2001
+	$Id: YARPThread.h,v 1.2 2003-04-10 15:01:32 gmetta Exp $
 */
+
 #ifndef YARPThread_INC
 #define YARPThread_INC
 
 /*
 Ideally, would use POSIX semaphores, threads etc.
  */
-
+#include <conf/YARPConfig.h>
 #include "YARPAll.h"
 
 class YARPThread
 {
 private:
-  void *system_resource;
-  int identifier;
-  int size;
+	void *system_resource;
+	int identifier;
+	int size;
+
 public:
+	///
+	///
+	///
+	YARPThread();
+	YARPThread(const YARPThread& yt);
+	virtual ~YARPThread();
 
-  YARPThread();
-  
-  YARPThread(const YARPThread& yt);
+	// Assertion fails if insufficient resources at initialization.
+	// stack_size of zero means use default stack size
+	void Begin(int stack_size=0);
+	void End();
 
-  virtual ~YARPThread();
+	virtual void Body() = 0; // this is the body of the thread
 
-  // Assertion fails if insufficient resources at initialization.
-  // stack_size of zero means use default stack size
-  void Begin(int stack_size=0);
-  void End();
+	int GetIdentifier() { return identifier; }
 
-  virtual void Body() = 0; // this is the body of the thread
+	int IsTerminated();
+	// If you are in MS-Windows, you should call this
+	// every now and then, and leave Body() if the result
+	// is non-zero.  If you don't, you may be terminated
+	// forceably with loss of memory and resources you are
+	// holding.
 
-  int GetIdentifier() { return identifier; }
+	// why... it might be fixed by using ACE under WIN32. 
 
-  int IsTerminated();
-  // If you are in MS-Windows, you should call this
-  // every now and then, and leave Body() if the result
-  // is non-zero.  If you don't, you may be terminated
-  // forceably with loss of memory and resources you are
-  // holding.
-  
-  // Forcibly halt all threads (late addition, just in QNX implementation)
-  static void TerminateAll();
+	// Forcibly halt all threads (late addition, just in QNX implementation)
+	static void TerminateAll();
 
-  static void PrepareForDeath();
-  static int IsDying();
+	static void PrepareForDeath();
+	static int IsDying();
 };
 
 
 
 /* abstraction for thread-specific data */
+///
+///
 class YARPThreadSpecificBase
 {
 private:
-  void *system_resource;  
-public:
-  YARPThreadSpecificBase();
-  virtual ~YARPThreadSpecificBase();
+	void *system_resource;  
 
-  void Set(int len);
-  char *Get();
+public:
+	YARPThreadSpecificBase();
+	virtual ~YARPThreadSpecificBase();
+
+	void Set(int len);
+	char *Get();
 };
 
+///
+///
 template <class T>
 class YARPThreadSpecific : public YARPThreadSpecificBase
 {
 public:
-  YARPThreadSpecific()
-    {
-      Set(sizeof(T));
-    }
+	YARPThreadSpecific()
+	{
+		Set(sizeof(T));
+	}
 
-  T& Content()
-    {
-      return *((T*)Get());
-    }
+	T& Content()
+	{
+		return *((T*)Get());
+	}
 };
 
 #endif

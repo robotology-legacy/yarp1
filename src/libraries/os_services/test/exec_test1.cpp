@@ -1,5 +1,12 @@
+//
+// $Id: exec_test1.cpp,v 1.3 2003-04-10 15:01:35 gmetta Exp $
+//
+
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+
 #include <iostream.h>
-#include <mig4nto.h>
+//#include <mig4nto.h>
 
 #include "YARPSemaphore.h"
 #include "YARPThread.h"
@@ -113,7 +120,7 @@ public:
 
 int main()
 {
-  mig4nto_init();
+//  mig4nto_init();
   MyThread1 t1;
   MyThread2 t2;
   MyThread3 t3;
@@ -122,7 +129,7 @@ int main()
   {
     t3.Begin();
     YARPTime::DelayInSeconds(0.5);
-    YARPScheduler::Yield();
+    YARPScheduler::yield();
     t1.Begin();
     t2.Begin();
     YARPTime::DelayInSeconds(10.0);

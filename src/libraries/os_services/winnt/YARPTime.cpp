@@ -1,60 +1,41 @@
+//
+// $Id: YARPTime.cpp,v 1.2 2003-04-10 15:01:36 gmetta Exp $
+//
+//
+
 // need this to pick up WaitableTimer code
-#define _WIN32_WINNT 0x400
+// #define _WIN32_WINNT 0x400
+
+#include <ace/config.h>
+#include <ace/OS.h>
 
 #include <windows.h>
-#include <stdio.h>
+//#include <stdio.h>
 
-#include <sys/timeb.h>
-#include <time.h>
+//#include <sys/timeb.h>
+//#include <time.h>
 
 #include "YARPTime.h"
 
 double YARPTime::GetTimeAsSeconds()
 {
-   struct _timeb timebuffer;
+	//static ACE_Time_Value gettimeofday (void);
 
-   _ftime( &timebuffer );
-
-   return timebuffer.time + timebuffer.millitm/1000.0;
-
+	ACE_Time_Value timev = ACE_OS::gettimeofday ();
+	return double(timev.sec()) + timev.usec() * 1e-6; 
 }
 
+///
+///
+/// WARNING: actual precision under WIN32 depends on setting scheduler by means of MM 
+///		functions.
+///
 void YARPTime::DelayInSeconds(double delay_in_seconds)
 {
-    HANDLE hTimer = NULL;
-    LARGE_INTEGER liDueTime;
+	//static int sleep (const ACE_Time_Value &tv);
+	ACE_Time_Value tv;
+	tv.sec (int(delay_in_seconds));
+	tv.usec ((delay_in_seconds-int(delay_in_seconds)) * 1e6);
 
-	// units of 100 nanoseconds of all things
-    liDueTime.QuadPart = -((__int64)(-0.5+10000000L*delay_in_seconds));
-
-
-    // Create a waitable timer.
-    hTimer = CreateWaitableTimer(NULL, TRUE, NULL);
-    if (!hTimer)
-    {
-        printf("CreateWaitableTimer failed (%d)\n", GetLastError());
-		exit(1);
-    }
-
-	/// printf("Waiting for 10 seconds...\n");
-
-    // Set a timer to wait for 10 seconds.
-    if (!SetWaitableTimer(
-        hTimer, &liDueTime, 0, NULL, NULL, 0))
-    {
-        printf("SetWaitableTimer failed (%d)\n", GetLastError());
-		exit(2);
-    }
-
-    // Wait for the timer.
-
-    if (WaitForSingleObject(hTimer, INFINITE) != WAIT_OBJECT_0)
-        printf("WaitForSingleObject failed (%d)\n", GetLastError());
-    //else printf("Timer was signaled.\n");
-
-	if (hTimer!=NULL)
-	{
-		CloseHandle(hTimer);
-	}
-
+	ACE_OS::sleep(tv);
 }

@@ -68,7 +68,7 @@ PostBuild_Cmds=COPY Release\os_services.lib ..\..\lib\winnt	COPY Release\os_serv
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /I "../../sys_include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "__WIN__" /D "__WIN_MSVC__" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /I "../../sys_include" /I "../../../../../include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "__WIN__" /D "__WIN_MSVC__" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -80,7 +80,7 @@ LIB32=link.exe -lib
 # ADD LIB32 /nologo
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Cmds=COPY Debug\os_services.lib ..\..\lib\winnt\os_servicesDB.lib	COPY Release\os_services.lib ..\..\..\..\..\lib\winnt\os_servicesDB.lib	COPY ..\..\include\*.h ..\..\..\..\..\include
+PostBuild_Cmds=COPY Debug\os_services.lib ..\..\lib\winnt\os_servicesDB.lib	COPY Debug\os_services.lib ..\..\..\..\..\lib\winnt\os_servicesDB.lib	COPY ..\..\include\*.h ..\..\..\..\..\include
 # End Special Build Tool
 
 !ENDIF 
@@ -291,6 +291,78 @@ SOURCE=..\..\common\YARPSyncComm.cpp
 # Begin Source File
 
 SOURCE=..\..\common\YARPThreadAux.cpp
+# End Source File
+# End Group
+# Begin Group "Sys_include"
+
+# PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\..\sys_include\BlockPrefix.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\BlockReceiver.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\BlockSender.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\common.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\debug.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\Port.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\RefCounted.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\resource.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\Sendable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\Sendables.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\socklib.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StdAfx.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\ThreadInput.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\TinySocket.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\wide_nameloc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\YARPFragments.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\sys_include\YARPNameID_defs.h
 # End Source File
 # End Group
 # End Target

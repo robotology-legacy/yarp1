@@ -1,83 +1,91 @@
+///
+/// pasa Apr 2003
+///
 
 #include "YARPSemaphore.h"
 
+/// ACE inclusion
+#include <ace/config.h>
+#include <ace/Synch.h>
+
+
+///
 #include <windows.h>
-#include <assert.h>
 
 
+///	ACE_Lock_Adapter<ACE_Thread_Mutex> mutex;
 
-YARPSemaphore::YARPSemaphore(int initial_count)
+YARPSemaphore::YARPSemaphore (int initial_count)
 {
-	HANDLE hSemaphore;
-	
-	// Create a semaphore with initial and max. counts of 10.
-	
-	hSemaphore = CreateSemaphore( 
-		NULL,   // no security attributes
-		initial_count,   // initial count
-		10000000,        // maximum count
-		NULL);  // unnamed semaphore
-	
-	system_resource = hSemaphore;
-	assert(system_resource!=NULL);
+	ACE_Semaphore *sema = new ACE_Semaphore (initial_count);
+	system_resource = (void *)sema;
+
+	ACE_ASSERT (system_resource != NULL);
 }
 
-YARPSemaphore::YARPSemaphore(const YARPSemaphore& yt)
+///
+/// clone the semaphore 
+///		polls the copied sema, 
+/// 
+YARPSemaphore::YARPSemaphore (const YARPSemaphore& yt)
 {
-	HANDLE hSemaphore;
-	LONG initial_count = -1;
-	ReleaseSemaphore(yt.system_resource,1,&initial_count);
-	DWORD dwWaitResult = WaitForSingleObject( 
-        yt.system_resource,   // handle to semaphore
-        0L);                  // zero-second time-out interval
+	ACE_Semaphore *sema = new ACE_Semaphore (0);
+	system_resource = (void *)sema;
+	ACE_ASSERT (system_resource != NULL);
+	
+	if (yt.system_resource != NULL)
+	{
+		int ct = 0;
+		YARPSemaphore& danger_yt = *((YARPSemaphore *)&yt);
 
-	// Create a semaphore with initial and max. counts of 10.
-	
-	hSemaphore = CreateSemaphore( 
-		NULL,   // no security attributes
-		initial_count,   // initial count
-		10000000,        // maximum count
-		NULL);  // unnamed semaphore
-	
-	system_resource = hSemaphore;
-	assert(system_resource!=NULL);
+		while (danger_yt.PollingWait())
+		{
+			ct++;
+		}
+
+		while (ct)
+		{
+			danger_yt.Post();
+			Post();
+			ct--;
+		}
+	}
 }
 
-YARPSemaphore::~YARPSemaphore()
+YARPSemaphore::~YARPSemaphore ()
 {
 	if (system_resource!=NULL)
 	{
-		CloseHandle(system_resource);
+		//CloseHandle(system_resource);
+		if (system_resource != NULL) delete (ACE_Semaphore *)system_resource; 
+
 	    system_resource = NULL; // not necessary, just coding style
 	}
 }
 
-void YARPSemaphore::BlockingWait()
+void YARPSemaphore::BlockingWait ()
 {
-	DWORD dwWaitResult = WaitForSingleObject( 
-        system_resource,   // handle to semaphore
-        INFINITE);               // infinite time-out interval
-	
+	((ACE_Semaphore *)system_resource)->acquire();
 }
 
-int YARPSemaphore::PollingWait()
+int YARPSemaphore::PollingWait ()
 {
-	DWORD dwWaitResult = WaitForSingleObject( 
-        system_resource,   // handle to semaphore
-        0L);               // zero-second time-out interval
-	
-	return (dwWaitResult==WAIT_OBJECT_0);
+	if (((ACE_Semaphore *)system_resource)->tryacquire() < 0)
+	{
+		if (errno == EBUSY)
+			ACE_DEBUG ((LM_DEBUG, "%p\n", "Semaphore is already acquired, can't decrement"));
+
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
 }
 
 
-void YARPSemaphore::Post()
+void YARPSemaphore::Post ()
 {
-	HANDLE hSemaphore = system_resource;
-	DWORD ret =
-		ReleaseSemaphore( 
-		hSemaphore,  // handle to semaphore
-		1,           // increase count by one
-		NULL);
-	
-	assert (ret != 0);   // not interested in previous count
+	int ret = ((ACE_Semaphore *)system_resource)->release();
+	ACE_ASSERT (ret == 0);   // not interested in previous count
 }

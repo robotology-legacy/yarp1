@@ -1,3 +1,8 @@
+//
+// $Id: YARPAll.h,v 1.2 2003-04-10 15:01:24 gmetta Exp $
+//
+//
+
 #ifndef YARPAll_INC
 #define YARPAll_INC
 

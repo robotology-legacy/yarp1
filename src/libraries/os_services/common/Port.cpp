@@ -216,7 +216,7 @@ void OutputTarget::Body()
       while(1)
 	{
 	  something_to_send.Wait();
-	  YARPScheduler::Yield();
+	  YARPScheduler::yield();
 #ifdef UPDATED_PORT
       space_available.Post();
 #endif
@@ -769,7 +769,7 @@ void Port::FinishSend()
   while (pending)
     {
       // wait for a sister process (at same priority level) to catch up
-      YARPScheduler::Yield();
+      YARPScheduler::yield();
     }
   while (target!=NULL)
     {

@@ -722,7 +722,7 @@ void SocketOwner::AddSocket()
 
   assert(pid!=-1);
   memset(&sockaddr, 0, sizeof(sockaddr));
-  YARPScheduler::Yield();
+  YARPScheduler::yield();
   IFVERB printf("888888 pre accept %d\n", errno);
   newsock = accept(pid, &sockaddr, &addrlen);
   IFVERB printf(">>> accepting a new socket %d (from in %d)\n", 

@@ -9,6 +9,8 @@
 using namespace std;
 #endif
 
+#include <assert.h>
+
 #include "Sendable.h"
 
 //#include <new.h>

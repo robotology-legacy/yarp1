@@ -6,35 +6,35 @@
 --------------------Configuration: os_services - Win32 Debug--------------------
 </h3>
 <h3>Command Lines</h3>
-Creating temporary file "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP8A.tmp" with contents
+Creating temporary file "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSPB84.tmp" with contents
 [
-/nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /I "../../sys_include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "__WIN__" /D "__WIN_MSVC__" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\winnt\YARPMultipartMessage.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\winnt\YARPNativeNameService.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\winnt\YARPScheduler.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\winnt\YARPSemaphore.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\winnt\YARPThread.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\winnt\YARPTime.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\BlockReceiver.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\BlockSender.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\mesh.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\Port.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\RefCounted.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\Sendable.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\socklib.c"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\TinySocket.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\YARPAll.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\YARPNameService.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\YARPPort.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\YARPRefCount.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\YARPSocket.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\YARPSocketNameService.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\YARPSocketSyncComm.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\YARPSyncComm.cpp"
-"D:\Users\pasa\Software\YARP\src\libraries\os_services\common\YARPThreadAux.cpp"
+/nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /I "../../sys_include" /I "../../../../../include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "__WIN__" /D "__WIN_MSVC__" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\winnt\YARPMultipartMessage.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\winnt\YARPNativeNameService.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\winnt\YARPScheduler.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\winnt\YARPSemaphore.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\winnt\YARPThread.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\winnt\YARPTime.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\BlockReceiver.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\BlockSender.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\mesh.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\Port.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\Sendable.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\socklib.c"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\TinySocket.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\YARPAll.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\YARPNameService.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\YARPPort.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\YARPRefCount.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\YARPSocket.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\YARPSocketNameService.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\YARPSocketSyncComm.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\YARPSyncComm.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\YARPThreadAux.cpp"
+"D:\Users\pasa\Repository\yarp\src\libraries\os_services\common\RefCounted.cpp"
 ]
-Creating command line "cl.exe @C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP8A.tmp" 
-Creating temporary file "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP8B.tmp" with contents
+Creating command line "cl.exe @C:\DOCUME~1\pasa\LOCALS~1\Temp\RSPB84.tmp" 
+Creating temporary file "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSPB85.tmp" with contents
 [
 /nologo /out:"Debug\os_services.lib" 
 .\Debug\YARPMultipartMessage.obj
@@ -47,7 +47,6 @@ Creating temporary file "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP8B.tmp" with contents
 .\Debug\BlockSender.obj
 .\Debug\mesh.obj
 .\Debug\Port.obj
-.\Debug\RefCounted.obj
 .\Debug\Sendable.obj
 .\Debug\socklib.obj
 .\Debug\TinySocket.obj
@@ -60,8 +59,9 @@ Creating temporary file "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP8B.tmp" with contents
 .\Debug\YARPSocketSyncComm.obj
 .\Debug\YARPSyncComm.obj
 .\Debug\YARPThreadAux.obj
+.\Debug\RefCounted.obj
 ]
-Creating command line "link.exe -lib @C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP8B.tmp"
+Creating command line "link.exe -lib @C:\DOCUME~1\pasa\LOCALS~1\Temp\RSPB85.tmp"
 <h3>Output Window</h3>
 Compiling...
 YARPMultipartMessage.cpp
@@ -74,9 +74,8 @@ BlockReceiver.cpp
 BlockSender.cpp
 mesh.cpp
 Port.cpp
-d:\users\pasa\software\yarp\src\libraries\os_services\common\port.cpp(736) : warning C4101: 'next' : unreferenced local variable
-d:\users\pasa\software\yarp\src\libraries\os_services\common\port.cpp(753) : warning C4101: 'next' : unreferenced local variable
-RefCounted.cpp
+d:\users\pasa\repository\yarp\src\libraries\os_services\common\port.cpp(750) : warning C4101: 'next' : unreferenced local variable
+d:\users\pasa\repository\yarp\src\libraries\os_services\common\port.cpp(767) : warning C4101: 'next' : unreferenced local variable
 Sendable.cpp
 Generating Code...
 Compiling...
@@ -90,26 +89,27 @@ YARPPort.cpp
 YARPRefCount.cpp
 YARPSocket.cpp
 YARPSocketNameService.cpp
-d:\users\pasa\software\yarp\src\libraries\os_services\common\yarpsocketnameservice.cpp(172) : warning C4786: 'std::reverse_bidirectional_iterator<std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::iterator,std::pair<int const ,YARPInputSocket *>,std::pair<int const ,YARPInputSocket *> &,std::pair<int const ,YARPInputSocket *> *,int>' : identifier was truncated to '255' characters in the debug information
-d:\users\pasa\software\yarp\src\libraries\os_services\common\yarpsocketnameservice.cpp(172) : warning C4786: 'std::reverse_bidirectional_iterator<std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::const_iterator,std::pair<int const ,YARPInputSocket *>,std::pair<int const ,YARPInputSocket *> const &,std::pair<int const ,YARPInputSocket *> const *,int>' : identifier was truncated to '255' characters in the debug information
-d:\users\pasa\software\yarp\src\libraries\os_services\common\yarpsocketnameservice.cpp(172) : warning C4786: 'std::pair<std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::iterator,std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::iterator>' : identifier was truncated to '255' characters in the debug information
-d:\users\pasa\software\yarp\src\libraries\os_services\common\yarpsocketnameservice.cpp(172) : warning C4786: 'std::pair<std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::const_iterator,std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::const_iterator>' : identifier was truncated to '255' characters in the debug information
+d:\users\pasa\repository\yarp\src\libraries\os_services\common\yarpsocketnameservice.cpp(174) : warning C4786: 'std::reverse_bidirectional_iterator<std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::iterator,std::pair<int const ,YARPInputSocket *>,std::pair<int const ,YARPInputSocket *> &,std::pair<int const ,YARPInputSocket *> *,int>' : identifier was truncated to '255' characters in the debug information
+d:\users\pasa\repository\yarp\src\libraries\os_services\common\yarpsocketnameservice.cpp(174) : warning C4786: 'std::reverse_bidirectional_iterator<std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::const_iterator,std::pair<int const ,YARPInputSocket *>,std::pair<int const ,YARPInputSocket *> const &,std::pair<int const ,YARPInputSocket *> const *,int>' : identifier was truncated to '255' characters in the debug information
+d:\users\pasa\repository\yarp\src\libraries\os_services\common\yarpsocketnameservice.cpp(174) : warning C4786: 'std::pair<std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::iterator,std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::iterator>' : identifier was truncated to '255' characters in the debug information
+d:\users\pasa\repository\yarp\src\libraries\os_services\common\yarpsocketnameservice.cpp(174) : warning C4786: 'std::pair<std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::const_iterator,std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::const_iterator>' : identifier was truncated to '255' characters in the debug information
 YARPSocketSyncComm.cpp
 YARPSyncComm.cpp
 YARPThreadAux.cpp
+RefCounted.cpp
 Generating Code...
 c:\program files\microsoft visual studio\vc98\include\xtree(183) : warning C4786: 'std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::~_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >' : identifier was truncated to '255' characters in the debug information
 c:\program files\microsoft visual studio\vc98\include\xtree(160) : warning C4786: 'std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >' : identifier was truncated to '255' characters in the debug information
 c:\program files\microsoft visual studio\vc98\include\utility(21) : warning C4786: 'std::pair<std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::iterator,bool>::pair<std::_Tree<int,std::pair<int const ,YARPInputSocket *>,std::map<int,YARPInputSocket *,std::less<int>,std::allocator<YARPInputSocket *> >::_Kfn,std::less<int>,std::allocator<YARPInputSocket *> >::iterator,bool>' : identifier was truncated to '255' characters in the debug information
 Creating library...
-Creating temporary file "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP8C.bat" with contents
+Creating temporary file "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSPB86.bat" with contents
 [
 @echo off
 COPY Debug\os_services.lib ..\..\lib\winnt\os_servicesDB.lib
-COPY Release\os_services.lib ..\..\..\..\..\lib\winnt\os_servicesDB.lib
+COPY Debug\os_services.lib ..\..\..\..\..\lib\winnt\os_servicesDB.lib
 COPY ..\..\include\*.h ..\..\..\..\..\include
 ]
-Creating command line "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSP8C.bat"
+Creating command line "C:\DOCUME~1\pasa\LOCALS~1\Temp\RSPB86.bat"
 
         1 file(s) copied.
         1 file(s) copied.
