@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.3 2004-05-02 09:21:52 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.4 2004-05-02 22:25:12 babybot Exp $
 ///
 ///
 
@@ -54,10 +54,12 @@ struct ValueCanOpenParameters
 		_my_address = 0;
 		_polling_interval = 10;
 		_timeout = 2;
+		_njoints = 0;
 	}
 
 	int _port_number;							/// which of the many CAN interfaces to connect to
 	long _arbitrationID;						/// arbitration ID of the sent messages
+	int _njoints;								/// number of joints (cards * 2)
 	unsigned char _destinations[MAX_CARDS];		/// destination addresses
 	unsigned char _my_address;					/// my address
 	int _polling_interval;						/// thread polling interval [ms]
@@ -81,7 +83,11 @@ public:
 	virtual int close(void);
 
 	virtual int getPosition(void *cmd);
+	virtual int getRefPositions(void *cmd);
 	virtual int setPosition(void *cmd);
+	virtual int setSpeed(void *cmd);
+	virtual int setAcceleration(void *cmd);
+	virtual int setPid(void *cmd);
 
 protected:
 	void *system_resources;
@@ -91,7 +97,12 @@ protected:
 	bool _noreply;
 
 	virtual void Body(void);
+
+	/// helper functions
+	int _writeWord16 (int msg, int axis, short value);
+	int _readDWord (int msg, int axis, int& value);
 };
+
 
 
 #endif

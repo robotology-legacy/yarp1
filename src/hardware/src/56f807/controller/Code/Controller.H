@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.2 2004-05-02 09:21:52 babybot Exp $
+/// $Id: Controller.H,v 1.3 2004-05-02 22:25:12 babybot Exp $
 ///
 ///
 
@@ -77,9 +77,9 @@
 #endif
 
 /* CAN bus messages (our protocol) */
-#define CHANNEL_0(x)	((x) &= 0x7FFF)
-#define CHANNEL_1(x)	((x) |= 0x8000)
-#define CHANNEL(x)		((x) & 0x8000)
+#define CHANNEL_0(x)	((x) &= 0x7F)
+#define CHANNEL_1(x)	((x) |= 0x80)
+#define CHANNEL(x)		((x) & 0x80)
 
 /* CAN packet (our protocol):
  * 

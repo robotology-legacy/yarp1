@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.2 2004-05-02 09:21:52 babybot Exp $
+/// $Id: main.cpp,v 1.3 2004-05-02 22:25:12 babybot Exp $
 ///
 ///
 
@@ -41,6 +41,7 @@
 #include <YARPScheduler.h>
 
 /// a simple test of the ValueCan device driver.
+const int NJOINTS = 2;
 
 int main (int argc, char *argv[])
 {
@@ -52,15 +53,19 @@ int main (int argc, char *argv[])
 	params._port_number = 0;
 	params._arbitrationID = 0;
 	params._destinations[0] = 1;				/// card 1.
-	params._my_address = 5;						/// my address
-	params._polling_interval = 10;				/// thread polling interval [ms]
-	params._timeout = 5;						/// approx this value times the polling interval [ms].
+	params._my_address = 5;						/// my address.
+	params._polling_interval = 3;				/// thread polling interval [ms].
+	params._timeout = 10;						/// approx this value times the polling interval [ms].
+	params._njoints = NJOINTS;					/// number of joints.
 
 	SingleAxisParameters tmp;
 	tmp.axis = 0;
 	double value = 0;
 	tmp.parameters = (void *)&value;
-		
+	
+	double ar[NJOINTS];
+	memset (ar, 0, sizeof(double) * NJOINTS);
+
 	driver.open ((void *)&params);
 	char c = 0;
 
@@ -74,18 +79,28 @@ int main (int argc, char *argv[])
 			ACE_OS::printf ("h: this message\n");
 			ACE_OS::printf ("p: get position\n");
 			ACE_OS::printf ("s: set position\n");
+			ACE_OS::printf ("v: set speed\n");
 
 			ACE_OS::printf ("q: quit\n");
 			break;
 
 		case 'p':
-			driver.IOCtl(CMDGetPosition, (void *)&tmp);
-			ACE_OS::printf ("got position: %lf\n", *((double *)tmp.parameters));
+			driver.IOCtl(CMDGetRefPositions, (void *)ar);
+			ACE_OS::printf ("got positions: %lf %lf\n", ar[0], ar[1]);
 			break;
 
 		case 's':
-			value = double(0x12345678);
+			ACE_OS::printf ("desired position: ");
+			scanf ("%lf", &value);
+			ACE_OS::printf ("setting desired position to: %lf\n", value);
 			driver.IOCtl(CMDSetPosition, (void *)&tmp);
+			break;
+
+		case 'v':
+			ACE_OS::printf ("desired speed: ");
+			scanf ("%lf", &value);
+			ACE_OS::printf ("setting desired speed to: %lf\n", value);
+			driver.IOCtl(CMDSetSpeed, (void *)&tmp);
 			break;
 
 		case 'q':
