@@ -1,22 +1,21 @@
 // remotelearnclient.cpp : Defines the entry point for the console application.
 //
 
-#include <conf/YARPConfig.h>
-#include <wide_nameloc.h>
+#include <yarp/YARPConfig.h>
+// #include <wide_nameloc.h>
 
-#include <YARPBPNNet.h>
+#include <yarp/YARPBPNNet.h>
 
 #include <iostream>
 #include <time.h>
 
-#include <YARPParseParameters.h>
-#include <YARPConfigFile.h>
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
-#include <YARPPort.h>
-#include <YARPBPNNet.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPConfigFile.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBPNNet.h>
 
-#include <YARPBabybotHeadKin.h>
+#include <yarp/YARPBabybotHeadKin.h>
 
 const int __nInput = 3;
 const int __nOutput = 3;
@@ -45,9 +44,9 @@ int main(int argc, char* argv[])
 void train(int argc, char *argv[])
 {
 	char trainFile[255];
-	YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+	YARPOutputPortOf<YARPBabyBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 	_outPort.Register(__outputPortName);
-	YARPInputPortOf<YARPBottle> _inPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+	YARPInputPortOf<YARPBabyBottle> _inPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 	_inPort.Register(__inputPortName);
 		
 	YARPParseParameters::parse(argc, argv, "-set", trainFile);
@@ -73,7 +72,7 @@ void train(int argc, char *argv[])
 	// start sending stuff to remote learner
 	int i,j;
 	// for each pattern
-	YARPBottle tmpBottle;
+	YARPBabyBottle tmpBottle;
 	double *tmpIn = input_train_set;
 	double *tmpTarget = target_train_set;
 	for(i = 0; i < nPatterns; i++)

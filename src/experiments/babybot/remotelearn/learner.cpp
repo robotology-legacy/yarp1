@@ -76,7 +76,7 @@ void BatchData::add(double *input, double *output)
 	unlock();
 }
 
-void BatchData::add(YARPBottle &n)
+void BatchData::add(YARPBabyBottle &n)
 {
 	lock();
 	// temp data
@@ -235,7 +235,7 @@ void Learner::Body()
 	_busyTraining = false;
 }
 
-void Learner::add(YARPBottle &n)
+void Learner::add(YARPBabyBottle &n)
 {
 	_samples.add(n);
 	n.rewind();

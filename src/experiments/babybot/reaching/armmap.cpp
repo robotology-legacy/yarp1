@@ -10,11 +10,19 @@ _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 	
 	// load nnets
 	ACE_OS::sprintf (filename, "%s/conf/babybot/%s", root, reachingNNet);
+	
 	if (_nnet.load(filename)!=YARP_OK)
 	{
 		ACE_OS::printf("Error, cannot read neural network file %s", filename);
 		exit(-1);
 	}
+	/*	
+	if (_rfnet.LoadNet("reachingRFWR.ini","y:/conf/babybot/")!=YARP_OK)
+	{
+		ACE_OS::printf("Error, cannot read rfwr ini file %s", "reachingRFWR.ini");
+		exit(-1);
+	}*/
+
 	ACE_OS::printf("Read neural network from %s\n", filename);
 
 	ACE_OS::sprintf (filename, "%s/conf/babybot/%s", root, handlocNNet);
@@ -75,12 +83,18 @@ void ArmMap::query(const YVector &arm, const YVector &head)
 		_command = _atr.query(head) + _noise.query();
 	else if (_mode == learning)
 	{
-		_nnet.sim(tmp.data(), _command.data());
+//		_nnet.sim(tmp.data(), _command.data());
 		_command = _command + _noise.query();
 	}
 	else
 	{
 		_nnet.sim(tmp.data(), _command.data());
+		YVector tmpY(3);
+	//	_rfnet.Simulate(tmp, 0.001, tmpY);
+	//	_command(1) = tmpY(1);
+	//	_command(2) = tmpY(2);
+	//	_command(3) = tmpY(3);
+
 		_fkinematics.update(_command, head);
 		_fkinematics.computeJacobian(x,y);		// compute from center
 		YVector tmpArm(6);
@@ -144,13 +158,17 @@ void ArmMap::_formTrajectory(const YVector &cmd)
 	// first move
 	_trajectory[0] = _command;
 	_trajectory[0](1) = _command(1)+__shoulderOffset1;
+	_trajectory[0](2) = _command(2)+__armOffset1;
+	_trajectory[0](3) = _command(3)+__foreArmOffset1;
 	_trajectory[0](4) = __wrist1;
 	_trajectory[0](5) = __wrist2;
 	_trajectory[0](6) = __wrist3;
 
 	// actual reaching
 	_trajectory[1] = _command;
-	_trajectory[1](1) = _command(1) +__shoulderOffset2;
+	_trajectory[1](1) = _command(1)+__shoulderOffset2;
+	_trajectory[1](2) = _command(2)+__armOffset2;
+	_trajectory[1](3) = _command(3)+__foreArmOffset2;
 	_trajectory[1](4) = __wrist1;
 	_trajectory[1](5) = __wrist2;
 	_trajectory[1](6) = __wrist3;

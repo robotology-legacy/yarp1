@@ -51,7 +51,8 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 	{
 		_steps--;
 		// wait other few steps
-		if (_steps <= 0) {
+		if (_steps <= 0)
+		{
 			// check whether the arm is on the table or not
 			if ( (t->_arm_status._current_position(1)*radToDeg > -5.0) &&
 				_learn)
@@ -96,11 +97,15 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 				_pointsFile.newLine();
 				////////////////////
 			}
-
-			// signal end of motion
-			
-			t->writeAndSend(YBVArmDone);
-			changeState(t,t->_init_state);
+		ARM_THREAD_DEBUG(("Arm performed with error:\n"));
+		YVector &myPos = t->_arm_status._current_position;
+		YVector myError;
+		myError = myPos-_finalCmd;
+		for(int j = 1; j <= myPos.Length(); j++)
+			ACE_OS::printf("%.1lf\t", myError(j)*radToDeg);
+		// signal end of motion
+		t->writeAndSend(YBVArmDone);
+		changeState(t,t->_init_state);
 		}
 	}
 }

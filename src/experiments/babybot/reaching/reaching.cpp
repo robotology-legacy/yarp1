@@ -1,6 +1,6 @@
 // reaching.cpp : Defines the entry point for the console application.
 //
-// #define __INHIBITGRASPING__
+//#define __INHIBITGRASPING__
 
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBabyBottle.h>
@@ -33,7 +33,9 @@ int main(int argc, char* argv[])
 	RBWaitIdle reachingSeq32("Waiting for arm done (actually reaching2)");
 	RBWaitIdle reachingSeq33("Waiting for arm done (actually reaching3)");
 	
-	RBWaitDeltaT waitDeltaT1("Waiting for hand", 0.5);
+	// NO HAND
+	// RBWaitDeltaT waitDeltaT1("Waiting for hand", 0.5);
+	RBWaitDeltaT waitDeltaT1("Waiting for hand", 3);
 	RBWaitDeltaT reachingSeq4("AS state, issue withdraw arm", 0.5);
 	RBWaitIdle reachingSeq5("Waiting for arm done (withdrawing arm)");
 	RBWaitIdle reachingSeq6("Open hand");
@@ -74,19 +76,27 @@ int main(int argc, char* argv[])
 	_behavior.add(&armDone, &reachingSeq32, &waitDeltaT1, &handClose);
 	_behavior.add(&armIsBusy, &reachingSeq32, &waitIdle, &enableAll);
 	// wait
+	
+	// NO HAND
 	_behavior.add(&handDone, &waitDeltaT1, &reachingSeq33, &reachingOutput3);
 	_behavior.add(&armRest, &waitDeltaT1, &waitIdle, &enableAll);
+	// end NO HAND
+	
+	// AUTO
+	// _behavior.add(NULL, &waitDeltaT1, &reachingSeq33, &reachingOutput3); // NO HAND
+	//_behavior.add(NULL, &waitDeltaT1, &reachingSeq33);
 	_behavior.add(&armDone, &reachingSeq33, &reachingSeq5, &reachingBack);
 	_behavior.add(&armIsBusy, &reachingSeq33, &waitIdle, &enableAll);
+	
 
-
-	// _behavior.add(&armIsBusy, &reachingSeq3, &waitIdle, &enableHead);
-	// _behavior.add(&armRest, &reachingSeq3, &waitIdle, &enableHead);
+	//_behavior.add(&armIsBusy, &reachingSeq3, &waitIdle, &enableHead);
+	//_behavior.add(&armRest, &reachingSeq3, &waitIdle, &enableHead);
 	// _behavior.add(NULL, &reachingSeq4, &reachingSeq5, &reachingBack);
 	
 	_behavior.add(&armDone, &reachingSeq5, &reachingSeq6, &openHand);
 	_behavior.add(NULL, &reachingSeq6, &waitIdle, &enableAll);
-
+	//// end NO AUTO
+	
 	_behavior.add(&armIsBusy, &reachingSeq5, &waitIdle, &enableAll);
 	_behavior.add(&armRest, &reachingSeq31, &waitIdle, &enableAll);
 	_behavior.add(&armRest, &reachingSeq32, &waitIdle, &enableAll);

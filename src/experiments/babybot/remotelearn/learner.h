@@ -31,7 +31,7 @@ public:
 
 	void resize(int inS, int outSize);
 	void add(double *input, double *target);
-	void add(YARPBottle &n);
+	void add(YARPBabyBottle &n);
 	void get(double **input, double **output, int *ns);
 
 	int howMany()
@@ -61,7 +61,7 @@ public:
 	// destructor
 	~Learner();
 
-	void add(YARPBottle &n);
+	void add(YARPBabyBottle &n);
 
 	virtual void Body(void);
 	
@@ -82,7 +82,7 @@ public:
 	inline void unlock()
 	{ _mutex.Post(); }
 
-	void setOutputPort(YARPOutputPortOf<YARPBottle> *port, YARPBottle *b)
+	void setOutputPort(YARPOutputPortOf<YARPBabyBottle> *port, YARPBabyBottle *b)
 	{
 		_outputBottle = b;
 		_outPort = port;
@@ -106,7 +106,7 @@ public:
 
 private:
 
-	void _dumpTrainSet(YARPBottle &b)
+	void _dumpTrainSet(YARPBabyBottle &b)
 	{
 		if (!_saveTrainSet)
 			return;
@@ -140,8 +140,8 @@ private:
 	bool _busyTraining;
 	YARPSemaphore _mutex;
 
-	YARPBottle *_outputBottle;
-	YARPOutputPortOf<YARPBottle> *_outPort;
+	YARPBabyBottle *_outputBottle;
+	YARPOutputPortOf<YARPBabyBottle> *_outPort;
 
 	YARPString _initFile;
 	YARPLogFile _trainSetFile;

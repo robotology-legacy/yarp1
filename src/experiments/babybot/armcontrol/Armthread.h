@@ -203,13 +203,15 @@ public: //later: make it private
 	J2GravityEstimator _gravity2;
 	J3GravityEstimator _gravity3;
 	J5GravityEstimator _gravity5;
-
+	int *_gravityFlags;
+	
 	YVector _cmd;	//move it from here !
 	YVector _speed;
 	YVector _parkSpeed;
 	YVector _acc;
 	YVector _limitsMax;
 	YVector _limitsMin;
+	YVector _gravityTerms;
 
 	YVector _shakeCmd; //this is used only by AB
 };

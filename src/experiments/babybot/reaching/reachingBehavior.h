@@ -66,7 +66,7 @@ public:
 	void handle(ABSharedData *d)
 	{
 		ACE_OS::printf("%s\n", _message.c_str());
-		ACE_OS::printf("Waiting %ld[s]\n", _deltaT);
+		ACE_OS::printf("Waiting %.1lf[s]\n", _deltaT);
 		YARPTime::DelayInSeconds(_deltaT);
 	}
 private:

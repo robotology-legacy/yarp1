@@ -5,6 +5,7 @@
 #include <yarp/YARPRndUtils.h>
 #include <time.h>
 #include <yarp/YARPBPNNet.h>
+#include <yarp/RFNet.h>
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBabyBottle.h>
 #include <yarp/YARPMatrix.h>
@@ -34,14 +35,18 @@ const double __minRnd[] = {-5.0*degToRad, -5.0*degToRad, -5.0*degToRad, 0.0, 0.0
 
 // command used to prepare reaching
 // const double __preparePosition[] = { 15*degToRad, 0.0, 0.0, 0*degToRad, 0.0, -70.0*degToRad};
-const double __preparePosition[] = { 15*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*degToRad};
+// const double __preparePosition[] = { 15*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*degToRad};
+const double __preparePosition[] = { 5*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*degToRad};
 
+// offset in the shoulder to fix offset in the reaching
+// (tappullo)
+const double __armOffset1 = 0*degToRad;
+const double __armOffset2 = 0*degToRad;
+const double __foreArmOffset1 = -10*degToRad;
+const double __foreArmOffset2 = -10*degToRad;
 // offset in the shoulder to reach "from above"
 const double __shoulderOffset1 = 25*degToRad;
-const double __shoulderOffset2 = 5*degToRad;
-
-// const double __shoulderOffset1 = 5*degToRad;
-// const double __shoulderOffset2 = 5*degToRad;
+const double __shoulderOffset2 = 15*degToRad;
 
 // to turn the hand downwardly
 // const double __wrist1 = -10*degToRad;	
@@ -49,13 +54,14 @@ const double __shoulderOffset2 = 5*degToRad;
 // const double __wrist3 = -170*degToRad;
 
 const double __wrist1 = 0*degToRad;	
-const double __wrist2 = 0*degToRad;
-const double __wrist3 = -90*degToRad;
+const double __wrist2 = -20*degToRad;
+const double __wrist3 = -160*degToRad;
+// const double __wrist3 = 0*degToRad;
 
-// offset in the retinal space, for the reaching
+// offset in the head space, for reaching
 const double __azimuthOffset = -6*degToRad;
-const double __elevationOffset = -7*degToRad;
-const double __distanceOffset = -40;
+const double __elevationOffset = -20*degToRad;
+const double __distanceOffset = -60;
 
 // very simple class to implement ATR
 class ATR
@@ -137,6 +143,8 @@ private:
 	void _sendTrajectory();
 
 	YARPBPNNet _nnet;
+//	RFNet	   _rfnet;
+
 	ArmForwardKinematics _fkinematics;
 		
 	YARPOutputPortOf<YARPBabyBottle> _outPortRemoteLearn;

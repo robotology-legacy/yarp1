@@ -1,10 +1,10 @@
 #include <fstream>
 #include <vector>
-#include <YARPBabybotHeadKin.h>
+#include <yarp/YARPBabybotHeadKin.h>
 
 using namespace std;
 
-#include <YARPLogpolar.h>
+#include <yarp/YARPLogpolar.h>
 
 YARPLogpolar _mapper;
 

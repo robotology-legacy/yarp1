@@ -25,7 +25,7 @@ const int __nSamples = -1;
 double nIterations = __nIterations;
 int nSamples = __nSamples;
 
-void parse(Learner &learner, YARPBottle &b);
+void parse(Learner &learner, YARPBabyBottle &b);
 
 int main(int argc, char* argv[])
 {
@@ -97,12 +97,12 @@ int main(int argc, char* argv[])
 
 	/////////////////////////////////////////////
 	
-	YARPInputPortOf<YARPBottle> _inputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-	YARPOutputPortOf<YARPBottle> _outputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+	YARPInputPortOf<YARPBabyBottle> _inputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+	YARPOutputPortOf<YARPBabyBottle> _outputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
 	_inputPort.Register(inputPort.c_str());
 	_outputPort.Register(outputPort.c_str());
 
-	YARPBottle outputBottle;
+	YARPBabyBottle outputBottle;
 	_learner.setOutputPort(&_outputPort, &outputBottle);
 
 	while(true)
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void parse(Learner &learner, YARPBottle &b)
+void parse(Learner &learner, YARPBabyBottle &b)
 {
 	double dummy;
 	if (b.tryReadFloat(&dummy))

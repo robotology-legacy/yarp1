@@ -87,6 +87,15 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	int learn;
 	file.get("[GRAVITY]", "Learn", &learn);
 	ASDirectCommandMove::instance()->_learn = learn;
+	_gravityFlags = new int[_nj];
+	memset(_gravityFlags, 0, _nj*sizeof(_gravityFlags[0]));
+	file.get("[GRAVITY]", "Enable", _gravityFlags, _nj);
+	ACE_OS::printf("Gravity vector is: ");
+	for(int i = 0; i < _nj; i++)
+		ACE_OS::printf("%d\t", _gravityFlags[i]);
+	ACE_OS::printf("\n");
+	_gravityTerms.Resize(_nj);
+	_gravityTerms = 0.0;
 
 	// PORT
 	char armStatusPortname[255];
@@ -205,23 +214,23 @@ void ArmThread::doLoop()
 inline void ArmThread::send_commands()
 {
 	_trajectory.getNext(_actual_command.data());
-	// 
-	double g[6];
+
+	double *g = _gravityTerms.data();
 	_gravity1.computeG(_arm_status._current_position, &g[0]);
 	_gravity2.computeG(_arm_status._current_position, &g[1]);
 	_gravity3.computeG(_arm_status._current_position, &g[2]);
-	g[3] = 0.0;
-	g[4] = 0.0; // _gravity5.computeG(_wristF(4), &g[4]);
-	g[5] = 0.0;
+
+	// check if gravity is enable
+	for(int j = 0; j < 0; j++) {
+		if (!_gravityFlags[j])
+			g[j] = 0.0;
+	}
 
 	_arm.setGs(g);
 
-	/*if (_shaking)
-	{*/
-		_armStatusPort.Content() = _arm_status;
-		_armStatusPort.Write();
-	/*}*/
-
+	_armStatusPort.Content() = _arm_status;
+	_armStatusPort.Write();
+	
 	_arm.setCommands(_actual_command.data());
 }
 
