@@ -129,6 +129,7 @@ SOURCE=.\common\YARPTrajectoryGen.h
 # Begin Source File
 
 SOURCE=.\eurobot\YARPEurobotArm.cpp
+# PROP Exclude_From_Build 1
 # End Source File
 # Begin Source File
 

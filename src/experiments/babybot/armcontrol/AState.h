@@ -71,9 +71,9 @@ public:
 		_wristF = 0.0;
 		_wristT = 0.0;
 
-		_errorFile.open("Q:\\Ini Files\\errors.txt");
-		_lsFile.open("Q:\\Ini Files\\leastSquares.txt");
-		_pointsFile.open("Q:\\Ini Files\\points.txt");
+		_errorFile.open("Y:\\conf\\babybot\\errors.txt");
+		_lsFile.open("Y:\\conf\\babybot\\leastSquares.txt");
+		_pointsFile.open("Y:\\conf\\babybot\\points.txt");
 	}
 	~ASDirectCommandMove()
 	{

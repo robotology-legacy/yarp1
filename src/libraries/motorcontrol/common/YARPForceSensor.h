@@ -8,6 +8,7 @@
 #include <ace/OS.h>
 
 #include "YARPJR3Adapter.h"
+#include <YARPMath.h>
 
 template <class  ADAPTER, class PARAMETERS>
 class YARPForceSensor
@@ -68,6 +69,33 @@ class YARPForceSensor
 						
 			return YARP_OK;
 		}
+
+		int read(double *f)
+		{	
+			_adapter.IOCtl(CMDJR3ReadData, _reading);
+			int i = 0;
+			int j = 0;
+			
+			for(i = 0; i < 3; i++)
+			{
+				// matrix product between _reading and _R
+				f[i] = (_reading[0]/_params._max) * _params._R[i][0];
+				f[i] += (_reading[1]/_params._max) * _params._R[i][1];
+				f[i] += (_reading[2]/_params._max) * _params._R[i][2];
+			
+				f[i+3] = (_reading[3]/_params._max) * _params._R[i][0];
+				f[i+3] += (_reading[4]/_params._max) * _params._R[i][1];
+				f[i+3] += (_reading[5]/_params._max) * _params._R[i][2];
+			}
+						
+			return YARP_OK;
+		}
+
+		int read(YVector &f)
+		{ return read(f.data()); }
+
+		int read(YVector &f, YVector &t)
+		{ return read(f.data(), t.data()); }
 
 	protected:
 		ADAPTER _adapter;

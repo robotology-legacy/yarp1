@@ -32,9 +32,9 @@ int main(int argc, char* argv[])
 	file.get("[THREAD]", "Rate", &_arm_thread_rate, 1);
 	file.get("[RANDOMTHREAD]", "Rate", &_random_thread_rate, 1);
 	
-	ArmThread arm_thread(_arm_thread_rate, "arm thread", "Q:\\Ini Files\\arm2.ini");
+	ArmThread arm_thread(_arm_thread_rate, "arm thread", "Y:\\conf\\babybot\\arm.ini");
 
-	RandomThread rnd_thread(&arm_thread, _random_thread_rate, "rnd thread", "Q:\\Ini Files\\arm2.ini");
+	RandomThread rnd_thread(&arm_thread, _random_thread_rate, "rnd thread", "Y:\\conf\\babybot\\arm.ini");
 	
 	arm_thread.start();
  	arm_thread.start_transmission();

@@ -10,22 +10,90 @@
 #include <YARPScheduler.h>
 #include <YARPTime.h>
 #include <YARPPort.h>
+#include <YARPMath.h>
+#include <YARPVectorPortContent.h>
 
 #include <YARPForceSensor.h>
+#include <string>
 
-int ParseParams (int argc, char *argv[]) 
+using namespace std;
+
+const int __defaultRate = 40;
+const string __defaultName = "/force/o:1";
+
+bool parseParams (int argc, char *argv[], const string &key, string &out)
 {
+	for (int i = 1; i < argc; i++)
+	{
+		if (argv[i][0] == '-')
+		{
+			// found parameter, check key
+			if (key == string(argv[i]+1)) 
+			{
+				// found key
+				i++;
+				if (i==argc)
+					return false;
+				else if (argv[i][0] == '-')
+					return false;
+				{
+					out = string (argv[i]);
+					return true;
+				}
+			}
+		}
+	}
+	return false; 
+}
 
+bool parseParams (int argc, char *argv[], const string &key)
+{
+	for (int i = 1; i < argc; i++)
+	{
+		if (argv[i][0] == '-')
+		{
+			// found parameter, check key
+			if (key == string(argv[i]+1))
+				return true;
+		}
+	}
+	return false; 
+}
 
-	return YARP_OK; 
+bool parseParams (int argc, char *argv[], const string &key, int *out) 
+{
+	string dummy;
+	if (parseParams(argc, argv, key, dummy))
+	{
+		*out = atoi(dummy.c_str());
+		return true;
+	}
+	else
+		return false;
+
+}
+
+bool parseParams (int argc, char *argv[], const string &key, char *out) 
+{
+	string dummy;
+	if (parseParams(argc, argv, key, dummy))
+	{
+		strcpy(out, dummy.c_str());
+		return true;
+	}
+	else
+		return false;
+
 }
 
 class Thread : public YARPRateThread
 {
 public:
-	Thread():YARPRateThread("force", 40),
+	Thread (const char *name, int rate):YARPRateThread(name, rate),
 	_outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	{
+		_name = string(name);
+		_forces.Resize(6);
 	}
 	~Thread()
 	{
@@ -35,22 +103,22 @@ public:
 	{
 		fs.initialize("Y:\\conf\\babybot\\forcesensor.ini");
 
-		_outPort.Register("/force/o:1");
+		_outPort.Register(_name.c_str());
 
 	}
 
 	void doLoop()
 	{
 	
-		fs.read(_forces, _torques);
+		fs.read(_forces);
 
 		// for(int i = 0; i < 3; i++)
 		//	printf("%.3lf\t",_torques[i]);
 
 		//	cout << "\n";
 		
-		memcpy(_outPort.Content(), _torques, sizeof(double)*3);
-		
+		_outPort.Content() = _forces;
+				
 		_outPort.Write();
 	}
 
@@ -61,9 +129,9 @@ public:
 
 	
 	YARPBabybotForceSensor fs;
-	YARPOutputPortOf<double [3]> _outPort;
-	double _forces[3];
-	double _torques[3];
+	YARPOutputPortOf<YVector> _outPort;
+	YVector _forces;
+	string _name;
 };
 
 
@@ -71,7 +139,19 @@ int main (int argc, char *argv[])
 {
 	YARPScheduler::setHighResScheduling ();
 
-	Thread _thread;
+	// parse command line
+	int rate;
+	string name;
+	if (!parseParams(argc, argv, "p", &rate))
+		rate = __defaultRate;
+
+	if (!parseParams(argc, argv, "name", name))
+		name = __defaultName;
+
+	if (parseParams(argc, argv, "a"))
+		cout << "-a foun ";
+
+	Thread _thread(name.c_str(), rate);
 
 	_thread.start();
 	

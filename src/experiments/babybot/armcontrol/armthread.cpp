@@ -91,9 +91,9 @@ void ArmThread::doRelease()
 	park(2);
 	_arm.uninitialize();
 
-	_gravity1.save("Q:\\Ini Files\\gravity1.ini");
-	_gravity2.save("Q:\\Ini Files\\gravity2.ini");
-	_gravity3.save("Q:\\Ini Files\\gravity3.ini");
+	_gravity1.save("Y:\\conf\\babybot\\gravity1.ini");
+	_gravity2.save("Y:\\conf\\babybot\\gravity2.ini");
+	_gravity3.save("Y:\\conf\\babybot\\gravity3.ini");
 }
 
 void ArmThread::doLoop()

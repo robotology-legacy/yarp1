@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPVectorPortContent.h,v 1.3 2003-07-02 15:32:00 gmetta Exp $
+/// $Id: YARPVectorPortContent.h,v 1.4 2003-07-03 14:43:41 babybot Exp $
 ///
 ///
 
@@ -150,6 +150,7 @@ public:
 
 class YARPOutputPortOf<YVector> : public YARPBasicOutputPort<YARPVectorPortContent>
 {
+public:
 	YARPOutputPortOf<YVector>(int n_service_type = DEFAULT_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicOutputPort<YARPVectorPortContent> (n_service_type, n_protocol_type) {}
 };
@@ -209,6 +210,7 @@ public:
 
 class YARPOutputPortOf<YMatrix> : public YARPBasicOutputPort<YARPMatrixPortContent>
 {
+public:
 	YARPOutputPortOf<YMatrix>(int n_service_type = DEFAULT_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicOutputPort<YARPMatrixPortContent> (n_service_type, n_protocol_type) {}
 };

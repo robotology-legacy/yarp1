@@ -16,6 +16,8 @@ static char THIS_FILE[] = __FILE__;
 const int __defaultPeriod = 100;
 const int __defaultSize = 1;
 const int __defaultWindowLength = 300;
+const int __defaultWindowHeight = 100;
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CVectViewerApp
@@ -54,10 +56,11 @@ BOOL CVectViewerApp::InitInstance()
 
 	int iPeriod;
 	int iSize;
-	int iWindow;
+	int iLength;
+	int iHeight;
 	double *dScale;
 	bool aScale;
-	CString dummy,name, period, size, window, scale, x, y, w, h;
+	CString dummy,name, period, size, length, height, scale, x, y, w, h;
 	name = "/";
 	cmdInfo.GetOption("name", dummy);
 	name += dummy;
@@ -73,16 +76,34 @@ BOOL CVectViewerApp::InitInstance()
 
 	dScale = new double[iSize];
 
-	if (cmdInfo.GetOption("window", window))
-		iWindow = atoi(window);
+	if (cmdInfo.GetOption("length", length))
+		iLength = atoi(length);
 	else
-		iWindow = __defaultWindowLength;
+		iLength = __defaultWindowLength;
 
-	// if (cmdInfo.GetOption("scale", scale))
+	if (cmdInfo.GetOption("height", height))
+		iHeight = atoi(height);
+	else
+		iHeight = __defaultWindowHeight;
+
+	double sc;
+	if (cmdInfo.GetOption("scale", scale))
+	{
+		sc = 1/atof(scale);
+		aScale = false;
+	}
+	else
+	{
+		sc = 1.0;
+		aScale = true;
+	}
+		
 	for(int i = 0; i < iSize; i++)
-		dScale[i] = 1.0;
-	aScale = true;
+		dScale[i] = sc;
+	
 
+	// window
+	///////////////////////////////////////////
 	if (cmdInfo.GetOption("x", x))
 		_posX = atoi(x);
 	else
@@ -109,7 +130,7 @@ BOOL CVectViewerApp::InitInstance()
 	Enable3dControlsStatic();	// Call this when linking to MFC statically
 #endif
 
-	CVectViewerDlg dlg(name, iPeriod, iSize, iWindow);
+	CVectViewerDlg dlg(name, iPeriod, iSize, iLength, iHeight);
 	m_pMainWnd = &dlg;
 
 	dlg._aScale = aScale;
