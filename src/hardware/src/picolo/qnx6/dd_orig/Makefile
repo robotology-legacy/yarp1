@@ -50,5 +50,3 @@ clean:
 	rm -f bttvx_regs
 	rm -f *.o
 	rm -f blit
-
-
