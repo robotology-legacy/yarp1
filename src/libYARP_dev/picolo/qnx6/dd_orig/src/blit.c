@@ -26,7 +26,7 @@
 #include <assert.h>
 
 
-#include "bttv.h"
+#include "../include/bttv.h"
 
 /* For "devctl()" */
 #include <devctl.h>

@@ -40,7 +40,7 @@
 #include <pthread.h>
 
 
-#include "bttv.h"
+#include "../include/bttv.h"
 #define BTTV_MAX 6
 
 static resmgr_connect_funcs_t    connect_funcs;

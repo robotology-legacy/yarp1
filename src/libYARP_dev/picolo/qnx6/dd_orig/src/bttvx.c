@@ -39,7 +39,7 @@ extern "C" {
 #include <inttypes.h>
 #include <pthread.h>
 
-#include "bttv.h"
+#include "../include/bttv.h"
 #define BTTV_MAX 6
 /*
  * Those are the default values for BRIGHT and CONTRAST (for babybot using fgadjuster)
