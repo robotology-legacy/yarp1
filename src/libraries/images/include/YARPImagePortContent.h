@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImagePortContent.h,v 1.6 2003-07-02 23:03:08 babybot Exp $
+/// $Id: YARPImagePortContent.h,v 1.7 2003-07-16 13:47:22 babybot Exp $
 ///
 ///
 
@@ -157,6 +157,8 @@ public:
 	YARPInputPortOf<YARPGenericImage>(int n_service_type = DEFAULT_BUFFERS, 
 					  int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicInputPort<YARPImagePortContent> (n_service_type, n_protocol_type) {}
+
+	virtual ~YARPInputPortOf<YARPGenericImage> () { ((Port *)system_resource)->End(); }
 };
 
 class YARPOutputPortOf<YARPGenericImage> : public YARPBasicOutputPort<YARPImagePortContent>
@@ -164,6 +166,8 @@ class YARPOutputPortOf<YARPGenericImage> : public YARPBasicOutputPort<YARPImageP
 public:
 	YARPOutputPortOf<YARPGenericImage>(int n_service_type = DEFAULT_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicOutputPort<YARPImagePortContent> (n_service_type, n_protocol_type) {}
+
+	virtual ~YARPOutputPortOf<YARPGenericImage> () { ((Port *)system_resource)->End(); }
 };
 
 
