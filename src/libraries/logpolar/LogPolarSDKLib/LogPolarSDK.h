@@ -67,6 +67,8 @@ struct Image_Data{
 	// Orientation of the Cartesian Image
 	bool Orig_LandScape;
 	bool Remap_LandScape;
+
+	int padding;
 };
 
 struct Neighborhood{
