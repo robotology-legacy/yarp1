@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.14 2003-06-13 22:49:55 gmetta Exp $
+/// $Id: main.cpp,v 1.15 2003-06-15 20:28:36 babybot Exp $
 ///
 ///
 
@@ -304,30 +304,22 @@ int _runAsLogpolarSimulation (void)
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
 
-	YARPImageFile::Read (".\\conf\\test1.ppm", img);
+	char * path = ACE_OS::getenv ("YARP_ROOT");
+	char filename[512];
+	ACE_OS::sprintf (filename, "%s\\conf\\test_grabber.ppm\0", path);
+	YARPImageFile::Read (filename, img);
 
 	while (!finished)
 	{
 		YARPTime::DelayInSeconds (0.04);
-
-///		img.Zero ();
-///		*(img.GetRawBuffer() + (frame_no % img.GetAllocatedDataSize())) = -1;
 		
+		/// blink
 		if ((frame_no % 2) == 0)
 			*(img.GetRawBuffer() + 128 * 256 * 3 + 128 * 3) = -1;
 		else
 			*(img.GetRawBuffer() + 128 * 256 * 3 + 128 * 3) = 0;
 
 		sampler.Cartesian2Logpolar (img, fovea, periphery);
-
-#if 0
-		if (frame_no == 0)
-		{
-			YARPImageFile::Write ("pippo.ppm", img);
-			YARPImageFile::Write ("pipp.ppm", fovea);
-			YARPImageFile::Write ("pip.ppm", periphery);
-		}
-#endif
 
 		outport.Content().Refer (fovea);
 		outport.Write();
