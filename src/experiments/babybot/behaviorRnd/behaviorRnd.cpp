@@ -25,6 +25,6 @@ int main(int argc, char* argv[])
 
 	_rnd.loop();
 
-	_rnd.End(-);
+	_rnd.End(-1);
 	return 0;
 }
