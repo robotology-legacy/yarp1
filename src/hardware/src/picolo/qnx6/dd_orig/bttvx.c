@@ -19,6 +19,11 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#include <string.h>
+#ifdef __cplusplus
+	extern "C" {
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <hw/pci.h>
@@ -34,6 +39,7 @@
 #include <inttypes.h>
 #include <pthread.h>
 
+
 #include "bttv.h"
 #define BTTV_MAX 6
 
@@ -48,6 +54,10 @@ int irq_debug = 1;
 
 int count=0;
 int flag = 1;
+
+volatile uint8_t	 *regbase8;
+volatile uint32_t    *regbase;    /* device has 32-bit registers */
+
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t condvar = PTHREAD_COND_INITIALIZER;
@@ -1264,4 +1274,8 @@ int init_bttvx(int argc1, int argc2) //Video format, device id
 	}
 	*/
 }
+
+#ifdef  __cplusplus
+}
+#endif
 
