@@ -1,4 +1,4 @@
-/// $Id: NetworkMap.h,v 1.2 2003-08-02 07:46:15 gmetta Exp $
+/// $Id: NetworkMap.h,v 1.3 2003-08-22 14:28:02 babybot Exp $
 // 
 // July 2003 -- by nat
 //////////////////////////////////////////////////////////////////////
@@ -10,7 +10,7 @@
 #include <ace/Log_Msg.h>
 
 #include <YARPString.h>
-#include <list>
+#include <YARPList.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
@@ -36,7 +36,7 @@ public:
 		YARPString ip;
 	};
 	
-	typedef std::list<tableEntry> NODE_TABLE;
+	typedef YARPList<tableEntry> NODE_TABLE;
 	typedef NODE_TABLE::iterator NODE_TABLE_IT;
 
 	struct networkMapEntry
@@ -45,7 +45,7 @@ public:
 		NODE_TABLE table;
 	};
 
-	typedef std::list<networkMapEntry> NETWORK_MAP;
+	typedef YARPList<networkMapEntry> NETWORK_MAP;
 	typedef NETWORK_MAP::iterator NETWORK_MAP_IT;
 	//////////////////////////////////////////////
 

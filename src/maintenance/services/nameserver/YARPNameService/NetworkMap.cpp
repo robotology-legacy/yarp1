@@ -108,33 +108,30 @@ int NetworkMap::_readAndCheck(FILE * fp, char *row)
 
 void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPString &outIp)
 {
-	NETWORK_MAP_IT mapIt;
-	NODE_TABLE_IT nodeIt;
-
-	mapIt = _networkMap.begin();
-
+	NETWORK_MAP_IT mapIt(_networkMap);
+	
 	bool foundNode = false;
 	bool foundNet = false;
 	YARPString tmpIp;
 
 	// for each node
-	while (mapIt != _networkMap.end() && !(foundNet&&foundNode))
+	while (!mapIt.done() && !(foundNet&&foundNode))
 	{
 		// reset foundNet
 		if (!foundNode)
 			foundNet = false;
 
 		// for each network
-		nodeIt = mapIt->table.begin();
-		while (nodeIt != mapIt->table.end() && !(foundNet&&foundNode) )
+		NODE_TABLE_IT nodeIt((*mapIt).table);
+		while (!nodeIt.done() && !(foundNet&&foundNode) )
 		{
-			if (nodeIt->netID == net)
+			if ((*nodeIt).netID == net)
 			{
-				tmpIp = nodeIt->ip;
+				tmpIp = (*nodeIt).ip;
 				foundNet = true;
 			}
 			
-			if (nodeIt->ip == inIp)
+			if ((*nodeIt).ip == inIp)
 				foundNode = true;
 				
 			nodeIt++;
