@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.16 2004-11-19 13:20:05 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.17 2004-12-30 10:51:53 beltran Exp $
 ///
 
 /** 
@@ -301,6 +301,79 @@ public:
 		}
 
 		fclose(pfile);
+	}
+
+	/** 
+	  * Loads a sound template from a file.
+	  * 
+	  * @param name The name of the file.
+	  */
+	int 
+	Load(YARPString name) {
+
+		LOCAL_TRACE("YARPSoundTemplate: Entering Load");
+		//ACE_OS::fprintf(stdout, "YARPSoundTemplate: Entering Load\n");
+
+		char line[256];
+		YVector valuesVector;
+		YARPVector<double> temporalVector;
+
+		ifstream infile;
+	   	infile.open( name.c_str() );
+
+		Destroy();
+
+		if ( infile.is_open() ) {
+
+			while (infile.getline(line, 256)) {
+
+				YARPString linestring(line);
+				YARPString numberString;
+				int startposition = 0;
+				int endposition   = 0;
+
+				while ( (endposition = linestring.find( " ", startposition)) != -1) {
+
+					double dValue = 0.0;
+					int lenght = endposition - startposition;
+
+					numberString = linestring.substring(
+						startposition, 
+						lenght
+						);
+
+					dValue = atof( numberString.c_str() );
+
+					temporalVector.add_tail( dValue );
+					startposition = endposition+1;
+				}
+
+				////Fill the YARP vector
+				if ( temporalVector.size() > 0 ) {
+
+					valuesVector.Resize( temporalVector.size() );
+
+					YARPVectorIterator<double> theTemporalVectorIterator( temporalVector );
+
+					theTemporalVectorIterator.go_head(); 
+
+					for (int i = 0; i < temporalVector.size(); i++) {
+						valuesVector[i] = *theTemporalVectorIterator;
+						theTemporalVectorIterator++;
+					}
+
+					Add(valuesVector);
+					//Clean the temporal vector.
+					temporalVector.size(0);
+				}
+			}
+
+			infile.close();
+			return YARP_OK;
+		}
+		else {
+			 return YARP_FAIL;
+		}
 	}
 
 	/** 

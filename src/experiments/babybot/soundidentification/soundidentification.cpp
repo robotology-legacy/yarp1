@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: soundidentification.cpp,v 1.22 2004-11-12 10:04:03 beltran Exp $
+/// $Id: soundidentification.cpp,v 1.23 2004-12-30 10:51:53 beltran Exp $
 ///
 
 /** 
@@ -45,6 +45,9 @@
 const int   __outSize    = 5;
 const char *__baseName   = "/soundidentification/";
 const char *__configFile = "sound.ini";
+// Initiaization of SoundImagePair static variables
+int SoundImagePair::imageWidth = 0;
+int SoundImagePair::imageHeight = 0;
 
 /**
  * Some variable for the network connection.
@@ -74,8 +77,8 @@ int main(int argc, char* argv[]) {
 		int pos = 0;
 
 		// Get and sets SValue (temporal variable)
-		if ( (pos = c.strstr("S")) != -1){
-			YARPString value = c.substring(pos+1, -1);
+		if ( (pos = c.strstr("SValue")) != -1){
+			YARPString value = c.substring(pos+6, -1);
 			// Is the user asking for the current value?
 			if (value.strstr("?") != -1){
 				cout << "Current SValue = " << _thread.getSValue() << endl;  
@@ -88,8 +91,8 @@ int main(int argc, char* argv[]) {
 		}
 
 		// Gets and set decaing factor value
-		if ( (pos = c.strstr("D")) != -1){
-			YARPString value = c.substring(pos+1, -1);
+		if ( (pos = c.strstr("Decaing")) != -1){
+			YARPString value = c.substring(pos+7, -1);
 			// Is the user asking for the value
 			if (value.strstr("?") != -1){
 				 cout << "Current decaing factor = " << _thread.getDecaingFactor() << endl;
@@ -103,7 +106,7 @@ int main(int argc, char* argv[]) {
 
 		// Gets and set the learning state
 		if ( (pos = c.strstr("Learning")) != -1){
-			YARPString value = c.substring(pos+1, -1);
+			YARPString value = c.substring(pos+8, -1);
 			// Is the user asking for the value
 			if (value.strstr("?") != -1){
 				 cout << "Current learning state = " << _thread.getLearningState() << endl;
@@ -114,13 +117,26 @@ int main(int argc, char* argv[]) {
 			}
 			continue;
 		}	
+
+		if ( (pos = c.strstr("SavePairList")) != -1) {
+			 YARPString name = c.substring(pos+12, -1);
+			 _thread.SavePairList(name);
+		}
+
+		if ( (pos = c.strstr("LoadPairList")) != -1) {
+			 YARPString name = c.substring(pos+12, -1);
+			 _thread.LoadPairList(name);
+		}
 		
-		if ( c != "q!")
-		cout << "Type S <value> to set the S value(value must be between 2 and 30)" << endl;
-		cout << "Type D <value> to set the Decaing factor(value must be between 0.0 and 1.0)" << endl;
-		cout << "Type S ? to get the S value" << endl;
-		cout << "Type D ? to get the Decaing factor" << endl;
-		cout << "Type q!+return to quit" << endl;
+		if ( c != "q!") {
+			cout << "Type SValue <value> to set the S value(value must be between 2 and 30)" << endl;
+			cout << "Type Decaing <value> to set the Decaing factor(value must be between 0.0 and 1.0)" << endl;
+			cout << "Type SValue ? to get the S value" << endl;
+			cout << "Type Decaing ? to get the Decaing factor" << endl;
+			cout << "Type SavePairList <name> to save the current pair list" << endl;
+			cout << "Type LoadPairList <name> to load an stored pair list" << endl;
+			cout << "Type q!+return to quit" << endl;
+		}
 	}
 	while (c != "q!");
 

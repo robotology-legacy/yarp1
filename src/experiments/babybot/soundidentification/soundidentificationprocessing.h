@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.13 2004-12-30 10:49:29 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.14 2004-12-30 10:51:53 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -61,7 +61,8 @@ public:
 	inline int apply(YARPSoundBuffer &in, YVector &out, double &rms)
 	{
 		//LOCAL_TRACE("SoundIdentificationProcessing: Entering apply");
-		unsigned char * buff = (unsigned char *) in.GetRawBuffer();
+		//unsigned char * buff = (unsigned char *) in.GetRawBuffer();
+		char * buff = (char *) in.GetRawBuffer();
 		int dim[1] = {numSamples};
 		int i = 0;
 		double sum = 0.0;

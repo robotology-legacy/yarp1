@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.cpp,v 1.9 2004-11-23 11:41:51 beltran Exp $
+/// $Id: SoundIdentificationThread.cpp,v 1.10 2004-12-30 10:51:53 beltran Exp $
 ///
 
 /** 
@@ -114,6 +114,7 @@ void SoundIdentificationThread::setLearningState( const int value ) {
 	 learningPhase = value;
 	 _sema.Post();
 }
+
 
 //----------------------------------------------------------------------
 // CalculateRMSMean 
@@ -466,6 +467,64 @@ int SoundIdentificationThread::calculateMixel(
 }
 
 //----------------------------------------------------------------------
+//  Save pair list with soundtemplates/images.
+//----------------------------------------------------------------------
+int SoundIdentificationThread::SavePairList(YARPString name) {
+
+	YARPListIterator<SoundImagePair> thePairListIterator(_pairList);
+	char tempbuff[100];
+
+	ACE_OS::fprintf(stdout,"SoundIdentificationThread: Saving pair list %s", name.c_str());
+
+	thePairListIterator.go_head();
+
+	for ( int i = 0; i < _pairList.size(); i++) {
+
+		YARPString sequenceName(name);
+		SoundImagePair &temppair = *thePairListIterator;
+		sequenceName.append(itoa(i, tempbuff, 10));
+
+		temppair.Save( sequenceName );
+		thePairListIterator++;
+	}
+
+	return YARP_OK;
+}
+
+//----------------------------------------------------------------------
+//  LoadPairList
+//----------------------------------------------------------------------
+int SoundIdentificationThread::LoadPairList(YARPString name) {
+
+	int ret;
+	int counter = 0;
+	SoundImagePair pair;
+	char tempbuff[100];
+	YARPString sequencename;
+
+	ACE_OS::fprintf(stdout,"SoundIdentificationThread: Loading pair list %s", name.c_str());
+
+	_pairList.clear();
+
+	// Create the sequence name
+	sequencename = name;
+	sequencename.append(itoa(counter, tempbuff, 10));
+
+	while ( (ret = pair.Load( sequencename )) == YARP_OK) {
+		
+		_pairList.push_back( pair );
+		counter++;
+		sequencename = name; 
+		sequencename.append(itoa(counter, tempbuff, 10));
+	}
+
+	if ( _pairList.size() > 0 )
+		return YARP_OK;
+	else
+		return YARP_FAIL;
+}
+
+//----------------------------------------------------------------------
 //  Body
 //----------------------------------------------------------------------
 void SoundIdentificationThread::Body (void)
@@ -544,7 +603,6 @@ void SoundIdentificationThread::Body (void)
 	//----------------------------------------------------------------------
 	// Main loop.
 	//----------------------------------------------------------------------
-
 	int    _dMixelValue     = 0;
 	double _dSoundRms       = 0.0;
 	int    _iMemoryFactor   = 0;
@@ -604,6 +662,10 @@ void SoundIdentificationThread::Body (void)
 				_inputLogPolarImage.GetWidth(),
 				_inputLogPolarImage.GetHeight()
 				); 
+
+			// Initialize soundTemplate/image static members
+			SoundImagePair::imageWidth  = _inputLogPolarImage.GetWidth();
+			SoundImagePair::imageHeight = _inputLogPolarImage.GetHeight();
 
 			_first = false;
 		}
@@ -833,6 +895,9 @@ void SoundIdentificationThread::Body (void)
 			_outHSHistogramPort.Write();
 		}
 
+		//----------------------------------------------------------------------
+		//  Processing for sound recognition 
+		//----------------------------------------------------------------------
 		if ( learningPhase == 0 ) {
 			 
 			double _rmsMean     = 0.0;

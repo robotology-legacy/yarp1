@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.h,v 1.8 2004-11-23 11:41:51 beltran Exp $
+/// $Id: SoundIdentificationThread.h,v 1.9 2004-12-30 10:51:53 beltran Exp $
 ///
 
 /** 
@@ -42,6 +42,7 @@
 #ifndef __SoundIdentificationThreadh__
 #define __SoundIdentificationThreadh__
 
+#include <fstream>
 #include <iostream>
 #include <ace/Log_Msg.h>
 #include <yarp/YARPScheduler.h>
@@ -85,18 +86,135 @@ extern int  _protocol;
 class SoundImagePair
 {
 public:
-	int weight;
+	static int imageWidth;
+	static int imageHeight;
 	YARPSoundTemplate soundTemplate;
 	YARPImageOf<YarpPixelBGR> image;
 
+	/** 
+	  * Constructor.
+	  */
 	SoundImagePair() {
-		weight = 0; 
 	}
 
+	/** 
+	  * The = operator.
+	  * 
+	  * @param srcpair The src pair to be copied.
+	  * 
+	  * @return The reference to the local pair.
+	  */
 	SoundImagePair& operator=( const SoundImagePair & srcpair) {
 		soundTemplate = srcpair.soundTemplate; 
 		image.CastCopy(srcpair.image);
 		return (*this);
+	}
+
+	/** 
+	  * Sets the values of the static variables that determine
+	  * the size of the image.
+	  * 
+	  * @param width The image width.
+	  * @param height The image height.
+	  */
+	void SetImageSizes(
+		int width,
+		int height
+		) {
+
+		imageWidth = width;
+		imageHeight = height;
+	}
+
+	/** 
+	  * Saves a template/image.
+	  * The name parameter is extended and template and image are
+	  * saved in two different files.
+	  * 
+	  * @param name The name to be used as base for the files.
+	  * 
+	  * @return YARP_OK
+	  */
+	int Save(YARPString name) {
+
+		YARPString templatename;
+		YARPString imagename;
+
+		templatename = name;
+		imagename = name;
+
+		templatename.append("template");
+		imagename.append("image");
+
+		soundTemplate.Save(templatename);
+
+		ofstream imageout(
+			imagename.c_str(), 
+			ofstream::binary
+			);
+
+		char * imagebuffer = image.GetRawBuffer();
+		ACE_ASSERT( imagebuffer != NULL );
+		int imageBufferSize = image.GetAllocatedDataSize();
+
+		imageout.write(
+			imagebuffer,
+			imageBufferSize
+			);
+		
+		return YARP_OK;
+	}
+
+	/** 
+	  * Load template/image pair from the file.
+	  * 
+	  * @param name The base name for the files to be
+	  * opened.
+	  * 
+	  * @return YARP_OK 
+	  * YARP_FAIL
+	  */
+	int Load(YARPString name) {
+
+		YARPString templatename;
+		YARPString imagename;
+
+		templatename = name;
+		imagename    = name;
+
+		templatename.append("template");
+		imagename.append("image");
+
+		int ret = soundTemplate.Load(templatename);
+
+		if ( ret == YARP_FAIL)
+			return YARP_FAIL;
+
+		ifstream imagein;
+		
+		imagein.open(
+			imagename.c_str(), 
+			ifstream::binary
+			);
+
+		if ( imagein.is_open() ) {
+
+			image.Resize( imageWidth, imageHeight);
+
+			char * imagebuffer = image.GetRawBuffer();
+			ACE_ASSERT( imagebuffer != NULL );
+			int imageBufferSize = image.GetAllocatedDataSize();
+
+			imagein.read(
+				imagebuffer,
+				imageBufferSize
+				);
+
+			return YARP_OK;
+		}
+		else {
+			 return YARP_FAIL;
+		}
 	}
 };
 
@@ -192,6 +310,31 @@ public:
 		LOCAL_TRACE("SoundIdentification: Entering getDecaingFactor");
 		return _dDecayValue; 
 	}
+
+	/** 
+	  * Saves the stored images/soundtemplates pair list.
+	  * The element of the pair list are saved in separated
+	  * files with a common root name; the a sequence number
+	  * indicating its position in the list; and later an
+	  * extension indicating if they are sound templates or
+	  * images.
+	  * 
+	  * @param name The root name that will be used to save
+	  * the files.
+	  *
+	  * @return YARP_OK
+	  */
+	int SavePairList( YARPString name );
+
+	/** 
+	  * Load a list of pair template/images.
+	  * 
+	  * @param name The root name of the pairs files.
+	  * 
+	  * @return YARP_OK if the files where available.
+	  * YARP_FAIL if there was problems loading the files.
+	  */
+	int LoadPairList( YARPString name);
 
 	/** 
 	  * The main body of the thread.
@@ -309,6 +452,7 @@ private:
 		int iSamples,
 		int i, int j,
 		double &rmsmean);
+	
 
 };
 #endif
