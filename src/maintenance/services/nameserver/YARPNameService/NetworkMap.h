@@ -1,4 +1,4 @@
-/// $Id: NetworkMap.h,v 1.3 2003-08-22 14:28:02 babybot Exp $
+/// $Id: NetworkMap.h,v 1.4 2003-08-29 08:37:09 babybot Exp $
 // 
 // July 2003 -- by nat
 //////////////////////////////////////////////////////////////////////
@@ -33,6 +33,7 @@ public:
 	struct tableEntry
 	{
 		YARPString netID;
+		YARPString nic;
 		YARPString ip;
 	};
 	
@@ -52,7 +53,7 @@ public:
 	NetworkMap(const YARPString &configFile = "");
 	virtual ~NetworkMap();
 
-	void findIp(const YARPString &inIp, const YARPString &net, YARPString &outIp);
+	void findIp(const YARPString &inIp, const YARPString &net, YARPString &nic, YARPString &outIp);
 	
 private:
 	int _load(const YARPString &filename);

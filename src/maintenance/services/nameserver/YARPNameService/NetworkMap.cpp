@@ -106,13 +106,14 @@ int NetworkMap::_readAndCheck(FILE * fp, char *row)
 		return 0;
 }
 
-void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPString &outIp)
+void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPString &outNic, YARPString &outIp)
 {
 	NETWORK_MAP_IT mapIt(_networkMap);
 	
 	bool foundNode = false;
 	bool foundNet = false;
 	YARPString tmpIp;
+	YARPString tmpNic;
 
 	// for each node
 	while (!mapIt.done() && !(foundNet&&foundNode))
@@ -128,6 +129,7 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 			if ((*nodeIt).netID == net)
 			{
 				tmpIp = (*nodeIt).ip;
+				tmpNic = (*nodeIt).nic;
 				foundNet = true;
 			}
 			
@@ -140,9 +142,15 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 	}
 
 	if ( !(foundNode && foundNet) )
-		outIp = "0.0.0.0";  // nothing was found, return 0.0.0.0
+	{
+		outIp = "0.0.0.0";		// nothing was found, return 0.0.0.0
+		outNic = "not found";	// nothing was found, return "not found"
+	}
 	else
-		outIp = tmpIp; // node and net were found, return tmpIp 
+	{
+		outIp = tmpIp;		// node and net were found, return tmpIp 
+		outNic = tmpNic;	// node and net were found, return tmpNic
+	}
 	
 }
 
