@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.23 2003-05-23 15:28:22 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.24 2003-05-23 16:32:01 gmetta Exp $
 ///
 ///
 
@@ -568,7 +568,7 @@ void _SocketThreadDgram::Body (void)
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? listener thread waiting on port %d waiting\n", _local_addr.getAddressRef().get_port_number()));
 
 		hdr.SetBad();
-		r = _local_socket.recv (&hdr, sizeof(hdr), incoming, 0, &timeout);
+		r = _local_socket.recv (&hdr, sizeof(hdr), incoming, 0);  // &timeout); /// cannot timeout on this.
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? got something from %s:%d waiting\n", incoming.get_host_name(), incoming.get_port_number()));
 
 		if (r >= 0 && hdr.GetLength() == (_MAGIC_NUMBER + 1))
