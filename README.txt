@@ -1,11 +1,11 @@
-$Id: README.txt,v 1.7 2003-01-16 22:10:43 gmetta Exp $
+$Id: README.txt,v 1.8 2003-04-09 10:52:04 gmetta Exp $
 
 Before you do anything else.
 YARP assumes you have correctly set up the following variables (ALSO WINNT):
 
 YARP_ROOT=the complete path of the directory this file is in
 PATH=$YARP_ROOT/bin/<OS> ...
-where <OS> is one of qnx, winnt, linux 
+where <OS> is one of qnx, qnx6, winnt, linux 
 
 While most of the code compiles correctly on different platforms,
 there are exceptions (e.g. the device drivers).

@@ -1,3 +1,8 @@
+//
+// $id$
+//	ACE Config File
+//
+
 #ifdef __QNX6__
 
 #include "ace/config-qnx-rtp.h"
