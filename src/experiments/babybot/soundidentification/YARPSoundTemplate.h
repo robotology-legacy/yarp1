@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.6 2004-09-06 16:40:27 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.7 2004-09-08 17:28:48 beltran Exp $
 ///
 
 /** 
@@ -47,6 +47,7 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <math.h>
+#include <YARPExMatrix.h>
 
 #define ARRAY_MAX 110 // Aproximatelly 5 seconds sound (22 frames/second)
 
@@ -366,7 +367,7 @@ public:
 	/** 
 	  * Calculates the covariance matrix of the sound template.
 	  * 
-	  * @param covm A reference to an external matrix to put the data.
+	  * @param mCov A reference to an external matrix to put the covariance data.
 	  * @param flag Determinates if the data in normalized with N or N-1
 	  * 	-# 0 N-1 is used
 	  * 	-# 1 N is used
@@ -376,7 +377,7 @@ public:
 	  * 	-# YARP_FAIL
 	  */
 	int
-	CovarianceMatrix(YMatrix &covm, int flag = 0)
+	CovarianceMatrix(YARPCovMatrix &mCov, int flag = 0)
 	{
 		int i;
 		int j;
@@ -387,7 +388,7 @@ public:
         double  * pdata   = NULL; /** Temporal pointer to access YVector internal data. */
 
 		_means.Resize(m_vectors_length);
-		_xvars.Resize(m_currentsize,m_vectors_length);
+        _xvars.Resize(m_currentsize,m_vectors_length);
 		
 		//----------------------------------------------------------------------
 		// Calculate means. 
@@ -419,15 +420,15 @@ public:
 
 			for( j = 1; j <= m_vectors_length; j++)
 				_xvars(i,j) = pdata[j-1] - _means[j-1];
-
-			_means[i] = sum/m_currentsize; // We store the mean in the means vector
 		}
 
 		// Calculate the final covariance matrix
 		if (flag)
-			covm = (_xvars.Transposed() * _xvars) / (m_currentsize); /** @todo Check if I should use the Transpose method. */	
+			mCov = (_xvars.Transposed() * _xvars) / (m_currentsize); 
 		else
-			covm = (_xvars.Transposed() * _xvars) / (m_currentsize-1);
+			mCov = (_xvars.Transposed() * _xvars) / (m_currentsize-1);
+
+		mCov.setOriginalVariancesMatrix(_xvars);
 
 		return YARP_OK;
 	}
