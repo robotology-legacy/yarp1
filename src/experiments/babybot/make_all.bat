@@ -25,9 +25,27 @@ echo Cleaning all...
 cd .\armcontrol\
 nmake /f armcontrol.mak CFG="armcontrol - Win32 Debug" clean
 nmake /f armcontrol.mak CFG="armcontrol - Win32 Release" clean
+cd ..\armtrigger\
+nmake /f armtrigger.mak CFG="armtrigger - Win32 Debug" clean
+nmake /f armtrigger.mak CFG="armtrigger - Win32 Release" clean
+cd ..\attention\
+nmake /f attention.mak CFG="attention - Win32 Debug" clean
+nmake /f attention.mak CFG="attention - Win32 Release" clean
 cd ..\behaviorRnd\
 nmake /f behaviorRnd.mak CFG="behaviorRnd - Win32 Debug" clean
 nmake /f behaviorRnd.mak CFG="behaviorRnd - Win32 Release" clean
+cd ..\bottlesender\
+nmake /f bottlesender.mak CFG="bottlesender - Win32 Debug" clean
+nmake /f bottlesender.mak CFG="bottlesender - Win32 Release" clean
+cd ..\collectpoints\
+nmake /f collectpoints.mak CFG="collectpoints - Win32 Debug" clean
+nmake /f collectpoints.mak CFG="collectpoints - Win32 Release" clean
+cd ..\egomap\
+nmake /f egomap.mak CFG="egomap - Win32 Debug" clean
+nmake /f egomap.mak CFG="egomap - Win32 Release" clean
+cd ..\grasprflx\
+nmake /f grasprflx.mak CFG="grasprflx - Win32 Debug" clean
+nmake /f grasprflx.mak CFG="grasprflx - Win32 Release" clean
 cd ..\handcolortracker\
 nmake /f HandColorTracker.mak CFG="HandColorTracker - Win32 Debug" clean
 nmake /f HandColorTracker.mak CFG="HandColorTracker - Win32 Release" clean
@@ -37,53 +55,46 @@ nmake /f handcontrol.mak CFG="handcontrol - Win32 Release" clean
 cd ..\handlocalization\
 nmake /f handlocalization.mak CFG="handlocalization - Win32 Debug" clean
 nmake /f handlocalization.mak CFG="handlocalization - Win32 Release" clean
-cd ..\sendCmd\
-nmake /f sendCmd.mak CFG="sendCmd - Win32 Debug" clean
-nmake /f sendCmd.mak CFG="sendCmd - Win32 Release" clean
-cd ..\grasprflx\
-nmake /f grasprflx.mak CFG="grasprflx - Win32 Debug" clean
-nmake /f grasprflx.mak CFG="grasprflx - Win32 Release" clean
-cd ..
-
-cd .\headcontrol\
+cd ..\handtrackerswitch\
+nmake /f handtrackerswitch.mak CFG="handtrackerswitch - Win32 Debug" clean
+nmake /f handtrackerswitch.mak CFG="handtrackerswitch - Win32 Release" clean
+cd ..\headcontrol\
 nmake /f headcontrol.mak CFG="headcontrol - Win32 Debug" clean
 nmake /f headcontrol.mak CFG="headcontrol - Win32 Release" clean
-cd ..
-cd .\headsink\
+cd ..\headsink\
 nmake /f headsink.mak CFG="headsink - Win32 Debug" clean
 nmake /f headsink.mak CFG="headsink - Win32 Release" clean
-cd ..
-cd .\headsmooth\
+cd ..\headsmooth\
 nmake /f headsmooth.mak CFG="headsmooth - Win32 Debug" clean
 nmake /f headsmooth.mak CFG="headsmooth - Win32 Release" clean
-cd ..
-cd .\tracker\
-nmake /f tracker.mak CFG="tracker - Win32 Debug" clean
-nmake /f tracker.mak CFG="tracker - Win32 Release" clean
-cd ..
-cd .\egomap\
-nmake /f egomap.mak CFG="egomap - Win32 Debug" clean
-nmake /f egomap.mak CFG="egomap - Win32 Release" clean
-cd ..
-cd .\vor\
-nmake /f vor.mak CFG="vor - Win32 Debug" clean
-nmake /f vor.mak CFG="vor - Win32 Release" clean
-cd ..
-
-cd .\remotelearn\
+cd ..\headvergence\
+nmake /f headvergence.mak CFG="headvergence - Win32 Debug" clean
+nmake /f headvergence.mak CFG="headvergence - Win32 Release" clean
+cd ..\reaching\
+nmake /f reaching.mak CFG="reaching - Win32 Debug" clean
+nmake /f reaching.mak CFG="reaching - Win32 Release" clean
+cd ..\remotelearn\
 nmake /f remotelearn.mak CFG="remotelearn - Win32 Debug" clean
 nmake /f remotelearn.mak CFG="remotelearn - Win32 Release" clean
-cd..
-
-cd .\remotelearn\remotelearnclient
+cd ..\remotelearn\remotelearnclient
 nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Debug" clean
 nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Release" clean
 cd ..
-cd ..
-
-cd .\vergence\
+cd ..\sendCmd\
+nmake /f sendCmd.mak CFG="sendCmd - Win32 Debug" clean
+nmake /f sendCmd.mak CFG="sendCmd - Win32 Release" clean
+cd ..\teststereomatch\
+nmake /f teststereomatch.mak CFG="teststereomatch - Win32 Debug" clean
+nmake /f teststereomatch.mak CFG="teststereomatch - Win32 Release" clean
+cd ..\tracker\
+nmake /f tracker.mak CFG="tracker - Win32 Debug" clean
+nmake /f tracker.mak CFG="tracker - Win32 Release" clean
+cd ..\vergence\
 nmake /f vergence.mak CFG="vergence - Win32 Debug" clean
 nmake /f vergence.mak CFG="vergence - Win32 Release" clean
+cd ..\vor\
+nmake /f vor.mak CFG="vor - Win32 Debug" clean
+nmake /f vor.mak CFG="vor - Win32 Release" clean
 cd..
 
 goto end
@@ -94,47 +105,53 @@ echo Compiling all with debug enabled.
 
 cd .\armcontrol\
 nmake /f armcontrol.mak CFG="armcontrol - Win32 Debug"
+cd ..\armtrigger\
+nmake /f armtrigger.mak CFG="armtrigger - Win32 Debug"
+cd ..\attention\
+nmake /f attention.mak CFG="attention - Win32 Debug"
 cd ..\behaviorRnd\
 nmake /f behaviorRnd.mak CFG="behaviorRnd - Win32 Debug"
+cd ..\bottlesender\
+nmake /f bottlesender.mak CFG="bottlesender - Win32 Debug"
+cd ..\collectpoints\
+nmake /f collectpoints.mak CFG="collectpoints - Win32 Debug"
+cd ..\egomap\
+nmake /f egomap.mak CFG="egomap - Win32 Debug"
+cd ..\grasprflx\
+nmake /f grasprflx.mak CFG="grasprflx - Win32 Debug"
 cd ..\handcolortracker\
-nmake /f handcolortracker.mak CFG="HandColorTracker - Win32 Debug"
+nmake /f HandColorTracker.mak CFG="HandColorTracker - Win32 Debug"
 cd ..\handcontrol\
 nmake /f handcontrol.mak CFG="handcontrol - Win32 Debug"
 cd ..\handlocalization\
 nmake /f handlocalization.mak CFG="handlocalization - Win32 Debug"
-cd ..\sendCmd\
-nmake /f sendCmd.mak CFG="sendCmd - Win32 Debug"
-cd ..\grasprflx\
-nmake /f grasprflx.mak CFG="grasprflx - Win32 Debug"
-cd ..
-
-cd .\headcontrol\
+cd ..\handtrackerswitch\
+nmake /f handtrackerswitch.mak CFG="handtrackerswitch - Win32 Debug"
+cd ..\headcontrol\
 nmake /f headcontrol.mak CFG="headcontrol - Win32 Debug"
-cd ..
-cd .\headsink\
+cd ..\headsink\
 nmake /f headsink.mak CFG="headsink - Win32 Debug"
-cd ..
-cd .\headsmooth\
+cd ..\headsmooth\
 nmake /f headsmooth.mak CFG="headsmooth - Win32 Debug"
-cd ..
-cd .\tracker\
-nmake /f tracker.mak CFG="tracker - Win32 Debug"
-cd ..
-cd .\egomap\
-nmake /f egomap.mak CFG="egomap - Win32 Debug"
-cd ..
-cd .\vor\
-nmake /f vor.mak CFG="vor - Win32 Debug"
-cd ..
-cd .\remotelearn\
+cd ..\headvergence\
+nmake /f headvergence.mak CFG="headvergence - Win32 Debug"
+cd ..\reaching\
+nmake /f reaching.mak CFG="reaching - Win32 Debug"
+cd ..\remotelearn\
 nmake /f remotelearn.mak CFG="remotelearn - Win32 Debug"
-cd..
-cd .\remotelearn\remotelearnclient
+cd ..\remotelearn\remotelearnclient
 nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Debug"
 cd ..
-cd ..
-cd .\vergence\
+cd ..\sendCmd\
+nmake /f sendCmd.mak CFG="sendCmd - Win32 Debug"
+cd ..\teststereomatch\
+nmake /f teststereomatch.mak CFG="teststereomatch - Win32 Debug"
+cd ..\tracker\
+nmake /f tracker.mak CFG="tracker - Win32 Debug"
+cd ..\vergence\
 nmake /f vergence.mak CFG="vergence - Win32 Debug"
+cd ..\vor\
+nmake /f vor.mak CFG="vor - Win32 Debug"
 cd..
 
 goto end
@@ -145,49 +162,53 @@ echo Compiling all with RELEASE enabled.
 
 cd .\armcontrol\
 nmake /f armcontrol.mak CFG="armcontrol - Win32 Release"
+cd ..\armtrigger\
+nmake /f armtrigger.mak CFG="armtrigger - Win32 Release"
+cd ..\attention\
+nmake /f attention.mak CFG="attention - Win32 Release"
 cd ..\behaviorRnd\
 nmake /f behaviorRnd.mak CFG="behaviorRnd - Win32 Release"
+cd ..\bottlesender\
+nmake /f bottlesender.mak CFG="bottlesender - Win32 Release"
+cd ..\collectpoints\
+nmake /f collectpoints.mak CFG="collectpoints - Win32 Release"
+cd ..\egomap\
+nmake /f egomap.mak CFG="egomap - Win32 Release"
+cd ..\grasprflx\
+nmake /f grasprflx.mak CFG="grasprflx - Win32 Release"
 cd ..\handcolortracker\
-nmake /f handcolortracker.mak CFG="HandColorTracker - Win32 Release"
+nmake /f HandColorTracker.mak CFG="HandColorTracker - Win32 Release"
 cd ..\handcontrol\
 nmake /f handcontrol.mak CFG="handcontrol - Win32 Release"
 cd ..\handlocalization\
 nmake /f handlocalization.mak CFG="handlocalization - Win32 Release"
-cd ..\sendCmd\
-nmake /f sendCmd.mak CFG="sendCmd - Win32 Release"
-cd ..\grasprflx\
-nmake /f grasprflx.mak CFG="grasprflx - Win32 Release"
-cd ..
-
-cd .\headcontrol\
+cd ..\handtrackerswitch\
+nmake /f handtrackerswitch.mak CFG="handtrackerswitch - Win32 Release"
+cd ..\headcontrol\
 nmake /f headcontrol.mak CFG="headcontrol - Win32 Release"
-cd ..
-cd .\headsink\
+cd ..\headsink\
 nmake /f headsink.mak CFG="headsink - Win32 Release"
-cd ..
-cd .\headsmooth\
+cd ..\headsmooth\
 nmake /f headsmooth.mak CFG="headsmooth - Win32 Release"
-cd ..
-cd .\tracker\
-nmake /f tracker.mak CFG="tracker - Win32 Release"
-cd ..
-cd .\egomap\
-nmake /f egomap.mak CFG="egomap - Win32 Release"
-cd ..
-cd .\vor\
-nmake /f vor.mak CFG="vor - Win32 Release"
-cd ..
-
-cd .\remotelearn\
+cd ..\headvergence\
+nmake /f headvergence.mak CFG="headvergence - Win32 Release"
+cd ..\reaching\
+nmake /f reaching.mak CFG="reaching - Win32 Release"
+cd ..\remotelearn\
 nmake /f remotelearn.mak CFG="remotelearn - Win32 Release"
-cd..
-cd .\remotelearn\remotelearnclient
+cd ..\remotelearn\remotelearnclient
 nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Release"
 cd ..
-cd ..
-
-cd .\vergence\
+cd ..\sendCmd\
+nmake /f sendCmd.mak CFG="sendCmd - Win32 Release"
+cd ..\teststereomatch\
+nmake /f teststereomatch.mak CFG="teststereomatch - Win32 Release"
+cd ..\tracker\
+nmake /f tracker.mak CFG="tracker - Win32 Release"
+cd ..\vergence\
 nmake /f vergence.mak CFG="vergence - Win32 Release"
+cd ..\vor\
+nmake /f vor.mak CFG="vor - Win32 Release"
 cd..
 
 goto end
