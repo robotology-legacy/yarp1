@@ -9,9 +9,12 @@ copy dir src/tools/yarp-read
 copy dir src/tools/yarp-service
 copy dir src/tools/yarp-write
 copy file src/tools/Makefile
-copy file src/tools/build.bat
+#copy file src/tools/build.bat
 copy file src/tools/README.TXT
-copy file src/tools/tools.dsw
+copy file src/tools/tools-os.dsw
+#copy file src/tools/tools-dev.dsw
 copy file README.txt
 copy file naming.txt
+copy file src/Makefile
+copy file Makefile
 endpackage

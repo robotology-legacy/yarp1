@@ -1,5 +1,6 @@
 
-TARGETS =  $(patsubst %.dir, %, $(wildcard *.dir)) $(patsubst %.dir, %.tar.gz, $(wildcard *.dir))
+ZIPS = $(patsubst %.dir, %.tar.gz, $(wildcard *.dir))
+TARGETS =  $(patsubst %.dir, %, $(wildcard *.dir)) $(ZIPS)
 
 #TARGETS = $(patsubst %.dir, %, $(wildcard *.dir))
 
@@ -14,10 +15,19 @@ all: $(TARGETS)
 	./package.pl < $<
 
 %.tar: %
-	tar cvf $@ $<
+	rm -rf YARP
+	cp -r $< YARP
+	tar cvf $@ YARP
 
 %.tar.gz: %.tar
 	gzip $<
 
+test: $(ZIPS)
+	rm -rf tmp
+	mkdir -p tmp
+	@cd tmp && for d in $(ZIPS); do \
+		echo $$d && tar xvzf - < ../$$d ; done
+	@cd tmp/YARP && make
+
 clean:
-	echo should clean $(TARGETS)
+	rm -rf $(TARGETS)
