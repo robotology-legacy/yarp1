@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2003-05-31 07:22:00 gmetta Exp $
+/// $Id: main.cpp,v 1.2 2003-05-31 08:20:05 gmetta Exp $
 ///
 ///
 
@@ -108,7 +108,7 @@ int main (int argc, char *argv[])
 	
 		frame_no++;
 		/// transforms the buffer.
-		if ((frame_no % 25) == 0)
+		if ((frame_no % 250) == 0)
 			ACE_OS::fprintf (stderr, "frame number %d acquired\n", frame_no);
 
 		/// sends the buffer.
