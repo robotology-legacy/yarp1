@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.7 2003-06-30 16:49:18 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.8 2003-07-01 09:00:53 beltran Exp $
 ///
 ///
 
@@ -70,7 +70,7 @@
 #include <ace/OS.h>
 #include <ace/Sched_Params.h>
 
-#include <YARPPicoloDeviceDriver.h>
+#include "YARPPicoloDeviceDriver.h"
 #include <YARPFrameGrabberUtils.h>
 
 
