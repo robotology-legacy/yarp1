@@ -72,6 +72,7 @@ typedef unsigned long  u32;
 typedef unsigned short u16;
 
 int open_bttvx();
+int close_bttvx();
 inline int BttvxAcquireBuffer(unsigned char *);
 inline int BttvxReleaseBuffer();
 int BttvxSetImageBuffer(int,unsigned char *);
