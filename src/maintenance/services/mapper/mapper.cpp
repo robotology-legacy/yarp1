@@ -8,6 +8,10 @@
 #include <YARPParseParameters.h>
 #include <YARPColorConverter.h>
 
+using namespace _logpolarParams;
+
+YARPLogpolar _mapper;
+
 int _findName(const char *in, YARPString &out)
 {
 	int i = 0;
@@ -21,16 +25,55 @@ int _findName(const char *in, YARPString &out)
 	return 1;
 }
 
+// just reconstruct colors
+int _logpolar(const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelBGR> &out)
+{
+	out.Resize(in.GetWidth(), in.GetHeight());
+	_mapper.ReconstructColor(in, out);
+	return 0;
+}
+
+// reconstruct colors and convert to cartesian
+int _cartesian(const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelBGR> &out)
+{
+	YARPImageOf<YarpPixelBGR> inTmp;
+	inTmp.Resize(in.GetWidth(), in.GetHeight());
+	out.Resize(_xsize,_ysize);
+	_mapper.ReconstructColor(in, inTmp);
+	_mapper.Logpolar2Cartesian(inTmp, out);
+	return 0;
+}
+
+int _normalize(const YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelBGR> &out)
+{
+	out.Resize(in.GetWidth(), in.GetHeight());
+	YARPColorConverter::RGB2Normalized(in, out, 20);
+	return 0;
+}
+
+int _grayscale(const YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelMono> &out)
+{
+	out.Resize(in.GetWidth(), in.GetHeight());
+	YARPColorConverter::RGB2Grayscale(in, out);
+	return 0;
+}
+
 int main(int argc, char* argv[])
 {
 	if (argc < 2)
 	{
-		cout << "Use: " << argv[0] << " inputfile outputfile [-mono] [-norm]\n";
+		cout << "Use: " << argv[0] << " inputfile outputfile [-mono] [-norm] [-lp]\n";
 		return 0;
 	}
 
+	YARPImageOf<YarpPixelMono> _input;
+	YARPImageOf<YarpPixelBGR> _tmp1;
+	YARPImageOf<YarpPixelBGR> _outputColor;
+	YARPImageOf<YarpPixelMono> _outputMono;
+
 	bool grayscale = false;
 	bool normalized = false;
+	bool lp = false;
 
 	if (YARPParseParameters::parse(argc, argv, "mono"))
 	{
@@ -40,43 +83,45 @@ int main(int argc, char* argv[])
 	{
 		normalized = true;
 	}
+	if (YARPParseParameters::parse(argc, argv, "lp"))
+	{
+		lp = true;
+	}
 		
 	YARPString name;
-	YARPString cartName;
+	YARPString outName;
 	
-	cartName.append(argv[2]);
+	outName.append(argv[2]);
 	
-	YARPLogpolar _mapper;
-	YARPImageOf<YarpPixelMono> _input;
-	YARPImageOf<YarpPixelBGR> _inputC;
-	YARPImageOf<YarpPixelBGR> _inputCNorm;
-	YARPImageOf<YarpPixelMono> _inputMono;
-	YARPImageOf<YarpPixelBGR> _output;
-
-	YARPImageFile::Read(argv[1], _input);
-	_inputC.Resize(_input.GetWidth(), _input.GetHeight());
-	_inputCNorm.Resize(_input.GetWidth(), _input.GetHeight());
-	_inputMono.Resize(_input.GetWidth(), _input.GetHeight());
-	_output.Resize(_logpolarParams::_xsize, _logpolarParams::_ysize);
-	
-	if ( (!grayscale) && (!normalized) )
+	if (YARPImageFile::Read(argv[1], _input) == -1)
 	{
-		_mapper.ReconstructColor(_input, _inputC);
-		_mapper.Logpolar2Cartesian(_inputC, _output);
+		ACE_OS::printf("Error: problem reading %s\n", argv[1]);
+		return 0;
 	}
-	else if (!grayscale)
+
+	if (lp)
+		_logpolar(_input, _tmp1);
+	else
+		_cartesian(_input, _tmp1);
+	
+
+	if (grayscale)
 	{
-		_mapper.ReconstructColor(_input, _inputC);
-		YARPColorConverter::RGB2Normalized(_inputC, _inputCNorm, 20);
-		_mapper.Logpolar2Cartesian(_inputCNorm, _output);
+		_grayscale(_tmp1, _outputMono);
+		YARPImageFile::Write(outName.c_str(), _outputMono);
+	}
+	else if (normalized)
+	{
+		_normalize(_tmp1, _outputColor);
+		YARPImageFile::Write(outName.c_str(), _outputColor);
 	}
 	else
 	{
-		_mapper.ReconstructGrays(_input, _inputMono);
-		_mapper.Logpolar2Cartesian(_inputMono, _output);
+		_outputColor = _tmp1;
+		YARPImageFile::Write(outName.c_str(), _outputColor);
 	}
-	
-	YARPImageFile::Write(cartName.c_str(), _output);
+
+
 	return 0;
 }
 
