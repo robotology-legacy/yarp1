@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.4 2004-07-09 18:52:17 eshuy Exp $
+/// $Id: YARPNameServer.h,v 1.5 2004-07-10 22:10:41 gmetta Exp $
 ///
 ///
 
@@ -77,6 +77,7 @@
 #define _NOLIB
 #endif
 #include <yarp/wide_nameloc.h>
+#include <yarp/YARPRateThread.h>
 
 #include <ace/config.h>
 #include <ace/SOCK_Acceptor.h>
@@ -84,7 +85,6 @@
 #include <ace/SOCK_Stream.h>
 #include <ace/Log_Msg.h>
 
-#include "CThreadImpl.h"
 #include "LocalNameServer.h"
 #include "NetworkMap.h"
 
@@ -93,12 +93,12 @@ using namespace std;
 
 #define SIZE_BUF 4096
 
-class YARPNameServer: public CThreadImpl
+class YARPNameServer: public YARPRateThread
 {
 public:
 	YARPNameServer(const YARPString &file, const YARPString& local, int port):
-	  CThreadImpl("name server thread",0),
-		nmap(file,local),
+	  YARPRateThread("name server thread", 0),
+		nmap(file, local),
 	  server_addr_(port), peer_acceptor_(server_addr_, 1)
 	{
 		  //ns.init(file);
