@@ -55,7 +55,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=installing...
-PostBuild_Cmds=copy .\release\remotelearnclient.exe ..\..\..\..\bin\winnt\remotelearnclient.exe
+PostBuild_Cmds=copy .\release\remotelearnclient.exe ..\..\..\..\..\bin\winnt\remotelearnclient.exe
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "remotelearnclient - Win32 Debug"

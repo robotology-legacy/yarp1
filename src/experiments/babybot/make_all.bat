@@ -70,6 +70,16 @@ nmake /f vor.mak CFG="vor - Win32 Debug" clean
 nmake /f vor.mak CFG="vor - Win32 Release" clean
 cd ..
 
+cd .\remotelearn\
+nmake /f remotelearn.mak CFG="remotelearn - Win32 Debug" clean
+nmake /f remotelearn.mak CFG="remotelearn - Win32 Release" clean
+cd..
+
+cd .\remotelearn\remotelearnclient
+nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Debug" clean
+nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Release" clean
+cd ..
+cd ..
 
 goto end
 
@@ -111,6 +121,13 @@ cd ..
 cd .\vor\
 nmake /f vor.mak CFG="vor - Win32 Debug"
 cd ..
+cd .\remotelearn\
+nmake /f remotelearn.mak CFG="remotelearn - Win32 Debug"
+cd..
+cd .\remotelearn\remotelearnclient
+nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Debug"
+cd ..
+cd ..
 
 goto end
 
@@ -151,6 +168,14 @@ nmake /f egomap.mak CFG="egomap - Win32 Release"
 cd ..
 cd .\vor\
 nmake /f vor.mak CFG="vor - Win32 Release"
+cd ..
+
+cd .\remotelearn\
+nmake /f remotelearn.mak CFG="remotelearn - Win32 Release"
+cd..
+cd .\remotelearn\remotelearnclient
+nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Release"
+cd ..
 cd ..
 
 goto end

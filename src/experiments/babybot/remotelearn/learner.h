@@ -80,15 +80,26 @@ public:
 
 	inline void unlock()
 	{ _mutex.Post(); }
-	
+
+	void setOutputPort(YARPOutputPortOf<YARPBottle> *port, YARPBottle *b)
+	{
+		_outputBottle = b;
+		_outPort = port;
+	}
+
+	int send();
+		
 private:
 	BatchData _samples;
 	
 	// local storage for training
 	double *_input;
 	double *_target;
-	bool _busy;
+	bool _busyTraining;
 	YARPSemaphore _mutex;
+
+	YARPBottle *_outputBottle;
+	YARPOutputPortOf<YARPBottle> *_outPort;
 };
 
 #endif

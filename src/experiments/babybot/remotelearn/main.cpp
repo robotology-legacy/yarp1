@@ -7,8 +7,9 @@
 #include <YARPPort.h>
 
 const char __filename[] = "test.ini";
-const char __inputPort[] = "/nnet/i";
-const int __nIterations = 100000;
+const char __inputPort[] = "/remotelearn/i";
+const char __outputPort[] = "/remotelearn/o";
+const int __nIterations = 10000;
 
 int main(int argc, char* argv[])
 {
@@ -18,20 +19,24 @@ int main(int argc, char* argv[])
 	filename.append(__filename);
 	
 	Learner _learner(filename);
-
+	
 	YARPInputPortOf<YARPBottle> _inputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+	YARPOutputPortOf<YARPBottle> _outputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
 	_inputPort.Register(__inputPort);
+	_outputPort.Register(__outputPort);
 
+	YARPBottle outputBottle;
+	_learner.setOutputPort(&_outputPort, &outputBottle);
 
 	while(true)
 	{
 		_inputPort.Read();
 		_learner.add(_inputPort.Content());
-		_inputPort.Content().display();
-
+		// _inputPort.Content().display();
+		
 		ACE_OS::printf("Received new sample:#%d\n", _learner.howMany());
 
-		if (_learner.howMany()%10 == 0)
+		if (_learner.howMany()%60 == 0)
 			_learner.train(__nIterations, true);
 	}
 

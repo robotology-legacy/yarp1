@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBPNNet.h,v 1.1 2003-11-13 00:40:49 babybot Exp $
+/// $Id: YARPBPNNet.h,v 1.2 2003-11-17 17:27:32 babybot Exp $
 ///  
 
 /// Original implementation of the Matrix Back Propagation code by Davide
@@ -74,6 +74,8 @@
 #include <ace/config.h>
 #include <fstream>
 #include <float.h>
+
+#include <YARPBottle.h>
 
 #ifndef _REAL
 #define _REAL
@@ -110,18 +112,84 @@ struct MBPOptions
 
 };
 
-class YARPBPNNet  
+// simple struct to store net status
+struct YARPBPNNetState
 {
-protected:
-                
-  REAL** Status;         /* Neurons status for learning patterns            */
-  REAL** Weight;         /* Weights                                         */
-  REAL** Bias;           /* Biases                                          */
- 
-  int    nLayer;         /* # of layers                                     */
-  int*   nUnit;          /* # of neurons per layer                          */
+	YARPBPNNetState()
+	{
+		allocated = false;
+	}
 
-  REAL** _internal_status;
+	~YARPBPNNetState()
+	{
+		if (allocated)
+			destroy();
+	}
+
+	void resize(int nL, const int *nU)
+	{
+		if (allocated)
+			destroy();
+		
+		nLayer = nL;
+
+		alloc(nL, nU);
+	}
+
+	void alloc(int nL, const int *nU)
+	{
+		nLayer = nL;
+		nUnit = new int [nL+1];
+		memcpy(nUnit, nU, sizeof(int)*(nL+1));
+		
+		max_input = new double [nUnit[0]];
+		min_input = new double [nUnit[0]];
+		max_output = new double [nUnit[nLayer]];
+		min_output = new double [nUnit[nLayer]];
+		max_limit = new double [nUnit[nLayer]];
+		min_limit = new double [nUnit[nLayer]];
+		
+		Weight = new double * [nLayer+1];
+		Bias   = new double * [nLayer+1];
+	
+		int i;
+		for (i=1; i <= nLayer; i++)
+		{    
+
+			Weight[i] = new double [nUnit[i]*nUnit[i-1]];
+			Bias[i] = new double  [nUnit[i]];
+		}
+		allocated = true;
+	}
+
+	void destroy()
+	{
+		delete [] max_input;
+		delete [] min_input;
+		delete [] max_output;
+		delete [] min_output;
+		delete [] max_limit;
+		delete [] min_limit;
+		delete [] nUnit;
+
+		int i;
+		for (i=1; i <= nLayer; i++)
+		{    
+
+			delete [] Weight[i];
+			delete [] Bias[i];
+		}
+
+		delete [] Weight;
+		delete [] Bias;
+
+		allocated = false;
+	}
+
+	int nLayer;
+	int *nUnit;
+	REAL **Weight;
+	REAL **Bias;
 
 	REAL *max_input;
 	REAL *min_input;
@@ -131,6 +199,100 @@ protected:
 
 	REAL *max_limit;
 	REAL *min_limit;
+
+	bool allocated;
+};
+
+inline void extract(YARPBottle &bottle, YARPBPNNetState &state)
+{
+	bottle.readInt(&state.nLayer);
+	int *tmp = new int[state.nLayer];
+	int i,j;
+	for(i = 0; i<state.nLayer; i++)
+		bottle.readInt(&state.nUnit[i]);
+	
+	state.resize(state.nLayer, state.nUnit);
+
+	for(i = 0; i<state.nUnit[0]; i++)
+	{
+		bottle.readFloat(&state.max_input[i]);
+		bottle.readFloat(&state.min_input[i]);
+	}
+
+	for(i = 0; i<state.nUnit[state.nLayer]; i++)
+	{
+		bottle.readFloat(&state.max_output[i]);
+		bottle.readFloat(&state.min_output[i]);
+		bottle.readFloat(&state.max_limit[i]);
+		bottle.readFloat(&state.min_limit[i]);
+	}
+	
+	for (i=1; i <= state.nLayer; i++)
+	{
+		for(j = 0; j < state.nUnit[i]*state.nUnit[i-1]; j++)
+			bottle.readFloat(&state.Weight[i][j]);
+
+		for(j = 0; j < state.nUnit[i]; j++)
+			bottle.readFloat(&state.Bias[i][j]);
+	}
+}
+
+inline void extract(const YARPBPNNetState &state, YARPBottle &bottle)
+{
+	bottle.writeInt(state.nLayer);
+	int i,j;
+	for(i = 0; i<state.nLayer; i++)
+		bottle.writeInt(state.nUnit[i]);
+	
+	for(i = 0; i<state.nUnit[0]; i++)
+	{
+		bottle.writeFloat(state.max_input[i]);
+		bottle.writeFloat(state.min_input[i]);
+	}
+
+	for(i = 0; i<state.nUnit[state.nLayer]; i++)
+	{
+		bottle.writeFloat(state.max_output[i]);
+		bottle.writeFloat(state.min_output[i]);
+		bottle.writeFloat(state.max_limit[i]);
+		bottle.writeFloat(state.min_limit[i]);
+	}
+	
+	for (i=1; i <= state.nLayer; i++)
+	{
+		for(j = 0; j < state.nUnit[i]*state.nUnit[i-1]; j++)
+			bottle.writeFloat(state.Weight[i][j]);
+
+		for(j = 0; j < state.nUnit[i]; j++)
+			bottle.writeFloat(state.Bias[i][j]);
+	}
+}
+
+class YARPBPNNet  
+{
+protected:
+                
+	// network status
+	REAL	** Weight;         /* Weights                                         */
+	REAL	** Bias;           /* Biases                                          */
+ 
+	int		nLayer;         /* # of layers                                     */
+	int		*nUnit;          /* # of neurons per layer                          */
+
+	REAL	*max_input;
+	REAL	*min_input;
+
+	REAL	*max_output;
+	REAL	*min_output;
+
+	REAL	*max_limit;
+	REAL	*min_limit;
+
+	/////////////////////////////////////////
+
+	REAL** Status;         /* Neurons status for learning patterns            */
+
+	REAL** _internal_status;
 
 	REAL *tmp_input;
 	REAL *tmp_output;
@@ -202,8 +364,14 @@ public:
 	int getOutputSize()
 	{ return n_output; }
 
+	// save network to disk
 	void save(const char *);
+	// store network to YARPBPNNetState class
+	void save(YARPBPNNetState &s);
+	// load network from disk
 	int load(const char *);
+	// load network from YARPBPNNetState class
+	int load(const YARPBPNNetState &s);
 private:
 	void _allocMatrix();
 	void _allocBatch();

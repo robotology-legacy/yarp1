@@ -6,7 +6,7 @@
 #include <YARPPort.h>
 #include <YARPConicFitter.h>
 
-const double __scale = 2.0;
+const double __scale = 1.0;
 
 class HandSegmenter
 {
@@ -54,7 +54,7 @@ public:
 		// mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
 		// x = (x + _logpolarParams::_xsize/2)/__scale;
 		// y = (_logpolarParams::_ysize/2-y)/__scale;
-		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(255, 0, 0));
+		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(0, 255, 0), 10, 2);
 		_send();
 	}
 

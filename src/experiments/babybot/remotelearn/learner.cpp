@@ -99,6 +99,18 @@ void BatchData::add(YARPBottle &n)
 
 	BatchDataSample *tmp = new BatchDataSample(tmpIn, tmpOut, _inSize, _outSize);
 
+	for(i = 0; i < _inSize; i++)
+	{
+		// extract input data sample
+		cout << tmpIn[i] << '\t';
+	}
+	for(i = 0; i < _outSize; i++)
+	{
+		// extract output (target) data samples
+		cout << tmpOut[i] << '\t';
+	}
+	cout << '\n';
+
 	push_back(tmp);
 	_nSamples++;
 
@@ -143,7 +155,9 @@ Learner::Learner()
 {
 	_input = NULL;
 	_target = NULL;
-	_busy = false;
+	_outputBottle = NULL;;
+	_outPort = NULL;
+	_busyTraining = false;
 }
 
 Learner::Learner(const YARPString &file):
@@ -151,7 +165,9 @@ YARPBPNNet(file.c_str())
 {
 	_input = NULL;
 	_target = NULL;
-	_busy = false;
+	_outputBottle = NULL;;
+	_outPort = NULL;
+	_busyTraining = false;
 
 	_samples.resize(getInputSize(), getOutputSize());
 }
@@ -169,12 +185,12 @@ int Learner::train(int nIt, bool init)
 	MBPOptions net_options;
 
 	lock();
-	if (_busy)
+	if (_busyTraining)
 	{
 		unlock();
 		return YARP_FAIL;
 	}
-	_busy = true;
+	_busyTraining = true;
 	unlock();
 		
 	_samples.get(&_input, &_target, &nSamples);
@@ -188,6 +204,11 @@ int Learner::train(int nIt, bool init)
 
 	YARPBPNNet::trainBatchInit(nSamples, net_options);
 
+	// be really sure the thread quit
+	Join();
+	// clean thread state
+	CleanState();
+	// start another thread
 	Begin();
 
 	return YARP_OK;
@@ -211,10 +232,29 @@ void Learner::Body()
 	CHECKANDDESTROY(_input);
 	CHECKANDDESTROY(_target);
 
-	_busy = false;
+	send();
+
+	_busyTraining = false;
 }
 
 void Learner::add(YARPBottle &n)
 {
 	_samples.add(n);
+}
+
+int Learner::send()
+{
+	if ( (_outputBottle == NULL) || (_outPort == NULL) )
+		return YARP_FAIL;
+
+	_outputBottle->reset();
+	_outputBottle->setID("NNET");
+	
+	YARPBPNNetState state;
+	save(state);
+	extract(state, *_outputBottle);
+	_outPort->Content() = *_outputBottle;
+	_outPort->Write();
+
+	return YARP_OK;
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.h,v 1.3 2003-11-11 21:36:05 babybot Exp $
+/// $Id: YARPSimpleOperations.h,v 1.4 2003-11-17 17:27:32 babybot Exp $
 ///
 ///
 
@@ -85,6 +85,9 @@
 
 #include "YARPImage.h"
 #include "YARPFilters.h"
+
+const double __crossLength = 2.0;
+const double __crossThickness = 1.0;
 
 class YARPSimpleOperation
 {
@@ -111,40 +114,56 @@ public:
 	static void DrawLine (YARPImageOf<YarpPixelBGR>& dest, int xstart, int ystart, int xend, int yend, const YarpPixelBGR& pixel);
 	static void DrawLine (YARPImageOf<YarpPixelRGB>& dest, int xstart, int ystart, int xend, int yend, const YarpPixelRGB& pixel);
 
-	inline static void DrawCross(YARPImageOf<YarpPixelRGB> &img, double dx, double dy, const YarpPixelRGB &pixel)
+	inline static void DrawCross(YARPImageOf<YarpPixelRGB> &img, double dx, double dy, const YarpPixelRGB &pixel, int length = 2, int thick = 1)
 	{
 		// coordinate center is top-left
 		int x = (int) (dx + 0.5);
 		int y = (int) (dy + 0.5);
 
-		for(int i = -2; i <= 2; i++)
-			img.SafePixel(x+i,y) = pixel;
-		for (int j = -2; j <= 2; j++)
-			img.SafePixel(x,y+j) = pixel;
+		int i,j,t;
+		
+		for(t = -thick; t <= thick; t++)
+		{
+			for(i = -length; i <= length; i++)
+				img.SafePixel(x+i,y+t) = pixel;
+			for (j = -length; j <= length; j++)
+				img.SafePixel(x+t,y+j) = pixel;
+		}
 	}
 
-	inline static void DrawCross(YARPImageOf<YarpPixelMono> &img, double dx, double dy, unsigned char pixel)
+	inline static void DrawCross(YARPImageOf<YarpPixelMono> &img, double dx, double dy, unsigned char pixel, int length = 2, int thick = 1)
 	{
 		// coordinate center is top-left
 		int x = (int) (dx + 0.5);
 		int y = (int) (dy + 0.5);
 
-		for(int i = -2; i <= 2; i++) 
-			img.SafePixel(x+i,y) = pixel;
-		for (int j = -2; j <= 2; j++)
-			img.SafePixel(x,y+j) = pixel;
+		int i,j,t;
+		
+		for(t = -thick; t <= thick; t++)
+		{
+			for(i = -length; i <= length; i++)
+				img.SafePixel(x+i,y+t) = pixel;
+			for (j = -length; j <= length; j++)
+				img.SafePixel(x+t,y+j) = pixel;
+		}
+
 	}
 
-	inline static void DrawCross(YARPImageOf<YarpPixelBGR> &img, double dx, double dy, const YarpPixelBGR &pixel)
+	inline static void DrawCross(YARPImageOf<YarpPixelBGR> &img, double dx, double dy, const YarpPixelBGR &pixel, int length = 2, int thick = 1)
 	{
 		// coordinate center is top-left
 		int x = (int) (dx + 0.5);
 		int y = (int) (dy + 0.5);
 
-		for(int i = -2; i <= 2; i++)
-			img.SafePixel(x+i,y) = pixel;
-		for (int j = -2; j <= 2; j++)
-			img.SafePixel(x,y+j) = pixel;
+		int i,j,t;
+		
+		for(t = -thick; t <= thick; t++)
+		{
+			for(i = -length; i <= length; i++)
+				img.SafePixel(x+i,y+t) = pixel;
+			for (j = -length; j <= length; j++)
+				img.SafePixel(x+t,y+j) = pixel;
+		}
 	}
 
 	inline static int ComputePadding (int linesize, int align)

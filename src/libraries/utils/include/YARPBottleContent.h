@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottleContent.h,v 1.6 2003-11-12 17:14:28 babybot Exp $
+/// $Id: YARPBottleContent.h,v 1.7 2003-11-17 17:27:32 babybot Exp $
 ///
 ///
 
@@ -98,8 +98,9 @@ public:
 	  text.reserve(len);
       text.resize(len);
 
-      top = len;
+	  top = len;
       int result = reader.Read((char*)(&text[0]),len);
+	  rewind();
       return result;
     }
   

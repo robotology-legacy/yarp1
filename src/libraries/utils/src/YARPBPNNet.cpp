@@ -51,6 +51,8 @@ YARPBPNNet::YARPBPNNet()
 
 	_matrixAllocated = false;
 	_batchAllocated = false;
+	
+	strcpy(logfilename, "NO_LOG_FILE");
 }
 
 YARPBPNNet::YARPBPNNet(int nlayer,const int *nunit)
@@ -74,6 +76,8 @@ YARPBPNNet::YARPBPNNet(int nlayer,const int *nunit)
 	min_limit = NULL; 
 	tmp_input = NULL; 
 	tmp_output = NULL; 
+
+	strcpy(logfilename, "NO_LOG_FILE");
 
 	_matrixAllocated = false;
 	_batchAllocated = false;
@@ -140,6 +144,8 @@ YARPBPNNet::YARPBPNNet(const char* filename)
 
 	_matrixAllocated = false;
 	_batchAllocated = false;
+
+	strcpy(logfilename, "NO_LOG_FILE");
 
 	load(filename);
 }
@@ -222,6 +228,70 @@ int YARPBPNNet::load(const char *filename)
 	}
 
 	return YARP_OK;
+}
+
+int YARPBPNNet::load(const YARPBPNNetState &p)
+{
+	nLayer = p.nLayer;
+		
+	if (nUnit != NULL)
+		free (nUnit);
+	nUnit = (int*) calloc(nLayer+1,sizeof(int));
+	CHECK_PTR(nUnit);
+
+	memcpy(nUnit, p.nUnit, sizeof(int)*nLayer+1);
+
+	n_input = nUnit[0];
+	n_output = nUnit[nLayer];
+	
+	_allocMatrix();
+
+	n_epoch = 0;
+
+	memcpy(max_input, p.max_input, sizeof(double)*nUnit[0]);
+	memcpy(min_input, p.min_input, sizeof(double)*nUnit[0]);
+	memcpy(max_output, p.max_output, sizeof(double)*nUnit[nLayer]);
+	memcpy(min_output, p.min_output, sizeof(double)*nUnit[nLayer]);
+
+	memcpy(max_limit, p.max_limit, sizeof(double)*nUnit[nLayer]);
+	memcpy(min_limit, p.min_limit, sizeof(double)*nUnit[nLayer]);
+
+	////////////////////////////////////////////////////////
+	savelog = false;
+	
+	int i;
+	for (i=1; i LE nLayer; i++)
+	{
+		memcpy(Weight[i], p.Weight[i], nUnit[i]*nUnit[i-1]*sizeof(double));
+		memcpy(Bias[i], p.Bias[i], nUnit[i]*sizeof(double));
+	}
+
+	return YARP_OK;
+}
+
+void YARPBPNNet::save(YARPBPNNetState &p)
+{
+	p.resize(nLayer, nUnit);
+		
+	memcpy(p.nUnit, nUnit, sizeof(int)*(nLayer+1));
+
+	memcpy(p.max_input, max_input, sizeof(double)*nUnit[0]);
+	memcpy(p.min_input, min_input, sizeof(double)*nUnit[0]);
+	memcpy(p.max_output, max_output, sizeof(double)*nUnit[nLayer]);
+	memcpy(p.min_output, min_output, sizeof(double)*nUnit[nLayer]);
+
+	memcpy(p.max_limit, max_limit, sizeof(double)*nUnit[nLayer]);
+	memcpy(p.min_limit, min_limit, sizeof(double)*nUnit[nLayer]);
+
+	////////////////////////////////////////////////////////
+	savelog = false;
+	
+	int i;
+	for (i=1; i LE nLayer; i++)
+	{
+		memcpy(p.Weight[i], Weight[i], nUnit[i]*nUnit[i-1]*sizeof(double));
+		memcpy(p.Bias[i], Bias[i], nUnit[i]*sizeof(double));
+	}
 }
 
 /* Matrix allocation */
@@ -943,9 +1013,10 @@ void YARPBPNNet::save(const char* filename)
 	output << "AnalogCost= " << analogCost << "\n";
 	output << "Grad= " << gradient << "\n";
 
-	// logfile
-	output << "LogFile= " << logfilename << "\n";
-
+	// logfile, if any
+	if (savelog)
+		output << "LogFile= " << logfilename << "\n";
+	
 	///////// WEIGHTS and BIASES
     for (i=1; i LE nLayer; i++)
 	{
