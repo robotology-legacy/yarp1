@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: end_pack_for_net.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
+/// $Id: end_pack_for_net.h,v 1.4 2005-03-30 23:17:44 eshuy Exp $
 ///
 ///
 
@@ -78,6 +78,10 @@
 #endif
 
 #ifdef __LINUX__
+#pragma pack()
+#endif
+
+#ifdef __DARWIN__
 #pragma pack()
 #endif
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBottle.cpp,v 1.5 2004-08-21 17:53:46 gmetta Exp $
+///  $Id: YARPBottle.cpp,v 1.6 2005-03-30 23:17:44 eshuy Exp $
 ///
 ///
 
@@ -109,8 +109,8 @@ void YARPBottle::display()
 	  switch(ch)
 	    {
 	    case YBTypeInt:
-	      printf("%d", readRawInt());
-		  _moveOn(sizeof(int));
+	      printf("%d", (int)readRawInt());
+		  _moveOn(sizeof(NetInt32));
 	      break;
 	    case YBTypeVocab:
 	      str = (char *) readRawText();

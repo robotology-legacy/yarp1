@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.8 2004-08-21 17:53:46 gmetta Exp $
+/// $Id: YARPNameID.h,v 1.9 2005-03-30 23:17:44 eshuy Exp $
 ///
 ///
 /*
@@ -82,6 +82,7 @@
 #include <yarp/YARPAll.h>
 #include <yarp/YARPNameID_defs.h>
 #include <yarp/YARPString.h>
+#include <yarp/YARPNetworkTypes.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
@@ -537,6 +538,25 @@ public:
 		memcpy (_ports, p, sizeof(int) * _nports); 
 		return YARP_OK; 
 	}
+
+	// Minor variant on other setPorts method
+	// Deals with NetInt32's, which are not ints on Darwin
+	inline int setPorts (NetInt32 *p, int size) 
+	{
+		ACE_ASSERT (p != NULL && size > 0);
+
+		if (_nports != size)
+			delete[] _ports;
+		_nports = size;
+		_ports = new int[_nports];
+		ACE_ASSERT (_ports != NULL);
+
+		for (int i=0; i<_nports; i++) {
+			_ports[i] = (int)p[i];
+		}
+		return YARP_OK; 
+	}
+
 	
 	/**
 	 * Frees memory associated with ports.

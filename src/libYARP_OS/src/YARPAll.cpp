@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPAll.cpp,v 1.6 2004-08-21 17:53:46 gmetta Exp $
+/// $Id: YARPAll.cpp,v 1.7 2005-03-30 23:17:44 eshuy Exp $
 ///
 ///
 #include <yarp/YARPConfig.h>
@@ -106,6 +106,19 @@ public:
 	  ACE_LOG_MSG->priority_mask (((ACE_LOG_MSG->priority_mask(ACE_Log_Msg::PROCESS))&(~LM_DEBUG))|LM_WARNING, ACE_Log_Msg::PROCESS);
 
 	  ACE_OS::srand(ACE_OS::time(0)); 
+
+#ifdef __DARWIN__
+	  /*
+	    There is a mysterious ACE? YARP? problem on Darwin,
+	    that is fixed by the following code.
+	    I either need to find out why, or wait
+	    for the next version of ACE.
+	   */
+	  ACE_INET_Addr reg_addr;         /// who I am.
+	  char myhostname[YARP_STRING_LEN] = "localhost";
+	  getHostname (myhostname, YARP_STRING_LEN);
+	  reg_addr.set((u_short)0, myhostname);
+#endif
 	}
 
 	/**

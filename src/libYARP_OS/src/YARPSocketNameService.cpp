@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.14 2004-12-17 15:22:35 micheletavella Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.15 2005-03-30 23:17:44 eshuy Exp $
 ///
 ///
 
@@ -635,7 +635,10 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 
 			n->setName (name);
 			n->getAddressRef() = addr;
-			n->setPorts ((int *)ports, extra_param);
+			// there was an (int*) cast on the next line
+			// won't work on Darwin where NetInt32's are not
+			// ints
+			n->setPorts (ports, extra_param);
 			delete[] ports;
 
 			return (YARPUniqueNameID *)n;

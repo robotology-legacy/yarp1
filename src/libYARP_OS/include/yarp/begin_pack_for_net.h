@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: begin_pack_for_net.h,v 1.3 2004-07-09 13:45:59 eshuy Exp $
+/// $Id: begin_pack_for_net.h,v 1.4 2005-03-30 23:17:44 eshuy Exp $
 ///
 
 /**
@@ -76,24 +76,35 @@
 
 #include <yarp/YARPNetworkTypes.h>
 
-// pending -- need to deal with endian changes between machines
-
 #ifdef __WIN__
 // use packing and make no apologies about it
 #pragma warning (disable:4103)
 #pragma pack(push, 1)
+#define YARP_PACKING_CONSIDERED
 #endif
 
 #ifdef __LINUX__
 #pragma pack(1)
+#define YARP_PACKING_CONSIDERED
+#endif
+
+#ifdef __DARWIN__
+#pragma pack(1)
+#define YARP_PACKING_CONSIDERED
 #endif
 
 #ifdef __QNX4__
 #pragma  pack (push) ;
 #pragma  pack (1) ;
+#define YARP_PACKING_CONSIDERED
 #endif
 
 #ifdef __QNX6__
 ///#pragma  align 1
 #pragma pack(1)
+#define YARP_PACKING_CONSIDERED
+#endif
+
+#ifndef YARP_PACKING_CONSIDERED
+#error "Platform not known, please update begin_pack_for_net.h"
 #endif
