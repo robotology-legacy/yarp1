@@ -1,30 +1,30 @@
 //
-// $Id: config.h,v 1.4 2003-04-18 13:46:03 gmetta Exp $
+// $Id: config.h,v 1.5 2003-08-12 15:35:02 gmetta Exp $
 //	ACE Config File
 //
 
 #include <conf/YARPConfig.h>
 
-#ifdef __QNX6__
+#if defined(__QNX6__)
 
 #include "ace/config-qnx-rtp.h"
 
-#else
-
-#ifdef __WIN32__
-
-///#ifdef _MSC_VER
-///#error "_MSC_VER already defined"
-///#endif
+#elif defined(__WIN32__)
 
 // my ACE configuration.
-///#define _MSC_VER 1200
 #define ACE_HAS_STANDARD_CPP_LIBRARY 1
 #include "ace/config-win32.h"
 
 // to ensure the object manager is static
 #undef ACE_HAS_NONSTATIC_OBJECT_MANAGER
 
-#endif
+#elif defined(__LINUX__)
+
+// my ACE configuration.
+#define ACE_HAS_STANDARD_CPP_LIBRARY 1
+#include "ace/config-linux.h"
+
+// to ensure the object manager is static
+#undef ACE_HAS_NONSTATIC_OBJECT_MANAGER
 
 #endif
