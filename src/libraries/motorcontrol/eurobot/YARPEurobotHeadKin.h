@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPEurobotHeadKin.h,v 1.1 2004-01-12 11:05:32 beltran Exp $
+/// $Id: YARPEurobotHeadKin.h,v 1.2 2004-01-12 17:16:30 beltran Exp $
 ///
 ///
 
@@ -71,8 +71,8 @@
 // as of 2003.
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __YARPBabybotHeadKinh__
-#define __YARPBabybotHeadKinh__
+#ifndef __YARPEurobotHeadKinh__
+#define __YARPEurobotHeadKinh__
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
@@ -87,14 +87,14 @@
 ///
 ///
 /// things to be moved into the head configuration file
-const int _dh_nrf = 5;
+const int _dh_nrf = 5; //denervit-haderbert numer reference frame (coincidence with joint number)
 
 const double DH_left[_dh_nrf][5] = {
 	{0, 0, 0, 0, -1},
 	{0, -pi/2, 0, -pi/2, 1},
 	{125, 0, 0, pi/2, 1},
 	{0, pi/2, 0, pi/2, 0},	// zero in the fifth position means it's a convenience trsf.
-	{-71.5, 0, 0, pi/2, 1},
+	{-71.5, 0, 0, pi/2, 1}, //measurement in mm
 };
 
 const double DH_right[_dh_nrf][5] = {
@@ -127,7 +127,7 @@ const int CenterFoveaY = _logpolarParams::_ysizefovea/2;
 
 ///
 ///
-///	example of using the YARPBabybotHeadKin class.
+///	example of using the YARPEurobotHeadKin class.
 ///
 ///	  head_kinematics (
 ///		YMatrix (_dh_nrf, 5, DH_left[0]),
@@ -137,9 +137,9 @@ const int CenterFoveaY = _logpolarParams::_ysizefovea/2;
 
 ///
 ///
-/// Babybot head kinematics.
+/// Eurobot head kinematics.
 ///
-class YARPBabybotHeadKin  
+class YARPEurobotHeadKin  
 {
 public:
 	///
@@ -153,8 +153,8 @@ public:
 	/// right describes the structure from base to the right eye (camera).
 	/// the third parameter is the base to T0 transform. It's simply premultiplied to the 
 	/// final T.
-	YARPBabybotHeadKin (const YMatrix &dh_left, const YMatrix &dh_right, const YHmgTrsf &bline);
-	virtual ~YARPBabybotHeadKin ();
+	YARPEurobotHeadKin (const YMatrix &dh_left, const YMatrix &dh_right, const YHmgTrsf &bline);
+	virtual ~YARPEurobotHeadKin ();
 
 	///
 	/// recompute the internal matrices for a new joint position.
@@ -188,7 +188,7 @@ protected:
 
 ///
 ///
-inline void YARPBabybotHeadKin::_computeFixation (const YHmgTrsf &T1, const YHmgTrsf &T2)
+inline void YARPEurobotHeadKin::_computeFixation (const YHmgTrsf &T1, const YHmgTrsf &T2)
 {
 	double tmp1;
 	double tmp2;
