@@ -15,7 +15,7 @@ int main(int argc, char * argv[])
 	
 	int error;
 	
-	error = _head.initialize();
+	error = _head.initialize("/home/cbeltran/DEVELOPMENT/yarp/conf/eurobot/","head.ini");
 	
 	// calibration 
 	_head.idleMode();
