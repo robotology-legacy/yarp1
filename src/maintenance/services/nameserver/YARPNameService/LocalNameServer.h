@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.10 2003-06-23 18:42:29 babybot Exp $
+/// $Id: LocalNameServer.h,v 1.11 2003-06-25 10:03:38 babybot Exp $
 ///
 ///
 
@@ -96,7 +96,7 @@ const int __endPortPool = 10999;
 const int __startDynPortPool = 15001;
 const int __endDynPortPool = 15999;
 
-const char __startIpPool[] = {"224.0.0.0"};
+const char __startIpPool[] = {"224.1.1.1"};
 const char __endIpPool[] = {"224.255.255.255"};
 
 const int _max_ref = 9999;
@@ -131,6 +131,14 @@ public:
 		flag = false;
 		return *this;
 	}
+
+	PortEntry operator+(int l)
+	{
+		port = port + l;
+		flag = false;
+		return *this;
+	}
+
 	const PortEntry& operator= (const PortEntry &i)
 	{
 		port = i.port;
@@ -159,7 +167,11 @@ public:
 		{
 			if (!_check(l,tmp))
 			{
-				item = tmp;
+				/* qnx compatibility by nat */
+				item = tmp+globalPortCounter;
+				globalPortCounter++;
+				// it used to be:
+				// item = tmp;
 				return true;
 			}
 			++tmp;
@@ -181,6 +193,8 @@ private:
 public:
 	T _min;
 	T _max;
+
+	static int globalPortCounter;
 };
 
 class IpEntry
@@ -220,6 +234,11 @@ public:
 	IpEntry operator++()
 	{
 		ip = getNextIp(ip);
+		return *this;
+	}
+	// operator + int has no effect on ip; this is here only for compatibility
+	IpEntry operator+(int l)
+	{		
 		return *this;
 	}
 	const IpEntry &operator = (const IpEntry &i)

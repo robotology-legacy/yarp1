@@ -61,12 +61,15 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.9 2003-06-23 16:39:57 babybot Exp $
+/// $Id: LocalNameServer.cpp,v 1.10 2003-06-25 10:03:38 babybot Exp $
 ///
 
 #include "LocalNameServer.h"
 
 using namespace std;
+
+int pool<PortEntry, PORT_LIST, PORT_IT>::globalPortCounter = 0;
+int pool<IpEntry, IP_LIST, IP_IT>::globalPortCounter = 0;
 
 std::string getNextIp(const std::string &i)
 {

@@ -35,7 +35,7 @@ public:
 	{
 		fs.initialize();
 
-		_outPort.Register("/force");
+		_outPort.Register("/force/o:1");
 
 	}
 
