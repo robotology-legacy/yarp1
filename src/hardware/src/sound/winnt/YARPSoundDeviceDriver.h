@@ -10,7 +10,7 @@
 // 
 //     Description: 
 // 
-//         Version:  $Id: YARPSoundDeviceDriver.h,v 1.3 2004-03-03 15:56:20 beltran Exp $
+//         Version:  $Id: YARPSoundDeviceDriver.h,v 1.4 2004-03-03 16:29:47 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -43,7 +43,11 @@ struct SoundOpenParameters
 	/// add here params for the open.
 	SoundOpenParameters()
 	{
-	m_callbackthread_identifier = 0;
+		m_callbackthread_identifier = 0;
+		m_Channels      = 0;
+		m_SamplesPerSec = 0;
+		m_BitsPerSample = 0;
+		m_BufferLength  = 0;
 	}
 
 	int m_callbackthread_identifier;  //This is the thread identifier for the callback
