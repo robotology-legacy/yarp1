@@ -1076,7 +1076,7 @@ unsigned char Build_Weights_Map_NoFov(Image_Data * Par,
 	Neighborhood * Neighbor_Map_RGB;
 	char File_Name [256];
 
-	int retval;
+///	int retval;
 	LUT_Ptrs Tables;
 
 	FILE * fout, *fin;
