@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2003-08-19 08:14:29 beltran Exp $
+# $Id: Makefile,v 1.7 2003-11-17 11:18:35 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -9,7 +9,8 @@ CFLAGS = -g -I../include -I../sys_include -I$(YARP_ROOT)/include/ -I$(YARP_ROOT)
 -I../common
 
 LIBS = $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib $(YARP_ROOT)/bin/$(SYSDIR)/libACE.so \
-$(YARP_ROOT)/lib/$(OS)/YARPGalilDeviceDriver.lib $(YARP_ROOT)/lib/$(OS)/dmcqnx.lib $(YARP_ROOT)/lib/$(OS)/MotorCtrl.lib 
+$(YARP_ROOT)/lib/$(OS)/YARPGalilDeviceDriver.lib $(YARP_ROOT)/lib/$(OS)/dmcqnx.lib $(YARP_ROOT)/lib/$(OS)/MotorCtrl.lib	\
+$(YARP_ROOT)/lib/$(OS)/utils.lib 
 
 SUBDIRS =
 
