@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: grabber.cpp,v 1.3 2004-07-29 09:48:36 babybot Exp $
+/// $Id: grabber.cpp,v 1.4 2004-07-29 12:26:16 babybot Exp $
 ///
 ///
 
@@ -79,15 +79,15 @@ extern int __debug_level;
 int PrintHelp (void)
 {
 	ACE_OS::fprintf (stdout, "USAGE:\n");
-	ACE_OS::fprintf (stdout, "-help, print help and exit\n");
-	ACE_OS::fprintf (stdout, "-name <str>, use <str> as port name prefix (the leading / is added automatically)\n");
-	ACE_OS::fprintf (stdout, "-w <int>, set the acquisition width\n");
-	ACE_OS::fprintf (stdout, "-h <int>, set the acquisition height\n");
-	ACE_OS::fprintf (stdout, "-b <int>, board number (0 or 1)\n");
-	ACE_OS::fprintf (stdout, "-s, simulation mode\n");
-	ACE_OS::fprintf (stdout, "-net <str>, define the network name (in a multi-network configuration)\n");
-	ACE_OS::fprintf (stdout, "-o <int>, set acquisition vertical offset\n");
-	ACE_OS::fprintf (stdout, "-f, activate external control of acquisition parameters (through YARPBottle messages)\n");
+	ACE_OS::fprintf (stdout, "--help, print help and exit\n");
+	ACE_OS::fprintf (stdout, "--name <str>, use <str> as port name prefix (don't forget the leading /)\n");
+	ACE_OS::fprintf (stdout, "--w <int>, set the acquisition width\n");
+	ACE_OS::fprintf (stdout, "--h <int>, set the acquisition height\n");
+	ACE_OS::fprintf (stdout, "--b <int>, board number (0 or 1)\n");
+	ACE_OS::fprintf (stdout, "--s, simulation mode\n");
+	ACE_OS::fprintf (stdout, "--net <str>, define the network name (in a multi-network configuration)\n");
+	ACE_OS::fprintf (stdout, "--o <int>, set acquisition vertical offset\n");
+	ACE_OS::fprintf (stdout, "--f, activate external control of acquisition parameters (through YARPBottle messages)\n");
 
 	return YARP_OK;
 }
@@ -110,47 +110,47 @@ int ParseParams (int argc, char *argv[])
 		return YARP_OK;
 	}
 
-	if (YARPParseParameters::parse(argc, argv, "name", tmps))
+	if (YARPParseParameters::parse(argc, argv, "-name", tmps))
 	{
 		ACE_OS::sprintf (_name, "%s/o:img", tmps.c_str());
 		ACE_OS::sprintf (_fgdataname,"%s/i:fgdata", tmps.c_str());
 	}
 
-	if (YARPParseParameters::parse(argc, argv, "w", &_sizex))
+	if (YARPParseParameters::parse(argc, argv, "-w", &_sizex))
 	{
 		ACE_ASSERT (_sizex <= 384 && _sizex > 0);
 		ACE_ASSERT ((_sizex % 8) == 0);
 	}
 
-	if (YARPParseParameters::parse(argc, argv, "h", &_sizey))
+	if (YARPParseParameters::parse(argc, argv, "-h", &_sizey))
 	{
 		ACE_ASSERT (_sizey <= 272 && _sizey > 0);
 	}
 
-	if (YARPParseParameters::parse(argc, argv, "b", &_board_no))
+	if (YARPParseParameters::parse(argc, argv, "-b", &_board_no))
 	{
 		ACE_ASSERT (_board_no >= 0 && _board_no <= 1);
 	}
 
-	if (YARPParseParameters::parse(argc, argv, "s"))
+	if (YARPParseParameters::parse(argc, argv, "-s"))
 	{
 		ACE_OS::fprintf (stdout, "simulating a grabber...\n");
 		_simu = true;
 	}
 	
-	if (YARPParseParameters::parse(argc, argv, "net", tmps))
+	if (YARPParseParameters::parse(argc, argv, "-net", tmps))
 	{
 		ACE_OS::fprintf (stdout, "sending to network : %s\n", tmps.c_str());
 		ACE_OS::sprintf (_netname, "%s", tmps.c_str());
 	}
 
-	if (YARPParseParameters::parse(argc, argv, "f"))
+	if (YARPParseParameters::parse(argc, argv, "-f"))
 	{
 		ACE_OS::fprintf(stdout, "grabber receiving data from network mode...\n");
 		_fgnetdata = true;
 	}
 			
-	YARPParseParameters::parse(argc, argv, "o", &_yoffset);
+	YARPParseParameters::parse(argc, argv, "-o", &_yoffset);
 
 	if (_sizex == -1 && _sizey != -1)
 		_sizex = _sizey;

@@ -86,6 +86,18 @@ if ($options{"Compile_Sig_Logpolar<-Lib_Debug"} ne "TRUE" &&
 	$options{"Compile_Sig_Logpolar<-Lib_Debug"} = "TRUE";
 }
 
+get_option_hash ("Compile_Sig_Logpolar<-Tools_Rebuild", "NO", "Would you like to recompile the tools?");
+
+if ($options{"Compile_Sig_Logpolar<-Tools_Rebuild"} eq "NO" &&
+	$options{"Compile_Sig_Logpolar<-Lib_Clean"} eq "TRUE")
+{
+	print "You're rebuilding, you need to compile the tools too. ";
+	print "I'm doing it for you.\n";
+	$options{"Compile_Sig_Logpolar<-Tools_Rebuild"} = "YES";
+}
+
+get_option_hash ("Compile_Sig_Logpolar<-Tools_Debug", "FALSE", "Would you like to compile the tools with debug enabled?");
+
 print "We're done for now, the context file is being updated: \"$config_file\"\n";
 
 #

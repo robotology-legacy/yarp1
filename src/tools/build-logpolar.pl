@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# compiling libYARP_OS tools
+# compiling libYARP_sig_logpolar tools
 #
 # options --debug compile the DEBUG version
 #		  --release to compile optimized
@@ -13,7 +13,7 @@
 use Getopt::Long;
 use File::Copy;
 
-print "Entering build process of YARP_OS library tools...\n";
+print "Entering build process of YARP_sig_logpolar library tools...\n";
 chomp ($ver = `ver`);
 chomp ($uname = `uname`);
 
@@ -44,7 +44,7 @@ if ($os ne "winnt")
 	die "This script is not yet tuned for OSes apart \"winnt\"\n";
 }
 
-my @projects = qw/ yarp-connect yarp-read yarp-service yarp-write /;
+my @projects = qw/ logpolar-table-builder /;
 
 select STDERR;
 
@@ -85,14 +85,14 @@ if ($release)
 
 if ($install)
 {
-	print "\nInstalling YARP_OS tools to default install directory.\n";
+	print "\nInstalling YARP_sig_logpolar tools to default install directory.\n";
 
 	foreach my $project (@projects)
 	{
 		foreach my $file (glob "./$project/obj/$os/*.exe")
 		{
 			print "Copying $file\n";
-			copy "$file", "$yarp_root/bin/$os" or warn "Can't copy: $file\n";
+			copy "$file", "$yarp_root/bin/$os";
 		}
 	}
 }

@@ -132,7 +132,46 @@ if ($install)
 	}
 }
 
+#
+# tools compile.
+#
+if ($options{"Compile_Sig_Logpolar<-Tools_Rebuild"} eq "YES")
+{
+	if ($options{"Compile_Sig_Logpolar<-Tools_Debug"} eq "TRUE")
+	{
+		my $current_dir = getcwd;
+		chdir "../tools/" or die "Can't chdir to tools directory\n";
+		do_tools_compile ("build-logpolar.pl --clean --debug --install --os $os");
+		chdir $current_dir or die "Can't chdir to $current_dir\n";
+	}
+	else
+	{
+		my $current_dir = getcwd;
+		chdir "../tools/" or die "Can't chdir to tools directory\n";
+		do_tools_compile ("build-logpolar.pl --clean --release --install --os $os");
+		chdir $current_dir or die "Can't chdir to $current_dir\n";
+	}
+}
+else
+{
+	print "You didn't ask to recompile the YARP logpolar tools\n";
+}
+
 print "\nDone!\n";
+
+#
+#
+#
+sub do_tools_compile
+{
+	my ($exe) = @_;
+	open TOOLS, "$exe|";
+	while (<TOOLS>)
+	{
+		print;
+	}
+	close TOOLS;
+}
 
 sub call_msdev_and_print
 {

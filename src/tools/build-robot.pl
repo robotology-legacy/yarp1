@@ -13,7 +13,7 @@
 use Getopt::Long;
 use File::Copy;
 
-print "Entering build process of YARP_OS library tools...\n";
+print "Entering build process of YARP_robot library tools...\n";
 chomp ($ver = `ver`);
 chomp ($uname = `uname`);
 
@@ -89,8 +89,11 @@ if ($install)
 
 	foreach my $project (@projects)
 	{
-		print "Copying ./$project/obj/$project.exe\n";
-		copy "./$project/obj/$project.exe", "$yarp_root/bin/$os";
+		foreach my $file (glob "./$project/obj/$os/*.exe")
+		{
+			print "Copying $file\n";
+			copy "$file", "$yarp_root/bin/$os";
+		}
 	}
 }
 

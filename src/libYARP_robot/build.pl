@@ -155,7 +155,7 @@ if ($options{"Compile_Robot<-Tools_Rebuild"} eq "YES")
 }
 else
 {
-	print "You didn't ask to recompile the YARP tools\n";
+	print "You didn't ask to recompile the YARP robot tools\n";
 }
 
 
