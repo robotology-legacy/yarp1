@@ -61,6 +61,10 @@ cd .\tracker\
 nmake /f tracker.mak CFG="tracker - Win32 Debug" clean
 nmake /f tracker.mak CFG="tracker - Win32 Release" clean
 cd ..
+cd .\egomap\
+nmake /f egomap.mak CFG="egomap - Win32 Debug" clean
+nmake /f egomap.mak CFG="egomap - Win32 Release" clean
+cd ..
 cd .\vor\
 nmake /f vor.mak CFG="vor - Win32 Debug" clean
 nmake /f vor.mak CFG="vor - Win32 Release" clean
@@ -101,6 +105,9 @@ cd ..
 cd .\tracker\
 nmake /f tracker.mak CFG="tracker - Win32 Debug"
 cd ..
+cd .\egomap\
+nmake /f egomap.mak CFG="egomap - Win32 Debug"
+cd ..
 cd .\vor\
 nmake /f vor.mak CFG="vor - Win32 Debug"
 cd ..
@@ -138,6 +145,9 @@ nmake /f headsmooth.mak CFG="headsmooth - Win32 Release"
 cd ..
 cd .\tracker\
 nmake /f tracker.mak CFG="tracker - Win32 Release"
+cd ..
+cd .\egomap\
+nmake /f egomap.mak CFG="egomap - Win32 Release"
 cd ..
 cd .\vor\
 nmake /f vor.mak CFG="vor - Win32 Release"
