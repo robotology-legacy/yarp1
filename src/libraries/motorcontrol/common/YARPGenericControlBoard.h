@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.11 2004-06-30 11:03:11 gmetta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.12 2004-07-06 08:39:09 gmetta Exp $
 ///
 ///
 
@@ -398,11 +398,8 @@ public:
 	}
 
 	// return max torque for the control board (i.e. MEI is 32767.0, Galil 9.999)
-	double getMaxTorque(int axis)
-	{ return _adapter.getMaxTorque(axis); }
-
-	inline int nj()
-	{ return _parameters._nj; }
+	double getMaxTorque(int axis) { return _adapter.getMaxTorque(axis); }
+	inline int nj() { return _parameters._nj; }
 
 	int setGainsSmoothly(LowLevelPID *finalPIDs, int s = 150);
 	// reduce max torque on axis of delta; returns true if current limit is equal to or less than value
