@@ -23,11 +23,6 @@ void HBOutputCommand::output(HeadThread *d)
 	return;
 }
 
-void HBOutputStop::output(HeadThread *d)
-{
-	d->stop();
-}
-
 bool HBDirectCommandInput::input(YARPBottle *in, HeadThread *d)
 {
 	if (!in->tryReadVocab(newK))

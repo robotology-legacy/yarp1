@@ -1,4 +1,4 @@
-// $Id: YARPBabybotArm.cpp,v 1.5 2003-08-01 15:17:51 babybot Exp $
+// $Id: YARPBabybotArm.cpp,v 1.6 2003-11-21 14:01:32 natta Exp $
 
 #include "YARPBabybotArm.h"
 
@@ -101,14 +101,18 @@ int YARPBabybotArm::setG(int i, double g)
 	return -1;
 }
 
-int YARPBabybotArm::setGs(double *g, int nJ)
+int YARPBabybotArm::setGs(double *g)
 {
 	_lock();
-	double offs[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-	for(int i = 0; i<nJ; i++)
-		offs[i] = *g;
+	
+	int i, j;
+	for(i = 0; i<_parameters._nj; i++)
+	{
+		j = _parameters._axis_map[i];
+		_temp_double[i] = g[j];
+	}
 			
-	_adapter.IOCtl(CMDSetOffsets, offs);
+	_adapter.IOCtl(CMDSetOffsets, _temp_double);
 	_unlock();
 	return -1;
 }

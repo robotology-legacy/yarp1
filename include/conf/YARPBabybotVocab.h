@@ -29,8 +29,11 @@ const char *const YBVHandQuit = "HandQuit";
 
 // head behavior
 const char *const YBVHeadNewCmd = "HeadNewCmd";
-const char *const YBVHeadStop = "HeadStop";
 const char *const YBVHeadQuit = "HeadQuit";
+
+// sink behavior
+const char *const YBVSinkQuit = "SinkQuit";
+const char *const YBVSinkInhibitAll = "SinkInhibitAll";
 
 // grasprflx
 const char *const YBVGraspRflxQuit = "GraspRflxQuit";

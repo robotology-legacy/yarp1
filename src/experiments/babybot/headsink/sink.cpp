@@ -27,6 +27,8 @@ _inPortPosition(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 	_inPortPosition.Register(YARPString(base).append("position/i").c_str());
 
 	_neckControl = new NeckControl(_iniFile, _nj, _nj);
+
+	_inhibitAll = 0;
 }
 
 Sink::~Sink()
@@ -55,6 +57,9 @@ void Sink::doLoop()
 
 	_outCmd = _outCmd + neck;
 
+	if (_inhibitAll)
+		_outCmd = 0.0;
+
 	_outPort.Content() = _outCmd;
 	_outPort.Write();
 }
@@ -64,4 +69,10 @@ void Sink::doRelease()
 	// release
 }
 
-
+void Sink::inhibitAll()
+{
+	if (_inhibitAll)
+		_inhibitAll = 0;
+	else
+		_inhibitAll = 1;
+}

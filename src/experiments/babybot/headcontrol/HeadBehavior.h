@@ -6,8 +6,6 @@
 #include <./conf/YARPVocab.h>
 #include "HeadThread.h"
 
-class HeadThread;
- 
 class HeadBehavior: public YARPBehavior<HeadBehavior, HeadThread>
 {
 public:
@@ -33,12 +31,6 @@ public:
 };
 
 class HBOutputCommand: public HeadBehaviorBaseOutput
-{
-public:
-	void output(HeadThread *d);
-};
-
-class HBOutputStop: public HeadBehaviorBaseOutput
 {
 public:
 	void output(HeadThread *d);

@@ -8,10 +8,15 @@
 #include <conf/YARPConfig.h>
 #include <YARPRobotMath.h>	// useful stuff, like degToRad, pi and radToDeg include also VisDMatrix.h
 #include <YARPRateThread.h>
+
 #if defined(__QNXEurobot__)
+
 	#include <YARPEurobotHead.h>
+
 #else
+
 	#include <YARPBabybotHead.h>
+
 #endif
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
@@ -103,8 +108,10 @@ private:
 	HSDirectCmdStop		_hsDirectCmdStop;
 	HSTrack				_hsTrack;
 
-	unsigned int _count;
-
+	// counters
+	unsigned int _threadCounter;	// #control cycles
+	unsigned int _inPortCounter;	// #control cycles elapsed since
+									// the last frame received from _inPort
 };
 
 inline void HeadThread::read_status()
@@ -120,6 +127,7 @@ inline void HeadThread::read_status()
 	if (_inPort.Read(0))
 	{
 		_head._inCmd = _inPort.Content();
+		_inPortCounter = 0;
 	}
 }
 

@@ -39,13 +39,10 @@ int main(int argc, char* argv[])
 
 	HBWaitIdle waitIdle("idle");
 	HBDirectCommandInput directCmd(YBVHeadNewCmd);
-	HBSimpleInput stopCmd(YBVHeadStop);
-	HBOutputStop  stopOut;
 	behavior.setInitialState(&waitIdle);
 
 	behavior.add(&directCmd, &waitIdle, &waitIdle);
-	behavior.add(&stopCmd, &stopOut);
-
+	
 	behavior.Begin();
 	behavior.loop();
 

@@ -1,32 +1,30 @@
 #ifndef __HEAD_SHARED_DATA
 #define __HEAD_SHARED_DATA
 
+
 #if defined(__QNXEurobot__)
 	#include <YARPEurobotHead.h>
+	typedef YARPEurobotHead MY_HEAD;
 #else
 	#include <YARPBabybotHead.h>
+	typedef YARPBabybotHead MY_HEAD;
 #endif
+
 
 #include <YARPBehavior.h>
 #include <YARPControlBoardNetworkData.h>
 #include <YARPString.h>
 
-#if defined(__QNXEurobot__)
-class HeadSharedData: public YARPEurobotHead, public YARPBehaviorSharedData
-#else
-class HeadSharedData: public YARPBabybotHead, public YARPBehaviorSharedData
-#endif
+
+class HeadSharedData: public MY_HEAD, public YARPBehaviorSharedData
 {
 public:
 	HeadSharedData():YARPBehaviorSharedData("/headcontrol/behavior/o", "Motor"){};
 
 	void initialize(const YARPString &path, const YARPString &iniFile)
 	{
-#if defined(__QNXEurobot__)
-		YARPEurobotHead::initialize(path, iniFile);
-#else
-		YARPBabybotHead::initialize(path, iniFile);
-#endif
+		MY_HEAD::initialize(path, iniFile);
+
 		_status.resize(path, iniFile);
 		_directCmd.Resize(_status._nj);
 		_inCmd.Resize(_status._nj);

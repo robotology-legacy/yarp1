@@ -28,6 +28,9 @@ public:
 	void doLoop();
 	void doRelease();
 
+	// inhibit all inputs
+	void inhibitAll();
+
 private:
 	void _polPort(YARPInputPortOf<YVector> &port, YVector &v)
 	{
@@ -50,6 +53,8 @@ private:
 	YVector _inTrack;
 	YVector _outCmd;
 	int _nj;
+
+	int _inhibitAll;
 };
 
 #include <YARPPidFilter.h>

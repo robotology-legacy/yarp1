@@ -21,10 +21,14 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	char *root = GetYarpRoot();
 	char path[256];
 	
+
 #if defined(__QNXEurobot__)
+
 	ACE_OS::sprintf (path, "%s/conf/eurobot/\0",root);
+
 #else
 	ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
+
 #endif
 	
 	strncpy(_iniFile, ini_file, 80);
@@ -144,14 +148,23 @@ void ArmThread::doRelease()
         char filename[256];
 
 
+
 #if defined(__QNXEurobot__)
+
 		ACE_OS::sprintf (path, "%s/conf/eurobot/\0", root);
+
         ACE_OS::sprintf (filename, "%s/conf/eurobot/gravity1.ini\0", root);
+
         _gravity1.save(filename);
+
         ACE_OS::sprintf (filename, "%s/conf/eurobot/gravity2.ini\0", root);
+
         _gravity2.save(filename);
+
         ACE_OS::sprintf (filename, "%s/conf/eurobot/gravity3.ini\0", root);
+
         _gravity3.save(filename);
+
 #else
         ACE_OS::sprintf (path, "%s/conf/babybot/\0", root);
         ACE_OS::sprintf (filename, "%s/conf/babybot/gravity1.ini\0", root);
@@ -204,8 +217,7 @@ inline void ArmThread::send_commands()
 	g[4] = 0.0; // _gravity5.computeG(_wristF(4), &g[4]);
 	g[5] = 0.0;
 
-	for(int i = 0; i < 6; i++)
-		_arm.setG(i,g[i]);
+	_arm.setGs(g);
 
 	/*if (_shaking)
 	{*/

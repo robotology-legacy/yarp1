@@ -30,7 +30,6 @@ void _fillTable()
 
 	// head
 	REG_VOCAB(sendHeadJointCommand, YBVHeadNewCmd, "send head new position command");
-	REG_VOCAB(sendSimpleVocab, YBVHeadStop, "stop head");
 	REG_VOCAB(sendSimpleVocab, YBVHeadQuit, "quit head control");
 	
 	// hand
@@ -38,6 +37,10 @@ void _fillTable()
 	REG_VOCAB(sendSimpleVocab, YBVHandQuit, "quit hand control");
 	REG_VOCAB(sendSimpleVocab, YBVHandShake, "shake hand");
 	REG_VOCAB(sendSimpleVocab, YBVHandResetEncoders, "reset hand encoders");
+
+	// sink
+	REG_VOCAB(sendSimpleVocab, YBVSinkQuit, "quit sink behavior");
+	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitAll, "inhibit ALL sink input");
 }
 
 void _help()

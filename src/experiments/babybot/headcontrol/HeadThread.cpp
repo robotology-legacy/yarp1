@@ -7,6 +7,8 @@
 #include <iostream>
 #include <iomanip>
 
+const int __inPortDelay = 5;
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -65,7 +67,8 @@ _positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	_fsm->add(&_hiDirectCmdEnd, &_hsDirectCmd, &_hsDirectCmdStop);
 	_fsm->add(NULL, &_hsDirectCmdStop, &_hsTrack, &_hoDirectCmdEnd);
 
-	_count = 0;
+	_threadCounter = 0;
+	_inPortCounter = __inPortDelay;
 
 	_stopFlag = false;
 
@@ -94,7 +97,6 @@ void HeadThread::doInit()
 	park(1);
 
 	_head.calibrate();
-	_count = 0;
 }
 
 void HeadThread::doRelease()
@@ -111,11 +113,19 @@ void HeadThread::doLoop()
 	// read data from MEI board
 	read_status();
 
-	_count++;
-	
 	// this is the position control
 	_fsm->doYourDuty();
 
+	/////////// check _inPort delay
+	if (_inPortCounter>=__inPortDelay)
+	{
+		HEAD_THREAD_DEBUG(("Input port timed out !\n"));
+		_stopFlag = true;
+	}
+	else
+		_stopFlag = false;
+	/////////////////////////////////////
+	
 	if (_directCmdFlag || _stopFlag)
 		_deltaQ = _head._directCmd;
 	else
@@ -123,6 +133,10 @@ void HeadThread::doLoop()
 	/////////////
 	// vergence
 	write_status();
+
+	// increase counters
+	_threadCounter++;
+	_inPortCounter++;
 }
 
 void HeadThread::park(int flag)
