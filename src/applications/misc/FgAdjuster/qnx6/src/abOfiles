@@ -1,0 +1,1 @@
+ABOBJ = abmain.o base_open.o init.o slider_bright_move.o slider_contrast_move.o slider_hue_move.o slider_satu_move.o slider_satv_mode.o tb_crush_activate.o tb_ldec_activate.o tb_lnotch_activate.o 

@@ -1,0 +1,1 @@
+ABSRC = ../abmain.c ../base_open.c ../init.c ../slider_bright_move.c ../slider_contrast_move.c ../slider_hue_move.c ../slider_satu_move.c ../slider_satv_mode.c ../tb_crush_activate.c ../tb_ldec_activate.c ../tb_lnotch_activate.c 
