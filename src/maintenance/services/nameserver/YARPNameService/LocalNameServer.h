@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.9 2003-06-23 17:34:42 babybot Exp $
+/// $Id: LocalNameServer.h,v 1.10 2003-06-23 18:42:29 babybot Exp $
 ///
 ///
 
@@ -238,7 +238,7 @@ class resources : public IP_LIST
 public:
 	resources()
 	{
-		_ipPool._min = IpEntry(__startIpPool,__startDynPortPool, __endDynPortPool);
+		_ipPool._min = IpEntry(__startIpPool, __startDynPortPool, __endDynPortPool);
 		_ipPool._max = IpEntry(__endIpPool, __startDynPortPool, __endDynPortPool);
 	}
 
