@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.4 2004-12-29 14:11:42 beltran Exp $
+///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.5 2004-12-31 13:36:29 beltran Exp $
 ///
 ///
 
@@ -610,8 +610,9 @@ public:
 	 */
 	int readAnalogs(double *val)
 	{
-		int i;
+		//int i;
 		int ret;
+		*val = 0;
 
 		//This should be included in the low level device driver
 		/**
@@ -636,6 +637,7 @@ public:
 	int calibrate(int joint = -1)
 	{
 		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
+		joint = -1;
 		ACE_OS::printf("..done!\n");
 	/*
 
