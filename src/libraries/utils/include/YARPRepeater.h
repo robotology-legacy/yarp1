@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPRepeater.h,v 1.3 2003-07-23 17:18:57 babybot Exp $
+/// $Id: YARPRepeater.h,v 1.4 2003-07-24 07:56:52 gmetta Exp $
 ///  
 /// very simple class to handle config files... by nat May 2003
 //
@@ -93,14 +93,15 @@ public:
 
 	virtual void Body(void)
 	{
-		YARPBottle tmp;
+		///YARPBottle tmp;
 		while(!IsTerminated())
 		{
 			_inputPort.Read();
 			_inputPort.Content().display();
-			tmp = _inputPort.Content();
-			_outputPort.Content() = tmp;
-			
+			///tmp = _inputPort.Content();
+			///_outputPort.Content() = tmp;
+
+			_outputPort.Content() = _inputPort.Content();
 			_outputPort.Write();
 		}
 	}

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.29 2003-07-22 17:33:42 babybot Exp $
+/// $Id: main.cpp,v 1.30 2003-07-24 07:56:52 gmetta Exp $
 ///
 ///
 
@@ -90,7 +90,7 @@
 
 #	include <YARPBabybotGrabber.h>
 #	define Grabber YARPBabybotGrabber
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
+#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 
 #elif defined(__QNXBabybot__)
 
@@ -220,7 +220,7 @@ int _runAsClient (void)
 {
 	YARPImageOf<YarpPixelMono> img;
 
-	YARPInputPortOf<YARPGenericImage> inport(YARPInputPort::DEFAULT_BUFFERS);
+	YARPInputPortOf<YARPGenericImage> inport(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
 	inport.Register (_name);
 	int frame_no = 0;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.22 2003-07-15 08:06:31 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.23 2003-07-24 07:56:52 gmetta Exp $
 ///
 ///
 
@@ -447,6 +447,11 @@ int YARPSocketEndpointManager::CloseMcastAll (void)
 
 	((YARPOutputSocketMcast *)sock)->CloseMcastAll ();
 
+	int pid = my_gettid();
+	_endpointmanager.mutex.Wait();
+	_endpointmanager._map.erase(pid);
+	_endpointmanager.mutex.Post();
+
 	return YARP_OK;
 }
 
@@ -473,6 +478,12 @@ int YARPSocketEndpointManager::Close (YARPUniqueNameID& dest)
 			break;
 		}
 	}
+
+	int pid = my_gettid();
+	_endpointmanager.mutex.Wait();
+	_endpointmanager._map.erase(pid);
+	_endpointmanager.mutex.Post();
+
 
 	dest.setRawIdentifier (ACE_INVALID_HANDLE);
 	return YARP_OK;

@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.23 2003-07-10 23:28:32 gmetta Exp $
+$Id: README.txt,v 1.24 2003-07-24 07:56:52 gmetta Exp $
 
 
 =============
@@ -18,8 +18,13 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 =============
 Things under development:
 
+1- troubles when disconnecting/reconnecting mcast ports, grabber, etc. LORENZO!
 
-1- troubles when disconnecting/reconnecting mcast ports, grabber, etc.
+*****************>>>>>>>
+-> Still problems on returning, many different issues.
+-> Troubles with shared memory (crashes badly). 
+
+
 1.1- check proper termination of connections/threads - too many complaints.
 	- at least when the main thread is closing gracefully.
 	- it might need to call an extra termination function and wait...

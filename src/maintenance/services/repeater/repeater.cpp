@@ -12,10 +12,14 @@
 
 using namespace std;
 
+extern int __debug_level;
+
 typedef YARPRepeater<YARPBottle> Repeater;
 
 int main(int argc, char* argv[])
 {
+	///__debug_level = 80;
+
 	string oname;
 	string iname;
 	string name;

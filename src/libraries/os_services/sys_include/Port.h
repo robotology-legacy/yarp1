@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.20 2003-07-16 09:48:14 gmetta Exp $
+/// $Id: Port.h,v 1.21 2003-07-24 07:56:52 gmetta Exp $
 ///
 ///
 
@@ -288,6 +288,9 @@ public:
 	/// the protocol type UDP, TCP, etc.
 	int protocol_type;
 
+	/// keep track of the thread status.
+	bool _started;
+
 	int name_set;
 	int add_header;
 	int expect_header;
@@ -338,6 +341,7 @@ public:
 	CountedPtr<Receivable> p_receiver_latest;
 	CountedPtr<Receivable> p_receiver_incoming;
 
+
 	///
 	virtual void Body();
 
@@ -352,6 +356,7 @@ public:
 		out_mutex(1),
 		name(nname)
 	{ 
+		_started = false;
 		self_id = NULL;
 		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
 		add_header = 1;
@@ -372,6 +377,7 @@ public:
 		list_mutex(1),
 		out_mutex(1)
 	{
+		_started = false;
 		self_id = NULL;
 		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
 		add_header = 1;
@@ -381,11 +387,41 @@ public:
 
 	virtual ~Port();
 
+	virtual void Begin (int stack_size = 0)
+	{
+		list_mutex.Wait();
+		if (!_started)
+		{
+			_started = true;
+			list_mutex.Post();
+
+			YARPBareThread::Begin (stack_size);
+		}
+		else
+			list_mutex.Post();
+	}
+
 	virtual void End(int dontkill = 0)
 	{
-		ACE_UNUSED_ARG(dontkill);
-		SaySelfEnd ();
-		YARPThread::End (-1);	/// it was a wait of 1000 ms.
+		list_mutex.Wait();
+		if (_started)
+		{
+			_started = false;
+			list_mutex.Post();
+
+			ACE_UNUSED_ARG(dontkill);
+
+			/// asks for thread termination.
+			YARPThread::AskForEnd ();
+
+			/// sends a message to unblock the thread from the read and close connections.
+			SaySelfEnd ();
+
+			/// does a Join(). 
+			YARPThread::End (-1);	/// it was a wait of 1000 ms.
+		}
+		else
+			list_mutex.Post();
 	}
 
 	inline int& GetProtocolTypeRef() { return protocol_type; }
@@ -405,7 +441,9 @@ public:
 		asleep = 1;
 		okay_to_send.Wait();
 		ACE_ASSERT (protocol_type != YARP_NO_SERVICE_AVAILABLE);
+
 		Begin();
+		
 		okay_to_send.Wait();
 		if (!name_set) { ret = YARP_FAIL; }
 		okay_to_send.Post();
@@ -414,6 +452,8 @@ public:
   
 	int SendHelper(const YARPNameID& pid, const char *buf, int len, int tag = MSG_ID_NULL);
 	int SayServer(const YARPNameID& pid, const char *buf);
+	int Say(const char *buf);
+	int SaySelfEnd(void);
 
 	void AddHeaders(int flag)
     {
@@ -435,109 +475,6 @@ public:
     }
 
 	virtual void OnRead() {}
-
-	///
-	/// this is called by YARPPort::Connect, and <buf> contains the
-	/// destination name, the self_is is the destination socket, being this
-	/// a command to the port. This connects to the port itself.
-	///
-	int Say(const char *buf)
-    {
-		int result = YARP_FAIL;
-		if (self_id == NULL)
-		{
-			if (protocol_type == YARP_MCAST)
-			{
-				self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
-				YARPEndpointManager::CreateOutputEndpoint (*self_id);
-				YARPEndpointManager::ConnectEndpoints (*self_id);
-			}
-			else
-			{
-				self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
-				YARPEndpointManager::CreateOutputEndpoint (*self_id);
-				YARPEndpointManager::ConnectEndpoints (*self_id);
-			}
-		}
-		else
-		/// silly but to guarantee self_id is !NULL.
-		if (self_id != NULL && !self_id->isValid())
-		{
-			if (protocol_type == YARP_MCAST)
-			{
-				self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
-				YARPEndpointManager::CreateOutputEndpoint (*self_id);
-				YARPEndpointManager::ConnectEndpoints (*self_id);
-			}
-			else
-			{
-				self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
-				YARPEndpointManager::CreateOutputEndpoint (*self_id);
-				YARPEndpointManager::ConnectEndpoints (*self_id);
-			}
-		}
-
-		if (self_id->isValid())
-		{
-			result = SayServer(*self_id, buf);
-		}
-
-		YARPNameService::DeleteName (self_id);
-		self_id = NULL;
-		return result;
-    }
-
-	///
-	/// this commands the port to terminate gracefully.
-	int SaySelfEnd(void)
-	{
-		int result = YARP_FAIL;
-		if (self_id == NULL && name.c_str()[0] != '\0')
-		{
-			if (protocol_type == YARP_MCAST)
-			{
-				self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
-				YARPEndpointManager::CreateOutputEndpoint (*self_id);
-				YARPEndpointManager::ConnectEndpoints (*self_id);
-			}
-			else
-			{
-				self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
-				YARPEndpointManager::CreateOutputEndpoint (*self_id);
-				YARPEndpointManager::ConnectEndpoints (*self_id);
-			}
-		}
-		else
-		/// silly but to guarantee self_id is !NULL.
-		if (self_id != NULL && !self_id->isValid() && name.c_str()[0] != '\0')
-		{
-			if (protocol_type == YARP_MCAST)
-			{
-				self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
-				YARPEndpointManager::CreateOutputEndpoint (*self_id);
-				YARPEndpointManager::ConnectEndpoints (*self_id);
-			}
-			else
-			{
-				self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
-				YARPEndpointManager::CreateOutputEndpoint (*self_id);
-				YARPEndpointManager::ConnectEndpoints (*self_id);
-			}
-		}
-
-		if (self_id != NULL)
-		{
-			if (self_id->isValid())
-			{
-				result = SendHelper (*self_id, NULL, 0, MSG_ID_DETACH_ALL);
-			}
-		
-			YARPNameService::DeleteName (self_id);
-			self_id = NULL;
-		}
-
-		return result;
-	}
 
 	void Fire (void)
     {

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.45 2003-07-17 15:50:22 gmetta Exp $
+/// $Id: Port.cpp,v 1.46 2003-07-24 07:56:52 gmetta Exp $
 ///
 ///
 
@@ -313,10 +313,9 @@ void OutputTarget::Body ()
 				target_pid->invalidate();
 			}
 
-			/// to fall back into SHMEM from here need to change the label of the mesh object.
-			/// - the thread needs to be named after the connection rather than the generic MCAST.
-			///			otherwise, do the test before starting the thread at the price of
-			///			an extra call to the name server.
+			///	to go SHMEM:
+			///		do the test before starting the thread at the price of
+			///		an extra call to the name server.
 		}
 		break;
 	}
@@ -1122,6 +1121,9 @@ void Port::Body()
 		}
 	} /// if it's valid
 
+	/// since this is started in this thread
+	/// close it here also.
+	tsender.End ();
 
 	/// unregister the port name here.
 	YARPNameService::UnregisterName (pid);
@@ -1130,7 +1132,7 @@ void Port::Body()
 	YARPNameService::DeleteName (pid);
 	pid = NULL;
 
-	ACE_DEBUG ((LM_DEBUG, "main port thread returning\n"));
+	ACE_DEBUG ((LM_DEBUG, "main port thread 0x%x returning\n", GetIdentifier()));
 }
 
 
@@ -1269,7 +1271,7 @@ void Port::Relinquish()
 
 Port::~Port()
 {
-	tsender.End ();
+	///tsender.End ();
 
 #if 0
 	OutputTarget *target, *next;
@@ -1329,6 +1331,115 @@ void Port::FinishSend ()
 		target->space_available.Post();
 		target = target->GetMeshNext();
 	}
+}
+
+///
+/// this is called by YARPPort::Connect, and <buf> contains the
+/// destination name, the self_is is the destination socket, being this
+/// a command to the port. This connects to the port itself.
+///
+int Port::Say(const char *buf)
+{
+	int result = YARP_FAIL;
+	if (self_id == NULL)
+	{
+		if (protocol_type == YARP_MCAST)
+		{
+			self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+			YARPEndpointManager::CreateOutputEndpoint (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id);
+		}
+		else
+		{
+			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+			YARPEndpointManager::CreateOutputEndpoint (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id);
+		}
+	}
+	else
+	/// silly but to guarantee self_id is !NULL.
+	if (self_id != NULL && !self_id->isValid())
+	{
+		if (protocol_type == YARP_MCAST)
+		{
+			self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+			YARPEndpointManager::CreateOutputEndpoint (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id);
+		}
+		else
+		{
+			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+			YARPEndpointManager::CreateOutputEndpoint (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id);
+		}
+	}
+
+	if (self_id->isValid())
+	{
+		result = SayServer(*self_id, buf);
+	}
+
+	/// deletes the endpoint.
+	YARPEndpointManager::Close (*self_id);
+
+	YARPNameService::DeleteName (self_id);
+	self_id = NULL;
+	return result;
+}
+
+///
+/// this commands the port to terminate gracefully.
+int Port::SaySelfEnd(void)
+{
+	int result = YARP_FAIL;
+	if (self_id == NULL && name.c_str()[0] != '\0')
+	{
+		if (protocol_type == YARP_MCAST)
+		{
+			self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+			YARPEndpointManager::CreateOutputEndpoint (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id);
+		}
+		else
+		{
+			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+			YARPEndpointManager::CreateOutputEndpoint (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id);
+		}
+	}
+	else
+	/// silly but to guarantee self_id is !NULL.
+	if (self_id != NULL && !self_id->isValid() && name.c_str()[0] != '\0')
+	{
+		if (protocol_type == YARP_MCAST)
+		{
+			self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+			YARPEndpointManager::CreateOutputEndpoint (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id);
+		}
+		else
+		{
+			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+			YARPEndpointManager::CreateOutputEndpoint (*self_id);
+			YARPEndpointManager::ConnectEndpoints (*self_id);
+		}
+	}
+
+	if (self_id != NULL)
+	{
+		if (self_id->isValid())
+		{
+			result = SendHelper (*self_id, NULL, 0, MSG_ID_DETACH_ALL);
+		}
+	
+		/// deletes the endpoint.
+		YARPEndpointManager::Close (*self_id);
+
+		YARPNameService::DeleteName (self_id);
+		self_id = NULL;
+	}
+
+	return result;
 }
 
 

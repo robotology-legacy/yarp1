@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.9 2003-07-16 09:48:13 gmetta Exp $
+/// $Id: YARPPort.h,v 1.10 2003-07-24 07:56:52 gmetta Exp $
 ///
 ///
 
@@ -104,7 +104,9 @@ public:
 	YARPPort();
 	virtual ~YARPPort();
 
-	virtual int Register(const char *name);
+	virtual int Register (const char *name);
+	virtual int Unregister (void);
+
 	int Connect(const char *name);
 	virtual YARPPortContent *CreateContent() = 0;
 	YARPPortContent& Content();

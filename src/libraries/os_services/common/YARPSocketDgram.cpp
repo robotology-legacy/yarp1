@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.35 2003-07-16 13:10:21 babybot Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.36 2003-07-24 07:56:52 gmetta Exp $
 ///
 ///
 
@@ -722,7 +722,6 @@ void _SocketThreadDgram::Body (void)
 
 				do
 				{
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? ---> iterating send(s)\n"));
 					if (_reply_preamble)
 					{
 						rep = 1;
@@ -776,6 +775,12 @@ void _SocketThreadDgram::Body (void)
 				iov.iov_len = _local_buffer_counter;
 
 				_local_socket.send (&iov, 1, _remote_endpoint.getAddressRef(), 0);
+			}
+			else
+			{
+				/// LATER:
+				/// need to send a reply even if the extern_buffer == NULL
+				/// otherwise the connection times out.
 			}
 		}
 

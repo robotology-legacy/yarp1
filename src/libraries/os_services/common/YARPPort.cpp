@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.10 2003-07-15 08:06:30 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.11 2003-07-24 07:56:52 gmetta Exp $
 ///
 ///
 
@@ -250,7 +250,7 @@ YARPPort::YARPPort()
 YARPPort::~YARPPort()
 {
 	RemovePort(this);
-	PD.End ();
+	///PD.End ();
 
 	///if (system_resource!=NULL && !YARPThread::IsDying())
 	///{
@@ -262,6 +262,12 @@ YARPPort::~YARPPort()
 int YARPPort::Register(const char *name)
 {
 	return PD.SetName (name);
+}
+
+int YARPPort::Unregister(void)
+{
+	PD.End ();
+	return YARP_OK;
 }
 
 int YARPPort::IsReceiving()
@@ -357,7 +363,6 @@ YARPInputPort::YARPInputPort(int n_service_type, int n_protocol_type)
 
 YARPInputPort::~YARPInputPort()
 {
-///	PD.End ();
 }
 
 

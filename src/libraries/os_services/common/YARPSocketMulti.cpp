@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.5 2003-07-17 15:50:22 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.6 2003-07-24 07:56:52 gmetta Exp $
 ///
 ///
 
@@ -923,7 +923,6 @@ void _SocketThreadMulti::BodyShmem (void)
 
 				do
 				{
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? ---> iterating send(s)\n"));
 					if (_reply_preamble)
 					{
 						rep = 1;
@@ -1155,7 +1154,6 @@ void _SocketThreadMulti::BodyUdp (void)
 
 				do
 				{
-					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? ---> iterating send(s)\n"));
 					if (_reply_preamble)
 					{
 						rep = 1;
@@ -1209,6 +1207,12 @@ void _SocketThreadMulti::BodyUdp (void)
 				iov.iov_len = _local_buffer_counter;
 
 				_local_socket.send (&iov, 1, _remote_endpoint.getAddressRef(), 0);
+			}
+			else
+			{
+				/// LATER:
+				/// need to send a reply even if the extern_buffer == NULL
+				/// otherwise the connection times out.
 			}
 		}
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.24 2003-07-16 13:10:21 babybot Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.25 2003-07-24 07:56:52 gmetta Exp $
 ///
 ///
 
@@ -1938,6 +1938,9 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	int i, firstempty = -1;
 	for (i = 0; i < d._max_num_clients; i++)
 	{
+		/// don't compare the IP addr because the remote might have already unregistered
+		/// in that case, name doesn't contain the IP of the remote.
+
 		///if (d._clients[i].get_host_addr() == nm.get_host_addr() &&
 		///	d._client_names[i].compare(sname) == 0)
 		if (d._client_names[i].compare(sname) == 0)
@@ -2028,6 +2031,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 	d._clients[firstempty].set_port_number (port_number);
 
 	/// stores also the full symbolic name as index.
+	/// this can be changed into a string copy since the name now contains a string.
 	std::string& s = d._client_names[firstempty];
 	s = sname;
 

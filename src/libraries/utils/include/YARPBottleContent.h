@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottleContent.h,v 1.2 2003-07-23 17:18:57 babybot Exp $
+/// $Id: YARPBottleContent.h,v 1.3 2003-07-24 07:56:52 gmetta Exp $
 ///
 ///
 
@@ -120,6 +120,8 @@ class YARPInputPortOf<YARPBottle> : public YARPBasicInputPort<YARPBottleContent>
 public:
 	YARPInputPortOf<YARPBottle>(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicInputPort<YARPBottleContent> (n_service_type, n_protocol_type) {}
+
+	virtual ~YARPInputPortOf<YARPBottle> () { ((Port *)system_resource)->End(); }
 };
 
 class YARPOutputPortOf<YARPBottle> : public YARPBasicOutputPort<YARPBottleContent>
@@ -127,6 +129,8 @@ class YARPOutputPortOf<YARPBottle> : public YARPBasicOutputPort<YARPBottleConten
 public:
 	YARPOutputPortOf<YARPBottle>(int n_service_type = DEFAULT_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) :
 		YARPBasicOutputPort<YARPBottleContent> (n_service_type, n_protocol_type) {}
+
+	virtual ~YARPOutputPortOf<YARPBottle> () { ((Port *)system_resource)->End(); }
 };
 
 #endif

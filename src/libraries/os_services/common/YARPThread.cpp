@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.10 2003-07-15 08:06:31 gmetta Exp $
+/// $Id: YARPThread.cpp,v 1.11 2003-07-24 07:56:52 gmetta Exp $
 ///
 ///
 
@@ -232,7 +232,7 @@ int YARPThread::IsTerminated (void)
 ///
 void YARPThread::End(int dontkill)
 {
-	/// termination "signal".
+	/// termination "signal". it might be a repetition if the AskForEnd was called.
 	sema.Post();
 
 	if (dontkill > 0)

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.12 2003-07-15 08:06:31 gmetta Exp $
+///	$Id: YARPThread.h,v 1.13 2003-07-24 07:56:52 gmetta Exp $
 ///
 ///
 /*
@@ -129,6 +129,7 @@ public:
 	virtual ~YARPThread(void);
 
 	virtual void End(int dontkill = 0);
+	void AskForEnd (void) { sema.Post(); }
 
 	int IsTerminated(void);
 	// If you are in __WIN32__, you should call this
