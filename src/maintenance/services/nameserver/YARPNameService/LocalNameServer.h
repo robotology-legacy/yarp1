@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.4 2003-04-23 17:40:00 natta Exp $
+/// $Id: LocalNameServer.h,v 1.5 2003-04-27 16:54:35 natta Exp $
 ///
 ///
 
@@ -63,6 +63,7 @@
 // -- January 2003 -- by nat 
 // -- Modified for YARP April 2003 -- by nat 
 // -- Moved from YARPNameService.h April 2003 -- by nat
+// -- Qnx name support April 2003 -- by nat
 //////////////////////////////////////////////////////////////////////
 #if !defined __LOCALNAMESERVER__
 #define __LOCALNAMESERVER__
@@ -90,14 +91,12 @@
 // various constants (ip and port pools, ret codes...)
 const int __startPortPool = 1001;
 const int __endPortPool = 1999;
-///const int __portNotFound = 0;
 
 const int __startDynPortPool = 4000;
 const int __endDynPortPool = 4999;
 
 const char __startIpPool[] = {"224.0.0.0"};
 const char __endIpPool[] = {"224.255.255.255"};
-///const char __ipNotFound[] = {"0.0.0.0"};
 
 const int _max_ref = 9999;
 
@@ -253,8 +252,9 @@ public:
 	pool<IpEntry, IP_LIST, IP_IT> _ipPool;
 };
 
-struct service
+class service
 {
+public:
 	service()
 	{
 		ref_count = _max_ref;
@@ -319,8 +319,9 @@ public:
 typedef std::list<service> SVC_LIST;
 typedef SVC_LIST::iterator SVC_IT;
 
-struct services: public SVC_LIST
+class services: public SVC_LIST
 {
+public:
 	int find_service(const std::string &n, SVC_IT &it);
 	
 	// release a name service -- return ip and port(s)
@@ -366,6 +367,35 @@ struct services: public SVC_LIST
 	int take_ref(const std::string &name, std::string &ip, int *type, PORT_LIST &ports);
 };
 
+typedef std::list<YARPNameQnx> QNXSVC_LIST;
+typedef QNXSVC_LIST::iterator QNXSVC_IT;
+typedef QNXSVC_LIST::const_iterator  CONST_QNXSVC_IT;
+
+class qnxServices: public QNXSVC_LIST 
+{
+public:
+	int find_service(const std::string &name, QNXSVC_IT &it);
+	// find name and destroy entry
+	int destroy(const std::string &name)
+	{
+		QNXSVC_IT it;
+		if (find_service(name, it) != -1)
+		{
+			erase(it);
+			return 1;		// resource destroyed
+		}
+		else
+		{
+			NAME_SERVER_DEBUG(("Sorry, cannot find: %s\n", name.c_str()));
+			return -1;		// error: resource not found
+		}
+	}
+	// release a name service
+	int check_out(const std::string &name);
+	int check_in(const std::string &name, YARPNameQnx &entry);
+	int check_in(const YARPNameQnx &entry);
+};
+
 class LocalNameServer  
 {
 public:
@@ -386,10 +416,14 @@ public:
 	
 	// sign in a service, specify name only, get back ip from pool
 	int registerNameDIp(const std::string &name, std::string &ip, int type, int *port);
-	// just check
+	// sign in a qnx service
+	int registerNameQnx(const YARPNameQnx &entry);
+	// just check TCP, UDP, MCAST
 	int queryName(const std::string &name, std::string &ip, int *type, int *port);
+	// just check QNX
+	int queryNameQnx(const std::string &name, YARPNameQnx &entry, int *type);
 	
-	// release a service
+	// release a service TCP, UDP, MCAST
 	void check_out(const std::string &name)
 	{
 		std::string ip;
@@ -400,6 +434,14 @@ public:
 			for(PORT_IT i = ports.begin(); i != ports.end(); i++)
 					addresses.release(ip, i->port);	
 		}
+	}
+
+	// release a QNX name
+	// NOTE: no ref count is implemented for QNX, a single check out
+	// remove the name
+	void check_out_qnx(const std::string &name)
+	{
+		qnx_names.destroy(name);
 	}
 	
 	int check_static(const std::string &name, std::string &ip, int *max)
@@ -417,11 +459,17 @@ public:
 	resources addresses;
 	services  names;
 	services  statics;
+	qnxServices qnx_names;
 private:
-	// check if name already exists, and remove it
+	// check if name already exists and remove it, TCP, UDP, MCAST
 	void _checkAndRemove(const std::string &name);
-	// actual registration routine
+	// check if name already exists and remove it, QNX
+	void _checkAndRemoveQnx(const std::string &name);
+
+	// actual registration routine, TCP, UDP, MCAST
 	int _registerName(const std::string &name, const IpEntry &entry, int type, PORT_LIST &ports, int nPorts);
+	// actual registration routine, QNX
+	int _registerNameQnx(const YARPNameQnx &entry);
 };
 
 

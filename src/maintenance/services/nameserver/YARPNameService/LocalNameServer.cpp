@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.4 2003-04-24 08:48:01 gmetta Exp $
+/// $Id: LocalNameServer.cpp,v 1.5 2003-04-27 16:54:35 natta Exp $
 ///
 
 #include "LocalNameServer.h"
@@ -386,6 +386,52 @@ int services::take_ref(const std::string &name, std::string &ip, int *type, PORT
 }
 
 ///////////////////////////////////////////////
+// QNX_SERVICES
+
+int qnxServices::check_in(const string &name, YARPNameQnx &entry)
+{
+	QNXSVC_IT it;
+	if (find_service(name, it) != -1)
+	{
+		entry = *it;
+		return 1;
+	}
+	else
+	{ 
+		entry.setName(string("NOT_FOUND"));
+		entry.setAddr(string("NOT_FOUND"), -1, -1);
+		return 0;
+	}
+}
+
+int qnxServices::check_in(const YARPNameQnx &entry)
+{
+	// assuming service does not exist
+	push_back(entry);
+	return 0;
+}
+
+int qnxServices::check_out(const string &name)
+{
+	// LATER
+	return 0;
+}
+
+int qnxServices::find_service(const std::string &name, QNXSVC_IT &it)
+{
+	for (QNXSVC_IT i = begin (); i != end(); i++)
+	{
+		if (strcmp(i->getName(), name.c_str()) == 0)
+		{
+			it = i;
+			return 0;
+		}
+	}
+	return -1;
+}
+
+
+///////////////////////////////////////////////
 // LocalNameServer class
 
 void LocalNameServer::init(const std::string &filename)
@@ -450,6 +496,25 @@ int LocalNameServer::queryName(const std::string &name, std::string &ip, int *ty
 	}
 }
 
+int LocalNameServer::queryNameQnx(const std::string &name, YARPNameQnx &entry, int *type)
+{
+	//  if name is already registered
+	int ref = qnx_names.check_in(name, entry);
+	if (ref == 0)
+	{
+		// 0 means found but ran out of resources or not found
+		*type = YARP_NO_SERVICE_AVAILABLE;
+		NAME_SERVER_DEBUG(("%s not found\n", name.c_str()));
+		return -1;
+	}
+	else
+	{
+		// found, resources availables
+		*type = YARP_QNET;
+		return 0;
+	}
+}
+
 int LocalNameServer::registerName(const std::string &name, const IpEntry &entry, int type, int *port)
 {
 	PORT_LIST new_ports;
@@ -492,6 +557,13 @@ int LocalNameServer::registerNameDIp(const std::string &name, std::string &ip, i
 	return ret;
 }
 
+int LocalNameServer::registerNameQnx(const YARPNameQnx &entry)
+{
+	_checkAndRemoveQnx(std::string(entry.getName()));
+
+	return _registerNameQnx(entry);
+}
+
 void LocalNameServer::_checkAndRemove(const std::string &name)
 {
 	std::string sdummy;
@@ -505,6 +577,11 @@ void LocalNameServer::_checkAndRemove(const std::string &name)
 		for(PORT_IT i = pdummy.begin(); i != pdummy.end(); i++)
 			addresses.release(sdummy, i->port);
 	}
+}
+
+void LocalNameServer::_checkAndRemoveQnx(const std::string &name)
+{
+	qnx_names.destroy(name);
 }
 
 int LocalNameServer::_registerName(const std::string &name, const IpEntry &entry, int type, PORT_LIST &ports, int nPorts)
@@ -546,4 +623,10 @@ int LocalNameServer::_registerName(const std::string &name, const IpEntry &entry
 		ports = tmp_ports;
 		return 0;
 	}
+}
+
+// service must not exist
+int LocalNameServer::_registerNameQnx(const YARPNameQnx &entry)
+{
+	return qnx_names.check_in(entry);
 }

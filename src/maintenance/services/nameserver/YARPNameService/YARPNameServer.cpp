@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.8 2003-04-23 17:40:00 natta Exp $
+/// $Id: YARPNameServer.cpp,v 1.9 2003-04-27 16:54:35 natta Exp $
 ///
 ///
 
@@ -103,13 +103,23 @@ void YARPNameServer::dump_names()
 	{
 		cout << i->name << "\t\t";
 		cout << i->ip;
-		cout << "(" << servicetypeConverter(i->type) << ")";
 		cout << ":";
 
 		int length = i->ports.size();
 		for(PORT_IT j = i->ports.begin(); j != i->ports.end(); j++)
 			cout << j->port << "," ;
-		cout << "ref:" << (i->get_max_ref()-i->get_ref()) << endl;
+		cout << "ref:" << (i->get_max_ref()-i->get_ref());
+		cout << ",(" << servicetypeConverter(i->type) << ")"<< endl;
+	}
+
+	for(QNXSVC_IT j = ns.qnx_names.begin(); j != ns.qnx_names.end(); j++)
+	{
+		cout << j->getName() << "\t\t";
+		cout << j->getNode() << "\t";
+		cout << j->getPid() << "\t";
+		cout << j->getChan() << "\t";
+		cout << "(" << servicetypeConverter(YARP_QNET) << ")";
+		cout << endl;
 	}
 }
 
@@ -150,6 +160,15 @@ void YARPNameServer::handle_query(const std::string &service_name)
 	_handle_reply(ip, type, port);
 }
 
+void YARPNameServer::handle_query_qnx(const std::string &name)
+{
+	YARPNameQnx entry;
+	int type;
+	ns.queryNameQnx(name, entry, &type);
+	NAME_SERVER_DEBUG(("Reply %s %s(%s) %d %d\n", entry.getName(), entry.getNode(), servicetypeConverter(type), entry.getPid(), entry.getChan()));
+	_handle_reply(entry, type);
+}
+
 void YARPNameServer::handle_registration_dbg(const std::string &service_name, const std::string &ip, int type, int n)
 {
 	PORT_LIST ports;
@@ -187,6 +206,20 @@ void YARPNameServer::handle_registration_dip(const std::string &service_name, in
 	_handle_reply(ip, type, port);
 }
 
+void YARPNameServer::handle_registration_qnx(const YARPNameQnx &entry)
+{
+	ns.registerNameQnx(entry);
+	NAME_SERVER_DEBUG(("Registered %s %s(%s) %d %d\n", entry.getName(), entry.getNode(), servicetypeConverter(YARP_QNET), entry.getPid(), entry.getChan()));
+	// _handle_reply(entry, type);
+}
+
+void YARPNameServer::handle_release_qnx(const string &name)
+{
+	NAME_SERVER_DEBUG(("%s no longer used, releasing\n", name.c_str()));
+	ns.check_out_qnx(name);
+	// _handle_reply(entry, type);
+}
+
 void YARPNameServer::_handle_reply(const std::string &ip, int type, int port)
 {
 	YARPNameServiceCmd rplCmd;
@@ -219,6 +252,25 @@ void YARPNameServer::_handle_reply(const std::string &ip, int type, const PORT_L
 	}
 	rpl.setIp(ip);
 	
+	rplCmd.cmd = YARPNSRpl;
+	rplCmd.length = rpl.length();
+	rplCmd.type = type;
+		
+	memcpy(data_buf_, &rplCmd, sizeof(YARPNameServiceCmd));
+	memcpy(data_buf_+sizeof(YARPNameServiceCmd), &rpl, rpl.length());
+
+	iovec iov[1];
+	iov[0].iov_base = data_buf_;
+	iov[0].iov_len = rplCmd.length+sizeof(YARPNameServiceCmd);
+
+	int sent = new_stream_.sendv_n (iov, 1);
+}
+
+void YARPNameServer::_handle_reply(const YARPNameQnx &entry, int type)
+{
+	YARPNameServiceCmd rplCmd;
+	YARPNameQnx rpl = entry;
+
 	rplCmd.cmd = YARPNSRpl;
 	rplCmd.length = rpl.length();
 	rplCmd.type = type;
@@ -280,12 +332,26 @@ int YARPNameServer::handle_connection()
 		YARPNameTCP *tmpRqst = (YARPNameTCP*) (data_buf_);
 		handle_query(tmpRqst->_name);
 	}
+	else if ( (tmpCmd.cmd == YARPNSQuery) &&
+		(tmpCmd.type == YARP_QNET))
+	{
+		// register a name, ask back ip and port
+		YARPNameQnx *tmpRqst = (YARPNameQnx*) (data_buf_);
+		handle_query_qnx(std::string(tmpRqst->getName()));
+	}
 	else if ((tmpCmd.cmd == YARPNSRelease) &&
 		((tmpCmd.type == YARP_UDP) || (tmpCmd.type == YARP_TCP) || (tmpCmd.type == YARP_MCAST)))
 	{
 		// release a name
 		YARPNameTCP *tmpRqst = (YARPNameTCP*) (data_buf_);
 		handle_release(tmpRqst->_name);
+	}
+	else if ((tmpCmd.cmd == YARPNSRelease) &&
+		(tmpCmd.type == YARP_QNET) )
+	{
+		// release a name
+		YARPNameQnx *tmpRqst = (YARPNameQnx*) (data_buf_);
+		handle_release_qnx(tmpRqst->getName());
 	}
 	else if ( (tmpCmd.cmd == YARPNSRegister) &&
 		(tmpCmd.type == YARP_TCP) )
@@ -306,6 +372,12 @@ int YARPNameServer::handle_connection()
 	{
 		YARPNameTCP *tmpRqst = (YARPNameTCP*) (data_buf_);
 		handle_registration_dip(tmpRqst->_name, YARP_MCAST);
+	}
+	else if ((tmpCmd.cmd == YARPNSRegister) &&
+		(tmpCmd.type == YARP_QNET))
+	{
+		YARPNameQnx *tmpRqst = (YARPNameQnx*) (data_buf_);
+		handle_registration_qnx(*tmpRqst);
 	}
 	else
 		NAME_SERVER_DEBUG(("Sorry: command not recognized\n"));

@@ -61,15 +61,15 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.5 2003-04-23 17:39:48 natta Exp $
+/// $Id: main.cpp,v 1.6 2003-04-27 16:54:36 natta Exp $
 ///
 ///
 
-// NameClient.cpp : Defines the entry point for the console application.
+// NameClient.cpp: YARPNameService test program.
 //
 
 #define NAME_CLIENT_VERBOSE
-#include "NameClient.h"
+#include <YarpNameClient.h>
 
 #include <string>
 
@@ -84,6 +84,9 @@ void print_menu()
 	cout << "regmc name: register name, multicast\n";
 	cout << "query name: query name\n";
 	cout << "rel name: release name\n";
+	cout << "queryqnx name: query a QNX name\n";
+	cout << "regqnx name, node, pid, channel: register QNX name\n";
+	cout << "releaseqnx name: release a QNX name\n";
 	cout << "any key: this menu\n";
 	cout << "q!: exit\n";
 	cout << "-----------------------\n";
@@ -104,6 +107,12 @@ int parse(const std::string &str)
 		return 4;
 	else if (str == "regn")
 		return 5;
+	else if (str == "queryqnx")
+		return 6;
+	else if (str == "regqnx")
+		return 7;
+	else if (str == "releaseqnx")
+		return 8;
 	else
 		return -1;
 }
@@ -111,7 +120,7 @@ int parse(const std::string &str)
 int main(int argc, char* argv[])
 {
 	// NameClient nc("130.251.43.254", 1000);
-	NameClient nc("localhost", 1000);
+	YARPNameClient nc("localhost", 1000);
 		
 	string str;
 	print_menu();
@@ -166,6 +175,33 @@ int main(int argc, char* argv[])
 			cin >> n;		// num of ports
 			NetInt32 *ports = new NetInt32 [n];
 			if (nc.check_in_udp(str1,str2,ports,n) != 0)
+				cout << "Error connecting to the server\n";
+		}
+		else if (ret == 6) {
+			string str1;
+			cin >> str1;	// name
+			YARPNameQnx tmp;
+			int type;
+			if (nc.query_qnx(str1,tmp,&type) != 0)
+				cout << "Error connecting to the server\n";
+		}
+		else if (ret == 7) {
+			string name,node;
+			int pid, chan;
+			cin >> name;
+			cin >> node;	// ip
+			cin >> pid;		// num of ports
+			cin >> chan;
+			YARPNameQnx tmp;
+			tmp.setName(name);
+			tmp.setAddr(node, pid, chan);
+			if (nc.check_in_qnx(tmp) != 0)
+				cout << "Error connecting to the server\n";
+		}
+		else if (ret == 8) {
+			string name;
+			cin >> name;
+			if (nc.check_out_qnx(name) != 0)
 				cout << "Error connecting to the server\n";
 		}
 		print_menu();

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.7 2003-04-23 17:39:59 natta Exp $
+/// $Id: YARPNameServer.h,v 1.8 2003-04-27 16:54:35 natta Exp $
 ///
 ///
 
@@ -124,11 +124,14 @@ public:
 	
 	void handle_registration(const std::string &service_name, const std::string &ip, int type, int n = 1);
 	void handle_query(const std::string &service_name);
+	void handle_query_qnx(const std::string &name);
 	void handle_registration_dip(const std::string &service_name, int type);
+	void handle_registration_qnx(const YARPNameQnx &entry);
 	void handle_registration_dip_dbg(const std::string &service_name, int type);
 	void handle_registration_dbg(const std::string &service_name, const std::string &ip, int type, int n = 1);
 	void query_dbg(const std::string &service_name);
 	void handle_release(const std::string &service_name);
+	void handle_release_qnx(const std::string &service_name);
 
 	// usual thread methods
 	virtual void doInit()
@@ -153,6 +156,7 @@ public:
 private:
 	void _handle_reply(const std::string &ip, int type, int port);
 	void _handle_reply(const std::string &ip, int type, const PORT_LIST &ports);
+	void _handle_reply(const YARPNameQnx &entry, int type);
 	LocalNameServer ns;
 
 	ACE_INET_Addr		server_addr_;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.5 2003-04-24 16:54:45 gmetta Exp $
+/// $Id: YARPNameClient.h,v 1.6 2003-04-27 16:54:35 natta Exp $
 ///
 ///
 
@@ -113,14 +113,14 @@ public:
 	int check_in_mcast(const std::string &s, ACE_INET_Addr &addr)
 	{
 		int ret;
-		ret = _check_in_mcast(s, addr);
+		ret = _checkInMcast(s, addr);
 		return ret;
 	}
 	int check_in (const std::string &s, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr)
 	{
 		int ret;
 		ACE_INET_Addr tmpAddr = reg_addr;
-		ret = _check_in(s, tmpAddr);
+		ret = _checkIn(s, tmpAddr);
 		addr = tmpAddr;
 		return ret;
 	}
@@ -128,7 +128,7 @@ public:
 	int check_in (const std::string &s, ACE_INET_Addr &addr)
 	{
 		int ret;
-		ret = _check_in(s, addr);
+		ret = _checkIn(s, addr);
 		return ret;
 	}
 		
@@ -136,7 +136,7 @@ public:
 	{
 		int ret;
 		ACE_INET_Addr tmpAddr(ip.c_str());
-		ret = _check_in(s, tmpAddr);
+		ret = _checkIn(s, tmpAddr);
 		*port = tmpAddr.get_port_number();
 		ip = std::string(tmpAddr.get_host_name());
 		return ret;
@@ -145,7 +145,7 @@ public:
 	int check_in_udp(const std::string &name, std::string &addr, NetInt32 *ports, NetInt32 n)
 	{
 		int ret;
-		ret = _check_in_udp(name, addr, ports, n);
+		ret = _checkInUdp(name, addr, ports, n);
 		return ret;
 	}
 
@@ -153,14 +153,26 @@ public:
 	{
 		int ret;
 		std::string ip = reg_addr.get_host_addr();
-		ret = _check_in_udp(name, ip, ports, n);
+		ret = _checkInUdp(name, ip, ports, n);
 		addr.set (ports[0], ip.c_str());
+		return ret;
+	}
+
+	int check_in_qnx(const YARPNameQnx &entry)
+	{
+		int ret = _checkInQnx(entry);
 		return ret;
 	}
 
 	int query (const std::string &s, ACE_INET_Addr &addr, int *type)
 	{
 		int ret = _query(s, addr, type);
+		return ret;
+	}
+
+	int query_qnx (const std::string &s, YARPNameQnx &entry, int *type)
+	{
+		int ret = _queryQnx(s, entry, type);
 		return ret;
 	}
 
@@ -176,6 +188,38 @@ public:
 		tmpRqst.setName(s);
 		tmpCmd.cmd = YARPNSRelease;
 		tmpCmd.type = YARP_TCP;	// MCAST, TCP and UDP releases are handled in the same way
+		tmpCmd.length = tmpRqst.length();
+		// send message length
+		memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+		memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+
+		iovec iov[1];
+		iov[0].iov_base = data_buf_;
+		iov[0].iov_len = sizeof(YARPNameServiceCmd)+tmpRqst.length();
+
+		int sent = client_stream_.sendv_n (iov, 1);
+
+		if (sent == -1)
+			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"),0);
+
+		// close the connection
+		close();
+				
+		return YARP_OK;
+	}
+
+	int check_out_qnx (const std::string &s)
+	{
+		// send data to server
+		YARPNameServiceCmd tmpCmd;
+		YARPNameQnx tmpRqst;
+		
+		if (connect_to_server()!=0)
+			return YARP_FAIL;
+		
+		tmpRqst.setName(s);
+		tmpCmd.cmd = YARPNSRelease;
+		tmpCmd.type = YARP_QNET;	// MCAST, TCP and UDP releases are handled in the same way
 		tmpCmd.length = tmpRqst.length();
 		// send message length
 		memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
@@ -214,7 +258,7 @@ private:
 			return YARP_OK;
 	}
 
-	int _check_in(const std::string &s, ACE_INET_Addr &addr)
+	int _checkIn(const std::string &s, ACE_INET_Addr &addr)
 	{
 		YARPNameServiceCmd tmpCmd;
 		YARPNameTCP tmpRqst;
@@ -263,7 +307,7 @@ private:
 		return YARP_OK;
 	}
 
-	int _check_in_udp(const std::string &name, const std::string &ip, NetInt32 *ports, NetInt32 n)
+	int _checkInUdp(const std::string &name, const std::string &ip, NetInt32 *ports, NetInt32 n)
 	{
 		YARPNameServiceCmd tmpCmd;
 		YARPNameUDP tmpRqst;
@@ -315,7 +359,7 @@ private:
 		return YARP_OK;
 	}
 
-	int _check_in_mcast(const std::string &s, ACE_INET_Addr &addr)
+	int _checkInMcast(const std::string &s, ACE_INET_Addr &addr)
 	{
 		YARPNameServiceCmd tmpCmd;
 		YARPNameTCP tmpRqst;
@@ -364,6 +408,37 @@ private:
 		return YARP_OK;
 	}
 
+	int _checkInQnx(const YARPNameQnx &entry)
+	{
+		YARPNameServiceCmd tmpCmd;
+		YARPNameQnx tmpRqst;
+		
+		if (connect_to_server()!=0)
+			return YARP_FAIL;
+				
+		tmpRqst = entry;
+		tmpCmd.cmd = YARPNSRegister;
+		tmpCmd.type = YARP_QNET;
+		tmpCmd.length = tmpRqst.length();
+		// send message length
+		memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+		memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+
+		iovec iov[1];
+		iov[0].iov_base = data_buf_;
+		iov[0].iov_len = sizeof(YARPNameServiceCmd)+tmpRqst.length();
+
+		int sent = client_stream_.sendv_n (iov, 1);
+
+		if (sent == -1)
+			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"),0);
+
+		// no reply here, just close and exit
+		close();
+				
+		return YARP_OK;
+	}
+
 	int _query(const std::string &s, ACE_INET_Addr &addr, int *type)
 	{
 		YARPNameServiceCmd tmpCmd;
@@ -407,6 +482,55 @@ private:
 		srvRpl->getAddr(addr);
 						
 		NAME_CLIENT_DEBUG(("Received %s(%s):%d\n", addr.get_host_addr(), servicetypeConverter(*type), addr.get_port_number()));
+				
+		// close the connection
+		close();
+				
+		return YARP_OK;
+	}
+
+	int _queryQnx(const std::string &s, YARPNameQnx &entry, int *type)
+	{
+		YARPNameServiceCmd tmpCmd;
+		YARPNameQnx tmpRqst;
+		
+		if (connect_to_server()!=0)
+			return YARP_FAIL;
+		
+		tmpRqst.setName(s);
+		tmpCmd.cmd = YARPNSQuery;
+		tmpCmd.type = YARP_QNET;	// TCP, UDP, MCAST queries are handled in the same way
+		tmpCmd.length = tmpRqst.length();
+		// send message length
+		memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+		memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+
+		iovec iov[1];
+		iov[0].iov_base = data_buf_;
+		iov[0].iov_len = sizeof(YARPNameServiceCmd)+tmpRqst.length();
+
+		int sent = client_stream_.sendv_n (iov, 1);
+
+		if (sent == -1)
+			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"),0);
+
+		//////////////////////////////////////////
+				
+		unsigned int byte_count = 0;
+		int res = 0;
+		
+		memset(data_buf_, 0, SIZE_BUF);
+		iov[0].iov_len = sizeof(YARPNameServiceCmd);
+		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+		YARPNameServiceCmd *srvCmd = (YARPNameServiceCmd *)data_buf_;
+		*type = srvCmd->type;		// get address type
+		
+		iov[0].iov_len = srvCmd->length;
+		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+		
+		entry = *(YARPNameQnx *)data_buf_;
+										
+		NAME_CLIENT_DEBUG(("Received %s %s(%s) %d %d\n", entry.getName(), entry.getNode(), servicetypeConverter(*type), entry.getPid(), entry.getChan()));
 				
 		// close the connection
 		close();

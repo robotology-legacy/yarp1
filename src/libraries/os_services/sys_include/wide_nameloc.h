@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.5 2003-04-23 15:31:58 gmetta Exp $
+/// $Id: wide_nameloc.h,v 1.6 2003-04-27 16:54:35 natta Exp $
 ///
 ///
 
@@ -142,19 +142,19 @@ public:
 		*ch = _chan;
 	}
 
-	char *getName()
+	const char *getName() const
 	{return _name;}
 
-	char *getNode()
+	const char *getNode() const
 	{return _node;}
 
-	NetInt32 getPid()
+	NetInt32 getPid() const
 	{return _pid;}
 	
-	NetInt32 getChan()
+	NetInt32 getChan() const
 	{return _chan;}
 
-	int length()
+	int length() const
 	{return sizeof(YARPNameQnx);}
 
 	char _name[__YARP_NAMESERVICE_STRING_LEN];
@@ -198,10 +198,10 @@ public:
 		addr.set(_port, _ip);
 	}
 
-	char *getName()
+    const char *getName() const
 	{return _name;}
 
-	char *getIp()
+	const char *getIp() const
 	{return _ip;}
 
 	NetInt32 getPort()
@@ -257,10 +257,10 @@ public:
 		addr.set(_ports[0], _ip);
 	}
 
-	char *getName()
+	const char *getName() const
 	{return _name;}
 
-	char *getIp()
+	const char *getIp() const
 	{return _ip;}
 
 	NetInt32 getPorts(NetInt32 index) {
