@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPVocab_babybot.h,v 1.4 2004-09-02 13:04:58 babybot Exp $
+/// $Id: YARPVocab_babybot.h,v 1.5 2004-09-07 20:06:44 babybot Exp $
 ///
 ///
 
@@ -66,7 +66,10 @@ const char *const YBVArmQuit = "ArmQuit";
 // reaching behavior
 const char *const YBVReachingLearn = "ReachingLearn";
 const char *const YBVReachingReach = "ReachingReach";
+const char *const YBVReachingDone = "ReachingDone";
 const char *const YBVReachingPrepare = "ReachingPrepare";
+const char *const YBVReachingAbort = "ReachingAbort";
+const char *const YBVReachingAck = "ReachingAck";
 const char *const YBVReachingQuit = "ReachingQuit";
 
 // arm trigger behavior
