@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.3 2003-05-22 10:39:57 gmetta Exp $
+$Id: install.txt,v 1.4 2003-05-22 16:21:51 gmetta Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -35,10 +35,14 @@ What to do on each machine of the network
 		a proper mapping (for a valid user I guess) is required
 		to use the remote tool(s).
 	- try always to use the same user (e.g. the domain one).
+	- you might get troubles with credentials depending on the user 
+		running it. (damn windows)!
 	
-	- remote kill.
+	- remote kill
+		install using rkill /install \\MACHINE.
+		/view to view the process names.
+		/kill to kill a process.
 
-	
 
 5) define:
 	- YARP_ROOT env variable: e.g. Q:\yarp
