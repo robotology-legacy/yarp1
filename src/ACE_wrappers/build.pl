@@ -10,7 +10,7 @@
 #		  --distribution <PATH> is the path where ACE was unpacked
 #		  --os <OS> is the operating system you're compiling for
 #
-# $Id: build.pl,v 1.7 2004-10-15 22:11:30 gmetta Exp $
+# $Id: build.pl,v 1.8 2004-10-16 20:15:48 gmetta Exp $
 #
 # This script can be (at least in theory) configured to
 # do some useful thing in Linux and/or Qnx too. It's definitely
@@ -143,7 +143,7 @@ if ($debug)
 	
 		chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";
 	}
-	elsif ($os eq "linux")
+	elsif ($os eq "linux" && $release == 0)
 	{
 		chdir "$distribution/ace" or die "Cannot chdir to $distribution/ace: $!";
 		symlink ("$yarp_root/include/$os/ace/platform_linux.GNU", "$distribution/include/makeinclude/platform_macros.GNU");
