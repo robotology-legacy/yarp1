@@ -55,7 +55,7 @@ public:
 	YARPWatershed::YARPWatershed(const int width1, const int height1, const int wstep, const YarpPixelMono th);
 	void resize(const int width1, const int height1, const int wstep, const YarpPixelMono th);
 
-	void setThreshold(YarpPixelMono th) {threshold=th;}
+	inline void setThreshold(YarpPixelMono th) {threshold=th;}
 
 	//bool apply(YARPImageOf<YarpPixelMono>& srcdest);
 	//bool apply(const YARPImageOf<YarpPixelMono>& src, YARPImageOf<YarpPixelMono>& dest);
@@ -64,6 +64,7 @@ public:
 
 	void tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPImageOf<YarpPixelMono>& dest);
 	void findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, int y, char *blobList);
+	void connectivityGraph(const YARPImageOf<YarpPixelInt>& src, bool *matr, int max_tag);
 };
 
 #endif

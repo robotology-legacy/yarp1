@@ -237,13 +237,22 @@ protected:
 	int num_IORBoxes;
 
 	int numNeighBoxes;
+	int numNeighBoxesHand;
 	YARPBox *neighBoxes;
+	YARPBox *neighBoxesHand;
 	double *neighProb;
-	double *neighProb2;
+	unsigned long int *neighEpoch2;
+	unsigned long int *neighFounded2;
+	//double *neighProb2;
+	double *neighProbHand;
 	//unsigned long int *neighEpoch;
 	//unsigned long int *neighFounded;
 	bool *neighTaken;
 	long unsigned int epoch;
+	long unsigned int epochHand;
+
+	bool *neighTemp;
+	bool *connGraph;
 
 	char savename[512];
 	
@@ -337,6 +346,8 @@ public:
 	double checkObject(YARPImageOf<YarpPixelMono> &src);
 	void dumpLearnObject();
 	void learnBackground();
+	int learnHand();
+	bool isHand(YARPBox &box);
 	
 	YARPBox* IORBoxes;
 	YARPBox* max_boxes;

@@ -117,6 +117,8 @@ public:
 	bool searching;
 	bool exploring;
 	bool learnObject;
+	bool learnHand;
+	bool learnNotObject;
 };
 
 
@@ -240,7 +242,7 @@ void mainthread::Body (void)
 	outBottle.Register(_outName3, _netname0);
 	outImage3.Register(_outName4, _netname1);
 
-	const int frameToStabilize = 5;
+	const int frameToStabilize = 6;
 	
 	int frame_no = 0;
 	int moved = frameToStabilize;
@@ -254,6 +256,8 @@ void mainthread::Body (void)
 	searching = false;
 	exploring = true;
 	learnObject = false;
+	learnHand = false;
+	learnNotObject = false;
 	int boxesMem = 0;
 	int mRG;
 	int mGR;
@@ -364,6 +368,7 @@ void mainthread::Body (void)
 					} else if (message == YBVVAUnFreeze) {
 						ACE_OS::printf("Unfreezing\n");
 						noOutput=false;
+						mustMove=true;
 					} else if (message == YBVVASet) {
 						double cmp, ect;
 						double salienceBU, salienceTD;
@@ -538,35 +543,53 @@ endDiffCheck:
 				
 				if (!diffFoundValid) {
 					if (moved<=0 && toMem>0) {
-						mRG=att_mod.fovBox.meanRG;
-						mGR=att_mod.fovBox.meanGR;
-						mBY=att_mod.fovBox.meanBY;
+						if (learnHand) {
+							double tmpScore;
+							//do {
+								att_mod.learnHand();
+								//tmpScore=att_mod.checkObject(img);
+							//} while (tmpScore<0.5);
+							att_mod.dumpLearnObject();
+							learnHand=false;
+						} else {
+							mRG=att_mod.fovBox.meanRG;
+							mGR=att_mod.fovBox.meanGR;
+							mBY=att_mod.fovBox.meanBY;
 
-						double cmp=att_mod.fovBox.cmp;
-						double ect=att_mod.fovBox.ect;
+							double cmp=att_mod.fovBox.cmp;
+							double ect=att_mod.fovBox.ect;
 
-						cout<<"Searching for blobs similar to that in the fovea in this moment"<<endl;
-						cout<<"mRG:"<<(int)mRG<<", mGR:"<<(int)mGR<<", mBY:"<<(int)mBY<<endl;
-						cout<<"CMP:"<<cmp<<", ECT:"<<ect<<endl;
-						att_mod.setParameters(mRG, mGR, mBY, cmp, ect, 0, 1);
+							cout<<"Searching for blobs similar to that in the fovea in this moment"<<endl;
+							cout<<"mRG:"<<(int)mRG<<", mGR:"<<(int)mGR<<", mBY:"<<(int)mBY<<endl;
+							cout<<"CMP:"<<cmp<<", ECT:"<<ect<<endl;
+							att_mod.setParameters(mRG, mGR, mBY, cmp, ect, 0, 1);
+							//boxesMem=att_mod.learnObject();
+							//att_mod.checkObject(img);
+							double tmpScore;
+							//do {
+								boxesMem=att_mod.learnObject();
+								tmpScore=att_mod.checkObject(img);
+							//} while (tmpScore<0.4);
+						}
+						toMem--;
 						searching=true;
 						targetFound = true;
-						//toMem=false;
 						exploring = false;
-						boxesMem=att_mod.learnObject();
-						toMem--;
-						att_mod.checkObject(img);
+						moved = 2;
 					} else if (moved==0) {
 						if (found) {
-							mustMove=att_mod.checkObject(img)<0.75?true:false;
-							if (!noOutput) {
-								ACE_OS::printf("Target found, sending the center of the blob\n");
-								/*tmpBottle.writeInt(att_mod.fovBox.centroid_x);
-								tmpBottle.writeInt(att_mod.fovBox.centroid_y);
-								outBottle.Content() = tmpBottle;
-								outBottle.Write();*/
-							} else
-								ACE_OS::printf("Target found but freezed!\n");
+							mustMove=att_mod.checkObject(img)<0.5?true:false;
+							att_mod.dumpLearnObject();
+							if (!mustMove) {
+								if (!noOutput) {
+									ACE_OS::printf("Target found, sending the center of the blob\n");
+									/*tmpBottle.writeInt(att_mod.fovBox.centroid_x);
+									tmpBottle.writeInt(att_mod.fovBox.centroid_y);
+									outBottle.Content() = tmpBottle;
+									outBottle.Write();*/
+								} else
+									ACE_OS::printf("Target found but freezed!\n");
+							}
 							targetFound = !mustMove;
 						} else {
 							if (!noOutput) {
@@ -600,7 +623,7 @@ endDiffCheck:
 								//do {
 									att_mod.learnObject();
 									tmpScore=att_mod.checkObject(img);
-								//} while (tmpScore<0.75);
+								//} while (tmpScore<0.4);
 								att_mod.dumpLearnObject();
 								learnObject=false;
 							}
@@ -783,6 +806,12 @@ int main (int argc, char *argv[])
 		} else if (c=='l') {
 			ACE_OS::printf("Learn Object\n");
 			_thread.learnObject=true;
+		} else if (c=='h') {
+			ACE_OS::printf("Learn Hand\n");
+			_thread.learnHand=true;
+		} else if (c=='n') {
+			ACE_OS::printf("Learn counter example\n");
+			_thread.learnNotObject=true;
 		} else
 			cout << "Type q+return to quit" << endl;
 	} while (c != 'q');

@@ -354,12 +354,12 @@ void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPIma
 }*/
 
 
-/*void YARPWatershed::connectivityGraph(const YARPImageOf<YarpPixelInt>& src, bool **matr, int max_tag)
+void YARPWatershed::connectivityGraph(const YARPImageOf<YarpPixelInt>& src, bool *matr, int max_tag)
 {
 	YarpPixelInt *p_src=(YarpPixelInt *)src.GetRawBuffer();
 	int i,j,n,pos,p;
 
-	memset(matr, false, sizeof(bool)*max_tag);
+	memset(matr, false, sizeof(bool)*max_tag*max_tag);
 
 	// first row
 	// first pixel
@@ -373,7 +373,8 @@ void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPIma
 		for(n=neighSize/2-1; n<neighSize; n++) { // no top Neighbor
 			pos = p + neigh[n];
 			if (p_src[p]!=p_src[pos]) {
-				matr(;
+				matr[max_tag*p_src[p]+p_src[pos]]=true;
+				matr[max_tag*p_src[pos]+p_src[p]]=true;
 			}
 		}
 		p++;
@@ -382,8 +383,8 @@ void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPIma
 	for(n=neighSize/2-1; n<neighSize; n++) {
 		pos = p + neighR[n];
 		if (p_src[p]!=p_src[pos]) {
-			p_dst[p] = val;
-			break;
+			matr[max_tag*p_src[p]+p_src[pos]]=true;
+			matr[max_tag*p_src[pos]+p_src[p]]=true;
 		}
 	}
 	p++;
@@ -395,8 +396,8 @@ void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPIma
 		for(n=0; n<neighSize; n++) {
 			pos = p + neighL[n];
 			if (p_src[p]!=p_src[pos]) {
-				p_dst[p] = val;
-				break;
+				matr[max_tag*p_src[p]+p_src[pos]]=true;
+				matr[max_tag*p_src[pos]+p_src[p]]=true;
 			}
 		}
 		p++;
@@ -405,8 +406,8 @@ void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPIma
 			for(n=0; n<neighSize; n++) {
 				pos = p + neigh[n];
 				if (p_src[p]!=p_src[pos]) {
-					p_dst[p] = val;
-					break;
+					matr[max_tag*p_src[p]+p_src[pos]]=true;
+					matr[max_tag*p_src[pos]+p_src[p]]=true;
 				}
 			}
 			p++;
@@ -416,8 +417,8 @@ void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPIma
 		for(n=0; n<neighSize; n++) {
 			pos = p + neighR[n];
 			if (p_src[p]!=p_src[pos]) {
-				p_dst[p] = val;
-				break;
+				matr[max_tag*p_src[p]+p_src[pos]]=true;
+				matr[max_tag*p_src[pos]+p_src[p]]=true;
 			}
 		}
 		p++;
@@ -430,8 +431,8 @@ void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPIma
 	for(n=0; n<neighSize/2+1; n++) {
 		pos = p + neighL[n];
 		if (p_src[p]!=p_src[pos]) {
-			p_dst[p] = val;
-			break;
+			matr[max_tag*p_src[p]+p_src[pos]]=true;
+			matr[max_tag*p_src[pos]+p_src[p]]=true;
 		}
 	}
 	p++;
@@ -440,8 +441,8 @@ void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPIma
 		for(n=0; n<neighSize/2+1; n++) { // no top Neighbor
 			pos = p + neigh[n];
 			if (p_src[p]!=p_src[pos]) {
-				p_dst[p] = val;
-				break;
+				matr[max_tag*p_src[p]+p_src[pos]]=true;
+				matr[max_tag*p_src[pos]+p_src[p]]=true;
 			}
 		}
 		p++;
@@ -450,11 +451,11 @@ void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPIma
 	for(n=0; n<neighSize/2+1; n++) {
 		pos = p + neighR[n];
 		if (p_src[p]!=p_src[pos]) {
-			p_dst[p] = val;
-			break;
+			matr[max_tag*p_src[p]+p_src[pos]]=true;
+			matr[max_tag*p_src[pos]+p_src[p]]=true;
 		}
 	}
-}*/
+}
 
 
 // create regions (numbers by "counter") which are lokal minima(s)
