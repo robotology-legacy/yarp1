@@ -1,0 +1,1 @@
+ABOBJ = RawActivate.o abmain.o dibujo.o init.o raw_init.o 
