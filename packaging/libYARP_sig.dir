@@ -1,0 +1,4 @@
+root ..
+package libYARP_sig
+copy dir src/libYARP_sig
+endpackage

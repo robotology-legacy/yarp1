@@ -4,4 +4,14 @@ copy dir include/linux
 copy dir include/winnt
 copy file conf/Makefile.template
 copy dir src/libYARP_OS
+copy dir src/tools/yarp-connect
+copy dir src/tools/yarp-read
+copy dir src/tools/yarp-service
+copy dir src/tools/yarp-write
+copy file src/tools/Makefile
+copy file src/tools/build.bat
+copy file src/tools/README.TXT
+copy file src/tools/tools.dsw
+copy file README.txt
+copy file naming.txt
 endpackage
