@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.cpp,v 1.1 2004-07-27 10:52:35 babybot Exp $
+/// $Id: YARPMatrix.cpp,v 1.2 2004-07-27 16:51:44 babybot Exp $
 ///
 ///
 
@@ -1646,7 +1646,7 @@ VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& A, YVector& s,
 //						   YMatrix& v);
 //      void VisDMatrixSVD(const YMatrix& a, 
 //                         const YVector& b, 
-//                         YMatrix& x);
+//                         YVector& x);
 //  
 //  INPUT:
 //      a (const YMatrix&) - input matrix and U on exit!

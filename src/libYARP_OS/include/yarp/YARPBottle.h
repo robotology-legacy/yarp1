@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.3 2004-07-12 08:23:41 eshuy Exp $
+/// $Id: YARPBottle.h,v 1.4 2004-07-27 16:51:43 babybot Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -103,6 +103,7 @@ class YARPBottle
 			text[__maxBottleID-1] = '\0';	// paranoid ?
 			length = strlen(text)+1;
 		}
+
 		void set(const YBVocab &s)
 		{
 			set(s.c_str());

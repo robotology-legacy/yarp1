@@ -83,7 +83,7 @@ my $project_name = "libYARP_dev_$options{\"Architecture<-Hardware_Name\"}";
 $debug = ($options{"Compile_Dev<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
 $release = ($options{"Compile_Dev<-Lib_Release"} eq "TRUE") ? 1 : $release;
 $install = ($options{"Compile_Dev<-Lib_Install"} eq "TRUE") ? 1 : $install;
-$clean = ($options{"Compile_Dev<-Lib_Clean"} eq "TRUE") ? 1 : clean;
+$clean = ($options{"Compile_Dev<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
 
 #
 #
