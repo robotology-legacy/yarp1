@@ -45,9 +45,9 @@
 
 static int bttv_num;
 static struct bttv bttvs[BTTV_MAX];
-static resmgr_connect_funcs_t    connect_funcs;
-static resmgr_io_funcs_t         io_funcs;
-static iofunc_attr_t             attr;
+//static resmgr_connect_funcs_t    connect_funcs;
+//static resmgr_io_funcs_t         io_funcs;
+//static iofunc_attr_t             attr;
 
 
 int irq_debug = 1;
