@@ -13,7 +13,7 @@ _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMa
 	ACE_OS::sprintf (filename1, "%s/conf/babybot/handfk1.ini\0", root);
 	ACE_OS::sprintf (filename2, "%s/conf/babybot/handfk2.ini\0", root);
 	
-	_log.append(filename);
+//	_log.append(filename);
 	_npoints = 0;
 
 	// 
@@ -21,12 +21,12 @@ _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMa
 	// nnets
 	if (_center.load(filename1)!=YARP_OK)
 	{
-		ACE_OS::printf("Error, cannot read neural network file");
+		ACE_OS::printf("Error, cannot read neural network file %s", filename1);
 		exit(-1);
 	}
-	if (_parameters.load(filename2)!=YARP_OK)
+	if (_ellipse.load(filename2)!=YARP_OK)
 	{
-		ACE_OS::printf("Error, cannot read neural network file");
+		ACE_OS::printf("Error, cannot read neural network file %s", filename2);
 		exit(-1);
 	}
 }
@@ -48,13 +48,7 @@ void HandKinematics::_dumpToDisk(const YVector &arm, const YVector &head, const 
 	_log.newLine();
 
 	_npoints++;
-
 	printf("#%d got a new point\n", _npoints);
-	if ((_npoints%10) == 0)
-	{
-		printf("#%d flushing points to disk\n", _npoints);
-		_log.flush();
-	}
 }
 
 void HandKinematics::learn(YVector &arm, YVector &head, YARPBottle &newPoint)
@@ -66,6 +60,4 @@ void HandKinematics::learn(YVector &arm, YVector &head, YARPBottle &newPoint)
 	newPoint.readFloat(&ellipse.a11);
 	newPoint.readFloat(&ellipse.a12);
 	newPoint.readFloat(&ellipse.a22);
-
-	_dumpToDisk(arm, head, ellipse);
 }

@@ -142,7 +142,7 @@ void parsePatternsParams(double *iRaw, double *tRaw, double **in, double **out, 
 		tRaw++;		// skip retinal X pos
 		tRaw++;		// skip retinal Y pos
 		
-		*outTmp++ = *tRaw++;
+		*outTmp++ = *tRaw++;	// 3 conic parameters
 		*outTmp++ = *tRaw++;
 		*outTmp++ = *tRaw++;
 	}

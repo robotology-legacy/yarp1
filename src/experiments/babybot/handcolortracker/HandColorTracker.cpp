@@ -78,11 +78,19 @@ int main(int argc, char* argv[])
 	YARPInputPortOf<YARPGenericImage> _inPortSeg(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 	YARPOutputPortOf<YARPGenericImage> _outPortBackprojection(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
-	YARPInputPortOf<YARPControlBoardNetworkData>  _armPort;
-	YARPInputPortOf<YVector>  _headPort;
+	YARPInputPortOf<YARPControlBoardNetworkData> _armPort;
+	YARPInputPortOf<YVector>	_headPort;
 
-	YARPInputPortOf<YARPBottle>	_armSegmentationPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	YARPInputPortOf<YARPBottle>	_remoteLearnInputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+	YARPInputPortOf<YARPBottle>	_armSegmentationPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+
+	YARPInputPortOf<YARPBottle>	_outputPortTrain1(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+	YARPInputPortOf<YARPBottle>	_inputPortTrain1(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+	YARPInputPortOf<YARPBottle>	_outputPortTrain2(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+	YARPInputPortOf<YARPBottle>	_inputPortTrain2(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
+
+	YARPBottle _outputTrainBottle1;
+	YARPBottle _outputTrainBottle2;
+
 	HandKinematics _handLocalization;
 	HandSegmenter _segmenter;
 	
@@ -92,7 +100,10 @@ int main(int argc, char* argv[])
 	_outPortBackprojection.Register("/handtracker/backprojection/o:img");
 	_headPort.Register("/handtracker/head/i");
 	_armPort.Register("/handtracker/arm/i");
-	_remoteLearnInputPort.Register("/handtracker/nnet/i");
+	_inputPortTrain1.Register("/handtracker/nnet1/i");
+	_outputPortTrain1.Register("/handtracker/nnet1/o");
+	_inputPortTrain2.Register("/handtracker/nnet2/i");
+	_outputPortTrain2.Register("/handtracker/nnet2/o");
 	
 	YARPImageOf<YarpPixelMono> _left;
 	YARPImageOf<YarpPixelMono> _leftSeg;
@@ -151,7 +162,11 @@ int main(int argc, char* argv[])
 		if(_armSegmentationPort.Read(0))
 		{
 			_armSegmentationPort.Content().display();
-			_handLocalization.learn(_arm, _head,  _armSegmentationPort.Content());
+			_outputTrainBottle1.reset();
+			_outputTrainBottle2.reset();
+			// _handLocalization.learn(_arm, _head,  _armSegmentationPort.Content());
+			prepareBottle1(_armSegmentation.Content(), _outputTrainBottle1);
+			prepareBottle2(_armSegmentation.Content(), _outputTrainBottle2);
 		}
 
 		
@@ -173,12 +188,21 @@ int main(int argc, char* argv[])
 		_outPortBackprojection.Content().Refer(_outSeg);
 		_outPortBackprojection.Write();
 
-		if (_remoteLearnInputPort.Read(0))
+		if (_inputPortTrain1.Read(0))
 		{
-			ACE_OS::printf("Loading new trained nnet");
+			ACE_OS::printf("Loading new trained nnet1");
 			YARPBPNNetState tmp;
-			extract(_remoteLearnInputPort.Content(), tmp);
-			_handLocalization.load(tmp);
+			extract(_inputPortTrain1.Content(), tmp);
+			_handLocalization.loadCenter(tmp);
+			ACE_OS::printf("...done!\n");
+		}
+
+		if (_inputPortTrain2.Read(0))
+		{
+			ACE_OS::printf("Loading new trained nnet2");
+			YARPBPNNetState tmp;
+			extract(_inputPortTrain2.Content(), tmp);
+			_handLocalization.loadEllipse(tmp);
 			ACE_OS::printf("...done!\n");
 		}
 

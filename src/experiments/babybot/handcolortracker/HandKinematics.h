@@ -29,16 +29,16 @@ public:
 		return el;
 	}
 
-	void load(YARPBPNNetState &p)
+	void loadCenter(YARPBPNNetState &p)
 	{
-		ACE_OS::printf("Loading nnet from memory:");
-		ACE_OS::printf("#Layers:%d\t#Input:%d\t#Output:%d\n", p.nLayer, p.nUnit[0], p.nUnit[p.nLayer]);
+		ACE_OS::printf("Loading center nnet from memory:");
 		_center.load(p);
 	}
 
-	void save(const char *t)
+	void loadEllipse(YARPBPNNetState &p)
 	{
-		_center.save(t);
+		ACE_OS::printf("Loading ellipse nnet from memory:");
+		_ellipse.load(p);
 	}
 
 private:
@@ -58,7 +58,7 @@ private:
 		//////////////////////////////////////
 
 		double p[3];
-		_parameters.sim(arm.data(), p);
+		_ellipse.sim(arm.data(), p);
 
 		el.rho = predx;		//c[0];
 		el.theta = predy;	//c[1];
@@ -68,12 +68,12 @@ private:
 	}
 
 	void _dumpToDisk(const YVector &arm, const YVector &head, const YARPShapeEllipse &ellipse);
-	
+
 	YARPLpConicFitter _fitter;
 	YARPLogFile		  _log;
 	
 	YARPBPNNet _center;
-	YARPBPNNet _parameters;
+	YARPBPNNet _ellipse;
 
 	YARPBabybotHeadKin _gaze;
 	YVector _v;
