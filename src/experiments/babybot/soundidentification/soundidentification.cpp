@@ -12,10 +12,10 @@
 //     of some seconds. This sound stream is converted into frequency space using a FFT. The
 //     frequency space is divided and the energy of each zone is calculated to produce a
 //     energy vector of the signal (energy signature). This energy vector is feed to a self-organizing
-//     map that learns the vector. Hopfully, this can be used to recognize sounds.
+//     map that learns the vector. Hopefully, this can be used to recognize sounds.
 //     
 // 
-//         Version:  $Id: soundidentification.cpp,v 1.2 2004-06-14 16:33:14 beltran Exp $
+//         Version:  $Id: soundidentification.cpp,v 1.3 2004-07-07 17:13:22 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab

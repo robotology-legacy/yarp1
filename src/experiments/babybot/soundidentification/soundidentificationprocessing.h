@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.2 2004-06-14 16:33:14 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.3 2004-07-07 17:13:22 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -59,22 +59,38 @@ public:
 		// The bytes are reorganice in the correct order
 		// In this case I get only the data from one of the channels enough for
 		// sound indentification.
+		// The data is introduced in the Re_Hamm variable for later processing
 		//----------------------------------------------------------------------
 		for (int i = 0; i < numSamples; i++)
 		{
 			short temp;
 
-            temp = buff[1] << 8; // More significant byte
-            temp += buff[0];     // less significant byte
-			Re[i] = (double) temp;
-			Im[i] = 0.0;
-			buff += 4;
+            temp  = buff[1] << 8;  // More significant byte
+            temp += buff[0];       // less significant byte
+            Re[i] = (double) temp;
+            Im[i] = 0.0;
+            buff += 4;
 		}
 
 		//----------------------------------------------------------------------
-		//  Compute correlation in the frequency space
+		//  From here I implement the MFCC (Mel Frequency Ceptrum Coefficients)
 		//----------------------------------------------------------------------
-		fft->Fft(1, dim, Re, Im, 1, -1); // Calculate FFT of the signal
+
+		//----------------------------------------------------------------------
+		//  Compute Hamming ponderation and PreAccent
+		//----------------------------------------------------------------------
+		for (int i = 0; i < numSamples; i++)
+			Re[i] = PreAccent(Re[i]) * HammingPonderation(numSamples, i);
+
+		//----------------------------------------------------------------------
+		//  Compute FFT of the signal
+		//----------------------------------------------------------------------
+		fft->Fft(1, dim, Re, Im, 1, -1); 
+
+		//----------------------------------------------------------------------
+		//  Create Mel-Filter bank  
+		//----------------------------------------------------------------------
+
 
 		//----------------------------------------------------------------------
 		//  Compute the energy for the signal
@@ -95,9 +111,13 @@ public:
 
 private:
 	int ComputeDiscreteLevels(YVector &);
-	double squareMean(double * , double * , double, double);
-	void filter(double *, double *,double, double);
 	int ConjComplexMultiplication(double *, double *);
+	void filter(double *, double *,double, double);
+	double squareMean(double * , double * , double, double);
+	double HammingPonderation(const unsigned int, const unsigned int);
+	double Freq2Mel(double);
+	double Mel2Freq(double);
+	double PreAccent(double);
 
 	int _inSize;
 	int _outSize;
@@ -117,9 +137,22 @@ private:
     double * Im;
 	int counter;
 
-    int numSamples; // number of samples for channel in the incoming sound stream
+    int numSamples;       // number of samples for channel in the incoming sound stream
     int numFreqSamples;   // length of the trasformations (N/2 + 1??)
     int total_numSamples; // The number of samples being analised by the Self Organizing Map
+
+	//----------------------------------------------------------------------
+	//  The filter bank parameters
+	//----------------------------------------------------------------------
+	int linearFilters;  
+	int logFilters;    
+	//int fftSize              = 512;
+	int cepstralCoefficients;
+	//int windowSize           = 400;
+	//int windowSize           = 256;
+	double lowestFrequency; 
+	double logSpacing;     
+	double linearSpacing; 
 
 	YARPString _iniFile;
 	YARPString _path;
