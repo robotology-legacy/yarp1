@@ -76,7 +76,7 @@
 
 
 YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
-	rain(x, y, x+x%8, 13),
+	rain(x, y, x+x%8, 15),
 	salience(x, y)
 {
 	int i;
@@ -353,6 +353,7 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	out.Resize(x, y);
 
 	blobFov.Resize(x, y);
+	objectFov.Resize(x, y);
 	
 	//out_colored.Resize(_stheta, _srho);
 	//temp_16.Resize(_stheta, _srho, -2);
@@ -412,6 +413,7 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	//rain.resize(x, y, x+x%8, 13);
 
 	blobList = new char [x*y+1];
+	blobListObject = new char [x*y+1];
 
 	searchRG=searchGR=searchBY=0;
 	cmp=ect=0;
@@ -428,6 +430,8 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	ACE_ASSERT(neighBoxes != NULL);
 	neighProb = new double[x*y];
 	ACE_ASSERT(neighProb != NULL);
+	neighTaken = new bool[x*y];
+	ACE_ASSERT(neighTaken != NULL);
 }
 
 
@@ -438,8 +442,12 @@ YARPImgAtt::~YARPImgAtt()
 	delete [] lut.key;
 
 	delete [] blobList;
+	if (blobListObject!=NULL) delete [] blobListObject;
 	delete [] IORBoxes;
 	delete [] max_boxes;
+	delete [] neighBoxes;
+	delete [] neighProb;
+	delete [] neighTaken;
 }
 
 
@@ -987,9 +995,11 @@ void YARPImgAtt::GetTarget(int &x, int &y)
 }
 
 
-bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
+bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, bool stable)
 {
 	bool found=false;
+	
+	//saveSRC(src);
 	
 	DBGPF1 ACE_OS::printf(">>> get original planes\n");
 	//YARPImageUtils::GetAllPlanes(src, b1, g1, r1);
@@ -1000,11 +1010,13 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 	iplRShiftS(src, src, 1);
 	/*ACE_OS::sprintf(savename, "meancol.ppm");
 	YARPImageFile::Write(savename, meanCol);*/
-	gauss_s.ConvolveSep2D(meanCol,meanCol);
+	//gauss_s.ConvolveSep2D(meanCol, tmpBGR1);
+	//iplBlur(meanCol, tmpBGR1, 5, 5, 2, 2);
+	iplBlur(meanCol, tmpBGR1, 3, 3, 1, 1);
 	/*ACE_OS::sprintf(savename, "meancolg.ppm");
 	YARPImageFile::Write(savename, meanCol);*/
-	iplRShiftS(meanCol, meanCol, 1);
-	iplAdd(src, meanCol, src);
+	iplRShiftS(tmpBGR1, tmpBGR1, 1);
+	iplAdd(src, tmpBGR1, src);
 	/*ACE_OS::sprintf(savename, "src.ppm");
 	YARPImageFile::Write(savename, src);*/
 
@@ -1037,11 +1049,24 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 	//iplAdd(edge, oldWshed, edge);
 
 	normalize();
+	
 	findBlobs();
+	/*salience.blobs2Peaks(tagged, edge, 100, max_tag);
+	findBlobs();
+	salience.blobs2Peaks(tagged, edge, 100, max_tag);
+	findBlobs();
+	salience.blobs2Peaks(tagged, edge, 100, max_tag);
+	findBlobs();
+	salience.blobs2Peaks(tagged, edge, 100, max_tag);
+	findBlobs();*/
+	//ACE_OS::printf("\n");
+
+	drawBlobs(stable);
+
 	//quantizeColors();
 	drawIORTable();
 
-	//rain.maxSalienceBlobs(tagged, max_tag, max_boxes, 3);
+	//salience.maxSalienceBlobs(tagged, max_tag, max_boxes, 3);
 	salience.maxSalienceBlob(tagged, max_tag, max_boxes[0]);
 
 	if (salienceTD>0) {
@@ -1054,106 +1079,151 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 		//cout<<"CMP DELTA %:"<<(fovBox.cmp-cmp)/cmp*100;
 		//cout<<"  ECT DELTA %:"<<(fovBox.ect-ect)/ect*100<<endl;
 
-		if (fovBox.areaCart>150 && crg*crg+cgr*cgr+cby*cby<500) {
-		//if (crg*crg+cgr*cgr+cby*cby<500) {
+		/*ACE_OS::printf("Evaluating object...\n");
+		ACE_OS::printf("Diff: %d\n", crg*crg+cgr*cgr+cby*cby);
+		ACE_OS::printf("Area: %lf\n", fovBox.areaCart);*/
+
+		if (fovBox.areaCart>150 && crg*crg+cgr*cgr+cby*cby<500)
 			found=true;
-		}
-		/*else {
-			ACE_OS::printf("Color doesn't match or too small!\n");
-			ACE_OS::printf("Diff: %d\n", crg*crg+cgr*cgr+cby*cby);
-			ACE_OS::printf("Area: %d\n", fovBox.areaCart);
-		}*/
 	}	
 	
 	//blobFov=edge;
 	//rain.tags2Watershed(tagged, blobFov);
 
-	//saveImages(src);
+	//saveImages();
 	
-	/*int mn;
-	int mx;
-	MinMax(edge, mn, mx);
-	FullRange(edge, edge, mn, mx);
-	out=edge;*/
-
 	return found;
 }
 
 
 bool YARPImgAtt::learnObject()
 {
+	memset(blobList, 0, sizeof(char)*(max_tag+1));
+	rain.findNeighborhood(tagged, 0, 0, blobList);
+	ACE_OS::printf("%d neigh boxes found\n", countBlobList(blobList, max_tag));
+
 	if (numNeighBoxes==0) {
 		for (int i=2; i<=max_tag; i++) {
-			if (blobList[i]==1) {
-				salience.getBlobNum(i, neighBoxes[numNeighBoxes]);
+			// Note that boxes not within range aren't considered...
+			/*if (salience.getBlobNum(i).valid &&
+				(salience.getBlobNum(i).centroid_x-fovBox.centroid_x)*(salience.getBlobNum(i).centroid_x-fovBox.centroid_x)+
+				(salience.getBlobNum(i).centroid_y-fovBox.centroid_y)*(salience.getBlobNum(i).centroid_y-fovBox.centroid_y)<2*fovBox.areaCart) {*/
+			if (blobList[i]==1 && salience.getBlobNum(i).valid) {
+				neighBoxes[numNeighBoxes]=salience.getBlobNum(i);
 				neighProb[numNeighBoxes]=1;
 				numNeighBoxes++;
 			}
 		}
+		ACE_OS::printf("%d boxes memorized\n", numNeighBoxes);
 		epoch=1;
 	} else {
+		memset(neighTaken, false, sizeof(bool)*(max_tag+1));
 		epoch++;
+		int recognized=0;
 		for (int n=0; n<numNeighBoxes; n++) {
 			int min=1000;
+			int minb=0;
 			for (int b=2; b<=max_tag; b++) {
-				if (blobList[b]==1) {				
+				/*if (salience.getBlobNum(b).valid &&
+					(salience.getBlobNum(b).centroid_x-fovBox.centroid_x)*(salience.getBlobNum(b).centroid_x-fovBox.centroid_x)+
+					(salience.getBlobNum(b).centroid_y-fovBox.centroid_y)*(salience.getBlobNum(b).centroid_y-fovBox.centroid_y)<2*fovBox.areaCart) {*/
+				if (blobList[b]==1 && salience.getBlobNum(b).valid) {
 					YARPBox tmp;
 					salience.getBlobNum(b, tmp);
 					int crg=neighBoxes[n].meanRG-tmp.meanRG;
 					int cgr=neighBoxes[n].meanGR-tmp.meanGR;
 					int cby=neighBoxes[n].meanBY-tmp.meanBY;
 
-					if (crg*crg+cgr*cgr+cby*cby<min)
+					if (crg*crg+cgr*cgr+cby*cby<min) {
 						min=crg*crg+cgr*cgr+cby*cby;
+						minb=b;
+					}
 				}
 			}
-			if (min<300) {
+			if (min<500) {
 				neighProb[n]=neighProb[n]*(epoch-1)/epoch+1./epoch;
+				neighTaken[minb]=true;
+				recognized++;
 			} else {
 				neighProb[n]=neighProb[n]*(epoch-1)/epoch;
 			}
 		}
+		if (numNeighBoxes<width*height) {
+			int added=0;
+			for (int b=2; b<=max_tag; b++) {
+				if (!neighTaken[b] && blobList[b]==1 && salience.getBlobNum(b).valid) {
+					neighBoxes[numNeighBoxes]=salience.getBlobNum(b);
+					neighProb[numNeighBoxes]=1./epoch;
+					numNeighBoxes++;
+					added++;
+				}
+			}
+			ACE_OS::printf("%d boxes added\n", added);
+		} else
+			ACE_OS::printf("Memory for boxes finished!\n");
+		ACE_OS::printf("%d boxes recognized\n", recognized);
 	}
 	
 	return true;
 }
 
 
-bool YARPImgAtt::checkObject()
+double YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src)
 {
 	if (numNeighBoxes!=0) {
 		double totalScore=0;
 		int k=0;
 
+		memset(blobList, 0, sizeof(char)*(max_tag+1));
+		rain.findNeighborhood(tagged, 0, 0, blobList);
+		
+		memset(blobListObject, 0, sizeof(char)*(max_tag+1));
+
 		for (int n=0; n<numNeighBoxes; n++) {
-			if (neighProb[n]>0.7) {
+			if (neighProb[n]>0.75) {
 				k++;
 				int min=1000;
+				int minBlob=0;
 				for (int b=2; b<=max_tag; b++) {
-					if (blobList[b]==1) {				
+					/*if (salience.getBlobNum(b).valid &&
+						(salience.getBlobNum(b).centroid_x-fovBox.centroid_x)*(salience.getBlobNum(b).centroid_x-fovBox.centroid_x)+
+						(salience.getBlobNum(b).centroid_y-fovBox.centroid_y)*(salience.getBlobNum(b).centroid_y-fovBox.centroid_y)<2*fovBox.areaCart) {*/
+					if (blobList[b]==1 && salience.getBlobNum(b).valid) {
 						YARPBox tmp;
 						salience.getBlobNum(b, tmp);
 						int crg=neighBoxes[n].meanRG-tmp.meanRG;
 						int cgr=neighBoxes[n].meanGR-tmp.meanGR;
 						int cby=neighBoxes[n].meanBY-tmp.meanBY;
 
-						if (crg*crg+cgr*cgr+cby*cby<min)
+						if (crg*crg+cgr*cgr+cby*cby<min) {
 							min=crg*crg+cgr*cgr+cby*cby;
+							//minBlob=b;
+						}
+						if (crg*crg+cgr*cgr+cby*cby<500)
+							blobListObject[b]=2;
 					}
 				}
-				if (min<300)
+				if (min<500) {
 					totalScore+=neighProb[n];
+					//blobListObject[minBlob]=2;
+				}
 			}
 		}
+		
+		objectFov.Zero();
+		blobListObject[1]=2;
+		//salience.drawBlobListRandom(objectFov, tagged, blobListObject, max_tag);
+		salience.drawBlobListMask(src, objectFov, tagged, blobListObject, max_tag);
+
 		totalScore/=k;
-		ACE_OS::printf("Total Score: %lf", totalScore);
-		if (totalScore<.8) ACE_OS::printf(" too low, moving\n");
-		else ACE_OS::printf("\n");
+		ACE_OS::printf("Total Score: %lf\n", totalScore);
+		/*if (totalScore<.8) ACE_OS::printf(" too low, moving\n");
+		else ACE_OS::printf("\n");*/
 		//return (totalScore<.8 && epoch>30);
-		return false;
+		return totalScore;
 	}
 	
-	return false;
+	return 0;
 }
 
 
@@ -1314,75 +1384,32 @@ void YARPImgAtt::normalize()
 	int mn[8];
 	int mx[8];
 
-	//IplROI zdi;
-	//IplROI *pOldZdi;
-
-
 	DBGPF1 ACE_OS::printf(">>> search min and max\n");
-	//pOldZdi=((IplImage *)rg)->roi;
-	//((IplImage *)rg)->roi=&zdi;
 	//MinMax((IplImage *)rg, mn[0], mx[0]);
-	//((IplImage *)rg)->roi=pOldZdi;
 
-	//pOldZdi=((IplImage *)gr)->roi;
-	//((IplImage *)gr)->roi=&zdi;
 	//MinMax((IplImage *)gr, mn[1], mx[1]);
-	//((IplImage *)gr)->roi=pOldZdi;
 
-	//pOldZdi=((IplImage *)by)->roi;
-	//((IplImage *)by)->roi=&zdi;
 	//MinMax((IplImage *)by, mn[2], mx[2]);
-	//((IplImage *)by)->roi=pOldZdi;
 
-	/*pOldZdi=((IplImage *)or_r[0])->roi;
-	((IplImage *)or_r[0])->roi=&zdi;
-	MinMax((IplImage *)or_r[0], mn[4], mx[4]);
-	((IplImage *)or_r[0])->roi=pOldZdi;
+	/*MinMax((IplImage *)or_r[0], mn[4], mx[4]);
 
-	pOldZdi=((IplImage *)or_r[1])->roi;
-	((IplImage *)or_r[1])->roi=&zdi;
 	MinMax((IplImage *)or_r[1], mn[5], mx[5]);
-	((IplImage *)or_r[1])->roi=pOldZdi;
 
-	pOldZdi=((IplImage *)or_r[2])->roi;
-	((IplImage *)or_r[2])->roi=&zdi;
 	MinMax((IplImage *)or_r[2], mn[6], mx[6]);
-	((IplImage *)or_r[2])->roi=pOldZdi;
 
-	pOldZdi=((IplImage *)or_r[3])->roi;
-	((IplImage *)or_r[3])->roi=&zdi;
-	MinMax((IplImage *)or_r[3], mn[7], mx[7]);
-	((IplImage *)or_r[3])->roi=pOldZdi;*/
+	MinMax((IplImage *)or_r[3], mn[7], mx[7]);*/
 	
-	/*pOldZdi=((IplImage *)or[0])->roi;
-	((IplImage *)or[0])->roi=&zdi;
-	MinMax((IplImage *)or[0], mn[4], mx[4]);
-	((IplImage *)or[0])->roi=pOldZdi;
+	/*MinMax((IplImage *)or[0], mn[4], mx[4]);
 
-	pOldZdi=((IplImage *)or[1])->roi;
-	((IplImage *)or[1])->roi=&zdi;
 	MinMax((IplImage *)or[1], mn[5], mx[5]);
-	((IplImage *)or[1])->roi=pOldZdi;
 
-	pOldZdi=((IplImage *)or[2])->roi;
-	((IplImage *)or[2])->roi=&zdi;
 	MinMax((IplImage *)or[2], mn[6], mx[6]);
-	((IplImage *)or[2])->roi=pOldZdi;
 
-	pOldZdi=((IplImage *)or_r[3])->roi;
-	((IplImage *)or_r[3])->roi=&zdi;
-	MinMax((IplImage *)or_r[3], mn[7], mx[7]);
-	((IplImage *)or_r[3])->roi=pOldZdi;*/
+	MinMax((IplImage *)or_r[3], mn[7], mx[7]);*/
 
-	//pOldZdi=((IplImage *)edge)->roi;
-	//((IplImage *)edge)->roi=&zdi;
 	MinMax((IplImage *)edge, mn[4], mx[4]);
-	//((IplImage *)edge)->roi=pOldZdi;
 
-	/*pOldZdi=((IplImage *)edge2)->roi;
-	((IplImage *)edge2)->roi=&zdi;
-	MinMax((IplImage *)edge2, mn[5], mx[5]);
-	((IplImage *)edge2)->roi=pOldZdi;*/
+	/*MinMax((IplImage *)edge2, mn[5], mx[5]);*/
 
 	DBGPF1 ACE_OS::printf(">>> search absolute min and max\n");
 	/*for (int i=1; i<3; i++) {
@@ -1417,8 +1444,6 @@ void YARPImgAtt::normalize()
 	// si può scrivere direttamente l'array e passarlo alla funzione??
 	// forse no, a meno che l'array non abbia una dimensione predefinita
 	//Combine(array1, 4, comb);
-	//ACE_OS::sprintf(savename, "./out.ppm\0");
-	//YARPImageFile::Write(savename, out);
 	//FullRange((IplImage *)comb, (IplImage *)comb);
 
 	//iplClose(edge, edge, 1);
@@ -1427,22 +1452,6 @@ void YARPImgAtt::normalize()
 
 void YARPImgAtt::findBlobs()
 {
-	//int i;
-
-	//Vett pos2;
-
-	int bfX0, bfY0;
-	double bfA11, bfA12, bfA22;
-
-	
-	//DBGPF1 ACE_OS::printf(">>> blob detector\n");
-	//integral.computeCartesian(comb);
-	//blob.filterLp0255(comb);
-	//blob.filterLp(comb);
-	//out=blob.getSegmented();
-	//ACE_OS::sprintf(savename, "./out.ppm");
-	//YARPImageFile::Write(savename, out);
-	
 	/*tmp1=edge;
 	//tmp1.Zero();
 	//tmp1=ii;
@@ -1459,13 +1468,6 @@ void YARPImgAtt::findBlobs()
 		//ZeroMask(tmp2, tmp1, 255-i, 0, width, fovHeight, height);
 	}*/
 	
-	
-	//blobFinder.DrawGrayLP(tmp1, tagged, 200);
-	//ACE_OS::sprintf(savename, "./tagged.ppm");
-	//YARPImageFile::Write(savename, tmp1);
-
-
-	//rain.setThreshold(5);
 	max_tag=rain.apply(edge, tagged);
 	salience.blobCatalog(tagged, rg, gr, by, r2, g2, b2, max_tag);
 
@@ -1474,38 +1476,6 @@ void YARPImgAtt::findBlobs()
 	//rain.setThreshold(3);
 	//rain.applyOnOld(edge, tagged);
 	//rain.apply(edge, tagged);
-	salience.DrawFoveaBlob(blobFov, tagged);
-
-
-	salience.ComputeSalienceAll(max_tag, max_tag);
-	
-
-	YarpPixelBGR varFoveaBlob = salience.varBlob(tagged, rg, gr, by, 1);
-
-
-	//blobFov.Zero();
-	//memset(blobFov.GetRawBuffer(), 255, 50*((IplImage*)blobFov)->widthStep);
-	//fit.fitEllipse(blobFov, &bfX0, &bfY0, &bfA11, &bfA12, &bfA22);
-	//fit.plotEllipse(bfX0, bfY0, bfA11, bfA12, bfA22, blobFov, 127);
-
-	memset(blobList, 0, sizeof(char)*max_tag);
-	// - faster
-	// - it considers also "lateral" pixels
-	// - it doesn't add pixels iteratively
-	rain.findNeighborhood(tagged, 0, 0, blobList, max_tag);
-	salience.fuseFoveaBlob3(tagged, blobList, varFoveaBlob, max_tag);
-
-	// alternative method
-	//rain.fuseFoveaBlob(tagged, blobList, max_tag);
-	
-	blobList[1]=0;
-	salience.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
-	/*ACE_OS::sprintf(savename, "./blob_fov2.ppm");
-	YARPImageFile::Write(savename, blobFov);*/
-	blobList[1]=2; // so the fovea blob is eliminated by the removeBlobList
-	salience.statBlobList(tagged, blobList, max_tag, fovBox);
-	salience.removeBlobList(blobList, max_tag);
-	//rain.removeFoveaBlob(tagged);
 
 	/*int CoMX, CoMY;
 	double u00, u11, u20, u02;
@@ -1522,40 +1492,79 @@ void YARPImgAtt::findBlobs()
 	fovBox.ect=((u20-u02)*(u20-u02)+4*u11*u11)/(u00*u00*u00*u00);*/
 	//fovBox.cmp=(u20+u02)/(u00*u00);
 	//fovBox.ect=sqrt((u20-u02)*(u20-u02)+4*u11*u11)/(u20+u02);
+}
 
+	
+void YARPImgAtt::drawBlobs(bool stable)
+{
+	//salience.ComputeSalience(max_tag, max_tag);
+	//salience.SortAndComputeSalience(200, max_tag);
 
+	salience.ComputeSalienceAll(max_tag, max_tag);
+
+	YarpPixelBGR varFoveaBlob = salience.varBlob(tagged, rg, gr, by, 1);
+
+	//blobFov.Zero();
+	//memset(blobFov.GetRawBuffer(), 255, 50*((IplImage*)blobFov)->widthStep);
+	//fit.fitEllipse(blobFov, &bfX0, &bfY0, &bfA11, &bfA12, &bfA22);
+	//fit.plotEllipse(bfX0, bfY0, bfA11, bfA12, bfA22, blobFov, 127);
+
+	memset(blobList, 0, sizeof(char)*(max_tag+1));
+	// - faster
+	// - it considers also "lateral" pixels
+	// - it doesn't add pixels iteratively
+	rain.findNeighborhood(tagged, 0, 0, blobList);
+	salience.fuseFoveaBlob3(tagged, blobList, varFoveaBlob, max_tag);
+
+	// alternative method
+	//rain.fuseFoveaBlob(tagged, blobList, max_tag);
+	
+	//blobList[1]=2; // so the fovea blob is eliminated by the removeBlobList
+	//salience.statBlobList(tagged, blobList, max_tag, fovBox);
+	fovBox=salience.getBlobNum(1);
+	//salience.removeBlobList(blobList, max_tag);
+	salience.removeFoveaBlob(tagged);
+	//salience.updateFoveaBlob(tagged, blobList, max_tag);
+
+	if (stable) {
+		memset(blobList, 0, sizeof(char)*(max_tag+1));
+		rain.findNeighborhood(tagged, 0, 0, blobList);
+		int num = salience.checkSmallBlobs(tagged, blobList, max_tag, 100);
+		blobList[1]=0;
+		salience.mergeBlobs(tagged, blobList, max_tag, 1);
+
+		/*while (num!=0) {
+			blobList[1]=0;
+			salience.mergeBlobs(tagged, blobList, max_tag, 1);
+			memset(blobList, 0, sizeof(char)*max_tag);
+			rain.findNeighborhood(tagged, 0, 0, blobList);
+			num = salience.checkSmallBlobs(tagged, blobList, max_tag, 100);
+		}*/
+	}
+		
 	// Comment the following line to disable the elimination of non valid blob
 	salience.RemoveNonValid(max_tag, 6000, 100);
-
 	
-	//rain.ComputeSalience(max_tag, max_tag);
+	salience.drawFoveaBlob(blobFov, tagged);
+	//salience.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
 	
-	//rain.SortAndComputeSalience(200, max_tag);
-	//rain.SortAndComputeSalience(100, max_tag);
-	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
-	//rain.checkIOR(tagged, IORBoxes, num_IORBoxes);
+	//salience.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
+	//salience.checkIOR(tagged, IORBoxes, num_IORBoxes);
 	salience.doIOR(tagged, IORBoxes, num_IORBoxes);
 
-
 	salience.DrawContrastLP2(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
-	//rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
-	//pOldZdi=((IplImage *)tmp1)->roi;
-	//((IplImage *)tmp1)->roi=&zdi;
+	//salience.DrawContrastLP(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
 	//MinMax((IplImage *)tmp1, mn[0], mx[0]);
-	//((IplImage *)tmp1)->roi=pOldZdi;
 	//FullRange((IplImage *)tmp1, (IplImage *)out, mn[0], mx[0]);
 	//iplThreshold(out, out, 200);
 	//ZeroLow(out, 230);
 
-	
-	tmpBGR1.Zero();
+	//tmpBGR1.Zero();
 	salience.ComputeMeanColors(max_tag);
 	salience.DrawMeanColorsLP(meanCol, tagged);
-
 	
-	meanOppCol.Zero();
-	salience.DrawMeanOpponentColorsLP(meanOppCol, tagged);
-
+	//meanOppCol.Zero();
+	//salience.DrawMeanOpponentColorsLP(meanOppCol, tagged);
 
 	/*blobFinder.DrawGrayLP(tmp1, tagged, 200);
 	//ACE_OS::sprintf(savename, "./rain.ppm");
@@ -1603,6 +1612,16 @@ void YARPImgAtt::updateIORTable()
 }
 
 
+int YARPImgAtt::countBlobList(char *blobList, int max_tag)
+{
+	int num=0;
+	for (int i=1; i<=max_tag; i++)
+		if (blobList[i]!=0)
+			num++;
+	return num;
+}
+
+
 void YARPImgAtt::saveMeanOppCol()
 {
 	char *root = GetYarpRoot();
@@ -1627,7 +1646,7 @@ void YARPImgAtt::saveMeanCol()
 }
 
 
-void YARPImgAtt::saveImages(YARPImageOf<YarpPixelBGR> &src)
+void YARPImgAtt::saveSRC(YARPImageOf<YarpPixelBGR> &src)
 {
 	char *root = GetYarpRoot();
 	char path[256];
@@ -1636,6 +1655,14 @@ void YARPImgAtt::saveImages(YARPImageOf<YarpPixelBGR> &src)
 	
 	ACE_OS::sprintf(savename, "%ssrc.ppm", path);
 	YARPImageFile::Write(savename, src);
+}
+
+void YARPImgAtt::saveImages()
+{
+	char *root = GetYarpRoot();
+	char path[256];
+	
+	ACE_OS::sprintf (path, "%s/zgarbage/va/", root); 
 	
 	ACE_OS::sprintf(savename, "%sr.ppm", path);
 	YARPImageFile::Write(savename, r1);
@@ -1700,8 +1727,8 @@ void YARPImgAtt::saveImages(YARPImageOf<YarpPixelBGR> &src)
 	YARPImageFile::Write(savename, meanOppCol);
 	ACE_OS::sprintf(savename, "%smeancol.ppm", path);
 	YARPImageFile::Write(savename, meanCol);
-	ACE_OS::sprintf(savename, "%simgvq.ppm", path);
-	YARPImageFile::Write(savename, imgVQ);
+	/*ACE_OS::sprintf(savename, "%simgvq.ppm", path);
+	YARPImageFile::Write(savename, imgVQ);*/
 	
 	/*ACE_OS::sprintf(savename, "./comb.ppm");
 	YARPImageFile::Write(savename, comb);*/

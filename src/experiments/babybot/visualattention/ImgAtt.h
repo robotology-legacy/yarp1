@@ -185,6 +185,7 @@ protected:
 	YARPImageOf<YarpPixelMono> out;
 	
 	YARPImageOf<YarpPixelMono> blobFov;
+	YARPImageOf<YarpPixelMono> objectFov;
 	
 	YARPImageOf<YarpPixelMono> oldWshed;
 
@@ -216,6 +217,7 @@ protected:
 	int max_tag;
 
 	char* blobList;
+	char* blobListObject;
 
 	YarpPixelMono searchRG;
 	YarpPixelMono searchGR;
@@ -236,6 +238,7 @@ protected:
 	int numNeighBoxes;
 	YARPBox *neighBoxes;
 	double *neighProb;
+	bool *neighTaken;
 	long unsigned int epoch;
 
 	char savename[512];
@@ -244,6 +247,7 @@ protected:
 	inline void findEdges();
 	inline void normalize();
 	inline void findBlobs();
+	inline void drawBlobs(bool stable);
 	inline void quantizeColors();
 	
 	float DenteDiSega(short x);
@@ -265,23 +269,28 @@ protected:
 	void LineMax(YARPImageOf<YarpPixelMono> &src, YARPImageOf<YarpPixelMono> &dst);
 	void lineMax2(YARPImageOf<YarpPixelMono> &src, YARPImageOf<YarpPixelMono> &dst);
 	void LineStat(YARPImageOf<YarpPixelMono> &src, int *vett);
+
+	int countBlobList(char *blobList, int max_tag);
 	
 public:
 	YARPImgAtt(int x, int y, int fovea, int num);
 	~YARPImgAtt();
 	
-	bool Apply(YARPImageOf<YarpPixelBGR> &src);
+	bool Apply(YARPImageOf<YarpPixelBGR> &src, bool stable);
 	void FindNMax(int num, Vett* pos);
 	void FindMax(YARPImageOf<YarpPixelMono> &src, Vett &pos);
 	void FindMax(YARPImageOf<YarpPixelInt> &src, Vett &pos);
 	YARPImageOf<YarpPixelMono>& Saliency() { return out; }
-	YARPImageOf<YarpPixelMono>& BlobFov() { return blobFov; }
+	YARPImageOf<YarpPixelMono>& getBlobFov() { return blobFov; }
+	YARPImageOf<YarpPixelMono>& getObjectFov() { return objectFov; }
 	YARPImageOf<YarpPixelBGR>& ColorQuantiz() { return meanCol; }
 	void GetTarget(int &x, int &y);
 	
 	void saveMeanOppCol();
 	void saveMeanCol();
-	void saveImages(YARPImageOf<YarpPixelBGR> &src);
+	void saveSRC(YARPImageOf<YarpPixelBGR> &src);
+	void saveImages();
+	
 	
 	void setWatershedTh(YarpPixelMono th) { rain.setThreshold(th); }
 
@@ -320,7 +329,7 @@ public:
 	}
 	
 	bool learnObject();
-	bool checkObject();
+	double checkObject(YARPImageOf<YarpPixelMono> &src);
 	void dumpLearnObject();
 	
 	YARPBox* IORBoxes;

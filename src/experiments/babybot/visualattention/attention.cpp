@@ -190,7 +190,8 @@ void mainthread::Body (void)
 
 	YARPImageOf<YarpPixelMono> out;
 	YARPImageOf<YarpPixelMono> out2;
-	YARPImageOf<YarpPixelBGR> out3;
+	YARPImageOf<YarpPixelMono> out3;
+	//YARPImageOf<YarpPixelBGR> out3;
 	YARPImageOf<YarpPixelBGR> colored_s;
 	YARPImageOf<YarpPixelBGR> colored_u;
 	YARPImageOf<YarpPixelBGR> col_cart;
@@ -199,7 +200,7 @@ void mainthread::Body (void)
 	YARPInputPortOf<YVector> inVector;
 	DeclareOutport(outImage);
 	DeclareOutport(outImage2);
-	//DeclareOutport(outImage3);
+	DeclareOutport(outImage3);
 	YARPOutputPortOf<YARPBottle> outBottle(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
 	//YARPOutputPortOf<YVector> out_point;
 	
@@ -237,7 +238,7 @@ void mainthread::Body (void)
 	outImage.Register(_outName1, _netname1);
 	outImage2.Register(_outName2, _netname1);
 	outBottle.Register(_outName3, _netname0);
-	//outImage3.Register(_outName4, _netname1);
+	outImage3.Register(_outName4, _netname1);
 
 	const int frameToStabilize = 7;
 	
@@ -325,7 +326,8 @@ void mainthread::Body (void)
 	} while (maxDiff>127 || maxMass>255*5*5);
 	ACE_OS::printf("done! Max Diff=%d, Max Mass=%d\n", maxDiff, maxMass);
 	
-	out2.Refer(att_mod.BlobFov());
+	out2.Refer(att_mod.getBlobFov());
+	out3.Refer(att_mod.getObjectFov());
 	
 	start = YARPTime::GetTimeAsSeconds();
 
@@ -393,9 +395,11 @@ void mainthread::Body (void)
 					}
 					else if (message == YBVVADump) {
 						ACE_OS::printf("Blob in the center:\n");
+						ACE_OS::printf("areaCart: %lf\n",att_mod.fovBox.areaCart);
 						ACE_OS::printf("meanRG: %d\n",(int)att_mod.fovBox.meanRG);
 						ACE_OS::printf("meanGR: %d\n",(int)att_mod.fovBox.meanGR);
 						ACE_OS::printf("meanBY: %d\n",(int)att_mod.fovBox.meanBY);
+						att_mod.dumpLearnObject();
 					}
 					/*else
 						ACE_OS::printf("nothing done\n");*/
@@ -471,7 +475,7 @@ void mainthread::Body (void)
 						diffFound = true;
 						
 						moved=frameToStabilize;
-						
+												
 						targetFound = false;
 						// If the robot is searching the movement isn't displayed
 						//if (!searching && att_mod.isWithinRange(cartx, carty) && moved!=-2) {
@@ -517,7 +521,7 @@ endDiffCheck:
 				DBGPF1 ACE_OS::printf(">>> call attention module\n");
 				// if I have found the target before and there isn't a difference, the
 				// target is found again!
-				found=(att_mod.Apply(colored_u) | targetFound) & searching & !mustMove;
+				found=(att_mod.Apply(colored_u, moved<=0) | targetFound) & searching & !mustMove;
 				
 				if (!diffFoundValid) {
 					if (moved<=0 && toMem) {
@@ -538,6 +542,7 @@ endDiffCheck:
 						exploring = false;
 					} else if (moved==0) {
 						if (found) {
+							att_mod.checkObject(img);
 							if (!noOutput) {
 								ACE_OS::printf("Target found, sending the center of the blob\n");
 								/*tmpBottle.writeInt(att_mod.fovBox.centroid_x);
@@ -575,12 +580,17 @@ endDiffCheck:
 						// Point already sended or not sended if target found
 						if (found) {
 							if (learnObject) {
-								att_mod.learnObject();
-								att_mod.dumpLearnObject();
+								double tmpScore;
+								//do {
+									att_mod.learnObject();
+									tmpScore=att_mod.checkObject(img);
+								//} while (tmpScore<0.75);
+								//att_mod.dumpLearnObject();
 								learnObject=false;
-							} else {
-								mustMove=att_mod.checkObject();
 							}
+							/*else {
+								mustMove=att_mod.checkObject()<0.8?true:false;
+							}*/
 							/*tmpBottle.writeInt(-3);
 							tmpBottle.writeInt(-3);
 							tmpBottle.writeInt(-3);*/
@@ -678,8 +688,8 @@ endDiffCheck:
 			outImage2.Write();
 
 			//mapper.Logpolar2Cartesian(att_mod.ColorQuantiz(), out3);
-			//outImage3.Content().Refer(out3);
-			//outImage3.Write();
+			outImage3.Content().Refer(out3);
+			outImage3.Write();
 			
 			if ((frame_no % 100) == 0) {
 				cur = YARPTime::GetTimeAsSeconds();

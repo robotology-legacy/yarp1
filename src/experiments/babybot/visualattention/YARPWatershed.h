@@ -17,6 +17,8 @@ class YARPWatershed {
 	int padding;
 	int imageSize;
 
+	int* tempRegion;
+
 	YarpPixelMono threshold;
 
 	bool neighborhood8;
@@ -61,7 +63,7 @@ public:
 	int applyOnOld(const YARPImageOf<YarpPixelMono> &src, YARPImageOf<YarpPixelInt> &result);
 
 	void tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPImageOf<YarpPixelMono>& dest);
-	void findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, int y, char *blobList, int max_tag);
+	void findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, int y, char *blobList);
 };
 
 #endif

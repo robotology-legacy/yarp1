@@ -117,6 +117,7 @@ public:
 	void blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<YarpPixelMono> &rg, YARPImageOf<YarpPixelMono> &gr, YARPImageOf<YarpPixelMono> &by, YARPImageOf<YarpPixelMono> &r1, YARPImageOf<YarpPixelMono> &g1, YARPImageOf<YarpPixelMono> &b1, int last_tag);
 	inline void removeFoveaBlob(YARPImageOf<YarpPixelInt>& tagged) {m_boxes[tagged(0, 0)].valid=false;}
 	void removeBlobList(char *blobList, int max_tag);
+	void updateFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag);
 	void SortAndComputeSalience(int num_tag, int last_tag);
 	void ComputeSalience(int num_blob, int last_tag);
 	void ComputeSalienceAll(int num_blob, int last_tag);
@@ -129,14 +130,18 @@ public:
 	int DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
 	int DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
 	//int DrawGrayLP(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, int numBlob);
-	void DrawFoveaBlob(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, const YarpPixelMono gray=255);
+	void drawFoveaBlob(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, const YarpPixelMono gray=255);
 	void drawBlobList(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag, const YarpPixelMono gray=255);
+	void drawBlobListRandom(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag);
+	void drawBlobListMask(YARPImageOf<YarpPixelMono>& src, YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag);
 	void SeedColor(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, int x, int y, int col);
 	
 	void findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, int y, char *blobList, int max_tag);
 	void fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag);
 	void fuseFoveaBlob2(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag);
 	void fuseFoveaBlob3(YARPImageOf<YarpPixelInt>& tagged, char *blobList, YarpPixelBGR var, int max_tag);
+	int checkSmallBlobs(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag, int min_size);
+	void mergeBlobs(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag, int numBlob);
 	YarpPixelBGR varBlob(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<YarpPixelMono> &rg, YARPImageOf<YarpPixelMono> &gr, YARPImageOf<YarpPixelMono> &by, int tag);
 	void statBlobList(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag, YARPBox &blob);
 	
@@ -145,6 +150,8 @@ public:
 		{blob=m_boxes[tagged(x, y)];}
 	inline void getBlobNum(int num, YARPBox &blob)
 		{blob=m_boxes[num];}
+	inline YARPBox & getBlobNum(int num)
+		{return m_boxes[num];}
 
 
 	void maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox* boxes, int num);
@@ -163,6 +170,8 @@ public:
 		else
 			return true;
 	}
+
+	void blobs2Peaks(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<YarpPixelMono>& edge, const int min, const int last_tag);
 };
 
 #endif

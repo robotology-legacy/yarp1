@@ -68,9 +68,6 @@
 #include <ace/config.h>
 #include <ipl/ipl.h>
 
-#include <iostream>
-using namespace std;
-
 #include "YARPWatershed.h"
 
 
@@ -113,13 +110,19 @@ void YARPWatershed::resize(const int width1, const int height1, const int wstep,
 	createNeighborhood(wstep, neighborhood8);
 	//initBorderLUT(width, height);
 
-	//m_attn = new YARPBox[imageSize];
-	//ACE_ASSERT(m_attn != NULL);
+	downPos.Resize(widthStep,height);
+	downPos2.Resize(widthStep,height);
+	
+	tempRegion = new int[imageSize];
 }
 
 
 YARPWatershed::~YARPWatershed()
 {
+	if (tempRegion!=NULL) delete [] tempRegion;
+	if (neigh!=NULL) delete [] neigh;
+	if (neighL!=NULL) delete [] neighL;
+	if (neighR!=NULL) delete [] neighR;
 }
 
 
@@ -458,7 +461,7 @@ void YARPWatershed::tags2Watershed(const YARPImageOf<YarpPixelInt>& src, YARPIma
 int YARPWatershed::markMinimas(YARPImageOf<YarpPixelInt>& result)
 {
 	// smelt points of same level and give it a number(counter)
-	int* tempRegion = new int[imageSize];
+	//int* tempRegion = new int[imageSize];
 	const int MASK = -2;
 	int countF, countB ;
 	int counter = 1; // number of region
@@ -507,10 +510,6 @@ int YARPWatershed::markMinimas(YARPImageOf<YarpPixelInt>& result)
 					for(n=minNeigh; n<maxNeigh; n++) {
 						tempiNeigh = tempi + fixNeigh[n];
 						//tempiNeigh a valid image point
-						/*if( validNeighbor(tempi,tempiNeigh) && 
-							p_result[tempiNeigh]==-1 && // unused
-							p_src[tempiNeigh]==tempLevel ) //same level
-						{*/
 						if( p_result[tempiNeigh]==-1 && // unused
 							p_src[tempiNeigh]==tempLevel ) //same level
 						{
@@ -527,7 +526,7 @@ int YARPWatershed::markMinimas(YARPImageOf<YarpPixelInt>& result)
 		i+=padding;
 	}
 	
-	delete[] tempRegion;
+	//delete[] tempRegion;
 
 	return (counter-1);
 }
@@ -536,7 +535,7 @@ int YARPWatershed::markMinimas(YARPImageOf<YarpPixelInt>& result)
 void YARPWatershed::letsRain(YARPImageOf<YarpPixelInt>& result)
 {
 	int i,cc,tempi;
-	int *tempRegion = new int [imageSize];
+	//int *tempRegion = new int [imageSize];
 	int *p_result=(int *)result.GetRawBuffer();
 	int *p_downPos=(int *)downPos2.GetRawBuffer();
 
@@ -561,7 +560,7 @@ void YARPWatershed::letsRain(YARPImageOf<YarpPixelInt>& result)
 		i+=padding;
 	}
 
-	delete [] tempRegion;
+	//delete [] tempRegion;
 }
 
 
@@ -574,7 +573,7 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 	//unsigned char *p_tSrc;
 	int i,j,n,max,pos,diff,p;
 
-	downPos.Resize(widthStep,height);
+	//downPos.Resize(widthStep,height);
 	p_downPos=(YarpPixelInt *)downPos.GetRawBuffer();
 
 	p=0;
@@ -592,7 +591,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 	max = -1;
 	for(n=neighSize/2-1; n<neighSize; n++) {
 		pos = p + neighL[n];
-		//if (invalidNeighbor(p,pos)) continue;
 		diff = p_src[p]-p_src[pos];
 		if(diff > max) { // neigh with lower level
 			max = diff;
@@ -610,7 +608,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 		max = -1;
 		for(n=neighSize/2-1; n<neighSize; n++) { // no top Neighbor
 			pos = p + neigh[n];
-			//if (invalidNeighbor(p,pos)) continue;
 			diff = p_src[p]-p_src[pos];
 			if(diff > max) { // neigh with lower level
 				max = diff;
@@ -626,7 +623,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 	max = -1;
 	for(n=neighSize/2-1; n<neighSize; n++) {
 		pos = p + neighR[n];
-		//if (invalidNeighbor(p,pos)) continue;
 		diff = p_src[p]-p_src[pos];
 		if(diff > max) { // neigh with lower level
 			max = diff;
@@ -645,7 +641,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 		max = -1;
 		for(n=0; n<neighSize; n++) {
 			pos = p + neighL[n];
-			//if (invalidNeighbor(p,pos)) continue;
 			diff = p_src[p]-p_src[pos];
 			if(diff > max) { // neigh with lower level
 				max = diff;
@@ -661,7 +656,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 			max = -1;
 			for(n=0; n<neighSize; n++) {
 				pos = p + neigh[n];
-				//if (invalidNeighbor(p,pos)) continue;
 				diff = p_src[p]-p_src[pos];
 				if(diff > max) { // neigh with lower level
 					max = diff;
@@ -678,7 +672,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 		max = -1;
 		for(n=0; n<neighSize; n++) {
 			pos = p + neighR[n];
-			//if (invalidNeighbor(p,pos)) continue;
 			diff = p_src[p]-p_src[pos];
 			if(diff > max) { // neigh with lower level
 				max = diff;
@@ -698,7 +691,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 	max = -1;
 	for(n=0; n<neighSize/2+1; n++) {
 		pos = p + neighL[n];
-		//if (invalidNeighbor(p,pos)) continue;
 		diff = p_src[p]-p_src[pos];
 		if(diff > max) { // neigh with lower level
 			max = diff;
@@ -714,7 +706,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 		max = -1;
 		for(n=0; n<neighSize/2+1; n++) { // no top Neighbor
 			pos = p + neigh[n];
-			//if (invalidNeighbor(p,pos)) continue;
 			diff = p_src[p]-p_src[pos];
 			if(diff > max) { // neigh with lower level
 				max = diff;
@@ -730,7 +721,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 	max = -1;
 	for(n=0; n<neighSize/2+1; n++) {
 		pos = p + neighR[n];
-		//if (invalidNeighbor(p,pos)) continue;
 		diff = p_src[p]-p_src[pos];
 		if(diff > max) { // neigh with lower level
 			max = diff;
@@ -752,7 +742,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 		if(p_downPos[p] == saddle) {
 			for(n=neighSize/2-1; n<neighSize; n++) {
 				pos = p + neighL[n];
-				//if (invalidNeighbor(p,pos)) continue;
 				if(p_src[p]==p_src[pos] && p_downPos[pos] >= 0) { 
 					// no more saddle, no lokalMin
 					p_downPos[p] = p_downPos[pos];
@@ -767,7 +756,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 			if(p_downPos[p] == saddle) {
 				for(n=neighSize/2-1; n<neighSize; n++) {
 					pos = p + neigh[n];
-					//if (invalidNeighbor(p,pos)) continue;
 					if(p_src[p]==p_src[pos] && p_downPos[pos] >= 0) { 
 						// no more saddle, no lokalMin
 						p_downPos[p] = p_downPos[pos];
@@ -782,7 +770,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 		if(p_downPos[p] == saddle) {
 			for(n=neighSize/2-1; n<neighSize; n++) {
 				pos = p + neighR[n];
-				//if (invalidNeighbor(p,pos)) continue;
 				if(p_src[p]==p_src[pos] && p_downPos[pos] >= 0) { 
 					// no more saddle, no lokalMin
 					p_downPos[p] = p_downPos[pos];
@@ -800,7 +787,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 			if(p_downPos[p] == saddle) {
 				for(n=0; n<neighSize; n++) {
 					pos = p + neighL[n];
-					//if (invalidNeighbor(p,pos)) continue;
 					if(p_src[p]==p_src[pos] && p_downPos[pos] >= 0) { 
 						// no more saddle, no lokalMin
 						p_downPos[p] = p_downPos[pos];
@@ -816,7 +802,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 				if(p_downPos[p] == saddle) {
 					for(n=0; n<neighSize; n++) {
 						pos = p + neigh[n];
-						//if (invalidNeighbor(p,pos)) continue;
 						if(p_src[p]==p_src[pos] && p_downPos[pos] >= 0) { 
 							// no more saddle, no lokalMin
 							p_downPos[p] = p_downPos[pos];
@@ -832,7 +817,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 			if(p_downPos[p] == saddle) {
 				for(n=0; n<neighSize; n++) {
 					pos = p + neighR[n];
-					//if (invalidNeighbor(p,pos)) continue;
 					if(p_src[p]==p_src[pos] && p_downPos[pos] >= 0) { 
 						// no more saddle, no lokalMin
 						p_downPos[p] = p_downPos[pos];
@@ -852,7 +836,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 		if(p_downPos[p] == saddle) {
 			for(n=0; n<neighSize/2+1; n++) {
 				pos = p + neighL[n];
-				//if (invalidNeighbor(p,pos)) continue;
 				if(p_src[p]==p_src[pos] && p_downPos[pos] >= 0) { 
 					// no more saddle, no lokalMin
 					p_downPos[p] = p_downPos[pos];
@@ -867,7 +850,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 			if(p_downPos[p] == saddle) {
 				for(n=0; n<neighSize/2+1; n++) {
 					pos = p + neigh[n];
-					//if (invalidNeighbor(p,pos)) continue;
 					if(p_src[p]==p_src[pos] && p_downPos[pos] >= 0) { 
 						// no more saddle, no lokalMin
 						p_downPos[p] = p_downPos[pos];
@@ -883,7 +865,6 @@ void YARPWatershed::findLowerNeigh(const YARPImageOf<YarpPixelMono>& src)
 		if(p_downPos[p] == saddle) {
 			for(n=0; n<neighSize/2+1; n++) {
 				pos = p + neighR[n];
-				//if (invalidNeighbor(p,pos)) continue;
 				if(p_src[p]==p_src[pos] && p_downPos[pos] >= 0) { 
 					// no more saddle, no lokalMin
 					p_downPos[p] = p_downPos[pos];
@@ -929,7 +910,7 @@ void YARPWatershed::createTmpImage(const YARPImageOf<YarpPixelMono>& src)
 	int i,j,p;
 
 	//downPos2=downPos;
-	downPos2.Resize(widthStep,height);
+	//downPos2.Resize(widthStep,height);
 
 	p_downPos=(YarpPixelInt *)downPos.GetRawBuffer();
 	p_downPos2=(YarpPixelInt *)downPos2.GetRawBuffer();
@@ -1036,21 +1017,19 @@ int YARPWatershed::applyOnOld(const YARPImageOf<YarpPixelMono> &src, YARPImageOf
 }
 
 
-void YARPWatershed::findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, int y, char *blobList, int max_tag)
+void YARPWatershed::findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, int y, char *blobList)
 {
 	int i,j,n,pos,p;
 	YarpPixelInt seed=tagged(x,y);
 	YarpPixelInt *p_tagged=(YarpPixelInt *)tagged.GetRawBuffer();
 
-	memset(blobList, false, sizeof(bool)*max_tag);
-	
 	// first row
 	// first pixel
 	p=0;
 	for(n=neighSize/2-1; n<neighSize; n++) {
 		pos = p + neighL[n];
 		if (p_tagged[pos]==seed) {
-			blobList[p_tagged[p]]=true;
+			blobList[p_tagged[p]]=1;
 			break;
 		}
 	}
@@ -1062,7 +1041,7 @@ void YARPWatershed::findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, i
 		for(n=neighSize/2-1; n<neighSize; n++) { // no top Neighbor
 			pos = p + neigh[n];
 			if (p_tagged[pos]==seed) {
-				blobList[p_tagged[p]]=true;
+				blobList[p_tagged[p]]=1;
 				break;
 			}
 		}
@@ -1072,7 +1051,7 @@ void YARPWatershed::findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, i
 	for(n=neighSize/2-1; n<neighSize; n++) {
 		pos = p + neighR[n];
 		if (p_tagged[pos]==seed) {
-			blobList[p_tagged[p]]=true;
+			blobList[p_tagged[p]]=1;
 			break;
 		}
 	}
@@ -1085,7 +1064,7 @@ void YARPWatershed::findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, i
 		for(n=0; n<neighSize; n++) {
 			pos = p + neighL[n];
 			if (p_tagged[pos]==seed) {
-				blobList[p_tagged[p]]=true;
+				blobList[p_tagged[p]]=1;
 				break;
 			}
 		}
@@ -1095,7 +1074,7 @@ void YARPWatershed::findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, i
 			for(n=0; n<neighSize; n++) {
 				pos = p + neigh[n];
 				if (p_tagged[pos]==seed) {
-					blobList[p_tagged[p]]=true;
+					blobList[p_tagged[p]]=1;
 					break;
 				}
 			}
@@ -1106,7 +1085,7 @@ void YARPWatershed::findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, i
 		for(n=0; n<neighSize; n++) {
 			pos = p + neighR[n];
 			if (p_tagged[pos]==seed) {
-				blobList[p_tagged[p]]=true;
+				blobList[p_tagged[p]]=1;
 				break;
 			}
 		}
@@ -1120,7 +1099,7 @@ void YARPWatershed::findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, i
 	for(n=0; n<neighSize/2+1; n++) {
 		pos = p + neighL[n];
 		if (p_tagged[pos]==seed) {
-			blobList[p_tagged[p]]=true;
+			blobList[p_tagged[p]]=1;
 			break;
 		}
 	}
@@ -1130,7 +1109,7 @@ void YARPWatershed::findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, i
 		for(n=0; n<neighSize/2+1; n++) { // no top Neighbor
 			pos = p + neigh[n];
 			if (p_tagged[pos]==seed) {
-				blobList[p_tagged[p]]=true;
+				blobList[p_tagged[p]]=1;
 				break;
 			}
 		}
@@ -1140,7 +1119,7 @@ void YARPWatershed::findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, i
 	for(n=0; n<neighSize/2+1; n++) {
 		pos = p + neighR[n];
 		if (p_tagged[pos]==seed) {
-			blobList[p_tagged[p]]=true;
+			blobList[p_tagged[p]]=1;
 			break;
 		}
 	}
