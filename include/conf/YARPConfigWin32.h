@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.11 2003-05-19 20:38:52 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.12 2003-05-19 23:36:01 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -28,7 +28,8 @@
 ///
 #define SINGLE_MUTEX_FOR_REFCOUNTED 1
 #define UPDATED_PORT 1
-#define MAX_PACKET (128*128*3+100)	/// shouldn't be required
+#define MAX_PACKET 16384
+///(128*128*3+100)	/// shouldn't be required
 
 /// MSVC has pragma once directive.
 #define YARP_HAS_PRAGMA_ONCE	1

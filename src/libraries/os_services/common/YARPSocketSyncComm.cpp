@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.7 2003-05-19 16:41:09 gmetta Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.8 2003-05-19 23:36:01 gmetta Exp $
 ///
 ///
 
@@ -295,7 +295,7 @@ int YARPSocketSyncComm::Send(const YARPNameID& dest, YARPMultipartMessage& msg, 
 	for (i = 1; i < send_parts; i++)
 	{
 		os->SendContinue (msg.GetBuffer(i), msg.GetBufferLength(i));      
-		YARPScheduler::yield();
+///		YARPScheduler::yield();
 	}
 	
 	char ch = -1;

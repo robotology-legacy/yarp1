@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test13.cpp,v 1.6 2003-05-19 20:36:22 gmetta Exp $
+/// $Id: exec_test13.cpp,v 1.7 2003-05-19 23:36:01 gmetta Exp $
 ///
 ///
 
@@ -137,7 +137,7 @@ extern int __debug_level;
 
 int main(int argc, char *argv[])
 {
-///	__debug_level = 80;
+	__debug_level = 80;
 	Thread1 t1;
 	Thread2 t2;
 	int s = 1, c = 1;

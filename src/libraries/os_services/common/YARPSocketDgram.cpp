@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.15 2003-05-19 20:39:56 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.16 2003-05-19 23:36:01 gmetta Exp $
 ///
 ///
 
@@ -651,17 +651,31 @@ void _SocketThreadDgram::Body (void)
 						///
 						int remaining = _extern_reply_length;
 						char *tmp = _extern_reply_buffer;
+						int retry = 0;
 						do 
 						{
 							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to recv %d\n", remaining));
 
 							rr = _local_socket.recv (tmp, remaining, incoming, 0, &timeout);
-							remaining -= rr;
-							tmp += rr;
-							int ack = 0x01020304;
-							int sent = _local_socket.send (&ack, sizeof(int), incoming);
+							if (rr < 0)
+							{
+								retry ++;
+								if (retry > 5)
+								{
+									ACE_DEBUG ((LM_DEBUG, "retried 5 times, exit now\n"));
+									break;
+								}
+								rr = 0;
+							}
+							else
+							{
+								remaining -= rr;
+								tmp += rr;
+								int ack = 0x01020304;
+								int sent = _local_socket.send (&ack, sizeof(int), incoming);
 
-							YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? acknowledged\n"));
+								YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? acknowledged\n"));
+							}
 						}
 						while (rr >= 0 && remaining > 0);
 
