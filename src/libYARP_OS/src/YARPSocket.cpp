@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocket.cpp,v 1.6 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPSocket.cpp,v 1.7 2004-07-09 18:52:41 eshuy Exp $
 ///
 ///
 
@@ -288,7 +288,7 @@ int YARPOutputSocket::Connect (const YARPUniqueNameID& name)
 	ACE_UNUSED_ARG (name);
 
 	OSData& d = OSDATA(system_resources);
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Connecting to port %d on %s\n", 
+	ACE_DEBUG ((LM_DEBUG, "Connecting to port %d on %s\n", 
 		d._remote_addr.get_port_number(), 
 		d._remote_addr.get_host_addr()));
 

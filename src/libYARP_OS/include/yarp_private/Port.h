@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.6 2004-07-09 13:46:02 eshuy Exp $
+/// $Id: Port.h,v 1.7 2004-07-09 18:52:41 eshuy Exp $
 ///
 ///
 
@@ -447,8 +447,8 @@ public:
 		if (nname == NULL ||
 			nname[0] != '/')
 		{
-			ACE_DEBUG ((LM_DEBUG, "  please respect the port syntax for names:\n"));
-			ACE_DEBUG ((LM_DEBUG, "   - the name requires a leading /[forward slash]\n"));
+			ACE_DEBUG ((LM_WARNING, "  please respect the port syntax for names:\n"));
+			ACE_DEBUG ((LM_WARNING, "   - the name requires a leading /[forward slash]\n"));
 			return YARP_FAIL;
 		}
 
