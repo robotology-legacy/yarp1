@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.2 2004-07-30 10:33:24 babybot Exp $
+///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.3 2004-09-03 10:53:59 babybot Exp $
 ///
 ///
 
@@ -83,6 +83,14 @@
 #else  YARP_BABYBOT_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
+/**
+ * \file YARPMEIOnBabybotAdapter.h This file contains definitions of the control classes
+ * for the Babybot head acoording to the YARP device driver model.
+ */
+
+/**
+ * _BabybotHead contains the default parameters of the RobotCub head control card(s).
+ */
 namespace _BabybotHead
 {
 	const int _nj = 5;
@@ -113,9 +121,29 @@ namespace _BabybotHead
 		
 }; // namespace
 
+
+/**
+ * YARPBabybotHeadParameters is one of the components required to
+ * specialize the YARPGenericControlBoard template to do something useful.
+ * This class contains parameters that are used during initialization to
+ * bring the head up into a decent state.
+ *
+ * A note on the use of the axis map:
+ * - Each map's entry represents a name of a joint (imagine it as a label).
+ * - Whenever addressing the card directly thus the label is used.
+ * - When addressing software data, initialization file, etc. our index (what we
+ * think of an axis number is used.
+ * - Since the axis map is only used internally this should be of no concern for
+ * the user.
+ *
+ */
 class YARPBabybotHeadParameters
 {
 public:
+	/**
+	 * Default constructor.
+	 * Allocates memory and sets parameters to suitable default values.
+	 */
 	YARPBabybotHeadParameters()
 	{
 		_highPIDs = NULL;
@@ -146,6 +174,9 @@ public:
 		}
 	}
 
+	/**
+	 * Destructor.
+	 */
 	~YARPBabybotHeadParameters()
 	{
 		if (_highPIDs != NULL)
@@ -170,6 +201,13 @@ public:
 			delete [] _limitsMin;
 	}
 
+	/**
+	 * Loads the paramters from a configuration file and allocates memory
+	 * if necessary.
+	 * @param path is the path where the initialization file is located.
+	 * @param init_file is the intitialization file name.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int load(const YARPString &path, const YARPString &init_file)
 	{
 		YARPConfigFile cfgFile;
@@ -238,7 +276,63 @@ public:
 		return YARP_OK;
 	}
 
+	/**
+	 * Copies an existing parameter instance into this one.
+	 * @param peer is the reference to the object to copy in.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int copy (const YARPBabybotHeadParameters& peer)
+	{
+		_nj = peer._nj;
+
+		if (_nj != 0)
+		{
+			_realloc (_nj);
+
+			memcpy (_highPIDs, peer._highPIDs, sizeof(LowLevelPID) * _nj);
+			memcpy (_lowPIDs, peer._lowPIDs, sizeof(LowLevelPID) * _nj);
+			memcpy (_zeros, peer._zeros, sizeof(double) * _nj);
+			memcpy (_signs, peer._signs, sizeof(double) * _nj);
+			memcpy (_axis_map, peer._axis_map, sizeof(int) * _nj);
+			memcpy (_encoderToAngles, peer._encoderToAngles, sizeof(double) * _nj);
+			memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
+			memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
+			memcpy (_limitsMax, peer._limitsMax, sizeof(double) * _nj);
+			memcpy (_limitsMin, peer._limitsMin, sizeof(double) * _nj);
+		}
+		else
+		{
+			if (_highPIDs != NULL) delete [] _highPIDs;
+			if (_lowPIDs != NULL) delete [] _lowPIDs;
+			if (_zeros != NULL)	delete [] _zeros;
+			if (_signs != NULL)	delete [] _signs;
+			if (_axis_map != NULL) delete [] _axis_map;
+			if (_encoderToAngles != NULL) delete [] _encoderToAngles;
+			if (_stiffPID != NULL) delete [] _stiffPID;
+			if (_maxDAC != NULL) delete [] _maxDAC;
+			if (_limitsMax != NULL) delete [] _limitsMax;
+			if (_limitsMin != NULL) delete [] _limitsMin;
+
+			_highPIDs = NULL;
+			_lowPIDs = NULL;
+			_zeros = NULL;
+			_signs = NULL;
+			_axis_map = NULL;
+			_encoderToAngles = NULL;
+			_stiffPID = NULL;
+			_maxDAC = NULL;
+			_limitsMax = NULL;
+			_limitsMin = NULL;
+		}
+
+		return YARP_OK;
+	}
+
 private:
+	/**
+	 * Frees memory and reallocates arrays of the new size.
+	 * @param nj is the new size (number of joints).
+	 */
 	void _realloc(int nj)
 	{
 		if (_highPIDs != NULL)
@@ -289,20 +383,46 @@ public:
 	double *_limitsMin;
 };
 
+
+/**
+ * YARPMEIOnBabybotHeadAdapter is a specialization of the MEI card device driver
+ * to control the Babybot head. This class especially implements initialize and
+ * uninitialize while it leaves much of the burden of calling the device driver
+ * to a generic template class called YARPGenericControlBoard.
+ */
 class YARPMEIOnBabybotHeadAdapter : public YARPMEIDeviceDriver
 {
 public:
+	/**
+	 * Default constructor.
+	 */
 	YARPMEIOnBabybotHeadAdapter()
 	{
 		_initialized = false;
 	}
 	
+	/**
+	 * Destructor.
+	 */
 	~YARPMEIOnBabybotHeadAdapter()
 	{
 		if (_initialized)
 			uninitialize();
 	}
 
+	/**
+	 * Initializes the adapter and opens the device driver.
+	 * This is a specific initialization for the Babybot head. NOTE: that the parameter
+	 * here is not copied and references to it could still be made by the code. Until
+	 * this behavior is correct, the user has to make sure the pointer doesn't become
+	 * invalid during the lifetime of the adapter class (this one). Generally this is true
+	 * for the "generic" templates since they allocate a copy of the parameter class
+	 * internally (and their lifetime is related to that of the adapter).
+	 *
+	 * @param par is a pointer to the class containing the parameters that has
+	 * to be exactly YARPBabybotHeadParameters.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int initialize(YARPBabybotHeadParameters *par)
 	{
 		_parameters = par;
@@ -320,15 +440,18 @@ public:
 		for(int i=0; i < _parameters->_nj; i++)
 		{
 			SingleAxisParameters cmd;
-			cmd.axis=i;
+			cmd.axis = _parameters->_axis_map[i];
+
 			// amp enable level
 			short level = 1;
 			cmd.parameters=&level;
 			IOCtl(CMDSetAmpEnableLevel, &cmd);
+			
 			// limit levels
 			cmd.parameters=&level;
 			IOCtl(CMDSetPositiveLevel, &cmd);
 			IOCtl(CMDSetNegativeLevel, &cmd);
+			
 			// limit events
 			ControlBoardEvents event;
 			event = CBNoEvent;
@@ -346,6 +469,10 @@ public:
 		return YARP_OK;
 	}
 
+	/**
+	 * Uninitializes the controller and closes the device driver.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int uninitialize()
 	{
 		if (YARPMEIDeviceDriver::close() != 0)
@@ -358,13 +485,20 @@ public:
 		return YARP_OK;
 	}
 
+	/**
+	 * Disables simultaneously the controller and the amplifier (these are
+	 * usually two separate commands on control cards).
+	 * @return YARP_OK always.
+	 */
 	int idleMode()
 	{
 		for(int i = 0; i < _parameters->_nj; i++)
 		{
-			IOCtl(CMDControllerIdle, &i);
+			int j = _parameters->_axis_map[i];
+			IOCtl(CMDControllerIdle, &j);
+
 			SingleAxisParameters cmd;
-			cmd.axis = i;
+			cmd.axis = j;
 			short level = 0;
 			cmd.parameters=&level;
 			IOCtl(CMDSetAmpEnable, &cmd);
@@ -372,18 +506,33 @@ public:
 		return YARP_OK;
 	}
 
+	/**
+	 * Sets the PID values specified in a second set of parameters 
+	 * typically read from the intialization file.
+	 * @param reset if true resets the encoders.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int activateLowPID(bool reset = true)
 	{
 		return activatePID(reset, _parameters->_lowPIDs);
 	}
 
+	/**
+	 * Sets the PID values.
+	 * @param reset if true resets the encoder values to zero.
+	 * @param pids is an array of PID data structures. If NULL the values
+	 * contained into an internal variable are used (presumably read from the
+	 * initialization file) otherwise the actual argument is used.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int activatePID(bool reset, LowLevelPID *pids = NULL)
 	{
 		for(int i = 0; i < _parameters->_nj; i++)
 		{
-			IOCtl(CMDControllerIdle, &i);
+			int j = _parameters->_axis_map[i];
+			IOCtl(CMDControllerIdle, &j);
 			SingleAxisParameters cmd;
-			cmd.axis = i;
+			cmd.axis = j;
 
 			if (pids == NULL)
 				cmd.parameters = &_parameters->_highPIDs[i];
@@ -392,20 +541,25 @@ public:
 				
 			IOCtl(CMDSetPID, &cmd);
 
-			// reset encoders
+			// reset encoders.
 			if (reset) {
 				double pos = 0.0;
 				cmd.parameters = &pos;
 				IOCtl(CMDDefinePosition, &cmd);
 			}
 			//////////////////////////
-			IOCtl(CMDControllerRun, &i);
-			IOCtl(CMDEnableAmp, &i);
-			IOCtl(CMDClearStop, &i);
+			IOCtl(CMDControllerRun, &j);
+			IOCtl(CMDEnableAmp, &j);
+			IOCtl(CMDClearStop, &j);
 		}
 		return YARP_OK;
 	}
 
+	/**
+	 * Reads the analog values from the control card (ADC values).
+	 * @param val is the array to receive the analog readings.
+	 * @return YARP_FAIL always.
+	 */
 	int readAnalogs(double *val)
 	{
 		int i;
@@ -413,7 +567,7 @@ public:
 		SingleAxisParameters cmd;
 		for(i = 0; i < _inertial->_ns; i++)
 		{
-			cmd.axis = i;
+			cmd.axis = _parameters->_axis_map[i];
 			cmd.parameters = &_tmpShort[i];;
 			ret = IOCtl(CMDReadAnalog, &cmd);
 		}
@@ -421,7 +575,13 @@ public:
 		return ret;
 	}
 
-	int calibrate()
+	/**
+	 * Calibrates the control card if needed.
+	 * @param joint is the joint number/function requested to the calibrate method. 
+	 * The default value -1 does nothing.
+	 * @return YARP_OK always.
+	 */
+	int calibrate(int joint = -1)
 	{
 		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
 		ACE_OS::printf("..done!\n");
@@ -438,8 +598,8 @@ public:
 			SingleAxisParameters cmd;
 			for(i = 0; i < _inertial->_ns; i++)
 			{
-				cmd.axis = i;
-				cmd.parameters = &_tmpShort[i];;
+				cmd.axis = _parameters->_axis_map[i];
+				cmd.parameters = &_tmpShort[i];
 				ret = IOCtl(CMDReadAnalog, &cmd);
 			}
 

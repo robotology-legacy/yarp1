@@ -182,16 +182,8 @@ void RBOutputBack::output(ABSharedData *d)
 	
 }
 
-void RBHandClose::output(ABSharedData *d)
+void RBMotorCommand::output(ABSharedData *d)
 {
-	ACE_OS::printf("Closing hand\n");
-	d->_outPort.Content() = _bottle;
-	d->_outPort.Write(1);
-}
-
-void RBHandOpen::output(ABSharedData *d)
-{
-	ACE_OS::printf("Opening hand\n");
 	d->_outPort.Content() = _bottle;
 	d->_outPort.Write(1);
 }

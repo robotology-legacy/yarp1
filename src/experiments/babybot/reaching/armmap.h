@@ -46,7 +46,7 @@ const double __foreArmOffset1 = -10*degToRad;
 const double __foreArmOffset2 = -10*degToRad;
 // offset in the shoulder to reach "from above"
 const double __shoulderOffset1 = 25*degToRad;
-const double __shoulderOffset2 = 15*degToRad;
+const double __shoulderOffset2 = 20*degToRad;
 
 // to turn the hand downwardly
 // const double __wrist1 = -10*degToRad;	

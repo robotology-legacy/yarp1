@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.7 2004-09-02 22:05:46 gmetta Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.8 2004-09-03 10:53:59 babybot Exp $
 ///
 ///
 
@@ -48,6 +48,11 @@
 #define YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_DEBUG("ROBOTCUB_HEAD_ADAPTER_DEBUG:", string)
 #else  YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
 #endif
+
+/**
+ * \file YARPCanOnRobotcubHeadAdapter.h This file contains definitions of the control classes
+ * for the RobotCub head acoording to the YARP device driver model.
+ */
 
 /**
  * _RobotcubHead contains the default parameters of the RobotCub head control card(s).
@@ -436,7 +441,7 @@ public:
 		for(int i=0; i < _parameters->_nj; i++)
 		{
 			SingleAxisParameters cmd;
-			cmd.axis = i;	// axis_map not needed here.
+			cmd.axis = _parameters->_axis_map[i];
 			
 			// amp enable level
 			short level = 1;
@@ -487,8 +492,9 @@ public:
 	{
 		for(int i = 0; i < _parameters->_nj; i++)
 		{
-			IOCtl(CMDControllerIdle, &i);
-			IOCtl(CMDDisableAmp, &i);
+			int j = _parameters->_axis_map[i];
+			IOCtl(CMDControllerIdle, &j);
+			IOCtl(CMDDisableAmp, &j);
 		}
 		return YARP_OK;
 	}

@@ -15,6 +15,10 @@ int _headFrames = 0;
 int _armFrames = 0;
 int _nFrames = 0;
 
+const double __handOpen[] = {110.0*degToRad, 0.0, 0.0, 0.0, 0.0, 0.0};
+const double __handClose[] = {110.0*degToRad, 50.0*degToRad, -80.0*degToRad, -80.0*degToRad, -80.0*degToRad, -80.0*degToRad};
+const double __handAtRest[] = {0.0*degToRad, 50.0*degToRad, 0.0, 0.0, 0.0, 0.0};
+
 int main(int argc, char* argv[])
 {
 	YARPBabyBottle _outputTrainBottle;
@@ -25,7 +29,8 @@ int main(int argc, char* argv[])
 		
 	ReachingBehavior _behavior(&_data);
 	RBWaitIdle waitIdle("Waiting for reaching signal");
-	RBWaitDeltaT reachingSeq1("Waiting for arm done (prepare reaching)", 0.5);
+	RBWaitIdle reachingSeq1("AS state, opening the hand");
+	RBWaitDeltaT reachingSeq1b("Waiting for arm done (prepare reaching)", 0.5);
 	RBWaitIdle reachingSeq2("AS state, inhibit head");
 	RBWaitIdle reachingSeq2b("AS state issue reaching command");
 	
@@ -39,9 +44,9 @@ int main(int argc, char* argv[])
 	RBWaitDeltaT reachingSeq4("AS state, issue withdraw arm", 0.5);
 	RBWaitIdle reachingSeq5("Waiting for arm done (withdrawing arm)");
 	RBWaitIdle reachingSeq6("Open hand");
+	RBWaitIdle reachingSeq7("Re-positioning hand");
 
 	RBOutputCommand			reachingPrepareOutput;
-	RBHandClose				handClose;
 	RBOutputReaching1		reachingOutput1;
 	RBOutputReaching2		reachingOutput2;
 	RBOutputReaching3		reachingOutput3;
@@ -53,7 +58,9 @@ int main(int argc, char* argv[])
 	RBInputCommand			reachingInput(YBVReachingReach);
 	RB2Output				inhibitAll(YBVSinkSuppress, YBVGraspRflxInhibit);
 	RB2Output				enableAll(YBVSinkRelease, YBVGraspRflxRelease);
-	RBHandOpen				openHand;
+	RBMotorCommand			handOpen(YBVHandNewCmd, YVector(6, __handOpen));
+	RBMotorCommand			handClose(YBVHandNewCmd, YVector(6, __handClose));
+	RBMotorCommand			handAtRest(YBVHandNewCmd, YVector(6, __handAtRest));
 	RBInputCommand			armRest(YBVArmRest);
 	RBInputCommand			armIsBusy(YBVArmIsBusy);
 
@@ -63,10 +70,11 @@ int main(int argc, char* argv[])
 	_behavior.add(&learnInput, &learnOutput);
 	// _behavior.add(&reachingInput, &waitIdle, &reachingSeq1, &reachingPrepare);
 	// _behavior.add(NULL, &reachingSeq1, &reachingSeq2, &inhibitHead);
-	_behavior.add(&reachingInput, &waitIdle, &reachingSeq1, &reachingPrepareOutput);
-	_behavior.add(&armDone, &reachingSeq1, &reachingSeq2);
-	_behavior.add(&armIsBusy, &reachingSeq1, &waitIdle, &enableAll);
-	_behavior.add(&armRest, &reachingSeq1, &waitIdle, &enableAll);
+	_behavior.add(&reachingInput, &waitIdle, &reachingSeq1, &handOpen);
+	_behavior.add(NULL, &reachingSeq1, &reachingSeq1b, &reachingPrepareOutput);
+	_behavior.add(&armDone, &reachingSeq1b, &reachingSeq2);
+	_behavior.add(&armIsBusy, &reachingSeq1b, &waitIdle, &enableAll);
+	_behavior.add(&armRest, &reachingSeq1b, &waitIdle, &enableAll);
 	
 	_behavior.add(NULL, &reachingSeq2, &reachingSeq2b, &inhibitAll);
 	_behavior.add(NULL, &reachingSeq2b, &reachingSeq31, &reachingOutput1);
@@ -93,8 +101,10 @@ int main(int argc, char* argv[])
 	//_behavior.add(&armRest, &reachingSeq3, &waitIdle, &enableHead);
 	// _behavior.add(NULL, &reachingSeq4, &reachingSeq5, &reachingBack);
 	
-	_behavior.add(&armDone, &reachingSeq5, &reachingSeq6, &openHand);
-	_behavior.add(NULL, &reachingSeq6, &waitIdle, &enableAll);
+	_behavior.add(&armDone, &reachingSeq5, &reachingSeq6, &handOpen);
+	_behavior.add(&handDone, &reachingSeq6, &reachingSeq7, &enableAll);
+	
+	_behavior.add(NULL, &reachingSeq7, &waitIdle, &handAtRest);
 	//// end NO AUTO
 	
 	_behavior.add(&armIsBusy, &reachingSeq5, &waitIdle, &enableAll);
