@@ -24,7 +24,7 @@ install: subinstall
 	#$(CP) include/*.h include/*.inl $(YARP_ROOT)/include
 
 clean: subclean
-	rm -f obj/$(SYSDIR)/*
+	rm -f obj/$(SYSDIR)/*.o
 
 subtarget :
 	@for d in $(SUBDIRS) ; do \
