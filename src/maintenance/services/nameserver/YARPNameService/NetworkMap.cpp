@@ -111,7 +111,7 @@ int NetworkMap::_readAndCheck(FILE * fp, char *row)
 	if ( (fscanf(fp, "%s", row) == EOF)
 		|| (strcmp(row, "[END]") == 0) )
 	{
-		fclose(fp);
+		///fclose(fp);
 		return -1;
 	}
 	else if (strncmp(row, "Node=", 5) == 0)
