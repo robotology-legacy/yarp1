@@ -70,6 +70,8 @@ print " that I've verified as: \"$yarp_root\"\n\n";
 print "Please, use always the forward slash as a separator!\n";
 
 print "I determined already that you're running on Windows. ";
+die "But, your config file doesn't report so\n" unless ($os eq "winnt");
+
 print "I also imagine you've compiled YARP_OS, I'm not checking for it so please ";
 print "make sure you've run \"configure.pl\" and \"build.pl\" for YARP_OS\n";
 
@@ -156,7 +158,7 @@ foreach my $device (glob "*")
 {
 	if (-d "$device/$os/yarp")
 	{
-		print "Would you like to add $device to the project [NO]? ";
+		print "Would you like to add \"$device\" to the project [NO]? ";
 		chomp(my $answer = <STDIN>);
 		if ($answer eq "YES")
 		{

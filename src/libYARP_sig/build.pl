@@ -1,40 +1,91 @@
 #! /usr/bin/perl
 #
-# compiling libYARP_sig
+# compiling libYARP_OS
 #
 # options --debug compile the DEBUG version
 #		  --release to compile optimized
 #		  --clean to clean obj files
 #		  --install to copy files to the defaul installation path
 #
+#		  --file <config_file>
+#			where <config_file> is the filename of the context config file.
 #
 #
 
 use Getopt::Long;
 use File::Copy;
+use Cwd;
 
-print "Entering build process of YARP signal processing library...\n";
-chomp ($tmp = `ver`);
-if (index ($tmp, "Windows") < 0)
+print "Entering compile process of YARP signal processing libraries...\n";
+
+chomp ($ver = `ver`);
+chomp ($uname = `uname`);
+if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
 {
-	die "This script is specific to Windows 2000/XP\n";
+	print "This is a Windows 2000/XP specific script\n";
+	print "Perhaps this procedure can be simply extended to\n"; 
+	print "other OSes but for now, this is all experimental...\n";
+	
+	die "This script is specific to Windows 2000/XP or Cygwin\n";
 }
 
 $yarp_root = $ENV{'YARP_ROOT'};
 if (!defined($yarp_root))
 {
-	die "YARP_ROOT env var must be defined!\n";
+	die "YARP_ROOT environment variable must be defined!\nto point to the path of the yarp source distribution\n";
 }
+
+print "Ready to start...\n";
 
 my $debug = '';
 my $release = '';
 my $clean = '';
 my $install = '';
-GetOptions ('debug' => sub { $debug = 1; $release = 0; },
-            'release' => sub { $debug = 0; $release = 1; },
-			'clean' => \$clean,
-			'install' => \$install );
+my $config_file = "$yarp_root/conf/context.conf";
+my %options = ();
 
+GetOptions ('debug' => \$debug,
+            'release' => \$release,
+			'clean' => \$clean,
+			'install' => \$install,
+			'file=s' => \$config_file );
+
+unless (-e $config_file)
+{
+	die "Can't find configuration file: $config_file\nPlease make sure a config file exists in \$YARP_ROOT/conf/\n";
+}
+
+open CONFIG, $config_file or die "Can't open config file $!";
+print "Working with: $config_file\n";
+
+my $contextual;
+while (<CONFIG>)
+{
+	chomp;
+	if (/^\[(\w+)\]$/)
+	{
+		$contextual = $1;
+	}
+	elsif (/^([A-Za-z0-9_]+)= ?/)
+	{
+		$options{$contextual."<-".$1} = $';
+	}
+}
+
+close CONFIG;
+
+my $os = $options{"Architecture<-OS"};
+
+#
+# override.
+$debug = ($options{"Compile_OS<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
+$release = ($options{"Compile_OS<-Lib_Release"} eq "TRUE") ? 1 : $release;
+$install = ($options{"Compile_OS<-Lib_Install"} eq "TRUE") ? 1 : $install;
+$clean = ($options{"Compile_OS<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
+
+#
+#
+#
 if ($clean)
 {
 	print "\nCleaning...\n";
@@ -42,7 +93,7 @@ if ($clean)
 
 	call_msdev_and_print ("Debug", "CLEAN");
 	call_msdev_and_print ("Release", "CLEAN");
-
+	
 	print "\n";
 	chdir "../" or die "Cannot chdir to ..: $!";
 }
@@ -51,9 +102,7 @@ if ($debug)
 {
 	print "\nCompiling debug\n";
 	chdir "./src" or die "Cannot chdir to src: $!";
-
 	call_msdev_and_print ("Debug", "BUILD");
-
 	chdir "../" or die "Cannot chdir to ..: $!";
 }
 
@@ -61,16 +110,13 @@ if ($release)
 {
 	print "\nCompiling optimized\n";
 	chdir "./src" or die "Cannot chdir to src: $!";
-
 	call_msdev_and_print ("Release", "BUILD");
-
 	chdir ".." or die "Cannot chdir to ..: $!";
 }
 
 if ($install)
 {
-	print "\nInstalling YARP signal libraries to default install directory.\n";
-	print "Later this might change to something smarter.\n";
+	print "\nInstalling YARP signal processing libraries to default install directory.\n";
 	@my_headers = glob "./include/yarp/*.h";
 	foreach $file (@my_headers) 
 	{
@@ -78,14 +124,15 @@ if ($install)
 		copy ($file, "$yarp_root/include/yarp/") or die "Can't copy .h files\n"; 
 	}
 
-	@my_libs = glob "./lib/winnt/*.lib";
+	@my_libs = glob "./lib/$os/*.lib";
 	foreach $file (@my_libs)
 	{
 		print "Copying $file\n";
-		copy ($file, "$yarp_root/lib/winnt/") or die "Can't copy any .lib file\n";
+		copy ($file, "$yarp_root/lib/$os/") or die "Can't copy any .lib file\n";
 	}
 }
 
+print "\nDone!\n";
 
 sub call_msdev_and_print
 {
@@ -98,3 +145,7 @@ sub call_msdev_and_print
 	}
 	close MSDEV;	
 }
+
+
+
+

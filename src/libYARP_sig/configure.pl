@@ -7,7 +7,7 @@
 use Getopt::Long;
 use File::Copy;
 
-print "Entering configure process of YARP environment...\n";
+print "Entering configure process of YARP signal processing library...\n";
 
 chomp ($ver = `ver`);
 chomp ($uname = `uname`);
@@ -45,7 +45,6 @@ if (-e $config_file)
 		chomp;
 		if (/^\[(\w+)\]$/)
 		{
-	#		print "Matched: $`<$&>$'\n";
 			$contextual = $1;
 		}
 		elsif (/^([A-Za-z0-9_]+)= ?/)
@@ -61,45 +60,35 @@ if (-e $config_file)
 #
 #
 
-print "Now I'm going to ask a few questions to help the configuration. ";
-print "So, let's start...\n";
+my $os = $options{"Architecture<-OS"};
+
+print "Now I'm going to ask a few questions to help building the configuration. ";
 print "For pathnames you can use (type) the pre-defined value \$YARP_ROOT ";
 print "that I've verified as: \"$yarp_root\"\n\n";
 print "Please, use always the forward slash as a separator!\n";
 
 print "I determined already that you're running on Windows\n";
+die "But your configuration file doesn't report so, exiting...\n" unless ($os eq "winnt");
 
-get_option_hash ("Architecture<-OS", "winnt", "Just to make sure, what's your OS?");
-get_option_hash ("Compile_OS<-ACE_PATH", "\$YARP_ROOT/src/ACE_wrappers", "Where has ACE been unpacked?");
-get_option_hash ("Compile_OS<-ACE_Rebuild", "NO", "Do you want to rebuild ACE, i.e. clean before building?");
+get_option_hash ("Compile_Sig<-IPL", "NO", "Do you want to include IPL support (emulation otherwise)?");
 
 print "Would you like to set a default for library compilation?\n";
-get_option_hash ("Compile_OS<-Lib_Clean", "FALSE", "Clean first: i.e. rebuild libraries?");
-get_option_hash ("Compile_OS<-Lib_Debug", "FALSE", "Debug mode?");
-get_option_hash ("Compile_OS<-Lib_Release", "FALSE", "Release mode (optimization on)?");
-get_option_hash ("Compile_OS<-Lib_Install", "FALSE", "Install after compile?");
-get_option_hash ("Compile_OS<-Tools_Rebuild", "YES", "Would you like to rebuild the YARP tools");
-get_option_hash ("Compile_OS<-Tools_Debug", "FALSE", "Would you like to compile the tools for debugging?");
+get_option_hash ("Compile_Sig<-Lib_Clean", "FALSE", "Clean first: i.e. rebuild libraries?");
+get_option_hash ("Compile_Sig<-Lib_Debug", "FALSE", "Debug mode?");
+get_option_hash ("Compile_Sig<-Lib_Release", "FALSE", "Release mode (optimization on)?");
+get_option_hash ("Compile_Sig<-Lib_Install", "FALSE", "Install after compile?");
 
 # consistency check.
-if ($options{"Compile_OS<-Lib_Debug"} ne "TRUE" && 
-	$options{"Compile_OS<-Lib_Release"} eq "FALSE" && 
-	$options{"Compile_OS<-Lib_Clean"} eq "TRUE")
+if ($options{"Compile_Sig<-Lib_Debug"} ne "TRUE" && 
+	$options{"Compile_Sig<-Lib_Release"} ne "TRUE" && 
+	$options{"Compile_Sig<-Lib_Clean"} eq "TRUE")
 {
 	print "Since you're rebuilding, you should at least select between debug and release\n";
 	print "I'm assuming you wanted to compile debug\n";
-	$options{"Compile_OS<-Lib_Debug"} = "TRUE";
+	$options{"Compile_Sig<-Lib_Debug"} = "TRUE";
 }
 
-if ($options{"Compile_OS<-Lib_Install"} eq "TRUE" &&
-	$options{"Compile_OS<-Tools_Rebuild"} ne "YES")
-{
-	print "You need to recompile the tools since you're installing a new build of the libraries\n";
-	print "I'm adding the tools compilation flag for you\n";
-	$options{"Compile_OS<-Tools_Rebuild"} = "YES";
-}
-
-print "We're done for now, the context file is being created: \"$config_file\"\n";
+print "We're done for now, the context file is being updated: \"$config_file\"\n";
 
 #
 # uses global value %options
