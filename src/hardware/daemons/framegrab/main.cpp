@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.4 2003-06-05 12:40:03 gmetta Exp $
+/// $Id: main.cpp,v 1.5 2003-06-05 13:08:09 gmetta Exp $
 ///
 ///
 
@@ -86,12 +86,6 @@ const int size = 256;
 
 int _grabber2rgb (const unsigned char *in, unsigned char *out, int sz)
 {
-///	int AlignBytesRGB;
-///	if (sz * 3 % 8)
-///		AlignBytesRGB = 8 - (sz * 3 % 8);
-///	else 
-///		AlignBytesRGB = 0;	
-
 	unsigned char * first_pix = (unsigned char *)in;
 	unsigned char * ptr = first_pix;
 
@@ -108,8 +102,6 @@ int _grabber2rgb (const unsigned char *in, unsigned char *out, int sz)
 
 			out++;
 		}
-
-///		out += AlignBytesRGB;
 	}
 	
 	return YARP_OK;
@@ -137,13 +129,17 @@ int main (int argc, char *argv[])
 	grabber.getWidth (&w);
 	grabber.getHeight (&h);
 
-///	ACE_ASSERT (w == size && h == size);
-
 	unsigned char *buffer = NULL;
 	int frame_no = 0;
 
 	ACE_OS::fprintf (stderr, "starting up grabber...\n");
 	ACE_OS::fprintf (stderr, "acq size: w=%d h=%d\n", w, h);
+
+	if (w != size || h != 2 * size)
+	{
+		ACE_OS::fprintf (stderr, "pls, specify a different size, application will now exit\n");
+		finished = true;
+	}
 
 	while (!finished)
 	{
