@@ -131,8 +131,8 @@ int NetworkMap::_readAndCheck(FILE * fp, char *row)
 
 void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPString &outNic, YARPString &outIp)
 {
-  printf("Hello good evening and welcome to findIp\n");
-  printf("Today we are looking for %s on network %s\n", inIp.c_str(), net.c_str());
+  //printf("Hello good evening and welcome to findIp\n");
+  //printf("Today we are looking for %s on network %s\n", inIp.c_str(), net.c_str());
 	NETWORK_MAP_IT mapIt(_networkMap);
 	
 	bool foundNode = false;
@@ -189,8 +189,7 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 
 	if (outIp==YARPString("127.0.0.1")) {
 	  // localhost is no use at all
-	  printf("LocalHost .. let us try to get around it via %s\n",
-		 myhost.c_str());
+	  //printf("LocalHost .. let us try to get around it via %s\n", myhost.c_str());
 	  ACE_INET_Addr addr;
 	  int r = addr.set((short unsigned int)0,(const char *)myhost.c_str());
 	  if (r!=-1) {
@@ -202,6 +201,6 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 	  // last resort - just hostname
 	  outIp = myhost;
 	}
-	printf("Verdict is %s %s\n", outIp.c_str(), outNic.c_str());
+	//printf("Verdict is %s %s\n", outIp.c_str(), outNic.c_str());
 }
 

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.6 2004-07-12 13:34:42 eshuy Exp $
+/// $Id: YARPNameServer.cpp,v 1.7 2004-07-30 13:28:08 eshuy Exp $
 ///
 ///
 
@@ -319,8 +319,9 @@ void YARPNameServer::handle_registration_dip(const YARPString &service_name, int
 {
 	int port;
 	YARPString ip;
+	//printf("/// starting handle_registration_dip\n");
 	ns.registerNameDIp(service_name, ip, type, &port);
-	NAME_SERVER_DEBUG(("Registered %s as %s(%s):%d\n", service_name.c_str(), ip.c_str(), servicetypeConverter(type), port));
+	NAME_SERVER_DEBUG(("Registered %s as %s(%s):%d // handle_registration_dip\n", service_name.c_str(), ip.c_str(), servicetypeConverter(type), port));
 	_handle_reply(ip, type, port);
 }
 

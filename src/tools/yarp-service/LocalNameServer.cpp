@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.5 2004-07-12 13:34:42 eshuy Exp $
+/// $Id: LocalNameServer.cpp,v 1.6 2004-07-30 13:28:07 eshuy Exp $
 ///
 
 #include "LocalNameServer.h"
@@ -77,7 +77,8 @@ YARPString getNextIp(const YARPString &i)
 	char tmp[255];
 	int a=0,b=0,c=0,d=0;
 	int ch = i.c_str()[0];
-	if (!(ch>=0 && ch<=9)) {
+	if (!(ch>='0' && ch<='9')) {
+	  NAME_SERVER_DEBUG(("dud ip\n", i.c_str()));
 	  return i;
 	}
 	sscanf(i.c_str(),"%d.%d.%d.%d", &a,&b,&c,&d);
@@ -100,6 +101,7 @@ YARPString getNextIp(const YARPString &i)
 		}
 	}
 	sprintf(tmp, "%d.%d.%d.%d", a,b,c,d);
+	//printf("/// ip %s\n", tmp);
 	return YARPString(tmp);
 }
 
@@ -515,9 +517,9 @@ int LocalNameServer::queryName(const YARPString &name, YARPString &ip, int *type
 			ip = tmp_ip;
 			*port = (*tmp_ports_it).port;
 			*type = protocol;
-		  printf("Found name ... [%s]\n", ip.c_str());
+			//printf("Found name ... [%s]\n", ip.c_str());
 		  if (ip == YARPString("127.0.0.1")) {
-		    printf("oops localhost... better make it global\n");
+		    //printf("oops localhost... better make it global\n");
 		    //char buf[256];
 		    //gethostname(buf,sizeof(buf));
 		    ip = local_name;
@@ -592,13 +594,17 @@ int LocalNameServer::registerNameDIp(const YARPString &name, YARPString &ip, int
 	PORT_LIST new_ports;
 	int ret;
 
+	//printf("/// starting findFree\n");
+
 	if (!addresses._ipPool.findFree(addresses, new_ip)) {
+	  //printf("/// done findFree\n");
 		NAME_SERVER_DEBUG(("%s : no more ip available from pool\n", name.c_str()));
 		*port = __portNotFound;
 		ip = YARPString(__ipNotFound);
 		ret = -1;
 	}
 	else {
+	  //printf("/// done findFree\n");
 		ret = _registerName(name, new_ip, type, new_ports, 1);
 		ip = new_ip.ip;
 		PORT_IT it(new_ports);
@@ -641,6 +647,7 @@ void LocalNameServer::_checkAndRemoveQnx(const YARPString &name)
 
 int LocalNameServer::_registerName(const YARPString &name, const IpEntry &entry, int type, PORT_LIST &ports, int nPorts)
 {
+  //printf("/// _registerName\n");
 	YARPString tmp_ip;
 	PORT_LIST tmp_ports;
 	

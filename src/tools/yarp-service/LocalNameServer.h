@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.4 2004-07-12 13:34:42 eshuy Exp $
+/// $Id: LocalNameServer.h,v 1.5 2004-07-30 13:28:07 eshuy Exp $
 ///
 ///
 
@@ -161,6 +161,7 @@ public:
 		++last;		// we want the last item to be used
 		while (! (tmp==last)) 
 		{
+		  //printf("/// ....\n");
 			if (!_check(l,tmp))
 			{
 				item = tmp;
@@ -232,6 +233,7 @@ public:
 	}
 	IpEntry operator++()
 	{
+	  //printf("/// operator++\n");
 		ip = getNextIp(ip);
 		// modify port pool
 		int dist = getDistance(ip, __startIpPool);

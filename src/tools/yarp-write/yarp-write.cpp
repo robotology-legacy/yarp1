@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-write.cpp,v 1.5 2004-07-12 12:05:02 eshuy Exp $
+/// $Id: yarp-write.cpp,v 1.6 2004-07-30 13:28:08 eshuy Exp $
 ///
 ///
 
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     return YARP_FAIL;
   }
 
-  YARPOutputPortOf<YARPBottle> out_port;
+  YARPOutputPortOf<YARPBottle> out_port(YARPOutputPort::MANY_OUTPUTS,YARP_MCAST);
   out_port.Register(argv[0]);
   argc--;
   argv++;
