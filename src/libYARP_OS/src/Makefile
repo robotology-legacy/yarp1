@@ -6,8 +6,10 @@ endif
 include $(YARP_ROOT)/conf/Makefile.template
 
 MYINCS = -I../include
+MYCODELIB = libYARP_OS
 
 include $(YARP_ROOT)/conf/Makefile.src.template
+
 # DO NOT DELETE
 
 ../obj/linux/BlockReceiver.o: ../../../include/linux/yarp/YARPConfig.h

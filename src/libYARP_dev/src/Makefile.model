@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.model,v 1.1 2004-12-06 17:11:14 gmetta Exp $
+# $Id: Makefile.model,v 1.2 2004-12-08 01:05:34 gmetta Exp $
 #
 
 ifndef  YARP_ROOT
@@ -9,6 +9,7 @@ endif
 include $(YARP_ROOT)/conf/Makefile.template
 
 MYINCS = -I../include -I../../libYARP_OS/include -I../../libYARP_math/include
+MYCODELIB = libYARP_dev
 
 include $(YARP_ROOT)/conf/Makefile.src.template
 TARGETS += 
