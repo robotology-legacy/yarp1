@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.26 2003-07-16 17:11:24 beltran Exp $
+/// $Id: main.cpp,v 1.27 2003-07-17 15:50:22 gmetta Exp $
 ///
 ///
 
@@ -218,9 +218,9 @@ void _hh (int sig)
 
 int _runAsClient (void)
 {
-	YARPImageOf<YarpPixelBGR> img;
+	YARPImageOf<YarpPixelMono> img;
 
-	YARPInputPortOf<YARPGenericImage> inport(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+	YARPInputPortOf<YARPGenericImage> inport(YARPInputPort::DEFAULT_BUFFERS);
 
 	inport.Register (_name);
 	int frame_no = 0;
@@ -237,7 +237,7 @@ int _runAsClient (void)
 
 		frame_no++;
 
-		ACE_OS::sprintf (savename, "./grab_test%04d.ppm\0", frame_no);
+		ACE_OS::sprintf (savename, "./grab_test%04d.pgm\0", frame_no);
 		YARPImageFile::Write (savename, img);
 
 		if (frame_no > 100)
@@ -258,8 +258,6 @@ int _runAsSimulation (void)
 	img.Zero ();
 
 	DeclareOutport(outport);
-
-	///bool finished = false;
 
 	outport.Register (_name);
 
@@ -301,25 +299,18 @@ int _runAsLogpolarSimulation (void)
 	using namespace _logpolarParams;
 
 	YARPImageOf<YarpPixelBGR> img;
-	YARPImageOf<YarpPixelBGR> fovea;
-	YARPImageOf<YarpPixelMono> periphery;
+	YARPImageOf<YarpPixelMono> lp;
 	
 	YARPLogpolarSampler sampler;
 
 	ACE_ASSERT (_xsize == _ysize);
 
 	img.Resize (_xsize, _ysize);
-	fovea.Resize (128, 128);
-	periphery.Resize (_stheta, _srho - _sfovea);
+	lp.Resize (_stheta, _srho);
 
-	DeclareOutport(out_fovea);
-	DeclareOutport(out_periphery);
+	DeclareOutport(out);
 
-	out_fovea.Register (_name);
-	char name_p[512];
-	sprintf (name_p, "%sp\0", _name);
-	out_periphery.Register (name_p);
-
+	out.Register (_name);
 	int frame_no = 0;
 
 	ACE_OS::fprintf (stdout, "starting up simulation of a grabber...\n");
@@ -349,14 +340,11 @@ int _runAsLogpolarSimulation (void)
 		else
 			*(img.GetRawBuffer() + 128 * 256 * 3 + 128 * 3) = 0;
 
-		sampler.Cartesian2Logpolar (img, fovea, periphery);
+		sampler.Cartesian2Logpolar (img, lp);
 
 		/// sends the buffer.
-		out_fovea.Content().Refer (fovea);
-		out_fovea.Write();
-
-		out_periphery.Content().Refer (periphery);
-		out_periphery.Write();
+		out.Content().Refer (lp);
+		out.Write();
 
 		frame_no++;
 		if ((frame_no % 250) == 0)
@@ -379,26 +367,17 @@ int _runAsLogpolar (void)
 
 	Grabber grabber;
 	YARPImageOf<YarpPixelBGR> img;
-	YARPImageOf<YarpPixelBGR> fovea;
-	YARPImageOf<YarpPixelMono> periphery;
+	YARPImageOf<YarpPixelMono> lp;
 	
 	YARPLogpolarSampler sampler;
 
 	ACE_ASSERT (_xsize == _ysize);
 
 	img.Resize (_xsize, _ysize);
-	fovea.Resize (128, 128);
-	periphery.Resize (_stheta, _srho - _sfovea);
+	lp.Resize (_stheta, _srho);
 
-	DeclareOutport(out_fovea);
-	DeclareOutport(out_periphery);
-	///bool finished = false;
-
-	out_fovea.Register (_name);
-
-	char name_p[512];
-	sprintf (name_p, "%sp\0", _name);
-	out_periphery.Register (name_p);
+	DeclareOutport(out);
+	out.Register (_name);
 
 	/// params to be passed from the command line.
 	grabber.initialize (_board_no, _xsize);
@@ -413,14 +392,6 @@ int _runAsLogpolar (void)
 	ACE_OS::fprintf (stdout, "starting up grabber...\n");
 	ACE_OS::fprintf (stdout, "grabber is logpolar\n");
 	ACE_OS::fprintf (stdout, "acq size: w=%d h=%d\n", w, h);
-
-#if 0
-	if (w != _xsize || h != 2 * _xsize) ///2 * _size)
-	{
-		ACE_OS::fprintf (stderr, "pls, specify a different size, application will now exit\n");
-		finished = true;
-	}
-#endif
 
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
@@ -438,17 +409,13 @@ int _runAsLogpolar (void)
 		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _xsize);
 #endif
 		
-
 		grabber.releaseBuffer ();
 
-		sampler.Cartesian2Logpolar (img, fovea, periphery);
+		sampler.Cartesian2Logpolar (img, lp);
 
 		/// sends the buffer.
-		out_fovea.Content().Refer (fovea);
-		out_fovea.Write();
-
-		out_periphery.Content().Refer (periphery);
-		out_periphery.Write();
+		out.Content().Refer (img);
+		out.Write();
 
 		frame_no++;
 		if ((frame_no % 250) == 0)
@@ -474,8 +441,6 @@ int _runAsCartesian (void)
 
 	DeclareOutport(outport);
 
-	////bool finished = false;
-
 	outport.Register (_name);
 
 	/// params to be passed from the command line.
@@ -491,12 +456,6 @@ int _runAsCartesian (void)
 	ACE_OS::fprintf (stdout, "starting up grabber...\n");
 	ACE_OS::fprintf (stdout, "grabber is cartesian\n");
 	ACE_OS::fprintf (stdout, "acq size: w=%d h=%d\n", w, h);
-
-	//if (w != _size || h != 2 * _size) ///2 * _size)
-	//{
-	//		ACE_OS::fprintf (stderr, "pls, specify a different size, application will now exit\n");
-	//	finished = true;
-	//}
 
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
@@ -539,6 +498,8 @@ int _runAsCartesian (void)
 ///
 int main (int argc, char *argv[])
 {
+	__debug_level = 80;
+
 	YARPScheduler::setHighResScheduling ();
 
 	ParseParams (argc, argv);

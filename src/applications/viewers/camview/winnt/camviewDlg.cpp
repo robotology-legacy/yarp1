@@ -59,8 +59,9 @@ void CRecv::Body (void)
 		}
 		/// or logpolar.
 		else
+		if (m_logp && !m_fov)
 		{
-			if (m_img.GetWidth() != _stheta || m_img.GetHeight() != _srho - _sfovea)
+			if (m_img.GetWidth() != _stheta || m_img.GetHeight() != _srho)
 			{
 				/// falls back to cartesian mode.
 				m_logp = false;
@@ -72,9 +73,9 @@ void CRecv::Body (void)
 				m_remapped.Resize (256, 256, YARP_PIXEL_BGR);
 			}
 
-			if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho - _sfovea)
+			if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho)
 			{
-				m_colored.Resize (_stheta, _srho-_sfovea);
+				m_colored.Resize (_stheta, _srho);
 			}
 
 			if (m_flipped.GetWidth() != m_remapped.GetWidth() || m_flipped.GetHeight() != m_remapped.GetHeight())
@@ -84,6 +85,49 @@ void CRecv::Body (void)
 
 			m_mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)m_img, m_colored);
 			m_mapper.Logpolar2Cartesian (m_colored, m_remapped);
+			YARPSimpleOperation::Flip (m_remapped, m_flipped);
+
+			m_mutex.Wait();
+			if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
+			{
+				m_converter.Resize (m_flipped);
+				m_x = m_flipped.GetWidth ();
+				m_y = m_flipped.GetHeight ();
+			}
+
+			if (!m_frozen)
+			{
+				/// prepare the DIB to display.
+				m_converter.ConvertToDIB (m_flipped);
+			}
+		}
+		else
+		if (m_logp && m_fov)
+		{
+			if (m_img.GetWidth() != _stheta || m_img.GetHeight() != _srho)
+			{
+				/// falls back to cartesian mode.
+				m_logp = false;
+				continue;
+			}
+
+			if (m_remapped.GetWidth() != 128 || m_remapped.GetHeight() != 128)
+			{
+				m_remapped.Resize (128, 128, YARP_PIXEL_BGR);
+			}
+
+			if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho)
+			{
+				m_colored.Resize (_stheta, _srho);
+			}
+
+			if (m_flipped.GetWidth() != m_remapped.GetWidth() || m_flipped.GetHeight() != m_remapped.GetHeight())
+			{
+				m_flipped.Resize (m_remapped.GetWidth(), m_remapped.GetHeight(), m_remapped.GetID());
+			}
+
+			m_mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)m_img, m_colored);
+			m_mapper.Logpolar2CartesianFovea (m_colored, m_remapped);
 			YARPSimpleOperation::Flip (m_remapped, m_flipped);
 
 			m_mutex.Wait();
@@ -253,6 +297,7 @@ BOOL CCamviewDlg::OnInitDialog()
 	CCamviewApp *p = ((CCamviewApp *)AfxGetApp());
 	m_connection_name = p->m_portname;
 	if (p->m_lp) m_receiver.AssumeLogpolar();
+	if (p->m_fov) m_receiver.AssumeDisplayFovea();
 
 	UpdateData(FALSE);
 

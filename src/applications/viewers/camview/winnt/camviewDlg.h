@@ -29,6 +29,7 @@ public:
 	int m_y;
 	bool m_frozen;
 	bool m_logp;
+	bool m_fov;
 	int m_period;
 	double m_est_interval;
 	CRect m_rect;
@@ -53,6 +54,7 @@ public:
 		m_period = 0;
 		m_est_interval = 0;
 		m_logp = false;
+		m_fov = false;
 
 		m_rect.left = -1;
 		m_rect.top = -1;
@@ -69,6 +71,7 @@ public:
 	inline void SetPeriod (int newvalue) { m_period = newvalue; }
 	inline int GetPeriod (void) const { return m_period; }
 	inline void AssumeLogpolar (void) { m_logp = true; }
+	inline void AssumeDisplayFovea (void) { m_fov = true; }
 
 	unsigned char * AcquireBuffer (void)
 	{

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.7 2003-07-03 15:33:14 beltran Exp $
+/// $Id: main.cpp,v 1.8 2003-07-17 15:50:22 gmetta Exp $
 ///
 ///
 
@@ -113,8 +113,8 @@ int main (int argc, char *argv[])
 	Build_Ang_Shift_Map(&Param, Path);
 	printf ("Creating Pad map \n");
 	Build_Pad_Map(&Param, Path);
-	printf ("Creating Remap_Map_No_Fov map \n", Path);
-	Build_Remap_Map_No_Fov (&Param, Path);
+	printf ("Creating Remap_Map map for the whole image\n", Path);
+	Build_Remap_Map (&Param, Path);
 	printf ("Creating Cart2LP map \n", Path);
 	Build_Cart2LP_Map(&Param, Path);
 
@@ -124,7 +124,7 @@ int main (int argc, char *argv[])
 		_srho, _stheta, _sfovea,
 		1090,
 		CUSTOM,
-		1.0); ///256.0/1090.0);
+		512.0/1090.0);
 
 	Param.padding = _salign;
 
@@ -141,9 +141,9 @@ int main (int argc, char *argv[])
 	printf ("Creating XY map \n");
 	Build_XY_Map(&Param, Path);
 	printf ("Creating Neigbothood map \n");
-	Build_Neighborhood_Map_NoFov(&Param, Path);
+	Build_Neighborhood_Map(&Param, Path);
 	printf ("Creating Weights map \n");
-	Build_Weights_Map_NoFov(&Param, Path);	
+	Build_Weights_Map(&Param, Path);	
 	printf("Finish\n");
 
 	return 0;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.6 2003-06-18 17:24:09 babybot Exp $
+/// $Id: YARPLogpolar.h,v 1.7 2003-07-17 15:50:22 gmetta Exp $
 ///
 ///
 
@@ -97,9 +97,8 @@ namespace _logpolarParams
 class YARPLogpolarSampler : public YARPFilter
 {
 protected:
-	Image_Data _fovea;
+	Image_Data _img;
 	Cart2LPInterp * _cart2LP_Map;
-	int * _remapMap;
 	unsigned char * _outimage;
 	char * _colormap;
 	int _padb;
@@ -111,15 +110,16 @@ public:
 	virtual void Cleanup () {}
 	virtual bool InPlace () const { return false; }
 
-	int Cartesian2Logpolar (const YARPGenericImage& in, YARPGenericImage& fovea, YARPGenericImage& periphery);
+	int Cartesian2Logpolar (const YARPGenericImage& in, YARPGenericImage& out);
 };
 
 
 class YARPLogpolar : public YARPFilter
 {
 protected:
-	Image_Data _periphery;
-	int * _remapMapNf;
+	Image_Data _img;
+	int * _remapMap;
+	int * _remapMapFovea;
 	double *_angShiftMap;
 	short *_padMap;
 	Neighborhood * _weightsMap;
@@ -132,6 +132,7 @@ public:
 	virtual bool InPlace () const { return false; }
 
 	int Logpolar2Cartesian (const YARPGenericImage& in, YARPGenericImage& out);
+	int Logpolar2CartesianFovea (const YARPGenericImage& in, YARPGenericImage& out);
 	int Logpolar2Cartesian (int irho, int itheta, int& ox, int& oy);
 	int Cartesian2Logpolar (int ix, int iy, int& orho, int& otheta);
 	int ReconstructColor (const YARPImageOf<YarpPixelMono>& in, YARPGenericImage& out);

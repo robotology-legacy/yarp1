@@ -83,6 +83,7 @@ BOOL CCamviewApp::InitInstance()
 		m_height = -1;
 	
 	m_lp = (cmdInfo.GetOption("l")) ? true : false;
+	m_fov = (cmdInfo.GetOption("f")) ? true : false;
 
 	/// not really needed.
 	AfxEnableControlContainer();

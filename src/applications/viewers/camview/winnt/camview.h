@@ -28,6 +28,7 @@ public:
 	int m_x;
 	int m_y;
 	bool m_lp;
+	bool m_fov;
 	int m_width;
 	int m_height;
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.4 2003-07-16 13:10:21 babybot Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.5 2003-07-17 15:50:22 gmetta Exp $
 ///
 ///
 
@@ -898,14 +898,17 @@ void _SocketThreadMulti::BodyShmem (void)
 					/// this was r too, a bit confusing.
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read more data\n"));
 
+#if 0
 					if (_extern_reply_length == 0)
 					{
-						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? read 0 len buffer, not waiting\n"));
+						///YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? read 0 len buffer, not waiting\n"));
+						///rr = stream.recv_n (_extern_reply_buffer, 0, 0);
 					}
 					else
 					{
+#endif
 						rr = stream.recv_n (_extern_reply_buffer, _extern_reply_length, 0); 
-					}
+///					}
 
 					_extern_reply_length = rr;
 					_read_more = 0;
