@@ -60,12 +60,12 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
-// $Id: YARPRecursiveLS.h,v 1.2 2003-07-02 10:43:15 babybot Exp $
+// $Id: YARPRecursiveLS.h,v 1.3 2003-07-29 17:38:43 eshuy Exp $
 
 #if !defined __YARPRECURSIVELSH__
 #define __YARPRECURSIVELSH__
 
-#include <YARPRobotMath.h>
+#include "YARPRobotMath.h"
 
 // this is general enough if data vector are
 // inserted one row at a time.
