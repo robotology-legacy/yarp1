@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageMoments.cpp,v 1.9 2004-07-06 08:49:13 orfra Exp $
+/// $Id: YARPImageMoments.cpp,v 1.10 2004-07-09 09:47:58 orfra Exp $
 ///
 ///
 
@@ -126,8 +126,8 @@ void YARPLpImageMoments::centerOfMassAndMass(YARPImageOf<YarpPixelMono> &in, int
 	
 	if (areaT != 0)
 	{
-		*x = (int)(sumX/areaT);
-		*y = (int)(sumY/areaT);
+		*x = (int)(sumX/areaT + .5);
+		*y = (int)(sumY/areaT + .5);
 	}
 	else
 	{
@@ -232,8 +232,8 @@ void YARPImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int 
 	
 	if (area != 0)
 	{
-		*x = (int)(sumX/area);
-		*y = (int)(sumY/area);
+		*x = (int)(sumX/area + .5);
+		*y = (int)(sumY/area + .5);
 	}
 	else
 	{
