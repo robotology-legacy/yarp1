@@ -216,7 +216,7 @@ sub do_ext_compile
 {
 	my ($exe) = @_;
 
-	$exe =~ /(^[\w\d\-\.]+)/;
+	$exe =~ /(^[\w\d\-\.\/]+)/;
 	unless (-x $1)
 	{
 		chmod 0755, $1;
