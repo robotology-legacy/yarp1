@@ -10,7 +10,7 @@
 // 
 //     Description:  This files implements the SoundResources methods
 // 
-//         Version:  $Id: YARPSoundResources.cpp,v 1.3 2004-02-24 17:24:55 beltran Exp $
+//         Version:  $Id: YARPSoundResources.cpp,v 1.4 2004-02-26 16:21:35 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -18,26 +18,6 @@
 // =====================================================================================
 
 #include "YARPSoundResources.h"
-
-//----------------------------------------------------------------------
-//  Useful functions. But, this should be declared in another place..
-//----------------------------------------------------------------------
-double
-GetTimeAsSeconds(void)
-{
-	ACE_Time_Value timev = ACE_OS::gettimeofday ();
-	return double(timev.sec()) + timev.usec() * 1e-6; 
-}
-
-void
-DelayInSeconds(double delay_in_seconds)
-{
-	ACE_Time_Value tv;
-	tv.sec (int(delay_in_seconds));
-	tv.usec ((delay_in_seconds-int(delay_in_seconds)) * 1e6);
-
-	ACE_OS::sleep(tv);
-}
 
 //--------------------------------------------------------------------------------------
 //       Class:  SoundResources
@@ -50,14 +30,12 @@ int
 SoundResources::_initialize (const SoundOpenParameters& params)
 {
 	_init (params);
-	//_prepareBuffers ();
-
-	//SoundStatus = SooundSetBufferList (_picoloHandle, BufferList, _num_buffers);
-	/////ACE_ASSERT (SoundStatus == PICOLO_OK);
-
-	// select initial buffer.
-
-	// starts continuous acquisition.
+	_prepareBuffers ();
+	//start continuous acquisition
+	if ((m_err = waveInStart(m_WaveInHandle)))
+	{
+		printf("yarpsounddriver: Error starting record! -- %08X\n", m_err);
+	}
 
 	return YARP_OK;
 }
@@ -77,6 +55,7 @@ SoundResources::_uninitialize (void)
 	//Release memory (buffer, variables...etc)	
 	/////_bmutex.Post ();
 	mixerClose(m_MixerHandle);
+	waveInReset(m_WaveInHandle);
 
 	return YARP_OK;
 }
