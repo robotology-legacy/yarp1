@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.h,v 1.1 2003-11-20 17:46:58 babybot Exp $
+/// $Id: YARPDisparity.h,v 1.2 2003-11-21 13:02:28 babybot Exp $
 ///
 ///
 // disparity.h: interface for the YARPDisparityTool class.
@@ -81,9 +81,12 @@
 #include <YARPSemaphore.h>
 #include <YARPTime.h>
 #include <YARPImages.h>
-///#include <YARPLogpolar.h>
 
 #include <LogPolarSDK.h>
+
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
 
 ///
 ///

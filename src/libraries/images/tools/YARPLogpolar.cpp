@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.23 2003-11-20 17:46:58 babybot Exp $
+/// $Id: YARPLogpolar.cpp,v 1.24 2003-11-21 13:02:28 babybot Exp $
 ///
 ///
 
@@ -93,22 +93,16 @@ YARPLogpolarSampler::YARPLogpolarSampler (void)
 	char *path = GetYarpRoot ();
 	char filename[256];
 
-#ifdef __WIN32__
-	ACE_OS::sprintf(filename, "%s\\conf\\\0", path);
-#else
 	ACE_OS::sprintf(filename, "%s/conf/\0", path);
-#endif
+
 	/// loads cart to logpolar lookup table.
 	_cart2LP_Map = Load_Cart2LP_Map(&_img, filename);
 
 	_colormap = (char *) malloc (_srho * _stheta);
 	ACE_ASSERT (_colormap != NULL);
 
-#ifdef __WIN32__
-	ACE_OS::sprintf(filename, "%s\\conf\\ColorMap.gio\0", path);
-#else
 	ACE_OS::sprintf(filename, "%s/conf/ColorMap.gio\0", path);
-#endif
+
 	FILE *fin;
 
 	fin = ACE_OS::fopen(filename,"rb");
@@ -179,7 +173,8 @@ YARPLogpolar::YARPLogpolar (void)
 	_mapsLoaded = true;
 	
 	ACE_Guard<ACE_Thread_Mutex> guard(_mutex);
-	{	// begin critical section
+	{	
+		// begin critical section
 		if (_classInstances == 0)
 		{
 			_img = Set_Param(
@@ -198,12 +193,8 @@ YARPLogpolar::YARPLogpolar (void)
 
 			/// logpolar to cartesian lookup table for the complete image.
 			char filename[YARP_STRING_LEN];
+			ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f_%dx%d%s%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, "_P", _img.padding, ".gio");
 
-#ifdef __WIN32__
-			ACE_OS::sprintf(filename,"%s\\conf\\%s_%2.3f_%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
-#else
-			ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f_%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
-#endif
 			FILE *fin = ACE_OS::fopen(filename,"rb");
 			if (fin == NULL)
 				goto exitConstructorOnError;
@@ -214,11 +205,8 @@ YARPLogpolar::YARPLogpolar (void)
 			ACE_OS::fread(_remapMap, sizeof(int), _img.Size_Img_Remap, fin);
 			ACE_OS::fclose (fin);
 
-#ifdef __WIN32__
-			ACE_OS::sprintf(filename, "%s\\conf\\%s", path, "AngularShiftMap.gio");
-#else
 			ACE_OS::sprintf(filename, "%s/conf/%s", path, "AngularShiftMap.gio");
-#endif
+
 			fin = ACE_OS::fopen(filename, "rb");
 			if (fin == NULL)
 				goto exitConstructorOnError;
@@ -228,11 +216,7 @@ YARPLogpolar::YARPLogpolar (void)
 			ACE_OS::fread(_angShiftMap, sizeof(double), _img.Size_Rho, fin);
 			ACE_OS::fclose (fin);
 
-#ifdef __WIN32__
-			ACE_OS::sprintf(filename, "%s\\conf\\%s", path, "PadMap.gio");
-#else
 			ACE_OS::sprintf(filename, "%s/conf/%s", path, "PadMap.gio");
-#endif
 			fin = ACE_OS::fopen(filename, "rb");
 			if (fin == NULL)
 				goto exitConstructorOnError;
@@ -243,11 +227,7 @@ YARPLogpolar::YARPLogpolar (void)
 			ACE_OS::fread(_padMap, sizeof(short), _img.Size_Theta * _img.Size_Fovea, fin);
 			ACE_OS::fclose (fin);
 
-#ifdef __WIN32__
-			ACE_OS::sprintf(filename, "%s\\conf\\%s%02d%s", path, "WeightsMap", _img.Pix_Numb, ".gio");
-#else
-			ACE_OS::sprintf(filename, "%s/conf/%s%02d%s", path, "WeightsMap", _img.Pix_Numb, ".gio");
-#endif
+			ACE_OS::sprintf(filename, "%s/conf/%s%02d%s%d%s", path, "WeightsMap", _img.Pix_Numb, "_P", _img.padding, ".gio");
 			fin = ACE_OS::fopen(filename, "rb");
 			if (fin == NULL)
 				goto exitConstructorOnError;
@@ -270,12 +250,8 @@ YARPLogpolar::YARPLogpolar (void)
 			_img.Pix_Numb = 2;
 			_img.Fovea_Type = 0;
 
-		/// remap lut for the fovea.
-#ifdef __WIN32__	
-			ACE_OS::sprintf(filename,"%s\\conf\\%s_%2.3f_%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
-#else
-			ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f_%dx%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, ".gio");
-#endif
+			/// remap lut for the fovea.
+			ACE_OS::sprintf(filename,"%s/conf/%s_%2.3f_%dx%d%s%d%s", path, "RemapMap", _img.Zoom_Level, _img.Size_X_Remap, _img.Size_Y_Remap, "_P", _img.padding, ".gio");
 			fin = ACE_OS::fopen(filename,"rb");
 			if (fin == NULL)
 				goto exitConstructorOnError;
@@ -298,9 +274,11 @@ YARPLogpolar::YARPLogpolar (void)
 			_img.Pix_Numb = 2;
 			_img.Fovea_Type = 0;
 		}
-	// everything went fine, increment instance counter
-	_classInstances++;
+	
+		// everything went fine, increment instance counter
+		_classInstances++;
 	}	// end critical section
+
 	return;
 
 exitConstructorOnError:
@@ -321,7 +299,8 @@ exitConstructorOnError:
 YARPLogpolar::~YARPLogpolar ()
 {
 	ACE_Guard<ACE_Thread_Mutex> guard(_mutex);
-	{ // begin critical section
+	{ 
+		// begin critical section
 		_classInstances--;
 		if (_classInstances <= 0)
 		{

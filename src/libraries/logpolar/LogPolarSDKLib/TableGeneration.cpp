@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.26 2003-11-20 18:02:14 babybot Exp $
+/// $Id: TableGeneration.cpp,v 1.27 2003-11-21 13:02:28 babybot Exp $
 ///
 ///
 
@@ -2407,7 +2407,7 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 		}
 
 		if (Par->Ratio == 1.00)
-			sprintf(File_Name,"%s_P%d%s",Path,"ShiftMap",Par->padding,".gio");
+			sprintf(File_Name,"%s%s_P%d%s",Path,"ShiftMap",Par->padding,".gio");
 //			sprintf(File_Name,"%s%s_%d",Path,"ShiftMap",Par->Resolution,".gio");
 		else
 			sprintf(File_Name,"%s%1.2f_%s_P%d%s",Path,Par->Ratio,"ShiftMap",Par->padding,".gio");

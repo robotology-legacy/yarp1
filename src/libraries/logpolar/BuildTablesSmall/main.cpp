@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.12 2003-11-20 18:02:13 babybot Exp $
+/// $Id: main.cpp,v 1.13 2003-11-21 13:02:28 babybot Exp $
 ///
 ///
 
@@ -132,8 +132,6 @@ int main (int argc, char *argv[])
 
 	printf ("Creating Build_Remap map \n");
 	Build_Remap_Map(&Param, Path);
-	///printf ("Creating Crop_Remap map \n");
-	///Crop_Remap_Map(&Param, Path);
 	printf ("Creating Color map \n");
 	Build_Color_Map(&Param,Path);
 
@@ -147,8 +145,22 @@ int main (int argc, char *argv[])
 	printf ("Creating Weights map \n");
 	Build_Weights_Map(&Param, Path);	
 
+	Param.padding = _salign;
+	Param.Fovea_Type = 0;
 	printf ("Creating DS map\n");
 	Build_DS_Map (&Param, Path, 4.0);
+
+	Param = Set_Param(
+		_xsize, _ysize,
+		256, 256,
+		_srho/4, _stheta/4, _sfovea/4,
+		1090/4,
+		CUST,
+		1024.0/1090.0);
+	Param.padding = _salign;
+	Param.Fovea_Type = 0;
+	Param.Ratio = 4.0f;
+
 	printf ("Creating Shift map\n");
 	Build_Shift_Map (&Param, Path);
 	printf ("Creating Step Function\n");
