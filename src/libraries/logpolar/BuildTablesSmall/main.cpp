@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.9 2003-09-24 15:37:00 babybot Exp $
+/// $Id: main.cpp,v 1.10 2003-10-06 10:47:07 fberton Exp $
 ///
 ///
 
@@ -135,7 +135,7 @@ int main (int argc, char *argv[])
 	///printf ("Creating Crop_Remap map \n");
 	///Crop_Remap_Map(&Param, Path);
 	printf ("Creating Color map \n");
-	Build_Color_Map(Path);
+	Build_Color_Map(&Param,Path);
 
 	///
 	Param.Pix_Numb = 2;
