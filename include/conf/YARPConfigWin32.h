@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.14 2003-05-21 12:38:35 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.15 2003-05-21 13:20:51 natta Exp $
 // YARP config file WIN32.
 //
 //
@@ -48,9 +48,6 @@
 
 /// read timeout on socket transport (in seconds).
 #define YARP_SOCK_TIMEOUT       20
-
-/// fix compiler idiosyncrasy
-#define for if(1)for
 
 /// disables warning for init_seg(lib) very legitimate use of directive.
 #pragma warning (disable:4073)
