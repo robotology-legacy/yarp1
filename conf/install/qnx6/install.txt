@@ -1,1 +1,123 @@
-NOT DONE YET!
+Configuring YARP for QNX6
+
+$Id: install.txt,v 1.2 2003-05-28 14:47:56 beltran Exp $
+
+This file is in: %YARP_ROOT%\conf\install\qnx6
+
+---INTRODUCTION---
+
+In the robot network two kind of QNX machines will be installed.There is a machine considered to be the 
+"server" and the rest are "nodes".
+Ther server has the more complex installation and will run commands and programs in the nodes.
+
+---SERVER INSTALLATION---
+
+Currently QNX 6.2.0 Profesional Edition is the version we are using. Its installation is straight; some extra 
+modules some be added from the third party CD if ones wants extra support like: samba or ssh.
+
+The network cards supported by qnx are the Matrox's or the 3Com's. 
+
+The propietary QNX network (QNET) should be install, both in the server and in the nodes. The command to run is:
+mount -Tio-net npm-qnet.so
+This adds the QNET to the network qnx manager called io-net. It is better to create a file called "rc.local" inside
+/etc/rc.d to run this command.
+
+The tcp-ip, i think, is started automatically once configured in the GUI interface. 
+It is important to notice that YARP needs to configure manually the next files:
+
+-/etc/host-
+
+#
+# Host Database
+#
+127.1           localhost.localdomain localhost
+::1             localhost.localdomain localhost
+130.251.43.15   europa.lira.dist.unige.it       europa
+
+-/etc/resolv.conf-
+
+#domain Berkeley.Edu
+#nameserver 128.32.0.4
+#nameserver 128.32.0.10
+domain lira.dist.unige.it
+nameserver 130.251.4.31
+lookup 130.251.4.31
+
+
+It is unknown why Qnx needs these files to be configured manually but if it is not done this way YARP fails using some 
+low level functions (like...)
+
+---YARP INSTALLATION---
+
+YARP proper install/configuration
+
+REQUIRES:
+	- ACE 5.3 from: http://www.cs.wustl.edu/~schmidt/ACE.html
+	
+
+0) licensing:
+	- the template of the academic free licence can be found in
+		%YARP_ROOT%\conf\licence.template
+
+1) before compiling:
+	- Check out from cvs on sourceforge: www.sourceforge.net
+	- unzip ACE on top of ACE_wrappers under %YARP_ROOT%\src\libraries\
+		and UNCHECK the option to overwrite the files (this leaves
+		the modified files from the repository inplace)
+	- use the %YARP_ROOT%/YARPConfigTemplate.h and include the correct 
+		config file (found in %YARP_ROOT%/include/conf)
+		Copy the template into: %YARP_ROOT%/include/conf/YARPConfig.h
+
+2) Compile:
+	ACE, this copies also the .h, .i, and .cpp files into %YARP_ROOT%\include
+		- use "make" from: %YARP_ROOT%\src\libraries\ACE_wrappers\ace
+		- do "make yarpize" from the same place (it copies all necesary things..etc)
+	os_services
+		- use "make" from: %YARP_ROOT%\src\libraries\os_services\
+		- use "make install"
+	hardware galil
+		- use "make" from: %YARP_ROOT%\src\hardware\src\galil\qnx6\
+		- use "make install" from: %YARP_ROOT%\src\hardware\src\galil\qnx6\
+	=== 
+	images
+		- NOT DEFINED YET!
+	===
+
+	utils
+		- dsw in: %YARP_ROOT%\src\libraries\utils\utils.dsw
+
+	hardware
+	
+	/******
+	#	- dsw project in: %YARP_ROOT%\src\hardware\src\alldrivers.dsw
+	#		it does the install but...
+	#	- run then install_orig_dd.bat that copies the libraries+includes 
+	#		in the correct directories.
+	*****/
+		hardware galil
+		- use "make" from: %YARP_ROOT%\src\hardware\src\galil\qnx6\
+		- use "make install" from: %YARP_ROOT%\src\hardware\src\galil\qnx6\
+
+	motorcontrol
+	/*************
+	#	- dsw in: %YARP_ROOT%\src\libraries\motorcontrol\motorcontrol.dsw
+	#		compile and install automatically.
+	**************/
+		In qnx6 must be finished.
+
+3) What to include/link for building an application is YARP.
+	TO BE COMPLETED, templates?
+
+4) Stuff under %YARP_ROOT%/conf
+	- namer.conf.template: to be compied into namer.conf
+		it contains the name and port of the machine running the yarp name
+		service
+	- ROBOTNAME directories, one for each robot we ever used with yarp (new version)
+
+
+---NODE INSTALLATION---
+
+A node is only adding computational power. It neither needs to compile YARP nor to install a complete system.
+A floppy disk can be used to start the computer. This disk can be created from the server with a particular 
+procedure where a kernel images is built an inserted in the disk. (add here procedure to create a boot disk).
+
