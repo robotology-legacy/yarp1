@@ -61,12 +61,13 @@
 ///
 
 ///
-/// $Id: YARPAll.cpp,v 1.5 2003-05-28 17:42:00 gmetta Exp $
+/// $Id: YARPAll.cpp,v 1.6 2004-06-30 10:34:57 eshuy Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/ACE.h>
+#include <ace/OS.h>
 
 ///#include <stdio.h>
 #include <stdarg.h>

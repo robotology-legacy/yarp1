@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: mesh.cpp,v 1.4 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: mesh.cpp,v 1.5 2004-06-30 10:34:57 eshuy Exp $
 ///
 ///
 
@@ -74,6 +74,8 @@ Description This file defines classes to be used when setting up a Mesh
 
 #include "YARPString.h"
 #include "mesh.h"
+
+using namespace std;
 
 //--Constants------------------------------------------------------------------
 //-----------------------------------------------------------------------------
