@@ -73,9 +73,7 @@ FindHand::~FindHand()
 	delete [] _zeroCrossingHand;
 
 	int i;
-	for(i = 0; i < 3; i ++)
-		delete _output[i];
-		
+			
 	delete [] _output;
 
 }
@@ -165,7 +163,7 @@ void FindHand::_segmentation()
 		for(theta = 0; theta<_stheta; theta++)
 		{
 			if (tmp(theta, rho) < 255)
-				_actualLp(theta, rho) = 255;//0;
+				_actualLp(theta, rho) = 0;
 		}
 }
 

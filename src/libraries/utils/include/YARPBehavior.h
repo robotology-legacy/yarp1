@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPBehavior.h,v 1.11 2003-08-01 15:17:51 babybot Exp $
+/// $Id: YARPBehavior.h,v 1.12 2003-08-11 16:06:30 babybot Exp $
 ///  
 /// Behavior class -- by nat July 2003
 //
@@ -211,10 +211,10 @@ private:
 	void _quit()
 	{
 		// put here your code to handle quit
-		YARPThread::End();
+		YARPThread::AskForEnd();
 		// signal event so that the thread can exit
 		_stopEvent.signal();
-		// LATER: add wait		
+		YARPThread::Join(); // wait
 	}
 	// init class
 	void _init(std::string name)
