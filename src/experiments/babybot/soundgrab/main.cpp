@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.3 2004-09-28 14:27:53 beltran Exp $
+/// $Id: main.cpp,v 1.4 2004-10-26 16:54:36 beltran Exp $
 ///
 
 #include <yarp/YARPConfig.h>
@@ -59,14 +59,13 @@
 #include <yarp/YARPRobotHardware.h>
 #include <iostream>
 
+#define MY_STRINGS 512
+
 using namespace std;
 
 /**
  * Global parameters.
  */
-char _name[512];
-char _fgdataname[512];
-char _netname[512];
 bool _client         = false;
 bool _simu           = false;
 bool _fgnetdata      = false;
@@ -77,8 +76,17 @@ bool _help           = false;
 /**
  * Some variable for the network connection.
  */
-bool _sharedmem = false;
-int  _protocol  = YARP_UDP;
+YARPGrabberParams params;
+///
+/// global params.
+int  _sizex     = -1;
+int  _sizey     = -1;
+int  _yoffset   = 0;
+int  _videotype = 0;
+char _name[MY_STRINGS];
+char _fgdataname[MY_STRINGS];
+char _netname[MY_STRINGS];
+char _imgname[MY_STRINGS];
 
 /**
  * Default sound parameters.
@@ -89,6 +97,8 @@ int _BitsPerSample = 16;
 int _BufferLength  = 8192;
 int _volume        = 50;
 
+bool _sharedmem = false;
+int  _protocol  = YARP_TCP;
 extern int __debug_level;
 
 /** 
@@ -99,21 +109,6 @@ extern int __debug_level;
 int 
 PrintHelp (void)
 {
-	/*
-	ACE_OS::fprintf (stdout, "USAGE:\n");
-	ACE_OS::fprintf (stdout, "--help, print help and exit\n");
-	ACE_OS::fprintf (stdout, "--name <str>, use <str> as port name prefix (don't forget the leading /)\n");
-	ACE_OS::fprintf (stdout, "--w <int>, set the acquisition width\n");
-	ACE_OS::fprintf (stdout, "--h <int>, set the acquisition height\n");
-	ACE_OS::fprintf (stdout, "--b <int>, board number (0 or 1)\n");
-	ACE_OS::fprintf (stdout, "--s, simulation mode\n");
-	ACE_OS::fprintf (stdout, "--net <str>, define the network name (in a multi-network configuration)\n");
-	ACE_OS::fprintf (stdout, "--o <int>, set acquisition vertical offset\n");
-	ACE_OS::fprintf (stdout, "--f, activate external control of acquisition parameters (through YARPBottle messages)\n");
-	ACE_OS::fprintf (stdout, "--shmem, disable shared memory communication on output\n");
-	ACE_OS::fprintf (stdout, "--protocol <str>, preferred output protocol (default MCAST)\n");
-	*/
-
 	/** @todo Stardarize the input parameter with those of the grabber (up). */
 
 	ACE_OS::fprintf(stdout, "USE: soundgrab <+name -Parameters>\n");
@@ -122,11 +117,19 @@ PrintHelp (void)
 	ACE_OS::fprintf(stdout, "--a, the SamplesPerSecond of the sound stream\n");
 	ACE_OS::fprintf(stdout, "--i, the BitsPerSample of the sound stream\n");
 	ACE_OS::fprintf(stdout, "--l, the BufferLength of the sound stream\n");
-	ACE_OS::fprintf(stdout, "--b, the BoardNumber of the sound acquisition board\n");
 	ACE_OS::fprintf(stdout, "--t, receiver client modality\n");
 	ACE_OS::fprintf(stdout, "--s, server in Simulation mode\n");
 	ACE_OS::fprintf(stdout, "--n, Network number\n");
 	ACE_OS::fprintf(stdout, "--f, Open port for volume/gain/mute data\n");
+    ACE_OS::fprintf(stdout, "--w <int>, set the acquisition width\n");
+    ACE_OS::fprintf(stdout, "--h <int>, set the acquisition height\n");
+    ACE_OS::fprintf(stdout, "--b <int>, board number (0 or 1)\n");
+    ACE_OS::fprintf(stdout, "--o <int>, set acquisition vertical offset\n");
+    ACE_OS::fprintf(stdout, "--v <int>, preferred video type(default composite(0) (others, s-video(2)))\n");
+    ACE_OS::fprintf(stdout, "--c <int>, the channels present in the sound stream\n");
+    ACE_OS::fprintf(stdout, "--a <int>, the SamplesPerSecond of the sound stream\n");
+    ACE_OS::fprintf(stdout, "--i <int>, the BitsPerSample of the sound stream\n");
+    ACE_OS::fprintf(stdout, "--l <int>, the BufferLength of the sound stream\n");
 	
 	return YARP_OK;
 }
@@ -143,9 +146,10 @@ PrintHelp (void)
 int 
 ParseParams (int argc, char *argv[], int visualize = 0) 
 {
-	ACE_OS::sprintf (_name      , "/%s/o:sound" , argv[0]);
-	ACE_OS::sprintf (_fgdataname, "/%s/i:fgdata", argv[0]);
-	ACE_OS::sprintf (_netname   , "default");
+    ACE_OS::sprintf(_name      ,"/%s/o:sound" ,argv[0]);
+    ACE_OS::sprintf(_fgdataname,"/%s/i:fgdata",argv[0]);
+    ACE_OS::sprintf(_netname   ,"default");
+    ACE_OS::sprintf(_imgname,"/%s/o:img"   ,argv[0]);
 
 	YARPString tmps;
 
@@ -162,6 +166,7 @@ ParseParams (int argc, char *argv[], int visualize = 0)
 	{
 		ACE_OS::sprintf (_name, "%s/o:sound", tmps.c_str());
 		ACE_OS::sprintf (_fgdataname,"%s/i:fgdata", tmps.c_str());
+		ACE_OS::sprintf (_imgname,"%s/o:img", tmps.c_str());
 	}
 
 	if (YARPParseParameters::parse(argc, argv, "-c", &_Channels))
@@ -221,6 +226,70 @@ ParseParams (int argc, char *argv[], int visualize = 0)
 		ACE_OS::fprintf(stdout, "grabber receiving data from network mode...\n");
 		_fgnetdata = true;
 	}
+
+	if (YARPParseParameters::parse(argc, argv, "-w", &_sizex))
+	{
+		ACE_ASSERT (_sizex <= 384 && _sizex > 0);
+		ACE_ASSERT ((_sizex % 8) == 0);
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "-h", &_sizey))
+	{
+		ACE_ASSERT (_sizey <= 272 && _sizey > 0);
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "-b", &_board_no))
+	{
+		ACE_ASSERT (_board_no >= 0 && _board_no <= 1);
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "-s"))
+	{
+		ACE_OS::fprintf (stdout, "simulating a grabber...\n");
+		_simu = true;
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "-f"))
+	{
+		ACE_OS::fprintf(stdout, "grabber receiving data from network mode...\n");
+		_fgnetdata = true;
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "-v", &_videotype))
+	{
+		ACE_OS::fprintf(stdout, "grabber working in ");
+		switch(_videotype){
+			case 0: ACE_OS::fprintf(stdout, "composite video mode...\n"); break;
+			case 2: ACE_OS::fprintf(stdout, "s-video video mode...\n"); break;
+		}
+	}
+			
+	YARPParseParameters::parse(argc, argv, "-o", &_yoffset);
+		
+	if (_sizex == -1 && _sizey != -1)
+		_sizex = _sizey;
+	else
+	if (_sizex != -1 && _sizey == -1)
+		_sizey = _sizex;
+	else
+	if (_sizex == -1 && _sizey == -1)
+		_sizex = _sizey = 128;
+
+	if (YARPParseParameters::parse(argc, argv, "-c", &_Channels))
+	{
+		ACE_ASSERT (_Channels != 0 && _Channels < 3);
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "-a", &_SamplesPerSec))
+	{
+		ACE_ASSERT (_SamplesPerSec != 0);
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "-i", &_BitsPerSample))
+	{
+		ACE_ASSERT (_BitsPerSample != 0);
+	}
+
 
 	return YARP_OK; 
 }
@@ -569,19 +638,27 @@ mainthread::_runAsNormally (void)
 	int mute_value = 1;
 
 	YARPSoundGrabber soundgrabber;
-	YARPSoundBuffer buffer;
+	YARPSoundBuffer  soundbuffer;
+	YARPGrabber      imagegrabber;
+	YARPImageOf<YarpPixelBGR> img;
+	img.Resize (_sizex, _sizey);
 
 	//----------------------------------------------------------------------
-	//  Port initialization
+	//  Sound Port initialization
 	//----------------------------------------------------------------------
-	//DeclareOutport(outport);
+	YARPOutputPortOf<YARPSoundBuffer> soundoutport(YARPOutputPort::DEFAULT_OUTPUTS, _protocol);
+	soundoutport.SetAllowShmem(_sharedmem);
+	soundoutport.Register (_name, _netname);
+
+	//----------------------------------------------------------------------
+	//  Image port initialization
+	//----------------------------------------------------------------------
+	YARPOutputPortOf<YARPGenericImage> imgoutport(YARPOutputPort::DEFAULT_OUTPUTS, _protocol);
+	imgoutport.SetAllowShmem(_sharedmem);
+	imgoutport.Register (_imgname, _netname);
 	
-	YARPOutputPortOf<YARPSoundBuffer> outport(YARPOutputPort::DEFAULT_OUTPUTS, _protocol);
-	outport.SetAllowShmem(_sharedmem);
-	outport.Register (_name, _netname);
-
 	//----------------------------------------------------------------------
-	//  Initialize the grabber
+	//  Initialize the soundgrabber
 	//----------------------------------------------------------------------
 	soundgrabber.initialize (_board_no,
 							 _Channels,
@@ -590,9 +667,22 @@ mainthread::_runAsNormally (void)
 							 _BufferLength);
 	soundgrabber.setVolume(_volume);
 	soundgrabber.setMute(mute_value);
+	soundbuffer.Resize (_BufferLength);
 
-	/// alloc buffer.
-	buffer.Resize (_BufferLength);
+	//----------------------------------------------------------------------
+	// Imagegrabber initialization stuff 
+	//----------------------------------------------------------------------
+	params._unit_number = _board_no;
+	params._size_x      = _sizex;
+	params._size_y      = _sizey;
+	params._video_type  = _videotype;
+	imagegrabber.initialize(params);
+	
+	int w = -1, h = -1;
+	imagegrabber.getWidth (&w);
+	imagegrabber.getHeight(&h);
+	
+	unsigned char *buffer = NULL;
 
 	//----------------------------------------------------------------------
 	//  Start the data reception port in the case the option is active
@@ -605,35 +695,86 @@ mainthread::_runAsNormally (void)
 		m_fg_net_data->Register (_fgdataname,_netname);
 	} 
 
-	ACE_OS::fprintf (stdout, "starting up soundgrabber...\n");
+	ACE_OS::fprintf (stdout, "starting up soundvisiongrabber...\n");
 
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur   = start;
 
+	double start2 = YARPTime::GetTimeAsSeconds ();
+	double cur2   = start2;
+	double timesum = 0.0;
+	double * _pFirstdouble = NULL;
 	//----------------------------------------------------------------------
 	// Main loop 
 	//----------------------------------------------------------------------
 	while (!IsTerminated())
 	{
-		soundgrabber.waitOnNewFrame ();
+		//----------------------------------------------------------------------
+		//  Wait for a sound stream and copy the data.
+		//----------------------------------------------------------------------
 		unsigned char *tmp;
+		soundgrabber.waitOnNewFrame ();
+		start2 = YARPTime::GetTimeAsSeconds();
 		soundgrabber.acquireBuffer(&tmp);
+		ACE_OS::memcpy (soundbuffer.GetRawBuffer(), tmp, sizeof(unsigned char) * _BufferLength);
+		soundgrabber.releaseBuffer (); 
 
-		ACE_OS::memcpy (buffer.GetRawBuffer(), tmp, sizeof(unsigned char) * _BufferLength);
-		outport.Content().Refer (buffer);
-		outport.Write();
+		//----------------------------------------------------------------------
+		//  Insert the acquisition time in the first sound buffer bytes.
+		//----------------------------------------------------------------------
+		//_pFirstdouble  = (double *) soundbuffer.GetRawBuffer();
+		//*_pFirstdouble = start2;
 
-		soundgrabber.releaseBuffer (); // this could be released earlier?
+		//----------------------------------------------------------------------
+		// Wait for an image 
+		//----------------------------------------------------------------------
+		imagegrabber.waitOnNewFrame();
+		cur2 = YARPTime::GetTimeAsSeconds();
+		imagegrabber.acquireBuffer(&buffer);
+		ACE_OS::memcpy((unsigned char *)img.GetRawBuffer(), buffer, _sizex * _sizey * 3);
+		imagegrabber.releaseBuffer ();
 
+		//----------------------------------------------------------------------
+		//  Insert the acquisition time in the first images bytes.
+		//----------------------------------------------------------------------
+		//_pFirstdouble  = (double *) img.GetRawBuffer();
+		//*_pFirstdouble = cur2;
+
+		//----------------------------------------------------------------------
+		//  Measure realtime synchronization performance.
+		//----------------------------------------------------------------------
+		timesum += (cur2 - start2);
+
+		//----------------------------------------------------------------------
+		//  Send sound stream through the network waiting for reception confirmation
+		//----------------------------------------------------------------------
+		soundoutport.Content().Refer(soundbuffer);
+		soundoutport.Write(1);
+
+		//----------------------------------------------------------------------
+		//  Sent image frame through the network waiting for reception confirmation
+		//----------------------------------------------------------------------
+		imgoutport.Content().Refer(img);
+		imgoutport.Write(1);
+		
 		//----------------------------------------------------------------------
 		//  Time measurement stuff
 		//----------------------------------------------------------------------
 		frame_no++;
 		if ((frame_no % 250) == 0)
 		{
+			//----------------------------------------------------------------------
+			//  Print average adquisition time
+			//----------------------------------------------------------------------
 			cur = YARPTime::GetTimeAsSeconds ();
 			ACE_OS::fprintf (stdout, "average frame time: %f soundframes #%d acquired\r", (cur-start)/250, frame_no);
 			start = cur;
+
+			//----------------------------------------------------------------------
+			//  Print average realtime synchronization performance
+			//----------------------------------------------------------------------
+			ACE_OS::fprintf (stdout, "average synchronization time: %f soundframes #%d acquired\r", timesum/250, frame_no);
+			timesum = 0.0;
 		}
 	}
 
@@ -646,8 +787,9 @@ mainthread::_runAsNormally (void)
 			delete m_fg_net_data; 
 	}
 
+	imagegrabber.uninitialize();
 	soundgrabber.setMute(0);
-	soundgrabber.uninitialize ();
+	soundgrabber.uninitialize();
 
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
 	return YARP_OK;
