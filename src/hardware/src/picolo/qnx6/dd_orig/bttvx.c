@@ -71,18 +71,18 @@ int
 read_bttvx(unsigned char * buffer)
 {
 	struct bttv * btv = &bttvs[0];
-	//if (flag)
-	//{
+	if (flag)
+	{
 		memcpy(buffer,btv->imagebuf_odd, W*H*deep);
 		/////buffer = btv->imagebuf_odd;
-	//	flag = 0;
-	//}
-	//else
-	//{
-	//	memcpy(buffer,btv->imagebuf_even, W*H*deep);
-	//	flag = 1;
-	//}
-	//return 1;
+		flag = 0;
+	}
+	else
+	{
+		memcpy(buffer,btv->imagebuf_even, W*H*deep);
+		flag = 1;
+	}
+	return 1;
 }	
 
 int 
@@ -324,7 +324,7 @@ make_rawrisctab(struct bttv *btv, unsigned int *ro,
 	*(ro++) = BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRE |BT848_RISC_IRQ;
 	*(ro++) = 0;
 	*(ro++) = BT848_RISC_JUMP;
-	*(ro++) = virt_to_bus(btv->risc_odd);
+	*(ro++) = virt_to_bus(btv->risc_even);
 
 	*(re++) = BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRE |BT848_RISC_IRQ;
 	*(re++) = 0;
@@ -624,9 +624,12 @@ void InterruptEvent()
 	struct bttv * btv = &bttvs[0];
 
 	/* get/clear interrupt status bits */
-	stat=btread(BT848_INT_STAT);
-	astat=stat&btread(BT848_INT_MASK);
-	btwrite(stat,BT848_INT_STAT); //Write same data back, clears the pending intrs.
+	//stat = btread(BT848_INT_STAT);
+	stat = regbase[64];
+	//astat = stat&(uint32_t)btread(BT848_INT_MASK);
+	astat = stat & regbase[65];
+	//btwrite(stat,BT848_INT_STAT); //Write same data back, clears the pending intrs.
+	regbase[64] = stat;
 
 	if (!astat) //How the hell where we triggerd, we got no interrupt pending! :)
 		return;
@@ -637,6 +640,8 @@ void InterruptEvent()
 	if (astat & BT848_INT_RISCI)
 	{
 		pthread_cond_signal(&condvar);
+		//printf("YESS!!");
+		//fflush(stdout);
 	}
 
 	if (astat & BT848_INT_VPRES)
@@ -649,7 +654,7 @@ void InterruptEvent()
 	if (astat & BT848_INT_VSYNC)
 	{
 		btv->field_count++;
-		pthread_cond_signal(&condvar);
+		//pthread_cond_signal(&condvar);
 	}
 	
 	
@@ -1112,7 +1117,8 @@ init_bt848(struct bttv * btv, int video_format)
 	  BT848_INT_RISCI|BT848_INT_OCERR|BT848_INT_VPRES|
 	  BT848_INT_I2CDONE|BT848_INT_FMTCHG|BT848_INT_HLOCK,
 	  BT848_INT_MASK);*/
-  btwrite(BT848_INT_VSYNC|BT848_INT_FMTCHG|BT848_INT_SCERR|BT848_INT_VPRES|BT848_INT_RISCI,BT848_INT_MASK);
+  //btwrite(BT848_INT_VSYNC|BT848_INT_FMTCHG|BT848_INT_SCERR|BT848_INT_VPRES|BT848_INT_RISCI,BT848_INT_MASK);
+  regbase[65] = BT848_INT_VSYNC|BT848_INT_FMTCHG|BT848_INT_SCERR|BT848_INT_VPRES|BT848_INT_RISCI;
   
   /*
   make_rawrisctab(btv, 
