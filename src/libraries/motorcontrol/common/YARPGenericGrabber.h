@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericGrabber.h,v 1.8 2004-01-28 18:12:21 babybot Exp $
+/// $Id: YARPGenericGrabber.h,v 1.9 2004-01-29 10:06:46 beltran Exp $
 ///
 ///
 
@@ -101,7 +101,15 @@ public:
 	int setSatV(unsigned int);
 	int setLNotch(int);
 	int setLDec(int);
+	int setPeak(int);
+	int setCagc(int);
+	int setCkill(int);
+	int setRange(int);
+	int setYsleep(int);
+	int setCsleep(int);
 	int setCrush(int);
+	int setGamma(int);
+	int setDithFrame(int);
 };
 
 template <class ADAPTER, class PARAMETERS>
@@ -223,10 +231,74 @@ int YARPGenericGrabber<ADAPTER, PARAMETERS>::setLDec(int state)
 }
 
 template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setPeak(int state)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetPeak,&state);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setCagc(int state)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetCagc,&state);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setCkill(int state)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetCkill,&state);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setRange(int state)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetRange,&state);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setYsleep(int state)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetYsleep,&state);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setCsleep(int state)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetCsleep,&state);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
 int YARPGenericGrabber<ADAPTER, PARAMETERS>::setCrush(int state)
 {
 	int ret;
 	ret = _adapter.IOCtl(FCMDSetCrush,&state);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setGamma(int state)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetGamma,&state);
+	return ret;
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::setDithFrame(int state)
+{
+	int ret;
+	ret = _adapter.IOCtl(FCMDSetDithFrame,&state);
 	return ret;
 }
 #endif
