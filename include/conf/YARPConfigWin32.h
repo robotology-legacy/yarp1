@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.7 2003-05-14 17:34:56 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.8 2003-05-15 08:53:27 gmetta Exp $
 // YARP config file WIN32.
 //
 //
@@ -49,7 +49,7 @@
 #pragma warning (disable:4073)
 
 /// a null define (actually used in QNX) - can't be removed.
-#define YARP_REQUIRE_ATTR 
+#define __attribute__ (x)
 
 ///
 /// ACE inclusion

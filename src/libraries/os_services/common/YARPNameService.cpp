@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.9 2003-05-14 17:34:56 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.10 2003-05-15 08:53:27 gmetta Exp $
 ///
 ///
 
@@ -91,13 +91,13 @@ using namespace std;
 #pragma init_seg(lib)
 #endif
 
-static YARPSemaphore mutex(1) YARP_REQUIRE_ATTR;
+static YARPSemaphore mutex(1);
 
 /// not very elegant, legacy of old impl.
 /// LATER: do it differently.
-static bool _init_nameserver = true YARP_REQUIRE_ATTR;
-static YARPNameClient * _namer = NULL YARP_REQUIRE_ATTR;
-static YARPNameService _justtoinitialize YARP_REQUIRE_ATTR;
+static bool _init_nameserver = true;
+static YARPNameClient * _namer = NULL;
+static YARPNameService _justtoinitialize();
 
 ///static int is_connected = 0, tried_to_connect = 0;
 ///static int registration_mode = YARP_NO_SERVICE_AVAILABLE;
@@ -109,6 +109,10 @@ static YARPNameService _justtoinitialize YARP_REQUIRE_ATTR;
 char * GetYarpRoot (void)
 {
 	char * ret = getenv ("YARP_ROOT");
+	//ACE_DEBUG ((LM_DEBUG, "getenv returned: %s\n", ret));
+	ACE_OS::printf ("getenv returned: %s\n", ret);
+	ACE_OS::fflush (stdout);
+
 	if (ret == NULL)
 	{
 		ACE_DEBUG ((LM_DEBUG, "::GetYarpRoot : can't retrieve YARP_ROOT env variable\n"));
