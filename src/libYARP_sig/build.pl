@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 #
-# compiling libYARP_OS
+# compiling libYARP_sig
 #
 # options --debug compile the DEBUG version
 #		  --release to compile optimized
@@ -138,7 +138,7 @@ sub call_msdev_and_print
 {
 	my ($version, $operation) = @_;
 
-	open MSDEV, "msdev libYARP_sig.dsw /MAKE \"libYARP_sig - Win32 ".$version."\" /".$operation."|";
+	open MSDEV, "msdev libYARP_sig.dsp /MAKE \"libYARP_sig - Win32 ".$version."\" /".$operation."|";
 	while (<MSDEV>)
 	{
 		print;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.1 2004-07-20 15:13:41 eshuy Exp $
+/// $Id: AuxFunctions.cpp,v 1.2 2004-07-27 09:45:04 babybot Exp $
 ///
 ///
 
@@ -76,14 +76,6 @@
 #endif	/// __WIN32__
 
 #include <yarp/LogPolarSDK.h>
-
-void Set_Path()
-{
-}
-
-void Get_Path()
-{
-}
 
 /************************************************************************
 * Load_Bitmap															*
@@ -274,66 +266,6 @@ void Save_Bitmap(unsigned char *image,
 #endif
 }
 
-/************************************************************************
-* Get_Theta_Old		  														*
-************************************************************************/	
-/*
-* OLD VERSION
-*********************
-
-int Get_Theta_Old(double x,
-			  double y,
-			  int rho,
-			  Image_Data * par, 
-			  double *Ang_Shift, 
-			  unsigned short *Pad_Map)
-{
-	
-	int theta;
-	double temp;
-//	int jj;
-//	int counter;
-
-	int halfth = par->Size_Theta/2;
-	double thmult = (par->Size_Theta/2)/PI;
-
-//	tmpth  = (halfth-atan2(y,-x)*thmult);
-//	theta = (int)((tmpth) + .5 * ((rho)%2)) ;
-	
-	temp = -atan2(y,-x);
-	temp += PI-Ang_Shift[rho];
-
-	if (temp<0)
-		temp += 2*PI;
-	if (temp > 2*PI)
-		temp -= 2*PI;
-
-	if (rho<par->Size_Fovea)
-	{
-		temp = temp * (3*rho) / PI;
-//		counter = 0;
-//		for(jj=0; jj<par->Size_Theta; jj++)
-//		{
-//			if (Pad_Map[rho*par->Size_Theta+jj]!=1)
-//				counter ++;
-//		}
-//		temp = temp * counter / (2*PI);
-		theta = Pad_Map [(unsigned short)(temp)+par->Size_Theta*rho]%par->Size_Theta;
-	}
-	else 
-	{
-		temp = temp * (par->Size_Theta/2) / PI;
-		theta = (int) (temp);	
-	}
-	
-	if (theta<0)
-		theta += par->Size_Theta;
-	if (theta>=par->Size_Theta)
-		theta -= par->Size_Theta;
-
-	return theta;
-}
-*/
 
 /************************************************************************
 * Get_Theta		  														*
@@ -350,14 +282,6 @@ int Get_Theta(double x,
 	int theta;
 	double temp;
 	float castval = 0.01f;
-//	int jj;
-//	int counter;
-
-//	int halfth = par->Size_Theta/2;
-//	double thmult = (par->Size_Theta/2.0)/PI;
-
-//	tmpth  = (halfth-atan2(y,-x)*thmult);
-//	theta = (int)((tmpth) + .5 * ((rho)%2)) ;
 	
 	temp = -atan2(y,-x);
 	temp += PI-Ang_Shift[rho];
@@ -400,13 +324,6 @@ int Get_Theta(double x,
 			temp = temp * (par->Size_Theta) / (2*PI);
 			theta = (int)(temp+castval);
 		}
-//		counter = 0;
-//		for(jj=0; jj<par->Size_Theta; jj++)
-//		{
-//			if (Pad_Map[rho*par->Size_Theta+jj]!=1)
-//				counter ++;
-//		}
-//		temp = temp * counter / (2*PI);
 	}
 	else 
 	{
@@ -442,8 +359,6 @@ rgbPixel computeAvg(int SizeRho,int SizeTheta, int padding, unsigned char * imag
 	int SizeFovea = SizeTheta/6;
 	int diff = SizeTheta-SizeFovea*6;
 	Size -= (SizeFovea*(SizeFovea-1))*3+(SizeFovea-1)*diff+SizeTheta-1;
-//	Size = (SizeRho-5)*SizeTheta;
-//	int paddedLine = computePadSize(3 * SizeTheta,padding);
 	int paddedLine = 3 * SizeTheta+padding;
 
 	int i,j;
@@ -478,18 +393,13 @@ void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data 
 
 	oneLine = (unsigned char *) malloc (PadLine * sizeof (unsigned char));
 
-//From sawtooth to triangular
-	
 	for (i=0; i<par->Size_Fovea; i++)
 		for (j=0; j<par->Size_Theta*3; j++)
 		{
-//				outImage[i*PadLine+j] = inImage[3*padMap[i*252+j/3]];
 				outImage[i*PadLine+j] = inImage[3*padMap[i*252+j/3]+4*i+j%3];
-	//		outImage[3*j+1] = inImage[3*padMap[j]+1];
-	//		outImage[3*j+2] = inImage[3*padMap[j]+2];
 		}
 	
-//Replication of the first pixel
+	// Replication of the first pixel
 	for (j=3; j<3*par->Size_Theta; j+=3)
 	{
 		outImage[j]= outImage[0];
@@ -499,7 +409,7 @@ void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data 
 
 	for (i=2; i<par->Size_Fovea; i+=2)
 	{
-		//copy of one line
+		// copy of one line
 		for (j=0; j<3*par->Size_Theta; j++)
 			oneLine[j] = outImage[i*PadLine+j];
 
@@ -522,7 +432,7 @@ void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data 
 
 	for (i=1; i<par->Size_Fovea; i+=2)
 	{
-		//copy of one line
+		// copy of one line
 		for (j=0; j<3*par->Size_Theta; j++)
 			oneLine[j] = outImage[i*PadLine+j];
 
@@ -540,24 +450,15 @@ void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data 
 			else
 			{
 				outImage[i*PadLine+j]   = 0;
-//				outImage[3*(i*par->Size_Theta+j)+1] = 0;
-//				outImage[3*(i*par->Size_Theta+j)+2] = 0;
 			}
 		}
 	}
 	
-//Remaining Lines (non Fovea)
+	// Remaining Lines (non Fovea)
 	memcpy(outImage+PadLine * par->Size_Fovea,
 		inImage+PadLine * par->Size_Fovea,
 		PadLine * (par->Size_Rho-par->Size_Fovea) * sizeof(unsigned char));
 	
-	/*for (j=PadLine * par->Size_Fovea; j<PadLine * par->Size_Rho; j++)
-	{
-		outImage[j] = inImage[j];
-		outImage[j+1] = inImage[j+1];
-		outImage[j+2] = inImage[j+2];
-	}*/
-
 	free (oneLine);
 }
 
@@ -616,8 +517,6 @@ void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data 
 				oneLine[3*((int)k)]   = inImage[(i*PadLine+3*j)];
 				oneLine[3*((int)k)+1] = inImage[(i*PadLine+3*j)+1];
 				oneLine[3*((int)k)+2] = inImage[(i*PadLine+3*j)+2];
-//				outImage[3*(i*par->Size_Theta+j)+1] = oneLine[3*((int)k)+1];
-//				outImage[3*(i*par->Size_Theta+j)+2] = oneLine[3*((int)k)+2];
 			}
 			else
 			{
@@ -631,28 +530,15 @@ void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data 
 			outImage[i*PadLine+j] = oneLine[j];
 	}
 
-//Dereplication of the first pixel
-//	for (j=1; j<par->Size_Theta; j++)
-//	{
-//		outImage[3*j]= 0;
-//		outImage[3*j+1]= 0;
-//		outImage[3*j+2]= 0;
-//	}
-
-//From triangular to sawtooth
+	//From triangular to sawtooth
 	
 	for (i=0; i<par->Size_Fovea; i++)
 		for (j=0; j<par->Size_Theta*3; j++)
 	{
-//		//copy of one line
-//		for (j=0; j<3*par->Size_Theta; j++)
-//			oneLine[j] = outImage[i*3*par->Size_Theta+j];
 		if (padMap[i*252+j/3] != 1)
 			Fovea[3*padMap[i*252+j/3]+4*i+j%3] = outImage[i*PadLine+j];
 		else
 			outImage[i*PadLine+j]=0;
-//		Fovea[3*padMap[j]+1] = outImage[3*j+1];
-//		Fovea[3*padMap[j]+2] = outImage[3*j+2];
 	}
 
 	for (j=0; j<  PadLine * par->Size_Fovea; j++)
@@ -661,18 +547,11 @@ void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data 
 	}
 	
 
-//Remaining Lines (non Fovea)
+	//Remaining Lines (non Fovea)
 	memcpy(outImage+PadLine * par->Size_Fovea,
 		inImage+PadLine * par->Size_Fovea,
 		PadLine * (par->Size_Rho-par->Size_Fovea) * sizeof(unsigned char));
 	
-	/*for (j=PadLine * par->Size_Fovea; j<PadLine * par->Size_Rho; j++)
-	{
-		outImage[j]   = inImage[j];
-		outImage[j+1] = inImage[j+1];
-		outImage[j+2] = inImage[j+2];
-	}*/
-
 	free (oneLine);
 	free (Fovea);
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableLoading.cpp,v 1.1 2004-07-20 15:13:41 eshuy Exp $
+/// $Id: TableLoading.cpp,v 1.2 2004-07-27 09:45:04 babybot Exp $
 ///
 ///
 
@@ -262,7 +262,6 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 
 	if ((List&256)==256)
 	{
-//		sprintf(File_Name,"%s%s%1.2f%s",Path,"DSMap_",2.00,".gio");
 		sprintf(File_Name,"%s%s%1.2f_P%d%s",Path,"DSMap_",2.00,Par->padding,".gio");
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
@@ -281,15 +280,6 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 				Tables->DownSampleMap[j].position = Tables->DownSampleMap[0].position + k*j;
 				Tables->DownSampleMap[j].weight   = Tables->DownSampleMap[0].weight   + k*j;
 			}
-//			Tables->DownSampleMap = (IntNeighborhood *) malloc ((Par->Size_LP / 4) * sizeof(IntNeighborhood));
-//			for (j=0; j<Par->Size_LP/4; j++)
-//			{
-//				fread(&(Tables->DownSampleMap[j].NofPixels) ,sizeof(unsigned short),1,fin);
-//				Tables->DownSampleMap[j].position = (unsigned short *) malloc (Tables->DownSampleMap[j].NofPixels*sizeof(unsigned short));
-//				Tables->DownSampleMap[j].weight = (unsigned char *) malloc (Tables->DownSampleMap[j].NofPixels*sizeof(unsigned char));
-//				fread((Tables->DownSampleMap[j].position) ,sizeof(unsigned short),Tables->DownSampleMap[j].NofPixels,fin);
-//				fread((Tables->DownSampleMap[j].weight) ,sizeof(unsigned char),Tables->DownSampleMap[j].NofPixels,fin);
-//			}
 			fclose (fin);
 			retval = retval | 256;
 		}
@@ -301,10 +291,8 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 	{
 		if (Par->Ratio == 1.00)
 			sprintf(File_Name,"%s",Path,"ShiftMap.gio");
-//			sprintf(File_Name,"%s%s_%d",Path,"ShiftMap",Par->Resolution,".gio");
 		else
 			sprintf(File_Name,"%s%1.2f_%s",Path,Par->Ratio,"ShiftMap.gio");
-//			sprintf(File_Name,"%s%1.2f_%s_%d%s",Path,Par->Ratio,"ShiftMap",Par->Resolution,".gio");
 
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
@@ -346,7 +334,6 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 			sprintf(File_Name,"%s%1.2f_%s_P%d%s",Path,Par->Ratio,"ShiftMap",Par->padding,".gio");
 
 		Tables->CorrLevels = (double *)malloc(Tables->ShiftLevels*sizeof(double));
-//		Tables->PixelCount = (int *)malloc(Tables->ShiftLevels*sizeof(int));
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			Tables->ShiftMap = (int *) malloc ((Tables->ShiftLevels)*1*Par->Size_LP * sizeof(int));
@@ -404,7 +391,6 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 			sprintf(File_Name,"%s%1.2f_%s_P%d%s",Path,Par->Ratio,"ShiftMapF",Par->padding,".gio");
 
 		Tables->CorrLevels = (double *)malloc(Tables->ShiftLevels*sizeof(double));
-//		Tables->PixelCount = (int *)malloc(Tables->ShiftLevels*sizeof(int));
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			Tables->ShiftMapF = (int *) malloc ((Tables->ShiftLevels)*1*Par->Size_Theta * Par->Size_Fovea * sizeof(int));
@@ -441,8 +427,6 @@ Cart2LPInterp * Load_Cart2LP_Map(Image_Data * Par, char * Path)
 	FILE * fin;
 	Cart2LPInterp * Cart2LP_Map;
 		
-//	int PadSizeTheta = (((Par->Size_Theta * Par->LP_Planes) % Par->padding) + (Par->Size_Theta * Par->LP_Planes));
-	
 	sprintf(File_Name,"%s%s",Path,"Cart2LPMap.gio");
 
 	if ((fin = fopen(File_Name,"rb")) != NULL)

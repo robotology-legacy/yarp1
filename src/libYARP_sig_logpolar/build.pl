@@ -16,7 +16,7 @@ use Getopt::Long;
 use File::Copy;
 use Cwd;
 
-print "Entering compile process of YARP OS libraries...\n";
+print "Entering compile process of YARP log-polar libraries...\n";
 
 chomp ($ver = `ver`);
 chomp ($uname = `uname`);
@@ -64,12 +64,10 @@ while (<CONFIG>)
 	chomp;
 	if (/^\[(\w+)\]$/)
 	{
-#		print "Matched: $`<$&>$'\n";
 		$contextual = $1;
 	}
 	elsif (/^([A-Za-z0-9_]+)= ?/)
 	{
-#		print "Matched: $`<$&>$'\n";
 		$options{$contextual."<-".$1} = $';
 	}
 }
@@ -77,31 +75,6 @@ while (<CONFIG>)
 close CONFIG;
 
 my $os = $options{"Architecture<-OS"};
-
-#print "dumping my hash table\n";
-#while ( ($key, $value) = each %options )
-#{
-#	print "$key => $value\n";
-#}
-
-if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
-{
-	if (exists $options{"Compile_OS<-ACE_PATH"})
-	{
-		print "Looking for ACE...\n";
-		$options{"Compile_OS<-ACE_PATH"} =~ s/\$YARP_ROOT/$yarp_root/;
-		if (-e $options{"Compile_OS<-ACE_PATH"} &&
-			-e "$yarp_root/include/$os/ace" )
-		{
-			do_ace_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"} --os $os");
-		}
-	}
-	else
-	{
-		print "I'm assuming you've got ACE installed already!\n";
-		print "Make sure this is the case to continue compilation\n";
-	}
-}
 
 #
 # override.
@@ -143,8 +116,7 @@ if ($release)
 
 if ($install)
 {
-	print "\nInstalling YARP libraries to default install directory.\n";
-	print "Later this might change to something smarter.\n";
+	print "\nInstalling YARP signal processing libraries to default install directory.\n";
 	@my_headers = glob "./include/yarp/*.h";
 	foreach $file (@my_headers) 
 	{
@@ -160,59 +132,13 @@ if ($install)
 	}
 }
 
-if ($options{"Compile_OS<-Tools_Rebuild"} eq "YES")
-{
-	if ($options{"Compile_OS<-Tools_Debug"} eq "TRUE")
-	{
-		my $current_dir = getcwd;
-		chdir "../tools/" or die "Can't chdir to tools directory\n";
-		do_tools_compile ("build.pl --clean --debug --install --os $os");
-		chdir $current_dir or die "Can't chdir to $current_dir\n";
-	}
-	else
-	{
-		my $current_dir = getcwd;
-		chdir "../tools/" or die "Can't chdir to tools directory\n";
-		do_tools_compile ("build.pl --clean --release --install --os $os");
-		chdir $current_dir or die "Can't chdir to $current_dir\n";
-	}
-}
-else
-{
-	print "You didn't ask to recompile the YARP tools\n";
-}
-
-
-#
-#
-#
-sub do_tools_compile
-{
-	my ($exe) = @_;
-	open TOOLS, "$exe|";
-	while (<TOOLS>)
-	{
-		print;
-	}
-	close TOOLS;
-}
-
-sub do_ace_compile
-{
-	my ($exe) = @_;
-	open ACE, "$exe|";
-	while (<ACE>)
-	{
-		print;
-	}
-	close ACE;
-}
+print "\nDone!\n";
 
 sub call_msdev_and_print
 {
 	my ($version, $operation) = @_;
 
-	open MSDEV, "msdev libYARP_OS.dsp /MAKE \"libYARP_OS - Win32 ".$version."\" /".$operation."|";
+	open MSDEV, "msdev libYARP_sig_logpolar.dsp /MAKE \"libYARP_sig_logpolar - Win32 ".$version."\" /".$operation."|";
 	while (<MSDEV>)
 	{
 		print;

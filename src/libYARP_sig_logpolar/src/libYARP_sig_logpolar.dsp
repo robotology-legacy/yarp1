@@ -89,19 +89,11 @@ LIB32=link.exe -lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Acquisition.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\AuxFunctions.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\LogPolarSDK.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Mosaic.cpp
 # End Source File
 # Begin Source File
 
@@ -113,11 +105,19 @@ SOURCE=.\TableLoading.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\TestFunctions.cpp
+SOURCE=.\YARPLogpolar.cpp
+# End Source File
+# End Group
+# Begin Group "Header Files"
+
+# PROP Default_Filter "h"
+# Begin Source File
+
+SOURCE=..\include\yarp\LogPolarSDK.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\YARPLogpolar.cpp
+SOURCE=..\include\yarp\YARPLogpolar.h
 # End Source File
 # End Group
 # End Target

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.1 2004-07-20 12:28:01 eshuy Exp $
+/// $Id: LogPolarSDK.h,v 1.2 2004-07-27 09:45:03 babybot Exp $
 ///
 ///
 
@@ -101,8 +101,8 @@
 #define SHIFT	   1024
 #define SHIFTF	   2048
 
-struct Image_Data{
-
+struct Image_Data
+{
 	// Logarithm Index
 	double Log_Index;
 	bool Valid_Log_Index;
@@ -149,23 +149,27 @@ struct Image_Data{
 	float Ratio;  //Used just for naming purpose
 };
 
-struct Neighborhood{
+struct Neighborhood
+{
 	unsigned short position;
 	float weight;
 };
 
-struct IntNeighborhood{
+struct IntNeighborhood
+{
 	unsigned short NofPixels;
 	unsigned int * position;
 	unsigned char * weight;
 };
 
-struct Cart2LPInterp{
+struct Cart2LPInterp
+{
 	unsigned char NofPixels;
 	unsigned int * position;
 };
 
-struct LUT_Ptrs{
+struct LUT_Ptrs
+{
 	double			* AngShiftMap;
 	char			* ColorMap;
 	IntNeighborhood	* DownSampleMap;
@@ -179,7 +183,6 @@ struct LUT_Ptrs{
 	int				  ShiftLevels;
 	int				* ShiftFunction;
 	double			* CorrLevels;
-//	int				* PixelCount;
 };
 
 
@@ -213,44 +216,6 @@ Image_Data Set_Param(int SXO,
 					 int LPMode, 
 					 double ZoomLevel);
 
-int Camera_Init(int width,
-				int height,
-				char * dev_name,
-				int address,
-				int format,
-				int format_flags,
-				int *vdesc);
-
-int Giotto_Init(int address);
-
-int Giotto_Init_Wrapper(int width,
-						int height,
-						char * dev_name,
-						int address,
-						int format,
-						int format_flags,
-						int *vdesc);
-
-int Camera_Acq(unsigned char * image,
-			   struct timeval *acq_time,
-			   int *time_stamp,
-			   int *vdesc,
-			   int address);
-
-int Giotto_Acq(unsigned char * image,
-			   int width,
-			   int height,			   
-			   int address);
-
-int Giotto_Acq_Wrapper(unsigned char * image,
-					   struct timeval *acq_time,
-					   int *time_stamp,
-					   int *vdesc,
-					   int address);
-
-void Giotto_Close();
-void Giotto_Close_Wrapper(int *vdesc);
-
 unsigned char * Load_Bitmap(
 				 int *X_Size,
 				 int *Y_Size,
@@ -262,9 +227,6 @@ void Save_Bitmap(unsigned char *image,
 				 int Y_Size,
 				 int planes,
 				 char * filename);
-
-
-
 
 void Reconstruct_Color(unsigned char * Out_Image,
 					   unsigned char * In_Image,
@@ -282,23 +244,6 @@ void Reconstruct_Grays(unsigned char * Out_Image,
 					   Neighborhood * Weights_Map,
 					   int Pix_Numb);
 
-
-//int Build_Neighborhood_Map_NoFov(Image_Data * Par,
-//							char * Path);
-
-
-//IntNeighborhood * Build_Fast_Weights_Map(Image_Data * Par,
-//								char * Path);
-
-//unsigned char Build_Weights_Map_NoFov(Image_Data * Par,
-//								char * Path);
-
-
-//int Build_Remap_Map_No_Fov (Image_Data * Parameters,
-//					  char * Path);
-
-//int Crop_Remap_Map(Image_Data *Par, char* Path);
-//
 void Remap(unsigned char * Out_Image,
 		   unsigned char * In_Image,
 		   Image_Data * Par,
@@ -312,26 +257,7 @@ void Remap_Mono(unsigned char * Out_Image,
 void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Param, float Ratio,IntNeighborhood * IntDownSampleTable);
 void DownSampleFovea(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Param, float Ratio,IntNeighborhood * IntDownSampleTable,int Rows);
 
-long Get_Time();
-
 double Compute_Index(double Resolution, int Fovea, int SizeRho);
-
-//int Build_DownSample_Map (Image_Data * Parameters, char * Path);
-
-void RGB_2_YUV(unsigned char * OutImageYUV,
-			   unsigned char * InImageRGB,
-			   int Size_Rho,
-			   int Size_Theta);
-
-void YUV_2_RGB(unsigned char * InImageYUV,
-						unsigned char * OutImageRGB,
-						Image_Data * Par);
-
-void Simulate_Camera(unsigned char * InCartImage,
-				unsigned char * OutLPImage,
-				Image_Data * Par,
-				char * Path,
-				int flag);
 
 void Cart2LPReal(unsigned char *in_image, 
 				 unsigned char *out_image,
@@ -357,14 +283,12 @@ int Get_Theta(double x,
 			  unsigned short *Pad_Map);
 
 double Get_X_Center(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap);
-double getXfloatRes(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap);
-
 double Get_Y_Center(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap);
+double getXfloatRes(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap);
 double getYfloatRes(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap);
 
+
 int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, double *Ang_Shift);
-
-
 
 Cart2LPInterp * Load_Cart2LP_Map(Image_Data * Param, char * Path);
 
@@ -397,34 +321,20 @@ void shiftSSDWorstCase (unsigned char * fullImg, unsigned char * fovImg, Image_D
 void sawt2Uniform(unsigned char * outImage, unsigned char * inImage, Image_Data * par, unsigned short * padMap);
 void uniform2Sawt(unsigned char * outImage, unsigned char * inImage, Image_Data * par, unsigned short * padMap);
 
-//Functions defined in TableGeneration.cpp
-
+// Functions defined in TableGeneration.cpp
 unsigned short Build_Tables (Image_Data * Param, LUT_Ptrs * Tables,char * Path, unsigned short List);
-
 int Build_Ang_Shift_Map (Image_Data * Par, char * Path);
-
 int Build_Cart2LP_Map(Image_Data * Par, char * Path);
-
 int Build_Color_Map (Image_Data * Par, char * Path);
-
 int Build_Pad_Map (Image_Data * Par, char * Path);
-
 int Build_XY_Map (Image_Data * Par, char * Path);
-
 int Build_Neighborhood_Map (Image_Data * Par, char * Path);
-
 int Build_Remap_Map (Image_Data * Par, char * Path);
-
 int Build_Cart2LP_Map (Image_Data * Par, char * Path);
-
 int Build_Weights_Map(Image_Data * Par, char * Path);
-
 int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio);
-
 int Build_Shift_Map(Image_Data * Par, char * Path);
-
 int Build_Shift_Map_Fovea(Image_Data * Par, char * Path);
-
 void Build_Step_Function(char * Path, Image_Data * Par);
 
 #endif
