@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.26 2004-04-26 17:15:37 natta Exp $
+/// $Id: YARPLogpolar.cpp,v 1.27 2004-05-03 16:46:54 orfra Exp $
 ///
 ///
 
@@ -367,7 +367,7 @@ int YARPLogpolar::Logpolar2CartesianFovea (const YARPImageOf<YarpPixelBGR>& in, 
 
 ///
 /// ix, iy are in [0,max]x[0,max]
-int YARPLogpolar::Cartesian2Logpolar (int ix, int iy, int& orho, int& otheta)
+int YARPLogpolar::Cartesian2Logpolar (double ix, double iy, int& orho, int& otheta)
 {
 	using namespace _logpolarParams;
 	ix -= _xsize/2;
