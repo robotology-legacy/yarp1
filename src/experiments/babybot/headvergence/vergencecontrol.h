@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergencecontrol.h,v 1.3 2004-01-19 19:03:23 babybot Exp $
+/// $Id: vergencecontrol.h,v 1.4 2004-04-29 17:34:42 babybot Exp $
 ///
 ///
 
@@ -93,7 +93,11 @@ public:
 		out(3) = 0.0;
 
 		out(5) = 0.0;	// _pids.pid(v)
-		out(4) = _pids.pid(v);
+		
+		if (in(2)>0.16)	// check correlation value
+			out(4) = _pids.pid(v);
+		else
+			out(4) = 0;
 	}
 
 private:

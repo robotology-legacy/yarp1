@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.12 2004-04-26 10:26:28 babybot Exp $
+/// $Id: vergence.cpp,v 1.13 2004-04-29 17:34:42 babybot Exp $
 ///
 ///
 
@@ -100,9 +100,9 @@ YARPOutputPortOf<YVector> out_disp (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 const char *DEFAULT_NAME = "/vergence";
 
 const int __nScales = 1;
-const int __nRings[] = {20}; //{10, 15, 20};
+const int __nRings[] = {15, 20};
 
-void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr, int sl);
+void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr, const double *phase, int sl, double val);
 
 int main(int argc, char *argv[])
 {
@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
 	sub_left.Resize (_stheta/4, _srho/4);
 	sub_right.Resize (_stheta/4, _srho/4);
 
-	out.Resize (256, 64);
+	out.Resize (256, 64*3);
 
 	YARPLogpolar mapper;
 	YARPDisparityTool disparity[__nScales];
@@ -180,6 +180,9 @@ int main(int argc, char *argv[])
 	FILE *fp = fopen ("Y:/conf/vergence_bugs.txt", "w");
 	ACE_ASSERT (fp != NULL);
 	*/
+
+	YVector disparityval(2);
+	const double *phase;
 
 	while (1)
 	{
@@ -209,14 +212,15 @@ int main(int argc, char *argv[])
 		disparity[0].downSample (col_left, sub_left);
 		disparity[0].downSample (col_right, sub_right);
 		
-		YVector disparityval(1);
-
 		for(s=0; s<__nScales;s++)
 		{
 			// disparityval(1) = -(double)disparity.computeDisparity (sub_left, sub_right);
-			disparityval(1) = (double)disparity[s].computeDisparityRGB (sub_right, sub_left);
+			double value;
+			disparityval(1) = (double)disparity[s].computeDisparityRGB (sub_right, sub_left, &value);
+			disparityval(2) = value;
 
 			const double *tmpc = disparity[s].getCorrFunction();
+			phase = disparity[s].getPhase();
 
 			int c;
 			for(c = 0; c < disparity[0].getShiftLevels(); c++)
@@ -232,7 +236,7 @@ int main(int argc, char *argv[])
 			
 		}
 
-		makeHistogram(out, correlation, disparity[0].getShiftLevels());
+		makeHistogram(out, correlation, phase, disparity[0].getShiftLevels(), disparityval(2));
 		///
 		/*	printf ("xm: %f s: %f a: %f err: %f s/n: %f\n", 
 			disparity._gMean, disparity._gSigma, disparity._gMagn, 
@@ -247,6 +251,8 @@ int main(int argc, char *argv[])
 		}
 		*/
 
+		// printf("value: %lf\n", disparityval(1));
+
 		out_img.Content().Refer(out);
 		out_img.Write();
 
@@ -258,7 +264,7 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr, int sl)
+void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr, const double *phase, int sl, double val)
 {
 	int i,j;
 	int height = hImg.GetHeight();
@@ -270,15 +276,45 @@ void makeHistogram(YARPImageOf<YarpPixelMono>& hImg, const double *corr, int sl)
 
 	hImg.Zero();
 
+	unsigned char color;
+	if (val>0.16)
+		color = 128;
+	else
+		color = 60;
+
 	for (i=0; i<sl-1; i++)
 	{
 		if ((i+offset >=0)&&(i+offset<width))
 		{
-			for (j=height-(int)(height/3.0*(3-corr[i])); j<height; j++)
-					hist[(j*width+i+offset)] = 128;
+			for (j=height-(int)(height/3*(corr[i])); j<height; j++)
+					hist[(j*width+i+offset)] = color;
+		}
+	}
+
+	for (i=0; i<sl-1; i++)
+	{
+		if ((i+offset >=0)&&(i+offset<width))
+		{
+			for (j=(2*height/3)-(int)(height/3*(phase[i])); j<2*height/3; j++)
+					hist[j*width+i+offset] = color;
+		}
+	}
+
+	for (i=0; i<sl-1; i++)
+	{
+		if ((i+offset >=0)&&(i+offset<width))
+		{
+			for (j=(1*height/3)-(int)(height/3*(corr[i]*phase[i])); j<height/3; j++)
+					hist[j*width+i+offset] = color;
 		}
 	}
 
 	for (j=0; j<height; j++)
 		hist[(j*width+width/2)] = 255;
+
+	for(i=0; i<width; i++)
+		hist[(height/3)*width+i] = 255;
+
+	for(i=0; i<width; i++)
+		hist[(2*height/3)*width+i] = 255;
 }

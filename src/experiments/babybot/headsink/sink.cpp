@@ -62,10 +62,17 @@ void Sink::doLoop()
 
 	_outCmd = 0.0;
 
+	// check inhibit vergence
+
+	double tmp;
+	tmp = sqrt((_inVectors[SinkChTracker](4)*_inVectors[SinkChTracker](4))/(0.007*0.007));
+
 	// form command
 	_outCmd = _outCmd + _enableVector[SinkChVor]*_inVectors[SinkChVor];
 	_outCmd = _outCmd + _enableVector[SinkChTracker]*_inVectors[SinkChTracker];
-	_outCmd = _outCmd + _enableVector[SinkChVergence]*_inVectors[SinkChVergence];
+	
+	if (tmp<10)
+		_outCmd = _outCmd + _enableVector[SinkChVergence]*_inVectors[SinkChVergence];
 	
 	// finally compute neck
 	const YVector &neck = _neckControl->apply(_inVectors[SinkChPosition], _outCmd);

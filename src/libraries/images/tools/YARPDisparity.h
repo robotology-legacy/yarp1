@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.h,v 1.10 2004-04-26 10:26:29 babybot Exp $
+/// $Id: YARPDisparity.h,v 1.11 2004-04-29 17:34:43 babybot Exp $
 ///
 ///
 // disparity.h: interface for the YARPDisparityTool class.
@@ -107,6 +107,8 @@ public:
 	int * _shiftFunction;
 	IntNeighborhood * _dsTable;
 	double * _corrFunct;
+	double * _phase;
+	double * _coeff;
 	double * _gaussFunction;
 	double _corrTreshold;
 
@@ -124,6 +126,10 @@ public:
 		{ return _shiftLevels; }
 	inline const double *getCorrFunction()
 		{ return _corrFunct; }
+	inline const double *getPhase()
+		{ return _phase; }
+	inline const double *getCoeff()
+	{ return _coeff;}
 
 	void setRings(int r)
 	{ _actRings = r; }
@@ -136,7 +142,8 @@ public:
 						 YARPImageOf<YarpPixelBGR> & inLImg);
 
 	int computeDisparityRGB (YARPImageOf<YarpPixelBGR> & inRImg,
-						     YARPImageOf<YarpPixelBGR> & inLImg);
+						     YARPImageOf<YarpPixelBGR> & inLImg, 
+							 double *value);
 
 	int corrAdjust(int * count);
 	double computeSNRatio(int disparity);

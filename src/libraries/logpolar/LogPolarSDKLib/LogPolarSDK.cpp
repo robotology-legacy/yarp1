@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.37 2004-04-26 10:26:29 babybot Exp $
+/// $Id: LogPolarSDK.cpp,v 1.38 2004-04-29 17:34:43 babybot Exp $
 ///
 ///
 
@@ -1572,7 +1572,7 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 	}
 }
 
-void shiftnCorrFoveaRGB (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, rgbPixel aFull, rgbPixel aFov,int Rows, int * count)
+void shiftnCorrFoveaRGB (unsigned char * fullImg, unsigned char * fovImg, Image_Data * Par, int Steps, int * ShiftMap, double *corr_val, double *phase, double *coeff, rgbPixel aFull, rgbPixel aFov,int Rows, int * count)
 {
 	int i,j,k,k1;
 	int i2,i1;//iR,iL
@@ -1648,17 +1648,17 @@ void shiftnCorrFoveaRGB (unsigned char * fullImg, unsigned char * fovImg, Image_
 						pY[2] = fullPtr[i2+2] - aFull.Blu;
 
 					
-						rxy[0] += (pX[0]*pY[0] + pX[1]*pY[1] + pX[2]*pY[2]);
+						rxy[0] += (-pX[0]*pY[0] - pX[1]*pY[1] - pX[2]*pY[2]);
 						rxy[1] += (pX[1]*pY[2] - pX[2]*pY[1]);
 						rxy[2] += (pX[0]*pY[1] - pX[1]*pY[0]);
 						rxy[3] += (pX[2]*pY[0] - pX[0]*pY[2]);
 
-						rxx[0] += (pX[0]*pX[0] + pX[1]*pX[1] + pX[2]*pX[2]);
+						rxx[0] += (-pX[0]*pX[0] - pX[1]*pX[1] - pX[2]*pX[2]);
 						rxx[1] += (pX[1]*pX[2] - pX[2]*pX[1]);
 						rxx[2] += (pX[0]*pX[1] - pX[1]*pX[0]);
 						rxx[3] += (pX[2]*pX[0] - pX[0]*pX[2]);
 
-						ryy[0] += (pY[0]*pY[0] + pY[1]*pY[1] + pY[2]*pY[2]);
+						ryy[0] += (-pY[0]*pY[0] - pY[1]*pY[1] - pY[2]*pY[2]);
 						ryy[1] += (pY[1]*pY[2] - pY[2]*pY[1]);
 						ryy[2] += (pY[0]*pY[1] - pY[1]*pY[0]);
 						ryy[3] += (pY[2]*pY[0] - pY[0]*pY[2]);
@@ -1669,11 +1669,13 @@ void shiftnCorrFoveaRGB (unsigned char * fullImg, unsigned char * fovImg, Image_
 		}
 
 		double absRxySq=rxy[0]*rxy[0] + rxy[1]*rxy[1] + rxy[2]*rxy[2] + rxy[3]*rxy[3];  
+		double absV = sqrt(rxy[1]*rxy[1] + rxy[2]*rxy[2] + rxy[3]*rxy[3]);  
 		double absRxxSq=rxx[0]*rxx[0] + rxx[1]*rxx[1] + rxx[2]*rxx[2] + rxx[3]*rxx[3];  
 		double absRyySq=ryy[0]*ryy[0] + ryy[1]*ryy[1] + ryy[2]*ryy[2] + ryy[3]*ryy[3];  
-		
-		corr_val[k]  = 3*(absRxySq/(sqrt(absRxxSq)*sqrt(absRyySq)));
-		
+
+		corr_val[k]  = (absRxySq/(sqrt(absRxxSq)*sqrt(absRyySq)));
+		phase[k] = fabs(atan2(absV,rxy[0])/PI);
+		coeff[k] = corr_val[k]*phase[k];
 	}
 }
 

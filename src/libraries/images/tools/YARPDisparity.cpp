@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.20 2004-04-28 14:44:43 babybot Exp $
+/// $Id: YARPDisparity.cpp,v 1.21 2004-04-29 17:34:42 babybot Exp $
 ///
 ///
 
@@ -91,6 +91,8 @@ YARPDisparityTool::YARPDisparityTool()
 	_actRings		= 21;
 	_corrTreshold   = 2.0;
 	_count			= NULL;
+	_coeff			= NULL;
+	_phase			= NULL;
 }
 
 YARPDisparityTool::~YARPDisparityTool()
@@ -118,6 +120,12 @@ YARPDisparityTool::~YARPDisparityTool()
 
 	if (_count != NULL)
 		delete [] _count;
+
+	if (_coeff != NULL)
+		delete [] _coeff;
+
+	if (_phase != NULL)
+		delete [] _phase;
 }
 
 int YARPDisparityTool::loadShiftTable(Image_Data * Par)
@@ -158,6 +166,13 @@ int YARPDisparityTool::loadShiftTable(Image_Data * Par)
 	/// alloc _corrFunct array.
 	_corrFunct = new double [_shiftLevels];
 	ACE_ASSERT (_corrFunct != NULL);
+
+	_phase = new double [_shiftLevels];
+	ACE_ASSERT (_phase != NULL);
+
+	_coeff = new double [_shiftLevels];
+	ACE_ASSERT (_coeff!= NULL);
+
 	_gaussFunction = new double [_shiftLevels];
 	ACE_ASSERT (_gaussFunction != NULL);
 
@@ -403,7 +418,7 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
 }
 
 int YARPDisparityTool::computeDisparityRGB (YARPImageOf<YarpPixelBGR> & inRImg,
-											YARPImageOf<YarpPixelBGR> & inLImg)
+											YARPImageOf<YarpPixelBGR> & inLImg, double *value)
 {
 	int disparity;
 
@@ -419,13 +434,41 @@ int YARPDisparityTool::computeDisparityRGB (YARPImageOf<YarpPixelBGR> & inRImg,
 						_shiftLevels,
 						_shiftMap,
 						_corrFunct,
+						_phase,
+						_coeff,
 						avgRight,
 						avgLeft,
 						_actRings,
 						_count);
 
+	int l;
+	// find countMax, this is actually a constant value...
+	double countMax = 0;
+	for(l = 0; l<_shiftLevels; l++)
+	{
+		if (_count[l] > countMax)
+			countMax = _count[l];
+	}
 
-	disparity = corrAdjust(_count); //Computes where the best correspondance is and removes non valid points
+	// search max
+	double corrMax = 0;
+	for(l = 0; l<_shiftLevels; l++)
+	{
+		if (_count[l]<countMax)
+		{
+			_corrFunct[l] = 0;
+			_coeff[l] = 0;
+			_phase[l] = 0;
+		}
+		else if (_coeff[l]>corrMax)
+		{
+			// corrMax = _coerrFunct[l];
+			corrMax = _coeff[l];
+			disparity = l;
+		}
+	}
+
+	*value = (double) _corrFunct[disparity];
 
 	disparity = _shiftFunction[disparity];
 	disparity = (int)(0.5 + disparity * _imgS.Size_X_Remap / (float)_imgS.Resolution);
@@ -741,7 +784,7 @@ void YARPDisparityTool::mrqCof(	YVector& x, double y[], YVector& sig, int ndata,
 
 }
 
-int YARPDisparityTool::corrAdjust(int * count)
+int YARPDisparityTool::corrAdjust(int *count)
 {
 	int MAX = 0;
 	double MIN = 1000.0;
@@ -768,6 +811,7 @@ int YARPDisparityTool::corrAdjust(int * count)
 		}
 
 	return minindex;
+
 }
 
 double YARPDisparityTool::computeSNRatio(int disparity)
