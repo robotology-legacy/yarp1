@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.2 2003-09-16 13:57:34 beltran Exp $
+#$Id: Makefile,v 1.3 2003-09-16 15:46:17 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -25,6 +25,7 @@ w:
 
 clean:
 	rm -f $(OUTDIR)*.o $(CODELIB)
+	rm -f *.o
 
 install:
 	@echo
