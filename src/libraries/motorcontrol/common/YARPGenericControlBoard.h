@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.9 2004-05-07 17:15:17 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.10 2004-06-29 15:21:49 gmetta Exp $
 ///
 ///
 
@@ -420,7 +420,8 @@ protected:
 		_currentLimits = new double [_parameters._nj];
 		_newLimits = new double [_parameters._nj];
 
-		if (_adapter.initialize(&_parameters) == YARP_FAIL) {
+		if (_adapter.initialize(&_parameters) == YARP_FAIL) 
+		{
 			YARP_GEN_CB_DEBUG(("Error initializing Control board!\n"));
 			_unlock();
 			return YARP_FAIL;
@@ -437,7 +438,6 @@ protected:
 
 	double *_currentLimits;
 	double *_newLimits;
-
 };
 
 // This procedure set new gains smoothly in 's' steps.

@@ -23,17 +23,17 @@ if "%1"=="release" goto release
 echo Cleaning all...
 
 cd .\framegrab\
-nmake /f framegrab.mak CFG="framegrab - Win32 Debug" clean
-nmake /f framegrab.mak CFG="framegrab - Win32 Release" clean
+msdev framegrab.dsw /MAKE "framegrab - Win32 Debug" /CLEAN
+msdev framegrab.dsw /MAKE "framegrab - Win32 Release" /CLEAN
 cd ..\forcesensor\
-nmake /f forcesensor.mak CFG="forcesensor - Win32 Debug" clean
-nmake /f forcesensor.mak CFG="forcesensor - Win32 Release" clean
+msdev forcesensor.dsw /MAKE "forcesensor - Win32 Debug" /CLEAN
+msdev forcesensor.dsw /MAKE "forcesensor - Win32 Release" /CLEAN
 cd ..\touch\
-nmake /f touch.mak CFG="touch - Win32 Debug" clean
-nmake /f touch.mak CFG="touch - Win32 Release" clean
+msdev touch.dsw /MAKE "touch - Win32 Debug" /CLEAN
+msdev touch.dsw /MAKE "touch - Win32 Release" /CLEAN
 cd ..\soundgrab\
-nmake /f soundgrab.mak CFG="soundgrab - Win32 Debug" clean
-nmake /f soundgrab.mak CFG="soundgrab - Win32 Release" clean
+msdev soundgrab.dsw /MAKE "soundgrab - Win32 Debug" /CLEAN
+msdev soundgrab.dsw /MAKE "soundgrab - Win32 Release" /CLEAN
 cd ..\
 
 goto end
@@ -43,13 +43,13 @@ goto end
 echo Compiling all with DEBUG enabled.
 
 cd .\framegrab\
-nmake /f framegrab.mak CFG="framegrab - Win32 Debug" 
+msdev framegrab.dsw /MAKE "framegrab - Win32 Debug" /BUILD
 cd ..\forcesensor\
-nmake /f forcesensor.mak CFG="forcesensor - Win32 Debug" 
+msdev forcesensor.dsw /MAKE "forcesensor - Win32 Debug" /BUILD
 cd ..\touch\
-nmake /f touch.mak CFG="touch - Win32 Debug"
+msdev touch.dsw /MAKE "touch - Win32 Debug" /BUILD
 cd ..\soundgrab\
-nmake /f soundgrab.mak CFG="soundgrab - Win32 Debug"
+msdev soundgrab.dsw /MAKE "soundgrab - Win32 Debug" /BUILD
 cd ..\
 
 goto end
@@ -59,13 +59,13 @@ goto end
 echo Compiling all with RELEASE enabled.
 
 cd .\framegrab\
-nmake /f framegrab.mak CFG="framegrab - Win32 Release" 
+msdev framegrab.dsw /MAKE "framegrab - Win32 Release" /BUILD
 cd ..\forcesensor\
-nmake /f forcesensor.mak CFG="forcesensor - Win32 Release" 
+msdev forcesensor.dsw /MAKE "forcesensor - Win32 Release" /BUILD
 cd ..\touch\
-nmake /f touch.mak CFG="touch - Win32 Release"
+msdev touch.dsw /MAKE "touch - Win32 Release" /BUILD
 cd ..\soundgrab\
-nmake /f soundgrab.mak CFG="soundgrab - Win32 Release"
+msdev soundgrab.dsw /MAKE "soundgrab - Win32 Release" /BUILD
 cd ..\
 
 goto end

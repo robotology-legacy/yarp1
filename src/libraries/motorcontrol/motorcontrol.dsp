@@ -247,6 +247,10 @@ SOURCE=.\babybot\YARPPicoloOnBabybotAdapter.h
 # Begin Group "robotcub"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat;h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\robotcub\YARPCanOnRobotcubHeadAdapter.h
+# End Source File
 # End Group
 # End Target
 # End Project

@@ -23,93 +23,93 @@ if "%1"=="debug" goto debug
 echo Cleaning all...
 
 cd .\armcontrol\
-nmake /f armcontrol.mak CFG="armcontrol - Win32 Debug" clean
-nmake /f armcontrol.mak CFG="armcontrol - Win32 Release" clean
+msdev armcontrol.dsw /MAKE "armcontrol - Win32 Debug" /CLEAN
+msdev armcontrol.dsw /MAKE "armcontrol - Win32 Release" /CLEAN
 cd ..\armtrigger\
-nmake /f armtrigger.mak CFG="armtrigger - Win32 Debug" clean
-nmake /f armtrigger.mak CFG="armtrigger - Win32 Release" clean
+msdev armtrigger.dsw /MAKE "armtrigger - Win32 Debug" /CLEAN
+msdev armtrigger.dsw /MAKE "armtrigger - Win32 Release" /CLEAN
 cd ..\attention\
-nmake /f attention.mak CFG="attention - Win32 Debug" clean
-nmake /f attention.mak CFG="attention - Win32 Release" clean
+msdev attention.dsw /MAKE "attention - Win32 Debug" /CLEAN
+msdev attention.dsw /MAKE "attention - Win32 Release" /CLEAN
 cd ..\behaviorRnd\
-nmake /f behaviorRnd.mak CFG="behaviorRnd - Win32 Debug" clean
-nmake /f behaviorRnd.mak CFG="behaviorRnd - Win32 Release" clean
+msdev behaviorRnd.dsw /MAKE "behaviorRnd - Win32 Debug" /CLEAN
+msdev behaviorRnd.dsw /MAKE "behaviorRnd - Win32 Release" /CLEAN
 cd ..\bottlesender\
-nmake /f bottlesender.mak CFG="bottlesender - Win32 Debug" clean
-nmake /f bottlesender.mak CFG="bottlesender - Win32 Release" clean
+msdev bottlesender.dsw /MAKE "bottlesender - Win32 Debug" /CLEAN
+msdev bottlesender.dsw /MAKE "bottlesender - Win32 Release" /CLEAN
 cd ..\checkfixation\
-nmake /f checkfixation.mak CFG="checkfixation - Win32 Debug" clean
-nmake /f checkfixation.mak CFG="checkfixation - Win32 Release" clean
+msdev checkfixation.dsw /MAKE "checkfixation - Win32 Debug" /CLEAN
+msdev checkfixation.dsw /MAKE "checkfixation - Win32 Release" /CLEAN
 cd ..\collectpoints\
-nmake /f collectpoints.mak CFG="collectpoints - Win32 Debug" clean
-nmake /f collectpoints.mak CFG="collectpoints - Win32 Release" clean
+msdev collectpoints.dsw /MAKE "collectpoints - Win32 Debug" /CLEAN
+msdev collectpoints.dsw /MAKE "collectpoints - Win32 Release" /CLEAN
 cd ..\datacollector\
-nmake /f datacollector.mak CFG="datacollector - Win32 Debug" clean
-nmake /f datacollector.mak CFG="datacollector - Win32 Release" clean
+msdev datacollector.dsw /MAKE "datacollector - Win32 Debug" /CLEAN
+msdev datacollector.dsw /MAKE "datacollector - Win32 Release" /CLEAN
 cd ..\egomap\
-nmake /f egomap.mak CFG="egomap - Win32 Debug" clean
-nmake /f egomap.mak CFG="egomap - Win32 Release" clean
+msdev egomap.dsw /MAKE "egomap - Win32 Debug" /CLEAN
+msdev egomap.dsw /MAKE "egomap - Win32 Release" /CLEAN
 cd ..\grasprflx\
-nmake /f grasprflx.mak CFG="grasprflx - Win32 Debug" clean
-nmake /f grasprflx.mak CFG="grasprflx - Win32 Release" clean
+msdev grasprflx.dsw /MAKE "grasprflx - Win32 Debug" /CLEAN
+msdev grasprflx.dsw /MAKE "grasprflx - Win32 Release" /CLEAN
 cd ..\handcolortracker\
-nmake /f HandColorTracker.mak CFG="HandColorTracker - Win32 Debug" clean
-nmake /f HandColorTracker.mak CFG="HandColorTracker - Win32 Release" clean
+msdev HandColorTracker.dsw /MAKE "HandColorTracker - Win32 Debug" /CLEAN
+msdev HandColorTracker.dsw /MAKE "HandColorTracker - Win32 Release" /CLEAN
 cd ..\handcontrol\
-nmake /f handcontrol.mak CFG="handcontrol - Win32 Debug" clean
-nmake /f handcontrol.mak CFG="handcontrol - Win32 Release" clean
+msdev handcontrol.dsw /MAKE "handcontrol - Win32 Debug" /CLEAN
+msdev handcontrol.dsw /MAKE "handcontrol - Win32 Release" /CLEAN
 cd ..\handlocalization\
-nmake /f handlocalization.mak CFG="handlocalization - Win32 Debug" clean
-nmake /f handlocalization.mak CFG="handlocalization - Win32 Release" clean
+msdev handlocalization.dsw /MAKE "handlocalization - Win32 Debug" /CLEAN
+msdev handlocalization.dsw /MAKE "handlocalization - Win32 Release" /CLEAN
 cd ..\handtrackerswitch\
-nmake /f handtrackerswitch.mak CFG="handtrackerswitch - Win32 Debug" clean
-nmake /f handtrackerswitch.mak CFG="handtrackerswitch - Win32 Release" clean
+msdev handtrackerswitch.dsw /MAKE "handtrackerswitch - Win32 Debug" /CLEAN
+msdev handtrackerswitch.dsw /MAKE "handtrackerswitch - Win32 Release" /CLEAN
 cd ..\headcontrol\
-nmake /f headcontrol.mak CFG="headcontrol - Win32 Debug" clean
-nmake /f headcontrol.mak CFG="headcontrol - Win32 Release" clean
+msdev headcontrol.dsw /MAKE "headcontrol - Win32 Debug" /CLEAN
+msdev headcontrol.dsw /MAKE "headcontrol - Win32 Release" /CLEAN
 cd ..\headsaccades\
-nmake /f headsaccades.mak CFG="headsaccades - Win32 Debug" clean
-nmake /f headsaccades.mak CFG="headsaccades - Win32 Release" clean
+msdev headsaccades.dsw /MAKE "headsaccades - Win32 Debug" /CLEAN
+msdev headsaccades.dsw /MAKE "headsaccades - Win32 Release" /CLEAN
 cd ..\headsink\
-nmake /f headsink.mak CFG="headsink - Win32 Debug" clean
-nmake /f headsink.mak CFG="headsink - Win32 Release" clean
+msdev headsink.dsw /MAKE "headsink - Win32 Debug" /CLEAN
+msdev headsink.dsw /MAKE "headsink - Win32 Release" /CLEAN
 cd ..\headsmooth\
-nmake /f headsmooth.mak CFG="headsmooth - Win32 Debug" clean
-nmake /f headsmooth.mak CFG="headsmooth - Win32 Release" clean
+msdev headsmooth.dsw /MAKE "headsmooth - Win32 Debug" /CLEAN
+msdev headsmooth.dsw /MAKE "headsmooth - Win32 Release" /CLEAN
 cd ..\headvergence\
-nmake /f headvergence.mak CFG="headvergence - Win32 Debug" clean
-nmake /f headvergence.mak CFG="headvergence - Win32 Release" clean
+msdev headvergence.dsw /MAKE "headvergence - Win32 Debug" /CLEAN
+msdev headvergence.dsw /MAKE "headvergence - Win32 Release" /CLEAN
 cd ..\reaching\
-nmake /f reaching.mak CFG="reaching - Win32 Debug" clean
-nmake /f reaching.mak CFG="reaching - Win32 Release" clean
+msdev reaching.dsw /MAKE "reaching - Win32 Debug" /CLEAN
+msdev reaching.dsw /MAKE "reaching - Win32 Release" /CLEAN
 cd ..\remotelearn\
-nmake /f remotelearn.mak CFG="remotelearn - Win32 Debug" clean
-nmake /f remotelearn.mak CFG="remotelearn - Win32 Release" clean
+msdev remotelearn.dsw /MAKE "remotelearn - Win32 Debug" /CLEAN
+msdev remotelearn.dsw /MAKE "remotelearn - Win32 Release" /CLEAN
 cd ..\remotelearn\remotelearnclient
-nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Debug" clean
-nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Release" clean
+msdev remotelearnclient.dsw /MAKE "remotelearnclient - Win32 Debug" /CLEAN
+msdev remotelearnclient.dsw /MAKE "remotelearnclient - Win32 Release" /CLEAN
 cd ..
 cd ..\sendCmd\
-nmake /f sendCmd.mak CFG="sendCmd - Win32 Debug" clean
-nmake /f sendCmd.mak CFG="sendCmd - Win32 Release" clean
+msdev sendCmd.dsw /MAKE "sendCmd - Win32 Debug" /CLEAN
+msdev sendCmd.dsw /MAKE "sendCmd - Win32 Release" /CLEAN
 cd ..\seqgrabber\
-nmake /f seqgrabber.mak CFG="seqgrabber - Win32 Debug" clean
-nmake /f seqgrabber.mak CFG="seqgrabber - Win32 Release" clean
+msdev seqgrabber.dsw /MAKE "seqgrabber - Win32 Debug" /CLEAN
+msdev seqgrabber.dsw /MAKE "seqgrabber - Win32 Release" /CLEAN
 cd ..\teststereomatch\
-nmake /f teststereomatch.mak CFG="teststereomatch - Win32 Debug" clean
-nmake /f teststereomatch.mak CFG="teststereomatch - Win32 Release" clean
+msdev teststereomatch.dsw /MAKE "teststereomatch - Win32 Debug" /CLEAN
+msdev teststereomatch.dsw /MAKE "teststereomatch - Win32 Release" /CLEAN
 cd ..\tracker\
-nmake /f tracker.mak CFG="tracker - Win32 Debug" clean
-nmake /f tracker.mak CFG="tracker - Win32 Release" clean
+msdev tracker.dsw /MAKE "tracker - Win32 Debug" /CLEAN
+msdev tracker.dsw /MAKE "tracker - Win32 Release" /CLEAN
 cd ..\vergence\
-nmake /f vergence.mak CFG="vergence - Win32 Debug" clean
-nmake /f vergence.mak CFG="vergence - Win32 Release" clean
+msdev vergence.dsw /MAKE "vergence - Win32 Debug" /CLEAN
+msdev vergence.dsw /MAKE "vergence - Win32 Release" /CLEAN
 cd ..\visualattention\
-nmake /f visualattention.mak CFG="visualattention - Win32 Debug" clean
-nmake /f visualattention.mak CFG="visualattention - Win32 Release" clean
+msdev visualattention.dsw /MAKE "visualattention - Win32 Debug" /CLEAN
+msdev visualattention.dsw /MAKE "visualattention - Win32 Release" /CLEAN
 cd ..\vor\
-nmake /f vor.mak CFG="vor - Win32 Debug" clean
-nmake /f vor.mak CFG="vor - Win32 Release" clean
+msdev vor.dsw /MAKE "vor - Win32 Debug" /CLEAN
+msdev vor.dsw /MAKE "vor - Win32 Release" /CLEAN
 cd..
 
 goto end
@@ -119,64 +119,64 @@ goto end
 echo Compiling all with debug enabled.
 
 cd .\armcontrol\
-nmake /f armcontrol.mak CFG="armcontrol - Win32 Debug"
+msdev armcontrol.dsw /MAKE "armcontrol - Win32 Debug" /BUILD
 cd ..\armtrigger\
-nmake /f armtrigger.mak CFG="armtrigger - Win32 Debug"
+msdev armtrigger.dsw /MAKE "armtrigger - Win32 Debug" /BUILD
 cd ..\attention\
-nmake /f attention.mak CFG="attention - Win32 Debug"
+msdev attention.dsw /MAKE "attention - Win32 Debug" /BUILD
 cd ..\behaviorRnd\
-nmake /f behaviorRnd.mak CFG="behaviorRnd - Win32 Debug"
+msdev behaviorRnd.dsw /MAKE "behaviorRnd - Win32 Debug" /BUILD
 cd ..\bottlesender\
-nmake /f bottlesender.mak CFG="bottlesender - Win32 Debug"
+msdev bottlesender.dsw /MAKE "bottlesender - Win32 Debug" /BUILD
 cd ..\checkfixation\
-nmake /f checkfixation.mak CFG="checkfixation - Win32 Debug"
+msdev checkfixation.dsw /MAKE "checkfixation - Win32 Debug" /BUILD
 cd ..\collectpoints\
-nmake /f collectpoints.mak CFG="collectpoints - Win32 Debug"
+msdev collectpoints.dsw /MAKE "collectpoints - Win32 Debug" /BUILD
 cd ..\datacollector\
-nmake /f datacollector.mak CFG="datacollector - Win32 Debug"
+msdev datacollector.dsw /MAKE "datacollector - Win32 Debug" /BUILD
 cd ..\egomap\
-nmake /f egomap.mak CFG="egomap - Win32 Debug"
+msdev egomap.dsw /MAKE "egomap - Win32 Debug" /BUILD
 cd ..\grasprflx\
-nmake /f grasprflx.mak CFG="grasprflx - Win32 Debug"
+msdev grasprflx.dsw /MAKE "grasprflx - Win32 Debug" /BUILD
 cd ..\handcolortracker\
-nmake /f HandColorTracker.mak CFG="HandColorTracker - Win32 Debug"
+msdev HandColorTracker.dsw /MAKE "HandColorTracker - Win32 Debug" /BUILD
 cd ..\handcontrol\
-nmake /f handcontrol.mak CFG="handcontrol - Win32 Debug"
+msdev handcontrol.dsw /MAKE "handcontrol - Win32 Debug" /BUILD
 cd ..\handlocalization\
-nmake /f handlocalization.mak CFG="handlocalization - Win32 Debug"
+msdev handlocalization.dsw /MAKE "handlocalization - Win32 Debug" /BUILD
 cd ..\handtrackerswitch\
-nmake /f handtrackerswitch.mak CFG="handtrackerswitch - Win32 Debug"
+msdev handtrackerswitch.dsw /MAKE "handtrackerswitch - Win32 Debug" /BUILD
 cd ..\headcontrol\
-nmake /f headcontrol.mak CFG="headcontrol - Win32 Debug"
+msdev headcontrol.dsw /MAKE "headcontrol - Win32 Debug" /BUILD
 cd ..\headsaccades\
-nmake /f headsaccades.mak CFG="headsaccades - Win32 Debug"
+msdev headsaccades.dsw /MAKE "headsaccades - Win32 Debug" /BUILD
 cd ..\headsink\
-nmake /f headsink.mak CFG="headsink - Win32 Debug"
+msdev headsink.dsw /MAKE "headsink - Win32 Debug" /BUILD
 cd ..\headsmooth\
-nmake /f headsmooth.mak CFG="headsmooth - Win32 Debug"
+msdev headsmooth.dsw /MAKE "headsmooth - Win32 Debug" /BUILD
 cd ..\headvergence\
-nmake /f headvergence.mak CFG="headvergence - Win32 Debug"
+msdev headvergence.dsw /MAKE "headvergence - Win32 Debug" /BUILD
 cd ..\reaching\
-nmake /f reaching.mak CFG="reaching - Win32 Debug"
+msdev reaching.dsw /MAKE "reaching - Win32 Debug" /BUILD
 cd ..\remotelearn\
-nmake /f remotelearn.mak CFG="remotelearn - Win32 Debug"
+msdev remotelearn.dsw /MAKE "remotelearn - Win32 Debug" /BUILD
 cd ..\remotelearn\remotelearnclient
-nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Debug"
+msdev remotelearnclient.dsw /MAKE "remotelearnclient - Win32 Debug" /BUILD
 cd ..
 cd ..\sendCmd\
-nmake /f sendCmd.mak CFG="sendCmd - Win32 Debug"
+msdev sendCmd.dsw /MAKE "sendCmd - Win32 Debug" /BUILD
 cd ..\seqgrabber\
-nmake /f seqgrabber.mak CFG="seqgrabber - Win32 Debug"
+msdev seqgrabber.dsw /MAKE "seqgrabber - Win32 Debug" /BUILD
 cd ..\teststereomatch\
-nmake /f teststereomatch.mak CFG="teststereomatch - Win32 Debug"
+msdev teststereomatch.dsw /MAKE "teststereomatch - Win32 Debug" /BUILD
 cd ..\tracker\
-nmake /f tracker.mak CFG="tracker - Win32 Debug"
+msdev tracker.dsw /MAKE "tracker - Win32 Debug" /BUILD
 cd ..\vergence\
-nmake /f vergence.mak CFG="vergence - Win32 Debug"
+msdev vergence.dsw /MAKE "vergence - Win32 Debug" /BUILD
 cd ..\visualattention\
-nmake /f visualattention.mak CFG="visualattention - Win32 Debug"
+msdev visualattention.dsw /MAKE "visualattention - Win32 Debug" /BUILD
 cd ..\vor\
-nmake /f vor.mak CFG="vor - Win32 Debug"
+msdev vor.dsw /MAKE "vor - Win32 Debug" /BUILD
 cd..
 
 goto end
@@ -186,64 +186,64 @@ goto end
 echo Compiling all with RELEASE enabled.
 
 cd .\armcontrol\
-nmake /f armcontrol.mak CFG="armcontrol - Win32 Release"
+msdev armcontrol.dsw /MAKE "armcontrol - Win32 Release" /BUILD
 cd ..\armtrigger\
-nmake /f armtrigger.mak CFG="armtrigger - Win32 Release"
+msdev armtrigger.dsw /MAKE "armtrigger - Win32 Release" /BUILD
 cd ..\attention\
-nmake /f attention.mak CFG="attention - Win32 Release"
+msdev attention.dsw /MAKE "attention - Win32 Release" /BUILD
 cd ..\behaviorRnd\
-nmake /f behaviorRnd.mak CFG="behaviorRnd - Win32 Release"
+msdev behaviorRnd.dsw /MAKE "behaviorRnd - Win32 Release" /BUILD
 cd ..\bottlesender\
-nmake /f bottlesender.mak CFG="bottlesender - Win32 Release"
+msdev bottlesender.dsw /MAKE "bottlesender - Win32 Release" /BUILD
 cd ..\checkfixation\
-nmake /f checkfixation.mak CFG="checkfixation - Win32 Release"
+msdev checkfixation.dsw /MAKE "checkfixation - Win32 Release" /BUILD
 cd ..\collectpoints\
-nmake /f collectpoints.mak CFG="collectpoints - Win32 Release"
+msdev collectpoints.dsw /MAKE "collectpoints - Win32 Release" /BUILD
 cd ..\datacollector\
-nmake /f datacollector.mak CFG="datacollector - Win32 Release"
+msdev datacollector.dsw /MAKE "datacollector - Win32 Release" /BUILD
 cd ..\egomap\
-nmake /f egomap.mak CFG="egomap - Win32 Release"
+msdev egomap.dsw /MAKE "egomap - Win32 Release" /BUILD
 cd ..\grasprflx\
-nmake /f grasprflx.mak CFG="grasprflx - Win32 Release"
+msdev grasprflx.dsw /MAKE "grasprflx - Win32 Release" /BUILD
 cd ..\handcolortracker\
-nmake /f HandColorTracker.mak CFG="HandColorTracker - Win32 Release"
+msdev HandColorTracker.dsw /MAKE "HandColorTracker - Win32 Release" /BUILD
 cd ..\handcontrol\
-nmake /f handcontrol.mak CFG="handcontrol - Win32 Release"
+msdev handcontrol.dsw /MAKE "handcontrol - Win32 Release" /BUILD
 cd ..\handlocalization\
-nmake /f handlocalization.mak CFG="handlocalization - Win32 Release"
+msdev handlocalization.dsw /MAKE "handlocalization - Win32 Release" /BUILD
 cd ..\handtrackerswitch\
-nmake /f handtrackerswitch.mak CFG="handtrackerswitch - Win32 Release"
+msdev handtrackerswitch.dsw /MAKE "handtrackerswitch - Win32 Release" /BUILD
 cd ..\headcontrol\
-nmake /f headcontrol.mak CFG="headcontrol - Win32 Release"
+msdev headcontrol.dsw /MAKE "headcontrol - Win32 Release" /BUILD
 cd ..\headsaccades\
-nmake /f headsaccades.mak CFG="headsaccades - Win32 Release"
+msdev headsaccades.dsw /MAKE "headsaccades - Win32 Release" /BUILD
 cd ..\headsink\
-nmake /f headsink.mak CFG="headsink - Win32 Release"
+msdev headsink.dsw /MAKE "headsink - Win32 Release" /BUILD
 cd ..\headsmooth\
-nmake /f headsmooth.mak CFG="headsmooth - Win32 Release"
+msdev headsmooth.dsw /MAKE "headsmooth - Win32 Release" /BUILD
 cd ..\headvergence\
-nmake /f headvergence.mak CFG="headvergence - Win32 Release"
+msdev headvergence.dsw /MAKE "headvergence - Win32 Release" /BUILD
 cd ..\reaching\
-nmake /f reaching.mak CFG="reaching - Win32 Release"
+msdev reaching.dsw /MAKE "reaching - Win32 Release" /BUILD
 cd ..\remotelearn\
-nmake /f remotelearn.mak CFG="remotelearn - Win32 Release"
+msdev remotelearn.dsw /MAKE "remotelearn - Win32 Release" /BUILD
 cd ..\remotelearn\remotelearnclient
-nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Release"
+msdev remotelearnclient.dsw /MAKE "remotelearnclient - Win32 Release" /BUILD
 cd ..
 cd ..\sendCmd\
-nmake /f sendCmd.mak CFG="sendCmd - Win32 Release"
+msdev sendCmd.dsw /MAKE "sendCmd - Win32 Release" /BUILD
 cd ..\seqgrabber\
-nmake /f seqgrabber.mak CFG="seqgrabber - Win32 Release"
+msdev seqgrabber.dsw /MAKE "seqgrabber - Win32 Release" /BUILD
 cd ..\teststereomatch\
-nmake /f teststereomatch.mak CFG="teststereomatch - Win32 Release"
+msdev teststereomatch.dsw /MAKE "teststereomatch - Win32 Release" /BUILD
 cd ..\tracker\
-nmake /f tracker.mak CFG="tracker - Win32 Release"
+msdev tracker.dsw /MAKE "tracker - Win32 Release" /BUILD
 cd ..\vergence\
-nmake /f vergence.mak CFG="vergence - Win32 Release"
+msdev vergence.dsw /MAKE "vergence - Win32 Release" /BUILD
 cd ..\visualattention\
-nmake /f visualattention.mak CFG="visualattention - Win32 Release"
+msdev visualattention.dsw /MAKE "visualattention - Win32 Release" /BUILD
 cd ..\vor\
-nmake /f vor.mak CFG="vor - Win32 Release"
+msdev vor.dsw /MAKE "vor - Win32 Release" /BUILD
 cd..
 
 goto end

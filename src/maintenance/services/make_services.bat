@@ -23,43 +23,43 @@ if "%1"=="release" goto release
 echo Cleaning all...
 
 cd .\mapper\
-nmake /f mapper.mak CFG="mapper - Win32 Debug" clean
-nmake /f mapper.mak CFG="mapper - Win32 Release" clean
+msdev mapper.dsw /MAKE "mapper - Win32 Debug" /CLEAN
+msdev mapper.dsw /MAKE "mapper - Win32 Release" /CLEAN
 cd ..\
 
 cd .\porter\porter\
-nmake /f porter.mak CFG="porter - Win32 Debug" clean
-nmake /f porter.mak CFG="porter - Win32 Release" clean
+msdev porter.dsp /MAKE "porter - Win32 Debug" /CLEAN
+msdev porter.dsp /MAKE "porter - Win32 Release" /CLEAN
 cd ..\conditional_porter\
-nmake /f conditional_porter.mak CFG="conditional_porter - Win32 Debug" clean
-nmake /f conditional_porter.mak CFG="conditional_porter - Win32 Release" clean
+msdev conditional_porter.dsp /MAKE "conditional_porter - Win32 Debug" /CLEAN
+msdev conditional_porter.dsp /MAKE "conditional_porter - Win32 Release" /CLEAN
 cd ..\..\
 
 cd .\nameserver\YARPNameService\
-nmake /f YARPNameService.mak CFG="YARPNameService - Win32 Debug" clean
-nmake /f YARPNameService.mak CFG="YARPNameService - Win32 Release" clean
+msdev YARPNameService.dsp /MAKE "YARPNameService - Win32 Debug" /CLEAN
+msdev YARPNameService.dsp /MAKE "YARPNameService - Win32 Release" /CLEAN
 cd ..\nameclient\
-nmake /f NameClient.mak CFG="NameClient - Win32 Debug" clean
-nmake /f NameClient.mak CFG="NameClient - Win32 Release" clean
+msdev NameClient.dsp /MAKE "NameClient - Win32 Debug" /CLEAN
+msdev NameClient.dsp /MAKE "NameClient - Win32 Release" /CLEAN
 cd ..\..\
 
 cd .\repeater\
-nmake /f repeater.mak CFG="repeater - Win32 Debug" clean
-nmake /f repeater.mak CFG="repeater - Win32 Release" clean
+msdev repeater.dsw /MAKE "repeater - Win32 Debug" /CLEAN
+msdev repeater.dsw /MAKE "repeater - Win32 Release" /CLEAN
 cd ..\
 
 cd .\qnxlike\on
-nmake /f on.mak CFG="on - Win32 Debug" clean
-nmake /f on.mak CFG="on - Win32 Release" clean
+msdev on.dsp /MAKE "on - Win32 Debug" /CLEAN
+msdev on.dsp /MAKE "on - Win32 Release" /CLEAN
 cd ..\shutdown
-nmake /f shutdown.mak CFG="shutdown - Win32 Debug" clean
-nmake /f shutdown.mak CFG="shutdown - Win32 Release" clean
+msdev shutdown.dsp /MAKE "shutdown - Win32 Debug" /CLEAN
+msdev shutdown.dsp /MAKE "shutdown - Win32 Release" /CLEAN
 cd ..\sin
-nmake /f sin.mak CFG="sin - Win32 Debug" clean
-nmake /f sin.mak CFG="sin - Win32 Release" clean
+msdev sin.dsp /MAKE "sin - Win32 Debug" /CLEAN
+msdev sin.dsp /MAKE "sin - Win32 Release" /CLEAN
 cd ..\slay
-nmake /f slay.mak CFG="slay - Win32 Debug" clean
-nmake /f slay.mak CFG="slay - Win32 Release" clean
+msdev slay.dsp /MAKE "slay - Win32 Debug" /CLEAN
+msdev slay.dsp /MAKE "slay - Win32 Release" /CLEAN
 cd ..\..\
 
 goto end
@@ -69,33 +69,33 @@ goto end
 echo compiling all with DEBUG enabled.
 
 cd .\mapper\
-nmake /f mapper.mak CFG="mapper - Win32 Debug"
+msdev mapper.dsw /MAKE "mapper - Win32 Debug" /BUILD
 cd ..\
 
 cd .\porter\porter\
-nmake /f porter.mak CFG="porter - Win32 Debug"
+msdev porter.dsp /MAKE "porter - Win32 Debug" /BUILD
 cd ..\conditional_porter\
-nmake /f conditional_porter.mak CFG="conditional_porter - Win32 Debug"
+msdev conditional_porter.dsp /MAKE "conditional_porter - Win32 Debug" /BUILD
 cd ..\..\
 
 cd .\nameserver\YARPNameService\
-nmake /f YARPNameService.mak CFG="YARPNameService - Win32 Debug"
+msdev YARPNameService.dsp /MAKE "YARPNameService - Win32 Debug" /BUILD
 cd ..\nameclient\
-nmake /f NameClient.mak CFG="NameClient - Win32 Debug"
+msdev NameClient.dsp /MAKE "NameClient - Win32 Debug" /BUILD
 cd ..\..\
 
 cd .\repeater\
-nmake /f repeater.mak CFG="repeater - Win32 Debug"
+msdev repeater.dsw /MAKE "repeater - Win32 Debug" /BUILD
 cd ..\
 
 cd .\qnxlike\on
-nmake /f on.mak CFG="on - Win32 Debug"
+msdev on.dsp /MAKE "on - Win32 Debug" /BUILD
 cd ..\shutdown
-nmake /f shutdown.mak CFG="shutdown - Win32 Debug"
+msdev shutdown.dsp /MAKE "shutdown - Win32 Debug" /BUILD
 cd ..\sin
-nmake /f sin.mak CFG="sin - Win32 Debug"
+msdev sin.dsp /MAKE "sin - Win32 Debug" /BUILD
 cd ..\slay
-nmake /f slay.mak CFG="slay - Win32 Debug"
+msdev slay.dsp /MAKE "slay - Win32 Debug" /BUILD
 cd ..\..\
 
 goto end
@@ -105,33 +105,33 @@ goto end
 echo compiling all with RELEASE enabled.
 
 cd .\mapper\
-nmake /f mapper.mak CFG="mapper - Win32 Release"
+msdev mapper.dsw /MAKE "mapper - Win32 Release" /BUILD
 cd ..\
 
 cd .\porter\porter\
-nmake /f porter.mak CFG="porter - Win32 Release"
+msdev porter.dsp /MAKE "porter - Win32 Release" /BUILD
 cd ..\conditional_porter\
-nmake /f conditional_porter.mak CFG="conditional_porter - Win32 Release"
+msdev conditional_porter.dsp /MAKE "conditional_porter - Win32 Release" /BUILD
 cd ..\..\
 
 cd .\nameserver\YARPNameService\
-nmake /f YARPNameService.mak CFG="YARPNameService - Win32 Release"
+msdev YARPNameService.dsp /MAKE "YARPNameService - Win32 Release" /BUILD
 cd ..\nameclient\
-nmake /f NameClient.mak CFG="NameClient - Win32 Release"
+msdev NameClient.dsp /MAKE "NameClient - Win32 Release" /BUILD
 cd ..\..\
 
 cd .\repeater\
-nmake /f repeater.mak CFG="repeater - Win32 Release"
+msdev repeater.dsw /MAKE "repeater - Win32 Release" /BUILD
 cd ..\
 
 cd .\qnxlike\on
-nmake /f on.mak CFG="on - Win32 Release"
+msdev on.dsp /MAKE "on - Win32 Release" /BUILD
 cd ..\shutdown
-nmake /f shutdown.mak CFG="shutdown - Win32 Release"
+msdev shutdown.dsp /MAKE "shutdown - Win32 Release" /BUILD
 cd ..\sin
-nmake /f sin.mak CFG="sin - Win32 Release"
+msdev sin.dsp /MAKE "sin - Win32 Release" /BUILD
 cd ..\slay
-nmake /f slay.mak CFG="slay - Win32 Release"
+msdev slay.dsp /MAKE "slay - Win32 Release" /BUILD
 cd ..\..\
 
 goto end

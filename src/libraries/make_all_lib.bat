@@ -25,56 +25,56 @@ if not "%2"=="full" goto skipace
 
 echo Cleaning ACE DLL.
 cd .\ACE_wrappers\ace\
-nmake /f ace_dll.mak CFG="ACE DLL - Win32 Debug" clean
-nmake /f ace_dll.mak CFG="ACE DLL - Win32 Release" clean
+msdev ace.dsw /MAKE "ACE DLL - Win32 Debug" /CLEAN
+msdev ace.dsw /MAKE "ACE DLL - Win32 Release" /CLEAN
 cd ..\..\
 
 :skipace
 echo Cleaning Math.
 cd .\math\
-nmake /f math.mak CFG="math - Win32 Debug" clean
-nmake /f math.mak CFG="math - Win32 Release" clean
+msdev math.dsw /MAKE "math - Win32 Debug" /CLEAN
+msdev math.dsw /MAKE "math - Win32 Release" /CLEAN
 cd ..\
 echo Cleaning LogPolar library.
 cd .\logpolar\LogPolarSmallSDK\
-nmake /f LogPolarSmallSDK.mak CFG="LogPolarSmallSDK - Win32 Debug" clean
-nmake /f LogPolarSmallSDK.mak CFG="LogPolarSmallSDK - Win32 Release" clean
+msdev LogPolarSmallSDK.dsp /MAKE "LogPolarSmallSDK - Win32 Debug" /CLEAN
+msdev LogPolarSmallSDK.dsp /MAKE "LogPolarSmallSDK - Win32 Release" /CLEAN
 cd ..\..\
 echo Cleaning BuildTables exe.
 cd .\logpolar\BuildTablesSmall\
-nmake /f BuildTablesSmall.mak CFG="BuildTablesSmall - Win32 Debug" clean
-nmake /f BuildTablesSmall.mak CFG="BuildTablesSmall - Win32 Release" clean
+msdev BuildTablesSmall.dsp /MAKE "BuildTablesSmall - Win32 Debug" /CLEAN
+msdev BuildTablesSmall.dsp /MAKE "BuildTablesSmall - Win32 Release" /CLEAN
 cd ..\..\
 echo Cleaning os_services library.
 cd .\os_services\make_winnt\os_services\
-nmake /f os_services.mak CFG="os_services - Win32 Debug" clean
-nmake /f os_services.mak CFG="os_services - Win32 Release" clean
+msdev os_services.dsp /MAKE "os_services - Win32 Debug" /CLEAN
+msdev os_services.dsp /MAKE "os_services - Win32 Release" /CLEAN
 cd ..\..\..\
 echo Cleaning images libraries.
 cd .\images\
-nmake /f images.mak CFG="images - Win32 Debug" clean
-nmake /f images.mak CFG="images - Win32 Release" clean
+msdev images.dsw /MAKE "images - Win32 Debug" /CLEAN
+msdev images.dsw /MAKE "images - Win32 Release" /CLEAN
 cd ..\
 cd .\images\tools\
-nmake /f tools.mak CFG="tools - Win32 Debug" clean
-nmake /f tools.mak CFG="tools - Win32 Release" clean
+msdev tools.dsp /MAKE "tools - Win32 Debug" /CLEAN
+msdev tools.dsp /MAKE "tools - Win32 Release" /CLEAN
 cd ..\..\
 echo Cleaning utils library.
 cd .\utils\
-nmake /f utils.mak CFG="utils - Win32 Debug" clean
-nmake /f utils.mak CFG="utils - Win32 Release" clean
+msdev utils.dsw /MAKE "utils - Win32 Debug" /CLEAN
+msdev utils.dsw /MAKE "utils - Win32 Release" /CLEAN
 cd ..\
 
 echo Going to "Device Drivers."
 cd ..\hardware\src\
-nmake /f alldrivers.mak CFG="alldrivers - Win32 Debug" clean
-nmake /f alldrivers.mak CFG="alldrivers - Win32 Release" clean
+msdev alldrivers.dsw /MAKE "alldrivers - Win32 Debug" /CLEAN
+msdev alldrivers.dsw /MAKE "alldrivers - Win32 Release" /CLEAN
 cd ..\..\libraries\
 
 echo Cleaning motorcontrol
 cd .\motorcontrol\
-nmake /f motorcontrol.mak CFG="motorcontrol - Win32 Debug" clean
-nmake /f motorcontrol.mak CFG="motorcontrol - Win32 Release" clean
+msdev motorcontrol.dsw /MAKE "motorcontrol - Win32 Debug" /CLEAN
+msdev motorcontrol.dsw /MAKE "motorcontrol - Win32 Release" /CLEAN
 cd ..\
  
 goto end
@@ -88,26 +88,26 @@ if not "%2"=="full" goto skipaced
  
 echo Building ACE DLL.
 cd .\ACE_wrappers\ace\
-nmake /f ace_dll.mak CFG="ACE DLL - Win32 Debug"
+msdev ace.dsw /MAKE "ACE DLL - Win32 Debug" /BUILD
 cd ..\..\
 
 :skipaced
 
 echo Building Math.
 cd .\math\
-nmake /f math.mak CFG="math - Win32 Debug"
+msdev math.dsw /MAKE "math - Win32 Debug" /BUILD
 cd ..\
 echo Building LogPolar library.
 cd .\logpolar\LogPolarSmallSDK\
-nmake /f LogPolarSmallSDK.mak CFG="LogPolarSmallSDK - Win32 Debug"
+msdev LogPolarSmallSDK.dsp /MAKE "LogPolarSmallSDK - Win32 Debug" /BUILD
 cd ..\..\
 echo Building BuildTables exe.
 cd .\logpolar\BuildTablesSmall\
-nmake /f BuildTablesSmall.mak CFG="BuildTablesSmall - Win32 Debug"
+msdev BuildTablesSmall.dsp /MAKE "BuildTablesSmall - Win32 Debug" /BUILD
 cd ..\..\
 echo Building os_services library.
 cd .\os_services\make_winnt\os_services\
-nmake /f os_services.mak CFG="os_services - Win32 Debug"
+msdev os_services.dsp /MAKE "os_services - Win32 Debug" /BUILD
 cd ..\..\..\
 echo Building images libraries.
 
@@ -120,24 +120,24 @@ cd ..\
 :skipipld
 
 cd .\images\
-nmake /f images.mak CFG="images - Win32 Debug"
+msdev images.dsw /MAKE "images - Win32 Debug" /BUILD
 cd ..\
 cd .\images\tools\
-nmake /f tools.mak CFG="tools - Win32 Debug"
+msdev tools.dsp /MAKE "tools - Win32 Debug" /BUILD
 cd ..\..\
 echo Building utils library.
 cd .\utils\
-nmake /f utils.mak CFG="utils - Win32 Debug"
+msdev utils.mak /MAKE "utils - Win32 Debug" /BUILD
 cd ..\
 
 echo Building "Device Drivers."
 cd ..\hardware\src\
-nmake /f alldrivers.mak CFG="alldrivers - Win32 Debug"
+msdev alldrivers.dsw /MAKE "alldrivers - Win32 Debug" /BUILD
 cd ..\..\libraries\
 
 echo Building motorcontrol
 cd .\motorcontrol\
-nmake /f motorcontrol.mak CFG="motorcontrol - Win32 Debug"
+msdev motorcontrol.dsw /MAKE "motorcontrol - Win32 Debug" /BUILD
 cd ..\
 
 
@@ -152,26 +152,26 @@ if not "%2"=="full" goto skipacer
 
 echo Building ACE DLL.
 cd .\ACE_wrappers\ace\
-nmake /f ace_dll.mak CFG="ACE DLL - Win32 Release"
+msdev ace.dsw /MAKE "ACE DLL - Win32 Release" /BUILD
 cd ..\..\
 
 :skipacer
 
 echo Building Math.
 cd .\math\
-nmake /f math.mak CFG="math - Win32 Release"
+msdev math.dsw /MAKE "math - Win32 Release" /BUILD
 cd ..\
 echo Building LogPolar library.
 cd .\logpolar\LogPolarSmallSDK\
-nmake /f LogPolarSmallSDK.mak CFG="LogPolarSmallSDK - Win32 Release"
+msdev LogPolarSmallSDK.dsp /MAKE "LogPolarSmallSDK - Win32 Release" /BUILD
 cd ..\..\
 echo Building BuildTables exe.
 cd .\logpolar\BuildTablesSmall\
-nmake /f BuildTablesSmall.mak CFG="BuildTablesSmall - Win32 Release"
+msdev BuildTablesSmall.dsp /MAKE "BuildTablesSmall - Win32 Release" /BUILD
 cd ..\..\
 echo Building os_services library.
 cd .\os_services\make_winnt\os_services\
-nmake /f os_services.mak CFG="os_services - Win32 Release"
+msdev os_services.dsp /MAKE "os_services - Win32 Release" /BUILD
 cd ..\..\..\
 echo Building images libraries.
 
@@ -184,24 +184,24 @@ cd ..\
 :skipiplr
 
 cd .\images\
-nmake /f images.mak CFG="images - Win32 Release"
+msdev images.dsw /MAKE "images - Win32 Release" /BUILD
 cd ..\
 cd .\images\tools\
-nmake /f tools.mak CFG="tools - Win32 Release"
+msdev tools.dsp /MAKE "tools - Win32 Release" /BUILD
 cd ..\..\
 echo Building utils library.
 cd .\utils\
-nmake /f utils.mak CFG="utils - Win32 Release"
+msdev utils.dsw /MAKE "utils - Win32 Release" /BUILD
 cd ..\
 
 echo Building "Device Drivers."
 cd ..\hardware\src\
-nmake /f alldrivers.mak CFG="alldrivers - Win32 Release"
+msdev alldrivers.dsw /MAKE "alldrivers - Win32 Release" /BUILD
 cd ..\..\libraries\
 
 echo Building motorcontrol
 cd .\motorcontrol\
-nmake /f motorcontrol.mak CFG="motorcontrol - Win32 Release"
+msdev motorcontrol.dsw /MAKE "motorcontrol - Win32 Release" /BUILD
 cd ..\
 
 goto end
