@@ -45,6 +45,28 @@ nmake /f grasprflx.mak CFG="grasprflx - Win32 Debug" clean
 nmake /f grasprflx.mak CFG="grasprflx - Win32 Release" clean
 cd ..
 
+cd .\headcontrol\
+nmake /f headcontrol.mak CFG="headcontrol - Win32 Debug" clean
+nmake /f headcontrol.mak CFG="headcontrol - Win32 Release" clean
+cd ..
+cd .\headsink\
+nmake /f headsink.mak CFG="headsink - Win32 Debug" clean
+nmake /f headsink.mak CFG="headsink - Win32 Release" clean
+cd ..
+cd .\headsmooth\
+nmake /f headsmooth.mak CFG="headsmooth - Win32 Debug" clean
+nmake /f headsmooth.mak CFG="headsmooth - Win32 Release" clean
+cd ..
+cd .\tracker\
+nmake /f tracker.mak CFG="tracker - Win32 Debug" clean
+nmake /f tracker.mak CFG="tracker - Win32 Release" clean
+cd ..
+cd .\vor\
+nmake /f vor.mak CFG="vor - Win32 Debug" clean
+nmake /f vor.mak CFG="vor - Win32 Release" clean
+cd ..
+
+
 goto end
 
 
@@ -67,6 +89,22 @@ cd ..\grasprflx\
 nmake /f grasprflx.mak CFG="grasprflx - Win32 Debug"
 cd ..
 
+cd .\headcontrol\
+nmake /f headcontrol.mak CFG="headcontrol - Win32 Debug"
+cd ..
+cd .\headsink\
+nmake /f headsink.mak CFG="headsink - Win32 Debug"
+cd ..
+cd .\headsmooth\
+nmake /f headsmooth.mak CFG="headsmooth - Win32 Debug"
+cd ..
+cd .\tracker\
+nmake /f tracker.mak CFG="tracker - Win32 Debug"
+cd ..
+cd .\vor\
+nmake /f vor.mak CFG="vor - Win32 Debug"
+cd ..
+
 goto end
 
 :release
@@ -87,6 +125,22 @@ cd ..\sendCmd\
 nmake /f sendCmd.mak CFG="sendCmd - Win32 Release"
 cd ..\grasprflx\
 nmake /f grasprflx.mak CFG="grasprflx - Win32 Release"
+cd ..
+
+cd .\headcontrol\
+nmake /f headcontrol.mak CFG="headcontrol - Win32 Release"
+cd ..
+cd .\headsink\
+nmake /f headsink.mak CFG="headsink - Win32 Release"
+cd ..
+cd .\headsmooth\
+nmake /f headsmooth.mak CFG="headsmooth - Win32 Release"
+cd ..
+cd .\tracker\
+nmake /f tracker.mak CFG="tracker - Win32 Release"
+cd ..
+cd .\vor\
+nmake /f vor.mak CFG="vor - Win32 Release"
 cd ..
 
 goto end

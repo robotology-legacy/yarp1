@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPHistoSegmentation.h,v 1.3 2003-10-03 16:50:37 babybot Exp $ 
+/// $Id: YARPHistoSegmentation.h,v 1.4 2003-10-30 16:44:34 babybot Exp $ 
 ///
 /// August 2003 -- by nat
 
@@ -85,6 +85,8 @@ public:
 	void backProjection(YARPImageOf<YarpPixelRGB> &in, YARPImageOf<YarpPixelMono> &out);
 	void backProjection(YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelMono> &out);
 	void backProjection(YARPImageOf<YarpPixelHSV> &in, YARPImageOf<YarpPixelMono> &out);
+	double backProjection(const YarpPixelRGB &pixel);
+	double backProjection(const YarpPixelHSV &pixel);
 
 protected:
 	inline void _normalize (unsigned char r, unsigned char g, unsigned char b,
@@ -103,6 +105,15 @@ protected:
 			return false;
 	}
 	
+	inline bool _checkThresholds(const YarpPixelRGB &pixel)
+	{
+		double l = pixel.r + pixel.g + pixel.b;
+		if (l>_lumaThreshold)
+			return true;
+		else
+			return false;
+	}
+
 	double _lumaThreshold;
 	double _satThreshold;
 };
@@ -124,10 +135,6 @@ public:
 inline void YARPHistoSegmentation::_normalize (unsigned char r, unsigned char g, unsigned char b,
 												unsigned char *rp, unsigned char *gp, unsigned char *bp)
 {
-	// *rp = r;
-	// *gp = g;
-	// *bp = b;
-
 	float luma = r+g+b;
 	if (luma < _lumaThreshold)
 	{

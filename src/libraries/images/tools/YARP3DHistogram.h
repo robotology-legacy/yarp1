@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARP3DHistogram.h,v 1.6 2003-10-03 16:50:37 babybot Exp $ 
+/// $Id: YARP3DHistogram.h,v 1.7 2003-10-30 16:44:34 babybot Exp $ 
 ///
 /// August 2003 -- by nat
 
@@ -239,6 +239,9 @@ public:
 
 	inline double backProjection(const YarpPixelBGR &p)
 	{ return _backProjection(p.r, p.g, p.b); }
+
+	inline double backProjection(const YarpPixelHSV &p)
+	{ return _backProjection(p.h, p.s, p.v); }
 
 	inline double backProjection(unsigned char r, unsigned char g, unsigned char b)
 	{ return _backProjection(r,g,b); }

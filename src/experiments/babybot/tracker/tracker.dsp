@@ -54,7 +54,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing...
-PostBuild_Cmds=copy  .\Release\tracker.exe  ..\..\..\..\bin\winnt\ 
+PostBuild_Cmds=copy .\Release\tracker.exe  ..\..\..\..\bin\winnt
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "tracker - Win32 Debug"
@@ -84,7 +84,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing...
-PostBuild_Cmds=copy  .\Debug\tracker.exe  ..\..\..\..\bin\winnt\ 
+PostBuild_Cmds=copy  .\Debug\tracker.exe  ..\..\..\..\bin\winnt
 # End Special Build Tool
 
 !ENDIF 

@@ -33,8 +33,10 @@ void YARPHistoSegmentation::Apply(YARPImageOf<YarpPixelBGR> &src)
 							
 		for(j = 0; j < src.GetWidth(); j++)
 		{
-			_normalize(*r, *g, *b, &rp, &gp, &bp);
-			YARP3DHistogram::Apply(rp, gp, bp);
+			// _normalize(*r, *g, *b, &rp, &gp, &bp);
+			// YARP3DHistogram::Apply(rp, gp, bp);
+			if (_checkThresholds(YarpPixelRGB(*r,*g,*b)))
+				YARP3DHistogram::Apply(*r, *g, *b);
 			b += 3;
 			g += 3;
 			r += 3;
@@ -61,8 +63,10 @@ void YARPHistoSegmentation::Apply(YARPImageOf<YarpPixelRGB> &src)
 				
 		for(j = 0; j < src.GetWidth(); j++)
 		{
-			_normalize(*r, *g, *b, &rp, &gp, &bp);
-			YARP3DHistogram::Apply(rp, gp, bp);
+			// _normalize(*r, *g, *b, &rp, &gp, &bp);
+			// YARP3DHistogram::Apply(rp, gp, bp);
+			if (_checkThresholds(YarpPixelRGB(*r,*g,*b)))
+				YARP3DHistogram::Apply(*r, *g, *b);
 				
 			b += 3;
 			g += 3;
@@ -166,6 +170,16 @@ void YARPHistoSegmentation::backProjection(YARPImageOf<YarpPixelHSV> &in, YARPIm
 	}
 }
 
+double YARPHistoSegmentation::backProjection(const YarpPixelRGB &pixel)
+{
+	return YARP3DHistogram::backProjection(pixel);
+}
+
+double YARPHistoSegmentation::backProjection(const YarpPixelHSV &pixel)
+{
+	return YARP3DHistogram::backProjection(pixel);
+}
+
 //
 // logpolar class differs only in the apply methods
 void YARPLpHistoSegmentation::Apply(YARPImageOf<YarpPixelBGR> &src)
@@ -186,8 +200,11 @@ void YARPLpHistoSegmentation::Apply(YARPImageOf<YarpPixelBGR> &src)
 		double w = pSize(1, i);
 		for(j = 0; j < src.GetWidth(); j++)
 		{
-			YARPHistoSegmentation::_normalize(*r, *g, *b, &rp, &gp, &bp);
-			YARP3DHistogram::Apply(rp, gp, bp, w);
+			// YARPHistoSegmentation::_normalize(*r, *g, *b, &rp, &gp, &bp);
+			// YARP3DHistogram::Apply(rp, gp, bp, w);
+			if (_checkThresholds(YarpPixelRGB(*r,*g,*b)))
+				YARP3DHistogram::Apply(*r, *g, *b);
+
 			b += 3;
 			g += 3;
 			r += 3;
@@ -214,8 +231,10 @@ void YARPLpHistoSegmentation::Apply(YARPImageOf<YarpPixelRGB> &src)
 		double w = pSize(1, i);	
 		for(j = 0; j < src.GetWidth(); j++)
 		{
-			YARPHistoSegmentation::_normalize(*r, *g, *b, &rp, &gp, &bp);
-			YARP3DHistogram::Apply(rp, gp, bp, w);
+			// YARPHistoSegmentation::_normalize(*r, *g, *b, &rp, &gp, &bp);
+			// YARP3DHistogram::Apply(rp, gp, bp, w);
+			if (_checkThresholds(YarpPixelRGB(*r,*g,*b)))
+				YARP3DHistogram::Apply(*r, *g, *b);
 				
 			b += 3;
 			g += 3;

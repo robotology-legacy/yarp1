@@ -14,13 +14,8 @@
 	"..\..\..\..\include\ace\Basic_Types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
 	"..\..\..\..\include\ace\config-borland-common.h"\
-	"..\..\..\..\include\ace\config-cxx-common.h"\
 	"..\..\..\..\include\ace\config-g++-common.h"\
 	"..\..\..\..\include\ace\config-ghs-common.h"\
-	"..\..\..\..\include\ace\config-icc-common.h"\
-	"..\..\..\..\include\ace\config-kcc-common.h"\
-	"..\..\..\..\include\ace\config-linux-common.h"\
-	"..\..\..\..\include\ace\config-linux.h"\
 	"..\..\..\..\include\ace\config-qnx-rtp.h"\
 	"..\..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\

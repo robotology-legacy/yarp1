@@ -68,6 +68,20 @@ LINK32_OBJS= \
   $(LINK32_FLAGS) $(LINK32_OBJS)
 <<
 
+SOURCE="$(InputPath)"
+PostBuild_Desc=Installing...
+DS_POSTBUILD_DEP=$(INTDIR)\postbld.dep
+
+ALL : $(DS_POSTBUILD_DEP)
+
+# Begin Custom Macros
+OutDir=.\Release
+# End Custom Macros
+
+$(DS_POSTBUILD_DEP) : "$(OUTDIR)\headcontrol.exe"
+   copy .\Release\headcontrol.exe ..\..\..\..\bin\winnt
+	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
+
 !ELSEIF  "$(CFG)" == "headcontrol - Win32 Debug"
 
 OUTDIR=.\Debug
@@ -112,7 +126,7 @@ LINK32_OBJS= \
 <<
 
 SOURCE="$(InputPath)"
-PostBuild_Desc=installing exe
+PostBuild_Desc=Installing...
 DS_POSTBUILD_DEP=$(INTDIR)\postbld.dep
 
 ALL : $(DS_POSTBUILD_DEP)
@@ -122,7 +136,7 @@ OutDir=.\Debug
 # End Custom Macros
 
 $(DS_POSTBUILD_DEP) : "$(OUTDIR)\headcontrol.exe"
-   copy .\debug\headcontrol.exe ..\..\..\..\bin\winnt
+   copy .\Debug\headcontrol.exe ..\..\..\..\bin\winnt
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 
 !ENDIF 

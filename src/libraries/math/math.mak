@@ -62,13 +62,13 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"..\..\..\lib\winnt\math.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPFft.obj" \
+	"$(INTDIR)\YARPLowPassFilter.obj" \
 	"$(INTDIR)\YARPLU.obj" \
 	"$(INTDIR)\YARPMatrix.obj" \
 	"$(INTDIR)\YARPRecursiveLS.obj" \
 	"$(INTDIR)\YARPRobotMath.obj" \
 	"$(INTDIR)\YARPSVD.obj" \
-	"$(INTDIR)\YARPTwoDKalmanFilter.obj" \
-	"$(INTDIR)\YARPLowPassFilter.obj"
+	"$(INTDIR)\YARPTwoDKalmanFilter.obj"
 
 "..\..\..\lib\winnt\math.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -121,13 +121,13 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"..\..\..\lib\winnt\mathDB.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPFft.obj" \
+	"$(INTDIR)\YARPLowPassFilter.obj" \
 	"$(INTDIR)\YARPLU.obj" \
 	"$(INTDIR)\YARPMatrix.obj" \
 	"$(INTDIR)\YARPRecursiveLS.obj" \
 	"$(INTDIR)\YARPRobotMath.obj" \
 	"$(INTDIR)\YARPSVD.obj" \
-	"$(INTDIR)\YARPTwoDKalmanFilter.obj" \
-	"$(INTDIR)\YARPLowPassFilter.obj"
+	"$(INTDIR)\YARPTwoDKalmanFilter.obj"
 
 "..\..\..\lib\winnt\mathDB.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<

@@ -8,8 +8,8 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\include\conf\YARPConfigWin32.h"\
 	".\YARPFft.h"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
@@ -26,8 +26,8 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\include\conf\YARPConfigWin32.h"\
 	".\YARPMatrix.h"\
 	".\YARPMatrix.inl"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
@@ -41,8 +41,8 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\include\conf\YARPConfigWin32.h"\
 	".\YARPMatrix.h"\
 	".\YARPMatrix.inl"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
@@ -56,8 +56,8 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\include\conf\YARPConfigWin32.h"\
 	".\YARPMatrix.h"\
 	".\YARPMatrix.inl"\
 	".\YARPRecursiveLS.h"\
@@ -74,8 +74,8 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\include\conf\YARPConfigWin32.h"\
 	".\YARPMatrix.h"\
 	".\YARPMatrix.inl"\
 	".\YARPRobotMath.h"\
@@ -91,8 +91,8 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\include\conf\YARPConfigWin32.h"\
 	".\YARPMatrix.h"\
 	".\YARPMatrix.inl"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
@@ -106,8 +106,8 @@
 	"..\..\..\include\ace\config.h"\
 	"..\..\..\include\ace\post.h"\
 	"..\..\..\include\ace\pre.h"\
-	"..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\include\conf\YARPConfigWin32.h"\
 	".\YARPMatrix.h"\
 	".\YARPMatrix.inl"\
 	".\YARPRobotMath.h"\

@@ -52,6 +52,11 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 motorcontrol.lib math.lib utils.lib alldrivers.lib winmm.lib os_services.lib ipl.lib ace.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386 /nodefaultlib:"libcmt.lib" /libpath:"..\..\..\..\lib\winnt"
+# Begin Special Build Tool
+SOURCE="$(InputPath)"
+PostBuild_Desc=Installing...
+PostBuild_Cmds=copy .\Release\headcontrol.exe ..\..\..\..\bin\winnt
+# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "headcontrol - Win32 Debug"
 
@@ -79,8 +84,8 @@ LINK32=link.exe
 # ADD LINK32 motorcontroldb.lib mathdb.lib utilsdb.lib alldriversdb.lib winmm.lib os_servicesDB.lib ipl.lib aced.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /nodefaultlib:"libcmtd.lib" /pdbtype:sept /libpath:"..\..\..\..\lib\winnt"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
-PostBuild_Desc=installing exe
-PostBuild_Cmds=copy .\debug\headcontrol.exe ..\..\..\..\bin\winnt
+PostBuild_Desc=Installing...
+PostBuild_Cmds=copy .\Debug\headcontrol.exe ..\..\..\..\bin\winnt
 # End Special Build Tool
 
 !ENDIF 

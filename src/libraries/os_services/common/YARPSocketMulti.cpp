@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.22 2003-09-03 15:15:26 babybot Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.23 2003-10-30 16:44:34 babybot Exp $
 ///
 ///
 
@@ -816,7 +816,9 @@ void _SocketThreadMulti::End (int dontkill /* = -1 */)
 			{
 				ACE_MEM_Acceptor& a = *((ACE_MEM_Acceptor *)_socket);
 				if (a.get_handle() != ACE_INVALID_HANDLE)
+				{
 					a.close();
+				}
 				delete &a;
 				_socket = NULL;
 			}
@@ -1281,6 +1283,8 @@ ShmemSocketMsgSkip:
 	}	/// while !finished
 
 	_mutex.Wait();
+	///if (_mstream != NULL) _mstream->close();
+	_mstream->close ();
 	_mstream = NULL;
 	_mutex.Post();
 

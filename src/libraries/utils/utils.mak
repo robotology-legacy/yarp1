@@ -50,7 +50,7 @@ CLEAN :
 
 LINK32=link.exe -lib
 MTL=midl.exe
-CPP_PROJ=/nologo /MD /W3 /GX /O2 /I ".\include" /I "..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /verbose /c 
+CPP_PROJ=/nologo /MD /W3 /GX /O2 /I ".\include" /I "..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
 BSC32=bscmake.exe
 BSC32_FLAGS=/o"$(OUTDIR)\utils.bsc" 
 BSC32_SBRS= \

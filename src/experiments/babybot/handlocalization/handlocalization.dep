@@ -135,7 +135,13 @@
 	"..\..\..\..\include\sys\iplmisc.h"\
 	"..\..\..\..\include\yarpall.h"\
 	"..\..\..\..\include\yarpblobdetector.h"\
+	"..\..\..\..\include\yarpbottle.h"\
+	"..\..\..\..\include\yarpbottlecodes.h"\
+	"..\..\..\..\include\yarpbottlecontent.h"\
 	"..\..\..\..\include\yarpcolorconverter.h"\
+	"..\..\..\..\include\yarpconfigfile.h"\
+	"..\..\..\..\include\yarpconicfitter.h"\
+	"..\..\..\..\include\yarpcontrolboardnetworkdata.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
 	"..\..\..\..\include\yarpfft.h"\
 	"..\..\..\..\include\yarpfilters.h"\
@@ -143,12 +149,14 @@
 	"..\..\..\..\include\yarpimage.h"\
 	"..\..\..\..\include\yarpimagedraw.h"\
 	"..\..\..\..\include\yarpimagefile.h"\
+	"..\..\..\..\include\yarpimagemoments.h"\
 	"..\..\..\..\include\yarpimageport.h"\
 	"..\..\..\..\include\yarpimageportcontent.h"\
 	"..\..\..\..\include\yarpimages.h"\
 	"..\..\..\..\include\yarpimageutils.h"\
 	"..\..\..\..\include\yarpintegralimage.h"\
 	"..\..\..\..\include\yarpiterativestats.h"\
+	"..\..\..\..\include\yarplist.h"\
 	"..\..\..\..\include\yarplogpolar.h"\
 	"..\..\..\..\include\yarpmath.h"\
 	"..\..\..\..\include\yarpmatrix.h"\
@@ -311,6 +319,9 @@
 	"..\..\..\..\include\yarpbottle.h"\
 	"..\..\..\..\include\yarpbottlecodes.h"\
 	"..\..\..\..\include\yarpbottlecontent.h"\
+	"..\..\..\..\include\yarpconfigfile.h"\
+	"..\..\..\..\include\yarpconicfitter.h"\
+	"..\..\..\..\include\yarpcontrolboardnetworkdata.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
 	"..\..\..\..\include\yarpfft.h"\
 	"..\..\..\..\include\yarpfilters.h"\
@@ -319,12 +330,14 @@
 	"..\..\..\..\include\yarpimage.h"\
 	"..\..\..\..\include\yarpimagedraw.h"\
 	"..\..\..\..\include\yarpimagefile.h"\
+	"..\..\..\..\include\yarpimagemoments.h"\
 	"..\..\..\..\include\yarpimageport.h"\
 	"..\..\..\..\include\yarpimageportcontent.h"\
 	"..\..\..\..\include\yarpimages.h"\
 	"..\..\..\..\include\yarpimageutils.h"\
 	"..\..\..\..\include\yarpintegralimage.h"\
 	"..\..\..\..\include\yarpiterativestats.h"\
+	"..\..\..\..\include\yarplist.h"\
 	"..\..\..\..\include\yarplogpolar.h"\
 	"..\..\..\..\include\yarpmath.h"\
 	"..\..\..\..\include\yarpmatrix.h"\
@@ -489,6 +502,9 @@
 	"..\..\..\..\include\yarpbottle.h"\
 	"..\..\..\..\include\yarpbottlecodes.h"\
 	"..\..\..\..\include\yarpbottlecontent.h"\
+	"..\..\..\..\include\yarpconfigfile.h"\
+	"..\..\..\..\include\yarpconicfitter.h"\
+	"..\..\..\..\include\yarpcontrolboardnetworkdata.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
 	"..\..\..\..\include\yarpfft.h"\
 	"..\..\..\..\include\yarpfilters.h"\
@@ -497,12 +513,14 @@
 	"..\..\..\..\include\yarpimage.h"\
 	"..\..\..\..\include\yarpimagedraw.h"\
 	"..\..\..\..\include\yarpimagefile.h"\
+	"..\..\..\..\include\yarpimagemoments.h"\
 	"..\..\..\..\include\yarpimageport.h"\
 	"..\..\..\..\include\yarpimageportcontent.h"\
 	"..\..\..\..\include\yarpimages.h"\
 	"..\..\..\..\include\yarpimageutils.h"\
 	"..\..\..\..\include\yarpintegralimage.h"\
 	"..\..\..\..\include\yarpiterativestats.h"\
+	"..\..\..\..\include\yarplist.h"\
 	"..\..\..\..\include\yarplogpolar.h"\
 	"..\..\..\..\include\yarpmath.h"\
 	"..\..\..\..\include\yarpmatrix.h"\
