@@ -16,6 +16,7 @@ void main ()
 	unsigned char * LP_Image;
 	unsigned char * Rem_Image;
 	unsigned char * Rem_Fovea;
+	unsigned char * Temp_Cart;
 	int XSize,YSize,Planes;
 	int RemXSize = 128;
 	int RemYSize = 128;
@@ -45,22 +46,98 @@ void main ()
 
 	PadSizeLP = (((Param.Size_Theta * Param.LP_Planes) % Param.padding) + (Param.Size_Theta * Param.LP_Planes))*Param.Size_Rho;
 	LP_Image = (unsigned char *) malloc (PadSizeLP * sizeof (unsigned char));
+	Temp_Cart = (unsigned char *) malloc (XSize*YSize*3 * sizeof (unsigned char));
 	int PadSizeLPBW = (((Param.Size_Theta * 1) % Param.padding) + (Param.Size_Theta * 1))*Param.Size_Rho;
 	unsigned char * LP_Image_BW = (unsigned char *) malloc (PadSizeLPBW * sizeof (unsigned char));
 
-	Build_Pad_Map(&Param,Path );
+//	Build_Pad_Map(&Param,Path );
 
 	
 	Build_Cart2LP_Map(&Param,Path);
 	
 	Cart2LP_Map = Load_Cart2LP_Map(&Param,Path);
+/*	int MAX = -1;
+	int counter = 0;
+	for (int lp = 0; lp<152*252; lp++)
+	{
+		if (Cart2LP_Map[lp].NofPixels>MAX)
+		{
+			printf("%d\n",MAX);
+			MAX = Cart2LP_Map[lp].NofPixels;
+		}
+		if (Cart2LP_Map[lp].NofPixels==0)
+			counter ++;
+		for (i=0; i<Cart2LP_Map[lp].NofPixels;i++)
+		{
+			switch(Cart2LP_Map[lp].NofPixels)
+			{
+			case 10:
+					Temp_Cart[Cart2LP_Map[lp].position[i]+0] = 0;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+1] = 0;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+2] = 0;
+					break;
+			case 9:
+					Temp_Cart[Cart2LP_Map[lp].position[i]+0] = 64;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+1] = 0;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+2] = 0;
+					break;
+			case 8:
+					Temp_Cart[Cart2LP_Map[lp].position[i]+0] = 128;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+1] = 0;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+2] = 0;
+					break;
+			case 7:
+					Temp_Cart[Cart2LP_Map[lp].position[i]+0] = 192;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+1] = 0;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+2] = 0;
+					break;
+			case 6:
+					Temp_Cart[Cart2LP_Map[lp].position[i]+0] = 255;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+1] = 0;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+2] = 0;
+					break;
+			case 5:
+					Temp_Cart[Cart2LP_Map[lp].position[i]+0] = 255;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+1] = 64;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+2] = 0;
+					break;
+			case 4:
+					Temp_Cart[Cart2LP_Map[lp].position[i]+0] = 255;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+1] = 128;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+2] = 0;
+					break;
+			case 3:
+					Temp_Cart[Cart2LP_Map[lp].position[i]+0] = 255;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+1] = 192;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+2] = 0;
+					break;
+			case 2:
+					Temp_Cart[Cart2LP_Map[lp].position[i]+0] = 255;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+1] = 255;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+2] = 0;
+					break;
+			case 1:
+					Temp_Cart[Cart2LP_Map[lp].position[i]+0] = 255;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+1] = 255;
+					Temp_Cart[Cart2LP_Map[lp].position[i]+2] = 192;
+					break;
+			}
+		}
+	}
+	
+	sprintf(File_Name,"%s","C:\\Temp\\ImgTest.bmp");
+	Save_Bitmap(Temp_Cart,XSize,YSize,3,File_Name);
+
+/*/
+
 	int time = Get_Time();
-//	for (int y=0; y<1000; y++)
-//	{
+	for (int y=0; y<100; y++)
+	{
 		Make_LP_Real(LP_Image,Orig_Image,&Param,Cart2LP_Map);
 //		free(LP_Image);
-//	}
+	}
 	time = Get_Time()-time;
+	printf("Avg time to DSample one image: %f ms\n", time/100.0);
 
 //	sprintf(File_Name,"%s","C:\\Temp\\Test2.bmp");
 //	Save_Bitmap(LP_Image+252*42*3,252,110,3,File_Name);
@@ -69,8 +146,8 @@ void main ()
 
 
 //	Param.Zoom_Level *= 2.0; 
-	Build_Remap_Map(&Param,Path);
-	Crop_Remap_Map(&Param,Path);
+//	Build_Remap_Map(&Param,Path);
+//	Crop_Remap_Map(&Param,Path);
 
 	sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",Path,"RemapMap",Param.Zoom_Level,Param.Size_X_Remap,Param.Size_Y_Remap,".gio");
 	if ((fin = fopen(File_Name,"rb")) != NULL)
@@ -82,7 +159,16 @@ void main ()
 	else
 		RemapMap = NULL;
 
-	Remap(Rem_Fovea,LP_Image,&Param,RemapMap);
+
+	time = Get_Time();
+	for (y=0; y<100; y++)
+	{
+		Remap(Rem_Fovea,LP_Image,&Param,RemapMap);
+	}
+	time = Get_Time()-time;
+	printf("Avg time to Remap   one image:  %f ms\n", time/100.0);
+
+
 	sprintf(File_Name,"%s","C:\\Temp\\Test3.bmp");
 	Save_Bitmap(Rem_Fovea,128,128,3,File_Name);
 

@@ -119,12 +119,12 @@ BOOL CSimpleViewerDlg::OnInitDialog()
 	// TODO: Add extra initialization here
 	m_bIsStarted = false;
 
-	m_idParam = Set_Param(1090,1090,
+	m_idParam = Set_Param( 1090,1090,
 						   352, 288,
 						   152, 252, 
 							42,1090,
 						   CUSTOM,
-						   FITOUT,0,0);
+						   FITOUT);
 
 //	Init_Destination();
 	return TRUE;  // return TRUE  unless you set the focus to a control

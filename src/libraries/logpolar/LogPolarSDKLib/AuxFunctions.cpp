@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: AuxFunctions.cpp,v 1.4 2003-07-02 21:36:29 babybot Exp $
+/// $Id: AuxFunctions.cpp,v 1.5 2003-09-24 11:00:05 fberton Exp $
 ///
 ///
 
@@ -276,16 +276,18 @@ void Save_Bitmap(unsigned char *image,
 * Get_Theta		  														*
 ************************************************************************/	
 
-int Get_Theta(double x,
+int Get_Theta_Old(double x,
 			  double y,
 			  int rho,
 			  Image_Data * par, 
 			  double *Ang_Shift, 
-			  short *Pad_Map)
+			  unsigned short *Pad_Map)
 {
 	
 	int theta;
 	double temp;
+//	int jj;
+//	int counter;
 
 	int halfth = par->Size_Theta/2;
 	double thmult = (par->Size_Theta/2)/PI;
@@ -304,12 +306,106 @@ int Get_Theta(double x,
 	if (rho<par->Size_Fovea)
 	{
 		temp = temp * (3*rho) / PI;
-		theta = Pad_Map [(short)(temp)+par->Size_Theta*rho]%par->Size_Theta;
+//		counter = 0;
+//		for(jj=0; jj<par->Size_Theta; jj++)
+//		{
+//			if (Pad_Map[rho*par->Size_Theta+jj]!=1)
+//				counter ++;
+//		}
+//		temp = temp * counter / (2*PI);
+		theta = Pad_Map [(unsigned short)(temp)+par->Size_Theta*rho]%par->Size_Theta;
 	}
 	else 
 	{
 		temp = temp * (par->Size_Theta/2) / PI;
 		theta = (int) (temp);	
+	}
+	
+	if (theta<0)
+		theta += par->Size_Theta;
+	if (theta>=par->Size_Theta)
+		theta -= par->Size_Theta;
+
+	return theta;
+}
+
+
+/************************************************************************
+* Get_Theta		  														*
+************************************************************************/	
+
+int Get_Theta(double x,
+			  double y,
+			  int rho,
+			  Image_Data * par, 
+			  double *Ang_Shift, 
+			  unsigned short *Pad_Map)
+{
+	
+	int theta;
+	double temp;
+//	int jj;
+//	int counter;
+
+	int halfth = par->Size_Theta/2;
+	double thmult = (par->Size_Theta/2)/PI;
+
+//	tmpth  = (halfth-atan2(y,-x)*thmult);
+//	theta = (int)((tmpth) + .5 * ((rho)%2)) ;
+	
+	temp = -atan2(y,-x);
+	temp += PI-Ang_Shift[rho];
+
+	if (temp<0)
+		temp += 2*PI;
+	if (temp >= 2*PI)
+		temp -= 2*PI;
+
+	if (rho<par->Size_Fovea)
+	{
+		if (par->Fovea_Type == 0)
+		{
+			if (rho != 0)
+			{
+				temp = temp * (3*rho) / PI;
+				theta = Pad_Map [(unsigned short)(temp)+par->Size_Theta*rho]%par->Size_Theta;
+			}
+			else 
+			{
+				temp = temp / (2*PI);
+				theta = Pad_Map [(unsigned short)(temp)+par->Size_Theta*rho]%par->Size_Theta;
+			}
+		}
+		else if (par->Fovea_Type == 1)
+		{
+			if (rho != 0)
+			{
+				temp = temp * (3*rho) / PI;
+				theta = (int)(temp+0.5);
+			}
+			else 
+			{
+				temp = temp / (2*PI);
+				theta = (int)(temp+0.5);
+			}
+		}
+		else //if (par->Fovea_Type == 2)
+		{
+			temp = temp * (par->Size_Theta) / (2*PI);
+			theta = (int)(temp+0.5);
+		}
+//		counter = 0;
+//		for(jj=0; jj<par->Size_Theta; jj++)
+//		{
+//			if (Pad_Map[rho*par->Size_Theta+jj]!=1)
+//				counter ++;
+//		}
+//		temp = temp * counter / (2*PI);
+	}
+	else 
+	{
+		temp = temp * (par->Size_Theta/2.0) / PI;
+		theta = (int) (temp+0.5);	
 	}
 	
 	if (theta<0)

@@ -31,7 +31,7 @@ void Cart2LPReal(unsigned char *in_image,
 	unsigned int *RawImage;
 	unsigned int *Contat;
 	unsigned char * One_Line;
-	int    * Pad_Map;
+	unsigned short * Pad_Map;
 	One_Line = (unsigned char *)calloc(3*Par->Size_Theta,sizeof(unsigned char));
 
 	char File_Name [256];
@@ -41,12 +41,12 @@ void Cart2LPReal(unsigned char *in_image,
 	RawImage = (unsigned int *)calloc(3 * (Par->Size_Rho+10) * (Par->Size_Theta+10), sizeof(int));
 	Contat   = (unsigned int *)calloc((Par->Size_Rho+10) * (Par->Size_Theta+10), sizeof(int));
 
-	Pad_Map = (int *)malloc(Par->Size_Theta * Par->Size_Fovea * sizeof(int));
+	Pad_Map = (unsigned short *)malloc(Par->Size_Theta * Par->Size_Fovea * sizeof(unsigned short));
 
 	sprintf(File_Name,"%s%s",Path,"PadMap.gio");
 
 	fin = fopen(File_Name,"rb");
-	fread(Pad_Map,sizeof(int),Par->Size_Theta * Par->Size_Fovea,fin);
+	fread(Pad_Map,sizeof(unsigned short),Par->Size_Theta * Par->Size_Fovea,fin);
 	fclose(fin);
 
 
@@ -99,7 +99,7 @@ void Cart2LPReal(unsigned char *in_image,
 							rho=(int)radius;
 							if (rho==0)
 								Temp_Size_Theta = 1;
-							else if (Par->Fovea_Type < 2)
+							else if (Par->Fovea_Type < 8)
 								Temp_Size_Theta = (Par->Size_Theta/Par->Size_Fovea) * rho;
 						}
 						else

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.8 2003-09-02 13:57:29 natta Exp $
+/// $Id: LogPolarSDK.h,v 1.9 2003-09-24 11:03:31 fberton Exp $
 ///
 ///
 
@@ -110,7 +110,7 @@ struct Image_Data{
 	int Size_Theta;
 	int Size_Fovea;
 	int Size_LP;
-	int Fovea_Type; //0 Giotto 2.0; 1 Giotto 2.1
+	int Fovea_Type; //0->3 Giotto 2.0; 4->7 Giotto 2.1 //0;4 Sawtooth (Raw); 1;5 Triangular; 2;6 Complete
 	int Pix_Numb;
 
 	// Remapped Cartesian Metrics
@@ -142,6 +142,12 @@ struct Neighborhood{
 	float weight;
 };
 
+struct IntNeighborhood{
+	unsigned short NofPixels;
+	unsigned short * position;
+	unsigned char * weight;
+};
+
 struct Cart2LPInterp{
 	unsigned char NofPixels;
 	unsigned int * position;
@@ -152,7 +158,7 @@ struct LUT_Ptrs{
 	char			* ColorMap;
 	unsigned short	* DownSampleMap;
 	Neighborhood	* NeighborMap;
-	short			* PadMap;
+	unsigned short	* PadMap;
 	int				* RemapMap;
 	Neighborhood	* WeightsMap;
 	double			* XYMap;
@@ -265,6 +271,9 @@ int Build_Neighborhood_Map_NoFov(Image_Data * Par,
 unsigned char Build_Weights_Map(Image_Data * Par,
 								char * Path);
 
+IntNeighborhood * Build_Fast_Weights_Map(Image_Data * Par,
+								char * Path);
+
 unsigned char Build_Weights_Map_NoFov(Image_Data * Par,
 								char * Path);
 
@@ -323,11 +332,11 @@ int Get_Theta(double x,
 			  int rho,
 			  Image_Data * par, 
 			  double *Ang_Shift, 
-			  short *Pad_Map);
+			  unsigned short *Pad_Map);
 
-double Get_X_Center(int rho, int theta, Image_Data *par, double *Ang_Shift);
+double Get_X_Center(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap);
 
-double Get_Y_Center(int rho, int theta, Image_Data *par, double *Ang_Shift);
+double Get_Y_Center(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap);
 
 int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, double *Ang_Shift);
 
@@ -343,5 +352,13 @@ void Free_Cart2LP_Map (Cart2LPInterp *map);
 unsigned char * Crop_Image (unsigned char * Input_Image,Image_Data * Par,int OrigXSize, int DestSize);
 
 int Make_LP_Real (unsigned char * Output_Image, unsigned char * Input_Image, Image_Data * Par, Cart2LPInterp * Cart2LP_Map);
+
+void Fast_Reconstruct_Color(unsigned char * Out_Image,
+					   unsigned char * In_Image,
+					   int height,
+					   int width,
+					   int padding,
+					   IntNeighborhood * WeightsMap,
+					   int Pix_Numb);
 
 #endif

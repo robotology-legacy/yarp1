@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.12 2003-08-20 08:26:49 natta Exp $
+/// $Id: LogPolarSDK.cpp,v 1.13 2003-09-24 11:02:54 fberton Exp $
 ///
 ///
 
@@ -98,6 +98,7 @@ Image_Data Set_Param(int SXO,
 	int Color = 3;
 	bool Landscape = true;
     Image_Data image;
+	image.padding = 1; //No Padding
 
 	switch (LPMode)
 	{
@@ -309,7 +310,7 @@ int Get_XY_Center(double *xx, double *yy, int rho, int theta, Image_Data *par, d
 * Get_X_Center  														*
 ************************************************************************/	
 
-double Get_X_Center(int rho, int theta, Image_Data *par, double *Ang_Shift)
+double Get_X_Center_Old(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap)
 {
 
 	double scalefactor;
@@ -348,7 +349,7 @@ double Get_X_Center(int rho, int theta, Image_Data *par, double *Ang_Shift)
 			mod = 0;
 		}
 		else if (par->Fovea_Display_Mode < 2)
-			Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * rho;
+			Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * (int)rho;
 	}
 	else
 	{
@@ -358,7 +359,7 @@ double Get_X_Center(int rho, int theta, Image_Data *par, double *Ang_Shift)
 		if (Temp_Size_Theta>par->Size_Theta)
 			Temp_Size_Theta = par->Size_Theta;
 
-		x = mod * cos(+Ang_Shift[rho]+td*PI/(Temp_Size_Theta/2.0));
+		x = mod * cos(+Ang_Shift[(int)rho]+td*PI/(Temp_Size_Theta/2.0));
 
 		return x*scalefactor;
 }
@@ -367,7 +368,7 @@ double Get_X_Center(int rho, int theta, Image_Data *par, double *Ang_Shift)
 * Get_Y_Center  														*
 ************************************************************************/	
 
-double Get_Y_Center(int rho, int theta, Image_Data *par, double *Ang_Shift){
+double Get_Y_Center_Old(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap){
 
 	double scalefactor;
 	int Temp_Size_Theta;
@@ -379,7 +380,7 @@ double Get_Y_Center(int rho, int theta, Image_Data *par, double *Ang_Shift){
 		rd = rho+0.5;
 		td = theta+0.5;
 	}
-	else
+	else 
 	{
 		rd = rho;
 		td = theta;
@@ -404,7 +405,7 @@ double Get_Y_Center(int rho, int theta, Image_Data *par, double *Ang_Shift){
 			mod = 0;
 		}
 		else if (par->Fovea_Display_Mode < 2)
-			Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * rho;
+			Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * (int)rho;
 	}
 	else
 	{
@@ -415,7 +416,7 @@ double Get_Y_Center(int rho, int theta, Image_Data *par, double *Ang_Shift){
 		if (Temp_Size_Theta>par->Size_Theta)
 			Temp_Size_Theta = par->Size_Theta;
 
-		y = mod * sin(+Ang_Shift[rho]+td*PI/(Temp_Size_Theta/2.0));
+		y = mod * sin(+Ang_Shift[(int)rho]+td*PI/(Temp_Size_Theta/2.0));
 
 		return y*scalefactor;
 
@@ -434,6 +435,8 @@ void Reconstruct_Color(unsigned char * Out_Image,
 					   Neighborhood * Weights_Map,
 					   int Pix_Numb)
 {
+#ifndef SLOW
+
 	int i,j,k,plane;
 	int Size = height * width;
 	int shiftPN = Size * Pix_Numb;
@@ -478,6 +481,57 @@ void Reconstruct_Color(unsigned char * Out_Image,
 			buffer+=PadShift;
 		}
 	}
+
+#else
+	int i,j,k,plane;
+	int Size = height * width;
+	int shiftPN = Size * Pix_Numb;
+	float SumR, SumG, SumB;
+	int step = Size;
+	int end = 3*Size;
+	unsigned char * buffer = Out_Image;
+	const int H = height;
+	const int W = Pix_Numb*width;
+	const int PN = Pix_Numb;
+	int index;
+	Neighborhood * Weights_Map_R = Weights_Map;
+	Neighborhood * Weights_Map_G = &Weights_Map[shiftPN];
+	Neighborhood * Weights_Map_B = &Weights_Map[2*shiftPN];
+
+	const int PadShift = (3*width)%padding;
+
+	if (Pix_Numb == 1)
+	{
+		for (j=0; j<Size; j++)
+			for (plane = 0; plane < end; plane +=step)
+				*buffer++ = In_Image[Weights_Map[plane+j].position];
+	}
+	else
+	{
+		for (j=0; j<H; j++)
+		{
+			for (k=0; k<W; k+=PN)
+			{
+				index = j*W+k;
+				SumR = 0.0;
+				SumG = 0.0;
+				SumB = 0.0;
+				for (i=0; i<PN; i++)
+				{
+					SumR += Weights_Map_R[index+i].weight*In_Image[Weights_Map_R[index+i].position];
+					SumG += Weights_Map_G[index+i].weight*In_Image[Weights_Map_G[index+i].position];
+					SumB += Weights_Map_B[index+i].weight*In_Image[Weights_Map_B[index+i].position];
+				}
+				*buffer++ = (unsigned char)SumR;
+
+				*buffer++ = (unsigned char)SumG;
+
+				*buffer++ = (unsigned char)SumB;
+			}
+			buffer+=PadShift;
+		}
+	}
+#endif
 }
 
 /************************************************************************
@@ -552,9 +606,14 @@ void Remap(unsigned char * Out_Image,
 	int i,j;
 //	int max;
 
-	int SizeRemapX = Par->Size_X_Remap;
-	int SizeRemapY = Par->Size_Y_Remap;
+	//const int SizeRemapX = Par->Size_X_Remap;
+	//const int SizeRemapY = Par->Size_Y_Remap;
+	const int SizeRemap  = Par->Size_Img_Remap;
 
+	In_Image[0] = 192;
+	In_Image[1] = 192;
+	In_Image[2] = 192;
+	//const int Size = Par->Size_X_Remap * Par->Size_Y_Remap;
 //	int CenterX = Par->Center_X_Remap;
 //	int CenterY = Par->Center_Y_Remap;
 
@@ -566,15 +625,16 @@ void Remap(unsigned char * Out_Image,
 	unsigned char * RemImgPtr = Out_Image;
 	int * LPImgPtr = Rem_LUT;
 
-	for (j=0; j<SizeRemapY; j++)
+///	for (j=0; j<SizeRemapY; j++)
+	for (j=0; j<SizeRemap; j++)
 	{
 //		LPImgPtr = &Rem_LUT[(j+startj)*Par->Resolution+starti];
-		for (i=0; i<SizeRemapX; i++)
-		{
+///		for (i=0; i<SizeRemapX; i++)
+///		{
 //			if (*LPImgPtr>max)
 //				max = *LPImgPtr;
-			if (*LPImgPtr!=-1)
-			{
+///			if (*LPImgPtr!=-1)
+///			{
 				*RemImgPtr++ = In_Image[*LPImgPtr];
 				*RemImgPtr++ = In_Image[(*LPImgPtr)+1];
 				*RemImgPtr++ = In_Image[(*LPImgPtr++)+2];
@@ -871,7 +931,7 @@ void Simulate_Camera(unsigned char * InCartImage,
 
 	double * Ang_Shift_Map;
 	char * Color_Map;
-	short * Pad_Map;
+	unsigned short * Pad_Map;
 	char File_Name [256];
 
 	struct RLP
@@ -888,12 +948,12 @@ void Simulate_Camera(unsigned char * InCartImage,
 
 	ImageArray = (RLP *)calloc(3*Par->Size_LP , sizeof(RLP));
 
-	Pad_Map = (short *)malloc(Par->Size_Theta * Par->Size_Fovea * sizeof(short));
+	Pad_Map = (unsigned short *)malloc(Par->Size_Theta * Par->Size_Fovea * sizeof(unsigned short));
 
 	sprintf(File_Name,"%s%s",Path,"PadMap.gio");
 
 	fin = fopen(File_Name,"rb");
-	fread(Pad_Map,sizeof(short),Par->Size_Theta * Par->Size_Fovea,fin);
+	fread(Pad_Map,sizeof(unsigned short),Par->Size_Theta * Par->Size_Fovea,fin);
 	fclose(fin);
 
 	Ang_Shift_Map = (double *)calloc(Par->Size_Rho,sizeof(double));
@@ -917,8 +977,8 @@ void Simulate_Camera(unsigned char * InCartImage,
 	//	for (j=0; j<Par->Size_Fovea; j++)
 			for (i=0; i<Par->Size_Theta; i++)
 			{
-				x = (int)(Get_X_Center(j,i,Par,Ang_Shift_Map));
-				y = (int)(Get_Y_Center(j,i,Par,Ang_Shift_Map));
+				x = (int)(Get_X_Center(j,i,Par,Ang_Shift_Map,Pad_Map));
+				y = (int)(Get_Y_Center(j,i,Par,Ang_Shift_Map,Pad_Map));
 				if (j<Par->Size_Fovea)
 				{
 					OutLPImage[Pad_Map[j*Par->Size_Theta+i]] = InCartImage[3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+(x+Par->Size_X_Orig/2))+Color_Map[Pad_Map[j*Par->Size_Theta+i]]];
@@ -940,8 +1000,8 @@ void Simulate_Camera(unsigned char * InCartImage,
 		for (j=0; j<Par->Size_Rho; j++)
 			for (i=0; i<Par->Size_Theta; i++)
 			{
-				x = (int)(Get_X_Center(j,i,Par,Ang_Shift_Map));
-				y = (int)(Get_Y_Center(j,i,Par,Ang_Shift_Map));
+				x = (int)(Get_X_Center(j,i,Par,Ang_Shift_Map,Pad_Map));
+				y = (int)(Get_Y_Center(j,i,Par,Ang_Shift_Map,Pad_Map));
 				if (j<Par->Size_Fovea)
 				{
 					OutLPImage[3*(Pad_Map[j*Par->Size_Theta+i])+0] = InCartImage[3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+(x+Par->Size_X_Orig/2))+0];
@@ -1011,7 +1071,7 @@ int Build_Cart2LP_Map(Image_Data * Par,
 	LUT_Ptrs Tables;
 	Cart2LPInterp * Temp_Array;
 	Cart2LPInterp * Cart2LP_Map;
-	short  * Pad_Map;
+	unsigned short  * Pad_Map;
 	double * Ang_Shift_Map;
 	char File_Name [256];
 	FILE * fout;
@@ -1049,16 +1109,37 @@ int Build_Cart2LP_Map(Image_Data * Par,
 		{
 			for (l=0; l<Par->Size_Theta; l++)
 			{
-//			for (j=0; j<Par->Size_Fovea*Par->Size_Theta; j++)
-//			{
-//				k = j/Par->Size_Theta;
-//				l = j%Par->Size_Theta;
-				x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map));
-				y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map));
-				Temp_Array[Pad_Map[k*Par->Size_Theta+l]].position[0] = 3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2);
+				x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+				y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+				if ((x<Par->Size_X_Orig/2)&&(x>=-Par->Size_X_Orig/2)&&(y<Par->Size_Y_Orig/2)&&(y>=-Par->Size_Y_Orig/2))
+					Temp_Array [k*Par->Size_Theta+l].position[0] = 3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2);
 			}
 		}
-
+/*		if  (Par->Fovea_Type == 0)
+		{
+			for (k=0; k<Par->Size_Fovea; k++)
+			{
+				for (l=0; l<Par->Size_Theta; l++)
+				{
+					x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+					y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+					Temp_Array[Pad_Map[k*Par->Size_Theta+l]].position[0] = 3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2);
+				}
+			}
+		}
+		else if (Par->Fovea_Type == 1)
+		{
+			for (k=0; k<Par->Size_Fovea; k++)
+			{
+				for (l=0; l<Par->Size_Theta; l++)
+				{
+					x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+					y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+					Temp_Array[Pad_Map[k*Par->Size_Theta+l]].position[0] = 3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2);
+				}
+			}
+		}
+*/
 		for (j=0; j<Par->Size_Y_Orig; j++)
 			for (i=0; i<Par->Size_X_Orig; i++)
 			{
@@ -1084,8 +1165,8 @@ int Build_Cart2LP_Map(Image_Data * Par,
 					Temp_Array[k*Par->Size_Theta+l].NofPixels = 1;
 					if (k>=Par->Size_Fovea)
 					{
-						x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map));
-						y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map));
+						x = (int)(Get_X_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
+						y = (int)(Get_Y_Center(k,l,Par,Ang_Shift_Map,Pad_Map));
 						Temp_Array[k*Par->Size_Theta+l].position[0] = 3*((Par->Size_Y_Orig/2-y)*Par->Size_X_Orig+x+Par->Size_X_Orig/2);
 					}
 				}
@@ -1121,6 +1202,10 @@ int Build_Cart2LP_Map(Image_Data * Par,
 	}
 }
 
+//				sumR += Input_Image[Cart2LP_Map[k*PadSizeTheta+3*l].position[i]];
+//				sumG += Input_Image[Cart2LP_Map[k*PadSizeTheta+3*l].position[i]+1];
+//				sumB += Input_Image[Cart2LP_Map[k*PadSizeTheta+3*l].position[i]+2];
+//				TablePtr[0].position++;
 
 int Make_LP_Real (unsigned char * Output_Image, unsigned char * Input_Image, Image_Data * Par, Cart2LPInterp * Cart2LP_Map)
 {
@@ -1128,40 +1213,270 @@ int Make_LP_Real (unsigned char * Output_Image, unsigned char * Input_Image, Ima
 	int sumR,sumG,sumB;
 	Cart2LPInterp * TablePtr = Cart2LP_Map;	
 	int PadSizeTheta = (((Par->Size_Theta * Par->LP_Planes) % Par->padding) + (Par->Size_Theta * Par->LP_Planes));
-	int index = 0;
 	unsigned int max = 0;
 
+	Input_Image[0] = 0;
+	Input_Image[1] = 0;
+	Input_Image[2] = 0;
+
 	//Check Table:
-	for (k=0; k<Par->Size_Rho; k++)
+	const int rho = Par->Size_Rho;
+	const int theta = Par->Size_Theta;
+	const int pad = (Par->Size_Theta * Par->LP_Planes) % Par->padding;
+	unsigned char *tmp = Output_Image;
+
+	for (k = 0; k < rho; k++)
 	{
-		for (l=0; l<Par->Size_Theta; l++)
+		for (l = 0; l < theta; l++)
 		{
 			sumR = 0;
 			sumG = 0;
 			sumB = 0;
-			if ((k==40)&&(l==33))
-				l=33;
-			for (i=0; i<TablePtr[0].NofPixels; i++)
+			const int nopix = TablePtr[0].NofPixels;
+			unsigned int *pos = TablePtr[0].position;
+			for (i=0; i < nopix; i++, pos++)
 			{
-//				sumR += Input_Image[Cart2LP_Map[k*PadSizeTheta+3*l].position[i]];
-//				sumG += Input_Image[Cart2LP_Map[k*PadSizeTheta+3*l].position[i]+1];
-//				sumB += Input_Image[Cart2LP_Map[k*PadSizeTheta+3*l].position[i]+2];
-				sumR += Input_Image[TablePtr[0].position[i]];
-				sumG += Input_Image[TablePtr[0].position[i]+1];
-				sumB += Input_Image[TablePtr[0].position[i]+2];
-//				TablePtr[0].position++;
+				sumR += Input_Image[*pos];
+				sumG += Input_Image[*pos+1];
+				sumB += Input_Image[*pos+2];
 			}
-			Output_Image[index++] = sumR/TablePtr[0].NofPixels;
-			Output_Image[index++] = sumG/TablePtr[0].NofPixels;
-			Output_Image[index++] = sumB/TablePtr[0].NofPixels;
+
+			*Output_Image++ = sumR/nopix;
+			*Output_Image++ = sumG/nopix;
+			*Output_Image++ = sumB/nopix;
 			TablePtr++;
 		}
-		index += (Par->Size_Theta * Par->LP_Planes) % Par->padding;
+
+		Output_Image += pad;
 	}
 	
-	Output_Image[0] = 0;
-	Output_Image[1] = 0;
-	Output_Image[2] = 0;
+	tmp[0] = 0;
+	tmp[1] = 0;
+	tmp[2] = 0;
 
 	return 0;
+}
+
+/************************************************************************
+* Get_X_Center  														*
+************************************************************************/	
+
+double Get_X_Center(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap)
+{
+
+	double scalefactor;
+	int Temp_Size_Theta;
+	double x,A,B;
+	double mod;
+//	int intmod;
+	bool found = true;
+
+	int j;
+
+	
+	if ((int)(rho) != 0)
+	{
+		rho   += 0.5;
+		theta += 0.5;
+	}
+
+	if (!par->Valid_Log_Index){
+		par->Log_Index = Compute_Index(par->Resolution,par->Size_Fovea,par->Size_Rho);
+		par->Valid_Log_Index = true;
+	}
+
+	scalefactor = par->Zoom_Level;
+	B = par->Log_Index/(par->Log_Index-1);
+	A = par->Size_Fovea - B - 0.5;
+
+	if (rho<par->Size_Fovea)
+	{
+		if (par->Fovea_Type == 0)
+		{
+			found = false;
+			for (j=0; j<par->Size_Theta;j++)
+			{
+				if (PadMap[(int)(rho)*par->Size_Theta+j]%par->Size_Theta == (int) (theta))
+					if (PadMap[(int)(rho)*par->Size_Theta+j]!=1) //Non Valid Pixel
+					{
+						theta = j+0.5;
+						found = true;
+						break;
+					}
+
+			}
+
+			Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * (int)rho;
+			
+			if ((int)rho<1)
+			{
+				Temp_Size_Theta = 1;
+				mod = 0;
+			}
+			else 
+				mod = rho-0.5;
+		}
+		else if (par->Fovea_Type == 1)
+		{
+			if (PadMap[(int)(rho)*par->Size_Theta+(int)theta]!=1)
+				Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * (int)rho;
+			else found = false;
+
+			if ((int)rho<1)
+			{
+				Temp_Size_Theta = 1;
+				mod = 0;
+			}
+			else
+				mod = rho - 0.5;
+		}
+		else //if (par->Fovea_Type == 2)
+		{
+			Temp_Size_Theta = par->Size_Theta;
+			found = true;
+			if ((int)rho<1)
+				mod = 0;
+			else mod = rho-0.5;
+		}
+	}
+	else
+	{
+		Temp_Size_Theta = par->Size_Theta;
+		mod = A+B*pow(par->Log_Index,rho-par->Size_Fovea);
+	}
+	if (Temp_Size_Theta>par->Size_Theta)
+		Temp_Size_Theta = par->Size_Theta;
+
+	x = mod * cos(+Ang_Shift[(int)rho]+theta*PI/(Temp_Size_Theta/2.0));
+
+	if (found)
+		return x*scalefactor;
+	else return 2*par->Size_X_Remap;
+
+
+}/************************************************************************
+* Get_Y_Center  														*
+************************************************************************/	
+
+double Get_Y_Center(double rho, double theta, Image_Data *par, double *Ang_Shift,unsigned short * PadMap)
+{
+
+	double scalefactor;
+	int Temp_Size_Theta;
+	double y,A,B;
+	double mod;
+//	int intmod;
+	bool found = true;
+
+	int j;
+
+	
+	if ((int)(rho) != 0)
+	{
+		rho   += 0.5;
+		theta += 0.5;
+	}
+
+	if (!par->Valid_Log_Index){
+		par->Log_Index = Compute_Index(par->Resolution,par->Size_Fovea,par->Size_Rho);
+		par->Valid_Log_Index = true;
+	}
+
+	scalefactor = par->Zoom_Level;
+	B = par->Log_Index/(par->Log_Index-1);
+	A = par->Size_Fovea - B - 0.5;
+
+	if (rho<par->Size_Fovea)
+	{
+		if (par->Fovea_Type == 0)
+		{
+			found = false;
+			for (j=0; j<par->Size_Theta;j++)
+			{
+				if (PadMap[(int)(rho)*par->Size_Theta+j]%par->Size_Theta == (int) (theta))
+					if (PadMap[(int)(rho)*par->Size_Theta+j]!=1)
+					{
+						theta = j+0.5;
+						found = true;
+						break;
+					}
+
+			}
+
+			Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * (int)rho;
+			
+			if ((int)rho<1)
+			{
+				Temp_Size_Theta = 1;
+				mod = 0;
+			}
+			else 
+				mod = rho-0.5;
+		}
+		else if (par->Fovea_Type == 1)
+		{
+			if (PadMap[(int)(rho)*par->Size_Theta+(int)theta]!=1)
+				Temp_Size_Theta = (par->Size_Theta/par->Size_Fovea) * (int)rho;
+			else found = false;
+
+			if ((int)rho<1)
+			{
+				Temp_Size_Theta = 1;
+				mod = 0;
+			}
+			else
+				mod = rho - 0.5;
+		}
+		else //if (par->Fovea_Type == 2)
+		{
+			Temp_Size_Theta = par->Size_Theta;
+			found = true;
+			if ((int)rho<1)
+				mod = 0;
+			else mod = rho-0.5;
+		}
+	}
+	else
+	{
+		Temp_Size_Theta = par->Size_Theta;
+		mod = A+B*pow(par->Log_Index,rho-par->Size_Fovea);
+	}
+	if (Temp_Size_Theta>par->Size_Theta)
+		Temp_Size_Theta = par->Size_Theta;
+
+	y = mod * sin(+Ang_Shift[(int)rho]+theta*PI/(Temp_Size_Theta/2.0));
+
+	if (found)
+		return y*scalefactor;
+	else return 2*par->Size_Y_Remap;
+}
+
+/************************************************************************
+* Fast_Reconstruct_Color  												*
+************************************************************************/	
+
+void Fast_Reconstruct_Color(unsigned char * Out_Image,
+					   unsigned char * In_Image,
+					   int height,
+					   int width,
+					   int padding,
+					   IntNeighborhood * WeightsMap,
+					   int Pix_Numb)
+{
+	const int limit = height*width*3;
+	const int Nopix = Pix_Numb;
+	int i,j;
+	unsigned char Sum;
+	unsigned char * OI = Out_Image;
+
+	for (j=0; j<limit; j++)
+	{
+		Sum = 0;
+		for (i=0; i<WeightsMap[j].NofPixels; i++)
+//		for (i=0; i<Nopix; i++)
+			Sum += In_Image [WeightsMap[j].position[i]]>> WeightsMap[j].weight[i];
+
+		*OI++ = Sum;
+
+	}
 }

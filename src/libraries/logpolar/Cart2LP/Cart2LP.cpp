@@ -19,34 +19,53 @@ void main()
 	Cart2LPInterp * Cart2LP_Map;
 	Image_Data Param;
 	
-	Param = Set_Param(	1090,1090,
+	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Images\\TestImg.bmp");
+	Cartesian = Read_Bitmap(&XSize,&YSize,&Planes,File_Name);
+
+	Param = Set_Param(	XSize,YSize,
 						1090,1090,
 						NECC,NANG,42,
 						1090,
 						CUSTOM,
-						1,
-						0,0);
+						1);
+	Param.padding = 1;
+	Param.Fovea_Type = 0;
 						
-	sprintf(Working_Folder,"%s","C:\\Temp\\From Talia\\Tables\\Test\\Giotto2.0\\");
+	sprintf(Working_Folder,"%s","C:\\Temp\\Tables\\1.00\\");
+	Build_Cart2LP_Map(&Param,Working_Folder);
 	Cart2LP_Map = Load_Cart2LP_Map(&Param,Working_Folder);
 
-	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Mosaic\\Square1.bmp");
-	Cartesian = Read_Bitmap(&XSize,&YSize,&Planes,File_Name);
 
-	LogPolar = Make_LP_Real(Cartesian,&Param,Cart2LP_Map);
 
-	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Mosaic\\SquareLP1.bmp");
+	LogPolar = (unsigned char *)malloc(Param.Size_LP * 3 * sizeof(unsigned char));
+
+	Make_LP_Real(LogPolar,Cartesian,&Param,Cart2LP_Map);
+
+	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Images\\TestImgLP.bmp");
 	Save_Bitmap(LogPolar,NANG,NECC,3,File_Name);
 
 	free(Cartesian);
 	free(LogPolar);
 
-	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Mosaic\\Square2.bmp");
+	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Images\\Star8.bmp");
 	Cartesian = Read_Bitmap(&XSize,&YSize,&Planes,File_Name);
+	LogPolar = (unsigned char *)malloc(Param.Size_LP * 3 * sizeof(unsigned char));
 
-	LogPolar = Make_LP_Real(Cartesian,&Param,Cart2LP_Map);
+	Make_LP_Real(LogPolar,Cartesian,&Param,Cart2LP_Map);
 
-	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Mosaic\\SquareLP2.bmp");
+	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Images\\Star8LP.bmp");
+	Save_Bitmap(LogPolar,NANG,NECC,3,File_Name);
+
+	free(Cartesian);
+	free(LogPolar);
+
+	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Images\\Star9.bmp");
+	Cartesian = Read_Bitmap(&XSize,&YSize,&Planes,File_Name);
+	LogPolar = (unsigned char *)malloc(Param.Size_LP * 3 * sizeof(unsigned char));
+
+	Make_LP_Real(LogPolar,Cartesian,&Param,Cart2LP_Map);
+
+	sprintf(File_Name,"%s","C:\\Temp\\From Talia\\Test Images\\Star9LP.bmp");
 	Save_Bitmap(LogPolar,NANG,NECC,3,File_Name);
 
 	free(Cartesian);

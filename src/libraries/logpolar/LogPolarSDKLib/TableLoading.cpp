@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableLoading.cpp,v 1.5 2003-06-20 19:09:24 gmetta Exp $
+/// $Id: TableLoading.cpp,v 1.6 2003-09-24 11:03:31 fberton Exp $
 ///
 ///
 
@@ -166,8 +166,8 @@ unsigned char Load_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,unsi
 		sprintf(File_Name,"%s%s",Path,"PadMap.gio");
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
-			Tables->PadMap = (short *) malloc (Param->Size_Theta * Param->Size_Fovea * sizeof(short));
-			fread(Tables->PadMap,sizeof(short),Param->Size_Theta * Param->Size_Fovea,fin);
+			Tables->PadMap = (unsigned short *) malloc (Param->Size_Theta * Param->Size_Fovea * sizeof(unsigned short));
+			fread(Tables->PadMap,sizeof(unsigned short),Param->Size_Theta * Param->Size_Fovea,fin);
 			fclose (fin);
 			retval = retval | 16;
 		}
@@ -177,7 +177,7 @@ unsigned char Load_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,unsi
 
 	if ((List&32)==32)
 	{
-		sprintf(File_Name,"%s%s_%2.2f_%dx%d%s",Path,"RemapMap",Param->Zoom_Level,Param->Size_X_Remap,Param->Size_Y_Remap,".gio");
+		sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",Path,"RemapMap",Param->Zoom_Level,Param->Size_X_Remap,Param->Size_Y_Remap,".gio");
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			Tables->RemapMap = (int *) malloc (Param->Size_Img_Remap * sizeof(int));

@@ -61,13 +61,14 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.10 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: TableGeneration.cpp,v 1.11 2003-09-24 10:58:25 fberton Exp $
 ///
 ///
 
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h> 
+#include <math.h> 
 
 #include "LogPolarSDK.h"
 
@@ -196,7 +197,7 @@ int Build_Ang_Shift_Map (Image_Data * Parameters,char * Path)
 	
 	Ang_Shift_Map = (double *)calloc(Parameters->Size_Rho,sizeof(double));
 
-	if (Parameters->Fovea_Type == 0)
+	if (Parameters->Fovea_Type < 4)
 	{
 		for (i=1; i<Parameters->Size_Fovea; i+=2)
 		{
@@ -211,6 +212,7 @@ int Build_Ang_Shift_Map (Image_Data * Parameters,char * Path)
 	}
 	else
 	{
+		// Write here the code for Giotto 2.1
 	}
 
 	sprintf(File_Name,"%s%s",Path,"AngularShiftMap.gio");
@@ -520,8 +522,8 @@ int Build_Pad_Map (Image_Data * Parameters,char * Path)
 {
 	int i,j,k=0;
 	int XSize,YSize,planes;
-	unsigned char * Image;
-	short         * Pad_Map;
+	unsigned char  * Image;
+	unsigned short * Pad_Map;
 	char File_Name [256];
 
 	FILE * fout;
@@ -532,7 +534,7 @@ int Build_Pad_Map (Image_Data * Parameters,char * Path)
 
 	if (Image != NULL)
 	{
-		Pad_Map = (short *)malloc(Parameters->Size_Theta * Parameters->Size_Fovea * sizeof(short));
+		Pad_Map = (unsigned short *)malloc(Parameters->Size_Theta * Parameters->Size_Fovea * sizeof(unsigned short));
 
 		for (j=0; j<Parameters->Size_Fovea; j++)
 		{	
@@ -552,7 +554,7 @@ int Build_Pad_Map (Image_Data * Parameters,char * Path)
 		sprintf(File_Name,"%s%s",Path,"PadMap.gio");
 
 		fout = fopen(File_Name,"wb");
-		fwrite(Pad_Map,sizeof(short),Parameters->Size_Theta * Parameters->Size_Fovea,fout);
+		fwrite(Pad_Map,sizeof(unsigned short),Parameters->Size_Theta * Parameters->Size_Fovea,fout);
 		fclose (fout);
 
 		free (Pad_Map);
@@ -584,8 +586,11 @@ int Build_Remap_Map (Image_Data * Parameters,
 	int XSize, YSize;
 	int rho,theta;
 	double   * Ang_Shift_Map;
-	short    * Pad_Map;
+	unsigned short * Pad_Map;
 	int      * Remap_Map;
+
+	int startX,startY;
+	int endX,endY;
 
 	int retval;
 	int PadSizeTheta;
@@ -612,29 +617,39 @@ int Build_Remap_Map (Image_Data * Parameters,
 		XSize = (int)(Parameters->Resolution * Parameters->Zoom_Level + 0.5);
 		YSize = XSize;
 
-		Remap_Map = (int *)malloc(XSize * YSize * sizeof(int));
+//		Remap_Map = (int *)malloc(XSize * YSize * sizeof(int));
+		Remap_Map = (int *)malloc(Parameters->Size_Img_Remap * sizeof(int));
 
+		startX = (XSize/2)-Parameters->Size_X_Remap/2;
+		startY = (YSize/2)-Parameters->Size_Y_Remap/2;
+		endX   = (XSize/2)+Parameters->Size_X_Remap/2;
+		endY   = (YSize/2)+Parameters->Size_Y_Remap/2;
 	//	if (Parameters->Fovea_Type == 0)
 		if (1)
 		{
-			for (j=0; j<YSize; j++)
-				for (i=0; i<XSize; i++)
+//			for (j=0; j<YSize; j++)
+//				for (i=0; i<XSize; i++)
+			for (j=startY; j<endY; j++)
+				for (i=startX; i<endX; i++)
 				{
 					rho   = (int)(Get_Rho  (i-XSize/2,YSize/2-j,Parameters));
 					theta = (int)(Get_Theta(i-XSize/2,YSize/2-j,rho,Parameters,Ang_Shift_Map,Pad_Map));
 					if ((rho<Parameters->Size_Rho)&&(rho>=0)&&(theta<Parameters->Size_Theta)&&(theta>=0))
 //						Remap_Map[j*XSize+i] = 3*(rho*Parameters->Size_Theta+theta);
-						Remap_Map[j*XSize+i] = (rho*PadSizeTheta+3*theta);
+//						Remap_Map[j*XSize+i] = (rho*PadSizeTheta+3*theta);
+						Remap_Map[(j-startY)*Parameters->Size_X_Remap+i-startX] = (rho*PadSizeTheta+3*theta);
 					else
-						Remap_Map[j*XSize+i] = -1;
+						Remap_Map[(j-startY)*Parameters->Size_X_Remap+i-startX] = 0;
 				}
 
 		}
 
-		sprintf(File_Name,"%s%s_%2.3f%s",Path,"RemapMap",Parameters->Zoom_Level,".gio");
+//		sprintf(File_Name,"%s%s_%2.3f%s",Path,"RemapMap",Parameters->Zoom_Level,".gio");
+		sprintf(File_Name,"%s%s_%2.3f_%dx%d%s",Path,"RemapMap",Parameters->Zoom_Level,Parameters->Size_X_Remap,Parameters->Size_Y_Remap,".gio");
 		
 		fout = fopen(File_Name,"wb");
-		fwrite(Remap_Map,sizeof(int),XSize * YSize,fout);
+//		fwrite(Remap_Map,sizeof(int),XSize * YSize,fout);
+		fwrite(Remap_Map,sizeof(int),Parameters->Size_Img_Remap,fout);
 		fclose (fout);
 
 		free (Pad_Map);
@@ -740,12 +755,15 @@ unsigned char Build_Weights_Map(Image_Data * Par,
 			Weights_Map[k].position = j*(Par->Size_Theta+PadSizeTheta)+i;
 		}
 
+
+
 		sprintf(File_Name,"%s%s%02d%s",Path,"WeightsMap",Par->Pix_Numb,".gio");
 
 		fout = fopen(File_Name,"wb");
 		fwrite(Weights_Map,sizeof(Neighborhood),Par->Size_LP * Par->Pix_Numb * 3,fout);
 		fclose (fout);
 
+		free(Weights_Map);
 		free(Neighbor_Map_RGB);
 
 		return Par->Pix_Numb;
@@ -769,7 +787,7 @@ int Build_XY_Map (Image_Data * Parameters,
 		 		   char * Path)
 {
 	int i,j;
-	short  * Pad_Map;
+	unsigned short * Pad_Map;
 	double * Ang_Shift_Map;
 	double * One_Line;
 	double * X_Map;
@@ -804,14 +822,14 @@ int Build_XY_Map (Image_Data * Parameters,
 		for (j=1; j< Parameters->Size_Fovea; j++)
 			for (i=0; i<6*j; i++)
 			{
-				X_Map[j*Parameters->Size_Theta+i] = Get_X_Center(j,i,Parameters,Ang_Shift_Map);
-				Y_Map[j*Parameters->Size_Theta+i] = Get_Y_Center(j,i,Parameters,Ang_Shift_Map);
+				X_Map[j*Parameters->Size_Theta+i] = Get_X_Center(j,i,Parameters,Ang_Shift_Map,Pad_Map);
+				Y_Map[j*Parameters->Size_Theta+i] = Get_Y_Center(j,i,Parameters,Ang_Shift_Map,Pad_Map);
 			}
 		for (j=Parameters->Size_Fovea; j< Parameters->Size_Rho; j++)
 			for (i=0; i<Parameters->Size_Theta; i++)
 			{
-				X_Map[j*Parameters->Size_Theta+i] = Get_X_Center(j,i,Parameters,Ang_Shift_Map);
-				Y_Map[j*Parameters->Size_Theta+i] = Get_Y_Center(j,i,Parameters,Ang_Shift_Map);
+				X_Map[j*Parameters->Size_Theta+i] = Get_X_Center(j,i,Parameters,Ang_Shift_Map,Pad_Map);
+				Y_Map[j*Parameters->Size_Theta+i] = Get_Y_Center(j,i,Parameters,Ang_Shift_Map,Pad_Map);
 			}
 		
 		//Unpadding
@@ -926,7 +944,7 @@ int Build_Remap_Map_No_Fov (Image_Data * Parameters,
 	int XSize, YSize;
 	int rho,theta;
 	double   * Ang_Shift_Map;
-	short    * Pad_Map;
+	unsigned short * Pad_Map;
 	int      * Remap_Map;
 	int PadSizeTheta;
 
@@ -1248,5 +1266,273 @@ unsigned char Build_Weights_Map_NoFov(Image_Data * Par,
 
 		return Par->Pix_Numb;
 	}
-}	
+}
 
+/************************************************************************
+* Build_Fast_Weights_Map		  												*
+************************************************************************/	
+
+//unsigned char Build_Fast_Weights_Map(Image_Data * Par,
+//								char * Path)
+IntNeighborhood * Build_Fast_Weights_Map(Image_Data * Par,
+								char * Path)
+{
+	int i,j,k,planes;
+	int rho,theta;
+	int CurrPix;
+	float DistSumRGB[3];
+	int plane;
+	Neighborhood * Weights_Map;
+	IntNeighborhood * Fast_Weights_Map;
+	Neighborhood * Neighbor_Map_RGB;
+	char File_Name [256];
+
+	int retval;
+	LUT_Ptrs Tables;
+
+	FILE * fout;
+		
+	int PadSizeTheta = ((Par->Size_Theta * 1) % Par->padding);
+
+	retval = Load_Tables(Par,&Tables,Path,8);
+
+	if (retval != 8)
+		return 0;
+	else
+	{
+		Neighbor_Map_RGB = Tables.NeighborMap;
+
+		if (Par->Pix_Numb>MAX_PIX)
+			Par->Pix_Numb = MAX_PIX;
+
+		Weights_Map = (Neighborhood *)malloc(Par->Size_LP * Par->Pix_Numb * 3 * sizeof(Neighborhood)); 
+
+//		Neighbor_Map_RGB = (Neighborhood *)malloc(Par->Size_LP * MAX_PIX * 3 * sizeof(Neighborhood));
+//
+//		sprintf(File_Name,"%s%s",Path,"NeighborhoodMap.gio");
+//		fin = fopen(File_Name,"rb");
+//		fread(Neighbor_Map_RGB,sizeof(Neighborhood),Par->Size_LP * MAX_PIX * 3,fin);
+//		fclose (fin);
+
+		for (k=0; k<Par->Size_LP * 3; k++)
+			for (j=0; j<Par->Pix_Numb; j++)
+				Weights_Map[k*Par->Pix_Numb+j].position = Neighbor_Map_RGB[k*MAX_PIX+j].position;
+
+
+		for (rho=0; rho<Par->Size_Rho; rho++)
+			for (theta=0; theta<Par->Size_Theta; theta++)
+			{
+				CurrPix = rho*Par->Size_Theta+theta;
+				for (plane = RED; plane <= BLUE; plane ++)
+				{				
+					DistSumRGB[plane] = 0;
+					if (Neighbor_Map_RGB[(plane*Par->Size_LP * MAX_PIX)+MAX_PIX*CurrPix].position!=0)
+					{
+						for (k=1; k<Par->Pix_Numb; k++)
+							DistSumRGB[plane] += (float)(1.0/Neighbor_Map_RGB[(plane*Par->Size_LP * MAX_PIX)+MAX_PIX*CurrPix+k].weight);
+					
+						if (Neighbor_Map_RGB[(plane*Par->Size_LP * MAX_PIX)+MAX_PIX*CurrPix].weight <= 0.00001)
+						{
+							if (Par->Pix_Numb > 1)
+								Weights_Map[(plane*Par->Size_LP * Par->Pix_Numb)+Par->Pix_Numb*CurrPix].weight = 0.75;
+							else
+								Weights_Map[(plane*Par->Size_LP * Par->Pix_Numb)+Par->Pix_Numb*CurrPix].weight = 1.0;
+							for (k=1; k<Par->Pix_Numb; k++)
+								Weights_Map[(plane*Par->Size_LP * Par->Pix_Numb)+Par->Pix_Numb*CurrPix+k].weight = (float)(0.25/(Neighbor_Map_RGB[(plane*Par->Size_LP * MAX_PIX)+MAX_PIX*CurrPix+k].weight*DistSumRGB[plane]));
+						}
+					
+						else
+						{
+							DistSumRGB[plane] += (float)(1.0/Neighbor_Map_RGB[(plane*Par->Size_LP * MAX_PIX)+MAX_PIX*CurrPix].weight);
+							for (k=0; k<Par->Pix_Numb; k++)
+								Weights_Map[(plane*Par->Size_LP * Par->Pix_Numb)+Par->Pix_Numb*CurrPix+k].weight = (float)(1.0/(Neighbor_Map_RGB[(plane*Par->Size_LP * MAX_PIX)+MAX_PIX*CurrPix+k].weight*DistSumRGB[plane]));
+						}
+					}
+					else
+					{
+						for (k=0; k<Par->Pix_Numb; k++)
+						{
+							Weights_Map[(plane*Par->Size_LP * Par->Pix_Numb)+Par->Pix_Numb*CurrPix+k].position = 0;				
+							Weights_Map[(plane*Par->Size_LP * Par->Pix_Numb)+Par->Pix_Numb*CurrPix+k].weight = 0.0;				
+						}
+					}
+				}
+			}
+
+		for (k=0; k<3*Par->Size_LP*Par->Pix_Numb; k++)
+		{
+			i = Weights_Map[k].position % Par->Size_Theta;				
+			j = Weights_Map[k].position / Par->Size_Theta;	
+			Weights_Map[k].position = j*(Par->Size_Theta+PadSizeTheta)+i;
+		}
+
+/*
+	for (plane=0;plane<3;plane++)
+		for (j=0; j<Par->Size_LP; j++)
+			for (i=0; i<Par->Pix_Numb; i++)
+				if (Weights_Map[(plane*Par->Size_LP * Par->Pix_Numb)+Par->Pix_Numb*j+i].weight>(1/sqrt(2)))
+					Fast_Weights_Map[3*j+plane].weight[i] = 1.0;
+				else if (Weights_Map[(plane*Par->Size_LP * Par->Pix_Numb)+Par->Pix_Numb*j+i].weight<=(1/sqrt(256*512)))
+					Fast_Weights_Map[3*j+plane].weight[i] = 0.0;
+				else for (k=1; k<256; k*=2)
+					if ((Weights_Map[(plane*Par->Size_LP * Par->Pix_Numb)+Par->Pix_Numb*j+i].weight<=(1/sqrt(k*(k*2))))&&(Weights_Map[(plane*Par->Size_LP * Par->Pix_Numb)+Par->Pix_Numb*j+i].weight>(1/sqrt((k*2)*(k*4)))))
+						Fast_Weights_Map[3*j+plane].weight[i] = (float)(1.0)/(k*2);
+*/
+//Sorting
+/*
+	float MAX;
+	int MAXIndex;
+	float TempW;
+	unsigned short TempP;
+
+	for (j=0; j<3 * Par->Size_LP * Par->Pix_Numb; j+=4)
+	{
+		for (k=0; k<Par->Pix_Numb; k++)
+		{
+			MAX = -1;
+			for (i=k; i<Par->Pix_Numb; i++)
+			{
+				if (Weights_Map[j+i].weight>=MAX)
+				{
+					MAX = Weights_Map[j+i].weight;
+					MAXIndex = i;
+				}
+			}
+			TempW = Weights_Map[j+MAXIndex].weight;
+			TempP = Weights_Map[j+MAXIndex].position;
+
+			Weights_Map[j+MAXIndex].weight = Weights_Map[j+k].weight;
+			Weights_Map[j+MAXIndex].position = Weights_Map[j+k].position;
+
+			Weights_Map[j+k].weight = TempW;
+			Weights_Map[j+k].position = TempP;
+		}
+	}
+*/
+//Weight Quantization
+		
+	for (j=0; j<Par->Size_LP * Par->Pix_Numb * 3; j++)
+		if (Weights_Map[j].weight>(1/sqrt(2)))
+			Weights_Map[j].weight = 1.0;
+		else if (Weights_Map[j].weight<=(1/sqrt(256*512)))
+			Weights_Map[j].weight = 0.0;
+		else for (k=1; k<256; k*=2)
+			if ((Weights_Map[j].weight<=(1/sqrt(k*(k*2))))&&(Weights_Map[j].weight>(1/sqrt((k*2)*(k*4)))))
+				Weights_Map[j].weight = (float)(1.0)/(k*2);
+
+
+	double Sum;
+
+	for (j=0; j<3 * Par->Size_LP * Par->Pix_Numb; j+=Par->Pix_Numb)
+	{
+		Sum = 0;
+		for (i=0; i<Par->Pix_Numb; i++)
+		{
+			if (Sum >= 1.0)
+			{
+				Weights_Map[j+i].weight = 0.0;
+				Weights_Map[j+i].position = Par->Size_LP;
+			}
+			Sum += Weights_Map[j+i].weight;
+		}
+	}
+	
+	for (j=0; j<3 * Par->Size_LP * Par->Pix_Numb; j+=Par->Pix_Numb)
+		if(Weights_Map[j+i].weight == 0.0)
+			Weights_Map[j+i].position = Par->Size_LP;
+
+//Check
+
+	int counter = 0;
+	float CheckSum;
+
+	do
+	{
+		counter = 0;
+		for (j=0; j<3 * Par->Size_LP * Par->Pix_Numb; j+=Par->Pix_Numb)
+		{
+			Sum = 0;
+			for (i=0; i<Par->Pix_Numb; i++)
+				Sum += Weights_Map[j+i].weight;
+			
+			if ((Sum != 1.0)&&(Sum != 0.0))
+			{
+				CheckSum = (float)(1.0-Sum);
+				Sum = 0;
+				for (i=0; i<Par->Pix_Numb; i++)
+				{
+					if ((Weights_Map[j+i].weight != 1.0)&&(Weights_Map[j+i].weight<=CheckSum-Sum))
+					{
+						Sum += Weights_Map[j+i].weight;
+						Weights_Map[j+i].weight *= 2;
+						if (Sum>=CheckSum)
+							break;
+					}
+				}
+
+	//			printf("%f\n",Sum - 16.0);
+			}
+		}
+
+		for (j=0; j<3 * Par->Size_LP * Par->Pix_Numb; j+=Par->Pix_Numb)
+		{
+			Sum = 0;
+			for (i=0; i<Par->Pix_Numb; i++)
+				Sum += Weights_Map[j+i].weight;
+			if ((Sum != 1.0)&&(Sum != 0.0))
+			{
+	//			printf("error %d, %f\n",counter,Sum - 16.0);
+				counter ++;
+			}
+		}
+		printf("%d\n",counter);
+	}
+	while (counter != 0);
+
+//Fast Table Building
+		
+//		for (i=0; i<Par->Size_LP * 3; i++)
+//		{
+//			Fast_Weights_Map[i].NofPixels = Par->Pix_Numb;
+//			Fast_Weights_Map[i].position  = (unsigned short *) malloc (Par->Pix_Numb * sizeof(unsigned short));
+//			Fast_Weights_Map[i].weight    = (unsigned char  *) malloc (Par->Pix_Numb * sizeof(unsigned  char));
+//		}
+
+	Fast_Weights_Map = (IntNeighborhood *) malloc (3 * Par->Size_LP * sizeof(IntNeighborhood));
+
+	for (j=0; j<Par->Size_LP; j++)
+		for (planes=0; planes<3; planes++)
+		{
+			for (i=0; i<Par->Pix_Numb; i++)
+				if (Weights_Map[planes * Par->Size_LP * Par->Pix_Numb+Par->Pix_Numb*j+i].position == Par->Size_LP)
+					break;
+			Fast_Weights_Map[3*j+planes].NofPixels = i;
+			if (i!=0)
+			{
+				Fast_Weights_Map[3*j+planes].position = (unsigned short *) malloc (i * sizeof(unsigned short));
+				Fast_Weights_Map[3*j+planes].weight   = (unsigned char  *)  malloc (i * sizeof(unsigned  char));
+			}
+
+			for (i=0; i<Fast_Weights_Map[3*j+planes].NofPixels; i++)
+				if(Weights_Map[planes * Par->Size_LP * Par->Pix_Numb+Par->Pix_Numb*j+i].position!=Par->Size_LP)
+				{
+					Fast_Weights_Map[3*j+planes].position[i] = Weights_Map[planes * Par->Size_LP * Par->Pix_Numb+Par->Pix_Numb*j+i].position;
+					Fast_Weights_Map[3*j+planes].weight[i] = (unsigned char)(-log10(Weights_Map[planes * Par->Size_LP * Par->Pix_Numb+Par->Pix_Numb*j+i].weight)/log10(2));
+				}
+		}
+
+
+//	sprintf(File_Name,"%s%s%02d%s",Path,"FastWeightsMap",Par->Pix_Numb,".gio");
+
+//		fout = fopen(File_Name,"wb");
+//		fwrite(Fast_Weights_Map,sizeof(IntNeighborhood),Par->Size_LP * 3,fout);
+//		fclose (fout);
+
+		free(Neighbor_Map_RGB);
+//		free(Fast_Weights_Map);
+//		free(Weights_Map);
+
+//		return Par->Pix_Numb;
+		return Fast_Weights_Map;
+	}
+}	
