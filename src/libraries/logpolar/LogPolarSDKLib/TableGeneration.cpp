@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.11 2003-09-24 10:58:25 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.12 2003-09-24 15:31:59 fberton Exp $
 ///
 ///
 
@@ -819,6 +819,13 @@ int Build_XY_Map (Image_Data * Parameters,
 		X_Map = (double *)calloc(Parameters->Size_LP,sizeof(double));
 		Y_Map = (double *)calloc(Parameters->Size_LP,sizeof(double));
 
+		for (j=1; j< Parameters->Size_Rho; j++)
+			for (i=0; i<Parameters->Size_Theta; i++)
+			{
+				X_Map[j*Parameters->Size_Theta+i] = Get_X_Center(j,i,Parameters,Ang_Shift_Map,Pad_Map);
+				Y_Map[j*Parameters->Size_Theta+i] = Get_Y_Center(j,i,Parameters,Ang_Shift_Map,Pad_Map);
+			}
+/*
 		for (j=1; j< Parameters->Size_Fovea; j++)
 			for (i=0; i<6*j; i++)
 			{
@@ -848,7 +855,7 @@ int Build_XY_Map (Image_Data * Parameters,
 			for (i=0;i<Parameters->Size_Theta;i++)
 				Y_Map[Pad_Map[j*Parameters->Size_Theta+i]] = One_Line[i];
 		}
-		
+*/		
 		sprintf(File_Name,"%s%s",Path,"XYMap.gio");
 
 		fout = fopen(File_Name,"wb");

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.14 2003-09-24 11:12:17 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.15 2003-09-24 15:31:59 fberton Exp $
 ///
 ///
 
@@ -435,7 +435,7 @@ void Reconstruct_Color(unsigned char * Out_Image,
 					   Neighborhood * Weights_Map,
 					   int Pix_Numb)
 {
-#ifndef SLOW
+#ifdef SLOW
 
 	int i,j,k,plane;
 	int Size = height * width;

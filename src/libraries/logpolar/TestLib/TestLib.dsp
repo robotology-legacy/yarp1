@@ -89,6 +89,10 @@ LINK32=link.exe
 
 SOURCE=.\FullTest.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\LogSpirals.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
