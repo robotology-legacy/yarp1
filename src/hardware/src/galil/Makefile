@@ -5,12 +5,12 @@ all: compile
 
 clean:
 	+cd ./$(OS); make $(@F)
-	+cd ./common; make $(@F)
+#	+cd ./common; make $(@F)
 	
 compile:
 	+cd ./$(OS); make
-	+cd ./common; make
+#	+cd ./common; make
 
 install: 
 	+cd ./$(OS); make install
-	+cd ./common; make install
+#	+cd ./common; make install
