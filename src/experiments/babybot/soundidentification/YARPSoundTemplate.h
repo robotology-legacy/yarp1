@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.3 2004-08-24 19:54:40 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.4 2004-09-02 18:17:53 beltran Exp $
 ///
 
 /** 
@@ -64,11 +64,11 @@ class YARPSoundTemplate
 {
 private:
 
-    int m_currentsize;    // This stores the real size of the used part of the m_parray
-    int m_totalsize;      // This is the real total size of the m_parray
-    int m_vectors_length; // This is the size of the internal vectors. This length is defined by
-                          // the first vector introduced in the template
-    YVector ** m_parray;  // This is the actual pointer to the array of vectors
+    int m_currentsize;     /** This stores the real size of the used part of the m_parray.          */
+    int m_totalsize;       /** This is the real total size of the m_parray.                         */
+    int m_vectors_length;  /** This is the size of the internal vectors; This length is defined by. */
+                           /** the first vector introduced in the template.                         */
+    YVector ** m_parray;   /** This is the actual pointer to the array of vectors.                  */
 
 public:
 	/** 
@@ -285,6 +285,77 @@ public:
 		m_currentsize    = 0;
 		m_vectors_length = 0;
 		m_totalsize      = 0;
+	}
+
+	/** 
+	  * Calculates the covariance matrix of the sound template.
+	  * 
+	  * @param covm A reference to an external matrix to put the data.
+	  * @param flag Determinates if the data in normalized with N or N-1
+	  * 	-# 0 N-1 is used
+	  * 	-# 1 N is used
+	  * 
+	  * @return 
+	  * 	-# YARP_OK
+	  * 	-# YARP_FAIL
+	  */
+	int
+	CovarianceMatrix(YMatrix &covm, int flag = 0)
+	{
+		int i;
+		int j;
+		double sum = 0.0;
+        YVector _means;           /** Local temporal vector to store the mean values.   */
+        YMatrix _xvars;           /** Temporal matrix to store the local variances.     */
+        YVector * pvector = NULL; /** Temporal pointer to YVector.                      */
+        double  * pdata   = NULL; /** Temporal pointer to access YVector internal data. */
+
+		_means.Resize(m_vectors_length);
+		_xvars.Resize(m_currentsize,m_vectors_length);
+		
+		//----------------------------------------------------------------------
+		// Calculate means. 
+		// We navigate in the template structure to calculate the means of the
+		// coefficients in the "time" dimension. This is, we calculate the mean
+		// of each coefficient using the values of that coeficient in the different
+		// samples of the template.
+		//----------------------------------------------------------------------
+		for ( i = 0; i < m_vectors_length; i++)
+		{
+			sum = 0.0;
+			for( j = 0; j < m_currentsize; j++)
+			{
+				// Get the pointer to the vector data
+				pvector = m_parray[j];
+				pdata = pvector->data();
+				// Add the i value of the vector to the sum
+				sum += pdata[i];
+			}
+			_means[i] = sum/m_currentsize; // We store the mean in the means vector
+		}
+
+		//----------------------------------------------------------------------
+		//  Calculate the local variances matrix.
+		//----------------------------------------------------------------------
+		for ( i = 1; i <= m_currentsize; i++)
+		{
+			// Get the pointer to the vector data
+			pvector = m_parray[i-1];
+			pdata   = pvector->data();
+
+			for( j = 1; j <= m_vectors_length; j++)
+				_xvars(i,j) = pdata[j-1] - _means[j-1];
+
+			_means[i] = sum/m_currentsize; // We store the mean in the means vector
+		}
+
+		// Calculate the final covariance matrix
+		if (flag)
+			covm = (_xvars.Transposed() * _xvars) / (m_currentsize);	
+		else
+			covm = (_xvars.Transposed() * _xvars) / (m_currentsize-1);
+
+		return YARP_OK;
 	}
 
 	/** 
