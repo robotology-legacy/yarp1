@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.1 2003-11-20 17:46:58 babybot Exp $
+/// $Id: YARPDisparity.cpp,v 1.2 2003-11-21 13:59:20 babybot Exp $
 ///
 ///
 
@@ -78,7 +78,7 @@
 YARPDisparityTool::YARPDisparityTool()
 {
 	char *yarproot = GetYarpRoot();
-	ACE_OS::sprintf(_path,"%s/%s\0", yarproot, "conf");
+	ACE_OS::sprintf(_path,"%s/%s/\0", yarproot, "conf");
 
 	_dsTable		= NULL;
 	_shiftFunction	= NULL;
@@ -174,15 +174,13 @@ int YARPDisparityTool::loadDSTable(Image_Data * Par)
 	int j,k;
 
 	sprintf(File_Name,"%s%s%1.2f_P%d%s",_path,"DSMap_",4.00,Par->padding,".gio");
+
 	if ((fin = fopen(File_Name,"rb")) != NULL)
 	{
-//		_dsTable = (IntNeighborhood *) malloc ((Par->Size_LP / 16) * sizeof(IntNeighborhood));
 		_dsTable = new IntNeighborhood [Par->Size_LP / 16];
 		fread(&k,sizeof(int),1,fin);
-//		_dsTable[0].position = (unsigned int *) malloc (k * (Par->Size_LP/16) * sizeof(unsigned int));
 		_dsTable[0].position = NULL;
 		_dsTable[0].position = new unsigned int  [k * (Par->Size_LP/16)];
-//		_dsTable[0].weight   = (unsigned char  *) malloc (k * (Par->Size_LP/16) * sizeof(unsigned char ));
 		_dsTable[0].weight   = NULL;
 		_dsTable[0].weight   = new unsigned char [k * (Par->Size_LP/16)];
 
@@ -229,7 +227,7 @@ Image_Data YARPDisparityTool::lpInfo(int SXR, int SYR, int rho, int theta, int f
 }
 
 
-void YARPDisparityTool::downSample(YARPImageOf<YarpPixelRGB> & inImg, YARPImageOf<YarpPixelRGB> & outImg)
+void YARPDisparityTool::downSample(YARPImageOf<YarpPixelBGR> & inImg, YARPImageOf<YarpPixelBGR> & outImg)
 {
 	DownSample(	(unsigned char*)inImg.GetRawBuffer(),
 				(unsigned char*)outImg.GetRawBuffer(),
@@ -239,8 +237,8 @@ void YARPDisparityTool::downSample(YARPImageOf<YarpPixelRGB> & inImg, YARPImageO
 				_dsTable);
 }
 
-int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelRGB> & inLImg,
-										 YARPImageOf<YarpPixelRGB> & inRImg)
+int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
+										 YARPImageOf<YarpPixelBGR> & inRImg)
 {
 	int disparity;
 

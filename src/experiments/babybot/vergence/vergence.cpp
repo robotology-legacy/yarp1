@@ -61,14 +61,16 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.1 2003-11-20 17:46:58 babybot Exp $
+/// $Id: vergence.cpp,v 1.2 2003-11-21 13:59:19 babybot Exp $
 ///
 ///
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
+
 #include <YARPImages.h>
+#include <YARPImagePortContent.h>
 
 #include <iostream>
 #include <math.h>
@@ -82,138 +84,17 @@
 
 #include <YARPParseParameters.h>
 #include <YARPVectorPortContent.h>
-
-#include <YARPBabybotHeadKin.h>
+#include <YARPDisparity.h>
 
 ///
 ///
 ///
-YARPInputPortOf<YARPGenericImage> in_img;
-YARPInputPortOf<YVector> in_pos;
+YARPInputPortOf<YARPGenericImage> in_left;
+YARPInputPortOf<YARPGenericImage> in_right;
 
-YARPOutputPortOf<YARPGenericImage> out_img;
+YARPOutputPortOf<YARPGenericImage> out_img (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
 const char *DEFAULT_NAME = "/vergence";
-const int ISIZE = 128;
-const int FULLSIZE = 256;
-
-///
-///
-///
-class _procThread : public YARPThread
-{
-protected:
-	YARPSemaphore _sema;
-	bool _getcurrent;
-
-	enum { MAXOBJ = 10 };
-	YVector _rays[MAXOBJ];
-	int _nextfree;
-
-	YARPBabybotHeadKin _gaze;
-
-public:
-	_procThread () : 
-		YARPThread(), 
-		_sema(1), 
-		_gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
-		{}
-
-	virtual ~_procThread () {}
-
-	void Body (void)
-	{
-		using namespace _logpolarParams;
-
-		_sema.Wait();
-		_getcurrent = false;
-		_nextfree = 0;
-		_sema.Post();
-
-		///
-		///
-		///
-		YARPImageOf<YarpPixelMono> in;
-		YARPImageOf<YarpPixelBGR> out;
-		YARPImageOf<YarpPixelBGR> colored;
-		YARPImageOf<YarpPixelBGR> remapped;
-
-		colored.Resize (_stheta, _srho);
-		remapped.Resize (FULLSIZE, FULLSIZE);
-
-		YARPLogpolar mapper;
-
-		while (!IsTerminated())
-		{
-			in_img.Read();
-
-			in.Refer (in_img.Content());
-			mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)in, colored);
-			mapper.Logpolar2Cartesian (colored, remapped);
-
-			ACE_ASSERT (in.GetWidth() == _stheta && in.GetHeight() == _srho);
-			ACE_ASSERT (remapped.GetWidth() == FULLSIZE && remapped.GetHeight() == FULLSIZE);
-
-			out_img.Content().SetID (YARP_PIXEL_BGR);
-
-			out_img.Content().Resize (ISIZE, ISIZE); 
-			out.Refer (out_img.Content());
-
-			/// copy reduced size into output img.
-			YARPSimpleOperation::Decimate (remapped, out, 2, 2);
-
-			in_pos.Read();
-			YVector& jnts = in_pos.Content();
-
-			_gaze.update (jnts);
-
-			/// does the display.
-			for (int i = 0; i < _nextfree; i++)
-			{
-				int predx = 0, predy = 0;
-				_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _rays[i], predx, predy);
-				///predx += FULLSIZE/2;
-				///predy += FULLSIZE/2;
-
-				///
-				YarpPixelBGR green (0, 255, 0);
-				AddCircleOutline (out, green, predx/2, predy/2, 5);
-				AddCircleOutline (out, green, predx/2, predy/2, 4);
-			}
-
-
-			_sema.Wait();
-			bool newpoint = _getcurrent;
-			_getcurrent = false;
-			_sema.Post();
-
-			/// 
-			///
-			/// operations, add new vector.
-			if (newpoint)
-			{
-				_rays[_nextfree].Resize(3);
-				/// get the current ray.
-				_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _rays[_nextfree], FULLSIZE/2, FULLSIZE/2);
-				/// the new ray is also stored.
-				_nextfree++;
-			}
-
-			out_img.Write ();
-		}
-
-		/// returning smoothly.
-	}
-
-	void AddPointCurrent (void)
-	{
-		_sema.Wait();
-		_getcurrent = true;
-		_sema.Post();
-	}
-};
-
-
 
 ///
 ///
@@ -244,48 +125,63 @@ int main(int argc, char *argv[])
 	}
 
 	/// images are coming from the input network.
-	sprintf(buf, "%s/i:img", name.c_str());
-	in_img.Register(buf, network_i.c_str());
+	sprintf(buf, "%s/i:left", name.c_str());
+	in_left.Register(buf, network_i.c_str());
+	sprintf(buf, "%s/i:right", name.c_str());
+	in_right.Register(buf, network_i.c_str());
 
-	/// the position of the head gets here from the default network.
-	sprintf(buf, "%s/i:headposition", name.c_str());
-	in_pos.Register(buf, network_o.c_str());
-
-	sprintf(buf, "%s/o:img", name.c_str());
+	sprintf(buf, "%s/o:histo", name.c_str());
 	out_img.Register(buf, network_i.c_str());
 
-	_procThread thread;
-	thread.Begin();
+	YARPImageOf<YarpPixelMono> inl;
+	YARPImageOf<YarpPixelMono> inr;
+
+	YARPImageOf<YarpPixelMono> out;
+	
+	YARPImageOf<YarpPixelBGR> col_left;
+	YARPImageOf<YarpPixelBGR> col_right;
+
+	YARPImageOf<YarpPixelBGR> sub_left;
+	YARPImageOf<YarpPixelBGR> sub_right;
+
+	col_left.Resize (_stheta, _srho);
+	col_right.Resize (_stheta, _srho);
+	sub_left.Resize (_stheta/4, _srho/4);
+	sub_right.Resize (_stheta/4, _srho/4);
+
+	YARPLogpolar mapper;
+	YARPDisparityTool disparity;
+	disparity._imgL = disparity.lpInfo (_xsize, _ysize, _srho, _stheta, _sfovea, 1090, 1.00, YarpImageAlign);
+	disparity._imgS = disparity.lpInfo (_xsize, _ysize, _srho, _stheta, _sfovea, 1090, 4.00, YarpImageAlign);
+	disparity.loadShiftTable (&disparity._imgS);
+	disparity.loadDSTable (&disparity._imgL);
 
 	while (1)
 	{
-		char c;
-		scanf ("%c", &c);
+		in_left.Read();
+		in_right.Read();
 
-		switch (c)
-		{
-		case 'h':
-		case '?':
-			printf ("h,?: help, print this message\n");
-			printf ("a: add current fixation point to the set of objects\n");
-			printf ("q: quit\n");
-			break;
+		inl.Refer (in_left.Content());
+		inr.Refer (in_right.Content());
 
-		case 'q':
-			goto ReturnSmoothly;
-			break;
+		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)inl, col_left);
+		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)inr, col_right);
+		ACE_ASSERT (inl.GetWidth() == _stheta && inl.GetHeight() == _srho);
+		ACE_ASSERT (inr.GetWidth() == _stheta && inr.GetHeight() == _srho);
 
-		case 'a':
-			thread.AddPointCurrent ();
-			break;
-		}
+		/// subsample
+		disparity.downSample (col_left, sub_left);
+		disparity.downSample (col_right, sub_right);
+		
+		int disparityval = disparity.computeDisparity (sub_left, sub_right);
+
+		out_img.Content().SetID (YARP_PIXEL_MONO);
+		out_img.Content().Resize (128, 64);
+		out.Refer (out_img.Content());
+
+		disparity.makeHistogram (out);
+		out_img.Write();
 	}
 
-
-ReturnSmoothly:
-	printf ("hopefully returning smoothly\n");
-
-	thread.End();
-	
 	return 0;
 }
