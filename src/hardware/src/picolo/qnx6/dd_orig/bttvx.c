@@ -1036,7 +1036,7 @@ init_bt848(struct bttv * btv, int video_format)
   switch(btv->win.norm)
   {
   case 0:
-	  btwrite(BT848_IFORM_MUX1 | BT848_IFORM_XTAUTO | BT848_IFORM_PAL_BDGHI,
+	  btwrite(BT848_IFORM_MUX0 | BT848_IFORM_XTAUTO | BT848_IFORM_PAL_BDGHI,
   	  BT848_IFORM);
 
 	  break;
