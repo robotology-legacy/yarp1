@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.38 2003-09-03 15:15:26 babybot Exp $
+/// $Id: main.cpp,v 1.39 2003-09-09 10:25:11 babybot Exp $
 ///
 ///
 
@@ -444,7 +444,8 @@ int _runAsLogpolar (void)
 		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _xsize*_xsize*3);
 #else
 		/// fills the actual image buffer.
-		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _xsize, _xsize);
+		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _xsize*_xsize*3);
+///		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _xsize, _xsize);
 #endif
 		
 		grabber.releaseBuffer ();
@@ -506,7 +507,8 @@ int _runAsCartesian (void)
 		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _sizex*_sizey*3);
 #else
 		/// fills the actual image buffer.
-		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _sizex, _sizey);
+		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _sizex*_sizey*3);
+		///_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _sizex, _sizey);
 #endif
 
 		/// sends the buffer.

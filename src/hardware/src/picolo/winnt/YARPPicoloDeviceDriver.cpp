@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.10 2003-09-03 15:15:26 babybot Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.11 2003-09-09 10:25:11 babybot Exp $
 ///
 ///
 
@@ -241,7 +241,7 @@ inline PICOLOHANDLE PicoloResources::_init (const PicoloOpenParameters& params)
 	ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	// image type. Color only?
-	PicoloStatus = PicoloSelectImageFormat(ret, PICOLO_COLOR_RGB32);
+	PicoloStatus = PicoloSelectImageFormat(ret, PICOLO_COLOR_RGB24);
 	ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	// assume we want a square image
