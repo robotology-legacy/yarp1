@@ -757,8 +757,9 @@ byte can_interface (void)
 #if VERSION == 0x0113
 			if (_canmsg.CAN_messID & 0x00000100)
 				CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER(0)
+			else
+			{
 #endif
-			
 			BEGIN_MSG_TABLE (_canmsg.CAN_data[0])
 			HANDLE_MSG (CAN_NO_MESSAGE, CAN_NO_MESSAGE_HANDLER)
 			HANDLE_MSG (CAN_CONTROLLER_RUN, CAN_CONTROLLER_RUN_HANDLER)
@@ -818,6 +819,10 @@ byte can_interface (void)
 			HANDLE_MSG (CAN_GET_ACTIVE_ENCODER_POSITION, CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER)
 			
 			END_MSG_TABLE		
+
+#if VERSION == 0x0113
+			}
+#endif
 
 #ifdef DEBUG_CAN_MSG
 			if (_verbose)
