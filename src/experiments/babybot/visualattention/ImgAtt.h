@@ -117,7 +117,7 @@ protected:
 	YARPImageOf<YarpPixelMono> y1_g_s;
 	YARPImageOf<YarpPixelMonoSigned> is1_g_s;
 
-	YARPImageOf<YarpPixelMonoSigned> ors[4];
+	//YARPImageOf<YarpPixelMonoSigned> ors[12];
 	YARPImageOf<YarpPixelMono> or[4];
 	//YARPImageOf<YarpPixelMono> or_r[4];
 
@@ -166,6 +166,7 @@ protected:
 	
 	YARPImageOf<YarpPixelMono> *array1[8];
 	YARPImageOf<YarpPixelMono> *array2[3];
+	//YARPImageOf<YarpPixelMonoSigned> *array3[12];
 
 	YARPImageOf<YarpPixelMono> comb;
 
@@ -195,8 +196,17 @@ protected:
 	//YARPBlobFinder blobFinder;
 
 	YARPWatershed rain;
+	
+	int max_tag;
 
 	bool* blobList;
+
+	YarpPixelMono searchRG;
+	YarpPixelMono searchGR;
+	YarpPixelMono searchBY;
+
+	float salienceBU;
+	float salienceTD;
 
 	YARPLpConicFitter fit;
 
@@ -205,12 +215,13 @@ protected:
 	inline void colorOpponency(YARPImageOf<YarpPixelBGR> &src);
 	inline void findEdges();
 	inline void normalize();
-	inline void findBlobs(int num, Vett* pos);
+	inline void findBlobs(int num, YARPBox* boxes);
 	inline void quantizeColors();
 	
 	float DenteDiSega(short x);
 	void Combine(YARPImageOf<YarpPixelMono> **src, int num, YARPImageOf<YarpPixelMono> &dst);
 	void CombineMax(YARPImageOf<YarpPixelMono> **src, int num, YARPImageOf<YarpPixelMono> &dst);
+	void CombineMaxAbs(YARPImageOf<YarpPixelMonoSigned> **src, int num, YARPImageOf<YarpPixelMono> &dst);
 	void MinMax(IplImage* img, int &mn, int &mx);
 	void FullRange(IplImage* img, IplImage* out, const int mn, const int mx);
 	void FullRange2(IplImage* img, IplImage* out);
@@ -231,7 +242,7 @@ public:
 	YARPImgAtt(int x, int y, int fovea);
 	~YARPImgAtt();
 	
-	void Apply(YARPImageOf<YarpPixelBGR> &src, int num, Vett* pos);
+	void Apply(YARPImageOf<YarpPixelBGR> &src, int num, YARPBox* boxes);
 	void FindNMax(int num, Vett* pos);
 	void FindMax(YARPImageOf<YarpPixelMono> &src, Vett &pos);
 	void FindMax(YARPImageOf<YarpPixelInt> &src, Vett &pos);
@@ -240,6 +251,18 @@ public:
 	void GetTarget(int &x, int &y);
 	void saveImages();
 	void setWatershedTh(YarpPixelMono th) { rain.setThreshold(th); }
+
+	void setParameters(const YarpPixelMono sRG, const YarpPixelMono sGR, const YarpPixelMono sBY, const float sBU, const float sTD)
+	{
+		searchRG=sRG;
+		searchGR=sGR;
+		searchBY=sBY;
+
+		salienceBU=sBU;
+		salienceTD=sTD;
+	}
+	void updateIORTable(const int num, YARPBox* boxes);
+	void resetIORTable(const int num, YARPBox* boxes);
 };
 
 

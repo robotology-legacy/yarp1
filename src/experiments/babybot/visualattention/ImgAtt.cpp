@@ -74,6 +74,8 @@
 
 YARPImgAtt::YARPImgAtt(int x, int y, int fovea)
 {
+	int i;
+
 	width=x;
 	height=y;
 	fovHeight=fovea;
@@ -226,15 +228,11 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea)
 	y1_g_s.Resize(x, y);
 	is1_g_s.Resize(x, y);
 	
-	or[0].Resize(x, y);
-	or[1].Resize(x, y);
-	or[2].Resize(x, y);
-	or[3].Resize(x, y);
+	for (i=0; i<4; i++)
+		or[i].Resize(x, y);
 
-	ors[0].Resize(x, y);
-	ors[1].Resize(x, y);
-	ors[2].Resize(x, y);
-	ors[3].Resize(x, y);
+	/*for (i=0; i<12; i++)
+		ors[i].Resize(x, y);*/
 
 	/*or_r[0].Resize(x, y);
 	or_r[1].Resize(x, y);
@@ -338,11 +336,14 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea)
 	array2[1]=&or[1];
 	array2[2]=&or[2];
 
+	/*for (i=0; i<12; i++)
+		array3[i]=&ors[i];*/
+
 	lut.key = new int [range+1];
 	lut.value = new int [range];
 	lut.factor = new int [range];
 
-	for (int i=0; i<=range; i++)
+	for (i=0; i<=range; i++)
 		lut.key[i] = i;
 
 	int temp=0;
@@ -374,6 +375,10 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea)
 	rain.resize(x, y, x+x%8, 15);
 
 	blobList = new bool [x*y+1];
+
+	searchRG=searchGR=searchBY=0;
+	salienceBU=1.0;
+	salienceTD=0;
 }
 
 
@@ -486,13 +491,47 @@ void YARPImgAtt::Combine(YARPImageOf<YarpPixelMono> **src, int num, YARPImageOf<
 // Can I use IPL for this??
 void YARPImgAtt::CombineMax(YARPImageOf<YarpPixelMono> **src, int num, YARPImageOf<YarpPixelMono> &dst)
 {
-	for (int y=0; y<height; y++) {
+	int i=0;
+	const int padding = 4;
+
+	for (int r=0; r<height; r++) {
+		for (int c=0; c<width; c++)	{
+			//YarpPixelMono temp=src[0]->Pixel(x,y); //slower!
+			int temp=src[0]->GetRawBuffer()[i];
+			for (int n=1; n<num; n++) {
+				if (temp<src[n]->GetRawBuffer()[i])
+					temp=src[n]->GetRawBuffer()[i];
+			}
+			dst.GetRawBuffer()[i]=temp;
+			i++;
+		}
+		i+=padding;
+	}
+
+	/*for (int y=0; y<height; y++) {
 		for (int x=0; x<width; x++)	{
 			//YarpPixelMono temp=src[0]->Pixel(x,y); //slower!
 			int temp=src[0]->Pixel(x,y);
 			for (int n=1; n<num; n++) {
 				if (temp<src[n]->Pixel(x,y))
 					temp=src[n]->Pixel(x,y);
+			}
+			dst.Pixel(x,y)=temp;
+		}
+	}*/
+}
+
+
+// Can I use IPL for this??
+void YARPImgAtt::CombineMaxAbs(YARPImageOf<YarpPixelMonoSigned> **src, int num, YARPImageOf<YarpPixelMono> &dst)
+{
+	for (int y=0; y<height; y++) {
+		for (int x=0; x<width; x++)	{
+			//YarpPixelMono temp=src[0]->Pixel(x,y); //slower!
+			int temp=src[0]->Pixel(x,y);
+			for (int n=1; n<num; n++) {
+				if (temp<abs(src[n]->Pixel(x,y)))
+					temp=abs(src[n]->Pixel(x,y));
 			}
 			dst.Pixel(x,y)=temp;
 		}
@@ -918,7 +957,7 @@ void YARPImgAtt::GetTarget(int &x, int &y)
 }
 
 
-void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, int num, Vett* pos)
+void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, int num, YARPBox* boxes)
 {
 	int mn;
 	int mx;
@@ -940,7 +979,7 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, int num, Vett* pos)
 	colorOpponency(src);
 	findEdges();
 	normalize();
-	findBlobs(num, pos);
+	findBlobs(num, boxes);
 	quantizeColors();
 	
 	/*ACE_OS::sprintf(savename, "./src.ppm");
@@ -960,6 +999,7 @@ void YARPImgAtt::colorOpponency(YARPImageOf<YarpPixelBGR> &src)
 	
 
 	DBGPF1 ACE_OS::printf(">>> get planes\n");
+	//YARPImageUtils::GetAllPlanes(src, b1, g1, r1);
 	YARPImageUtils::GetRed(src,r1);
 	YARPImageUtils::GetGreen(src,g1);
 	YARPImageUtils::GetBlue(src,b1);
@@ -1011,14 +1051,16 @@ void YARPImgAtt::colorOpponency(YARPImageOf<YarpPixelBGR> &src)
 	//((IplImage *)ii)->roi=pOldZdi;
 	//FullRange((IplImage *)ii, (IplImage *)ii, mn[3], mx[3]);
 
-
 	/*DBGPF1 ACE_OS::printf(">>> Conversion color opponent maps in signed char\n");
 	iplRShiftS(rg, tmp1, 1);
 	memcpy(((IplImage *)rgs)->imageData, ((IplImage *)tmp1)->imageData, ((IplImage *)tmp1)->imageSize);
+	//((IplImage *)rgs)->imageData=((IplImage *)tmp1)->imageData;
 	iplRShiftS(gr, tmp1, 1);
 	memcpy(((IplImage *)grs)->imageData, ((IplImage *)tmp1)->imageData, ((IplImage *)tmp1)->imageSize);
+	//((IplImage *)grs)->imageData=((IplImage *)tmp1)->imageData;
 	iplRShiftS(by, tmp1, 1);
-	memcpy(((IplImage *)bys)->imageData, ((IplImage *)tmp1)->imageData, ((IplImage *)tmp1)->imageSize);*/
+	memcpy(((IplImage *)bys)->imageData, ((IplImage *)tmp1)->imageData, ((IplImage *)tmp1)->imageSize);
+	//((IplImage *)bys)->imageData=((IplImage *)tmp1)->imageData;*/
 }
 
 
@@ -1035,14 +1077,28 @@ void YARPImgAtt::findEdges()
 	prewitt_diag2.Convolve2D(iis,ors[3],1,IPL_SUM);*/
 	// I cannot use the combination with IPL_MAX because there are negative values!
 	// otherwise I must use 8 filters!
-	/*sobel.Convolve2D(rgs, ors[0], 8, IPL_MAX);
-	sobel.Convolve2D(grs, ors[1], 8, IPL_MAX);
-	sobel.Convolve2D(bys, ors[2], 8, IPL_MAX);*/
 	sobel.Convolve2D(rg, or[0], 8, IPL_MAX);
 	sobel.Convolve2D(gr, or[1], 8, IPL_MAX);
 	sobel.Convolve2D(by, or[2], 8, IPL_MAX);
-
 	// Note that if I use the max combination the values will be all positive
+	CombineMax(array2, 3, edge);
+	
+	/*sobel.Convolve2D(rgs, ors[0], 0);
+	sobel.Convolve2D(rgs, ors[1], 1);
+	sobel.Convolve2D(rgs, ors[2], 2);
+	sobel.Convolve2D(rgs, ors[3], 3);
+	
+	sobel.Convolve2D(grs, ors[4], 0);
+	sobel.Convolve2D(grs, ors[5], 1);
+	sobel.Convolve2D(grs, ors[6], 2);
+	sobel.Convolve2D(grs, ors[7], 3);
+
+	sobel.Convolve2D(bys, ors[8], 0);
+	sobel.Convolve2D(bys, ors[9], 1);
+	sobel.Convolve2D(bys, ors[10], 2);
+	sobel.Convolve2D(bys, ors[11], 3);
+
+	CombineMaxAbs(array3, 12, edge);*/
 	
 	/*gauss_c_s.ConvolveSep2D(rgs,tmp1s);
 	gauss_s_s.ConvolveSep2D(rgs,tmp2s);
@@ -1069,7 +1125,6 @@ void YARPImgAtt::findEdges()
 	memcpy(((IplImage *)or[1])->imageData, ((IplImage *)ors[1])->imageData, ((IplImage *)ors[1])->imageSize);
 	memcpy(((IplImage *)or[2])->imageData, ((IplImage *)ors[2])->imageData, ((IplImage *)ors[2])->imageSize);*/
 	//memcpy(((IplImage *)or[3])->imageData, ((IplImage *)ors[3])->imageData, ((IplImage *)ors[3])->imageSize);
-	CombineMax(array2, 3, edge);
 	//Combine(array2, 3, edge2);
 
 	/*int *stat = new int [height];
@@ -1083,8 +1138,6 @@ void YARPImgAtt::findEdges()
 
 void YARPImgAtt::normalize()
 {
-	int i;
-
 	int mn[8];
 	int mx[8];
 
@@ -1164,7 +1217,7 @@ void YARPImgAtt::normalize()
 	((IplImage *)edge2)->roi=pOldZdi;*/
 
 	DBGPF1 ACE_OS::printf(">>> search absolute min and max\n");
-	/*for (i=1; i<3; i++) {
+	/*for (int i=1; i<3; i++) {
 		if (mn[i]<mn[0]) mn[0]=mn[i];
 		if (mx[i]>mx[0]) mx[0]=mx[i];
 	}*/
@@ -1205,7 +1258,7 @@ void YARPImgAtt::normalize()
 }
 	
 
-void YARPImgAtt::findBlobs(int num, Vett* pos)
+void YARPImgAtt::findBlobs(int num, YARPBox* boxes)
 {
 	//int i;
 
@@ -1252,7 +1305,7 @@ void YARPImgAtt::findBlobs(int num, Vett* pos)
 
 
 	//rain.setThreshold(5);
-	int max_tag=rain.apply(edge, tagged);
+	max_tag=rain.apply(edge, tagged);
 	rain.blobCatalog(tagged, rg, gr, by, r1, g1, b1, max_tag);
 	rain.removeFoveaBlob(tagged);
 	rain.RemoveNonValid(max_tag, 3800, 100);
@@ -1261,7 +1314,7 @@ void YARPImgAtt::findBlobs(int num, Vett* pos)
 	//rain.SortAndComputeSalience(200, max_tag);
 	//rain.SortAndComputeSalience(100, max_tag);
 	//rain.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
-	rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, 1, 0, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
+	rain.DrawContrastLP(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
 	//pOldZdi=((IplImage *)tmp1)->roi;
 	//((IplImage *)tmp1)->roi=&zdi;
 	//MinMax((IplImage *)tmp1, mn[0], mx[0]);
@@ -1300,9 +1353,9 @@ void YARPImgAtt::findBlobs(int num, Vett* pos)
 	//fit.plotEllipse(bfX0, bfY0, bfA11, bfA12, bfA22, blobFov, 127);
 
 
-	// - slower
+	// - faster
 	// - it considers also "lateral" pixels
-	// - it doesn't consider pixel
+	// - it doesn't add pixels iteratively
 	/*rain.findNeighborhood(tagged, 0, 0, blobList, max_tag);
 	rain.fuseFoveaBlob2(tagged, blobList, max_tag);*/
 	
@@ -1313,6 +1366,9 @@ void YARPImgAtt::findBlobs(int num, Vett* pos)
 	rain.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
 	/*ACE_OS::sprintf(savename, "./blob_fov2.ppm");
 	YARPImageFile::Write(savename, blobFov);*/
+
+
+	//rain.maxSalienceBlobs(tagged, max_tag, boxes, num);
 }
 
 
@@ -1326,6 +1382,24 @@ void YARPImgAtt::quantizeColors()
 	iplConvert((IplImage*) imgVQ, (IplImage*) tmp1);*/
 	//ACE_OS::sprintf(savename, "./imgvq.ppm");
 	//YARPImageFile::Write(savename, tmpBGR1);
+}
+
+
+void YARPImgAtt::resetIORTable(const int num, YARPBox* boxes)
+{
+	rain.maxSalienceBlobs(tagged, max_tag, boxes, num);
+}
+
+
+void YARPImgAtt::updateIORTable(const int num, YARPBox* boxes)
+{
+	YARPBox tmpBox;
+	rain.maxSalienceBlob(tagged, max_tag, tmpBox);
+
+	for (int j=num-1; j>0; j--)
+		boxes[j]=boxes[j-1];
+	boxes[0]=tmpBox;
+
 }
 
 

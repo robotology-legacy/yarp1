@@ -55,9 +55,9 @@ public:
 	unsigned long int gSum;
 	unsigned long int bSum;
 	
-	unsigned char meanRG;
-	unsigned char meanGR;
-	unsigned char meanBY;
+	YarpPixelMono meanRG;
+	YarpPixelMono meanGR;
+	YarpPixelMono meanBY;
 
 	YarpPixelBGR meanColors;
 	
@@ -67,6 +67,7 @@ public:
 
 	int salienceBU;
 	int salienceTD;
+	YarpPixelMono salienceTotal;
 };
 
 
@@ -144,6 +145,9 @@ public:
 	void findNeighborhood(YARPImageOf<YarpPixelInt>& tagged, int x, int y, bool *blobList, int max_tag);
 	void fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag);
 	void fuseFoveaBlob2(YARPImageOf<YarpPixelInt>& tagged, bool *blobList, int max_tag);
+
+	void maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox* boxes, int num);
+	void maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox &box);
 };
 
 #endif

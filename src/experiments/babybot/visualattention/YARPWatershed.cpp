@@ -933,6 +933,7 @@ void YARPWatershed::blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<Y
 	m_boxes[0].cmax = m_boxes[0].cmin = width/2;
 	m_boxes[0].xmax = m_boxes[0].xmin = m_lp.GetCWidth() / 2;
 	m_boxes[0].ymax = m_boxes[0].ymin = m_lp.GetCHeight() / 2;
+	m_boxes[0].salienceTotal=0;
 	m_boxes[0].valid = true;
 
 	// pixels are logpolar, averaging is done in cartesian.
@@ -1012,8 +1013,8 @@ void YARPWatershed::SortAndComputeSalience(int num_tag, int last_tag)
 			m_attn[box_num] = m_boxes[max_tag];
 
 			//m_attn[box_num].valid = true;
-			//m_attn[box_num].centroid_y = m_boxes[max_tag].ysum / max_areaCart;
-			//m_attn[box_num].centroid_x = m_boxes[max_tag].xsum / max_areaCart;
+			m_attn[box_num].centroid_y = m_boxes[max_tag].ysum / max_areaCart;
+			m_attn[box_num].centroid_x = m_boxes[max_tag].xsum / max_areaCart;
 
 			// mean values are calculated only for biggest blobs
 			m_attn[box_num].meanRG = m_boxes[max_tag].rgSum / m_boxes[max_tag].areaLP;
@@ -1047,6 +1048,7 @@ void YARPWatershed::ComputeSalience(int num_blob, int last_tag)
 	int i=1;
 
 	m_attn[0].valid=false;
+	m_attn[0].salienceTotal=0;
 	
 	for (; i <= last_tag; i++) {
 	//while (i<=last_tag && num_blob>0) {
@@ -1074,6 +1076,7 @@ void YARPWatershed::ComputeSalienceAll(int num_blob, int last_tag)
 	int i=1;
 
 	m_attn[0].valid=false;
+	m_attn[0].salienceTotal=0;
 	
 	for (; i <= last_tag; i++) {
 	//while (i<=last_tag && num_blob>0) {
@@ -1314,13 +1317,14 @@ int YARPWatershed::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 
 	for (i = 0; i < numBlob; i++) {
 		if (m_attn[i].valid) {
+			m_attn[i].salienceTotal=pBU*(a1*m_attn[i].salienceBU/255+b1)+pTD*(a2*m_attn[i].salienceTD/255+b2);
 			for (int r=m_attn[i].rmin; r<=m_attn[i].rmax; r++)
 				for (int c=m_attn[i].cmin; c<=m_attn[i].cmax; c++)
 					if (tagged(c, r)==m_attn[i].id) {
 						//unsigned char sal=(a1*m_attn[i].salienceBU/255+b1+a2*m_attn[i].salienceTD/255+b2)/2;
 						//if (sal>th) dst(c ,r)=sal;
 						//else dst(c ,r)=0;
-						dst(c ,r)=pBU*(a1*m_attn[i].salienceBU/255+b1)+pTD*(a2*m_attn[i].salienceTD/255+b2);
+						dst(c ,r)=m_attn[i].salienceTotal;
 						//dst(c ,r)=a1*m_attn[i].salienceBU/255+b1;
 						/*dst(c ,r)=a2*m_attn[i].salienceTD/255+b2;
 						if (dst(c ,r)<240) dst(c ,r)=1;
@@ -1516,7 +1520,7 @@ void YARPWatershed::fuseFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, bool *blobL
 				r++;
 			seed=tagged(c, r);
 			//if (abs(m_attn[seed].meanRG-rg0)+abs(m_attn[seed].meanGR-gr0)+abs(m_attn[seed].meanBY-by0)<13 )
-			if ((m_attn[seed].meanRG-rg0)*(m_attn[seed].meanRG-rg0)+(m_attn[seed].meanGR-gr0)*(m_attn[seed].meanGR-gr0)+(m_attn[seed].meanBY-by0)*(m_attn[seed].meanBY-by0)<110 )
+			if ((m_attn[seed].meanRG-rg0)*(m_attn[seed].meanRG-rg0)+(m_attn[seed].meanGR-gr0)*(m_attn[seed].meanGR-gr0)+(m_attn[seed].meanBY-by0)*(m_attn[seed].meanBY-by0)<150 )
 				blobList[seed]=true;
 			else
 				break;
@@ -1551,4 +1555,45 @@ void YARPWatershed::drawBlobList(YARPImageOf<YarpPixelMono>& id, YARPImageOf<Yar
 				for (int c=m_boxes[tag].cmin; c<=m_boxes[tag].cmax; c++)
 					if (tagged(c, r)==tag)
 						id(c ,r)=gray;
+}
+
+
+void YARPWatershed::maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox* boxes, int num)
+{
+	int *pos = new int [num];
+	
+	memset(pos, 0, sizeof(int)*num);
+	
+	for (int l = 0; l < max_tag; l++) {
+		if (m_attn[l].valid) {
+			for (int i=0; i<num; i++) {
+				if (m_attn[l].salienceTotal>m_attn[pos[i]].salienceTotal) {
+					for (int j=num-1; j>i; j--)
+						pos[j]=pos[j-1];
+					pos[i]=l;
+					break;
+				}
+			}
+		}
+	}
+
+	for (l=0; l<num; l++)
+		boxes[l]=m_attn[pos[l]];
+
+	delete [] pos;
+	// If the numbers of valid blobs are less than num???
+}
+
+
+void YARPWatershed::maxSalienceBlob(YARPImageOf<YarpPixelInt>& tagged, int max_tag, YARPBox &box)
+{
+	int max=0;
+	
+	for (int l = 1; l < max_tag; l++) {
+		if (m_attn[l].valid)
+			if (m_attn[l].salienceTotal>m_attn[max].salienceTotal)
+				max=l;
+	}
+
+	box=m_attn[max];
 }

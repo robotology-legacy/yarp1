@@ -328,30 +328,29 @@ void YARPArrayConvKernel::InitFixBorder()
 }
 
 
-// visto che il modo è settato alla crezione dell'immagine, questo metodo non dovrebbe
-// stare in YARPImage.h??? Qui non c'entra molto...
-void YARPArrayConvKernel::SetBorderMode(YARPGenericImage &src,
-								   int mode,
-								   int border,
-								   int constVal)
-{
-	iplSetBorderMode((IplImage *)src, mode, border, constVal);
-}
-
-
 // ingresso e uscita dovrebbero essere di tipo generic???
 void YARPArrayConvKernel::Convolve2D(const YARPGenericImage &srcImage,
 								const YARPGenericImage &dstImage,
 								int nKernels,
 								int combineMethod)
 {
-	ACE_ASSERT((IplImage *)srcImage != NULL);
+	/*ACE_ASSERT((IplImage *)srcImage != NULL);
 	ACE_ASSERT((IplImage *)dstImage != NULL);
-	ACE_ASSERT(kernels != NULL);
+	ACE_ASSERT(kernels != NULL);*/
 
-	//iplConvolve2D(srcImage.GetIplPointer(), dstImage.GetIplPointer(), &filtro, nKernels, combineMethod);
-	//iplConvolve2D((IplImage *)srcImage, (IplImage *)dstImage, &temp, nKernels, combineMethod);
-	iplConvolve2D((IplImage *)srcImage, (IplImage *)dstImage, ipl_array, nKernels, combineMethod);
+	iplConvolve2D(srcImage, dstImage, ipl_array, nKernels, combineMethod);
+}
+
+
+void YARPArrayConvKernel::Convolve2D(const YARPGenericImage &srcImage,
+								const YARPGenericImage &dstImage,
+								int nKernel)
+{
+	/*ACE_ASSERT((IplImage *)srcImage != NULL);
+	ACE_ASSERT((IplImage *)dstImage != NULL);
+	ACE_ASSERT(kernels != NULL);*/
+
+	iplConvolve2D(srcImage, dstImage, ipl_array+nKernel, 1, IPL_SUM);
 }
 
 

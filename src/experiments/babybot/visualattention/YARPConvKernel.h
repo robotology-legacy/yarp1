@@ -164,6 +164,10 @@ public:
 					const YARPGenericImage &dstImage,
 					int nKernels,
 					int combineMethod);
+
+	void Convolve2D(const YARPGenericImage &srcImage,
+					const YARPGenericImage &dstImage,
+					int nKernel);
 	
 	void ConvolveSep2D(const YARPGenericImage &srcImage,
 		               const YARPGenericImage &dstImage);
@@ -172,11 +176,6 @@ public:
 	//void YARPConvKernel::GetData(int &cols, int &rows, int &anchorX, int &anchorY, int &shiftR, int &gain);
 	
 	//void YARPConvKernel::GetValues(int *values);
-
-	void SetBorderMode(YARPGenericImage &src,
-										int mode,
-										int border,
-										int constVal);
 
 	virtual void Cleanup() {}
 	virtual bool InPlace() const { return true; }
