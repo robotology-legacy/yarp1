@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.42 2003-08-10 07:08:40 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.43 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -70,7 +70,6 @@
 #include <ace/OS.h>
 
 #include <stdio.h>
-#include <string.h>
 
 #include "YARPTime.h"
 #include "YARPSyncComm.h"
@@ -202,8 +201,8 @@ int main(int argc, char *argv[])
 
 	if (s && c)
 	{
-		t1.End();
-		t2.End();
+		t1.End(0);
+		t2.End(0);
 		ACE_OS::printf ("can't be server and client at the same time\n");
 		return -1;
 	}

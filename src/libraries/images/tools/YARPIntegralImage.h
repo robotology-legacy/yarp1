@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.h,v 1.3 2003-08-12 17:17:07 babybot Exp $
+/// $Id: YARPIntegralImage.h,v 1.4 2003-08-13 00:23:18 gmetta Exp $
 ///
 /// August 2003 -- by nat
 
@@ -84,7 +84,7 @@ public:
 		int r,c;
 		for(r = 0; r < _nRows; r++)
 			for(c = 0; c < _nCols; c++)
-				out(c,r) = (_integralImg(c,r)*255)/_integralImg(_nCols-1, _nRows-1) + 0.5;
+				out(c,r) = (YarpPixelMono)((_integralImg(c,r)*255)/_integralImg(_nCols-1, _nRows-1) + 0.5);
 	}
 
 	inline float get(int c, int r)
@@ -182,3 +182,4 @@ private:
 };
 
 #endif
+

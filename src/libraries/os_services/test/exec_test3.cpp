@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test3.cpp,v 1.5 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: exec_test3.cpp,v 1.6 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -212,10 +212,10 @@ int main(int argc, char *argv[])
 	YARPTime::DelayInSeconds(1.0);
 	t1.Begin();
 	YARPTime::DelayInSeconds(10.0);
-	t1.End();
+	t1.End(0);
 	cout << "t1 ended" << endl;
 	YARPTime::DelayInSeconds(2.0);
-	t2.End();
+	t2.End(0);
 	return 0;
 }
 

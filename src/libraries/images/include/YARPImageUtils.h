@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageUtils.h,v 1.2 2003-06-05 10:51:10 gmetta Exp $
+/// $Id: YARPImageUtils.h,v 1.3 2003-08-13 00:23:17 gmetta Exp $
 ///
 ///
 
@@ -111,3 +111,4 @@ public:
 };
 
 #endif
+

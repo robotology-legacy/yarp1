@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test4.cpp,v 1.4 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: exec_test4.cpp,v 1.5 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -109,6 +109,7 @@ public:
 				return;
 			}
 
+			id->setServiceType(YARP_TCP);
 			YARPEndpointManager::CreateOutputEndpoint (*id);
 			YARPEndpointManager::ConnectEndpoints (*id);
 
@@ -159,7 +160,7 @@ public:
 		int ct = 0;
 		YARPTime::DelayInSeconds(0.01);
 
-		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_TCP, -1);
+		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_TCP, YARP_UDP_REGPORTS);
 		if (id->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 		{
 			ACE_DEBUG ((LM_DEBUG, "can't register name, bailing out\n"));
@@ -209,8 +210,8 @@ int main()
 	YARPTime::DelayInSeconds(1.0);
 	t1.Begin();
 	YARPTime::DelayInSeconds(10.0);
-	t2.End();
-	t1.End();
+	t2.End(0);
+	t1.End(0);
 	return 0;
 }
 

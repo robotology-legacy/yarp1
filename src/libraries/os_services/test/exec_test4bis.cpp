@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test4bis.cpp,v 1.3 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: exec_test4bis.cpp,v 1.4 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -69,13 +69,7 @@
 #include <ace/config.h>
 #include <ace/OS.h>
 
-///#include <stdio.h>
-
-#ifdef __WIN_MSVC__
-#	include <iostream>
-#else
-#	include <iostream.h>
-#endif
+#include <iostream>
 
 #include "YARPSemaphore.h"
 #include "YARPThread.h"
@@ -164,7 +158,7 @@ public:
 		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel());
 #else
 		/// connect to name server and get ip and port.
-		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
+		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, YARP_UDP_REGPORTS);
 #endif
 		if (id->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 		{

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: exec_test2.cpp,v 1.9 2003-07-30 22:43:06 gmetta Exp $
+/// $Id: exec_test2.cpp,v 1.10 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -62,7 +62,7 @@
 
 ///#include <stdio.h>
 
-#ifdef __WIN_MSVC__
+#if !defined(__QNX4__)
 #	include <iostream>
 #else
 #	include <iostream.h>

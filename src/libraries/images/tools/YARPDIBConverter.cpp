@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDIBConverter.cpp,v 1.2 2003-06-06 22:50:22 gmetta Exp $
+/// $Id: YARPDIBConverter.cpp,v 1.3 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -214,3 +214,4 @@ void YARPDIBConverter::_free_dib()
 
 
 #endif	// __WIN32__
+

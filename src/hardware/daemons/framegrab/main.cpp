@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.35 2003-08-06 18:24:55 babybot Exp $
+/// $Id: main.cpp,v 1.36 2003-08-13 00:23:17 gmetta Exp $
 ///
 ///
 
@@ -96,6 +96,11 @@
 
 #	include <YARPBabybotGrabber.h>
 #	define Grabber YARPBabybotGrabber
+#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
+
+#elif defined(__LinuxTest__)
+
+#	define Grabber
 #	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #else
@@ -211,6 +216,8 @@ bool finished = false;
 
 void _hh (int sig)
 {
+	ACE_UNUSED_ARG(sig);
+
 	finished = true;
 	ACE_OS::signal (SIGINT, _hh);
 }
@@ -218,8 +225,11 @@ void _hh (int sig)
 
 int _runAsClient (void)
 {
+#if !defined(__LinuxTest__)
 	YARPImageOf<YarpPixelMono> img;
-
+#else
+	YARPImageOf<YarpPixelBGR> img;
+#endif
 	YARPInputPortOf<YARPGenericImage> inport(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
 	inport.Register (_name);
@@ -237,10 +247,10 @@ int _runAsClient (void)
 
 		frame_no++;
 
-		ACE_OS::sprintf (savename, "./grab_test%04d.pgm\0", frame_no);
+		ACE_OS::sprintf (savename, "./grab_test%04d.ppm\0", frame_no);
 		YARPImageFile::Write (savename, img);
 
-		if (frame_no > 100)
+		if (frame_no > 10)
 		{
 			finished = true;
 		}
@@ -360,7 +370,7 @@ int _runAsLogpolarSimulation (void)
 	return YARP_OK;
 }
 
-
+#if !defined(__LinuxTest__)
 int _runAsLogpolar (void)
 {
 	using namespace _logpolarParams;
@@ -493,6 +503,7 @@ int _runAsCartesian (void)
 	ACE_OS::fprintf (stdout, "returning smoothly\n");
 	return YARP_OK;
 }
+#endif
 
 ///
 ///
@@ -521,6 +532,7 @@ int main (int argc, char *argv[])
 	{
 		return _runAsLogpolarSimulation ();
 	}
+#if !defined(__LinuxTest__)
 	else
 	if (_logp)
 	{
@@ -530,7 +542,7 @@ int main (int argc, char *argv[])
 	{
 		return _runAsCartesian ();
 	}
-
+#endif
 	return YARP_OK;
 }
 

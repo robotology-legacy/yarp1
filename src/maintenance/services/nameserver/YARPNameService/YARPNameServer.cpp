@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.18 2003-08-02 07:46:15 gmetta Exp $
+/// $Id: YARPNameServer.cpp,v 1.19 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -181,7 +181,8 @@ void YARPNameServer::handle_exdump_request()
 		PORT_IT j;
 		// first port
 		j = i->ports.begin();
-		itoa(j->port, dummy, 10);
+		ACE_OS::sprintf(dummy, "%d\0", j->port);
+		///itoa(j->port, dummy, 10);
 		text.append (dummy);
 		text.append (",");
 
@@ -198,10 +199,12 @@ void YARPNameServer::handle_exdump_request()
 		text.append("\t");
 		text.append(j->getNode());
 		text.append("\t");
-		itoa(j->getPid(), dummy, 10);
+		ACE_OS::sprintf(dummy, "%d\0", j->getPid()); 
+		///itoa(j->getPid(), dummy, 10);
 		text.append(dummy);
 		text.append("\t");
-		itoa(j->getChan(),dummy, 10);
+		ACE_OS::sprintf(dummy, "%d\0", j->getChan());
+		///itoa(j->getChan(),dummy, 10);
 		text.append(dummy);
 		text.append (" (");
 		text.append (servicetypeConverter(YARP_QNET));
@@ -244,7 +247,7 @@ void YARPNameServer::handle_query_qnx(const YARPString &name)
 	YARPNameQnx entry;
 	int type;
 	ns.queryNameQnx(name, entry, &type);
-	NAME_SERVER_DEBUG(("Reply %s %s(%s) %ld %ld\n", entry.getName(), entry.getNode(), servicetypeConverter(type), entry.getPid(), entry.getChan()));
+	NAME_SERVER_DEBUG(("Reply %s %s(%s) %d %d\n", entry.getName(), entry.getNode(), servicetypeConverter(type), entry.getPid(), entry.getChan()));
 	_handle_reply(entry, type);
 }
 
@@ -296,7 +299,7 @@ void YARPNameServer::handle_registration_dip(const YARPString &service_name, int
 void YARPNameServer::handle_registration_qnx(const YARPNameQnx &entry)
 {
 	ns.registerNameQnx(entry);
-	NAME_SERVER_DEBUG(("Registered %s %s(%s) %ld %ld\n", entry.getName(), entry.getNode(), servicetypeConverter(YARP_QNET), entry.getPid(), entry.getChan()));
+	NAME_SERVER_DEBUG(("Registered %s %s(%s) %d %d\n", entry.getName(), entry.getNode(), servicetypeConverter(YARP_QNET), entry.getPid(), entry.getChan()));
 	// _handle_reply(entry, type);
 }
 

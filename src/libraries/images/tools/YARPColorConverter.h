@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPColorConverter.h,v 1.2 2003-08-12 00:01:56 gmetta Exp $
+/// $Id: YARPColorConverter.h,v 1.3 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -92,3 +92,4 @@ public:
 };
 
 #endif
+

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.28 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.29 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -79,7 +79,7 @@
 #include <ace/Time_Value.h>
 #include <ace/Sched_Params.h>
 
-#ifdef __QNX6__
+#if defined(__QNX6__) || defined(__LINUX__)
 #include <signal.h>
 #endif
 

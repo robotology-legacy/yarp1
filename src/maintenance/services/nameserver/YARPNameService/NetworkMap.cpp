@@ -148,3 +148,4 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 		outIp = tmpIp; // node and net were found, return tmpIp 
 	
 }
+

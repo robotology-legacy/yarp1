@@ -1,4 +1,4 @@
-// $Id: YARPParseParameters.cpp,v 1.3 2003-08-02 07:46:15 gmetta Exp $
+// $Id: YARPParseParameters.cpp,v 1.4 2003-08-13 00:23:18 gmetta Exp $
 
 #include "YARPParseParameters.h"
 
@@ -89,3 +89,5 @@ bool YARPParseParameters::parse (int argc, char *argv[], const YARPString &key, 
 		return false;
 
 }
+
+

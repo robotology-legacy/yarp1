@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPRobotMath.h,v 1.2 2003-05-31 06:02:59 gmetta Exp $
+/// $Id: YARPRobotMath.h,v 1.3 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -258,3 +258,4 @@ YDiff  TransYDiff(const YDiff&,const YHmgTrsf&);
 #include "YARPRobotMath.inl"
 
 #endif
+

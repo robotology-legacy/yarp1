@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test1.cpp,v 1.7 2003-06-20 12:04:57 babybot Exp $
+/// $Id: exec_test1.cpp,v 1.8 2003-08-13 00:23:18 gmetta Exp $
 ///
 
 #include <conf/YARPConfig.h>
@@ -73,10 +73,7 @@
 #include "YARPThread.h"
 #include "YARPTime.h"
 #include "YARPScheduler.h"
-
-#include <vector>
-#include <list>
-using namespace std;
+#include "YARPList.h"
 
 YARPSemaphore product(0);
 
@@ -199,28 +196,33 @@ int main()
 		cout << "About to wait 10 sec" << endl;
 		YARPTime::DelayInSeconds(10.0);
 		cout << "Ending t3\n";
-		t3.End();
+		t3.End(0);
 		YARPTime::DelayInSeconds(5.0);
 		cout << "Ending t2,t1" << endl;
-		t2.End();
-		t1.End();
+		t2.End(0);
+		t1.End(0);
 	}
 
 	if (0)
 	{
-		list<MyThread2> v;
+		YARPList<MyThread2> v;
 		#define sz 100
-		//MyThread2 v[sz];
 
 		for (int i=0; i<sz; i++)
 		{
 			v.push_back(MyThread2());
-			v.back().Begin();
+		}
+
+		YARPListIterator<MyThread2> it(v);
+		for (; !it.done(); it++)
+		{
+			(*it).Begin();
 		}
 
 		YARPTime::DelayInSeconds(2.7);
 
-		for (list<MyThread2>::iterator it=v.begin(); it!=v.end(); it++)
+		it.go_head();
+		for (; !it.done(); it++)
 		{
 			(*it).End();
 		}

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.9 2003-08-07 04:23:43 gmetta Exp $
+/// $Id: YARPLogpolar.h,v 1.10 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -147,3 +147,4 @@ public:
 
 
 #endif
+

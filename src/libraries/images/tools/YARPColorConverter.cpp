@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPColorConverter.cpp,v 1.2 2003-08-12 00:01:56 gmetta Exp $
+/// $Id: YARPColorConverter.cpp,v 1.3 2003-08-13 00:23:17 gmetta Exp $
 ///
 ///
 
@@ -163,15 +163,15 @@ void YARPColorConverter::RGB2Normalized (const YARPImageOf<YarpPixelRGB>& in, YA
 			lum = inTmp[0] + inTmp[1] + inTmp[2];
 			if (lum > threshold)
 			{
-				outTmp[0] = (inTmp[0]/lum)*255 + 0.5;
-				outTmp[1] = (inTmp[1]/lum)*255 + 0.5;
-				outTmp[2] = (inTmp[2]/lum)*255 + 0.5;
+				outTmp[0] = (unsigned char)((inTmp[0]/lum)*255 + 0.5);
+				outTmp[1] = (unsigned char)((inTmp[1]/lum)*255 + 0.5);
+				outTmp[2] = (unsigned char)((inTmp[2]/lum)*255 + 0.5);
 			}
 			else
 			{
-				outTmp[0] = 0.0;
-				outTmp[1] = 0.0;
-				outTmp[2] = 0.0;
+				outTmp[0] = 0;
+				outTmp[1] = 0;
+				outTmp[2] = 0;
 			}
 			
 			inTmp += 3;
@@ -208,15 +208,15 @@ void YARPColorConverter::RGB2Normalized (const YARPImageOf<YarpPixelBGR>& in, YA
 			lum = inTmp[0] + inTmp[1] + inTmp[2];
 			if (lum > threshold)
 			{
-				outTmp[0] = (inTmp[0]/lum)*255 + 0.5;	// B
-				outTmp[1] = (inTmp[1]/lum)*255 + 0.5;	// G
-				outTmp[2] = (inTmp[2]/lum)*255 + 0.5;	// R
+				outTmp[0] = (unsigned char)((inTmp[0]/lum)*255 + 0.5);	// B
+				outTmp[1] = (unsigned char)((inTmp[1]/lum)*255 + 0.5);	// G
+				outTmp[2] = (unsigned char)((inTmp[2]/lum)*255 + 0.5);	// R
 			}
 			else
 			{
-				outTmp[0] = 0.0;
-				outTmp[1] = 0.0;
-				outTmp[2] = 0.0;
+				outTmp[0] = 0;
+				outTmp[1] = 0;
+				outTmp[2] = 0;
 			}
 			
 			inTmp += 3;

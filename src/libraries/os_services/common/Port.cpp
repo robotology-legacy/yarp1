@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.54 2003-08-10 07:08:40 gmetta Exp $
+/// $Id: Port.cpp,v 1.55 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -93,7 +93,7 @@
 #include "YARPTime.h"
 #include "YARPSocket.h"
 
-#ifdef __QNX6__
+#if defined(__QNX6__) || defined(__LINUX__)
 #include <signal.h>
 #endif
 
@@ -217,7 +217,7 @@ void OutputTarget::Body ()
 	/// implicit wait mutex for this thread.
 	/// see overridden Begin()
 
-#ifdef __QNX6__
+#if defined(__QNX6__) || defined(__LINUX__)
 	signal (SIGPIPE, SIG_IGN);
 #endif
 	int success = YARP_OK;
@@ -276,6 +276,9 @@ void OutputTarget::Body ()
 			{
 				/// LATER: must do proper bailout if locate fails.
 				///
+				/// LATER: do proper check. 
+				/// 	must always succeed. Any protocol is fine but QNET
+				/// 	for creating a socket connection.
 				if (target_pid->getServiceType() != protocol_type &&
 					target_pid->getServiceType() != YARP_UDP)
 				{
@@ -538,7 +541,7 @@ void _strange_select::Body ()
 {
 	ACE_DEBUG ((LM_DEBUG, "***** _strange_select::Body : starting\n"));
 
-#ifdef __QNX6__
+#if defined(__QNX6__) || defined(__LINUX__)
 	signal (SIGCHLD, SIG_IGN);
 	signal (SIGPIPE, SIG_IGN);
 #endif
@@ -911,7 +914,7 @@ void Port::Body()
 			}
 			scanned = 1;
 		}
-        list_mutex.Post ();
+		list_mutex.Post ();
 
 		if (pid->isValid())
 		{
@@ -954,6 +957,7 @@ void Port::Body()
 						getHostname (myhostname, YARP_STRING_LEN);
 						ACE_INET_Addr local ((u_short)0, myhostname);
 
+						///ACE_DEBUG((LM_DEBUG, "temporary ::::::::::: remote IP 0x%x local IP 0x%x\n", ((YARPUniqueNameSock *)pid)->getAddressRef().get_ip_address(), local.get_ip_address()));
 						if (((YARPUniqueNameSock *)pid)->getAddressRef().get_ip_address() == local.get_ip_address())
 						{
 							/// go into UDP-SHMEM.

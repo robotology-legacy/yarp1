@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.16 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: exec_test5.cpp,v 1.17 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -69,7 +69,6 @@
 
 #include <stdio.h>
 #include <iostream>
-#include <string.h>
 
 #include "YARPSemaphore.h"
 #include "YARPThread.h"
@@ -303,8 +302,8 @@ int main(int argc, char *argv[])
 	}
 	
 	YARPTime::DelayInSeconds(20000.0);
-	t2.End();
-	t1.End();
+	t2.End(0);
+	t1.End(0);
 	return 0;
 }
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.17 2003-08-11 08:56:59 babybot Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.18 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -72,7 +72,7 @@
 #include <ace/Time_Value.h>
 #include <ace/Sched_Params.h>
 
-#ifdef __QNX6__
+#if defined(__QNX6__) || defined(__LINUX__)
 #include <signal.h>
 #endif
 
@@ -841,7 +841,7 @@ void _SocketThreadMulti::End (int dontkill /* = -1 */)
 ///	error check is not consistent.
 void _SocketThreadMulti::Body (void)
 {
-#ifdef __QNX6__
+#if defined(__QNX6__) || defined(__LINUX__)
 	signal (SIGPIPE, SIG_IGN);
 #endif
 
@@ -1741,7 +1741,7 @@ void _SocketThreadListMulti::addSocket (void)
 	// need to keep calling this to get next incoming socket
 	ACE_ASSERT (_initialized != 0);
 
-#ifdef __QNX__
+#if defined(__QNX__) || defined(__LINUX__)
 	signal( SIGCHLD, SIG_IGN );     /* Ignore condition */
 #endif
 
@@ -2182,7 +2182,7 @@ void _SocketThreadListMulti::declareDataWritten (void)
 ///	returns also the number of bytes read.
 int _SocketThreadListMulti::read(char *buf, int len, ACE_HANDLE *reply_pid)
 {
-#ifdef __QNX__
+#if defined(__QNX__) || defined(__LINUX__)
 	signal( SIGCHLD, SIG_IGN );     /* Ignore condition */
 #endif
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.13 2003-08-07 04:23:43 gmetta Exp $
+/// $Id: YARPLogpolar.cpp,v 1.14 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -375,3 +375,4 @@ int YARPLogpolar::ReconstructGrays (const YARPImageOf<YarpPixelMono>& in, YARPIm
 	Reconstruct_Grays((unsigned char *)out.GetRawBuffer(), (unsigned char *)in.GetRawBuffer(), _srho, _stheta, _img.padding, _weightsMap, _img.Pix_Numb);
 	return YARP_OK;
 }
+

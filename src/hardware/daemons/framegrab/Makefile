@@ -18,13 +18,13 @@ CDEFS += -D$(ROBOT)
 FILES 	=
 	  
 LDLIBS  =	$(YARP_ROOT)/lib/$(SYSDIR)/YARPPicoloDeviceDriver.lib	\
-	$(YARP_ROOT)/lib/$(OS)/bttvx.lib	\
-	$(MATHLIB) $(YARP_ROOT)/lib/$(SYSDIR)/images.lib	\
-	$(YARP_ROOT)/lib/$(OS)/LogPolarSmallSDK.lib	\
-	$(YARP_ROOT)/lib/$(SYSDIR)/fakeipl.lib	\
-	$(YARP_ROOT)/lib/$(OS)/os_services.lib
+		$(YARP_ROOT)/lib/$(OS)/bttvx.lib	\
+		$(MATHLIB) 	\
+		$(YARP_ROOT)/lib/$(SYSDIR)/images.lib	\
+		$(YARP_ROOT)/lib/$(OS)/LogPolarSmallSDK.lib	\
+		$(YARP_ROOT)/lib/$(SYSDIR)/fakeipl.lib	\
+		$(YARP_ROOT)/lib/$(OS)/os_services.lib
 	
-
 LSRC    = $(addsuffix .cpp,$(FILES))
 LOBJ    = $(addsuffix .o,$(FILES))
 SHOBJ   = $(addsuffix .so,$(FILES))
@@ -43,7 +43,10 @@ eurobot:
 
 babybot:
 	@make ROBOT=__QNXBabybot__ all
-	
+
+test:
+	@make -f Makefile.test ROBOT=__LinuxTest__ all
+
 install:
 	$(CP) main $(YARP_ROOT)/bin/$(OS)/framegrab
 

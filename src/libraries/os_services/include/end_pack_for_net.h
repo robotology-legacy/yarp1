@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: end_pack_for_net.h,v 1.6 2003-05-14 17:17:24 gmetta Exp $
+/// $Id: end_pack_for_net.h,v 1.7 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -72,7 +72,7 @@
 #endif
 
 #ifdef __LINUX__
-#pragma align 0
+#pragma pack()
 #endif
 
 #ifdef __QNX4__

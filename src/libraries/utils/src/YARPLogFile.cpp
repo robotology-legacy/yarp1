@@ -17,3 +17,4 @@ YARPLogFile::~YARPLogFile()
 {
 	close();
 }
+

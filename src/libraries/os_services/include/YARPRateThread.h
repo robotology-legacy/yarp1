@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRateThread.h,v 1.5 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: YARPRateThread.h,v 1.6 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -88,7 +88,7 @@
 // #define THREAD_STATS
 //	this is compiled out because it is rather time-consuming.
 
-#if defined(__WIN32__) || defined(__QNX6__)
+#if defined(__WIN32__) || defined(__QNX6__) || defined(__LINUX__)
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
@@ -232,8 +232,10 @@ public:
 			TerminateThread (handle, -1);
 #elif defined(__QNX6__)
 	                ThreadDestroy (thread_id, -1, (void *)-1);
+#elif defined(__LINUX__)
+			pthread_cancel (thread_id);
 #else
-			ACE_Thread_Manager::instance()->kill_grp(thread_id, SIGINT);	/// what's this signal for?
+#error "destroy thread: not implemented for the specified architecture"
 #endif
 			timeout_flag = true;
 		}

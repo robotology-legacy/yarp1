@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.cpp,v 1.2 2003-08-12 00:01:56 gmetta Exp $
+/// $Id: YARPIntegralImage.cpp,v 1.3 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -171,3 +171,5 @@ int YARPIntegralImage::computeLp(YARPImageOf<YarpPixelMono> &input)
 
 	return YARP_OK;
 }
+
+

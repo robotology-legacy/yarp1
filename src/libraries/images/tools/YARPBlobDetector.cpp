@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.cpp,v 1.2 2003-08-12 00:01:56 gmetta Exp $
+/// $Id: YARPBlobDetector.cpp,v 1.3 2003-08-13 00:23:17 gmetta Exp $
 ///
 ///
 
@@ -145,7 +145,7 @@ void YARPBlobDetector::filter(YARPImageOf<YarpPixelMono> &in)
 						tmp = 0;
 				}
 			}
-			_segmented(c,r) = tmp+0.5;
+			_segmented(c,r) = (YarpPixelMono)(tmp+0.5);
 	}
 }
 
@@ -183,6 +183,6 @@ void YARPBlobDetector::filterLp(YARPImageOf<YarpPixelMono> &in)
 						tmp = 0;
 				}
 			}
-			_segmented(c,r) = tmp+0.5;
+			_segmented(c,r) = (YarpPixelMono)(tmp+0.5);
 	}
 }

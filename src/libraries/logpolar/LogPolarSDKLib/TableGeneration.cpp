@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.9 2003-06-20 19:09:24 gmetta Exp $
+/// $Id: TableGeneration.cpp,v 1.10 2003-08-13 00:23:18 gmetta Exp $
 ///
 ///
 
@@ -1249,3 +1249,4 @@ unsigned char Build_Weights_Map_NoFov(Image_Data * Par,
 		return Par->Pix_Numb;
 	}
 }	
+
