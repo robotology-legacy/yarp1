@@ -1,0 +1,12 @@
+
+SUBDIRS = $(wildcard libYARP_*) $(wildcard src) $(wildcard yarp-*) $(wildcard tools)
+
+default:
+	@for d in $(SUBDIRS) ; do \
+		test -d $$d && ( cd $$d ; $(MAKE) ) ; done
+
+
+clean:
+	@for d in $(SUBDIRS) ; do \
+		test -d $$d && ( cd $$d ; $(MAKE) clean ) ; done
+
