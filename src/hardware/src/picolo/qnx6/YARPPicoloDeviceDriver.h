@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.8 2003-09-12 16:52:45 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.9 2003-12-10 09:20:55 beltran Exp $
 ///
 ///
 
@@ -72,14 +72,9 @@
 #include <YARPThread.h>
 #include <YARPSemaphore.h>
 #include <YARPDeviceDriver.h>
-
 #include <stdlib.h>
 #include <string.h>
-
-///#include <sys/Picolo32.h>	maybe only in cpp file.
-
 #include <bttv.h>
-
 
 struct PicoloOpenParameters
 {
@@ -89,44 +84,41 @@ struct PicoloOpenParameters
 		_unit_number = 0;
 		_video_type = 2;
 		_size_x = 256; 
-        _size_y = 256; 
-
+		_size_y = 256; 
 	}
 
-	int _unit_number;		/// board number 0, 1, 2, etc.
+	int _unit_number;	/// board number 0, 1, 2, etc.
 	int _video_type;		/// 0 composite(PAL), 1 composite(NTSC), 2 svideo 
-	int _size_x;                    /// requested size x. 
-    int _size_y;                    /// requested size y. 
-
+	int _size_x;      /// requested size x. 
+	int _size_y;      /// requested size y. 
 };
-
 
 class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>
 {
-private:
-	YARPPicoloDeviceDriver(const YARPPicoloDeviceDriver&);
-	void operator=(const YARPPicoloDeviceDriver&);
+	private:
+		YARPPicoloDeviceDriver(const YARPPicoloDeviceDriver&);
+		void operator=(const YARPPicoloDeviceDriver&);
 
-public:
-	YARPPicoloDeviceDriver();
-	~YARPPicoloDeviceDriver();
+	public:
+		YARPPicoloDeviceDriver();
+		~YARPPicoloDeviceDriver();
 
-	// overload open, close
-	virtual int open(void *d);
-	virtual int close(void);
+		// overload open, close
+		virtual int open(void *d);
+		virtual int close(void);
 
-	virtual int acquireBuffer(void *);
-	virtual int releaseBuffer(void *);
-	virtual int waitOnNewFrame (void *cmd);
-	virtual int getWidth(void *cmd);
-	virtual int getHeight(void *cmd);
+		virtual int acquireBuffer(void *);
+		virtual int releaseBuffer(void *);
+		virtual int waitOnNewFrame (void *cmd);
+		virtual int getWidth(void *cmd);
+		virtual int getHeight(void *cmd);
+		virtual int setBright(void *cmd);
+		virtual int setHue(void *cmd);
+		virtual int setContrast(void *cmd);
+		virtual int setSatU(void *cmd);
+		virtual int setSatV(void *cmd);
 
-protected:
-	void *system_resources;
-
-	//  functions
-	//virtual void Body(void);
+	protected:
+		void *system_resources;
 };
-
-
 #endif
