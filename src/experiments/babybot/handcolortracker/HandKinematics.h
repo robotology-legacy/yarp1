@@ -12,7 +12,10 @@
 class HandKinematics
 {
 public:
-	HandKinematics();
+	// f1 and f2 are nnet config files; even on a non-trained network
+	// they are required to speficy the network structur (#input, #nlayers, #noutput...)
+	// if weights and biases are not specified the nnets are randomly initialized
+	HandKinematics(const char *f1, const char *f2);
 	~HandKinematics();
 
 	void learn(YVector &arm, YVector &head, YARPBottle &newPoint);

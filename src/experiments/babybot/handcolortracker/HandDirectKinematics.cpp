@@ -1,6 +1,6 @@
 #include "HandKinematics.h"
 
-HandKinematics::HandKinematics():
+HandKinematics::HandKinematics(const char *f1, const char *f2):
 _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
 {
 	char *root = GetYarpRoot();
@@ -8,22 +8,22 @@ _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMa
 	char filename1[256];
 	char filename2[256];
 
-	// ACE_OS::sprintf (path, "%s/conf\babybot\\0", root);
-	ACE_OS::sprintf (filename, "%s/conf/babybot/handforward.dat\0", root);
-	ACE_OS::sprintf (filename1, "%s/conf/babybot/handfk1.ini\0", root);
-	ACE_OS::sprintf (filename2, "%s/conf/babybot/handfk2.ini\0", root);
-	
-//	_log.append(filename);
+	// ACE_OS::sprintf (filename, "%s/conf/babybot/handforward.dat\0", root);
+	// _log.append(filename);
 	_npoints = 0;
 
 	// 
 	_v.Resize(3);
-	// nnets
+	
+	// load nnets if name was specified
+	ACE_OS::sprintf (filename1, "%s/conf/babybot/%s", root, f1);
 	if (_center.load(filename1)!=YARP_OK)
 	{
 		ACE_OS::printf("Error, cannot read neural network file %s", filename1);
 		exit(-1);
 	}
+	
+	ACE_OS::sprintf (filename2, "%s/conf/babybot/%s", root, f2);
 	if (_ellipse.load(filename2)!=YARP_OK)
 	{
 		ACE_OS::printf("Error, cannot read neural network file %s", filename2);

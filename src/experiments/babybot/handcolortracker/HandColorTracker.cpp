@@ -23,8 +23,15 @@ using namespace _logpolarParams;
 
 YARPLogpolar _mapper;
 
+const char *__nnetFile1 = "handfk1.ini";
+const char *__nnetFile2 = "handfk2.ini";
+
 int __armCounter = 0;
 int __headCounter = 0;
+
+#define DECLARE_INPUT_PORT(TYPE, NAME, PROTOCOL) YARPInputPortOf<TYPE> NAME(YARPInputPort::DEFAULT_BUFFERS, PROTOCOL)
+#define DECLARE_OUTPUT_PORT(TYPE, NAME, PROTOCOL) YARPOutputPortOf<TYPE> NAME(YARPOutputPort::DEFAULT_OUTPUTS, PROTOCOL)
+
 
 inline bool pollPort(YARPInputPortOf<YVector> &port, YVector &out, int *counter)
 {
@@ -74,24 +81,24 @@ int main(int argc, char* argv[])
 	YARPBlobDetector _blobber((float) 0.0);
 	_blobber.resize(_stheta, _srho, _sfovea);
 
-	YARPInputPortOf<YARPGenericImage> _inPortImage(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
-	YARPInputPortOf<YARPGenericImage> _inPortSeg(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
-	YARPOutputPortOf<YARPGenericImage> _outPortBackprojection(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+	DECLARE_INPUT_PORT (YARPGenericImage, _inPortImage, YARP_MCAST);
+	DECLARE_INPUT_PORT (YARPGenericImage, _inPortSeg, YARP_UDP);
+	DECLARE_OUTPUT_PORT (YARPGenericImage, _outPortBackprojection, YARP_UDP);
+	
+	DECLARE_INPUT_PORT (YARPControlBoardNetworkData, _armPort, YARP_UDP);
+	DECLARE_INPUT_PORT (YVector, _headPort, YARP_UDP);
 
-	YARPInputPortOf<YARPControlBoardNetworkData> _armPort;
-	YARPInputPortOf<YVector>	_headPort;
-
-	YARPInputPortOf<YARPBottle>	_armSegmentationPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-
-	YARPOutputPortOf<YARPBottle>	_outputPortTrain1(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-	YARPInputPortOf<YARPBottle>	_inputPortTrain1(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-	YARPOutputPortOf<YARPBottle>	_outputPortTrain2(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
-	YARPInputPortOf<YARPBottle>	_inputPortTrain2(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-
+	DECLARE_INPUT_PORT (YARPBottle,	_armSegmentationPort, YARP_TCP);
+	
+	DECLARE_OUTPUT_PORT (YARPBottle, _outputPortTrain1, YARP_TCP);
+	DECLARE_INPUT_PORT (YARPBottle, _inputPortTrain1, YARP_TCP);
+	DECLARE_OUTPUT_PORT (YARPBottle, _outputPortTrain2, YARP_TCP);
+	DECLARE_INPUT_PORT (YARPBottle, _inputPortTrain2, YARP_TCP);
+	
 	YARPBottle _outputTrainBottle1;
 	YARPBottle _outputTrainBottle2;
 
-	HandKinematics _handLocalization;
+	HandKinematics _handLocalization(__nnetFile1, __nnetFile2);
 	HandSegmenter _segmenter;
 	
 	_inPortImage.Register("/handtracker/i:img", "Net1");
@@ -220,7 +227,7 @@ int main(int argc, char* argv[])
 ////////// print frame status
 void printFrameStatus(int n)
 {
-	if (n%100 == 0)
+	if (n%1000 == 0)
 		ACE_OS::printf("HeadFrame# %d\tArmFrame# %d\n", __headCounter, __armCounter);
 }
 

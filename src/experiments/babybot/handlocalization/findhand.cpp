@@ -153,9 +153,11 @@ bool FindHand::_segmentation()
 	int t0;
 	int r0;
 	double a11, a12, a22;
+	int x,y;
 		
 	_fit.fitEllipse(_detected, &t0, &r0, &a11, &a12, &a22);
 	_fit.findEllipse(t0, r0, a11, a12, a22, _pointsBlob);
+	_mapper.Logpolar2Cartesian(r0, t0, x, y);
 	if (_pointsBlob.n > 3)
 		valid = true;
 	else 
@@ -163,8 +165,8 @@ bool FindHand::_segmentation()
 
 	_mask(_actualLp, _pointsBlob, _blob);
 	_armData.reset();
-	_armData.writeInt(r0);
-	_armData.writeInt(t0);
+	_armData.writeInt(x);
+	_armData.writeInt(y);
 	_armData.writeFloat(a11);
 	_armData.writeFloat(a12);
 	_armData.writeFloat(a22);
