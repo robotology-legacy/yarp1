@@ -1138,6 +1138,8 @@ init_bt848(struct bttv * btv, int video_format)
   bt848_set_size(btv);
 
   bt848_bright(btv, 0x10);
+  bt848_sat_u(btv,511);
+  bt848_sat_v(btv,511);	
   btwrite(0xd8, BT848_CONTRAST_LO);
 
   ////btwrite(0x60,BT848_E_VSCALE_HI); //This was creating problems with the scalling
@@ -1154,11 +1156,11 @@ init_bt848(struct bttv * btv, int video_format)
 	btwrite(BT848_CONTROL_COMP, BT848_O_CONTROL);
   }
 
-  //btwrite(0x00, BT848_E_SCLOOP);
-  //btwrite(0x00, BT848_O_SCLOOP);
+  btwrite(0x00, BT848_E_SCLOOP);
+  btwrite(0x00, BT848_O_SCLOOP);
 
-  btwrite(0x40, BT848_E_SCLOOP);
-  btwrite(0x40, BT848_O_SCLOOP);
+  //btwrite(0x40, BT848_E_SCLOOP);
+  //btwrite(0x40, BT848_O_SCLOOP);
 
   //This is the interrupt part, It blocks the QNX system. ??
 
