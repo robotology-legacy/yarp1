@@ -20,6 +20,8 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
+#include <assert.h>
+
 
 #include "bttvx.h"
 
@@ -30,6 +32,7 @@
 
 // we'll be testing three different types of blits, defaulting to the first
 static long blittype=0;
+unsigned char * temp_buffer_p;
 
 // this structure will contain our image data
 typedef struct
@@ -77,7 +80,7 @@ CoolImage *AllocBuffer(long w,long h,int fd)
 	}else
 	if (blittype==2)
 	{
-		if (i->ctx=PdCreateOffscreenContext(Pg_IMAGE_DIRECT_565,768,h,Pg_OSC_MEM_PAGE_ALIGN))
+		if (i->ctx=PdCreateOffscreenContext(Pg_IMAGE_DIRECT_888,w,h,Pg_OSC_MEM_PAGE_ALIGN))
 		{
 			i->pitch=i->ctx->pitch;
 			//i->ctx->pitch = 1024 * 2;
@@ -151,6 +154,7 @@ main(int argc,char *argv[])
 	PhDim_t dim={W,H};
 	PhPoint_t pos={50,50};
 	int fd; //Bt878 driver file descriptor
+	int fd_temp;
 	int size_read;
 	struct timeval tv;
     fd_set rfd;
@@ -166,6 +170,7 @@ main(int argc,char *argv[])
 	if (argc>1) blittype=atoi(argv[1]);
 
 	// initialize our connection to Photon, and create/realize a window 
+	//PtInit("/net/irene2/dev/photon");
 	PtInit("/dev/photon");
 	PtSetArg(&args[0],Pt_ARG_POS,&pos,0);
 	PtSetArg(&args[1],Pt_ARG_DIM,&dim,0);
@@ -182,25 +187,31 @@ main(int argc,char *argv[])
     tv.tv_sec = 5;
     tv.tv_usec = 0;
 
-	image = AllocBuffer(W,H,fd);			
-
+	image = AllocBuffer(W,H,fd);	
+	assert(image!=0);	
+	init_bttvx(2,0);
+	open_bttvx();
+	fd_temp = fd;
+	FD_ZERO( &rfd );
+	FD_SET( fd, &rfd );
+	
+	
 	while(1)
 	{
-		fd = open("/dev/bttvx0",O_RDWR);
-		if ( fd > 0 )
-		{
-			FD_ZERO( &rfd );
-			FD_SET( fd, &rfd );
-			switch ( n = select( 1 + max( fd,0 ),
-			   &rfd, 0, 0, &tv ) ) 
-			{
-			  case -1:
-				perror( "select" );
-				return EXIT_FAILURE;
-			  case  0:
-				puts( "select timed out" );
-				break;
-			  default:
+		//fd = open("/net/europa/dev/bttvx0",O_RDWR);
+		//if ( fd > 0 )
+		//{
+			
+			///switch ( n = select( 1 + max( fd,0 ),
+			///   &rfd, 0, 0, &tv ) ) 
+			///{
+			///  case -1:
+			///	perror( "select" );
+			///	return EXIT_FAILURE;
+			///  case  0:
+			///	puts( "select timed out" );
+			///	break;
+			///  default:
 				//printf( "descriptor ready ...\n");
 				//if( FD_ISSET( console, &rfd ) )
 				//  puts( " -- console descriptor has data pending" );
@@ -210,7 +221,13 @@ main(int argc,char *argv[])
 
 				//cycle1=ClockCycles( );
 
-				size_read = read( fd, image->buffer, W*H*deep );
+				//lseek(fd,0L,SEEK_SET);
+			///	size_read = read( fd, image->buffer, W*H*deep );
+			BttvxWaitEvent();
+			read_bttvx(image->buffer);
+			//////memcpy(image->buffer, temp_buffer_p, W*H*deep);
+			//delay(40);
+			///	fd = fd_temp;
 
 				//cycle2=ClockCycles( );
 
@@ -226,9 +243,9 @@ main(int argc,char *argv[])
 				 return EXIT_FAILURE;
 			   }*/
 
-			}
+			///}
 
-		   close( fd );
+		   //close( fd );
 
 		   cycle1=ClockCycles( );
 		   
@@ -246,9 +263,9 @@ main(int argc,char *argv[])
 		   //printf( "This system has %lld cycles/sec.\n",cps );
 		   sec=(float)ncycles/cps;
 		   //printf("The cycles in seconds is %f \n",sec);
-		}else
-			sleep(2);
-	}
+		//}else
+			//sleep(2);
+		}
 
 	//printf("Blitted %d frames using method %d\n",REPS*NUMIMAGES,blittype);
 
@@ -259,3 +276,7 @@ main(int argc,char *argv[])
 	PtUnrealizeWidget(win);
 	PtDestroyWidget(win);
 }
+
+
+
+

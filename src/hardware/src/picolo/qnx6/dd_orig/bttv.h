@@ -237,7 +237,9 @@ extern __inline__ void io_st_le32(volatile unsigned *addr, unsigned val)
 
 
 #define btwrite(dat,adr)  regbase8[adr] = dat
+#define btwrite32(dat,adr) regbase[adr] = dat
 #define btread(adr)       regbase8[adr]
+#define btread32(adr)	  regbase[adr]
 
 /*
 #define btand(dat,adr)      btwrite((dat) & btread(adr), adr)

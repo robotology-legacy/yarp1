@@ -12,10 +12,11 @@ DIST=bttvx_0.2.2
 all: $(OBJS) bttvx blit
 
 bttvx: $(OBJS)
-	   $(CC) $(LDFLAGS) $(OBJS) -o $@
+	   #$(CC) $(LDFLAGS) $(OBJS) -o $@
+	   $(AR) $(ARFLAGS) $@.lib $@.o
 
 blit:  $(OBJS2)
-	   $(CC) $(LDFLAGS) $(OBJS2) -o $@ -lph 
+	   $(CC) $(LDFLAGS) $(OBJS2) bttvx.lib -o $@ -lph 
 
 clean:
 	rm -f bttvx

@@ -32,6 +32,7 @@
 #include <sys/neutrino.h>
 #include <devctl.h>
 #include <inttypes.h>
+#include <pthread.h>
 
 #include "bttv.h"
 #include "bttvx.h" // Public header, devctl's.
@@ -47,6 +48,10 @@ static iofunc_attr_t             attr;
 int irq_debug = 1;
 
 int count=0;
+int flag = 0;
+
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t condvar = PTHREAD_COND_INITIALIZER;
 
 
 /* Funcs */
@@ -62,63 +67,29 @@ static void bt848_cap(struct bttv * btv,int state);
 /********************************************************************************
 	The read function.
 *********************************************************************************/
-int
-io_read (resmgr_context_t *ctp, io_read_t *msg, RESMGR_OCB_T *ocb)
+int 
+read_bttvx(unsigned char * buffer)
 {
-    int         nleft;
-    int         nbytes;
-    int         nparts;
-    int         status;
-	int i;
-
 	struct bttv * btv = &bttvs[0];
-    if ((status = iofunc_read_verify (ctp, msg, ocb, NULL)) != EOK)
-        return (status);
-    if (msg->i.xtype & _IO_XTYPE_MASK != _IO_XTYPE_NONE)
-        return (ENOSYS);
+	//if (flag)
+	//{
+		memcpy(buffer,btv->imagebuf_odd, W*H*deep);
+		/////buffer = btv->imagebuf_odd;
+	//	flag = 0;
+	//}
+	//else
+	//{
+	//	memcpy(buffer,btv->imagebuf_even, W*H*deep);
+	//	flag = 1;
+	//}
+	//return 1;
+}	
 
-    /*
-     *  on all reads (first and subsequent) calculate
-     *  how many bytes we can return to the client,
-     *  based upon the number of bytes available (nleft)
-     *  and the client's buffer size
-     */
-
-    nleft = ocb->attr->nbytes - ocb->offset;
-    nbytes = min (msg->i.nbytes, nleft);
-
-    if (nbytes > 0) {
-
-		SETIOV(ctp->iov,btv->imagebuf_odd+ ocb->offset,nbytes);
-
-        /* set up the number of bytes (returned by client's read()) */
-        _IO_SET_READ_NBYTES (ctp, nbytes);
-
-        /*
-         * advance the offset by the number of bytes
-         * returned to the client.
-         */
-
-        ocb->offset += nbytes;
-        
-        nparts = 1;
-    } else {
-        /*
-         * they've asked for zero bytes or they've already previously
-         * read everything
-         */
-        
-        _IO_SET_READ_NBYTES (ctp, 0);
-        
-        nparts = 0;
-    }
-
-    /* mark the access time as invalid (we just accessed it) */
-
-    if (msg->i.nbytes > 0)
-        ocb->attr->flags |= IOFUNC_ATTR_ATIME;
-
-    return (_RESMGR_NPARTS (nparts));
+int 
+BttvxWaitEvent()
+{
+	pthread_mutex_lock(&mutex);
+	pthread_cond_wait(&condvar, &mutex);
 }
 
 /*******************************************************************************
@@ -322,14 +293,15 @@ make_rawrisctab(struct bttv *btv, unsigned int *ro,
 	*/
 	*(re++)=BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRE;
 	*(re++)=0;
-	*(re++)=BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_FM1;
+	*(re++)=BT848_RISC_SYNC |BT848_FIFO_STATUS_FM1;
     *(re++)=0;
 	
+	/*
 	*(re++)=BT848_RISC_SYNC|BT848_RISC_RESYNC;
 	*(re++)=0;
 	*(re++)=BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_FM1;
     *(re++)=0;
-	
+	*/
 	
         /* In PAL 650 blocks of 256 DWORDs are sampled, but only if VDELAY
            is 2 and without separate VBI grabbing.
@@ -343,20 +315,21 @@ make_rawrisctab(struct bttv *btv, unsigned int *ro,
                 *(ro++)=virt_to_bus((u32 *) vadr);
 				//vadr+= bpl;
 				*(re++)=BT848_RISC_WRITE|bpl|BT848_RISC_SOL|BT848_RISC_EOL;
-                *(re++)=virt_to_bus((u32 *) vadr);
+                *(re++)=virt_to_bus((u32 *) vadr2);
                 //vadr+= (bpl*2);
 				vadr+= (bpl);
 				vadr2+=(bpl);
 	}
 	
-	*(ro++) = BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRE| BT848_RISC_IRQ;
+	*(ro++) = BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRE |BT848_RISC_IRQ;
 	*(ro++) = 0;
 	*(ro++) = BT848_RISC_JUMP;
 	*(ro++) = virt_to_bus(btv->risc_odd);
 
-	*(re++) = BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRE;*(ro++)=0;
+	*(re++) = BT848_RISC_SYNC|BT848_RISC_RESYNC|BT848_FIFO_STATUS_VRE |BT848_RISC_IRQ;
+	*(re++) = 0;
 	*(re++) = BT848_RISC_JUMP;
-	*(re++) = virt_to_bus(btv->risc_even);
+	*(re++) = virt_to_bus(btv->risc_odd);
 
 	 btaor(flags, ~0x0f, BT848_CAP_CTL);
 
@@ -644,7 +617,6 @@ bt848_set_size(struct bttv *btv)
 /**************************************************************************
 	Now this is working
 ***************************************************************************/
-
 void InterruptEvent()
 {
 	uint32_t stat,astat;
@@ -661,17 +633,25 @@ void InterruptEvent()
 
 	/* get device status bits */
 	dstat=btread(BT848_DSTATUS);
+	
+	if (astat & BT848_INT_RISCI)
+	{
+		pthread_cond_signal(&condvar);
+	}
 
 	if (astat & BT848_INT_VPRES)
 	{
 		printf("bttvx: Lost conection:%d\n",btv->field_count);
 		fflush(stdout);
+		//pthread_cond_signal(&condvar);
 	}
 
 	if (astat & BT848_INT_VSYNC)
 	{
 		btv->field_count++;
+		pthread_cond_signal(&condvar);
 	}
+	
 	
 	if(astat & BT848_INT_FMTCHG) //Change of video input
 	{
@@ -711,84 +691,6 @@ void InterruptEvent()
 	*/
 }
 
-const struct sigevent *
-isr_handler (void *arg, int id)
-{    
-
-	uint32_t stat,astat;
-	uint32_t dstat;
-	struct bttv * btv = &bttvs[0];
-		
-	/* get/clear interrupt status bits */
-	stat=btread(BT848_INT_STAT);
-	astat=stat&btread(BT848_INT_MASK);
-	btwrite(stat,BT848_INT_STAT); //Write same data back, clears the pending intrs.
-
-	if (!astat) //How the hell where we triggerd, we got no interrupt pending! :)
-		return;
-
-	/* get device status bits */
-	dstat=btread(BT848_DSTATUS);
-
-	if (astat & BT848_INT_VSYNC) 
-		btv->field_count++;
-	
-	if(astat & BT848_INT_FMTCHG) //Change of video input
-	{
-		btv->win.norm &= (dstat & BT848_DSTATUS_NUML) ? (~1) : (~0); 
-		bt848_set_size(btv);
- 	}
-
-	if(astat & BT848_INT_SCERR) //Error, reset capture.
-	{
-		bt848_cap(btv,0);
-		bt848_cap(btv,1);
-
-	}
-		/*
-		if (astat & BT848_INT_GPINT)
-			wake_up(&btv->gpioq);
-		
-                if ((astat & BT848_INT_RISCI)  &&  (stat & (1<<28)))
-			bttv_irq_switch_fields(btv);
-
-		if ((astat & BT848_INT_HLOCK)  &&  btv->opt_automute) {
-			if ((dstat & BT848_DSTATUS_HLOC) || btv->radio_user)
-				audio_mux(btv, AUDIO_UNMUTE);
-			else
-				audio_mux(btv, AUDIO_MUTE);
-		}
-
-		if (astat & (BT848_INT_SCERR|BT848_INT_OCERR)) {
-			printk(KERN_INFO "bttv%d: %s%s @ %08x,",btv->nr,
-			       (astat & BT848_INT_SCERR) ? "SCERR" : "",
-			       (astat & BT848_INT_OCERR) ? "OCERR" : "",
-			       btread(BT848_RISC_COUNT));
-			bttv_print_irqbits(stat,astat);
-			printk("\n");
-			if (bttv_debug)
-				bttv_print_riscaddr(btv);
-		}
-		if (fdsr && astat & BT848_INT_FDSR) {
-			printk(KERN_INFO "bttv%d: FDSR @ %08x\n",
-			       btv->nr,btread(BT848_RISC_COUNT));
-			if (bttv_debug)
-				bttv_print_riscaddr(btv);
-		}*/
-
-	/*	count++;
-		if (count > 20) {*/
-//			btwrite(0, BT848_INT_MASK);
-/*			printf("bttv%d: IRQ lockup, cleared int mask\n", btv->nr);
-		}
-	}
-
-	printf("Interrupcion\n");
-	fflush(NULL);
-*/
-    return (0);
-
-}
 
 /********************************************************************************
 	Find the bt848.
@@ -947,7 +849,7 @@ attach_bt848(int device_id)
 		return -1;
     }
 
-	//id = InterruptAttach (info.Irq, isr_handler, NULL, 0, 0);
+	
 
 	//did the map work?
 	if(regbase == MAP_FAILED)
@@ -1007,7 +909,8 @@ if (state)
   Open
 *********************************************************************************/
 int
-io_open(resmgr_context_t *ctp, io_open_t *msg,RESMGR_HANDLE_T *handle, void *extra)
+//io_open(resmgr_context_t *ctp, io_open_t *msg,RESMGR_HANDLE_T *handle, void *extra)
+open_bttvx()
 {
 	struct bttv *btv;
 	btv = &bttvs[0];
@@ -1016,14 +919,16 @@ io_open(resmgr_context_t *ctp, io_open_t *msg,RESMGR_HANDLE_T *handle, void *ext
 	//btv->cap |= 0x0c;
 	//bt848_set_risc_jmps(btv);
 	
+	bt848_cap(btv, 1); //activa capture
+	
 	make_rawrisctab(btv, 
 				  (unsigned int *) btv->risc_odd,
                   (unsigned int *) btv->risc_even, 
 				  (unsigned int *) btv->imagebuf_odd,
 				  (unsigned int *) btv->imagebuf_even);
 	
-	bt848_cap(btv, 1); //activa capture
-	return (iofunc_open_default (ctp, msg, handle, extra));
+	//bt848_cap(btv, 1); //activa capture
+	return 1;
 }
 
 
@@ -1207,7 +1112,7 @@ init_bt848(struct bttv * btv, int video_format)
 	  BT848_INT_RISCI|BT848_INT_OCERR|BT848_INT_VPRES|
 	  BT848_INT_I2CDONE|BT848_INT_FMTCHG|BT848_INT_HLOCK,
 	  BT848_INT_MASK);*/
-  btwrite(BT848_INT_VSYNC|BT848_INT_FMTCHG|BT848_INT_SCERR|BT848_INT_VPRES,BT848_INT_MASK);
+  btwrite(BT848_INT_VSYNC|BT848_INT_FMTCHG|BT848_INT_SCERR|BT848_INT_VPRES|BT848_INT_RISCI,BT848_INT_MASK);
   
   /*
   make_rawrisctab(btv, 
@@ -1224,7 +1129,7 @@ init_bt848(struct bttv * btv, int video_format)
  *
  *************************************************************************/
 
-main(int argc, char **argv)
+init_bttvx(int argc1, int argc2)
 {
 	int i; 
 	/* declare variables we'll be using */
@@ -1242,6 +1147,7 @@ main(int argc, char **argv)
 
 
 	//Check the arguments
+	/*
 	if ( argc == 1 || argc > 3)
 	{
 		printf("Use: ./bttvx video_format [device_id]\n");
@@ -1250,26 +1156,21 @@ main(int argc, char **argv)
 		printf("2 ----> S-Video\n");
 		exit(0);
 	}
-
-	//Check the video format
-	if (video_format > 1 || video_format < 0)
-	{
-		printf("bttvx: Sorry!, only PAL and NTSC supported\n");
-		exit(0);
-	}
+	*/
 
 	//Get video format
-	video_format = atoi(argv[1]);
+	//video_format = atoi(argv[1]);
+	video_format = argc1;
 
 	//Check driver index
-	if (argv[2] != NULL)
+	if (argc2 != NULL)
 	{
 		if (device_id < 0 || device_id > BTTV_MAX)
 		{
 			printf("bttvx: Sorry!, the device id overcomes the maximum number of devices allowed\n");
 			exit(0);
 		}
-		device_id = atoi(argv[2]);
+		device_id = argc2;
 	}
 	else	//If not specified check for other cards
 	{
@@ -1278,7 +1179,7 @@ main(int argc, char **argv)
 			perror("pci_attach");
 			exit(EXIT_FAILURE);
 		}   
-    
+    /*
 		for (i=0; i<BTTV_MAX; i++)
 		{
 			if(pci_find_device(0x350,0x109e,i,&bus,&dev_func) == PCI_SUCCESS)
@@ -1291,13 +1192,14 @@ main(int argc, char **argv)
 	
 			}
 		}
+	*/
 		pci_detach(0);
 	}
 
 
 
-	strcpy(device_name,"/dev/bttvx");
-	strcat(device_name,itoa(device_id,buffer,10)); //Complete the name
+	///strcpy(device_name,"/dev/bttvx");
+	///strcat(device_name,itoa(device_id,buffer,10)); //Complete the name
 
 	i = attach_bt848(device_id);
 
@@ -1310,6 +1212,7 @@ main(int argc, char **argv)
 	i = init_bt848(&bttvs[0],video_format); 
 
 	/* initialize dispatch interface */
+	/*
 	if((dpp = dispatch_create()) == NULL) 
 	{
 		fprintf(stderr, 
@@ -1317,15 +1220,17 @@ main(int argc, char **argv)
 				argv[0]);
 		return EXIT_FAILURE;
 	}
+	*/
 
 	/* initialize resource manager attributes */
-	memset(&resmgr_attr, 0, sizeof resmgr_attr);
+	///memset(&resmgr_attr, 0, sizeof resmgr_attr);
 	
-	resmgr_attr.nparts_max = 1;
+	///resmgr_attr.nparts_max = 1;
 	//resmgr_attr.msg_max_size = 2048;
-	resmgr_attr.msg_max_size=VBIBUF_SIZE;
+	///resmgr_attr.msg_max_size=VBIBUF_SIZE;
 
 	/* initialize functions for handling messages */
+	/*
 	iofunc_func_init(_RESMGR_CONNECT_NFUNCS, 
 					 &connect_funcs,
 					 _RESMGR_IO_NFUNCS, 
@@ -1334,32 +1239,33 @@ main(int argc, char **argv)
 	io_funcs.read = io_read;
 	io_funcs.devctl = io_devctl;
 	connect_funcs.open = io_open;
-
+	*/
 	/* initialize attribute structure used by the device */
-	iofunc_attr_init(&attr, 
-					 S_IFNAM | 0666, 
-					 0, 0);
+	///iofunc_attr_init(&attr, 
+	///				 S_IFNAM | 0666, 
+	///				 0, 0);
 	//attr.nbytes = strlen(buffer)+1;
-	attr.nbytes = VBIBUF_SIZE + 1;
+	///attr.nbytes = VBIBUF_SIZE + 1;
 
     /* attach our device name */
-    id = resmgr_attach(dpp,            /* dispatch handle        */
-                       &resmgr_attr,   /* resource manager attrs */
-                       device_name,  /* device name            */
-                       _FTYPE_ANY,     /* open type              */
-                       0,              /* flags                  */
-                       &connect_funcs, /* connect routines       */
-                       &io_funcs,      /* I/O routines           */
-                       &attr);         /* handle                 */
-    if(id == -1) {
-        fprintf(stderr, "%s: Unable to attach name.\n", argv[0]);
-        return EXIT_FAILURE;
-    }
+    ///id = resmgr_attach(dpp,            /* dispatch handle        */
+    ///                   &resmgr_attr,   /* resource manager attrs */
+    ///                   device_name,  /* device name            */
+    ///                   _FTYPE_ANY,     /* open type              */
+    ///                   0,              /* flags                  */
+    ///                   &connect_funcs, /* connect routines       */
+    ///                   &io_funcs,      /* I/O routines           */
+    ///                   &attr);         /* handle                 */
+    ///if(id == -1) {
+    ///    fprintf(stderr, "%s: Unable to attach name.\n", argv[0]);
+    ///    return EXIT_FAILURE;
+    ///}
 
 	/* allocate a context structure */
-	ctp = dispatch_context_alloc(dpp);
+	///ctp = dispatch_context_alloc(dpp);
 
 	/* start the resource manager message loop */
+	/*
 	while(1) 
 	{
 		if((ctp = dispatch_block(ctp)) == NULL) 
@@ -1369,5 +1275,6 @@ main(int argc, char **argv)
 		}
 		dispatch_handler(ctp);
 	}
+	*/
 }
 
