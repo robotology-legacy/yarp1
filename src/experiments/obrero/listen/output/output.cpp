@@ -10,8 +10,10 @@ int main() {
   while (1) {
     if (input.Read()) {
       YARPBottle& bot = input.Content();
-      double d1 = 0;
-      bot.readFloat(&d1);
+      int id = -1;
+      bot.readInt(&id);
+      //double d1 = 0;
+      //bot.readFloat(&d1);
       double d2 = 0;
       bot.readFloat(&d2);
       int x = (int)(d2*10+0.5);

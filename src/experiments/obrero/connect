@@ -1,0 +1,4 @@
+yarp-connect -f /listen/o:bot /collisionDetector/0/i:bot
+yarp-connect -f /obrero/touch/out /collisionDetector/1/i:bot
+yarp-connect -f /collisionDetector/o:bot /collisionCreator/i:bot
+yarp-connect -f /collisionCreator/hand/o:bot /obrero/touch/in

@@ -27,6 +27,9 @@
 
 #include "signal_output.h"
 
+extern bool m_log;
+static long int frame = 0;
+
 class BoundedStat {
 public:
   float *vals;
@@ -77,7 +80,7 @@ public:
 
 void AddSound(SideTapSound& sound) {
   //static FFT fft;
-  static SignalOutput output("/out");
+  static SignalOutput output("/listen/o:bot");
   static FILE *draw = NULL;
   /*
   if (draw==NULL) {
@@ -86,6 +89,7 @@ void AddSound(SideTapSound& sound) {
   */
   float q_top = 0;
   float q_total = 0;
+  float q_alt = 0;
   int q_ct = 0;
 
   static long int index = 0;
@@ -107,7 +111,8 @@ void AddSound(SideTapSound& sound) {
       if (fabs(q)>q_top) {
 	q_top = fabs(q);
       }
-      q_total += q_top;
+      q_total += q*q;
+      //q_total += q_top;
       q_ct++;
       if (fabs(q)>2.5) {
 	//printf("%9ld %9ld %9ld\n",(int)(q*1000),(int)(mean*1000),(int)(mean*1000));
@@ -138,7 +143,7 @@ public:
   //virtual bool ShouldSupplyImage() { return true; }
   virtual bool ShouldSupplySound() { return true; }
   //virtual bool ShouldRecoverImage() { return true; }
-  //virtual bool ShouldSave() { return true; }
+  virtual bool ShouldSave() { return m_log; }
   virtual void Apply(SideTapImage& image, SideTapSound& sound);
 };
 

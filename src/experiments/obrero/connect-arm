@@ -1,0 +1,3 @@
+
+yarp-connect -f /collisionCreator/o:bot /arm/i:bot
+

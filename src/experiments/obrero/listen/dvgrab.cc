@@ -27,6 +27,9 @@
 * Change log:
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.1  2005/03/15 20:23:40  eshuy
+* initial checking
+*
 * Revision 1.21  2004/01/14 13:46:29  ddennedy
 * bugfix --every
 *
@@ -136,6 +139,7 @@ using std::endl;
 // VIDEOBOX PATCH ENDS
 
 extern bool g_done;
+bool m_log = false;
 
 pthread_mutex_t DVgrab::capture_mutex;
 pthread_t DVgrab::capture_thread;
@@ -252,6 +256,10 @@ void DVgrab::getargs( int argc, char *argv[] )
 		else if ( strcmp( "--timestamp", argv[ i ] ) == 0 )
 		{
 			m_timestamp = true;
+		}
+		else if ( strcmp( "--log", argv[ i ] ) == 0 )
+		{
+			m_log = true;
 		}
 		else if ( ( strcmp( "--format", argv[ i ] ) == 0 ) && ( i < argc ) )
 		{
