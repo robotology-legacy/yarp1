@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.16 2003-07-16 16:06:31 natta Exp $
+/// $Id: YARPNameServer.cpp,v 1.17 2003-08-01 03:34:34 babybot Exp $
 ///
 ///
 
@@ -173,7 +173,7 @@ void YARPNameServer::handle_exdump_request()
 		text.append("\t");
 		text.append(i->ip);
 		text.append(":");
-		int length = i->ports.size();
+		///int length = i->ports.size();
 		PORT_IT j;
 		// first port
 		j = i->ports.begin();
@@ -403,7 +403,8 @@ void YARPNameServer::_handle_reply(const YARPNameQnx &entry, int type)
 	iov[0].iov_base = data_buf_;
 	iov[0].iov_len = rplCmd.length+sizeof(YARPNameServiceCmd);
 
-	int sent = new_stream_.sendv_n (iov, 1);
+	///int sent = new_stream_.sendv_n (iov, 1);
+	new_stream_.sendv_n (iov, 1);
 	//new_stream_.sendv_n (iov, 1);
 }
 

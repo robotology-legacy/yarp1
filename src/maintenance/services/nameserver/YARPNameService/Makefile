@@ -13,25 +13,20 @@ CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS) $(CFAST)
 
 BIN     = YARPNameService
 	
-FILES 	= YARPNameServer LocalNameServer
+FILES 	= YARPNameServer \
+	  LocalNameServer \
+	  NetworkMap
 	  
 LDLIBS  = $(MATHLIB)
 
-LSRC    = $(addsuffix .cpp,$(FILES))
-LOBJ    = $(addsuffix .o,$(FILES))
-SHOBJ   = $(addsuffix .so,$(FILES))
+SRC	= $(addsuffix .cpp,$(FILES))
+OBJ    = $(addsuffix .o,$(FILES))
+LSRC    = $(SRC) $(addsuffix .cpp,$(BIN))
 
 #LDLIBS  =  $(addprefix .shobj/,$(SHOBJ))
-LDLIBS  +=  $(addprefix .obj/,$(LOBJ))
-
-
-#VLDLIBS = $(LDLIBS:%=%$(VAR))
+#LDLIBS  +=  $(addprefix .obj/,$(LOBJ))
 
 BUILD = $(VBIN)
-
-# For make depend.
-SRC = $(addsuffix .cpp, $(BIN))
-
 
 
 #----------------------------------------------------------------------------
@@ -58,11 +53,4 @@ install:
 
 # DO NOT DELETE THIS LINE -- g++dep uses it.
 # DO NOT PUT ANYTHING AFTER THIS LINE, IT WILL GO AWAY.
-
-.obj/YARPNameService.o	:	.obj/YARPNameServer.o	.obj/LocalNameServer.o
-.obj/YARPNameServer.o .shobj/YARPNameServer.so :  YARPNameServer.cpp YARPNameServer.h
-.obj/LocalNameServer.o .shobj/YARPNameServer.so : LocalNameServer.cpp LocalNameServer.h
-
-
-
 
