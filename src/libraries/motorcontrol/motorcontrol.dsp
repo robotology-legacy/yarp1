@@ -182,7 +182,7 @@ SOURCE=.\eurobot\YARPPicoloOnEurobotAdapter.h
 # End Group
 # Begin Group "babybot"
 
-# PROP Default_Filter "h;hpp;hxx;hm;inl;cpp"
+# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat;h;hpp;hxx;hm;inl"
 # Begin Source File
 
 SOURCE=.\babybot\YARPBabybotArm.cpp
@@ -243,6 +243,10 @@ SOURCE=.\babybot\YARPNIDAQOnBabybotHandAdapter.h
 
 SOURCE=.\babybot\YARPPicoloOnBabybotAdapter.h
 # End Source File
+# End Group
+# Begin Group "robotcub"
+
+# PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat;h;hpp;hxx;hm;inl"
 # End Group
 # End Target
 # End Project

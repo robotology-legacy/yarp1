@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.14 2004-06-16 17:02:44 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.15 2004-06-28 16:42:05 babybot Exp $
 ///
 ///
 
@@ -1012,7 +1012,7 @@ int YARPValueCanDeviceDriver::readBootMemory (void *cmd)
 	return _writeNone (CAN_READ_FLASH_MEM, axis);
 }
 
-/// cmd is a pointer to SingleAxisParameters struct with no argument.
+/// cmd is a pointer to an integer (axis number).
 int YARPValueCanDeviceDriver::writeBootMemory (void *cmd)
 {
 	const int axis = *((int *)cmd);
@@ -1021,7 +1021,7 @@ int YARPValueCanDeviceDriver::writeBootMemory (void *cmd)
 	return _writeNone (CAN_WRITE_FLASH_MEM, axis);
 }
 
-/// cmd is a pointer to SingleAxisParameters struct with a single double arg.
+/// cmd is a pointer to an integer (axis number).
 int YARPValueCanDeviceDriver::setPositiveLimit (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
