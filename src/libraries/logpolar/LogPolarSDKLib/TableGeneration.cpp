@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.25 2003-11-20 17:15:07 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.26 2003-11-20 18:02:14 babybot Exp $
 ///
 ///
 
@@ -2000,8 +2000,6 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 					if ((SRem[3*(y*SParam.Size_X_Remap+x)+0]==0)&&(SRem[3*(y*SParam.Size_X_Remap+x)+1]==0))
 						SRem[3*(y*SParam.Size_X_Remap+x)+2] = 255;
 
-		Save_Bitmap(SRem,1090,1090,3,"c:/temp/images/testpad/srem.bmp");
-		Save_Bitmap(LRem,1090,1090,3,"c:/temp/images/testpad/lrem.bmp");
 
 		for (y = 0; y<LParam->Size_Y_Remap; y++)
 			for (x=0; x<LParam->Size_X_Remap; x++)

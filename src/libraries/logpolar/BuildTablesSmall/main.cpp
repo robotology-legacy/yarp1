@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.11 2003-11-20 17:46:58 babybot Exp $
+/// $Id: main.cpp,v 1.12 2003-11-20 18:02:13 babybot Exp $
 ///
 ///
 
@@ -142,10 +142,18 @@ int main (int argc, char *argv[])
 
 	printf ("Creating XY map \n");
 	Build_XY_Map(&Param, Path);
-	printf ("Creating Neigbothood map \n");
+	printf ("Creating Neigborhood map \n");
 	Build_Neighborhood_Map(&Param, Path);
 	printf ("Creating Weights map \n");
 	Build_Weights_Map(&Param, Path);	
+
+	printf ("Creating DS map\n");
+	Build_DS_Map (&Param, Path, 4.0);
+	printf ("Creating Shift map\n");
+	Build_Shift_Map (&Param, Path);
+	printf ("Creating Step Function\n");
+	Build_Step_Function (Path, &Param);
+
 	printf("Finish\n");
 
 	return 0;
