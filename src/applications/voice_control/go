@@ -1,4 +1,0 @@
-#!/usr/local/bin/bash
-
-. vvsetenv
-./voice_control

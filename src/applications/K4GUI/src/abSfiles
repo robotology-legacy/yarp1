@@ -1,1 +1,0 @@
-ABSRC = ../abmain.cc ../commands.cc ../encoder.cc ../mycommands.cc ../position_commands.cc ../reset_commands.cc ../trend1.cc ../trend2.cc ../trend3.cc ../trend4.cc ../trend5.cc 

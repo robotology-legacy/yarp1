@@ -1,1 +1,0 @@
-ABSRC = ../abmain.cc ../commands.cc ../initialize.cc 
