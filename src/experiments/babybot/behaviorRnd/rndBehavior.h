@@ -12,7 +12,13 @@ class RndSharedData: public YARPBehaviorSharedData
 public:
 	RndSharedData(): YARPBehaviorSharedData(YBLabelMotor, "/armrandom/behavior/o")
 	{
-		strncpy(_iniFile, "y:\\conf\\babybot\\arm.ini", 80);
+		char *root = GetYarpRoot();
+#if defined(__WIN32__)
+		ACE_OS::sprintf (_iniFile, "%s\\conf\\babybot\\arm.ini\0", root);
+#elif defined(__QNX6__)
+		ACE_OS::sprintf (_iniFile, "%s/conf/babybot/arm.ini\0", root);
+#endif
+		///strncpy(_iniFile, "y:\\conf\\babybot\\arm.ini", 80);
 
 		YARPConfigFile file;
 		file.set("", _iniFile);
