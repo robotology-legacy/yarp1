@@ -300,46 +300,228 @@ extern "C" {
 		btaor(datahi, ~1, BT848_O_CONTROL);
 	}
 
-	/*
-	 * Set LNOTCH filter.
-	 */
-
+	// ===  FUNCTION  ======================================================================
+	// 
+	//         Name: bt848_set_lnotch 
+	// 
+	//  Description: This bit is used to include the luma notch filter. For monochrome video, 
+	//  the notch filter should not be used. This will output full band-width luminance.
+	//  	0 = Enable the Luma notch filter
+	//  	1 = Disable the luma notch filter 
+	// 
+	//    Author:  Ing. Carlos Beltran
+	//  Revision:  none
+	// =====================================================================================
 	inline void
 	bt848_set_lnotch(int state)
 	{
-		if (state)
-		{
-			btor(BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
-			btor(BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
-		}
-		else
+		if (state) //If state=1 set 0 in LNOTCH (this enables the filter)
 		{
 			btand(~BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
 			btand(~BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
 		}
+		else //if state = 0 set 1 in the LNOTCH (this disables the filter)
+		{
+			btor(BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
+			btor(BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
+		}
 	}
-
-	/*
-	 * Set LDEC
-	 */
+	
+	// ===  FUNCTION  ======================================================================
+	// 
+	//         Name: bt848_set_ldec() 
+	// 
+	//  Description: The luma decimation filter is used to reduce the high-frequency
+	//  component of the luma signal. Useful when scaling to CIF resolution or lower.
+	//  	0 = Enable luma decimation using selectable H filter
+	//  	1 = Disable luma decimation 
+	// 
+	//    Author:  Ing. Carlos Beltran
+	//  Revision:  none
+	// =====================================================================================
 	inline void
 	bt848_set_ldec(int state)
 	{
-		if (state)
-		{
-			btor(BT848_CONTROL_LDEC, BT848_E_CONTROL);
-			btor(BT848_CONTROL_LDEC, BT848_O_CONTROL);
-		}
-		else
+		if (state) //if state = 1 set a 0 in the LDEC (this enables the filter)
 		{
 			btand(~BT848_CONTROL_LDEC, BT848_E_CONTROL);
 			btand(~BT848_CONTROL_LDEC, BT848_O_CONTROL);
 		}
+		else //if state = 0 set a 1 in the LDEC (this desables the filter)
+		{
+			btor(BT848_CONTROL_LDEC, BT848_E_CONTROL);
+			btor(BT848_CONTROL_LDEC, BT848_O_CONTROL);
+		}
 	}
 
-	/*
-	 * Set CRUSH
-	 */
+	// ===  FUNCTION  ======================================================================
+	// 
+	//         Name: bt848_set_peak()  
+	// 
+	//  Description: This bit determines if the normal luma low-pass filters are implemented
+	//  via the HFILT bits or if the peaking filters are implemented.
+	//  	0 = Normal luma low pass filtering
+	//  	1 = Use luma peaking filters 
+	// 
+	//    Author:  Ing. Carlos Beltran
+	//  Revision:  none
+	// =====================================================================================
+	inline void
+	bt848_set_peak(int state)
+	{
+		if (state)
+		{
+			btor(BT848_SCLOOP_PEAK, BT848_E_SCLOOP);
+			btor(BT848_SCLOOP_PEAK, BT848_O_SCLOOP);
+		}
+		else
+		{
+			btand(~BT848_SCLOOP_PEAK, BT848_E_SCLOOP);
+			btand(~BT848_SCLOOP_PEAK, BT848_O_SCLOOP);
+		}
+	}
+
+	// ===  FUNCTION  ======================================================================
+	// 
+	//         Name: bt848_set_cagc()  
+	// 
+	//  Description: This bit controls the Chroma AGC function. When enabled, Chroma AGC will
+	//  compensate for non-standart chroma levels. The compensation is achieved by multiplying 
+	//  the incoming chroma signal by value in the range of 0.5 to 2.0
+	//  	0 = Chroma AGC Disabled
+	//  	1 = Chroma AGC Enabled
+	// 
+	//    Author:  Ing. Carlos Beltran
+	//  Revision:  none
+	// =====================================================================================
+	inline void
+	bt848_set_cagc(int state)
+	{
+		if (state)
+		{
+			btor(BT848_SCLOOP_CAGC, BT848_E_SCLOOP);
+			btor(BT848_SCLOOP_CAGC, BT848_O_SCLOOP);
+		}
+		else
+		{
+			btand(~BT848_SCLOOP_CAGC, BT848_E_SCLOOP);
+			btand(~BT848_SCLOOP_CAGC, BT848_O_SCLOOP);
+		}
+	}
+
+	// ===  FUNCTION  ======================================================================
+	// 
+	//         Name: bt848_set_ckill()  
+	// 
+	//  Description: This bit determines whether the low color detector and removal circuitry
+	//  is enabled
+	//  	0 = Low Color Detection and Removal Disabled
+	//  	1 = Low Color Detection and Removal Enabled
+	// 
+	//    Author:  Ing. Carlos Beltran
+	//  Revision:  none
+	// =====================================================================================
+	inline void
+	bt848_set_ckill(int state)
+	{
+		if (state)
+		{
+			btor(BT848_SCLOOP_CKILL, BT848_E_SCLOOP);
+			btor(BT848_SCLOOP_CKILL, BT848_O_SCLOOP);
+		}
+		else
+		{
+			btand(~BT848_SCLOOP_CKILL, BT848_E_SCLOOP);
+			btand(~BT848_SCLOOP_CKILL, BT848_O_SCLOOP);
+		}
+	}
+
+	// ===  FUNCTION  ======================================================================
+	// 
+	//         Name: bt848_set_range()  
+	// 
+	//  Description: Luma Output Range: This bit determines the range for the luminance output
+	//  on the Bt879. The range must be limited when using the control codes as video timing.
+	//  	0 = Normal operation
+	//  	1 = Full-Range output
+	// 
+	//    Author:  Ing. Carlos Beltran
+	//  Revision:  none
+	// =====================================================================================
+	inline void
+	bt848_set_range(int state)
+	{
+		if (state)
+		{
+			btor(BT848_OFORM_RANGE, BT848_OFORM);
+		}
+		else
+		{
+			btand(~BT848_OFORM_RANGE, BT848_OFORM);
+		}
+	}
+
+	// ===  FUNCTION  ======================================================================
+	// 
+	//         Name: bt848_set_ysleep()  
+	// 
+	//  Description: This bit enables putting the luma ADC in sleep mode
+	//  	0 = Normal Y ADC operation
+	//  	1 = Sleep Y ADC operation
+	// 
+	//    Author:  Ing. Carlos Beltran
+	//  Revision:  none
+	// =====================================================================================
+	inline void
+	bt848_set_ysleep(int state)
+	{
+		if (state)
+		{
+			btor(BT848_ADC_Y_SLEEP, BT848_ADC);
+		}
+		else
+		{
+			btand(~BT848_ADC_Y_SLEEP, BT848_ADC);
+		}
+	}
+
+	// ===  FUNCTION  ======================================================================
+	// 
+	//         Name: bt848_set_csleep()  
+	// 
+	//  Description: This bit enables putting the chroma ADC in sleep mode
+	//  	0 = Normal C ADC operation
+	//  	1 = Sleep C ADC operation
+	// 
+	//    Author:  Ing. Carlos Beltran
+	//  Revision:  none
+	// =====================================================================================
+	inline void
+	bt848_set_csleep(int state)
+	{
+		if (state)
+		{
+			btor(BT848_ADC_C_SLEEP, BT848_ADC);
+		}
+		else
+		{
+			btand(~BT848_ADC_C_SLEEP, BT848_ADC);
+		}
+	}
+
+	// ===  FUNCTION  ======================================================================
+	// 
+	//         Name: bt848_set_crush()  
+	// 
+	//  Description: When the CRUSH bit is high (adaptive AGC), the gain control mechanism
+	//  monitors the A/D's for overflow conditions.If an overflow is detected, the REFOUT
+	//  voltage is increased, which increases the input voltage range on the A/D's
+	//  	0 = Non-adaptive AGC
+	//  	1 = Adaptive AGC 
+	// 
+	//    Author:  Ing. Carlos Beltran
+	//  Revision:  none
+	// =====================================================================================
 	inline void
 	bt848_set_crush(int state)
 	{
@@ -350,6 +532,54 @@ extern "C" {
 		else
 		{
 			btand(~BT848_ADC_CRUSH, BT848_ADC);
+		}
+	}
+
+	// ===  FUNCTION  ======================================================================
+	// 
+	//         Name: bt848_set_gamma()  
+	// 
+	//  Description: A value of 0 enables gamma correction removal. The inverse gamma correction
+	//  factor of 2.2 or 2.8 is applied and auto-selected by the respective mode NTSC/PAL. A 
+	//  value of 1 disables gamma correction removal
+	// 
+	//    Author:  Ing. Carlos Beltran
+	//  Revision:  none
+	// =====================================================================================
+	inline void
+	bt848_set_gamma(int state)
+	{
+		if (state) // if state = 1 then set a 0 in the GAMMA (this enables gamma correction removal)
+		{
+			btand(~BT848_COLOR_CTL_GAMMA, BT848_COLOR_CTL);
+		}
+		else //if state = 0 then set a 1 in the GAMMA (this disables the gamma correction removal)
+		{
+			btor(BT848_COLOR_CTL_GAMMA, BT848_COLOR_CTL);
+		}
+	}
+
+	// ===  FUNCTION  ======================================================================
+	// 
+	//         Name: bt848_set_dithframe()  
+	// 
+	//  Description: This is a bit of CAP_CTL
+	//  	0 = Dither matrix applied to consecutive lines in the field
+	//  	1 = Full frame mode
+	// 
+	//    Author:  Ing. Carlos Beltran
+	//  Revision:  none
+	// =====================================================================================
+	inline void
+	bt848_set_dithframe(int state)
+	{
+		if (state) //Full frame mode 
+		{
+			btor(BT848_CAP_CTL_DITH_FRAME, BT848_CAP_CTL);
+		}
+		else //Dither matrix applied 
+		{
+			btand(~BT848_CAP_CTL_DITH_FRAME, BT848_CAP_CTL);
 		}
 	}
 
@@ -365,8 +595,8 @@ extern "C" {
 	  F_input = 28.636363 MHz: 
 	  PAL (CLKx2 = 35.46895 MHz): PLL_X = 1, PLL_I = 0x0E, PLL_F = 0xDCF9, PLL_C = 0
 	 ********************************************************************************/
-
-	static void set_pll_freq(struct bttv *btv, unsigned int fin, unsigned int fout)
+	static void 
+	set_pll_freq(struct bttv *btv, unsigned int fin, unsigned int fout)
 	{
 		unsigned char fl, fh, fi;
 
@@ -608,6 +838,7 @@ extern "C" {
 		int res = 0;
 		struct sigevent event;
 		int error;
+		int _waitreturn;
 
 		printf("bttvx: Interrupt thread activated\n");
 		ThreadCtl( _NTO_TCTL_IO, 0 );
@@ -616,18 +847,25 @@ extern "C" {
 
 		while (!m_exit)
 		{
-			InterruptWait(0,NULL);
+			_waitreturn = InterruptWait(0,NULL);
+
+			if (_waitreturn == -1) 
+				continue;
 
 			/* get/clear interrupt status bits */
 			stat = regbase[64];
 			astat = stat & regbase[65];
+			
+			if (!astat) //How the hell where we triggerd, we got no interrupt pending! :)
+			{
+				InterruptUnmask(btv->irq, btv->id);
+				continue;
+			}
+		
 			//Write same data back, clears the pending intrs.
 			regbase[64] = stat;
 
 			InterruptUnmask(btv->irq, btv->id);
-
-			if (!astat) //How the hell where we triggerd, we got no interrupt pending! :)
-				return;
 
 			/* get device status bits */
 			dstat=btread(BT848_DSTATUS);
@@ -1085,13 +1323,13 @@ extern "C" {
 		//btwrite(BT848_ADC_RESERVED|BT848_ADC_CRUSH, BT848_ADC);
 		btwrite(BT848_ADC_RESERVED, BT848_ADC);
 
-		btwrite(BT848_CONTROL_LDEC | BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
-		btwrite(BT848_CONTROL_LDEC | BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
+		btwrite(BT848_CONTROL_LDEC , BT848_E_CONTROL);
+		btwrite(BT848_CONTROL_LDEC , BT848_O_CONTROL);
 
 		if (btv->win.norm == 2) //S-video; Y/C configuration
 		{
-			btwrite(BT848_CONTROL_COMP | BT848_CONTROL_LDEC | BT848_CONTROL_LNOTCH, BT848_E_CONTROL);
-			btwrite(BT848_CONTROL_COMP | BT848_CONTROL_LDEC | BT848_CONTROL_LNOTCH, BT848_O_CONTROL);
+			btwrite(BT848_CONTROL_COMP | BT848_CONTROL_LDEC, BT848_E_CONTROL);
+			btwrite(BT848_CONTROL_COMP | BT848_CONTROL_LDEC, BT848_O_CONTROL);
 		}
 
 		btwrite(0x00, BT848_E_SCLOOP);

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.13 2003-12-17 09:58:47 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.14 2004-01-28 15:05:54 beltran Exp $
 ///
 ///
 
@@ -204,8 +204,15 @@ YARPPicoloDeviceDriver::YARPPicoloDeviceDriver(void) : YARPDeviceDriver<YARPNull
 	m_cmds[FCMDSetSatV]       = &YARPPicoloDeviceDriver::setSatV;
 	m_cmds[FCMDSetLNotch]	  = &YARPPicoloDeviceDriver::setLNotch;
 	m_cmds[FCMDSetLDec]	  	  = &YARPPicoloDeviceDriver::setLDec;
+	m_cmds[FCMDSetPeak]	  	  = &YARPPicoloDeviceDriver::setPeak;
+	m_cmds[FCMDSetCagc]	  	  = &YARPPicoloDeviceDriver::setCagc;
+	m_cmds[FCMDSetCkill]	  = &YARPPicoloDeviceDriver::setCkill;
+	m_cmds[FCMDSetRange]	  = &YARPPicoloDeviceDriver::setRange;
+	m_cmds[FCMDSetYsleep]	  = &YARPPicoloDeviceDriver::setYsleep;
+	m_cmds[FCMDSetCsleep]	  = &YARPPicoloDeviceDriver::setCsleep;
 	m_cmds[FCMDSetCrush]	  = &YARPPicoloDeviceDriver::setCrush;
-	
+	m_cmds[FCMDSetGamma]	  = &YARPPicoloDeviceDriver::setGamma;
+	m_cmds[FCMDSetDithFrame]  = &YARPPicoloDeviceDriver::setDithFrame;
 }
 
 YARPPicoloDeviceDriver::~YARPPicoloDeviceDriver()
@@ -338,6 +345,54 @@ YARPPicoloDeviceDriver::setLDec(void * cmd)
 }
 
 int
+YARPPicoloDeviceDriver::setPeak(void * cmd)
+{
+	int * m_state = (int *) cmd;
+	bt848_set_peak(*m_state);
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setCagc(void * cmd)
+{
+	int * m_state = (int *) cmd;
+	bt848_set_cagc(*m_state);
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setCkill(void * cmd)
+{
+	int * m_state = (int *) cmd;
+	bt848_set_ckill(*m_state);
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setRange(void * cmd)
+{
+	int * m_state = (int *) cmd;
+	bt848_set_range(*m_state);
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setYsleep(void * cmd)
+{
+	int * m_state = (int *) cmd;
+	bt848_set_ysleep(*m_state);
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setCsleep(void * cmd)
+{
+	int * m_state = (int *) cmd;
+	bt848_set_csleep(*m_state);
+	return YARP_OK;
+}
+
+int
 YARPPicoloDeviceDriver::setCrush(void * cmd)
 {
 	int * m_state = (int *) cmd;
@@ -345,3 +400,18 @@ YARPPicoloDeviceDriver::setCrush(void * cmd)
 	return YARP_OK;
 }
 
+int
+YARPPicoloDeviceDriver::setGamma(void * cmd)
+{
+	int * m_state = (int *) cmd;
+	bt848_set_gamma(*m_state);
+	return YARP_OK;
+}
+
+int
+YARPPicoloDeviceDriver::setDithFrame(void * cmd)
+{
+	int * m_state = (int *) cmd;
+	bt848_set_dithframe(*m_state);
+	return YARP_OK;
+}

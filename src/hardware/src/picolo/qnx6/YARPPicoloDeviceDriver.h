@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.10 2003-12-17 09:58:47 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.11 2004-01-28 15:05:54 beltran Exp $
 ///
 ///
 
@@ -119,7 +119,15 @@ class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPi
 		virtual int setSatV(void *cmd);
 		virtual int setLNotch(void * cmd);
 		virtual int setLDec(void * cmd);
+		virtual int setPeak(void * cmd);
+		virtual int setCagc(void * cmd);
+		virtual int setCkill(void * cmd);
+		virtual int setRange(void * cmd);
+		virtual int setYsleep(void * cmd);
+		virtual int setCsleep(void * cmd);
 		virtual int setCrush(void * cmd);
+		virtual int setGamma(void * cmd);
+		virtual int setDithFrame(void * cmd);
 
 	protected:
 		void *system_resources;

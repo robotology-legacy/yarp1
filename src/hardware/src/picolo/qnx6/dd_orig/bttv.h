@@ -86,7 +86,15 @@ inline void bt848_sat_u( ulong data);
 inline void bt848_sat_v( ulong data);
 inline void bt848_set_lnotch(int);
 inline void bt848_set_ldec(int);
+inline void bt848_set_peak(int);
+inline void bt848_set_cagc(int);
+inline void bt848_set_ckill(int);
+inline void bt848_set_range(int);
+inline void bt848_set_ysleep(int);
+inline void bt848_set_csleep(int);
 inline void bt848_set_crush(int);
+inline void bt848_set_gamma(int);
+inline void bt848_set_dithframe(int);
 
 /* maximum needed buffer size for extended VBI frame mode capturing */
 /*#define BTTV_MAX_FBUF	0x190000*/
