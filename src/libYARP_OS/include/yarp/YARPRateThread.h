@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRateThread.h,v 1.5 2004-08-21 17:53:46 gmetta Exp $
+/// $Id: YARPRateThread.h,v 1.6 2004-12-11 17:11:31 micheletavella Exp $
 ///
 ///
 
@@ -279,6 +279,8 @@ public:
 #elif defined(__QNX6__)
 	                ThreadDestroy (thread_id, -1, (void *)-1);
 #elif defined(__LINUX__)
+			pthread_cancel (thread_id);
+#elif defined(__DARWIN__)
 			pthread_cancel (thread_id);
 #else
 #error "destroy thread: not implemented for the specified architecture"

@@ -169,7 +169,7 @@ if ($release)
 	}
 	elsif ($os eq "darwin")
 	{
-		call_make_and_print ('', "CFAST=-O2");
+		call_make_and_print ('', "CFAST=-O3");
 	}
 }
 
