@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.10 2003-12-22 12:23:27 beltran Exp $
+//         Version:  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.11 2003-12-22 15:36:10 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -177,6 +177,8 @@ class YARPEurobotArmParameters
 			if (cfgFile.get("[GENERAL]", "FwdCouple", _fwdCouple, _nj) == YARP_FAIL)
 				return YARP_FAIL;
 			if (cfgFile.get("[GENERAL]", "MaxDAC", _maxDAC, _nj) == YARP_FAIL)
+				return YARP_FAIL;
+			if (cfgFile.get("[GENERAL]", "Stiff", _stiffPID, _nj) == YARP_FAIL)
 				return YARP_FAIL;
 
 			// build encoder to angles
