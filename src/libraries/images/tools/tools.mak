@@ -104,11 +104,11 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\tools.lib" 
 LIB32_OBJS= \
+	"$(INTDIR)\YARPBlobDetector.obj" \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
-	"$(INTDIR)\YARPLogpolar.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPBlobDetector.obj" \
+	"$(INTDIR)\YARPLogpolar.obj" \
 	"$(OUTDIR)\imagesx.lib"
 
 "$(OUTDIR)\tools.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
@@ -210,11 +210,11 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\toolsDB.lib" 
 LIB32_OBJS= \
+	"$(INTDIR)\YARPBlobDetector.obj" \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
-	"$(INTDIR)\YARPLogpolar.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPBlobDetector.obj" \
+	"$(INTDIR)\YARPLogpolar.obj" \
 	"$(OUTDIR)\imagesDBx.lib"
 
 "$(OUTDIR)\toolsDB.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
@@ -316,11 +316,11 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\toolsDBf.lib" 
 LIB32_OBJS= \
+	"$(INTDIR)\YARPBlobDetector.obj" \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
-	"$(INTDIR)\YARPLogpolar.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPBlobDetector.obj" \
+	"$(INTDIR)\YARPLogpolar.obj" \
 	"$(OUTDIR)\images_fakeipl_DBx.lib"
 
 "$(OUTDIR)\toolsDBf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
@@ -421,11 +421,11 @@ BSC32_SBRS= \
 LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:"$(OUTDIR)\toolsf.lib" 
 LIB32_OBJS= \
+	"$(INTDIR)\YARPBlobDetector.obj" \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
-	"$(INTDIR)\YARPLogpolar.obj" \
 	"$(INTDIR)\YARPIntegralImage.obj" \
-	"$(INTDIR)\YARPBlobDetector.obj" \
+	"$(INTDIR)\YARPLogpolar.obj" \
 	"$(OUTDIR)\images_fakeipl_x.lib"
 
 "$(OUTDIR)\toolsf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
