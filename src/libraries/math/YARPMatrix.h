@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.h,v 1.2 2003-05-31 06:02:58 gmetta Exp $
+/// $Id: YARPMatrix.h,v 1.3 2003-09-19 14:23:52 babybot Exp $
 ///
 ///
 
@@ -155,13 +155,13 @@ class YVector
 public:
     // Constructors (default destructor and copy constructor)
     YVector(void);
-    YVector(int length, double *storage = 0);
+    YVector(int length, const double *storage = 0);
     YVector(const YVector &vec);
 	virtual ~YVector ();
 
     // Vector length
     int Length(void) const { return m_length; }
-    void Resize(int length, double *storage = 0);
+    void Resize(int length, const double *storage = 0);
 
     // Element access
     double& operator[](int i) { return m_data[i]; }
@@ -242,14 +242,14 @@ class YMatrix
 public:
     // Constructors (default destructor and copy constructor)
     YMatrix(void);
-    YMatrix(int rows, int cols, double *storage = 0);
+    YMatrix(int rows, int cols, const double *storage = 0);
     YMatrix(const YMatrix &mat);
 	virtual ~YMatrix ();
 
     // Matrix shape
     int NRows(void) const { return m_nRows; }
     int NCols(void) const { return m_nCols; }
-    void Resize(int rows, int cols, double *storage = 0);
+    void Resize(int rows, int cols, const double *storage = 0);
 
     // Element access
     double *operator[](int i) { return m_data[i]; }

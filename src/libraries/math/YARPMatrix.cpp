@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.cpp,v 1.6 2003-07-02 12:00:10 gmetta Exp $
+/// $Id: YARPMatrix.cpp,v 1.7 2003-09-19 14:23:51 babybot Exp $
 ///
 ///
 
@@ -146,7 +146,7 @@ static void VisGaussJordanSolveDMatrix(YMatrix& A);
 //      Create a dynamically sized double precision vector
 //  
 ////////////////////////////////////////////////////////////////////////////
-void YVector::Resize(int length, double *storage)
+void YVector::Resize(int length, const double *storage)
 {
     m_length = length;
 	if (m_data != NULL)
@@ -163,7 +163,7 @@ void YVector::Resize(int length, double *storage)
 	}
 }
 
-YVector::YVector(int length, double *storage) :  m_length(0), m_data(0)
+YVector::YVector(int length, const double *storage) :  m_length(0), m_data(0)
 {
     Resize(length, storage);
 }
@@ -204,7 +204,7 @@ YVector::~YVector ()
 //      Create a dynamically sized double precision matrix
 //  
 ////////////////////////////////////////////////////////////////////////////
-void YMatrix::Resize(int rows, int cols, double *storage)
+void YMatrix::Resize(int rows, int cols, const double *storage)
 {
 	if (m_nRows != rows || m_nCols != cols)
 	{
@@ -246,7 +246,7 @@ void YMatrix::Resize(int rows, int cols, double *storage)
 		memset (m_data[0], 0, sizeof(double) * rows * cols);
 }
 
-YMatrix::YMatrix(int rows, int cols, double *storage) : m_nRows(0), m_nCols(0), m_data(0)
+YMatrix::YMatrix(int rows, int cols, const double *storage) : m_nRows(0), m_nCols(0), m_data(0)
 {
     Resize(rows, cols, storage);
 }
