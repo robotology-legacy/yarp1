@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.cpp,v 1.2 2004-07-27 16:51:44 babybot Exp $
+/// $Id: YARPMatrix.cpp,v 1.3 2004-12-03 11:30:10 gmetta Exp $
 ///
 ///
 
@@ -1739,14 +1739,14 @@ VisMatrixExport void VISAPI VisDMatrixLU(const YMatrix& a,
 										 const YVector& b,
 										 YVector& x)
 {
-	YMatrix acopy(a);
-	YVector bcopy(b);
+	YMatrix _acopy(a);
+	YVector _bcopy(b);
 	YVector indx(b.Length());
 	double d;
 
-	LU (acopy,indx,d);
-	LuSolve(acopy,indx,bcopy);
-	x=bcopy;
+	LU (_acopy,indx,d);
+	LuSolve(_acopy,indx,_bcopy);
+	x=_bcopy;
 }
 
 VisMatrixExport void VISAPI VisMinEigenValue(YMatrix& A, YVector& x)
