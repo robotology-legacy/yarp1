@@ -53,6 +53,14 @@ BOOL CCamviewApp::InitInstance()
 		m_portname = "/" + m_portname;
 	}
 
+	CString speriod;
+	if (cmdInfo.GetOption("p", speriod))
+	{
+		m_period = atoi(speriod);
+	}
+	else
+		m_period = 0;
+
 	/// not really needed.
 	AfxEnableControlContainer();
 

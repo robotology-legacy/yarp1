@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "camview.h"
 #include "camviewDlg.h"
+#include "newrateDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -23,25 +24,37 @@ void CRecv::Body (void)
 	{
 		m_inport.Read();
 		m_img.Refer (m_inport.Content());
+		if (m_flipped.GetWidth() != m_img.GetWidth() || m_flipped.GetHeight() != m_img.GetHeight())
+		{
+			m_flipped.Resize (m_img.GetWidth(), m_img.GetHeight());
+		}
+
+		YARPSimpleOperation::Flip (m_img, m_flipped);
 
 		m_mutex.Wait();
-		if (m_img.GetWidth() != m_x || m_img.GetHeight() != m_y)
+		if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
 		{
-			m_converter.Resize (m_img);
-			m_x = m_img.GetWidth ();
-			m_y = m_img.GetHeight ();
+			m_converter.Resize (m_flipped);
+			m_x = m_flipped.GetWidth ();
+			m_y = m_flipped.GetHeight ();
 		}
 
 		if (!m_frozen)
 		{
 			/// prepare the DIB to display.
-			m_converter.ConvertToDIB (m_img);
+			m_converter.ConvertToDIB (m_flipped);
 		}
 
 		m_mutex.Post();
 
 		/// copy it somewhere and fire a WM_PAINT event.
 		m_owner->InvalidateRect (NULL, FALSE);
+
+		if (m_period != 0)
+		{
+			/// approximate, don't want to do anything more complicate than this.
+			YARPTime::DelayInSeconds ((m_period - 2)* 1e-3);
+		}
 	}
 }
 
@@ -123,6 +136,7 @@ BEGIN_MESSAGE_MAP(CCamviewDlg, CDialog)
 	ON_WM_SIZE()
 	ON_COMMAND(ID_IMAGE_FREEZE, OnImageFreeze)
 	ON_UPDATE_COMMAND_UI(ID_IMAGE_FREEZE, OnUpdateImageFreeze)
+	ON_COMMAND(ID_IMAGE_NEWRATE, OnImageNewrate)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -166,10 +180,15 @@ BOOL CCamviewDlg::OnInitDialog()
 	m_receiver.Begin ();
 
 	/// required to set the stretch type.
-	CPaintDC dc(this);
-	SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);  
+	///CPaintDC dc(this);
+	///SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);  
 
 	m_frozen = false;
+
+	m_drawdib = DrawDibOpen (); 
+	ASSERT (m_drawdib != NULL);
+
+	m_receiver.SetPeriod (((CCamviewApp *)AfxGetApp())->m_period);
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -190,7 +209,7 @@ void CCamviewDlg::OnSysCommand(UINT nID, LPARAM lParam)
 ///
 ///
 ///
-void CopyToScreen(HDC hDC, unsigned char *img, int destX, int destY, double zoomX, double zoomY)
+void CopyToScreen(HDRAWDIB hDD, HDC hDC, unsigned char *img, int destX, int destY, double zoomX, double zoomY)
 {
 	ACE_ASSERT (img != NULL);				
 
@@ -201,17 +220,16 @@ void CopyToScreen(HDC hDC, unsigned char *img, int destX, int destY, double zoom
 	int sizeX = int(X * zoomX);
 	int sizeY = int(Y * zoomY);
 	
-	/// LATER: this is ok only for color images.
-	StretchDIBits (
-		hDC,
-		destX, destY,
-		sizeX, sizeY,
-		0,0,
-		X, Y,
-		img + sizeof(BITMAPINFOHEADER),
-		(BITMAPINFO *)img,
-		DIB_RGB_COLORS,
-		SRCCOPY);
+	/// needs an extra case for mono images.
+	DrawDibDraw(
+	  hDD, hDC,
+	  destX, destY,
+	  sizeX, sizeY,
+	  (BITMAPINFOHEADER *)img,
+	  img + sizeof(BITMAPINFOHEADER),
+	  0, 0,                 
+	  X, Y,
+	  0);
 }
 
 #define _BORDER 10
@@ -273,7 +291,7 @@ void CCamviewDlg::OnPaint()
 		int y = ((rect.Height() - 2 * _BORDER - rect2.Height() - 2) - fx) / 2 + _BORDER;
 
 		if (dib != NULL)
-			CopyToScreen(dc.GetSafeHdc(), dib, x, y, zx, zx);
+			CopyToScreen(m_drawdib, dc.GetSafeHdc(), dib, x, y, zx, zx);
 		else
 		{
 			CGdiObject * old = dc.SelectStockObject (GRAY_BRUSH);
@@ -339,6 +357,8 @@ void CCamviewDlg::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu)
 
 void CCamviewDlg::OnClose() 
 {
+	DrawDibClose (m_drawdib);
+
 	m_receiver.End ();
 	CDialog::OnClose();
 }
@@ -387,4 +407,18 @@ void CCamviewDlg::OnImageFreeze()
 void CCamviewDlg::OnUpdateImageFreeze(CCmdUI* pCmdUI) 
 {
 	pCmdUI->SetCheck (m_frozen);	
+}
+
+void CCamviewDlg::OnImageNewrate() 
+{
+	CNewRateDlg dlgRate;
+
+	dlgRate.m_period = m_receiver.GetPeriod ();
+
+	int nResponse = dlgRate.DoModal();
+
+	if (nResponse == IDOK)
+	{
+		m_receiver.SetPeriod (dlgRate.m_period);
+	}
 }

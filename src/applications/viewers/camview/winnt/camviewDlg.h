@@ -10,7 +10,7 @@
 
 ////
 #include <YARPDIBConverter.h>
-
+#include <Vfw.h>
 
 /////////////////////////////////////////////////////////////////////////////
 // CCamviewDlg dialog
@@ -27,9 +27,11 @@ public:
 	int m_x;
 	int m_y;
 	bool m_frozen;
+	int m_period;
 
 	YARPInputPortOf<YARPGenericImage> m_inport;
 	YARPImageOf<YarpPixelBGR> m_img;
+	YARPImageOf<YarpPixelBGR> m_flipped;
 	YARPDIBConverter m_converter;
 	YARPSemaphore m_mutex;
 
@@ -39,6 +41,7 @@ public:
 		memset (m_name, 0, 512);
 		m_x = m_y = -1;
 		m_frozen = false;
+		m_period = 0;
 	}
 
 	~CRecv () {}
@@ -47,6 +50,8 @@ public:
 	void SetName (const char * name) { strcpy (m_name, name); }
 	inline int GetWidth (void) const { return m_x; }
 	inline int GetHeight (void) const { return m_y; }
+	inline void SetPeriod (int newvalue) { m_period = newvalue; }
+	inline int GetPeriod (void) const { return m_period; }
 
 	unsigned char * AcquireBuffer (void)
 	{
@@ -80,6 +85,7 @@ public:
 	CCamviewDlg(CWnd* pParent = NULL);	// standard constructor
 	CRecv m_receiver;
 	bool m_frozen;
+	HDRAWDIB m_drawdib;
 
 // Dialog Data
 	//{{AFX_DATA(CCamviewDlg)
@@ -113,6 +119,7 @@ protected:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnImageFreeze();
 	afx_msg void OnUpdateImageFreeze(CCmdUI* pCmdUI);
+	afx_msg void OnImageNewrate();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
