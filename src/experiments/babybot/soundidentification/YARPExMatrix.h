@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPExMatrix.h,v 1.2 2004-09-13 17:54:25 beltran Exp $
+/// $Id: YARPExMatrix.h,v 1.3 2004-09-15 07:27:18 beltran Exp $
 ///
 #ifndef __YARPExMatrixh__
 #define __YARPExMatrixh__
@@ -201,12 +201,15 @@ public:
 	
 	YARPCovMatrix& operator=(YMatrix& refmatrix)
 	{
+		/*
 		double ** refdata = refmatrix.data();
 		double ** ldata = data();
 
 		if (NRows() != refmatrix.NRows() || NCols() != refmatrix.NCols())
 			Resize(refmatrix.NRows(),refmatrix.NCols());
 		memcpy(ldata[0], refdata[0], NRows()*NCols()*sizeof(double));
+		*/
+		(YMatrix)(*this) = refmatrix;
 		return *this;
 	}
 

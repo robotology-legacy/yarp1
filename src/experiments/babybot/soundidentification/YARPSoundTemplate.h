@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.8 2004-09-13 17:54:25 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.9 2004-09-15 07:27:18 beltran Exp $
 ///
 
 /** 
@@ -77,7 +77,13 @@ public:
 	 */
 	YARPSoundTemplate()
 	{
-		YARPSoundTemplate(ARRAY_MAX);
+		//YARPSoundTemplate(ARRAY_MAX);
+		m_currentsize    = 0;
+		m_vectors_length = 0;
+		m_totalsize      = ARRAY_MAX;
+		m_parray         = new YVector *[ARRAY_MAX];
+		memset(m_parray, 0 , sizeof(YVector *) * ARRAY_MAX);
+	
 	}
 	/** 
 	 * Overloaded constructor.
@@ -167,6 +173,22 @@ public:
 	}
 
 	/** 
+	  * Checks whether the template if full or not.
+	  * 
+	  * @return 
+	  * 	-# True is the template is full.
+	  * 	-# False otherwise.
+	  */
+	bool isFull()
+	{
+		if (m_currentsize == m_totalsize)
+			return true;
+		else 
+			return false;
+	}
+
+
+	/** 
 	 * Returns the "current" size of the template.
 	 * 
 	 * @return  the current size of the template
@@ -227,17 +249,19 @@ public:
                 return (-1);                    // of the other vectors in the template
 
         if (m_currentsize == m_totalsize)       // The Template is full
+		{
 			switch(flag)
 			{
                 case 0: return(0);break;                // Nothing to do just returning with error
                 case 1: Resize(m_totalsize+1);break;    // Making just one space for one new vector
                 case 2: Bufferize(in); return(1);break; // Force the introduction of the new vector
 			}
+		}
 
 		new_pvector = new YVector();
 		new_pvector->Resize(m_vectors_length);
 
-		*(new_pvector) = in;
+		(*new_pvector) = in;
 
 		m_parray[m_currentsize] = new_pvector;
 		m_currentsize++;
@@ -266,10 +290,9 @@ public:
 
 		new_pvector = new YVector();
 		new_pvector->Resize(m_vectors_length);
-		*(new_pvector) = vector;
+		(*new_pvector) = vector;
 
-		i++;
-		m_parray[i] = new_pvector;
+		m_parray[m_currentsize-1] = new_pvector;
 
 		return YARP_OK;
 		
@@ -384,6 +407,8 @@ public:
 		double sum = 0.0;
         YVector _means;           /** Local temporal vector to store the mean values.   */
         YMatrix _xvars;           /** Temporal matrix to store the local variances.     */
+        YMatrix _xvarst;          /** Temporal transpose.                               */
+		YMatrix _mcov;          /** Temporal covariance                               */
         YVector * pvector = NULL; /** Temporal pointer to YVector.                      */
         double  * pdata   = NULL; /** Temporal pointer to access YVector internal data. */
 
@@ -403,10 +428,9 @@ public:
 			for( j = 0; j < m_currentsize; j++)
 			{
                 pvector = m_parray[j];     // Get the pointer to the vector data
-                pdata = pvector->data();
-                sum += pdata[i];           // Add the i value of the vector to the sum
+                sum += (*pvector)[i];           // Add the i value of the vector to the sum
             }
-            _means[i] = sum/m_currentsize; // We store the mean in the means vector
+            _means[i] = sum/(double)m_currentsize; // We store the mean in the means vector
 		}
 
 		//----------------------------------------------------------------------
@@ -416,17 +440,20 @@ public:
 		{
 			// Get the pointer to the vector data
 			pvector = m_parray[i-1];
-			pdata   = pvector->data();
 
 			for( j = 1; j <= m_vectors_length; j++)
-				_xvars(i,j) = pdata[j-1] - _means[j-1];
+				_xvars(i,j) = (*pvector)(j) - _means(j);
 		}
+
+		_xvarst = _xvars.Transposed();
+		_mcov = _xvarst * _xvars;
+		mCov = _mcov;
 
 		// Calculate the final covariance matrix
 		if (flag)
-			mCov = (_xvars.Transposed() * _xvars) / (m_currentsize); 
+			mCov /= (double)(m_currentsize); 
 		else
-			mCov = (_xvars.Transposed() * _xvars) / (m_currentsize-1);
+			mCov /= (double)(m_currentsize-1);
 
 		mCov.setOriginalVariancesMatrix(_xvars);
 
