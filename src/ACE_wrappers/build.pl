@@ -7,9 +7,16 @@
 #		  --clean to clean obj files
 #		  --install to copy files to the defaul installation path
 #
-#		  --distribution is the path where ACE was unpacked.
+#		  --distribution <PATH> is the path where ACE was unpacked
+#		  --os <OS> is the operating system you're compiling for
 #
-# $Id: build.pl,v 1.2 2004-07-26 11:30:32 babybot Exp $
+# $Id: build.pl,v 1.3 2004-07-26 15:04:29 babybot Exp $
+#
+# This script can be (at least in theory) configured to
+# do some useful thing in Linux and/or Qnx too. It's definitely
+# useful on Windows which lacks a smart enough make utility
+# not to mention bat files!
+#
 #
 
 use Getopt::Long;
@@ -25,19 +32,21 @@ print "Entering build process for ACE libraries...\n";
 print "Assuming you've unpacked version 5.4.1, it might not work on other releases\n";
 print "since Windows project names tend not to be uniform across releases\n";
 
-my $tmp;
+my $ver;
+my $uname;
 my $yarp_root;
 
-chomp ($tmp = `ver`);
-if (index ($tmp, "Windows") < 0)
+chomp ($ver = `ver`);
+chomp ($uname = `uname`);
+if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
 {
-	die "This script is specific to Windows 2000/XP\n";
+	die "This script is specific to Windows 2000/XP or Cygwin\nCompilation will always happen for winnt\n";
 }
 
 $yarp_root = $ENV{'YARP_ROOT'};
 if (!defined($yarp_root))
 {
-	die "YARP_ROOT environment variable must be defined!\n";
+	die "\$YARP_ROOT environment variable must be defined!\n";
 }
 
 my $current_dir = getcwd;
@@ -47,21 +56,29 @@ my $release = '';
 my $clean = '';
 my $install = '';
 my $distribution = undef;
+my $os = undef;
 
 GetOptions ('debug' => \$debug,
             'release' => \$release,
 			'clean' => \$clean,
 			'install' => \$install,
-			'distribution=s' => \$distribution );
+			'distribution=s' => \$distribution,
+			'os=s' => \$os );
 
 unless (defined $distribution)
 {
 	die "This script requires the parameter --distribution <path>\n";
 }
 
+if ($os ne "winnt")
+{
+	die "This script is not yet tuned for OSes apart \"winnt\"\n";
+}
+
 #
 # this is my personal trick to avoid buffering on output since
-# I'm piping the scripts I'd like to get the output all on the same terminal.
+# I'm piping the scripts I'd like to get the output all on the same terminal
+# as soon as it gets produced by the script/executable.
 #
 select STDERR;
 
@@ -123,14 +140,14 @@ if ($install)
 	foreach my $file (@my_libs)
 	{
 		print "Copying $file\n";
-		copy ($file, "$yarp_root/bin/winnt/") or die "Can't copy any .dll file\n";
+		copy ($file, "$yarp_root/bin/$os/") or die "Can't copy any .dll file\n";
 	}
 
 	@my_libs = glob "*.lib";
 	foreach my $file (@my_libs)
 	{
 		print "Copying $file\n";
-		copy ($file, "$yarp_root/lib/winnt/") or die "Can't copy any .lib file\n";
+		copy ($file, "$yarp_root/lib/$os/") or die "Can't copy any .lib file\n";
 	}
 
 	chdir "$current_dir" or die "Cannot chdir to $current_dir: $!";

@@ -18,14 +18,15 @@ use Cwd;
 
 print "Entering compile process of YARP OS libraries...\n";
 
-chomp ($tmp = `ver`);
-if (index ($tmp, "Windows") < 0)
+chomp ($ver = `ver`);
+chomp ($uname = `uname`);
+if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
 {
 	print "This is a Windows 2000/XP specific script\n";
 	print "Perhaps this procedure can be simply extended to\n"; 
 	print "other OSes but for now, this is all experimental...\n";
 	
-	die "This script is specific to Windows 2000/XP\n";
+	die "This script is specific to Windows 2000/XP or Cygwin\n";
 }
 
 $yarp_root = $ENV{'YARP_ROOT'};
@@ -75,6 +76,8 @@ while (<CONFIG>)
 
 close CONFIG;
 
+my $os = $options{"Architecture<-OS"};
+
 #print "dumping my hash table\n";
 #while ( ($key, $value) = each %options )
 #{
@@ -88,9 +91,9 @@ if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
 		print "Looking for ACE...\n";
 		$options{"Compile_OS<-ACE_PATH"} =~ s/\$YARP_ROOT/$yarp_root/;
 		if (-e $options{"Compile_OS<-ACE_PATH"} &&
-			-e "$yarp_root/include/$options{\"Architecture<-OS\"}/ace" )
+			-e "$yarp_root/include/$os/ace" )
 		{
-			do_ace_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"}");
+			do_ace_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"} --os $os");
 		}
 	}
 	else
@@ -148,11 +151,11 @@ if ($install)
 		copy ($file, "$yarp_root/include/yarp/") or die "Can't copy .h files\n"; 
 	}
 
-	@my_libs = glob "./lib/winnt/*.lib";
+	@my_libs = glob "./lib/$os/*.lib";
 	foreach $file (@my_libs)
 	{
 		print "Copying $file\n";
-		copy ($file, "$yarp_root/lib/winnt/") or die "Can't copy any .lib file\n";
+		copy ($file, "$yarp_root/lib/$os/") or die "Can't copy any .lib file\n";
 	}
 }
 
@@ -162,14 +165,14 @@ if ($options{"Compile_OS<-Tools_Rebuild"} eq "YES")
 	{
 		my $current_dir = getcwd;
 		chdir "../tools/" or die "Can't chdir to tools directory\n";
-		do_tools_compile ("build.pl --clean --debug --install");
+		do_tools_compile ("build.pl --clean --debug --install --os $os");
 		chdir $current_dir or die "Can't chdir to $current_dir\n";
 	}
 	else
 	{
 		my $current_dir = getcwd;
 		chdir "../tools/" or die "Can't chdir to tools directory\n";
-		do_tools_compile ("build.pl --clean --release --install");
+		do_tools_compile ("build.pl --clean --release --install --os $os");
 		chdir $current_dir or die "Can't chdir to $current_dir\n";
 	}
 }

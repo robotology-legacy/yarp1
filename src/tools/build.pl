@@ -6,7 +6,7 @@
 #		  --release to compile optimized
 #		  --clean to clean obj files
 #		  --install to copy files to the defaul installation path
-#
+#		  --os <OS> the operating system you're building for
 #
 #
 
@@ -14,10 +14,12 @@ use Getopt::Long;
 use File::Copy;
 
 print "Entering build process of YARP_OS library tools...\n";
-chomp ($tmp = `ver`);
-if (index ($tmp, "Windows") < 0)
+chomp ($ver = `ver`);
+chomp ($uname = `uname`);
+
+if (index ($ver, "Windows") < 0 && index ($uname, "CYGWIN") < 0)
 {
-	die "This script is specific to Windows 2000/XP\n";
+	die "This script is specific to Windows 2000/XP or Cygwin\n";
 }
 
 $yarp_root = $ENV{'YARP_ROOT'};
@@ -30,13 +32,19 @@ my $debug = '';
 my $release = '';
 my $clean = '';
 my $install = '';
+my $os = '';
 GetOptions ('debug' => sub { $debug = '1'; $release = '' },
             'release' => sub { $release = '1'; $debug = '' },
 			'clean' => \$clean,
-			'install' => \$install );
+			'install' => \$install,
+			'os=s' => \$os );
+
+if ($os ne "winnt")
+{
+	die "This script is not yet tuned for OSes apart \"winnt\"\n";
+}
 
 my @projects = qw/ yarp-connect yarp-read yarp-service yarp-write /;
-my $OS = "winnt";
 
 select STDERR;
 
@@ -83,7 +91,7 @@ if ($install)
 	foreach my $project (@projects)
 	{
 		print "Copying ./$project/obj/$project.exe\n";
-		copy "./$project/obj/$project.exe", "$yarp_root/bin/$OS";
+		copy "./$project/obj/$project.exe", "$yarp_root/bin/$os";
 	}
 }
 
