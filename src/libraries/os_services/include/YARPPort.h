@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.8 2003-07-15 08:06:31 gmetta Exp $
+/// $Id: YARPPort.h,v 1.9 2003-07-16 09:48:13 gmetta Exp $
 ///
 ///
 
@@ -86,6 +86,13 @@
 #include "YARPPortContent.h"
 #include "YARPNameID.h"
 #include "Port.h"
+
+///
+/// Notes on destructors: make sure you call the Port->End() from the destructor if
+///		you inherits from any of the port classes. This terminates the comm threads
+///		smoothly that avoids segmentation violations on leaks on exit.
+///	ALT: implement and explicit port un-registration method that also terminates the
+///		comm threads.
 
 class YARPPort
 {

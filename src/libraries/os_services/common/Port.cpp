@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.42 2003-07-15 08:06:30 gmetta Exp $
+/// $Id: Port.cpp,v 1.43 2003-07-16 09:48:13 gmetta Exp $
 ///
 ///
 
@@ -1140,11 +1140,6 @@ void Port::Share(Sendable *nsendable)
 	p_sendable.Set(nsendable);
 	out_mutex.Post();
 
-#if 0
-	char buf[2] = { MSG_ID_GO, 0 };
-	Say(buf);
-#endif
-
 	/// this simply pulses the mutex on the sender thread.
 	/// cost an additional thread but hopefully saves a costly message
 	/// through the port socket.
@@ -1269,6 +1264,7 @@ Port::~Port()
 {
 	tsender.End ();
 
+#if 0
 	OutputTarget *target, *next;
 	target = targets.GetRoot();
 
@@ -1279,6 +1275,7 @@ Port::~Port()
 		delete target;
 		target = next;
 	}
+#endif
 
 	///if (GetIdentifier() != -1)
 	///	End();

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.19 2003-07-15 08:06:31 gmetta Exp $
+/// $Id: Port.h,v 1.20 2003-07-16 09:48:14 gmetta Exp $
 ///
 ///
 
@@ -394,11 +394,6 @@ public:
 	{
 		if (nname == NULL ||
 			nname[0] != '/')
-#if 0
-			(!(nname[0] == '/' && nname[1] == '/' && protocol_type == YARP_MCAST) &&
-			!(nname[0] == '/' && nname[1] != '/' && protocol_type == YARP_UDP) &&
-			!(nname[0] == '/' && nname[1] != '/' && protocol_type == YARP_TCP)))
-#endif
 		{
 			ACE_DEBUG ((LM_DEBUG, "  please respect the port syntax for names:\n"));
 			ACE_DEBUG ((LM_DEBUG, "   - the name requires a leading /[slash]\n"));
