@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.3 2003-04-23 15:18:52 gmetta Exp $
+/// $Id: LocalNameServer.h,v 1.4 2003-04-23 17:40:00 natta Exp $
 ///
 ///
 
@@ -262,7 +262,8 @@ struct service
 	}
 
 	std::string name;
-	std::string type;
+	// std::string type;
+	int type;
 	std::string ip;
 	PORT_LIST ports;
 
@@ -327,16 +328,16 @@ struct services: public SVC_LIST
 	
 	// check in: increase ref count for a specified ip, port(s) and max_ref
 	// Note: service must not exist !
-	void check_in(const std::string &name, const std::string &ip, const PORT_LIST &ports, int max_ref);
+	void check_in(const std::string &name, const std::string &ip, int type, const PORT_LIST &ports, int max_ref);
 	
-	// check only: return ip, port(s) and current associated with a service name
-	bool check(const std::string &name, std::string &ip, PORT_LIST &ports)
+	// check only: return ip, port(s) and type associated with a service name
+	bool check(const std::string &name, std::string &ip, int *type, PORT_LIST &ports)
 	{
 		int dummy;
-		return check(name, ip, ports, &dummy);
+		return check(name, ip, type, ports, &dummy);
 	}
-	// check only: return ip, port and current ref associated with a service name
-	bool check(const std::string &name, std::string &ip, PORT_LIST &ports, int *ref);
+	// check only: return ip, port(s), type and current ref associated with a service name
+	bool check(const std::string &name, std::string &ip, int *type, PORT_LIST &ports, int *ref);
 
 	// find name and destroy entry, return ip and port(s)
 	int destroy(const std::string &name, std::string &ip, PORT_LIST &ports)
@@ -357,12 +358,12 @@ struct services: public SVC_LIST
 		}
 	}
 
-	// check if reference exits; return ip associated with a particular name
+	// check if reference exits; return ip, ports and type associated with a particular name
 	// increase reference count returns:
 	// > 0, found, resources av.
 	// 0, found, resoursec not av.
 	// < 0, not found
-	int take_ref(const std::string &name, std::string &ip, PORT_LIST &ports);
+	int take_ref(const std::string &name, std::string &ip, int *type, PORT_LIST &ports);
 };
 
 class LocalNameServer  
@@ -371,22 +372,22 @@ public:
 	LocalNameServer(){};
 	virtual ~LocalNameServer(){};
 
-	// sign in a service, specify name/IpEntry get port back
-	int registerName(const std::string &name, const IpEntry &entry, int *port);
+	// sign in a service, specify name/IpEntry/type get port back
+	int registerName(const std::string &name, const IpEntry &entry, int type, int *port);
 	// sign in a service, specify name/IpEntry get 'n' ports
-	int registerName(const std::string &name, const IpEntry &entry, PORT_LIST &port, int n);
+	int registerName(const std::string &name, const IpEntry &entry, int type, PORT_LIST &port, int n);
 	// sign in a service, specify name/ip get port back
-	int registerName(const std::string &name, const std::string &ip, int *port)
+	int registerName(const std::string &name, const std::string &ip, int type, int *port)
 	{
 		IpEntry tmpEntry;
 		tmpEntry.ip = ip;
-		return registerName(name, tmpEntry, port);
+		return registerName(name, tmpEntry, type, port);
 	}
 	
 	// sign in a service, specify name only, get back ip from pool
-	int registerNameDIp(const std::string &name, std::string &ip, int *port);
+	int registerNameDIp(const std::string &name, std::string &ip, int type, int *port);
 	// just check
-	int queryName(const std::string &name, std::string &ip, int *port);
+	int queryName(const std::string &name, std::string &ip, int *type, int *port);
 	
 	// release a service
 	void check_out(const std::string &name)
@@ -403,11 +404,11 @@ public:
 	
 	int check_static(const std::string &name, std::string &ip, int *max)
 	{
-		PORT_LIST dummy;
+		/*PORT_LIST dummy;
 		if (statics.check(name, ip, dummy, max))
 			return 0;
 		else
-			return -1;
+			return -1;*/
 	}
 
 	// load initial resources from file (static entries)
@@ -420,7 +421,7 @@ private:
 	// check if name already exists, and remove it
 	void _checkAndRemove(const std::string &name);
 	// actual registration routine
-	int _registerName(const std::string &name, const IpEntry &entry, PORT_LIST &ports, int nPorts);
+	int _registerName(const std::string &name, const IpEntry &entry, int type, PORT_LIST &ports, int nPorts);
 };
 
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: NameClient.h,v 1.4 2003-04-23 15:18:53 gmetta Exp $
+/// $Id: NameClient.h,v 1.5 2003-04-23 17:39:47 natta Exp $
 ///
 ///
 
@@ -149,9 +149,9 @@ public:
 		return ret;
 	}
 
-	int query (const std::string &s, ACE_INET_Addr &addr)
+	int query (const std::string &s, ACE_INET_Addr &addr, int *type)
 	{
-		int ret = _query(s,addr);
+		int ret = _query(s,addr, type);
 		return ret;
 	}
 
@@ -246,7 +246,7 @@ private:
 		YARPNameTCP *tmpRpl = (YARPNameTCP *)data_buf_;
 		tmpRpl->getAddr(addr);
 						
-		NAME_CLIENT_DEBUG(("Received %s:%d\n", addr.get_host_addr(), addr.get_port_number()));
+		NAME_CLIENT_DEBUG(("Received %s(%s):%d\n", addr.get_host_addr(), servicetypeConverter(tmpCmd.type), addr.get_port_number()));
 				
 		// close the connection
 		close();
@@ -297,7 +297,7 @@ private:
 		for (int i = 0; i < n; i++)
 		{
 			ports[i] = tmpRpl->getPorts(i);
-			NAME_CLIENT_DEBUG(("Received %s:%d\n", ip.c_str(), ports[i]));
+			NAME_CLIENT_DEBUG(("Received %s(%s):%d\n", ip.c_str(), tmpCmd.type, ports[i]));
 		}
 						
 		// close the connection
@@ -347,7 +347,7 @@ private:
 		YARPNameTCP *tmpRpl = (YARPNameTCP *)data_buf_;
 		tmpRpl->getAddr(addr);
 						
-		NAME_CLIENT_DEBUG(("Received %s:%d\n", addr.get_host_addr(), addr.get_port_number()));
+		NAME_CLIENT_DEBUG(("Received %s(%s):%d\n", addr.get_host_addr(), servicetypeConverter(tmpCmd.type), addr.get_port_number()));
 				
 		// close the connection
 		close();
@@ -355,7 +355,7 @@ private:
 		return YARP_OK;
 	}
 
-	int _query(const std::string &s, ACE_INET_Addr &addr)
+	int _query(const std::string &s, ACE_INET_Addr &addr, int *type)
 	{
 		YARPNameServiceCmd tmpCmd;
 		YARPNameTCP tmpRqst;
@@ -384,18 +384,20 @@ private:
 				
 		unsigned int byte_count = 0;
 		int res = 0;
-			
+		
 		memset(data_buf_, 0, SIZE_BUF);
 		iov[0].iov_len = sizeof(YARPNameServiceCmd);
 		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+		YARPNameServiceCmd *srvCmd = (YARPNameServiceCmd *)data_buf_;
+		*type = srvCmd->type;		// get address type
 		
-		iov[0].iov_len = tmpCmd.length;
+		iov[0].iov_len = srvCmd->length;
 		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
 		
-		YARPNameTCP *tmpRpl = (YARPNameTCP *)data_buf_;
-		tmpRpl->getAddr(addr);
+		YARPNameTCP *srvRpl = (YARPNameTCP *)data_buf_;
+		srvRpl->getAddr(addr);
 						
-		NAME_CLIENT_DEBUG(("Received %s:%d\n", addr.get_host_addr(), addr.get_port_number()));
+		NAME_CLIENT_DEBUG(("Received %s(%s):%d\n", addr.get_host_addr(), servicetypeConverter(*type), addr.get_port_number()));
 				
 		// close the connection
 		close();

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.4 2003-04-23 15:18:53 gmetta Exp $
+/// $Id: main.cpp,v 1.5 2003-04-23 17:39:48 natta Exp $
 ///
 ///
 
@@ -147,7 +147,8 @@ int main(int argc, char* argv[])
 			string str1;
 			cin >> str1;
 			ACE_INET_Addr tmpAddr;
-			if (nc.query(str1, tmpAddr) != 0)
+			int tmpType;
+			if (nc.query(str1, tmpAddr, &tmpType) != 0)
 				cout << "Error connecting to the server\n";
 		}
 		else if (ret == 4) {

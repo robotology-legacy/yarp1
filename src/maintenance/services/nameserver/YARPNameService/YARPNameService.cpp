@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.3 2003-04-22 16:23:56 natta Exp $
+/// $Id: YARPNameService.cpp,v 1.4 2003-04-23 17:39:59 natta Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
 			string str1, str2;
 			cin >> str1;
 			cin >> str2;
-			dns.handle_registration_dbg(str1,str2);
+			dns.handle_registration_dbg(str1,str2, YARP_TCP);
 		}
 		else if (ret == 2){
 			string str1;
@@ -181,7 +181,7 @@ int main(int argc, char* argv[])
 		else if (ret == 5){
 			string str1;
 			cin >> str1;
-			dns.handle_registration_dip_dbg(str1);
+			dns.handle_registration_dip_dbg(str1, YARP_MCAST);
 		}
 		else if (ret == 6){
 			string str1,str2;
@@ -189,7 +189,7 @@ int main(int argc, char* argv[])
 			cin >> str1;
 			cin >> str2;
 			cin >> n;
-			dns.handle_registration_dbg(str1, str2, n);
+			dns.handle_registration_dbg(str1, str2, YARP_UDP, n);
 		}
 
 		print_menu();
