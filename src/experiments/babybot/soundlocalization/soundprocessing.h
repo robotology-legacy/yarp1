@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.9 2004-04-29 08:42:16 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.10 2004-04-30 12:51:57 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -21,6 +21,8 @@
 #ifndef __soundprocessinghh__
 #define __soundprocessinghh__
 
+#include <conf/YARPConfig.h>
+#include <YARPConfigFile.h>
 #include <YARPMatrix.h>
 #include <YARPPidFilter.h>
 #include <YARPString.h>
@@ -28,9 +30,25 @@
 #include <YARPImages.h>
 #include <YARPLogPolar.h>
 #include <YARPFft.h>
+#include "ITDBuffer.h"
+#include "ILDBuffer.h"
 
 #define FREQ_T 10000      // up cutting filter frequency
 #define ILD_LOW_FREQ 2000 // down cutting frequency for ILD calculation
+#define CORR_THRESHOLD 0
+#define ILD_THRESHOLD 10
+#define NUM_ILD 6
+#define NUM_ITD 4
+
+typedef struct Thrshlds
+{
+	int nvalidpoints;
+	int max_left;
+	int max_right;
+	int min_left;
+	int min_right;
+}   Thresholds;
+
 
 class SoundProcessing
 {
@@ -47,6 +65,9 @@ public:
 	{
 		unsigned char * buff = (unsigned char *) in.GetRawBuffer();
 		int dim[1] = {numSamples};
+		int threshold = 0;
+		double * leftChannel = Re;
+		double * rightChannel= Re + numSamples;
 		
 		//----------------------------------------------------------------------
 		// Fill the Re and Im vectors from the sound buffer
@@ -69,15 +90,78 @@ public:
 			Re[j] = (double) temp;
 			Im[j] = 0.0;
 			buff += 2;
+
+			//----------------------------------------------------------------------
+			//  Compute threshold
+			//----------------------------------------------------------------------
+			if ((fabs(leftChannel[i])>thresholds.max_left) || (fabs(rightChannel[i])>thresholds.max_right))
+			{
+				threshold = 0;
+				break;
+			}
+			if ((fabs(leftChannel[i])>thresholds.min_left) || (fabs(rightChannel[i])>thresholds.min_right))
+				threshold ++;
 		}
 
+		//----------------------------------------------------------------------
+		//  Compute crosscorrelation in the time space
+		//----------------------------------------------------------------------
 		CrossCorrelation(Re, Re + numSamples);
 
+		//----------------------------------------------------------------------
+		//  Compute correlation in the frequency space
+		//----------------------------------------------------------------------
 		fft->Fft(1, dim, Re, Im, 1, -1);                           // Calculate first signal FFT
 		fft->Fft(1, dim, Re + numSamples, Im + numSamples, 1, -1); // Calculate second signal FFT
 		ComputeCrossCorrelation( Re, Im, Re + numSamples, Im + numSamples);
 
+		//----------------------------------------------------------------------
+		//  Compute levels for the ILD 
+		//----------------------------------------------------------------------
 		ComputeLevels();
+		
+		//----------------------------------------------------------------------
+		//  Fill the itd and ild buffers controlling the thresholds 
+		//----------------------------------------------------------------------
+		CORR_DATA newITD;
+		newITD.itd   = GetITD();
+		newITD.shift = (double) GetShift();
+		newITD.valid = 0;
+		newITD.peak_level= GetCorrMax();
+
+		LEVEL_DATA newILD;
+		newILD.valid=0;
+		GetILD(newILD.ild,newILD.left_level,newILD.right_level);
+
+		if (threshold > thresholds.nvalidpoints)
+		{
+			if (newITD.peak_level > CORR_THRESHOLD )
+			{
+				newITD.valid=1;
+				itd.PutItem(newITD);
+			}
+
+			if ((newILD.left_level > ILD_THRESHOLD) || 
+				(newILD.right_level > ILD_THRESHOLD))
+			{
+				newILD.valid=1;
+				ild.PutItem(newILD);
+			}
+
+			itd.SetGlobals(newITD.valid,newITD.peak_level);
+			ild.SetGlobals(newILD.valid);
+		}
+		else
+		{
+			// rimuovere PutItem ...
+			// itd.PutItem(newITD);
+			itd.SetGlobals(0,0.0);
+			// ild.PutItem(newILD);
+			ild.SetGlobals(0);
+		}
+
+		itd_filtered = itd.GetSimpleMedia();
+		ild_filtered = ild.GetMedia();
 	}
 
 	//--------------------------------------------------------------------------------------
@@ -92,6 +176,8 @@ public:
 		right= squareMiddleValRight;
 		ild = (10 * log10(left/right));
 	}
+
+	inline double GetFilteredILD() { return ild_filtered.ild; }
 	
 	//--------------------------------------------------------------------------------------
 	//      Method: GetITD 
@@ -102,6 +188,10 @@ public:
 		return(((double (corrShift - shift)) / _SamplesPerSec) * 1e6);
 	}
 
+	inline double GetFilteredITD() { return itd_filtered.itd; }
+
+	inline int GetShift() { return (corrShift-shift);}
+	inline double GetCorrMax() { return corrMax;}
 	inline double * GetCrossCorrelationBuffer(int tag) 
 	{ 
         if ( !tag ) return corrVect;     // Return correlation calculated in the time space
@@ -110,6 +200,9 @@ public:
 
 	inline int GetSize() { return numSamples;}
 	inline double GetMaxCC() { return corrMax; }
+
+	int GetThresholds(Thresholds *);
+	int SetThresholds(Thresholds *);
 
 private:
 	int CrossCorrelation(double *, double *);
@@ -129,6 +222,14 @@ private:
 	int _outSize;
 
 	YARPFft * fft;
+
+	CITDBuffer itd;
+	CILDBuffer ild;
+
+	CORR_DATA  itd_filtered;
+	LEVEL_DATA ild_filtered;
+
+	Thresholds thresholds;
 	//----------------------------------------------------------------------
 	// sound variables 
 	//----------------------------------------------------------------------

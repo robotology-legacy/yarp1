@@ -10,7 +10,7 @@
 // 
 //     Description:  Implements all the sound processing algorithms.
 // 
-//         Version:  $Id: soundprocessing.cpp,v 1.10 2004-04-29 15:12:14 beltran Exp $
+//         Version:  $Id: soundprocessing.cpp,v 1.11 2004-04-30 12:51:57 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -25,7 +25,8 @@
 //      Method: SoundProcessing
 // Description: The constructor of the class
 //--------------------------------------------------------------------------------------
-SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
+SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize):
+ild(NUM_ILD), itd(NUM_ITD)
 {
 	YARPConfigFile file;
 	char *root = GetYarpRoot();
@@ -94,6 +95,18 @@ SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
 	SCOToperator_Im     = new double[numSamples];
 	Re = new double[2 * numSamples]; // this contains the Re of both channels
 	Im = new double[2 * numSamples]; // this contains the Im of both channels
+
+	//----------------------------------------------------------------------
+	//  Initialize thresholds. These values have been optained from Lorenzo's
+	//  code. May be the should be included in the sound.ini file and loaded
+	//  dinamically....
+	//----------------------------------------------------------------------
+	thresholds.nvalidpoints = 200;
+	thresholds.max_left     = 32000;
+	thresholds.max_right    = 32000;
+	thresholds.min_left     = 1000;
+	thresholds.min_right    = 1000;
+	
 
 }
 
@@ -360,4 +373,44 @@ SoundProcessing::correlation(double *channel1, double *channel2, int sizeChannel
 	double rrScalar = scalarProduct(channel2, channel2, sizeChannel);
 
 	return lrScalar/ (sqrt(llScalar * rrScalar));
+}
+
+//--------------------------------------------------------------------------------------
+//       Class:  SoundProcessing
+//      Method:  GetThresholds(actual_thresholds)
+// Description:  Return the actual thresholds values; it always returns 1
+//--------------------------------------------------------------------------------------
+int 
+SoundProcessing::GetThresholds(Thresholds *actual_thresholds)
+{
+	actual_thresholds->nvalidpoints = thresholds.nvalidpoints;
+	actual_thresholds->max_left     = thresholds.max_left;
+	actual_thresholds->max_right    = thresholds.max_right;
+	actual_thresholds->min_left     = thresholds.min_left;
+	actual_thresholds->min_right    = thresholds.min_right;
+	
+	return 1;
+}
+
+//--------------------------------------------------------------------------------------
+//       Class:  SoundProcessing
+//      Method:  SetThresholds(new_thresholds)
+// Description:  Set the new thresholds values. If they are valid a 1 is returned
+int 
+SoundProcessing::SetThresholds(Thresholds *new_thresholds)
+{
+	if ( ((new_thresholds->nvalidpoints)>=0)
+		 &&((new_thresholds->max_left)  >=0)
+		 &&((new_thresholds->max_right) >=0)
+		 &&((new_thresholds->min_left)  >=0)
+		 &&((new_thresholds->min_right) >=0) )
+	{
+		thresholds.nvalidpoints = new_thresholds->nvalidpoints;
+		thresholds.max_left     = new_thresholds->max_left;
+		thresholds.max_right    = new_thresholds->max_right;
+		thresholds.min_left     = new_thresholds->min_left;
+		thresholds.min_right    = new_thresholds->min_right;
+		return 1;
+	}
+	return 0;
 }

@@ -99,6 +99,14 @@ PostBuild_Cmds=copy .\Debug\soundlocalization.exe ..\..\..\..\bin\winnt
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\ILDBuffer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ITDBuffer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\soundlocalization.cpp
 # End Source File
 # Begin Source File
@@ -109,6 +117,22 @@ SOURCE=.\soundprocessing.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\corr_data.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ILDBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ITDBuffer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\lev_data.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\soundprocessing.h
