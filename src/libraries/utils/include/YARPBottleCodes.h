@@ -13,7 +13,7 @@ enum {
 	YBTypeString
 };
 
-const char * const YBLabelNULL	= "Motor";
+const char * const YBLabelNULL	= "Null";
 const char * const YBVIsAlive	= "IsAlive";
 const int __maxBottleID = 80;
 

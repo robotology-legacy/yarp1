@@ -40,9 +40,15 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\YARPBottle.obj"
 	-@erase "$(INTDIR)\YARPConfigFile.obj"
+	-@erase "$(INTDIR)\YARPFft.obj"
 	-@erase "$(INTDIR)\YARPLogFile.obj"
+	-@erase "$(INTDIR)\YARPLowPassFilter.obj"
+	-@erase "$(INTDIR)\YARPLU.obj"
 	-@erase "$(INTDIR)\YARPParseParameters.obj"
 	-@erase "$(INTDIR)\YARPPidFilter.obj"
+	-@erase "$(INTDIR)\YARPRecursiveLS.obj"
+	-@erase "$(INTDIR)\YARPSVD.obj"
+	-@erase "$(INTDIR)\YARPTwoDKalmanFilter.obj"
 	-@erase ".\lib\winnt\utils.lib"
 
 "$(OUTDIR)" :
@@ -62,7 +68,13 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPConfigFile.obj" \
 	"$(INTDIR)\YARPLogFile.obj" \
 	"$(INTDIR)\YARPParseParameters.obj" \
-	"$(INTDIR)\YARPPidFilter.obj"
+	"$(INTDIR)\YARPPidFilter.obj" \
+	"$(INTDIR)\YARPRecursiveLS.obj" \
+	"$(INTDIR)\YARPSVD.obj" \
+	"$(INTDIR)\YARPTwoDKalmanFilter.obj" \
+	"$(INTDIR)\YARPFft.obj" \
+	"$(INTDIR)\YARPLowPassFilter.obj" \
+	"$(INTDIR)\YARPLU.obj"
 
 ".\lib\winnt\utils.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -93,9 +105,15 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.pdb"
 	-@erase "$(INTDIR)\YARPBottle.obj"
 	-@erase "$(INTDIR)\YARPConfigFile.obj"
+	-@erase "$(INTDIR)\YARPFft.obj"
 	-@erase "$(INTDIR)\YARPLogFile.obj"
+	-@erase "$(INTDIR)\YARPLowPassFilter.obj"
+	-@erase "$(INTDIR)\YARPLU.obj"
 	-@erase "$(INTDIR)\YARPParseParameters.obj"
 	-@erase "$(INTDIR)\YARPPidFilter.obj"
+	-@erase "$(INTDIR)\YARPRecursiveLS.obj"
+	-@erase "$(INTDIR)\YARPSVD.obj"
+	-@erase "$(INTDIR)\YARPTwoDKalmanFilter.obj"
 	-@erase ".\lib\winnt\utilsdb.lib"
 
 "$(OUTDIR)" :
@@ -115,7 +133,13 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPConfigFile.obj" \
 	"$(INTDIR)\YARPLogFile.obj" \
 	"$(INTDIR)\YARPParseParameters.obj" \
-	"$(INTDIR)\YARPPidFilter.obj"
+	"$(INTDIR)\YARPPidFilter.obj" \
+	"$(INTDIR)\YARPRecursiveLS.obj" \
+	"$(INTDIR)\YARPSVD.obj" \
+	"$(INTDIR)\YARPTwoDKalmanFilter.obj" \
+	"$(INTDIR)\YARPFft.obj" \
+	"$(INTDIR)\YARPLowPassFilter.obj" \
+	"$(INTDIR)\YARPLU.obj"
 
 ".\lib\winnt\utilsdb.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -187,9 +211,27 @@ SOURCE=.\src\YARPConfigFile.cpp
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
+SOURCE=.\src\YARPFft.cpp
+
+"$(INTDIR)\YARPFft.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
 SOURCE=.\src\YARPLogFile.cpp
 
 "$(INTDIR)\YARPLogFile.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\src\YARPLowPassFilter.cpp
+
+"$(INTDIR)\YARPLowPassFilter.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\src\YARPLU.cpp
+
+"$(INTDIR)\YARPLU.obj" : $(SOURCE) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
@@ -202,6 +244,24 @@ SOURCE=.\src\YARPParseParameters.cpp
 SOURCE=.\src\YARPPidFilter.cpp
 
 "$(INTDIR)\YARPPidFilter.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\src\YARPRecursiveLS.cpp
+
+"$(INTDIR)\YARPRecursiveLS.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\src\YARPSVD.cpp
+
+"$(INTDIR)\YARPSVD.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\src\YARPTwoDKalmanFilter.cpp
+
+"$(INTDIR)\YARPTwoDKalmanFilter.obj" : $(SOURCE) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 

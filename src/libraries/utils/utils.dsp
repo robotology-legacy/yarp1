@@ -104,11 +104,27 @@ SOURCE=.\src\YARPBottle.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\YARPBPNNet.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\YARPConfigFile.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\YARPFft.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\YARPLogFile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\YARPLowPassFilter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\YARPLU.cpp
 # End Source File
 # Begin Source File
 
@@ -117,6 +133,18 @@ SOURCE=.\src\YARPParseParameters.cpp
 # Begin Source File
 
 SOURCE=.\src\YARPPidFilter.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\YARPRecursiveLS.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\YARPSVD.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\YARPTwoDKalmanFilter.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -140,7 +168,15 @@ SOURCE=.\include\YARPBottleContent.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\YARPBPNNet.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\YARPConfigFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\YARPFft.h
 # End Source File
 # Begin Source File
 
@@ -152,6 +188,10 @@ SOURCE=.\include\YARPLogFile.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\YARPLowPassFilter.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\YARPParseParameters.h
 # End Source File
 # Begin Source File
@@ -160,7 +200,43 @@ SOURCE=.\include\YARPPidFilter.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\YARPRecursiveLS.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\YARPRepeater.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\YARPTwoDKalmanFilter.h
+# End Source File
+# End Group
+# Begin Group "mbp"
+
+# PROP Default_Filter ".c;.cpp;.h"
+# Begin Source File
+
+SOURCE=.\mbp\mbp.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\mbp\mbp.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\mbp\Mm.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\mbp\Mm.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\mbp\Random.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\mbp\Random.h
 # End Source File
 # End Group
 # End Target
