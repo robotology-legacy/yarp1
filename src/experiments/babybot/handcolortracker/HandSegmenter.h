@@ -77,7 +77,6 @@ public:
 		x /= __scale;
 		y /= __scale;
 		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(v, 0, 0));
-		//send 
 		_send();
 	}
 		

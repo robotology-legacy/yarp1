@@ -75,9 +75,7 @@ private:
 
 	inline void read_status();
 	inline void write_status();
-	inline void send_commands();
-	inline void check_limits();
-
+		
 	YVector _deltaQ;				//command
 	HeadFSM *_fsm;
 	HeadSharedData _head;

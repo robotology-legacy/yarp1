@@ -158,7 +158,7 @@ bool FindHand::_segmentation()
 	_fit.fitEllipse(_detected, &t0, &r0, &a11, &a12, &a22);
 	_fit.findEllipse(t0, r0, a11, a12, a22, _pointsBlob);
 	_mapper.Logpolar2Cartesian(r0, t0, x, y);
-	if (_pointsBlob.n > 3)
+	if (_pointsBlob.n > 10)
 		valid = true;
 	else 
 		valid = false;

@@ -9,6 +9,7 @@
 #include <YARPList.h>
 #include <YARPSemaphore.h>
 #include <YARPBottle.h>
+#include <YARPLogFile.h>
 
 class BatchDataSample
 {
@@ -87,9 +88,48 @@ public:
 		_outPort = port;
 	}
 
+	void setTrainSetFile(const YARPString &file)
+	{
+		_trainSetFile.append(file);
+		_saveTrainSet = true;
+	}
+
+	void setOutConfigFile(const YARPString &file)
+	{
+		_outConfigFile = file;
+		_saveConfigFile = true;
+	}
+
 	int send();
 		
 private:
+
+	void _dumpTrainSet(YARPBottle &b)
+	{
+		if (!_saveTrainSet)
+			return;
+
+		double tmp;
+
+		int i,j;
+		for(i = 0; i < n_input; i++)
+		{
+			b.readFloat(&tmp);
+			b.moveOn();
+			_trainSetFile.dump(tmp);
+		}
+
+		for(j = 0; j < n_output; j++)
+		{
+			b.readFloat(&tmp);
+			b.moveOn();
+			_trainSetFile.dump(tmp);
+		}
+
+		_trainSetFile.newLine();
+		_trainSetFile.flush();
+	}
+
 	BatchData _samples;
 	
 	// local storage for training
@@ -100,6 +140,12 @@ private:
 
 	YARPBottle *_outputBottle;
 	YARPOutputPortOf<YARPBottle> *_outPort;
+
+	YARPString _initFile;
+	YARPLogFile _trainSetFile;
+	bool _saveTrainSet;
+	YARPString _outConfigFile;
+	bool _saveConfigFile;
 };
 
 #endif

@@ -5,25 +5,75 @@
 #include <YARPBottle.h>
 #include <YARPBottleContent.h>
 #include <YARPPort.h>
+#include <YARPParseParameters.h>
 
 const char __filename[] = "test.ini";
-const char __inputPort[] = "/remotelearn/i";
-const char __outputPort[] = "/remotelearn/o";
+const char __outFilename[] = "out.ini";
+const char __basePortName[] = "/remotelearn";
 const int __nIterations = 100000;
 
 int main(int argc, char* argv[])
 {
-	YARPString filename;
-	filename.append(GetYarpRoot());
-	filename.append("/conf/babybot/");
-	filename.append(__filename);
+	// parse input parameters and form port names
+	YARPString inFilename;
+	YARPString outFilename;
+	inFilename.append(GetYarpRoot());
+	inFilename.append("/conf/babybot/");
+	outFilename = inFilename;
+
+	double nIterations;
+	YARPString basePortName, inputPort, outputPort;
+	YARPString netFile, outFile, trainSetFile;
 	
-	Learner _learner(filename);
+	if (!YARPParseParameters::parse(argc, argv, "conf", netFile))
+	{
+		netFile = __filename;
+	}
+	if (!YARPParseParameters::parse(argc, argv, "name", basePortName))
+	{
+		basePortName = __basePortName;
+	}
+	
+	if (!YARPParseParameters::parse(argc, argv, "epoch", &nIterations))
+	{
+		nIterations = __nIterations;
+	}
+	
+	inFilename.append(netFile);
+	outFilename.append(outFile);
+
+	inputPort = basePortName;
+	outputPort = basePortName;
+	inputPort.append("/i");
+	outputPort.append("/o");
+	/////////////////////////////////////////////
+	
+	Learner _learner(inFilename);
+
+	if (YARPParseParameters::parse(argc, argv, "outnet", outFile))
+	{
+		YARPString filename;
+		filename.append(GetYarpRoot());
+		filename.append("/conf/babybot/");
+		filename.append(outFile);
+		_learner.setOutConfigFile(filename);
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "trainset", trainSetFile))
+	{
+		YARPString filename;
+		filename.append(GetYarpRoot());
+		filename.append("/conf/babybot/");
+		filename.append(trainSetFile);
+		_learner.setTrainSetFile(filename);
+	}
+	
+	/////////////////////////////////////////////
 	
 	YARPInputPortOf<YARPBottle> _inputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
 	YARPOutputPortOf<YARPBottle> _outputPort(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP);
-	_inputPort.Register(__inputPort);
-	_outputPort.Register(__outputPort);
+	_inputPort.Register(inputPort.c_str());
+	_outputPort.Register(outputPort.c_str());
 
 	YARPBottle outputBottle;
 	_learner.setOutputPort(&_outputPort, &outputBottle);
@@ -36,8 +86,8 @@ int main(int argc, char* argv[])
 		
 		ACE_OS::printf("Received new sample:#%d\n", _learner.howMany());
 
-		if (_learner.howMany()%60 == 0)
-			_learner.train(__nIterations, true);
+		if (_learner.howMany()%10 == 0)
+			_learner.train((int) nIterations, true);
 	}
 
 	return 0;

@@ -146,6 +146,8 @@ Learner::Learner()
 	_outputBottle = NULL;;
 	_outPort = NULL;
 	_busyTraining = false;
+	_saveTrainSet = false;
+	_saveConfigFile = false;
 }
 
 Learner::Learner(const YARPString &file):
@@ -157,6 +159,9 @@ YARPBPNNet(file.c_str())
 	_outPort = NULL;
 	_busyTraining = false;
 
+	_saveTrainSet = false;
+	_saveConfigFile = false;
+
 	_samples.resize(getInputSize(), getOutputSize());
 }
 
@@ -165,6 +170,8 @@ Learner::~Learner()
 {
 	CHECKANDDESTROY(_input);
 	CHECKANDDESTROY(_target);
+
+	_trainSetFile.close();
 }
 
 int Learner::train(int nIt, bool init)
@@ -222,12 +229,17 @@ void Learner::Body()
 
 	send();
 
+	if (_saveConfigFile)
+		save(_outConfigFile.c_str());
+
 	_busyTraining = false;
 }
 
 void Learner::add(YARPBottle &n)
 {
 	_samples.add(n);
+	n.rewind();
+	_dumpTrainSet(n);
 }
 
 int Learner::send()
