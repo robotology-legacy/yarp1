@@ -56,11 +56,6 @@ volatile uint32_t    *regbase;    /* device has 32-bit registers */
 
 /* Funcs */
 
-int get_bt848_bright(struct bttv *btv);
-static inline void bt848_hue(struct bttv *btv, uint hue);
-static inline void bt848_contrast(struct bttv *btv, uint cont);
-static inline void bt848_sat_u(struct bttv *btv, ulong data);
-static inline void bt848_sat_v(struct bttv *btv, ulong data);
 static void bt848_cap(struct bttv * btv,int state);
 
 /********************************************************************************

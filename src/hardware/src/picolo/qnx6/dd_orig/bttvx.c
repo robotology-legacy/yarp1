@@ -58,12 +58,12 @@ extern "C" {
 	int m_exit = 0;
 	
 	/* Funcs defs */
-	static inline void bt848_bright(uint bright);
-	int get_bt848_bright();
-	static inline void bt848_hue( uint hue);
-	static inline void bt848_contrast( uint cont);
-	static inline void bt848_sat_u( ulong data);
-	static inline void bt848_sat_v( ulong data);
+	//static inline void bt848_bright(uint bright);
+	//int get_bt848_bright();
+	//static inline void bt848_hue( uint hue);
+	//static inline void bt848_contrast( uint cont);
+	//static inline void bt848_sat_u( ulong data);
+	//static inline void bt848_sat_v( ulong data);
 	static void bt848_cap(struct bttv * btv,int state);
 
 	/******************************************************************************** 
