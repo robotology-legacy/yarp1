@@ -1,42 +1,39 @@
 include $(YARP_ROOT)/conf/Makefile.template
 
-SYSDIR = qnx6
-
-OBJS = $(patsubst %.cpp, %.o, $(wildcard *.cpp))
-CC = g++
-#CFLAGS = -g -I../include -I../sys_include -I$(YARP_ROOT)/include
+TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))
 CFLAGS = $(CFAST) $(CDEFS) -I../include -I../sys_include -I$(YARP_ROOT)/include
+
+#cpp is just there for the stl
+#LIBS = ../lib/$(SYSDIR)/os_services.lib $(SYSLIB)
 
 SUBDIRS =
 
-CODELIB = os_services.lib
+GENDIR = ../obj/$(SYSDIR)
 
-OUTDIR = ../obj/$(SYSDIR)
-
-# VPATH += $(OUTDIR)
-
-%.o: %.cpp
-	$(CC) $(CFLAGS) -c $^ -o $@
-	cp $@ $(OUTDIR)
+VPATH += $(GENDIR)
 
 all: target
 
-target: local subtarget
-
-local: $(OBJS)
+target: $(TARGETS) subtarget
 
 w:
 	@echo -n
 
-$(CODELIB): $(OBJS)
-	$(AR) $(ARFLAGS) $(CODELIB) $(OBJS)
-	cp $(CODELIB) ../lib/$(SYSDIR)
+$(GENDIR)/%.o: %.cpp
+	$(CC) $(CFLAGS) -c $^ -o $@
+
+$(GENDIR)/%.o: %.c
+	$(CC1) $(CFLAGS) -c $^ -o $@
+
+#$(GENDIR)/%: %.o
+#	$(CC) $(CFLAGS) $^ -o $@ $(LIBS)
 
 clean: subclean
-	rm -f $(OUTDIR)/*.o *.o $(CODELIB) 
+	rm -f $(TARGETS) $(EXEC_TARGETS)
+	rm -f *.o
 
-install: subinstall target
-#	@echo Doing nothing as yet
+install: target subinstall
+	@echo Doing nothing as yet
 
 subtarget :
 	@for d in $(SUBDIRS) ; do \

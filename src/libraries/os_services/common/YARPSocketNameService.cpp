@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.28 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.29 2003-08-12 16:50:52 gmetta Exp $
 ///
 ///
 
@@ -100,22 +100,13 @@
 
 #define times ignore
 
-#ifndef __WIN32__
-#ifndef __QNX6__
-
-#include <sys/psinfo.h>
-
-#endif
-#endif
-
-
 ///
 ///
 /// LATER: have a look at this. ACEize later...
 ///
-#ifndef __WIN32__
-#ifdef __QNX4__
+#if defined(__QNX4__)
 
+#include <sys/psinfo.h>
 static int my_getpid()
 {
 	struct _psinfo2 info;
@@ -123,7 +114,7 @@ static int my_getpid()
 	return info.pid;
 }
 
-#else //QNX6
+#elif defined(__QNX6__) || defined (__LINUX__)
 
 #include <pthread.h>
 static int my_getpid()
@@ -137,9 +128,7 @@ static int my_gettid()
 	return (int)pthread_self();
 }
 
-#endif
-
-#else
+#elif defined(__WIN32__)
 
 static int my_getpid()
 {
@@ -759,3 +748,4 @@ YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const
 }
 
 #undef THIS_DBG
+

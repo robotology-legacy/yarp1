@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPList.h,v 1.2 2003-08-08 01:07:26 gmetta Exp $
+/// $Id: YARPList.h,v 1.3 2003-08-12 16:50:52 gmetta Exp $
 ///
 ///
 
@@ -180,3 +180,4 @@ public:
 
 
 #endif
+

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.14 2003-08-11 08:57:00 babybot Exp $
+/// $Id: YARPThread.cpp,v 1.15 2003-08-12 16:50:52 gmetta Exp $
 ///
 ///
 
@@ -221,6 +221,9 @@ void YARPBareThread::End(int dontkill)
 		
 		ThreadDestroy (identifier, -1, (void *)-1);
 
+#elif defined(__LINUX__)
+
+		ACE_Thread::kill (identifier, SIGKILL);
 #else
 
 #error "YARPBareThread::End - not implemented for the specified architecture"
@@ -258,6 +261,10 @@ void YARPBareThread::End(int dontkill)
 #elif defined(__QNX6__)
 		
 		ThreadDestroy (identifier, -1, (void *)-1);
+
+#elif defined(__LINUX__)
+
+		ACE_Thread::kill (identifier, SIGKILL);
 #else
 
 #error "YARPBareThread::End - not implemented for the specified architecture"

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.cpp,v 1.9 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: YARPNameClient.cpp,v 1.10 2003-08-12 16:50:52 gmetta Exp $
 ///
 ///
 
@@ -696,3 +696,4 @@ int YARPNameClient::_handle_reply(YARPString &out)
 				
 	return YARP_OK;
 }
+

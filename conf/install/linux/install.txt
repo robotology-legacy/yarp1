@@ -1,0 +1,84 @@
+Configuring YARP for LINUX
+
+$Id: install.txt,v 1.1 2003-08-12 16:50:52 gmetta Exp $
+
+This file is in: $YARP_ROOT/conf/install/linux
+
+REQUIRES:
+	- ACE 5.3.3 from: http://www.cs.wustl.edu/~schmidt/ACE.html
+	- IPL 2.5 from Intel ----> or IPP (not for free!)
+
+0) licensing:
+	- the template of the academic free licence can be found in
+		%YARP_ROOT%\conf\licence.template
+
+1) before compiling:
+	- Check out from cvs on sourceforge: www.sourceforge.net
+	- unzip ACE on top of ACE_wrappers under $YARP_ROOT/src/libraries/
+		and UNCHECK the option to overwrite the files (this leaves
+		the modified files from the repository inplace)
+		OR
+	- unzip and then copy with -i option, do not overwrite.
+	- install IPL to get the DLLs, libs, and .h files
+		WHERE TO COPY THEM?
+		copy .h files into $YARP_ROOT/include/sys
+		ALSO: look at the script under library/ipl for installation of IPL. see below.
+	- use the $YARP_ROOT/YARPConfigTemplate.h and include the correct 
+		config file (found in $YARP_ROOT/include/conf)
+		Copy the template into: $YARP_ROOT/include/conf/YARPConfig.h
+
+2) Compile:
+	ACE, this copies also the .h, .i, and .cpp files into $YARP_ROOT/include
+		- make symlink of ACE_wrappers/include/makeinclude/platform_linux.GNU to platform_macros.GNU
+		- remember to create your $YARP_ROOT/include/conf/YARPConfig.h to include YARPConfigLinux.h
+		- use ace/config.h provided from cvs. Do not change it!
+		- compile using make ace_only
+		- install using make yarpize. this copies file to YARP dirs.
+
+
+	os_services
+		- use makefile: $YARP_ROOT/src/libraries/os_services
+			- remember make install to install and copy files
+
+	compile logpolar library, this is now the actual simulation of one of
+		the CMOS chips. ONLY LogPolarSmallSDK is required to compile 
+		images.
+
+	images
+		- go to $YARP_ROOT\src\libraries\ipl and run script to install
+			include files, DLL's and libs.
+		- compile the fakeipl first. even if you don't use it, just in case.
+		- compile the main img processing lib.
+		- compile the tools.
+		- ?? run the lib command ??
+
+	===
+
+	math	
+		- dsw in: %YARP_ROOT%\src\libraries\math\math.dsw
+
+	utils
+		- dsw in: %YARP_ROOT%\src\libraries\utils\utils.dsw
+
+	hardware
+		- run the install_orig_dd.bat. it copies the libraries+includes 
+			in the correct directories.
+		- dsw project in: %YARP_ROOT%\src\hardware\src\alldrivers.dsw
+			it does the install but...
+
+	motorcontrol
+		- dsw in: %YARP_ROOT%\src\libraries\motorcontrol\motorcontrol.dsw
+			compile and install automatically.
+
+
+3) What to include/link for building an application is YARP.
+	TO BE COMPLETED, templates?
+
+4) Stuff under %YARP_ROOT%/conf
+	- namer.conf.template: to be compied into namer.conf
+		it contains the name and port of the machine running the yarp name
+		service
+	- ROBOTNAME directories, one for each robot we ever used with yarp (new version)
+		
+
+

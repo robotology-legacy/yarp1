@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPTime.cpp,v 1.3 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: YARPTime.cpp,v 1.4 2003-08-12 16:50:52 gmetta Exp $
 ///
 ///
 
@@ -90,8 +90,8 @@ void YARPTime::DelayInSeconds(double delay_in_seconds)
 {
 	//static int sleep (const ACE_Time_Value &tv);
 	ACE_Time_Value tv;
-	tv.sec (int(delay_in_seconds));
-	tv.usec ((delay_in_seconds-int(delay_in_seconds)) * 1e6);
+	tv.sec (long(delay_in_seconds));
+	tv.usec (long((delay_in_seconds-int(delay_in_seconds)) * 1e6));
 
 	ACE_OS::sleep(tv);
 }

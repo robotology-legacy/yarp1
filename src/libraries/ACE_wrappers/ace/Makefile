@@ -21,9 +21,9 @@ ace_only:
 	@$(MAKE) -f Makefile.ace
 
 yarpize:
-	cp libACE.so.5.3.3 $(YARP_ROOT)/bin/qnx6/
+	cp libACE.so.5.3.3 $(YARP_ROOT)/bin/$(OS)/
 	cp *.h $(YARP_ROOT)/include/ace/
 	cp *.i $(YARP_ROOT)/include/ace/
 	cp *.cpp $(YARP_ROOT)/include/ace/
 	cp *.inl $(YARP_ROOT)/include/ace/
-	ln -s -f $(YARP_ROOT)/bin/qnx6/libACE.so.5.3.3 $(YARP_ROOT)/bin/qnx6/libACE.so
+	ln -s -f $(YARP_ROOT)/bin/$(OS)/libACE.so.5.3.3 $(YARP_ROOT)/bin/$(OS)/libACE.so

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: BlockReceiver.cpp,v 1.4 2003-04-27 21:57:41 gmetta Exp $
+/// $Id: BlockReceiver.cpp,v 1.5 2003-08-12 16:50:52 gmetta Exp $
 ///
 ///
 
@@ -178,3 +178,4 @@ int BlockReceiver::Get(char *buffer, int len)
 
 
 #undef THIS_DBG
+
