@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: yarp-write.cpp,v 1.9 2004-08-21 17:53:47 gmetta Exp $
+/// $Id: yarp-write.cpp,v 1.10 2004-09-14 17:35:44 eshuy Exp $
 ///
 ///
 
@@ -67,11 +67,8 @@
 #include <iostream>
 using namespace std;
 
-extern int __debug_level;
-
 int main(int argc, char *argv[])
 {
-  //__debug_level = 100;
   //set_yarp_debug(100,100);
 
   argc--;
@@ -81,8 +78,13 @@ int main(int argc, char *argv[])
     return YARP_FAIL;
   }
 
+<<<<<<< yarp-write.cpp
+  YARPOutputPortOf<YARPBottle> out_port(YARPOutputPort::MANY_OUTPUTS);
+  out_port.SetRequireAck(0);
+=======
   YARPOutputPortOf<YARPBottle> out_port(YARPOutputPort::MANY_OUTPUTS, YARP_UDP);
   ///out_port.SetAllowShmem(0);	/// uncommenting this disables SHMEM communication.
+>>>>>>> 1.9
   out_port.Register(argv[0]);
   argc--;
   argv++;
@@ -95,7 +97,7 @@ int main(int argc, char *argv[])
 
   while (!(cin.bad()||cin.eof())) {
     // make sure this works on windows
-    char buf[256];
+    char buf[25600];
     cin.getline(buf,sizeof(buf),'\n');
 
     if (!(cin.bad()||cin.eof())) {
