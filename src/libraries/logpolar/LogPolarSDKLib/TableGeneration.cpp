@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.16 2003-09-30 17:21:44 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.17 2003-10-01 17:12:37 fberton Exp $
 ///
 ///
 
@@ -1581,11 +1581,15 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 
 	char SearchString [] = ".00";
 	char * pointer = NULL;
+	bool modpath = false;
 	
 	pointer = strstr(Path,SearchString);
 
 	if (pointer != NULL)
+	{
 		*(--pointer) = 0;
+		modpath = true;
+	}
 
 //Loads the Reference Images
 
@@ -1597,7 +1601,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 
 //Sets the parameters
 	
-	LParam->Zoom_Level = 1090.0/83.0;
+	LParam->Zoom_Level = 1090.0/83.0; //83 is (SizeFovea*2)-1
 
 	SParam = Set_Param( (int)(1090/Ratio),(int)(1090/Ratio),
 						(int)(1090),(int)(1090),
@@ -1634,7 +1638,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 		LLP[3*j+0] = j/LTheta;	//rho
 		LLP[3*j+1] = j%LTheta;	//theta;
 
-		if (LLP[3*j]!=128)
+		if (LLP[3*j+2]!=128)
 			LLP[3*j+2] = 0;
 		else
 			LLP[3*j+2] = 255;
@@ -1675,11 +1679,11 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 
 		for (j=0; j<SRho*STheta; j++)
 		{
-			rho = j/LTheta;
+			rho = j/STheta;
 			SLP[3*j+0] = rho;		//rho
-			SLP[3*j+1] = j%LTheta;	//theta
+			SLP[3*j+1] = j%STheta;	//theta
 			
-			if ((SLP[3*j+0]!=128)&&(rho>=Limit[step])&&(rho<Limit[step+1]))
+			if ((SLP[3*j+2]!=128)&&(rho>=Limit[step])&&(rho<Limit[step+1]))
 				SLP[3*j+2] = 0;
 			else
 				SLP[3*j+2] = 255;
@@ -1742,7 +1746,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 		}
 
 		Remap(SRem,SLP,&SParam,SRemapMap);
-
+		
 		for (y = 0; y<LParam->Size_Y_Remap; y++)
 			for (x=0; x<LParam->Size_X_Remap; x++)
 			{
@@ -1818,7 +1822,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 
 	for (j=0; j<SParam.Size_LP; j++)
 		for (i=0; i<ListSize; i++)
-			DownSampleTable[j][i].weight *= 16;
+			DownSampleTable[j][i].weight *= Ratio * Ratio;
 
 //Weight Quantization
 
@@ -1857,9 +1861,9 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			Sum = 0;
 			for (i=0; i<ListSize; i++)
 				Sum += DownSampleTable[j][i].weight;
-			if ((Sum != 16.0)&&(Sum != 0.0))
+			if ((Sum < Ratio * Ratio)&&(Sum != 0.0))
 			{
-				CheckSum = (float)(16.0-Sum);
+				CheckSum = (float)((Ratio * Ratio)-Sum);
 				Sum = 0;
 				for (i=0; i<ListSize; i++)
 				{
@@ -1872,6 +1876,29 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 					}
 				}
 			}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+			Sum = 0;
+			for (i=0; i<ListSize; i++)
+				Sum += DownSampleTable[j][i].weight;
+			if (Sum > Ratio * Ratio)
+			{
+				CheckSum = (float)(Sum-(Ratio * Ratio));
+				Sum = 0;
+				for (i=0; i<ListSize; i++)
+				{
+					if ((DownSampleTable[j][i].weight != 1.0)&&(DownSampleTable[j][i].weight<=2*(CheckSum-Sum)))
+					{
+						if ((i>0)&&(DownSampleTable[j][i-1].weight>DownSampleTable[j][i].weight))
+						{
+							Sum += DownSampleTable[j][i-1].weight/(float)2.0;
+							DownSampleTable[j][i-1].weight /= 2.0;
+							if (Sum>=CheckSum)
+								break;
+						}
+					}
+				}
+			}
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 		}
 
 		for (j=0; j<SParam.Size_LP; j++)
@@ -1879,7 +1906,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			Sum = 0;
 			for (i=0; i<ListSize; i++)
 				Sum += DownSampleTable[j][i].weight;
-			if ((Sum != 16.0)&&(Sum != 0.0))
+			if ((Sum != Ratio * Ratio)&&(Sum != 0.0))
 				counter ++;
 		}
 	}
@@ -1905,7 +1932,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			}
 	}
 	
-	sprintf(File_Name,"%s%s%1.2f%s",Path,"DSMap_",Ratio,".gio");
+	sprintf(File_Name,"%s1.00\\%s%1.2f%s",Path,"DSMap_",Ratio,".gio");
 
 	fout = fopen(File_Name,"wb");
 	for (j=0; j<SParam.Size_LP; j++)
@@ -1921,10 +1948,11 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	free (SRem);
 	free (LRem);
 	free (FakeAngShift);
-	free (LRemapMap);
-	free (SRemapMap);
 	free (*DownSampleTable);
 	free (DownSampleTable);
+
+	if (modpath)
+		sprintf(Path,"%s1.00\\",Path);
 
 	return 1;
 }
@@ -1935,7 +1963,8 @@ void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, 
 {	
 	int i,j,k;
 
-	const int SizeLP = (int)(Param->Size_LP / Ratio);
+	const int SizeLP = (int)(Param->Size_LP / (Ratio*Ratio));
+	const int div = (int)(Ratio);
 	
 	int i_SumR,i_SumG,i_SumB;
 	int position;
@@ -1955,8 +1984,8 @@ void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, 
 			i_SumG += InImage [position+1]>>shift;
 			i_SumB += InImage [position+2]>>shift;
 		}
-		OutImage[k+0] = (unsigned char) (i_SumR>>4);
-		OutImage[k+1] = (unsigned char) (i_SumG>>4);
-		OutImage[k+2] = (unsigned char) (i_SumB>>4);
+		OutImage[k+0] = (unsigned char) (i_SumR>>div);
+		OutImage[k+1] = (unsigned char) (i_SumG>>div);
+		OutImage[k+2] = (unsigned char) (i_SumB>>div);
 	}
 }

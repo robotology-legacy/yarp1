@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.11 2003-09-30 17:21:44 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.12 2003-10-01 17:12:37 fberton Exp $
 ///
 ///
 
@@ -289,6 +289,8 @@ void Remap(unsigned char * Out_Image,
 		   unsigned char * In_Image,
 		   Image_Data * Par,
 		   int * Rem_LUT);
+
+void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Param, float Ratio,IntNeighborhood * IntDownSampleTable);
 
 long Get_Time();
 
