@@ -10,6 +10,15 @@
 #else  ARM_STATE_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
+enum __NEW_CMD_FLAG
+{
+	NEW = 0,
+	NONE = 1,
+	FORCED = 2
+};
+
+typedef __NEW_CMD_FLAG NEW_CMD_FLAG;
+
 #include "Armthread.h"
 #include <yarp/YARPLogFile.h>
 
@@ -36,7 +45,7 @@ public:
 	{
 		cmd.Resize(6);
 		cmd = 0.0;
-		newCmdFlag = false;
+		newCmdFlag = NONE;
 	}
 	virtual void handle(ArmThread *t);
 	
@@ -46,7 +55,7 @@ public:
 		{return &_instance;}
 
 	YVector cmd;
-	bool newCmdFlag;
+	NEW_CMD_FLAG newCmdFlag;
 };
 
 class ASDirectCommandMove: public AState

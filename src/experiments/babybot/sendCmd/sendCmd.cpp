@@ -9,7 +9,7 @@ using namespace std;
 
 #include "functionList.h"
 
-YARPOutputPortOf<YARPBabyBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+YARPOutputPortOf<YARPBabyBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 COMMAND_TABLE _commands;
 
 void _fillTable()
@@ -26,6 +26,7 @@ void _fillTable()
 	REG_VOCAB(sendSimpleVocab, YBVArmZeroG, "arm goes/exit to/from zero g mode");
 	REG_VOCAB(sendSimpleVocab, YBVArmInhibitResting, "inhibit arm resting (dangerous)");
 	REG_VOCAB(sendSimpleVocab, YBVArmForceResting, "force arm resting");
+	REG_VOCAB(sendArmJointCommand, YBVArmForceNewCmd, "send arm position command");
 	REG_VOCAB(sendArmJointCommand, YBVArmNewCmd, "send arm position command");
 	REG_VOCAB(sendArmJointCommand, YBVArmShake, "send arm shake command");
 	REG_VOCAB(sendSimpleVocab, YBVArmHibernate, "hibernate arm control");

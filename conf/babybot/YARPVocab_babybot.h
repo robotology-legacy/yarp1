@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPVocab_babybot.h,v 1.3 2004-09-02 08:44:25 babybot Exp $
+/// $Id: YARPVocab_babybot.h,v 1.4 2004-09-02 13:04:58 babybot Exp $
 ///
 ///
 
@@ -45,6 +45,7 @@ const char *const YBVArmRndQuit = "ArmRndQuit";
 
 // arm behavior
 const char *const YBVArmNewCmd = "ArmNewCmd";
+const char *const YBVArmForceNewCmd = "ArmForceNewCmd";
 const char *const YBVArmDone = "ArmDone";
 const char *const YBVArmShake = "ArmRndShake";
 const char *const YBVArmRest = "ArmRndRest";

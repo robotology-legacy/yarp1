@@ -107,10 +107,10 @@ public:
 class EBOutputCommand: public EBehaviorBaseOutputState
 {
 public:
-	EBOutputCommand(YVector &cmd)
+	EBOutputCommand(const YBVocab &v, const YVector &cmd)
 	{
 		_cmd = cmd;
-		_signal = YBVArmNewCmd;
+		_signal = v;
 	};
 		
 	void output(ExplorationShared *d);
@@ -133,7 +133,6 @@ public:
 
 	YARPBabyBottle _bottle;
 };
-
 
 class EBEnableTracker: public EBehaviorBaseOutputState
 {
@@ -200,12 +199,12 @@ public:
 	YARPBabyBottle _bottle;
 };
 
-class EBOpenhand: public EBehaviorBaseOutputState
+class EBSimpleOutput: public EBehaviorBaseOutputState
 {
 public:
-	EBOpenhand()
+	EBSimpleOutput(const YBVocab &cmd)
 	{
-		_signal = YBVGraspRflxForceOpen;
+		_signal = cmd;
 	};
 		
 	void output(ExplorationShared *d);

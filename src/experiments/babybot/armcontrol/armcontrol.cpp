@@ -17,8 +17,6 @@
 
 #include "ArmBehavior.h"
 
-char menu();
-
 using namespace std;
 
 char __filename[256] = "arm.ini";
@@ -52,14 +50,17 @@ int main(int argc, char* argv[])
 	ABWaitIdle waitMotion("motion");
 	ABWaitIdle waitRest("resting");
 	ABWaitIdle waitZeroG("zeroG");
+	ABWaitIdle waitInhibition("inhibition");
 	ABWaitIdle waitHibernated("hibernate");
 	ABSimpleInput checkMotionDone(YBVArmDone);
 	ABOutputCommand outputCmd;
+	ABForceOutputCommand outputCmdForce;
 	ABOutputShakeCmd outputShk;
 	ABOutputHibernate hibernateOut;
 	ABOutputResume resumeOut;
 	ABSimpleOutput outputArmIsBusy(YBVArmIsBusy);
 	ABInputCommand inputCmd(YBVArmNewCmd);
+	ABInputCommand forceCmd(YBVArmForceNewCmd);
 	ABInputShakeCommand inputShk(YBVArmShake);
 	ABSimpleInput inputRest(YBVArmRest);
 	ABSimpleInput checkRestDone(YBVArmRestDone);
@@ -68,9 +69,13 @@ int main(int argc, char* argv[])
 
 	ABSimpleInput inputForceRest(YBVArmForceResting);
 	ABSimpleInput inputInhibitRest(YBVArmInhibitResting);
+	ABSimpleInput inputInhibitRestTrue(YBVArmInhibitRestingTrue);
+	ABSimpleInput inputForceRestTrue(YBVArmForceRestingTrue);
 	ABSimpleInput inputZeroG(YBVArmZeroG);
 	ABForceResting		outputForceRest;
 	ABInhibitResting	outputInhibitRest;
+	ABForceRestingTrue		outputForceRestTrue;
+	ABInhibitRestingTrue	outputInhibitRestTrue;
 	ABStartZeroG	outputStartZeroG;
 	ABStopZeroG		outputStopZeroG;
 		
@@ -78,6 +83,8 @@ int main(int argc, char* argv[])
 	/////////////////////////////// config state machine
 	// shake and arm command
 	_arm.add(&inputCmd, &waitIdle, &waitMotion, &outputCmd);
+	_arm.add(&forceCmd, &waitIdle, &waitInhibition , &outputInhibitRestTrue);
+	_arm.add(NULL, &waitInhibition, &waitMotion, &outputCmdForce);
 	_arm.add(&inputShk, &waitIdle, &waitMotion, &outputShk);
 	_arm.add(&checkMotionDone, &waitMotion, &waitIdle);
 
@@ -94,6 +101,7 @@ int main(int argc, char* argv[])
 
 	_arm.add(&checkRestDone, &waitRest, &waitIdle);
 	_arm.add(&inputCmd, &waitRest, &waitRest, &outputArmIsBusy);
+	_arm.add(&forceCmd, &waitRest, &waitInhibition , &outputInhibitRestTrue);
 	////////////////////
 
 	// zero G cycle
@@ -102,7 +110,9 @@ int main(int argc, char* argv[])
 	
 	// additional functions
 	_arm.add(&inputForceRest, &outputForceRest);
+	_arm.add(&inputForceRestTrue, &outputForceRestTrue);
 	_arm.add(&inputInhibitRest, &outputInhibitRest);
+	_arm.add(&inputInhibitRestTrue, &outputInhibitRestTrue);
 	////////////////////
 
 	// start control thread

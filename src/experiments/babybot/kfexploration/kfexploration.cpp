@@ -41,6 +41,7 @@ int main(int argc, char* argv[])
 	EBWaitIdle waitMotion5("Turn4");
 	EBWaitIdle waitMotion6("Turn5");
 	EBWaitIdle waitMotion7("Final pos");
+	EBWaitIdle waitMotion8("Going back to rest");
 
 	EBWaitIdle stateInhibitHandTracking("Inhibit hand tracking");
 	EBWaitIdle stateEnableHandTracking("Enable hand tracking");
@@ -52,28 +53,28 @@ int main(int argc, char* argv[])
 
 	EBWaitDeltaT dTHandClosing(3);
 	EBWaitDeltaT waitArmSeemsToRest(5);
-	EBStartKF startKF;
-	EBStopKF stopKF;
-	EBOpenhand forceOpen;
+	EBStartKF	startKF;
+	EBStopKF	stopKF;
+	EBSimpleOutput	forceOpen(YBVGraspRflxForceOpen);
+	EBSimpleOutput  parkArm(YBVArmForceRestingTrue);
 	
 	// output: enaqble and disable hand tracking system
 	EBEnableTracker enableHandTracking;
 	EBInhibitTracker inhibitHandTracking;
 		
-	EBOutputCommand cmd1(YVector(_nJoints, pos1));
-	EBOutputCommand cmd2(YVector(_nJoints, pos2));
-	EBOutputCommand cmd3(YVector(_nJoints, pos3));
-	EBOutputCommand cmd4(YVector(_nJoints, pos4));
-	EBOutputCommand cmd5(YVector(_nJoints, pos5));
-	EBOutputCommand cmd6(YVector(_nJoints, pos6));
-	EBOutputCommand cmd7(YVector(_nJoints, pos7));
+	EBOutputCommand cmd1(YBVArmForceNewCmd, YVector(_nJoints, pos1));
+	EBOutputCommand cmd2(YBVArmForceNewCmd, YVector(_nJoints, pos2));
+	EBOutputCommand cmd3(YBVArmForceNewCmd, YVector(_nJoints, pos3));
+	EBOutputCommand cmd4(YBVArmForceNewCmd, YVector(_nJoints, pos4));
+	EBOutputCommand cmd5(YBVArmForceNewCmd, YVector(_nJoints, pos5));
+	EBOutputCommand cmd6(YBVArmForceNewCmd, YVector(_nJoints, pos6));
+	EBOutputCommand cmd7(YBVArmForceNewCmd, YVector(_nJoints, pos7));
 
 	EBSimpleInput motionDone(YBVArmDone);
 	EBSimpleInput start(YBVKFExplorationStart);
 	EBSimpleInput start2(YBVGraspRflxClutch);
 	EBSimpleInput armAck(YBVArmIssuedCmd);
 	EBSimpleInput armNAck(YBVArmIsBusy);
-
 
 	behavior.setInitialState(&waitStart);
 	behavior.add(&start, &waitStart, &waitMotion1, &cmd1);
@@ -105,8 +106,9 @@ int main(int argc, char* argv[])
 	behavior.add(&motionDone, &waitMotion6, &dT2, &stopKF);
 	*/
 	behavior.add(NULL, &dT2, &waitMotion7, &cmd7);
-	behavior.add(&motionDone, &waitMotion7, &waitStart, &forceOpen);
-	
+	behavior.add(&motionDone, &waitMotion7, &waitMotion8, &forceOpen);
+	behavior.add(NULL, &waitMotion8, &waitStart, &parkArm);
+
 	behavior.Begin();
 	behavior.loop();
 

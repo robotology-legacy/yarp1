@@ -10,11 +10,9 @@ void EBOutputCommand::output (ExplorationShared *d)
 	d->send();
 }
 
-void EBOpenhand::output (ExplorationShared *d)
+void EBSimpleOutput::output (ExplorationShared *d)
 {
 	// send command
-	ACE_OS::printf("Exploration: forcing hand to open\n");
-	
 	d->_data.writeVocab(_signal);
 	d->send();
 }

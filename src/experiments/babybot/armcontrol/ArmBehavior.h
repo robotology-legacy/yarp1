@@ -44,6 +44,12 @@ public:
 	void output(ArmBehaviorData *d);
 };
 
+class ABForceOutputCommand: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
 class ABStartZeroG: public ArmBehaviorBaseOutput
 {
 public:
@@ -62,7 +68,31 @@ public:
 	void output(ArmBehaviorData *d);
 };
 
+class ABForceRestingTrue: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
+class ABForceRestingFalse: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
 class ABInhibitResting: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
+class ABInhibitRestingTrue: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
+class ABInhibitRestingFalse: public ArmBehaviorBaseOutput
 {
 public:
 	void output(ArmBehaviorData *d);

@@ -87,10 +87,19 @@ public:
 
 	// set a new position in the ASDirectCommand state... the command will be
 	// executed only if the thread goes or is in this state.
-	void directCommand(const YVector &cmd)
+	void directCommand(const YVector &cmd, bool force = false)
 	{
 		ASDirectCommand *tmp = ASDirectCommand::instance();
-		tmp->newCmdFlag = true;
+		if (force) 
+		{
+			ARM_THREAD_DEBUG(("Forcing a new direct command\n"));
+			tmp->newCmdFlag = FORCED;
+		}
+		else
+		{
+			ARM_THREAD_DEBUG(("Asking a new direct command\n"));
+			tmp->newCmdFlag = NEW;
+		}
 		tmp->cmd = cmd;
 		changeInitState(tmp);
 	}
@@ -98,13 +107,27 @@ public:
 	void directCommandMode()
 	{
 		ASDirectCommand *tmp = ASDirectCommand::instance();
-		tmp->newCmdFlag = false; // goes to directCommand, but wait for a new cmd
+		
+		if (tmp->newCmdFlag == NEW)
+			tmp->newCmdFlag = NONE; // goes to directCommand, but wait for a new cmd
+
 		changeInitState(tmp);
 	}
 
 	// zero g mode
 	void zeroGMode()
 	{ changeInitState(ASZeroGInit::instance()); }
+
+	void forceResting(bool f)
+	{ 
+		_tirednessControl.inhibit(false);
+
+		if (f)
+			ARM_THREAD_DEBUG(("Forced to rest\n"));
+		else
+			ARM_THREAD_DEBUG(("Free to move again\n"));
+		_tirednessControl.forceResting(f);
+	}
 
 	void forceResting()
 	{ 
@@ -121,17 +144,28 @@ public:
 		}
 	}
 
-	void inhibitResting()
+	//force a particular value of inhibition
+	void inhibitResting(bool f)
 	{
 		_tirednessControl.forceResting(false);
+		if (f)
+			ARM_THREAD_DEBUG(("Resting inhibited\n"));
+		else
+			ARM_THREAD_DEBUG(("Resting allowed\n"));
+		_tirednessControl.inhibit(f);
+	}
+
+	//anable/disable inhibition
+	void inhibitResting()
+	{
 		if (_tirednessControl.inhibited())
 		{
-			ARM_THREAD_DEBUG(("Given to rest\n"));
+			ARM_THREAD_DEBUG(("Resting allowed\n"));
 			_tirednessControl.inhibit(false);
 		}
 		else
 		{
-			ARM_THREAD_DEBUG(("Not allowed to rest\n"));
+			ARM_THREAD_DEBUG(("Resting inhibited\n"));
 			_tirednessControl.inhibit(true);
 		}
 	}

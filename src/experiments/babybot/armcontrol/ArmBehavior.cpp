@@ -6,6 +6,12 @@ void ABOutputCommand::output(ArmBehaviorData *d)
 	d->directCommand(d->_cmd);
 }
 
+void ABForceOutputCommand::output(ArmBehaviorData *d)
+{
+	// direct command here
+	d->directCommand(d->_cmd, true);
+}
+
 void ABOutputShakeCmd::output(ArmBehaviorData *d)
 {
 	d->shake(d->_shakeCmd);
@@ -16,9 +22,29 @@ void ABForceResting:: output(ArmBehaviorData *d)
 	d->forceResting();
 }
 
+void ABForceRestingTrue:: output(ArmBehaviorData *d)
+{
+	d->forceResting(true);
+}
+
+void ABForceRestingFalse:: output(ArmBehaviorData *d)
+{
+	d->forceResting(false);
+}
+
 void ABInhibitResting:: output(ArmBehaviorData *d)
 {
 	d->inhibitResting();
+}
+
+void ABInhibitRestingTrue:: output(ArmBehaviorData *d)
+{
+	d->inhibitResting(true);
+}
+
+void ABInhibitRestingFalse:: output(ArmBehaviorData *d)
+{
+	d->inhibitResting(false);
 }
 
 void ABOutputHibernate::output(ArmBehaviorData *d)

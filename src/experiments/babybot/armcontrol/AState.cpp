@@ -25,7 +25,7 @@ void ASDirectCommand:: handle(ArmThread *t)
 {
 	t->_arm_status._state = _armThread::directCommand;
 		
-	if (t->checkMotionDone() && newCmdFlag)
+	if (t->checkMotionDone() && newCmdFlag!=NONE)
 	{
 		if (!t->_arm_status.isPIDHigh())
 		{
@@ -36,7 +36,7 @@ void ASDirectCommand:: handle(ArmThread *t)
 			ARM_STATE_DEBUG(("New command !\n"));
 			t->_directCommand(cmd);
 			ASDirectCommandMove::instance()->setFinalCmd(cmd);
-			newCmdFlag = false;
+			newCmdFlag = NONE;
 			changeState(t, ASDirectCommandMove::instance());
 		}
 	}
