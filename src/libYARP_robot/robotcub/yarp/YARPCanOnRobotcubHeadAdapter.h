@@ -27,19 +27,19 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.2 2004-07-29 16:35:31 babybot Exp $
 ///
 ///
 
 #ifndef __CanOnRobotcubHeadAdapterh__
 #define __CanOnRobotcubHeadAdapterh__
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/log_msg.h>
 
-#include <YARPValueCanDeviceDriver.h>
-#include <YARPConfigFile.h>
+#include <yarp/YARPValueCanDeviceDriver.h>
+#include <yarp/YARPConfigFile.h>
 
 
 #define YARP_ROBOTCUB_HEAD_ADAPTER_VERBOSE

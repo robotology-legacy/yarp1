@@ -140,7 +140,7 @@ chdir "$yarp_root/src/libYARP_dev" or die "Can't change to $yarp_root/src/libYAR
 
 foreach my $device (glob "*")
 {
-	if (-d "$device/$os/yarp")
+	if (-d "$device/$os/yarp" && $options{"Compile_Dev<-DD_$device"} eq "YES")
 	{
 		print "Looking for device \"$device\" in architecture \"$robotname\"\n";
 
@@ -150,151 +150,115 @@ foreach my $device (glob "*")
 			next;
 		}
 
-		my $line;
-		my $app_class_name;
-		my $mnemo;
-		my $gen_class_name;
-
-		chomp($line = <FILE>);
-		if ($line =~ /(\bYARP(\w+)\b) +(\bYARP\w+\b)/)
+		my %info;
+		while (<FILE>)
 		{
-			$app_class_name = $1;
-			$mnemo = $2;
-			$gen_class_name = $3;
-			close FILE;
+			chomp;
+			if (/(\bYARP(\w+)\b) +(\bYARP\w+\b)/)
+			{
+				$info{$2} = "$1 $3";
+			}
 		}
-		else
+		
+		close FILE;
+
+		if (scalar(@keys = keys %info) == 0)
 		{
-			close FILE;
+			print "Nothing known about the use of $device, skipping it...\n";
 			next;
 		}
 
-		%searchfor = ("001" => "YARP\u\L$robotname\E$mnemo");
-
-		my $best_match = "999";
-		my $filename = '';
-		my $params_class_name = '';
-
-		foreach my $file (glob "$cur_dir/$robotname/yarp/*.h")
+		while (my ($key, $value) = each (%info))
 		{
-			if (!open FILE, "$file")
-			{ 
-				warn "Can't open $file: $!\n";
-				next;
-			}
+			my $mnemo = $key;
+			$value =~ /^(\w+) (\w+)$/;
+			my $app_class_name = $1;
+			my $gen_class_name = $2;
 
-			my @matching_lines = grep {/\b\s+$gen_class_name/} <FILE>;
-			
-			if (@matching_lines != ())
+			my $best_match = '';
+			my $filename = '';
+			my $params_class_name = '';
+
+			($best_match, 
+			 $filename, 
+			 $params_class_name) = 
+				mysearch_inheaders ($mnemo, $app_class_name, $gen_class_name, $robotname, $device);
+
+			if ($best_match ne '')
 			{
-				print "\nFound for device \"$device\" ", scalar @matching_lines, " instance(s) of \"$gen_class_name\":\n";
-				print @matching_lines;
-				print "\n\n";
+				my $answer = '';
+				print "My best algorithm suggests the following addition:\n\n";
+				print "#include <yarp/$filename.h>\n";
+				print "#ifndef $app_class_name\n";
+				print "#define $app_class_name $best_match\n";
+				print "#endif\n";
+				print "#ifndef $app_class_name"."Params\n";
+				print "#define $app_class_name"."Params $params_class_name\n";
+				print "#endif\n\n\n";
 
-				foreach my $line (@matching_lines)
-				{
-					while (($key, $value) = each %searchfor)
-					{
-						print "Looking in \@matching_lines for : $value \n";
-						if ($line =~ /\b$value/)
-						{
-							print "Found match of type $key: $& \n";
-							if ($key lt $best_match)
-							{ 
-								$best_match = $key;
-								if ($file =~ <\/?\w+\.h>)
-								{
-									$filename = $&;
-								}
-
-								print "Looking for other classes\n";
-								if ($line =~ /<YARP\w+,\s+(YARP\w+)>/)
-								{
-									# it could be also matched for Params termination.
-									$params_class_name = $1;
-								}
-							}
-						}
-					}
-				}
-			}
-
-			close FILE;
-		}
-
-		if ($best_match ne "999")
-		{
-			my $answer = '';
-			print "My best algorithm suggests the following addition:\n\n";
-			print "#include <yarp/$filename.h>\n";
-			print "#ifndef $app_class_name\n";
-			print "#define $app_class_name $searchfor{$best_match}\n";
-			print "#endif\n";
-			print "#ifndef $app_class_name"."Params\n";
-			print "#define $app_class_name"."Params $params_class_name\n";
-			print "#endif\n\n\n";
-
-			print "Confirm addition to YARPRobotHardware.h, type SKIP to skip this definition or NO to enter a new one [YES]? ";
-			chomp ($answer = <STDIN>);
-			if ($answer eq '' || $answer eq "YES")
-			{
-				print CONFIG "/// #define for device driver \"$device\" in context \"$robotname\"\n";
-				print CONFIG "#include <yarp/$filename.h>\n";
-				print CONFIG "#ifndef $app_class_name\n";
-				print CONFIG "#define $app_class_name $searchfor{$best_match}\n";
-				print CONFIG "#endif\n";
-				print CONFIG "#ifndef $app_class_name"."Params\n";
-				print CONFIG "#define $app_class_name"."Params $params_class_name\n";
-				print CONFIG "#endif\n\n\n";
-			}
-			elsif ($answer eq "SKIP")
-			{
-				print CONFIG "/// skipped device driver \"$device\" in context \"$robotname\"\n\n";
-			}
-			else
-			{
-				print "Ok, you didn't like my suggestion, type your own then, I'll close my eyes :)";
-				print "[Enter class name e.g. YARPYourArchitectureYourDeviceDriver] ";
+				print "Confirm addition to YARPRobotHardware.h, type SKIP to skip this definition or NO to enter a new one [YES]? ";
 				chomp ($answer = <STDIN>);
-				if (answer ne '')
+				if ($answer eq '' || $answer eq "YES")
 				{
-					print CONFIG "/// #define for device driver $device in context $robotname\n";
-
-					# additional include file.
-					print "Please, tell me also what file to include [something like yarp/FILE.h: type the filename and the .h!]\n";
-					my $ans2 = '';
-					chomp ($ans2 = <STDIN>);
-					if ($ans2 ne '')
-					{
-						print CONFIG "#include <yarp/$ans2>\n";
-					}
-
+					print CONFIG "/// #define for device driver \"$device\" in context \"$robotname\"\n";
+					print CONFIG "#include <yarp/$filename.h>\n";
 					print CONFIG "#ifndef $app_class_name\n";
-					print CONFIG "#define $app_class_name $answer\n";
+					print CONFIG "#define $app_class_name $best_match\n";
 					print CONFIG "#endif\n";
 					print CONFIG "#ifndef $app_class_name"."Params\n";
-					print CONFIG "#define $app_class_name"."Params $answer"."Params\n";
+					print CONFIG "#define $app_class_name"."Params $params_class_name\n";
 					print CONFIG "#endif\n\n\n";
-
-					print "Added:\n\n";
-					print "#include <yarp/$ans2>\n";
-					print "#ifndef $app_class_name\n";
-					print "#define $app_class_name $answer\n";
-					print "#endif\n";
-					print "#ifndef $app_class_name"."Params\n";
-					print "#define $app_class_name"."Params $answer"."Params\n";
-					print "#endif\n\n\n";
+				}
+				elsif ($answer eq "SKIP")
+				{
+					print CONFIG "/// skipped device driver \"$device\" in context \"$robotname\"\n\n";
 				}
 				else
 				{
-					print "Nothing added to this configuration for device \"$device\"\n";
+					print "Ok, you didn't like my suggestion, type your own then, I'll close my eyes :)";
+					print "[Enter class name e.g. YARPYourArchitectureYourDeviceDriver] ";
+					chomp ($answer = <STDIN>);
+					if (answer ne '')
+					{
+						print CONFIG "/// #define for device driver $device in context $robotname\n";
+
+						# additional include file.
+						print "Please, tell me also what file to include [something like yarp/FILE.h: type the filename and the .h!]\n";
+						my $ans2 = '';
+						chomp ($ans2 = <STDIN>);
+						if ($ans2 ne '')
+						{
+							print CONFIG "#include <yarp/$ans2>\n";
+						}
+
+						print CONFIG "#ifndef $app_class_name\n";
+						print CONFIG "#define $app_class_name $answer\n";
+						print CONFIG "#endif\n";
+						print CONFIG "#ifndef $app_class_name"."Params\n";
+						print CONFIG "#define $app_class_name"."Params $answer"."Params\n";
+						print CONFIG "#endif\n\n\n";
+
+						print "Added:\n\n";
+						print "#include <yarp/$ans2>\n";
+						print "#ifndef $app_class_name\n";
+						print "#define $app_class_name $answer\n";
+						print "#endif\n";
+						print "#ifndef $app_class_name"."Params\n";
+						print "#define $app_class_name"."Params $answer"."Params\n";
+						print "#endif\n\n\n";
+					}
+					else
+					{
+						print "Nothing added to this configuration for device \"$device\"\n";
+					}
 				}
 			}
-		}
-		else
-		{
-			print "Can't find anything appropriate for \"$device\"\n";
-		}
+			else
+			{
+				print "Can't find anything appropriate for \"$device\"\n";
+			}
+
+		} # end while ()
 	}
 }
 
@@ -422,3 +386,64 @@ select STDOUT;
 close CONFIG;
 
 print "Done!\n";
+
+#
+#
+#
+sub mysearch_inheaders
+{
+	my ($mnemo, $app_class_name, $gen_class_name, $robotname, $device) = @_;
+	my %searchfor = ("001" => "YARP\u\L$robotname\E$mnemo");
+	my $best_match = "999";
+	my $filename = '';
+	my $params_class_name = '';
+
+	foreach my $file (glob "$cur_dir/$robotname/yarp/*.h")
+	{
+		if (!open FILE, "$file")
+		{ 
+			warn "Can't open $file: $!\n";
+			next;
+		}
+
+		my @matching_lines = grep {/\b\s+$gen_class_name/} <FILE>;
+		
+		if (@matching_lines != ())
+		{
+			print "\nFound for device \"$device\" ", scalar @matching_lines, " instance(s) of \"$gen_class_name\":\n";
+			print @matching_lines;
+			print "\n\n";
+
+			foreach my $line (@matching_lines)
+			{
+				while (($key, $value) = each %searchfor)
+				{
+					print "Looking in \@matching_lines for : $value \n";
+					if ($line =~ /\b$value/)
+					{
+						print "Found match of type $key: $& \n";
+						if ($key lt $best_match)
+						{ 
+							$best_match = $key;
+							if ($file =~ <\/?\w+\.h>)
+							{
+								$filename = $&;
+							}
+
+							print "Looking for other classes\n";
+							if ($line =~ /<YARP\w+,\s+(YARP\w+)>/)
+							{
+								# it could be also matched for Params termination.
+								$params_class_name = $1;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		close FILE;
+	}
+
+	($searchfor{$best_match}, $filename, $params_class_name);
+}

@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPRobotcubHead.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+///  $Id: YARPRobotcubHead.h,v 1.2 2004-07-29 16:35:31 babybot Exp $
 ///
 ///
 
@@ -44,9 +44,9 @@
 #define __YARPRobotcubHeadh__
 
 
-#include <conf/YARPConfig.h>
-#include <YARPGenericControlBoard.h>
-#include <YARPCanOnRobotcubHeadAdapter.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPGenericControlBoard.h>
+#include <yarp/YARPCanOnRobotcubHeadAdapter.h>
 
 ///
 ///
