@@ -1,0 +1,105 @@
+General setting
+
+----------------
+
+8 byte payload divided into 2 bytes addressing and 6 bytes for data
+
+first byte, first nibble: source address [0-15]
+first byte, second bibble: destination address [0-15]
+	this configuration allows maximum 30 controlled axes per bus
+
+second byte, first bit: channel [0-1]
+second bute, last 7 bits: command code (see below)
+
+remaining 6 bytes: data
+
+----------------
+Message codes
+
+CAN_NO_MESSAGE				0
+	- no message, returned in case of error
+
+CAN_TOGGLE_POSITION_MODE 	1
+	- no data, activates position control
+
+CAN_TOGGLE_VELOCITY_MODE	2
+	- no data, activates velocity control
+
+CAN_TOGGLE_VERBOSE			3
+	- not used yet, supposedly send firmware into verbose mode
+
+CAN_CALIBRATE_ENCODER		4
+	- starts the calibration procedure
+	NOT IMPLEMENTED YET
+
+CAN_TOGGLE_PWM_PAD			5
+	- activates the PWM generation
+
+CAN_GET_CONTROL_MODE		6
+	- returns the current control mode
+	NOT IMPLEMENTED YET
+
+CAN_WRITE_FLASH_MEM			10
+	- writes in Flash memory the persistent values (gains)
+
+CAN_READ_FLASH_MEM			11
+	- reads from Flash to RAM
+
+CAN_GET_ENCODER_POSITION	20
+	- returns encoder position and speed
+	4 bytes for position, 2 bytes speed
+
+CAN_SET_DESIRED_POSITION	21
+	- sets the desired position
+	4 bytes position
+
+CAN_GET_DESIRED_POSITION	22
+	- gets the desired position value
+	4 bytes position
+
+CAN_SET_DESIRED_VELOCITY	23
+	- sets the desired speed
+	2 bytes for speed
+
+CAN_GET_DESIRED_VELOCITY	24
+	- gets the desired speed
+	2 bytes for speed
+
+CAN_SET_DESIRED_ACCELER		25
+CAN_GET_DESIRED_ACCELER		26
+	- sets or gets the desired acceleration
+	2 bytes for acceleration
+
+CAN_POSITION_MOVE			27
+	- starts a position movement
+	4 bytes for position and 2 bytes for speed
+
+CAN_VELOCITY_MOVE			28
+
+CAN_SET_P_GAIN				30
+CAN_GET_P_GAIN				31
+CAN_SET_D_GAIN				32
+CAN_GET_D_GAIN				33
+CAN_SET_I_GAIN				34
+CAN_GET_I_GAIN				35
+CAN_SET_ILIM_GAIN			36
+CAN_GET_ILIM_GAIN			37
+CAN_SET_OFFSET				38
+CAN_GET_OFFSET				39
+CAN_SET_SCALE				40
+CAN_GET_SCALE				41
+	- sets or gets gain parameters
+	2 bytes for value
+
+CAN_SET_BOARD_ID			50
+CAN_GET_BOARD_ID			51
+
+
+CAN_GET_ERROR_STATUS		60
+	- returns the board error status
+
+
+
+
+
+

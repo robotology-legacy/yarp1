@@ -38,7 +38,7 @@ RSC=rc.exe
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "..\obj\winnt"
-# PROP Intermediate_Dir "..\obj\winnt"
+# PROP Intermediate_Dir "..\obj\winnt\release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I "../include" /I "../../../include" /I "../../../include/winnt" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
@@ -62,7 +62,7 @@ LIB32=link.exe -lib
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "..\obj\winnt"
-# PROP Intermediate_Dir "..\obj\winnt"
+# PROP Intermediate_Dir "..\obj\winnt\debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "../include" /I "../../../include" /I "../../../include/winnt" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
@@ -200,10 +200,6 @@ SOURCE=.\YARPThreadAux.cpp
 # Begin Source File
 
 SOURCE=.\YARPTime.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPVector.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -344,10 +340,6 @@ SOURCE=..\include\yarp\YARPThread.h
 # Begin Source File
 
 SOURCE=..\include\yarp\YARPTime.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\include\yarp\YARPVector.h
 # End Source File
 # End Group
 # Begin Group "Private Header Files"

@@ -1,0 +1,282 @@
+HOW TO use the YARPDeviceDriver abstraction --- GUIDELINES.
+
+-----
+The examples here are drawn from a frame grabber wrapper.
+-----
+
+1- base class is YARPDeviceDriver, see YARPDeviceDriver.h
+	there are 3 methods, it's a template with two params
+	<SYNC> - sync object to use. The object must support Post and Wait methods (see YARPSemaphore)
+	<DERIVED> - the type derived from the device driver
+
+	example:
+		class YARPPicoloDeviceDriver : 
+		public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>, public YARPThread
+
+	in this case the sync type is YARPNullSemaphore (no mutual exclusion)
+	and derived is: YARPPicoloDeviceDriver
+
+	the three methods are:
+
+		virtual int open(void *) = 0;		
+			where <void *> arg is used to pass a generic type (e.g. a struct) containing the
+			initialization paramters
+
+		virtual int close() = 0;
+			closes the device driver
+
+		int IOCtl(int cmd, void *data)
+			commands to the actual HW are sent though this methods
+			<cmd> is the message number (or ID)
+			<data> is the additional data/params required for the actual execution of the function
+
+	example:
+		since the actual implementation might vary across OSs the implementation of the derived class
+		is generally embedded into a void*. This points to the class doing the actual oprations.
+		NOTE the void *system_resources.
+
+		class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>, public YARPThread
+		{
+		private:
+			YARPPicoloDeviceDriver(const YARPPicoloDeviceDriver&);
+			void operator=(const YARPPicoloDeviceDriver&);
+
+		public:
+			YARPPicoloDeviceDriver();
+			virtual ~YARPPicoloDeviceDriver();
+
+			virtual int open(void *d);
+			virtual int close(void);
+
+			virtual int acquireBuffer(void *);
+			virtual int releaseBuffer(void *);
+			virtual int waitOnNewFrame (void *cmd);
+			virtual int getWidth(void *cmd);
+			virtual int getHeight(void *cmd);
+
+		protected:
+			void *system_resources;
+
+			virtual void Body(void);
+		};
+
+		also from the same .h file:
+
+		struct PicoloOpenParameters
+		{ ... }
+
+		this is a struct containing the params used by the open method.
+
+2- additional include called: XXXUtils.h
+
+		- it usually contains the definition of the messages.
+
+		example:
+
+		enum FrameGrabberCmd
+		{
+			FCMDAcquireBuffer = 1,
+			FCMDReleaseBuffer = 2,
+			FCMDWaitNewFrame = 3,
+			FCMDGetSizeX = 4,
+			FCMDGetSizeY = 5,
+
+			FCMDNCmds = 6
+		};
+
+		this represents all that can be done with the device driver:
+		the actual interface between the HW and our software layer.
+		NOTE: this is a separate file because many devices may share the same messages
+
+3- things to do in the implementation:
+	XXXXDeviceDriver.cpp
+
+		- create the system_resources class suited to your needs: this is just a convenience class
+		dealing with the HW details.
+
+		example:
+
+		class PicoloResources
+		{
+		public:
+			PicoloResources (void) : _bmutex(1), _new_frame(0)
+			{ ... }
+			~PicoloResources () { _uninitialize (); }
+
+			enum { _num_buffers = 3 };
+
+			PICOLOHANDLE _picoloHandle;	
+
+			...
+		};
+
+		then:
+
+		- prepare the constructor/destructor of the device driver by creating the system_resources 
+		object and filling the command pointer table.
+
+		example:
+		
+		YARPPicoloDeviceDriver::YARPPicoloDeviceDriver(void) : YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>(FCMDNCmds)
+		{
+			system_resources = (void *) new PicoloResources;
+			ACE_ASSERT (system_resources != NULL);
+
+			/// for the IOCtl call.
+			m_cmds[FCMDAcquireBuffer] = &YARPPicoloDeviceDriver::acquireBuffer;
+			m_cmds[FCMDReleaseBuffer] = &YARPPicoloDeviceDriver::releaseBuffer;
+			m_cmds[FCMDWaitNewFrame] = &YARPPicoloDeviceDriver::waitOnNewFrame;
+			m_cmds[FCMDGetSizeX] = &YARPPicoloDeviceDriver::getWidth;
+			m_cmds[FCMDGetSizeY] = &YARPPicoloDeviceDriver::getHeight;
+		}
+
+		- define the open and close special methods.
+			these two methods will initialize and un-initialize the device driver.
+			bear in mind that the open has the additional void * param used to provide with
+			initialization options.
+			
+		- remember also that the generic methods (those in the list above) are of type:
+				typedef int (DERIVED::*cmd_function_t)(void *); 
+
+			defined in the YARPDeviceDriver.h
+
+			they accept a single parameter void * to pass the actual data.
+			you need to use structs or other composite types to pass more than one parameter.
+
+		example:
+
+		int YARPPicoloDeviceDriver::getWidth (void *cmd)
+		{
+			*(int *)cmd = RES(system_resources)._nWidth;
+			return YARP_OK;
+		}
+
+		this method for example reads something from system_resources variable and stores it 
+		into the void * data. Returns YARP_OK (you can also use YARP_FAIL too).
+
+
+----> NOW move to the motorcontrol static library --- this contains all the interfaces to the HW.
+
+4- the final public interface is usually a template of two arguments:
+		ADAPTER and PARAMETERS.
+
+		<ADAPTER> is a class containing the adaptation of the HW to the particular setup. 
+			unfortunately sometimes the HW is connected differently depending on the experimental
+			setup - e.g. cabled differently.
+
+		<PARAMETERS> these are the real parameters. This is used as container to the params.
+
+		example:
+
+		template <class ADAPTER, class PARAMETERS>
+		class YARPGenericGrabber
+		{
+		protected:
+			ADAPTER _adapter;		/// adapts the hw idiosyncrasies
+			PARAMETERS _params;		/// actual grabber specific parameters
+
+		public:
+			YARPGenericGrabber () {}
+			~YARPGenericGrabber () {}
+
+			int initialize (int board, int sizex, int sizey = -1);
+			int uninitialize (void);
+			int acquireBuffer (unsigned char **buffer);
+			int releaseBuffer (void);
+			int waitOnNewFrame (void);
+			int getWidth (int *w);
+			int getHeight (int *h);
+		};
+
+		NOTE that the methods here are exactly the same methods as in the list at point 3
+		but the additional initialize/uninitialize.
+
+5- the <ADAPTER> class derives from the DeviceDriver: 
+
+		It's basically a customization of the DeviceDriver to solve initialization idiosyncrasies.
+		In particular initialize and uninitialize are used to call open and close.
+		Can tweak on parameters to do the proper initialization for the setup you're considering.
+		NOTE that the class has now a name referring to the exp setup (e.g. Babybot).
+
+		example:
+
+		class YARPPicoloOnBabybotAdapter : public YARPPicoloDeviceDriver
+		{
+		public:
+			YARPPicoloOnBabybotAdapter() : YARPPicoloDeviceDriver() {}
+			virtual ~YARPPicoloOnBabybotAdapter() {}
+
+			int initialize (YARPBabybotGrabberParams& params)
+			{
+				/// need additional initialization, put it here.
+				return open ((void *)&params);
+			}
+
+			int uninitialize (void)
+			{
+				/// need additional termination stuff, here's the place for it.
+				return close ();
+			}
+		};
+
+6- the <PARAMETERS> class might be derived from the open params. 
+		- you're free to do differently in this case.
+
+		example:
+
+		typedef PicoloOpenParameters YARPBabybotGrabberParams;
+
+		in this case we didn't need anything different.
+
+7- how to implement the FINAL PUBLIC INTERFACE methods mentioned above.
+
+		- constructor and destructor call the initialize/uninitialize of the adapter respectively.
+		- initialize/uninitialize of the adapter call open/close as shown above.
+
+		example:
+
+		template <class ADAPTER, class PARAMETERS>
+		int YARPGenericGrabber<ADAPTER, PARAMETERS>::initialize (int board, int sizex, int sizey /* = -1 */)
+		{
+			_params._unit_number = board;
+			_params._video_type = 0;
+			_params._size_x = sizex;
+			if (sizey > 0)
+				_params._size_y = sizey;
+			else
+				_params._size_y = sizex;
+
+			/// calls the adapter init that parses the params appropriately.
+			/// this is because initialization can vary depending on the specific setup.
+			return _adapter.initialize (_params);
+		}
+
+
+		- generic methods
+			simply use IOCtl to execute the specific function. This automatically calls the function
+			by dereferncing the pointer in the table of pointers.
+
+		example:
+
+		template <class ADAPTER, class PARAMETERS>
+		int YARPGenericGrabber<ADAPTER, PARAMETERS>::acquireBuffer (unsigned char **buffer)
+		{
+			return _adapter.IOCtl (FCMDAcquireBuffer, (void *)buffer);
+		}
+
+8- finally use the device driver following this example:
+		- Usually add a .h file specific to the architecture such as:
+			YARPBabybotGrabber.h
+		which for example contains:
+
+		#include <YARPGenericGrabber.h>
+		#include <YARPPicoloOnBabybotAdapter.h>
+
+		typedef YARPGenericGrabber<YARPPicoloOnBabybotAdapter, YARPBabybotGrabberParams> YARPBabybotGrabber;
+
+		to simplify things redefine the type passing the appropriate classes to the template.
+		The nice thing is that the same YARPGenericGrabber can be recycled onto different architecture/grabber
+		types.
+
+USE this file and the examples to implement your own YARP compatible device driver.
+
