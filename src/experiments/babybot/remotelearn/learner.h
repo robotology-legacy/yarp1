@@ -88,12 +88,14 @@ public:
 		_outPort = port;
 	}
 
+	// set file which will be used to append received train samples 
 	void setTrainSetFile(const YARPString &file)
 	{
 		_trainSetFile.append(file);
 		_saveTrainSet = true;
 	}
 
+	// set filename name to save output config file
 	void setOutConfigFile(const YARPString &file)
 	{
 		_outConfigFile = file;

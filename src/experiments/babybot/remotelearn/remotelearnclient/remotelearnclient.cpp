@@ -18,6 +18,9 @@
 
 #include <YARPBabybotHeadKin.h>
 
+const int __nInput = 3;
+const int __nOutput = 3;
+
 using namespace std;
 
 void parsePatternsCenters(double *, double *, double **, double **, int);
@@ -54,12 +57,14 @@ void train(int argc, char *argv[])
 	int nPatterns = read_set(trainFile,
 							&input_train_set_raw,
 							&target_train_set_raw,
-							3,
-							3);
+							__nInput, __nOutput);
 	
 	double *input_train_set = input_train_set_raw;
 	double *target_train_set = target_train_set_raw;
 	
+	ACE_OS::printf("Train set from %s\n", trainFile);
+	ACE_OS::printf("#input:%d #output:%d\n", __nInput, __nOutput);
+	ACE_OS::printf("#samples:%d\n", nPatterns);
 
 	ACE_OS::printf("Please connect me...\n");
 	char c;
@@ -76,14 +81,14 @@ void train(int argc, char *argv[])
 		tmpBottle.setID("TrainSample");
 		tmpBottle.reset();
 		// input
-		for(j = 0; j < 3; j++)
+		for(j = 0; j < __nInput; j++)
 		{
 			tmpBottle.writeFloat(*tmpIn);
 			tmpIn++;
 		}
 		
 		// output
-		for(j = 0; j < 3; j++)
+		for(j = 0; j < __nOutput; j++)
 		{
 			tmpBottle.writeFloat(*tmpTarget);
 			tmpTarget++;

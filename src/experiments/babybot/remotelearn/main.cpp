@@ -31,6 +31,8 @@ int main(int argc, char* argv[])
 	{
 		netFile = __filename;
 	}
+	ACE_OS::printf("loading config  file from: %s\n", netFile.c_str());
+
 	if (!YARPParseParameters::parse(argc, argv, "name", basePortName))
 	{
 		basePortName = __basePortName;
@@ -40,6 +42,7 @@ int main(int argc, char* argv[])
 	{
 		nIterations = __nIterations;
 	}
+	ACE_OS::printf("nepoch: %lf\n", nIterations);
 	
 	inFilename.append(netFile);
 	outFilename.append(outFile);
@@ -59,8 +62,9 @@ int main(int argc, char* argv[])
 		filename.append("/conf/babybot/");
 		filename.append(outFile);
 		_learner.setOutConfigFile(filename);
+		ACE_OS::printf("result of training will be saved on: %s\n", filename.c_str());
 	}
-
+	
 	if (YARPParseParameters::parse(argc, argv, "trainset", trainSetFile))
 	{
 		YARPString filename;
@@ -68,13 +72,17 @@ int main(int argc, char* argv[])
 		filename.append("/conf/babybot/");
 		filename.append(trainSetFile);
 		_learner.setTrainSetFile(filename);
+		ACE_OS::printf("trainset will be saved on: %s\n", filename.c_str());
 	}
-	
+		
 	int nSamples = __nSamples;
 	if (!YARPParseParameters::parse(argc, argv, "batchsize", &nSamples))
 	{
 		nSamples = __nSamples;
+		ACE_OS::printf("batchsize option not specified using default\n");
 	}
+	ACE_OS::printf("batchsize: %d\n", nSamples);
+	
 
 	/////////////////////////////////////////////
 	
