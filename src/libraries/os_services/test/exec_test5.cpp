@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.6 2003-05-22 00:14:28 babybot Exp $
+/// $Id: exec_test5.cpp,v 1.7 2003-05-23 09:38:23 babybot Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -76,6 +76,7 @@
 #include "YARPTime.h"
 #include "YARPSyncComm.h"
 #include "YARPNameService.h"
+#include "YARPScheduler.h"
 
 
 ///#define REG_TEST_NAME "/foo/the/robotic/dentist"
@@ -123,10 +124,10 @@ public:
 		int x = 42;
 		while (1)
 		{
-			out.Wait();
-			cout << "Preparing to send: " << txt << endl;
-			cout.flush();
-			out.Post();
+			///out.Wait();
+			///cout << "Preparing to send: " << txt << endl;
+			///cout.flush();
+			///out.Post();
 
 			YARPMultipartMessage smsg(2);
 			smsg.Set(0,txt,sizeof(txt));
@@ -135,25 +136,31 @@ public:
 			double y = 999;
 			rmsg.Set(0,reply,sizeof(reply));
 			rmsg.Set(1,(char*)(&y),sizeof(y));
-			cout << "***sending: " << txt << endl;
-			cout.flush();
+			///cout << "***sending: " << txt << endl;
+			///cout.flush();
 
 			int result = YARPSyncComm::Send(id.getNameID(),smsg,rmsg);
 			x++;
 
 			if (result>=0)
 			{
-				out.Wait();
-				cout << "(result " << result << ") Got reply : " << reply << " and number " << y << endl;
-				cout.flush();
-				out.Post();
+				///out.Wait();
+				///cout << "(result " << result << ") Got reply : " << reply << " and number " << y << endl;
+				///cout.flush();
+				if ((x % 100) == 0)
+				{
+					cout << "sent msg : " << x << endl;
+					cout << "(result " << result << ") Got reply : " << reply << " and number " << y << endl;
+					cout.flush();
+				}
+				///out.Post();
 			}
 			else
 			{
-				printf("connection is dead\n");
+				cout << "connection is dead" << endl;
 			}
 
-			YARPTime::DelayInSeconds(2.0);
+			YARPTime::DelayInSeconds(0.005);
 
 			ct++;
 			sprintf(txt, "And a-%d", ct);
@@ -185,24 +192,38 @@ public:
 		cout.flush();
 		out.Post();
 
+		double start = YARPTime::GetTimeAsSeconds();
+		double prevtime = start;
+		double cumul = 0;
+		int counter = 0;
+		bool first = true;
+
 		while (1)
 		{
-			out.Wait();
-			cout << "Waiting for input" << endl;
-			cout.flush();
-			out.Post();
+			///out.Wait();
+			///cout << "Waiting for input" << endl;
+			///cout.flush();
+			///out.Post();
 			YARPMultipartMessage imsg(2);
 			int x = 999;
 			imsg.Set(0,buf,sizeof(buf));
 			imsg.Set(1,(char*)(&x),sizeof(x));
 
 			YARPNameID idd = YARPSyncComm::BlockingReceive(id.getNameID(), imsg);
+			if (first)
+			{
+				start = YARPTime::GetTimeAsSeconds();
+				prevtime = start;
+				cumul = 0;
+				counter = 0;
+				first = false;
+			}
 
-			out.Wait();
+			///out.Wait();
 			sprintf(reply,"<%s,%d>", buf, x);
-			cout << "Received message: " << buf << " and number " << x << endl;
-			cout.flush();
-			out.Post();
+			///cout << "Received message: " << buf << " and number " << x << endl;
+			///cout.flush();
+			///out.Post();
 
 			double y = 432.1;
 			YARPMultipartMessage omsg(2);
@@ -212,6 +233,18 @@ public:
 			YARPSyncComm::Reply(idd,omsg);
 			//YARPTime::DelayInSeconds(1.0);
 			ct++;
+
+			double now = YARPTime::GetTimeAsSeconds();
+			cumul += (now - prevtime);
+			counter ++;
+			prevtime = now;
+
+			if ((x % 100) == 0)
+			{
+				cout << "Received message: " << buf << " and number " << x << endl;
+				cout << "average thread time : " << cumul/counter << endl;
+				cout.flush();
+			}
 		}
 	}
 };
@@ -219,6 +252,7 @@ public:
 int main(int argc, char *argv[])
 {
 	int s = 1, c = 1;
+	YARPScheduler::setHighResScheduling();
 
 ///	__debug_level = 80;
 
