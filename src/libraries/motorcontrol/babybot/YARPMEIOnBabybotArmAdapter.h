@@ -1,7 +1,7 @@
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.4 2003-04-30 16:03:28 natta Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.5 2003-05-01 15:06:06 natta Exp $
 
 #include <ace/log_msg.h>
 #include <YarpMeiDeviceDriver.h>
@@ -215,7 +215,7 @@ public:
 	}
 
 	int calibrate() {
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Starting calibration routine..."));
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Starting calibration routine...\n"));
 		if (! (_initialized && _amplifiers) )
 		{
 			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Sorry cannot calibrate encoders, the arm not initialized or the power is down!\n"));
@@ -227,8 +227,8 @@ public:
 			limitFlag = true;
 		disableLimitCheck();
 
-		double speeds1[6] = {500.0, 500.0, 500.0, 0.0, 0.0, 0.0};
-		double speeds2[6] = {-500.0, -500.0, -500.0, 0.0, 0.0, 0.0};
+		double speeds1[6] = {500.0, 500.0, 500.0, 500.0, 500.0, 500.0};
+		double speeds2[6] = {-500.0, -500.0, -500.0, -500.0, -500.0, -500.0};
 		double acc[6] = {5000.0, 5000.0, 5000.0, 5000.0, 5000.0, 5000.0};
 		double posHome[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 		double pos1[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -253,7 +253,7 @@ public:
 		//
 		IOCtl(CMDSetSpeeds, speeds1);
 		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Going back to initial position... \n"));
-		IOCtl(CMDSetCommands, posHome);
+		IOCtl(CMDSetPositions, posHome);
 		IOCtl(CMDWaitForMotionDone, NULL);
 		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
 		///////////////////////////////
@@ -275,6 +275,7 @@ public:
 		{
 			newHome[i] = (pos1[i]+pos2[i])/2;
 		}
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Calibration: %lf %lf %lf %lf %lf %lf!\n", newHome[0], newHome[1], newHome[2], newHome[3], newHome[5]));
 
 		//////////// go back to the calibrated position
 		_setHomeConfig(CBNoEvent);
@@ -282,12 +283,14 @@ public:
 		//
 		IOCtl(CMDSetSpeeds, speeds1);
 		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Finally move to the calibrated position... \n"));
-		IOCtl(CMDSetCommands, newHome);
+		IOCtl(CMDSetPositions, newHome);
 		IOCtl(CMDWaitForMotionDone, NULL);
 		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done!\n"));
 		///////////////////////////////
 
 		// reset encoders here
+		_setHomeConfig(CBNoEvent);
+		_clearStop();
 		IOCtl(CMDDefinePositions, posHome);	// posHome is still '0'
 		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Reset encoders... done!\n"));
 		
@@ -309,7 +312,7 @@ private:
 			cmd.axis = i;
 			cmd.parameters = &ipar;
 			
-			ipar = CBIndexOnly;
+			ipar = CBIndexOnly;			// index_only
 			IOCtl(CMDSetHomeIndexConfig, &cmd);
 			ipar = 0;					// (active low)
 			IOCtl(CMDSetHomeLevel, &cmd);
