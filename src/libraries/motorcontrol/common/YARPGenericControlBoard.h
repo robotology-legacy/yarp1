@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.1 2003-09-04 10:19:20 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.2 2003-10-10 13:34:47 beltran Exp $
 ///
 ///
 
@@ -405,6 +405,7 @@ int YARPGenericControlBoard<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *
 		}
 		ACE_OS::sleep(sleep_period);
 		ACE_OS::printf(".");
+		fflush(stdout);
 	}
 	ACE_OS::printf("done !\n");
 
