@@ -6,6 +6,7 @@
 #		  --release to compile optimized
 #		  --clean to clean obj files
 #		  --install to copy files to the defaul installation path
+#		  --force to force the script to use the command line arguments
 #
 #		  --file <config_file>
 #			where <config_file> is the filename of the context config file.
@@ -41,6 +42,7 @@ my $debug = '';
 my $release = '';
 my $clean = '';
 my $install = '';
+my $force = '';
 my $config_file = "$yarp_root/conf/context.conf";
 my %options = ();
 
@@ -48,7 +50,8 @@ GetOptions ('debug' => \$debug,
             'release' => \$release,
 			'clean' => \$clean,
 			'install' => \$install,
-			'file=s' => \$config_file );
+			'file=s' => \$config_file,
+			'force' => \$force );
 
 unless (-e $config_file)
 {
@@ -80,10 +83,13 @@ my $project_name = "libYARP_dev_$options{\"Architecture<-Hardware_Name\"}";
 
 #
 # override.
-$debug = ($options{"Compile_Dev<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
-$release = ($options{"Compile_Dev<-Lib_Release"} eq "TRUE") ? 1 : $release;
-$install = ($options{"Compile_Dev<-Lib_Install"} eq "TRUE") ? 1 : $install;
-$clean = ($options{"Compile_Dev<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
+unless ($force)
+{
+	$debug = ($options{"Compile_Dev<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
+	$release = ($options{"Compile_Dev<-Lib_Release"} eq "TRUE") ? 1 : $release;
+	$install = ($options{"Compile_Dev<-Lib_Install"} eq "TRUE") ? 1 : $install;
+	$clean = ($options{"Compile_Dev<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
+}
 
 #
 #
@@ -165,42 +171,6 @@ if ($install)
 
 print "\nDone!\n";
 
-#if ($options{"Compile_OS<-Tools_Rebuild"} eq "YES")
-#{
-#	if ($options{"Compile_OS<-Tools_Debug"} eq "TRUE")
-#	{
-#		my $current_dir = getcwd;
-#		chdir "../tools/" or die "Can't chdir to tools directory\n";
-#		do_tools_compile ("build.pl --clean --debug --install --os $os");
-#		chdir $current_dir or die "Can't chdir to $current_dir\n";
-#	}
-#	else
-#	{
-#		my $current_dir = getcwd;
-#		chdir "../tools/" or die "Can't chdir to tools directory\n";
-#		do_tools_compile ("build.pl --clean --release --install --os $os");
-#		chdir $current_dir or die "Can't chdir to $current_dir\n";
-#	}
-#}
-#else
-#{
-#	print "You didn't ask to recompile the YARP tools\n";
-#}
-#
-#
-#
-#
-#
-#sub do_tools_compile
-#{
-#	my ($exe) = @_;
-#	open TOOLS, "$exe|";
-#	while (<TOOLS>)
-#	{
-#		print;
-#	}
-#	close TOOLS;
-#}
 
 sub call_msdev_and_print
 {

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.8 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.9 2004-07-29 23:24:01 babybot Exp $
 ///
 ///
 
@@ -208,6 +208,24 @@ protected:
 	/// <remid> is the TCP connection address.
 	/// <socket> is the generic connection address.
 	int _begin (const YARPUniqueNameSock *remid, const YARPUniqueNameID *socket, int port);
+
+public:
+	///
+	/// FOR DEBUG ONLY!
+	///
+	///
+	void _printSocket (void)
+	{
+		if (_socket_addr == NULL)
+		{
+			ACE_DEBUG ((LM_DEBUG, "The socket is NULL\n"));
+		}
+		else
+		{
+			ACE_DEBUG ((LM_DEBUG, "Socket name: %s\n", _socket_addr->getName().c_str()));
+			ACE_DEBUG ((LM_DEBUG, "Service type: %d\n", _socket_addr->getServiceType()));
+		}
+	}
 
 public:
 	/// ctors.
@@ -405,7 +423,7 @@ public:
 		_last_assigned ++;
 		if (_last_assigned >= _number_o_ports || _last_assigned < 0)
 		{
-			ACE_DEBUG ((LM_DEBUG, "this should happen, _last_assigned port out of range!\n"));
+			ACE_DEBUG ((LM_DEBUG, "this shouldn't happen, _last_assigned port out of range!\n"));
 			return 0;
 		}
 
@@ -1772,6 +1790,28 @@ ACE_HANDLE _SocketThreadListMulti::connect (const YARPUniqueNameSock& id)
 	return _acceptor_socket.get_handle ();
 }
 
+///
+/// FOR DEBUG ONLY!
+///
+///
+inline void _printList (YARPList<_SocketThreadMulti *>& _list, const char *c)
+{
+	YARPList<_SocketThreadMulti *>::iterator it_avail(_list);
+	it_avail.go_head();
+
+	ACE_DEBUG ((LM_DEBUG, "Attempted connection: %s\n", c));
+	ACE_DEBUG ((LM_DEBUG, "Thread table:\n"));
+	int i = 0;
+
+	for (; !it_avail.done(); it_avail++)
+	{
+		ACE_DEBUG ((LM_DEBUG, "Thread no: %d\n", i));
+		ACE_DEBUG ((LM_DEBUG, "Available: %d\n", ((*it_avail)->isAvailable ())));
+		ACE_DEBUG ((LM_DEBUG, "Port number: %d\n", (*it_avail)->getOldPortNumber ()));
+		(*it_avail)->_printSocket ();
+	}
+}
+
 
 void _SocketThreadListMulti::addSocket (void)
 {
@@ -1851,6 +1891,8 @@ void _SocketThreadListMulti::addSocket (void)
 
 		if (port_number == 0)
 		{
+			_printList (_list, "UDP");
+
 			/// failed connection, for any reason (likely too many connections).
 			ACE_DEBUG ((LM_DEBUG, "777777 can't get a port, too many connections\n"));
 			hdr.SetBad ();
@@ -1956,6 +1998,8 @@ void _SocketThreadListMulti::addSocket (void)
 
 		if (port_number == 0)
 		{
+			_printList (_list, "MCAST");
+
 			///
 			hdr.SetBad ();
 			stream->send_n (&hdr, sizeof(hdr), 0);
@@ -2039,6 +2083,8 @@ void _SocketThreadListMulti::addSocket (void)
 
 		if (port_number == 0)
 		{
+			_printList (_list, "SHMEM");
+
 			/// failed connection, for any reason (likely too many connections).
 			ACE_DEBUG ((LM_DEBUG, "777777 can't get a port, too many connections\n"));
 			hdr.SetBad ();
@@ -2122,6 +2168,8 @@ void _SocketThreadListMulti::addSocket (void)
 
 		if (port_number == 0)
 		{
+			_printList (_list, "TCP");
+
 			/// failed connection, for any reason (likely too many connections).
 			ACE_DEBUG ((LM_DEBUG, "777777 can't get a port, too many connections\n"));
 			hdr.SetBad ();

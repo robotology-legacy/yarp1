@@ -6,6 +6,8 @@
 #		  --release to compile optimized
 #		  --clean to clean obj files
 #		  --install to copy files to the defaul installation path
+#		  --force to force the script to use the command line arguments
+#		  --tools to compile the tools
 #
 #		  --file <config_file>
 #			where <config_file> is the filename of the context config file.
@@ -41,6 +43,8 @@ my $debug = '';
 my $release = '';
 my $clean = '';
 my $install = '';
+my $force = '';
+my $tools = '';
 my $config_file = "$yarp_root/conf/context.conf";
 my %options = ();
 
@@ -48,7 +52,9 @@ GetOptions ('debug' => \$debug,
             'release' => \$release,
 			'clean' => \$clean,
 			'install' => \$install,
-			'file=s' => \$config_file );
+			'file=s' => \$config_file,
+			'force' => \$force,
+			'tools' => \$tools );
 
 unless (-e $config_file)
 {
@@ -78,12 +84,6 @@ close CONFIG;
 
 my $os = $options{"Architecture<-OS"};
 
-#print "dumping my hash table\n";
-#while ( ($key, $value) = each %options )
-#{
-#	print "$key => $value\n";
-#}
-
 if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
 {
 	if (exists $options{"Compile_OS<-ACE_PATH"})
@@ -105,10 +105,13 @@ if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
 
 #
 # override.
-$debug = ($options{"Compile_OS<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
-$release = ($options{"Compile_OS<-Lib_Release"} eq "TRUE") ? 1 : $release;
-$install = ($options{"Compile_OS<-Lib_Install"} eq "TRUE") ? 1 : $install;
-$clean = ($options{"Compile_OS<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
+unless ($force)
+{
+	$debug = ($options{"Compile_OS<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
+	$release = ($options{"Compile_OS<-Lib_Release"} eq "TRUE") ? 1 : $release;
+	$install = ($options{"Compile_OS<-Lib_Install"} eq "TRUE") ? 1 : $install;
+	$clean = ($options{"Compile_OS<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
+}
 
 #
 #
@@ -160,9 +163,10 @@ if ($install)
 	}
 }
 
-if ($options{"Compile_OS<-Tools_Rebuild"} eq "YES")
+if ((!$force && $options{"Compile_OS<-Tools_Rebuild"} eq "YES") || 
+	($force && $tools))
 {
-	if ($options{"Compile_OS<-Tools_Debug"} eq "TRUE")
+	if ($options{"Compile_OS<-Tools_Debug"} eq "TRUE" || (!$release && $force))
 	{
 		my $current_dir = getcwd;
 		chdir "../tools/" or die "Can't chdir to tools directory\n";
@@ -181,7 +185,6 @@ else
 {
 	print "You didn't ask to recompile the YARP tools\n";
 }
-
 
 #
 #

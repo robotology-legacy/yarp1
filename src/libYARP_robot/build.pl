@@ -6,6 +6,8 @@
 #		  --release to compile optimized
 #		  --clean to clean obj files
 #		  --install to copy files to the defaul installation path
+#		  --force to force the script to use the command line arguments
+#		  --tools to compile the tools
 #
 #		  --file <config_file>
 #			where <config_file> is the filename of the context config file.
@@ -41,6 +43,8 @@ my $debug = '';
 my $release = '';
 my $clean = '';
 my $install = '';
+my $force = '';
+my $tools = '';
 my $config_file = "$yarp_root/conf/context.conf";
 my %options = ();
 
@@ -48,7 +52,9 @@ GetOptions ('debug' => \$debug,
             'release' => \$release,
 			'clean' => \$clean,
 			'install' => \$install,
-			'file=s' => \$config_file );
+			'file=s' => \$config_file,
+			'force' => \$force,
+			'tools' => \$tools );
 
 unless (-e $config_file)
 {
@@ -80,10 +86,13 @@ my $project_name = "libYARP_robot_$options{\"Architecture<-Hardware_Name\"}";
 
 #
 # override.
-$debug = ($options{"Compile_Robot<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
-$release = ($options{"Compile_Robot<-Lib_Release"} eq "TRUE") ? 1 : $release;
-$install = ($options{"Compile_Robot<-Lib_Install"} eq "TRUE") ? 1 : $install;
-$clean = ($options{"Compile_Robot<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
+unless ($force)
+{
+	$debug = ($options{"Compile_Robot<-Lib_Debug"} eq "TRUE") ? 1 : $debug;
+	$release = ($options{"Compile_Robot<-Lib_Release"} eq "TRUE") ? 1 : $release;
+	$install = ($options{"Compile_Robot<-Lib_Install"} eq "TRUE") ? 1 : $install;
+	$clean = ($options{"Compile_Robot<-Lib_Clean"} eq "TRUE") ? 1 : $clean;
+}
 
 #
 #
@@ -136,9 +145,10 @@ if ($install)
 #
 # tools compile.
 #
-if ($options{"Compile_Robot<-Tools_Rebuild"} eq "YES")
+if ((!$force && $options{"Compile_Robot<-Tools_Rebuild"} eq "YES") ||
+	($force && $tools))
 {
-	if ($options{"Compile_Robot<-Tools_Debug"} eq "TRUE")
+	if ($options{"Compile_Robot<-Tools_Debug"} eq "TRUE" || (!$release && $force))
 	{
 		my $current_dir = getcwd;
 		chdir "../tools/" or die "Can't chdir to tools directory\n";
