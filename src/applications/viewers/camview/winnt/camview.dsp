@@ -86,7 +86,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 matdb.lib utilsdb.lib imagesDB.lib os_servicesDB.lib aced.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\..\..\lib\winnt"
+# ADD LINK32 mathdb.lib utilsdb.lib imagesDB.lib os_servicesDB.lib aced.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\..\..\lib\winnt"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing viewer...

@@ -1,3 +1,36 @@
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
+///                                                                   ///
+///                    #Add our name(s) here#                         ///
+///                                                                   ///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+
+///
+/// $Id: YARPControlBoardUtils.h,v 1.22 2004-05-26 17:02:31 babybot Exp $
+///
+///
+
 //
 //
 // common facilities for control boards
@@ -5,16 +38,12 @@
 // feb 2003 -- by nat and pasa
 
 
-// $Id: YARPControlBoardUtils.h,v 1.21 2004-05-15 22:09:57 gmetta Exp $
-
 #include <conf/YARPConfig.h>
-
 
 
 #ifndef __YARP_CONTROL_BOARD_UTILS__
 #define __YARP_CONTROL_BOARD_UTILS__
 
-// #define pi 3.14159265358
 
 // command list
 enum ControlBoardCmd
@@ -88,13 +117,13 @@ enum ControlBoardCmd
 	CMDSetHomeLevel 		= 53,
 	CMDSetHome 				= 54,
 	CMDSetStopRate 			= 55,	// stop rate1
-	CMDIndexSearch		    = 56,	//Galil Index Search (Index search + jog move = search for indexes)
+	CMDIndexSearch		    = 56,	// Galil Index Search (Index search + jog move = search for indexes)
 	
-	CMDResetController 		= 57,	//used to reset the Galil Controller
-	CMDErrorLimit			= 58,	//Error limit
-	CMDOffOnError			= 59,	//This command causes the controller to shut off
-									//the  motor command if a position error exceeds
-									//the limit specified by the ErrorLimit command
+	CMDResetController 		= 57,	// used to reset the Galil Controller
+	CMDErrorLimit			= 58,	// Error limit
+	CMDOffOnError			= 59,	// This command causes the controller to shut off
+									// the  motor command if a position error exceeds
+									// the limit specified by the ErrorLimit command
 	
 	CMDGetTorqueLimit		= 60,   // get torque limit, single joint
 	CMDGetTorqueLimits		= 61,   // get torque limit, multiple joints
@@ -117,8 +146,10 @@ enum ControlBoardCmd
 	CMDLoadBootMemory		= 72,	// loads control values from permanent storage
 	CMDSaveBootMemory		= 73,	// saves important parameters to permanent storage
 	CMDGetErrorStatus		= 74,	// gets the error status of the control card
+	CMDSetBoardID			= 75,	// broadcasts a set board ID command
+	CMDGetBoardID			= 76,	// broadcasts a get board ID command
 
-	CBNCmds 				= 75 	// required! tells the total number of commands
+	CBNCmds 				= 77 	// required! tells the total number of commands
 };
 
 enum ControlBoardEvents

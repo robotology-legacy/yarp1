@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.9 2004-05-25 22:58:54 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.10 2004-05-26 17:02:31 babybot Exp $
 ///
 ///
 
@@ -840,7 +840,7 @@ int YARPValueCanDeviceDriver::setPid (void *cmd)
 	_writeWord16 (CAN_SET_ILIM_GAIN, axis, S_16(pid->I_LIMIT));
 	_writeWord16 (CAN_SET_OFFSET, axis, S_16(pid->OFFSET));
 	_writeWord16 (CAN_SET_SCALE, axis, S_16(pid->SHIFT));
-	/// LATER: _writeWord16 (CAN_SET_TLIM, axis, S_16(pid->T_LIMIT));
+	_writeWord16 (CAN_SET_TLIM, axis, S_16(pid->T_LIMIT));
 
 	return YARP_OK;
 }
@@ -860,7 +860,7 @@ int YARPValueCanDeviceDriver::getPid (void *cmd)
 	_readWord16 (CAN_GET_ILIM_GAIN, axis, s); pid->I_LIMIT = double(s);
 	_readWord16 (CAN_GET_OFFSET, axis, s); pid->OFFSET = double(s);
 	_readWord16 (CAN_GET_SCALE, axis, s); pid->SHIFT = double(s);
-	/// LATER: _readWord16 (CAN_GET_TLIM, axis, pid->T_LIMIT);
+	_readWord16 (CAN_GET_TLIM, axis, s); pid->T_LIMIT = double(s);
 
 	return YARP_OK;
 }

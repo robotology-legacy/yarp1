@@ -20,7 +20,35 @@ public:
 // Dialog Data
 	//{{AFX_DATA(CCanControlDlg)
 	enum { IDD = IDD_CANCONTROL_DIALOG };
-		// NOTE: the ClassWizard will add data members here
+	CEdit	m_desired_speed_ctrl;
+	CEdit	m_desired_position_ctrl;
+	CButton	m_go_ctrl;
+	CButton	m_pwm_enable_ctrl;
+	CButton	m_pwm_disable_ctrl;
+	CButton	m_enable_ctrl;
+	CButton	m_disable_ctrl;
+	CButton	m_reset_position_ctrl;
+	CEdit	m_current_position_ctrl;
+	CButton	m_flash_ctrl;
+	CEdit	m_tlimit_ctrl;
+	CEdit	m_shift_ctrl;
+	CEdit	m_offset_ctrl;
+	CEdit	m_ilimit_ctrl;
+	CEdit	m_igain_ctrl;
+	CEdit	m_dgain_ctrl;
+	CEdit	m_pgain_ctrl;
+	CButton	m_update_ctrl;
+	CComboBox	m_axis_ctrl;
+	int		m_axis;
+	double	m_pgain;
+	double	m_dgain;
+	double	m_igain;
+	double	m_ilimit;
+	double	m_offset;
+	double	m_shift;
+	double	m_tlimit;
+	double	m_desired_position;
+	double	m_desired_speed;
 	//}}AFX_DATA
 
 	// ClassWizard generated virtual function overrides
@@ -40,6 +68,12 @@ protected:
 	unsigned char				m_destinations[16];
 	bool						m_driverok;
 
+	void ActivateGUI ();
+	void DeactivateGUI ();
+	void UpdateAxisParams (int axis);
+
+	char						m_buffer[256];
+
 	// Generated message map functions
 	//{{AFX_MSG(CCanControlDlg)
 	virtual BOOL OnInitDialog();
@@ -52,6 +86,22 @@ protected:
 	afx_msg void OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu);
 	afx_msg void OnDriverRun();
 	afx_msg void OnDriverKill();
+	afx_msg void OnParametersAddressofcards();
+	afx_msg void OnParametersNumberofcards();
+	afx_msg void OnSelendokComboAxis();
+	afx_msg void OnUpdateDriverKill(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateDriverRun(CCmdUI* pCmdUI);
+	afx_msg void OnDriverSendaddress();
+	afx_msg void OnUpdateDriverSendaddress(CCmdUI* pCmdUI);
+	afx_msg void OnButtonUpdate();
+	afx_msg void OnFlash();
+	afx_msg void OnTimer(UINT nIDEvent);
+	afx_msg void OnButtonReset();
+	afx_msg void OnButtonDisable();
+	afx_msg void OnButtonEnable();
+	afx_msg void OnButtonPwmDis();
+	afx_msg void OnButtonPwmEn();
+	afx_msg void OnButtonGo();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

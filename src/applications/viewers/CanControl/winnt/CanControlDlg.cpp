@@ -5,6 +5,9 @@
 #include "CanControl.h"
 #include "CanControlDlg.h"
 #include "CanControlParams.h"
+#include "CardAddressDlg.h"
+#include "CardsDlg.h"
+#include "SetAddressDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -64,7 +67,16 @@ CCanControlDlg::CCanControlDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CCanControlDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CCanControlDlg)
-		// NOTE: the ClassWizard will add member initialization here
+	m_axis = -1;
+	m_pgain = 0.0;
+	m_dgain = 0.0;
+	m_igain = 0.0;
+	m_ilimit = 0.0;
+	m_offset = 0.0;
+	m_shift = 0.0;
+	m_tlimit = 0.0;
+	m_desired_position = 0.0;
+	m_desired_speed = 0.0;
 	//}}AFX_DATA_INIT
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -74,7 +86,43 @@ void CCanControlDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCanControlDlg)
-		// NOTE: the ClassWizard will add DDX and DDV calls here
+	DDX_Control(pDX, IDC_EDIT_SPEED, m_desired_speed_ctrl);
+	DDX_Control(pDX, IDC_EDIT_POSITION, m_desired_position_ctrl);
+	DDX_Control(pDX, IDC_BUTTON_GO, m_go_ctrl);
+	DDX_Control(pDX, IDC_BUTTON_PWM_EN, m_pwm_enable_ctrl);
+	DDX_Control(pDX, IDC_BUTTON_PWM_DIS, m_pwm_disable_ctrl);
+	DDX_Control(pDX, IDC_BUTTON_ENABLE, m_enable_ctrl);
+	DDX_Control(pDX, IDC_BUTTON_DISABLE, m_disable_ctrl);
+	DDX_Control(pDX, IDC_BUTTON_RESET, m_reset_position_ctrl);
+	DDX_Control(pDX, IDC_EDIT_CURRENT_POSITION, m_current_position_ctrl);
+	DDX_Control(pDX, IDC_FLASH, m_flash_ctrl);
+	DDX_Control(pDX, IDC_EDIT_TLIMIT, m_tlimit_ctrl);
+	DDX_Control(pDX, IDC_EDIT_SHIFT, m_shift_ctrl);
+	DDX_Control(pDX, IDC_EDIT_OFFSET, m_offset_ctrl);
+	DDX_Control(pDX, IDC_EDIT_ILIMIT, m_ilimit_ctrl);
+	DDX_Control(pDX, IDC_EDIT_IGAIN, m_igain_ctrl);
+	DDX_Control(pDX, IDC_EDIT_DGAIN, m_dgain_ctrl);
+	DDX_Control(pDX, IDC_EDIT_PGAIN, m_pgain_ctrl);
+	DDX_Control(pDX, IDC_BUTTON_UPDATE, m_update_ctrl);
+	DDX_Control(pDX, IDC_COMBO_AXIS, m_axis_ctrl);
+	DDX_CBIndex(pDX, IDC_COMBO_AXIS, m_axis);
+	DDX_Text(pDX, IDC_EDIT_PGAIN, m_pgain);
+	DDV_MinMaxDouble(pDX, m_pgain, 0., 32767.);
+	DDX_Text(pDX, IDC_EDIT_DGAIN, m_dgain);
+	DDV_MinMaxDouble(pDX, m_dgain, 0., 32767.);
+	DDX_Text(pDX, IDC_EDIT_IGAIN, m_igain);
+	DDV_MinMaxDouble(pDX, m_igain, 0., 32767.);
+	DDX_Text(pDX, IDC_EDIT_ILIMIT, m_ilimit);
+	DDV_MinMaxDouble(pDX, m_ilimit, 0., 32767.);
+	DDX_Text(pDX, IDC_EDIT_OFFSET, m_offset);
+	DDV_MinMaxDouble(pDX, m_offset, 0., 32767.);
+	DDX_Text(pDX, IDC_EDIT_SHIFT, m_shift);
+	DDV_MinMaxDouble(pDX, m_shift, 0., 32767.);
+	DDX_Text(pDX, IDC_EDIT_TLIMIT, m_tlimit);
+	DDV_MinMaxDouble(pDX, m_tlimit, 0., 32767.);
+	DDX_Text(pDX, IDC_EDIT_POSITION, m_desired_position);
+	DDX_Text(pDX, IDC_EDIT_SPEED, m_desired_speed);
+	DDV_MinMaxDouble(pDX, m_desired_speed, 0., 100.);
 	//}}AFX_DATA_MAP
 }
 
@@ -89,6 +137,22 @@ BEGIN_MESSAGE_MAP(CCanControlDlg, CDialog)
 	ON_WM_INITMENUPOPUP()
 	ON_COMMAND(ID_DRIVER_RUN, OnDriverRun)
 	ON_COMMAND(ID_DRIVER_KILL, OnDriverKill)
+	ON_COMMAND(ID_PARAMETERS_ADDRESSOFCARDS, OnParametersAddressofcards)
+	ON_COMMAND(ID_PARAMETERS_NUMBEROFCARDS, OnParametersNumberofcards)
+	ON_CBN_SELENDOK(IDC_COMBO_AXIS, OnSelendokComboAxis)
+	ON_UPDATE_COMMAND_UI(ID_DRIVER_KILL, OnUpdateDriverKill)
+	ON_UPDATE_COMMAND_UI(ID_DRIVER_RUN, OnUpdateDriverRun)
+	ON_COMMAND(ID_DRIVER_SENDADDRESS, OnDriverSendaddress)
+	ON_UPDATE_COMMAND_UI(ID_DRIVER_SENDADDRESS, OnUpdateDriverSendaddress)
+	ON_BN_CLICKED(IDC_BUTTON_UPDATE, OnButtonUpdate)
+	ON_BN_CLICKED(IDC_FLASH, OnFlash)
+	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON_RESET, OnButtonReset)
+	ON_BN_CLICKED(IDC_BUTTON_DISABLE, OnButtonDisable)
+	ON_BN_CLICKED(IDC_BUTTON_ENABLE, OnButtonEnable)
+	ON_BN_CLICKED(IDC_BUTTON_PWM_DIS, OnButtonPwmDis)
+	ON_BN_CLICKED(IDC_BUTTON_PWM_EN, OnButtonPwmEn)
+	ON_BN_CLICKED(IDC_BUTTON_GO, OnButtonGo)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -244,6 +308,62 @@ void CCanControlDlg::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMe
 	}	
 }
 
+void CCanControlDlg::ActivateGUI ()
+{
+	m_update_ctrl.EnableWindow();
+	m_axis_ctrl.EnableWindow();
+	m_pgain_ctrl.EnableWindow();
+	m_dgain_ctrl.EnableWindow();
+	m_igain_ctrl.EnableWindow();
+	m_ilimit_ctrl.EnableWindow();
+	m_tlimit_ctrl.EnableWindow();
+	m_offset_ctrl.EnableWindow();
+	m_shift_ctrl.EnableWindow();
+	m_flash_ctrl.EnableWindow();
+
+	m_current_position_ctrl.EnableWindow();
+	m_reset_position_ctrl.EnableWindow();
+	m_enable_ctrl.EnableWindow();
+	m_disable_ctrl.EnableWindow();
+	m_pwm_enable_ctrl.EnableWindow();
+	m_pwm_disable_ctrl.EnableWindow();
+
+	m_go_ctrl.EnableWindow();
+	m_desired_position_ctrl.EnableWindow();
+	m_desired_speed_ctrl.EnableWindow();
+
+	/// 
+	SetTimer (TIMER_ID, GUI_REFRESH_INTERVAL, NULL); 
+}
+
+void CCanControlDlg::DeactivateGUI ()
+{
+	KillTimer (TIMER_ID);
+
+	m_update_ctrl.EnableWindow(FALSE);
+	m_axis_ctrl.EnableWindow(FALSE);
+	m_pgain_ctrl.EnableWindow(FALSE);
+	m_dgain_ctrl.EnableWindow(FALSE);
+	m_igain_ctrl.EnableWindow(FALSE);
+	m_ilimit_ctrl.EnableWindow(FALSE);
+	m_tlimit_ctrl.EnableWindow(FALSE);
+	m_offset_ctrl.EnableWindow(FALSE);
+	m_shift_ctrl.EnableWindow(FALSE);
+	m_flash_ctrl.EnableWindow(FALSE);
+
+	///
+	m_current_position_ctrl.EnableWindow(FALSE);
+	m_reset_position_ctrl.EnableWindow(FALSE);
+	m_enable_ctrl.EnableWindow(FALSE);
+	m_disable_ctrl.EnableWindow(FALSE);
+	m_pwm_enable_ctrl.EnableWindow(FALSE);
+	m_pwm_disable_ctrl.EnableWindow(FALSE);
+
+	m_go_ctrl.EnableWindow(FALSE);
+	m_desired_position_ctrl.EnableWindow(FALSE);
+	m_desired_speed_ctrl.EnableWindow(FALSE);
+}
+
 ///
 /// starts up the device driver.
 ///
@@ -271,6 +391,7 @@ void CCanControlDlg::OnDriverRun()
 
 	MessageBox ("The driver is now running", "Good!");
 	m_driverok = true;
+	ActivateGUI ();
 }
 
 void CCanControlDlg::OnDriverKill() 
@@ -279,5 +400,217 @@ void CCanControlDlg::OnDriverKill()
 	{
 		m_driver.close ();
 		m_driverok = false;
+
+		DeactivateGUI ();
+	}
+}
+
+void CCanControlDlg::OnParametersAddressofcards() 
+{
+	CCardAddressDlg dlgAddress;
+	int i;
+
+	for (i = 0; i < CANBUS_MAXCARDS; i++)
+		dlgAddress.m_address[i] = m_destinations[i];
+
+	int nResponse = dlgAddress.DoModal();
+
+	if (nResponse == IDOK)
+	{
+		for (i = 0; i < CANBUS_MAXCARDS-1; i++)
+		{
+			m_destinations[i] = dlgAddress.m_address[i];
+		}
+	}	
+}
+
+void CCanControlDlg::OnParametersNumberofcards() 
+{
+	CCardsDlg dlgCards;
+	dlgCards.m_cards = m_njoints/2;
+	int nResponse = dlgCards.DoModal();
+
+	if (nResponse == IDOK)
+	{
+		m_njoints = dlgCards.m_cards * 2;
+	}	
+}
+
+void CCanControlDlg::UpdateAxisParams (int axis)
+{
+	LowLevelPID pid;
+	SingleAxisParameters par;
+	par.parameters = (void *)&pid;
+	par.axis = axis;
+	m_driver.IOCtl(CMDGetPID, (void *)&par);
+
+	m_pgain = pid.KP;
+	m_dgain = pid.KD;
+	m_shift = pid.SHIFT;
+	m_offset = pid.OFFSET;
+	m_ilimit = pid.I_LIMIT;
+	m_igain = pid.KI;
+	m_tlimit = pid.T_LIMIT;
+	UpdateData(FALSE);
+}
+
+/// sends controller gains.
+void CCanControlDlg::OnButtonUpdate() 
+{
+	UpdateData(TRUE);
+
+	int index = m_axis_ctrl.GetCurSel();
+	if (index != CB_ERR)
+	{	
+		LowLevelPID pid;
+		SingleAxisParameters par;
+		par.parameters = (void *)&pid;
+		par.axis = index;
+		
+		pid.KP = m_pgain;
+		pid.KD = m_dgain;
+		pid.SHIFT = m_shift;
+		pid.OFFSET = m_offset;
+		pid.I_LIMIT = m_ilimit;
+		pid.KI = m_igain;
+		pid.T_LIMIT = m_tlimit;
+
+		m_driver.IOCtl(CMDSetPID, (void *)&par);
+	}	
+}
+
+void CCanControlDlg::OnSelendokComboAxis() 
+{
+	int index = m_axis_ctrl.GetCurSel();
+
+	if (index >= m_njoints || index == CB_ERR)
+	{
+		m_axis_ctrl.SetCurSel(-1);
+	}
+	else
+	{
+		UpdateAxisParams (index);
+		m_axis_ctrl.SetCurSel(index);
+	}
+}
+
+void CCanControlDlg::OnUpdateDriverKill(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable(m_driverok);
+}
+
+void CCanControlDlg::OnUpdateDriverRun(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable(!m_driverok);
+}
+
+void CCanControlDlg::OnDriverSendaddress() 
+{
+	CSetAddressDlg dlgAddr;
+	dlgAddr.m_address = 0;
+	int nResponse = dlgAddr.DoModal();
+
+	if (nResponse == IDOK)
+	{
+		///dlgAddr.m_address;
+	}	
+}
+
+void CCanControlDlg::OnUpdateDriverSendaddress(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable(false);
+}
+
+
+void CCanControlDlg::OnFlash() 
+{
+	m_driver.IOCtl(CMDSaveBootMemory, NULL);	
+}
+
+void CCanControlDlg::OnTimer(UINT nIDEvent) 
+{
+	int index = m_axis_ctrl.GetCurSel();
+	if (index < m_njoints && index != CB_ERR)
+	{
+		double tmp;
+		SingleAxisParameters par;
+		par.parameters = (void *)&tmp;
+		par.axis = index;
+
+		m_driver.IOCtl(CMDGetPosition, (void *)&par);
+		ACE_OS::sprintf (m_buffer, "%f", *((double *)par.parameters));
+		m_current_position_ctrl.SetWindowText (m_buffer);
+	}
+
+	CDialog::OnTimer(nIDEvent);
+}
+
+void CCanControlDlg::OnButtonReset() 
+{
+	int index = m_axis_ctrl.GetCurSel();
+	if (index != CB_ERR)
+	{
+		double tmp = 0;
+		SingleAxisParameters par;
+		par.parameters = (void *)&tmp;
+		par.axis = index;
+
+		m_driver.IOCtl(CMDDefinePosition, (void *)&par);
+		m_driver.IOCtl(CMDSetCommand, (void *)&par);
+	}
+}
+
+void CCanControlDlg::OnButtonDisable() 
+{
+	int index = m_axis_ctrl.GetCurSel();
+	if (index != CB_ERR)
+	{
+		m_driver.IOCtl(CMDControllerIdle, &index);
+	}
+}
+
+void CCanControlDlg::OnButtonEnable() 
+{
+	int index = m_axis_ctrl.GetCurSel();
+	if (index != CB_ERR)
+	{
+		m_driver.IOCtl(CMDControllerRun, &index);
+	}
+}
+
+void CCanControlDlg::OnButtonPwmDis() 
+{
+	int index = m_axis_ctrl.GetCurSel();
+	if (index != CB_ERR)
+	{
+		m_driver.IOCtl(CMDDisableAmp, &index);
+	}
+}
+
+void CCanControlDlg::OnButtonPwmEn() 
+{
+	int index = m_axis_ctrl.GetCurSel();
+	if (index != CB_ERR)
+	{
+		m_driver.IOCtl(CMDEnableAmp, &index);
+	}
+}
+
+void CCanControlDlg::OnButtonGo() 
+{
+	UpdateData(TRUE);
+
+	int index = m_axis_ctrl.GetCurSel();
+	if (index != CB_ERR)
+	{
+		SingleAxisParameters x;
+		x.axis = index;				
+		double params[2] = { 0, 0 };
+		x.parameters = (void *)params;
+
+		params[0] = m_desired_position;
+		params[1] = m_desired_speed;
+
+		m_driver.IOCtl(CMDSetPosition, (void *)&x);
 	}
 }

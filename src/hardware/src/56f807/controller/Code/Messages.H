@@ -676,6 +676,18 @@
 		_general_board_error = ERROR_SEND; \
 }
 
+#define CAN_SET_BOARD_ID_HANDLER(x) \
+{ \
+	int i = CHANNEL(CAN_DATA[1]); \
+	if (CAN_LEN == 3) \
+	{ \
+		/* address is in CAN_DATA[2] */ \
+		_general_board_error = ERROR_NONE; \
+	} \
+	else \
+		_general_board_error = ERROR_FMT; \
+}
+
 /* end of messages */
 #endif
 

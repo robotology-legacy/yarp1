@@ -108,6 +108,14 @@ SOURCE=.\CardAddressDlg.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\CardsDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SetAddressDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\StdAfx.cpp
 # ADD CPP /Yc"stdafx.h"
 # End Source File
@@ -133,7 +141,15 @@ SOURCE=.\CardAddressDlg.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\CardsDlg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Resource.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SetAddressDlg.h
 # End Source File
 # Begin Source File
 

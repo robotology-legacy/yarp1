@@ -414,7 +414,7 @@ void main(void)
 	QD2_InitPosition ();
 
 	/* reads the PID parameters from flash memory */
-	readFromFlash ();
+	//readFromFlash ();
 	
 	/* reset encoders, LATER: should do something more than this */
 	calibrate(0);
@@ -503,7 +503,15 @@ byte calibrate (int jnt)
 	return ERR_SPEED;
 }
 
-// x[0] != 0 && 
+#define BEGIN_SPECIAL_MSG_TABLE(x) \
+	switch (x[1] & 0x7F) \
+	{ \
+		default: \
+			break;
+
+#define END_SPECIAL_MSG_TABLE \
+	}
+	
 /* message table macros */
 #define BEGIN_MSG_TABLE(x) \
 	if ((x[0] & 0x0f) != _board_ID) \
@@ -573,6 +581,10 @@ byte can_interface (void)
 #define CAN_ID CAN_messID
 
 		/* interpret the messages */
+		BEGIN_SPECIAL_MSG_TABLE (CAN_data)
+		HANDLE_MSG (CAN_SET_BOARD_ID, CAN_SET_BOARD_ID_HANDLER)
+		END_SPECIAL_MSG_TABLE
+		
 		BEGIN_MSG_TABLE (CAN_data)
 		HANDLE_MSG (CAN_NO_MESSAGE, CAN_NO_MESSAGE_HANDLER)
 		HANDLE_MSG (CAN_CONTROLLER_RUN, CAN_CONTROLLER_RUN_HANDLER)
@@ -629,7 +641,7 @@ byte can_interface (void)
 		
 		END_MSG_TABLE		
 
-///		print_can (CAN_data, CAN_length, 'o');
+///		print_can (CAN_data, CAN_length, 'o'); 
 
 ///		if (_general_board_error != ERROR_NONE)
 ///		{
