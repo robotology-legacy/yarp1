@@ -15,11 +15,11 @@ int main(int argc, char * argv[])
 	
 	int error;
 	
-	error = _arm.initialize();
+	error = _arm.initialize("/home/cbeltran/DEVELOPMENT/yarp/conf/eurobot/","arm.ini");
 	
 	std::cout << "Ok, setting PID mode\n";
 	
-	_arm.activatePID();
+	/////_arm.activatePID();
 
 	//_arm.calibrate();
 	
@@ -35,8 +35,8 @@ int main(int argc, char * argv[])
 	{
 
 	 _arm.getPositions(pos2);
-        //printf(" Position: %f %f %f %f %f %f \n",pos2[0],pos2[1],pos2[2],pos2[3],pos2[4],pos2[5]);
-	 			delay(1000);
+     printf(" Position: %f %f %f %f %f %f \r",pos2[0],pos2[1],pos2[2],pos2[3],pos2[4],pos2[5]);
+	 delay(100);
 	}
 	
 	
