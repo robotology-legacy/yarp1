@@ -10,7 +10,7 @@ include $(YARP_ROOT)/conf/Makefile.template
 # work when recursing through subdirectories
 .DEFAULT:
 	@$(MAKE) -f Makefile.ace $@
-	@$(MAKE) -f Makefile.dirs $@
+#	@$(MAKE) -f Makefile.dirs $@
 
 # Invoke Makefile.ace first to build libACE, and then
 # invoke Makefile.dirs to recurse through subdirectories

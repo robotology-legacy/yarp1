@@ -190,6 +190,8 @@
 #define ACE_LACKS_WCSPBRK
 #define ACE_LACKS_WCSRCHR
 
+#define ACE_LACKS_CUSERID
+
 #if !defined (ACE_NTRACE)
 # define ACE_NTRACE 1
 #endif /* ACE_NTRACE */
