@@ -10,7 +10,7 @@
 // 
 //     Description:  This file encapsulates the SoundResources class and the its methods
 // 
-//         Version:  $Id: YARPSoundResources.h,v 1.5 2004-03-01 18:01:00 beltran Exp $
+//         Version:  $Id: YARPSoundResources.h,v 1.6 2004-03-02 10:32:00 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -44,8 +44,6 @@ public:
 	SoundResources (void) : _bmutex(1),
 							_new_frame(0),
 							_canpost(true),
-							Busy(false),
-							Ready(true),
 							dwBufferLength(8192),
 							numSamples(2048),
 							freqSample(44100),
@@ -54,7 +52,7 @@ public:
 	{
 		//Initialize variables
 		//Assign memory to variables and structures
-		m_InRecord = FALSE;
+		m_InRecord = false;
 		//VarMutexID = 2;
 	}
 
@@ -75,7 +73,7 @@ public:
 	//HANDLE			m_WaveFileHandle = INVALID_HANDLE_VALUE; // Handle to the disk file where we permanently store 
 	// the recorded audio data 
 	WAVEHDR			m_WaveHeader[3]; // We use two WAVEHDR's for recording (ie, double-buffering) in this example 
-	BOOL			m_InRecord; // Variable used to indicate whether we are in record 
+	bool			m_InRecord; // Variable used to indicate whether we are in record 
 	unsigned char	m_DoneAll;	// Variable used by recording thread to indicate whether we are in record 
 
 	MMRESULT		m_err;
@@ -93,7 +91,6 @@ public:
 	//----------------------------------------------------------------------
 	//  Parameters
 	//----------------------------------------------------------------------
-	const bool Busy, Ready;
 	const DWORD dwBufferLength;
 	const DWORD numSamples;		//dwBufferLength/4
 	const DWORD freqSample;

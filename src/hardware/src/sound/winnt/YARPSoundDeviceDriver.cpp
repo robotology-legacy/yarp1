@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.8 2004-03-01 18:01:00 beltran Exp $
+//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.9 2004-03-02 10:32:00 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -140,9 +140,10 @@ YARPSoundDeviceDriver::Body (void)
 					   */
 					if (d._bmutex.PollingWait () == 1) {
 						/// buffer acquired. Reading from the buffer
-						memcpy (d._rawBuffer, 
-								((WAVEHDR *)msg.lParam)->lpData, 
-								((WAVEHDR *)msg.lParam)->dwBytesRecorded); 
+						if (d.m_InRecord)
+							memcpy (d._rawBuffer, 
+									((WAVEHDR *)msg.lParam)->lpData, 
+									((WAVEHDR *)msg.lParam)->dwBytesRecorded); 
 						//Note: is this right? The buffer could not be full...
 
 						if (d._canpost) {

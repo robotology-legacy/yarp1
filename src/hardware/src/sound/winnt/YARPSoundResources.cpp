@@ -10,7 +10,7 @@
 // 
 //     Description:  This files implements the SoundResources methods
 // 
-//         Version:  $Id: YARPSoundResources.cpp,v 1.6 2004-03-01 18:01:00 beltran Exp $
+//         Version:  $Id: YARPSoundResources.cpp,v 1.7 2004-03-02 10:32:00 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -36,6 +36,7 @@ SoundResources::_initialize (const SoundOpenParameters& params)
 	{
 		printf("yarpsounddriver: Error starting record! -- %08X\n", m_err);
 	}
+	m_InRecord = true;
 
 	return YARP_OK;
 }
@@ -48,11 +49,13 @@ int
 SoundResources::_uninitialize (void)
 {
 	_bmutex.Wait ();
+	m_InRecord = false;
 	//Close mixer
 	mixerClose(m_MixerHandle);
 	//Reset the wave input device
 	waveInReset(m_WaveInHandle);
-	delete[] _rawBuffer; //Delete share buffer...
+	if(_rawBuffer != NULL)
+		delete[] _rawBuffer; // Delete the shared buffer
 	_bmutex.Post ();
 
 	return YARP_OK;
@@ -107,6 +110,7 @@ SoundResources::_init (const SoundOpenParameters& params)
 
 	printf("yarpsounddriver: LINES PRESENT\n");
 	_print_dst_lines();
+	
 	//----------------------------------------------------------------------
 	// This device should have a WAVEIN destination line. Let's get its ID so
 	// that we can determine what source lines are available to record from
