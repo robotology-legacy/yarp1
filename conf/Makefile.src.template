@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.src.template,v 1.4 2004-12-06 17:00:14 gmetta Exp $
+# $Id: Makefile.src.template,v 1.5 2004-12-06 22:54:04 babybot Exp $
 #
 
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))
@@ -39,7 +39,7 @@ $(GENDIR)/%.o: %.c
 
 $(LIBGENDIR)/$(CODELIB): $(TARGETS)
 	mkdir -p $(LIBGENDIR)
-	echo Making $(CODELIB) for $(TARGETS)
+	@echo Making $(CODELIB) for $(TARGETS)
 	$(AR) $(ARFLAGS) $(LIBGENDIR)/$(CODELIB) $(TARGETS)
 
 clean: subclean
