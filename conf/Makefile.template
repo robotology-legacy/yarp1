@@ -1,6 +1,6 @@
 #
 # Template to be included by all YARP makefiles.
-# $Id: Makefile.template,v 1.17 2004-10-15 23:01:08 gmetta Exp $
+# $Id: Makefile.template,v 1.18 2004-11-03 17:14:26 micheletavella Exp $
 #
 
 QNX_VER = 6.1.0 6.2.0 6.2.1
@@ -31,7 +31,7 @@ else
 	EXTRA_OPTS = $(YARP_DEBUG) -fexceptions -pipe -Wpointer-arith -Wno-uninitialized 
 	CC = g++
 	CC1 = gcc
-	CDEFS = $(EXTRA_OPTS) -D__LINUX__ -DYARP_OS_CONFIG=LINUX -I/usr/include/g++/
+	CDEFS = $(EXTRA_OPTS) -D__LINUX__ -DYARP_OS_CONFIG=LINUX -I/usr/include/g++/ -I$(YARP_ROOT)/include/
 	# got this from ACE compile.	
 	CDEFS += -DACE_NDEBUG -DACE_USE_RCSID=0
 	CDEFS += -DACE_HAS_EXCEPTIONS -D__ACE_INLINE__ -DACE_HAS_ACE_TOKEN -DACE_HAS_ACE_SVCCONF -DACE_AS_STATIC_LIBS 
