@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.4 2004-07-30 17:41:22 babybot Exp $
+/// $Id: YARPImage.h,v 1.5 2004-08-09 09:59:56 gmetta Exp $
 ///
 ///
 
@@ -76,10 +76,6 @@
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
-#endif
-
-#ifdef __QNX4__
-#include <yarp/YARPSafeNew.h>
 #endif
 
 ///

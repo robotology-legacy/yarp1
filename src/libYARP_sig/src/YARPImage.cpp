@@ -61,11 +61,9 @@
 ///
 
 ///
-/// $Id: YARPImage.cpp,v 1.2 2004-07-27 13:14:59 babybot Exp $
+/// $Id: YARPImage.cpp,v 1.3 2004-08-09 09:59:56 gmetta Exp $
 ///
 ///
-
-///#define __YARPSafeNewh__
 
 #include <yarp/YARPTime.h>
 #include <yarp/YARPImage.h>

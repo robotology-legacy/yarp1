@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: cvbase.cpp,v 1.1 2004-07-12 16:45:57 eshuy Exp $
+/// $Id: cvbase.cpp,v 1.2 2004-08-09 09:59:56 gmetta Exp $
 ///
 ///
 
@@ -96,7 +96,7 @@ template <class T>
 T* AllocAligned (int size)
 {
 	T *ptr = new T[size + YARP_IMAGE_ALIGN];
-	const int rem = (((int)ptr) % YARP_IMAGE_ALIGN);
+	const int rem = (((unsigned int)ptr) % YARP_IMAGE_ALIGN);
 	const char addbytes = YARP_IMAGE_ALIGN - rem; 
 	///((rem != 0) ? (YARP_IMAGE_ALIGN - rem) : 0); 
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPFilters.h,v 1.1 2004-07-12 16:45:57 eshuy Exp $
+/// $Id: YARPFilters.h,v 1.2 2004-08-09 09:59:56 gmetta Exp $
 ///
 ///
 
@@ -120,14 +120,15 @@ private:
 
 protected:
 	// support for logpolar border handling.
-	void AddBorderLP(YARPImageOf<T>& id, const YARPImageOf<T>& is, int kLR, int kUD);
+	///void AddBorderLP(YARPImageOf<T>& id, const YARPImageOf<T>& is, int kLR, int kUD);
 
 public:
 	YARPFilterOf () : YARPFilter() {}
 	virtual ~YARPFilterOf () {}
 };
 
-//
+
+/*
 template <class T>
 void YARPFilterOf<T>::AddBorderLP(YARPImageOf<T>& id, const YARPImageOf<T>& is, int kLR, int kUD)
 {
@@ -255,5 +256,6 @@ void YARPFilterOf<T>::AddBorderLP(YARPImageOf<T>& id, const YARPImageOf<T>& is, 
 		break;
 	}
 }
+*/
 
 #endif
