@@ -26,9 +26,8 @@ conf: configuration files.
 
 
 within src:
-	libraries: the new libraries.
-	hardware.old: device drivers and daemons.
-	motorcontrol.old: new but not YARPed yet motor control lib (head).
+	libraries: the libraries.
+	hardware: device drivers and daemons.
 	applications: client apps to the YARP lib (source code).
 
 within include:
