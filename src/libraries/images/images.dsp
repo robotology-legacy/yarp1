@@ -212,10 +212,6 @@ SOURCE=.\include\YARPImageUtils.h
 SOURCE=.\include\YARPSimpleOperations.h
 # End Source File
 # End Group
-# Begin Group "Temporary"
-
-# PROP Default_Filter ""
-# End Group
 # Begin Source File
 
 SOURCE=.\README.txt

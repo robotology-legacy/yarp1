@@ -5,6 +5,8 @@
 #include "camview.h"
 #include "camviewDlg.h"
 
+#include "CommandLineInfoEx.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -41,6 +43,17 @@ CCamviewApp theApp;
 
 BOOL CCamviewApp::InitInstance()
 {
+	CCommandLineInfoEx cmdInfo; 
+	ParseCommandLine (cmdInfo);
+
+	m_portname = "/view/i:img";
+	if (cmdInfo.GetOption("name", m_portname)) 
+	{ 
+		/// adds the leading /
+		m_portname = "/" + m_portname;
+	}
+
+	/// not really needed.
 	AfxEnableControlContainer();
 
 	// Standard initialization
@@ -57,6 +70,8 @@ BOOL CCamviewApp::InitInstance()
 	CCamviewDlg dlg;
 	m_pMainWnd = &dlg;
 	int nResponse = dlg.DoModal();
+
+	/// is this needed?
 	if (nResponse == IDOK)
 	{
 		// TODO: Place code here to handle when the dialog is

@@ -21,6 +21,17 @@
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
 
+#include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
+
+#include <YARPThread.h>
+#include <YARPSemaphore.h>
+#include <YARPScheduler.h>
+#include <YARPTime.h>
+#include <YARPImages.h>
+
+
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 

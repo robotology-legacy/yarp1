@@ -8,14 +8,66 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
+////
+#include <YARPDIBConverter.h>
+
+
 /////////////////////////////////////////////////////////////////////////////
 // CCamviewDlg dialog
+
+class CCamviewDlg;
+
+///
+///
+class CRecv : public YARPThread 
+{
+public:
+	CCamviewDlg *m_owner;
+	char m_name[512];
+	int m_x;
+	int m_y;
+
+	YARPInputPortOf<YARPGenericImage> m_inport;
+	YARPImageOf<YarpPixelBGR> m_img;
+	YARPDIBConverter m_converter;
+	YARPSemaphore m_mutex;
+
+	CRecv (CCamviewDlg *owner = NULL) : YARPThread (), m_mutex(1) 
+	{
+		m_owner = owner;
+		memset (m_name, 0, 512);
+		m_x = m_y = -1;
+	}
+
+	~CRecv () {}
+
+	void SetOwner (CCamviewDlg *owner) { m_owner = owner; }
+	void SetName (const char * name) { strcpy (m_name, name); }
+
+	unsigned char * AcquireBuffer (void)
+	{
+		m_mutex.Wait();
+		return (unsigned char *)m_converter.GetBuffer();
+	}
+
+	void ReleaseBuffer (void)
+	{
+		m_mutex.Post();
+	}
+
+	virtual void Body (void);
+};
+
+///
+///
+///
 
 class CCamviewDlg : public CDialog
 {
 // Construction
 public:
 	CCamviewDlg(CWnd* pParent = NULL);	// standard constructor
+	CRecv m_receiver;
 
 // Dialog Data
 	//{{AFX_DATA(CCamviewDlg)
@@ -39,6 +91,9 @@ protected:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
+	afx_msg void OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu);
+	afx_msg void OnClose();
+	afx_msg void OnQuit();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -23,6 +23,7 @@ class CCamviewApp : public CWinApp
 {
 public:
 	CCamviewApp();
+	CString m_portname;
 
 // Overrides
 	// ClassWizard generated virtual function overrides

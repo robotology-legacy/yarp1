@@ -14,6 +14,31 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // CAboutDlg dialog used for App About
 
+void CRecv::Body (void)
+{
+	/// 
+	m_inport.Register (m_name);
+
+	while (1)
+	{
+		m_inport.Read();
+		m_img.Refer (m_inport.Content());
+
+		m_mutex.Wait();
+		if (m_img.GetWidth() != m_x || m_img.GetHeight() != m_y)
+		{
+			m_converter.Resize (m_img);
+		}
+
+		/// prepare the DIB to display.
+		m_converter.ConvertToDIB (m_img);
+		m_mutex.Post();
+
+		/// copy it somewhere and fire a WM_PAINT event.
+		m_owner->InvalidateRect (NULL, FALSE);
+	}
+}
+
 class CAboutDlg : public CDialog
 {
 public:
@@ -82,6 +107,9 @@ BEGIN_MESSAGE_MAP(CCamviewDlg, CDialog)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_INITMENUPOPUP()
+	ON_WM_CLOSE()
+	ON_BN_CLICKED(IDOK, OnQuit)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -116,7 +144,15 @@ BOOL CCamviewDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 	
 	// TODO: Add extra initialization here
+	m_receiver.SetOwner (this);
+	m_receiver.SetName ((LPCSTR)(((CCamviewApp *)AfxGetApp())->m_portname));
 	
+	m_receiver.Begin ();
+
+	/// required to set the stretch type.
+	CPaintDC dc(this);
+	SetStretchBltMode(dc.GetSafeHdc(), COLORONCOLOR);  
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -132,6 +168,34 @@ void CCamviewDlg::OnSysCommand(UINT nID, LPARAM lParam)
 		CDialog::OnSysCommand(nID, lParam);
 	}
 }
+
+///
+///
+///
+void CopyToScreen(HDC hDC, unsigned char *img, int destX, int destY, double zoomX, double zoomY)
+{
+	ACE_ASSERT (img != NULL);				
+
+	BITMAPINFOHEADER* dibhdr = (BITMAPINFOHEADER *)img;
+	
+	int X = dibhdr->biWidth; 
+	int Y = dibhdr->biHeight;
+	int sizeX = int(X * zoomX);
+	int sizeY = int(Y * zoomY);
+	
+	/// LATER: this is ok only for color images.
+	StretchDIBits (
+		hDC,
+		destX, destY,
+		sizeX, sizeY,
+		0,0,
+		X, Y,
+		img + sizeof(BITMAPINFOHEADER),
+		(BITMAPINFO *)img,
+		DIB_RGB_COLORS,
+		SRCCOPY);
+}
+
 
 // If you add a minimize button to your dialog, you will need the code below
 //  to draw the icon.  For MFC applications using the document/view model,
@@ -158,6 +222,11 @@ void CCamviewDlg::OnPaint()
 	}
 	else
 	{
+		CPaintDC dc(this);
+		unsigned char *dib = m_receiver.AcquireBuffer();
+		CopyToScreen(dc.GetSafeHdc(), dib, 0, 0, 1.0, 1.0);
+		m_receiver.ReleaseBuffer();
+
 		CDialog::OnPaint();
 	}
 }
@@ -167,4 +236,58 @@ void CCamviewDlg::OnPaint()
 HCURSOR CCamviewDlg::OnQueryDragIcon()
 {
 	return (HCURSOR) m_hIcon;
+}
+
+void CCamviewDlg::OnInitMenuPopup(CMenu* pPopupMenu, UINT nIndex, BOOL bSysMenu) 
+{
+	CDialog::OnInitMenuPopup(pPopupMenu, nIndex, bSysMenu);
+	
+	if (!bSysMenu)
+	{
+		ASSERT(pPopupMenu != NULL);
+		// check the enabled state of various menu items
+		CCmdUI state;
+		state.m_pMenu = pPopupMenu;
+		ASSERT(state.m_pOther == NULL);
+		state.m_nIndexMax = pPopupMenu->GetMenuItemCount();
+
+		for (state.m_nIndex = 0; state.m_nIndex < state.m_nIndexMax; state.m_nIndex++)
+		{
+			state.m_nID = pPopupMenu->GetMenuItemID(state.m_nIndex);
+			if (state.m_nID == 0)
+				continue; // menu separator or invalid cmd - ignore it
+			ASSERT(state.m_pOther == NULL);
+			ASSERT(state.m_pMenu != NULL);
+			if (state.m_nID == (UINT)-1)
+			{
+				// possibly a popup menu, route to first item of that popup
+				state.m_pSubMenu = pPopupMenu->GetSubMenu(state.m_nIndex);
+				if (state.m_pSubMenu == NULL || 
+					(state.m_nID = state.m_pSubMenu->GetMenuItemID(0)) == 0 ||
+					state.m_nID == (UINT)-1)
+				{
+					continue; // first item of popup can't be routed to
+				}
+				state.DoUpdate(this, FALSE);  // popups are never auto disabled
+			}
+			else
+			{
+				// normal menu item
+				// Auto enable/disable if command is _not_ a system command
+				state.m_pSubMenu = NULL;
+				state.DoUpdate(this, state.m_nID < 0xF000);
+			}
+		}
+	}	
+}
+
+void CCamviewDlg::OnClose() 
+{
+	m_receiver.End ();
+	CDialog::OnClose();
+}
+
+void CCamviewDlg::OnQuit() 
+{
+	PostMessage (WM_CLOSE);
 }
