@@ -9,7 +9,7 @@
 #----------------------------------------------------------------------------
 
 include $(YARP_ROOT)/conf/Makefile.template
-CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS) $(CFAST)
+CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS)# $(CFAST)
 
 BIN     = armcontrol
 
@@ -21,16 +21,15 @@ FILES 	=	AState	\
 			YARPGravityEstimator	\
 			armthread
 	  
-LDLIBS  =	$(YARP_ROOT)/lib/$(SYSDIR)/YARPGalilDeviceDriver.lib	\
+LDLIBS  =	 $(YARP_ROOT)/lib/$(OS)/MotorCtrl.lib	\
+		$(YARP_ROOT)/lib/$(OS)/YARPGalilDeviceDriver.lib	\
 		$(YARP_ROOT)/lib/$(OS)/dmcqnx.lib	\
-		$(MATHLIB) 	\
-		$(YARP_ROOT)/lib/$(SYSDIR)/images.lib	\
+		$(YARP_ROOT)/lib/$(OS)/utils.lib	\
+		$(YARP_ROOT)/lib/$(OS)/images.lib	\
 		$(YARP_ROOT)/lib/$(OS)/LogPolarSmallSDK.lib	\
-		$(YARP_ROOT)/lib/$(SYSDIR)/fakeipl.lib	\
+		$(YARP_ROOT)/lib/$(OS)/fakeipl.lib	\
 		$(YARP_ROOT)/lib/$(OS)/os_services.lib	\
-		$(YARP_ROOT)/lib/$(OS)/math.lib	\
-		$(YARP_ROOT)/lib/$(OS)/MotorCtrl.lib	\
-		$(YARP_ROOT)/lib/$(OS)/utils.lib
+		$(YARP_ROOT)/lib/$(OS)/math.lib	
 	
 SRC    = $(addsuffix .cpp,$(FILES))
 OBJ    = $(addsuffix .o,$(FILES))
