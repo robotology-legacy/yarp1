@@ -11,7 +11,7 @@
 //     Description:  This is the main loop receiving the sound streams. Another class called
 //     soundprocessing is used to perform all the analysis.
 // 
-//         Version:  $Id: soundlocalization.cpp,v 1.1 2004-04-07 15:51:52 beltran Exp $
+//         Version:  $Id: soundlocalization.cpp,v 1.2 2004-04-14 14:48:23 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -29,7 +29,7 @@
 
 #include "soundprocessing.h"
 
-const int __outSize = 5;
+const int   __outSize    = 5;
 const char *__baseName   = "/soundlocalization/";
 const char *__configFile = "sound.ini";
 
@@ -38,8 +38,8 @@ int main(int argc, char* argv[])
 	int    counter = 0;
 	double time1;
 	double time2;
-	double period  = 0.0;
-	const int N = 200;
+	double period = 0.0;
+	const int N   = 200;
 	YARPScheduler::setHighResScheduling();
 
 	YVector _out(__outSize); // This port should be used to send some motor vector to the head
