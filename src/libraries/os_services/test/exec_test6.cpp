@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test6.cpp,v 1.5 2003-05-15 16:57:47 gmetta Exp $
+/// $Id: exec_test6.cpp,v 1.6 2003-08-27 16:37:32 babybot Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -136,9 +136,9 @@ int main(int argc, char *argv[])
 	YARPTime::DelayInSeconds(1);
 	t3.Begin();
 	YARPTime::DelayInSeconds(15);
-	t3.End();
-	t2.End();
-	t1.End();
+	t3.End(0);
+	t2.End(0);
+	t1.End(0);
 
 	MyThreadRated t4;
 	t4.start ();

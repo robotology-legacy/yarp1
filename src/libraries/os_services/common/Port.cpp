@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.56 2003-08-26 07:40:49 gmetta Exp $
+/// $Id: Port.cpp,v 1.57 2003-08-27 16:37:31 babybot Exp $
 ///
 ///
 
@@ -259,7 +259,7 @@ void OutputTarget::Body ()
 			ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : starting a TCP sender thread\n"));
 
 			target_pid = YARPNameService::LocateName (GetLabel().c_str(), network_name.c_str());
-			if (!target_pid->isValid())
+			if (!target_pid->isConsistent(YARP_UDP))
 			{
 				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : can't connect - target on different network, output thread 0x%x bailing out\n", GetIdentifier()));
 				YARPNameService::DeleteName(target_pid);
@@ -267,15 +267,22 @@ void OutputTarget::Body ()
 				return;	
 			}
 
+#ifndef DEBUG_DISABLE_SHMEM
 			/// involves a query to dns or to the /etc/hosts file.
 			char myhostname[YARP_STRING_LEN];
 			getHostname (myhostname, YARP_STRING_LEN);
 			ACE_INET_Addr local ((u_short)0, myhostname);
 
-#ifndef DEBUG_DISABLE_SHMEM
-			/// LATER: this test can be better carried out by the nameserver relying on the
+			/// this test is carried out by the nameserver relying on the
 			/// subnetwork structure.
-			if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
+			char iplocal[17];
+			memset (iplocal, 0, 17);
+			memcpy (iplocal, local.get_host_addr(), 17);
+
+			bool same_machine = YARPNameService::VerifyLocal (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_host_addr(), iplocal, network_name.c_str());
+
+			///if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
+			if (same_machine)
 			{
 				/// going into SHMEM mode.
 				protocol_type = YARP_SHMEM;
@@ -328,7 +335,7 @@ void OutputTarget::Body ()
 			ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : starting a UDP sender thread\n"));
 
 			target_pid = YARPNameService::LocateName (GetLabel().c_str(), network_name.c_str());
-			if (!target_pid->isValid())
+			if (!target_pid->isConsistent(YARP_UDP))
 			{
 				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : can't connect - target on different network, output thread 0x%x bailing out\n", GetIdentifier()));
 				YARPNameService::DeleteName(target_pid);
@@ -336,14 +343,20 @@ void OutputTarget::Body ()
 				return;	
 			}
 
-			/// requires a query to dns unfortunately (maybe not?).
+#ifndef DEBUG_DISABLE_SHMEM
 			char myhostname[YARP_STRING_LEN];
 			getHostname (myhostname, YARP_STRING_LEN);
 			ACE_INET_Addr local ((u_short)0, myhostname);
 
-#ifndef DEBUG_DISABLE_SHMEM
-			/// LATER: this test should be carried out by the name server.
-			if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
+			char iplocal[17];
+			memset (iplocal, 0, 17);
+			memcpy (iplocal, local.get_host_addr(), 17);
+
+			/// this test is carried out by the name server.
+			bool same_machine = YARPNameService::VerifyLocal (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_host_addr(), iplocal, network_name.c_str());
+
+			///if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
+			if (same_machine)
 			{
 				/// going into SHMEM mode.
 				protocol_type = YARP_SHMEM;
@@ -769,6 +782,8 @@ void Port::Body()
 					asleep = 0;
 					okay_to_send.Post();
 				}
+
+				_started = false;
 				return;
 			}
 		}
@@ -786,6 +801,8 @@ void Port::Body()
 					asleep = 0;
 					okay_to_send.Post();
 				}
+
+				_started = false;
 				return;
 			}
 		}
@@ -803,6 +820,8 @@ void Port::Body()
 					asleep = 0;
 					okay_to_send.Post();
 				}
+
+				_started = false;
 				return;
 			}
 		}
@@ -820,6 +839,8 @@ void Port::Body()
 					asleep = 0;
 					okay_to_send.Post();
 				}
+
+				_started = false;
 				return;
 			}
 		}
@@ -991,19 +1012,39 @@ void Port::Body()
 					else
 					{
 						/// it requires an extra call to the name server.
-						YARPUniqueNameID *pid = YARPNameService::LocateName (buf);
+						YARPUniqueNameID *rem_pid = YARPNameService::LocateName (buf);
 
 						YARPString ifname;
-						if (YARPNameService::VerifySame (((YARPUniqueNameSock *)pid)->getAddressRef().get_host_addr(), network_name.c_str(), ifname))
+					
+						bool same_net = YARPNameService::VerifySame (((YARPUniqueNameSock *)rem_pid)->getAddressRef().get_host_addr(), network_name.c_str(), ifname);
+
+#ifndef DEBUG_DISABLE_SHMEM
+						char myhostname[YARP_STRING_LEN];
+						getHostname (myhostname, YARP_STRING_LEN);
+						ACE_INET_Addr local ((u_short)0, myhostname);
+						
+						char iplocal[17];
+						memset (iplocal, 0, 17);
+						strcpy (iplocal, local.get_host_addr());
+
+						bool same_machine = YARPNameService::VerifyLocal (((YARPUniqueNameSock *)rem_pid)->getAddressRef().get_host_addr(), iplocal, network_name.c_str());
+
+						if (same_net || same_machine)
 						{
+#else
+						if (same_net)
+						{
+#endif
+							///
 							
 #ifndef DEBUG_DISABLE_SHMEM
-							char myhostname[YARP_STRING_LEN];
-							getHostname (myhostname, YARP_STRING_LEN);
-							ACE_INET_Addr local ((u_short)0, myhostname);
+							///char myhostname[YARP_STRING_LEN];
+							///getHostname (myhostname, YARP_STRING_LEN);
+							///ACE_INET_Addr local ((u_short)0, myhostname);
 
 							///ACE_DEBUG((LM_DEBUG, "temporary ::::::::::: remote IP 0x%x local IP 0x%x\n", ((YARPUniqueNameSock *)pid)->getAddressRef().get_ip_address(), local.get_ip_address()));
-							if (((YARPUniqueNameSock *)pid)->getAddressRef().get_ip_address() == local.get_ip_address())
+							///if (((YARPUniqueNameSock *)rem_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
+							if (same_machine)
 							{
 								/// go into UDP-SHMEM.
 								target = targets.GetByLabel (buf);
@@ -1036,6 +1077,7 @@ void Port::Body()
 									target = targets.NewLink("mcast-thread");
 
 									ACE_ASSERT(target != NULL);
+									target->network_name = network_name;
 									target->target_pid = NULL;
 									target->protocol_type = protocol_type;
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.43 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.44 2003-08-27 16:37:32 babybot Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -85,6 +85,8 @@ char name[256];
 
 YARPInputPortOf<NetInt32> in(YARPInputPort::DOUBLE_BUFFERS, YARP_MCAST);
 YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
+#define NET_NAME "Net1"
+
 ///YARPInputPortOf<NetInt32> in;
 ///YARPOutputPortOf<NetInt32> out;
 
@@ -95,7 +97,7 @@ public:
 	virtual void Body()
 	{
 		///int er = in.Register("/foo/the/rampaging/frog");
-		int er = in.Register(name);
+		int er = in.Register(name, NET_NAME);
 		if (er != YARP_OK)
 		{
 			ACE_DEBUG ((LM_DEBUG, "Thread1: can't register port name, bailing out\n"));
@@ -121,7 +123,7 @@ public:
 	virtual void Body()
 	{
 		///int er = out.Register("/foo/the/rampaging/fly");
-		int er = out.Register(name);
+		int er = out.Register(name, NET_NAME);
 		if (er != YARP_OK)
 		{
 			ACE_DEBUG ((LM_DEBUG, "Thread2: can't register port name, bailing out\n"));

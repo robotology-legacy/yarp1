@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.11 2003-08-26 07:40:50 gmetta Exp $
+/// $Id: YARPPort.h,v 1.12 2003-08-27 16:37:32 babybot Exp $
 ///
 ///
 
@@ -104,7 +104,7 @@ public:
 	YARPPort();
 	virtual ~YARPPort();
 
-	virtual int Register (const char *name, const char *network_name = "default");
+	virtual int Register (const char *name, const char *network_name = YARP_DEFAULT_NET);
 	virtual int Unregister (void);
 
 	int Connect(const char *name);
@@ -132,7 +132,7 @@ public:
 	YARPInputPort(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL);
 	virtual ~YARPInputPort();
 
-	virtual int Register(const char *name);
+	virtual int Register(const char *name, const char *net_name = YARP_DEFAULT_NET);
 	bool Read(bool wait=true);
 	virtual void OnRead() { /*ACE_DEBUG ((LM_DEBUG, "silly OnRead\n"));*/ }
 	YARPPortContent& Content() { return YARPPort::Content(); }
@@ -152,7 +152,7 @@ public:
 	YARPOutputPort(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL);
 	virtual ~YARPOutputPort();
 
-	virtual int Register(const char *name);
+	virtual int Register(const char *name, const char *net_name = YARP_DEFAULT_NET);
 	YARPPortContent& Content();
 	void Write(bool wait=false);
 	virtual void OnWrite() {}

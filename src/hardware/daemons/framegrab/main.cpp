@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.36 2003-08-13 00:23:17 gmetta Exp $
+/// $Id: main.cpp,v 1.37 2003-08-27 16:37:31 babybot Exp $
 ///
 ///
 
@@ -113,6 +113,7 @@
 /// global params.
 int _size = 128;
 char _name[512];
+char _netname[512];
 bool _client = false;
 bool _simu = false;
 bool _logp = false;
@@ -126,6 +127,7 @@ extern int __debug_level;
 int ParseParams (int argc, char *argv[]) 
 {
 	ACE_OS::sprintf (_name, "/%s/o:img\0", argv[0]);
+	ACE_OS::sprintf (_netname, "default\0");
 	int i;
 
 	for (i = 1; i < argc; i++)
@@ -171,6 +173,12 @@ int ParseParams (int argc, char *argv[])
 			case 'l':
 				ACE_OS::fprintf (stdout, "logpolar mode\n");
 				_logp = true;
+				break;
+
+			case 'n':
+				ACE_OS::fprintf (stdout, "sending to network : %s\n", argv[i+1]);
+				ACE_OS::sprintf (_netname, "%s\0", argv[i+1]);
+				i++;
 				break;
 			}
 		}
@@ -232,7 +240,7 @@ int _runAsClient (void)
 #endif
 	YARPInputPortOf<YARPGenericImage> inport(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
-	inport.Register (_name);
+	inport.Register (_name, _netname);
 	int frame_no = 0;
 
 	char savename[512];
@@ -269,7 +277,7 @@ int _runAsSimulation (void)
 
 	DeclareOutport(outport);
 
-	outport.Register (_name);
+	outport.Register (_name, _netname);
 
 	int frame_no = 0;
 
@@ -320,7 +328,7 @@ int _runAsLogpolarSimulation (void)
 
 	DeclareOutport(out);
 
-	out.Register (_name);
+	out.Register (_name, _netname);
 	int frame_no = 0;
 
 	ACE_OS::fprintf (stdout, "starting up simulation of a grabber...\n");
@@ -388,7 +396,7 @@ int _runAsLogpolar (void)
 	lp.Resize (_stheta, _srho);
 
 	DeclareOutport(out);
-	out.Register (_name);
+	out.Register (_name, _netname);
 
 	/// params to be passed from the command line.
 	grabber.initialize (_board_no, _xsize);
@@ -452,7 +460,7 @@ int _runAsCartesian (void)
 
 	DeclareOutport(outport);
 
-	outport.Register (_name);
+	outport.Register (_name, _netname);
 
 	/// params to be passed from the command line.
 	grabber.initialize (_board_no, _size);

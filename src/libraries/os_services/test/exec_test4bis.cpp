@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test4bis.cpp,v 1.4 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: exec_test4bis.cpp,v 1.5 2003-08-27 16:37:32 babybot Exp $
 ///
 ///
 
@@ -80,6 +80,8 @@
 
 #define REG_TEST_NAME "/pippo1"
 #define REG_LOCATE_NAME "/pippo1"
+#define NET_NAME "default"
+
 //#define REG_TEST_NAME "/test/exec_test2"
 //#define REG_LOCATE_NAME "/test/exec_test2"
 
@@ -105,7 +107,7 @@ public:
 			cout.flush();
 			out.Post();
 			
-			id = YARPNameService::LocateName(REG_LOCATE_NAME);
+			id = YARPNameService::LocateName(REG_LOCATE_NAME, NET_NAME);
 			if (id->getServiceType () == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, "can't locate name, bailing out\n"));
@@ -155,10 +157,10 @@ public:
 		YARPTime::DelayInSeconds(0.01);
 
 #ifdef __QNX6__
-		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel());
+		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, NET_NAME, YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel());
 #else
 		/// connect to name server and get ip and port.
-		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, YARP_UDP_REGPORTS);
+		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, NET_NAME, YARP_UDP, YARP_UDP_REGPORTS);
 #endif
 		if (id->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 		{
@@ -206,11 +208,11 @@ int main(int argc, char *argv[])
 //	t3.Begin();
 	YARPTime::DelayInSeconds(10.0);
 	///t2.End();
-	t1.End();
+	t1.End(0);
 //	t3.End();
 
 	YARPTime::DelayInSeconds(10.0);
-	t2.End();
+	t2.End(0);
 	return 0;
 }
 

@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigQNX6.h,v 1.17 2003-07-29 02:26:52 gmetta Exp $
+// $Id: YARPConfigQNX6.h,v 1.18 2003-08-27 16:37:31 babybot Exp $
 // YARP config file QNX6.
 //
 //
@@ -46,6 +46,9 @@
 
 /// default length for general purpose strings.
 #define YARP_STRING_LEN 256
+
+/// default network name (must match your default net description in the name server config).
+#define YARP_DEFAULT_NET "default"
 
 #include <ace/config.h>
 

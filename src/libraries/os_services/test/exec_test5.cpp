@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.17 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: exec_test5.cpp,v 1.18 2003-08-27 16:37:32 babybot Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -83,6 +83,8 @@
 
 #define REG_TEST_NAME "localhost|1111"
 #define REG_LOCATE_NAME "localhost|1111"
+#define NET_NAME "default"
+
 //#define REG_TEST_NAME "/test/exec_test2"
 //#define REG_LOCATE_NAME "/test/exec_test2"
 
@@ -112,10 +114,10 @@ public:
 			cout << "Looking up name" << endl;
 			cout.flush();
 			out.Post();
-			id = YARPNameService::LocateName(REG_LOCATE_NAME, YARP_MCAST);
+			id = YARPNameService::LocateName(REG_LOCATE_NAME, NET_NAME, YARP_MCAST);
 			YARPEndpointManager::CreateOutputEndpoint (*id);
 
-			idc = YARPNameService::LocateName(REG_LOCATE_NAME, YARP_UDP);
+			idc = YARPNameService::LocateName(REG_LOCATE_NAME, NET_NAME, YARP_UDP);
 			YARPEndpointManager::ConnectEndpoints (*idc);
 
 			if (!id->isValid() || !idc->isValid())
@@ -191,11 +193,11 @@ public:
 		YARPTime::DelayInSeconds(0.01);
 		
 #if defined(__UDP)
-		id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
+		id = YARPNameService::RegisterName(REG_TEST_NAME, NET_NAME, YARP_UDP, 11);
 #elif defined(__MCAST)
-		id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_MCAST, 11);
+		id = YARPNameService::RegisterName(REG_TEST_NAME, NET_NAME, YARP_MCAST, 11);
 #else
-		id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_TCP, 1);
+		id = YARPNameService::RegisterName(REG_TEST_NAME, NET_NAME, YARP_TCP, 11);
 #endif
 		YARPEndpointManager::CreateInputEndpoint (*id);
 

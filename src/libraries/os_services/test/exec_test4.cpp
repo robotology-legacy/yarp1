@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test4.cpp,v 1.5 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: exec_test4.cpp,v 1.6 2003-08-27 16:37:32 babybot Exp $
 ///
 ///
 
@@ -78,6 +78,8 @@
 
 #define REG_TEST_NAME "localhost|1111"
 #define REG_LOCATE_NAME "localhost|1111"
+#define NET_NAME "default"
+
 //#define REG_TEST_NAME "localhost|1111"
 //#define REG_LOCATE_NAME "localhost|1111"
 //#define REG_TEST_NAME "/test/exec_test2"
@@ -102,7 +104,7 @@ public:
 			cout << "Looking up name" << endl;
 			cout.flush();
 			out.Post();
-			id = YARPNameService::LocateName(REG_LOCATE_NAME);
+			id = YARPNameService::LocateName(REG_LOCATE_NAME, NET_NAME);
 			if (id->getServiceType () == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, "can't locate name, bailing out\n"));
@@ -160,7 +162,7 @@ public:
 		int ct = 0;
 		YARPTime::DelayInSeconds(0.01);
 
-		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_TCP, YARP_UDP_REGPORTS);
+		YARPUniqueNameID* id = YARPNameService::RegisterName(REG_TEST_NAME, NET_NAME, YARP_TCP, YARP_UDP_REGPORTS);
 		if (id->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 		{
 			ACE_DEBUG ((LM_DEBUG, "can't register name, bailing out\n"));

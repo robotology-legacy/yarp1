@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.25 2003-08-26 07:40:50 gmetta Exp $
+/// $Id: Port.h,v 1.26 2003-08-27 16:37:32 babybot Exp $
 ///
 ///
 
@@ -147,7 +147,7 @@ public:
 					space_available(1),
 #endif
 					mutex(1),
-					network_name("deafult")
+					network_name(YARP_DEFAULT_NET)
     {
 		target_pid = NULL;
 		add_header = 1;  active = 1; sending = 0; 
@@ -364,7 +364,7 @@ public:
 		complete_terminate(0,0),
 		complete_msg_thread(0,0),
 		name(nname),
-		network_name("default")
+		network_name(YARP_DEFAULT_NET)
 	{ 
 		_started = false;
 		self_id = NULL;
@@ -389,7 +389,7 @@ public:
 		out_mutex(1),
 		complete_terminate(0,0),
 		complete_msg_thread(0,0),
-		network_name("default")
+		network_name(YARP_DEFAULT_NET)
 	{
 		_started = false;
 		self_id = NULL;

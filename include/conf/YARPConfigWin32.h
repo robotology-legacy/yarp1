@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.29 2003-07-30 22:43:06 gmetta Exp $
+// $Id: YARPConfigWin32.h,v 1.30 2003-08-27 16:37:31 babybot Exp $
 // YARP config file WIN32.
 //
 //
@@ -61,6 +61,9 @@
 
 /// default length for general purpose strings.
 #define YARP_STRING_LEN 256
+
+/// default network name (must match your default net description in the name server config).
+#define YARP_DEFAULT_NET "default"
 
 /// disables warning for init_seg(lib) very legitimate use of directive.
 #pragma warning (disable:4073)

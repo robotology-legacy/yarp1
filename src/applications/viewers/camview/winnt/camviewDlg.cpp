@@ -22,7 +22,7 @@ void CRecv::Body (void)
 	using namespace _logpolarParams;
 
 	/// 
-	m_inport.Register (m_name);
+	m_inport.Register (m_name, m_netname);
 
 	double start = -1;
 	double cur = -1;
@@ -320,7 +320,7 @@ BOOL CCamviewDlg::OnInitDialog()
 
 	m_receiver.SetOwner (this);
 	m_receiver.SetName ((LPCSTR)m_connection_name);
-	
+	m_receiver.SetNetworkName ((LPCSTR)p->m_netname);
 	m_receiver.Begin ();
 
 	/// not particularly smart to copy all the variables from app but convenient.
@@ -328,7 +328,7 @@ BOOL CCamviewDlg::OnInitDialog()
 	if (p->m_enable_output)
 	{
 		m_outPort = new YARPOutputPortOf<int [2]>(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-		m_outPort->Register(m_output_connection);
+		m_outPort->Register(m_output_connection, (LPCSTR)p->m_netname);
 	}
 	else
 		m_outPort = NULL;

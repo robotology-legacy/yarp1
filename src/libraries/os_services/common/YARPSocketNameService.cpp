@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.30 2003-08-26 07:40:49 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.31 2003-08-27 16:37:32 babybot Exp $
 ///
 ///
 
@@ -514,7 +514,6 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 	getHostname (myhostname, YARP_STRING_LEN);
 	reg_addr.set((u_short)0, myhostname);
 	
-	ACE_DEBUG((LM_DEBUG, "registering name %s of (%s) protocol %s\n", name, reg_addr.get_host_addr(), servicetypeConverter(reg_type)));
 	YARPString tname (name);
 
 	switch (reg_type)
@@ -531,6 +530,8 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 			tmp.setName (name);
 			/// LATER: isn't get_host_name here == myhostname?
 			tmp.setAddr (YARPString(reg_addr.get_host_name()), my_getpid(), chid);
+
+			ACE_DEBUG((LM_DEBUG, "registering name %s of (%s) protocol %s\n", name, reg_addr.get_host_addr(), servicetypeConverter(reg_type)));
 
 			if (namer.check_in_qnx (tmp) != YARP_OK)
 			{
@@ -565,14 +566,24 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 			YARPUniqueNameSock *n = new YARPUniqueNameSock (reg_type);
 			namer.query_nic (reg_addr.get_host_addr(), network_name, new_ip);
 			
+			if (strcmp (new_ip.c_str(), "0.0.0.0") == 0)
+			{
+				ACE_DEBUG ((LM_DEBUG, ">>>> Can't find the net name %s\n", network_name));
+				delete[] ports;
+				delete n;
+				return NAMER_FAIL;	/// invalid name id.
+			}
+
 			n->setInterfaceName (new_ip);
 			
 			CONVERT_FORMAT (new_ip);
 			reg_addr.set((u_short)0, new_ip.c_str());
 
+			ACE_DEBUG((LM_DEBUG, "registering name %s of (%s) protocol %s\n", name, reg_addr.get_host_addr(), servicetypeConverter(reg_type)));
+
 			if (namer.check_in_udp (tname, reg_addr, addr, ports, extra_param) != YARP_OK)
 			{
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems registering %s\n", name));
+				ACE_DEBUG ((LM_DEBUG, ">>>> Problems registering %s\n", name));
 				delete[] ports;
 				delete n;
 				return NAMER_FAIL;	/// invalid name id.
@@ -607,6 +618,21 @@ bool YARPSocketNameService::VerifySame (YARPNameClient& namer, const char *ip, c
 	if_name = new_ip;
 	CONVERT_FORMAT(new_ip);
 	if (strcmp (new_ip.c_str(), ip) == 0)
+		return true;
+
+	return false;
+}
+
+bool YARPSocketNameService::VerifyLocal (YARPNameClient& namer, const char *rem_ip, const char *loc_ip, const char *netname)
+{
+	YARPString ip1;
+	YARPString ip2;
+	namer.query_nic (rem_ip, netname, ip1);
+	namer.query_nic (loc_ip, netname, ip2);
+	CONVERT_FORMAT(ip1);
+	CONVERT_FORMAT(ip2);
+
+	if (strcmp (ip1.c_str(), ip2.c_str()) == 0 && strcmp (ip1.c_str(), "0.0.0.0") != 0)
 		return true;
 
 	return false;

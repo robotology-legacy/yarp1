@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.12 2003-08-26 07:40:50 gmetta Exp $
+/// $Id: YARPNameService.h,v 1.13 2003-08-27 16:37:32 babybot Exp $
 ///
 ///
 /*
@@ -126,6 +126,10 @@ public:
 	/// queries the name server for an IP and netname association. returns the 
 	/// ifname (IP or symbolic) and true if IP and netname belong to the same subnet.
 	static bool VerifySame (const char *ip, const char *network_name, YARPString& ifname);
+
+	///
+	///
+	static bool VerifyLocal (const char *rem_ip, const char *loc_ip, const char *network_name);
 };
 
 

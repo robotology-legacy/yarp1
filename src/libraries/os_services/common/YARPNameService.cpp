@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.23 2003-08-26 07:40:49 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.24 2003-08-27 16:37:31 babybot Exp $
 ///
 ///
 
@@ -230,6 +230,11 @@ YARPUniqueNameID* YARPNameService::LocateName(const char *name, const char *netw
 bool YARPNameService::VerifySame(const char *ip, const char *network_name, YARPString& ifname)
 {
 	return YARPSocketNameService::VerifySame(*_namer, ip, network_name, ifname);
+}
+
+bool YARPNameService::VerifyLocal (const char *rem_ip, const char *loc_ip, const char *network_name)
+{
+	return YARPSocketNameService::VerifyLocal(*_namer, rem_ip, loc_ip, network_name);
 }
 
 int YARPNameService::DeleteName(YARPUniqueNameID* pid)

@@ -25,6 +25,7 @@ class CRecv : public YARPThread
 public:
 	CCamviewDlg *m_owner;
 	char m_name[512];
+	char m_netname[512];
 	int m_x;
 	int m_y;
 	bool m_frozen;
@@ -50,6 +51,8 @@ public:
 	{
 		m_owner = owner;
 		memset (m_name, 0, 512);
+		sprintf (m_netname, "default\0");
+		
 		m_x = m_y = 256;
 		m_frozen = false;
 		m_period = 0;
@@ -74,6 +77,7 @@ public:
 	inline void AssumeLogpolar (void) { m_logp = true; }
 	inline void AssumeDisplayFovea (void) { m_fov = true; }
 	inline bool TablesOk (void) const { return m_mapper.TablesOk(); }
+	inline void SetNetworkName (const char * net) { strcpy (m_netname, net); }
 
 	unsigned char * AcquireBuffer (void)
 	{
@@ -96,6 +100,7 @@ public:
 	}
 
 	void SaveCurrentFrame (const char *filename);
+
 	double GetEstimatedInterval (void)
 	{
 		m_mutex.Wait();

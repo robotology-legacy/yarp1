@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.15 2003-08-26 07:40:49 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.16 2003-08-27 16:37:31 babybot Exp $
 ///
 ///
 
@@ -250,7 +250,7 @@ YARPPort::~YARPPort()
 }
 
 
-int YARPPort::Register(const char *name, const char *network_name /* = "default" */)
+int YARPPort::Register(const char *name, const char *network_name /* = YARP_DEFAULT_NET */)
 {
 	return PD.SetName (name, network_name);
 }
@@ -372,7 +372,7 @@ YARPInputPort::~YARPInputPort()
 }
 
 
-int YARPInputPort::Register(const char *name)
+int YARPInputPort::Register(const char *name, const char *net_name /* = YARP_DEFAULT_NET */)
 {
 	int service_type = PD.service_type;
 	PD.TakeReceiverIncoming(new YARPSendable(CreateContent()));
@@ -384,7 +384,7 @@ int YARPInputPort::Register(const char *name)
 	{
 		PD.TakeReceiverAccess(new YARPSendable(CreateContent()));
 	}
-	return YARPPort::Register(name);
+	return YARPPort::Register(name, net_name);
 }
 
 
@@ -414,9 +414,9 @@ YARPOutputPort::~YARPOutputPort()
 }
 
 
-int YARPOutputPort::Register(const char *name)
+int YARPOutputPort::Register(const char *name, const char *net_name /* = YARP_DEFAULT_NET */)
 {
-	return YARPPort::Register(name);
+	return YARPPort::Register(name, net_name);
 }
 
 
