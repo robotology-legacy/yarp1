@@ -28,7 +28,7 @@ for Debian unstable but not true for Debian stable.
 For all other scenarios, we suggest you go to the ACE homepage, and
 download and compile the source package:
 
-    http://www.cs.wustl.edu/ schmidt/ACE.html 
+    http://www.cs.wustl.edu/schmidt/ACE.html 
 
 If you are a windows user, look for Visual Studio project files.  If you 
 are a unix user, fiddle with Makefiles.
