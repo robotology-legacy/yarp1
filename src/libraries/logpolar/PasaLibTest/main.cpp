@@ -10,6 +10,8 @@ void main ()
 
 	Image_Data Param;
 
+	int i,j;
+
 	unsigned char * Orig_Image;
 	unsigned char * LP_Image;
 	unsigned char * Rem_Image;
@@ -43,6 +45,8 @@ void main ()
 
 	PadSizeLP = (((Param.Size_Theta * Param.LP_Planes) % Param.padding) + (Param.Size_Theta * Param.LP_Planes))*Param.Size_Rho;
 	LP_Image = (unsigned char *) malloc (PadSizeLP * sizeof (unsigned char));
+	int PadSizeLPBW = (((Param.Size_Theta * 1) % Param.padding) + (Param.Size_Theta * 1))*Param.Size_Rho;
+	unsigned char * LP_Image_BW = (unsigned char *) malloc (PadSizeLPBW * sizeof (unsigned char));
 
 	Build_Pad_Map(&Param,Path );
 
@@ -105,5 +109,53 @@ void main ()
 	Remap(Rem_Image,LP_Image +760*42,&Param,RemapMap);
 	sprintf(File_Name,"%s","C:\\Temp\\Test4.bmp");
 	Save_Bitmap(Rem_Image,256,256,3,File_Name);
+
+	char * ColorMap;
+
+	sprintf(File_Name,"%s%s",Path,"ColorMap.gio");
+	if ((fin = fopen(File_Name,"rb")) != NULL)
+	{
+		ColorMap = (char *) malloc (Param.Size_LP * sizeof(char));
+		fread(ColorMap,sizeof(char),Param.Size_LP,fin);
+		fclose (fin);
+	}
+
+	unsigned char * LP_Ptr = LP_Image;
+	unsigned char * LP_Ptr_BW = LP_Image_BW;
+	char * ColorPtr = ColorMap;
+
+	for (j=0; j<Param.Size_Rho; j++)
+	{
+		for (i=0; i<Param.Size_Theta; i++)
+		{
+			*LP_Ptr_BW++ = *(LP_Ptr+*ColorPtr);
+			LP_Ptr +=3;
+			ColorPtr++;
+		}
+		LP_Ptr_BW+=(Param.Size_Theta) % Param.padding;
+		LP_Ptr+=(Param.Size_Theta * 3) % Param.padding;
+	}
+
+
+	sprintf(File_Name,"%s","C:\\Temp\\TestBW1.bmp");
+	Save_Bitmap(LP_Image_BW,256,152,1,File_Name);
+
+	Neighborhood * WeightsMap;
+	sprintf(File_Name,"%s%s%02d%s",Path,"WeightsMap",Param.Pix_Numb,".gio");
+	if ((fin = fopen(File_Name,"rb")) != NULL)
+	{
+		WeightsMap = (Neighborhood *) malloc (Param.Size_LP * Param.Pix_Numb * 3 * sizeof(Neighborhood));
+		fread(WeightsMap,sizeof(Neighborhood),Param.Size_LP * Param.Pix_Numb * 3,fin);
+		fclose (fin);
+	}
+
+//	for (j=0; j<Param.Size_LP * Param.Pix_Numb * 3; j++)
+//		if (WeightsMap[j].weight>0.1)
+//			i=i;
+
+	Reconstruct_Color(LP_Image,LP_Image_BW,Param.Size_LP,WeightsMap,4);
+
+	sprintf(File_Name,"%s","C:\\Temp\\TestBW2.bmp");
+	Save_Bitmap(LP_Image,760,152,1,File_Name);
 
 }

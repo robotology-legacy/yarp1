@@ -414,6 +414,11 @@ int Build_Neighborhood_Map(Image_Data * Par,
 				}
 		}
 
+		int ww;
+		for (ww=0; ww<20; ww++)
+			printf("%d,%d\n",Neighbor_Map_RGB[10*(49*252+2)+ww].position%252,Neighbor_Map_RGB[10*(49*252+2)+ww].position/252);
+
+
 		sprintf(File_Name,"%s%s",Path,"NeighborhoodMap.gio");
 
 		fout = fopen(File_Name,"wb");
@@ -421,8 +426,9 @@ int Build_Neighborhood_Map(Image_Data * Par,
 		fclose (fout);
 
 		free(Neighbor_Map_RGB);
-		free(X_Map);
-		free(Y_Map);
+		free(Tables.XYMap);
+//		free(X_Map);
+//		free(Y_Map);
 
 		free(Color_Map);
 		return 1;
@@ -597,7 +603,7 @@ unsigned char Build_Weights_Map(Image_Data * Par,
 
 	FILE * fout;
 		
-	int PadSizeTheta = (((Par->Size_Theta * 1) % Par->padding) + (Par->Size_Theta * 1));
+	int PadSizeTheta = ((Par->Size_Theta * 1) % Par->padding);
 
 	retval = Load_Tables(Par,&Tables,Path,8);
 

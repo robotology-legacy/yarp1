@@ -359,7 +359,7 @@ void Reconstruct_Color(unsigned char * Out_Image,
 					   Neighborhood * Weights_Map,
 					   int Pix_Numb)
 {
-	int i,j,plane;
+	int i,j,k,plane;
 	int shiftPN = Size * Pix_Numb;
 	double Sum;
 	int step = Size;
@@ -377,22 +377,27 @@ void Reconstruct_Color(unsigned char * Out_Image,
 	}
 	else
 	{
-		for (j=0; j<Pix_Numb*Size; j+=Pix_Numb)
+//		for (j=0; j<Pix_Numb*Size; j+=Pix_Numb)
+		for (j=0; j<152; j++)
 		{
-			Sum = 0.0;
-			for (i=0; i<Pix_Numb; i++)
-				Sum += Weights_Map_R[j+i].weight*In_Image[Weights_Map_R[j+i].position];
-			*buffer++ = (unsigned char)Sum;
+			for (k=0; k<Pix_Numb*252; k+=Pix_Numb)
+			{
+				Sum = 0.0;
+				for (i=0; i<Pix_Numb; i++)
+					Sum += Weights_Map_R[j*Pix_Numb*252+k  +i].weight*In_Image[Weights_Map_R[j*Pix_Numb*252+k  +i].position];
+				*buffer++ = (unsigned char)Sum;
 
-			Sum = 0.0;
-			for (i=0; i<Pix_Numb; i++)
-				Sum += Weights_Map_G[j+i].weight*In_Image[Weights_Map_G[j+i].position];
-			*buffer++ = (unsigned char)Sum;
+				Sum = 0.0;
+				for (i=0; i<Pix_Numb; i++)
+					Sum += Weights_Map_G[j*Pix_Numb*252+k  +i].weight*In_Image[Weights_Map_G[j*Pix_Numb*252+k  +i].position];
+				*buffer++ = (unsigned char)Sum;
 
-			Sum = 0.0;
-			for (i=0; i<Pix_Numb; i++)
-				Sum += Weights_Map_B[j+i].weight*In_Image[Weights_Map_B[j+i].position];
-			*buffer++ = (unsigned char)Sum;
+				Sum = 0.0;
+				for (i=0; i<Pix_Numb; i++)
+					Sum += Weights_Map_B[j*Pix_Numb*252+k  +i].weight*In_Image[Weights_Map_B[j*Pix_Numb*252+k  +i].position];
+				*buffer++ = (unsigned char)Sum;
+			}
+			buffer+=4;
 		}
 	}
 }

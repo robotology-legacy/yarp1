@@ -142,7 +142,7 @@ unsigned char Load_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,unsi
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			Tables->XYMap = (double *) malloc (2 * Param->Size_LP * sizeof(double));
-			fread(Tables->XYMap,sizeof(double),2 * Param->Size_LP * 3,fin);
+			fread(Tables->XYMap,sizeof(double),2 * Param->Size_LP * 1,fin);
 			fclose (fin);
 			retval = retval | 128;
 		}

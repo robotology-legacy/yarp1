@@ -31,7 +31,9 @@ void main()
 					152,252,42,
 					1090,CUSTOM,1);
 
-	sprintf(Path,"%s","W:\\Tables\\Test\\Giotto2.0\\");
+	Par.padding = 8;
+
+	sprintf(Path,"%s","C:\\Temp\\Tables\\");
 
 	printf("Building Color Map for Giotto 2.0\n");
 
@@ -43,7 +45,7 @@ void main()
 
 	printf("Building Angular Shift Map for Giotto 2.0\n");
 
-	Build_Ang_Shift_Map(0,&Par,Path);
+	Build_Ang_Shift_Map(&Par,Path);
 
 	printf("Building XY Map for Giotto 2.0\n");
 
@@ -51,28 +53,28 @@ void main()
 
 	printf("Building Neighborhood Map (%d pixels) for Giotto 2.0\n",Pix_Numb);
 
-//	Build_Neighborhood_Map(Pix_Numb,&Par,Path);
+	Build_Neighborhood_Map(&Par,Path);
 
-	for (i=1; i<=10; i++)
-	{
+//	for (i=1; i<=10; i++)
+//	{
 		printf("Building Weights Map (%d pixels) for Giotto 2.0\n",i);
-//		Build_Weights_Map (i,&Par,Path);	
-	}
+		Build_Weights_Map(&Par,Path);	
+//	}
 
 	printf("Building Remap LUT for Zoom Level = %2.2f for Giotto 2.0\n",Par.Zoom_Level);
 
-//	Build_Remap_LUT(&Par,Path);
+	Build_Remap_Map(&Par,Path);
 
 	printf("Cropping Remap LUT for Size = %d x %d for Giotto 2.0\n",Par.Size_X_Remap,Par.Size_Y_Remap);
 
-	Crop_Remap_LUT(&Par,Path);
+	Crop_Remap_Map(&Par,Path);
 
 	Par.Size_X_Remap = 352;
 	Par.Size_Y_Remap = 288;
 
 	printf("Cropping Remap LUT for Size = %d x %d for Giotto 2.0\n",Par.Size_X_Remap,Par.Size_Y_Remap);
 
-	Crop_Remap_LUT(&Par,Path);
+/*	Crop_Remap_LUT(&Par,Path);
 
 	Par.Size_X_Remap = 640;
 	Par.Size_Y_Remap = 480;
