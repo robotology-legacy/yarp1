@@ -177,6 +177,91 @@ int YARP3DHistogram::_dumpFull(const char *file)
 	return YARP_OK;
 }
 
+int YARP3DHistogram::_load1D(const char *file, Histo1D &lut)
+{
+	FILE *fp;
+	fp = ACE_OS::fopen(file, "rt");
+
+	if (fp == NULL)
+		return YARP_FAIL;
+
+	int tmpMax;
+	int tmpMin;
+	int tmpSize;
+	double tmpMaximum;
+	fscanf(fp, "%lf\n", &tmpMaximum);
+	fscanf(fp, "%d %d %d\n", &tmpMax, &tmpMin, &tmpSize);
+
+	lut.resize((unsigned char) tmpMax, (unsigned char) tmpMin, (unsigned char) tmpSize);
+	lut._maximum = tmpMaximum;
+
+	HistoEntry *tmpEntry;
+				
+	unsigned int it = lut.begin();
+
+	while  (lut.find(it, &tmpEntry)!=-1)
+	{
+		int tmp;
+		double v;
+		fscanf(fp, "%d \t%lf\n", &tmp, &v);
+		tmpEntry->setValue(v);
+		it++;
+	}
+
+	ACE_OS::fclose(fp);
+
+	return YARP_OK;
+}
+
+int YARP3DHistogram::_loadFull(const char *file)
+{
+	FILE *fp;
+	fp = ACE_OS::fopen(file, "rt");
+	if (fp == NULL)
+		return YARP_FAIL;
+
+	double tmpMaximum;
+	unsigned char max[3];
+	unsigned char min[3];
+	unsigned char size[3];
+	int tmpMax;
+	int tmpMin;
+	int tmpSize;
+	
+	fscanf(fp, "%lf\n", &tmpMaximum);
+	
+	int i;
+	for(i = 0; i<3; i++)
+	{
+		fscanf(fp, "%d %d %d\n", &tmpMax, &tmpMin, &tmpSize);
+		max[i] = (unsigned char) tmpMax;
+		min[i] = (unsigned char) tmpMin;
+		size[i] = (unsigned char) tmpSize;
+	}
+
+	_3dlut.resize(tmpMax, tmpMin, tmpSize);
+	_3dlut._maximum = tmpMaximum;
+
+	HistoEntry *tmpEntry;
+	int dummy1;
+	int dummy2;
+	int dummy3;
+			
+	unsigned int it = _3dlut.begin();
+
+	while  (_3dlut.find(it, &tmpEntry)!=-1)
+	{
+		double v;
+		fscanf(fp, "%d %d %d %lf\n", &dummy1, &dummy2, &dummy3, &v);
+		tmpEntry->setValue(v);
+		it++;
+	}
+
+	ACE_OS::fclose(fp);
+	
+	return YARP_OK;
+}
+
 void YARP3DHistogram::Resize(unsigned char max, unsigned char min, unsigned char n)
 {
    	clean();
@@ -198,12 +283,22 @@ void YARP3DHistogram::Resize(unsigned char max, unsigned char min, unsigned char
 	_blut.resize(max, min, n[2]);
 }
 
-int YARP3DHistogram::dump(YARPString &basename)
+int YARP3DHistogram::dump(const YARPString &basename)
 {
 	_dumpFull((basename+".full").c_str());
 	_dump1D((basename+".r").c_str(), _rlut);
 	_dump1D((basename+".g").c_str(), _glut);
 	_dump1D((basename+".b").c_str(), _blut);
+
+	return YARP_OK;
+}
+
+int YARP3DHistogram::load(const YARPString &basename)
+{
+	_loadFull((basename+".full").c_str());
+	_load1D((basename+".r").c_str(), _rlut);
+	_load1D((basename+".g").c_str(), _glut);
+	_load1D((basename+".b").c_str(), _blut);
 
 	return YARP_OK;
 }

@@ -111,7 +111,7 @@ public:
 		for(r = 0; r<_srho; r++)
 			for(t = 0; t<_stheta; t++)
 			{
-			//	if ( backpr(t,r) > 200)
+				if ( backpr(t,r) > 200)
 				{
 					findCircle(t, r, R, points);
 					cumulateRegion(src, points);
@@ -119,6 +119,8 @@ public:
 					double p = intersect(target);
 					out(t,r) = unsigned char (p*255 + 0.5);
 				}
+				else
+					out(t,r) = 0;
 			}
 	}
 		
@@ -136,8 +138,32 @@ public:
 
 	double intersect(YARPLpHistoSegmentation &target)
 	{
-		// later
-		return 0;
+		HistoEntry tmpG;
+		HistoEntry tmpH;
+			
+		int it = 0;
+		double sumG = 0.0;
+		double sumH = 0.0;
+		double sum = 0.0;
+		while  ( (target._3dlut.find(it, tmpG)!=-1) && (histo._3dlut.find(it, tmpH)!=-1) )
+		{
+			double g = tmpG.value()/target._maximum;
+			double h = tmpH.value()/histo._maximum;
+			
+			sumG += g;
+			sumH += h;
+
+			if (g>h)
+				sum += h;
+			else
+				sum += g;
+			it++;
+		}
+
+		if (sumG>sumH)
+			return sum/sumH;
+		else
+			return sum/sumG;
 	}
 
 	circle points;
@@ -182,6 +208,10 @@ int main(int argc, char* argv[])
 	_outSeg2.Resize(_stheta, _srho);
 
 	// _blobs.Resize(_stheta, _srho);
+
+	char tmp[128];
+	sprintf(tmp, "%s%d", "y:\\zgarbage\\exp10\\histo", 37);
+	_histo.load(YARPString(tmp));
 
 	YARPLogpolar _mapper;
 

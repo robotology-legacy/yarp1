@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARP3DHistogram.h,v 1.3 2003-09-04 16:57:40 babybot Exp $ 
+/// $Id: YARP3DHistogram.h,v 1.4 2003-09-09 16:33:11 babybot Exp $ 
 ///
 /// August 2003 -- by nat
 
@@ -91,6 +91,12 @@ public:
 
 	double value()
 	{ return _acc; }
+
+	double setValue(double nv)
+	{
+		_acc = nv;
+		return _acc;
+	}
 
 	void reset()
 	{ _acc = 0.0; }
@@ -218,7 +224,7 @@ public:
 	void Resize(unsigned char max, unsigned char min, unsigned char *n);
 	void Apply(unsigned char r, unsigned char g, unsigned char b, double w = 1.0);
 		
-	int dump(YARPString &basename);
+	int dump(const YARPString &basename);
 	
 	inline double backProjection(const YarpPixelRGB &p)
 	{ return _backProjection(p.r, p.g, p.b); }
@@ -229,11 +235,16 @@ public:
 	inline double backProjection(unsigned char r, unsigned char g, unsigned char b)
 	{ return _backProjection(r,g,b); }
 
+	int load(const YARPString &basename);
+	
 	void clean();
 	
 private:
 	int _dumpFull(const char *file);
 	int _dump1D(const char *file, Histo1D &lut);
+	int _load1D(const char *file, Histo1D &lut);
+	int _loadFull(const char *file);
+
 	inline double _backProjection(unsigned char r, unsigned char g, unsigned char b)
 	{
 		HistoEntry *tmpEntryP = NULL;
