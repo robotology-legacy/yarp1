@@ -26,6 +26,8 @@ VPATH += $(GENDIR)
 
 all: target
 
+default: all
+
 target: $(TARGETS) $(LIBGENDIR)/$(CODELIB) subtarget
 
 w:
