@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotHandParameters.h,v 1.1 2004-07-28 17:17:35 babybot Exp $
+///  $Id: YARPBabybotHandParameters.h,v 1.2 2004-09-04 22:01:30 babybot Exp $
 ///
 ///
 
@@ -128,10 +128,7 @@ public:
 		memcpy(_encoderToAngles, _BabybotHand::__encoderToAngles, sizeof(double)*_naj);
 	}
 
-	~YARPBabybotHandParameters()
-	{
-		
-	}
+	~YARPBabybotHandParameters() {}
 
 	int load(const YARPString &path, const YARPString &init_file)
 	{

@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.4 2004-09-03 14:43:24 babybot Exp $
+///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.5 2004-09-04 22:01:31 babybot Exp $
 ///
 ///
 
@@ -151,6 +151,7 @@ public:
 		_zeros = NULL;
 		_signs = NULL;
 		_axis_map = NULL;
+		_inv_axis_map = NULL;
 		_encoderToAngles = NULL;
 		_stiffPID = NULL;
 		_maxDAC = NULL;
@@ -172,6 +173,21 @@ public:
 			_stiffPID[i] = _BabybotHead::_stiffPID[i];
 			_maxDAC[i] = _BabybotHead::_maxDAC[i];
 		}
+
+		// invert the axis map.
+		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
+		for (i = 0; i < _nj; i++)
+		{
+			int j;
+			for (j = 0; j < _nj; j++)
+			{
+				if (_axis_map[j] == i)
+				{
+					_inv_axis_map[i] = j;
+					break;
+				}
+			}
+		}
 	}
 
 	/**
@@ -189,6 +205,8 @@ public:
 			delete [] _signs;
 		if (_axis_map != NULL)
 			delete [] _axis_map;
+		if (_inv_axis_map != NULL)
+			delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL)
 			delete [] _encoderToAngles;
 		if (_stiffPID != NULL)
@@ -247,6 +265,22 @@ public:
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "AxisMap", _axis_map, _nj) == YARP_FAIL)
 			return YARP_FAIL;
+
+		// invert the axis map.
+		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
+		for (i = 0; i < _nj; i++)
+		{
+			int j;
+			for (j = 0; j < _nj; j++)
+			{
+				if (_axis_map[j] == i)
+				{
+					_inv_axis_map[i] = j;
+					break;
+				}
+			}
+		}
+
 		if (cfgFile.get("[GENERAL]", "Signs", _signs, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "MaxDAC", _maxDAC, _nj) == YARP_FAIL)
@@ -294,6 +328,7 @@ public:
 			memcpy (_zeros, peer._zeros, sizeof(double) * _nj);
 			memcpy (_signs, peer._signs, sizeof(double) * _nj);
 			memcpy (_axis_map, peer._axis_map, sizeof(int) * _nj);
+			memcpy (_inv_axis_map, peer._inv_axis_map, sizeof(int) * _nj);
 			memcpy (_encoderToAngles, peer._encoderToAngles, sizeof(double) * _nj);
 			memcpy (_stiffPID, peer._stiffPID, sizeof(int) * _nj);
 			memcpy (_maxDAC, peer._maxDAC, sizeof(double) * _nj);
@@ -307,6 +342,7 @@ public:
 			if (_zeros != NULL)	delete [] _zeros;
 			if (_signs != NULL)	delete [] _signs;
 			if (_axis_map != NULL) delete [] _axis_map;
+			if (_inv_axis_map != NULL) delete [] _inv_axis_map;
 			if (_encoderToAngles != NULL) delete [] _encoderToAngles;
 			if (_stiffPID != NULL) delete [] _stiffPID;
 			if (_maxDAC != NULL) delete [] _maxDAC;
@@ -318,6 +354,7 @@ public:
 			_zeros = NULL;
 			_signs = NULL;
 			_axis_map = NULL;
+			_inv_axis_map = NULL;
 			_encoderToAngles = NULL;
 			_stiffPID = NULL;
 			_maxDAC = NULL;
@@ -345,6 +382,8 @@ private:
 			delete [] _signs;
 		if (_axis_map != NULL)
 			delete [] _axis_map;
+		if (_inv_axis_map != NULL)
+			delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL)
 			delete [] _encoderToAngles;
 		if (_stiffPID != NULL)
@@ -361,11 +400,14 @@ private:
 		_zeros = new double [nj];
 		_signs = new double [nj];
 		_axis_map = new int [nj];
+		_inv_axis_map = new int [nj];
 		_encoderToAngles = new double [nj];
 		_limitsMax = new double [nj];
 		_limitsMin = new double [nj];
 		_stiffPID = new int [nj];
 		_maxDAC = new double [nj];
+
+		// not checked?
 	}
 
 public:
@@ -374,6 +416,7 @@ public:
 	double *_zeros;
 	double *_signs;
 	int *_axis_map;
+	int *_inv_axis_map;
 	double *_encoderToAngles;
 	int *_stiffPID;
 	int _nj;

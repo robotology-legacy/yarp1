@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.2 2004-09-03 13:16:09 babybot Exp $
+///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.3 2004-09-04 22:01:30 babybot Exp $
 ///
 ///
 
@@ -154,6 +154,7 @@ public:
 		_zeros = NULL;
 		_signs = NULL;
 		_axis_map = NULL;
+		_inv_axis_map = NULL;
 		_encoderToAngles = NULL;
 		_fwdCouple = NULL;
 		_invCouple = NULL;
@@ -185,6 +186,21 @@ public:
 		_invCouple[4] = -_fwdCouple[4] / (_encoderToAngles[3] * _encoderToAngles[5]) +
 						(_fwdCouple[3] * _fwdCouple[5]) / (_encoderToAngles[3] * _encoderToAngles[4] * _encoderToAngles[5]);
 		_invCouple[5] = -_fwdCouple[5] / (_encoderToAngles[4] * _encoderToAngles[5]);
+
+		// invert the axis map.
+		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
+		for (i = 0; i < _nj; i++)
+		{
+			int j;
+			for (j = 0; j < _nj; j++)
+			{
+				if (_axis_map[j] == i)
+				{
+					_inv_axis_map[i] = j;
+					break;
+				}
+			}
+		}
 	}
 
 	/**
@@ -202,6 +218,8 @@ public:
 			delete [] _signs;
 		if (_axis_map != NULL)
 			delete [] _axis_map;
+		if (_inv_axis_map != NULL)
+			delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL)
 			delete [] _encoderToAngles;
 		if (_fwdCouple != NULL)
@@ -253,6 +271,22 @@ public:
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "AxisMap", _axis_map, _nj) == YARP_FAIL)
 			return YARP_FAIL;
+
+		// invert the axis map.
+		ACE_OS::memset (_inv_axis_map, 0, sizeof(int) * _nj);
+		for (i = 0; i < _nj; i++)
+		{
+			int j;
+			for (j = 0; j < _nj; j++)
+			{
+				if (_axis_map[j] == i)
+				{
+					_inv_axis_map[i] = j;
+					break;
+				}
+			}
+		}
+
 		if (cfgFile.get("[GENERAL]", "Signs", _signs, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "FwdCouple", _fwdCouple, _nj) == YARP_FAIL)
@@ -306,6 +340,7 @@ public:
 			memcpy (_zeros, peer._zeros, sizeof(double) * _nj);
 			memcpy (_signs, peer._signs, sizeof(double) * _nj);
 			memcpy (_axis_map, peer._axis_map, sizeof(int) * _nj);
+			memcpy (_inv_axis_map, peer._inv_axis_map, sizeof(int) * _nj);
 			memcpy (_encoderToAngles, peer._encoderToAngles, sizeof(double) * _nj);
 			memcpy (_fwdCouple, peer._fwdCouple, sizeof(double) * _nj);
 			memcpy (_invCouple, peer._invCouple, sizeof(double) * _nj);
@@ -319,6 +354,7 @@ public:
 			if (_zeros != NULL)	delete [] _zeros;
 			if (_signs != NULL)	delete [] _signs;
 			if (_axis_map != NULL) delete [] _axis_map;
+			if (_inv_axis_map != NULL) delete [] _inv_axis_map;
 			if (_encoderToAngles != NULL) delete [] _encoderToAngles;
 			if (_fwdCouple != NULL) delete [] _fwdCouple;
 			if (_invCouple != NULL)	delete [] _invCouple;
@@ -330,6 +366,7 @@ public:
 			_zeros = NULL;
 			_signs = NULL;
 			_axis_map = NULL;
+			_inv_axis_map = NULL;
 			_encoderToAngles = NULL;
 			_fwdCouple = NULL;
 			_invCouple = NULL;
@@ -357,6 +394,8 @@ private:
 			delete [] _signs;
 		if (_axis_map != NULL)
 			delete [] _axis_map;
+		if (_inv_axis_map != NULL)
+			delete [] _inv_axis_map;
 		if (_encoderToAngles != NULL)
 			delete [] _encoderToAngles;
 		if (_fwdCouple != NULL)
@@ -373,6 +412,7 @@ private:
 		_zeros = new double [nj];
 		_signs = new double [nj];
 		_axis_map = new int [nj];
+		_inv_axis_map = new int [nj];
 		_encoderToAngles = new double [nj];
 		_fwdCouple = new double [nj];
 		_invCouple = new double [nj];
@@ -386,6 +426,7 @@ public:
 	double *_zeros;
 	double *_signs;
 	int *_axis_map;
+	int *_inv_axis_map;
 	double *_encoderToAngles;
 	double *_fwdCouple;
 	double *_invCouple;
@@ -629,7 +670,8 @@ public:
 	/**
 	 * Calibrates the control card if needed.
 	 * NOTE: this function doesn't do the mapping (_axis_map) and assumes the controlled
-	 * axes for the puma are numbered from 0 to 5.
+	 * axes for the puma are numbered from 0 to 5. Please make sure this is the case
+	 * before calling it!
 	 *
 	 * @param joint is the joint number/function requested to the calibrate method.
 	 * The default value -1 does nothing.

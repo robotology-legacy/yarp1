@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPGalilOnBabybotHandAdapter.h,v 1.3 2004-09-03 13:16:09 babybot Exp $
+///  $Id: YARPGalilOnBabybotHandAdapter.h,v 1.4 2004-09-04 22:01:30 babybot Exp $
 ///
 ///
 
@@ -141,6 +141,7 @@ public:
 		_initialized = false;
 		return YARP_OK;
 	}
+
 	int idleMode()
 	{
 		// set output port to 1..1 (disable motors)

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.11 2004-09-04 15:20:42 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.12 2004-09-04 22:01:31 babybot Exp $
 ///
 ///
 
@@ -107,6 +107,10 @@ namespace _RobotcubHead
 
 // InvAxisMap	6 7 5 4 2 0 1 3
 // AxisMap		5 6 4 7 3 2 0 1
+
+//
+// LATER: Add loading of card addresses (destinations) from the head config file.
+//
 
 /**
  * YARPRobotcubHeadParameters is one of the components required to
@@ -660,14 +664,12 @@ public:
 		ACE_ASSERT (tmpv != NULL);
 		ACE_OS::memset (tmpv, 0, sizeof(double) * _parameters->_nj);
 
-		SingleAxisParameters x;
-		x.axis = joint;	
-		x.parameters = &accel;
+		tmpv[joint] = accel;
+		IOCtl(CMDSetAccelerations, tmpv);
 
 		tmpv[joint] = speed;
 
-		IOCtl(CMDSetAcceleration, (void *)&x);
-		IOCtl(CMDVMove, (void *)tmpv);
+		IOCtl(CMDVMove, tmpv);
 
 		double error = 0;
 		SingleAxisParameters s;
@@ -677,17 +679,20 @@ public:
 		do 
 		{
 			// gets error.
-			ret = IOCtl(CMDGetTorque, (void *)&s);
+			ret = IOCtl(CMDGetTorque, &s);
 			YARPTime::DelayInSeconds(0.01);
 		}
 		while (fabs(error) < threshold && ret != YARP_FAIL);
 
 		// stop motion.
 		ACE_OS::memset (tmpv, 0, sizeof(double) * _parameters->_nj);
-		tmpv[joint] = 0;
 
-		IOCtl(CMDSetAcceleration, (void *)&x);
-		IOCtl(CMDVMove, (void *)tmpv);
+		// do I need this?
+		tmpv[joint] = accel;
+		IOCtl(CMDSetAccelerations, tmpv);
+
+		tmpv[joint] = 0;
+		IOCtl(CMDVMove, tmpv);
 
 		// get current position.
 		double position = 0;
@@ -708,7 +713,7 @@ public:
 	{
 		const double DESIRED_ACC = 2;
 		const double DESIRED_SPEED = 40;
-		const double THRESHOLD = 100;
+		const double THRESHOLD = 20;
 		const double MARGIN = 500;
 
 		double max_position = 0;
@@ -756,6 +761,9 @@ public:
 	{
 		switch (joint)
 		{
+		default:
+			return YARP_FAIL;
+
 		case -1:
 			YARP_ROBOTCUB_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
 			ACE_OS::printf("..done!\n");
@@ -765,7 +773,6 @@ public:
 		case 1:
 		case 2:
 		case 3:
-			// should use the axis map perhaps.
 			return genericCalibrate (_parameters->_axis_map[joint]);
 			break;
 		}
