@@ -111,7 +111,19 @@ SOURCE=..\include\yarp\YARPFrameGrabberUtils.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\yarp\YARPGenericControlBoard.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPGenericForceSensor.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\yarp\YARPGenericGrabber.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\include\yarp\YARPGenericSoundGrabber.h
 # End Source File
 # Begin Source File
 

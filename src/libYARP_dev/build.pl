@@ -160,7 +160,7 @@ if ($install)
 
 	copy ("./lib/$os/libYARP_dev.lib", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_dev.lib\"\n";
 	copy ("./lib/$os/libYARP_devd.lib", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_devd.lib\"\n";
-	print "\nLibraries installed in $yarp_roo/lib/$os\n";
+	print "\nLibraries installed in $yarp_root/lib/$os\n";
 }
 
 print "\nDone!\n";

@@ -81,7 +81,7 @@ print "If this procedure isn't clear to you, please, have a look at the document
 print "To start, provide a name for your hardware context. This will be merged with the ";
 print "OS name to provide our installation means of distinguishing this specific hardware\n";
 
-get_option_hash ("Architecture<-Hardware_Name", "Null", "What is your hardware name?");
+get_option_hash ("Architecture<-Hardware_Name", "null", "What is your hardware name?");
 print "Then your context specific directories are going to be called: \"$options{\"Architecture<-Hardware_Name\"}_$os\n";
 
 print "These are the standard flags for compiling the library\n";
