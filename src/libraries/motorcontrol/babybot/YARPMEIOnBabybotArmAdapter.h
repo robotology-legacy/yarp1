@@ -5,7 +5,7 @@
 #include <YarpMeiDeviceDriver.h>
 #include <string>
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.2 2003-04-29 17:47:19 natta Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.3 2003-04-30 08:29:00 natta Exp $
 
 namespace _BabybotArm
 {
@@ -214,4 +214,4 @@ private:
 	YARPBabybotArmParameters _parameters;
 };
 
-#endif	// .h
+#endif
