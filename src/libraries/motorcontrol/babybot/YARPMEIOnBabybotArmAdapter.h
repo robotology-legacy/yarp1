@@ -1,7 +1,7 @@
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.8 2003-05-05 17:18:18 natta Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.9 2003-05-13 17:49:42 natta Exp $
 
 #include <ace/log_msg.h>
 #include <YarpMeiDeviceDriver.h>
@@ -67,7 +67,8 @@ public:
 			_invCouple[i] = 0.0;	// first 3 joints are not coupled
 
 		_invCouple[3] = -_fwdCouple[3] / (_encoderToAngles[3] * _encoderToAngles[4]);
-		_invCouple[4] = -_fwdCouple[4] / (_encoderToAngles[3] * _encoderToAngles[5]) + (_fwdCouple[3] * _fwdCouple[5]) / (_encoderToAngles[3] * _encoderToAngles[4] * _encoderToAngles[5]);
+		_invCouple[4] = -_fwdCouple[4] / (_encoderToAngles[3] * _encoderToAngles[5]) +
+						(_fwdCouple[3] * _fwdCouple[5]) / (_encoderToAngles[3] * _encoderToAngles[4] * _encoderToAngles[5]);
 		_invCouple[5] = -_fwdCouple[5] / (_encoderToAngles[4] * _encoderToAngles[5]);
 	}
 
@@ -190,8 +191,9 @@ public:
 			IOCtl(CMDDefinePosition, &cmd);
 			IOCtl(CMDControllerRun, &i);
 			// IOCtl(CMDEnableAmp, &i);	// this is not required
-			IOCtl(CMDClearStop, &i);
 		}
+		_setHomeConfig(CBNoEvent);
+		_clearStop();
 		/// activate amplifiers
 		IOParameters cmd;
 		cmd.port = 1;
