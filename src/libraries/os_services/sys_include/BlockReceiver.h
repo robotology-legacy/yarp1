@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockReceiver.h,v 1.2 2003-04-18 09:25:49 gmetta Exp $
+/// $Id: BlockReceiver.h,v 1.3 2004-02-04 17:41:10 babybot Exp $
 ///
 ///
 
@@ -83,6 +83,8 @@ protected:
 
 public:
 	BlockReceiver() { Begin(); }
+	/// added only to fight annoying gcc warning!
+	virtual ~BlockReceiver() {}
 	
 	void Begin() { failed = 0; pid.invalidate(); has_msg = 0; offset = 0; reply_pending = 0; }
 	void Begin(const YARPNameID& id) { failed = 0; pid = id; has_msg = 0; offset = 0; reply_pending = 0; }
