@@ -120,11 +120,23 @@ SOURCE=.\babybot\YARPBabybotGrabber.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\babybot\YARPBabybotHand.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\babybot\YARPBabybotHandParameters.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\babybot\YARPBabybotHead.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\common\YARPForceSensor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\babybot\YARPGalilOnBabybotHandAdapter.h
 # End Source File
 # Begin Source File
 
@@ -145,6 +157,10 @@ SOURCE=.\babybot\YARPMEIOnBabybotArmAdapter.h
 # Begin Source File
 
 SOURCE=.\babybot\YARPMEIOnBabybotHeadAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\babybot\YARPNIDAQOnBabybotHandAdapter.h
 # End Source File
 # Begin Source File
 

@@ -56,7 +56,7 @@ class YARPForceSensor
 			
 			for(i = 0; i < 3; i++)
 			{
-				// matrix product between reading and R
+				// matrix product between _reading and _R
 				f[i] = (_reading[0]/_params._max) * _params._R[i][0];
 				f[i] += (_reading[1]/_params._max) * _params._R[i][1];
 				f[i] += (_reading[2]/_params._max) * _params._R[i][2];

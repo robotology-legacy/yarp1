@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericComponent.h,v 1.12 2003-05-31 06:31:38 gmetta Exp $
+/// $Id: YARPGenericComponent.h,v 1.13 2003-06-30 21:09:20 babybot Exp $
 ///
 ///
 
@@ -96,7 +96,15 @@ public:
 		_currentLimits = NULL;
 		_newLimits = NULL;
 	}
-	~YARPGenericComponent<ADAPTER, PARAMETERS>(){}
+	~YARPGenericComponent<ADAPTER, PARAMETERS>()
+	{
+		if (_temp_double != NULL)
+			delete [] _temp_double;
+		if (_newLimits != NULL)
+			delete [] _newLimits;
+		if (_currentLimits != NULL)
+			delete [] _currentLimits;
+	}
 
 	int initialize()
 	{

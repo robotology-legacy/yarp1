@@ -1,3 +1,5 @@
+// by nat
+
 #ifndef __MEIONBABYBOTHEAD__
 #define __MEIONBABYBOTHEAD__
 
@@ -5,7 +7,7 @@
 #include <YARPMeiDeviceDriver.h>
 #include <string>
 
-// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.3 2003-05-23 17:11:05 natta Exp $
+// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.4 2003-06-30 21:09:20 babybot Exp $
 
 namespace _BabybotHead
 {

@@ -1,7 +1,9 @@
+// -- by nat
+
 #ifndef __MEIONBABYBOTARMADAPTER__
 #define __MEIONBABYBOTARMADAPTER__
 
-// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.16 2003-05-23 17:11:04 natta Exp $
+// $Id: YARPMEIOnBabybotArmAdapter.h,v 1.17 2003-06-30 21:09:19 babybot Exp $
 
 #include <ace/log_msg.h>
 #include <YARPMeiDeviceDriver.h>
