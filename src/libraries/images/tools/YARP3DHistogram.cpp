@@ -241,7 +241,7 @@ int YARP3DHistogram::_loadFull(const char *file)
 		size[i] = (unsigned char) tmpSize;
 	}
 
-	_3dlut.resize(tmpMax, tmpMin, tmpSize);
+	_3dlut.resize(max, min, size);
 	_3dlut._maximum = tmpMaximum;
 
 	HistoEntry *tmpEntry;
