@@ -7,7 +7,7 @@ include $(YARP_ROOT)/conf/Makefile.template
 
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))
 
-INCS = -I../include -I../../libYARP_OS/include -I$(YARP_ROOT)/include/$(SYSDIR)
+INCS = -I../include -I../../libYARP_OS/include -I../../libYARP_sig/include -I$(YARP_ROOT)/include/$(SYSDIR)
 
 CFLAGS = -D_REENTRANT $(CFAST) $(CDEFS) $(INCS)
 

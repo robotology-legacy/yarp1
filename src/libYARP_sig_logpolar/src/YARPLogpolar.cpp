@@ -61,12 +61,12 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.1 2004-07-20 12:13:08 eshuy Exp $
+/// $Id: YARPLogpolar.cpp,v 1.2 2004-07-20 12:26:56 eshuy Exp $
 ///
 ///
 
-#include "YARPLogpolar.h"
-#include "YARPAll.h"
+#include <yarp/YARPLogpolar.h>
+#include <yarp/YARPAll.h>
 #include <ace/Synch.h>
 
 #ifdef __WIN32__

@@ -61,23 +61,24 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.1 2004-07-20 12:13:08 eshuy Exp $
+/// $Id: YARPLogpolar.h,v 1.2 2004-07-20 12:26:56 eshuy Exp $
 ///
 ///
 
 #ifndef __YARPLogpolarh__
 #define __YARPLogpolarh__
 
-#include <conf/YARPConfig.h>
+#include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
+#include <ace/Thread_Mutex.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
-#include <YARPImages.h>
-#include <LogPolarSDK.h>
+#include <yarp/YARPImages.h>
+#include <yarp/LogPolarSDK.h>
 
 ///
 /// embeds the logpolar library for YARP. The librery is a relatively accurate simulation
