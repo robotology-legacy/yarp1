@@ -8,14 +8,9 @@
 // 
 //        Filename:  soundidentification.cpp
 // 
-//     Description:  This module receives sound chucks and adds them to produce a sound stream
-//     of some seconds. This sound stream is converted into frequency space using a FFT. The
-//     frequency space is divided and the energy of each zone is calculated to produce a
-//     energy vector of the signal (energy signature). This energy vector is feed to a self-organizing
-//     map that learns the vector. Hopefully, this can be used to recognize sounds.
-//     
+//     Description:  
 // 
-//         Version:  $Id: soundidentification.cpp,v 1.3 2004-07-07 17:13:22 beltran Exp $
+//         Version:  $Id: soundidentification.cpp,v 1.4 2004-07-08 14:47:30 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -40,12 +35,13 @@ const char *__configFile = "sound.ini";
 
 int main(int argc, char* argv[])
 {
-	const int N    = 200;
-	int counter    = 0;
-	int size       = 0;
-	double time1;
-	double time2;
-	double period = 0.0;
+	const int N   = 200;
+	
+	int    counter = 0;
+	int    size    = 0;
+	double time1   = 0.0;
+	double time2   = 0.0;
+	double period  = 0.0;
 	
 	YARPScheduler::setHighResScheduling();
 
@@ -64,8 +60,8 @@ int main(int argc, char* argv[])
 	_inPort.Register(base1.append("i").c_str());
 	_outPort_srm.Register(base2.append("srmo").c_str());
 
-	// The vector for the self reorganizing algorithm
-	YVector _out_srm(L_VECTOR_SRM);
+	// The vector for the MFCC coefficients
+	YVector _out_mfcc(L_VECTOR_MFCC);
 
 	time1 = YARPTime::GetTimeAsSeconds();
 
@@ -77,10 +73,10 @@ int main(int argc, char* argv[])
 		counter++;
 		_inPort.Read(); // Read sound stream from the network
 
-        _soundIndprocessor.apply(_inPort.Content(),_out_srm); 
+        _soundIndprocessor.apply(_inPort.Content(),_out_mfcc); 
 		
-		// Sends energy mapping vector for the self reorganizing network
-		_outPort_srm.Content() = _out_srm;
+		// Sends the mfcc coefficients
+		_outPort_srm.Content() = _out_mfcc;
 		_outPort_srm.Write();
 
 		//----------------------------------------------------------------------

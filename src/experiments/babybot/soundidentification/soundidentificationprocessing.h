@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundIdentificationProcessing class
 // 
-//         Version:  $Id: soundidentificationprocessing.h,v 1.3 2004-07-07 17:13:22 beltran Exp $
+//         Version:  $Id: soundidentificationprocessing.h,v 1.4 2004-07-08 14:47:31 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -32,9 +32,9 @@
 #include <YARPFft.h>
 
 
-#define FREQ_T 10000    // up cutting filter frequency
-#define ILD_LOW_FREQ 1  // down cutting frequency for ILD calculation
-#define L_VECTOR_SRM 20 // Lengh of the self reorganizing map vector data
+#define FREQ_T 10000     // up cutting filter frequency
+#define ILD_LOW_FREQ 1   // down cutting frequency for ILD calculation
+#define L_VECTOR_MFCC 13 // Lengh of the MFCC coefficients vector
 
 class SoundIdentificationProcessing
 {
@@ -88,37 +88,44 @@ public:
 		fft->Fft(1, dim, Re, Im, 1, -1); 
 
 		//----------------------------------------------------------------------
-		//  Create Mel-Filter bank  
-		//----------------------------------------------------------------------
-
-
-		//----------------------------------------------------------------------
 		//  Compute the energy for the signal
 		//----------------------------------------------------------------------
 		ConjComplexMultiplication(Re, Im);
 
 		//----------------------------------------------------------------------
-		//  Compute discrete mapping of the energy.
-		//  It generates a vector used to fill a self-organizing map to learn 
-		//  sounds from different objects.
+		//  Calculate the Mel-Filter bank spectral response and get the log10
+		//  energy for each filter
 		//----------------------------------------------------------------------
-		ComputeDiscreteLevels(out);
-		
+		for (int i = 0; i < totalfilters; i++)
+			filters_energy_vector[i] = TriangularFilter(Re, i);
+
+		//----------------------------------------------------------------------
+		//  Calulate ceptral coefficients
+		//----------------------------------------------------------------------
+        idct( filters_energy_vector.size(), // the size of the filters_energy_vector
+              out.size(),                   // the size of the ccoefficients_vector
+              filters_energy_vector.data(), // the pointer to the vector of filters
+              out.data());                  // the pointer to the vector of coefficients
+
 		return 1; //We have a vector output
 	}
 
 	inline int GetSize() { return numSamples;}
 
 private:
-	int ComputeDiscreteLevels(YVector &);
-	int ConjComplexMultiplication(double *, double *);
-	void filter(double *, double *,double, double);
-	double squareMean(double * , double * , double, double);
-	double HammingPonderation(const unsigned int, const unsigned int);
-	double Freq2Mel(double);
-	double Mel2Freq(double);
-	double PreAccent(double);
 
+	//----------------------------------------------------------------------
+	//  Private Functions
+	//----------------------------------------------------------------------
+	int ConjComplexMultiplication(double *, double *);
+	void idct(int, int, double, double);
+	void Triangularfilter(const double *, const int);
+	double HammingPonderation(const unsigned int, const unsigned int);
+	double PreAccent(double);
+	
+	//----------------------------------------------------------------------
+	//  Class private variables
+	//----------------------------------------------------------------------
 	int _inSize;
 	int _outSize;
 
@@ -133,8 +140,12 @@ private:
 	int _InputBufferLength;
     int _sombufferlengthinsec;
 
-    double * Re;
-    double * Im;
+    double * Re; // Contains de data in succesive phase of the processing
+                 // (1) first the sound samples in time space
+                 // (2) next the real part of the FFT
+                 // (3) next the energy of the FFT
+
+    double * Im; // Contains the imaginary part of the FFT
 	int counter;
 
     int numSamples;       // number of samples for channel in the incoming sound stream
@@ -144,15 +155,14 @@ private:
 	//----------------------------------------------------------------------
 	//  The filter bank parameters
 	//----------------------------------------------------------------------
-	int linearFilters;  
-	int logFilters;    
-	//int fftSize              = 512;
-	int cepstralCoefficients;
-	//int windowSize           = 400;
-	//int windowSize           = 256;
-	double lowestFrequency; 
-	double logSpacing;     
-	double linearSpacing; 
+    int linearFilters;        // The number of linear filters
+    int logFilters;           // The number of log filters
+    int cepstralCoefficients; // The number of cepstral coefficients
+    double lowestFrequency;   // The lowest frequency used by the filters
+    double logSpacing;        // The separation between the log filters
+    double linearSpacing;     // The separation between the linear filters
+
+	int totalfilters;
 
 	YARPString _iniFile;
 	YARPString _path;
