@@ -40,12 +40,14 @@ my $clean = '';
 my $install = '';
 my $os = 'winnt';
 my $ipl = '';
+my $libonly = '';
 
 GetOptions ('debug' => \$debug,
             'release' => \$release,
 			'clean' => \$clean,
 			'install' => \$install,
-			'ipl' => \$ipl);
+			'ipl' => \$ipl,
+			'libonly' => \$libonly);
 
 print "Compiling libraries first. ";
 print "Assuming a standard format wiht /src /include directories\n";
@@ -147,65 +149,68 @@ foreach $directory (glob "*")
 	}
 }
 
-foreach $directory (glob "*")
+unless ($libonly)
 {
-	if (-d $directory && !(-d "$directory/src") && 
-		!(-d "$directory/include/yarp") && 
-		!(-e "$directory/donotcompile.txt"))
+	foreach $directory (glob "*")
 	{
-		if (!chdir $directory)
+		if (-d $directory && !(-d "$directory/src") && 
+			!(-d "$directory/include/yarp") && 
+			!(-e "$directory/donotcompile.txt"))
 		{
-			warn "Can't chdir to $directory\n";
-			next;
-		}
-
-		foreach $project (glob "*.dsp")
-		{
-			my $name = '';
-			if ($project =~ /(.+).dsp/)
+			if (!chdir $directory)
 			{
-				$name = $1;
+				warn "Can't chdir to $directory\n";
+				next;
 			}
 
-			if ($clean)
+			foreach $project (glob "*.dsp")
 			{
-				print "\nCleaning $project in $directory\n";
-
-				call_msdev_and_print ($name, "Debug", "CLEAN");
-				call_msdev_and_print ($name, "Release", "CLEAN");
-				
-				print "\n";
-			}
-
-			if ($debug)
-			{
-				print "\nCompiling debug\n";
-				call_msdev_and_print ($name, "Debug", "BUILD");
-			}
-
-			if ($release)
-			{
-				print "\nCompiling optimized\n";
-				call_msdev_and_print ($name, "Release", "BUILD");
-			}
-
-			if ($install)
-			{
-				print "\nInstalling YARP application to default path.\n";
-				$searchfor = ($debug) ? "Debug" : (($release) ? "Release" : '');
-				if ($searchfor)
+				my $name = '';
+				if ($project =~ /(.+).dsp/)
 				{
-					foreach $file (glob "./$searchfor/*.exe") 
+					$name = $1;
+				}
+
+				if ($clean)
+				{
+					print "\nCleaning $project in $directory\n";
+
+					call_msdev_and_print ($name, "Debug", "CLEAN");
+					call_msdev_and_print ($name, "Release", "CLEAN");
+					
+					print "\n";
+				}
+
+				if ($debug)
+				{
+					print "\nCompiling debug\n";
+					call_msdev_and_print ($name, "Debug", "BUILD");
+				}
+
+				if ($release)
+				{
+					print "\nCompiling optimized\n";
+					call_msdev_and_print ($name, "Release", "BUILD");
+				}
+
+				if ($install)
+				{
+					print "\nInstalling YARP application to default path.\n";
+					$searchfor = ($debug) ? "Debug" : (($release) ? "Release" : '');
+					if ($searchfor)
 					{
-						print "Copying $file\n";
-						copy ($file, "$yarp_root/bin/$os") or warn "Can't copy $file: $!\n"; 
+						foreach $file (glob "./$searchfor/*.exe") 
+						{
+							print "Copying $file\n";
+							copy ($file, "$yarp_root/bin/$os") or warn "Can't copy $file: $!\n"; 
+						}
 					}
 				}
+
 			}
 
+			chdir "../" or warn "Cannot chdir to ..: $!";
 		}
-
-		chdir "../" or warn "Cannot chdir to ..: $!";
 	}
 }
 

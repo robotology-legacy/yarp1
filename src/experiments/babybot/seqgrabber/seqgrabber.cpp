@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: seqgrabber.cpp,v 1.2 2004-07-30 17:41:21 babybot Exp $
+/// $Id: seqgrabber.cpp,v 1.3 2004-08-02 09:16:15 babybot Exp $
 /// 
 /// Test stereo match by mergin together left and right channels (fovea)
 /// January 04 -- by nat
@@ -115,33 +115,33 @@ int main(int argc, char *argv[])
 
 	int length;
 
-	if (!YARPParseParameters::parse(argc, argv, "name", name))
+	if (!YARPParseParameters::parse(argc, argv, "-name", name))
 	{
 		name = DEFAULT_NAME;
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "neti", network_i))
+	if (!YARPParseParameters::parse(argc, argv, "-neti", network_i))
 	{
 		network_i = "Net1";
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "neto", network_o))
+	if (!YARPParseParameters::parse(argc, argv, "-neto", network_o))
 	{
 		network_o = "default";
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "dir", outdir))
+	if (!YARPParseParameters::parse(argc, argv, "-dir", outdir))
 	{
 		outdir = YARPString(DEFAULT_FOLDER);
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "length", &length))
+	if (!YARPParseParameters::parse(argc, argv, "-length", &length))
 	{
 		length = DEFAULT_LENGTH;
 		
 	}
 
-	if (YARPParseParameters::parse(argc, argv, "stereo"))
+	if (YARPParseParameters::parse(argc, argv, "-stereo"))
 	{
 		stereo = true;
 	}

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.19 2004-07-30 17:41:22 babybot Exp $
+/// $Id: vergence.cpp,v 1.20 2004-08-02 09:16:15 babybot Exp $
 ///
 ///
 
@@ -129,17 +129,17 @@ int main(int argc, char *argv[])
 	YARPString network_o;
 	char buf[256];
 
-	if (!YARPParseParameters::parse(argc, argv, "name", name))
+	if (!YARPParseParameters::parse(argc, argv, "-name", name))
 	{
 		name = DEFAULT_NAME;
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "neti", network_i))
+	if (!YARPParseParameters::parse(argc, argv, "-neti", network_i))
 	{
 		network_i = "default";
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "neto", network_o))
+	if (!YARPParseParameters::parse(argc, argv, "-neto", network_o))
 	{
 		network_o = "default";
 	}

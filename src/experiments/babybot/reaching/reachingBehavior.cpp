@@ -2,6 +2,8 @@
 
 const char *__nnetFile1 = "reaching.ini";
 
+using namespace std;
+
 ABSharedData::ABSharedData():
 _map(__nnetFile1),
 _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),

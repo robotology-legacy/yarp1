@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: checkFixation.cpp,v 1.4 2004-07-30 15:05:23 babybot Exp $
+/// $Id: checkFixation.cpp,v 1.5 2004-08-02 09:16:15 babybot Exp $
 ///
 ///
 
@@ -152,13 +152,13 @@ int main(int argc, char *argv[])
 	YARPString network_o;
 	char buf[256];
 
-	if (!YARPParseParameters::parse(argc, argv, "name", name))
+	if (!YARPParseParameters::parse(argc, argv, "-name", name))
 		name = DEFAULT_NAME;
 	
-	if (!YARPParseParameters::parse(argc, argv, "neti", network_i))
+	if (!YARPParseParameters::parse(argc, argv, "-neti", network_i))
 		network_i = "default";
 	
-	if (!YARPParseParameters::parse(argc, argv, "neto", network_o))
+	if (!YARPParseParameters::parse(argc, argv, "-neto", network_o))
 		network_o = "default";
 	
 	/// images are coming from the input network.

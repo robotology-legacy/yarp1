@@ -39,18 +39,18 @@ int main(int argc, char* argv[])
 	YARPString basePortName, inputPort, outputPort;
 	YARPString netFile, outFile, trainSetFile;
 	
-	if (!YARPParseParameters::parse(argc, argv, "conf", netFile))
+	if (!YARPParseParameters::parse(argc, argv, "-conf", netFile))
 	{
 		netFile = __filename;
 	}
 	ACE_OS::printf("loading config  file from: %s\n", netFile.c_str());
 
-	if (!YARPParseParameters::parse(argc, argv, "name", basePortName))
+	if (!YARPParseParameters::parse(argc, argv, "-name", basePortName))
 	{
 		basePortName = __basePortName;
 	}
 	
-	if (!YARPParseParameters::parse(argc, argv, "epoch", &nIterations))
+	if (!YARPParseParameters::parse(argc, argv, "-epoch", &nIterations))
 	{
 		nIterations = __nIterations;
 	}
@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 	
 	Learner _learner(inFilename);
 
-	if (YARPParseParameters::parse(argc, argv, "outnet", outFile))
+	if (YARPParseParameters::parse(argc, argv, "-outnet", outFile))
 	{
 		YARPString filename;
 		filename.append(GetYarpRoot());
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 		ACE_OS::printf("result of training will be saved on: %s\n", filename.c_str());
 	}
 	
-	if (YARPParseParameters::parse(argc, argv, "trainset", trainSetFile))
+	if (YARPParseParameters::parse(argc, argv, "-trainset", trainSetFile))
 	{
 		YARPString filename;
 		filename.append(GetYarpRoot());
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 		ACE_OS::printf("trainset will be saved on: %s\n", filename.c_str());
 	}
 		
-	if (!YARPParseParameters::parse(argc, argv, "batchsize", &nSamples))
+	if (!YARPParseParameters::parse(argc, argv, "-batchsize", &nSamples))
 	{
 		nSamples = __nSamples;
 		ACE_OS::printf("batchsize option not specified using default\n");

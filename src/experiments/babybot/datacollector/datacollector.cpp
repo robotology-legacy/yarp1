@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: datacollector.cpp,v 1.2 2004-07-30 17:41:20 babybot Exp $
+/// $Id: datacollector.cpp,v 1.3 2004-08-02 09:16:15 babybot Exp $
 /// 
 
 #include <yarp/YARPConfig.h>
@@ -245,27 +245,27 @@ int main(int argc, char *argv[])
 
 	int length;
 
-	if (!YARPParseParameters::parse(argc, argv, "name", _baseName))
+	if (!YARPParseParameters::parse(argc, argv, "-name", _baseName))
 	{
 		_baseName = DEFAULT_NAME;
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "neti", network_i))
+	if (!YARPParseParameters::parse(argc, argv, "-neti", network_i))
 	{
 		network_i = "Net1";
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "neto", network_o))
+	if (!YARPParseParameters::parse(argc, argv, "-neto", network_o))
 	{
 		network_o = "default";
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "dir", _path))
+	if (!YARPParseParameters::parse(argc, argv, "-dir", _path))
 	{
 		_path = YARPString(DEFAULT_FOLDER);
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "length", &length))
+	if (!YARPParseParameters::parse(argc, argv, "-length", &length))
 	{
 		length = DEFAULT_LENGTH;
 	}

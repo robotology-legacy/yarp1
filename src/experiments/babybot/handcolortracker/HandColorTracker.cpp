@@ -91,13 +91,13 @@ int main(int argc, char* argv[])
 	bool plotActual= true;
 
 
-	if (!YARPParseParameters::parse(argc, argv, "threshold", &threshold))
+	if (!YARPParseParameters::parse(argc, argv, "-threshold", &threshold))
 		threshold = __threshold;
 	
-	if (!YARPParseParameters::parse(argc, argv, "prediction"))
+	if (!YARPParseParameters::parse(argc, argv, "-prediction"))
 		plotPrediction = false;
 
-	if (!YARPParseParameters::parse(argc, argv, "position"))
+	if (!YARPParseParameters::parse(argc, argv, "-position"))
 		plotActual = false;
 
 	unsigned char bins[] = {16, 16, 1};

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: yarp-names.cpp,v 1.1 2004-08-01 22:56:03 gmetta Exp $
+/// $Id: yarp-names.cpp,v 1.2 2004-08-02 09:16:16 babybot Exp $
 ///
 ///
 
@@ -182,7 +182,7 @@ void commandLine(YARPNameClient& nc, int argc, char* argv[])
 		ok = true;
 	}
 	
-	if (YARPParseParameters::parse(argc, argv, "-dx") || YARPParseParameters::parse(argc, argv, "xd"))
+	if (YARPParseParameters::parse(argc, argv, "-dx") || YARPParseParameters::parse(argc, argv, "-xd"))
 	{
 		cout << nc.dump(1);
 		ok = true;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: headsaccades.cpp,v 1.3 2004-07-30 17:41:21 babybot Exp $
+/// $Id: headsaccades.cpp,v 1.4 2004-08-02 09:16:15 babybot Exp $
 ///
 ///
 
@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 	YARPScheduler::setHighResScheduling();
 
 	bool selectiveReaching = false;
-	if (YARPParseParameters::parse(argc, argv, "strict_reaching"))
+	if (YARPParseParameters::parse(argc, argv, "-strict_reaching"))
 		selectiveReaching = true;
 
 	SBSharedData _sdata(selectiveReaching);

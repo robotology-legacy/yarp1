@@ -14,13 +14,13 @@ int main(int argc, char *argv[])
 	FindHand _findHand;
 
 	int thr;
-	if (!YARPParseParameters::parse(argc, argv, "t", &thr))
+	if (!YARPParseParameters::parse(argc, argv, "-t", &thr))
 	{
 		thr = __defaultThreshold;
 	}
 	
 	double alpha;
-	if (!YARPParseParameters::parse(argc, argv, "a", &alpha))
+	if (!YARPParseParameters::parse(argc, argv, "-a", &alpha))
 	{
 		alpha = __defaultAlpha;
 	}

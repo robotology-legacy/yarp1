@@ -1,23 +1,15 @@
 // testjacobian.cpp : Defines the entry point for the console application.
 //
 
-#include <YARPParseParameters.h>
-#include <YARPIntegralImage.h>
-#include <YARPDIBConverter.h>
-#include <YARPSimpleOperations.h>
-#include <YARPColorConverter.h>
-#include <YARPBlobDetector.h>
-#include <YARPImageFile.h>
-#include <YARPLogpolar.h>
+#include <yarp/YARPConfig.h>
 
-#include <YARPControlBoardNetworkData.h>
-#include <YARPVectorPortContent.h>
-#include <YARPBottleContent.h>
-#include <YARPPort.h>
+#include <yarp/YARPParseParameters.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPLogpolar.h>
 
-#include <YARPBlobDetector.h>
+#include <yarp/YARPControlBoardNetworkData.h>
+#include <yarp/YARPBabyBottle.h>
 
-#include <YARPHistoSegmentation.h>
 #include <vector>
 
 #include "ArmForwardKinematics.h"
@@ -42,7 +34,6 @@ int __headCounter = 0;
 using std::vector;
 
 void plotTrajectory(const vector<int *> &tr, YARPImageOf<YarpPixelBGR> &img);
-
 
 inline bool pollPort(YARPInputPortOf<YVector> &port, YVector &out, int *counter)
 {
@@ -82,7 +73,7 @@ inline bool pollPort(YARPInputPortOf<YARPGenericImage> &port, YARPGenericImage &
 	return ret;
 }
 
-inline bool pollPort(YARPInputPortOf<YARPBottle> &port, int *x, int *y)
+inline bool pollPort(YARPInputPortOf<YARPBabyBottle> &port, int *x, int *y)
 {
 	bool ret = false;
 	if (port.Read(0))
@@ -99,7 +90,7 @@ inline bool pollPort(YARPInputPortOf<YARPBottle> &port, int *x, int *y)
 
 void printFrameStatus(int n);
 
-void dumpError(YARPShapeEllipse &ellipse, YARPBottle &segData);
+void dumpError(YARPShapeEllipse &ellipse, YARPBabyBottle &segData);
 YARPConicFitter _conicFitter;
 
 const double __armInitial[] = {7, 15, 15, 0, 0, 0};
@@ -112,13 +103,13 @@ int main(int argc, char* argv[])
 	bool plotPrediction = true;
 	bool plotActual= true;
 
-	if (!YARPParseParameters::parse(argc, argv, "threshold", &threshold))
+	if (!YARPParseParameters::parse(argc, argv, "-threshold", &threshold))
 		threshold = __threshold;
 	
-	if (!YARPParseParameters::parse(argc, argv, "prediction"))
+	if (!YARPParseParameters::parse(argc, argv, "-prediction"))
 		plotPrediction = false;
 
-	if (!YARPParseParameters::parse(argc, argv, "position"))
+	if (!YARPParseParameters::parse(argc, argv, "-position"))
 		plotActual = false;
 
 	/// form config name
@@ -132,8 +123,8 @@ int main(int argc, char* argv[])
 
 	DECLARE_INPUT_PORT (YARPControlBoardNetworkData, _armPort, YARP_UDP);
 	DECLARE_INPUT_PORT (YVector, _headPort, YARP_UDP);
-	DECLARE_INPUT_PORT (YARPBottle, _inputTarget, YARP_UDP);
-	DECLARE_OUTPUT_PORT (YARPBottle, _armCommand, YARP_UDP);
+	DECLARE_INPUT_PORT (YARPBabyBottle, _inputTarget, YARP_UDP);
+	DECLARE_OUTPUT_PORT (YARPBabyBottle, _armCommand, YARP_UDP);
 	/////////////////////
 
 	/// REGISTER
@@ -155,7 +146,7 @@ int main(int argc, char* argv[])
 	YVector _arm(6);
 	YVector _head(5);
 	YVector _handPosition(2);
-	YARPBottle _bottle;
+	YARPBabyBottle _bottle;
 
 	YARPImageOf<YarpPixelBGR> _outSeg2;
 	_outSeg2.Resize(256, 256);
@@ -265,7 +256,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-void dumpError(YARPShapeEllipse &ellipse, YARPBottle &segData)
+void dumpError(YARPShapeEllipse &ellipse, YARPBabyBottle &segData)
 {
 	int ix;
 	int iy;

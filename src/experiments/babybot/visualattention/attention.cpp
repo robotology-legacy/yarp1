@@ -603,7 +603,7 @@ int main (int argc, char *argv[])
 	char basename[80]="/";
 	isMoving=false;
 		
-	YARPParseParameters::parse(argc, argv, "name", basename);
+	YARPParseParameters::parse(argc, argv, "-name", basename);
 
 	ACE_OS::sprintf(_inName1, "/visualattention%s/i:img",basename);
 	ACE_OS::sprintf(_inName2, "/visualattention%s/i:bot", basename);	//input commands

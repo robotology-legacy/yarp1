@@ -34,7 +34,7 @@ const char __inputPortName[] = "/client/nnet/i";
 
 int main(int argc, char* argv[])
 {
-	if ( YARPParseParameters::parse(argc, argv, "set") )
+	if ( YARPParseParameters::parse(argc, argv, "-set") )
 		train(argc, argv);
 	else
 		help();
@@ -50,7 +50,7 @@ void train(int argc, char *argv[])
 	YARPInputPortOf<YARPBottle> _inPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 	_inPort.Register(__inputPortName);
 		
-	YARPParseParameters::parse(argc, argv, "set", trainFile);
+	YARPParseParameters::parse(argc, argv, "-set", trainFile);
 		
 	double *input_train_set_raw;
 	double *target_train_set_raw;

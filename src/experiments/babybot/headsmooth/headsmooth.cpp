@@ -31,10 +31,10 @@ int main(int argc, char* argv[])
 	SmoothControl _control(__configFile, __inSize, __outSize);
 
 	// PARSE
-	if (!YARPParseParameters::parse(argc, argv, "name", basename))
+	if (!YARPParseParameters::parse(argc, argv, "-name", basename))
 		basename = YARPString(__baseName);
 
-	if (YARPParseParameters::parse(argc, argv, "inhibitneck"))
+	if (YARPParseParameters::parse(argc, argv, "-inhibitneck"))
 	{
 		inhibitNeck = true;
 		_control.inhibitNeck();

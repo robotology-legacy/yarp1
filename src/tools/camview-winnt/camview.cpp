@@ -84,11 +84,9 @@ BOOL CCamviewApp::InitInstance()
 
 	int itmp;
 	if (YARPParseParameters::parse(argc, argv, "-p", &itmp))
-	{
 		m_period = itmp;
-	}
 	else
-		m_period = itmp;
+		m_period = 0;
 
 	if (YARPParseParameters::parse(argc, argv, "-x", &itmp))
 		m_x = itmp;

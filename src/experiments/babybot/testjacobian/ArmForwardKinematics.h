@@ -12,8 +12,7 @@
 #include <yarp/YARPConfigRobot.h>
 #include <yarp/YARPRndUtils.h>
 
-#include <vector>		//// AAAA!!!!
-using namespace std;
+#include <vector>
 
 class ArmForwardKinematics
 {
@@ -118,7 +117,7 @@ private:
 	YMatrix _jacobianInv;
 
 	YARPRndGaussVector _random;
-	vector<int *> _trajectory;
+	std::vector<int *> _trajectory;
 };
 
 #endif

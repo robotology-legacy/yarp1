@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: teststereomatch.cpp,v 1.2 2004-07-30 17:41:22 babybot Exp $
+/// $Id: teststereomatch.cpp,v 1.3 2004-08-02 09:16:15 babybot Exp $
 /// 
 /// Test stereo match by mergin together left and right channels (fovea)
 /// January 04 -- by nat
@@ -109,17 +109,17 @@ int main(int argc, char *argv[])
 	YARPString network_o;
 	char buf[256];
 
-	if (!YARPParseParameters::parse(argc, argv, "name", name))
+	if (!YARPParseParameters::parse(argc, argv, "-name", name))
 	{
 		name = DEFAULT_NAME;
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "neti", network_i))
+	if (!YARPParseParameters::parse(argc, argv, "-neti", network_i))
 	{
 		network_i = "Net1";
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "neto", network_o))
+	if (!YARPParseParameters::parse(argc, argv, "-neto", network_o))
 	{
 		network_o = "default";
 	}

@@ -59,10 +59,10 @@ void readConfigFile(const YARPString &filename, ReflexShared &rflxShared)
 int main(int argc, char* argv[])
 {
 	bool norelease = false;
-	if (YARPParseParameters::parse(argc, argv, "norelease"))
+	if (YARPParseParameters::parse(argc, argv, "-norelease"))
 		norelease = true;
 	YARPString cfgFile;
-	if (!YARPParseParameters::parse(argc, argv, "cfg", cfgFile))
+	if (!YARPParseParameters::parse(argc, argv, "-cfg", cfgFile))
 		cfgFile = __defaultCfgFile;
 
 	ReflexShared shared;

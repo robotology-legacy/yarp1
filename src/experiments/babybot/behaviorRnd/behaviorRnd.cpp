@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 
 	bool _shake = false;
 
-	if (YARPParseParameters::parse(argc, argv, "shake"))
+	if (YARPParseParameters::parse(argc, argv, "-shake"))
 		_shake = true;
 	
 	RndBehavior _rnd(&_data);
