@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.6 2003-11-25 14:09:20 fberton Exp $
+/// $Id: YARPDisparity.cpp,v 1.7 2003-11-25 16:57:48 fberton Exp $
 ///
 ///
 
@@ -84,6 +84,7 @@ YARPDisparityTool::YARPDisparityTool()
 	_shiftFunction	= NULL;
 	_shiftMap		= NULL;
 	_corrFunct		= NULL;
+	_pixelCount		= NULL;
 }
 
 YARPDisparityTool::~YARPDisparityTool()
@@ -105,6 +106,9 @@ YARPDisparityTool::~YARPDisparityTool()
 
 	if (_corrFunct != NULL)
 		delete [] _corrFunct;
+
+	if (_pixelCount != NULL)
+		delete [] _pixelCount;
 }
 
 int YARPDisparityTool::loadShiftTable(Image_Data * Par)
@@ -145,6 +149,9 @@ int YARPDisparityTool::loadShiftTable(Image_Data * Par)
 	/// alloc _corrFunct array.
 	_corrFunct = new double [_shiftLevels];
 	ACE_ASSERT (_corrFunct != NULL);
+
+	_pixelCount = new int [_shiftLevels];
+	ACE_ASSERT (_pixelCount != NULL);
 
 	if ((fin = ACE_OS::fopen(File_Name,"rb")) != NULL)
 	{
@@ -260,7 +267,8 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
 									&_imgS,
 									_shiftLevels,
 									_shiftMap,
-									_corrFunct);
+									_corrFunct,
+									_pixCount);
 	else
 		disparity = shiftnCorrFovea((unsigned char*)inLImg.GetRawBuffer(),
 									(unsigned char*)inRImg.GetRawBuffer(),

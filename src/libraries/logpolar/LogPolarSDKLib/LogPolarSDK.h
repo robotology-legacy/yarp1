@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.h,v 1.19 2003-11-25 13:53:20 fberton Exp $
+/// $Id: LogPolarSDK.h,v 1.20 2003-11-25 16:58:37 fberton Exp $
 ///
 ///
 
@@ -175,6 +175,9 @@ struct LUT_Ptrs{
 	double			* XYMap;
 	int				* ShiftMap;
 	int				  ShiftLevels;
+	int				* ShiftFunction;
+	double			* CorrLevels;
+	int				* PixelCount;
 };
 
 typedef struct tag_vchannel 
@@ -366,8 +369,9 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 					   IntNeighborhood * WeightsMap,
 					   int Pix_Numb);
 
-int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val);
+int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, int * pixCount);
 int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val);
+void Make_Disp_Histogram(unsigned char * hist,int height, int width, int shiftLevels, double * corrFunct);
 int computePadSize(int width,int padding);
 
 //Functions defined in TableGeneration.cpp

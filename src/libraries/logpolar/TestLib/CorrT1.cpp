@@ -19,6 +19,7 @@ struct Images{
 	unsigned char * DSPad;
 	unsigned char * Shift;
 	unsigned char * ShiftPad;
+	unsigned char * Histogram;
 };
 
 void addPad(unsigned char * out,unsigned char * in, Image_Data * LParam, int PadSize)
@@ -52,6 +53,7 @@ void allocateImages(Images * img, Image_Data * LPar, Image_Data * SPar)
 	img->DSPad	  = (unsigned char *) malloc (computePadSize(3 * SPar->Size_Theta,SPar->padding) * SPar->Size_Rho * sizeof(unsigned char));
 	img->Shift	  = (unsigned char *) malloc (SPar->Size_LP * 3 * sizeof(unsigned char));
 	img->ShiftPad = (unsigned char *) malloc (computePadSize(3 * SPar->Size_Theta,SPar->padding) * SPar->Size_Rho * sizeof(unsigned char));
+	img->Histogram= (unsigned char *) malloc (128 * 512 * sizeof(unsigned char));
 }
 
 void RBSwap(unsigned char * Image, Image_Data * Par)
@@ -76,7 +78,7 @@ void main()
 
 	Images Left,Right;
 
-	unsigned char * Shifted;
+//	unsigned char * Shifted;
 	int i,j,k;
 
 	int retval;
@@ -240,8 +242,13 @@ void main()
 //	Build_Step_Function(Path,&SParam);
 
 	Load_Tables(&SParam,&Tables,Path,1024);
-	double * cv;
-	retval = Shift_and_Corr(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMap,cv);
+
+	retval = Shift_and_Corr(Left.DSPad,Right.DSPad,&SParam,Tables.ShiftLevels,Tables.ShiftMap,Tables.CorrLevels,Tables.PixelCount);
+
+	Make_Disp_Histogram(Left.Histogram,128,512,Tables.ShiftLevels,Tables.CorrLevels);
+
+	Save_Bitmap(Left.Histogram,512,128,1,
+				"c:/temp/images/TestPad/Histogram.bmp");
 
 	unsigned char * Shiftedptr = Right.ShiftPad;
 
@@ -294,11 +301,11 @@ void main()
 	
 	
 	
- 	for (j=0; j<3*SParam.Size_LP; j++)
-		Shifted[j] = Right.DSPad[Tables.ShiftMap[(retval)*3*SParam.Size_LP+j]];
+ //	for (j=0; j<3*SParam.Size_LP; j++)
+//		Shifted[j] = Right.DSPad[Tables.ShiftMap[(retval)*3*SParam.Size_LP+j]];
 
-	sprintf(File_Name,"%s","c:/temp/images/02_RDSSh.bmp");
-	Save_Bitmap(Shifted,LParam.Size_Theta/4,LParam.Size_Rho/4,3,File_Name);
+//	sprintf(File_Name,"%s","c:/temp/images/02_RDSSh.bmp");
+//	Save_Bitmap(Shifted,LParam.Size_Theta/4,LParam.Size_Rho/4,3,File_Name);
 
 	Load_Tables(&SParam,&Tables,Path,REMAP);
 
@@ -317,8 +324,8 @@ void main()
 			for (k=0; k<3; k++)
 				shiftimage[3*((j)*(SParam.Size_X_Remap*3)+i+SParam.Size_X_Remap)+k] = Left.RemPad[3*(j*SParam.Size_X_Remap+i)+k];
 
-	double jf;
-	int maxind;
+//	double jf;
+//	int maxind;
 
 /*	for (k=0; k<maxind/2+1; k++)
 		for (jf=0.0; jf<2.0*PI; jf+=PI/720.0)

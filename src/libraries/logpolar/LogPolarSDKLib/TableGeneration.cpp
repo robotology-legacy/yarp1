@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.28 2003-11-25 13:53:20 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.29 2003-11-25 16:58:37 fberton Exp $
 ///
 ///
 
@@ -1780,7 +1780,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	int rho,theta;
 	int rhosmall, thetasmall, valid;
 	int x,y;
-	int i,j,k,l;
+	int i,j,k;
 	int step;
 	int retval;
 
@@ -2425,7 +2425,7 @@ int Build_Shift_Map(Image_Data * Par, char * Path)
 }
 void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Par, float Ratio,IntNeighborhood * IntDownSampleTable)
 {	
-	int i,j,k,l;
+	int i,j,l;
 
 	const int SizeLP = (int)(Par->Size_LP / (Ratio*Ratio));
 	const int RHO = (int)(Par->Size_Rho / (Ratio));
@@ -2497,7 +2497,7 @@ void DownSample(unsigned char * InImage, unsigned char * OutImage, char * Path, 
 
 void DownSampleFovea(unsigned char * InImage, unsigned char * OutImage, char * Path, Image_Data * Par, float Ratio,IntNeighborhood * IntDownSampleTable)
 {	
-	int i,j,k,l;
+	int i,j,l;
 
 	const int SizeLP = (int)(Par->Size_LP / (Ratio*Ratio));
 	const int FOV = (int)(Par->Size_Fovea / (Ratio));

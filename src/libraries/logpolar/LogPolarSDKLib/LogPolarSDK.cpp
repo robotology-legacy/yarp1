@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.20 2003-11-25 13:53:19 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.21 2003-11-25 16:58:37 fberton Exp $
 ///
 ///
 
@@ -1374,17 +1374,18 @@ void Fast_Reconstruct_Color(unsigned char * Out_Image,
 }
 
 
-int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val)
+int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Par, int Steps, int * ShiftMap, double * corr_val, int * pixCount)
 {
 	int i,j,k,k1;
 	int iR,iL;
 //	int ShiftLev;
-	int count;
 	double d_1;
 	double d_2;
 //	double corr_val;
 	double MIN = 10000;
+	int MAX = 0;
 	int minindex;
+
 
 	unsigned char * Lptr,* Rptr;
 
@@ -1407,7 +1408,7 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 		k1 = k * 1 * Par->Size_LP; //Positioning on the table
 		Lptr = Left;
 
-		count = 0;
+		pixCount[k] = 0;
 
 		for (j=0; j<Par->Size_Rho; j++)
 		{
@@ -1424,22 +1425,24 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 					average_Rg += Right[iR+1];
 					average_Lb += *Lptr++;//Left [iL+2];
 					average_Rb += Right[iR+2];
-					count++;
+					pixCount[k]++;
 				}
 				else Lptr +=3;
 			}
 			Lptr += AddedPadSize;
 		}
 		
-		if (count != 0)
+		if (pixCount[k] != 0)
 			{
-				average_Lr /= count;
-				average_Rr /= count;
-				average_Lg /= count;
-				average_Rg /= count;
-				average_Lb /= count;
-				average_Rb /= count;
+				average_Lr /= pixCount[k];
+				average_Rr /= pixCount[k];
+				average_Lg /= pixCount[k];
+				average_Rg /= pixCount[k];
+				average_Lb /= pixCount[k];
+				average_Rb /= pixCount[k];
 			}
+
+		printf("%d\n",pixCount[k]);
 
 			double numr   = 0;
 			double den_1r = 0;
@@ -1495,8 +1498,13 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 				MIN = corr_val[k];
 				minindex = k;
 			}
+			if (pixCount[k]>MAX)
+				MAX = pixCount[k];
 //		printf("%03d     %2.5f\n",k-SParam.Resolution/2,corr_val);
 		}
+	
+	for (k=0; k<Steps; k++)
+		corr_val[k] = 3-((3-corr_val[k])*pixCount[k]/(double)MAX);
 
 	return minindex;
 }
@@ -1621,4 +1629,26 @@ int shiftnCorrFovea (unsigned char * Left, unsigned char * Right, Image_Data * P
 		}
 
 	return minindex;
+}
+
+void Make_Disp_Histogram(unsigned char * hist,int height, int width, int shiftLevels, double * corrFunct)
+{
+	int i,j;
+//	int height = 64;
+//	int width = 256;
+//	unsigned char * hist = (unsigned char *)malloc(height*width*sizeof(unsigned char));
+
+	int offset = (width-shiftLevels+1)/2;
+
+	for (j=0;j<height*width;j++)
+		hist[j] = 0;
+
+	for (i=0; i<shiftLevels-1; i++)
+		if ((i+offset >=0)&&(i+offset<width))
+			for (j=height-(int)(height/2*(3-corrFunct[i])); j<height; j++)
+//			for (j=0;j<height*(corrFunct[i]-2); j++)
+					hist[(j*width+i+offset)] = 128;
+		
+	for (j=0; j<height; j++)
+		hist[(j*width+width/2)] = 255;
 }

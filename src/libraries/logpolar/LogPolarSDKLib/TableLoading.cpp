@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableLoading.cpp,v 1.15 2003-11-20 17:15:07 fberton Exp $
+/// $Id: TableLoading.cpp,v 1.16 2003-11-25 16:58:37 fberton Exp $
 ///
 ///
 
@@ -104,7 +104,6 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 	char File_Name [256];
 	unsigned short retval = 0;
 	int j,k;
-	int *SList;
 	FILE * fin;
 	
 	if ((List&1)==1)
@@ -327,16 +326,17 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			fread (&Tables->ShiftLevels,sizeof(int),1,fin); //Lenght of the list
-			SList = (int *) malloc (Tables->ShiftLevels * sizeof (int));
-			fread (SList,sizeof(int),Tables->ShiftLevels,fin); //List
+			Tables->ShiftFunction = (int *) malloc (Tables->ShiftLevels * sizeof (int));
+			fread (Tables->ShiftFunction,sizeof(int),Tables->ShiftLevels,fin); //List
 			fclose(fin);
 		}
 		else
 		{
-			Tables->ShiftLevels = 1+6*Par->Resolution/4;
-			SList = (int *) malloc (Tables->ShiftLevels * sizeof (int));
-			for (j=0; j<Tables->ShiftLevels; j++)
-				SList[j] = j-Tables->ShiftLevels/2;
+			int mult = 1;
+			Tables->ShiftLevels = 1+6*Par->Resolution/(4*mult);
+			Tables->ShiftFunction = (int *) malloc (Tables->ShiftLevels * sizeof (int));
+			for (j=0; j<mult*Tables->ShiftLevels; j+=mult)
+				Tables->ShiftFunction[j/mult] = j-mult*(Tables->ShiftLevels/2);
 		}
 
 		if (Par->Ratio == 1.00)
@@ -344,6 +344,8 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 		else
 			sprintf(File_Name,"%s%1.2f_%s_P%d%s",Path,Par->Ratio,"ShiftMap",Par->padding,".gio");
 
+		Tables->CorrLevels = (double *)malloc(Tables->ShiftLevels*sizeof(double));
+		Tables->PixelCount = (int *)malloc(Tables->ShiftLevels*sizeof(int));
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			Tables->ShiftMap = (int *) malloc ((Tables->ShiftLevels)*1*Par->Size_LP * sizeof(int));
@@ -356,7 +358,7 @@ unsigned short Load_Tables(Image_Data * Par, LUT_Ptrs * Tables,char * Path,unsig
 				{
 					fread(&Tables->ShiftMap[k*1*Par->Size_LP],sizeof(int),1*Par->Size_LP,fin);
 
-					if (SList[k]+3*Par->Resolution/4 == j)
+					if (Tables->ShiftFunction[k]+3*Par->Resolution/4 == j)
 						k++;
 				}
 			}
