@@ -59,8 +59,8 @@ int main(int argc, char* argv[])
 	EBWaitIdle position2Wait("Position2 done");
 	EBWaitIdle position3Wait("Position3 done");
 	
-	EBWaitDeltaT position2Train(3);
-	EBWaitDeltaT position3Train(3);
+	EBWaitDeltaT position2Train(5);
+	EBWaitDeltaT position3Train(5);
 	EBWaitDeltaT position4Train(3);
 
 	EBWaitIdle position2("Waiting arm done");
