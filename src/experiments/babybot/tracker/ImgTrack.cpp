@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: ImgTrack.cpp,v 1.8 2003-11-11 21:34:28 babybot Exp $
+/// $Id: ImgTrack.cpp,v 1.9 2004-01-13 16:39:20 beltran Exp $
 ///
 ///
 
@@ -572,7 +572,7 @@ void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<
 	_movement = false;
 
 	/// to check for movement (of the target).
-	double dist = sqrt((_px-_tx)*(_px-_tx)+(_py-_ty)*(_py-_ty));
+	double dist = sqrt((double)((_px-_tx)*(_px-_tx)+(_py-_ty)*(_py-_ty)));
 
 	if (fell || (dist > 2) || (sqrt(_dgx * _dgx + _dgy * _dgy) > 2.0))
 	{
@@ -692,7 +692,11 @@ void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<
 	{
 		/// not a new target set the estimated offset.
 		int predx = 0, predy = 0;
+#if defined(__QNXEurobot__)
+		_gaze.intersectRay (YARPEurobotHeadKin::KIN_LEFT, _prevRay, predx, predy);
+#else      // ----- #ifdef __QNXEurobot__  ----- 
 		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT, _prevRay, predx, predy);
+#endif     // ----- #ifdef __QNXEurobot__  ----- 
 
 		///predx += ISIZE/2;
 		///predy += ISIZE/2;
@@ -830,7 +834,7 @@ void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<
 	_movement = false;
 
 	/// to check for movement (of the target).
-	double dist = sqrt((_px-_tx)*(_px-_tx)+(_py-_ty)*(_py-_ty));
+	double dist = sqrt((double)((_px-_tx)*(_px-_tx)+(_py-_ty)*(_py-_ty)));
 
 	if (fell || (dist > 2) || (sqrt(_dgx * _dgx + _dgy * _dgy) > 2.0))
 	{
@@ -848,7 +852,11 @@ void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<
 	///
 	///
 	/// computes the ray for the kin estimation.
+#if defined(__QNXEurobot__)
+	_gaze.computeRay (YARPEurobotHeadKin::KIN_LEFT, _prevRay, x, y); ///-ISIZE/2, y-ISIZE/2);
+#else      // ----- #ifdef __QNXEurobot__  ----- 
 	_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT, _prevRay, x, y); ///-ISIZE/2, y-ISIZE/2);
+#endif     // ----- #ifdef __QNXEurobot__  ----- 
 	_prev_gaze_x = x;
 	_prev_gaze_y = y;
 
