@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.cpp,v 1.7 2003-12-05 16:16:21 babybot Exp $
+/// $Id: YARPIntegralImage.cpp,v 1.8 2004-01-26 14:00:18 babybot Exp $
 ///
 ///
 
@@ -107,34 +107,28 @@ void YARPIntegralImage::_resize(int nC, int nR, int sf)
 
 int YARPIntegralImage::computeCartesian(YARPImageOf<YarpPixelMono> &input)
 {
-	
 	int r;
 	int c;
 
-	unsigned char tmp;
-	// first pixel
-	_rowSum(0,0) = 0; //input(0,0)/255.0;
-	_integralImg(0,0) = _rowSum(0,0);
-	// first row, c >= 1
+	// first row
+	_rowSum(0,0) = (float) input(0,0);
+	_integralImg(0, 0) = _rowSum(0,0);
+		
 	for(c = 1; c < _nCols; c++)
 	{
-		tmp = input(0,c);
-		_rowSum(c,0) = _rowSum(0, c-1) + tmp;
+		_rowSum(c,0) = _rowSum(c-1,0) + (float) input(c,0);
 		_integralImg(c,0) = _rowSum(c,0);
 	}
-	
+		
 	for(r = 1; r < _nRows; r++)
 	{
-		// c = 0
-		tmp = input(c,r);
-		
-		_rowSum(0,r) = tmp;
+		// first col
+		_rowSum(0,r) = (float) (input(0,r);
 		_integralImg(0, r) = _integralImg(0, r-1) + _rowSum(0,r);
+		
 		for(c = 1; c < _nCols; c++)
 		{
-			tmp = input(c,r);
-						
-			_rowSum(c,r) = _rowSum(c-1,r) + tmp;
+			_rowSum(c,r) = _rowSum(c-1,r) + (float) input(c,r);
 			_integralImg(c,r) = _integralImg(c, r-1) + _rowSum(c,r);
 		}
 	}
