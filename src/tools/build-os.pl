@@ -55,8 +55,11 @@ if ($clean)
 		foreach my $project (@projects)
 		{
 			chdir "./$project";
-			call_msdev_and_print ("Debug", "CLEAN");
-			call_msdev_and_print ("Release", "CLEAN");
+			my @dsps = glob "*.dsp";
+			$dsps[0] =~ /([\w\d-]+).dsp/;
+			my $name = $1;
+			call_msdev_and_print ($name, "Debug", "CLEAN");
+			call_msdev_and_print ($name, "Release", "CLEAN");
 			chdir "..";
 		}
 	}
@@ -80,7 +83,10 @@ if ($debug)
 		foreach my $project (@projects)
 		{
 			chdir "./$project";
-			call_msdev_and_print ("Debug", "BUILD");
+			my @dsps = glob "*.dsp";
+			$dsps[0] =~ /([\w\d-]+).dsp/;
+			my $name = $1;
+			call_msdev_and_print ($name, "Debug", "BUILD");
 			chdir "..";
 		}
 	}
@@ -103,7 +109,10 @@ if ($release)
 		foreach my $project (@projects)
 		{
 			chdir "./$project";
-			call_msdev_and_print ("Release", "BUILD");
+			my @dsps = glob "*.dsp";
+			$dsps[0] =~ /([\w\d-]+).dsp/;
+			my $name = $1;
+			call_msdev_and_print ($name, "Release", "BUILD");
 			chdir "..";
 		}
 	}
@@ -122,35 +131,25 @@ if ($install)
 {
 	print "\nInstalling YARP_OS tools to default install directory.\n";
 
-	foreach my $project (@projects)
+	if ($os eq "winnt")
 	{
-		foreach my $file (glob "./$project/obj/$os/*.exe")
+		foreach my $project (@projects)
 		{
-			print "Copying $file\n";
-			copy "$file", "$yarp_root/bin/$os" or warn "Can't copy: $file\n";
+			foreach my $file (glob "./$project/obj/$os/*.exe")
+			{
+				print "Copying $file\n";
+				copy "$file", "$yarp_root/bin/$os" or warn "Can't copy: $file\n";
+			}
 		}
 	}
-
-	foreach my $file (@projects)
+	elsif ($os eq "linux" || $os eq "qnx6")
 	{
-		print "Copying $file\n";
-		copy "./bin/$os/$file", "$yarp_root/bin/$os" or warn "Can't copy: $file\n";
+		foreach my $file (@projects)
+		{
+			print "Copying $file\n";
+			copy "./bin/$os/$file", "$yarp_root/bin/$os" or warn "Can't copy: $file\n";
+		}
 	}
 }
 
 select STDOUT;
-
-sub call_msdev_and_print
-{
-	my ($version, $operation) = @_;
-	my @dsps = glob "*.dsp";
-
-	$dsps[0] =~ /.dsp/;
-
-	open MSDEV, "msdev $dsps[0] /MAKE \"$` - Win32 ".$version."\" /".$operation."|";
-	while (<MSDEV>)
-	{
-		print;
-	}
-	close MSDEV;	
-}
