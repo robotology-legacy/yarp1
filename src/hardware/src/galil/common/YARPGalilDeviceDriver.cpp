@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.7 2003-07-30 14:54:05 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.8 2003-08-19 08:55:29 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -72,6 +72,7 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDAbortAxes]		= &YARPGalilDeviceDriver::abort_axes;
 	
 	m_cmds[CMDMotorType]		= &YARPGalilDeviceDriver::motor_type;
+	m_cmds[CMDGetMotorType]		= &YARPGalilDeviceDriver::get_motor_type;
 
 	m_cmds[CMDDummy] 			= &YARPGalilDeviceDriver::dummy;
 	
@@ -1345,6 +1346,32 @@ YARPGalilDeviceDriver::motor_type(void * cmd)
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, 8,
 							m_buffer_in, buff_length);
+	return rc;
+}
+
+int YARPGalilDeviceDriver::get_motor_type(void *par)
+{
+	long rc = 0;
+
+	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
+	double *type = (double *) tmp->parameters;
+
+	char *buff;
+	
+	////////////////////////////////////////
+	// KP
+	buff = _append_cmd("MT", m_buffer_out);
+	buff = _append_question_mark(buff, tmp->axis);
+	buff = _append_cmd('\0', buff);
+	
+	rc = DMCCommand((HANDLEDMC) m_handle,
+					m_buffer_out,
+					m_buffer_in, buff_length);
+
+	// output should be just one value here
+	*type = atof(m_buffer_in);
+
+	
 	return rc;
 }
 
