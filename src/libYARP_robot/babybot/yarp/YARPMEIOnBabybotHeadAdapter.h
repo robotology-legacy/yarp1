@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.3 2004-09-03 10:53:59 babybot Exp $
+///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.4 2004-09-03 14:43:24 babybot Exp $
 ///
 ///
 
@@ -567,7 +567,7 @@ public:
 		SingleAxisParameters cmd;
 		for(i = 0; i < _inertial->_ns; i++)
 		{
-			cmd.axis = _parameters->_axis_map[i];
+			cmd.axis = int(_inertial->_parameters[i][SP_MeiChannel]);
 			cmd.parameters = &_tmpShort[i];;
 			ret = IOCtl(CMDReadAnalog, &cmd);
 		}
@@ -598,7 +598,7 @@ public:
 			SingleAxisParameters cmd;
 			for(i = 0; i < _inertial->_ns; i++)
 			{
-				cmd.axis = _parameters->_axis_map[i];
+				cmd.axis = int(_inertial->_parameters[i][SP_MeiChannel]);
 				cmd.parameters = &_tmpShort[i];
 				ret = IOCtl(CMDReadAnalog, &cmd);
 			}

@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotInertialSensor.h,v 1.2 2004-07-28 21:46:21 babybot Exp $
+///  $Id: YARPBabybotInertialSensor.h,v 1.3 2004-09-03 14:43:24 babybot Exp $
 ///
 ///
 
@@ -112,8 +112,7 @@ public:
 	bool calibrate(const short *input, int *p = NULL);
 		
 	inline double _doConvert(double volt2, double offset2, double ka2, double db);
-	inline bool calibrated()
-		{ return _isCalibrated; }
+	inline bool calibrated() { return _isCalibrated; }
 
 	double getOffsets(int i)
 	{
