@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameClient.h,v 1.1 2003-04-18 09:29:44 gmetta Exp $
+/// $Id: YARPNameClient.h,v 1.2 2003-04-18 14:42:47 gmetta Exp $
 ///
 ///
 
@@ -74,6 +74,7 @@
 #include <YARPAll.h>
 #include <ace/config.h>
 #include <wide_nameloc.h>
+#include <YARPSemaphore.h>
 
 #include <ace/SOCK_Acceptor.h>
 #include <ace/SOCK_Connector.h>
@@ -106,45 +107,57 @@ public:
 
 	int check_in (const std::string &s, const ACE_INET_Addr &reg_addr, ACE_INET_Addr &addr)
 	{
+		_mutex.Wait();
 		int ret;
 		ACE_INET_Addr tmpAddr = reg_addr;
 		ret = _check_in(s, tmpAddr);
 		addr = tmpAddr;
+		_mutex.Post();
 		return ret;
 	}
 
 	int check_in (const std::string &s, ACE_INET_Addr &addr)
 	{
+		_mutex.Wait();
 		int ret;
 		ret = _check_in(s, addr);
+		_mutex.Post();
 		return ret;
 	}
 		
 	int check_in (const std::string &s, std::string &ip, NetInt32 *port)
 	{
+		_mutex.Wait();
 		int ret;
 		ACE_INET_Addr tmpAddr(ip.c_str());
 		ret = _check_in(s, tmpAddr);
 		*port = tmpAddr.get_port_number();
 		ip = std::string(tmpAddr.get_host_name());
+		_mutex.Post();
 		return ret;
 	}
 
 	int query (const std::string &s, ACE_INET_Addr &addr)
 	{
+		_mutex.Wait();
 		int ret = _query(s,addr);
+		_mutex.Post();
 		return ret;
 	}
 
 	int check_out (const std::string &s)
 	{
+		_mutex.Wait();
 		// send data to server
 		YARPNameServiceCmd tmpCmd;
 		YARPNameTCP tmpRqst;
 		
-		if (connect_to_server()!=0)
+		if (connect_to_server() != 0)
+		{
+			_mutex.Post();
 			return YARP_FAIL;
-		
+		}
+
 		tmpRqst.setName(s);
 		tmpCmd.cmd = YARPNSRelease;
 		tmpCmd.length = tmpRqst.length();
@@ -159,11 +172,15 @@ public:
 		int sent = client_stream_.sendv_n (iov, 1);
 
 		if (sent == -1)
-			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"),0);
+		{
+			_mutex.Post();
+			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"), 0);
+		}
 
 		// close the connection
 		close();
 				
+		_mutex.Post();
 		return YARP_OK;
 	}
 
@@ -296,6 +313,8 @@ private:
 	
 	char *data_buf_;
 	char *reply_buf_;
+
+	YARPSemaphore _mutex;
 };
 
 #endif // .h
