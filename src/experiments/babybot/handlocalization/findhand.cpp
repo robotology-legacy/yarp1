@@ -147,12 +147,20 @@ void FindHand::_segmentation()
 	
 	int rho;
 	int theta;
+	unsigned char *tmpLp;
+	unsigned char *tmpP;
 	for(rho = 0; rho<_srho; rho++)
+	{
+		tmpLp = (unsigned char *) _actualLp.GetArray()[rho];
+		tmpP = (unsigned char *) tmp.GetArray()[rho];
 		for(theta = 0; theta<_stheta; theta++)
 		{
-			if (tmp(theta, rho) < 255)
-				_actualLp(theta, rho) = 0;
+			if (*tmpP < 255)
+				*tmpLp= 0;
+			tmpP++;
+			tmpLp++;
 		}
+	}
 	
 	YARPImageFile::Write(segmented, _actualLp);
 }
@@ -183,6 +191,7 @@ void FindHand::_dumpDetection()
 	// for each pixel
 	int j = 0;
 	for(y = 0; y < _srho; y++)
+	{
 		for(x = 0; x < _stheta; x++)
 		{
 			double motionMean;
@@ -207,11 +216,12 @@ void FindHand::_dumpDetection()
 				if ( (fabs(motionMean-motorMean) < 0.3) && (abs(nMotor-n) < 3) && (nMotor > 0) )
 				{
 					// segmented image, B/N
-					_detected(x,y) = 255;//_actualLp(x,y);
+					_detected(x,y) = 255; //_actualLp(x,y);
 				}
 			}
 			j++;
 		}
+	}
 
 	// reset motor zero crossing
 	for(m = 0; m < 6; m++)

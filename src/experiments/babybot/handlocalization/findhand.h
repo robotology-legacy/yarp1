@@ -134,10 +134,13 @@ private:
 		_zeroCrossingHand[4].find(fabs(_handSpeed(5)), _pixelOut.data()+3);//_pixelOut.data()+1);
 		_zeroCrossingHand[5].find(fabs(_handSpeed(6)), &dummy);
 
+		unsigned char *motion;
 		for(y = 0/*_logpolarParams::_sfovea*/; y<_logpolarParams::_srho; y++)
+		{
+			motion = (unsigned char *) _motion.GetArray()[y];
 			for(x = 0; x<_logpolarParams::_stheta; x++)
 			{
-				_zeroCrossing[j].find(_motion(x,y)/255.0, &dummy);
+				_zeroCrossing[j].find((*motion)/255.0, &dummy);
 
 				double motionMean;
 				double motionStd;
@@ -167,8 +170,9 @@ private:
 						_detected(x,y) = 0;
 				}*/
 				j++;
+				motion++;
 			}
-		
+		}	
 		// display
 	//	_segmentedImagePort.Content().Refer(_detected);
 	//	_segmentedImagePort.Write();
