@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.47 2004-01-21 15:27:08 babybot Exp $
+/// $Id: main.cpp,v 1.48 2004-01-28 18:12:21 babybot Exp $
 ///
 ///
 
@@ -114,6 +114,7 @@
 /// global params.
 int		_sizex		= -1;
 int		_sizey		= -1;
+int		_yoffset	= 0;
 char	_name[512];
 char	_fgdataname[512];
 char	_netname[512];
@@ -192,6 +193,10 @@ int ParseParams (int argc, char *argv[])
 			case 'f':
 				ACE_OS::fprintf(stdout, "grabber receiving data from network mode...\n");
 				_fgnetdata = true;
+				break;
+			case 'o':
+				_yoffset = ACE_OS::atoi (argv[i+1]);
+				i++;
 				break;
 			}
 		}
@@ -455,7 +460,6 @@ int mainthread::_runAsSimulation (void)
 	return YARP_OK;
 }
 
-
 int mainthread::_runAsLogpolarSimulation (void)
 {
 	using namespace _logpolarParams;
@@ -521,6 +525,8 @@ int mainthread::_runAsLogpolarSimulation (void)
 #if !defined(__LinuxTest__)
 int mainthread::_runAsLogpolar (void)
 {
+	YARPBabybotGrabberParams params;
+	
 	using namespace _logpolarParams;
 
 	Grabber grabber;
@@ -540,7 +546,13 @@ int mainthread::_runAsLogpolar (void)
 	out.Register (_name, _netname);
 
 	/// params to be passed from the command line.
-	grabber.initialize (_board_no, _xsize);
+	params._unit_number = _board_no;
+	params._video_type = 0;
+	params._size_x = _xsize;
+	params._size_y = _ysize;
+	params._offset_y = _yoffset;
+	ACE_OS::fprintf(stdout, "Setting yoffset:%d\n", _yoffset);
+	grabber.initialize (params);
 
 	//Activate port to receive image adjustment data
 	FgNetDataPort  * m_fg_net_data;

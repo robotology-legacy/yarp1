@@ -37,9 +37,11 @@ public:
 
 		if (tmpBottle.tryReadVocab(tmpVocab))
 			tmpBottle.moveOn();
-
+		
 		if (tmpVocab == YBVArmIssuedCmd)
 			tmpBottle.readYVector(_position);
+		else
+			return;
 	
 		ACE_OS::printf("DEBUG: received a new final position\n");
 	}

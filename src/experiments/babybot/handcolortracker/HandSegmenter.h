@@ -5,7 +5,7 @@
 #include <YARPLogpolar.h>
 #include <YARPConicFitter.h>
 
-const double __scale = 1.0;
+const double __scale = 2.0;
 const double __threshold = 150000;
 
 class HandSegmenter
@@ -20,6 +20,7 @@ public:
 		mask.Resize(_logpolarParams::_stheta, _logpolarParams::_srho);
 
 		threshold = __threshold;
+		scale = __scale;
 	}
 
 	void mergeColor(YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelMono> &seg, const YARPShapeEllipse &el)
@@ -44,9 +45,9 @@ public:
 		// x = (x + _logpolarParams::_xsize/2)/__scale;
 		// y = (_logpolarParams::_ysize/2-y)/__scale;
 		if (v>threshold)
-			YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(0, 255, 0), 10, 2);
+			YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(255, 0, 0), 5, 1);
 		else
-			YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(255, 0, 0), 10, 2);
+			YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(150, 0, 0), 5, 1);
 	}
 
 	void mergeColor(YARPImageOf<YarpPixelBGR> &in, const YARPShapeEllipse &el)
@@ -130,6 +131,8 @@ public:
 		return outImage;
 	}
 
+	double scale;
+
 private:
 	double _accumulate(YARPImageOf<YarpPixelMono> &in, YARPLpShapeRegion &region)
 	{
@@ -192,7 +195,6 @@ private:
 	YARP3DHistogram histo;
 
 	double threshold;
-
 };
 
 #endif

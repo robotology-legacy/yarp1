@@ -55,83 +55,135 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #pasa#
+///                    #nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.10 2004-01-28 18:12:21 babybot Exp $
-///
-///
-
-#ifndef __YARPPicoloDeviceDriverh__
-#define __YARPPicoloDeviceDriverh__
+/// $Id: teststereomatch.cpp,v 1.1 2004-01-28 18:12:20 babybot Exp $
+/// 
+/// Test stereo match by mergin together left and right channels (fovea)
+/// January 04 -- by nat
 
 #include <conf/YARPConfig.h>
-#include <YARPThread.h>
-#include <YARPSemaphore.h>
-#include <YARPDeviceDriver.h>
-#include <YARPSemaphore.h>
+#include <ace/config.h>
+#include <ace/OS.h>
 
-#include <stdlib.h>
-#include <string.h>
+#include <YARPImages.h>
+#include <YARPImagePortContent.h>
 
-struct PicoloOpenParameters
+#include <iostream>
+#include <math.h>
+
+#include <YARPLogpolar.h>
+#include <YARPMath.h>
+
+#include <YARPParseParameters.h>
+#include <YARPImageFile.h>
+#include <YARPImageUtils.h>
+#include <YARPColorConverter.h>
+
+///
+///
+///
+YARPInputPortOf<YARPGenericImage> _inLeftPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+YARPInputPortOf<YARPGenericImage> _inRightPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+
+YARPOutputPortOf<YARPGenericImage> _outImgPort (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
+
+const char *DEFAULT_NAME = "/teststereomatch";
+
+///
+///
+///
+///
+void printFrame(int c);
+
+int main(int argc, char *argv[])
 {
-	/// add here params for the open.
-	PicoloOpenParameters()
+	using namespace _logpolarParams;
+	YARPLogpolar mapper;
+
+	YARPString name;
+	YARPString network_i;
+	YARPString network_o;
+	char buf[256];
+
+	if (!YARPParseParameters::parse(argc, argv, "name", name))
 	{
-		_unit_number = 0;
-		_video_type = 0;
-		_size_x = 256;
-		_size_y = 256;
-		_offset_y = 0;
-		_offset_x = 0;
+		name = DEFAULT_NAME;
 	}
 
-	int _unit_number;		/// board number 0, 1, 2, etc.
-	int _video_type;		/// 0 composite, 1 svideo.
-	int _size_x;			/// requested size x.
-	int _size_y;			/// requested size y.
-	int _offset_y;			/// y offset, with respect to the center 
-	int _offset_x;			/// x offset, with respect to the center
-};
+	if (!YARPParseParameters::parse(argc, argv, "neti", network_i))
+	{
+		network_i = "Net1";
+	}
 
+	if (!YARPParseParameters::parse(argc, argv, "neto", network_o))
+	{
+		network_o = "default";
+	}
 
-class YARPPicoloDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>, public YARPThread
-{
-private:
-	YARPPicoloDeviceDriver(const YARPPicoloDeviceDriver&);
-	void operator=(const YARPPicoloDeviceDriver&);
+	/// images are coming from the input network.
+	sprintf(buf, "%s/i:left", name.c_str());
+	_inLeftPort.Register(buf, network_i.c_str());
+	sprintf(buf, "%s/i:right", name.c_str());
+	_inRightPort.Register(buf, network_i.c_str());
+	sprintf(buf, "%s/o:img", name.c_str());
+	_outImgPort.Register(buf, network_o.c_str());
 
-public:
-	YARPPicoloDeviceDriver();
-	virtual ~YARPPicoloDeviceDriver();
+	YARPImageOf<YarpPixelMono> inl;
+	YARPImageOf<YarpPixelMono> inr;
 
-	// overload open, close
-	virtual int open(void *d);
-	virtual int close(void);
+	YARPImageOf<YarpPixelBGR> mergedImg;
+	
+	YARPImageOf<YarpPixelBGR> colLeft, fovLeft;
+	YARPImageOf<YarpPixelBGR> colRight, fovRight;
+	YARPImageOf<YarpPixelMono> fovLeftGray, fovRightGray;
 
-	virtual int acquireBuffer(void *);
-	virtual int releaseBuffer(void *);
-	virtual int waitOnNewFrame (void *cmd);
-	virtual int getWidth(void *cmd);
-	virtual int getHeight(void *cmd);
-	virtual int setBrightness (void *cmd);
-	virtual int setHue (void *cmd);
-	virtual int setContrast (void *cmd);
-	virtual int setSatU (void *cmd);
-	virtual int setSatV (void *cmd);
-	virtual int setLNotch (void *cmd);
-	virtual int setLDec (void *cmd);
-	virtual int setCrush (void *cmd);
+	// check size for fovea images
+	colLeft.Resize (_stheta, _srho);
+	colRight.Resize (_stheta, _srho);
+	fovLeft.Resize(_xsizefovea, _ysizefovea);
+	fovRight.Resize(_xsizefovea, _ysizefovea);
+	mergedImg.Resize(_xsizefovea, _ysizefovea);
+	fovLeftGray.Resize(_xsizefovea, _ysizefovea);
+	fovRightGray.Resize(_xsizefovea, _ysizefovea);
+	
+	int frameCounter = 0;
 
-protected:
-	void *system_resources;
+	while (1)
+	{
+		_inLeftPort.Read();
+		_inRightPort.Read();
 
-	virtual void Body(void);
-};
+		inl.Refer (_inLeftPort.Content());
+		inr.Refer (_inRightPort.Content());
 
+		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)inl, colLeft);
+		mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)inr, colRight);
+		mapper.Logpolar2CartesianFovea (colLeft, fovLeft);
+		mapper.Logpolar2CartesianFovea (colRight, fovRight);
 
-#endif
+		YARPColorConverter::RGB2Grayscale(fovRight, fovRightGray);
+		YARPColorConverter::RGB2Grayscale(fovLeft, fovLeftGray);
+
+		YARPImageUtils::SetRed(fovLeftGray, mergedImg);
+		YARPImageUtils::SetGreen(fovRightGray, mergedImg);
+		
+		_outImgPort.Content().Refer(mergedImg);
+		_outImgPort.Write();
+
+		printFrame(frameCounter);
+		frameCounter++;
+	}
+
+	return 0;
+}
+
+void printFrame(int c)
+{	
+	if (c%500 == 0)
+		ACE_OS::printf("Frame #:%d\n", c);
+}

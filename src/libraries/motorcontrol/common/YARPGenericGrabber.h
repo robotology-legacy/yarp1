@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericGrabber.h,v 1.7 2003-12-17 10:31:07 beltran Exp $
+/// $Id: YARPGenericGrabber.h,v 1.8 2004-01-28 18:12:21 babybot Exp $
 ///
 ///
 
@@ -87,6 +87,7 @@ public:
 	~YARPGenericGrabber () {}
 
 	int initialize (int board, int sizex, int sizey = -1);
+	int initialize (const PARAMETERS &param);
 	int uninitialize (void);
 	int acquireBuffer (unsigned char **buffer);
 	int releaseBuffer (void);
@@ -114,6 +115,16 @@ int YARPGenericGrabber<ADAPTER, PARAMETERS>::initialize (int board, int sizex, i
 	else
 		_params._size_y = sizex;
 
+	/// calls the adapter init that parses the params appropriately.
+	/// this is because initialization can vary depending on the specific setup.
+	return _adapter.initialize (_params);
+}
+
+template <class ADAPTER, class PARAMETERS>
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::initialize (const PARAMETERS &param)
+{
+	_params = param;
+	
 	/// calls the adapter init that parses the params appropriately.
 	/// this is because initialization can vary depending on the specific setup.
 	return _adapter.initialize (_params);

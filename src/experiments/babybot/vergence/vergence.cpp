@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.8 2004-01-19 19:03:23 babybot Exp $
+/// $Id: vergence.cpp,v 1.9 2004-01-28 18:12:20 babybot Exp $
 ///
 ///
 
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
 		
 		YVector disparityval(1);
 		disparity._actRings = 21;
-		disparityval(1) = (double)disparity.computeDisparity (sub_left, sub_right);
+		disparityval(1) = -(double)disparity.computeDisparity (sub_left, sub_right);
 
 		out_img.Content().SetID (YARP_PIXEL_MONO);
 		out_img.Content().Resize (256, 64);

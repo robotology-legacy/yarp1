@@ -146,15 +146,14 @@ int main(int argc, char* argv[])
 	_outSeg.Resize(_stheta, _srho);
 	_outSeg2.Resize(_stheta, _srho);
 
-	char tmp[128];
-	sprintf(tmp, "%s%d", "y:\\zgarbage\\exp20\\histo", 59);
-//	_histo.load(YARPString(tmp));
+	const char *root = GetYarpRoot();
+	char tmp[256];
+	sprintf(tmp, "%s/conf/babybot/handhisto", root);
+	_histo.load(YARPString(tmp));
 
 	// log file
-	char logFilename[256];
-	const char *root = GetYarpRoot();
-	ACE_OS::sprintf (logFilename, "%s/conf/babybot/handforward.dat\0", root);
-	_log.append(logFilename);
+	ACE_OS::sprintf (tmp, "%s/conf/babybot/handforward.dat", root);
+	_log.append(tmp);
 	
 	YARPLogpolar _mapper;
 
@@ -219,7 +218,8 @@ int main(int argc, char* argv[])
 		_segmenter.mergeColor(_leftColored, _outSeg, tmpEl1);
 
 		YARPImageOf<YarpPixelBGR> &tmpSeg = _segmenter.getImage();
-		YARPSimpleOperation::DrawCross(tmpSeg, tmpEl2.x, tmpEl2.y, YarpPixelBGR(0, 255, 0), 10, 2);
+		double scale = _segmenter.scale;
+		YARPSimpleOperation::DrawCross(tmpSeg, tmpEl2.x/scale, tmpEl2.y/scale, YarpPixelBGR(0, 255, 0), 5, 1);
 						
 		// colored image
 		_outPortColor.Content().Refer(tmpSeg);
