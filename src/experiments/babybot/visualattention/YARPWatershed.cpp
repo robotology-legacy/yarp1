@@ -1627,6 +1627,10 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 	integralBY.computeCartesian(by);
 	
 	for (int i = 1; i < numBlob; i++) {
+		// The salience should not change if a blob is eliminated because it is too small
+		// or too big
+		// I could not change the scale of the salience and change only the color of the
+		// most salient blob
 		if (m_boxes[i].valid) {
 			int tmp;
 			
@@ -1715,7 +1719,7 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 		}
 	}
 
-	const int maxDest=200;
+	const int maxDest=127;
 
 	if (maxSalienceBU!=minSalienceBU) {
 		a1=255*(maxDest-1)/(maxSalienceBU-minSalienceBU);
@@ -1735,9 +1739,12 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 		b2=0;
 	}
 
-	for (i = 0; i < numBlob; i++) {
+	for (i = 1; i < numBlob; i++) {
 		if (m_boxes[i].valid) {
-			m_boxes[i].salienceTotal=pBU*(a1*m_boxes[i].salienceBU/255+b1)+pTD*(a2*m_boxes[i].salienceTD/255+b2);
+			if (m_boxes[i].salienceBU==maxSalienceBU || m_boxes[i].salienceTD==maxSalienceTD)
+				m_boxes[i].salienceTotal=255;
+			else
+				m_boxes[i].salienceTotal=pBU*(a1*m_boxes[i].salienceBU/255+b1)+pTD*(a2*m_boxes[i].salienceTD/255+b2);
 			//m_boxes[i].salienceTotal=pBU*m_boxes[i].salienceBU+pTD*m_boxes[i].salienceTD;
 			//m_boxes[i].salienceTotal=pBU*m_boxes[i].salienceBU+pTD*(a2*m_boxes[i].salienceTD/255+b2);
 			//m_boxes[i].salienceTotal=pBU*255+pTD*(a2*m_boxes[i].salienceTD/255+b2);
@@ -2013,7 +2020,7 @@ void YARPWatershed::maxSalienceBlobs(YARPImageOf<YarpPixelInt>& tagged, int max_
 	
 	memset(pos, 0, sizeof(int)*num);
 	
-	for (int l = 0; l < max_tag; l++) {
+	for (int l = 1; l < max_tag; l++) {
 		if (m_boxes[l].valid) {
 			for (int i=0; i<num; i++) {
 				if (m_boxes[l].salienceTotal>m_boxes[pos[i]].salienceTotal) {

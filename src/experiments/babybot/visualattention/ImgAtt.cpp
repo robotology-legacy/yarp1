@@ -1012,7 +1012,6 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 		//cout<<"  ECT DELTA %:"<<(fovBox.ect-ect)/ect*100<<endl;
 
 		if (crg*crg+cgr*cgr+cby*cby<150) {
-			cout<<"Maybe I've found the target..."<<endl;
 			found=true;
 		}
 	}	
