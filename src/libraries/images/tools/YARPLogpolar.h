@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.24 2004-04-21 17:53:15 natta Exp $
+/// $Id: YARPLogpolar.h,v 1.25 2004-04-26 17:15:37 natta Exp $
 ///
 ///
 
@@ -181,6 +181,34 @@ public:
 	int Sawt2Uniform(const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out);
 	int Uniform2Sawt(const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out);
 
+	// slightly slower function which internally check images are allocated
+	int SafeLogpolar2Cartesian (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out)
+	{ 	
+		out.CastID(YARP_PIXEL_BGR);
+		out.Resize(_logpolarParams::_xsize, _logpolarParams::_ysize);
+		return Logpolar2Cartesian (in, out);
+	}
+
+	int SafeLogpolar2CartesianFovea (const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out)
+	{
+		out.CastID(YARP_PIXEL_BGR);
+		out.Resize(_logpolarParams::_xsizefovea, _logpolarParams::_ysizefovea);
+		return Logpolar2CartesianFovea(in, out);
+	}
+	int SafeReconstructColor (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelBGR>& out)
+	{
+		out.CastID(YARP_PIXEL_BGR);
+		out.Resize(in.GetWidth(), in.GetHeight());
+		return ReconstructColor(in, out);
+	}
+
+	int SafeReconstructGrays (const YARPImageOf<YarpPixelMono>& in, YARPImageOf<YarpPixelMono>& out)
+	{
+		out.CastID(YARP_PIXEL_MONO);
+		out.Resize(in.GetWidth(), in.GetHeight());
+		return ReconstructGrays(in, out);
+	}
+	
 	inline int GetCWidth (void) const { return _logpolarParams::_xsize; }
 	inline int GetCHeight (void) const { return _logpolarParams::_ysize; }
 

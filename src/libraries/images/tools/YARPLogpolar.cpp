@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.25 2004-01-26 09:16:46 orfra Exp $
+/// $Id: YARPLogpolar.cpp,v 1.26 2004-04-26 17:15:37 natta Exp $
 ///
 ///
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageUtils.cpp,v 1.2 2003-06-05 10:51:11 gmetta Exp $
+/// $Id: YARPImageUtils.cpp,v 1.3 2004-04-26 17:15:37 natta Exp $
 ///
 ///
 

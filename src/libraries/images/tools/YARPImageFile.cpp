@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageFile.cpp,v 1.2 2003-08-07 01:19:47 gmetta Exp $
+/// $Id: YARPImageFile.cpp,v 1.3 2004-04-26 17:15:37 natta Exp $
 ///
 ///
 
@@ -217,9 +217,11 @@ static int ImageRead(YARPGenericImage& img, const char *filename)
 		return -1;
 	}
 
-	if (img.GetID()==YARP_PIXEL_RGB || img.GetID() == YARP_PIXEL_MONO)
+	if (!color)
+		// img.GetID()==YARP_PIXEL_RGB || img.GetID() == YARP_PIXEL_MONO)
 	{
-		img.SetID(color?YARP_PIXEL_RGB:YARP_PIXEL_MONO);
+		// img.SetID(color?YARP_PIXEL_RGB:YARP_PIXEL_MONO);
+		img.SetID(YARP_PIXEL_MONO);
 		img.Resize(width,height);
 		///ACE_ASSERT(img.GetPadding() == 0);
 		ACE_ASSERT(img.GetRawBuffer()!=NULL);
@@ -237,8 +239,30 @@ static int ImageRead(YARPGenericImage& img, const char *filename)
 			dst += pad;
 		}
 	}
+	else if (img.GetID()==YARP_PIXEL_RGB)
+	{		
+		img.SetID(YARP_PIXEL_RGB);
+		img.Resize(width,height);
+		///ACE_ASSERT(img.GetPadding() == 0);
+		ACE_ASSERT(img.GetRawBuffer()!=NULL);
+
+		const int w = img.GetWidth() * img.GetPixelSize();
+		const int h = img.GetHeight();
+		const int pad = img.GetPadding() + w;
+		char *dst = img.GetRawBuffer ();
+		size = w * h;
+
+		num = 0;
+		for (int i = 0; i < h; i++)
+		{
+			num += ACE_OS::fread((void *) dst, 1, (size_t) w, fp);
+			dst += pad;
+		}
+
+	}
 	else
 	{
+		// image is color, nothing was specified, assume BGR
 		img.SetID(YARP_PIXEL_BGR);
 		img.Resize(width,height);
 		///ACE_ASSERT(img.GetPadding() == 0);
@@ -303,27 +327,6 @@ static int ImageWrite(YARPGenericImage& img, const char *filename)
 
 	return 0;
 }
-
-
-/*
-void Reim(GenericImage& src,GenericImage& dest)
-{
-  if (dest.GetWidth()!=src.GetWidth() || 
-      dest.GetHeight()!=src.GetHeight())
-    {
-      dest.Create(src.GetHeight(),src.GetWidth());
-    }
-}
-
-void Reim(GenericImage& dest, int h, int w)
-{
-  if (dest.GetWidth()!=h || dest.GetHeight()!=w)
-    {
-      dest.Create(h,w);
-    }
-}
-*/
-
 
 int YARPImageFile::Read(const char *src, YARPGenericImage& dest, int format)
 {
