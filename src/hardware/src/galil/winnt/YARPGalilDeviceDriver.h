@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.6 2003-12-02 11:42:49 babybot Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.7 2003-12-23 11:21:59 babybot Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -46,6 +46,7 @@ public:
 	virtual int open(void *d);
 	virtual int close(void);
 
+private:
 	//  functions
 	int set_speed(void *sp);
 	int set_position(void *pos);
@@ -128,7 +129,6 @@ public:
 	
 	int dummy(void *d);	// dummy function, for debug purpose
 
-protected:
 	int m_njoints;
 	char m_buffer_in[buff_length];
 	char m_buffer_out[buff_length];

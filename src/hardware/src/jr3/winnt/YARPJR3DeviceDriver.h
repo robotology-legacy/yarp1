@@ -47,6 +47,7 @@ public:
 	virtual int open(void *d);
 	virtual int close(void);
 
+private:
 	int resetOffsets(void *);
 	int setActualFullScales(void *f);
 	int setMinFullScales(void *);

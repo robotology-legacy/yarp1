@@ -5,7 +5,7 @@
 // Feb 2003 -- by nat
 //
 // win32: link nidaq32.lib
-// $Id: YARPNIDAQDeviceDriver.h,v 1.4 2003-07-11 14:12:03 babybot Exp $
+// $Id: YARPNIDAQDeviceDriver.h,v 1.5 2003-12-23 11:21:59 babybot Exp $
 
 #ifndef __YARPNIDAQDeviceDriver__
 #define __YARPNIDAQDeviceDriver__
@@ -79,12 +79,12 @@ public:
 	virtual int open(void *d);
 	virtual int close(void);
 
+private:
 	int ai_configure(void *p);
 	int scan_setup(void *p);
 	int ai_vread_scan(void *p);
 	int ai_read_scan(void *p);
 
-protected:
 };
 
 #endif //.h

@@ -5,7 +5,7 @@
 // April 2003 -- by nat
 //
 // win32: link Medvc50f.lib 
-// $Id: YARPMEIDeviceDriver.h,v 1.10 2003-12-02 11:42:49 babybot Exp $
+// $Id: YARPMEIDeviceDriver.h,v 1.11 2003-12-23 11:21:59 babybot Exp $
 #ifndef __YARP_MEI_DEVICE_DRIVER__
 #define __YARP_MEI_DEVICE_DRIVER__
 
@@ -45,6 +45,7 @@ public:
 	virtual int open(void *d);
 	virtual int close(void);
 
+private:
 	//  functions
 	int setSpeed(void *sp);
 	int setPosition(void *pos);
@@ -135,7 +136,7 @@ public:
 	
 	int dummy(void *d);	// dummy function, for debug purpose
 
-protected:
+private:
 	int _njoints;   
 	int _dsp_rate;
 

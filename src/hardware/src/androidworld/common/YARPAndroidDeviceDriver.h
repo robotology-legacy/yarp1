@@ -47,6 +47,7 @@ public:
 	virtual int open(void *d);
 	virtual int close(void);
 
+private:
 	unsigned short _pport;
 
 	unsigned char _chipSel;

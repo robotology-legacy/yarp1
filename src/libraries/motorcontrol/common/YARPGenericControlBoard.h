@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.6 2003-12-02 11:42:49 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.7 2003-12-23 11:21:59 babybot Exp $
 ///
 ///
 
@@ -109,7 +109,7 @@ public:
 	{
 		int ret;
 		_lock();
-		ret = _adapter.waitForMotionDone(&time);
+		ret = _adapter.IOCtl(CMDWaitForMotionDone, &time);
 		_unlock();
 		return ret;
 	}
@@ -118,7 +118,7 @@ public:
 	{
 		int ret;
 		_lock();
-		ret = _adapter.waitForFramesLeft(&time);
+		ret = _adapter.IOCtl(CMDWaitForFramesLeft, &time);
 		_unlock();
 		return ret;
 	}
