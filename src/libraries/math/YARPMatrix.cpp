@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.cpp,v 1.3 2003-06-03 13:29:51 beltran Exp $
+/// $Id: YARPMatrix.cpp,v 1.4 2003-06-05 10:03:03 gmetta Exp $
 ///
 ///
 
@@ -1414,7 +1414,7 @@ VisMatrixExport void VISAPI VisDMatrixLeastSquares(const YMatrix& A,
     An = 0.0, Bn = 0.0;
     int k = 0;
     int i = 0;
-    for (int i = 0; i < A.NRows(); i++) {
+    for (i = 0; i < A.NRows(); i++) {
         for (int j = 0; j < A.NCols(); j++) {
             for (k = 0; k < A.NCols(); k++)
                 An[j][k] += A[i][j] * A[i][k];
