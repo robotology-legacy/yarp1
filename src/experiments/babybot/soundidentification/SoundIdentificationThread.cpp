@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: SoundIdentificationThread.cpp,v 1.1 2004-10-28 14:28:53 beltran Exp $
+/// $Id: SoundIdentificationThread.cpp,v 1.2 2004-10-28 15:19:49 beltran Exp $
 ///
 
 /** 
@@ -213,20 +213,19 @@ int SoundIdentificationThread::GetSegmentedImage (
 
 	int i = 0;
 	int j = 0;
-	int pixelValue        = 0;
-	double pixelMeanValue = 0.0;
+	int mixelValue        = 0;
 	double pixelsSum      = 0.0;
 
 	for(i = 2; i < width-2; i++ )
 		for( j = 2; j < height-3; j++) {
-			pixelValue = mixelGramImage(i,j);
-			if ( pixelValue > MIXELTHRESHOLD) {
+			mixelValue = mixelGramImage(i,j);
+			if ( mixelValue > MIXELTHRESHOLD) {
 				for (int z = 1; z <= numberOfSamples; z++) {
 					YARPImageOf<YarpPixelMono>& pimg = vImagesVector[z-1];
 					pixelsSum += pimg(i,j);
 				}
-				pixelMeanValue = pixelsSum / (double) numberOfSamples;
-				segmentedImage(i,j) = pixelMeanValue;
+				segmentedImage(i,j) = pixelsSum / (double) numberOfSamples;
+				pixelsSum = 0.0;
 			}
 			else {
 				if ( memoryFactor > MEMORYMAX) {
@@ -353,7 +352,6 @@ int SoundIdentificationThread::calculateMixel2 (
 
     int n         = 0;  /** Sound number of componects.                          */
     int m         = 0;  /** Image number of components.                          */
-    int ret;            /** Return variable.                                     */
     double _dSX   = 0.0;
     double _dSX2  = 0.0;
     double _dSY   = 0.0;
@@ -433,7 +431,6 @@ void SoundIdentificationThread::Body (void)
 	double time2   = 0.0;
 	double period  = 0.0;
 	YarpPixelBGR _auxpix(0,0,0); /** Temporal pixel.  */
-	char * ppixel;
 	YARPBottle _botActions;            
 
 	YVector _vOutMfcc(L_VECTOR_MFCC);
@@ -548,7 +545,7 @@ void SoundIdentificationThread::Body (void)
 
 	while(!IsTerminated())
 	{
-		int i,j,y;
+		int i,j;
 		counter++;
 
 		_sema.Wait(1); // Start Semaphore
@@ -565,8 +562,6 @@ void SoundIdentificationThread::Body (void)
 			(const YARPImageOf<YarpPixelMono>&)_inputLogPolarImage, 
 			_imgInput
 			);
-
-
 
 		//----------------------------------------------------------------------
 		//  Get acquisition time for the image. This double is travelling in the 
