@@ -1419,6 +1419,8 @@ void YARPImgAtt::findBlobs()
 	
 	//rain.RemoveNonValid(max_tag, 3800, 100);
 	rain.ComputeSalienceAll(max_tag, max_tag);
+	
+	// Comment the following line to disable the elimination of non valid blob
 	rain.RemoveNonValid(max_tag, 6000, 100);
 
 	
@@ -1494,6 +1496,30 @@ void YARPImgAtt::updateIORTable()
 
 	rain.foveaBlob(tagged, IORBoxes[0]);
 	IORBoxes[0].valid=true;
+}
+
+
+void YARPImgAtt::saveMeanOppCol()
+{
+	char *root = GetYarpRoot();
+	char path[256];
+	
+	ACE_OS::sprintf (path, "%s/zgarbage/va/", root); 
+
+	ACE_OS::sprintf(savename, "%smeanocol.ppm", path);
+	YARPImageFile::Write(savename, meanOppCol);
+}
+
+
+void YARPImgAtt::saveMeanCol()
+{
+	char *root = GetYarpRoot();
+	char path[256];
+	
+	ACE_OS::sprintf (path, "%s/zgarbage/va/", root); 
+
+	ACE_OS::sprintf(savename, "%smeancol.ppm", path);
+	YARPImageFile::Write(savename, meanCol);
 }
 
 

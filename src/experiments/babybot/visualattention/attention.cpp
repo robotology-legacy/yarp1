@@ -486,7 +486,9 @@ endDiffCheck:
 				}
 				
 				DBGPF1 ACE_OS::printf(">>> call attention module\n");
-				found=(att_mod.Apply(colored_u) | targetFound);
+				// if I have found the target before and there isn't a difference, the
+				// target is found again!
+				found=(att_mod.Apply(colored_u) | targetFound) & searching;
 
 				if (!diffFoundValid) {
 					if (moved==0) {
@@ -519,7 +521,6 @@ endDiffCheck:
 					tmpBottle.writeInt(att_mod.fovBox.meanRG);
 					tmpBottle.writeInt(att_mod.fovBox.meanGR);
 					tmpBottle.writeInt(att_mod.fovBox.meanBY);
-					//out = att_mod.Saliency();
 					out.Refer(att_mod.Saliency());
 					//ARRONZAMENTO
 					YARPImageUtils::SetRed(out, colored_u);
@@ -652,6 +653,12 @@ int main (int argc, char *argv[])
 		} else if (c=='u') {
 			ACE_OS::printf("Updating IOR table\n");
 			att_mod.updateIORTable();
+		} else if (c=='o') {
+			ACE_OS::printf("Saving Mean Opponent Colors image\n");
+			att_mod.saveMeanOppCol();
+		} else if (c=='m') {
+			ACE_OS::printf("Saving Mean Colors image\n");
+			att_mod.saveMeanCol();
 		} else
 			cout << "Type q+return to quit" << endl;
 	} while (c != 'q');

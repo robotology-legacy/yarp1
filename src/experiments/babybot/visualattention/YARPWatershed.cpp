@@ -1336,11 +1336,7 @@ void YARPWatershed::RemoveNonValid(int last_tag, const int max_size, const int m
 		if ( area < min_size ||	area > max_size ) {
 			m_boxes[i].valid=false;
 		} else {
-			if ( !isWithinRange((int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y, m_boxes[i].elev, m_boxes[i].az) )
-				m_boxes[i].valid=false;
-			/*_gaze.computeRay(YARPBabybotHeadKin::KIN_LEFT_PERI, m_boxes[i].elev, m_boxes[i].az , (int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y);
-			if (m_boxes[i].elev<2.*PI*(-65.)/360. || m_boxes[i].elev>2.*PI*(-20.)/360. ||
-				m_boxes[i].az<2.*PI*(-40.)/360. || m_boxes[i].az>2.*PI*50./360.)
+			/*if ( !isWithinRange((int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y, m_boxes[i].elev, m_boxes[i].az) )
 				m_boxes[i].valid=false;*/
 		}
 	}
@@ -1738,7 +1734,7 @@ int YARPWatershed::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Y
 
 	for (i = 1; i < numBlob; i++) {
 		if (m_boxes[i].valid) {
-			if (m_boxes[i].salienceBU==maxSalienceBU || m_boxes[i].salienceTD==maxSalienceTD)
+			if ((m_boxes[i].salienceBU==maxSalienceBU && pBU==1) || (m_boxes[i].salienceTD==maxSalienceTD && pTD==1))
 				m_boxes[i].salienceTotal=255;
 			else
 				m_boxes[i].salienceTotal=pBU*(a1*m_boxes[i].salienceBU/255+b1)+pTD*(a2*m_boxes[i].salienceTD/255+b2);

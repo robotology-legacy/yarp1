@@ -271,7 +271,11 @@ public:
 	YARPImageOf<YarpPixelMono>& BlobFov() { return blobFov; }
 	YARPImageOf<YarpPixelBGR>& ColorQuantiz() { return meanCol; }
 	void GetTarget(int &x, int &y);
+	
+	void saveMeanOppCol();
+	void saveMeanCol();
 	void saveImages(YARPImageOf<YarpPixelBGR> &src);
+	
 	void setWatershedTh(YarpPixelMono th) { rain.setThreshold(th); }
 
 	inline void setParameters(const YarpPixelMono sRG, const YarpPixelMono sGR, const YarpPixelMono sBY, const double sCMP, const double sECT, const float sBU, const float sTD)
