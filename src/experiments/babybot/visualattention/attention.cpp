@@ -160,7 +160,7 @@ void secondthread::Body(void)
 void mainthread::Body (void)
 {
 	YARPGenericImage img;
-	//YARPGenericImage imgOld;
+	YARPGenericImage imgOld;
 	YARPImageOf<YarpPixelMono> tmp;
 
 	YARPImageOf<YarpPixelMono> out;
@@ -226,7 +226,7 @@ void mainthread::Body (void)
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n");
 
-	//imgOld.Refer(inport.Content());
+	imgOld.Refer(inImage.Content());
 	//iplRShiftS(imgOld, imgOld, 1);
 
 	//start = YARPTime::GetTimeAsSeconds();
@@ -323,13 +323,19 @@ void mainthread::Body (void)
 			iplRShiftS(imgOld, imgOld, 2);
 			iplAdd(tmp, imgOld, imgOld);*/
 
+			// 0.25*frame corrente + 0.75*frame precedente
+			iplRShiftS(imgOld, tmp, 2);
+			iplSubtract(imgOld, tmp, tmp);
+			iplRShiftS(img, imgOld, 2);
+			iplAdd(tmp, imgOld, img);
+
 			frame_no++;
 
 			DBGPF1 ACE_OS::printf(">>> reconstruct colors\n");
 			//mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)imgOld, colored_s);
 			mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)img, colored_s);
 
-			//imgOld.Refer(img);
+			imgOld.Refer(img);
 
 			//ACE_OS::sprintf(savename, "./col.ppm\0");
 			//YARPImageFile::Write(savename, colored);

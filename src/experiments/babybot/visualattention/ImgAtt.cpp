@@ -975,11 +975,11 @@ void YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 	//YARPImageFile::Write(savename, src);
 
 	// with '3' the segmentation is worse
-	iplRShiftS(src, src, 2);
-	iplLShiftS(src, src, 2);
+	/*iplRShiftS(src, src, 2);
+	iplLShiftS(src, src, 2);*/
 	
-	iplColorMedianFilter(src, tmpBGR1, 3, 3, 1, 1); // better in the perifery, worse in fovea
-	iplColorMedianFilter(tmpBGR1, src, 3, 3, 1, 1); // better in the perifery, worse in fovea
+	/*iplColorMedianFilter(src, tmpBGR1, 3, 3, 1, 1); // better in the perifery, worse in fovea
+	iplColorMedianFilter(tmpBGR1, src, 3, 3, 1, 1); // better in the perifery, worse in fovea*/
 	//src=tmpBGR1;
 
 	colorOpponency(src);
