@@ -1,5 +1,7 @@
 Naming conventions.
+
 - by nat
+
 Here is a draft of the naming convention we may be using in the future. 
 The overall idea is to have names which are short, simple and readable.
 Having said that, you'll find out that some solutions are not "optimal"
