@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: soundidentification.cpp,v 1.5 2004-07-28 17:35:23 beltran Exp $
+//         Version:  $Id: soundidentification.cpp,v 1.6 2004-07-30 17:11:19 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -27,6 +27,7 @@
 #include <YARPSoundPortContent.h>
 #include <YARPImageDraw.h>
 
+#include "YARPDtw.h"
 #include "soundidentificationprocessing.h"
 
 const int   __outSize    = 5;
