@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.5 2003-05-01 22:51:20 gmetta Exp $
+/// $Id: exec_test5.cpp,v 1.6 2003-05-22 00:14:28 babybot Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -90,6 +90,7 @@
 
 YARPSemaphore out(1);
 
+extern int __debug_level;
 
 class MyThread1 : public YARPThread
 {
@@ -218,6 +219,8 @@ public:
 int main(int argc, char *argv[])
 {
 	int s = 1, c = 1;
+
+///	__debug_level = 80;
 
 	if (argc>=2)
 	{

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.19 2003-05-21 15:57:46 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.20 2003-05-22 00:14:27 babybot Exp $
 ///
 ///
 
@@ -568,10 +568,11 @@ void _SocketThreadDgram::Body (void)
 		}
 
 		/// this is supposed to read the header, r must be > 0
-		if (r < 0 || incoming != _remote_endpoint.getAddressRef())
+		if (r < 0 || 
+			incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
 		{
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing (recv returned %d)\n", r));
-			if (incoming != _remote_endpoint.getAddressRef())
+			if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
 			{
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "returning because incoming diffs from remote addr\n"));
 			}
@@ -619,7 +620,7 @@ void _SocketThreadDgram::Body (void)
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? about to read the data buffer\n"));
 
 				r = _local_socket.recv (_extern_buffer, len , incoming, 0, &timeout);
-				if (incoming != _remote_endpoint.getAddressRef())
+				if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
 				{
 					YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
 					_local_socket.close ();
@@ -698,7 +699,7 @@ void _SocketThreadDgram::Body (void)
 						///rr = _local_socket.recv (_extern_reply_buffer, _extern_reply_length, incoming, 0, &timeout); 
 					}
 
-					if (incoming != _remote_endpoint.getAddressRef())
+					if (incoming.get_host_addr() != _remote_endpoint.getAddressRef().get_host_addr())
 					{
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? closing %d\n", rr));
 						YARP_DBG(THIS_DBG) ((LM_DEBUG, "??? incoming address diffs from what I expected\n"));
@@ -1560,7 +1561,7 @@ int YARPOutputSocketDgram::SendContinue(char *buffer, int buffer_length)
 	}
 
 	///YARP_DBG(THIS_DBG) ((LM_DEBUG, "ack received for len = %d, 0x%x\n", buffer_length, ack));
-	YARP_DBG(0) ((LM_DEBUG, "ack received for len = %d, 0x%x\n", buffer_length, ack));
+	YARP_DBG(THIS_DBG) ((LM_DEBUG, "ack received for len = %d, 0x%x\n", buffer_length, ack));
 	return YARP_OK;
 }
 

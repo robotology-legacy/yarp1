@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: exec_test2.cpp,v 1.6 2003-05-15 16:57:46 gmetta Exp $
+/// $Id: exec_test2.cpp,v 1.7 2003-05-22 00:14:28 babybot Exp $
 ///
 ///
 
@@ -79,6 +79,8 @@
 #define REG_LOCATE_NAME "/pippo1"
 //#define REG_TEST_NAME "/test/exec_test2"
 //#define REG_LOCATE_NAME "/test/exec_test2"
+
+extern int __debug_level;
 
 YARPSemaphore out(1);
 
@@ -155,7 +157,7 @@ public:
 #ifdef __QNX6__
 		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel());
 #else
-		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME);
+		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
 #endif
 		if (id.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 		{
@@ -193,6 +195,8 @@ int main(int argc, char *argv[])
 {
 	ACE_UNUSED_ARG(argc);
 	ACE_UNUSED_ARG(argv);
+
+	__debug_level = 80;
 
 	MyThread1 t1;
 //	MyThread1 t3;
