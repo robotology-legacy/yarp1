@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.14 2003-12-02 11:42:48 babybot Exp $
+$Id: install.txt,v 1.15 2003-12-16 15:20:49 beltran Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -11,6 +11,7 @@ What to do on each machine of the network
 	- use dcomcnfg to give the WSHRemote appropriate permissions
 	- change the user running remotely to "interactive user" - this is in dcomcnfg
 	- use the enable_remote_scripting.reg to enable remote scripting into the registry
+	*** INSTALL from %YARP_ROOT%\src\maintenance\scripthost
 
 2) Install lmhosts file to facilitate locating the PDC for the NT domain.
 	- you'll find the example in the install dir: lmhosts.template
@@ -41,6 +42,17 @@ What to do on each machine of the network
 		install using rkill /install \\MACHINE.
 		/view to view the process names.
 		/kill to kill a process.
+	*** in case of failure, pls, make sure the Server service is running on \\MACHINE
+
+	- rconsole
+		install using rsetup \\MACHINE
+		allows opening a remote console.
+	*** make sure the remote registry manipulation service is running on \\MACHINE
+
+	- shutdown
+		install, simply copy it to %YARP_ROOT%\src\maintenance\services\shutdown
+	*** it is then copied automatically during istallation
+
 
 5) define:
 	- YARP_ROOT env variable: e.g. y:
@@ -109,6 +121,26 @@ REQUIRES:
 	2.2) See makefile (make_all_lib.bat) for simplified compilation! And only
 		if you're particularly skilled the std procedure. To compile everything type:
 		make_all_lib.bat debug[release] full. 
+
+	2.3) Compile services in:
+		%YARP_ROOT%\src\maintenance\services\make_services.bat
+		this installs automatically the binaries under: %YARP_ROOT%\bin\winnt
+		that should be already in your path.
+
+	2.4) Compile the daemons in:
+		%YARP_ROOT%\src\hardware\daemons
+		use the make_daemons.bat [debug/release]
+
+	2.5) Compile your architecture experiments in:
+		%YARP_ROOT%\src\experiments\YOURROBOT
+
+	2.6) Compile the viewers under:
+		%YARP_ROOT%\src\applications\viewers
+		by opening directly the project's dsw. No makefiles yet, sorry!
+
+	2.7) Compile the matlab dll interface:
+		%YARP_ROOT%\src\maintenance\matlab\port
+		use the dsw directly since there's no makefile yet.
 
 	===
 	ACE, this copies also the .h, .i, and .cpp files into %YARP_ROOT%\include
