@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.21 2004-01-16 23:08:34 babybot Exp $
+/// $Id: YARPLogpolar.h,v 1.22 2004-01-21 14:23:49 babybot Exp $
 ///
 ///
 
@@ -135,7 +135,8 @@ namespace _logpolarParams
 // NOTE: this function was determined empirically and it is far from being correct
 inline double pSize(int c, int r, int nf = _logpolarParams::_sfovea)
 {
-	c;	// keep the compiler happy
+	ACE_UNUSED_ARG(c);
+
 	const double _alfa = 0.0130;
 	const double _beta = 0.91;
 
@@ -244,7 +245,7 @@ inline int YARPLogpolar::RoToCsi(double r)
 // compute the jacobian of the transformation
 inline double YARPLogpolar::Jacobian(int csi, int eta)
 {
-	eta;	// keep the compiler happy
+	ACE_UNUSED_ARG(eta);	// keep the compiler happy
 	const double logLambda = _logpolarParams::_logLambda;
 	const double lambda = _logpolarParams::_lambda;
 	const double q = _logpolarParams::_q;
