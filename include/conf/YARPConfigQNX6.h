@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigQNX6.h,v 1.11 2003-05-20 01:18:05 gmetta Exp $
+// $Id: YARPConfigQNX6.h,v 1.12 2003-05-29 15:45:34 gmetta Exp $
 // YARP config file QNX6.
 //
 //
@@ -18,7 +18,7 @@
 
 #define SINGLE_MUTEX_FOR_REFCOUNTED 1
 #define UPDATED_PORT 1
-#define MAX_PACKET 8192
+#define MAX_PACKET (128*128*3+100)
 ///(128*128*3+100)
 
 ///#define YARP_TCP_NO_DELAY 1
@@ -36,7 +36,7 @@
 #define for if(1)for
 
 /// read timeout on socket transport (in seconds).
-#define YARP_SOCK_TIMEOUT	200
+#define YARP_SOCK_TIMEOUT	20
 
 #include <ace/config.h>
 

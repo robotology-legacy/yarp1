@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.7 2003-05-29 14:12:52 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.8 2003-05-29 15:45:35 gmetta Exp $
 ///
 ///
 
@@ -104,6 +104,7 @@ using namespace std;
 #else
 
 #	include "strng.h"
+#	include <string>
 #	include <unix.h>  // just for gethostname
 
 #endif
