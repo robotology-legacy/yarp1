@@ -96,17 +96,17 @@ int main(int argc, char* argv[])
 
 		// reconstruct color
 		_mapper.ReconstructColor (_left, _leftColored);
-
 		YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
 		_histo.backProjection(_leftHSV, _outSeg);
 
 		// _blobber.filterLp(_outSeg);
 		// YARPImageOf<YarpPixelMono> &tmp = _blobber.getSegmented();
 
-//		_segmenter.merge(tmp, _handLocalization.query());
+		// _segmenter.merge(tmp, _handLocalization.query());
+		_segmenter.merge(_outSeg, _handLocalization.query());
+		// _segmenter.merge(_outSeg, _handLocalization.query());
 		//_segmenter.search(_leftHSV, _histo, _handLocalization.query());
 
-		// _outPortBackprojection.Content().Refer(_outSeg);
 		_outPortBackprojection.Content().Refer(_outSeg);
 		_outPortBackprojection.Write();
 	}

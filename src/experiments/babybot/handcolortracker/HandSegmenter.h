@@ -24,8 +24,7 @@ public:
 
 	void merge(const YARPImageOf<YarpPixelMono> &in, const YARPShapeEllipse &el)
 	{
-		mask;
-		// _createMask(el, mask);
+		_createMask(el, mask);
 		_filter(in, mask);
 		mapper.ReconstructColor(mask, tmpLp);
 		mapper.Logpolar2Cartesian(tmpLp, tmpImage);
@@ -105,17 +104,17 @@ private:
 		int j;
 		for (i = 0; i < _logpolarParams::_srho; i++)
 		{
-			char *img1 = in.GetArray()[i];
-			char *img2 = out.GetArray()[i];
+			char *tmpIn = in.GetArray()[i];
+			char *tmpOut = out.GetArray()[i];
 			for(j = 0; j < _logpolarParams::_stheta; j++)
 			{
-				// (*img2) = (*img2)*(*img1);
-				(*img2) = (*img1)*10;
-				if ( (*img2) >255)
-					*img2 = (char) 255;
+				(*tmpOut) = (*tmpOut)*(*tmpIn);
+				// (*tmpOut) = (*tmpIn)*10;
+				if ( (*tmpOut) >255)
+					*tmpOut = (char) 255;
 
-				img1++;
-				img2++;
+				tmpOut++;
+				tmpIn++;
 			}
 		}
 	}
