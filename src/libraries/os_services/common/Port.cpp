@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.31 2003-06-20 12:04:57 babybot Exp $
+/// $Id: Port.cpp,v 1.32 2003-06-23 08:05:55 gmetta Exp $
 ///
 ///
 
@@ -211,12 +211,14 @@ void OutputTarget::Body ()
 	memset (cmdname, 0, 512);
 	msg_type = 0;
 
+#if 0
 	int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
 	if (SetPriority(prio) == YARP_FAIL)
 	{
 		ACE_DEBUG ((LM_DEBUG, "can't raise priority of OutputTarget thread, potential source of troubles\n"));
 	}
+#endif
 
 	/// need to know what is the protocol of the owner.
 
@@ -447,6 +449,7 @@ void _strange_select::Body ()
 	signal (SIGPIPE, SIG_IGN);
 #endif
 
+#if 0
 	int prio = ACE_Sched_Params::priority_max(ACE_SCHED_OTHER);
 	///prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, prio, ACE_SCOPE_THREAD);
 
@@ -455,6 +458,7 @@ void _strange_select::Body ()
 	{
 		ACE_DEBUG ((LM_DEBUG, "can't raise priority of strange_select thread, potential source of troubles\n"));
 	}
+#endif
 
 	OutputTarget *target, *next;
 

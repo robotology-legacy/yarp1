@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.11 2003-06-16 16:48:24 babybot Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.12 2003-06-23 08:05:55 gmetta Exp $
 ///
 ///
 
@@ -350,13 +350,14 @@ public:
 
 	virtual void Body (void)
 	{
+#if 0
 		int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "acceptor thread at priority %d -> %d\n", GetPriority(), prio));
 		if (SetPriority(prio) == YARP_FAIL)
 		{
 			ACE_DEBUG ((LM_DEBUG, "can't raise priority of acceptor thread, potential source of troubles\n"));
 		}
-
+#endif
 		while (1)
 		{
 			addSocket();
@@ -538,12 +539,14 @@ void _SocketThreadMcast::Body (void)
 	signal (SIGPIPE, SIG_IGN);
 #endif
 
+#if 0
 	int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
 	if (SetPriority(prio) == YARP_FAIL)
 	{
 		ACE_DEBUG ((LM_DEBUG, "can't raise priority of reader thread, potential source of troubles\n"));
 	}
+#endif
 
 	_extern_buffer = NULL;
 	_extern_length = 0;

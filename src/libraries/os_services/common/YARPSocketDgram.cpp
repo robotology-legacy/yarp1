@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketDgram.cpp,v 1.27 2003-05-29 16:39:32 gmetta Exp $
+/// $Id: YARPSocketDgram.cpp,v 1.28 2003-06-23 08:05:55 gmetta Exp $
 ///
 ///
 
@@ -359,13 +359,14 @@ public:
 
 	virtual void Body (void)
 	{
+#if 0
 		int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "acceptor thread at priority %d -> %d\n", GetPriority(), prio));
 		if (SetPriority(prio) == YARP_FAIL)
 		{
 			ACE_DEBUG ((LM_DEBUG, "can't raise priority of acceptor thread, potential source of troubles\n"));
 		}
-
+#endif
 		while (1)
 		{
 			addSocket();
@@ -529,12 +530,14 @@ void _SocketThreadDgram::Body (void)
 #endif
 	ACE_Time_Value timeout (YARP_SOCK_TIMEOUT, 0);
 
+#if 0
 	int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "reader thread at priority %d -> %d\n", GetPriority(), prio));
 	if (SetPriority(prio) == YARP_FAIL)
 	{
 		ACE_DEBUG ((LM_DEBUG, "can't raise priority of reader thread, potential source of troubles\n"));
 	}
+#endif
 
 	int finished = 0;
 
