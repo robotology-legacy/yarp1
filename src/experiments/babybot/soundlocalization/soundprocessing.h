@@ -10,7 +10,7 @@
 // 
 //     Description:  Declaration of the SoundProcessing class
 // 
-//         Version:  $Id: soundprocessing.h,v 1.5 2004-04-23 09:43:58 beltran Exp $
+//         Version:  $Id: soundprocessing.h,v 1.6 2004-04-23 17:42:04 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -25,6 +25,7 @@
 #include <YARPPidFilter.h>
 #include <YARPString.h>
 #include <YARPSound.h>
+#include <YARPImages.h>
 #include <YARPLogPolar.h>
 #include <YARPFft.h>
 
@@ -37,7 +38,12 @@ public:
 	SoundProcessing(const YARPString &iniFile, int outsize);
 	~SoundProcessing();
 
-	void apply(YARPSoundBuffer &in, YVector &out)
+	//--------------------------------------------------------------------------------------
+	//      Method: Apply  
+	// Description: It transforms the buffer coming from the network, applies the FFT and the 
+	// it calls the crosscorrlation and computelevel methods.
+	//--------------------------------------------------------------------------------------
+	inline void apply(YARPSoundBuffer &in, YVector &out)
 	{
 		unsigned char * buff = (unsigned char *) in.GetRawBuffer();
 		int dim[1] = {numSamples};
@@ -71,6 +77,32 @@ public:
 		ComputeCrossCorrelation( Re, Im, Re + numSamples, Im + numSamples);
 		ComputeLevels();
 	}
+
+	//--------------------------------------------------------------------------------------
+	//      Method: GetILD
+	// Description: It returns the ILD as explained in the Lorenzo's master thesis, and the 
+	// right and left channels energy
+	//--------------------------------------------------------------------------------------
+	inline void GetILD(double &ild, double &left, double &right)
+	{
+		// Return the value of teh ILD and the energy of the right and left channels
+		left = squareMiddleValLeft;
+		right= squareMiddleValRight;
+		ild = (10 * log10(left/right));
+	}
+	
+	//--------------------------------------------------------------------------------------
+	//      Method: GetITD 
+	// Description: It returns the ITD in millisecconds 
+	//--------------------------------------------------------------------------------------
+	inline double GetITD()
+	{
+		return(((double (corrShift - shift)) / _SamplesPerSec) * 1e6);
+	}
+
+	inline double * GetCrossCorrelationBuffer() { return crosscorrelation_Re; }
+
+	inline int GetSize() { return numSamples;}
 
 private:
 	int ComputeCrossCorrelation(double *,double *,double *,double *);
@@ -111,12 +143,14 @@ private:
     double * rightcorrelation_Re;   // The same but for the right audio signal
     double * rightcorrelation_Im;
     double * SCOToperator_Re;       // The buffer for the SCOToperator
-    double * SCOToperator_Im;       
+    double * SCOToperator_Im;   
+    double corrMax; //Maximum value in the correlation vector
 
     int numSamples;     // number of samples for channel
     int numFreqSamples; // length of the trasformations (N/2 + 1??)
     int bias;           // translates the coordinates origin (itd=0)
     int shift;          // maximum shift value between the two signals
+    int corrShift;      // point where the maximum is placed
     int windowMax;      // 2*shift+1 numero de punti of the corralation vector
     int windowSize;     // windows used to calculate the correlation
 	int timeMax;

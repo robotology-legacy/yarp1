@@ -10,7 +10,7 @@
 // 
 //     Description:  Implements all the sound processing algorithms.
 // 
-//         Version:  $Id: soundprocessing.cpp,v 1.5 2004-04-23 09:43:58 beltran Exp $
+//         Version:  $Id: soundprocessing.cpp,v 1.6 2004-04-23 17:42:04 beltran Exp $
 // 
 //          Author:  Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -40,7 +40,7 @@ SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
 	_BufferLength  = 8192;
 	_iniFile       = iniFile;
 	_outSize       = outsize;
-	_SCOTfiltering  = 0;
+	_SCOTfiltering = 0;
 
 	_path.append(root);
 	_path.append("/conf/babybot/"); 
@@ -85,8 +85,8 @@ SoundProcessing::SoundProcessing(const YARPString &iniFile, int outsize)
 	leftcorrelation_Im  = new double[numSamples];
 	rightcorrelation_Re = new double[numSamples];
 	rightcorrelation_Im = new double[numSamples];
-	Re = new double[2 * numSamples];
-	Im = new double[2 * numSamples];
+	Re = new double[2 * numSamples]; // this contains the Re of both channels
+	Im = new double[2 * numSamples]; // this contains the Im of both channels
 }
 
 //--------------------------------------------------------------------------------------
@@ -131,7 +131,6 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 							  right_Re, right_Im,
 							  rightcorrelation_Re,
 							  rightcorrelation_Im);
-
 	
 	//----------------------------------------------------------------------
 	//  Consider here to apply the SCOT filtering
@@ -161,6 +160,20 @@ SoundProcessing::ComputeCrossCorrelation(double * left_Re, double * left_Im,
 	//----------------------------------------------------------------------
 	fft->Fft(1, dim, crosscorrelation_Re, crosscorrelation_Im, 1, -1);
 	
+	double tempCorr = 0.0;
+	int ind = shift;
+	double * ptempcross = crosscorrelation_Re + numSamples - shift + bias;
+
+	for ( i =0; i <windowMax; i++)
+		if ( ptempcross[i] > tempCorr)
+		{
+			tempCorr = ptempcross[i];
+			ind = i;
+		}
+
+	corrMax   = tempCorr;
+	corrShift = ind;
+
 	return 0;
 }
 
@@ -216,8 +229,7 @@ SoundProcessing::ConjComplexMultiplication(double * a, double * b,
 // (a+ib)(c+id)=(ac+bd)+i(bc+ad)
 //--------------------------------------------------------------------------------------
 int 
-SoundProcessing::ComplexMultiplication(double * a, double * b,
-										   double * c, double * d)
+SoundProcessing::ComplexMultiplication(double * a, double * b, double * c, double * d)
 {
 	double temp_a;
 	
