@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.10 2003-05-15 08:53:27 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.11 2003-05-15 16:57:45 gmetta Exp $
 ///
 ///
 
@@ -97,7 +97,7 @@ static YARPSemaphore mutex(1);
 /// LATER: do it differently.
 static bool _init_nameserver = true;
 static YARPNameClient * _namer = NULL;
-static YARPNameService _justtoinitialize();
+static YARPNameService _justtoinitialize;
 
 ///static int is_connected = 0, tried_to_connect = 0;
 ///static int registration_mode = YARP_NO_SERVICE_AVAILABLE;
@@ -109,9 +109,7 @@ static YARPNameService _justtoinitialize();
 char * GetYarpRoot (void)
 {
 	char * ret = getenv ("YARP_ROOT");
-	//ACE_DEBUG ((LM_DEBUG, "getenv returned: %s\n", ret));
-	ACE_OS::printf ("getenv returned: %s\n", ret);
-	ACE_OS::fflush (stdout);
+	///ACE_DEBUG ((LM_DEBUG, "getenv returned: %s\n", ret));
 
 	if (ret == NULL)
 	{
@@ -240,7 +238,11 @@ int YARPNameService::Initialize (void)
 	/// handle the connection w/ the remote name server.
 	char buf[256];
 	ACE_ASSERT (GetYarpRoot() != NULL);
+#ifdef __WIN32__
 	ACE_OS::sprintf (buf, "%s\\%s\0", GetYarpRoot(), NAMER_CONFIG_FILE);
+#else
+	ACE_OS::sprintf (buf, "%s/%s\0", GetYarpRoot(), NAMER_CONFIG_FILE);
+#endif
 
 	ifstream fin(buf);
 	if (fin.eof() || fin.fail())

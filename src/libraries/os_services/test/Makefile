@@ -9,10 +9,10 @@
 #----------------------------------------------------------------------------
 
 include $(YARP_ROOT)/conf/Makefile.template
-CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS)
+CPPFLAGS     += -I$(YARP_ROOT)/include $(CDEFS) -g
 
-#BIN     = exec_test1 exec_test2
-BIN     = exec_test2
+#BIN     = exec_test1 exec_test2 exec_test6
+BIN     = exec_test6
 LDLIBS  = $(MATHLIB) $(YARP_ROOT)/lib/$(SYSDIR)/os_services.lib
 
 BUILD = $(VBIN)

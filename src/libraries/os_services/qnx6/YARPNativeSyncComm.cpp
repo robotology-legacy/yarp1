@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeSyncComm.cpp,v 1.3 2003-05-02 22:56:11 gmetta Exp $
+/// $Id: YARPNativeSyncComm.cpp,v 1.4 2003-05-15 16:57:46 gmetta Exp $
 ///
 ///
 
@@ -108,11 +108,16 @@ int YARPNativeSyncComm::Send(YARPNameID dest, char *buffer, int buffer_length, c
 	return __send(dest.GetRawIdentifier(),buffer,return_buffer,
 		buffer_length,return_buffer_length);
 	*/
-	return MsgSend(dest.getRawIdentifier(),
+	ACE_DEBUG ((LM_DEBUG, "MsgSend: Sending to %d\n", dest.getRawIdentifier()));
+
+	int ret = MsgSend(dest.getRawIdentifier(),
   					(const void *)buffer,
   					buffer_length,
   					(void *)return_buffer,
 					return_buffer_length);
+
+	ACE_DEBUG ((LM_DEBUG, "MsgSend returned : %d\n", ret));
+	return ret;
 }
 
 

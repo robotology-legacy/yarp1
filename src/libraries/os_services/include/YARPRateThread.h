@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRateThread.h,v 1.2 2003-04-19 21:04:51 gmetta Exp $
+/// $Id: YARPRateThread.h,v 1.3 2003-05-15 16:57:46 gmetta Exp $
 ///
 ///
 
@@ -71,7 +71,6 @@
 // Based on ACE.
 //
 // link:
-// models.lib
 // ace.lib
 //
 // WIN32: see SystemUtils::set_high_res_scheduling() if you want to do precise 
@@ -89,7 +88,7 @@
 // #define THREAD_STATS
 //	this is compiled out because it is rather time-consuming.
 
-#if defined(__WIN32__)
+#if defined(__WIN32__) || defined(__QNX6__)
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
@@ -103,6 +102,10 @@
 #endif
 
 #include <string>
+
+#ifdef __QNX6__
+#include <sys/neutrino.h>
+#endif
 
 const ACE_Time_Value _timeout_value(20,0);	// (20 sec) timeout value for the release (20 sec)
 
@@ -173,8 +176,10 @@ public:
 
 	virtual void start(bool wait = true)
 	{
+		ACE_UNUSED_ARG (wait);
 		lock ();
 
+#ifdef __WIN32__
 		// create suspended.
 		thread_id = ACE_Thread_Manager::instance ()->spawn((unsigned long (__cdecl *)(void *))real_thread, //thread function
 														   this,		//thread parameter
@@ -183,7 +188,16 @@ public:
 														   0,
 														   thread_priority
 															);
-
+#else
+		// create suspended.
+		thread_id = ACE_Thread_Manager::instance ()->spawn(real_thread, //thread function
+								   this,		//thread parameter
+								   THR_NEW_LWP||THR_SUSPENDED,
+								   0,
+								   0,
+								   thread_priority
+							 	  );
+#endif
 		ACE_Thread_Manager::instance()->resume_grp(thread_id);
 		isRunningF = true;
 
@@ -213,9 +227,11 @@ public:
 		}
 		else if (synchro.wait(&_timeout_value, 0) == -1)
 		{
-#ifdef ACE_WIN32
+#if defined(__WIN32__)
 			// win32 doesn't support kill signal, so we have to use the API
 			TerminateThread (handle, -1);
+#elif defined(__QNX6__)
+	                ThreadDestroy (thread_id, -1, (void *)-1);
 #else
 			ACE_Thread_Manager::instance()->kill_grp(thread_id, SIGINT);	/// what's this signal for?
 #endif
@@ -327,7 +343,9 @@ public:
 		ACE_High_Res_Timer	begin_timer;	// timer to estimate period
 		ACE_High_Res_Timer	thread_timer;	// timer to estimate thread time
 		ACE_Time_Value		est_time;		// thread time
+#ifdef THREAD_STATS
 		ACE_Time_Value		est_period;		// thread period
+#endif
 		ACE_Time_Value		sleep_period;	// thread sleep
 
 		context->end = false;		

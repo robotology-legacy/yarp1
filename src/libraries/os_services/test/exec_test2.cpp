@@ -23,7 +23,7 @@
 /// Licensor, this list of conditions, and the following disclaimers  ///
 /// in the documentation and/or other materials provided with the     ///
 /// distribution.                                                     ///
-///
+///                                                                   ///
 /// Neither the names of Licensor, nor the names of any contributors  ///
 /// to the Software, nor any of their trademarks or service marks,    ///
 /// may be used to endorse or promote products derived from this      ///
@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: exec_test2.cpp,v 1.5 2003-05-14 17:17:24 gmetta Exp $
+/// $Id: exec_test2.cpp,v 1.6 2003-05-15 16:57:46 gmetta Exp $
 ///
 ///
 
@@ -73,7 +73,7 @@
 #include "YARPTime.h"
 #include "YARPSyncComm.h"
 #include "YARPSocketNameService.h"
-
+#include "YARPNativeNameService.h"
 
 #define REG_TEST_NAME "/pippo1"
 #define REG_LOCATE_NAME "/pippo1"
@@ -152,7 +152,11 @@ public:
 		YARPTime::DelayInSeconds(0.01);
 
 		/// connect to name server and get ip and port.
+#ifdef __QNX6__
+		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel());
+#else
 		YARPUniqueNameID id = YARPNameService::RegisterName(REG_TEST_NAME);
+#endif
 		if (id.getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 		{
 			ACE_DEBUG ((LM_DEBUG, "can't register name, bailing out\n"));
@@ -194,7 +198,7 @@ int main(int argc, char *argv[])
 //	MyThread1 t3;
 	MyThread2 t2;
 	t2.Begin();
-	YARPTime::DelayInSeconds(5.0);
+	YARPTime::DelayInSeconds(1.0);
 	t1.Begin();
 //	t3.Begin();
 	YARPTime::DelayInSeconds(10.0);

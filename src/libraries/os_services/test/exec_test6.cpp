@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test6.cpp,v 1.4 2003-04-24 08:49:34 gmetta Exp $
+/// $Id: exec_test6.cpp,v 1.5 2003-05-15 16:57:47 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -123,6 +123,9 @@ public:
 ///
 int main(int argc, char *argv[])
 {
+	ACE_UNUSED_ARG (argc);
+	ACE_UNUSED_ARG (argv);
+
 	YARPScheduler::setHighResScheduling ();
 	///	data->PrepareChunk (100);
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.6 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: YARPNameService.h,v 1.7 2003-05-15 16:57:45 gmetta Exp $
 ///
 ///
 /*
@@ -81,7 +81,12 @@
 #include "YARPNameID.h"
 
 ///
+#ifdef __WIN32__
 #define NAMER_CONFIG_FILE "conf\\namer.conf"
+#else
+#define NAMER_CONFIG_FILE "conf/namer.conf"
+#endif
+#define DONT_OPTIMIZE_CONSTRUCTOR if (0) { int i; i++; }
 
 ///
 ///
@@ -89,7 +94,7 @@
 class YARPNameService
 {
 public:
-	YARPNameService () { Initialize (); }
+	YARPNameService () { DONT_OPTIMIZE_CONSTRUCTOR; Initialize (); }
 	~YARPNameService () { Finalize (); }
 
 	/// shouldn't be just an opportunistic call to the name server?

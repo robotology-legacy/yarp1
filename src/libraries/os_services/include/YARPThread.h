@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.6 2003-05-02 22:56:10 gmetta Exp $
+///	$Id: YARPThread.h,v 1.7 2003-05-15 16:57:46 gmetta Exp $
 ///
 ///
 /*
@@ -132,7 +132,9 @@ class YARPThreadSpecific : public ACE_TSS<ACE_TSS_Type_Adapter <T> >
 {
 public:
 	YARPThreadSpecific() : ACE_TSS<ACE_TSS_Type_Adapter <T> >() {}
-	T& Content() { return (this->ts_object ()->operator T& ()); } 
+///	T& Content() { return (this->ts_object ()->operator T& ()); } 
+	
+	T& Content() { return ((*((ACE_TSS<ACE_TSS_Type_Adapter <T> > *)this))->operator T& ()); } 
 	///**(ACE_TSS<ACE_TSS_Type_Adapter <T> > *)(this); } ///return (T&)(*this); }
 };
 

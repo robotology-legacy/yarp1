@@ -23,7 +23,7 @@
 /// Licensor, this list of conditions, and the following disclaimers  ///
 /// in the documentation and/or other materials provided with the     ///
 /// distribution.                                                     ///
-///
+///                                                                   ///
 /// Neither the names of Licensor, nor the names of any contributors  ///
 /// to the Software, nor any of their trademarks or service marks,    ///
 /// may be used to endorse or promote products derived from this      ///
@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.9 2003-05-01 22:51:19 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.10 2003-05-15 16:57:45 gmetta Exp $
 ///
 ///
 
@@ -451,7 +451,8 @@ YARPUniqueNameID YARPSocketNameService::RegisterName(YARPNameClient& namer, cons
 	YARPNetworkObject::getHostname (buf, 256);
 
 	///
-	reg_addr.set((u_short)0, buf);
+	int ret = reg_addr.set((u_short)0, buf);
+	ACE_DEBUG((LM_DEBUG, "RegisterName - hostname in addr : %s\n", reg_addr.get_host_name()));
 	string tname (name);
 
 	switch (reg_type)
@@ -466,7 +467,7 @@ YARPUniqueNameID YARPSocketNameService::RegisterName(YARPNameClient& namer, cons
 			
 			YARPNameQnx tmp;
 			tmp.setName(name);
-			tmp.setAddr(string(reg_addr.get_host_addr()), my_getpid(), chid);
+			tmp.setAddr(string(reg_addr.get_host_name()), my_getpid(), chid);
 			if (namer.check_in_qnx (tmp) != YARP_OK)
 			{
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems registering %s\n", name));

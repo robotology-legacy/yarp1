@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNativeNameService.cpp,v 1.3 2003-05-02 22:56:11 gmetta Exp $
+/// $Id: YARPNativeNameService.cpp,v 1.4 2003-05-15 16:57:46 gmetta Exp $
 ///
 ///
 
@@ -85,8 +85,10 @@ int YARPNativeEndpointManager::CreateQnetChannel (void)
 {
 	int chid;
 	if ((chid = ChannelCreate(0)) != -1)
+	{
+		ACE_DEBUG ((LM_DEBUG, "ChannelCreate: created channel with id : %d\n", chid));
 		return chid;
-	
+	}	
 	return YARP_FAIL;
 }
 
@@ -103,11 +105,17 @@ YARPNameID YARPNativeEndpointManager::CreateInputEndpoint (YARPUniqueNameID& nam
 YARPNameID YARPNativeEndpointManager::CreateOutputEndpoint(YARPUniqueNameID& name)
 {
 	int coid = ConnectAttach( 
-						netmgr_strtond (name.getAddressRef().get_host_addr(),NULL),
+						netmgr_strtond (name.getAddressRef().get_host_name(),NULL),
 						(int)name.getP2Ptr()[0],
 						(int)name.getRawIdentifier(),
 						0,
 						0);
+	ACE_DEBUG ((LM_DEBUG, "ConnectAttach: %s(%d), %d %d, returned %d\n",
+		name.getAddressRef().get_host_name(),
+		netmgr_strtond (name.getAddressRef().get_host_name(), NULL),
+		(int)name.getP2Ptr()[0], (int)name.getRawIdentifier(),
+		coid));
+
 	if (coid != -1)
 	{
 		name.setRawIdentifier(coid);
