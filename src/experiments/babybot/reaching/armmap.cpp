@@ -81,8 +81,8 @@ bool ArmMap::query(const YVector &arm, const YVector &head)
 //	tmp(3) = tmp(3) + __distanceOffset;
 
 	int x, y;	//retinal position (for closed loop)
-	x = 114;
-	y = 134;
+	x = 128;
+	y = 128;
 
 	if (_mode == atnr)
 		_command = _atr.query(head) + _noise.query();
@@ -93,30 +93,34 @@ bool ArmMap::query(const YVector &arm, const YVector &head)
 	}
 	else
 	{
+
 		_nnet.sim(tmp.data(), _command.data());
 	/*	YVector tmpY(3);
 		_rfnet.Simulate(tmp, 0.001, tmpY);
 		_command = 0.0;
 		_command(1) = tmpY(1);
 		_command(2) = tmpY(2);
-		_command(3) = tmpY(3);
-/*
+		_command(3) = tmpY(3);*/
+
+#define USE_JACOBIAN 1
+#if USE_JACOBIAN
 		_fkinematics.update(_command, head);
 		_fkinematics.computeJacobian(x,y);		// compute from center
 		YVector tmpArm(6);
-		tmpArm(1) = _command(1);
-		tmpArm(2) = _command(2);
-		tmpArm(3) = _command(3);
-	//	tmpArm(1) = _command(1);	 	//copy 1 joint from map
-	//	tmpArm(2) = arm(2);
-	//	tmpArm(3) = arm(3);
-	//	tmpArm(4) = arm(4);
-	//	tmpArm(5) = arm(5);
-	//	tmpArm(6) = arm(6);
+	//	tmpArm(1) = _command(1);
+	//  tmpArm(2) = _command(2);
+	//	tmpArm(3) = _command(3);
+		tmpArm(1) = _command(1);	 	//copy 1 joint from map
+		tmpArm(2) = arm(2);
+		tmpArm(3) = arm(3);
+		tmpArm(4) = arm(4);
+		tmpArm(5) = arm(5);
+		tmpArm(6) = arm(6);
 
-	//	_command = _fkinematics.computeCommandThreshold(tmpArm , x, y);	// to center
+		_command = _fkinematics.computeCommandThreshold(tmpArm , x, y);	// to center
+#endif
 	//	_sendTrajectory();
-		*/
+		
 		_formTrajectory(_command);
 	}
 

@@ -355,11 +355,7 @@ bool ArmThread::_checkLimits(const YVector &inCmd, YVector &outCmd)
 			outCmd(j) = _limitsMax(j);
 			ret = ret || true;
 		}
-		else
-			outCmd(j) = inCmd(j);
-
-		// check min
-		if (inCmd(j) < _limitsMin(j))
+		else if (inCmd(j) < _limitsMin(j))
 		{
 			outCmd(j) = _limitsMin(j);
 			ret = ret || true;

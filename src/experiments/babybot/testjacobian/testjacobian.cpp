@@ -261,7 +261,7 @@ int main(int argc, char* argv[])
 			_openLoopReaching.sim(cart.data(), newCmd.data());
 			_armJacobian.computeJacobian(x,y);		// compute from center
 			YVector tmpArm(6);
-			tmpArm(1) = newCmd(1);	 	//copy 1 joint from map
+			tmpArm(1) = newCmd(1)+5*degToRad;	 	//copy 1 joint from map
 			tmpArm(2) = _arm(2);
 			tmpArm(3) = _arm(3);
 			tmpArm(4) = _arm(4);
@@ -283,7 +283,7 @@ int main(int argc, char* argv[])
 			// done, send arm command
 			_bottle.reset();
 			_bottle.setID(YBVMotorLabel);
-			_bottle.writeVocab(YBVArmNewCmd);
+			_bottle.writeVocab(YBVArmForceNewCmd);
 			_bottle.writeYVector(newCmd);
 
 			_bottle.display();
