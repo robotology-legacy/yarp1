@@ -127,8 +127,8 @@ if ($install)
 		copy ($file, "$yarp_root/include/yarp/") or warn "Can't copy .h files\n"; 
 	}
 
-	move ("./lib/$os/$project_name"."d_x.lib", "./lib/$os/libYARP_devd_x.lib") or die "Can't move \"./lib/$os/$project_name"."d_x.lib\"\n";
-	move ("./lib/$os/$project_name"."_x.lib", "./lib/$os/libYARP_dev_x.lib") or die "Can't move \"./lib/$os/$project_name"."_x.lib\"\n";
+	move ("./lib/$os/$project_name"."d_x.lib", "./lib/$os/libYARP_devd_x.lib") or warn "Can't move \"./lib/$os/$project_name"."d_x.lib\"\n";
+	move ("./lib/$os/$project_name"."_x.lib", "./lib/$os/libYARP_dev_x.lib") or warn "Can't move \"./lib/$os/$project_name"."_x.lib\"\n";
 
 	$libraries = '';
 	foreach my $device (glob "*")
@@ -160,10 +160,10 @@ if ($install)
 
 	copy ("./lib/$os/libYARP_dev.lib", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_dev.lib\"\n";
 	copy ("./lib/$os/libYARP_devd.lib", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_devd.lib\"\n";
-	print "Libraries installed in $yarp_roo/lib/$os\n";
+	print "\nLibraries installed in $yarp_roo/lib/$os\n";
 }
 
-
+print "\nDone!\n";
 
 #if ($options{"Compile_OS<-Tools_Rebuild"} eq "YES")
 #{

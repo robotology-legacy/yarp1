@@ -89,6 +89,15 @@ get_option_hash ("Compile_Dev<-Lib_Debug", "FALSE", "Compile debug version?");
 get_option_hash ("Compile_Dev<-Lib_Release", "FALSE", "Compile release (optimized)?");
 get_option_hash ("Compile_Dev<-Lib_Install", "FALSE", "Install after build?");
 
+if ($options{"Compile_Dev<-Lib_Clean"} eq "TRUE" &&
+	$options{"Compile_Dev<-Lib_Debug"} eq "FALSE" &&
+	$options{"Compile_Dev<-Lib_Release"} eq "FALSE" &&
+	$options{"Compile_Dev<-Lib_Install"} eq "TRUE")
+{
+	print "Asked to clean and install but not to rebuild anything, I assume debug compile\n";
+	$options{"Compile_Dev<-Lib_Debug"} = "TRUE";
+}
+
 print "Browsing through the list of available device drivers\n";
 print "In case you don't know, it's no harm including all available drivers\n";
 
