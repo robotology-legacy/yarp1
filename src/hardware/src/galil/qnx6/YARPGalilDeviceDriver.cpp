@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.10 2003-11-11 11:36:15 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.11 2003-11-17 11:14:59 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -78,6 +78,8 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDSetCommands]		= &YARPGalilDeviceDriver::set_commands;
 	m_cmds[CMDSetCommand]		= &YARPGalilDeviceDriver::set_command;
 
+	m_cmds[CMDSetDR]			= &YARPGalilDeviceDriver::set_dr;
+
 	m_cmds[CMDDummy] 			= &YARPGalilDeviceDriver::dummy;
 	
 	m_question_marks = NULL;
@@ -110,6 +112,9 @@ int YARPGalilDeviceDriver::open(void *d)
 	controllerinfo.hardwareinfo.businfo.fDataRecordAccess = DataRecordAccessFIFO; 
 	
 	DMCInitLibrary();
+
+	DMCDiagnosticsOn((HANDLEDMC) m_handle, "TETS.LOG", 0); //This is necesary for the 2 FIFO to work
+														   //Why is so, it is a nice mistery.
 
 #endif
 	GalilOpenParameters *p = (GalilOpenParameters *)d;
@@ -1737,5 +1742,37 @@ int YARPGalilDeviceDriver::check_motion_done(void *flag, int axis)
 	return rc;
 }
 
+int YARPGalilDeviceDriver::set_dr(void * value)
+{
+	int rc = 0;
+	int * _value = (int *) value;
+
+	/*
+	char *buff = m_buffer_out;
+
+	buff = _append_cmd("DR",buff);
+	buff = _append_cmd(itoa((int)(* _value),m_aux_buffer,10),buff);
+	buff = _append_cmd('\0', buff);
+	
+	rc = DMCCommand((HANDLEDMC) m_handle,
+					m_buffer_out,
+					m_buffer_in, buff_length);
+	*/
+	char cmd[] = "DR-3";		//<-- an space left for the axis
+
+	char *buff = m_buffer_out;
+
+	memcpy(buff, cmd, sizeof(cmd)); //we include also the \0 in cmd 
+	buff+=(sizeof(cmd));
+
+	// close command
+	//buff = _append_cmd('\0', buff);
+	
+	rc = DMCCommand((HANDLEDMC) m_handle,
+					m_buffer_out,
+					m_buffer_in, buff_length);
+
+	return rc;
+}
 
 
