@@ -132,37 +132,18 @@ void FindHand::Body()
 }
 void FindHand::_segmentation()
 {
-//	YARPImageFile::Write("y:\\hand.ppm",_detected);
-	// _mapper.ReconstructColor(_detected, _detectedColored);
-	// _mapper.Logpolar2Cartesian(_detectedColored, _detectedCart);
-	// YARPColorConverter::RGB2Grayscale(_detectedCart, _detectedCartGrayscale);
-	// iplColorToGray(_detectedCart, _detectedCartGrayscale);
 	char detected[128];
+	char blob[128];
 	char segmented[128];
-	char segColored[128];
 	_nSegmentations++;
 	sprintf(detected, "%s%d.ppm", "y:\\zgarbage\\detected",_nSegmentations);
+	sprintf(blob, "%s%d.ppm", "y:\\zgarbage\\blob", _nSegmentations);
 	sprintf(segmented, "%s%d.ppm", "y:\\zgarbage\\segmented", _nSegmentations);
-	sprintf(segColored, "%s%d.ppm", "y:\\zgarbage\\segColored", _nSegmentations);
 	
 	_blobDetector.filterLp(_detected);
 	YARPImageFile::Write(detected, _detected);
 	YARPImageOf<YarpPixelMono> &tmp = _blobDetector.getSegmented();
-	YARPImageFile::Write(segmented, tmp);
-	
-	/*
-	int rho;
-	int theta;
-	for(rho = 0; rho<_srho; rho++)
-		for(theta = 0; theta<_stheta; theta++)
-		{
-			int x,y;
-			_mapper.Logpolar2Cartesian(rho, theta, x, y);
-			if ( (x >=0 ) && (y >= 0) )
-				if (tmp(x,y) < 255)
-					_actualLp(theta, rho) = 0;
-		}
-		*/
+	YARPImageFile::Write(blob, tmp);
 	
 	int rho;
 	int theta;
@@ -173,7 +154,7 @@ void FindHand::_segmentation()
 				_actualLp(theta, rho) = 0;
 		}
 	
-	YARPImageFile::Write(segColored, _actualLp);
+	YARPImageFile::Write(segmented, _actualLp);
 }
 
 void FindHand::_dumpDetection()

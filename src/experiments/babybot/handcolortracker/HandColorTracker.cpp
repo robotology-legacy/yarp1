@@ -33,10 +33,12 @@ int main(int argc, char* argv[])
 	YARPImageOf<YarpPixelMono> _leftSeg;
 	YARPImageOf<YarpPixelBGR> _leftColored;
 	YARPImageOf<YarpPixelBGR> _leftSegColored;
+	YARPImageOf<YarpPixelHSV> _leftHSV;
 	_left.Resize(_stheta, _srho);
 	_leftSeg.Resize(_stheta, _srho);
 	_leftColored.Resize(_stheta, _srho);
 	_leftSegColored.Resize(_stheta, _srho);
+	_leftHSV.Resize(_stheta, _srho);
 
 	YARPImageOf<YarpPixelMono> _outSeg;
 	// YARPImageOf<YarpPixelMono> _blobs;
@@ -55,7 +57,9 @@ int main(int argc, char* argv[])
 			ACE_OS::printf("Updating histogram\n");
 			_leftSeg.Refer(_inPortSeg.Content());
 			_mapper.ReconstructColor(_leftSeg, _leftSegColored);
-			_histo.Apply(_leftSegColored);
+
+			YARPColorConverter::RGB2HSV(_leftSegColored, _leftHSV);
+			_histo.Apply(_leftHSV);
 
 			// dump histo
 			char tmp[128];
@@ -70,11 +74,7 @@ int main(int argc, char* argv[])
 		_mapper.ReconstructColor (_left, _leftColored);
 
 		_histo.backProjection(_leftColored, _outSeg);
-		// _blobber.ApplyLp(_outSeg);
-		
-		// iplMultiplyS(_outSeg, _outSeg, 4);
 				
-		// _outPortSeg.Content().Refer(_blobber.getSegmented());
 		_outPortSeg.Content().Refer(_outSeg);
 		_outPortSeg.Write();
 
@@ -82,71 +82,6 @@ int main(int argc, char* argv[])
 		if ((_frame%100)==0)
 			ACE_OS::printf("frame #%5d\r", _nHistos);*/
 	}
-	
-		
-	/*
-	YARPLogpolar _mapper;
-
-	YARPImageOf<YarpPixelMono> input;
-
-	YARPImageOf<YarpPixelMono> output;*/
-	// YARPImageOf<YarpPixelBGR> outputLpC;
-/*	YARPDIBConverter bmp;
-	YARPImageOf<YarpPixelRGB> inputCart;
-	YARPImageOf<YarpPixelRGB> testCart;
-	YARPImageOf<YarpPixelRGB> testCartFlipped;
-	inputCart.Resize(256,256);
-	testCart.Resize(256,256);
-	testCartFlipped.Resize(256,256);
-	
-	// compute histo
-	for(int i = 1; i <= 3; i++)
-	{
-		char tmp[255];
-		sprintf(tmp,"d:\\nat\\yarp\\zgarbage\\handsegmented%d.bmp", i);
-		bmp.LoadDIB(tmp);
-		bmp.ConvertFromDIB(inputCart);
-		_histo.Apply(inputCart);
-	}
-
-	// test histo
-	bmp.LoadDIB("d:\\nat\\yarp\\zgarbage\\sample1Cart.bmp");
-	bmp.ConvertFromDIB(testCart);
-	YARPSimpleOperation::Flip(testCart, testCartFlipped);
-		
-	_histo.dump(YARPString("d:\\nat\\yarp\\zgarbage\\handhisto"));
-
-	YARPImageOf<YarpPixelMono> out;
-	out.Resize(testCartFlipped.GetHeight(), testCartFlipped.GetWidth());
-	_histo.backProjection(testCartFlipped, out);
-	
-	YARPImageFile::Write("d:\\nat\\yarp\\zgarbage\\backprojected.ppm", out);
-
-
-	/*
-	
-	
-	YARPImageFile::Read("y:\\zgarbage\\detected.ppm",input);
-	output.Resize(input.GetWidth(), input.GetHeight());
-	outputCart.Resize(256,256);
-	outputLpC.Resize(input.GetWidth(), input.GetHeight());
-	
-	YARPBlobDetector _blob(4.0);
-	_blob.resize(input.GetWidth(), input.GetHeight(), _logpolarParams::_sfovea);
-
-	// YARPIntegralImage _int;
-	// _int.resize(input.GetWidth(), input.GetHeight(), _logpolarParams::_sfovea);
-
-	_blob.filterLp(input);
-	// _int.get(output);
-	output = _blob.getSegmented();
-
-	_mapper.ReconstructColor(output, outputLpC);
-	_mapper.Logpolar2Cartesian(outputLpC, outputCart);
-
-	YARPImageFile::Write("y:\\zgarbage\\blob.ppm",output);
-	YARPImageFile::Write("y:\\zgarbage\\blobC.ppm",outputCart);*/
-	
 	return 0;
 }
 

@@ -111,8 +111,8 @@ private:
 
 	void _writeOutputPorts()
 	{
-		_outPixelPort.Content() = _pixelOut;
-		_outPixelPort.Write();
+	//	_outPixelPort.Content() = _pixelOut;
+	//	_outPixelPort.Write();
 		_outPort.Content().Refer(_motion);
 		_outPort.Write();
 	}

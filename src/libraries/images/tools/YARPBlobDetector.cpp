@@ -61,11 +61,12 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.cpp,v 1.6 2003-08-21 12:28:40 natta Exp $
+/// $Id: YARPBlobDetector.cpp,v 1.7 2003-08-22 13:28:58 babybot Exp $
 ///
 ///
 
 #include "YARPBlobDetector.h"
+#include <YARPImageFile.h>
 #include "math.h"
 
 YARPBlobDetector::YARPBlobDetector(unsigned char thrs)
@@ -194,4 +195,53 @@ void YARPBlobDetector::filterLp(YARPImageOf<YarpPixelMono> &in)
 			}
 			_segmented(c,r) = (YarpPixelMono)(tmp+0.5);
 	}
+}
+
+void YARPBlobDetector::debug()
+{
+	char tmpName[255];
+	YARPImageOf<YarpPixelMono> tmpImage;
+	tmpImage.Resize(_nCols, _nRows);
+
+	int r;
+	int c;
+	int f;
+	for(f = 0; f < _nfilters; f++)
+	{
+		sprintf(tmpName, "%s%d.ppm", "blobDebug", f);
+		tmpImage.Zero();
+
+		for(r = 0; r < _nRows; r++)
+			for(c = 0; c < _nCols; c++)
+			{
+				int deltaT = int (_filterSizeTheta[f]/pSize(c,r,_nfovea) + 0.5);
+				int deltaR = int (_filterSizeRho[f]/pSize(c,r,_nfovea) + 0.5);
+
+				int maxX = c+deltaR;
+				int minX = c-deltaR;
+				int maxY = r+deltaT;
+				int minY = r-deltaT;
+
+				_drawBox(maxX, minX, maxY, minY, tmpImage);
+				
+			}
+		YARPImageFile::Write(tmpName, tmpImage);
+	}
+}
+
+void YARPBlobDetector::_drawBox(int maxX, int minX, int maxY, int minY, YARPImageOf<YarpPixelMono> &out)
+{
+	int r,c;
+	for(r = minY; r<=maxY; r++)
+	{
+		out(r, minX) = 255;
+		out(r, maxX) = 255;
+	}
+
+	for(c = minX; c<=maxX; c++)
+	{
+		out(minY, c) = 255;
+		out(maxY, c) = 255;
+	}
+
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.h,v 1.5 2003-08-21 09:43:06 natta Exp $
+/// $Id: YARPBlobDetector.h,v 1.6 2003-08-22 13:28:58 babybot Exp $
 ///
 /// August 2003 -- by nat
 
@@ -112,7 +112,10 @@ public:
 		return _segmented;
 	}
 
+	void debug();
+	
 private:
+	void _drawBox(int maxX, int minX, int maxY, int minY, YARPImageOf<YarpPixelMono> &out);
 	void _resize(int nC, int nR, int sf);
 	void _dealloc();
 
