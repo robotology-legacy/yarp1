@@ -52,7 +52,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: wide_nameloc.h,v 1.4 2003-04-22 16:23:11 natta Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #pasa, paulfitz, nat#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: wide_nameloc.h,v 1.5 2003-04-23 15:31:58 gmetta Exp $
 ///
 ///
 
@@ -81,6 +90,10 @@
 ///
 #define __YARP_NAMESERVICE_STRING_LEN 256
 #define __YARP_NAMESERVICE_UDP_MAX_PORTS 21
+
+const int __portNotFound = 0;
+const char __ipNotFound[] = {"0.0.0.0"};
+
 
 ///
 ///
