@@ -32,6 +32,7 @@ include	../abLfiles
 
 PLATFORM=gcc_ntox86_cpp
 PHABOPTS= 
+APPROTOPATH=/usr/photon/appbuilder/
 
 CC  = QCC
 CXX = QCC
@@ -93,7 +94,7 @@ clean:
 		rm -f *.o *.err *.map abmain
 		rm -f -r .obj/
 install:
-	cp ./abmain $(YARP_ROOT)/bin/$(OS)/fgadjuster
+	cp abmain $(YARP_ROOT)/bin/$(OS)/fgadjuster
 ##################################################
 
 # IF YOU PUT ANYTHING HERE IT WILL GO AWAY
@@ -110,4 +111,4 @@ $(ABOBJ) $(MYOBJ):	$(MYHDR)
 #
 proto:
 	rm -f proto.h
-	approto -p $(ABSRC) $(MYSRC) > proto.h
+	$(APPROTOPATH)approto -p $(ABSRC) $(MYSRC) > proto.h
