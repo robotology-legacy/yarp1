@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPEurobotArm.h,v 1.5 2003-09-12 16:57:05 beltran Exp $
+// $Id: YARPEurobotArm.h,v 1.6 2003-11-24 17:04:37 beltran Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -60,7 +60,7 @@ public:
 	// set offset to i-th joint
 	int setG(int i, double g);
 	// set offsets to the first nJ joints
-	int setGs(double *g, int nJ);
+	int setGs(double *g);
 
 	// very specific functions... 6 dof only!
 	inline void angleToEncoders(const double *ang, double *enc)

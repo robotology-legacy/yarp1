@@ -1,4 +1,4 @@
-// $Id: YARPEurobotArm.cpp,v 1.6 2003-10-27 12:20:48 beltran Exp $
+// $Id: YARPEurobotArm.cpp,v 1.7 2003-11-24 17:04:36 beltran Exp $
 
 #include "YARPEurobotArm.h"
 
@@ -107,14 +107,19 @@ int YARPEurobotArm::setG(int i, double g)
 	return -1;
 }
 
-int YARPEurobotArm::setGs(double *g, int nJ)
+int YARPEurobotArm::setGs(double *g)
 {
 	_lock();
-	double offs[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-	for(int i = 0; i<nJ; i++)
-		offs[i] = *g;
+	
+	int i, j;
+	for(i = 0; i<_parameters._nj; i++)
+	{
+		j = _parameters._axis_map[i];
+		_temp_double[i] = g[j];
+	}
 			
-	_adapter.IOCtl(CMDSetOffsets, offs);
+	_adapter.IOCtl(CMDSetOffsets, _temp_double);
 	_unlock();
 	return -1;
 }
+
