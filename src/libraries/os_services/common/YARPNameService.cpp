@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.12 2003-05-16 21:57:08 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.13 2003-05-18 19:15:31 gmetta Exp $
 ///
 ///
 
@@ -108,7 +108,7 @@ static YARPNameService _justtoinitialize;
 
 char * GetYarpRoot (void)
 {
-	char * ret = getenv ("YARP_ROOT");
+	char * ret = ACE_OS::getenv ("YARP_ROOT");
 
 	if (ret == NULL)
 	{
