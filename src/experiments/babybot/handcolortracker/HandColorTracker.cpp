@@ -1,8 +1,6 @@
 // HandColorTracker.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
-
 #include <YARPIntegralImage.h>
 #include <YARPDIBConverter.h>
 #include <YARPSimpleOperations.h>
