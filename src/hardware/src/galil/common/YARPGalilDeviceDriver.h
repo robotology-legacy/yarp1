@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.6 2003-08-19 08:55:29 beltran Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.7 2003-10-10 08:23:39 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -49,6 +49,7 @@ public:
 	//  functions
 	int set_speed(void *sp);
 	int set_position(void *pos);
+	int set_command(void *pos);
 	int set_acceleration(void *acc);
 	int set_pid(void *cmd);
 	int get_position(void *j);
@@ -61,6 +62,7 @@ public:
 
 	int set_speeds(void *spds);
 	int set_positions(void *pos);
+	int set_commands(void *pos);
 	int set_accelerations(void *acc);
 	int get_positions(void *j);
 	int set_offsets(void *offs);

@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.8 2003-08-19 08:55:29 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.9 2003-10-10 08:23:38 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -73,6 +73,9 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	
 	m_cmds[CMDMotorType]		= &YARPGalilDeviceDriver::motor_type;
 	m_cmds[CMDGetMotorType]		= &YARPGalilDeviceDriver::get_motor_type;
+
+	m_cmds[CMDSetCommands]		= &YARPGalilDeviceDriver::set_commands;
+	m_cmds[CMDSetCommand]		= &YARPGalilDeviceDriver::set_command;
 
 	m_cmds[CMDDummy] 			= &YARPGalilDeviceDriver::dummy;
 	
@@ -223,6 +226,36 @@ int YARPGalilDeviceDriver::set_position(void *cmd)
 	///////////////////////////////////////////////////////////////////
 	// set PA
 	buff = _append_cmd((char) 0xA6, buff);		//PA
+	buff = _append_cmd((char) 0x04, buff);		//04 long format
+	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
+
+	// axis
+	unsigned char dummy = 0x01;	//bit
+	dummy <<= tmp->axis;
+	// axis
+	buff = _append_cmd((char) dummy, buff);
+	// PID value
+	buff = _append_cmd_as_int(*position, buff);
+
+	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+							(unsigned char *) m_buffer_out, 8,
+							m_buffer_in, buff_length);
+	begin_motion(NULL);
+	return rc;
+}
+
+int YARPGalilDeviceDriver::set_command(void *cmd) 
+{
+	long rc = 0;
+
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	double *position = (double *) tmp->parameters;
+
+	char *buff = m_buffer_out;
+
+	///////////////////////////////////////////////////////////////////
+	// set PR
+	buff = _append_cmd((char) 0xA7, buff);		//PR
 	buff = _append_cmd((char) 0x04, buff);		//04 long format
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
 
@@ -484,6 +517,40 @@ int YARPGalilDeviceDriver::set_positions (void *param)
 	///////////////////////////////////////////////////////////////////
 	// set pos
 	buff = _append_cmd((char) 0xA6, buff);		//
+	buff = _append_cmd((char) 0x04, buff);		//04 long format
+	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
+	
+	// axes
+	buff = _append_cmd((char) m_all_axes, buff);
+	
+	// values
+	int n = _append_values(m_temp_int_array, buff);
+
+	cmd_length = 4 + 4*n;
+
+	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+							(unsigned char *) m_buffer_out, cmd_length ,
+							m_buffer_in, buff_length);
+	rc = begin_motion(NULL);							
+	return rc;
+}
+
+
+int YARPGalilDeviceDriver::set_commands (void *param) 
+{
+	long rc = 0;
+
+	int cmd_length = 0;
+
+	double * positions_double = (double *) param;	
+	
+	double_to_int(m_temp_int_array, positions_double);
+	
+	char *buff = m_buffer_out;
+
+	///////////////////////////////////////////////////////////////////
+	// set pos
+	buff = _append_cmd((char) 0xA7, buff);		//PR
 	buff = _append_cmd((char) 0x04, buff);		//04 long format
 	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
 	
