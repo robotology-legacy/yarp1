@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.21 2003-11-25 16:58:37 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.22 2003-11-25 17:25:37 fberton Exp $
 ///
 ///
 
@@ -1441,8 +1441,6 @@ int Shift_and_Corr (unsigned char * Left, unsigned char * Right, Image_Data * Pa
 				average_Lb /= pixCount[k];
 				average_Rb /= pixCount[k];
 			}
-
-		printf("%d\n",pixCount[k]);
 
 			double numr   = 0;
 			double den_1r = 0;
