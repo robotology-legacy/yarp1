@@ -1,7 +1,6 @@
 // repeater.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
 #include <YARPPort.h>
 #include <YARPRepeater.h>
 #include <YARPPArseParameters.h>

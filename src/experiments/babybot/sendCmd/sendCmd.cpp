@@ -1,7 +1,6 @@
 // sendCmd.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
 #include <YARPPort.h>
 #include <YARPBottleContent.h>
 #include <YARPBottle.h>
