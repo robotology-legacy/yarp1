@@ -15,7 +15,7 @@
 #include <yarp/YARPBottle.h>
 #include <stdio.h>
 
-// #define NO_ARM
+//#define NO_ARM
 
 const char __portName[] = "/dev/ttyS0";
 void setPositions(YARPArm &arm, YVector &v);
@@ -284,7 +284,7 @@ int main()
 {
 	ACE_OS::printf("\nHello from YARP!\n\n");
 
-//	set_yarp_debug(100,100);
+	//set_yarp_debug(100,100);
 
 	_inPort.Register("/arm/i:bot");
 
@@ -292,6 +292,7 @@ int main()
 	char path[255];
 	sprintf(path,"%s/%s", GetYarpRoot(), ConfigFilePath);
 
+#ifndef NO_ARM
 	YARPArm arm;
 	ArmSampler sampler(&arm, 100);
 	ArmController controller(&arm,3000);
@@ -308,6 +309,7 @@ int main()
 	sampler.start();
 	arm.activatePID();
 	YARPTime::DelayInSeconds(2.0);
+#endif
 
 	// controller.ready();
 
@@ -320,11 +322,13 @@ int main()
 	{
 		_inPort.Read();
 
-		// printf("---------->> Received a bottle: \n");
-		// _inPort.Content().display();
+		//printf("---------->> Received a bottle: \n");
+		//_inPort.Content().display();
 
-		YARPBottle tmp;
-		tmp = _inPort.Content();
+		//YARPBottle tmp;
+		//tmp = _inPort.Content();
+		
+		YARPBottle & tmp = _inPort.Content();
 		
 		int iTmp;
 		if(tmp.readInt(&iTmp))
@@ -333,6 +337,8 @@ int main()
 			{	
 				if (tmp.readInt(&iTmp))
 				{
+				  printf("Message ID %d\n", iTmp);
+#ifndef NO_ARM
 					if (iTmp==2)
 					{
 						// stop arm
@@ -354,6 +360,7 @@ int main()
 					{
 						controller.park();
 					}
+#endif
 				}
 				else
 				{
@@ -371,6 +378,7 @@ int main()
 		}
 	}
 	
+#ifndef NO_ARM
 	controller.terminate(0);	// no timeout
 	controller.park();
 	
@@ -378,6 +386,7 @@ int main()
 
 	ACE_OS::printf("\ndone!\n");
 	arm.uninitialize();
+#endif
 	
 	return 0;
 }

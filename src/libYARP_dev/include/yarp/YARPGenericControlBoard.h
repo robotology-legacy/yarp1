@@ -1,3 +1,4 @@
+<<<<<<< YARPGenericControlBoard.h
 /////////////////////////////////////////////////////////////////////////
 ///                                                                   ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
@@ -27,7 +28,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.13 2005-03-23 14:54:45 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.14 2005-03-29 20:30:32 natta Exp $
 ///
 ///
 
@@ -74,9 +75,7 @@
  */
 
 template <class ADAPTER, class PARAMETERS>
-
 class YARPGenericControlBoard
-
 {
 public:
 	/**
@@ -167,14 +166,12 @@ public:
 	int initialize(const YARPString &path, const YARPString &init_file)
 	{
 		_lock();
-
 		int ret = _parameters.load(path, init_file);
 		if (ret==YARP_FAIL)
 		{
 			_unlock();
 			return ret;
 		}
-
 		ret = _initialize();
 		_unlock();
 		return ret;
@@ -220,7 +217,7 @@ public:
 	 * @param axis specifies the axis' memory to read from. Depending on the board
 	 * configuration, brand, and random factors :) this method acually reads one
 	 * or more axes simultaneously.
-	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 * @return YARP_OK on success.
 	 */
 	int loadFromBootMemory (int axis)
 	{
@@ -280,7 +277,7 @@ public:
 	 * @param axis is axis to change/set the limits for.
 	 * @param min is the minimum value of the joint position in degrees.
 	 * @param max is the maximum value of the joint position in degrees.
-	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 * @return YARP_OK on success
 	 */
 	int getSoftwareLimits (int axis, double& min, double& max)
 	{
@@ -333,7 +330,7 @@ public:
 	 * @param pid is a reference to a LowLevelPID structure containing the parameters.
 	 * @param sync is a flag that decides whether the new values is also copied onto the 
 	 * internal parameters structure (true by default).
-	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 * @return YARP_OK on success.
 	 */
 	int setPID(int axis, LowLevelPID& pid, bool sync = true)
 	{
@@ -359,7 +356,7 @@ public:
 	 * @param pid is a reference to a LowLevelPID structure returning the parameters.
 	 * @param sync is a flag that decides whether the new values is also copied onto the 
 	 * internal parameters structure (true by default).
-	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 * @return YARP_OK on success.
 	 */
 	int getPID(int axis, LowLevelPID& pid, bool sync = true)
 	{
@@ -421,7 +418,6 @@ public:
 		return ret;
 	}
 
-
 	/**
 	 * Reads the analog input of the card.
 	 * @param index is the analog input number
@@ -435,7 +431,6 @@ public:
 		_unlock();
 		return ret;
 	}
-
 
 	/**
 	 * Uninitializes the control board and frees memory.
@@ -500,14 +495,12 @@ public:
 		{
 			SingleAxisParameters cmd;
 			cmd.axis = _parameters._axis_map[i];
-
 			pos = angleToEncoder(pos,
 		 						 _parameters._encoderToAngles[i],
 								 _parameters._zeros[i],
 								 (int) _parameters._signs[i]);
 			cmd.parameters = &pos;
 			
-
 			_adapter.IOCtl(CMDSetPosition, &cmd);
 			_unlock();
 
@@ -578,7 +571,6 @@ public:
 	int setAccs(const double *acc)
 	{
 		_lock();
-
 		int ret;
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
@@ -597,7 +589,7 @@ public:
 	 * Starts a velocity motion of all joints.
 	 * @param vel is an array of double precision values representing
 	 * the speed of each joint. Speed is in degrees/s.
-	 * @return -1 always (I wonder why). 
+	 * @return YARP_OK on success.
 	 */
 	int velocityMove(const double *vel)
 	{
@@ -624,11 +616,10 @@ public:
 	 * if this feature is not supported.
 	 * @param vel is an array of double precision values representing
 	 * the speed of each joint. Speed is in degrees/s.
-	 * @return -1 always (I wonder why). 
+	 * @return YARP_OK on success.
 	 */
 	int safeVelocityMove(const double *vel)
 	{
-
 		int ret;
 		_lock();
 		for (int i = 0; i < _parameters._nj; i++) 
@@ -650,7 +641,7 @@ public:
 	 * movement of the joint. Make sure you know the value of the
 	 * new reference position with respect to the actual position of the axis.
 	 * @param pos is the array containing the position values in degrees.
-	 * @return -1 always.
+	 * @return YARP_OK on success.
 	 */
 	int setCommands(const double *pos)
 	{
@@ -669,15 +660,11 @@ public:
 		return ret;
 	}
 
-	/**
-	 *
-	 *
-	 */
 	int stopMotion()
 	{
 		int ret;
 		_lock();
-		ret = _adapter.IOCtl(CMDServoHere, NULL);
+			ret = _adapter.IOCtl(CMDServoHere, NULL);
 		_unlock();
 		return ret;
 	}
@@ -717,14 +704,14 @@ public:
 	 * Gets the position (angle) of all joints.
 	 * @param pos is an array to contain the joint angles. Joint angles are measured
 	 * in degrees.
-	 * @return -1 always.
+	 * @return YARP_OK on success.
 	 */
+
 	int getPositions(double *pos)
 	{
 		int ret;
 		_lock();
 		ret = _adapter.IOCtl(CMDGetPositions, _temp_double);
-
 		int j;
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
@@ -741,13 +728,12 @@ public:
 	/**
 	 * Gets the velocities of all joints (encoder velocities).
 	 * @param vel is an array that receives the joint velocities.
-	 * @return -1 always.
+	 * @return YARP_OK on success.
 	 */
 	int getVelocities(double *vel)
 	{
 		int ret;
 		_lock();
-
 		ret = _adapter.IOCtl(CMDGetSpeeds, _temp_double);
 		for (int i = 0; i < _parameters._nj; i++) 
 		{
@@ -764,9 +750,9 @@ public:
 	/**
 	 * Gets the acceleration set point for all joints.
 	 * @param accs is an array to receive the acceleration values (degrees/s^2).
-	 * @return -1 always.
+	 * @return YARP_OK on success.
 	 */
-	int getAccs(double *accs)
+	int getRefAccs(double *accs)
 	{
 		int ret;
 		_lock();
@@ -777,6 +763,7 @@ public:
 												_parameters._encoderToAngles[i],
 												0.0,
 												(int) _parameters._signs[i]);
+		
 		}
 		_unlock();
 		return ret;
@@ -785,9 +772,9 @@ public:
 	/**
 	 * Gets istantaneous acceleration set point for all joints.
 	 * @param accs is an array to receive the acceleration values (degrees/s^2).
-	 * @return -1 always.
+	 * @return YARP_OK on success.
 	 */
-	int getIstAccs(double *accs)
+	int getAccs(double *accs)
 	{
 		int ret;
 		_lock();
@@ -798,6 +785,7 @@ public:
 												_parameters._encoderToAngles[i],
 												0.0,
 												(int) _parameters._signs[i]);
+		
 		}
 		_unlock();
 		return ret;
@@ -809,11 +797,10 @@ public:
 	 * is the PWM value, in other just the output of the DAC.
 	 * @param t is an array of double precision values that will contain the
 	 * torque values.
-	 * @return -1 always.
+	 * 
 	 */
 	int getTorques(double *t)
 	{
-
 		int ret;
 		_lock();
 		ret = _adapter.IOCtl(CMDGetTorques, _temp_double);
@@ -835,9 +822,7 @@ public:
 	int resetEncoders(const double *pos = NULL)
 	{
 	    int ret;
-
 		_lock();
-
 		for(int i = 0; i < _parameters._nj; i++)
 		{
 			if (pos == NULL)
@@ -1040,7 +1025,6 @@ angleToEncoder(double angle, double encParam, double zero, int sign)
 	else
 		return angle * encParam / (360) + zero;
 }
-
 
 template <class ADAPTER, class PARAMETERS>
 inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
