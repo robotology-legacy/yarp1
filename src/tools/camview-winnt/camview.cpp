@@ -46,6 +46,8 @@ BOOL CCamviewApp::InitInstance()
 	CCommandLineInfoEx cmdInfo; 
 	ParseCommandLine (cmdInfo);
 
+	CString prova = m_lpCmdLine;
+
 	m_portname = "/view/i:img";
 	if (cmdInfo.GetOption("name", m_portname)) 
 	{ 

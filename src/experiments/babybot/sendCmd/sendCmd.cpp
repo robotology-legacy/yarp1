@@ -1,10 +1,10 @@
 // sendCmd.cpp : Defines the entry point for the console application.
 //
 
-#include <YARPPort.h>
-#include <YARPBottle.h>
-#include <YARPBottleContent.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPConfigRobot.h>
+
 #include "functionList.h"
 
 YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);

@@ -3,9 +3,9 @@
 #ifndef __YARPGRAVITYESTIMATOR__
 #define __YARPGRAVITYESTIMATOR__
 
-#include <conf/YARPConfig.h>
-#include <YARPErrorCodes.h>
-#include "debug.h"
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPErrorCodes.h>
+///#include "debug.h"
 
 // #define GRAVITY_VERBOSE
 #ifdef GRAVITY_VERBOSE
@@ -14,8 +14,8 @@
 	#define GRAVITY_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
-#include "YARPRecursiveLS.h"
-#include <YARPString.h>
+#include <yarp/YARPRecursiveLS.h>
+#include <yarp/YARPString.h>
 
 const int __gNumOfPar = 6;
 const int __querySize = 500;

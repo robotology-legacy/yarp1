@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPParseParameters.cpp,v 1.2 2004-07-20 00:34:25 babybot Exp $
+///  $Id: YARPParseParameters.cpp,v 1.3 2004-07-30 13:39:48 babybot Exp $
 ///
 ///
 
@@ -80,9 +80,10 @@ bool YARPParseParameters::parse (int argc, char *argv[], const YARPString &key, 
 			{
 				// found key
 				i++;
+		
 				if (i==argc)
 					return false;
-				else if (argv[i][0] == '-')
+				else if ( (argv[i][0] == '-') && (!isdigit(argv[i][1])))
 					return false;
 				else if (key == YARPString("name"))	// exception, "name"
 				{

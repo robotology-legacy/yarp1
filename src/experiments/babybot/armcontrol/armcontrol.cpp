@@ -5,13 +5,13 @@
 
 #include "Armthread.h"
 #include "RandomThread.h"
-#include "YARPRobotMath.h"
+#include <yarp/YARPRobotMath.h>
 #include <iostream>
 
-#include "YARPNameClient.h"
+///#include "YARPNameClient.h"
 
-#include "YARPScheduler.h"
-#include "YARPConfigFile.h"
+#include <yarp/YARPScheduler.h>
+#include <yarp/YARPConfigFile.h>
 
 #include "ArmBehavior.h"
 

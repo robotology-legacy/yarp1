@@ -1,8 +1,8 @@
 #ifndef __rndthreadh__
 #define __rndthreadh__
 
-#include "conf/YARPConfig.h"
-#include <YARPRateThread.h>
+#include <yarp/YARPConfig.h>
+#include <yarp/YARPRateThread.h>
 #include "armstatus.h"
 #include "Armthread.h"
 

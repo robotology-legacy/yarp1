@@ -9,31 +9,27 @@
 #ifndef __armthreadh__
 #define __armthreadh__
 
-#include "conf/YARPConfig.h"
+#include <yarp/YARPConfig.h>
 
-#include <YARPRobotMath.h>	// useful stuff, like degToRad, pi and radToDeg include also VisDMatrix.h
-#include <YARPRateThread.h>
+#include <yarp/YARPRobotMath.h>	// useful stuff, like degToRad, pi and radToDeg include also VisDMatrix.h
+#include <yarp/YARPRateThread.h>
 
-#include "debug.h"
+///#include "debug.h"
 
-#if defined(__QNXEurobot__)
-	#include "YARPEurobotArm.h"
-typedef YARPEurobotArm YARPArmClass:
-#else
-	#include "YARPBabybotArm.h"
-	typedef YARPBabybotArm YARPArmClass;
-#endif
+#include <yarp/YARPRobotHardware.h>
 
-#include "YARPTrajectoryGen.h"
+typedef YARPArm YARPArmClass;
+
+#include <yarp/YARPTrajectoryGen.h>
 #include "YARPGravityEstimator.h"
-#include <YARPPort.h>
-#include <YARPVectorPortContent.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPVectorPortContent.h>
 #include "AState.h"
 
 #include "tirednessControl.h"
 
 #include "armstatus.h"
-#include "YARPNameClient.h"
+///#include "YARPNameClient.h"
 
 #define ARM_THREAD_VERBOSE
 

@@ -8,18 +8,9 @@
 
 #include <yarp/YARPConfig.h>
 #include <yarp/YARPConfigRobot.h>
-#include <yarp/YARPRobotMath.h>	// useful stuff, like degToRad, pi and radToDeg include also VisDMatrix.h
+#include <yarp/YARPRobotMath.h>
 #include <yarp/YARPRateThread.h>
-
-#if defined(__QNXEurobot__)
-
-	#include <yarp/YARPEurobotHead.h>
-
-#else
-
-	#include <yarp/YARPBabybotHead.h>
-
-#endif
+#include <yarp/YARPRobotHardware.h>
 #include <yarp/YARPPort.h>
 #include <yarp/YARPVectorPortContent.h>
 #include <yarp/YARPString.h>
@@ -55,8 +46,7 @@ public:
 		return true;
 	}
 
-	void setAcceleration(const YVector &acc)
-	{ _head.setAccs(acc.data()); }
+	void setAcceleration(const YVector &acc) { _head.setAccs(acc.data()); }
 
 	void stop()
 	{
@@ -73,10 +63,7 @@ public:
 	}
 
 	// require hibernation
-	void askHibernation()
-	{	
-		_askHib = true;
-	}
+	void askHibernation() {	_askHib = true; }
 
 private:
 	//move the head to 0

@@ -1,5 +1,5 @@
 #include "functionList.h"
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPVocab.h>
 
 const int __armJoints = 6;
 const int __headJoints = 5;

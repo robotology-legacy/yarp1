@@ -8,11 +8,10 @@
 #ifndef __armstatush__
 #define __armstatush__
 
-// #include "NetworkData.h"
-#include <YARPControlBoardNetworkData.h>
-#include <YARPRobotMath.h>
-// #include "RobotKinematics.h"
-#include "YARPConfigFile.h"
+#include <yarp/YARPControlBoardNetworkData.h>
+#include <yarp/YARPRobotMath.h>
+#include <yarp/YARPConfigFile.h>
+
 #include <assert.h>
 
 #define wrist3		6

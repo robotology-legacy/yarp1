@@ -1,4 +1,5 @@
-#include <YARPBottle.h>
+
+#include <yarp/YARPBottle.h>
 
 typedef bool (*myFunction)(const YBVocab &vocab, YARPBottle &bottle);
 

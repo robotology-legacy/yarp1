@@ -38,7 +38,7 @@ void ABSimpleOutput::output(ArmBehaviorData *d)
 	d->send();
 }
 
-bool ABInputCommand::input(YARPBottle *in, ArmBehaviorData *d)
+bool ABInputCommand::input(YARPBabyBottle *in, ArmBehaviorData *d)
 {
 	if (!in->tryReadVocab(tmpK))
 		return false;
@@ -56,7 +56,7 @@ bool ABInputCommand::input(YARPBottle *in, ArmBehaviorData *d)
 			
 }
 
-bool ABInputShakeCommand::input(YARPBottle *in, ArmBehaviorData *d)
+bool ABInputShakeCommand::input(YARPBabyBottle *in, ArmBehaviorData *d)
 {
 	if (!in->tryReadVocab(tmpK))
 		return false;
@@ -74,7 +74,7 @@ bool ABInputShakeCommand::input(YARPBottle *in, ArmBehaviorData *d)
 			
 }
 
-bool ABSimpleInput::input(YARPBottle *in, ArmBehaviorData *d)
+bool ABSimpleInput::input(YARPBabyBottle *in, ArmBehaviorData *d)
 {
 	if (!in->tryReadVocab(tmpK))
 		return false;

@@ -40,7 +40,7 @@ namespace _inertial {
 
 namespace _head {
 	const int _nj = 5;
-	const char _ini_file[] = "Q:\\Ini Files\\head.ini";
+	const char _ini_file[] = "Q:/Ini_Files/head.ini";
 
 	const int _dh_np = 5;
 	const int _dh_nrf = 5;

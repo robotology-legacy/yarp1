@@ -39,14 +39,50 @@ my $release = '';
 my $clean = '';
 my $install = '';
 my $os = 'winnt';
+my $ipl = '';
 
 GetOptions ('debug' => \$debug,
             'release' => \$release,
 			'clean' => \$clean,
-			'install' => \$install);
+			'install' => \$install,
+			'ipl' => \$ipl);
 
 print "Compiling libraries first. ";
 print "Assuming a standard format wiht /src /include directories\n";
+
+if ($ipl && -d "ipl")
+{
+	print "Installing IPL to standard path...\n";
+
+	if (! -d "$yarp_root/include/ipl")
+	{
+		mkdir ("$yarp_root/include/ipl") or warn "Can't create ipl directory in $yarp_root/include\n";
+	}
+
+	chdir "./ipl/include" or warn "Can't chdir to ipl/include: $!\n";
+	foreach $file (glob "*.h")
+	{
+		print "Copying $file\n";
+		copy ($file, "$yarp_root/include/ipl/");
+	}
+	chdir ".." or warn "Can't chdir to ..: $1\n";
+
+	chdir "./lib" or warn "Can't chdir to lib: $!\n";
+	foreach $file (glob "*.lib")
+	{
+		print "Copying $file\n";
+		copy ($file, "$yarp_root/lib/$os/");
+	}
+	chdir ".." or warn "Can't chdir to ..: $1\n";
+
+	chdir "./bin" or warn "Can't chdir to bin: $!\n";
+	foreach $file (glob "*.dll")
+	{
+		print "Copying $file\n";
+		copy ($file, "$yarp_root/bin/$os/");
+	}
+	chdir "../.." or warn "Can't chdir to ../..: $1\n";
+}
 
 foreach $directory (glob "*")
 {
@@ -111,7 +147,7 @@ foreach $directory (glob "*")
 	}
 }
 
-foreach $directory (qw/ headcontrol /) #(glob "*")
+foreach $directory (qw/ headcontrol armcontrol /) #(glob "*")
 {
 	if (-d $directory && !(-d "$directory/src") && !(-d "$directory/include/yarp"))
 	{

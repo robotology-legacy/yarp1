@@ -1,9 +1,10 @@
 #ifndef __ARM_BEHAVIOR__
 #define __ARM_BEHAVIOR__
 
-#include <YARPBehavior.h>
-#include <YARPBottle.h>
-#include <./conf/YARPVocab.h>
+#include <yarp/YARPBehavior.h>
+#include <yarp/YARPBottle.h>
+#include <yarp/YARPBabyBottle.h>
+#include <yarp/YARPConfigRobot.h>
 #include "Armthread.h"
 
 class ArmThread;
@@ -106,7 +107,7 @@ public:
 	{
 		key = k;
 	}
-	bool input(YARPBottle *in, ArmBehaviorData *d);
+	bool input(YARPBabyBottle *in, ArmBehaviorData *d);
 	
 	YBVocab key;
 	YBVocab tmpK;
@@ -120,7 +121,8 @@ public:
 	{
 		key = k;
 	}
-	bool input(YARPBottle *in, ArmBehaviorData *d);
+
+	bool input(YARPBabyBottle *in, ArmBehaviorData *d);
 	
 	YBVocab key;
 	YBVocab tmpK;
@@ -133,7 +135,8 @@ public:
 	{
 		key = k;
 	}
-	bool input(YARPBottle *in, ArmBehaviorData *d);
+
+	bool input(YARPBabyBottle *in, ArmBehaviorData *d);
 	
 	YBVocab key;
 	YBVocab tmpK;

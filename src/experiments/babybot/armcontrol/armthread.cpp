@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Armthread.h"
-#include "YARPConfigFile.h"
+#include <yarp/YARPConfigFile.h>
 
 // #include "..\..\visualprocessing\parameters.h"
 

@@ -1,7 +1,7 @@
 #ifndef __AStateh__
 #define __AStateh__
 
-#include "debug.h"
+///#include "debug.h"
 
 #define ARM_STATE_VERBOSE
 
@@ -11,7 +11,7 @@
 #endif
 
 #include "Armthread.h"
-#include <YARPLogFile.h>
+#include <yarp/YARPLogFile.h>
 
 //forward declarations
 class ArmThread;
