@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: CollectorCommands.h,v 1.1 2004-09-14 10:32:52 babybot Exp $
+/// $Id: CollectorCommands.h,v 1.2 2005-01-13 16:56:20 babybot Exp $
 ///
 ///
 
@@ -78,7 +78,8 @@ enum CollectorCmd
 	CCMDResetGlove = 6,
 	CCMDSetLed = 7,
 	CCMDConnect = 8,
-	CCMDQuit = 9
+	CCMDDisconnect = 9,
+	CCMDQuit = 10
 };
 
 typedef enum CollectorCmd MCommands;
@@ -92,8 +93,11 @@ struct CollectorData
 
 typedef struct CollectorData MNumData;
 
-#define INVALID_CMD -1
 #define CMD_ACK		1
 #define CMD_FAILED	0
+#define HW_DATAGLOVE	0x01
+#define HW_TRACKER		0x02
+#define HW_PRESSENS		0x04
+#define HW_CAMERA		0x08
 
 #endif

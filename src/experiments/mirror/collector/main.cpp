@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2004-09-14 10:32:52 babybot Exp $
+/// $Id: main.cpp,v 1.2 2005-01-13 16:56:21 babybot Exp $
 ///
 ///
 
@@ -80,9 +80,11 @@
 #include <yarp/YARPScheduler.h>
 #include <yarp/YARPImages.h>
 #include <yarp/YARPParseParameters.h>
+#include <yarp/YARPConfigFile.h>
 
 #include "CollectorCommands.h"
 
+using namespace std;
 ///
 ///
 ///
@@ -90,8 +92,6 @@ YARPOutputPortOf<MNumData> _data_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_
 YARPOutputPortOf<YARPGenericImage> _img_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 YARPOutputPortOf<int> _rep_outport (YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 YARPInputPortOf<MCommands> _cmd_inport;
-
-const char *DEFAULT_NAME = "collector";
 
 ///
 /// Functions Declaration
@@ -105,28 +105,46 @@ void sendData(void);
 
 ///
 /// global params.
-int					_sizeX				= -1;
-int					_sizeY				= -1;
-int					_yOffset			= 0;
-short				_gloveComPort		= 1;
-short				_trackerComPort		= 2;
-int					_gloveBaudRate		= 115200;
-int					_trackerBaudRate	= 115200;
-int					_trackerTimeout		= 160;
-short				_nPresSens			= 2;
-YARPString			_portName;
-YARPString			_netName;
-int					_boardN				= 0;
 
-YARPGrabber			_grabber;
-YARPMagneticTracker	_tracker;
-YARPDataGlove		_glove;
-YARPPresSens		_press;
+struct CollectorOptions
+{
+	int	sizeX;
+	int sizeY;
+	int yOffset;
+	short gloveComPort;
+	short trackerComPort;
+	int	gloveBaudRate;
+	int	trackerBaudRate;
+	int	trackerTimeout;
+	short nPresSens;
+	YARPString portName;
+	YARPString netName;
+	int	boardN;
+	int useCamera;
+	int useTracker;
+	int useDataGlove;
+	int usePresSens;
+};
 
+typedef struct CollectorOptions PgmOptions;
+
+struct CollectorHardware
+{
+	YARPGrabber			grabber;
+	YARPMagneticTracker	tracker;
+	YARPDataGlove		glove;
+	YARPPresSens		press;
+};
+
+typedef CollectorHardware PgmHardware;
+
+
+/// GLOBAL VARIABLES
+PgmOptions _options;
+PgmHardware _hardware;
 YARPImageOf<YarpPixelBGR> _img;
 MNumData			_data;
-
-using namespace std;
+////
 
 ///
 ///
@@ -141,9 +159,10 @@ public:
 void mainthread::Body (void)
 {
 // Start the peripherals threads
-	_glove.startStreaming();
-	_tracker.startStreaming();
-	_press.startStreaming();
+	if (_options.useDataGlove)
+		_hardware.glove.startStreaming();
+	if (_options.useTracker)
+		_hardware.tracker.startStreaming();
 
 	while (!IsTerminated())
 	{
@@ -152,9 +171,10 @@ void mainthread::Body (void)
 	}
 
 // Stop the peripherals threads
-	_glove.stopStreaming();
-	_tracker.stopStreaming();
-	_press.stopStreaming();
+	if (_options.useDataGlove)
+		_hardware.glove.stopStreaming();
+	if (_options.useTracker)
+	_hardware.tracker.stopStreaming();
 		
 	return;
 }
@@ -168,58 +188,80 @@ void sendHelp(void)
 	cout << "USAGE: collector.exe [parameters]" << endl;
 	cout << "parameters are:" << endl;
 	cout << "\t-help\t\t this help screen." << endl;
-	cout << "\t-w dim\t\t\t sets images with to 'dim'." << endl;
-	cout << "\t-h dim\t\t\t sets images height to 'dim'." << endl;
-	cout << "\t-name portname\t\t use yarp port called 'portname'." << endl;
-	cout << "\t-net netname\t\t use network 'netname'." << endl;
+	cout << "\t-file filename use option file 'filename'." <<endl;
 }
 
 bool connect2Sensors(void)
 {
-// Framegrabber Initialization
-	cout << "Initializing Framegrabber..";
-	_grabber.initialize (_boardN, _sizeX, _sizeY);
-	cout <<  " Done, acquisition size is h=" << _sizeX << " w=" << _sizeY <<endl;
+	if (_options.useCamera)
+	{
+		// Framegrabber Initialization
+		cout << "Initializing Framegrabber..";
+		_hardware.grabber.initialize (_options.boardN, _options.sizeX, _options.sizeY);
+		cout <<  " Done, acquisition size is Width " << _options.sizeX << "  and Height" << _options.sizeY <<endl;
+	}
 
-// DataGlove Initialization
-	cout << "Initializing DataGlove..";
-	_glove.initialize (_gloveComPort, _gloveBaudRate);
-	cout <<  " Done, Glove is on port COM" << _gloveComPort << " with a speed of " << _gloveBaudRate << " Baud." << endl;
-
-// Tracker Initialization
-	cout << "Initializing Tracker..";
-	_tracker.initialize (_trackerComPort, _trackerBaudRate, _trackerTimeout);
-	cout <<  " Done, Tracker is on port COM" << _trackerComPort << " with a speed of " << _trackerBaudRate << " Baud." << endl;
-
-// PresSensors Initialization
-	cout << "Initializing Pressure Sensor..";
-	_press.initialize (_nPresSens);
-	cout <<  " Done, there are " << _nPresSens << " sensors(s) connected." << endl;
+	if (_options.useDataGlove)
+	{
+		// DataGlove Initialization
+		cout << "Initializing DataGlove..";
+		_hardware.glove.initialize (_options.gloveComPort, _options.gloveBaudRate);
+		cout <<  " Done, Glove is on port COM" << _options.gloveComPort << " with a speed of " << _options.gloveBaudRate << " Baud." << endl;
+	}
 	
+	if (_options.useTracker)
+	{
+		// Tracker Initialization
+		cout << "Initializing Tracker..";
+		_hardware.tracker.initialize (_options.trackerComPort, _options.trackerBaudRate, _options.trackerTimeout);
+		cout <<  " Done, Tracker is on port COM" << _options.trackerComPort << " with a speed of " << _options.trackerBaudRate << " Baud." << endl;
+	}
+	
+	if (_options.usePresSens)
+	{
+		// PresSensors Initialization
+		cout << "Initializing Pressure Sensor..";
+		_hardware.press.initialize (_options.nPresSens);
+		cout <<  " Done, there are " << _options.nPresSens << " sensors(s) connected." << endl;
+	}
+
 	return true;
 }
 
 void releaseSensors(void)
 {
-// Framegrabber 
-	cout << "Releasing Framegrabber..";  
-	_grabber.uninitialize ();
-	cout << " Done." << endl;
+	if (_options.useCamera)
+	{
+		// Framegrabber 
+		cout << "Releasing Framegrabber..";  
+		_hardware.grabber.uninitialize ();
+		cout << " Done." << endl;
+	}
+	
+	if (_options.useDataGlove)
+	{
+		// DataGlove 
+		cout << "Releasing DataGlove..";  
+		_hardware.glove.uninitialize ();
+		cout << " Done." << endl;
+	}
+	
+	if (_options.useTracker)
+	{
+		// Tracker 
+		cout << "Releasing tracker..";  
+		_hardware.tracker.uninitialize ();
+		cout << " Done." << endl;
+	}
 
-// DataGlove 
-	cout << "Releasing DataGlove..";  
-	_glove.uninitialize ();
-	cout << " Done." << endl;
+	if (_options.usePresSens)
+	{
+		// Pressure Sensors
+		cout << "Releasing Pressure Sensor..";  
+		_hardware.press.uninitialize ();
+		cout << " Done." << endl;
+	}
 
-// Tracker 
-	cout << "Releasing tracker..";  
-	_tracker.uninitialize ();
-	cout << " Done." << endl;
-
-// Pressure Sensors
-	cout << "Releasing Pressure Sensor..";  
-	_press.uninitialize ();
-	cout << " Done." << endl;
 }
 
 void cleanDataStructures(void)
@@ -266,33 +308,167 @@ void cleanDataStructures(void)
 
 void prepareDataStructures(void)
 {
-	_img.Resize (_sizeX, _sizeY);
+	_img.Resize (_options.sizeX, _options.sizeY);
 	cleanDataStructures();
 }
 
 void acquireAndPack(void)
 {
-// Wait for a new Framegrabber frame and get the data
-	unsigned char *buffer = NULL;
-	_grabber.waitOnNewFrame ();
-	_grabber.acquireBuffer(&buffer);
-	memcpy((unsigned char *)_img.GetRawBuffer(), buffer, _sizeX * _sizeY * 3);
-	_grabber.releaseBuffer ();
-// Read DataGlove
-	_glove.getData(&_data.glove);
-// Read Tracker
-	_tracker.getData(&_data.tracker);
-// Read Pressure Sensors
-	_press.getData(&_data.pressure);
-// Send the data to the port
-	_img_outport.Content().Refer(_img);
-	_data_outport.Content() = _data;
+	if (_options.useCamera)
+	{
+		// Wait for a new Framegrabber frame and get the data
+		unsigned char *buffer = NULL;
+		_hardware.grabber.waitOnNewFrame ();
+		_hardware.grabber.acquireBuffer(&buffer);
+		memcpy((unsigned char *)_img.GetRawBuffer(), buffer, _options.sizeX * _options.sizeY * 3);
+		_hardware.grabber.releaseBuffer ();
+		// Send data to the port
+		_img_outport.Content().Refer(_img);
+	}
+
+	if (_options.useDataGlove)
+	{
+		// Read DataGlove
+		_hardware.glove.getData(&_data.glove);
+	}
+
+	if (_options.useTracker)
+	{
+		// Read Tracker
+		_hardware.tracker.getData(&_data.tracker);
+	}
+
+	if (_options.usePresSens)
+	{
+		// Read Pressure Sensors
+		_hardware.press.getData(&_data.pressure);
+	}
+
+	if ( _options.useDataGlove || _options.usePresSens || _options.useTracker )
+	{
+		// Send the data to the port
+		_data_outport.Content() = _data;
+	}
 }
 
 void sendData(void)
 {
-	_img_outport.Write();
-	_data_outport.Write();
+	if (_options.useCamera)
+		_img_outport.Write();
+
+	if ( _options.useDataGlove || _options.usePresSens || _options.useTracker )
+		_data_outport.Write();
+}
+
+void setOptions(char *fileName)
+{
+	YARPConfigFile optFile;
+	
+	_options.portName			= "mirrorCollector";
+	_options.netName			= "default";
+	_options.sizeX				= 384;
+	_options.sizeY				= 272;
+	_options.yOffset			= 0;
+	_options.gloveComPort		= 1;
+	_options.trackerComPort		= 2;
+	_options.gloveBaudRate		= 115200;
+	_options.trackerBaudRate	= 115200;
+	_options.trackerTimeout		= 160;
+	_options.nPresSens			= 2;
+	_options.useCamera			= 1;
+	_options.useTracker			= 1;
+	_options.useDataGlove		= 1;
+	_options.usePresSens		= 1;
+
+	char buf[255];
+
+	if (fileName != NULL)
+	{
+		optFile.setName(fileName);
+		if ( optFile.getString("[NETWORK]", "PortName", buf) == YARP_OK)
+			_options.portName = buf;
+		if ( optFile.getString("[NETWORK]", "NetName", buf) == YARP_OK)
+			_options.netName = buf;
+		optFile.get("[HARDWARE]", "ImageSizeX", &_options.sizeX);
+		optFile.get("[HARDWARE]", "ImageSizeY", &_options.sizeY);
+		optFile.get("[HARDWARE]", "YOffSet", &_options.yOffset);
+		optFile.get("[HARDWARE]", "GloveComPort", &_options.gloveComPort);
+		optFile.get("[HARDWARE]", "TrackerComPort", &_options.trackerComPort);
+		optFile.get("[HARDWARE]", "GloveBaudRate", &_options.gloveBaudRate);
+		optFile.get("[HARDWARE]", "TrackerBaudRate", &_options.trackerBaudRate);
+		optFile.get("[HARDWARE]", "TrackerTimeout", &_options.trackerTimeout);
+		optFile.get("[HARDWARE]", "NPresSens", &_options.nPresSens);
+		optFile.get("[HARDWARE]", "UseCamera", &_options.useCamera);
+		optFile.get("[HARDWARE]", "UseTracker", &_options.useTracker);
+		optFile.get("[HARDWARE]", "UseDataGlove", &_options.useDataGlove);
+		optFile.get("[HARDWARE]", "UsePresSens", &_options.usePresSens);
+	}
+}
+
+void registerPorts(void)
+{
+	char buf[256];
+	int ret;
+
+// Data port registration
+	cout << "Registering Data port..." << endl;
+	ACE_OS::sprintf(buf, "/%s/o:str", _options.portName.c_str());
+	ret = 0;	
+	ret = _data_outport.Register(buf,_options.netName.c_str());
+	if (ret != YARP_OK)
+	{
+		cout << endl << "FATAL ERROR: problems registering output port with name '" << buf << "' (see above)."  << endl;
+		exit(YARP_FAIL);
+	}
+	else
+		cout << "Done." << endl;
+	
+// Images port registration
+	cout << "Registering Images port..." << endl;
+	ACE_OS::sprintf(buf, "/%s/o:img", _options.portName.c_str());
+	ret = 0;	
+	ret = _img_outport.Register(buf,_options.netName.c_str());
+	if (ret != YARP_OK)
+	{
+		cout << endl << "FATAL ERROR: problems registering output port with name '" << buf << "' (see above)."  << endl;
+		exit(YARP_FAIL);
+	}
+	else
+		cout << "Done." << endl;
+	
+// Commands port registration
+	cout << "Registering Commands port..." << endl;
+	ACE_OS::sprintf(buf, "/%s/i:int", _options.portName.c_str());
+	ret = 0;	
+	ret = _cmd_inport.Register(buf,_options.netName.c_str());
+	if (ret != YARP_OK)
+	{
+		cout << endl << "FATAL ERROR: problems registering input port with name '" << buf << "' (see above)."  << endl;
+		exit(YARP_FAIL);
+	}
+	else
+		cout << "Done." << endl;
+
+// Response port registration
+	cout << "Registering Response port..." << endl;
+	ACE_OS::sprintf(buf, "/%s/o:int", _options.portName.c_str());
+	ret = 0;	
+	ret = _rep_outport.Register(buf,_options.netName.c_str());
+	if (ret != YARP_OK)
+	{
+		cout << endl << "FATAL ERROR: problems registering output port with name '" << buf << "' (see above)."  << endl;
+		exit(YARP_FAIL);
+	}
+	else
+		cout << "Done." << endl;
+}
+
+void unregisterPorts(void)
+{
+	_cmd_inport.Unregister();
+	_rep_outport.Unregister();
+	_data_outport.Unregister();
+	_img_outport.Unregister();
 }
 
 int main (int argc, char *argv[])
@@ -305,92 +481,31 @@ int main (int argc, char *argv[])
 		exit(YARP_OK);
 	}
 
-	if ( !YARPParseParameters::parse(argc, argv, "name", _portName) )
+	if ( YARPParseParameters::parse(argc, argv, "file", buf) )
 	{
-		_portName = DEFAULT_NAME;
+		setOptions(buf);
 	}
-	
-	if ( !YARPParseParameters::parse(argc, argv, "net", _netName) )
+	else
 	{
-		_netName = "default";
-	}
-	
-	if ( !YARPParseParameters::parse(argc, argv, "w", &_sizeX) )
-	{
-		_sizeX = 384;
-	}
-	
-	if ( !YARPParseParameters::parse(argc, argv, "h", &_sizeY) )
-	{
-		_sizeY = 272;
-	}
-	
-	if (_sizeX > 384)
-	{
-		cout << "*** WARNING: Width can't be more than 384 pixels. Width forced to 384." << endl;
-		_sizeX = 384;
+		setOptions(NULL);
 	}
 
-		if (_sizeY > 272)
+	if (_options.sizeX > 384)
+	{
+		cout << "*** WARNING: Width can't be more than 384 pixels. Width forced to 384." << endl;
+		_options.sizeX = 384;
+	}
+
+		if (_options.sizeY > 272)
 	{
 		cout << "*** WARNING: Height can't be more than 272 pixels. Height forced to 272.";
-		_sizeY = 272;
+		_options.sizeY = 272;
 	}
 
 // Network declaration
-    cout << "Using " << _netName.c_str() << " network" << endl;
+    cout << "Using " << _options.netName.c_str() << " network" << endl;
 
-// Data port registration
-	cout << "Registering Data port..." << endl;
-	ACE_OS::sprintf(buf, "/%s/o:str", _portName.c_str());
-	int ret = 0;	
-	ret = _data_outport.Register(buf,_netName.c_str());
-	if (ret != YARP_OK)
-	{
-		cout << endl << "FATAL ERROR: problems registering output port with name '" << buf << "' (see above)."  << endl;
-		exit(YARP_FAIL);
-	}
-	else
-		cout << "Done." << endl;
-
-// Images port registration
-	cout << "Registering Images port..." << endl;
-	ACE_OS::sprintf(buf, "/%s/o:img", _portName.c_str());
-	ret = 0;	
-	ret = _img_outport.Register(buf,_netName.c_str());
-	if (ret != YARP_OK)
-	{
-		cout << endl << "FATAL ERROR: problems registering output port with name '" << buf << "' (see above)."  << endl;
-		exit(YARP_FAIL);
-	}
-	else
-		cout << "Done." << endl;
-	
-// Commands port registration
-	cout << "Registering Commands port..." << endl;
-	ACE_OS::sprintf(buf, "/%s/i:int", _portName.c_str());
-	ret = 0;	
-	ret = _cmd_inport.Register(buf,_netName.c_str());
-	if (ret != YARP_OK)
-	{
-		cout << endl << "FATAL ERROR: problems registering input port with name '" << buf << "' (see above)."  << endl;
-		exit(YARP_FAIL);
-	}
-	else
-		cout << "Done." << endl;
-
-// Response port registration
-	cout << "Registering Response port..." << endl;
-	ACE_OS::sprintf(buf, "/%s/o:int", _portName.c_str());
-	ret = 0;	
-	ret = _rep_outport.Register(buf,_netName.c_str());
-	if (ret != YARP_OK)
-	{
-		cout << endl << "FATAL ERROR: problems registering output port with name '" << buf << "' (see above)."  << endl;
-		exit(YARP_FAIL);
-	}
-	else
-		cout << "Done." << endl;
+	registerPorts();
 
 	cout << "Waiting for Commands.." << endl;
 
@@ -400,8 +515,11 @@ int main (int argc, char *argv[])
 	bool bStreamingStarted = false;
 	bool bConnected = false;
 	mainthread collectThread;
+	int ret;
 		
 	YARPScheduler::setHighResScheduling ();
+
+	prepareDataStructures();
 
 	do
 	{
@@ -414,7 +532,7 @@ int main (int argc, char *argv[])
 		case CCMDConnect:
 			if (!bConnected)
 			{
-				prepareDataStructures();
+				cleanDataStructures();
 				ret = connect2Sensors();		
 				if (!ret)
 				{
@@ -426,23 +544,50 @@ int main (int argc, char *argv[])
 				else
 				{
 					bConnected = true;
-					_rep_outport.Content() = CMD_ACK;
+					ret = 0;
+					if ( _options.useDataGlove)
+						ret += HW_DATAGLOVE;
+					if ( _options.useTracker)
+						ret += HW_TRACKER;
+					if ( _options.usePresSens)
+						ret += HW_PRESSENS;
+					if ( _options.useCamera)
+						ret += HW_CAMERA;
+					_rep_outport.Content() = ret;
 					_rep_outport.Write(1);
-					_rep_outport.Content() = _sizeX;
-					_rep_outport.Write(1);
-					_rep_outport.Content() = _sizeY;
-					_rep_outport.Write(1);
+					if ( _options.useCamera)
+					{
+						_rep_outport.Content() = _options.sizeX;
+						_rep_outport.Write(1);
+						_rep_outport.Content() = _options.sizeY;
+						_rep_outport.Write(1);
+					}
 				}
 			}
 			else
 			{
-				_rep_outport.Content() = INVALID_CMD;
+				_rep_outport.Content() = CMD_FAILED;
+				_rep_outport.Write();
+			}
+			break;
+		// Disconnect from peripherals
+		case CCMDDisconnect:
+			if (bConnected)
+			{
+				releaseSensors();
+				_rep_outport.Content() = CMD_ACK;
+				_rep_outport.Write(1);
+				bConnected = false;
+			}
+			else
+			{
+				_rep_outport.Content() = CMD_FAILED;
 				_rep_outport.Write();
 			}
 			break;
 		// Relase peripherals and Quit
 		case CCMDQuit:
-			if (bConnected)
+			if (!bConnected)
 			{
 				bConnected = false;
 				bQuit = true;
@@ -452,7 +597,7 @@ int main (int argc, char *argv[])
 			}
 			else
 			{
-				_rep_outport.Content() = INVALID_CMD;
+				_rep_outport.Content() = CMD_FAILED;
 				_rep_outport.Write();
 			}
 			break;
@@ -469,7 +614,7 @@ int main (int argc, char *argv[])
 			}
 			else
 			{
-				_rep_outport.Content() = INVALID_CMD;
+				_rep_outport.Content() = CMD_FAILED;
 				_rep_outport.Write();
 			}
 			break;
@@ -477,7 +622,7 @@ int main (int argc, char *argv[])
 		case CCMDStartStreaming:
 			if ((bStreamingStarted) || (!bConnected) )
 			{
-				_rep_outport.Content() = INVALID_CMD;
+				_rep_outport.Content() = CMD_FAILED;
 				_rep_outport.Write();
 			}
 			else
@@ -501,7 +646,7 @@ int main (int argc, char *argv[])
 			}
 			else
 			{
-				_rep_outport.Content() = INVALID_CMD;
+				_rep_outport.Content() = CMD_FAILED;
 				_rep_outport.Write();
 			}
 			break;
@@ -509,13 +654,14 @@ int main (int argc, char *argv[])
 		case CCMDResetGlove:
 			if (bConnected)
 			{
-				_glove.resetGlove();
+				if ( _options.useDataGlove )
+					_hardware.glove.resetGlove();
 				_rep_outport.Content() = CMD_ACK;
 				_rep_outport.Write();
 			}
 			else
 			{
-				_rep_outport.Content() = INVALID_CMD;
+				_rep_outport.Content() = CMD_FAILED;
 				_rep_outport.Write();
 			}
 			break;
@@ -524,14 +670,12 @@ int main (int argc, char *argv[])
 	} while (!bQuit);
 
 	cout << "Quitting..." << endl;
-	_cmd_inport.Unregister();
-	_data_outport.Unregister();
-	_img_outport.Unregister();
-	_rep_outport.Unregister();
+	unregisterPorts();
 	cout << "Bye." << endl;
 
-	return YARP_OK;
+	return 0;
 }
+
 
 
 
