@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.32 2003-08-26 07:40:49 gmetta Exp $
+$Id: README.txt,v 1.33 2003-08-28 11:50:55 babybot Exp $
 
 
 =============
@@ -18,16 +18,12 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 =============
 Things under development:
 
-1.0- check ipl.h (compile under QNX6)
-
 1.1- there's still a possibility for the connection to fail in MCAST. This is because
 	multiple connection messages might overlap. One mightn't get accepted, and silently
 	dropped. Not sure about this story!
 
 1.2 - future improvement. What about using select() instead of having multiple receiving 
 	threads? It would be a matter of rewriting the InputSocketMulti class!
-
-1.3- IMPORTANT! specify the nic, for multiple parallel connections in MCAST.
 
 1.4- use temp buffer on TCP communication, check efficiency (see UDP/MCAST model).
 
