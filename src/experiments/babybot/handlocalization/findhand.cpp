@@ -16,7 +16,7 @@ _outPixelPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
 _handStatusPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
 _inPixelCoord(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 _segmentedImagePort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
-_blobDetector(5.0)
+_blobDetector(0.5)
 {
 	_inPort.Register((portName+"/i:img").c_str());
 	_outPort.Register((portName+"/o:img").c_str());

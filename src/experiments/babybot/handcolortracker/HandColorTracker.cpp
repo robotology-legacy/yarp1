@@ -34,10 +34,12 @@ int main(int argc, char* argv[])
 	YARPImageOf<YarpPixelBGR> _leftColored;
 	YARPImageOf<YarpPixelBGR> _leftSegColored;
 	YARPImageOf<YarpPixelHSV> _leftHSV;
+	YARPImageOf<YarpPixelHSV> _leftSegHSV;
 	_left.Resize(_stheta, _srho);
 	_leftSeg.Resize(_stheta, _srho);
 	_leftColored.Resize(_stheta, _srho);
 	_leftSegColored.Resize(_stheta, _srho);
+	_leftSegHSV.Resize(_stheta, _srho);
 	_leftHSV.Resize(_stheta, _srho);
 
 	YARPImageOf<YarpPixelMono> _outSeg;
@@ -58,8 +60,8 @@ int main(int argc, char* argv[])
 			_leftSeg.Refer(_inPortSeg.Content());
 			_mapper.ReconstructColor(_leftSeg, _leftSegColored);
 
-			YARPColorConverter::RGB2HSV(_leftSegColored, _leftHSV);
-			_histo.Apply(_leftHSV);
+			YARPColorConverter::RGB2HSV(_leftSegColored, _leftSegHSV);
+			_histo.Apply(_leftSegHSV);
 
 			// dump histo
 			char tmp[128];
@@ -72,9 +74,10 @@ int main(int argc, char* argv[])
 
 		// reconstruct color
 		_mapper.ReconstructColor (_left, _leftColored);
-
-		_histo.backProjection(_leftColored, _outSeg);
-				
+		
+		YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
+		_histo.backProjection(_leftHSV, _outSeg);
+		
 		_outPortSeg.Content().Refer(_outSeg);
 		_outPortSeg.Write();
 

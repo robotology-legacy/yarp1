@@ -15,8 +15,9 @@ YARP3DHistogram::YARP3DHistogram(unsigned char max, unsigned char min, unsigned 
 
 void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 {
-	HistoEntryPointer tmpEntryP;
-	HistoKey tmpKey;
+	HistoEntry *tmpEntryP = NULL;
+	// HistoKey tmpKey;
+	unsigned int it;
 
 	// check int threshold
 	if ((r+g+b) < 5)
@@ -25,18 +26,10 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 	/*if ( (r == 85) && (g == 85) && (b == 85) )
 		return;*/
 
-	_pixelToKey(r, g, b, tmpKey);
+	_pixelToKey(r, g, b, &it);
 
 	/////////////////// 3d histo
-	if (_3dlut.find(tmpKey, tmpEntryP) == -1)
-	{
-		tmpEntryP = new HistoEntry;
-		(*tmpEntryP)++;
-		_3dlut.bind(tmpKey, tmpEntryP);
-		if (_3dlut._maximum < 1)
-			_3dlut._maximum=1;
-	}
-	else
+	if (_3dlut.find(it, tmpEntryP) == -1)
 	{
 		(*tmpEntryP)++;
 		double tmpMax = tmpEntryP->value();
@@ -44,16 +37,10 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 			_3dlut._maximum = tmpMax;
 	}
 
+	_pixelToKey(r, 0, 0, &it);
+	
 	/////////////////// r histo
-	if (_rlut.find(tmpKey.R, tmpEntryP) == -1)
-	{
-		tmpEntryP = new HistoEntry;
-		(*tmpEntryP)++;
-		_rlut.bind(tmpKey.R, tmpEntryP);
-		if (_rlut._maximum < 1)
-			_rlut._maximum=1;
-	}
-	else
+	if (_rlut.find(it, tmpEntryP) == -1)
 	{
 		(*tmpEntryP)++;
 		double tmpMax = tmpEntryP->value();
@@ -61,16 +48,10 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 			_rlut._maximum = tmpMax;
 	}
 	
+	_pixelToKey(0, g, 0, &it);
+
 	/////////////////// g histo
-	if (_glut.find(tmpKey.R, tmpEntryP) == -1)
-	{
-		tmpEntryP = new HistoEntry;
-		(*tmpEntryP)++;
-		_glut.bind(tmpKey.G, tmpEntryP);
-		if (_glut._maximum < 1)
-			_glut._maximum=1;
-	}
-	else
+	if (_glut.find(it, tmpEntryP) == -1)
 	{
 		(*tmpEntryP)++;
 		double tmpMax = tmpEntryP->value();
@@ -78,16 +59,10 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 			_glut._maximum = tmpMax;
 	}
 			
+	_pixelToKey(0, 0, b, &it);
+
 	/////////////////// b histo
-	if (_blut.find(tmpKey.B, tmpEntryP) == -1)
-	{
-		tmpEntryP = new HistoEntry;
-		(*tmpEntryP)++;
-		_blut.bind(tmpKey.B, tmpEntryP);
-		if (_blut._maximum < 1)
-			_blut._maximum=1;
-	}
-	else
+	if (_blut.find(it, tmpEntryP) == -1)
 	{
 		(*tmpEntryP)++;
 		double tmpMax = tmpEntryP->value();
@@ -100,28 +75,38 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 int YARP3DHistogram::_dumpFull(const char *file)
 {
 	FILE *fp;
-	fp = fopen(file, "w");
+	fp = ACE_OS::fopen(file, "w");
 
 	ACE_OS::fprintf(fp, "%lf\n", _3dlut._maximum);
 	int i;
 	for(i = 0; i<3; i++)
 		ACE_OS::fprintf(fp, "%d %d %d\n", _3dlut._max[i], _3dlut._min[i], _3dlut._size[i]);
 
-	HistoEntryPointer tmpEntryP;
-	HistoKey *tmpKeyP;
-		
-	HASH_PIXEL_MAP_ENTRY *entry;
-		
-	for (HASH_PIXEL_CONST_IT hash_iter (_3dlut);
-		 hash_iter.next (entry) != 0;
-		 hash_iter.advance ())
+	HistoEntry tmpEntry;
+	HistoKey tmpKey;
+			
+	unsigned int it = _3dlut.begin();
+
+	while  (_3dlut.find(it, tmpEntry));
 	{
-		tmpEntryP = entry->int_id_;
-		tmpKeyP = &entry->ext_id_;
-		fprintf(fp, "%d %d %d\t%lf\n", tmpKeyP->R, tmpKeyP->G, tmpKeyP->B, tmpEntryP->value());
+		tmpKey.B++;
+
+		if (tmpKey.B == _3dlut._size[2])
+		{
+			tmpKey.B = 0;
+			tmpKey.G++;
+			if (tmpKey.G == _3dlut._size[1])
+			{
+				tmpKey.G = 0;
+				tmpKey.R++;
+			}
+		}
+
+		ACE_OS::fprintf(fp, "%d %d %d\t%lf\n", tmpKey.R, tmpKey.G, tmpKey.B, tmpEntry.value());
+		it++;
 	}
 
-	fclose(fp);
+	ACE_OS::fclose(fp);
 
 	return YARP_OK;
 }
@@ -129,51 +114,22 @@ int YARP3DHistogram::_dumpFull(const char *file)
 int YARP3DHistogram::_dump1D(const char *file, Histo1D &lut)
 {
 	FILE *fp;
-	fp = fopen(file, "w");
+	fp = ACE_OS::fopen(file, "w");
 
 	ACE_OS::fprintf(fp, "%lf\n", lut._maximum);
 	ACE_OS::fprintf(fp, "%d %d %d\n", lut._max, lut._min, lut._size);
 
-	HistoEntryPointer tmpEntryP;
-	unsigned char *tmpKeyP;
-		
-	HASH_1D_MAP_ENTRY *entry;
-		
-	for (HASH_1D_CONST_IT hash_iter (lut);
-		 hash_iter.next (entry) != 0;
-		 hash_iter.advance ())
+	HistoEntry tmpEntry;
+				
+	unsigned int it = lut.begin();
+
+	while  (lut.find(it, tmpEntry));
 	{
-		tmpEntryP = entry->int_id_;
-		tmpKeyP = &entry->ext_id_;
-		fprintf(fp, "%d\t%lf\n", *tmpKeyP, tmpEntryP->value());
+		ACE_OS::fprintf(fp, "%d \t%lf\n", it, tmpEntry.value());
+		it++;
 	}
 
-	fclose(fp);
+	ACE_OS::fclose(fp);
 
 	return YARP_OK;
-}
-
-double YARP3DHistogram::_backProjection(unsigned char r, unsigned char g, unsigned char b)
-{
-	HistoKey tmpKey;
-	HistoEntryPointer tmpEntryP;
-	_pixelToKey(r, g, b, tmpKey);
-
-	if (_3dlut.find(tmpKey, tmpEntryP) != -1)
-	{
-		return tmpEntryP->value()/_3dlut._maximum;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-int YARP3DHistogram::_pixelToKey(unsigned char r, unsigned char g, unsigned char b, HistoKey &key)
-{
-	key.R = double (r/_3dlut._delta[0]) + 0.5;
-	key.G = double (g/_3dlut._delta[1]) + 0.5;
-	key.B = double (b/_3dlut._delta[2]) + 0.5;
-
-	return 0;
 }
