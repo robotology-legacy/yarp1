@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.17 2003-07-10 23:28:32 gmetta Exp $
+/// $Id: Port.h,v 1.18 2003-07-11 09:50:55 gmetta Exp $
 ///
 ///
 
@@ -392,13 +392,15 @@ public:
 	int SetName(const char *nname)
 	{
 		if (nname == NULL ||
+			nname[0] != '/')
+#if 0
 			(!(nname[0] == '/' && nname[1] == '/' && protocol_type == YARP_MCAST) &&
 			!(nname[0] == '/' && nname[1] != '/' && protocol_type == YARP_UDP) &&
 			!(nname[0] == '/' && nname[1] != '/' && protocol_type == YARP_TCP)))
+#endif
 		{
-			ACE_DEBUG ((LM_DEBUG, "  please respect the new syntax for names:\n"));
-			ACE_DEBUG ((LM_DEBUG, "   - MCAST requires a leading // [double slash]\n"));
-			ACE_DEBUG ((LM_DEBUG, "   - UDP, RCP requires a leading /[single slash]\n"));
+			ACE_DEBUG ((LM_DEBUG, "  please respect the port syntax for names:\n"));
+			ACE_DEBUG ((LM_DEBUG, "   - the name requires a leading /[slash]\n"));
 			return YARP_FAIL;
 		}
 

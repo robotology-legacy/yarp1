@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.39 2003-07-10 23:28:32 gmetta Exp $
+/// $Id: Port.cpp,v 1.40 2003-07-11 09:50:55 gmetta Exp $
 ///
 ///
 
@@ -127,7 +127,7 @@ void safe_printf(char *format,...)
 
 ///
 /// for testing only (possibly remove it completely).
-/// #define DEBUG_DISABLE_SHMEM 1
+#define DEBUG_DISABLE_SHMEM 1
 
 ///
 /// prepares the connect command. the header is NewFragmentHeader. a sender is
@@ -927,31 +927,6 @@ void Port::Body()
 						}
 						else
 #endif
-						/// falls back in UDP mode.
-						/// no 2nd / means UDP destination (otherwise need a tag on the name server).
-						if (buf[1] != '/')
-						{
-							/// go into UDP.
-							target = targets.GetByLabel (buf);
-							if (target == NULL)
-							{
-								ACE_DEBUG ((LM_DEBUG, "Starting (possibly UDP) connection between %s and %s\n", name.c_str(), buf));
-
-								target = targets.NewLink(buf);
-								
-								ACE_ASSERT(target != NULL);
-								
-								target->target_pid = NULL;
-								target->protocol_type = YARP_UDP;
-
-								target->Begin();
-							}
-							else
-							{
-								ACE_DEBUG ((LM_DEBUG, "Ignoring %s, already connected\n", buf));
-							}
-						}
-						else
 						{
 							/// mcast out port thread.
 							target = targets.GetByLabel ("mcast-thread");
@@ -1006,17 +981,6 @@ void Port::Body()
 						}
 						else
 #endif
-						if (buf[2] != '/')
-						{
-							/// can't be MCAST, switches to UDP.
-							target = targets.GetByLabel(buf+1);
-							if (target != NULL)
-							{
-								ACE_DEBUG ((LM_DEBUG, "Removing connection between %s and %s\n", name.c_str(), target->GetLabel().c_str()));
-								target->Deactivate();
-							}
-						}
-						else
 						{
 							/// mcast
 							target = targets.GetByLabel("mcast-thread");
