@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARP3DHistogram.h,v 1.7 2003-10-30 16:44:34 babybot Exp $ 
+/// $Id: YARP3DHistogram.h,v 1.8 2003-10-31 18:31:19 natta Exp $ 
 ///
 /// August 2003 -- by nat
 
@@ -87,7 +87,9 @@ public:
 	}*/
 
 	void accumulate(double w)
-	{ _acc += w; }
+	{ 
+		_acc += w; 
+	}
 
 	double value()
 	{ return _acc; }
@@ -157,6 +159,22 @@ public:
 	unsigned int begin()
 	{ return 0; }
 
+	inline unsigned int pixelToKey(unsigned char r, unsigned char g, unsigned char b, unsigned int *key)
+	{
+		int tmpR = (r/_delta[0]);
+		int tmpG = (g/_delta[1]);
+		int tmpB = (b/_delta[2]);
+
+		unsigned int tmp;
+		tmp = (tmpR)*_size[1]*_size[2];
+		tmp += (tmpG)*_size[2];
+		tmp += (tmpB);
+
+		*key = tmp;
+
+		return tmp;
+	}
+
 private:
 	HistoEntry	*_lut;
 	unsigned int _nElem;
@@ -203,6 +221,13 @@ public:
 	unsigned char _min;
 	unsigned char _delta;
 	unsigned char _size;
+
+	inline unsigned int pixelToKey(unsigned char v, unsigned int *key)
+	{
+		unsigned int tmp = (v/_delta);
+		*key = tmp;
+		return tmp;
+	}
 
 	HistoKey _key;
 private:
@@ -261,12 +286,12 @@ private:
 		HistoEntry *tmpEntryP = NULL;
 		unsigned int it;
 		
-		_pixelToKey(r, g, b, &it);
-
-		_3dlut.find(it, &tmpEntryP);
-		if (tmpEntryP != NULL)
+		_3dlut.pixelToKey(r, g, b, &it);
+		if (_3dlut.find(it, &tmpEntryP) != -1)
 		{
-			return tmpEntryP->value()/_3dlut._maximum;
+			double max = _3dlut._maximum;
+			double val = tmpEntryP->value();
+			return val/max; // tmpEntryP->value()/_3dlut._maximum;
 		}
 		else
 		{
@@ -274,22 +299,6 @@ private:
 			return 0;
 		}
 		return 0;
-	}
-
-	inline int _pixelToKey(unsigned char r, unsigned char g, unsigned char b, unsigned int *key)
-	{
-		int tmpR = (r/_3dlut._delta[0]);
-		int tmpG = (g/_3dlut._delta[1]);
-		int tmpB = (b/_3dlut._delta[2]);
-
-		unsigned int tmp;
-		tmp = (tmpR)*_3dlut._size[1]*_3dlut._size[2];
-		tmp += (tmpG)*_3dlut._size[2];
-		tmp += (tmpB);
-
-		*key = tmp;
-
-		return tmp;
 	}
 
 private:

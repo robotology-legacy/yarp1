@@ -158,8 +158,6 @@ int YARP3DHistogram::_dumpFull(const char *file)
 
 	while  (_3dlut.find(it, tmpEntry)!=-1)
 	{
-		tmpKey.b++;
-
 		if (tmpKey.b == _3dlut._size[2])
 		{
 			tmpKey.b = 0;
@@ -173,6 +171,7 @@ int YARP3DHistogram::_dumpFull(const char *file)
 
 		ACE_OS::fprintf(fp, "%d %d %d %lf\n", tmpKey.r, tmpKey.g, tmpKey.b, tmpEntry.value());
 		it++;
+		tmpKey.b++;
 	}
 
 	ACE_OS::fclose(fp);
@@ -342,11 +341,10 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b, d
 	HistoEntry *tmpEntryP = NULL;
 	unsigned int it;
 
-	_pixelToKey(r, g, b, &it);
-
 	/////////////////// 3d histo
-	_3dlut.find(it, &tmpEntryP);
-	if (tmpEntryP != NULL)
+	_3dlut.pixelToKey(r, g, b, &it);
+
+	if (_3dlut.find(it, &tmpEntryP) != -1)
 	{
 		(*tmpEntryP).accumulate(w);
 		double tmpMax = tmpEntryP->value();
@@ -354,11 +352,9 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b, d
 			_3dlut._maximum = tmpMax;
 	}
 
-	_pixelToKey(r, 0, 0, &it);
-	
 	/////////////////// r histo
-	_rlut.find(it, &tmpEntryP);
-	if (tmpEntryP != NULL)
+	_rlut.pixelToKey(r, &it);
+	if (_rlut.find(it, &tmpEntryP) != -1)
 	{
 		(*tmpEntryP).accumulate(w);
 		double tmpMax = tmpEntryP->value();
@@ -366,11 +362,9 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b, d
 			_rlut._maximum = tmpMax;
 	}
 	
-	_pixelToKey(0, g, 0, &it);
-
 	/////////////////// g histo
-	_glut.find(it, &tmpEntryP);
-	if (tmpEntryP != NULL)
+	_glut.pixelToKey(g, &it);
+	if (_glut.find(it, &tmpEntryP)!=-1)
 	{
 		(*tmpEntryP).accumulate(w);
 		double tmpMax = tmpEntryP->value();
@@ -378,11 +372,9 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b, d
 			_glut._maximum = tmpMax;
 	}
 			
-	_pixelToKey(0, 0, b, &it);
-
 	/////////////////// b histo
-	_blut.find(it, &tmpEntryP);
-	if (tmpEntryP != NULL)
+	_blut.pixelToKey(b, &it);
+	if (_blut.find(it, &tmpEntryP) != -1)
 	{
 		(*tmpEntryP).accumulate(w);
 		double tmpMax = tmpEntryP->value();
