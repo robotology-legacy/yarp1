@@ -60,7 +60,7 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 ///
-/// $Id: YARPSocketSyncComm.cpp,v 1.4 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPSocketSyncComm.cpp,v 1.5 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 
@@ -78,10 +78,10 @@
 #include <yarp/YARPSocketNameService.h>
 #include <yarp/YARPScheduler.h>
 
-#include <yarp_private/YARPNameID_defs.h>
+#include <yarp/YARPNameID_defs.h>
 #include "yarp_private/BlockPrefix.h"
 
-#include "yarp_private/debug.h"
+#include <yarp/debug.h>
 
 #define THIS_DBG 50
 

@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.5 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPPort.cpp,v 1.6 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 
@@ -71,7 +71,7 @@
 
 #include "yarp_private/Port.h"
 #include "yarp_private/Sendables.h"
-#include "yarp_private/debug.h"
+#include <yarp/debug.h>
 
 #include <yarp/YARPPort.h>
 #include <yarp/YARPNameService.h>
@@ -257,6 +257,11 @@ YARPPort::~YARPPort()
 		delete ((PortData*)system_resource);
 }
 
+
+void YARPPort::End()
+{
+  PD.End();
+}
 
 int YARPPort::Register(const char *name, const char *net_name /* = YARP_DEFAULT_NET */)
 {

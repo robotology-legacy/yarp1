@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.1 2004-07-06 13:48:27 eshuy Exp $
+/// $Id: YARPBottle.h,v 1.2 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -86,6 +86,7 @@
 #include <yarp/YARPVector.h>
 #include <yarp/YARPString.h>
 #include <yarp/YARPList.h>
+#include <yarp/YARPNetworkTypes.h>
 
 class YARPBottle
 {

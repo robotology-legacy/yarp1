@@ -7,7 +7,8 @@ include $(YARP_ROOT)/conf/Makefile.template
 
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.bin, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.bin, $(wildcard *.c))
 
-CFLAGS = -g -D_REENTRANT $(CFAST) $(CDEFS) -I../include/yarp -I../include/yarp_private -I../include/conf -I../include
+INCS = -I../include -I$(YARP_ROOT)/include/$(SYSDIR)
+CFLAGS = -g -D_REENTRANT $(CFAST) $(CDEFS) $(INCS)
 
 SUBDIRS =
 
@@ -53,3 +54,34 @@ subinstall :
 		( cd $$d ; $(MAKE) $(MAKEFLAGS) install ) ; done
 
 
+depend:
+	makedepend -Y -I. $(INCS) -p$(GENDIR)/ *.cpp 
+
+# DO NOT DELETE
+
+obj/linux/demo00.o: ../include/yarp/YARPPort.h
+obj/linux/demo00.o: ../../../include/linux/yarp/YARPConfig.h
+obj/linux/demo00.o: ../../../include/linux/yarp/YARPConfigWin32.h
+obj/linux/demo00.o: ../include/yarp/YARPAll.h
+obj/linux/demo00.o: ../../../include/linux/yarp/YARPConfig.h
+obj/linux/demo00.o: ../include/yarp/YARPErrorCodes.h ../include/yarp/debug.h
+obj/linux/demo00.o: ../include/yarp/YARPPortContent.h
+obj/linux/demo00.o: ../include/yarp/YARPNameID.h
+obj/linux/demo00.o: ../include/yarp/YARPNameID_defs.h
+obj/linux/demo00.o: ../include/yarp/YARPString.h ../include/yarp/YARPBottle.h
+obj/linux/demo00.o: ../include/yarp/YARPBottleCodes.h
+obj/linux/demo00.o: ../include/yarp/YARPVector.h ../include/yarp/YARPList.h
+obj/linux/demo00.o: ../include/yarp/YARPNetworkTypes.h
+obj/linux/demo00.o: ../include/yarp/YARPBottleContent.h
+obj/linux/demo01.o: ../include/yarp/YARPPort.h
+obj/linux/demo01.o: ../../../include/linux/yarp/YARPConfig.h
+obj/linux/demo01.o: ../../../include/linux/yarp/YARPConfigWin32.h
+obj/linux/demo01.o: ../include/yarp/YARPAll.h
+obj/linux/demo01.o: ../../../include/linux/yarp/YARPConfig.h
+obj/linux/demo01.o: ../include/yarp/YARPErrorCodes.h ../include/yarp/debug.h
+obj/linux/demo01.o: ../include/yarp/YARPPortContent.h
+obj/linux/demo01.o: ../include/yarp/YARPNameID.h
+obj/linux/demo01.o: ../include/yarp/YARPNameID_defs.h
+obj/linux/demo01.o: ../include/yarp/YARPString.h ../include/yarp/YARPThread.h
+obj/linux/demo01.o: ../include/yarp/YARPSemaphore.h
+obj/linux/demo01.o: ../include/yarp/YARPTime.h

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.6 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.7 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 
@@ -77,10 +77,10 @@
 #include <yarp/YARPSocketMcast.h>
 #include <yarp/YARPSocketMulti.h>
 #include <yarp/YARPTime.h>
-#include <yarp_private/YARPNameID_defs.h>
+#include <yarp/YARPNameID_defs.h>
 #include <yarp/YARPNameService.h>
 #include <yarp/YARPNativeNameService.h>
-#include "yarp_private/debug.h"
+#include <yarp/debug.h>
 
 
 #ifdef __WIN32__

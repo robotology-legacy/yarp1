@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: BlockReceiver.cpp,v 1.3 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: BlockReceiver.cpp,v 1.4 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 
@@ -70,7 +70,7 @@
 #include <ace/ACE.h>
 
 #include "yarp_private/BlockReceiver.h"
-#include "yarp_private/debug.h"
+#include <yarp/debug.h>
 #include <yarp/YARPSyncComm.h>
 
 /// class/unit specific debug level.

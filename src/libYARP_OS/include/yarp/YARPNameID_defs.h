@@ -61,140 +61,103 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.3 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPNameID_defs.h,v 1.1 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 
-#ifndef wide_nameloc_INC
-#define wide_nameloc_INC
+#ifndef YARPNameID_defs_INC
+#define YARPNameID_defs_INC
 
 #include <yarp/YARPConfig.h>
-#include <ace/config.h>
-#include <ace/SOCK_Acceptor.h>
-#include <ace/SOCK_Connector.h>
-#include <ace/SOCK_Stream.h>
-#include <ace/Log_Msg.h>
-
-#include <yarp/YARPNetworkTypes.h>
-#include <yarp_private/YARPNameID_defs.h>
-
-#include <yarp/YARPString.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
 #	pragma once
 #endif
 
+/**
+ * \file YARPNameID_defs.h Definition of the protocols used by the port.
+ * Certain protocols are not selected by the user but rather managed internally by ports.
+ * Also, an imput port can have multiple input connections with different protocols.
+ * Valid user choices are limited to: UDP, TCP, MCAST, QNET.
+ */
 
-///
-///
-///
-#define __YARP_NAMESERVICE_STRING_LEN YARP_STRING_LEN
-#define __YARP_NAMESERVICE_UDP_MAX_PORTS 21
-
-const int __portNotFound = 0;
-const char __ipNotFound[] = {"0.0.0.0"};
-
-
-///
-///
-///
-enum
+/**
+ * All possible protocols in a port.
+ */
+enum YARPProtocols
 {
-	YARPNSRegister = 0,
-	YARPNSRelease = 1,
-	YARPNSQuery = 2,
-	YARPNSRpl = 3,
-	YARPNSDumpRqs = 4,
-	YARPNSDumpRpl = 5,
-	YARPNSNicQuery = 6
+	/**
+	* The port is not connected or it reported a serious network error.
+	*/
+	YARP_NO_SERVICE_AVAILABLE = -1,
+
+	/**
+	* The UDP protocol, a connectionless efficient protocol, The maximum
+	* message size is limited to 64Kbytes.
+	*/
+	YARP_UDP = 0,
+
+	/**
+	* TCP protocol, 
+	* Reliable connection-oriented, There's no limit on the 
+	* message size.
+	*/
+	YARP_TCP = 1,
+
+	/**
+	* MCAST protocol,
+	* Like UDP but the same message is automatically dispatched
+	* to multiple targets (network efficient).
+	*/
+	YARP_MCAST = 2,
+
+	/**
+	* QNET is the proprietary QNX version 6 network protocol, Very efficient but
+	* doesn't mix with the IP based protocols.
+	*/
+	YARP_QNET = 3,
+
+	/**
+	* QNX4 protocol is deprecated and no longer supported/implemented.
+	*/
+	YARP_QNX4 = 4,
+
+	/**
+	* SHMEM protocol will activate automatically if both ends of a connection
+	* are on the same machine and network, It is connection oriented and
+	* doesn't have any limit on the size of the messages.
+	*/
+	YARP_SHMEM = 5,
+
+	/**
+	* The port is an input port with multiple protocol abilities.
+	*/
+	YARP_MULTI = 6,
 };
 
-#include <yarp/begin_pack_for_net.h>
-struct YARPNameServiceCmd
+const char __udpString[] = "UDP";
+const char __tcpString[] = "TCP";
+const char __mcastString[] = "MCAST";
+const char __qnxString[] = "QNX";
+const char __noServiceString[] = "NO_SVC";
+
+/**
+ * Converts the protocol type enumerator into a string.
+ * @param type the protocol type.
+ * @return the converted string.
+ */
+inline const char *servicetypeConverter(int type)
 {
-	NetInt32 cmd;
-	NetInt32 length;
-	NetInt32 type;
-} PACKED_FOR_NET;
-
-///
-///
-///
-class YARPNameQnx
-{
-public:
-	void set(const YARPString &str, const YARPString &node, NetInt32 pid, NetInt32 ch);
-	void setName(const YARPString &str);
-	void setAddr(const YARPString &node, NetInt32 pid, NetInt32 ch);
-	void getAddr(YARPString &node, NetInt32 *pid, NetInt32 *ch);
-
-	const char *getName() const { return _name; }
-	const char *getNode() const { return _node; }
-	NetInt32 getPid() const { return _pid; }
-	NetInt32 getChan() const { return _chan; }
-	int length() const { return sizeof(YARPNameQnx); }
-
-	char _name[__YARP_NAMESERVICE_STRING_LEN];
-	char _node[__YARP_NAMESERVICE_STRING_LEN];
-	NetInt32 _pid;
-	NetInt32 _chan;
-} PACKED_FOR_NET;
-
-class YARPNSNic
-{
-public:
-	void set(const YARPString &ip, const YARPString &netId);
-
-public:
-	char _ip[__YARP_NAMESERVICE_STRING_LEN];
-	char _netId[__YARP_NAMESERVICE_STRING_LEN];
-} PACKED_FOR_NET;
-
-class YARPNameTCP
-{
-public:
-	void set(const YARPString &str, const ACE_INET_Addr &addr);
-	void setName(const YARPString &str);
-	void setAddr(const ACE_INET_Addr &addr);
-	void setIp(const YARPString &ip);
-	void setPort(NetInt32 p);
-	void getAddr(ACE_INET_Addr &addr);
-	const char *getName() const { return _name; }
-	const char *getIp() const { return _ip; }
-	NetInt32 getPort() { return _port; }
-	int length() { return sizeof(YARPNameTCP); }
-
-	char _name[__YARP_NAMESERVICE_STRING_LEN];
-	char _ip[__YARP_NAMESERVICE_STRING_LEN];
-	NetInt32 _port;
-} PACKED_FOR_NET;
-
-///
-///
-///
-class YARPNameUDP
-{
-public:
-	void set(const YARPString &str, const ACE_INET_Addr &addr);
-	void setName(const YARPString &str);
-	void setAddr(const ACE_INET_Addr &addr);
-	void setIp(const YARPString &ip);
-	void setPorts(NetInt32 index, NetInt32 p);
-	void setNPorts(NetInt32 n);
-	void getAddr(ACE_INET_Addr &addr);
-	NetInt32 getPorts(NetInt32 index); 
-	const char *getName() const { return _name; }
-	const char *getIp() const { return _ip; }
-
-	int length() { return sizeof(YARPNameUDP); }
-
-	char _name[__YARP_NAMESERVICE_STRING_LEN];
-	char _ip[__YARP_NAMESERVICE_STRING_LEN];
-	NetInt32 _ports[__YARP_NAMESERVICE_UDP_MAX_PORTS];
-	NetInt32 _nPorts;
-} PACKED_FOR_NET;
-
-#include <yarp/end_pack_for_net.h>
-
+	if (type == YARP_UDP)
+		return __udpString;
+	if (type == YARP_TCP)
+		return __tcpString;
+	if (type == YARP_MCAST)
+		return __mcastString;
+	if ((type == YARP_QNET) || (type == YARP_QNX4))
+		return __qnxString;
+	
+	return __noServiceString;
+}
 
 #endif

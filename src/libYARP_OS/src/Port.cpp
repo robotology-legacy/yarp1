@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.10 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: Port.cpp,v 1.11 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 
@@ -83,7 +83,7 @@
 
 #include "yarp_private/Port.h"
 
-#include "yarp_private/debug.h"
+#include <yarp/debug.h>
 #include "yarp_private/RefCounted.h"
 
 #include <yarp/YARPNameService.h>

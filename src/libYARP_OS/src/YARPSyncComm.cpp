@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSyncComm.cpp,v 1.3 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPSyncComm.cpp,v 1.4 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 
@@ -64,7 +64,7 @@
 #include <yarp/YARPSyncComm.h>
 #include <yarp/YARPNativeSyncComm.h>
 #include <yarp/YARPSocketSyncComm.h>
-#include <yarp_private/YARPNameID_defs.h>
+#include <yarp/YARPNameID_defs.h>
 #include <yarp/YARPNameService.h>
 #include <yarp/YARPNativeNameService.h>
 

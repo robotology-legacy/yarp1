@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.5 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: YARPNameService.cpp,v 1.6 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 
@@ -78,8 +78,8 @@
 #include <yarp/YARPNameID.h>
 #include <yarp/YARPNameClient.h>
 
-#include "yarp_private/wide_nameloc.h"
-#include <yarp_private/YARPNameID_defs.h>
+#include <yarp/wide_nameloc.h>
+#include <yarp/YARPNameID_defs.h>
 #include <yarp/YARPString.h>
 
 #ifdef __WIN32__

@@ -61,14 +61,14 @@
 ///
 
 ///
-/// $Id: wide_nameloc.cpp,v 1.3 2004-07-09 13:46:03 eshuy Exp $
+/// $Id: wide_nameloc.cpp,v 1.4 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 
-#include "yarp_private/wide_nameloc.h"
+#include <yarp/wide_nameloc.h>
 
 ///
 ///

@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.4 2004-07-09 13:45:59 eshuy Exp $
+/// $Id: YARPPort.h,v 1.5 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 
@@ -90,7 +90,6 @@
 
 #include <yarp/YARPPortContent.h>
 #include <yarp/YARPNameID.h>
-#include "yarp_private/Port.h"
 
 /**
  * A class for streaming communication.  Objects of this class ("ports") can
@@ -216,6 +215,11 @@ public:
    * @return YARP_OK on success.
    */
 	static int Connect(const char *src_name, const char *dest_name);
+
+	/**
+	 * Erm.  Shrug.
+	 */
+	virtual void End();
 };
 
 
@@ -421,7 +425,7 @@ public:
 	/**
 	 * Destructor.
 	 */
-	virtual ~YARPInputPortOf() { ((Port *)system_resource)->End(); }
+	virtual ~YARPInputPortOf() { YARPPort::End(); }
 
 	/**
 	 * Create a blank message.
@@ -470,7 +474,7 @@ public:
 	/**
 	 * Destructor.
 	 */
-	virtual ~YARPOutputPortOf() { ((Port *)system_resource)->End(); }
+	virtual ~YARPOutputPortOf() {  YARPPort::End(); }
 
 	/**
 	 * Create a blank message.
@@ -516,7 +520,7 @@ public:
 	/**
 	 * Destructor.
 	 */
-	virtual ~YARPBasicInputPort() { ((Port *)system_resource)->End(); }
+	virtual ~YARPBasicInputPort() {  YARPPort::End(); }
 
 	/**
 	 * Create a blank message.
@@ -559,7 +563,7 @@ public:
 	/**
 	 * Destructor.
 	 */
-	virtual ~YARPBasicOutputPort() { ((Port *)system_resource)->End(); }
+	virtual ~YARPBasicOutputPort() {  YARPPort::End(); }
 
 	/**
 	 * Create a blank message.

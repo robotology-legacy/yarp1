@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameClient.h,v 1.3 2004-07-09 13:45:58 eshuy Exp $
+/// $Id: YARPNameClient.h,v 1.4 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 
@@ -76,7 +76,7 @@
 #include <yarp/YARPAll.h>
 #include <ace/config.h>
 
-#include "yarp_private/wide_nameloc.h"
+#include <yarp/wide_nameloc.h>
 #include <yarp/YARPTime.h>
 #include <yarp/YARPSemaphore.h>
 

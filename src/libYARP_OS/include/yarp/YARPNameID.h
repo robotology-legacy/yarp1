@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.3 2004-07-09 13:45:58 eshuy Exp $
+/// $Id: YARPNameID.h,v 1.4 2004-07-09 16:10:13 eshuy Exp $
 ///
 ///
 /*
@@ -80,7 +80,7 @@
 #include <ace/MEM_Addr.h>
 
 #include <yarp/YARPAll.h>
-#include <yarp_private/YARPNameID_defs.h>
+#include <yarp/YARPNameID_defs.h>
 #include <yarp/YARPString.h>
 
 #ifdef YARP_HAS_PRAGMA_ONCE
