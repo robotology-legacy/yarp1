@@ -45,13 +45,14 @@ private:
 
 		//////////////////////////////////////
 
-		// parameters.sim(tmp, p);
+		double p[3];
+		_parameters.sim(arm.data(), p);
 
 		el.rho = predx;		//c[0];
 		el.theta = predy;	//c[1];
-		el.a11 = /*p[0];*/ 0.005;
-		el.a12 = /*p[1];*/ 0;
-		el.a22 = /*p[2];*/ 0.005;
+		el.a11 = p[0]; /* 0.005;*/
+		el.a12 = p[1]; /* 0;*/
+		el.a22 = p[2]; /* 0.005;*/
 	}
 
 	void _dumpToDisk(const YVector &arm, const YVector &head, const YARPShapeEllipse &ellipse);

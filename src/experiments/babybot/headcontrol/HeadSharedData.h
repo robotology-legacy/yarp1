@@ -1,7 +1,7 @@
 #ifndef __HEAD_SHARED_DATA
 #define __HEAD_SHARED_DATA
 
-#include <YARPBabybothand.h>
+#include <YARPBabybotHead.h>
 #include <YARPBehavior.h>
 #include <YARPControlBoardNetworkData.h>
 #include <YARPString.h>
