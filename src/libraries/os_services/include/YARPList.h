@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPList.h,v 1.3 2003-08-12 16:50:52 gmetta Exp $
+/// $Id: YARPList.h,v 1.4 2003-08-20 08:14:51 natta Exp $
 ///
 ///
 
@@ -85,13 +85,18 @@ public:
 	int go_tail(void) { return ACE_DLList_Iterator<T>::go_tail(); }
 
 	T& operator *() const { return *(T*)(ACE_DLList_Iterator<T>::operator*().item_); }
+//	T& operator ->() const { return *(T*)(
 };
 
 template <class T>
 class YARPList : public ACE_DLList<T>
 {
 public:
+	typedef YARPListIterator<T> iterator;
+	typedef const YARPListIterator<T> const_iterator;
+
 	friend class YARPListIterator<T>;
+
 
 	YARPList(void) : ACE_DLList<T> () {}
 	YARPList(const YARPList<T>& l) : ACE_DLList<T> (l) {}
@@ -106,7 +111,15 @@ public:
 	void pop_back (void) { T* el = delete_tail(); delete el; }
 	void pop_front (void) { T* el = delete_head(); delete el; }
 
-	typedef YARPListIterator<T> iterator;
+	int erase(iterator &it)
+	{ return it.remove(); }
+
+	bool empty()
+	{ return (size() == 0); }
+
+	void clear()
+	{ reset(); }
+
 };
 
 template <class T> class YARPVector;
