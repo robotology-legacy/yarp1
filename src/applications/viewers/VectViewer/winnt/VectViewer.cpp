@@ -132,7 +132,7 @@ BOOL CVectViewerApp::InitInstance()
 
 	CVectViewerDlg dlg(name, iPeriod, iSize, iLength, iHeight);
 	m_pMainWnd = &dlg;
-
+	
 	dlg._aScale = aScale;
 	dlg.setScale(dScale);
 

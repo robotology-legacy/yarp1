@@ -151,6 +151,8 @@ BOOL CVectViewerDlg::OnInitDialog()
 		memset(_history[i], 0, sizeof(double)*_xSize);
 	}
 
+	SetWindowText(_name);
+
 	_nRows = _size;
 	_nColumns = 1;
 
