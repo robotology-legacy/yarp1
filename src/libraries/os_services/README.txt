@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.5 2003-05-18 22:35:15 gmetta Exp $
+$Id: README.txt,v 1.6 2003-05-20 01:18:31 gmetta Exp $
 
 
 =============
@@ -23,9 +23,10 @@ Things under development:
 
 8- UDP fails with big messages. USE test13 to see this condition.
 
+8.1- Set buffer size (recv/send), seems to work w/ 8192 bytes (not verified).
 
 
-
+===
 0- QNET
 	Destroying channel is not implemented (where? destructor?).
 
