@@ -22,4 +22,5 @@ copy file INSTALL
 copy file README
 copy file AUTHORS
 copy file TODO
+copy file COPYING
 endpackage
