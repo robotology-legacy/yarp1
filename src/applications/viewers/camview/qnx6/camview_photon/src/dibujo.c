@@ -30,10 +30,6 @@ extern PhImage_t * phimage;
 //to change this name now
 void dibujo( PtWidget_t *widget, PhTile_t *damage )  
 {
-   int size_read;
-   int error ; 
-   int i,j; 
-
    PhPoint_t pos;
 
    /* snap the time */
