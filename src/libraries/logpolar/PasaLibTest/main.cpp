@@ -153,9 +153,9 @@ void main ()
 //		if (WeightsMap[j].weight>0.1)
 //			i=i;
 
-	Reconstruct_Color(LP_Image,LP_Image_BW,Param.Size_LP,WeightsMap,4);
+	Reconstruct_Color(LP_Image,LP_Image_BW,Param.Size_Rho,Param.Size_Theta,Param.padding,WeightsMap,4);
 
-	sprintf(File_Name,"%s","C:\\Temp\\TestBW2.bmp");
+	sprintf(File_Name,"%s","C:\\Temp\\TestBW5.bmp");
 	Save_Bitmap(LP_Image,760,152,1,File_Name);
 
 }

@@ -173,12 +173,14 @@ int Build_Pad_Map (Image_Data * Parameters,char * Path);
 int Build_XY_Map (Image_Data * Parameters,
 		 		   char * Path);
 
+
 void Reconstruct_Color(unsigned char * Out_Image,
 					   unsigned char * In_Image,
-					   int Size,
+					   int height,
+					   int width,
+					   int padding,
 					   Neighborhood * Weights_Map,
 					   int Pix_Numb);
-
 
 int Build_Neighborhood_Map(Image_Data * Par,
 							char * Path);
