@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.18 2003-10-02 16:32:01 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.19 2003-10-02 16:44:14 beltran Exp $
 ///
 ///
 
@@ -1828,12 +1828,12 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 
 	for (j=0; j<SParam.Size_LP; j++)
 		for (i=0; i<ListSize; i++)
-			if (DownSampleTable[j][i].weight>(1/sqrt(2)))
+			if (DownSampleTable[j][i].weight>(1/sqrt((double)2)))
 				DownSampleTable[j][i].weight = 1.0;
-			else if (DownSampleTable[j][i].weight<=(1/sqrt(256*512)))
+			else if (DownSampleTable[j][i].weight<=(1/sqrt((double)(256*512))))
 				DownSampleTable[j][i].weight = 0.0;
 			else for (k=1; k<256; k*=2)
-				if ((DownSampleTable[j][i].weight<=(1/sqrt(k*(k*2))))&&(DownSampleTable[j][i].weight>(1/sqrt((k*2)*(k*4)))))
+				if ((DownSampleTable[j][i].weight<=(1/sqrt((double)(k*(k*2)))))&&(DownSampleTable[j][i].weight>(1/sqrt((double)((k*2)*(k*4))))))
 					DownSampleTable[j][i].weight = (float)(1.0)/(k*2);
 
 	for (j=0; j<SParam.Size_LP; j++)
@@ -1928,7 +1928,7 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 			if(DownSampleTable[j][i].position!=LParam->Size_LP)
 			{
 				IntDownSampleTable[j].position[i] = DownSampleTable[j][i].position;
-				IntDownSampleTable[j].weight[i] = (unsigned char)(-log10(DownSampleTable[j][i].weight)/log10(2));
+				IntDownSampleTable[j].weight[i] = (unsigned char)(-log10((double)DownSampleTable[j][i].weight)/log10((double)2));
 			}
 	}
 	
