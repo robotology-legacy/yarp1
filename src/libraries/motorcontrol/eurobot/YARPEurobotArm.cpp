@@ -1,4 +1,4 @@
-// $Id: YARPEurobotArm.cpp,v 1.5 2003-09-12 16:57:05 beltran Exp $
+// $Id: YARPEurobotArm.cpp,v 1.6 2003-10-27 12:20:48 beltran Exp $
 
 #include "YARPEurobotArm.h"
 
@@ -62,6 +62,9 @@ int YARPEurobotArm::setCommands(const double *pos)
 {
 	_lock();
 	angleToEncoders(pos, _temp_double);
+
+	_adapter.IOCtl(CMDSetCommands,_temp_double);
+	/*
 	for(int i = 0; i < _parameters._nj; i++)
 	{
 		SingleAxisParameters cmd;
@@ -70,6 +73,7 @@ int YARPEurobotArm::setCommands(const double *pos)
 		if (_parameters._stiffPID[i] != 1)
 			_adapter.IOCtl(CMDSetCommand, &cmd);
 	}
+	*/
 	_unlock();
 	return -1;
 }
