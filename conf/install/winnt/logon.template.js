@@ -1,5 +1,5 @@
-var shareName = "\\\\MACHINE\\yarp";
-var drive = "Q:";
+var shareName = "\\\\eolo\\yarp";
+var drive = "Y:";
 
 WScript.Echo("Executing logon script...");
 
