@@ -1,9 +1,0 @@
-BASE=$PWD
-cd $YARP_ROOT/src/libraries/poking
-make
-make install
-cd $BASE
-make clean
-make
-./foveal_egomap $*
-

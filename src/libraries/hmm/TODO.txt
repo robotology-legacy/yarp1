@@ -1,8 +1,0 @@
-- Fix the problem when an impossible state is encountered during learning.
-- Also when likelihood decreases the result is crap - verify where the problem is.
-
-- Allow partial recognition (1 sample at a time).
-
-- Allow partial training (1 sequence at a time).
-	--- Not feasible... it works batch because it needs data to form
-		the statistics about the sequences/transitions/etc.

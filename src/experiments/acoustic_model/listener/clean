@@ -1,2 +1,0 @@
-rm -f /usr/yarp/training/via/*.wav
-rm -f /usr/yarp/training/via/*.txt

@@ -1,5 +1,0 @@
-(
-sleep 2
-porter /yarp/attention/out_dom /nastier/in
-) &
-nastier

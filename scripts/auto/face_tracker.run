@@ -1,4 +1,0 @@
-#include "grabbers.run"
-
-deployas 27 face_finder face_finder
-deployas 26 face_tracker face_tracker

@@ -1,6 +1,0 @@
-(
-sleep 6
-porter /dummy_grabber/o:img /foveal_egomap/i:img
-porter /foveal_egomap/o:img /view1
-) &
-./foveal_egomap

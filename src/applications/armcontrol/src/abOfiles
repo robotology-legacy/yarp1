@@ -1,1 +1,0 @@
-ABOBJ = abmain.o commands.o initialize.o terminal.o trend.o 

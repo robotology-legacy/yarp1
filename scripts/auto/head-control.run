@@ -1,5 +1,0 @@
-#include "head-daemons.run"
-
-deployas 4 pterm pterm cat
-
-

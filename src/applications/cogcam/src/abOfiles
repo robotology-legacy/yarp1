@@ -1,1 +1,0 @@
-ABOBJ = abmain.o exit_callback.o file.o flurry_init.o freeze.o resize.o set_file.o trajectory_color.o viewer_draw.o 

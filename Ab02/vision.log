@@ -1,0 +1,188 @@
+This is TeX, Version 3.14159 (Web2C 7.3.7) (format=latex 2002.8.31)  17 SEP 2002 01:23
+**vision.tex
+(./vision.tex
+LaTeX2e <2001/06/01>
+Babel <v3.7h> and hyphenation patterns for american, french, german, ngerman, n
+ohyphenation, loaded.
+(./defs.tex) (/usr/share/texmf/tex/latex/base/article.cls
+Document Class: article 2001/04/21 v1.4e Standard LaTeX document class
+(/usr/share/texmf/tex/latex/base/size10.clo
+File: size10.clo 2001/04/21 v1.4e Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+) (./setspace.sty
+Package: setspace 1998/11/26 6.4 Contributed and Supported LaTeX2e package
+
+Package: `setspace' 6.4 <1998/11/26>
+) (/usr/share/texmf/tex/latex/graphics/graphicx.sty
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texmf/tex/latex/graphics/keyval.sty
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks14
+)
+(/usr/share/texmf/tex/latex/graphics/graphics.sty
+Package: graphics 2001/07/07 v1.0n Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texmf/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(/usr/share/texmf/tex/latex/config/graphics.cfg
+File: graphics.cfg 2001/08/31 v1.1 graphics configuration of teTeX/TeXLive
+)
+Package graphics Info: Driver file: dvips.def on input line 80.
+
+(/usr/share/texmf/tex/latex/graphics/dvips.def
+File: dvips.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
+))
+\Gin@req@height=\dimen103
+\Gin@req@width=\dimen104
+)
+(/usr/share/texmf/tex/generic/misc/psfig.sty
+\@unused=\write3
+\ps@stream=\read1
+\p@intvaluex=\dimen105
+\p@intvaluey=\dimen106
+
+psfig/tex 1.10-dvips
+)
+
+LaTeX Warning: Unused global option(s):
+    [a4].
+
+(./vision.aux)
+\openout1 = `vision.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 62.
+LaTeX Font Info:    ... okay on input line 62.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 62.
+LaTeX Font Info:    ... okay on input line 62.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 62.
+LaTeX Font Info:    ... okay on input line 62.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 62.
+LaTeX Font Info:    ... okay on input line 62.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 62.
+LaTeX Font Info:    ... okay on input line 62.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 62.
+LaTeX Font Info:    ... okay on input line 62.
+ (./section-abstract.tex) (./section-introduction.tex [1
+
+
+]
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 114.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 114.
+
+Underfull \hbox (badness 6575) in paragraph at lines 119--119
+[]\OT1/cmr/m/n/10 complex cau-sa-tion in-volv-ing
+ []
+
+
+Overfull \hbox (100.71991pt too wide) in paragraph at lines 114--128
+ [] 
+ []
+
+[2] [3]
+File: number-cross.eps Graphic file (type eps)
+ <number-cross.eps>
+File: setup-sequence.eps Graphic file (type eps)
+ <setup-sequence.eps> (./section-bio.tex [4] [5]
+[6] [7] [8]
+Overfull \hbox (21.80621pt too wide) in paragraph at lines 162--171
+[]\OT1/cmr/m/n/10 The sec-ond type of neu-ron iden-ti-fied in F5, the mir-ror n
+eu-ron [[]],
+ []
+
+) [9]) (./section-robot.tex
+Overfull \hbox (44.33409pt too wide) in paragraph at lines 4--17
+\OT1/cmr/m/n/10 This work is im-ple-mented on the robot Cog, an up-per torso hu
+-manoid [[]].
+ []
+
+[10]
+File: cog-schematic.eps Graphic file (type eps)
+ <cog-schematic.eps>) (./section-where.tex [11]
+File: joint-correlation2.eps Graphic file (type eps)
+ <joint-correlation2.eps>
+Overfull \hbox (1.25066pt too wide) in paragraph at lines 48--60
+\OT1/cmr/m/n/10 point to the arm mo-tor com-mands needed to reach that point [[
+]]
+ []
+
+
+Overfull \hbox (76.82024pt too wide) in paragraph at lines 48--60
+\OT1/cmr/m/n/10 us-ing a stereo-typed tra-jec-tory, per-haps us-ing pos-tu-ral 
+prim-i-tives [[]].
+ []
+
+
+Overfull \hbox (29.6304pt too wide) in paragraph at lines 48--60
+\OT1/cmr/m/n/10 ing dif-fer-ent com-bi-na-tions of di-rec-tion of gaze vs. arm 
+po-si-tion [[],
+ []
+
+[12]
+File: arm-detection2.eps Graphic file (type eps)
+ <arm-detection2.eps> [13]
+File: mapping-reach.eps Graphic file (type eps)
+ <mapping-reach.eps>
+File: predict-position.eps Graphic file (type eps)
+ <predict-position.eps>)
+(./section-poking.tex
+File: poking-sequence.eps Graphic file (type eps)
+ <poking-sequence.eps> [14] [15]
+File: cube-and-cylinder.eps Graphic file (type eps)
+ <cube-and-cylinder.eps>)
+[16] (./section-mirror.tex
+File: mirror-monkey.eps Graphic file (type eps)
+ <mirror-monkey.eps> [17]
+File: mirror-cog.eps Graphic file (type eps)
+ <mirror-cog.eps>)
+(./section-conclusions.tex [18]) (./section-acknowledgement.tex
+Overfull \hbox (11.94518pt too wide) in paragraph at lines 8--15
+\OT1/cmr/m/n/10 Many peo-ple have con-tributed to de-vel-op-ing the Cog plat-fo
+rm [[]].
+ []
+
+[19]) (./section-references.tex (./vision.bbl [20]
+Underfull \hbox (badness 2150) in paragraph at lines 49--52
+[]\OT1/cmr/m/n/10 Graziano, M. S. A., Cooke, D. F., and Tay-lor,
+ []
+
+[21] [22])) (./section-extras.tex
+File: collision-detail.eps Graphic file (type eps)
+ <collision-detail.eps>
+File: segmentation-detail.eps Graphic file (type eps)
+
+<segmentation-detail.eps>
+File: experiment-montage.eps Graphic file (type eps)
+ <experiment-montage.eps>
+File: manipulator-segment.eps Graphic file (type eps)
+ <manipulator-segment.eps>
+File: tracing_causes.eps Graphic file (type eps)
+
+<tracing_causes.eps>
+File: rolling-graphs.eps Graphic file (type eps)
+ <rolling-graphs.eps>) [23] [24] [25] [26] [27] [28]
+[29] [30] [31] [32] (./vision.aux) ) 
+Here is how much of TeX's memory you used:
+ 905 strings out of 10847
+ 10902 string characters out of 70948
+ 60259 words of memory out of 263001
+ 3833 multiletter control sequences out of 10000+0
+ 5506 words of font info for 20 fonts, out of 400000 for 1000
+ 14 hyphenation exceptions out of 1000
+ 25i,9n,21p,622b,373s stack positions out of 300i,100n,500p,50000b,4000s
+
+Output written on vision.dvi (32 pages, 53264 bytes).

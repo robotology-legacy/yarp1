@@ -1,5 +1,0 @@
-cp -t GenerativeMakefile $YARP_ROOT/scripts/auto/Makefile
-cp -t restart/restart/src/default/restart $YARP_ROOT/bin/qnx/autodeploygui
-for f in isactive isdeploy scandeploy undeploy deploy deployas autodeploymaker autodeploy deploy_porter; do
-  cp -t $f $YARP_ROOT/bin/qnx
-done

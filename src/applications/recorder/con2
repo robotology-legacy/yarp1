@@ -1,6 +1,0 @@
-# on -n17 grabber -format bgr -tagged -square -top 0.3125 -bottom 0.6875 -left 0.25 -right 0.75 -o /cam
-
-#porter /yarp/left/wide1 /recorder/i:img
-#porter /yarp/right/fovea1 /recorder/i:img
-porter /scam /recorder/i:img
-porter /recorder/o:img /cogcam

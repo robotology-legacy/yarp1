@@ -1,1 +1,0 @@
-ABSRC = ../abmain.cc ../exit_callback.cc ../file.cc ../flurry_init.cc ../freeze.cc ../resize.cc ../set_file.cc ../trajectory_color.cc ../viewer_draw.cc 

@@ -1,4 +1,0 @@
-#!/usr/local/bin/bash
-
-. vvsetenv
-./listener

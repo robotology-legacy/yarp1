@@ -1,8 +1,0 @@
-node=$1
-exec=$2
-shift
-shift
-key=$KEY
-on -n$node -d $exec $*
-isdeploy $node $exec $*
-undeploy $node $exec $*

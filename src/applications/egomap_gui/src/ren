@@ -1,3 +1,0 @@
-for f in `ls *.c`; do
-mv $f ${f}c
-done

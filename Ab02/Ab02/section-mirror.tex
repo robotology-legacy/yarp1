@@ -1,0 +1,144 @@
+
+\section{Developing mirror neurons?}
+
+\begin{figure}[tb]
+\begin{center}
+\includegraphics[width=\columnwidth]{mirror-monkey.eps}
+\caption{ 
+\label{fig:mirror-monkey}
+%
+Mirror neurons and causality: from the observer's point
+of view (A), understanding B's action means mapping it onto the
+observer's own
+motor repertoire. If the causal chain leading to the goal is already
+in place (lower branch of the graph) then the acquisition of a
+mirror neuron for this particular action/object is a matter of
+building and linking the upper part of the chain to the lower one.
+There are various opportunities to reinforce this link either at the object
+level, at the goal level or both. 
+%%Developmentally we can explain
+%%mirror neurons only if we take into account another class of neurons
+%%(called canonical) which in practice describes the lower branch of the
+%%graph.
+%
+}
+\end{center}
+\end{figure}
+
+\ifverbose
+The latest instantiation of the ``general principle'' we would like to
+dwell upon is related to mirror neurons. It turns out that the causal
+chain here is more compliceted. This requires a more complicated
+structure to support it.
+\fi
+
+Poking moves us one step outwards on a causal chain away from the
+robot and into the world, and gives a simple experimental procedure
+for segmenting objects.  There are many possible elaborations of this
+method (some are mentioned in the conclusions), all of which lead to a
+vision system that is tuned to acquiring data about an object by
+seeing it manipulated by the robot.  An interesting question then is
+whether the system could extract useful information from seeing an
+object manipulated by someone else.  In the case of poking, the robot
+needs to be able to estimate the moment of contact and to track the arm
+sufficiently well to distinguish it from the object being poked.  We
+are interested in how the robot might learn to do this.  One approach
+is to chain outwards from an object the robot has poked.  If someone
+else moves the object, we can reverse the logic used in poking --
+where the motion of the manipulator identified the object -- and
+identify a foreign manipulator through its effect on the object.
+Poking is an ideal testbed for future work on this, since it is much
+simpler than full-blown object manipulation and would only require a
+very simple model of the foreign manipulator to work.
+
+There is considerable precedent in the literature for a strong
+connection between viewing object manipulation performed by either
+oneself or another \cite{wohlsclager02human}.  As we already mentioned
+F5 contains a class of neurons called canonical neurons that have a
+very specific response when an object is being either manipulated or
+fixated.  Grossly simplifying, we might think of canonical neurons as
+an association table of grasp/manipulation (action) types with object
+(vision) types.  Another class of neurons called ``mirror neurons''
+can then be thought of as a second-level association map which links
+together the observation of a manipulative action performed by
+somebody else with the neural representation of one's own action.
+
+Figure~\ref{fig:mirror-monkey} shows this causal chain in action.
+There are a series of interesting behaviors that can be realized based
+on mirror neurons. Mimicry is an obvious application, since it
+requires just this type of mapping between other and self in terms of
+motor actions.  Another important application is the prediction of
+future behavior from current actions, or even inverting the causal
+relation to find the action that most likely will get to the desired
+consequence.
+
+\ifverbose
+
+for example, by observing the part of an action the robot or the
+bioagent can come out with suitable expectations of the consequences
+of that action. On the other hand, the inverse behavior can also be
+foreseen. The latter account to inverting the causal relation and
+getting the action that most likely will get to the desired
+consequence.
+
+It might be argued that we need a two stages procedure to learn a
+mirror representation, where we first learn ``something'' and only
+subsequently we ``understand'' other people's behavior. The actual
+developmental course might not be such artificially staged. A slight
+advantage must be given though to the initial step of self-learning,
+the undestanding comes later.
+
+
+This set of associations can be learnt autonomously (by a robot for
+example) simply by a trial and error procedure and possibly with a
+reinforcing signal to tell when a given grasp/manipulatory gesture was
+successful if applied to a particular object.
+
+We should not probably think of this association as describing in
+detail the object being manipulated visually. Perhaps only features
+relevant to manipulation are stored (e.g. size, orientation in space).
+This representation is a ``pragmatic'' one describing only those
+properties of objects are needed to apply a particular set of actions
+to them. Affordances are a good psychological analogue of F5
+canonical neurons.
+\fi
+
+
+\ifverbose
+How does this relate to causation?  The two situations in some sense
+share the same goal, and more practically share the same object.  The
+whole procedure assumes a basic discrimination of size and shape of
+objects (not necessarily categorization in traditional sense), and the
+exploitation of the visual information to the understanding of the
+grasp type. In some cases though the goal might be unambiguous, e.g. a
+needle is very unlikely grasped with a full palm grasp, as well as a
+box is not grasped with a pinch grip. These are the most informative
+allowing for the best discrimination of action type from the visual
+perspective.
+\fi
+
+\ifverbose
+The definition of imitation we gave here implicitly focus on imitating
+the goal rather than the precise trajectory. This automatically takes
+into account any difference in body structure between the actor and
+the observer.
+
+Of course, manipulation as in poking can lead to a better
+understanding of the physical properties of objects not directly
+amenable to visual exploration such as mass, roughness, softness, etc.
+\fi
+
+\begin{figure}[tbh]
+\begin{center}
+\includegraphics[width=\columnwidth]{mirror-cog.eps}
+\caption{ 
+\label{fig:mirror-cog}
+%
+The ultimate goal of this work is for our robot to follow chains of
+causation outwards from its own simple body into the complex world.
+%
+}
+\end{center}
+\end{figure}
+
+

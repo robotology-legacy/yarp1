@@ -1,0 +1,142 @@
+\begin{thebibliography}{}
+
+\bibitem[Berkeley, 1972]{berkeley72new}
+Berkeley, G. (1972).
+\newblock {\em A new theory of vision and other writings}.
+\newblock Dent, London.
+\newblock First published in 1734.
+
+\bibitem[Birchfield, 1999]{birchfield99depth}
+Birchfield, S. (1999).
+\newblock {\em Depth and Motion Discontinuities}.
+\newblock PhD thesis, Dept. of Electrical Engineering, Stanford University.
+
+\bibitem[Brooks et~al., 1999]{brooks99cog}
+Brooks, R.~A., Breazeal, C., Marjanovic, M., and Scassellati, B. (1999).
+\newblock The {C}og project: Building a humanoid robot.
+\newblock {\em Lecture Notes in Computer Science}, 1562:52--87.
+
+\bibitem[Fadiga et~al., 2000]{fadiga00visuomotor}
+Fadiga, L., Fogassi, L., Gallese, V., and Rizzolatti, G. (2000).
+\newblock Visuomotor neurons: ambiguity of the discharge of `motor' perception?
+\newblock {\em International Journal of Psychophysiology}, 35:165--177.
+
+\bibitem[Fogassi et~al., 1996]{fogassi96coding}
+Fogassi, L., Gallese, V., Fadiga, L., Luppino, G., Matelli, M., and Rizzolatti,
+  G. (1996).
+\newblock Coding of peripersonal space in inferior premotor cortex (area {F4}).
+\newblock {\em Journal of Neurophysiology}, pages 141--157.
+
+\bibitem[Gallese et~al., 1996]{gallese-fadiga-fogassi-rizzolatti-1996}
+Gallese, V., Fadiga, L., Fogassi, L., and Rizzolatti, G. (1996).
+\newblock Action recognition in the premotor cortex.
+\newblock {\em Brain}, 119:593--609.
+
+\bibitem[Gibson, 1977]{gibson77theory}
+Gibson, J.~J. (1977).
+\newblock The theory of affordances.
+\newblock In Shaw, R. and Bransford, J., (Eds.), {\em Perceiving, acting and
+  knowing: toward an ecological psychology}, pages 67--82. Hillsdale NJ:
+  Lawrence Erlbaum Associates Publishers.
+
+\bibitem[Ginsburg and Opper, 1978]{ginsburg78piaget}
+Ginsburg, H. and Opper, S. (1978).
+\newblock {\em Piaget's theory of intellectual development}.
+\newblock Prentice-Hall, Englewood Cliffs, NJ.
+\newblock 2nd edition.
+
+\bibitem[Graziano et~al., 2000]{graziano-cooke-taylor-2000}
+Graziano, M.~S.~A., Cooke, D.~F., and Taylor, C.~S.~R. (2000).
+\newblock Coding the location of the arm by sight.
+\newblock {\em Science}, 290(December):1782--1786.
+
+\bibitem[Graziano et~al., 1997]{graziano-hu-gross-1997}
+Graziano, M.~S.~A., Hu, X., and Gross, C.~G. (1997).
+\newblock Visuo-spatial properties of ventral premotor cortex.
+\newblock {\em Journal of Neurophysiology}, 77:2268--2292.
+
+\bibitem[Jeannerod, 1997]{jeannerod97cognitive}
+Jeannerod, M. (1997).
+\newblock {\em The Cognitive Neuroscience of Action}.
+\newblock Blackwell Publishers Inc., Cambridge Massachusetts and Oxford UK.
+
+\bibitem[Jeannerod et~al., 1995]{jeannerod-arbib-rizzolatti-sakata-1995}
+Jeannerod, M., Arbib, M.~A., Rizzolatti, G., and Sakata, H. (1995).
+\newblock Grasping objects: the cortical mechanisms of visuomotor
+  tranformation.
+\newblock {\em Trends in Neurosciences}, 18(7):314--320.
+
+\bibitem[Kovacs, 2000]{kovacs00human}
+Kovacs, I. (2000).
+\newblock Human development of perceptual organization.
+\newblock {\em Vision Research}, 40(10-12):1301--1310.
+
+\bibitem[Manzotti and Tagliasco, 2001]{manzotti01coscienza}
+Manzotti, R. and Tagliasco, V. (2001).
+\newblock {\em Coscienza e realt\`{a}: una teoria della coscienza per
+  costruttori di menti e cervelli}.
+\newblock il Mulino.
+
+\bibitem[Marjanovi\'{c} et~al., 1996]{Marjanovic-96-SAB}
+Marjanovi\'{c}, M.~J., Scassellati, B., and Williamson, M.~M. (1996).
+\newblock Self-taught visually-guided pointing for a humanoid robot.
+\newblock In {\em From Animals to Animats: Proceedings of 1996 Society of
+  Adaptive Behavior}, pages 35--44, Cape Cod, Massachusetts.
+
+\bibitem[Metta et~al., 1999]{metta99developmental}
+Metta, G., Sandini, G., and Konczak, J. (1999).
+\newblock A developmental approach to visually-guided reaching in artificial
+  systems.
+\newblock {\em Neural Networks}, 12:1413--1427.
+
+\bibitem[Milner and Goodale, 1995]{milner95visual}
+Milner, A.~D. and Goodale, M.~A. (1995).
+\newblock {\em The visual brain in action}.
+\newblock Oxford University Press.
+
+\bibitem[Mussa-Ivaldi and Giszter, 1992]{mussa-ivaldi92vector}
+Mussa-Ivaldi, F.~A. and Giszter, S.~F. (1992).
+\newblock Vector field approximation: a computational paradigm for motor
+  control and learning.
+\newblock {\em Biological Cybernetics}, 67:491--500.
+
+\bibitem[Rizzolatti and Arbib, 1998]{rizzolatti98language}
+Rizzolatti, G. and Arbib, M.~A. (1998).
+\newblock Language within our grasp.
+\newblock {\em Trends in Neurosciences}, 21:188--194.
+
+\bibitem[Rizzolatti et~al., 1997]{rizzolatti-fogassi-gallese-1997}
+Rizzolatti, G., Fogassi, L., and Gallese, V. (1997).
+\newblock Parietal cortex: from sight to action.
+\newblock {\em Current Opinion Neurobiology}, 7(4):562--567.
+
+\bibitem[Sakata et~al., 1997]{sakata-taira-kusunoki-murata-tanaka-1997}
+Sakata, H., Kusunoki, M., Taira, M., Murata, M., and Tanaka, Y. (1997).
+\newblock The tins lecture - the parietal association cortex in depth
+  perception and visual control of action.
+\newblock {\em Trends in Neurosciences}, 20(8):350--358.
+
+\bibitem[Ungerleider and Mishkin, 1982]{ungerleider82two}
+Ungerleider, L.~G. and Mishkin, M. (1982).
+\newblock Two cortical visual systems.
+\newblock In {\em Analysis of visual behavior}, pages 549--586. MIT Press,
+  Cambridge, Massachusetts.
+
+\bibitem[Williamson, 1995]{williamson95series}
+Williamson, M. (1995).
+\newblock Series elastic actuators.
+\newblock Master's thesis, Massachusetts Institute of Technology, Cambridge,
+  Massachusetts, USA.
+
+\bibitem[Williamson, 1998]{williamson98neural}
+Williamson, M. (1998).
+\newblock Neural control of rhythmic arm movements.
+\newblock {\em Neural Networks}, 11(7-8):1379--1394.
+
+\bibitem[Wohlscl\"{a}ger and Bekkering, 2002]{wohlsclager02human}
+Wohlscl\"{a}ger, A. and Bekkering, H. (2002).
+\newblock Is human imitation based on a mirror-neurone system? {S}ome
+  behavioural evidence.
+\newblock {\em Experimental Brain Research}, 143:335--341.
+
+\end{thebibliography}

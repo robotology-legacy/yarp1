@@ -1,7 +1,0 @@
-node=$1
-exec=$2
-shift
-shift
-key=$KEY
-echo "sin -n$node | grep -q $exec || missing=\"$missing $exec\"" >> $KEY.scan
-chmod u+x $KEY.scan

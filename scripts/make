@@ -1,2 +1,0 @@
-#!/bin/sh
-nice -n-2 /bin/make $*

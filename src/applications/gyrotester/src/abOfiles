@@ -1,1 +1,0 @@
-ABOBJ = abmain.o boresight.o draw_cube.o initialize.o timer_activate.o unboresight.o 

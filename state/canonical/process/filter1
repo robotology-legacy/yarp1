@@ -1,2 +1,0 @@
-rm -f data01.txt
-cat ../canonical.txt | egrep "(trace with)|(m_action_number)|(m_object_orientation)|(_position_image)" > data01.txt

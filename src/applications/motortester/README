@@ -1,8 +1,0 @@
-MotorTester
-
-A graphical user interface that allows for interaction with a the low-level
-MEI daemon and provides a variety of functions for setting gains and tuning a 
-single motor axis at a time.  Also provides file support for burning gains to
-the flash-ROM on the MEI card.
-
-All files (c) Brian Scassellati, 2000.  All rights reserved.

@@ -1,0 +1,67 @@
+
+\section{Discussion and Conclusions}
+
+In this paper, we showed how causality can be probed at different
+levels by the robot.  Initially the environment was the body of the
+robot itself, then later a carefully circumscribed interaction with
+the outside world.  This is reminiscent of Piaget's distinction
+between primary and secondary circular
+reactions~\cite{ginsburg78piaget}.  Objects are central to interacting
+with the ouside world.  We raised the issue of how an agent can
+autonomously acquire a working definition of objects. 
+
+\ifverbose
+According to
+recent neuroscience results the problem is ``well posed'' only if the
+agent is embodied.
+\fi
+
+\ifverbose
+We also 
+the concept of causality and to a certain extent
+our particular implementation fit well with a bulk of neural science
+results. Implementing a model of development might help to 
+understand ``how the brain does it''.
+\fi
+
+
+In computer vision there is much to be gained by bringing a
+manipulator into the equation.  Many variants and extensions to the
+experimental ``poking'' strategy explored here are possible.  For
+example, a robot might try to move an arm around {\em behind} the
+object.  As the arm moves behind the object, it reveals its occluding
+boundary.  This is a precursor to visually extracting shape
+information while actually manipulating an object, which is more
+complex since the object is also being moved and partially occluded by
+the manipulator.  Another possible strategy that could be adopted as a
+last resort for a confusing object might be to simply hit it firmly,
+in the hopes of moving it some distance and potentially overcoming
+local, accidental visual ambiguity.  Obviously this strategy cannot
+always be used!  But there is plenty of room to be creative here.
+
+
+
+%The number of papers written on techniques for visual segmentation is
+%vast.  Methods for characterizing the shape of an object through
+%tactile information are also being developed, such as shape from
+%probing \cite{cole87shape,paulos99fast} or pushing
+%\cite{moll01reconstructing,jia98observing}.  But while it has long
+%been known that motor strategies can aid
+%vision~\cite{ballard91animate}, work on active vision has focused
+%almost exclusively on moving cameras.  There is much to be gained by
+%bringing a manipulator into the equation, as we have shown in this
+%paper.  Many variants and extensions to the experimental ``poking''
+%strategy explored here are possible.  For example, a robot might try
+%to move an arm around {\em behind} the object.  As the arm moves
+%behind the object, it reveals its occluding boundary.  This is a
+%precursor to visually extracting shape information while actually
+%manipulating an object, which is more complex since the object is also
+%being moved and partially occluded by the manipulator.  Another
+%possible strategy that could be adopted as a last resort for a
+%confusing object might be to simply hit it firmly, in the hopes of
+%moving it some distance and potentially overcoming local, accidental
+%visual ambiguity.  Obviously this strategy cannot always be used!  But
+%there is plenty of room to be creative here.
+
+
+

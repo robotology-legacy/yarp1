@@ -1,2 +1,0 @@
-yarplog | tee d00.txt
-cat d00.txt | sed 's/.*(//g' | sed 's/).*//g' | tee d01.txt

@@ -1,5 +1,0 @@
-ACT=/home/cog/active
-conditional_porter $1 $2
-key=$KEY
-echo "conditional_porter $1 !$2" >> $ACT/$KEY.stop
-chmod u+x $ACT/$KEY.stop

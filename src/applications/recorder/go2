@@ -1,5 +1,0 @@
-(
-  sleep 3
-  ./con
-) &
-on -n14 ./recorder

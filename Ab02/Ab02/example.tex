@@ -1,0 +1,31 @@
+
+% for figures, use ps or eps and the following lines, with caption underneath:
+
+\begin{figure}[htbp]
+\begin{center}
+\ifpdf
+%  \includegraphics[width=\columnwidth]{somepicture.jpg}
+\else
+%  \includegraphics[width=\columnwidth]{somepicture.eps}
+\fi
+\caption{My picture text}
+\end{center}
+\end{figure}
+
+% for tables, use the table environment. don't forget to put the caption ABOVE the table:
+
+\begin{table}[htbp]
+\begin{center}
+\caption{General properties of Mars}\label{tab_mars}
+\begin{tabular}{|l|c|}
+\hline
+mean distance from sun & 227,940,000 km\\ \hline
+orbital eccentricity & 0.0934 \\ \hline
+tilt of axis & 25.19$^\circ$ \\ \hline
+duration of a day& 24.6 h \\ \hline
+duration of a year& 687 earth days \\ \hline
+diameter & 6787 km\\ \hline
+mass & $6.42\cdot 10^{23}$kg \\ \hline
+\end{tabular}
+\end{center}
+\end{table}

@@ -1,8 +1,0 @@
-(
-  sleep 2
-  porter /yarp/right/wide1 /face_tracker/i:img
-  porter /face_tracker/o:img /roo
-  porter /yarp/face/o:mix /face_tracker/i:mix
-#  porter /face_tracker/o:box /yarp/attention/in.8.15
-) &
-on -n26 ./face_tracker

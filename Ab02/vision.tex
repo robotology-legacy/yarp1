@@ -1,0 +1,131 @@
+\input{defs}
+
+\newcommand{\draftpaper}{}
+
+% detect interpreter: pdflatex or latex
+
+\newif\ifpdf
+\ifx\pdfoutput\undefined
+  \pdffalse
+\else
+  \pdftrue
+\fi
+
+\newif\iflong
+\ifx\longpaper\undefined
+  \longfalse
+\else
+  \longtrue
+\fi
+
+\newif\ifdraft
+\ifx\draftpaper\undefined
+  \draftfalse
+\else
+  \drafttrue
+\fi
+
+\newif\ifverbose
+\ifx\verbosepaper\undefined
+  \verbosefalse
+\else
+  \verbosetrue
+\fi
+
+
+% use document class IROS with any paper size:
+
+%%\iflong
+%%  \documentclass[a4]{epirob}
+  \documentclass[a4]{article}
+%%\else
+%%  \documentclass[a4paper]{IROS}
+%%\fi
+
+%%\documentclass[a4paper]{article}
+
+%%\documentstyle{doublespace}
+
+\usepackage{setspace}
+
+
+\ifpdf
+  \usepackage{graphicx}
+\else
+  \usepackage[dvips]{graphicx}
+\fi
+
+\usepackage{psfig}
+
+\setstretch{2.0}
+
+\begin{document} 
+
+\onecolumn
+
+
+% create the title header:
+
+\title{Better Vision Through Manipulation}
+%%\title{Active Vision is more than just Moving Cameras}
+%%\title{Towards Manipulation-Driven Vision}
+
+%%\iflong
+%%  \author{Giorgio Metta$^{*,**}$
+%%        \and
+ %%         Paul Fitzpatrick$^{**}$}
+%%  \affiliation{\rm $^{*}$LIRA-Lab, DIST \\
+ %%              University of Genova \\
+ %%               Viale F. Causa, 13 \\
+  %%              16145 Genova, Italy \\
+  %%         \and
+ %%             $^{**}$MIT AI Lab\\
+ %%            200 Technology Square \\
+ %%            Cambridge, MA 02139 US }
+%%\else
+%%\author{Paul M. Fitzpatrick$^{*}$ and Giorgio Metta$^{*,\dagger}$}
+%%\affiliation{
+%%$^{*}$MIT AI Lab -- Massachussetts Institute of Technology -- USA\\
+%%$^{\dagger}$Lira Lab, DIST -- University of Genova -- Italy
+%%}
+%%\fi
+
+%%\maketitle\thispagestyle{empty} % don't forget \thispagestyle{empty}, otherwise you'll get page numbering
+
+\ifdraft
+  \pagenumbering{arabic}
+  \thispagestyle{plain}
+  \pagestyle{plain}
+\fi
+
+% write the abstract with the Abstract-environment:
+\input{section-abstract}
+
+% ...and start writing!
+\input{section-introduction}
+
+\input{section-robot}
+
+\input{section-where}
+
+\input{section-poking}
+
+\input{section-mirror}
+
+%%\input{section-pose}
+
+\input{section-conclusions}
+
+% thanks to many people...
+
+\input{section-acknowledgement}
+
+% and the bibliography:
+
+\input{section-references}
+
+\input{section-extras}
+
+\end{document}
+
+% and never mind LaTeX's hysterical warnings about missing fonts... everything's fine!

@@ -1,7 +1,0 @@
-(
-sleep 2
-porter /scam /yarp/face/i:img
-porter /yarp/face/o:img /foo/face
-) &
-
-on -n27 ./face_finder

@@ -1,4 +1,0 @@
-MAIN = makeptpscript
-
-all: $(MAIN)
-

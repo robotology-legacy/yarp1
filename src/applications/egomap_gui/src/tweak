@@ -1,6 +1,0 @@
-#!/bin/sh
-for f in $*; do
-cp $f tmp.txt
-cat tmp.txt | perl -pe "s/(proto\.h\")/\$1\n#include \"common.h\"/" | tee $f
-#cat tmp.txt | perl -pe "s/printf\(\"t (.).*/SayBottle\('t',\$1,0\);/" | perl -pe "s/fflush.*//" | tee $f
-done

@@ -1,7 +1,0 @@
-(
-sleep 2
-porter /yarp/right/wide1 /eyecal/i:img
-porter /eyecal/o:img /view1
-) &
-
-./eyecal

@@ -1,7 +1,0 @@
-slay -n8 -Q YAPOCControl
-slay -n10 porter
-slay -n11 porter
-slay -n10 MainDaemonPIC
-slay -n11 MainDaemonPIC
-slay -n12 MainDaemonPIC
-slay -n13 MainDaemonPIC

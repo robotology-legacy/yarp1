@@ -1,9 +1,0 @@
-GyroTester
-
-A graphical user interface for the Inter-Sense 3-axis inertial package.
-Serves both as an example of how to interface to the ISD daemon and as an
-example of how to build PHAB applications.  Also allows for basic commands
-(such as boresight) to be sent to the daemon, providing an interface-level 
-control.
-
-All files (c) Brian Scassellati, 2000.  All rights reserved.
