@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.16 2004-02-04 16:10:22 fberton Exp $
+/// $Id: YARPDisparity.cpp,v 1.17 2004-02-23 15:56:33 fberton Exp $
 ///
 ///
 
@@ -70,7 +70,9 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "YARPDisparity.h"
-
+#define SWAP(a,b) {temp=(a);(a)=(b);(b)=temp;}
+#define NR_END 1
+#define FREE_ARG char*
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -83,6 +85,7 @@ YARPDisparityTool::YARPDisparityTool()
 
 	_dsTable		= NULL;
 	_shiftFunction	= NULL;
+	_gaussFunction	= NULL;
 	_shiftMap		= NULL;
 	_corrFunct		= NULL;
 	_actRings		= 21;
@@ -93,6 +96,9 @@ YARPDisparityTool::~YARPDisparityTool()
 {
 	if (_shiftFunction != NULL)
 		delete [] _shiftFunction;
+
+	if (_gaussFunction != NULL)
+		delete [] _gaussFunction;
 
 	if (_shiftMap != NULL)
 		delete [] _shiftMap;
@@ -148,6 +154,8 @@ int YARPDisparityTool::loadShiftTable(Image_Data * Par)
 	/// alloc _corrFunct array.
 	_corrFunct = new double [_shiftLevels];
 	ACE_ASSERT (_corrFunct != NULL);
+	_gaussFunction = new double [_shiftLevels];
+	ACE_ASSERT (_gaussFunction != NULL);
 
 //	_pixelCount = new int [_shiftLevels];
 //	ACE_ASSERT (_pixelCount != NULL);
@@ -321,106 +329,74 @@ void YARPDisparityTool::downSample(YARPImageOf<YarpPixelBGR> & inImg, YARPImageO
 						_imgS.Ratio,
 						_dsTable,
 						_imgS.Size_Fovea);
+
 }
 
 int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
 										 YARPImageOf<YarpPixelBGR> & inLImg)
 {
+	int k;
 	int disparity;
+	int * count = NULL;
+	count = (int*) malloc (_shiftLevels * sizeof(int));
 
 	rgbPixel avgLeft,avgRight;
 
 	avgRight = computeAvg(inRImg.GetHeight(),inRImg.GetWidth(),inRImg.GetPadding(),(unsigned char*)inRImg.GetRawBuffer());
 	avgLeft  = computeAvg(inLImg.GetHeight(),inLImg.GetWidth(),inLImg.GetPadding(),(unsigned char*)inLImg.GetRawBuffer());
 
-//	if (inLImg.GetHeight() == _imgS.Size_Rho)
-//		disparity = Shift_and_Corr(	(unsigned char*)inLImg.GetRawBuffer(),
-//									(unsigned char*)inRImg.GetRawBuffer(),
-//									&_imgS,
-//									_shiftLevels,
-//									_shiftMap,
-//									_corrFunct);
-//	else
-		disparity = shiftnCorrFovea((unsigned char*)inRImg.GetRawBuffer(),
-									(unsigned char*)inLImg.GetRawBuffer(),
-									&_imgS,
-									_shiftLevels,
-									_shiftMap,
-									_corrFunct,
-									avgRight,
-									avgLeft,
-									_actRings,
-									500); // pixel limit. Under it => No correlation
-
-	double avg = 0.0;
-	int k;
-
-/*	for (k=0; k<_shiftLevels; k++)
-		avg += (3.0-_corrFunct[k]);
-
-	avg /= _shiftLevels;
-
-	for (k=0; k<_shiftLevels; k++)
-		_corrFunct[k] = 3-((3.0-_corrFunct[k])/(avg+0.00001));
-
-	double min = _corrFunct [disparity];
-
-	for (k=0; k<_shiftLevels; k++)
-		_corrFunct[k] = 3.0*(_corrFunct[k]-min)/(3.0-min);
-
-
-	avg = 0.0;
-	for (k=0; k<_shiftLevels; k++)
-		avg += (3.0-_corrFunct[k]);
-
-	avg /= _shiftLevels;		
 	
-	if (avg>_corrTreshold)
-		disparity = -1;
-	
-	if (disparity != -1)
-		{
-			disparity = _shiftFunction[disparity];
+	shiftnCorrFovea((unsigned char*)inRImg.GetRawBuffer(),
+					(unsigned char*)inLImg.GetRawBuffer(),
+					&_imgS,
+					_shiftLevels,
+					_shiftMap,
+					_corrFunct,
+					avgRight,
+					avgLeft,
+					_actRings,
+					count);
 
-			disparity = (int)(0.5 + disparity * _imgS.Size_X_Remap / (float)_imgS.Resolution);
-		}
-		else 
-			disparity = 0;
+
+	disparity = corrAdjust(count); //Computes where the best correspondance is and removes non valid points
 
 
-  */
+//	double avg = 0.0;
+
+//	int value1 = disparity;
+//	double value2 = 3.0 - _corrFunct[disparity];
+
+	for (k=0; k<_shiftLevels; k++)
+		_corrFunct[k] = (3.0 - _corrFunct[k]);
+
+	_snRatio = computeSNRatio(disparity);
+
+	_gMagn  = _corrFunct[disparity];
+	_gMean  = double(disparity);
+	_gSigma = 10.0;
+
+	findFittingFunction();
 
 	for (k=0; k<_shiftLevels; k++)
 		_corrFunct[k] = 3.0 - _corrFunct[k];
-
-	for (k=0; k<_shiftLevels; k++)
-		avg += _corrFunct[k];
-
-	avg /= _shiftLevels;
-
-//	for (k=0; k<_shiftLevels; k++)
-//		_corrFunct[k] = _corrFunct[k]/(avg+0.00001);
-
+	
+	
+	disparity = _shiftFunction[disparity];
+	disparity = (int)(0.5 + disparity * _imgS.Size_X_Remap / (float)_imgS.Resolution);
+/*
 	double min = _corrFunct [disparity];
-
-//	for (k=0; k<_shiftLevels; k++)
-//		_corrFunct[k] = 3.0*(_corrFunct[k])/(min);
 
 	if ((min/avg)<_corrTreshold)
 		disparity = -1;
 
 	if (disparity != -1)
 		{
-			disparity = _shiftFunction[disparity];
 
-			disparity = (int)(0.5 + disparity * _imgS.Size_X_Remap / (float)_imgS.Resolution);
 		}
 		else 
 			disparity = 0;
-
-	for (k=0; k<_shiftLevels; k++)
-		_corrFunct[k] = 3.0 - _corrFunct[k];
-
+*/
+	free (count);
 	return disparity;
 
 }
@@ -442,48 +418,433 @@ void YARPDisparityTool::makeHistogram(YARPImageOf<YarpPixelMono>& hImg)
 	for (j=0;j<height*width;j++)
 		hist[j] = 0;
 
-//	float sum=0;
-//	for (i=0; i<_shiftLevels-1; i++)
-//		sum += _corrFunct[i];
-//	sum /= (_shiftLevels-1);
-//
-//	float MAX = 1000;
-//
-//	for (i=0; i<_shiftLevels-1; i++)
-//	{
-//		if (_corrFunct[i]<MAX)
-//		{
-//			MAX = _corrFunct[i];
-//		}
-//	}
-//
-//	MAX = MAX/sum;
-//
-//	MAX = height * (MAX);
-
-//	int value = height - (int) (height / 3.0*(3-sum));
 
 	for (i=0; i<_shiftLevels-1; i++)
 	{
 		if ((i+offset >=0)&&(i+offset<width))
 		{
 			for (j=height-(int)(height/3.0*(3-_corrFunct[i])); j<height; j++)
-//			for (j=height-(int)(height/1.0*(1-_corrFunct[i])); j<height; j++)
-				{
 					hist[(j*width+i+offset)] = 128;
-				}
 		}
 	}
 
-//	for (i=0; i<width; i++)
-//	{
-//		hist [value*width+i] = 192;
-//		hist [(int)MAX*width+i] = 64;
-//	}
-
+	for (i=0; i<_shiftLevels-1; i++)
+	{
+		if ((i+offset >=0)&&(i+offset<width))
+		{
+			for (j=height-(int)(height/3.0*(3-_gaussFunction[i])); j<height; j++)
+					hist[(j*width+i+offset)] = (hist[(j*width+i+offset)]+192)/2;
+		}
+	}
 		
 	for (j=0; j<height; j++)
 		hist[(j*width+width/2)] = 255;
 
 	free (dispCopy);
+}
+
+int YARPDisparityTool::functFitting(YVector& x,
+									 double y[],
+									 YVector& sig,
+									 int ndata,
+									 YVector& a,
+									 bool *ia,
+									 int ma,
+									 YMatrix& covar,
+									 YMatrix& alpha,
+									 double *chisq,
+									 void (YARPDisparityTool::*fittingFunct) (double,YVector&,double*,YVector&,int),
+									 double *alambda)
+{
+//	void covsrt(YMatrix& covar, int ma, bool * ia, int mfit);
+//	int gaussj(YMatrix& a, int n, YMatrix& b, int m);
+//	void mrqcof(YVector& x, double y[], YVector& sig, int ndata, YVector& a,
+//				bool * ia, int ma, YMatrix& alpha, YVector& beta, double *chisq,
+//				void (*funcs)(double, YVector&, double *, YVector&, int));
+
+	int j,k,l;
+	int error;
+	static int mfit;
+	static double ochisq;
+
+	static YVector atry, beta, da;
+	static YMatrix oneda;
+
+	if (*alambda < 0.0) 
+	{ 
+		atry.Resize(ma);
+		beta.Resize(ma);
+		da.Resize(ma);
+
+		for (mfit=0,j=1;j<=ma;j++)
+			if (ia[j-1]) 
+				mfit++;
+
+		oneda.Resize(mfit,1);
+
+		*alambda=0.001f;
+		mrqCof(x,y,sig,ndata,a,ia,ma,alpha,beta,chisq,fittingFunct);
+		ochisq=(*chisq);
+		for (j=1;j<=ma;j++) 
+			atry(j)=a(j);
+	}
+
+	for (j=1;j<=mfit;j++) 
+	{ 
+		for (k=1;k<=mfit;k++) 
+			covar(j,k)=alpha(j,k);
+		covar(j,j)=alpha(j,j)*(1.0+(*alambda));
+		oneda(j,1)=beta(j);
+	}
+
+	error = gaussJordan(covar,mfit,oneda,1);
+	if (error==-1)
+		return -1;
+
+
+	for (j=1;j<=mfit;j++) 
+		da(j)=oneda(j,1);
+
+	if (*alambda == 0.0) 
+	{
+		covSwap(covar,ma,ia,mfit);
+		covSwap(alpha,ma,ia,mfit);
+		return 0;
+	}
+
+	for (j=0,l=1;l<=ma;l++) 
+		if (ia[l-1]) 
+			atry(l)=a(l)+da(++j);
+
+	mrqCof(x,y,sig,ndata,atry,ia,ma,covar,da,chisq,fittingFunct);
+//	if (*chisq < ochisq) 
+	if (*chisq - ochisq < 0) 
+	{
+		*alambda *= 0.1f;
+		ochisq=(*chisq);
+		for (j=1;j<=mfit;j++) 
+		{
+			for (k=1;k<=mfit;k++) 
+				alpha(j,k)=covar(j,k);
+			beta(j)=da(j);
+		}
+		for (l=1;l<=ma;l++) 
+			a(l)=atry(l);
+	} 
+	else 
+	{
+		*alambda *= 10.0;
+		*chisq=ochisq;
+	}
+	return 0;
+
+}
+
+int YARPDisparityTool::gaussJordan(YMatrix& a, int n, YMatrix& b, int m)
+{
+	int *indxc,*indxr,*ipiv;
+	int i,icol,irow,j,k,l,ll;
+	double big,dum,pivinv,temp;
+
+	indxc=(int*)malloc(n*sizeof(int));
+	indxr=(int*)malloc(n*sizeof(int));	
+	ipiv =(int*)malloc(n*sizeof(int));
+
+	for (j=0;j<n;j++)
+	{
+		ipiv[j] =0;
+		indxc[j]=0;
+		indxr[j]=0;
+	}
+
+	for (i=1;i<=n;i++) 
+	{ 
+		big=0.0;
+		for (j=1;j<=n;j++)
+			if (ipiv[j-1] != 1)
+				for (k=1;k<=n;k++) 
+				{
+					if (ipiv[k-1] == 0) 
+					{
+						if (fabs(a(j,k)) >= big) 
+						{
+							big=fabs(a(j,k));
+							irow=j;
+							icol=k;
+						}
+					}
+				}
+
+		++(ipiv[icol-1]);
+		if (irow != icol) 
+		{
+			for (l=1;l<=n;l++) 
+				SWAP(a(irow,l),a(icol,l))
+			for (l=1;l<=m;l++) 
+				SWAP(b(irow,l),b(icol,l))
+		}
+		indxr[i-1]=irow; 
+		indxc[i-1]=icol;
+		if (a(icol,icol) == 0.0)
+		{
+			printf("gaussJordan: Singular Matrix\n");
+			return -1;
+		}
+		pivinv=1.0/a(icol,icol);
+		a(icol,icol)=1.0;
+		for (l=1;l<=n;l++) 
+			a(icol,l) *= pivinv;
+		for (l=1;l<=m;l++) 
+			b(icol,l) *= pivinv;
+
+		for (ll=1;ll<=n;ll++)
+			if (ll != icol)
+			{
+				dum=a(ll,icol);
+				a(ll,icol)=0.0;
+				for (l=1;l<=n;l++) 
+					a(ll,l) -= a(icol,l)*dum;
+				for (l=1;l<=m;l++) 
+					b(ll,l) -= b(icol,l)*dum;
+			}
+	}
+	for (l=n;l>=1;l--) 
+	{
+		if (indxr[l-1] != indxc[l-1])
+			for (k=1;k<=n;k++)
+			{
+				SWAP(a(k,indxr[l-1]),a(k,indxc[l-1]));
+			}
+	}
+
+	free(ipiv);
+	free(indxr);
+	free(indxc);
+
+	return 0;
+}
+
+void YARPDisparityTool::gaussian(double x, YVector& a, double *y, YVector& dyda, int na)
+{
+	int i;
+	double fac,ex,arg;
+	
+	*y=0.0;
+	
+	for (i=1;i<=na-1;i+=3) 
+	{
+		arg=(x-a(i+1))/a(i+2);
+		ex=exp(-arg*arg);
+		fac=a(i)*ex*2.0*arg;
+		*y += a(i)*ex;
+
+		dyda(i)=ex;
+		dyda(i+1)=fac/a(i+2);
+		dyda(i+2)=fac*arg/a(i+2);
+	}
+}
+void YARPDisparityTool::covSwap(YMatrix& covar, int ma, bool * ia, int mfit)
+{
+	int i,j,k;
+	double temp;
+	for (i=mfit+1;i<=ma;i++)
+		for (j=1;j<=i;j++) 
+			covar(i,j)=covar(j,i)=0.0;
+	k=mfit;
+	for (j=ma;j>=1;j--) 
+	{
+		if (ia[j-1]) 
+		{
+			for (i=1;i<=ma;i++) 
+				SWAP(covar(i,k),covar(i,j))
+			for (i=1;i<=ma;i++) 
+				SWAP(covar(k,i),covar(j,i))
+			k--;
+		}
+	}
+}
+
+void YARPDisparityTool::mrqCof(	YVector& x, double y[], YVector& sig, int ndata, YVector& a, bool * ia,
+								int ma, YMatrix& alpha, YVector& beta, double *chisq,
+								void (YARPDisparityTool::*fittingFunct)(double, YVector&, double *, YVector&, int))
+{
+	int i,j,k,l,m,mfit=0;
+	double ymod,wt,sig2i,dy;
+
+	YVector dyda;
+	dyda.Resize(ma);
+
+	for (j=1;j<=ma;j++)
+		if (ia[j-1]) 
+			mfit++;
+	for (j=1;j<=mfit;j++) 
+	{
+		for (k=1;k<=j;k++) 
+			alpha(j,k)=0.0;
+		beta(j)=0.0;
+	}
+	*chisq=0.0;
+
+	for (i=1;i<=ndata;i++) 
+	{
+		(this->*fittingFunct)(x(i),a,&ymod,dyda,ma);
+		sig2i=1.0/(sig(i)*sig(i));
+		dy=y[i-1]-ymod;
+
+		for (j=0,l=1;l<=ma;l++)
+		{
+			if (ia[l-1]) 
+			{
+				wt=dyda(l)*sig2i;
+				for (j++,k=0,m=1;m<=l;m++)
+					if (ia[m-1]) 
+						alpha(j,++k) += wt*dyda(m);
+				beta(j) += dy*wt;
+			}
+		}
+		*chisq += dy*dy*sig2i; 
+	}
+	for (j=2;j<=mfit;j++)
+		for (k=1;k<j;k++) 
+			alpha(k,j)=alpha(j,k);
+
+}
+
+int YARPDisparityTool::corrAdjust(int * count)
+{
+	int MAX = 0;
+	double MIN = 1000.0;
+	int minindex;
+	int k;
+
+	for (k=0; k<_shiftLevels; k++)
+		if (count[k]>MAX)
+			MAX = count[k];
+
+	for (k=0; k<_shiftLevels; k++)
+	{
+		if (count[k]<MAX)
+			_corrFunct[k] = 3.0;
+		else
+			_corrFunct[k] = 3.0-(count[k]*_corrFunct[k]/MAX);
+	}
+
+	for (k=0; k<_shiftLevels; k++)
+		if (_corrFunct[k]<MIN)
+		{
+			MIN = _corrFunct[k];
+			minindex = k;
+		}
+
+	return minindex;
+}
+
+double YARPDisparityTool::computeSNRatio(int disparity)
+{
+	int k;
+	double avg = 0.0;
+	double snRatio;
+	int counter = 0;
+
+	for (k=0; k<_shiftLevels; k++)
+	{
+		avg += _corrFunct[k];
+		if (_corrFunct[k]>0.0)
+			counter ++;
+	}
+
+//	avg /= _shiftLevels;
+	avg /= counter;
+
+	snRatio = _corrFunct[disparity]/(avg+0.00001);
+
+	return snRatio;
+}
+
+void YARPDisparityTool::findFittingFunction()
+{
+	int k;
+
+	YVector adef(3);
+	YVector a(3);
+
+	a(1) = _gMagn;
+	a(2) = _gMean;
+	a(3) = _gSigma;
+
+	YVector x;
+	x.Resize(_shiftLevels);
+
+	YVector sig;
+	sig.Resize(_shiftLevels);
+
+	bool *ia;
+	ia = (bool*) malloc (3*sizeof(bool));
+
+	ia[0] = 1;
+	ia[1] = 1;
+	ia[2] = 1;
+
+	YMatrix covar (3,3);
+	YMatrix alpha (3,3);
+
+	double chisq = 1000;
+	double prchisq = 1100;
+	double alambda;
+	double min_chisq = 100000;
+
+	fittingFunct = gaussian;
+
+	for (k=1; k<=_shiftLevels; k++)
+	{
+		x  (k) = (double)(k-1);
+		sig(k) = 1.0f;
+	}
+
+	double d;
+	int error;
+
+	for (d=0.1; d<100.1; d+=10)
+	{
+
+		a(1) = _gMagn;
+		a(2) = _gMean;
+		a(3) = d;
+
+		alambda = -1.0;
+		error = functFitting(x,_corrFunct,sig,_shiftLevels,a,ia,3,covar,alpha,&chisq,fittingFunct,&alambda);
+		if (error != -1)
+		{
+			while (fabs(chisq-prchisq) > 0.00001)
+			{
+				prchisq = chisq;
+				error = functFitting(x,_corrFunct,sig,_shiftLevels,a,ia,3,covar,alpha,&chisq,fittingFunct,&alambda);
+				if (error == -1)
+					break;
+			}
+			if (error != -1)
+			{
+				alambda = 0.0;
+				error = functFitting(x,_corrFunct,sig,_shiftLevels,a,ia,3,covar,alpha,&chisq,fittingFunct,&alambda);
+				if (error == -1)
+					break;
+
+				if (chisq<min_chisq)
+				{
+					min_chisq = chisq;
+					adef = a;
+				}
+			}
+		}
+
+	}
+	a = adef;
+	_squareError = min_chisq;
+
+	for (k=0; k<_shiftLevels; k++)
+		_gaussFunction[k] = 3.0-(a(1) * exp(-((k-a(2))/a(3))*((k-a(2))/a(3))));
+
+	_gMagn  = a(1);
+	_gMean  = a(2);
+	_gSigma = a(3);
 }

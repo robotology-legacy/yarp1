@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.h,v 1.8 2004-02-04 16:10:22 fberton Exp $
+/// $Id: YARPDisparity.h,v 1.9 2004-02-23 15:56:33 fberton Exp $
 ///
 ///
 // disparity.h: interface for the YARPDisparityTool class.
@@ -81,6 +81,7 @@
 #include <YARPSemaphore.h>
 #include <YARPTime.h>
 #include <YARPImages.h>
+#include <YARPMatrix.h>
 
 #include <LogPolarSDK.h>
 
@@ -106,9 +107,16 @@ public:
 	int * _shiftFunction;
 	IntNeighborhood * _dsTable;
 	double * _corrFunct;
+	double * _gaussFunction;
 	double _corrTreshold;
 
 	int _actRings;
+	double _gMean;
+	double _gSigma;
+	double _gMagn;
+	double _squareError;
+	double _snRatio;
+
 
 	int loadShiftTable(Image_Data* Par);
 	int loadDSTable(Image_Data* Par);
@@ -117,7 +125,47 @@ public:
 	int computeDisparity (YARPImageOf<YarpPixelBGR> & inRImg,
 						 YARPImageOf<YarpPixelBGR> & inLImg);
 
+	int corrAdjust(int * count);
+	double computeSNRatio(int disparity);
+
 	void makeHistogram(YARPImageOf<YarpPixelMono> & hImg);
+
+	void (YARPDisparityTool::*fittingFunct)(double, YVector&, double *, YVector&, int);	
+
+	void gaussian(double x, YVector& a, double *y, YVector& dyda, int na);
+
+	void findFittingFunction();
+	int functFitting(YVector& x,
+					 double y[],
+					 YVector& sig,
+					 int ndata,
+					 YVector& a,
+					 bool* ia,
+					 int ma,
+					 YMatrix& covar,
+					 YMatrix& alpha,
+					 double *chisq,
+					 void (YARPDisparityTool::*fittingFunct) (double,YVector&,double*,YVector&,int),
+					 double *alambda);
+
+
+	void covSwap(YMatrix& covar, int ma, bool * ia, int mfit);
+
+	int gaussJordan(YMatrix& a, int n, YMatrix& b, int m);
+
+		
+	void mrqCof(YVector& x, 
+				double y[], 
+				YVector& sig, 
+				int ndata, 
+				YVector& a, 
+				bool * ia,
+				int ma, 
+				YMatrix& alpha, 
+				YVector& beta, 
+				double *chisq,
+				void (YARPDisparityTool::*fittingFunct)(double, YVector&, double *, YVector&, int));
+
 
 	YARPDisparityTool();
 	virtual ~YARPDisparityTool();
