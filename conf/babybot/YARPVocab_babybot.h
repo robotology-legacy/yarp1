@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPVocab_babybot.h,v 1.10 2004-10-01 12:53:38 babybot Exp $
+/// $Id: YARPVocab_babybot.h,v 1.11 2004-10-04 13:00:59 babybot Exp $
 ///
 ///
 
@@ -63,6 +63,7 @@ const char *const YBVArmIssuedCmd = "ArmIssuedCmd";
 const char *const YBVArmIsBusy = "ArmIsBusy";
 const char *const YBVArmQuit = "ArmQuit";
 const char *const YBVArmSetStiffness = "ArmSetStiffness";
+const char *const YBVArmPrintPids = "ArmPrintPids";
 
 // reaching behavior
 const char *const YBVReachingLearn = "ReachingLearn";

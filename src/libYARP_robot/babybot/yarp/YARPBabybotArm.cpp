@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotArm.cpp,v 1.2 2004-10-01 12:53:39 babybot Exp $
+/// $Id: YARPBabybotArm.cpp,v 1.3 2004-10-04 13:01:07 babybot Exp $
 ///
 ///
 
@@ -166,7 +166,7 @@ int YARPBabybotArm::setG(int i, double g)
 	return -1;
 }
 
-int YARPBabybotArm::setGs(double *g)
+int YARPBabybotArm::setGs(const double *g)
 {
 	_lock();
 	
@@ -249,4 +249,32 @@ int YARPBabybotArm::uninitialize()
 
 	_unlock();
 	return MyGenericControlBoard::uninitialize();
+}
+
+int YARPBabybotArm::setPIDs(const LowLevelPID *pids)
+{
+	int j = 0;
+	if (pids == NULL)
+		return YARP_FAIL;
+
+	for(j = 0; j<_parameters._nj; j++)
+	{
+		LowLevelPID *tmp = const_cast<LowLevelPID *>(&pids[j]);
+		MyGenericControlBoard::setPID(j, *tmp, false);
+	}
+
+	/*
+	int axes = _parameters._axis_map[j];
+	LowLevelPID pid = _parameters._lowPIDs[axes];
+	pid.KD = 0.0;
+	pid.KI = 0.0;
+	pid.AC_FF = 0.0;
+	pid.VEL_FF = 0.0;
+	pid.FRICT_FF = 0.0;
+	pid.OFFSET = g;
+	// don't touch I_LIMIT, T_LIMIT, SHIFT
+	pid.KP = fabs(k)*_pidSigns[axes];
+	return MyGenericControlBoard::setPID(j, pid, false);		//setPID internally lock and unlock
+	*/
+	return YARP_OK;
 }

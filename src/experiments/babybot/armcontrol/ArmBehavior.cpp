@@ -146,3 +146,8 @@ void ABSetStiffnessState::handle(ArmBehaviorData *d)
 {
 	d->setStiffness(d->_newGainJoint, d->_newGain);
 }
+
+void ABOutputPrintPids::output(ArmBehaviorData *d)
+{
+	d->printPids();
+}

@@ -66,6 +66,8 @@ int main(int argc, char* argv[])
 	ABSimpleInput checkRestDone(YBVArmRestDone);
 	ABSimpleInput hibernateCmd(YBVArmHibernate);
 	ABSimpleInput resumeCmd(YBVArmResume);
+	ABSimpleInput printPids(YBVArmPrintPids);
+	ABOutputPrintPids printPidsOutput;
 
 	ABInputSetStiffness setStiffness(YBVArmSetStiffness);
 	ABSetStiffnessState setStiffnessState1;
@@ -123,6 +125,7 @@ int main(int argc, char* argv[])
 	_arm.add(&inputForceRestTrue, &outputForceRestTrue);
 	_arm.add(&inputInhibitRest, &outputInhibitRest);
 	_arm.add(&inputInhibitRestTrue, &outputInhibitRestTrue);
+	_arm.add(&printPids, &printPidsOutput);
 	////////////////////
 
 	// start control thread

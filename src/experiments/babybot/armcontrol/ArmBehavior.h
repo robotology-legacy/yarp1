@@ -104,6 +104,12 @@ public:
 	void output(ArmBehaviorData *d);
 };
 
+class ABOutputPrintPids: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
 class ABOutputHibernate: public ArmBehaviorBaseOutput
 {
 public:

@@ -97,6 +97,11 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	_gravityTerms.Resize(_nj);
 	_gravityTerms = 0.0;
 
+	// PIDs
+	_pids = new LowLevelPID[_nj];
+	_pidSigns = new int[_nj];
+		
+
 	// PORT
 	char armStatusPortname[255];
 	file.getString("[THREAD]", "ArmStatusPortName", armStatusPortname);
@@ -116,6 +121,9 @@ ArmThread::~ArmThread()
 	printf("--> ArmThread: Unregistering output behavior port\n\n\n");
 	YARPBehaviorSharedData::_outPort.Unregister();
 	printf("--> ArmThread: Output behavior port unregistered\n\n\n");*/
+
+	delete [] _pids;
+	delete [] _pidSigns;
 }
 
 void ArmThread::resetEncoders(const double *p)
@@ -142,6 +150,7 @@ void ArmThread::doInit()
 	_arm.setAccs(_acc.data());
 
 	_arm.setGainsSmoothly(_arm._parameters._lowPIDs, 200);
+	_initLocalPIDs(_arm._parameters._lowPIDs);
 	_arm_status._pidStatus = 1;
 	_arm.getPositions(_arm_status._current_position.data());
 
@@ -223,10 +232,12 @@ inline void ArmThread::send_commands()
 	// check if gravity is enabled
 	for(int j = 0; j < _nj; j++) {
 		if (!_gravityFlags[j])
-			g[j] = 0.0;
+			_pids[j].OFFSET = 0.0;
+		else
+			_pids[j].OFFSET = g[j];
 	}
 
-	_arm.setGs(g);
+	_arm.setPIDs(_pids);
 
 	_armStatusPort.Content() = _arm_status;
 	_armStatusPort.Write();
@@ -348,15 +359,93 @@ bool ArmThread::_checkLimits(const YVector &inCmd, YVector &outCmd)
 	return ret;
 }
 
-void ArmThread::setStiffness(int joint, double k)
+int ArmThread::setStiffness(int joint, double k)
 {
 	LowLevelPID pid;
-	_arm.getPID(joint, pid, false);
-	std::cout << "PID on " << joint << " IS NOW: " << pid.KP << "\n"; //  = k;
+	if( (joint>=0) && (joint<_nj) )
+	{
+		_arm.getPID(joint, pid, false);
+		std::cout << "PID on " << joint << " IS NOW: " << pid.KP << "\n"; //  = k;
 
-	std::cout << "YOU're trying to set it to: " << k << "\n";
-	_arm.setStiffness(joint, k);
+		std::cout << "YOU're trying to set it to: " << k << "\n";
+		_pids[joint].KP = fabs(k)*_pidSigns[joint];
+		return YARP_OK;
+	}
 
-	_arm.getPID(joint, pid, false);
-	std::cout << "PID on " << joint << " IS NOW: " << pid.KP << "\n"; //  = k;
+	std::cout << "Joint " << joint << " does not exist !\n";
+	return YARP_FAIL;
+}
+
+void ArmThread::printPids()
+{
+	LowLevelPID pid;
+	printf("Beginning dump\n");
+	for(int i = 0; i < _nj; i++)
+	{
+		_arm.getPID(i, pid, false);
+		printf("%d\t", i);
+		printf("%lf\t",pid.KP);
+		// printf("%lf\t",pid.KD);
+		// printf("%lf\t",pid.KI);
+		printf("%lf\t",pid.OFFSET);
+		printf("%lf\t",pid.T_LIMIT);
+		printf("%lf\t",pid.I_LIMIT);
+		printf("\n");
+	}
+	printf("*******\n");
+}
+
+bool ArmThread::_decMaxTorques(double delta, double value, int nj)
+{
+	bool ret = true;
+	int i;
+	for(i = 0; i < nj; i++)
+	{
+		_pids[i].T_LIMIT = _pids[i].T_LIMIT - (fabs(delta));
+
+		// check newLimit to see it we are done
+		// be sure we are not going below zero
+		if (_pids[i].T_LIMIT < 0.0)
+		{
+			_pids[i].T_LIMIT = 0.0;
+			ret = ret && true;
+		}
+		else if (_pids[i].T_LIMIT <= value)
+		{
+			_pids[i].T_LIMIT = value;
+			ret = ret && true;
+		}
+		else
+			ret = false;
+	}
+
+	return ret;
+}
+
+bool ArmThread::_incMaxTorques(double delta, double value, int nj)
+{
+	bool ret = true;
+	int i;
+	
+	for(i = 0; i < nj; i++)
+	{
+		_pids[i].T_LIMIT = _pids[i].T_LIMIT + (fabs(delta));
+
+		// check newLimit to see it we are done
+		// be sure we are not going below zero
+		if (_pids[i].T_LIMIT >= _arm._parameters._maxDAC[i])
+		{
+			_pids[i].T_LIMIT = _arm._parameters._maxDAC[i];
+			ret = ret && true;
+		}
+		else if (_pids[i].T_LIMIT >= value)
+		{
+			_pids[i].T_LIMIT = value;
+			ret = ret && true;
+		}
+		else
+			ret = false;
+	}
+
+	return ret;
 }

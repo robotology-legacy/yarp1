@@ -172,10 +172,9 @@ public:
 	}
 
 	void park(int index);	// park arm
-
 	void resetEncoders(const double *pos);
-
-	void setStiffness(int joint, double k);
+	int setStiffness(int joint, double k);
+	void printPids();
 
 private:
 	friend class	AState;
@@ -200,6 +199,23 @@ private:
 	// change reaching first state
 	void changeInitState(AState *s)
 		{_init_state = s;}
+
+	void _initLocalPIDs(const LowLevelPID *newPids)
+	{
+		for(int i = 0; i < _nj; i++)
+		{
+			_pids[i] = newPids[i];
+			if (_pids[i].KP > 0)
+				_pidSigns[i] = 1;
+			else if (_pids[i].KP < 0)
+				_pidSigns[i] = -1;
+			else
+				_pidSigns[i] = 0;
+		}
+	}
+
+	bool _decMaxTorques(double delta, double value, int nj);
+	bool _incMaxTorques(double delta, double value, int nj);
 
 	// this is a private function, it can be called only from within the thread
 	void _directCommand(const YVector &cmd, int nst = 0);
@@ -241,6 +257,8 @@ public: //later: make it private
 	J3GravityEstimator _gravity3;
 	J5GravityEstimator _gravity5;
 	int *_gravityFlags;
+	LowLevelPID *_pids;
+	int *_pidSigns;
 	
 	YVector _cmd;	//move it from here !
 	YVector _speed;

@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotArm.h,v 1.3 2004-10-01 12:53:39 babybot Exp $
+///  $Id: YARPBabybotArm.h,v 1.4 2004-10-04 13:01:07 babybot Exp $
 ///
 ///
 
@@ -120,7 +120,10 @@ public:
 	// set offset to i-th joint
 	int setG(int i, double g);
 	// set offsets to all joints
-	int setGs(double *g);
+	int setGs(const double *g);
+
+	// set offset and stiffness
+	int setPIDs(const LowLevelPID *pids);
 
 	// very specific functions... 6 dof only!
 	inline void angleToEncoders(const double *ang, double *enc)

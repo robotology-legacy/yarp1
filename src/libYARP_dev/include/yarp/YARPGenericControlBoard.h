@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.7 2004-10-01 12:53:39 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.8 2004-10-04 13:01:07 babybot Exp $
 ///
 ///
 
@@ -978,15 +978,16 @@ template <class ADAPTER, class PARAMETERS>
 inline bool YARPGenericControlBoard<ADAPTER, PARAMETERS>::
 decMaxTorque(int axis, double delta, double value)
 {
+	int adapterRet;
 	bool ret = false;
 	double currentLimit, newLimit;
 	SingleAxisParameters cmd;
 	cmd.axis = _parameters._axis_map[axis];
 	cmd.parameters = &currentLimit;
-	_adapter.IOCtl(CMDGetTorqueLimit, &cmd);
+	adapterRet = _adapter.IOCtl(CMDGetTorqueLimit, &cmd);
 
 	newLimit = currentLimit - (fabs(delta));
-	
+
 	// check newLimit to see it we are done
 	if (newLimit <= value)
 	{
@@ -1001,8 +1002,9 @@ decMaxTorque(int axis, double delta, double value)
 	}
 
 	cmd.parameters = &newLimit;
-	_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
-
+	adapterRet = _adapter.IOCtl(CMDSetTorqueLimit, &cmd);
+	if(adapterRet!=YARP_OK)
+		printf("CMDSetTorqueLimit returned an error\n");
 	return ret;
 }
 
@@ -1052,13 +1054,13 @@ decMaxTorques(double delta, double value, int nj)
 	// set new limits to "_currentLimits" for all joints
 	for(i = 0; i < _parameters._nj; i++)
 		_newLimits[i] = _currentLimits[i];
-	
+		
 	// only reduce limits for specified joints
 	for(i = 0; i < nj; i++)
 	{
 		int j = _parameters._axis_map[i];
 		_newLimits[j] = _currentLimits[j] - (fabs(delta));
-	
+
 		// check newLimit to see it we are done
 		// be sure we are not going below zero
 		if (_newLimits[j] < 0.0)
@@ -1076,7 +1078,6 @@ decMaxTorques(double delta, double value, int nj)
 	}
 
 	_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
-
 	return ret;
 }
 
