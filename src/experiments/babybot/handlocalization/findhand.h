@@ -11,7 +11,7 @@
 class FindHand: public YARPThread
 {
 public:
-	FindHand(const std::string &portName = "/handlocalization");
+	FindHand(const YARPString &portName = "/handlocalization");
 	~FindHand();
 
 	

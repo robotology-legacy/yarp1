@@ -20,7 +20,7 @@
 using namespace std;
 
 const int __defaultRate = 40;
-const string __defaultName = "/force/o:1";
+const YARPString __defaultName = "/force/o:1";
 
 class MyThread : public YARPRateThread
 {
@@ -77,7 +77,7 @@ int main (int argc, char *argv[])
 
 	// parse command line
 	int rate;
-	string name;
+	YARPString name;
 	if (!YARPParseParameters::parse(argc, argv, "p", &rate))
 		rate = __defaultRate;
 

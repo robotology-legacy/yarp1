@@ -7,7 +7,7 @@ const double __thresholdMotor = 0.2;
 const int _sCol = 256;
 const int _npixels = _stheta*(_srho);//-_sfovea);
 
-FindHand::FindHand(const std::string &portName):
+FindHand::FindHand(const YARPString &portName):
 _inPort(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST),
 _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
 _outPixelPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),

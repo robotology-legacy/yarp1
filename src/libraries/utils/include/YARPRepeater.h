@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPRepeater.h,v 1.5 2003-07-24 17:28:32 babybot Exp $
+/// $Id: YARPRepeater.h,v 1.6 2003-08-04 08:43:51 babybot Exp $
 ///  
 //
 
@@ -75,7 +75,7 @@ template <class DATATYPE>
 class YARPRepeater: public YARPThread
 {
 public:
-	YARPRepeater(std::string inPortName, std::string outPortName, int inputProtocol, int outputProtocol):
+	YARPRepeater(YARPString &inPortName, YARPString &outPortName, int inputProtocol, int outputProtocol):
 		_inputPort(YARPInputPort::DEFAULT_BUFFERS, inputProtocol),
 		_outputPort(YARPOutputPort::DEFAULT_OUTPUTS, outputProtocol)
 	{

@@ -7,7 +7,7 @@
 #include <YARPBottle.h>
 
 #include <iostream>
-#include <string>
+//#include <string>
 
 using namespace std;
 
@@ -19,9 +19,9 @@ int main(int argc, char* argv[])
 {
 	///__debug_level = 80;
 
-	string oname;
-	string iname;
-	string name;
+	YARPString oname;
+	YARPString iname;
+	YARPString name;
 	if (!YARPParseParameters::parse(argc, argv, "name",  name))
 	{
 		cout << "Use: " << argv[0] << " -name port_name";

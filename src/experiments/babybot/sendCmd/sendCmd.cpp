@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 {
 	_outPort.Register("/motorcmd/o");
 	YARPBottle tmp;
-	string c;
+	YARPString c;
 	while(cin>> c)
 	{
 		tmp.reset();
