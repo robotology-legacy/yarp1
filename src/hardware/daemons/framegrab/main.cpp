@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.50 2004-02-12 13:27:03 babybot Exp $
+/// $Id: main.cpp,v 1.51 2004-02-12 17:43:57 babybot Exp $
 ///
 ///
 
@@ -415,11 +415,7 @@ public:
 
 int mainthread::_runAsClient (void)
 {
-#if !defined(__LinuxTest__)
-	YARPImageOf<YarpPixelMono> img;
-#else
 	YARPImageOf<YarpPixelBGR> img;
-#endif
 	YARPInputPortOf<YARPGenericImage> inport(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
 	inport.Register (_name, _netname);
@@ -431,11 +427,10 @@ int mainthread::_runAsClient (void)
 	while (!IsTerminated())
 	{
 		inport.Read ();
-		img.Refer (inport.Content());
-
-		ACE_OS::printf (">>> got a frame\n");
+		img.CastCopy (inport.Content());
 
 		frame_no++;
+		ACE_OS::printf (">>> got a frame %d\n", frame_no);
 
 		ACE_OS::sprintf (savename, "./grab_test%04d.ppm", frame_no);
 		YARPImageFile::Write (savename, img);
