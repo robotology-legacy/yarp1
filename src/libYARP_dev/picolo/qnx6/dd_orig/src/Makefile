@@ -19,16 +19,16 @@ bttvx: $(OBJS)
 	@echo ---------------Creating bttvx.lib --------------
 	@echo
 	#$(CC) $(LDFLAGS) $(OBJS) -o $@
-	$(AR) $(ARFLAGS) $@.lib $@.o
+	$(AR) $(ARFLAGS) $@.a $@.o
 
 blit:  $(OBJS2)
-	$(CC) $(LDFLAGS) $(OBJS2) bttvx.lib -o $@ -lph
+	$(CC) $(LDFLAGS) $(OBJS2) bttvx.a -o $@ -lph
 	
 bttvx_dev:
 	@echo
 	@echo --------------Compiling bttvx_dev ---------------
 	@echo
-	$(CC) $(LDFLAGS) $@.o bttvx.lib  -o $@  
+	$(CC) $(LDFLAGS) $@.o bttvx.a  -o $@  
 
 bttvx_regs:
 	@echo
@@ -41,7 +41,7 @@ install:
 	@echo ---------------Instaling bttvx --------------
 	@echo
 	mkdir -p ../lib
-	cp *.lib ../lib/
+	cp *.a ../lib/
 
 clean:
 	@echo

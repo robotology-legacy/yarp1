@@ -175,9 +175,8 @@ sub install_libs_generic
 				copy($file, "$yarp_root/include/yarp/") or warn "Can't copy $file\n";
 			}
 
-			foreach my $file (glob "./$device/$os/dd_orig/lib/*.a")
+			foreach my $file (glob "./$device/$os/dd_orig/lib/*.a ./$device/$os/dd_orig/lib/*.lib")
 			{
-				$file =~ s#/#\\#g;
 				$libraries = "$libraries $file";
 			}
 
@@ -192,12 +191,18 @@ sub install_libs_generic
 	{
 		print "\nNow building libraries...\n";
 
-		print `ar -r ./lib/$(os)/libYARP_dev.a $libraries`;
+	        open MK, "ar -rv ./lib/$os/libYARP_dev.a $libraries"."|";
+	        while (<MK>)
+		{
+			print;
+		}
+		close MK;       
 	}
 
 	copy ("./lib/$os/libYARP_dev.a", "$yarp_root/lib/$os/") or warn "Can't copy \"./lib/$os/libYARP_dev.a\"\n";
-}
 
+	0;
+}
 
 #
 # specific library install for winnt.

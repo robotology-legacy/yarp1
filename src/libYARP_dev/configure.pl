@@ -243,7 +243,7 @@ sub generate_makefile_project
 					foreach my $filename (glob "./$device/$os/yarp/*.cpp")
 					{
 						$filename =~ /(YARP[\w\s_]+.)cpp/;
-						print PROJECT "../obj/$os/$1o";
+						print PROJECT "../obj/$os/$1o ";
 					}
 				}
 			}

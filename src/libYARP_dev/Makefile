@@ -6,7 +6,7 @@ endif
 
 include $(YARP_ROOT)/conf/Makefile.template
 
-SUBDIRS = null_grabber src
+SUBDIRS = galil null_grabber picolo src
 
 all: target
 
