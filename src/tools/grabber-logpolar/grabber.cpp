@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: grabber.cpp,v 1.2 2004-07-28 23:02:59 babybot Exp $
+/// $Id: grabber.cpp,v 1.1 2004-07-28 23:02:59 babybot Exp $
 ///
 ///
 
@@ -52,6 +52,7 @@
 #include <yarp/YARPTime.h>
 
 #include <yarp/YARPImages.h>
+#include <yarp/YARPLogpolar.h>
 #include <yarp/YARPBottle.h>
 #include <yarp/YARPBottleContent.h>
 #include <yarp/YARPParseParameters.h>
@@ -70,6 +71,7 @@ char	_name[512];
 char	_fgdataname[512];
 char	_netname[512];
 bool	_simu		= false;
+bool	_logp		= false;
 int		_board_no	= 0;
 bool	_fgnetdata	= false;
 bool	_help		= false;
@@ -85,6 +87,7 @@ int PrintHelp (void)
 	ACE_OS::fprintf (stdout, "-h <int>, set the acquisition height\n");
 	ACE_OS::fprintf (stdout, "-b <int>, board number (0 or 1)\n");
 	ACE_OS::fprintf (stdout, "-s, simulation mode\n");
+	ACE_OS::fprintf (stdout, "-l, output log polar images\n");
 	ACE_OS::fprintf (stdout, "-net <str>, define the network name (in a multi-network configuration)\n");
 	ACE_OS::fprintf (stdout, "-o <int>, set acquisition vertical offset\n");
 	ACE_OS::fprintf (stdout, "-f, activate external control of acquisition parameters (through YARPBottle messages)\n");
@@ -136,7 +139,12 @@ int ParseParams (int argc, char *argv[])
 	{
 		ACE_OS::fprintf (stdout, "simulating a grabber...\n");
 		_simu = true;
-		_client = false;
+	}
+
+	if (YARPParseParameters::parse(argc, argv, "l"))
+	{
+		ACE_OS::fprintf (stdout, "logpolar mode\n");
+		_logp = true;
 	}
 	
 	if (YARPParseParameters::parse(argc, argv, "net", tmps))
@@ -161,6 +169,13 @@ int ParseParams (int argc, char *argv[])
 	else
 	if (_sizex == -1 && _sizey == -1)
 		_sizex = _sizey = 128;
+
+	using namespace _logpolarParams;
+	if (_logp)
+	{
+		_sizex = _xsize;
+		_sizey = _ysize;
+	}
 
 	return YARP_OK; 
 }
@@ -269,9 +284,21 @@ class mainthread : public YARPThread
 public:
 	virtual void Body (void)
 	{
-		if (_simu)
+		if (_simu && !_logp)
 		{
 			_runAsSimulation ();
+			return;
+		}
+		else
+		if (_simu && _logp)
+		{
+			_runAsLogpolarSimulation ();
+			return;
+		}
+		else
+		if (_logp)
+		{
+			_runAsLogpolar ();
 			return;
 		}
 		else
@@ -282,6 +309,8 @@ public:
 	}
 
 	int _runAsSimulation (void);
+	int _runAsLogpolarSimulation (void);
+	int _runAsLogpolar (void);
 	int _runAsCartesian (void);
 };
 
@@ -327,6 +356,155 @@ int mainthread::_runAsSimulation (void)
 	return YARP_OK;
 }
 
+int mainthread::_runAsLogpolarSimulation (void)
+{
+	using namespace _logpolarParams;
+
+	YARPImageOf<YarpPixelBGR> img;
+	YARPImageOf<YarpPixelMono> lp;
+	
+	YARPLogpolarSampler sampler;
+
+	ACE_ASSERT (_xsize == _ysize);
+	ACE_ASSERT (_xsize == _sizex && _ysize == _sizey);
+
+	img.Resize (_xsize, _ysize);
+	lp.Resize (_stheta, _srho);
+
+	DeclareOutport(out);
+
+	out.Register (_name, _netname);
+	int frame_no = 0;
+
+	ACE_OS::fprintf (stdout, "starting up simulation of a grabber...\n");
+	ACE_OS::fprintf (stdout, "grabber is logpolar\n");
+	ACE_OS::fprintf (stdout, "acq size: w=%d h=%d\n", _xsize, _ysize);
+
+	double start = YARPTime::GetTimeAsSeconds ();
+	double cur = start;
+
+	char * path = ACE_OS::getenv ("YARP_ROOT");
+	char filename[512];
+	ACE_OS::sprintf (filename, "%s/conf/test_grabber.ppm", path);
+	YARPImageFile::Read (filename, img);
+
+	while (!IsTerminated())
+	{
+		YARPTime::DelayInSeconds (0.04);
+		
+		/// blink
+		if ((frame_no % 2) == 0)
+			*(img.GetRawBuffer() + 128 * 256 * 3 + 128 * 3) = -1;
+		else
+			*(img.GetRawBuffer() + 128 * 256 * 3 + 128 * 3) = 0;
+
+		sampler.Cartesian2Logpolar (img, lp);
+
+		/// sends the buffer.
+		out.Content().Refer (lp);
+		out.Write();
+
+		frame_no++;
+		if ((frame_no % 250) == 0)
+		{
+			cur = YARPTime::GetTimeAsSeconds ();
+			ACE_OS::fprintf (stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
+			start = cur;
+		}
+	}
+
+	ACE_OS::fprintf (stdout, "returning smoothly\n");
+	return YARP_OK;
+}
+
+int mainthread::_runAsLogpolar (void)
+{
+	YARPGrabberParams params;
+	using namespace _logpolarParams;
+
+	YARPGrabber grabber;
+
+	YARPImageOf<YarpPixelBGR> img;
+	YARPImageOf<YarpPixelMono> lp;
+	
+	YARPLogpolarSampler sampler;
+
+	ACE_ASSERT (_xsize == _ysize);
+	ACE_ASSERT (_xsize == _sizex && _ysize == _sizey);
+
+	img.Resize (_xsize, _ysize);
+	lp.Resize (_stheta, _srho);
+
+	DeclareOutport(out);
+	out.Register (_name, _netname);
+
+	/// params to be passed from the command line.
+	params._unit_number = _board_no;
+	params._video_type = 0;
+	params._size_x = _xsize;
+	params._size_y = _ysize;
+	params._offset_y = _yoffset;
+	ACE_OS::fprintf(stdout, "Setting yoffset:%d\n", _yoffset);
+	grabber.initialize (params);
+
+	//Activate port to receive image adjustment data
+	FgNetDataPort  * m_fg_net_data;
+	if (_fgnetdata)
+	{
+		m_fg_net_data = new FgNetDataPort(&grabber);
+		m_fg_net_data->Register (_fgdataname,_netname);
+	}
+
+	int w = -1, h = -1;
+	grabber.getWidth (&w);
+	grabber.getHeight (&h);
+
+	unsigned char *buffer = NULL;
+	int frame_no = 0;
+
+	ACE_OS::fprintf (stdout, "starting up grabber...\n");
+	ACE_OS::fprintf (stdout, "grabber is logpolar\n");
+	ACE_OS::fprintf (stdout, "acq size: w=%d h=%d\n", w, h);
+
+	double start = YARPTime::GetTimeAsSeconds ();
+	double cur = start;
+
+	while (!IsTerminated())
+	{
+		grabber.waitOnNewFrame ();
+		grabber.acquireBuffer (&buffer);
+	
+		/// fills the actual image buffer.
+		memcpy((unsigned char *)img.GetRawBuffer(), buffer, _xsize * _xsize * 3);
+		
+		grabber.releaseBuffer ();
+
+		sampler.Cartesian2Logpolar (img, lp);
+
+		/// sends the buffer.
+		out.Content().Refer (lp);
+		out.Write();
+
+		frame_no++;
+		if ((frame_no % 250) == 0)
+		{
+			cur = YARPTime::GetTimeAsSeconds ();
+			ACE_OS::fprintf (stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
+			start = cur;
+		}
+	}
+
+	if (_fgnetdata)
+	{
+		if (m_fg_net_data != NULL)
+			delete m_fg_net_data; //can this be done better? (closind the port?)
+	}
+
+	grabber.uninitialize ();
+	
+	ACE_OS::fprintf (stdout, "returning smoothly\n");
+	return YARP_OK;
+}
 
 int mainthread::_runAsCartesian (void)
 {
@@ -403,7 +581,6 @@ int mainthread::_runAsCartesian (void)
 int main (int argc, char *argv[])
 {
 	using namespace std;
-
 	YARPScheduler::setHighResScheduling ();
 
 	ParseParams (argc, argv);
