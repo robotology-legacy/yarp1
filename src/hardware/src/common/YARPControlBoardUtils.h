@@ -4,7 +4,7 @@
 //
 // feb 2003 -- by nat and pasa
 
-// $Id: YARPControlBoardUtils.h,v 1.7 2003-05-13 20:14:07 natta Exp $
+// $Id: YARPControlBoardUtils.h,v 1.8 2003-05-17 10:46:52 beltran Exp $
 #include <conf/YARPConfig.h>
 
 #ifndef __YARP_CONTROL_BOARD_UTILS__
@@ -15,75 +15,82 @@
 // command list
 enum ControlBoardCmd
 {
-	CMDSetSpeed	= 0,		// ref speed for position control
-	CMDSetPosition	= 1,	// position control
-	CMDSetAcceleration = 2,	// ref acc for positiona and vel control
-	CMDSetPID = 3,			// set pid
-	CMDGetPosition = 4,		// read actual position
-	CMDSetSpeeds = 5,		// see above, all axes
-	CMDSetPositions	= 6,	// see above, all axes
-	CMDSetAccelerations = 7,// see above, all axes
-	CMDGetPositions = 8,	// see above, all axes
+	CMDSetSpeed				= 0,	// ref speed for position control
+	CMDSetPosition			= 1,	// position control
+	CMDSetAcceleration 		= 2,	// ref acc for positiona and vel control
+	CMDSetPID 				= 3,	// set pid
+	CMDGetPosition 			= 4,	// read actual position
+	CMDSetSpeeds 			= 5,	// see above, all axes
+	CMDSetPositions			= 6,	// see above, all axes
+	CMDSetAccelerations 	= 7,	// see above, all axes
+	CMDGetPositions 		= 8,	// see above, all axes
 
-	CMDSetOutputPort = 9,	// set output port to a spec value
-	CMDSetOutputBit = 10,	// set single bit to 1
-	CMDClearOutputBit = 11,	// set single bit to 0
+	CMDSetOutputPort 		= 9,	// set output port to a spec value
+	CMDSetOutputBit 		= 10,	// set single bit to 1
+	CMDClearOutputBit 		= 11,	// set single bit to 0
 
-	CMDSetOffset = 12,		// set output offset
-	CMDSetOffsets = 13,		// same as above, all axes
+	CMDSetOffset 			= 12,	// set output offset
+	CMDSetOffsets 			= 13,	// same as above, all axes
 
-	CMDBeginMotion = 14,	// start motion (Galil)
-	CMDBeginMotions = 15,	// same all axes
+	CMDBeginMotion 			= 14,	// start motion (Galil)
+	CMDBeginMotions 		= 15,	// same all axes
 
-	CMDDefinePosition = 16,	// set encoder, single axis
-	CMDDefinePositions = 17,// set encoders
+	CMDDefinePosition 		= 16,	// set encoder, single axis
+	CMDDefinePositions 		= 17,	// set encoders
 	
-	CMDStopAxes= 18,		// issue a stop
-	CMDReadSwitches = 19,	// read switched (Galil)
-	CMDServoHere = 20,		// set current position as current 
-	CMDGetSpeeds= 21,		// istantaneous speed
+	CMDStopAxes				= 18,	// issue a stop
+	CMDReadSwitches 		= 19,	// read switched (Galil)
+	CMDServoHere 			= 20,	// set current position as current 
+	CMDGetSpeeds			= 21,	// istantaneous speed
 	
-	CMDGetRefSpeeds = 22,			// get reference speed
-	CMDGetRefAccelerations = 23,	// get ref acc
-	CMDGetRefPositions = 24,		// get ref pos
+	CMDGetRefSpeeds 		= 22,	// get reference speed
+	CMDGetRefAccelerations 	= 23,	// get ref acc
+	CMDGetRefPositions 		= 24,	// get ref pos
 	
-	CMDGetPID = 25,					// read current pid val
-	CMDGetTorques = 26,				// read ist torques (output voltage)
+	CMDGetPID 				= 25,	// read current pid val
+	CMDGetTorques 			= 26,	// read ist torques (output voltage)
 	
-	CMDSetIntegratorLimits = 27,	// int. limit
-	CMDSetTorqueLimits = 28,		// torque limit
+	CMDSetIntegratorLimits 	= 27,	// int. limit
+	CMDSetTorqueLimits 		= 28,	// torque limit
 	
-	CMDGetErrors = 29,				// read current error
+	CMDGetErrors 			= 29,	// read current error
 	
-	CMDReadInput = 30,				// read all ? (not yet impl)
-	CMDInitPortAsInput = 31,		// I/O
-	CMDInitPortAsOutput = 32,		// I/O
-	CMDGetOutputPort = 33,			// I/O
+	CMDReadInput 			= 30,	// read all ? (not yet impl)
+	CMDInitPortAsInput 		= 31,	// I/O
+	CMDInitPortAsOutput 	= 32,	// I/O
+	CMDGetOutputPort 		= 33,	// I/O
 	
-	CMDSetAmpEnableLevel = 34,		// set amp enable level
-	CMDSetAmpEnable = 35,			// set amp enable
-	CMDDisableAmp = 36,				// disable amp
-	CMDEnableAmp = 37,				// enable amp
-	CMDControllerIdle = 38,			// see MEI
-	CMDControllerRun = 39,			// see MEI
-	CMDClearStop = 40,				// on MEI -> clear_status
+	CMDSetAmpEnableLevel 	= 34,	// set amp enable level
+	CMDSetAmpEnable 		= 35,	// set amp enable
+	CMDDisableAmp 			= 36,	// disable amp
+	CMDEnableAmp 			= 37,	// enable amp
+	CMDControllerIdle 		= 38,	// see MEI
+	CMDControllerRun 		= 39,	// see MEI
+	CMDClearStop 			= 40,	// on MEI -> clear_status
 	// limits
-	CMDSetPositiveLimit = 41,
-	CMDSetNegativeLimit = 42,
-	CMDSetPositiveLevel = 43,
-	CMDSetNegativeLevel = 44,
-	CMDVMove = 45,					// set move vel mode (begin motion)
-	CMDCheckMotionDone = 46,		// check for motion done
-	CMDWaitForMotionDone = 47,		// wait (loop with sleep)
-	CMDSetCommands = 48,			// set current commands (watch out! dangerous)
-	CMDSetCommand = 49,			// set current commands (watch out! dangerous)
+	CMDSetPositiveLimit 	= 41,
+	CMDSetNegativeLimit 	= 42,
+	CMDSetPositiveLevel 	= 43,
+	CMDSetNegativeLevel 	= 44,
+	CMDVMove 				= 45,	// set move vel mode (begin motion)
+	CMDCheckMotionDone 		= 46,	// check for motion done
+	CMDWaitForMotionDone 	= 47,	// wait (loop with sleep)
+	CMDSetCommands 			= 48,	// set current commands (watch out! dangerous)
+	CMDSetCommand 			= 49,	// set current commands (watch out! dangerous)
 	// home/index 
-	CMDSetHomeIndexConfig = 50,
-	CMDSetHomeLevel = 51,
-	CMDSetHome = 52,
-	CMDSetStopRate = 53,			// stop rate1
-	CMDDummy = 54,	 // dummy command for debug purpose
-	CBNCmds = 55 // required! tells the total number of commands
+	CMDSetHomeIndexConfig 	= 50,
+	CMDSetHomeLevel 		= 51,
+	CMDSetHome 				= 52,
+	CMDSetStopRate 			= 53,	// stop rate1
+	
+	CMDResetController 		= 54,	//used to reset the Galil Controller
+	CMDErrorLimit			= 55,	//Error limit
+	CMDOffOnError			= 56,	//This command causes the controller to shut off
+									//the  motor command if a position error exceeds
+									//the limit specified by the ErrorLimit command
+	
+	CMDDummy 				= 57,	// dummy command for debug purpose
+	CBNCmds 				= 58 	// required! tells the total number of commands
 };
 
 enum ControlBoardEvents
