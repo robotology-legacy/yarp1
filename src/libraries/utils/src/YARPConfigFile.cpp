@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPConfigFile.cpp,v 1.9 2004-07-09 10:48:54 babybot Exp $
+///  $Id: YARPConfigFile.cpp,v 1.10 2004-07-12 08:36:31 babybot Exp $
 ///
 ///
 
@@ -217,6 +217,26 @@ int YARPConfigFile::get(const char *section, const char *name, unsigned int *out
 		return YARP_OK;		// found all the values
 	else	
 		return YARP_FAIL;	
+}
+
+int YARPConfigFile::get(const char *section, const char *name, double **matrix, int n, int m)
+{
+	if (_get(section, name) == YARP_FAIL)
+		return YARP_FAIL;
+
+	// we assume the matrix is implemented as a C bidimensional vector
+	double *out = matrix[0];
+
+	int i = 0;
+	while ( (i<n*m) && (fscanf(_pFile, "%lf", out++) != EOF) )
+		i++;
+			
+	_close();
+	
+	if (i == n*m)
+		return YARP_OK;		// found all the values
+	else	
+		return YARP_FAIL;		
 }
 
 int YARPConfigFile::getString(const char *section, const char *name, char *out)

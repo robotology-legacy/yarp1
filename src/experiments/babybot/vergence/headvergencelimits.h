@@ -15,9 +15,14 @@ const int __centerY = 128;
 class HeadVergenceLimits
 {
 public:
-	HeadVergenceLimits(): _headkinematics ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
+	HeadVergenceLimits()
 	{
 		_enable = false;
+	}
+
+	void init(const YARPString &path, const YARPString &filename)
+	{
+		_headkinematics.load(path, filename);
 	}
 
 	void update(const YVector &newp)

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.11 2004-07-09 10:48:54 babybot Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.12 2004-07-12 08:36:31 babybot Exp $
 ///
 ///
 
@@ -127,14 +127,18 @@ public:
 	/// ONLY foveal remapped now.
 	typedef enum { KIN_LEFT = 1, KIN_RIGHT = 2, KIN_LEFT_PERI = 3, KIN_RIGHT_PERI = 4 } __kinType;
 	
+	// default constructor, see load method
+	YARPBabybotHeadKin();
 	///
 	/// constructor, takes two set of DH params.
 	/// left describes the structure from base to the left eye (camera).
 	/// right describes the structure from base to the right eye (camera).
 	/// the third parameter is the base to T0 transform. It's simply premultiplied to the 
 	/// final T.
-	YARPBabybotHeadKin(const YARPString &cfgFile);
 	YARPBabybotHeadKin (const YMatrix &dh_left, const YMatrix &dh_right, const YHmgTrsf &bline);
+	// read from file
+	int load(const YARPString &path, const YARPString &file);
+	
 	virtual ~YARPBabybotHeadKin ();
 
 	///

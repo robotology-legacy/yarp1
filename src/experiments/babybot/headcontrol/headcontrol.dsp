@@ -149,6 +149,10 @@ SOURCE=.\HeadThread.h
 
 SOURCE=.\HState.h
 # End Source File
+# Begin Source File
+
+SOURCE=..\..\..\..\include\YARPMEIOnBabybotHeadAdapter.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 

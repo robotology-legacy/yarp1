@@ -55,8 +55,12 @@ public:
 	void inhibitAll();
 	// enable all channels
 	void enableAll();
+	// enable channel
+	void enableChannel(int n);
 
+	// stop head, but remember current inhibitions
 	void suppressHead();
+	// restore inhibitions as they were before calling suppressHead
 	void releaseHead();
 
 	void printChannelsStatus();

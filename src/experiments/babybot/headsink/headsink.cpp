@@ -44,6 +44,8 @@ int main(int argc, char* argv[])
 	behavior.add(&inhibitVorInput, &inhibitVorCmd);
 	behavior.add(&inhibitVergenceInput, &inhibitVergenceCmd);
 	behavior.add(&displayStatusInput, &displayStatusCmd);
+	behavior.add(&suppress, &suppressCmd);
+	behavior.add(&release, &releaseCmd);
 	
 	// start sink thread
 	headSink.start();

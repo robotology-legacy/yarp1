@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotInertialSensor.h,v 1.3 2004-01-17 00:15:15 gmetta Exp $
+///  $Id: YARPBabybotInertialSensor.h,v 1.4 2004-07-12 08:36:31 babybot Exp $
 ///
 ///
 
@@ -100,14 +100,21 @@ public:
 	~YARPBabybotInertialSensor();
 	
 	int load(const YARPString &path, const YARPString &init_file);
+	int save(const YARPString &path, const YARPString &init_file);
 
 	int convert(const short *input, double *output);
 	bool calibrate(const short *input, int *p = NULL);
 		
 	inline double _doConvert(double volt2, double offset2, double ka2, double db);
 	inline bool calibrated()
-	{ return _isCalibrated; }
-	
+		{ return _isCalibrated; }
+
+	double getOffsets(int i)
+	{
+		double *p0 = _parameters[i - 1];
+		return p0[SP_Offset];
+	}
+
 friend class YARPMEIOnBabybotHeadAdapter;
 
 private:

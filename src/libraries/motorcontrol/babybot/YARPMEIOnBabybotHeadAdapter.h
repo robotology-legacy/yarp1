@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.12 2004-06-30 11:03:11 gmetta Exp $
+///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.13 2004-07-12 08:36:31 babybot Exp $
 ///
 ///
 
@@ -447,7 +447,9 @@ public:
 			ACE_OS::printf("%d\r",p);
 			ACE_OS::sleep(ACE_Time_Value(0,40000));
 		}
-		ACE_OS::printf("\n..done!\n");
+
+		_inertial->save("",_parameters->_inertialConfig);
+		
 		return YARP_OK;
 	}
 

@@ -61,11 +61,12 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.cpp,v 1.8 2004-07-09 10:48:54 babybot Exp $
+/// $Id: YARPBabybotHeadKin.cpp,v 1.9 2004-07-12 08:36:31 babybot Exp $
 ///
 ///
 
 #include "YARPBabybotHeadKin.h"
+#include <YARPConfigFile.h>
 
 
 #ifdef __WIN32__
@@ -104,6 +105,11 @@ const double TBaseline[4][4] = {
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
+YARPBabybotHeadKin::YARPBabybotHeadKin ()
+{
+
+}
+
 ///
 ///
 /// each of <dh_left>, <dh_right> describes independently the two kinematic chains from 
@@ -137,6 +143,55 @@ YARPBabybotHeadKin::YARPBabybotHeadKin (const YMatrix &dh_left, const YMatrix &d
 YARPBabybotHeadKin::~YARPBabybotHeadKin ()
 {
 
+}
+
+int YARPBabybotHeadKin::load(const YARPString &path, const YARPString &filename)
+{
+	YARPConfigFile cfgFile;
+
+	// set path and filename
+	cfgFile.set(path.c_str(), filename.c_str());
+		
+	int nj = 0;
+	int nrf = 0;
+	// get number of joints
+	cfgFile.get("[GENERAL]", "Joints", &nj, 1);
+	cfgFile.get("[DIRECTKINEMATICS]", "NRefFrame", &nrf, 1);
+		
+	YMatrix dhLeft;
+	YMatrix dhRight;
+	YHmgTrsf bline;
+
+	ACE_ASSERT(nrf>0);
+	ACE_ASSERT(nj>0);
+
+	dhLeft.Resize(nrf, nj);
+	dhRight.Resize(nrf, nj);
+	
+	cfgFile.get("[DIRECTKINEMATICS]", "DHLeft", dhLeft.data(), nrf, nj);
+	cfgFile.get("[DIRECTKINEMATICS]", "DHRight", dhRight.data(), nrf, nj);
+	cfgFile.get("[DIRECTKINEMATICS]", "BaseLine", bline.data(), 4, 4);
+		
+	_leftCamera.resize(dhLeft, bline);
+	_rightCamera.resize(dhRight, bline);
+
+	/// nFrame must be rather the NRows - the # of rows with fifth colum == 0.
+	_nFrame = nrf;
+
+	_leftJoints.Resize (_nFrame);
+	_rightJoints.Resize (_nFrame);
+
+	_leftJoints = 0;
+	_rightJoints = 0;
+
+	_q.Resize(3);
+	_it.Resize(3);
+	_o.Resize(3);
+	_epx.Resize(3);
+	_tmp.Resize(3);
+	_tmpEl.Resize(3);
+	
+	return YARP_OK;
 }
 
 /// <joints is a 5 dim vector>

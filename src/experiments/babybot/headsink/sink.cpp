@@ -31,8 +31,11 @@ _inPortPosition (YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST)
 	}
 
 	_globalInhibition = SINK_INHIBIT_NONE;
-	_manualInhibition = SINK_INHIBIT_ALL;
+	// _manualInhibition = SINK_INHIBIT_ALL;
+	_manualInhibition = SINK_INHIBIT_NONE | SINK_INHIBIT_VOR | SINK_INHIBIT_SMOOTH;
 	_saveInhibition();
+
+	suppressHead(); //start suppressed
 
 	// position port
 	_inPortPosition.Register(YARPString(base).append(__portPositionNameSuffix).c_str());
@@ -93,7 +96,7 @@ void Sink::doLoop()
 	// form command
 	if (!(_globalInhibition & SINK_INHIBIT_VOR))
 		_outCmd = _outCmd + _inVectors[SinkChVor];
-
+	
 	if (!(_globalInhibition & SINK_INHIBIT_SMOOTH))
 		_outCmd = _outCmd + _inVectors[SinkChTracker];
 
@@ -166,6 +169,12 @@ void Sink::releaseHead()
 void Sink::inhibitChannel(int n)
 {
 	_manualInhibition = _manualInhibition | n;
+	_saveInhibition();
+}
+
+void Sink::enableChannel(int n)
+{
+	_manualInhibition = _manualInhibition & (~n);
 	_saveInhibition();
 }
 

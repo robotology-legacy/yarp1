@@ -52,11 +52,11 @@ class SaccadeControl
 {
 public:
 	SaccadeControl():
-		_gaze ( YMatrix (_dh_nrf, __nj, DH_left[0]), YMatrix (_dh_nrf, __nj, DH_right[0]), YMatrix (4, 4, TBaseline[0]) ),
+		// _gaze ( YMatrix (_dh_nrf, __nj, DH_left[0]), YMatrix (_dh_nrf, __nj, DH_right[0]), YMatrix (4, 4, TBaseline[0]) ),
 		_neckControl("headcontrol.ini",5,5),
 		_smooth("headcontrol.ini")
 		{
-			init("headcontrol.ini");
+			init("headcontrol.ini", "head.ini");
 		}
 private:
 	YARPBabybotHeadKin _gaze;
@@ -96,7 +96,7 @@ private:
 	int _nj;
 
 	// read parameters from file and call _allocVectors()
-	void init(const YARPString &filename);
+	void init(const YARPString &filename, const YARPString &headfilename);
 	// perform allocation of vectors and general initialization
 	void _allocVectors();
 

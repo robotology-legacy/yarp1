@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergencecontrol.cpp,v 1.5 2004-07-09 10:48:54 babybot Exp $
+/// $Id: vergencecontrol.cpp,v 1.6 2004-07-12 08:36:31 babybot Exp $
 ///
 ///
 
@@ -84,11 +84,11 @@ VergenceControl::VergenceControl(const YARPString &iniFile, int insize, int outs
 	file.set(_path, _iniFile);
 
 	/// I kept this in case I need to extend the controller.
-	file.get("[VERGENCE]", "nPids=", &_nPids);
+	file.get("[VERGENCE]", "nPids", &_nPids);
 	ACE_ASSERT (_nPids == 1);	
 
 	double temp[3];
-	file.get("[VERGENCE]", "Pid=", temp, 3);
+	file.get("[VERGENCE]", "Pid", temp, 3);
 	_pids.setKs(temp[0], temp[1], temp[2]);
 }
 

@@ -238,12 +238,6 @@ void HeadThread::park(int flag)
 	_head.setAccs(acc.data());
 	_head.setPositions(pos.data());
 
-	ACE_OS::printf("****** ACCELERATION_DEBUG:\n");
-	_head.getAccs(acc.data());
-	for(int l=1; l<=nj; l++)
-		ACE_OS::printf("%lf\t", acc(l)*radToDeg);
-	ACE_OS::printf("\n");
-	
 	std::cout << "Wait while the head is parking";
 	// wait !
 	while(!_head.checkMotionDone())

@@ -35,14 +35,17 @@ NeckControl::NeckControl(const YARPString &iniFile, int insize, int outsize)
 //////
 // SaccadeControl class
 
-void SaccadeControl::init(const YARPString &filename);
+void SaccadeControl::init(const YARPString &filename, const YARPString &headConfigFile)
 {
 	_iniFile = filename;
 	
 	YARPConfigFile file;
 	char *root = GetYarpRoot();
 	_path.append(root);
-	_path.append("/conf/babybot/"); 
+	_path.append("/"); 
+	_path.append(YARPString(ConfigFilePath));
+	
+	_gaze.load(_path, headConfigFile);
 	
 	file.set(_path, _iniFile);
 
@@ -62,17 +65,17 @@ void SaccadeControl::init(const YARPString &filename);
 
 void SaccadeControl::_allocVectors()
 {
-	_temp.Resize(__nj);
-	_command.Resize(__nj);
+	_temp.Resize(_nj);
+	_command.Resize(_nj);
 	_vRef.Resize(3);
-	_predictedPosition.Resize(__nj);
-	_position.Resize(__nj);
-	_stop.Resize(__nj);
-	_closedLoop.Resize(__nj);
-	_eyesClosedLoop.Resize(__nj);
-	_openLoopSpeed.Resize(__nj);
-	_neckClosedLoop.Resize(__nj);
-	_zeroError.Resize(__nj);
+	_predictedPosition.Resize(_nj);
+	_position.Resize(_nj);
+	_stop.Resize(_nj);
+	_closedLoop.Resize(_nj);
+	_eyesClosedLoop.Resize(_nj);
+	_openLoopSpeed.Resize(_nj);
+	_neckClosedLoop.Resize(_nj);
+	_zeroError.Resize(_nj);
 	_zeroError = 0.0;	
 
 	_openLoopDone = false;

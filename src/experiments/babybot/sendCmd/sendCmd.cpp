@@ -45,6 +45,8 @@ void _fillTable()
 
 	// sink
 	REG_VOCAB(sendSimpleVocab, YBVSinkQuit, "quit sink behavior");
+	REG_VOCAB(sendSimpleVocab, YBVSinkSuppress, "pause head");
+	REG_VOCAB(sendSimpleVocab, YBVSinkRelease, "release head");
 	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitAll, "inhibit ALL sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkEnableAll, "enable ALL sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitVor, "inhibit VOR sink input");

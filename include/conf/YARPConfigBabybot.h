@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPConfigBabybot.h,v 1.2 2004-07-09 10:48:53 babybot Exp $
+/// $Id: YARPConfigBabybot.h,v 1.3 2004-07-12 08:36:30 babybot Exp $
 ///
 ///
 
@@ -41,6 +41,6 @@
 #endif
 
 /// config path, relative to YARP_ROOT.
-const char *const ConfigFilePath = "conf/babybot";
+const char *const ConfigFilePath = "conf/babybot/";
 
 #endif

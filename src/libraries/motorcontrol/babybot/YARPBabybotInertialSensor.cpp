@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotInertialSensor.cpp,v 1.3 2004-01-17 00:15:15 gmetta Exp $
+///  $Id: YARPBabybotInertialSensor.cpp,v 1.4 2004-07-12 08:36:31 babybot Exp $
 ///
 ///
 
@@ -109,12 +109,26 @@ int YARPBabybotInertialSensor::load(const YARPString &path, const YARPString &in
 	if (cfgFile.get("[GENERAL]", "Sensors", &_ns, 1) == YARP_FAIL)
 		return YARP_FAIL;
 
+	// delete and allocate new memory
+	_realloc(_ns);
+
+	// try to read calibration values
+	YVector tmp(_ns);
+	if (cfgFile.get("[GENERAL]", "Calibration", tmp.data(), _ns) != YARP_FAIL)
+	{
+		// sensor is already calibrated
+		for (int i = 1; i <= _ns; i++)
+		{
+			double *p0 = _parameters[i - 1];
+			p0[SP_Offset] = tmp(i);
+		}
+		_isCalibrated = true;
+	}
+			
+	// read calibration steps
 	if (cfgFile.get("[GENERAL]", "CalibrationSteps", &_nsteps, 1) == YARP_FAIL)
 		return YARP_FAIL;
 
-	// delete and allocate new memory
-	_realloc(_ns);
-		
 	int i;
 	for(i = 0; i<_ns; i++)
 	{
@@ -124,6 +138,43 @@ int YARPBabybotInertialSensor::load(const YARPString &path, const YARPString &in
 			return YARP_FAIL;
 	}
 		
+	return YARP_OK;
+}
+
+int YARPBabybotInertialSensor::save(const YARPString &path, const YARPString &init_file)
+{
+	YARPString file;
+	file = path;
+	file.append(init_file);
+
+	FILE *fp = fopen(init_file.c_str(), "w");
+
+	fprintf(fp, "[GENERAL]\n");
+	fprintf(fp, "Sensors %d\n", _ns);
+	fprintf(fp, "Calibration ");
+
+	int i;
+	for(i = 0; i < _ns; i++)
+	{
+		double *p0 = _parameters[i];
+		fprintf(fp, "%lf ", p0[SP_Offset]);
+	}
+	fprintf(fp, "\n");
+		
+	fprintf(fp, "CalibrationSteps %d\n\n", _nsteps);
+	fprintf(fp, "[PARAMETERS]\n");
+
+	for(i = 0; i < _ns; i++)
+	{
+		fprintf(fp, "%s%d", "Sensor", i);
+
+		int j;
+		for(j = 0; j < SP_NumEntriesPerSensor; j++)
+			fprintf(fp, "%lf ", _parameters[i][j]);
+		fprintf(fp, "\n");
+	}
+
+	fclose(fp);		
 	return YARP_OK;
 }
 
@@ -169,6 +220,9 @@ void YARPBabybotInertialSensor::_realloc(int ns)
 
 bool YARPBabybotInertialSensor::calibrate(const short *input, int *p)
 {
+	if (_isCalibrated)
+		return true;
+
 	_nIteration++;
 	for (int i = 1; i <= _ns; i++)
 	{

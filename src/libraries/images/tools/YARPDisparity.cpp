@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.26 2004-07-09 10:48:54 babybot Exp $
+/// $Id: YARPDisparity.cpp,v 1.27 2004-07-12 08:36:31 babybot Exp $
 ///
 ///
 
@@ -617,9 +617,6 @@ int YARPDisparityTool::computeMono (YARPImageOf<YarpPixelBGR> & inRImg,
 				
 			_corrFunct[k] /= 3.0;
 
-			if (_isnan(_corrFunct[k]))
-				printf("WARNING: found a NAN\n");
-				
 			_std2[k] = (1/nElem)*(sigma2-grayAv2*grayAv2/nElem)/(128*128);
 			_std1[k]= (1/nElem)*(sigma1-grayAv1*grayAv1/nElem)/(128*128);
 			

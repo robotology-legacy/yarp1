@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: vergence.cpp,v 1.17 2004-07-09 10:48:54 babybot Exp $
+/// $Id: vergence.cpp,v 1.18 2004-07-12 08:36:31 babybot Exp $
 ///
 ///
 
@@ -144,6 +144,11 @@ int main(int argc, char *argv[])
 	{
 		network_o = "default";
 	}
+
+	char path[80]; 
+	char filename[] = "head.ini";
+	sprintf(path, "%s/%s", GetYarpRoot(), ConfigFilePath);
+	_limits.init(YARPString(path), YARPString(filename));
 
 	/// images are coming from the input network.
 	sprintf(buf, "%s/i:left", name.c_str());
