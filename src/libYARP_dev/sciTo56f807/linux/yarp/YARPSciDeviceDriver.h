@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.h,v 1.1 2005-02-19 20:51:00 natta Exp $
+/// $Id: YARPSciDeviceDriver.h,v 1.2 2005-02-19 22:26:40 natta Exp $
 ///
 ///
 
@@ -52,6 +52,7 @@ struct SciOpenParameters
 	{
 		// leave it empty for now
 	}
+	
 };
 
 /**
