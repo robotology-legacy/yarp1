@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.25 2003-07-30 22:43:06 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.26 2003-07-31 15:34:09 babybot Exp $
 ///
 ///
 
@@ -81,7 +81,7 @@
 #include "YARPSocketMcast.h"
 #include "YARPSocketMulti.h"
 #include "YARPTime.h"
-#include "ThreadInput.h"
+//#include "ThreadInput.h"
 #include "YARPNameID_defs.h"
 #include "YARPNameService.h"
 #include "YARPNativeNameService.h"
