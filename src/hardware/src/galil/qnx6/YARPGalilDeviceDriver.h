@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.2 2003-05-17 10:44:13 beltran Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.3 2003-05-19 13:06:32 beltran Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -94,6 +94,9 @@ public:
 	int reset_controller(void *input);
 	int error_limit(void *input);
 	int off_on_error(void *input);
+	
+	int set_positive_limit(void * input);
+	int set_negative_limit(void * input);
 
 	int dummy(void *d);	// dummy function, for debug purpose
 

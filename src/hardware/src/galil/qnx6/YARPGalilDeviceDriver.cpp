@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.2 2003-05-17 10:44:13 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.3 2003-05-19 13:03:23 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -60,6 +60,9 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDResetController] 	= &YARPGalilDeviceDriver::reset_controller;
 	m_cmds[CMDErrorLimit]		= &YARPGalilDeviceDriver::error_limit;
 	m_cmds[CMDOffOnError]		= &YARPGalilDeviceDriver::off_on_error; 
+	
+	m_cmds[CMDSetPositiveLimit] = &YARPGalilDeviceDriver::set_positive_limit;
+	m_cmds[CMDSetNegativeLimit]	= &YARPGalilDeviceDriver::set_negative_limit;
 			
 	m_cmds[CMDDummy] 			= &YARPGalilDeviceDriver::dummy;
 }
@@ -1119,7 +1122,7 @@ YARPGalilDeviceDriver::off_on_error(void *par)
 	// axis
 	buff = _append_cmd((char) dummy, buff);
 	// value
-	//Do i need to add something else??
+	buff = _append_cmd(*value, buff);
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
 							(unsigned char *) m_buffer_out, 8,
@@ -1127,5 +1130,68 @@ YARPGalilDeviceDriver::off_on_error(void *par)
 	
 	return rc;
 }
+
+int
+YARPGalilDeviceDriver::set_positive_limit(void *par)
+{
+	long rc = 0;
+	
+	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
+	int *value = (int *) tmp->parameters;
+	
+	char *buff = m_buffer_out;
+
+	///////////////////////////////////////////////////////////////////
+	// set velocity
+	buff = _append_cmd((char) 0x8E, buff);		//FL Forward software limit
+	buff = _append_cmd((char) 0x04, buff);		//4 byte format
+	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
+
+	// axis
+	unsigned char dummy = 0x01;	//bit
+	dummy <<= tmp->axis;
+	// axis
+	buff = _append_cmd((char) dummy, buff);
+	// value
+	buff = _append_cmd(*value, buff);
+
+	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+							(unsigned char *) m_buffer_out, 8,
+							m_buffer_in, buff_length);
+	
+	return rc;
+}
+
+int
+YARPGalilDeviceDriver::set_negative_limit(void *par)
+{
+	long rc = 0;
+	
+	SingleAxisParameters *tmp = (SingleAxisParameters *) par;
+	int *value = (int *) tmp->parameters;
+	
+	char *buff = m_buffer_out;
+
+	///////////////////////////////////////////////////////////////////
+	// set velocity
+	buff = _append_cmd((char) 0x8F, buff);		//BL Reverse software limit
+	buff = _append_cmd((char) 0x04, buff);		//4 byte format
+	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
+
+	// axis
+	unsigned char dummy = 0x01;	//bit
+	dummy <<= tmp->axis;
+	// axis
+	buff = _append_cmd((char) dummy, buff);
+	// value
+	buff = _append_cmd(*value, buff);
+
+	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+							(unsigned char *) m_buffer_out, 8,
+							m_buffer_in, buff_length);
+	
+	return rc;
+}
+
 
 
