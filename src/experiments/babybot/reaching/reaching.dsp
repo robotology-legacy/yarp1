@@ -98,12 +98,20 @@ PostBuild_Cmds=copy .\debug\reaching.exe ..\..\..\..\bin\winnt\reaching.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\armmap.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\reaching.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\armmap.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 

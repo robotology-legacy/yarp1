@@ -38,7 +38,7 @@ public:
 	YARPImageOf<YarpPixelBGR> _detectedColored;
 	YARPImageOf<YarpPixelMono> _detectedCartGrayscale;
 	YARPImageOf<YarpPixelMono> *_output;
-	YARPShapeRegion _pointsBlob;
+	YARPLpShapeRegion _pointsBlob;
 
 	YARPImageOf<YarpPixelMono> _background;
 
@@ -124,7 +124,7 @@ private:
 		}
 	}
 
-	void _mask(YARPImageOf<YarpPixelMono> &in, const YARPShapeRegion &mask, YARPImageOf<YarpPixelMono> &out)
+	void _mask(YARPImageOf<YarpPixelMono> &in, const YARPLpShapeRegion &mask, YARPImageOf<YarpPixelMono> &out)
 	{
 		int k = 0;
 		while(k<mask.n)

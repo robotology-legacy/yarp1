@@ -40,8 +40,8 @@ void HandKinematics::_dumpToDisk(const YVector &arm, const YVector &head, const 
 {
 	_log.dump(arm);
 	_log.dump(head);
-	_log.dump(ellipse.rho);
-	_log.dump(ellipse.theta);
+	_log.dump(ellipse.x);
+	_log.dump(ellipse.y);
 	_log.dump(ellipse.a11);
 	_log.dump(ellipse.a12);
 	_log.dump(ellipse.a22);
@@ -55,8 +55,8 @@ void HandKinematics::learn(YVector &arm, YVector &head, YARPBottle &newPoint)
 {
 	YARPShapeEllipse ellipse;
 
-	newPoint.readInt(&ellipse.rho);
-	newPoint.readInt(&ellipse.theta);
+	newPoint.readInt(&ellipse.x);
+	newPoint.readInt(&ellipse.y);
 	newPoint.readFloat(&ellipse.a11);
 	newPoint.readFloat(&ellipse.a12);
 	newPoint.readFloat(&ellipse.a22);

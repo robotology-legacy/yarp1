@@ -1,3 +1,6 @@
+// by nat Jan 2003
+// handle exception, Dec 2003
+
 var shareName = "\\\\eolo\\yarp";
 var drive = "Y:";
 
@@ -12,13 +15,24 @@ WScript.Echo();
 
 WScript.Echo("Mapping: " + shareName + " on " + drive + " as " + net.UserName + " pass: not shown");
 
-MapDrive(drive, shareName, net.UserName);
+while (MapDrive(drive, shareName, net.UserName) == 0)
+{
+	WScript.Echo("Unable to map "+ shareName + " on " + drive +" trying again");
+	WScript.Sleep(500);
+}
 
 WScript.Echo("done !");
 
-function MapDrive(drive, share, user)
+function MapDrive(drive, share, user, pass)
 {
-	wshNetwork = WScript.CreateObject("WSCript.Network");
-	// wshNetwork.MapNetworkDrive(drive, share, false, user, pass);
-	wshNetwork.MapNetworkDrive(drive, share, false, user);
+	try
+	{
+		wshNetwork = WScript.CreateObject("WSCript.Network");
+		wshNetwork.MapNetworkDrive(drive, share, false, user);
+	}
+	catch(e)
+	{
+		return 0;
+	}
+  return 1;
 }

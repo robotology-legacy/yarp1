@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageMoments.h,v 1.3 2003-11-10 19:12:49 babybot Exp $
+/// $Id: YARPImageMoments.h,v 1.4 2003-12-04 18:16:08 babybot Exp $
 ///
 /// Computes moments and central moments; according to the following eqs:
 /// mpq = SUM (x^p)*(y^q)*f(x,y)
@@ -90,5 +90,16 @@ public:
 
 };
 
+class YARPImageMoments
+{
+public:
+	YARPImageMoments(){};
+	~YARPImageMoments(){};
+	// compute center if mass of the segmented region; cartesian coordinates
+	void centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int *y);
+	// compute central moments; xm,ym is the center of mass in cartesian coordinates
+	double centralMoments(YARPImageOf<YarpPixelMono> &in, int xm, int ym, int p, int q);
+
+};
 
 #endif

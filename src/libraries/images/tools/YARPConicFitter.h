@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPConicFitter.h,v 1.7 2003-11-13 18:04:20 babybot Exp $
+/// $Id: YARPConicFitter.h,v 1.8 2003-12-04 18:16:08 babybot Exp $
 ///
 /// Fit simple conics to a segmented region. Logpolar version.
 /// September 2003 -- by nat
@@ -75,12 +75,10 @@
 class YARPShapeCircle
 {
 public:
-	YARPShapeCircle()
-	{ theta = 0; rho = 0; radius = 0;};
-	~YARPShapeCircle(){};
+	YARPShapeCircle(){x = 0; y = 0; radius = 0;};
 
-	int theta;
-	int rho;
+	int x;
+	int y;
 	int radius;
 };
 
@@ -88,8 +86,34 @@ class YARPShapeEllipse
 {
 public:
 	YARPShapeEllipse()
-	{ theta = 0; rho = 0; a11 = 0.0; a12 = 0.0; a22 = 0.0; };
+	{ x = 0; y = 0; a11 = 0.0; a12 = 0.0; a22 = 0.0; };
 	~YARPShapeEllipse(){};
+
+	int x;
+	int y;
+	double a11;
+	double a22;
+	double a12;
+};
+
+class YARPLpShapeCircle
+{
+public:
+	YARPLpShapeCircle()
+	{ theta = 0; rho = 0; radius = 0;};
+	~YARPLpShapeCircle(){};
+
+	int theta;
+	int rho;
+	int radius;
+};
+
+class YARPLpShapeEllipse
+{
+public:
+	YARPLpShapeEllipse()
+	{ theta = 0; rho = 0; a11 = 0.0; a12 = 0.0; a22 = 0.0; };
+	~YARPLpShapeEllipse(){};
 
 	int theta;
 	int rho;
@@ -103,10 +127,39 @@ class YARPShapeRegion
 public:
 	YARPShapeRegion()
 	{
+		x = new int [_logpolarParams::_xsize*_logpolarParams::_ysize];
+		y = new int [_logpolarParams::_xsize*_logpolarParams::_ysize];
+	}
+	~YARPShapeRegion()
+	{
+		delete [] x;
+		delete [] y;
+	}
+
+	void reset()
+	{ n = 0; }
+
+	void add(int X, int Y)
+	{ 
+		x[n] = X;
+		y[n] = Y;
+		n++;
+	}
+
+	int *x;
+	int *y;
+	int n;
+};
+
+class YARPLpShapeRegion
+{
+public:
+	YARPLpShapeRegion()
+	{
 		r = new int [_logpolarParams::_srho*_logpolarParams::_stheta];
 		t = new int [_logpolarParams::_srho*_logpolarParams::_stheta];
 	}
-	~YARPShapeRegion()
+	~YARPLpShapeRegion()
 	{
 		delete [] r;
 		delete [] t;
@@ -127,6 +180,7 @@ public:
 	int n;
 };
 
+///////////////////// LOG POLAR
 class YARPLpConicFitter
 {
 public:
@@ -136,33 +190,33 @@ public:
 	// fit a circle to a segmented region; r0, t0 is the center of the circle (center of mass)
 	// r here is the radius of gyration
 	void fitCircle(YARPImageOf<YarpPixelMono> &in, int *t0,  int *r0, int *r);
-	inline void fitCircle(YARPImageOf<YarpPixelMono> &in, YARPShapeCircle &circle);
+	inline void fitCircle(YARPImageOf<YarpPixelMono> &in, YARPLpShapeCircle &circle);
 	// fit an ellipse to the segmented region. a11, a12, a22 are the parameters of the conic matrix
 	// computed from the central moments (see code for the formulas)
 	void fitEllipse(YARPImageOf<YarpPixelMono> &in, int *t0,  int *r0, double *a11, double *a12, double *a22);
-	inline void fitEllipse(YARPImageOf<YarpPixelMono> &in, YARPShapeEllipse &el);
+	inline void fitEllipse(YARPImageOf<YarpPixelMono> &in, YARPLpShapeEllipse &el);
 
 	// returns points within a circle of center T0,R0 radius R0
-	void findCircle(int T0, int R0, double R, YARPShapeRegion &out);
-	inline void findCircle(const YARPShapeCircle &c, YARPShapeRegion &out);
+	void findCircle(int T0, int R0, double R, YARPLpShapeRegion &out);
+	inline void findCircle(const YARPLpShapeCircle &c, YARPLpShapeRegion &out);
 	// returns points within an ellipse
-	void findEllipse(int T0, int R0, double a11, double a12, double a22, YARPShapeRegion &out);
-	inline void findEllipse(const YARPShapeEllipse &el, YARPShapeRegion &out);
+	void findEllipse(int T0, int R0, double a11, double a12, double a22, YARPLpShapeRegion &out);
+	inline void findEllipse(const YARPLpShapeEllipse &el, YARPLpShapeRegion &out);
 
 	// plot a circle; 
 	// (T0, R0) is the center (logpolar coordinates), R is the radius (cartesian coordinates)
 	void plotCircle(int t0, int r0, double R, YARPImageOf<YarpPixelMono> &output);
-	inline void plotCircle(const YARPShapeCircle &circle, YARPImageOf<YarpPixelMono> &output);
+	inline void plotCircle(const YARPLpShapeCircle &circle, YARPImageOf<YarpPixelMono> &output);
 	void plotCircle(int t0, int r0, double R, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR&v = YarpPixelBGR(255, 0, 0));
-	inline void plotCircle(const YARPShapeCircle &circle, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR&v = YarpPixelBGR(255, 0, 0));
+	inline void plotCircle(const YARPLpShapeCircle &circle, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR&v = YarpPixelBGR(255, 0, 0));
 
 	// plot an ellipse from the coefficients of the quadratic form
 	// (T0, R0) is the center (logpolar coordinates)
 	void plotEllipse(int t0, int r0, double a11, double a12, double a22, YARPImageOf<YarpPixelMono> &output);
-	inline void plotEllipse(const YARPShapeEllipse &ellipse, YARPImageOf<YarpPixelMono> &output);
+	inline void plotEllipse(const YARPLpShapeEllipse &ellipse, YARPImageOf<YarpPixelMono> &output);
 	
 	void plotEllipse(int T0, int R0, double a11, double a12, double a22, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR&v = YarpPixelBGR(255, 0, 0));
-	inline void plotEllipse(const YARPShapeEllipse &ellipse, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR&v = YarpPixelBGR(255, 0, 0));
+	inline void plotEllipse(const YARPLpShapeEllipse &ellipse, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR&v = YarpPixelBGR(255, 0, 0));
 
 private:
 	// compute minimum, maximum and average radius of the seg region
@@ -178,17 +232,17 @@ private:
 };
 
 // inlines
-inline void YARPLpConicFitter::plotCircle(const YARPShapeCircle &circle, YARPImageOf<YarpPixelMono> &output)
+inline void YARPLpConicFitter::plotCircle(const YARPLpShapeCircle &circle, YARPImageOf<YarpPixelMono> &output)
 {
 	plotCircle(circle.theta, circle.rho, circle.radius, output);
 }
 
-inline void YARPLpConicFitter::plotCircle(const YARPShapeCircle &circle, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR &v)
+inline void YARPLpConicFitter::plotCircle(const YARPLpShapeCircle &circle, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR &v)
 {
 	plotCircle(circle.theta, circle.rho, circle.radius, output, v);
 }
 
-inline void YARPLpConicFitter::plotEllipse(const YARPShapeEllipse &ellipse, YARPImageOf<YarpPixelMono> &output)
+inline void YARPLpConicFitter::plotEllipse(const YARPLpShapeEllipse &ellipse, YARPImageOf<YarpPixelMono> &output)
 {
 	plotEllipse(ellipse.theta,
 				ellipse.rho,
@@ -197,7 +251,7 @@ inline void YARPLpConicFitter::plotEllipse(const YARPShapeEllipse &ellipse, YARP
 				ellipse.a22, output);
 }
 
-inline void YARPLpConicFitter::plotEllipse(const YARPShapeEllipse &ellipse, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR &v)
+inline void YARPLpConicFitter::plotEllipse(const YARPLpShapeEllipse &ellipse, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR &v)
 {
 	plotEllipse(ellipse.theta,
 				ellipse.rho,
@@ -208,24 +262,126 @@ inline void YARPLpConicFitter::plotEllipse(const YARPShapeEllipse &ellipse, YARP
 				v);
 }
 
-inline void YARPLpConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, YARPShapeCircle &circle)
+inline void YARPLpConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, YARPLpShapeCircle &circle)
 {
 	fitCircle(in, &circle.theta, &circle.rho, &circle.radius);
 }
 
-inline void YARPLpConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, YARPShapeEllipse &el)
+inline void YARPLpConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, YARPLpShapeEllipse &el)
 {
 	fitEllipse(in, &el.theta, &el.rho, &el.a11, &el.a12, &el.a22);
 }
 
-inline void YARPLpConicFitter::findCircle(const YARPShapeCircle &circle, YARPShapeRegion &out)
+inline void YARPLpConicFitter::findCircle(const YARPLpShapeCircle &circle, YARPLpShapeRegion &out)
 {
 	findCircle(circle.theta, circle.rho, circle.radius, out);
 }
 
-inline void YARPLpConicFitter::findEllipse(const YARPShapeEllipse &el, YARPShapeRegion &out)
+inline void YARPLpConicFitter::findEllipse(const YARPLpShapeEllipse &el, YARPLpShapeRegion &out)
 {
 	findEllipse(el.theta, el.rho, el.a11, el.a12, el.a22, out);
+}
+
+////////////// CARTESIAN
+class YARPConicFitter
+{
+public:
+	// fit a circle to a segmented region; r0, t0 is the center of the circle (center of mass)
+	// Rmin, Rmax, Rav are respectively min, max and av radius of the region.
+	void fitCircle(YARPImageOf<YarpPixelMono> &in, int *x,  int *y, int *Rmin, int *Rmax, int *Rav);
+	// fit a circle to a segmented region; r0, t0 is the center of the circle (center of mass)
+	// r here is the radius of gyration
+	void fitCircle(YARPImageOf<YarpPixelMono> &in, int *x,  int *y, int *r);
+	inline void fitCircle(YARPImageOf<YarpPixelMono> &in, YARPShapeCircle &circle);
+	// fit an ellipse to the segmented region. a11, a12, a22 are the parameters of the conic matrix
+	// computed from the central moments (see code for the formulas)
+	void fitEllipse(YARPImageOf<YarpPixelMono> &in, int *x,  int *y, double *a11, double *a12, double *a22);
+	inline void fitEllipse(YARPImageOf<YarpPixelMono> &in, YARPShapeEllipse &el);
+
+	// returns points within a circle of center x0,y0 radius R0
+	void findCircle(int x0, int y0, double R, YARPShapeRegion &out);
+	inline void findCircle(const YARPShapeCircle &c, YARPShapeRegion &out);
+	// returns points within an ellipse
+	void findEllipse(int x0, int y0, double a11, double a12, double a22, YARPShapeRegion &out);
+	inline void findEllipse(const YARPShapeEllipse &el, YARPShapeRegion &out);
+
+	// plot a circle; 
+	// (X0, Y0) is the center (logpolar coordinates), R is the radius (cartesian coordinates)
+	void plotCircle(int x0, int y0, double R, YARPImageOf<YarpPixelMono> &output);
+	inline void plotCircle(const YARPShapeCircle &circle, YARPImageOf<YarpPixelMono> &output);
+	void plotCircle(int x0, int y0, double R, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR&v = YarpPixelBGR(255, 0, 0));
+	inline void plotCircle(const YARPShapeCircle &circle, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR&v = YarpPixelBGR(255, 0, 0));
+
+	// plot an ellipse from the coefficients of the quadratic form
+	// (X0, Y0) is the center (logpolar coordinates)
+	void plotEllipse(int x0, int y0, double a11, double a12, double a22, YARPImageOf<YarpPixelMono> &output);
+	inline void plotEllipse(const YARPShapeEllipse &ellipse, YARPImageOf<YarpPixelMono> &output);
+	
+	void plotEllipse(int x0, int y0, double a11, double a12, double a22, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR&v = YarpPixelBGR(255, 0, 0));
+	inline void plotEllipse(const YARPShapeEllipse &ellipse, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR&v = YarpPixelBGR(255, 0, 0));
+
+private:
+	// compute minimum, maximum and average radius of the seg region
+	void _radius(YARPImageOf<YarpPixelMono> &in, int x0,  int y0, int *Rmin, int *Rmax, int *Rav);
+	// compute the radius of gyration of the segmented region
+	double _radiusOfGyration(YARPImageOf<YarpPixelMono> &in, int x, int y);
+	inline double _det(double a11, double a12, double a22)
+	{	return (a11*a22 - a12*a12); }
+	inline bool _checkDet(double a11, double a12, double a22)
+	{	return (_det(a11, a12, a22) > 0.0); }
+
+	YARPImageMoments _moments;
+};
+
+// inlines
+inline void YARPConicFitter::plotCircle(const YARPShapeCircle &circle, YARPImageOf<YarpPixelMono> &output)
+{
+	plotCircle(circle.x, circle.y, circle.radius, output);
+}
+
+inline void YARPConicFitter::plotCircle(const YARPShapeCircle &circle, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR &v)
+{
+	plotCircle(circle.x, circle.y, circle.radius, output, v);
+}
+
+inline void YARPConicFitter::plotEllipse(const YARPShapeEllipse &ellipse, YARPImageOf<YarpPixelMono> &output)
+{
+	plotEllipse(ellipse.x,
+				ellipse.y,
+				ellipse.a11,
+				ellipse.a12,
+				ellipse.a22, output);
+}
+
+inline void YARPConicFitter::plotEllipse(const YARPShapeEllipse &ellipse, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR &v)
+{
+	plotEllipse(ellipse.x,
+				ellipse.y,
+				ellipse.a11,
+				ellipse.a12,
+				ellipse.a22,
+				output,
+				v);
+}
+
+inline void YARPConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, YARPShapeCircle &circle)
+{
+	fitCircle(in, &circle.x, &circle.y, &circle.radius);
+}
+
+inline void YARPConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, YARPShapeEllipse &el)
+{
+	fitEllipse(in, &el.x, &el.y, &el.a11, &el.a12, &el.a22);
+}
+
+inline void YARPConicFitter::findCircle(const YARPShapeCircle &circle, YARPShapeRegion &out)
+{
+	findCircle(circle.x, circle.y, circle.radius, out);
+}
+
+inline void YARPConicFitter::findEllipse(const YARPShapeEllipse &el, YARPShapeRegion &out)
+{
+	findEllipse(el.x, el.y, el.a11, el.a12, el.a22, out);
 }
 
 #endif

@@ -192,9 +192,9 @@ int main(int argc, char* argv[])
 		
 		YARPShapeEllipse tmpEl;
 		tmpEl = _handLocalization.query(_arm, _head);
-		_segmenter.mergeColor(_leftColored, tmpEl);
-		_handPosition(1) = (tmpEl.rho - 128);
-		_handPosition(2) = (tmpEl.theta - 128);
+		_segmenter.mergeColor(_leftColored, _outSeg, tmpEl);
+		_handPosition(1) = (tmpEl.x - 128);
+		_handPosition(2) = (tmpEl.y - 128);
 		
 		// histo backprojection
 		_outPortBackprojection.Content().Refer(_outSeg);
