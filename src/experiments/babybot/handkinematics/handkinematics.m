@@ -158,6 +158,7 @@ while(~exit)
                 % ask network
                 isPosture = sim(vqNetHand, qh(2:16)');
                 isWeight = sim(vqNetWrist, wristForce');
+               % isWeight(1) = 1;    % kill weight
                 
                 % prepare bottle
                 ret = checkGrasp(isPosture, isWeight);

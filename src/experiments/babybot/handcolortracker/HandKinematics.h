@@ -64,6 +64,10 @@ public:
 	{
 		YARPString tmp = "/handtracker/trajectory/i";
 		Register(tmp.c_str());
+		pImage = NULL;
+
+		image1.Resize(_logpolarParams::_xsize/2, _logpolarParams::_ysize/2);
+		image2.Resize(_logpolarParams::_xsize/2, _logpolarParams::_ysize/2);
 
 	}
 
@@ -80,19 +84,29 @@ public:
 		if (tmpVocab == YBVReachingReach)
 		{
 			// start acquisition
+			printf("----> Starting acquisition\n");
 			center.clear();
 			fingers.clear();
 			acquisition = true;
+			
+			if(pImage != NULL)
+				image1 = *pImage;
 		}
 		else
 		if (tmpVocab == YBVReachingDone)
 		{
 			// stop
+			printf("----> Acquisition stopped\n");
+			if(pImage != NULL)
+				image2 = *pImage;
+			
 			acquisition = false;
 			// dump to file
 			dump("c:/center.txt", center);
 			dump("c:/fingers.txt", fingers);
 
+			YARPImageFile::Write("c:/start.ppm", image1);
+			YARPImageFile::Write("c:/end.ppm", image2);
 		}
 		return;
 	}
@@ -117,8 +131,15 @@ public:
 
 	void plotTrajectory(YARPImageOf<YarpPixelBGR> &img, YarpPixelBGR &color1, YarpPixelBGR &color2)
 	{
-		plotTrajectory(center, img, color1);
-		plotTrajectory(fingers, img, color2);
+		#ifndef DO_NOT_DRAW
+			plotTrajectory(center, img, color1);
+			plotTrajectory(fingers, img, color2);
+		#endif
+	}
+
+	void setImagePointer(YARPImageOf<YarpPixelBGR> &img)
+	{
+		pImage = &img;
 	}
 
 private:
@@ -130,7 +151,6 @@ private:
 			int x = v[i].x;
 			int y = v[i].y;
 			YARPSimpleOperation::DrawCross(img, x, y, color, 1, 1);
-
 		}
 
 	}
@@ -152,7 +172,9 @@ private:
 
 	bool acquisition;
 
-
+	YARPImageOf<YarpPixelBGR> *pImage;
+	YARPImageOf<YarpPixelBGR> image1;
+	YARPImageOf<YarpPixelBGR> image2;
 };
 
 class HandKinematics

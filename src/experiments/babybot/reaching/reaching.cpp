@@ -1,6 +1,6 @@
 // reaching.cpp : Defines the entry point for the console application.
 //
-#define TEST_REACHING
+// #define TEST_REACHING
 
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBabyBottle.h>

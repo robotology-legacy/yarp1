@@ -61,10 +61,8 @@
 ///
 
 ///
-/// $Id: seqgrabber.cpp,v 1.3 2004-08-02 09:16:15 babybot Exp $
+/// $Id: seqgrabber.cpp,v 1.4 2005-01-28 17:44:08 babybot Exp $
 /// 
-/// Test stereo match by mergin together left and right channels (fovea)
-/// January 04 -- by nat
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
@@ -90,11 +88,17 @@
 YARPInputPortOf<YARPGenericImage> _image1Port(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 YARPInputPortOf<YARPGenericImage> _image2Port(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 
+YARPInputPortOf<YARPGenericImage> _image3Port(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+YARPInputPortOf<YARPGenericImage> _image4Port(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+YARPInputPortOf<YARPGenericImage> _image5Port(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
+
 const char *DEFAULT_NAME = "seqgrabber";
 const char *DEFAULT_FOLDER = "C:/temp/";
 
 const int DEFAULT_LENGTH = 30;	// seconds
 const double timeFrame = 0.04;	// seconds
+
+const int each = 10;		// save each 10
 ///
 ///
 ///
@@ -112,6 +116,7 @@ int main(int argc, char *argv[])
 	YARPString outdir;
 	char buf[256];
 	bool stereo = false;
+	bool cinque = false;
 
 	int length;
 
@@ -146,6 +151,12 @@ int main(int argc, char *argv[])
 		stereo = true;
 	}
 
+	if (YARPParseParameters::parse(argc, argv, "-cinque"))
+	{
+		stereo = false;
+		cinque = true;
+	}
+
 	/// images are coming from the input network.
 	sprintf(buf, "%s/i:left", name.c_str());
 	ACE_OS::printf("%s\n", name.c_str());
@@ -155,6 +166,18 @@ int main(int argc, char *argv[])
 	ACE_OS::printf("%s\n", name.c_str());
 	_image2Port.Register(buf, network_i.c_str());
 		
+	sprintf(buf, "%s/i:3", name.c_str());
+	ACE_OS::printf("%s\n", name.c_str());
+	_image3Port.Register(buf, network_i.c_str());
+
+	sprintf(buf, "%s/i:4", name.c_str());
+	ACE_OS::printf("%s\n", name.c_str());
+	_image4Port.Register(buf, network_i.c_str());
+
+	sprintf(buf, "%s/i:5", name.c_str());
+	ACE_OS::printf("%s\n", name.c_str());
+	_image5Port.Register(buf, network_i.c_str());
+
 	int frameCounter = 0;
 	int nFrame = (int) length/timeFrame;
 
@@ -177,21 +200,53 @@ int main(int argc, char *argv[])
 		_image1Port.Read();
 		if (stereo)
 			_image2Port.Read();
-		
+				
 		printFrame(frameCounter, time1);
 
-		if (stereo)
+		if (frameCounter%each == 0)
 		{
-			sprintf(tmpName, "%s%sL%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
-			YARPImageFile::Write(tmpName, _image1Port.Content());
+			if (stereo)
+			{
+				sprintf(tmpName, "%s%sL%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+				YARPImageFile::Write(tmpName, _image1Port.Content());
 			
-			sprintf(tmpName, "%s%sR%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
-			YARPImageFile::Write(tmpName, _image2Port.Content());
-		}
-		else
-		{
-			sprintf(tmpName, "%s%s%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
-			YARPImageFile::Write(tmpName, _image1Port.Content());
+				sprintf(tmpName, "%s%sR%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+				YARPImageFile::Write(tmpName, _image2Port.Content());
+			}
+			else if(cinque)
+			{
+				sprintf(tmpName, "%s%s1_%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+				YARPImageFile::Write(tmpName, _image1Port.Content());
+
+				if(_image2Port.Read(0))
+				{
+					sprintf(tmpName, "%s%s2_%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+					YARPImageFile::Write(tmpName, _image2Port.Content());
+				}
+
+				if(_image3Port.Read(0))
+				{
+					sprintf(tmpName, "%s%s3_%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+					YARPImageFile::Write(tmpName, _image3Port.Content());
+				}
+
+				if(_image4Port.Read(0))
+				{
+					sprintf(tmpName, "%s%s4_%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+					YARPImageFile::Write(tmpName, _image4Port.Content());
+				}
+
+				if(_image5Port.Read(0))
+				{
+					sprintf(tmpName, "%s%s5_%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+					YARPImageFile::Write(tmpName, _image5Port.Content());
+				}
+			}
+			else
+			{
+				sprintf(tmpName, "%s%s%d.ppm", outdir.c_str(), name.c_str(), frameCounter);
+				YARPImageFile::Write(tmpName, _image1Port.Content());
+			}
 		}
 
 		frameCounter++;

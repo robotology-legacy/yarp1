@@ -1,7 +1,7 @@
 #ifndef __ARMMAP__
 #define __ARMMAP__
 
-#define TEST_REACHING
+//#define TEST_REACHING
 
 #include <yarp/YARPBabybotHead.h>
 #include <yarp/YARPRndUtils.h>
@@ -62,8 +62,8 @@ const double __preparePosition[] = { 5*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*
 	const double __wrist3b = -170*degToRad;
 #else 
 	// offset in the shoulder to reach "from above"
-	const double __shoulderOffset1 = 0*degToRad;
-	const double __shoulderOffset2 = 0*degToRad;
+	const double __shoulderOffset1 = 7*degToRad;
+	const double __shoulderOffset2 = 7*degToRad;
 	// offset in the shoulder to fix offset in the reaching
 	// (tappullo)
 	const double __armOffset1 = 0*degToRad;

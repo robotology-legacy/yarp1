@@ -134,7 +134,11 @@ bool ArmMap::query(const YVector &arm, const YVector &head)
 #endif
 	//	_sendTrajectory();
 		
-		_formTrajectory(_command, _commandCL);
+#ifndef TEST_REACHING
+			_formTrajectory(_commandCL, _commandCL);
+#else
+		_formTrajectory(_command, _commandCL);	
+#endif
 	}
 
 	return true;
@@ -182,14 +186,14 @@ void ArmMap::_formTrajectory(const YVector &cmd, const YVector &cmdCL)
 {
 	// first move
 	_trajectory[0] = _command;
-	_trajectory[0](1) = _command(1)+__shoulderOffset1;
-	_trajectory[0](2) = _command(2)+__armOffset1;
-	_trajectory[0](3) = _command(3)+__foreArmOffset1;
+	_trajectory[0](1) = cmd(1)+__shoulderOffset1;
+	_trajectory[0](2) = cmd(2)+__armOffset1;
+	_trajectory[0](3) = cmd(3)+__foreArmOffset1;
 	_trajectory[0](4) = __wrist1a;
 	_trajectory[0](5) = __wrist2a;
 	_trajectory[0](6) = __wrist3a;
 
-	_trajectory[1](1)= _command(1)+__shoulderOffset1;
+	_trajectory[1](1)= cmd(1)+__shoulderOffset1;
 	_trajectory[1](2) = _commandCL(2)+__armOffset1;
 	_trajectory[1](3) = _commandCL(3)+__foreArmOffset1;
 	_trajectory[1](4) = __wrist1b;
@@ -198,7 +202,7 @@ void ArmMap::_formTrajectory(const YVector &cmd, const YVector &cmdCL)
 
 	// actual reaching
 	_trajectory[2] = _command;
-	_trajectory[2](1) = _command(1)+__shoulderOffset2;
+	_trajectory[2](1) = cmd(1)+__shoulderOffset2;
 	_trajectory[2](2) = _commandCL(2)+__armOffset2;
 	_trajectory[2](3) = _commandCL(3)+__foreArmOffset2;
 	_trajectory[2](4) = __wrist1b;
@@ -206,7 +210,7 @@ void ArmMap::_formTrajectory(const YVector &cmd, const YVector &cmdCL)
 	_trajectory[2](6) = __wrist3b;
 
 	// go back
-	_trajectory[3] = _trajectory[1];
+	_trajectory[3] = _trajectory[0];
 }
 
 const YVector &ArmMap::getCommand(int index)

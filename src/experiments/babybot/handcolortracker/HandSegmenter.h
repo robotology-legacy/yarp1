@@ -82,12 +82,16 @@ public:
 
 	inline void drawCross(int x, int y, const YarpPixelBGR &v, int h, int w)
 	{
-		YARPSimpleOperation::DrawCross(outImage, x, y, v, h, w);
+		#ifndef DO_NOT_DRAW
+			YARPSimpleOperation::DrawCross(outImage, x, y, v, h, w);
+		#endif
 	}
 
 	inline void plotEllipse(const YARPShapeEllipse &el, const YarpPixelBGR &v)
 	{
-		conicFitterCart.plotEllipse(el, outImage, v);
+		// #ifndef DO_NOT_DRAW
+			conicFitterCart.plotEllipse(el, outImage, v);
+		// #endif
 	}
 	
 	inline void plotEllipse2(const YARPShapeEllipse &el, const YarpPixelBGR &v, YVector &fingers)
@@ -112,10 +116,12 @@ public:
 	//	printf("%.4lf\t%.4lf\t%.4lf\t%.4lf\n", x11, y11, x12, y12);
 	//	printf("%.4lf\t%.4lf\t%.4lf\t%.4lf\n", x21, y21, x22, y22);
 		
+	#ifndef DO_NOT_DRAW
 		YARPSimpleOperation::DrawCross(outImage, x11+el.x, y11+el.y, v, 3, 1);
 		YARPSimpleOperation::DrawCross(outImage, x21+el.x, y21+el.y, v, 3, 1);
 		YARPSimpleOperation::DrawCross(outImage, x12+el.x, y12+el.y, v, 3, 1);
 		YARPSimpleOperation::DrawCross(outImage, x22+el.x, y22+el.y, v, 3, 1);
+	#endif
 
 		fingers(1) = x12+el.x;
 		fingers(2) = y12+el.y;

@@ -1,6 +1,8 @@
 // HandColorTracker.cpp : Defines the entry point for the console application.
 //
 
+#define DO_NOT_DRAW
+
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ipl/ipl.h>
@@ -99,8 +101,6 @@ int main(int argc, char* argv[])
 	if (!YARPParseParameters::parse(argc, argv, "-position"))
 		plotActual = false;
 
-	ArmTrajectory trajectory;
-
 	unsigned char bins[] = {16, 16, 1};
 	YARPLpHistoSegmentation _histo(80, 80, 255, 0, bins);
 
@@ -131,6 +131,8 @@ int main(int argc, char* argv[])
 
 	HandKinematics _handLocalization(__nnetFile1, __nnetFile2);
 	HandSegmenter _segmenter;
+	ArmTrajectory trajectory;
+	trajectory.setImagePointer(_segmenter.getImage());
 	
 	_inPortImage.Register("/handtracker/i:img", "Net1");
 	_inPortSeg.Register("/handtracker/segmentation/i:img");

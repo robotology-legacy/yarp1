@@ -130,6 +130,7 @@ int main(int argc, char* argv[])
 
 	// start control thread
 	arm_thread.start();
+	arm_thread.forceResting(true);	// arm starts in resting position
 	// start behavior SM
 	_arm.Begin();
 	_arm.loop();	// block here until quit command is received
