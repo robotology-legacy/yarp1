@@ -566,6 +566,8 @@ void InterruptEvent()
 	//btwrite(stat,BT848_INT_STAT); //Write same data back, clears the pending intrs.
 	regbase[64] = stat;
 
+	InterruptUnmask(btv->irq, btv->id);
+
 	if (!astat) //How the hell where we triggerd, we got no interrupt pending! :)
 		return;
 
@@ -632,7 +634,7 @@ void InterruptEvent()
 		bt848_cap(btv,1);
 	}
 
-	InterruptUnmask(btv->irq, btv->id);
+	
 
 	/*
 	if (double_buffer_tag == 0)
