@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.3 2003-04-20 22:25:21 natta Exp $
+/// $Id: YARPNameServer.cpp,v 1.4 2003-04-21 20:28:48 natta Exp $
 ///
 ///
 
@@ -85,27 +85,12 @@ PortEntry IpEntry::ask_new_port()
 	PortEntry new_port;
 
 	if (!_portPool.findFree(ports, new_port))
-		NAME_SERVER_DEBUG(("%s : no more ports available\n", ip.c_str()));
-	
-	/*
-	if (ports.empty())
 	{
-		new_port.port = _start_port;
-		new_port.flag = true;	//port is used
+		NAME_SERVER_DEBUG(("%s : no more ports available\n", ip.c_str()));
 	}
 	else
-	{
-		PortEntry &last_port = ports.back();
-		new_port.flag = true;
-		new_port.port = last_port.port+1;
-		if (new_port.port > _end_port)
-		{
-			NAME_SERVER_DEBUG(("%s : no more ports available\n", ip.c_str()));
-			// to do: handle this situation
-		}
-	}
-	*/
-	ports.push_back(new_port);
+		ports.push_back(new_port);
+
 	return new_port;
 }
 
@@ -164,6 +149,8 @@ void resources::release(const std::string &ip, int port)
 	{
 		it->release_port(port);
 		NAME_SERVER_DEBUG(("%s:%d no longer used, releasing\n", ip.c_str(), port));
+		if (it->ports.empty())
+			erase(it);
 	}
 	else
 		NAME_SERVER_DEBUG(("Sorry, cannot find: %s\n", ip.c_str()));
@@ -185,6 +172,14 @@ bool resources::check_port(const std::string &ip, int port)
 		NAME_SERVER_DEBUG(("Sorry, cannot find: %s\n", ip.c_str()));
 		return false;
 	}
+}
+
+void resources::sign_in(const IpEntry &ip)
+{
+	IpEntry new_ip;
+	new_ip = ip;
+
+	push_back(new_ip);
 }
 
 void resources::sign_in(const std::string &ip)
@@ -403,55 +398,34 @@ int LocalNameServer::queryName(const std::string &name, std::string &ip, int *po
 	}
 }
 
-int LocalNameServer::registerName(const std::string &name, const std::string &ip, int *port)
+int LocalNameServer::registerName(const std::string &name, const IpEntry &entry, int *port)
 {
 	//  if name is already registered
-	std::string tmp_ip;
-	int tmp_port;
-	// check if name already exists
-	if (names.check(name, tmp_ip, &tmp_port))
-	{
-		// name already registered, destroy it
-		NAME_SERVER_DEBUG(("WARNING: %s already registered as %s:%d\n", name.c_str(), tmp_ip.c_str(), tmp_port));
-		names.destroy(name, tmp_ip, &tmp_port);
-		addresses.release(tmp_ip, tmp_port);
-	}
-
-	tmp_ip = ip;
-	tmp_port = *port;
-
-	int ref = names.take_ref(name, tmp_ip, &tmp_port);
-	int max_ref = -1;
-	
-	if (ref == 0)
-	{
-		// 0 means found, but ran out of resources
-		*port = __portNotFound;
-		return -1;
-	}
-	else if (ref <= -1)
-	{
-		// < -1 means not found
-		// find a free resource and assign it
-		if (addresses.find_ip(tmp_ip) == -1)
-			addresses.sign_in(tmp_ip);
-
-		// get new resource name
-		addresses.ask_new(tmp_ip, &tmp_port);
-		// register new resource
-		names.check_in(name, tmp_ip, tmp_port, max_ref);
-
-		*port = tmp_port;
-		return 0;
-	}
-	else
-	{
-		// found, resources availables
-		*port = tmp_port;
-		return 0;
-	}
+	_checkAndRemove(name);
+	return _registerName(name, entry, port);
 }	
 
+int LocalNameServer::registerNameDIp(const std::string &name, std::string &ip, int *port)
+{
+	_checkAndRemove(name);
+
+	IpEntry new_ip;
+	int new_port;
+	int ret;
+
+	if (!addresses._ipPool.findFree(addresses, new_ip)) {
+		NAME_SERVER_DEBUG(("%s : no more ip available from pool\n", name.c_str()));
+		*port = __portNotFound;
+		ip = std::string(__ipNotFound);
+		ret = -1;
+	}
+	else {
+		ret = _registerName(name, new_ip, &new_port);
+		ip = new_ip.ip;
+		*port = new_port;
+	}
+	return ret;
+}
 
 int YARPNameServer::accept_connection()
 {
@@ -495,16 +469,6 @@ void YARPNameServer::dump_resources()
 	}
 }
 
-void YARPNameServer::handle_registration(const std::string &service_name)
-{
-	std::string tmp_ip;
-	int port;
-
-	ns.queryName(service_name, tmp_ip, &port);
-	NAME_SERVER_DEBUG(("Reply %s as %s:%d\n", service_name.c_str(), tmp_ip.c_str(), port));
-	_handle_reply(tmp_ip, port);
-}
-
 void YARPNameServer::handle_registration(const std::string &service_name, const std::string &ip)
 {
 	int port;
@@ -522,16 +486,34 @@ void YARPNameServer::handle_query(const std::string &service_name)
 	_handle_reply(ip, port);
 }
 
-void YARPNameServer::handle_registration_dbg(const std::string &service_name)
+void YARPNameServer::handle_registration_dbg(const std::string &service_name, const std::string &ip)
+{
+	int port;
+
+	NAME_SERVER_DEBUG(("DBG MODE: registering %s as %s\n", service_name.c_str(), ip.c_str()));
+
+	ns.registerName(service_name, ip, &port);
+	NAME_SERVER_DEBUG(("Reply %s as %s:%d\n", service_name.c_str(), ip.c_str(), port));
+}
+
+void YARPNameServer::handle_registration_dip_dbg(const std::string &service_name)
 {
 	std::string ip;
 	int port;
 
 	NAME_SERVER_DEBUG(("DBG MODE: registering %s\n", service_name.c_str()));
 
-	if (ns.queryName(service_name, ip, &port) != -1)
-		NAME_SERVER_DEBUG(("DBG MODE: answering %s:%d\n", ip.c_str(), port));
+	ns.registerNameDIp(service_name, ip, &port);
+	NAME_SERVER_DEBUG(("DBG MODE: answering %s:%d\n", ip.c_str(), port));
+}
 
+void YARPNameServer::handle_registration_dip(const std::string &service_name)
+{
+	int port;
+	std::string ip;
+	ns.registerNameDIp(service_name, ip, &port);
+	NAME_SERVER_DEBUG(("Reply %s as %s:%d\n", service_name.c_str(), ip.c_str(), port));
+	_handle_reply(ip, port);
 }
 
 void YARPNameServer::_handle_reply(const std::string &ip, int port)
@@ -550,16 +532,6 @@ void YARPNameServer::_handle_reply(const std::string &ip, int port)
 	iov[0].iov_len = rplCmd.length+sizeof(YARPNameServiceCmd);
 
 	int sent = new_stream_.sendv_n (iov, 1);
-}
-
-void YARPNameServer::handle_registration_dbg(const std::string &service_name, std::string &ip)
-{
-	int port;
-
-	NAME_SERVER_DEBUG(("DBG MODE: registering %s\n", service_name.c_str()));
-
-	if (ns.registerName(service_name, ip, &port) != -1)
-		NAME_SERVER_DEBUG(("DBG MODE: answering %s:%d\n", ip.c_str(), port));
 }
 
 void YARPNameServer::query_dbg(const std::string &service_name)

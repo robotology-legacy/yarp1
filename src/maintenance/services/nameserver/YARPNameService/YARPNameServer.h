@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.2 2003-04-20 22:18:31 natta Exp $
+/// $Id: YARPNameServer.h,v 1.3 2003-04-21 20:28:48 natta Exp $
 ///
 ///
 
@@ -98,12 +98,45 @@
 #endif
 
 
-const int __startPoolPorts = 1001;
-const int __endPoolPorts = 1999;
+const int __startPortPool = 1001;
+const int __endPortPool = 1999;
+const int __portNotFound = 0;
+
+const int __startDynPortPool = 4000;
+const int __endDynPortPool = 4002;
+
+const char __startIpPool[] = {"224.0.0.1"};
+const char __endIpPool[] = {"224.0.0.4"};
+const char __ipNotFound[] = {"0.0.0.0"};
 
 const int _max_ref = 9999;
 
-const int __portNotFound = 0;
+inline std::string getNextIp(const std::string &i)
+{
+	char tmp[255];
+	int a,b,c,d;
+	sscanf(i.c_str(),"%d.%d.%d.%d", &a,&b,&c,&d);
+	d++;
+	if (d == 256)
+	{
+		d = 0;
+		c++;
+		if (c == 256)
+		{
+			c = 0;
+			b++;
+			if (b == 256)
+			{
+				b = 0;
+				a++;
+				if (a = 256)
+					a = 0;
+			}
+		}
+	}
+	sprintf(tmp, "%d.%d.%d.%d", a,b,c,d);
+	return std::string(tmp);
+}
 
 class PortEntry
 {
@@ -132,7 +165,7 @@ public:
 		flag = false;
 		return *this;
 	}
-	const PortEntry &operator = (PortEntry &i)
+	const PortEntry &operator = (const PortEntry &i)
 	{
 		port = i.port;
 		flag = i.flag;
@@ -153,7 +186,9 @@ public:
 	bool findFree(T_LIST &l, T &item)
 	{
 		T tmp = _min;
-		while (! (tmp==_max))
+		T last = _max;
+		++last;		// we want the last item to be used
+		while (! (tmp==last)) 
 		{
 			if (!_check(l,tmp))
 			{
@@ -161,7 +196,7 @@ public:
 				return true;
 			}
 			++tmp;
-		}
+		} 
 		return false;
 	}
 private:
@@ -184,8 +219,15 @@ class IpEntry
 public:
 	IpEntry()
 	{
-		_portPool._min = PortEntry(__startPoolPorts);
-		_portPool._max = PortEntry(__endPoolPorts);
+		_portPool._min = PortEntry(__startPortPool);
+		_portPool._max = PortEntry(__endPortPool);
+	}
+
+	IpEntry(const char *i, int startPort, int endPort)
+	{
+		ip = std::string(i);
+		_portPool._min = PortEntry(startPort);
+		_portPool._max = PortEntry(endPort);
 	}
 
 	std::string	ip;
@@ -197,20 +239,50 @@ public:
 	int find_port(int port, PORT_IT &it);
 		
 	void release_port(int port);
+
+	// operators
+	bool operator == (const IpEntry &item)
+	{
+		if (ip == item.ip)
+			return true;
+		else
+			return false;
+	}
+	IpEntry operator++()
+	{
+		ip = getNextIp(ip);
+		return *this;
+	}
+	const IpEntry &operator = (const IpEntry &i)
+	{
+		ip = i.ip;
+		_portPool = i._portPool;
+		return *this;
+	}
 };
 
 typedef std::list<IpEntry> IP_LIST;
 typedef IP_LIST::iterator IP_IT;
 
-struct resources:public IP_LIST
+class resources:public IP_LIST
 {
+public:
+	resources()
+	{
+		_ipPool._min = IpEntry(__startIpPool,__startDynPortPool, __endDynPortPool);
+		_ipPool._max = IpEntry(__endIpPool, __startDynPortPool, __endDynPortPool);
+	}
 	void release (const std::string &ip);
 	void release(const std::string &ip, int port);
 	bool check_port(const std::string &ip, int port);
+	void sign_in(const IpEntry &ip);
 	void sign_in(const std::string &ip);
 	int ask_new(const std::string &ip, int *port);
 	int find_ip(const std::string &ip);
 	int find_ip(const std::string &ip, IP_IT &it);
+
+public:
+	pool<IpEntry, IP_LIST, IP_IT> _ipPool;
 };
 
 struct service
@@ -331,8 +403,18 @@ public:
 	LocalNameServer();
 	virtual ~LocalNameServer();
 
+	// sign in a service, specify name/IpEntry get port back
+	int registerName(const std::string &name, const IpEntry &entry, int *port);
 	// sign in a service, specify name/ip get port back
-	int registerName(const std::string &name, const std::string &ip, int *port);
+	int registerName(const std::string &name, const std::string &ip, int *port)
+	{
+		IpEntry tmpEntry;
+		tmpEntry.ip = ip;
+		return registerName(name, tmpEntry, port);
+	}
+	// sign in a service, specify name only, get back ip from pool
+	int registerNameDIp(const std::string &name, std::string &ip, int *port);
+
 
 	// just check
 	int queryName(const std::string &name, std::string &ip, int *port);
@@ -364,6 +446,60 @@ public:
 	resources addresses;
 	services  names;
 	services  statics;
+private:
+	// check if name already exists, and remove it
+	void _checkAndRemove(const std::string &name)
+	{
+		std::string sdummy;
+		int idummy;
+		if (names.check(name, sdummy, &idummy))
+		{
+			// name already registered, destroy it
+			NAME_SERVER_DEBUG(("WARNING: %s already registered as %s:%d\n", name.c_str(), sdummy.c_str(), idummy));
+			names.destroy(name, sdummy, &idummy);
+			addresses.release(sdummy, idummy);
+		}
+	}
+	int _registerName(const std::string &name, const IpEntry &entry, int *port)
+	{
+		std::string tmp_ip;
+		int tmp_port;
+	
+		tmp_ip = entry.ip;
+		
+		int ref = names.take_ref(name, tmp_ip, &tmp_port);
+		int max_ref = -1;
+	
+		if (ref == 0)
+		{
+			// 0 means found, but ran out of resources (max ref)
+			*port = __portNotFound;
+			return -1;
+		}
+		else if (ref <= -1)
+		{
+			// < -1 means not found
+			// find a free resource and assign it
+			if (addresses.find_ip(tmp_ip) == -1)
+				addresses.sign_in(entry);
+
+			// get new resource name
+			addresses.ask_new(tmp_ip, &tmp_port);
+			*port = tmp_port;
+			if (tmp_port!=__portNotFound){
+				// register new resource
+				names.check_in(name, tmp_ip, tmp_port, max_ref);
+				return -1;
+			}
+			return 0;
+		}
+		else
+		{
+			// found, resources availables
+			*port = tmp_port;
+			return 0;
+		}
+	}
 };
 
 class YARPNameServer: public CThreadImpl
@@ -403,11 +539,11 @@ public:
 		cout << "-End";
 	};
 	
-	void handle_registration(const std::string &service_name);
-	void handle_query(const std::string &service_name);
 	void handle_registration(const std::string &service_name, const std::string &ip);
-	void handle_registration_dbg(const std::string &service_name);
-	void handle_registration_dbg(const std::string &service_name, std::string &ip);
+	void handle_query(const std::string &service_name);
+	void handle_registration_dip(const std::string &service_name);
+	void handle_registration_dip_dbg(const std::string &service_name);
+	void handle_registration_dbg(const std::string &service_name, const std::string &ip);
 	void query_dbg(const std::string &service_name);
 	void handle_release(const std::string &service_name);
 
