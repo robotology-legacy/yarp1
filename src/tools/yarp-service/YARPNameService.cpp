@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.3 2004-07-09 16:42:42 eshuy Exp $
+/// $Id: YARPNameService.cpp,v 1.4 2004-07-09 18:52:17 eshuy Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -64,6 +64,8 @@
 #include "YARPNameServer.h"
 
 #include <yarp/YARPString.h>
+#include <yarp/YARPPort.h>
+#include <yarp/YARPTime.h>
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -71,6 +73,8 @@ using namespace std;
 // need to be able to make directories
 // check how to do this in a portable way...
 #include <ace/OS.h>
+#include <ace/OS_NS_unistd.h>
+#include <ace/INET_Addr.h>
 
 #ifdef __WIN32__
 const char *_name_file_path = "conf\\namer.conf";
@@ -118,22 +122,41 @@ int parse(const YARPString &str)
 }
 
 
+extern char * LocalGetYarpRoot (void);
+
+static void SmartHost(YARPString& result) {
+  char buf[256] = "localhost";
+  result = buf;
+  int r = ACE_OS::hostname(buf,sizeof(buf));
+  if (r!=-1) {
+    result = buf;
+    ACE_INET_Addr addr;
+    int r = addr.set((short unsigned int)0,(const char *)buf);
+    if (r!=-1) {
+      YARPString outIp = addr.get_host_addr();
+      if (outIp!=YARPString("127.0.0.1")) {
+	result = outIp;
+      }
+    }    
+  }
+}
+
 static void GetServer(YARPString& fname, YARPString& server, int& port,
 		      const char *target = NULL,
-		      int target_port = -1) {
+		      int target_port = -1, int quiet = 0) {
 	int read_ok = 0;
 
 	char buf[256];
-	char *root = GetYarpRoot();
+	char *root = LocalGetYarpRoot();
 	ACE_ASSERT (root != NULL);
 	ACE_OS::sprintf (buf, "%s/%s", root, _name_file_path);
-	printf("Using configuration file %s\n", buf);
+	if (!quiet) printf("Using configuration file %s\n", buf);
 
 	{
 	ifstream fin(buf);
 	if (fin.eof() || fin.fail())
 	{
-		ACE_DEBUG ((LM_DEBUG, "can't read config file, writing a default one\n"));
+	  if (!quiet) ACE_DEBUG ((LM_DEBUG, "can't read config file, writing a default one\n"));
 		fin.close();
 		char buf2[1000];
 		sprintf(buf2,"%s/conf",root);
@@ -141,7 +164,9 @@ static void GetServer(YARPString& fname, YARPString& server, int& port,
 		ACE_OS::mkdir(buf2);
 		ofstream fout(buf);
 		if (target==NULL) {
-		  fout << "localhost 10000" << endl << endl;
+		  YARPString host;
+		  SmartHost(host);
+		  fout << host.c_str() << " 10000" << endl << endl;
 		} else {
 		  fout << target << " " << target_port << endl << endl;
 		}
@@ -151,19 +176,28 @@ static void GetServer(YARPString& fname, YARPString& server, int& port,
 		fout.close();
 	}
 	}
+
 	ifstream fin(buf);
+	int ok = 1;
 	if (fin.eof() || fin.fail())
 	  {
-	    ACE_DEBUG ((LM_WARNING, "can't read or create config file\n"));
-	    exit(1);
+	    ok = 0;
+	    if (!quiet) {
+	      ACE_DEBUG ((LM_WARNING, "can't read or create config file\n"));
+	      exit(1);
+	    }
 	  }
 
 	char hostname[256];
 	ACE_OS::memset (hostname, 0, 256);
 
-	fin >> hostname >> _server_port;
+	if (ok) {
+	  fin >> hostname >> _server_port;
+	} else {
+	  hostname[0] = '\0';
+	  _server_port = 10000;
+	}
 
-	int ok = 1;
 	if (target!=NULL) {
 	  if (strcmp(target,hostname)!=0 || _server_port!=target_port) {
 	    printf("*** Asked to use name service at [%s %d]\n",
@@ -175,7 +209,7 @@ static void GetServer(YARPString& fname, YARPString& server, int& port,
 	    ok = 0;
 	  }
 	}
-	if (ok) {
+	if (ok&&!quiet) {
 	  ACE_DEBUG ((LM_INFO, "*** Using YARP name server at [%s %d]\n", hostname, _server_port));
 	}
 
@@ -186,10 +220,120 @@ static void GetServer(YARPString& fname, YARPString& server, int& port,
 	fin.close ();
 }
 
+
+static void info() {
+  YARPString config, server;
+  int server_port;
+  GetServer(config,server,server_port,NULL,-1,1);
+  printf("*** configuration file found/created at [%s]\n", config.c_str());
+  printf("*** It specifies a server at:\n\t\tMachine [%s]\n\t\tPort number [%d]\n", server.c_str(), server_port);
+}
+
+static void diagnose() {
+  YARPString config, server;
+  int server_port;
+  GetServer(config,server,server_port,NULL,-1,1);
+  printf("*** Check the configuration file at [%s]\n", config.c_str());
+  if (server == YARPString("")) {
+    printf("*** It doesn't have a server name in it.\n");
+    printf("*** Try deleting it and rerunning this program.\n");
+  }
+  printf("*** It currently specifies a server at:\n\t\tMachine [%s]\n\t\tPort number [%d]\n", server.c_str(), server_port);
+  printf("*** These settings can be changed on the first line of the file.\n");
+  int ch = server.c_str()[0];
+  if (ch<='0'||ch>='9') {
+    printf("*** Perhaps try using an IP address instead of a host name.\n");
+  }
+  printf("***\n");
+  printf("*** If this is the wrong configuration file,\n");
+  printf("***    please set the optional YARP_ROOT environment variable\n");
+  printf("***    to the directory in which the desired namer.conf resides\n");
+  printf("***\n");
+}
+
+static void check() {
+  // check for a config file
+  {
+    YARPString config, server;
+    int server_port;
+    GetServer(config,server,server_port,NULL,-1,1);
+  }
+
+  printf("=================================================================\n");
+  printf("=== Just in case things go badly wrong,\n");
+  printf("=== here is some upfront information on how to get things right:\n");
+  diagnose();
+
+  YARPOutputPortOf<NetInt32> p1;
+  YARPInputPortOf<NetInt32> p2(YARPInputPort::NO_BUFFERS);
+  printf("=================================================================\n");
+  printf("=== Trying to register some ports\n");
+  p1.Register("/yarp-service/1");
+  p2.Register("/yarp-service/2");
+  YARPTime::DelayInSeconds(1);
+
+  printf("=================================================================\n");
+  printf("=== Trying to connect some ports\n");
+  p1.Connect("/yarp-service/2");
+  YARPTime::DelayInSeconds(1);
+
+  printf("==================================================================\n");
+  printf("=== Trying to write some data\n");
+  YARPTime::DelayInSeconds(1);
+
+  p1.Content() = 42;
+  printf("*** Writing number %d\n", p1.Content());
+  p1.Write();
+
+  printf("=================================================================\n");
+  int ok = 0;
+  for (int i=0; i<3; i++) {
+  printf("=== Trying to read some data\n");
+    YARPTime::DelayInSeconds(1);
+    if (p2.Read(false)) {
+      int x = p2.Content();
+      printf("*** Read number %d\n", p2.Content());
+      if (x==42) {
+	ok = 1;
+	break;
+      }
+    }
+  }
+
+  printf("=================================================================\n");
+  printf("=== Trying to unregister some ports\n");
+  p1.Unregister();
+  p2.Unregister();
+  YARPTime::DelayInSeconds(1);
+
+  printf("=================================================================\n");
+  if (!ok) {
+    printf("*** YARP seems broken.\n");
+    diagnose();
+    exit(1);
+  } else {
+    printf("*** YARP seems okay!\n");
+    //GetServer(buf,server,_server_port,target,port);
+  }
+}
+
 int main(int argc, char* argv[])
 {
   argc--;
   argv++;
+
+  if (argc>0) {
+    if (argv[0][0] == '-') {
+      const char *request = argv[0];
+      argc--;
+      argv++;
+      if (strcmp(request,"--check")==0) {
+	printf("Checking installation of YARP on this machine.\n");
+	check();
+	return YARP_OK;
+      }
+    }
+  }
 
   if (argc>0) {
     const char *target = argv[0];
@@ -219,7 +363,7 @@ int main(int argc, char* argv[])
   int _server_port = 10000;
   GetServer(buf,server,_server_port);
 
-  YARPNameServer dns(buf.c_str(), _server_port);
+  YARPNameServer dns(buf,server,_server_port);
 
 
 	YARPString str;

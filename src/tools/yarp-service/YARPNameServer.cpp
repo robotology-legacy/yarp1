@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.3 2004-07-09 16:42:42 eshuy Exp $
+/// $Id: YARPNameServer.cpp,v 1.4 2004-07-09 18:52:17 eshuy Exp $
 ///
 ///
 
@@ -73,7 +73,7 @@ using namespace std;
 static char name_buffer[1000];
 
 // general function
-char * GetYarpRoot (void)
+char * LocalGetYarpRoot (void)
 {
 	char * ret = getenv ("YARP_ROOT");
 	if (ret == NULL)

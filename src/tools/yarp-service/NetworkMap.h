@@ -1,4 +1,4 @@
-/// $Id: NetworkMap.h,v 1.3 2004-07-09 16:42:42 eshuy Exp $
+/// $Id: NetworkMap.h,v 1.4 2004-07-09 18:52:17 eshuy Exp $
 // 
 // July 2003 -- by nat
 //////////////////////////////////////////////////////////////////////
@@ -51,7 +51,8 @@ public:
 	typedef NETWORK_MAP::iterator NETWORK_MAP_IT;
 	//////////////////////////////////////////////
 
-	NetworkMap(const YARPString &configFile = "");
+	NetworkMap(const YARPString& configFile,
+		   const YARPString& localhost);
 	virtual ~NetworkMap();
 
 	void findIp(const YARPString &inIp, const YARPString &net, YARPString &outNic, YARPString &outIp);
@@ -61,6 +62,8 @@ private:
 	int _readAndCheck(FILE * fp, char *row);
 
 	NETWORK_MAP _networkMap;
+
+	YARPString myhost;
 };
 
 #endif // .h

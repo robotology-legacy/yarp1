@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.3 2004-07-09 16:42:42 eshuy Exp $
+/// $Id: YARPNameServer.h,v 1.4 2004-07-09 18:52:17 eshuy Exp $
 ///
 ///
 
@@ -96,9 +96,9 @@ using namespace std;
 class YARPNameServer: public CThreadImpl
 {
 public:
-	YARPNameServer(const YARPString &file, int port):
+	YARPNameServer(const YARPString &file, const YARPString& local, int port):
 	  CThreadImpl("name server thread",0),
-		nmap(file),
+		nmap(file,local),
 	  server_addr_(port), peer_acceptor_(server_addr_, 1)
 	{
 		  //ns.init(file);

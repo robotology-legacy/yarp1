@@ -12,8 +12,10 @@ using namespace std;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-NetworkMap::NetworkMap(const YARPString &configFile)
+NetworkMap::NetworkMap(const YARPString& configFile,
+		       const YARPString& localhost)
 {
+  myhost = localhost;
 	if (configFile != "")
 		_load(configFile);
 }
@@ -184,6 +186,14 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 		outIp = tmpIp;		// node and net were found, return tmpIp 
 		outNic = tmpNic;	// node and net were found, return tmpNic
 	}
-	
+
+	if (outIp==YARPString("127.0.0.1")) {
+	  // localhost is no use at all
+	  ACE_INET_Addr addr;
+	  int r = addr.set((short unsigned int)0,(const char *)myhost.c_str());
+	  if (r!=-1) {
+	    outIp = addr.get_host_addr();
+	  }
+	}
 }
 
