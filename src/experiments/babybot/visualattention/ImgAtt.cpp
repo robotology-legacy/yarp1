@@ -1127,6 +1127,12 @@ void YARPImgAtt::resetObject()
 }
 
 
+void YARPImgAtt::resetHand()
+{
+	numNeighBoxesHand=0;
+}
+
+
 int YARPImgAtt::learnObject()
 {
 	memset(blobList, 0, sizeof(char)*(max_tag+1));
@@ -1327,7 +1333,7 @@ int YARPImgAtt::learnHand()
 			int min=10000;
 			int minBlob=0;
 			for (int n=0; n<numNeighBoxesHand; n++) {
-				if (!neighTaken[n]) {
+				//if (!neighTaken[n]) {
 					for (int b=2; b<=max_tag; b++) {
 						//if (blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000 && blobListObject[b]==0) {
 						if (blobList[b]==1 && salience.getBlobNum(b).areaCart>minBoundingArea && salience.getBlobNum(b).areaCart<6000) {
@@ -1345,7 +1351,7 @@ int YARPImgAtt::learnHand()
 							}
 						}
 					}
-				}
+				//}
 			}
 			if (min<maxError) {
 				neighTaken[minModelBlob]=true;
@@ -1398,7 +1404,7 @@ int YARPImgAtt::learnHand()
 bool YARPImgAtt::isHand(YARPBox &box)
 {
 	for (int i=0; i<numNeighBoxesHand; i++) {
-		if (neighProbHand[i]>=.5) {
+		if (neighProbHand[i]>=.3) {
 			int crg=neighBoxesHand[i].meanRG-box.meanRG;
 			int cgr=neighBoxesHand[i].meanGR-box.meanGR;
 			int cby=neighBoxesHand[i].meanBY-box.meanBY;
@@ -1410,7 +1416,7 @@ bool YARPImgAtt::isHand(YARPBox &box)
 }
 
 
-bool YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src)
+double YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src, const double th)
 {
 	if (numNeighBoxes!=0) {
 		double totalScore4=1;
@@ -1478,7 +1484,7 @@ bool YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src)
 		else totalScore6=0;
 
 		objectFov.Zero();
-		if (totalScore6>=0.5) {
+		if (totalScore6>=th) {
 			blobListObject[1]=2;
 			//salience.drawBlobListRandom(objectFov, tagged, blobListObject, max_tag);
 			salience.drawBlobListMask(src, objectFov, tagged, blobListObject, max_tag);
@@ -1490,10 +1496,12 @@ bool YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src)
 		/*if (totalScore<.8) ACE_OS::printf(" too low, moving\n");
 		else ACE_OS::printf("\n");*/
 		//return (totalScore<.8 && epoch>30);
-		return totalScore6>=0.5;
+		//return totalScore6>=0.5;
+		return totalScore6;
 	}
 	
-	return true;
+	//return true;
+	return 1;
 }
 
 

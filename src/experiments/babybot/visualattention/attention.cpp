@@ -261,6 +261,7 @@ void mainthread::Body (void)
 	int mGR;
 	int mBY;
 	int reachingAttempt=0;
+	int saccades=0;
 
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n"); // to stop the execution on this instruction
@@ -390,6 +391,9 @@ void mainthread::Body (void)
 						exploring = true;
 						att_mod.resetObject();
 						reaching=false;
+						reachingAttempt=0;
+						if (learnHand)
+							att_mod.resetHand();
 					} else if (message == YBVKFTrainStart) {
 						ACE_OS::printf("KF Training starting...\n");
 						toMem=4;
@@ -414,6 +418,7 @@ void mainthread::Body (void)
 						searching = false;
 						exploring = true;
 						noOutput=true;
+						saccades=0;
 					} else if (message == YBVReachingFailure) {
 						reachingAttempt++;
 						if (reachingAttempt==3) {
@@ -445,7 +450,7 @@ void mainthread::Body (void)
 						ACE_OS::printf("error:%d\n", (mRG-att_mod.fovBox.meanRG)*(mRG-att_mod.fovBox.meanRG)+
 							(mGR-att_mod.fovBox.meanGR)*(mGR-att_mod.fovBox.meanGR)+
 							(mBY-att_mod.fovBox.meanBY)*(mBY-att_mod.fovBox.meanBY));
-						att_mod.checkObject(img);
+						att_mod.checkObject(img, 0.5);
 						att_mod.dumpLearnObject();
 						att_mod.dumpLearnHand();
 					}
@@ -543,9 +548,6 @@ void mainthread::Body (void)
 								outBottle.Write();
 							} else 
 								ACE_OS::printf("Valid difference detected, but freezed!\r");
-							/*tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);
-							tmpBottle.writeInt(-1);*/
 							diffFoundValid = true;
 						} else
 							ACE_OS::printf("Difference detected at (%d,%d)          \r",cartx,carty);
@@ -593,18 +595,20 @@ endDiffCheck:
 								att_mod.learnHand();
 							} else {
 								boxesMem=att_mod.learnObject();
-								att_mod.checkObject(img);
+								att_mod.checkObject(img, 0.5);
 							}
 							toMem--;
 							searching=true;
 							targetFound = true;
 							exploring = false;
 							moved = 2;
+							saccades=0;
 						}
 					} else if (moved==0) {
 						// Special frame: now decision and data could be sent
 						if (found) {
-							mustMove=!att_mod.checkObject(img);
+							ACE_OS::printf("Saccades: %d\n", saccades);
+							mustMove=att_mod.checkObject(img, 0.5-(double)saccades/100)<(0.5-(double)saccades/100);
 							att_mod.dumpLearnObject();
 							if (!mustMove) {
 								if (!noOutput) {
@@ -639,6 +643,7 @@ endDiffCheck:
 								tmpBottle.writeInt(0);
 								outBottle.Content() = tmpBottle;
 								outBottle.Write();
+								saccades++;
 							} else
 								ACE_OS::printf("I should send a new point but I'm freezed!\n");
 							mustMove = false;
@@ -648,9 +653,10 @@ endDiffCheck:
 						if (found) {
 							if (learnObject) {
 								att_mod.learnObject();
-								att_mod.checkObject(img);
+								att_mod.checkObject(img, 0.5);
 								att_mod.dumpLearnObject();
 								learnObject=false;
+								saccades=0;
 							}
 						} else if (mustMove) {
 							if (!noOutput) {
@@ -672,6 +678,7 @@ endDiffCheck:
 								tmpBottle.writeInt(0);
 								outBottle.Content() = tmpBottle;
 								outBottle.Write();
+								saccades++;
 							} else 
 								ACE_OS::printf("I must move but I'm freezed!\n");
 							mustMove = false;

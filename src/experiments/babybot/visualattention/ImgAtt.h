@@ -95,7 +95,7 @@
 
 const int range = 256;
 const int maxError=900;
-const int minBoundingArea=100;
+const int minBoundingArea=120;
 
 typedef struct { int x; int y; } Vett;
 
@@ -343,8 +343,9 @@ public:
 	}
 	
 	void resetObject();
+	void resetHand();
 	int learnObject();
-	bool checkObject(YARPImageOf<YarpPixelMono> &src);
+	double checkObject(YARPImageOf<YarpPixelMono> &src, const double th);
 	void dumpLearnObject();
 	void dumpLearnHand();
 	void learnBackground();
