@@ -22,6 +22,7 @@ const char *const YBVArmZeroG = "ArmZeroG";
 const char *const YBVArmHibernate = "ArmHibernate";
 const char *const YBVArmResume = "ArmResume";
 const char *const YBVArmIssuedCmd = "ArmIssuedCmd";
+const char *const YBVArmIsBusy = "ArmIsBusy";
 const char *const YBVArmQuit = "ArmQuit";
 
 // reaching behavior
@@ -68,6 +69,9 @@ const char *const YBVSinkEnableAll = "SinkEnableAll";
 const char *const YBVSinkInhibitVor = "SinkInhibitVor";
 const char *const YBVSinkInhibitTracker = "SinkInhibitTracker";
 const char *const YBVSinkInhibitVergence = "SinkInhibitVergence";
+const char *const YBVSinkEnableVor = "SinkEnableVor";
+const char *const YBVSinkEnableTracker = "SinkEnableTracker";
+const char *const YBVSinkEnableVergence = "SinkEnableVergence";
 const char *const YBVSinkSuppress = "SinkSuppress";
 const char *const YBVSinkRelease = "SinkRelease";
 const char *const YBVSinkDisplayStatus = "SinkDisplayStatus";
@@ -124,5 +128,7 @@ const char *const YBVVAResetIORTable = "VAResetIORTable";
 
 // saccade control messages
 const char *const YBVSaccadeSetTarget = "SaccadeSetTarget";
+const char *const YBVSaccadeNewTarget = "SaccadeNewTarget";
+const char *const YBVSaccadeFixated = "SaccadeFixated";
 
 #endif

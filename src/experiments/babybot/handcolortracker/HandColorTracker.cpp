@@ -231,16 +231,16 @@ int main(int argc, char* argv[])
 		_left.Refer (_inPortImage.Content());
 		// reconstruct color
 		_mapper.ReconstructColor (_left, _leftColored);
-		YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
-		_histo.backProjection(_leftHSV, _outSeg);
-		YARPSimpleOperation::Threshold(_outSeg, _segThreshold, 200);
+	//	YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
+	//	_histo.backProjection(_leftHSV, _outSeg);
+	//	YARPSimpleOperation::Threshold(_outSeg, _segThreshold, 200);
 		
 		YARPShapeEllipse tmpEl1,tmpEl2;
 		tmpEl1 = _handLocalization.query(_arm, _head);
 		tmpEl2 = _handLocalization.queryPrediction();
 
 		double v = _segmenter.mergeColor(_leftColored, _segThreshold, tmpEl1);
-
+	
 		if (plotActual)
 		{
 			YARPShapeEllipse tmpEl;
@@ -249,16 +249,16 @@ int main(int argc, char* argv[])
 
 			int intensity = 255 * (v/__threshold);
 
-			if (v > __threshold)
-			{
+			// if (v > __threshold)
+			// {
 				_segmenter.drawCross(tmpEl.x, tmpEl.y, YarpPixelBGR(255, 0, 0), 5, 1);
 				_segmenter.plotEllipse(tmpEl, YarpPixelBGR(255, 0, 0));
-			}
-			else
-			{
-				_segmenter.drawCross(tmpEl.x, tmpEl.y, YarpPixelBGR(intensity, 0, 0), 5, 1);
-				_segmenter.plotEllipse(tmpEl, YarpPixelBGR(intensity, 0, 0));
-			}
+			// }
+			// else
+			// {
+			//	_segmenter.drawCross(tmpEl.x, tmpEl.y, YarpPixelBGR(intensity, 0, 0), 5, 1);
+			//	_segmenter.plotEllipse(tmpEl, YarpPixelBGR(intensity, 0, 0));
+			//}
 		}
 
 		// prediction

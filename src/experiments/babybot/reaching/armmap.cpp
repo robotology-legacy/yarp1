@@ -53,9 +53,10 @@ void ArmMap::query(const YVector &head)
 	else
 	{
 		_nnet.sim(cart.data(), _command.data());
-		_command(4) = -70*degToRad;
+		_command(1) = _command(1) + 10*degToRad;
+		_command(4) = -90*degToRad;
 		_command(5) = 0;
-		_command(6) = 0;
+		_command(6) = -90*degToRad;
 	}
 }
 

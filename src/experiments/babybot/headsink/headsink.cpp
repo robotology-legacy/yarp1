@@ -1,5 +1,6 @@
 // headsink.cpp : Defines the entry point for the console application.
 //
+// 2003 -- by nat
 
 #include <YARPScheduler.h>
 #include <YARPRobotMath.h>
@@ -23,9 +24,15 @@ int main(int argc, char* argv[])
 	SBSimpleInput enableAllInput(YBVSinkEnableAll);
 	SBSimpleInput suppress(YBVSinkSuppress);
 	SBSimpleInput release(YBVSinkRelease);
+
 	SBSimpleInput inhibitVorInput(YBVSinkInhibitVor);
 	SBSimpleInput inhibitTrackerInput(YBVSinkInhibitTracker);
 	SBSimpleInput inhibitVergenceInput(YBVSinkInhibitVergence);
+
+	SBSimpleInput enableVorInput(YBVSinkEnableVor);
+	SBSimpleInput enableTrackerInput(YBVSinkEnableTracker);
+	SBSimpleInput enableVergenceInput(YBVSinkEnableVergence);
+
 	SBSimpleInput displayStatusInput(YBVSinkDisplayStatus);
 	
 	SBOutputInhibitAll			inhibitAllCmd;
@@ -35,6 +42,12 @@ int main(int argc, char* argv[])
 	SBOutputInhibitVor			inhibitVorCmd;
 	SBOutputInhibitTracker		inhibitTrackerCmd;
 	SBOutputInhibitVergence		inhibitVergenceCmd;
+
+	SBOutputEnableVor			enableVorCmd;
+	SBOutputEnableTracker		enableTrackerCmd;
+	SBOutputEnableVergence		enableVergenceCmd;
+
+
 	SBOutputDisplayStatus		displayStatusCmd;
 
 	behavior.setInitialState(&waitIdle);
@@ -43,6 +56,11 @@ int main(int argc, char* argv[])
 	behavior.add(&inhibitTrackerInput, &inhibitTrackerCmd);
 	behavior.add(&inhibitVorInput, &inhibitVorCmd);
 	behavior.add(&inhibitVergenceInput, &inhibitVergenceCmd);
+
+	behavior.add(&enableTrackerInput, &enableTrackerCmd);
+	behavior.add(&enableVorInput, &enableVorCmd);
+	behavior.add(&enableVergenceInput, &enableVergenceCmd);
+
 	behavior.add(&displayStatusInput, &displayStatusCmd);
 	behavior.add(&suppress, &suppressCmd);
 	behavior.add(&release, &releaseCmd);

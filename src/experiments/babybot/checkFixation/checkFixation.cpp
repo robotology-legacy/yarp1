@@ -55,13 +55,13 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #pasa#
+///                    #nat#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: checkFixation.cpp,v 1.1 2004-06-07 18:32:17 babybot Exp $
+/// $Id: checkFixation.cpp,v 1.2 2004-07-13 13:31:27 babybot Exp $
 ///
 ///
 
@@ -70,6 +70,8 @@
 
 #include <YARPParseParameters.h>
 #include <YARPVectorPortContent.h>
+#include <YARPBottleContent.h>
+#include <YARPRateThread.h>
 
 ///
 YARPInputPortOf<YVector> _inDisp (YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
@@ -85,6 +87,60 @@ double __correlationThreshold = 0.16;
 
 bool _checkVergence(const YVector &in);
 bool _checkTrack(const YVector &in);
+
+enum __State
+{
+	low = 0,
+	high = 1,
+};
+
+class OutputBottlePort: public YARPRateThread
+{
+public:
+	OutputBottlePort(): YARPRateThread("whatevername", 5000)
+	{
+		_currentState = low; 
+	}
+
+	void Register (const char *portName, const char *net)
+	{
+		_outPort.Register(portName, net);
+	}
+
+	void update(double d)
+	{
+		if ( (d == 1) && (_currentState == low) )
+		{
+			_currentState = high;
+			send();
+		}
+		else if (d == 0)
+		{
+			_currentState = low;
+		}
+	}
+
+	void doInit(){}
+	void doLoop()
+	{
+		if (_currentState == high)
+			send();
+	}
+	void doRelease(){}
+
+	void send()
+	{
+		ACE_OS::printf("\n**** Fixated! (sending bottle) ****\n");
+		_outPort.Content().setID(YBVMotorLabel);
+		_outPort.Content().writeVocab(YBVSaccadeFixated);
+		_outPort.Write();
+	}
+
+
+private:
+	YARPOutputPortOf<YARPBottle> _outPort;
+	__State _currentState;
+};
 
 int main(int argc, char *argv[])
 {
@@ -110,6 +166,11 @@ int main(int argc, char *argv[])
 
 	sprintf(buf, "%s/out", name.c_str());
 	_out.Register(buf, network_o.c_str());
+	
+	OutputBottlePort _portBottle;
+	sprintf(buf, "%s/bottle/out", name.c_str());
+	_portBottle.Register(buf, network_o.c_str());
+	_portBottle.start();
 
 	YVector out(1);
 	YVector target(2);
@@ -183,9 +244,14 @@ int main(int argc, char *argv[])
 		else
 			ACE_OS::printf("%lf\t%lf\t-> TRACKING: %lf\t\t\r", vergence, tmp, out(1));
 
+		_portBottle.update(out(1));
+
 		_out.Content() = out;
 		_out.Write();
 	}
+
+	_portBottle.terminate(0);
+
 	return 0;
 }
 

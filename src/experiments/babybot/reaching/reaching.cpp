@@ -24,13 +24,13 @@ int main(int argc, char* argv[])
 	ABSharedData _data;
 		
 	ReachingBehavior _behavior(&_data);
-	RBWaitIdle waitIdle;
-	RBWaitDeltaT reachingSeq1(0.5);
-	RBWaitIdle reachingSeq2;
-	RBWaitIdle reachingSeq2b;
-	RBWaitIdle reachingSeq3;
-	RBWaitDeltaT reachingSeq4(3);
-	RBWaitIdle reachingSeq5;
+	RBWaitIdle waitIdle("Waiting for reaching signal");
+	RBWaitDeltaT reachingSeq1("Waiting for arm done (prepare reaching)", 0.5);
+	RBWaitIdle reachingSeq2("AS state, inhibit head");
+	RBWaitIdle reachingSeq2b("AS state issue reaching command");
+	RBWaitIdle reachingSeq3("Waiting for arm done (actually reaching)");
+	RBWaitDeltaT reachingSeq4("AS state, issue withdraw arm", 3);
+	RBWaitIdle reachingSeq5("Waiting for arm done (withdrawing arm)");
 
 	RBOutputCommand			reachingPrepareOutput;
 	RBOutputReaching		reachingOutput;
@@ -42,6 +42,7 @@ int main(int argc, char* argv[])
 	RBSimpleOutput			inhibitHead(YBVSinkSuppress);
 	RBSimpleOutput			enableHead(YBVSinkRelease);
 	RBInputCommand			armRest(YBVArmRest);
+	RBInputCommand			armIsBusy(YBVArmIsBusy);
 
 	RBInputCommand			reachingPrepareInput(YBVReachingPrepare);
 
@@ -51,15 +52,18 @@ int main(int argc, char* argv[])
 	// _behavior.add(NULL, &reachingSeq1, &reachingSeq2, &inhibitHead);
 	_behavior.add(&reachingInput, &waitIdle, &reachingSeq1, &reachingPrepareOutput);
 	_behavior.add(&armDone, &reachingSeq1, &reachingSeq2);
+	_behavior.add(&armIsBusy, &reachingSeq1, &waitIdle, &enableHead);
 	_behavior.add(&armRest, &reachingSeq1, &waitIdle, &enableHead);
 
 	_behavior.add(NULL, &reachingSeq2, &reachingSeq2b, &inhibitHead);
 	_behavior.add(NULL, &reachingSeq2b, &reachingSeq3, &reachingOutput);
 	_behavior.add(&armDone, &reachingSeq3, &reachingSeq4);
+	_behavior.add(&armIsBusy, &reachingSeq3, &waitIdle, &enableHead);
 	_behavior.add(&armRest, &reachingSeq3, &waitIdle, &enableHead);
 	_behavior.add(NULL, &reachingSeq4, &reachingSeq5, &reachingBack);
 	_behavior.add(&armDone, &reachingSeq5, &waitIdle, &enableHead);
-	_behavior.add(&armRest, &reachingSeq5, &waitIdle, &enableHead);
+	_behavior.add(&armIsBusy, &reachingSeq5, &waitIdle, &enableHead);
+	_behavior.add(&armRest, &reachingSeq3, &waitIdle, &enableHead);
 
 	_behavior.Begin();
 	_behavior.loop();

@@ -86,6 +86,9 @@ void SBInitSaccade::handle(SBSharedData *d)
 	int y;
 	d->getTarget(x, y);
 	d->_saccade.computeNew(x,y);
+
+	// signal a new saccade has started
+	d->signalNewSaccade();
 }
 
 void SBOpenLoop::handle(SBSharedData *d)

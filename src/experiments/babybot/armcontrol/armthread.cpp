@@ -38,15 +38,24 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	_speed.Resize(_nj);
 	_acc.Resize(_nj);
 	_parkSpeed.Resize(_nj);
-	_speed = 0.0;	// paranoid
-	_acc = 0.0;		// paranoid
+	_speed = 0.0;	
+	_acc = 0.0;
 	_parkSpeed = 0.0;
 	file.get("[THREAD]", "Speeds", _speed.data(), _nj);
 	file.get("[THREAD]", "ParkSpeeds", _parkSpeed.data(), _nj);
 	file.get("[THREAD]", "Accelerations", _acc.data(), _nj);
+
+	// DEBUG
+	printf("DEBUG -- speeds:");
+	for(int ll = 1; ll <= _nj; ll++)
+	{
+		printf("%lf\t", _speed(ll));
+	}
+	printf("\n");
+
 	_parkSpeed = _parkSpeed * degToRad;
 	_speed = _speed * degToRad;
-	_acc = _acc*(degToRad);
+	_acc = _acc*degToRad;
 	//////////////
 
 	_cmd.Resize(_nj);
@@ -113,7 +122,7 @@ void ArmThread::doInit()
 	park(1);
 	_arm.resetEncoders();		// set this new position
 
-	_arm.setVelocities(_parkSpeed.data());
+	_arm.setVelocities(_speed.data());
 	_arm.setAccs(_acc.data());
 
 	_arm.setGainsSmoothly(_arm._parameters._lowPIDs, 200);

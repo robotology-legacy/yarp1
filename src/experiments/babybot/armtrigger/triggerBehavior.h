@@ -18,8 +18,8 @@ class TBSharedData
 	bool checkTarget();
 	bool checkHand();
 
-	YARPOutputPortOf<YARPBottle> _outPort;
-	YARPInputPortOf<YVector> _fixationPort;
+	YARPOutputPortOf<YARPBottle> _outBottlePort;
+	
 	// YARPInputPortOf<YVector> _handTrackingPort;
 	// YARPInputPortOf<YVector> _targetTrackingPort;
 
@@ -47,7 +47,7 @@ public:
 	}
 	void handle(TBSharedData *d)
 	{
-		ACE_OS::printf("Wait state: %s\n", _msg.c_str());
+		ACE_OS::printf("Wait state: %s [%lf]\n", _msg.c_str(), _deltaT);
 		if (_deltaT != 0)
 			YARPTime::DelayInSeconds(_deltaT);
 	}
@@ -67,11 +67,11 @@ public:
 
 	void output(TBSharedData *d)
 	{
-		d->_outPort.Content().reset();
-		d->_outPort.Content().setID(_label);
-		d->_outPort.Content().writeVocab(_vocab);
-		d->_outPort.Content().display();
-		d->_outPort.Write();
+		d->_outBottlePort.Content().reset();
+		d->_outBottlePort.Content().setID(_label);
+		d->_outBottlePort.Content().writeVocab(_vocab);
+		d->_outBottlePort.Content().display();
+		d->_outBottlePort.Write();
 	}
 
 	YBVocab _vocab;
@@ -92,17 +92,10 @@ public:
 		if (b->tryReadVocab(tmpVocab))
 		{
 			b->moveOn();
-		
-			ACE_OS::printf("Received %s returning ", tmpVocab.c_str());
-			// check command
 			if (tmpVocab == key)
-			{
-				ACE_OS::printf("true\n");
 				return true;
-			}
 			else
 			{
-				ACE_OS::printf("false\n");
 				b->rewind();
 				return false;
 			}
@@ -121,10 +114,7 @@ class TBCheckAlmostFixated: public TBBaseInput
 public:
 	bool input(YARPBottle *b, TBSharedData *d)
 	{
-		if (d->_fixationPort.Read(0))
-			if (d->_fixationPort.Content()(1) > 0)
-				return true;
-		return false;
+		ACE_OS::printf("WARNING: This was not suppesed to be called\n");
 	}
 
 };
@@ -134,12 +124,17 @@ class TBCheckFixated: public TBBaseInput
 public:
 	bool input(YARPBottle *b, TBSharedData *d)
 	{
-		if (d->_fixationPort.Read(0))
-			if (d->_fixationPort.Content()(1) > 0.5)
+		YBVocab tmpVocab;
+		if (b->tryReadVocab(tmpVocab))
+		{
+			if (tmpVocab == YBVSaccadeFixated)
 				return true;
-		return false;
+			else
+				return false;
+		}
+		else
+			return false;
 	}
-
 };
 
 #endif

@@ -4,6 +4,7 @@ WshShell.Run ("hsaccadesDisconnect.js", 7, true);
 WshShell.Run ("porter /headsaccades/cmd/o /headsink/saccades/i", 7, true);
 WshShell.Run ("porter /headcontrol/position/o /headsaccades/position/i", 7, true);
 WshShell.Run ("porter /bottlesender/o /headsaccades/behavior/i", 7, true);
+WshShell.Run ("porter /headsaccades/behavior/o /repeater/i", 7, true);
 
 WshShell.Run ("porter /vergence/o:disparity /checkfixation/disparity/i", 7, true);
 WshShell.Run ("porter /headsaccades/fixation/o /checkfixation/target/i", 7, true);

@@ -1,6 +1,25 @@
 #include "sink.h"
 #include "sinkconstants.h"
 
+char *binString(int value)
+{
+    static char bin[17];
+    int index;
+
+    for(index=0;index<16;index++)
+    {
+        if(value & 0x8000)
+            bin[index] = '1';
+        else
+            bin[index] = '0';
+
+        value = value << 1;
+    }
+    bin[16] = 0x00;
+
+    return(bin);
+}
+
 Sink::Sink(int rate, const char *name, const char *ini_file):
 YARPRateThread(name, rate),
 _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
@@ -84,35 +103,48 @@ void Sink::doLoop()
 
 	_globalInhibition = _globalInhibition | _manualInhibition;
 
+	printf("Global: %s\t", binString(_globalInhibition));
+
 	_polPort(_inPortPosition, _position);
 
 	_outCmd = 0.0;
 
 	// check inhibit vergence
 
-	double tmp;
-	tmp = sqrt((_inVectors[SinkChTracker](4)*_inVectors[SinkChTracker](4))/(0.007*0.007));
+	double dtmp;
+	dtmp = sqrt((_inVectors[SinkChTracker](4)*_inVectors[SinkChTracker](4))/(0.007*0.007));
 
 	// form command
-	if (!(_globalInhibition & SINK_INHIBIT_VOR))
+	int tmp;
+	tmp = _globalInhibition & SINK_INHIBIT_VOR;
+	if (!(tmp))
 		_outCmd = _outCmd + _inVectors[SinkChVor];
 	
-	if (!(_globalInhibition & SINK_INHIBIT_SMOOTH))
+	tmp = _globalInhibition & SINK_INHIBIT_SMOOTH;
+	if (!(tmp))
 		_outCmd = _outCmd + _inVectors[SinkChTracker];
-
-	if (!(_globalInhibition & SINK_INHIBIT_VERGENCE))
+	printf("%s\t", binString(tmp));
+	
+	tmp = _globalInhibition & SINK_INHIBIT_VERGENCE;
+	if (!(tmp))
 		_outCmd = _outCmd + _inVectors[SinkChVergence];
+	printf("%s\t", binString(tmp));
 	
 	// finally compute neck
-	if (!(_globalInhibition & SINK_INHIBIT_SMOOTH))	// it used to be NECK
+	tmp = _globalInhibition & SINK_INHIBIT_SMOOTH;
+	if (!(tmp))	// it used to be NECK
 	{
 		const YVector &neck = _neckControl->apply(_position);
 		_outCmd = _outCmd + neck;
 	}
+	printf("%s\t", binString(tmp));
 
 	// add smooth pursuit
-	if (!(_globalInhibition & SINK_INHIBIT_SMOOTHPURSUIT))
+	tmp = _globalInhibition & SINK_INHIBIT_SMOOTHPURSUIT;
+	if (!(tmp))
 		_outCmd = _outCmd + _inVectors[SinkChSmoothPursuit];
+	printf("%s\t", binString(tmp));
+	printf("\n");
 
 
 	// add saccades

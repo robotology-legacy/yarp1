@@ -4,8 +4,7 @@ const int N = 200;
 
 TBSharedData::TBSharedData()
 {
-	_outPort.Register("/armtrigger/behavior/o");
-	_fixationPort.Register("/armtrigger/fixation/i");
+	_outBottlePort.Register("/armtrigger/behavior/o");
 }
 
 TBSharedData::~TBSharedData()

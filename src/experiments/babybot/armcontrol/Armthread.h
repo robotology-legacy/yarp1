@@ -18,8 +18,10 @@
 
 #if defined(__QNXEurobot__)
 	#include "YARPEurobotArm.h"
+typedef YARPEurobotArm YARPArmClass:
 #else
 	#include "YARPBabybotArm.h"
+	typedef YARPBabybotArm YARPArmClass;
 #endif
 
 #include "YARPTrajectoryGen.h"
@@ -210,11 +212,7 @@ private:
 public: //later: make it private
 	YARPControlBoardNetworkData _arm_status;
 
-#if defined(__QNXEurobot__)
-	YARPEurobotArm _arm;
-#else
-	YARPBabybotArm _arm;
-#endif 
+	YARPArmClass _arm;
 
 	J1GravityEstimator _gravity1;
 	J2GravityEstimator _gravity2;

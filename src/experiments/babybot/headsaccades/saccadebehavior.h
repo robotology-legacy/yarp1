@@ -20,6 +20,7 @@ class SBSharedData: public YARPInputPortOf<YARPBottle>
 //			_outEgoMap.Register("/headsaccades/egomap/o", "Net0");
 			_outAtt.Register("/headsaccades/attention/o", "Net0");
 			_inBehavior.Register("/headsaccades/behavior/i", "Net0");
+			_outBehavior.Register("/headsaccades/behavior/o", "Net0");
 			_outFixation.Register("/headsaccades/fixation/o", "Net0");
 			_inFixation.Register("/headsaccades/fixation/i", "Net0");
 			Register("/headsaccades/target/i", "Net0");
@@ -59,6 +60,14 @@ class SBSharedData: public YARPInputPortOf<YARPBottle>
 			_outAtt.Write();
 		}
 
+		void signalNewSaccade()
+		{
+			_outBehavior.Content().reset();
+			_outBehavior.Content().setID(YBVMotorLabel);
+			_outBehavior.Content().writeVocab(YBVSaccadeNewTarget);
+			_outBehavior.Write();
+		}
+
 		bool getTarget(int &x, int &y)
 		{
 			if (_newTarget)
@@ -80,6 +89,7 @@ class SBSharedData: public YARPInputPortOf<YARPBottle>
 	YARPOutputPortOf<YVector> _outFixation;
 	YARPInputPortOf<YVector> _in;
 	YARPInputPortOf<YARPBottle> _inBehavior;
+	YARPOutputPortOf<YARPBottle> _outBehavior;
 	YARPInputPortOf<YVector> _inFixation;
 
 

@@ -55,16 +55,16 @@ void SBOutputInhibitVergence::output(Sink *d)
 	d->inhibitChannel(SINK_INHIBIT_VERGENCE);
 }
 
-void SBOutputEnableTracker::output(Sink *d)
-{
-	ACE_OS::printf("SinkBehavior: enable TRACKER channel\n");
-	d->enableChannel(SINK_INHIBIT_SMOOTH);
-}
-
 void SBOutputInhibitVor::output(Sink *d)
 {
 	ACE_OS::printf("SinkBehavior: inhibit VOR channel\n");
 	d->inhibitChannel(SINK_INHIBIT_VOR);
+}
+
+void SBOutputEnableTracker::output(Sink *d)
+{
+	ACE_OS::printf("SinkBehavior: enable TRACKER channel\n");
+	d->enableChannel(SINK_INHIBIT_SMOOTH);
 }
 
 void SBOutputEnableVergence::output(Sink *d)

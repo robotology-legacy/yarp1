@@ -32,6 +32,12 @@ void ABOutputResume::output(ArmBehaviorData *d)
 	d->start();	// blocking
 }
 
+void ABSimpleOutput::output(ArmBehaviorData *d)
+{
+	d->_data.writeVocab(vocab);
+	d->send();
+}
+
 bool ABInputCommand::input(YARPBottle *in, ArmBehaviorData *d)
 {
 	if (!in->tryReadVocab(tmpK))

@@ -86,10 +86,23 @@ public:
 	void output(ArmBehaviorData *d);
 };
 
+class ABSimpleOutput: public ArmBehaviorBaseOutput
+{
+public:
+	ABSimpleOutput(const YBVocab &v)
+	{
+		vocab = v;
+	}
+	void output(ArmBehaviorData *d);
+
+private:
+	YBVocab vocab;
+};
+
 class ABInputCommand: public ArmBehaviorBaseInput
 {
 public:
-	ABInputCommand(YBVocab k)
+	ABInputCommand(const YBVocab &k)
 	{
 		key = k;
 	}
@@ -103,7 +116,7 @@ public:
 class ABInputShakeCommand: public ArmBehaviorBaseInput
 {
 public:
-	ABInputShakeCommand(YBVocab k)
+	ABInputShakeCommand(const YBVocab &k)
 	{
 		key = k;
 	}
@@ -116,7 +129,7 @@ public:
 class ABSimpleInput: public ArmBehaviorBaseInput
 {
 public:
-	ABSimpleInput(YBVocab k)
+	ABSimpleInput(const YBVocab &k)
 	{
 		key = k;
 	}

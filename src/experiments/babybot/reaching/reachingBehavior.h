@@ -32,25 +32,36 @@ typedef YARPBaseBehaviorInput<ABSharedData> RBBaseInput;
 class RBWaitIdle: public RBStateBase
 {
 public:
+	RBWaitIdle(const YARPString &msg)
+	{
+		_message = msg;	
+	}
 	void handle(ABSharedData *d)
 	{
-		// dummy state, do nothing
+		ACE_OS::printf("%s\n", _message.c_str());
 	}
+
+private:
+	YARPString _message;
 };
 
 class RBWaitDeltaT: public RBStateBase
 {
 public:
-	RBWaitDeltaT(double time)
+	RBWaitDeltaT(const YARPString &msg, double time)
 	{
+		_message = msg;
 		_deltaT = time;
 	}
 
 	void handle(ABSharedData *d)
 	{
+		ACE_OS::printf("%s\n", _message.c_str());
+		ACE_OS::printf("Waiting %ld[s]\n", _deltaT);
 		YARPTime::DelayInSeconds(_deltaT);
 	}
-
+private:
+	YARPString _message;
 	double _deltaT;
 };
 
