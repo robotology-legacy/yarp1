@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketNameService.h,v 1.10 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: YARPSocketNameService.h,v 1.11 2003-07-15 08:06:31 gmetta Exp $
 ///
 ///
 
@@ -97,6 +97,9 @@ public:
 
 	/// get a remote port and ID of a given channel.
 	static YARPUniqueNameID* LocateName (YARPNameClient& namer, const char *name, int reg_type = YARP_DEFAULT_PROTOCOL);
+
+	/// unregister from the name server.
+	static int UnregisterName (YARPNameClient& namer, const char *name, int reg_type);
 };
 
 

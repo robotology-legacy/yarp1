@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.9 2003-07-06 23:25:45 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.10 2003-07-15 08:06:30 gmetta Exp $
 ///
 ///
 
@@ -109,9 +109,10 @@ static void RemovePort(YARPPort *port)
 	ACE_UNUSED_ARG(port);
 
 	port_list_mutex.Wait();
-#ifndef __QNX__
+
+///#ifndef __QNX__
 	//  port_list.erase(port);
-#endif
+///#endif
 	port_list_mutex.Post();
 }
 
@@ -249,10 +250,12 @@ YARPPort::YARPPort()
 YARPPort::~YARPPort()
 {
 	RemovePort(this);
-	if (system_resource!=NULL && !YARPThread::IsDying())
-	{
-		delete ((PortData*)system_resource);
-	}
+	PD.End ();
+
+	///if (system_resource!=NULL && !YARPThread::IsDying())
+	///{
+	delete ((PortData*)system_resource);
+	///}
 }
 
 
@@ -354,6 +357,7 @@ YARPInputPort::YARPInputPort(int n_service_type, int n_protocol_type)
 
 YARPInputPort::~YARPInputPort()
 {
+///	PD.End ();
 }
 
 

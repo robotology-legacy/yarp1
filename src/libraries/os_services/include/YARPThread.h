@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.11 2003-07-01 12:49:57 gmetta Exp $
+///	$Id: YARPThread.h,v 1.12 2003-07-15 08:06:31 gmetta Exp $
 ///
 ///
 /*
@@ -107,6 +107,8 @@ public:
 
 	int GetPriority (void);
 	int SetPriority (int prio);
+
+	int Join (int timeout = 0);
 };
 
 ///

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.21 2003-07-08 22:04:20 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.22 2003-07-15 08:06:31 gmetta Exp $
 ///
 ///
 
@@ -605,6 +605,23 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 }
 
 ///
+///
+///
+int YARPSocketNameService::UnregisterName (YARPNameClient& namer, const char *name, int name_type)
+{
+	switch (name_type)
+	{
+	case YARP_QNET:
+		return namer.check_out_qnx (name);
+
+	default:
+		return namer.check_out (name);
+	}
+
+	return YARP_OK;
+}
+
+///
 /// search for a name in the name service.
 /// 
 YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const char *name, int name_type)
@@ -712,7 +729,7 @@ YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const
 
 			YARPUniqueNameSock *n = new YARPUniqueNameSock (YARP_MCAST);
 
-			n->setName (name);
+			n->setName (fullname);
 			n->getAddressRef() = addr;
 
 			return (YARPUniqueNameID *)n;

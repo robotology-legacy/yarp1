@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.9 2003-07-01 21:58:59 babybot Exp $
+/// $Id: YARPThread.cpp,v 1.10 2003-07-15 08:06:31 gmetta Exp $
 ///
 ///
 
@@ -96,8 +96,8 @@ unsigned ExecuteThread (void *args)
 	thread->Body();
 	
 	//_endthreadex( 0 );
-	thread->system_resource = NULL;
-	thread->identifier = -1;
+	///thread->system_resource = NULL;
+	///thread->identifier = -1;
 
 	return 0;
 }
@@ -150,6 +150,12 @@ void YARPBareThread::Begin (int stack_size)
 
 	ACE_ASSERT (system_resource != NULL);
 	identifier = threadID;
+}
+
+int YARPBareThread::Join (int timeout)
+{
+	ACE_UNUSED_ARG (timeout);
+	return ACE_Thread::join ((ACE_hthread_t)system_resource);
 }
 
 int YARPBareThread::GetPriority (void)
@@ -221,6 +227,7 @@ int YARPThread::IsTerminated (void)
 
 ///
 /// parameter, if == 0 don't wait and kills the thread.
+///			   if == -1 joins the thread (risky, no timeout).
 ///	otherwise it'll wait dontkill milliseconds before termination.
 ///
 void YARPThread::End(int dontkill)
@@ -228,10 +235,18 @@ void YARPThread::End(int dontkill)
 	/// termination "signal".
 	sema.Post();
 
-	if (dontkill)
+	if (dontkill > 0)
 	{
 		YARPTime::DelayInSeconds(double(dontkill)/1000.0);
+		YARPBareThread::End (0);
 	}
-
-	YARPBareThread::End (0);
+	else
+	if (dontkill == 0)
+	{
+		YARPBareThread::End (0);
+	}
+	else
+	{
+		Join ();
+	}
 }

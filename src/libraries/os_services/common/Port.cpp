@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.41 2003-07-11 09:56:37 gmetta Exp $
+/// $Id: Port.cpp,v 1.42 2003-07-15 08:06:30 gmetta Exp $
 ///
 ///
 
@@ -446,6 +446,8 @@ void OutputTarget::Body ()
 	if (protocol_type == YARP_MCAST)
 	{
 		YARPEndpointManager::CloseMcastAll ();
+		/// unregister the mcast group.
+		YARPNameService::UnregisterName (target_pid);
 	}
 	else
 	{
@@ -859,9 +861,6 @@ void Port::Body()
 		}
         list_mutex.Post ();
 
-		/// BEWARE:
-		/// added a new syntax for MCAST ports, use a leading //
-		///
 		if (pid->isValid())
 		{
 			switch(tag)
@@ -1118,11 +1117,13 @@ void Port::Body()
 
 
 	/// unregister the port name here.
-	/// can design a method of YARPEndpointManager to take care of everything (including the delete)
-	/// e.g. pid = YARPEndpointManager::DeleteEndpoint (pid);
-	if (pid != NULL) delete pid;
+	YARPNameService::UnregisterName (pid);
 
-	ACE_DEBUG ((LM_DEBUG, "port thread returning\n"));
+	/// free memory.
+	YARPNameService::DeleteName (pid);
+	pid = NULL;
+
+	ACE_DEBUG ((LM_DEBUG, "main port thread returning\n"));
 }
 
 
@@ -1279,7 +1280,8 @@ Port::~Port()
 		target = next;
 	}
 
-	End();
+	///if (GetIdentifier() != -1)
+	///	End();
 
 	/// if I knew the pid of the connection, I should probably close down the channel properly.
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.19 2003-07-08 22:04:20 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.20 2003-07-15 08:06:30 gmetta Exp $
 ///
 ///
 
@@ -242,6 +242,14 @@ int YARPNameService::DeleteName(YARPUniqueNameID* pid)
 	return YARP_OK;
 }
 
+int YARPNameService::UnregisterName (YARPUniqueNameID* pid)
+{
+	return YARPSocketNameService::UnregisterName (*_namer, pid->getName().c_str(), pid->getServiceType());
+}
+
+///
+///
+///
 int YARPEndpointManager::CreateInputEndpoint(YARPUniqueNameID& name)
 {
 	switch (name.getServiceType())
@@ -253,6 +261,9 @@ int YARPEndpointManager::CreateInputEndpoint(YARPUniqueNameID& name)
 
 	case YARP_QNET:
 		return YARPNativeEndpointManager::CreateInputEndpoint (name);
+
+	default:
+		ACE_DEBUG ((LM_DEBUG, "it doesn't exist an input endpoint for the protocol specified\n"));
 	}
 
 	return YARP_FAIL;

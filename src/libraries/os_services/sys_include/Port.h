@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.18 2003-07-11 09:50:55 gmetta Exp $
+/// $Id: Port.h,v 1.19 2003-07-15 08:06:31 gmetta Exp $
 ///
 ///
 
@@ -384,7 +384,8 @@ public:
 	virtual void End(int dontkill = 0)
 	{
 		ACE_UNUSED_ARG(dontkill);
-		YARPThread::End (1000);	/// wait 1000 ms.
+		SaySelfEnd ();
+		YARPThread::End (-1);	/// it was a wait of 1000 ms.
 	}
 
 	inline int& GetProtocolTypeRef() { return protocol_type; }
@@ -496,7 +497,24 @@ public:
 	int SaySelfEnd(void)
 	{
 		int result = YARP_FAIL;
-		if (!self_id->isValid())
+		if (self_id == NULL && name.c_str()[0] != '\0')
+		{
+			if (protocol_type == YARP_MCAST)
+			{
+				self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+				YARPEndpointManager::CreateOutputEndpoint (*self_id);
+				YARPEndpointManager::ConnectEndpoints (*self_id);
+			}
+			else
+			{
+				self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+				YARPEndpointManager::CreateOutputEndpoint (*self_id);
+				YARPEndpointManager::ConnectEndpoints (*self_id);
+			}
+		}
+		else
+		/// silly but to guarantee self_id is !NULL.
+		if (self_id != NULL && !self_id->isValid() && name.c_str()[0] != '\0')
 		{
 			if (protocol_type == YARP_MCAST)
 			{
@@ -512,13 +530,17 @@ public:
 			}
 		}
 
-		if (self_id->isValid())
+		if (self_id != NULL)
 		{
-			result = SendHelper (*self_id, NULL, 0, MSG_ID_DETACH_ALL);
+			if (self_id->isValid())
+			{
+				result = SendHelper (*self_id, NULL, 0, MSG_ID_DETACH_ALL);
+			}
+		
+			YARPNameService::DeleteName (self_id);
+			self_id = NULL;
 		}
 
-		YARPNameService::DeleteName (self_id);
-		self_id = NULL;
 		return result;
 	}
 

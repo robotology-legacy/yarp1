@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.h,v 1.7 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: YARPPort.h,v 1.8 2003-07-15 08:06:31 gmetta Exp $
 ///
 ///
 
@@ -83,10 +83,9 @@
 #	pragma once
 #endif
 
-///#include <assert.h>
-
 #include "YARPPortContent.h"
 #include "YARPNameID.h"
+#include "Port.h"
 
 class YARPPort
 {
@@ -126,7 +125,7 @@ public:
 
 	virtual int Register(const char *name);
 	bool Read(bool wait=true);
-	virtual void OnRead() {}
+	virtual void OnRead() { /*ACE_DEBUG ((LM_DEBUG, "silly OnRead\n"));*/ }
 	YARPPortContent& Content() { return YARPPort::Content(); }
 };
 
@@ -157,7 +156,8 @@ class YARPInputPortOf : public YARPInputPort
 public:
 	YARPInputPortOf(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
 		: YARPInputPort(n_service_type, n_protocol_type) { ACE_ASSERT (n_protocol_type != YARP_SHMEM && n_protocol_type != YARP_MULTI); }
-  
+	virtual ~YARPInputPortOf() { ((Port *)system_resource)->End(); }
+
 	virtual YARPPortContent *CreateContent() { return new YARPPortContentOf<T>; }
 
 	T& Content()
@@ -173,6 +173,7 @@ class YARPOutputPortOf : public YARPOutputPort
 public:
 	YARPOutputPortOf(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
 		: YARPOutputPort(n_service_type, n_protocol_type) { ACE_ASSERT (n_protocol_type != YARP_SHMEM && n_protocol_type != YARP_MULTI); }
+	virtual ~YARPOutputPortOf() { ((Port *)system_resource)->End(); }
 
 	virtual YARPPortContent *CreateContent() { return new YARPPortContentOf<T>; }
 
@@ -190,6 +191,7 @@ class YARPBasicInputPort : public YARPInputPort
 public:
 	YARPBasicInputPort(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
 		: YARPInputPort(n_service_type, n_protocol_type) { ACE_ASSERT (n_protocol_type != YARP_SHMEM && n_protocol_type != YARP_MULTI); }
+	virtual ~YARPBasicInputPort() { ((Port *)system_resource)->End(); }
 
 	virtual YARPPortContent *CreateContent() { return new T; }
 
@@ -202,6 +204,7 @@ class YARPBasicOutputPort : public YARPOutputPort
 public:
 	YARPBasicOutputPort(int n_service_type = MANY_OUTPUTS, int n_protocol_type = YARP_DEFAULT_PROTOCOL) 
 		: YARPOutputPort(n_service_type, n_protocol_type) { ACE_ASSERT (n_protocol_type != YARP_SHMEM && n_protocol_type != YARP_MULTI); }
+	virtual ~YARPBasicOutputPort() { ((Port *)system_resource)->End(); }
 
 	virtual YARPPortContent *CreateContent() { return new T; }
 

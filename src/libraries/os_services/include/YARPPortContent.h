@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPortContent.h,v 1.5 2003-07-02 23:03:08 babybot Exp $
+/// $Id: YARPPortContent.h,v 1.6 2003-07-15 08:06:31 gmetta Exp $
 ///
 ///
 /*
@@ -130,7 +130,7 @@ public:
 	T datum;
 
 	T& Content() { return datum; }
-	virtual ~YARPPortContentOf<T> () { ACE_DEBUG ((LM_DEBUG, "destroying a YARPPortContentOf\n")); }
+	virtual ~YARPPortContentOf<T> () { /*ACE_DEBUG ((LM_DEBUG, "destroying a YARPPortContentOf\n"));*/ }
 	virtual int Read(YARPPortReader& reader) { return reader.Read((char*)(&datum),sizeof(datum)); }
 	virtual int Write(YARPPortWriter& writer) { return writer.Write((char*)(&datum),sizeof(datum)); }
 	virtual int Recycle() { return 0; }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.10 2003-07-06 23:25:46 gmetta Exp $
+/// $Id: YARPNameService.h,v 1.11 2003-07-15 08:06:31 gmetta Exp $
 ///
 ///
 /*
@@ -118,6 +118,10 @@ public:
 	///
 	/// unregister. doesn't really call the name server, but it can be improved.
 	static int DeleteName (YARPUniqueNameID* pid);
+
+	///
+	///
+	static int UnregisterName (YARPUniqueNameID* pid);
 };
 
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.33 2003-07-11 09:56:37 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.34 2003-07-15 08:06:31 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -105,7 +105,8 @@ public:
 
 		YARPTime::DelayInSeconds(2);
 
-		while (1)
+		///while (1)
+		for (int i = 0; i < 2; i++)
 		{
 			printf("Waiting for input\n");
 			in.Read();
@@ -128,13 +129,15 @@ public:
 			return;
 		}
 
-		YARPTime::DelayInSeconds(2);
+		///YARPTime::DelayInSeconds(2);
 		printf("Step1\n");
 ///		out.Connect("/foo/the/rampaging/frog");
 		printf("Step1.5\n");
-		YARPTime::DelayInSeconds(2);
+		///YARPTime::DelayInSeconds(2);
 		int ct = 1;
-		while (1)
+
+		for (int i = 0; i < 50; i++)
+///		while (1)
 		{
 			printf("Step2\n");
 			out.Content() = ct;
@@ -142,14 +145,14 @@ public:
 			ct++;
 			printf("$$$$$$$$$$$$$$$$$$$$$$$$$Writing %d\n", (int)out.Content());
 			out.Write();
-			YARPTime::DelayInSeconds(3);
+			YARPTime::DelayInSeconds(.5);
 		}
 	}
 };
 
 int main(int argc, char *argv[])
 {
-	///__debug_level = 80;
+	__debug_level = 80;
 
 
 	Thread1 t1;
@@ -205,7 +208,19 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	YARPTime::DelayInSeconds(6000.0);
+	if (s)
+	{
+		t1.Join ();
+///		YARPTime::DelayInSeconds(6000.0);
+	}
+
+	if (c)
+	{
+		t2.Join ();
+	}
+
+	///YARPTime::DelayInSeconds(6000.0);
+
 	return 0;
 }
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.22 2003-07-08 22:04:20 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.23 2003-07-15 08:06:31 gmetta Exp $
 ///
 ///
 
@@ -1944,6 +1944,7 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 			/// it's already there...
 			ACE_DEBUG ((LM_DEBUG, "the specific client is already connected %s:%d\n", d._clients[i].get_host_addr(), d._clients[i].get_port_number()));
 
+#if 0
 			/// momentarily raise the connection count to prevent closing the thread.
 			d._num_connected_clients ++;
 
@@ -1962,9 +1963,10 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 
 			/// 250 ms delay.
 			YARPTime::DelayInSeconds (.25);
-
-			///d._udp_socket.close();
-			///return YARP_FAIL;
+#else
+			d._udp_socket.close();
+			return YARP_FAIL;
+#endif
 		}
 
 		if (d._clients[i].get_port_number() == 0 && firstempty < 0)
