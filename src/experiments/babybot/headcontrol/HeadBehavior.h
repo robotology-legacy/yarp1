@@ -3,7 +3,7 @@
 
 #include <YARPBehavior.h>
 #include <YARPBottle.h>
-#include <./conf/YARPMotorVocab.h>
+#include <./conf/YARPVocab.h>
 #include "HeadThread.h"
 
 class HeadThread;

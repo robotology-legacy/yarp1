@@ -2,7 +2,7 @@
 #define __HLBEHAVIORHH__
 
 #include <YARPBehavior.h>
-#include <./conf/YARPMotorVocab.h>
+#include <./conf/YARPVocab.h>
 
 #include "FindHand.h"
 

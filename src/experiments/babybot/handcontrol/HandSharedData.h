@@ -3,7 +3,7 @@
 
 #include <YARPBabybothand.h>
 #include <YARPBehavior.h>
-#include <./conf/YARPMotorVocab.h>
+#include <./conf/YARPVocab.h>
 
 class HandSharedData: public YARPBabybotHand, public YARPBehaviorSharedData
 {

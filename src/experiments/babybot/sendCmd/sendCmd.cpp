@@ -4,14 +4,14 @@
 #include <YARPPort.h>
 #include <YARPBottleContent.h>
 #include <YARPBottle.h>
-#include <./conf/YARPMotorVocab.h>
+#include <./conf/YARPVocab.h>
 
 YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
 struct COMMAND_TABLE_ENTRY
 {
 	YARPString verbose;
-	void *param;
+	YB;
 
 };
 

@@ -1,5 +1,5 @@
 #include <YARPBehavior.h>
-#include <./conf/YARPMotorVocab.h>
+#include <./conf/YARPVocab.h>
 
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>

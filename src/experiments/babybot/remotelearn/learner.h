@@ -113,7 +113,7 @@ private:
 #include <YARPBehavior.h>
 #include <YARPBottle.h>
 #include <YARPConfigFile.h>
-#include <./conf/YARPMotorVocab.h>
+#include <./conf/YARPVocab.h>
 
 class RndSharedData: public YARPBehaviorSharedData
 {

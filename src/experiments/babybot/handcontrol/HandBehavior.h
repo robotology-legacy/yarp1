@@ -2,7 +2,7 @@
 #define __HAND_BEHAVEIORS__
 
 #include <YARPBehavior.h>
-#include <./conf/YARPMotorVocab.h>
+#include <./conf/YARPVocab.h>
 #include "HandThread.h"
 
 typedef HandThread HandBehaviorData;
