@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.9 2004-05-21 13:59:59 babybot Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.10 2004-05-21 14:29:29 babybot Exp $
 ///
 ///
 
@@ -172,6 +172,15 @@ protected:
 	YVector _rightJoints;
 	Y3DVector _fixationPoint;
 	int _nFrame;
+
+private:
+	// tmp vectors used internally
+	YVector _q;
+	YVector _it;
+	YVector _o;
+	YVector _epx;
+	YVector _tmp;
+	YVector _tmpEl;
 };
 
 inline void YARPBabybotHeadKin::_polarToCartesian(double el, double az, YVector &v)

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.cpp,v 1.6 2004-05-21 13:59:59 babybot Exp $
+/// $Id: YARPBabybotHeadKin.cpp,v 1.7 2004-05-21 14:29:29 babybot Exp $
 ///
 ///
 
@@ -125,6 +125,13 @@ YARPBabybotHeadKin::YARPBabybotHeadKin (const YMatrix &dh_left, const YMatrix &d
 
 	_leftJoints = 0;
 	_rightJoints = 0;
+
+	_q.Resize(3);
+	_it.Resize(3);
+	_o.Resize(3);
+	_epx.Resize(3);
+	_tmp.Resize(3);
+	_tmpEl.Resize(3);
 }
 
 YARPBabybotHeadKin::~YARPBabybotHeadKin ()
@@ -158,18 +165,15 @@ void YARPBabybotHeadKin::computeDirect (const YVector &joints)
 
 void YARPBabybotHeadKin::computeRay(__kinType k, double& el, double& az, int x, int y)
 {
-	YVector tmpV(3);
-	computeRay(k, tmpV, x, y);
+	computeRay(k, _tmpEl, x, y);
 	// convert tmpV -> (el,az)
-	_cartesianToPolar(tmpV, el, az);
+	_cartesianToPolar(_tmpEl, el, az);
 }
 
 void YARPBabybotHeadKin::intersectRay (__kinType k, double el, double az, int& x, int& y)
 {
-	YVector tmpV(3);
-	// convert (el, az) -> tmpV
-	_polarToCartesian(el, az, tmpV);
-	intersectRay(k, tmpV, x, y);
+	_polarToCartesian(el, az, _tmpEl);
+	intersectRay(k, _tmpEl, x, y);
 }
 ///
 /// given an up to date kinematic matrix, returns the ray passing from an image plane point x,y.
@@ -180,7 +184,7 @@ void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
 		x -= CenterFoveaX;
 		y -= CenterFoveaY;
 
-		YHmgTrsf ep = _leftCamera.endFrame();
+		const YHmgTrsf &ep = _leftCamera.endFrame();
 
 		/// pixels -> mm
 		double dx = double(x) / PixScaleX;
@@ -201,7 +205,7 @@ void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
 		int rx, ry;
 		peripheryToFovea (x, y, rx, ry);
 
-		YHmgTrsf ep = _leftCamera.endFrame();
+		const YHmgTrsf &ep = _leftCamera.endFrame();
 
 		/// pixels -> mm
 		double dx = double(rx) / PixScaleX;
@@ -219,7 +223,7 @@ void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
 		x -= CenterFoveaX;
 		y -= CenterFoveaY;
 
-		YHmgTrsf ep = _rightCamera.endFrame();
+		const YHmgTrsf &ep = _rightCamera.endFrame();
 
 		/// pixels -> mm
 		double dx = double(x) / PixScaleX;
@@ -240,7 +244,7 @@ void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
 		int rx, ry;
 		peripheryToFovea (x, y, rx, ry);
 
-		YHmgTrsf ep = _rightCamera.endFrame();
+		const YHmgTrsf &ep = _rightCamera.endFrame();
 
 		/// pixels -> mm
 		double dx = double(rx) / PixScaleX;
@@ -262,10 +266,13 @@ void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, in
 {
 	if (k == KIN_LEFT || k == KIN_LEFT_PERI)
 	{
-		YVector q(3), it(3);
-		YHmgTrsf ep = _leftCamera.endFrame();
+		YVector &q = _q;
+		YVector &it= _it;
+		const YHmgTrsf &ep = _leftCamera.endFrame();
 
-		YVector o(3), epx(3);
+		YVector &o = _o;
+		YVector &epx = _epx;
+
 		o(1) = ep(1,4);
 		o(2) = ep(2,4);
 		o(3) = ep(3,4);
@@ -280,9 +287,7 @@ void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, in
 		double t = F / (ep(1,1)*v(1) + ep(2,1)*v(2) + ep(3,1)*v(3));
 		it = v * t + o - q;
 
-		YVector tmp(3);
-
-		///
+		YVector &tmp = _tmp;;
 		///tmp(1) = ep(1,1) * it(1) + ep(2,1) * it(2) + ep(3,1) * it(3);
 		tmp(2) = ep(1,2) * it(1) + ep(2,2) * it(2) + ep(3,2) * it(3);
 		tmp(3) = ep(1,3) * it(1) + ep(2,3) * it(2) + ep(3,3) * it(3);
@@ -308,10 +313,13 @@ void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, in
 	else
 	if (k == KIN_RIGHT || k == KIN_RIGHT_PERI)
 	{
-		YVector q(3), it(3);
-		YHmgTrsf ep = _rightCamera.endFrame();
+		YVector &q = _q;
+		YVector &it = _it;
+		const YHmgTrsf &ep = _rightCamera.endFrame();
 
-		YVector o(3), epx(3);
+		YVector &o = _o;
+		YVector &epx = _epx;
+
 		o(1) = ep(1,4);
 		o(2) = ep(2,4);
 		o(3) = ep(3,4);
@@ -326,8 +334,7 @@ void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, in
 		double t = F / (ep(1,1)*v(1) + ep(2,1)*v(2) + ep(3,1)*v(3));
 		it = v * t + o - q;
 
-		YVector tmp(3);
-
+		YVector &tmp = _tmp;
 		///
 		///tmp(1) = ep(1,1) * it(1) + ep(2,1) * it(2) + ep(3,1) * it(3);
 		tmp(2) = ep(1,2) * it(1) + ep(2,2) * it(2) + ep(3,2) * it(3);
