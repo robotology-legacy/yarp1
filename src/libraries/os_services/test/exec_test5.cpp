@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test5.cpp,v 1.11 2003-05-23 15:32:12 babybot Exp $
+/// $Id: exec_test5.cpp,v 1.12 2003-05-23 16:33:24 babybot Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -88,7 +88,7 @@
 //#define REG_LOCATE_NAME "/test/exec_test2"
 
 #define __UDP
-#define __PRINT
+///#define __PRINT
 
 YARPSemaphore out(1);
 
@@ -154,7 +154,7 @@ public:
 				cout.flush();
 				out.Post();
 #else
-				if ((x % 100) == 0)
+				if ((x % 10) == 0)
 				{
 					cout << "sent msg : " << x << endl;
 					cout << "(result " << result << ") Got reply : " << reply << " and number " << y << endl;
@@ -167,7 +167,7 @@ public:
 				cout << "connection is dead" << endl;
 			}
 
-			YARPTime::DelayInSeconds(1.0);
+			YARPTime::DelayInSeconds(0.005);
 
 			ct++;
 			sprintf(txt, "And a-%d", ct);
@@ -190,7 +190,7 @@ public:
 #ifdef __UDP
 		id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_UDP, 11);
 #else
-		id = YARPNameService::RegisterName(REG_TEST_NAME);
+		id = YARPNameService::RegisterName(REG_TEST_NAME, YARP_TCP, 1);
 #endif
 		YARPEndpointManager::CreateInputEndpoint (id);
 
@@ -250,7 +250,7 @@ public:
 			prevtime = now;
 
 #ifndef __PRINT
-			if ((x % 100) == 0)
+			if ((x % 10) == 0)
 			{
 				cout << "Received message: " << buf << " and number " << x << endl;
 				cout << "average thread time : " << cumul/counter << endl;
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
 	int s = 1, c = 1;
 	YARPScheduler::setHighResScheduling();
  
-	__debug_level = 80;
+///	__debug_level = 80;
 
 	if (argc>=2)
 	{

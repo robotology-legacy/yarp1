@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test13.cpp,v 1.9 2003-05-21 11:13:09 gmetta Exp $
+/// $Id: exec_test13.cpp,v 1.10 2003-05-23 16:33:24 babybot Exp $
 ///
 ///
 
@@ -79,7 +79,7 @@
 
 NetInt32 foo;
 
-#define LEN 600000
+#define LEN 120000
 class Msg
 {
 public:
@@ -98,11 +98,36 @@ public:
 	{
 		in.Register("/foo/the/rampaging/frog");
 		//YARPTime::DelayInSeconds(2);
+		double start = YARPTime::GetTimeAsSeconds();
+		double prevtime = start;
+		double cumul = 0;
+		int counter = 0;
+		bool first = true;
+
 		while (1)
 		{
-			printf("Waiting for input\n");
+			///printf("Waiting for input\n");
 			in.Read();
-			printf("Read %s\n", in.Content().msg);
+			if (first)
+			{
+				start = YARPTime::GetTimeAsSeconds();
+				prevtime = start;
+				cumul = 0;
+				counter = 0;
+				first = false;
+			}
+
+			double now = YARPTime::GetTimeAsSeconds();
+			cumul += (now - prevtime);
+			counter ++;
+			prevtime = now;
+
+			///printf("Read %s\n", in.Content().msg);
+			if ((counter % 10) == 0)
+			{
+				printf("Read at %d, %s\n", counter, in.Content().msg);
+				printf("average time : %f\n", cumul / counter);
+			}
 		}
 	}
 };
@@ -114,21 +139,21 @@ public:
 	{
 		out.Register("/foo/the/rampaging/fly");
 		//YARPTime::DelayInSeconds(2);
-		printf("Step1\n");
+		///printf("Step1\n");
 		out.Connect("/foo/the/rampaging/frog");
-		printf("Step1.5\n");
+		///printf("Step1.5\n");
 		//YARPTime::DelayInSeconds(2);
 		int ct = 1;
-		for (int i = 0; i < 10; i++) /// (1)
+		while (1)
 		{
-			printf("Step2\n");
+			///printf("Step2\n");
 			sprintf(out.Content().msg,"foo");
-			printf("Step3\n");
+			///printf("Step3\n");
 			ct++;
-			printf("Writing %s\n", out.Content().msg);
+			///printf("Writing %s\n", out.Content().msg);
 			//	  out.Write(true);
 			out.Write(true);
-			//	  YARPTime::DelayInSeconds(2);
+			YARPTime::DelayInSeconds(.025);
 		}
 	}
 };

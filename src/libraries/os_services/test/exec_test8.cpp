@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.15 2003-05-23 08:24:03 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.16 2003-05-23 16:33:24 babybot Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 	ACE_UNUSED_ARG (argc);
 	ACE_UNUSED_ARG (argv);
 
-	__debug_level = 0;
+///	__debug_level = 0;
 
 	Thread1 t1;
 	Thread2 t2;
