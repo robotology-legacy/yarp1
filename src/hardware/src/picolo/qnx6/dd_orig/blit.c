@@ -244,7 +244,7 @@ main(int argc,char *argv[])
 	
 	if (file != 2)
 	{
-	init_bttvx(2,0, m_W,m_H);
+	init_bttvx(2,0, m_W,m_H,0,0);
 	open_bttvx();
 	
 	BttvxSetImageBuffer(0, image->buffer);

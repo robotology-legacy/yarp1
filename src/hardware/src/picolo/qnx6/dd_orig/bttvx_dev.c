@@ -206,7 +206,7 @@ main (int argc, char * argv[])
 	strcpy(device_name,"/dev/bttvx");
 	strcat(device_name,itoa(device_id,buffer,10)); //Complete the name
 
-	init_bttvx(video_format,device_id, width,height);
+	init_bttvx(video_format,device_id, width,height, 0, 0);
 	
 	/* initialize dispatch interface */
 	

@@ -77,7 +77,7 @@ inline int BttvxAcquireBuffer(unsigned char *);
 inline int BttvxReleaseBuffer();
 int BttvxSetImageBuffer(int,unsigned char *);
 int BttvxWaitEvent();
-int init_bttvx(int, int, int, int);
+int init_bttvx(int, int, int, int, int, int);
 inline void bt848_bright(uint bright);
 int get_bt848_bright();
 inline void bt848_hue( uint hue);

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.14 2004-01-28 15:05:54 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.15 2004-01-29 12:05:21 beltran Exp $
 ///
 ///
 
@@ -172,7 +172,7 @@ inline int PicoloResources::_init (const PicoloOpenParameters& params)
 	_nHeight = params._size_y;
 	_nImageSize = params._size_x * params._size_y * 3;
 
-	init_bttvx(params._video_type,params._unit_number,_nWidth,_nHeight);
+	init_bttvx(params._video_type,params._unit_number,_nWidth,_nHeight, params._offset_x, params._offset_y);
 
 	_bmutex.Wait ();
 	_rawBuffer = new unsigned char [_nImageSize];

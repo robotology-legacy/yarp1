@@ -60,6 +60,8 @@ extern "C" {
 	volatile uint32_t    *regbase;    /* device has 32-bit registers */
 	int width=0;
 	int height=0;
+	int offset_x = 0;
+	int offset_y = 0;
 	pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 	pthread_cond_t condvar = PTHREAD_COND_INITIALIZER;
 	pthread_mutex_t buf_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -775,13 +777,14 @@ extern "C" {
 			/////hscale = 0x29A0; //256
 			/////hscale = (((922UL/256UL)-1)*4096UL);
 
-			printf("hscale: %d\n",hscale);
+			printf("bttvx: scale: %f\n",scale);
+			
+			offsetX = (xSize-btv->win.width)/2 + offset_x + 0.5;
+			offsetY = (ySize-btv->win.height)/2 + offset_y + 0.5;
 
-			vdelay=btv->win.cropy+0x20;
-			//hdelay=(((hactive*186)/922))&0x3fe;
-			/////hdelay=(((256*186)/922))&0x3fe;
-			offsetX = (xSize-btv->win.width)/2;
-			//hdelay = ((hactive*186)/922)+(int)offsetX &0x3fe;
+			printf("bttvx: offset: %d\n", offsetY);
+
+			vdelay = btv->win.cropy+0x20 + (int)offsetY;
 			hdelay = (((int)xSize*186)/922)+(int)offsetX &0x3fe;
 		}
 
@@ -1347,7 +1350,7 @@ extern "C" {
 	 *	Main function. Activate the resorce manager	
 	 *
 	 *************************************************************************/
-	int init_bttvx(int video_mode, int device_number, int w, int h) //Video format, device id, width and height
+	int init_bttvx(int video_mode, int device_number, int w, int h, int _offset_x, int _offset_y) //Video format, device id, width and height
 	{
 		int i; 
 		/* declare variables we'll be using */
@@ -1365,6 +1368,10 @@ extern "C" {
 
 		//Get video format
 		video_format = video_mode;
+
+		//Set image offsets
+		offset_x = _offset_x;	
+		offset_y = _offset_y;
 
 		//Check driver index
 		if (device_number != NULL)
