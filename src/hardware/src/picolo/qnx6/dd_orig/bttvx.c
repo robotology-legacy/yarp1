@@ -530,7 +530,7 @@ bt848_set_size(struct bttv *btv)
     vdelay=btv->win.cropy+0x20;
     //hdelay=(((hactive*186)/922))&0x3fe;
 	/////hdelay=(((256*186)/922))&0x3fe;
-	hdelay = ((341*186)/922)&0x3fe;
+	hdelay = (((int)xSize*186)/922)&0x3fe;
 	
   }
     
