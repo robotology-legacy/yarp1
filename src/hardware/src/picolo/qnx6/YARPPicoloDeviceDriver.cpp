@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.10 2003-09-12 16:52:21 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.11 2003-10-31 12:20:03 beltran Exp $
 ///
 ///
 
@@ -147,17 +147,8 @@ inline int PicoloResources::_uninitialize (void)
 {
 	_bmutex.Wait ();
 
-	//if (_nRequestedSize == 0 && _nWidth == 0 && _nHeight == 0)
-	///	return YARP_FAIL;
+	close_bttvx();
 
-	///PicoloAcquire (_picoloHandle, PICOLO_ACQUIRE_STOP, 1);
-	///PicoloStop (_picoloHandle);
-	/*
-
-	int i;
-	for (i = 0; i < _num_buffers; i++)
-		VirtualFree (_buffer[i], _nImageSize, MEM_DECOMMIT);
-	*/
 	if (_rawBuffer != NULL) delete[] _rawBuffer;
 	_rawBuffer = NULL;
 

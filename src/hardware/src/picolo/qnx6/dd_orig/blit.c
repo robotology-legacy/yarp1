@@ -200,7 +200,7 @@ main(int argc,char *argv[])
 	PtWidget_t *win;
 	PtArg_t args[3];
 	PhDim_t dim={m_W,m_H};
-	PhPoint_t pos={50,50};
+	PhPoint_t pos={50,250};
 	int fd; //Bt878 driver file descriptor
 	int fd_temp;
 	int size_read;

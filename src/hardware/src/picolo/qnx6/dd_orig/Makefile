@@ -2,7 +2,7 @@
 
 #CC=gcc
 #CFLAGS= -ggdb3
-LDFLAGS=
+LDFLAGS= -g
 SRC=bttvx.c
 SRC2=blit.c
 OBJS=bttvx.o bttvx_dev.o
