@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.1 2004-12-14 14:31:23 babybot Exp $
+/// $Id: Controller.H,v 1.2 2004-12-21 17:48:37 babybot Exp $
 ///
 ///
 
@@ -80,7 +80,7 @@
 //#define BYTE_C(x4, x3, x2, x1) \
 //	(_L_deposit_h(__shl(x1,8) | x2) | \
 //	 (_L_deposit_l(__shl(x3,8) | x4) & 0x7fffffff))
-long BYTE_C(byte x4, byte x3, byte x2, byte x1);
+dword BYTE_C(byte x4, byte x3, byte x2, byte x1);
 	 
 #define BYTE_W(x2, x1) (__shl(x1,8) | x2)
 
@@ -180,18 +180,18 @@ long BYTE_C(byte x4, byte x3, byte x2, byte x1);
 #ifndef __ONLY_DEF
 
 /* prototypes from trajectory.c */
-int init_trajectory (byte jj, long current, long final, int speed);
-long step_trajectory (byte jj);
-int abort_trajectory (byte jj, long limit);
+Int16 init_trajectory (byte jj, Int32 current, Int32 final, Int16 speed);
+Int32 step_trajectory (byte jj);
+Int16 abort_trajectory (byte jj, Int32 limit);
 
 /* prototypes from controller.c */
 byte serial_interface (void);
 byte can_interface (void);
-byte calibrate (int jnt);
+byte calibrate (byte jnt);
 byte writeToFlash (void);
 byte readFromFlash (void);
 void generatePwm (byte i);
-long step_velocity (byte jj);
+Int32 step_velocity (byte jj);
 
 void print_can (byte data[], byte len, char c);
 void print_can_error ();

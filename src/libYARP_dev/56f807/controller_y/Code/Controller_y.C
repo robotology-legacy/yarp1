@@ -53,39 +53,39 @@ bool _verbose = false;
 byte _control_mode[JN] = { MODE_IDLE, MODE_IDLE };
 										/* control mode (e.g. position, velocity, etc.) */
 
-long _position[JN] = { 0, 0 };			/* encoder position */
-long _position_old[JN] = { 0, 0 };		/* do I need to add bits for taking into account multiple rotations */
-long _speed[JN] = { 0, 0 };				/* encoder speed */
+Int32 _position[JN] = { 0, 0 };			/* encoder position */
+Int32 _position_old[JN] = { 0, 0 };		/* do I need to add bits for taking into account multiple rotations */
+Int32 _speed[JN] = { 0, 0 };				/* encoder speed */
 
-long _desired[JN] = { 0, 0 };			/* PID ref value, computed by the trajectory generator */
-long _set_point[JN] = { 0, 0 };			/* set point for position [user specified] */
+Int32 _desired[JN] = { 0, 0 };			/* PID ref value, computed by the trajectory generator */
+Int32 _set_point[JN] = { 0, 0 };			/* set point for position [user specified] */
 
-long _min_position[JN] = { -DEFAULT_MAX_POSITION, -DEFAULT_MAX_POSITION };
-long _max_position[JN] = { DEFAULT_MAX_POSITION, DEFAULT_MAX_POSITION };
+Int32 _min_position[JN] = { -DEFAULT_MAX_POSITION, -DEFAULT_MAX_POSITION };
+Int32 _max_position[JN] = { DEFAULT_MAX_POSITION, DEFAULT_MAX_POSITION };
 										/* software position limits */
 										
-int  _desired_vel[JN] = { 0, 0 };		/* speed reference value, computed by the trajectory gen. */
-int  _set_vel[JN] = { DEFAULT_VELOCITY, DEFAULT_VELOCITY };	
+Int16  _desired_vel[JN] = { 0, 0 };		/* speed reference value, computed by the trajectory gen. */
+Int16  _set_vel[JN] = { DEFAULT_VELOCITY, DEFAULT_VELOCITY };	
 										/* set point for velocity [user specified] */
-int  _max_vel[JN] = { DEFAULT_MAX_VELOCITY, DEFAULT_MAX_VELOCITY };
+Int16  _max_vel[JN] = { DEFAULT_MAX_VELOCITY, DEFAULT_MAX_VELOCITY };
 										/* assume this limit is symmetric */
 										
-int  _set_acc[JN] = { DEFAULT_ACCELERATION, DEFAULT_ACCELERATION };
+Int16  _set_acc[JN] = { DEFAULT_ACCELERATION, DEFAULT_ACCELERATION };
 										/* set point for acceleration [too low!] */
-int  _integral[JN] = { 0, 0 };			/* store the sum of the integral component */
-int  _integral_limit[JN] = { 0x7fff, 0x7fff };
+Int16  _integral[JN] = { 0, 0 };			/* store the sum of the integral component */
+Int16  _integral_limit[JN] = { 0x7fff, 0x7fff };
 
-int  _error[JN] = { 0, 0 };				/* actual feedback error */
-int  _error_old[JN] = { 0, 0 };			/* error at t-1 */
+Int16  _error[JN] = { 0, 0 };				/* actual feedback error */
+Int16  _error_old[JN] = { 0, 0 };			/* error at t-1 */
 
-int  _pid[JN] = { 0, 0 };				/* pid result */
-int  _pid_limit[JN] = { 100, 100 };		/* pid limit */
+Int16  _pid[JN] = { 0, 0 };				/* pid result */
+Int16  _pid_limit[JN] = { 100, 100 };		/* pid limit */
 
-int  _kp[JN] = { 10, 10 };				/* PID gain */
-int  _kd[JN] = { 40, 40 };
-int  _ki[JN] = { 0, 0 };
-int  _ko[JN] = { 0, 0 };				/* offset */
-int  _kr[JN] = { 3, 3 };				/* scale factor (negative power of two) */
+Int16  _kp[JN] = { 10, 10 };				/* PID gain */
+Int16  _kd[JN] = { 40, 40 };
+Int16  _ki[JN] = { 0, 0 };
+Int16  _ko[JN] = { 0, 0 };				/* offset */
+Int16  _kr[JN] = { 3, 3 };				/* scale factor (negative power of two) */
 
 /* CAN bus communication global vars */
 byte 	CAN_data[8];					/* CAN bus message */
@@ -103,22 +103,22 @@ extern bool _ended[];						/* trajectory completed flag */
 #define IS_DONE(jj) (_ended[jj])
 
 /* Local prototypes */
-int compute_pid2(byte j);
+Int16 compute_pid2(byte j);
 void print_version(void);
 
 /*
  * macro functions variables.
  */
-long saturate;
-int u0, u1, ud;
+Int32 saturate;
+Int16 u0, u1, ud;
 
 /*
  * new version of the macro.
  */
-int compute_pid2(byte j)
+Int16 compute_pid2(byte j)
 {
-	long ProportionalPortion, PIDoutput;
-	int InputError;
+	Int32 ProportionalPortion, PIDoutput;
+	Int16 InputError;
 
 	/* the error @ previous cycle */
 	_error_old[j] = _error[j];
@@ -195,14 +195,14 @@ int compute_pid2(byte j)
 	u0 *= _kp[j]; \
 	_pid[j] += __shr (u0, _kr[j]); \
 	\
-	saturate = (long)_error[j] - (long)_error_old[j]; \
+	saturate = (Int32)_error[j] - (Int32)_error_old[j]; \
 	if (saturate > 32767) \
 		ud = 32767; \
 	else \
 	if (saturate < -32768) \
 		ud = -32768; \
 	else \
-		ud = (int)saturate; \
+		ud = (Int16)saturate; \
 	\
 	u1 = __shr (ud, 8); \
 	u0 = (ud & 0x00ff); \
@@ -224,10 +224,10 @@ int compute_pid2(byte j)
 /*
  * 
  */
-long step_velocity (byte jj)
+Int32 step_velocity (byte jj)
 {
-	long u0;
-	int dv, da;
+	Int32 u0;
+	Int16 dv, da;
 	
 	/* dv is a signed 16 bit value, need to be checked for overflow */
 	if (_set_vel[jj] < -_max_vel[jj])
@@ -349,10 +349,10 @@ byte readFromFlash (void)
 	return ERR_OK;
 }
 
-long BYTE_C(byte x4, byte x3, byte x2, byte x1)
+dword BYTE_C(byte x4, byte x3, byte x2, byte x1)
 {
-	long ret;
-	short *p = (short *)&ret;
+	dword ret;
+	word *p = (word *)&ret;
 	*p++ = __shl(x3,8) | x4;
 	*p++ = __shl(x1,8) | x2;
 	return ret;
@@ -389,7 +389,7 @@ long BYTE_C(byte x4, byte x3, byte x2, byte x1)
  */
 void generatePwm (byte i)
 {
-	long cd;
+	Int32 cd;
 	
 	if (_control_mode[i] != MODE_IDLE)
 	{
@@ -420,6 +420,7 @@ void generatePwm (byte i)
 			
 		/* computes PID control */
 		compute_pid2 (i);
+#if 0
 		if (_verbose && i == 0)
 		{
 			DSP_SendDWordAsCharsDec (L_deposit_l(_pid[i]));
@@ -431,6 +432,7 @@ void generatePwm (byte i)
 			DSP_SendDWordAsCharsDec (_position[i]);
 			DSP_SendDataEx("\r\n");
 		}
+#endif
 		
 		/* set PWM, _pid becomes the PWM value */
 		if (_calibrated[i])
@@ -473,7 +475,7 @@ void print_version(void)
 #if VERSION == 0x0112
 	DSP_SendDataEx ("1.12");
 #elif VERSION == 0x0111
-	DSP_SendDataEx ("---1.11");
+	DSP_SendDataEx ("1.11");
 #else
 #	error "No valid version specified"
 #endif
@@ -538,7 +540,23 @@ void main(void)
 
 #if VERSION == 0x0112
 		/* (de)couple encoder readings */
-		_position[1] += _position[0];
+		if (_verbose)
+		{
+			DSP_SendDWordAsCharsDec (_position[0]);
+			DSP_SendDataEx(" ");
+			DSP_SendDWordAsCharsDec (_position[1]);
+			DSP_SendDataEx(" ");
+//			DSP_SendDataEx("\r\n");
+		}
+		
+		_position[0] = L_sub(_position[0], _position[1]);
+
+		if (_verbose)
+		{
+			DSP_SendDWordAsCharsDec (_position[0]);
+			DSP_SendDataEx("\r\n");
+		}
+		
 #endif
 
 		/* this can be useful to estimate speed later on */
@@ -569,7 +587,7 @@ void main(void)
 
 
 /* this function might not be required */
-byte calibrate (int jnt)
+byte calibrate (byte jnt)
 {
 	if (jnt == 0)
 	{

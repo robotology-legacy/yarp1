@@ -15,15 +15,15 @@
 
 /* global variables */
 //bool _actv[JN] = { false, false };
-long _x0[JN] = { 0, 0 };
-long _xf[JN] = { 0, 0 };
-long _distance[JN] = { 0, 0 };
+Int32 _x0[JN] = { 0, 0 };
+Int32 _xf[JN] = { 0, 0 };
+Int32 _distance[JN] = { 0, 0 };
 
 float _tf[JN] = { 0., 0. };
 float _curtf[JN] = { 0., 0. };
-long _curstepf[JN] = { 0, 0 };
+Int32 _curstepf[JN] = { 0, 0 };
 
-int _period = CONTROLLER_PERIOD;	/* in ms */
+Int16 _period = CONTROLLER_PERIOD;	/* in ms */
 float _stepf[JN] = { 0., 0. };
 
 bool _ended[JN] = { true, true };
@@ -46,7 +46,7 @@ float p5f (float x)
 }
 
 
-int init_trajectory (byte jj, long current, long final, int speed)
+Int16 init_trajectory (byte jj, Int32 current, Int32 final, Int16 speed)
 {
 	float currentf = current;
 	float finalf = final;
@@ -72,10 +72,12 @@ int init_trajectory (byte jj, long current, long final, int speed)
 	_curtf[jj] = 0;
 	_curstepf[jj] = 0;
 	_ended[jj] = false;
+	
+	return 0;
 }
 
 
-int abort_trajectory (byte jj, long limit)
+Int16 abort_trajectory (byte jj, Int32 limit)
 {
 	if (!_ended[jj])
 	{
@@ -96,7 +98,7 @@ int abort_trajectory (byte jj, long limit)
 
 
 /* calculate next step in trajectory generation (floating point version) */
-long step_trajectory (byte jj)
+Int32 step_trajectory (byte jj)
 {
 	float a;
 	
@@ -122,7 +124,7 @@ long step_trajectory (byte jj)
 		_curtf[jj] += _stepf[jj];
 		_curstepf[jj] ++;
 
-		return (long)a;
+		return (Int32)a;
 	}			
 
 	_ended[jj] = true;	

@@ -6,15 +6,15 @@
 **     Beantype  : MotorolaCAN
 **     Version   : Bean 02.259, Driver 01.01, CPU db: 2.71.191
 **     Compiler  : Metrowerks DSP C Compiler
-**     Date/Time : 12/14/2004, 2:54 PM
+**     Date/Time : 12/21/2004, 1:01 PM
 **     Abstract  :
 **         This bean "MotorolaCAN" implements an CAN serial channel.
 **     Settings  :
 **         CAN channel                 : MSCAN
 **
 **         Protocol
-**             Time segment 1          : 7
-**             Time segment 2          : 3
+**             Time segment 1          : 10
+**             Time segment 2          : 7
 **             RSJ                     : 1
 **
 **             Recieve accept. code    : 0

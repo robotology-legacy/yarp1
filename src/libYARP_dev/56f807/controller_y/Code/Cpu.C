@@ -6,7 +6,7 @@
 **     Beantype  : 56F807
 **     Version   : Bean 01.002, Driver 01.05, CPU db: 2.71.191
 **     Compiler  : Metrowerks DSP C Compiler
-**     Date/Time : 12/14/2004, 3:07 PM
+**     Date/Time : 12/21/2004, 1:02 PM
 **     Abstract  :
 **
 **     Settings  :
@@ -187,7 +187,7 @@ extern void init_56800_(void);         /* Forward declaration of external startu
 void _EntryPoint(void)
 {
   long i;
-	
+  
   /*** ### 56F807 "Cpu" init code ... ***/
   /*** PE initialization code after reset ***/
   /* System clock initialization */
@@ -200,7 +200,6 @@ void _EntryPoint(void)
   for (i = 0; i < 10000; i++) asm(nop);
   
   setRegBitGroup(PLLCR, ZSRC, 2);      /* Select clock source from postscaler */
-  /* External bus initialization */
   /*** End of PE initialization code after reset ***/
 
   asm(JMP init_56800_);                /* Jump to C startup code */
