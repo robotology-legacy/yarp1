@@ -10,7 +10,7 @@
 // 
 //     Description:  This files implements the SoundResources methods
 // 
-//         Version:  $Id: YARPSoundResources.cpp,v 1.5 2004-02-26 18:10:26 beltran Exp $
+//         Version:  $Id: YARPSoundResources.cpp,v 1.6 2004-03-01 18:01:00 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -39,7 +39,6 @@ SoundResources::_initialize (const SoundOpenParameters& params)
 
 	return YARP_OK;
 }
-
 //--------------------------------------------------------------------------------------
 //       Class: SoundResources 
 //      Method: (public)_uninitialize
@@ -53,6 +52,7 @@ SoundResources::_uninitialize (void)
 	mixerClose(m_MixerHandle);
 	//Reset the wave input device
 	waveInReset(m_WaveInHandle);
+	delete[] _rawBuffer; //Delete share buffer...
 	_bmutex.Post ();
 
 	return YARP_OK;
@@ -105,10 +105,12 @@ SoundResources::_init (const SoundOpenParameters& params)
 		printf("yarpsounddriver: Device does not have mixer support! -- %08X\n", m_err);
 	}
 
-	/* 
-	 * This device should have a WAVEIN destination line. Let's get its ID so
-	 * that we can determine what source lines are available to record from
-	 */
+	printf("yarpsounddriver: LINES PRESENT\n");
+	_print_dst_lines();
+	//----------------------------------------------------------------------
+	// This device should have a WAVEIN destination line. Let's get its ID so
+	// that we can determine what source lines are available to record from
+	//----------------------------------------------------------------------
 	m_mixerLine.cbStruct = sizeof(MIXERLINE);
 	m_mixerLine.dwComponentType = MIXERLINE_COMPONENTTYPE_DST_WAVEIN;
 
@@ -120,9 +122,17 @@ SoundResources::_init (const SoundOpenParameters& params)
 	
 	// Get how many source lines are available from which to record. 
 	m_numSrc = m_mixerLine.cConnections;
+	
 	//select default source line
-	_select_line(MIXERLINE_COMPONENTTYPE_SRC_LINE);
+	m_err = _select_line(MIXERLINE_COMPONENTTYPE_SRC_LINE);
 
+	if (m_err == YARP_FAIL){ //Not line found, trying the auxiliary....
+		m_err = _select_line(MIXERLINE_COMPONENTTYPE_SRC_AUXILIARY);
+	}
+
+	if (m_err != YARP_OK)
+		printf("yarpsounddriver: Atention Source line not found!!!\n");
+		
 	//----------------------------------------------------------------------
 	// Initialize the local buffers 
 	//----------------------------------------------------------------------
@@ -137,15 +147,15 @@ SoundResources::_init (const SoundOpenParameters& params)
 //--------------------------------------------------------------------------------------
 //       Class: SoundResources 
 //      Method: (protected) _prepareBuffer 
-// Description: Prepares the internal buffers for the doble buffering. Later this could
-// be done with three buffers.
+// Description: Prepares the internal buffers for the doble buffering. 
 //--------------------------------------------------------------------------------------
 void 
 SoundResources::_prepareBuffers(void)
 {
 	//Here I should prepare all the buffer memory allocation
-	m_WaveHeader[1].dwBufferLength = m_WaveHeader[0].dwBufferLength = dwBufferLength;
-	
+	m_WaveHeader[2].dwBufferLength = 
+	m_WaveHeader[1].dwBufferLength = 
+	m_WaveHeader[0].dwBufferLength = dwBufferLength;
 
 	m_WaveHeader[0].lpData = (char *)VirtualAlloc(0, 
 												  m_WaveHeader[0].dwBufferLength, 
@@ -155,26 +165,31 @@ SoundResources::_prepareBuffers(void)
 												  m_WaveHeader[1].dwBufferLength, 
 												  MEM_COMMIT, 
 												  PAGE_READWRITE);
+	m_WaveHeader[2].lpData = (char *)VirtualAlloc(0, 
+												  m_WaveHeader[2].dwBufferLength, 
+												  MEM_COMMIT, 
+												  PAGE_READWRITE);
 	//Initialize dwFlags and dwLoops to 0. This seems to be necesary according to the
 	//window documentation
-	m_WaveHeader[0].dwFlags = m_WaveHeader[1].dwFlags = 0L;
-	m_WaveHeader[0].dwLoops = m_WaveHeader[1].dwLoops = 0L; 
+	m_WaveHeader[0].dwFlags = m_WaveHeader[1].dwFlags = m_WaveHeader[2].dwFlags = 0L;
+	m_WaveHeader[0].dwLoops = m_WaveHeader[1].dwLoops = m_WaveHeader[2].dwFlags = 0L; 
 
 	//Lets initialize the headers
 	if ((m_err = waveInPrepareHeader(m_WaveInHandle, &m_WaveHeader[0], sizeof(WAVEHDR)))) 
 		printf("yarpsounddriver: Error preparing WAVEHDR -- %08X\n", m_err);
-
 	if ((m_err = waveInPrepareHeader(m_WaveInHandle, &m_WaveHeader[1], sizeof(WAVEHDR)))) 
 		printf("yarpsounddriver: Error preparing WAVEHDR -- %08X\n", m_err);
-
+	if ((m_err = waveInPrepareHeader(m_WaveInHandle, &m_WaveHeader[2], sizeof(WAVEHDR)))) 
+		printf("yarpsounddriver: Error preparing WAVEHDR -- %08X\n", m_err);
 
 	//----------------------------------------------------------------------
-	//  It is necessary to queue the two buffers. Here I should add another buffer if 
-	//  we want a thirt buffer
+	//  It is necessary to queue the two buffers.  
 	//----------------------------------------------------------------------
 	if ((m_err = waveInAddBuffer(m_WaveInHandle, &m_WaveHeader[0], sizeof(WAVEHDR))))
 		printf("yarpsounddriver: Error queueing WAVEHDR 1! -- %08X\n", m_err);
 	if ((m_err = waveInAddBuffer(m_WaveInHandle, &m_WaveHeader[1], sizeof(WAVEHDR))))
+		printf("yarpsounddriver: Error queueing WAVEHDR 2! -- %08X\n", m_err);
+	if ((m_err = waveInAddBuffer(m_WaveInHandle, &m_WaveHeader[2], sizeof(WAVEHDR))))
 		printf("yarpsounddriver: Error queueing WAVEHDR 2! -- %08X\n", m_err);
 }
 
@@ -188,7 +203,7 @@ SoundResources::_prepareBuffers(void)
 int
 SoundResources::_select_line(unsigned int type)
 {
-	for(int i = 0; i < m_mixerLine.cConnections; i++) {
+	for(int i = 0; i < m_numSrc; i++) {
 		m_mixerLine.cbStruct = sizeof(MIXERLINE);	
 		m_mixerLine.dwSource = i;
 
@@ -199,10 +214,60 @@ SoundResources::_select_line(unsigned int type)
 		if (m_err != MMSYSERR_NOERROR) continue;
 		
 		if (m_mixerLine.dwComponentType == type)
+		{
 			printf("yarpsounddriver: source line found\n");
+			return YARP_OK;
+		}	
 	}
 	printf("yarpsounddriver: -warning- source line not found\n");
-	return YARP_OK;
+	return YARP_FAIL;
+}
+
+//--------------------------------------------------------------------------------------
+//       Class:  SoundResources
+//      Method:  _print_dst_lines
+// Description:  This function prints in the screen the source lines present
+//--------------------------------------------------------------------------------------
+void
+SoundResources::_print_dst_lines()
+{
+	MIXERCAPS mixerCaps;
+
+	mixerGetDevCaps(0,&mixerCaps, sizeof(mixerCaps));
+
+	for (int i = 0; i < mixerCaps.cDestinations; i++)
+	{
+		m_mixerLine.cbStruct = sizeof(MIXERLINE);
+		m_mixerLine.dwSource = 0;
+		m_mixerLine.dwDestination = i;
+
+		if (!(m_err = mixerGetLineInfo((HMIXEROBJ)m_MixerHandle, &m_mixerLine, MIXER_GETLINEINFOF_DESTINATION))) {
+				printf("\t#%lu: %s\n", i, m_mixerLine.szName);
+		}
+		m_numSrc = m_mixerLine.cConnections;
+		_print_src_lines();
+	}
+}
+
+//--------------------------------------------------------------------------------------
+//       Class:  SoundResources
+//      Method:  _print_src_lines
+// Description:  This function prints in the screen the source lines present
+//--------------------------------------------------------------------------------------
+void
+SoundResources::_print_src_lines()
+{
+	for (int i = 0; i < m_numSrc; i++)
+	{
+		m_mixerLine.cbStruct = sizeof(MIXERLINE);
+		m_mixerLine.dwSource = i;
+
+		if (!(m_err = mixerGetLineInfo((HMIXEROBJ)m_MixerHandle, &m_mixerLine, MIXER_GETLINEINFOF_SOURCE)))
+		{
+			if (m_mixerLine.dwComponentType != MIXERLINE_COMPONENTTYPE_SRC_SYNTHESIZER)
+				printf("\t\t#%lu: %s\n", i, m_mixerLine.szName);
+		}
+	}
 }
 
 //--------------------------------------------------------------------------------------
@@ -213,13 +278,12 @@ SoundResources::_select_line(unsigned int type)
 int
 SoundResources::_select_control(unsigned int control_type)
 {
-	/*
-	 * Fill the mixerLineControls structure
-	 */
+	//----------------------------------------------------------------------
+	//  Fill the mixerLineControls structure
+	//----------------------------------------------------------------------
 	m_mixerLineControls.cbStruct = sizeof(MIXERLINECONTROLS);
 	m_mixerLineControls.dwLineID = m_mixerLine.dwLineID;
 	m_mixerLineControls.cControls = 1;
-	//m_mixerLineControls.dwControlType = MIXERCONTROL_CONTROLTYPE_MUTE;
 	m_mixerLineControls.dwControlType = control_type;
 	m_mixerLineControls.pamxctrl = &m_mixerControlArray;
 	m_mixerLineControls.cbmxctrl = sizeof(MIXERCONTROL);
@@ -228,7 +292,8 @@ SoundResources::_select_control(unsigned int control_type)
 							   &m_mixerLineControls, 
 							   MIXER_GETLINECONTROLSF_ONEBYTYPE);
 	
-	if (m_err != MMSYSERR_NOERROR) printf("yarpsounddriver: %s has no mute control!\n", m_mixerLine.szName);
+	if (m_err != MMSYSERR_NOERROR) 
+		printf("yarpsounddriver: %s has no mute control!\n", m_mixerLine.szName);
 	
 	return YARP_OK;
 }

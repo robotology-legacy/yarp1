@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.7 2004-02-26 18:10:26 beltran Exp $
+//         Version:  $Id: YARPSoundDeviceDriver.cpp,v 1.8 2004-03-01 18:01:00 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -128,7 +128,7 @@ YARPSoundDeviceDriver::Body (void)
 
 		switch (msg.message) {
 			case MM_WIM_DATA: //Buffer filled 
-				printf("yarpsounddriver: received data\n");
+				////printf("yarpsounddriver: received data\n");
 				// msg.lParam contains a pointer to the WAVEHDR structure for the filled buffer.
 				if (((WAVEHDR *)msg.lParam)->dwBytesRecorded) {
 					//Here write in the local buffer using the syncronization mutexes
@@ -171,7 +171,7 @@ YARPSoundDeviceDriver::Body (void)
 			case MM_WIM_CLOSE:
 				break;
 			default:
-				ACE_DEBUG ((LM_DEBUG, "yarpsounddriver: received an unknown message\n"));
+				//ACE_DEBUG ((LM_DEBUG, "yarpsounddriver: received an unknown message\n"));
 				break;
 		}
 	}

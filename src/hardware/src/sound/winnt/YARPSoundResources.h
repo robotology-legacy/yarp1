@@ -10,7 +10,7 @@
 // 
 //     Description:  This file encapsulates the SoundResources class and the its methods
 // 
-//         Version:  $Id: YARPSoundResources.h,v 1.4 2004-02-25 17:20:58 beltran Exp $
+//         Version:  $Id: YARPSoundResources.h,v 1.5 2004-03-01 18:01:00 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -64,8 +64,6 @@ public:
 	// Variables  
 	//----------------------------------------------------------------------
 
-	enum { _num_buffers = 3 }; //This can be used for the tripe buffer
-
 	YARPSemaphore _bmutex;
 	YARPSemaphore _new_frame;
 	bool _canpost;
@@ -76,7 +74,7 @@ public:
 	HMIXER			m_MixerHandle; // Handle to Mixer for WAVE In Device
 	//HANDLE			m_WaveFileHandle = INVALID_HANDLE_VALUE; // Handle to the disk file where we permanently store 
 	// the recorded audio data 
-	WAVEHDR			m_WaveHeader[2]; // We use two WAVEHDR's for recording (ie, double-buffering) in this example 
+	WAVEHDR			m_WaveHeader[3]; // We use two WAVEHDR's for recording (ie, double-buffering) in this example 
 	BOOL			m_InRecord; // Variable used to indicate whether we are in record 
 	unsigned char	m_DoneAll;	// Variable used by recording thread to indicate whether we are in record 
 
@@ -117,7 +115,7 @@ protected:
 	//----------------------------------------------------------------------
 	int _init (const SoundOpenParameters& params);
 	void _prepareBuffers (void);
+	void _print_dst_lines();
+	void _print_src_lines();
 };
-
-
 #endif
