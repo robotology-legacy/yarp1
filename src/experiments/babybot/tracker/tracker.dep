@@ -172,9 +172,19 @@
 	
 
 .\ImgTrack.cpp : \
+	"..\..\..\..\include\ace\ace.h"\
+	"..\..\..\..\include\ace\ace.i"\
 	"..\..\..\..\include\ace\ace_export.h"\
 	"..\..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\..\include\ace\ace_wchar.inl"\
+	"..\..\..\..\include\ace\addr.h"\
+	"..\..\..\..\include\ace\addr.i"\
+	"..\..\..\..\include\ace\array_base.cpp"\
+	"..\..\..\..\include\ace\array_base.h"\
+	"..\..\..\..\include\ace\array_base.inl"\
+	"..\..\..\..\include\ace\auto_ptr.cpp"\
+	"..\..\..\..\include\ace\auto_ptr.h"\
+	"..\..\..\..\include\ace\auto_ptr.i"\
 	"..\..\..\..\include\ace\base_thread_adapter.h"\
 	"..\..\..\..\include\ace\base_thread_adapter.inl"\
 	"..\..\..\..\include\ace\basic_types.h"\
@@ -185,11 +195,48 @@
 	"..\..\..\..\include\ace\config-win32-msvc.h"\
 	"..\..\..\..\include\ace\config-win32.h"\
 	"..\..\..\..\include\ace\config.h"\
+	"..\..\..\..\include\ace\containers.h"\
+	"..\..\..\..\include\ace\containers.i"\
+	"..\..\..\..\include\ace\containers_t.cpp"\
+	"..\..\..\..\include\ace\containers_t.h"\
+	"..\..\..\..\include\ace\containers_t.i"\
 	"..\..\..\..\include\ace\default_constants.h"\
+	"..\..\..\..\include\ace\event_handler.h"\
+	"..\..\..\..\include\ace\event_handler.i"\
+	"..\..\..\..\include\ace\flag_manip.h"\
+	"..\..\..\..\include\ace\flag_manip.i"\
+	"..\..\..\..\include\ace\free_list.cpp"\
+	"..\..\..\..\include\ace\free_list.h"\
+	"..\..\..\..\include\ace\free_list.i"\
 	"..\..\..\..\include\ace\global_macros.h"\
+	"..\..\..\..\include\ace\handle_ops.h"\
+	"..\..\..\..\include\ace\handle_ops.i"\
+	"..\..\..\..\include\ace\inet_addr.h"\
+	"..\..\..\..\include\ace\inet_addr.i"\
+	"..\..\..\..\include\ace\init_ace.h"\
+	"..\..\..\..\include\ace\init_ace.i"\
+	"..\..\..\..\include\ace\ipc_sap.h"\
+	"..\..\..\..\include\ace\ipc_sap.i"\
+	"..\..\..\..\include\ace\lib_find.h"\
+	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
+	"..\..\..\..\include\ace\malloc.i"\
+	"..\..\..\..\include\ace\malloc_allocator.h"\
+	"..\..\..\..\include\ace\malloc_allocator.i"\
+	"..\..\..\..\include\ace\malloc_base.h"\
+	"..\..\..\..\include\ace\malloc_t.cpp"\
+	"..\..\..\..\include\ace\malloc_t.h"\
+	"..\..\..\..\include\ace\malloc_t.i"\
+	"..\..\..\..\include\ace\mem_addr.h"\
+	"..\..\..\..\include\ace\mem_addr.i"\
+	"..\..\..\..\include\ace\mem_map.h"\
+	"..\..\..\..\include\ace\mem_map.i"\
+	"..\..\..\..\include\ace\memory_pool.h"\
+	"..\..\..\..\include\ace\memory_pool.i"\
 	"..\..\..\..\include\ace\min_max.h"\
+	"..\..\..\..\include\ace\node.cpp"\
+	"..\..\..\..\include\ace\node.h"\
 	"..\..\..\..\include\ace\os.h"\
 	"..\..\..\..\include\ace\os.i"\
 	"..\..\..\..\include\ace\os_dirent.h"\
@@ -207,7 +254,24 @@
 	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
+	"..\..\..\..\include\ace\signal.i"\
+	"..\..\..\..\include\ace\sock.h"\
+	"..\..\..\..\include\ace\sock.i"\
+	"..\..\..\..\include\ace\sock_acceptor.h"\
+	"..\..\..\..\include\ace\sock_acceptor.i"\
+	"..\..\..\..\include\ace\sock_connect.h"\
+	"..\..\..\..\include\ace\sock_connect.i"\
+	"..\..\..\..\include\ace\sock_connector.h"\
+	"..\..\..\..\include\ace\sock_connector.i"\
+	"..\..\..\..\include\ace\sock_io.h"\
+	"..\..\..\..\include\ace\sock_io.i"\
+	"..\..\..\..\include\ace\sock_stream.h"\
+	"..\..\..\..\include\ace\sock_stream.i"\
 	"..\..\..\..\include\ace\streams.h"\
+	"..\..\..\..\include\ace\string_base.cpp"\
+	"..\..\..\..\include\ace\string_base.h"\
+	"..\..\..\..\include\ace\string_base.i"\
+	"..\..\..\..\include\ace\string_base_const.h"\
 	"..\..\..\..\include\ace\synch.h"\
 	"..\..\..\..\include\ace\synch.i"\
 	"..\..\..\..\include\ace\synch_t.cpp"\
@@ -219,11 +283,24 @@
 	"..\..\..\..\include\ace\thread_adapter.inl"\
 	"..\..\..\..\include\ace\time_value.h"\
 	"..\..\..\..\include\ace\time_value.inl"\
+	"..\..\..\..\include\ace\unbounded_queue.cpp"\
+	"..\..\..\..\include\ace\unbounded_queue.h"\
+	"..\..\..\..\include\ace\unbounded_queue.inl"\
+	"..\..\..\..\include\ace\unbounded_set.cpp"\
+	"..\..\..\..\include\ace\unbounded_set.h"\
+	"..\..\..\..\include\ace\unbounded_set.inl"\
 	"..\..\..\..\include\begin_pack_for_net.h"\
+	"..\..\..\..\include\blockreceiver.h"\
+	"..\..\..\..\include\blocksender.h"\
 	"..\..\..\..\include\conf\yarpconfig.h"\
 	"..\..\..\..\include\conf\yarpconfigwin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
+	"..\..\..\..\include\logpolarsdk.h"\
+	"..\..\..\..\include\mesh.h"\
+	"..\..\..\..\include\port.h"\
+	"..\..\..\..\include\refcounted.h"\
+	"..\..\..\..\include\sendable.h"\
 	"..\..\..\..\include\sys\ipl.h"\
 	"..\..\..\..\include\sys\iplerror.h"\
 	"..\..\..\..\include\sys\iplmisc.h"\
@@ -231,16 +308,33 @@
 	"..\..\..\..\include\yarpbabybotheadkin.h"\
 	"..\..\..\..\include\yarperrorcodes.h"\
 	"..\..\..\..\include\yarpfft.h"\
+	"..\..\..\..\include\yarpfilters.h"\
+	"..\..\..\..\include\yarpfragments.h"\
 	"..\..\..\..\include\yarpimage.h"\
 	"..\..\..\..\include\yarpimagedraw.h"\
+	"..\..\..\..\include\yarpimagefile.h"\
+	"..\..\..\..\include\yarpimageport.h"\
+	"..\..\..\..\include\yarpimageportcontent.h"\
+	"..\..\..\..\include\yarpimages.h"\
+	"..\..\..\..\include\yarpimageutils.h"\
 	"..\..\..\..\include\yarpkinematics.h"\
+	"..\..\..\..\include\yarplist.h"\
+	"..\..\..\..\include\yarplogpolar.h"\
 	"..\..\..\..\include\yarpmath.h"\
 	"..\..\..\..\include\yarpmatrix.h"\
 	"..\..\..\..\include\yarpmatrix.inl"\
+	"..\..\..\..\include\yarpnameid.h"\
+	"..\..\..\..\include\yarpnameid_defs.h"\
+	"..\..\..\..\include\yarpnameservice.h"\
 	"..\..\..\..\include\yarpnetworktypes.h"\
+	"..\..\..\..\include\yarpport.h"\
+	"..\..\..\..\include\yarpportcontent.h"\
 	"..\..\..\..\include\yarprobotmath.h"\
 	"..\..\..\..\include\yarprobotmath.inl"\
 	"..\..\..\..\include\yarpsemaphore.h"\
+	"..\..\..\..\include\yarpsimpleoperations.h"\
+	"..\..\..\..\include\yarpstring.h"\
+	"..\..\..\..\include\yarpthread.h"\
 	"..\..\..\..\include\yarptime.h"\
 	".\ImgTrack.h"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\

@@ -86,8 +86,8 @@ BSC32_SBRS= \
 LINK32=link.exe
 LINK32_FLAGS=winmm.lib math.lib utils.lib images.lib os_services.lib ace.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\sendCmd.pdb" /machine:I386 /out:"$(OUTDIR)\sendCmd.exe" /libpath:"..\..\..\..\lib\winnt" 
 LINK32_OBJS= \
-	"$(INTDIR)\sendCmd.obj" \
-	"$(INTDIR)\functionList.obj"
+	"$(INTDIR)\functionList.obj" \
+	"$(INTDIR)\sendCmd.obj"
 
 "$(OUTDIR)\sendCmd.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
@@ -172,8 +172,8 @@ BSC32_SBRS= \
 LINK32=link.exe
 LINK32_FLAGS=winmm.lib aced.lib os_servicesdb.lib mathdb.lib utilsdb.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:yes /pdb:"$(OUTDIR)\sendCmd.pdb" /debug /machine:I386 /out:"$(OUTDIR)\sendCmd.exe" /pdbtype:sept /libpath:"..\..\..\..\lib\winnt" 
 LINK32_OBJS= \
-	"$(INTDIR)\sendCmd.obj" \
-	"$(INTDIR)\functionList.obj"
+	"$(INTDIR)\functionList.obj" \
+	"$(INTDIR)\sendCmd.obj"
 
 "$(OUTDIR)\sendCmd.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<

@@ -7,6 +7,7 @@
 	"..\..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\..\include\ace\addr.h"\
+	"..\..\..\..\include\ace\addr.i"\
 	"..\..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\..\include\ace\array_base.h"\
 	"..\..\..\..\include\ace\array_base.inl"\
@@ -14,7 +15,9 @@
 	"..\..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\..\include\ace\auto_ptr.i"\
 	"..\..\..\..\include\ace\base_thread_adapter.h"\
+	"..\..\..\..\include\ace\base_thread_adapter.inl"\
 	"..\..\..\..\include\ace\basic_types.h"\
+	"..\..\..\..\include\ace\basic_types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
@@ -22,11 +25,13 @@
 	"..\..\..\..\include\ace\config-win32.h"\
 	"..\..\..\..\include\ace\config.h"\
 	"..\..\..\..\include\ace\containers.h"\
+	"..\..\..\..\include\ace\containers.i"\
 	"..\..\..\..\include\ace\containers_t.cpp"\
 	"..\..\..\..\include\ace\containers_t.h"\
 	"..\..\..\..\include\ace\containers_t.i"\
 	"..\..\..\..\include\ace\default_constants.h"\
 	"..\..\..\..\include\ace\event_handler.h"\
+	"..\..\..\..\include\ace\event_handler.i"\
 	"..\..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\..\include\ace\free_list.cpp"\
@@ -36,6 +41,7 @@
 	"..\..\..\..\include\ace\handle_ops.h"\
 	"..\..\..\..\include\ace\handle_ops.i"\
 	"..\..\..\..\include\ace\inet_addr.h"\
+	"..\..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\..\include\ace\init_ace.h"\
 	"..\..\..\..\include\ace\init_ace.i"\
 	"..\..\..\..\include\ace\ipc_sap.h"\
@@ -44,27 +50,40 @@
 	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
+	"..\..\..\..\include\ace\malloc.i"\
 	"..\..\..\..\include\ace\malloc_allocator.h"\
+	"..\..\..\..\include\ace\malloc_allocator.i"\
 	"..\..\..\..\include\ace\malloc_base.h"\
 	"..\..\..\..\include\ace\malloc_t.cpp"\
 	"..\..\..\..\include\ace\malloc_t.h"\
 	"..\..\..\..\include\ace\malloc_t.i"\
 	"..\..\..\..\include\ace\mem_addr.h"\
+	"..\..\..\..\include\ace\mem_addr.i"\
 	"..\..\..\..\include\ace\mem_map.h"\
+	"..\..\..\..\include\ace\mem_map.i"\
 	"..\..\..\..\include\ace\memory_pool.h"\
+	"..\..\..\..\include\ace\memory_pool.i"\
 	"..\..\..\..\include\ace\min_max.h"\
 	"..\..\..\..\include\ace\node.cpp"\
 	"..\..\..\..\include\ace\node.h"\
 	"..\..\..\..\include\ace\os.h"\
+	"..\..\..\..\include\ace\os.i"\
 	"..\..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\..\include\ace\os_dirent.inl"\
 	"..\..\..\..\include\ace\os_errno.h"\
+	"..\..\..\..\include\ace\os_errno.inl"\
 	"..\..\..\..\include\ace\os_export.h"\
 	"..\..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\..\include\ace\os_log_msg_attributes.inl"\
 	"..\..\..\..\include\ace\os_memory.h"\
+	"..\..\..\..\include\ace\os_memory.inl"\
 	"..\..\..\..\include\ace\os_string.h"\
+	"..\..\..\..\include\ace\os_string.inl"\
 	"..\..\..\..\include\ace\os_tli.h"\
+	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
+	"..\..\..\..\include\ace\signal.i"\
 	"..\..\..\..\include\ace\sock.h"\
 	"..\..\..\..\include\ace\sock.i"\
 	"..\..\..\..\include\ace\sock_acceptor.h"\
@@ -83,12 +102,16 @@
 	"..\..\..\..\include\ace\string_base.i"\
 	"..\..\..\..\include\ace\string_base_const.h"\
 	"..\..\..\..\include\ace\synch.h"\
+	"..\..\..\..\include\ace\synch.i"\
 	"..\..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\..\include\ace\synch_t.h"\
 	"..\..\..\..\include\ace\synch_t.i"\
 	"..\..\..\..\include\ace\thread.h"\
+	"..\..\..\..\include\ace\thread.i"\
 	"..\..\..\..\include\ace\thread_adapter.h"\
+	"..\..\..\..\include\ace\thread_adapter.inl"\
 	"..\..\..\..\include\ace\time_value.h"\
+	"..\..\..\..\include\ace\time_value.inl"\
 	"..\..\..\..\include\ace\unbounded_queue.cpp"\
 	"..\..\..\..\include\ace\unbounded_queue.h"\
 	"..\..\..\..\include\ace\unbounded_queue.inl"\
@@ -171,6 +194,7 @@
 	"..\..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\..\include\ace\addr.h"\
+	"..\..\..\..\include\ace\addr.i"\
 	"..\..\..\..\include\ace\array_base.cpp"\
 	"..\..\..\..\include\ace\array_base.h"\
 	"..\..\..\..\include\ace\array_base.inl"\
@@ -178,7 +202,9 @@
 	"..\..\..\..\include\ace\auto_ptr.h"\
 	"..\..\..\..\include\ace\auto_ptr.i"\
 	"..\..\..\..\include\ace\base_thread_adapter.h"\
+	"..\..\..\..\include\ace\base_thread_adapter.inl"\
 	"..\..\..\..\include\ace\basic_types.h"\
+	"..\..\..\..\include\ace\basic_types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\..\include\ace\config-win32-msvc-6.h"\
@@ -186,11 +212,13 @@
 	"..\..\..\..\include\ace\config-win32.h"\
 	"..\..\..\..\include\ace\config.h"\
 	"..\..\..\..\include\ace\containers.h"\
+	"..\..\..\..\include\ace\containers.i"\
 	"..\..\..\..\include\ace\containers_t.cpp"\
 	"..\..\..\..\include\ace\containers_t.h"\
 	"..\..\..\..\include\ace\containers_t.i"\
 	"..\..\..\..\include\ace\default_constants.h"\
 	"..\..\..\..\include\ace\event_handler.h"\
+	"..\..\..\..\include\ace\event_handler.i"\
 	"..\..\..\..\include\ace\flag_manip.h"\
 	"..\..\..\..\include\ace\flag_manip.i"\
 	"..\..\..\..\include\ace\free_list.cpp"\
@@ -200,6 +228,7 @@
 	"..\..\..\..\include\ace\handle_ops.h"\
 	"..\..\..\..\include\ace\handle_ops.i"\
 	"..\..\..\..\include\ace\inet_addr.h"\
+	"..\..\..\..\include\ace\inet_addr.i"\
 	"..\..\..\..\include\ace\init_ace.h"\
 	"..\..\..\..\include\ace\init_ace.i"\
 	"..\..\..\..\include\ace\ipc_sap.h"\
@@ -208,27 +237,40 @@
 	"..\..\..\..\include\ace\lib_find.i"\
 	"..\..\..\..\include\ace\log_msg.h"\
 	"..\..\..\..\include\ace\log_priority.h"\
+	"..\..\..\..\include\ace\malloc.i"\
 	"..\..\..\..\include\ace\malloc_allocator.h"\
+	"..\..\..\..\include\ace\malloc_allocator.i"\
 	"..\..\..\..\include\ace\malloc_base.h"\
 	"..\..\..\..\include\ace\malloc_t.cpp"\
 	"..\..\..\..\include\ace\malloc_t.h"\
 	"..\..\..\..\include\ace\malloc_t.i"\
 	"..\..\..\..\include\ace\mem_addr.h"\
+	"..\..\..\..\include\ace\mem_addr.i"\
 	"..\..\..\..\include\ace\mem_map.h"\
+	"..\..\..\..\include\ace\mem_map.i"\
 	"..\..\..\..\include\ace\memory_pool.h"\
+	"..\..\..\..\include\ace\memory_pool.i"\
 	"..\..\..\..\include\ace\min_max.h"\
 	"..\..\..\..\include\ace\node.cpp"\
 	"..\..\..\..\include\ace\node.h"\
 	"..\..\..\..\include\ace\os.h"\
+	"..\..\..\..\include\ace\os.i"\
 	"..\..\..\..\include\ace\os_dirent.h"\
+	"..\..\..\..\include\ace\os_dirent.inl"\
 	"..\..\..\..\include\ace\os_errno.h"\
+	"..\..\..\..\include\ace\os_errno.inl"\
 	"..\..\..\..\include\ace\os_export.h"\
 	"..\..\..\..\include\ace\os_log_msg_attributes.h"\
+	"..\..\..\..\include\ace\os_log_msg_attributes.inl"\
 	"..\..\..\..\include\ace\os_memory.h"\
+	"..\..\..\..\include\ace\os_memory.inl"\
 	"..\..\..\..\include\ace\os_string.h"\
+	"..\..\..\..\include\ace\os_string.inl"\
 	"..\..\..\..\include\ace\os_tli.h"\
+	"..\..\..\..\include\ace\os_tli.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
+	"..\..\..\..\include\ace\signal.i"\
 	"..\..\..\..\include\ace\sock.h"\
 	"..\..\..\..\include\ace\sock.i"\
 	"..\..\..\..\include\ace\sock_acceptor.h"\
@@ -247,12 +289,16 @@
 	"..\..\..\..\include\ace\string_base.i"\
 	"..\..\..\..\include\ace\string_base_const.h"\
 	"..\..\..\..\include\ace\synch.h"\
+	"..\..\..\..\include\ace\synch.i"\
 	"..\..\..\..\include\ace\synch_t.cpp"\
 	"..\..\..\..\include\ace\synch_t.h"\
 	"..\..\..\..\include\ace\synch_t.i"\
 	"..\..\..\..\include\ace\thread.h"\
+	"..\..\..\..\include\ace\thread.i"\
 	"..\..\..\..\include\ace\thread_adapter.h"\
+	"..\..\..\..\include\ace\thread_adapter.inl"\
 	"..\..\..\..\include\ace\time_value.h"\
+	"..\..\..\..\include\ace\time_value.inl"\
 	"..\..\..\..\include\ace\unbounded_queue.cpp"\
 	"..\..\..\..\include\ace\unbounded_queue.h"\
 	"..\..\..\..\include\ace\unbounded_queue.inl"\
