@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.6 2004-01-16 14:59:26 babybot Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.7 2004-01-16 23:08:34 babybot Exp $
 ///
 ///
 
@@ -175,8 +175,8 @@ public:
 
 	///
 	/// given a point in the peripheral img returns the corresp foval one.
-	inline void peripheryToFovea (int x, int y, int& rx, int& ry) { rx = x * Periphery2Fovea; ry = y * Periphery2Fovea; }
-	inline void foveaToPeriphery (int x, int y, int& rx, int& ry) { rx = x / Periphery2Fovea; ry = y / Periphery2Fovea; }
+	inline void peripheryToFovea (int x, int y, int& rx, int& ry) { rx = int(x * Periphery2Fovea); ry = int(y * Periphery2Fovea); }
+	inline void foveaToPeriphery (int x, int y, int& rx, int& ry) { rx = int(x / Periphery2Fovea); ry = int(y / Periphery2Fovea); }
 
 protected:
 	inline void _computeFixation (const YHmgTrsf &T1, const YHmgTrsf &T2);

@@ -34,8 +34,8 @@ void YARPLpImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, in
 	
 	if (area != 0)
 	{
-		*x = (sumX/area);
-		*y = (sumY/area);
+		*x = (int)(sumX/area);
+		*y = (int)(sumY/area);
 	}
 	else
 	{
@@ -98,8 +98,8 @@ void YARPImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int 
 	
 	if (area != 0)
 	{
-		*x = (sumX/area);
-		*y = (sumY/area);
+		*x = (int)(sumX/area);
+		*y = (int)(sumY/area);
 	}
 	else
 	{

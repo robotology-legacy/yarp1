@@ -116,7 +116,7 @@ void YARPHistoSegmentation::backProjection(YARPImageOf<YarpPixelRGB> &in, YARPIm
 		{
 			// _normalize(*src, tmp);
 			if (_checkThresholds(*src))
-				*dst = YARP3DHistogram::backProjection(*src)*255 + 0.5;
+				*dst = (unsigned char)(YARP3DHistogram::backProjection(*src)*255 + 0.5);
 			else
 				*dst = 0;
 			src++;
@@ -141,7 +141,7 @@ void YARPHistoSegmentation::backProjection(YARPImageOf<YarpPixelBGR> &in, YARPIm
 		{
 //			_normalize(*src, tmp);
 			if (_checkThresholds(YarpPixelRGB(src->r, src->g, src->b)))
-				*dst = YARP3DHistogram::backProjection(*src)*255 + 0.5;
+				*dst = (unsigned char)(YARP3DHistogram::backProjection(*src)*255 + 0.5);
 			else
 				*dst = 0;
 			src++;
@@ -165,7 +165,7 @@ void YARPHistoSegmentation::backProjection(YARPImageOf<YarpPixelHSV> &in, YARPIm
 		for(i = 0; i < in.GetWidth(); i++)
 		{
 			if (_checkThresholds(src->h, src->s, src->v))
-				*dst = YARP3DHistogram::backProjection(src->h, src->s, 0)*255 + 0.5;
+				*dst = (unsigned char)(YARP3DHistogram::backProjection(src->h, src->s, 0)*255 + 0.5);
 			else
 				*dst = 0;
 			

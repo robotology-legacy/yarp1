@@ -307,8 +307,8 @@ void YARPLpConicFitter::findCircle(int T0, int R0, double R, YARPLpShapeRegion &
 		double DELTA = (r0*r0*(c*c-1) + R*R);
 		if (DELTA>=0)
 		{
-			int r1 = (r0*c+sqrt(DELTA)) + 0.5;
-			int r2 = (r0*c-sqrt(DELTA)) + 0.5;
+			int r1 = (int)((r0*c+sqrt(DELTA)) + 0.5);
+			int r2 = (int)((r0*c-sqrt(DELTA)) + 0.5);
 			rho1 = _moments.RoToCsi(r1);
 			rho2 = _moments.RoToCsi(r2);
 
@@ -369,8 +369,8 @@ void YARPLpConicFitter::findEllipse(int T0, int R0, double a11, double a12, doub
 
 		if (DELTA>=0)
 		{
-			int r1 = (B+sqrt(DELTA))/A + 0.5;
-			int r2 = (B-sqrt(DELTA))/A + 0.5;
+			int r1 = (int)((B+sqrt(DELTA))/A + 0.5);
+			int r2 = (int)((B-sqrt(DELTA))/A + 0.5);
 			rho1 = _moments.RoToCsi(r1);
 			rho2 = _moments.RoToCsi(r2);
 
@@ -405,7 +405,7 @@ void YARPConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, int *x0,  int *y
 void YARPConicFitter::fitCircle(YARPImageOf<YarpPixelMono> &in, int *x0,  int *y0, int *R)
 {
 	_moments.centerOfMass(in, x0, y0);
-	*R = _radiusOfGyration(in, *x0, *y0);
+	*R = (int)_radiusOfGyration(in, *x0, *y0);
 }
 
 void YARPConicFitter::fitEllipse(YARPImageOf<YarpPixelMono> &in, int *x0,  int *y0, double *a11, double *a12, double *a22)

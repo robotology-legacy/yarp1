@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPHistoSegmentation.h,v 1.4 2003-10-30 16:44:34 babybot Exp $ 
+/// $Id: YARPHistoSegmentation.h,v 1.5 2004-01-16 23:08:34 babybot Exp $ 
 ///
 /// August 2003 -- by nat
 
@@ -144,9 +144,9 @@ inline void YARPHistoSegmentation::_normalize (unsigned char r, unsigned char g,
 	}
 	else
 	{
-		*rp = (r/luma)*255 + 0.5;
-		*gp = (g/luma)*255 + 0.5;
-		*bp = (b/luma)*255 + 0.5;
+		*rp = (unsigned char)((r/luma)*255 + 0.5);
+		*gp = (unsigned char)((g/luma)*255 + 0.5);
+		*bp = (unsigned char)((b/luma)*255 + 0.5);
 	}
 }
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.20 2004-01-08 14:57:14 natta Exp $
+/// $Id: YARPLogpolar.h,v 1.21 2004-01-16 23:08:34 babybot Exp $
 ///
 ///
 
@@ -238,7 +238,7 @@ inline int YARPLogpolar::RoToCsi(double r)
 		csi = (1/log(lambda))*log(tmp1);
 	}	
 	
-	return csi;
+	return (int)csi;
 }
 
 // compute the jacobian of the transformation

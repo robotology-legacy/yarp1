@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.12 2004-01-16 17:52:32 fberton Exp $
+/// $Id: YARPDisparity.cpp,v 1.13 2004-01-16 23:08:34 babybot Exp $
 ///
 ///
 
@@ -218,14 +218,15 @@ Image_Data YARPDisparityTool::lpInfo(int SXR, int SYR, int rho, int theta, int f
 {
 	Image_Data Par;
 
-	Par = Set_Param(res/ratio,
-					res/ratio,
+	/// WARNING, truncating /ratio, is it the actual meaning?
+	Par = Set_Param((int)(res/ratio),
+					(int)(res/ratio),
 					SXR,
 					SYR,
-					rho/ratio,
-					theta/ratio,
-					fovea/ratio,
-					res/ratio,
+					(int)(rho/ratio),
+					(int)(theta/ratio),
+					(int)(fovea/ratio),
+					(int)(res/ratio),
 					20,
 					(double)(SXR/(res/ratio)));
 
@@ -285,7 +286,7 @@ int YARPDisparityTool::computeDisparity (YARPImageOf<YarpPixelBGR> & inLImg,
 
 	disparity = _shiftFunction[disparity];
 
-	disparity = (0.5 + disparity * _imgS.Size_X_Remap / (float)_imgS.Resolution);
+	disparity = (int)(0.5 + disparity * _imgS.Size_X_Remap / (float)_imgS.Resolution);
 	return disparity;
 }
 
