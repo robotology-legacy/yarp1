@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.6 2003-06-30 08:33:17 beltran Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.7 2003-06-30 16:49:18 beltran Exp $
 ///
 ///
 
@@ -216,7 +216,12 @@ inline int PicoloResources::_init (const PicoloOpenParameters& params)
 	/// copy params.
 	int ret;
 	_nRequestedSize = params._size;
-
+	_nWidth = params._size;
+	_nHeight = params._size;
+	_nImageSize = params._size * params._size * 3;
+	
+	//Attention: the size must me dinamic in the driver!!! TODO
+	
 	init_bttvx(params._video_type,params._unit_number);
 	/// starts board up.
 	////PICOLOHANDLE ret = PicoloStart(params._unit_number);
