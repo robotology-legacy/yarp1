@@ -1,21 +1,26 @@
 # Microsoft Developer Studio Generated Dependency File, included by fakeipl.mak
 
 .\FakeIpl.cpp : \
-	"..\..\..\..\include\ace\ace_export.h"\
+	"..\..\..\..\include\ace\ACE_export.h"\
 	"..\..\..\..\include\ace\ace_wchar.h"\
 	"..\..\..\..\include\ace\ace_wchar.inl"\
 	"..\..\..\..\include\ace\ARGV.h"\
 	"..\..\..\..\include\ace\ARGV.i"\
 	"..\..\..\..\include\ace\Argv_Type_Converter.h"\
 	"..\..\..\..\include\ace\Argv_Type_Converter.inl"\
-	"..\..\..\..\include\ace\base_thread_adapter.h"\
-	"..\..\..\..\include\ace\base_thread_adapter.inl"\
-	"..\..\..\..\include\ace\basic_types.h"\
-	"..\..\..\..\include\ace\basic_types.i"\
+	"..\..\..\..\include\ace\Base_Thread_Adapter.h"\
+	"..\..\..\..\include\ace\Base_Thread_Adapter.inl"\
+	"..\..\..\..\include\ace\Basic_Types.h"\
+	"..\..\..\..\include\ace\Basic_Types.i"\
 	"..\..\..\..\include\ace\config-all.h"\
 	"..\..\..\..\include\ace\config-borland-common.h"\
+	"..\..\..\..\include\ace\config-cxx-common.h"\
 	"..\..\..\..\include\ace\config-g++-common.h"\
 	"..\..\..\..\include\ace\config-ghs-common.h"\
+	"..\..\..\..\include\ace\config-icc-common.h"\
+	"..\..\..\..\include\ace\config-kcc-common.h"\
+	"..\..\..\..\include\ace\config-linux-common.h"\
+	"..\..\..\..\include\ace\config-linux.h"\
 	"..\..\..\..\include\ace\config-qnx-rtp.h"\
 	"..\..\..\..\include\ace\config-win32-borland.h"\
 	"..\..\..\..\include\ace\config-win32-common.h"\
@@ -29,60 +34,60 @@
 	"..\..\..\..\include\ace\config-win32.h"\
 	"..\..\..\..\include\ace\config-WinCE.h"\
 	"..\..\..\..\include\ace\config.h"\
-	"..\..\..\..\include\ace\default_constants.h"\
-	"..\..\..\..\include\ace\global_macros.h"\
+	"..\..\..\..\include\ace\Default_Constants.h"\
+	"..\..\..\..\include\ace\Global_Macros.h"\
 	"..\..\..\..\include\ace\iosfwd.h"\
-	"..\..\..\..\include\ace\log_msg.h"\
+	"..\..\..\..\include\ace\Log_Msg.h"\
 	"..\..\..\..\include\ace\Log_Msg_Callback.h"\
-	"..\..\..\..\include\ace\log_priority.h"\
-	"..\..\..\..\include\ace\malloc_base.h"\
-	"..\..\..\..\include\ace\managed_object.cpp"\
-	"..\..\..\..\include\ace\managed_object.h"\
-	"..\..\..\..\include\ace\managed_object.i"\
-	"..\..\..\..\include\ace\min_max.h"\
-	"..\..\..\..\include\ace\node.cpp"\
-	"..\..\..\..\include\ace\node.h"\
-	"..\..\..\..\include\ace\object_manager.h"\
+	"..\..\..\..\include\ace\Log_Priority.h"\
+	"..\..\..\..\include\ace\Malloc_Base.h"\
+	"..\..\..\..\include\ace\Managed_Object.cpp"\
+	"..\..\..\..\include\ace\Managed_Object.h"\
+	"..\..\..\..\include\ace\Managed_Object.i"\
+	"..\..\..\..\include\ace\Min_Max.h"\
+	"..\..\..\..\include\ace\Node.cpp"\
+	"..\..\..\..\include\ace\Node.h"\
+	"..\..\..\..\include\ace\Object_Manager.h"\
 	"..\..\..\..\include\ace\Object_Manager.i"\
-	"..\..\..\..\include\ace\os.h"\
-	"..\..\..\..\include\ace\os.i"\
-	"..\..\..\..\include\ace\os_dirent.h"\
-	"..\..\..\..\include\ace\os_dirent.inl"\
-	"..\..\..\..\include\ace\os_errno.h"\
-	"..\..\..\..\include\ace\os_errno.inl"\
-	"..\..\..\..\include\ace\os_export.h"\
-	"..\..\..\..\include\ace\os_log_msg_attributes.h"\
-	"..\..\..\..\include\ace\os_log_msg_attributes.inl"\
-	"..\..\..\..\include\ace\os_memory.h"\
-	"..\..\..\..\include\ace\os_memory.inl"\
-	"..\..\..\..\include\ace\os_string.h"\
-	"..\..\..\..\include\ace\os_string.inl"\
-	"..\..\..\..\include\ace\os_tli.h"\
-	"..\..\..\..\include\ace\os_tli.inl"\
+	"..\..\..\..\include\ace\OS.h"\
+	"..\..\..\..\include\ace\OS.i"\
+	"..\..\..\..\include\ace\OS_Dirent.h"\
+	"..\..\..\..\include\ace\OS_Dirent.inl"\
+	"..\..\..\..\include\ace\OS_Errno.h"\
+	"..\..\..\..\include\ace\OS_Errno.inl"\
+	"..\..\..\..\include\ace\OS_Export.h"\
+	"..\..\..\..\include\ace\OS_Log_Msg_Attributes.h"\
+	"..\..\..\..\include\ace\OS_Log_Msg_Attributes.inl"\
+	"..\..\..\..\include\ace\OS_Memory.h"\
+	"..\..\..\..\include\ace\OS_Memory.inl"\
+	"..\..\..\..\include\ace\OS_String.h"\
+	"..\..\..\..\include\ace\OS_String.inl"\
+	"..\..\..\..\include\ace\OS_TLI.h"\
+	"..\..\..\..\include\ace\OS_TLI.inl"\
 	"..\..\..\..\include\ace\post.h"\
 	"..\..\..\..\include\ace\pre.h"\
 	"..\..\..\..\include\ace\streams.h"\
-	"..\..\..\..\include\ace\thread_adapter.h"\
-	"..\..\..\..\include\ace\thread_adapter.inl"\
+	"..\..\..\..\include\ace\Thread_Adapter.h"\
+	"..\..\..\..\include\ace\Thread_Adapter.inl"\
 	"..\..\..\..\include\ace\Thread_Control.h"\
 	"..\..\..\..\include\ace\Thread_Control.inl"\
 	"..\..\..\..\include\ace\Thread_Exit.h"\
 	"..\..\..\..\include\ace\Thread_Hook.h"\
-	"..\..\..\..\include\ace\time_value.h"\
-	"..\..\..\..\include\ace\time_value.inl"\
+	"..\..\..\..\include\ace\Time_Value.h"\
+	"..\..\..\..\include\ace\Time_Value.inl"\
 	"..\..\..\..\include\ace\Trace.h"\
-	"..\..\..\..\include\ace\unbounded_queue.cpp"\
-	"..\..\..\..\include\ace\unbounded_queue.h"\
-	"..\..\..\..\include\ace\unbounded_queue.inl"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\ace\Unbounded_Queue.cpp"\
+	"..\..\..\..\include\ace\Unbounded_Queue.h"\
+	"..\..\..\..\include\ace\Unbounded_Queue.inl"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\sys\ipl.h"\
 	"..\..\..\..\include\sys\iplerror.h"\
 	"..\..\..\..\include\sys\iplmisc.h"\
 	"..\..\..\..\include\sys\iplwind.h"\
-	"..\..\..\..\include\yarpall.h"\
+	"..\..\..\..\include\YARPAll.h"\
 	"..\..\..\..\include\YARPBool.h"\
-	"..\..\..\..\include\yarperrorcodes.h"\
+	"..\..\..\..\include\YARPErrorCodes.h"\
 	".\FakeIpl.h"\
 	
