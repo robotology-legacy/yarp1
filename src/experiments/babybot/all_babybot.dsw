@@ -87,6 +87,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "datacollector"=.\datacollector\datacollector.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "egomap"=.\egomap\egomap.dsp - Package Owner=<4>
 
 Package=<5>
@@ -148,6 +160,18 @@ Package=<4>
 ###############################################################################
 
 Project: "headcontrol"=.\headcontrol\headcontrol.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "headsaccades"=.\headsaccades\headsaccades.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -231,6 +255,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "seqgrabber"=.\seqgrabber\seqgrabber.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "teststereomatch"=.\teststereomatch\teststereomatch.dsp - Package Owner=<4>
 
 Package=<5>
@@ -256,6 +292,18 @@ Package=<4>
 ###############################################################################
 
 Project: "vergence"=.\vergence\vergence.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "visualattention"=.\visualattention\visualattention.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

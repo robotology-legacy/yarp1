@@ -40,6 +40,9 @@ nmake /f bottlesender.mak CFG="bottlesender - Win32 Release" clean
 cd ..\collectpoints\
 nmake /f collectpoints.mak CFG="collectpoints - Win32 Debug" clean
 nmake /f collectpoints.mak CFG="collectpoints - Win32 Release" clean
+cd ..\datacollector\
+nmake /f datacollector.mak CFG="datacollector - Win32 Debug" clean
+nmake /f datacollector.mak CFG="datacollector - Win32 Release" clean
 cd ..\egomap\
 nmake /f egomap.mak CFG="egomap - Win32 Debug" clean
 nmake /f egomap.mak CFG="egomap - Win32 Release" clean
@@ -61,6 +64,9 @@ nmake /f handtrackerswitch.mak CFG="handtrackerswitch - Win32 Release" clean
 cd ..\headcontrol\
 nmake /f headcontrol.mak CFG="headcontrol - Win32 Debug" clean
 nmake /f headcontrol.mak CFG="headcontrol - Win32 Release" clean
+cd ..\headsaccades\
+nmake /f headsaccades.mak CFG="headsaccades - Win32 Debug" clean
+nmake /f headsaccades.mak CFG="headsaccades - Win32 Release" clean
 cd ..\headsink\
 nmake /f headsink.mak CFG="headsink - Win32 Debug" clean
 nmake /f headsink.mak CFG="headsink - Win32 Release" clean
@@ -83,6 +89,9 @@ cd ..
 cd ..\sendCmd\
 nmake /f sendCmd.mak CFG="sendCmd - Win32 Debug" clean
 nmake /f sendCmd.mak CFG="sendCmd - Win32 Release" clean
+cd ..\seqgrabber\
+nmake /f seqgrabber.mak CFG="seqgrabber - Win32 Debug" clean
+nmake /f seqgrabber.mak CFG="seqgrabber - Win32 Release" clean
 cd ..\teststereomatch\
 nmake /f teststereomatch.mak CFG="teststereomatch - Win32 Debug" clean
 nmake /f teststereomatch.mak CFG="teststereomatch - Win32 Release" clean
@@ -92,6 +101,9 @@ nmake /f tracker.mak CFG="tracker - Win32 Release" clean
 cd ..\vergence\
 nmake /f vergence.mak CFG="vergence - Win32 Debug" clean
 nmake /f vergence.mak CFG="vergence - Win32 Release" clean
+cd ..\visualattention\
+nmake /f visualattention.mak CFG="visualattention - Win32 Debug" clean
+nmake /f visualattention.mak CFG="visualattention - Win32 Release" clean
 cd ..\vor\
 nmake /f vor.mak CFG="vor - Win32 Debug" clean
 nmake /f vor.mak CFG="vor - Win32 Release" clean
@@ -115,6 +127,8 @@ cd ..\bottlesender\
 nmake /f bottlesender.mak CFG="bottlesender - Win32 Debug"
 cd ..\collectpoints\
 nmake /f collectpoints.mak CFG="collectpoints - Win32 Debug"
+cd ..\datacollector\
+nmake /f datacollector.mak CFG="datacollector - Win32 Debug"
 cd ..\egomap\
 nmake /f egomap.mak CFG="egomap - Win32 Debug"
 cd ..\grasprflx\
@@ -129,6 +143,8 @@ cd ..\handtrackerswitch\
 nmake /f handtrackerswitch.mak CFG="handtrackerswitch - Win32 Debug"
 cd ..\headcontrol\
 nmake /f headcontrol.mak CFG="headcontrol - Win32 Debug"
+cd ..\headsaccades\
+nmake /f headsaccades.mak CFG="headsaccades - Win32 Debug"
 cd ..\headsink\
 nmake /f headsink.mak CFG="headsink - Win32 Debug"
 cd ..\headsmooth\
@@ -144,12 +160,16 @@ nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Debug"
 cd ..
 cd ..\sendCmd\
 nmake /f sendCmd.mak CFG="sendCmd - Win32 Debug"
+cd ..\seqgrabber\
+nmake /f seqgrabber.mak CFG="seqgrabber - Win32 Debug"
 cd ..\teststereomatch\
 nmake /f teststereomatch.mak CFG="teststereomatch - Win32 Debug"
 cd ..\tracker\
 nmake /f tracker.mak CFG="tracker - Win32 Debug"
 cd ..\vergence\
 nmake /f vergence.mak CFG="vergence - Win32 Debug"
+cd ..\visualattention\
+nmake /f visualattention.mak CFG="visualattention - Win32 Debug"
 cd ..\vor\
 nmake /f vor.mak CFG="vor - Win32 Debug"
 cd..
@@ -172,6 +192,8 @@ cd ..\bottlesender\
 nmake /f bottlesender.mak CFG="bottlesender - Win32 Release"
 cd ..\collectpoints\
 nmake /f collectpoints.mak CFG="collectpoints - Win32 Release"
+cd ..\datacollector\
+nmake /f datacollector.mak CFG="datacollector - Win32 Release"
 cd ..\egomap\
 nmake /f egomap.mak CFG="egomap - Win32 Release"
 cd ..\grasprflx\
@@ -186,6 +208,8 @@ cd ..\handtrackerswitch\
 nmake /f handtrackerswitch.mak CFG="handtrackerswitch - Win32 Release"
 cd ..\headcontrol\
 nmake /f headcontrol.mak CFG="headcontrol - Win32 Release"
+cd ..\headsaccades\
+nmake /f headsaccades.mak CFG="headsaccades - Win32 Release"
 cd ..\headsink\
 nmake /f headsink.mak CFG="headsink - Win32 Release"
 cd ..\headsmooth\
@@ -201,12 +225,16 @@ nmake /f remotelearnclient.mak CFG="remotelearnclient - Win32 Release"
 cd ..
 cd ..\sendCmd\
 nmake /f sendCmd.mak CFG="sendCmd - Win32 Release"
+cd ..\seqgrabber\
+nmake /f seqgrabber.mak CFG="seqgrabber - Win32 Release"
 cd ..\teststereomatch\
 nmake /f teststereomatch.mak CFG="teststereomatch - Win32 Release"
 cd ..\tracker\
 nmake /f tracker.mak CFG="tracker - Win32 Release"
 cd ..\vergence\
 nmake /f vergence.mak CFG="vergence - Win32 Release"
+cd ..\visualattention\
+nmake /f visualattention.mak CFG="visualattention - Win32 Release"
 cd ..\vor\
 nmake /f vor.mak CFG="vor - Win32 Release"
 cd..

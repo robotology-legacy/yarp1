@@ -5,7 +5,7 @@
 // feb 2003 -- by nat and pasa
 //
 // win32: link dmcmlib.lib and dmc32.lib
-// $Id: YARPGalilDeviceDriver.h,v 1.7 2003-12-23 11:21:59 babybot Exp $
+// $Id: YARPGalilDeviceDriver.h,v 1.8 2004-05-19 12:56:31 babybot Exp $
 
 #ifndef __YARP_GALIL_DEVICE_DRIVER__
 #define __YARP_GALIL_DEVICE_DRIVER__
@@ -50,21 +50,16 @@ private:
 	//  functions
 	int set_speed(void *sp);
 	int set_position(void *pos);
-
 	int set_command(void *pos);
 	int set_acceleration(void *acc);
 	int set_pid(void *cmd);
 	int get_position(void *j);
-
 	int set_offset(void *cmd);
-	
 	int set_output_port(void *word);
 	int set_output_bit(void *bit);
 	int clear_output_bit(void *bit);
-
 	int set_speeds(void *spds);
 	int set_positions(void *pos);
-
 	inline int set_commands(void *pos);
 	int set_accelerations(void *acc);
 	int get_positions(void *j);
@@ -97,33 +92,25 @@ private:
 	int set_int_limits(void *lmts);
 
 	int read_input(void *input);
-	
+
 	int reset_controller(void *input);
 	int error_limit(void *input);
 	int off_on_error(void *input);
-	
-
 	int set_jog_mode();
 	int set_jogs(void *input);
 	// as set_jogs, but wait for prev. command to complete
 	int set_safe_jogs(void *input);
 	
 	int controller_idle(void *input);
-		
+	
 	int set_positive_limit(void * input);
 	int set_negative_limit(void * input);
-
-
-
 	int motor_type(void * input);
 
 	int get_motor_type(void * input);
-
-		
+	
 	int check_motion_done(void *flag);
-
 	int check_motion_done(void *flag,int axis);
-
 	int check_frames_left(void *flag);
 	int wait_for_frames_left(void *cmd);
 	
@@ -137,15 +124,9 @@ private:
 	int * m_temp_int_array;
 
 	double * m_temp_double_array;
-
-
-
 	double * _current_positions;
-
 	double * _current_vel;
-
 	double * _current_accel;
-
 	char *m_question_marks;
 
 	unsigned char m_all_axes;
