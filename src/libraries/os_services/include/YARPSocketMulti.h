@@ -55,157 +55,103 @@
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
 ///
-///                    #paulfitz, pasa#
+///                    #pasa#
 ///
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.31 2003-07-08 22:32:27 gmetta Exp $
+/// $Id: YARPSocketMulti.h,v 1.1 2003-07-08 22:32:27 gmetta Exp $
 ///
 ///
+
+#ifndef __YARPSocketMultih__
+#define __YARPSocketMultih__
+
 #include <conf/YARPConfig.h>
-#include <YARPAll.h>
 #include <ace/config.h>
 #include <ace/OS.h>
+#include <ace/SOCK_Dgram.h>
+#include <ace/SOCK_Dgram_Mcast.h>
+#include <ace/MEM_Acceptor.h>
+#include <ace/MEM_Connector.h>
+#include <ace/Synch.h>
 
-#include <stdio.h>
-#include <string.h>
+#include "YARPAll.h"
+#include "YARPNameID.h"
+#include "YARPSocket.h"
 
-#include "YARPTime.h"
-#include "YARPSyncComm.h"
-#include "YARPPort.h"
-#include "YARPThread.h"
-#include "YARPNetworkTypes.h"
-#include "YARPScheduler.h"
+#ifdef YARP_HAS_PRAGMA_ONCE
+#	pragma once
+#endif
 
-extern int __debug_level;
+#include "YARPNetworkTypes.h" // not strictly necessary here
 
-NetInt32 foo;
-char name[256];
+/// SocketTypes
+///{
+///	YARP_NO_SOCKET = 0,
+///	YARP_I_SOCKET = 1,
+///	YARP_O_SOCKET = 2,
+///};
 
-///YARPInputPortOf<NetInt32> in(YARPInputPort::DOUBLE_BUFFERS, YARP_MCAST);
-///YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
-YARPInputPortOf<NetInt32> in;
-YARPOutputPortOf<NetInt32> out;
-
-class Thread1 : public YARPThread
+///
+/// still requires the fancy mthread stuff to read from multiple groups.
+///
+class YARPInputSocketMulti : public YARPNetworkInputObject
 {
+protected:
+	void *system_resources;
+
 public:
-//	YARPInputPortOf<NetInt32> in;
-	virtual void Body()
-	{
-		///int er = in.Register("/foo/the/rampaging/frog");
-		int er = in.Register(name);
-		if (er != YARP_OK)
-		{
-			ACE_DEBUG ((LM_DEBUG, "Thread1: can't register port name, bailing out\n"));
-			return;
-		}
+	YARPInputSocketMulti();
+	virtual ~YARPInputSocketMulti();
 
-		YARPTime::DelayInSeconds(2);
+	/// virtual override.
+	int Close(ACE_HANDLE reply_id);
+	int CloseAll(void);
 
-		while (1)
-		{
-			printf("Waiting for input\n");
-			in.Read();
-			ACE_OS::printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$Read %d\n", (int)in.Content());
-		}
-	}
+	int PollingReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
+	int ReceiveBegin(char *buffer, int buffer_length, ACE_HANDLE *reply_id = NULL);
+	int ReceiveContinue(ACE_HANDLE reply_id, char *buffer, int buffer_length);
+	int ReceiveReplying(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
+	int ReceiveEnd(ACE_HANDLE reply_id, char *reply_buffer, int reply_buffer_length);
+
+	ACE_HANDLE GetIdentifier(void) const;
+	int GetServiceType (void) { return YARP_MULTI; }
+
+	/// specific.
+	int Prepare (const YARPUniqueNameID& name, int *ports, int number_o_ports);
+	int GetAssignedPort(void) const;
 };
 
-class Thread2 : public YARPThread
+///
+///
+/// this handles only the SHMEM out connection, UDP and MCAST use the protocol-specific class.
+class YARPOutputSocketMulti : public YARPNetworkOutputObject
 {
-public:
-//	YARPOutputPortOf<NetInt32> out;
-	virtual void Body()
-	{
-		///int er = out.Register("/foo/the/rampaging/fly");
-		int er = out.Register(name);
-		if (er != YARP_OK)
-		{
-			ACE_DEBUG ((LM_DEBUG, "Thread2: can't register port name, bailing out\n"));
-			return;
-		}
+protected:
+	void *system_resources;
+	ACE_HANDLE identifier;
 
-		YARPTime::DelayInSeconds(2);
-		printf("Step1\n");
-///		out.Connect("/foo/the/rampaging/frog");
-		printf("Step1.5\n");
-		YARPTime::DelayInSeconds(2);
-		int ct = 1;
-		while (1)
-		{
-			printf("Step2\n");
-			out.Content() = ct;
-			printf("Step3\n");
-			ct++;
-			printf("$$$$$$$$$$$$$$$$$$$$$$$$$Writing %d\n", (int)out.Content());
-			out.Write();
-			YARPTime::DelayInSeconds(3);
-		}
-	}
+public:
+	YARPOutputSocketMulti();
+	virtual ~YARPOutputSocketMulti();
+
+	/// virtual override.
+	int Close(const YARPUniqueNameID& name);
+	int Connect(const YARPUniqueNameID& name);
+	
+	int SendBegin(char *buffer, int buffer_length);
+	int SendContinue(char *buffer, int buffer_length);
+	int SendReceivingReply(char *reply_buffer, int reply_buffer_length);
+	int SendEnd(char *reply_buffer, int reply_buffer_length);
+
+	ACE_HANDLE GetIdentifier(void) const;
+	int GetServiceType (void) { return YARP_SHMEM; }
+
+	/// specific.
+	int Prepare (const YARPUniqueNameID& name);
 };
 
-int main(int argc, char *argv[])
-{
-///	__debug_level = 80;
-
-
-	Thread1 t1;
-	Thread2 t2;
-	int s = 1, c = 1;
-
-	if (argc>=2)
-	{
-		s = c = 0;
-		for (unsigned int i=0; i<strlen(argv[1]); i++)
-		{
-			if (argv[1][i] == 's') s=1;
-			if (argv[1][i] == 'c') c=1;
-		}
-	}
-
-	if (argc == 3 && s)
-	{
-		ACE_OS::sprintf (name, "%s:s", argv[2]);
-		ACE_OS::printf ("name is %s\n", name);
-	}
-	else 
-	if (argc == 3 && c)
-	{
-		ACE_OS::sprintf (name, "%s:c", argv[2]);
-		ACE_OS::printf ("name is %s\n", name);
-	}
-	else
-	{
-		ACE_OS::printf ("pls, provide a channel name\n");
-		return -1;
-	}
-
-	if (s)
-	{
-		t1.Begin();
-	}
-
-	if (c)
-	{
-		if (s)
-		{
-			YARPTime::DelayInSeconds(1);
-		}
-		t2.Begin();
-	}
-
-	if (s && c)
-	{
-		t1.End();
-		t2.End();
-		ACE_OS::printf ("can't be server and client at the same time\n");
-		return -1;
-	}
-
-	YARPTime::DelayInSeconds(6000.0);
-	return 0;
-}
+#endif
 
