@@ -27,8 +27,17 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPVocab.h,v 1.3 2004-06-01 12:54:22 babybot Exp $
+/// $Id: YARPConfigRobotcub.h,v 1.1 2004-06-01 12:54:22 babybot Exp $
 ///
 ///
 
-#include <conf/YARPBabybotVocab.h>
+#ifndef __YARPConfigRobotcubh__
+#define __YARPConfigRobotcubh__
+
+
+/// config path, relative to YARP_ROOT
+const char *const ConfigFilePath = "conf/robotcub";
+
+
+
+#endif
