@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.cpp,v 1.24 2003-11-21 13:02:28 babybot Exp $
+/// $Id: YARPLogpolar.cpp,v 1.25 2004-01-26 09:16:46 orfra Exp $
 ///
 ///
 
@@ -395,3 +395,18 @@ int YARPLogpolar::ReconstructGrays (const YARPImageOf<YarpPixelMono>& in, YARPIm
 	return YARP_OK;
 }
 
+int YARPLogpolar::Sawt2Uniform(const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out)
+{
+	using namespace _logpolarParams;
+
+	sawt2Uniform((unsigned char *)out.GetRawBuffer(), (unsigned char *)in.GetRawBuffer(), &_img, _padMap);
+	return YARP_OK;
+}
+
+int YARPLogpolar::Uniform2Sawt(const YARPImageOf<YarpPixelBGR>& in, YARPImageOf<YarpPixelBGR>& out)
+{
+	using namespace _logpolarParams;
+
+	uniform2Sawt((unsigned char *)out.GetRawBuffer(), (unsigned char *)in.GetRawBuffer(), &_img, _padMap);
+	return YARP_OK;
+}
