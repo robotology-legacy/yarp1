@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.4 2004-07-09 18:52:17 eshuy Exp $
+/// $Id: YARPNameService.cpp,v 1.5 2004-07-11 11:22:40 eshuy Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -317,42 +317,7 @@ static void check() {
   }
 }
 
-int main(int argc, char* argv[])
-{
-  argc--;
-  argv++;
-
-  if (argc>0) {
-    if (argv[0][0] == '-') {
-      const char *request = argv[0];
-      argc--;
-      argv++;
-      if (strcmp(request,"--check")==0) {
-	printf("Checking installation of YARP on this machine.\n");
-	check();
-	return YARP_OK;
-      }
-    }
-  }
-
-  if (argc>0) {
-    const char *target = argv[0];
-    argc--;
-    argv++;
-    int port = 10000;
-    if (argc>0) {
-      port = atoi(argv[0]);
-      argc--;
-      argv++;
-    }
-    printf("asked to direct service to another machine, %s:%d\n",target,port);
-    YARPString buf, server;
-    int _server_port;
-    GetServer(buf,server,_server_port,target,port);
-
-    exit(0);
-  }
-
+void run() {
   //ACE_UNUSED_ARG (argc);
   //ACE_UNUSED_ARG (argv);
 
@@ -412,8 +377,86 @@ int main(int argc, char* argv[])
 
 		print_menu();
 	}
+}
 
-	return 0;
+void help() {
+  const char *app = "yarp-service";
+  const char *bpp = "            ";
+  printf("\n");
+  printf("To start the YARP name service, type:\n");
+  printf("   %s --run\n", app);
+  printf("Then on each other machine that will be using YARP, type:\n");
+  printf("   '%s --remote <host>'\n", app);
+  printf("to configure that machine to refer YARP name queries to <host>\n");
+  printf("\n");
+  printf("Usage information for %s\n\n", app);
+  printf("%s --run   : starts YARP name service running on this machine\n",app);
+  printf("%s --check : checks and troubleshoots YARP name service configuration\n",app);
+  printf("%s --remote <server> [<portnumber>] : \n", app);
+  printf("%s           configures current machine to consult YARP name\n",bpp);
+  printf("%s           running on <server>, with optional <portnumber>\n",bpp);
+  printf("%s --help  : shows this message\n", app);
+  printf("\n");
+}
+
+int remote(int argc, char* argv[]) {
+  if (argc>0) {
+    const char *target = argv[0];
+    argc--;
+    argv++;
+    int port = 10000;
+    if (argc>0) {
+      port = atoi(argv[0]);
+      argc--;
+      argv++;
+    }
+    printf("asked to direct service to another machine, %s:%d\n",target,port);
+    YARPString buf, server;
+    int _server_port;
+    GetServer(buf,server,_server_port,target,port);
+
+  } else {
+    help();
+  }
+  return YARP_OK;
+}
+
+int main(int argc, char* argv[])
+{
+  argc--;
+  argv++;
+
+  if (argc>0) {
+    if (argv[0][0] == '-') {
+      const char *request = argv[0];
+      argc--;
+      argv++;
+      if (strcmp(request,"--check")==0) {
+	printf("Checking installation of YARP on this machine.\n");
+	check();
+	return YARP_OK;
+      }
+      if (strcmp(request,"--run")==0) {
+	printf("Starting YARP name service on this machine.\n");
+	run();
+	return YARP_OK;
+      }
+      if (strcmp(request,"--remote")==0) {
+	remote(argc,argv);
+	return YARP_OK;
+      }
+      if (strcmp(request,"--help")==0) {
+	help();
+	return YARP_OK;
+      }
+      printf("Option %s not recognized, try yarp-service --help\n", request);
+      return YARP_FAIL;
+    }
+  }
+
+  help();
+
+  return 0;
 }
 
 
