@@ -31,6 +31,9 @@ nmake /f forcesensor.mak CFG="forcesensor - Win32 Release" clean
 cd ..\touch\
 nmake /f touch.mak CFG="touch - Win32 Debug" clean
 nmake /f touch.mak CFG="touch - Win32 Release" clean
+cd ..\soundgrab\
+nmake /f soundgrab.mak CFG="soundgrab - Win32 Debug" clean
+nmake /f soundgrab.mak CFG="soundgrab - Win32 Release" clean
 cd ..\
 
 goto end
@@ -45,6 +48,8 @@ cd ..\forcesensor\
 nmake /f forcesensor.mak CFG="forcesensor - Win32 Debug" 
 cd ..\touch\
 nmake /f touch.mak CFG="touch - Win32 Debug"
+cd ..\soundgrab\
+nmake /f soundgrab.mak CFG="soundgrab - Win32 Debug"
 cd ..\
 
 goto end
@@ -59,6 +64,8 @@ cd ..\forcesensor\
 nmake /f forcesensor.mak CFG="forcesensor - Win32 Release" 
 cd ..\touch\
 nmake /f touch.mak CFG="touch - Win32 Release"
+cd ..\soundgrab\
+nmake /f soundgrab.mak CFG="soundgrab - Win32 Release"
 cd ..\
 
 goto end

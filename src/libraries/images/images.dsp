@@ -203,6 +203,14 @@ SOURCE=.\include\YARPImagePortContent.h
 
 SOURCE=.\include\YARPImageUtils.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\include\YARPSound.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\YARPSoundPortContent.h
+# End Source File
 # End Group
 # Begin Source File
 

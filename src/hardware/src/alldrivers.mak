@@ -25,6 +25,9 @@ NULL=
 NULL=nul
 !ENDIF 
 
+CPP=cl.exe
+RSC=rc.exe
+
 !IF  "$(CFG)" == "alldrivers - Win32 Release"
 
 OUTDIR=.\obj\Release
@@ -49,40 +52,7 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP=cl.exe
 CPP_PROJ=/nologo /MD /W3 /GX /O2 /I ".\common" /I "..\..\..\include" /I "..\..\..\include\sys" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
-
-.c{$(INTDIR)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(INTDIR)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(INTDIR)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.c{$(INTDIR)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(INTDIR)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(INTDIR)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-RSC=rc.exe
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\alldrivers.bsc" 
 BSC32_SBRS= \
@@ -116,11 +86,11 @@ $(DS_POSTBUILD_DEP) : "..\lib\winnt\yarpdrivers.lib"
 	copy .\galil\common\*.h ..\..\..\include
 	copy .\nidaq\winnt\*.h ..\..\..\include
 	copy .\picolo\winnt\*.h ..\..\..\include
-	copy .\sound\winnt\*.h ..\..\..\include
 	copy .\common\*.h ..\..\..\include
 	copy .\jr3\winnt\*.h ..\..\..\include
 	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt
 	copy .\androidworld\common\*.h ..\..\..\include
+	copy .\sound\winnt\*.h ..\..\..\include
 	make_lib.bat
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 
@@ -149,40 +119,7 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-CPP=cl.exe
 CPP_PROJ=/nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\common" /I "..\..\..\include" /I "..\..\..\include\sys" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /Fp"$(INTDIR)\alldrivers.pch" /YX /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
-
-.c{$(INTDIR)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(INTDIR)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(INTDIR)}.obj::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.c{$(INTDIR)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cpp{$(INTDIR)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-.cxx{$(INTDIR)}.sbr::
-   $(CPP) @<<
-   $(CPP_PROJ) $< 
-<<
-
-RSC=rc.exe
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\alldrivers.bsc" 
 BSC32_SBRS= \
@@ -216,15 +153,45 @@ $(DS_POSTBUILD_DEP) : "..\lib\winnt\yarpdriversdb.lib"
 	copy .\galil\common\*.h ..\..\..\include
 	copy .\nidaq\winnt\*.h ..\..\..\include
 	copy .\picolo\winnt\*.h ..\..\..\include
-	copy .\sound\winnt\*.h ..\..\..\include
 	copy .\common\*.h ..\..\..\include
 	copy .\jr3\winnt\*.h ..\..\..\include
 	copy ..\lib\winnt\*.lib ..\..\..\lib\winnt
 	copy .\androidworld\common\*.h ..\..\..\include
+	copy .\sound\winnt\*.h ..\..\..\include
 	make_lib_db.bat
 	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
 
 !ENDIF 
+
+.c{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.c{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
 
 
 !IF "$(NO_EXTERNAL_DEPS)" != "1"

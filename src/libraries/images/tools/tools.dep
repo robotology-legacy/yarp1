@@ -90,8 +90,8 @@
 	"..\..\..\..\include\ace\unbounded_set.h"\
 	"..\..\..\..\include\ace\unbounded_set.inl"\
 	"..\..\..\..\include\begin_pack_for_net.h"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\sys\ipl.h"\
@@ -227,8 +227,8 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\logpolarsdk.h"\
@@ -306,8 +306,8 @@
 	"..\..\..\..\include\ace\Time_Value.h"\
 	"..\..\..\..\include\ace\Time_Value.inl"\
 	"..\..\..\..\include\begin_pack_for_net.h"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\sys\ipl.h"\
@@ -443,8 +443,8 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\logpolarsdk.h"\
@@ -522,8 +522,8 @@
 	"..\..\..\..\include\ace\Time_Value.h"\
 	"..\..\..\..\include\ace\Time_Value.inl"\
 	"..\..\..\..\include\begin_pack_for_net.h"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\sys\ipl.h"\
@@ -659,8 +659,8 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\logpolarsdk.h"\
@@ -819,8 +819,8 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\logpolarsdk.h"\
@@ -898,8 +898,8 @@
 	"..\..\..\..\include\ace\Time_Value.h"\
 	"..\..\..\..\include\ace\Time_Value.inl"\
 	"..\..\..\..\include\begin_pack_for_net.h"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\sys\ipl.h"\
@@ -1036,8 +1036,8 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\logpolarsdk.h"\
@@ -1197,8 +1197,8 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\logpolarsdk.h"\
@@ -1358,8 +1358,8 @@
 	"..\..\..\..\include\begin_pack_for_net.h"\
 	"..\..\..\..\include\blockreceiver.h"\
 	"..\..\..\..\include\blocksender.h"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\logpolarsdk.h"\
@@ -1435,8 +1435,8 @@
 	"..\..\..\..\include\ace\Time_Value.h"\
 	"..\..\..\..\include\ace\Time_Value.inl"\
 	"..\..\..\..\include\begin_pack_for_net.h"\
-	"..\..\..\..\include\conf\yarpconfig.h"\
-	"..\..\..\..\include\conf\yarpconfigwin32.h"\
+	"..\..\..\..\include\conf\YARPConfig.h"\
+	"..\..\..\..\include\conf\YARPConfigWin32.h"\
 	"..\..\..\..\include\debug.h"\
 	"..\..\..\..\include\end_pack_for_net.h"\
 	"..\..\..\..\include\sys\ipl.h"\

@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: main.cpp,v 1.4 2004-03-03 15:56:20 beltran Exp $
+//         Version:  $Id: main.cpp,v 1.5 2004-03-09 18:01:26 gmetta Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -27,6 +27,8 @@
 #include <YARPTime.h>
 
 #include <YARPImages.h>
+#include <YARPSound.h>
+#include <YARPSoundPortContent.h>
 #include <YARPLogpolar.h>
 #include <YARPBottle.h>
 #include <YARPBottleContent.h>
@@ -35,21 +37,21 @@
 #if defined(__QNXEurobot__)
 
 #	include <YARPEurobotSoundGrabber.h>
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
+#	define DeclareOutport(x) YARPOutputPortOf<YARPSoundBuffer>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #elif defined(__WIN32Babybot__)
 
 #	include <YARPBabybotSoundGrabber.h>
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
+#	define DeclareOutport(x) YARPOutputPortOf<YARPSoundBuffer>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #elif defined(__QNXBabybot__)
 
 #	include <YARPBabybotSoundGrabber.h>
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
+#	define DeclareOutport(x) YARPOutputPortOf<YARPSoundBuffer>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #elif defined(__LinuxTest__)
 /// apparently small difference in macro subst, need to investigate, weird.
-#	define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>(x)(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
+#	define DeclareOutport(x) YARPOutputPortOf<YARPSoundBuffer>(x)(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 #else
 
@@ -241,8 +243,8 @@ public:
 int 
 mainthread::_runAsClient (void)
 {
-	//YARPImageOf<YarpPixelBGR> img;
-	YARPInputPortOf<YARPGenericImage> inport(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	YARPSoundBuffer buffer;
+	YARPInputPortOf<YARPSoundBuffer> inport(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
 	inport.Register (_name, _netname);
 	int frame_no = 0;
@@ -253,7 +255,7 @@ mainthread::_runAsClient (void)
 	while (!IsTerminated())
 	{
 		inport.Read ();
-		//img.CastCopy (inport.Content());
+		buffer.Refer (inport.Content());
 
 		frame_no++;
 		ACE_OS::printf (">>> got a frame %d\n", frame_no);
@@ -275,7 +277,7 @@ mainthread::_runAsClient (void)
 int 
 mainthread::_runAsSimulation (void)
 {
-	YARPImageOf<YarpPixelBGR> img;
+	YARPSoundBuffer buffer;
 	DeclareOutport(outport);
 
 	outport.Register (_name, _netname);
@@ -285,11 +287,19 @@ mainthread::_runAsSimulation (void)
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
 
+	/// load buffer from file.
+	///
+	const int buffer_size = 4096;
+	buffer.Resize (buffer_size);
+
+	/// actual load of data from file.
+
+	///
 	while (!IsTerminated())
 	{
 		YARPTime::DelayInSeconds (0.04);
 	
-		outport.Content().Refer (img);
+		outport.Content().Refer (buffer);
 		outport.Write();
 
 		frame_no++;
@@ -297,7 +307,6 @@ mainthread::_runAsSimulation (void)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
 			ACE_OS::fprintf (stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/250, frame_no);
-			// ACE_OS::fprintf (stdout, "frame number %d acquired\n", frame_no);
 			start = cur;
 		}
 	}
@@ -320,22 +329,27 @@ mainthread::_runAsNormally (void)
 	int _BitsPerSample = 0;
 	int _BufferLength  = 0;
 
-	HMMIO        hmmio;
-	MMCKINFO     ckRIFF;
-	MMCKINFO     ck;
-	WAVEFORMATEX waveFormat;
+///	HMMIO        hmmio;
+///	MMCKINFO     ckRIFF;
+///	MMCKINFO     ck;
+///	WAVEFORMATEX waveFormat;
 
-	unsigned char *buffer = NULL;
+///	unsigned char *buffer = NULL;
 	int frame_no = 0;
 
 	YARPSoundGrabber soundgrabber;
-	YARPImageOf<YarpPixelBGR> img;
+	YARPSoundBuffer buffer;
 
 	//----------------------------------------------------------------------
 	//  Port initialization
 	//----------------------------------------------------------------------
 	DeclareOutport(outport);
 	outport.Register (_name, _netname);
+
+
+	////
+	///
+	/// from command line, not from file!
 
 	//----------------------------------------------------------------------
 	//  Get sound information from ini file
@@ -364,7 +378,11 @@ mainthread::_runAsNormally (void)
 							 _SamplesPerSec,
 							 _BitsPerSample,
 							 _BufferLength);
-	
+
+	/// alloc buffer.
+	buffer.Resize (_BufferLength);
+
+
 	//----------------------------------------------------------------------
 	//  Start the data reception port in the case the option is active
 	//----------------------------------------------------------------------
@@ -379,6 +397,9 @@ mainthread::_runAsNormally (void)
 
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur   = start;
+
+
+#if 0
 
 	//----------------------------------------------------------------------
 	//  Initialize the WAVEFORMATEX ini sound file data
@@ -416,24 +437,27 @@ mainthread::_runAsNormally (void)
 	ck.cksize = 0;
 	mmioCreateChunk(hmmio, &ck, 0);	
 
+#endif
+
+
 	//----------------------------------------------------------------------
 	// Main loop 
 	//----------------------------------------------------------------------
 	while (!IsTerminated())
 	{
 		soundgrabber.waitOnNewFrame ();
-		soundgrabber.acquireBuffer(&buffer);
+		unsigned char *tmp;
+		soundgrabber.acquireBuffer(&tmp);
 
-		//memcpy((unsigned char *)img.GetRawBuffer(), buffer, 16);
-		/// sends the buffer. Dont know if it is efficient like this or I should
-		// memcpy the stuff to a local buffer
-		////Here I should refer the correct data type. I still have to decide this type
-		///outport.Content().Refer (buffer); //is this correct? do I pass the pointer to the buffer?
-		//outport.Write();
+		memcpy (buffer.GetRawBuffer(), tmp, sizeof(unsigned char) * _BufferLength);
+		outport.Content().Refer (buffer);
+		outport.Write();
 
+#if 0
 		mmioWrite(hmmio, 
 				  (const char *)buffer,
 				  _BufferLength);
+#endif
 
 		soundgrabber.releaseBuffer ();
 
@@ -445,17 +469,18 @@ mainthread::_runAsNormally (void)
 		{
 			cur = YARPTime::GetTimeAsSeconds ();
 			ACE_OS::fprintf (stdout, "average frame time: %f soundframes #%d acquired\r", (cur-start)/250, frame_no);
-			// ACE_OS::fprintf (stdout, "frame number %d acquired\r", frame_no);
 			start = cur;
 		}
 	}
-	
+
+#if 0
 	//----------------------------------------------------------------------
 	//  Close the WAVE file
 	//----------------------------------------------------------------------
 	mmioAscend(hmmio, &ck, 0);
 	mmioAscend(hmmio, &ckRIFF, 0);
 	mmioClose(hmmio, 0);
+#endif
 
 	//----------------------------------------------------------------------
 	//  destroy fg_net_data port
