@@ -1,4 +1,4 @@
-// $Id: YARPGalilDeviceDriver.cpp,v 1.4 2003-05-21 12:22:05 beltran Exp $
+// $Id: YARPGalilDeviceDriver.cpp,v 1.5 2003-05-21 14:30:05 beltran Exp $
 
 #include "YARPGalilDeviceDriver.h"
 
@@ -61,6 +61,8 @@ YARPDeviceDriver<YARPNullSemaphore, YARPGalilDeviceDriver>(CBNCmds)
 	m_cmds[CMDErrorLimit]		= &YARPGalilDeviceDriver::error_limit;
 	m_cmds[CMDOffOnError]		= &YARPGalilDeviceDriver::off_on_error; 
 	
+	m_cmds[CMDVMove] 			= &YARPGalilDeviceDriver::set_jogs;
+	
 	m_cmds[CMDControllerIdle]	= &YARPGalilDeviceDriver::controller_idle;
 	
 	m_cmds[CMDSetPositiveLimit] = &YARPGalilDeviceDriver::set_positive_limit;
@@ -102,6 +104,7 @@ int YARPGalilDeviceDriver::open(void *d)
 #endif
 
 	m_question_marks = new char [2*m_njoints];
+	m_temp_int_array = new int[m_njoints];
 
 	int i;
 	int j;
@@ -126,6 +129,7 @@ int YARPGalilDeviceDriver::close(void)
 	m_handle = NULL;
 
 	delete [] m_question_marks;
+	delete [] m_temp_int_array;
 
 	return rc;
 }
@@ -425,7 +429,12 @@ int YARPGalilDeviceDriver::set_speeds (void *spds)
 
 	int cmd_length = 0;
 	
-	int *speeds = (int *) spds;
+	///int *speeds = (int *) spds;
+	
+	double * speeds_double = (double *) spds;	
+	//int * speeds = new int [m_njoints];
+	
+	double_to_int(m_temp_int_array, speeds_double);
 
 	char *buff = m_buffer_out;
 
@@ -439,7 +448,7 @@ int YARPGalilDeviceDriver::set_speeds (void *spds)
 	buff = _append_cmd((char) m_all_axes, buff);
 	
 	// values
-	int n = _append_values (speeds, buff);
+	int n = _append_values (m_temp_int_array, buff);
 	cmd_length = 4 + 4*n;
 
 	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
@@ -455,9 +464,9 @@ int YARPGalilDeviceDriver::set_positions (void *param)
 	int cmd_length = 0;
 
 	double * positions_double = (double *) param;	
-	int * positions = new int [m_njoints];
+	//int * positions = new int [m_njoints];
 	
-	double_to_int(positions, positions_double);
+	double_to_int(m_temp_int_array, positions_double);
 	
 	char *buff = m_buffer_out;
 
@@ -471,7 +480,7 @@ int YARPGalilDeviceDriver::set_positions (void *param)
 	buff = _append_cmd((char) m_all_axes, buff);
 	
 	// values
-	int n = _append_values(positions, buff);
+	int n = _append_values(m_temp_int_array, buff);
 
 	cmd_length = 4 + 4*n;
 
@@ -548,7 +557,12 @@ int YARPGalilDeviceDriver::set_accelerations (void *param)
 
 	int cmd_length = 0;
 	
-	int *accelerations = (int *) param;
+	///int *accelerations = (int *) param;
+	
+	double * accelerations_double = (double *) param;	
+	//int * accelerations = new int [m_njoints];
+	
+	double_to_int(m_temp_int_array, accelerations_double);
 
 	char *buff = m_buffer_out;
 
@@ -562,7 +576,7 @@ int YARPGalilDeviceDriver::set_accelerations (void *param)
 	buff = _append_cmd((char) m_all_axes, buff);
 	
 	// values
-	int n = _append_values(accelerations, buff);
+	int n = _append_values(m_temp_int_array, buff);
 
 	cmd_length = 4 + 4*n;
 	
@@ -1134,6 +1148,41 @@ YARPGalilDeviceDriver::off_on_error(void *par)
 							(unsigned char *) m_buffer_out, 8,
 							m_buffer_in, buff_length);
 	
+	return rc;
+}
+
+int YARPGalilDeviceDriver::set_jogs (void *spds) 
+{
+	long rc = 0;
+
+	int cmd_length = 0;
+	
+	///int *speeds = (int *) spds;
+	
+	double * speeds_double = (double *) spds;	
+	//int * speeds = new int [m_njoints];
+	
+	double_to_int(m_temp_int_array, speeds_double);
+
+	char *buff = m_buffer_out;
+
+	///////////////////////////////////////////////////////////////////
+	// set velocity
+	buff = _append_cmd((char) 0xA8, buff);		//JG
+	buff = _append_cmd((char) 0x04, buff);		//4 byte format
+	buff = _append_cmd((char) 0x00, buff);		//00 no coordinated movement
+	
+	// axes
+	buff = _append_cmd((char) m_all_axes, buff);
+	
+	// values
+	int n = _append_values (m_temp_int_array, buff);
+	cmd_length = 4 + 4*n;
+
+	rc = DMCBinaryCommand((HANDLEDMC) m_handle,
+							(unsigned char *) m_buffer_out, cmd_length ,
+							m_buffer_in, buff_length);
+	rc = begin_motion(NULL);
 	return rc;
 }
 
