@@ -59,7 +59,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPFSM.h,v 1.1 2003-07-04 12:27:00 babybot Exp $
+/// $Id: YARPFSM.h,v 1.2 2003-07-07 16:11:07 babybot Exp $
 ///  
 /// Finite State Machine class -- by nat July 2003
 //
@@ -78,13 +78,13 @@ class YARPFSMInput
 
 // forward
 template <class MYFSM, class FSM_SHARED_DATA>
-class YARPFSMState;
+class YARPFSMStateBase;
 
 template <class MYFSM, class FSM_SHARED_DATA>
 class YARPFSMTableEntry
 {
 	public:
-	YARPFSMState<MYFSM, FSM_SHARED_DATA> *state;
+	YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *state;
 	YARPFSMInput<FSM_SHARED_DATA> *function;
 
 	// operator == used by <list> to remove entries
@@ -100,26 +100,26 @@ class YARPFSMTableEntry
 };
 
 template <class MYFSM, class FSM_SHARED_DATA>
-class YARPFSMState
+class YARPFSMStateBase
 {
 protected:
-	YARPFSMState()
+	YARPFSMStateBase()
 	{ _default = this; }
-	virtual ~YARPFSMState(){}
+	virtual ~YARPFSMStateBase(){}
 
 	typedef YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> FSM_TABLE_ENTRY;
 	typedef std::list<FSM_TABLE_ENTRY> FSM_TABLE;
 	typedef FSM_TABLE::iterator FSM_TABLE_IT;
 
 public:
-	void decideState(MYFSM *t, FSM_SHARED_DATA *d)
+	bool decideState(MYFSM *t, FSM_SHARED_DATA *d)
 	{
 		FSM_TABLE_IT it;
 		// if table is empty use default value
 		if (_table.empty())
 		{
 			t->changeState(_default);
-			return;
+			return false;
 		}
 
 		// else
@@ -133,42 +133,72 @@ public:
 			if (flag)
 			{
 				t->changeState(it->state);
-				return;
+				return true;;
 			}
 			it++;
 		}
 		// none of the input were valid, use default
 		t->changeState(_default);
+		return false;
 	}
 
-	// virtual function
+	// virtual functions
 	virtual void handle(void *) = 0;
+	virtual bool wakeUp(void *) = 0;
 
-	void setDefault(BaseState<MYFSM, SHARED_DATA> *n)
+	void setDefault(YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *n)
 	{ _default = n; }
 
 	FSM_TABLE _table;
-	BaseState<MYFSM, SHARED_DATA> *_default;
+	YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *_default;
+};
+
+template <class MYFSM, class FSM_SHARED_DATA>
+class YARPFSMState: public YARPFSMStateBase<class MYFSM, class FSM_SHARED_DATA>
+{
+	public:
+	virtual bool wakeUp(void *)
+	{ return true; }
+
+	YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *operator &()
+	{
+		return (YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *) this;
+	}
+};
+
+template <class MYFSM, class FSM_SHARED_DATA>
+class YARPFSMStateSynchro: public YARPFSMStateBase<class MYFSM, class FSM_SHARED_DATA>
+{
+	public:
+	virtual bool wakeUp(void *) = 0;
+
+	YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *operator &()
+	{
+		return (YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> *) this;
+	}
 };
 
 template <class MYFSM, class FSM_SHARED_DATA>
 class YARPFSM
 {
 public:
+	typedef YARPFSMStateBase<MYFSM, FSM_SHARED_DATA> FSM_STATE;
+
 	YARPFSM (FSM_SHARED_DATA *s)
 	{
 		_data = s;
 	}
 
-	YARPFSMState<MYFSM, FSM_SHARED_DATA> *state;
-
 	void doYourDuty()
 	{
-		state->decideState((MYFSM *) this, _data);
-		state->handle(NULL);
+		if (state->wakeUp(NULL))
+		{
+			state->decideState((MYFSM *) this, _data);
+			state->handle(NULL);
+		}
 	}
 
-	void add(YARPFSMInput<FSM_SHARED_DATA> *in,  YARPFSMState<MYFSM, FSM_SHARED_DATA> *s1, YARPFSMState<MYFSM, FSM_SHARED_DATA> *s2)
+	void add(YARPFSMInput<FSM_SHARED_DATA> *in,  FSM_STATE *s1, FSM_STATE *s2)
 	{
 		if (in == NULL)
 		{
@@ -179,12 +209,13 @@ public:
 		{
 			YARPFSMTableEntry<MYFSM, FSM_SHARED_DATA> tmp;
 			tmp.function = in;
-			tmp.state = s2;
-			s1->_table.push_back(tmp);
+			tmp.state = (FSM_STATE *) s2;
+			FSM_STATE *tmpS = (FSM_STATE *)s1;
+			tmpS->_table.push_back(tmp);
 		}
 	}
 
-	void remove(YARPFSMInput<FSM_SHARED_DATA> *in,  YARPFSMState<MYFSM, FSM_SHARED_DATA> *s1, YARPFSMState<MYFSM, FSM_SHARED_DATA> *s2)
+	void remove(YARPFSMInput<FSM_SHARED_DATA> *in,  FSM_STATE *s1, FSM_STATE *s2)
 	{
 		if (in == NULL)
 			return;
@@ -197,13 +228,14 @@ public:
 		
 	}
 
-	void changeState(YARPFSMState<MYFSM, FSM_SHARED_DATA> *n)
+	void changeState(FSM_STATE *n)
 	{ state = n; }
 
-	void setInitialState(YARPFSMState<MYFSM, FSM_SHARED_DATA> *n)
+	void setInitialState(FSM_STATE *n)
 	{ changeState(n); }
 	
 	FSM_SHARED_DATA *_data;
+	FSM_STATE *state;
 };
 
 #endif
