@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.h,v 1.3 2005-02-19 23:33:53 natta Exp $
+/// $Id: YARPSciDeviceDriver.h,v 1.4 2005-02-23 21:35:22 natta Exp $
 ///
 ///
 
@@ -37,21 +37,28 @@
 #include <yarp/YARPConfig.h>
 #include <yarp/YARPDeviceDriver.h>
 #include <yarp/YARPSemaphore.h>
+#include "SerialProtocol.h"
 /**
  * \file YARPSciDeviceDriver.h 
  * class for interfacing with the value can device driver.
  */
 
+const char __defaultPortName[] = "/dev/ttyS0";
 struct SciOpenParameters
 {
 	/**
 	 * Constructor.
 	 */
-	SciOpenParameters (void)
+	SciOpenParameters (const char *portName=NULL)
 	{
 		// leave it empty for now
+		if (portName!=NULL)
+			strcpy(_portname, portName);
+		else
+			strcpy(_portname, __defaultPortName);
 	}
 	
+	char _portname[80];
 };
 
 /**
@@ -68,12 +75,12 @@ public:
 	/**
 	 * Constructor.
 	 */
-	YARPSciDeviceDriver ():YARPDeviceDriver<YARPNullSemaphore, YARPSciDeviceDriver>(1),_mutex(1){};
+	YARPSciDeviceDriver ();
 
 	/**
 	 * Destructor.
 	 */
-	virtual ~YARPSciDeviceDriver (){};
+	virtual ~YARPSciDeviceDriver ();
 
 	/**
 	 * Opens the device driver.
@@ -81,17 +88,18 @@ public:
 	 * of type SciCanOpenParameters.
 	 * @return YARP_OK on success.
 	 */ 
-	virtual int open(void *d){};
+	virtual int open(void *d);
 
 	/**
 	 * Closes the device driver.
 	 * @return YARP_OK on success.
 	 */
-	virtual int close(void){};
+	virtual int close(void);
 
 protected:
+	
+	//int getPosition(void *cmd);
 	/*
-	int getPosition(void *cmd);
 	int getPositions(void *cmd);
 	int getRefPosition (void *cmd);
 	int getRefPositions(void *cmd);
@@ -138,11 +146,20 @@ protected:
 	int setDebugMessageFilter (void *cmd);
 	int setDebugPrintFunction (void *cmd);
 */
+	/**
+	* Helpers to write/read from/to the serial port
+	*/
+	inline int _write(int msg, int joint);
+	
 protected:
 	void *system_resources;
 	YARPSemaphore _mutex;
+	SerialProtocol _serialPort;
 };
 
-
+inline int
+YARPSciDeviceDriver::_write(int msg, int joint)
+{
+}
 
 #endif

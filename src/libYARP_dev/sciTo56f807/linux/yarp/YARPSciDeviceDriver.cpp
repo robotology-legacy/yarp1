@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.cpp,v 1.2 2005-02-19 23:33:53 natta Exp $
+/// $Id: YARPSciDeviceDriver.cpp,v 1.3 2005-02-23 21:35:22 natta Exp $
 ///
 ///
 
@@ -37,42 +37,47 @@
 
 /// specific to this device driver.
 #include "YARPSciDeviceDriver.h"
+//#include "sci_messages.h"
 
 /// get the message types from the DSP code.
 // #include "../56f807/cotroller_dc/Code/controller.h"
 
 
-#if 0
-
-YARPSciCanDeviceDriver::YARPSciCanDeviceDriver(void) 
-	: YARPDeviceDriver<YARPNullSemaphore, YARPSciCanDeviceDriver>(CBNCmds), _mutex(1)
+YARPSciDeviceDriver::YARPSciDeviceDriver(void) 
+	: YARPDeviceDriver<YARPNullSemaphore, YARPSciDeviceDriver>(CBNCmds), _mutex(1)
 {
 
 }
 
-YARPSciCanDeviceDriver::~YARPSciCanDeviceDriver ()
+YARPSciDeviceDriver::~YARPSciDeviceDriver ()
 {
 	
 }
 
-int YARPSciCanDeviceDriver::open (void *res)
+int YARPSciDeviceDriver::open (void *res)
 {
 	_mutex.Wait();
 
-	
+	SciOpenParameters *par = (SciOpenParameters *)(res);
+	int ret = _serialPort.open(par->_portname);
+
 	_mutex.Post();
 
 	return ret;
 }
 
-int YARPSciCanDeviceDriver::close (void)
+int YARPSciDeviceDriver::close (void)
 {
 	_mutex.Wait(); 
 
+	int ret = _serialPort.close();
 	
 	_mutex.Post();
 
 	return ret;
 }
 
-#endif
+int YARPSciDeviceDriver::readPosition(void *cmd)
+{
+	
+}
