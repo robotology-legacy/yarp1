@@ -1,7 +1,7 @@
-$Id: README.txt,v 1.6 2002-11-18 16:00:59 gmetta Exp $
+$Id: README.txt,v 1.7 2003-01-16 22:10:43 gmetta Exp $
 
 Before you do anything else.
-YARP assumes you have correctly set up the following variables:
+YARP assumes you have correctly set up the following variables (ALSO WINNT):
 
 YARP_ROOT=the complete path of the directory this file is in
 PATH=$YARP_ROOT/bin/<OS> ...
@@ -66,3 +66,17 @@ within include:
 
 pasa Sep 2002. 
 CVS repository, many things need to change.
+
+pasa Nov 2002.
+
+
+ACE:
+	included into YARP at some low level. Libraries should compile and copy (install)
+	under $YARP_ROOT/lib/$OS
+
+	things are not completely sorted out under NT.
+	include files for ACE are not copied under include:
+	- add something like -I$YARP_ROOT/libraries/ACE_wrappers
+	- include as #include <ace/xxxx.h>
+
+
