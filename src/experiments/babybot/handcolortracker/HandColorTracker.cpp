@@ -1,6 +1,7 @@
 // HandColorTracker.cpp : Defines the entry point for the console application.
 //
 
+#include <YARPParseParameters.h>
 #include <YARPIntegralImage.h>
 #include <YARPDIBConverter.h>
 #include <YARPSimpleOperations.h>
@@ -27,6 +28,7 @@ YARPLogpolar _mapper;
 const char *__nnetFile1 = "handfk1.ini";
 const char *__nnetFile2 = "handfk2.ini";
 
+const double __threshold = 150000;
 int __armCounter = 0;
 int __headCounter = 0;
 
@@ -80,6 +82,21 @@ YARPLogFile _log;
 
 int main(int argc, char* argv[])
 {
+	// parse parameters
+	double threshold = __threshold;
+	bool plotPrediction = true;
+	bool plotActual= true;
+
+
+	if (!YARPParseParameters::parse(argc, argv, "threshold", &threshold))
+		threshold = __threshold;
+	
+	if (!YARPParseParameters::parse(argc, argv, "prediction"))
+		plotPrediction = false;
+
+	if (!YARPParseParameters::parse(argc, argv, "position"))
+		plotActual = false;
+
 	unsigned char bins[] = {16, 16, 1};
 	YARPLpHistoSegmentation _histo(80, 80, 255, 0, bins);
 
@@ -143,8 +160,10 @@ int main(int argc, char* argv[])
 
 	YARPImageOf<YarpPixelMono> _outSeg;
 	YARPImageOf<YarpPixelMono> _outSeg2;
+	YARPImageOf<YarpPixelMono> _segThreshold;
 	_outSeg.Resize(_stheta, _srho);
 	_outSeg2.Resize(_stheta, _srho);
+	_segThreshold.Resize(_stheta, _srho);
 
 	const char *root = GetYarpRoot();
 	char tmp[256];
@@ -211,22 +230,48 @@ int main(int argc, char* argv[])
 		_mapper.ReconstructColor (_left, _leftColored);
 		YARPColorConverter::RGB2HSV(_leftColored, _leftHSV);
 		_histo.backProjection(_leftHSV, _outSeg);
+		YARPSimpleOperation::Threshold(_outSeg, _segThreshold, 200);
 		
 		YARPShapeEllipse tmpEl1,tmpEl2;
 		tmpEl1 = _handLocalization.query(_arm, _head);
 		tmpEl2 = _handLocalization.queryPrediction();
-		_segmenter.mergeColor(_leftColored, _outSeg, tmpEl1);
 
-		YARPImageOf<YarpPixelBGR> &tmpSeg = _segmenter.getImage();
-		double scale = _segmenter.scale;
-		YARPSimpleOperation::DrawCross(tmpSeg, tmpEl2.x/scale, tmpEl2.y/scale, YarpPixelBGR(0, 255, 0), 5, 1);
+		double v = _segmenter.mergeColor(_leftColored, _segThreshold, tmpEl1);
+
+		if (plotActual)
+		{
+			YARPShapeEllipse tmpEl;
+			tmpEl = tmpEl1;
+			tmpEl.scale(__scale);
+
+			int intensity = 255 * (v/__threshold);
+
+			if (v > __threshold)
+			{
+				_segmenter.drawCross(tmpEl.x, tmpEl.y, YarpPixelBGR(255, 0, 0), 5, 1);
+				_segmenter.plotEllipse(tmpEl, YarpPixelBGR(255, 0, 0));
+			}
+			else
+			{
+				_segmenter.drawCross(tmpEl.x, tmpEl.y, YarpPixelBGR(intensity, 0, 0), 5, 1);
+				_segmenter.plotEllipse(tmpEl, YarpPixelBGR(intensity, 0, 0));
+			}
+		}
+
+		// prediction
+		if (plotPrediction)
+		{
+			tmpEl2.scale(_segmenter.scale);
+			_segmenter.drawCross(tmpEl2.x, tmpEl2.y, YarpPixelBGR(0, 255, 0), 5, 1);
+			_segmenter.plotEllipse(tmpEl2, YarpPixelBGR(0, 255, 0));
+		}
 						
 		// colored image
-		_outPortColor.Content().Refer(tmpSeg);
+		_outPortColor.Content().Refer(_segmenter.getImage());
 		_outPortColor.Write();
 			
 		// histo backprojection
-		_outPortBackprojection.Content().Refer(_outSeg);
+		_outPortBackprojection.Content().Refer(_segThreshold);
 		_outPortBackprojection.Write();
 
 		// send hand position

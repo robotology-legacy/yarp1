@@ -82,8 +82,14 @@ public:
 		int predx = 0, predy = 0;
 		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT_PERI, _v, predx, predy);
 
-		el.x = predx;
-		el.y = predy;
+		double p[3];
+		_ellipse.sim(_armPredictionPort._position.data(), p);
+
+		el.x = predx;		
+		el.y = predy;	
+		el.a11 = p[0]; 
+		el.a12 = p[1]; 
+		el.a22 = p[2]; 
 
 		return el;
 	}
@@ -119,11 +125,11 @@ private:
 		double p[3];
 		_ellipse.sim(arm.data(), p);
 
-		el.x = predx;		//c[0];
-		el.y = predy;	//c[1];
-		el.a11 = p[0]; /* 0.005;*/
-		el.a12 = p[1]; /* 0;*/
-		el.a22 = p[2]; /* 0.005;*/
+		el.x = predx;		
+		el.y = predy;	
+		el.a11 = p[0]; 
+		el.a12 = p[1]; 
+		el.a22 = p[2]; 
 	}
 
 	void _dumpToDisk(const YVector &arm, const YVector &head, const YARPShapeEllipse &ellipse);

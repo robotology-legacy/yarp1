@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPConicFitter.h,v 1.8 2003-12-04 18:16:08 babybot Exp $
+/// $Id: YARPConicFitter.h,v 1.9 2004-02-23 19:50:09 babybot Exp $
 ///
 /// Fit simple conics to a segmented region. Logpolar version.
 /// September 2003 -- by nat
@@ -88,6 +88,15 @@ public:
 	YARPShapeEllipse()
 	{ x = 0; y = 0; a11 = 0.0; a12 = 0.0; a22 = 0.0; };
 	~YARPShapeEllipse(){};
+
+	void scale(double sc)
+	{
+		x = x/sc;
+		y = y/sc;
+		a11 = a11*(sc*sc);
+		a12 = a12*(sc*sc);
+		a22 = a22*(sc*sc);
+	}
 
 	int x;
 	int y;

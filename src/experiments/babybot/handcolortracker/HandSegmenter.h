@@ -6,7 +6,6 @@
 #include <YARPConicFitter.h>
 
 const double __scale = 2.0;
-const double __threshold = 150000;
 
 class HandSegmenter
 {
@@ -19,11 +18,10 @@ public:
 		tmpLp.Resize(_logpolarParams::_stheta, _logpolarParams::_srho);
 		mask.Resize(_logpolarParams::_stheta, _logpolarParams::_srho);
 
-		threshold = __threshold;
 		scale = __scale;
 	}
 
-	void mergeColor(YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelMono> &seg, const YARPShapeEllipse &el)
+	double mergeColor(YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelMono> &seg, const YARPShapeEllipse &el)
 	{
 		YARPLpShapeEllipse tmp;
 		mapper.Cartesian2Logpolar((int) el.x, (int) el.y, (int) tmp.rho, (int) tmp.theta);
@@ -32,22 +30,14 @@ public:
 		tmp.a22 = el.a22; // 0.005;
 	
 		conicFitter.findEllipse(tmp, region);
-		conicFitter.plotEllipse(tmp, in);
+		// conicFitter.plotEllipse(tmp, in);
 
 		double v = _accumulate(seg, region);
 
 		mapper.Logpolar2Cartesian(in, tmpImage);
 		YARPSimpleOperation::Decimate(tmpImage, outImage, __scale, __scale);
-		int x,y;
-		x = el.x/__scale;
-		y = el.y/__scale;
-		// mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
-		// x = (x + _logpolarParams::_xsize/2)/__scale;
-		// y = (_logpolarParams::_ysize/2-y)/__scale;
-		if (v>threshold)
-			YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(255, 0, 0), 5, 1);
-		else
-			YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(150, 0, 0), 5, 1);
+		
+		return v;
 	}
 
 	void mergeColor(YARPImageOf<YarpPixelBGR> &in, const YARPShapeEllipse &el)
@@ -67,64 +57,18 @@ public:
 		// mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
 		// x = (x + _logpolarParams::_xsize/2)/__scale;
 		// y = (_logpolarParams::_ysize/2-y)/__scale;
-		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(0, 255, 0), 10, 2);
+		drawCross(x, y, YarpPixelBGR(0, 255, 0), 10, 2);
 	}
 
-/*
-	void search(YARPImageOf<YarpPixelHSV> &src, YARPLpHistoSegmentation &target, const YARPShapeEllipse &el)
+	inline void drawCross(int x, int y, const YarpPixelBGR &v, int h, int w)
 	{
-		conicFitter.findEllipse(el, region);
-		cumulateRegion(src, region);
-		cumulateRegion(src, region);
-		// now histo is the histogram of the current circle
-		double p = intersect(target);
-		unsigned char v = p*255;
-		if (v>255)
-			v = 255;
-		
-		outImage.Zero();
-		int x,y;
-		mapper.Logpolar2Cartesian(el.rho, el.theta, x, y);
-		///x = (x + _logpolarParams::_xsize/2)/__scale;
-		///y = (_logpolarParams::_ysize/2-y)/__scale;
-		x /= __scale;
-		y /= __scale;
-		YARPSimpleOperation::DrawCross(outImage, x, y, YarpPixelBGR(v, 0, 0));
-		_send();
-	}
-		
-	void cumulateRegion(YARPImageOf<YarpPixelHSV> &src, YARPShapeRegion &points)
-	{
-		int m;
-		histo.clean();
-		for(m = 0; m < points.n; m++)
-		{
-			YarpPixelHSV pixel = src(points.t[m], points.r[m]);
-			// later check weight
-			histo.Apply(pixel.h, pixel.s, 0, 1);
-		}
+		YARPSimpleOperation::DrawCross(outImage, x, y, v, h, w);
 	}
 
-	double intersect(YARPLpHistoSegmentation &target)
+	inline void plotEllipse(const YARPShapeEllipse &el, const YarpPixelBGR &v)
 	{
-		HistoEntry tmpG;
-		HistoEntry tmpH;
-			
-		int it = 0;
-		double sumG = 0.0;
-		double sumH = 0.0;
-		double sum = 0.0;
-		while  ( (target.find(it, tmpG)!=-1) && (histo.find(it, tmpH)!=-1) )
-		{
-			double g = tmpG.value()/target.maximum();
-			double h = tmpH.value()/histo.maximum();
-			
-			sum += (g-h)*(g-h);
-			it++;
-		}
-
-		return sum;
-	}*/
+		conicFitterCart.plotEllipse(el, outImage, v);
+	}
 	
 	YARPImageOf<YarpPixelBGR> &getImage()
 	{
@@ -144,7 +88,8 @@ private:
 			int tmpR = region.r[i];
 
 			int value = in(tmpT, tmpR);
-			tmp += pSize(tmpT, tmpR)*value;
+			// tmp += pSize(tmpT, tmpR)*value;
+			tmp += mapper.Jacobian(tmpT, tmpR)*value;
 		}
 
 		return tmp;
@@ -189,12 +134,11 @@ private:
 	
 	YARPLogpolar mapper;
 	YARPLpConicFitter conicFitter;
+	YARPConicFitter   conicFitterCart;
 	YARPLpShapeRegion region;
 
 	// histo intersection
 	YARP3DHistogram histo;
-
-	double threshold;
 };
 
 #endif

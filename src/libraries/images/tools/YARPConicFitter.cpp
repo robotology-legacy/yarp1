@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPConicFitter.cpp,v 1.14 2004-01-17 11:38:15 gmetta Exp $
+/// $Id: YARPConicFitter.cpp,v 1.15 2004-02-23 19:50:09 babybot Exp $
 ///
 ///
 
@@ -525,7 +525,48 @@ void YARPConicFitter::plotEllipse(int X0, int Y0, double a11, double a12, double
 
 void YARPConicFitter::plotEllipse(int X0, int Y0, double a11, double a12, double a22, YARPImageOf<YarpPixelBGR> &output, const YarpPixelBGR &v)
 {
-	ACE_ASSERT(0);	// not impl yet
+	int t;
+	float theta = 0.0;
+	const int nThetaS = 200;
+	const float deltaTh= (float) PI/ (double) nThetaS;
+	float x,y,r;
+	
+	if ( !_checkDet(a11, a12, a22) )
+	{
+		// sorry, not an ellipse...
+		return;
+	}
+
+	for(t = 0; t < nThetaS; t++)
+	{
+		theta = deltaTh*t;
+		
+		double c = cos(theta);
+		double s = sin(theta);
+
+		double A = a11*c*c+a12*c*s+a22*s*s;
+			
+		if (A > 0)
+		{
+			r = sqrt(1/A);
+
+			int xx = int (r*c+0.5);
+			int yy = int (r*s+0.5);
+
+			x = X0 + xx;
+			y = Y0 - yy;
+			output.SafePixel(x,y) = v;
+						
+			x = X0 - xx;
+			y = Y0 + yy;
+			
+			output.SafePixel(x,y) = v;
+		}
+
+	}
+	// plot center
+	output.SafePixel(X0, Y0) = v;
+
 }
 
 void YARPConicFitter::plotCircle(int X0, int Y0, double R, YARPImageOf<YarpPixelMono> &output)

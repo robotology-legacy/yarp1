@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.h,v 1.4 2003-11-17 17:27:32 babybot Exp $
+/// $Id: YARPSimpleOperations.h,v 1.5 2004-02-23 19:50:10 babybot Exp $
 ///
 ///
 
@@ -98,6 +98,8 @@ public:
 	static void Decimate (const YARPImageOf<YarpPixelRGB> &in, YARPImageOf<YarpPixelRGB> &out, double scaleX, double scaleY, int interpolate = IPL_INTER_NN);
 	static void Decimate (const YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelBGR> &out, double scaleX, double scaleY, int interpolate = IPL_INTER_NN);
 	static void Decimate (const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelMono> &out, double scaleX, double scaleY, int interpolate = IPL_INTER_NN);
+
+	static void Threshold (const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelMono> &out, unsigned char threshold);
 	
 	static void Flip (const YARPGenericImage& in, YARPGenericImage& out);
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSimpleOperations.cpp,v 1.3 2004-01-16 23:08:34 babybot Exp $
+/// $Id: YARPSimpleOperations.cpp,v 1.4 2004-02-23 19:50:09 babybot Exp $
 ///
 ///
 
@@ -255,4 +255,10 @@ void YARPSimpleOperation::DrawLine (YARPImageOf<YarpPixelMono>& dest, int xstart
 
 		dest.Pixel(xstart, ystart) = pixel;
     } 
+}
+
+
+void YARPSimpleOperation::Threshold (const YARPImageOf<YarpPixelMono> &in, YARPImageOf<YarpPixelMono> &out, unsigned char threshold)
+{
+	iplThreshold(in, out, threshold);
 }
