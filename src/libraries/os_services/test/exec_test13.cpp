@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test13.cpp,v 1.13 2003-05-29 16:39:33 gmetta Exp $
+/// $Id: exec_test13.cpp,v 1.14 2003-09-03 15:15:26 babybot Exp $
 ///
 ///
 
@@ -80,7 +80,7 @@
 
 NetInt32 foo;
 
-#define LEN MAX_PACKET-100
+#define LEN 600000 ///MAX_PACKET-100
 
 class Msg
 {

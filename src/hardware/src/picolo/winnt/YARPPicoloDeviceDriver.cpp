@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.9 2003-08-10 07:08:40 gmetta Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.10 2003-09-03 15:15:26 babybot Exp $
 ///
 ///
 
@@ -81,7 +81,8 @@ class PicoloResources
 public:
 	PicoloResources (void) : _bmutex(1), _new_frame(0)
 	{
-		_nRequestedSize = 0;
+		_nRequestedSizeX = 0;
+		_nRequestedSizeY = 0;
 		_nWidth = 0;
 		_nHeight = 0;
 		_nImageSize = 0;
@@ -105,7 +106,8 @@ public:
 	YARPSemaphore _new_frame;
 
 	// Img size are determined partially by the HW.
-	UINT32 _nRequestedSize;
+	UINT32 _nRequestedSizeX;
+	UINT32 _nRequestedSizeY;
 	UINT32 _nWidth;
 	UINT32 _nHeight;
 	UINT32 _nImageSize;
@@ -178,7 +180,7 @@ inline int PicoloResources::_uninitialize (void)
 {
 	_bmutex.Wait ();
 
-	if (_nRequestedSize == 0 && _nWidth == 0 && _nHeight == 0)
+	if (_nRequestedSizeX == 0 && _nRequestedSizeY == 0 && _nWidth == 0 && _nHeight == 0)
 		return YARP_FAIL;
 
 	PicoloAcquire (_picoloHandle, PICOLO_ACQUIRE_STOP, 1);
@@ -191,7 +193,8 @@ inline int PicoloResources::_uninitialize (void)
 	if (_rawBuffer != NULL) delete[] _rawBuffer;
 	_rawBuffer = NULL;
 
-	_nRequestedSize = 0;
+	_nRequestedSizeX = 0;
+	_nRequestedSizeY = 0;
 	_nWidth = 0;
 	_nHeight = 0;
 	_nImageSize = 0;
@@ -210,7 +213,8 @@ inline int PicoloResources::_uninitialize (void)
 inline PICOLOHANDLE PicoloResources::_init (const PicoloOpenParameters& params)
 {
 	/// copy params.
-	_nRequestedSize = params._size;
+	_nRequestedSizeX = params._size_x;
+	_nRequestedSizeY = params._size_y;
 
 	/// starts board up.
 	PICOLOHANDLE ret = PicoloStart(params._unit_number);
@@ -241,10 +245,15 @@ inline PICOLOHANDLE PicoloResources::_init (const PicoloOpenParameters& params)
 	ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	// assume we want a square image
-	float scalex = 576.0/_nRequestedSize;
-	float scaley = scalex / 2.0;
+	float scalex = 768.0/_nRequestedSizeX;
+	float scaley = 576.0/_nRequestedSizeY;
+	float scale = (scalex < scaley) ? scalex : scaley;
+	scalex = scale;
+	scaley = scale / 2.0;
 	float xSize = 768.0/scalex;
-	float offsetX = (xSize-_nRequestedSize) / 2;
+	float ySize = 576.0/scaley;
+	float offsetX = (xSize-_nRequestedSizeX) / 2;
+	float offsetY = (ySize-_nRequestedSizeY) / 2;
 
 	// adjust size and scaling. 
 	PicoloStatus = PicoloSetControlFloat(ret,
@@ -259,16 +268,20 @@ inline PICOLOHANDLE PicoloResources::_init (const PicoloOpenParameters& params)
 	ACE_ASSERT (PicoloStatus == PICOLO_OK);
 	PicoloStatus = PicoloSetControlValue(ret,
 										 PICOLO_CID_ADJUST_SIZEX,
-										 _nRequestedSize);
+										 _nRequestedSizeX);
 	ACE_ASSERT (PicoloStatus == PICOLO_OK);
 	PicoloStatus = PicoloSetControlValue(ret,
 										 PICOLO_CID_ADJUST_SIZEY,
-										 2 * _nRequestedSize);
+										 2 * _nRequestedSizeY);
 	ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	PicoloStatus = PicoloSetControlValue(ret,
 										 PICOLO_CID_ADJUST_OFFSETX,
 										 offsetX);
+	ACE_ASSERT (PicoloStatus == PICOLO_OK);
+	PicoloStatus = PicoloSetControlValue(ret,
+										 PICOLO_CID_ADJUST_OFFSETY,
+										 offsetY);
 	ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
 	// re-get size (to be sure!)

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.cpp,v 1.11 2003-08-10 07:08:40 gmetta Exp $
+/// $Id: BlockSender.cpp,v 1.12 2003-09-03 15:15:26 babybot Exp $
 ///
 ///
 
@@ -134,9 +134,11 @@ int BlockSender::AddPiece(char *buffer, int len)
 ///
 int BlockSender::Add(char *buffer, int len)
 {
-///	AddPiece (buffer, len);
-///	return 1;
+	AddPiece (buffer, len);
+	available -= len;
+	return 1;
 
+#if 0
 	while (len > 0)
 	{
 		if (len > available)
@@ -145,8 +147,11 @@ int BlockSender::Add(char *buffer, int len)
 			len -= available;
 			buffer += available;
 			ACE_DEBUG ((LM_DEBUG, "BlockSender: packet overflow! --- trobules!\n"));
-			///Fire();
-			///available = max_packet;
+			
+			/// tries a send (by calling Fire()).
+			/// WARNING: this shouldn't be done for DGRAM sockets.
+			Fire();
+			available = max_packet;
 		}
 		else
 		{
@@ -160,6 +165,7 @@ int BlockSender::Add(char *buffer, int len)
 			len = 0;
 		}
 	}
+#endif
 	return 1;
 }
 

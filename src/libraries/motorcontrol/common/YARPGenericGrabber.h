@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericGrabber.h,v 1.5 2003-06-20 14:24:18 natta Exp $
+/// $Id: YARPGenericGrabber.h,v 1.6 2003-09-03 15:15:26 babybot Exp $
 ///
 ///
 
@@ -86,7 +86,7 @@ public:
 	YARPGenericGrabber () {}
 	~YARPGenericGrabber () {}
 
-	int initialize (int board, int size);
+	int initialize (int board, int sizex, int sizey = -1);
 	int uninitialize (void);
 	int acquireBuffer (unsigned char **buffer);
 	int releaseBuffer (void);
@@ -96,11 +96,15 @@ public:
 };
 
 template <class ADAPTER, class PARAMETERS>
-int YARPGenericGrabber<ADAPTER, PARAMETERS>::initialize (int board, int size)
+int YARPGenericGrabber<ADAPTER, PARAMETERS>::initialize (int board, int sizex, int sizey /* = -1 */)
 {
 	_params._unit_number = board;
 	_params._video_type = 0;
-	_params._size = size;
+	_params._size_x = sizex;
+	if (sizey > 0)
+		_params._size_y = sizey;
+	else
+		_params._size_y = sizex;
 
 	/// calls the adapter init that parses the params appropriately.
 	/// this is because initialization can vary depending on the specific setup.

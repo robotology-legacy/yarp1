@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.21 2003-08-29 10:35:10 babybot Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.22 2003-09-03 15:15:26 babybot Exp $
 ///
 ///
 
@@ -660,7 +660,7 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 				ACE_ASSERT (_socket != NULL);
 				
 				/// the size of the SHMEM buff.
-				((ACE_MEM_Acceptor *)_socket)->init_buffer_size (2 * MAX_PACKET);
+				((ACE_MEM_Acceptor *)_socket)->init_buffer_size (10 * MAX_SHMEM_BUFFER);
 
 				///((ACE_MEM_Acceptor *)_socket)->malloc_options().minimum_bytes_ = 2 * MAX_PACKET;
 				///((ACE_MEM_Acceptor *)_socket)->preferred_strategy (ACE_MEM_IO::MT);
@@ -920,8 +920,8 @@ void _SocketThreadMulti::BodyTcp (void)
 	char bufack[] = "acknowledged";
 	char *buf3 = bufack;
 
-	memset (_local_buffer, 0, MAX_PACKET);
-	_local_buffer_counter = 0;
+///	memset (_local_buffer, 0, MAX_PACKET);
+///	_local_buffer_counter = 0;
 
 	ACE_ASSERT (_socket == NULL);
 	ACE_ASSERT (_stream != NULL);

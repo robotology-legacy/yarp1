@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigWin32.h,v 1.30 2003-08-27 16:37:31 babybot Exp $
+// $Id: YARPConfigWin32.h,v 1.31 2003-09-03 15:15:26 babybot Exp $
 // YARP config file WIN32.
 //
 //
@@ -28,9 +28,12 @@
 ///
 #define SINGLE_MUTEX_FOR_REFCOUNTED 1
 #define UPDATED_PORT 1
-#define MAX_PACKET (128*128*3+100)		
-///8192
-///(128*128*3+100)	/// shouldn't be required
+#define MAX_PACKET (128*128*3+100)
+
+/// although the limit for communicating across a net is set to MAX_PACKET
+/// TCP and SHMEM protocols support larger packets. This is the limit for
+/// SHMEM communication.
+#define MAX_SHMEM_BUFFER (384*288*3+100)		
 
 /// MSVC has pragma once directive.
 #define YARP_HAS_PRAGMA_ONCE	1

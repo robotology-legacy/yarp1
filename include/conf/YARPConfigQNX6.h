@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigQNX6.h,v 1.18 2003-08-27 16:37:31 babybot Exp $
+// $Id: YARPConfigQNX6.h,v 1.19 2003-09-03 15:15:26 babybot Exp $
 // YARP config file QNX6.
 //
 //
@@ -19,8 +19,13 @@
 #define SINGLE_MUTEX_FOR_REFCOUNTED 1
 #define UPDATED_PORT 1
 #define MAX_PACKET (128*128*3+100)
-///(128*128*3+100)
 
+/// although the limit for communicating across a net is set to MAX_PACKET
+/// TCP and SHMEM protocols support larger packets. This is the limit for
+/// SHMEM communication.
+#define MAX_SHMEM_BUFFER (384*288*3+100)		
+
+/// disable TCP Nagle's algorithm (experimental).
 ///#define YARP_TCP_NO_DELAY 1
 
 /// set the default protocol in port creation.

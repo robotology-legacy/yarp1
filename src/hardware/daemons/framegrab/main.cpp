@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.37 2003-08-27 16:37:31 babybot Exp $
+/// $Id: main.cpp,v 1.38 2003-09-03 15:15:26 babybot Exp $
 ///
 ///
 
@@ -111,13 +111,14 @@
 
 ///
 /// global params.
-int _size = 128;
-char _name[512];
-char _netname[512];
-bool _client = false;
-bool _simu = false;
-bool _logp = false;
-int _board_no = 0;
+int		_sizex		= -1;
+int		_sizey		= -1;
+char	_name[512];
+char	_netname[512];
+bool	_client		= false;
+bool	_simu		= false;
+bool	_logp		= false;
+int		_board_no	= 0;
 
 
 extern int __debug_level;
@@ -142,12 +143,15 @@ int ParseParams (int argc, char *argv[])
 			switch (argv[i][1])
 			{
 			case 'w':
-				_size = ACE_OS::atoi (argv[i+1]);
+				_sizex = ACE_OS::atoi (argv[i+1]);
+				ACE_ASSERT (_sizex <= 384);
+				ACE_ASSERT ((_sizex % 8) == 0);
 				i++;
 				break;
 
 			case 'h':
-				_size = ACE_OS::atoi (argv[i+1]);
+				_sizey = ACE_OS::atoi (argv[i+1]);
+				ACE_ASSERT (_sizey <= 288);
 				i++;
 				break;
 
@@ -188,23 +192,32 @@ int ParseParams (int argc, char *argv[])
 		}
 	}
 
+	if (_sizex == -1 && _sizey != -1)
+		_sizex = _sizey;
+	else
+	if (_sizex != -1 && _sizey == -1)
+		_sizey = _sizex;
+	else
+	if (_sizex == -1 && _sizey == -1)
+		_sizex = _sizey = 128;
+
 	return YARP_OK; 
 }
 
 ///
 ///
 ///
-int _grabber2rgb (const unsigned char *in, unsigned char *out, int sz)
+int _grabber2rgb (const unsigned char *in, unsigned char *out, int szx, int szy)
 {
 	int * first_pix = (int *)in;
 	int * ptr = first_pix;
 
-	for (int r = 0; r < sz; r++)
+	for (int r = 0; r < szy; r++)
 	{
-		ptr = first_pix + (sz * r);
+		ptr = first_pix + (szx * r);
 
 		/// needed to remove the extra byte of the 32 bit representation.
-		for (int c = 0; c < sz; c++)
+		for (int c = 0; c < szx; c++)
 		{
 			*out++ = (unsigned char)((*ptr & 0x000000ff));
 			*out++ = (unsigned char)((*ptr & 0x0000ff00) >> 8);
@@ -272,7 +285,7 @@ int _runAsClient (void)
 int _runAsSimulation (void)
 {
 	YARPImageOf<YarpPixelBGR> img;
-	img.Resize (_size, _size);
+	img.Resize (_sizex, _sizey);
 	img.Zero ();
 
 	DeclareOutport(outport);
@@ -282,7 +295,7 @@ int _runAsSimulation (void)
 	int frame_no = 0;
 
 	ACE_OS::fprintf (stdout, "starting up simulation of a grabber...\n");
-	ACE_OS::fprintf (stdout, "acq size: w=%d h=%d\n", _size, _size);
+	ACE_OS::fprintf (stdout, "acq size: w=%d h=%d\n", _sizex, _sizey);
 
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
@@ -322,6 +335,7 @@ int _runAsLogpolarSimulation (void)
 	YARPLogpolarSampler sampler;
 
 	ACE_ASSERT (_xsize == _ysize);
+	ACE_ASSERT (_xsize == _sizex && _ysize == _sizey);
 
 	img.Resize (_xsize, _ysize);
 	lp.Resize (_stheta, _srho);
@@ -337,7 +351,6 @@ int _runAsLogpolarSimulation (void)
 
 	double start = YARPTime::GetTimeAsSeconds ();
 	double cur = start;
-	///bool finished = false;
 
 	char * path = ACE_OS::getenv ("YARP_ROOT");
 	char filename[512];
@@ -391,6 +404,7 @@ int _runAsLogpolar (void)
 	YARPLogpolarSampler sampler;
 
 	ACE_ASSERT (_xsize == _ysize);
+	ACE_ASSERT (_xsize == _sizex && _ysize == _sizey);
 
 	img.Resize (_xsize, _ysize);
 	lp.Resize (_stheta, _srho);
@@ -421,11 +435,16 @@ int _runAsLogpolar (void)
 		grabber.acquireBuffer (&buffer);
 	
 		/// fills the actual image buffer.
+
+		/// LATER:
+		/// this is not particularly nice because it introduce a conditional compile
+		/// that should be actually within the device driver.
+		/// need to be fixed!
 #ifdef __QNX6__
 		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _xsize*_xsize*3);
 #else
 		/// fills the actual image buffer.
-		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _xsize);
+		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _xsize, _xsize);
 #endif
 		
 		grabber.releaseBuffer ();
@@ -456,14 +475,14 @@ int _runAsCartesian (void)
 {
 	Grabber grabber;
 	YARPImageOf<YarpPixelBGR> img;
-	img.Resize (_size, _size);
+	img.Resize (_sizex, _sizey);
 
 	DeclareOutport(outport);
 
 	outport.Register (_name, _netname);
 
 	/// params to be passed from the command line.
-	grabber.initialize (_board_no, _size);
+	grabber.initialize (_board_no, _sizex, _sizey);
 
 	int w = -1, h = -1;
 	grabber.getWidth (&w);
@@ -484,10 +503,10 @@ int _runAsCartesian (void)
 		grabber.waitOnNewFrame ();
 		grabber.acquireBuffer(&buffer);
 #ifdef __QNX6__
-		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _size*_size*3);
+		memcpy((unsigned char *)img.GetRawBuffer(),buffer, _sizex*_sizey*3);
 #else
 		/// fills the actual image buffer.
-		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _size);
+		_grabber2rgb (buffer, (unsigned char *)img.GetRawBuffer(), _sizex, _sizey);
 #endif
 
 		/// sends the buffer.
@@ -518,7 +537,7 @@ int _runAsCartesian (void)
 ///
 int main (int argc, char *argv[])
 {
-	// __debug_level = 80;
+	///__debug_level = 80;
 
 	YARPScheduler::setHighResScheduling ();
 
