@@ -23,11 +23,9 @@ _positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 {
 	char *root = GetYarpRoot();
 	char path[256];
-#if defined(__QNXEurobot__)
-	ACE_OS::sprintf (path, "%s/conf/eurobot/\0", root); 
-#else
-	ACE_OS::sprintf (path, "%s/conf/babybot/\0", root); 
-#endif
+
+	ACE_OS::sprintf (path, "%s/%s", root, ConfigFilePath); 
+
 	_iniFile = YARPString(ini_file);
 	_path = YARPString(path);
 

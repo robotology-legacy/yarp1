@@ -61,6 +61,12 @@ void SBOutputInhibitVor::output(Sink *d)
 	d->inhibitChannel(SINK_INHIBIT_VOR);
 }
 
+void SBOutputInhibitSaccade::output(Sink *d)
+{
+	ACE_OS::printf("SinkBehavior: inhibit SACCADE channel\n");
+	d->inhibitChannel(SINK_INHIBIT_SACCADES);
+}
+
 void SBOutputEnableTracker::output(Sink *d)
 {
 	ACE_OS::printf("SinkBehavior: enable TRACKER channel\n");
@@ -77,6 +83,12 @@ void SBOutputEnableVor::output(Sink *d)
 {
 	ACE_OS::printf("SinkBehavior: enable VOR channel\n");
 	d->enableChannel(SINK_INHIBIT_VOR);
+}
+
+void SBOutputEnableSaccade::output(Sink *d)
+{
+	ACE_OS::printf("SinkBehavior: enable SACCADE channel\n");
+	d->enableChannel(SINK_INHIBIT_SACCADES);
 }
 
 void SBOutputDisplayStatus::output(Sink *d)

@@ -102,9 +102,6 @@ void Sink::doLoop()
 	}
 
 	_globalInhibition = _globalInhibition | _manualInhibition;
-
-	printf("Global: %s\t", binString(_globalInhibition));
-
 	_polPort(_inPortPosition, _position);
 
 	_outCmd = 0.0;
@@ -115,50 +112,31 @@ void Sink::doLoop()
 	dtmp = sqrt((_inVectors[SinkChTracker](4)*_inVectors[SinkChTracker](4))/(0.007*0.007));
 
 	// form command
-	int tmp;
-	tmp = _globalInhibition & SINK_INHIBIT_VOR;
-	if (!(tmp))
+	if (!(_globalInhibition & SINK_INHIBIT_VOR))
 		_outCmd = _outCmd + _inVectors[SinkChVor];
-	
-	tmp = _globalInhibition & SINK_INHIBIT_SMOOTH;
-	if (!(tmp))
+
+	if (!(_globalInhibition & SINK_INHIBIT_SMOOTH))
 		_outCmd = _outCmd + _inVectors[SinkChTracker];
-	printf("%s\t", binString(tmp));
 	
-	tmp = _globalInhibition & SINK_INHIBIT_VERGENCE;
-	if (!(tmp))
+	if (!(_globalInhibition & SINK_INHIBIT_VERGENCE))
 		_outCmd = _outCmd + _inVectors[SinkChVergence];
-	printf("%s\t", binString(tmp));
 	
 	// finally compute neck
-	tmp = _globalInhibition & SINK_INHIBIT_SMOOTH;
-	if (!(tmp))	// it used to be NECK
+	if (!(_globalInhibition & SINK_INHIBIT_SMOOTH))	// it used to be NECK
 	{
 		const YVector &neck = _neckControl->apply(_position);
 		_outCmd = _outCmd + neck;
 	}
-	printf("%s\t", binString(tmp));
 
 	// add smooth pursuit
-	tmp = _globalInhibition & SINK_INHIBIT_SMOOTHPURSUIT;
-	if (!(tmp))
+	if (!(_globalInhibition & SINK_INHIBIT_SMOOTHPURSUIT))
 		_outCmd = _outCmd + _inVectors[SinkChSmoothPursuit];
-	printf("%s\t", binString(tmp));
-	printf("\n");
-
 
 	// add saccades
 	if (!(_globalInhibition & SINK_INHIBIT_SACCADES))
 	{
 		_outCmd = _outCmd + _inVectors[SinkChSaccades];
 	}
-
-	/* if (_counter%2 == 0)
-	{
-		_log.dump(_position);
-		_log.dump(_outCmd);
-		_log.newLine();
-	}*/
 
 	_counter++;
 
@@ -218,5 +196,5 @@ void Sink::printChannelsStatus()
 		
 	ACE_OS::printf("\n");*/
 
-	ACE_OS::printf("Manual inhibition set to %d\n", _manualInhibition);
+	ACE_OS::printf("Manual inhibition set to %s\n", binString(_manualInhibition));
 }

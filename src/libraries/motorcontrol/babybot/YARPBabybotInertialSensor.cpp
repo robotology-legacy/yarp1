@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotInertialSensor.cpp,v 1.4 2004-07-12 08:36:31 babybot Exp $
+///  $Id: YARPBabybotInertialSensor.cpp,v 1.5 2004-07-13 16:01:39 babybot Exp $
 ///
 ///
 
@@ -75,6 +75,7 @@ YARPBabybotInertialSensor::YARPBabybotInertialSensor()
 	_lowPass = NULL;
 	_nIteration = 0;
 	_isCalibrated = false;
+	_skipCalibration = 0;
 }
 
 YARPBabybotInertialSensor::~YARPBabybotInertialSensor()
@@ -112,22 +113,17 @@ int YARPBabybotInertialSensor::load(const YARPString &path, const YARPString &in
 	// delete and allocate new memory
 	_realloc(_ns);
 
-	// try to read calibration values
-	YVector tmp(_ns);
-	if (cfgFile.get("[GENERAL]", "Calibration", tmp.data(), _ns) != YARP_FAIL)
-	{
-		// sensor is already calibrated
-		for (int i = 1; i <= _ns; i++)
-		{
-			double *p0 = _parameters[i - 1];
-			p0[SP_Offset] = tmp(i);
-		}
-		_isCalibrated = true;
-	}
-			
 	// read calibration steps
 	if (cfgFile.get("[GENERAL]", "CalibrationSteps", &_nsteps, 1) == YARP_FAIL)
 		return YARP_FAIL;
+
+	if (cfgFile.get("[GENERAL]", "SkipCalibration", &_skipCalibration) == YARP_FAIL)
+		_skipCalibration = 0;
+	
+	if (_skipCalibration)
+		_isCalibrated = true;
+	else
+		_isCalibrated = false;
 
 	int i;
 	for(i = 0; i<_ns; i++)
@@ -136,6 +132,20 @@ int YARPBabybotInertialSensor::load(const YARPString &path, const YARPString &in
 		sprintf(dummy, "%s%d", "Sensor", i);
 		if (cfgFile.get("[PARAMETERS]", dummy, _parameters[i], SP_NumEntriesPerSensor) == YARP_FAIL)
 			return YARP_FAIL;
+	}
+
+	// DEBUG, check calibration values
+	YVector tmp(_ns);
+	// if (cfgFile.get("[GENERAL]", "Calibration", tmp.data(), _ns) != YARP_FAIL)
+	{
+		// sensor is already calibrated
+		for (int i = 1; i <= _ns; i++)
+		{
+			double *p0 = _parameters[i - 1];
+			cout << p0[SP_Offset];
+			cout << "\t";
+		}
+		cout << "\n";
 	}
 		
 	return YARP_OK;
@@ -151,22 +161,14 @@ int YARPBabybotInertialSensor::save(const YARPString &path, const YARPString &in
 
 	fprintf(fp, "[GENERAL]\n");
 	fprintf(fp, "Sensors %d\n", _ns);
-	fprintf(fp, "Calibration ");
+	fprintf(fp, "SkipCalibration %d\n", _skipCalibration);
+	fprintf(fp, "CalibrationSteps %d\n\n", _nsteps);
+	fprintf(fp, "[PARAMETERS]\n");
 
 	int i;
 	for(i = 0; i < _ns; i++)
 	{
-		double *p0 = _parameters[i];
-		fprintf(fp, "%lf ", p0[SP_Offset]);
-	}
-	fprintf(fp, "\n");
-		
-	fprintf(fp, "CalibrationSteps %d\n\n", _nsteps);
-	fprintf(fp, "[PARAMETERS]\n");
-
-	for(i = 0; i < _ns; i++)
-	{
-		fprintf(fp, "%s%d", "Sensor", i);
+		fprintf(fp, "%s%d ", "Sensor", i);
 
 		int j;
 		for(j = 0; j < SP_NumEntriesPerSensor; j++)

@@ -52,9 +52,11 @@ void _fillTable()
 	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitVor, "inhibit VOR sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitTracker, "inhibit TRACKER sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitVergence, "inhibit VERGENCE sink input");
+	REG_VOCAB(sendSimpleVocab, YBVSinkInhibitSaccade, "inhibit SACCADE sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkEnableVor, "enable VOR sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkEnableTracker, "enable TRACKER sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkEnableVergence, "enable VERGENCE sink input");
+	REG_VOCAB(sendSimpleVocab, YBVSinkEnableSaccade, "enable SACCADE sink input");
 	REG_VOCAB(sendSimpleVocab, YBVSinkDisplayStatus, "display channel status");
 
 	// attention

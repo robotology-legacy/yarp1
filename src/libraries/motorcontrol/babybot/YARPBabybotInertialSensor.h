@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotInertialSensor.h,v 1.4 2004-07-12 08:36:31 babybot Exp $
+///  $Id: YARPBabybotInertialSensor.h,v 1.5 2004-07-13 16:01:39 babybot Exp $
 ///
 ///
 
@@ -127,6 +127,7 @@ private:
 
 	// old parameters
 	bool _isCalibrated;		// calibrato?? 
+	int _skipCalibration;
 
 	YVector	_signal;			// measured linear+angular info (+ LP).
 	YVector _signalConverted;	// segnale convertito.

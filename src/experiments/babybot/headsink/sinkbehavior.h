@@ -38,11 +38,13 @@ DECLARE_OUTPUT_STATE(SBOutputSuppress);
 DECLARE_OUTPUT_STATE(SBOutputRelease);
 DECLARE_OUTPUT_STATE(SBOutputInhibitTracker);
 DECLARE_OUTPUT_STATE(SBOutputInhibitVergence);
+DECLARE_OUTPUT_STATE(SBOutputInhibitSaccade);
 DECLARE_OUTPUT_STATE(SBOutputInhibitVor);
 
 DECLARE_OUTPUT_STATE(SBOutputEnableTracker);
 DECLARE_OUTPUT_STATE(SBOutputEnableVergence);
 DECLARE_OUTPUT_STATE(SBOutputEnableVor);
+DECLARE_OUTPUT_STATE(SBOutputEnableSaccade);
 
 DECLARE_OUTPUT_STATE(SBOutputDisplayStatus);
 

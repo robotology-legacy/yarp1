@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 		_vorPort.Content().writeYVector(_vor.handle(_inertialPort.Content()));
 		_vorPort.Content().writeInt(SINK_INHIBIT_NONE);
 
-		// _vorPort.Content().display();
+	//	_vorPort.Content().display();
 		_vorPort.Write();
 	}
 

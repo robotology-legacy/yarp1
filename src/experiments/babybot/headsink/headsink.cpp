@@ -28,8 +28,10 @@ int main(int argc, char* argv[])
 	SBSimpleInput inhibitVorInput(YBVSinkInhibitVor);
 	SBSimpleInput inhibitTrackerInput(YBVSinkInhibitTracker);
 	SBSimpleInput inhibitVergenceInput(YBVSinkInhibitVergence);
+	SBSimpleInput inhibitSaccadeInput(YBVSinkInhibitSaccade);
 
 	SBSimpleInput enableVorInput(YBVSinkEnableVor);
+	SBSimpleInput enableSaccadeInput(YBVSinkEnableSaccade);
 	SBSimpleInput enableTrackerInput(YBVSinkEnableTracker);
 	SBSimpleInput enableVergenceInput(YBVSinkEnableVergence);
 
@@ -42,10 +44,12 @@ int main(int argc, char* argv[])
 	SBOutputInhibitVor			inhibitVorCmd;
 	SBOutputInhibitTracker		inhibitTrackerCmd;
 	SBOutputInhibitVergence		inhibitVergenceCmd;
+	SBOutputInhibitSaccade		inhibitSaccadeCmd;
 
 	SBOutputEnableVor			enableVorCmd;
 	SBOutputEnableTracker		enableTrackerCmd;
 	SBOutputEnableVergence		enableVergenceCmd;
+	SBOutputEnableSaccade		enableSaccadeCmd;
 
 
 	SBOutputDisplayStatus		displayStatusCmd;
@@ -56,10 +60,12 @@ int main(int argc, char* argv[])
 	behavior.add(&inhibitTrackerInput, &inhibitTrackerCmd);
 	behavior.add(&inhibitVorInput, &inhibitVorCmd);
 	behavior.add(&inhibitVergenceInput, &inhibitVergenceCmd);
+	behavior.add(&inhibitSaccadeInput, &inhibitSaccadeCmd);
 
 	behavior.add(&enableTrackerInput, &enableTrackerCmd);
 	behavior.add(&enableVorInput, &enableVorCmd);
 	behavior.add(&enableVergenceInput, &enableVergenceCmd);
+	behavior.add(&enableSaccadeInput, &enableSaccadeCmd);
 
 	behavior.add(&displayStatusInput, &displayStatusCmd);
 	behavior.add(&suppress, &suppressCmd);
