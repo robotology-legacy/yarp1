@@ -211,6 +211,10 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	b1.Resize(x, y);
 	g1.Resize(x, y);
 	i1.Resize(x, y);
+	r2.Resize(x, y);
+	b2.Resize(x, y);
+	g2.Resize(x, y);
+
 	// the images are created by default with (IPL_BORDER_CONSTANT, IPL_SIDE_ALL, 0)
 	//iplSetBorderMode((IplImage *)r1, IPL_BORDER_WRAP, IPL_SIDE_ALL, 0);
 	//iplSetBorderMode((IplImage *)r1, IPL_BORDER_CONSTANT, IPL_SIDE_TOP, 0);
@@ -969,6 +973,18 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 	int mx;
 	bool found=false;
 	
+	DBGPF1 ACE_OS::printf(">>> get original planes\n");
+	//YARPImageUtils::GetAllPlanes(src, b1, g1, r1);
+	YARPImageUtils::GetRed(src,r2);
+	YARPImageUtils::GetGreen(src,g2);
+	YARPImageUtils::GetBlue(src,b2);
+	
+	iplRShiftS(src, src, 1);
+	iplRShiftS(meanCol, meanCol, 1);
+	iplAdd(src, meanCol, src);
+
+	//iplLShiftS(src, src, 1);
+	
 	// dovrei farlo una sola volta nn ogni frame e poi dovrei salvare lo stato
 	// precedente del borderMode
 	((IplImage *)src)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
@@ -981,8 +997,8 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 	//YARPImageFile::Write(savename, src);
 
 	// with '3' the segmentation is worse
-	/*iplRShiftS(src, src, 2);
-	iplLShiftS(src, src, 2);*/
+	//iplRShiftS(src, src, 2);
+	//iplLShiftS(src, src, 2);
 	
 	/*iplColorMedianFilter(src, tmpBGR1, 3, 3, 1, 1); // better in the perifery, worse in fovea
 	iplColorMedianFilter(tmpBGR1, src, 3, 3, 1, 1); // better in the perifery, worse in fovea*/
@@ -999,7 +1015,8 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src)
 	//quantizeColors();
 	drawIORTable();
 
-	rain.maxSalienceBlobs(tagged, max_tag, max_boxes, 3);
+	//rain.maxSalienceBlobs(tagged, max_tag, max_boxes, 3);
+	rain.maxSalienceBlob(tagged, max_tag, max_boxes[0]);
 
 	if (salienceTD>0) {
 		//cout<<fovBox.cmp;
@@ -1270,7 +1287,7 @@ void YARPImgAtt::normalize()
 	FullRange((IplImage *)or_r[1], (IplImage *)or_r[1], mn[4], mx[4]);
 	FullRange((IplImage *)or_r[2], (IplImage *)or_r[2], mn[4], mx[4]);
 	FullRange((IplImage *)or_r[3], (IplImage *)or_r[3], mn[4], mx[4]);*/
-	FullRange((IplImage *)edge, (IplImage *)edge, mn[4], mx[4]);
+	FullRange((IplImage *)edge, (IplImage *)edge, mn[4], .85*mx[4]);
 	//FullRange((IplImage *)edge2, (IplImage *)edge2, mn[5], mx[5]);
 
 	
@@ -1329,8 +1346,9 @@ void YARPImgAtt::findBlobs()
 
 	//rain.setThreshold(5);
 	max_tag=rain.apply(edge, tagged);
-	rain.blobCatalog(tagged, rg, gr, by, r1, g1, b1, max_tag);
+	rain.blobCatalog(tagged, rg, gr, by, r2, g2, b2, max_tag);
 
+	//ACE_OS::printf("# tags:%d", max_tag);
 
 	//rain.setThreshold(3);
 	//rain.applyOnOld(edge, tagged);
@@ -1403,15 +1421,13 @@ void YARPImgAtt::findBlobs()
 	//ZeroLow(out, 230);
 
 	
-	/*tmpBGR1.Zero();
-	rain.ComputeMeanColors(max_tag);*/
-	//rain.DrawMeanColorsLP(tmpBGR1, tagged);
-	/*ACE_OS::sprintf(savename, "./meancol.ppm");
-	YARPImageFile::Write(savename, tmpBGR1);*/
+	tmpBGR1.Zero();
+	rain.ComputeMeanColors(max_tag);
+	rain.DrawMeanColorsLP(meanCol, tagged);
 
 	
-	/*meanOppCol.Zero();
-	rain.DrawMeanOpponentColorsLP(meanOppCol, tagged);*/
+	meanOppCol.Zero();
+	rain.DrawMeanOpponentColorsLP(meanOppCol, tagged);
 
 
 	/*blobFinder.DrawGrayLP(tmp1, tagged, 200);

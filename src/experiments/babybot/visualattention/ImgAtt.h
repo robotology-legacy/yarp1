@@ -106,6 +106,9 @@ protected:
 	YARPImageOf<YarpPixelMono> g1;
 	YARPImageOf<YarpPixelMono> b1;
 	YARPImageOf<YarpPixelMono> i1;
+	YARPImageOf<YarpPixelMono> r2;
+	YARPImageOf<YarpPixelMono> g2;
+	YARPImageOf<YarpPixelMono> b2;
 
 	//YARPImageOf<YarpPixelMono> i1_7;
 	YARPImageOf<YarpPixelMonoSigned> is1;
@@ -261,6 +264,7 @@ public:
 	void FindMax(YARPImageOf<YarpPixelInt> &src, Vett &pos);
 	YARPImageOf<YarpPixelMono>& Saliency() { return out; }
 	YARPImageOf<YarpPixelMono>& BlobFov() { return blobFov; }
+	YARPImageOf<YarpPixelBGR>& ColorQuantiz() { return meanCol; }
 	void GetTarget(int &x, int &y);
 	void saveImages(YARPImageOf<YarpPixelBGR> &src);
 	void setWatershedTh(YarpPixelMono th) { rain.setThreshold(th); }
@@ -284,6 +288,17 @@ public:
 	void resetIORTable();
 	void drawIORTable();
 
+	inline void diffCenterOfMassAndMass(YARPImageOf<YarpPixelMono> &in, YarpPixelMono th, int *x, int *y, double *mass)
+	{
+		iplThreshold(in, in, th);
+		moments.centerOfMassAndMass(in, x, y, mass);
+	}
+
+	inline void initMeanCol(YARPImageOf<YarpPixelBGR> &in)
+	{
+		meanCol=in;
+	}
+	
 	YARPBox* IORBoxes;
 	YARPBox* max_boxes;
 

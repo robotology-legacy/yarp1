@@ -111,6 +111,7 @@ char _inName4[512];
 char _outName1[512];
 char _outName2[512];
 char _outName3[512];
+char _outName4[512];
 char _netname0[512];
 char _netname1[512];
 
@@ -189,7 +190,7 @@ void mainthread::Body (void)
 
 	YARPImageOf<YarpPixelMono> out;
 	YARPImageOf<YarpPixelMono> out2;
-	YARPImageOf<YarpPixelMono> out3;
+	YARPImageOf<YarpPixelBGR> out3;
 	YARPImageOf<YarpPixelBGR> colored_s;
 	YARPImageOf<YarpPixelBGR> colored_u;
 	YARPImageOf<YarpPixelBGR> col_cart;
@@ -198,6 +199,7 @@ void mainthread::Body (void)
 	YARPInputPortOf<YVector> inVector;
 	DeclareOutport(outImage);
 	DeclareOutport(outImage2);
+	DeclareOutport(outImage3);
 	YARPOutputPortOf<YARPBottle> outBottle(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
 	//YARPOutputPortOf<YVector> out_point;
 	
@@ -246,20 +248,24 @@ void mainthread::Body (void)
 	outImage.Register(_outName1, _netname1);
 	outImage2.Register(_outName2, _netname1);
 	outBottle.Register(_outName3, _netname0);
+	outImage3.Register(_outName4, _netname1);
 
 	int frame_no = 0;
-	bool moved = false;
+	bool moved = true;
 	bool targetFound = false;
-	bool diffFound;
+	bool diffFound = true;
+	bool diffFoundValid = true;
 
 	if (!inImage.Read())
 		ACE_OS::printf(">>> ERROR: frame not read\n"); // to stop the execution on this instruction
 	YARPTime::DelayInSeconds(0.5);
 
 	YarpPixelMono maxDiff;
+	double maxMass;
 	do {
 		ACE_OS::printf("Inizialization of the motion detector...");
 		maxDiff=0;
+		maxMass=0;
 
 		if (!inImage.Read())
 			ACE_OS::printf(">>> ERROR: frame not read\n");
@@ -270,6 +276,9 @@ void mainthread::Body (void)
 		// check for difference in "original" image or in grayscale?
 		for (int i=0; i<90; i++)
 		{
+			int xm,ym;
+			double mass;
+
 			if (!inImage.Read())
 				ACE_OS::printf(">>> ERROR: frame not read\n");
 			img.Refer(inImage.Content());			
@@ -283,6 +292,9 @@ void mainthread::Body (void)
 					if (tmp(x,y)>maxDiff)
 						maxDiff=tmp(x,y);
 			
+			att_mod.diffCenterOfMassAndMass(tmp, maxDiff, &xm, &ym, &mass);
+			if (maxMass<mass) maxMass=mass;
+						
 			/*if (maxDiff==255) {
 				ACE_OS::sprintf(savename, "./diff.ppm");
 				YARPImageFile::Write(savename, tmp);
@@ -294,18 +306,44 @@ void mainthread::Body (void)
 
 			imgOld=img;
 		}
-		if (maxDiff>127)
-			ACE_OS::printf("Warning! Max=%d, it is too high!\nI'm going to recalculate it.\n", maxDiff);
-	} while (maxDiff>127);
-	ACE_OS::printf("done! Max=%d\n", maxDiff);
+
+		if (maxDiff<127) {
+			// Note that the control on the area should be done in the log polar plane,
+			// while the center of mass should be in cartesian coordinate.
+			// However in this way it is faster.
+			for (i=0; i<90; i++)
+			{
+				int xm,ym;
+				double mass;
+
+				if (!inImage.Read())
+					ACE_OS::printf(">>> ERROR: frame not read\n");
+				img.Refer(inImage.Content());			
+
+				iplSubtract(img, imgOld, tmp);
+				iplSubtract(imgOld, img, tmp2);
+				iplAdd(tmp2, tmp, tmp);
+				
+				att_mod.diffCenterOfMassAndMass(tmp, maxDiff, &xm, &ym, &mass);
+				if (maxMass<mass) maxMass=mass;
+							
+				imgOld=img;
+			}
+		} else
+			ACE_OS::printf("Warning! Max Diff=%d it is too high! I'm going to recalculate it.\n", maxDiff);
+
+		if (maxMass>1000)
+			ACE_OS::printf("Warning! Max Mass=%lf, it is too high! I'm going to recalculate it.\n", maxMass);
+	} while (maxDiff>127 || maxMass>1000);
+	ACE_OS::printf("done! Max Diff=%d, Max Mass=%lf\n", maxDiff, maxMass);
 	
 	//att_mod.setParameters(109, 0, 18, 0, 1);
 	bool isStarted = true;
 			
 	out2.Refer(att_mod.BlobFov());
-
-	start = YARPTime::GetTimeAsSeconds();
 	
+	start = YARPTime::GetTimeAsSeconds();
+
 	while (!IsTerminated())	{
 		YARPTime::DelayInSeconds(0.010);
 		////////// HANDLE MESSAGES
@@ -405,38 +443,35 @@ void mainthread::Body (void)
 					// se c'è solo un pixel ignoralo?
 					// se c'è stato un movimento lo dovresti ricordare e spostarsi lì in ogni caso?
 					diffFound = false;
-					for (int y=0; y<_srho; y++) {
-						for (int x=0; x<_stheta; x++) {
-							// points near the fovea are privileged?
-							// should I calculare the center of mass of the variations and the area?
-							if (tmp2(x,y)>maxDiff) {
-								int cartx, carty;
-								mapper.Logpolar2Cartesian(y, x, cartx, carty);
-								if (att_mod.isWithinRange(cartx,carty)) {
-									out.Zero();
-									ACE_OS::printf("Difference detected at (%d,%d)=%d\n",x,y,tmp2(x,y));
-									out(x,y)=255;
-									out.SafePixel(x+1,y)=255;
-									out.SafePixel(x-1,y)=255;
-									out.SafePixel(x,y-1)=255;
-									out.SafePixel(x,y+1)=255;
-									
-									tmpBottle.writeInt(cartx);
-									tmpBottle.writeInt(carty);
-									tmpBottle.writeInt(-1);
-									tmpBottle.writeInt(-1);
-									tmpBottle.writeInt(-1);
-									tmpBottle.writeInt(-1);
-									tmpBottle.writeInt(-1);
-									tmpBottle.writeInt(-1);
-									tmpBottle.writeInt(-1);
-									tmpBottle.writeInt(-1);
-									targetFound = false;
-									diffFound = true;
-									goto endDiffCheck;
-								}
-							}
-						}
+					diffFoundValid = false;
+					int x,y;
+					double mass;
+					att_mod.diffCenterOfMassAndMass(tmp2, maxDiff, &x, &y, &mass);
+					if (mass>maxMass) {
+						//int cartx, carty;
+						//mapper.Logpolar2Cartesian(y, x, cartx, carty);
+						diffFound = true;
+						if (att_mod.isWithinRange(x, y)) {
+							out.Refer(tmp2);
+							ACE_OS::printf("Valid difference detected at (%d,%d)\n",x,y);
+						
+							//tmpBottle.writeInt(cartx);
+							//tmpBottle.writeInt(carty);
+							tmpBottle.writeInt(x);
+							tmpBottle.writeInt(y);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							tmpBottle.writeInt(-1);
+							targetFound = false;
+							diffFoundValid = true;
+						} else
+							ACE_OS::printf("Difference detected at (%d,%d)\n",x,y);
+						goto endDiffCheck;
 					}
 
 					// 0.25*current frame + 0.75*previous frame
@@ -449,19 +484,17 @@ void mainthread::Body (void)
 
 endDiffCheck:
 				DBGPF1 ACE_OS::printf(">>> reconstruct colors\n");
-				//mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)imgOld, colored_s);
 				mapper.ReconstructColor((const YARPImageOf<YarpPixelMono>&)img, colored_s);
-
-				//ACE_OS::sprintf(savename, "./col.ppm\0");
-				//YARPImageFile::Write(savename, colored);
-				
 				mapper.Sawt2Uniform(colored_s, colored_u);
 				//mapper.Sawt2TriCentral(colored_s, colored_u);
 				
+				if (diffFound)
+					att_mod.initMeanCol(colored_u);
+				
 				DBGPF1 ACE_OS::printf(">>> call attention module\n");
 				found=(att_mod.Apply(colored_u) | targetFound);
-				
-				if (!diffFound) {
+
+				if (!diffFoundValid) {
 					//if (checkFix(1)==1 && found) {
 					if (found) {
 						ACE_OS::printf("No point: target found\n");
@@ -472,7 +505,7 @@ endDiffCheck:
 						tmpBottle.writeInt(-1);
 						targetFound = true;
 					} else {
-						ACE_OS::printf("Sending point: blob# %ld @ (%d,%d)\n", att_mod.max_boxes[0].id, (int)att_mod.max_boxes[0].centroid_x, (int)att_mod.max_boxes[0].centroid_y);
+						//ACE_OS::printf("Sending point: blob# %ld @ (%d,%d)\n", att_mod.max_boxes[0].id, (int)att_mod.max_boxes[0].centroid_x, (int)att_mod.max_boxes[0].centroid_y);
 						tmpBottle.writeInt(att_mod.max_boxes[0].centroid_x);
 						tmpBottle.writeInt(att_mod.max_boxes[0].centroid_y);
 						tmpBottle.writeInt(att_mod.max_boxes[0].meanRG);
@@ -483,7 +516,8 @@ endDiffCheck:
 					tmpBottle.writeInt(att_mod.fovBox.meanRG);
 					tmpBottle.writeInt(att_mod.fovBox.meanGR);
 					tmpBottle.writeInt(att_mod.fovBox.meanBY);
-					out = att_mod.Saliency();
+					//out = att_mod.Saliency();
+					out.Refer(att_mod.Saliency());
 					//ARRONZAMENTO
 					YARPImageUtils::SetRed(out, colored_u);
 					mapper.Uniform2Sawt(colored_u, colored_s);
@@ -542,6 +576,10 @@ endDiffCheck:
 			outImage2.Content().Refer(out2);
 			outImage2.Write();
 
+			mapper.Logpolar2Cartesian(att_mod.ColorQuantiz(), out3);
+			outImage3.Content().Refer(out3);
+			outImage3.Write();
+			
 			if ((frame_no % 100) == 0) {
 				cur = YARPTime::GetTimeAsSeconds();
 				ACE_OS::fprintf(stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/frame_no, frame_no);
@@ -569,6 +607,7 @@ int main (int argc, char *argv[])
 	ACE_OS::sprintf(_outName1, "/visualattention%s/o:img", basename);
 	ACE_OS::sprintf(_outName2, "/visualattention%s/o:img2", basename);
 	ACE_OS::sprintf(_outName3, "/visualattention%s/o:bot", basename);
+	ACE_OS::sprintf(_outName4, "/visualattention%s/o:img3", basename);
 	ACE_OS::sprintf(_netname0, "Net0");
 	ACE_OS::sprintf(_netname1, "Net1");
 
