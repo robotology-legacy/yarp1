@@ -38,7 +38,7 @@ void main()
 
 #ifndef __WIN__
 	assert(getenv("YARP_ROOT") != NULL);
-	sprintf(Path,"%s/%s",getenv("YARP_ROOT"),"conf/Tables/");
+	sprintf(Path,"%s/%s",getenv("YARP_ROOT"),"conf/");
 #else
 	sprintf(Path,"%s","C:\\Temp\\Tables\\");
 #endif
