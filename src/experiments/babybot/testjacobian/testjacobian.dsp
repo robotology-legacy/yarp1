@@ -98,11 +98,11 @@ PostBuild_Cmds=copy .\debug\testjacobian.exe ..\..\..\..\bin\winnt\testjacobian.
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\testjacobian.cpp
+SOURCE=.\ArmForwardKinematics.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\HandDirectKinematics.cpp
+SOURCE=.\testjacobian.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -110,15 +110,7 @@ SOURCE=.\HandDirectKinematics.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\HandKinematics.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\HandSearch.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\HandSegmenter.h
+SOURCE=.\ArmForwardKinematics.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

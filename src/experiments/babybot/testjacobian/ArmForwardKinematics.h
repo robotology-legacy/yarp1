@@ -18,10 +18,8 @@
 class ArmForwardKinematics
 {
 public:
-	// f1 and f2 are nnet config files; even on a non-trained network
-	// they are required to speficy the network structur (#input, #nlayers, #noutput...)
-	// if weights and biases are not specified the nnets are randomly initialized
-	ArmForwardKinematics(const char *f1, const char *f2);
+	ArmForwardKinematics();
+	ArmForwardKinematics(const char *f1);
 	~ArmForwardKinematics();
 
 	void query(YVector &arm, YVector &head, YARPShapeEllipse &el)
@@ -36,26 +34,15 @@ public:
 		return el;
 	}
 
-	void loadCenter(YARPBPNNetState &p)
-	{
-		ACE_OS::printf("Loading center nnet from memory:");
-		_center.load(p);
-	}
-
-	void loadEllipse(YARPBPNNetState &p)
-	{
-		ACE_OS::printf("Loading ellipse nnet from memory:");
-		_ellipse.load(p);
-	}
-
-	void randomExploration(int currentX, int currentY);
-	void computeJacobian();
+	void computeJacobian(int x0, int y0);
 	const YMatrix &jacobian(){ return _jacobian; }
 	const YMatrix &jacobianInv(){ return _jacobianInv; }
 	void update(const YVector &arm, const YVector &head);
 	const YVector *getPoints(){return _data;}
 	int getNPoints(){return _nPoints;}
 
+	void ArmForwardKinematics::load(const char *f1);
+	
 	YVector computeCommand(YVector initialArm, int targetX, int targetY);
 	
 	YVector plan(const YVector &dT)
@@ -75,6 +62,8 @@ public:
 	{ return _trajectory; }
 	
 private:
+	void _init();
+	void _randomExploration(int x0, int y0);
 	void _query(const YVector &arm, const YVector &head, int &x, int &y)
 	{
 		// compute _v()
@@ -97,14 +86,11 @@ private:
 
 		//////////////////////////////////////
 
-		double p[3];
-		_ellipse.sim(arm.data(), p);
-
 		el.x = predx;		
 		el.y = predy;	
-		el.a11 = p[0]; 
-		el.a12 = p[1]; 
-		el.a22 = p[2]; 
+		el.a11 = 0; 
+		el.a12 = 0; 
+		el.a22 = 0; 
 	}
 
 	void _dumpToDisk(const YVector &arm, const YVector &head, const YARPShapeEllipse &ellipse);

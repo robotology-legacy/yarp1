@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: headsaccades.cpp,v 1.1 2004-06-07 18:32:17 babybot Exp $
+/// $Id: headsaccades.cpp,v 1.2 2004-07-29 17:10:46 babybot Exp $
 ///
 ///
 
@@ -74,6 +74,7 @@
 #include <YARPVectorPortContent.h>
 #include <YARPString.h>
 #include <YARPTime.h>
+#include <YARPParseParameters.h>
 
 #include "SaccadeBehavior.h"
 
@@ -82,18 +83,15 @@ const int __outSize = 5;
 const char *__baseName = "/headsaccades/";
 const char *__configFile = "headcontrol.ini";
 
-///
-///
-///
-
-// const int __openLoopSteps = 8;
-// const int __closedLoopSteps = 50;
-
 int main(int argc, char* argv[])
 {
 	YARPScheduler::setHighResScheduling();
 
-	SBSharedData _sdata;
+	bool selectiveReaching = false;
+	if (YARPParseParameters::parse(argc, argv, "strict_reaching"))
+		selectiveReaching = true;
+
+	SBSharedData _sdata(selectiveReaching);
 	SaccadeBehavior _behavior(&_sdata);
 	SBOpenLoop		_openLoop;
 	SBClosedLoop	_closedLoop;

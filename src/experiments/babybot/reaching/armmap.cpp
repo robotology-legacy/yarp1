@@ -17,6 +17,8 @@ _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 	}
 	ACE_OS::printf("Reading neural network from %s\n", filename1);
 
+	_fkinematics.load(nnetFile);
+
 	// register input
 	Register("/reaching/nnet/i");
 	_outPortRemoteLearn.Register("/reaching/nnet/o");
@@ -44,15 +46,17 @@ ArmMap::~ArmMap()
 
 }
 
-void ArmMap::query(const YVector &head)
+void ArmMap::query(const YVector &arm, const YVector &head)
 {
 	_headKinematics.update(head);
+	_fkinematics.update(arm, head);
+
 	const Y3DVector &cart = _headKinematics.fixationPolar();
 	Y3DVector tmp;
 	tmp = cart;
-	tmp(1) = tmp(1) + __azimuthOffset;
-	tmp(2) = tmp(2) + __elevationOffset;
-	tmp(3) = tmp(3) + __distanceOffset;
+//	tmp(1) = tmp(1) + __azimuthOffset;
+//	tmp(2) = tmp(2) + __elevationOffset;
+//	tmp(3) = tmp(3) + __distanceOffset;
 
 
 	if (_mode == atnr)
@@ -65,6 +69,18 @@ void ArmMap::query(const YVector &head)
 	else
 	{
 		_nnet.sim(tmp.data(), _command.data());
+		_fkinematics.computeJacobian(128,128);		// compute from center
+		YVector tmpArm(6);
+		tmpArm(1) = _command(1);		//copy 1 joint from map
+		tmpArm(2) = arm(2);
+		tmpArm(3) = arm(3);
+		tmpArm(4) = arm(4);
+		tmpArm(5) = arm(5);
+		tmpArm(6) = arm(6);
+
+		// overwrite command
+		_command = _fkinematics.computeCommand(tmpArm , 128, 128);	// to center
+		
 		_formTrajectory(_command);
 	}
 }

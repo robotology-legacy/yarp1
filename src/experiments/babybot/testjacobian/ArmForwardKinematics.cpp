@@ -4,37 +4,37 @@ const int __nPoints = 10;
 const double __explStd = 5;
 const int __nSteps = 1500;
 
-ArmForwardKinematics::ArmForwardKinematics(const char *f1, const char *f2):
+ArmForwardKinematics::ArmForwardKinematics():
 _gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
+{
+	_init();
+}
+
+ArmForwardKinematics::ArmForwardKinematics(const char *f1):
+_gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
+{
+	// load nnets if name was specified
+	load(f1);
+	_init();
+}
+
+void ArmForwardKinematics::load(const char *f1)
 {
 	char *root = GetYarpRoot();
 	char filename1[256];
-	char filename2[256];
 
-	/* char filename[256];
-	ACE_OS::sprintf (filename, "%s/conf/babybot/handforward.dat\0", root);
-	_log.append(filename);
-	*/
-
-	_nPoints = __nPoints;
-
-	// 
-	_v.Resize(3);
-	
-	// load nnets if name was specified
 	ACE_OS::sprintf (filename1, "%s/conf/babybot/%s", root, f1);
 	if (_center.load(filename1)!=YARP_OK)
 	{
 		ACE_OS::printf("Error, cannot read neural network file %s", filename1);
 		exit(-1);
 	}
-	
-	ACE_OS::sprintf (filename2, "%s/conf/babybot/%s", root, f2);
-	if (_ellipse.load(filename2)!=YARP_OK)
-	{
-		ACE_OS::printf("Error, cannot read neural network file %s", filename2);
-		exit(-1);
-	}
+}
+
+void ArmForwardKinematics::_init()
+{
+	_nPoints = __nPoints;
+	_v.Resize(3);
 
 	_random.resize(1, 0.0, __explStd*degToRad);
 
@@ -80,7 +80,7 @@ void ArmForwardKinematics::update(const YVector &arm, const YVector &head)
 	_gaze.update(_head);
 }
 
-void ArmForwardKinematics::randomExploration(int currentX, int currentY)
+void ArmForwardKinematics::_randomExploration(int x0, int y0)
 {
 	int i = 0;
 	YVector deltaQ;
@@ -102,13 +102,15 @@ void ArmForwardKinematics::randomExploration(int currentX, int currentY)
 		_data[i](2) = tmpY;
 		_b1(i+1) = tmpDelta1; // tmpX;
 		_b2(i+1) = tmpDelta2; // tmpY;
-		_A(i+1,1) = tmpX-currentX; // tmpDelta1;
-		_A(i+1,2) = tmpY-currentY; // tmpDelta2;
+		_A(i+1,1) = tmpX-x0; // tmpDelta1;
+		_A(i+1,2) = tmpY-y0; // tmpDelta2;
 	}
 }
 
-void ArmForwardKinematics::computeJacobian()
+void ArmForwardKinematics::computeJacobian(int x0, int y0)
 {
+	_randomExploration(x0, y0);
+
 	VisDMatrixSVD(_A, _b1, _x1);
 	VisDMatrixSVD(_A, _b2, _x2);
 
@@ -144,8 +146,7 @@ YVector ArmForwardKinematics::computeCommand(YVector initialArm, int targetX, in
 		_trajectory[i][1] = tmpEl.y;
 
 		// this is to recompute the jacobian every time
-		randomExploration(tmpEl.x, tmpEl.y);
-		computeJacobian();
+		computeJacobian(tmpEl.x, tmpEl.y);
 	}
 
 	return tmpArm;

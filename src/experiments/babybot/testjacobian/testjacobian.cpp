@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
 	/////////////////////
 	
 	YARPLogpolar _mapper;
-	ArmForwardKinematics _handLocalization(__nnetFile1, __nnetFile2);
+	ArmForwardKinematics _handLocalization(__nnetFile1);
 	YARPImageOf<YarpPixelMono> _left;
 	YARPImageOf<YarpPixelBGR> _leftColored;
 	_left.Resize(_stheta, _srho);
@@ -202,12 +202,11 @@ int main(int argc, char* argv[])
 		_handLocalization.update(_arm, _head);
 
 		YVector tmpArm = _arm;
-		YVector newCmd(6);
-
-		tmpArm(1) = -2*degToRad;
 		tmpArm(4) = 0.0;
 		tmpArm(5) = 0.0;
 		tmpArm(6) = 0.0;
+
+		YVector newCmd(6);
 
 		if(active)
 		{
@@ -217,17 +216,14 @@ int main(int argc, char* argv[])
 			// draw desired position
 			YARPSimpleOperation::DrawCross(_outSeg2, x, y, YarpPixelBGR(0, 255, 0), 5, 1);
 
-			// 
-			_handLocalization.randomExploration(tmpEl.x, tmpEl.y);
+			printf("Computing Jacobian...\n");
+			_handLocalization.computeJacobian(x, y);
 			int h = 0;
 			const YVector *tmpPoints = _handLocalization.getPoints();
 			for(h = 0; h < _handLocalization.getNPoints(); h++)
 			{
 				YARPSimpleOperation::DrawCross(_outSeg2, tmpPoints[h](1), tmpPoints[h](2), YarpPixelBGR(128, 0, 0), 3, 1);
 			}
-
-			printf("Computing Jacobian...");
-			_handLocalization.computeJacobian();
 
 			/*
 			printf("done\n");
@@ -241,7 +237,12 @@ int main(int argc, char* argv[])
 			// _mapper.ReconstructColor (_left, _leftColored);
 		
 			// trajectory
+			tmpArm(1) = -1*degToRad;  // pick a fixed shoulder joint position
 			newCmd = _handLocalization.computeCommand(tmpArm, x, y);
+			newCmd(1) = tmpArm(1);	// override shoulder
+			newCmd(4) = 0.0;
+			newCmd(5) = 0.0;
+			newCmd(5) = 0.0;
 		
 			// done, send arm command
 			_bottle.reset();

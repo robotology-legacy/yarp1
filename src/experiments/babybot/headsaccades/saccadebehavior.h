@@ -13,7 +13,7 @@
 class SBSharedData: public YARPInputPortOf<YARPBottle>
 {
 	public:
-		SBSharedData()
+		SBSharedData(bool selectiveReaching = false)
 		{ 
 			_out.Register("/headsaccades/cmd/o", "Net0");
 			_in.Register("/headsaccades/position/i", "Net0");
@@ -30,6 +30,8 @@ class SBSharedData: public YARPInputPortOf<YARPBottle>
 
 			_newTarget = false;
 			_isImportant = false;
+
+			_selectiveReaching = selectiveReaching;
 		}
 		~SBSharedData()
 		{}
@@ -43,7 +45,7 @@ class SBSharedData: public YARPInputPortOf<YARPBottle>
 			YARPInputPortOf<YARPBottle>::Content().readInt(&y);
 
 			int dummy;
-			if (YARPInputPortOf<YARPBottle>::Content().tryReadInt(&dummy))
+			if ( (YARPInputPortOf<YARPBottle>::Content().tryReadInt(&dummy)) || (!_selectiveReaching))
 				_isImportant = true;
 			else 
 				_isImportant = false;
@@ -109,6 +111,7 @@ class SBSharedData: public YARPInputPortOf<YARPBottle>
 	int targetY;
 	bool _newTarget;
 	bool _isImportant;
+	bool _selectiveReaching;
 	SaccadeControl _saccade;
 };
 

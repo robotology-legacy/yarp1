@@ -54,16 +54,24 @@ void RBOutputCommand::output(ABSharedData *d)
 
 	if (d->_headPort.Read(0))
 	{
-		const YVector& head = d->_headPort.Content();
-		d->_map.query(head);
+		if (d->_armPort.Read(0))
+		{
+			const YVector& head = d->_headPort.Content();
+			const YVector& arm = d->_armPort.Content()._current_position;
+			d->_map.query(arm, head);
 
-		const YVector& cmd = d->_map.prepareCmd();
+			const YVector& cmd = d->_map.prepareCmd();
 
-		cout << "Preparing arm\n";
+			cout << "Preparing arm\n";
 
-		_bottle.writeYVector(cmd);
-		d->_outPort.Content() = _bottle;
-		d->_outPort.Write(1);
+			_bottle.writeYVector(cmd);
+			d->_outPort.Content() = _bottle;
+			d->_outPort.Write(1);
+		}
+		else
+		{
+			cout << "Check arm connection\n";
+		}
 	}
 	else
 	{

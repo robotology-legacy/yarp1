@@ -13,6 +13,8 @@
 #include <YARPControlBoardNetworkData.h>
 #include <YARPBabybotHeadKin.h>
 
+#include "../testjacobian/ArmForwardKinematics.h"
+
 const int __nJointsArm = 6;
 const double __front = +15*degToRad;
 const double __left = -15*degToRad;
@@ -112,7 +114,7 @@ public:
 		_nnet.load(p);
 	}
 
-	void query(const YVector &head);
+	void query(const YVector &arm, const YVector &head);
 	const YVector &reachingCmd()
 	{ return _command; }
 	const YVector &prepareCmd()
@@ -127,6 +129,7 @@ private:
 	void _formTrajectory(const YVector &cmd);
 
 	YARPBPNNet _nnet;
+	ArmForwardKinematics _fkinematics;
 		
 	YARPOutputPortOf<YARPBottle> _outPortRemoteLearn;
 
