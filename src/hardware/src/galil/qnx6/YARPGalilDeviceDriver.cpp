@@ -10,7 +10,7 @@
 // 
 //     Description:  
 // 
-//         Version:  $Id: YARPGalilDeviceDriver.cpp,v 1.15 2003-12-22 14:48:26 beltran Exp $
+//         Version:  $Id: YARPGalilDeviceDriver.cpp,v 1.16 2003-12-22 16:51:16 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos), cbeltran@dist.unige.it
 //         Company:  Lira-Lab
@@ -1347,7 +1347,6 @@ int YARPGalilDeviceDriver::set_safe_jogs (void *spds)
 {
 	long rc = 0;
 	// NOT IMPLEMENTED YET !!
-	ACE_ASSERT(0);
 	return rc;
 }
 
@@ -1355,7 +1354,6 @@ int YARPGalilDeviceDriver::check_frames_left (void *flag)
 {
 	long rc = 0;
 	// NOT IMPLEMENTED YET !!
-	ACE_ASSERT(0);
 	return rc;
 }
 
@@ -1363,7 +1361,6 @@ int YARPGalilDeviceDriver::wait_for_frames_left(void *cmd)
 {
 	long rc = 0;
 	// NOT IMPLEMENTED YET !!
-	ACE_ASSERT(0);
 	return rc;
 }
 
