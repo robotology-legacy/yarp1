@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.4 2003-06-18 08:22:27 babybot Exp $
+/// $Id: YARPImage.h,v 1.5 2003-06-22 11:35:24 gmetta Exp $
 ///
 ///
 
@@ -148,7 +148,7 @@ class YARPRefCount;
 ///
 /// alignment required for IP, MMX, optimized stuff.
 #ifdef __QNX__
-const int YarpImageAlign = 1;
+const int YarpImageAlign = 8;
 #else
 const int YarpImageAlign = 8;
 #endif
