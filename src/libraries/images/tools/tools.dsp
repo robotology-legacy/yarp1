@@ -42,8 +42,8 @@ RSC=rc.exe
 # PROP Output_Dir "..\obj\Release"
 # PROP Intermediate_Dir "..\obj\Release"
 # PROP Target_Dir ""
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT CPP /YX
@@ -73,8 +73,8 @@ PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Release\tools.lib ..\..
 # PROP Output_Dir "..\obj\Debug"
 # PROP Intermediate_Dir "..\obj\Debug"
 # PROP Target_Dir ""
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT CPP /YX
@@ -104,8 +104,8 @@ PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\obj\Debug\toolsDB.lib ..\..
 # PROP Output_Dir "..\obj\Debug"
 # PROP Intermediate_Dir "..\obj\Debug"
 # PROP Target_Dir ""
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FD /GZ /c
 # SUBTRACT BASE CPP /YX
 # ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "__FAKEIPL__" /FD /GZ /c
@@ -136,8 +136,8 @@ PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\fakeipl\fakeiplDB.lib ..\ob
 # PROP Output_Dir "..\obj\Release"
 # PROP Intermediate_Dir "..\obj\Release"
 # PROP Target_Dir ""
-LINK32=link.exe -lib
 MTL=midl.exe
+LINK32=link.exe -lib
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
 # SUBTRACT BASE CPP /YX
 # ADD CPP /nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "__FAKEIPL__" /FD /c
@@ -169,11 +169,19 @@ PostBuild_Cmds=copy .\*.h ..\..\..\..\include	lib ..\fakeipl\fakeipl.lib ..\obj\
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\YARPBlobDetector.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPDIBConverter.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\YARPImageFile.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPIntegralImage.cpp
 # End Source File
 # Begin Source File
 
@@ -185,11 +193,19 @@ SOURCE=.\YARPLogpolar.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\YARPBlobDetector.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPDIBConverter.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\YARPImageFile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPIntegralImage.h
 # End Source File
 # Begin Source File
 

@@ -27,9 +27,6 @@ NULL=
 NULL=nul
 !ENDIF 
 
-CPP=cl.exe
-RSC=rc.exe
-
 !IF  "$(CFG)" == "tools - Win32 Release"
 
 OUTDIR=.\..\obj\Release
@@ -54,8 +51,10 @@ CLEAN :"images - Win32 ReleaseCLEAN"
 CLEAN :
 !ENDIF 
 	-@erase "$(INTDIR)\vc60.idb"
+	-@erase "$(INTDIR)\YARPBlobDetector.obj"
 	-@erase "$(INTDIR)\YARPDIBConverter.obj"
 	-@erase "$(INTDIR)\YARPImageFile.obj"
+	-@erase "$(INTDIR)\YARPIntegralImage.obj"
 	-@erase "$(INTDIR)\YARPLogpolar.obj"
 	-@erase "$(OUTDIR)\tools.lib"
 
@@ -64,7 +63,40 @@ CLEAN :
 
 MTL=midl.exe
 LINK32=link.exe -lib
+CPP=cl.exe
 CPP_PROJ=/nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
+
+.c{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.c{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+RSC=rc.exe
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\tools.bsc" 
 BSC32_SBRS= \
@@ -75,6 +107,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPLogpolar.obj" \
+	"$(INTDIR)\YARPIntegralImage.obj" \
+	"$(INTDIR)\YARPBlobDetector.obj" \
 	"$(OUTDIR)\imagesx.lib"
 
 "$(OUTDIR)\tools.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
@@ -123,8 +157,10 @@ CLEAN :
 !ENDIF 
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
+	-@erase "$(INTDIR)\YARPBlobDetector.obj"
 	-@erase "$(INTDIR)\YARPDIBConverter.obj"
 	-@erase "$(INTDIR)\YARPImageFile.obj"
+	-@erase "$(INTDIR)\YARPIntegralImage.obj"
 	-@erase "$(INTDIR)\YARPLogpolar.obj"
 	-@erase "$(OUTDIR)\toolsDB.lib"
 
@@ -133,7 +169,40 @@ CLEAN :
 
 MTL=midl.exe
 LINK32=link.exe -lib
+CPP=cl.exe
 CPP_PROJ=/nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
+
+.c{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.c{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+RSC=rc.exe
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\tools.bsc" 
 BSC32_SBRS= \
@@ -144,6 +213,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPLogpolar.obj" \
+	"$(INTDIR)\YARPIntegralImage.obj" \
+	"$(INTDIR)\YARPBlobDetector.obj" \
 	"$(OUTDIR)\imagesDBx.lib"
 
 "$(OUTDIR)\toolsDB.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
@@ -192,8 +263,10 @@ CLEAN :
 !ENDIF 
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
+	-@erase "$(INTDIR)\YARPBlobDetector.obj"
 	-@erase "$(INTDIR)\YARPDIBConverter.obj"
 	-@erase "$(INTDIR)\YARPImageFile.obj"
+	-@erase "$(INTDIR)\YARPIntegralImage.obj"
 	-@erase "$(INTDIR)\YARPLogpolar.obj"
 	-@erase "$(OUTDIR)\toolsDBf.lib"
 
@@ -202,7 +275,40 @@ CLEAN :
 
 MTL=midl.exe
 LINK32=link.exe -lib
+CPP=cl.exe
 CPP_PROJ=/nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "__FAKEIPL__" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
+
+.c{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.c{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+RSC=rc.exe
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\tools.bsc" 
 BSC32_SBRS= \
@@ -213,6 +319,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPDIBConverter.obj" \
 	"$(INTDIR)\YARPImageFile.obj" \
 	"$(INTDIR)\YARPLogpolar.obj" \
+	"$(INTDIR)\YARPIntegralImage.obj" \
+	"$(INTDIR)\YARPBlobDetector.obj" \
 	"$(OUTDIR)\images_fakeipl_DBx.lib"
 
 "$(OUTDIR)\toolsDBf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
@@ -260,8 +368,10 @@ CLEAN :"images - Win32 FakeIpl ReleaseCLEAN"
 CLEAN :
 !ENDIF 
 	-@erase "$(INTDIR)\vc60.idb"
+	-@erase "$(INTDIR)\YARPBlobDetector.obj"
 	-@erase "$(INTDIR)\YARPDIBConverter.obj"
 	-@erase "$(INTDIR)\YARPImageFile.obj"
+	-@erase "$(INTDIR)\YARPIntegralImage.obj"
 	-@erase "$(INTDIR)\YARPLogpolar.obj"
 	-@erase "$(OUTDIR)\toolsf.lib"
 
@@ -270,41 +380,8 @@ CLEAN :
 
 MTL=midl.exe
 LINK32=link.exe -lib
+CPP=cl.exe
 CPP_PROJ=/nologo /MD /W3 /GX /O2 /I "..\include" /I "..\..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "__FAKEIPL__" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
-BSC32=bscmake.exe
-BSC32_FLAGS=/nologo /o"$(OUTDIR)\tools.bsc" 
-BSC32_SBRS= \
-	
-LIB32=link.exe -lib
-LIB32_FLAGS=/nologo /out:"$(OUTDIR)\toolsf.lib" 
-LIB32_OBJS= \
-	"$(INTDIR)\YARPDIBConverter.obj" \
-	"$(INTDIR)\YARPImageFile.obj" \
-	"$(INTDIR)\YARPLogpolar.obj" \
-	"$(OUTDIR)\images_fakeipl_x.lib"
-
-"$(OUTDIR)\toolsf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
-    $(LIB32) @<<
-  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
-<<
-
-SOURCE="$(InputPath)"
-PostBuild_Desc=Installing library...
-DS_POSTBUILD_DEP=$(INTDIR)\postbld.dep
-
-ALL : $(DS_POSTBUILD_DEP)
-
-# Begin Custom Macros
-OutDir=.\..\obj\Release
-# End Custom Macros
-
-$(DS_POSTBUILD_DEP) : "images - Win32 FakeIpl Release" "$(OUTDIR)\toolsf.lib"
-   copy .\*.h ..\..\..\..\include
-	lib ..\fakeipl\fakeipl.lib ..\obj\Release\toolsf.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\imagesf.lib
-	copy ..\obj\Release\imagesf.lib ..\..\..\..\lib\winnt
-	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
-
-!ENDIF 
 
 .c{$(INTDIR)}.obj::
    $(CPP) @<<
@@ -336,6 +413,44 @@ $(DS_POSTBUILD_DEP) : "images - Win32 FakeIpl Release" "$(OUTDIR)\toolsf.lib"
    $(CPP_PROJ) $< 
 <<
 
+RSC=rc.exe
+BSC32=bscmake.exe
+BSC32_FLAGS=/nologo /o"$(OUTDIR)\tools.bsc" 
+BSC32_SBRS= \
+	
+LIB32=link.exe -lib
+LIB32_FLAGS=/nologo /out:"$(OUTDIR)\toolsf.lib" 
+LIB32_OBJS= \
+	"$(INTDIR)\YARPDIBConverter.obj" \
+	"$(INTDIR)\YARPImageFile.obj" \
+	"$(INTDIR)\YARPLogpolar.obj" \
+	"$(INTDIR)\YARPIntegralImage.obj" \
+	"$(INTDIR)\YARPBlobDetector.obj" \
+	"$(OUTDIR)\images_fakeipl_x.lib"
+
+"$(OUTDIR)\toolsf.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
+<<
+
+SOURCE="$(InputPath)"
+PostBuild_Desc=Installing library...
+DS_POSTBUILD_DEP=$(INTDIR)\postbld.dep
+
+ALL : $(DS_POSTBUILD_DEP)
+
+# Begin Custom Macros
+OutDir=.\..\obj\Release
+# End Custom Macros
+
+$(DS_POSTBUILD_DEP) : "images - Win32 FakeIpl Release" "$(OUTDIR)\toolsf.lib"
+   copy .\*.h ..\..\..\..\include
+	lib ..\fakeipl\fakeipl.lib ..\obj\Release\toolsf.lib ..\..\..\..\lib\winnt\LogPolarSmallSDK.lib /out:..\obj\Release\imagesf.lib
+	copy ..\obj\Release\imagesf.lib ..\..\..\..\lib\winnt
+	echo Helper for Post-build step > "$(DS_POSTBUILD_DEP)"
+
+!ENDIF 
+
 
 !IF "$(NO_EXTERNAL_DEPS)" != "1"
 !IF EXISTS("tools.dep")
@@ -347,6 +462,11 @@ $(DS_POSTBUILD_DEP) : "images - Win32 FakeIpl Release" "$(OUTDIR)\toolsf.lib"
 
 
 !IF "$(CFG)" == "tools - Win32 Release" || "$(CFG)" == "tools - Win32 Debug" || "$(CFG)" == "tools - Win32 FakeIpl Debug" || "$(CFG)" == "tools - Win32 FakeIpl Release"
+SOURCE=.\YARPBlobDetector.cpp
+
+"$(INTDIR)\YARPBlobDetector.obj" : $(SOURCE) "$(INTDIR)"
+
+
 SOURCE=.\YARPDIBConverter.cpp
 
 "$(INTDIR)\YARPDIBConverter.obj" : $(SOURCE) "$(INTDIR)"
@@ -357,6 +477,11 @@ SOURCE=.\YARPImageFile.cpp
 "$(INTDIR)\YARPImageFile.obj" : $(SOURCE) "$(INTDIR)"
 
 
+SOURCE=.\YARPIntegralImage.cpp
+
+"$(INTDIR)\YARPIntegralImage.obj" : $(SOURCE) "$(INTDIR)"
+
+
 SOURCE=.\YARPLogpolar.cpp
 
 "$(INTDIR)\YARPLogpolar.obj" : $(SOURCE) "$(INTDIR)"
@@ -365,48 +490,48 @@ SOURCE=.\YARPLogpolar.cpp
 !IF  "$(CFG)" == "tools - Win32 Release"
 
 "images - Win32 Release" : 
-   cd ".."
+   cd "\src\libraries\images"
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 Release" 
    cd ".\tools"
 
 "images - Win32 ReleaseCLEAN" : 
-   cd ".."
+   cd "\src\libraries\images"
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 Release" RECURSE=1 CLEAN 
    cd ".\tools"
 
 !ELSEIF  "$(CFG)" == "tools - Win32 Debug"
 
 "images - Win32 Debug" : 
-   cd ".."
+   cd "\src\libraries\images"
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 Debug" 
    cd ".\tools"
 
 "images - Win32 DebugCLEAN" : 
-   cd ".."
+   cd "\src\libraries\images"
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 Debug" RECURSE=1 CLEAN 
    cd ".\tools"
 
 !ELSEIF  "$(CFG)" == "tools - Win32 FakeIpl Debug"
 
 "images - Win32 FakeIpl Debug" : 
-   cd ".."
+   cd "\src\libraries\images"
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 FakeIpl Debug" 
    cd ".\tools"
 
 "images - Win32 FakeIpl DebugCLEAN" : 
-   cd ".."
+   cd "\src\libraries\images"
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 FakeIpl Debug" RECURSE=1 CLEAN 
    cd ".\tools"
 
 !ELSEIF  "$(CFG)" == "tools - Win32 FakeIpl Release"
 
 "images - Win32 FakeIpl Release" : 
-   cd ".."
+   cd "\src\libraries\images"
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 FakeIpl Release" 
    cd ".\tools"
 
 "images - Win32 FakeIpl ReleaseCLEAN" : 
-   cd ".."
+   cd "\src\libraries\images"
    $(MAKE) /$(MAKEFLAGS) /F .\images.mak CFG="images - Win32 FakeIpl Release" RECURSE=1 CLEAN 
    cd ".\tools"
 
