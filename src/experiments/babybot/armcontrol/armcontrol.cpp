@@ -3,7 +3,7 @@
 
 // #include "..\..\visualprocessing\parameters.h"
 
-#include "ArmThread.h"
+#include "Armthread.h"
 #include "RandomThread.h"
 #include "YARPRobotMath.h"
 #include <iostream>

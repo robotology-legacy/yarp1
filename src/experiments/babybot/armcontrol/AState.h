@@ -124,7 +124,7 @@ class ASRestingInit: public AState
 	inline static ASRestingInit* instance()
 		{return &_instance;}
 
-	inline setTrajectory(const YVector &first, const YVector &second)
+	inline void setTrajectory(const YVector &first, const YVector &second)
 	{
 		firstPosition = first;
 		secondPosition = second;
@@ -157,13 +157,13 @@ class ASShake: public AState
 	inline static ASShake* instance()
 		{return &_instance;}
 
-	inline setTrajectory(const YVector &first, const YVector &second)
+	inline void setTrajectory(const YVector &first, const YVector &second)
 	{
 		firstPosition = first;
 		secondPosition = second;
 	}
 
-	inline setActualPosition(const YVector &pos)
+	inline void setActualPosition(const YVector &pos)
 	{
 		currentPosition = pos;
 	}

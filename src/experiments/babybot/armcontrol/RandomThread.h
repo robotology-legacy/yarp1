@@ -3,8 +3,8 @@
 
 #include "conf/YARPConfig.h"
 #include <YARPRateThread.h>
-#include "ArmStatus.h"
-#include "ArmThread.h"
+#include "armstatus.h"
+#include "Armthread.h"
 
 class RandomThread: public YARPRateThread
 {

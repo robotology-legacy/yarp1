@@ -2,7 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "ArmThread.h"
+#include "Armthread.h"
 #include "YARPConfigFile.h"
 
 // #include "..\..\visualprocessing\parameters.h"

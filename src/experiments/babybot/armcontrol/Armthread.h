@@ -15,7 +15,12 @@
 #include <YARPRateThread.h>
 
 #include "debug.h"
+
+#if defined(__QNXEurobot__)
+#include "YARPEurobotArm.h"
+#else
 #include "YARPBabybotArm.h"
+#endif
 #include "YARPTrajectoryGen.h"
 #include "YARPGravityEstimator.h"
 #include <YARPPort.h>
@@ -24,7 +29,7 @@
 
 #include "tirednessControl.h"
 
-#include "ArmStatus.h"
+#include "armstatus.h"
 #include "YARPNameClient.h"
 
 #define ARM_THREAD_VERBOSE
@@ -163,7 +168,11 @@ private:
 
 public: //later: make it private
 	ArmStatus _arm_status;
+#if defined(__QNXEurobot__)
+	YARPEurobotArm _arm;
+#else
 	YARPBabybotArm _arm;
+#endif 
 	J1GravityEstimator _gravity1;
 	J2GravityEstimator _gravity2;
 	J3GravityEstimator _gravity3;
