@@ -24,14 +24,16 @@ enum __SinkCh
 	SinkChPosition = 1,
 	SinkChTracker = 2,
 	SinkChVergence = 3,
-	SinkChN = 4,
+	SinkChSaccades= 4,
+	SinkChN = 5,
 };
 
 const char __portNameSuffixes[SinkChN][255] = {
 										"vor/i",
 										"position/i",
 										"track/i",
-										"vergence/i"
+										"vergence/i",
+										"saccades/i",
 										};
 
 class Sink: public YARPRateThread

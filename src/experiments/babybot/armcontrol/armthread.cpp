@@ -42,16 +42,20 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 	//////// speed and accelerations (used by stiff pid only)
 	_speed.Resize(_nj);
 	_acc.Resize(_nj);
+	_parkSpeed.Resize(_nj);
 	_speed = 0.0;	// paranoid
 	_acc = 0.0;		// paranoid
+	_parkSpeed = 0.0;
 	file.get("[THREAD]", "Speeds", _speed.data(), _nj);
+	file.get("[THREAD]", "ParkSpeeds", _parkSpeed.data(), _nj);
 	file.get("[THREAD]", "Accelerations", _acc.data(), _nj);
+	_parkSpeed = _parkSpeed * degToRad;
 	_speed = _speed * degToRad;
 	_acc = _acc*(degToRad);
 	//////////////
 
-	_cmd.Resize(6);
-	_shakeCmd.Resize(6);
+	_cmd.Resize(_nj);
+	_shakeCmd.Resize(_nj);
 	_shakeCmd = 0.0;
 	_cmd = 0.0;
 
@@ -109,21 +113,21 @@ void ArmThread::doInit()
 	park(1);
 	_arm.resetEncoders();		// set this new position
 
-	_arm.setVelocities(_speed.data());
+	_arm.setVelocities(_parkSpeed.data());
 	_arm.setAccs(_acc.data());
 
-	_arm.setGainsSmoothly(_arm._parameters._lowPIDs,200);
+	_arm.setGainsSmoothly(_arm._parameters._lowPIDs, 200);
 	_arm_status._pidStatus = 1;
 	_arm.getPositions(_arm_status._current_position.data());
 
-	_trajectory.setFinal(_arm_status._current_position.data(), _arm_status._current_position.data(), _nSteps);
+	_trajectory.setFinalSpecSpeed(_arm_status._current_position.data(), _arm_status._current_position.data(), _speed.data());
 }
 
 void ArmThread::doRelease()
 {
 	// go to a safe position
 	YVector wp;
-	wp.Resize(6);
+	wp.Resize(_nj);
 	wp = 0.0;
 	_directCommand(wp);
 	

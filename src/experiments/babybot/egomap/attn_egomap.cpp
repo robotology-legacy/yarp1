@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_egomap.cpp,v 1.6 2004-04-28 14:44:43 babybot Exp $
+/// $Id: attn_egomap.cpp,v 1.7 2004-05-05 17:55:36 babybot Exp $
 ///
 ///
 
@@ -276,7 +276,7 @@ public:
 			tmpBottle.readInt(&y);
 
 			ACE_OS::printf("EgoMap: adding %s %d,%d\n", key, x, y);
-			_handleAdd(key, x+_xsize/2, y+_ysize/2);
+			_handleAdd(key, x, y);
 		}
 		if (tmp == YBVEgoMapRemove)
 		{

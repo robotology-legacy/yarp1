@@ -167,9 +167,10 @@ private:
 	{
 		_trajectory.stop();
 		if (nst == 0)
-			_trajectory.setFinal(cmd.data(), _nSteps);	// use default
+			// _trajectory.setFinal(cmd.data(), _nSteps);	// use default
+			_trajectory.setFinalSpecSpeed(cmd.data(), _speed.data());	// use default
 		else 
-			_trajectory.setFinal(cmd.data(), nst);
+			_trajectory.setFinalSpecSpeed(cmd.data(), _speed.data());
 		
 		_arm.setPositions(cmd.data());
 
@@ -220,6 +221,7 @@ public: //later: make it private
 
 	YVector _cmd;	//move it from here !
 	YVector _speed;
+	YVector _parkSpeed;
 	YVector _acc;
 
 	YVector _shakeCmd; //this is used only by AB

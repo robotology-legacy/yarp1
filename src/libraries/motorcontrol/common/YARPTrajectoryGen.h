@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPTrajectoryGen.h,v 1.3 2004-01-17 00:15:15 gmetta Exp $
+/// $Id: YARPTrajectoryGen.h,v 1.4 2004-05-05 17:55:36 babybot Exp $
 ///
 ///
 
@@ -69,8 +69,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef __yarptrajectoryh__
-#define __yarptrajectoryh__
+#ifndef __YARPTrajectoryGenh__
+#define __YARPTrajectoryGenh__
 
 // simple class to provide trajectory generation
 #include <math.h>
@@ -83,10 +83,47 @@ public:
 	YARPTrajectoryGen(int nActivation, int npnts);
 	virtual ~YARPTrajectoryGen();
 
+
+	int setFinalSpecSpeed(const double *final, const double *speed)
+	{
+		_lock();
+		int ret;
+		double *last;
+		last = new double [_size];
+		memcpy(last, _lastCommand, sizeof(double) * _size);
+		_unlock();
+		ret = setFinalSpecSpeed(last, final, speed);
+		delete [] last;
+		return ret;
+	}
+	
+	int setFinalSpecSpeed(const double *actual, const double *final, const double *speed)
+	{
+		int k = 0;
+		double tmax = 0;
+		double t;
+		for(k = 0; k < _size; k++)
+		{
+			t = fabs((actual[k] - final[k]))/speed[k];
+			if (t > tmax)
+				tmax = t;
+		}
+
+		// now tmax is time max
+		int n = (int) (tmax/_deltaT + 0.5);
+		if (n<=0)
+			n = 1;
+
+		setFinal(actual, final, n);
+
+		printf("Steps: %d\n", n);
+
+		return n;
+	}
+
 	int setFinal(const double *final, int nstp);
 	int setFinal(const double *actual, const double *final, int nstp);
-	int setFinal(const double *actual, const double *viaPoint, const double *final, int nstp);
-	int getCurrent(double *cmd)
+	int setFinal(const double *actual, const double *viaPoint, const double *final, int nstp);	int getCurrent(double *cmd)
 	{
 		_lock();
 		memcpy(cmd, _lastCommand, sizeof(double)*_size);
@@ -126,6 +163,8 @@ private:
 	int _index;
 	double **_commands; 
 	bool _busy;
+
+	double _deltaT;
 
 	inline void _lock(void)
 	{_mutex.Wait();}	// add timeout ?

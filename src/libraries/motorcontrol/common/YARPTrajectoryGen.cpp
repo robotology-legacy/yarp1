@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPTrajectoryGen.cpp,v 1.6 2004-01-17 00:15:15 gmetta Exp $
+/// $Id: YARPTrajectoryGen.cpp,v 1.7 2004-05-05 17:55:36 babybot Exp $
 ///
 ///
 
@@ -81,6 +81,8 @@ YARPTrajectoryGen::YARPTrajectoryGen()
 	_resize(1, 1);
 
 	_busy = false;
+
+	_deltaT = 0.04;
 }
 
 YARPTrajectoryGen::YARPTrajectoryGen(int size, int npnts)
@@ -93,6 +95,8 @@ YARPTrajectoryGen::YARPTrajectoryGen(int size, int npnts)
 
 	_resize(size, npnts);
 	_busy = false;
+	
+	_deltaT = 0.04;
 }
 
 YARPTrajectoryGen::~YARPTrajectoryGen()

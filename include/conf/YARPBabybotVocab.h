@@ -1,8 +1,9 @@
-#ifndef __YARPBABYBOTMOTORVOCAB__
-#define __YARPBABYBOTMOTORVOCAB__
+#ifndef __YARPBABYBOTVOCAB__
+#define __YARPBABYBOTVOCAB__
 
-// label
+// labels
 const char *const YBVMotorLabel = "Motor";
+const char *const YBVVisualLabel = "Visual";
 
 // random behavior
 const char *const YBVArmRndStart = "ArmRndStart";
@@ -114,5 +115,8 @@ const char *const YBVVADump = "VADump";
 const char *const YBVVASet = "VASet";
 const char *const YBVVAUpdateIORTable = "VAUpdateIORTable";
 const char *const YBVVAResetIORTable = "VAResetIORTable";
+
+// saccade control messages
+const char *const YBVSaccadeSetTarget = "SaccadeSetTarget";
 
 #endif

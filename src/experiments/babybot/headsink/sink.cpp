@@ -8,6 +8,7 @@ _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	_inPorts[SinkChPosition] = new YARPInputPortOf<YVector>(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 	_inPorts[SinkChTracker] = new YARPInputPortOf<YVector>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 	_inPorts[SinkChVergence] = new YARPInputPortOf<YVector>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
+	_inPorts[SinkChSaccades] = new YARPInputPortOf<YVector>(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);
 
 	_iniFile = YARPString(ini_file);
 	
@@ -70,13 +71,16 @@ void Sink::doLoop()
 	// form command
 	_outCmd = _outCmd + _enableVector[SinkChVor]*_inVectors[SinkChVor];
 	_outCmd = _outCmd + _enableVector[SinkChTracker]*_inVectors[SinkChTracker];
-	
+
 	if (tmp<10)
 		_outCmd = _outCmd + _enableVector[SinkChVergence]*_inVectors[SinkChVergence];
 	
 	// finally compute neck
 	const YVector &neck = _neckControl->apply(_inVectors[SinkChPosition], _outCmd);
 	_outCmd = _outCmd + _enableVector[SinkChPosition]*neck;
+
+	// add saccades
+	_outCmd = _outCmd + _inVectors[SinkChSaccades];
 
 	_outPort.Content() = _outCmd;
 	_outPort.Write();
