@@ -105,7 +105,7 @@ void YARPBehaviorLabelConverter::dump()
 
 int YARPBehaviorLabelConverter::_readFullString(FILE *fp, char *s, int max)
 {
-	char cTmp;
+	char cTmp = 0;
 	int i = 0;
 	while((cTmp != '\n')&&(i<max))
 	{
