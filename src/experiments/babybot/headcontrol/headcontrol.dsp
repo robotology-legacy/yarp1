@@ -94,14 +94,6 @@ PostBuild_Cmds=copy .\debug\headcontrol.exe ..\..\..\..\bin\winnt
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Avoidance.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\GazeShift.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\HeadBehavior.cpp
 # End Source File
 # Begin Source File
@@ -116,27 +108,10 @@ SOURCE=.\HeadThread.cpp
 
 SOURCE=.\HState.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\SaccadeBehavior.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\StdAfx.cpp
-# ADD CPP /Yc"stdafx.h"
-# End Source File
-# Begin Source File
-
-SOURCE=.\Vergence.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
-# Begin Source File
-
-SOURCE=.\Avoidance.h
-# End Source File
 # Begin Source File
 
 SOURCE=.\GazeShift.h
@@ -168,22 +143,6 @@ SOURCE=.\HeadThread.h
 # Begin Source File
 
 SOURCE=.\HState.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\VisualProcessing\parameters.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\SaccadeBehavior.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\StdAfx.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Vergence.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
