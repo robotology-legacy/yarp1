@@ -17,7 +17,7 @@ if (!defined($yarp_root))
 
 require "$yarp_root/conf/configure.template.pl" or die "Can't find template file $yarp_root/conf/configure.template.pl\n";
 
-check_os();
+my $exp_os = check_os();
 
 print "Ready to start...\n";
 
@@ -44,8 +44,8 @@ print "For pathnames you can use (type) the pre-defined value \$YARP_ROOT ";
 print "that I've verified as: \"$yarp_root\"\n\n";
 print "Please, use always the forward slash as a separator!\n";
 
-print "I determined already that you're running on Windows\n";
-die "But your configuration file doesn't report so, exiting...\n" unless ($os eq "winnt");
+print "I determined already that you're running on a supported OS: $exp_os\n";
+die "Cross-compile is not supported, the auto-detected OS must be also selected\n" if ($os ne $exp_os); 
 
 print "Would you like to set a default for library compilation?\n";
 get_option_hash ("Compile_Math<-Lib_Clean", "FALSE", "Clean first: i.e. rebuild libraries?", 1, \%options);
