@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: DIBConverter.cpp,v 1.1 2004-07-28 23:02:59 babybot Exp $
+/// $Id: DIBConverter.cpp,v 1.2 2004-07-29 11:11:25 babybot Exp $
 ///
 ///
 
@@ -45,8 +45,6 @@
 //
 
 #include "DIBConverter.h"
-
-#ifdef __WIN32__
 
 YARPDIBConverter::YARPDIBConverter()
 {
@@ -186,7 +184,3 @@ void YARPDIBConverter::_free_dib()
 	};
 	dataAreaDIB = NULL;
 }
-
-
-#endif	// __WIN32__
-

@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: DIBConverter.h,v 1.1 2004-07-28 23:02:59 babybot Exp $
+/// $Id: DIBConverter.h,v 1.2 2004-07-29 11:11:25 babybot Exp $
 ///
 ///
 
@@ -56,20 +56,7 @@
 #	pragma once
 #endif
 
-//
-// This class is mostly ok also for QNX.
-//	- LATER: implement iplConvertToDIB within FakeIpl.
-//
-
-#ifdef __WIN32__	/// this is only because this part is not tested under QNX/Linux.
-
 #include <yarp/YARPImage.h>
-///#include "sys/iplwind.h"
-
-
-////
-////
-/// LATER: troubles in converting from a generic DIB size.
 
 ///
 ///
@@ -90,7 +77,7 @@ public:
 
 		_refresh_dib(img);
 		return bufDIB;
-	};
+	}
 
 	// flip and convert image to DIB.
 	// check the convertion, it may not work for all data type
@@ -101,18 +88,12 @@ public:
 
 		_refresh_flip_dib(img);
 		return bufDIB;
-	};
-
-	inline void ConvertFromDIB (YARPGenericImage& img)
-	{
-		img.Resize(dimX, dimY);
-		iplConvertFromDIB((BITMAPINFOHEADER *)bufDIB, img);
-	};
+	}
 
 	inline const unsigned char *GetBuffer(void)
 	{
 		return bufDIB;
-	};
+	}
 
 	inline bool LoadDIB(const char *filename)
 	{
@@ -211,26 +192,58 @@ private:
 	inline void _refresh_dib (const YARPGenericImage& img) 
 	{
 		// prepare internal dib
-		// TODO need the whole data area be prepared ?
-		
 		if (dimX != img.GetWidth() || dimY != img.GetHeight() || pixelType != img.GetID())
 			Resize(img);
 		if (bufDIB  == NULL)
 			_alloc_dib ();
 
-		if (pixelType == YARP_PIXEL_HSV)
+		switch (pixelType)
 		{
-			// special conversion is required ...
-			unsigned char *dest = dataAreaDIB;
-			unsigned char *src = (unsigned char *) img.GetRawBuffer();
+			case YARP_PIXEL_HSV:
+			case YARP_PIXEL_BGR:
+			case YARP_PIXEL_RGB:
+			{
+				const int addedBytesDIB = _pad_bytes(dimX*3,4);
 
-			int addedBytesDIB = _pad_bytes(dimX*3,4);
-			int numBytes = (dimX*3+addedBytesDIB)*dimY;
+				int i = 0;
+				const int h = img.GetHeight();
+				char *out = (char *) dataAreaDIB;
 
-			memcpy(dest, src, numBytes);
+				for (i = 0 ; i < h; i++)
+				{
+					const char *array = img.GetArray()[i];
+						
+					memcpy(out, array, dimX*3);
+					out += (addedBytesDIB+dimX*3);
+				}
+			}
+			break;
+
+			case YARP_PIXEL_MONO:
+			{
+				const int addedBytesDIB = _pad_bytes(dimX,4);
+
+				int i = 0;
+				const int h = img.GetHeight();
+				char *out = (char *) dataAreaDIB;
+
+				for (i = 0 ; i < h; i++)
+				{
+					const char *array = img.GetArray()[i];
+						
+					memcpy(out, array, dimX);
+					out += (addedBytesDIB+dimX);
+				}
+			}
+			break;
+
+			default:
+				{
+					/// silently ignores the conversion.
+					memset (dataAreaDIB, 0, ((BITMAPINFOHEADER*)bufDIB)->biSizeImage);
+				}
+				break;
 		}
-		else
-			iplConvertToDIB((IplImage *)img, (BITMAPINFOHEADER*)bufDIB, IPL_DITHER_NONE, IPL_PALCONV_NONE);
 	}
 
 	inline void _refresh_flip_dib (const YARPGenericImage& img) 
@@ -243,16 +256,52 @@ private:
 		if (bufDIB  == NULL)
 			_alloc_dib ();
 
-		int i = 0;
-		int h = img.GetHeight()-1;
-		char *out = (char *) dataAreaDIB;
-		for (i= h ; i >= 0; i--)
+		switch (pixelType)
 		{
-			const char *array = img.GetArray()[i];
-			int addedBytesDIB = _pad_bytes(dimX*3,4);
-				
-			memcpy(out, array, dimX*3);
-			out += (addedBytesDIB+dimX*3);
+			case YARP_PIXEL_HSV:
+			case YARP_PIXEL_BGR:
+			case YARP_PIXEL_RGB:
+			{
+				const int addedBytesDIB = _pad_bytes(dimX*3,4);
+
+				int i = 0;
+				const int h = img.GetHeight()-1;
+				char *out = (char *) dataAreaDIB;
+
+				for (i = h ; i >= 0; i--)
+				{
+					const char *array = img.GetArray()[i];
+						
+					memcpy(out, array, dimX*3);
+					out += (addedBytesDIB+dimX*3);
+				}
+			}
+			break;
+
+			case YARP_PIXEL_MONO:
+			{
+				const int addedBytesDIB = _pad_bytes(dimX,4);
+
+				int i = 0;
+				const int h = img.GetHeight()-1;
+				char *out = (char *) dataAreaDIB;
+
+				for (i = h ; i >= 0; i--)
+				{
+					const char *array = img.GetArray()[i];
+						
+					memcpy(out, array, dimX);
+					out += (addedBytesDIB+dimX);
+				}
+			}
+			break;
+
+			default:
+				{
+					/// silently ignores the conversion.
+					memset (dataAreaDIB, 0, ((BITMAPINFOHEADER*)bufDIB)->biSizeImage);
+				}
+				break;
 		}
 	}
 
@@ -270,7 +319,5 @@ private:
 	int headerSize;
 	int imageSize;
 };
-
-#endif	// __WIN32__
 
 #endif

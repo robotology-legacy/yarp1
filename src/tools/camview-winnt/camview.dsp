@@ -54,12 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 libYARP_math.lib libYARP_sig.lib libYARP_OS.lib ace.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /machine:I386 /libpath:"..\..\..\lib\winnt"
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Desc=Installing viewer...
-PostBuild_Cmds=copy .\Release\camview.exe ..\..\..\..\..\bin\winnt
-# End Special Build Tool
+# ADD LINK32 libYARP_math.lib libYARP_sig.lib libYARP_sig_logpolar.lib libYARP_OS.lib ace.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /machine:I386 /libpath:"..\..\..\lib\winnt"
 
 !ELSEIF  "$(CFG)" == "camview - Win32 Debug"
 
@@ -86,12 +81,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 libYARP_mathd.lib libYARP_sigd.lib libYARP_OS.lib aced.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\lib\winnt"
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Desc=Installing viewer...
-PostBuild_Cmds=copy .\Debug\camview.exe ..\..\..\..\..\bin\winnt
-# End Special Build Tool
+# ADD LINK32 libYARP_mathd.lib libYARP_sigd.lib libYARP_sig_logpolard.lib libYARP_OS.lib aced.lib winmm.lib Vfw32.lib /nologo /subsystem:windows /incremental:no /debug /machine:I386 /pdbtype:sept /libpath:"..\..\..\lib\winnt"
 
 !ENDIF 
 
