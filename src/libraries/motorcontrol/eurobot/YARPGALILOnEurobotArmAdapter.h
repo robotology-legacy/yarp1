@@ -3,7 +3,7 @@
 #ifndef __GALILONEUROBOTARMADAPTER__
 #define __GALILONEUROBOTARMADAPTER__
 
-// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.8 2003-12-18 15:32:36 beltran Exp $
+// $Id: YARPGALILOnEurobotArmAdapter.h,v 1.9 2003-12-18 16:34:23 beltran Exp $
 
 #include <ace/Log_Msg.h>
 #include <YARPGalilDeviceDriver.h>
@@ -236,7 +236,6 @@ class YARPEurobotArmParameters
 		double *_invCouple;
 		int *_stiffPID;
 		int _nj;
-
 		char _mask;
 		double *_maxDAC;
 };
@@ -263,15 +262,13 @@ class YARPGALILOnEurobotArmAdapter : public YARPGalilDeviceDriver
 			_parameters = par;
 			GalilOpenParameters op_par;
 			op_par.nj= _parameters->_nj; 
-
 			op_par.mask = _parameters->_mask;
 			if (YARPGalilDeviceDriver::open(&op_par) != 0)
 				return YARP_FAIL;
 
-			delay(1000);
+			delay(1000); //Just wait a little for the galil to initialize
 
-			/* First the card needs to be reseted */
-
+			//Reset the card
 			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Reseting control card\n"));
 			IOCtl(CMDResetController, NULL);
 
@@ -284,119 +281,42 @@ class YARPGALILOnEurobotArmAdapter : public YARPGalilDeviceDriver
 			// amp level and limits
 			for(int i=0; i < _parameters->_nj; i++)
 			{
-
-
-
-				/************
-				  SingleAxisParameters cmd;
-				  cmd.axis=i;
-				// amp enable
-				short level = 1;
-				cmd.parameters=&level;
-				IOCtl(CMDSetAmpEnableLevel, &cmd);
-				IOCtl(CMDSetAmpEnable, &cmd);
-
-				 *************/
-
-
-
-				///pid a cero
-
-				///motors type MT -1,-1,-1,-1,-1,-1,-1,-1
-
-				///activate outputport OP 255
-
-
-
+				///motors type MT -1 (REVERSED POLARITY) ATENTION!!-This is the polarity of the eurobot arm
 				SingleAxisParameters cmd;
-
 				cmd.axis=i;
-
-
-
-				double motor_type = -1; //Servo motor with reversed polarity
-
+				double motor_type = -1; 
 				cmd.parameters=&motor_type;
-
-
-
 				IOCtl(CMDMotorType,&cmd);
-
-
-
 				IOCtl(CMDGetMotorType,&cmd);
-
-
-
 				YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Motor type motor %d = %f\n",cmd.axis, motor_type));
 
-
-
-				int error = 10000;
-
-				cmd.parameters=&error;
-
-
-
 				///Set the error limit
-
+				int error = 10000;
+				cmd.parameters=&error;
 				IOCtl(CMDErrorLimit, &cmd);
 
-
-
-				int value = 1;
-
-				cmd.parameters=&value;
-
 				///set the off_on error
-
+				int value = 1;
+				cmd.parameters=&value;
 				IOCtl(CMDOffOnError,&cmd); 
 
-
-
-
-
+				//////////////////////////////////////////////////////////////////////////////////////
 				// PUMA has no hw limits
-				// set limit events-> none
-
-				/***************
-				  ControlBoardEvents event;
-				  event = CBNoEvent;
-				  cmd.parameters=&event;
-				  IOCtl(CMDSetPositiveLimit, &cmd);
-				  IOCtl(CMDSetNegativeLimit, &cmd);
-
-				 ******************/
+				// IMPORTANT: A software limits has been hardcoded in the eurobot arm galil controller.
+				// Check the comments in the file $(YARP_ROOT)/conf/eurobot/NOTEGALILREADME.txt
+				// Check also the previous note to see the initial state of the motors 
+				//////////////////////////////////////////////////////////////////////////////////////
 			}
 
-
-			/*****************
-			// amp enable off
-			IOParameters cmd;
-			cmd.port = 1;
-			cmd.value = (short) 0x01;
-
-			 ******************/
-
-
-			/////////////////////////
-
+			//
 			// This activates the necesary bit in the output port to be able to start the puma
-
 			// The value has been obtained empirically. It is sure it can be improved by using
-
 			// the time to search the exact bit
-
-
+			//
 
 			IOParameters cmd;
-
 			cmd.port = 1; //This is ignored
-
 			cmd.value = (short) 255;
-
-
-
 			IOCtl(CMDSetOutputPort,&cmd);
 
 			int frec = -3;
@@ -408,7 +328,6 @@ class YARPGALILOnEurobotArmAdapter : public YARPGalilDeviceDriver
 
 		int uninitialize()
 		{
-
 			/**************************
 			/// disable amplifiers
 			IOParameters cmd;
@@ -417,7 +336,6 @@ class YARPGALILOnEurobotArmAdapter : public YARPGalilDeviceDriver
 			IOCtl(CMDSetOutputPort, &cmd);
 			_amplifiers = false;
 			//////////////////////////
-
 			 ****************************/
 
 			if (YARPGalilDeviceDriver::close() != 0)
@@ -426,6 +344,7 @@ class YARPGALILOnEurobotArmAdapter : public YARPGalilDeviceDriver
 			_initialized = false;
 			return YARP_OK;
 		}
+
 		int idleMode()
 		{
 			for(int i = 0; i < _parameters->_nj; i++)
@@ -447,62 +366,31 @@ class YARPGALILOnEurobotArmAdapter : public YARPGalilDeviceDriver
 				double pos = 0.0;
 				cmd.parameters = &pos;
 				IOCtl(CMDDefinePosition, &cmd);
-
-				IOCtl(CMDServoHere,NULL); //Start the motors
-
+				IOCtl(CMDServoHere,NULL); //Start the motors. This activates the amplifiers
 				_amplifiers = true;
 			}
-			/////_setHomeConfig(CBNoEvent);
-			/////_clearStop();
-			/// activate amplifiers
-
-			/********
-			  IOParameters cmd;
-			  cmd.port = 1;
-			  cmd.value = (short) 0x00;
-			  IOCtl(CMDSetOutputPort, &cmd);
-
-			 ****************/
-
-			//////////////////////////
 
 			return YARP_OK;
 		}
 
 		bool checkPowerOn()
 		{
-
-			/***
-			  IOParameters cmd;
-			  cmd.port = 0;
-			  IOCtl(CMDGetOutputPort, &cmd);
-
-			  if (cmd.value & 0x8)
-			  return true;
-			  else
-			  return false;
-
-			 ***/
-
-
-
 			//I didn't find a bit in the input/output Galil ports showing the
-
 			//activation of the armpoweron button. For the moment just
-
 			//return false. Next implement a message asking the user to activate
-
 			//manually the bottom.
 
 			return true;
 		}
 
-		int disableLimitCheck(){
+		int disableLimitCheck()
+		{
 			_softwareLimits = false;
 			// LATER disable software limit check (encoders)
 			return YARP_OK;
 		}
-		int enableLimitCheck(){
+		int enableLimitCheck()
+		{
 			_softwareLimits = true;
 			// LATER enable software limit check (encoders)
 			return YARP_OK;
@@ -637,5 +525,4 @@ class YARPGALILOnEurobotArmAdapter : public YARPGalilDeviceDriver
 		YARPEurobotArmParameters *_parameters;
 
 };
-
 #endif
