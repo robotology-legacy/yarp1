@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.5 2003-06-11 16:40:06 gmetta Exp $
+/// $Id: YARPThread.cpp,v 1.6 2003-06-20 12:04:57 babybot Exp $
 ///
 ///
 
@@ -71,12 +71,6 @@
 #include <ace/Synch.h>
 
 ///
-#if 0
-#include <windows.h>
-#include <process.h>
-#include <signal.h>
-#endif
-
 #include "YARPSemaphore.h"
 #include "YARPThread.h"
 
@@ -183,9 +177,9 @@ int YARPThread::SetPriority (int prio)
 	return ACE_Thread::setprio ((ACE_hthread_t)system_resource, prio);
 }
 
-void YARPThread::End(bool dontkill)
+void YARPThread::End(int dontkill)
 {
-	if (identifier != -1 && dontkill == false)
+	if (identifier != -1 && dontkill == 0)
 	{
 		//TerminateThread(system_resource,0);  // and bang goes the thread's memory and resources:(
 
@@ -210,5 +204,3 @@ void YARPThread::End(bool dontkill)
 	system_resource = NULL;
 	identifier = -1;
 }
-
-

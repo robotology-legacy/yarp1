@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.9 2003-06-11 16:40:07 gmetta Exp $
+///	$Id: YARPThread.h,v 1.10 2003-06-20 12:04:57 babybot Exp $
 ///
 ///
 /*
@@ -98,7 +98,7 @@ public:
 
 	/// Begin and End are now virtual, overridable.
 	virtual void Begin(int stack_size=0);
-	virtual void End(bool dontkill = false);
+	virtual void End(int dontkill = 0);
 	virtual void Body() = 0; // this is the body of the thread
 
 	int GetIdentifier() { return identifier; }

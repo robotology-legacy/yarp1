@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.30 2003-06-16 16:48:24 babybot Exp $
+/// $Id: Port.cpp,v 1.31 2003-06-20 12:04:57 babybot Exp $
 ///
 ///
 
@@ -601,13 +601,6 @@ void _strange_select::Body ()
 ///	travel from the user layer to the comm layer. The only one copy is done at
 /// the level of send/recv.
 ///
-void Port::End()
-{
-	end_thread.Post();
-	SaySelfEnd ();
-
-	YARPThread::End(true);	
-}
 
 void Port::Body()
 {
@@ -627,8 +620,8 @@ void Port::Body()
 	int assume_data;
 	int call_on_read = 0;
 
-	///MakeServer(name.c_str());
 	YARPUniqueNameID pid;
+	name_set = 1;
 
 	switch (protocol_type)
 	{

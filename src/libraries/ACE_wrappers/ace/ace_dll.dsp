@@ -47,7 +47,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /Ob2 /I "../" /D ACE_HAS_DLL=1 /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /FD /c
 # SUBTRACT BASE CPP /YX
-# ADD CPP /nologo /MD /W3 /GX /Zi /O2 /Ob2 /I "../" /I "../PACE" /I "..\..\..\..\include" /D "NDEBUG" /D ACE_HAS_MFC=1 /D ACE_DOESNT_INSTANTIATE_NONSTATIC_OBJECT_MANAGER=1 /D "WIN32" /D "_WINDOWS" /D "ACE_BUILD_DLL" /D "ACE_OS_BUILD_DLL" /D "__WIN32__" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /Zi /O2 /Ob2 /I "../" /I "../PACE" /D "NDEBUG" /D ACE_HAS_MFC=1 /D ACE_DOESNT_INSTANTIATE_NONSTATIC_OBJECT_MANAGER=1 /D "WIN32" /D "_WINDOWS" /D "ACE_BUILD_DLL" /D "ACE_OS_BUILD_DLL" /FD /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
@@ -61,11 +61,6 @@ LINK32=link.exe
 # SUBTRACT BASE LINK32 /pdb:none
 # ADD LINK32 advapi32.lib user32.lib /nologo /subsystem:windows /dll /pdb:".\acemfc.pdb" /map /debug /machine:I386 /out:"..\bin\acemfc.dll"
 # SUBTRACT LINK32 /pdb:none
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Desc=Installing ACE...
-PostBuild_Cmds=copy ..\bin\acemfc.dll ..\..\..\..\bin\winnt	copy .\acemfc.lib ..\..\..\..\lib\winnt	copy .\*.h ..\..\..\..\include\ace	copy .\*.inl ..\..\..\..\include\ace	copy .\*.i ..\..\..\..\include\ace	copy .\*.cpp ..\..\..\..\include\ace
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ACE DLL - Win32 MFC Debug"
 
@@ -83,7 +78,7 @@ PostBuild_Cmds=copy ..\bin\acemfc.dll ..\..\..\..\bin\winnt	copy .\acemfc.lib ..
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /Gy /I "../" /D ACE_HAS_DLL=1 /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /FD /c
 # SUBTRACT BASE CPP /YX /Yc /Yu
-# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /Gy /I "../" /I "../PACE" /I "..\..\..\..\include" /D "_DEBUG" /D ACE_HAS_MFC=1 /D ACE_DOESNT_INSTANTIATE_NONSTATIC_OBJECT_MANAGER=1 /D "WIN32" /D "_WINDOWS" /D "ACE_BUILD_DLL" /D "ACE_OS_BUILD_DLL" /D "__WIN32__" /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /Gy /I "../" /I "../PACE" /D "_DEBUG" /D ACE_HAS_MFC=1 /D ACE_DOESNT_INSTANTIATE_NONSTATIC_OBJECT_MANAGER=1 /D "WIN32" /D "_WINDOWS" /D "ACE_BUILD_DLL" /D "ACE_OS_BUILD_DLL" /FD /c
 # SUBTRACT CPP /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
@@ -97,11 +92,6 @@ LINK32=link.exe
 # SUBTRACT BASE LINK32 /pdb:none
 # ADD LINK32 advapi32.lib user32.lib /nologo /subsystem:windows /dll /pdb:".\acemfcd.pdb" /debug /machine:I386 /out:"..\bin\acemfcd.dll"
 # SUBTRACT LINK32 /pdb:none
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Desc=Installing ACE...
-PostBuild_Cmds=copy ..\bin\acemfcd.dll ..\..\..\..\bin\winnt	copy .\acemfcd.lib ..\..\..\..\lib\winnt	copy .\*.h ..\..\..\..\include\ace	copy .\*.inl ..\..\..\..\include\ace	copy .\*.i ..\..\..\..\include\ace	copy .\*.cpp ..\..\..\..\include\ace
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ACE DLL - Win32 Release"
 
@@ -117,7 +107,7 @@ PostBuild_Cmds=copy ..\bin\acemfcd.dll ..\..\..\..\bin\winnt	copy .\acemfcd.lib 
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /Zi /O2 /Ob2 /I "../" /I "../PACE" /I "..\..\..\..\include" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "ACE_BUILD_DLL" /D "ACE_OS_BUILD_DLL" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /Zi /O2 /Ob2 /I "../" /I "../PACE" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D "ACE_BUILD_DLL" /D "ACE_OS_BUILD_DLL" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o /win32 "NUL"
@@ -130,11 +120,6 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /machine:I386
 # ADD LINK32 advapi32.lib user32.lib /nologo /subsystem:windows /dll /pdb:".\ace.pdb" /map /debug /machine:I386 /out:"..\bin\ace.dll"
 # SUBTRACT LINK32 /pdb:none
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Desc=Installing ACE...
-PostBuild_Cmds=copy ..\bin\ace.dll ..\..\..\..\bin\winnt	copy .\ace.lib ..\..\..\..\lib\winnt	copy .\*.h ..\..\..\..\include\ace	copy .\*.inl ..\..\..\..\include\ace	copy .\*.i ..\..\..\..\include\ace	copy .\*.cpp ..\..\..\..\include\ace
-# End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "ACE DLL - Win32 Debug"
 
@@ -150,7 +135,7 @@ PostBuild_Cmds=copy ..\bin\ace.dll ..\..\..\..\bin\winnt	copy .\ace.lib ..\..\..
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /Gy /I "..\..\..\..\include" /I "../" /I "../PACE" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "ACE_BUILD_DLL" /D "ACE_OS_BUILD_DLL" /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /Gy /I "../" /I "../PACE" /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "ACE_BUILD_DLL" /D "ACE_OS_BUILD_DLL" /FD /c
 # SUBTRACT CPP /Fr /YX /Yc /Yu
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o /win32 "NUL"
@@ -163,11 +148,6 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 advapi32.lib user32.lib /nologo /subsystem:windows /dll /pdb:".\aced.pdb" /debug /machine:I386 /out:"..\bin\aced.dll"
 # SUBTRACT LINK32 /pdb:none
-# Begin Special Build Tool
-SOURCE="$(InputPath)"
-PostBuild_Desc=Installing ACE...
-PostBuild_Cmds=copy ..\bin\aced.dll ..\..\..\..\bin\winnt	copy .\aced.lib ..\..\..\..\lib\winnt	copy .\*.h ..\..\..\..\include\ace	copy .\*.inl ..\..\..\..\include\ace	copy .\*.i ..\..\..\..\include\ace	copy .\*.cpp ..\..\..\..\include\ace
-# End Special Build Tool
 
 !ENDIF 
 

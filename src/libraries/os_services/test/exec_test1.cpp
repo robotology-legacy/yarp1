@@ -61,14 +61,13 @@
 ///
 
 ///
-/// $Id: exec_test1.cpp,v 1.6 2003-05-12 23:32:43 gmetta Exp $
+/// $Id: exec_test1.cpp,v 1.7 2003-06-20 12:04:57 babybot Exp $
 ///
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
 
 #include <iostream>
-//#include <mig4nto.h>
 
 #include "YARPSemaphore.h"
 #include "YARPThread.h"

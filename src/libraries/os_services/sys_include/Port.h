@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.12 2003-06-13 12:45:40 gmetta Exp $
+/// $Id: Port.h,v 1.13 2003-06-20 12:04:57 babybot Exp $
 ///
 ///
 
@@ -77,8 +77,8 @@
 
 #include "YARPString.h"
 #include "YARPNameID.h"
+#include "YARPTime.h"
 
-///#include <assert.h>
 #include "mesh.h"
 #include "YARPSemaphore.h"
 #define Sema YARPSemaphore
@@ -156,6 +156,7 @@ public:
 		ACE_OS::printf ("OutputTarget destroyed\n");
 		/// supposedly closes the actual connection.
 	}
+
 	virtual void Body();
 	
 	///
@@ -366,8 +367,6 @@ public:
 	HeaderedBlockSender<NewFragmentHeader> sender;
 	YARPUniqueNameID self_id;
 
-///	PortPool output_pool;
-
 #ifdef UPDATED_PORT
 	int require_complete_send;
 	void RequireCompleteSend(int flag = 1)
@@ -417,8 +416,8 @@ public:
 		name(nname),
 		tsender(this),
 		protocol_type(n_protocol_type)
-    { 
-		skip=1; has_input = 0; asleep=0; name_set=1; accessing = 0; receiving=0;  
+	{ 
+		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
 		add_header = 1;
 		expect_header = 1;
 #ifdef UPDATED_PORT
@@ -438,7 +437,7 @@ public:
 		end_thread(0),
 		tsender(this)
 	{
-		skip=1; has_input = 0; asleep=0; name_set=1; accessing = 0; receiving=0;  
+		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
 		add_header = 1;
 		expect_header = 1;
 		protocol_type = YARP_NO_SERVICE_AVAILABLE;
@@ -446,13 +445,22 @@ public:
 
 	virtual ~Port();
 
-	virtual void End();
+	virtual void End(int donkill = 0)
+	{
+		if (name_set)
+		{
+			end_thread.Post();
+			SaySelfEnd ();
+
+			YARPTime::DelayInSeconds(1.0);
+			YARPThread::End(0);  
+		}
+	}
 
 	inline int& GetProtocolTypeRef() { return protocol_type; }
 
 	int SetName(const char *nname)
 	{
-		//assert(name.c_str() == NULL);
 		int ret = YARP_OK;
 		name = nname;
 		asleep = 1;
@@ -499,7 +507,6 @@ public:
 		int result = YARP_FAIL;
 		if (!self_id.isValid())
 		{
-			///self_id = GetServer(name.c_str());
 			if (protocol_type == YARP_MCAST)
 			{
 				self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
@@ -526,7 +533,6 @@ public:
 		int result = YARP_FAIL;
 		if (!self_id.isValid())
 		{
-			///self_id = GetServer(name.c_str());
 			if (protocol_type == YARP_MCAST)
 			{
 				self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
@@ -543,7 +549,6 @@ public:
 
 		if (self_id.isValid())
 		{
-			///result = SayServer(self_id, buf);
 			result = SendHelper (self_id, NULL, 0, MSG_ID_DETACH_ALL);
 		}
 		return result;
