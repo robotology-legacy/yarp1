@@ -74,7 +74,6 @@ if ($options{"Compile_OS<-ACE_Rebuild"} eq "YES")
 		if (-e $options{"Compile_OS<-ACE_PATH"} &&
 			-e "$yarp_root/include/$os/ace" )
 		{
-			print ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"} --os $os\n\n");
 			do_ext_compile ("$options{\"Compile_OS<-ACE_PATH\"}/build.pl --clean --debug --release --install --distribution $options{\"Compile_OS<-ACE_PATH\"} --os $os");
 		}
 	}
