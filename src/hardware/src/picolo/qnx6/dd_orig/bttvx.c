@@ -1206,6 +1206,9 @@ int init_bttvx(int video_mode, int device_number, int w, int h) //Video format, 
 		height = h; //Passed
 	else
 		height = H; //Fixed
+		
+	printf("bttvx: grabbing with width = %d and height = %d\n",width,height);
+	fflush(stdout);
 	
 	///strcpy(device_name,"/dev/bttvx");
 	///strcat(device_name,itoa(device_id,buffer,10)); //Complete the name
