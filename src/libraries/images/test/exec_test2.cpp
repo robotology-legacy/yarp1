@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test2.cpp,v 1.3 2003-06-22 22:22:36 babybot Exp $
+/// $Id: exec_test2.cpp,v 1.4 2003-06-23 08:06:37 babybot Exp $
 ///
 ///
 
@@ -80,14 +80,14 @@ char _name[512];
 /// LATER: used to parse command line options.
 int ParseParams (int argc, char *argv[]) 
 {
-	ACE_OS::sprintf (_name, "/%s/o:img\0", argv[0]);
+	ACE_OS::sprintf (_name, "/%s/i:img\0", argv[0]);
 	int i;
 
 	for (i = 1; i < argc; i++)
 	{
 		if (argv[i][0] == '+')
 		{
-			ACE_OS::sprintf (_name, "/%s/o:img\0", argv[i]+1);
+			ACE_OS::sprintf (_name, "/%s/i:img\0", argv[i]+1);
 		}
 		else
 		if (argv[i][0] == '-')
