@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.3 2004-05-02 22:25:12 babybot Exp $
+/// $Id: main.cpp,v 1.4 2004-05-04 23:04:21 babybot Exp $
 ///
 ///
 
@@ -54,19 +54,16 @@ int main (int argc, char *argv[])
 	params._arbitrationID = 0;
 	params._destinations[0] = 1;				/// card 1.
 	params._my_address = 5;						/// my address.
-	params._polling_interval = 3;				/// thread polling interval [ms].
+	params._polling_interval = 2;				/// thread polling interval [ms].
 	params._timeout = 10;						/// approx this value times the polling interval [ms].
 	params._njoints = NJOINTS;					/// number of joints.
 
-	SingleAxisParameters tmp;
-	tmp.axis = 0;
-	double value = 0;
-	tmp.parameters = (void *)&value;
-	
-	double ar[NJOINTS];
-	memset (ar, 0, sizeof(double) * NJOINTS);
+	if (driver.open ((void *)&params) < 0)
+	{
+		ACE_DEBUG ((LM_DEBUG, "Failed to initialize\n"));
+		return -1;
+	}
 
-	driver.open ((void *)&params);
 	char c = 0;
 
 	for (;;)
@@ -76,31 +73,184 @@ int main (int argc, char *argv[])
 		switch (c)
 		{
 		case 'h':
-			ACE_OS::printf ("h: this message\n");
-			ACE_OS::printf ("p: get position\n");
-			ACE_OS::printf ("s: set position\n");
-			ACE_OS::printf ("v: set speed\n");
+		case 'H':
+		case '?':
+			ACE_OS::printf ("h,H,?: this message\n");
+			ACE_OS::printf ("p: display reference position\n");
+			ACE_OS::printf ("e: display encoder position and speed\n");
+			
+			ACE_OS::printf ("s: move to position\n");
+			ACE_OS::printf ("v: set desired speed\n");
+			ACE_OS::printf ("k: prepare for a movement\n");
+			ACE_OS::printf ("z: zero encoders\n");
+
+			ACE_OS::printf ("x: set PID control params\n");
+			ACE_OS::printf ("y: display PID control params\n");
 
 			ACE_OS::printf ("q: quit\n");
 			break;
 
+		case 'e':
+			{
+				double ar[NJOINTS];
+				memset (ar, 0, sizeof(double) * NJOINTS);
+				driver.IOCtl(CMDGetPositions, (void *)ar);
+				ACE_OS::printf ("got position: ");
+				int i;
+				for (i = 0; i < NJOINTS; i++)
+					ACE_OS::printf ("%lf ", ar[i]);
+				ACE_OS::printf ("\n");
+				driver.IOCtl(CMDGetSpeeds, (void *)ar);
+				ACE_OS::printf ("got speed: ");
+				for (i = 0; i < NJOINTS; i++)
+					ACE_OS::printf ("%lf ", ar[i]);
+				ACE_OS::printf ("\n");
+			}
+			break;
+
+		case 'k':
+			{
+				double pos[NJOINTS];
+				memset (pos, 0, sizeof(double) * NJOINTS);
+
+				/// resets encoders.
+				driver.IOCtl(CMDDefinePositions, (void *)pos);
+
+				/// must reset the internal ref position.
+				driver.IOCtl(CMDSetCommands, (void *)pos);
+
+				/// reads back encoders.
+				driver.IOCtl(CMDGetPositions, (void *)pos);
+				ACE_OS::printf ("ref positions: ");
+				for (int i = 0; i < NJOINTS; i++)
+					ACE_OS::printf ("%lf ", pos[i]);
+				ACE_OS::printf ("\n");
+
+				/// enables the PWM.
+				int axis = 0;
+				driver.IOCtl(CMDEnableAmp, &axis);
+				axis = 1;
+				driver.IOCtl(CMDEnableAmp, &axis);
+
+				/// starts up the PID.
+				axis = 0;
+				driver.IOCtl(CMDControllerRun, &axis);
+			}
+			break;
+
+		case 'z':
+			{
+				double pos[NJOINTS];
+				memset (pos, 0, sizeof(double) * NJOINTS);
+
+				/// disables the PWM.
+				int axis = 0;
+				driver.IOCtl(CMDDisableAmp, &axis);
+				axis = 1;
+				driver.IOCtl(CMDDisableAmp, &axis);
+	
+				/// stops the controller.
+				axis = 0;
+				driver.IOCtl(CMDControllerIdle, &axis);
+
+				/// resets encoders.
+				driver.IOCtl(CMDDefinePositions, (void *)pos);
+
+				/// must reset the internal ref position.
+				driver.IOCtl(CMDSetCommands, (void *)pos);
+
+				/// reads back encoders.
+				driver.IOCtl(CMDGetPositions, (void *)pos);
+				ACE_OS::printf ("ref positions: ");
+				for (int i = 0; i < NJOINTS; i++)
+					ACE_OS::printf ("%lf ", pos[i]);
+				ACE_OS::printf ("\n");
+
+				ACE_OS::printf ("the controller is idle now\n");
+			}
+			break;
+
 		case 'p':
-			driver.IOCtl(CMDGetRefPositions, (void *)ar);
-			ACE_OS::printf ("got positions: %lf %lf\n", ar[0], ar[1]);
+			{
+				double ar[NJOINTS];
+				memset (ar, 0, sizeof(double) * NJOINTS);
+				driver.IOCtl(CMDGetRefPositions, (void *)ar);
+				ACE_OS::printf ("got positions: ");
+				for (int i = 0; i < NJOINTS; i++)
+					ACE_OS::printf ("%lf ", ar[i]);
+				ACE_OS::printf ("\n");
+			}
 			break;
 
 		case 's':
-			ACE_OS::printf ("desired position: ");
-			scanf ("%lf", &value);
-			ACE_OS::printf ("setting desired position to: %lf\n", value);
-			driver.IOCtl(CMDSetPosition, (void *)&tmp);
+			{
+				ACE_OS::printf ("axis: ");
+				SingleAxisParameters x;
+				scanf ("%d", &x.axis);
+				double params[2] = { 0, 0 };
+				x.parameters = (void *)params;
+				ACE_OS::printf ("desired position: ");
+				scanf ("%lf", params);
+				ACE_OS::printf ("desired speed: ");
+				scanf ("%lf", params+1);
+				ACE_OS::printf ("going to: %lf with speed %lf\n", params[0], params[1]);
+				driver.IOCtl(CMDSetPosition, (void *)&x);
+			}
 			break;
 
 		case 'v':
-			ACE_OS::printf ("desired speed: ");
-			scanf ("%lf", &value);
-			ACE_OS::printf ("setting desired speed to: %lf\n", value);
-			driver.IOCtl(CMDSetSpeed, (void *)&tmp);
+			{
+				ACE_OS::printf ("axis: ");
+				SingleAxisParameters x;
+				scanf ("%d", &x.axis);
+				double param = 0;
+				x.parameters = &param;
+
+				ACE_OS::printf ("desired speed: ");
+				scanf ("%lf", &param);
+				ACE_OS::printf ("setting desired speed to: %lf\n", param);
+				driver.IOCtl(CMDSetSpeed, (void *)&x);
+			}
+			break;
+
+		case 'x':
+			{
+				LowLevelPID pid;
+				SingleAxisParameters par;
+				ACE_OS::printf ("axis: ");
+				scanf ("%d", &par.axis);
+				par.parameters = (void *)&pid;
+				ACE_OS::printf ("setting new controller params\n");
+				ACE_OS::printf ("p: ");
+				scanf ("%lf", &pid.KP);
+				ACE_OS::printf ("d: ");
+				scanf ("%lf", &pid.KD);
+				ACE_OS::printf ("shift: ");
+				scanf ("%lf", &pid.SHIFT);
+				pid.OFFSET = 0;
+				pid.I_LIMIT = 0;
+				pid.KI = 0;
+				driver.IOCtl(CMDSetPID, (void *)&par);
+			}
+			break;
+
+		case 'y':
+			{
+				LowLevelPID pid;
+				SingleAxisParameters par;
+				ACE_OS::printf ("axis: ");
+				scanf ("%d", &par.axis);
+				par.parameters = (void *)&pid;
+				driver.IOCtl(CMDGetPID, (void *)&par);
+				
+				ACE_OS::printf ("params for axis %d\n", par.axis);
+				ACE_OS::printf ("p: %lf\n", pid.KP);
+				ACE_OS::printf ("d: %lf\n", pid.KD);
+				ACE_OS::printf ("shift: %lf\n", pid.SHIFT);
+				ACE_OS::printf ("offset: %lf\n", pid.OFFSET);
+				ACE_OS::printf ("int limit: %lf\n", pid.I_LIMIT);
+				ACE_OS::printf ("i: %lf\n", pid.KI);
+			}
 			break;
 
 		case 'q':

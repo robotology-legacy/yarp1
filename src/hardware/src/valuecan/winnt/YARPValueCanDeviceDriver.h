@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.5 2004-05-03 23:49:46 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.6 2004-05-04 23:04:21 babybot Exp $
 ///
 ///
 
@@ -96,6 +96,7 @@ public:
 	virtual int setPositions(void *cmd);
 	virtual int setSpeed(void *cmd);
 	virtual int setSpeeds(void *cmd);
+	virtual int getSpeeds(void *cmd);
 	virtual int getRefSpeeds(void *cmd);
 	virtual int setAcceleration(void *cmd);
 	virtual int setAccelerations(void *cmd);
@@ -113,6 +114,8 @@ public:
 	virtual int controllerIdle(void *cmd);
 	virtual int controllerRun(void *cmd);
 	virtual int velocityMove(void *cmd);
+	virtual int setCommand(void *cmd);
+	virtual int setCommands(void *cmd);
 
 protected:
 	void *system_resources;

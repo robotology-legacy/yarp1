@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: Controller.H,v 1.4 2004-05-03 23:49:46 babybot Exp $
+/// $Id: Controller.H,v 1.5 2004-05-04 23:04:20 babybot Exp $
 ///
 ///
 
@@ -66,6 +66,10 @@
 #define BYTE_2(x) (__extract_h(x) & 0xff)
 #define BYTE_3(x) (__shr(__extract_l(x), 8))
 #define BYTE_4(x) (__extract_l(x) & 0xff)
+
+/* extracting from a short */
+#define BYTE_L(x) (__shr(x, 8))
+#define BYTE_H(x) (x & 0xff)
 
 /* same as above, deals also with endianism */
 #define BYTE_C(x4, x3, x2, x1) \
@@ -113,10 +117,12 @@
 #define CAN_SET_DESIRED_ACCELER		25
 #define CAN_GET_DESIRED_ACCELER		26
 
+#define CAN_SET_ENCODER_POSITION	29
+#define CAN_GET_ENCODER_VELOCITY	61
+#define CAN_SET_COMMAND_POSITION	62
+
 #define CAN_POSITION_MOVE			27
 #define CAN_VELOCITY_MOVE			28
-
-#define CAN_SET_ENCODER_POSITION	29
 
 #define CAN_SET_P_GAIN				30
 #define CAN_GET_P_GAIN				31
@@ -135,6 +141,7 @@
 #define CAN_GET_BOARD_ID			51
 
 #define CAN_GET_ERROR_STATUS		60
+
 
 /* error status values */
 #define ERROR_NONE					0			/* no error, all ok */
@@ -163,7 +170,7 @@ byte calibrate (int jnt);
 byte writeToFlash (void);
 byte readFromFlash (void);
 
-void print_can (byte data[]);
+void print_can (byte data[], char c);
 
 #endif
 
