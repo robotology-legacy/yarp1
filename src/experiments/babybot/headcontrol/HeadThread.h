@@ -70,7 +70,7 @@ private:
 //	YARPOutputPortOf<YVector> _positionPort;
 	
 	//
-	YARPInputPortOf<YVector> _vorPort;
+	YARPInputPortOf<YVector> _inPort;
 	//	YARPInputPortOf<YVector> _directCmdPort;
 	
 	/*HeadStatus		head_status;			//collect status information
@@ -101,9 +101,9 @@ inline void HeadThread::read_status()
 	_head.readAnalogs(_inertial.data());
 
 	// read vor info
-	if (_vorPort.Read(0))
+	if (_inPort.Read(0))
 	{
-		_head._vorCmd = _vorPort.Content();
+		_head._inCmd = _inPort.Content();
 	}
 }
 

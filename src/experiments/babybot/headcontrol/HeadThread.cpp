@@ -13,7 +13,7 @@
 
 HeadThread::HeadThread(int rate, const char *name, const char *ini_file):
 YARPRateThread(name, rate),
-_vorPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
+_inPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 // _directCmdPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 _inertialPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 // _positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
@@ -23,7 +23,7 @@ _inertialPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 
 	// register ports
 	// _directCmdPort.Register("/headcontrol/direct/i");
-	_vorPort.Register("/headcontrol/vor/i");
+	_inPort.Register("/headcontrol/i");
 
 	_inertialPort.Register("/headcontrol/inertial/o");
 	// _positionPort.Register("/headcontrol/position/o");
@@ -144,7 +144,7 @@ void HeadThread::doLoop()
 
 	// printf("%lf\n", _inertial(1));
 	// _command = _vor->handle(_inertial);
-	_deltaQ = _head._vorCmd + _head._directCmd;
+	_deltaQ = _head._inCmd + _head._directCmd;
 	/////////////
 	// vergence
 	write_status();

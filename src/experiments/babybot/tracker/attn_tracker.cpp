@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_tracker.cpp,v 1.3 2003-10-24 14:52:48 babybot Exp $
+/// $Id: attn_tracker.cpp,v 1.4 2003-10-27 17:43:54 babybot Exp $
 ///
 ///
 
@@ -90,7 +90,7 @@
 ///
 YARPInputPortOf<YARPGenericImage> in_img;
 YARPOutputPortOf<YARPGenericImage> out_img;
-YARPOutputPortOf<YVector> out_point;
+YARPOutputPortOf<YVector> out_point (YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
 
 const char *DEFAULT_NAME = "/tracker";
 
@@ -105,7 +105,8 @@ int main(int argc, char *argv[])
 	YARPComplexTrackerTool tracker;
 
 	YARPString name;
-	YARPString network;
+	YARPString network_i;
+	YARPString network_o;
 	char buf[256];
 
 	if (!YARPParseParameters::parse(argc, argv, "name", name))
@@ -113,18 +114,23 @@ int main(int argc, char *argv[])
 		name = DEFAULT_NAME;
 	}
 
-	if (!YARPParseParameters::parse(argc, argv, "net", network))
+	if (!YARPParseParameters::parse(argc, argv, "neti", network_i))
 	{
-		network = "default";
+		network_i = "default";
+	}
+
+	if (!YARPParseParameters::parse(argc, argv, "neto", network_o))
+	{
+		network_o = "default";
 	}
 
 	sprintf(buf, "%s/i:img", name.c_str());
-	in_img.Register(buf, network.c_str());
+	in_img.Register(buf, network_i.c_str());
 	sprintf(buf, "%s/o:img", name.c_str());
-	out_img.Register(buf, network.c_str());
+	out_img.Register(buf, network_i.c_str());
 
 	sprintf(buf, "%s/o:vect", name.c_str());
-	out_point.Register(buf, network.c_str());
+	out_point.Register(buf, network_o.c_str());
 
 	///
 	///
@@ -150,7 +156,7 @@ int main(int argc, char *argv[])
 		mapper.Logpolar2CartesianFovea (colored, remapped);
 
 		ACE_ASSERT (in.GetWidth() == _stheta && in.GetHeight() == _srho);
-		ACE_ASSERT (remapped.GetWidth() == 128 && remapped.GetHeight() == 128);
+		ACE_ASSERT (remapped.GetWidth() == ISIZE && remapped.GetHeight() == ISIZE);
 
 		out_img.Content().SetID (YARP_PIXEL_BGR);
 
@@ -160,7 +166,7 @@ int main(int argc, char *argv[])
 		out_img.Write ();
 
 		/// get the target.
-		int x = 64, y = 64;
+		int x = 0, y = 0;
 		tracker.getTarget (x, y);
 		v(1) = x;
 		v(2) = y;

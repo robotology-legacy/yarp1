@@ -16,9 +16,9 @@ _inPortTrack(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 	_outCmd = 0.0;
 
 	YARPString base = __baseName;
-	_outPort.Register(base.append("o").c_str());
-	_inPortVor.Register(base.append("vor/i").c_str());
-	_inPortTrack.Register(base.append("track/i").c_str());
+	_outPort.Register(YARPString(base).append("o").c_str());
+	_inPortVor.Register(YARPString(base).append("vor/i").c_str());
+	_inPortTrack.Register(YARPString(base).append("track/i").c_str());
 }
 
 Sink::~Sink()

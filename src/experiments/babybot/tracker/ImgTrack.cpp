@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: ImgTrack.cpp,v 1.4 2003-10-24 14:52:48 babybot Exp $
+/// $Id: ImgTrack.cpp,v 1.5 2003-10-27 17:43:54 babybot Exp $
 ///
 ///
 
@@ -362,8 +362,8 @@ YARPComplexTrackerTool::YARPComplexTrackerTool () : _lock(1)
 	_new_target = true;
 	_ex = _tx;
 	_ey = _ty;
-	_xx = _tx;
-	_yy = _ty;
+	_xx = 0;
+	_yy = 0;
 
 	/// other params.
 	_low_q_ct = 0;
@@ -609,7 +609,7 @@ void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<
 	}
 
 	_lock.Wait();
-	_xx = (int)(x+.5);
-	_yy = (int)(y+.5);
+	_xx = (int)(x-ISIZE/2+.5);
+	_yy = (int)(y-ISIZE/2+.5);
 	_lock.Post();
 }

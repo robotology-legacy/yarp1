@@ -1,2 +1,2 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
-WshShell.Run ("grasprflx.exe", 7, false);
+WshShell.Run ("grasprflx.exe", 7, true);

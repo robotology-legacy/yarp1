@@ -1,2 +1,2 @@
 var WshShell = WScript.CreateObject("WScript.Shell");
-WshShell.Run ("behaviorrnd", 1, false);
+WshShell.Run ("behaviorrnd", 1, true);
