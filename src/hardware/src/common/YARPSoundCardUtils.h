@@ -10,7 +10,7 @@
 // 
 //     Description:  Commands for the sound card IOCtrl interface
 // 
-//         Version:  $Id: YARPSoundCardUtils.h,v 1.1 2004-02-20 11:21:48 beltran Exp $
+//         Version:  $Id: YARPSoundCardUtils.h,v 1.2 2004-03-01 13:39:59 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -28,8 +28,9 @@ enum SoundCardCmd
 	SCMDAcquireBuffer = 1,
 	SCMDReleaseBuffer = 2,
 	SCMDWaitNewFrame = 3,
-
-	SCMDNCmds = 4
+	SCMDSetMute = 4,
+	SCMDSetVolume = 5,
+	SCMDNCmds = 6
 };
 
 #endif
