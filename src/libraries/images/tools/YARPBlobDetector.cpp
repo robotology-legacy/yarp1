@@ -61,11 +61,12 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.cpp,v 1.11 2003-09-04 13:05:17 babybot Exp $
+/// $Id: YARPBlobDetector.cpp,v 1.12 2003-09-04 16:57:40 babybot Exp $
 ///
 ///
 
 #include "YARPBlobDetector.h"
+#include "YARPLogpolar.h"
 #include "YARPImageFile.h"
 #include "math.h"
 

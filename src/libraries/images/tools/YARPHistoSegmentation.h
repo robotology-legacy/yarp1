@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPHistoSegmentation.h,v 1.1 2003-09-02 13:57:29 natta Exp $ 
+/// $Id: YARPHistoSegmentation.h,v 1.2 2003-09-04 16:57:40 babybot Exp $ 
 ///
 /// August 2003 -- by nat
 
@@ -76,14 +76,6 @@ public:
 	YARPHistoSegmentation(double lumaTh, unsigned char max, unsigned char min, unsigned char n);
 	YARPHistoSegmentation(double lumaTh, unsigned char max, unsigned char min, unsigned char *n);
 		
-	inline void _normalize (unsigned char r, unsigned char g, unsigned char b,
-							unsigned char *rp, unsigned char *gp, unsigned char *bp);
-	inline void _normalize (const YarpPixelRGB &in, YarpPixelRGB &out)
-	{ _normalize(in.r, in.g, in.b, &out.r, &out.g, &out.b); }
-
-	inline void _normalize (const YarpPixelBGR &in, YarpPixelRGB &out)
-	{ _normalize(in.r, in.g, in.b, &out.r, &out.g, &out.b); }
-
 	// cumulate histogram
 	void Apply(YARPImageOf<YarpPixelBGR> &src);
 	void Apply(YARPImageOf<YarpPixelRGB> &src);
@@ -93,9 +85,32 @@ public:
 	void backProjection(YARPImageOf<YarpPixelRGB> &in, YARPImageOf<YarpPixelMono> &out);
 	void backProjection(YARPImageOf<YarpPixelBGR> &in, YARPImageOf<YarpPixelMono> &out);
 	void backProjection(YARPImageOf<YarpPixelHSV> &in, YARPImageOf<YarpPixelMono> &out);
+
+protected:
+	inline void _normalize (unsigned char r, unsigned char g, unsigned char b,
+							unsigned char *rp, unsigned char *gp, unsigned char *bp);
+	inline void _normalize (const YarpPixelRGB &in, YarpPixelRGB &out)
+	{ _normalize(in.r, in.g, in.b, &out.r, &out.g, &out.b); }
+
+	inline void _normalize (const YarpPixelBGR &in, YarpPixelRGB &out)
+	{ _normalize(in.r, in.g, in.b, &out.r, &out.g, &out.b); }
 	
 private:
 	double _lumaThreshold;
+};
+
+class YARPLpHistoSegmentation: public YARPHistoSegmentation
+{
+public:
+	YARPLpHistoSegmentation(double lumaTh, unsigned char max, unsigned char min, unsigned char n):
+	  YARPHistoSegmentation(lumaTh, max, min, n){}
+	YARPLpHistoSegmentation(double lumaTh, unsigned char max, unsigned char min, unsigned char *n):
+	  YARPHistoSegmentation(lumaTh, max, min, n){}
+
+	// cumulate, lp version (use different weights for different eccentricities)
+	void Apply(YARPImageOf<YarpPixelBGR> &src);
+	void Apply(YARPImageOf<YarpPixelRGB> &src);
+	void Apply(YARPImageOf<YarpPixelHSV> &src);
 };
 
 inline void YARPHistoSegmentation::_normalize (unsigned char r, unsigned char g, unsigned char b,

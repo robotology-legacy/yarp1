@@ -61,11 +61,12 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.cpp,v 1.5 2003-08-22 15:39:55 natta Exp $
+/// $Id: YARPIntegralImage.cpp,v 1.6 2003-09-04 16:57:40 babybot Exp $
 ///
 ///
 
 #include "YARPIntegralImage.h"
+#include "YARPLogpolar.h"
 
 YARPIntegralImage::YARPIntegralImage()
 {

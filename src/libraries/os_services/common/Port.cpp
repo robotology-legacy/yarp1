@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.58 2003-08-28 21:23:02 babybot Exp $
+/// $Id: Port.cpp,v 1.59 2003-09-04 16:57:40 babybot Exp $
 ///
 ///
 
@@ -256,6 +256,10 @@ void OutputTarget::Body ()
 				target_pid = NULL;
 
 				///target_pid->invalidate();
+				
+				active = 0;
+				deactivated = 1;
+				PostMutex ();
 				return;
 			}
 
@@ -274,6 +278,10 @@ void OutputTarget::Body ()
 				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : can't connect - target on different network, output thread 0x%x bailing out\n", GetIdentifier()));
 				YARPNameService::DeleteName(target_pid);
 				target_pid = NULL;
+
+				active = 0;
+				deactivated = 1;
+				PostMutex ();
 				return;	
 			}
 
@@ -319,6 +327,11 @@ void OutputTarget::Body ()
 					target_pid = NULL;
 
 					ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : output thread 0x%x bailing out\n", GetIdentifier()));
+
+					active = 0;
+					deactivated = 1;
+					PostMutex ();
+
 					return;
 					///target_pid->invalidate();
 				}
@@ -350,6 +363,11 @@ void OutputTarget::Body ()
 				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : can't connect - target on different network, output thread 0x%x bailing out\n", GetIdentifier()));
 				YARPNameService::DeleteName(target_pid);
 				target_pid = NULL;
+
+				active = 0;
+				deactivated = 1;
+				PostMutex ();
+
 				return;	
 			}
 
@@ -387,6 +405,11 @@ void OutputTarget::Body ()
 					target_pid = NULL;
 	
 					ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : output thread 0x%x bailing out\n", GetIdentifier()));
+
+					active = 0;
+					deactivated = 1;
+					PostMutex ();
+
 					return;	
 					///target_pid->invalidate();
 				}
@@ -401,6 +424,11 @@ void OutputTarget::Body ()
 				target_pid = NULL;
 
 				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : output thread 0x%x bailing out\n", GetIdentifier()));
+
+				active = 0;
+				deactivated = 1;
+				PostMutex ();
+
 				return;	
 			}
 #endif
@@ -430,6 +458,11 @@ void OutputTarget::Body ()
 				target_pid = NULL;
 			
 				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : output thread 0x%x bailing out\n", GetIdentifier()));
+
+				active = 0;
+				deactivated = 1;
+				PostMutex ();
+
 				return;	
 			}
 		}

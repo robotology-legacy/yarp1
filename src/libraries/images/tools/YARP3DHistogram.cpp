@@ -239,7 +239,7 @@ void YARP3DHistogram::clean()
 	_blut.clean();
 }
 
-void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
+void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b, double w)
 {
 	HistoEntry *tmpEntryP = NULL;
 	// HistoKey tmpKey;
@@ -258,7 +258,7 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 	_3dlut.find(it, &tmpEntryP);
 	if (tmpEntryP != NULL)
 	{
-		(*tmpEntryP)++;
+		(*tmpEntryP).accumulate(w);
 		double tmpMax = tmpEntryP->value();
 		if (tmpMax > _3dlut._maximum)
 			_3dlut._maximum = tmpMax;
@@ -270,7 +270,7 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 	_rlut.find(it, &tmpEntryP);
 	if (tmpEntryP != NULL)
 	{
-		(*tmpEntryP)++;
+		(*tmpEntryP).accumulate(w);
 		double tmpMax = tmpEntryP->value();
 		if (tmpMax > _rlut._maximum)
 			_rlut._maximum = tmpMax;
@@ -282,7 +282,7 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 	_glut.find(it, &tmpEntryP);
 	if (tmpEntryP != NULL)
 	{
-		(*tmpEntryP)++;
+		(*tmpEntryP).accumulate(w);
 		double tmpMax = tmpEntryP->value();
 		if (tmpMax > _glut._maximum)
 			_glut._maximum = tmpMax;
@@ -294,7 +294,7 @@ void YARP3DHistogram::Apply(unsigned char r, unsigned char g, unsigned char b)
 	_blut.find(it, &tmpEntryP);
 	if (tmpEntryP != NULL)
 	{
-		(*tmpEntryP)++;
+		(*tmpEntryP).accumulate(w);
 		double tmpMax = tmpEntryP->value();
 		if (tmpMax > _blut._maximum)
 			_blut._maximum = tmpMax;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARP3DHistogram.h,v 1.2 2003-09-04 09:32:58 babybot Exp $ 
+/// $Id: YARP3DHistogram.h,v 1.3 2003-09-04 16:57:40 babybot Exp $ 
 ///
 /// August 2003 -- by nat
 
@@ -80,11 +80,14 @@ public:
 	HistoEntry()
 	{ _acc = 0.0; }
 	
-	HistoEntry &operator ++ (int)
+/*	HistoEntry &operator ++ (int)
 	{ 
 		_acc++;
 		return *this;
-	}
+	}*/
+
+	void accumulate(double w)
+	{ _acc += w; }
 
 	double value()
 	{ return _acc; }
@@ -213,8 +216,8 @@ public:
 
 	void Resize(unsigned char max, unsigned char min, unsigned char n);
 	void Resize(unsigned char max, unsigned char min, unsigned char *n);
-	void Apply(unsigned char r, unsigned char g, unsigned char b);
-	
+	void Apply(unsigned char r, unsigned char g, unsigned char b, double w = 1.0);
+		
 	int dump(YARPString &basename);
 	
 	inline double backProjection(const YarpPixelRGB &p)

@@ -12,6 +12,7 @@ int main(int argc, char* argv[])
 	_outPort.Register("/motorcmd/o");
 	YARPBottle tmp;
 	YARPString c;
+	bool quit = false;
 	while(cin>> c)
 	{
 		tmp.reset();
@@ -33,6 +34,11 @@ int main(int argc, char* argv[])
 		{
 			tmp.writeVocab(YBVExit);
 			send = true;
+		}
+		else if (c == "exit")
+		{
+			quit = true;
+			send = false;
 		}
 		else if (c == "alive")
 		{
@@ -93,6 +99,9 @@ int main(int argc, char* argv[])
 			tmp.display();
 			printf("\n");
 		}
+
+		if (quit)
+			return 0;
 	};	
 	
 	return 0;

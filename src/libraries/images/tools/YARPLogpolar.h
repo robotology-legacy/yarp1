@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPLogpolar.h,v 1.13 2003-09-02 16:36:23 natta Exp $
+/// $Id: YARPLogpolar.h,v 1.14 2003-09-04 16:57:40 babybot Exp $
 ///
 ///
 
@@ -110,6 +110,20 @@ namespace _logpolarParams
 	const double _betasquare = _beta*_beta;
 	const double _jacob1 = _alfasquare*_beta/_q;
 };
+
+inline double pSize(int c, int r, int nf = _logpolarParams::_sfovea)
+{
+	const double _alfa = 0.0130;
+	const double _beta = 0.91;
+
+	double ret;
+	ret = _beta*exp(_alfa*(r-nf));
+	// ret = _alfa*(r-nf) + _beta;
+	if (ret < 1)
+		ret = 1;
+	
+	return ret;
+}
 
 class YARPLogpolarSampler : public YARPFilter
 {

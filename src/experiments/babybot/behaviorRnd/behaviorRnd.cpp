@@ -31,6 +31,7 @@ int main(int argc, char* argv[])
 
 	_rnd.Begin();
 	_rnd.loop();
+	// _rnd.Join();
 
 	return 0;
 }

@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 	// blocking loop
 	_hand.loop();
 	// close
-	_hand.End();
+	// _hand.Join();
 
 	hand_thread.terminate(false);	// no timeout here, important !
 

@@ -9,13 +9,13 @@
 #include <YARPImageFile.h>
 #include <YARPLogpolar.h>
 
-#include "YARPHistoSegmentation.h"
+#include <YARPHistoSegmentation.h>
 
 using namespace _logpolarParams;
 
 int main(int argc, char* argv[])
 {
-	YARPHistoSegmentation _histo(5, 255, 0, 10);
+	YARPLpHistoSegmentation _histo(5, 255, 0, 10);
 
 	YARPInputPortOf<YARPGenericImage> _inPortImage(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 	YARPInputPortOf<YARPGenericImage> _inPortSeg(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP);

@@ -47,7 +47,8 @@ int main(int argc, char *argv[])
 	_findHand.Begin();
 	_hlbehavior.Begin();
 	_hlbehavior.loop();
-	_findHand.End(-1);
 
+	_findHand.End();
+	
 	return 0;
 }
