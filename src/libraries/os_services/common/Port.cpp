@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.46 2003-07-24 07:56:52 gmetta Exp $
+/// $Id: Port.cpp,v 1.47 2003-07-27 05:47:17 gmetta Exp $
 ///
 ///
 
@@ -1098,6 +1098,11 @@ void Port::Body()
 						}
 					}
 
+					/// this is added here, automatically ask for an end.
+					/// sort of extra param for DETACH_ALL message.
+					if (buf[0] == 1)
+						YARPThread::AskForEnd();
+
 					list_mutex.Post ();
 				}
 				break;
@@ -1429,7 +1434,8 @@ int Port::SaySelfEnd(void)
 	{
 		if (self_id->isValid())
 		{
-			result = SendHelper (*self_id, NULL, 0, MSG_ID_DETACH_ALL);
+			char c = 1;
+			result = SendHelper (*self_id, &c, sizeof(char), MSG_ID_DETACH_ALL);
 		}
 	
 		/// deletes the endpoint.

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.21 2003-07-24 07:56:52 gmetta Exp $
+/// $Id: Port.h,v 1.22 2003-07-27 05:47:17 gmetta Exp $
 ///
 ///
 
@@ -412,7 +412,7 @@ public:
 			ACE_UNUSED_ARG(dontkill);
 
 			/// asks for thread termination.
-			YARPThread::AskForEnd ();
+			///YARPThread::AskForEnd ();
 
 			/// sends a message to unblock the thread from the read and close connections.
 			SaySelfEnd ();
