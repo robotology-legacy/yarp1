@@ -11,20 +11,20 @@
 
 Left()
 {
-	pterm su -c "on -f morpheus framegrab -b 0 +left -l" &
+	pterm su -c "on -f morpheus framegrab -b 0 +left -l -f" &
 	pterm camview +view001 -l -w 256 -h 256 & 
 }
 
 Right()
 {
-	pterm su -c "on -f morpheus framegrab -b 1 +right -l" &
+	pterm su -c "on -f morpheus framegrab -b 1 +right -l -f" &
 	pterm camview +view002 -l -w 256 -h 256 &  
 }
 
 All()
 {
-	pterm su -c "on -f morpheus framegrab -b 0 +left -l" &
-	pterm su -c "on -f morpheus framegrab -b 1 +right -l" &
+	pterm su -c "on -f morpheus framegrab -b 0 +left -l -f" &
+	pterm su -c "on -f morpheus framegrab -b 1 +right -l -f" &
 
 	pterm camview +view001 -l -w 256 -h 256 & 
 	pterm camview +view002 -l -w 256 -h 256 &  
