@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.9 2003-11-26 14:35:22 fberton Exp $
+/// $Id: YARPDisparity.cpp,v 1.10 2003-11-26 15:37:10 fberton Exp $
 ///
 ///
 
@@ -84,7 +84,6 @@ YARPDisparityTool::YARPDisparityTool()
 	_shiftFunction	= NULL;
 	_shiftMap		= NULL;
 	_corrFunct		= NULL;
-	_pixelCount		= NULL;
 }
 
 YARPDisparityTool::~YARPDisparityTool()
@@ -106,9 +105,6 @@ YARPDisparityTool::~YARPDisparityTool()
 
 	if (_corrFunct != NULL)
 		delete [] _corrFunct;
-
-	if (_pixelCount != NULL)
-		delete [] _pixelCount;
 }
 
 int YARPDisparityTool::loadShiftTable(Image_Data * Par)
@@ -150,8 +146,8 @@ int YARPDisparityTool::loadShiftTable(Image_Data * Par)
 	_corrFunct = new double [_shiftLevels];
 	ACE_ASSERT (_corrFunct != NULL);
 
-	_pixelCount = new int [_shiftLevels];
-	ACE_ASSERT (_pixelCount != NULL);
+//	_pixelCount = new int [_shiftLevels];
+//	ACE_ASSERT (_pixelCount != NULL);
 
 	if ((fin = ACE_OS::fopen(File_Name,"rb")) != NULL)
 	{
