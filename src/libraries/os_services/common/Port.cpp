@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.53 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: Port.cpp,v 1.54 2003-08-10 07:08:40 gmetta Exp $
 ///
 ///
 
@@ -125,7 +125,7 @@ void safe_printf(char *format,...)
 
 ///
 /// for testing only (possibly remove it completely).
-///#define DEBUG_DISABLE_SHMEM 1
+/// #define DEBUG_DISABLE_SHMEM 1
 
 /// this is because SHMEM alloc is not implemented in ACE for QNX6.
 #ifdef __QNX6__
@@ -198,6 +198,16 @@ int OutputTarget::DeactivateMcastAll (void)
 	return YARP_OK;
 }
 
+void OutputTarget::End (int dontkill /* =-1 */)
+{
+	AskForEnd ();	/// this thread doesn't respond to std AskForEnd() - not very elegant.
+
+	Deactivate ();
+	something_to_send.Post();
+
+	Join ();
+}
+
 ///
 ///
 /// this is the thread which manages a single output connection.
@@ -223,6 +233,8 @@ void OutputTarget::Body ()
 	{
 	case YARP_QNET:
 		{
+			ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : starting a QNET sender thread\n"));
+
 			/// LATER: must do proper bailout if locate fails.
 			///
 			target_pid = YARPNameService::LocateName (GetLabel().c_str());
@@ -240,6 +252,8 @@ void OutputTarget::Body ()
 
 	case YARP_TCP:
 		{
+			ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : starting a TCP sender thread\n"));
+
 			target_pid = YARPNameService::LocateName (GetLabel().c_str());
 
 			/// requires a query to dns unfortunately (maybe not?).
@@ -255,7 +269,7 @@ void OutputTarget::Body ()
 				target_pid->setServiceType (YARP_SHMEM);
 
 				/// 
-				ACE_DEBUG ((LM_DEBUG, "$$$$ this goes into SHMEM mode\n"));
+				ACE_DEBUG ((LM_DEBUG, "$$$$$ OutputTarget::Body : this goes into SHMEM mode\n"));
 			}
 			else
 #endif
@@ -289,6 +303,8 @@ void OutputTarget::Body ()
 
 	case YARP_UDP:
 		{
+			ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : starting a UDP sender thread\n"));
+
 			target_pid = YARPNameService::LocateName (GetLabel().c_str());
 
 			/// requires a query to dns unfortunately (maybe not?).
@@ -304,7 +320,7 @@ void OutputTarget::Body ()
 				((YARPUniqueNameSock *)target_pid)->setServiceType (YARP_SHMEM);
 
 				/// 
-				ACE_DEBUG ((LM_DEBUG, "$$$$ this goes into SHMEM mode\n"));
+				ACE_DEBUG ((LM_DEBUG, "$$$$$ OutputTarget::Body : this goes into SHMEM mode\n"));
 			}
 			else
 			{
@@ -333,6 +349,8 @@ void OutputTarget::Body ()
 
 	case YARP_MCAST:
 		{
+			ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : starting a MCAST sender thread\n"));
+
 			/// MCAST is different! Locate prepares the MCAST group and registers it.
 			/// additional commands are sent to "clients" to ask to join the specific group.
 			target_pid = YARPNameService::LocateName(GetLabel().c_str(), YARP_MCAST);
@@ -383,6 +401,14 @@ void OutputTarget::Body ()
 
 		WaitMutex();
 
+		if (deactivate)
+		{
+			active = 0;
+			deactivated = 1;
+			PostMutex ();
+			continue;
+		}
+
 		///
 		/// MCAST commands follow: 
 		///		- these are sent and processed by contacting the UDP channel of the port.
@@ -421,7 +447,7 @@ void OutputTarget::Body ()
 					/// disconnect all
 					YARPEndpointManager::CloseMcastAll ();
 					active = 0;
-					deactivated = 1;	/// perhaps deactivate = 1;
+					deactivate = 1;	/// perhaps deactivate = 1;
 				}
 				break;
 			}
@@ -479,7 +505,7 @@ void OutputTarget::Body ()
 		space_available.Post();
 #endif
 		OnSend();
-	}
+	} /// while (!deactivated)
 
 	if (protocol_type == YARP_MCAST)
 	{
@@ -495,7 +521,7 @@ void OutputTarget::Body ()
 	/// but see also what I said on closing the Port thread.
 	YARPNameService::DeleteName(target_pid);
 
-	YARP_DBG(THIS_DBG) ((LM_DEBUG, "output thread %d bailing out\n", GetIdentifier()));
+	ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : output thread 0x%x bailing out\n", GetIdentifier()));
 }
 
 ///
@@ -510,6 +536,8 @@ void OutputTarget::Body ()
 ///
 void _strange_select::Body ()
 {
+	ACE_DEBUG ((LM_DEBUG, "***** _strange_select::Body : starting\n"));
+
 #ifdef __QNX6__
 	signal (SIGCHLD, SIG_IGN);
 	signal (SIGPIPE, SIG_IGN);
@@ -517,9 +545,12 @@ void _strange_select::Body ()
 
 	OutputTarget *target, *next;
 
-	while (!_terminate)
+	while (!IsTerminated())
 	{
 		_ready_to_go.Wait ();
+		
+		/// hopefully in wait on the sema, it returns from here.
+		if (IsTerminated()) continue;
 
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Go! --- from a new thread --- \n"));
 
@@ -639,10 +670,11 @@ void _strange_select::Body ()
 
 		_owner->list_mutex.Post ();
 
-	}	/// exit on _terminate == true
+	}	/// while !IsTerminated()
 
+	/// 
+	ACE_DEBUG ((LM_DEBUG, "***** _strange_select::Body : closing 0x%x\n", GetIdentifier()));
 	_owner = NULL;
-	_terminate = 0;
 }
 
 
@@ -1112,13 +1144,16 @@ void Port::Body()
 						}
 					}
 
-					/// automatically ask for the end of the thread.
-					/// sort of extra param for DETACH_ALL message, just post on the end
-					/// mutex.
-					if (buf[0] == 1)
-						YARPThread::AskForEnd();
-
 					list_mutex.Post ();
+
+					/// signal the SelfEnd that the msg has been received.
+					complete_msg_thread.Signal ();
+
+					/// wait for closure of SelfEnd socket and relative thread.
+					complete_terminate.Wait();
+
+					/// only now asks for End.
+					AskForEnd ();
 				}
 				break;
 
@@ -1141,9 +1176,10 @@ void Port::Body()
 		}
 	} /// if !terminated
 
-	/// since this is started in this thread
-	/// close it here also.
-	tsender.End ();
+	/// since this is started in this thread close it here.
+	tsender.AskForEnd();
+	tsender.pulseGo();
+	tsender.Join();
 
 	/// tries to shut down the input socket threads.
 	YARPEndpointManager::Close (*pid);
@@ -1155,7 +1191,11 @@ void Port::Body()
 	YARPNameService::DeleteName (pid);
 	pid = NULL;
 
-	ACE_DEBUG ((LM_DEBUG, "main port thread 0x%x returning\n", GetIdentifier()));
+	/// wakes up a potential thread waiting on a blocking Read().
+	has_input = 1;
+	something_to_read.Post();
+
+	ACE_DEBUG ((LM_DEBUG, "***** main port thread 0x%x returning\n", GetIdentifier()));
 }
 
 
@@ -1238,7 +1278,7 @@ Sendable *Port::Acquire(int wait)
 		go = something_to_read.PollingWait();
 	}
 
-	if (go)
+	if (go && !IsTerminated())
 	{
 		out_mutex.Wait();
 		ACE_ASSERT (!accessing);
@@ -1448,17 +1488,24 @@ int Port::SaySelfEnd(void)
 	{
 		if (self_id->isValid())
 		{
-			char c[2];
-			c[0] = 1;
-			c[1] = 0;
-			result = SendHelper (*self_id, c, 2*sizeof(char), MSG_ID_DETACH_ALL);
+			result = SendHelper (*self_id, NULL, 0, MSG_ID_DETACH_ALL);
 		}
+
+		/// wait for message to be received.
+		complete_msg_thread.Wait();
 	
 		/// deletes the endpoint.
 		YARPEndpointManager::Close (*self_id);
 
 		YARPNameService::DeleteName (self_id);
 		self_id = NULL;
+
+		///YARPScheduler::yield();
+
+		/// tell the main thread to complete the termination function.
+		complete_terminate.Signal();
+
+		YARPThread::Join ();
 	}
 
 	return result;

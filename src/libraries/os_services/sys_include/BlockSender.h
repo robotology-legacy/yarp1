@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.h,v 1.9 2003-08-08 01:07:26 gmetta Exp $
+/// $Id: BlockSender.h,v 1.10 2003-08-10 07:08:40 gmetta Exp $
 ///
 ///
 
@@ -142,12 +142,7 @@ public:
 	int available;
 	int pieces;
 	int failed;
-	///vector<BlockUnit> entries;
-	///vector<BlockUnit>::iterator cursor;
-
-	///ACE_Array<BlockUnit> entries;
 	YARPVector<BlockUnit> entries;
-	///int cursor;
 	YARPVectorIterator<BlockUnit> cursor;
 
 	BlockSender() : cursor(entries)
@@ -168,8 +163,6 @@ public:
 	void Begin(const YARPNameID& npid)
 	{
 		pid = npid;
-		///cursor = entries.begin();
-		/// cursor = 0;
 		cursor.go_head();
 		available = max_packet;
 		pieces = 0;
@@ -199,24 +192,18 @@ class HeaderedBlockSender : public BlockSender
 {
 public:
 	int add_header;
-	///vector<T> headers;
-	///vector<T>::iterator header_cursor;
-	///ACE_Array<T> headers;
 	YARPVector<T> headers;
-	///int header_cursor;
 	YARPVectorIterator<T> header_cursor;
 
 	HeaderedBlockSender() : header_cursor(headers)
 	{
 		add_header = 0;
-		///header_cursor = headers.begin();
 		header_cursor = 0;
 	}
 
 	void Begin(const YARPNameID& pid)
 	{
 		add_header = 0;
-		///header_cursor = headers.begin();
 		header_cursor = 0;
 		BlockSender::Begin(pid);
 	}
@@ -242,7 +229,6 @@ public:
 	{
 		if (add_header)
 		{
-			///BlockSender::Add((char*)(header_cursor),sizeof(T));
 			BlockSender::Add((char*)(&headers[header_cursor]),sizeof(T));
 			add_header = 0;
 			++header_cursor;
@@ -261,15 +247,7 @@ public:
 			headers[header_cursor] = T();
 		}
 
-#if 0
-		if (header_cursor == headers.end())
-		{
-			header_cursor = headers.insert(header_cursor,T());
-		}
-#endif
-
 		add_header = 1;
-///		return header_cursor;
 		return &headers[header_cursor];
 	}
 };

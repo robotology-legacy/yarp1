@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.23 2003-08-02 07:46:15 gmetta Exp $
+/// $Id: Port.h,v 1.24 2003-08-10 07:08:40 gmetta Exp $
 ///
 ///
 
@@ -103,7 +103,7 @@ enum
 	MSG_ID_ACK          = 'y',
 	MSG_ID_NACK         = 'n',
 	MSG_ID_ATTACH       = '/',
-	MSG_ID_DETACH_ALL   = 'k',
+	MSG_ID_DETACH_ALL   = 'k',		/// can only be used by SaySelfEnd --- WARNING.
 	MSG_ID_ERROR        = -1
 };
 
@@ -162,6 +162,8 @@ public:
 		ACE_OS::printf ("OutputTarget destroyed\n");
 		/// supposedly closes the actual connection.
 	}
+
+	virtual void End (int dontkill = -1);
 
 	virtual void Body();
 	
@@ -247,21 +249,18 @@ class _strange_select : public YARPBareThread
 protected:
 	YARPSemaphore _ready_to_go;
 	Port *_owner;
-	bool _terminate;
 
 public:
 	_strange_select (Port *o) : YARPBareThread (), _ready_to_go(0) 
 	{
 		_owner = o;
-		_terminate = false;
 		ACE_ASSERT (o != NULL); 
 	}
 
-	_strange_select () : YARPBareThread (), _ready_to_go(0) { _owner = NULL; _terminate = false; }
+	_strange_select () : YARPBareThread (), _ready_to_go(0) { _owner = NULL; }
 
 	virtual ~_strange_select () {}
 	virtual void Body ();
-	void terminate () { _terminate = true; }
 	void setOwner (Port *o) { _owner = o; }
 	void pulseGo (void) { _ready_to_go.Post (); }
 };
@@ -301,6 +300,9 @@ public:
 	Sema wakeup;
 	Sema list_mutex;
 	Sema out_mutex;
+	
+	YARPEvent complete_terminate;
+	YARPEvent complete_msg_thread;
 
 	YARPString name;
 	HeaderedBlockSender<NewFragmentHeader> sender;
@@ -354,6 +356,8 @@ public:
 		wakeup(0),
 		list_mutex(1),
 		out_mutex(1),
+		complete_terminate(0,0),
+		complete_msg_thread(0,0),
 		name(nname)
 	{ 
 		_started = false;
@@ -364,6 +368,7 @@ public:
 #ifdef UPDATED_PORT
 		require_complete_send = 0;
 #endif
+		pending = 0;
 		ACE_ASSERT (n_protocol_type != YARP_NO_SERVICE_AVAILABLE);
 		if (autostart) Begin(); 
 	}
@@ -375,13 +380,19 @@ public:
 		okay_to_send(1),
 		wakeup(0),
 		list_mutex(1),
-		out_mutex(1)
+		out_mutex(1),
+		complete_terminate(0,0),
+		complete_msg_thread(0,0)
 	{
 		_started = false;
 		self_id = NULL;
 		skip=1; has_input = 0; asleep=0; name_set=0; accessing = 0; receiving=0;  
 		add_header = 1;
 		expect_header = 1;
+#ifdef UPDATED_PORT
+		require_complete_send = 0;
+#endif
+		pending = 0;
 		protocol_type = YARP_NO_SERVICE_AVAILABLE;
 	}
 
@@ -401,24 +412,19 @@ public:
 			list_mutex.Post();
 	}
 
-	virtual void End(int dontkill = 0)
+	virtual void End(int dontkill = -1)
 	{
+		ACE_UNUSED_ARG(dontkill);
+
 		list_mutex.Wait();
 		if (_started)
 		{
 			_started = false;
 			list_mutex.Post();
 
-			ACE_UNUSED_ARG(dontkill);
-
-			/// asks for thread termination.
-			///YARPThread::AskForEnd ();
-
 			/// sends a message to unblock the thread from the read and close connections.
+			/// SaySelfEnd does the AskForEnd/Join calls.
 			SaySelfEnd ();
-
-			/// does a Join(). 
-			YARPThread::End (-1);	/// it was a wait of 1000 ms.
 		}
 		else
 			list_mutex.Post();

@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.30 2003-08-07 04:23:43 gmetta Exp $
+$Id: README.txt,v 1.31 2003-08-10 07:08:40 gmetta Exp $
 
 
 =============
@@ -40,19 +40,11 @@ Things under development:
 
 -------------> 
 
-3- initialization MFC+os_services might fail under some circumstances
-	- solution: do explicit init and fini
-
 7- can still get garbage if a recv fails, timeout or a connection is broken by terminating
 	the sender. USE test12 to see this condition.
 
 9- release version crashes on exit. USE test 13 to show this problem, and close the 
 	receiver first.
-
-11- missing htons here and there in the udp communication (fine w/ intel architecture).
-
-13- noted a sigsegv on exit of the grabber application, perhaps while closing down the Port threads?
-	- perhaps remove the SIGINT handling, it appears to upset the libc.
 
 ===
 0- QNET

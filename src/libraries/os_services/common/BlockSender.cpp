@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: BlockSender.cpp,v 1.10 2003-08-08 01:07:26 gmetta Exp $
+/// $Id: BlockSender.cpp,v 1.11 2003-08-10 07:08:40 gmetta Exp $
 ///
 ///
 
@@ -73,7 +73,7 @@
 
 #define THIS_DBG 50
 
-static char _buf[100];
+///static char _buf[100];
 
 int BlockSender::Fire()
 {
@@ -82,20 +82,17 @@ int BlockSender::Fire()
 	{
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Sending %d pieces\n",pieces));
 		errno = 0;
-		///BlockUnit *bu = entries.begin();
 		BlockUnit *bu = &entries[0];
 		YARPMultipartMessage msg(bu, pieces);	// this are allocated whenever there's a Fire...
 		YARPMultipartMessage reply_msg(1);		// LATER: optimize by allocating in advance.
 		
-		//char buf[100];
+		char _buf[100];
 		reply_msg.Set(0, _buf, sizeof(_buf));
 		result = YARPSyncComm::Send(pid, msg, reply_msg);
 
 		YARP_DBG(THIS_DBG) ((LM_DEBUG, "Sent %d pieces\n", pieces));
 		pieces = 0;
 	}
-	///cursor = entries.begin();
-	/// cursor = 0;
 	cursor.go_head();
 
 	if (result == YARP_FAIL)
@@ -123,18 +120,8 @@ int BlockSender::AddPiece(char *buffer, int len)
 		entries[cursor].Set (buffer, len);
 	}
 
-#if 0
-	if (cursor == entries.end ())
-	{
-		cursor = entries.insert (cursor, BlockUnit(buffer,len));
-	}
-	else
-	{
-		cursor->Set (buffer, len);
-	}
-#endif
-
 	pieces++;
+
 	++cursor;
 	return 1;
 }

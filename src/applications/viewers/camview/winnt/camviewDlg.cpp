@@ -30,146 +30,152 @@ void CRecv::Body (void)
 
 	while (!IsTerminated())
 	{
-		m_inport.Read();
-		m_img.Refer (m_inport.Content());
-
-		/// cartesian.
-		if (!m_logp)
+		if (m_inport.Read())
 		{
-			if (m_flipped.GetWidth() != m_img.GetWidth() || m_flipped.GetHeight() != m_img.GetHeight())
+			m_img.Refer (m_inport.Content());
+
+			/// cartesian.
+			if (!m_logp)
 			{
-				m_flipped.Resize (m_img.GetWidth(), m_img.GetHeight(), m_img.GetID());
+				if (m_flipped.GetWidth() != m_img.GetWidth() || m_flipped.GetHeight() != m_img.GetHeight())
+				{
+					m_flipped.Resize (m_img.GetWidth(), m_img.GetHeight(), m_img.GetID());
+				}
+
+				YARPSimpleOperation::Flip (m_img, m_flipped);
+
+				m_mutex.Wait();
+				if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
+				{
+					m_converter.Resize (m_flipped);
+					m_x = m_flipped.GetWidth ();
+					m_y = m_flipped.GetHeight ();
+				}
+
+				if (!m_frozen)
+				{
+					/// prepare the DIB to display.
+					m_converter.ConvertToDIB (m_flipped);
+				}
+			}
+			/// or logpolar.
+			else
+			if (m_logp && !m_fov)
+			{
+				if (m_img.GetWidth() != _stheta || m_img.GetHeight() != _srho)
+				{
+					/// falls back to cartesian mode.
+					m_logp = false;
+					continue;
+				}
+
+				if (m_remapped.GetWidth() != 256 || m_remapped.GetHeight() != 256)
+				{
+					m_remapped.Resize (256, 256, YARP_PIXEL_BGR);
+				}
+
+				if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho)
+				{
+					m_colored.Resize (_stheta, _srho);
+				}
+
+				if (m_flipped.GetWidth() != m_remapped.GetWidth() || m_flipped.GetHeight() != m_remapped.GetHeight())
+				{
+					m_flipped.Resize (m_remapped.GetWidth(), m_remapped.GetHeight(), m_remapped.GetID());
+				}
+
+				m_mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)m_img, m_colored);
+				m_mapper.Logpolar2Cartesian (m_colored, m_remapped);
+				YARPSimpleOperation::Flip (m_remapped, m_flipped);
+
+				m_mutex.Wait();
+				if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
+				{
+					m_converter.Resize (m_flipped);
+					m_x = m_flipped.GetWidth ();
+					m_y = m_flipped.GetHeight ();
+				}
+
+				if (!m_frozen)
+				{
+					/// prepare the DIB to display.
+					m_converter.ConvertToDIB (m_flipped);
+				}
+			}
+			else	/// logpolar fovea.
+			if (m_logp && m_fov)
+			{
+				if (m_img.GetWidth() != _stheta || m_img.GetHeight() != _srho)
+				{
+					/// falls back to cartesian mode.
+					m_logp = false;
+					continue;
+				}
+
+				if (m_remapped.GetWidth() != 128 || m_remapped.GetHeight() != 128)
+				{
+					m_remapped.Resize (128, 128, YARP_PIXEL_BGR);
+				}
+
+				if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho)
+				{
+					m_colored.Resize (_stheta, _srho);
+				}
+
+				if (m_flipped.GetWidth() != m_remapped.GetWidth() || m_flipped.GetHeight() != m_remapped.GetHeight())
+				{
+					m_flipped.Resize (m_remapped.GetWidth(), m_remapped.GetHeight(), m_remapped.GetID());
+				}
+
+				m_mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)m_img, m_colored);
+				m_mapper.Logpolar2CartesianFovea (m_colored, m_remapped);
+				YARPSimpleOperation::Flip (m_remapped, m_flipped);
+
+				m_mutex.Wait();
+				if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
+				{
+					m_converter.Resize (m_flipped);
+					m_x = m_flipped.GetWidth ();
+					m_y = m_flipped.GetHeight ();
+				}
+
+				if (!m_frozen)
+				{
+					/// prepare the DIB to display.
+					m_converter.ConvertToDIB (m_flipped);
+				}
+			}
+			frame_no ++;
+			if (start == -1)
+			{
+				start = cur = YARPTime::GetTimeAsSeconds();
 			}
 
-			YARPSimpleOperation::Flip (m_img, m_flipped);
-
-			m_mutex.Wait();
-			if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
+			if ((frame_no % _AVE) == 0)
 			{
-				m_converter.Resize (m_flipped);
-				m_x = m_flipped.GetWidth ();
-				m_y = m_flipped.GetHeight ();
+				cur = YARPTime::GetTimeAsSeconds();
+				m_est_interval = (cur - start) / _AVE;
+				start = cur;
 			}
 
-			if (!m_frozen)
+			/// copy it somewhere and fire a WM_PAINT event.
+			m_owner->InvalidateRect (m_rect, FALSE);
+
+			m_mutex.Post();
+
+			if (m_period != 0)
 			{
-				/// prepare the DIB to display.
-				m_converter.ConvertToDIB (m_flipped);
+				/// approximate, don't want to do anything more complicate than this.
+				YARPTime::DelayInSeconds ((m_period - 2)* 1e-3);
 			}
-		}
-		/// or logpolar.
+
+		}	/// if Read() == true
 		else
-		if (m_logp && !m_fov)
 		{
-			if (m_img.GetWidth() != _stheta || m_img.GetHeight() != _srho)
-			{
-				/// falls back to cartesian mode.
-				m_logp = false;
-				continue;
-			}
-
-			if (m_remapped.GetWidth() != 256 || m_remapped.GetHeight() != 256)
-			{
-				m_remapped.Resize (256, 256, YARP_PIXEL_BGR);
-			}
-
-			if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho)
-			{
-				m_colored.Resize (_stheta, _srho);
-			}
-
-			if (m_flipped.GetWidth() != m_remapped.GetWidth() || m_flipped.GetHeight() != m_remapped.GetHeight())
-			{
-				m_flipped.Resize (m_remapped.GetWidth(), m_remapped.GetHeight(), m_remapped.GetID());
-			}
-
-			m_mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)m_img, m_colored);
-			m_mapper.Logpolar2Cartesian (m_colored, m_remapped);
-			YARPSimpleOperation::Flip (m_remapped, m_flipped);
-
-			m_mutex.Wait();
-			if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
-			{
-				m_converter.Resize (m_flipped);
-				m_x = m_flipped.GetWidth ();
-				m_y = m_flipped.GetHeight ();
-			}
-
-			if (!m_frozen)
-			{
-				/// prepare the DIB to display.
-				m_converter.ConvertToDIB (m_flipped);
-			}
+			/// ask for thread termination.
+			AskForEnd();
 		}
-		else	/// logpolar fovea.
-		if (m_logp && m_fov)
-		{
-			if (m_img.GetWidth() != _stheta || m_img.GetHeight() != _srho)
-			{
-				/// falls back to cartesian mode.
-				m_logp = false;
-				continue;
-			}
-
-			if (m_remapped.GetWidth() != 128 || m_remapped.GetHeight() != 128)
-			{
-				m_remapped.Resize (128, 128, YARP_PIXEL_BGR);
-			}
-
-			if (m_colored.GetWidth() != _stheta || m_colored.GetHeight() != _srho)
-			{
-				m_colored.Resize (_stheta, _srho);
-			}
-
-			if (m_flipped.GetWidth() != m_remapped.GetWidth() || m_flipped.GetHeight() != m_remapped.GetHeight())
-			{
-				m_flipped.Resize (m_remapped.GetWidth(), m_remapped.GetHeight(), m_remapped.GetID());
-			}
-
-			m_mapper.ReconstructColor ((const YARPImageOf<YarpPixelMono>&)m_img, m_colored);
-			m_mapper.Logpolar2CartesianFovea (m_colored, m_remapped);
-			YARPSimpleOperation::Flip (m_remapped, m_flipped);
-
-			m_mutex.Wait();
-			if (m_flipped.GetWidth() != m_x || m_flipped.GetHeight() != m_y)
-			{
-				m_converter.Resize (m_flipped);
-				m_x = m_flipped.GetWidth ();
-				m_y = m_flipped.GetHeight ();
-			}
-
-			if (!m_frozen)
-			{
-				/// prepare the DIB to display.
-				m_converter.ConvertToDIB (m_flipped);
-			}
-		}
-		frame_no ++;
-		if (start == -1)
-		{
-			start = cur = YARPTime::GetTimeAsSeconds();
-		}
-
-		if ((frame_no % _AVE) == 0)
-		{
-			cur = YARPTime::GetTimeAsSeconds();
-			m_est_interval = (cur - start) / _AVE;
-			start = cur;
-		}
-
-		/// copy it somewhere and fire a WM_PAINT event.
-		m_owner->InvalidateRect (m_rect, FALSE);
-
-		m_mutex.Post();
-
-		if (m_period != 0)
-		{
-			/// approximate, don't want to do anything more complicate than this.
-			YARPTime::DelayInSeconds ((m_period - 2)* 1e-3);
-		}
-	}
-
-	///m_inport.Unregister();
+	}	/// while (!IsTerminated())
 }
 
 void CRecv::SaveCurrentFrame (const char *filename)
@@ -536,6 +542,8 @@ void CCamviewDlg::OnClose()
 
 	m_receiver.AskForEnd ();
 	m_receiver.TryClosePort ();
+	m_receiver.Join ();
+
 	m_outPort.Unregister ();
 
 	CDialog::OnClose ();

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.13 2003-07-24 07:56:52 gmetta Exp $
+///	$Id: YARPThread.h,v 1.14 2003-08-10 07:08:40 gmetta Exp $
 ///
 ///
 /*
@@ -62,9 +62,6 @@
 #ifndef YARPThread_INC
 #define YARPThread_INC
 
-/*
-Ideally, would use POSIX semaphores, threads etc.
- */
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/Synch.h>
@@ -83,18 +80,33 @@ Ideally, would use POSIX semaphores, threads etc.
 class YARPBareThread
 {
 protected:
+	YARPBareThread(const YARPBareThread& yt);
+
+protected:
 	void *system_resource;
 	int identifier;
 	int size;
 
+	YARPSemaphore sema;
+	bool running;
+
+	enum 
+	{ 
+		YT_None = 0, 
+		YT_End = 1,
+		YT_AskedEnd = 2,
+		YT_Joining = 3,
+	};
+
+	int shutdown_state;
+
 public:
 	YARPBareThread(void);
-	YARPBareThread(const YARPBareThread& yt);
 	virtual ~YARPBareThread(void);
 
 	/// Begin and End are now virtual, overridable.
 	virtual void Begin(int stack_size=0);
-	virtual void End(int dontkill = 0);
+	virtual void End(int dontkill = -1);
 	virtual void Body() = 0; // this is the body of the thread
 
 	int GetIdentifier() { return identifier; }
@@ -108,7 +120,23 @@ public:
 	int GetPriority (void);
 	int SetPriority (int prio);
 
+	/// it doesn't really timeout unfortunately.
 	int Join (int timeout = 0);
+
+	/// it can be used intead of End() to ask for termination.
+	/// follow this call by a Join() to wait for thread exit.
+	void AskForEnd (void);
+
+	///
+	/// allows recycling of the thread after unclean exit.
+	void CleanState (void);
+
+	// If you are in __WIN32__, you should call this
+	// every now and then, and leave Body() if the result
+	// is non-zero.  If you don't, you may be terminated
+	// forceably with loss of memory and resources you are
+	// holding.	
+	int IsTerminated(void);
 };
 
 ///
@@ -117,30 +145,15 @@ public:
 ///
 class YARPThread : public YARPBareThread
 {
-protected:
-	YARPSemaphore sema;
+private:
+	YARPThread(const YARPThread& yt) : YARPBareThread(yt) {}
 
 public:
-	///
-	///
-	///
-	YARPThread(void);
-	YARPThread(const YARPThread& yt);
-	virtual ~YARPThread(void);
-
-	virtual void End(int dontkill = 0);
-	void AskForEnd (void) { sema.Post(); }
-
-	int IsTerminated(void);
-	// If you are in __WIN32__, you should call this
-	// every now and then, and leave Body() if the result
-	// is non-zero.  If you don't, you may be terminated
-	// forceably with loss of memory and resources you are
-	// holding.
+	YARPThread (void) : YARPBareThread() {}
+	virtual ~YARPThread(void) {}
 
 	// Forcibly halt all threads (late addition, just in QNX(4) implementation)
 	static void TerminateAll(void);
-
 	static void PrepareForDeath(void);
 	static int IsDying(void);
 };

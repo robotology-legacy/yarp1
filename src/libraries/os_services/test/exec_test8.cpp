@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.41 2003-08-08 01:07:26 gmetta Exp $
+/// $Id: exec_test8.cpp,v 1.42 2003-08-10 07:08:40 gmetta Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -84,10 +84,10 @@ extern int __debug_level;
 NetInt32 foo;
 char name[256];
 
-///YARPInputPortOf<NetInt32> in(YARPInputPort::DOUBLE_BUFFERS, YARP_UDP);
-///YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP);
-YARPInputPortOf<NetInt32> in;
-YARPOutputPortOf<NetInt32> out;
+YARPInputPortOf<NetInt32> in(YARPInputPort::DOUBLE_BUFFERS, YARP_MCAST);
+YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
+///YARPInputPortOf<NetInt32> in;
+///YARPOutputPortOf<NetInt32> out;
 
 class Thread1 : public YARPThread
 {
@@ -136,7 +136,7 @@ public:
 		YARPTime::DelayInSeconds(2);
 		int ct = 1;
 
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < 20; i++)
 ///		while (1)
 		{
 			printf("Step2\n");

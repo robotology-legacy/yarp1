@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.11 2003-07-24 07:56:52 gmetta Exp $
+/// $Id: YARPThread.cpp,v 1.12 2003-08-10 07:08:40 gmetta Exp $
 ///
 ///
 
@@ -95,42 +95,52 @@ unsigned ExecuteThread (void *args)
 	
 	thread->Body();
 	
-	//_endthreadex( 0 );
-	///thread->system_resource = NULL;
-	///thread->identifier = -1;
-
 	return 0;
 }
 
 ///
 ///
 ///
-YARPBareThread::YARPBareThread (void)
+YARPBareThread::YARPBareThread (void) : sema(0)
 {
 	system_resource = NULL;
 	identifier = -1;
 	size = -1;
+	running = false;
+	shutdown_state = YT_None;
+	sema.Post();
 }
 
-YARPBareThread::YARPBareThread (const YARPBareThread& yt)
+YARPBareThread::YARPBareThread (const YARPBareThread& yt) : sema(0)
 {
+	/// a bit ambiguous?
 	system_resource = NULL;
 	identifier = yt.identifier;
+	running = yt.running;
+	shutdown_state = YT_None;
+	sema.Post();
 }
 
 YARPBareThread::~YARPBareThread (void)
 {
-	End();
+	if (!IsTerminated()) End();
 }
 
 void YARPBareThread::Begin (int stack_size)
 {
+	sema.Wait();
+	ACE_ASSERT (running == 0);
+	ACE_ASSERT (shutdown_state == YT_None);
+
 	if (stack_size <= 0)
 	{
 		stack_size = DEFAULT_THREAD_STACK_SIZE;
 	}
 
 	ACE_thread_t threadID;
+
+	ACE_ASSERT (system_resource == NULL);
+
 	if (system_resource == NULL)
 	{
 		if (ACE_Thread::spawn (
@@ -150,12 +160,29 @@ void YARPBareThread::Begin (int stack_size)
 
 	ACE_ASSERT (system_resource != NULL);
 	identifier = threadID;
+	running = true;
+
+	sema.Post();
 }
 
 int YARPBareThread::Join (int timeout)
 {
+	sema.Wait();
+	if (shutdown_state == YT_AskedEnd)
+		shutdown_state = YT_Joining;
+	sema.Post();
+
 	ACE_UNUSED_ARG (timeout);
-	return ACE_Thread::join ((ACE_hthread_t)system_resource);
+	int r = ACE_Thread::join ((ACE_hthread_t)system_resource);
+
+	/// if joined (otherwise hung!)
+	sema.Wait();
+	system_resource = NULL;
+	identifier = -1;
+	shutdown_state = YT_None;
+	sema.Post();
+
+	return r;
 }
 
 int YARPBareThread::GetPriority (void)
@@ -172,11 +199,23 @@ int YARPBareThread::SetPriority (int prio)
 
 ///
 /// parameter, if == 0 don't wait and kills the thread.
+///			   if == -1 joins the thread (risky, no timeout).
+///	otherwise it'll wait dontkill milliseconds before termination.
 ///
 void YARPBareThread::End(int dontkill)
 {
+	sema.Wait();
+
+	ACE_ASSERT (shutdown_state == YT_None);
+	ACE_ASSERT (running == 1);
+
+	running = false;
+	shutdown_state = YT_End;
+
 	if (identifier != -1 && dontkill == 0)
 	{
+		ACE_DEBUG ((LM_DEBUG, "YARPBareThread::End : WARNING --- thread forced a kill\n"));
+
 #if defined(__WIN32__)
 		
 		TerminateThread ((HANDLE)system_resource, -1);
@@ -190,63 +229,73 @@ void YARPBareThread::End(int dontkill)
 #error "YARPBareThread::End - not implemented for the specified architecture"
 
 #endif
-		identifier = -1;
 	}
-
-	system_resource = NULL;
-	identifier = -1;
-}
-
-
-///
-/// WARNING: this requires a mutex for start/end and system_resources variable.
-///
-YARPThread::YARPThread (void) : sema(0)
-{
-	system_resource = NULL;
-	identifier = -1;
-	size = -1;
-}
-
-YARPThread::YARPThread (const YARPThread& yt) : YARPBareThread(yt), sema(0)
-{
-	///system_resource = NULL;
-	///identifier = yt.identifier;
-}
-
-YARPThread::~YARPThread (void)
-{
-	End();
-}
-
-int YARPThread::IsTerminated (void)
-{
-	return (sema.PollingWait() == 1) ? 1 : 0;
-}
-
-
-///
-/// parameter, if == 0 don't wait and kills the thread.
-///			   if == -1 joins the thread (risky, no timeout).
-///	otherwise it'll wait dontkill milliseconds before termination.
-///
-void YARPThread::End(int dontkill)
-{
-	/// termination "signal". it might be a repetition if the AskForEnd was called.
-	sema.Post();
-
-	if (dontkill > 0)
+	else
+	if (identifier != -1 && dontkill == -1)
 	{
+		sema.Post();
+		ACE_Thread::join ((ACE_hthread_t)system_resource);
+		sema.Wait();
+	}
+	else
+	if (identifier != -1 && dontkill > 0)
+	{
+		sema.Post();
+
 		YARPTime::DelayInSeconds(double(dontkill)/1000.0);
-		YARPBareThread::End (0);
+		ACE_DEBUG ((LM_DEBUG, "YARPBareThread::End : WARNING --- thread forced a kill after %d ms\n", dontkill));
+
+#if defined(__WIN32__)
+		
+		TerminateThread ((HANDLE)system_resource, -1);
+
+#elif defined(__QNX6__)
+		
+		ThreadDestroy (identifier, -1, (void *)-1);
+#else
+
+#error "YARPBareThread::End - not implemented for the specified architecture"
+
+#endif
+		sema.Wait();
 	}
-	else
-	if (dontkill == 0)
+
+	/// isn't a close handle missing here?
+	system_resource = NULL;
+	identifier = -1;
+	shutdown_state = YT_None;
+
+	sema.Post();
+}
+
+
+int YARPBareThread::IsTerminated (void)
+{
+	sema.Wait();
+	int r = !running;
+	sema.Post();
+	return r;
+}
+
+
+void YARPBareThread::AskForEnd (void)
+{
+	sema.Wait();
+	if (shutdown_state != YT_None && shutdown_state != YT_AskedEnd)
 	{
-		YARPBareThread::End (0);
+		sema.Post();
+		return;
 	}
-	else
-	{
-		Join ();
-	}
+	running = false;
+	shutdown_state = YT_AskedEnd;
+	sema.Post();
+}
+
+void YARPBareThread::CleanState (void)
+{
+	sema.Wait();
+	shutdown_state = YT_None;
+	system_resource = NULL;
+	identifier = -1;
+	sema.Post();
 }

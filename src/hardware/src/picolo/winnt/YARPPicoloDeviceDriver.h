@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.6 2003-08-07 04:23:43 gmetta Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.7 2003-08-10 07:08:40 gmetta Exp $
 ///
 ///
 
@@ -118,17 +118,7 @@ public:
 protected:
 	void *system_resources;
 
-	//  functions
 	virtual void Body(void);
-	// debug
-
-	/*void Begin(){};
-	void End(int p = 0) {};
-	int GetPriority(){return 0;};
-	int SetPriority(int p){return 0;};
-	*/
-
-
 };
 
 

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPSemaphore.h,v 1.7 2003-05-23 10:14:25 gmetta Exp $
+///	$Id: YARPSemaphore.h,v 1.8 2003-08-10 07:08:40 gmetta Exp $
 ///
 ///
 /*
@@ -63,6 +63,9 @@
 #define YARPSemaphore_INC
 
 #include <conf/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/Synch.h>
+
 #include "YARPAll.h"
 #include "YARPErrorCodes.h"
 
@@ -141,6 +144,26 @@ public:
 
 	int lock (int blocking = 1) { return _sema.Wait(blocking); }
 	void unlock (void) { _sema.Post(); }
+};
+
+
+///
+///
+///
+class YARPEvent : public ACE_Event
+{
+protected:
+	YARPEvent (const YARPEvent&);
+	void operator= (const YARPEvent&);
+
+public:
+	YARPEvent (int manual_reset = 0, int initial_state = 0) : ACE_Event (manual_reset, initial_state) {}
+	~YARPEvent () {}
+
+	inline int Wait (void) { return wait(); }
+	inline int Signal (void) { return signal(); }
+	inline int Pulse (void) { return pulse(); }
+	inline int Reset (void) { return reset(); }
 };
 
 #endif

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.8 2003-08-07 04:23:43 gmetta Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.9 2003-08-10 07:08:40 gmetta Exp $
 ///
 ///
 
@@ -354,9 +354,7 @@ int YARPPicoloDeviceDriver::close (void)
 {
 	PicoloResources& d = RES(system_resources);
 
-	///AskForEnd ();
-
-	End (2000);	/// stops the thread first.
+	End ();	/// stops the thread first (joins too).
 
 	int ret = d._uninitialize ();
 
@@ -375,7 +373,6 @@ void YARPPicoloDeviceDriver::Body (void)
 	SetPriority (prio);
 
 	PicoloStatus = PicoloSetWaitTimeout (d._picoloHandle, 500);		/// timeout 120 ms.
-	///bool finished = false;
 
 	d._canpost = true;
 
@@ -394,8 +391,8 @@ void YARPPicoloDeviceDriver::Body (void)
 		if (PicoloStatus != PICOLO_OK)
 		{
 			ACE_DEBUG ((LM_DEBUG, "it's likely that the acquisition timed out, returning\n"));
+			ACE_DEBUG ((LM_DEBUG, "WARNING: this leaves the acquisition thread in an unterminated state --- can't be restarted from here!\n"));
 			AskForEnd();
-			///finished = true;
 		}
 
 		readfro = startbuf;
