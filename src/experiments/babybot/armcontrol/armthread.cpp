@@ -14,7 +14,8 @@
 ArmThread::ArmThread(int rate, const char *name, const char *ini_file):
 YARPRateThread(name, rate),
 _tirednessControl(23000.0, 10000.0, rate, 0.5),
-_arm_status(ini_file)
+_arm_status(ini_file),
+_wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP)
 {
 	strncpy(_iniFile, ini_file, 80);
 
@@ -34,6 +35,13 @@ _arm_status(ini_file)
 	file.get("[THREAD]", "RestingFinal", tmp2.data(), _nj);
 	ASRestingInit::instance()->setTrajectory(tmp1*degToRad, tmp2*degToRad);
 	////////////////////////////////////////////////////////////////////////
+	/////////// Wrist
+	char wristPortName[255];
+	file.getString("[WRIST]", "PortName", wristPortName);
+	_wristPort.Register(wristPortName);
+	_wristF.Resize(6);
+	_wristF = 0.0;
+	///////////////////
 	
 	changeInitState(ASDirectCommand::instance());
 	_arm_state = _init_state;
@@ -124,12 +132,15 @@ inline void ArmThread::send_commands()
 {
 	_trajectory.getNext(_actual_command.data());
 	// 
-	double g[3];
+	double g[6];
 	_gravity1.computeG(_arm_status._current_position, &g[0]);
 	_gravity2.computeG(_arm_status._current_position, &g[1]);
 	_gravity3.computeG(_arm_status._current_position, &g[2]);
+	g[3] = 0.0;
+	_gravity5.computeG(_wristF(4), &g[4]);
+	g[5] = 0.0;
 
-	for(int i = 0; i < 3; i++)
+	for(int i = 0; i < 6; i++)
 		_arm.setG(i,g[i]);
 
 	_arm.setCommands(_actual_command.data());
@@ -137,10 +148,13 @@ inline void ArmThread::send_commands()
 
 inline void ArmThread::read_status()
 {
-	/// get
+	/// get arm
 	_arm.getPositions(_arm_status._current_position.data());
 	_arm.getTorques(_arm_status._torques.data());
 	_tirednessControl.add(_arm_status._torques(1));
+	// get from wrist
+	if (_wristPort.Read(0))
+		_wristF = _wristPort.Content();
 }
 
 void ArmThread::park(int index)

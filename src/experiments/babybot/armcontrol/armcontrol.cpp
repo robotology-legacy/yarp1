@@ -37,8 +37,7 @@ int main(int argc, char* argv[])
 	RandomThread rnd_thread(&arm_thread, _random_thread_rate, "rnd thread", "Y:\\conf\\babybot\\arm.ini");
 	
 	arm_thread.start();
- 	arm_thread.start_transmission();
-		
+ 			
 	for(;;)
 	{
 		bool loop = true;
@@ -100,7 +99,6 @@ int main(int argc, char* argv[])
 
 	rnd_thread.terminate();
 
-	arm_thread.stop_transmission();
 	arm_thread.terminate(false);	// no timeout here, important !
 
 	cout << "exiting...\n";

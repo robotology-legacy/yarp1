@@ -1,7 +1,7 @@
 #include "YARPGravityEstimator.h"
 
 YARPGravityEstimator::YARPGravityEstimator(int par):
-_leastSquares(__gNumOfPar, 1.0)
+_leastSquares(par, 1.0)
 {
 	_parSize = par;
 	_parameters.Resize(_parSize);

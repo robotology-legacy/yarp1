@@ -18,6 +18,8 @@
 #include "YARPBabybotArm.h"
 #include "YARPTrajectoryGen.h"
 #include "YARPGravityEstimator.h"
+#include <YARPPort.h>
+#include <YARPVectorPortContent.h>
 #include "AState.h"
 
 #include "tirednessControl.h"
@@ -32,8 +34,6 @@
 #else  ARM_THREAD_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
-// class YARPRateThread {};
-
 class ArmThread: public YARPRateThread
 {
 public:
@@ -45,29 +45,6 @@ public:
 	void doLoop();
 	void doInit();
 	void doRelease();
-
-	void start_transmission()
-	{
-		/*
-		ACE_INET_Addr addr;
-		NameClient ns(ACE_INET_Addr(__name_server_port, __name_server_address));
-			
-		ns.check_in("arm2", addr);
-		if (p_arm_sender->start(addr) == -1)
-			ns.check_out("arm2");
-			*/
-	}
-
-	void stop_transmission()
-	{
-		/*
-		ACE_INET_Addr addr;
-		NameClient ns(ACE_INET_Addr(__name_server_port, __name_server_address));
-
-		if (p_arm_sender->terminate() != -1)
-			ns.check_out("arm2");
-			*/
-	}
 
 	bool checkMotionDone()
 	{
@@ -144,10 +121,9 @@ private:
 	AState *_init_state;
 
 	YVector _actual_command;			// actual arm command, joint space
-		
-	// WristSensor *p_wrist;					// wrist force sensor
-	// DatagramSender *p_arm_sender;			// arm sender
-
+	YVector _wristF;
+	YARPInputPortOf<YVector> _wristPort;
+	
 	bool _restingInhibited;
 
 	YARPTrajectoryGen _trajectory;
@@ -165,6 +141,7 @@ public: //later: make it private
 	J1GravityEstimator _gravity1;
 	J2GravityEstimator _gravity2;
 	J3GravityEstimator _gravity3;
+	J5GravityEstimator _gravity5;
 };
 
 #endif //.h

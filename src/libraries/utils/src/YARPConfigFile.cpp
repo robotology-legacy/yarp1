@@ -1,6 +1,6 @@
 //
 // YARPIniFile.cpp
-// $Id: YARPConfigFile.cpp,v 1.2 2003-06-30 21:14:23 babybot Exp $
+// $Id: YARPConfigFile.cpp,v 1.3 2003-07-04 16:25:57 babybot Exp $
 
 #include "YARPConfigFile.h"
 
@@ -88,6 +88,22 @@ int YARPConfigFile::get(const char *section, const char *name, int *out, int n)
 		return YARP_OK;		// found all the values
 	else	
 		return YARP_FAIL;	
+}
+
+int YARPConfigFile::getString(const char *section, const char *name, char *out)
+{
+	if (_get(section, name) == YARP_FAIL)
+		return YARP_FAIL;
+
+	int i = 0;
+	i = fscanf(_pFile, "%s", out);
+					
+	_close();
+	
+	if (i > 0)
+		return YARP_OK;		// found at least a single char
+	else 
+		return YARP_FAIL;
 }
 
 int YARPConfigFile::_get(const char *section, const char *name)

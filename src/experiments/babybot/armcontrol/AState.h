@@ -68,8 +68,7 @@ public:
 			_lsparameters[i] = 0.0;
 		}
 
-		_wristF = 0.0;
-		_wristT = 0.0;
+		_j5Ls.Resize(2);
 
 		_errorFile.open("Y:\\conf\\babybot\\errors.txt");
 		_lsFile.open("Y:\\conf\\babybot\\leastSquares.txt");
@@ -99,8 +98,7 @@ public:
 	YVector _finalCmd;
 	YVector _error;
 	YVector *_lsparameters;
-	Y3DVector	_wristF;
-	Y3DVector	_wristT;
+	YVector _j5Ls;
 	int _nSteps;
 	int _steps;
 

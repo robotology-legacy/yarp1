@@ -61,18 +61,21 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 				double torque1 = t->_arm_status._torques(1);
 				double torque2 = t->_arm_status._torques(2);
 				double torque3 = t->_arm_status._torques(3);
+				double torque5 = t->_arm_status._torques(5);
 				t->_gravity1.update(t->_arm_status._current_position, torque1);
 				t->_gravity2.update(t->_arm_status._current_position, torque2);
 				t->_gravity3.update(t->_arm_status._current_position, torque3);
+				t->_gravity5.update(t->_wristF(4), torque5);
 				
 				// estimate error
 				_error = t->_arm_status._current_position - _finalCmd;
-				// get wrist
-//				t->p_wrist->read(_wristF, _wristT);
-				// get parameters
+
 				t->_gravity1.getP(_lsparameters[0]);
 				t->_gravity2.getP(_lsparameters[1]);
 				t->_gravity3.getP(_lsparameters[2]);
+				
+				// joint 5 is different
+				t->_gravity5.getP(_j5Ls);
 				
 				/////////////////////////
 				_errorFile.dump(t->_arm_status._current_position);
@@ -81,13 +84,13 @@ void ASDirectCommandMove:: handle(ArmThread *t)
 
 				for(int i = 0; i < 3; i++)
 					_lsFile.dump(_lsparameters[i]);
+				_lsFile.dump(_j5Ls);	// wrist
 				
 				_lsFile.newLine();
 
 				_pointsFile.dump(t->_arm_status._current_position);
 				_pointsFile.dump(t->_arm_status._torques);
-				_pointsFile.dump(_wristF);
-				_pointsFile.dump(_wristT);
+				_pointsFile.dump(t->_wristF);
 				_pointsFile.newLine();
 				////////////////////
 			}

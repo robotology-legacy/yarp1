@@ -14,77 +14,13 @@
 #include <YARPVectorPortContent.h>
 
 #include <YARPForceSensor.h>
+#include <YARPParseParameters.h>
 #include <string>
 
 using namespace std;
 
 const int __defaultRate = 40;
 const string __defaultName = "/force/o:1";
-
-bool parseParams (int argc, char *argv[], const string &key, string &out)
-{
-	for (int i = 1; i < argc; i++)
-	{
-		if (argv[i][0] == '-')
-		{
-			// found parameter, check key
-			if (key == string(argv[i]+1)) 
-			{
-				// found key
-				i++;
-				if (i==argc)
-					return false;
-				else if (argv[i][0] == '-')
-					return false;
-				{
-					out = string (argv[i]);
-					return true;
-				}
-			}
-		}
-	}
-	return false; 
-}
-
-bool parseParams (int argc, char *argv[], const string &key)
-{
-	for (int i = 1; i < argc; i++)
-	{
-		if (argv[i][0] == '-')
-		{
-			// found parameter, check key
-			if (key == string(argv[i]+1))
-				return true;
-		}
-	}
-	return false; 
-}
-
-bool parseParams (int argc, char *argv[], const string &key, int *out) 
-{
-	string dummy;
-	if (parseParams(argc, argv, key, dummy))
-	{
-		*out = atoi(dummy.c_str());
-		return true;
-	}
-	else
-		return false;
-
-}
-
-bool parseParams (int argc, char *argv[], const string &key, char *out) 
-{
-	string dummy;
-	if (parseParams(argc, argv, key, dummy))
-	{
-		strcpy(out, dummy.c_str());
-		return true;
-	}
-	else
-		return false;
-
-}
 
 class Thread : public YARPRateThread
 {
@@ -142,14 +78,11 @@ int main (int argc, char *argv[])
 	// parse command line
 	int rate;
 	string name;
-	if (!parseParams(argc, argv, "p", &rate))
+	if (!YARPParseParameters::parse(argc, argv, "p", &rate))
 		rate = __defaultRate;
 
-	if (!parseParams(argc, argv, "name", name))
+	if (!YARPParseParameters::parse(argc, argv, "name", name))
 		name = __defaultName;
-
-	if (parseParams(argc, argv, "a"))
-		cout << "-a foun ";
 
 	Thread _thread(name.c_str(), rate);
 
@@ -167,6 +100,3 @@ int main (int argc, char *argv[])
 	_thread.terminate();
 	return YARP_OK;
 }
-
-
-

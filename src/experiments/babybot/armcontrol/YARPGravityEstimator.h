@@ -185,4 +185,39 @@ private:
 	}
 };
 
+//
+class J5GravityEstimator : public YARPGravityEstimator
+{
+public:
+	J5GravityEstimator(): YARPGravityEstimator(2)
+	{
+		_input.Resize(1);
+		_input(1) = 0;
+	}
+	
+	void _buildInputVector(const YVector &in, YVector &out)
+	{
+		out(1) = in(1);
+		out(2) = 1.0;
+	}
+
+	// update, overload (this is just to allow a double to be passed to the function)
+	inline void update(double in, double out)
+	{
+		// no lock/unlock here, they are already within update
+		_input(1) = in;
+		YARPGravityEstimator::update(_input, out);
+	}
+
+	inline void computeG(double in, double *g)
+	{
+		// no lock/unlock here, they are already within update
+		_input(1) = in;
+		YARPGravityEstimator::computeG(_input, g);
+	}
+
+private:
+	YVector _input;
+};
+
 #endif
