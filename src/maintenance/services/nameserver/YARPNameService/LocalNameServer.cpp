@@ -61,15 +61,12 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.10 2003-06-25 10:03:38 babybot Exp $
+/// $Id: LocalNameServer.cpp,v 1.11 2003-06-25 12:53:23 babybot Exp $
 ///
 
 #include "LocalNameServer.h"
 
 using namespace std;
-
-int pool<PortEntry, PORT_LIST, PORT_IT>::globalPortCounter = 0;
-int pool<IpEntry, IP_LIST, IP_IT>::globalPortCounter = 0;
 
 std::string getNextIp(const std::string &i)
 {
@@ -96,6 +93,22 @@ std::string getNextIp(const std::string &i)
 	}
 	sprintf(tmp, "%d.%d.%d.%d", a,b,c,d);
 	return std::string(tmp);
+}
+
+int getDistance(const std::string &current, const std::string &start)
+{
+	int cA,cB,cC,cD;
+	int sA,sB,sC,sD;
+	int ret;
+	sscanf(current.c_str(),"%d.%d.%d.%d", &cA,&cB,&cC,&cD);
+	sscanf(start.c_str(), "%d.%d.%d.%d", &sA, &sB, &sC, &sD);
+
+	ret = (cA-sA)*255*255*255;
+	ret += (cB-sB)*255*255;
+	ret += (cC-sC)*255;
+	ret += (cD-sD);
+		
+	return ret;
 }
 
 ///////////////////////////////////////////////

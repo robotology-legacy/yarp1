@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 1.12 2003-06-25 12:23:08 babybot Exp $
+/// $Id: LocalNameServer.h,v 1.13 2003-06-25 12:53:34 babybot Exp $
 ///
 ///
 
@@ -103,6 +103,8 @@ const int _max_ref = 9999;
 
 // return the ip address right after 'i'
 std::string getNextIp(const std::string &i);
+// return the distance between two ip address (count the number of ip)
+int getDistance(const std::string &current, const std::string &start);
 
 class PortEntry
 {
@@ -128,13 +130,6 @@ public:
 	PortEntry operator++()
 	{
 		port++;
-		flag = false;
-		return *this;
-	}
-
-	PortEntry operator+(int l)
-	{
-		port = port + l;
 		flag = false;
 		return *this;
 	}
@@ -167,11 +162,7 @@ public:
 		{
 			if (!_check(l,tmp))
 			{
-				/* qnx compatibility by nat */
-				item = tmp+globalPortCounter;
-				globalPortCounter++;
-				// it used to be:
-				// item = tmp;
+				item = tmp;
 				return true;
 			}
 			++tmp;
@@ -193,8 +184,6 @@ private:
 public:
 	T _min;
 	T _max;
-
-	static int globalPortCounter;
 };
 
 class IpEntry
@@ -211,6 +200,14 @@ public:
 		ip = std::string(i);
 		_portPool._min = PortEntry(startPort);
 		_portPool._max = PortEntry(endPort);
+	}
+
+	IpEntry(const char *i, const char *s)
+	{
+		ip = std::string(i);
+		int dist = getDistance(ip,s);
+		_portPool._min = dist+__startDynPortPool;
+		_portPool._max = dist+__startDynPortPool;
 	}
 
 	std::string	ip;
@@ -234,14 +231,13 @@ public:
 	IpEntry operator++()
 	{
 		ip = getNextIp(ip);
+		// modify port pool
+		int dist = getDistance(ip, __startIpPool);
+		_portPool._min = dist+__startDynPortPool;
+		_portPool._max = dist+__startDynPortPool;
 		return *this;
 	}
-	// operator + int has no effect on ip; this is here only for compatibility
-	IpEntry operator+(int l)
-	{		
-		ACE_UNUSED_ARG(l);
-		return *this;
-	}
+
 	const IpEntry &operator = (const IpEntry &i)
 	{
 		ip = i.ip;
@@ -258,8 +254,10 @@ class resources : public IP_LIST
 public:
 	resources()
 	{
-		_ipPool._min = IpEntry(__startIpPool, __startDynPortPool, __endDynPortPool);
-		_ipPool._max = IpEntry(__endIpPool, __startDynPortPool, __endDynPortPool);
+		// _ipPool._min = IpEntry(__startIpPool, __startDynPortPool, __endDynPortPool);
+		// _ipPool._max = IpEntry(__endIpPool, __startDynPortPool, __endDynPortPool);
+		_ipPool._min = IpEntry(__startIpPool, __startIpPool);
+		_ipPool._max = IpEntry(__endIpPool, __startIpPool);
 	}
 
 	void release (const std::string &ip);
