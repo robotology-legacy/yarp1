@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.2 2003-05-31 08:20:05 gmetta Exp $
+/// $Id: main.cpp,v 1.3 2003-05-31 09:43:03 babybot Exp $
 ///
 ///
 
@@ -100,6 +100,8 @@ int main (int argc, char *argv[])
 
 	unsigned char *buffer = NULL;
 	int frame_no = 0;
+
+	ACE_OS::fprintf (stderr, "starting up grabber...\n");
 
 	while (!finished)
 	{

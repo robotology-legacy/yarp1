@@ -61,13 +61,14 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.3 2003-05-31 07:22:00 gmetta Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.4 2003-05-31 09:43:03 babybot Exp $
 ///
 ///
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
+#include <ace/Sched_Params.h>
 
 #include "YARPPicoloDeviceDriver.h"
 #include <YARPFrameGrabberUtils.h>
@@ -292,6 +293,7 @@ YARPPicoloDeviceDriver::YARPPicoloDeviceDriver(void) : YARPDeviceDriver<YARPNull
 	/// for the IOCtl call.
 	m_cmds[FCMDAcquireBuffer] = &YARPPicoloDeviceDriver::acquireBuffer;
 	m_cmds[FCMDReleaseBuffer] = &YARPPicoloDeviceDriver::releaseBuffer;
+	m_cmds[FCMDWaitNewFrame] = &YARPPicoloDeviceDriver::waitOnNewFrame;
 }
 
 YARPPicoloDeviceDriver::~YARPPicoloDeviceDriver()
@@ -333,7 +335,10 @@ void YARPPicoloDeviceDriver::Body (void)
 	PICOLOSTATUS PicoloStatus;
 	PicoloResources& d = RES(system_resources);
 
-	PicoloStatus = PicoloSetWaitTimeout (d._picoloHandle, 120);		/// timeout 120 ms.
+	const int prio = ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, GetPriority(), ACE_SCOPE_THREAD);
+	SetPriority (prio);
+
+	PicoloStatus = PicoloSetWaitTimeout (d._picoloHandle, 500);		/// timeout 120 ms.
 	bool finished = false;
 
 	/// strategy, waits, copy into lockable buffer.
@@ -352,7 +357,8 @@ void YARPPicoloDeviceDriver::Body (void)
 				PicoloStatus = PicoloGetCurrentBuffer (d._picoloHandle, &bufno);
 				if (PicoloStatus == PICOLO_OK)
 				{
-					memcpy (d._rawBuffer, d._aligned[bufno], d._nImageSize);
+					const int readfro = (bufno - 1 >= 0) ? (bufno - 1) : (d._num_buffers - 1);
+					memcpy (d._rawBuffer, d._aligned[readfro], d._nImageSize);
 					d._bmutex.Post ();
 				}
 				else
@@ -366,6 +372,7 @@ void YARPPicoloDeviceDriver::Body (void)
 			{
 				/// can't acquire, it means the buffer is still in use.
 				/// silently ignores this condition.
+				ACE_DEBUG ((LM_DEBUG, "lost a frame, acq thread\n"));
 			}
 		}
 		else
