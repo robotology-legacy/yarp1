@@ -50,13 +50,18 @@ static void HWEnDi (void);
  */
 static void HWEnDi(void)
 {
-    touchReg(SCI0_SCISR);                /* Reset interrupt request flags */
+ //   touchReg(SCI0_SCISR);                /* Reset interrupt request flags */
+	asm (bftsth #$A800,X:$1302);
+	asm (move X:$1303, R0);
+	
     setRegBits(SCI0_SCICR, (SCI0_SCICR_TE_MASK | SCI0_SCICR_RE_MASK | SCI0_SCICR_RIE_MASK | SCI0_SCICR_REIE_MASK)); /* Enable device */
     
 	/* Is any char in the transmit buffer? */
     if (SerFlag & FULL_TX) 
     {          
-		touchReg(SCI0_SCISR);              /* Reset interrupt request flags */
+		//touchReg(SCI0_SCISR);              /* Reset interrupt request flags */
+		asm (bftsth #$8000,X:$1302);
+	
 		while (!getRegBit(SCI0_SCISR, TDRE)) ; /* Wait for transmitter empty */
 		setReg(SCI0_SCIDR, BufferWrite); /* Store char to the transmitter register */
 		setRegBit(SCI0_SCICR, TEIE);     /* Enable transmit interrupt */
@@ -86,9 +91,9 @@ byte AS1_sendChar(byte chr)
 		return ERR_TXFULL;             /* If yes then error */
 		
 	EnterCritical();                   /* Disable global interrupts */
-//	touchReg(SCI0_SCISR);              /* Reset interrupt request flags */
-//	setRegBit(SCI0_SCISR, TDRE);       /* Reset interrupt request flags */
+	
 	asm (bftsth #$8000,X:$1302);
+	
 	setReg(SCI0_SCIDR, chr);           /* Store char to transmitter register */
 	setRegBit(SCI0_SCICR, TEIE);       /* Enable transmit interrupt */
 
@@ -109,15 +114,11 @@ byte AS1_sendCharSafe(byte chr)
 	if (SerFlag & FULL_TX)             /* Is any char is in TX buffer */
 		return ERR_TXFULL;             /* If yes then error */
 		
-//	EnterCritical();                   /* Disable global interrupts */
-//	touchReg(SCI0_SCISR);              /* Reset interrupt request flags */
-//	setRegBit(SCI0_SCISR, TDRE);       /* Reset interrupt request flags */
 	asm (bftsth #$8000,X:$1302);
 	setReg(SCI0_SCIDR, chr);           /* Store char to transmitter register */
 	setRegBit(SCI0_SCICR, TEIE);       /* Enable transmit interrupt */
 
 	SerFlag |= FULL_TX;                /* Set the flag "full TX buffer" */
-//	ExitCritical();                    /* Enable global interrupts */
 	
 	return ERR_OK;                     /* OK */
 }
@@ -156,8 +157,9 @@ void AS1_interruptRx(void)
 	register byte Data;          		/* Temporary variable for data */
 	register byte OnFlags = 0;    		/* Temporary variable for flags */
 
-	asm (bftsth #$8000,X:$1302);
-//	touchReg(SCI0_SCISR);               /* Reset interrupt request flags */
+	asm (bftsth #$4800,X:$1302);		/* reset interrupt req flag */
+	asm (bfset #$4800, X:$1302);		/* overrun ? */
+	
 	Data = (byte)getReg(SCI0_SCIDR); 	/* Read data from the receiver */
 	if (SerFlag & CHAR_IN_RX)           /* Is any char already present in the receive buffer? */
 		SerFlag |= OVERRUN_ERR;         /* If yes then set flag OVERRUN_ERR */
@@ -168,10 +170,6 @@ void AS1_interruptRx(void)
 		BufferRead = Data;
 		OnFlags |= ON_RX_CHAR;          /* Set flag "OnRxChar" */
 	}
-//	if (OnFlags & ON_RX_CHAR) 
-//	{        /* Is OnRxChar flag set? */
-//		AS1_OnRxChar();                 /* If yes then invoke user event */
-//	}
 }
 
 /**
@@ -237,7 +235,7 @@ void AS1_printStringEx (char *dataAddress)
   		}
   		while (charsInBuf > 0);
   		
-		AS1_sendChar(dataAddress[i]);
+  		AS1_sendChar(dataAddress[i]);
 		i++;
 	}
 }

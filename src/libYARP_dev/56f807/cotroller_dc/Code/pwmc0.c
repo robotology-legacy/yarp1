@@ -20,7 +20,7 @@ void PWMC0_init(void)
 	setReg (PWMA_PMCTL, 0);
 	            
 	/* PWMA_PMFCTL: ??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,FIE3=0,FMODE3=1,FIE2=0,FMODE2=1,FIE1=0,FMODE1=1,FIE0=0,FMODE0=1 */
-	setReg (PWMA_PMFCTL, 0x55);            
+	setReg (PWMA_PMFCTL, 0x55);
 
 	/* PWMA_PMDISMAP1: DISMAP=0 */
 	setReg (PWMA_PMDISMAP1, 0);          
@@ -41,25 +41,25 @@ void PWMC0_init(void)
 	setReg (PWMA_PMDEADTM, 0x28);          
 
 	/* PWMA_PWMVAL0: PWMVAL=0 */
-	setReg (PWMA_PWMVAL0, 0);            
+	setReg (PWMA_PWMVAL0, 0x0);            
 
 	/* PWMA_PWMVAL1: PWMVAL=1333 */
-	setReg (PWMA_PWMVAL1, 0x0535);         
+	setReg (PWMA_PWMVAL1, 0x535);         
 
 	/* PWMA_PWMVAL2: PWMVAL=0 */
 	setReg (PWMA_PWMVAL2, 0);            
 
 	/* PWMA_PWMVAL3: PWMVAL=1333 */
-	setReg (PWMA_PWMVAL3, 0x0535);         
+	setReg (PWMA_PWMVAL3, 0x535);         
 
 	/* PWMA_PWMVAL4: PWMVAL=0 */
 	setReg (PWMA_PWMVAL4, 0);            
 
 	/* PWMA_PWMVAL5: PWMVAL=1333 */
-	setReg (PWMA_PWMVAL5, 0x0535);         
+	setReg (PWMA_PWMVAL5, 0x535);         
 
 	/* PWMA_PWMCM: ??=0,PWMCM=1333 */
-	setReg (PWMA_PWMCM, 0x0535);           
+	setReg (PWMA_PWMCM, 0x535);           
 
 	/* PWMA_PMCTL: LDOK=1,PWMEN=1 */
 	setRegBits (PWMA_PMCTL, 3);         
@@ -124,10 +124,10 @@ byte PWMC0_setDuty (byte channel, int duty)
  */
 byte PWMC0_setDutyPercent(byte channel,byte duty)
 {
-  register word dutyreg;
+	register word dutyreg;
 
 	if (duty>100)
-	return ERR_RANGE;
+		return ERR_RANGE;
 	dutyreg = (word)((dword)getReg (PWMA_PWMCM) * duty / 100);
 	switch (channel) 
 	{

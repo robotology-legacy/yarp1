@@ -19,6 +19,7 @@
  * prototypes.
  */
 void isrIRQA ();
+int get_flash_addr (void);
 
 /*
  * test irs.
@@ -26,8 +27,7 @@ void isrIRQA ();
 #pragma interrupt saveall
 void isrIRQA ()
 {
-	word x = 0;
-	//AS1_sendCharSafe('*');
+	AS1_sendCharSafe('*');
 }
 
 /* stable global data */
@@ -127,8 +127,10 @@ Int16 compute_pid2(byte j)
 	if (PIDoutput < MIN_16) 
 		InputError = MIN_16;
 	else
+	{
 		InputError = extract_l(PIDoutput);
-
+	}
+	
 	ProportionalPortion = L_mult(_kp[j], InputError) >> _kr[j];
 	_error[j] = InputError;
 
@@ -140,20 +142,24 @@ Int16 compute_pid2(byte j)
 	if(PIDoutput < MIN_16)  
 		InputError = MIN_16;
 	else
+	{
 		InputError = extract_l(PIDoutput);
-
+	}
+	
 	PIDoutput = L_mult(_kd[j], InputError) >> _kr[j];
 	PIDoutput = L_add(PIDoutput, ProportionalPortion);
 
 	if (PIDoutput > _pid_limit[j])
-    	PIDoutput = _pid_limit[j];
+    	_pid[j] = _pid_limit[j];
 	else
     if (PIDoutput < -_pid_limit[j])
-		PIDoutput =  -_pid_limit[j];
+		_pid[j] =  -_pid_limit[j];
 	else
+	{
 		_pid[j] = extract_l(PIDoutput);
+	}
 		
-	return (extract_l(PIDoutput));
+	return 0; //(extract_l(PIDoutput));
 }
 
 
@@ -434,6 +440,12 @@ void can_send_request(void)
 
 /* defined by the linker */
 extern _data_ROM2_addr;
+asm int get_flash_addr (void)
+{
+	move #_data_ROM2_addr, y0
+	rts
+}
+
 
 /* 
 	This is the main controller loop.
@@ -448,13 +460,7 @@ extern _data_ROM2_addr;
 void main(void)
 {
 	Int32 acceptance_code = 0x0;
-	
-	asm
-	{
-		move #_data_ROM2_addr, r0
-		nop
-		nop
-	}
+	Int16 flash_addr = get_flash_addr();	
 	
 	/* enable interrupts */
 	setReg(SYS_CNTL, 0);
@@ -576,6 +582,15 @@ void main(void)
 		 */		  
 		generatePwm (0);
 		generatePwm (1);
+
+		if (_verbose)
+		{
+			AS1_printDWordAsCharsDec (_desired[0]);
+			AS1_printStringEx (" ");
+			AS1_printWord16AsChars (_pid[0]);
+			AS1_printStringEx ("\r\n");
+		}
+		
 		
 		/* do extra functions, communicate, etc. */
 		/* LATER */
@@ -627,7 +642,7 @@ byte calibrate (byte jnt)
 	
 /* message table macros */
 #define BEGIN_MSG_TABLE(x) \
-	CAN_TEMP16 = (word)(x & 0xffff); \
+	CAN_TEMP16 = (word)extract_l(x); \
 	if (((CAN_TEMP16 & 0x0780) >> 7) != _board_ID) \
 	{ \
 		return ERR_OK; \
@@ -681,7 +696,7 @@ CAN1_TError err;
 byte can_interface (void)
 {
 	bool done = false;
-	int i;
+	word i;
 	
 	CAN_DI;
 	if (read_p != -1)
@@ -741,6 +756,7 @@ byte can_interface (void)
 #define CAN_LEN _canmsg.CAN_length
 #define CAN_ID _canmsg.CAN_messID
 #define CAN_TEMP16 i
+
 			/* interpret the messages */
 			//BEGIN_SPECIAL_MSG_TABLE (CAN_data)
 			//HANDLE_MSG (CAN_SET_BOARD_ID, CAN_SET_BOARD_ID_HANDLER)
@@ -858,10 +874,114 @@ byte serial_interface (void)
 			AS1_printStringEx ("w2, write control params to FLASH mem\r\n");
 			AS1_printStringEx ("w3, read control params from FLASH mem\r\n");
 			AS1_printStringEx ("v, toggle verbose flag\r\n");
+			
+			AS1_printStringEx ("e, enable controller\r\n");
+			AS1_printStringEx ("g, set pid gain\r\n");
+			AS1_printStringEx ("s, show pid gain\r\n");
+			AS1_printStringEx ("x1, start trajectory generation\r\n");
+			AS1_printStringEx ("x2, stop trajectory generation\r\n");
+			AS1_printStringEx ("x3, enable/disable PWM\r\n");
 						
 			c = 0;
 			break;
 
+		case 's':
+			AS1_printStringEx ("gain, p= ");
+			AS1_printWord16AsChars (_kp[0]);
+			AS1_printStringEx (" d= ");
+			AS1_printWord16AsChars (_kd[0]);
+			AS1_printStringEx (" scale= ");
+			AS1_printWord16AsChars (_kr[0]);
+			AS1_printStringEx ("\r\n");
+			c = 0;
+			break;
+			
+		case 'e':
+			if (_control_mode[0] == MODE_IDLE)
+			{
+				_control_mode[0] = MODE_POSITION;
+				_calibrated[0] = true;
+				AS1_printStringEx ("mode = position\r\n");
+			}
+			else
+			{
+				_control_mode[0] = MODE_IDLE;
+				_calibrated[0] = false;
+				AS1_printStringEx ("mode = idle\r\n");
+			}
+			
+			c = 0;
+			break;
+			
+		case 'x':
+			if (AS1_recvChar(&d) == ERR_OK)
+			{
+				if (d == '1')
+				{
+					AS1_printStringEx ("position: ");
+					AS1_getStringEx (buffer, SMALL_BUFFER_SIZE, true);
+					iretval = AS1_atoi (buffer, AS1_strlen(buffer, SMALL_BUFFER_SIZE)); 
+					
+					AS1_printStringEx ("move: ");
+					_set_point[0] = 0;
+					_set_point[0] = L_deposit_l(iretval);
+					AS1_printDWordAsCharsDec (iretval);
+					_set_vel[0] = 10;
+					_set_acc[0] = 0;
+					AS1_printStringEx (" 10\r\n");
+					init_trajectory (0, _position[0], _set_point[0], _set_vel[0]);
+				}
+				else
+				if (d == '2')
+				{
+					abort_trajectory (0, _position[0]);
+					AS1_printStringEx ("trajectory aborted\r\n");
+				}
+				else
+				if (d == '3')
+				{
+					if (_pad_enabled[0] == true)
+						PWMC0_outputPadDisable();
+					else
+						PWMC0_outputPadEnable();
+						
+					_pad_enabled[0] = !_pad_enabled[0];
+				}
+
+				c = 0;
+			}
+		
+			break;
+			
+		case 'g':
+			AS1_printStringEx ("p gain [");
+			AS1_printWord16AsChars (_kp[0]);
+			AS1_printStringEx ("] : ");
+			AS1_getStringEx (buffer, SMALL_BUFFER_SIZE, true);
+			iretval = AS1_atoi (buffer, AS1_strlen(buffer, SMALL_BUFFER_SIZE)); 
+			
+			_kp[0] = iretval;
+			
+			AS1_printStringEx ("d gain [");
+			AS1_printWord16AsChars (_kd[0]);
+			AS1_printStringEx ("] : ");
+			AS1_getStringEx (buffer, SMALL_BUFFER_SIZE, true);
+			iretval = AS1_atoi (buffer, AS1_strlen(buffer, SMALL_BUFFER_SIZE)); 
+
+			_kd[0] = iretval;
+
+			AS1_printStringEx ("scale factor [");
+			AS1_printWord16AsChars (_kr[0]);
+			AS1_printStringEx ("] : ");
+			
+			AS1_getStringEx (buffer, SMALL_BUFFER_SIZE, true);
+			iretval = AS1_atoi (buffer, AS1_strlen(buffer, SMALL_BUFFER_SIZE)); 
+
+			_kr[0] = iretval;
+			
+			c = 0;
+			break;
+			
 		case 'v':
 			_verbose = !_verbose;
 			if (_verbose)
