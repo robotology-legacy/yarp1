@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSoundTemplate.h,v 1.4 2004-09-02 18:17:53 beltran Exp $
+/// $Id: YARPSoundTemplate.h,v 1.5 2004-09-06 08:12:34 beltran Exp $
 ///
 
 /** 
@@ -317,8 +317,8 @@ public:
 		// Calculate means. 
 		// We navigate in the template structure to calculate the means of the
 		// coefficients in the "time" dimension. This is, we calculate the mean
-		// of each coefficient using the values of that coeficient in the different
-		// samples of the template.
+		// of each coefficient of the YVectors using the values of that coeficient 
+		// in the different YVectors (samples) of the template.
 		//----------------------------------------------------------------------
 		for ( i = 0; i < m_vectors_length; i++)
 		{
@@ -351,7 +351,7 @@ public:
 
 		// Calculate the final covariance matrix
 		if (flag)
-			covm = (_xvars.Transposed() * _xvars) / (m_currentsize);	
+			covm = (_xvars.Transposed() * _xvars) / (m_currentsize); //Check if I should use the Transpose method	
 		else
 			covm = (_xvars.Transposed() * _xvars) / (m_currentsize-1);
 
