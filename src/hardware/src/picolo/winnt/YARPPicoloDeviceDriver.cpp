@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.cpp,v 1.13 2004-01-28 18:12:21 babybot Exp $
+/// $Id: YARPPicoloDeviceDriver.cpp,v 1.14 2004-01-29 11:34:39 babybot Exp $
 ///
 ///
 
@@ -244,34 +244,17 @@ inline PICOLOHANDLE PicoloResources::_init (const PicoloOpenParameters& params)
 	PicoloStatus = PicoloSelectImageFormat(ret, PICOLO_COLOR_RGB24);
 	ACE_ASSERT (PicoloStatus == PICOLO_OK);
 
-	/* old code
 	// assume we want a square image
 	float scalex = 768.0/_nRequestedSizeX;
-	float scaley = 576.0/_nRequestedSizeY;
+	float scaley = (float) (576.0/(_nRequestedSizeY*params._alfa));	// a slighlty bigger immage is acquired, this allows some offsets along the vertical direction (see offset)
 	float scale = (scalex < scaley) ? scalex : scaley;
 	scalex = scale;
-	scaley = scale / 2.0;
+	scaley = scale / 2.0;	//the image is interlaced
 	float xSize = 768.0/scalex;
 	float ySize = 576.0/scaley;
 	int offsetX = (int) ((xSize-_nRequestedSizeX) / 2 + params._offset_x + 0.5);
-	int offsetY = (int) ((ySize-_nRequestedSizeY) / 2 + params._offset_y + 0.5);
-	printf("-----> offset: %d\n", offsetY);
-	*/
-
-	// new code
-	// assume we want a square image
-	float scalex = 768.0/_nRequestedSizeX;
-	float scaley = (float) (int) (576.0/_nRequestedSizeY);
-	float scale = (scalex < scaley) ? scalex : scaley;
-	scalex = scale;
-	scaley = scale / 2.0;
-	float xSize = 768.0/scalex;
-	float ySize = 576.0/scaley;
-	int offsetX = (int) ((xSize-_nRequestedSizeX) / 2 + params._offset_x + 0.5);
-	int offsetY = (int) ((ySize-_nRequestedSizeY*2) / 2 + params._offset_y + 0.5);
-	printf("-----> scale: %f\n", scale);
-	printf("-----> offset: %d\n", offsetY);
-
+	int offsetY = (int) ((ySize-_nRequestedSizeY*2.0) / 2 + params._offset_y + 0.5);
+	
 	// adjust size and scaling. 
 	PicoloStatus = PicoloSetControlFloat(ret,
 										 PICOLO_CID_ADJUST_SCALEX,

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloDeviceDriver.h,v 1.10 2004-01-28 18:12:21 babybot Exp $
+/// $Id: YARPPicoloDeviceDriver.h,v 1.11 2004-01-29 11:34:39 babybot Exp $
 ///
 ///
 
@@ -88,6 +88,8 @@ struct PicoloOpenParameters
 		_size_y = 256;
 		_offset_y = 0;
 		_offset_x = 0;
+		_alfa = 1.055f;
+		// _alfa = 1.125f;
 	}
 
 	int _unit_number;		/// board number 0, 1, 2, etc.
@@ -96,6 +98,7 @@ struct PicoloOpenParameters
 	int _size_y;			/// requested size y.
 	int _offset_y;			/// y offset, with respect to the center 
 	int _offset_x;			/// x offset, with respect to the center
+	float _alfa;			/// to have the possibility to shift the roi vertically, the requested size is actually _alfa*_size_y
 };
 
 
