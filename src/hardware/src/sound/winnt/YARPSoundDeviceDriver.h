@@ -10,7 +10,7 @@
 // 
 //     Description: 
 // 
-//         Version:  $Id: YARPSoundDeviceDriver.h,v 1.1 2004-02-20 16:58:59 beltran Exp $
+//         Version:  $Id: YARPSoundDeviceDriver.h,v 1.2 2004-02-23 18:19:19 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -80,6 +80,8 @@ public:
 	virtual int acquireBuffer(void *);
 	virtual int releaseBuffer(void *);
 	virtual int waitOnNewFrame (void *cmd);
+	virtual int set_mute(void *cmd);
+	virtual int set_volume(void *cmd);
 
 protected:
 	void *system_resources;

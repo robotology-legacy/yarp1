@@ -10,7 +10,7 @@
 // 
 //     Description:  This file encapsulates the SoundResources class and the its methods
 // 
-//         Version:  $Id: YARPSoundResources.h,v 1.1 2004-02-20 16:58:59 beltran Exp $
+//         Version:  $Id: YARPSoundResources.h,v 1.2 2004-02-23 18:19:19 beltran Exp $
 // 
 //          Author:  Ing. Carlos Beltran (Carlos)
 //         Company:  Lira-Lab
@@ -84,6 +84,9 @@ public:
 	MIXERLINE		m_mixerLine;
 	HANDLE			m_waveInThread;
 	unsigned long	m_n, m_numSrc;
+	// Control structures 
+	MIXERCONTROL					m_mixerControlArray;
+	MIXERLINECONTROLS				m_mixerLineControls;
 
 
 	//----------------------------------------------------------------------
@@ -104,6 +107,8 @@ public:
 	//----------------------------------------------------------------------
 	int _initialize (const SoundOpenParameters& params);
 	int _uninitialize (void);
+	int _select_line(unsigned int type);
+	int _select_control(unsigned int control);
 
 protected:
 	
