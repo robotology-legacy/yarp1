@@ -21,9 +21,9 @@ CXX     = QCC
 
 include $(ACE_ROOT)/include/makeinclude/platform_g++_common.GNU
 
-DCFLAGS += -gstabs
+#DCFLAGS += -gstabs
 
-CFLAGS  += -pipe -W -Wall -Wpointer-arith
+CFLAGS  += -pipe -Wall -Wpointer-arith
 CCFLAGS += $(CFLAGS) -Y_gpp #$(TEMPLATES_FLAG)
 #CCFLAGS += $(CFLAGS) -Y_gpp #-fno_implicit_templates
 
