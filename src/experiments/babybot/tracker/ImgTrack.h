@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: ImgTrack.h,v 1.2 2003-10-24 11:27:06 babybot Exp $
+/// $Id: ImgTrack.h,v 1.3 2003-11-07 12:36:59 babybot Exp $
 ///
 ///
 
@@ -78,6 +78,9 @@
 #include <YARPSemaphore.h>
 #include <YARPTime.h>
 
+///
+/// LATER: from motor control library.
+#include "YARPBabybotHeadKin.h"
 
 ///
 /// never tested but 128 square.
@@ -218,12 +221,17 @@ protected:
 	bool _movement;
 	int _low_q_ct;
 
+	YARPBabybotHeadKin _gaze;
+	YVector _prevRay;
+	int _prev_gaze_x, _prev_gaze_y;
+
 public:
 
 	YARPComplexTrackerTool ();
 	~YARPComplexTrackerTool ();
 
 	void apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<YarpPixelBGR>& dest);
+	void apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<YarpPixelBGR>& dest, const YVector& jnts);
 
 	void setNewTarget (int x, int y)
 	{

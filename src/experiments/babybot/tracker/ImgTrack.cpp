@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: ImgTrack.cpp,v 1.6 2003-10-28 18:01:27 babybot Exp $
+/// $Id: ImgTrack.cpp,v 1.7 2003-11-07 12:36:59 babybot Exp $
 ///
 ///
 
@@ -339,7 +339,9 @@ void YARPImageTrackTool::Apply(YARPImageOf<YarpPixelBGR>& src)
 ///
 ///
 ///
-YARPComplexTrackerTool::YARPComplexTrackerTool () : _lock(1)
+YARPComplexTrackerTool::YARPComplexTrackerTool () : 
+	_lock(1),
+	_gaze ( YMatrix (_dh_nrf, 5, DH_left[0]), YMatrix (_dh_nrf, 5, DH_right[0]), YMatrix (4, 4, TBaseline[0]) )
 {
 	_tx = ISIZE/2;
 	_ty = ISIZE/2;
@@ -374,6 +376,12 @@ YARPComplexTrackerTool::YARPComplexTrackerTool () : _lock(1)
 	_prev.Zero ();
 	_mono.Resize (ISIZE, ISIZE);
 	_mono.Zero ();
+
+	///
+	_prevRay.Resize(3);
+	_prevRay = 0;
+	_prev_gaze_x = ISIZE/2;
+	_prev_gaze_y = ISIZE/2;
 }
 
 YARPComplexTrackerTool::~YARPComplexTrackerTool () {}
@@ -611,5 +619,271 @@ void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<
 	_lock.Wait();
 	_xx = (int)(x-ISIZE/2+.5);
 	_yy = (int)(y-ISIZE/2+.5);
+	_lock.Post();
+}
+
+///
+///
+///
+///
+///
+void YARPComplexTrackerTool::apply (YARPImageOf<YarpPixelBGR>& src, YARPImageOf<YarpPixelBGR>& dest, const YVector& jnts)
+{
+	/// check whether it's a new target first.
+	_lock.Wait ();
+	bool _isnew = _new_target;
+	_lock.Post ();
+
+	/// timing stuff.
+	const double now = YARPTime::GetTimeAsSeconds();
+
+	///
+	bool act_vector = false;
+	
+	/// print timing issues.
+	_diff_total += now - _last_round;
+	_diff_count ++;
+
+	if (now - _last_reset > PRINT_TIME)
+    {
+		printf("Time between frames in ms is %g\n", 1000 * _diff_total / _diff_count);
+		_diff_count = 0;
+		_diff_total = 0;
+		_last_reset = now;
+    }
+	_last_round = now;
+
+	/// LATER: this might be the place to auto-reset the tracker in case that any timeout expired.
+	///
+	///
+	if (now - _last_movement > 30)
+	{
+		setNewTarget (ISIZE/2, ISIZE/2);
+	}
+
+	/// a bit of copying.
+	_mono.CastCopy(src);
+	dest.PeerCopy(src);
+	
+	///
+	/// deals with the new target.
+	if (_isnew)
+	{
+		_prev.PeerCopy (_mono);
+		
+		_lock.Wait ();
+		_px = _tx = _ex;
+		_py = _ty = _ey;
+		_new_target = false;
+		_lock.Post ();
+
+		printf("*** Got new target %d %d\n", _px, _py);
+		_last_update = now;
+	}
+
+	_tracker.SetBlockSize (BLOCK_SIZE, BLOCK_SIZE);
+	_tracker.SetSearchWindowSize (SEARCH_SIZE, SEARCH_SIZE);
+	_sub_tracker.SetBlockSize (BLOCK_SIZE, BLOCK_SIZE);
+	_sub_tracker.SetSearchWindowSize (SEARCH_SIZE, SEARCH_SIZE);
+	
+	_gaze.update (jnts);
+
+	if (!_isnew)
+	{
+		/// not a new target set the estimated offset.
+		int predx = 0, predy = 0;
+		_gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT, _prevRay, predx, predy);
+
+		predx += ISIZE/2;
+		predy += ISIZE/2;
+
+		///
+		YarpPixelBGR green (0, 255, 0);
+		AddCircleOutline (dest, green, predx, predy, 5);
+		AddCircleOutline (dest, green, predx, predy, 4);
+
+		_dgx = predx - _prev_gaze_x;
+		_dgy = predy - _prev_gaze_y;
+
+		///printf ("est vel: %lf %lf\n", _dgx, _dgy);
+
+		_tracker.SetSearchWindowOffset ((int)(_dgx+0.5), (int)(_dgy+0.5));
+		_sub_tracker.SetSearchWindowOffset ((int)(_dgx+0.5), (int)(_dgy+0.5));
+	}
+	else
+	{
+		_tracker.SetSearchWindowOffset (0, 0);
+		_sub_tracker.SetSearchWindowOffset (0, 0);
+	}
+
+	_tx = _px; 
+	_ty = _py;
+
+	/// checks borders.
+	if (_tx < BXDX) _tx = BXDX;
+	if (_tx > ISIZE-1-BXDX) _tx = ISIZE-1-BXDX;
+	if (_ty < BXDX) _ty = BXDX;
+	if (_ty > ISIZE-1-BXDX) _ty = ISIZE-1-BXDX;
+
+	/// actual tracking.
+	bool fell = false;
+	double new_tx = ISIZE/2, new_ty = ISIZE/2, new_tx2 = ISIZE/2, new_ty2 = ISIZE/2;
+	int sub_x = ISIZE/2, sub_y = ISIZE/2, sub_x2 = ISIZE/2, sub_y2 = ISIZE/2;
+	
+	_tracker.Apply (_prev, _mono, _tx, _ty);
+
+	int x = _tx, y = _ty;
+	x = _tracker.GetX();
+	y = _tracker.GetY();
+
+	/// predicted.
+	double new_dx = x - (_tx + _dgx);
+	double new_dy = y - (_ty + _dgy);
+
+	/// direction of motion.
+	double new_mag = sqrt (new_dx * new_dx + new_dy * new_dy);
+	if (new_mag < 0.001) new_mag = 0.001;
+	new_dx /= new_mag;
+	new_dy /= new_mag;
+
+	const double nscale = NSCALE;
+
+	/// search along two directions.
+	/// heuristic for exploring certain neighborhood of the current position.
+	///
+	///
+	new_tx = _tx - new_dx * nscale;
+	new_ty = _ty - new_dy * nscale;
+	new_tx2 = _tx + new_dx * nscale;
+	new_ty2 = _ty + new_dy * nscale;
+
+	_sub_tracker.Apply (_prev, _mono, new_tx2, new_ty2);
+
+	sub_x2 = _sub_tracker.GetX();
+	sub_y2 = _sub_tracker.GetY();
+
+	_sub_tracker.Apply (_prev, _mono, new_tx, new_ty);
+
+	sub_x = _sub_tracker.GetX();
+	sub_y = _sub_tracker.GetY();
+	
+	double sub_dx = sub_x - (new_tx + _dgx);
+	double sub_dy = sub_y - (new_ty + _dgy);
+	double sub_mag = sqrt (sub_dx * sub_dx + sub_dy * sub_dy);
+
+	double sub_dx2 = sub_x2 - (new_tx2 + _dgx);
+	double sub_dy2 = sub_y2 - (new_ty2 + _dgy);
+	double sub_mag2 = sqrt (sub_dx2 * sub_dx2 + sub_dy2 * sub_dy2);
+
+	if (new_mag > MAGDEFAULT)
+	{
+		act_vector = true;
+
+		if (sub_mag > MAGDEFAULT && sub_mag2 < MAGDEFAULT)
+		{
+			printf("Should fall inwards\n");
+			x = (int)sub_x;
+			y = (int)sub_y;
+			fell = true;
+		}
+
+		if (sub_mag2 > MAGDEFAULT && sub_mag < MAGDEFAULT)
+		{
+			printf("Should fall outwards\n");
+			x = (int)sub_x2;
+			y = (int)sub_y2;
+			fell = true;
+		}
+	}
+
+	_tx = x;
+	_ty = y;
+
+	float quality = _tracker.GetQuality();
+	bool low_quality = false;
+
+	if (quality < QTHRESHOLD)
+	{
+		///printf("low match quality (%g)\n", quality);
+
+		if (_low_q_ct < QTHR2)
+		{
+			_low_q_ct++;
+		}
+
+		/// things are not going well.
+		if (_low_q_ct > QTHR3)
+		{
+			low_quality = true;
+			x = _tx = _px + _dgx;
+			y = _ty = _py + _dgy;
+		}
+	}
+	else
+	{
+		/// ok recovering?
+		_low_q_ct -= 3;
+		if (_low_q_ct < 0) _low_q_ct = 0;
+	}
+
+	_movement = false;
+
+	/// to check for movement (of the target).
+	double dist = sqrt((_px-_tx)*(_px-_tx)+(_py-_ty)*(_py-_ty));
+
+	if (fell || (dist > 2) || (sqrt(_dgx * _dgx + _dgy * _dgy) > 2.0))
+	{
+		_prev.PeerCopy(_mono);
+		_px = _tx; _py = _ty;
+	}
+
+	/// target moved, all ok?
+	if (dist > 5)
+	{
+		_movement = true;
+		_last_movement = now;
+	}
+
+	///
+	///
+	/// computes the ray for the kin estimation.
+	_gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT, _prevRay, x-ISIZE/2, y-ISIZE/2);
+	_prev_gaze_x = x;
+	_prev_gaze_y = y;
+
+	///printf ("target: %d %d ray: %f %f %f\n", x, y, _prevRay(1), _prevRay(2), _prevRay(3));
+
+	///
+	///
+	/// just a bit of display of results.
+	YarpPixelBGR pix(255,0,0);
+
+	YarpPixelBGR pixg(0,255,0);
+	YarpPixelBGR pixb(0,0,255);
+	YarpPixelBGR pixr(128,64,0);
+	YarpPixelBGR pixk(0,0,0);
+	YarpPixelBGR pixw(255,255,255);
+
+	AddCircleOutline (dest, pixw, (int)x, (int)y, 5);
+	AddCircleOutline (dest, pixk, (int)x, (int)y, 6);
+	AddCircle (dest, pixk, (int)x, (int)y, 4);
+	AddCrossHair (dest, pixw, (int)x+1, (int)y, 6);
+	AddCrossHair (dest, pixw, (int)x-1, (int)y, 6);
+	AddCrossHair (dest, pixw, (int)x, (int)y+1, 6);
+	AddCrossHair (dest, pixw, (int)x, (int)y-1, 6);
+	AddCrossHair (dest, pixr, (int)x, (int)y, 6);
+	AddCircle (dest, pixw, (int)x, (int)y, 2);
+
+	if (act_vector)
+	{
+		AddCircle (dest, pix, (int)(new_tx + _dgx), (int)(new_ty + _dgy), 3);
+		AddCircle (dest, pix, (int)(new_tx2 + _dgx), (int)(new_ty2 + _dgy), 3);
+		AddCircle (dest, pixb, (int)sub_x, (int)sub_y, 2);
+		AddCircle (dest, pixb, (int)sub_x2, (int)sub_y2, 2);
+	}
+
+	_lock.Wait();
+	_xx = x - ISIZE / 2;
+	_yy = y - ISIZE / 2;
 	_lock.Post();
 }

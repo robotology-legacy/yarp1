@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.cpp,v 1.1 2003-11-06 14:42:14 gmetta Exp $
+/// $Id: YARPBabybotHeadKin.cpp,v 1.2 2003-11-07 12:36:59 babybot Exp $
 ///
 ///
 
@@ -134,12 +134,12 @@ void YARPBabybotHeadKin::computeRay (__kinType k, YVector& v, int x, int y)
 		YHmgTrsf ep = _leftCamera.endFrame();
 
 		/// pixels -> mm
-		x /= PixScaleX;
-		y /= PixScaleY;
+		double dx = x / PixScaleX;
+		double dy = y / PixScaleY;
 
-		v(1) = F * ep (1, 1) - x * ep (2, 1) - y * ep (3, 1);
-		v(2) = F * ep (1, 2) - x * ep (2, 2) - y * ep (3, 2);
-		v(3) = F * ep (1, 3) - x * ep (2, 3) - y * ep (3, 3);
+		v(1) = F * ep (1, 1) - dx * ep (1, 2) - dy * ep (1, 3);
+		v(2) = F * ep (2, 1) - dx * ep (2, 2) - dy * ep (2, 3);
+		v(3) = F * ep (3, 1) - dx * ep (3, 2) - dy * ep (3, 3);
 
 		v /= v.norm2();
 	}
@@ -156,18 +156,20 @@ void YARPBabybotHeadKin::intersectRay (__kinType k, const YVector& v, int& x, in
 		YVector q(3), it(3);
 		YHmgTrsf ep = _leftCamera.endFrame();
 
-		q(1) = ep(1,4) + F * ep(1,1);
-		q(2) = ep(2,4) + F * ep(2,1);
-		q(3) = ep(3,4) + F * ep(3,1);
+		YVector o(3), epx(3);
+		o(1) = ep(1,4);
+		o(2) = ep(2,4);
+		o(3) = ep(3,4);
+		epx(1) = ep(1,1);
+		epx(2) = ep(2,1);
+		epx(3) = ep(3,1);
+
+		q = o + F * epx;
 
 		/// intersect plane w/ old ray v.
 		/// normal vector to plane is ep(1/2/3, 1)
-		double t = ep(1,1)*q(1) + ep(2,1)*q(2) + ep(3,1)*q(3);
-		t /= (ep(1,1)*v(1) + ep(2,1)*v(2) + ep(3,1)*v(3));
-		it = v * t;
-
-		/// the vector of the displacement from origin to intersection in img plane.
-		it -= q;
+		double t = F / (ep(1,1)*v(1) + ep(2,1)*v(2) + ep(3,1)*v(3));
+		it = v * t + o - q;
 
 		YVector tmp(3);
 

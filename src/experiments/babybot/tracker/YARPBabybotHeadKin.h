@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotHeadKin.h,v 1.1 2003-11-06 14:42:14 gmetta Exp $
+/// $Id: YARPBabybotHeadKin.h,v 1.2 2003-11-07 12:36:59 babybot Exp $
 ///
 ///
 
@@ -92,16 +92,16 @@ const double DH_left[_dh_nrf][5] = {
 	{0, 0, 0, 0, -1},
 	{0, -pi/2, 0, -pi/2, 1},
 	{125, 0, 0, pi/2, 1},
-	{0, pi/2, 0, pi/2, 0},	//zero in the fifth col means it is not linked to a joint
-	{-87, 0, 0, pi/2, 1},
+	{0, pi/2, 0, pi/2, 0},	// zero in the fifth position means it's a convenience trsf.
+	{-71.5, 0, 0, pi/2, 1},
 };
 
 const double DH_right[_dh_nrf][5] = {
 	{0, 0, 0, 0, -1},
 	{0, -pi/2, 0, -pi/2, 1},
 	{125, 0, 0, pi/2, 1},
-	{0, pi/2, 0, pi/2, 0},	//zero in the fifth col means it is not linked to a joint
-	{87, 0, 0, pi/2, -1},
+	{0, pi/2, 0, pi/2, 0},
+	{71.5, 0, 0, pi/2, -1},
 };
 
 /// maybe not needed now. Height of the neck?
@@ -113,10 +113,10 @@ const double TBaseline[4][4] = {
 };
 
 ///
-///
-const double F = 4;					/// camera F length.
-const double PixScaleX = 1;			/// camera mm to pixel conversion factor.
-const double PixScaleY = 1;			/// same along the y coord.
+/// these params are very approximate.
+const double F = 4;						/// camera F length.
+const double PixScaleX = 120;			/// camera mm to pixel conversion factor.
+const double PixScaleY = 120;			/// same along the y coord.
 
 
 ///

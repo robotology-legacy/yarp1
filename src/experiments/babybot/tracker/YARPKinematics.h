@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPKinematics.h,v 1.1 2003-11-06 14:42:14 gmetta Exp $
+/// $Id: YARPKinematics.h,v 1.2 2003-11-07 12:36:59 babybot Exp $
 ///
 ///
 
@@ -75,6 +75,7 @@
 
 #include <conf/YARPConfig.h>
 #include <ace/config.h>
+#include <ace/Synch.h>
 
 #include <YARPMath.h>
 

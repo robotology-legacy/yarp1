@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_tracker.cpp,v 1.5 2003-11-06 14:42:14 gmetta Exp $
+/// $Id: attn_tracker.cpp,v 1.6 2003-11-07 12:36:59 babybot Exp $
 ///
 ///
 
@@ -84,7 +84,6 @@
 #include <YARPVectorPortContent.h>
 
 #include "ImgTrack.h"
-#include "YARPBabybotHeadKin.h"
 
 
 ///
@@ -157,27 +156,6 @@ int main(int argc, char *argv[])
 	YVector v(2);
 	v = 0;
 
-	/// 
-	///
-	YHmgTrsf baseline (YMatrix (4, 4, TBaseline[0]));
-
-	YARPBabybotHeadKin gaze 
-		(
-			YMatrix (_dh_nrf, 5, DH_left[0]),
-			YMatrix (_dh_nrf, 5, DH_right[0]), 
-			baseline
-		);
-	///
-	///
-
-
-	/// get the direction vector of a point on the image.
-	in_pos.Read();
-	YVector& jnt = in_pos.Content();
-	gaze.update (jnt);
-	YVector ray(3);
-	gaze.computeRay (YARPBabybotHeadKin::KIN_LEFT, ray, 0, 0);
-
 	while(1)
     {
 		in_img.Read();
@@ -193,24 +171,18 @@ int main(int argc, char *argv[])
 
 		SatisfySize (remapped, out_img.Content());
 		out.Refer (out_img.Content());
+		out = remapped;
 
 		in_pos.Read();
 		YVector& jnt = in_pos.Content();
 
 		///
-		/// tracker.apply (remapped, out);
-		gaze.update (jnt);
-
-		int x = 0, y = 0;
-		gaze.intersectRay (YARPBabybotHeadKin::KIN_LEFT, ray, x, y);
-
-		YarpPixelBGR green(0,255,0);
-		AddCircleOutline (out, green, (int)x+64, (int)y+64, 5);
+		tracker.apply (remapped, out, jnt);
 
 		out_img.Write ();
 
 		/// get the target.
-		///int x = 0, y = 0;
+		int x = 0, y = 0;
 		tracker.getTarget (x, y);
 		v(1) = x;
 		v(2) = y;

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPKinematics.cpp,v 1.1 2003-11-06 14:42:14 gmetta Exp $
+/// $Id: YARPKinematics.cpp,v 1.2 2003-11-07 12:36:59 babybot Exp $
 ///
 ///
 
@@ -107,8 +107,9 @@ void YARPRobotKinematics::resize (const YMatrix &dh, const YHmgTrsf &bline)
 
 	_nFrame = dh.NRows();
 
-	_Ti = new YHmgTrsf(_nFrame);
-	_Ti0 = new YHmgTrsf(_nFrame);
+	_Ti = new YHmgTrsf[_nFrame];
+	_Ti0 = new YHmgTrsf[_nFrame];
+	ACE_ASSERT (_Ti != NULL && _Ti0 != NULL);
 
 	for(int i = 0; i < _nFrame ; i++)
 	{
