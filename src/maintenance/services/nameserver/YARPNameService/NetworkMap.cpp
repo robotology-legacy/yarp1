@@ -140,7 +140,7 @@ void NetworkMap::findIp(const YARPString &inIp, const YARPString &net, YARPStrin
 	}
 
 	if ( !(foundNode && foundNet) )
-		outIp = inIp;  // nothing was found, return ip
+		outIp = "0.0.0.0";  // nothing was found, return 0.0.0.0
 	else
 		outIp = tmpIp; // node and net were found, return tmpIp 
 	
