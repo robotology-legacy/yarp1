@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.13 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: Port.h,v 1.14 2004-08-10 22:10:14 gmetta Exp $
 ///
 ///
 
@@ -91,8 +91,15 @@
 
 #include <yarp/YARPNetworkTypes.h>
 
+/**
+ * \file Port.h contains the definition of the main part of the
+ * port processing. It contains definition for the port and associated
+ * threads.
+ */
 
-// Message tags, chosen to be reasonably human readable
+/**
+ * Message tags, chosen to be reasonably human readable.
+ */
 enum
 {
 	MSG_ID_NULL         = 0,
@@ -109,12 +116,12 @@ enum
 	MSG_ID_ERROR        = -1
 };
 
-///
-/// this is the OutputTarget. A thread that handles a single out connection.
-/// these are part of a pool (MeshOf) of threads handled by the Port main thread.
-/// the thread receives the data buf through the usual sendable ref/pointer.
-///
-///
+/**
+ * This is the OutputTarget: a thread that handles a single output connection.
+ * These threads are part of a pool (MeshOf) managed by the Port main thread.
+ * the thread receives the data buf through the usual sendable ref/pointer.
+ * This class is all pretty much public since it's used as a big container.
+ */
 class OutputTarget : public BasedLink<OutputTarget>, public YARPBareThread
 {
 public:
@@ -128,7 +135,6 @@ public:
 	int add_header;
 	int deactivate;
 	int deactivated;
-	int port_number;
 	int protocol_type;
 	int require_ack;
 
@@ -144,6 +150,10 @@ public:
 	YARPString network_name;
 	YARPString own_name;
 
+	/**
+	 * Constructor. Initializes the thread object to some
+	 * reasonable defaults.
+	 */
 	OutputTarget() : something_to_send(0), 
 					 space_available(1),
 					 mutex(1),
@@ -155,24 +165,36 @@ public:
 		add_header = 1;  active = 1; sending = 0; 
 		deactivate = 0;  deactivated = 0;
 		check_tick = 0;  ticking = 0;
-		port_number = 0;
 		protocol_type = YARP_NO_SERVICE_AVAILABLE;
 		ACE_OS::memset (cmdname, 0, 2*YARP_STRING_LEN);
 		msg_type = 0;
     }
 
+	/**
+	 * Destructor.
+	 */
 	virtual ~OutputTarget() 
 	{ 
 		End(); 
-		/// ACE_OS::printf ("OutputTarget destroyed\n");
-		/// supposedly closes the actual connection.
 	}
 
+	/**
+	 * Asks for thread termination.
+	 * @param dontkill is not used.
+	 */
 	virtual void End (int dontkill = -1);
 
+	/**
+	 * The thread body.
+	 */
 	virtual void Body();
 	
-	///
+	/**
+	 * Starts the thread. It takes care of decrementing the
+	 * thread mutex on startup (this is required by the thread body).
+	 * @param stack_size is the size of the stack of the thread. This value
+	 * is sent directly to the thread implementation. @see YARPBareThread.
+	 */
 	virtual void Begin(int stack_size=0)
 	{
 		/// protect thread code at startup.
@@ -180,15 +202,26 @@ public:
 		YARPBareThread::Begin(stack_size);
 	}
 
+	/**
+	 * Acquires the thread mutex. This is used for regulating
+	 * the access to the thread shared data.
+	 */
 	void WaitMutex() { mutex.Wait(); }
+
+	/**
+	 * Releases the thread mutex.
+	 */
 	void PostMutex() { mutex.Post(); }
 
+	/**
+	 * A callback activated whenever a new message is sent.
+	 */
 	virtual void OnSend() {}
 
-	void AssignPortNo (int port) { port_number = port; }
-	int GetAssignedPortNo (void) const { return port_number; }
-
-	/// passes a new Sendable to the thread.
+	/**
+	 * Passes a new Sendable to the thread (for sending it).
+	 * @param nsendable is the pointer to the Sendable object.
+	 */
 	void Share(Sendable *nsendable)
 	{
 		WaitMutex();
@@ -202,8 +235,10 @@ public:
 		PostMutex();
 	}
 
-	/// this simply asks the thread to close itself down.
-	void Deactivate()
+	/**
+	 * Asks the thread to close itself down.
+	 */
+	void Deactivate(void)
 	{
 		WaitMutex();
 		deactivate = 1;
@@ -215,17 +250,57 @@ public:
 		Join();
 	}
 
-	/// special extra commands for MCAST protocol.
-	/// this is required to forward clients MCAST request to join/release the group.
+	/**
+	 * Connects an MCAST port. This is a special extra commands for MCAST protocol.
+	 * It is required to forward clients MCAST request to join/release the group.
+	 * @param name is the symbolic name to connect to.
+	 * @return YARP_OK on success.
+	 */
 	int ConnectMcast (const char *name);
+
+	/**
+	 * Deactivates an MCAST connection. This is a special extra commands for MCAST protocol.
+	 * It is required to forward clients MCAST request to join/release the group.
+	 * @param name is the symbolic name to break the connection from.
+	 * @return YARP_OK on success.
+	 */
 	int DeactivateMcast (const char *name);
+
+	/**
+	 * Deactivates all the MCAST connections. This is a special extra commands for 
+	 * the MCAST protocol.
+	 * @return YARP_OK on success.
+	 */
 	int DeactivateMcastAll (void);
 
+	/**
+	 * Sets the require acknowledge flag. This tells the output thread to expect 
+	 * replies to messages.
+	 * @param flag is 1 if the replies are needed, 0 otherwise.
+	 */
 	void SetRequireAck (int flag) { require_ack = flag; }
+
+	/**
+	 * Gets the require acknowledge flag. This tests the status of the flag.
+	 * @return 1 if the replies are requested, 0 otherwise.
+	 */
 	int GetRequireAck (void) const { return require_ack; }
 
+	/**
+	 * Sets the name of the port owning this thread.
+	 * @param s is the YARPString containing the symbolic name the port
+	 * used to register to the name server.
+	 */
 	void SetOwnName (const YARPString& s) { own_name = s; }
 
+	/**
+	 * Requires the INET address the thread is usign for communicating.
+	 * If using sockets the return value is a true INET address, otherwise
+	 * a plausible reply is produced. For QNET 0 is returned. This is used
+	 * when asking information about the thread and its managed communication
+	 * channel.
+	 * @return the ACE_INET_Addr object of the current connection.
+	 */
 	ACE_INET_Addr GetOwnAddress (void)
 	{
 		if (target_pid != NULL)
@@ -249,6 +324,9 @@ public:
 
 
 #include <yarp/begin_pack_for_net.h>
+/**
+ * No documentation yet for this class.
+ */
 class NewFragmentHeader
 {
 public:
@@ -264,19 +342,17 @@ public:
 
 ///
 ///
-///
-///
-///
 class Port;
 
-///
-/// this is a thread that takes care of sending data. It waits for a
-///	go signal (_ready_to_go), it activates by scanning the list of
-///	output targets, and eventually for all active targets sends the
-/// data.
-///	this thread is meant to substitute a "select" with mutex/sema and 
-/// socket demultiplexing capabilities (that doesn't exist in NT).
-///
+/**
+ * This is a thread that takes care of sending data. It waits for a
+ * go signal (_ready_to_go), then it activates by scanning the list of
+ * output targets, and eventually for all active targets sends the
+ * data. This thread is meant to substitute a "select" with mutex/sema and 
+ * socket demultiplexing capabilities (that doesn't exist in NT).
+ * There's generally a single instance of this object per port. It is
+ * created and destroyed from the main port Body().
+ */
 class _strange_select : public YARPBareThread
 {
 protected:
@@ -284,33 +360,62 @@ protected:
 	Port *_owner;
 
 public:
+	/** 
+	 * Constructor.
+	 * @param o is the owner of the newly created port.
+	 */
 	_strange_select (Port *o) : YARPBareThread (), _ready_to_go(0) 
 	{
 		_owner = o;
 		ACE_ASSERT (o != NULL); 
 	}
 
+	/**
+	 * Constructor.
+	 * The default constructor.
+	 */
 	_strange_select () : YARPBareThread (), _ready_to_go(0) { _owner = NULL; }
 
+	/**
+	 * Destructor.
+	 */
 	virtual ~_strange_select () {}
+
+	/**
+	 * The thread body.
+	 */
 	virtual void Body ();
+
+	/**
+	 * Sets the owner of the thread.
+	 * @param o is a pointer to the port object owning this thread.
+	 */
 	void setOwner (Port *o) { _owner = o; }
+
+	/**
+	 * Tells all other output threads that there's something ready
+	 * to be sent.
+	 */
 	void pulseGo (void) { _ready_to_go.Post (); }
 };
 
 
-///
-/// this is the main port thread.
-///	- starts an input channel for receiving commands.
-/// - manages the list of output targets.
-/// - manages the _strange_select thread.
-/// - commands are sent either remotely or locally through the input socket.
-///	- the GO command (data send) is handled by the _strange_select (efficiency).
-///	- writing to the port is done through the Say/SayServer (for commands).
-/// - writing the GO/data is done through Fire/Share.
-/// - reading is done through Acquire/Relinquish.
-///
-///
+/**
+ * This is the main port thread.
+ *
+ * It starts an input channel for receiving commands, it manages the list of output targets.
+ * It creates and manages the _strange_select thread.
+ * Commands are sent either remotely or locally (through a self connect procedure) through 
+ * the input socket.
+ * The GO command (a relics of some older implementation) is now handled efficiently by the 
+ * _strange_select thread. Commands are sent to the port through the Say/SayServer.
+ * Decision to send data is done through Fire/Share while reading is carried out by 
+ * Acquire/Relinquish.
+ * Ports objects are both input and output. An output port generally will only receive
+ * commands from the input socket. An input port will never create an output thread/socket.
+ * This class is mostly a container. The real access control/interface is done through
+ * YARPPorts. @see YARPPort object.
+ */
 class Port : public Thread
 {
 public:
@@ -327,7 +432,10 @@ public:
 	int add_header;
 	int expect_header;
 	int require_ack;
+
+	/// the list of output threads.
 	MeshOf<OutputTarget> targets;
+
 	Sema something_to_send;
 	Sema something_to_read;
 	Sema okay_to_send;
@@ -345,11 +453,23 @@ public:
 	YARPUniqueNameID *self_id;
 
 	int require_complete_send;
+
+	/**
+	 * Tells the port code whether to return before completing
+	 * the send process.
+	 * @param flag 1 to require the send to be completed before returning
+	 * control to the caller.
+	 */
 	void RequireCompleteSend(int flag = 1)
 	{
 		require_complete_send = flag;
 	}
   
+	/**
+	 * Counts the number of elements in the internal list of
+	 * output connections.
+	 * @return the number of connections in the list of threads.
+	 */
 	int CountClients(void)
 	{
 		int ct = 0;
@@ -378,10 +498,18 @@ public:
 	CountedPtr<Receivable> p_receiver_latest;
 	CountedPtr<Receivable> p_receiver_incoming;
 
-
-	///
+	/**
+	 * The thread body. The port class is a thread and 
+	 * contains code to take care of communication duties. 
+	 */
 	virtual void Body();
 
+	/**
+	 * Constructor.
+	 * @param nname is the symbolic name of the port.
+	 * @param autostart whether to start the port thread in the constructor (not used/tested).
+	 * @param n_protocol_type is one of the protocols available to YARP.
+	 */
 	Port (const char *nname, int autostart = 1, int n_protocol_type = YARP_NO_SERVICE_AVAILABLE) : 
 		tsender(this),
 		protocol_type(n_protocol_type),
@@ -409,6 +537,9 @@ public:
 		if (autostart) Begin(); 
 	}
 
+	/**
+	 * Constructor. Default contructor with default initialization values.
+	 */
 	Port (void) : 
 		tsender(this),
 		something_to_send(0), 
@@ -433,8 +564,17 @@ public:
 		protocol_type = YARP_NO_SERVICE_AVAILABLE;
 	}
 
+	/**
+	 * Destructor.
+	 */
 	virtual ~Port();
 
+	/**
+	 * Starts the port thread.
+	 * @param stack_size is the thread stack size in bytes. Use 0
+	 * as default value. This value is passed to the underlying thread
+	 * implementation.
+	 */
 	virtual void Begin (int stack_size = 0)
 	{
 		list_mutex.Wait();
@@ -448,6 +588,12 @@ public:
 			list_mutex.Post();
 	}
 
+	/**
+	 * Asks the thread to terminate. This initiates a complex
+	 * shutdown procedure that talks to all existing threads and tries
+	 * to shut them down nicely.
+	 * @param dontkill is ignored.
+	 */
 	virtual void End(int dontkill = -1)
 	{
 		ACE_UNUSED_ARG(dontkill);
@@ -465,8 +611,22 @@ public:
 			list_mutex.Post();
 	}
 
+	/**
+	 * Asks the protocol used by the port.
+	 * @return a reference to the protocol of the port.
+	 */
 	inline int& GetProtocolTypeRef() { return protocol_type; }
 
+	/**
+	 * Sets the port name and register the port to the name server.
+	 * Calling this method has various effects: the name is checked and
+	 * then assigned to internal variables, then the thread is started
+	 * which register the names to the name server as one of its first
+	 * actions.
+	 * @param nname is the port symbolic name.
+	 * @param netname is the network name when multiple NICs are present.
+	 * @return YARP_OK if successful.
+	 */
 	int SetName(const char *nname, const char *netname)
 	{
 		if (nname == NULL ||
@@ -494,12 +654,43 @@ public:
 		return ret;
 	}
 
-	/// these messages are sent directly to the port through the listening socket.
+	/**
+	 * Helper function to send a message to the port thread or to another port.
+	 * @param pid is the ID of the destination.
+	 * @param buf is the buffer containing the message to be sent.
+	 * @param len is the length in bytes of the message buffer.
+	 * @param tag is the command type.
+	 * @return YARP_OK on success.
+	 */
 	int SendHelper(const YARPNameID& pid, const char *buf, int len, int tag = MSG_ID_NULL);
+
+	/**
+	 * Connects to the port thread and sends a message.
+	 * @param pid is the destination address of the message.
+	 * @param buf is a zero terminated string.
+	 * @return YARP_OK on success.
+	 */
 	int SayServer(const YARPNameID& pid, const char *buf);
+
+	/**
+	 * Self connects to the thread and sends a message.
+	 * @param buf is a zero terminated string.
+	 * @return YARP_OK on success.
+	 */
 	int Say(const char *buf);
+
+	/**
+	 * Self connects to the thread and sends a termination request.
+	 * The request is propagated to all threads spawned by the port thread.
+	 * @return YARP_OK on success.
+	 */
 	int SaySelfEnd(void);
 
+	/**
+	 * Sets a flag to tell the communication layer to add headers to
+	 * the messages.
+	 * @param flag is the value of the flag.
+	 */
 	void AddHeaders(int flag)
     {
 		out_mutex.Wait();
@@ -507,6 +698,11 @@ public:
 		out_mutex.Post();
     }
 
+	/**
+	 * Sets a flag to tell the communication layer whether to expect
+	 * headers in messages.
+	 * @param flag is the value of the flag.
+	 */
 	void ExpectHeaders(int flag)
     {
 		out_mutex.Wait();
@@ -514,13 +710,28 @@ public:
 		out_mutex.Post();
     }
 
+	/**
+	 * Skips...
+	 * @param flag tells the thread whether to skip (what?).
+	 */
 	void SetSkip(int flag)
     {
 		skip = flag;
     }
 
+	/**
+	 * Callback function of ports. 
+	 * The user can override this method in a derived class to
+	 * do something useful upon message reception.
+	 * @see YARPPort
+	 */
 	virtual void OnRead() {}
 
+	/**
+	 * Sends a new message. After the message buffer has been
+	 * conveyed to the thread, this methods tells the thread code
+	 * that it's time to send it.
+	 */
 	void Fire (void)
     {
 		okay_to_send.Wait(); 
@@ -530,6 +741,10 @@ public:
 		tsender.pulseGo ();
     }
 
+	/**
+	 * Sends a message to the thread asking for termination of
+	 * all active output connections.
+	 */
 	void Deactivate (void)
     {
 		char buf[2] = { MSG_ID_DETACH_ALL, 0 };
@@ -537,21 +752,76 @@ public:
 		Say(buf);
     }
 
+	/**
+	 * Shares a Sendable with the thread. The calling thread
+	 * tells the port code that the object pointed by @a nsendable
+	 * is ready to be sent.
+	 * @param nsendable is a pointer to the object to be sent.
+	 */
 	void Share (Sendable *nsendable);
 
+	/**
+	 * Gets a pointer to the access buffered object.
+	 * @param nreceiver is a Receivable (a type of content). In particular
+	 * this is the last received buffer.
+	 */
 	void TakeReceiverAccess (Receivable *nreceiver);
+
+	/**
+	 * Gets a pointer to the latest buffered object.
+	 * @param nreceiver is a Receivable (a type of content). In particular
+	 * this is the last received buffer but one.
+	 */
 	void TakeReceiverLatest (Receivable *nreceiver);
+
+	/**
+	 * Gets a pointer to the incoming buffered object.
+	 * @param nreceiver is a Receivable (a type of content).
+	 */
 	void TakeReceiverIncoming (Receivable *nreceiver);
 
+	/**
+	 * Acquires the buffer. This operation is needed to
+	 * get one of the latest buffers filled with message content
+	 * by the communication layer. This method is used to build a Read()
+	 * on the port data. @see YARPPort.
+	 * @param wait tells the code whether to block or just poll.
+	 */
 	Sendable *Acquire (int wait = 1);
+
+	/**
+	 * Tells the underlying code that reading is terminated.
+	 * After this operation a new content is ready to be accessed by
+	 * user code.
+	 */
 	void Relinquish (void);
 
+	/**
+	 * The caller waits undefinitedly for a new message to arrive.
+	 */
 	void WaitInput (void) {	something_to_read.Wait(); }
 
+	/**
+	 * Tells the caller whether the port is sending a message.
+	 * @return 1 if sending, 0 otherwise.
+	 */
 	int IsSending (void);
+
+	/**
+	 * Waits for a send to be completed.
+	 */
 	void FinishSend (void);
 
+	/**
+	 * Sets the require acknowledge flag into the communication code.
+	 * @param flag is 1 if the code has to expect replies back from the remote peer.
+	 */
 	void SetRequireAck(int flag) { require_ack = flag; }
+
+	/**
+	 * Gets the require acknowledge flag.
+	 * @return 1 if the communication code is using replies.
+	 */
 	int GetRequireAck() { return require_ack; }
 };
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.19 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.20 2004-08-10 22:10:14 gmetta Exp $
 ///
 ///
 
@@ -533,20 +533,20 @@ public:
 class _SocketThreadListMulti : public YARPThread
 {
 private:
-	ACE_INET_Addr _local_addr;						/// local address of the acceptor.
-	ACE_SOCK_Acceptor _acceptor_socket;				/// the acceptor TCP socket.
+	ACE_INET_Addr _local_addr;						/** local address of the acceptor. */
+	ACE_SOCK_Acceptor _acceptor_socket;				/** the acceptor TCP socket. */
 	
-	YARPString _interface;							/// name of the interface (IP or symbolic).
-	YARPString _own_name;							/// the name of the owner (symbolic).
+	YARPString _interface;							/** name of the interface (IP or symbolic). */
+	YARPString _own_name;							/** the name of the owner (symbolic). */
 
-	YARPList<_SocketThreadMulti *> _list;			/// managed list of threads.
-	YARPSemaphore _new_data, _new_data_written;
+	YARPList<_SocketThreadMulti *> _list;			/** managed list of threads. */
+	YARPSemaphore _new_data, _new_data_written;		/** events on data available/written. */
 
-	int _initialized;
+	int _initialized;								/** flag on whether the class has been initialized. */
 	
-	int *_ports;
-	int _number_o_ports;
-	int _last_assigned;								/// index into array.
+	int *_ports;									/** array of IP ports available to incoming connections. */
+	int _number_o_ports;							/** total number of IP ports. */
+	int _last_assigned;								/** index into array of ports. */
 
 protected:
 	void addSocket (void);
