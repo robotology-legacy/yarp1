@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: exec_test8.cpp,v 1.22 2003-06-23 16:39:57 babybot Exp $
+/// $Id: exec_test8.cpp,v 1.23 2003-06-25 10:01:05 babybot Exp $
 ///
 ///
 #include <conf/YARPConfig.h>
@@ -82,6 +82,7 @@
 extern int __debug_level;
 
 NetInt32 foo;
+char name[256];
 
 YARPInputPortOf<NetInt32> in(YARPInputPort::DEFAULT_BUFFERS, YARP_MCAST);
 YARPOutputPortOf<NetInt32> out(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST);
@@ -94,7 +95,8 @@ public:
 //	YARPInputPortOf<NetInt32> in;
 	virtual void Body()
 	{
-		int er = in.Register("/foo/the/rampaging/frog");
+		///int er = in.Register("/foo/the/rampaging/frog");
+		int er = in.Register(name);
 		if (er != YARP_OK)
 		{
 			ACE_DEBUG ((LM_DEBUG, "Thread1: can't register port name, bailing out\n"));
@@ -118,7 +120,8 @@ public:
 //	YARPOutputPortOf<NetInt32> out;
 	virtual void Body()
 	{
-		int er = out.Register("/foo/the/rampaging/fly");
+		///int er = out.Register("/foo/the/rampaging/fly");
+		int er = out.Register(name);
 		if (er != YARP_OK)
 		{
 			ACE_DEBUG ((LM_DEBUG, "Thread2: can't register port name, bailing out\n"));
@@ -146,10 +149,8 @@ public:
 
 int main(int argc, char *argv[])
 {
-	ACE_UNUSED_ARG (argc);
-	ACE_UNUSED_ARG (argv);
-
 	__debug_level = 80;
+
 
 	Thread1 t1;
 	Thread2 t2;
@@ -179,7 +180,26 @@ int main(int argc, char *argv[])
 		t2.Begin();
 	}
 
-	YARPTime::DelayInSeconds(60.0);
+	if (s && c)
+	{
+		t1.End();
+		t2.End();
+		ACE_OS::printf ("can't be server and client at the same time\n");
+		return -1;
+	}
+
+	if (argc == 3 && s)
+	{
+		ACE_OS::sprintf (name, "%s:s", argv[2]);
+		ACE_OS::printf ("name is %s\n", name);
+	}
+	else
+	{
+		ACE_OS::sprintf (name, "%s:c", argv[2]);
+		ACE_OS::printf ("name is %s\n", name);
+	}
+
+	YARPTime::DelayInSeconds(6000.0);
 	return 0;
 }
 
