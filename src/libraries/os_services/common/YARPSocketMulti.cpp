@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.8 2003-07-30 22:43:06 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.9 2003-07-31 06:51:14 gmetta Exp $
 ///
 ///
 
@@ -745,6 +745,11 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 				_socket = (void *)new ACE_MEM_Acceptor (((YARPUniqueNameMem&)*_socket_addr).getAddressRef(), 1);
 				ACE_ASSERT (_socket != NULL);
+				/// the size of the SHMEM buff (needs to be big?).
+				/// this is for version 5.3.3, tomorrow's fix.
+				((ACE_MEM_Acceptor *)_socket)->init_buffer_size (2 * MAX_PACKET);
+				///((ACE_MEM_Acceptor *)_socket)->malloc_options().minimum_bytes_ = 2 * MAX_PACKET;
+				((ACE_MEM_Acceptor *)_socket)->preferred_strategy (ACE_MEM_IO::MT);
 			}
 			break;
 

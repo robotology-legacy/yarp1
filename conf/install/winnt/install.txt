@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.10 2003-07-29 02:26:52 gmetta Exp $
+$Id: install.txt,v 1.11 2003-07-31 06:51:14 gmetta Exp $
 
 This file is in: %YARP_ROOT%\conf\install\winnt
 
@@ -76,7 +76,7 @@ End of MACHINE specific configuration/install
 YARP proper install/configuration
 
 REQUIRES:
-	- ACE 5.3 from: http://www.cs.wustl.edu/~schmidt/ACE.html
+	- ACE 5.3.3 from: http://www.cs.wustl.edu/~schmidt/ACE.html
 	- IPL 2.5 from Intel ----> or IPP (not for free!)
 
 	- DLLs from Visual Studio 6.0: strangely enough the default win install

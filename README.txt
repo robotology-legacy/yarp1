@@ -1,4 +1,42 @@
-$Id: README.txt,v 1.14 2003-05-22 15:21:57 gmetta Exp $
+$Id: README.txt,v 1.15 2003-07-31 06:51:14 gmetta Exp $
+
+
+
+
+
+
+
+
+
+
+
+
+OBSOLETE:
+	PLEASE HAVE A LOOK AT $YARP_ROOT/conf/install/$OS
+OBSOLETE:
+	PLEASE HAVE A LOOK AT $YARP_ROOT/conf/install/$OS
+OBSOLETE:
+	PLEASE HAVE A LOOK AT $YARP_ROOT/conf/install/$OS
+OBSOLETE:
+	PLEASE HAVE A LOOK AT $YARP_ROOT/conf/install/$OS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------------------------------------------------------->
+Here for historical reasons.
+----------------------------------------------------------------------------->
+
 
 Before you do anything else.
 

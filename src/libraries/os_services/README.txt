@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.26 2003-07-30 22:43:06 gmetta Exp $
+$Id: README.txt,v 1.27 2003-07-31 06:51:14 gmetta Exp $
 
 
 =============
@@ -9,7 +9,7 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 
 - Other things as usual, YARP_ROOT must be defined
 
-- ACE is 5.3, april 2003.
+- ACE is 5.3.3, july 2003.
 
 - not everything is neat and clean because of the many versions the code 
   evolved through, it should hopefully be reasonably efficient.
