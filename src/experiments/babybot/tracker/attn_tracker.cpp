@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_tracker.cpp,v 1.2 2003-10-24 11:27:06 babybot Exp $
+/// $Id: attn_tracker.cpp,v 1.3 2003-10-24 14:52:48 babybot Exp $
 ///
 ///
 
@@ -162,6 +162,8 @@ int main(int argc, char *argv[])
 		/// get the target.
 		int x = 64, y = 64;
 		tracker.getTarget (x, y);
+		v(1) = x;
+		v(2) = y;
 		out_point.Content() = v;
 		out_point.Write();
     }

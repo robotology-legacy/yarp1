@@ -77,3 +77,13 @@ bool ABSimpleInput::input(YARPBottle *in, ArmBehaviorData *d)
 
 	return true;
 }
+
+void ABStartZeroG::output(ArmBehaviorData *d)
+{
+	d->zeroGMode();
+}
+
+void ABStopZeroG::output(ArmBehaviorData *d)
+{
+	d->directCommandMode();
+}

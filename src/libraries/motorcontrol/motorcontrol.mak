@@ -39,14 +39,15 @@ ALL : ".\lib\winnt\motorcontrol.lib"
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\YARPBabybotArm.obj"
+	-@erase "$(INTDIR)\YARPBabybotInertialSensor.obj"
 	-@erase "$(INTDIR)\YARPTrajectoryGen.obj"
 	-@erase ".\lib\winnt\motorcontrol.lib"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 CPP_PROJ=/nologo /MD /W3 /GX /O2 /I ".\common" /I ".\babybot" /I "..\..\..\include" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\motorcontrol.bsc" 
@@ -56,7 +57,8 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:".\lib\winnt\motorcontrol.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPTrajectoryGen.obj" \
-	"$(INTDIR)\YARPBabybotArm.obj"
+	"$(INTDIR)\YARPBabybotArm.obj" \
+	"$(INTDIR)\YARPBabybotInertialSensor.obj"
 
 ".\lib\winnt\motorcontrol.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -86,14 +88,15 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
 	-@erase "$(INTDIR)\YARPBabybotArm.obj"
+	-@erase "$(INTDIR)\YARPBabybotInertialSensor.obj"
 	-@erase "$(INTDIR)\YARPTrajectoryGen.obj"
 	-@erase ".\lib\winnt\motorcontroldb.lib"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 CPP_PROJ=/nologo /MDd /W3 /Gm /GX /ZI /Od /I ".\common" /I ".\babybot" /I "..\..\..\include" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\motorcontrol.bsc" 
@@ -103,7 +106,8 @@ LIB32=link.exe -lib
 LIB32_FLAGS=/nologo /out:".\lib\winnt\motorcontroldb.lib" 
 LIB32_OBJS= \
 	"$(INTDIR)\YARPTrajectoryGen.obj" \
-	"$(INTDIR)\YARPBabybotArm.obj"
+	"$(INTDIR)\YARPBabybotArm.obj" \
+	"$(INTDIR)\YARPBabybotInertialSensor.obj"
 
 ".\lib\winnt\motorcontroldb.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -175,6 +179,12 @@ SOURCE=.\eurobot\YARPEurobotArm.cpp
 SOURCE=.\babybot\YARPBabybotArm.cpp
 
 "$(INTDIR)\YARPBabybotArm.obj" : $(SOURCE) "$(INTDIR)"
+	$(CPP) $(CPP_PROJ) $(SOURCE)
+
+
+SOURCE=.\babybot\YARPBabybotInertialSensor.cpp
+
+"$(INTDIR)\YARPBabybotInertialSensor.obj" : $(SOURCE) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 

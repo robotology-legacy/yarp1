@@ -33,7 +33,8 @@ class CVectViewerDlg : public CDialog
 {
 // Construction
 public:
-	CVectViewerDlg(const char *name, int period, int size, int length, int height, CWnd* pParent = NULL);	// standard constructor
+	CVectViewerDlg(const char *name, const char *net, int period, int size, int length, int height, CWnd* pParent = NULL);	// standard constructor
+	~CVectViewerDlg();
 
 // Dialog Data
 	//{{AFX_DATA(CVectViewerDlg)
@@ -201,7 +202,9 @@ protected:
 
 	CRecv *_pReceiver;
 
-	char _name[255];
+	char _name[256];
+	char _network[256];
+
 	int _period;
 	int _size;
 	int _ySize;
@@ -238,9 +241,9 @@ public:
 		}
 	}
 
-	void Register(char *name = NULL)
+	void Register(char *name = NULL, char *net = NULL)
 	{
-		_inPort.Register(name);
+		_inPort.Register(name, net);
 	}
 
 	CVectViewerDlg *_owner;

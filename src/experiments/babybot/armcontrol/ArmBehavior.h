@@ -43,6 +43,18 @@ public:
 	void output(ArmBehaviorData *d);
 };
 
+class ABStartZeroG: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
+class ABStopZeroG: public ArmBehaviorBaseOutput
+{
+public:
+	void output(ArmBehaviorData *d);
+};
+
 class ABForceResting: public ArmBehaviorBaseOutput
 {
 public:

@@ -30,11 +30,13 @@ enum {
 	YBVArmRestDone,
 	YBVArmForceResting,
 	YBVArmInhibitResting,
+	YBVArmZeroG,
 	YBVIsAlive,
 	YBVHandNewCmd,
 	YBVHandDone,
 	YBVHandShake,
 	YBVHandResetEncoders,
+	YBVHeadNewCmd,
 	YBVExit
 };
 
@@ -42,20 +44,22 @@ template <class T>
 const char *ybc_label(T x) {
   switch (x) {
     case YBVExit: return "exit";
-	case YBVArmNewCmd: return "arm -- new cmd";
-	case YBVArmDone: return "arm -- done";
-	case YBVArmRest: return "arm -- start resting sequence";
-	case YBVArmRestDone: return "arm -- rest done";
-	case YBVArmRndStart: return "arm -- rnd start";
-	case YBVArmRndStop: return "arm -- rnd stop";
-	case YBVArmShake: return "arm -- shake";
-	case YBVArmForceResting: return "arm -- force resting";
-	case YBVArmInhibitResting: return "arm -- inhibit resting";
-	case YBVHandShake: return "hand -- shake";
-	case YBVHandNewCmd: return "hand -- new cmd";
-	case YBVHandDone: return "hand -- done";
+	case YBVArmNewCmd: return "arm new cmd";
+	case YBVArmDone: return "arm done";
+	case YBVArmRest: return "arm start resting sequence";
+	case YBVArmRestDone: return "arm rest done";
+	case YBVArmRndStart: return "arm rnd start";
+	case YBVArmRndStop: return "arm rnd stop";
+	case YBVArmShake: return "arm shake";
+	case YBVArmForceResting: return "arm force resting";
+	case YBVArmInhibitResting: return "arm inhibit resting";
+	case YBVArmZeroG: return "arm zero g mode";
+	case YBVHandShake: return "hand shake";
+	case YBVHandNewCmd: return "hand new cmd";
+	case YBVHandDone: return "hand done";
 	case YBVIsAlive: return "is alive?";
-	case YBVHandResetEncoders: return "hand -- reset encoders";
+	case YBVHandResetEncoders: return "hand reset encoders";
+	case YBVHeadNewCmd: return "head new cmd";
   }
   return "UNKNOWN";
 };

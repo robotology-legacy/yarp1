@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LogPolarSDK.cpp,v 1.17 2003-10-17 14:25:23 fberton Exp $
+/// $Id: LogPolarSDK.cpp,v 1.18 2003-10-24 14:52:48 babybot Exp $
 ///
 ///
 
@@ -612,9 +612,9 @@ void Remap(unsigned char * Out_Image,
 	//const int SizeRemapY = Par->Size_Y_Remap;
 	const int SizeRemap  = Par->Size_Img_Remap;
 
-	In_Image[0] = 192;
-	In_Image[1] = 192;
-	In_Image[2] = 192;
+	In_Image[0] = 0; // 192;
+	In_Image[1] = 0; // 192;
+	In_Image[2] = 0; // 192;
 	//const int Size = Par->Size_X_Remap * Par->Size_Y_Remap;
 //	int CenterX = Par->Center_X_Remap;
 //	int CenterY = Par->Center_Y_Remap;

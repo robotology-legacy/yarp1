@@ -159,10 +159,6 @@ SOURCE=.\HeadSharedData.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\HeadState.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\headStatus.h
 # End Source File
 # Begin Source File

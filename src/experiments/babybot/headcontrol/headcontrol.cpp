@@ -44,15 +44,14 @@ int main(int argc, char* argv[])
 	HeadBehavior behavior(&thread, YBLabelMotor, "/headcontrol/behavior/i");
 
 	HBWaitIdle waitIdle("idle");
-	HBSimpleInput input(0);
+	HBDirectCommandInput directCmd(YBVHeadNewCmd);
 	behavior.setInitialState(&waitIdle);
 
-	behavior.add(&input, &waitIdle, &waitIdle);
+	behavior.add(&directCmd, &waitIdle, &waitIdle);
 
 	behavior.Begin();
 	behavior.loop();
 
-	thread.terminate(false);
-
+	thread.terminate(false);	// no timeout here !
 	return 0;
 }

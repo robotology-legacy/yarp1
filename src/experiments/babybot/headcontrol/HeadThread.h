@@ -21,7 +21,6 @@
 
 // state
 #include "HeadFSMStates.h"
-#include "VorControl.h"
 
 class HeadThread: public YARPRateThread
 {
@@ -34,6 +33,15 @@ public:
 	void doInit();
 	void doLoop();
 	void doRelease();
+
+	bool directCommand(YVector &cmd)
+	{
+		// later, cosider to check _directCmdFlag
+		_hsDirectCmd.set(cmd);
+		_hiDirectCmdEnd.set(cmd);
+		_directCmdFlag = true;
+		return true;
+	}
 
 private:
 	//move the head to 0
@@ -50,10 +58,8 @@ private:
 	HeadFSM *_fsm;
 	HeadSharedData _head;
 
-	VorControl *_vor;
 	YVector _inertial;
-	YVector _directCmd;
-	YVector _vorCmd;
+	bool _directCmdFlag;
 
 	char _iniFile[80];
 	char _path[255];
@@ -61,11 +67,11 @@ private:
 	// output ports
 	YARPOutputPortOf<YVector> _inertialPort;
 	YARPOutputPortOf<YARPControlBoardNetworkData> _statusPort;
-	YARPOutputPortOf<YVector> _positionPort;
+//	YARPOutputPortOf<YVector> _positionPort;
 	
 	//
 	YARPInputPortOf<YVector> _vorPort;
-	YARPInputPortOf<YVector> _directCmdPort;
+	//	YARPInputPortOf<YVector> _directCmdPort;
 	
 	/*HeadStatus		head_status;			//collect status information
 	Vergence		*p_control_vergence;	//vergence
@@ -74,6 +80,15 @@ private:
 	Avoidance		*p_avoid;				//limit avoidance
 	Inertial		*p_vor;					//vor 
 	*/
+
+	// FSM
+	HIDirectCmdStart	_hiDirectCmdStart;
+	HODirectCmdEnd		_hoDirectCmdEnd;
+	HIDirectCmdEnd		_hiDirectCmdEnd;
+	HSDirectCmd			_hsDirectCmd;
+	HSDirectCmdStop		_hsDirectCmdStop;
+	HSTrack				_hsTrack;
+
 };
 
 inline void HeadThread::read_status()
@@ -88,11 +103,8 @@ inline void HeadThread::read_status()
 	// read vor info
 	if (_vorPort.Read(0))
 	{
-		_vorCmd = _vorPort.Content();
+		_head._vorCmd = _vorPort.Content();
 	}
-	
-	
-
 }
 
 inline void HeadThread::write_status()

@@ -103,6 +103,25 @@ int main(int argc, char* argv[])
 			tmp.writeVocab(YBVArmInhibitResting);
 			send = true;
 		}
+		else if (c == "armzerog")
+		{
+			tmp.writeVocab(YBVArmZeroG);
+			send = true;
+		}
+		else if (c == "head")
+		{
+			tmp.writeVocab(YBVHeadNewCmd);
+			YVector cmd;
+			cmd.Resize(5);
+			for (int i = 0; i < 5; i++)
+			{
+				cin >> cmd(i+1);
+				cmd(i+1) = cmd(i+1)*degToRad;
+			}
+
+			tmp.writeYVector(cmd);
+			send = true;
+		}
 		else 
 		{
 			send = false;

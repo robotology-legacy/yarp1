@@ -39,6 +39,7 @@ ALL : "..\..\..\lib\winnt\math.lib"
 CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\YARPFft.obj"
+	-@erase "$(INTDIR)\YARPLowPassFilter.obj"
 	-@erase "$(INTDIR)\YARPLU.obj"
 	-@erase "$(INTDIR)\YARPMatrix.obj"
 	-@erase "$(INTDIR)\YARPRecursiveLS.obj"
@@ -50,8 +51,8 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 CPP_PROJ=/nologo /MD /W3 /GX /O2 /Ob2 /I "..\..\..\include" /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\math.bsc" 
@@ -66,7 +67,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPRecursiveLS.obj" \
 	"$(INTDIR)\YARPRobotMath.obj" \
 	"$(INTDIR)\YARPSVD.obj" \
-	"$(INTDIR)\YARPTwoDKalmanFilter.obj"
+	"$(INTDIR)\YARPTwoDKalmanFilter.obj" \
+	"$(INTDIR)\YARPLowPassFilter.obj"
 
 "..\..\..\lib\winnt\math.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -96,6 +98,7 @@ CLEAN :
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
 	-@erase "$(INTDIR)\YARPFft.obj"
+	-@erase "$(INTDIR)\YARPLowPassFilter.obj"
 	-@erase "$(INTDIR)\YARPLU.obj"
 	-@erase "$(INTDIR)\YARPMatrix.obj"
 	-@erase "$(INTDIR)\YARPRecursiveLS.obj"
@@ -107,8 +110,8 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 CPP_PROJ=/nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\..\..\include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\math.bsc" 
@@ -123,7 +126,8 @@ LIB32_OBJS= \
 	"$(INTDIR)\YARPRecursiveLS.obj" \
 	"$(INTDIR)\YARPRobotMath.obj" \
 	"$(INTDIR)\YARPSVD.obj" \
-	"$(INTDIR)\YARPTwoDKalmanFilter.obj"
+	"$(INTDIR)\YARPTwoDKalmanFilter.obj" \
+	"$(INTDIR)\YARPLowPassFilter.obj"
 
 "..\..\..\lib\winnt\mathDB.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
     $(LIB32) @<<
@@ -187,6 +191,11 @@ $(DS_POSTBUILD_DEP) : "..\..\..\lib\winnt\mathDB.lib"
 SOURCE=.\YARPFft.cpp
 
 "$(INTDIR)\YARPFft.obj" : $(SOURCE) "$(INTDIR)"
+
+
+SOURCE=.\YARPLowPassFilter.cpp
+
+"$(INTDIR)\YARPLowPassFilter.obj" : $(SOURCE) "$(INTDIR)"
 
 
 SOURCE=.\YARPLU.cpp

@@ -14,19 +14,21 @@
 HeadThread::HeadThread(int rate, const char *name, const char *ini_file):
 YARPRateThread(name, rate),
 _vorPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
-_directCmdPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
-_inertialPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP),
-_positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+// _directCmdPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
+_inertialPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
+// _positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 {
 	char *root = GetYarpRoot();
 	char path[256];
 
 	// register ports
-	_directCmdPort.Register("/headcontrol/direct/i");
+	// _directCmdPort.Register("/headcontrol/direct/i");
 	_vorPort.Register("/headcontrol/vor/i");
 
 	_inertialPort.Register("/headcontrol/inertial/o");
-	_positionPort.Register("/headcontrol/position/o");
+	// _positionPort.Register("/headcontrol/position/o");
+
+	_directCmdFlag = false;
 
 	
 	#if defined(__WIN32__)
@@ -40,10 +42,8 @@ _positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	strcpy(_path, path);
 	_head.initialize(_path, _iniFile);
 
-	_vor = new VorControl(_head.nj(), 3, 2);
 	_inertial.Resize(3);
 	_deltaQ.Resize(_head.nj());
-	_vorCmd.Resize(_head.nj());
 		
 	// now we can create controls
 	/*
@@ -87,13 +87,24 @@ _positionPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_UDP)
 	_init_state = HStateSmooth::Instance();
 	_head_state = _init_state;
 	*/
+
+	// FSM
+	_hsDirectCmd.set(_head._directCmd);
+	double tmp[] = {-10.0, -8.0, -10.0, -15.0, -15.0};
+	_hsDirectCmd.setPIDs(_head.nj(), tmp);
+	_hiDirectCmdStart.set(&_directCmdFlag);
+	_hoDirectCmdEnd.set(&_directCmdFlag);
+	_hiDirectCmdEnd.set(_head._directCmd);
+	
+	_fsm->setInitialState(&_hsTrack);
+	_fsm->add(&_hiDirectCmdStart, &_hsTrack, &_hsDirectCmd);
+	_fsm->add(&_hiDirectCmdEnd, &_hsDirectCmd, &_hsDirectCmdStop);
+	_fsm->add(NULL, &_hsDirectCmdStop, &_hsTrack, &_hoDirectCmdEnd);
 }
 
 HeadThread::~HeadThread()
 {
 	delete _fsm;
-	delete _vor;
-
 }
 
 void HeadThread::doInit()
@@ -112,22 +123,15 @@ void HeadThread::doInit()
 	park(1);
 
 	_head.calibrate();
-	
-	// set accelerations
-
-	/* calibrateInertial(); */
 }
 
 void HeadThread::doRelease()
 {
-/*	// stop the head
-	head_status.current_command = 0;
-	send_commands();
-	write_status();
-
 	// park head
-	*/
 	park(2);
+
+	// be sure to stop the head, in principle this is not needed.
+	_head.idleMode();
 }
 
 void HeadThread::doLoop()
@@ -136,16 +140,13 @@ void HeadThread::doLoop()
 	read_status();
 	
 	// gaze
-//	_fsm->doYourDuty();
+	_fsm->doYourDuty();
 
 	// printf("%lf\n", _inertial(1));
 	// _command = _vor->handle(_inertial);
-	
-	_deltaQ = _vorCmd;
-
+	_deltaQ = _head._vorCmd + _head._directCmd;
 	/////////////
 	// vergence
-	
 	write_status();
 }
 
@@ -181,65 +182,4 @@ void HeadThread::park(int flag)
 	}
 
 	std::cout << "done ! \n";
-}
-
-/*
-inline void HeadThread::read_status(){
-	// MEI
-	pHeadControl->Input();
-	pInertialSensor->Input();
-
-	pInertialSensor->Ready(&head_status.adcready);
-
-	if (head_status.adcready)
-	{
-		// inertial sensor is calibrated.
-		pInertialSensor->GetSignal (3, head_status.inertial.data() + 2);		
-		pInertialSensor->GetSignal (2, head_status.inertial.data() + 1);
-		pInertialSensor->GetSignal (1, head_status.inertial.data());
-	}
-	
-	// store old position
-	head_status.old_position = head_status.current_position;
-	pHeadControl2->GetPosition2 (_head::_nj, head_status.current_position.data());
-
-	p_segmentation1->get(target1);
-	p_segmentation2->get(target2);
-	// LATER: add joint speed estimation ?
-}
-*/
-/*
-inline void HeadThread::write_status(){
-	// still not clear what to do...
-
-	// transmit head_status data 
-	p_head_sender->set(head_status);
-}*/
-
-void HeadThread::calibrateInertial()
-{
-/*
-	int step = 0;
-	int flag = 0;
-	int nSteps;
-	int tmp;
-	
-	pInertialSensor->GetCalibrationSteps(&nSteps);
-
-	cout << "Wait while the head is being calibrated:\n";
-	while (flag == 0)
-	{
-			tmp = int (step/double(nSteps)*100 + 0.5);
-
-			cout << tmp << "%"<< '\r';
-			
-			pInertialSensor->Input();
-			pInertialSensor->Ready(&flag);
-
-			step++;
-			Sleep(30);
-	}
-	
-	cout << "\ndone!\n";
-	*/
 }

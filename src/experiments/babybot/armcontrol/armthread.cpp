@@ -15,7 +15,6 @@ ArmThread::ArmThread(int rate, const char *name, const char *ini_file):
 YARPRateThread(name, rate),
 YARPBehaviorSharedData(YBLabelMotor, "/armcontrol/behavior/o"),
 _tirednessControl(23000.0, 10000.0, rate, 0.5),
-_arm_status(ini_file),
 _wristPort(YARPInputPort::DEFAULT_BUFFERS, YARP_UDP),
 _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 {
@@ -30,6 +29,7 @@ _armStatusPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
 	strncpy(_iniFile, ini_file, 80);
 	strncpy(_path, path, 256);
+	_arm_status.resize(path, ini_file);
 
 	YARPConfigFile file;
 	file.set(_path, ini_file);
@@ -111,9 +111,6 @@ void ArmThread::doInit()
 	_arm.setVelocities(_speed.data());
 	_arm.setAccs(_acc.data());
 
-	_arm._parameters._lowPIDs[0].KP = -5.0;
-	_arm._parameters._lowPIDs[0].KD = -600.0;
-	// _arm._parameters._lowPIDs[0].OFFSET = g[0];	//the first value for g has to be applied smoothly
 	_arm.setGainsSmoothly(_arm._parameters._lowPIDs,200);
 	_arm_status._pidStatus = 1;
 	_arm.getPositions(_arm_status._current_position.data());
@@ -237,7 +234,7 @@ void ArmThread::park(int index)
 {
 	// read from file
 	YARPConfigFile cfg;
-	cfg.set("", _iniFile);
+	cfg.set(_path, _iniFile);
 	int nj = _arm_status._nj;
 	char tmp[80];
 	double *pos,*vel,*acc;

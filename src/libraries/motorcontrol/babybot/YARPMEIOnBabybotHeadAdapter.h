@@ -1,4 +1,5 @@
 // by nat
+// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.6 2003-10-24 14:52:48 babybot Exp $
 
 #ifndef __MEIONBABYBOTHEAD__
 #define __MEIONBABYBOTHEAD__
@@ -8,7 +9,14 @@
 #include <string>
 #include <YARPConfigFile.h>
 
-// $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.5 2003-10-17 16:34:40 babybot Exp $
+#include <YARPBabybotInertialSensor.h>
+
+#define YARP_BABYBOT_HEAD_ADAPTER_VERBOSE
+
+#ifdef YARP_BABYBOT_HEAD_ADAPTER_VERBOSE
+#define YARP_BABYBOT_HEAD_ADAPTER_DEBUG(string) YARP_DEBUG("BABYBOT_HEAD_ADAPTER_DEBUG:", string)
+#else  YARP_BABYBOT_HEAD_ADAPTER_DEBUG(string) YARP_NULL_DEBUG
+#endif
 
 namespace _BabybotHead
 {
@@ -145,7 +153,6 @@ public:
 	}
 
 private:
-	private:
 	void _realloc(int nj)
 	{
 		if (_highPIDs != NULL)
@@ -188,87 +195,6 @@ public:
 	YARPString _inertialConfig;
 };
 
-class YARPBabybotInertialParameters
-{
-public:
-	YARPBabybotInertialParameters()
-	{
-		_ns = 0;
-		_parameters = NULL;	
-	}
-
-	~YARPBabybotInertialParameters()
-	{
-		int j;
-		if (_parameters != NULL)
-		{
-			for (j = 0; j<_ns; j++)
-			{
-				if (_parameters[j]!=NULL)
-					delete [] _parameters[j];
-			}
-			delete [] _parameters;
-			_parameters = NULL;
-		}
-	}
-
-	int load(const YARPString &path, const YARPString &init_file)
-	{
-		YARPConfigFile cfgFile;
-		// set path and filename
-		cfgFile.set(path.c_str(),init_file.c_str());
-		
-		// get number of joints
-		if (cfgFile.get("[GENERAL]", "Sensors", &_ns, 1) == YARP_FAIL)
-			return YARP_FAIL;
-
-		if (cfgFile.get("[GENERAL]", "CalibrationSteps", &_nsteps, 1) == YARP_FAIL)
-			return YARP_FAIL;
-
-		// delete and allocate new memory
-		_realloc(_ns);
-		
-		int i;
-		for(i = 0; i<_ns; i++)
-		{
-			char dummy[80];
-			sprintf(dummy, "%s%d", "Sensor", i);
-			if (cfgFile.get("[PARAMETERS]", dummy, _parameters[i], 6) == YARP_FAIL)
-				return YARP_FAIL;
-		}
-		
-		return YARP_OK;
-	}
-
-private:
-	private:
-	void _realloc(int ns)
-	{
-		int j;
-		if (_parameters != NULL)
-		{
-			for (j = 0; j<_ns; j++)
-			{
-				if (_parameters[j]!=NULL)
-					delete [] _parameters[j];
-			}
-			delete [] _parameters;
-			_parameters = NULL;
-		}
-		
-		_ns = ns;
-		
-		_parameters = new double *[ns];
-		for (j = 0; j<ns; j++)
-			_parameters[j] = new double [6];
-	}
-
-public:
-	int _ns;
-	int _nsteps;
-	double **_parameters;
-};
-
 class YARPMEIOnBabybotHeadAdapter : public YARPMEIDeviceDriver
 {
 public:
@@ -292,8 +218,10 @@ public:
 			return YARP_FAIL;
 
 		// inertial sensor
-		_inertial = new YARPBabybotInertialParameters;
+		_inertial = new YARPBabybotInertialSensor;
 		_inertial->load("",par->_inertialConfig);
+
+		_tmpShort = new short [_inertial->_ns];
 
 		for(int i=0; i < _parameters->_nj; i++)
 		{
@@ -330,6 +258,7 @@ public:
 			return YARP_FAIL;
 
 		delete _inertial;
+		delete [] _tmpShort;
 
 		_initialized = false;
 		return YARP_OK;
@@ -367,21 +296,56 @@ public:
 		return YARP_OK;
 	}
 
-	int readAnalog(int axis, double *val)
+	int readAnalogs(double *val)
 	{
+		int i;
+		int ret;
 		SingleAxisParameters cmd;
-		short v;
-		cmd.axis = axis;
-		cmd.parameters = &v;
-		int ret = IOCtl(CMDReadAnalog, &cmd);
-		*val = (double) v;
+		for(i = 0; i < _inertial->_ns; i++)
+		{
+			cmd.axis = i;
+			cmd.parameters = &_tmpShort[i];;
+			ret = IOCtl(CMDReadAnalog, &cmd);
+		}
+		_inertial->convert(_tmpShort, val);
 		return ret;
+	}
+
+	int calibrate()
+	{
+		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
+		ACE_OS::printf("..done!\n");
+
+		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting inertial sensor calibration:\n"));
+
+		int p = 0;
+		bool cal = false;
+		while (!cal)
+		{
+			// read new values from analog input
+			int i;
+			int ret;
+			SingleAxisParameters cmd;
+			for(i = 0; i < _inertial->_ns; i++)
+			{
+				cmd.axis = i;
+				cmd.parameters = &_tmpShort[i];;
+				ret = IOCtl(CMDReadAnalog, &cmd);
+			}
+
+			cal = _inertial->calibrate(_tmpShort, &p);
+			ACE_OS::printf("%d\r",p);
+			ACE_OS::sleep(ACE_Time_Value(0,40000));
+		}
+		ACE_OS::printf("\n..done!\n");
+		return YARP_OK;
 	}
 
 private:
 	bool _initialized;
+	short *_tmpShort;
 	YARPBabybotHeadParameters *_parameters;
-	YARPBabybotInertialParameters *_inertial;
+	YARPBabybotInertialSensor *_inertial;
 };
 
 #endif	// .h

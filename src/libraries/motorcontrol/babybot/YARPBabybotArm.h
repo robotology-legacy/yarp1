@@ -1,7 +1,7 @@
 #ifndef __YARPBABYBOTARM__
 #define __YARPBABYBOTARM__
 
-// $Id: YARPBabybotArm.h,v 1.11 2003-09-04 09:32:58 babybot Exp $
+// $Id: YARPBabybotArm.h,v 1.12 2003-10-24 14:52:48 babybot Exp $
 
 #define YARP_BABYBOT_ARM_VERBOSE
 
@@ -31,14 +31,6 @@ public:
 		}
 		_unlock();
 		return YARP_OK;
-	}
-	int calibrate()
-	{
-		int ret;
-		_lock();
-		ret = _adapter.calibrate();
-		_unlock();
-		return ret;
 	}
 	// overrides basic methods -> add coupling
 	int setPositions(const double *pos);

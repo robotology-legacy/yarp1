@@ -59,7 +59,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CVectViewerDlg dialog
 
-CVectViewerDlg::CVectViewerDlg(const char *name, int period, int size, int xS, int yS, CWnd* pParent /*=NULL*/)
+CVectViewerDlg::CVectViewerDlg(const char *name, const char *net, int period, int size, int xS, int yS, CWnd* pParent /*=NULL*/)
 	: CDialog(CVectViewerDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CVectViewerDlg)
@@ -68,7 +68,8 @@ CVectViewerDlg::CVectViewerDlg(const char *name, int period, int size, int xS, i
 	// Note that LoadIcon does not require a subsequent DestroyIcon in Win32
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
-	strncpy(_name, name, 255);
+	strncpy(_name, name, 256);
+	strncpy(_network, net, 256);
 
 	_xSize = xS;
 	_ySize = yS;
@@ -77,6 +78,12 @@ CVectViewerDlg::CVectViewerDlg(const char *name, int period, int size, int xS, i
 
 	_scale = new double [_size];
 	_max = new double [_size];
+}
+
+CVectViewerDlg::~CVectViewerDlg()
+{
+	delete[] _scale;
+	delete[] _max;
 }
 
 void CVectViewerDlg::DoDataExchange(CDataExchange* pDX)
@@ -187,7 +194,7 @@ BOOL CVectViewerDlg::OnInitDialog()
 
 	// receiver
 	_pReceiver = new CRecv(this);
-	_pReceiver->Register(_name);
+	_pReceiver->Register(_name, _network);
 	_pReceiver->Begin();
 
 	_counter = 0;

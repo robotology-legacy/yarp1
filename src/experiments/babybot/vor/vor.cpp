@@ -6,7 +6,11 @@
 #include <YARPPort.h>
 #include <YARPVectorPortContent.h>
 
-#include "../HeadControl/VorControl.h"
+#include "VorControl.h"
+
+const int __headNj = 5;
+const int __inertialSensors = 3;
+const double __vorGain = 2.0;
 
 int main(int argc, char* argv[])
 {
@@ -16,7 +20,7 @@ int main(int argc, char* argv[])
 	_inertialPort.Register("/vor/inertial/i");
 	_vorPort.Register("/vor/o");
 
-	VorControl _vor(6,3,2);
+	VorControl _vor(__headNj, __inertialSensors, __vorGain);
 
 	while(true)
 	{

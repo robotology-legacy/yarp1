@@ -73,8 +73,8 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 CPP_PROJ=/nologo /MD /W3 /GX /O2 /I "../../include" /I "../../sys_include" /I "../../../../../include" /D "NDEBUG" /D "WIN32" /D "_MBCS" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\os_services.bsc" 
@@ -179,8 +179,8 @@ CLEAN :
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
 
-MTL=midl.exe
 LINK32=link.exe -lib
+MTL=midl.exe
 CPP_PROJ=/nologo /MDd /W3 /Gm /GX /ZI /Od /I "../../include" /I "../../sys_include" /I "../../../../../include" /D "_DEBUG" /D "WIN32" /D "_MBCS" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
 BSC32=bscmake.exe
 BSC32_FLAGS=/nologo /o"$(OUTDIR)\os_services.bsc" 

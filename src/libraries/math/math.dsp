@@ -105,6 +105,10 @@ SOURCE=.\YARPFft.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\YARPLowPassFilter.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\YARPLU.cpp
 # End Source File
 # Begin Source File
@@ -134,6 +138,10 @@ SOURCE=.\YARPTwoDKalmanFilter.cpp
 # Begin Source File
 
 SOURCE=.\YARPFft.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\YARPLowPassFilter.h
 # End Source File
 # Begin Source File
 

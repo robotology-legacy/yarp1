@@ -56,6 +56,7 @@ int main(int argc, char* argv[])
 	ABWaitIdle waitIdle("command");
 	ABWaitIdle waitMotion("motion");
 	ABWaitIdle waitRest("resting");
+	ABWaitIdle waitZeroG("zeroG");
 	ABSimpleInput checkMotionDone(YBVArmDone);
 	ABOutputCommand outputCmd;
 	ABOutputShakeCmd outputShk;
@@ -66,8 +67,11 @@ int main(int argc, char* argv[])
 
 	ABSimpleInput inputForceRest(YBVArmForceResting);
 	ABSimpleInput inputInhibitRest(YBVArmInhibitResting);
-	ABForceResting outputForceRest;
-	ABInhibitResting outputInhibitRest;
+	ABSimpleInput inputZeroG(YBVArmZeroG);
+	ABForceResting		outputForceRest;
+	ABInhibitResting	outputInhibitRest;
+	ABStartZeroG	outputStartZeroG;
+	ABStopZeroG		outputStopZeroG;
 		
 	_arm.setInitialState(&waitIdle);
 	/////////////////////////////// config state machine
@@ -83,6 +87,10 @@ int main(int argc, char* argv[])
 	_arm.add(&checkRestDone, &waitRest, &waitIdle);
 	////////////////////
 
+	// zero G cyvle
+	_arm.add(&inputZeroG, &waitIdle, &waitZeroG, &outputStartZeroG);
+	_arm.add(&inputZeroG, &waitZeroG, &waitIdle, &outputStopZeroG);
+	
 	// additional functions
 	_arm.add(&inputForceRest, &outputForceRest);
 	_arm.add(&inputInhibitRest, &outputInhibitRest);

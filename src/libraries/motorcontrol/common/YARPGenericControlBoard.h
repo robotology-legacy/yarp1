@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.3 2003-10-17 16:33:18 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.4 2003-10-24 14:52:48 babybot Exp $
 ///
 ///
 
@@ -103,6 +103,15 @@ public:
 			delete [] _currentLimits;
 	}
 
+	int calibrate()
+	{
+		int ret;
+		_lock();
+		ret = _adapter.calibrate();
+		_unlock();
+		return ret;
+	}
+
 	int initialize()
 	{
 		_lock();
@@ -137,10 +146,10 @@ public:
 		return ret;
 	}
 
-	int readAnalog(int axis, double *val)
+	int readAnalogs(double *val)
 	{
 		_lock();
-			int ret = _adapter.readAnalog(axis, val);
+			int ret = _adapter.readAnalogs(val);
 		_unlock();
 		return ret;
 	}
@@ -425,6 +434,7 @@ int YARPGenericControlBoard<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *
 		}
 		ACE_OS::sleep(sleep_period);
 		ACE_OS::printf(".");
+
 		fflush(stdout);
 	}
 	ACE_OS::printf("done !\n");

@@ -60,10 +60,18 @@ BOOL CVectViewerApp::InitInstance()
 	int iHeight;
 	double *dScale;
 	bool aScale;
-	CString dummy,name, period, size, length, height, scale, x, y, w, h;
-	name = "/";
-	cmdInfo.GetOption("name", dummy);
-	name += dummy;
+	CString dummy, name, period, size;
+	CString length, height, scale, x, y, w, h;
+	CString network;
+
+	name = "/default_vector_viewer";
+	if (cmdInfo.GetOption("name", dummy))
+		name = "/" + dummy;
+
+	network = "default";
+	if (cmdInfo.GetOption("net", dummy))
+		network = dummy;
+
 	if (cmdInfo.GetOption("p", period))
 		iPeriod = atoi(period);
 	else
@@ -130,23 +138,13 @@ BOOL CVectViewerApp::InitInstance()
 	Enable3dControlsStatic();	// Call this when linking to MFC statically
 #endif
 
-	CVectViewerDlg dlg(name, iPeriod, iSize, iLength, iHeight);
+	CVectViewerDlg dlg(name, network, iPeriod, iSize, iLength, iHeight);
 	m_pMainWnd = &dlg;
 	
 	dlg._aScale = aScale;
 	dlg.setScale(dScale);
-
-	int nResponse = dlg.DoModal();
-	if (nResponse == IDOK)
-	{
-		// TODO: Place code here to handle when the dialog is
-		//  dismissed with OK
-	}
-	else if (nResponse == IDCANCEL)
-	{
-		// TODO: Place code here to handle when the dialog is
-		//  dismissed with Cancel
-	}
+	
+	dlg.DoModal();
 
 	// Since the dialog has been closed, return FALSE so that we exit the
 	//  application, rather than start the application's message pump.

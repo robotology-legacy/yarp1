@@ -2178,7 +2178,7 @@
 	"..\..\..\..\..\include\ace\node.cpp"\
 	"..\..\..\..\..\include\ace\node.h"\
 	"..\..\..\..\..\include\ace\object_manager.h"\
-	"..\..\..\..\..\include\ace\Object_Manager.i"\
+	"..\..\..\..\..\include\ace\object_manager.i"\
 	"..\..\..\..\..\include\ace\os.h"\
 	"..\..\..\..\..\include\ace\os.i"\
 	"..\..\..\..\..\include\ace\os_dirent.h"\
@@ -2254,16 +2254,20 @@
 	"..\..\include\YARPAll.h"\
 	"..\..\include\YARPErrorCodes.h"\
 	"..\..\include\YARPList.h"\
+	"..\..\include\YARPNameClient.h"\
 	"..\..\include\YARPNameID.h"\
+	"..\..\include\YARPNameService.h"\
 	"..\..\include\YARPNetworkTypes.h"\
 	"..\..\include\YARPScheduler.h"\
 	"..\..\include\YARPSemaphore.h"\
 	"..\..\include\YARPSocket.h"\
 	"..\..\include\YARPSocketMulti.h"\
+	"..\..\include\YARPSocketNameService.h"\
 	"..\..\include\YARPString.h"\
 	"..\..\include\YARPThread.h"\
 	"..\..\include\YARPTime.h"\
 	"..\..\sys_include\debug.h"\
+	"..\..\sys_include\wide_nameloc.h"\
 	"..\..\sys_include\YARPNameID_defs.h"\
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
@@ -2359,7 +2363,7 @@
 	"..\..\..\..\..\include\ace\node.cpp"\
 	"..\..\..\..\..\include\ace\node.h"\
 	"..\..\..\..\..\include\ace\object_manager.h"\
-	"..\..\..\..\..\include\ace\Object_Manager.i"\
+	"..\..\..\..\..\include\ace\object_manager.i"\
 	"..\..\..\..\..\include\ace\os.h"\
 	"..\..\..\..\..\include\ace\os.i"\
 	"..\..\..\..\..\include\ace\os_dirent.h"\

@@ -14,6 +14,10 @@
 	"c:\program files\microsoft visual studio\vc98\include\basetsd.h"\
 	
 
+.\YARPLowPassFilter.cpp : \
+	".\YARPLowPassFilter.h"\
+	
+
 .\YARPLU.cpp : \
 	"..\..\..\include\ace\config-win32-common.h"\
 	"..\..\..\include\ace\config-win32-msvc-6.h"\

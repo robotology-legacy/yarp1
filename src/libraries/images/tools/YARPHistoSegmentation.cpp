@@ -87,7 +87,8 @@ void YARPHistoSegmentation::Apply(YARPImageOf<YarpPixelHSV> &src)
 
 		for(j = 0; j < src.GetWidth(); j++)
 		{
-			YARP3DHistogram::Apply(*h, *s, 0);
+			if (_checkThresholds(*h,*s,*v))
+				YARP3DHistogram::Apply(*h, *s, 0);
 			
 			h += 3;
 			s += 3;

@@ -15,10 +15,14 @@ public:
 	{
 		YARPBabybotHead::initialize(path, iniFile);
 		_status.resize(path, iniFile);
+		_directCmd.Resize(_status._nj);
+		_vorCmd.Resize(_status._nj);
 	}
 
 public:
 	YARPControlBoardNetworkData _status;
+	YVector _directCmd;
+	YVector _vorCmd;
 };
 
 #endif
