@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImageMoments.cpp,v 1.6 2004-01-17 11:38:15 gmetta Exp $
+/// $Id: YARPImageMoments.cpp,v 1.7 2004-04-06 14:26:48 orfra Exp $
 ///
 ///
 
@@ -148,7 +148,7 @@ void YARPImageMoments::centerOfMass(YARPImageOf<YarpPixelMono> &in, int *x, int 
 	double sumX = 0.0;
 	double sumY = 0.0;
 	unsigned char *src;
-	for(j = 0; j < in.GetHeight() ; i++)
+	for(j = 0; j < in.GetHeight() ; j++)
 	{
 		src = (unsigned char *)in.GetArray()[j];
 		for(i = 0; i < in.GetWidth(); i++)
