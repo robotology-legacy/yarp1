@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.15 2005-03-30 16:24:20 natta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.16 2005-03-30 20:00:44 natta Exp $
 ///
 ///
 
