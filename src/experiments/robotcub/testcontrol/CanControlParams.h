@@ -2,7 +2,7 @@
 ///                                                                   ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-///                    #Add our name(s) here#                         ///
+///                    # pasa #				                          ///
 ///                                                                   ///
 ///     "Licensed under the Academic Free License Version 1.0"        ///
 ///                                                                   ///
@@ -27,16 +27,18 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRobotcubGrabber.h,v 1.2 2004-08-30 16:05:47 babybot Exp $
+/// $Id: CanControlParams.h,v 1.1 2004-08-30 16:05:47 babybot Exp $
 ///
 ///
 
-#ifndef __YARPRobotcubGrabberh__
-#define __YARPRobotcubGrabberh__
+#ifndef __CanControlParamsh__
+#define __CanControlParamsh__
 
-#include <yarp/YARPGenericGrabber.h>
-#include <yarp/YARPNullGrabberOnRobotcubAdapter.h>
+#define TIMER_ID					666
+#define TIMER2_ID					667
 
-typedef YARPGenericGrabber<YARPNullGrabberOnRobotcubAdapter, YARPRobotcubGrabberParams> YARPRobotcubGrabber;
+#define GUI_REFRESH_INTERVAL		150		/// [ms]
+
+const char *const INI_FILE = "head.ini";
 
 #endif

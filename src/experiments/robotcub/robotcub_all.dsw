@@ -15,6 +15,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "TestControl"=.\testcontrol\TestControl.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "headtest"=.\headtest\headtest.dsp - Package Owner=<4>
 
 Package=<5>

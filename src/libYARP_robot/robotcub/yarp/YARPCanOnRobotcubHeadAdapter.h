@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.4 2004-08-04 22:17:06 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.5 2004-08-30 16:05:47 babybot Exp $
 ///
 ///
 
@@ -94,9 +94,9 @@ namespace _RobotcubHead
 	const int CANBUS_MAXCARDS			= MAX_CARDS;
 
 	const char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 
-												  0xff, 0xff, 0xff, 0xff,
-												  0xff, 0xff, 0xff, 0xff,
-												  0xff, 0xff, 0xff, 0xff };
+												  0x7f, 0x7f, 0x7f, 0x7f,
+												  0x7f, 0x7f, 0x7f, 0x7f,
+												  0x7f, 0x7f, 0x7f, 0x7f };
 }; // namespace
 
 

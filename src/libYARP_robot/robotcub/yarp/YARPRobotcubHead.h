@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPRobotcubHead.h,v 1.2 2004-07-29 16:35:31 babybot Exp $
+///  $Id: YARPRobotcubHead.h,v 1.3 2004-08-30 16:05:47 babybot Exp $
 ///
 ///
 
@@ -55,6 +55,7 @@ namespace _virtualjoint
 {
 	const int neckPan = 0;
 	const int neckTilt = 1;
+	const int neckRoll = 5;
 	const int eyeTilt = 2;
 	const int eyeVersion = 3;
 	const int eyeVergence = 4;
@@ -67,6 +68,7 @@ namespace _joint
 	const int eyeTilt = 2;
 	const int rightEye = 3;
 	const int leftEye = 4;
+	const int neckRoll = 5;
 };
 
 ///
@@ -154,7 +156,6 @@ public:
 				return false;
 		}
 	}
-
 };
 
 #endif

@@ -219,16 +219,7 @@ SOURCE=..\robotcub\yarp\YARPCanOnRobotcubHeadAdapter.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\robotcub\yarp\YARPNullOnRobotcubAdapter.h
-
-!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
-
-# PROP Exclude_From_Build 1
-
-!ENDIF 
-
+SOURCE=..\robotcub\yarp\YARPNullGrabberOnRobotcubAdapter.h
 # End Source File
 # Begin Source File
 

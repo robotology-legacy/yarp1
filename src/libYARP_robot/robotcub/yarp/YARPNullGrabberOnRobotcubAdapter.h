@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPNullGrabberOnRobotcubAdapter.h,v 1.1 2004-08-03 08:17:09 babybot Exp $
+/// $Id: YARPNullGrabberOnRobotcubAdapter.h,v 1.2 2004-08-30 16:05:47 babybot Exp $
 ///
 ///
 
@@ -55,11 +55,11 @@ typedef NullGrabberOpenParameters YARPRobotcubGrabberParams;
 ///
 ///
 ///
-class YARPNullOnRobotcubAdapter : public YARPNullGrabberDeviceDriver
+class YARPNullGrabberOnRobotcubAdapter : public YARPNullGrabberDeviceDriver
 {
 public:
-	YARPNullOnRobotcubAdapter() : YARPNullGrabberDeviceDriver() {}
-	virtual ~YARPNullOnRobotcubAdapter() {}
+	YARPNullGrabberOnRobotcubAdapter() : YARPNullGrabberDeviceDriver() {}
+	virtual ~YARPNullGrabberOnRobotcubAdapter() {}
 
 	int initialize (YARPRobotcubGrabberParams& params)
 	{
