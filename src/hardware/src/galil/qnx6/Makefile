@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.7 2003-07-02 10:43:13 babybot Exp $
+#$Id: Makefile,v 1.8 2003-07-16 08:42:47 beltran Exp $
 
 include $(YARP_ROOT)/conf/Makefile.template
 
@@ -34,7 +34,6 @@ install:
 	@echo
 	$(CP) *.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
 	$(CP) *.lib $(YARP_ROOT)/lib/$(OS)
-	$(CP) *.h	 $(YARP_ROOT)/src/hardware/include
 	$(CP) *.h 	 $(YARP_ROOT)/include
 	$(CP) ./dd_orig/lib/*.lib $(YARP_ROOT)/src/hardware/lib/$(OS)
 	$(CP) ./dd_orig/lib/*.lib $(YARP_ROOT)/lib/$(OS)
