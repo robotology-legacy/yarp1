@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableGeneration.cpp,v 1.17 2003-10-01 17:12:37 fberton Exp $
+/// $Id: TableGeneration.cpp,v 1.18 2003-10-02 16:32:01 fberton Exp $
 ///
 ///
 
@@ -1934,12 +1934,32 @@ int Build_DS_Map(Image_Data * LParam,char * Path, float Ratio)
 	
 	sprintf(File_Name,"%s1.00\\%s%1.2f%s",Path,"DSMap_",Ratio,".gio");
 
+
+	MAXIndex = 0;
+	unsigned short a = 0;
+	unsigned char  b = 0;
+
+	for (j=0; j<SParam.Size_LP; j++)
+		if (IntDownSampleTable[j].NofPixels>MAXIndex)
+			MAXIndex = IntDownSampleTable[j].NofPixels;
+
 	fout = fopen(File_Name,"wb");
+	fwrite(&MAXIndex,sizeof(int),1,fout);
 	for (j=0; j<SParam.Size_LP; j++)
 	{
-		fwrite(&IntDownSampleTable[j].NofPixels	,sizeof(unsigned short),1								,fout);
+		fwrite(&IntDownSampleTable[j].NofPixels	,sizeof(unsigned short),1,fout);
+	}
+	for (j=0; j<SParam.Size_LP; j++)
+	{
 		fwrite(IntDownSampleTable[j].position	,sizeof(unsigned short),IntDownSampleTable[j].NofPixels ,fout);
+		for (i=IntDownSampleTable[j].NofPixels; i<MAXIndex; i++)
+			fwrite(&a,sizeof(unsigned short),1,fout);
+	}
+	for (j=0; j<SParam.Size_LP; j++)
+	{
 		fwrite(IntDownSampleTable[j].weight		,sizeof(unsigned char) ,IntDownSampleTable[j].NofPixels ,fout);
+		for (i=IntDownSampleTable[j].NofPixels; i<MAXIndex; i++)
+			fwrite(&b,sizeof(unsigned char),1,fout);
 	}
 	fclose (fout);	
 		

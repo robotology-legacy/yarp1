@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TableLoading.cpp,v 1.8 2003-10-01 17:12:37 fberton Exp $
+/// $Id: TableLoading.cpp,v 1.9 2003-10-02 16:32:02 fberton Exp $
 ///
 ///
 
@@ -103,7 +103,7 @@ unsigned short Load_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,uns
 {
 	char File_Name [256];
 	unsigned short retval = 0;
-	int j;
+	int j,k;
 	FILE * fin;
 	
 	if (List&1==1)
@@ -210,13 +210,19 @@ unsigned short Load_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,uns
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			Tables->DownSampleMap = (IntNeighborhood *) malloc ((Param->Size_LP / 16) * sizeof(IntNeighborhood));
+			fread(&k,sizeof(int),1,fin);
+			Tables->DownSampleMap[0].position = (unsigned short *) malloc (k * (Param->Size_LP/16) * sizeof(unsigned short));
+			Tables->DownSampleMap[0].weight   = (unsigned char  *) malloc (k * (Param->Size_LP/16) * sizeof(unsigned char ));
+			for (j=0; j<Param->Size_LP/16; j++)
+				fread(&(Tables->DownSampleMap[j].NofPixels) ,sizeof(unsigned short),1,fin);
+
+			fread((Tables->DownSampleMap[0].position) ,sizeof(unsigned short),k * (Param->Size_LP/16),fin);
+			fread((Tables->DownSampleMap[0].weight)   ,sizeof(unsigned char) ,k * (Param->Size_LP/16),fin);
+
 			for (j=0; j<Param->Size_LP/16; j++)
 			{
-				fread(&(Tables->DownSampleMap[j].NofPixels) ,sizeof(unsigned short),1,fin);
-				Tables->DownSampleMap[j].position = (unsigned short *) malloc (Tables->DownSampleMap[j].NofPixels*sizeof(unsigned short));
-				Tables->DownSampleMap[j].weight = (unsigned char *) malloc (Tables->DownSampleMap[j].NofPixels*sizeof(unsigned char));
-				fread((Tables->DownSampleMap[j].position) ,sizeof(unsigned short),Tables->DownSampleMap[j].NofPixels,fin);
-				fread((Tables->DownSampleMap[j].weight) ,sizeof(unsigned char),Tables->DownSampleMap[j].NofPixels,fin);
+				Tables->DownSampleMap[j].position = Tables->DownSampleMap[0].position + k*j;
+				Tables->DownSampleMap[j].weight   = Tables->DownSampleMap[0].weight   + k*j;
 			}
 			
 			fclose (fin);
@@ -232,23 +238,35 @@ unsigned short Load_Tables(Image_Data * Param, LUT_Ptrs * Tables,char * Path,uns
 		if ((fin = fopen(File_Name,"rb")) != NULL)
 		{
 			Tables->DownSampleMap = (IntNeighborhood *) malloc ((Param->Size_LP / 4) * sizeof(IntNeighborhood));
+			fread(&k,sizeof(int),1,fin);
+			Tables->DownSampleMap[0].position = (unsigned short *) malloc (k * (Param->Size_LP/4) * sizeof(unsigned short));
+			Tables->DownSampleMap[0].weight   = (unsigned char  *) malloc (k * (Param->Size_LP/4) * sizeof(unsigned char ));
+			for (j=0; j<Param->Size_LP/4; j++)
+				fread(&(Tables->DownSampleMap[j].NofPixels) ,sizeof(unsigned short),1,fin);
+
+			fread((Tables->DownSampleMap[0].position) ,sizeof(unsigned short),k * (Param->Size_LP/4),fin);
+			fread((Tables->DownSampleMap[0].weight)   ,sizeof(unsigned char) ,k * (Param->Size_LP/4),fin);
+
 			for (j=0; j<Param->Size_LP/4; j++)
 			{
-				fread(&(Tables->DownSampleMap[j].NofPixels) ,sizeof(unsigned short),1,fin);
-				Tables->DownSampleMap[j].position = (unsigned short *) malloc (Tables->DownSampleMap[j].NofPixels*sizeof(unsigned short));
-				Tables->DownSampleMap[j].weight = (unsigned char *) malloc (Tables->DownSampleMap[j].NofPixels*sizeof(unsigned char));
-				fread((Tables->DownSampleMap[j].position) ,sizeof(unsigned short),Tables->DownSampleMap[j].NofPixels,fin);
-				fread((Tables->DownSampleMap[j].weight) ,sizeof(unsigned char),Tables->DownSampleMap[j].NofPixels,fin);
+				Tables->DownSampleMap[j].position = Tables->DownSampleMap[0].position + k*j;
+				Tables->DownSampleMap[j].weight   = Tables->DownSampleMap[0].weight   + k*j;
 			}
-			
+//			Tables->DownSampleMap = (IntNeighborhood *) malloc ((Param->Size_LP / 4) * sizeof(IntNeighborhood));
+//			for (j=0; j<Param->Size_LP/4; j++)
+//			{
+//				fread(&(Tables->DownSampleMap[j].NofPixels) ,sizeof(unsigned short),1,fin);
+//				Tables->DownSampleMap[j].position = (unsigned short *) malloc (Tables->DownSampleMap[j].NofPixels*sizeof(unsigned short));
+//				Tables->DownSampleMap[j].weight = (unsigned char *) malloc (Tables->DownSampleMap[j].NofPixels*sizeof(unsigned char));
+//				fread((Tables->DownSampleMap[j].position) ,sizeof(unsigned short),Tables->DownSampleMap[j].NofPixels,fin);
+//				fread((Tables->DownSampleMap[j].weight) ,sizeof(unsigned char),Tables->DownSampleMap[j].NofPixels,fin);
+//			}
 			fclose (fin);
 			retval = retval | 256;
 		}
 		else
 			Tables->DownSampleMap = NULL;
 	}
-
-
 	return retval;
 }
 
