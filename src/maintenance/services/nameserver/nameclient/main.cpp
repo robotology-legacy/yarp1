@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: main.cpp,v 1.2 2003-04-21 21:21:23 natta Exp $
+/// $Id: main.cpp,v 1.3 2003-04-22 16:24:10 natta Exp $
 ///
 ///
 
@@ -70,7 +70,8 @@ void print_menu()
 	cout << "\n-----------------------\n";
 	cout << "\nName client menu\n";
 	cout << "\n";
-	cout << "reg name ip: egister name ip\n";
+	cout << "reg name ip: register name ip\n";
+	cout << "regn name ip n: register name ip, ask n ports (UDP)\n";
 	cout << "regmc name: register name, multicast\n";
 	cout << "query name: query name\n";
 	cout << "rel name: release name\n";
@@ -92,6 +93,8 @@ int parse(const std::string &str)
 		return 3;
 	else if (str == "regmc")
 		return 4;
+	else if (str == "regn")
+		return 5;
 	else
 		return -1;
 }
@@ -143,6 +146,16 @@ int main(int argc, char* argv[])
 			cin >> str1;
 			ACE_INET_Addr tmpAddr;
 			if (nc.check_in_mcast(str1, tmpAddr) != 0)
+				cout << "Error connecting to the server\n";
+		}
+		else if (ret == 5) {
+			string str1,str2;
+			int n;
+			cin >> str1;	// name
+			cin >> str2;	// ip
+			cin >> n;		// num of ports
+			NetInt32 *ports = new NetInt32 [n];
+			if (nc.check_in_udp(str1,str2,ports,n) != 0)
 				cout << "Error connecting to the server\n";
 		}
 		print_menu();

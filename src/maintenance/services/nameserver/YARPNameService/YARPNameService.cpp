@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.2 2003-04-21 20:28:48 natta Exp $
+/// $Id: YARPNameService.cpp,v 1.3 2003-04-22 16:23:56 natta Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -85,6 +85,7 @@ void print_menu()
 	cout << "\n";
 	cout << "reg name ip: dbg mode, register name-ip get a port\n";
 	cout << "regmc name: dbg mode, register name, get a dynamic ip\n";
+	cout << "regn name ip n: dbg mode, register name-ip get n ports\n";
 	cout << "rel name: dbg mode, release name\n";
 	cout << "query name: dbg mode, query name\n";
 	cout << "d: dump resource status\n";
@@ -108,6 +109,8 @@ int parse(const std::string &str)
 		return 3;
 	else if (str == "regmc")
 		return 5;
+	else if (str == "regn")
+		return 6;
 	else
 		return -1;
 }
@@ -175,10 +178,18 @@ int main(int argc, char* argv[])
 		else if (ret == 4){
 			dns.dump();
 		}
-		else if (ret = 5){
+		else if (ret == 5){
 			string str1;
 			cin >> str1;
 			dns.handle_registration_dip_dbg(str1);
+		}
+		else if (ret == 6){
+			string str1,str2;
+			int n;
+			cin >> str1;
+			cin >> str2;
+			cin >> n;
+			dns.handle_registration_dbg(str1, str2, n);
 		}
 
 		print_menu();

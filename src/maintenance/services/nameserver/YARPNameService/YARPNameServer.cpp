@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.6 2003-04-21 21:41:28 natta Exp $
+/// $Id: YARPNameServer.cpp,v 1.7 2003-04-22 16:23:57 natta Exp $
 ///
 ///
 
@@ -102,8 +102,12 @@ void YARPNameServer::dump_names()
 	for(SVC_IT i = ns.names.begin(); i != ns.names.end(); i++)
 	{
 		cout << i->name << "\t\t";
-		cout << i->ip <<":" << i->port;
-		cout << "\tref:" << (i->get_max_ref()-i->get_ref()) << endl;
+		cout << i->ip <<":";
+
+		int length = i->ports.size();
+		for(PORT_IT j = i->ports.begin(); j != i->ports.end(); j++)
+			cout << j->port << "," ;
+		cout << "ref:" << (i->get_max_ref()-i->get_ref()) << endl;
 	}
 }
 
@@ -120,12 +124,18 @@ void YARPNameServer::dump_resources()
 	}
 }
 
-void YARPNameServer::handle_registration(const std::string &service_name, const std::string &ip)
+void YARPNameServer::handle_registration(const std::string &service_name, const std::string &ip, int np)
 {
-	int port;
-	ns.registerName(service_name, ip, &port);
-	NAME_SERVER_DEBUG(("Reply %s as %s:%d\n", service_name.c_str(), ip.c_str(), port));
-	_handle_reply(ip, port);
+	PORT_LIST ports;
+	IpEntry tmpEntry;
+	tmpEntry.ip = ip;
+	ns.registerName(service_name, tmpEntry, ports, np);
+	
+	for(PORT_IT i = ports.begin(); i != ports.end(); i++)
+	{
+		NAME_SERVER_DEBUG(("Reply %s as %s:%d\n", service_name.c_str(), tmpEntry.ip.c_str(), i->port));
+	}	
+	_handle_reply(tmpEntry.ip, ports);
 }
 
 void YARPNameServer::handle_query(const std::string &service_name)
@@ -136,7 +146,7 @@ void YARPNameServer::handle_query(const std::string &service_name)
 	NAME_SERVER_DEBUG(("Reply %s as %s:%d\n", service_name.c_str(), ip.c_str(), port));
 	_handle_reply(ip, port);
 }
-
+/*
 void YARPNameServer::handle_registration_dbg(const std::string &service_name, const std::string &ip)
 {
 	int port;
@@ -145,6 +155,23 @@ void YARPNameServer::handle_registration_dbg(const std::string &service_name, co
 
 	ns.registerName(service_name, ip, &port);
 	NAME_SERVER_DEBUG(("Reply %s as %s:%d\n", service_name.c_str(), ip.c_str(), port));
+}*/
+
+void YARPNameServer::handle_registration_dbg(const std::string &service_name, const std::string &ip, int n)
+{
+	PORT_LIST ports;
+
+	NAME_SERVER_DEBUG(("DBG MODE: registering %s as %s\n", service_name.c_str(), ip.c_str()));
+
+	IpEntry tmpEntry;
+	tmpEntry.ip = ip;
+
+	ns.registerName(service_name, tmpEntry, ports, n);
+
+	for(PORT_IT i = ports.begin(); i != ports.end(); i++)
+	{
+		NAME_SERVER_DEBUG(("Reply %s as %s:%d\n", service_name.c_str(), tmpEntry.ip.c_str(), i->port));
+	}
 }
 
 void YARPNameServer::handle_registration_dip_dbg(const std::string &service_name)
@@ -172,6 +199,32 @@ void YARPNameServer::_handle_reply(const std::string &ip, int port)
 	YARPNameServiceCmd rplCmd;
 	YARPNameTCP rpl;
 	rpl.setAddr(ACE_INET_Addr(port, ip.c_str()));
+	rplCmd.cmd = YARPNSRpl;
+	rplCmd.length = rpl.length();
+		
+	memcpy(data_buf_, &rplCmd, sizeof(YARPNameServiceCmd));
+	memcpy(data_buf_+sizeof(YARPNameServiceCmd), &rpl, rpl.length());
+
+	iovec iov[1];
+	iov[0].iov_base = data_buf_;
+	iov[0].iov_len = rplCmd.length+sizeof(YARPNameServiceCmd);
+
+	int sent = new_stream_.sendv_n (iov, 1);
+}
+
+void YARPNameServer::_handle_reply(const std::string &ip, const PORT_LIST &ports)
+{
+	YARPNameServiceCmd rplCmd;
+	YARPNameUDP rpl;
+
+	int j = 0;
+	for(CONST_PORT_IT i = ports.begin(); i != ports.end(); i++)
+	{
+		rpl.setPorts(j, i->port);
+		j++;
+	}
+	rpl.setIp(ip);
+	
 	rplCmd.cmd = YARPNSRpl;
 	rplCmd.length = rpl.length();
 		
@@ -238,12 +291,19 @@ int YARPNameServer::handle_connection()
 		YARPNameTCP *tmpRqst = (YARPNameTCP*) (data_buf_);
 		handle_release(tmpRqst->_name);
 	}
-	else if ((tmpCmd.cmd == YARPNSRegister) &&
-		((tmpCmd.type == YARP_UDP) || (tmpCmd.type == YARP_TCP)))
+	else if ( (tmpCmd.cmd == YARPNSRegister) &&
+		(tmpCmd.type == YARP_TCP) )
 	{ 
 		// register name and ip, ask back port (TCP and UDP)
 		YARPNameTCP *tmpRqst = (YARPNameTCP*) (data_buf_);
 		handle_registration(tmpRqst->_name, std::string(tmpRqst->_ip));
+	}
+	else if ( (tmpCmd.cmd == YARPNSRegister) &&
+		(tmpCmd.type == YARP_UDP) )
+	{
+		// register name and ip, ask back multiple ports (UDP)
+		YARPNameUDP *tmpRqst = (YARPNameUDP*) (data_buf_);
+		handle_registration(tmpRqst->_name, std::string(tmpRqst->_ip), tmpRqst->_nPorts);
 	}
 	else if ((tmpCmd.cmd == YARPNSRegister) &&
 		(tmpCmd.type == YARP_MCAST))

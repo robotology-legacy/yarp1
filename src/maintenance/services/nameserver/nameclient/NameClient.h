@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: NameClient.h,v 1.2 2003-04-21 21:21:24 natta Exp $
+/// $Id: NameClient.h,v 1.3 2003-04-22 16:24:09 natta Exp $
 ///
 ///
 
@@ -130,6 +130,13 @@ public:
 		ret = _check_in(s, tmpAddr);
 		*port = tmpAddr.get_port_number();
 		ip = std::string(tmpAddr.get_host_name());
+		return ret;
+	}
+
+	int check_in_udp(const std::string &name, std::string &addr, NetInt32 *ports, NetInt32 n)
+	{
+		int ret;
+		ret = _check_in_udp(name, addr, ports, n);
 		return ret;
 	}
 
@@ -232,6 +239,58 @@ private:
 						
 		NAME_CLIENT_DEBUG(("Received %s:%d\n", addr.get_host_addr(), addr.get_port_number()));
 				
+		// close the connection
+		close();
+				
+		return YARP_OK;
+	}
+
+	int _check_in_udp(const std::string &name, const std::string &ip, NetInt32 *ports, NetInt32 n)
+	{
+		YARPNameServiceCmd tmpCmd;
+		YARPNameUDP tmpRqst;
+		
+		if (connect_to_server()!=0)
+			return YARP_FAIL;
+				
+		tmpRqst.setName(name);
+		tmpRqst.setIp(ip);
+		tmpRqst.setNPorts(n);
+		tmpCmd.cmd = YARPNSRegister;
+		tmpCmd.type = YARP_UDP;
+		tmpCmd.length = tmpRqst.length();
+		// send message length
+		memcpy(data_buf_,&tmpCmd, sizeof(YARPNameServiceCmd));
+		memcpy(data_buf_+sizeof(YARPNameServiceCmd), &tmpRqst, tmpRqst.length());
+
+		iovec iov[1];
+		iov[0].iov_base = data_buf_;
+		iov[0].iov_len = sizeof(YARPNameServiceCmd)+tmpRqst.length();
+
+		int sent = client_stream_.sendv_n (iov, 1);
+
+		if (sent == -1)
+			ACE_ERROR_RETURN ((LM_ERROR, "(%P|%t) %p\n","send_n"),0);
+
+		//////////////////////////////////////////
+				
+		unsigned int byte_count = 0;
+		int res = 0;
+			
+		memset(data_buf_, 0, SIZE_BUF);
+		iov[0].iov_len = sizeof(YARPNameServiceCmd);
+		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+		
+		iov[0].iov_len = tmpCmd.length;
+		res = client_stream_.recvv_n(iov, 1, 0, &byte_count);
+		
+		YARPNameUDP *tmpRpl = (YARPNameUDP *)data_buf_;
+		for (int i = 0; i < n; i++)
+		{
+			ports[i] = tmpRpl->getPorts(i);
+			NAME_CLIENT_DEBUG(("Received %s:%d\n", ip.c_str(), ports[i]));
+		}
+						
 		// close the connection
 		close();
 				

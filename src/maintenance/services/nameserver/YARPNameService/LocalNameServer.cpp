@@ -1,4 +1,4 @@
-// $Id: LocalNameServer.cpp,v 1.1 2003-04-21 21:41:28 natta Exp $
+// $Id: LocalNameServer.cpp,v 1.2 2003-04-22 16:23:57 natta Exp $
 
 #include "LocalNameServer.h"
 
@@ -164,6 +164,34 @@ int resources::ask_new(const std::string &ip, int *port)
 		return -1;
 	}
 }
+
+int resources::ask_new(const std::string &ip, PORT_LIST &ports, int n)
+{
+	IP_IT it;
+	PortEntry temp;
+		
+	if (find_ip(ip, it) != -1)
+	{
+		for(int i = 0; i < n; i++) {
+			temp = it->ask_new_port();
+			if (temp.port == __portNotFound)
+			{
+				// port not found: destroy list, add first entry as __PortNotFound, return -1
+				ports.clear();
+				ports.push_back(temp);
+				return -1;
+			}
+			else
+				ports.push_back(temp);
+		}
+		return 0;
+	}
+	else
+	{
+		NAME_SERVER_DEBUG(("Sorry, cannot find: %s\n", ip.c_str()));
+		return -1;
+	}
+}
 	
 int resources::find_ip(const std::string &ip)
 {
@@ -202,13 +230,13 @@ int services::find_service(const std::string &n, SVC_IT &it)
 	return -1;
 }
 
-int services::check_out(const std::string &name, std::string &ip, int *port)
+int services::check_out(const std::string &name, std::string &ip, PORT_LIST &ports)
 {
 	SVC_IT it;
 	if (find_service(name, it) != -1)
 	{
 		ip = it->ip;
-		*port = it->port;
+		ports = it->ports;
 
 		if (it->release_ref())
 		{
@@ -226,7 +254,7 @@ int services::check_out(const std::string &name, std::string &ip, int *port)
 
 // check in: increase ref count for a specified port, ip and max_ref
 // Note: service must not exist !
-void services::check_in(const std::string &name, const std::string &ip, int port, int max_ref)
+void services::check_in(const std::string &name, const std::string &ip, const PORT_LIST &ports, int max_ref)
 {
 	SVC_IT it;
 	if (find_service(name, it) != -1)
@@ -237,7 +265,7 @@ void services::check_in(const std::string &name, const std::string &ip, int port
 	{
 		service tmp;
 		tmp.ip = ip;
-		tmp.port = port;
+		tmp.ports = ports;
 		tmp.name = name;
 		tmp.set_max_ref(max_ref);
 		tmp.take_ref();
@@ -245,38 +273,38 @@ void services::check_in(const std::string &name, const std::string &ip, int port
 	}
 }
 
-bool services::check(const std::string &name, std::string &ip, int *port, int *max)
+bool services::check(const std::string &name, std::string &ip, PORT_LIST &ports, int *max)
 {
 	SVC_IT it;
 	if(find_service(name, it) != -1)
 	{
 		ip = it->ip;
-		*port = it->port;
+		ports = it->ports;
 		*max = it->get_max_ref();
 		return true;
 	}
 	else
 	{
-		*port = __portNotFound;	//port not found !
+		ports.push_back(PortEntry(__portNotFound));	//port not found !
 		NAME_SERVER_DEBUG(("%s not found\n", name.c_str()));
 		return false;
 	}
 
 }
 
-// check if reference exits; return ip associated with a particular name
+// check if reference exits; return ip and ports associated with a particular name
 // increase reference count returns:
 // > 0, found, resources av.
 // 0, found, resoursec not av.
 // < 0, not found
-int services::take_ref(const std::string &name, std::string &ip, int *port)
+int services::take_ref(const std::string &name, std::string &ip, PORT_LIST &ports)
 {
 	SVC_IT it;
 	if(find_service(name, it) != -1)
 	{
 		bool ref = it->take_ref();
 		ip = it->ip;
-		*port = it->port;
+		ports = it->ports;
 
 		if (ref)
 			return 1;	// found, resources avaiable
@@ -312,7 +340,7 @@ void LocalNameServer::init(const std::string &filename)
 		// just check to be sure both name and size are not empty
 		if ((name.size != 0) && (ip.size != 0) )
 		{
-			statics.check_in(name, ip, 0, n);
+	//		statics.check_in(name, ip, 0, n);
 		}
 	}
 	input.close();
@@ -322,11 +350,11 @@ int LocalNameServer::queryName(const std::string &name, std::string &ip, int *po
 {
 	//  if name is already registered
 	std::string tmp_ip;
-	int tmp_port;
+	PORT_LIST tmp_ports;
 	int max_ref = 0;
-	if (names.check(name, tmp_ip, &tmp_port))
+	if (names.check(name, tmp_ip, tmp_ports))
 	{
-		int ref = names.take_ref(name, tmp_ip, &tmp_port);
+		int ref = names.take_ref(name, tmp_ip, tmp_ports);
 		if (ref == 0)
 		{
 			// 0 means found, but ran out of resources
@@ -338,7 +366,7 @@ int LocalNameServer::queryName(const std::string &name, std::string &ip, int *po
 		{
 			// found, resources availables
 			ip = tmp_ip;
-			*port = tmp_port;
+			*port = tmp_ports.begin()->port;
 			return 0;
 		}
 	}
@@ -353,9 +381,22 @@ int LocalNameServer::queryName(const std::string &name, std::string &ip, int *po
 
 int LocalNameServer::registerName(const std::string &name, const IpEntry &entry, int *port)
 {
+	PORT_LIST new_ports;
+	int ret;
 	//  if name is already registered
 	_checkAndRemove(name);
-	return _registerName(name, entry, port);
+	ret = _registerName(name, entry, new_ports, 1);
+	*port = new_ports.begin()->port;
+	return ret;
+}	
+
+int LocalNameServer::registerName(const std::string &name, const IpEntry &entry, PORT_LIST &ports, int n)
+{
+	int ret;
+	//  if name is already registered
+	_checkAndRemove(name);
+	ret = _registerName(name, entry, ports, n);
+	return ret;
 }	
 
 int LocalNameServer::registerNameDIp(const std::string &name, std::string &ip, int *port)
@@ -363,7 +404,7 @@ int LocalNameServer::registerNameDIp(const std::string &name, std::string &ip, i
 	_checkAndRemove(name);
 
 	IpEntry new_ip;
-	int new_port;
+	PORT_LIST new_ports;
 	int ret;
 
 	if (!addresses._ipPool.findFree(addresses, new_ip)) {
@@ -373,9 +414,9 @@ int LocalNameServer::registerNameDIp(const std::string &name, std::string &ip, i
 		ret = -1;
 	}
 	else {
-		ret = _registerName(name, new_ip, &new_port);
+		ret = _registerName(name, new_ip, new_ports, 1);
 		ip = new_ip.ip;
-		*port = new_port;
+		*port = new_ports.begin()->port;
 	}
 	return ret;
 }
@@ -383,30 +424,31 @@ int LocalNameServer::registerNameDIp(const std::string &name, std::string &ip, i
 void LocalNameServer::_checkAndRemove(const std::string &name)
 {
 	std::string sdummy;
-	int idummy;
-	if (names.check(name, sdummy, &idummy))
+	PORT_LIST pdummy;
+	if (names.check(name, sdummy, pdummy))
 	{
 		// name already registered, destroy it
-		NAME_SERVER_DEBUG(("WARNING: %s already registered as %s:%d\n", name.c_str(), sdummy.c_str(), idummy));
-		names.destroy(name, sdummy, &idummy);
-		addresses.release(sdummy, idummy);
+		NAME_SERVER_DEBUG(("WARNING: %s already registered as %s:%d\n", name.c_str(), sdummy.c_str(), pdummy.begin()->port));
+		names.destroy(name, sdummy, pdummy);
+		for(PORT_IT i = pdummy.begin(); i != pdummy.end(); i++)
+			addresses.release(sdummy, i->port);
 	}
 }
 
-int LocalNameServer::_registerName(const std::string &name, const IpEntry &entry, int *port)
+int LocalNameServer::_registerName(const std::string &name, const IpEntry &entry, PORT_LIST &ports, int nPorts)
 {
 	std::string tmp_ip;
-	int tmp_port;
+	PORT_LIST tmp_ports;
 	
 	tmp_ip = entry.ip;
 		
-	int ref = names.take_ref(name, tmp_ip, &tmp_port);
+	int ref = names.take_ref(name, tmp_ip, tmp_ports);
 	int max_ref = -1;
 	
 	if (ref == 0)
 	{
 		// 0 means found, but ran out of resources (max ref)
-		*port = __portNotFound;
+		ports.push_back(PortEntry(__portNotFound));
 		return -1;
 	}
 	else if (ref <= -1)
@@ -416,20 +458,20 @@ int LocalNameServer::_registerName(const std::string &name, const IpEntry &entry
 		if (addresses.find_ip(tmp_ip) == -1)
 			addresses.sign_in(entry);
 
-		// get new resource name
-		addresses.ask_new(tmp_ip, &tmp_port);
-		*port = tmp_port;
-		if (tmp_port!=__portNotFound){
+		// get new resources
+		addresses.ask_new(tmp_ip, ports, nPorts);
+		if (ports.begin() !=__portNotFound){
 			// register new resource
-			names.check_in(name, tmp_ip, tmp_port, max_ref);
+			names.check_in(name, tmp_ip, ports, max_ref);
 			return -1;
 		}
 		return 0;
 	}
 	else
 	{
+		// check this, is it possible to get here ?
 		// found, resources availables
-		*port = tmp_port;
+		ports = tmp_ports;
 		return 0;
 	}
 }
