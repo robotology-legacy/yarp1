@@ -3,7 +3,7 @@
 //
 // 
 // feb 2003 -- by nat and pasa
-// $Id: YARPDeviceDriver.h,v 1.6 2003-08-05 17:03:44 babybot Exp $
+// $Id: YARPDeviceDriver.h,v 1.7 2003-08-11 08:56:59 babybot Exp $
 
 #ifndef __YARP_DEVICE_DRIVER__
 #define __YARP_DEVICE_DRIVER__
@@ -25,7 +25,7 @@ class YARPDeviceDriver
 public:
 	YARPDeviceDriver(int n_cmds)
 	{
-		m_cmds = new  cmd_function_t [n_cmds];
+		m_cmds = (cmd_function_t *)new char[n_cmds*sizeof(cmd_function_t)];
 
 		for(int i = 0; i < n_cmds; i++)
 			m_cmds[i] = &DERIVED::defaultCmd;
@@ -44,10 +44,8 @@ public:
 protected:
 
 	void *m_handle;
-	//char szBuffer[64]; moved to the derivate class
-	//long rc;
 
-	typedef int (DERIVED::* cmd_function_t)(void *);
+	typedef int (DERIVED::*cmd_function_t)(void *);
 
 	cmd_function_t *m_cmds;
 	int defaultCmd (void *p)
@@ -56,11 +54,8 @@ protected:
 		return 0;
 	}
 
-	inline void lock(void)
-	{m_mutex.Wait();}	// add timeout ?
-
-	inline void unlock(void)
-	{m_mutex.Post();}
+	inline void lock(void) { m_mutex.Wait(); }
+	inline void unlock(void) { m_mutex.Post(); }
 
 	SYNC m_mutex;
 
@@ -80,7 +75,6 @@ public:
 		unlock();
 		return ret;
 	}
-
 };
 
 #endif

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPicoloOnBabybotAdapter.h,v 1.2 2003-05-31 06:31:38 gmetta Exp $
+/// $Id: YARPPicoloOnBabybotAdapter.h,v 1.3 2003-08-11 08:56:59 babybot Exp $
 ///
 ///
 
@@ -83,6 +83,9 @@ typedef PicoloOpenParameters YARPBabybotGrabberParams;
 class YARPPicoloOnBabybotAdapter : public YARPPicoloDeviceDriver
 {
 public:
+	YARPPicoloOnBabybotAdapter() : YARPPicoloDeviceDriver() {}
+	virtual ~YARPPicoloOnBabybotAdapter() {}
+
 	int initialize (YARPBabybotGrabberParams& params)
 	{
 		/// need additional initialization, put it here.

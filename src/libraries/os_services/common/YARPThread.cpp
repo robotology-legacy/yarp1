@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.13 2003-08-10 08:39:59 babybot Exp $
+/// $Id: YARPThread.cpp,v 1.14 2003-08-11 08:57:00 babybot Exp $
 ///
 ///
 
@@ -206,14 +206,11 @@ void YARPBareThread::End(int dontkill)
 {
 	sema.Wait();
 
-	ACE_ASSERT (shutdown_state == YT_None);
-	ACE_ASSERT (running == true || shutdown_state == YT_None);
-
-	running = false;
-	shutdown_state = YT_End;
-
 	if (identifier != -1 && dontkill == 0)
 	{
+		running = false;
+		shutdown_state = YT_End;
+
 		ACE_DEBUG ((LM_DEBUG, "YARPBareThread::End : WARNING --- thread forced a kill\n"));
 
 #if defined(__WIN32__)
@@ -233,6 +230,11 @@ void YARPBareThread::End(int dontkill)
 	else
 	if (identifier != -1 && dontkill == -1)
 	{
+		ACE_ASSERT (running == true || shutdown_state == YT_None);
+
+		running = false;
+		shutdown_state = YT_End;
+
 		sema.Post();
 		ACE_Thread::join ((ACE_hthread_t)system_resource);
 		sema.Wait();
@@ -240,6 +242,10 @@ void YARPBareThread::End(int dontkill)
 	else
 	if (identifier != -1 && dontkill > 0)
 	{
+		/// kills it anyway...
+		running = false;
+		shutdown_state = YT_End;
+
 		sema.Post();
 
 		YARPTime::DelayInSeconds(double(dontkill)/1000.0);
