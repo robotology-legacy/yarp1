@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.31 2003-08-10 07:08:40 gmetta Exp $
+$Id: README.txt,v 1.32 2003-08-26 07:40:49 gmetta Exp $
 
 
 =============
@@ -18,25 +18,26 @@ the ACE zip files is unzipped in $YARP_ROOT/src/libraries/ACE_wrappers
 =============
 Things under development:
 
-1.2.5- bugs in fg, thread stuff?
+1.0- check ipl.h (compile under QNX6)
 
 1.1- there's still a possibility for the connection to fail in MCAST. This is because
 	multiple connection messages might overlap. One mightn't get accepted, and silently
 	dropped. Not sure about this story!
 
-
-1.2- still troubles when closing ports smoothly.
-1.2.1- proper shutdown of extra port threads.
-	--- HOW TO DO IT: self connect to socket and send a close MSG!
-1.2.2- vector use (ACE_Array) try testing the max_size instead of the actual size to 
-	avoid re-allocating memory if already allocated.
-
+1.2 - future improvement. What about using select() instead of having multiple receiving 
+	threads? It would be a matter of rewriting the InputSocketMulti class!
 
 1.3- IMPORTANT! specify the nic, for multiple parallel connections in MCAST.
 
 1.4- use temp buffer on TCP communication, check efficiency (see UDP/MCAST model).
 
-1.5- not all test SW compiles correctly.
+1.5- not all test SW compiles correctly?
+
+1.6- remove the symbol UPDATED_PORT. Not really needed since the architecture changed a lot.
+
+LINUX:
+-- requires multi-if code!
+-- MCAST troubles... not clear why.
 
 -------------> 
 

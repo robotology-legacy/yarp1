@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.h,v 1.24 2003-08-10 07:08:40 gmetta Exp $
+/// $Id: Port.h,v 1.25 2003-08-26 07:40:50 gmetta Exp $
 ///
 ///
 
@@ -140,11 +140,14 @@ public:
 	int msg_type;
 	char cmdname[2*YARP_STRING_LEN];
 
+	YARPString network_name;
+
 	OutputTarget() : something_to_send(0), 
 #ifdef UPDATED_PORT
-                   space_available(1),
+					space_available(1),
 #endif
-                   mutex(1)
+					mutex(1),
+					network_name("deafult")
     {
 		target_pid = NULL;
 		add_header = 1;  active = 1; sending = 0; 
@@ -305,6 +308,8 @@ public:
 	YARPEvent complete_msg_thread;
 
 	YARPString name;
+	YARPString network_name;
+
 	HeaderedBlockSender<NewFragmentHeader> sender;
 	YARPUniqueNameID *self_id;
 
@@ -358,7 +363,8 @@ public:
 		out_mutex(1),
 		complete_terminate(0,0),
 		complete_msg_thread(0,0),
-		name(nname)
+		name(nname),
+		network_name("default")
 	{ 
 		_started = false;
 		self_id = NULL;
@@ -382,7 +388,8 @@ public:
 		list_mutex(1),
 		out_mutex(1),
 		complete_terminate(0,0),
-		complete_msg_thread(0,0)
+		complete_msg_thread(0,0),
+		network_name("default")
 	{
 		_started = false;
 		self_id = NULL;
@@ -432,18 +439,20 @@ public:
 
 	inline int& GetProtocolTypeRef() { return protocol_type; }
 
-	int SetName(const char *nname)
+	int SetName(const char *nname, const char *netname)
 	{
 		if (nname == NULL ||
 			nname[0] != '/')
 		{
 			ACE_DEBUG ((LM_DEBUG, "  please respect the port syntax for names:\n"));
-			ACE_DEBUG ((LM_DEBUG, "   - the name requires a leading /[slash]\n"));
+			ACE_DEBUG ((LM_DEBUG, "   - the name requires a leading /[forward slash]\n"));
 			return YARP_FAIL;
 		}
 
 		int ret = YARP_OK;
 		name = nname;
+		network_name = netname;
+
 		asleep = 1;
 		okay_to_send.Wait();
 		ACE_ASSERT (protocol_type != YARP_NO_SERVICE_AVAILABLE);
@@ -453,9 +462,11 @@ public:
 		okay_to_send.Wait();
 		if (!name_set) { ret = YARP_FAIL; }
 		okay_to_send.Post();
+
 		return ret;
 	}
-  
+
+	/// these messages are sent directly to the port through the listening socket.
 	int SendHelper(const YARPNameID& pid, const char *buf, int len, int tag = MSG_ID_NULL);
 	int SayServer(const YARPNameID& pid, const char *buf);
 	int Say(const char *buf);

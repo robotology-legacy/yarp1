@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 1.22 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 1.23 2003-08-26 07:40:49 gmetta Exp $
 ///
 ///
 
@@ -95,12 +95,7 @@ static bool _init_nameserver = true;
 static YARPNameClient * _namer = NULL;
 static YARPNameService _justtoinitialize;
 
-///static int is_connected = 0, tried_to_connect = 0;
-///static int registration_mode = YARP_NO_SERVICE_AVAILABLE;
-///static YARPOutputSocket namer;
-
-#define SCATTERSHOT
-
+///#define SCATTERSHOT
 
 char * GetYarpRoot (void)
 {
@@ -180,7 +175,7 @@ int YARPNameService::Finalize (void)
 
 #define NAMER_FAIL (new YARPUniqueNameID())
 
-YARPUniqueNameID* YARPNameService::RegisterName(const char *name, int reg_type, int num_ports_needed)
+YARPUniqueNameID* YARPNameService::RegisterName(const char *name, const char *network_name, int reg_type, int num_ports_needed)
 {
 	if (reg_type == YARP_QNET && !YARPNativeNameService::IsNonTrivial())
 	{
@@ -197,14 +192,14 @@ YARPUniqueNameID* YARPNameService::RegisterName(const char *name, int reg_type, 
 	case YARP_UDP:
 	case YARP_MCAST:
 		{
-			return YARPSocketNameService::RegisterName (*_namer, name, reg_type, num_ports_needed);
+			return YARPSocketNameService::RegisterName (*_namer, name, network_name, reg_type, num_ports_needed);
 		}		
 		break;
 
 	case YARP_QNET:
 		{
 			/// num_ports_needed is the channel ID here (somehow returned by the QNX channel creation proc).
-			return YARPSocketNameService::RegisterName (*_namer, name, YARP_QNET, num_ports_needed);
+			return YARPSocketNameService::RegisterName (*_namer, name, network_name, YARP_QNET, num_ports_needed);
 		}
 		break;
 
@@ -218,7 +213,7 @@ YARPUniqueNameID* YARPNameService::RegisterName(const char *name, int reg_type, 
 	return NAMER_FAIL;
 }
 
-YARPUniqueNameID* YARPNameService::LocateName(const char *name, int name_type)
+YARPUniqueNameID* YARPNameService::LocateName(const char *name, const char *network_name /*= NULL */, int name_type /*= YARP_NO_SERVICE_AVAILABLE*/)
 {
 	/// goes through a sequence asking to the QNX native (if inside QNX)
 	/// or otherwise it goes global.
@@ -229,7 +224,12 @@ YARPUniqueNameID* YARPNameService::LocateName(const char *name, int name_type)
 	}
 
 	/// search mode.
-	return YARPSocketNameService::LocateName (*_namer, name, name_type);
+	return YARPSocketNameService::LocateName (*_namer, name, network_name, name_type);
+}
+
+bool YARPNameService::VerifySame(const char *ip, const char *network_name, YARPString& ifname)
+{
+	return YARPSocketNameService::VerifySame(*_namer, ip, network_name, ifname);
 }
 
 int YARPNameService::DeleteName(YARPUniqueNameID* pid)

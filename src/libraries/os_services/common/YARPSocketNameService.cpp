@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.29 2003-08-12 16:50:52 gmetta Exp $
+/// $Id: YARPSocketNameService.cpp,v 1.30 2003-08-26 07:40:49 gmetta Exp $
 ///
 ///
 
@@ -453,11 +453,57 @@ int YARPSocketEndpointManager::SetTCPNoDelay (void)
 
 #define NAMER_FAIL (new YARPUniqueNameID())
 
+///
+///
+///
+///
+bool YARPSocketNameService::CONVERT_FORMAT (YARPString& name)
+{
+#if defined(__WIN32__)
+
+	return false;
+
+#elif defined(__QNX6__)
+
+#error "the CONVERT_FORMAT function has not been implemented yet!"
+	return false;
+
+#elif defined(__LINUX__)
+
+#error "the CONVERT_FORMAT function has not been implemented yet!"
+	return false;
+
+#endif
+}
+
+///
+///
+///
+///
+bool YARPSocketNameService::CONVERT_FORMAT_INVERSE (YARPString& name)
+{
+#if defined(__WIN32__)
+
+	return false;
+
+#elif defined(__QNX6__)
+
+#error "the CONVERT_FORMAT function has not been implemented yet!"
+	return false;
+
+#elif defined(__LINUX__)
+
+#error "the CONVERT_FORMAT function has not been implemented yet!"
+	return false;
+
+#endif
+}
+
 /// implementation of YARPSocketNameService.
 ///	namer is the global istance of the name service interface class.
 ///	always allocates the output object.
 ///
-YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, const char *name, int reg_type, int extra_param)
+YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, const char *name, const char *network_name, int reg_type, int extra_param)
 {
 	/// remote registration.
 	///
@@ -479,7 +525,7 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 			/// <name> is the name to be registered.
 			/// <reg_type> self explaining
 			/// <num_ports_needed> is used (recycled) as channel ID number.
-			int chid = extra_param;
+			int& chid = extra_param;
 			
 			YARPNameQnx tmp;
 			tmp.setName (name);
@@ -503,48 +549,34 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 		}
 		break;
 
-#if 0
-	case YARP_TCP:
-		{
-			if (namer.check_in (tname, reg_addr, addr) != YARP_OK)
-			{
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> problems registering %s\n", name));
-				return NAMER_FAIL;		/// invalid name id.
-			}
-
-			if (addr.get_port_number() == __portNotFound)
-			{
-				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> problems registering (no port) %s\n", name));
-				return NAMER_FAIL;		/// invalid name id.
-			}
-
-			YARPUniqueNameSock *n = new YARPUniqueNameSock (YARP_TCP);
-
-			/// don't use the array of ports since the addr field is enough.
-			n->setName (name);
-			n->getAddressRef () = addr;
-
-			return (YARPUniqueNameID *)n;
-		}		
-		break;
-#endif
-
 		/// always does the check_in_udp to ask for a pool a ports and not simply for 1.
 	case YARP_UDP:
 	case YARP_TCP:
 	case YARP_MCAST:
 		{
+			/// multi-interface handling - tries to get own IP addr from the nameserver for the
+			/// requested symbolic network name.
 			NetInt32 *ports = new NetInt32[extra_param];
 			ACE_ASSERT (ports != NULL);
 			memset (ports, 0, sizeof(int) * extra_param);
+
+			/// uses the new IP for registration in the name server.
+			YARPString new_ip;
+			YARPUniqueNameSock *n = new YARPUniqueNameSock (reg_type);
+			namer.query_nic (reg_addr.get_host_addr(), network_name, new_ip);
+			
+			n->setInterfaceName (new_ip);
+			
+			CONVERT_FORMAT (new_ip);
+			reg_addr.set((u_short)0, new_ip.c_str());
+
 			if (namer.check_in_udp (tname, reg_addr, addr, ports, extra_param) != YARP_OK)
 			{
 				YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>>Problems registering %s\n", name));
 				delete[] ports;
+				delete n;
 				return NAMER_FAIL;	/// invalid name id.
 			}
-
-			YARPUniqueNameSock *n = new YARPUniqueNameSock (reg_type);
 
 			n->setName (name);
 			n->getAddressRef() = addr;
@@ -563,6 +595,21 @@ YARPUniqueNameID* YARPSocketNameService::RegisterName(YARPNameClient& namer, con
 	}
 
 	return NAMER_FAIL;
+}
+
+///
+/// I need an extra method here to verify whether the two addresses are on the 
+///	same machine.
+bool YARPSocketNameService::VerifySame (YARPNameClient& namer, const char *ip, const char *netname, YARPString& if_name)
+{
+	YARPString new_ip;
+	namer.query_nic (ip, netname, new_ip);
+	if_name = new_ip;
+	CONVERT_FORMAT(new_ip);
+	if (strcmp (new_ip.c_str(), ip) == 0)
+		return true;
+
+	return false;
 }
 
 ///
@@ -585,7 +632,7 @@ int YARPSocketNameService::UnregisterName (YARPNameClient& namer, const char *na
 ///
 /// search for a name in the name service.
 /// 
-YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const char *name, int name_type)
+YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const char *name, const char *network_name, int name_type)
 {
 	/// handle the connection w/ the remote name server.
 	///
@@ -632,19 +679,29 @@ YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const
 				return NAMER_FAIL;	/// invalid name id.
 			}
 
+			if (network_name != NULL)
+			{
+				YARPString if_name;
+				if (!VerifySame (namer, addr.get_host_addr(), network_name, if_name))
+				{
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> the requested name doesn't belong to the target network %s\n", sname.c_str()));
+					return NAMER_FAIL;
+				}
+			}
+
 			YARPUniqueNameSock *n = new YARPUniqueNameSock (reg_type);
 			
 			n->setName (name);
 			n->getAddressRef() = addr;
 
-			/// query must return also the registration type.
-			///
 			return (YARPUniqueNameID *)n;
 		}
 		break;
 
 	case YARP_MCAST:
 		{
+			ACE_ASSERT (network_name != NULL);
+
 			/// 1. use the queried name to register an MCAST entry (ip + port # returned).
 			/// - use the queried name + a postfix (is this a suitable strategy?) + a rnd number.
 			/// - if it exists generate a new rnd number.
@@ -682,9 +739,17 @@ YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const
 
 			ACE_DEBUG((LM_DEBUG, "registering group name - hostname in addr : %s\n", addr.get_host_addr()));
 
+			ACE_INET_Addr reg_addr;		/// who I am.
+			char myhostname[YARP_STRING_LEN];
+			getHostname (myhostname, YARP_STRING_LEN);
+			reg_addr.set((u_short)0, myhostname);
+			YARPString new_ip;
+			namer.query_nic (reg_addr.get_host_addr(), network_name, new_ip);
+
 			YARPUniqueNameSock *n = new YARPUniqueNameSock (YARP_MCAST);
 
 			n->setName (fullname);
+			n->setInterfaceName (new_ip);
 			n->getAddressRef() = addr;
 
 			return (YARPUniqueNameID *)n;
@@ -729,6 +794,16 @@ YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const
 				return NAMER_FAIL;	/// invalid name id.
 			}
 			
+			if (network_name != NULL)
+			{
+				YARPString if_name;
+				if (!VerifySame (namer, addr.get_host_addr(), network_name, if_name))
+				{
+					YARP_DBG(THIS_DBG) ((LM_DEBUG, ">>>> the requested name doesn't belong to the target network %s\n", sname.c_str()));
+					return NAMER_FAIL;
+				}
+			}
+
 			/// query must return also the registration type.
 			///
 			YARPUniqueNameSock *n = new YARPUniqueNameSock (reg_type);
@@ -740,7 +815,7 @@ YARPUniqueNameID* YARPSocketNameService::LocateName(YARPNameClient& namer, const
 		break;
 
 	default:
-		ACE_DEBUG ((LM_DEBUG, "troubles locating name: %s\n", sname.c_str()));
+		ACE_DEBUG ((LM_DEBUG, ">>>> troubles locating name: %s\n", sname.c_str()));
 		break;
 	}
 

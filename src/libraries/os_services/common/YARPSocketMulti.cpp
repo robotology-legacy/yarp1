@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMulti.cpp,v 1.18 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: YARPSocketMulti.cpp,v 1.19 2003-08-26 07:40:49 gmetta Exp $
 ///
 ///
 
@@ -289,6 +289,7 @@ class _SocketThreadListMulti : public YARPThread
 private:
 	ACE_INET_Addr _local_addr;						/// local address of the acceptor.
 	ACE_SOCK_Acceptor _acceptor_socket;				/// the acceptor TCP socket.
+	YARPString _interface;							/// name of the interface (IP or symbolic).
 
 	YARPList<_SocketThreadMulti *> _list;				/// managed list of threads.
 	YARPSemaphore _new_data, _new_data_written;
@@ -403,6 +404,8 @@ public:
 
 		return _ports[_last_assigned];
 	}
+
+	void setInterfaceName (const YARPString& name) { _interface = name; }
 };
 
 
@@ -593,9 +596,9 @@ int _SocketThreadMulti::reuse(const YARPUniqueNameSock* remid, const YARPUniqueN
 
 				ACE_SOCK_Dgram_Mcast& mcast = *((ACE_SOCK_Dgram_Mcast *)_socket);
 
-				mcast.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), 0, 1);	// reuse addr enabled
+				mcast.open (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), _remote_endpoint.getInterfaceName().c_str(), 1);	// reuse addr enabled
 				YARPNetworkObject::setSocketBufSize (mcast, MAX_PACKET);
-				mcast.join (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), 1, 0);
+				mcast.join (((YARPUniqueNameSock&)*_socket_addr).getAddressRef(), 1, _remote_endpoint.getInterfaceName().c_str());
 
 				if (mcast.get_handle() == ACE_INVALID_HANDLE)
 				{
@@ -1930,13 +1933,19 @@ void _SocketThreadListMulti::addSocket (void)
 			YARP_DBG(THIS_DBG) ((LM_DEBUG, "777777 pre postbegin %d\n", errno));
 			if (!reusing)
 			{
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameSock(YARP_MCAST, group), port_number);
+				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				temp.setInterfaceName (_interface);
+
+				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_MCAST, group), port_number);
 				(*it_avail)->Begin();
 			}
 			else
 			{
+				YARPUniqueNameSock temp(YARP_TCP, incoming);
+				temp.setInterfaceName (_interface);
+
 				(*it_avail)->CleanState ();
-				(*it_avail)->reuse (&YARPUniqueNameSock(YARP_TCP, incoming), &YARPUniqueNameSock(YARP_MCAST, group), port_number);
+				(*it_avail)->reuse (&temp, &YARPUniqueNameSock(YARP_MCAST, group), port_number);
 				(*it_avail)->Begin();
 			}
 
@@ -2433,6 +2442,7 @@ int YARPInputSocketMulti::Prepare (const YARPUniqueNameID& name, int *ports, int
 	d._list.connect ((const YARPUniqueNameSock&)name);
 	/// set the ports -1 that is used as pricipal receiving port.
 	d._list.setPool (ports+1, number_o_ports-1);
+	d._list.setInterfaceName (((YARPUniqueNameSock&)name).getInterfaceName());
 
 	/// LATER: requires error handling here.
 	return YARP_OK;

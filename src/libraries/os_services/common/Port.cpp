@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.55 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: Port.cpp,v 1.56 2003-08-26 07:40:49 gmetta Exp $
 ///
 ///
 
@@ -124,7 +124,6 @@ void safe_printf(char *format,...)
 #define MAX_FRAGMENT (4)
 
 ///
-/// for testing only (possibly remove it completely).
 /// #define DEBUG_DISABLE_SHMEM 1
 
 /// this is because SHMEM alloc is not implemented in ACE for QNX6.
@@ -242,7 +241,12 @@ void OutputTarget::Body ()
 			{
 				/// problems.
 				ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
-				target_pid->invalidate();
+
+				YARPNameService::DeleteName(target_pid);
+				target_pid = NULL;
+
+				///target_pid->invalidate();
+				return;
 			}
 
 			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
@@ -254,14 +258,23 @@ void OutputTarget::Body ()
 		{
 			ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : starting a TCP sender thread\n"));
 
-			target_pid = YARPNameService::LocateName (GetLabel().c_str());
+			target_pid = YARPNameService::LocateName (GetLabel().c_str(), network_name.c_str());
+			if (!target_pid->isValid())
+			{
+				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : can't connect - target on different network, output thread 0x%x bailing out\n", GetIdentifier()));
+				YARPNameService::DeleteName(target_pid);
+				target_pid = NULL;
+				return;	
+			}
 
-			/// requires a query to dns unfortunately (maybe not?).
+			/// involves a query to dns or to the /etc/hosts file.
 			char myhostname[YARP_STRING_LEN];
 			getHostname (myhostname, YARP_STRING_LEN);
 			ACE_INET_Addr local ((u_short)0, myhostname);
 
 #ifndef DEBUG_DISABLE_SHMEM
+			/// LATER: this test can be better carried out by the nameserver relying on the
+			/// subnetwork structure.
 			if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
 			{
 				/// going into SHMEM mode.
@@ -283,8 +296,14 @@ void OutputTarget::Body ()
 					target_pid->getServiceType() != YARP_UDP)
 				{
 					/// problems.
-					ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
-					target_pid->invalidate();
+					ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
+
+					YARPNameService::DeleteName(target_pid);
+					target_pid = NULL;
+
+					ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : output thread 0x%x bailing out\n", GetIdentifier()));
+					return;
+					///target_pid->invalidate();
 				}
 
 				protocol_type = YARP_TCP;
@@ -308,7 +327,14 @@ void OutputTarget::Body ()
 		{
 			ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : starting a UDP sender thread\n"));
 
-			target_pid = YARPNameService::LocateName (GetLabel().c_str());
+			target_pid = YARPNameService::LocateName (GetLabel().c_str(), network_name.c_str());
+			if (!target_pid->isValid())
+			{
+				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : can't connect - target on different network, output thread 0x%x bailing out\n", GetIdentifier()));
+				YARPNameService::DeleteName(target_pid);
+				target_pid = NULL;
+				return;	
+			}
 
 			/// requires a query to dns unfortunately (maybe not?).
 			char myhostname[YARP_STRING_LEN];
@@ -316,6 +342,7 @@ void OutputTarget::Body ()
 			ACE_INET_Addr local ((u_short)0, myhostname);
 
 #ifndef DEBUG_DISABLE_SHMEM
+			/// LATER: this test should be carried out by the name server.
 			if (((YARPUniqueNameSock *)target_pid)->getAddressRef().get_ip_address() == local.get_ip_address())
 			{
 				/// going into SHMEM mode.
@@ -332,16 +359,26 @@ void OutputTarget::Body ()
 				if (target_pid->getServiceType() != YARP_UDP)
 				{
 					/// problems.
-					ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
-					target_pid->invalidate();
+					ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
+					YARPNameService::DeleteName(target_pid);
+					target_pid = NULL;
+	
+					ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : output thread 0x%x bailing out\n", GetIdentifier()));
+					return;	
+					///target_pid->invalidate();
 				}
 			}
 #else
 			if (target_pid->getServiceType() != YARP_UDP)
 			{
 				/// problems.
-				ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
-				target_pid->invalidate();
+				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
+				///target_pid->invalidate();
+				YARPNameService::DeleteName(target_pid);
+				target_pid = NULL;
+
+				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : output thread 0x%x bailing out\n", GetIdentifier()));
+				return;	
 			}
 #endif
 
@@ -356,19 +393,22 @@ void OutputTarget::Body ()
 
 			/// MCAST is different! Locate prepares the MCAST group and registers it.
 			/// additional commands are sent to "clients" to ask to join the specific group.
-			target_pid = YARPNameService::LocateName(GetLabel().c_str(), YARP_MCAST);
+			/// ALSO: VerifySame had been called before actually running the thread.
+
+			target_pid = YARPNameService::LocateName(GetLabel().c_str(), network_name.c_str(), YARP_MCAST);
 			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
 
 			if (target_pid->getServiceType() != YARP_MCAST)
 			{
 				/// problems.
-				ACE_DEBUG ((LM_DEBUG, "troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
-				target_pid->invalidate();
+				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : troubles locating %s, the protocol is wrong\n", GetLabel().c_str()));
+				///target_pid->invalidate();
+				YARPNameService::DeleteName(target_pid);
+				target_pid = NULL;
+			
+				ACE_DEBUG ((LM_DEBUG, "***** OutputTarget::Body : output thread 0x%x bailing out\n", GetIdentifier()));
+				return;	
 			}
-
-			///	to go SHMEM:
-			///		do the test before starting the thread at the price of
-			///		an extra call to the name server.
 		}
 		break;
 	}
@@ -377,11 +417,12 @@ void OutputTarget::Body ()
 	PostMutex ();
 	YARP_DBG(THIS_DBG) ((LM_DEBUG, "Output target after initialization section\n"));
 
-	/// MUST complain if connection fails.
-	///
-	///
+	/// LATER: this code is probably no longer needed.
 	if (!target_pid->isValid())
 	{
+		/// 
+		ACE_DEBUG ((LM_DEBUG, "***** OutputTarget, troubles, shouldn't be getting here\n"));
+
 		WaitMutex();
 		active = 0;
 		PostMutex();
@@ -428,7 +469,7 @@ void OutputTarget::Body ()
 			case 1:
 				{
 					/// connect
-					YARPUniqueNameID* udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
+					YARPUniqueNameID* udp_channel = YARPNameService::LocateName(cmdname, network_name.c_str(), YARP_UDP);
 					YARPEndpointManager::ConnectEndpoints (*udp_channel);
 					YARPNameService::DeleteName (udp_channel);
 				}
@@ -437,7 +478,7 @@ void OutputTarget::Body ()
 			case 2:
 				{
 					/// disconnect
-					YARPUniqueNameID* udp_channel = YARPNameService::LocateName(cmdname, YARP_UDP);
+					YARPUniqueNameID* udp_channel = YARPNameService::LocateName(cmdname, network_name.c_str(), YARP_UDP);
 					if (udp_channel->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 						udp_channel->setName(cmdname);
 					YARPEndpointManager::Close (*udp_channel);
@@ -691,7 +732,8 @@ void _strange_select::Body ()
 /// and a list of connected threads internally dealing with the actual stream.
 /// data channels are represented by Sendables, object that derive from RefCounted.
 /// the idea being that a particular Sendable must not be destroyed before the
-/// communication layer has sent them. Data is never copied, only pointers (ref counted)
+/// communication layer has sent it. Data is never copied [latest version actually makes
+/// copies in preparing datagrams (UDP and MCAST)], only pointers (ref counted)
 ///	travel from the user layer to the comm layer. The only one copy is done at
 /// the level of send/recv.
 ///
@@ -717,7 +759,7 @@ void Port::Body()
 	{
 	case YARP_QNET:
 		{
-			pid = YARPNameService::RegisterName(name.c_str(), YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel()); 
+			pid = YARPNameService::RegisterName(name.c_str(), network_name.c_str(), YARP_QNET, YARPNativeEndpointManager::CreateQnetChannel()); 
 			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
@@ -734,7 +776,7 @@ void Port::Body()
 
 	case YARP_TCP:
 		{
-			pid = YARPNameService::RegisterName(name.c_str(), YARP_TCP, YARP_UDP_REGPORTS); 
+			pid = YARPNameService::RegisterName(name.c_str(), network_name.c_str(), YARP_TCP, YARP_UDP_REGPORTS); 
 			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
@@ -751,7 +793,7 @@ void Port::Body()
 
 	case YARP_UDP:
 		{
-			pid = YARPNameService::RegisterName(name.c_str(), YARP_UDP, YARP_UDP_REGPORTS); 
+			pid = YARPNameService::RegisterName(name.c_str(), network_name.c_str(), YARP_UDP, YARP_UDP_REGPORTS); 
 			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
@@ -768,7 +810,7 @@ void Port::Body()
 
 	case YARP_MCAST:
 		{
-			pid = YARPNameService::RegisterName(name.c_str(), YARP_MCAST, YARP_UDP_REGPORTS);
+			pid = YARPNameService::RegisterName(name.c_str(), network_name.c_str(), YARP_MCAST, YARP_UDP_REGPORTS);
 			if (pid->getServiceType() == YARP_NO_SERVICE_AVAILABLE)
 			{
 				ACE_DEBUG ((LM_DEBUG, ">>> registration failed, bailing out port thread\n"));
@@ -933,9 +975,9 @@ void Port::Body()
 							ACE_DEBUG ((LM_DEBUG, "Starting connection between %s and %s\n", name.c_str(), buf));
 
 							target = targets.NewLink(buf);
-							
 							ACE_ASSERT(target != NULL);
 							
+							target->network_name = network_name;
 							target->target_pid = NULL;
 							target->protocol_type = protocol_type;
 
@@ -948,62 +990,67 @@ void Port::Body()
 					}
 					else
 					{
-#ifndef DEBUG_DISABLE_SHMEM
 						/// it requires an extra call to the name server.
 						YARPUniqueNameID *pid = YARPNameService::LocateName (buf);
 
-						/// requires a query to dns unfortunately (maybe not?).
-						char myhostname[YARP_STRING_LEN];
-						getHostname (myhostname, YARP_STRING_LEN);
-						ACE_INET_Addr local ((u_short)0, myhostname);
-
-						///ACE_DEBUG((LM_DEBUG, "temporary ::::::::::: remote IP 0x%x local IP 0x%x\n", ((YARPUniqueNameSock *)pid)->getAddressRef().get_ip_address(), local.get_ip_address()));
-						if (((YARPUniqueNameSock *)pid)->getAddressRef().get_ip_address() == local.get_ip_address())
+						YARPString ifname;
+						if (YARPNameService::VerifySame (((YARPUniqueNameSock *)pid)->getAddressRef().get_host_addr(), network_name.c_str(), ifname))
 						{
-							/// go into UDP-SHMEM.
-							target = targets.GetByLabel (buf);
-							if (target == NULL)
+							
+#ifndef DEBUG_DISABLE_SHMEM
+							char myhostname[YARP_STRING_LEN];
+							getHostname (myhostname, YARP_STRING_LEN);
+							ACE_INET_Addr local ((u_short)0, myhostname);
+
+							///ACE_DEBUG((LM_DEBUG, "temporary ::::::::::: remote IP 0x%x local IP 0x%x\n", ((YARPUniqueNameSock *)pid)->getAddressRef().get_ip_address(), local.get_ip_address()));
+							if (((YARPUniqueNameSock *)pid)->getAddressRef().get_ip_address() == local.get_ip_address())
 							{
-								ACE_DEBUG ((LM_DEBUG, "Starting (possibly SHMEM) connection between %s and %s\n", name.c_str(), buf));
+								/// go into UDP-SHMEM.
+								target = targets.GetByLabel (buf);
+								if (target == NULL)
+								{
+									ACE_DEBUG ((LM_DEBUG, "Starting (possibly SHMEM) connection between %s and %s\n", name.c_str(), buf));
 
-								target = targets.NewLink(buf);
-								
-								ACE_ASSERT(target != NULL);
-								
-								target->target_pid = NULL;
-								target->protocol_type = YARP_UDP;
+									target = targets.NewLink(buf);
+									ACE_ASSERT(target != NULL);
+		
+									target->network_name = network_name;
+									target->target_pid = NULL;
+									target->protocol_type = YARP_UDP;
 
-								target->Begin();
+									target->Begin();
+								}
+								else
+								{
+									ACE_DEBUG ((LM_DEBUG, "Ignoring %s, already connected\n", buf));
+								}
 							}
 							else
-							{
-								ACE_DEBUG ((LM_DEBUG, "Ignoring %s, already connected\n", buf));
-							}
-						}
-						else
 #endif
-						{
-							/// mcast out port thread.
-							target = targets.GetByLabel ("mcast-thread");
-							if (target == NULL)
 							{
-								ACE_DEBUG ((LM_DEBUG, "Starting MCAST singleton thread\n"));
-								target = targets.NewLink("mcast-thread");
+								/// mcast out port thread.
+								target = targets.GetByLabel ("mcast-thread");
+								if (target == NULL)
+								{
+									ACE_DEBUG ((LM_DEBUG, "Starting MCAST singleton thread\n"));
+									target = targets.NewLink("mcast-thread");
 
-								ACE_ASSERT(target != NULL);
-								target->target_pid = NULL;
-								target->protocol_type = protocol_type;
+									ACE_ASSERT(target != NULL);
+									target->target_pid = NULL;
+									target->protocol_type = protocol_type;
 
-								target->Begin();
+									target->Begin();
 
-								target->ConnectMcast (buf);
+									target->ConnectMcast (buf);
+								}
+								else
+								{
+									ACE_DEBUG ((LM_DEBUG, "MCAST: Starting connection between %s and %s\n", name.c_str(), buf));
+									target->ConnectMcast (buf);
+								}
 							}
-							else
-							{
-								ACE_DEBUG ((LM_DEBUG, "MCAST: Starting connection between %s and %s\n", name.c_str(), buf));
-								target->ConnectMcast (buf);
-							}
-						}
+
+						}	/// end if (VerifySame)
 					}
 
 					list_mutex.Post ();
@@ -1390,14 +1437,14 @@ int Port::Say(const char *buf)
 	{
 		if (protocol_type == YARP_MCAST)
 		{
-			self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), YARP_UDP);
 			self_id->setServiceType (YARP_TCP);
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
 		}
 		else
 		{
-			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), protocol_type);
 			if (self_id->getServiceType() != YARP_QNET)
 				self_id->setServiceType (YARP_TCP);
 
@@ -1411,14 +1458,14 @@ int Port::Say(const char *buf)
 	{
 		if (protocol_type == YARP_MCAST)
 		{
-			self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), YARP_UDP);
 			self_id->setServiceType (YARP_TCP);
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
 			YARPEndpointManager::ConnectEndpoints (*self_id);
 		}
 		else
 		{
-			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), protocol_type);
 			if (self_id->getServiceType() != YARP_QNET)
 				self_id->setServiceType (YARP_TCP);
 
@@ -1449,7 +1496,7 @@ int Port::SaySelfEnd(void)
 	{
 		if (protocol_type == YARP_MCAST)
 		{
-			self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), YARP_UDP);
 			self_id->setServiceType (YARP_TCP);
 
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
@@ -1457,7 +1504,7 @@ int Port::SaySelfEnd(void)
 		}
 		else
 		{
-			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), protocol_type);
 			if (self_id->getServiceType() != YARP_QNET)
 				self_id->setServiceType (YARP_TCP);
 
@@ -1471,7 +1518,7 @@ int Port::SaySelfEnd(void)
 	{
 		if (protocol_type == YARP_MCAST)
 		{
-			self_id = YARPNameService::LocateName(name.c_str(), YARP_UDP);
+			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), YARP_UDP);
 			self_id->setServiceType (YARP_TCP);
 
 			YARPEndpointManager::CreateOutputEndpoint (*self_id);
@@ -1479,7 +1526,7 @@ int Port::SaySelfEnd(void)
 		}
 		else
 		{
-			self_id = YARPNameService::LocateName(name.c_str(), protocol_type);
+			self_id = YARPNameService::LocateName(name.c_str(), network_name.c_str(), protocol_type);
 			if (self_id->getServiceType() != YARP_QNET)
 				self_id->setServiceType (YARP_TCP);
 

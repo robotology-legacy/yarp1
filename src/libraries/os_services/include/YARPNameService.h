@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.h,v 1.11 2003-07-15 08:06:31 gmetta Exp $
+/// $Id: YARPNameService.h,v 1.12 2003-08-26 07:40:50 gmetta Exp $
 ///
 ///
 /*
@@ -81,6 +81,7 @@
 #include "YARPNameID.h"
 
 ///
+/// don't optimize constructor is actually for troubles I encountered under gcc QNX6.
 #ifdef __WIN32__
 #define NAMER_CONFIG_FILE "conf\\namer.conf"
 #else
@@ -105,29 +106,31 @@ public:
 	///// OLD: if native flag set, register with native name service only
 	/// YARP_QNX4 flag is used to ask a name to the native QNX4 name service.
 	/// static int RegisterName(const char *name, int native=1);
-	static YARPUniqueNameID* RegisterName (const char *name, int reg_type = YARP_DEFAULT_PROTOCOL, int num_ports_needed = YARP_PROTOCOL_REGPORTS);
+	static YARPUniqueNameID* RegisterName (const char *name, const char *network_name, int reg_type = YARP_DEFAULT_PROTOCOL, int num_ports_needed = YARP_PROTOCOL_REGPORTS);
 	/// reg_type is one of the enumeration in YARPNameID_defs.h
-
-	/// recover the name ID assigned by the server.
-	/// static YARPUniqueNameID GetRegistration (void);
 
 	// if native flag set, search native name service first, then global
 	/// it does a search on various protocols instead asking for a type.
-	static YARPUniqueNameID* LocateName (const char *name, int name_type = YARP_NO_SERVICE_AVAILABLE);
+	static YARPUniqueNameID* LocateName (const char *name, const char *network_name = NULL, int name_type = YARP_NO_SERVICE_AVAILABLE);
 
 	///
-	/// unregister. doesn't really call the name server, but it can be improved.
+	/// just deallocates memory, call UnregisterName to actually remove the
+	/// name from the name server (call this after un-registration).
 	static int DeleteName (YARPUniqueNameID* pid);
 
 	///
 	///
 	static int UnregisterName (YARPUniqueNameID* pid);
+
+	///
+	/// queries the name server for an IP and netname association. returns the 
+	/// ifname (IP or symbolic) and true if IP and netname belong to the same subnet.
+	static bool VerifySame (const char *ip, const char *network_name, YARPString& ifname);
 };
 
 
 ///
 /// handles endpoint(s) allocation and connection.
-///	LATER: maybe a "close" is needed?
 ///
 class YARPEndpointManager
 {

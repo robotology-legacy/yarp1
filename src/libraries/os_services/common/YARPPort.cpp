@@ -62,7 +62,7 @@
 
 
 ///
-/// $Id: YARPPort.cpp,v 1.14 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: YARPPort.cpp,v 1.15 2003-08-26 07:40:49 gmetta Exp $
 ///
 ///
 
@@ -245,18 +245,14 @@ YARPPort::YARPPort()
 YARPPort::~YARPPort()
 {
 	RemovePort(this);
-	///PD.End ();
-
-	///if (system_resource!=NULL && !YARPThread::IsDying())
-	///{
-	delete ((PortData*)system_resource);
-	///}
+	if (system_resource != NULL)
+		delete ((PortData*)system_resource);
 }
 
 
-int YARPPort::Register(const char *name)
+int YARPPort::Register(const char *name, const char *network_name /* = "default" */)
 {
-	return PD.SetName (name);
+	return PD.SetName (name, network_name);
 }
 
 int YARPPort::Unregister(void)
@@ -300,7 +296,8 @@ int YARPPort::Connect(const char *src_name, const char *dest_name)
 		return YARP_FAIL;
 	}
 
-	YARPUniqueNameID* id = YARPNameService::LocateName (src_name);
+	/// NULL 2nd param means no net specified, only IP addr.
+	YARPUniqueNameID* id = YARPNameService::LocateName (src_name, NULL);
 
 	if (id->getServiceType() != YARP_QNET)
 	{
@@ -357,10 +354,6 @@ void YARPPort::DeactivateAll()
 		it++;
 	}
 
-///	for (PortList::iterator it=port_list.begin(); it!=port_list.end(); it++)
-///	{
-///		(*it)->Deactivate();
-///	}
 	port_list_mutex.Post();
 }
 

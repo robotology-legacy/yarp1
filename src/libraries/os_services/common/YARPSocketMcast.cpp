@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketMcast.cpp,v 1.29 2003-08-13 00:23:18 gmetta Exp $
+/// $Id: YARPSocketMcast.cpp,v 1.30 2003-08-26 07:40:49 gmetta Exp $
 ///
 ///
 
@@ -395,7 +395,7 @@ int YARPOutputSocketMcast::Prepare (const YARPUniqueNameID& name)
 		d._mcast_addr.get_port_number(), 
 		d._mcast_addr.get_host_addr()));
 
-	int r = d._connector_socket.open (d._mcast_addr, 0, 1);		/// reuse addr on, netif = 0.
+	int r = d._connector_socket.open (d._mcast_addr, ((YARPUniqueNameSock&)name).getInterfaceName().c_str(), 1);		/// reuse addr on, netif = 0.
 	if (r == -1)
 	{
 		ACE_DEBUG ((LM_DEBUG, "cannot open mcast socket %s:%d\n", d._mcast_addr.get_host_addr(), d._mcast_addr.get_port_number()));
@@ -449,7 +449,6 @@ int YARPOutputSocketMcast::Connect (const YARPUniqueNameID& name)
 
 	/// verifies it's a new connection.
 	ACE_INET_Addr nm = ((YARPUniqueNameSock&)name).getAddressRef();
-	///const char *sname = ((YARPUniqueNameSock&)name).getName().c_str();
 
 	int i, firstempty = -1;
 	for (i = 0; i < d._max_num_clients; i++)

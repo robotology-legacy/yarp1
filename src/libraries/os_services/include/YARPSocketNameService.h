@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSocketNameService.h,v 1.11 2003-07-15 08:06:31 gmetta Exp $
+/// $Id: YARPSocketNameService.h,v 1.12 2003-08-26 07:40:50 gmetta Exp $
 ///
 ///
 
@@ -93,13 +93,22 @@ class YARPSocketNameService
 {
 public:
 	/// register on the remote server and get the port and IP.
-	static YARPUniqueNameID* RegisterName (YARPNameClient& namer, const char *name, int reg_type = YARP_DEFAULT_PROTOCOL, int extra_param = YARP_PROTOCOL_REGPORTS);
+	static YARPUniqueNameID* RegisterName (YARPNameClient& namer, const char *name, const char *network_name, int reg_type = YARP_DEFAULT_PROTOCOL, int extra_param = YARP_PROTOCOL_REGPORTS);
 
 	/// get a remote port and ID of a given channel.
-	static YARPUniqueNameID* LocateName (YARPNameClient& namer, const char *name, int reg_type = YARP_DEFAULT_PROTOCOL);
+	static YARPUniqueNameID* LocateName (YARPNameClient& namer, const char *name, const char *network_name, int reg_type = YARP_DEFAULT_PROTOCOL);
 
 	/// unregister from the name server.
 	static int UnregisterName (YARPNameClient& namer, const char *name, int reg_type);
+
+	/// verifies <ip> and <netname> belong to the same network.
+	static bool VerifySame (YARPNameClient& namer, const char *ip, const char *netname, YARPString& if_name);
+
+	/// convert interfaces (ifname -> IP).
+	static bool CONVERT_FORMAT (YARPString& name);
+
+	/// convert inverse (IP -> ifname).
+	static bool CONVERT_FORMAT_INVERSE (YARPString& name);
 };
 
 

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.11 2003-08-02 07:46:14 gmetta Exp $
+/// $Id: YARPNameID.h,v 1.12 2003-08-26 07:40:49 gmetta Exp $
 ///
 ///
 /*
@@ -194,6 +194,7 @@ class YARPUniqueNameSock : public YARPUniqueNameID
 {
 protected:
 	ACE_INET_Addr _address;
+	YARPString _ifname;
 	int _nports;
 	int *_ports;
 
@@ -234,6 +235,9 @@ public:
 
 	inline int& getNPorts (void) { return _nports; }
 	inline int* getPorts (void) { return _ports; }
+
+	inline YARPString& getInterfaceName(void) { return _ifname; }
+	inline void setInterfaceName (const YARPString& name) { _ifname = name; }
 
 	inline int setPorts (int *p, int size) 
 	{
@@ -280,6 +284,7 @@ public:
 		}
 
 		_address = other._address;
+		_ifname = other._ifname;
 
 		YARPUniqueNameID::operator= (other);
 		return *this;
