@@ -4,7 +4,7 @@
 # Script to run the cameras
 #	camerasrun <right> --> runs right camera
 #	camerasrun <left>  --> runs left camera
-#	camerasrun		   --> runs both cameras
+#	camerasrun	   --> runs both cameras
 # 	
 #
 #
@@ -23,8 +23,8 @@ Right()
 
 All()
 {
-	pterm su -c "on -f morpheus framegrab -b 0 +left -l -f" &
-	pterm su -c "on -f morpheus framegrab -b 1 +right -l -f" &
+	pterm su -c "on -f morpheus framegrab -b 0 +left -l -f -o -12" &
+	pterm su -c "on -f morpheus framegrab -b 1 +right -l -f -o 12" &
 
 	pterm camview +view001 -l -w 256 -h 256 & 
 	pterm camview +view002 -l -w 256 -h 256 &  
