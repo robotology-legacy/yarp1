@@ -3,4 +3,4 @@
 #
 #
 #
-behaviorrnd
+behaviorRnd
