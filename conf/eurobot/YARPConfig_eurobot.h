@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPConfig_eurobot.h,v 1.1 2004-08-02 10:58:30 babybot Exp $
+/// $Id: YARPConfig_eurobot.h,v 1.2 2004-12-27 18:06:42 beltran Exp $
 ///
 ///
 
@@ -41,7 +41,7 @@
 #endif
 
 /// config path, relative to YARP_ROOT
-const char *const ConfigFilePath = "conf/eurobot";
+const char *const ConfigFilePath = "conf/eurobot/";
 
 
 
