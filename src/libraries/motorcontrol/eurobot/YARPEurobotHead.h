@@ -1,7 +1,7 @@
 #ifndef __YARPEUROBOTHEAD__
 #define __YARPEUROBOTHEAD__
 
-// $Id: YARPEurobotHead.h,v 1.6 2003-12-23 17:53:56 beltran Exp $
+// $Id: YARPEurobotHead.h,v 1.7 2004-01-07 17:27:52 beltran Exp $
 
 #include <conf/YARPConfig.h>
 #include <YARPGenericControlBoard.h>
@@ -17,10 +17,10 @@ namespace _limits
 
 namespace _joints
 {
-	const int neckPan = 0;
-	const int neckTilt = 1;
-	const int rightEye = 2;
-	const int leftEye = 3;
+	const int neckTilt = 0;
+	const int rightEye = 1;
+	const int leftEye = 2;
+	const int neckPan = 3;
 };
 
 //typedef YARPGenericControlBoard<YARPGALILOnEurobotHeadAdapter, YARPEurobotHeadParameters> YARPEurobotHead;
