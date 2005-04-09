@@ -75,6 +75,7 @@ Int16  _kr[JN] = { 3, 3 };				/* scale factor (negative power of two) */
 Int16 _counter = 0;						/* used to count cycles, it resets now and then */
 										/* to generate periodic events */
 Int16 _flash_addr = 0;
+byte _write_buffer = 0;				/* the current CAN bus buffer, buffers alternate */
 
 /*
  * version specifi global variables.
@@ -746,6 +747,12 @@ byte can_interface (void)
 		}
 #endif
 
+			if (_write_buffer == 0)
+				_write_buffer = 2;
+			else
+				_write_buffer = 0;
+
+#define CAN_BUFFER _write_buffer
 #define CAN_DATA _canmsg.CAN_data
 #define CAN_FRAME_TYPE _canmsg.CAN_frameType
 #define CAN_FRAME_FMT _canmsg.CAN_frameFormat

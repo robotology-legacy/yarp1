@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.16 2005-04-05 15:52:25 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.17 2005-04-09 20:53:42 babybot Exp $
 ///
 ///
 
@@ -67,7 +67,9 @@ const int MAX_CHANNELS	= 255;
 const int MAX_NID		= 16;
 const int BUF_SIZE		= 16384;
 
-
+///
+///
+/// note that this class is just a container.
 class ValueCanResources
 {
 public:
@@ -88,9 +90,10 @@ public:
 	int _njoints;								/// number of joints (ncards * 2).
 	
 	icsSpyMessage _canMsg[BUF_SIZE];			/// read buffer.
-	icsSpyMessage _cmdBuffer;					/// write buffer (one element only).
-	icsSpyMessage _replyBuffer;					///
-	long _arbitrationID;
+	icsSpyMessage _cmdBuffer[BUF_SIZE];			/// write buffer.
+	icsSpyMessage _replyBuffer[BUF_SIZE];		/// .
+	int _cur_packetsize;						/// size of the current packet.
+	int _error_status;							/// error status of the last packet.
 
 	int (*_p) (char *fmt, ...);					///	pointer to a printf type function
 												/// used to spy on can messages.
@@ -108,15 +111,18 @@ public:
 		memset (_iComPort, 0, MAX_CHANNELS * sizeof(int));
 		memset (_iDeviceTypes, 0, MAX_CHANNELS * sizeof(int));
 		memset (_bNetworkID, 0, MAX_NID * sizeof(int));
+		
 		memset (_canMsg, 0, sizeof(icsSpyMessage) * BUF_SIZE);
-		memset (&_cmdBuffer, 0, sizeof(icsSpyMessage));
-		memset (&_replyBuffer, 0, sizeof(icsSpyMessage));
+		memset (_cmdBuffer, 0, sizeof(icsSpyMessage) * BUF_SIZE);
+		memset (_replyBuffer, 0, sizeof(icsSpyMessage) * BUF_SIZE);
+		_cur_packetsize = 0;
+		_error_status = YARP_OK;
+
 		_dllLoaded = false;
 		_portHandle = 0;
 		_my_address = 0;
 		memset (_destinations, 0, sizeof(unsigned char) * MAX_CARDS);
 		_polling_interval = 5;
-		_arbitrationID = 0;
 		_timeout = 1;
 		_njoints = 0;
 		_p = NULL;
@@ -124,6 +130,10 @@ public:
 	}
 
 	~ValueCanResources () { _uninitialize(); }
+
+	int _startPacket (void);
+	int _addMessage (int msg, int axis);
+	int _writePacket (void);
 
 	int _read (void);
 	int _read_np (int& err);
@@ -167,7 +177,40 @@ int ValueCanResources::_read_np (int& err)
 /// write to can.
 int ValueCanResources::_write (void)
 {
-	return canPutMessages (_portHandle, &_cmdBuffer, NETID_HSCAN, 1);
+	return canPutMessages (_portHandle, &_cmdBuffer[0], NETID_HSCAN, 1);
+}
+
+/// initializes the construction of a new packet (array) of messages.
+int ValueCanResources::_startPacket (void)
+{
+	_cur_packetsize = 0;
+	return YARP_OK;
+}
+
+/// adds a new message to the current packet.
+int ValueCanResources::_addMessage (int msg, int axis)
+{
+	memset (&_cmdBuffer[_cur_packetsize], 0, sizeof(icsSpyMessage));
+	_prepareHeader (_cmdBuffer[_cur_packetsize], msg, _my_address, _destinations[axis/2], axis % 2);
+	_cmdBuffer[_cur_packetsize].NumberBytesData = 1;
+	_cur_packetsize ++;
+	return _cur_packetsize;
+}
+
+/// sends the current packet.
+int ValueCanResources::_writePacket (void)
+{
+	if (_cur_packetsize < 1)
+		return YARP_FAIL;
+
+	int i;
+	for (i = 0; i < _cur_packetsize; i++)
+	{
+		if (canPutMessages (_portHandle, _cmdBuffer+i, NETID_HSCAN, 1) == 0)
+			return YARP_FAIL;
+	}
+	
+	return YARP_OK;
 }
 
 /// test message for errors.
@@ -220,6 +263,31 @@ int ValueCanResources::_initialize (const ValueCanOpenParameters& params)
 		return -1;
 	}
 
+	/// general variable init.
+	_iNumDevices = 0;
+	
+	memset (_iSerialNum, 0, MAX_CHANNELS * sizeof(int));
+	memset (_iComPort, 0, MAX_CHANNELS * sizeof(int));
+	memset (_iDeviceTypes, 0, MAX_CHANNELS * sizeof(int));
+	memset (_bNetworkID, 0, MAX_NID * sizeof(int));
+	
+	memset (_canMsg, 0, sizeof(icsSpyMessage) * BUF_SIZE);
+	memset (_cmdBuffer, 0, sizeof(icsSpyMessage) * BUF_SIZE);
+	memset (_replyBuffer, 0, sizeof(icsSpyMessage) * BUF_SIZE);
+	
+	_cur_packetsize = 0;
+	_error_status = YARP_OK;
+
+	_portHandle = 0;
+	_my_address = 0;
+	memset (_destinations, 0, sizeof(unsigned char) * MAX_CARDS);
+	_polling_interval = 5;
+	_timeout = 1;
+	_njoints = 0;
+	_p = NULL;
+	_filter = -1;
+
+	/// actual library/resource initialization.
 	_dllLoaded = canInitLibrary();
 	if (!_dllLoaded)
 	{
@@ -236,6 +304,8 @@ int ValueCanResources::_initialize (const ValueCanOpenParameters& params)
 			for (i = 0; i < MAX_NID; i++)
 				_bNetworkID[i] = i;
 
+			YARPTime::DelayInSeconds (.2);
+
 			int res = canOpenPort (
 				_iComPort[params._port_number], 
 				NEOVI_COMMTYPE_RS232, 
@@ -248,6 +318,7 @@ int ValueCanResources::_initialize (const ValueCanOpenParameters& params)
 
 			if (res == 0)
 			{
+				_portHandle = 0;	// it failed, must be 0, otherwise it crashes.
 				ACE_DEBUG ((LM_DEBUG, "CAN: Can't open port\n"));
 				canReleaseLibrary ();
 				return -1;
@@ -366,6 +437,7 @@ YARPValueCanDeviceDriver::~YARPValueCanDeviceDriver ()
 int YARPValueCanDeviceDriver::open (void *res)
 {
 	_mutex.Wait(); // the thread will post this mutex after startup.
+	_ev.Reset();
 
 	ValueCanResources& d = RES(system_resources);
 	int ret = d._initialize (*(ValueCanOpenParameters *)res);
@@ -489,10 +561,9 @@ void YARPValueCanDeviceDriver::_printMessage (void *msg, int (*p) (char *fmt, ..
 void YARPValueCanDeviceDriver::Body(void)
 {
 	ValueCanResources& r = RES(system_resources);
-	unsigned char messagetype = 0;
-	bool pending = false;
 	double now = -1, before = -1;
 	int cyclecount = 0;
+	int left = 0, own_messages = 0;
 
 	_request = false;
 	_noreply = false;
@@ -515,12 +586,9 @@ void YARPValueCanDeviceDriver::Body(void)
 			_debugMsg (n, (void *)r._canMsg, r._p);
 
 		/// filters messages, no buffering allowed here.
-		if (pending)
+		if (left > 0)
 		{
 			int i;
-			//if (r._p)
-			//	(*r._p)("cycle count: %d\n", cyclecount);
-
 			for (i = 0; i < n; i++)
 			{
 				icsSpyMessage& m = r._canMsg[i];
@@ -539,11 +607,14 @@ void YARPValueCanDeviceDriver::Body(void)
 				if (m.StatusBitField & SPY_STATUS_TX_MSG)
 				{
 					_mutex.Wait();
+					own_messages --;
+
 					/// my last sent message.
-					if (_noreply)
+					if (_noreply && own_messages < 1)
 					{
 						_noreply = false;
-						pending = false;
+						left = 0;
+						r._error_status = YARP_OK;
 						_mutex.Post();
 						_ev.Signal();
 					}
@@ -553,37 +624,57 @@ void YARPValueCanDeviceDriver::Body(void)
 					continue;
 				}
 
-				/// check first to see whether <m> was addressed here.
-				if (((m.ArbIDOrHeader & 0x0f) == r._my_address) &&
-					(m.Data[0] == messagetype) &&
-					!(m.ArbIDOrHeader & 0x700))
+				/// check whether the message is a reply of any of the pending messages
+				/// in current packet.
+				if ((m.ArbIDOrHeader & 0x0f) == r._my_address)
 				{
-					/// ok, this is my reply.
-					/// write reply and signal event.
-					_mutex.Wait();
-					memcpy (&r._cmdBuffer, &m, sizeof(icsSpyMessage));
-					//if (r._p)
-					//	(*r._p)("previous msg was a reply\n");
+					int j;
+					for (j = 0; j < r._cur_packetsize; j++)
+					{
+						if (r._cmdBuffer[j].Data[0] == m.Data[0] &&		// same message type.
+							!(m.ArbIDOrHeader & 0x700) &&				// class 0.
+							((m.ArbIDOrHeader & 0xf0) >> 4) == (r._cmdBuffer[j].ArbIDOrHeader & 0x0f))
+						{
+							/// it's a reply.
+							//if (r._p)
+							//	(*r._p)("reply for entry %d msg %x\n", j, m.Data[0]);
 
-					pending = false;
-					_mutex.Post();
-					_ev.Signal();
+							memcpy (&r._replyBuffer[j], &m, sizeof(icsSpyMessage));
+							left --;
+							if (left < 1)
+							{
+								r._error_status = YARP_OK;
+								_mutex.Post();
+								_ev.Signal();
+							}
+						}
+					}
 				}
 			}
 
 			/// requires a timeout (to signal back the caller).
-			/// if doesn't get a reply, signal a problem.
+			/// if doesn't get a reply then signal a problem.
 			cyclecount++;
 			if (cyclecount >= r._timeout)
 			{
 				_mutex.Wait();
-				if (r._p) (*r._p)("CAN: board %d timed out [msg type %d channel %d]\n", 
-					r._cmdBuffer.ArbIDOrHeader & 0x0f, 
-					messagetype & 0x7f,
-					(messagetype & 0x80)?1:0);
+				
+				if (r._p) (*r._p)("CAN: still %d unacknoweledged messages\n", left);
 
-				r._cmdBuffer.Data[0] = CAN_NO_MESSAGE;
-				pending = false;
+				int j;
+				for (j = 0; j < r._cur_packetsize; j++)
+				{
+					if (r._replyBuffer[j].Data[0] == CAN_NO_MESSAGE && r._p)
+					{
+						(*r._p)("CAN: board %d timed out [msg type %d channel %d]\n", 
+								r._cmdBuffer[j].ArbIDOrHeader & 0x0f, 
+								r._cmdBuffer[j].Data[0] & 0x7f,
+								(r._cmdBuffer[j].Data[0] & 0x80)?1:0);
+					}
+				}
+
+				r._error_status = YARP_FAIL;
+				left = 0;
 				_mutex.Post();
 				_ev.Signal();
 			}
@@ -597,19 +688,22 @@ void YARPValueCanDeviceDriver::Body(void)
 		r._p = _p;
 		r._filter = _filter;
 
-		if (_request && !pending)
+		if (_request && left < 1)
 		{
-			if (r._write () == 0)
+			if (r._writePacket () != YARP_OK)
 			{
 				if (r._p) (*r._p)("problems sending message\n"); 
 			}
 
-			//if (r._p) (*r._p)("there was a write\n");
-			pending = true;
-			messagetype = r._cmdBuffer.Data[0];
+			//if (r._p) (*r._p)("there was a write of %d messages\n", r._cur_packetsize);
+
+			memset (r._replyBuffer, 0, sizeof(icsSpyMessage) * r._cur_packetsize);
+			own_messages = left = r._cur_packetsize;
+			r._error_status = YARP_OK;
 			cyclecount = 0;
 			_request = false;
 		}
+		
 		_mutex.Post();
 
 		now = YARPTime::GetTimeAsSeconds();
@@ -661,7 +755,40 @@ int YARPValueCanDeviceDriver::getPositions (void *cmd)
 	double *tmp = (double *)cmd;
 	int i, value = 0;
 
+	_mutex.Wait();
+	r._startPacket();
+
 	for (i = 0; i < r._njoints; i++)
+	{
+		if (ENABLED(i))
+		{
+			r._addMessage (CAN_GET_ENCODER_POSITION, i);
+		}
+		else
+			tmp[i] = 0;
+	}
+	
+	_request = true;
+	_noreply = false;
+	_mutex.Post();
+
+	_ev.Wait();
+
+	if (r._error_status != YARP_OK)
+	{
+		memset (tmp, 0, sizeof(double) * r._njoints);
+		return YARP_FAIL;
+	}
+
+	for (i = 0; i < r._njoints; i++)
+	{
+		if (ENABLED(i))
+		{
+			tmp[i] = *((int *)(r._replyBuffer[i].Data+1));
+		}
+	}
+
+#if 0
 	{
 		if (_readDWord (CAN_GET_ENCODER_POSITION, i, value) == YARP_OK)
 		{
@@ -673,6 +800,7 @@ int YARPValueCanDeviceDriver::getPositions (void *cmd)
 			return YARP_FAIL;
 		}
 	}
+#endif
 
 	return YARP_OK;
 }
@@ -703,6 +831,39 @@ int YARPValueCanDeviceDriver::setPositions (void *cmd)
 	double *tmp = (double *)cmd;
 	int i;
 
+	_mutex.Wait();
+	r._startPacket();
+
+	for (i = 0; i < r._njoints; i++)
+	{
+		if (ENABLED(i))
+		{
+			SingleAxisParameters x;
+			x.axis = i;
+			x.parameters = tmp+i;	
+
+			r._addMessage (CAN_POSITION_MOVE, i);
+
+			_ref_positions[i] = tmp[i];
+			*((int*)(r._cmdBuffer[i].Data+1)) = S_32(_ref_positions[i]);		/// pos
+			*((short*)(r._cmdBuffer[i].Data+5)) = S_16(_ref_speeds[i]);			/// speed
+			r._cmdBuffer[i].NumberBytesData = 7;
+		}
+		else
+		{
+			_ref_positions[i] = tmp[i];
+		}
+	}
+
+	_request = true;
+	_noreply = true;
+	
+	_mutex.Post();
+
+	/// syncing.
+	_ev.Wait();
+
+#if 0
 	for (i = 0; i < r._njoints; i++)
 	{
 		SingleAxisParameters x;
@@ -712,6 +873,7 @@ int YARPValueCanDeviceDriver::setPositions (void *cmd)
 		if (setPosition ((void *)&x) != YARP_OK)
 			return YARP_FAIL;
 	}
+#endif
 
 	return YARP_OK;
 }
@@ -745,12 +907,13 @@ int YARPValueCanDeviceDriver::setPosition (void *cmd)
 
 	_mutex.Wait();
 
-	memset (&(r._cmdBuffer), 0, sizeof(icsSpyMessage));
-	r._prepareHeader (r._cmdBuffer, CAN_POSITION_MOVE, r._my_address, r._destinations[axis/2], axis % 2);
+	r._startPacket();
+	r._addMessage (CAN_POSITION_MOVE, axis);
+
 	_ref_positions[axis] = *((double *)tmp->parameters);
-	*((int*)(r._cmdBuffer.Data+1)) = S_32(_ref_positions[axis]);		/// pos
-	*((short*)(r._cmdBuffer.Data+5)) = S_16(_ref_speeds[axis]);			/// speed
-	r._cmdBuffer.NumberBytesData = 7;
+	*((int*)(r._cmdBuffer[0].Data+1)) = S_32(_ref_positions[axis]);		/// pos
+	*((short*)(r._cmdBuffer[0].Data+5)) = S_16(_ref_speeds[axis]);			/// speed
+	r._cmdBuffer[0].NumberBytesData = 7;
 		
 	_request = true;
 	_noreply = true;
@@ -772,18 +935,47 @@ int YARPValueCanDeviceDriver::velocityMove (void *cmd)
 	double *tmp = (double *)cmd;
 	int i;
 
+	_mutex.Wait();
+	r._startPacket();
+
+	for (i = 0; i < r._njoints; i++)
+	{
+		if (ENABLED (i))
+		{
+			r._addMessage (CAN_VELOCITY_MOVE, i);
+			_ref_speeds[i] = tmp[i];
+			*((short*)(r._cmdBuffer[i].Data+1)) = S_16(_ref_speeds[i]);		/// speed
+			*((short*)(r._cmdBuffer[i].Data+3)) = S_16(_ref_accs[i]);		/// accel
+			r._cmdBuffer[i].NumberBytesData = 5;
+		}
+		else
+		{
+			_ref_speeds[i] = tmp[i];
+		}
+	}
+
+	_mutex.Post();
+
+	_request = true;
+	_noreply = true;
+
+	_ev.Wait();
+
+
+#if 0
 	for (i = 0; i < r._njoints; i++)
 	{
 		if (ENABLED (i))
 		{
 			_mutex.Wait();
 
-			memset (&(r._cmdBuffer), 0, sizeof(icsSpyMessage));
-			r._prepareHeader (r._cmdBuffer, CAN_VELOCITY_MOVE, r._my_address, r._destinations[i/2], i % 2);
+			r._startPacket();
+			r._addMessage (CAN_VELOCITY_MOVE, i);
+
 			_ref_speeds[i] = tmp[i];
-			*((short*)(r._cmdBuffer.Data+1)) = S_16(_ref_speeds[i]);		/// speed
-			*((short*)(r._cmdBuffer.Data+3)) = S_16(_ref_accs[i]);			/// accel
-			r._cmdBuffer.NumberBytesData = 5;
+			*((short*)(r._cmdBuffer[0].Data+1)) = S_16(_ref_speeds[i]);		/// speed
+			*((short*)(r._cmdBuffer[0].Data+3)) = S_16(_ref_accs[i]);			/// accel
+			r._cmdBuffer[0].NumberBytesData = 5;
 			
 			_request = true;
 			_noreply = true;
@@ -798,6 +990,7 @@ int YARPValueCanDeviceDriver::velocityMove (void *cmd)
 			_ref_speeds[i] = tmp[i];
 		}
 	}
+#endif
 
 	return YARP_OK;
 }
@@ -1382,10 +1575,9 @@ int YARPValueCanDeviceDriver::_writeNone (int msg, int axis)
 
 	_mutex.Wait();
 
-	memset (&(r._cmdBuffer), 0, sizeof(icsSpyMessage));
-	r._prepareHeader (r._cmdBuffer, msg, r._my_address, r._destinations[axis/2], axis % 2);
-	r._cmdBuffer.NumberBytesData = 1; // it was 2.
-		
+	r._startPacket();
+	r._addMessage (msg, axis);
+
 	_request = true;
 	_noreply = true;
 	
@@ -1411,10 +1603,8 @@ int YARPValueCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 	/// prepare Can message.
 	_mutex.Wait();
 
-	/// four bits are mapped into four bit addresses through _destinations[].
-	memset (&(r._cmdBuffer), 0, sizeof(icsSpyMessage));
-	r._prepareHeader (r._cmdBuffer, msg, r._my_address, r._destinations[axis/2], axis % 2);
-	r._cmdBuffer.NumberBytesData = 1;
+	r._startPacket();
+	r._addMessage (msg, axis);
 		
 	_request = true;
 	_noreply = false;
@@ -1423,13 +1613,13 @@ int YARPValueCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 	/// reads back position info.
 	_ev.Wait();
 
-	if (r._cmdBuffer.Data[0] == CAN_NO_MESSAGE)
+	if (r._error_status != YARP_OK)
 	{
 		value = 0;
 		return YARP_FAIL;
 	}
 
-	value = *((short *)(r._cmdBuffer.Data+1));
+	value = *((short *)(r._replyBuffer[0].Data+1));
 	return YARP_OK;
 }
 
@@ -1445,14 +1635,14 @@ int YARPValueCanDeviceDriver::_writeWord16 (int msg, int axis, short s)
 
 	_mutex.Wait();
 
-	/// four bits are mapped into four bit addresses through _destinations[].
-	memset (&(r._cmdBuffer), 0, sizeof(icsSpyMessage));
-	r._prepareHeader (r._cmdBuffer, msg, r._my_address, r._destinations[axis/2], axis % 2);
-	*((short *)(r._cmdBuffer.Data+1)) = s;
-	r._cmdBuffer.NumberBytesData = 3;
+	r._startPacket();
+	r._addMessage (msg, axis);
+
+	*((short *)(r._cmdBuffer[0].Data+1)) = s;
+	r._cmdBuffer[0].NumberBytesData = 3;
 		
 	_request = true;
-	_noreply = true;	/// maybe temporary?
+	_noreply = true;
 	
 	_mutex.Post();
 
@@ -1474,11 +1664,11 @@ int YARPValueCanDeviceDriver::_writeDWord (int msg, int axis, int value)
 
 	_mutex.Wait();
 
-	/// four bits are mapped into four bit addresses through _destinations[].
-	memset (&(r._cmdBuffer), 0, sizeof(icsSpyMessage));
-	r._prepareHeader (r._cmdBuffer, msg, r._my_address, r._destinations[axis/2], axis % 2);
-	*((int*)(r._cmdBuffer.Data+1)) = value;
-	r._cmdBuffer.NumberBytesData = 5;
+	r._startPacket();
+	r._addMessage (msg, axis);
+
+	*((int*)(r._cmdBuffer[0].Data+1)) = value;
+	r._cmdBuffer[0].NumberBytesData = 5;
 		
 	_request = true;
 	_noreply = true;
@@ -1505,15 +1695,15 @@ int YARPValueCanDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short
 
 	_mutex.Wait();
 
-	/// four bits are mapped into four bit addresses through _destinations[].
-	memset (&(r._cmdBuffer), 0, sizeof(icsSpyMessage));
-	r._prepareHeader (r._cmdBuffer, msg, r._my_address, r._destinations[axis/2], axis % 2);
-	*((short *)(r._cmdBuffer.Data+1)) = s1;
-	*((short *)(r._cmdBuffer.Data+3)) = s2;
-	r._cmdBuffer.NumberBytesData = 5;
-		
+	r._startPacket();
+	r._addMessage (msg, axis);
+
+	*((short *)(r._cmdBuffer[0].Data+1)) = s1;
+	*((short *)(r._cmdBuffer[0].Data+3)) = s2;
+	r._cmdBuffer[0].NumberBytesData = 5;
+
 	_request = true;
-	_noreply = true;	/// maybe temporary?
+	_noreply = true;
 	
 	_mutex.Post();
 
@@ -1538,27 +1728,24 @@ int YARPValueCanDeviceDriver::_readDWord (int msg, int axis, int& value)
 		return YARP_OK;
 	}
 
-	/// prepare Can message.
+	/// prepare can packet of length 1.
 	_mutex.Wait();
 
-	/// four bits are mapped into four bit addresses through _destinations[].
-	memset (&(r._cmdBuffer), 0, sizeof(icsSpyMessage));
-	r._prepareHeader (r._cmdBuffer, msg, r._my_address, r._destinations[axis/2], axis % 2);
-	r._cmdBuffer.NumberBytesData = 1;
+	r._startPacket();
+	r._addMessage (msg, axis);
 		
 	_request = true;
 	_noreply = false;
 	_mutex.Post();
 
-	/// reads back position info.
 	_ev.Wait();
 
-	if (r._cmdBuffer.Data[0] == CAN_NO_MESSAGE)
+	if (r._error_status != YARP_OK)
 	{
 		value = 0;
 		return YARP_FAIL;
 	}
 
-	value = *((int *)(r._cmdBuffer.Data+1));
+	value = *((int *)(r._replyBuffer[0].Data+1));
 	return YARP_OK;
 }

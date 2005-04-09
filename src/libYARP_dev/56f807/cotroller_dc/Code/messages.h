@@ -123,7 +123,7 @@
 		int i = CHANNEL(CAN_DATA[0]); \
 		CAN_LEN = 2; \
 		CAN_DATA[1] = _control_mode[i]; \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -140,7 +140,7 @@
 		/* CAN_DATA[1] untouched */ \
 		CAN_DATA[1] = BYTE_H(_ended[i]); \
 		CAN_DATA[2] = BYTE_L(_ended[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -230,7 +230,7 @@
 		CAN_DATA[4] = BYTE_1(_position[i]); \
 		CAN_DATA[5] = BYTE_2(_speed[i]); \
 		CAN_DATA[6] = BYTE_1(_speed[i]); \
-		if (CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA) != ERR_OK) \
+		if (CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA) != ERR_OK) \
 			AS1_printStringEx ("err 20\r\n"); \
 		_general_board_error = ERROR_NONE; \
 	} \
@@ -295,7 +295,7 @@
 		CAN_DATA[2] = BYTE_3(_set_point[i]); \
 		CAN_DATA[3] = BYTE_2(_set_point[i]); \
 		CAN_DATA[4] = BYTE_1(_set_point[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -326,7 +326,7 @@
 		CAN_DATA[2] = BYTE_3(_min_position[i]); \
 		CAN_DATA[3] = BYTE_2(_min_position[i]); \
 		CAN_DATA[4] = BYTE_1(_min_position[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -357,7 +357,7 @@
 		CAN_DATA[2] = BYTE_3(_max_position[i]); \
 		CAN_DATA[3] = BYTE_2(_max_position[i]); \
 		CAN_DATA[4] = BYTE_1(_max_position[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -385,7 +385,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_max_vel[i]); \
 		CAN_DATA[2] = BYTE_L(_max_vel[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -464,7 +464,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_set_vel[i]); \
 		CAN_DATA[2] = BYTE_L(_set_vel[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -480,7 +480,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_speed[i]); \
 		CAN_DATA[2] = BYTE_L(_speed[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -508,7 +508,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_set_acc[i]); \
 		CAN_DATA[2] = BYTE_L(_set_acc[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -524,7 +524,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_pid[i]); \
 		CAN_DATA[2] = BYTE_L(_pid[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -540,7 +540,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_error[i]); \
 		CAN_DATA[2] = BYTE_L(_error[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -568,7 +568,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_kp[i]); \
 		CAN_DATA[2] = BYTE_L(_kp[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -596,7 +596,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_kd[i]); \
 		CAN_DATA[2] = BYTE_L(_kd[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -624,7 +624,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_ki[i]); \
 		CAN_DATA[2] = BYTE_L(_ki[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -652,7 +652,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_integral_limit[i]); \
 		CAN_DATA[2] = BYTE_L(_integral_limit[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -680,7 +680,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_ko[i]); \
 		CAN_DATA[2] = BYTE_L(_ko[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -708,7 +708,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_kr[i]); \
 		CAN_DATA[2] = BYTE_L(_kr[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -736,7 +736,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = BYTE_H(_pid_limit[i]); \
 		CAN_DATA[2] = BYTE_L(_pid_limit[i]); \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
@@ -751,7 +751,7 @@
 		CAN_LEN = 3; \
 		CAN_DATA[1] = 0x00; \
 		CAN_DATA[2] = _general_board_error; \
-		CAN1_sendFrame (0, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
+		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \
 	else \
