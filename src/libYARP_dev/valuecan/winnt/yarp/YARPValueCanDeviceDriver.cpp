@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.17 2005-04-09 20:53:42 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.18 2005-04-14 22:10:53 babybot Exp $
 ///
 ///
 
@@ -41,7 +41,8 @@
 
 /// specific to this device driver.
 #include "YARPValueCanDeviceDriver.h"
-#include "../dd_orig/include/mCan.h"
+//#include "../dd_orig/include/mCan.h"
+#include "../dd_orig/include/icsnVC40.h"
 
 /// get the message types from the DSP code.
 #define __ONLY_DEF
@@ -65,7 +66,7 @@
 ///
 const int MAX_CHANNELS	= 255;
 const int MAX_NID		= 16;
-const int BUF_SIZE		= 16384;
+const int BUF_SIZE		= 20000;
 
 ///
 ///
@@ -139,6 +140,8 @@ public:
 	int _read_np (int& err);
 	int _write (void);
 	bool _error (const icsSpyMessage& m);
+	
+	void _getErrorsAndPrint (void);
 
 	inline bool MYSELF(unsigned char x) { return (((x & 0xf0) >> 4) == _my_address) ? true : false; }
 	inline bool _prepareHeader (icsSpyMessage& msg, int msg_type, int src, int dest, int channel);
@@ -153,7 +156,7 @@ int ValueCanResources::_read (void)
 
 	do 
 	{
-		int res = canGetMessages (_portHandle, _canMsg, &messages, &errors);
+		int res = icsneoGetMessages (_portHandle, _canMsg, &messages, &errors);
 		if (res == 0)
 			return errors;
 	} 
@@ -162,13 +165,56 @@ int ValueCanResources::_read (void)
 	return messages;
 }
 
+/// reads the error queue and print to console (if open).
+void ValueCanResources::_getErrorsAndPrint (void)
+{
+	int errors;
+	int errorMsgs[600];	/// 600 is a driver limit.
+
+	if (icsneoGetErrorMessages(_portHandle, errorMsgs, &errors) != 0)
+	{
+		if (_p)
+		{
+			int i;
+			for (i = 0; i < errors; i++)
+			{
+				char msg_short[256];
+				char msg_long[256];
+				int len_s = 0;
+				int len_l = 0;
+				int restart = 0;
+				int severity = 0;
+
+				if (icsneoGetErrorInfo (errorMsgs[i], 
+										msg_short,
+										msg_long,
+										&len_s,
+										&len_l,
+										&severity,
+										&restart) != 0)
+				{
+					(*_p) ("r: %d e%d: %s\n", restart, i, msg_short);
+				}
+				else
+				{
+					(*_p) ("CAN: can't get the error description %x\n", errorMsgs[i]);
+				}
+			}
+		}
+	}
+	else
+	{
+		(*_p) ("CAN: can't get the error queue\n");
+	}
+}
+
 /// read, no polling.
 int ValueCanResources::_read_np (int& err)
 {
 	int messages = 0;
 	int errors = 0;
 
-	int res = canGetMessages (_portHandle, _canMsg, &messages, &errors);
+	int res = icsneoGetMessages (_portHandle, _canMsg, &messages, &errors);
 	err = errors;
 
 	return messages;
@@ -177,7 +223,7 @@ int ValueCanResources::_read_np (int& err)
 /// write to can.
 int ValueCanResources::_write (void)
 {
-	return canPutMessages (_portHandle, &_cmdBuffer[0], NETID_HSCAN, 1);
+	return icsneoTxMessages (_portHandle, &_cmdBuffer[0], NETID_HSCAN, 1);
 }
 
 /// initializes the construction of a new packet (array) of messages.
@@ -206,7 +252,7 @@ int ValueCanResources::_writePacket (void)
 	int i;
 	for (i = 0; i < _cur_packetsize; i++)
 	{
-		if (canPutMessages (_portHandle, _cmdBuffer+i, NETID_HSCAN, 1) == 0)
+		if (icsneoTxMessages (_portHandle, _cmdBuffer+i, NETID_HSCAN, 1) == 0)
 			return YARP_FAIL;
 	}
 	
@@ -240,12 +286,10 @@ int ValueCanResources::_closeAndRelease (void)
 		int nOfErrors = 0;
 		if (_portHandle)
 		{
-			canClosePort (_portHandle, &nOfErrors);
-			canFreeObject (_portHandle);
+			icsneoClosePort (_portHandle, &nOfErrors);
+			icsneoFreeObject (_portHandle);
 			_portHandle = 0;
 		}
-
-		canReleaseLibrary();
 
 		_dllLoaded = false;
 	
@@ -288,14 +332,9 @@ int ValueCanResources::_initialize (const ValueCanOpenParameters& params)
 	_filter = -1;
 
 	/// actual library/resource initialization.
-	_dllLoaded = canInitLibrary();
-	if (!_dllLoaded)
-	{
-		ACE_DEBUG ((LM_DEBUG, "CAN: Can't load the CAN DLL\n"));
-		return -1;
-	}
+	_dllLoaded = true;
 
-	if (canFindAllDevices (INTREPIDCS_DRIVER_STANDARD, 
+	if (icsneoFindAllCOMDevices (INTREPIDCS_DRIVER_STANDARD, 
 				0, 1, 1, _iDeviceTypes, _iComPort, _iSerialNum, &_iNumDevices))
 	{
 		if (_iNumDevices > 0)
@@ -306,7 +345,7 @@ int ValueCanResources::_initialize (const ValueCanOpenParameters& params)
 
 			YARPTime::DelayInSeconds (.2);
 
-			int res = canOpenPort (
+			int res = icsneoOpenPortEx (
 				_iComPort[params._port_number], 
 				NEOVI_COMMTYPE_RS232, 
 				INTREPIDCS_DRIVER_STANDARD, 
@@ -320,7 +359,7 @@ int ValueCanResources::_initialize (const ValueCanOpenParameters& params)
 			{
 				_portHandle = 0;	// it failed, must be 0, otherwise it crashes.
 				ACE_DEBUG ((LM_DEBUG, "CAN: Can't open port\n"));
-				canReleaseLibrary ();
+				_dllLoaded = false;
 				return -1;
 			}
 		}
@@ -453,7 +492,8 @@ int YARPValueCanDeviceDriver::open (void *res)
 	if (ret >= 0)
 	{
 		Begin ();
-		YARPScheduler::yield();
+		//YARPScheduler::yield();
+		YARPTime::DelayInSeconds (.2);
 	}
 	else
 		_mutex.Post();
@@ -486,7 +526,7 @@ void YARPValueCanDeviceDriver::_debugMsg (int n, void *msg, int (*p) (char *fmt,
 
 	if (p)
 	{
-		///(*p) ("nmsg: %d\n", n);
+		//(*p) ("nmsg: %d\n", n);
 		/// minimal debug, actual debug would require interpreting messages.
 		for (i = 0; i < n; i++)
 		{
@@ -528,8 +568,8 @@ void YARPValueCanDeviceDriver::_printMessage (void *msg, int (*p) (char *fmt, ..
 	icsSpyMessage m = *(icsSpyMessage *)msg;
 	ValueCanResources& r = RES(system_resources);
 
-	if ((m.Data[0] & 0x7f) != r._filter &&
-		(m.ArbIDOrHeader & 0x0f) == r._my_address)
+//	if ((m.Data[0] & 0x7f) != r._filter &&
+//		(m.ArbIDOrHeader & 0x0f) == r._my_address)
 	{
 		(*p) 
 			("class: %2d s: %2x d: %2x c: %1d msg: %3d (%x) ",
@@ -564,7 +604,7 @@ void YARPValueCanDeviceDriver::Body(void)
 	double now = -1, before = -1;
 	int cyclecount = 0;
 	int left = 0, own_messages = 0;
-
+	
 	_request = false;
 	_noreply = false;
 
@@ -574,12 +614,19 @@ void YARPValueCanDeviceDriver::Body(void)
 	{
 		before = YARPTime::GetTimeAsSeconds();
 
+		//if (r._p) (*r._p)("-----\n");
+
 		/// reads all messages.
 		int err = 0;
-		int n = r._read_np (err);
+		int n = 0;
+		
+		n = r._read_np (err);
 
 		if (err != 0)
+		{
 			if (r._p) (*r._p)("got %d errors\n", err);
+			r._getErrorsAndPrint ();
+		}
 
 		/// debug/print messages to console.
 		if (n > 0 && r._p)
@@ -596,11 +643,15 @@ void YARPValueCanDeviceDriver::Body(void)
 				//	_printMessage ((void*)&m, r._p);
 
 				if (m.StatusBitField & SPY_STATUS_GLOBAL_ERR)
-					if (r._p) (*r._p)("CAN: troubles w/ message %x\n", m.StatusBitField);
+				{
+					if (r._p) 
+					{
+						(*r._p)("CAN: troubles w/ message %x\n", m.StatusBitField);
+						_printMessage ((void *)&m, r._p);
+						(*r._p)("CAN: skipped a message because of errors\n");
+						r._getErrorsAndPrint ();
+					}
 
-				if (r._error (m))
-				{	
-					if (r._p) (*r._p)("CAN: skipped a message for error\n");
 					continue;		/// skip this message.
 				}
 
@@ -659,8 +710,12 @@ void YARPValueCanDeviceDriver::Body(void)
 			{
 				_mutex.Wait();
 				
-				if (r._p) (*r._p)("CAN: still %d unacknoweledged messages\n", left);
-
+				if (r._p) 
+				{
+					(*r._p)("CAN: still %d unacknoweledged messages\n", left);
+					(*r._p)("CAN: still %d unsent messages\n", own_messages);
+				}
+				
 				int j;
 				for (j = 0; j < r._cur_packetsize; j++)
 				{
@@ -673,14 +728,15 @@ void YARPValueCanDeviceDriver::Body(void)
 					}
 				}
 
+				r._getErrorsAndPrint ();
+
 				r._error_status = YARP_FAIL;
 				left = 0;
+				cyclecount = 0;
 				_mutex.Post();
 				_ev.Signal();
 			}
 		}
-		/// else !pending, silently forget the messages...
-		/// LATER: add callbacks here.
 
 		_mutex.Wait();
 		
@@ -780,27 +836,15 @@ int YARPValueCanDeviceDriver::getPositions (void *cmd)
 		return YARP_FAIL;
 	}
 
-	for (i = 0; i < r._njoints; i++)
+	int j;
+	for (i = 0, j = 0; i < r._njoints; i++)
 	{
 		if (ENABLED(i))
 		{
-			tmp[i] = *((int *)(r._replyBuffer[i].Data+1));
+			tmp[i] = *((int *)(r._replyBuffer[j].Data+1));
+			j++;
 		}
 	}
-
-#if 0
-	{
-		if (_readDWord (CAN_GET_ENCODER_POSITION, i, value) == YARP_OK)
-		{
-			tmp[i] = double(value);
-		}
-		else
-		{
-			ACE_OS::memset (tmp, 0, sizeof(double) * r._njoints); //tmp[i] = 0;
-			return YARP_FAIL;
-		}
-	}
-#endif
 
 	return YARP_OK;
 }
@@ -954,43 +998,12 @@ int YARPValueCanDeviceDriver::velocityMove (void *cmd)
 		}
 	}
 
-	_mutex.Post();
-
 	_request = true;
 	_noreply = true;
 
+	_mutex.Post();
+
 	_ev.Wait();
-
-
-#if 0
-	for (i = 0; i < r._njoints; i++)
-	{
-		if (ENABLED (i))
-		{
-			_mutex.Wait();
-
-			r._startPacket();
-			r._addMessage (CAN_VELOCITY_MOVE, i);
-
-			_ref_speeds[i] = tmp[i];
-			*((short*)(r._cmdBuffer[0].Data+1)) = S_16(_ref_speeds[i]);		/// speed
-			*((short*)(r._cmdBuffer[0].Data+3)) = S_16(_ref_accs[i]);			/// accel
-			r._cmdBuffer[0].NumberBytesData = 5;
-			
-			_request = true;
-			_noreply = true;
-			
-			_mutex.Post();
-
-			/// syncing.
-			_ev.Wait();
-		}
-		else
-		{
-			_ref_speeds[i] = tmp[i];
-		}
-	}
-#endif
 
 	return YARP_OK;
 }

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.16 2005-03-30 20:00:44 natta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.17 2005-04-14 22:10:52 babybot Exp $
 ///
 ///
 
@@ -705,7 +705,6 @@ public:
 	 * in degrees.
 	 * @return YARP_OK on success.
 	 */
-
 	int getPositions(double *pos)
 	{
 		int ret;

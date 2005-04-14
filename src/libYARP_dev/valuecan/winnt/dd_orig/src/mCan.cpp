@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: mCan.cpp,v 1.3 2005-04-05 13:44:13 babybot Exp $
+/// $Id: mCan.cpp,v 1.4 2005-04-14 22:10:53 babybot Exp $
 ///
 ///
 
@@ -55,20 +55,31 @@ static LPFGETCFG getConfig_F = NULL;
 static LPFGETERR getErrors_F = NULL;
 
 static int instance_counter = 0;
-
+static HANDLE mutex = NULL;
 
 bool canInitLibrary(void)
 {
+	mutex = CreateMutex (NULL, TRUE, "neovidllmutex");
+	if (mutex == NULL)
+		return false;	/// creation failed.
+
+	if (GetLastError() == ERROR_ALREADY_EXISTS)
+		WaitForSingleObject (mutex, INFINITE);
+
 	if (instance_counter == 0)
 	{
 		hDLL = LoadLibrary("icsneo40.dll");
 		if (hDLL < (HINSTANCE)HINSTANCE_ERROR)
+		{
+			ReleaseMutex (mutex);
 			return false;
+		}
 
 		open_F = (LPFOPEN)GetProcAddress(hDLL, "icsneoOpenPortEx");
 		if (!open_F)
 		{
 			FreeLibrary(hDLL);       
+			ReleaseMutex (mutex);
 			return false;
 		}
 		
@@ -76,6 +87,7 @@ bool canInitLibrary(void)
 		if (!close_F)
 		{
 			FreeLibrary(hDLL);       
+			ReleaseMutex (mutex);
 			return false;
 		}
 
@@ -83,6 +95,7 @@ bool canInitLibrary(void)
 		if (!freeObject_F)
 		{
 			FreeLibrary(hDLL);       
+			ReleaseMutex (mutex);
 			return false;
 		}
 
@@ -90,6 +103,7 @@ bool canInitLibrary(void)
 		if (!getMessages_F)
 		{
 			FreeLibrary(hDLL);       
+			ReleaseMutex (mutex);
 			return false;
 		}
 
@@ -97,6 +111,7 @@ bool canInitLibrary(void)
 		if (!putMessages_F)
 		{
 			FreeLibrary(hDLL);       
+			ReleaseMutex (mutex);
 			return false;
 		}
 		
@@ -104,6 +119,7 @@ bool canInitLibrary(void)
 		if (!getDevices_F)
 		{
 			FreeLibrary(hDLL);       
+			ReleaseMutex (mutex);
 			return false;
 		}
 
@@ -111,6 +127,7 @@ bool canInitLibrary(void)
 		if (!sendConfig_F)
 		{
 			FreeLibrary(hDLL);       
+			ReleaseMutex (mutex);
 			return false;
 		}
 		
@@ -118,6 +135,7 @@ bool canInitLibrary(void)
 		if (!getConfig_F)
 		{
 			FreeLibrary(hDLL);       
+			ReleaseMutex (mutex);
 			return false;
 		}
 		
@@ -125,65 +143,100 @@ bool canInitLibrary(void)
 		if (!getErrors_F)
 		{
 			FreeLibrary(hDLL);       
+			ReleaseMutex (mutex);
 			return false;
 		}
 	}
 
 	instance_counter ++;
+
+	ReleaseMutex (mutex);
 	return true;
 }
 
 void canReleaseLibrary(void)
 {
+	WaitForSingleObject (mutex, INFINITE);
+
 	instance_counter --;
 	if (instance_counter <= 0 && hDLL != NULL)
 	{
 		instance_counter = 0;
 		FreeLibrary(hDLL);
 	}
+
+	ReleaseMutex (mutex);
+	CloseHandle (mutex);
+	mutex = NULL;
 }
 
 int canOpenPort( int lPortSerialNumber, int lPortType, int lDriverType, int lIPAddressMSB, int lIPAddressLSBOrBaudRate, int bConfigRead, unsigned char * bNetworkID, int * hObject)
 {
-	return (*open_F)(lPortSerialNumber, lPortType, lDriverType, lIPAddressMSB, lIPAddressLSBOrBaudRate, bConfigRead, bNetworkID, hObject);	
+	WaitForSingleObject (mutex, INFINITE);
+	int ret = (*open_F)(lPortSerialNumber, lPortType, lDriverType, lIPAddressMSB, lIPAddressLSBOrBaudRate, bConfigRead, bNetworkID, hObject);	
+	ReleaseMutex (mutex);
+	return ret;
 }
 
 int canClosePort(int hObject, int * pNumberOfErrors)
 {
-	return (*close_F)(hObject, pNumberOfErrors);	
+	WaitForSingleObject (mutex, INFINITE);
+	int ret = (*close_F)(hObject, pNumberOfErrors);	
+	ReleaseMutex (mutex);
+	return ret;
 }
 
 void canFreeObject(int hObject)
 {
+	WaitForSingleObject (mutex, INFINITE);
 	(*freeObject_F)(hObject);	
+	ReleaseMutex (mutex);
 }
 
 int canGetMessages(int hObject, icsSpyMessage * pMsg, int * pNumberOfMessages, int * pNumberOfErrors)
 {
-	return (*getMessages_F)(hObject, pMsg, pNumberOfMessages, pNumberOfErrors);	
+	WaitForSingleObject (mutex, INFINITE);
+	int ret = (*getMessages_F)(hObject, pMsg, pNumberOfMessages, pNumberOfErrors);	
+	ReleaseMutex (mutex);
+	return ret;
 }
 
 int canPutMessages(int hObject, icsSpyMessage * Msg, int lNetworkID, int lNumberOfMessages)
 {
-	return (*putMessages_F)(hObject, Msg, lNetworkID, lNumberOfMessages);	
+	WaitForSingleObject (mutex, INFINITE);
+	int ret = (*putMessages_F)(hObject, Msg, lNetworkID, lNumberOfMessages);	
+	ReleaseMutex (mutex);
+	return ret;
 }
 
 int canFindAllDevices(int lDriverType, int lGetSerialNumbers, int lStopAtFirst, int lUSBCommOnly, int *p_lDeviceTypes, int *p_lComPorts, int *p_lSerialNumbers, int *lNumDevices)
 {
-	return (*getDevices_F)(lDriverType, lGetSerialNumbers, lStopAtFirst, lUSBCommOnly, p_lDeviceTypes, p_lComPorts, p_lSerialNumbers, lNumDevices);	
+	WaitForSingleObject (mutex, INFINITE);
+	int ret = (*getDevices_F)(lDriverType, lGetSerialNumbers, lStopAtFirst, lUSBCommOnly, p_lDeviceTypes, p_lComPorts, p_lSerialNumbers, lNumDevices);	
+	ReleaseMutex (mutex);
+	return ret;
 }
 
 int canSendConfiguration(int hObject, unsigned char * pData, int lNumBytes)
 {
-	return (*sendConfig_F)(hObject, pData, lNumBytes);	
+	WaitForSingleObject (mutex, INFINITE);
+	int ret = (*sendConfig_F)(hObject, pData, lNumBytes);	
+	ReleaseMutex (mutex);
+	return ret;
 }
 
 int canGetConfiguration(int hObject, unsigned char * pData, int * lNumBytes)
 {
-	return (*getConfig_F)(hObject, pData, lNumBytes);	
+	WaitForSingleObject (mutex, INFINITE);
+	int ret = (*getConfig_F)(hObject, pData, lNumBytes);	
+	ReleaseMutex (mutex);
+	return ret;
 }
 
 int canGetErrors(int hObject, int * pErrorMsgs, int * pNumberOfErrors)
 {
-	return (*getErrors_F)(hObject, pErrorMsgs, pNumberOfErrors);	
+	WaitForSingleObject (mutex, INFINITE);
+	int ret = (*getErrors_F)(hObject, pErrorMsgs, pNumberOfErrors);	
+	ReleaseMutex (mutex);
+	return ret;
 }

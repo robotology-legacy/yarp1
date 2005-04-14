@@ -134,6 +134,28 @@ byte CAN1_setAcceptanceMode (byte Mode)
 }
 
 /**
+ * get the error counts.
+ * @param rcv is a pointer to the receiver error count.
+ * @param tx is a pointer to the transmitter error count.
+ * @return ERR_OK always.
+ */
+byte CAN1_getErrorValues (byte *rcv, byte *tx)
+{
+	EnterCritical ();
+	setRegBit (CAN_CTL0, SFTRES);         /* Disable device, soft reset */
+	
+	*rcv = getReg (CAN_RXERR);
+	*tx = getReg (CAN_TXERR);
+	
+	clrRegBit (CAN_CTL0, SFTRES);         /* Start device */
+	setRegBits (CAN_RFLG, 0xfe);          /* Reset error flags, doesn't reset the RXF flag */
+	setReg (CAN_RIER, 0xff);              /* Enable interrupts, all of them! */
+	ExitCritical ();
+	
+	return ERR_OK;                       /* OK */
+} 
+ 
+/**
  * gets the state of the receive buffer.
  * @return 1 if the RX buffer is full.
  */
@@ -224,7 +246,7 @@ void CAN1_setHigh (void)
  * @param Length is the lenght of the message (0 to 8).
  * @param Data is the pointer to Data (8 bytes).
  */
-byte CAN1_sendFrame (byte BufferNum, 
+byte CAN1_sendFrameEx (byte BufferNum, 
 					 dword MessageID,
 					 byte FrameType,
 					 byte Length,
@@ -273,6 +295,86 @@ byte CAN1_sendFrame (byte BufferNum,
 	
 	return ERR_OK;
 }
+
+
+/**
+ * sends a message. The ID determines whether is a STANDARD or EXTENDED message (11 or 29 bits).
+ * the buffer is chosen automatically. At least one of the three buffers must be available.
+ * @param BufferNo is NOT USED.
+ * @param MessageID is the ID of the message (aka arbitration ID).
+ * @param FrameType is either DATA_FRAME of REMOTE_FRAME.
+ * @param Length is the lenght of the message (0 to 8).
+ * @param Data is the pointer to Data (8 bytes).
+ */
+byte CAN1_sendFrame (byte BufferNo, dword MessageID,
+					   byte FrameType,
+					   byte Length,
+					   byte *Data)
+{
+	register byte i;      
+	register byte bufmask = ((word)1);
+	register TMsgBuff *MsgBuff;
+	register byte BufferNum = 0;
+	
+	if ( (BufferNum > CAN_TX_MBUFFERS-1) || (Length > CAN_MAX_DATA_LEN) )
+		return ERR_VALUE;
+		
+	if (FrameType > REMOTE_FRAME)
+		return ERR_VALUE;
+
+	BufferNum = getReg(CAN_TFLG) & 0x07;
+
+	if (BufferNum & 0x1)
+	{
+		BufferNum = 0;
+		bufmask = 0x1;
+	}
+	else
+	if (BufferNum & 0x2)
+	{
+		BufferNum = 1;
+		bufmask = 0x2;
+	}
+	else
+	if (BufferNum & 0x4)
+	{
+		BufferNum = 2;
+		bufmask = 0x4;
+	}
+	else	
+		return ERR_TXFULL;
+		
+	MsgBuff = (TMsgBuff *)TXMsgBuffer[BufferNum];
+	
+	EnterCritical();                     			/* Disable global interrupts */
+	SetTxBufferIdr (Id2Idr(MessageID), MsgBuff); 	/* Set the message ID */
+	if (FrameType == DATA_FRAME) 
+	{
+		for (i=0; i<Length; i++)
+			MsgBuff->Data[i] = Data[i];      		/* Store data to the transmit register */
+			
+		if (MessageID > EXTENDED_FRAME_ID)
+			MsgBuff->IDR3 &= 254;            		/* If no then set message type as "data frame" */
+		else
+			MsgBuff->IDR1 &= 239;            		/* If yes then set message type as "data frame" */
+	}
+	else 
+	{                               				/* Remote frame */
+		if (MessageID > EXTENDED_FRAME_ID)
+			MsgBuff->IDR3 |= 1;             	 	/* If yes then set message type as "remote frame" */
+		else
+			MsgBuff->IDR1 |= 16;             		/* If yes then set message type as "remote frame" */
+	}
+	
+	MsgBuff->DLR = Length;               			/* Set the length of the message */
+	MsgBuff->TBPR = 0;                   			/* Set the priority (high) */
+	setReg(CAN_TFLG, bufmask);            			/* Start transmission */
+	
+	ExitCritical();                      			/* Enable global interrupts */
+	
+	return ERR_OK;
+}
+
 
 /**
  * reads a message.
@@ -446,6 +548,30 @@ void CAN1_interruptRx (void)
 	}
 
 	setReg (CAN_RFLG, CAN_RFLG_RXF_MASK);
+	CAN_EI;
+}
+
+/**
+ * the error ISR.
+ */
+#pragma interrupt saveall
+void CAN1_interruptError (void)
+{
+	CAN_DI;
+//	AS1_printStringEx ("*");
+	setRegBits (CAN_RFLG, 0xfe);
+	CAN_EI;
+}
+
+/**
+ * the wakeup ISR.
+ */
+#pragma interrupt saveall
+void CAN1_interruptWakeup (void)
+{
+	CAN_DI;
+//	AS1_printStringEx ("+");
+	setRegBits (CAN_RFLG, 0xfe);
 	CAN_EI;
 }
 

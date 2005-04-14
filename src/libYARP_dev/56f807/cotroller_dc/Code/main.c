@@ -480,6 +480,8 @@ void main(void)
 	__ENIGROUP (13, 4);
 	__ENIGROUP (14, 7);
 	__ENIGROUP (15, 7);
+	__ENIGROUP (16, 7);
+	__ENIGROUP (17, 7);
 	__ENIGROUP (42, 4);
 		
 	AS1_init ();
@@ -875,6 +877,9 @@ byte c = 0;
 /* test/debug serial port interface (on AS1) */
 byte serial_interface (void)
 {
+#ifdef DEBUG_SERIAL
+	byte tx, rx;
+#endif
 	Int32 acceptance_code;
 	byte d = 0;
 	char buffer[SMALL_BUFFER_SIZE];
@@ -901,6 +906,7 @@ byte serial_interface (void)
 			AS1_printStringEx ("v, toggle verbose flag\r\n");
 
 #ifdef DEBUG_SERIAL			
+			AS1_printStringEx ("f, print CAN bus error values\r\n");
 			AS1_printStringEx ("e, enable controller channel\r\n");
 			AS1_printStringEx ("g, set pid gain\r\n");
 			AS1_printStringEx ("s, show pid gain\r\n");
@@ -913,6 +919,15 @@ byte serial_interface (void)
 			break;
 
 #ifdef DEBUG_SERIAL
+		case 'f':
+			CAN1_getErrorValues (&rx, &tx);
+			AS1_printStringEx ("rx = ");
+			AS1_printByteAsChars (rx);
+			AS1_printStringEx ("\r\ntx = ");
+			AS1_printByteAsChars (tx);
+			AS1_printStringEx ("\r\n");
+			c = 0;
+			break;
 	
 		case 'c':
 			if (channel == 0)

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.17 2005-03-23 14:54:45 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.18 2005-04-14 22:10:54 babybot Exp $
 ///
 ///
 
@@ -98,8 +98,8 @@ namespace _RobotcubHead
 	const int CANBUS_DEVICE_NUM			= 0;
 	const int CANBUS_ARBITRATION_ID		= 0;
 	const int CANBUS_MY_ADDRESS			= 0;
-	const int CANBUS_POLLING_INTERVAL	= 2;			/// [ms]
-	const int CANBUS_TIMEOUT			= 50;			/// 10 * POLLING
+	const int CANBUS_POLLING_INTERVAL	= 20;			/// [ms]
+	const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
 	const int CANBUS_MAXCARDS			= MAX_CARDS;
 
 	const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 

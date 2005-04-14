@@ -50,10 +50,12 @@ byte CAN1_getStateRX (void);
 byte CAN1_setAcceptanceCode (dword Mask);
 byte CAN1_getError (CAN1_TError *Err);
 void CAN1_setHigh (void);
-byte CAN1_sendFrame (byte BufferNum,dword MessageID,byte FrameType,byte Length,byte *Data);
+byte CAN1_sendFrame (byte BufferNum, dword MessageID,byte FrameType,byte Length,byte *Data);
+byte CAN1_sendFrameEx (byte BufferNum, dword MessageID,byte FrameType,byte Length,byte *Data);
 byte CAN1_readFrame (dword *MessageID, byte *FrameType, byte *FrameFormat, byte *Length, byte *Data);
 void CAN1_init (void);
 byte CAN1_setAcceptanceMask (dword Mask);
+byte CAN1_getErrorValues (byte *rcv, byte *tx);
 
 /* isr's */
 void CAN1_interruptTx (void);

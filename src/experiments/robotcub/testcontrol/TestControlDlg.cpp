@@ -68,6 +68,54 @@ static int xprintf(char *fmt, ...)
 	return(cnt);
 }
 
+static FILE *	__file_handle = NULL;
+
+static BOOL init_log (void)
+{
+	if (__file_handle == NULL)
+	{
+		__file_handle = fopen ("log.txt", "w");
+		if (__file_handle != NULL)
+			return TRUE;
+		else
+			return FALSE;
+	}
+	else
+		return FALSE;
+}
+
+static BOOL close_log (void)
+{
+	if (__file_handle != NULL)
+		fclose (__file_handle);
+	__file_handle = NULL;
+
+	return TRUE;
+}
+
+/// Use wprintf like TRACE0, TRACE1, ... (The arguments are the same as printf)
+static int xfprintf(char *fmt, ...)
+{
+	if (__file_handle == NULL)
+		return -1;
+
+	char s[300];
+	va_list argptr;
+	int cnt;
+
+	va_start(argptr, fmt);
+	cnt = vsprintf(s, fmt, argptr);
+	va_end(argptr);
+
+	fprintf (__file_handle, "%s", s);
+	return(cnt);
+}
+
+
+#define INITLOG init_console
+#define CLOSELOG close_console
+#define PRINTLOG xprintf
+
 
 /////////////////////////////////////////////////////////////////////////////
 // CAboutDlg dialog used for App About
@@ -620,7 +668,7 @@ void CTestControlDlg::OnInterfaceStart()
 	YARPRobotcubHeadParameters parameters;
 	parameters.load (YARPString(path), YARPString(HEAD_INI_FILE));
 	parameters._message_filter = 20;
-	parameters._p = xprintf;
+	parameters._p = NULL; //xprintf;
 
 	int ret = head.initialize(parameters);
 	if (ret != YARP_OK)
@@ -643,7 +691,7 @@ void CTestControlDlg::OnInterfaceStart()
 	YARPRobotcubArmParameters aparameters;
 	aparameters.load (YARPString(path), YARPString(ARM_INI_FILE));
 	aparameters._message_filter = 20;
-	aparameters._p = xprintf;
+	aparameters._p = PRINTLOG;
 
 	ret = arm.initialize(aparameters);
 	if (ret != YARP_OK)
@@ -673,7 +721,7 @@ void CTestControlDlg::OnInterfaceStart()
 
 void CTestControlDlg::OnInterfaceStop() 
 {
-	close_console();
+	CLOSELOG();
 
 	if (_headinitialized)
 	{
@@ -708,8 +756,8 @@ void CTestControlDlg::OnUpdateInterfaceStop(CCmdUI* pCmdUI)
 
 void CTestControlDlg::OnFileOpenconsole() 
 {
-	if (init_console())
-		xprintf("Debug window started...\n");
+	if (INITLOG())
+		PRINTLOG("Debug window started...\n");
 }
 
 void CTestControlDlg::OnUpdateFileOpenconsole(CCmdUI* pCmdUI) 
@@ -719,7 +767,7 @@ void CTestControlDlg::OnUpdateFileOpenconsole(CCmdUI* pCmdUI)
 
 void CTestControlDlg::OnFileCloseconsole() 
 {
-	close_console();
+	CLOSELOG();
 }
 
 void CTestControlDlg::OnUpdateFileCloseconsole(CCmdUI* pCmdUI) 
