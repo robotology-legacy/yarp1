@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.18 2005-04-14 22:10:54 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.19 2005-04-15 22:51:54 babybot Exp $
 ///
 ///
 
@@ -96,11 +96,10 @@ namespace _RobotcubHead
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
 
 	const int CANBUS_DEVICE_NUM			= 0;
-	const int CANBUS_ARBITRATION_ID		= 0;
 	const int CANBUS_MY_ADDRESS			= 0;
 	const int CANBUS_POLLING_INTERVAL	= 20;			/// [ms]
 	const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
-	const int CANBUS_MAXCARDS			= MAX_CARDS;
+	const int CANBUS_MAXCARDS			= 16;			/// 
 
 	const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 
 														   0x80, 0x80, 0x80, 0x80,
@@ -474,7 +473,6 @@ public:
 		
 		ValueCanOpenParameters op_par;
 		op_par._port_number = CANBUS_DEVICE_NUM;
-		op_par._arbitrationID = CANBUS_ARBITRATION_ID;
 
 		// using addresses from file now!
 		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);

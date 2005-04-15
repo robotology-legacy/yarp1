@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2005-04-15 00:17:44 babybot Exp $
+/// $Id: main.cpp,v 1.2 2005-04-15 22:51:53 babybot Exp $
 ///
 ///
 
@@ -47,6 +47,7 @@
 
 #include <yarp/YARPControlBoardUtils.h>
 #include <yarp/YARPValueCanDeviceDriver.h>
+#include <yarp/YARPEsdCanDeviceDriver.h>
 #include <yarp/YARPConfigFile.h>
 #include <yarp/YARPRobotMath.h>
 
@@ -129,7 +130,7 @@ const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c,
 													   0x80, 0x80, 0x80, 0x80 };
 
 YARPValueCanDeviceDriver head;
-YARPValueCanDeviceDriver arm;
+YARPEsdCanDeviceDriver arm;
 
 
 ///
@@ -176,10 +177,15 @@ int main (int argc, char *argv[])
 	}
 	
 	/// arm (bus 2).
-	op_par._njoints = MAX_ARM_JNTS;
-	op_par._p = PRINTLOG;
+	EsdCanOpenParameters op_par2;
+	op_par2._njoints = MAX_ARM_JNTS;
+	op_par2._p = PRINTLOG;
+	memcpy (op_par2._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
+	op_par2._my_address = CANBUS_MY_ADDRESS;					/// my address.
+	op_par2._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
+	op_par2._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
 
-	if (arm.open ((void *)&op_par) < 0)
+	if (arm.open ((void *)&op_par2) < 0)
 	{
 		arm.close();
 		ACE_OS::printf ("arm driver open failed\n");
@@ -191,6 +197,9 @@ int main (int argc, char *argv[])
 		arm.IOCtl(CMDSetDebugMessageFilter, (void *)&msg);
 		_arminitialized = true;
 	}
+
+	head.close();
+	_headinitialized = false;
 
 	if (!_headinitialized && !_arminitialized)
 	{
@@ -210,7 +219,7 @@ int main (int argc, char *argv[])
 		ACE_ASSERT (_armjointstore != NULL);
 	}
 
-	ACE_OS::printf ("Running!");
+	ACE_OS::printf ("Running!\n");
 	
 	int cycle;
 	for (cycle = 0; ; cycle++)

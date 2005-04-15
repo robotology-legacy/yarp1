@@ -164,6 +164,7 @@ byte CAN1_getStateRX (void)
   return ((SerFlag & FULL_RX_BUF) != 0)? 1:0;
 }
 
+
 /**
  * sets the CAN filter RX acceptance code (Mask is masked by the
  * mask - see CAN1_setAcceptanceMask() - and messages are accepted only if they match
@@ -171,24 +172,28 @@ byte CAN1_getStateRX (void)
  * @param Mask is the code to check messages against.
  * @return ERR_OK if successful.
  */
-byte CAN1_setAcceptanceCode (dword Mask)
+byte CAN1_setAcceptanceCode (dword Mask, dword Mask1)
 {
 	dword tmpMask;
-
+	dword tmpMask1;
 	EnterCritical ();                     /* Enter critical section */
 	tmpMask = Mask;
+	tmpMask1 = Mask1;
 	setRegBit (CAN_CTL0, SFTRES);          /* Disable device */
 	setReg (CAN_IDAR0, (byte)tmpMask);     /* Set acceptance mask register */
-	setReg (CAN_IDAR4, (byte)tmpMask);     /* Set acceptance mask register */
+	setReg (CAN_IDAR4, (byte)tmpMask1);     /* Set acceptance mask register */
 	tmpMask>>=8;
+	tmpMask1>>=8;
 	setReg (CAN_IDAR1, (byte)tmpMask);     /* Set acceptance mask register */
-	setReg (CAN_IDAR5, (byte)tmpMask);     /* Set acceptance mask register */
+	setReg (CAN_IDAR5, (byte)tmpMask1);     /* Set acceptance mask register */
 	tmpMask>>=8;
+	tmpMask1>>=8;
 	setReg (CAN_IDAR2, (byte)tmpMask);     /* Set acceptance mask register */
-	setReg (CAN_IDAR6, (byte)tmpMask);     /* Set acceptance mask register */
+	setReg (CAN_IDAR6, (byte)tmpMask1);     /* Set acceptance mask register */
 	tmpMask>>=8;
+	tmpMask1>>=8;
 	setReg (CAN_IDAR3, (byte)tmpMask);     /* Set acceptance mask register */
-	setReg (CAN_IDAR7, (byte)tmpMask);     /* Set acceptance mask register */
+	setReg (CAN_IDAR7, (byte)tmpMask1);     /* Set acceptance mask register */
 	clrRegBit (CAN_CTL0, SFTRES);          /* Start device */
 	setRegBits (CAN_RFLG, 254);            /* Reset error flags */
 	setReg (CAN_RIER, 255);                /* Enable interrupts */
@@ -196,6 +201,7 @@ byte CAN1_setAcceptanceCode (dword Mask)
 	
 	return ERR_OK;                       /* OK */
 }
+
 
 /**
  * returns the error status of the CAN bus.
@@ -460,24 +466,29 @@ void CAN1_init (void)
  * a message to be received.
  * @return ERR_OK if successful.
  */
-byte CAN1_setAcceptanceMask (dword Mask)
+byte CAN1_setAcceptanceMask (dword Mask0, dword Mask1)
 {
-	dword tmpMask;
+	dword tmpMask0;
+	dword tmpMask1;
 
-	tmpMask = Mask;
+	tmpMask0 = Mask0;
+	tmpMask1 = Mask1;	
 	setRegBit (CAN_CTL0, SFTRES);          /* Disable device */
 	
-	setReg (CAN_IDMR0, (byte)tmpMask);     /* Set acceptance mask register */
-	setReg (CAN_IDMR4, (byte)tmpMask);     /* Set acceptance mask register */
-	tmpMask >>= 8;
-	setReg (CAN_IDMR1, (byte)tmpMask);     /* Set acceptance mask register */
-	setReg (CAN_IDMR5, (byte)tmpMask);     /* Set acceptance mask register */
-	tmpMask >>= 8;
-	setReg (CAN_IDMR2, (byte)tmpMask);     /* Set acceptance mask register */
-	setReg (CAN_IDMR6, (byte)tmpMask);     /* Set acceptance mask register */
-	tmpMask >>= 8;
-	setReg (CAN_IDMR3, (byte)tmpMask);     /* Set acceptance mask register */
-	setReg (CAN_IDMR7, (byte)tmpMask);     /* Set acceptance mask register */
+	setReg (CAN_IDMR0, (byte)tmpMask0);     /* Set acceptance mask register */
+	setReg (CAN_IDMR4, (byte)tmpMask1);     /* Set acceptance mask register */
+	tmpMask0 >>= 8;
+	tmpMask1 >>= 8;
+	setReg (CAN_IDMR1, (byte)tmpMask0);     /* Set acceptance mask register */
+	setReg (CAN_IDMR5, (byte)tmpMask1);     /* Set acceptance mask register */
+	tmpMask0 >>= 8;
+	tmpMask1 >>= 8;
+	setReg (CAN_IDMR2, (byte)tmpMask0);     /* Set acceptance mask register */
+	setReg (CAN_IDMR6, (byte)tmpMask1);     /* Set acceptance mask register */
+	tmpMask0 >>= 8;
+	tmpMask1 >>= 8;
+	setReg (CAN_IDMR3, (byte)tmpMask0);     /* Set acceptance mask register */
+	setReg (CAN_IDMR7, (byte)tmpMask1);     /* Set acceptance mask register */
 	
 	clrRegBit (CAN_CTL0, SFTRES);          /* Start device */
 	setRegBits (CAN_RFLG, 0xfe);           /* Reset error flags */
@@ -485,6 +496,7 @@ byte CAN1_setAcceptanceMask (dword Mask)
 	
 	return ERR_OK;
 }
+
 
 /**
  * the TX isr routine. Beware that register protection is not enabled, use

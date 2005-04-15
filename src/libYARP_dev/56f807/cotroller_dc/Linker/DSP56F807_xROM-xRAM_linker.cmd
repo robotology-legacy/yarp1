@@ -65,11 +65,11 @@
 
 MEMORY 
 {
-    .p_boot_flash_1       (RX)  : ORIGIN = 0x0000, LENGTH = 0x0004 
+#   .p_boot_flash_1       (RX)  : ORIGIN = 0x0000, LENGTH = 0x0004 
     .p_interrupts_ROM     (RX)  : ORIGIN = 0x0004, LENGTH = 0x007C 
     .p_flash_ROM          (RX)  : ORIGIN = 0x0080, LENGTH = 0xEF80
     .p_internal_RAM       (RWX) : ORIGIN = 0xF000, LENGTH = 0x0800
-    .p_boot_flash_2       (RX)  : ORIGIN = 0xF800, LENGTH = 0x0000 
+#   .p_boot_flash_2       (RX)  : ORIGIN = 0xF800, LENGTH = 0x0000 
     .x_compiler_regs_iRAM (RW)  : ORIGIN = 0x0030, LENGTH = 0x0010 	
     .x_internal_RAM       (RW)  : ORIGIN = 0x0040, LENGTH = 0x0FC0
     .x_peripherals        (RW)  : ORIGIN = 0x1000, LENGTH = 0x0800
@@ -83,9 +83,8 @@ MEMORY
 
 # we ensure the interrupt vector sections are not deadstripped here
 
-KEEP_SECTION{ interrupt_vectors.text, interrupt_vectors_mirror.text }
-
-
+#KEEP_SECTION{ interrupt_vectors.text, interrupt_vectors_mirror.text }
+KEEP_SECTION{ interrupt_vectors.text}
 
 
 
@@ -130,15 +129,23 @@ SECTIONS
 
     # hawk mirrors these back to P memory boot_flash_1
 
-	.interrupt_vectors_mirror :
-	{
-	    # from 56807_vector_pROM.asm
-	    * (interrupt_vectors_mirror.text)  
-	   
-	} > .p_boot_flash_2
+#	.interrupt_vectors_mirror :
+#	{
+#	    # from 56807_vector_pROM.asm
+#	    * (interrupt_vectors_mirror.text)  
+#	   
+#	} > .p_boot_flash_2
 
 	.executing_code :
 	{
+		# Serial bootloader configuration section
+		WRITEH(0xE9C8);         # JSR 0x0084 instruction opcode. Application code starts at the address
+		WRITEH(0x0084);         # 0x0084 when serial bootloader support is enabled. JSR insctruction have
+		                       	# to be placed at address 0x0080.
+		WRITEH(0);              # Dummy word
+		# Bootloader start delay in seconds
+		WRITEH(5);              # Bootloader start delay config word at address 0x0083. Possible values 0-255.
+		
 		# .text sections
 		
 		* (.text)
@@ -251,8 +258,9 @@ SECTIONS
 		
 	} > .x_internal_RAM   # relocation address -- 
 	                      # intended final destination in RAM
-	                      
-	                      
+
+	# boot application start address
+    FbootStart = 0xF804;                    
 }
 
 

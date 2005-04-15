@@ -256,6 +256,7 @@ sub install_libs_winnt
 		$libraries =~ s# #\" \"#g;
 		$libraries = "$libraries"."\"";
 		
+		print "Compacting libraries: $libraries \n";
 		print `lib \".\\lib\\$os\\libYARP_dev_x.lib\" $libraries /out:\".\\lib\\$os\\libYARP_dev.lib\"`;
 		print `lib \".\\lib\\$os\\libYARP_devd_x.lib\" $libraries /out:\".\\lib\\$os\\libYARP_devd.lib\"`;
 	}

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.18 2005-04-14 22:10:53 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.19 2005-04-15 22:51:53 babybot Exp $
 ///
 ///
 
@@ -41,7 +41,6 @@
 
 /// specific to this device driver.
 #include "YARPValueCanDeviceDriver.h"
-//#include "../dd_orig/include/mCan.h"
 #include "../dd_orig/include/icsnVC40.h"
 
 /// get the message types from the DSP code.
@@ -67,13 +66,17 @@
 const int MAX_CHANNELS	= 255;
 const int MAX_NID		= 16;
 const int BUF_SIZE		= 20000;
+const int VALUE_CAN_SKIP_ADDR = 0x80;
+
+
+typedef int (*PV) (char *fmt, ...);
 
 ///
 ///
 /// note that this class is just a container.
 class ValueCanResources
 {
-public:
+protected:
 	int _iDeviceTypes[MAX_CHANNELS];
 	int _iComPort[MAX_CHANNELS];
 	int _iSerialNum[MAX_CHANNELS];
@@ -87,24 +90,23 @@ public:
 	int _timeout;
 
 	unsigned char _my_address;					/// 
-	unsigned char _destinations[MAX_CARDS];		/// list of connected cards (and their addresses).
+	unsigned char _destinations[VALUE_MAX_CARDS];		/// list of connected cards (and their addresses).
 	int _njoints;								/// number of joints (ncards * 2).
 	
 	icsSpyMessage _canMsg[BUF_SIZE];			/// read buffer.
+	int _last_read;								/// number of messages read.
+
 	icsSpyMessage _cmdBuffer[BUF_SIZE];			/// write buffer.
 	icsSpyMessage _replyBuffer[BUF_SIZE];		/// .
+	
 	int _cur_packetsize;						/// size of the current packet.
 	int _error_status;							/// error status of the last packet.
 
-	int (*_p) (char *fmt, ...);					///	pointer to a printf type function
+	PV _p;										///	pointer to a printf type function
 												/// used to spy on can messages.
 	int _filter;								/// don't print filtered messages.
 
 public:
-	int _initialize (const ValueCanOpenParameters& params);
-	inline int _uninitialize (void) { return _closeAndRelease(); }
-	inline int _closeAndRelease (void);
-
 	ValueCanResources (void)
 	{
 		_iNumDevices = 0;
@@ -122,34 +124,189 @@ public:
 		_dllLoaded = false;
 		_portHandle = 0;
 		_my_address = 0;
-		memset (_destinations, 0, sizeof(unsigned char) * MAX_CARDS);
+		memset (_destinations, 0, sizeof(unsigned char) * VALUE_MAX_CARDS);
 		_polling_interval = 5;
 		_timeout = 1;
 		_njoints = 0;
 		_p = NULL;
 		_filter = -1;
+		_last_read = 0;
 	}
 
-	~ValueCanResources () { _uninitialize(); }
+	~ValueCanResources () { uninitialize(); }
 
-	int _startPacket (void);
-	int _addMessage (int msg, int axis);
-	int _writePacket (void);
+	int initialize (const ValueCanOpenParameters& params);
+	inline int uninitialize (void) { return closeAndRelease(); }
+	inline int closeAndRelease (void);
 
-	int _read (void);
-	int _read_np (int& err);
-	int _write (void);
-	bool _error (const icsSpyMessage& m);
+	inline int getJoints (void) const { return _njoints; }
+	inline int getPollingInterval (void) const { return _polling_interval; }
+
+	inline bool filter (icsSpyMessage& m) const
+	{
+		if ((m.Data[0] & 0x7f) != _filter &&
+			(m.ArbIDOrHeader & 0x0f) == _my_address)
+			return true;
+		else
+			return false;
+	}
+
 	
-	void _getErrorsAndPrint (void);
+	int startPacket (void);
+	int addMessage (int msg, int axis);
+	inline int getPacketSize (void) const { return _cur_packetsize; }
 
-	inline bool MYSELF(unsigned char x) { return (((x & 0xf0) >> 4) == _my_address) ? true : false; }
-	inline bool _prepareHeader (icsSpyMessage& msg, int msg_type, int src, int dest, int channel);
+	int writePacket (void);
+	int write (void);
+
+	int read (void);
+	int nonPollingRead (int& err);
+	
+	inline icsSpyMessage getMessage (int i)
+	{
+		if (i >= 0 && _last_read > 0 && i < BUF_SIZE)
+			return _canMsg[i];
+		else
+		{
+			icsSpyMessage x;
+			memset (&x, 0, sizeof(icsSpyMessage));
+			x.ArbIDOrHeader = 0xffff;
+			return x;
+		}
+	}
+
+	inline icsSpyMessage getReplyMessage (int i)
+	{
+		if (i >= 0 && _cur_packetsize > 0 && i < _cur_packetsize)
+			return _replyBuffer[i];
+		else
+		{
+			icsSpyMessage x;
+			memset (&x, 0, sizeof(icsSpyMessage));
+			x.ArbIDOrHeader = 0xffff;
+			return x;
+		}
+	}
+
+	inline icsSpyMessage& getCmdBuffer (int i)
+	{
+		ACE_ASSERT (i >= 0 && i < _cur_packetsize);
+		return _cmdBuffer[i];
+	}
+
+	bool isReply (icsSpyMessage& m);
+	inline int clearReplyBuffer (void) 
+	{ 
+		memset (_replyBuffer, 0, sizeof(icsSpyMessage) * _cur_packetsize);
+		return YARP_OK;
+	}
+
+	bool error (const icsSpyMessage& m);
+	bool timeout (int count)
+	{
+		if (count >= _timeout)
+			return true;
+		else
+			return false;
+	}
+
+	bool isEnabled (int axis) const 
+	{
+		if (_destinations[axis/2] & VALUE_CAN_SKIP_ADDR)
+			return false;
+		else
+			return true;
+	}
+
+	inline void clearError (void) { _error_status = YARP_OK; }
+	inline void setError (void) { _error_status = YARP_FAIL; } 
+	inline int getErrorStatus (void) const { return _error_status; }
+
+	int getErrorsAndPrint (void);
+	int printMessage (icsSpyMessage& m);
+	int printTimeout (void);
+	int debugMsg (void);
+	inline int setPrintFunction (PV p) { _p = p; return YARP_OK; }
+	inline int setMessageFilter (int m) { _filter = m; return YARP_OK; }
+
+	PV p (void) { return _p; }
+
+	//inline bool MYSELF(unsigned char x) { return (((x & 0xf0) >> 4) == _my_address) ? true : false; }
+	inline bool prepareHeader (icsSpyMessage& msg, int msg_type, int src, int dest, int channel);
 };
 
 
+///
+///
+int ValueCanResources::printTimeout (void)
+{
+	int j;
+	for (j = 0; j < _cur_packetsize; j++)
+	{
+		if (_replyBuffer[j].Data[0] == CAN_NO_MESSAGE && _p)
+		{
+			(*_p)("CAN: board %d timed out [msg type %d channel %d]\n", 
+					_cmdBuffer[j].ArbIDOrHeader & 0x0f, 
+					_cmdBuffer[j].Data[0] & 0x7f,
+					(_cmdBuffer[j].Data[0] & 0x80)?1:0);
+		}
+	}
+
+	return YARP_OK;
+}
+
+///
+///
+bool ValueCanResources::isReply (icsSpyMessage& m)
+{
+	if ((m.ArbIDOrHeader & 0x0f) == _my_address)
+	{
+		int j;
+		for (j = 0; j < _cur_packetsize; j++)
+		{
+			if (_cmdBuffer[j].Data[0] == m.Data[0] &&		// same message type.
+				!(m.ArbIDOrHeader & 0x700) &&				// class 0.
+				((m.ArbIDOrHeader & 0xf0) >> 4) == (_cmdBuffer[j].ArbIDOrHeader & 0x0f))
+			{
+				memcpy (&_replyBuffer[j], &m, sizeof(icsSpyMessage));
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+int ValueCanResources::printMessage (icsSpyMessage& m)
+{
+	(*_p) 
+		("class: %2d s: %2x d: %2x c: %1d msg: %3d (%x) ",
+		  (m.ArbIDOrHeader & 0x700) >> 8,
+		  (m.ArbIDOrHeader & 0xf0) >> 4, 
+		  (m.ArbIDOrHeader & 0x0f), 
+		  ((m.Data[0] & 0x80)==0)?0:1,
+		  (m.Data[0] & 0x7f),
+		  (m.Data[0] & 0x7f));
+
+	if (m.NumberBytesData > 1)
+	{
+		(*_p)("x: "); 
+	}
+
+	int j;
+	for (j = 1; j < m.NumberBytesData; j++)
+	{
+		(*_p)("%x ", m.Data[j]);
+	}
+
+	(*_p)("id: %x\n", m.ArbIDOrHeader);
+
+	return YARP_OK;
+}
+
+
 /// polling with busy wait. Bad!
-int ValueCanResources::_read (void)
+int ValueCanResources::read (void)
 {
 	int messages = 0;
 	int errors = 0;
@@ -165,8 +322,30 @@ int ValueCanResources::_read (void)
 	return messages;
 }
 
+///
+///
+/// decode messages from CAN to device driver protocol.
+int ValueCanResources::debugMsg (void)
+{
+	int i;
+
+	if (_p)
+	{
+		for (i = 0; i < _last_read; i++)
+		{
+			if (filter (_canMsg[i]))
+			{
+				printMessage(_canMsg[i]);
+			}
+		}
+	}
+
+	return YARP_OK;
+}
+
+
 /// reads the error queue and print to console (if open).
-void ValueCanResources::_getErrorsAndPrint (void)
+int ValueCanResources::getErrorsAndPrint (void)
 {
 	int errors;
 	int errorMsgs[600];	/// 600 is a driver limit.
@@ -205,46 +384,50 @@ void ValueCanResources::_getErrorsAndPrint (void)
 	else
 	{
 		(*_p) ("CAN: can't get the error queue\n");
+		return YARP_FAIL;
 	}
+
+	return YARP_OK;
 }
 
 /// read, no polling.
-int ValueCanResources::_read_np (int& err)
+int ValueCanResources::nonPollingRead (int& err)
 {
 	int messages = 0;
 	int errors = 0;
 
 	int res = icsneoGetMessages (_portHandle, _canMsg, &messages, &errors);
 	err = errors;
+	_last_read = messages;
 
 	return messages;
 }
 
 /// write to can.
-int ValueCanResources::_write (void)
+int ValueCanResources::write (void)
 {
 	return icsneoTxMessages (_portHandle, &_cmdBuffer[0], NETID_HSCAN, 1);
 }
 
 /// initializes the construction of a new packet (array) of messages.
-int ValueCanResources::_startPacket (void)
+int ValueCanResources::startPacket (void)
 {
 	_cur_packetsize = 0;
 	return YARP_OK;
 }
 
 /// adds a new message to the current packet.
-int ValueCanResources::_addMessage (int msg, int axis)
+int ValueCanResources::addMessage (int msg, int axis)
 {
 	memset (&_cmdBuffer[_cur_packetsize], 0, sizeof(icsSpyMessage));
-	_prepareHeader (_cmdBuffer[_cur_packetsize], msg, _my_address, _destinations[axis/2], axis % 2);
+	prepareHeader (_cmdBuffer[_cur_packetsize], msg, _my_address, _destinations[axis/2], axis % 2);
 	_cmdBuffer[_cur_packetsize].NumberBytesData = 1;
 	_cur_packetsize ++;
 	return _cur_packetsize;
 }
 
 /// sends the current packet.
-int ValueCanResources::_writePacket (void)
+int ValueCanResources::writePacket (void)
 {
 	if (_cur_packetsize < 1)
 		return YARP_FAIL;
@@ -260,7 +443,7 @@ int ValueCanResources::_writePacket (void)
 }
 
 /// test message for errors.
-bool ValueCanResources::_error (const icsSpyMessage& m)
+bool ValueCanResources::error (const icsSpyMessage& m)
 {
 	if (m.StatusBitField & INCOMPLETE_FRAME_ERR) return true;
 	if (m.StatusBitField & UNDEF_ERR) return true;
@@ -271,7 +454,7 @@ bool ValueCanResources::_error (const icsSpyMessage& m)
 	return false;
 }
 
-bool ValueCanResources::_prepareHeader (icsSpyMessage& msg, int msg_type, int src, int dest, int channel)
+bool ValueCanResources::prepareHeader (icsSpyMessage& msg, int msg_type, int src, int dest, int channel)
 {
 	msg.ArbIDOrHeader = (src << 4) + (dest);
 	msg.Data[0] = (channel << 7) + (msg_type & 0x7f);
@@ -279,7 +462,7 @@ bool ValueCanResources::_prepareHeader (icsSpyMessage& msg, int msg_type, int sr
 }
 
 ///
-int ValueCanResources::_closeAndRelease (void)
+int ValueCanResources::closeAndRelease (void)
 {
 	if (_dllLoaded)
 	{
@@ -299,7 +482,7 @@ int ValueCanResources::_closeAndRelease (void)
 	return 0;
 }
 
-int ValueCanResources::_initialize (const ValueCanOpenParameters& params)
+int ValueCanResources::initialize (const ValueCanOpenParameters& params)
 {
 	if (_dllLoaded)
 	{
@@ -324,12 +507,13 @@ int ValueCanResources::_initialize (const ValueCanOpenParameters& params)
 
 	_portHandle = 0;
 	_my_address = 0;
-	memset (_destinations, 0, sizeof(unsigned char) * MAX_CARDS);
+	memset (_destinations, 0, sizeof(unsigned char) * VALUE_MAX_CARDS);
 	_polling_interval = 5;
 	_timeout = 1;
 	_njoints = 0;
 	_p = NULL;
 	_filter = -1;
+	_last_read = 0;
 
 	/// actual library/resource initialization.
 	_dllLoaded = true;
@@ -366,24 +550,20 @@ int ValueCanResources::_initialize (const ValueCanOpenParameters& params)
 		else
 		{
 			ACE_DEBUG ((LM_DEBUG, "CAN: No devices found!\n"));
-			_closeAndRelease ();
+			closeAndRelease ();
 			return -1;
 		}
 	}
 	else
 	{
 		ACE_DEBUG ((LM_DEBUG, "CAN: Can't communicate with CAN devices\n"));
-		_closeAndRelease ();
+		closeAndRelease ();
 		return -1;
 	}
 
-	/// reset buffers.
-	memset (_canMsg, 0, sizeof(icsSpyMessage) * BUF_SIZE);
-	memset (&_cmdBuffer, 0, sizeof(icsSpyMessage));
-
 	_polling_interval = params._polling_interval;
 	_my_address = params._my_address;
-	memcpy (_destinations, params._destinations, sizeof(unsigned char) * MAX_CARDS);
+	memcpy (_destinations, params._destinations, sizeof(unsigned char) * VALUE_MAX_CARDS);
 	_timeout = params._timeout;
 	_njoints = params._njoints;
 
@@ -479,14 +659,14 @@ int YARPValueCanDeviceDriver::open (void *res)
 	_ev.Reset();
 
 	ValueCanResources& d = RES(system_resources);
-	int ret = d._initialize (*(ValueCanOpenParameters *)res);
+	int ret = d.initialize (*(ValueCanOpenParameters *)res);
 
 	_p = ((ValueCanOpenParameters *)res)->_p;
 	_filter = -1;
 
-	_ref_positions = new double [d._njoints];		
-	_ref_speeds = new double [d._njoints];
-	_ref_accs = new double [d._njoints];
+	_ref_positions = new double [d.getJoints()];		
+	_ref_speeds = new double [d.getJoints()];
+	_ref_accs = new double [d.getJoints()];
 	ACE_ASSERT (_ref_positions != NULL && _ref_speeds != NULL && _ref_accs != NULL);
 
 	if (ret >= 0)
@@ -511,54 +691,11 @@ int YARPValueCanDeviceDriver::close (void)
 	if (_ref_speeds != NULL) delete[] _ref_speeds;
 	if (_ref_accs != NULL) delete[] _ref_accs;
 
-	int ret = d._uninitialize ();
+	int ret = d.uninitialize ();
 
 	return ret;
 }
 
-///
-///
-/// decode messages from CAN to device driver protocol.
-void YARPValueCanDeviceDriver::_debugMsg (int n, void *msg, int (*p) (char *fmt, ...))
-{
-	icsSpyMessage *m = (icsSpyMessage *)msg;
-	int i;
-
-	if (p)
-	{
-		//(*p) ("nmsg: %d\n", n);
-		/// minimal debug, actual debug would require interpreting messages.
-		for (i = 0; i < n; i++)
-		{
-			ValueCanResources& r = RES(system_resources);
-			if ((m[i].Data[0] & 0x7f) != r._filter &&
-				(m[i].ArbIDOrHeader & 0x0f) == r._my_address)
-			{
-				(*p) 
-					("class: %2d s: %2x d: %2x c: %1d msg: %3d (%x) ",
-					  (m[i].ArbIDOrHeader & 0x700) >> 8,
-					  (m[i].ArbIDOrHeader & 0xf0) >> 4, 
-					  (m[i].ArbIDOrHeader & 0x0f), 
-					  ((m[i].Data[0] & 0x80)==0)?0:1,
-					  (m[i].Data[0] & 0x7f),
-					  (m[i].Data[0] & 0x7f));
-
-				if (m[i].NumberBytesData > 1)
-				{
-					(*p)("x: "); 
-				}
-
-				int j;
-				for (j = 1; j < m[i].NumberBytesData; j++)
-				{
-					(*p)("%x ", m[i].Data[j]);
-				}
-
-				(*p)("id: %x\n", m[i].ArbIDOrHeader);
-			}
-		}
-	}
-}
 
 ///
 ///
@@ -620,17 +757,17 @@ void YARPValueCanDeviceDriver::Body(void)
 		int err = 0;
 		int n = 0;
 		
-		n = r._read_np (err);
-
+		n = r.nonPollingRead (err);
+		
 		if (err != 0)
 		{
-			if (r._p) (*r._p)("got %d errors\n", err);
-			r._getErrorsAndPrint ();
+			if (r.p()) (*r.p())("got %d errors\n", err);
+			r.getErrorsAndPrint ();
 		}
-
-		/// debug/print messages to console.
-		if (n > 0 && r._p)
-			_debugMsg (n, (void *)r._canMsg, r._p);
+		else
+		{
+			r.debugMsg ();
+		}
 
 		/// filters messages, no buffering allowed here.
 		if (left > 0)
@@ -638,18 +775,21 @@ void YARPValueCanDeviceDriver::Body(void)
 			int i;
 			for (i = 0; i < n; i++)
 			{
-				icsSpyMessage& m = r._canMsg[i];
-				//if (r._p) 
-				//	_printMessage ((void*)&m, r._p);
+				icsSpyMessage m = r.getMessage (i);
+				if (m.ArbIDOrHeader == 0xffff)
+				{
+					if (r.p())
+						(*r.p())("CAN: asked for a message out of range\n");
+				}
 
 				if (m.StatusBitField & SPY_STATUS_GLOBAL_ERR)
 				{
-					if (r._p) 
+					if (r.p()) 
 					{
-						(*r._p)("CAN: troubles w/ message %x\n", m.StatusBitField);
-						_printMessage ((void *)&m, r._p);
-						(*r._p)("CAN: skipped a message because of errors\n");
-						r._getErrorsAndPrint ();
+						(*r.p())("CAN: troubles w/ message %x\n", m.StatusBitField);
+						r.printMessage (m);
+						(*r.p())("CAN: skipped a message because of errors\n");
+						r.getErrorsAndPrint ();
 					}
 
 					continue;		/// skip this message.
@@ -665,7 +805,7 @@ void YARPValueCanDeviceDriver::Body(void)
 					{
 						_noreply = false;
 						left = 0;
-						r._error_status = YARP_OK;
+						r.clearError();
 						_mutex.Post();
 						_ev.Signal();
 					}
@@ -677,28 +817,15 @@ void YARPValueCanDeviceDriver::Body(void)
 
 				/// check whether the message is a reply of any of the pending messages
 				/// in current packet.
-				if ((m.ArbIDOrHeader & 0x0f) == r._my_address)
+				if (r.isReply (m))
 				{
-					int j;
-					for (j = 0; j < r._cur_packetsize; j++)
+					/// already in reply buffer.
+					left --;
+					if (left < 1)
 					{
-						if (r._cmdBuffer[j].Data[0] == m.Data[0] &&		// same message type.
-							!(m.ArbIDOrHeader & 0x700) &&				// class 0.
-							((m.ArbIDOrHeader & 0xf0) >> 4) == (r._cmdBuffer[j].ArbIDOrHeader & 0x0f))
-						{
-							/// it's a reply.
-							//if (r._p)
-							//	(*r._p)("reply for entry %d msg %x\n", j, m.Data[0]);
-
-							memcpy (&r._replyBuffer[j], &m, sizeof(icsSpyMessage));
-							left --;
-							if (left < 1)
-							{
-								r._error_status = YARP_OK;
-								_mutex.Post();
-								_ev.Signal();
-							}
-						}
+						r.clearError();
+						_mutex.Post();
+						_ev.Signal();
 					}
 				}
 			}
@@ -706,31 +833,20 @@ void YARPValueCanDeviceDriver::Body(void)
 			/// requires a timeout (to signal back the caller).
 			/// if doesn't get a reply then signal a problem.
 			cyclecount++;
-			if (cyclecount >= r._timeout)
+			if (r.timeout(cyclecount))
 			{
 				_mutex.Wait();
 				
-				if (r._p) 
+				if (r.p()) 
 				{
-					(*r._p)("CAN: still %d unacknoweledged messages\n", left);
-					(*r._p)("CAN: still %d unsent messages\n", own_messages);
+					(*r.p())("CAN: still %d unacknoweledged messages\n", left);
+					(*r.p())("CAN: still %d unsent messages\n", own_messages);
 				}
 				
-				int j;
-				for (j = 0; j < r._cur_packetsize; j++)
-				{
-					if (r._replyBuffer[j].Data[0] == CAN_NO_MESSAGE && r._p)
-					{
-						(*r._p)("CAN: board %d timed out [msg type %d channel %d]\n", 
-								r._cmdBuffer[j].ArbIDOrHeader & 0x0f, 
-								r._cmdBuffer[j].Data[0] & 0x7f,
-								(r._cmdBuffer[j].Data[0] & 0x80)?1:0);
-					}
-				}
+				r.printTimeout ();
+				r.getErrorsAndPrint ();
 
-				r._getErrorsAndPrint ();
-
-				r._error_status = YARP_FAIL;
+				r.setError();
 				left = 0;
 				cyclecount = 0;
 				_mutex.Post();
@@ -741,21 +857,21 @@ void YARPValueCanDeviceDriver::Body(void)
 		_mutex.Wait();
 		
 		/// copies buffered values.
-		r._p = _p;
-		r._filter = _filter;
+		r.setPrintFunction (_p);
+		r.setMessageFilter (_filter);
 
 		if (_request && left < 1)
 		{
-			if (r._writePacket () != YARP_OK)
+			if (r.writePacket () != YARP_OK)
 			{
-				if (r._p) (*r._p)("problems sending message\n"); 
+				if (r.p()) (*r.p())("problems sending message\n"); 
 			}
 
 			//if (r._p) (*r._p)("there was a write of %d messages\n", r._cur_packetsize);
 
-			memset (r._replyBuffer, 0, sizeof(icsSpyMessage) * r._cur_packetsize);
-			own_messages = left = r._cur_packetsize;
-			r._error_status = YARP_OK;
+			r.clearReplyBuffer ();
+			own_messages = left = r.getPacketSize ();
+			r.clearError ();
 			cyclecount = 0;
 			_request = false;
 		}
@@ -763,13 +879,13 @@ void YARPValueCanDeviceDriver::Body(void)
 		_mutex.Post();
 
 		now = YARPTime::GetTimeAsSeconds();
-		if ((now - before)*1000 < r._polling_interval)
+		if ((now - before)*1000 < r.getPollingInterval())
 		{
-			YARPTime::DelayInSeconds(double(r._polling_interval)/1000.0-(now-before));
+			YARPTime::DelayInSeconds(double(r.getPollingInterval())/1000.0-(now-before));
 		}
 		else 
 		{
-			if (r._p) (*r._p)("CAN: thread can't poll fast enough (time: %f)\n", now-before);
+			if (r.p()) (*r.p())("CAN: thread can't poll fast enough (time: %f)\n", now-before);
 		}
 		before = now;
 	}
@@ -812,13 +928,13 @@ int YARPValueCanDeviceDriver::getPositions (void *cmd)
 	int i, value = 0;
 
 	_mutex.Wait();
-	r._startPacket();
+	r.startPacket();
 
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (ENABLED(i))
 		{
-			r._addMessage (CAN_GET_ENCODER_POSITION, i);
+			r.addMessage (CAN_GET_ENCODER_POSITION, i);
 		}
 		else
 			tmp[i] = 0;
@@ -830,18 +946,22 @@ int YARPValueCanDeviceDriver::getPositions (void *cmd)
 
 	_ev.Wait();
 
-	if (r._error_status != YARP_OK)
+	if (r.getErrorStatus() != YARP_OK)
 	{
-		memset (tmp, 0, sizeof(double) * r._njoints);
+		memset (tmp, 0, sizeof(double) * r.getJoints());
 		return YARP_FAIL;
 	}
 
 	int j;
-	for (i = 0, j = 0; i < r._njoints; i++)
+	for (i = 0, j = 0; i < r.getJoints(); i++)
 	{
 		if (ENABLED(i))
 		{
-			tmp[i] = *((int *)(r._replyBuffer[j].Data+1));
+			icsSpyMessage& m = r.getReplyMessage(j);
+			if (m.ArbIDOrHeader == 0xffff)
+				tmp[i] = 0;
+			else
+				tmp[i] = *((int *)(m.Data+1));
 			j++;
 		}
 	}
@@ -855,7 +975,7 @@ int YARPValueCanDeviceDriver::getPosition (void *cmd)
 	/// prepare can message.
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 
 	int value;
 	if (_readDWord (CAN_GET_ENCODER_POSITION, axis, value) == YARP_OK)
@@ -876,9 +996,9 @@ int YARPValueCanDeviceDriver::setPositions (void *cmd)
 	int i;
 
 	_mutex.Wait();
-	r._startPacket();
+	r.startPacket();
 
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints (); i++)
 	{
 		if (ENABLED(i))
 		{
@@ -886,12 +1006,11 @@ int YARPValueCanDeviceDriver::setPositions (void *cmd)
 			x.axis = i;
 			x.parameters = tmp+i;	
 
-			r._addMessage (CAN_POSITION_MOVE, i);
-
+			r.addMessage (CAN_POSITION_MOVE, i);
 			_ref_positions[i] = tmp[i];
-			*((int*)(r._cmdBuffer[i].Data+1)) = S_32(_ref_positions[i]);		/// pos
-			*((short*)(r._cmdBuffer[i].Data+5)) = S_16(_ref_speeds[i]);			/// speed
-			r._cmdBuffer[i].NumberBytesData = 7;
+			*((int*)(r.getCmdBuffer(i).Data+1)) = S_32(_ref_positions[i]);		/// pos
+			*((short*)(r.getCmdBuffer(i).Data+5)) = S_16(_ref_speeds[i]);			/// speed
+			r.getCmdBuffer(i).NumberBytesData = 7;
 		}
 		else
 		{
@@ -907,28 +1026,13 @@ int YARPValueCanDeviceDriver::setPositions (void *cmd)
 	/// syncing.
 	_ev.Wait();
 
-#if 0
-	for (i = 0; i < r._njoints; i++)
-	{
-		SingleAxisParameters x;
-		x.axis = i;
-		x.parameters = tmp+i;	
-		/// speed is contained in the next entry of tmp
-		if (setPosition ((void *)&x) != YARP_OK)
-			return YARP_FAIL;
-	}
-#endif
-
 	return YARP_OK;
 }
 
 inline bool YARPValueCanDeviceDriver::ENABLED (int axis)
 {
 	ValueCanResources& r = RES(system_resources);
-	if (r._destinations[axis/2] & CAN_SKIP_ADDR)
-		return false;
-
-	return true;
+	return r.isEnabled (axis);
 }
 
 ///
@@ -940,7 +1044,7 @@ int YARPValueCanDeviceDriver::setPosition (void *cmd)
 	ValueCanResources& r = RES(system_resources);
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 
 	if (!ENABLED (axis))
 	{
@@ -951,13 +1055,13 @@ int YARPValueCanDeviceDriver::setPosition (void *cmd)
 
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (CAN_POSITION_MOVE, axis);
+	r.startPacket();
+	r.addMessage (CAN_POSITION_MOVE, axis);
 
 	_ref_positions[axis] = *((double *)tmp->parameters);
-	*((int*)(r._cmdBuffer[0].Data+1)) = S_32(_ref_positions[axis]);		/// pos
-	*((short*)(r._cmdBuffer[0].Data+5)) = S_16(_ref_speeds[axis]);			/// speed
-	r._cmdBuffer[0].NumberBytesData = 7;
+	*((int*)(r.getCmdBuffer(0).Data+1)) = S_32(_ref_positions[axis]);		/// pos
+	*((short*)(r.getCmdBuffer(0).Data+5)) = S_16(_ref_speeds[axis]);			/// speed
+	r.getCmdBuffer(0).NumberBytesData = 7;
 		
 	_request = true;
 	_noreply = true;
@@ -980,17 +1084,17 @@ int YARPValueCanDeviceDriver::velocityMove (void *cmd)
 	int i;
 
 	_mutex.Wait();
-	r._startPacket();
+	r.startPacket();
 
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (ENABLED (i))
 		{
-			r._addMessage (CAN_VELOCITY_MOVE, i);
+			r.addMessage (CAN_VELOCITY_MOVE, i);
 			_ref_speeds[i] = tmp[i];
-			*((short*)(r._cmdBuffer[i].Data+1)) = S_16(_ref_speeds[i]);		/// speed
-			*((short*)(r._cmdBuffer[i].Data+3)) = S_16(_ref_accs[i]);		/// accel
-			r._cmdBuffer[i].NumberBytesData = 5;
+			*((short*)(r.getCmdBuffer(i).Data+1)) = S_16(_ref_speeds[i]);		/// speed
+			*((short*)(r.getCmdBuffer(i).Data+3)) = S_16(_ref_accs[i]);		/// accel
+			r.getCmdBuffer(i).NumberBytesData = 5;
 		}
 		else
 		{
@@ -1015,7 +1119,7 @@ int YARPValueCanDeviceDriver::definePosition (void *cmd)
 
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	
 	return _writeDWord (CAN_SET_ENCODER_POSITION, axis, S_32(*((double *)tmp->parameters)));
 }
@@ -1027,7 +1131,7 @@ int YARPValueCanDeviceDriver::definePositions (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (_writeDWord (CAN_SET_ENCODER_POSITION, i, S_32(tmp[i])) != YARP_OK)
 			return YARP_FAIL;
@@ -1041,7 +1145,7 @@ int YARPValueCanDeviceDriver::setCommand (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	
 	return _writeDWord (CAN_SET_COMMAND_POSITION, axis, S_32(*((double *)tmp->parameters)));
 }
@@ -1053,7 +1157,7 @@ int YARPValueCanDeviceDriver::setCommands (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (_writeDWord (CAN_SET_COMMAND_POSITION, i, S_32(tmp[i])) != YARP_OK)
 			return YARP_FAIL;
@@ -1069,7 +1173,7 @@ int YARPValueCanDeviceDriver::getRefPositions (void *cmd)
 	double *out = (double *) cmd;
 	int i, value = 0;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (_readDWord (CAN_GET_DESIRED_POSITION, i, value) == YARP_OK)
 			out[i] = double (value);
@@ -1085,7 +1189,7 @@ int YARPValueCanDeviceDriver::getRefPosition (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	
 	int value = 0;
 	if (_readDWord (CAN_GET_DESIRED_POSITION, axis, value) == YARP_OK)
@@ -1101,7 +1205,7 @@ int YARPValueCanDeviceDriver::setSpeed (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	
 	_ref_speeds[axis] = *((double *)(tmp->parameters));
 	const short s = S_16(_ref_speeds[axis]);
@@ -1115,7 +1219,7 @@ int YARPValueCanDeviceDriver::setSpeeds (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		_ref_speeds[i] = tmp[i];
 		if (_writeWord16 (CAN_SET_DESIRED_VELOCITY, i, S_16(tmp[i])) != YARP_OK)
@@ -1133,7 +1237,7 @@ int YARPValueCanDeviceDriver::getSpeeds (void *cmd)
 	int i;
 	short value = 0;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (_readWord16 (CAN_GET_ENCODER_VELOCITY, i, value) == YARP_OK)
 			out[i] = double (value);
@@ -1152,7 +1256,7 @@ int YARPValueCanDeviceDriver::getRefSpeeds (void *cmd)
 	int i;
 	short value = 0;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (_readWord16 (CAN_GET_DESIRED_VELOCITY, i, value) == YARP_OK)
 			_ref_speeds[i] = out[i] = double (value);
@@ -1168,7 +1272,7 @@ int YARPValueCanDeviceDriver::setAcceleration (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 
 	_ref_accs[axis] = *((double *)tmp->parameters);
 	const short s = S_16(_ref_accs[axis]);
@@ -1183,7 +1287,7 @@ int YARPValueCanDeviceDriver::setAccelerations (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		_ref_accs[i] = tmp[i];
 		if (_writeWord16 (CAN_SET_DESIRED_ACCELER, i, S_16(_ref_accs[i])) != YARP_OK)
@@ -1201,7 +1305,7 @@ int YARPValueCanDeviceDriver::getRefAccelerations (void *cmd)
 	int i;
 	short value = 0;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (_readWord16 (CAN_GET_DESIRED_ACCELER, i, value) == YARP_OK)
 			_ref_accs[i] = out[i] = double (value);
@@ -1217,7 +1321,7 @@ int YARPValueCanDeviceDriver::setOffset (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	const short s = S_16(*((double *)tmp->parameters));
 	
 	return _writeWord16 (CAN_SET_OFFSET, axis, s);
@@ -1230,7 +1334,7 @@ int YARPValueCanDeviceDriver::setOffsets (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (_writeWord16 (CAN_SET_OFFSET, i, S_16(tmp[i])) != YARP_OK)
 			return YARP_FAIL;
@@ -1244,7 +1348,7 @@ int YARPValueCanDeviceDriver::setIntegratorLimit (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	const short s = S_16(*((double *)tmp->parameters));
 	
 	return _writeWord16 (CAN_SET_ILIM_GAIN, axis, s);
@@ -1257,7 +1361,7 @@ int YARPValueCanDeviceDriver::setIntegratorLimits (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (_writeWord16 (CAN_SET_ILIM_GAIN, i, S_16(tmp[i])) != YARP_OK)
 			return YARP_FAIL;
@@ -1271,7 +1375,7 @@ int YARPValueCanDeviceDriver::setPid (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	LowLevelPID *pid = (LowLevelPID *) tmp->parameters;
 
 	_writeWord16 (CAN_SET_P_GAIN, axis, S_16(pid->KP));
@@ -1290,7 +1394,7 @@ int YARPValueCanDeviceDriver::getPid (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	LowLevelPID *pid = (LowLevelPID *) tmp->parameters;
 	short s;
 
@@ -1309,7 +1413,7 @@ int YARPValueCanDeviceDriver::getPid (void *cmd)
 int YARPValueCanDeviceDriver::enableAmp (void *cmd)
 {
 	const int axis = *((int *)cmd);
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	
 	return _writeNone (CAN_ENABLE_PWM_PAD, axis);
 }
@@ -1318,7 +1422,7 @@ int YARPValueCanDeviceDriver::enableAmp (void *cmd)
 int YARPValueCanDeviceDriver::disableAmp (void *cmd)
 {
 	const int axis = *((int *)cmd);
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	
 	return _writeNone (CAN_DISABLE_PWM_PAD, axis);
 }
@@ -1327,7 +1431,7 @@ int YARPValueCanDeviceDriver::disableAmp (void *cmd)
 int YARPValueCanDeviceDriver::controllerRun (void *cmd)
 {
 	const int axis = *((int *)cmd);
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	
 	return _writeNone (CAN_CONTROLLER_RUN, axis);
 }
@@ -1336,7 +1440,7 @@ int YARPValueCanDeviceDriver::controllerRun (void *cmd)
 int YARPValueCanDeviceDriver::controllerIdle (void *cmd)
 {
 	const int axis = *((int *)cmd);
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	
 	return _writeNone (CAN_CONTROLLER_IDLE, axis);
 }
@@ -1349,7 +1453,7 @@ int YARPValueCanDeviceDriver::getTorques (void *cmd)
 	int i;
 	short value = 0;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (_readWord16 (CAN_GET_PID_OUTPUT, i, value) == YARP_OK)
 			out[i] = double (value);
@@ -1365,7 +1469,7 @@ int YARPValueCanDeviceDriver::getTorque (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	short value;
 
 	if (_readWord16 (CAN_GET_PID_OUTPUT, axis, value) != YARP_OK)
@@ -1384,7 +1488,7 @@ int YARPValueCanDeviceDriver::getError (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	short value;
 
 	if (_readWord16 (CAN_GET_PID_ERROR, axis, value) != YARP_OK)
@@ -1402,7 +1506,7 @@ int YARPValueCanDeviceDriver::getError (void *cmd)
 int YARPValueCanDeviceDriver::readBootMemory (void *cmd)
 {
 	const int axis = *((int *)cmd);
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 
 	return _writeNone (CAN_READ_FLASH_MEM, axis);
 }
@@ -1411,7 +1515,7 @@ int YARPValueCanDeviceDriver::readBootMemory (void *cmd)
 int YARPValueCanDeviceDriver::writeBootMemory (void *cmd)
 {
 	const int axis = *((int *)cmd);
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 
 	return _writeNone (CAN_WRITE_FLASH_MEM, axis);
 }
@@ -1421,7 +1525,7 @@ int YARPValueCanDeviceDriver::setSwPositiveLimit (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	
 	return _writeDWord (CAN_SET_MAX_POSITION, axis, S_32(*((double *)tmp->parameters)));
 }
@@ -1431,7 +1535,7 @@ int YARPValueCanDeviceDriver::setSwNegativeLimit (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	
 	return _writeDWord (CAN_SET_MIN_POSITION, axis, S_32(*((double *)tmp->parameters)));
 }
@@ -1441,7 +1545,7 @@ int YARPValueCanDeviceDriver::getSwNegativeLimit (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	int value;
 
 	_readDWord (CAN_GET_MIN_POSITION, axis, value);
@@ -1455,7 +1559,7 @@ int YARPValueCanDeviceDriver::getSwPositiveLimit (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	int value;
 
 	_readDWord (CAN_GET_MAX_POSITION, axis, value);
@@ -1470,7 +1574,7 @@ int YARPValueCanDeviceDriver::setTorqueLimit (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	const short s = S_16(*((double *)tmp->parameters));
 	
 	return _writeWord16 (CAN_SET_TLIM, axis, s);
@@ -1483,7 +1587,7 @@ int YARPValueCanDeviceDriver::setTorqueLimits (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (_writeWord16 (CAN_SET_TLIM, i, S_16(tmp[i])) != YARP_OK)
 			return YARP_FAIL;
@@ -1497,7 +1601,7 @@ int YARPValueCanDeviceDriver::getTorqueLimit (void *cmd)
 {
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	short value;
 
 	_readWord16 (CAN_GET_TLIM, axis, value);
@@ -1514,7 +1618,7 @@ int YARPValueCanDeviceDriver::getTorqueLimits (void *cmd)
 	int i;
 	short value = 0;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (_readWord16 (CAN_GET_TLIM, i, value) == YARP_OK)
 			out[i] = double (value);
@@ -1550,7 +1654,7 @@ int YARPValueCanDeviceDriver::checkMotionDone (void *cmd)
 	short value;
 	bool *out = (bool *) cmd;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (ENABLED(i))
 		{
@@ -1579,7 +1683,7 @@ int YARPValueCanDeviceDriver::checkMotionDone (void *cmd)
 int YARPValueCanDeviceDriver::_writeNone (int msg, int axis)
 {
 	ValueCanResources& r = RES(system_resources);
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 
 	if (!ENABLED(axis))
 	{
@@ -1588,8 +1692,8 @@ int YARPValueCanDeviceDriver::_writeNone (int msg, int axis)
 
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (msg, axis);
+	r.startPacket();
+	r.addMessage (msg, axis);
 
 	_request = true;
 	_noreply = true;
@@ -1605,7 +1709,7 @@ int YARPValueCanDeviceDriver::_writeNone (int msg, int axis)
 int YARPValueCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 {
 	ValueCanResources& r = RES(system_resources);
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 
 	if (!ENABLED(axis))
 	{
@@ -1616,8 +1720,8 @@ int YARPValueCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 	/// prepare Can message.
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (msg, axis);
+	r.startPacket();
+	r.addMessage (msg, axis);
 		
 	_request = true;
 	_noreply = false;
@@ -1626,13 +1730,13 @@ int YARPValueCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 	/// reads back position info.
 	_ev.Wait();
 
-	if (r._error_status != YARP_OK)
+	if (r.getErrorStatus() != YARP_OK)
 	{
 		value = 0;
 		return YARP_FAIL;
 	}
 
-	value = *((short *)(r._replyBuffer[0].Data+1));
+	value = *((short *)(r.getReplyMessage(0).Data+1));
 	return YARP_OK;
 }
 
@@ -1641,18 +1745,18 @@ int YARPValueCanDeviceDriver::_writeWord16 (int msg, int axis, short s)
 {
 	/// prepare Can message.
 	ValueCanResources& r = RES(system_resources);
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	
 	if (!ENABLED(axis))
 		return YARP_OK;
 
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (msg, axis);
+	r.startPacket();
+	r.addMessage (msg, axis);
 
-	*((short *)(r._cmdBuffer[0].Data+1)) = s;
-	r._cmdBuffer[0].NumberBytesData = 3;
+	*((short *)(r.getCmdBuffer(0).Data+1)) = s;
+	r.getCmdBuffer(0).NumberBytesData = 3;
 		
 	_request = true;
 	_noreply = true;
@@ -1670,18 +1774,18 @@ int YARPValueCanDeviceDriver::_writeWord16 (int msg, int axis, short s)
 int YARPValueCanDeviceDriver::_writeDWord (int msg, int axis, int value)
 {
 	ValueCanResources& r = RES(system_resources);
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 
 	if (!ENABLED(axis))
 		return YARP_OK;
 
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (msg, axis);
+	r.startPacket();
+	r.addMessage (msg, axis);
 
-	*((int*)(r._cmdBuffer[0].Data+1)) = value;
-	r._cmdBuffer[0].NumberBytesData = 5;
+	*((int*)(r.getCmdBuffer(0).Data+1)) = value;
+	r.getCmdBuffer(0).NumberBytesData = 5;
 		
 	_request = true;
 	_noreply = true;
@@ -1700,7 +1804,7 @@ int YARPValueCanDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short
 	/// prepare Can message.
 	ValueCanResources& r = RES(system_resources);
 
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 	ACE_ASSERT ((axis % 2) == 0);	/// axis is even.
 
 	if (!ENABLED(axis))
@@ -1708,12 +1812,12 @@ int YARPValueCanDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short
 
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (msg, axis);
+	r.startPacket();
+	r.addMessage (msg, axis);
 
-	*((short *)(r._cmdBuffer[0].Data+1)) = s1;
-	*((short *)(r._cmdBuffer[0].Data+3)) = s2;
-	r._cmdBuffer[0].NumberBytesData = 5;
+	*((short *)(r.getCmdBuffer(0).Data+1)) = s1;
+	*((short *)(r.getCmdBuffer(0).Data+3)) = s2;
+	r.getCmdBuffer(0).NumberBytesData = 5;
 
 	_request = true;
 	_noreply = true;
@@ -1733,7 +1837,7 @@ int YARPValueCanDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short
 int YARPValueCanDeviceDriver::_readDWord (int msg, int axis, int& value)
 {
 	ValueCanResources& r = RES(system_resources);
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_CARDS-1)*2);
+	ACE_ASSERT (axis >= 0 && axis <= (VALUE_MAX_CARDS-1)*2);
 
 	if (!ENABLED(axis))
 	{
@@ -1744,8 +1848,8 @@ int YARPValueCanDeviceDriver::_readDWord (int msg, int axis, int& value)
 	/// prepare can packet of length 1.
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (msg, axis);
+	r.startPacket();
+	r.addMessage (msg, axis);
 		
 	_request = true;
 	_noreply = false;
@@ -1753,12 +1857,12 @@ int YARPValueCanDeviceDriver::_readDWord (int msg, int axis, int& value)
 
 	_ev.Wait();
 
-	if (r._error_status != YARP_OK)
+	if (r.getErrorStatus() != YARP_OK)
 	{
 		value = 0;
 		return YARP_FAIL;
 	}
 
-	value = *((int *)(r._replyBuffer[0].Data+1));
+	value = *((int *)(r.getReplyMessage(0).Data+1));
 	return YARP_OK;
 }

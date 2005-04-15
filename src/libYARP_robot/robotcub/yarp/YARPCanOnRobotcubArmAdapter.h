@@ -27,18 +27,25 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.8 2005-04-14 22:10:54 babybot Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.9 2005-04-15 22:51:54 babybot Exp $
 ///
 ///
 
 #ifndef __CanOnRobotcubArmAdapterh__
 #define __CanOnRobotcubArmAdapterh__
 
+#define __ESD_DRIVER
+
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/log_msg.h>
 
+#ifdef __ESD_DRIVER
+#include <yarp/YARPEsdCanDeviceDriver.h>
+#else
 #include <yarp/YARPValueCanDeviceDriver.h>
+#endif
+
 #include <yarp/YARPConfigFile.h>
 #include <yarp/YARPRobotMath.h>
 
@@ -106,11 +113,10 @@ namespace _RobotcubArm
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
 
 	const int CANBUS_DEVICE_NUM			= 0;
-	const int CANBUS_ARBITRATION_ID		= 0;
 	const int CANBUS_MY_ADDRESS			= 0;
-	const int CANBUS_POLLING_INTERVAL	= 20;			/// [ms]
+	const int CANBUS_POLLING_INTERVAL	= 2;			/// [ms]
 	const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
-	const int CANBUS_MAXCARDS			= MAX_CARDS;
+	const int CANBUS_MAXCARDS			= 16;			/// because of the structure of the protocol.
 
 	const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 
 														   0x0b, 0x0a, 0x09, 0x08,
@@ -428,7 +434,11 @@ public:
  * uninitialize while it leaves much of the burden of calling the device driver
  * to a generic template class called YARPGenericControlBoard.
  */
+#ifdef __ESD_DRIVER
+class YARPCanOnRobotcubArmAdapter : public YARPEsdCanDeviceDriver
+#else
 class YARPCanOnRobotcubArmAdapter : public YARPValueCanDeviceDriver
+#endif
 {
 public:
 	/**
@@ -466,10 +476,26 @@ public:
 		using namespace _RobotcubArm;
 
 		_parameters = par;
-		
+
+		/// either of the two available cards.
+#ifdef __ESD_DRIVER
+		EsdCanOpenParameters op_par;
+		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
+		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
+		op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
+		op_par._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
+
+		op_par._njoints = _parameters->_nj;
+		op_par._p = _parameters->_p;
+
+		if (YARPEsdCanDeviceDriver::open ((void *)&op_par) < 0)
+		{
+			YARPEsdCanDeviceDriver::close();
+			return YARP_FAIL;
+		}
+#else
 		ValueCanOpenParameters op_par;
 		op_par._port_number = CANBUS_DEVICE_NUM;
-		op_par._arbitrationID = CANBUS_ARBITRATION_ID;
 		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
 		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
 		op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
@@ -483,10 +509,11 @@ public:
 			YARPValueCanDeviceDriver::close();
 			return YARP_FAIL;
 		}
+#endif
 
 		// filters out certain messages.
 		int msg = _parameters->_message_filter;
-		YARPValueCanDeviceDriver::IOCtl(CMDSetDebugMessageFilter, (void *)&msg);
+		IOCtl(CMDSetDebugMessageFilter, (void *)&msg);
 
 		for(int i=0; i < _parameters->_nj; i++)
 		{
@@ -567,7 +594,11 @@ public:
 	 */
 	int uninitialize()
 	{
+#ifdef __ESD_DRIVER
+		if (YARPEsdCanDeviceDriver::close() != 0)
+#else
 		if (YARPValueCanDeviceDriver::close() != 0)
+#endif
 			return YARP_FAIL;
 
 		_initialized = false;

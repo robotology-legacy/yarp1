@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2005-04-15 00:17:44 babybot Exp $
+/// $Id: main.cpp,v 1.2 2005-04-15 22:51:53 babybot Exp $
 ///
 ///
 
@@ -212,7 +212,7 @@ int main (int argc, char *argv[])
 		ACE_ASSERT (_armjointstore != NULL);
 	}
 
-	ACE_OS::printf ("Running!");
+	ACE_OS::printf ("Running!\n");
 
 	int cycle;
 	for (cycle = 0; ; cycle++)

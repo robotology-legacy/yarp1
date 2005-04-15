@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.6 2005-04-05 13:44:14 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.7 2005-04-15 22:51:53 babybot Exp $
 ///
 ///
 
@@ -48,13 +48,7 @@
 /**
  * Max number of addressable cards in this implementation.
  */
-const int MAX_CARDS		= 16;
-
-/**
- * A flag used to disable a card (commands with this flag on
- * are silently ignored).
- */
-const unsigned char CAN_SKIP_ADDR = 0x80;
+const int VALUE_MAX_CARDS		= 16;
 
 /**
  * The open parameter class containing the initialization values.
@@ -67,8 +61,7 @@ struct ValueCanOpenParameters
 	ValueCanOpenParameters (void)
 	{
 		_port_number = -1;
-		_arbitrationID = 0;
-		memset (_destinations, 0, sizeof(unsigned char) * MAX_CARDS);
+		memset (_destinations, 0, sizeof(unsigned char) * VALUE_MAX_CARDS);
 		_my_address = 0;
 		_polling_interval = 10;
 		_timeout = 2;
@@ -77,21 +70,14 @@ struct ValueCanOpenParameters
 	}
 
 	int _port_number;							/** which of the many CAN interfaces to connect to */
-	long _arbitrationID;						/** arbitration ID of the transmitted messages */
 	int _njoints;								/** number of joints (cards * 2) */
-	unsigned char _destinations[MAX_CARDS];		/** destination addresses */
+	unsigned char _destinations[VALUE_MAX_CARDS];		/** destination addresses */
 	unsigned char _my_address;					/** my address */
 	int _polling_interval;						/** thread polling interval [ms] */
 	int _timeout;								/** number of cycles before timing out */
 	int (*_p) (char *fmt, ...);					/** printf-like function for spying messages */
 };
 
-///
-///
-const short MAX_SHORT = 32767;
-const short MIN_SHORT = -32768;
-const int MAX_INT = 0x7fffffff;
-const int MIN_INT = 0x80000000;
 
 /**
  * The value can device driver.
@@ -229,6 +215,8 @@ protected:
 	double *_ref_speeds;
 	double *_ref_accs;
 	double *_ref_positions;
+
+	enum { MAX_SHORT = 32767, MIN_SHORT = -32768, MAX_INT = 0x7fffffff, MIN_INT = 0x80000000 };
 
 	inline short S_16(double x) const 
 	{

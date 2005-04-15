@@ -75,11 +75,19 @@ Int16  _kr[JN] = { 3, 3 };				/* scale factor (negative power of two) */
 Int16 _counter = 0;						/* used to count cycles, it resets now and then */
 										/* to generate periodic events */
 Int16 _flash_addr = 0;
-byte _write_buffer = 0;				/* the current CAN bus buffer, buffers alternate */
+byte _write_buffer = 0;					/* the current CAN bus buffer, buffers alternate */
 
 /*
  * version specifi global variables.
  */
+#if VERSION == 0x0111
+Int16 _version = 0x0111;
+#elif VERSION == 0x0112
+Int16 _version = 0x0112;
+#elif VERSION == 0x0113
+Int16 _version = 0x0113;
+#endif
+
 #if VERSION == 0x0113
 Int32  _other_position[JN] = { 0, 0 };	/* the position of the synchronized card */
 Int32  _adjustment[JN] = { 0, 0 };		/* the actual adjustment (compensation) */
@@ -213,6 +221,14 @@ byte writeToFlash (word addr)
 	byte i, err;
 	word tmp;
 	bool gerr = false;
+
+	tmp = BYTE_W(_board_ID, 0);
+	err = IFsh1_setWordFlash(ptr, tmp);
+	gerr |= (err != ERR_OK);
+	ADP(ptr,2);
+	err = IFsh1_setWordFlash(ptr, _version);
+	gerr |= (err != ERR_OK);
+	ADP(ptr,2);
 	
 	for (i = 0; i < JN; i++)
 	{
@@ -248,11 +264,6 @@ byte writeToFlash (word addr)
 		ADP(ptr,4);
 	}
 
-	tmp = BYTE_W(_board_ID, 0);
-	err = IFsh1_setWordFlash(ptr, tmp);
-	gerr |= (err != ERR_OK);
-	//ptr ++;		
-
 	if (gerr)
 		AS1_printStringEx ("Error while writing to flash memory, pls try again\r\n");
 	
@@ -264,6 +275,12 @@ byte readFromFlash (word addr)
 	dword ptr = (dword)addr;
 	word tmp;
 	int i;
+
+	IFsh1_getWordFlash(ptr, &tmp);
+	_board_ID = BYTE_H(tmp);
+	ADP(ptr,2);
+	IFsh1_getWordFlash(ptr, (unsigned int *)&_version);
+	ADP(ptr,2);
 
 	for (i = 0; i < JN; i++)
 	{
@@ -287,10 +304,6 @@ byte readFromFlash (word addr)
 		IFsh1_getLongFlash(ptr, (dword *)(_max_position+i));
 		ADP(ptr,4);
 	}
-
-	IFsh1_getWordFlash(ptr, &tmp);
-	_board_ID = BYTE_H(tmp);
-	//ptr ++;
 	
 	return ERR_OK;
 }
@@ -469,7 +482,8 @@ void main(void)
 	
 	/* gets the address of flash memory from the linker */
 	_flash_addr = get_flash_addr();	
-	
+	IFsh1_setWordFlash(_flash_addr+2, _version);
+
 	/* enable interrupts */
 	setReg(SYS_CNTL, 0);
 	setRegBits(IPR, 0xfe12);	/* enable all interrupts and IRQA, IRQB */
@@ -507,11 +521,11 @@ void main(void)
 	readFromFlash (_flash_addr);
 
 	/* CAN masks/filters init, note the reverse order of mask comparison (see manual) */
-	CAN1_setAcceptanceMask (0xffff1ffe);
+	CAN1_setAcceptanceMask (0xffff1ffe, 0xffff1ffe);
 	temporary = _board_ID >> 3;
 	temporary |= (_board_ID << 13);
 	acceptance_code = L_deposit_l (temporary);
-	CAN1_setAcceptanceCode (acceptance_code);
+	CAN1_setAcceptanceCode (acceptance_code, 0xe001);
 	
 	/* reset encoders, LATER: should do something more than this */
 	calibrate(0);
@@ -698,6 +712,7 @@ byte can_interface (void)
 {
 	bool done = false;
 	word i;
+	dword IdTx;
 	
 	CAN_DI;
 	if (read_p != -1)
@@ -766,6 +781,38 @@ byte can_interface (void)
 #if VERSION == 0x0113
 			if (_canmsg.CAN_messID & 0x00000100)
 				CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER(0)
+			else
+			/* special message for the can loader */ 
+			if (_canmsg.CAN_messID & 0x00000700)
+			{
+				if ((_canmsg.CAN_length == 1)) 
+				{
+	 				IdTx = (_canmsg.CAN_messID & 0x0700);			
+					IdTx |= (L_deposit_l (_board_ID) << 4);
+					IdTx |= ((_canmsg.CAN_messID >> 4) & 0x000F);
+					
+			    	switch (_canmsg.CAN_data[0]) 
+			    	{
+						case 0xFF:
+							_canmsg.CAN_data[0] = 0xFF;
+							_canmsg.CAN_data[1] = 0;  // board type (always 0 for motor control card).
+							_canmsg.CAN_data[2] = (_version & 0xff00) >> 8;  // firmware version.	
+							_canmsg.CAN_data[3] = _version & 0x00ff; 		 // firmware revision.
+							CAN1_sendFrame (1,IdTx, DATA_FRAME, 4, _canmsg.CAN_data);
+							break;
+							
+					    case 4:
+							_canmsg.CAN_data[0] = 4;
+							_canmsg.CAN_data[1] = 1; 
+							CAN1_sendFrame (1,IdTx, DATA_FRAME, 2, _canmsg.CAN_data);
+							break;
+							
+					    case 0:
+		    				asm(jsr bootStart);	/// check whether this has to be a JMP rather than a JSR.
+		    				break;
+		    		}	
+				}
+			}
 			else
 			{
 #endif
@@ -1091,11 +1138,11 @@ byte serial_interface (void)
 				_board_ID = iretval & 0x0f;
 
 			/* CAN masks/filters init, see main() */
-			CAN1_setAcceptanceMask (0xffff1ffe);
+			CAN1_setAcceptanceMask (0xffff1ffe, 0xffff1ffe);
 			iretval = _board_ID >> 3;
 			iretval |= (_board_ID << 13);
 			acceptance_code = L_deposit_l (iretval);
-			CAN1_setAcceptanceCode (acceptance_code);
+			CAN1_setAcceptanceCode (acceptance_code, 0xe001);
 			
 			c = 0;
 			break;
