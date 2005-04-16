@@ -668,7 +668,7 @@ void CTestControlDlg::OnInterfaceStart()
 	YARPRobotcubHeadParameters parameters;
 	parameters.load (YARPString(path), YARPString(HEAD_INI_FILE));
 	parameters._message_filter = 20;
-	parameters._p = NULL; //xprintf;
+	parameters._p = xprintf;
 
 	int ret = head.initialize(parameters);
 	if (ret != YARP_OK)

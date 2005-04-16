@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.19 2005-04-15 22:51:53 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.20 2005-04-16 01:43:58 babybot Exp $
 ///
 ///
 
@@ -580,7 +580,7 @@ int ValueCanResources::initialize (const ValueCanOpenParameters& params)
 inline ValueCanResources& RES(void *res) { return *(ValueCanResources *)res; }
 
 YARPValueCanDeviceDriver::YARPValueCanDeviceDriver(void) 
-	: YARPDeviceDriver<YARPNullSemaphore, YARPValueCanDeviceDriver>(CBNCmds), _mutex(1)
+	: YARPDeviceDriver<YARPNullSemaphore, YARPValueCanDeviceDriver>(CBNCmds), _mutex(1), _pending(1)
 {
 	system_resources = (void *) new ValueCanResources;
 	ACE_ASSERT (system_resources != NULL);
@@ -699,41 +699,6 @@ int YARPValueCanDeviceDriver::close (void)
 
 ///
 ///
-///
-void YARPValueCanDeviceDriver::_printMessage (void *msg, int (*p) (char *fmt, ...))
-{
-	icsSpyMessage m = *(icsSpyMessage *)msg;
-	ValueCanResources& r = RES(system_resources);
-
-//	if ((m.Data[0] & 0x7f) != r._filter &&
-//		(m.ArbIDOrHeader & 0x0f) == r._my_address)
-	{
-		(*p) 
-			("class: %2d s: %2x d: %2x c: %1d msg: %3d (%x) ",
-			  (m.ArbIDOrHeader & 0x700) >> 8,
-			  (m.ArbIDOrHeader & 0xf0) >> 4, 
-			  (m.ArbIDOrHeader & 0x0f), 
-			  ((m.Data[0] & 0x80)==0)?0:1,
-			  (m.Data[0] & 0x7f),
-			  (m.Data[0] & 0x7f));
-
-		if (m.NumberBytesData > 1)
-		{
-			(*p)("x: "); 
-		}
-
-		int j;
-		for (j = 1; j < m.NumberBytesData; j++)
-		{
-			(*p)("%x ", m.Data[j]);
-		}
-
-		(*p)("id: %x\n", m.ArbIDOrHeader);
-	}
-}
-
-///
-///
 /// OS scheduler should possibly go into hi-res mode (winnt).
 void YARPValueCanDeviceDriver::Body(void)
 {
@@ -741,17 +706,16 @@ void YARPValueCanDeviceDriver::Body(void)
 	double now = -1, before = -1;
 	int cyclecount = 0;
 	int left = 0, own_messages = 0;
-	
+	bool done = false;
+
 	_request = false;
 	_noreply = false;
 
 	_mutex.Post();	// was decremented by the open().
 
-	while (!IsTerminated())
+	while (!IsTerminated() || left >= 1)
 	{
 		before = YARPTime::GetTimeAsSeconds();
-
-		//if (r._p) (*r._p)("-----\n");
 
 		/// reads all messages.
 		int err = 0;
@@ -808,6 +772,7 @@ void YARPValueCanDeviceDriver::Body(void)
 						r.clearError();
 						_mutex.Post();
 						_ev.Signal();
+						done = true;
 					}
 					else
 						_mutex.Post();
@@ -824,8 +789,8 @@ void YARPValueCanDeviceDriver::Body(void)
 					if (left < 1)
 					{
 						r.clearError();
-						_mutex.Post();
 						_ev.Signal();
+						done = true;
 					}
 				}
 			}
@@ -851,11 +816,19 @@ void YARPValueCanDeviceDriver::Body(void)
 				cyclecount = 0;
 				_mutex.Post();
 				_ev.Signal();
+				done = true;
 			}
 		}
 
 		_mutex.Wait();
-		
+
+		/// completed prev message packet.
+		if (done)
+		{
+			done = false;
+			_pending.Post();	/// a new write is allowed.
+		}
+
 		/// copies buffered values.
 		r.setPrintFunction (_p);
 		r.setMessageFilter (_filter);
@@ -866,8 +839,6 @@ void YARPValueCanDeviceDriver::Body(void)
 			{
 				if (r.p()) (*r.p())("problems sending message\n"); 
 			}
-
-			//if (r._p) (*r._p)("there was a write of %d messages\n", r._cur_packetsize);
 
 			r.clearReplyBuffer ();
 			own_messages = left = r.getPacketSize ();
@@ -927,6 +898,7 @@ int YARPValueCanDeviceDriver::getPositions (void *cmd)
 	double *tmp = (double *)cmd;
 	int i, value = 0;
 
+	_pending.Wait();
 	_mutex.Wait();
 	r.startPacket();
 
@@ -995,6 +967,7 @@ int YARPValueCanDeviceDriver::setPositions (void *cmd)
 	double *tmp = (double *)cmd;
 	int i;
 
+	_pending.Wait();
 	_mutex.Wait();
 	r.startPacket();
 
@@ -1053,6 +1026,7 @@ int YARPValueCanDeviceDriver::setPosition (void *cmd)
 		return YARP_OK;
 	}
 
+	_pending.Wait();
 	_mutex.Wait();
 
 	r.startPacket();
@@ -1083,6 +1057,7 @@ int YARPValueCanDeviceDriver::velocityMove (void *cmd)
 	double *tmp = (double *)cmd;
 	int i;
 
+	_pending.Wait();
 	_mutex.Wait();
 	r.startPacket();
 
@@ -1690,6 +1665,7 @@ int YARPValueCanDeviceDriver::_writeNone (int msg, int axis)
 		return YARP_OK;
 	}
 
+	_pending.Wait();
 	_mutex.Wait();
 
 	r.startPacket();
@@ -1717,7 +1693,7 @@ int YARPValueCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 		return YARP_OK;
 	}
 
-	/// prepare Can message.
+	_pending.Wait();
 	_mutex.Wait();
 
 	r.startPacket();
@@ -1750,6 +1726,7 @@ int YARPValueCanDeviceDriver::_writeWord16 (int msg, int axis, short s)
 	if (!ENABLED(axis))
 		return YARP_OK;
 
+	_pending.Wait();
 	_mutex.Wait();
 
 	r.startPacket();
@@ -1779,6 +1756,7 @@ int YARPValueCanDeviceDriver::_writeDWord (int msg, int axis, int value)
 	if (!ENABLED(axis))
 		return YARP_OK;
 
+	_pending.Wait();
 	_mutex.Wait();
 
 	r.startPacket();
@@ -1810,6 +1788,7 @@ int YARPValueCanDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short
 	if (!ENABLED(axis))
 		return YARP_OK;
 
+	_pending.Wait();
 	_mutex.Wait();
 
 	r.startPacket();
@@ -1845,7 +1824,7 @@ int YARPValueCanDeviceDriver::_readDWord (int msg, int axis, int& value)
 		return YARP_OK;
 	}
 
-	/// prepare can packet of length 1.
+	_pending.Wait();
 	_mutex.Wait();
 
 	r.startPacket();

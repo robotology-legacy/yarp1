@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.1 2005-04-15 23:04:33 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.2 2005-04-16 01:43:58 babybot Exp $
 ///
 ///
 
@@ -275,8 +275,8 @@ int EsdCanResources::_initialize (const EsdCanOpenParameters& params)
 	for (i = 0; i < 0xff; i++)
 		canIdAdd (_handle, i);
 	
-	canIdAdd (_handle, 0x1bc);
-	canIdAdd (_handle, 0x1cb);
+	//canIdAdd (_handle, 0x1bc);
+	//canIdAdd (_handle, 0x1cb);
 
 	_msg_lost = 0;
 
@@ -299,7 +299,7 @@ int EsdCanResources::_initialize (const EsdCanOpenParameters& params)
 inline EsdCanResources& RES(void *res) { return *(EsdCanResources *)res; }
 
 YARPEsdCanDeviceDriver::YARPEsdCanDeviceDriver(void) 
-	: YARPDeviceDriver<YARPNullSemaphore, YARPEsdCanDeviceDriver>(CBNCmds), _mutex(1)
+	: YARPDeviceDriver<YARPNullSemaphore, YARPEsdCanDeviceDriver>(CBNCmds), _mutex(1), _pending(1)
 {
 	system_resources = (void *) new EsdCanResources;
 	ACE_ASSERT (system_resources != NULL);
@@ -497,23 +497,24 @@ void YARPEsdCanDeviceDriver::_printMessage (void *msg, int (*p) (char *fmt, ...)
 ///
 ///
 /// OS scheduler should possibly go into hi-res mode (winnt).
+/// make sure only 1 message packed at a time is processed.
+///
 void YARPEsdCanDeviceDriver::Body(void)
 {
 	EsdCanResources& r = RES(system_resources);
 	double now = -1, before = -1;
 	int cyclecount = 0;
 	int left = 0, own_messages = 0;
-	
+	bool done = false;
+
 	_request = false;
 	_noreply = false;
 
 	_mutex.Post();	// was decremented by the open().
 
-	while (!IsTerminated())
+	while (!IsTerminated() || left >= 1)
 	{
 		before = YARPTime::GetTimeAsSeconds();
-
-		//if (r._p) (*r._p)("-----\n");
 
 		/// reads all messages.
 		int err = 0;
@@ -538,8 +539,6 @@ void YARPEsdCanDeviceDriver::Body(void)
 			for (i = 0; i < n; i++)
 			{
 				CMSG& m = r._canMsg[i];
-				//if (r._p) 
-				//	_printMessage ((void*)&m, r._p);
 
 				if (r._error(m))
 				{
@@ -554,26 +553,22 @@ void YARPEsdCanDeviceDriver::Body(void)
 					continue;		/// skip this message.
 				}
 
-				/// my message.
-				if (((m.id & 0xf0) >> 4) == r._my_address)
+
+				/// can't get own messages :(
+				_mutex.Wait();
+				if (_noreply)
 				{
-					_mutex.Wait();
-					own_messages --;
-
-					/// my last sent message.
-					if (_noreply && own_messages < 1)
-					{
-						_noreply = false;
-						left = 0;
-						r._error_status = YARP_OK;
-						_mutex.Post();
-						_ev.Signal();
-					}
-					else
-						_mutex.Post();
-
-					continue;
+					_noreply = false;
+					left = 0;
+					own_messages = 0;
+					r._error_status = YARP_OK;
+					_mutex.Post();
+					_ev.Signal();
+					done = true;
 				}
+				else
+					_mutex.Post();
+
 
 				/// check whether the message is a reply of any of the pending messages
 				/// in current packet.
@@ -583,20 +578,17 @@ void YARPEsdCanDeviceDriver::Body(void)
 					for (j = 0; j < r._cur_packetsize; j++)
 					{
 						if (r._cmdBuffer[j].data[0] == m.data[0] &&		// same message type.
-							!(m.id & 0x700) &&				// class 0.
+							(m.id & 0x700) == 0 &&				// class 0.
 							((m.id & 0xf0) >> 4) == (r._cmdBuffer[j].id & 0x0f))
 						{
-							/// it's a reply.
-							//if (r._p)
-							//	(*r._p)("reply for entry %d msg %x\n", j, m.Data[0]);
-
 							memcpy (&r._replyBuffer[j], &m, sizeof(CMSG));
 							left --;
 							if (left < 1)
 							{
 								r._error_status = YARP_OK;
-								_mutex.Post();
+								///_mutex.Post(); THE BUG!
 								_ev.Signal();
+								done = true;
 							}
 						}
 					}
@@ -614,6 +606,7 @@ void YARPEsdCanDeviceDriver::Body(void)
 				{
 					(*r._p)("CAN: still %d unacknoweledged messages\n", left);
 					(*r._p)("CAN: still %d unsent messages\n", own_messages);
+					(*r._p)("CAN: packet of %d \n", r._cur_packetsize);
 				}
 				
 				int j;
@@ -635,7 +628,15 @@ void YARPEsdCanDeviceDriver::Body(void)
 				cyclecount = 0;
 				_mutex.Post();
 				_ev.Signal();
+				done = true;
 			}
+		}
+
+		/// completed prev message packet.
+		if (done)
+		{
+			done = false;
+			_pending.Post();	/// a new write is allowed.
 		}
 
 		_mutex.Wait();
@@ -651,15 +652,13 @@ void YARPEsdCanDeviceDriver::Body(void)
 				if (r._p) (*r._p)("problems sending message\n"); 
 			}
 
-			//if (r._p) (*r._p)("there was a write of %d messages\n", r._cur_packetsize);
-
 			memset (r._replyBuffer, 0, sizeof(CMSG) * r._cur_packetsize);
 			own_messages = left = r._cur_packetsize;
 			r._error_status = YARP_OK;
 			cyclecount = 0;
 			_request = false;
 		}
-		
+
 		_mutex.Post();
 
 		now = YARPTime::GetTimeAsSeconds();
@@ -711,6 +710,8 @@ int YARPEsdCanDeviceDriver::getPositions (void *cmd)
 	double *tmp = (double *)cmd;
 	int i, value = 0;
 
+	_pending.Wait();
+
 	_mutex.Wait();
 	r._startPacket();
 
@@ -736,8 +737,8 @@ int YARPEsdCanDeviceDriver::getPositions (void *cmd)
 		return YARP_FAIL;
 	}
 
-	int j;
-	for (i = 0, j = 0; i < r._njoints; i++)
+	int j = 0;
+	for (i = 0; i < r._njoints; i++)
 	{
 		if (ENABLED(i))
 		{
@@ -774,6 +775,8 @@ int YARPEsdCanDeviceDriver::setPositions (void *cmd)
 	EsdCanResources& r = RES(system_resources);
 	double *tmp = (double *)cmd;
 	int i;
+
+	_pending.Wait();
 
 	_mutex.Wait();
 	r._startPacket();
@@ -837,6 +840,8 @@ int YARPEsdCanDeviceDriver::setPosition (void *cmd)
 		return YARP_OK;
 	}
 
+	_pending.Wait();
+
 	_mutex.Wait();
 
 	r._startPacket();
@@ -866,6 +871,8 @@ int YARPEsdCanDeviceDriver::velocityMove (void *cmd)
 	EsdCanResources& r = RES(system_resources);
 	double *tmp = (double *)cmd;
 	int i;
+
+	_pending.Wait();
 
 	_mutex.Wait();
 	r._startPacket();
@@ -1474,6 +1481,8 @@ int YARPEsdCanDeviceDriver::_writeNone (int msg, int axis)
 		return YARP_OK;
 	}
 
+	_pending.Wait();
+
 	_mutex.Wait();
 
 	r._startPacket();
@@ -1500,6 +1509,8 @@ int YARPEsdCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 		value = short(0);
 		return YARP_OK;
 	}
+
+	_pending.Wait();
 
 	/// prepare Can message.
 	_mutex.Wait();
@@ -1534,6 +1545,7 @@ int YARPEsdCanDeviceDriver::_writeWord16 (int msg, int axis, short s)
 	if (!ENABLED(axis))
 		return YARP_OK;
 
+	_pending.Wait();
 	_mutex.Wait();
 
 	r._startPacket();
@@ -1563,6 +1575,7 @@ int YARPEsdCanDeviceDriver::_writeDWord (int msg, int axis, int value)
 	if (!ENABLED(axis))
 		return YARP_OK;
 
+	_pending.Wait();
 	_mutex.Wait();
 
 	r._startPacket();
@@ -1594,6 +1607,7 @@ int YARPEsdCanDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short s
 	if (!ENABLED(axis))
 		return YARP_OK;
 
+	_pending.Wait();
 	_mutex.Wait();
 
 	r._startPacket();
@@ -1629,6 +1643,7 @@ int YARPEsdCanDeviceDriver::_readDWord (int msg, int axis, int& value)
 		return YARP_OK;
 	}
 
+	_pending.Wait();
 	/// prepare can packet of length 1.
 	_mutex.Wait();
 

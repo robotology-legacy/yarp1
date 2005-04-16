@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.7 2005-04-15 22:51:53 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.8 2005-04-16 01:43:59 babybot Exp $
 ///
 ///
 
@@ -167,22 +167,11 @@ protected:
 protected:
 	void *system_resources;
 	YARPSemaphore _mutex;
+	YARPSemaphore _pending;
 	YARPEvent _ev;
 	bool _request;
 	bool _noreply;
 	
-	/**
-	 * helper function called from the device driver to print by means of _p
-	 * (see below).
-	 */
-	void _debugMsg (int n, void *msg, int (*p) (char *fmt, ...));
-
-	/**
-	 * helper function called from the device driver to print a single message by means of _p
-	 * (see below).
-	 */
-	void _printMessage (void *msg, int (*p) (char *fmt, ...));
-
 	/**
 	 * pointer to the function printing the device debug information.
 	 */

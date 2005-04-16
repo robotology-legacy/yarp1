@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.9 2005-04-15 22:51:54 babybot Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.10 2005-04-16 01:43:59 babybot Exp $
 ///
 ///
 
@@ -114,7 +114,7 @@ namespace _RobotcubArm
 
 	const int CANBUS_DEVICE_NUM			= 0;
 	const int CANBUS_MY_ADDRESS			= 0;
-	const int CANBUS_POLLING_INTERVAL	= 2;			/// [ms]
+	const int CANBUS_POLLING_INTERVAL	= 20;			/// [ms]
 	const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
 	const int CANBUS_MAXCARDS			= 16;			/// because of the structure of the protocol.
 

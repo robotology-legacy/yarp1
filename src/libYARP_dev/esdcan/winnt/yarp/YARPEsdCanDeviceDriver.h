@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.h,v 1.1 2005-04-15 23:04:33 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.h,v 1.2 2005-04-16 01:43:58 babybot Exp $
 ///
 ///
 
@@ -178,6 +178,7 @@ protected:
 protected:
 	void *system_resources;
 	YARPSemaphore _mutex;
+	YARPSemaphore _pending;
 	YARPEvent _ev;
 	bool _request;
 	bool _noreply;
