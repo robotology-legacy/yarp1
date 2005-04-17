@@ -52,7 +52,7 @@ _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 	
 	_orientationPort.setRef(this);
 	_orientationPort.Register("/reaching/orientation/i:bot");
-	_actionType = FROM_ABOVE;
+	_actionType = FROM_ABOVE;	//default action
 
 	_noise.resize(__nJointsArm, __maxRnd, __minRnd);
 	_command.Resize(__nJointsArm);
