@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPDragonflyDeviceDriver.h,v 1.2 2005-04-17 15:41:55 babybot Exp $
+/// $Id: YARPDragonflyDeviceDriver.h,v 1.3 2005-04-17 16:13:29 babybot Exp $
 ///
 ///
 
@@ -58,7 +58,7 @@
 
 
 /**
- * \file YARPPicoloDeviceDriver.h device driver for managing the Dragonfly IEEE-1394 Camera.
+ * \file YARPDragonflyDeviceDriver.h device driver for managing the Dragonfly IEEE-1394 Camera.
  */
 
 /**
@@ -76,6 +76,9 @@ struct DragonflyOpenParameters
 		_size_x = 0;
 		_size_y = 0;
 		_video_type = 0;
+		_offset_y = 0;
+		_offset_x = 0;
+		_alfa = 0;
 	}
 
 	// Parameters
@@ -83,6 +86,9 @@ struct DragonflyOpenParameters
 	unsigned int _size_x;
 	unsigned int _size_y;
 	unsigned int _video_type;
+	int _offset_y;				/** NOT USED */
+	int _offset_x;				/** NOT USED */
+	float _alfa;				/** NOT USED */
 };
 
 class YARPDragonflyDeviceDriver : 
