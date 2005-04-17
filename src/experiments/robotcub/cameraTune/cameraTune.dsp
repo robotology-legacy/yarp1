@@ -94,6 +94,10 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\CameraOptDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\cameraTune.cpp
 # End Source File
 # Begin Source File
@@ -115,6 +119,10 @@ SOURCE=.\LiveCameraDlg.cpp
 # Begin Source File
 
 SOURCE=.\LiveEdgesDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\LiveHeadDlg.cpp
 # End Source File
 # Begin Source File
 
@@ -143,6 +151,10 @@ SOURCE=.\YARPSusanFilter.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\CameraOptDlg.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\cameraTune.h
 # End Source File
 # Begin Source File
@@ -160,6 +172,10 @@ SOURCE=.\LiveCameraDlg.h
 # Begin Source File
 
 SOURCE=.\LiveEdgesDlg.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LiveHeadDlg.h
 # End Source File
 # Begin Source File
 

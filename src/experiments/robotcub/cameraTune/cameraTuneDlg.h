@@ -12,6 +12,8 @@
 #include "LiveEdgesDlg.h"
 #include "MessageDlg.h"
 #include "OptionsDlg.h"
+#include "LiveHeadDlg.h"
+#include "CameraOptDlg.h"
 
 struct mOptions
 {
@@ -63,9 +65,12 @@ private:
 	CLiveEdgesDlg	EdgesDialog;
 	CMessageDlg		MessageDialog;
 	COptionsDlg		OptionsDialog;
+	CLiveHeadDlg	HeadDialog;
+	CCameraOptDlg	CameraOptionsDlg;
 
 	bool bLiveCamera;
 	bool bLiveEdges;
+	bool bLiveHead;
 	YARPGrabber	grabber;
 	YARPImageOf<YarpPixelBGR> img;
 	YARPImageOf<YarpPixelBGR> *img_buffer;
@@ -91,6 +96,7 @@ protected:
 	afx_msg void OnTimer(UINT nIDEvent);
 	afx_msg void OnCalibrate();
 	afx_msg void OnOptions();
+	afx_msg void OnShowHead();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

@@ -94,6 +94,7 @@ BEGIN_MESSAGE_MAP(CCameraTuneDlg, CDialog)
 	ON_WM_TIMER()
 	ON_BN_CLICKED(IDC_CALIBRATE, OnCalibrate)
 	ON_BN_CLICKED(IDC_OPTIONS, OnOptions)
+	ON_BN_CLICKED(IDC_SHOW_HEAD, OnShowHead)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -186,9 +187,11 @@ void CCameraTuneDlg::initMembers()
 {
 	CameraDialog.Create(CLiveCameraDlg::IDD, this);
 	EdgesDialog.Create(CLiveEdgesDlg::IDD, this);
+	HeadDialog.Create(CLiveHeadDlg::IDD, this);
 
 	bLiveCamera = false;
 	bLiveEdges = false;
+	bLiveHead = false;
 	setupOptions();
 	EdgesDialog.flt.resize(options.sizeX, options.sizeY);
 	EdgesDialog.edgeImg.Resize(options.sizeX, options.sizeY);
@@ -201,6 +204,7 @@ void CCameraTuneDlg::initMembers()
 	GetDlgItem(IDC_CALIBRATE)->EnableWindow(FALSE);
 	GetDlgItem(IDC_SHOW_CAMERA)->EnableWindow(FALSE);
 	GetDlgItem(IDC_SHOW_EDGES)->EnableWindow(FALSE);
+	GetDlgItem(IDC_SHOW_HEAD)->EnableWindow(FALSE);
 	img_buffer = new YARPImageOf<YarpPixelBGR> [options.nImages];
 	for (int i=0; i< options.nImages; i++)
 		img_buffer[i].Resize (options.sizeX, options.sizeY);
@@ -227,7 +231,7 @@ void CCameraTuneDlg::OnShowCamera()
 		bLiveCamera = true;
 	}
 	
-	if (!bLiveCamera && !bLiveEdges && (m_timerID != NULL) ) 
+	if (!bLiveHead && !bLiveCamera && !bLiveEdges && (m_timerID != NULL) ) 
 	{
 		KillTimer (m_timerID);
 		m_timerID = NULL;
@@ -254,7 +258,7 @@ void CCameraTuneDlg::OnShowEdges()
 		bLiveEdges = true;
 	}
 	
-	if (!bLiveCamera && !bLiveEdges && (m_timerID != NULL) ) 
+	if (!bLiveHead && !bLiveCamera && !bLiveEdges && (m_timerID != NULL) ) 
 	{
 		KillTimer (m_timerID);
 		m_timerID = NULL;
@@ -520,7 +524,13 @@ void CCameraTuneDlg::OnCalibrate()
 
 	GetDlgItem(IDC_SHOW_CAMERA)->EnableWindow(FALSE);
 	GetDlgItem(IDC_SHOW_EDGES)->EnableWindow(FALSE);
+	GetDlgItem(IDC_SHOW_HEAD)->EnableWindow(FALSE);
 	GetDlgItem(IDC_CALIBRATE)->EnableWindow(FALSE);
+	if (bLiveHead)
+	{
+		HeadDialog.ShowWindow(SW_HIDE);
+		bLiveHead = false;
+	}
 	if (bLiveCamera)
 	{
 		CameraDialog.ShowWindow(SW_HIDE);
@@ -539,7 +549,9 @@ void CCameraTuneDlg::OnCalibrate()
 	Calibrate();
 	GetDlgItem(IDC_SHOW_CAMERA)->EnableWindow(TRUE);
 	GetDlgItem(IDC_SHOW_EDGES)->EnableWindow(TRUE);
+	GetDlgItem(IDC_SHOW_HEAD)->EnableWindow(TRUE);
 	GetDlgItem(IDC_CALIBRATE)->EnableWindow(TRUE);
+	
 }
 
 void CCameraTuneDlg::setupOptions()
@@ -569,5 +581,34 @@ void CCameraTuneDlg::OnOptions()
 	// controllare il valore di ritorno;
 	if (ret)
 		setupOptions();
+	
+}
+
+void CCameraTuneDlg::OnShowHead() 
+{
+	if (bLiveHead)
+	{
+		HeadDialog.ShowWindow(SW_HIDE);
+		bLiveHead = false;
+	}
+	else
+	{
+		
+		if (m_timerID == NULL)
+		{
+			m_timerID = SetTimer(321, options.refresh, NULL);
+			_ASSERT (m_timerID != 0);
+		}
+		
+		HeadDialog.ShowWindow(SW_RESTORE);
+		bLiveHead = true;
+	}
+	
+	if (!bLiveHead && !bLiveCamera && !bLiveEdges && (m_timerID != NULL) ) 
+	{
+		KillTimer (m_timerID);
+		m_timerID = NULL;
+	}	
+	
 	
 }

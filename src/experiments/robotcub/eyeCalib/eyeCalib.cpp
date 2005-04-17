@@ -28,6 +28,21 @@
 
 #define  FTOI(a) ( (a) < 0 ? ((int)(a-0.5)) : ((int)(a+0.5)) )
 
+YARPGrabber	_grabber;
+YARPImageOf<YarpPixelBGR> _imgBuffer[N_IMAGES];
+int _sizeX = 640;
+int _sizeY = 480;
+YARPHoughTransform _houghFlt;
+YARPSusanFilter _susanFlt;
+YARPImageOf<YarpPixelMono> _susanImg;
+// DEBUG
+//YARPHead _head;
+// END DEBUG
+const char *const HEAD_INI_FILE = "head.ini";
+double *_headJointsStore;
+double _initialOrientation;
+double _finalOrientation;
+
 double _normalize0ToPI(double angle)
 {
 	int k;
@@ -72,149 +87,184 @@ double _variance(double mean, double *data, int size)
 	return variance;
 }
 
+void releaseSensor(void)
+{
+	printf("[eyeCalib] Releasing the sensor..\n");
+	int ret = _grabber.uninitialize();
+	if (ret == YARP_FAIL)
+	{
+		printf("[eyeCalib] ERROR in _grabber.uninitialize(). Quitting.\n");
+		exit (1);
+	}
+}
+
+double calibrate(void)
+{
+	double orientation;
+	unsigned char *buffer = NULL;
+	int ret;
+	printf("\n[eyeCalib] Grabbing frames (1st cycle)\n");
+	for (int i=0; i<N_IMAGES; i++)
+	{
+		ret = _grabber.waitOnNewFrame ();
+		if (ret == YARP_FAIL)
+		{
+			printf("[eyeCalib] ERROR in _grabber.waitOnNewFrame(). Quitting.\n");
+			releaseSensor();
+			exit (1);
+		}
+
+		ret = _grabber.acquireBuffer(&buffer);
+		if (ret == YARP_FAIL)
+		{
+			printf("[eyeCalib] ERROR in _grabber.acquireBuffer(). Quitting.\n");
+			releaseSensor();
+			exit (1);
+		}
+	
+		memcpy((unsigned char *)_imgBuffer[i].GetRawBuffer(), buffer, _sizeX * _sizeY * 3);
+
+		ret = _grabber.releaseBuffer ();
+		if (ret == YARP_FAIL)
+		{
+			printf("[eyeCalib] ERROR in _grabber.releaseBuffer(). Quitting.\n");
+			releaseSensor();
+			exit (1);
+		}
+	
+		printf(".");
+	}
+
+	printf("\n[eyeCalib] Calculating main orientation (1st cycle)\n");
+	double acc = 0.0;
+	double angle;
+	for (i=0; i<N_IMAGES; i++)
+	{
+		_susanFlt.apply(&(_imgBuffer[i]), &_susanImg);
+		_houghFlt.apply(&_susanImg);
+		_houghFlt.getMaxTheta(&angle);
+		acc += _normalize0ToPI(PI/2.0-angle);
+		printf(".");
+	}
+	orientation = acc / N_IMAGES;
+	return orientation;
+}
+
+bool readLine(FILE *file, double *vel, double *posArray)
+{
+	char line[255];
+	double posJ0, posJ1, posJ2, posJ3;
+	do
+	{
+		if (feof(file))
+			return false;
+		//fscanf(file,"%s\n",line);
+		fgets(line,255,file);
+	}
+	while (line[0] == '#');
+	sscanf(line, "%lf;%lf;%lf;%lf;%lf",vel, &posJ0, &posJ1, &posJ2, &posJ3);
+	posArray[0] = posJ0;
+	posArray[1] = posJ1;
+	posArray[2] = posJ2;
+	posArray[3] = posJ3;
+	return true;
+}
+
+void moveHead(double vel, double *posVector)
+{
+// DEBUG
+	/*
+	for( int j=0;j<4;j++)
+		headJointsStore[j] = posVector[j];
+	_head.setPositions (headJointsStore);
+	for(j=0;j<4;j++)
+		headJointsStore[j] = vel;
+	_head.setVelocities (headJointsStore);
+	*/
+// END DEBUG
+}
+
+void initializeHead(void)
+{
+	// HEAD INITIALIZATION
+	char *root = GetYarpRoot();
+	char path[512];
+	int nj;
+	ACE_OS::sprintf (path, "%s/%s\0", root, ConfigFilePath); 
+	// initialize head controller on bus 1.
+// DEBUG
+	/*
+	YARPRobotcubHeadParameters parameters;
+	parameters.load (YARPString(path), YARPString(HEAD_INI_FILE));
+	parameters._message_filter = 20;
+	parameters._p = printf;
+
+	int ret = _head.initialize(parameters);
+	if (ret != YARP_OK)
+	{
+		printf("[eyeCalib] ERROR: Can't start the interface with the robot head, please make sure the hardware and control cards are on.\nThe ini file was: %s%s", path, HEAD_INI_FILE);
+		exit(1);
+	}
+	nj = _head.nj();
+	*/
+// END DEBUG
+	nj = 4;
+	_headJointsStore = new double[nj];
+	for (int j=0;j<nj;j++)
+		_headJointsStore[j] = 0.0;
+}
+
+void releaseHead(void)
+{
+	delete [] _headJointsStore;
+}
+
 int main(int argc, char* argv[])
 {
-	YARPGrabber	grabber;
+	
 	int boardN = 0;
-	int sizeX = 640;
-	int sizeY = 480;
 	int ret = 0;
 	int rhoSize = 256;
 	int thetaSize = 180;
-	unsigned char *buffer = NULL;
-	YARPImageOf<YarpPixelBGR> img_buffer[N_IMAGES];
-	YARPImageOf<YarpPixelMono> susan_img;
+	
 	YARPImageOf<YarpPixelMono> hough_img;
-	double initialOrientation;
-	double finalOrientation;
-	double difference;
-	YARPHoughTransform houghFlt;
-	YARPSusanFilter flt;
-	double angle;
-	double acc;
+	char c;
 
-	printf("\n[eyeCalib] Allocating images and filter (%d x %d)...\n", sizeX, sizeY);
-	for (int i=0; i<N_IMAGES; i++)
-		img_buffer[i].Resize (sizeX, sizeY);
-	susan_img.Resize (sizeX, sizeY);
-	flt.resize(sizeX, sizeY);
-	printf("[eyeCalib] Setting up the sensor..\n");
-	ret = grabber.initialize(boardN, sizeX, sizeY);
+	printf("\n[eyeCalib] Setting up the sensor..");
+	ret = _grabber.initialize(boardN, _sizeX, _sizeY);
 	if (ret == YARP_FAIL)
 	{
 		printf("[eyeCalib] ERROR in _grabber.initialize(). Quitting.\n");
 		exit (1);
 	}
-	printf("[eyeCalib] Allocating Hough Filter (theta %d, rho %d)..\n", thetaSize, rhoSize);
-	houghFlt.resize(thetaSize, rhoSize);
 
-	printf("[eyeCalib] Hit any key to start calibration..");
-	char c;
-	c = getch();
-	printf("\n[eyeCalib] Grabbing frames (1st cycle)\n");
-	for (i=0; i<N_IMAGES; i++)
-	{
-		ret = grabber.waitOnNewFrame ();
-		if (ret == YARP_FAIL)
-		{
-			printf("[eyeCalib] ERROR in grabber.waitOnNewFrame(). Quitting.\n");
-			exit (1);
-		}
+	initializeHead();
 
-		ret = grabber.acquireBuffer(&buffer);
-		if (ret == YARP_FAIL)
-		{
-			printf("[eyeCalib] ERROR in grabber.acquireBuffer(). Quitting.\n");
-			exit (1);
-		}
-		
-		memcpy((unsigned char *)img_buffer[i].GetRawBuffer(), buffer, sizeX * sizeY * 3);
-
-		ret = grabber.releaseBuffer ();
-		if (ret == YARP_FAIL)
-		{
-			printf("[eyeCalib] ERROR in grabber.releaseBuffer(). Quitting.\n");
-			exit (1);
-		}
-		
-		printf(".");
-	}
-	
-	printf("\n[eyeCalib] Calculating main orientation (1st cycle)\n");
-	acc = 0.0;
-	for (i=0; i<N_IMAGES; i++)
-	{
-		flt.apply(&(img_buffer[i]), &susan_img);
-		houghFlt.apply(&susan_img);
-		houghFlt.getMaxTheta(&angle);
-		acc += _normalize0ToPI(PI/2.0-angle);
-		printf(".");
-	}
-	initialOrientation = acc / N_IMAGES;
-	
-	printf("\n[eyeCalib] Main orientation is %.3frad (%.3fdeg) - variance %.2f\n", initialOrientation, _rad2deg(initialOrientation));
-
-	printf("[eyeCalib] Hit any key to complete calibration..\n");
-	c = getch();
-	printf("[eyeCalib] Grabbing frames (2nd cycle)\n");
-	for (i=0; i<N_IMAGES; i++)
-	{
-		ret = grabber.waitOnNewFrame ();
-		if (ret == YARP_FAIL)
-		{
-			printf("[eyeCalib] ERROR in grabber.waitOnNewFrame(). Quitting.\n");
-			exit (1);
-		}
-
-		ret = grabber.acquireBuffer(&buffer);
-		if (ret == YARP_FAIL)
-		{
-			printf("[eyeCalib] ERROR in grabber.acquireBuffer(). Quitting.\n");
-			exit (1);
-		}
-		
-		memcpy((unsigned char *)img_buffer[i].GetRawBuffer(), buffer, sizeX * sizeY * 3);
-
-		ret = grabber.releaseBuffer ();
-		if (ret == YARP_FAIL)
-		{
-			printf("[eyeCalib] ERROR in grabber.releaseBuffer(). Quitting.\n");
-			exit (1);
-		}
-		
-		printf(".");
-	}
-
-	printf("\n[eyeCalib] Calculating main orientation (2nd cycle)\n");
-	acc = 0.0;
-	for (i=0; i<N_IMAGES; i++)
-	{
-		flt.apply(&(img_buffer[i]), &susan_img);
-		houghFlt.apply(&susan_img);
-		houghFlt.getMaxTheta(&angle);
-		acc += _normalize0ToPI(PI/2.0-angle);
-		printf(".");
-	}
-	finalOrientation = acc / N_IMAGES;
-	
-	printf("\n[eyeCalib] Main orientation is %.3frad (%.3fdeg)\n", finalOrientation, _rad2deg(finalOrientation));
-
-	difference = finalOrientation - initialOrientation;
-	printf("[eyeCalib] Difference is %.3frad (%.3fdeg)\n", difference, _rad2deg(difference));
-	
-	printf("\n[eyeCalib] Do you want to save results to file (Y/n)?");
+	printf("\n[eyeCalib] Allocating images and filter (%d x %d)...", _sizeX, _sizeY);
+	for (int i=0; i<N_IMAGES; i++)
+		_imgBuffer[i].Resize (_sizeX, _sizeY);
+	_susanImg.Resize (_sizeX, _sizeY);
+	_susanFlt.resize(_sizeX, _sizeY);
+	printf("\n[eyeCalib] Allocating Hough Filter (theta %d, rho %d)..", thetaSize, rhoSize);
+	_houghFlt.resize(thetaSize, rhoSize);
+	char fileName[255];
+	FILE *outFile = NULL;
+	double orientation;
+	double posVector[4];
+	double vel;
+	printf("\n[eyeCalib] Do you want to save results to file ? [Y/n] ");
 	c = getch();
 	if (c != 'n')
 	{
-		char fileName[255];
-		FILE *outFile;
+		
 		printf("\n[eyeCalib] File name ? ");
 		scanf("%s", fileName);
 		printf("[eyeCalib] Append data (Y/n)?");
 		c = getch();
-		if (c != 'n')
+		if (c == 'n')
 		{
 			outFile = fopen(fileName,"w");
+			fprintf(outFile, "velocity;J0;J1;J2;J3;orientation\n");
 		}
 		else
 		{
@@ -225,21 +275,65 @@ int main(int argc, char* argv[])
 		{
 			printf("[eyeCalib] ERROR opening the file %s. Saving aboorted.\n", fileName);
 		}
-		else
-			fprintf(outFile, "%f;%f\n", initialOrientation, finalOrientation);
-
-		fclose(outFile);
 	}
-	
-	printf("[eyeCalib] Releasing the sensor..\n");
-	ret = grabber.uninitialize();
-	if (ret == YARP_FAIL)
+	printf("\n[eyeCalib] Interactive calibration or Load data form file? [I/l] ");
+	c = getch();
+	if ( c == 'l')
 	{
-		printf("[eyeCalib] ERROR in grabber.uninitialize(). Quitting.\n");
-		exit (1);
+		printf("\n[eyeCalib] File to load? ");
+		scanf("%s", fileName);
+		FILE *dataFile = NULL;
+		dataFile = fopen(fileName,"r");
+		if (dataFile == NULL)
+		{
+			printf("[eyeCalib] ERROR opening the file %s. Quitting.\n", fileName);
+			releaseSensor();
+			if (outFile != NULL)
+				fclose(outFile);
+			exit(1);
+		}
+		bool ret = false;
+		while (readLine(dataFile, &vel, posVector) == true)
+		{
+			printf("\n[eyeCalib] Moving [%.2lf %.2lf %.2lf %.2lf * %.2lf]..", posVector[0], posVector[1], posVector[2], posVector[3], vel);
+			printf("\n[eyeCalib] Hit any key when Position has been reached..");
+			moveHead(vel,posVector);
+			c = getch();
+			orientation = calibrate();
+			printf("\n[eyeCalib] Main orientation is %.3frad (%.3fdeg) - variance %.2f", orientation, _rad2deg(orientation));
+			if (outFile != NULL)
+				fprintf(outFile, "%lf;%lf;%lf;%lf;%lf;%lf\n", vel, posVector[0], posVector[1], posVector[2], posVector[3], orientation);
+		}
+		fclose(dataFile);
+	}
+	else
+	{
+		do
+		{
+			printf("\n[eyeCalib] Avaible Joints:\n\t0 - Left Pan\n\t1 - Left Tilt\n\t2 - Right Pan\n\t3 - Left Tilt");
+			printf("\n[EyeCalib] Move to? [J0;J1;J2;J3] ");
+			scanf("%lf;%lf;%lf;%lf", &(posVector[0]), &(posVector[1]), &(posVector[2]), &(posVector[3]));
+			printf("\n[eyeCalib] Move with velocity? ");
+			scanf("%lf", &vel);
+			printf("\n[eyeCalib] Moving [%.2lf %.2lf %.2lf %.2lf * %.2lf]..", posVector[0], posVector[1], posVector[2], posVector[3], vel);
+			printf("\n[eyeCalib] Hit any key when Position has been reached..");
+			moveHead(vel, posVector);
+			c = getch();
+			orientation = calibrate();
+			printf("\n[eyeCalib] Main orientation is %.3frad (%.3fdeg) - variance %.2f", orientation, _rad2deg(orientation));
+			if (outFile != NULL)
+				fprintf(outFile, "%lf;%lf;%lf;%lf;%lf;%lf\n", vel, posVector[0], posVector[1], posVector[2], posVector[3], orientation);
+			printf("\n[eyeCalib] Another loop ? [Y/n] ");
+			c = getch();
+		} while (c != 'n');
 	}
 
-	printf("[eyeCalib] Bye.\n");
+	if (outFile != NULL)
+			fclose(outFile);
+	releaseSensor();
+	releaseHead();
+
+	printf("\n[eyeCalib] Bye.\n");
 
 	return 0;
 }
