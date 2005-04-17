@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.19 2005-04-15 22:51:54 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.20 2005-04-17 08:12:23 babybot Exp $
 ///
 ///
 
@@ -472,7 +472,6 @@ public:
 		_parameters = par;
 		
 		ValueCanOpenParameters op_par;
-		op_par._port_number = CANBUS_DEVICE_NUM;
 
 		// using addresses from file now!
 		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);

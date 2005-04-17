@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.h,v 1.8 2005-04-16 01:43:59 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.h,v 1.9 2005-04-17 08:12:23 babybot Exp $
 ///
 ///
 
@@ -60,7 +60,6 @@ struct ValueCanOpenParameters
 	 */
 	ValueCanOpenParameters (void)
 	{
-		_port_number = -1;
 		memset (_destinations, 0, sizeof(unsigned char) * VALUE_MAX_CARDS);
 		_my_address = 0;
 		_polling_interval = 10;
@@ -69,7 +68,6 @@ struct ValueCanOpenParameters
 		_p = NULL;
 	}
 
-	int _port_number;							/** which of the many CAN interfaces to connect to */
 	int _njoints;								/** number of joints (cards * 2) */
 	unsigned char _destinations[VALUE_MAX_CARDS];		/** destination addresses */
 	unsigned char _my_address;					/** my address */
@@ -167,9 +165,9 @@ protected:
 protected:
 	void *system_resources;
 	YARPSemaphore _mutex;
-	YARPSemaphore _pending;
-	YARPEvent _ev;
-	bool _request;
+	YARPSemaphore _done;
+
+	bool _writerequested;
 	bool _noreply;
 	
 	/**

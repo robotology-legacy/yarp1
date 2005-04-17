@@ -89,6 +89,11 @@ int main()
 
 			for (lCount = 0; lCount < lNumberOfMessages; lCount++)
 			{
+				if (stMessages[lCount].StatusBitField & SPY_STATUS_GLOBAL_ERR)
+				{
+					printf ("error\n\n");
+				}
+
 				// Calculate the time for this message
 				dTime = ((double) stMessages[lCount].TimeHardware2) * NEOVI_TIMESTAMP_2 + 
 									((double) stMessages[lCount].TimeHardware) * NEOVI_TIMESTAMP_1;
@@ -96,7 +101,7 @@ int main()
 				iTime = (int) dTime;		// conever to an integer
 
 				// is the current message a CAN message
-				if (stMessages[lCount].Protocol == SPY_PROTOCOL_CAN)
+				if (stMessages[lCount].Protocol == SPY_PROTOCOL_CAN && stMessages[lCount].ArbIDOrHeader < 0xff)
 				{
 					// copy a can style message
 					fprintf (fp, "Time (ms) %d Message %d Network %d ArbID %X Data Length: %d b1: %X b2: %X b3: %X b4: %X b5: %X b6: %X b7: %X b8: %X\n", 

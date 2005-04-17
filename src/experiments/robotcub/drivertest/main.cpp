@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.2 2005-04-15 22:51:53 babybot Exp $
+/// $Id: main.cpp,v 1.3 2005-04-17 08:12:23 babybot Exp $
 ///
 ///
 
@@ -122,7 +122,7 @@ const int CANBUS_ARBITRATION_ID		= 0;
 const int CANBUS_MY_ADDRESS			= 0;
 const int CANBUS_POLLING_INTERVAL	= 20;			/// [ms]
 const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
-const int CANBUS_MAXCARDS			= MAX_CARDS;
+const int CANBUS_MAXCARDS			= 16;
 
 const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c, 
 													   0x0b, 0x0a, 0x09, 0x08,
@@ -130,7 +130,7 @@ const unsigned char _destinations[CANBUS_MAXCARDS] = { 0x0f, 0x0e, 0x0d, 0x0c,
 													   0x80, 0x80, 0x80, 0x80 };
 
 YARPValueCanDeviceDriver head;
-YARPEsdCanDeviceDriver arm;
+YARPValueCanDeviceDriver arm;
 
 
 ///
@@ -153,8 +153,6 @@ int main (int argc, char *argv[])
 
 	/// head (bus 1).
 	ValueCanOpenParameters op_par;
-	op_par._port_number = CANBUS_DEVICE_NUM;
-	op_par._arbitrationID = CANBUS_ARBITRATION_ID;
 	memcpy (op_par._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
 	op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
 	op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
@@ -177,7 +175,7 @@ int main (int argc, char *argv[])
 	}
 	
 	/// arm (bus 2).
-	EsdCanOpenParameters op_par2;
+	ValueCanOpenParameters op_par2;
 	op_par2._njoints = MAX_ARM_JNTS;
 	op_par2._p = PRINTLOG;
 	memcpy (op_par2._destinations, _destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
@@ -198,8 +196,8 @@ int main (int argc, char *argv[])
 		_arminitialized = true;
 	}
 
-	head.close();
-	_headinitialized = false;
+	//head.close();
+	//_headinitialized = false;
 
 	if (!_headinitialized && !_arminitialized)
 	{

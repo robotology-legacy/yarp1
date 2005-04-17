@@ -49,7 +49,7 @@ static BOOL close_console (void)
 }
 
 /// Use wprintf like TRACE0, TRACE1, ... (The arguments are the same as printf)
-static int xprintf(char *fmt, ...)
+static int xprintf_arm(char *fmt, ...)
 {
 	if (__console_handle == INVALID_HANDLE_VALUE)
 		return -1;
@@ -63,10 +63,33 @@ static int xprintf(char *fmt, ...)
 	va_end(argptr);
 
 	DWORD cCharsWritten;
+	WriteConsole(__console_handle, "ARM: ", 5, &cCharsWritten, NULL);
 	WriteConsole(__console_handle, s, ACE_OS::strlen(s), &cCharsWritten, NULL);
 
 	return(cnt);
 }
+
+/// Use wprintf like TRACE0, TRACE1, ... (The arguments are the same as printf)
+static int xprintf_head(char *fmt, ...)
+{
+	if (__console_handle == INVALID_HANDLE_VALUE)
+		return -1;
+
+	char s[300];
+	va_list argptr;
+	int cnt;
+
+	va_start(argptr, fmt);
+	cnt = vsprintf(s, fmt, argptr);
+	va_end(argptr);
+
+	DWORD cCharsWritten;
+	WriteConsole(__console_handle, "HEAD: ", 6, &cCharsWritten, NULL);
+	WriteConsole(__console_handle, s, ACE_OS::strlen(s), &cCharsWritten, NULL);
+
+	return(cnt);
+}
+
 
 static FILE *	__file_handle = NULL;
 
@@ -114,7 +137,8 @@ static int xfprintf(char *fmt, ...)
 
 #define INITLOG init_console
 #define CLOSELOG close_console
-#define PRINTLOG xprintf
+#define PRINTLOGH xprintf_head
+#define PRINTLOGA xprintf_arm
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -668,7 +692,7 @@ void CTestControlDlg::OnInterfaceStart()
 	YARPRobotcubHeadParameters parameters;
 	parameters.load (YARPString(path), YARPString(HEAD_INI_FILE));
 	parameters._message_filter = 20;
-	parameters._p = xprintf;
+	parameters._p = PRINTLOGH;
 
 	int ret = head.initialize(parameters);
 	if (ret != YARP_OK)
@@ -691,7 +715,7 @@ void CTestControlDlg::OnInterfaceStart()
 	YARPRobotcubArmParameters aparameters;
 	aparameters.load (YARPString(path), YARPString(ARM_INI_FILE));
 	aparameters._message_filter = 20;
-	aparameters._p = PRINTLOG;
+	aparameters._p = PRINTLOGA;
 
 	ret = arm.initialize(aparameters);
 	if (ret != YARP_OK)
@@ -757,7 +781,10 @@ void CTestControlDlg::OnUpdateInterfaceStop(CCmdUI* pCmdUI)
 void CTestControlDlg::OnFileOpenconsole() 
 {
 	if (INITLOG())
-		PRINTLOG("Debug window started...\n");
+	{
+		PRINTLOGH("Debug window started...\n");
+		PRINTLOGA("Debug window started...\n");
+	}
 }
 
 void CTestControlDlg::OnUpdateFileOpenconsole(CCmdUI* pCmdUI) 

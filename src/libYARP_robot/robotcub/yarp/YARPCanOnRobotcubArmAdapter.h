@@ -27,14 +27,14 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.10 2005-04-16 01:43:59 babybot Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.11 2005-04-17 08:12:23 babybot Exp $
 ///
 ///
 
 #ifndef __CanOnRobotcubArmAdapterh__
 #define __CanOnRobotcubArmAdapterh__
 
-#define __ESD_DRIVER
+//#define __ESD_DRIVER
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
@@ -495,7 +495,6 @@ public:
 		}
 #else
 		ValueCanOpenParameters op_par;
-		op_par._port_number = CANBUS_DEVICE_NUM;
 		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
 		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
 		op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
