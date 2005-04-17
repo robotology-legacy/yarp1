@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPDragonflyDeviceDriver.h,v 1.1 2005-02-18 14:55:25 emmebi75 Exp $
+/// $Id: YARPDragonflyDeviceDriver.h,v 1.2 2005-04-17 15:41:55 babybot Exp $
 ///
 ///
 
@@ -85,7 +85,8 @@ struct DragonflyOpenParameters
 	unsigned int _video_type;
 };
 
-class YARPDragonflyDeviceDriver : public YARPDeviceDriver<YARPNullSemaphore, YARPDragonflyDeviceDriver>,public YARPThread
+class YARPDragonflyDeviceDriver : 
+	public YARPDeviceDriver<YARPNullSemaphore, YARPDragonflyDeviceDriver>, public YARPThread
 {
 private:
 	YARPDragonflyDeviceDriver(const YARPDragonflyDeviceDriver&);
@@ -115,8 +116,7 @@ public:
 	 */
 	virtual int close(void);
 
-// TO REMOVE IN FINAL VERSION;/
-	//protected:
+protected:
 	/**
 	 * Locks the current image buffer.
 	 * @param buffer is a pointer to the buffer address (i.e. a double pointer).

@@ -27,16 +27,52 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRobotcubGrabber.h,v 1.3 2005-04-17 15:41:56 babybot Exp $
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #Add our name(s) here#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+/// $Id: YARPDragonflyGrabberOnRobotcubAdapter.h,v 1.1 2005-04-17 15:41:56 babybot Exp $
 ///
 ///
 
-#ifndef __YARPRobotcubGrabberh__
-#define __YARPRobotcubGrabberh__
+#ifndef __YARPDragonflyGrabberOnRobotcubAdapter__
+#define __YARPDragonflyGrabberOnRobotcubAdapter__
 
-#include <yarp/YARPGenericGrabber.h>
-#include <yarp/YARPDragonflyGrabberOnRobotcubAdapter.h>
+#include <yarp/YARPConfig.h>
+#include <ace/config.h>
+#include <ace/OS.h>
 
-typedef YARPGenericGrabber<YARPDragonflyGrabberOnRobotcubAdapter, YARPRobotcubGrabberParams> YARPRobotcubGrabber;
+#include <yarp/YARPDragonflyDeviceDriver.h>
+
+/// don't need anything fancier.
+typedef DragonflyOpenParameters YARPRobotcubGrabberParams;
+
+///
+///
+///
+class YARPDragonflyGrabberOnRobotcubAdapter : public YARPDragonflyDeviceDriver
+{
+public:
+	YARPDragonflyGrabberOnRobotcubAdapter() : YARPDragonflyDeviceDriver() {}
+	virtual ~YARPDragonflyGrabberOnRobotcubAdapter() {}
+
+	int initialize (YARPRobotcubGrabberParams& params)
+	{
+		/// need additional initialization, put it here.
+		return open ((void *)&params);
+	}
+
+	int uninitialize (void)
+	{
+		/// need additional termination stuff, here's the place for it.
+		return close ();
+	}
+};
+
 
 #endif

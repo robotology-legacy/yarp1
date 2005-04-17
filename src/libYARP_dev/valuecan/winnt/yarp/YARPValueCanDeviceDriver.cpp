@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPValueCanDeviceDriver.cpp,v 1.21 2005-04-17 08:12:23 babybot Exp $
+/// $Id: YARPValueCanDeviceDriver.cpp,v 1.22 2005-04-17 15:41:55 babybot Exp $
 ///
 ///
 
@@ -71,9 +71,10 @@ public:
 	int writePacket ();
 
 	int printMessage (const icsSpyMessage& m);
+	int dumpBuffers (void);
 	inline int getJoints (void) const { return _njoints; }
 	inline int getErrorStatus (void) const { return _error_status; }
-
+	
 public:
 	int _handle;
 	char _printBuffer[16384];
@@ -291,7 +292,7 @@ int ValueCanResources::printMessage (const icsSpyMessage& m)
 		ret += ACE_OS::sprintf (_printBuffer+ret, "%x ", m.Data[j]);
 	}
 
-	ret += ACE_OS::sprintf(_printBuffer+ret, "id: %x\n", m.ArbIDOrHeader);
+	ret += ACE_OS::sprintf(_printBuffer+ret, "st: %x\n", m.StatusBitField);
 
 
 	(*_p) 
@@ -301,6 +302,28 @@ int ValueCanResources::printMessage (const icsSpyMessage& m)
 }
 
 
+int ValueCanResources::dumpBuffers (void)
+{
+	if (!_p) return YARP_FAIL;
+
+	int j;
+
+	/// dump the error.
+	(*_p) ("CAN: write buffer\n");
+	for (j = 0; j < _writeMessages; j++)
+		printMessage (_writeBuffer[j]);
+
+	(*_p) ("CAN: reply buffer\n");
+	for (j = 0; j < _writeMessages; j++)
+		printMessage (_replyBuffer[j]);
+
+	(*_p) ("CAN: read buffer\n");
+	for (j = 0; j < _readMessages; j++)
+		printMessage (_readBuffer[j]);
+	(*_p) ("CAN: -------------\n");
+
+	return YARP_OK;
+}
 
 ///
 ///
@@ -473,7 +496,13 @@ void YARPValueCanDeviceDriver::Body (void)
 				icsSpyMessage& m = r._readBuffer[i];
 				if (m.StatusBitField & SPY_STATUS_GLOBAL_ERR)
 					if (r._p) 
-						(*r._p) ("CAN: error in message %x: %x\n", m.ArbIDOrHeader, m.StatusBitField);
+					{
+						(*r._p) ("CAN: error in message %x len: %d type: %x: %x\n", 
+							m.ArbIDOrHeader, m.NumberBytesData, m.Data[0], m.StatusBitField);
+						
+						continue;
+						//r.dumpBuffers ();
+					}
 
 				if (((m.ArbIDOrHeader &0x700) == 0) && 
 					((m.Data[0] & 0x7f) != _filter))
@@ -507,8 +536,12 @@ void YARPValueCanDeviceDriver::Body (void)
 							{
 								if (r._replyBuffer[j].ArbIDOrHeader != 0)
 								{
-									if (r._p) 
+									if (r._p)
+									{
 										(*r._p) ("CAN: message %x was already replied\n", m.ArbIDOrHeader);
+										r.printMessage (m);
+										//r.dumpBuffers ();
+									}
 								}
 								else
 								{
@@ -535,20 +568,10 @@ void YARPValueCanDeviceDriver::Body (void)
 				if (r._p)
 				{
 					(*r._p) ("CAN: timeout - still %d messages unacknowledged\n", remainingMsgs);
-					int j;
-
-					/// dump the error.
-					(*r._p) ("CAN: write buffer\n");
-					for (j = 0; j < r._writeMessages; j++)
-						r.printMessage (r._writeBuffer[j]);
-
-					for (j = 0; j < r._writeMessages; j++)
-						r.printMessage (r._replyBuffer[j]);
-
-					for (j = 0; j < r._readMessages; j++)
-						r.printMessage (r._readBuffer[j]);
+					r.dumpBuffers ();
 
 #if 0
+					int j;
 					for (j = 0; j < r._writeMessages; j++)
 					{
 						if (r._replyBuffer[j].ArbIDOrHeader == 0)
