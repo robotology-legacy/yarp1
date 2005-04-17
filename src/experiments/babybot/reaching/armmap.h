@@ -26,6 +26,12 @@ const int __iF = 1;
 const int __iL = 0;
 const int __iR = 2;
 
+enum ACTION_TYPE
+{
+	FROM_ABOVE = 1,
+	FROM_SIDE = 2,
+};
+
 const double __arm[__nATN][__nJointsArm] = {
 							{0.0, -10.0*degToRad, 0.0, 0.0, 0.0, 0.0},
 							{0.0, 15.0*degToRad, 0.0, 0.0, 0.0, 0.0},
@@ -36,36 +42,62 @@ const double __maxRnd[] = {5.0*degToRad, 5.0*degToRad, 5.0*degToRad, 0.0, 0.0, 0
 const double __minRnd[] = {-5.0*degToRad, -5.0*degToRad, -5.0*degToRad, 0.0, 0.0, 0.0};
 
 // command used to prepare reaching
-// const double __preparePosition[] = { 15*degToRad, 0.0, 0.0, 0*degToRad, 0.0, -70.0*degToRad};
-// const double __preparePosition[] = { 15*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*degToRad};
 const double __preparePosition[] = { 5*degToRad, 0.0, 0.0, 0*degToRad, 0.0, 0.0*degToRad};
 
 
 #ifndef TEST_REACHING
-	// offset in the shoulder to reach "from above"
+	// offset in the shoulder to reach from ABOVE
 	const double __shoulderOffset1 = 40*degToRad;
-	const double __shoulderOffset2 = 10*degToRad;
-	// offset in the shoulder to fix offset in the reaching
-	// (tappullo)
 	const double __armOffset1 = 0*degToRad;
-	const double __armOffset2 = 0*degToRad;
 	const double __foreArmOffset1 = 0;//-8*degToRad;
+	// prepositioning
+	const double __shoulderOffset2 = 10*degToRad;
+	const double __armOffset2 = 0*degToRad;
 	const double __foreArmOffset2 = 0;//-8*degToRad;
-
+	// actual grasping
 	const double __wrist1a = 0*degToRad;	
 	const double __wrist2a = 0*degToRad;
 	const double __wrist3a = -170*degToRad;
-	// const double __wrist3 = 0*degToRad;
 
 	const double __wrist1b = 0*degToRad;	
 	const double __wrist2b = -45*degToRad;
 	const double __wrist3b = -170*degToRad;
+
+	////// reaching from SIDE
+	const double __shoulderOffsetFS1 = 10*degToRad;
+	const double __armOffsetFS1 = 0*degToRad;
+	const double __foreArmOffsetFS1 = -8*degToRad;
+	const double __wrist1FS1 = 0*degToRad;	
+	const double __wrist2FS1 = 0*degToRad;
+	const double __wrist3FS1 = -90*degToRad;
+
+	// prepositioning, not really used here
+	const double __shoulderOffsetFS2 = 10*degToRad;
+	const double __armOffsetFS2 = 0*degToRad;
+	const double __foreArmOffsetFS2 = -8*degToRad;
+	const double __wrist1FS2 = 0*degToRad;	
+	const double __wrist2FS2 = 0*degToRad;
+	const double __wrist3FS2 = -90*degToRad;
+
+	// actual grasping
+	const double __shoulderOffsetFS3 = 10*degToRad;
+	const double __armOffsetFS3 = 0*degToRad;
+	const double __foreArmOffsetFS3 = 5*degToRad;
+	const double __wrist1FS3 = 0*degToRad;	
+	const double __wrist2FS3 = 0*degToRad;
+	const double __wrist3FS3 = -90*degToRad;
+
+	const double __shoulderOffsetFS4 = 40*degToRad;
+	const double __armOffsetFS4 = 0*degToRad;
+	const double __foreArmOffsetFS4 = 5*degToRad;
+	const double __wrist1FS4 = 0*degToRad;	
+	const double __wrist2FS4 = 0*degToRad;
+	const double __wrist3FS4 = -170*degToRad;
 #else 
 	// offset in the shoulder to reach "from above"
 	const double __shoulderOffset1 = 7*degToRad;
 	const double __shoulderOffset2 = 7*degToRad;
 	// offset in the shoulder to fix offset in the reaching
-	// (tappullo)
 	const double __armOffset1 = 0*degToRad;
 	const double __armOffset2 = 0*degToRad;
 	const double __foreArmOffset1 = 0*degToRad;
@@ -145,6 +177,23 @@ public:
 
 const int __trajectoryLength = 4;
 
+//forwards dlc
+class ArmMap;
+
+class OrientationInput: public YARPInputPortOf<YARPBabyBottle>
+{
+public:
+		OrientationInput();
+		~OrientationInput();
+
+		void setRef(ArmMap *p);
+		
+		void OnRead();
+private:
+		void _update(ACTION_TYPE v);
+		ArmMap *theArmMap;
+};
+
 class ArmMap: public YARPInputPortOf<YARPBabyBottle>
 {
 public:
@@ -166,6 +215,8 @@ public:
 
 	const YVector &getCommand(int n);
 
+public:
+	ACTION_TYPE _actionType;
 private:
 	bool _checkLearnCondition();
 	bool _checkReachingCondition();
@@ -176,6 +227,7 @@ private:
 
 //	YARPBPNNet _nnet;
 	RFNet	   _rfnet;
+	OrientationInput _orientationPort;
 
 	ArmForwardKinematics _fkinematics;
 		

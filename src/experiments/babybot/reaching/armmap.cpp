@@ -48,8 +48,11 @@ _outPortRemoteLearn(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP)
 	// register input
 	Register("/reaching/nnet/i");
 	_outPortRemoteLearn.Register("/reaching/nnet/o");
-
 	_outPortArmTrajectory.Register("/reaching/armtrajectory/o");
+	
+	_orientationPort.setRef(this);
+	_orientationPort.Register("/reaching/orientation/i:bot");
+	_actionType = FROM_ABOVE;
 
 	_noise.resize(__nJointsArm, __maxRnd, __minRnd);
 	_command.Resize(__nJointsArm);
@@ -184,33 +187,71 @@ void ArmMap::OnRead(void)
 
 void ArmMap::_formTrajectory(const YVector &cmd, const YVector &cmdCL)
 {
-	// first move
-	_trajectory[0] = _command;
-	_trajectory[0](1) = cmd(1)+__shoulderOffset1;
-	_trajectory[0](2) = cmd(2)+__armOffset1;
-	_trajectory[0](3) = cmd(3)+__foreArmOffset1;
-	_trajectory[0](4) = __wrist1a;
-	_trajectory[0](5) = __wrist2a;
-	_trajectory[0](6) = __wrist3a;
+	if (_actionType==FROM_SIDE)
+	{
+		_trajectory[0] = _command;
+		_trajectory[0](1) = cmd(1)+__shoulderOffsetFS1;
+		_trajectory[0](2) = _commandCL(2)+__armOffsetFS1;
+		_trajectory[0](3) = _commandCL(3)+__foreArmOffsetFS1;
+		_trajectory[0](4) = __wrist1FS1;
+		_trajectory[0](5) = __wrist2FS1;
+		_trajectory[0](6) = __wrist3FS1;
+		// prepositioning
+		_trajectory[1](1)= cmd(1)+__shoulderOffsetFS2;
+		_trajectory[1](2) = _commandCL(2)+__armOffsetFS2;
+		_trajectory[1](3) = _commandCL(3)+__foreArmOffsetFS2;
+		_trajectory[1](4) = __wrist1FS2;
+		_trajectory[1](5) = __wrist2FS2;
+		_trajectory[1](6) = __wrist3FS2;
 
-	_trajectory[1](1)= cmd(1)+__shoulderOffset1;
-	_trajectory[1](2) = _commandCL(2)+__armOffset1;
-	_trajectory[1](3) = _commandCL(3)+__foreArmOffset1;
-	_trajectory[1](4) = __wrist1b;
-	_trajectory[1](5) = __wrist2b;
-	_trajectory[1](6) = __wrist3b;
+		// actual grasp
+		_trajectory[2] = _command;
+		_trajectory[2](1) = cmd(1)+__shoulderOffsetFS3;
+		_trajectory[2](2) = _commandCL(2)+__armOffsetFS3;
+		_trajectory[2](3) = _commandCL(3)+__foreArmOffsetFS3;
+		_trajectory[2](4) = __wrist1FS3;
+		_trajectory[2](5) = __wrist2FS3;
+		_trajectory[2](6) = __wrist3FS3;
 
-	// actual reaching
-	_trajectory[2] = _command;
-	_trajectory[2](1) = cmd(1)+__shoulderOffset2;
-	_trajectory[2](2) = _commandCL(2)+__armOffset2;
-	_trajectory[2](3) = _commandCL(3)+__foreArmOffset2;
-	_trajectory[2](4) = __wrist1b;
-	_trajectory[2](5) = __wrist2b;
-	_trajectory[2](6) = __wrist3b;
+		// go back
+		_trajectory[3] = _command;
+		_trajectory[3](1) = cmd(1)+__shoulderOffsetFS4;
+		_trajectory[3](2) = _commandCL(2)+__armOffsetFS4;
+		_trajectory[3](3) = _commandCL(3)+__foreArmOffsetFS4;
+		_trajectory[3](4) = __wrist1FS4;
+		_trajectory[3](5) = __wrist2FS4;
+		_trajectory[3](6) = __wrist3FS4;
+	}
+	else // if _actionType FROM_ABOVE
+	{
+		// first move
+		_trajectory[0] = _command;
+		_trajectory[0](1) = cmd(1)+__shoulderOffset1;
+		_trajectory[0](2) = cmd(2)+__armOffset1;
+		_trajectory[0](3) = cmd(3)+__foreArmOffset1;
+		_trajectory[0](4) = __wrist1a;
+		_trajectory[0](5) = __wrist2a;
+		_trajectory[0](6) = __wrist3a;
 
-	// go back
-	_trajectory[3] = _trajectory[0];
+		_trajectory[1](1)= cmd(1)+__shoulderOffset1;
+		_trajectory[1](2) = _commandCL(2)+__armOffset1;
+		_trajectory[1](3) = _commandCL(3)+__foreArmOffset1;
+		_trajectory[1](4) = __wrist1b;
+		_trajectory[1](5) = __wrist2b;
+		_trajectory[1](6) = __wrist3b;
+
+		// actual grasping
+		_trajectory[2] = _command;
+		_trajectory[2](1) = cmd(1)+__shoulderOffset2;
+		_trajectory[2](2) = _commandCL(2)+__armOffset2;
+		_trajectory[2](3) = _commandCL(3)+__foreArmOffset2;
+		_trajectory[2](4) = __wrist1b;
+		_trajectory[2](5) = __wrist2b;
+		_trajectory[2](6) = __wrist3b;
+
+		// go back
+		_trajectory[3] = _trajectory[0];
+	}
 }
 
 const YVector &ArmMap::getCommand(int index)
@@ -256,3 +297,44 @@ bool ArmMap::_checkReachability(const Y3DVector &cart)
 
 	return ret;
 }
+
+/////////// OrientationInput class impl
+OrientationInput::OrientationInput():YARPInputPortOf<YARPBabyBottle>(YARPInputPort::DEFAULT_BUFFERS, YARP_TCP)
+{
+	theArmMap = NULL;
+}
+
+OrientationInput::~OrientationInput()
+{
+	// nothing to do
+}
+
+void OrientationInput::_update(ACTION_TYPE v)
+{
+	if (theArmMap!=NULL)
+		theArmMap->_actionType = v;
+}
+
+void OrientationInput::setRef(ArmMap *p)
+{
+	if (p!=NULL)
+		theArmMap = p;
+}
+
+void OrientationInput::OnRead()
+{
+	Read();
+
+	YARPBabyBottle &tmp = Content();
+
+	int msg = 0;
+	if (tmp.readInt(&msg))
+	{ 
+		if (msg==1)
+			_update(FROM_SIDE);
+		else
+			_update(FROM_ABOVE);
+	}
+
+}
+
