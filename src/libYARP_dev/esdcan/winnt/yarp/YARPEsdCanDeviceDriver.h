@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.h,v 1.2 2005-04-16 01:43:58 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.h,v 1.3 2005-04-18 08:43:00 babybot Exp $
 ///
 ///
 
@@ -42,7 +42,7 @@
 
 /**
  * \file YARPEsdCanDeviceDriver.h 
- * class for interfacing with the value can device driver.
+ * class for interfacing with the ESD can device driver.
  */
 
 /**
@@ -64,8 +64,8 @@ struct EsdCanOpenParameters
 		_networkN = 0;
 		memset (_destinations, 0, sizeof(unsigned char) * ESD_MAX_CARDS);
 		_my_address = 0;
-		_polling_interval = 2;
-		_timeout = 10;
+		_polling_interval = 10;
+		_timeout = 2;
 		_njoints = 0;
 		_p = NULL;
 
@@ -91,7 +91,7 @@ struct EsdCanOpenParameters
 
 
 /**
- * The Esd can device driver.
+ * The esd can device driver.
  * Contains a thread that takes care of polling the can bus for incoming messages.
  * The class is derived from the standard YARP device driver base class.
  */
@@ -178,23 +178,11 @@ protected:
 protected:
 	void *system_resources;
 	YARPSemaphore _mutex;
-	YARPSemaphore _pending;
-	YARPEvent _ev;
-	bool _request;
+	YARPSemaphore _done;
+
+	bool _writerequested;
 	bool _noreply;
 	
-	/**
-	 * helper function called from the device driver to print by means of _p
-	 * (see below).
-	 */
-	void _debugMsg (int n, void *msg, int (*p) (char *fmt, ...));
-
-	/**
-	 * helper function called from the device driver to print a single message by means of _p
-	 * (see below).
-	 */
-	void _printMessage (void *msg, int (*p) (char *fmt, ...));
-
 	/**
 	 * pointer to the function printing the device debug information.
 	 */
@@ -228,15 +216,7 @@ protected:
 	double *_ref_accs;
 	double *_ref_positions;
 
-	/**
-	 * various useful constants.
-	 */
 	enum { MAX_SHORT = 32767, MIN_SHORT = -32768, MAX_INT = 0x7fffffff, MIN_INT = 0x80000000 };
-	
-	/**
-	 * A flag used to disable a card (commands with this flag on
-	 * are silently ignored).
-	 */
 	enum { ESD_CAN_SKIP_ADDR = 0x80 };
 
 	inline short S_16(double x) const 

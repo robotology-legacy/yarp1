@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.2 2005-04-16 01:43:58 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.3 2005-04-18 08:43:00 babybot Exp $
 ///
 ///
 
@@ -47,218 +47,131 @@
 #define __ONLY_DEF
 #include "../56f807/cotroller_dc/Code/controller.h"
 
-
 #define BUF_SIZE 2047
 
+typedef int (*PV) (char *fmt, ...);
 
 ///
 ///
-/// note that this class is just a container.
+///
 class EsdCanResources
 {
 public:
-	enum { ESD_TIMEOUT = 20, ESD_POLLING_INTERVAL = 5 };
+	EsdCanResources ();
+	~EsdCanResources ();
+
+	int initialize (const EsdCanOpenParameters& parms);
+	int uninitialize ();
+	int read ();
+	bool error (const CMSG& m);
+
+	int startPacket ();
+	int addMessage (int msg_id, int joint);
+	int writePacket ();
+
+	int printMessage (const CMSG& m);
+	int dumpBuffers (void);
+	inline int getJoints (void) const { return _njoints; }
+	inline int getErrorStatus (void) const { return _error_status; }
+	
+public:
+	enum { ESD_TIMEOUT = 20, ESD_POLLING_INTERVAL = 10 };
 
 	HANDLE _handle;								/// the actual ddriver handle.
 	int _timeout;								/// this is my thread timeout.
 	
-	int _polling_interval;
-	int _speed;	
-	int _networkN;
-	int _msg_lost;
+	int _polling_interval;						/// thread polling interval.
+	int _speed;									/// speed of the bus.
+	int _networkN;								/// network number.
 	
 	long int _txQueueSize;
 	long int _rxQueueSize;
 	long int _txTimeout;
 	long int _rxTimeout;
 
-	CMSG _canMsg[BUF_SIZE];						/// read buffer.
-	CMSG _cmdBuffer[BUF_SIZE];					/// write buffer.
-	CMSG _replyBuffer[BUF_SIZE];				/// .
+	int _readMessages;							/// size of the last read buffer.
+	int _msg_lost;								/// # of lost messages.
+	CMSG _readBuffer[BUF_SIZE];					/// read buffer.
+	int _writeMessages;							/// size of the write packet.
+	CMSG _writeBuffer[BUF_SIZE];				/// write buffer.
+	CMSG _replyBuffer[BUF_SIZE];				/// reply buffer.
 
 	unsigned char _my_address;					/// 
 	unsigned char _destinations[ESD_MAX_CARDS];	/// list of connected cards (and their addresses).
 	int _njoints;								/// number of joints (ncards * 2).
 
-    int _cur_packetsize;						/// size of the current packet.
 	int _error_status;							/// error status of the last packet.
 
-	int (*_p) (char *fmt, ...);					///	pointer to a printf type function
+	PV _p;										///	pointer to a printf type function
 												/// used to spy on can messages.
 	int _filter;								/// don't print filtered messages.
-
-public:
-	int _initialize (const EsdCanOpenParameters& params);
-	inline int _uninitialize (void) { return _closeAndRelease(); }
-	inline int _closeAndRelease (void);
-
-	EsdCanResources (void)
-	{
-		_handle = ACE_INVALID_HANDLE;
-		_timeout = ESD_TIMEOUT;
-		_polling_interval = ESD_POLLING_INTERVAL;
-		_speed = 0;						/// default 1Mbit/s
-		_networkN = 0;
-		_msg_lost = 0;
-
-		_cur_packetsize = 0;
-		_error_status = YARP_OK;
-		_my_address = 0;
-		memset (_destinations, 0, sizeof(unsigned char) * ESD_MAX_CARDS);
-
-		_txQueueSize = BUF_SIZE;
-		_rxQueueSize = BUF_SIZE;
-		_txTimeout = _timeout;
-		_rxTimeout = _timeout;
 	
-		_njoints = 0;
-		_p = NULL;
-		_filter = -1;
-	}
-
-	~EsdCanResources () { _uninitialize(); }
-
-	int _startPacket (void);
-	int _addMessage (int msg, int axis);
-	int _writePacket (void);
-
-	int _read (void);
-	int _read_np (int& err);
-	int _write (void);
-	bool _error (const CMSG& m);
-	
-	void _getErrorsAndPrint (void);
-
-	inline bool MYSELF(unsigned char x) { return (((x & 0xf0) >> 4) == _my_address) ? true : false; }
-	inline bool _prepareHeader (CMSG& msg, int msg_type, int src, int dest, int channel);
+	char _printBuffer[16384];
 };
 
-
-/// blocking read.
-int EsdCanResources::_read (void)
+EsdCanResources::EsdCanResources ()
 {
-	long messages = BUF_SIZE;
-
-	int res = canRead (_handle, _canMsg, &messages, NULL); 
-	if (res != NTCAN_SUCCESS)
-		return YARP_FAIL;
-
-	return messages;
-}
-
-/// read, no polling.
-int EsdCanResources::_read_np (int& err)
-{
-	long messages = BUF_SIZE;
-
-	int res = canTake (_handle, _canMsg, &messages); 
-	if (res != NTCAN_SUCCESS)
-		return YARP_FAIL;
-
-	return messages;
-}
-
-/// reads the error queue and print to console (if open).
-void EsdCanResources::_getErrorsAndPrint (void)
-{
-}
-
-/// write to can.
-int EsdCanResources::_write (void)
-{
-	long len = 1;
-	int res = canSend (_handle, _cmdBuffer, &len);
-	if (res != NTCAN_SUCCESS || len != 1)
-		return YARP_FAIL;
-
-	return YARP_OK;
-}
-
-/// initializes the construction of a new packet (array) of messages.
-int EsdCanResources::_startPacket (void)
-{
-	_cur_packetsize = 0;
-	return YARP_OK;
-}
-
-/// adds a new message to the current packet.
-int EsdCanResources::_addMessage (int msg, int axis)
-{
-	memset (&_cmdBuffer[_cur_packetsize], 0, sizeof(CMSG));
-	_prepareHeader (_cmdBuffer[_cur_packetsize], msg, _my_address, _destinations[axis/2], axis % 2);
-	_cmdBuffer[_cur_packetsize].len = 1;
-	_cur_packetsize ++;
-	return _cur_packetsize;
-}
-
-/// sends the current packet.
-int EsdCanResources::_writePacket (void)
-{
-	if (_cur_packetsize < 1)
-		return YARP_FAIL;
-
-	long len = _cur_packetsize;
-
-	int res = canSend (_handle, _cmdBuffer, &len);
-	if (res != NTCAN_SUCCESS || len != _cur_packetsize)
-		return YARP_FAIL;
-
-	return YARP_OK;
-}
-
-/// test message for errors.
-bool EsdCanResources::_error (const CMSG& m)
-{
-	if (m.len & NTCAN_NO_DATA) return true;
-	if (m.msg_lost != 0) { _msg_lost = m.msg_lost; return true; }
-
-	return false;
-}
-
-bool EsdCanResources::_prepareHeader (CMSG& msg, int msg_type, int src, int dest, int channel)
-{
-	msg.id = (src << 4) + (dest);
-	msg.data[0] = (channel << 7) + (msg_type & 0x7f);
-	return true;
-}
-
-///
-int EsdCanResources::_closeAndRelease (void)
-{
-	if (_handle != ACE_INVALID_HANDLE)
-	{
-		int res = canClose (_handle);
-		if (res != NTCAN_SUCCESS)
-			return YARP_FAIL;
-		_handle = ACE_INVALID_HANDLE;
-	}
-	
-	return YARP_OK;
-}
-
-int EsdCanResources::_initialize (const EsdCanOpenParameters& params)
-{
-	/// general variable init.
 	_handle = ACE_INVALID_HANDLE;
 	_timeout = ESD_TIMEOUT;
 	_polling_interval = ESD_POLLING_INTERVAL;
-	_speed = 0;				/// default 1Mbit/s
+	_speed = 0;						/// default 1Mbit/s
 	_networkN = 0;
 
-	_cur_packetsize = 0;
-	_error_status = YARP_OK;
-	_my_address = 0;
+	memset (_readBuffer, 0, sizeof(CMSG)*BUF_SIZE);
+	memset (_writeBuffer, 0, sizeof(CMSG)*BUF_SIZE);
+	memset (_replyBuffer, 0, sizeof(CMSG)*BUF_SIZE);
+
 	memset (_destinations, 0, sizeof(unsigned char) * ESD_MAX_CARDS);
 
-	_txQueueSize = params._txQueueSize;
-	_rxQueueSize = params._rxQueueSize;
-	_txTimeout = params._txTimeout;
-	_rxTimeout = params._rxTimeout;
-
+	_my_address = 0;
 	_njoints = 0;
 	_p = NULL;
+
+	_readMessages = 0;
+	_msg_lost = 0;
+	_writeMessages = 0;
+	_error_status = YARP_OK;
+}
+
+EsdCanResources::~EsdCanResources () 
+{ 
+	uninitialize(); 
+}
+
+int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
+{
+	if (_handle != ACE_INVALID_HANDLE)
+		return YARP_FAIL;
+
+	/// general variable init.
+	_handle = ACE_INVALID_HANDLE;
+	_speed = 0;						/// default 1Mbit/s
+	_networkN = 0;
+
+	_readMessages = 0;
+	_writeMessages = 0;
+	_msg_lost = 0;
+	_error_status = YARP_OK;
+
+	memcpy (_destinations, parms._destinations, sizeof(unsigned char)*ESD_MAX_CARDS);
+	_my_address = parms._my_address;
+	_polling_interval = parms._polling_interval;
+	_timeout = parms._timeout;
+	_njoints = parms._njoints;	
+	_p = parms._p;
 	_filter = -1;
 
+	_txQueueSize = parms._txQueueSize;
+	_rxQueueSize = parms._rxQueueSize;
+	_txTimeout = parms._txTimeout;
+	_rxTimeout = parms._rxTimeout;
+
+	/// clean up buffers.
+	memset (_readBuffer, 0, sizeof(CMSG)*BUF_SIZE);
+	memset (_writeBuffer, 0, sizeof(CMSG)*BUF_SIZE);
+	memset (_replyBuffer, 0, sizeof(CMSG)*BUF_SIZE);
+
+	/// open the device.
 	int res = canOpen (_networkN, 0, _txQueueSize, _rxQueueSize, _txTimeout, _rxTimeout, &_handle);
 	if (res != NTCAN_SUCCESS)
 		return YARP_FAIL;
@@ -278,28 +191,148 @@ int EsdCanResources::_initialize (const EsdCanOpenParameters& params)
 	//canIdAdd (_handle, 0x1bc);
 	//canIdAdd (_handle, 0x1cb);
 
-	_msg_lost = 0;
+	return YARP_OK;
+}
 
-	_polling_interval = params._polling_interval;
-	_my_address = params._my_address;
-	memcpy (_destinations, params._destinations, sizeof(unsigned char) * ESD_MAX_CARDS);
-	_timeout = params._timeout;
-	_njoints = params._njoints;
 
-	_p = params._p;
-	_filter = -1;
+int EsdCanResources::uninitialize ()
+{
+	if (_handle != ACE_INVALID_HANDLE)
+	{
+		int res = canClose (_handle);
+		if (res != NTCAN_SUCCESS)
+			return YARP_FAIL;
+		_handle = ACE_INVALID_HANDLE;
+	}
+	
+	return YARP_OK;
+}
+
+
+int EsdCanResources::read ()
+{
+	long messages = BUF_SIZE;
+
+	int res = canTake (_handle, _readBuffer, &messages); 
+	if (res != NTCAN_SUCCESS)
+		return YARP_FAIL;
+
+	_readMessages = messages;
+	return YARP_OK;
+}
+
+int EsdCanResources::startPacket ()
+{
+	_writeMessages = 0;
+	return YARP_OK;
+}
+
+int EsdCanResources::addMessage (int msg_id, int joint)
+{
+	CMSG x;
+	memset (&x, 0, sizeof(CMSG));
+
+	x.id = _my_address << 4;
+	x.id = _destinations[joint/2] & 0x0f;
+
+	x.len = 1;
+	x.data[0] = msg_id;
+	if ((joint % 2) == 1)
+		x.data[0] |= 0x80;
+
+	_writeBuffer[_writeMessages] = x;
+	_writeMessages ++;
+
+	return YARP_OK;
+}
+
+int EsdCanResources::writePacket ()
+{
+	if (_writeMessages < 1)
+		return YARP_FAIL;
+
+	long len = _writeMessages;
+
+	int res = canSend (_handle, _writeBuffer, &len);
+	if (res != NTCAN_SUCCESS || len != _writeMessages)
+		return YARP_FAIL;
+
+	return YARP_OK;
+}
+
+int EsdCanResources::printMessage (const CMSG& m)
+{
+	if (!_p)
+		return YARP_FAIL;
+
+	int ret = ACE_OS::sprintf (_printBuffer, "class: %2d s: %2x d: %2x c: %1d msg: %3d (%x) ",
+		  (m.id & 0x700) >> 8,
+		  (m.id & 0xf0) >> 4, 
+		  (m.id & 0x0f), 
+		  ((m.data[0] & 0x80)==0)?0:1,
+		  (m.data[0] & 0x7f),
+		  (m.data[0] & 0x7f));
+
+	if (m.len > 1)
+	{
+		ret += ACE_OS::sprintf (_printBuffer+ret, "x: "); 
+	}
+
+	int j;
+	for (j = 1; j < m.len; j++)
+	{
+		ret += ACE_OS::sprintf (_printBuffer+ret, "%x ", m.data[j]);
+	}
+
+	ret += ACE_OS::sprintf(_printBuffer+ret, "st: %x\n", m.msg_lost);
+
+
+	(*_p) 
+		("%s", _printBuffer);
 
 	return YARP_OK;
 }
 
 
+int EsdCanResources::dumpBuffers (void)
+{
+	if (!_p) return YARP_FAIL;
+
+	int j;
+
+	/// dump the error.
+	(*_p) ("CAN: write buffer\n");
+	for (j = 0; j < _writeMessages; j++)
+		printMessage (_writeBuffer[j]);
+
+	(*_p) ("CAN: reply buffer\n");
+	for (j = 0; j < _writeMessages; j++)
+		printMessage (_replyBuffer[j]);
+
+	(*_p) ("CAN: read buffer\n");
+	for (j = 0; j < _readMessages; j++)
+		printMessage (_readBuffer[j]);
+	(*_p) ("CAN: -------------\n");
+
+	return YARP_OK;
+}
+
+bool EsdCanResources::error (const CMSG& m)
+{
+	if (m.len & NTCAN_NO_DATA) return true;
+	if (m.msg_lost != 0) { _msg_lost = m.msg_lost; return true; }
+
+	return false;
+}
+
 ///
-/// actual device driver class.
+///
 ///
 inline EsdCanResources& RES(void *res) { return *(EsdCanResources *)res; }
 
+
 YARPEsdCanDeviceDriver::YARPEsdCanDeviceDriver(void) 
-	: YARPDeviceDriver<YARPNullSemaphore, YARPEsdCanDeviceDriver>(CBNCmds), _mutex(1), _pending(1)
+	: YARPDeviceDriver<YARPNullSemaphore, YARPEsdCanDeviceDriver>(CBNCmds), _mutex(1), _done(0)
 {
 	system_resources = (void *) new EsdCanResources;
 	ACE_ASSERT (system_resources != NULL);
@@ -365,6 +398,7 @@ YARPEsdCanDeviceDriver::YARPEsdCanDeviceDriver(void)
 	m_cmds[CMDGetErrorStatus] = &YARPEsdCanDeviceDriver::getErrorStatus;
 }
 
+
 YARPEsdCanDeviceDriver::~YARPEsdCanDeviceDriver ()
 {
 	if (system_resources != NULL)
@@ -372,32 +406,38 @@ YARPEsdCanDeviceDriver::~YARPEsdCanDeviceDriver ()
 	system_resources = NULL;
 }
 
-int YARPEsdCanDeviceDriver::open (void *res)
+
+int YARPEsdCanDeviceDriver::open (void *p)
 {
-	_mutex.Wait(); // the thread will post this mutex after startup.
-	_ev.Reset();
+	if (p == NULL)
+		return YARP_FAIL;
 
-	EsdCanResources& d = RES(system_resources);
-	int ret = d._initialize (*(EsdCanOpenParameters *)res);
+	_mutex.Wait();
 
-	_p = ((EsdCanOpenParameters *)res)->_p;
+	EsdCanOpenParameters& parms = *(EsdCanOpenParameters *)p;
+	EsdCanResources& r = RES (system_resources);
+	
+	if (r.initialize (parms) != YARP_OK)
+		return YARP_FAIL;
+	
+	Begin ();
+	_done.Wait ();
+
+	/// used for printing debug messages.
+	_p = parms._p;
 	_filter = -1;
+	_writerequested = false;
+	_noreply = false;
 
-	_ref_positions = new double [d._njoints];		
-	_ref_speeds = new double [d._njoints];
-	_ref_accs = new double [d._njoints];
+	/// temporary variables used by the ddriver.
+	_ref_positions = new double [r.getJoints()];		
+	_ref_speeds = new double [r.getJoints()];
+	_ref_accs = new double [r.getJoints()];
 	ACE_ASSERT (_ref_positions != NULL && _ref_speeds != NULL && _ref_accs != NULL);
 
-	if (ret >= 0)
-	{
-		Begin ();
-		YARPScheduler::yield();
-		//YARPTime::DelayInSeconds (.2);
-	}
-	else
-		_mutex.Post();
+	_mutex.Post ();
 
-	return ret;
+	return YARP_OK;
 }
 
 int YARPEsdCanDeviceDriver::close (void)
@@ -410,257 +450,172 @@ int YARPEsdCanDeviceDriver::close (void)
 	if (_ref_speeds != NULL) delete[] _ref_speeds;
 	if (_ref_accs != NULL) delete[] _ref_accs;
 
-	int ret = d._uninitialize ();
+	int ret = d.uninitialize ();
 
 	return ret;
 }
 
+
 ///
 ///
-/// decode messages from CAN to device driver protocol.
-void YARPEsdCanDeviceDriver::_debugMsg (int n, void *msg, int (*p) (char *fmt, ...))
+///
+void YARPEsdCanDeviceDriver::Body (void)
 {
-	CMSG *m = (CMSG *)msg;
-	int i;
+	EsdCanResources& r = RES (system_resources);
 
-	if (p)
-	{
-		//(*p) ("nmsg: %d\n", n);
-		/// minimal debug, actual debug would require interpreting messages.
-		for (i = 0; i < n; i++)
-		{
-			EsdCanResources& r = RES(system_resources);
-			if ((m[i].data[0] & 0x7f) != r._filter &&
-				(m[i].id & 0x0f) == r._my_address)
-			{
-				(*p) 
-					("class: %2d s: %2x d: %2x c: %1d msg: %3d (%x) ",
-					  (m[i].id & 0x700) >> 8,
-					  (m[i].id & 0xf0) >> 4, 
-					  (m[i].id & 0x0f), 
-					  ((m[i].data[0] & 0x80)==0)?0:1,
-					  (m[i].data[0] & 0x7f),
-					  (m[i].data[0] & 0x7f));
+	/// init part.
+	bool messagePending = false;
+	int i = 0;
+	int remainingMsgs = 0;
+	bool noreply = false;
+	double now = 0;
+	double before = 0;
+	int counter = 0;
 
-				if (m[i].len > 1)
-				{
-					(*p)("x: "); 
-				}
-
-				int j;
-				for (j = 1; j < m[i].len; j++)
-				{
-					(*p)("%x ", m[i].data[j]);
-				}
-
-				(*p)("id: %x\n", m[i].id);
-			}
-		}
-	}
-}
-
-///
-///
-///
-void YARPEsdCanDeviceDriver::_printMessage (void *msg, int (*p) (char *fmt, ...))
-{
-	CMSG m = *(CMSG *)msg;
-	EsdCanResources& r = RES(system_resources);
-
-//	if ((m.Data[0] & 0x7f) != r._filter &&
-//		(m.ArbIDOrHeader & 0x0f) == r._my_address)
-	{
-		(*p) 
-			("class: %2d s: %2x d: %2x c: %1d msg: %3d (%x) ",
-			  (m.id & 0x700) >> 8,
-			  (m.id & 0xf0) >> 4, 
-			  (m.id & 0x0f), 
-			  ((m.data[0] & 0x80)==0)?0:1,
-			  (m.data[0] & 0x7f),
-			  (m.data[0] & 0x7f));
-
-		if (m.len > 1)
-		{
-			(*p)("x: "); 
-		}
-
-		int j;
-		for (j = 1; j < m.len; j++)
-		{
-			(*p)("%x ", m.data[j]);
-		}
-
-		(*p)("id: %x\n", m.id);
-	}
-}
-
-///
-///
-/// OS scheduler should possibly go into hi-res mode (winnt).
-/// make sure only 1 message packed at a time is processed.
-///
-void YARPEsdCanDeviceDriver::Body(void)
-{
-	EsdCanResources& r = RES(system_resources);
-	double now = -1, before = -1;
-	int cyclecount = 0;
-	int left = 0, own_messages = 0;
-	bool done = false;
-
-	_request = false;
+	_writerequested = false;
 	_noreply = false;
+	
+	r._error_status = YARP_OK;
 
-	_mutex.Post();	// was decremented by the open().
+	/// ok, init completed. 
+	_done.Post ();
 
-	while (!IsTerminated() || left >= 1)
+	while (!IsTerminated() || messagePending)
 	{
 		before = YARPTime::GetTimeAsSeconds();
 
-		/// reads all messages.
-		int err = 0;
-		int n = 0;
-		
-		n = r._read_np (err);
+		_mutex.Wait ();
+		if (r.read () != YARP_OK)
+			if (r._p) 
+				(*r._p) ("CAN: read failed\n");
 
-		if (err != 0)
+		if (messagePending)
 		{
-			if (r._p) (*r._p)("got %d errors\n", err);
-			r._getErrorsAndPrint ();
-		}
-
-		/// debug/print messages to console.
-		if (n > 0 && r._p)
-			_debugMsg (n, (void *)r._canMsg, r._p);
-
-		/// filters messages, no buffering allowed here.
-		if (left > 0)
-		{
-			int i;
-			for (i = 0; i < n; i++)
+			for (i = 0; i < r._readMessages; i++)
 			{
-				CMSG& m = r._canMsg[i];
-
-				if (r._error(m))
-				{
+				CMSG& m = r._readBuffer[i];
+				if (m.len & NTCAN_NO_DATA)
 					if (r._p) 
 					{
-						(*r._p)("CAN: troubles w/ message %x\n", 0);
-						_printMessage ((void *)&m, r._p);
-						(*r._p)("CAN: skipped a message because of errors\n");
-						r._getErrorsAndPrint ();
+						(*r._p) ("CAN: error in message %x len: %d type: %x: %x\n", 
+							m.id, m.len, m.data[0], m.msg_lost);
+						
+						continue;
 					}
 
-					continue;		/// skip this message.
-				}
+				if (((m.id &0x700) == 0) && 
+					((m.data[0] & 0x7f) != _filter))
+					r.printMessage (m);
 
-
-				/// can't get own messages :(
-				_mutex.Wait();
-				if (_noreply)
+				if (!noreply) /// this requires a reply.
 				{
-					_noreply = false;
-					left = 0;
-					own_messages = 0;
-					r._error_status = YARP_OK;
-					_mutex.Post();
-					_ev.Signal();
-					done = true;
-				}
-				else
-					_mutex.Post();
-
-
-				/// check whether the message is a reply of any of the pending messages
-				/// in current packet.
-				if ((m.id & 0x0f) == r._my_address)
-				{
-					int j;
-					for (j = 0; j < r._cur_packetsize; j++)
+					if (((m.id & 0x700) == 0) &&				/// class 0 msg.
+						((m.id & 0x0f) == r._my_address))
 					{
-						if (r._cmdBuffer[j].data[0] == m.data[0] &&		// same message type.
-							(m.id & 0x700) == 0 &&				// class 0.
-							((m.id & 0xf0) >> 4) == (r._cmdBuffer[j].id & 0x0f))
+						/// legitimate message directed here, checks whether replies to any message.
+						int j;
+						for (j = 0; j < r._writeMessages; j++)
 						{
-							memcpy (&r._replyBuffer[j], &m, sizeof(CMSG));
-							left --;
-							if (left < 1)
+							if (((r._writeBuffer[j].id & 0x0f) == ((m.id & 0xf0) >> 4)) &&
+								(m.data[0] == r._writeBuffer[j].data[0]))
 							{
-								r._error_status = YARP_OK;
-								///_mutex.Post(); THE BUG!
-								_ev.Signal();
-								done = true;
+								if (r._replyBuffer[j].id != 0)
+								{
+									if (r._p)
+									{
+										(*r._p) ("CAN: message %x was already replied\n", m.id);
+										r.printMessage (m);
+									}
+								}
+								else
+								{
+									memcpy (&r._replyBuffer[j], &m, sizeof(CMSG));
+									remainingMsgs --;
+									if (remainingMsgs < 1)
+									{
+										messagePending = false;
+										r._error_status = YARP_OK;
+										goto AckMessageLoop;
+									}
+								}
 							}
 						}
 					}
 				}
 			}
 
-			/// requires a timeout (to signal back the caller).
-			/// if doesn't get a reply then signal a problem.
-			cyclecount++;
-			if (cyclecount >= r._timeout)
+			/// the pending msg doesn't require a reply.
+			if (noreply)
 			{
-				_mutex.Wait();
-				
-				if (r._p) 
+				remainingMsgs = 0;
+				messagePending = false;
+				r._error_status = YARP_OK;
+				goto AckMessageLoop;
+			}
+
+			/// timeout
+			counter ++;
+			if (counter > r._timeout)
+			{	
+				/// complains.
+				if (r._p)
 				{
-					(*r._p)("CAN: still %d unacknoweledged messages\n", left);
-					(*r._p)("CAN: still %d unsent messages\n", own_messages);
-					(*r._p)("CAN: packet of %d \n", r._cur_packetsize);
+					(*r._p) ("CAN: timeout - still %d messages unacknowledged\n", remainingMsgs);
+					r.dumpBuffers ();
 				}
-				
-				int j;
-				for (j = 0; j < r._cur_packetsize; j++)
+
+				messagePending = false;
+				r._error_status = YARP_FAIL;
+				goto AckMessageLoop;
+			}
+
+AckMessageLoop:
+			if (!messagePending)
+			{
+				/// tell the caller it can continue.
+				_done.Post();
+			}
+		}
+		else
+		{
+			/// any write?
+			if (_writerequested)
+			{
+				if (r._writeMessages > 0)
 				{
-					if (r._replyBuffer[j].data[0] == CAN_NO_MESSAGE && r._p)
+					if (r.writePacket () != YARP_OK)
 					{
-						(*r._p)("CAN: board %d timed out [msg type %d channel %d]\n", 
-								r._cmdBuffer[j].id & 0x0f, 
-								r._cmdBuffer[j].data[0] & 0x7f,
-								(r._cmdBuffer[j].data[0] & 0x80)?1:0);
+						if (r._p)
+						{
+							(*r._p) ("CAN: write message of %d elments failed\n", r._writeMessages);
+						}
+					}
+					else
+					{
+						messagePending = true;
+						_writerequested = false;
+						remainingMsgs = r._writeMessages;
+						noreply = _noreply;
+						r._error_status = YARP_OK;
+						counter = 0;
+						memset (r._replyBuffer, 0, sizeof(CMSG) * r._writeMessages);
+
+						if (r._p)
+						{
+							int j;
+							for (j = 0; j < r._writeMessages; j++)
+							{
+								r.printMessage (r._writeBuffer[j]);
+							}
+						}
 					}
 				}
-
-				r._getErrorsAndPrint ();
-
-				r._error_status = YARP_FAIL;
-				left = 0;
-				cyclecount = 0;
-				_mutex.Post();
-				_ev.Signal();
-				done = true;
 			}
 		}
 
-		/// completed prev message packet.
-		if (done)
-		{
-			done = false;
-			_pending.Post();	/// a new write is allowed.
-		}
+		_mutex.Post ();
 
-		_mutex.Wait();
-		
-		/// copies buffered values.
-		r._p = _p;
-		r._filter = _filter;
-
-		if (_request && left < 1)
-		{
-			if (r._writePacket () != YARP_OK)
-			{
-				if (r._p) (*r._p)("problems sending message\n"); 
-			}
-
-			memset (r._replyBuffer, 0, sizeof(CMSG) * r._cur_packetsize);
-			own_messages = left = r._cur_packetsize;
-			r._error_status = YARP_OK;
-			cyclecount = 0;
-			_request = false;
-		}
-
-		_mutex.Post();
-
+		/// wait.
 		now = YARPTime::GetTimeAsSeconds();
 		if ((now - before)*1000 < r._polling_interval)
 		{
@@ -672,7 +627,12 @@ void YARPEsdCanDeviceDriver::Body(void)
 		}
 		before = now;
 	}
+
+	///
 }
+
+
+
 
 ///
 ///
@@ -710,39 +670,44 @@ int YARPEsdCanDeviceDriver::getPositions (void *cmd)
 	double *tmp = (double *)cmd;
 	int i, value = 0;
 
-	_pending.Wait();
-
 	_mutex.Wait();
-	r._startPacket();
+	r.startPacket();
 
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (ENABLED(i))
 		{
-			r._addMessage (CAN_GET_ENCODER_POSITION, i);
+			r.addMessage (CAN_GET_ENCODER_POSITION, i);
 		}
 		else
 			tmp[i] = 0;
 	}
-	
-	_request = true;
+
+	if (r._writeMessages < 1)
+		return YARP_FAIL;
+
+	_writerequested = true;
 	_noreply = false;
 	_mutex.Post();
 
-	_ev.Wait();
+	_done.Wait();
 
-	if (r._error_status != YARP_OK)
+	if (r.getErrorStatus() != YARP_OK)
 	{
-		memset (tmp, 0, sizeof(double) * r._njoints);
+		memset (tmp, 0, sizeof(double) * r.getJoints());
 		return YARP_FAIL;
 	}
 
-	int j = 0;
-	for (i = 0; i < r._njoints; i++)
+	int j;
+	for (i = 0, j = 0; i < r.getJoints(); i++)
 	{
 		if (ENABLED(i))
 		{
-			tmp[i] = *((int *)(r._replyBuffer[j].data+1));
+			CMSG& m = r._replyBuffer[j];
+			if (m.id == 0xffff)
+				tmp[i] = 0;
+			else
+				tmp[i] = *((int *)(m.data+1));
 			j++;
 		}
 	}
@@ -776,12 +741,10 @@ int YARPEsdCanDeviceDriver::setPositions (void *cmd)
 	double *tmp = (double *)cmd;
 	int i;
 
-	_pending.Wait();
-
 	_mutex.Wait();
-	r._startPacket();
+	r.startPacket();
 
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints (); i++)
 	{
 		if (ENABLED(i))
 		{
@@ -789,12 +752,11 @@ int YARPEsdCanDeviceDriver::setPositions (void *cmd)
 			x.axis = i;
 			x.parameters = tmp+i;	
 
-			r._addMessage (CAN_POSITION_MOVE, i);
-
+			r.addMessage (CAN_POSITION_MOVE, i);
 			_ref_positions[i] = tmp[i];
-			*((int*)(r._cmdBuffer[i].data+1)) = S_32(_ref_positions[i]);		/// pos
-			*((short*)(r._cmdBuffer[i].data+5)) = S_16(_ref_speeds[i]);			/// speed
-			r._cmdBuffer[i].len = 7;
+			*((int*)(r._writeBuffer[i].data+1)) = S_32(_ref_positions[i]);		/// pos
+			*((short*)(r._writeBuffer[i].data+5)) = S_16(_ref_speeds[i]);		/// speed
+			r._writeBuffer[i].len = 7;
 		}
 		else
 		{
@@ -802,13 +764,13 @@ int YARPEsdCanDeviceDriver::setPositions (void *cmd)
 		}
 	}
 
-	_request = true;
+	_writerequested = true;
 	_noreply = true;
 	
 	_mutex.Post();
 
 	/// syncing.
-	_ev.Wait();
+	_done.Wait();
 
 	return YARP_OK;
 }
@@ -816,10 +778,7 @@ int YARPEsdCanDeviceDriver::setPositions (void *cmd)
 inline bool YARPEsdCanDeviceDriver::ENABLED (int axis)
 {
 	EsdCanResources& r = RES(system_resources);
-	if (r._destinations[axis/2] & ESD_CAN_SKIP_ADDR)
-		return false;
-
-	return true;
+	return ((r._destinations[axis/2] & ESD_CAN_SKIP_ADDR) == 0) ? true : false;
 }
 
 ///
@@ -840,25 +799,23 @@ int YARPEsdCanDeviceDriver::setPosition (void *cmd)
 		return YARP_OK;
 	}
 
-	_pending.Wait();
-
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (CAN_POSITION_MOVE, axis);
+	r.startPacket();
+	r.addMessage (CAN_POSITION_MOVE, axis);
 
 	_ref_positions[axis] = *((double *)tmp->parameters);
-	*((int*)(r._cmdBuffer[0].data+1)) = S_32(_ref_positions[axis]);		/// pos
-	*((short*)(r._cmdBuffer[0].data+5)) = S_16(_ref_speeds[axis]);			/// speed
-	r._cmdBuffer[0].len = 7;
+	*((int*)(r._writeBuffer[0].data+1)) = S_32(_ref_positions[axis]);		/// pos
+	*((short*)(r._writeBuffer[0].data+5)) = S_16(_ref_speeds[axis]);			/// speed
+	r._writeBuffer[0].len = 7;
 		
-	_request = true;
+	_writerequested = true;
 	_noreply = true;
 	
 	_mutex.Post();
 
 	/// syncing.
-	_ev.Wait();
+	_done.Wait();
 
 	return YARP_OK;
 }
@@ -872,20 +829,18 @@ int YARPEsdCanDeviceDriver::velocityMove (void *cmd)
 	double *tmp = (double *)cmd;
 	int i;
 
-	_pending.Wait();
-
 	_mutex.Wait();
-	r._startPacket();
+	r.startPacket();
 
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (ENABLED (i))
 		{
-			r._addMessage (CAN_VELOCITY_MOVE, i);
+			r.addMessage (CAN_VELOCITY_MOVE, i);
 			_ref_speeds[i] = tmp[i];
-			*((short*)(r._cmdBuffer[i].data+1)) = S_16(_ref_speeds[i]);		/// speed
-			*((short*)(r._cmdBuffer[i].data+3)) = S_16(_ref_accs[i]);		/// accel
-			r._cmdBuffer[i].len = 5;
+			*((short*)(r._writeBuffer[i].data+1)) = S_16(_ref_speeds[i]);		/// speed
+			*((short*)(r._writeBuffer[i].data+3)) = S_16(_ref_accs[i]);		/// accel
+			r._writeBuffer[i].len = 5;
 		}
 		else
 		{
@@ -893,12 +848,12 @@ int YARPEsdCanDeviceDriver::velocityMove (void *cmd)
 		}
 	}
 
-	_request = true;
+	_writerequested = true;
 	_noreply = true;
 
 	_mutex.Post();
 
-	_ev.Wait();
+	_done.Wait();
 
 	return YARP_OK;
 }
@@ -922,7 +877,7 @@ int YARPEsdCanDeviceDriver::definePositions (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (_writeDWord (CAN_SET_ENCODER_POSITION, i, S_32(tmp[i])) != YARP_OK)
 			return YARP_FAIL;
@@ -948,7 +903,7 @@ int YARPEsdCanDeviceDriver::setCommands (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (_writeDWord (CAN_SET_COMMAND_POSITION, i, S_32(tmp[i])) != YARP_OK)
 			return YARP_FAIL;
@@ -964,7 +919,7 @@ int YARPEsdCanDeviceDriver::getRefPositions (void *cmd)
 	double *out = (double *) cmd;
 	int i, value = 0;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (_readDWord (CAN_GET_DESIRED_POSITION, i, value) == YARP_OK)
 			out[i] = double (value);
@@ -1010,7 +965,7 @@ int YARPEsdCanDeviceDriver::setSpeeds (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		_ref_speeds[i] = tmp[i];
 		if (_writeWord16 (CAN_SET_DESIRED_VELOCITY, i, S_16(tmp[i])) != YARP_OK)
@@ -1028,7 +983,7 @@ int YARPEsdCanDeviceDriver::getSpeeds (void *cmd)
 	int i;
 	short value = 0;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (_readWord16 (CAN_GET_ENCODER_VELOCITY, i, value) == YARP_OK)
 			out[i] = double (value);
@@ -1047,7 +1002,7 @@ int YARPEsdCanDeviceDriver::getRefSpeeds (void *cmd)
 	int i;
 	short value = 0;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (_readWord16 (CAN_GET_DESIRED_VELOCITY, i, value) == YARP_OK)
 			_ref_speeds[i] = out[i] = double (value);
@@ -1078,7 +1033,7 @@ int YARPEsdCanDeviceDriver::setAccelerations (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		_ref_accs[i] = tmp[i];
 		if (_writeWord16 (CAN_SET_DESIRED_ACCELER, i, S_16(_ref_accs[i])) != YARP_OK)
@@ -1096,7 +1051,7 @@ int YARPEsdCanDeviceDriver::getRefAccelerations (void *cmd)
 	int i;
 	short value = 0;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (_readWord16 (CAN_GET_DESIRED_ACCELER, i, value) == YARP_OK)
 			_ref_accs[i] = out[i] = double (value);
@@ -1125,7 +1080,7 @@ int YARPEsdCanDeviceDriver::setOffsets (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (_writeWord16 (CAN_SET_OFFSET, i, S_16(tmp[i])) != YARP_OK)
 			return YARP_FAIL;
@@ -1152,7 +1107,7 @@ int YARPEsdCanDeviceDriver::setIntegratorLimits (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (_writeWord16 (CAN_SET_ILIM_GAIN, i, S_16(tmp[i])) != YARP_OK)
 			return YARP_FAIL;
@@ -1244,7 +1199,7 @@ int YARPEsdCanDeviceDriver::getTorques (void *cmd)
 	int i;
 	short value = 0;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (_readWord16 (CAN_GET_PID_OUTPUT, i, value) == YARP_OK)
 			out[i] = double (value);
@@ -1378,7 +1333,7 @@ int YARPEsdCanDeviceDriver::setTorqueLimits (void *cmd)
 	double *tmp = (double *)cmd;
 
 	int i;
-	for (i = 0; i < r._njoints; i++)
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (_writeWord16 (CAN_SET_TLIM, i, S_16(tmp[i])) != YARP_OK)
 			return YARP_FAIL;
@@ -1409,7 +1364,7 @@ int YARPEsdCanDeviceDriver::getTorqueLimits (void *cmd)
 	int i;
 	short value = 0;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (_readWord16 (CAN_GET_TLIM, i, value) == YARP_OK)
 			out[i] = double (value);
@@ -1445,7 +1400,7 @@ int YARPEsdCanDeviceDriver::checkMotionDone (void *cmd)
 	short value;
 	bool *out = (bool *) cmd;
 
-	for(i = 0; i < r._njoints; i++)
+	for(i = 0; i < r.getJoints(); i++)
 	{
 		if (ENABLED(i))
 		{
@@ -1481,20 +1436,18 @@ int YARPEsdCanDeviceDriver::_writeNone (int msg, int axis)
 		return YARP_OK;
 	}
 
-	_pending.Wait();
-
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (msg, axis);
+	r.startPacket();
+	r.addMessage (msg, axis);
 
-	_request = true;
+	_writerequested = true;
 	_noreply = true;
 	
 	_mutex.Post();
 
 	/// syncing.
-	_ev.Wait();
+	_done.Wait();
 
 	return YARP_OK;
 }
@@ -1510,22 +1463,20 @@ int YARPEsdCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 		return YARP_OK;
 	}
 
-	_pending.Wait();
-
-	/// prepare Can message.
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (msg, axis);
+	r.startPacket();
+	r.addMessage (msg, axis);
 		
-	_request = true;
+	_writerequested = true;
 	_noreply = false;
+
 	_mutex.Post();
 
 	/// reads back position info.
-	_ev.Wait();
+	_done.Wait();
 
-	if (r._error_status != YARP_OK)
+	if (r.getErrorStatus() != YARP_OK)
 	{
 		value = 0;
 		return YARP_FAIL;
@@ -1545,22 +1496,21 @@ int YARPEsdCanDeviceDriver::_writeWord16 (int msg, int axis, short s)
 	if (!ENABLED(axis))
 		return YARP_OK;
 
-	_pending.Wait();
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (msg, axis);
+	r.startPacket();
+	r.addMessage (msg, axis);
 
-	*((short *)(r._cmdBuffer[0].data+1)) = s;
-	r._cmdBuffer[0].len = 3;
+	*((short *)(r._writeBuffer[0].data+1)) = s;
+	r._writeBuffer[0].len = 3;
 		
-	_request = true;
+	_writerequested = true;
 	_noreply = true;
 	
 	_mutex.Post();
 
 	/// syncing.
-	_ev.Wait();
+	_done.Wait();
 
 	/// hopefully ok...
 	return YARP_OK;
@@ -1575,22 +1525,21 @@ int YARPEsdCanDeviceDriver::_writeDWord (int msg, int axis, int value)
 	if (!ENABLED(axis))
 		return YARP_OK;
 
-	_pending.Wait();
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (msg, axis);
+	r.startPacket();
+	r.addMessage (msg, axis);
 
-	*((int*)(r._cmdBuffer[0].data+1)) = value;
-	r._cmdBuffer[0].len = 5;
+	*((int*)(r._writeBuffer[0].data+1)) = value;
+	r._writeBuffer[0].len = 5;
 		
-	_request = true;
+	_writerequested = true;
 	_noreply = true;
 	
 	_mutex.Post();
 
 	/// syncing.
-	_ev.Wait();
+	_done.Wait();
 
 	return YARP_OK;
 }
@@ -1607,23 +1556,22 @@ int YARPEsdCanDeviceDriver::_writeWord16Ex (int msg, int axis, short s1, short s
 	if (!ENABLED(axis))
 		return YARP_OK;
 
-	_pending.Wait();
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (msg, axis);
+	r.startPacket();
+	r.addMessage (msg, axis);
 
-	*((short *)(r._cmdBuffer[0].data+1)) = s1;
-	*((short *)(r._cmdBuffer[0].data+3)) = s2;
-	r._cmdBuffer[0].len = 5;
+	*((short *)(r._writeBuffer[0].data+1)) = s1;
+	*((short *)(r._writeBuffer[0].data+3)) = s2;
+	r._writeBuffer[0].len = 5;
 
-	_request = true;
+	_writerequested = true;
 	_noreply = true;
 	
 	_mutex.Post();
 
 	/// syncing.
-	_ev.Wait();
+	_done.Wait();
 
 	/// hopefully ok...
 	return YARP_OK;
@@ -1643,20 +1591,19 @@ int YARPEsdCanDeviceDriver::_readDWord (int msg, int axis, int& value)
 		return YARP_OK;
 	}
 
-	_pending.Wait();
-	/// prepare can packet of length 1.
 	_mutex.Wait();
 
-	r._startPacket();
-	r._addMessage (msg, axis);
+	r.startPacket();
+	r.addMessage (msg, axis);
 		
-	_request = true;
+	_writerequested = true;
 	_noreply = false;
+	
 	_mutex.Post();
 
-	_ev.Wait();
+	_done.Wait();
 
-	if (r._error_status != YARP_OK)
+	if (r.getErrorStatus() != YARP_OK)
 	{
 		value = 0;
 		return YARP_FAIL;
