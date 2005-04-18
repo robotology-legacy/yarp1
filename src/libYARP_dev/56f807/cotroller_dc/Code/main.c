@@ -21,6 +21,7 @@
  */
 void isrIRQA ();
 int get_flash_addr (void);
+extern void bootStart(void);  /* Defined in linker.cmd file */ 
 
 /*
  * test irs.
@@ -277,7 +278,7 @@ byte readFromFlash (word addr)
 	int i;
 
 	IFsh1_getWordFlash(ptr, &tmp);
-	_board_ID = BYTE_H(tmp);
+	_board_ID = BYTE_H(tmp) & 0x0F;
 	ADP(ptr,2);
 	IFsh1_getWordFlash(ptr, (unsigned int *)&_version);
 	ADP(ptr,2);
@@ -782,6 +783,7 @@ byte can_interface (void)
 			if (_canmsg.CAN_messID & 0x00000100)
 				CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER(0)
 			else
+#endif
 			/* special message for the can loader */ 
 			if (_canmsg.CAN_messID & 0x00000700)
 			{
@@ -802,20 +804,22 @@ byte can_interface (void)
 							break;
 							
 					    case 4:
-							_canmsg.CAN_data[0] = 4;
-							_canmsg.CAN_data[1] = 1; 
-							CAN1_sendFrame (1,IdTx, DATA_FRAME, 2, _canmsg.CAN_data);
+		    				if (_board_ID == (_canmsg.CAN_messID & 0x000F)) {
+								_canmsg.CAN_data[0] = 4;
+								_canmsg.CAN_data[1] = 1; 
+								CAN1_sendFrame (1,IdTx, DATA_FRAME, 2, _canmsg.CAN_data);
+							}	
 							break;
 							
 					    case 0:
-		    				asm(jsr bootStart);	/// check whether this has to be a JMP rather than a JSR.
+		    				if (_board_ID == (_canmsg.CAN_messID & 0x000F))
+		    				  asm(jsr bootStart);	/// check whether this has to be a JMP rather than a JSR.
 		    				break;
 		    		}	
 				}
 			}
 			else
 			{
-#endif
 			BEGIN_MSG_TABLE (_canmsg.CAN_data[0])
 			HANDLE_MSG (CAN_NO_MESSAGE, CAN_NO_MESSAGE_HANDLER)
 			HANDLE_MSG (CAN_CONTROLLER_RUN, CAN_CONTROLLER_RUN_HANDLER)
@@ -875,6 +879,7 @@ byte can_interface (void)
 			HANDLE_MSG (CAN_GET_ACTIVE_ENCODER_POSITION, CAN_GET_ACTIVE_ENCODER_POSITION_HANDLER)
 			
 			END_MSG_TABLE		
+			}
 
 #if VERSION == 0x0113
 			}
