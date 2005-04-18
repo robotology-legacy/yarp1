@@ -87,6 +87,8 @@ Int16 _version = 0x0111;
 Int16 _version = 0x0112;
 #elif VERSION == 0x0113
 Int16 _version = 0x0113;
+#elif VERSION == 0x0114
+Int16 _version = 0x0114;
 #endif
 
 #if VERSION == 0x0113
@@ -278,7 +280,7 @@ byte readFromFlash (word addr)
 	int i;
 
 	IFsh1_getWordFlash(ptr, &tmp);
-	_board_ID = BYTE_H(tmp) & 0x0F;
+	_board_ID = BYTE_H(tmp) & 0x0f;
 	ADP(ptr,2);
 	IFsh1_getWordFlash(ptr, (unsigned int *)&_version);
 	ADP(ptr,2);
@@ -412,6 +414,8 @@ void print_version(void)
 	AS1_printStringEx ("1.12");
 #elif VERSION == 0x0113
 	AS1_printStringEx ("1.13");
+#elif VERSION == 0x0114
+	AS1_printStringEx ("1.14");
 #else
 #	error "No valid version specified"
 #endif
@@ -506,6 +510,7 @@ void main(void)
 	PWMC0_init ();
 	PWMC1_init ();
 	TI1_init ();
+	TIC_init ();
 		
 	__EI();
 	
@@ -781,7 +786,14 @@ byte can_interface (void)
 			/* special message, not too neat */
 #if VERSION == 0x0113
 			if (_canmsg.CAN_messID & 0x00000100)
+			{
 				CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER(0)
+			}
+			else
+#else
+			if (_canmsg.CAN_messID & 0x00000100)
+			{
+			}
 			else
 #endif
 			/* special message for the can loader */ 
@@ -880,10 +892,6 @@ byte can_interface (void)
 			
 			END_MSG_TABLE		
 			}
-
-#if VERSION == 0x0113
-			}
-#endif
 
 #ifdef DEBUG_CAN_MSG
 			if (_verbose)

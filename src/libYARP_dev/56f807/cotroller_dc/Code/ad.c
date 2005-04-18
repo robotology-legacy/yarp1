@@ -1,0 +1,167 @@
+/*
+ * ad.c
+ *	reading from the AD converter.
+ */
+
+#include "ad.h"
+
+#define IDLE            0              /* IDLE state           */
+#define MEASURE         1              /* MESURE state         */
+#define CONTINUOUS      2              /* CONTINUOUS state     */
+#define SINGLE          3              /* SINGLE state         */
+
+static bool OutFlg;                    /* Measurement finish flag */
+volatile byte ad_ModeFlg;	           /* Current state of device */
+
+/**
+ * on interrupt flags the output ready bit.
+ */
+#pragma interrupt 
+void AD_interruptCC(void)
+{
+	/* ADCA_ADSTAT: CIP=0,??=0,??=0,??=0,EOSI=1,ZCI=0,LLMTI=0,HLMTI=0,RDY7=0,RDY6=0,RDY5=0,RDY4=0,RDY3=0,RDY2=0,RDY1=0,RDY0=0 */
+
+	setReg(ADCA_ADSTAT, 0x0800);            /* Clear EOSI flag */
+	OutFlg = TRUE;                       	/* Measured values are available */
+	if (!(getRegBit(ADCA_ADCR1, SMODE2))) 
+	{
+		/* Not running in trigger mode? */
+		ad_ModeFlg = IDLE;                	/* Set the bean to the idle mode */
+	}
+	
+	AD_onEnd();                         	/* If yes then invoke user event */
+}
+
+/*
+ * starts the acquisition.
+ *	
+ */
+static void HWEnDi(void)
+{
+	if (ad_ModeFlg)  /* Launch measurement? */
+	{
+		OutFlg = FALSE;                    	  /* Measured values are available */
+		/* Trigger mode? */
+		if (getRegBit (ADCA_ADCR1, SMODE2)) 
+		{ 
+			setRegBit (ADCA_ADCR1, SYNC);     /* Use sync input to initiate a conversion */
+			clrRegBit (ADCA_ADCR1, STOP);     /* Normal operation mode */
+		}
+		else 
+		{
+			/* Set normal operation mode and sync input disabled */
+			clrRegBits (ADCA_ADCR1, ADCA_ADCR1_SYNC_MASK | ADCA_ADCR1_STOP_MASK); 
+			setRegBit (ADCA_ADCR1, START);    /* Launching of conversion */
+		}
+	}
+	else 
+	{
+		setRegBit (ADCA_ADCR1, STOP);         /* Stop command issued */
+	}
+}
+
+/*
+ * This method performs one measurement on all channels that
+ *  are set in the bean inspector. (Note: If the <number of
+ *  conversions> is more than one the conversion of A/D
+ *  channels is performed specified number of times.)
+ *
+ * @param wait waits for result to be ready.
+ * @return ERR_OK after a successful sampling, ERR_BUSY if the device is
+ * already running a conversion.
+ */
+byte AD_measure(bool WaitForResult)
+{
+	if (ad_ModeFlg != IDLE)
+		return ERR_BUSY;
+		
+	/* sequential once mode */
+	clrRegBits (ADCA_ADCR1, 0x00);
+	
+	ad_ModeFlg = MEASURE;
+	
+	HWEnDi();
+	
+	/* wait on the interrupt */
+	if (WaitForResult)
+		while (ad_ModeFlg == MEASURE) {}
+	
+	return ERR_OK;
+}
+
+/*
+ * enables triggered sequential mode synchronous with the
+ * PWM generation signal.
+ */
+byte AD_enableIntTrigger(void)
+{
+	if (ad_ModeFlg != IDLE)             /* Is the device in running mode? */
+		return ERR_BUSY;
+		
+	/// starts sampling in triggered sequential mode
+	/// synchro with PWM generation.
+	setRegBits (ADCA_ADCR1, 0x04);
+	clrRegBits (ADCA_ADCR1, 0x03);
+	
+	ad_ModeFlg = MEASURE;               /* Set state of device to the measure mode */
+	
+	HWEnDi();
+	return ERR_OK;
+}
+
+/**
+ * gets the sampled values if available.
+ * @param values is a pointer to an array of three elements.
+ * @return ERR_OK if values are available, ERR_NOTAVAIL otherwise.
+ */
+byte AD_getValue16 (word *values)
+{
+	if (!OutFlg)                         /* Is measured value(s) available? */
+		return ERR_NOTAVAIL;             
+		
+	*values++ = (getReg(ADCA_ADRSLT0)) << 1;
+	*values++ = (getReg(ADCA_ADRSLT1)) << 1;
+	*values = (getReg(ADCA_ADRSLT2)) << 1;
+	
+	return ERR_OK;
+}
+
+/**
+ * initializes the AD conversion module.
+ */
+void AD_init (void)
+{
+	OutFlg = FALSE;                      /* No measured value */
+	ad_ModeFlg = IDLE;                  /* Device isn't running */
+
+	setReg(ADCA_ADCR1, 0x4800);           /* Set control register 1 */
+	setReg(ADCA_ADOFS0, 0);               /* Set offset reg. 0 */
+	setReg(ADCA_ADOFS1, 0);               /* Set offset reg. 1 */
+	setReg(ADCA_ADOFS2, 0);               /* Set offset reg. 2 */
+	setReg(ADCA_ADHLMT0, 0x7ff8);         /* Set high limit reg. 0 */
+	setReg(ADCA_ADHLMT1, 0x7ff8);         /* Set high limit reg. 1 */
+	setReg(ADCA_ADHLMT2, 0x7ff8);         /* Set high limit reg. 2 */
+	setReg(ADCA_ADLLMT0, 0);              /* Set low limit reg. 0 */
+	setReg(ADCA_ADLLMT1, 0);              /* Set low limit reg. 1 */
+	setReg(ADCA_ADLLMT2, 0);              /* Set low limit reg. 2 */
+	setReg(ADCA_ADZCSTAT, 0xff);          /* Clear zero crossing status flags */
+	setReg(ADCA_ADLSTAT, 0xffff);         /* Clear high and low limit status */
+	setReg(ADCA_ADSTAT, 0x800);           /* Clear EOSI flag */
+	setReg(ADCA_ADSDIS, 0xf8);            /* Enable/disable of samples */
+	setReg(ADCA_ADLST1, 0x105);           /* Set ADC channel list reg. */
+	setReg(ADCA_ADZCC, 0);                /* Set zero crossing control reg. */
+	setReg(ADCA_ADCR2, 0xf);              /* Set prescaler */
+
+	HWEnDi();                             /* Enable/disable device according to the status flags */
+}
+
+/**
+ * event like function called from within the ISR.
+ */
+#pragma interrupt called
+void AD_onEnd (void)
+{
+	/* Write your code here ... */
+}
+
+
