@@ -4,6 +4,7 @@
  */
 
 #include "ad.h"
+#include "controller.h"
 
 #define IDLE            0              /* IDLE state           */
 #define MEASURE         1              /* MESURE state         */
@@ -13,15 +14,20 @@
 static bool OutFlg;                    /* Measurement finish flag */
 volatile byte ad_ModeFlg;	           /* Current state of device */
 
+word _sample_A[3];					   /* 3 channels */
+
 /**
  * on interrupt flags the output ready bit.
  */
 #pragma interrupt 
 void AD_interruptCC(void)
 {
-	/* ADCA_ADSTAT: CIP=0,??=0,??=0,??=0,EOSI=1,ZCI=0,LLMTI=0,HLMTI=0,RDY7=0,RDY6=0,RDY5=0,RDY4=0,RDY3=0,RDY2=0,RDY1=0,RDY0=0 */
+	_sample_A[0] = (getReg(ADCA_ADRSLT0)) << 1;
+	_sample_A[1] = (getReg(ADCA_ADRSLT1)) << 1;
+	_sample_A[2] = (getReg(ADCA_ADRSLT2)) << 1;
 
 	setReg(ADCA_ADSTAT, 0x0800);            /* Clear EOSI flag */
+	
 	OutFlg = TRUE;                       	/* Measured values are available */
 	if (!(getRegBit(ADCA_ADCR1, SMODE2))) 
 	{
@@ -29,12 +35,11 @@ void AD_interruptCC(void)
 		ad_ModeFlg = IDLE;                	/* Set the bean to the idle mode */
 	}
 	
-	AD_onEnd();                         	/* If yes then invoke user event */
+	///AD_onEnd();                         	/* If yes then invoke user event */
 }
 
-/*
+/**
  * starts the acquisition.
- *	
  */
 static void HWEnDi(void)
 {
@@ -109,6 +114,16 @@ byte AD_enableIntTrigger(void)
 	return ERR_OK;
 }
 
+/*
+ * stops the acquisition, disables interrupts.
+ * use init to start acquisition again.
+ */
+byte AD_stopAcquisition(void)
+{
+	setRegBit (ADCA_ADCR1, STOP);         /* Stop command issued */
+	return ERR_OK;
+}
+
 /**
  * gets the sampled values if available.
  * @param values is a pointer to an array of three elements.
@@ -116,6 +131,14 @@ byte AD_enableIntTrigger(void)
  */
 byte AD_getValue16 (word *values)
 {
+	AD_DI;
+	values[0] = _sample_A[0];
+	values[1] = _sample_A[1];
+	values[2] = _sample_A[2];
+	AD_EI;
+	
+	return ERR_OK;
+#if 0
 	if (!OutFlg)                         /* Is measured value(s) available? */
 		return ERR_NOTAVAIL;             
 		
@@ -124,6 +147,7 @@ byte AD_getValue16 (word *values)
 	*values = (getReg(ADCA_ADRSLT2)) << 1;
 	
 	return ERR_OK;
+#endif
 }
 
 /**
@@ -152,6 +176,10 @@ void AD_init (void)
 	setReg(ADCA_ADZCC, 0);                /* Set zero crossing control reg. */
 	setReg(ADCA_ADCR2, 0xf);              /* Set prescaler */
 
+	_sample_A[0] = 0;
+	_sample_A[1] = 0;
+	_sample_A[2] = 0;
+	
 	HWEnDi();                             /* Enable/disable device according to the status flags */
 }
 

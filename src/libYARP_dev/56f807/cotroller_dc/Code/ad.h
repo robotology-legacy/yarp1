@@ -15,9 +15,10 @@
 #include "dsp56f807.h"
 
 void AD_interruptCC(void);
-byte AD_measure(bool WaitForResult);
+byte AD_measure(bool wait);
 byte AD_enableIntTrigger(void);
-byte AD_getValue16(word *Values);
+byte AD_stopAcquisition(void);
+byte AD_getValue16(word *values);
 void AD_init(void);
 void AD_onEnd(void);
 

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.11 2005-04-18 15:00:39 gmetta Exp $
+/// $Id: controller.h,v 1.12 2005-04-18 16:13:46 gmetta Exp $
 ///
 ///
 
@@ -108,6 +108,8 @@ typedef struct canmsg_tag
 #define CAN_EI		setRegBit (CAN_RIER, RXFIE)
 #define CAN_DI		clrRegBit (CAN_RIER, RXFIE)      
 /* clrRegBit(CANRIER, RXFIE), setRegBit(CANRIER, RXFIE) */
+#define AD_EI		setRegBit (ADCA_ADCR1, EOSIE)
+#define AD_DI		clrRegBit (ADCA_ADCR1, EOSIE)
 
 #define CAN_SYNCHRO_STEPS 4
 

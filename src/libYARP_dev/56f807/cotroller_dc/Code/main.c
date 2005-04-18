@@ -12,6 +12,7 @@
 #include "pwmc1.h"
 #include "ti1.h"
 #include "ifsh1.h"
+#include "ad.h"
 
 #include "controller.h"
 #include "messages.h"
@@ -502,6 +503,7 @@ void main(void)
 	__ENIGROUP (16, 7);
 	__ENIGROUP (17, 7);
 	__ENIGROUP (42, 4);
+	__ENIGROUP (55, 4);
 		
 	AS1_init ();
 	CAN1_init ();
@@ -511,6 +513,7 @@ void main(void)
 	PWMC1_init ();
 	TI1_init ();
 	TIC_init ();
+	AD_init ();
 		
 	__EI();
 	
@@ -944,6 +947,7 @@ byte serial_interface (void)
 	byte d = 0;
 	char buffer[SMALL_BUFFER_SIZE];
 	int  iretval = 0;
+	word value[3];
 	
 	if (c == 0)
 		AS1_recvChar(&c);
@@ -952,6 +956,37 @@ byte serial_interface (void)
 	{
 		default:
 			c = 0;
+			break;
+		
+		case 't':
+			if (AS1_recvChar(&d) == ERR_OK)
+			{
+				if (d == '1')
+				{
+					AD_enableIntTrigger ();
+					AS1_printStringEx ("acquisition on trigger enabled\r\n");
+				}
+				else
+				if (d == '2')
+				{
+					AS1_printStringEx ("reading from FLASH mem\r\n");
+					AD_getValue16 (value);
+					AS1_printWord16AsChars (value[0]);
+					AS1_printStringEx (" ");
+					AS1_printWord16AsChars (value[1]);
+					AS1_printStringEx (" ");
+					AS1_printWord16AsChars (value[2]);
+					AS1_printStringEx ("\r\n");
+				}
+				else
+				if (d == '3')
+				{
+					AD_stopAcquisition ();
+					AS1_printStringEx ("acquisition terminated\r\n");
+				}
+
+				c = 0;
+			}
 			break;
 			
 		case 'h':

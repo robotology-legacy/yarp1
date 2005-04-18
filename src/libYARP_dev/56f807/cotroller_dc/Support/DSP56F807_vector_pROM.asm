@@ -86,7 +86,7 @@ M56807_intDef:
 	jsr FAS1_interruptError  ; SCI #0 receiver error    ($68)
 	jsr FAS1_interruptRx     ; SCI #0 receiver full     ($6a)
 	jmp M56807_intRoutine    ; ADC B Conversion complete($6c)
-	jmp M56807_intRoutine    ; ADC A Conversion complete($6e)
+	jsr FAD_interruptCC      ; ADC A Conversion complete($6e)
 	jmp M56807_intRoutine    ; ADC B zero crossing/error($70)
 	jmp M56807_intRoutine    ; ADC A zero crossing/error($72)
 	jmp M56807_intRoutine    ; Reload PWM B 		    ($74)
