@@ -436,7 +436,7 @@ void can_send_request(void)
 			_canmsg.CAN_messID &= 0xfffff800;
 			_canmsg.CAN_messID |= (_board_ID) << 4;
 			_canmsg.CAN_messID |= (_neighbor);
-			_canmsg.CAN_messID |= 0x00000100;
+			//_canmsg.CAN_messID |= 0x00000100;
 			_canmsg.CAN_data[0] = CAN_GET_ACTIVE_ENCODER_POSITION;
 			
 			//while (CAN1_GetStateTX () == 0) ;
@@ -516,6 +516,11 @@ void main(void)
 	AD_init ();
 		
 	__EI();
+
+
+#if VERSION == 0x0114
+	AD_enableIntTrigger ();
+#endif			
 	
 	print_version ();
 	AS1_printStringEx ("\r\n");
@@ -568,8 +573,20 @@ void main(void)
 		/* read encoders, 32 bit values */
 		_position_old[0] = _position[0];
 		_position_old[1] = _position[1];
+#if VERSION == 0x0114
+		AD_getChannel16 (2, &temporary);
+		_position[0] = L_deposit_l(temporary);
+		if (_verbose && _counter == 0)
+		{
+			AS1_printStringEx ("p: ");
+			AS1_printDWordAsCharsDec (_position[0]);
+			AS1_printStringEx ("\r\n");
+		}
+		_position[1] = 0;
+#else
 		QD0_getPosition ((dword *)_position);
 		QD1_getPosition ((dword *)(_position+1));
+#endif
 
 #if VERSION == 0x0112
 		/* (de)couple encoder readings */
@@ -788,19 +805,19 @@ byte can_interface (void)
 
 			/* special message, not too neat */
 #if VERSION == 0x0113
-			if (_canmsg.CAN_messID & 0x00000100)
+			if ((_canmsg.CAN_messID & 0x00000700) == 0x0100)
 			{
 				CAN_SET_ACTIVE_ENCODER_POSITION_HANDLER(0)
 			}
 			else
 #else
-			if (_canmsg.CAN_messID & 0x00000100)
+			if ((_canmsg.CAN_messID & 0x00000700) == 0x0100)
 			{
 			}
 			else
 #endif
 			/* special message for the can loader */ 
-			if (_canmsg.CAN_messID & 0x00000700)
+			if ((_canmsg.CAN_messID & 0x00000700) == 0x0700)
 			{
 				if ((_canmsg.CAN_length == 1)) 
 				{
@@ -815,20 +832,21 @@ byte can_interface (void)
 							_canmsg.CAN_data[1] = 0;  // board type (always 0 for motor control card).
 							_canmsg.CAN_data[2] = (_version & 0xff00) >> 8;  // firmware version.	
 							_canmsg.CAN_data[3] = _version & 0x00ff; 		 // firmware revision.
-							CAN1_sendFrame (1,IdTx, DATA_FRAME, 4, _canmsg.CAN_data);
+							CAN1_sendFrame (1, IdTx, DATA_FRAME, 4, _canmsg.CAN_data);
 							break;
 							
 					    case 4:
-		    				if (_board_ID == (_canmsg.CAN_messID & 0x000F)) {
+		    				if (_board_ID == (_canmsg.CAN_messID & 0x000F)) 
+		    				{
 								_canmsg.CAN_data[0] = 4;
 								_canmsg.CAN_data[1] = 1; 
-								CAN1_sendFrame (1,IdTx, DATA_FRAME, 2, _canmsg.CAN_data);
+								CAN1_sendFrame (1, IdTx, DATA_FRAME, 2, _canmsg.CAN_data);
 							}	
 							break;
 							
 					    case 0:
 		    				if (_board_ID == (_canmsg.CAN_messID & 0x000F))
-		    				  asm(jsr bootStart);	/// check whether this has to be a JMP rather than a JSR.
+		    					asm(jsr bootStart);	/// check whether this has to be a JMP rather than a JSR.
 		    				break;
 		    		}	
 				}
@@ -947,7 +965,6 @@ byte serial_interface (void)
 	byte d = 0;
 	char buffer[SMALL_BUFFER_SIZE];
 	int  iretval = 0;
-	word value[3];
 	
 	if (c == 0)
 		AS1_recvChar(&c);
@@ -958,37 +975,6 @@ byte serial_interface (void)
 			c = 0;
 			break;
 		
-		case 't':
-			if (AS1_recvChar(&d) == ERR_OK)
-			{
-				if (d == '1')
-				{
-					AD_enableIntTrigger ();
-					AS1_printStringEx ("acquisition on trigger enabled\r\n");
-				}
-				else
-				if (d == '2')
-				{
-					AS1_printStringEx ("reading from FLASH mem\r\n");
-					AD_getValue16 (value);
-					AS1_printWord16AsChars (value[0]);
-					AS1_printStringEx (" ");
-					AS1_printWord16AsChars (value[1]);
-					AS1_printStringEx (" ");
-					AS1_printWord16AsChars (value[2]);
-					AS1_printStringEx ("\r\n");
-				}
-				else
-				if (d == '3')
-				{
-					AD_stopAcquisition ();
-					AS1_printStringEx ("acquisition terminated\r\n");
-				}
-
-				c = 0;
-			}
-			break;
-			
 		case 'h':
 		case 'H':
 		case '\r':

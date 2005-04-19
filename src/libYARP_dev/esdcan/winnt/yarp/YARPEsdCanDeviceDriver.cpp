@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.3 2005-04-18 08:43:00 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.4 2005-04-19 01:15:15 babybot Exp $
 ///
 ///
 
@@ -504,7 +504,8 @@ void YARPEsdCanDeviceDriver::Body (void)
 					}
 
 				if (((m.id &0x700) == 0) && 
-					((m.data[0] & 0x7f) != _filter))
+					((m.data[0] & 0x7f) != _filter) &&
+					 (m.data[0] & 0x7f) < CAN_GET_ACTIVE_ENCODER_POSITION)
 					r.printMessage (m);
 
 				if (!noreply) /// this requires a reply.
@@ -605,7 +606,8 @@ AckMessageLoop:
 							int j;
 							for (j = 0; j < r._writeMessages; j++)
 							{
-								r.printMessage (r._writeBuffer[j]);
+								if ((r._writeBuffer[j].data[0] & 0x7f) != _filter)
+									r.printMessage (r._writeBuffer[j]);
 							}
 						}
 					}

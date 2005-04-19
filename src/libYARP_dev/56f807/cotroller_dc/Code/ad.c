@@ -151,6 +151,21 @@ byte AD_getValue16 (word *values)
 }
 
 /**
+ * gets the sampled values if available.
+ * @param i is the index of the channel to read 0-2
+ * @param values is a pointer to a 16 bit value.
+ * @return ERR_OK if values are available, ERR_NOTAVAIL otherwise.
+ */
+byte AD_getChannel16(byte i, word *value)
+{
+	if (i < 0 || i > 2)
+		return ERR_RANGE;
+	AD_DI;
+	*value = _sample_A[i];
+	AD_EI;
+}
+
+/**
  * initializes the AD conversion module.
  */
 void AD_init (void)

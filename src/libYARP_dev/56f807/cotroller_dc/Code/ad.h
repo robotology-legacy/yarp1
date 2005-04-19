@@ -19,6 +19,7 @@ byte AD_measure(bool wait);
 byte AD_enableIntTrigger(void);
 byte AD_stopAcquisition(void);
 byte AD_getValue16(word *values);
+byte AD_getChannel16(byte i, word *value);
 void AD_init(void);
 void AD_onEnd(void);
 

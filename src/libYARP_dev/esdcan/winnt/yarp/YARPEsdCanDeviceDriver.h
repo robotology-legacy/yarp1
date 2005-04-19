@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.h,v 1.3 2005-04-18 08:43:00 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.h,v 1.4 2005-04-19 01:15:15 babybot Exp $
 ///
 ///
 
@@ -65,7 +65,7 @@ struct EsdCanOpenParameters
 		memset (_destinations, 0, sizeof(unsigned char) * ESD_MAX_CARDS);
 		_my_address = 0;
 		_polling_interval = 10;
-		_timeout = 2;
+		_timeout = 20;
 		_njoints = 0;
 		_p = NULL;
 
