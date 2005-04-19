@@ -14,14 +14,19 @@
 
 #include "dsp56f807.h"
 
-void AD_interruptCC(void);
-byte AD_measure(bool wait);
-byte AD_enableIntTrigger(void);
-byte AD_stopAcquisition(void);
-byte AD_getValue16(word *values);
-byte AD_getChannel16(byte i, word *value);
+void AD_interruptCCA(void);
+void AD_interruptCCB(void);
+byte AD_measureA(bool wait);
+byte AD_measureB(bool wait);
+byte AD_enableIntTriggerA(void);
+byte AD_enableIntTriggerB(void);
+byte AD_stopAcquisitionA(void);
+byte AD_stopAcquisitionB(void);
+byte AD_getValue16A(word *values);
+byte AD_getValue16B(word *values);
+byte AD_getChannel16A(byte i, word *value);
+byte AD_getChannel16B(byte i, word *value);
 void AD_init(void);
-void AD_onEnd(void);
 
 
 #endif /* ifndef __adh__ */

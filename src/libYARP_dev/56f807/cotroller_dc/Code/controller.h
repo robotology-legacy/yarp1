@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: controller.h,v 1.12 2005-04-18 16:13:46 gmetta Exp $
+/// $Id: controller.h,v 1.13 2005-04-19 17:39:28 babybot Exp $
 ///
 ///
 
@@ -51,10 +51,10 @@
 #define true 1
 #endif
 
-//#define VERSION 0x0111				/* standard/basic implementation */
+#define VERSION 0x0111				/* standard/basic implementation */
 //#define VERSION 0x0112				/* decouples shoulder first two joints */
 //#define VERSION 0x0113				/* decouples the third joint of the shoulder */
-#define VERSION 0x0114				/* feedback from the AD */
+//#define VERSION 0x0114				/* feedback from the AD */
 
 #define DEBUG_CAN_MSG 		1		/* conditional compile for printing can info */
 //#define DEBUG_CONTROL_RATE	1 		/* for debugging control cycle rate */
@@ -74,6 +74,7 @@
 #define DEFAULT_ACCELERATION 10
 #define DEFAULT_MAX_POSITION 5000
 #define DEFAULT_MAX_VELOCITY 0x7fff
+#define HALL_EFFECT_SENS_ZERO 14800
 
 #define ADP(x,amount) x+=amount
 
@@ -108,8 +109,10 @@ typedef struct canmsg_tag
 #define CAN_EI		setRegBit (CAN_RIER, RXFIE)
 #define CAN_DI		clrRegBit (CAN_RIER, RXFIE)      
 /* clrRegBit(CANRIER, RXFIE), setRegBit(CANRIER, RXFIE) */
-#define AD_EI		setRegBit (ADCA_ADCR1, EOSIE)
-#define AD_DI		clrRegBit (ADCA_ADCR1, EOSIE)
+#define ADA_EI		setRegBit (ADCA_ADCR1, EOSIE)
+#define ADA_DI		clrRegBit (ADCA_ADCR1, EOSIE)
+#define ADB_EI		setRegBit (ADCB_ADCR1, EOSIE)
+#define ADB_DI		clrRegBit (ADCB_ADCR1, EOSIE)
 
 #define CAN_SYNCHRO_STEPS 4
 

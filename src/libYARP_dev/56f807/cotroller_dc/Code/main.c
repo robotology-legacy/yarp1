@@ -504,6 +504,7 @@ void main(void)
 	__ENIGROUP (17, 7);
 	__ENIGROUP (42, 4);
 	__ENIGROUP (55, 4);
+	__ENIGROUP (54, 4);
 		
 	AS1_init ();
 	CAN1_init ();
@@ -512,14 +513,18 @@ void main(void)
 	PWMC0_init ();
 	PWMC1_init ();
 	TI1_init ();
+
+#if VERSION == 0x0114
 	TIC_init ();
 	AD_init ();
-		
+#endif
+
 	__EI();
 
 
 #if VERSION == 0x0114
-	AD_enableIntTrigger ();
+	AD_enableIntTriggerA ();
+	AD_enableIntTriggerB ();
 #endif			
 	
 	print_version ();
@@ -574,15 +579,10 @@ void main(void)
 		_position_old[0] = _position[0];
 		_position_old[1] = _position[1];
 #if VERSION == 0x0114
-		AD_getChannel16 (2, &temporary);
-		_position[0] = L_deposit_l(temporary);
-		if (_verbose && _counter == 0)
-		{
-			AS1_printStringEx ("p: ");
-			AS1_printDWordAsCharsDec (_position[0]);
-			AS1_printStringEx ("\r\n");
-		}
-		_position[1] = 0;
+		AD_getChannel16A (2, &temporary);
+		_position[0] = L_deposit_l(temporary)-HALL_EFFECT_SENS_ZERO;
+		AD_getChannel16B (2, &temporary);
+		_position[1] = L_deposit_l(temporary)-HALL_EFFECT_SENS_ZERO;
 #else
 		QD0_getPosition ((dword *)_position);
 		QD1_getPosition ((dword *)(_position+1));

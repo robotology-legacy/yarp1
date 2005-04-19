@@ -80,4 +80,12 @@ void TIC_init (void)
 	
 	setReg (TMRC2_SCR, 0);              /* Set the Status and control register */ 
 	setReg (TMRC2_CTRL, 0x2423);        /* Set the Control register */ 
+	
+	setReg (TMRC3_CMP1, 256);           /* Set the Compare register 1 */ 
+	setReg (TMRC3_CMP2, 0);             /* Set the Compare register 2 */ 
+	setReg (TMRC3_LOAD, 0);             /* Set the Load register */ 
+	setReg (TMRC3_CNTR, 0);             /* Set the Counter register */ 
+	
+	setReg (TMRC3_SCR, 0);              /* Set the Status and control register */ 
+	setReg (TMRC3_CTRL, 0x2623);        /* Set the Control register */ 
 } 
