@@ -27,14 +27,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.12 2005-04-18 08:43:00 babybot Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.13 2005-04-20 22:52:20 babybot Exp $
 ///
 ///
 
 #ifndef __CanOnRobotcubArmAdapterh__
 #define __CanOnRobotcubArmAdapterh__
 
+#ifndef __ESD_DRIVER
 #define __ESD_DRIVER
+#endif
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
@@ -825,5 +827,7 @@ private:
 	/** Allocation and management of this object is typically done by the generic template. */
 	YARPRobotcubArmParameters *_parameters;
 };
+
+#undef __ESD_DRIVER
 
 #endif	// .h

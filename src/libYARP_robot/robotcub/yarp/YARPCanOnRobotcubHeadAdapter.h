@@ -27,12 +27,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.20 2005-04-17 08:12:23 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.21 2005-04-20 22:52:20 babybot Exp $
 ///
 ///
 
 #ifndef __CanOnRobotcubHeadAdapterh__
 #define __CanOnRobotcubHeadAdapterh__
+
+//#ifndef __ESD_DRIVER
+//#define __ESD_DRIVER
+//#endif
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
@@ -432,7 +436,11 @@ public:
  * uninitialize while it leaves much of the burden of calling the device driver
  * to a generic template class called YARPGenericControlBoard.
  */
+#ifdef __ESD_DRIVER
+class YARPCanOnRobotcubHeadAdapter : public YARPEsdCanDeviceDriver
+#else
 class YARPCanOnRobotcubHeadAdapter : public YARPValueCanDeviceDriver
+#endif
 {
 public:
 	/**
@@ -470,12 +478,28 @@ public:
 		using namespace _RobotcubHead;
 
 		_parameters = par;
-		
+
+#ifdef __ESD_DRIVER
+		EsdCanOpenParameters op_par;
+
+		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
+		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
+		op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
+		op_par._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
+
+		op_par._njoints = _parameters->_nj;
+		op_par._p = _parameters->_p;
+
+		if (YARPEsdCanDeviceDriver::open ((void *)&op_par) < 0)
+		{
+			YARPEsdCanDeviceDriver::close();
+			return YARP_FAIL;
+		}
+#else	
 		ValueCanOpenParameters op_par;
 
 		// using addresses from file now!
 		memcpy (op_par._destinations, _parameters->_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
-
 		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
 		op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
 		op_par._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
@@ -488,6 +512,7 @@ public:
 			YARPValueCanDeviceDriver::close();
 			return YARP_FAIL;
 		}
+#endif
 
 		// filters out certain messages.
 		int msg = _parameters->_message_filter;
@@ -573,7 +598,11 @@ public:
 	 */
 	int uninitialize()
 	{
+#ifdef __ESD_DRIVER
+		if (YARPCanCanDeviceDriver::close() != 0)
+#else
 		if (YARPValueCanDeviceDriver::close() != 0)
+#endif
 			return YARP_FAIL;
 
 		_initialized = false;
@@ -852,5 +881,6 @@ private:
 	YARPRobotcubHeadParameters *_parameters;
 };
 
+#undef __ESD_DRIVER
 
 #endif	// .h
