@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.9 2005-03-30 23:17:44 eshuy Exp $
+/// $Id: YARPNameID.h,v 1.10 2005-04-20 21:27:56 natta Exp $
 ///
 ///
 /*
@@ -538,7 +538,8 @@ public:
 		memcpy (_ports, p, sizeof(int) * _nports); 
 		return YARP_OK; 
 	}
-
+	
+	#ifdef __DARWIN__
 	// Minor variant on other setPorts method
 	// Deals with NetInt32's, which are not ints on Darwin
 	inline int setPorts (NetInt32 *p, int size) 
@@ -556,6 +557,7 @@ public:
 		}
 		return YARP_OK; 
 	}
+	#endif
 
 	
 	/**

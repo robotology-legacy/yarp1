@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.8 2004-08-21 17:53:46 gmetta Exp $
+/// $Id: YARPBottle.h,v 1.9 2005-04-20 21:27:56 natta Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -422,6 +422,33 @@ public:
 	  readInt(&v);
 	  return v;
 	}
+	
+	/**
+	 * Reads a vector of double precision floating point from the bottle.
+	 * @param v is a pointer to the vector that will be filled.
+	 * @param n is the expected size of the vector.
+	 * @return true if the bottle contains a vector of size n at the current
+	 * position, false otherwise.
+	 */
+	bool readDoubleVector(double *v, int n)
+	  {
+	    int oldIndex = index;
+	    lastReadSeq = 0;
+	    if (!assertType(YBTypeDoubleVector))
+	      return false;
+	    index += sizeof(YBTypeDoubleVector);
+	    int tmpI = readRawInt();
+	    index += sizeof(int);
+	    if (n!=tmpI)
+	      {
+		index = oldIndex;
+		return false;
+	      }
+	    tmpI = n*sizeof(double);
+	    ACE_OS::memcpy((char *) v, readRawBlock(tmpI), tmpI);
+	    index+=tmpI;
+	    return true;
+	  }
 
 	/**
 	 * Reads a double precision floating point value from the bottle. 
