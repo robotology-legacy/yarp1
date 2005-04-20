@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.cpp,v 1.10 2005-03-30 20:00:46 natta Exp $
+/// $Id: YARPSciDeviceDriver.cpp,v 1.11 2005-04-20 20:45:48 natta Exp $
 ///
 ///
 
@@ -64,6 +64,8 @@ YARPSciDeviceDriver::YARPSciDeviceDriver(void)
 	m_cmds[CMDReadAnalog] = &YARPSciDeviceDriver::readAnalog;
 	m_cmds[CMDServoHere] = &YARPSciDeviceDriver::servoHere;
 
+	m_cmds[CMDGetPIDError] = &YARPSciDeviceDriver::getPIDError;
+	m_cmds[CMDRelativeMotion] = &YARPSciDeviceDriver::relativeMotion;
 	_nj = 0;
 
 	_tmpDouble = NULL;
@@ -120,6 +122,24 @@ int YARPSciDeviceDriver::getPosition(void *cmd)
 
 	ret = _readUWord(SCI_READ_ANALOG, axis, value);
 	// if ret != YARP_OK value == 0, so no need to check ret
+
+	*((double *)tmp->parameters) = (double) (value);
+	
+	return ret;
+}
+
+int YARPSciDeviceDriver::getPIDError(void *cmd)
+{
+	int ret;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	int value;
+
+	ACE_ASSERT (axis >= 0 && axis <= (MAX_ADC));
+
+	ret = _readSWord(SCI_READ_POS_ERROR, axis, value);
+
+	// if ret != YARP_OK value == 0, so no need to check ret
 	*((double *)tmp->parameters) = (double) (value);
 	
 	return ret;
@@ -168,6 +188,17 @@ int YARPSciDeviceDriver::setPosition(void *cmd)
 	double value = *((double *) tmp->parameters);
 
 	ret = _writeWord(SCI_SET_POSITION, axis, (int)(value));
+	return ret;
+}
+
+int YARPSciDeviceDriver::relativeMotion(void *cmd)
+{
+	int ret;
+	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+	const int axis = tmp->axis;
+	double value = *((double *) tmp->parameters);
+
+	ret = _writeWord(SCI_RELATIVE_MOTION, axis, (int)(value));
 	return ret;
 }
 
@@ -565,24 +596,26 @@ void YARPSciDeviceDriver::readDebugger()
 			else if(byte=='d')
 			{
 				// we have a 16 word
-				sprintf(pTmp, "0x");
+				// sprintf(pTmp, "0x");
 				pTmp+=2;
 				byte1 = _serialPort.readRaw();
 				byte2 = _serialPort.readRaw();
-				sprintf(pTmp,"%x%x", byte2,byte1);
+				//sprintf(pTmp,"%x%x", byte2,byte1);
+				sprintf(pTmp, "%d", (byte2*256)+byte1);
 				pTmp+=4;
 			}
 			else if(byte=='l')
 			{
 				// we have a 32 word
-				sprintf(pTmp, "0x");
+			//	sprintf(pTmp, "0x");
 				pTmp+=2;
 				
 				byte1 = _serialPort.readRaw();
 				byte2 = _serialPort.readRaw();
 				byte3 = _serialPort.readRaw();
 				byte4 = _serialPort.readRaw();
-				sprintf(pTmp,"%x%x%x%x", byte4,byte3,byte2,byte1);
+				//sprintf(pTmp,"%x%x%x%x", byte4,byte3,byte2,byte1);
+			 	sprintf(pTmp, "%d", byte4*(256*256*256)+byte3*(256*256)+byte2*(256)+byte1);	
 				pTmp+=8;
 			}
 			else

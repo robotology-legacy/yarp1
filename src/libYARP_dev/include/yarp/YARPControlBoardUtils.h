@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.6 2005-03-23 13:34:24 babybot Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.7 2005-04-20 20:45:48 natta Exp $
 ///
 ///
 
@@ -150,7 +150,7 @@ enum ControlBoardCmd
 
 	CMDGetErrors 			= 31,	// read current error.
 	CMDAbortAxes			= 62,	// abort motion, Galil
-
+	CMDRelativeMotion		= 91,   // peform relative motion on a single axis
 	CMDSetHomeIndexConfig 	= 52,
 	CMDSetHomeLevel 		= 53,
 	CMDSetHome 				= 54,
@@ -198,7 +198,7 @@ enum ControlBoardCmd
 	// Make sure the CBNCmds is always up to date.
 	//
 	CMDDummy 				= 63,	// dummy command for debug purposes.
-	CBNCmds 				= 91 	// required! tells the total number of commands
+	CBNCmds 				= 92 	// required! tells the total number of commands
 };
 
 

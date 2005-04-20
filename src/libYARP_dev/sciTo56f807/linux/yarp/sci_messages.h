@@ -25,5 +25,7 @@
 #define SCI_READ_ACCS_4TO5 117
 
 #define SCI_STOP 118
+#define SCI_RELATIVE_MOTION 119
+#define SCI_READ_POS_ERROR 120
 
 #endif

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.h,v 1.12 2005-03-30 20:00:46 natta Exp $
+/// $Id: YARPSciDeviceDriver.h,v 1.13 2005-04-20 20:45:48 natta Exp $
 ///
 ///
 
@@ -116,6 +116,8 @@ public: //later private:
 	int readAnalog(void *cmd);
 	int servoHere(void *cmd);
 
+	int getPIDError(void *cmd);
+	int relativeMotion(void *cmd);
 	/*
 	int getRefPosition (void *cmd);
 	int getRefPositions(void *cmd);

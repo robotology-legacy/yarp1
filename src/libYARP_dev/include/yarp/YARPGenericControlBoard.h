@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.17 2005-04-14 22:10:52 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.18 2005-04-20 20:45:48 natta Exp $
 ///
 ///
 
@@ -282,7 +282,7 @@ public:
 	{
 		_lock ();
 		if (axis >= 0 && axis < _parameters._nj)
-		{
+	{
 			SingleAxisParameters par;
 			par.axis = _parameters._axis_map[axis];
 
@@ -834,6 +834,60 @@ public:
 	}
 
 	/**
+	 * Gets the current PID error for a specified axis.
+	 * @param axis is the axis to request the value for.
+	 * @param value contains the return value.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int getPIDError(int axis, double &value)
+	{
+	    _lock();
+	    int ret;
+	    if (axis >= 0 && axis < _parameters._nj)
+	      {
+		SingleAxisParameters cmd;
+		cmd.axis = _parameters._axis_map[axis];
+		cmd.parameters = &value;
+		ret = _adapter.IOCtl(CMDGetPIDError, &cmd);
+	    	value = encoderToAngle(value,
+				       _parameters._encoderToAngles[axis],
+				       0.0,
+				       (int) _parameters._signs[axis]);
+		_unlock();
+		return ret;
+	      }
+	    _unlock();
+	    return YARP_FAIL;
+	}
+
+	/**      
+         * Perform a relative movement.
+         * @param axis is the axis to move.
+         * @param value how much to move the axis for (deg).
+         * @return YARP_OK on success, YARP_FAIL otherwise.
+         */
+        int setPositionRelative (int axis, double value)
+	  {                    
+            _lock();
+            int ret;
+            if (axis>=0 && axis<_parameters._nj)
+	      {
+		SingleAxisParameters cmd;
+		cmd.axis = _parameters._axis_map[axis];
+		value = angleToEncoder(value,
+				       _parameters._encoderToAngles[axis],
+				       0.0, 
+				       (int) _parameters._signs[axis]);
+		cmd.parameters = &value;
+		ret = _adapter.IOCtl(CMDRelativeMotion, &cmd);
+		_unlock();
+		return ret;
+	      }
+	    _unlock();
+	    return YARP_FAIL;
+	  }
+
+	/**
 	 * Gets the card's max torque: this value is a function of the specific 
 	 * output device of the control card and of resolution and firmware implementation
 	 * (i.e. MEI is 32767.0, Galil 9.999).
@@ -926,9 +980,9 @@ protected:
 
 	//int *_tmp_int;
 	double *_temp_double;
-
+public:
 	ADAPTER _adapter;
-
+protected:
 	double *_currentLimits;
 	double *_newLimits;
 };
