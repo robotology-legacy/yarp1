@@ -138,8 +138,8 @@
 		int i = CHANNEL(CAN_DATA[0]); \
 		CAN_LEN = 3; \
 		/* CAN_DATA[1] untouched */ \
-		CAN_DATA[1] = BYTE_H(_ended[i]); \
-		CAN_DATA[2] = BYTE_L(_ended[i]); \
+		CAN_DATA[1] = BYTE_H(_in_position[i]); \
+		CAN_DATA[2] = BYTE_L(_in_position[i]); \
 		CAN1_sendFrame (CAN_BUFFER, CAN_ID, CAN_FRAME_TYPE, CAN_LEN, CAN_DATA); \
 		_general_board_error = ERROR_NONE; \
 	} \

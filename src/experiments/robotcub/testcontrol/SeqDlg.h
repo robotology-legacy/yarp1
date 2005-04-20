@@ -10,7 +10,7 @@
 /////////////////////////////////////////////////////////////////////////////
 // CSeqDlg dialog
 
-const int SEQUENCE_LEN = 6;
+const int SEQUENCE_LEN = 10;
 
 class CSeqDlg : public CDialog
 {
@@ -23,6 +23,7 @@ public:
 	enum { IDD = IDD_DIALOG_SEQUENCE };
 	//}}AFX_DATA
 	int		m_s[SEQUENCE_LEN];
+	int		m_delay[SEQUENCE_LEN];
 
 // Overrides
 	// ClassWizard generated virtual function overrides

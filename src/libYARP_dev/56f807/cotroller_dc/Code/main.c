@@ -37,6 +37,10 @@ void isrIRQA ()
 bool _calibrated[JN] = { false, false };
 bool _pad_enabled[JN] = { false, false };
 bool _verbose = false;
+
+#define INPOSITION_THRESHOLD 250
+bool _in_position[JN] = { true, true };
+
 byte _control_mode[JN] = { MODE_IDLE, MODE_IDLE };
 										/* control mode (e.g. position, velocity, etc.) */
 
@@ -627,6 +631,17 @@ void main(void)
 		/* this can be useful to estimate speed later on */
 		_speed[0] = _position[0] - _position_old[0]; /// divide by CONTROLLER_PERIOD
 		_speed[1] = _position[1] - _position_old[1];
+		
+		/* in position? */
+		if (__abs(_position[0] - _set_point[0]) < INPOSITION_THRESHOLD)
+			_in_position[0] = true;
+		else
+			_in_position[0] = false;
+			
+		if (__abs(_position[1] - _set_point[1]) < INPOSITION_THRESHOLD)
+			_in_position[1] = true;
+		else
+			_in_position[1] = false;
 		
 		/* read ADC or other ports */
 		/* to be inserted here */

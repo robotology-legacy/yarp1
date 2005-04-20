@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.4 2005-04-19 01:15:15 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.5 2005-04-20 16:48:49 babybot Exp $
 ///
 ///
 
@@ -956,8 +956,9 @@ int YARPEsdCanDeviceDriver::setSpeed (void *cmd)
 	ACE_ASSERT (axis >= 0 && axis <= (ESD_MAX_CARDS-1)*2);
 	
 	_ref_speeds[axis] = *((double *)(tmp->parameters));
-	const short s = S_16(_ref_speeds[axis]);
-	return _writeWord16 (CAN_SET_DESIRED_VELOCITY, axis, s);
+	//const short s = S_16(_ref_speeds[axis]);
+	//return _writeWord16 (CAN_SET_DESIRED_VELOCITY, axis, s);
+	return YARP_OK;
 }
 
 /// cmd is an array of double
@@ -1402,18 +1403,48 @@ int YARPEsdCanDeviceDriver::checkMotionDone (void *cmd)
 	short value;
 	bool *out = (bool *) cmd;
 
-	for(i = 0; i < r.getJoints(); i++)
+	_mutex.Wait();
+	r.startPacket();
+
+	for (i = 0; i < r.getJoints(); i++)
 	{
 		if (ENABLED(i))
 		{
-			if (_readWord16 (CAN_MOTION_DONE, i, value) == YARP_OK)
+			r.addMessage (CAN_MOTION_DONE, i);
+		}
+	}
+
+	if (r._writeMessages < 1)
+		return YARP_FAIL;
+
+	_writerequested = true;
+	_noreply = false;
+	_mutex.Post();
+
+	_done.Wait();
+
+	if (r.getErrorStatus() != YARP_OK)
+	{
+		*out = false;
+		return YARP_FAIL;
+	}
+
+	int j;
+	for (i = 0, j = 0; i < r.getJoints(); i++)
+	{
+		if (ENABLED(i))
+		{
+			CMSG& m = r._replyBuffer[j];
+			if (m.id != 0xffff)
 			{
+				value = *((short *)(m.data+1));
 				if (!value)
 				{
 					*out = false;
 					return YARP_OK;
 				}
 			}
+			j++;
 		}
 	}
 

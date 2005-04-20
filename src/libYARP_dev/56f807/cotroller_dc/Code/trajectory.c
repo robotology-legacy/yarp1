@@ -90,7 +90,6 @@ Int16 abort_trajectory (byte jj, Int32 limit)
 	return 0;
 }
 
-
 /* calculate next step in trajectory generation (floating point version) */
 Int32 step_trajectory (byte jj)
 {

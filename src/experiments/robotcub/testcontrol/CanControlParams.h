@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: CanControlParams.h,v 1.5 2005-04-09 20:53:41 babybot Exp $
+/// $Id: CanControlParams.h,v 1.6 2005-04-20 16:48:47 babybot Exp $
 ///
 ///
 
@@ -38,7 +38,7 @@
 #define TIMER2_ID					667
 
 #define GUI_REFRESH_INTERVAL		150		// [ms]
-#define N_POSTURES					10		// what can be stored (limit).
+#define N_POSTURES					20		// what can be stored (limit).
 
 const char *const HEAD_INI_FILE = "head.ini";
 const char *const ARM_INI_FILE = "arm.ini";

@@ -35,6 +35,7 @@ CSeqDlg::CSeqDlg(CWnd* pParent /*=NULL*/)
 	for (i = 0; i < SEQUENCE_LEN; i++)
 	{
 		m_s[i] = -1;
+		m_delay[i] = 0;
 	}
 }
 
@@ -51,6 +52,8 @@ void CSeqDlg::DoDataExchange(CDataExchange* pDX)
 	{
 		DDX_Text(pDX, IDC_EDIT1+i, m_s[i]);
 		DDV_MinMaxInt(pDX, m_s[i], -1, N_POSTURES-1);
+		DDX_Text(pDX, IDC_WAIT_1+i, m_delay[i]);
+		DDV_MinMaxInt(pDX, m_delay[i], 0, 12000);
 	}
 }
 
@@ -81,22 +84,31 @@ void CSeqDlg::OnButtonRun()
 		if (m_s[i] < 0 || m_s[i] >= N_POSTURES)
 			break;
 
-		if (p._headrunning && p._armrunning)
+//		if (p._headrunning && p._armrunning)
+		if (p._armrunning)
 		{
 			bool finished = false;
-			head.setVelocities (p._headstorev[m_s[i]]);
+			//head.setVelocities (p._headstorev[m_s[i]]);
 			arm.setVelocities (p._armstorev[m_s[i]]);
-			head.setPositions (p._headstore[m_s[i]]);
+			//head.setPositions (p._headstore[m_s[i]]);
 			arm.setPositions (p._armstore[m_s[i]]);
 
 			// wait.
+			int timeout = 0;
 			while (!finished)
 			{
-				finished = head.checkMotionDone();
-				finished &= arm.checkMotionDone();
-				
+				//finished = head.checkMotionDone();
+				//finished &= arm.checkMotionDone();
+				finished = arm.checkMotionDone();
+
 				YARPTime::DelayInSeconds (0.1);
+				timeout ++;
+				if (timeout >= 50)
+					finished = true;
 			}
+
+			if (m_delay[i] != 0)
+				YARPTime::DelayInSeconds (double(m_delay[i])/1000.0);
 		}
 		else
 		{
