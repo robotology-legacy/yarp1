@@ -52,6 +52,7 @@ void _fillTable()
 	// global commands
 //	REG_CMD(addYVector, "YVector", "put an YVector into the bottle");
 //	REG_CMD(addYVocab, "YBVocab", "put an YBVocab into the bottle");
+	REG_CMD(addDoubleVector, "DoubleVector", "store a vector of doubles in the bottle");
 	REG_CMD(addID, "ID", "set bottle id");
 	REG_CMD(addText, "Text", "put an text string into the bottle");
 	REG_CMD(addInt, "Int", "put an integer into the bottle");
@@ -176,7 +177,7 @@ void command(int argc, char* argv[])
 	//	YARPString codeVocab("-vocab");
 		YARPString codeLabel("-label");
 		YARPString codeVector("-vector");
-
+		YARPString codeDoubleVector("-dvec");
 		YARPString current(argv[index]);
 
 		if (current == codeTxt)
@@ -194,13 +195,6 @@ void command(int argc, char* argv[])
 			index+=2;
 			n-=2;
 		}
-/*		else if (current == codeVocab)
-		{
-			// add vocab
-			bottle.writeVocab(argv[index+1]);
-			index+=2;
-			n-=2;
-		}*/
 		else if (current == codeInt)
 		{
 			// add int
@@ -216,9 +210,9 @@ void command(int argc, char* argv[])
 			index+=2;
 			n-=2;
 		}
-		else if(current == codeVector)
+		else if (current == codeDoubleVector)
 		{
-		/*	float tmpF;
+			float tmpF;
 			index++;
 			n--;
 			int length = 0;
@@ -238,7 +232,6 @@ void command(int argc, char* argv[])
 					loop = false;
 					continue;
 				}
-				
 				tmpF = atof(argv[index]);
 				index++;
 				n--;
@@ -250,15 +243,17 @@ void command(int argc, char* argv[])
 			if(length>=1)
 			{
 				int k = 0;
-				YVector tmpV(length);
+      				double *tmpV = new double[length];
 				YARPList<double>::iterator it(list);
-				for(k=1; k <= length; k++)
+				for(k=0; k < length; k++)
 				{
-					tmpV(k) = *it;
+					tmpV[k] = *it;
 					it++;
 				}
-				bottle.writeYVector(tmpV);
-			}*/
+
+				bottle.writeDoubleVector(tmpV,length);
+				delete tmpV;
+			}
 		}
 		else
 			error(PARSE_BOTTLE);
@@ -305,5 +300,6 @@ void printMenu()
 	ACE_OS::printf("-int 1020\n");
 	ACE_OS::printf("-vector 10 0.1 0.1\n");
 //	ACE_OS::printf("-vocab mystring\n");
+	ACE_OS::printf("-dvec 3 2.1 2.3 3.2\n");
 	ACE_OS::printf("\n\n");
 }

@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.9 2005-04-20 21:27:56 natta Exp $
+/// $Id: YARPBottle.h,v 1.10 2005-04-20 23:46:24 natta Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -280,6 +280,20 @@ public:
 	void writeFloat(double result)
 		{ writeRawInt(YBTypeDouble);  writeRawFloat(result); }
 
+	/**
+	 * Writes a vector of double precision values to the buffer.
+	 * Consecurive writes add data in the buffer.
+	 * @param *v is the pointer to the vector of values.
+	 * @param n is the length of the vector.
+	 */
+	void writeDoubleVector(double *v, int n)
+	  {
+	    writeRawInt(YBTypeDoubleVector);
+	    writeRawInt(n);
+	    int i;
+	    for(i=0; i<n; i++)
+	      writeRawFloat(v[i]);
+	  }
 	/**
 	 * Writes a string (zero terminated) into the buffer. 
 	 * Consecutive writes add data in the buffer.

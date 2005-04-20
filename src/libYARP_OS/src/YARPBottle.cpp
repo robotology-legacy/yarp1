@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBottle.cpp,v 1.6 2005-03-30 23:17:44 eshuy Exp $
+///  $Id: YARPBottle.cpp,v 1.7 2005-04-20 23:46:24 natta Exp $
 ///
 ///
 
@@ -125,6 +125,26 @@ void YARPBottle::display()
 		  str = (char *) readRawText();
 	      printf("(%s)", str);
 		  _moveOn(ACE_OS::strlen(str)+1+sizeof(int));
+	      break;
+	    case YBTypeDoubleVector:
+	      {
+		int l = readRawInt();
+       		_moveOn(sizeof(int));
+
+		printf("<%g", readRawFloat());
+		_moveOn(sizeof(double));
+		if (l>1)
+		  {
+      		      for(int i = 0; i < l-2; i++)
+		      {
+			printf("\t%g", readRawFloat());
+			_moveOn(sizeof(double));
+		      }
+		    printf("\t%g", readRawFloat());
+		    _moveOn(sizeof(double));
+		  }
+		printf(">");
+	      }
 	      break;
 	    default:
 	      printf("???");

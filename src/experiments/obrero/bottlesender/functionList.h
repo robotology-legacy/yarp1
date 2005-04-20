@@ -31,3 +31,4 @@ bool display(YARPBottle &bottle);
 bool reset(YARPBottle &bottle);
 bool send(YARPBottle &bottle);
 bool addID(YARPBottle &bottle);
+bool addDoubleVector(YARPBottle &bottle);
