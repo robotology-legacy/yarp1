@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.7 2005-04-21 16:04:32 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.8 2005-04-21 17:03:09 emmebi75 Exp $
 ///
 ///
 
@@ -418,8 +418,11 @@ int YARPEsdCanDeviceDriver::open (void *p)
 	EsdCanResources& r = RES (system_resources);
 	
 	if (r.initialize (parms) != YARP_OK)
+	{
+		_mutex.Post();
 		return YARP_FAIL;
-	
+	}
+
 	Begin ();
 	_done.Wait ();
 

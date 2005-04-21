@@ -311,11 +311,11 @@ SOURCE=..\joypres\winnt\yarp\YARPJoyPresDeviceDriver.h
 # PROP Default_Filter ""
 # Begin Source File
 
-SOURCE=\src\libYARP_dev\esdcan\winnt\yarp\YARPEsdCanDeviceDriver.cpp
+SOURCE=..\esdcan\winnt\yarp\YARPEsdCanDeviceDriver.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=\src\libYARP_dev\esdcan\winnt\yarp\YARPEsdCanDeviceDriver.h
+SOURCE=..\esdcan\winnt\yarp\YARPEsdCanDeviceDriver.h
 # End Source File
 # End Group
 # End Target
