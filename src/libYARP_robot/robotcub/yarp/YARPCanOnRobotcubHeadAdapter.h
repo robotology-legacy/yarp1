@@ -27,22 +27,26 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.21 2005-04-20 22:52:20 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.22 2005-04-21 12:59:16 babybot Exp $
 ///
 ///
 
 #ifndef __CanOnRobotcubHeadAdapterh__
 #define __CanOnRobotcubHeadAdapterh__
 
-//#ifndef __ESD_DRIVER
-//#define __ESD_DRIVER
-//#endif
+#ifndef __ESD_DRIVER
+#define __ESD_DRIVER
+#endif
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/log_msg.h>
 
+#ifdef __ESD_DRIVER
+#include <yarp/YARPEsdCanDeviceDriver.h>
+#else
 #include <yarp/YARPValueCanDeviceDriver.h>
+#endif
 #include <yarp/YARPConfigFile.h>
 #include <yarp/YARPRobotMath.h>
 
@@ -516,7 +520,7 @@ public:
 
 		// filters out certain messages.
 		int msg = _parameters->_message_filter;
-		YARPValueCanDeviceDriver::IOCtl(CMDSetDebugMessageFilter, (void *)&msg);
+		IOCtl(CMDSetDebugMessageFilter, (void *)&msg);
 
 		for(int i=0; i < _parameters->_nj; i++)
 		{
@@ -599,7 +603,7 @@ public:
 	int uninitialize()
 	{
 #ifdef __ESD_DRIVER
-		if (YARPCanCanDeviceDriver::close() != 0)
+		if (YARPEsdCanDeviceDriver::close() != 0)
 #else
 		if (YARPValueCanDeviceDriver::close() != 0)
 #endif
