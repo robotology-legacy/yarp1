@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.13 2005-04-20 22:52:20 babybot Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.14 2005-04-21 16:04:32 babybot Exp $
 ///
 ///
 
@@ -114,7 +114,7 @@ namespace _RobotcubArm
 	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
 
-	const int CANBUS_DEVICE_NUM			= 0;
+	const int CANBUS_DEVICE_NUM			= 1;
 	const int CANBUS_MY_ADDRESS			= 0;
 	const int CANBUS_POLLING_INTERVAL	= 20;			/// [ms]
 	const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
@@ -486,7 +486,7 @@ public:
 		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
 		op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
 		op_par._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
-
+		op_par._networkN = CANBUS_DEVICE_NUM;
 		op_par._njoints = _parameters->_nj;
 		op_par._p = _parameters->_p;
 

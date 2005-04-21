@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.22 2005-04-21 12:59:16 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.23 2005-04-21 16:04:32 babybot Exp $
 ///
 ///
 
@@ -490,6 +490,7 @@ public:
 		op_par._my_address = CANBUS_MY_ADDRESS;					/// my address.
 		op_par._polling_interval = CANBUS_POLLING_INTERVAL;		/// thread polling interval [ms].
 		op_par._timeout = CANBUS_TIMEOUT;						/// approx this value times the polling interval [ms].
+		op_par._networkN = CANBUS_DEVICE_NUM;
 
 		op_par._njoints = _parameters->_nj;
 		op_par._p = _parameters->_p;

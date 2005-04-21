@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.6 2005-04-21 10:10:05 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.7 2005-04-21 16:04:32 babybot Exp $
 ///
 ///
 
@@ -146,7 +146,7 @@ int EsdCanResources::initialize (const EsdCanOpenParameters& parms)
 	/// general variable init.
 	_handle = ACE_INVALID_HANDLE;
 	_speed = 0;						/// default 1Mbit/s
-	_networkN = 0;
+	_networkN = parms._networkN;
 
 	_readMessages = 0;
 	_writeMessages = 0;
