@@ -46,7 +46,8 @@ Int16 init_trajectory (byte jj, Int32 current, Int32 final, Int16 speed)
 	float finalf = final;
 	float speedf = __abs(speed);
 	
-	if (!_ended[jj] || speed <= 0)
+	//if (!_ended[jj] || speed <= 0)
+	if (speed <= 0)
 		return -1;
 	
 	_x0[jj] = current;

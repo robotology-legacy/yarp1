@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.h,v 1.4 2005-04-19 01:15:15 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.h,v 1.5 2005-04-21 10:10:06 babybot Exp $
 ///
 ///
 
@@ -207,7 +207,9 @@ protected:
 	int _writeWord16 (int msg, int axis, short s);
 	int _writeWord16Ex (int msg, int axis, short s1, short s2);
 	int _readWord16 (int msg, int axis, short& value);
+	int _readWord16Array (int msg, double *out);
 	int _readDWord (int msg, int axis, int& value);
+	int _readDWordArray (int msg, double *out);
 	int _writeDWord (int msg, int axis, int value);
 	int _writeNone (int msg, int axis);
 

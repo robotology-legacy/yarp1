@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.5 2005-04-20 16:48:49 babybot Exp $
+/// $Id: YARPEsdCanDeviceDriver.cpp,v 1.6 2005-04-21 10:10:05 babybot Exp $
 ///
 ///
 
@@ -668,53 +668,7 @@ int YARPEsdCanDeviceDriver::setDebugPrintFunction (void *cmd)
 /// cmd is an array of double
 int YARPEsdCanDeviceDriver::getPositions (void *cmd)
 {
-	EsdCanResources& r = RES(system_resources);
-	double *tmp = (double *)cmd;
-	int i, value = 0;
-
-	_mutex.Wait();
-	r.startPacket();
-
-	for (i = 0; i < r.getJoints(); i++)
-	{
-		if (ENABLED(i))
-		{
-			r.addMessage (CAN_GET_ENCODER_POSITION, i);
-		}
-		else
-			tmp[i] = 0;
-	}
-
-	if (r._writeMessages < 1)
-		return YARP_FAIL;
-
-	_writerequested = true;
-	_noreply = false;
-	_mutex.Post();
-
-	_done.Wait();
-
-	if (r.getErrorStatus() != YARP_OK)
-	{
-		memset (tmp, 0, sizeof(double) * r.getJoints());
-		return YARP_FAIL;
-	}
-
-	int j;
-	for (i = 0, j = 0; i < r.getJoints(); i++)
-	{
-		if (ENABLED(i))
-		{
-			CMSG& m = r._replyBuffer[j];
-			if (m.id == 0xffff)
-				tmp[i] = 0;
-			else
-				tmp[i] = *((int *)(m.data+1));
-			j++;
-		}
-	}
-
-	return YARP_OK;
+	return _readDWordArray (CAN_GET_ENCODER_POSITION, (double *)cmd);
 }
 
 /// cmd is a SingleAxisParameters pointer with double arg
@@ -840,7 +794,7 @@ int YARPEsdCanDeviceDriver::velocityMove (void *cmd)
 		{
 			r.addMessage (CAN_VELOCITY_MOVE, i);
 			_ref_speeds[i] = tmp[i];
-			*((short*)(r._writeBuffer[i].data+1)) = S_16(_ref_speeds[i]);		/// speed
+			*((short*)(r._writeBuffer[i].data+1)) = S_16(_ref_speeds[i]);	/// speed
 			*((short*)(r._writeBuffer[i].data+3)) = S_16(_ref_accs[i]);		/// accel
 			r._writeBuffer[i].len = 5;
 		}
@@ -917,6 +871,8 @@ int YARPEsdCanDeviceDriver::setCommands (void *cmd)
 /// cmd is an array of double
 int YARPEsdCanDeviceDriver::getRefPositions (void *cmd)
 {
+	return _readDWordArray (CAN_GET_DESIRED_POSITION, (double *)cmd);
+#if 0
 	EsdCanResources& r = RES(system_resources);
 	double *out = (double *) cmd;
 	int i, value = 0;
@@ -930,6 +886,7 @@ int YARPEsdCanDeviceDriver::getRefPositions (void *cmd)
 	}
 
 	return YARP_OK;
+#endif
 }
 
 /// cmd is a SingleAxis pointer with double arg
@@ -971,30 +928,18 @@ int YARPEsdCanDeviceDriver::setSpeeds (void *cmd)
 	for (i = 0; i < r.getJoints(); i++)
 	{
 		_ref_speeds[i] = tmp[i];
-		if (_writeWord16 (CAN_SET_DESIRED_VELOCITY, i, S_16(tmp[i])) != YARP_OK)
-			return YARP_FAIL;
+		//if (_writeWord16 (CAN_SET_DESIRED_VELOCITY, i, S_16(tmp[i])) != YARP_OK)
+		//	return YARP_FAIL;
 	}
 
 	return YARP_OK;
 }
 
+
 /// cmd is an array of double
 int YARPEsdCanDeviceDriver::getSpeeds (void *cmd)
 {
-	EsdCanResources& r = RES(system_resources);
-	double *out = (double *) cmd;
-	int i;
-	short value = 0;
-
-	for(i = 0; i < r.getJoints(); i++)
-	{
-		if (_readWord16 (CAN_GET_ENCODER_VELOCITY, i, value) == YARP_OK)
-			out[i] = double (value);
-		else
-			return YARP_FAIL;
-	}
-
-	return YARP_OK;
+	return _readWord16Array (CAN_GET_DESIRED_VELOCITY, (double *)cmd);
 }
 
 /// cmd is an array of double
@@ -1519,6 +1464,58 @@ int YARPEsdCanDeviceDriver::_readWord16 (int msg, int axis, short& value)
 	return YARP_OK;
 }
 
+/// reads an array.
+int YARPEsdCanDeviceDriver::_readWord16Array (int msg, double *out)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i;
+	short value = 0;
+
+	_mutex.Wait();
+	r.startPacket ();
+
+	for(i = 0; i < r.getJoints(); i++)
+	{
+		if (ENABLED(i))
+		{
+			r.addMessage (msg, i);
+		}
+		else
+			out[i] = 0;
+	}
+
+	if (r._writeMessages < 1)
+		return YARP_FAIL;
+
+	_writerequested = true;
+	_noreply = false;
+	_mutex.Post();
+
+	_done.Wait();
+
+	if (r.getErrorStatus() != YARP_OK)
+	{
+		memset (out, 0, sizeof(double) * r.getJoints());
+		return YARP_FAIL;
+	}
+
+	int j;
+	for (i = 0, j = 0; i < r.getJoints(); i++)
+	{
+		if (ENABLED(i))
+		{
+			CMSG& m = r._replyBuffer[j];
+			if (m.id == 0xffff)
+				out[i] = 0;
+			else
+				out[i] = *((short *)(m.data+1));
+			j++;
+		}
+	}
+
+	return YARP_OK;
+}
+
 /// to send a Word16.
 int YARPEsdCanDeviceDriver::_writeWord16 (int msg, int axis, short s)
 {
@@ -1643,5 +1640,56 @@ int YARPEsdCanDeviceDriver::_readDWord (int msg, int axis, int& value)
 	}
 
 	value = *((int *)(r._replyBuffer[0].data+1));
+	return YARP_OK;
+}
+
+/// reads an array of double words.
+int YARPEsdCanDeviceDriver::_readDWordArray (int msg, double *out)
+{
+	EsdCanResources& r = RES(system_resources);
+	int i, value = 0;
+
+	_mutex.Wait();
+	r.startPacket();
+
+	for (i = 0; i < r.getJoints(); i++)
+	{
+		if (ENABLED(i))
+		{
+			r.addMessage (msg, i);
+		}
+		else
+			out[i] = 0;
+	}
+
+	if (r._writeMessages < 1)
+		return YARP_FAIL;
+
+	_writerequested = true;
+	_noreply = false;
+	_mutex.Post();
+
+	_done.Wait();
+
+	if (r.getErrorStatus() != YARP_OK)
+	{
+		memset (out, 0, sizeof(double) * r.getJoints());
+		return YARP_FAIL;
+	}
+
+	int j;
+	for (i = 0, j = 0; i < r.getJoints(); i++)
+	{
+		if (ENABLED(i))
+		{
+			CMSG& m = r._replyBuffer[j];
+			if (m.id == 0xffff)
+				out[i] = 0;
+			else
+				out[i] = *((int *)(m.data+1));
+			j++;
+		}
+	}
+
 	return YARP_OK;
 }

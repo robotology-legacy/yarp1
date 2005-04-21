@@ -93,6 +93,8 @@ void CSeqDlg::OnButtonRun()
 			//head.setPositions (p._headstore[m_s[i]]);
 			arm.setPositions (p._armstore[m_s[i]]);
 
+			YARPTime::DelayInSeconds (0.2);
+
 			// wait.
 			int timeout = 0;
 			while (!finished)

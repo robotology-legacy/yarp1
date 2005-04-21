@@ -38,7 +38,7 @@ bool _calibrated[JN] = { false, false };
 bool _pad_enabled[JN] = { false, false };
 bool _verbose = false;
 
-#define INPOSITION_THRESHOLD 250
+#define INPOSITION_THRESHOLD 350
 bool _in_position[JN] = { true, true };
 
 byte _control_mode[JN] = { MODE_IDLE, MODE_IDLE };

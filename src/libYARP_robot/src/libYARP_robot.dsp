@@ -220,8 +220,6 @@ SOURCE=..\robotcub\yarp\YARPCanOnRobotcubHeadAdapter.h
 
 !ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
 
-# PROP Exclude_From_Build 1
-
 !ENDIF 
 
 # End Source File
@@ -241,8 +239,6 @@ SOURCE=..\robotcub\yarp\YARPRobotcubGrabber.h
 
 !ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
 
-# PROP Exclude_From_Build 1
-
 !ENDIF 
 
 # End Source File
@@ -253,8 +249,6 @@ SOURCE=..\robotcub\yarp\YARPRobotcubHead.h
 !IF  "$(CFG)" == "libYARP_robot - Win32 Release"
 
 !ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
-
-# PROP Exclude_From_Build 1
 
 !ENDIF 
 
