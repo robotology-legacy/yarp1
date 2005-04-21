@@ -95,6 +95,9 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
       ACE_OS::printf("setting absolute position: ");
       ACE_OS::printf("%d\t%lf\n", j, val);
       break;
+    case 4:
+      arm.stopMotion();
+      break;
     default:
       ACE_OS::printf("Message not recognized, nothing done\n");
     }
