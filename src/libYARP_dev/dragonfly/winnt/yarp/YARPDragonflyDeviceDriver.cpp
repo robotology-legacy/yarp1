@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPDragonflyDeviceDriver.cpp,v 1.1 2005-02-18 14:55:25 emmebi75 Exp $
+/// $Id: YARPDragonflyDeviceDriver.cpp,v 1.2 2005-04-21 12:44:54 emmebi75 Exp $
 ///
 ///
 
@@ -70,6 +70,9 @@ public:
 		imageConverted.pData = NULL;
 		_acqStarted = false;
 		_validContext = false;
+		_pSubsampled_data = NULL;
+		_raw_sizeX = 640;
+		_raw_sizeY = 480;
 	}
 
 	~DragonflyResources () 
@@ -86,7 +89,11 @@ public:
 	bool _canPost;
 	bool _acqStarted;
 	bool _validContext;
+	int _raw_sizeX;
+	int _raw_sizeY;
+	unsigned char *_pSubsampled_data;
 	
+
 	FlyCaptureContext context;
 	FlyCaptureImage imageBuffer[_num_buffers];
 	FlyCaptureImage imageConverted;
@@ -104,6 +111,8 @@ public:
 	inline bool _setWhiteBalance (int redValue, int blueValue, bool bDefault=false);
 	inline bool _setShutter (int value, bool bDefault=false);
 	inline bool _setGain (int value, bool bDefault=false);
+
+	inline void _subSampling(void);
 
 protected:
 	inline void _prepareBuffers (void);
@@ -160,7 +169,7 @@ inline int DragonflyResources::_initialize (const DragonflyOpenParameters& param
 	{
 		error = flycaptureStart(	context, 
 							FLYCAPTURE_VIDEOMODE_640x480Y8,
-							FLYCAPTURE_FRAMERATE_30 );  // Should be an Option ?
+							FLYCAPTURE_FRAMERATE_30 );  
 		if (error != FLYCAPTURE_OK)
 			return YARP_FAIL;
 		_acqStarted = true;
@@ -205,8 +214,11 @@ inline int DragonflyResources::_uninitialize (void)
 inline void DragonflyResources::_prepareBuffers(void)
 {
 	if (imageConverted.pData == NULL)
-		imageConverted.pData = new unsigned char[ sizeX * sizeY * 3 ];
+		imageConverted.pData = new unsigned char[ _raw_sizeX * _raw_sizeY * 3 ];
 	imageConverted.pixelFormat = FLYCAPTURE_BGR;
+	if (_pSubsampled_data == NULL)
+		_pSubsampled_data = new unsigned char[ sizeX * sizeY * 3 ];
+	
 	_cleanBuffers();
 }
 
@@ -214,12 +226,18 @@ inline void DragonflyResources::_cleanBuffers(void)
 {
 	for (int i=0; i< _num_buffers; i++)
 		memset( &imageBuffer[i], 0x0, sizeof( FlyCaptureImage ) );
+	memset(_pSubsampled_data, 0x0, (sizeX * sizeY * 3));
 }
+
 inline void DragonflyResources::_destroyBuffers(void)
 {
 	if (imageConverted.pData != NULL)
 		delete [] imageConverted.pData;
 	imageConverted.pData = NULL;
+
+	if (_pSubsampled_data != NULL)
+		delete [] _pSubsampled_data;
+	_pSubsampled_data = NULL;
 }
 
 inline bool DragonflyResources::_setBrightness (int value, bool bAuto)
@@ -270,6 +288,42 @@ inline bool DragonflyResources::_setGain (int value, bool bAuto)
 		return true;
 	else 
 		return false;
+}
+
+inline void DragonflyResources::_subSampling(void)
+{
+
+	int srcX, srcY;
+	float xRatio, yRatio;
+	int srcOffset;
+
+	int srcSizeY = _raw_sizeY, srcSizeX = _raw_sizeX;
+	int dstSizeY = sizeY, dstSizeX = sizeX;
+	int bytePerPixel = 3;
+
+	xRatio = ((float)srcSizeX)/dstSizeX;
+	yRatio = ((float)srcSizeY)/dstSizeY;
+
+	unsigned char *pSrcImg = imageConverted.pData;
+	unsigned char *pDstImg = _pSubsampled_data;
+
+	unsigned char *pSrc = pSrcImg;
+	unsigned char *pDst = pDstImg;
+
+	for (int j=0; j<dstSizeY; j++)
+	{
+		srcY = (int)(yRatio*j);
+		srcOffset = srcY * srcSizeX * bytePerPixel;
+
+		for (int i=0; i<dstSizeX; i++)
+		{
+			srcX = (int)(xRatio*i);
+			pSrc = pSrcImg + srcOffset + (srcX * bytePerPixel);
+			memcpy(pDst,pSrc,bytePerPixel);
+			pDst += bytePerPixel;
+
+		}
+	}
 }
 
 inline DragonflyResources& RES(void *res) { return *(DragonflyResources *)res; }
@@ -415,14 +469,21 @@ int YARPDragonflyDeviceDriver::acquireBuffer (void *buffer)
 
 	(d.mutexArray[reqBuffer]).Post ();
 
+	/*
 	if (error != FLYCAPTURE_OK)
 		return YARP_FAIL;
-	
-	unsigned char * pData = (*(unsigned char **)buffer);
+	*/
+	//unsigned char * pData = (*(unsigned char **)buffer);
 
 	// Copy or just reference??
 	//memcpy (pData, d.imageConverted.pData, (d.sizeX * d.sizeY * 3) );
-	(*(unsigned char **)buffer)= d.imageConverted.pData;
+	if ((d.sizeX == d._raw_sizeX) && (d.sizeY == d._raw_sizeY) )
+		(*(unsigned char **)buffer)= d.imageConverted.pData;
+	else
+	{
+		d._subSampling();
+		(*(unsigned char **)buffer)= d._pSubsampled_data;
+	}
 	
 	return YARP_OK;
 }
