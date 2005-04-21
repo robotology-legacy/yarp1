@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNetworkTypes.h,v 1.6 2005-03-30 23:17:44 eshuy Exp $
+/// $Id: YARPNetworkTypes.h,v 1.7 2005-04-21 11:50:17 babybot Exp $
 ///
 ///
 
@@ -93,11 +93,11 @@
 #endif
 
 #ifdef __DARWIN__
-        /**
-         * Definition of the NetInt32 type for Darwin/gcc.
+    /**
+     * Definition of the NetInt32 type for Darwin/gcc.
 	 * We need to be careful about our Endian mode.
 	 * YARP integers are defined to be little-endian.
-         */
+     */
 #ifdef __BIG_ENDIAN__
 typedef int32_t RawNetInt32;
 class NetInt32 {
