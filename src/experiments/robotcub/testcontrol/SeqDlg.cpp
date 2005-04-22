@@ -84,13 +84,12 @@ void CSeqDlg::OnButtonRun()
 		if (m_s[i] < 0 || m_s[i] >= N_POSTURES)
 			break;
 
-//		if (p._headrunning && p._armrunning)
-		if (p._armrunning)
+		if (p._headrunning && p._armrunning)
 		{
 			bool finished = false;
-			//head.setVelocities (p._headstorev[m_s[i]]);
+			head.setVelocities (p._headstorev[m_s[i]]);
 			arm.setVelocities (p._armstorev[m_s[i]]);
-			//head.setPositions (p._headstore[m_s[i]]);
+			head.setPositions (p._headstore[m_s[i]]);
 			arm.setPositions (p._armstore[m_s[i]]);
 
 			YARPTime::DelayInSeconds (0.2);
@@ -99,9 +98,8 @@ void CSeqDlg::OnButtonRun()
 			int timeout = 0;
 			while (!finished)
 			{
-				//finished = head.checkMotionDone();
-				//finished &= arm.checkMotionDone();
-				finished = arm.checkMotionDone();
+				finished = head.checkMotionDone();
+				finished &= arm.checkMotionDone();
 
 				YARPTime::DelayInSeconds (0.1);
 				timeout ++;
