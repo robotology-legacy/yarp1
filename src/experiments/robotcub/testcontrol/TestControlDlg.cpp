@@ -500,6 +500,7 @@ void CTestControlDlg::EnableGUI ()
 
 	_gaincontroldlg.EnableInterface();
 	_calibrationdlg.EnableInterface();
+	_sequencedlg.EnableInterface();
 
 	if (_headinitialized)
 	{
@@ -591,6 +592,7 @@ void CTestControlDlg::DisableGUI ()
 	// others.
 	_gaincontroldlg.DisableInterface();
 	_calibrationdlg.DisableInterface();
+	_sequencedlg.DisableInterface();
 
 	KillTimer (TIMER_ID);
 }
@@ -1076,6 +1078,11 @@ void CTestControlDlg::OnUpdateFileLoadpostures(CCmdUI* pCmdUI)
 
 void CTestControlDlg::OnFileSavepostures() 
 {
+	int ret = AfxMessageBox ("Are you sure, this would overwrite existing posture file",
+				   MB_ICONQUESTION | MB_YESNO);
+	if (ret == 0 || ret == IDNO)
+		return;
+	
 	if (!_headinitialized && !_arminitialized)
 		return;
 

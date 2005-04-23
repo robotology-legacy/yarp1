@@ -7,12 +7,15 @@
 // SeqDlg.h : header file
 //
 
+#include <yarp/YARPThread.h>
+#include <yarp/YARPTime.h>
+
 /////////////////////////////////////////////////////////////////////////////
 // CSeqDlg dialog
 
-const int SEQUENCE_LEN = 10;
+const int SEQUENCE_LEN = 20;
 
-class CSeqDlg : public CDialog
+class CSeqDlg : public CDialog, public YARPThread
 {
 // Construction
 public:
@@ -24,6 +27,10 @@ public:
 	//}}AFX_DATA
 	int		m_s[SEQUENCE_LEN];
 	int		m_delay[SEQUENCE_LEN];
+	void EnableInterface (void);
+	void DisableInterface (void);
+
+	void Body (void);
 
 // Overrides
 	// ClassWizard generated virtual function overrides
@@ -39,6 +46,8 @@ protected:
 	//{{AFX_MSG(CSeqDlg)
 	afx_msg void OnButtonHide();
 	afx_msg void OnButtonRun();
+	afx_msg void OnButtonLoop();
+	afx_msg void OnButtonStopl();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
