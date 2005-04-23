@@ -7,6 +7,8 @@
 // SeqDlg.h : header file
 //
 
+#include "testcontroldlg.h"
+
 #include <yarp/YARPThread.h>
 #include <yarp/YARPTime.h>
 
@@ -20,6 +22,7 @@ class CSeqDlg : public CDialog, public YARPThread
 // Construction
 public:
 	CSeqDlg(CWnd* pParent = NULL);   // standard constructor
+	CTestControlDlg *px;
 
 // Dialog Data
 	//{{AFX_DATA(CSeqDlg)

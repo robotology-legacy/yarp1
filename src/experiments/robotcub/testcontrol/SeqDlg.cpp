@@ -31,6 +31,8 @@ CSeqDlg::CSeqDlg(CWnd* pParent /*=NULL*/)
 	//{{AFX_DATA_INIT(CSeqDlg)
 	//}}AFX_DATA_INIT
 
+	px = NULL;
+
 	int i;
 	for (i = 0; i < SEQUENCE_LEN; i++)
 	{
@@ -171,7 +173,6 @@ void CSeqDlg::OnButtonRun()
 void CSeqDlg::Body (void)
 {
 	/* */
-	CTestControlDlg& p = *(CTestControlDlg *)GetParent();	
 	int count = 0;
 
 	while (!IsTerminated())
@@ -179,38 +180,49 @@ void CSeqDlg::Body (void)
 		if (m_s[count] < 0 || m_s[count] >= N_POSTURES || count >= SEQUENCE_LEN)
 			count = 0;
 
-		if (p._headrunning && p._armrunning)
+		if (px != NULL)
 		{
-			bool finished = false;
-			head.setVelocities (p._headstorev[m_s[count]]);
-			arm.setVelocities (p._armstorev[m_s[count]]);
-			head.setPositions (p._headstore[m_s[count]]);
-			arm.setPositions (p._armstore[m_s[count]]);
-
-			YARPTime::DelayInSeconds (0.2);
-
-			// wait.
-			int timeout = 0;
-			while (!finished)
+			if (px->_headrunning && px->_armrunning)
 			{
-				finished = head.checkMotionDone();
-				finished &= arm.checkMotionDone();
+				bool finished = false;
+				head.setVelocities (px->_headstorev[m_s[count]]);
+				arm.setVelocities (px->_armstorev[m_s[count]]);
+				head.setPositions (px->_headstore[m_s[count]]);
+				arm.setPositions (px->_armstore[m_s[count]]);
 
-				YARPTime::DelayInSeconds (0.1);
-				timeout ++;
-				if (timeout >= 50)
-					finished = true;
+				YARPTime::DelayInSeconds (0.3);
+
+				// wait.
+				int timeout = 0;
+				while (!finished)
+				{
+					finished = head.checkMotionDone();
+					finished &= arm.checkMotionDone();
+
+					YARPTime::DelayInSeconds (0.1);
+					timeout ++;
+					if (timeout >= 50)
+						finished = true;
+				}
+
+				if (m_delay[count] != 0)
+					YARPTime::DelayInSeconds (double(m_delay[count])/1000.0);
 			}
-
-			if (m_delay[count] != 0)
-				YARPTime::DelayInSeconds (double(m_delay[count])/1000.0);
+			else
+				YARPTime::DelayInSeconds (1.0);
 		}
+		else
+			YARPTime::DelayInSeconds (1.0);
+
+		count ++;
 	}
 }
 
 void CSeqDlg::OnButtonLoop() 
 {
 	/* diable all changes and start thread */
+	px = (CTestControlDlg *)GetParent();	
+	
 	HWND w;
 	int i;
 	// must be consecutive in resource.h
@@ -226,6 +238,9 @@ void CSeqDlg::OnButtonLoop()
 	::EnableWindow (w, FALSE);	
 
 	GetDlgItem(IDC_BUTTON_LOOP, &w);
+	::EnableWindow (w, FALSE);	
+
+	GetDlgItem(IDC_BUTTON_HIDE, &w);
 	::EnableWindow (w, FALSE);	
 
 	UpdateData (TRUE);
@@ -252,5 +267,8 @@ void CSeqDlg::OnButtonStopl()
 	::EnableWindow (w, TRUE);
 
 	GetDlgItem(IDC_BUTTON_LOOP, &w);
+	::EnableWindow (w, TRUE);		
+
+	GetDlgItem(IDC_BUTTON_HIDE, &w);
 	::EnableWindow (w, TRUE);		
 }
