@@ -20,13 +20,14 @@ void PWMC1_init(void)
 	setReg (PWMB_PMCTL, 0);
 	            
 	/* PWMB_PMFCTL: ??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,FIE3=0,FMODE3=1,FIE2=0,FMODE2=1,FIE1=0,FMODE1=1,FIE0=0,FMODE0=1 */
-	setReg (PWMB_PMFCTL, 0x55);            
+	//setReg (PWMB_PMFCTL, 0x55);            
+	setReg (PWMB_PMFCTL, 0x00); 
 
 	/* PWMB_PMDISMAP1: DISMAP=0 */
-	setReg (PWMB_PMDISMAP1, 0);          
+	setReg (PWMB_PMDISMAP1, 0xffff);          
 
 	/* PWMB_PMDISMAP2: ??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,DISMAP=0 */
-	setReg (PWMB_PMDISMAP2, 0);          
+	setReg (PWMB_PMDISMAP2, 0xff);          
 
 	/* PWMB_PMOUT: PAD_EN=0,??=0,OUTCTL=0,??=0,??=0,OUT=0 */
 	setReg (PWMB_PMOUT, 0);
@@ -63,7 +64,24 @@ void PWMC1_init(void)
 
 	/* PWMB_PMCTL: LDOK=1,PWMEN=1 */
 	setRegBits (PWMB_PMCTL, 3);         
+
+	/* write protect on */
+	setReg (PWMB_PMCFG, 0x1001);           
 }
+
+
+/**
+ * Enables the PWM pad and clears fault pins.
+ * @return ERR_OK always.
+ */
+byte PWMC1_outputPadEnable (void)
+{
+	setRegBit (PWMB_PMOUT, PAD_EN);
+	setReg (PWMB_PMFSA, 0x55);
+	
+	return ERR_OK;
+}
+
 
 /**
  * sets the period of the PWM signal.

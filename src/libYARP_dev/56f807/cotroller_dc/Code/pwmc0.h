@@ -47,7 +47,8 @@ byte PWMC0_setOutput (bool OutCTL, TChannels Outputs);
 byte PWMC0_setPrescaler (byte presc);
 #define PWMC0_load() setRegBit(PWMA_PMCTL, LDOK)
 byte PWMC0_setDutyPercent (byte channel, byte duty);
-#define PWMC0_outputPadEnable() setRegBit(PWMA_PMOUT, PAD_EN)
+//#define PWMC0_outputPadEnable() setRegBit(PWMA_PMOUT, PAD_EN)
+byte PWMC0_outputPadEnable (void);
 #define PWMC0_outputPadDisable() clrRegBit(PWMA_PMOUT, PAD_EN)
 
 

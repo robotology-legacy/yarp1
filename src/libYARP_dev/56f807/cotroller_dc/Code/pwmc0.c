@@ -20,13 +20,16 @@ void PWMC0_init(void)
 	setReg (PWMA_PMCTL, 0);
 	            
 	/* PWMA_PMFCTL: ??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,FIE3=0,FMODE3=1,FIE2=0,FMODE2=1,FIE1=0,FMODE1=1,FIE0=0,FMODE0=1 */
-	setReg (PWMA_PMFCTL, 0x55);
+	//setReg (PWMA_PMFCTL, 0x55);
+	setReg (PWMA_PMFCTL, 0x00); /* manual fault reset */
 
 	/* PWMA_PMDISMAP1: DISMAP=0 */
-	setReg (PWMA_PMDISMAP1, 0);          
+	setReg (PWMA_PMDISMAP1, 0xffff);
+	//setReg (PWMA_PMDISMAP1, 0);          
 
 	/* PWMA_PMDISMAP2: ??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,DISMAP=0 */
-	setReg (PWMA_PMDISMAP2, 0);          
+	setReg (PWMA_PMDISMAP2, 0xff);          
+	//setReg (PWMA_PMDISMAP2, 0);          
 
 	/* PWMA_PMOUT: PAD_EN=0,??=0,OUTCTL=0,??=0,??=0,OUT=0 */
 	setReg (PWMA_PMOUT, 0);
@@ -62,8 +65,25 @@ void PWMC0_init(void)
 	setReg (PWMA_PWMCM, 0x535);           
 
 	/* PWMA_PMCTL: LDOK=1,PWMEN=1 */
-	setRegBits (PWMA_PMCTL, 3);         
+	setRegBits (PWMA_PMCTL, 3);     
+	
+	/* write protect on */
+	setReg (PWMA_PMCFG, 0x1001);            
 }
+
+
+/**
+ * Enables the PWM pad and clears fault pins.
+ * @return ERR_OK always.
+ */
+byte PWMC0_outputPadEnable (void)
+{
+	setRegBit (PWMA_PMOUT, PAD_EN);
+	setReg (PWMA_PMFSA, 0x55);
+	
+	return ERR_OK;
+}
+
 
 /**
  * sets the period of the PWM signal.

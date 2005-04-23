@@ -68,6 +68,74 @@ static byte procflash (dword Address, word Data, word Command)
 	return Err;
 }
 
+
+/**
+ *
+ */
+byte IFsh1_eraseFlash (dword Addr)
+{
+	Err = ERR_OK;
+
+	if (outOfRange (Addr, Addr+SectorSize(0)-1))
+		return ERR_RANGE;
+		
+	if ((Addr % SectorSize(0)) != 0)
+		return ERR_RANGE;
+		
+	Err = procflash(Addr, 0, PAGE_ERASE);
+	if (Err != ERR_OK)
+		return Err;
+
+	while (getReg(DFIU_CNTL) & 0x8000) {}	
+
+	setReg(DFIU_PE,0);
+	setRegBits (DFIU_IE, 0x0fff);
+	
+	return Err;
+}
+
+
+/**
+ *
+ */
+byte IFsh1_writeWords2 (dword Addr, word* PData, dword Size)
+{
+	register word i;
+	register word j, cycles, AddrInSec;
+	Err = ERR_OK;
+
+	if (outOfRange (Addr, Addr+Size-1))
+		return ERR_RANGE;
+		
+	for (i = 0; i < Size; i++) 
+	{
+		while (getReg(DFIU_CNTL) & 0x8000) {}
+		
+		Err = procflash ((Addr+i), PData[i], PROGRAM);
+		if (Err != ERR_OK) 
+		{
+			return Err;
+		}
+	}
+	
+	while (getReg(DFIU_CNTL) & 0x8000) {}
+	
+	setReg(DFIU_PE,0);
+	
+	for (i = 0; i < Size; i++)
+	{
+		if (readflash(Addr+i) != PData[i]) 
+		{
+			return ERR_VALUE;
+		}
+	}
+		
+	setRegBits (DFIU_IE, 0x0fff);
+	
+	return Err;
+}
+
+
 /**
  *
  */
@@ -143,7 +211,7 @@ byte IFsh1_setByteFlash(dword Addr, byte Data)
 	rot = (byte)((Addr%2)*8);
 	Data16 = (readflash(Addr/2)&(0xff00>>rot))+((Data&0xff)<<rot);
 	
-	return writeWords(Addr/2, &Data16, sizeof(Data16)/sizeof(word)); /* Write data to FLASH - use block method */
+	return IFsh1_writeWords2(Addr/2, &Data16, sizeof(Data16)/sizeof(word)); /* Write data to FLASH - use block method */
 }
 
 /**
@@ -166,7 +234,7 @@ byte IFsh1_getByteFlash(dword Addr,byte *Data)
  */
 byte IFsh1_setWordFlash(dword Addr,word Data)
 {
-	return writeWords(Addr, &Data, sizeof(Data)/sizeof(word)); /* Write data to FLASH - use block method */
+	return IFsh1_writeWords2(Addr, &Data, sizeof(Data)/sizeof(word)); /* Write data to FLASH - use block method */
 }
 
 /**
@@ -186,7 +254,7 @@ byte IFsh1_getWordFlash(dword Addr,word *Data)
  */
 byte IFsh1_setLongFlash(dword Addr,dword Data)
 {
-	return writeWords(Addr, (word *)&Data, sizeof(Data)/sizeof(word)); /* Write data to FLASH - use block method */
+	return IFsh1_writeWords2(Addr, (word *)&Data, sizeof(Data)/sizeof(word)); /* Write data to FLASH - use block method */
 }
 
 /**

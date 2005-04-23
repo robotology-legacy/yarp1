@@ -411,7 +411,7 @@
 				_set_vel[i] = 1; \
 			/* _set_vel needs to be checked */ \
 			_set_acc[i] = 0; \
-			init_trajectory (i, _position[i], _set_point[i], _set_vel[i]); \
+			init_trajectory (i, _desired[i], _set_point[i], _set_vel[i]); \
 			_general_board_error = ERROR_NONE; \
 		} \
 		else \

@@ -46,6 +46,7 @@ byte IFsh1_setLongFlash(dword Addr,dword Data);
 byte IFsh1_getLongFlash(dword Addr,dword *Data);
 void IFsh1_init(void);
 void IFsh1_interrupt(void);
-
+byte IFsh1_eraseFlash (dword Addr);
+byte IFsh1_writeWords2 (dword Addr, word* PData, dword Size);
 
 #endif /* ifndef __ifsh1h__ */

@@ -230,6 +230,8 @@ byte writeToFlash (word addr)
 	word tmp;
 	bool gerr = false;
 
+	IFsh1_eraseFlash (addr);
+
 	tmp = BYTE_W(_board_ID, 0);
 	err = IFsh1_setWordFlash(ptr, tmp);
 	gerr |= (err != ERR_OK);
@@ -287,7 +289,7 @@ byte readFromFlash (word addr)
 	IFsh1_getWordFlash(ptr, &tmp);
 	_board_ID = BYTE_H(tmp) & 0x0f;
 	ADP(ptr,2);
-	IFsh1_getWordFlash(ptr, (unsigned int *)&_version);
+	//IFsh1_getWordFlash(ptr, (unsigned int *)&_version);
 	ADP(ptr,2);
 
 	for (i = 0; i < JN; i++)
@@ -491,8 +493,7 @@ void main(void)
 	word temporary;
 	
 	/* gets the address of flash memory from the linker */
-	_flash_addr = get_flash_addr();	
-	IFsh1_setWordFlash(_flash_addr+2, _version);
+	_flash_addr = get_flash_addr();
 
 	/* enable interrupts */
 	setReg(SYS_CNTL, 0);
@@ -517,7 +518,8 @@ void main(void)
 	PWMC0_init ();
 	PWMC1_init ();
 	TI1_init ();
-
+	IFsh1_init ();
+	
 #if VERSION == 0x0114
 	TIC_init ();
 	AD_init ();
@@ -525,6 +527,8 @@ void main(void)
 
 	__EI();
 
+	readFromFlash (_flash_addr);
+	writeToFlash (_flash_addr);	
 
 #if VERSION == 0x0114
 	AD_enableIntTriggerA ();
@@ -541,7 +545,7 @@ void main(void)
 	QD1_initPosition ();
 
 	/* reads the PID parameters from flash memory */
-	readFromFlash (_flash_addr);
+	//readFromFlash (_flash_addr);
 
 	/* CAN masks/filters init, note the reverse order of mask comparison (see manual) */
 	CAN1_setAcceptanceMask (0xffff1ffe, 0xffff1ffe);
@@ -643,9 +647,6 @@ void main(void)
 		else
 			_in_position[1] = false;
 		
-		/* read ADC or other ports */
-		/* to be inserted here */
-
 		/*
 		 * 
 		 */		  
