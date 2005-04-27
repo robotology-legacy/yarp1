@@ -75,9 +75,9 @@ public:
     _inhibited = true;
   }
 
-  int load(char *path)
+  int load(char *path, char *name)
   {
-    _parseFile(path, posList);
+    _parseFile(path, name, posList);
   }
 
   void doInit()
@@ -177,9 +177,9 @@ private:
 		
   }
 
-  void _parseFile(char *path, myList &list)
+  void _parseFile(char *path, char *file, myList &list)
   {
-    YARPConfigFile cfg(path, "sweep.cfg");
+    YARPConfigFile cfg(path, file);
     printf("%s\n", path);
 
     int n = __nj;
@@ -252,16 +252,19 @@ int main()
 
 	ArmDaemon arm;
 	ArmController controller(&arm,3000);
+	controller.load(path, "sweep.cfg");
 	
 	arm.Register("/sweepNet/o:bot");
+	ACE_OS::printf("Please connect me to the arm daemon and hit a key");
+	char c;
+	cin >> c;
+	
 	arm.activatePID();
 	YARPTime::DelayInSeconds(2.0);
 
 	printf("Listening...\n");
 
 	bool exit=false;
-	char c;
-	c='\0';
 	while(!exit)
 	{
 		_inPort.Read();

@@ -49,17 +49,18 @@ COMMAND_TABLE _commands;
 
 void _fillTable()
 {
-	// global commands
-//	REG_CMD(addYVector, "YVector", "put an YVector into the bottle");
-//	REG_CMD(addYVocab, "YBVocab", "put an YBVocab into the bottle");
-	REG_CMD(addDoubleVector, "DoubleVector", "store a vector of doubles in the bottle");
-	REG_CMD(addID, "ID", "set bottle id");
-	REG_CMD(addText, "Text", "put an text string into the bottle");
-	REG_CMD(addInt, "Int", "put an integer into the bottle");
-	REG_CMD(addFloat, "Float", "put a float into the bottle");
-	REG_CMD(display, "Display", "display current bottle content");
-	REG_CMD(send, "Send", "send current bottle");
-	REG_CMD(reset, "Reset", "reset (empty) current bottle");
+  // global commands
+  //	REG_CMD(addYVector, "YVector", "put an YVector into the bottle");
+  //	REG_CMD(addYVocab, "YBVocab", "put an YBVocab into the bottle");
+  REG_CMD(addIntVector, "IntVector", "store a vector of integers in the bottle");
+  REG_CMD(addDoubleVector, "DoubleVector", "store a vector of doubles in the bottle");
+  REG_CMD(addID, "ID", "set bottle id");
+  REG_CMD(addText, "Text", "put an text string into the bottle");
+  REG_CMD(addInt, "Int", "put an integer into the bottle");
+  REG_CMD(addFloat, "Float", "put a float into the bottle");
+  REG_CMD(display, "Display", "display current bottle content");
+  REG_CMD(send, "Send", "send current bottle");
+  REG_CMD(reset, "Reset", "reset (empty) current bottle");
 }
 
 void _help()
@@ -178,6 +179,7 @@ void command(int argc, char* argv[])
 		YARPString codeLabel("-label");
 		YARPString codeVector("-vector");
 		YARPString codeDoubleVector("-dvec");
+		YARPString codeIntVector("-ivec");
 		YARPString current(argv[index]);
 
 		if (current == codeTxt)
@@ -255,6 +257,51 @@ void command(int argc, char* argv[])
 				delete tmpV;
 			}
 		}
+		else if (current == codeIntVector)
+		{
+			int tmpI;
+			index++;
+			n--;
+			int length = 0;
+			YARPList<int> list;
+			bool loop = true;
+			while(loop)
+			{
+				if(n==0)
+				{	
+					// end of par list
+					loop = false;
+					continue;
+				}
+				else if (argv[index][0]=='-')
+				{
+					// found new par
+					loop = false;
+					continue;
+				}
+				tmpI = atoi(argv[index]);
+				index++;
+				n--;
+				length++;
+
+				list.push_back(tmpI);
+			}
+
+			if(length>=1)
+			{
+				int k = 0;
+      				int *tmpV = new int[length];
+				YARPList<int>::iterator it(list);
+				for(k=0; k < length; k++)
+				{
+					tmpV[k] = *it;
+					it++;
+				}
+
+				bottle.writeIntVector(tmpV,length);
+				delete tmpV;
+			}
+		}
 		else
 			error(PARSE_BOTTLE);
 	}
@@ -269,37 +316,38 @@ void command(int argc, char* argv[])
 
 void error(ERROR_CODE err)
 {
-	switch(err)
-	{
-	case PARSE_BOTTLE:
-		ACE_OS::printf("Error parsing bottle check parameter list");
-    break;
+  switch(err)
+    {
+    case PARSE_BOTTLE:
+      ACE_OS::printf("Error parsing bottle check parameter list");
+      break;
     case CONNECT:
-		ACE_OS::printf("Error during connection to remote port, check its name\n");
-		break;
-	case PARAMETERS:
-		ACE_OS::printf("Error parsing parameters, check list\n");
-		break;
-	case GENERIC:
-	default:
-		ACE_OS::printf("A generic error occurred\n");
-	break;
-	}
+      ACE_OS::printf("Error during connection to remote port, check its name\n");
+      break;
+    case PARAMETERS:
+      ACE_OS::printf("Error parsing parameters, check list\n");
+      break;
+    case GENERIC:
+    default:
+      ACE_OS::printf("A generic error occurred\n");
+      break;
+    }
 
-	printMenu();
-    exit(-1);
+  printMenu();
+  exit(-1);
 }
 
 void printMenu()
 {
-	ACE_OS::printf("-- Usage:\n");
-	ACE_OS::printf("Mandatory: -port remote_port_name\n");
-	ACE_OS::printf("Build your bottle:\n");
-	ACE_OS::printf("-text mystring\n");
-	ACE_OS::printf("-float 0.234\n");
-	ACE_OS::printf("-int 1020\n");
-	ACE_OS::printf("-vector 10 0.1 0.1\n");
-//	ACE_OS::printf("-vocab mystring\n");
-	ACE_OS::printf("-dvec 3 2.1 2.3 3.2\n");
-	ACE_OS::printf("\n\n");
+  ACE_OS::printf("-- Usage:\n");
+  ACE_OS::printf("Mandatory: -port remote_port_name\n");
+  ACE_OS::printf("Build your bottle:\n");
+  ACE_OS::printf("-text mystring\n");
+  ACE_OS::printf("-float 0.234\n");
+  ACE_OS::printf("-int 1020\n");
+  ACE_OS::printf("-vector 10 0.1 0.1\n");
+  //	ACE_OS::printf("-vocab mystring\n");
+  ACE_OS::printf("-dvec 3.1 2.1 2.3 3.2\n");
+  ACE_OS::printf("-ivec 2 2 0 1\n");
+  ACE_OS::printf("\n\n");
 }

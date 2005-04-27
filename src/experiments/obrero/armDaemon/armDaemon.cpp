@@ -8,49 +8,75 @@
 #include <yarp/YARPRobotMath.h>
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBottle.h>
+#include <yarp/YARPRateThread.h>
 #include <iostream>
 
 YARPInputPortOf<YARPBottle> _inputPort;
+
+const int __samplerRate = 100;
 
 using namespace std;
 
 void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm);
 
+class ArmSampler: public YARPRateThread
+{
+public:
+  ArmSampler(YARPArm *p, int rate);
+  ~ArmSampler();
+  void  doInit();
+  void doRelease();
+  void  doLoop();
+  void Register(const char *tName, const char *pName);
+
+private:
+  int _nj;
+  YARPArm *arm;
+  YVector positions;
+  YVector torques;
+  YARPOutputPortOf<YVector> positionsPort;
+  YARPOutputPortOf<YVector> torquesPort;
+};
+
 int main()
 {
-	ACE_OS::printf("\nHello from YARP!\n\n");
+  YARPArm arm;
+  ArmSampler sampler(&arm, __samplerRate);
 
-	_inputPort.Register("/armDaemon/i:bot");
-	char path[255];
-	sprintf(path,"%s/%s", GetYarpRoot(), ConfigFilePath);
+  ACE_OS::printf("\nHello from YARP!\n\n");
 
-	YARPArm arm;
+  _inputPort.Register("/armDaemon/i:bot");
+  sampler.Register("/armDaemon/torques/o:vect", "/armDaemon/positions/o:vect");
+	
+  char path[255];
+  sprintf(path,"%s/%s", GetYarpRoot(), ConfigFilePath);
 
-	if (arm.initialize(path, "arm.ini") == YARP_OK)
-		printf("Init was OK");
-	else
-		printf("Init was NOT OK");
+  if (arm.initialize(path, "arm.ini") == YARP_OK)
+    printf("Init was OK");
+  else
+    printf("Init was NOT OK");
 
-	ACE_OS::printf("Entering loop\n");
-	while(1)
+  sampler.start();
+  ACE_OS::printf("Entering loop\n");
+  while(1)
+    {
+      int msg;
+      _inputPort.Read();
+      ACE_OS::printf("got a new bottle\n");
+	  
+      YARPBottle &bot = _inputPort.Content();
+      bot.display();
+	  
+      bool ret = bot.readInt(&msg);
+      if (ret && msg==5)
 	{
-	  int msg;
-	  _inputPort.Read();
-	  ACE_OS::printf("got a new bottle\n");
-	  
-	  YARPBottle &bot = _inputPort.Content();
-	  bot.display();
-	  
-	  bool ret = bot.readInt(&msg);
-	  if (ret && msg==5)
-	    {
-	      bot.readInt(&msg);
-	      _handleMsg(msg, bot, arm);
-	    }
-	  else
-	    ACE_OS::printf("Warning the message is not for me, skipping it\n");
-
+	  bot.readInt(&msg);
+	  _handleMsg(msg, bot, arm);
 	}
+      else
+	ACE_OS::printf("Warning the message is not for me, skipping it\n");
+
+    }
 }
 
 void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
@@ -103,3 +129,51 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
     }
   
 }
+
+///////////////// ArmSampler class
+ArmSampler::ArmSampler(YARPArm *p, int rate): YARPRateThread("ArmSamplerThread", rate),
+					      positionsPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST),
+					      torquesPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
+{
+  arm=p;
+  _nj = arm->nj();
+  positions.Resize(_nj);
+  torques.Resize(_nj);
+  positions = 0.0;
+  torques = 0.0;
+}
+
+ArmSampler::~ArmSampler()
+{
+
+}
+
+void ArmSampler::Register(const char *t, const char *p)
+{
+  torquesPort.Register(t);
+  positionsPort.Register(p);
+}
+
+void ArmSampler::doInit()
+{
+  //		dumpFile = fopen("dump.txt", "wt");
+}
+
+void ArmSampler::doLoop()
+{
+  int ret1,ret2,ret3;
+  ret1 = arm->getPositions(positions.data());
+  ret2 = arm->getTorques(torques.data());
+		
+  torquesPort.Content()=torques;
+  positionsPort.Content()=positions;
+
+  torquesPort.Write();
+  positionsPort.Write();
+}
+
+void ArmSampler::doRelease()
+{
+  //fclose(dumpFile);
+}
+

@@ -42,6 +42,26 @@ bool addDoubleVector(YARPBottle &bottle)
   delete [] tmp;
   return true;
 }
+
+bool addIntVector(YARPBottle &bottle)
+{
+  int *tmp;
+  int n;
+  cout << "Adding a YVector\n";
+  cout << "Specify length: ";
+  cin >> n;
+  tmp = new int[n];
+  cout << "Insert now << " << n << " values: ";
+  for (int i = 0; i < n; i++)
+    {
+      cin >> tmp[i];
+    }
+
+  bottle.writeIntVector(tmp,n);
+  delete [] tmp;
+  return true;
+}
+
 /*
 bool addYVocab(YARPBottle &bottle)
 {
