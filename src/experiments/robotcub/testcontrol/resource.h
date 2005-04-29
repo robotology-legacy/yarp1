@@ -165,7 +165,6 @@
 #define IDC_WAIT_19                     1239
 #define IDC_WAIT_20                     1240
 #define IDC_BUTTON_LOOP                 1242
-#define IDC_EDIT21                      1243
 #define IDC_BUTTON_STOPL                1244
 #define ID_HELP_ABOUT                   32771
 #define ID_FILE_EXIT                    32772
@@ -178,13 +177,15 @@
 #define ID_FILE_LOADPOSTURES            32779
 #define ID_FILE_SAVEPOSTURES            32780
 #define ID_POSTURES_SETSEQUENCE         32782
+#define ID_FILE_LOADSEQUENCE            32783
+#define ID_FILE_SAVESEQUENCE            32784
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        141
-#define _APS_NEXT_COMMAND_VALUE         32783
+#define _APS_NEXT_COMMAND_VALUE         32785
 #define _APS_NEXT_CONTROL_VALUE         1245
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

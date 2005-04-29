@@ -170,6 +170,19 @@ void CSeqDlg::OnButtonRun()
 	MessageBox ("Sequence execution completed", "Information!");
 }
 
+void CSeqDlg::SaveSequence (FILE *fp)
+{
+	if (fp == NULL)
+		return;
+
+	int i;
+	for (i = 0; i < SEQUENCE_LEN; i++)
+	{
+		fprintf (fp, "%d ", m_s[i]);
+	}
+	fprintf (fp, "\n");
+}
+
 void CSeqDlg::Body (void)
 {
 	/* */

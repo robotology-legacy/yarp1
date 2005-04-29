@@ -10,6 +10,7 @@
  */
  
 #include "pwmc1.h"
+#include "controller.h"
 
 /**
  * initializes the PWM module w/ 30KHz complementary mode and 8 clock tick dead time.
@@ -20,14 +21,17 @@ void PWMC1_init(void)
 	setReg (PWMB_PMCTL, 0);
 	            
 	/* PWMB_PMFCTL: ??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,FIE3=0,FMODE3=1,FIE2=0,FMODE2=1,FIE1=0,FMODE1=1,FIE0=0,FMODE0=1 */
-	//setReg (PWMB_PMFCTL, 0x55);            
-	setReg (PWMB_PMFCTL, 0x00); 
-
 	/* PWMB_PMDISMAP1: DISMAP=0 */
-	setReg (PWMB_PMDISMAP1, 0xffff);          
-
 	/* PWMB_PMDISMAP2: ??=0,??=0,??=0,??=0,??=0,??=0,??=0,??=0,DISMAP=0 */
+#ifndef EMERGENCY_DISABLED	
+	setReg (PWMB_PMFCTL, 0x00); 
+	setReg (PWMB_PMDISMAP1, 0xffff);          
 	setReg (PWMB_PMDISMAP2, 0xff);          
+#else
+	setReg (PWMB_PMFCTL, 0x55);            
+	setReg (PWMB_PMDISMAP1, 0);          
+	setReg (PWMB_PMDISMAP2, 0);          
+#endif
 
 	/* PWMB_PMOUT: PAD_EN=0,??=0,OUTCTL=0,??=0,??=0,OUT=0 */
 	setReg (PWMB_PMOUT, 0);
@@ -77,8 +81,9 @@ void PWMC1_init(void)
 byte PWMC1_outputPadEnable (void)
 {
 	setRegBit (PWMB_PMOUT, PAD_EN);
+#ifndef EMERGENCY_DISABLED
 	setReg (PWMB_PMFSA, 0x55);
-	
+#endif	
 	return ERR_OK;
 }
 

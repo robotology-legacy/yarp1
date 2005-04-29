@@ -34,6 +34,7 @@ public:
 	void DisableInterface (void);
 
 	void Body (void);
+	void SaveSequence (FILE *fp);
 
 // Overrides
 	// ClassWizard generated virtual function overrides

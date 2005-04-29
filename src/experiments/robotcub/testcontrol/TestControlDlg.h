@@ -148,6 +148,10 @@ protected:
 	afx_msg void OnSelendokComboEntryAll();
 	afx_msg void OnPosturesSetsequence();
 	afx_msg void OnUpdatePosturesSetsequence(CCmdUI* pCmdUI);
+	afx_msg void OnFileLoadsequence();
+	afx_msg void OnFileSavesequence();
+	afx_msg void OnUpdateFileLoadsequence(CCmdUI* pCmdUI);
+	afx_msg void OnUpdateFileSavesequence(CCmdUI* pCmdUI);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

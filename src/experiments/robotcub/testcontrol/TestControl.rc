@@ -472,6 +472,9 @@ BEGIN
         MENUITEM "&Load postures",              ID_FILE_LOADPOSTURES
         MENUITEM "&Save postures",              ID_FILE_SAVEPOSTURES
         MENUITEM SEPARATOR
+        MENUITEM "Load se&quence",              ID_FILE_LOADSEQUENCE
+        MENUITEM "Save s&equence",              ID_FILE_SAVESEQUENCE
+        MENUITEM SEPARATOR
         MENUITEM "&Open console...",            ID_FILE_OPENCONSOLE
         MENUITEM "&Close console",              ID_FILE_CLOSECONSOLE
         MENUITEM SEPARATOR

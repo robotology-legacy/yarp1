@@ -317,6 +317,10 @@ BEGIN_MESSAGE_MAP(CTestControlDlg, CDialog)
 	ON_CBN_SELENDOK(IDC_COMBO_ENTRY_ALL, OnSelendokComboEntryAll)
 	ON_COMMAND(ID_POSTURES_SETSEQUENCE, OnPosturesSetsequence)
 	ON_UPDATE_COMMAND_UI(ID_POSTURES_SETSEQUENCE, OnUpdatePosturesSetsequence)
+	ON_COMMAND(ID_FILE_LOADSEQUENCE, OnFileLoadsequence)
+	ON_COMMAND(ID_FILE_SAVESEQUENCE, OnFileSavesequence)
+	ON_UPDATE_COMMAND_UI(ID_FILE_LOADSEQUENCE, OnUpdateFileLoadsequence)
+	ON_UPDATE_COMMAND_UI(ID_FILE_SAVESEQUENCE, OnUpdateFileSavesequence)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -1244,4 +1248,41 @@ void CTestControlDlg::OnPosturesSetsequence()
 void CTestControlDlg::OnUpdatePosturesSetsequence(CCmdUI* pCmdUI) 
 {
 	pCmdUI->Enable (_headinitialized || _arminitialized);
+}
+
+void CTestControlDlg::OnFileLoadsequence() 
+{
+}
+
+void CTestControlDlg::OnFileSavesequence() 
+{
+	int ret = AfxMessageBox ("Are you sure, this would overwrite the existing sequence file",
+				   MB_ICONQUESTION | MB_YESNO);
+	if (ret == 0 || ret == IDNO)
+		return;
+	
+	if (!_headinitialized || !_arminitialized)
+		return;
+
+	ACE_OS::sprintf (_buffer, "%s/conf/robotcub/sequence_test.txt", GetYarpRoot());
+	FILE *fp = ACE_OS::fopen (_buffer, "w");
+	if (fp == NULL)
+	{
+		MessageBox ("Can't save sequence file", "Error!");
+		return;
+	}
+
+	_sequencedlg.SaveSequence (fp);
+
+	ACE_OS::fclose (fp);
+}
+
+void CTestControlDlg::OnUpdateFileLoadsequence(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable (_headinitialized && _arminitialized);
+}
+
+void CTestControlDlg::OnUpdateFileSavesequence(CCmdUI* pCmdUI) 
+{
+	pCmdUI->Enable (_headinitialized && _arminitialized);
 }

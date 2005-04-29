@@ -27,16 +27,16 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.23 2005-04-21 16:04:32 babybot Exp $
+/// $Id: YARPCanOnRobotcubHeadAdapter.h,v 1.24 2005-04-29 16:38:53 babybot Exp $
 ///
 ///
 
 #ifndef __CanOnRobotcubHeadAdapterh__
 #define __CanOnRobotcubHeadAdapterh__
 
-#ifndef __ESD_DRIVER
-#define __ESD_DRIVER
-#endif
+//#ifndef __ESD_DRIVER
+//#define __ESD_DRIVER
+//#endif
 
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
