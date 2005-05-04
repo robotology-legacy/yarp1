@@ -3,14 +3,17 @@
 
 YARP is written by and for researchers in robotics, particularly
 humanoid robotics, who find themselves with a complicated pile of
-hardware to control with an equally complicated pile of software.  At
-the time of writing (2004), running decent visual, auditory, and
+hardware to control with an equally complicated pile of software. 
+\marginpar{YARP was developed initially by Paul and Giorgo at MIT 
+based on a core of classes developed by Paul and used extensively 
+for the first time on COG running QNX4.25}
+At the time of writing (2005), running decent visual, auditory, and
 tactile perception while performing elaborate motor control in
 real-time requires a lot of computation.  The easiest and most
 scalable way to do this right now is to have a cluster of computers.
 Every year what one machine can do grows, but so do our demands.  YARP
 is a set of tools we have found useful for meeting our computational
-needs for controlling various humanoid robots.
+needs for controlling various humanoid robots. 
 
 The components of YARP can be broken down into:
 
@@ -19,16 +22,20 @@ The components of YARP can be broken down into:
 \item {\bf libYARP\_OS} -- interfacing with the operating system(s)
 to support easy streaming of data across many threads across many
 machines.  YARP is written to be OS neutral, and explicitly supports
-Linux, Microsoft Windows, and the QNX realtime operating system.
-
-\item {\bf libYARP\_dev} -- interfacing with common devices used in robotics:
-framegrabbers, digital cameras, motor control boards, etc.
+Linux, Microsoft Windows, Mac Os (aka Darwin) and the QNX realtime operating system.
 
 \item {\bf libYARP\_sig} -- performing common signal processing tasks
 (visual, auditory) in an open manner easily interfaced with other
 commonly used libraries.
 
-\item {\bf ...} --- more documentation to come.
+\item {\bf libYARP\_sig\_logpolar} -- performing the logpolar subsampling of images. This is the author's preference when doing image processing for robots. It offers full field of view with reduced number of pixels to process. For a full reference please check the relative manual.
+
+\item {\bf libYARP\_dev} -- interfacing with common devices used in robotics:
+framegrabbers, digital cameras, motor control boards, etc.
+
+\item {\bf libYARP\_robot} -- common interface to different robotic platform with easy to replace device drivers as in the {\bf libYARP\_dev} library.
+
+\item {\bf tools} -- various support tools, utilities, and executable components.
 
 \end{itemize}
 
@@ -39,12 +46,13 @@ use that component first, then the others.
 
 
 
-\section{Requirements}
+\subsection{Requirements}
 
-YARP is tested on Windows (2000/XP), Linux (Debian/SuSE), and QNX6.
+YARP is tested on Windows (2000/XP), Linux (Debian/SuSE), MacOs (Darwin), and QNX6.
 It is based on the open-source ACE (ADAPTIVE Communication
 Environment) library, which is portable across a very broad range of
-environments, and YARP should inherit that portability.
+environments, and YARP should inherit that portability. YARP is written almost 
+entirely in C++.
 
 For real-time operation, network overhead has to be minimized, so YARP
 is designed to operate on an isolated network or behind a firewall.
@@ -61,4 +69,112 @@ of your system from that code so that future hardware replacements
 are possible.  Check the requirements imposed by your current hardware;
 YARP will not reduce these, only make future changes easier.
 
+With the same spirit the {\bf libYARP\_robot} tries to provide a common interface to different robotic platform. Still the idea is that of shielding higher level code from the nitty-gritty details of the robot hardware and configuration. Porting to a new platform is not guaranteed to be anything trivial but for the reuse of higher level code. The amount of recycling clearly depends on the differences among control cards, frame grabbers, etc. Unfortunately, this doesn't shield you from knowing the platform you're going to work on, but we bet you need to know it anyway.
 
+
+YARP has consequently three levels of configuration: operating system, hardware, and robot level. The first level of configuration should concern you only if you're planning to compile YARP on a new operating system. There are a few places where to intervene that we chose not to relay to ACE (for now!) since they would have required fairly complex contructs or, for instance, CORBA data types and functions (e.g. dealing with endianism). This means you have to prepare yourself a few lines of code. Details are provided later on in this manual.
+
+The second level is the hardware. A new addition on an existing platform or a new platform altogether might require preparing a few YARP device drivers. These are to all effects classes that support the methods for accessing the hardware which is normally implemented through function calls to whatever provided by the hardware vendor. This comes typically in either DLLs or static libraries.
+
+Finally, you might need to prepare the configuration files for a new robotic platform and unfortunately this requires fiddling with the {\bf libYARP\_robot} library.
+
+You should not be scared by tweaking into YARP's code since the level of customization required is fairly simple and hopefully well documented. Once the appropriate classes are in place the compilation and link to application and tools should proceed smoothly -- or at least this has been our experience so far. In fact, YARP has been compiled and presently runs on four different operating systems -- meaning that it can run on a heterogentous cluster of PCs -- and on something like six different robots.
+
+\subsection{Some numbers}
+The following table contains some figures about the current usage of YARP for robot control.
+\marginpar{We intended to give here a feeling of the type of computational architecture we're using.}
+\begin{table}[h]
+	\centering
+		\begin{tabular}{|c|c|c|}
+		\hline
+			Robot name & Number of machines & OS \\
+			\hline \hline
+			Babybot (LIRA-Lab, Univ. of Genoa) & 13 & Windows, Qnx6 \\
+			\hline
+			Eurobot (LIRA-lab, Univ. of Genoa) & 11 & Windows, Qnx6 \\
+			\hline
+			Jenny (LIRA-Lab, Univ. of Genoa) & 3 & Windows \\
+			\hline
+			Obrero (MIT CSAIL) & ?? & Linux \\
+			\hline
+			Cog (MIT CSAIL) & 30 & Qnx4.25 \\
+			\hline
+		\end{tabular}
+\end{table}
+
+Although it is not completely evident from these numbers, YARP supports communication between dozens of processes distributed across a network of PCs. Communication proceeds through various protocols and shared memory when and where available. When specific communication protocols are available YARP uses them -- like Qnet under QNX6. YARP is not yet completely user friendly and it still requires you to track which processes each process is talking to. This, we believe, is fair enough when realtime control is an issue and you need to rely on data getting to the right place at all time. Moreover, many times you're allocating processes in order to get guaranteed performance. Indeed you might want to run your latest visual processing onto your fastest PC, and you are able to just do so.
+
+A final note: YARP is not designed for message passing but rather for streaming communication. Unless special precautions are taken messages are not guaranteed to get through. Please bear this in mind to make sensible design choices early during your project.
+
+\subsection{Licensing}
+\marginpar{YARP might be migrating to GPL sometimes in the future}
+YARP is distributed under the Academic Free License. The template of the academic
+free licence can be found in \$YARP\_ROOT$\backslash$conf$\backslash$licence.template. If you're adding to YARP then you can either add the template to each file or simply make a link to it. There's also a shorter version called licence.short.template. See text below:
+
+\begin{verbatim}
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///                                                                   ///
+/// This Academic Free License applies to any software and associated ///
+/// documentation (the "Software") whose owner (the "Licensor") has   ///
+/// placed the statement "Licensed under the Academic Free License    ///
+/// Version 1.0" immediately after the copyright notice that applies  ///
+/// to the Software.                                                  ///
+/// Permission is hereby granted, free of charge, to any person       ///
+/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
+/// publish, perform, distribute, sublicense, and/or sell copies of   ///
+/// the Software, and to permit persons to whom the Software is       ///
+/// furnished to do so, and (2) under patent claims owned or          ///
+/// controlled by the Licensor that are embodied in the Software as   ///
+/// furnished by the Licensor, to make, use, sell and offer for sale  ///
+/// the Software and derivative works thereof, subject to the         ///
+/// following conditions:                                             ///
+/// Redistributions of the Software in source code form must retain   ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers. ///
+/// Redistributions of the Software in executable form must reproduce ///
+/// all copyright notices in the Software as furnished by the         ///
+/// Licensor, this list of conditions, and the following disclaimers  ///
+/// in the documentation and/or other materials provided with the     ///
+/// distribution.                                                     ///
+///                                                                   ///
+/// Neither the names of Licensor, nor the names of any contributors  ///
+/// to the Software, nor any of their trademarks or service marks,    ///
+/// may be used to endorse or promote products derived from this      ///
+/// Software without express prior written permission of the Licensor.///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
+/// reserved. Permission is hereby granted to copy and distribute     ///
+/// this license without modification. This license may not be        ///
+/// modified without the express written permission of its copyright  ///
+/// owner.                                                            ///
+///                                                                   ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+\end{verbatim}
+
+\begin{verbatim}
+///
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004 
+///
+///                    #Add our name(s) here#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+\end{verbatim}
+
+You can of course customize this text by adding your name at the end. The shorter version of the license template is more practical and thus preferred.

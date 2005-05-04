@@ -14,15 +14,124 @@ rather than installing on each machine.  We have a few tips for this
 process, particularly if you are using multiple operating systems (as
 is common because of hardware support constraints).
 
+\subsection{Why doesn't YARP follow installation standards?}
+You might be wondering why we haven't set things up as in many existing open source packages. A short answer is that dealing with multiple operating systems is messy and we haven't found any neat and clean way of doing it. The best we came about is using perl for preparing the installation. See section \ref{sect:perl}.
+
+\subsection{Perl scripts}
+\label{sect:perl}
+
+YARP uses perl scripts for configuration and installation. We chose to do so to make compilation on Windows and Unixes as uniform as possible in spite of the differnce between makefiles and Microsoft Developer Studio project files. Perl is generally available on Linux and available for Windows in a very nice free distribution. Check the following website:
+
+\begin{quote}
+{\tt http://www.activestate.com/Products/ActivePerl/}
+\end{quote}
+
+At the moment of writing we use version 5.8.4.810. Once intalled, please make sure the environment variables are properly registered so that you can run perl from the command line.
+Type \ctt{perl} on the command line to check whether it works.
+
+\subsection{Prerequisites to installation}
+
+First of all, configure a CVS client as explained in SourceForge (http://www.sf.net).
+You need to choose a directory (the prospective \$YARP\_ROOT) where to download the
+YARP source code. Make sure you check the ``prune'' flag in CVS so you don't create
+empty directories. In Windows you might want to use WinCVS.
+
+I used WinCVS 1.3.something that solves the annoying timezone-daylight saving time
+problem. I used also putty (and plink) as a ssh client for WinCVS. I found this
+configuration very stable and I strongly suggest replicating it if you're not an expert. 
+If you decide to use putty make sure you download all the small applications that come with the main terminal application. You will need a few of them during the configuration procedure (e.g. putty, pagent, and plink).
+
+Make sure you do not change the default from the putty terminal application (ssh)
+because it applies to plink too. Please, also configure and upload the public-private key as requested by SourceForge (unless you're an anonymous user). Make sure your CVS ssh connection is functional before moving to the next section. Since we're checking prerequisites here, download ACE 5.4.2 from:
+
+\begin{quote}
+{\tt http://www.cs.wustl.edu/~schmidt/ACE.html}
+\end{quote}
+
+It comes as a single {\em tar.gz} file that you can open both in Linux and Windows. Keep it handy since we're going to use it again. YARP includes now header files (from cvlibrary) and DLL for the Intel IPL (optionally used in image processing) in the repository so you no longer need to download and install them separately.
+
+DLLs from Visual Studio 6.0: strangely enough the default install doesn't have the
+correct version (e.g. the C terminal library wouldn't normally work. This applies to
+NT4.0; I haven't investigated the issue on 2K or XP. If you're running NT4.0 you might
+need to install Visual Studio on each machine of the network to get the DLLs right.
+
+Please spend some time reading the SourceForge documentation on the use of CVS and
+the WinCVS documentation. You should become acquainted with the different checkout
+options and with the WinCVS configuration. It will definitely help later during
+development.
+
+Directories cannot be removed from the CVS server. Make sure you know what
+you're doing when adding a new directory to the repository (admitting you're allowed to).
+For Windows users, your machine should have the Visual Studio 6.0 installed and properly
+service packed.
+
+A few environment variables are required to properly compile YARP. The perl scripts will check whether \$YARP\_ROOT is defined and complain otherwise. Also, many applications rely on having a \$YARP\_ROOT defined to locate configuration files. You're requested to define:
+\begin{itemize}
+\item \$YARP\_ROOT (\%YARP\_ROOT\% in Windows) environment variable (e.g. \ctt{export YARP\_ROOT=/usr/src/yarp}).
+\item and then add to path \$YARP\_ROOT/bin/(your OS)/ (location of binaries and DLLs), and of course substitute the forward slash with the backslash where appropriate.
+\item add also to the path: \$YARP\_ROOT/scripts (and the subdirectories you need). In Windows I tend to prefer adding them to the “system” environment and not to the current user only.
+\end{itemize}
+
+On Windows you have to check you can run the developer studio from the command line. The usual check is \ctt{msdev}. If it fails then you might need to go and look at {\em VCVARS32.bat} and run it from your terminal. The {\em VCVARS32.bat} script prepares the environment to run visual studio and compile from the command line.
+
+On Unixes (or Qnx) you can add the environment initialization in the {\em .profile}. An example of a plausible environment initialization is shown below. As you can see ACE on Unixes requires the definition of the \$ACE\_ROOT environment variable.
+
+\begin{verbatim}
+export YARP_ROOT=/usr/src/yarp
+export ACE_ROOT=$YARP_ROOT/src/ACE_wrappers
+export CVSROOT=:ext:youruser@cvs.sourceforge.net:/cvsroot/yarp0
+export CVS_RSH=/usr/bin/ssh
+export LD_LIBRARY_PTH=/usr/local/lib
+export PATH=$PATH:$YARP_ROOT/bin/qnx6:$HOME/bin
+export PATH=/usr/local/bin/:$PATH
+export PATH=.:/lib:$PATH
+\end{verbatim}
+
+A brief checklist on this procedure is provided here for convenience:
+\begin{enumerate}
+	\item Download \& install the CVS client and configure your sourceforge user.
+	\item Checkout YARP \ctt{cvs checkout yarp -P} somewhere on your directory tree (this will be your \$YARP\_ROOT.
+	\item Install perl if your operating system requires to do so (e.g. Windows).
+	\item Download ACE, possibly version 5.4.2. I tend to like the tar.gz file that has Unix-like newline characters.
+	\item Setup environment variables as explained above.
+\end{enumerate}
+
+\subsection{Getting acquainted with the YARP directory tree}
+The YARP directory tree contains the usual src, lib, bin, etc. subdivision. There are a few differences from a standard distribution since many libraries are created and several operating systems supported. A quick tour is the following table:
+
+\begin{table}[h]
+	\centering
+		\begin{tabular}{|c|c|c|}
+		\hline
+			Directory name & Description \\
+			\hline \hline
+			bin & binaries with subdirectories for multiple OS \\
+			\hline
+			conf & configuration files, templates, etc. \\
+			\hline
+			docs & installation manuals, tutorial and other documents \\
+			\hline
+			include & header files are moved here after compilation of libraries \\
+			\hline
+			lib & libraries are moved here after compilation \\
+			\hline
+			packaging & scripts for creating the YARP distributions (does not concern the user) \\
+			\hline
+			scripts & scripts of various robotic experiments (not too neat to have them here) \\
+			\hline
+			src & the main source subdirectories including libraries, tools and experimental code \\
+			\hline
+		\end{tabular}
+\end{table}
+
+
 \subsection{Installing the ACE library}
+\label{sect:ace}
 
-We require ACE version 5.3.3 or greater.
+We require ACE version 5.3.3 or greater (but we recommend 5.4.2 -- beta). There are two alternatives for compiling ACE: i) follow the ACE installation instructions, and ii) allow the YARP perl scripts to compile ACE for you -- the latter works only with ACE 5.4.2.
 
-On Debian-based linux machines, ACE is available as a binary package;
-simply type ``apt-get install libace-dev'' as super-user.  Please
-check (e.g. by searching at {\tt http://packages.debian.org}) that the version available is 5.3.3 or greater.  At the time of
-writing, this is true for Debian unstable but not true for Debian
-stable.
+If you are taking the first route, on Debian-based linux machines, ACE is available as a binary package; simply type ``apt-get install libace-dev'' as super-user.  Please
+check (e.g. by searching at {\tt http://packages.debian.org}) that the version available is 5.3.3 or greater.  At the time of writing, this is true for Debian unstable but not true for Debian stable.
 
 For all other scenarios, we suggest you go to the ACE homepage, and
 download and compile the source package:
@@ -40,21 +149,216 @@ a version of it that is known to work with YARP, available from our
 website:
 
 \begin{quote}
-{\tt http://yarp0.sourceforge.net}
+{\tt http://yarp0.sourceforge.net/software.html}
 \end{quote}
 
+This is the {\em companion software} page, it contains links to various packages we found useful when working with YARP. And, surprise surprise, you can download version 5.4.2 from this page.
 
+If you trust us, and you'd like to go through the building of ACE, you can unzip it into a directory within YARP (we recommend \$YARP\_ROOT/src/ACE\_wrappers). The unzip complains a bit since certain examples are included twice into the tar.gz file (ACE's fault!).
 
+You're done for now; ACE will be compiled and installed when compiling the {\bf libYARP\_OS} library. Note that the ACE\_wrapper directory is already in the repository and contains a perl script called {\em build.pl} and a readme file {\em readme.txt}. Now it's time to proceed to the next step.
 
 \subsection{Installing the libYARP\_OS library}
+Compilation is best carried out by running the perl scripts. Each library contains two scripts, one for configuring the compilation and another for the actual build. Depending on the operating system the scripts call either {\em make} or {\em msdev}. Each library directory contains both the makefile and the msdev project files.
+
+By invoking the configuration script {\em configure.pl} a certain number of parameters influencing compilation is stored in \$YARP\_ROOT/conf/context.conf. An example of a few lines extracted from the context file is shown below:
+
+\begin{verbatim}
+[Compile_OS]
+ACE_PATH= $YARP_ROOT/src/ACE_wrappers
+ACE_Rebuild= NO
+Lib_Clean= TRUE
+Lib_Debug= TRUE
+Lib_Install= TRUE
+Lib_Release= TRUE
+Tools_Debug= FALSE
+Tools_Rebuild= YES
+\end{verbatim}
+
+These parameters are read by the {\em build.pl} script to compile libraries accordingly. In particular to compile the {\bf libYARP\_OS} you should type at the terminal:
+
+\begin{verbatim}
+cd $YARP_ROOT/src/libYARP_OS
+perl configure.pl
+\end{verbatim}
+
+the second line runs the perl script. If the script is made executable you can save five strokes and run it without the leading {\em perl}. As a consequence, the configuration procedure is started; you should see:
+
+\begin{verbatim}
+Entering configure process of YARP environment...
+'uname' is not recognized as an internal or external command,
+operable program or batch file.
+Ready to start...
+Now I'm going to ask a few questions to help the configuration. So, let's start.
+..
+For pathnames you can use (type) the pre-defined value $YARP_ROOT that I've veri
+fied as: "D:\Users\pasa\Repository\yarp"
+
+Please, use always the forward slash as separator!
+I determined already that you're running on a supported OS: winnt
+What's your OS? [winnt]
+\end{verbatim}
+
+recognized identifiers for the operating system tag are:
+\begin{itemize}
+\item winnt, for Win32 compilation
+\item linux, for Linux
+\item qnx6, for Qnx6
+\item darwin, for MacOs
+\end{itemize}
+
+by hitting {\em return} you simply accept the default/proposed entry which is indicated in square brackets (which is {\em winnt} in this example). The following example shows what required and asked next:
+
+\begin{verbatim}
+Where has ACE been unpacked? [$YARP_ROOT/src/ACE_wrappers]
+Do you want to rebuild ACE, i.e. clean before building? [NO] YES
+Would you like to set a default for library compilation?
+Clean first: i.e. rebuild libraries? [TRUE]
+Debug mode? [TRUE]
+Release mode (optimization on)? [TRUE]
+Install after compile? [TRUE]
+Would you like to rebuild the YARP tools [YES]
+Would you like to compile the tools for debugging? [FALSE]
+We're done for now, the context file is being created: 
+"D:\Users\pasa\Repository\yarp/conf/context.conf"
+Done!
+\end{verbatim}
+
+In particular, the ACE root directory is requested. The {\bf libYARP\_OS} then locates an additional helper script within the ACE root and possibly runs it to compile ACE (as mentioned in section \ref{sect:ace}). It is then asked whether to actually rebuild ACE (by doing a {\em make clean} for instance). Valid replies to yes/no questions are strings of the type of YES, yes, YE, Y, etc. and similarly TRUE, T, t for true/false.
+
+It is asked whether to rebuild the library in question {\bf libYARP\_OS} and whether to enable the debug and optimization flags. For Windows both libraries can be created and they'll cohexist with different names. The {\bf libYARP\_OS} contains also a few tools required for the system functions. The script asks whether to compile also these tools and to compile them for debugging.
+
+It finally prints the filename of the context file which is now up to date. You can now type:
+
+\begin{verbatim}
+perl build.pl
+\end{verbatim}
+
+and press return. The build script runs; its output should look similar to this one (this is a Windows example):
+
+\begin{verbatim}
+Entering compile process of YARP OS libraries...
+'uname' is not recognized as an internal or external command,
+operable program or batch file.
+Ready to start...
+Working with: D:\Users\pasa\Repository\yarp/conf/context.conf
+Looking for ACE...
+Entering build process for ACE libraries...
+'uname' is not recognized as an internal or external command,
+operable program or batch file.
+I'm trying to guess the project file name
+Using ACE.dsp for project ACE
 
 
-Download the latest package from the YARP sourceforge site:
+Cleaning...
+Deleting intermediate files and output files for project 'ACE - Win32 Debug'.
+Deleting intermediate files and output files for project 'ACE - Win32 Release'.
 
-\begin{quote}
-{\tt http://yarp0.sourceforge.net}
-\end{quote}
 
-Unpack it and, err, install it.  Details to come once we 
-actually make the release...
+Compiling debug
+--------------------Configuration: ACE - Win32 Debug--------------------
+Compiling resources...
+Compiling...
+Local_Name_Space.cpp
+Name_Proxy.cpp
+Name_Request_Reply.cpp
+Name_Space.cpp
+Naming_Context.cpp
+NT_Service.cpp
+
+\end{verbatim} 
+
+which means that compilation of ACE is started. It'll take a while depending on your machine. The build script changed to the ACE directory and run the build script there. When it's done you should see something like this:
+
+\begin{verbatim}
+Timer_Wheel.cpp
+Metrics_Cache.cpp
+Generating Code...
+Linking...
+   Creating library ..\lib/ACEd.lib and object ..\lib/ACEd.exp
+
+ACEd.dll - 0 error(s), 0 warning(s)
+
+Compiling release
+--------------------Configuration: ACE - Win32 Release--------------------
+Compiling resources...
+Compiling...
+Local_Name_Space.cpp
+
+\end{verbatim}
+
+which means that the debug version of ACE has been compiled succesfully and compilation of optimized code started. When also ACE with optimization flags is compiled, the script copies the ACE header files into a common store where every YARP header will be placed and the libraries under \$YARP\_ROOT/lib/winnt or any other allowed operating system name. This doesn't mean packages will share a single common directory. ACE headers will be included by:
+
+\begin{verbatim}
+#include <ace/Acceptor.h>
+\end{verbatim}
+
+provided the common store directory is specified to the compiler: \$YARP\_ROOT/include/. This means ace headers are all under \$YARP\_ROOT/include/ace. YARP headers are included, for example, as:
+
+\begin{verbatim}
+#include <yarp/YARPThread.h>
+\end{verbatim}
+
+Finally, after a succeful compilation of ACE, the script will change back to the {\bf libYARP\_OS} directory and start the compilation of YARP proper. It generates the libYARP\_OS.lib and copies header files under \$YARP\_ROOT/include/yarp and libraries and binaries under \$YARP\_ROOT/lib/winnt and \$YARP\_ROOT/bin/winnt respectively. Operating system names and subdirectory names coincide. The allowed names are: {\em winnt}, {\em linux}, {\em qnx6}, and {\em darwin}. The very last steps are shown in the example below:
+
+\begin{verbatim}
+--------------------Configuration: yarp_names - Win32 Release-------------------
+-
+Compiling...
+yarp-names.cpp
+Linking...
+LINK : warning LNK4089: all references to "WINMM.dll" discarded by /OPT:REF
+
+yarp-names.exe - 0 error(s), 1 warning(s)
+
+Installing YARP_OS tools to default install directory.
+Copying ./yarp-connect/obj/winnt/yarp-connect.exe
+Copying ./yarp-read/obj/winnt/yarp-read.exe
+Copying ./yarp-service/obj/winnt/yarp-service.exe
+Copying ./yarp-write/obj/winnt/yarp-write.exe
+Copying ./yarp-names/obj/winnt/yarp-names.exe
+
+\end{verbatim}
+
+This same procedure is generic and will work fine for all supported operating systems. The best thing to do at this point is to test YARP on a single machine to make sure everything is working fine. The next chapter is devoted to moving the first few steps into the world of YARP.
+
+
+\section{Caveats}
+\label{sect:caveats}
+
+Before testing the YARP installation you might want (it is not mandatory but recommended) to configure the YARP name server. This is an application that allocates symbolic names to network ports and addresses. YARP code talks to the name server for determining where and how to connect two specific ports together. The following text is an example of a name server configuration file. A template is provided in \$YARP\_ROOT/conf/ and it is called {\em namer.conf.template}. The actual configuration file must reside in \$YARP\_ROOT/conf/ and named {\em namer.conf}.
+
+\begin{verbatim}
+130.251.43.254 10000
+
+// start network description, don't forget to separate "Node=" 
+// and names with a space
+
+[NETWORK_DESCRIPTION]
+Node= leto    local 127.0.0.1 127.0.0.1	
+              default 130.251.43.134 130.251.43.134	
+              Net0 130.251.43.134 130.251.43.134	
+              Net1 10.0.1.134 10.0.1.134
+Node= euterpe	local 127.0.0.1 127.0.0.1	
+              default 130.251.43.135 130.251.43.135	
+              Net0 130.251.43.135 130.251.43.135	
+              Net1 10.0.1.135 10.0.1.135
+Node= oceanus	local 127.0.0.1 127.0.0.1	
+              default 130.251.43.136 130.251.43.136	
+              Net0 130.251.43.136 130.251.43.136	
+              Net1 10.0.1.136 10.0.1.136
+Node= thaumas	local 127.0.0.1 127.0.0.1	
+              default 130.251.43.129 130.251.43.129	
+              Net0 130.251.43.129 130.251.43.129
+Node= hades   local lo0 127.0.0.1		
+              default en0 130.251.43.130			
+						  Net0 en0 130.251.43.130			
+						  Net1 en1 10.0.1.130
+[END]
+\end{verbatim}
+
+The first line describes the name server configuration. The first number is the IP address of the machine where the server is running. Note that this is not your DNS! It's the YARP name server address. The second number is the port the name server responds to ($10000$ in this example).
+
+The file contains then a series of machine definitions. For each ``node'' you should define a machine name (not actually used for anything sensible) and a list of networks, interface names, and IP addresses. In the first entry, for example, a machine called {\em leto} is defined, it has a {\em local} network being the loopback, a {\em default} one in the subnetwork $130.251.4.$ which is an alias of {\em Net0} and finally a private {\em Net1} with address $10.0.1.$. For each network entry there are two numbers. The first represents the interface name which on Windows is equivalent to the IP address, the second is the IP address proper.
+This last point is perhaps clear if you look at the last node entry. This is a machine called {\em hades}. You can note here that each network entry contains the inteface name of the Ethernet card the network is connected to. On Linux type \ctt{ifconfig} to get the interface names.
 

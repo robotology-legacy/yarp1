@@ -14,44 +14,72 @@
 	\setlength{\topsep}{0mm}
 	\setlength{\parskip}{0mm}    }
 
-\documentclass[a4paper]{article}
+\documentclass[a4paper]{report}
 
-%\usepackage{afterpage}
 \usepackage[dvips]{graphicx}
 \usepackage{psfig}
 \usepackage{fullpage}
 \usepackage{color}
+\usepackage{fancyhdr}
 
 % LATEX2HTML has problems with pstricks right now....
 \usepackage{pstricks}
-%%\newcommand{\blue}{}
 
-
-%\usepackage{code}
+% contains our personal formatting commands.
 \input{section-formatting}
 
 
-
 \begin{document}
-
 
 \title{{\LARGE YARP}\\Yet Another Robot Platform\\
 Installation Guide
 }
 
+\author{Paul Fitzpatrick, Giorgio Metta, Lorenzo Natale}
 
-\author{Paul Fitzpatrick, Giorgio Metta}
-
+\addtolength{\hoffset}{1cm}
 \maketitle
+\thispagestyle{empty}
+\newpage
 
+\tableofcontents
+
+\newpage
+\chapter{Installing YARP}
+\begin{flushright}
+\textit{
+          Through Me Pass into the Painful City, \\
+          Through Me Pass into Eternal Grief, \\
+          Through Me Pass among the Lost People. \\ 
+          Justice Moved My Master-Builder: \\
+          Heavenly Power First Fashioned Me \\
+          With Highest Wisdom and with Primal Love. \\
+          Before Me Nothing Was Created That  \\
+          Was Not Eternal, and I Last Eternally. \\ 
+          All Hope Abandon, You Who Enter Here. \\
+        }
+\end{flushright}
+
+\newpage
+\addtolength{\hoffset}{-1cm}
 
 \input{section-introduction}
-
-\newpage
 \input{section-installation}
 
+\newpage
+\chapter{Using YARP}
+\begin{flushright}
+\textit{
+					Halfway through the journey we are living \\
+          I found myself deep in a darkened forest, \\
+          For I had lost all trace of the straight path. \\
+       }
+\end{flushright}
+\addtolength{\hoffset}{1cm}
 
 \newpage
+
+\addtolength{\hoffset}{-1cm}
 \input{section-communications}
 
 
@@ -65,8 +93,20 @@ Installation Guide
 %\input{section-port-reference}
 
 \newpage
-\input{section-from-adapt}
+\chapter{More libraries}
+\begin{flushright}
+\textit{
+					With that my panic quieted a little \\
+          After lingering on in the lake of my heart \\
+          Through the night I had so grievously passed. \\ 
+       }
+\end{flushright}
+\addtolength{\hoffset}{1cm}
 
+\newpage
+
+\addtolength{\hoffset}{-1cm}
+%%\input{}
 
 %%\input{section-from-thesis}
 
