@@ -14,6 +14,80 @@ rather than installing on each machine.  We have a few tips for this
 process, particularly if you are using multiple operating systems (as
 is common because of hardware support constraints).
 
+There are two fairly different ways of installing YARP. Again, if you are a first-time user then we strongly recommend to follow the procedure described in section \ref{sect:easy} next. Otherwise, we have also documented the full-blown installation procedure.
+
+\section{Quick installation guide}
+\label{sect:easy}
+
+This section explains how to get to quickly run YARP and test functionality of the libraries. The aim here is not to give a full account of what you can do but rather to shorten the time you spend on installation. We reasoned that this might be enough for many users. The next step consists of getting all the required packages.
+
+\subsection{Prerequisites to installation}
+
+First of all, configure a CVS client as explained in SourceForge (http://www.sf.net).
+You need to choose a directory (that will become the \$YARP\_ROOT directory) where to download the
+YARP source code. Make sure you check the ``prune'' flag in CVS so you don't create
+empty directories. In Windows you might want to use WinCVS.
+
+We recommend WinCVS 1.3.XX that solves the annoying timezone-daylight saving time
+problem (earlier versions had an issue twice a year!). We used also {\em putty} (and {\em plink}) as a ssh client for WinCVS as suggested on SourceForge. We found this configuration very stable and we suggest replicating it if you're not an expert. 
+If you decide to use {\em putty} then make sure you download all the small applications that come with the main terminal application. You will need a few of them during the configuration procedure (e.g. {\em putty}, {\em pagent}, and {\em plink}). The latest WinCVS version has its own ssh implementation internally so that you don't need the external ssh client.
+
+If you use {\em putty}, please make sure you do not change the default from the terminal application (ssh)
+because it applies to plink too. Please, also configure and upload the public-private key as requested by SourceForge (unless you're an anonymous user). Make sure your CVS ssh connection is functional before moving to the next section. Since we're checking prerequisites here, download ACE 5.4.2 from:
+
+\begin{quote}
+{\tt http://www.cs.wustl.edu/~schmidt/ACE.html}
+\end{quote}
+
+or from our download page at:
+\begin{quote}
+{\tt http://yarp0.sourceforge.net/software.html}
+\end{quote}
+
+It comes as a single {\em tar.gz} file that you can open both on Linux and Windows. Keep it handy since we're going to use it again. YARP includes now header files (from cvlibrary) and DLL for the Intel IPL (optionally used in image processing) in the repository so you no longer need to download and install them separately.
+
+\subsection{Installing ACE}
+We require ACE version 5.3.3 or greater (but we recommend 5.4.2). ACE should compile fine just by following the installation instructions that can be found on the website (http://www.cs.wustl.edu/~schmidt/ACE.html). 
+
+On Debian-based linux machines, ACE is available as a binary package; simply type ``apt-get install libace-dev'' as super-user.  Please check (e.g. by searching at {\tt http:// packages.debian.org}) that the version available is 5.3.3 or greater.  At the time of writing, this is true for Debian unstable but not true for Debian stable.
+
+% shall we include a quick how-to for ACE compilation. otherwise it's not going to be of much 
+% use unless you're on a debian system.
+If you have downloaded {\em ACE-5.4.2.tar.gz} then follow these steps to compile and install ACE manually:
+\begin{itemize}
+\item gunzip the file;
+\item ...
+\end{itemize}
+
+On Windows you can unzip the ACE distribution and simply open the {\em .dsw} workspace file from within VisualStudio and then start the compilation.
+
+\subsection{Environment variables}
+ACE requires defining the \$ACE\_ROOT environment variable on Linux. Also, it is convenient to define a root directory for YARP. On a typical Linux box, you can add the following definitions to your {\em .profile} shell login file:
+\marginpar{While this is not strictly necessary, we recommend doing it for once.}
+
+\begin{verbatim}
+export YARP_ROOT=/usr/src/yarp
+export CVSROOT=:ext:youruser@cvs.sourceforge.net:/cvsroot/yarp0
+export CVS_RSH=/usr/bin/ssh
+export ACE_ROOT=$YARP_ROOT/src/ACE_wrappers
+export LD_LIBRARY_PATH=/usr/local/lib
+export PATH=$PATH:$YARP_ROOT/bin/linux:$HOME/bin
+export PATH=/usr/local/bin:$PATH
+export PATH=.:/lib:$PATH
+\end{verbatim}
+
+Otherwise just type the same {\em export} commands on a terminal window. On Windows you go to the control panel, click on the {\em system} icon and search for the {\em environment variables} button on one of the tabs. By clicking this button opens a new window where you can add environment variables. We recomment adding them to the system wide variables rather than to the current interactive user only. 
+
+\subsection{Compiling libYARP\_OS}
+
+
+
+You are done for now. The next step is to go to chapter \ref{chapter:usage} and test your installation.
+
+
+\section{Installing YARP: general method}
+Sometimes the level of configuration you would like to consider requires the understanding of the more difficult way of installing YARP. This might be scary as a first approach to a new tool especially since there is an infinite number of things that can fail which are difficult to debug if you're not aware of the details of the libraries. Definitely, this is to much for making a tool a good one. On the other hand, sometimes, complex hardware requires complex control. The next sections document a general procedure to install YARP by using a set of {\em perl} scripts provided with the distribution.
+
 \subsection{Why doesn't YARP follow installation standards?}
 You might be wondering why we haven't set things up as in many existing open source packages. A short answer is that dealing with multiple operating systems is messy and we haven't found any neat and clean way of doing it. The best we came about is using perl for preparing the installation. See section \ref{sect:perl}.
 
@@ -36,19 +110,23 @@ You need to choose a directory (the prospective \$YARP\_ROOT) where to download 
 YARP source code. Make sure you check the ``prune'' flag in CVS so you don't create
 empty directories. In Windows you might want to use WinCVS.
 
-I used WinCVS 1.3.something that solves the annoying timezone-daylight saving time
-problem. I used also putty (and plink) as a ssh client for WinCVS. I found this
-configuration very stable and I strongly suggest replicating it if you're not an expert. 
-If you decide to use putty make sure you download all the small applications that come with the main terminal application. You will need a few of them during the configuration procedure (e.g. putty, pagent, and plink).
+We recommend WinCVS 1.3.something that solves the annoying timezone-daylight saving time
+problem (earlier versions had an issue twice a year!). We used also {\em putty} (and {\em plink}) as a ssh client for WinCVS as suggested on SourceForge. We found this configuration very stable and we strongly suggest replicating it if you're not an expert. 
+If you decide to use putty then make sure you download all the small applications that come with the main terminal application. You will need a few of them during the configuration procedure (e.g. {\em putty}, {\em pagent}, and {\em plink}). The latest WinCVS version has its own ssh implementation internally so that you don't need the external ssh client.
 
-Make sure you do not change the default from the putty terminal application (ssh)
+If you use {\em putty}, please make sure you do not change the default from the putty terminal application (ssh)
 because it applies to plink too. Please, also configure and upload the public-private key as requested by SourceForge (unless you're an anonymous user). Make sure your CVS ssh connection is functional before moving to the next section. Since we're checking prerequisites here, download ACE 5.4.2 from:
 
 \begin{quote}
 {\tt http://www.cs.wustl.edu/~schmidt/ACE.html}
 \end{quote}
 
-It comes as a single {\em tar.gz} file that you can open both in Linux and Windows. Keep it handy since we're going to use it again. YARP includes now header files (from cvlibrary) and DLL for the Intel IPL (optionally used in image processing) in the repository so you no longer need to download and install them separately.
+or from our download page at:
+\begin{quote}
+{\tt http://yarp0.sourceforge.net/software.html}
+\end{quote}
+
+It comes as a single {\em tar.gz} file that you can open both on Linux and Windows. Keep it handy since we're going to use it again. YARP includes now header files (from cvlibrary) and DLL for the Intel IPL (optionally used in image processing) in the repository so you no longer need to download and install them separately.
 
 DLLs from Visual Studio 6.0: strangely enough the default install doesn't have the
 correct version (e.g. the C terminal library wouldn't normally work. This applies to
@@ -69,10 +147,10 @@ A few environment variables are required to properly compile YARP. The perl scri
 \begin{itemize}
 \item \$YARP\_ROOT (\%YARP\_ROOT\% in Windows) environment variable (e.g. \ctt{export YARP\_ROOT=/usr/src/yarp}).
 \item and then add to path \$YARP\_ROOT/bin/(your OS)/ (location of binaries and DLLs), and of course substitute the forward slash with the backslash where appropriate.
-\item add also to the path: \$YARP\_ROOT/scripts (and the subdirectories you need). In Windows I tend to prefer adding them to the “system” environment and not to the current user only.
+\item add also to the path: \$YARP\_ROOT/scripts (and the subdirectories you need). In Windows I tend to prefer adding them to the ``system'' environment and not to the current user only.
 \end{itemize}
 
-On Windows you have to check you can run the developer studio from the command line. The usual check is by typing \ctt{msdev} on the console. If it fails then you might need to go and look for the {\em VCVARS32.bat} and run it from your terminal. The {\em VCVARS32.bat} script prepares the environment to run visual studio and compile from the command line.
+On Windows you have to check that you can run the developer studio from the command line. The usual check is by typing \ctt{msdev} on the console. If it fails then you might need to go and look for the {\em VCVARS32.bat} and run it from your terminal. The {\em VCVARS32.bat} script prepares the environment to run visual studio and to compile from the command line.
 
 On Unixes (or Qnx) you can add the environment initialization in the {\em .profile} in your home directory. An example of a plausible environment initialization is shown below. As you can see ACE on Unixes requires the definition of the \$ACE\_ROOT environment variable.
 
@@ -90,7 +168,7 @@ export PATH=.:/lib:$PATH
 A brief checklist on this procedure is provided here for convenience:
 \begin{enumerate}
 	\item Download \& install the CVS client and configure your sourceforge user.
-	\item Checkout YARP \ctt{cvs checkout yarp -P} somewhere on your directory tree (this will be your \$YARP\_ROOT.
+	\item Checkout YARP \ctt{cvs checkout -P yarp} somewhere on your directory tree (this will be your \$YARP\_ROOT.
 	\item Install perl if your operating system requires to do so (e.g. Windows).
 	\item Download ACE, possibly version 5.4.2. I tend to like the tar.gz file that has Unix-like newline characters.
 	\item Setup environment variables as explained above.
