@@ -65,16 +65,16 @@ you're doing when adding a new directory to the repository (admitting you're all
 For Windows users, your machine should have the Visual Studio 6.0 installed and properly
 service packed.
 
-A few environment variables are required to properly compile YARP. The perl scripts will check whether \$YARP\_ROOT is defined and complain otherwise. Also, many applications rely on having a \$YARP\_ROOT defined to locate configuration files. You're requested to define:
+A few environment variables are required to properly compile YARP. The perl scripts will check whether \$YARP\_ROOT is defined and will complain otherwise. Also, many applications rely on having a \$YARP\_ROOT defined to locate configuration files. You're requested to define:
 \begin{itemize}
 \item \$YARP\_ROOT (\%YARP\_ROOT\% in Windows) environment variable (e.g. \ctt{export YARP\_ROOT=/usr/src/yarp}).
 \item and then add to path \$YARP\_ROOT/bin/(your OS)/ (location of binaries and DLLs), and of course substitute the forward slash with the backslash where appropriate.
 \item add also to the path: \$YARP\_ROOT/scripts (and the subdirectories you need). In Windows I tend to prefer adding them to the “system” environment and not to the current user only.
 \end{itemize}
 
-On Windows you have to check you can run the developer studio from the command line. The usual check is \ctt{msdev}. If it fails then you might need to go and look at {\em VCVARS32.bat} and run it from your terminal. The {\em VCVARS32.bat} script prepares the environment to run visual studio and compile from the command line.
+On Windows you have to check you can run the developer studio from the command line. The usual check is by typing \ctt{msdev} on the console. If it fails then you might need to go and look for the {\em VCVARS32.bat} and run it from your terminal. The {\em VCVARS32.bat} script prepares the environment to run visual studio and compile from the command line.
 
-On Unixes (or Qnx) you can add the environment initialization in the {\em .profile}. An example of a plausible environment initialization is shown below. As you can see ACE on Unixes requires the definition of the \$ACE\_ROOT environment variable.
+On Unixes (or Qnx) you can add the environment initialization in the {\em .profile} in your home directory. An example of a plausible environment initialization is shown below. As you can see ACE on Unixes requires the definition of the \$ACE\_ROOT environment variable.
 
 \begin{verbatim}
 export YARP_ROOT=/usr/src/yarp
@@ -97,7 +97,7 @@ A brief checklist on this procedure is provided here for convenience:
 \end{enumerate}
 
 \subsection{Getting acquainted with the YARP directory tree}
-The YARP directory tree contains the usual src, lib, bin, etc. subdivision. There are a few differences from a standard distribution since many libraries are created and several operating systems supported. A quick tour is the following table:
+The YARP directory tree contains the usual src, lib, bin, etc. subdivision. There are a few differences from a standard distribution bacause of the handling of many libraries and the support of several operating systems. The following table represents a quick tour into the directory hierarchy:
 
 \begin{table}[h]
 	\centering
@@ -137,7 +137,7 @@ For all other scenarios, we suggest you go to the ACE homepage, and
 download and compile the source package:
 
 \begin{quote}
-{\tt http://www.cs.wustl.edu/~schmidt/ACE.html}
+{\tt http://www.cs.wustl.edu/\~schmidt/ACE.html}
 \end{quote}
 
 %On SuSE Linux, before compiling the ACE source, get packages ``openssl'' and
@@ -152,14 +152,14 @@ website:
 {\tt http://yarp0.sourceforge.net/software.html}
 \end{quote}
 
-This is the {\em companion software} page, it contains links to various packages we found useful when working with YARP. And, surprise surprise, you can download version 5.4.2 from this page.
+This is the {\em companion software} page; it contains links to various packages we found useful when working with YARP. And, surprise surprise, you can download version 5.4.2 from this page.
 
 If you trust us, and you'd like to go through the building of ACE, you can unzip it into a directory within YARP (we recommend \$YARP\_ROOT/src/ACE\_wrappers). The unzip complains a bit since certain examples are included twice into the tar.gz file (ACE's fault!).
 
 You're done for now; ACE will be compiled and installed when compiling the {\bf libYARP\_OS} library. Note that the ACE\_wrapper directory is already in the repository and contains a perl script called {\em build.pl} and a readme file {\em readme.txt}. Now it's time to proceed to the next step.
 
 \subsection{Installing the libYARP\_OS library}
-Compilation is best carried out by running the perl scripts. Each library contains two scripts, one for configuring the compilation and another for the actual build. Depending on the operating system the scripts call either {\em make} or {\em msdev}. Each library directory contains both the makefile and the msdev project files.
+Compilation is best carried out by running the perl scripts. Each library contains two scripts, one for doing the configuration and another for the actual build. Depending on the operating system the scripts call either {\em make} or {\em msdev}. Each library directory contains both the makefile and the msdev project files.
 
 By invoking the configuration script {\em configure.pl} a certain number of parameters influencing compilation is stored in \$YARP\_ROOT/conf/context.conf. An example of a few lines extracted from the context file is shown below:
 
@@ -226,7 +226,7 @@ Done!
 
 In particular, the ACE root directory is requested. The {\bf libYARP\_OS} then locates an additional helper script within the ACE root and possibly runs it to compile ACE (as mentioned in section \ref{sect:ace}). It is then asked whether to actually rebuild ACE (by doing a {\em make clean} for instance). Valid replies to yes/no questions are strings of the type of YES, yes, YE, Y, etc. and similarly TRUE, T, t for true/false.
 
-It is asked whether to rebuild the library in question {\bf libYARP\_OS} and whether to enable the debug and optimization flags. For Windows both libraries can be created and they'll cohexist with different names. The {\bf libYARP\_OS} contains also a few tools required for the system functions. The script asks whether to compile also these tools and to compile them for debugging.
+It is asked whether to rebuild the library in question {\bf libYARP\_OS} and whether to enable the debug and optimization flags. In Windows both libraries, the debug and the optimized version, can be created and they will happily cohexist with different names in the same directories. The {\bf libYARP\_OS} contains also a few tools required for the system to function. The script asks whether to compile also these tools and to compile them for debugging.
 
 It finally prints the filename of the context file which is now up to date. You can now type:
 
@@ -268,7 +268,7 @@ NT_Service.cpp
 
 \end{verbatim} 
 
-which means that compilation of ACE is started. It'll take a while depending on your machine. The build script changed to the ACE directory and run the build script there. When it's done you should see something like this:
+which means that compilation of ACE is started. It'll take a while depending on your machine. The build script changed to the ACE directory and ran the build script there. When it's done you should see something like this:
 
 \begin{verbatim}
 Timer_Wheel.cpp
@@ -352,8 +352,8 @@ Node= thaumas	local 127.0.0.1 127.0.0.1
               Net0 130.251.43.129 130.251.43.129
 Node= hades   local lo0 127.0.0.1		
               default en0 130.251.43.130			
-						  Net0 en0 130.251.43.130			
-						  Net1 en1 10.0.1.130
+              Net0 en0 130.251.43.130			
+              Net1 en1 10.0.1.130
 [END]
 \end{verbatim}
 

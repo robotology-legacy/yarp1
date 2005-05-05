@@ -69,16 +69,16 @@ of your system from that code so that future hardware replacements
 are possible.  Check the requirements imposed by your current hardware;
 YARP will not reduce these, only make future changes easier.
 
-With the same spirit the {\bf libYARP\_robot} tries to provide a common interface to different robotic platform. Still the idea is that of shielding higher level code from the nitty-gritty details of the robot hardware and configuration. Porting to a new platform is not guaranteed to be anything trivial but for the reuse of higher level code. The amount of recycling clearly depends on the differences among control cards, frame grabbers, etc. Unfortunately, this doesn't shield you from knowing the platform you're going to work on, but we bet you need to know it anyway.
+With the same spirit the {\bf libYARP\_robot} tries to provide a common interface to different robotic platforms. Still the idea is that of shielding higher level code from the nitty-gritty details of the robot hardware and configuration. Porting to a new platform is not guaranteed to be anything trivial but for the reuse of higher level code. The amount of recycling clearly depends on the differences among control cards, frame grabbers, etc. Unfortunately, this doesn't shield you from knowing the platform you're going to work on, but we bet you need to know it anyway.
 
 
 YARP has consequently three levels of configuration: operating system, hardware, and robot level. The first level of configuration should concern you only if you're planning to compile YARP on a new operating system. There are a few places where to intervene that we chose not to relay to ACE (for now!) since they would have required fairly complex contructs or, for instance, CORBA data types and functions (e.g. dealing with endianism). This means you have to prepare yourself a few lines of code. Details are provided later on in this manual.
 
-The second level is the hardware. A new addition on an existing platform or a new platform altogether might require preparing a few YARP device drivers. These are to all effects classes that support the methods for accessing the hardware which is normally implemented through function calls to whatever provided by the hardware vendor. This comes typically in either DLLs or static libraries.
+The second level is the hardware. A new addition on an existing platform or a new platform altogether might require preparing a few YARP device drivers. These are to all effects classes that support the methods for accessing the hardware which is normally implemented through function calls to whatever provided by the hardware vendor. This comes typically in the form of either a DLL or a static library.
 
 Finally, you might need to prepare the configuration files for a new robotic platform and unfortunately this requires fiddling with the {\bf libYARP\_robot} library.
 
-You should not be scared by tweaking into YARP's code since the level of customization required is fairly simple and hopefully well documented. Once the appropriate classes are in place the compilation and link to application and tools should proceed smoothly -- or at least this has been our experience so far. In fact, YARP has been compiled and presently runs on four different operating systems -- meaning that it can run on a heterogentous cluster of PCs -- and on something like six different robots.
+You should not be scared by tweaking into YARP's code since the level of customization required is fairly simple and hopefully well documented. Once the appropriate classes are in place the compilation and link to application and tools should proceed smoothly -- or at least this has been our experience so far. In fact, YARP has been compiled and presently runs on four different operating systems -- meaning that it can run on a heterogeneous cluster of PCs -- and it has been customized to run on something like six different robots.
 
 \subsection{Some numbers}
 The following table contains some figures about the current usage of YARP for robot control.
@@ -109,7 +109,7 @@ A final note: YARP is not designed for message passing but rather for streaming 
 \subsection{Licensing}
 \marginpar{YARP might be migrating to GPL sometimes in the future}
 YARP is distributed under the Academic Free License. The template of the academic
-free licence can be found in \$YARP\_ROOT$\backslash$conf$\backslash$licence.template. If you're adding to YARP then you can either add the template to each file or simply make a link to it. There's also a shorter version called licence.short.template. See text below:
+free licence can be found in \$YARP\_ROOT/conf/licence.template. If you're adding to YARP then you can either add the template to each file or simply make a link to it. There's also a shorter version called licence.short.template. See text below:
 
 \begin{verbatim}
 /////////////////////////////////////////////////////////////////////////
