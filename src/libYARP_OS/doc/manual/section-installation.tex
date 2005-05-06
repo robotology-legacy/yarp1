@@ -46,6 +46,23 @@ or from our download page at:
 
 It comes as a single {\em tar.gz} file that you can open both on Linux and Windows. Keep it handy since we're going to use it again.
 
+\subsection{Environment variables}
+ACE requires defining the \$ACE\_ROOT environment variable when compiling on Linux. It is convenient to define a root directory for YARP. On a typical Linux box, you can add the following definitions to your {\em .profile} shell login file:
+\marginpar{While this is not strictly necessary, we recommend doing it for once.}
+
+\begin{verbatim}
+export YARP_ROOT=/usr/src/yarp
+export CVSROOT=:ext:youruser@cvs.sourceforge.net:/cvsroot/yarp0
+export CVS_RSH=/usr/bin/ssh
+export ACE_ROOT=$YARP_ROOT/src/ACE_wrappers
+export LD_LIBRARY_PATH=/usr/local/lib
+export PATH=$PATH:$YARP_ROOT/bin/linux:$HOME/bin
+export PATH=/usr/local/bin:$PATH
+export PATH=.:/lib:$PATH
+\end{verbatim}
+
+Otherwise just type the same {\em export} commands on a terminal window. Note also that ACE resides in a subdirectory of the \$YARP\_ROOT. On Windows you go to the control panel, click on the {\em system} icon and search for the {\em environment variables} button on one of the tabs. By clicking this button opens a new window where you can add environment variables. There are two options here; we recomment adding them to the system wide variables rather than to the current interactive user only. 
+
 \subsection{Installing ACE}
 We require ACE version 5.3.3 or greater (but we recommend 5.4.2). ACE should compile fine just by following the installation instructions that can be found on the website (http://www.cs.wustl.edu/\symbol{126}schmidt/ACE.html). 
 
@@ -100,22 +117,6 @@ On Windows you can unzip the ACE distribution and simply open the {\em .dsw} wor
  
 \noindent and open {\em ACE.dsw}. Choose your configuration (e.g. ACE -- Win32 Debug) and then build it. Proceed with the same manual copy of source files into \%YARP\_ROOT\%$\backslash$include$\backslash$ace as before. Also look for the {\em *.lib} files and copy them into \%YARP\_ROOT\%$\backslash$lib$\backslash$winnt. Close the workspace when done.
 
-\subsection{Environment variables}
-ACE requires defining the \$ACE\_ROOT environment variable on Linux. Also, it is convenient to define a root directory for YARP. On a typical Linux box, you can add the following definitions to your {\em .profile} shell login file:
-\marginpar{While this is not strictly necessary, we recommend doing it for once.}
-
-\begin{verbatim}
-export YARP_ROOT=/usr/src/yarp
-export CVSROOT=:ext:youruser@cvs.sourceforge.net:/cvsroot/yarp0
-export CVS_RSH=/usr/bin/ssh
-export ACE_ROOT=$YARP_ROOT/src/ACE_wrappers
-export LD_LIBRARY_PATH=/usr/local/lib
-export PATH=$PATH:$YARP_ROOT/bin/linux:$HOME/bin
-export PATH=/usr/local/bin:$PATH
-export PATH=.:/lib:$PATH
-\end{verbatim}
-
-Otherwise just type the same {\em export} commands on a terminal window. Note also as ACE resides in a subdirectory of the \$YARP\_ROOT. On Windows you go to the control panel, click on the {\em system} icon and search for the {\em environment variables} button on one of the tabs. By clicking this button opens a new window where you can add environment variables. There are two options here; we recomment adding them to the system wide variables rather than to the current interactive user only. 
 
 \subsection{Compiling libYARP\_OS}
 
@@ -133,7 +134,7 @@ make[1]: Leaving directory `/usr/src/yarp/src/libYARP_OS/src'
 
 \end{verbatim}
 
-If you reached so far it means you're done with the library. Before testing YARP you need a few utilities that are in \$YARP\_ROOT/src/tools and need to be compiled of course. Change directory to \$YARP\_ROOT/src/tools and do:
+If you reached so far it means you're done with the library. Before testing YARP you need a few of the utilities in \$YARP\_ROOT/src/tools and they need to be compiled of course. Change directory to \$YARP\_ROOT/src/tools and do:
 \begin{itemize}
 \item \ctt{cd yarp-connect/; make; cd ..};
 \item \ctt{cd yarp-names/; make; cd ..};
@@ -165,7 +166,7 @@ cp ../bin/linux/yarp-write /usr/src/yarp/bin/linux
 
 \end{verbatim}
 
-The executables are installed in \$YARP\_ROOT/bin/linux and since it is in the path, you can now run them. The next step is to go to chapter \ref{chapter:usage} and test your installation. 
+The executables are installed in \$YARP\_ROOT/bin/linux and since it is in the path, you can now run them. It is now time to go to chapter \ref{chapter:usage} and test your installation. 
 
 
 On Windows open the {\bf libYARP\_OS} workspace located in:
