@@ -1,0 +1,112 @@
+\section{Adding nodes on Windows}
+
+This is a sequence of steps with useful installation tips for running YARP on additional machines connected to the same network as the ``server'' you have installed before. Here the ``server'' is the machine that contains the repository or simply the first machine you installed following the advice in this manual. Luckily a node does not require recompiling the code. Simply you need to share a folder from the server and make the \%YARP\_ROOT\% on the node to point to the shared disk drive. You are required to mount (assign a drive letter) the shared drive appropriately somewhere. We tend to like Y: as for YARP. 
+
+Many of the files you are going to need can be found in:
+\begin{quote}
+\tt{\%YARP\_ROOT\%$\backslash$conf$\backslash$install$\backslash$winnt}
+\end{quote}
+Unless otherwise specified this procedure has to be repeated for each node of the network (unfortunately).
+
+\vspace{1cm}
+\noindent {\bf Step 1:} install remote scripting host, it can be downloaded from:
+\begin{quote}
+\tt{http://msdn.microsoft.com/scripting}
+\end{quote}
+
+Then follow these steps to get it to work properly for our purpose:
+\begin{itemize}
+\item use {\em dcomcnfg} to give the WSHRemote appropriate permissions (it depends on the users you'd like to run remote scripts on the cluster);
+\item change the user running remotely to ``interactive user'' -- this is an option you can set from {\em dcomcnfg};
+\item use the {\em enable\_remote\_scripting.reg} to enable remote scripting into the registry (simply click on it to add the definitions to the registry);
+\end{itemize}
+
+\noindent {\bf Step 2: (optional)} Install an {\em lmhosts} file to facilitate locating the primary domain controller (PDC) for the NT domain.
+\begin{itemize}
+\item an example can be found in the {\em install} directory mentioned above -- look for {\em lmhosts.template}
+\item open it and replace the IP, PDC name, and domain name;
+\item copy it to WINNT$\backslash$system32$\backslash$drivers$\backslash$etc.
+\end{itemize}
+
+\noindent {\bf Step 3:} Since the nodes are connected to the server (and possibly on a subnetwork of your main lab network) security can be taken care of by the server (try using an actual Windows NT/2K server). You can apply packet filtering and appropriate routing policies to protect your robot's subnetwork. If this is the case then you can install an automatic logon script on each node so that you're not bothered with logging in on each single node. For what matters a node does not even need a mouse/keyboard or display. Keep one handy for debugging though.
+
+In addition you can install VNC (http://www.realvnc.com/) to connect remotely and for debugging. As an alternative if nodes are XP then they have their own native remote desktop (single user) client/server. There are two steps involved here detailed below.
+
+\noindent {\bf Automatic logon:}
+\begin{itemize}
+\item install the {\em autologon.reg} key to the registry;
+\item start from the template provided: {\em automaticLogon.template.reg} and replace USERNAME, DOMAIN, PASSWD with your specific definitions (the user you would like to logon automatically at startup);
+\item it is convenient to define a domain user with the right amount of privileges to install device drivers, and start \& stop them.
+\end{itemize}
+
+{\bf Logon script:} e.g. mount network drives.
+\begin{itemize}
+\item this procedure requires a couple of files you can find in the usual {\em install} directory. A {\em .bat} and a {\em .js} file. You need to copy the {\em logon.bat} and {\em logon.js} from this folder into: WINNT$\backslash$System32$\backslash$Repl$\backslash$Import$\backslash$Scripts (what a weird place!). Note~1: Win2k/WinXP don't have this folder created by default, you have to create it yourself (Microsoft suggests to share it also as netlogon, but it doesn't seem to be actually needed). Note~2: check {\em logon.bat} for the correct path of {\em logon.js};
+\item log on your primary domain controller (PDC), go to user properties and insert the {\em logon.bat} in the {\em Logon Script} name field (this because the USER is actually a domain user);
+\item the {\em logon.js} is a template example ({\em logon.template.js});
+\end{itemize}
+
+\noindent {\bf Step 4:} what you need from the resource kit (resource kit for W2k), and install in the server machine.
+\begin{itemize}
+\item rconsole: allows running a remote shell/command:
+
+\begin{itemize}
+\item install it using the rsetup (that works remotely too);
+\item in case of troubles authenticating have a look at $\backslash\backslash$MACHINE$\backslash$IPC\$, a
+proper mapping (for a valid user I guess) is required to use the remote tool(s);
+\item try always using the same user (e.g. the domain one);
+\item you might get troubles with credentials depending on the user running it (damn windows)!
+\item pray!
+\end{itemize}
+
+\item remote kill:
+\begin{itemize}
+\item install it using \ctt{rkill /install $\backslash\backslash$MACHINE};
+\item use the \ctt{/view} parameter to view the process names;
+\item use the \ctt{/kill} parameter to kill a process;
+\item in case of failure, please, make sure the ``Server'' service is running on $\backslash\backslash$MACHINE.
+\end{itemize}
+
+\item rconsole:
+\begin{itemize}
+\item install it using \ctt{rsetup $\backslash\backslash$MACHINE};
+\item it allows opening a remote Windows console;
+\item please make sure the remote registry manipulation service is running on $\backslash\backslash$MACHINE.
+\end{itemize}
+
+\item shutdown (installation not required on nodes!)
+\begin{itemize}
+\item install it by simply copying it to: \%YARP\_ROOT\%$\backslash$src$\backslash$maintenance$\backslash$services$\backslash$shutdown
+\item the program is copied on the {\em bin} directory during install.
+\end{itemize}
+
+\end{itemize}
+
+\noindent {\bf Step 5:} this is exactly as for the server; just define:
+\begin{itemize}
+\item \%YARP\_ROOT\% environment variable: e.g. {\em y:}~;
+\item Add to \%PATH\%: \%YARP\_ROOT\%$\backslash$bin$\backslash$winnt (location of binaries and DLLs);
+\item Add to \%PATH\%: \%YARP\_ROOT\%$\backslash$scripts (and subdirectories you need).
+\end{itemize}
+
+\noindent {\bf Step 6:} unlike the server, node machines might be interfaced to the hardware directly. In that case appropriate device drivers must be installed. It's not just matter of compilation.
+Thus, install specific device drivers:
+\begin{itemize}
+\item for this you need your original CDs. We don't provide this type of support (of course NOT!);
+\item libraries for some of the stuff we are using are included under: \%YARP\_ROOT\%$\backslash$src$\backslash$libYARP\_dev (lib/dll/.h files);
+\item libraries are already installed if you've got this far.
+\end{itemize}
+
+\noindent {\bf Step 7:} disable Windows priority boost for foreground processes. You can do this just by merging the {\em nopriorityboost.reg} provided.
+
+\vspace{1cm}
+NOTES for steps 3 and 7: after you successfully install and enable the remote scripting host you can use mergeRemote.js to include a {\em .reg} on a remote machine by usign the following syntax:
+\begin{quote}
+\tt{mergeRemote remoteMachine nopriorityboost.reg}
+\end{quote}
+
+The script looks in \%YARP\_ROOT\%$\backslash$conf$\backslash$install$\backslash$winnt for {\em .regs}, remember to define
+\%YARP\_ROOT\% on the remote machine before using this script.
+
+If all has worked out, then you are still left with the task of adding your new node (or nodes) to the {\em namer.conf} file as described in section \ref{sect:caveats}. Once it is done, you are ready to run your first multiprocessor application.
+
