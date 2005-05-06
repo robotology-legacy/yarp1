@@ -74,7 +74,7 @@ With the same spirit the {\bf libYARP\_robot} tries to provide a common interfac
 
 YARP has consequently three levels of configuration: operating system, hardware, and robot level. The first level of configuration should concern you only if you're planning to compile YARP on a new operating system. There are a few places where to intervene that we chose not to relay to ACE (for now!) since they would have required fairly complex contructs or, for instance, CORBA data types and functions (e.g. dealing with endianism). This means you have to prepare yourself a few lines of code. Details are provided later on in this manual.
 
-The second level is the hardware. A new addition on an existing platform or a new platform altogether might require preparing a few YARP device drivers. These are to all effects classes that support the methods for accessing the hardware which is normally implemented through function calls to whatever provided by the hardware vendor. This comes typically in the form of either a DLL or a static library.
+The second level is the hardware. A new addition on an existing platform or a new platform altogether might require preparing a few YARP device drivers. These are to all effects C++ classes that support the methods for accessing the hardware which is normally implemented through function calls to whatever provided by the hardware vendor. This comes typically in the form of either a DLL or a static library.
 
 Finally, you might need to prepare the configuration files for a new robotic platform and unfortunately this requires fiddling with the {\bf libYARP\_robot} library.
 
