@@ -19,24 +19,24 @@ There are two fairly different ways of installing YARP. Again, if you are a firs
 \section{Quick installation guide}
 \label{sect:easy}
 
-This section explains how to get to quickly run YARP and test functionality of the libraries. The aim here is not to give a full account of what you can do but rather to shorten the time you spend on installation. We reasoned that this might be enough for many users. The next step consists of getting all the required packages.
+This section explains how to get to quickly run YARP and test the functionality of the libraries. The aim here is not to give a full account of what you can do but rather to shorten the time you spend on first-time installation. We reasoned that this might be enough for many users. The next step consists of getting all the required packages.
 
 \subsection{Prerequisites to installation}
 
 First of all, configure a CVS client as explained in SourceForge (http://www.sf.net).
-You need to choose a directory (that will become the \$YARP\_ROOT directory) where to download the
-YARP source code. Make sure you check the ``prune'' flag in CVS so you don't create
-empty directories. In Windows you might want to use WinCVS.
+You need to choose a directory (that will become the \$YARP\_ROOT directory) where to download the YARP source code. Make sure you check the ``prune'' flag in CVS so you don't create empty directories. In Windows you might want to use WinCVS.
 
 We recommend WinCVS 1.3.XX that solves the annoying timezone-daylight saving time
 problem (earlier versions had an issue twice a year!). We used also {\em putty} (and {\em plink}) as a ssh client for WinCVS as suggested on SourceForge. We found this configuration very stable and we suggest replicating it if you're not an expert. 
-If you decide to use {\em putty} then make sure you download all the small applications that come with the main terminal application. You will need a few of them during the configuration procedure (e.g. {\em putty}, {\em pagent}, and {\em plink}). The latest WinCVS version has its own ssh implementation internally so that you don't need the external ssh client.
 
-If you use {\em putty}, please make sure you do not change the default from the terminal application (ssh)
-because it applies to plink too. Please, also configure and upload the public-private key as requested by SourceForge (unless you're an anonymous user). Make sure your CVS ssh connection is functional before moving to the next section. Since we're checking prerequisites here, download ACE 5.4.2 from:
+If you decide to use {\em putty} then make sure you download all the small applications that come with the main terminal application. You will need a few of them during the configuration procedure (e.g. {\em putty}, {\em pagent}, and {\em plink}). Please make sure you do not change the default from the terminal application (ssh) because it applies to {\em plink} too.
+
+The latest WinCVS version has its own ssh implementation internally so that you don't need the external ssh client. Please, also configure and upload the public-private key as requested by SourceForge (unless you're an anonymous user). Make sure your CVS ssh connection is functional before moving to the next section. 
+
+Since we're checking prerequisites here, download ACE 5.4.2 from:
 
 \begin{quote}
-{\tt http://www.cs.wustl.edu/~schmidt/ACE.html}
+{\tt http://www.cs.wustl.edu/\symbol{126}schmidt/ACE.html}
 \end{quote}
 
 or from our download page at:
@@ -44,22 +44,61 @@ or from our download page at:
 {\tt http://yarp0.sourceforge.net/software.html}
 \end{quote}
 
-It comes as a single {\em tar.gz} file that you can open both on Linux and Windows. Keep it handy since we're going to use it again. YARP includes now header files (from cvlibrary) and DLL for the Intel IPL (optionally used in image processing) in the repository so you no longer need to download and install them separately.
+It comes as a single {\em tar.gz} file that you can open both on Linux and Windows. Keep it handy since we're going to use it again.
 
 \subsection{Installing ACE}
-We require ACE version 5.3.3 or greater (but we recommend 5.4.2). ACE should compile fine just by following the installation instructions that can be found on the website (http://www.cs.wustl.edu/~schmidt/ACE.html). 
+We require ACE version 5.3.3 or greater (but we recommend 5.4.2). ACE should compile fine just by following the installation instructions that can be found on the website (http://www.cs.wustl.edu/\symbol{126}schmidt/ACE.html). 
 
-On Debian-based linux machines, ACE is available as a binary package; simply type ``apt-get install libace-dev'' as super-user.  Please check (e.g. by searching at {\tt http:// packages.debian.org}) that the version available is 5.3.3 or greater.  At the time of writing, this is true for Debian unstable but not true for Debian stable.
+On Debian-based linux machines, ACE is available as a binary package; simply type ``apt-get install libace-dev'' as super-user.  Please check (e.g. by searching at {\tt http:// packages.debian.org}) ~that the version available is 5.3.3 or greater.  At the time of writing, this is true for Debian unstable but not true for Debian stable.
 
-% shall we include a quick how-to for ACE compilation. otherwise it's not going to be of much 
-% use unless you're on a debian system.
-If you have downloaded {\em ACE-5.4.2.tar.gz} then follow these steps to compile and install ACE manually:
+If you are not on a Debian linux and have downloaded {\em ACE-5.4.2.tar.gz}, copy it to \$YARP\_ROOT and then follow the steps indicated next to compile and install ACE manually:
+\marginpar{There's plenty of documentation of this procedure on the ACE website.}
 \begin{itemize}
-\item gunzip the file;
-\item ...
+\item gunzip the file \ctt{gunzip ACE-5.4.2.tar.gz};
+\item untar the file \ctt{tar xvf --directory src/}; this will put the extracted files under \$YARP\_ROOT/src/ACE\_wrappers;
+\item \ctt{cd src/ACE\_wrappers/include/makeinclude}, type \ctt{ln -s platform\_linux.GNU platform\_macros.GNU} and then press return;
+\item \ctt{cd ../../ace}, type \ctt{ln -s config-linux.h config.h};
+\item type \ctt{make static\_libs\_only=1 debug=0} and return;
 \end{itemize}
 
-On Windows you can unzip the ACE distribution and simply open the {\em .dsw} workspace file from within VisualStudio and then start the compilation.
+You should see something like this:
+\begin{verbatim}
+
+GNUmakefile: /usr/src/yarp/src/ACE_wrappers/ace/GNUmakefile.ACE 
+MAKEFLAGS=w -- static_libs_only=1 debug=0
+
+g++ -W -Wall -Wpointer-arith -O3   -pipe    -D_REENTRANT 
+-DACE_HAS_AIO_CALLS -D_GNU_SOURCE   -I/usr/src/yarp/src/ACE_wrappers 
+-DACE_HAS_EXCEPTIONS -D__ACE_INLINE__ -I.. -DACE_HAS_ACE_TOKEN 
+-DACE_HAS_ACE_SVCCONF -DACE_AS_STATIC_LIBS  -c  -o .obj/Local_Name_Space.o
+Local_Name_Space.cpp
+g++ -W -Wall -Wpointer-arith -O3   -pipe    -D_REENTRANT 
+-DACE_HAS_AIO_CALLS -D_GNU_SOURCE   -I/usr/src/yarp/src/ACE_wrappers 
+-DACE_HAS_EXCEPTIONS -D__ACE_INLINE__ -I.. -DACE_HAS_ACE_TOKEN 
+-DACE_HAS_ACE_SVCCONF -DACE_AS_STATIC_LIBS  -c  -o .obj/Name_Proxy.o 
+Name_Proxy.cpp
+
+\end{verbatim}
+
+and so forth. When done, install everything by doing:
+
+\begin{itemize}
+\item \ctt{cp *.cpp \$YARP\_ROOT/include/ace};
+\item \ctt{cp *.h \$YARP\_ROOT/include/ace};
+\item \ctt{cp *.inl \$YARP\_ROOT/include/ace};
+\item \ctt{cp -R os\_include/ \$YARP\_ROOT/include/ace};
+\item \ctt{cp *.a \$YARP\_ROOT/lib/linux}.
+\end{itemize}
+
+As for any library you must make sure the header files are in the compiler path. By default YARP makefiles assume ACE files are in \$YARP\_ROOT/include/ace. Make sure you copy all of them there (this is what is written in the short list above). Also the ACE library is copied to an appropriate place. 
+
+On Windows you can unzip the ACE distribution and simply open the {\em .dsw} workspace file from within Visual Studio and then start the compilation. Change directory to:
+
+\begin{quote}
+{\tt \%YARP\_ROOT\%$\backslash$src$\backslash$ACE\_wrappers$\backslash$ace}
+\end{quote}
+ 
+\noindent and open {\em ACE.dsw}. Choose your configuration (e.g. ACE -- Win32 Debug) and then build it. Proceed with the same manual copy of source files into \%YARP\_ROOT\%$\backslash$include$\backslash$ace as before. Also look for the {\em *.lib} files and copy them into \%YARP\_ROOT\%$\backslash$lib$\backslash$winnt. Close the workspace when done.
 
 \subsection{Environment variables}
 ACE requires defining the \$ACE\_ROOT environment variable on Linux. Also, it is convenient to define a root directory for YARP. On a typical Linux box, you can add the following definitions to your {\em .profile} shell login file:
@@ -76,17 +115,90 @@ export PATH=/usr/local/bin:$PATH
 export PATH=.:/lib:$PATH
 \end{verbatim}
 
-Otherwise just type the same {\em export} commands on a terminal window. On Windows you go to the control panel, click on the {\em system} icon and search for the {\em environment variables} button on one of the tabs. By clicking this button opens a new window where you can add environment variables. We recomment adding them to the system wide variables rather than to the current interactive user only. 
+Otherwise just type the same {\em export} commands on a terminal window. Note also as ACE resides in a subdirectory of the \$YARP\_ROOT. On Windows you go to the control panel, click on the {\em system} icon and search for the {\em environment variables} button on one of the tabs. By clicking this button opens a new window where you can add environment variables. There are two options here; we recomment adding them to the system wide variables rather than to the current interactive user only. 
 
 \subsection{Compiling libYARP\_OS}
 
+On Linux simply go to \$YARP\_ROOT and type: \ctt{make}. The makefile contains also commands for completing the installation (see the printout below). 
+\begin{verbatim}
+
+a - ../obj/linux/YARPThreadAux.o
+a - ../obj/linux/YARPThread.o
+a - ../obj/linux/YARPTime.o
+mkdir -p /usr/src/yarp/lib/linux
+mkdir -p /usr/src/yarp/include/yarp
+cp ../lib/linux/libYARP_OS.a /usr/src/yarp/lib/linux
+cp -f ../include/yarp/*.h /usr/src/yarp/include/yarp
+make[1]: Leaving directory `/usr/src/yarp/src/libYARP_OS/src'
+
+\end{verbatim}
+
+If you reached so far it means you're done with the library. Before testing YARP you need a few utilities that are in \$YARP\_ROOT/src/tools and need to be compiled of course. Change directory to \$YARP\_ROOT/src/tools and do:
+\begin{itemize}
+\item \ctt{cd yarp-connect/; make; cd ..};
+\item \ctt{cd yarp-names/; make; cd ..};
+\item \ctt{cd yarp-read/; make; cd ..};
+\item \ctt{cd yarp-service/; make; cd ..};
+\item \ctt{cd yarp-write/; make; cd ..}.
+\end{itemize}
+
+The last piece of output should look like:
+\begin{verbatim}
+
+mkdir -p obj/linux
+g++ -O3  -I/usr/src/yarp/include/linux -I/usr/src/yarp/include -I.  
+-fexceptions -pipe -Wpointer-arith -Wno-uninitialized  -D__LINUX__ 
+-DYARP_OS_CONFIG=LINUX -I/usr/include/g++/ -I/usr/src/yarp/include/ 
+-DACE_NDEBUG -DACE_USE_RCSID=0 -DACE_HAS_EXCEPTIONS -D__ACE_INLINE__ 
+-DACE_HAS_ACE_TOKEN -DACE_HAS_ACE_SVCCONF -DACE_AS_STATIC_LIBS   
+-c yarp-write.cpp -o obj/linux/yarp-write.o
+mkdir -p ../bin/linux
+g++ -O3  -I/usr/src/yarp/include/linux -I/usr/src/yarp/include -I.  
+-fexceptions -pipe -Wpointer-arith -Wno-uninitialized  -D__LINUX__ 
+-DYARP_OS_CONFIG=LINUX -I/usr/include/g++/ -I/usr/src/yarp/include/ 
+-DACE_NDEBUG -DACE_USE_RCSID=0 -DACE_HAS_EXCEPTIONS -D__ACE_INLINE__ 
+-DACE_HAS_ACE_TOKEN -DACE_HAS_ACE_SVCCONF -DACE_AS_STATIC_LIBS   
+obj/linux/yarp-write.o -o ../bin/linux/yarp-write 
+-L/usr/src/yarp/lib/linux  -lYARP_OS -lACE -lpthread -ldl
+mkdir -p /usr/src/yarp/bin/linux
+cp ../bin/linux/yarp-write /usr/src/yarp/bin/linux
+
+\end{verbatim}
+
+The executables are installed in \$YARP\_ROOT/bin/linux and since it is in the path, you can now run them. The next step is to go to chapter \ref{chapter:usage} and test your installation. 
 
 
-You are done for now. The next step is to go to chapter \ref{chapter:usage} and test your installation.
+On Windows open the {\bf libYARP\_OS} workspace located in:
+
+\begin{quote}
+{\tt \%YARP\_ROOT\%$\backslash$src$\backslash$libYARP\_OS$\backslash$src}
+\end{quote}
+
+\noindent and choose the configuration as usual (e.g. Debug or Release). Start the build process. When finished you have to manually install files as before:
+
+\begin{itemize}
+\item copy all files in ..$\backslash$include$\backslash$yarp into \%YARP\_ROOT\%$\backslash$include$\backslash$yarp
+\item copy all libraries (*.lib) in ..$\backslash$lib$\backslash$winnt into
+\%YARP\_ROOT\%$\backslash$lib$\backslash$winnt
+\end{itemize}
+
+Now change directory to {\em tools} and open the {\em tools-os.dsw} workspace. Compile all the tools in the workspace; then look into:
+
+\begin{quote}
+{\tt .$\backslash$obj$\backslash$*.exe}
+\end{quote}
+
+\noindent and copy all of them into:
+
+\begin{quote}
+{\tt \%YARP\_ROOT\%$\backslash$bin$\backslash$winnt}
+\end{quote}
+
+If everything compiled and no errors showed up then the next step is to go to chapter \ref{chapter:usage} and test your installation. 
 
 
 \section{Installing YARP: general method}
-Sometimes the level of configuration you would like to consider requires the understanding of the more difficult way of installing YARP. This might be scary as a first approach to a new tool especially since there is an infinite number of things that can fail which are difficult to debug if you're not aware of the details of the libraries. Definitely, this is to much for making a tool a good one. On the other hand, sometimes, complex hardware requires complex control. The next sections document a general procedure to install YARP by using a set of {\em perl} scripts provided with the distribution.
+Sometimes the level of configuration you would like to consider requires the understanding of the more difficult way of installing YARP. This might be scary as a first approach to a new tool especially since there is an infinite number of things that can fail which are difficult to debug if you're not aware of the details of the libraries. Definitely, this is too much for making a tool a good one. On the other hand, sometimes, complex hardware requires complex control. The next sections document a general procedure to install YARP by using a set of {\em perl} scripts provided with the distribution.
 
 \subsection{Why doesn't YARP follow installation standards?}
 You might be wondering why we haven't set things up as in many existing open source packages. A short answer is that dealing with multiple operating systems is messy and we haven't found any neat and clean way of doing it. The best we came about is using perl for preparing the installation. See section \ref{sect:perl}.
@@ -118,7 +230,7 @@ If you use {\em putty}, please make sure you do not change the default from the 
 because it applies to plink too. Please, also configure and upload the public-private key as requested by SourceForge (unless you're an anonymous user). Make sure your CVS ssh connection is functional before moving to the next section. Since we're checking prerequisites here, download ACE 5.4.2 from:
 
 \begin{quote}
-{\tt http://www.cs.wustl.edu/~schmidt/ACE.html}
+{\tt http://www.cs.wustl.edu/\symbol{126}schmidt/ACE.html}
 \end{quote}
 
 or from our download page at:
@@ -179,7 +291,7 @@ The YARP directory tree contains the usual src, lib, bin, etc. subdivision. Ther
 
 \begin{table}[h]
 	\centering
-		\begin{tabular}{|c|c|c|}
+		\begin{tabular}{|c|c|}
 		\hline
 			Directory name & Description \\
 			\hline \hline
@@ -206,16 +318,16 @@ The YARP directory tree contains the usual src, lib, bin, etc. subdivision. Ther
 \subsection{Installing the ACE library}
 \label{sect:ace}
 
-We require ACE version 5.3.3 or greater (but we recommend 5.4.2 -- beta). There are two alternatives for compiling ACE: i) follow the ACE installation instructions, and ii) allow the YARP perl scripts to compile ACE for you -- the latter works only with ACE 5.4.2.
+We require ACE version 5.3.3 or greater (but we recommend 5.4.2). There are two alternatives for compiling ACE: i) follow the ACE installation instructions, and ii) allow the YARP perl scripts to compile ACE for you -- the latter works only with ACE 5.4.2.
 
 If you are taking the first route, on Debian-based linux machines, ACE is available as a binary package; simply type ``apt-get install libace-dev'' as super-user.  Please
-check (e.g. by searching at {\tt http://packages.debian.org}) that the version available is 5.3.3 or greater.  At the time of writing, this is true for Debian unstable but not true for Debian stable.
+check (e.g. by searching at {\tt http:// packages.debian.org}) ~that the version available is 5.3.3 or greater.  At the time of writing, this is true for Debian unstable but not true for Debian stable.
 
 For all other scenarios, we suggest you go to the ACE homepage, and
 download and compile the source package:
 
 \begin{quote}
-{\tt http://www.cs.wustl.edu/\~schmidt/ACE.html}
+{\tt http://www.cs.wustl.edu/\symbol{126}schmidt/ACE.html}
 \end{quote}
 
 %On SuSE Linux, before compiling the ACE source, get packages ``openssl'' and
