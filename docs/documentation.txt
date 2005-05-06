@@ -1,1 +1,5 @@
+$Id: documentation.txt,v 1.2 2005-05-06 15:07:06 gmetta Exp $
+
 don't read this but rather the real documentation
+
+check src/libYARP_OS/doc
