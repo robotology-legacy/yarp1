@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPRateThread.h,v 1.6 2004-12-11 17:11:31 micheletavella Exp $
+/// $Id: YARPRateThread.h,v 1.7 2005-05-09 18:23:52 natta Exp $
 ///
 ///
 
@@ -75,6 +75,10 @@
 //
 // WIN32: see SystemUtils::set_high_res_scheduling() if you want to do precise 
 // scheduling (< 10/15 ms depening on the machine) --> link winmm.lib
+// Linux: 
+// - kernels prior to 2.5 have 10ms resolution (100Hz)
+// - kernels >= 2.5 have 1ms resolution (1kHz)
+// - Check the value of Hz in asm/param.h
 //
 // THREAD_STATS if you want to test scheduling statistics 
 // 

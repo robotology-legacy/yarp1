@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPIterativeStats.h,v 1.3 2004-07-09 13:45:58 eshuy Exp $
+/// $Id: YARPIterativeStats.h,v 1.4 2005-05-09 18:23:52 natta Exp $
 ///
 ///
 
@@ -119,7 +119,7 @@ public:
 		sum_square = 0.0;
 	};
 
-	int elem() { return n_elem; }
+	unsigned int elem() { return n_elem; }
 
 private:
 	double mean;		 // actual mean
