@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBottleCodes.h,v 1.4 2005-04-20 21:27:56 natta Exp $
+///  $Id: YARPBottleCodes.h,v 1.5 2005-05-10 17:14:02 natta Exp $
 ///
 ///
 
@@ -86,6 +86,7 @@ enum __YBTypeCodes
 	YBTypeVocab = 4,
 	YBTypeString = 5,
 	YBTypeDoubleVector = 6,
+	YBTypeIntVector = 7,
 };
 
 // who's including from C anyway? Matlab libraries (mex) are including from C!

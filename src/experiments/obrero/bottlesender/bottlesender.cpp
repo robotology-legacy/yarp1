@@ -9,12 +9,12 @@
 //
 // command line:
 // -port /remoteport/i:bot	--> define remote port name to connect to, , 
-//							--> this is mandatory, the the prg will connect/disc automatically
+//				--> this is mandatory, the the prg will connect/disconnect automatically
 // to build the bottle use one or more:
 // -label mystring			--> set mystring as the bottle's label
 // -text mystring			--> put text in the bottle
 // -vocab mystring			--> store a string as a vocab
-// -int 10					--> store 10 as an integer
+// -int 10				--> store 10 as an integer
 // -float 0.2				--> store 0.2 as a float
 // 
 
@@ -24,6 +24,8 @@
 #include <yarp/YARPConfigRobot.h>
 #include <yarp/YARPList.h>
 #include <yarp/YARPTime.h>
+#include <ctype.h>
+
 // #include <yarp/YARPMath.h>
 
 #include "functionList.h"
@@ -44,7 +46,7 @@ typedef __ERROR_CODE ERROR_CODE;
 void error(ERROR_CODE err);
 void printMenu();
 
-/*static */ YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
+YARPOutputPortOf<YARPBottle> _outPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_TCP);
 COMMAND_TABLE _commands;
 
 void _fillTable()
@@ -228,7 +230,9 @@ void command(int argc, char* argv[])
 					loop = false;
 					continue;
 				}
-				else if (argv[index][0]=='-')
+				else if ((argv[index][0]=='-')
+					 && !isdigit(argv[index][1])
+					 && (argv[index][1]!='.'))
 				{
 					// found new par
 					loop = false;
@@ -273,12 +277,13 @@ void command(int argc, char* argv[])
 					loop = false;
 					continue;
 				}
-				else if (argv[index][0]=='-')
-				{
-					// found new par
-					loop = false;
-					continue;
-				}
+				else if ((argv[index][0]=='-')
+					 &&!isdigit(argv[index][1]))
+				  {
+				    // found new par
+				    loop = false;
+				    continue;
+				  }
 				tmpI = atoi(argv[index]);
 				index++;
 				n--;
@@ -288,22 +293,22 @@ void command(int argc, char* argv[])
 			}
 
 			if(length>=1)
-			{
-				int k = 0;
-      				int *tmpV = new int[length];
-				YARPList<int>::iterator it(list);
-				for(k=0; k < length; k++)
-				{
-					tmpV[k] = *it;
-					it++;
-				}
+			  {
+			    int k = 0;
+			    int *tmpV = new int[length];
+			    YARPList<int>::iterator it(list);
+			    for(k=0; k < length; k++)
+			      {
+				tmpV[k] = *it;
+				it++;
+			      }
 
-				bottle.writeIntVector(tmpV,length);
-				delete tmpV;
-			}
+			    bottle.writeIntVector(tmpV,length);
+			    delete tmpV;
+			  }
 		}
 		else
-			error(PARSE_BOTTLE);
+		  error(PARSE_BOTTLE);
 	}
 
 	bottle.display();

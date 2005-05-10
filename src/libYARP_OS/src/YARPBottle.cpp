@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBottle.cpp,v 1.7 2005-04-20 23:46:24 natta Exp $
+///  $Id: YARPBottle.cpp,v 1.8 2005-05-10 17:14:03 natta Exp $
 ///
 ///
 
@@ -93,65 +93,85 @@ void YARPBottle::dump()
 
 void YARPBottle::display()
 {
-	ACE_OS::printf("%s: ", id.c_str());
-	rewind();
-    int first = 1;
-    while (more())
+  ACE_OS::printf("%s: ", id.c_str());
+  rewind();
+  int first = 1;
+  while (more())
+    {
+      char *str;
+      int ch = readRawInt();
+      _moveOn(sizeof(enum __YBTypeCodes));
+      if (!first)
 	{
-	  char *str;
-	  int ch = readRawInt();
-	  _moveOn(sizeof(enum __YBTypeCodes));
-	  if (!first)
-	    {
-	      printf(" ");
-	    }
-	  first = 0;
-	  switch(ch)
-	    {
-	    case YBTypeInt:
-	      printf("%d", (int)readRawInt());
-		  _moveOn(sizeof(NetInt32));
-	      break;
-	    case YBTypeVocab:
-	      str = (char *) readRawText();
-	      printf("<%s>", str);
-		  _moveOn(ACE_OS::strlen(str)+1+sizeof(int));
-	      break;
-	    case YBTypeDouble:
-	      printf("%g", readRawFloat());
-		  _moveOn(sizeof(double));
-	      break;
-	    case YBTypeString:
-		  str = (char *) readRawText();
-	      printf("(%s)", str);
-		  _moveOn(ACE_OS::strlen(str)+1+sizeof(int));
-	      break;
-	    case YBTypeDoubleVector:
-	      {
-		int l = readRawInt();
-       		_moveOn(sizeof(int));
+	  printf(" ");
+	}
+      first = 0;
+      switch(ch)
+	{
+	case YBTypeInt:
+	  printf("%d", (int)readRawInt());
+	  _moveOn(sizeof(NetInt32));
+	  break;
+	case YBTypeVocab:
+	  str = (char *) readRawText();
+	  printf("<%s>", str);
+	  _moveOn(ACE_OS::strlen(str)+1+sizeof(int));
+	  break;
+	case YBTypeDouble:
+	  printf("%g", readRawFloat());
+	  _moveOn(sizeof(double));
+	  break;
+	case YBTypeString:
+	  str = (char *) readRawText();
+	  printf("(%s)", str);
+	  _moveOn(ACE_OS::strlen(str)+1+sizeof(int));
+	  break;
+	case YBTypeDoubleVector:
+	  {
+	    int l = readRawInt();
+	    _moveOn(sizeof(int));
 
-		printf("<%g", readRawFloat());
-		_moveOn(sizeof(double));
-		if (l>1)
+	    printf("<%g", readRawFloat());
+	    _moveOn(sizeof(double));
+	    if (l>1)
+	      {
+		for(int i = 0; i < l-2; i++)
 		  {
-      		      for(int i = 0; i < l-2; i++)
-		      {
-			printf("\t%g", readRawFloat());
-			_moveOn(sizeof(double));
-		      }
 		    printf("\t%g", readRawFloat());
 		    _moveOn(sizeof(double));
 		  }
-		printf(">");
+		printf("\t%g", readRawFloat());
+		_moveOn(sizeof(double));
 	      }
-	      break;
-	    default:
-	      printf("???");
-	      break;
-	    }
-	 }
-	printf("\n");
-	rewind();
+	    printf(">");
+	  }
+	  break;
+	case YBTypeIntVector:
+          {
+            int l = readRawInt();
+            _moveOn(sizeof(int));
+
+            printf("<%d", readRawInt());
+            _moveOn(sizeof(int));
+            if (l>1)
+              {
+                for(int i = 0; i < l-2; i++)
+                  {
+                    printf("\t%d", readRawInt());
+                    _moveOn(sizeof(int));
+                  }
+                printf("\t%d", readRawInt());
+                _moveOn(sizeof(int));
+              }
+            printf(">");
+          }
+          break;	
+	default:
+	  printf("???");
+	  break;
+	}
+    }
+  printf("\n");
+  rewind();
 }
 

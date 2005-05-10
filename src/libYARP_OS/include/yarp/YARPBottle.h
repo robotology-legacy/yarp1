@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottle.h,v 1.10 2005-04-20 23:46:24 natta Exp $
+/// $Id: YARPBottle.h,v 1.11 2005-05-10 17:14:02 natta Exp $
 ///
 ///
 /// This code is based on the old YARPBottle class.
@@ -294,6 +294,22 @@ public:
 	    for(i=0; i<n; i++)
 	      writeRawFloat(v[i]);
 	  }
+	
+        /**                                                                                    
+         * Writes a vector of integers to the buffer.                           
+         * Consecurive writes add data in the buffer.                                          
+         * @param *v is the pointer to the vector of values.                                   
+         * @param n is the length of the vector.                                               
+         */
+        void writeIntVector(int *v, int n)
+          {
+            writeRawInt(YBTypeIntVector);
+            writeRawInt(n);
+            int i;
+            for(i=0; i<n; i++)
+              writeRawInt(v[i]);
+          }
+
 	/**
 	 * Writes a string (zero terminated) into the buffer. 
 	 * Consecutive writes add data in the buffer.
@@ -463,6 +479,33 @@ public:
 	    index+=tmpI;
 	    return true;
 	  }
+
+	/**                                                                                          
+         * Reads a vector of integers from the bottle.                        
+         * @param v is a pointer to the vector that will be filled.                                  
+         * @param n is the expected size of the vector.                                              
+         * @return true if the bottle contains a vector of size n at the current                     
+         * position, false otherwise.                                                                
+         */
+        bool readIntVector(int *v, int n)
+          {
+            int oldIndex = index;
+            lastReadSeq = 0;
+            if (!assertType(YBTypeIntVector))
+              return false;
+            index += sizeof(YBTypeIntVector);
+            int tmpI = readRawInt();
+            index += sizeof(int);
+            if (n!=tmpI)
+              {
+                index = oldIndex;
+                return false;
+              }
+            tmpI = n*sizeof(int);
+	    ACE_OS::memcpy((char *) v, readRawBlock(tmpI), tmpI);
+            index+=tmpI;
+            return true;
+          }
 
 	/**
 	 * Reads a double precision floating point value from the bottle. 

@@ -14,6 +14,7 @@
 YARPInputPortOf<YARPBottle> _inputPort;
 
 const int __samplerRate = 100;
+const int MESSAGE_LABEL = 5;
 
 using namespace std;
 
@@ -36,6 +37,7 @@ private:
   YVector torques;
   YARPOutputPortOf<YVector> positionsPort;
   YARPOutputPortOf<YVector> torquesPort;
+  FILE *dumpFile;
 };
 
 int main()
@@ -68,7 +70,7 @@ int main()
       bot.display();
 	  
       bool ret = bot.readInt(&msg);
-      if (ret && msg==5)
+      if (ret && msg==MESSAGE_LABEL)
 	{
 	  bot.readInt(&msg);
 	  _handleMsg(msg, bot, arm);
@@ -82,11 +84,17 @@ int main()
 void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
 {
   int nj = arm.nj();
+  bool ret;
   double tmpVector[nj];
+  int tmpIntVector[nj];
   double val = 0.0;
+  int ival = 0;
   int j;
   for (j=0; j<nj;j++)
-    tmpVector[j] = 0.0;
+    {
+      tmpVector[j] = 0.0;
+      tmpIntVector[j] = 0;
+    }
 
   switch (msg)
     {
@@ -94,7 +102,15 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
       arm.activatePID();
       break;
     case 1:
-      bot.readDoubleVector(tmpVector, nj);
+      ret = bot.readDoubleVector(tmpVector, nj);
+      if (!ret)
+	{
+	  //try reading int vector
+	  ret = bot.readIntVector(tmpIntVector, nj);
+	  for(j=0;j<nj;j++)
+	    tmpVector[j]=(double)tmpIntVector[j];
+	}
+
       // LATER: we want to use the setPositions functions
       // however we dont want to move the wrist yet.
       //arm.setPositions(tmpVector);
@@ -109,14 +125,25 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
       break;
     case 2:
       bot.readInt(&j);
-      bot.readFloat(&val);
+      ret = bot.readFloat(&val);
+      if (!ret)
+	{
+	  ret = bot.readInt(&ival);
+	  val = (double)(ival);
+	}
+
       arm.setPositionRelative(j, val);
       ACE_OS::printf("setting relative position: ");
       ACE_OS::printf("%d\t%lf\n", j, val);
       break;
     case 3:
       bot.readInt(&j);
-      bot.readFloat(&val);
+      ret=bot.readFloat(&val);
+      if (!ret)
+	{
+	  ret=bot.readInt(&ival);
+	  val=(double)(ival);
+	}
       arm.setPosition(j, val);
       ACE_OS::printf("setting absolute position: ");
       ACE_OS::printf("%d\t%lf\n", j, val);
@@ -141,6 +168,7 @@ ArmSampler::ArmSampler(YARPArm *p, int rate): YARPRateThread("ArmSamplerThread",
   torques.Resize(_nj);
   positions = 0.0;
   torques = 0.0;
+  dumpFile = NULL;
 }
 
 ArmSampler::~ArmSampler()
@@ -156,7 +184,7 @@ void ArmSampler::Register(const char *t, const char *p)
 
 void ArmSampler::doInit()
 {
-  //		dumpFile = fopen("dump.txt", "wt");
+  dumpFile = fopen("dump.txt", "wt");
 }
 
 void ArmSampler::doLoop()
@@ -168,12 +196,22 @@ void ArmSampler::doLoop()
   torquesPort.Content()=torques;
   positionsPort.Content()=positions;
 
+  if (dumpFile!=NULL)
+    {
+      for(int k=0;k<_nj;k++)
+	fprintf(dumpFile, "%lf\t", positions[k]);
+      for(int k=0;k<_nj;k++)
+	fprintf(dumpFile, "%lf\t", torques[k]);
+
+      fprintf(dumpFile, "\n");
+    }
+
   torquesPort.Write();
   positionsPort.Write();
 }
 
 void ArmSampler::doRelease()
 {
-  //fclose(dumpFile);
+  fclose(dumpFile);
 }
 
