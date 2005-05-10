@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.6 2004-07-12 13:34:42 eshuy Exp $
+/// $Id: YARPNameServer.h,v 1.7 2005-05-10 20:37:17 natta Exp $
 ///
 ///
 
@@ -78,6 +78,7 @@
 #endif
 #include <yarp/wide_nameloc.h>
 #include <yarp/YARPRateThread.h>
+#include <yarp/YARPSemaphore.h>
 
 #include <ace/config.h>
 #include <ace/SOCK_Acceptor.h>
@@ -102,19 +103,20 @@ public:
 	  YARPRateThread("name server thread", 0),
 	  nmap(file, local),
 	  ns(local),
-	  server_addr_(port), peer_acceptor_(server_addr_, 1)
+	  server_addr_(port), peer_acceptor_(server_addr_, 1),
+	  _waitForEnd(0)
 	{
 	  local_name = local;
-		  //ns.init(file);
-		  data_buf_ = new char [SIZE_BUF];
-
-		  start();
+	  //ns.init(file);
+	  data_buf_ = new char [SIZE_BUF];
+	  
+	  start();
 	}
 	~YARPNameServer()
 	{
-		///peer_acceptor_.close();
-		terminate();
-		delete [] data_buf_;
+	  ///peer_acceptor_.close();
+	  terminate();
+	  delete [] data_buf_;
 	}
 
 	int accept_connection();
@@ -174,6 +176,12 @@ public:
 	virtual void doRelease()
 			{/* release, if any */}
 
+	void waitForEnd()
+	  {
+	    // block here until remote quit is received (not implemented yet)
+	    _waitForEnd.Wait();
+	  }
+
 private:
 	void _handle_reply(const YARPString &text);
 	void _handle_reply(const YARPString &ip, int type, int port);
@@ -186,6 +194,7 @@ private:
 	ACE_INET_Addr		client_addr_;
 	ACE_SOCK_Acceptor	peer_acceptor_;
 	ACE_SOCK_Stream		new_stream_;
+	YARPSemaphore _waitForEnd;
 
 	char *data_buf_;
 };

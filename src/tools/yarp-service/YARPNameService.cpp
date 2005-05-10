@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.9 2004-08-30 09:38:48 babybot Exp $
+/// $Id: YARPNameService.cpp,v 1.10 2005-05-10 20:37:18 natta Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -319,83 +319,92 @@ static void check() {
   }
 }
 
-void run() {
-  //ACE_UNUSED_ARG (argc);
-  //ACE_UNUSED_ARG (argv);
+void interactive(YARPNameServer &dns)
+{
+  YARPString str;
+  print_menu(1);
+	
+  while (cin >> str)
+    {
+      int ret = parse(str);
 
+      if (ret == 0)    //return
+	break;
+      else if (ret == 1)
+	{
+	  YARPString str1, str2;
+	  cin >> str1;
+	  cin >> str2;
+	  dns.handle_registration_dbg(str1,str2, YARP_TCP);
+	}
+      else if (ret == 2){
+	YARPString str1;
+	cin >> str1;
+			
+	dns.handle_release(str1);
+      }
+      else if (ret == 3){
+	YARPString str1;
+	cin >> str1;
+	dns.query_dbg(str1);
+      }
+      else if (ret == 4){
+	dns.dump();
+      }
+      else if (ret == 5){
+	YARPString str1;
+	cin >> str1;
+	dns.handle_registration_dip_dbg(str1, YARP_MCAST);
+      }
+      else if (ret == 6){
+	YARPString str1,str2;
+	int n;
+	cin >> str1;
+	cin >> str2;
+	cin >> n;
+	dns.handle_registration_dbg(str1, str2, YARP_UDP, n);
+      }
+      print_menu();
+    }
+}
+
+void run(bool daemon=false) 
+{
   YARPString buf, server;
   int _server_port = 10000;
   GetServer(buf,server,_server_port);
-
+  
   YARPNameServer dns(buf,server,_server_port);
 
-
-	YARPString str;
-	print_menu(1);
-	
-	while (cin >> str)
-	{
-		int ret = parse(str);
-
-		if (ret == 0)
-			break;
-		else if (ret == 1)
-		{
-			YARPString str1, str2;
-			cin >> str1;
-			cin >> str2;
-			dns.handle_registration_dbg(str1,str2, YARP_TCP);
-		}
-		else if (ret == 2){
-			YARPString str1;
-			cin >> str1;
-			
-			dns.handle_release(str1);
-		}
-		else if (ret == 3){
-			YARPString str1;
-			cin >> str1;
-			dns.query_dbg(str1);
-		}
-		else if (ret == 4){
-			dns.dump();
-		}
-		else if (ret == 5){
-			YARPString str1;
-			cin >> str1;
-			dns.handle_registration_dip_dbg(str1, YARP_MCAST);
-		}
-		else if (ret == 6){
-			YARPString str1,str2;
-			int n;
-			cin >> str1;
-			cin >> str2;
-			cin >> n;
-			dns.handle_registration_dbg(str1, str2, YARP_UDP, n);
-		}
-
-		print_menu();
-	}
+  if(!daemon)
+    {
+      interactive(dns);
+    }
+  else
+    {
+      dns.waitForEnd(); //blocks here until quit message is received remotely
+    }
 }
 
 void help() {
   const char *app = "yarp-service";
   const char *bpp = "            ";
-  printf("\n");
-  printf("To start the YARP name service, type:\n");
-  printf("   %s --run\n", app);
-  printf("Then on each other machine that will be using YARP, type:\n");
-  printf("   '%s --remote <host>'\n", app);
-  printf("to configure that machine to refer YARP name queries to <host>\n");
-  printf("\n");
-  printf("Usage information for %s\n\n", app);
-  printf("%s --run   : starts YARP name service running on this machine\n",app);
-  printf("%s --check : checks and troubleshoots YARP name service configuration\n",app);
-  printf("%s --remote <server> [<portnumber>] : \n", app);
-  printf("%s           configures current machine to consult YARP name\n",bpp);
-  printf("%s           running on <server>, with optional <portnumber>\n",bpp);
-  printf("%s --help  : shows this message\n", app);
-  printf("\n");
+  ACE_OS::printf("\n");
+  ACE_OS::printf("To start the YARP name service, type:\n");
+  ACE_OS::printf("   %s --run or --daemon\n", app);
+  ACE_OS::printf("Then on each other machine that will be using YARP, type:\n");
+  ACE_OS::printf("   '%s --remote <host>'\n", app);
+  ACE_OS::printf("to configure that machine to refer YARP name queries to <host>\n");
+  ACE_OS::printf("\n");
+  ACE_OS::printf("Usage information for %s\n\n", app);
+  ACE_OS::printf("%s --run   : starts YARP name service running on this machine\n",app);
+  ACE_OS::printf("%s --daemon : starts YARP name service as daemon (suppress interactive mode)", app);
+  ACE_OS::printf("%s --check : checks and troubleshoots YARP name service configuration\n",app);
+  ACE_OS::printf("%s --remote <server> [<portnumber>] : \n", app);
+  ACE_OS::printf("%s           configures current machine to consult YARP name\n",bpp);
+  ACE_OS::printf("%s           running on <server>, with optional <portnumber>\n",bpp);
+  ACE_OS::printf("%s --help  : shows this message\n", app);
+  ACE_OS::printf("\n");
 }
 
 int remote(int argc, char* argv[]) {
@@ -438,6 +447,11 @@ int main(int argc, char* argv[])
       if (strcmp(request,"--run")==0) {
 	printf("Starting YARP name service on this machine.\n");
 	run();
+	return YARP_OK;
+      }
+      if (strcmp(request, "--daemon")==0) {
+	printf("Starting YARP name service on this machine, run as daemon.\n");
+	run(true);
 	return YARP_OK;
       }
       if (strcmp(request,"--remote")==0) {
