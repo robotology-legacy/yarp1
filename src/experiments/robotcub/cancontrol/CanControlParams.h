@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: CanControlParams.h,v 1.6 2005-04-05 07:16:21 gmetta Exp $
+/// $Id: CanControlParams.h,v 1.7 2005-05-17 14:22:58 babybot Exp $
 ///
 ///
 
@@ -44,7 +44,7 @@
 #define DEFAULT_NJOINTS				2		/// 1 card connected
 #define DEFAULT_DESTINATION			0xf		/// 
 
-#define CANBUS_MAXCARDS				MAX_CARDS
+#define CANBUS_MAXCARDS				ESD_MAX_CARDS
 
 #define TIMER_ID					666
 #define TIMER2_ID					667

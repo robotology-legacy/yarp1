@@ -29,7 +29,18 @@
 #include <ace/OS.h>
 
 #include <yarp/YARPScheduler.h>
+
+/* select the device driver to use */
+#ifndef __ESD_DRIVER
+#define __ESD_DRIVER
+#endif
+
+#ifndef __ESD_DRIVER
 #include <yarp/YARPValueCanDeviceDriver.h>
+#else
+#include <yarp/YARPEsdCanDeviceDriver.h>
+#endif
+
 #include <yarp/YARPControlBoardUtils.h>
 #include <yarp/YARPConfigFile.h>
 

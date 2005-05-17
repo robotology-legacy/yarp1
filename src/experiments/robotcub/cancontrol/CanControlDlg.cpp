@@ -539,8 +539,7 @@ void CCanControlDlg::DeactivateGUI ()
 void CCanControlDlg::OnDriverRun() 
 {
 	/// we have a few defaults here.
-	m_params._port_number = CANBUS_DEVICE_NUM;
-	m_params._arbitrationID = CANBUS_ARBITRATION_ID;
+	m_params._networkN = CANBUS_DEVICE_NUM;
 	
 	memcpy (m_params._destinations, m_destinations, sizeof(unsigned char) * CANBUS_MAXCARDS);
 

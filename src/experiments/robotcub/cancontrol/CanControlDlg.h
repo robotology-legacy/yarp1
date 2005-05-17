@@ -83,8 +83,14 @@ protected:
 
 public:
 /// my stuff.
+#ifndef __ESD_DRIVER
 	YARPValueCanDeviceDriver	m_driver;
 	ValueCanOpenParameters		m_params;
+#else
+	YARPEsdCanDeviceDriver		m_driver;
+	EsdCanOpenParameters		m_params;
+#endif
+
 	int							m_njoints;
 	unsigned char				m_destinations[CANBUS_MAXCARDS];
 	bool						m_driverok;
