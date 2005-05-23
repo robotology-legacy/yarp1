@@ -142,19 +142,6 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	// nota: uso 2^11 perchè così il gain della maschera equivalente quadrata
 	// è 2^22, 22+8<32
 	
-	// round(fspecial('gaussian',[5*1,1],1)*2^16)
-	//int g_c[5]={3571,16004,26386,16004,3571}; // sigma di 1 e 2^16
-	
-	//int g_c[5]={1785,8002,13193,8002,1785}; // sigma di 1 e 2^15
-
-    //int g_c[5]={14,63,103,63,14}; // sigma di 1 e 2^8 ok
-
-	//int g_c[5]={28,125,206,125,28}; // sigma di 1 e 2^9 ok
-
-	//int g_c[5]={56,250,412,250,56}; // sigma di 1 e 2^10 ok
-
-	//int g_c[5]={112,500,825,500,112}; // sigma di 1 e 2^11 ok
-	
 	//round(fspecial('gaussian',[5*1,1],1)*2^11/sqrt(1.5))
 	int g_c[5]={91, 408, 673, 408, 91};
 	  
@@ -225,6 +212,10 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	r2.Resize(x, y);
 	b2.Resize(x, y);
 	g2.Resize(x, y);
+	//signed
+	r1s.Resize(x, y);
+	b1s.Resize(x, y);
+	g1s.Resize(x, y);
 
 	// the images are created by default with (IPL_BORDER_CONSTANT, IPL_SIDE_ALL, 0)
 	//iplSetBorderMode((IplImage *)r1, IPL_BORDER_WRAP, IPL_SIDE_ALL, 0);
@@ -238,21 +229,39 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	((IplImage *)g1)->BorderMode[3]=3;
 	((IplImage *)is1)->BorderMode[2]=3;
 	((IplImage *)is1)->BorderMode[3]=3;
+	//signed
+	((IplImage *)r1s)->BorderMode[2]=3;
+	((IplImage *)r1s)->BorderMode[3]=3;
+	((IplImage *)b1s)->BorderMode[2]=3;
+	((IplImage *)b1s)->BorderMode[3]=3;
+	((IplImage *)g1s)->BorderMode[2]=3;
+	((IplImage *)g1s)->BorderMode[3]=3;
+
+
 
 	r1_g_c.Resize(x, y);
 	b1_g_c.Resize(x, y);
 	g1_g_c.Resize(x, y);
-	is1_g_c.Resize(x, y);
+	i1_g_c.Resize(x, y);
 	r1_g_s.Resize(x, y);
 	g1_g_s.Resize(x, y);
 	y1_g_s.Resize(x, y);
-	is1_g_s.Resize(x, y);
+	i1_g_s.Resize(x, y);
+	//signed
+	r1s_g_c.Resize(x, y);
+	b1s_g_c.Resize(x, y);
+	g1s_g_c.Resize(x, y);
+	i1s_g_c.Resize(x, y);
+	r1s_g_s.Resize(x, y);
+	g1s_g_s.Resize(x, y);
+	y1s_g_s.Resize(x, y);
+	i1s_g_s.Resize(x, y);
 	
-	for (i=0; i<4; i++)
+	for (i=0; i<3; i++)
 		or[i].Resize(x, y);
 
-	/*for (i=0; i<12; i++)
-		ors[i].Resize(x, y);*/
+	for (i=0; i<3; i++)
+		ors[i].Resize(x, y);
 
 	/*or_r[0].Resize(x, y);
 	or_r[1].Resize(x, y);
@@ -371,9 +380,9 @@ YARPImgAtt::YARPImgAtt(int x, int y, int fovea, int num):
 	array1[6]=&or_r[2];
 	array1[7]=&or_r[3];*/
 
-	array2[0]=&or[0];
-	array2[1]=&or[1];
-	array2[2]=&or[2];
+	array2[0]=&ors[0];
+	array2[1]=&ors[1];
+	array2[2]=&ors[2];
 
 	/*for (i=0; i<12; i++)
 		array3[i]=&ors[i];*/
@@ -471,10 +480,13 @@ YARPImgAtt::~YARPImgAtt()
 	delete [] IORBoxes;
 	delete [] max_boxes;
 	delete [] neighBoxes;
+	delete [] neighBoxesHand;
 	delete [] neighProb;
-	//delete [] neighFounded;
-	//delete [] neighEpoch;
+	delete [] neighEpoch2;
+	delete [] neighFounded2;
+	delete [] neighProbHand;
 	delete [] neighTaken;
+	delete [] neighTemp;
 }
 
 
@@ -537,7 +549,6 @@ void YARPImgAtt::LineStat(YARPImageOf<YarpPixelMono> &src, int *vett)
 
 
 // Mean with num sources images
-// Can I use IPL for this??
 void YARPImgAtt::Combine(YARPImageOf<YarpPixelMono> **src, int num, YARPImageOf<YarpPixelMono> &dst)
 {
 	//int temp=0;
@@ -554,8 +565,7 @@ void YARPImgAtt::Combine(YARPImageOf<YarpPixelMono> **src, int num, YARPImageOf<
 }
 
 
-// Can I use IPL for this??
-void YARPImgAtt::CombineMax(YARPImageOf<YarpPixelMono> **src, int num, YARPImageOf<YarpPixelMono> &dst)
+void YARPImgAtt::CombineMax(YARPImageOf<YarpPixelMonoSigned> **src, int num, YARPImageOf<YarpPixelMono> &dst)
 {
 	int i=0;
 	const int padding = 4;
@@ -588,7 +598,6 @@ void YARPImgAtt::CombineMax(YARPImageOf<YarpPixelMono> **src, int num, YARPImage
 }
 
 
-// Can I use IPL for this??
 void YARPImgAtt::CombineMaxAbs(YARPImageOf<YarpPixelMonoSigned> **src, int num, YARPImageOf<YarpPixelMono> &dst)
 {
 	for (int y=0; y<height; y++) {
@@ -1022,6 +1031,48 @@ void YARPImgAtt::GetTarget(int &x, int &y)
 }
 
 
+int YARPImgAtt::verifyMsk(YARPImageOf<YarpPixelMono> &src, YARPImageOf<YarpPixelMono> &msk, YARPImageOf<YarpPixelMono> &dst)
+{
+	int h=src.GetHeight();
+	int w=src.GetWidth();
+	int num;
+	int area;
+	int val=255;
+	bool notFound=true;
+	int pos=0;
+
+	while (notFound && val>-1) {
+		num=0;
+		area=0;
+		for (int y=0; y<h; y++)
+			for (int x=0; x<w; x++) {
+				if (src(x,y)==val && msk(x,y)==255) {
+					num++;
+					area++;
+					dst(x,y)=255;
+				} else if (src(x,y)==val) {
+					dst(x,y)=64;
+					area++;
+				} else if (msk(x,y)==255)
+					dst(x,y)=127;
+				else
+					dst(x,y)=0;
+			}
+
+		if (area==0) {
+			val--;
+		} else if ((double)num/area<0.1) {
+			pos++;
+			val--;
+		} else
+			notFound=false;
+		//ACE_OS::printf("%d\r", (int)val);
+	}
+
+	return pos;
+}
+
+
 bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, bool stable)
 {
 	bool found=false;
@@ -1068,7 +1119,7 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, bool stable)
 	((IplImage *)src)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=IPL_BORDER_REPLICATE;
 	((IplImage *)src)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;
 	
-	DBGPF1 ACE_OS::printf(">>> Filtering the images to remove some noise\n");
+	//DBGPF1 ACE_OS::printf(">>> Filtering the images to remove some noise\n");
 	//ACE_OS::sprintf(savename, "./osrc.ppm");
 	//YARPImageFile::Write(savename, src);
 
@@ -1118,17 +1169,79 @@ bool YARPImgAtt::Apply(YARPImageOf<YarpPixelBGR> &src, bool stable)
 		//cout<<"CMP DELTA %:"<<(fovBox.cmp-cmp)/cmp*100;
 		//cout<<"  ECT DELTA %:"<<(fovBox.ect-ect)/ect*100<<endl;
 
-		/*ACE_OS::printf("Evaluating object...\n");
+		ACE_OS::printf("Evaluating object...\n");
 		ACE_OS::printf("Diff: %d\n", crg*crg+cgr*cgr+cby*cby);
-		ACE_OS::printf("Area: %lf\n", fovBox.areaCart);*/
+		ACE_OS::printf("Area: %lf\n", fovBox.areaCart);
 
-		if (fovBox.areaCart>200 && crg*crg+cgr*cgr+cby*cby<maxError)
+		if (fovBox.areaCart>minBoundingArea && crg*crg+cgr*cgr+cby*cby<maxError)
 			found=true;
 	}	
 	
 	//blobFov=edge;
 	//rain.tags2Watershed(tagged, blobFov);
 
+	//saveImages();
+	
+	return found;
+}
+
+
+bool YARPImgAtt::applyStatic(YARPImageOf<YarpPixelBGR> &src, YARPImageOf<YarpPixelMono> &msk)
+{
+	bool found=false;
+	
+	((IplImage *)src)->BorderMode[IPL_SIDE_LEFT_INDEX]=IPL_BORDER_WRAP;
+	((IplImage *)src)->BorderMode[IPL_SIDE_RIGHT_INDEX]=IPL_BORDER_WRAP;
+	((IplImage *)src)->BorderMode[IPL_SIDE_BOTTOM_INDEX]=IPL_BORDER_REPLICATE;
+	((IplImage *)src)->BorderMode[IPL_SIDE_TOP_INDEX]=IPL_BORDER_REPLICATE;
+
+	DBGPF1 ACE_OS::printf(">>> get original planes\n");
+	YARPImageUtils::GetRed(src,r2);
+	YARPImageUtils::GetGreen(src,g2);
+	YARPImageUtils::GetBlue(src,b2);
+	
+	iplRShiftS(src, src, 1);
+	iplBlur(meanCol, tmpBGR1, 3, 3, 1, 1);
+	iplRShiftS(tmpBGR1, tmpBGR1, 1);
+	iplAdd(src, tmpBGR1, src);
+	
+	//DBGPF1 ACE_OS::printf(">>> Filtering the images to remove some noise\n");
+	//ACE_OS::sprintf(savename, "./osrc.ppm");
+	//YARPImageFile::Write(savename, src);
+
+	// with '3' the segmentation is worse
+	//iplRShiftS(src, src, 2);
+	//iplLShiftS(src, src, 2);
+	
+	/*iplColorMedianFilter(src, tmpBGR1, 3, 3, 1, 1); // better in the perifery, worse in fovea
+	iplColorMedianFilter(tmpBGR1, src, 3, 3, 1, 1); // better in the perifery, worse in fovea*/
+	//src=tmpBGR1;
+
+	colorOpponency(src);
+	findEdges();
+	normalize();
+	findBlobs();
+	drawAllBlobs(true);
+	salience.maxSalienceBlob(tagged, max_tag, max_boxes[0]);
+
+	if (salienceTD>0) {
+		//cout<<fovBox.cmp;
+		//cout<<fovBox.ect;
+		int crg=fovBox.meanRG-searchRG;
+		int cgr=fovBox.meanGR-searchGR;
+		int cby=fovBox.meanBY-searchBY;
+
+		//cout<<"CMP DELTA %:"<<(fovBox.cmp-cmp)/cmp*100;
+		//cout<<"  ECT DELTA %:"<<(fovBox.ect-ect)/ect*100<<endl;
+
+		/*ACE_OS::printf("Evaluating object...\n");
+		ACE_OS::printf("Diff: %d\n", crg*crg+cgr*cgr+cby*cby);
+		ACE_OS::printf("Area: %lf\n", fovBox.areaCart);*/
+
+		if (fovBox.areaCart>minBoundingArea && crg*crg+cgr*cgr+cby*cby<maxError)
+			found=true;
+	}	
+	
 	//saveImages();
 	
 	return found;
@@ -1474,7 +1587,9 @@ double YARPImgAtt::checkObject(YARPImageOf<YarpPixelMono> &src, const double th)
 			}
 			if (min<maxError) {
 				neighTaken[minModelBlob]=true;
-				if (neighProb[minModelBlob]>0.5) blobListObject[minBlob]=2;
+				//if (neighProb[minModelBlob]>0.5 && neighProb[minModelBlob]/((double)(neighFounded2[n]+1)/(neighEpoch2[n]+2))>1)
+				if (neighProb[minModelBlob]>0.5)
+					blobListObject[minBlob]=2;
 				//if ((double)neighFounded[minModelBlob]/neighEpoch[minModelBlob]>=0.75) blobListObject[minBlob]=2;
 				else blobListObject[minBlob]=1;
 			} else
@@ -1565,11 +1680,20 @@ void YARPImgAtt::colorOpponency(YARPImageOf<YarpPixelBGR> &src)
 	//memcpy(((IplImage *)is1)->imageData, ((IplImage *)tmp1)->imageData, ((IplImage *)tmp1)->imageSize);
 
 
+	DBGPF1 ACE_OS::printf(">>> Conversion planes in signed char\n");
+	iplRShiftS(r1, tmp1, 1);
+	memcpy(((IplImage *)r1s)->imageData, ((IplImage *)tmp1)->imageData, ((IplImage *)tmp1)->imageSize);
+	iplRShiftS(g1, tmp1, 1);
+	memcpy(((IplImage *)g1s)->imageData, ((IplImage *)tmp1)->imageData, ((IplImage *)tmp1)->imageSize);
+	iplRShiftS(b1, tmp1, 1);
+	memcpy(((IplImage *)b1s)->imageData, ((IplImage *)tmp1)->imageData, ((IplImage *)tmp1)->imageSize);
+
+
 	DBGPF1 ACE_OS::printf(">>> filter image planes\n");
 	// potrei convolvere i 3 piani in contemporanea e poi estrarli???
-	gauss_c_s.ConvolveSep2D(r1,r1_g_c);
-	gauss_c_s.ConvolveSep2D(g1,g1_g_c);
-	gauss_c_s.ConvolveSep2D(b1,b1_g_c);
+	gauss_c_s.ConvolveSep2D(r1s,r1s_g_c);
+	gauss_c_s.ConvolveSep2D(g1s,g1s_g_c);
+	gauss_c_s.ConvolveSep2D(b1s,b1s_g_c);
 	//gauss_c_s.ConvolveSep2D(is1,is1_g_c);
 	/*gauss_s_s.ConvolveSep2D(r1,r1_g_s);
 	gauss_s_s.ConvolveSep2D(g1,g1_g_s);*/
@@ -1584,12 +1708,12 @@ void YARPImgAtt::colorOpponency(YARPImageOf<YarpPixelBGR> &src)
 	iplAdd((IplImage *) tmp1,(IplImage *) tmp2,(IplImage *) y1_g_s);
 	iplSubtract((IplImage *)b1_g_c,(IplImage *)y1_g_s,(IplImage *)by);*/
 	
-	iplSubtract(r1, g1_g_c, rg);
-	iplSubtract(g1, r1_g_c, gr);
-	iplRShiftS((IplImage *)r1_g_c, (IplImage *) tmp1, 1);
-	iplRShiftS((IplImage *)g1_g_c, (IplImage *) tmp2, 1);
-	iplAdd(tmp1, tmp2, y1_g_s);
-	iplSubtract((IplImage *)b1,(IplImage *)y1_g_s,(IplImage *)by);
+	iplSubtract(r1s, g1s_g_c, rgs);
+	iplSubtract(g1s, r1s_g_c, grs);
+	iplRShiftS(r1s_g_c, tmp1s, 1);
+	iplRShiftS(g1s_g_c, tmp2s, 1);
+	iplAdd(tmp1s, tmp2s, y1s_g_s);
+	iplSubtract(b1s, y1s_g_s, bys);
 	
 	//iplSubtract((IplImage *)is1_g_c,(IplImage *)is1_g_s,(IplImage *)iis);
 	// vedendo i risultati sulla sega triangolare si pensa che sia meglio prendere il val assoluto
@@ -1630,9 +1754,9 @@ void YARPImgAtt::findEdges()
 	prewitt_diag2.Convolve2D(iis,ors[3],1,IPL_SUM);*/
 	// I cannot use the combination with IPL_MAX because there are negative values!
 	// otherwise I must use 8 filters!
-	sobel.Convolve2D(rg, or[0], 8, IPL_MAX);
-	sobel.Convolve2D(gr, or[1], 8, IPL_MAX);
-	sobel.Convolve2D(by, or[2], 8, IPL_MAX);
+	sobel.Convolve2D(rgs, ors[0], 8, IPL_MAX);
+	sobel.Convolve2D(grs, ors[1], 8, IPL_MAX);
+	sobel.Convolve2D(bys, ors[2], 8, IPL_MAX);
 	// Note that if I use the max combination the values will be all positive
 	CombineMax(array2, 3, edge);
 	
@@ -1763,7 +1887,7 @@ void YARPImgAtt::normalize()
 void YARPImgAtt::findBlobs()
 {
 	max_tag=rain.apply(edge, tagged);
-	salience.blobCatalog(tagged, rg, gr, by, r2, g2, b2, max_tag);
+	salience.blobCatalog(tagged, rgs, grs, bys, r2, g2, b2, max_tag);
 
 #ifdef NUMBLOBLOG
 	char *root = GetYarpRoot();
@@ -1801,7 +1925,6 @@ void YARPImgAtt::drawBlobs(bool stable)
 {
 	//salience.ComputeSalience(max_tag, max_tag);
 	//salience.SortAndComputeSalience(200, max_tag);
-
 	salience.ComputeSalienceAll(max_tag, max_tag);
 
 	YarpPixelBGR varFoveaBlob = salience.varBlob(tagged, rg, gr, by, 1);
@@ -1858,19 +1981,88 @@ void YARPImgAtt::drawBlobs(bool stable)
 	
 	// Comment the following line to disable the elimination of non valid blob
 	salience.RemoveNonValid(max_tag, 6000, minBoundingArea);
+	//salience.RemoveNonValidNoRange(max_tag, 6000, minBoundingArea);
 	
 	//salience.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
 	//salience.checkIOR(tagged, IORBoxes, num_IORBoxes);
 	salience.doIOR(tagged, IORBoxes, num_IORBoxes);
 
-	salience.DrawContrastLP2(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
-	//salience.DrawContrastLP(rg, gr, by, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
-	//MinMax((IplImage *)tmp1, mn[0], mx[0]);
-	//FullRange((IplImage *)tmp1, (IplImage *)out, mn[0], mx[0]);
-	//iplThreshold(out, out, 200);
-	//ZeroLow(out, 230);
+	salience.DrawContrastLP2(rgs, grs, bys, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY); // somma coeff pos=3 somma coeff neg=-3
 
-	//tmpBGR1.Zero();
+	salience.ComputeMeanColors(max_tag);
+	salience.DrawMeanColorsLP(meanCol, tagged);
+	
+	//meanOppCol.Zero();
+	//salience.DrawMeanOpponentColorsLP(meanOppCol, tagged);
+
+	/*blobFinder.DrawGrayLP(tmp1, tagged, 200);
+	//ACE_OS::sprintf(savename, "./rain.ppm");
+	//YARPImageFile::Write(savename, tmp1);*/
+
+	//rain.tags2Watershed(tagged, oldWshed);
+}
+
+
+void YARPImgAtt::drawAllBlobs(bool stable)
+{
+	salience.ComputeSalienceAll(max_tag, max_tag);
+
+	YarpPixelBGR varFoveaBlob = salience.varBlob(tagged, rg, gr, by, 1);
+
+	salience.drawFoveaBlob(blobFov, tagged);
+	//salience.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
+	
+	memset(blobList, 0, sizeof(char)*(max_tag+1));
+	// - faster
+	// - it considers also "lateral" pixels
+	// - it doesn't add pixels iteratively
+	rain.findNeighborhood(tagged, 0, 0, blobList);
+	salience.fuseFoveaBlob3(tagged, blobList, varFoveaBlob, max_tag);
+
+	// alternative method
+	//rain.fuseFoveaBlob(tagged, blobList, max_tag);
+	
+	//blobList[1]=2; // so the fovea blob is eliminated by the removeBlobList
+	//salience.statBlobList(tagged, blobList, max_tag, fovBox);
+	fovBox=salience.getBlobNum(1);
+	//salience.removeBlobList(blobList, max_tag);
+	salience.removeFoveaBlob(tagged);
+	//salience.updateFoveaBlob(tagged, blobList, max_tag);
+
+	if (stable) {
+		memset(blobList, 0, sizeof(char)*(max_tag+1));
+		rain.findNeighborhood(tagged, 0, 0, blobList);
+		salience.countSmallBlobs(tagged, blobList, max_tag, minBoundingArea);
+		blobList[1]=0;
+		salience.mergeBlobs(tagged, blobList, max_tag, 1);
+
+		memset(blobList, 0, sizeof(char)*(max_tag+1));
+		rain.findNeighborhood(tagged, 0, 0, blobList);
+		salience.countSmallBlobs(tagged, blobList, max_tag, minBoundingArea);
+		blobList[1]=0;
+		salience.mergeBlobs(tagged, blobList, max_tag, 1);
+
+		/*while (num!=0) {
+			blobList[1]=0;
+			salience.mergeBlobs(tagged, blobList, max_tag, 1);
+			memset(blobList, 0, sizeof(char)*max_tag);
+			rain.findNeighborhood(tagged, 0, 0, blobList);
+			num = salience.checkSmallBlobs(tagged, blobList, max_tag, minBoundingArea);
+		}*/
+	}
+		
+	//salience.drawFoveaBlob(blobFov, tagged);
+	//salience.drawBlobList(blobFov, tagged, blobList, max_tag, 127);
+	
+	// Comment the following line to disable the elimination of non valid blob
+	salience.RemoveNonValidNoRange(max_tag, 4096, 120);
+	
+	//salience.DrawContrastLP(rg, gr, by, tmp1, tagged, max_tag, 0, 1, 30, 42, 45); // somma coeff pos=3 somma coeff neg=-3
+	//salience.checkIOR(tagged, IORBoxes, num_IORBoxes);
+	//salience.doIOR(tagged, IORBoxes, num_IORBoxes);
+
+	salience.DrawContrastLP2(rgs, grs, bys, out, tagged, max_tag, salienceBU, salienceTD, searchRG, searchGR, searchBY, 255); // somma coeff pos=3 somma coeff neg=-3
+
 	salience.ComputeMeanColors(max_tag);
 	salience.DrawMeanColorsLP(meanCol, tagged);
 	
@@ -1909,7 +2101,9 @@ void YARPImgAtt::quantizeColors()
 
 void YARPImgAtt::resetIORTable()
 {
-	salience.maxSalienceBlobs(tagged, max_tag, IORBoxes, num_IORBoxes);
+	//salience.maxSalienceBlobs(tagged, max_tag, IORBoxes, num_IORBoxes);
+	for (int j=0; j<num_IORBoxes; j++)
+		IORBoxes[j].valid=false;
 }
 
 
@@ -1957,14 +2151,14 @@ void YARPImgAtt::saveMeanCol()
 }
 
 
-void YARPImgAtt::saveSRC(YARPImageOf<YarpPixelBGR> &src)
+void YARPImgAtt::saveImg(const char *file, YARPImageOf<YarpPixelBGR> &src)
 {
 	char *root = GetYarpRoot();
 	char path[256];
 	
 	ACE_OS::sprintf (path, "%s/zgarbage/va/", root); 
 	
-	ACE_OS::sprintf(savename, "%ssrc.ppm", path);
+	ACE_OS::sprintf(savename, "%s%s", path, file);
 	YARPImageFile::Write(savename, src);
 }
 

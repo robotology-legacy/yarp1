@@ -70,7 +70,6 @@
 
 #include <yarp/YARPPort.h>
 #include <yarp/YARPImages.h>
-#include <yarp/YARPList.h>
 #include <yarp/YARPThread.h>
 #include <yarp/YARPSemaphore.h>
 #include <yarp/YARPScheduler.h>
@@ -86,6 +85,8 @@ using namespace std;
 #include "ImgAtt.h"
 
 #define DBGPF1 if (0)
+
+#define NOGRASP
 
 #define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
@@ -119,6 +120,7 @@ public:
 	bool learnObject;
 	bool learnHand;
 	bool learnNotObject;
+	bool graspIt;
 };
 
 
@@ -239,7 +241,7 @@ void mainthread::Body (void)
 	outBottle.Register(_outName3, _netname0);
 	outImage3.Register(_outName4, _netname1);
 
-	const int frameToStabilize = 6;
+	const int frameToStabilize = 5;
 	
 	int frame_no = 0;
 	int moved = frameToStabilize;
@@ -256,6 +258,7 @@ void mainthread::Body (void)
 	learnObject = false;
 	learnHand = false;
 	learnNotObject = false;
+	graspIt=false;
 	int boxesMem = 0;
 	int mRG;
 	int mGR;
@@ -351,7 +354,6 @@ void mainthread::Body (void)
 		YBVocab message;
 		do {
 			if (inBottle.Read(0)) {
-				//ACE_OS::printf("Port received:");
 				YARPBottle &bottle = inBottle.Content();
 				//bottle.display();
 				if (bottle.tryReadVocab(message)) {
@@ -390,6 +392,7 @@ void mainthread::Body (void)
 						searching = false;
 						exploring = true;
 						att_mod.resetObject();
+						att_mod.resetIORTable();
 						reaching=false;
 						reachingAttempt=0;
 						if (learnHand)
@@ -410,8 +413,14 @@ void mainthread::Body (void)
 							searching=false;
 							exploring=true;
 						} else {
-							noOutput=(boxesMem==0);
 							att_mod.dumpLearnObject();
+							if (boxesMem==0) {
+								noOutput=true;
+								ACE_OS::printf("I have not seen the object very well...\nPlese put it in my hand again.\n");
+							} else {
+								graspIt=true;
+								noOutput=false;
+							}
 						}
 					} else if (message == YBVReachingSuccess) {
 						att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
@@ -419,6 +428,7 @@ void mainthread::Body (void)
 						exploring = true;
 						noOutput=true;
 						saccades=0;
+						graspIt=false;
 					} else if (message == YBVReachingFailure) {
 						reachingAttempt++;
 						if (reachingAttempt==3) {
@@ -428,6 +438,7 @@ void mainthread::Body (void)
 							searching = false;
 							exploring = true;
 							noOutput=true;
+							graspIt=false;
 						} else
 							noOutput=false;
 					} else if (message == YBVVAMove) {
@@ -454,22 +465,22 @@ void mainthread::Body (void)
 						att_mod.dumpLearnObject();
 						att_mod.dumpLearnHand();
 					}
-					/*else
-						ACE_OS::printf("nothing done\n");*/
 				}
 			} 
 		} while ((message!=YBVReachingAck && message!=YBVReachingAbort) && reaching);
 
-		reaching=false;
-		
 		////////////////////
-		if (message==YBVReachingAbort) {
-			ACE_OS::printf("-------------->Reaching aborted\n");
-			mustMove=true;
-		} else if (message==YBVReachingAck) {
-			ACE_OS::printf("-------------->Reaching started! YUU-HUU!!!\n");
-			noOutput=true;
+		if (reaching) {
+			if (message==YBVReachingAbort) {
+				ACE_OS::printf("-------------->Reaching aborted\n");
+				mustMove=true;
+				noOutput=false;
+			} else if (message==YBVReachingAck) {
+				ACE_OS::printf("-------------->Reaching started! YUU-HUU!!!\n");
+				noOutput=true;
+			}
 		}
+		reaching=false;
 		// if I'm searching for a bottom-up target...
 		if (exploring && targetFound) att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
 		targetFound = false;
@@ -481,8 +492,6 @@ void mainthread::Body (void)
 			tmpBottle.reset();
 
 			if (!inImage.Read())
-				//cur = YARPTime::GetTimeAsSeconds();
-			//else
 				ACE_OS::printf(">>> ERROR: frame not read\n");
 		
 			img.Refer(inImage.Content());
@@ -623,10 +632,10 @@ endDiffCheck:
 					} else if (moved==0) {
 						// Special frame: now decision and data could be sent
 						if (found) {
-							ACE_OS::printf("Saccades: %d\n", saccades);
 							mustMove=att_mod.checkObject(img, 0.5-(double)saccades/100)<(0.5-(double)saccades/100);
-							att_mod.dumpLearnObject();
+							//att_mod.dumpLearnObject();
 							if (!mustMove) {
+								ACE_OS::printf("Saccades: %d\n", saccades);
 								if (!noOutput) {
 									ACE_OS::printf("Target found, sending the center of the object\n");
 									int xObj, yObj;
@@ -636,17 +645,20 @@ endDiffCheck:
 										xObj,yObj);
 									tmpBottle.writeInt(xObj);
 									tmpBottle.writeInt(yObj);
+#ifdef NOGRASP
+									tmpBottle.writeInt(0);
+#endif
 									//tmpBottle.writeInt(att_mod.fovBox.centroid_x);
 									//tmpBottle.writeInt(att_mod.fovBox.centroid_y);
 									outBottle.Content() = tmpBottle;
 									outBottle.Write();
-									reaching=true;
+									if (graspIt) reaching=true;
+									noOutput=true;
 								} else
 									ACE_OS::printf("Target found but I'm freezed!\n");
 							}
 							targetFound = !mustMove;
 						} else {
-							// MODIFY
 							out3.Zero();
 							if (!noOutput) {
 								ACE_OS::printf("Sending point: blob# %ld @ (%d,%d)\n", att_mod.max_boxes[0].id, (int)att_mod.max_boxes[0].centroid_x, (int)att_mod.max_boxes[0].centroid_y);
@@ -713,9 +725,6 @@ endDiffCheck:
 						}
 					} else {
 						//ACE_OS::printf("Waiting to stabilize\n");
-						/*tmpBottle.writeInt(-1);
-						tmpBottle.writeInt(-1);
-						tmpBottle.writeInt(-1);*/
 					}
 
 					// blob in fovea
@@ -726,23 +735,7 @@ endDiffCheck:
 					YARPImageUtils::GetRed(colored_s, out);
 				}
 
-				//ACE_OS::printf("max position: x=%d y=%d max=%d\n", pos_x, pos_y, max);
 				//DBGPF1 ACE_OS::printf("max position: x=%d y=%d\n", pos_max[0].centroid_x, pos_max[0].centroid_y);
-
-				/*out2.Zero();
-				memset(out2.GetRawBuffer(), 255, 50*((IplImage*)out2)->widthStep);
-				fitlp.fitEllipse(out2, &bfX0, &bfY0, &bfA11, &bfA12, &bfA22);
-				fitlp.plotEllipse(bfX0, bfY0, bfA11, bfA12, bfA22, out2, 127);
-				ACE_OS::sprintf(savename, "./ellipse.ppm");
-				YARPImageFile::Write(savename, out2);
-
-				YARPImageUtils::SetRed(out2, colored_s);
-				mapper.Logpolar2Cartesian(colored_s, col_cart);
-				YARPImageUtils::GetRed(col_cart, out3);
-				//fit.fitEllipse(out3, &bfX0, &bfY0, &bfA11, &bfA12, &bfA22);
-				fit.plotEllipse(bfX0, bfY0, bfA11, bfA12, bfA22, out3, 127);
-				ACE_OS::sprintf(savename, "./ellipse.ppm");
-				YARPImageFile::Write(savename, out3);*/
 
 				//start = start + (YARPTime::GetTimeAsSeconds() - cur);
 
@@ -778,11 +771,9 @@ endDiffCheck:
 			outImage3.Content().Refer(out3);
 			outImage3.Write();
 			
-			if ((frame_no % 100) == 0) {
+			if ((frame_no % 100) == 0 && noOutput) {
 				cur = YARPTime::GetTimeAsSeconds();
 				ACE_OS::fprintf(stdout, "average frame time: %f frame #%d acquired\r", (cur-start)/frame_no, frame_no);
-				//ACE_OS::fprintf(stdout, "average frame time: %f frame #%d acquired\r", start/frame_no, frame_no);
-				//start = cur;
 			}
 		}
 	}
@@ -793,85 +784,148 @@ endDiffCheck:
 
 int main (int argc, char *argv[])
 {
-	char basename[80]="/";
+	char filename[80]="";
 	isMoving=false;
 		
-	YARPParseParameters::parse(argc, argv, "-name", basename);
+	if (YARPParseParameters::parse(argc, argv, "-file", filename)) {
+		char name[80]="";
+		char filename2[80]="";
+		int found=0;
+		int exa=0;
+		int pos[100];
+		int sum=0;
+		
+		YARPParseParameters::parse(argc, argv, "-mask", filename2);
+		
+		YARPImageOf<YarpPixelBGR> img;
+		YARPImageOf<YarpPixelMono> msk;
+		YARPImageOf<YarpPixelMono> out;
+		YARPImageOf<YarpPixelMono> intersct;
 
-	ACE_OS::sprintf(_inName1, "/visualattention%s/i:img",basename);		//input log-polar img
-	ACE_OS::sprintf(_inName2, "/visualattention%s/i:bot", basename);	//input commands
-	ACE_OS::sprintf(_inName3, "/visualattention%s/i:vec", basename);	//motor 
-	ACE_OS::sprintf(_inName4, "/visualattention%s/i:vec2", basename);	//checkfixation
-	ACE_OS::sprintf(_outName1, "/visualattention%s/o:img", basename);
-	ACE_OS::sprintf(_outName2, "/visualattention%s/o:img2", basename);
-	ACE_OS::sprintf(_outName3, "/visualattention%s/o:bot", basename);
-	ACE_OS::sprintf(_outName4, "/visualattention%s/o:img3", basename);
-	ACE_OS::sprintf(_netname0, "Net0");
-	ACE_OS::sprintf(_netname1, "Net1");
+		out.Resize(_stheta, _srho);
+		intersct.Resize(_stheta, _srho);
 
-	YARPScheduler::setHighResScheduling();
+		for (int l=0; l<100; l++) {
+			ACE_OS::sprintf(name, "%s%04d_lp.ppm", filename, l);
+			if (YARPImageFile::Read(name, img)>=0) {
+				exa++;
+				ACE_OS::printf("%s\n", name);
+				
+				att_mod.initMeanCol(img);
+				att_mod.setWatershedTh(20);
+				for (int i=0; i<5; i++) {
+					att_mod.applyStatic(img, msk);
+					out.Refer(att_mod.Saliency());
+					//ACE_OS::sprintf(name, "out%2d_%2d.ppm", l,i);
+					//YARPImageFile::Write(name, out);
+				}
+				ACE_OS::sprintf(name, "out%04d.ppm", l);
+				YARPImageFile::Write(name, out);
 
-	mainthread _thread;
-	secondthread _thread2;
+				ACE_OS::sprintf(name, "%s%04d_lp.ppm", filename2, l);
+				ACE_OS::printf("%s\n", name);
+				if (YARPImageFile::Read(name, msk)>=0) {
+					int p=att_mod.verifyMsk(out, msk, intersct);
+					pos[exa-1]=p;
+					sum+=p;
+					if (p==0) found++;
+					ACE_OS::printf("%d\n", p);
+					ACE_OS::sprintf(name, "int%04d.ppm", l);
+					YARPImageFile::Write(name, intersct);
+				}
+			}
+		}
+		ACE_OS::printf("%d/%d\n", found, exa);
+		//for (l=0; l<exa; l++)
+		//	ACE_OS::printf("%d\n", pos[l]);
+		ACE_OS::printf("mean: %lf\n", (double)sum/exa);
 
-	_thread.Begin();
-	_thread2.Begin();
+		//att_mod.saveImages();
+	} else {	
+		char basename[80]="/";
 
-	char c = 0;
+		YARPParseParameters::parse(argc, argv, "-name", basename);
+		
+		ACE_OS::sprintf(_inName1, "/visualattention%s/i:img",basename);		//input log-polar img
+		ACE_OS::sprintf(_inName2, "/visualattention%s/i:bot", basename);	//input commands
+		ACE_OS::sprintf(_inName3, "/visualattention%s/i:vec", basename);	//motor 
+		ACE_OS::sprintf(_inName4, "/visualattention%s/i:vec2", basename);	//checkfixation
+		ACE_OS::sprintf(_outName1, "/visualattention%s/o:img", basename);
+		ACE_OS::sprintf(_outName2, "/visualattention%s/o:img2", basename);
+		ACE_OS::sprintf(_outName3, "/visualattention%s/o:bot", basename);
+		ACE_OS::sprintf(_outName4, "/visualattention%s/o:img3", basename);
+		ACE_OS::sprintf(_netname0, "Net0");
+		ACE_OS::sprintf(_netname1, "Net1");
 
-	do {
-		cin >> c;
-		if (c<='9' && c>='0')
-			att_mod.setWatershedTh((c-'0')*3);
-		else if (c=='r') {
-			cout<<"Resetting IOR table"<<endl;
-			att_mod.resetIORTable();
-		} else if (c=='s') {
-			YarpPixelMono mRG=att_mod.fovBox.meanRG;
-			YarpPixelMono mGR=att_mod.fovBox.meanGR;
-			YarpPixelMono mBY=att_mod.fovBox.meanBY;
+		YARPScheduler::setHighResScheduling();
 
-			double cmp=att_mod.fovBox.cmp;
-			double ect=att_mod.fovBox.ect;
+		mainthread _thread;
+		secondthread _thread2;
 
-			cout<<"Searching for blobs similar to that in the fovea in this moment"<<endl;
-			cout<<"mRG:"<<(int)mRG<<", mGR:"<<(int)mGR<<", mBY:"<<(int)mBY<<endl;
-			cout<<"CMP:"<<cmp<<", ECT:"<<ect<<endl;
-			att_mod.setParameters(mRG, mGR, mBY, cmp, ect, 0, 1);
-			_thread.searching=true;
-			_thread.exploring=false;
-		} else if (c=='e') {
-			cout<<"Exploring the scene"<<endl;
-			att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
-			_thread.searching=false;
-			_thread.exploring=true;
-		} else if (c=='u') {
-			ACE_OS::printf("Updating IOR table\n");
-			att_mod.updateIORTable();
-		} else if (c=='o') {
-			ACE_OS::printf("Saving Mean Opponent Colors image\n");
-			att_mod.saveMeanOppCol();
-		} else if (c=='m') {
-			ACE_OS::printf("Saving Mean Colors image\n");
-			att_mod.saveMeanCol();
-		} else if (c=='l') {
-			ACE_OS::printf("Learn Object\n");
-			_thread.learnObject=true;
-		} else if (c=='h') {
-			ACE_OS::printf("Learn Hand\n");
-			_thread.learnHand=true;
-		} else if (c=='n') {
-			ACE_OS::printf("Learn counter example\n");
-			_thread.learnNotObject=true;
-		} else if (c=='i') {
-			ACE_OS::printf("Saving all images\n");
-			att_mod.saveImages();
-		} else
-			cout << "Type q+return to quit" << endl;
-	} while (c != 'q');
+		_thread.Begin();
+		_thread2.Begin();
 
-	_thread.End(-1);
-	_thread2.End(-1);
+		char c = 0;
+
+		do {
+			cin >> c;
+			if (c<='9' && c>='0')
+				att_mod.setWatershedTh((c-'0')*3);
+			else if (c=='r') {
+				cout<<"Resetting IOR table"<<endl;
+				att_mod.resetIORTable();
+			} else if (c=='s') {
+				YarpPixelMonoSigned mRG=att_mod.fovBox.meanRG;
+				YarpPixelMonoSigned mGR=att_mod.fovBox.meanGR;
+				YarpPixelMonoSigned mBY=att_mod.fovBox.meanBY;
+
+				double cmp=att_mod.fovBox.cmp;
+				double ect=att_mod.fovBox.ect;
+
+				cout<<"Searching for blobs similar to that in the fovea in this moment"<<endl;
+				cout<<"mRG:"<<(int)mRG<<", mGR:"<<(int)mGR<<", mBY:"<<(int)mBY<<endl;
+				cout<<"CMP:"<<cmp<<", ECT:"<<ect<<endl;
+				att_mod.setParameters(mRG, mGR, mBY, cmp, ect, 0, 1);
+				_thread.searching=true;
+				_thread.exploring=false;
+			} else if (c=='e') {
+				cout<<"Exploring the scene"<<endl;
+				att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
+				_thread.searching=false;
+				_thread.exploring=false;
+			} else if (c=='E') {
+				cout<<"Exploring the scene through grasping"<<endl;
+				att_mod.setParameters(0, 0, 0, 0, 0, 1, 0);
+				_thread.searching=false;
+				_thread.exploring=true;
+			} else if (c=='u') {
+				ACE_OS::printf("Updating IOR table\n");
+				att_mod.updateIORTable();
+			} else if (c=='o') {
+				ACE_OS::printf("Saving Mean Opponent Colors image\n");
+				att_mod.saveMeanOppCol();
+			} else if (c=='m') {
+				ACE_OS::printf("Saving Mean Colors image\n");
+				att_mod.saveMeanCol();
+			} else if (c=='l') {
+				ACE_OS::printf("Learn Object\n");
+				_thread.learnObject=true;
+			} else if (c=='h') {
+				ACE_OS::printf("Learn Hand\n");
+				_thread.learnHand=true;
+			} else if (c=='n') {
+				ACE_OS::printf("Learn counter example\n");
+				_thread.learnNotObject=true;
+			} else if (c=='i') {
+				ACE_OS::printf("Saving all images\n");
+				att_mod.saveImages();
+			} else
+				cout << "Type q+return to quit" << endl;
+		} while (c != 'q');
+
+		_thread.End(-1);
+		_thread2.End(-1);
+	}
 
 	return YARP_OK;
 }

@@ -59,15 +59,15 @@ public:
 	unsigned long int gSum;
 	unsigned long int bSum;
 	
-	YarpPixelMono meanRG;
-	YarpPixelMono meanGR;
-	YarpPixelMono meanBY;
+	YarpPixelMonoSigned meanRG;
+	YarpPixelMonoSigned meanGR;
+	YarpPixelMonoSigned meanBY;
 
 	YarpPixelBGR meanColors;
 	
-	unsigned char cRG;
-	unsigned char cGR;
-	unsigned char cBY;
+	char cRG;
+	char cGR;
+	char cBY;
 
 	int salienceBU;
 	int salienceTD;
@@ -114,7 +114,7 @@ public:
 	YARPSalience::YARPSalience(const int width1, const int height1);
 	void resize(const int width1, const int height1);
 
-	void blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<YarpPixelMono> &rg, YARPImageOf<YarpPixelMono> &gr, YARPImageOf<YarpPixelMono> &by, YARPImageOf<YarpPixelMono> &r1, YARPImageOf<YarpPixelMono> &g1, YARPImageOf<YarpPixelMono> &b1, int last_tag);
+	void blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<YarpPixelMonoSigned> &rg, YARPImageOf<YarpPixelMonoSigned> &gr, YARPImageOf<YarpPixelMonoSigned> &by, YARPImageOf<YarpPixelMono> &r1, YARPImageOf<YarpPixelMono> &g1, YARPImageOf<YarpPixelMono> &b1, int last_tag);
 	inline void removeFoveaBlob(YARPImageOf<YarpPixelInt>& tagged) {m_boxes[tagged(0, 0)].valid=false;}
 	void removeBlobList(char *blobList, int max_tag);
 	void updateFoveaBlob(YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag);
@@ -124,11 +124,12 @@ public:
 	void checkIOR(YARPImageOf<YarpPixelInt>& tagged, YARPBox* boxes, int num);
 	void ComputeMeanColors(int last_tag);
 	void RemoveNonValid(int last_tag, const int max_size, const int min_size);
+	void RemoveNonValidNoRange(int last_tag, const int max_size, const int min_size);
 	void DrawMeanColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
 	void DrawMeanOpponentColorsLP(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
 	void DrawVQColor(YARPImageOf<YarpPixelBGR>& id, YARPImageOf<YarpPixelInt>& tagged);
 	int DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
-	int DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby);
+	int DrawContrastLP2(YARPImageOf<YarpPixelMonoSigned>& rg, YARPImageOf<YarpPixelMonoSigned>& gr, YARPImageOf<YarpPixelMonoSigned>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMonoSigned prg, YarpPixelMonoSigned pgr, YarpPixelMonoSigned pby, YarpPixelMono maxDest=170);
 	//int DrawGrayLP(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, int numBlob);
 	void drawFoveaBlob(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, const YarpPixelMono gray=255);
 	void drawBlobList(YARPImageOf<YarpPixelMono>& id, YARPImageOf<YarpPixelInt>& tagged, char *blobList, int max_tag, const YarpPixelMono gray=255);

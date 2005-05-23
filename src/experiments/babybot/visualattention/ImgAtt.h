@@ -94,8 +94,9 @@
 
 
 const int range = 256;
-const int maxError=900;
-const int minBoundingArea=120;
+//const int maxError=900;
+const int maxError=700;
+const int minBoundingArea=15*15;
 
 typedef struct { int x; int y; } Vett;
 
@@ -115,20 +116,33 @@ protected:
 	YARPImageOf<YarpPixelMono> g2;
 	YARPImageOf<YarpPixelMono> b2;
 
+	YARPImageOf<YarpPixelMonoSigned> r1s;
+	YARPImageOf<YarpPixelMonoSigned> g1s;
+	YARPImageOf<YarpPixelMonoSigned> b1s;
+	
 	//YARPImageOf<YarpPixelMono> i1_7;
 	YARPImageOf<YarpPixelMonoSigned> is1;
 
 	YARPImageOf<YarpPixelMono> r1_g_c;
 	YARPImageOf<YarpPixelMono> g1_g_c;
 	YARPImageOf<YarpPixelMono> b1_g_c;
-	YARPImageOf<YarpPixelMonoSigned> is1_g_c;
+	YARPImageOf<YarpPixelMono> i1_g_c;
 	YARPImageOf<YarpPixelMono> r1_g_s;
 	YARPImageOf<YarpPixelMono> g1_g_s;
 	YARPImageOf<YarpPixelMono> y1_g_s;
-	YARPImageOf<YarpPixelMonoSigned> is1_g_s;
+	YARPImageOf<YarpPixelMono> i1_g_s;
+	//signed
+	YARPImageOf<YarpPixelMonoSigned> r1s_g_c;
+	YARPImageOf<YarpPixelMonoSigned> g1s_g_c;
+	YARPImageOf<YarpPixelMonoSigned> b1s_g_c;
+	YARPImageOf<YarpPixelMonoSigned> i1s_g_c;
+	YARPImageOf<YarpPixelMonoSigned> r1s_g_s;
+	YARPImageOf<YarpPixelMonoSigned> g1s_g_s;
+	YARPImageOf<YarpPixelMonoSigned> y1s_g_s;
+	YARPImageOf<YarpPixelMonoSigned> i1s_g_s;
 
-	//YARPImageOf<YarpPixelMonoSigned> ors[12];
-	YARPImageOf<YarpPixelMono> or[4];
+	YARPImageOf<YarpPixelMonoSigned> ors[3];
+	YARPImageOf<YarpPixelMono> or[3];
 	//YARPImageOf<YarpPixelMono> or_r[4];
 
 	YARPImageOf<YarpPixelMono> edge;
@@ -179,7 +193,7 @@ protected:
 	YARPImageOf<YarpPixelMono> map[4];
 	
 	//YARPImageOf<YarpPixelMono> *array1[8];
-	YARPImageOf<YarpPixelMono> *array2[3];
+	YARPImageOf<YarpPixelMonoSigned> *array2[3];
 	//YARPImageOf<YarpPixelMonoSigned> *array3[12];
 
 	//YARPImageOf<YarpPixelMono> comb;
@@ -264,11 +278,12 @@ protected:
 	inline void normalize();
 	inline void findBlobs();
 	inline void drawBlobs(bool stable);
+	inline void drawAllBlobs(bool stable);
 	inline void quantizeColors();
 	
 	float DenteDiSega(short x);
 	void Combine(YARPImageOf<YarpPixelMono> **src, int num, YARPImageOf<YarpPixelMono> &dst);
-	void CombineMax(YARPImageOf<YarpPixelMono> **src, int num, YARPImageOf<YarpPixelMono> &dst);
+	void CombineMax(YARPImageOf<YarpPixelMonoSigned> **src, int num, YARPImageOf<YarpPixelMono> &dst);
 	void CombineMaxAbs(YARPImageOf<YarpPixelMonoSigned> **src, int num, YARPImageOf<YarpPixelMono> &dst);
 	void MinMax(IplImage* img, int &mn, int &mx);
 	void FullRange(IplImage* img, IplImage* out, const int mn, const int mx);
@@ -293,9 +308,14 @@ public:
 	~YARPImgAtt();
 	
 	bool Apply(YARPImageOf<YarpPixelBGR> &src, bool stable);
+	bool applyStatic(YARPImageOf<YarpPixelBGR> &src, YARPImageOf<YarpPixelMono> &msk);
+	
 	void FindNMax(int num, Vett* pos);
 	void FindMax(YARPImageOf<YarpPixelMono> &src, Vett &pos);
 	void FindMax(YARPImageOf<YarpPixelInt> &src, Vett &pos);
+	
+	int verifyMsk(YARPImageOf<YarpPixelMono> &src, YARPImageOf<YarpPixelMono> &msk, YARPImageOf<YarpPixelMono> &dst);
+	
 	YARPImageOf<YarpPixelMono>& Saliency() { return out; }
 	YARPImageOf<YarpPixelMono>& getBlobFov() { return blobFov; }
 	YARPImageOf<YarpPixelMono>& getObjectFov() { return objectFov; }
@@ -305,13 +325,13 @@ public:
 	
 	void saveMeanOppCol();
 	void saveMeanCol();
-	void saveSRC(YARPImageOf<YarpPixelBGR> &src);
+	void saveImg(const char *file, YARPImageOf<YarpPixelBGR> &src);
 	void saveImages();
 	
 	
 	void setWatershedTh(YarpPixelMono th) { rain.setThreshold(th); }
 
-	inline void setParameters(const YarpPixelMono sRG, const YarpPixelMono sGR, const YarpPixelMono sBY, const double sCMP, const double sECT, const float sBU, const float sTD)
+	inline void setParameters(const YarpPixelMonoSigned sRG, const YarpPixelMonoSigned sGR, const YarpPixelMonoSigned sBY, const double sCMP, const double sECT, const float sBU, const float sTD)
 	{
 		searchRG=sRG;
 		searchGR=sGR;

@@ -132,7 +132,14 @@ YARPSalience::~YARPSalience()
 }
 
 
-void YARPSalience::blobCatalog(YARPImageOf<YarpPixelInt>& tagged, YARPImageOf<YarpPixelMono> &rg, YARPImageOf<YarpPixelMono> &gr, YARPImageOf<YarpPixelMono> &by, YARPImageOf<YarpPixelMono> &r1, YARPImageOf<YarpPixelMono> &g1, YARPImageOf<YarpPixelMono> &b1, int last_tag)
+void YARPSalience::blobCatalog(YARPImageOf<YarpPixelInt>& tagged,
+							   YARPImageOf<YarpPixelMonoSigned> &rg,
+							   YARPImageOf<YarpPixelMonoSigned> &gr,
+							   YARPImageOf<YarpPixelMonoSigned> &by,
+							   YARPImageOf<YarpPixelMono> &r1,
+							   YARPImageOf<YarpPixelMono> &g1,
+							   YARPImageOf<YarpPixelMono> &b1,
+							   int last_tag)
 {
 	for (int i = 0; i <= last_tag; i++) {
 		m_boxes[i].cmax = m_boxes[i].rmax = 0;
@@ -436,10 +443,6 @@ void YARPSalience::ComputeMeanColors(int last_tag)
 
 void YARPSalience::RemoveNonValid(int last_tag, const int max_size, const int min_size)
 {
-	//const int max_size = m_lp.GetCWidth() * m_lp.GetCHeight() / 10;
-	//const int max_size = m_lp.GetCWidth() * m_lp.GetCHeight() / 13; // ~area/10
-	//const int min_size = 100;
-
 	for (int i = 1; i <= last_tag;i++) {
 		if (m_boxes[i].valid) {
 			//int area = TotalArea(m_boxes[i]);
@@ -447,7 +450,6 @@ void YARPSalience::RemoveNonValid(int last_tag, const int max_size, const int mi
 			// eliminare i blob troppo piccoli nn è molto utile se
 			// i blob vengono comunque ordinati x grandezza.
 			if ( area < min_size ||	area > max_size ) {
-			//if ( area < min_size) {
 				m_boxes[i].valid=false;
 			} else {
 				if ( !isWithinRange((int)m_boxes[i].centroid_x, (int)m_boxes[i].centroid_y, m_boxes[i].elev, m_boxes[i].az) )
@@ -455,32 +457,22 @@ void YARPSalience::RemoveNonValid(int last_tag, const int max_size, const int mi
 			}
 		}
 	}
+}
 
-	/*for (int i = 1; i < last_tag;) {
-		int area = TotalArea(m_boxes[i]);
-		//if (m_boxes[i].valid == false || 
-		//	m_boxes[i].areaLP < 5 ||
-		//	area < min_size ||
-		//	area > max_size)
-		// If I delete the boxes with .areaLP > 255 than sum of color can be an int?
-		//if (m_boxes[i].valid == false || 
-		//	m_boxes[i].areaCart < min_size ||
-		//	m_boxes[i].areaCart > max_size ||
-		//	m_boxes[i].edge==true)
-		if (m_boxes[i].valid == false || 
-			area < min_size ||
-			area > max_size ||
-			m_boxes[i].edge==true)
-		{
-			if (i == (last_tag-1))
-				last_tag--;
-			else {
-				memcpy(&(m_boxes[i]), &(m_boxes[i+1]), sizeof(YARPBox) * (last_tag - i - 1));
-				last_tag--;
+
+void YARPSalience::RemoveNonValidNoRange(int last_tag, const int max_size, const int min_size)
+{
+	for (int i = 1; i <= last_tag;i++) {
+		if (m_boxes[i].valid) {
+			//int area = TotalArea(m_boxes[i]);
+			int area = m_boxes[i].areaCart;
+			// eliminare i blob troppo piccoli nn è molto utile se
+			// i blob vengono comunque ordinati x grandezza.
+			if ( area < min_size ||	area > max_size ) {
+				m_boxes[i].valid=false;
 			}
-		} else
-			i++;
-	}*/
+		}
+	}
 }
 
 
@@ -724,7 +716,7 @@ int YARPSalience::DrawContrastLP(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Yar
 }
 
 
-int YARPSalience::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<YarpPixelMono>& gr, YARPImageOf<YarpPixelMono>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMono prg, YarpPixelMono pgr, YarpPixelMono pby)
+int YARPSalience::DrawContrastLP2(YARPImageOf<YarpPixelMonoSigned>& rg, YARPImageOf<YarpPixelMonoSigned>& gr, YARPImageOf<YarpPixelMonoSigned>& by, YARPImageOf<YarpPixelMono>& dst, YARPImageOf<YarpPixelInt>& tagged, int numBlob, float pBU, float pTD, YarpPixelMonoSigned prg, YarpPixelMonoSigned pgr, YarpPixelMonoSigned pby, YarpPixelMono maxDest)
 {
 	int salienceBU, salienceTD;
 
@@ -752,8 +744,11 @@ int YARPSalience::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 		if (m_boxes[i].valid) {
 			int tmp;
 			
-			int rdim=(double)(m_boxes[i].rmax-m_boxes[i].rmin+1)*.75;
-			int cdim=(double)(m_boxes[i].cmax-m_boxes[i].cmin+1)*.75;
+			//int rdim=(double)(m_boxes[i].rmax-m_boxes[i].rmin+1)*.75;
+			//int cdim=(double)(m_boxes[i].cmax-m_boxes[i].cmin+1)*.75;
+			int rdim=(double)(m_boxes[i].rmax-m_boxes[i].rmin+1)*1;
+			int cdim=(double)(m_boxes[i].cmax-m_boxes[i].cmin+1)*1;
+
 
 			int a,b,c,d;
 			c = m_boxes[i].rmax+rdim;
@@ -841,7 +836,7 @@ int YARPSalience::DrawContrastLP2(YARPImageOf<YarpPixelMono>& rg, YARPImageOf<Ya
 		}
 	}
 
-	const int maxDest=170;
+	//const int maxDest=170;
 
 	if (maxSalienceBU!=minSalienceBU) {
 		a1=255*(maxDest-1)/(maxSalienceBU-minSalienceBU);
