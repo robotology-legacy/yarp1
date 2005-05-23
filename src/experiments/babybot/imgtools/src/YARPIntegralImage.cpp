@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.cpp,v 1.1 2004-07-29 13:35:38 babybot Exp $
+/// $Id: YARPIntegralImage.cpp,v 1.2 2005-05-23 16:31:25 orfra Exp $
 ///
 ///
 
@@ -136,6 +136,37 @@ int YARPIntegralImage::computeCartesian(YARPImageOf<YarpPixelMono> &input)
 	return YARP_OK;
 }
 
+int YARPIntegralImage::computeCartesian(YARPImageOf<YarpPixelMonoSigned> &input)
+{
+	int r;
+	int c;
+
+	// first row
+	_rowSum(0,0) = (float) input(0,0);
+	_integralImg(0, 0) = _rowSum(0,0);
+		
+	for(c = 1; c < _nCols; c++)
+	{
+		_rowSum(c,0) = _rowSum(c-1,0) + (float) input(c,0);
+		_integralImg(c,0) = _rowSum(c,0);
+	}
+		
+	for(r = 1; r < _nRows; r++)
+	{
+		// first col
+		_rowSum(0,r) = (float) input(0,r);
+		_integralImg(0, r) = _integralImg(0, r-1) + _rowSum(0,r);
+		
+		for(c = 1; c < _nCols; c++)
+		{
+			_rowSum(c,r) = _rowSum(c-1,r) + (float) input(c,r);
+			_integralImg(c,r) = _integralImg(c, r-1) + _rowSum(c,r);
+		}
+	}
+
+	return YARP_OK;
+}
+
 int YARPIntegralImage::computeLp(YARPImageOf<YarpPixelMono> &input)
 {
 	int r;
@@ -170,4 +201,36 @@ int YARPIntegralImage::computeLp(YARPImageOf<YarpPixelMono> &input)
 	return YARP_OK;
 }
 
+int YARPIntegralImage::computeLp(YARPImageOf<YarpPixelMonoSigned> &input)
+{
+	int r;
+	int c;
 
+	// first pixel, init
+	_rowSum(0,0) = 0; //input(0,0)/255.0;
+	_integralImg(0,0) = _rowSum(0,0);
+	
+	// fovea, zero it for now
+	for(r = 0; r<_nfovea; r++)
+		for(c = 0; c < _nCols; c++)
+		{
+			_rowSum(c,r) = 0;
+			_integralImg(c,r) = 0;
+		}
+	
+	
+	for(r = _nfovea; r < _nRows; r++)
+	{
+		// first col
+		_rowSum(0,r) = (float) (input(0,r)*pSize(c,r,_nfovea));
+		_integralImg(0, r) = _integralImg(0, r-1) + _rowSum(0,r);
+		
+		for(c = 1; c < _nCols; c++)
+		{
+			_rowSum(c,r) = _rowSum(c-1,r) + (float) (input(c,r)*pSize(c,r,_nfovea));
+			_integralImg(c,r) = _integralImg(c, r-1) + _rowSum(c,r);
+		}
+	}
+
+	return YARP_OK;
+}

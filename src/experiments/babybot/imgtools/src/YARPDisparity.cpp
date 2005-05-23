@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.cpp,v 1.1 2004-07-29 13:35:38 babybot Exp $
+/// $Id: YARPDisparity.cpp,v 1.2 2005-05-23 16:31:24 orfra Exp $
 ///
 ///
 
@@ -73,6 +73,10 @@
 #include <yarp/YARPLogPolar.h>
 #include <iostream>
 using namespace std;
+
+
+#define mmax(a,b)    (((a) > (b)) ? (a) : (b))
+#define mmin(a,b)    (((a) < (b)) ? (a) : (b))
 
 
 #define SWAP(a,b) {temp=(a);(a)=(b);(b)=temp;}
@@ -641,6 +645,126 @@ int YARPDisparityTool::computeMono (YARPImageOf<YarpPixelBGR> & inRImg,
 		
 	int tmpShift = filterMaxes();
 	*value = (double) _corrFunct[tmpShift];
+	
+	return _shiftToDisparity(tmpShift);
+}
+
+int YARPDisparityTool::computeBDist (YARPImageOf<YarpPixelBGR> & inRImg,
+											YARPImageOf<YarpPixelBGR> & inLImg, double *value)
+{
+	int i,j,k, k1;
+	int i2,i1;//iR,iL
+	
+	double r,g,b;
+	double ar,ag,ab;
+	
+	YarpPixelRGBFloat pixel1;
+	YarpPixelRGBFloat pixel2;
+
+	//double ww[8]={0.300397, -0.392182, -0.393657, 0.236951, 0.847676, 0.665215, 0.073522, 1.000000}; //*1
+	double ww[8]={0.005793, -0.049929, 0.002820, -0.022759, -1.000000, 0.074297, -0.535700, -0.260134}; //
+
+	double diff = 0;
+	
+	double nElem = 0;
+
+	unsigned char * fullPtr,* fovPtr;
+
+	fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+	fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+	int tIndex;
+
+	int AddedPadSize = computePadSize(_imgS.Size_Theta*_imgS.LP_Planes,_imgS.padding) - _imgS.Size_Theta*_imgS.LP_Planes;
+
+	for (k=0; k<_shiftLevels; k++)
+	{
+		k1 = k * _imgS.Size_LP; //Positioning on the table
+
+		diff = 0;
+
+		nElem = 0;
+
+		fullPtr = (unsigned char*)inRImg.GetRawBuffer();
+		fovPtr = (unsigned char*)inLImg.GetRawBuffer();
+
+		if (_count[k] == _maxCount)
+		{
+			for (j=0; j<_actRings; j++)
+			{
+				tIndex = j*_imgS.Size_Theta;
+				for (i=0; i<_imgS.Size_Theta; i++)
+				{
+					i2 = _shiftMap[k1 + tIndex+i];
+					i1 = 3 * (tIndex+i);
+
+					if (i2 > 0)
+					{
+						double diffParz=0;
+						
+						pixel1.r = *fovPtr++;
+						pixel2.r = fullPtr[i2];
+						pixel1.g = *fovPtr++;
+						pixel2.g = fullPtr[i2+1];
+						pixel1.b = *fovPtr++;
+						pixel2.b = fullPtr[i2+2];
+
+						r=pixel1.r-pixel2.r;
+						g=pixel1.g-pixel2.g;
+						b=pixel1.b-pixel2.b;
+						ar=fabs(r);
+						ag=fabs(g);
+						ab=fabs(b);
+
+						diffParz=ww[0]*(r*r+g*g+b*b)/3.+
+						ww[1]*mmin(r*g+r*b+b*g,0)/(-3.)+
+						ww[2]*mmax(r*g+r*b+b*g,0)/3.+
+						ww[3]*(ar*ag+ar*ab+ab*ag)/3.+
+						ww[4]*fabs(r+g+b)/3.+
+						ww[5]*(ar+ag+ab)/3.+
+						ww[6]*pow(ar*ag*ab,1./3.)+
+						ww[7]*sqrt(r*r+g*g+b*b)/sqrt(3.);
+
+						diffParz*=10;
+						
+						diffParz/=(ww[0]*(255*255)+
+						 ww[1]*(21675)+
+						 ww[2]*(255*255)+
+						 ww[3]*(255*255)+
+						 ww[4]*255+
+						 ww[5]*255+
+						 ww[6]*255+
+						 ww[7]*255);
+						
+						diffParz=mmax(diffParz,0);
+
+						diff+=diffParz;
+						
+						nElem++;
+					}
+					else fovPtr +=3;
+				}
+				fovPtr+=AddedPadSize;
+			}
+
+			_ssdFunct[k] = 1-diff/nElem;
+			//printf("%lf ",_ssdFunct[k]);
+
+		}
+		else
+		{
+			_ssdFunct[k] = 0;
+		}
+	}
+
+	// search max
+	_findShift(_ssdFunct, _shiftLevels);
+	_findSecondMax(_ssdFunct, _shiftLevels, _shifts[0]);
+
+	//printf("Max at %d, second max at %d\n", _shift, secondMax);
+		
+	int tmpShift = filterMaxes();
+	*value = (double) _ssdFunct[tmpShift];
 	
 	return _shiftToDisparity(tmpShift);
 }
