@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.15 2005-04-29 16:38:53 babybot Exp $
+/// $Id: YARPCanOnRobotcubArmAdapter.h,v 1.16 2005-05-24 16:01:43 babybot Exp $
 ///
 ///
 
@@ -114,7 +114,7 @@ namespace _RobotcubArm
 	const int _stiffPID[_nj]			= { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 	const double _maxDAC[_nj]			= { 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0 };
 
-	const int CANBUS_DEVICE_NUM			= 0; ///1;	[must be 1 if two cards are present]
+	const int CANBUS_DEVICE_NUM			= 1; ///1;	[must be 1 if two cards are present]
 	const int CANBUS_MY_ADDRESS			= 0;
 	const int CANBUS_POLLING_INTERVAL	= 20;			/// [ms]
 	const int CANBUS_TIMEOUT			= 10;			/// 10 * POLLING
