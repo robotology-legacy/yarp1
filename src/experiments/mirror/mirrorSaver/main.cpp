@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2005-02-18 10:15:36 babybot Exp $
+/// $Id: main.cpp,v 1.2 2005-05-26 09:48:37 claudio72 Exp $
 ///
 ///
 
@@ -71,7 +71,7 @@
 #include <ace/OS.h>
 
 #include <iostream>
-#include <stdio.h>
+//#include <stdio.h>
 #include <conio.h>
 
 #include <yarp/YARPThread.h>
@@ -82,6 +82,8 @@
 #include <yarp/YARPRobotHardware.h>
 
 #include "CollectorCommands.h"
+
+using namespace std;
 
 struct SaverOptions
 {
