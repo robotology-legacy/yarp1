@@ -86,7 +86,7 @@ using namespace std;
 
 #define DBGPF1 if (0)
 
-#define NOGRASP
+//#define NOGRASP
 
 #define DeclareOutport(x) YARPOutputPortOf<YARPGenericImage>##x(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 
