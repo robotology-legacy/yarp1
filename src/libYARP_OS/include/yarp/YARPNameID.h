@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.11 2005-04-21 11:50:17 babybot Exp $
+/// $Id: YARPNameID.h,v 1.12 2005-05-30 08:51:17 gmetta Exp $
 ///
 ///
 /*
@@ -539,7 +539,7 @@ public:
 		return YARP_OK; 
 	}
 	
-#if defined(__DARWIN__) || defined(__WIN32__) 
+#if defined(__DARWIN__) || defined(__WIN32__) || defined(__QNX__)
 	// Minor variant on other setPorts method
 	// Deals with NetInt32's, which are not ints on Darwin
 	inline int setPorts (NetInt32 *p, int size) 
