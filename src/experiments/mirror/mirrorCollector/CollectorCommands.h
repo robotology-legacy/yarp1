@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: CollectorCommands.h,v 1.1 2005-02-18 10:15:36 babybot Exp $
+/// $Id: CollectorCommands.h,v 1.2 2005-05-30 14:16:59 beltran Exp $
 ///
 ///
 
@@ -84,6 +84,8 @@ enum CollectorCmd
 
 typedef enum CollectorCmd MCommands;
 
+#include<yarp/begin_pack_for_net.h>
+
 struct CollectorData
 {
 	PresSensData		pressure;
@@ -92,6 +94,8 @@ struct CollectorData
 };
 
 typedef struct CollectorData MNumData;
+
+#include<yarp/end_pack_for_net.h>
 
 #define CMD_ACK		1
 #define CMD_FAILED	0
