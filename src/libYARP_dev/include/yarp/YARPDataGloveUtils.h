@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDataGloveUtils.h,v 1.1 2004-09-13 23:22:49 babybot Exp $
+/// $Id: YARPDataGloveUtils.h,v 1.2 2005-05-30 14:20:07 beltran Exp $
 ///
 ///
 
@@ -83,6 +83,8 @@ enum DataGloveCmd
 	DGCMDNCmds = 8
 };
 
+#include<yarp/begin_pack_for_net.h>
+
 struct DataGloveData
 {
 	int thumb[3];	// [inner, middle, outer]
@@ -96,5 +98,7 @@ struct DataGloveData
 	int palmArch;
 	int wrist[2]; // [pitch, yaw]
 };
+
+#include<yarp/end_pack_for_net.h>
 
 #endif

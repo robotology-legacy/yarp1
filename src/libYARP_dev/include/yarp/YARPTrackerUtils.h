@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPTrackerUtils.h,v 1.1 2004-09-13 23:22:49 babybot Exp $
+/// $Id: YARPTrackerUtils.h,v 1.2 2005-05-30 14:20:07 beltran Exp $
 ///
 ///
 
@@ -79,6 +79,8 @@ enum TrackerCmd
 	TCMDNCmds = 4
 };
 
+#include<yarp/begin_pack_for_net.h>
+
 struct TrackerData
 {
 	double x;
@@ -88,4 +90,7 @@ struct TrackerData
 	double elevation;
 	double roll;
 };
+
+#include<yarp/end_pack_for_net.h>
+
 #endif

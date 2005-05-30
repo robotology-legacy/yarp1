@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPPresSensUtils.h,v 1.2 2004-10-07 15:47:51 babybot Exp $
+/// $Id: YARPPresSensUtils.h,v 1.3 2005-05-30 14:20:07 beltran Exp $
 ///
 ///
 
@@ -77,6 +77,8 @@ enum PresSensCmd
 	PSCMDNCmds = 2
 };
 
+#include<yarp/begin_pack_for_net.h>
+
 struct PresSensData
 {
 	int channelA;
@@ -84,4 +86,7 @@ struct PresSensData
 	int channelC;
 	int channelD;
 };
+
+#include<yarp/end_pack_for_net.h>
+
 #endif
