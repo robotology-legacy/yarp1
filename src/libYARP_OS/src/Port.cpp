@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: Port.cpp,v 1.25 2004-08-21 17:53:46 gmetta Exp $
+/// $Id: Port.cpp,v 1.26 2005-05-31 16:39:42 gmetta Exp $
 ///
 ///
 
@@ -346,13 +346,13 @@ void OutputTarget::Body ()
 			YARPEndpointManager::CreateOutputEndpoint (*target_pid);
 			YARPEndpointManager::ConnectEndpoints (*target_pid, own_name);
 
-#ifdef DEBUG_DISABLE_SHMEM
+//#ifdef DEBUG_DISABLE_SHMEM
 #	ifdef YARP_TCP_NO_DELAY
 			/// disables Nagle's algorithm...
 			if (protocol_type == YARP_TCP)
 				YARPEndpointManager::SetTCPNoDelay (*target_pid);
 #	endif
-#endif
+//#endif
 		}
 		break;
 
