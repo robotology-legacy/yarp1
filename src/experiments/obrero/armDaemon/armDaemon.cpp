@@ -203,6 +203,8 @@ void ArmSampler::doLoop()
       for(int k=0;k<_nj;k++)
 	fprintf(dumpFile, "%lf\t", torques[k]);
 
+      //      printf("%lf\n", positions[3]);
+
       fprintf(dumpFile, "\n");
     }
 

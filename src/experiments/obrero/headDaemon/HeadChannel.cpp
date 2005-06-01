@@ -3,6 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "HeadChannel.h"
+#include <stdio.h>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -48,5 +49,10 @@ int HeadChannel::send_setpoint_pot(unsigned char motornumber, int setpoint)
 int HeadChannel::update_buffer()
 {
   spi_pointer->ReadBuffer(address, BufferRX, SizeBufferRX);
+  // debug
+  //  for(int i = 0; i<8; i++)
+  //printf("%2x", BufferRX[i]);
+  //  printf("\n");
+
   return 0;
 }

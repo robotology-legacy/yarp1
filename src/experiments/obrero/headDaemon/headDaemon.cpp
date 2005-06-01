@@ -13,10 +13,10 @@
 
 YARPInputPortOf<YARPBottle> _inputPort;
 
-const int __samplerRate = 100;
+const int __samplerRate = 10;
 const int MESSAGE_LABEL = 6;
 
-#define __HEAD_SAMPLER_VERBOSE__
+//#define __HEAD_SAMPLER_VERBOSE__
 
 using namespace std;
 

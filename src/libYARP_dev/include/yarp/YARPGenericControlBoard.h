@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.18 2005-04-20 20:45:48 natta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.19 2005-06-01 16:26:44 natta Exp $
 ///
 ///
 
@@ -943,7 +943,7 @@ public:
 	 */
 	inline double encoderToAngle(double encoder, double encParam, double zero, int sign);
 
-public:
+	//public:
 	PARAMETERS _parameters;
 
 protected:
@@ -980,7 +980,7 @@ protected:
 
 	//int *_tmp_int;
 	double *_temp_double;
-public:
+	//public:
 	ADAPTER _adapter;
 protected:
 	double *_currentLimits;

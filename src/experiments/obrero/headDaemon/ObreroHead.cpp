@@ -20,9 +20,12 @@ const int ED_MIDY = 0x80;
 const int X_HI = 0xC2;
 const int X_LO = 0x27;
 const int Y_HI = 0xBA;
-const int Y_LO = 0x50;
+const int Y_LO = 0x5A;
 
 //#define __NAT_DEBUG__
+
+const int HEAD_ADDR = 0x00;
+const int ARM_ADDR = 0x10;
 
 class EdHeadHelper {
 public:
@@ -30,7 +33,7 @@ public:
   HeadChannel	ObreroHead;
 
   EdHeadHelper() :
-    ObreroHead(0x00,&ObreroSPICommBoard)
+    ObreroHead(ARM_ADDR,&ObreroSPICommBoard)
   {
     ObreroSPICommBoard.openport("/dev/parport0");
   }
