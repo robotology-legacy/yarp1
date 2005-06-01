@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPObreroArm.h,v 1.1 2005-03-10 21:37:48 natta Exp $
+///  $Id: YARPObreroArm.h,v 1.2 2005-06-01 16:07:24 natta Exp $
 ///
 ///
 

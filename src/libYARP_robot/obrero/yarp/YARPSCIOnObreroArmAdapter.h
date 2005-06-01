@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSCIOnObreroArmAdapter.h,v 1.2 2005-03-19 23:41:45 natta Exp $
+/// $Id: YARPSCIOnObreroArmAdapter.h,v 1.3 2005-06-01 16:07:25 natta Exp $
 ///
 ///
 
@@ -122,6 +122,8 @@ namespace _ObreroArm
  * to drop the request to that card altogether.
  *
  */
+
+#include <yarp/YARPTime.h>
 
 class YARPObreroArmParameters
 {
