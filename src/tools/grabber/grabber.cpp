@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: grabber.cpp,v 1.8 2004-08-21 17:53:47 gmetta Exp $
+/// $Id: grabber.cpp,v 1.9 2005-06-01 13:56:07 gmetta Exp $
 ///
 ///
 
@@ -45,6 +45,7 @@
 #include <yarp/YARPConfig.h>
 #include <ace/config.h>
 #include <ace/OS.h>
+#include <ace/Sched_Params.h>
 
 #include <yarp/YARPThread.h>
 #include <yarp/YARPSemaphore.h>
@@ -441,6 +442,7 @@ int main (int argc, char *argv[])
 	}
 
 	mainthread _thread;
+
 	_thread.Begin();
 
 	char c = 0;

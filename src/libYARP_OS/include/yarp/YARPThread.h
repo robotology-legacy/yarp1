@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.6 2004-08-09 23:29:44 gmetta Exp $
+///	$Id: YARPThread.h,v 1.7 2005-06-01 13:56:07 gmetta Exp $
 ///
 ///
 /*
@@ -218,7 +218,9 @@ public:
 	/**
 	 * Sets the thread priority.
 	 * ACE suggests not to use the priority values directly but rather
-	 * using some OS independent methods.
+	 * using some OS independent methods. For example:
+	 * thread.SetPriority (ACE_Sched_Params::next_priority (ACE_SCHED_OTHER, thread.GetPriority());
+	 *
 	 * @return non-negative on success.
 	 */
 	int SetPriority (int prio);
