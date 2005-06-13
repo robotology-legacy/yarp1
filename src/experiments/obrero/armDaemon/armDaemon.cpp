@@ -198,10 +198,10 @@ void ArmSampler::doLoop()
 
   if (dumpFile!=NULL)
     {
-      for(int k=0;k<_nj;k++)
-	fprintf(dumpFile, "%lf\t", positions[k]);
-      for(int k=0;k<_nj;k++)
-	fprintf(dumpFile, "%lf\t", torques[k]);
+      //      for(int k=0;k<_nj;k++)
+      //	fprintf(dumpFile, "%lf\t", positions[k]);
+      //      for(int k=0;k<_nj;k++)
+      //	fprintf(dumpFile, "%lf\t", torques[k]);
 
       //      printf("%lf\n", positions[3]);
 

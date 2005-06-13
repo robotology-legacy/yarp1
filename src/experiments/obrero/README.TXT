@@ -188,3 +188,31 @@ connect everything.
 
 Should do the job.  You can look at the connect and connect-arm
 scripts to see how to connect things piece by piece.
+
+*************************************************************************
+*** MODULE "armDaemon"
+input ports:
+/armDaemon/i:bot
+
+outpur ports:
+/armDaemon/position/o:vect
+/armDaemon/torque/o:vect
+
+5 0 :put the arm in position mode
+5 1 vector of 6 ints :move the arm
+5 2 int j int dq :move joint j of dq (relative motion)
+5 3 int j int q :move joint j to q (abs motion)
+5 4 :stop motion
+
+*************************************************************************
+*** MODULE "headDaemon"
+input ports:
+/headDaemon/i:bot
+
+outpur ports:
+/headDaemon/position/o:vect
+
+6 1 vector of 2 ints :move the head (abs motion)
+6 2 int j int dq :move joint j of dq (relative motion)
+6 3 int j int q :move joint j to q (abs motion)
+6 4 vector of 2 ints :move the head (relative motion)
