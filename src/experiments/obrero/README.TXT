@@ -10,7 +10,7 @@ This directory contains some experimental modules for the obrero robot.
 
   obrero.csail.mit.edu
     A debian laptop
-    Hand control runs here (module "touch")
+    Hand control runs here (module "detect_touch")
     
   conspire1.csail.mit.edu
     A debian desktop
@@ -67,6 +67,15 @@ MESSAGES:
 	Cmd=2  Start Tapping
 	Cmd=3  Stop Tapping
 
+   // ARM DAEMON
+   ID=5 /* CONFLICT! */
+
+   // HEAD DAEMON
+   ID=6 /* CONFLICT! */
+
+   // ZOOM/FOCUS DAEMON
+   ID=7
+
 =========================================================================
 =========================================================================
 =========================================================================
@@ -75,19 +84,21 @@ MESSAGES:
 
 Suggested order in which to start modules:
   yarp-service
-  touch
   listen
   collisionDetector
   collisionCreator
+  detect_touch
+  sweep
   connections
 
 *************************************************************************
-*** MODULE "touch"
+*** MODULE "detect_touch"
 
 This module interfaces with the hand.
 On OBRERO (the laptop), do:
   cd /afs/csail.mit.edu/group/lbr/platform/yarp/src/experiments/obrero
-  cd touch
+  #  cd touch
+  cd detect_touch # NEW!
   ./ReadGUI --yarp
 
 This program hangs every time the robot is power cycled, and must
@@ -119,7 +130,7 @@ On CONSPIRE1, do:
 In a separate terminal, do:
   cd /afs/csail.mit.edu/group/lbr/platform/yarp/src/experiments/obrero
   ./connect
-to connect modules "listen" and "touch" to this one.
+to connect modules "listen" and "detect_touch" to this one.
 
 
 *************************************************************************
@@ -135,7 +146,7 @@ In a separate terminal, do:
   cd /afs/csail.mit.edu/group/lbr/platform/yarp/src/experiments/obrero
   ./connect
   ./connect-arm
-to connect modules "listen" and "touch" and "collisionDetector" and
+to connect modules "listen" and "detect_touch" and "collisionDetector" and
 "sweep".
 
 
@@ -144,6 +155,7 @@ to connect modules "listen" and "touch" and "collisionDetector" and
 *** MODULE "sweep"
 
 This module controls the arm.  Currently runs from Lorenzo's repository.
+GO TO CONSPIRE2
 Must set YARP_ROOT environment variable as follows:
   setenv YARP_ROOT ~lorenzo/work/yarp
   [or export YARP_ROOT=~lorenzo/work/yarp]
@@ -189,6 +201,7 @@ connect everything.
 Should do the job.  You can look at the connect and connect-arm
 scripts to see how to connect things piece by piece.
 
+
 *************************************************************************
 *** MODULE "armDaemon"
 input ports:
@@ -204,6 +217,7 @@ outpur ports:
 5 3 int j int q :move joint j to q (abs motion)
 5 4 :stop motion
 
+
 *************************************************************************
 *** MODULE "headDaemon"
 input ports:
@@ -216,3 +230,37 @@ outpur ports:
 6 2 int j int dq :move joint j of dq (relative motion)
 6 3 int j int q :move joint j to q (abs motion)
 6 4 vector of 2 ints :move the head (relative motion)
+
+
+
+
+
+
+*************************************************************************
+*************************************************************************
+*************************************************************************
+*************************************************************************
+
+
+
+
+
+Hey Paul,
+
+Just some notes in Obrero.
+
+When you power on the logic the current in the power supply is about 0.4
+when  in top of this you turn on the motors, the current goes up to 0.8 (0r
+0.7)
+
+When you run the demo the current goes to 1.2 or 1.1
+
+If you are within those ranges, everything is ok. If you notice that something
+goes beyond that then it might be a good idea to turn off the robot .
+
+
+Good luck wiht the demo and thanks for all the help.
+
+Eduardo
+=======
+
