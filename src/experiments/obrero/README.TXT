@@ -232,7 +232,16 @@ outpur ports:
 6 4 vector of 2 ints :move the head (relative motion)
 
 
+*************************************************************************
+*** MODULE "zoomDaemon"
+Run on CONSPIRE3
+input ports:
+/zoomDaemon/i:bot
 
+int 7 int 1 int z int f : relative zoom (+z narrows, -z widens)
+                          focus ignored for now
+int 7 int 2 : zoom out (wide) max
+int 7 int 3 : zoom in (narrow) max
 
 
 
