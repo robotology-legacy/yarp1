@@ -215,13 +215,6 @@ SOURCE=..\robotcub\yarp\YARPCanOnRobotcubArmAdapter.h
 # Begin Source File
 
 SOURCE=..\robotcub\yarp\YARPCanOnRobotcubHeadAdapter.h
-
-!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
@@ -238,24 +231,10 @@ SOURCE=..\robotcub\yarp\YARPRobotcubArm.h
 # Begin Source File
 
 SOURCE=..\robotcub\yarp\YARPRobotcubGrabber.h
-
-!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # Begin Source File
 
 SOURCE=..\robotcub\yarp\YARPRobotcubHead.h
-
-!IF  "$(CFG)" == "libYARP_robot - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "libYARP_robot - Win32 Debug"
-
-!ENDIF 
-
 # End Source File
 # End Group
 # Begin Group "null"
@@ -345,6 +324,26 @@ SOURCE=..\mirror\yarp\YARPMirrorPresSens.h
 # Begin Source File
 
 SOURCE=..\mirror\yarp\YARPPicoloOnMirrorAdapter.h
+# End Source File
+# End Group
+# Begin Group "obrero"
+
+# PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=..\obrero\yarp\YARPObreroArm.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\obrero\yarp\YARPObreroArm.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\obrero\yarp\YARPObreroGrabber.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\obrero\yarp\YARPSCIOnObreroArmAdapter.h
 # End Source File
 # End Group
 # End Group
