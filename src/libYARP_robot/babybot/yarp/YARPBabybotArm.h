@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotArm.h,v 1.6 2004-10-18 14:35:54 babybot Exp $
+///  $Id: YARPBabybotArm.h,v 1.7 2005-06-15 22:23:48 gmetta Exp $
 ///
 ///
 
@@ -85,7 +85,7 @@ typedef YARPGenericControlBoard<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParame
 class YARPBabybotArm : public MyGenericControlBoard
 {
 public:
-	YARPBabybotArm():MyGenericControlBoard()
+	YARPBabybotArm() : MyGenericControlBoard()
 	{
 		_pidSigns = NULL;
 	}
@@ -105,6 +105,7 @@ public:
 		_unlock();
 		return YARP_OK;
 	}
+
 	// overrides basic methods -> add coupling
 	int setPositions(const double *pos);
 	int setPositionsAll(const double *pos);
@@ -128,13 +129,16 @@ public:
 	// very specific functions... 6 dof only!
 	inline void angleToEncoders(const double *ang, double *enc)
 	{ _angleToEncoders(ang, enc, _parameters, _parameters._zeros); } 
+
 	inline void encoderToAngles(const double *enc, double *ang)
 	{ _encoderToAngles(enc, ang, _parameters, _parameters._zeros); }
+
 	inline void angleVelToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters)
 	{	
 		double zeros[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 		_angleToEncoders(ang, enc, _parameters, zeros);
 	}
+
 	inline void encoderVelToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters)
 	{ 
 		double zeros[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -146,6 +150,7 @@ public:
 	 * @return YARP_OK on success.
 	 */
 	int initialize();
+	
 	/**
 	 * Overloaded method: initializes the control card (reading paramters values from a file).
 	 * @param path is the path of the config file.
@@ -155,6 +160,7 @@ public:
 	 * @return YARP_OK on success.
 	 */
 	int initialize(const YARPString &path, const YARPString &init_file);
+	
 	/**
 	 * Overloaded method: Initializes the control card.
 	 * @param par is the reference to the parameter type structure (one of
@@ -162,6 +168,7 @@ public:
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
 	int initialize(YARPBabybotArmParameters &par);
+	
 	/**
 	 * Uninitializes the control board and frees memory.
 	 * This function does all what the destructor has to do.

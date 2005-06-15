@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.19 2005-06-01 16:26:44 natta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.20 2005-06-15 22:28:06 gmetta Exp $
 ///
 ///
 
@@ -943,9 +943,6 @@ public:
 	 */
 	inline double encoderToAngle(double encoder, double encParam, double zero, int sign);
 
-	//public:
-	PARAMETERS _parameters;
-
 protected:
 	/**
 	 * Waits on the internal mutex (for multithread access).
@@ -978,13 +975,12 @@ protected:
 
 	YARPSemaphore _mutex;
 
-	//int *_tmp_int;
 	double *_temp_double;
-	//public:
-	ADAPTER _adapter;
-protected:
 	double *_currentLimits;
 	double *_newLimits;
+
+	ADAPTER _adapter;
+	PARAMETERS _parameters;
 };
 
 

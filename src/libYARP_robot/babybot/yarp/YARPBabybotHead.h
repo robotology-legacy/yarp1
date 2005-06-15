@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotHead.h,v 1.2 2004-07-30 10:33:24 babybot Exp $
+///  $Id: YARPBabybotHead.h,v 1.3 2005-06-15 22:23:48 gmetta Exp $
 ///
 ///
 
@@ -90,7 +90,36 @@ namespace _joints
 	const int leftEye = 4;
 };
 
-class YARPBabybotHead: public YARPGenericControlBoard<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters>
+
+/**
+ *
+ */
+template <class ADAPTER, class PARAMETERS>
+class YARPGenericControlBoard2
+{
+public:
+	inline double angleToEncoder(double angle, double encParam, double zero, int sign)
+	{
+		if (sign == 1)
+			return -(angle * radToDeg * encParam) / (360) + zero;
+		else
+			return angle * radToDeg * encParam / (360) + zero;
+	}
+
+	inline double encoderToAngle(double encoder, double encParam, double zero, int sign)
+	{
+		if (sign == 1)
+			return degToRad * (zero-encoder) * 360 / encParam;
+		else
+			return degToRad * (encoder - zero) * 360 / encParam;
+	}
+}
+
+
+/**
+ *
+ */
+class YARPBabybotHead: public YARPGenericControlBoard2<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters>
 {
 public:
  	inline double vergence(double *pos)

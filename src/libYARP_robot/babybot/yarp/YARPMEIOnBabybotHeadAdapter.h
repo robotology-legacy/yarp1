@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.5 2004-09-04 22:01:31 babybot Exp $
+///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.6 2005-06-15 22:23:48 gmetta Exp $
 ///
 ///
 
@@ -294,7 +294,7 @@ public:
 		if (cfgFile.get("[LIMITS]", "Min", _limitsMin, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 
-		// convert limits to radiants
+		// convert limits to radians (still radians to comply w/ old standard)
 		for(i = 0; i < _nj; i++)
 		{
 			_limitsMax[i] = _limitsMax[i] * degToRad;

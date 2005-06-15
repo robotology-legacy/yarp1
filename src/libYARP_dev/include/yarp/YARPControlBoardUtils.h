@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.7 2005-04-20 20:45:48 natta Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.8 2005-06-15 22:28:06 gmetta Exp $
 ///
 ///
 
@@ -128,6 +128,8 @@ enum ControlBoardCmd
 	CMDVMove 				= 47,	// set move using the velocity mode (begin motion).
 	CMDSafeVMove			= 71,	// velocity move, check frames left before submitting command.
 
+	CMDRelativeMotion		= 91,   // peform relative motion on a single axis
+
 	CMDCheckMotionDone 		= 48,	// check for motion done.
 	CMDWaitForMotionDone 	= 49,	// wait (loop with sleep).
 
@@ -150,7 +152,7 @@ enum ControlBoardCmd
 
 	CMDGetErrors 			= 31,	// read current error.
 	CMDAbortAxes			= 62,	// abort motion, Galil
-	CMDRelativeMotion		= 91,   // peform relative motion on a single axis
+
 	CMDSetHomeIndexConfig 	= 52,
 	CMDSetHomeLevel 		= 53,
 	CMDSetHome 				= 54,
