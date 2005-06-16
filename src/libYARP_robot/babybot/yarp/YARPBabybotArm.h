@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotArm.h,v 1.7 2005-06-15 22:23:48 gmetta Exp $
+///  $Id: YARPBabybotArm.h,v 1.8 2005-06-16 10:14:57 babybot Exp $
 ///
 ///
 

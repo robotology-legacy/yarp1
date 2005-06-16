@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.20 2005-06-15 22:28:06 gmetta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.21 2005-06-16 10:14:34 babybot Exp $
 ///
 ///
 
@@ -979,6 +979,7 @@ protected:
 	double *_currentLimits;
 	double *_newLimits;
 
+public:
 	ADAPTER _adapter;
 	PARAMETERS _parameters;
 };

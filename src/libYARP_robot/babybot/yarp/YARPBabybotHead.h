@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotHead.h,v 1.3 2005-06-15 22:23:48 gmetta Exp $
+///  $Id: YARPBabybotHead.h,v 1.4 2005-06-16 10:14:57 babybot Exp $
 ///
 ///
 
@@ -95,7 +95,7 @@ namespace _joints
  *
  */
 template <class ADAPTER, class PARAMETERS>
-class YARPGenericControlBoard2
+class YARPGenericControlBoard2 : public YARPGenericControlBoard <ADAPTER, PARAMETERS>
 {
 public:
 	inline double angleToEncoder(double angle, double encParam, double zero, int sign)
@@ -113,7 +113,7 @@ public:
 		else
 			return degToRad * (encoder - zero) * 360 / encParam;
 	}
-}
+};
 
 
 /**

@@ -394,15 +394,15 @@ void main()
 	printf("\n\n\n\n\n");
 
 	InitTouchBoard();
-	for (index = 0; index<100000; index++)
+	/*for (index = 0; index<100000; index++)
 	{
 		m = ReadTouchSensor(2,1);
-		printf("Ch2=%3d\r",m);
-		// printf("\b\b\b\b\b\b\b\b\b\b Ch2=%3d",m);
+		//printf("Ch2=%3d\r",m);
+		printf("\b\b\b\b\b\b\b\b\b\b Ch2=%3d",m);
 		Sleep(1);
 	}
-	printf("\n\n\n\n\n");
-} 
+	printf("\n\n\n\n\n");*/
+ 
 
 
 
@@ -425,7 +425,9 @@ void main()
 
 
 
-/*
+	char ch;
+	int j,i,k,l,n,o,p,counter;
+
 	mainMenu:
 	puts("  MAIN MENU enter your choice");
 	puts("  a- Get all 8 analog inputs from chip 1");                                                              
@@ -459,63 +461,61 @@ void main()
        break;
      
 
-       case 'b':
-       case 'B':
-       counter = 0;
-       while(1)
-       {
-          ++ counter;
-          if (counter>30000)
-          {
-             printf("%d cycles\n", counter);
-			 Sleep(10);
-             goto mainMenu;
-          }
+		case 'b':
+		case 'B':
+		counter = 0;
+		while (1) {
+			++ counter;
+			if (counter>30000) {
+				printf("%d cycles\n", counter);
+				Sleep(10);
+				goto mainMenu;
+			}
 
 			chipsel(2);
 			m = adc(3); // get one channel of analog input
 			chipunsel();
 			Sleep(10);
 
-             printf("Ch3=%d\t", m);
+			printf("Ch3=%d\t", m);
 
-             chipsel(2);
-             k = adc(2); // get one channel of analog input
-             chipunsel();
-			 Sleep(10);
+			chipsel(2);
+			k = adc(2); // get one channel of analog input
+			chipunsel();
+			Sleep(10);
 
-             printf("Ch2=%d\t", k);
+			printf("Ch2=%d\t", k);
 
-             
-		  chipsel(2);
-             l = adc(1); // get one channel of analog input
-             chipunsel();
-			 Sleep(10);
 
-             printf("Ch1=%d\t", l);
+			chipsel(2);
+			l = adc(1); // get one channel of analog input
+			chipunsel();
+			Sleep(10);
 
-             chipsel(2);
-             p = adc(0); // get one channel of analog input
-             chipunsel();
-			 Sleep(10);
+			printf("Ch1=%d\t", l);
 
-             printf("Ch0=%d\t", p);
+			chipsel(2);
+			p = adc(0); // get one channel of analog input
+			chipunsel();
+			Sleep(10);
 
-             chipsel(3);
-             n = adc(0); // get one channel of analog input
-             chipunsel();
-			 Sleep(10);
+			printf("Ch0=%d\t", p);
 
-             printf("\tCh0 Chip 3=%d\t", n);
+			chipsel(3);
+			n = adc(0); // get one channel of analog input
+			chipunsel();
+			Sleep(10);
 
-             chipsel(1);
-             o = adc(0); // get one channel of analog input
-             chipunsel();
-			 Sleep(10);
+			printf("\tCh0 Chip 3=%d\t", n);
 
-             printf("   Ch0 Chip 1=%d\n", o);
+			chipsel(1);
+			o = adc(0); // get one channel of analog input
+			chipunsel();
+			Sleep(10);
+
+			printf("   Ch0 Chip 1=%d\n", o);
 		}
-       break;
+		break;
 
       
       default:
@@ -523,7 +523,7 @@ void main()
    }   // end of switch
    goto mainMenu;
    
-	 
-	   /*/
+}
+
 
 
