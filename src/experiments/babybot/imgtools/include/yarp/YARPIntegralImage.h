@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.h,v 1.1 2004-07-29 13:35:38 babybot Exp $
+/// $Id: YARPIntegralImage.h,v 1.2 2005-06-16 10:13:53 babybot Exp $
 ///
 /// August 2003 -- by nat
 
@@ -91,7 +91,9 @@ public:
 	inline double getSaliencyLp(int maxT, int minT, int maxR, int minR);
 	
 	int computeCartesian(YARPImageOf<YarpPixelMono> &input);
+	int computeCartesian(YARPImageOf<YarpPixelMonoSigned> &input);
 	int computeLp(YARPImageOf<YarpPixelMono> &input);
+	int computeLp(YARPImageOf<YarpPixelMonoSigned> &input);
 
 private:
 	void _resize(int nC, int nR, int sfovea);

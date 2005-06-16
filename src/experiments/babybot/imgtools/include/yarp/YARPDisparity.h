@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPDisparity.h,v 1.1 2004-07-29 13:35:38 babybot Exp $
+/// $Id: YARPDisparity.h,v 1.2 2005-06-16 10:13:52 babybot Exp $
 ///
 ///
 // disparity.h: interface for the YARPDisparityTool class.
@@ -279,9 +279,10 @@ public:
 	{ return _shiftMin;}
 
 	int filterMaxes();
-	
-// private:
-	public:
+
+	int computeBDist (YARPImageOf<YarpPixelBGR> & inRImg, YARPImageOf<YarpPixelBGR> & inLImg, double *value);
+
+protected:
 	inline void _findShift(const double *corr, int lv);
 	void _findSecondMax(const double *corr, int lv, int posMax);
 	void _findAllMax(const double *corr, int lv);
@@ -289,8 +290,7 @@ public:
 	inline int _disparityToShift(float disp);
 	inline void _computeCountVector(int *count);
 	inline void _cleanCorr();
-	void _setRings(int r)
-	{ _actRings = r; }
+	void _setRings(int r) { _actRings = r; }
 			
 	Image_Data _imgL;
 	Image_Data _imgS;
