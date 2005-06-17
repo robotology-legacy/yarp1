@@ -85,6 +85,7 @@
 //#include "YARPBlobFinder.h"
 #include "YARPWatershed.h"
 #include "YARPSalience.h"
+#include "YARPGraph.h"
 
 
 
@@ -95,7 +96,7 @@
 
 const int range = 256;
 //const int maxError=900;
-const int maxError=700;
+const int maxError=300;
 const int minBoundingArea=15*15;
 
 typedef struct { int x; int y; } Vett;
@@ -237,9 +238,9 @@ protected:
 	char* blobListObject;
 	char* blobListBack;
 
-	YarpPixelMono searchRG;
-	YarpPixelMono searchGR;
-	YarpPixelMono searchBY;
+	YarpPixelMonoSigned searchRG;
+	YarpPixelMonoSigned searchGR;
+	YarpPixelMonoSigned searchBY;
 
 	float salienceBU;
 	float salienceTD;
@@ -302,6 +303,8 @@ protected:
 	void LineStat(YARPImageOf<YarpPixelMono> &src, int *vett);
 
 	int countBlobList(char *blobList, int max_tag);
+
+	void findValidNeigh(YARPImageOf<YarpPixelInt>& tagged, int dim, int x, int y, char *blobList);
 	
 public:
 	YARPImgAtt(int x, int y, int fovea, int num);
@@ -343,6 +346,18 @@ public:
 		salienceBU=sBU;
 		salienceTD=sTD;
 	}
+	inline void getParameters(YarpPixelMonoSigned &sRG, YarpPixelMonoSigned &sGR, YarpPixelMonoSigned &sBY, double &sCMP, double &sECT, float &sBU, float &sTD)
+	{
+		sRG=searchRG;
+		sGR=searchGR;
+		sBY=searchBY;
+
+		sCMP=cmp;
+		sECT=ect;
+		
+		sBU=salienceBU;
+		sTD=salienceTD;
+	}
 	inline void setPosition(const YVector &p) { salience.setPosition(p); }
 	inline bool isWithinRange(int x, int y) { double elev, az; return salience.isWithinRange(x, y, elev, az); }
 	inline bool isWithinRange(int x, int y, double &elev, double &az) { return salience.isWithinRange(x, y, elev, az); }
@@ -373,6 +388,7 @@ public:
 	void dumpLearnObject();
 	void dumpLearnHand();
 	void learnBackground();
+	void learnBackground2();
 	int learnHand();
 	bool isHand(YARPBox &box);
 	

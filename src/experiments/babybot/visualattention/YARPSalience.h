@@ -51,9 +51,9 @@ public:
 	//bool edge;
 
 	// I use long to allow blob of dimension>255, but in MSVC int is = long!
-	unsigned long int rgSum;
-	unsigned long int grSum;
-	unsigned long int bySum;
+	long int rgSum;
+	long int grSum;
+	long int bySum;
 	
 	unsigned long int rSum;
 	unsigned long int gSum;

@@ -260,9 +260,6 @@ void mainthread::Body (void)
 	learnNotObject = false;
 	graspIt=false;
 	int boxesMem = 0;
-	int mRG;
-	int mGR;
-	int mBY;
 	int reachingAttempt=0;
 	int saccades=0;
 
@@ -374,6 +371,9 @@ void mainthread::Body (void)
 					} else if (message == YBVVASet) {
 						double cmp, ect;
 						double salienceBU, salienceTD;
+						int mRG;
+						int mGR;
+						int mBY;
 
 						ACE_OS::printf("set new parameters\n");
 						bottle.readInt(&mRG);
@@ -452,15 +452,20 @@ void mainthread::Body (void)
 						att_mod.resetIORTable();
 					}
 					else if (message == YBVVADump) {
-						ACE_OS::printf("I'm searching:%d, %d, %d\n", mRG, mGR, mBY);
+						YarpPixelMonoSigned sRG, sGR, sBY;
+						double sCMP, sECT;
+						float sBU, sTD;
+
+						att_mod.getParameters(sRG, sGR, sBY, sCMP, sECT, sBU, sTD);
+						ACE_OS::printf("I'm searching:%d, %d, %d\n", sRG, sGR, sBY);
 						ACE_OS::printf("Blob in the center:\n");
 						ACE_OS::printf("areaCart: %lf\n",att_mod.fovBox.areaCart);
 						ACE_OS::printf("meanRG: %d\n",(int)att_mod.fovBox.meanRG);
 						ACE_OS::printf("meanGR: %d\n",(int)att_mod.fovBox.meanGR);
 						ACE_OS::printf("meanBY: %d\n",(int)att_mod.fovBox.meanBY);
-						ACE_OS::printf("error:%d\n", (mRG-att_mod.fovBox.meanRG)*(mRG-att_mod.fovBox.meanRG)+
-							(mGR-att_mod.fovBox.meanGR)*(mGR-att_mod.fovBox.meanGR)+
-							(mBY-att_mod.fovBox.meanBY)*(mBY-att_mod.fovBox.meanBY));
+						ACE_OS::printf("error:%d\n", (sRG-att_mod.fovBox.meanRG)*(sRG-att_mod.fovBox.meanRG)+
+							(sGR-att_mod.fovBox.meanGR)*(sGR-att_mod.fovBox.meanGR)+
+							(sBY-att_mod.fovBox.meanBY)*(sBY-att_mod.fovBox.meanBY));
 						att_mod.checkObject(img, 0.5);
 						att_mod.dumpLearnObject();
 						att_mod.dumpLearnHand();
@@ -605,9 +610,9 @@ endDiffCheck:
 				if (!diffFoundValid) {
 					if (moved<=0 && toMem>0) {
 						if (found | !searching) { // I'm searching and target blob found or this is the first time
-							mRG=att_mod.fovBox.meanRG;
-							mGR=att_mod.fovBox.meanGR;
-							mBY=att_mod.fovBox.meanBY;
+							YarpPixelMonoSigned mRG=att_mod.fovBox.meanRG;
+							YarpPixelMonoSigned mGR=att_mod.fovBox.meanGR;
+							YarpPixelMonoSigned mBY=att_mod.fovBox.meanBY;
 
 							double cmp=att_mod.fovBox.cmp;
 							double ect=att_mod.fovBox.ect;
