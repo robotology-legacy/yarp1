@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 libYARP_math.lib libYARP_robot.lib utils.lib libYARP_dev.lib winmm.lib libYARP_OS.lib ipl.lib ace.lib  kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386 /nodefaultlib:"libcmt.lib" /nodefaultlib:"libc.lib" /libpath:"..\..\..\..\lib\winnt"
+# ADD LINK32 libYARP_math.lib libYARP_robot.lib utils.lib libYARP_dev.lib winmm.lib libYARP_OS.lib ipl.lib ace.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386 /nodefaultlib:"libcmt.lib" /nodefaultlib:"libc.lib" /libpath:"..\..\..\..\lib\winnt"
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Desc=Installing...
@@ -160,10 +160,6 @@ SOURCE=.\tirednessControl.h
 # Begin Source File
 
 SOURCE=.\YARPGravityEstimator.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\YARPTrajectoryMinJerk.cpp.obsolete
 # End Source File
 # End Group
 # End Target

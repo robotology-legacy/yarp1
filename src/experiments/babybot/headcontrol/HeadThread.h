@@ -46,7 +46,11 @@ public:
 		return true;
 	}
 
-	void setAcceleration(const YVector &acc) { _head.setAccs(acc.data()); }
+	void setAcceleration(const YVector &acc) 
+	{ 
+		YVector a = acc * radToDeg; 
+		_head.setAccs(a.data()); 
+	}
 
 	void stop()
 	{

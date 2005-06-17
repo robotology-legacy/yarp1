@@ -2,13 +2,7 @@
 #define __HEAD_SHARED_DATA
 
 
-#if defined(__QNXEurobot__)
-	#include <yarp/YARPEurobotHead.h>
-	typedef YARPEurobotHead MY_HEAD;
-#else
-	#include <yarp/YARPBabybotHead.h>
-	typedef YARPBabybotHead MY_HEAD;
-#endif
+typedef YARPHead MY_HEAD;
 
 
 #include <yarp/YARPBehavior.h>

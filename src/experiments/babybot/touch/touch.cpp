@@ -85,8 +85,10 @@ public:
 			tmp[2] = _history[2](j);
 
 			sort(tmp);
-			_readings(j) = tmp[1];	
+			_readings(j) = tmp[1];
+			//ACE_OS::printf("%lf ",tmp[1]);
 		}
+		//ACE_OS::printf("\n");
 	}
 
 	// bubble sort with 3 elements
@@ -103,7 +105,7 @@ public:
 					a[j] = a[j+1];
 					a[j+1] = tmp;
 				}
-			}
+		}
 	}
 	
 	YARPTouchBoard _touchBoard;

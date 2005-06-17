@@ -304,7 +304,7 @@ void ArmThread::park(int index)
 	{
 		vel[i] = 10.0 * degToRad;
 		acc[i] = 50.0 * degToRad;
-		pos[i] = pos[i] *degToRad;
+		pos[i] = pos[i] * degToRad;
 	}
 
 	_arm.setVelocities(vel);

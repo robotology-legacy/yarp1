@@ -157,8 +157,10 @@ void HeadThread::doLoop()
 	// read data from MEI board
 	/// get head
 	_head.getPositions(_head._status._current_position.data());
+	_head._status._current_position *= degToRad;
+
 	_head.getVelocities(_head._status._velocity.data());
-	_head._status._velocity *= radToDeg/10;		//normalize
+	_head._status._velocity /= 10;		// normalize (hell, WHY!!!!)
 
 	_head.readAnalogs(_inertial.data());
 
@@ -206,7 +208,10 @@ void HeadThread::doLoop()
 	// SET VELOCITY
 	// wait a few control loop, in order to let the position propagate
 	if (_threadCounter > __outPortDelay)
+	{
+		_deltaQ *= radToDeg;
 		_head.safeVelocityMove(_deltaQ.data());
+	}
 
 	// increase counters
 	_threadCounter++;
@@ -228,9 +233,9 @@ void HeadThread::park(int flag)
 	cfg.get("[THREAD]", "Speeds", vel.data(), nj);
 	cfg.get("[THREAD]", "Accelerations", acc.data(), nj);
 
-	pos = pos * degToRad;
-	vel = vel * degToRad;
-	acc = acc * degToRad;
+//	pos = pos * degToRad;
+//	vel = vel * degToRad;
+//	acc = acc * degToRad;
 
 	_head.setVelocities(vel.data());
 	_head.setAccs(acc.data());
