@@ -229,7 +229,7 @@ outpur ports:
 6 1 vector of 2 ints :move the head (abs motion)
 6 2 int j int dq :move joint j of dq (relative motion)
 6 3 int j int q :move joint j to q (abs motion)
-6 4 vector of 2 ints :move the head (relative motion)
+6 5 vector of 2 ints :move the head (relative motion)
 
 
 *************************************************************************
