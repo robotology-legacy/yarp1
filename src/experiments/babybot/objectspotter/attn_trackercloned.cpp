@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: attn_trackercloned.cpp,v 1.4 2004-09-10 15:14:06 babybot Exp $
+/// $Id: attn_trackercloned.cpp,v 1.5 2005-06-17 14:27:45 gmetta Exp $
 ///
 ///
 
@@ -135,7 +135,7 @@ public:
 					global_search = 0;	// inhibit search
 					global_grasping = 0;
 				}
-				if (vocab == YBVKFTrain) 
+				if (vocab == YBVKFTrainStart) 
 				{
 					printf("Beginning train\n");
 					global_mutex.Wait();

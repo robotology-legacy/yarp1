@@ -15,6 +15,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "RFWR"=.\rfwrtest\RFWR.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "armcontrol"=.\armcontrol\armcontrol.dsp - Package Owner=<4>
 
 Package=<5>
@@ -243,6 +255,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "kfexploration"=.\kfexploration\kfexploration.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "paxis"=.\paxis\paxis.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "reaching"=.\reaching\reaching.dsp - Package Owner=<4>
 
 Package=<5>
@@ -328,6 +364,18 @@ Package=<4>
 ###############################################################################
 
 Project: "tracker"=.\tracker\tracker.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "trackercloned"=.\objectspotter\trackercloned.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
