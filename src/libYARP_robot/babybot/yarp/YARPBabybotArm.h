@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotArm.h,v 1.9 2005-06-20 14:01:23 gmetta Exp $
+///  $Id: YARPBabybotArm.h,v 1.10 2005-06-20 15:48:18 gmetta Exp $
 ///
 ///
 
@@ -85,8 +85,7 @@ public:
 	 */
 	int activateLowPID(bool reset = true)
 	{
-		return YARPGenericControlBoard<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters>
-			::activatePID(reset, _parameters._lowPIDs);
+		return MyGenericControlBoard::activatePID(reset, _parameters._lowPIDs);
 	}
 
 	/**
@@ -98,8 +97,7 @@ public:
 	{
 		int ret;
 		_lock();
-		ret = YARPGenericControlBoard<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters>
-			::activatePID(true);
+		ret = MyGenericControlBoard::activatePID(true);
 		
 		while (!_adapter.checkPowerOn())
 		{
@@ -108,6 +106,56 @@ public:
 		}
 		_unlock();
 		return YARP_OK;
+	}
+
+	/**
+	 * Sets the PID values for a specified axis. Beware that this method doesn't
+	 * stop the axis before executing the change. Make sure this is what you intend to
+	 * do.
+	 * @param axis is the axis to modify.
+	 * @param pid is a reference to a LowLevelPID structure containing the parameters.
+	 * @param sync is a flag that decides whether the new values is also copied onto the 
+	 * internal parameters structure (true by default).
+	 * @return YARP_OK on success.
+	 */
+	int setPID(int axis, const LowLevelPID& pid, bool sync = true)
+	{
+		int ret = MyGenericControlBoard::setPID (axis, pid);
+		if (ret == YARP_OK)
+		{
+			if (sync == true)
+			{
+				// copies the new values into the highPID structure.
+				memcpy (&(_parameters._highPIDs[axis]), &pid, sizeof(LowLevelPID));
+			}
+			return YARP_OK;
+		}
+		
+		return YARP_FAIL;
+	}
+
+	/**
+	 * Gets the PID values for a specified axis. 
+	 * @param axis is the axis to modify.
+	 * @param pid is a reference to a LowLevelPID structure returning the parameters.
+	 * @param sync is a flag that decides whether the new values is also copied onto the 
+	 * internal parameters structure (true by default).
+	 * @return YARP_OK on success.
+	 */
+	int getPID(int axis, LowLevelPID& pid, bool sync = true)
+	{
+		int ret = MyGenericControlBoard::getPID (axis, pid);
+
+		if (ret == YARP_OK)
+		{
+			if (sync == true)
+			{
+				memcpy (&(_parameters._highPIDs[axis]), &pid, sizeof(LowLevelPID));
+			}
+			return YARP_OK;
+		}
+
+		return YARP_FAIL;
 	}
 
 	/**
@@ -278,6 +326,185 @@ public:
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
 	int uninitialize();
+
+	/**
+	 * Sets the PID gain smoothly (in small increments) to the final value.
+	 * @param finalPIDs is an array of LowLevelPID structures used as target value.
+	 * @param s is the number of steps.
+	 * @return YARP_OK always.
+	 */
+	int setGainsSmoothly(LowLevelPID *finalPIDs, int s = 150);
+
+	/** 
+	 * Reduce max torque on axis of delta; returns true if current limit is equal to 
+	 * or less than value.
+	 * @param axis the axis number to affect.
+	 * @param delta is the amount to change the max torque value.
+	 * @param value is the target value of a large decrement (e.g. the final max torque is
+	 * tested against this number to assert whether a specific target has been reached).
+	 * @return true if value has been reached.
+	 */
+	inline bool decMaxTorque(int axis, double delta, double value)
+	{
+		bool ret = false;
+		double currentLimit, newLimit;
+		SingleAxisParameters cmd;
+		cmd.axis = _parameters._axis_map[axis];
+		cmd.parameters = &currentLimit;
+		_adapter.IOCtl(CMDGetTorqueLimit, &cmd);
+
+		newLimit = currentLimit - (fabs(delta));
+
+		// check newLimit to see it we are done
+		if (newLimit <= value)
+		{
+			newLimit = value;
+			ret = true;
+		}
+		// be sure we are not going below zero
+		if (newLimit < 0.0)
+		{
+			newLimit = 0.0;
+			ret = true;
+		}
+
+		cmd.parameters = &newLimit;
+		_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
+		return ret;
+	}
+
+	/** 
+	 * Increment the maximum torque on axis of delta; returns true if current limit is equal to 
+	 * or less than value.
+	 * @param axis the axis number to affect.
+	 * @param delta is the amount to change the max torque value.
+	 * @param value is the target value of a large increment (e.g. the final max torque is
+	 * tested against this number to assert whether a specific target has been reached).
+	 * @return true if the target value has been reached.
+	 */
+	inline bool incMaxTorque(int axis, double delta, double value)
+	{
+		const double maxTorque = _parameters._maxDAC[_parameters._axis_map[axis]];
+
+		bool ret = false;
+		double currentLimit, newLimit;
+		SingleAxisParameters cmd;
+		cmd.axis = _parameters._axis_map[axis];
+		cmd.parameters = &currentLimit;
+		_adapter.IOCtl(CMDGetTorqueLimit, &cmd);
+
+		newLimit = currentLimit + (fabs(delta));
+		
+		// check newLimit to see it we are done
+		if (newLimit >= value)
+		{
+			newLimit = value;
+			ret = true;
+		}
+		// be sure we are not going above max torque...
+		if (newLimit >= maxTorque)
+		{
+			newLimit = maxTorque;
+			ret = true;
+		}
+
+		cmd.parameters = &newLimit;
+		_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
+
+		return ret;
+	}
+
+	/** 
+	 * Reduce max torque on all axes; returns true if current limit is equal to 
+	 * or less than value.
+	 * @param delta is the amount to change the max torque value.
+	 * @param value is the target value of a large decrement (e.g. the final max torque is
+	 * tested against this number to assert whether a specific target has been reached).
+	 * @param nj is the total number of axes.
+	 * @return true if value has been reached.
+	 */
+	inline bool decMaxTorques(double delta, double value, int nj)
+	{
+		bool ret = true;
+		
+		_adapter.IOCtl(CMDGetTorqueLimits, _currentLimits);
+
+		int i;
+		// set new limits to "_currentLimits" for all joints
+		for(i = 0; i < _parameters._nj; i++)
+			_newLimits[i] = _currentLimits[i];
+			
+		// only reduce limits for specified joints
+		for(i = 0; i < nj; i++)
+		{
+			int j = _parameters._axis_map[i];
+			_newLimits[j] = _currentLimits[j] - (fabs(delta));
+
+			// check newLimit to see it we are done
+			// be sure we are not going below zero
+			if (_newLimits[j] < 0.0)
+			{
+				_newLimits[j] = 0.0;
+				ret = ret && true;
+			}
+			else if (_newLimits[j] <= value)
+			{
+				_newLimits[j] = value;
+				ret = ret && true;
+			}
+			else
+				ret = false;
+		}
+
+		_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
+		return ret;
+	}
+
+	/** 
+	 * Increment the maximum torque on all axes; returns true if current limit is equal to 
+	 * or less than value.
+	 * @param delta is the amount to change the max torque value.
+	 * @param value is the target value of a large increment (e.g. the final max torque is
+	 * tested against this number to assert whether a specific target has been reached).
+	 * @param nj is the total number of axes.
+	 * @return true if value has been reached.
+	 */
+	inline bool	incMaxTorques(double delta, double value, int nj)
+	{
+		bool ret = true;
+			
+		_adapter.IOCtl(CMDGetTorqueLimits, _currentLimits);
+
+		int i;
+		// set new limits to "_currentLimits" for all joints
+		for(i = 0; i < _parameters._nj; i++)
+			_newLimits[i] = _currentLimits[i];
+		
+		// increase limit only for the specified joints
+		for(i = 0; i < nj; i++)
+		{
+			int j = _parameters._axis_map[i];
+			_newLimits[j] = _currentLimits[j] + (fabs(delta));
+		
+			// be sure we are not going above max torque
+			if (_newLimits[j] >=  _parameters._maxDAC[j])
+			{
+				_newLimits[j] = _parameters._maxDAC[j];
+				ret = ret && true;
+			}
+			else if (_newLimits[j] >= value)
+			{
+				_newLimits[j] = value;
+				ret = ret && true;
+			}
+			else
+				ret = false;
+		}
+
+		_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
+
+		return ret;
+	}
 
 private:
 	inline void _angleToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters, const double *zeros);

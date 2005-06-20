@@ -36,11 +36,85 @@
 ///
 
 ///
-/// $Id: YARPBabybotArm.cpp,v 1.4 2005-06-20 14:01:23 gmetta Exp $
+/// $Id: YARPBabybotArm.cpp,v 1.5 2005-06-20 15:48:18 gmetta Exp $
 ///
 ///
 
 #include "YARPBabybotArm.h"
+
+int YARPBabybotArm::setGainsSmoothly(LowLevelPID *finalPIDs, int s)
+{
+	ACE_OS::printf("Setting gains");
+
+	double steps = (double) s;
+	ACE_Time_Value sleep_period (0, 40*1000);
+	
+	LowLevelPID *actualPIDs;
+	LowLevelPID *deltaPIDs;
+	actualPIDs = new LowLevelPID [_parameters._nj];
+	deltaPIDs = new LowLevelPID [_parameters._nj];
+	ACE_ASSERT (actualPIDs != NULL && deltaPIDs != NULL);
+
+	double *shift;
+	double *currentPos;
+	shift = new double[_parameters._nj];
+	currentPos = new double[_parameters._nj];
+	ACE_ASSERT (shift != NULL && currentPos != NULL);
+
+	// set command "here"
+	// getPositions(currentPos);
+	// setCommands(currentPos);
+
+	for(int i = 0; i < _parameters._nj; i++) 
+	{
+		SingleAxisParameters cmd;
+		cmd.axis = _parameters._axis_map[i];
+		cmd.parameters = &actualPIDs[i];
+		_adapter.IOCtl(CMDGetPID, &cmd);
+
+		// handle shift (scale)
+		double actualShift = actualPIDs[i].SHIFT;
+		double finalShift = finalPIDs[i].SHIFT;
+		if (actualShift > finalShift)
+		{
+			shift[i] = actualShift;
+			finalPIDs[i] = finalPIDs[i]*(pow(2,(finalShift+actualShift)));
+		}
+		else
+		{
+			shift[i] = finalShift;
+			actualPIDs[i] = actualPIDs[i]*(pow(2,(actualShift+finalShift)));
+		}
+			
+		deltaPIDs[i] = (finalPIDs[i] - actualPIDs[i])/steps;
+	}
+	
+	for(int t = 0; t < (int) steps; t++)
+	{
+		for(int i = 0; i < _parameters._nj; i++)
+		{
+			actualPIDs[i] = actualPIDs[i] + deltaPIDs[i];
+			actualPIDs[i].SHIFT = shift[i];
+		
+			SingleAxisParameters cmd;
+			cmd.axis = _parameters._axis_map[i];
+			cmd.parameters = &actualPIDs[i];
+			_adapter.IOCtl(CMDSetPID, &cmd);
+		}
+		ACE_OS::sleep(sleep_period);
+		ACE_OS::printf(".");
+
+		fflush(stdout);
+	}
+	ACE_OS::printf("done !\n");
+
+	// if !NULL...
+	delete [] actualPIDs;
+	delete [] deltaPIDs;
+	delete [] shift;
+	delete [] currentPos; 
+	return YARP_OK;
+}
 
 int YARPBabybotArm::setPositions(const double *pos)
 {

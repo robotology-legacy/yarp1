@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotHead.h,v 1.6 2005-06-20 14:01:23 gmetta Exp $
+///  $Id: YARPBabybotHead.h,v 1.7 2005-06-20 15:48:18 gmetta Exp $
 ///
 ///
 
@@ -290,7 +290,7 @@ public:
 	 * Sets the PID gain smoothly (in small increments) to the final value.
 	 * @param finalPIDs is an array of LowLevelPID structures used as target value.
 	 * @param s is the number of steps.
-	 * @return -1 always (for no good reason!).
+	 * @return YARP_OK always.
 	 */
 	int setGainsSmoothly(LowLevelPID *finalPIDs, int s = 150)
 	{
@@ -363,7 +363,7 @@ public:
 		delete [] deltaPIDs;
 		delete [] shift;
 		delete [] currentPos; 
-		return -1;
+		return YARP_OK;
 	}
 	
 	/** 
