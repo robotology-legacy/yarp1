@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotArm.h,v 1.10 2005-06-20 15:48:18 gmetta Exp $
+///  $Id: YARPBabybotArm.h,v 1.11 2005-06-20 16:36:05 gmetta Exp $
 ///
 ///
 
@@ -97,7 +97,7 @@ public:
 	{
 		int ret;
 		_lock();
-		ret = MyGenericControlBoard::activatePID(true);
+		ret = _adapter.activatePID(true);
 		
 		while (!_adapter.checkPowerOn())
 		{
