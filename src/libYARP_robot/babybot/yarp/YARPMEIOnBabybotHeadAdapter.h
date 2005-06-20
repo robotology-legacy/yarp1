@@ -1,33 +1,15 @@
 /////////////////////////////////////////////////////////////////////////
 ///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-/// This Academic Free License applies to any software and associated ///
-/// documentation (the "Software") whose owner (the "Licensor") has   ///
-/// placed the statement "Licensed under the Academic Free License    ///
-/// Version 1.0" immediately after the copyright notice that applies  ///
-/// to the Software.                                                  ///
-/// Permission is hereby granted, free of charge, to any person       ///
-/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
-/// publish, perform, distribute, sublicense, and/or sell copies of   ///
-/// the Software, and to permit persons to whom the Software is       ///
-/// furnished to do so, and (2) under patent claims owned or          ///
-/// controlled by the Licensor that are embodied in the Software as   ///
-/// furnished by the Licensor, to make, use, sell and offer for sale  ///
-/// the Software and derivative works thereof, subject to the         ///
-/// following conditions:                                             ///
-/// Redistributions of the Software in source code form must retain   ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers. ///
-/// Redistributions of the Software in executable form must reproduce ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers  ///
-/// in the documentation and/or other materials provided with the     ///
-/// distribution.                                                     ///
+///                    #Add our name(s) here#                         ///
 ///                                                                   ///
-/// Neither the names of Licensor, nor the names of any contributors  ///
-/// to the Software, nor any of their trademarks or service marks,    ///
-/// may be used to endorse or promote products derived from this      ///
-/// Software without express prior written permission of the Licensor.///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
 ///                                                                   ///
 /// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
 /// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
@@ -42,13 +24,6 @@
 /// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
 /// CONNECTION WITH THE SOFTWARE.                                     ///
 ///                                                                   ///
-/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
-/// reserved. Permission is hereby granted to copy and distribute     ///
-/// this license without modification. This license may not be        ///
-/// modified without the express written permission of its copyright  ///
-/// owner.                                                            ///
-///                                                                   ///
-///                                                                   ///
 /////////////////////////////////////////////////////////////////////////
 
 ///
@@ -61,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.7 2005-06-16 10:14:57 babybot Exp $
+///  $Id: YARPMEIOnBabybotHeadAdapter.h,v 1.8 2005-06-20 14:01:24 gmetta Exp $
 ///
 ///
 
@@ -102,7 +77,7 @@ namespace _BabybotHead
 		LowLevelPID(100.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
 		LowLevelPID(300.0, 1200.0, 1.0, 100.0, 200.0, 32767.0, 0.0, 32767.0, 0.0, 0.0)
 	};
-	
+
 	const LowLevelPID _lowPIDs[_nj] = 
 	{
 		LowLevelPID(1.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),		//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
@@ -137,7 +112,7 @@ namespace _BabybotHead
  * the user.
  *
  */
-class YARPBabybotHeadParameters
+class YARPBabybotHeadParameters : public YARPGenericControlParameters
 {
 public:
 	/**
@@ -413,17 +388,9 @@ private:
 public:
 	LowLevelPID *_highPIDs;
 	LowLevelPID *_lowPIDs;
-	double *_zeros;
-	double *_signs;
-	int *_axis_map;
-	int *_inv_axis_map;
-	double *_encoderToAngles;
 	int *_stiffPID;
-	int _nj;
 	double *_maxDAC;
 	YARPString _inertialConfig;
-	double *_limitsMax;
-	double *_limitsMin;
 };
 
 
@@ -433,7 +400,9 @@ public:
  * uninitialize while it leaves much of the burden of calling the device driver
  * to a generic template class called YARPGenericControlBoard.
  */
-class YARPMEIOnBabybotHeadAdapter : public YARPMEIDeviceDriver
+class YARPMEIOnBabybotHeadAdapter : 
+	public YARPMEIDeviceDriver,
+	public YARPGenericControlAdapter<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters>
 {
 public:
 	/**
@@ -452,6 +421,10 @@ public:
 		if (_initialized)
 			uninitialize();
 	}
+
+	/*
+	 * implemented from the abstract base class.
+	 */
 
 	/**
 	 * Initializes the adapter and opens the device driver.
@@ -476,9 +449,11 @@ public:
 
 		// inertial sensor
 		_inertial = new YARPBabybotInertialSensor;
+		ACE_ASSERT (_inertial != NULL);
 		_inertial->load("",par->_inertialConfig);
 
 		_tmpShort = new short [_inertial->_ns];
+		ACE_ASSERT (_tmpShort != NULL);
 
 		for(int i=0; i < _parameters->_nj; i++)
 		{
@@ -521,8 +496,8 @@ public:
 		if (YARPMEIDeviceDriver::close() != 0)
 			return YARP_FAIL;
 
-		delete _inertial;
-		delete [] _tmpShort;
+		if (_inertial != NULL) delete _inertial;
+		if (_tmpShort != NULL) delete [] _tmpShort;
 
 		_initialized = false;
 		return YARP_OK;
@@ -550,14 +525,41 @@ public:
 	}
 
 	/**
-	 * Sets the PID values specified in a second set of parameters 
-	 * typically read from the intialization file.
-	 * @param reset if true resets the encoders.
-	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 * Calibrates the control card if needed.
+	 * @param joint is the joint number/function requested to the calibrate method. 
+	 * The default value -1 does nothing.
+	 * @return YARP_OK always.
 	 */
-	int activateLowPID(bool reset = true)
+	int calibrate(int joint = -1)
 	{
-		return activatePID(reset, _parameters->_lowPIDs);
+		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
+		ACE_OS::printf("..done!\n");
+
+		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting inertial sensor calibration:\n"));
+
+		int p = 0;
+		bool cal = false;
+		while (!cal)
+		{
+			// read new values from analog input
+			int i;
+			int ret;
+			SingleAxisParameters cmd;
+			for(i = 0; i < _inertial->_ns; i++)
+			{
+				cmd.axis = int(_inertial->_parameters[i][SP_MeiChannel]);
+				cmd.parameters = &_tmpShort[i];
+				ret = IOCtl(CMDReadAnalog, &cmd);
+			}
+
+			cal = _inertial->calibrate(_tmpShort, &p);
+			ACE_OS::printf("%d\r",p);
+			ACE_OS::sleep(ACE_Time_Value(0,40000));
+		}
+
+		_inertial->save("",_parameters->_inertialConfig);
+		
+		return YARP_OK;
 	}
 
 	/**
@@ -598,6 +600,10 @@ public:
 		return YARP_OK;
 	}
 
+	/*
+	 * More functions: these are called from the higher level code.
+	 */
+
 	/**
 	 * Reads the analog values from the control card (ADC values).
 	 * @param val is the array to receive the analog readings.
@@ -619,41 +625,21 @@ public:
 	}
 
 	/**
-	 * Calibrates the control card if needed.
-	 * @param joint is the joint number/function requested to the calibrate method. 
-	 * The default value -1 does nothing.
-	 * @return YARP_OK always.
+	 * Reads the analog values from the control card for a specified input.
+	 * @param index is the input number to read from.
+	 * @param val is a double pointer to receive the analog reading.
+	 * @return YARP_FAIL always.
 	 */
-	int calibrate(int joint = -1)
+	int readAnalog(int index, double *val)
 	{
-		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
-		ACE_OS::printf("..done!\n");
-
-		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting inertial sensor calibration:\n"));
-
-		int p = 0;
-		bool cal = false;
-		while (!cal)
-		{
-			// read new values from analog input
-			int i;
-			int ret;
-			SingleAxisParameters cmd;
-			for(i = 0; i < _inertial->_ns; i++)
-			{
-				cmd.axis = int(_inertial->_parameters[i][SP_MeiChannel]);
-				cmd.parameters = &_tmpShort[i];
-				ret = IOCtl(CMDReadAnalog, &cmd);
-			}
-
-			cal = _inertial->calibrate(_tmpShort, &p);
-			ACE_OS::printf("%d\r",p);
-			ACE_OS::sleep(ACE_Time_Value(0,40000));
-		}
-
-		_inertial->save("",_parameters->_inertialConfig);
-		
-		return YARP_OK;
+		int ret;
+		SingleAxisParameters cmd;
+		ACE_ASSERT (index >= 0 && index < _inertial->_ns);
+		cmd.axis = int(_inertial->_parameters[index][SP_MeiChannel]);
+		cmd.parameters = &_tmpShort[index];;
+		ret = IOCtl(CMDReadAnalog, &cmd);
+		_inertial->convert(_tmpShort, val);
+		return ret;
 	}
 
 private:

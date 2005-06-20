@@ -142,6 +142,10 @@ SOURCE=..\babybot\yarp\YARPBabybotHandParameters.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\babybot\yarp\YARPBabybotHead.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\babybot\yarp\YARPBabybotHead.h
 # End Source File
 # Begin Source File

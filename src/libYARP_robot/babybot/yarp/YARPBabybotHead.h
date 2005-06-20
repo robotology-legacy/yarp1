@@ -1,33 +1,15 @@
 /////////////////////////////////////////////////////////////////////////
 ///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-/// This Academic Free License applies to any software and associated ///
-/// documentation (the "Software") whose owner (the "Licensor") has   ///
-/// placed the statement "Licensed under the Academic Free License    ///
-/// Version 1.0" immediately after the copyright notice that applies  ///
-/// to the Software.                                                  ///
-/// Permission is hereby granted, free of charge, to any person       ///
-/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
-/// publish, perform, distribute, sublicense, and/or sell copies of   ///
-/// the Software, and to permit persons to whom the Software is       ///
-/// furnished to do so, and (2) under patent claims owned or          ///
-/// controlled by the Licensor that are embodied in the Software as   ///
-/// furnished by the Licensor, to make, use, sell and offer for sale  ///
-/// the Software and derivative works thereof, subject to the         ///
-/// following conditions:                                             ///
-/// Redistributions of the Software in source code form must retain   ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers. ///
-/// Redistributions of the Software in executable form must reproduce ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers  ///
-/// in the documentation and/or other materials provided with the     ///
-/// distribution.                                                     ///
+///                    #Add our name(s) here#                         ///
 ///                                                                   ///
-/// Neither the names of Licensor, nor the names of any contributors  ///
-/// to the Software, nor any of their trademarks or service marks,    ///
-/// may be used to endorse or promote products derived from this      ///
-/// Software without express prior written permission of the Licensor.///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
 ///                                                                   ///
 /// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
 /// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
@@ -42,13 +24,6 @@
 /// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
 /// CONNECTION WITH THE SOFTWARE.                                     ///
 ///                                                                   ///
-/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
-/// reserved. Permission is hereby granted to copy and distribute     ///
-/// this license without modification. This license may not be        ///
-/// modified without the express written permission of its copyright  ///
-/// owner.                                                            ///
-///                                                                   ///
-///                                                                   ///
 /////////////////////////////////////////////////////////////////////////
 
 ///
@@ -61,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotHead.h,v 1.5 2005-06-17 20:34:03 babybot Exp $
+///  $Id: YARPBabybotHead.h,v 1.6 2005-06-20 14:01:23 gmetta Exp $
 ///
 ///
 
@@ -92,32 +67,155 @@ namespace _joints
 
 
 /**
+ * YARPBabybotHead is the interface to the babybot platform robot head (5 dof).
+ *
+ * NOTE: init/uninit methods are overridden since we need reading more parameters
+ * here.
  *
  */
-class YARPBabybotHead: public YARPGenericControlBoard<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters>
+class YARPBabybotHead : 
+	public YARPGenericControlBoard<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters>
 {
 public:
+	/**
+	 * Sets the PID values specified in a second set of parameters 
+	 * typically read from the intialization file.
+	 * @param reset if true resets the encoders.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int activateLowPID(bool reset = true)
+	{
+		return activatePID(reset, _parameters._lowPIDs);
+	}
+
+	/**
+	 * Sets the PID values for a specified axis. Beware that this method doesn't
+	 * stop the axis before executing the change. Make sure this is what you intend to
+	 * do.
+	 * @param axis is the axis to modify.
+	 * @param pid is a reference to a LowLevelPID structure containing the parameters.
+	 * @param sync is a flag that decides whether the new values is also copied onto the 
+	 * internal parameters structure (true by default).
+	 * @return YARP_OK on success.
+	 */
+	int setPID(int axis, const LowLevelPID& pid, bool sync = true)
+	{
+		int ret = YARPGenericControlBoard<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters>
+			::setPID (axis, pid);
+		if (ret == YARP_OK)
+		{
+			if (sync == true)
+			{
+				// copies the new values into the highPID structure.
+				memcpy (&(_parameters._highPIDs[axis]), &pid, sizeof(LowLevelPID));
+			}
+			return YARP_OK;
+		}
+		
+		return YARP_FAIL;
+	}
+
+	/**
+	 * Gets the PID values for a specified axis. 
+	 * @param axis is the axis to modify.
+	 * @param pid is a reference to a LowLevelPID structure returning the parameters.
+	 * @param sync is a flag that decides whether the new values is also copied onto the 
+	 * internal parameters structure (true by default).
+	 * @return YARP_OK on success.
+	 */
+	int getPID(int axis, LowLevelPID& pid, bool sync = true)
+	{
+		int ret = YARPGenericControlBoard<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters>
+			::getPID (axis, pid);
+
+		if (ret == YARP_OK)
+		{
+			if (sync == true)
+			{
+				memcpy (&(_parameters._highPIDs[axis]), &pid, sizeof(LowLevelPID));
+			}
+			return YARP_OK;
+		}
+
+		return YARP_FAIL;
+	}
+
+	/**
+	 * Reads the analog inputs of the card. Many control cards have analog inputs to 
+	 * build feedback loops on analog sensors.
+	 * @param val is an array of double precision numbers returning the readings from
+	 * the A/D converters.
+	 * @return YARP_OK on success.
+	 */
+	int readAnalogs(double *val)
+	{
+		_lock();
+		int ret = _adapter.readAnalogs(val);
+		_unlock();
+		return ret;
+	}
+
+	/**
+	 * Reads the analog input of the card.
+	 * @param index is the analog input number
+ 	 * @param val is the return value
+	 * @return YARP_OK on success.
+	 */
+	int readAnalog(int index, double *val)
+	{
+		_lock();
+		int ret = _adapter.readAnalog(index, val);
+		_unlock();
+		return ret;
+	}
+
+	/**
+	 * Compute the vergence angle given the current eyes position.
+	 * @param pos is the joint angles vector.
+	 * @return the vergence angle.
+	 */
  	inline double vergence(double *pos)
 	{
 		return -( pos[_joints::rightEye] + pos[_joints::leftEye] );
 	}
 
+	/**
+	 * Compute the expected vergence angle given the eyes speed.
+	 * @param cmd is a vector containing the joint angle speed.
+	 * @return the derivative of the vergence angle.
+	 */
 	inline double dot_vergence(double *cmd)
 	{
 		return cmd[_joints::rightEye] + cmd[_joints::leftEye];
 	}
 
+	/**
+	 * Compute the vesion angle (the eyes common orientation).
+	 * @param post is the joint angle vector.
+	 * @return the version angle.
+	 */
 	inline double version(double *pos)
 	{
 		return 0.5*(pos[_joints::rightEye]-pos[_joints::leftEye]);
 	}
 
+	/**
+	 * Compute the expected version angle given the eyes speed.
+	 * @param cmd is the joint speed vector.
+	 * @return the derivative of the version angle.
+	 */
 	inline double dot_version(double *cmd)
 	{
 		return 0.5*(cmd[_joints::rightEye]-cmd[_joints::leftEye]);
 
 	}
 
+	/**
+	 * Check whether any of the joint software limits has been hit.
+	 * @param pos is the joint angle vector.
+	 * @param cmd is the current command.
+	 * @return true if any of the limits has been hit.
+	 */
 	inline bool checkLimits(double *pos, double *cmd)
 	{
 		bool ret = false;
@@ -158,7 +256,18 @@ public:
 		return ret;
 	}
 
-	// check limits on a sigle joints
+	/**
+	 * Check the limits on a given joint.
+	 * @param pos is the joint current position.
+	 * @param cmd is the joint current command.
+	 * @param up is the upper limit.
+	 * @param low is the lower limit.
+	 * @param sign is the type of check to perform: -1 will check for the command in the same
+	 * direction of the limit, this is perfectly ok for certain applications; 1 will check for
+	 * the command in the opposite direction wrt the limit since this will move the joint
+	 * to a valid zone.
+	 * @return true if a limit has been hit.
+	 */
 	inline bool checkSingleJoint(double pos, double cmd, double up, double low, int sign)
 	{
 		if (sign > 0)
@@ -176,6 +285,258 @@ public:
 				return false;
 		}
 	}
-};
+
+	/**
+	 * Sets the PID gain smoothly (in small increments) to the final value.
+	 * @param finalPIDs is an array of LowLevelPID structures used as target value.
+	 * @param s is the number of steps.
+	 * @return -1 always (for no good reason!).
+	 */
+	int setGainsSmoothly(LowLevelPID *finalPIDs, int s = 150)
+	{
+		ACE_OS::printf("Setting gains");
+
+		double steps = (double) s;
+		ACE_Time_Value sleep_period (0, 40*1000);
+		
+		LowLevelPID *actualPIDs;
+		LowLevelPID *deltaPIDs;
+		actualPIDs = new LowLevelPID [_parameters._nj];
+		deltaPIDs = new LowLevelPID [_parameters._nj];
+		ACE_ASSERT (actualPIDs != NULL && deltaPIDs != NULL);
+
+		double *shift;
+		double *currentPos;
+		shift = new double[_parameters._nj];
+		currentPos = new double[_parameters._nj];
+		ACE_ASSERT (shift != NULL && currentPos != NULL);
+
+		// set command "here"
+		// getPositions(currentPos);
+		// setCommands(currentPos);
+
+		for(int i = 0; i < _parameters._nj; i++) 
+		{
+			SingleAxisParameters cmd;
+			cmd.axis = _parameters._axis_map[i];
+			cmd.parameters = &actualPIDs[i];
+			_adapter.IOCtl(CMDGetPID, &cmd);
+
+			// handle shift (scale)
+			double actualShift = actualPIDs[i].SHIFT;
+			double finalShift = finalPIDs[i].SHIFT;
+			if (actualShift > finalShift)
+			{
+				shift[i] = actualShift;
+				finalPIDs[i] = finalPIDs[i]*(pow(2,(finalShift+actualShift)));
+			}
+			else
+			{
+				shift[i] = finalShift;
+				actualPIDs[i] = actualPIDs[i]*(pow(2,(actualShift+finalShift)));
+			}
+				
+			deltaPIDs[i] = (finalPIDs[i] - actualPIDs[i])/steps;
+		}
+		
+		for(int t = 0; t < (int) steps; t++)
+		{
+			for(int i = 0; i < _parameters._nj; i++)
+			{
+				actualPIDs[i] = actualPIDs[i] + deltaPIDs[i];
+				actualPIDs[i].SHIFT = shift[i];
+			
+				SingleAxisParameters cmd;
+				cmd.axis = _parameters._axis_map[i];
+				cmd.parameters = &actualPIDs[i];
+				_adapter.IOCtl(CMDSetPID, &cmd);
+			}
+			ACE_OS::sleep(sleep_period);
+			ACE_OS::printf(".");
+
+			fflush(stdout);
+		}
+		ACE_OS::printf("done !\n");
+
+		// if !NULL...
+		delete [] actualPIDs;
+		delete [] deltaPIDs;
+		delete [] shift;
+		delete [] currentPos; 
+		return -1;
+	}
+	
+	/** 
+	 * Reduce max torque on axis of delta; returns true if current limit is equal to 
+	 * or less than value.
+	 * @param axis the axis number to affect.
+	 * @param delta is the amount to change the max torque value.
+	 * @param value is the target value of a large decrement (e.g. the final max torque is
+	 * tested against this number to assert whether a specific target has been reached).
+	 * @return true if value has been reached.
+	 */
+	inline bool decMaxTorque(int axis, double delta, double value)
+	{
+		bool ret = false;
+		double currentLimit, newLimit;
+		SingleAxisParameters cmd;
+		cmd.axis = _parameters._axis_map[axis];
+		cmd.parameters = &currentLimit;
+		_adapter.IOCtl(CMDGetTorqueLimit, &cmd);
+
+		newLimit = currentLimit - (fabs(delta));
+
+		// check newLimit to see it we are done
+		if (newLimit <= value)
+		{
+			newLimit = value;
+			ret = true;
+		}
+		// be sure we are not going below zero
+		if (newLimit < 0.0)
+		{
+			newLimit = 0.0;
+			ret = true;
+		}
+
+		cmd.parameters = &newLimit;
+		_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
+		return ret;
+	}
+
+	/** 
+	 * Increment the maximum torque on axis of delta; returns true if current limit is equal to 
+	 * or less than value.
+	 * @param axis the axis number to affect.
+	 * @param delta is the amount to change the max torque value.
+	 * @param value is the target value of a large increment (e.g. the final max torque is
+	 * tested against this number to assert whether a specific target has been reached).
+	 * @return true if the target value has been reached.
+	 */
+	inline bool incMaxTorque(int axis, double delta, double value)
+	{
+		const double maxTorque = _parameters._maxDAC[_parameters._axis_map[axis]];
+
+		bool ret = false;
+		double currentLimit, newLimit;
+		SingleAxisParameters cmd;
+		cmd.axis = _parameters._axis_map[axis];
+		cmd.parameters = &currentLimit;
+		_adapter.IOCtl(CMDGetTorqueLimit, &cmd);
+
+		newLimit = currentLimit + (fabs(delta));
+		
+		// check newLimit to see it we are done
+		if (newLimit >= value)
+		{
+			newLimit = value;
+			ret = true;
+		}
+		// be sure we are not going above max torque...
+		if (newLimit >= maxTorque)
+		{
+			newLimit = maxTorque;
+			ret = true;
+		}
+
+		cmd.parameters = &newLimit;
+		_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
+
+		return ret;
+	}
+
+	/** 
+	 * Reduce max torque on all axes; returns true if current limit is equal to 
+	 * or less than value.
+	 * @param delta is the amount to change the max torque value.
+	 * @param value is the target value of a large decrement (e.g. the final max torque is
+	 * tested against this number to assert whether a specific target has been reached).
+	 * @param nj is the total number of axes.
+	 * @return true if value has been reached.
+	 */
+	inline bool decMaxTorques(double delta, double value, int nj)
+	{
+		bool ret = true;
+		
+		_adapter.IOCtl(CMDGetTorqueLimits, _currentLimits);
+
+		int i;
+		// set new limits to "_currentLimits" for all joints
+		for(i = 0; i < _parameters._nj; i++)
+			_newLimits[i] = _currentLimits[i];
+			
+		// only reduce limits for specified joints
+		for(i = 0; i < nj; i++)
+		{
+			int j = _parameters._axis_map[i];
+			_newLimits[j] = _currentLimits[j] - (fabs(delta));
+
+			// check newLimit to see it we are done
+			// be sure we are not going below zero
+			if (_newLimits[j] < 0.0)
+			{
+				_newLimits[j] = 0.0;
+				ret = ret && true;
+			}
+			else if (_newLimits[j] <= value)
+			{
+				_newLimits[j] = value;
+				ret = ret && true;
+			}
+			else
+				ret = false;
+		}
+
+		_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
+		return ret;
+	}
+
+	/** 
+	 * Increment the maximum torque on all axes; returns true if current limit is equal to 
+	 * or less than value.
+	 * @param delta is the amount to change the max torque value.
+	 * @param value is the target value of a large increment (e.g. the final max torque is
+	 * tested against this number to assert whether a specific target has been reached).
+	 * @param nj is the total number of axes.
+	 * @return true if value has been reached.
+	 */
+	inline bool	incMaxTorques(double delta, double value, int nj)
+	{
+		bool ret = true;
+			
+		_adapter.IOCtl(CMDGetTorqueLimits, _currentLimits);
+
+		int i;
+		// set new limits to "_currentLimits" for all joints
+		for(i = 0; i < _parameters._nj; i++)
+			_newLimits[i] = _currentLimits[i];
+		
+		// increase limit only for the specified joints
+		for(i = 0; i < nj; i++)
+		{
+			int j = _parameters._axis_map[i];
+			_newLimits[j] = _currentLimits[j] + (fabs(delta));
+		
+			// be sure we are not going above max torque
+			if (_newLimits[j] >=  _parameters._maxDAC[j])
+			{
+				_newLimits[j] = _parameters._maxDAC[j];
+				ret = ret && true;
+			}
+			else if (_newLimits[j] >= value)
+			{
+				_newLimits[j] = value;
+				ret = ret && true;
+			}
+			else
+				ret = false;
+		}
+
+		_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
+
+		return ret;
+	}
+
+}; /* YARPBabybotHead */
 
 #endif

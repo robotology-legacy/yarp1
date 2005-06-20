@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.21 2005-06-16 10:14:34 babybot Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.22 2005-06-20 14:01:22 gmetta Exp $
 ///
 ///
 
@@ -50,10 +50,101 @@
 #else YARP_GEN_CB_DEBUG(string) YARP_NULL_DEBUG
 #endif
 
+/*
+ *
+ * class hierarchy.
+ *
+ * YARPGenericControlAdapter <------+ +-> MyDeviceDriver -> YARPDeviceDriver
+ *                                  | |
+ * YARPGenericControlParameters     | |
+ *        ^                         | |
+ *        |                         | |
+ *   MyParams <......+ + ... > MyAdapter
+ *                 . .        
+ *                 . .            
+ *       YARPGenericControlBoard <----+
+ *                                    |
+ *                                    |
+ *                            MyControlComponent
+ *
+ */
+
 /**
  * \file YARPGenericControlBoard.h
  * a generic class that encapsulates the interface to a motor control card.
  */
+
+/**
+ * A class with the sole purpose of enforcing the interface on 
+ * the adapters. Adapter classes MUST be derived from this one.
+ * Although the "user" is not forced to use this base class, when
+ * used assures compatibility with higher-level code. These methods
+ * are declared here since they tend to vary across implementations
+ * even with the same control card (e.g. details of the calibration
+ * procedure are function of the robot rather than the electronics).
+ *
+ */
+template <class ADAPTER, class PARAMETERS>
+class YARPGenericControlAdapter
+{
+public:
+	/**
+	 * Single joint calibration.
+	 * @param joint is the joint number to calibrate.
+	 * @return YARP_OK if successful.
+	 */
+	virtual int calibrate (int joint) = 0;
+
+	/**
+	 * Initialization of the adapter. It takes the parameter
+	 * argument and initializes the adapter class.
+	 * @param par is the class containing the parameters.
+	 * @return YARP_OK if successful.
+	 */
+	virtual int initialize (PARAMETERS *par) = 0;
+
+	/**
+	 * Uninitializes the controller and closes the device driver.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	virtual int uninitialize (void) = 0;
+
+	/**
+	 * Disables simultaneously the controller and the amplifier (these are
+	 * usually two separate commands on control cards).
+	 * @return YARP_OK always.
+	 */
+	virtual int idleMode (void) = 0;
+
+	/**
+	 * Activates the PID controller with given set of gains.
+	 * @param reset if true resets the encoder values to zero.
+	 * @param pids is an array of PID data structures.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	virtual int activatePID(bool reset, LowLevelPID *pids) = 0;
+};
+
+/**
+ * another base class used to enforce some structure into the 
+ * parameters class. Variables defined here are also used in the generic
+ * motor control board.
+ *
+ * NOTE: this is just a container, it only forces a structure (hopefully).
+ */
+class YARPGenericControlParameters
+{
+public:
+	int _nj;
+
+	double *_zeros;
+	double *_signs;
+	int *_axis_map;
+	int *_inv_axis_map;
+	double *_encoderToAngles;
+	double *_limitsMax;
+	double *_limitsMin;
+};
 
 /**
  * Generic incapsulation of a motor control board.
@@ -71,8 +162,13 @@
  *
  * WARNING: YARPGenericControlBoard is NOT consistently checking for bounds in arrays,
  * joint numbers, arguments, etc.
+ *
+ * WARNING: although you generally derive from the YARPGenericControlBoard, this class
+ * does not use virtual functions. Please make sure you understand the implications of
+ * this. In practice, it shouldn't be much of an issue as long as you don't start
+ * playing with pointers to it.
+ *
  */
-
 template <class ADAPTER, class PARAMETERS>
 class YARPGenericControlBoard
 {
@@ -192,6 +288,36 @@ public:
 	}
 
 	/**
+	 * Uninitializes the control board and frees memory.
+	 * This function does all what the destructor has to do.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int uninitialize()
+	{
+		_lock();
+		if (_temp_double != NULL)
+			delete [] _temp_double;
+		if (_newLimits != NULL)
+			delete [] _newLimits;
+		if (_currentLimits != NULL)
+			delete [] _currentLimits;
+
+		_temp_double = NULL;
+		_currentLimits = NULL;
+		_newLimits = NULL;
+
+		if (_adapter.uninitialize() == YARP_FAIL) 
+		{
+			YARP_GEN_CB_DEBUG(("Error un-initializing control board!\n"));
+			_unlock();
+			return YARP_FAIL;
+		}
+		YARP_GEN_CB_DEBUG(("Control board uninitialized!\n"));
+		_unlock();
+		return YARP_OK;
+	}
+
+	/**
 	 * Saves current parameters to boot memory (typically a flash memory in the
 	 * card).
 	 * @param axis specifies the axis. Depending on the board configuration this
@@ -282,7 +408,7 @@ public:
 	{
 		_lock ();
 		if (axis >= 0 && axis < _parameters._nj)
-	{
+		{
 			SingleAxisParameters par;
 			par.axis = _parameters._axis_map[axis];
 
@@ -325,23 +451,19 @@ public:
 	 * Sets the PID values for a specified axis. Beware that this method doesn't
 	 * stop the axis before executing the change. Make sure this is what you intend to
 	 * do.
-	 * @param axis is the axis to modify.
+	 * @param axis is the axis to set the PID for.
 	 * @param pid is a reference to a LowLevelPID structure containing the parameters.
-	 * @param sync is a flag that decides whether the new values is also copied onto the 
-	 * internal parameters structure (true by default).
 	 * @return YARP_OK on success.
 	 */
-	int setPID(int axis, LowLevelPID& pid, bool sync = true)
+	int setPID(int axis, const LowLevelPID& pid)
 	{
 		_lock();
 		if (axis >= 0 && axis < _parameters._nj)
 		{
 			SingleAxisParameters cmd;
 			cmd.axis = _parameters._axis_map[axis];
-			cmd.parameters = &pid;
+			cmd.parameters = const_cast<LowLevelPID *>(&pid);
 			int ret = _adapter.IOCtl(CMDSetPID, &cmd);
-			if (sync && ret == YARP_OK)
-				memcpy (&(_parameters._highPIDs[axis]), &pid, sizeof(LowLevelPID));
 			_unlock();
 			return ret;
 		}
@@ -353,11 +475,9 @@ public:
 	 * Gets the PID values for a specified axis. 
 	 * @param axis is the axis to modify.
 	 * @param pid is a reference to a LowLevelPID structure returning the parameters.
-	 * @param sync is a flag that decides whether the new values is also copied onto the 
-	 * internal parameters structure (true by default).
 	 * @return YARP_OK on success.
 	 */
-	int getPID(int axis, LowLevelPID& pid, bool sync = true)
+	int getPID(int axis, LowLevelPID& pid)
 	{
 		_lock();
 		if (axis >= 0 && axis < _parameters._nj)
@@ -366,8 +486,6 @@ public:
 			cmd.axis = _parameters._axis_map[axis];
 			cmd.parameters = &pid;
 			int ret = _adapter.IOCtl(CMDGetPID, &cmd);
-			if (sync && ret == YARP_OK)
-				memcpy (&(_parameters._highPIDs[axis]), &pid, sizeof(LowLevelPID));
 			_unlock();
 			return ret;
 		}
@@ -387,78 +505,6 @@ public:
 		int ret = _adapter.activatePID(reset, pids);
 		_unlock();
 		return ret;
-	}
-
-	/**
-	 * Activates the PID controller using values stored internally as low gain PID's.
-	 * @param reset tells whether to reset the encoder position.
-	 * @return YARP_OK on success.
-	 */
-	int activateLowPID(bool reset = true)
-	{
-		_lock();
-		int ret = _adapter.activateLowPID(reset);
-		_unlock();
-		return ret;
-	}
-
-	/**
-	 * Reads the analog inputs of the card. Many control cards have analog inputs to 
-	 * build feedback loops on analog sensors.
-	 * @param val is an array of double precision numbers returning the readings from
-	 * the A/D converters.
-	 * @return YARP_OK on success.
-	 */
-	int readAnalogs(double *val)
-	{
-		_lock();
-		int ret = _adapter.readAnalogs(val);
-		_unlock();
-		return ret;
-	}
-
-	/**
-	 * Reads the analog input of the card.
-	 * @param index is the analog input number
- 	 * @param val is the return value
-	 * @return YARP_OK on success.
-	 */
-	int readAnalog(int index, double *val)
-	{
-		_lock();
-		int ret = _adapter.readAnalog(index, val);
-		_unlock();
-		return ret;
-	}
-
-	/**
-	 * Uninitializes the control board and frees memory.
-	 * This function does all what the destructor has to do.
-	 * @return YARP_OK on success, YARP_FAIL otherwise.
-	 */
-	int uninitialize()
-	{
-		_lock();
-		if (_temp_double != NULL)
-			delete [] _temp_double;
-		if (_newLimits != NULL)
-			delete [] _newLimits;
-		if (_currentLimits != NULL)
-			delete [] _currentLimits;
-
-		_temp_double = NULL;
-		_currentLimits = NULL;
-		_newLimits = NULL;
-
-		if (_adapter.uninitialize() == YARP_FAIL) 
-		{
-			YARP_GEN_CB_DEBUG(("Error un-initializing control board!\n"));
-			_unlock();
-			return YARP_FAIL;
-		}
-		YARP_GEN_CB_DEBUG(("Control board uninitialized!\n"));
-		_unlock();
-		return YARP_OK;
 	}
 
 	/**
@@ -659,6 +705,10 @@ public:
 		return ret;
 	}
 
+	/**
+	 * Stops the movement of all joints.
+	 * @return YARP_OK if successful.
+	 */
 	int stopMotion()
 	{
 		int ret;
@@ -761,7 +811,6 @@ public:
 												_parameters._encoderToAngles[i],
 												0.0,
 												(int) _parameters._signs[i]);
-		
 		}
 		_unlock();
 		return ret;
@@ -844,48 +893,48 @@ public:
 	    _lock();
 	    int ret;
 	    if (axis >= 0 && axis < _parameters._nj)
-	      {
-		SingleAxisParameters cmd;
-		cmd.axis = _parameters._axis_map[axis];
-		cmd.parameters = &value;
-		ret = _adapter.IOCtl(CMDGetPIDError, &cmd);
-	    	value = encoderToAngle(value,
-				       _parameters._encoderToAngles[axis],
-				       0.0,
-				       (int) _parameters._signs[axis]);
-		_unlock();
-		return ret;
-	      }
+		{
+			SingleAxisParameters cmd;
+			cmd.axis = _parameters._axis_map[axis];
+			cmd.parameters = &value;
+			ret = _adapter.IOCtl(CMDGetPIDError, &cmd);
+			value = encoderToAngle(value,
+				   _parameters._encoderToAngles[axis],
+				   0.0,
+				   (int) _parameters._signs[axis]);
+			_unlock();
+			return ret;
+		}
 	    _unlock();
 	    return YARP_FAIL;
 	}
 
 	/**      
-         * Perform a relative movement.
-         * @param axis is the axis to move.
-         * @param value how much to move the axis for (deg).
-         * @return YARP_OK on success, YARP_FAIL otherwise.
-         */
-        int setPositionRelative (int axis, double value)
-	  {                    
-            _lock();
-            int ret;
-            if (axis>=0 && axis<_parameters._nj)
-	      {
-		SingleAxisParameters cmd;
-		cmd.axis = _parameters._axis_map[axis];
-		value = angleToEncoder(value,
-				       _parameters._encoderToAngles[axis],
-				       0.0, 
-				       (int) _parameters._signs[axis]);
-		cmd.parameters = &value;
-		ret = _adapter.IOCtl(CMDRelativeMotion, &cmd);
+ 	 * Perform a relative movement.
+	 * @param axis is the axis to move.
+	 * @param value how much to move the axis for (deg).
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int setPositionRelative (int axis, double value)
+	{                    
+		_lock();
+		int ret;
+		if (axis>=0 && axis<_parameters._nj)
+		{
+			SingleAxisParameters cmd;
+			cmd.axis = _parameters._axis_map[axis];
+			value = angleToEncoder(value,
+								_parameters._encoderToAngles[axis],
+								0.0, 
+								(int) _parameters._signs[axis]);
+			cmd.parameters = &value;
+			ret = _adapter.IOCtl(CMDRelativeMotion, &cmd);
+			_unlock();
+			return ret;
+		}
 		_unlock();
-		return ret;
-	      }
-	    _unlock();
-	    return YARP_FAIL;
-	  }
+		return YARP_FAIL;
+	}
 
 	/**
 	 * Gets the card's max torque: this value is a function of the specific 
@@ -903,23 +952,6 @@ public:
 	inline int nj() { return _parameters._nj; }
 
 	/**
-	 * Sets the PID gain smoothly (in small increments) to the final value.
-	 * @param finalPIDs is an array of LowLevelPID structures used as target value.
-	 * @param s is the number of steps.
-	 * @return 0.
-	 */
-	int setGainsSmoothly(LowLevelPID *finalPIDs, int s = 150);
-
-	// reduce max torque on axis of delta; returns true if current limit is equal to or less than value
-	bool decMaxTorque(int axis, double delta, double value);
-	// same as above, act on multiple joints (up to nj)
-	bool decMaxTorques(double delta, double value, int nj);
-	// increase max torque on axis of delta; returns true if current limit is equal to or more than value
-	bool incMaxTorque(int axis, double delta, double value);
-	// same as above, act on multiple joints (up to nj)
-	bool incMaxTorques(double delta, double value, int nj);
-
-	/**
 	 * Converts angles in degrees into encoder values in ticks.
 	 * @param angle is the angle to be converted.
 	 * @param encParam is the multiplication factor (linear).
@@ -929,7 +961,13 @@ public:
 	 * as the angle.
 	 * @return the converted value in encoder ticks.
 	 */
-	inline double angleToEncoder(double angle, double encParam, double zero, int sign);
+	inline double angleToEncoder(double angle, double encParam, double zero, int sign)
+	{
+		if (sign == 1)
+			return -(angle * encParam) / (360) + zero;
+		else
+			return angle * encParam / (360) + zero;
+	}
 
 	/**
 	 * Converts encoder values into angles in degrees.
@@ -941,7 +979,13 @@ public:
 	 * as the angle.
 	 * @return the converted value of the angle in degrees.
 	 */
-	inline double encoderToAngle(double encoder, double encParam, double zero, int sign);
+	inline double encoderToAngle(double encoder, double encParam, double zero, int sign)
+	{
+		if (sign == 1)
+			return (zero-encoder) * 360 / encParam;
+		else
+			return (encoder - zero) * 360 / encParam;
+	}
 
 protected:
 	/**
@@ -960,8 +1004,11 @@ protected:
 	int _initialize(void)
 	{
 		_temp_double = new double [_parameters._nj];
+		ACE_ASSERT (_temp_double != NULL);
 		_currentLimits = new double [_parameters._nj];
+		ACE_ASSERT (_currentLimits != NULL);
 		_newLimits = new double [_parameters._nj];
+		ACE_ASSERT (_newLimits != NULL);
 
 		if (_adapter.initialize(&_parameters) == YARP_FAIL) 
 		{
@@ -979,253 +1026,12 @@ protected:
 	double *_currentLimits;
 	double *_newLimits;
 
+	// will become protected one day.
 public:
 	ADAPTER _adapter;
 	PARAMETERS _parameters;
 };
 
 
-
-// This procedure set new gains smoothly in 's' steps.
-// Care must be taken in dealing with the SHIFT (scale) parameter
-// Here we take the maximum value between the actual and the new one.
-// "finalPIDs" are scaled accordingly.
-template <class ADAPTER, class PARAMETERS>
-int YARPGenericControlBoard<ADAPTER, PARAMETERS>::setGainsSmoothly(LowLevelPID *finalPIDs, int s)
-{
-	ACE_OS::printf("Setting gains");
-
-	double steps = (double) s;
-	ACE_Time_Value sleep_period (0, 40*1000);
-	
-	LowLevelPID *actualPIDs;
-	LowLevelPID *deltaPIDs;
-	actualPIDs = new LowLevelPID [_parameters._nj];
-	deltaPIDs = new LowLevelPID [_parameters._nj];
-	ACE_ASSERT (actualPIDs != NULL && deltaPIDs != NULL);
-
-	double *shift;
-	double *currentPos;
-	shift = new double[_parameters._nj];
-	currentPos = new double[_parameters._nj];
-	ACE_ASSERT (shift != NULL && currentPos != NULL);
-
-	// set command "here"
-	// getPositions(currentPos);
-	// setCommands(currentPos);
-
-	for(int i = 0; i < _parameters._nj; i++) 
-	{
-		SingleAxisParameters cmd;
-		cmd.axis = _parameters._axis_map[i];
-		cmd.parameters = &actualPIDs[i];
-		_adapter.IOCtl(CMDGetPID, &cmd);
-
-		// handle shift (scale)
-		double actualShift = actualPIDs[i].SHIFT;
-		double finalShift = finalPIDs[i].SHIFT;
-		if (actualShift > finalShift)
-		{
-			shift[i] = actualShift;
-			finalPIDs[i] = finalPIDs[i]*(pow(2,(finalShift+actualShift)));
-		}
-		else
-		{
-			shift[i] = finalShift;
-			actualPIDs[i] = actualPIDs[i]*(pow(2,(actualShift+finalShift)));
-		}
-			
-		deltaPIDs[i] = (finalPIDs[i] - actualPIDs[i])/steps;
-	}
-	
-	for(int t = 0; t < (int) steps; t++)
-	{
-		for(int i = 0; i < _parameters._nj; i++)
-		{
-			actualPIDs[i] = actualPIDs[i] + deltaPIDs[i];
-			actualPIDs[i].SHIFT = shift[i];
-		
-			SingleAxisParameters cmd;
-			cmd.axis = _parameters._axis_map[i];
-			cmd.parameters = &actualPIDs[i];
-			_adapter.IOCtl(CMDSetPID, &cmd);
-		}
-		ACE_OS::sleep(sleep_period);
-		ACE_OS::printf(".");
-
-		fflush(stdout);
-	}
-	ACE_OS::printf("done !\n");
-
-	// if !NULL...
-	delete [] actualPIDs;
-	delete [] deltaPIDs;
-	delete [] shift;
-	delete [] currentPos; 
-	return -1;
-}
-
-template <class ADAPTER, class PARAMETERS>
-inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
-angleToEncoder(double angle, double encParam, double zero, int sign)
-{
-	if (sign == 1)
-		return -(angle * encParam) / (360) + zero;
-	else
-		return angle * encParam / (360) + zero;
-}
-
-template <class ADAPTER, class PARAMETERS>
-inline double YARPGenericControlBoard<ADAPTER, PARAMETERS>::
-encoderToAngle(double encoder, double encParam, double zero, int sign)
-{
-	if (sign == 1)
-		return (zero-encoder) * 360 / encParam;
-	else
-		return (encoder - zero) * 360 / encParam;
-}
-
-template <class ADAPTER, class PARAMETERS>
-inline bool YARPGenericControlBoard<ADAPTER, PARAMETERS>::
-decMaxTorque(int axis, double delta, double value)
-{
-	bool ret = false;
-	double currentLimit, newLimit;
-	SingleAxisParameters cmd;
-	cmd.axis = _parameters._axis_map[axis];
-	cmd.parameters = &currentLimit;
-	_adapter.IOCtl(CMDGetTorqueLimit, &cmd);
-
-	newLimit = currentLimit - (fabs(delta));
-
-	// check newLimit to see it we are done
-	if (newLimit <= value)
-	{
-		newLimit = value;
-		ret = true;
-	}
-	// be sure we are not going below zero
-	if (newLimit < 0.0)
-	{
-		newLimit = 0.0;
-		ret = true;
-	}
-
-	cmd.parameters = &newLimit;
-	_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
-	return ret;
-}
-
-template <class ADAPTER, class PARAMETERS>
-inline bool YARPGenericControlBoard<ADAPTER, PARAMETERS>::
-incMaxTorque(int axis, double delta, double value)
-{
-	const double maxTorque = _parameters._maxDAC[_parameters._axis_map[axis]];
-
-	bool ret = false;
-	double currentLimit, newLimit;
-	SingleAxisParameters cmd;
-	cmd.axis = _parameters._axis_map[axis];
-	cmd.parameters = &currentLimit;
-	_adapter.IOCtl(CMDGetTorqueLimit, &cmd);
-
-	newLimit = currentLimit + (fabs(delta));
-	
-	// check newLimit to see it we are done
-	if (newLimit >= value)
-	{
-		newLimit = value;
-		ret = true;
-	}
-	// be sure we are not going above max torque...
-	if (newLimit >= maxTorque)
-	{
-		newLimit = maxTorque;
-		ret = true;
-	}
-
-	cmd.parameters = &newLimit;
-	_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
-
-	return ret;
-}
-
-template <class ADAPTER, class PARAMETERS>
-inline bool YARPGenericControlBoard<ADAPTER, PARAMETERS>::
-decMaxTorques(double delta, double value, int nj)
-{
-	bool ret = true;
-	
-	_adapter.IOCtl(CMDGetTorqueLimits, _currentLimits);
-
-	int i;
-	// set new limits to "_currentLimits" for all joints
-	for(i = 0; i < _parameters._nj; i++)
-		_newLimits[i] = _currentLimits[i];
-		
-	// only reduce limits for specified joints
-	for(i = 0; i < nj; i++)
-	{
-		int j = _parameters._axis_map[i];
-		_newLimits[j] = _currentLimits[j] - (fabs(delta));
-
-		// check newLimit to see it we are done
-		// be sure we are not going below zero
-		if (_newLimits[j] < 0.0)
-		{
-			_newLimits[j] = 0.0;
-			ret = ret && true;
-		}
-		else if (_newLimits[j] <= value)
-		{
-			_newLimits[j] = value;
-			ret = ret && true;
-		}
-		else
-			ret = false;
-	}
-
-	_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
-	return ret;
-}
-
-template <class ADAPTER, class PARAMETERS>
-inline bool YARPGenericControlBoard<ADAPTER, PARAMETERS>::
-incMaxTorques(double delta, double value, int nj)
-{
-	bool ret = true;
-		
-	_adapter.IOCtl(CMDGetTorqueLimits, _currentLimits);
-
-	int i;
-	// set new limits to "_currentLimits" for all joints
-	for(i = 0; i < _parameters._nj; i++)
-		_newLimits[i] = _currentLimits[i];
-	
-	// increase limit only for the specified joints
-	for(i = 0; i < nj; i++)
-	{
-		int j = _parameters._axis_map[i];
-		_newLimits[j] = _currentLimits[j] + (fabs(delta));
-	
-		// be sure we are not going above max torque
-		if (_newLimits[j] >=  _parameters._maxDAC[j])
-		{
-			_newLimits[j] = _parameters._maxDAC[j];
-			ret = ret && true;
-		}
-		else if (_newLimits[j] >= value)
-		{
-			_newLimits[j] = value;
-			ret = ret && true;
-		}
-		else
-			ret = false;
-	}
-
-	_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
-
-	return ret;
-}
 
 #endif // h

@@ -1,33 +1,15 @@
 /////////////////////////////////////////////////////////////////////////
 ///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-/// This Academic Free License applies to any software and associated ///
-/// documentation (the "Software") whose owner (the "Licensor") has   ///
-/// placed the statement "Licensed under the Academic Free License    ///
-/// Version 1.0" immediately after the copyright notice that applies  ///
-/// to the Software.                                                  ///
-/// Permission is hereby granted, free of charge, to any person       ///
-/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
-/// publish, perform, distribute, sublicense, and/or sell copies of   ///
-/// the Software, and to permit persons to whom the Software is       ///
-/// furnished to do so, and (2) under patent claims owned or          ///
-/// controlled by the Licensor that are embodied in the Software as   ///
-/// furnished by the Licensor, to make, use, sell and offer for sale  ///
-/// the Software and derivative works thereof, subject to the         ///
-/// following conditions:                                             ///
-/// Redistributions of the Software in source code form must retain   ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers. ///
-/// Redistributions of the Software in executable form must reproduce ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers  ///
-/// in the documentation and/or other materials provided with the     ///
-/// distribution.                                                     ///
+///                    #Add our name(s) here#                         ///
 ///                                                                   ///
-/// Neither the names of Licensor, nor the names of any contributors  ///
-/// to the Software, nor any of their trademarks or service marks,    ///
-/// may be used to endorse or promote products derived from this      ///
-/// Software without express prior written permission of the Licensor.///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
 ///                                                                   ///
 /// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
 /// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
@@ -42,15 +24,7 @@
 /// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
 /// CONNECTION WITH THE SOFTWARE.                                     ///
 ///                                                                   ///
-/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
-/// reserved. Permission is hereby granted to copy and distribute     ///
-/// this license without modification. This license may not be        ///
-/// modified without the express written permission of its copyright  ///
-/// owner.                                                            ///
-///                                                                   ///
-///                                                                   ///
 /////////////////////////////////////////////////////////////////////////
-
 ///
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
@@ -61,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.4 2004-10-18 14:35:54 babybot Exp $
+///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.5 2005-06-20 14:01:23 gmetta Exp $
 ///
 ///
 
@@ -159,7 +133,7 @@ namespace _BabybotArm
  * 
  */
 
-class YARPBabybotArmParameters
+class YARPBabybotArmParameters : public YARPGenericControlParameters
 {
 public:
 	/**
@@ -448,15 +422,9 @@ private:
 public:
 	LowLevelPID *_highPIDs;
 	LowLevelPID *_lowPIDs;
-	double *_zeros;
-	double *_signs;
-	int *_axis_map;
-	int *_inv_axis_map;
-	double *_encoderToAngles;
 	double *_fwdCouple;
 	double *_invCouple;
 	int *_stiffPID;
-	int _nj;
 	double *_maxDAC;
 };
 
@@ -467,7 +435,9 @@ public:
  * uninitialize while it leaves much of the burden of calling the device driver
  * to a generic template class called YARPGenericControlBoard.
  */
-class YARPMEIOnBabybotArmAdapter : public YARPMEIDeviceDriver
+class YARPMEIOnBabybotArmAdapter : 
+	public YARPMEIDeviceDriver,
+	public YARPGenericControlAdapter<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters>
 {
 public:
 	/**
@@ -488,6 +458,10 @@ public:
 		if (_initialized)
 			uninitialize();
 	}
+
+	/*
+	 * implemented from the abstract base class.
+	 */
 
 	/**
 	 * Initializes the adapter and opens the device driver.
@@ -584,112 +558,6 @@ public:
 			IOCtl(CMDControllerIdle, &j);
 		}
 		return YARP_OK;
-	}
-
-	/**
-	 * Sets the PID values specified in a second set of parameters 
-	 * typically read from the intialization file.
-	 * @param reset if true resets the encoders.
-	 * @return YARP_OK on success, YARP_FAIL otherwise.
-	 */
-	int activateLowPID()
-	{
-		return activatePID(_parameters->_lowPIDs);
-	}
-
-	/**
-	 * Sets the PID values.
-	 * @param reset if true resets the encoder values to zero.
-	 * @param pids is an array of PID data structures. If NULL the values
-	 * contained into an internal variable are used (presumably read from the
-	 * initialization file) otherwise the actual argument is used.
-	 * @return YARP_OK on success, YARP_FAIL otherwise.
-	 */
-	int activatePID(LowLevelPID *pids = NULL)
-	{
-		for(int i = 0; i < _parameters->_nj; i++)
-		{
-			int j = _parameters->_axis_map[i];
-			IOCtl(CMDControllerIdle, &j);
-			SingleAxisParameters cmd;
-			cmd.axis = j;
-
-			if (pids == NULL)
-				cmd.parameters = &_parameters->_highPIDs[i];
-			else
-				cmd.parameters = &pids[i];
-
-			IOCtl(CMDSetPID, &cmd);
-			double pos = 0.0;
-			cmd.parameters = &pos;
-			IOCtl(CMDDefinePosition, &cmd);
-			IOCtl(CMDControllerRun, &j);
-			// IOCtl(CMDEnableAmp, &i);	// this is not required for the arm amplifier.
-		}
-
-		_setHomeConfig(CBNoEvent);
-		_clearStop();
-		
-		/// activate amplifiers
-		IOParameters cmd;
-		cmd.port = 1;
-		cmd.value = (short) 0x00;
-		IOCtl(CMDSetOutputPort, &cmd);
-		_amplifiers = true;
-		//////////////////////////
-
-		return YARP_OK;
-	}
-
-	/**
-	 * Checks whether the power is on on the Puma amplifier/controller.
-	 * @return true if the ON switch is pressed.
-	 */
-	bool checkPowerOn()
-	{
-		IOParameters cmd;
-		cmd.port = 0;
-		IOCtl(CMDGetOutputPort, &cmd);
-
-		if (cmd.value & 0x8)
-			return true;
-		else
-			return false;
-	}
-
-	/**
-	 * Disables the software limit check.
-	 * @return always YARP_OK.
-	 */
-	int disableLimitCheck()
-	{
-		_softwareLimits = false;
-		// LATER disable software limit check (encoders)
-		return YARP_OK;
-	}
-
-	/**
-	 * Enables the software limit check.
-	 * @return always YARP_OK.
-	 */
-	int enableLimitCheck()
-	{
-		_softwareLimits = true;
-		// LATER enable software limit check (encoders)
-		return YARP_OK;
-	}
-
-	/**
-	 * Returns the maximum torque on a given axis; NOTE: this is not the current value, this is
-	 * the maximum possible value for the board (i.e. MEI = 32767.0, Galil 9.99).
-	 * @param axis is the axis the request refers to.
-	 * @return the maximum allowed torque (at the output of the amplifier) espressed in some
-	 * internal reference (e.g. 16 bits, voltage).
-	 */
-	double getMaxTorque(int axis)
-	{
-		int tmp = _parameters->_axis_map[axis];
-		return _parameters->_maxDAC[tmp];
 	}
 
 	/**
@@ -793,7 +661,108 @@ public:
 		return YARP_OK;
 	}
 
-private:
+	/**
+	 * Sets the PID values.
+	 * @param reset is not used.
+	 * @param pids is an array of PID data structures. If NULL the values
+	 * contained into an internal variable are used (presumably read from the
+	 * initialization file) otherwise the actual argument is used.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int activatePID(bool reset, LowLevelPID *pids = NULL)
+	{
+		ACE_UNUSED_ARG (reset);
+
+		for(int i = 0; i < _parameters->_nj; i++)
+		{
+			int j = _parameters->_axis_map[i];
+			IOCtl(CMDControllerIdle, &j);
+			SingleAxisParameters cmd;
+			cmd.axis = j;
+
+			if (pids == NULL)
+				cmd.parameters = &_parameters->_highPIDs[i];
+			else
+				cmd.parameters = &pids[i];
+
+			IOCtl(CMDSetPID, &cmd);
+			double pos = 0.0;
+			cmd.parameters = &pos;
+			IOCtl(CMDDefinePosition, &cmd);
+			IOCtl(CMDControllerRun, &j);
+			// IOCtl(CMDEnableAmp, &i);	// this is not required for the arm amplifier.
+		}
+
+		_setHomeConfig(CBNoEvent);
+		_clearStop();
+		
+		/// activate amplifiers
+		IOParameters cmd;
+		cmd.port = 1;
+		cmd.value = (short) 0x00;
+		IOCtl(CMDSetOutputPort, &cmd);
+		_amplifiers = true;
+		//////////////////////////
+
+		return YARP_OK;
+	}
+
+	/*
+	 * More functions: these are called from the higher level code.
+	 */
+
+	/**
+	 * Checks whether the power is on on the Puma amplifier/controller.
+	 * @return true if the ON switch is pressed.
+	 */
+	bool checkPowerOn()
+	{
+		IOParameters cmd;
+		cmd.port = 0;
+		IOCtl(CMDGetOutputPort, &cmd);
+
+		if (cmd.value & 0x8)
+			return true;
+		else
+			return false;
+	}
+
+	/**
+	 * Disables the software limit check.
+	 * @return always YARP_OK.
+	 */
+	int disableLimitCheck()
+	{
+		_softwareLimits = false;
+		// LATER disable software limit check (encoders)
+		return YARP_OK;
+	}
+
+	/**
+	 * Enables the software limit check.
+	 * @return always YARP_OK.
+	 */
+	int enableLimitCheck()
+	{
+		_softwareLimits = true;
+		// LATER enable software limit check (encoders)
+		return YARP_OK;
+	}
+
+	/**
+	 * Returns the maximum torque on a given axis; NOTE: this is not the current value, this is
+	 * the maximum possible value for the board (i.e. MEI = 32767.0, Galil 9.99).
+	 * @param axis is the axis the request refers to.
+	 * @return the maximum allowed torque (at the output of the amplifier) espressed in some
+	 * internal reference (e.g. 16 bits, voltage).
+	 */
+	double getMaxTorque(int axis)
+	{
+		int tmp = _parameters->_axis_map[axis];
+		return _parameters->_maxDAC[tmp];
+	}
+
+protected:
 
 	/**
 	 * Sets the home configuration behavior.

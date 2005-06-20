@@ -1,33 +1,15 @@
 /////////////////////////////////////////////////////////////////////////
 ///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-/// This Academic Free License applies to any software and associated ///
-/// documentation (the "Software") whose owner (the "Licensor") has   ///
-/// placed the statement "Licensed under the Academic Free License    ///
-/// Version 1.0" immediately after the copyright notice that applies  ///
-/// to the Software.                                                  ///
-/// Permission is hereby granted, free of charge, to any person       ///
-/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
-/// publish, perform, distribute, sublicense, and/or sell copies of   ///
-/// the Software, and to permit persons to whom the Software is       ///
-/// furnished to do so, and (2) under patent claims owned or          ///
-/// controlled by the Licensor that are embodied in the Software as   ///
-/// furnished by the Licensor, to make, use, sell and offer for sale  ///
-/// the Software and derivative works thereof, subject to the         ///
-/// following conditions:                                             ///
-/// Redistributions of the Software in source code form must retain   ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers. ///
-/// Redistributions of the Software in executable form must reproduce ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers  ///
-/// in the documentation and/or other materials provided with the     ///
-/// distribution.                                                     ///
+///                    #Add our name(s) here#                         ///
 ///                                                                   ///
-/// Neither the names of Licensor, nor the names of any contributors  ///
-/// to the Software, nor any of their trademarks or service marks,    ///
-/// may be used to endorse or promote products derived from this      ///
-/// Software without express prior written permission of the Licensor.///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
 ///                                                                   ///
 /// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
 /// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
@@ -42,15 +24,7 @@
 /// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
 /// CONNECTION WITH THE SOFTWARE.                                     ///
 ///                                                                   ///
-/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
-/// reserved. Permission is hereby granted to copy and distribute     ///
-/// this license without modification. This license may not be        ///
-/// modified without the express written permission of its copyright  ///
-/// owner.                                                            ///
-///                                                                   ///
-///                                                                   ///
 /////////////////////////////////////////////////////////////////////////
-
 ///
 ///
 ///       YARP - Yet Another Robotic Platform (c) 2001-2003 
@@ -61,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotArm.h,v 1.8 2005-06-16 10:14:57 babybot Exp $
+///  $Id: YARPBabybotArm.h,v 1.9 2005-06-20 14:01:23 gmetta Exp $
 ///
 ///
 
@@ -80,22 +54,52 @@
 #include <yarp/YARPGenericControlBoard.h>
 #include <yarp/YARPMEIOnBabybotArmAdapter.h>
 
+/**
+ *
+ */
 typedef YARPGenericControlBoard<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters> MyGenericControlBoard;
 
+/**
+ * YARPBabybotArm is the high level interface to the babybot PUMA260 - 6 dof arm.
+ *
+ * WARNING: certain methods are overridden here to take into account the coupling of the
+ * PUMA wrist joints. Not all methods that require decoupling are yet implemented: beware of
+ * which method you actually call.
+ */
 class YARPBabybotArm : public MyGenericControlBoard
 {
 public:
+	/**
+	 * Default constructor.
+	 */
 	YARPBabybotArm() : MyGenericControlBoard()
 	{
 		_pidSigns = NULL;
 	}
 
-	// override activatePID
+	/**
+	 * Sets the PID values specified in a second set of parameters 
+	 * typically read from the intialization file.
+	 * @param reset is unused since the activatePid does not use it.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int activateLowPID(bool reset = true)
+	{
+		return YARPGenericControlBoard<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters>
+			::activatePID(reset, _parameters._lowPIDs);
+	}
+
+	/**
+	 * Overrides the activatePID method. This version checks whether 
+	 * the power is on on the Puma amplifier box.
+	 * @retunr YARP_OK always.
+	 */
 	int activatePID()
 	{
 		int ret;
 		_lock();
-		ret = _adapter.activatePID();
+		ret = YARPGenericControlBoard<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters>
+			::activatePID(true);
 		
 		while (!_adapter.checkPowerOn())
 		{
@@ -106,39 +110,138 @@ public:
 		return YARP_OK;
 	}
 
-	// overrides basic methods -> add coupling
+	/**
+	 * Moves all axes to a certain position. This method only works for "stiff" joints; the
+	 * low stiffness axes are untouched.
+	 * @param pos an array of double precision number specifying the position in degrees.
+	 * @return YARP_OK on success.
+	 */
 	int setPositions(const double *pos);
+
+	/**
+	 * Moves all axes to a certain position. All axes are affected by this method.
+	 * @param pos an array of double precision number specifying the position in degrees.
+	 * @return YARP_OK on success.
+	 */
 	int setPositionsAll(const double *pos);
+
+	/**
+	 * Sets the speed for successive position movements.
+	 * @param vel the array of joint velocities expressed in rad/s.
+	 * @return YARP_OK on success.
+	 */
 	int setVelocities(const double *vel);
+
+	/**
+	 * Sets the acceleration for the subsequent position or velocity move.
+	 * @param acc is an array of double precision values specifing the
+	 * acceleration value for all joints in rad/s^2.
+	 * @return YARP_OK on success.
+	 */
 	int setAccs(const double *acc);
+
+	/**
+	 * Starts a velocity motion of all joints.
+	 * @param vel is an array of double precision values representing
+	 * the speed of each joint. Speed is in degrees/s.
+	 * @return YARP_OK on success.
+	 */
 	int velocityMove(const double *vel);
+
+	/**
+	 * Sets the command value/reference position for all axes. Beware that changing
+	 * the commanded position abruptly will generate a possibly fast and high-acceleration
+	 * movement of the joint. Make sure you know the value of the
+	 * new reference position with respect to the actual position of the axis.
+	 * @param pos is the array containing the position values in degrees.
+	 * @return YARP_OK on success.
+	 */
 	int setCommands(const double *pos);
+
+	/**
+	 * Gets the position (angle) of all joints.
+	 * @param pos is an array to contain the joint angles. Joint angles are measured
+	 * in degrees.
+	 * @return YARP_OK on success.
+	 */
 	int getPositions(double *pos);
+
+	/**
+	 * Gets the velocities of all joints (encoder velocities).
+	 * @param vel is an array that receives the joint velocities.
+	 * @return YARP_OK on success.
+	 */
 	int getVelocities(double *vel);
 
+	/**
+	 * Changes the P gain of the axis @a i which behaves as
+	 * stiffness parameter for the low-stiffness control mode.
+	 * @param i is the axis to change the stiffness for.
+	 * @param s is the stiffness value.
+	 * @return YARP_OK on success.
+	 */
 	int setStiffness(int i, double s);
-	
-	// set offset to i-th joint
+
+	/** 
+	 * Changes the offset of the @a i joint which can be interpreted
+	 * as a direct torque control. This method is typically used
+	 * for gravity or dynamic compensation.
+	 * @param i is the axis to change.
+	 * @param g is the offset value.
+	 * @return YARP_OK on success.
+	 */
 	int setG(int i, double g);
-	// set offsets to all joints
+
+	/** 
+	 * Changes the offset of all joints: changing the offest can be interpreted
+	 * as a direct torque control. This method is typically used
+	 * for gravity or dynamic compensation.
+	 * @param g is the offset value.
+	 * @return YARP_OK on success.
+	 */
 	int setGs(const double *g);
 
-	// set offset and stiffness
+	/** 
+	 * Sets all PID gains simultaneously.
+	 * @param pids is an array of LowLevelPID structures.
+	 * @return YARP_OK on success.
+	 */
 	int setPIDs(const LowLevelPID *pids);
 
-	// very specific functions... 6 dof only!
+	/**
+	 * Converts angles in degrees into encoder values in ticks.
+	 * @param ang is the vector of angles to be converted.
+	 * @param enc is the vector of encoder ticks (returned).
+	 */
 	inline void angleToEncoders(const double *ang, double *enc)
 	{ _angleToEncoders(ang, enc, _parameters, _parameters._zeros); } 
 
+	/**
+	 * Converts encoder values into angles in degrees.
+	 * @param enc is the vector of encoder ticks.
+	 * @param ang is the vector of angles to be converted (returned).
+	 */
 	inline void encoderToAngles(const double *enc, double *ang)
 	{ _encoderToAngles(enc, ang, _parameters, _parameters._zeros); }
 
+	/**
+	 * Converts angular speed in degrees/s into encoder values in ticks/s.
+	 * @param ang is the vector of angles to be converted.
+	 * @param enc is the vector of encoder ticks (returned).
+	 * @param _parameters is the struct with the array of parameters.
+	 */
 	inline void angleVelToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters)
 	{	
 		double zeros[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 		_angleToEncoders(ang, enc, _parameters, zeros);
 	}
 
+	/**
+	 * Converts encoder speed values into angular speed in degrees/s.
+	 * @param ang is the vector of angles to be converted.
+	 * @param enc is the vector of encoder ticks (returned).
+	 * @param _parameters is the struct with the array of parameters.
+	 */
 	inline void encoderVelToAngles(const double *enc, double *ang, const YARPBabybotArmParameters &_parameters)
 	{ 
 		double zeros[6] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
@@ -183,6 +286,8 @@ private:
 
 	int *_pidSigns;
 };
+
+/* implementations */
 
 inline void YARPBabybotArm::_angleToEncoders(const double *ang, double *enc, const YARPBabybotArmParameters &_parameters, const double *zeros)
 {
