@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotArm.cpp,v 1.5 2005-06-20 15:48:18 gmetta Exp $
+/// $Id: YARPBabybotArm.cpp,v 1.6 2005-06-21 15:02:25 gmetta Exp $
 ///
 ///
 
@@ -44,6 +44,8 @@
 
 int YARPBabybotArm::setGainsSmoothly(LowLevelPID *finalPIDs, int s)
 {
+	_lock ();
+
 	ACE_OS::printf("Setting gains");
 
 	double steps = (double) s;
@@ -113,6 +115,9 @@ int YARPBabybotArm::setGainsSmoothly(LowLevelPID *finalPIDs, int s)
 	delete [] deltaPIDs;
 	delete [] shift;
 	delete [] currentPos; 
+
+	_unlock ();
+
 	return YARP_OK;
 }
 
@@ -248,6 +253,8 @@ int YARPBabybotArm::setStiffness(int j, double stiff)
 int YARPBabybotArm::_initialize()
 {
 	_pidSigns = new int [_parameters._nj];
+	ACE_ASSERT (_pidSigns != NULL);
+
 	int j = 0;
 	for(j = 0; j<_parameters._nj; j++)
 	{
@@ -312,18 +319,5 @@ int YARPBabybotArm::setPIDs(const LowLevelPID *pids)
 		MyGenericControlBoard::setPID(j, *tmp);
 	}
 
-	/*
-	int axes = _parameters._axis_map[j];
-	LowLevelPID pid = _parameters._lowPIDs[axes];
-	pid.KD = 0.0;
-	pid.KI = 0.0;
-	pid.AC_FF = 0.0;
-	pid.VEL_FF = 0.0;
-	pid.FRICT_FF = 0.0;
-	pid.OFFSET = g;
-	// don't touch I_LIMIT, T_LIMIT, SHIFT
-	pid.KP = fabs(k)*_pidSigns[axes];
-	return MyGenericControlBoard::setPID(j, pid, false);		//setPID internally lock and unlock
-	*/
 	return YARP_OK;
 }

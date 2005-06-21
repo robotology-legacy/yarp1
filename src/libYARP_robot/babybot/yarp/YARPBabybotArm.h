@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotArm.h,v 1.11 2005-06-20 16:36:05 gmetta Exp $
+///  $Id: YARPBabybotArm.h,v 1.12 2005-06-21 15:02:26 gmetta Exp $
 ///
 ///
 
@@ -55,7 +55,7 @@
 #include <yarp/YARPMEIOnBabybotArmAdapter.h>
 
 /**
- *
+ * A simple typedef for the GenericControlBoard.
  */
 typedef YARPGenericControlBoard<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParameters> MyGenericControlBoard;
 
@@ -65,6 +65,12 @@ typedef YARPGenericControlBoard<YARPMEIOnBabybotArmAdapter, YARPBabybotArmParame
  * WARNING: certain methods are overridden here to take into account the coupling of the
  * PUMA wrist joints. Not all methods that require decoupling are yet implemented: beware of
  * which method you actually call.
+ *
+ * NOTE: if calling functions in the ADAPTER you must protect them with the
+ * mutex otherwise, if calling those in the base class (GenericControlBoard),
+ * then you should not protect them with the mutex. Everything in the Generic
+ * is protected already (protecting twice causes a deadlock).
+ *
  */
 class YARPBabybotArm : public MyGenericControlBoard
 {
@@ -79,7 +85,8 @@ public:
 
 	/**
 	 * Sets the PID values specified in a second set of parameters 
-	 * typically read from the intialization file.
+	 * typically read from the intialization file. It does not check
+	 * for the power on as in the next method.
 	 * @param reset is unused since the activatePid does not use it.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
@@ -95,9 +102,8 @@ public:
 	 */
 	int activatePID()
 	{
-		int ret;
 		_lock();
-		ret = _adapter.activatePID(true);
+		int ret = _adapter.activatePID(true);
 		
 		while (!_adapter.checkPowerOn())
 		{
@@ -346,6 +352,8 @@ public:
 	 */
 	inline bool decMaxTorque(int axis, double delta, double value)
 	{
+		_lock ();
+
 		bool ret = false;
 		double currentLimit, newLimit;
 		SingleAxisParameters cmd;
@@ -370,6 +378,9 @@ public:
 
 		cmd.parameters = &newLimit;
 		_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
+
+		_unlock ();
+
 		return ret;
 	}
 
@@ -384,6 +395,8 @@ public:
 	 */
 	inline bool incMaxTorque(int axis, double delta, double value)
 	{
+		_lock ();
+
 		const double maxTorque = _parameters._maxDAC[_parameters._axis_map[axis]];
 
 		bool ret = false;
@@ -411,6 +424,8 @@ public:
 		cmd.parameters = &newLimit;
 		_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
 
+		_unlock ();
+
 		return ret;
 	}
 
@@ -425,6 +440,8 @@ public:
 	 */
 	inline bool decMaxTorques(double delta, double value, int nj)
 	{
+		_lock ();
+
 		bool ret = true;
 		
 		_adapter.IOCtl(CMDGetTorqueLimits, _currentLimits);
@@ -457,6 +474,9 @@ public:
 		}
 
 		_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
+
+		_unlock ();
+
 		return ret;
 	}
 
@@ -471,6 +491,8 @@ public:
 	 */
 	inline bool	incMaxTorques(double delta, double value, int nj)
 	{
+		_lock ();
+
 		bool ret = true;
 			
 		_adapter.IOCtl(CMDGetTorqueLimits, _currentLimits);
@@ -503,6 +525,7 @@ public:
 
 		_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
 
+		_unlock ();
 		return ret;
 	}
 

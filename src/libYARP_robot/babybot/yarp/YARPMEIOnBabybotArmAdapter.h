@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.5 2005-06-20 14:01:23 gmetta Exp $
+///  $Id: YARPMEIOnBabybotArmAdapter.h,v 1.6 2005-06-21 15:02:26 gmetta Exp $
 ///
 ///
 
@@ -434,6 +434,8 @@ public:
  * to control the Babybot head. This class especially implements initialize and
  * uninitialize while it leaves much of the burden of calling the device driver
  * to a generic template class called YARPGenericControlBoard.
+ *
+ *
  */
 class YARPMEIOnBabybotArmAdapter : 
 	public YARPMEIDeviceDriver,

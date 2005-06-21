@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.22 2005-06-20 14:01:22 gmetta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.23 2005-06-21 15:02:13 gmetta Exp $
 ///
 ///
 
@@ -713,7 +713,7 @@ public:
 	{
 		int ret;
 		_lock();
-			ret = _adapter.IOCtl(CMDServoHere, NULL);
+		ret = _adapter.IOCtl(CMDServoHere, NULL);
 		_unlock();
 		return ret;
 	}
@@ -726,7 +726,7 @@ public:
 	 */
 	bool checkMotionDone()
 	{
-		bool ret;
+		bool ret = false;
 		_lock();
 		_adapter.IOCtl(CMDCheckMotionDone, &ret);
 		_unlock();
@@ -742,7 +742,7 @@ public:
 	 */
 	bool checkFramesLeft()
 	{
-		bool ret;
+		bool ret = false;
 		_lock();
 		_adapter.IOCtl(CMDCheckFramesLeft, &ret);
 		_unlock();

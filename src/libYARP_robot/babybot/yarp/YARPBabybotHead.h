@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotHead.h,v 1.7 2005-06-20 15:48:18 gmetta Exp $
+///  $Id: YARPBabybotHead.h,v 1.8 2005-06-21 15:02:26 gmetta Exp $
 ///
 ///
 
@@ -69,8 +69,10 @@ namespace _joints
 /**
  * YARPBabybotHead is the interface to the babybot platform robot head (5 dof).
  *
- * NOTE: init/uninit methods are overridden since we need reading more parameters
- * here.
+ * NOTE: if calling functions in the ADAPTER you must protect them with the
+ * mutex otherwise, if calling those in the base class (GenericControlBoard),
+ * then you should not protect them with the mutex. Everything in the Generic
+ * is protected already (protecting twice causes a deadlock).
  *
  */
 class YARPBabybotHead : 
@@ -294,6 +296,8 @@ public:
 	 */
 	int setGainsSmoothly(LowLevelPID *finalPIDs, int s = 150)
 	{
+		_lock ();
+
 		ACE_OS::printf("Setting gains");
 
 		double steps = (double) s;
@@ -363,6 +367,9 @@ public:
 		delete [] deltaPIDs;
 		delete [] shift;
 		delete [] currentPos; 
+
+		_unlock ();
+
 		return YARP_OK;
 	}
 	
@@ -377,6 +384,8 @@ public:
 	 */
 	inline bool decMaxTorque(int axis, double delta, double value)
 	{
+		_lock ();
+
 		bool ret = false;
 		double currentLimit, newLimit;
 		SingleAxisParameters cmd;
@@ -401,6 +410,9 @@ public:
 
 		cmd.parameters = &newLimit;
 		_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
+
+		_unlock ();
+
 		return ret;
 	}
 
@@ -415,6 +427,8 @@ public:
 	 */
 	inline bool incMaxTorque(int axis, double delta, double value)
 	{
+		_lock ();
+
 		const double maxTorque = _parameters._maxDAC[_parameters._axis_map[axis]];
 
 		bool ret = false;
@@ -442,6 +456,8 @@ public:
 		cmd.parameters = &newLimit;
 		_adapter.IOCtl(CMDSetTorqueLimit, &cmd);
 
+		_unlock ();
+
 		return ret;
 	}
 
@@ -456,6 +472,8 @@ public:
 	 */
 	inline bool decMaxTorques(double delta, double value, int nj)
 	{
+		_lock ();
+
 		bool ret = true;
 		
 		_adapter.IOCtl(CMDGetTorqueLimits, _currentLimits);
@@ -488,6 +506,9 @@ public:
 		}
 
 		_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
+
+		_unlock ();
+
 		return ret;
 	}
 
@@ -502,6 +523,8 @@ public:
 	 */
 	inline bool	incMaxTorques(double delta, double value, int nj)
 	{
+		_lock ();
+
 		bool ret = true;
 			
 		_adapter.IOCtl(CMDGetTorqueLimits, _currentLimits);
@@ -533,6 +556,8 @@ public:
 		}
 
 		_adapter.IOCtl(CMDSetTorqueLimits, _newLimits);
+
+		_unlock ();
 
 		return ret;
 	}
