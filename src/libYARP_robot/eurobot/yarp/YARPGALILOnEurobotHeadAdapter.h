@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.6 2005-06-22 14:43:10 beltran Exp $
+///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.7 2005-06-22 16:01:24 beltran Exp $
 ///
 ///
 
@@ -399,6 +399,7 @@ public:
 	int *_stiffPID;
 	double *_maxDAC;
 	YARPString _inertialConfig;
+	char _mask;
 };
 
 

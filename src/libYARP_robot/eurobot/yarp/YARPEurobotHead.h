@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPEurobotHead.h,v 1.3 2005-06-22 14:43:10 beltran Exp $
+/// $Id: YARPEurobotHead.h,v 1.4 2005-06-22 16:06:15 beltran Exp $
 ///
 ///
 
@@ -65,7 +65,7 @@ namespace _joints
 
 
 /**
- * YARPBabybotHead is the interface to the babybot platform robot head (5 dof).
+ * YARPEurobotHead is the interface to the babybot platform robot head (5 dof).
  *
  * NOTE: if calling functions in the ADAPTER you must protect them with the
  * mutex otherwise, if calling those in the base class (GenericControlBoard),
@@ -100,7 +100,7 @@ public:
 	 */
 	int setPID(int axis, const LowLevelPID& pid, bool sync = true)
 	{
-		int ret = YARPGenericControlBoard<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters>
+		int ret = YARPGenericControlBoard<YARPGALILOnEurobotHeadAdapter, YARPEurobotHeadParameters>
 			::setPID (axis, pid);
 		if (ret == YARP_OK)
 		{
@@ -125,7 +125,7 @@ public:
 	 */
 	int getPID(int axis, LowLevelPID& pid, bool sync = true)
 	{
-		int ret = YARPGenericControlBoard<YARPMEIOnBabybotHeadAdapter, YARPBabybotHeadParameters>
+		int ret = YARPGenericControlBoard<YARPGALILOnEurobotHeadAdapter, YARPEurobotHeadParameters>
 			::getPID (axis, pid);
 
 		if (ret == YARP_OK)
@@ -553,6 +553,6 @@ public:
 		return ret;
 	}
 
-}; /* YARPBabybotHead */
+}; /* YARPEurobotHead */
 
 #endif

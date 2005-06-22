@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.5 2005-06-22 15:48:55 beltran Exp $
+///  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.6 2005-06-22 15:51:16 beltran Exp $
 ///
 ///
 
@@ -435,8 +435,8 @@ public:
 
 
 /**
- * YARPMEIOnBabybotArmAdapter is a specialization of the MEI card device driver
- * to control the Babybot head. This class especially implements initialize and
+ * YARPGALILOnEurobotArmAdapter is a specialization of the GALIL card device driver
+ * to control the Eurobot head. This class especially implements initialize and
  * uninitialize while it leaves much of the burden of calling the device driver
  * to a generic template class called YARPGenericControlBoard.
  *
@@ -472,7 +472,7 @@ public:
 
 	/**
 	 * Initializes the adapter and opens the device driver.
-	 * This is a specific initialization for the Babybot arm. NOTE: that the parameter
+	 * This is a specific initialization for the Eurobot arm. NOTE: that the parameter
 	 * here is not copied and references to it could still be made by the code. Until
 	 * this behavior is correct, the user has to make sure the pointer doesn't become
 	 * invalid during the lifetime of the adapter class (this one). Generally this is true
@@ -480,7 +480,7 @@ public:
 	 * internally (and their lifetime is related to that of the adapter).
 	 *
 	 * @param par is a pointer to the class containing the parameters that has
-	 * to be exactly YARPBabybotArmParameters.
+	 * to be exactly YARPEurobotArmParameters.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
 	int initialize(YARPEurobotArmParameters *par)
@@ -776,7 +776,7 @@ protected:
 	bool _initialized;
 	bool _amplifiers;
 	bool _softwareLimits;
-	YARPBabybotArmParameters *_parameters;
+	YARPEurobotArmParameters *_parameters;
 };
 
 #endif

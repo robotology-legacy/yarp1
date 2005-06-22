@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPEurobotArm.cpp,v 1.4 2005-06-22 14:43:10 beltran Exp $
+/// $Id: YARPEurobotArm.cpp,v 1.5 2005-06-22 15:57:40 beltran Exp $
 ///
 ///
 
@@ -310,7 +310,7 @@ int YARPEurobotArm::setPIDs(const LowLevelPID *pids)
 	for(j = 0; j<_parameters._nj; j++)
 	{
 		LowLevelPID *tmp = const_cast<LowLevelPID *>(&pids[j]);
-		MyGenericControlBoard::setPID(j, *tmp, false);
+		MyGenericControlBoard::setPID(j, *tmp);
 	}
 
 	return YARP_OK;
