@@ -1,28 +1,50 @@
-// =====================================================================================
-//
-//       YARP - Yet Another Robotic Platform (c) 2001-2003 
-//
-//                    #Ing. Carlos Beltran#
-//
-//     "Licensed under the Academic Free License Version 1.0"
-// 
-//        Filename:  YARPGALILOnEurobotArmAdapter.h
-// 
-//     Description:  
-// 
-//         Version:  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.3 2004-12-29 14:11:42 beltran Exp $
-// 
-//          Author:  Ing. Carlos Beltran (Carlos)
-//         Company:  Lira-Lab
-//           Email:  cbeltran@dist.unige.it
-// 
-// =====================================================================================
+/////////////////////////////////////////////////////////////////////////
+///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
+///                                                                   ///
+///                    #Carlos Beltran-Gonzalez#                      ///
+///                                                                   ///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
+///                                                                   ///
+/// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
+/// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
+/// DISTRIBUTED BY LICENSOR UNDER A VALID CURRENT LICENSE. EXCEPT AS  ///
+/// EXPRESSLY STATED IN THE IMMEDIATELY PRECEDING SENTENCE, THE       ///
+/// SOFTWARE IS PROVIDED BY THE LICENSOR, CONTRIBUTORS AND COPYRIGHT  ///
+/// OWNERS "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, ///
+/// INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   ///
+/// FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO      ///
+/// EVENT SHALL THE LICENSOR, CONTRIBUTORS OR COPYRIGHT OWNERS BE     ///
+/// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN   ///
+/// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
+/// CONNECTION WITH THE SOFTWARE.                                     ///
+///                                                                   ///
+/////////////////////////////////////////////////////////////////////////
+///
+///
+///       YARP - Yet Another Robotic Platform (c) 2001-2003 
+///
+///                    #Carlos Beltran-Gonzalez#
+///
+///     "Licensed under the Academic Free License Version 1.0"
+///
+
+///
+///  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.4 2005-06-22 14:43:10 beltran Exp $
+///
+///
 
 #ifndef __GALILONEUROBOTARMADAPTER__
 #define __GALILONEUROBOTARMADAPTER__
 
 #include <ace/Log_Msg.h>
 #include <yarp/YARPGalilDeviceDriver.h>
+#include <yarp/YARPString.h>
 
 #define YARP_BABYBOT_ARM_ADAPTER_VERBOSE
 
@@ -33,6 +55,14 @@
 
 #include <yarp/YARPConfigFile.h>
 
+/**
+ * \file YARPGALILOnEurobotArmAdapter.h This file contains definitions of the control classes
+ * for the Eurobot arm according to the YARP device driver model.
+ */
+
+/**
+ * _EurobotArm contains the default parameters of the Eurobot arm control card(s).
+ */
 namespace _EurobotArm
 {
 	const int _nj = 6;
@@ -47,11 +77,10 @@ namespace _EurobotArm
 		LowLevelPID(238.63, 1782.63, 91.85, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -100.0),	
 		LowLevelPID(0.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
 	};
-
+	
 	const LowLevelPID _lowPIDs[_nj] = 
 	{
 		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),		//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
-		// LowLevelPID(-310.0, -1500.0, 0.0, 0.0, -100.0, 32767.0, 0.0, 32767.0, 0.0, -30.0),	//KP, KD, KI, AC_FF, VEL_FF, I_LIMIT, OFFSET, T_LIMIT, SHIFT, FRICT_FF
 		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
 		LowLevelPID(-5.0, 0.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),
 		LowLevelPID(-320.0, -600.0, 0.0, 0.0, 0.0, 32767.0, 0.0, 32767.0, 0.0, 0.0),	
@@ -69,9 +98,48 @@ namespace _EurobotArm
 	const double _maxDAC[_nj] = {32767.0, 32767.0, 32767.0, 32767.0, 32767.0, 32767.0};
 }; // namespace
 
-class YARPEurobotArmParameters
+
+/**
+ * YARPEurobotArmParameters is one of the components required to
+ * specialize the YARPGenericControlBoard template to do something useful.
+ * This class contains parameters that are used during initialization to
+ * bring the head up into a decent state.
+ *
+ * A note on the use of the axis map:
+ * - Each map's entry represents a name of a joint (imagine it as a label).
+ * - Whenever addressing the card directly thus the label is used.
+ * - When addressing software data, initialization file, etc. our index (what we
+ * think of an axis number is used.
+ * - Since the axis map is only used internally this should be of no concern for
+ * the user.
+ *
+ * Note on the wrist mechanical coupling:
+ * 
+ *			1/G00	0		0		0		0		0
+ *			0		1/G11	0		0		0		0
+ *	joint =	0		0		1/G22	0		0		0       * [motor0 motor1 ... motor5]'
+ *			0		0		0		1/G33	0		0
+ *			0		0		0		-G34	1/G44	0
+ *			0		0		0		-G35	-G45	1/G55
+ *
+ * Where: [G00 G11 G22 ... G55] = _encoders[]	// gear ratios
+ *		  [0 0 0 -G34 -G45 -G55] = fwdCouple[]	// coupling between joints
+ * 
+ * Consider also: 
+ * - motor[j] = 2*pi*enc[j]/encWheels[j]
+ * - In the code _fwdCouple is substituted with _fwdCouple *= encWheels
+ *
+ * This leads to the encoderToAngles() and anglesToEncoders() functions as they are in the YARPEurobotArm class.
+ * 
+ */
+
+class YARPEurobotArmParameters : public YARPGenericControlParameters
 {
 public:
+	/**
+	 * Default constructor.
+	 * Allocates memory and sets parameters to suitable default values.
+	 */
 	YARPEurobotArmParameters()
 	{
 		_highPIDs = NULL;
@@ -94,16 +162,17 @@ public:
 		_mask = (char) 0x3F;
 		_realloc(_nj);
 		int i;
-		for(i = 0; i<_nj; i++) {
-			_highPIDs[i] = _EurobotArm::_highPIDs[i];
-			_lowPIDs[i] = _EurobotArm::_lowPIDs[i];
-			_zeros[i] = _EurobotArm::_zeros[i];
-			_axis_map[i] = _EurobotArm::_axis_map[i];
-			_signs[i] = _EurobotArm::_signs[i];
+		for(i = 0; i<_nj; i++) 
+		{
+			_highPIDs[i]        = _EurobotArm::_highPIDs[i];
+			_lowPIDs[i]         = _EurobotArm::_lowPIDs[i];
+			_zeros[i]           = _EurobotArm::_zeros[i];
+			_axis_map[i]        = _EurobotArm::_axis_map[i];
+			_signs[i]           = _EurobotArm::_signs[i];
 			_encoderToAngles[i] = _EurobotArm::_encoders[i]*_EurobotArm::_encWheels[i];
-			_fwdCouple[i] = _EurobotArm::_fwdCouple[i];
-			_stiffPID[i] = _EurobotArm::_stiffPID[i];
-			_maxDAC[i] = _EurobotArm::_maxDAC[i];
+			_fwdCouple[i]       = _EurobotArm::_fwdCouple[i];
+			_stiffPID[i]        = _EurobotArm::_stiffPID[i];
+			_maxDAC[i]          = _EurobotArm::_maxDAC[i];
 		}
 
 		// compute inv couple
@@ -112,7 +181,7 @@ public:
 
 		_invCouple[3] = -_fwdCouple[3] / (_encoderToAngles[3] * _encoderToAngles[4]);
 		_invCouple[4] = -_fwdCouple[4] / (_encoderToAngles[3] * _encoderToAngles[5]) +
-		(_fwdCouple[3] * _fwdCouple[5]) / (_encoderToAngles[3] * _encoderToAngles[4] * _encoderToAngles[5]);
+			(_fwdCouple[3] * _fwdCouple[5]) / (_encoderToAngles[3] * _encoderToAngles[4] * _encoderToAngles[5]);
 		_invCouple[5] = -_fwdCouple[5] / (_encoderToAngles[4] * _encoderToAngles[5]);
 
 		// invert the axis map.
@@ -131,6 +200,9 @@ public:
 		}
 	}
 
+	/**
+	 * Destructor.
+	 */
 	~YARPEurobotArmParameters()
 	{
 		if (_highPIDs != NULL)
@@ -157,19 +229,26 @@ public:
 			delete [] _maxDAC;
 	}
 
+	/**
+	 * Loads the paramters from a configuration file and allocates memory
+	 * if necessary.
+	 * @param path is the path where the initialization file is located.
+	 * @param init_file is the intitialization file name.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int load(const YARPString &path, const YARPString &init_file)
 	{
 		YARPConfigFile cfgFile;
 		// set path and filename
 		cfgFile.set(path.c_str(),init_file.c_str());
-
+		
 		// get number of joints
 		if (cfgFile.get("[GENERAL]", "Joints", &_nj, 1) == YARP_FAIL)
 			return YARP_FAIL;
 
 		// delete and allocate new memory
 		_realloc(_nj);
-
+		
 		int i;
 		for(i = 0; i<_nj; i++)
 		{
@@ -179,12 +258,12 @@ public:
 			if (cfgFile.get("[HIGHPID]", dummy, tmp, 12) == YARP_FAIL)
 				return YARP_FAIL;
 			_highPIDs[i] = LowLevelPID(tmp);
-
+			
 			if (cfgFile.get("[LOWPID]", dummy, tmp, 12) == YARP_FAIL)
 				return YARP_FAIL;
 			_lowPIDs[i] = LowLevelPID(tmp);
 		}
-
+		
 		if (cfgFile.get("[GENERAL]", "Zeros", _zeros, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 		if (cfgFile.get("[GENERAL]", "AxisMap", _axis_map, _nj) == YARP_FAIL)
@@ -239,7 +318,7 @@ public:
 
 		_invCouple[3] = -_fwdCouple[3] / (_encoderToAngles[3] * _encoderToAngles[4]);
 		_invCouple[4] = -_fwdCouple[4] / (_encoderToAngles[3] * _encoderToAngles[5]) +
-		(_fwdCouple[3] * _fwdCouple[5]) / (_encoderToAngles[3] * _encoderToAngles[4] * _encoderToAngles[5]);
+			(_fwdCouple[3] * _fwdCouple[5]) / (_encoderToAngles[3] * _encoderToAngles[4] * _encoderToAngles[5]);
 		_invCouple[5] = -_fwdCouple[5] / (_encoderToAngles[4] * _encoderToAngles[5]);
 		////////////////////////////////////////
 
@@ -330,7 +409,7 @@ private:
 			delete [] _stiffPID;
 		if (_maxDAC != NULL)
 			delete [] _maxDAC;
-
+		
 		_highPIDs = new LowLevelPID [nj];
 		_lowPIDs = new LowLevelPID [nj];
 		_zeros = new double [nj];
@@ -347,35 +426,62 @@ private:
 public:
 	LowLevelPID *_highPIDs;
 	LowLevelPID *_lowPIDs;
-	double *_zeros;
-	double *_signs;
-	int *_axis_map;
-	int *_inv_axis_map;
-	double *_encoderToAngles;
 	double *_fwdCouple;
 	double *_invCouple;
 	int *_stiffPID;
-	int _nj;
-	char _mask;
 	double *_maxDAC;
 };
 
-class YARPGALILOnEurobotArmAdapter : public YARPGalilDeviceDriver
+
+/**
+ * YARPMEIOnBabybotArmAdapter is a specialization of the MEI card device driver
+ * to control the Babybot head. This class especially implements initialize and
+ * uninitialize while it leaves much of the burden of calling the device driver
+ * to a generic template class called YARPGenericControlBoard.
+ *
+ *
+ */
+class YARPGALILOnEurobotArmAdapter : 
+	public YARPGalilDeviceDriver,
+	public YARPGenericControlAdapter<YARPGALILOnEurobotArmAdapter, YARPEurobotArmParameters>
 {
 public:
+	/**
+	 * Default constructor.
+	 */
 	YARPGALILOnEurobotArmAdapter()
 	{
 		_initialized = false;
 		_amplifiers = false;
 		_softwareLimits = false;
 	}
-
+	
+	/**
+	 * Destructor.
+	 */
 	~YARPGALILOnEurobotArmAdapter()
 	{
 		if (_initialized)
 			uninitialize();
 	}
 
+	/*
+	 * implemented from the abstract base class.
+	 */
+
+	/**
+	 * Initializes the adapter and opens the device driver.
+	 * This is a specific initialization for the Babybot arm. NOTE: that the parameter
+	 * here is not copied and references to it could still be made by the code. Until
+	 * this behavior is correct, the user has to make sure the pointer doesn't become
+	 * invalid during the lifetime of the adapter class (this one). Generally this is true
+	 * for the "generic" templates since they allocate a copy of the parameter class
+	 * internally (and their lifetime is related to that of the adapter).
+	 *
+	 * @param par is a pointer to the class containing the parameters that has
+	 * to be exactly YARPBabybotArmParameters.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
 	int initialize(YARPEurobotArmParameters *par)
 	{
 		//// open device
@@ -469,41 +575,91 @@ public:
 		return YARP_OK;
 	}
 
+	/**
+	 * Disables simultaneously the controller and the amplifier (these are
+	 * usually two separate commands on control cards).
+	 * @return YARP_OK always.
+	 */
 	int idleMode()
 	{
 		for(int i = 0; i < _parameters->_nj; i++)
 		{
-			IOCtl(CMDControllerIdle, &i);
+			int j = _parameters->_axis_map[i];
+			IOCtl(CMDControllerIdle, &j);
 		}
 		return YARP_OK;
 	}
 
 	/**
-	 * Sets the PID values specified in a second set of parameters 
-	 * typically read from the intialization file.
-	 * @param reset if true resets the encoders.
+	 * Calibrates the control card if needed.
+	 * NOTE: this function doesn't do the mapping (_axis_map) and assumes the controlled
+	 * axes for the puma are numbered from 0 to 5. Please make sure this is the case
+	 * before calling it!
+	 * The finding index procedure in the Galil motion card is different from that
+	 * on the MEI. The FI (find index) command it is used together with JG and BG.
+	 * The problem is that when the card find and index it reset the position of
+	 * the encoders to 0. Therefore, it is no way to implement a similar procedure
+	 * that the one used in the MEI. 
+	 * Then I have implemented a simplified procedure. Empirically I have found
+	 * the nearest indexes to the initial position (marked with red signs on the
+	 * arm) and it came out that they are found in the negative direction of the joints,
+	 * for all of them. So, the speed used to find the indexes is -500 for all of them.
+     * Note: The wait for motion done is not used because we dont need to wait to recover
+     * the new position.
+	 *
+	 * @param joint is the joint number/function requested to the calibrate method.
+	 * The default value -1 does nothing.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
-	int activateLowPID()
+	int calibrate(int joint = -1) 
 	{
-		return activatePID(_parameters->_lowPIDs);
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Starting calibration routine...\n"));
+		if (! (_initialized && _amplifiers) )
+		{
+			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Sorry cannot calibrate encoders, the arm not initialized or the power is down!\n"));
+			return YARP_FAIL;
+		}
+
+		bool indexsearchFlag = true;
+		bool limitFlag = false;
+		if (_softwareLimits)
+			limitFlag = true;
+		disableLimitCheck();
+
+		double speeds1[6] = {-500.0, -500.0, -500.0, -500.0, -500.0, -500.0};
+
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Searching indexes...\n"));
+		IOCtl(CMDIndexSearch, &indexsearchFlag);
+		IOCtl(CMDVMove, speeds1);
+		//IOCtl(CMDWaitForMotionDone, NULL);
+		//IOCtl(CMDGetPositions, pos1);
+		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
+		////////////////////////////
+
+		if (limitFlag)
+			enableLimitCheck();
+
+		return YARP_OK;
 	}
 
 	/**
 	 * Sets the PID values.
-	 * @param reset if true resets the encoder values to zero.
+	 * @param reset is not used.
 	 * @param pids is an array of PID data structures. If NULL the values
 	 * contained into an internal variable are used (presumably read from the
 	 * initialization file) otherwise the actual argument is used.
 	 * @return YARP_OK on success, YARP_FAIL otherwise.
 	 */
-	int activatePID(LowLevelPID *pids = NULL)
+	int activatePID(bool reset, LowLevelPID *pids = NULL)
 	{
+		ACE_UNUSED_ARG (reset);
+
 		for(int i = 0; i < _parameters->_nj; i++)
 		{
-			IOCtl(CMDControllerIdle, &i);
+			int j = _parameters->_axis_map[i];
+			IOCtl(CMDControllerIdle, &j);
 			SingleAxisParameters cmd;
-			cmd.axis = i;
+			cmd.axis = j;
 
 			if (pids == NULL)
 				cmd.parameters = &_parameters->_highPIDs[i];
@@ -521,6 +677,14 @@ public:
 		return YARP_OK;
 	}
 
+	/*
+	 * More functions: these are called from the higher level code.
+	 */
+
+	/**
+	 * Checks whether the power is on on the Puma amplifier/controller.
+	 * @return true if the ON switch is pressed.
+	 */
 	bool checkPowerOn()
 	{
 		//I didn't find a bit in the input/output Galil ports showing the
@@ -553,62 +717,20 @@ public:
 		return YARP_OK;
 	}
 
-	// returns max torque on axis; note: this is not the current value, this is
-	// the maximum possible value for the board (i.e. MEI = 32767.0, Galil 9.99)
+	/**
+	 * Returns the maximum torque on a given axis; NOTE: this is not the current value, this is
+	 * the maximum possible value for the board (i.e. MEI = 32767.0, Galil 9.99).
+	 * @param axis is the axis the request refers to.
+	 * @return the maximum allowed torque (at the output of the amplifier) espressed in some
+	 * internal reference (e.g. 16 bits, voltage).
+	 */
 	double getMaxTorque(int axis)
 	{
 		int tmp = _parameters->_axis_map[axis];
 		return _parameters->_maxDAC[tmp];
 	}
 
-	//--------------------------------------------------------------------------------------
-	//       Class: YARPGALILOnEurobotArmAdapter 
-	//      Method: calibrate() 
-	// Description: The finding index procedure in the Galil motion card is different from that
-	// 				on the MEI. The FI (find index) command it is used together with JG and BG.
-	// 				The problem is that when the card find and index it reset the position of
-	// 				the encoders to 0. Therefore, it is no way to implement a similar procedure
-	// 				that the one used in the MEI. 
-	// 				Then I have implemented a simplified procedure. Empirically I have found
-	// 				the nearest indexes to the initial position (marked with red signs on the
-	// 				arm) and it came out that they are found in the negative direction of the joints,
-	// 				for all of them. So, the speed used to find the indexes is -500 for all of them.
-	// 				Note: The wait for motion done is not used because we dont need to wait to recover
-	// 				the new position.
-	//--------------------------------------------------------------------------------------
-	int 
-	calibrate() 
-	{
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Starting calibration routine...\n"));
-		if (! (_initialized && _amplifiers) )
-		{
-			YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Sorry cannot calibrate encoders, the arm not initialized or the power is down!\n"));
-			return YARP_FAIL;
-		}
-
-		bool indexsearchFlag = true;
-		bool limitFlag = false;
-		if (_softwareLimits)
-			limitFlag = true;
-		disableLimitCheck();
-
-		double speeds1[6] = {-500.0, -500.0, -500.0, -500.0, -500.0, -500.0};
-
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Searching indexes...\n"));
-		IOCtl(CMDIndexSearch, &indexsearchFlag);
-		IOCtl(CMDVMove, speeds1);
-		//IOCtl(CMDWaitForMotionDone, NULL);
-		//IOCtl(CMDGetPositions, pos1);
-		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("done !\n"));
-		////////////////////////////
-
-		if (limitFlag)
-			enableLimitCheck();
-
-		return YARP_OK;
-	}
-
-private:
+protected:
 
 	/**
 	 * Sets the home configuration behavior.
@@ -622,9 +744,9 @@ private:
 			SingleAxisParameters cmd;
 			int ipar;
 			double dpar;
-			cmd.axis = i;
+			cmd.axis = _parameters->_axis_map[i];
 			cmd.parameters = &ipar;
-
+			
 			ipar = CBIndexOnly;			// index_only
 			IOCtl(CMDSetHomeIndexConfig, &cmd);
 			ipar = 0;					// (active low)
@@ -637,15 +759,23 @@ private:
 		}
 	}
 
-	void _clearStop() {
+	/**
+	 * Clears the STOP event from all axes. Needs to be done before
+	 * controlling the robot.
+	 */
+	void _clearStop() 
+	{
 		for (int i = 0; i < _parameters->_nj; i++)
-			IOCtl(CMDClearStop, &i);	// clear stop event
+		{
+			int j = _parameters->_axis_map[i];
+			IOCtl(CMDClearStop, &j);	// clear stop event
+		}
 	}
 
 	bool _initialized;
 	bool _amplifiers;
 	bool _softwareLimits;
-	YARPEurobotArmParameters *_parameters;
-
+	YARPBabybotArmParameters *_parameters;
 };
+
 #endif

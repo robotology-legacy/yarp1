@@ -1,33 +1,15 @@
 /////////////////////////////////////////////////////////////////////////
 ///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-/// This Academic Free License applies to any software and associated ///
-/// documentation (the "Software") whose owner (the "Licensor") has   ///
-/// placed the statement "Licensed under the Academic Free License    ///
-/// Version 1.0" immediately after the copyright notice that applies  ///
-/// to the Software.                                                  ///
-/// Permission is hereby granted, free of charge, to any person       ///
-/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
-/// publish, perform, distribute, sublicense, and/or sell copies of   ///
-/// the Software, and to permit persons to whom the Software is       ///
-/// furnished to do so, and (2) under patent claims owned or          ///
-/// controlled by the Licensor that are embodied in the Software as   ///
-/// furnished by the Licensor, to make, use, sell and offer for sale  ///
-/// the Software and derivative works thereof, subject to the         ///
-/// following conditions:                                             ///
-/// Redistributions of the Software in source code form must retain   ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers. ///
-/// Redistributions of the Software in executable form must reproduce ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers  ///
-/// in the documentation and/or other materials provided with the     ///
-/// distribution.                                                     ///
+///                    #Add our name(s) here#                         ///
 ///                                                                   ///
-/// Neither the names of Licensor, nor the names of any contributors  ///
-/// to the Software, nor any of their trademarks or service marks,    ///
-/// may be used to endorse or promote products derived from this      ///
-/// Software without express prior written permission of the Licensor.///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
 ///                                                                   ///
 /// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
 /// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
@@ -42,13 +24,6 @@
 /// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
 /// CONNECTION WITH THE SOFTWARE.                                     ///
 ///                                                                   ///
-/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
-/// reserved. Permission is hereby granted to copy and distribute     ///
-/// this license without modification. This license may not be        ///
-/// modified without the express written permission of its copyright  ///
-/// owner.                                                            ///
-///                                                                   ///
-///                                                                   ///
 /////////////////////////////////////////////////////////////////////////
 
 ///
@@ -61,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.5 2004-12-31 13:36:29 beltran Exp $
+///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.6 2005-06-22 14:43:10 beltran Exp $
 ///
 ///
 
@@ -144,7 +119,7 @@ namespace _EurobotHead
  * the user.
  *
  */
-class YARPEurobotHeadParameters
+class YARPEurobotHeadParameters : public YARPGenericControlParameters
 {
 public:
 	/**
@@ -169,7 +144,8 @@ public:
 		_nj = _EurobotHead::_nj;
 		_mask = (char) 0x0F;
 		_realloc(_nj);
-		for(int i = 0; i<_nj; i++) {
+		for(int i = 0; i<_nj; i++) 
+		{
 			_highPIDs[i] = _EurobotHead::_highPIDs[i];
 			_lowPIDs[i] = _EurobotHead::_lowPIDs[i];
 			_zeros[i] = _EurobotHead::_zeros[i];
@@ -301,7 +277,7 @@ public:
 		if (cfgFile.get("[LIMITS]", "Min", _limitsMin, _nj) == YARP_FAIL)
 			return YARP_FAIL;
 
-		// convert limits to radiants
+		// convert limits to radians (still radians to comply w/ old standard)
 		for(i = 0; i < _nj; i++)
 		{
 			_limitsMax[i] = _limitsMax[i] * degToRad;
@@ -413,23 +389,16 @@ private:
 		_limitsMin = new double [nj];
 		_stiffPID = new int [nj];
 		_maxDAC = new double [nj];
+
+		// not checked?
 	}
 
 public:
 	LowLevelPID *_highPIDs;
 	LowLevelPID *_lowPIDs;
-	double *_zeros;
-	double *_signs;
-	int *_axis_map;
-	int *_inv_axis_map;
-	double *_encoderToAngles;
 	int *_stiffPID;
-	int _nj;
 	double *_maxDAC;
 	YARPString _inertialConfig;
-	double *_limitsMax;
-	double *_limitsMin;
-	char _mask;
 };
 
 
@@ -438,8 +407,13 @@ public:
  * to control the Eurobot head. This class especially implements initialize and
  * uninitialize while it leaves much of the burden of calling the device driver
  * to a generic template class called YARPGenericControlBoard.
+ *
+ * NOTE: functions here in the adapter are not protected by the mutex.
+ *
  */
-class YARPGALILOnEurobotHeadAdapter : public YARPGalilDeviceDriver
+class YARPGALILOnEurobotHeadAdapter : 
+	public YARPGalilDeviceDriver,
+	public YARPGenericControlAdapter<YARPGALILOnEurobotHeadAdapter, YARPEurobotHeadParameters>
 {
 public:
 	/**
@@ -458,6 +432,10 @@ public:
 		if (_initialized)
 			uninitialize();
 	}
+
+	/*
+	 * implemented from the abstract base class.
+	 */
 
 	/**
 	 * Initializes the adapter and opens the device driver.
@@ -487,7 +465,7 @@ public:
 		for(int i=0; i < _parameters->_nj; i++)
 		{
 			SingleAxisParameters cmd;
-			cmd.axis=i;
+			cmd.axis = _parameters->_axis_map[i];
 			
 			int error = 2000;
 			cmd.parameters=&error;
@@ -550,82 +528,12 @@ public:
 	int idleMode()
 	{
 		for(int i = 0; i < _parameters->_nj; i++)
-			IOCtl(CMDControllerIdle, &i);
+		{
+			int j = _parameters->_axis_map[i];
+			IOCtl(CMDControllerIdle, &j);
+		}
 			
 		return YARP_OK;
-	}
-
-	/**
-	 * Sets the PID values specified in a second set of parameters 
-	 * typically read from the intialization file.
-	 * @param reset if true resets the encoders.
-	 * @return YARP_OK on success, YARP_FAIL otherwise.
-	 */
-	int activateLowPID(bool reset = true)
-	{
-		return activatePID(reset, _parameters->_lowPIDs);
-	}
-
-	/**
-	 * Sets the PID values.
-	 * @param reset if true resets the encoder values to zero.
-	 * @param pids is an array of PID data structures. If NULL the values
-	 * contained into an internal variable are used (presumably read from the
-	 * initialization file) otherwise the actual argument is used.
-	 * @return YARP_OK on success, YARP_FAIL otherwise.
-	 */
-	int activatePID(bool reset, LowLevelPID *pids = NULL)
-	{
-		for(int i = 0; i < _parameters->_nj; i++)
-		{
-			IOCtl(CMDControllerIdle, &i);
-			SingleAxisParameters cmd;
-			cmd.axis = i;
-
-			if (pids == NULL)
-				cmd.parameters = &_parameters->_highPIDs[i];
-			else
-				cmd.parameters = &pids[i];
-				
-			IOCtl(CMDSetPID, &cmd);
-
-			// reset encoders
-			if (reset) {
-				double pos = 0.0;
-				cmd.parameters = &pos;
-				IOCtl(CMDDefinePosition, &cmd);
-			}
-			IOCtl(CMDServoHere,NULL); //Start the motors
-			//IOCtl(CMDControllerRun, &i);
-			//IOCtl(CMDEnableAmp, &i);
-			//IOCtl(CMDClearStop, &i);
-		}
-		return YARP_OK;
-	}
-
-	/**
-	 * Reads the analog values from the control card (ADC values).
-	 * @param val is the array to receive the analog readings.
-	 * @return YARP_FAIL always.
-	 */
-	int readAnalogs(double *val)
-	{
-		//int i;
-		int ret;
-		*val = 0;
-
-		//This should be included in the low level device driver
-		/**
-		SingleAxisParameters cmd;
-		for(i = 0; i < _inertial->_ns; i++)
-		{
-			cmd.axis = i;
-			cmd.parameters = &_tmpShort[i];;
-			ret = IOCtl(CMDReadAnalog, &cmd);
-		}
-		_inertial->convert(_tmpShort, val);
-		**/
-		return ret;
 	}
 
 	/**
@@ -637,7 +545,6 @@ public:
 	int calibrate(int joint = -1)
 	{
 		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
-		joint = -1;
 		ACE_OS::printf("..done!\n");
 	/*
 
@@ -667,8 +574,78 @@ public:
 		return YARP_OK;
 	}
 
+	/**
+	 * Sets the PID values.
+	 * @param reset if true resets the encoder values to zero.
+	 * @param pids is an array of PID data structures. If NULL the values
+	 * contained into an internal variable are used (presumably read from the
+	 * initialization file) otherwise the actual argument is used.
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int activatePID(bool reset, LowLevelPID *pids = NULL)
+	{
+		for(int i = 0; i < _parameters->_nj; i++)
+		{
+			int j = _parameters->_axis_map[i];
+			IOCtl(CMDControllerIdle, &j);
+			SingleAxisParameters cmd;
+			cmd.axis = j;
+
+			if (pids == NULL)
+				cmd.parameters = &_parameters->_highPIDs[i];
+			else
+				cmd.parameters = &pids[i];
+				
+			IOCtl(CMDSetPID, &cmd);
+
+			// reset encoders.
+			if (reset) {
+				double pos = 0.0;
+				cmd.parameters = &pos;
+				IOCtl(CMDDefinePosition, &cmd);
+			}
+			IOCtl(CMDServoHere,NULL); //Start the motors
+			//IOCtl(CMDControllerRun, &i);
+			//IOCtl(CMDEnableAmp, &i);
+			//IOCtl(CMDClearStop, &i);
+		}
+		return YARP_OK;
+	}
+
+	/*
+	 * More functions: these are called from the higher level code.
+	 */
+
+	/**
+	 * Reads the analog values from the control card (ADC values).
+	 * @param val is the array to receive the analog readings.
+	 * @return YARP_FAIL always.
+	 */
+	int readAnalogs(double *val)
+	{
+		//int i;
+		int ret;
+		*val = 0;
+
+		//This should be included in the low level device driver
+		/**
+		SingleAxisParameters cmd;
+		for(i = 0; i < _inertial->_ns; i++)
+		{
+			cmd.axis = i;
+			cmd.parameters = &_tmpShort[i];;
+			ret = IOCtl(CMDReadAnalog, &cmd);
+		}
+		_inertial->convert(_tmpShort, val);
+		**/
+		return ret;
+	}
+
+
+
 private:
 	bool _initialized;
+	short *_tmpShort;
 	YARPEurobotHeadParameters * _parameters;
 };
 

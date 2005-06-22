@@ -1,33 +1,15 @@
 /////////////////////////////////////////////////////////////////////////
 ///                                                                   ///
+///       YARP - Yet Another Robotic Platform (c) 2001-2004           ///
 ///                                                                   ///
-/// This Academic Free License applies to any software and associated ///
-/// documentation (the "Software") whose owner (the "Licensor") has   ///
-/// placed the statement "Licensed under the Academic Free License    ///
-/// Version 1.0" immediately after the copyright notice that applies  ///
-/// to the Software.                                                  ///
-/// Permission is hereby granted, free of charge, to any person       ///
-/// obtaining a copy of the Software (1) to use, copy, modify, merge, ///
-/// publish, perform, distribute, sublicense, and/or sell copies of   ///
-/// the Software, and to permit persons to whom the Software is       ///
-/// furnished to do so, and (2) under patent claims owned or          ///
-/// controlled by the Licensor that are embodied in the Software as   ///
-/// furnished by the Licensor, to make, use, sell and offer for sale  ///
-/// the Software and derivative works thereof, subject to the         ///
-/// following conditions:                                             ///
-/// Redistributions of the Software in source code form must retain   ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers. ///
-/// Redistributions of the Software in executable form must reproduce ///
-/// all copyright notices in the Software as furnished by the         ///
-/// Licensor, this list of conditions, and the following disclaimers  ///
-/// in the documentation and/or other materials provided with the     ///
-/// distribution.                                                     ///
+///                    #Carlos Beltran-Gonzalez#                         ///
 ///                                                                   ///
-/// Neither the names of Licensor, nor the names of any contributors  ///
-/// to the Software, nor any of their trademarks or service marks,    ///
-/// may be used to endorse or promote products derived from this      ///
-/// Software without express prior written permission of the Licensor.///
+///     "Licensed under the Academic Free License Version 1.0"        ///
+///                                                                   ///
+/// The complete license description is contained in the              ///
+/// licence.template file included in this distribution in            ///
+/// $YARP_ROOT/conf. Please refer to this file for complete           ///
+/// information about the licensing of YARP                           ///
 ///                                                                   ///
 /// DISCLAIMERS: LICENSOR WARRANTS THAT THE COPYRIGHT IN AND TO THE   ///
 /// SOFTWARE IS OWNED BY THE LICENSOR OR THAT THE SOFTWARE IS         ///
@@ -42,13 +24,6 @@
 /// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN ///
 /// CONNECTION WITH THE SOFTWARE.                                     ///
 ///                                                                   ///
-/// This license is Copyright (C) 2002 Lawrence E. Rosen. All rights  ///
-/// reserved. Permission is hereby granted to copy and distribute     ///
-/// this license without modification. This license may not be        ///
-/// modified without the express written permission of its copyright  ///
-/// owner.                                                            ///
-///                                                                   ///
-///                                                                   ///
 /////////////////////////////////////////////////////////////////////////
 
 ///
@@ -60,11 +35,91 @@
 ///     "Licensed under the Academic Free License Version 1.0"
 ///
 
-//
-// $Id: YARPEurobotArm.cpp,v 1.3 2004-12-29 14:11:42 beltran Exp $
-//
+///
+/// $Id: YARPEurobotArm.cpp,v 1.4 2005-06-22 14:43:10 beltran Exp $
+///
+///
 
-#include <yarp/YARPEurobotArm.h>
+#include "YARPEurobotArm.h"
+
+int YARPEurobotArm::setGainsSmoothly(LowLevelPID *finalPIDs, int s)
+{
+	_lock ();
+
+	ACE_OS::printf("Setting gains");
+
+	double steps = (double) s;
+	ACE_Time_Value sleep_period (0, 40*1000);
+	
+	LowLevelPID *actualPIDs;
+	LowLevelPID *deltaPIDs;
+	actualPIDs = new LowLevelPID [_parameters._nj];
+	deltaPIDs = new LowLevelPID [_parameters._nj];
+	ACE_ASSERT (actualPIDs != NULL && deltaPIDs != NULL);
+
+	double *shift;
+	double *currentPos;
+	shift = new double[_parameters._nj];
+	currentPos = new double[_parameters._nj];
+	ACE_ASSERT (shift != NULL && currentPos != NULL);
+
+	// set command "here"
+	// getPositions(currentPos);
+	// setCommands(currentPos);
+
+	for(int i = 0; i < _parameters._nj; i++) 
+	{
+		SingleAxisParameters cmd;
+		cmd.axis = _parameters._axis_map[i];
+		cmd.parameters = &actualPIDs[i];
+		_adapter.IOCtl(CMDGetPID, &cmd);
+
+		// handle shift (scale)
+		double actualShift = actualPIDs[i].SHIFT;
+		double finalShift = finalPIDs[i].SHIFT;
+		if (actualShift > finalShift)
+		{
+			shift[i] = actualShift;
+			finalPIDs[i] = finalPIDs[i]*(pow(2,(finalShift+actualShift)));
+		}
+		else
+		{
+			shift[i] = finalShift;
+			actualPIDs[i] = actualPIDs[i]*(pow(2,(actualShift+finalShift)));
+		}
+			
+		deltaPIDs[i] = (finalPIDs[i] - actualPIDs[i])/steps;
+	}
+	
+	for(int t = 0; t < (int) steps; t++)
+	{
+		for(int i = 0; i < _parameters._nj; i++)
+		{
+			actualPIDs[i] = actualPIDs[i] + deltaPIDs[i];
+			actualPIDs[i].SHIFT = shift[i];
+		
+			SingleAxisParameters cmd;
+			cmd.axis = _parameters._axis_map[i];
+			cmd.parameters = &actualPIDs[i];
+			_adapter.IOCtl(CMDSetPID, &cmd);
+		}
+		ACE_OS::sleep(sleep_period);
+		ACE_OS::printf(".");
+
+		fflush(stdout);
+	}
+	ACE_OS::printf("done !\n");
+
+	// if !NULL...
+	delete [] actualPIDs;
+	delete [] deltaPIDs;
+	delete [] shift;
+	delete [] currentPos; 
+
+	_unlock ();
+
+	return YARP_OK;
+}
 
 int YARPEurobotArm::setPositions(const double *pos)
 {
@@ -81,16 +136,16 @@ int YARPEurobotArm::setPositions(const double *pos)
 	}
 	// _adapter.IOCtl(CMDSetPositions, _temp_double);
 	_unlock();
-	return -1;
+	return YARP_OK;
 }
 
 int YARPEurobotArm::setPositionsAll(const double *pos)
 {
 	_lock();
 	angleToEncoders(pos, _temp_double);
-	 _adapter.IOCtl(CMDSetPositions, _temp_double);
+	_adapter.IOCtl(CMDSetPositions, _temp_double);
 	_unlock();
-	return -1;
+	return YARP_OK;
 }
 
 int YARPEurobotArm::setVelocities(const double *vel)
@@ -99,7 +154,7 @@ int YARPEurobotArm::setVelocities(const double *vel)
 	angleToEncoders(vel, _temp_double);
 	_adapter.IOCtl(CMDSetSpeeds, _temp_double);
 	_unlock();
-	return -1;
+	return YARP_OK;
 }
 
 int YARPEurobotArm::setAccs(const double *acc)
@@ -108,7 +163,7 @@ int YARPEurobotArm::setAccs(const double *acc)
 	angleToEncoders(acc, _temp_double);
 	_adapter.IOCtl(CMDSetAccelerations, _temp_double);
 	_unlock();
-	return -1;
+	return YARP_OK;
 }
 
 int YARPEurobotArm::velocityMove(const double *vel)
@@ -117,7 +172,7 @@ int YARPEurobotArm::velocityMove(const double *vel)
 	angleToEncoders(vel, _temp_double);
 	_adapter.IOCtl(CMDVMove, _temp_double);
 	_unlock();
-	return -1;
+	return YARP_OK;
 }
 
 int YARPEurobotArm::setCommands(const double *pos)
@@ -127,7 +182,7 @@ int YARPEurobotArm::setCommands(const double *pos)
 
 	_adapter.IOCtl(CMDSetCommands,_temp_double);
 	_unlock();
-	return -1;
+	return YARP_OK;
 }
 
 int YARPEurobotArm::getPositions(double *pos)
@@ -136,7 +191,7 @@ int YARPEurobotArm::getPositions(double *pos)
 	_adapter.IOCtl(CMDGetPositions, _temp_double);
 	encoderToAngles(_temp_double, pos);
 	_unlock();
-	return -1;
+	return YARP_OK;
 }
 
 int YARPEurobotArm::getVelocities(double *vel)
@@ -145,7 +200,7 @@ int YARPEurobotArm::getVelocities(double *vel)
 	_adapter.IOCtl(CMDGetSpeeds, _temp_double);
 	encoderVelToAngles(_temp_double, vel, _parameters);
 	_unlock();
-	return -1;
+	return YARP_OK;
 }
 
 int YARPEurobotArm::setG(int i, double g)
@@ -156,7 +211,7 @@ int YARPEurobotArm::setG(int i, double g)
 	cmd.parameters = &g;
 	_adapter.IOCtl(CMDSetOffset, &cmd);
 	_unlock();
-	return -1;
+	return YARP_OK;
 }
 
 int YARPEurobotArm::setGs(const double *g)
@@ -172,7 +227,7 @@ int YARPEurobotArm::setGs(const double *g)
 			
 	_adapter.IOCtl(CMDSetOffsets, _temp_double);
 	_unlock();
-	return -1;
+	return YARP_OK;
 }
 
 int YARPEurobotArm::setStiffness(int j, double stiff)
@@ -186,12 +241,14 @@ int YARPEurobotArm::setStiffness(int j, double stiff)
 	pid.FRICT_FF = 0.0;
 	// don't touch I_LIMIT, OFFSET, T_LIMIT, SHIFT
 	pid.KP = fabs(stiff)*_pidSigns[axes];
-	return MyGenericControlBoard::setPID(j, pid, false);		//setPID internally lock and unlock
+	return MyGenericControlBoard::setPID(j, pid);		//setPID internally lock and unlock
 }
 
 int YARPEurobotArm::_initialize()
 {
 	_pidSigns = new int [_parameters._nj];
+	ACE_ASSERT (_pidSigns != NULL);
+
 	int j = 0;
 	for(j = 0; j<_parameters._nj; j++)
 	{
@@ -256,18 +313,5 @@ int YARPEurobotArm::setPIDs(const LowLevelPID *pids)
 		MyGenericControlBoard::setPID(j, *tmp, false);
 	}
 
-	/*
-	int axes = _parameters._axis_map[j];
-	LowLevelPID pid = _parameters._lowPIDs[axes];
-	pid.KD = 0.0;
-	pid.KI = 0.0;
-	pid.AC_FF = 0.0;
-	pid.VEL_FF = 0.0;
-	pid.FRICT_FF = 0.0;
-	pid.OFFSET = g;
-	// don't touch I_LIMIT, T_LIMIT, SHIFT
-	pid.KP = fabs(k)*_pidSigns[axes];
-	return MyGenericControlBoard::setPID(j, pid, false);		//setPID internally lock and unlock
-	*/
 	return YARP_OK;
 }
