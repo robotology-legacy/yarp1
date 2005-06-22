@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.4 2005-06-22 14:43:10 beltran Exp $
+///  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.5 2005-06-22 15:48:55 beltran Exp $
 ///
 ///
 
@@ -430,6 +430,7 @@ public:
 	double *_invCouple;
 	int *_stiffPID;
 	double *_maxDAC;
+	char _mask;
 };
 
 
