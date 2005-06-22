@@ -1,6 +1,6 @@
 Configuring YARP for WINNT
 
-$Id: install.txt,v 1.17 2004-05-19 12:47:51 natta Exp $
+$Id: install.txt,v 1.18 2005-06-22 14:52:43 gmetta Exp $
 
-Check %YARP_ROOT%\docs\YARP_for_Windows.pdf
+Check http://yarp0.sf.net for documentation on the installation procedure.
 
