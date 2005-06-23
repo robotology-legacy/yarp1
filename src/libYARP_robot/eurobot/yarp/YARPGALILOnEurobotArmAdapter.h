@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.6 2005-06-22 15:51:16 beltran Exp $
+///  $Id: YARPGALILOnEurobotArmAdapter.h,v 1.7 2005-06-23 09:39:26 beltran Exp $
 ///
 ///
 
@@ -614,6 +614,7 @@ public:
 	 */
 	int calibrate(int joint = -1) 
 	{
+		ACE_UNUSED_ARG(joint);
 		YARP_BABYBOT_ARM_ADAPTER_DEBUG(("Starting calibration routine...\n"));
 		if (! (_initialized && _amplifiers) )
 		{

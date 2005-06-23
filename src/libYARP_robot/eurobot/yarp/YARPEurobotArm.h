@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPEurobotArm.h,v 1.6 2005-06-22 15:55:38 beltran Exp $
+///  $Id: YARPEurobotArm.h,v 1.7 2005-06-23 09:39:26 beltran Exp $
 ///
 ///
 
@@ -104,6 +104,7 @@ public:
 	{
 		_lock();
 		int ret = _adapter.activatePID(true);
+		ACE_UNUSED_ARG(ret);
 		
 		/*********************
 		while (!_adapter.checkPowerOn())

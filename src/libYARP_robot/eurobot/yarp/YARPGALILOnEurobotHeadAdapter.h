@@ -36,7 +36,7 @@
 ///
 
 ///
-///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.7 2005-06-22 16:01:24 beltran Exp $
+///  $Id: YARPGALILOnEurobotHeadAdapter.h,v 1.8 2005-06-23 09:39:26 beltran Exp $
 ///
 ///
 
@@ -545,7 +545,8 @@ public:
 	 */
 	int calibrate(int joint = -1)
 	{
-		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Starting head calibration routine"));
+		ACE_UNUSED_ARG(joint);
+		YARP_BABYBOT_HEAD_ADAPTER_DEBUG(("Calibration procedure not implemented in EuroHead"));
 		ACE_OS::printf("..done!\n");
 	/*
 
@@ -572,7 +573,7 @@ public:
 		}
 		ACE_OS::printf("\n..done!\n");
 	*/
-		return YARP_OK;
+		return YARP_FAIL;
 	}
 
 	/**
