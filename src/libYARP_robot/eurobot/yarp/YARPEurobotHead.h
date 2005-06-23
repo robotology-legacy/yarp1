@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPEurobotHead.h,v 1.4 2005-06-22 16:06:15 beltran Exp $
+/// $Id: YARPEurobotHead.h,v 1.5 2005-06-23 08:30:09 beltran Exp $
 ///
 ///
 
@@ -147,6 +147,8 @@ public:
 	 * the A/D converters.
 	 * @return YARP_OK on success.
 	 */
+	//////This is not suported by the Galil card in Eurobot
+	/**************************************
 	int readAnalogs(double *val)
 	{
 		_lock();
@@ -154,6 +156,7 @@ public:
 		_unlock();
 		return ret;
 	}
+	**************************************/
 
 	/**
 	 * Reads the analog input of the card.
@@ -161,6 +164,8 @@ public:
  	 * @param val is the return value
 	 * @return YARP_OK on success.
 	 */
+	//////This is not suported by the Galil card in Eurobot
+	/**************************************
 	int readAnalog(int index, double *val)
 	{
 		_lock();
@@ -168,6 +173,7 @@ public:
 		_unlock();
 		return ret;
 	}
+	**************************************/
 
 	/**
 	 * Compute the vergence angle given the current eyes position.
