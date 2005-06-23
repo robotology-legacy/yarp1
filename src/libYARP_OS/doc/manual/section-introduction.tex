@@ -44,6 +44,20 @@ is {\bf libYARP\_OS}, which must be available before the other
 components can be used.  This manual describes how to install and
 use that component first, then the others.
 
+\subsection{Conventions on this manual}
+A few conventions employed in preparing this manual:
+
+\begin{itemize}
+
+\item We assume the reader is skilled in: C++ programming, perl, makefiles, robotics, OS programming, etc. YARP is not yet at the level of being installed and compiled easily, although we hope to provide a proper distribution shortly.
+
+\item Path names are always represented Unix-like with the forward slash as a separator.
+
+\item Path names are always without spaces: although they are allowed in Windows, we try to avoid them.
+
+\item Environment variables are always represented with the leading \$ sign and not with the \% as in Windows.
+
+\end{itemize}
 
 
 \subsection{Requirements}
@@ -81,6 +95,8 @@ Finally, you might need to prepare the configuration files for a new robotic pla
 You should not be scared by tweaking into YARP's code since the level of customization required is fairly simple and hopefully well documented. Once the appropriate classes are in place the compilation and link to application and tools should proceed smoothly -- or at least this has been our experience so far. In fact, YARP has been compiled and presently runs on four different operating systems -- meaning that it can run on a heterogeneous cluster of PCs -- and it has been customized to run on something like six different robots.
 
 \subsection{Some numbers}
+\label{sect:numbers}
+
 The following table contains some figures about the current usage of YARP for robot control.
 \marginpar{We intended to give here a feeling of the type of computational architecture we're using.}
 \begin{table}[h]

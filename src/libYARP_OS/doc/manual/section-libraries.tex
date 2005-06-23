@@ -1,2 +1,578 @@
 \section{Is that all?}
+Further, YARP contains simple libraries for managing images and other sensory data types, including the possibility of trasmitting them through the network. For example, images can be grabbed on one node and sent, in parallel, by using the IP-multicast protocol to many nodes for parallel processing. With certain limitations, this is efficient enough to parallelize image processing which is typically time consuming on current processors.
 
+YARP also comes with libraries for shielding the dependencies on the robot hardware. Clearly such a mechanism could never be fail-proof given the number and combinations of different control cards, robot structure, etc. We attempted at shielding these dependencies so that future hardware replacement is possible with a minimal amount of work. This encapsulation comes into two different libraries: {\bf libYARP\_dev} and {\bf libYARP\_robot}. The first library deals with the encapsulation and standardization of different hardware cards, the latter with the robot architecture itself.
+
+The following sections describe first how to compile the existing libraries and then how to prepare new device drivers to be included in the generic YARP structure, finally, we will delve deep into the preparation of a new robot architecture.
+ 
+\section{Preparing libYARP\_math}
+The mathematical library of YARP is a fairly simple and straightforward set of classes mostly used to support a generic vector and matrix type. As typical of YARP, the appropriate type definitions for sending and receiving vectors and matrices are provided. This allows sending vectors and matrices of double precision numbers through the network, exactly as for the other YARP types. Ideally, we would like to avoid implementing a full-fledged math library that would be outside the scope of YARP itself and rather provide the minimal amount of support leaving to the user the task of interfacing to their preferred packages. This, we believe, is in agreement with the general design philosophy of YARP: be respectful of the user's preferences. An interface to the GNU scientific library would be perhaps most welcome.
+
+The math library can be compiled both by means of the VisualStudio project (on Windows), makefile on Linux, QNX, and MacOS. As for the other libraries you have the choice of using the perl scripts to configure and compile it (recommended) or opening the project yourself, compile, and then copy the libraries and headers to the appropriate locations. Both procedures are sketched next.
+
+\subsection{Perl scripts}
+Using perl is fairly trivial in this case. Just run the {\em configure.pl} script (e.g. by typing perl configure.pl). The following output (or a similar one) should be printed on your terminal windows:
+
+\begin{verbatim}
+Entering configure process of YARP math support library...
+'uname' is not recognized as an internal or external command,
+operable program or batch file.
+Ready to start...
+Now I'm going to ask a few questions to help building the configuration. 
+For pathnames you can use (type) the pre-defined value $YARP_ROOT that 
+I've verified as: "D:\Users\pasa\Repository\yarp"
+
+Please, use always the forward slash as a separator!
+I determined already that you're running on a supported OS: winnt
+Would you like to set a default for library compilation?
+Clean first: i.e. rebuild libraries? [TRUE]
+\end{verbatim}
+
+This procedure is completely equivalent to the libYARP\_OS library compilation. All what you have to do is to decide if your need a rebuild (clean first), whether you would like to compile debug and/or optimized and to install after compilation. For example:
+
+\begin{verbatim}
+Debug mode? [TRUE]
+Release mode (optimization on)? [TRUE]
+Install after compile? [TRUE]
+We're done for now, the context file is being updated: 
+"D:\Users\pasa\Repository\yarp/conf/context.conf"
+Done!
+\end{verbatim}
+
+This creates the appropriate configuration options in the \$YARP\_ROOT/conf/context.txt file which are then used by {\em build.pl}. To compile, run the {\em build.pl} script. The output should look like this one:
+
+\begin{verbatim}
+Entering compile process of YARP math library...
+'uname' is not recognized as an internal or external command,
+operable program or batch file.
+Ready to start...
+Working with: D:\Users\pasa\Repository\yarp/conf/context.conf
+
+Cleaning...
+Deleting intermediate files and output files for project 
+'libYARP_math - Win32 Debug'.
+Deleting intermediate files and output files for project 
+'libYARP_math - Win32 Release'.
+
+
+Compiling debug
+------Configuration: libYARP_math - Win32 Debug--------------
+Compiling...
+YARPLU.cpp
+YARPMatrix.cpp
+YARPRobotMath.cpp
+YARPSVD.cpp
+Generating Code...
+Creating library...
+
+libYARP_mathd.lib - 0 error(s), 0 warning(s)
+\end{verbatim}
+
+\noindent and the procedure will complete, in this case, with full installation.
+
+
+\subsection{Do it yourself}
+
+
+
+
+
+\section{libYARP\_sig}
+[to be completed]
+ 
+ 
+\section{Preparing libYARP\_dev}
+The device driver library is a heterogeneous collection of various modules. It is composed of a few files of general use (mostly class templates) and a set of device drivers developed for the robot mentioned in the introduction (see section \ref{sect:numbers}). For each device driver we are providing only the appropriate header files and libraries for linking the code correctly while the actual device driver needs to be acquired through the specific hardware manifacturer.
+
+The directory tree thus contains the usual {\em src} and {\em include} subdirectories and then one directory per device driver. This is further subdivided according to the following example (taken from the {\em picolo} device driver, a BT848-based frame grabber):
+
+\begin{table}[h]
+	\centering
+		\begin{tabular}{|c|c|c|}
+		\hline
+			1st level & 2nd level & 3rd level \\
+			\hline \hline
+			winnt & dd\_orig & bin \\
+			 &  & include \\
+			 &  & lib \\
+			 & yarp & \\
+			\hline
+			linux & dd\_orig & include \\
+			 &  & lib \\
+			 &  & src \\
+			 & yarp & \\
+			\hline
+		\end{tabular}
+\end{table}
+
+The {\em dd\_orig} subtree contains all what is needed to write code and link to the actual driver libraries (typically provided by the hardware manufacturer). Sometimes there is a library, in other cases, the source code is available (not frequently). The YARP device files are contained under {\em yarp} and they are compiled and headers copied to the appropriate location (e.g. \$YARP\_ROOT/include/yarp) during installation. As we will see, once compiled and linked the {\em dd\_orig} files are no longer needed and do not require to be installed anywhere in the system. This is convenient for preparing pre-compiled distributions for certain architectures.
+
+Compilation for existing configurations can be done through the usual pair of perl scripts. Upon running {\em configure.pl}, the following text should show up on your terminal window:
+
+\begin{verbatim}
+Entering configure process of YARP device drivers...
+'uname' is not recognized as an internal or external command,
+operable program or batch file.
+Ready to start...
+Now I'm going to ask a few questions that I need for configuring the device 
+drivers.
+For pathnames you can use (type) the pre-defined value $YARP_ROOT that I've 
+verified as: "D:\Users\pasa\Repository\yarp"
+
+Please, use always the forward slash as a separator!
+I determined already that you're running on a supported OS: winnt
+I also imagine you've compiled YARP_OS, I'm not checking for it so please 
+make sure you've run "configure.pl" and "build.pl" for YARP_OS.
+
+You are going to provide information on your hardware configuration here. 
+If this procedure isn't clear to you, please, have a look at the 
+documentation
+To start, provide a name for your hardware context. This will be merged 
+with the OS name to provide our installation means of distinguishing this 
+specific hardware
+
+What is your hardware name? [babybot]
+\end{verbatim}
+
+After the usual startup checks, the script confirms the definition of the \$YARP\_ROOT environment variable and then asks for the hardware name. This is a symbolic name (a string) that identifies the platform (the robot) you are about to compile for. Valid names are for example contained in \$YARP\_ROOT/conf/ (apart from {\em install}). You type one of the names available or confirmed the proposed name by pressing {\em return}. To continue this example, let's imagine we are content with the babybot configuration. This is not too important for compiling the device drivers but rather it is required later to compile the libYARP\_robot.
+
+The next step is to provide the usual compilation options as for libYARP\_OS. We have already seen a similar procedure earlier.
+
+\begin{verbatim}
+Then your context specific directories are going to be called: "babybot"
+These are the standard flags for compiling the library
+Clean first: i.e. rebuild libraries? [FALSE]
+Compile debug version? [TRUE]
+Compile release (optimized)? [TRUE]
+Install after build? [TRUE]
+Browsing through the list of available device drivers
+In case you don't know what to do, it's no harm including all available 
+drivers
+Would you like to add "androidworld" to the project [YES]?
+\end{verbatim}
+
+The scripts goes through all the available device drivers and asks which are to be included in the device library. Only those which are selected are actually included into the library. The scripts creates a new VisualStudio project on Windows and a Makefile on Linux. An example of this procedure (for the {\em babybot} project) is shown below:
+
+\begin{verbatim}
+Would you like to add "androidworld" to the project [YES]?
+Would you like to add "cyberglove" to the project [YES]? n
+Would you like to add "dragonfly" to the project [YES]? n
+Would you like to add "esdcan" to the project [YES]? n
+Would you like to add "fob" to the project [YES]? n
+Would you like to add "galil" to the project [YES]? y
+Would you like to add "joypres" to the project [YES]? n
+Would you like to add "jr3" to the project [YES]? y
+Would you like to add "mei" to the project [YES]? y
+Would you like to add "nidaq" to the project [YES]? y
+Would you like to add "null" to the project [YES]? n
+Would you like to add "null_grabber" to the project [YES]? n
+Would you like to add "picolo" to the project [YES]? y
+Would you like to add "sound" to the project [YES]? y
+Would you like to add "valuecan" to the project [YES]? n
+We're done for now, the context file has been updated: 
+"D:\Users\pasa\Repository\yarp/conf/context.conf"
+A new project reflecting your choices has been created in "./src"
+Type "build.pl" later to start the build process
+
+Now I need to create a few additional include files
+I might need to ask you more questions...
+
+Good! It seems you have the right directories for the hardware context 
+you've just chosen
+Generating "YARPConfigRobot.h"
+Copying D:\Users\pasa\Repository\yarp/conf/babybot/YARPConfig_babybot.h.
+You've got also a "vocab" file for YARPBottles, I'm including it.
+Done!
+\end{verbatim}
+
+The scripts checks also that the {\em babybot} context files are present (see section \ref{} for the creation of a new platform) and prepares the appropriate {\em YARPRobotConfig.h} file. Finally, it sees there is a valid {\em YARPVocab} file containing definitions of the message IDs available for {\em YARPBottle}s and thus includes it.
+
+Now, we are ready to compile the libYARP\_dev library. Just run {\em build.pl}, you should see something similar to the following output:
+
+\begin{verbatim}
+Entering compile process of YARP_dev libraries...
+'uname' is not recognized as an internal or external command,
+operable program or batch file.
+Ready to start...
+Working with: D:\Users\pasa\Repository\yarp/conf/context.conf
+
+Cleaning...
+Deleting intermediate files and output files for project 
+'libYARP_dev_babybot - Win32 Debug'.
+Deleting intermediate files and output files for project 
+'libYARP_dev_babybot - Win32 Release'.
+
+
+Compiling debug
+--------------------Configuration: libYARP_dev_babybot - 
+Win32 Debug--------------------
+Compiling...
+YARPControlBoardUtils.cpp
+YARPAndroidDeviceDriver.cpp
+YARPGalilDeviceDriver.cpp
+YARPJR3DeviceDriver.cpp
+YARPMEIDeviceDriver.cpp
+YARPNIDAQDeviceDriver.cpp
+\end{verbatim}
+
+\noindent and so on. As a last step, the build procedure creates a single library by concatenating the existing device driver libraries. It scans the {\em dd\_orig} subdirectories, reads the library files and merges them into a single file.
+
+\begin{verbatim}
+Now building libraries...
+Compacting libraries: ".\galil\winnt\dd_orig\lib\DMC32.lib" ".\galil\winnt
+\dd_orig\lib\DMCMLIB.lib" ".\jr3\winnt\dd_orig\lib\jr3pci_lib.lib" ".\mei\
+winnt\dd_orig\lib\medvc60f.lib" ".\nidaq\winnt\dd_orig\lib\nidaq32.lib" ".
+\nidaq\winnt\dd_orig\lib\nidex32.lib" ".\picolo\winnt\dd_orig\lib\Picolo32
+.lib"
+Microsoft (R) Library Manager Version 6.00.8447
+Copyright (C) Microsoft Corp 1992-1998. All rights reserved.
+
+DMCMLIB.lib(DMCMLIB.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR alrea
+dy defined in DMC32.lib(DMC32.dll); second definition ignored
+medvc60f.lib(medvc60f.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR alr
+eady defined in DMC32.lib(DMC32.dll); second definition ignored
+nidaq32.lib(nidaq32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR alrea
+dy defined in DMC32.lib(DMC32.dll); second definition ignored
+nidex32.lib(NIDEX32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR alrea
+dy defined in DMC32.lib(DMC32.dll); second definition ignored
+Picolo32.lib(Picolo32.dll) : warning LNK4006: __NULL_IMPORT_DESCRIPTOR alr
+eady defined in DMC32.lib(DMC32.dll); second definition ignored
+Microsoft (R) Library Manager Version 6.00.8447
+Copyright (C) Microsoft Corp 1992-1998. All rights reserved.
+\end{verbatim}
+
+Duplicate symbols warnings are typically of no concern under Windows.
+
+
+
+\section{YARPDeviceDriver}
+We start by introducing the YARP device driver templates and wrappers through an example. We consider the already mentioned BT848 frame grabber. This is a fairly simple device with only a few functions but enough to illustrate the principles. A more complex set of classes is shown later.
+
+The first component of the hierarchy is the YARPDeviceDriver template class. This is meant to be the base class of all device driver abstractions (within YARP of course). Check the {\em YARPDeviceDriver.h} file for details. The declaration of the template is the following:
+
+\begin{verbatim}
+template <class SYNC, class DERIVED> 
+    class YARPDeviceDriver
+\end{verbatim}
+
+\noindent where SYNC is the synchronization object to use by the class and DERIVED is the type derived from the device driver. The SYNC object must support the {\em Post} and {\em Wait} methods. Valid examples are the {\em YARPNullSemaphore} and {\em YARPSemaphore} provided in the libYARP\_OS library. We should declare our frame grabber device driver as:
+
+\begin{verbatim}
+class YARPPicoloDeviceDriver : 
+    public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>, 
+    public YARPThread
+\end{verbatim}
+
+\noindent this is called {\em YARPPicoloDeviceDriver} after the name of the card we actually used on one of our robots. As shown here, the device driver derives from the YARP template and also from the {\em YARPThread} class since it internally manages concurrent access to the acquisition buffers. In this case, since mutual exclusion is not required, the SYNC object is a {\em YARPNullSemaphore}.
+
+The {\em YARPDeviceDriver} supports three methods only: {\em open}, {\em close}, and {\em IOCtl}. The device driver can be only opened, closed or controlled. The three methods are declared as follows:
+\begin{itemize}
+
+\item open.
+\begin{verbatim}
+      virtual int open(void *) = 0;		
+\end{verbatim}
+where the {\em void *} argument is used to pass a generic type (e.g. a struct) containing the initialization paramters.
+
+\item close.
+\begin{verbatim}
+      virtual int close() = 0;
+\end{verbatim}
+which closes the device driver.
+
+\item IOCtl.
+\begin{verbatim}
+      int IOCtl(int cmd, void *data);
+\end{verbatim}
+The commands to the actual hardware are sent though this methods, the {\em cmd} argument is the message number (or ID) and {\em data} is the additional data/params required for the actual execution of the function.
+
+\end{itemize}
+
+The goal of the implementation of the device driver in YARP is then that of shielding completely any call to the original libraries through this class (the {\em YARPPicoloDeviceDriver}). With the same spirit, the original device header files are not included from the YARP driver header file so that, once compiled, YARP no longer requires anything from the original manufacturer library. To help shielding the implementation any type required by the driver is allocated through a {\em void *} variable called {\em system\_resources}. Typically this is a pointer to a class allocated during the device initialization containing all the device variables. In our example, the {\em YARPPicoloDeviceDriver} looks liek this:
+
+\begin{verbatim}
+    class YARPPicoloDeviceDriver : 
+      public YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>, 
+      public YARPThread
+    {
+    private:
+      YARPPicoloDeviceDriver(const YARPPicoloDeviceDriver&);
+      void operator=(const YARPPicoloDeviceDriver&);
+
+    public:
+      YARPPicoloDeviceDriver();
+      virtual ~YARPPicoloDeviceDriver();
+
+      virtual int open(void *d);
+      virtual int close(void);
+
+      virtual int acquireBuffer(void *);
+      virtual int releaseBuffer(void *);
+      virtual int waitOnNewFrame (void *cmd);
+      virtual int getWidth(void *cmd);
+      virtual int getHeight(void *cmd);
+
+    protected:
+      void *system_resources;
+
+      virtual void Body(void);
+    };
+\end{verbatim}
+
+For the moment, it is important to note the private copy contructor and copy operator (this is done to avoid the user blissfully creating copies of the device driver) and the {\em system\_resources} variable as mentioned above. We then overload the {\em open} and {\em close} methods. Also, note that the {\em open} method accept a parameter through a {\em void *}. This contains a set of parameters, typically contained in a struct, that defines the initialization of the device. For example: 
+
+\begin{verbatim}
+    struct PicoloOpenParameters
+    { 
+      ...
+      int _video_type;
+      int _size_x;
+      int _size_y;
+    }
+\end{verbatim}
+
+\noindent with the obvious meaning of the parameters. As we said, the device driver methods are invoked only through the {\em IOCtl}. This is obtained by calling {\em IOCtl} with a message number as first argument. The message number indexes  a table of function pointers which then invoke the appropriate method. Consequently, we are required to define the type of messages accepted by all frame grabber type device drivers which in practice become the standard interface to the physical device. The main abstraction is a message system! In our example, we create a {\em YARPFrameGrabberUtils.h} file with a list of messages:
+
+\begin{verbatim}
+    enum FrameGrabberCmd
+    {
+      FCMDAcquireBuffer = 1,
+      FCMDReleaseBuffer = 2,
+      FCMDWaitNewFrame = 3,
+      FCMDGetSizeX = 4,
+      FCMDGetSizeY = 5,
+
+      FCMDNCmds = 6
+    };
+\end{verbatim}
+
+This represents all that can be done with the device driver: the actual interface between the harware and our software layer. Note that this is a separate file because many devices might share the same messages (many different frame grabbers are subsumed under the same interface). For the actual implementation, the frame grabber example, as mentioned earlier, defines a class embedding some of the details of the specific library (see next):
+
+\begin{verbatim}
+    class PicoloResources
+    {
+    public:
+      PicoloResources (void) : _bmutex(1), _new_frame(0)
+      { ... }
+      ~PicoloResources () { _uninitialize (); }
+
+      enum { _num_buffers = 3 };
+
+      PICOLOHANDLE _picoloHandle;	
+
+      ...
+    };
+\end{verbatim}
+
+\noindent where the type {\em PICOLOHANDLE} is specific to the original device library. Clearly, you are very free here to create the resource class that suits your needs. The device driver constructor should then allocate the {\em system\_resources} class and create the function pointers table as shown next:
+
+\begin{verbatim}
+    YARPPicoloDeviceDriver::YARPPicoloDeviceDriver(void) : 
+      YARPDeviceDriver<YARPNullSemaphore, YARPPicoloDeviceDriver>(FCMDNCmds)
+    {
+      system_resources = (void *) new PicoloResources;
+      ACE_ASSERT (system_resources != NULL);
+
+      // for the IOCtl call.
+      m_cmds[FCMDAcquireBuffer] = &YARPPicoloDeviceDriver::acquireBuffer;
+      m_cmds[FCMDReleaseBuffer] = &YARPPicoloDeviceDriver::releaseBuffer;
+      m_cmds[FCMDWaitNewFrame] = &YARPPicoloDeviceDriver::waitOnNewFrame;
+      m_cmds[FCMDGetSizeX] = &YARPPicoloDeviceDriver::getWidth;
+      m_cmds[FCMDGetSizeY] = &YARPPicoloDeviceDriver::getHeight;
+    }
+\end{verbatim}
+
+Note that we are providing the size of the table of function pointers to the {\em YARPDeviceDriver} constructor that is taking care of allocating it. A default empty implementation of all messages is provided by the base class which makes safe to call the driver for messages that it does not implement. A destructor should be implemented, obviously taking care of freeing the memory allocated in the costructor. The message methods (those in the list above) are of type:
+
+\begin{verbatim}
+      typedef int (DERIVED::*cmd_function_t)(void *); 
+\end{verbatim}
+
+\noindent where {\em DERIVED} is the class derived from the {\em YARPDeviceDriver}. As a last step in the preparation of the device driver the {\em open} and {\em close} methods must be implemented. They must respectively initialize and uninitialize the device driver and, in this case, unlike the costructor and destructor, start the communication with the physical layer. The {\em open} method accept a parameter (a {\em void *}) that can be used to configure the device driver. You can check the declarations in {\em YARPDeviceDriver.h}.
+
+An example of the implementation of a method that reads something from the {\em system\_resources} variable is shown below:
+
+\begin{verbatim}
+    int YARPPicoloDeviceDriver::getWidth (void *cmd)
+    {
+      *(int *)cmd = RES(system_resources)._nWidth;
+      return YARP_OK;
+    }
+\end{verbatim}
+
+\noindent where {\em RES} is only a cast to the appropriate type for accessing the {\em system\_resources}.
+
+\begin{verbatim}
+
+
+
+----> NOW move to the motorcontrol static library --- this contains all the interfaces to the HW.
+
+4- the final public interface is usually a template of two arguments:
+		ADAPTER and PARAMETERS.
+
+		<ADAPTER> is a class containing the adaptation of the HW to the particular setup. 
+			unfortunately sometimes the HW is connected differently depending on the experimental
+			setup - e.g. cabled differently.
+
+		<PARAMETERS> these are the real parameters. This is used as container to the params.
+
+		example:
+
+		template <class ADAPTER, class PARAMETERS>
+		class YARPGenericGrabber
+		{
+		protected:
+			ADAPTER _adapter;		/// adapts the hw idiosyncrasies
+			PARAMETERS _params;		/// actual grabber specific parameters
+
+		public:
+			YARPGenericGrabber () {}
+			~YARPGenericGrabber () {}
+
+			int initialize (int board, int sizex, int sizey = -1);
+			int uninitialize (void);
+			int acquireBuffer (unsigned char **buffer);
+			int releaseBuffer (void);
+			int waitOnNewFrame (void);
+			int getWidth (int *w);
+			int getHeight (int *h);
+		};
+
+		NOTE that the methods here are exactly the same methods as in the list at point 3
+		but the additional initialize/uninitialize.
+
+5- the <ADAPTER> class derives from the DeviceDriver: 
+
+		It's basically a customization of the DeviceDriver to solve initialization idiosyncrasies.
+		In particular initialize and uninitialize are used to call open and close.
+		Can tweak on parameters to do the proper initialization for the setup you're considering.
+		NOTE that the class has now a name referring to the exp setup (e.g. Babybot).
+
+		example:
+
+		class YARPPicoloOnBabybotAdapter : public YARPPicoloDeviceDriver
+		{
+		public:
+			YARPPicoloOnBabybotAdapter() : YARPPicoloDeviceDriver() {}
+			virtual ~YARPPicoloOnBabybotAdapter() {}
+
+			int initialize (YARPBabybotGrabberParams& params)
+			{
+				/// need additional initialization, put it here.
+				return open ((void *)&params);
+			}
+
+			int uninitialize (void)
+			{
+				/// need additional termination stuff, here's the place for it.
+				return close ();
+			}
+		};
+
+6- the <PARAMETERS> class might be derived from the open params. 
+		- you're free to do differently in this case.
+
+		example:
+
+		typedef PicoloOpenParameters YARPBabybotGrabberParams;
+
+		in this case we didn't need anything different.
+
+7- how to implement the FINAL PUBLIC INTERFACE methods mentioned above.
+
+		- constructor and destructor call the initialize/uninitialize of the adapter respectively.
+		- initialize/uninitialize of the adapter call open/close as shown above.
+
+		example:
+
+		template <class ADAPTER, class PARAMETERS>
+		int YARPGenericGrabber<ADAPTER, PARAMETERS>::initialize (int board, int sizex, int sizey /* = -1 */)
+		{
+			_params._unit_number = board;
+			_params._video_type = 0;
+			_params._size_x = sizex;
+			if (sizey > 0)
+				_params._size_y = sizey;
+			else
+				_params._size_y = sizex;
+
+			/// calls the adapter init that parses the params appropriately.
+			/// this is because initialization can vary depending on the specific setup.
+			return _adapter.initialize (_params);
+		}
+
+
+		- generic methods
+			simply use IOCtl to execute the specific function. This automatically calls the function
+			by dereferncing the pointer in the table of pointers.
+
+		example:
+
+		template <class ADAPTER, class PARAMETERS>
+		int YARPGenericGrabber<ADAPTER, PARAMETERS>::acquireBuffer (unsigned char **buffer)
+		{
+			return _adapter.IOCtl (FCMDAcquireBuffer, (void *)buffer);
+		}
+
+8- finally use the device driver following this example:
+		- Usually add a .h file specific to the architecture such as:
+			YARPBabybotGrabber.h
+		which for example contains:
+
+		#include <YARPGenericGrabber.h>
+		#include <YARPPicoloOnBabybotAdapter.h>
+
+		typedef YARPGenericGrabber<YARPPicoloOnBabybotAdapter, YARPBabybotGrabberParams> YARPBabybotGrabber;
+
+		to simplify things redefine the type passing the appropriate classes to the template.
+		The nice thing is that the same YARPGenericGrabber can be recycled onto different architecture/grabber
+		types.
+
+USE this file and the examples to implement your own YARP compatible device driver.
+
+EmmeBi's Addendum
+
+were:
+xxx is the name of the peripheral, eg. Picolo for a frame grabber
+yyy is the name of type of the peripheral the drivers are for, eg. FrameGrabber for a Picolo framegrabber
+zzz is an architecture which uses the hardware, eg. Mirror
+uuu is the platform, eg. winnt
+
+Files to create:
+- YARPxxxDeviceDriver.h and YARPxxxDevicedriver.cpp are the definition and the implementation of the driver (different for every hardware) The definition may contain a struct called xxxOpenParameter containig the parameters needed to setup the hardware which have to be passed to the class as a parameter. The implementation can contain a class called xxxResources which contains all the hardware specific resources.
+- YARPyyyUtils.h it can be shared with any different hardware implementing a resurce (eg. every kind of framegrabber). This file contains two structures: one with a list of the commands the peripheral accepts and one with the data it produces.
+- YARPGenericyyy.h is the files that containg the definition of the generic peripheral commands, shared by every different implementation of this hardware.
+- YARPzzzyyy.h it contains the (re)definition of an hardware class on an architecture, eg. if the hardware is a motor control board every architecture can use it for a different number of axes or motor (if the architecture doesn't need special definition or initialization it con be simply a typdef)
+- YARPxxxOnzzzAdapter.h This file adapt an hardware on an architecture to choose a different implementation for an hardware class (eg. the Picolo board frame grabber on Mirror)
+
+Where to Save Files:
+- YarpxxxDeviceDriver.h and YarpxxxDeviceDriver.ccp have to be save in "src\hardware\src\xxx\uuu"; in the same directory has to be created a directory called "dd_orig" which contains the original driver (if needed) in three direcory "lib" for library files, "dll" for dinamic DLLs and "include" for the header files.
+- YarpyyyUtils.h in "src\hardware\src\common"
+- YARPGenericyyy.h in "src\libraries\motorcontrol\common"
+- YARPzzzyyy.h in "src\libraries\motorcontrol\zzz"
+- YARPxxxOnzzzAdapter in "src\libraries\motorcontrol\zzz"
+
+Projects:
+- YarpxxxDeviceDriver.h and YarpxxxDeviceDriver.ccp have to be added to the project "alldrivers"
+- YARPGenericyyy.h, YARPzzzyyy.h and YARPxxxOnzzzAdapter.h to the project "motorcontrol", the first one in the folder "common", while the others in a specific folder for the architecture zzz
+
+Things to to after the files are written:
+1) add the files as above in the project "alldrivers"
+2) edit the "alldrivers" project preference called "post-build step" adding a line as "copy .\xxx\uuu\*.h ..\..\..\include" before the line with "make_lib.bat" (both in debug and release options)
+3) edit the file "install_orig_dd.bat" to copy the header, library and DLLs files, as "copy .\xxx\uuu\dd_orig\include\*.h ..\..\..\include\sys", "copy .\xxx\uuu\dd_orig\lib\*.lib ..\..\..\lib\uuu" and "copy .\xxx\uuu\dd_orig\bin\*.dll ..\..\..\bin\uuu"
+4) edit the files "make_lib.bat" and "make_lib_db.bat" adding the libraries (needed by driver, if any) entries in the general library build command
+5) Compile the "alldrivers" project
+6) add the files as above in the project "motorcontrol"
+7) edit the "motorcontrol" project preference called "post-build step" adding a line as "copy .\zzz\*.h ..\..\..\include" before the line with "copy .\lib\winnt\motorcontrol.lib ..\..\..\lib\winnt" (both in debug and release options)
+
+\end{verbatim}
+
+
+\section{libYARP\_robot}
+[to be completed]
+
+
+
+\section{Special libraries}
+[libYARP\_matlab and libYARP\_sig\_logpolar]

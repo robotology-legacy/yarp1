@@ -39,7 +39,7 @@ Since we're checking prerequisites here, download ACE 5.4.2 from:
 {\tt http://www.cs.wustl.edu/\symbol{126}schmidt/ACE.html}
 \end{quote}
 
-or from our download page at:
+\noindent or from our download page at:
 \begin{quote}
 {\tt http://yarp0.sourceforge.net/software.html}
 \end{quote}
@@ -47,6 +47,7 @@ or from our download page at:
 It comes as a single {\em tar.gz} file that you can open both on Linux and Windows. Keep it handy since we're going to use it again.
 
 \subsection{Environment variables}
+\label{sect:envvar}
 ACE requires defining the \$ACE\_ROOT environment variable when compiling on Linux. It is convenient to define a root directory for YARP. On a typical Linux box, you can add the following definitions to your {\em .profile} shell login file:
 \marginpar{While this is not strictly necessary, we recommend doing it for once.}
 
@@ -56,12 +57,26 @@ export CVSROOT=:ext:youruser@cvs.sourceforge.net:/cvsroot/yarp0
 export CVS_RSH=/usr/bin/ssh
 export ACE_ROOT=$YARP_ROOT/src/ACE_wrappers
 export LD_LIBRARY_PATH=/usr/local/lib
-export PATH=$PATH:$YARP_ROOT/bin/linux:$HOME/bin
-export PATH=/usr/local/bin:$PATH
-export PATH=.:/lib:$PATH
+export PATH=$PATH:$YARP_ROOT/bin/linux:$PATH
 \end{verbatim}
 
-Otherwise just type the same {\em export} commands on a terminal window. Note also that ACE resides in a subdirectory of the \$YARP\_ROOT. On Windows you go to the control panel, click on the {\em system} icon and search for the {\em environment variables} button on one of the tabs. By clicking this button opens a new window where you can add environment variables. There are two options here; we recommend adding them to the system wide variables rather than to the current interactive user only. 
+Otherwise just type the same {\em export} commands on a terminal window. Note also that ACE resides in a subdirectory of the \$YARP\_ROOT. On Windows you go to the control panel, click on the {\em system} icon and search for the {\em environment variables} button on one of the tabs. By clicking this button opens a new window where you can add environment variables. There are two options here; we recommend adding them to the system wide variables rather than to the current interactive user only. The following is a brief description of the meaning of these variables:
+
+\begin{itemize}
+
+\item The \$YARP\_ROOT variable points to where you checkout the copy of the code from CVS.
+
+\item CVSROOT is the CVS root description telling CVS where and how look for the code.
+
+\item CVS\_RSH is the remote shell type used by CVS. This is always ssh when checking out from SourceForge.
+
+\item ACE\_ROOT is required by the ACE makefiles to compile properly. Make sure it points to the right place. We recommend using the subdirectory shown above.
+
+\item LD\_LIBRARY\_PATH is the path of the dynamic libraries (this applies to Linux only). Windows DLLs are searched by the loader in the paths indicated by PATH as for the executables.
+
+\item PATH adds the paths of the binaries for YARP. This is required to find the executables of the YARP applications (e.g. yarp-service).
+
+\end{itemize}
 
 \subsection{Installing ACE}
 We require ACE version 5.3.3 or greater (but we recommend 5.4.2). ACE should compile fine just by following the installation instructions that can be found on the ACE website (http://www.cs.wustl.edu/\symbol{126}schmidt/ACE.html). 
@@ -97,7 +112,7 @@ Name_Proxy.cpp
 
 \end{verbatim}
 
-and so forth. When done, install everything by doing:
+\noindent and so forth. When done, install everything by doing:
 
 \begin{itemize}
 \item \ctt{cp *.cpp \$YARP\_ROOT/include/ace};
@@ -112,10 +127,16 @@ As for any library you must make sure the header files are in the compiler path.
 On Windows you can unzip the ACE distribution and simply open the {\em .dsw} workspace file from within Visual Studio and then start the compilation. Change directory to:
 
 \begin{quote}
-{\tt \%YARP\_ROOT\%$\backslash$src$\backslash$ACE\_wrappers$\backslash$ace}
+{\tt \$YARP\_ROOT/src/ACE\_wrappers/ace}
+%{\tt \%YARP\_ROOT\%$\backslash$src$\backslash$ACE\_wrappers$\backslash$ace}
 \end{quote}
  
-\noindent and open {\em ACE.dsw}. Choose your configuration (e.g. ACE -- Win32 Debug) and then build it. Proceed with the same manual copy of source files into \%YARP\_ROOT\%$\backslash$include$\backslash$ace as before. Also look for the {\em *.lib} files and copy them into \%YARP\_ROOT\%$\backslash$lib$\backslash$winnt. Close the workspace when done.
+\noindent and open {\em ACE.dsw}. Choose your configuration (e.g. ACE -- Win32 Debug) and then build it. For the time being we recommend to compile the DLL project included there and not the static one. We plan though to use always static libraries for easier remotability of executables. Proceed with the same manual copy of source files into %\%YARP\_ROOT\%$\backslash$include$\backslash$ace 
+\$YARP\_ROOT/include/ace
+as before. Also look for the {\em *.lib} files and copy them into
+%\%YARP\_ROOT\%$\backslash$lib$\backslash$winnt. 
+\$YARP\_ROOT/lib/winnt. 
+Close the workspace when done.
 
 
 \subsection{Compiling libYARP\_OS}
@@ -173,27 +194,31 @@ The executables are installed in \$YARP\_ROOT/bin/linux and since it is in the p
 On Windows open the {\bf libYARP\_OS} workspace located in:
 
 \begin{quote}
-{\tt \%YARP\_ROOT\%$\backslash$src$\backslash$libYARP\_OS$\backslash$src}
+{\tt \$YARP\_ROOT/src/libYARP\_OS/src}
+%{\tt \%YARP\_ROOT\%$\backslash$src$\backslash$libYARP\_OS$\backslash$src}
 \end{quote}
 
 \noindent and choose the configuration as usual (e.g. Debug or Release). Start the build process. When finished you have to manually install the executables as before:
 
 \begin{itemize}
-\item copy all files in ..$\backslash$include$\backslash$yarp into \%YARP\_ROOT\%$\backslash$include$\backslash$yarp
-\item copy all libraries (*.lib) in ..$\backslash$lib$\backslash$winnt into
-\%YARP\_ROOT\%$\backslash$lib$\backslash$winnt
+\item copy all files in ../include/yarp into \$YARP\_ROOT/include/yarp
+%..$\backslash$include$\backslash$yarp into \%YARP\_ROOT\%$\backslash$include$\backslash$yarp
+\item copy all libraries (*.lib) in ../lib/winnt into \$YARP\_ROOT/lib/winnt
+%..$\backslash$lib$\backslash$winnt into \%YARP\_ROOT\%$\backslash$lib$\backslash$winnt
 \end{itemize}
 
 Now change directory to {\em tools} and open the {\em tools-os.dsw} workspace. Compile all the tools in the workspace; then look into:
 
 \begin{quote}
-{\tt .$\backslash$obj$\backslash$*.exe}
+{\tt ./obj/*.exe}
+%{\tt .$\backslash$obj$\backslash$*.exe}
 \end{quote}
 
 \noindent and copy all of them into:
 
 \begin{quote}
-{\tt \%YARP\_ROOT\%$\backslash$bin$\backslash$winnt}
+{\tt \$YARP\_ROOT/bin/winnt}
+%{\tt \%YARP\_ROOT\%$\backslash$bin$\backslash$winnt}
 \end{quote}
 
 If everything compiled and no error showed up then the next step is to go to chapter \ref{chapter:usage} and test your installation. 
@@ -244,7 +269,7 @@ because it applies to plink too. Please, also configure and upload the public-pr
 {\tt http://www.cs.wustl.edu/\symbol{126}schmidt/ACE.html}
 \end{quote}
 
-or from our download page at:
+\noindent or from our download page at:
 \begin{quote}
 {\tt http://yarp0.sourceforge.net/software.html}
 \end{quote}
@@ -252,7 +277,7 @@ or from our download page at:
 It comes as a single {\em tar.gz} file that you can open both on Linux and Windows. Keep it handy since we're going to use it again. YARP includes now header files (from cvlibrary) and DLLs for the Intel IPL (optionally used in image processing) in the repository so you no longer need to download and install them separately.
 
 DLLs from Visual Studio 6.0: strangely enough the default install doesn't have the
-correct version (e.g. the C terminal library wouldn't normally work. This applies to
+correct version (e.g. the CRT library wouldn't normally work. This applies to
 NT4.0; we haven't investigated the issue on 2K or XP. If you're running NT4.0 you might
 need to install Visual Studio on each machine of the network to get the DLLs right.
 
@@ -268,9 +293,13 @@ service packed.
 
 A few environment variables are required to properly compile YARP. The perl scripts will check whether \$YARP\_ROOT is defined and will complain otherwise. Also, many applications rely on having a \$YARP\_ROOT defined to locate configuration files. It is necessary to define:
 \begin{itemize}
-\item \$YARP\_ROOT (\%YARP\_ROOT\% in Windows) environment variable (e.g. \ctt{export YARP\_ROOT=/usr/src/yarp}).
+
+\item \$YARP\_ROOT environment variable (e.g. \ctt{export YARP\_ROOT=/usr/src/yarp}).
+
 \item and then add to path \$YARP\_ROOT/bin/(your OS)/ (location of binaries and DLLs), and of course substitute the forward slash with the backslash where appropriate.
+
 \item add also to the path: \$YARP\_ROOT/scripts (and the subdirectories you need). In Windows we recommend adding them to the ``system'' environment and not to the current user only.
+
 \end{itemize}
 
 Further, in Windows you have to check that you can run the developer studio from the command line. The usual check is done by typing \ctt{msdev} on the console. If it fails then you might need to go and look for the {\em VCVARS32.bat} and run it from your terminal. The {\em VCVARS32.bat} script prepares the environment to run visual studio and to compile from the command line.
@@ -283,12 +312,10 @@ export ACE_ROOT=$YARP_ROOT/src/ACE_wrappers
 export CVSROOT=:ext:youruser@cvs.sourceforge.net:/cvsroot/yarp0
 export CVS_RSH=/usr/bin/ssh
 export LD_LIBRARY_PTH=/usr/local/lib
-export PATH=$PATH:$YARP_ROOT/bin/qnx6:$HOME/bin
-export PATH=/usr/local/bin/:$PATH
-export PATH=.:/lib:$PATH
+export PATH=$PATH:$YARP_ROOT/bin/linux:$PATH
 \end{verbatim}
 
-A brief checklist on this procedure is provided here for convenience:
+See also section \ref{sect:envvar}. A brief checklist of the steps required for implementing this procedure is provided here for convenience:
 \begin{enumerate}
 	\item Download \& install the CVS client and configure your sourceforge user.
 	\item Checkout YARP \ctt{cvs checkout -P yarp} somewhere on your directory tree (this will be your \$YARP\_ROOT.
@@ -383,7 +410,7 @@ cd $YARP_ROOT/src/libYARP_OS
 perl configure.pl
 \end{verbatim}
 
-the second line runs the perl script. If the script is made executable you can save five strokes and run it without the leading {\em perl}. As a consequence, the configuration procedure is started; you should see:
+\noindent the second line runs the perl script. If the script is made executable you can save five strokes and run it without the leading {\em perl}. As a consequence, the configuration procedure is started; you should see:
 
 \begin{verbatim}
 Entering configure process of YARP environment...
@@ -400,7 +427,7 @@ I determined already that you're running on a supported OS: winnt
 What's your OS? [winnt]
 \end{verbatim}
 
-recognized identifiers for the operating system tag are:
+\noindent recognized identifiers for the operating system tag are:
 \begin{itemize}
 \item winnt, for Win32 compilation
 \item linux, for Linux
@@ -408,7 +435,7 @@ recognized identifiers for the operating system tag are:
 \item darwin, for MacOs
 \end{itemize}
 
-by hitting {\em return} you simply accept the default/proposed entry which is indicated in square brackets (which is {\em winnt} in this example). The following example shows what required and asked next:
+\noindent by hitting {\em return} you simply accept the default/proposed entry which is indicated in square brackets (which is {\em winnt} in this example). The following example shows what required and asked next:
 
 \begin{verbatim}
 Where has ACE been unpacked? [$YARP_ROOT/src/ACE_wrappers]
@@ -469,7 +496,7 @@ NT_Service.cpp
 
 \end{verbatim} 
 
-which means that compilation of ACE is started. It'll take a while depending on your machine. The build script changed to the ACE directory and ran the build script there. When it's done you should see something like this:
+\noindent which means that compilation of ACE is started. It'll take a while depending on your machine. The build script changed to the ACE directory and ran the build script there. When it's done you should see something like this:
 
 \begin{verbatim}
 Timer_Wheel.cpp
@@ -488,13 +515,13 @@ Local_Name_Space.cpp
 
 \end{verbatim}
 
-which means that the debug version of ACE has been compiled succesfully and compilation of optimized code started. When also ACE with optimization flags is compiled, the script copies the ACE header files into a common store where every YARP header will be placed and the libraries under \$YARP\_ROOT/lib/winnt or any other allowed operating system name. This doesn't mean packages will share a single common directory. ACE headers will be included by:
+\noindent which means that the debug version of ACE has been compiled succesfully and compilation of optimized code started. When also ACE with optimization flags is compiled, the script copies the ACE header files into a common store where every YARP header will be placed and the libraries under \$YARP\_ROOT/lib/winnt or any other allowed operating system name. This doesn't mean packages will share a single common directory. ACE headers will be included by:
 
 \begin{verbatim}
 #include <ace/Acceptor.h>
 \end{verbatim}
 
-provided the common store directory is specified to the compiler: \$YARP\_ROOT/include/. This means ace headers are all under \$YARP\_ROOT/include/ace. YARP headers are included, for example, as:
+\noindent provided the common store directory is specified to the compiler: \$YARP\_ROOT/include/. This means ace headers are all under \$YARP\_ROOT/include/ace. YARP headers are included, for example, as:
 
 \begin{verbatim}
 #include <yarp/YARPThread.h>
