@@ -72,15 +72,138 @@ libYARP_mathd.lib - 0 error(s), 0 warning(s)
 
 
 \subsection{Do it yourself}
+Even if you decided not to use the perl scripts compilation is pretty simple. In Windows you need to open the libYARP\_math.dsw from VisualStudio, choose the configuration (Debug or Release) and start the compiler. When it is done, you have to manually copy headers and libraries:
+\begin{itemize}
+\item copy all .lib files from ./lib/winnt into \$YARP\_ROOT/lib/winnt
+\item copy all .h files from ./include/yarp into \$YARP\_ROOT/include/yarp
+\end{itemize}
+
+In Linux, the Makefile provided takes care of compiling everything. As a last step copy the libraries by typing:
+\begin{quote}
+{\tt cp ./lib/linux/*.a \$YARP\_ROOT/lib/linux}
+\end{quote}
+
+\noindent and the headers as shown earlier. 
 
 
 
+\section{Signal Processing}
+The YARP signal processing library (libYARP\_sig) has several basic types for dealing with images and sending them from one machine to another for parallel processing. As for the libYARP\_math library, the signal processing library does not contain an elaborated set of visual processing primitives but rather relies on the user to provide implementations. YARP signal processing classes mostly deal with the communication of data across the network. Some basic primitives are provided and, for images, integration with the {\em open cv} data types.
+
+The basic data type used in libYARP\_sig is the {\em YARPGenericImage}. This is a container class managing an array of pixels of an unspecified type and size. In practice the internal pixel array is always a chunk of memory. The actual type exported to user code is a class template declared as follows:
+
+\begin{verbatim}
+  template <class T>
+    class YARPImageOf : public YARPGenericImage
+\end{verbatim}
+
+\noindent which allows arbitrary data types T to be used as pixel types. The library provides already the most commonly used pixel types such as RGB, HSV, Mono, etc. Images can be easily transmitted across the network using YARP ports. The appropriate port would be declared as:
+
+\begin{verbatim}
+  YARPInputPortOf<YARPGenericImage> input_port;
+\end{verbatim}
+
+\noindent that is, of type YARPGenericImage. At run-time the port would know the actual pixel type and refer the an image to the actual data type. For efficiency, images can also refer (i.e. point to) data or other images allocated in advance. In practice, a copy is seldom required, and often the processing can happen in place. For example, considering the port declaration above:
+
+\begin{verbatim}
+  YARPImageOf<YarpPixelMono> in;
+  .
+  .
+  .
+  in.Refer (input_port.Content());	
+\end{verbatim}
+
+Similarly, the signal processing library has classes for sound data transfer: {\em YARPSoundBuffer}. The sound buffer is a generic 8-bit array that can be trasmitted through ports (as for images). The sound buffer is much simpler in structure than images and thus it is the preferred method for handling raw data. The procedure to compile the libYARP\_img is very similar to the math library and it is reported below only for completness. Do not bother in actually reading it.
+
+\subsection{Perl scripts}
+Using perl is fairly trivial in this case: just run the {\em configure.pl} script (e.g. by typing perl configure.pl). The following output (or a similar one) should be printed on your terminal windows:
+
+\begin{verbatim}
+Entering configure process of YARP signal processing library...
+'uname' is not recognized as an internal or external command,
+operable program or batch file.
+Ready to start...
+Now I'm going to ask a few questions to help building the configuration. 
+For pathnames you can use (type) the pre-defined value $YARP_ROOT that 
+I've verified as: "D:\Users\pasa\Repository\yarp"
+
+Please, use always the forward slash as a separator!
+I determined already that you're running on a supported OS: winnt
+Do you want to include IPL support (emulation otherwise)? [NO]
+\end{verbatim}
+
+This procedure is completely equivalent to the libYARP\_OS and libYARP\_math library compilation. The IPL support flag is not actually used for the time being; any value will do. All what you have to do is to decide if your need a rebuild (clean first), whether you would like to compile debug and/or optimized and to install after compilation. For example:
+
+\begin{verbatim}
+Would you like to set a default for library compilation?
+Clean first: i.e. rebuild libraries? [TRUE]
+Debug mode? [TRUE]
+Release mode (optimization on)? [TRUE]
+Install after compile? [TRUE]
+We're done for now, the context file is being updated: 
+"D:\Users\pasa\Repository\yarp/conf/context.conf"
+Done!
+\end{verbatim}
+
+This creates the appropriate configuration options in the \$YARP\_ROOT/conf/context.txt file which are then used by {\em build.pl}. To compile, run the {\em build.pl} script. The output should look like this one:
+
+\begin{verbatim}
+Entering compile process of YARP signal processing libraries...
+'uname' is not recognized as an internal or external command,
+operable program or batch file.
+Ready to start...
+
+Cleaning...
+Deleting intermediate files and output files for project 'libYARP_sig 
+- Win32 Debug'.
+Deleting intermediate files and output files for project 'libYARP_sig 
+- Win32 Release'.
 
 
-\section{libYARP\_sig}
-[to be completed]
+Compiling debug
+----------Configuration: libYARP_sig - Win32 Debug-----------------
+
+Compiling...
+cvbase.cpp
+YARPImage.cpp
+YARPImageFile.cpp
+YARPImageUtils.cpp
+YARPSimpleOperations.cpp
+Generating Code...
+Creating library...
+
+libYARP_sigd.lib - 0 error(s), 0 warning(s)
+
+\end{verbatim}
+
+\noindent and the procedure will complete, in this case, with full installation.
+
+
+\subsection{Do it yourself}
+Even if you decided not to use the perl scripts compilation is pretty simple. In Windows you need to open the libYARP\_img.dsw from VisualStudio, choose the configuration (Debug or Release) and start the compiler. When it is done, you have to manually copy headers and libraries:
+\begin{itemize}
+\item copy all .lib files from ./lib/winnt into \$YARP\_ROOT/lib/winnt
+\item copy all .h files from ./include/yarp into \$YARP\_ROOT/include/yarp
+\end{itemize}
+
+In Linux, the Makefile provided takes care of compiling everything. As a last step copy the libraries by typing:
+\begin{quote}
+{\tt cp ./lib/linux/*.a \$YARP\_ROOT/lib/linux}
+\end{quote}
+
+\noindent and the headers as shown earlier. 
+
+
+\subsection{OpenCV support}
+The image classes are internally already compatible with the {\em open cv} data structure (and IPL). To enable this feature you need to define the preprocessor symbol {\em HAVE\_IPL} and for instance set it equal to 1. You need to add also the IPL or the {\em open cv} include files as for example:
+
+\begin{verbatim}
+  #include <ipl/ipl.h>
+\end{verbatim}
+
+A cast operator allows calling any IPL function using YARPImage's as arguments.
  
- 
+  
 \section{Preparing libYARP\_dev}
 The device driver library is a heterogeneous collection of various modules. It is composed of a few files of general use (mostly class templates) and a set of device drivers developed for the robot mentioned in the introduction (see section \ref{sect:numbers}). For each device driver we are providing only the appropriate header files and libraries for linking the code correctly while the actual device driver needs to be acquired through the specific hardware manifacturer.
 
@@ -402,176 +525,195 @@ An example of the implementation of a method that reads something from the {\em 
 
 \noindent where {\em RES} is only a cast to the appropriate type for accessing the {\em system\_resources}.
 
+\begin{figure}[tb]
+\centerline{
+%\psfig{figure=fig-port-portlets.eps}
+\includegraphics[width=7cm]{fig-port-portlets}
+}
+\caption[Interprocess communication model]{ 
+%
+This is supposed to be the class hierarchy diagram.
+%
+}
+\label{fig:yarp-port}
+\end{figure}
+
+
+
+\section{The libYARP\_robot}
+The next step of the YARP abstraction is carried out through the robot library: libYARP\_robot. The goal of this library is that of providing a standard interface and easy hardware replacement at the cost of some added complexity of the overall coding structure. The rationale beyond the robot libray is that of allowing diverse robotic components such as heads and arms and various different control cards to be used by a common software component. This consists of three elements:
+
+\begin{itemize}
+\item {\bf robot component}: e.g. the robot head or the visual sensors control
+\item {\bf hardware interface card}: e.g. the motor control card or the frame grabber
+\item {\bf details of the interface}: e.g. how the motor control card is connected to the robot head
+\end{itemize}
+
+These three elements are represented by three classes that are combined to build a control element such as that controlling the robot head. The robot component is described through a derivation from a template C++ class specific to the type of object being controlled (e.g. a control card rather than a frame grabber). This is customized by specializing the template class. The template is typically a function of two parameters called the {\em ADAPTER} and the {\em PARAMETERS}. The {\em ADAPTER} is derived from a {\em YARPDeviceDriver}; the {\em PARAMETERS} class is not derived from a base class but it rather specific to the type of device. The parameters are gathered here, that is, all differences from two different use of the same control card (for the a similar application though) are concentrated here. Lately, certain devices have a parameter class derived from a common base in a tentative to rationalize the creation of new components. 
+
+Considering again the example we presented for the libYARP\_dev, the generic component for the frame grabber is defined as:
+
 \begin{verbatim}
-
-
-
-----> NOW move to the motorcontrol static library --- this contains all the interfaces to the HW.
-
-4- the final public interface is usually a template of two arguments:
-		ADAPTER and PARAMETERS.
-
-		<ADAPTER> is a class containing the adaptation of the HW to the particular setup. 
-			unfortunately sometimes the HW is connected differently depending on the experimental
-			setup - e.g. cabled differently.
-
-		<PARAMETERS> these are the real parameters. This is used as container to the params.
-
-		example:
-
-		template <class ADAPTER, class PARAMETERS>
-		class YARPGenericGrabber
-		{
-		protected:
-			ADAPTER _adapter;		/// adapts the hw idiosyncrasies
-			PARAMETERS _params;		/// actual grabber specific parameters
-
-		public:
-			YARPGenericGrabber () {}
-			~YARPGenericGrabber () {}
-
-			int initialize (int board, int sizex, int sizey = -1);
-			int uninitialize (void);
-			int acquireBuffer (unsigned char **buffer);
-			int releaseBuffer (void);
-			int waitOnNewFrame (void);
-			int getWidth (int *w);
-			int getHeight (int *h);
-		};
-
-		NOTE that the methods here are exactly the same methods as in the list at point 3
-		but the additional initialize/uninitialize.
-
-5- the <ADAPTER> class derives from the DeviceDriver: 
-
-		It's basically a customization of the DeviceDriver to solve initialization idiosyncrasies.
-		In particular initialize and uninitialize are used to call open and close.
-		Can tweak on parameters to do the proper initialization for the setup you're considering.
-		NOTE that the class has now a name referring to the exp setup (e.g. Babybot).
-
-		example:
-
-		class YARPPicoloOnBabybotAdapter : public YARPPicoloDeviceDriver
-		{
-		public:
-			YARPPicoloOnBabybotAdapter() : YARPPicoloDeviceDriver() {}
-			virtual ~YARPPicoloOnBabybotAdapter() {}
-
-			int initialize (YARPBabybotGrabberParams& params)
-			{
-				/// need additional initialization, put it here.
-				return open ((void *)&params);
-			}
-
-			int uninitialize (void)
-			{
-				/// need additional termination stuff, here's the place for it.
-				return close ();
-			}
-		};
-
-6- the <PARAMETERS> class might be derived from the open params. 
-		- you're free to do differently in this case.
-
-		example:
-
-		typedef PicoloOpenParameters YARPBabybotGrabberParams;
-
-		in this case we didn't need anything different.
-
-7- how to implement the FINAL PUBLIC INTERFACE methods mentioned above.
-
-		- constructor and destructor call the initialize/uninitialize of the adapter respectively.
-		- initialize/uninitialize of the adapter call open/close as shown above.
-
-		example:
-
-		template <class ADAPTER, class PARAMETERS>
-		int YARPGenericGrabber<ADAPTER, PARAMETERS>::initialize (int board, int sizex, int sizey /* = -1 */)
-		{
-			_params._unit_number = board;
-			_params._video_type = 0;
-			_params._size_x = sizex;
-			if (sizey > 0)
-				_params._size_y = sizey;
-			else
-				_params._size_y = sizex;
-
-			/// calls the adapter init that parses the params appropriately.
-			/// this is because initialization can vary depending on the specific setup.
-			return _adapter.initialize (_params);
-		}
-
-
-		- generic methods
-			simply use IOCtl to execute the specific function. This automatically calls the function
-			by dereferncing the pointer in the table of pointers.
-
-		example:
-
-		template <class ADAPTER, class PARAMETERS>
-		int YARPGenericGrabber<ADAPTER, PARAMETERS>::acquireBuffer (unsigned char **buffer)
-		{
-			return _adapter.IOCtl (FCMDAcquireBuffer, (void *)buffer);
-		}
-
-8- finally use the device driver following this example:
-		- Usually add a .h file specific to the architecture such as:
-			YARPBabybotGrabber.h
-		which for example contains:
-
-		#include <YARPGenericGrabber.h>
-		#include <YARPPicoloOnBabybotAdapter.h>
-
-		typedef YARPGenericGrabber<YARPPicoloOnBabybotAdapter, YARPBabybotGrabberParams> YARPBabybotGrabber;
-
-		to simplify things redefine the type passing the appropriate classes to the template.
-		The nice thing is that the same YARPGenericGrabber can be recycled onto different architecture/grabber
-		types.
-
-USE this file and the examples to implement your own YARP compatible device driver.
-
-EmmeBi's Addendum
-
-were:
-xxx is the name of the peripheral, eg. Picolo for a frame grabber
-yyy is the name of type of the peripheral the drivers are for, eg. FrameGrabber for a Picolo framegrabber
-zzz is an architecture which uses the hardware, eg. Mirror
-uuu is the platform, eg. winnt
-
-Files to create:
-- YARPxxxDeviceDriver.h and YARPxxxDevicedriver.cpp are the definition and the implementation of the driver (different for every hardware) The definition may contain a struct called xxxOpenParameter containig the parameters needed to setup the hardware which have to be passed to the class as a parameter. The implementation can contain a class called xxxResources which contains all the hardware specific resources.
-- YARPyyyUtils.h it can be shared with any different hardware implementing a resurce (eg. every kind of framegrabber). This file contains two structures: one with a list of the commands the peripheral accepts and one with the data it produces.
-- YARPGenericyyy.h is the files that containg the definition of the generic peripheral commands, shared by every different implementation of this hardware.
-- YARPzzzyyy.h it contains the (re)definition of an hardware class on an architecture, eg. if the hardware is a motor control board every architecture can use it for a different number of axes or motor (if the architecture doesn't need special definition or initialization it con be simply a typdef)
-- YARPxxxOnzzzAdapter.h This file adapt an hardware on an architecture to choose a different implementation for an hardware class (eg. the Picolo board frame grabber on Mirror)
-
-Where to Save Files:
-- YarpxxxDeviceDriver.h and YarpxxxDeviceDriver.ccp have to be save in "src\hardware\src\xxx\uuu"; in the same directory has to be created a directory called "dd_orig" which contains the original driver (if needed) in three direcory "lib" for library files, "dll" for dinamic DLLs and "include" for the header files.
-- YarpyyyUtils.h in "src\hardware\src\common"
-- YARPGenericyyy.h in "src\libraries\motorcontrol\common"
-- YARPzzzyyy.h in "src\libraries\motorcontrol\zzz"
-- YARPxxxOnzzzAdapter in "src\libraries\motorcontrol\zzz"
-
-Projects:
-- YarpxxxDeviceDriver.h and YarpxxxDeviceDriver.ccp have to be added to the project "alldrivers"
-- YARPGenericyyy.h, YARPzzzyyy.h and YARPxxxOnzzzAdapter.h to the project "motorcontrol", the first one in the folder "common", while the others in a specific folder for the architecture zzz
-
-Things to to after the files are written:
-1) add the files as above in the project "alldrivers"
-2) edit the "alldrivers" project preference called "post-build step" adding a line as "copy .\xxx\uuu\*.h ..\..\..\include" before the line with "make_lib.bat" (both in debug and release options)
-3) edit the file "install_orig_dd.bat" to copy the header, library and DLLs files, as "copy .\xxx\uuu\dd_orig\include\*.h ..\..\..\include\sys", "copy .\xxx\uuu\dd_orig\lib\*.lib ..\..\..\lib\uuu" and "copy .\xxx\uuu\dd_orig\bin\*.dll ..\..\..\bin\uuu"
-4) edit the files "make_lib.bat" and "make_lib_db.bat" adding the libraries (needed by driver, if any) entries in the general library build command
-5) Compile the "alldrivers" project
-6) add the files as above in the project "motorcontrol"
-7) edit the "motorcontrol" project preference called "post-build step" adding a line as "copy .\zzz\*.h ..\..\..\include" before the line with "copy .\lib\winnt\motorcontrol.lib ..\..\..\lib\winnt" (both in debug and release options)
-
+    template <class ADAPTER, class PARAMETERS>
+    class YARPGenericGrabber
+    {
+      ...
 \end{verbatim}
 
+\noindent and, in practice, the {\em YARPGenericGrabber} class contains the same methods of the adapter class (the device driver). There are two new methods with respect to the adapter class: {\em initialize} and {\em uninitialize}. The initialization is delegated to the {\em initialize} method, which can be used to solve card idiosyncrasies. Initialization code calls the adapter initialize method which can work as a placeholder for any type of initialization that might be required by specialized hardware. In short, all {\em ADAPTER}'s that are used in the {\em YARPGenericGrabber} must implement {\em initialize} and {\em uninitialize}. Note that these two methods are not in the {\em YARPPicoloDeviceDriver} since we would like to maintain the liberty of implementing different initializations for different configurations: i.e. two robots might employ the same hardware but initialize it differently.
 
-\section{libYARP\_robot}
+The following example shows the interface of the {\em YARPGenericGrabber}:
+
+\begin{verbatim}
+
+    template <class ADAPTER, class PARAMETERS>
+    class YARPGenericGrabber
+    {
+    protected:
+      ADAPTER _adapter;		/// adapts the hw idiosyncrasies
+      PARAMETERS _params;		/// actual grabber specific parameters
+
+    public:
+      YARPGenericGrabber () {}
+      ~YARPGenericGrabber () {}
+
+      int initialize (int board, int sizex, int sizey = -1);
+      int uninitialize (void);
+      int acquireBuffer (unsigned char **buffer);
+      int releaseBuffer (void);
+      int waitOnNewFrame (void);
+      int getWidth (int *w);
+      int getHeight (int *h);
+    };
+		
+\end{verbatim}
+
+The remaining methods are implemented simply by calling the {\em IOCtl} with the relative message number. As we mentioned earlier, the message types are defined in {\em YARPFrameGrabberUtils.h} for this specific example. As we have seen in the definition of the {\em YARPGenericGrabber}, it is required to derive from the device driver class to customize the adapter. This is obtained by deriving as in the following:
+
+\begin{verbatim}
+    class YARPPicoloOnBabybotAdapter : public YARPPicoloDeviceDriver
+    {
+      .
+      .
+      .
+\end{verbatim}
+
+This is basically a customization of the device driver to solve initialization idiosyncrasies. In particular, {\em initialize} and {\em uninitialize} are used to call the {\em open} and {\em close} methods of the device driver. This is convenient since our derived adapter can tweak on the parameters to do the proper initialization for the setup you are considering. The class name now refers explicitly to the experimental setup. The complete example is shown below:
+
+\begin{verbatim}
+    class YARPPicoloOnBabybotAdapter : public YARPPicoloDeviceDriver
+    {
+    public:
+      YARPPicoloOnBabybotAdapter() : YARPPicoloDeviceDriver() {}
+      virtual ~YARPPicoloOnBabybotAdapter() {}
+
+      int initialize (YARPBabybotGrabberParams& params)
+      {
+        // need additional initialization? put it here.
+        return open ((void *)&params);
+      }
+
+      int uninitialize (void)
+      {
+        // need additional termination stuff? here's the place for it.
+        return close ();
+      }
+    };
+\end{verbatim}
+
+Finally, the parameters class must be defined. In this example, it is made to coincide with the device driver open parameters by a typedef, but any solution would do:
+
+\begin{verbatim}
+    typedef PicoloOpenParameters YARPBabybotGrabberParams;
+\end{verbatim}
+
+At this point, we still have to provide a public interface to this structure we have been creating throughout the last two sections. This is done first by following these two simple rules:
+\begin{itemize}
+
+\item constructor and destructor of the public interface call the initialize/uninitialize of the adapter respectively;
+
+\item initialize/uninitialize of the adapter call open/close as shown above.
+
+\end{itemize}
+
+The result for the example of the frame grabber is shown below:
+
+\begin{verbatim}
+    template <class ADAPTER, class PARAMETERS>
+    int YARPGenericGrabber<ADAPTER, PARAMETERS>
+      ::initialize (int board, int sizex, int sizey /* = -1 */)
+    {
+      _params._unit_number = board;
+      _params._video_type = 0;
+      _params._size_x = sizex;
+      if (sizey > 0)
+        _params._size_y = sizey;
+      else
+        _params._size_y = sizex;
+
+      // Calls the adapter init that parses the 
+      // params appropriately.
+      // This is because initialization can vary depending 
+      // on the specific setup.
+      return _adapter.initialize (_params);
+    }
+\end{verbatim}
+
+For the generic methods instead, the {\em IOCtl} is invoked:
+\begin{verbatim}
+    template <class ADAPTER, class PARAMETERS>
+    int YARPGenericGrabber<ADAPTER, PARAMETERS>
+      ::acquireBuffer (unsigned char **buffer)
+    {
+      return _adapter.IOCtl (FCMDAcquireBuffer, (void *)buffer);
+    }
+\end{verbatim}
+
+There is still one last step before using the newly created implementation, this is to define a new type by employing the {\em YARPGenericGrabber} template. This can be done anywhere in the code but, for convenience, we recommend creating a new header file altogether (e.g. {\em YARPBabybotGrabber.h}) containing something like the following:
+
+\begin{verbatim}
+  #include <YARPGenericGrabber.h>
+  #include <YARPPicoloOnBabybotAdapter.h>
+
+  typedef YARPGenericGrabber
+   <YARPPicoloOnBabybotAdapter, YARPBabybotGrabberParams> 
+   YARPBabybotGrabber;
+\end{verbatim}
+
+This completes the implementation. In the following we provide a simple checklist of what to do to prepare a new device driver.
+ 
+ 
+Let:
+\begin{itemize}
+\item {\bf xxx} be the name of the peripheral, e.g. Picolo for a frame grabber;
+\item {\bf yyy} be the name of type of the peripheral the drivers are for, e.g. FrameGrabber for a Picolo frame grabber;
+\item {\bf zzz} is an architecture which uses the hardware, e.g. Babybot;
+\item {\bf uuu} is the platform, e.g. winnt.
+\end{itemize}
+
+The following files are to be created:
+\begin{itemize}
+
+\item YARP{\bf xxx}DeviceDriver.h and YARPxxxDevicedriver.cpp contain the definition and the implementation of the driver (clearly distinct for every different card). The definition might contain a new type called xxxOpenParameter which is a collection of parameters required in setting up the hardware. This is an argument to the {\em open} method of the device driver class. The implementation is typically done by instantiating a class called xxxResources to hide all the harware specific resources. These files must be saved in \$YARP\_ROOT/src/libYARP\_dev/src/xxx/uuu; in the same directory a directory called ``dd\_orig'' should be created with the original device driver files (headers, libraries, etc.) needed for compiling the YARP code;
+
+\item YARP{\bf yyy}Utils.h it can be shared with any different hardware implementing a resurce (e.g. every frame grabber). This file contains two structures: one with a list of the messages the peripheral accepts and the other one with the data type it uses. Yarp{\bf yyy}Utils.h resides in \$YARP\_ROOT/src/libYARP\_dev/include/yarp;
+
+\item YARPGeneric{\bf yyy}.h is the file that contains the definition of the generic peripheral class template, shared by any implementation of this hardware type (e.g. all frame grabbers). This file must reside in \$YARP\_ROOT/src/libYARP\_dev/include/yarp;
+
+
+\item YARP{\bf zzzyyy}.h contains the definition of the class of the card on the specific robot, e.g. if the hardware is a frame grabber and the robot is ``babybot'' this is the place for the YARPBabybotGrabber class. This file must reside in \$YARP\_ROOT/src/libYARP\_robot/zzz/yarp;
+
+\item YARP{\bf xxx}On{\bf zzz}Adapter.h contains the adaptation of the hardware on the architecture. This file must reside in \$YARP\_ROOT/src/libYARP\_robot/zzz/yarp;
+
+\end{itemize}
+
+
+\subsection{Compilation}
 [to be completed]
 
+
+\subsection{More classes}
+[to be completed with details of the abstract base classes]
 
 
 \section{Special libraries}
