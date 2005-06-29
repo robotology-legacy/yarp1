@@ -181,16 +181,22 @@ sub install_libs_generic
 				{
 					# unpack libraries.
 	        			open MK, "ar -x $file"."|";
-			       	 while (<MK>)
+					while (<MK>)
 					{
 						print;
 					}
 	
 					foreach my $filex (glob "*.o")
 					{ 
-						$libraries = "$libraries ./$device/$os/dd_orig/lib/$filex";
+					    $libraries = "$libraries ./$device/$os/dd_orig/lib/$filex";
 					}
+				    }
+				# look for dynamic shared lib
+				foreach my $file (glob "*.so")
+				{
+				    $libraries = "$libraries ./$device/$os/dd_orig/lib/$file";
 				}
+
 				chdir "../../../../";
 			}
 
@@ -200,11 +206,11 @@ sub install_libs_generic
 			}
 		}
 	}
+
 	if ($libraries ne '')
 	{
 		print "\nNow building libraries...\n";
-
-	        open MK, "ar -rv ./lib/$os/libYARP_dev.a $libraries"."|";
+		open MK, "ar -rv ./lib/$os/libYARP_dev.a $libraries"."|";
 	        while (<MK>)
 		{
 			print;
