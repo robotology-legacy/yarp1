@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPObreroArm.h,v 1.2 2005-06-01 16:07:24 natta Exp $
+///  $Id: YARPObreroArm.h,v 1.3 2005-06-29 15:46:15 natta Exp $
 ///
 ///
 
@@ -79,9 +79,25 @@
 #include <yarp/YARPRobotMath.h>
 #include <yarp/YARPGenericControlBoard.h>
 
-#include <yarp/YARPSCIOnObreroArmAdapter.h>
+//#include <yarp/YARPSCIOnObreroArmAdapter.h>
+#include <yarp/YARPPeakOnObreroArmAdapter.h>
 
-class YARPObreroArm: public YARPGenericControlBoard<YARPSciOnObreroArmAdapter, YARPObreroArmParameters>
-{};
+//class YARPObreroArm: public YARPGenericControlBoard<YARPSciOnObreroArmAdapter, YARPObreroArmParameters>
+//{};
+
+class YARPObreroArm: public YARPGenericControlBoard<YARPPeakOnObreroArmAdapter, YARPObreroArmParameters>
+{
+ public:
+  int getPosition(int k, double *p)
+    {
+      int ret;
+      SingleAxisParameters cmd;
+      cmd.axis = k;
+      cmd.parameters=p;
+
+      ret = _adapter.IOCtl(CMDGetPosition, &cmd);
+      return ret;
+    }
+};
 
 #endif

@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSCIOnObreroArmAdapter.h,v 1.3 2005-06-01 16:07:25 natta Exp $
+/// $Id: YARPSCIOnObreroArmAdapter.h,v 1.4 2005-06-29 15:46:15 natta Exp $
 ///
 ///
 
@@ -125,7 +125,7 @@ namespace _ObreroArm
 
 #include <yarp/YARPTime.h>
 
-class YARPObreroArmParameters
+class YARPObreroArmParameters: public YARPGenericControlParameters
 {
 public:
 	/**
@@ -412,7 +412,8 @@ public:
  * uninitialize while it leaves much of the burden of calling the device driver
  * to a generic template class called YARPGenericControlBoard.
  */
-class YARPSciOnObreroArmAdapter : public YARPSciDeviceDriver
+class YARPSciOnObreroArmAdapter : public YARPSciDeviceDriver,
+				  public YARPGenericControlAdapter<YARPSciOnObreroArmAdapter, YARPObreroArmParameters>
 {
 public:
 	/**
