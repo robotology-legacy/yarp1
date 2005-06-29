@@ -9,11 +9,12 @@
 #include <yarp/YARPPort.h>
 #include <yarp/YARPBottle.h>
 #include <yarp/YARPRateThread.h>
+#include <yarp/YARPIterativeStats.h>
 #include <iostream>
 
 YARPInputPortOf<YARPBottle> _inputPort;
 
-const int __samplerRate = 100;
+const int __samplerRate = 30;
 const int MESSAGE_LABEL = 5;
 
 using namespace std;
@@ -38,6 +39,7 @@ private:
   YARPOutputPortOf<YVector> positionsPort;
   YARPOutputPortOf<YVector> torquesPort;
   FILE *dumpFile;
+  IterativeStats _stats;
 };
 
 int main()
@@ -54,31 +56,33 @@ int main()
   sprintf(path,"%s/%s", GetYarpRoot(), ConfigFilePath);
 
   if (arm.initialize(path, "arm.ini") == YARP_OK)
-    printf("Init was OK");
+    printf("Init was OK\n");
   else
-    printf("Init was NOT OK");
+    {
+      printf("Troubles opening YARPArm\n");
+      exit(-1);
+    }
 
   sampler.start();
-  ACE_OS::printf("Entering loop\n");
   while(1)
-    {
-      int msg;
-      _inputPort.Read();
-      ACE_OS::printf("got a new bottle\n");
+     {
+       int msg;
+       ACE_OS::printf("Waiting for a new command\n");
+       _inputPort.Read();
+       ACE_OS::printf("got a new bottle\n");
 	  
-      YARPBottle &bot = _inputPort.Content();
-      bot.display();
+       YARPBottle &bot = _inputPort.Content();
+       bot.display();
 	  
-      bool ret = bot.readInt(&msg);
-      if (ret && msg==MESSAGE_LABEL)
-	{
-	  bot.readInt(&msg);
-	  _handleMsg(msg, bot, arm);
-	}
-      else
-	ACE_OS::printf("Warning the message is not for me, skipping it\n");
-
-    }
+       bool ret = bot.readInt(&msg);
+       if (ret && msg==MESSAGE_LABEL)
+ 	{
+ 	  bot.readInt(&msg);
+ 	  _handleMsg(msg, bot, arm);
+ 	}
+       else
+ 	ACE_OS::printf("Warning the message is not for me, skipping it\n");
+     }
 }
 
 void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
@@ -190,14 +194,32 @@ void ArmSampler::doInit()
 void ArmSampler::doLoop()
 {
   int ret1,ret2,ret3;
+
+  double t1=YARPTime::GetTimeAsSeconds();
   ret1 = arm->getPositions(positions.data());
+  ACE_ASSERT(ret1==YARP_OK);
   ret2 = arm->getTorques(torques.data());
-		
+  ACE_ASSERT(ret2==YARP_OK);
+  double t2=YARPTime::GetTimeAsSeconds();
+  
+  _stats+=(t2-t1);
+#if 0
+  if (_stats.elem()==100)
+    {
+      fprintf(stderr, "Time: %lf +/- %lf\n", _stats.get_mean(), _stats.get_std());
+      _stats.reset();
+    }
+#endif
   torquesPort.Content()=torques;
   positionsPort.Content()=positions;
 
-  if (dumpFile!=NULL)
-    {
+  //  fprintf(stderr, ".");
+ for(int k = 0; k<4; k++)
+    printf("%lf\t", positions(k+1));
+  printf("\n");
+
+  //  if (dumpFile!=NULL)
+  //    {
       //      for(int k=0;k<_nj;k++)
       //	fprintf(dumpFile, "%lf\t", positions[k]);
       //      for(int k=0;k<_nj;k++)
@@ -205,8 +227,8 @@ void ArmSampler::doLoop()
 
       //      printf("%lf\n", positions[3]);
 
-      fprintf(dumpFile, "\n");
-    }
+  //  fprintf(dumpFile, "\n");
+  //    }
 
   torquesPort.Write();
   positionsPort.Write();
