@@ -487,7 +487,7 @@ This represents all that can be done with the device driver: the actual interfac
     };
 \end{verbatim}
 
-\noindent where the type {\em PICOLOHANDLE} is specific to the original device library. Clearly, you are very free here to create the resource class that suits your needs. The device driver constructor should then allocate the {\em system\_resources} class and create the function pointers table as shown next:
+\noindent where the type {\em PICOLOHANDLE} is specific to the original device library. Clearly, you are very free here to create the resource class that suits your needs. The implementation must be hidden to the interface, thus the resource class should be defined and used only within the implementation of the device driver. For instance, the type {\em PICOLOHANDLE} should never appear in the interface. The device driver constructor should then allocate the {\em system\_resources} class and create the function pointers table as shown next:
 
 \begin{verbatim}
     YARPPicoloDeviceDriver::YARPPicoloDeviceDriver(void) : 
