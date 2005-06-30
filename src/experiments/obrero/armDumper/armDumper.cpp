@@ -31,6 +31,12 @@ int main()
 	_inPortPosition.Register("/armDumper/positions/i:vect");
 
 	FILE *fp=fopen(filename, "w");
+	if (fp==NULL)
+	  {
+	    printf("ERROR opening file\n");
+	    exit(-1);
+	  }
+
 	int counter = 0;
 	while(true)
 	  {
@@ -49,7 +55,7 @@ int main()
 	      {
 		fprintf(stderr, "dumping...\n");
 		fclose(fp);
-		fp=fopen(filename, "w");
+		fp=fopen(filename, "a");
 	      }
 	  }
 }

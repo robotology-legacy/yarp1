@@ -56,10 +56,10 @@ int main()
   sprintf(path,"%s/%s", GetYarpRoot(), ConfigFilePath);
 
   if (arm.initialize(path, "arm.ini") == YARP_OK)
-    printf("Init was OK\n");
+    fprintf(stderr, "Init was OK\n");
   else
     {
-      printf("Troubles opening YARPArm\n");
+      fprintf(stderr, "Troubles opening YARPArm\n");
       exit(-1);
     }
 
@@ -212,12 +212,13 @@ void ArmSampler::doLoop()
 #endif
   torquesPort.Content()=torques;
   positionsPort.Content()=positions;
-
+  
+#if 0
   //  fprintf(stderr, ".");
  for(int k = 0; k<4; k++)
     printf("%lf\t", positions(k+1));
   printf("\n");
-
+#endif
   //  if (dumpFile!=NULL)
   //    {
       //      for(int k=0;k<_nj;k++)
