@@ -58,10 +58,8 @@ public:
   {
     _mutex.Wait();
     Content().writeInt(5);
-    Content().writeInt(2);
-    // I need to change this soon
     Content().writeInt(3);
-    Content().writeInt((int)v[3]);
+    Content().writeDoubleVector(v,__nj);
     Write(0);
     _mutex.Post();
   }
@@ -80,12 +78,12 @@ public:
 
   int load(char *path, char *name)
   {
-    _parseFile(path, name);
+    return _parseFile(path, name);
   }
 
   void doInit()
   {
-    //what for?
+    _current=0;
   }
 	
   void inhibit()
@@ -93,39 +91,31 @@ public:
 
   void doLoop()
   {
-    // what's the point?
+    if (_inhibited)
+      return;
+
+    _setPositions(_positions[_current]);
+    _current++;
+    if(_current==2)
+      _current=0;
+  }
+
+  void start()
+  {
+    if (YARPRateThread::isRunning())
+      _inhibited=false;
+    else
+      YARPRateThread::start();
   }
 
   void doRelease(){}
 
-  // overload
-  virtual void start(bool wait=true)
-  {
-    // the thread is useless
-  }
-
-  void up()
-  {
-    if (_inhibited)
-      return;
-    
-    _setPositions(_up);
-  }
-
-  void down()
-  {
-    if(_inhibited)
-      return;
-
-    _setPositions(_down);
-  }
-	
   void stopArm()
   {
     if (_inhibited)
       return;
 
-    //    inhibit();
+    inhibit();
     
     arm->stopMotion();
   }
@@ -133,52 +123,50 @@ public:
 private:
   void _setPositions(YVector &v)
   {
-    for(int i = 1; i<=__nj; i++)
-      printf("%lf\t", v(i));
-    printf("\n");
-
     arm->setPositions(__nj, v.data());
   }
 
-  void _parseFile(char *path, char *file)
+  int _parseFile(char *path, char *file)
   {
     YARPConfigFile cfg(path, file);
 
-    int n = __nj;
-    int length;
-    _down.Resize(__nj);
-    _up.Resize(__nj);
-	
-    cfg.get("[COMMANDS]", "Up=", _up.data(), __nj);
-    cfg.get("[COMMANDS]", "Down=", _down.data(), __nj);
+    _positions[0].Resize(__nj);
+    _positions[1].Resize(__nj);
+
+    int ret;
+    ret=cfg.get("[COMMANDS]", "Back=", _positions[0].data(), __nj);
+    ret=cfg.get("[COMMANDS]", "Forth=", _positions[1].data(), __nj);
+    
+    return ret;
   }
 
   ArmDaemon *arm;
   
-  YVector _up;
-  YVector _down;
+  YVector *_positions;
 
-  bool readyF;
   bool _inhibited;
+  int _current;
 };
 
 int main()
 {
   ACE_OS::printf("\nHello from YARP!\n\n");
 
-  //set_yarp_debug(100,100);
-
-  _inPort.Register("/armStepper/i:bot");
-
+  _inPort.Register("/armTapping/i:bot");
   // read positions from file
   char path[255];
   sprintf(path,"%s/%s", GetYarpRoot(), ConfigFilePath);
 
   ArmDaemon arm;
   ArmController controller(&arm,3000);
-  controller.load(path, "stepper.cfg");
+
+  if (controller.load(path, "armTapping.cfg")!=YARP_OK)
+    {
+      fprintf(stderr,"Error opening %s aborting...\n", "armTapping.cfg");
+      exit(-1);
+    }
 	
-  arm.Register("/armStepper/o:bot");
+  arm.Register("/armTapping/o:bot");
 	
   printf("Listening...\n");
 
@@ -192,11 +180,11 @@ int main()
       int iTmp;
       if(tmp.readInt(&iTmp))
 	{
-	  if (iTmp==7)
+	  if (iTmp==8)
 	    {	
 	      if (tmp.readInt(&iTmp))
 		{
-		  printf("Message ID %d\n", iTmp);
+		  //printf("Message ID %d\n", iTmp);
 		  if (iTmp==3)
 		    {
 		      // stop arm
@@ -205,16 +193,12 @@ int main()
 		  else if (iTmp==1)
 		    {
 		      // start arm
-		      controller.up();	// wait
-		    }
-		  else if (iTmp==2)
-		    {
-		      controller.down();
+		      controller.start();
 		    }
 		}
 	      else
 		{
-		  printf("Sorry message not known\n");
+		  fprintf(stderr, "ArmTapping: Sorry message not known\n");
 		}
 	    }
 	  else

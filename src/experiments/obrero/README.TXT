@@ -243,7 +243,30 @@ int 7 int 1 int z int f : relative zoom (+z narrows, -z widens)
 int 7 int 2 : zoom out (wide) max
 int 7 int 3 : zoom in (narrow) max
 
+*************************************************************************
+*** MODULE "armStepper"
+Run on any machine
+input ports:
+/armStepper/i:bot
+/armStepper/o:bot
 
+connect to the armDaemon (connectStepper)
+
+int 7 int 1 : move up (stop automatically after ceratin delta)
+int 7 int 2 : move down (stop automatically after certain delta)
+int 7 int 3 : stop arm at any time
+
+*************************************************************************
+*** MODULE "armTapping"
+Run on any machine
+input ports:
+/armTapping/i:bot
+/armTapping/o:bot
+
+connect to the armDaemon (connectArmTapping)
+
+int 8 int 1 : start
+int 8 int 2 : stop
 
 *************************************************************************
 *************************************************************************
