@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.h,v 1.1 2005-06-29 15:47:53 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.h,v 1.2 2005-07-05 19:58:00 natta Exp $
 ///
 ///
 /// Implements device driver for the Peak usb to can board. The driver
@@ -83,6 +83,7 @@ public: //later private:
 	
 	int getPosition(void *cmd);
 	int setPosition(void *cmd);
+	int setPositions(void *cmd);
 	int setPositionMode(void *cmd);
 	int setForceMode(void *cmd);
 	
@@ -99,11 +100,12 @@ public: //later private:
 
 	int getPIDError(void *cmd);
 	int relativeMotion(void *cmd);
+	int relativeMotionMultiple(void *cmd);
 	/*
 	int getRefPosition (void *cmd);
 	int getRefPositions(void *cmd);
 	int setPosition(void *cmd);
-	int setPositions(void *cmd);
+
 	int getError(void *cmd);
 	int setSpeed(void *cmd);
 	int setSpeeds(void *cmd);
@@ -148,7 +150,7 @@ public: //later private:
 	*/
 	
 	// LATER: inline
-	int _readUWord(char msg, char joint, int &value);
+	int _readUWord(char msg, char joint, unsigned int &value);
 	int _readSWord(char msg, char joint, int &value);
 
 	int _readU16Vector(char msg, double *v, int n);
@@ -159,12 +161,16 @@ public: //later private:
 	int _writeWord(char msg);
 	int _readPWMGroup(char msg, double *v, int n);
 
+	int _writeVector(char msg, const int *values, int n);
+	int _writeU16Vector(char msg, const double *values, int n);
+	int _writeS16Vector(char msg, const double *values, int n);
+ 
 	void readDebugger();
 	
 protected:
 	YARPSemaphore _mutex;
 	PeakHelper _canPort;
-	char _message[8];
+	unsigned char _message[8];
 	double *_tmpDouble;
 	int _nj;
 };

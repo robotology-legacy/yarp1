@@ -66,8 +66,8 @@ public:
 	PeakHelper();
 	virtual ~PeakHelper();
 
-	int write(const char *data);
-	int read(char *data);
+	int write(const unsigned char *data);
+	int read(unsigned char *data);
 	int read();
 
 	int close();

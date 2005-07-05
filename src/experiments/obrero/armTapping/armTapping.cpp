@@ -59,7 +59,9 @@ public:
     _mutex.Wait();
     Content().writeInt(5);
     Content().writeInt(3);
-    Content().writeDoubleVector(v,__nj);
+    //    Content().writeDoubleVector(v,__nj);
+    Content().writeInt(2);
+    Content().writeInt((int)v[2]);
     Write(0);
     _mutex.Post();
   }
@@ -185,7 +187,7 @@ int main()
 	      if (tmp.readInt(&iTmp))
 		{
 		  //printf("Message ID %d\n", iTmp);
-		  if (iTmp==3)
+		  if (iTmp==2)
 		    {
 		      // stop arm
 		      controller.stopArm();

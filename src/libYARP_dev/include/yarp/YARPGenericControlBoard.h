@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.23 2005-06-21 15:02:13 gmetta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.24 2005-07-05 19:57:58 natta Exp $
 ///
 ///
 
@@ -135,7 +135,7 @@ public:
 class YARPGenericControlParameters
 {
 public:
-	int _nj;
+ 	int _nj;
 
 	double *_zeros;
 	double *_signs;
@@ -260,16 +260,16 @@ public:
 	 */
 	int initialize(const YARPString &path, const YARPString &init_file)
 	{
-		_lock();
-		int ret = _parameters.load(path, init_file);
-		if (ret==YARP_FAIL)
-		{
-			_unlock();
-			return ret;
-		}
-		ret = _initialize();
-		_unlock();
-		return ret;
+	  _lock();
+	  int ret = _parameters.load(path, init_file);
+	  if (ret==YARP_FAIL)
+	    {
+	      _unlock();
+	      return ret;
+	    }
+	  ret = _initialize();
+	  _unlock();
+	  return ret;
 	}
 
 	/**
@@ -520,7 +520,7 @@ public:
 											_parameters._encoderToAngles[i],
 											_parameters._zeros[i],
 											(int) _parameters._signs[i]);
-
+		
 		_adapter.IOCtl(CMDSetPositions, _temp_double);
 		_unlock();
 		return YARP_OK;
@@ -934,6 +934,25 @@ public:
 		}
 		_unlock();
 		return YARP_FAIL;
+	}
+
+	/**      
+ 	 * Perform a relative movement on all axis.
+	 * @values a vector which contains how much to move each axis for (deg).
+	 * @return YARP_OK on success, YARP_FAIL otherwise.
+	 */
+	int setPositionsRelative (double *pos)
+	{                  
+	  _lock();
+	  for (int i = 0; i < _parameters._nj; i++)
+	    _temp_double[_parameters._axis_map[i]] = angleToEncoder(pos[i],
+								    _parameters._encoderToAngles[i],
+								    0,
+								    (int) _parameters._signs[i]);
+	  
+	  _adapter.IOCtl(CMDRelativeMotionMultiple, _temp_double);
+	  _unlock();
+	  return YARP_OK;
 	}
 
 	/**

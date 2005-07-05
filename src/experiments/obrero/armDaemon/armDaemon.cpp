@@ -73,6 +73,7 @@ int main()
 	  
        YARPBottle &bot = _inputPort.Content();
        bot.display();
+       printf("\n");
 	  
        bool ret = bot.readInt(&msg);
        if (ret && msg==MESSAGE_LABEL)
@@ -117,11 +118,11 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
 
       // LATER: we want to use the setPositions functions
       // however we dont want to move the wrist yet.
-      //arm.setPositions(tmpVector);
-      arm.setPosition(0, tmpVector[0]);
-      arm.setPosition(1, tmpVector[1]);
-      arm.setPosition(2, tmpVector[2]);
-      arm.setPosition(3, tmpVector[3]);
+      arm.setPositions(tmpVector);
+      //arm.setPosition(0, tmpVector[0]);
+      //      arm.setPosition(1, tmpVector[1]);
+      //    arm.setPosition(2, tmpVector[2]);
+      //      arm.setPosition(3, tmpVector[3]);
       ACE_OS::printf("setting position: ");
       for(int k = 0; k<6; k++)
 	ACE_OS::printf("%lf\t",tmpVector[k]);
@@ -155,6 +156,17 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
     case 4:
       arm.stopMotion();
       break;
+    case 5:
+      ret = bot.readDoubleVector(tmpVector, nj);
+      if (!ret)
+	{
+	  //try reading int vector
+	  ret = bot.readIntVector(tmpIntVector, nj);
+	  for(j=0;j<nj;j++)
+	    tmpVector[j]=(double)tmpIntVector[j];
+	}
+      arm.setPositionsRelative(tmpVector);
+      break;
     default:
       ACE_OS::printf("Message not recognized, nothing done\n");
     }
@@ -162,9 +174,9 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
 }
 
 ///////////////// ArmSampler class
-ArmSampler::ArmSampler(YARPArm *p, int rate): YARPRateThread("ArmSamplerThread", rate),
-					      positionsPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST),
-					      torquesPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
+ArmSampler::ArmSampler(YARPArm *p, int rate): YARPRateThread("ArmSamplerThread", rate)//,
+					      //positionsPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST),
+					      //torquesPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 {
   arm=p;
   _nj = arm->nj();

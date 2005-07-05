@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPObreroArm.h,v 1.3 2005-06-29 15:46:15 natta Exp $
+///  $Id: YARPObreroArm.h,v 1.4 2005-07-05 19:58:00 natta Exp $
 ///
 ///
 
@@ -82,12 +82,15 @@
 //#include <yarp/YARPSCIOnObreroArmAdapter.h>
 #include <yarp/YARPPeakOnObreroArmAdapter.h>
 
-//class YARPObreroArm: public YARPGenericControlBoard<YARPSciOnObreroArmAdapter, YARPObreroArmParameters>
-//{};
+#if 0
+class YARPObreroArm: public YARPGenericControlBoard<YARPSciOnObreroArmAdapter, YARPObreroArmParameters>
+{};
+#endif
 
 class YARPObreroArm: public YARPGenericControlBoard<YARPPeakOnObreroArmAdapter, YARPObreroArmParameters>
 {
  public:
+#if 0
   int getPosition(int k, double *p)
     {
       int ret;
@@ -98,6 +101,7 @@ class YARPObreroArm: public YARPGenericControlBoard<YARPPeakOnObreroArmAdapter, 
       ret = _adapter.IOCtl(CMDGetPosition, &cmd);
       return ret;
     }
+#endif 
 };
 
 #endif

@@ -54,14 +54,23 @@ public:
     _mutex.Post();
   }
 
-  void setPositions(int nj, double *v)
+  void setPositions(int n, double *v)
+  {
+    _mutex.Wait();
+    Content().writeInt(5);
+    Content().writeInt(5);
+    Content().writeDoubleVector(v,n);
+    Write(0);
+    _mutex.Post();
+  }
+  void setPosition(int j, double v)
   {
     _mutex.Wait();
     Content().writeInt(5);
     Content().writeInt(2);
     // I need to change this soon
-    Content().writeInt(3);
-    Content().writeInt((int)v[3]);
+    Content().writeInt(j);
+    Content().writeInt((int)v);
     Write(0);
     _mutex.Post();
   }
@@ -119,6 +128,22 @@ public:
 
     _setPositions(_down);
   }
+
+  void back()
+  {
+    if (_inhibited)
+      return;
+    
+    _setPositions(_back);
+  }
+
+  void forth()
+  {
+    if (_inhibited)
+      return;
+    
+    _setPositions(_forth);
+  }
 	
   void stopArm()
   {
@@ -131,13 +156,21 @@ public:
   }
 
 private:
+#if 0
   void _setPositions(YVector &v)
   {
     for(int i = 1; i<=__nj; i++)
       printf("%lf\t", v(i));
     printf("\n");
 
-    arm->setPositions(__nj, v.data());
+    for(int k=0;k<4;k++)
+      arm->setPosition(k, v(k+1));
+  }
+#endif
+
+  void _setPositions(YVector &v)
+  {
+    arm->setPositions(v.Length(), v.data());
   }
 
   void _parseFile(char *path, char *file)
@@ -148,15 +181,21 @@ private:
     int length;
     _down.Resize(__nj);
     _up.Resize(__nj);
+    _back.Resize(__nj);
+    _forth.Resize(__nj);
 	
     cfg.get("[COMMANDS]", "Up=", _up.data(), __nj);
     cfg.get("[COMMANDS]", "Down=", _down.data(), __nj);
+    cfg.get("[COMMANDS]", "Back=", _back.data(), __nj);
+    cfg.get("[COMMANDS]", "Forth=", _forth.data(), __nj);
   }
 
   ArmDaemon *arm;
   
   YVector _up;
   YVector _down;
+  YVector _back;
+  YVector _forth;
 
   bool readyF;
   bool _inhibited;
@@ -197,20 +236,16 @@ int main()
 	      if (tmp.readInt(&iTmp))
 		{
 		  printf("Message ID %d\n", iTmp);
-		  if (iTmp==3)
-		    {
-		      // stop arm
-		      controller.stopArm();
-		    }
+		  if (iTmp==5)
+		    controller.stopArm();
 		  else if (iTmp==1)
-		    {
-		      // start arm
-		      controller.up();	// wait
-		    }
+		    controller.up();
 		  else if (iTmp==2)
-		    {
-		      controller.down();
-		    }
+		    controller.down();
+		  else if (iTmp=3)
+		    controller.back();
+		  else if (iTmp=4)
+		    controller.forth();
 		}
 	      else
 		{

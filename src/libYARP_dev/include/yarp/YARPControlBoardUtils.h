@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPControlBoardUtils.h,v 1.9 2005-06-16 10:14:34 babybot Exp $
+/// $Id: YARPControlBoardUtils.h,v 1.10 2005-07-05 19:57:58 natta Exp $
 ///
 ///
 
@@ -129,6 +129,7 @@ enum ControlBoardCmd
 	CMDSafeVMove			= 71,	// velocity move, check frames left before submitting command.
 
 	CMDRelativeMotion		= 91,   // peform relative motion on a single axis
+	CMDRelativeMotionMultiple       = 92,   // perform relative motion on multiple axis
 
 	CMDCheckMotionDone 		= 48,	// check for motion done.
 	CMDWaitForMotionDone 	= 49,	// wait (loop with sleep).
@@ -200,7 +201,7 @@ enum ControlBoardCmd
 	// Make sure the CBNCmds is always up to date.
 	//
 	CMDDummy 				= 63,	// dummy command for debug purposes.
-	CBNCmds 				= 92 	// required! tells the total number of commands
+	CBNCmds 				= 93 	// required! tells the total number of commands
 };
 
 

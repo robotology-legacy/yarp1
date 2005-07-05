@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.1 2005-06-29 15:47:53 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.2 2005-07-05 19:57:59 natta Exp $
 ///
 ///
 
@@ -53,6 +53,7 @@ YARPPeakSerialDeviceDriver::YARPPeakSerialDeviceDriver(void)
   m_cmds[CMDGetPositions] = &YARPPeakSerialDeviceDriver::getPositions;
   m_cmds[CMDSetPositionControlMode] = &YARPPeakSerialDeviceDriver::setPositionMode;
   m_cmds[CMDSetPosition] = &YARPPeakSerialDeviceDriver::setPosition;
+  m_cmds[CMDSetPositions] = &YARPPeakSerialDeviceDriver::setPositions;
   m_cmds[CMDGetSpeeds] = &YARPPeakSerialDeviceDriver::getSpeeds;
   m_cmds[CMDGetAccelerations] = &YARPPeakSerialDeviceDriver::getAccelerations;
   m_cmds[CMDGetSpeed] = &YARPPeakSerialDeviceDriver::getSpeed;
@@ -65,6 +66,8 @@ YARPPeakSerialDeviceDriver::YARPPeakSerialDeviceDriver(void)
 
   m_cmds[CMDGetPIDError] = &YARPPeakSerialDeviceDriver::getPIDError;
   m_cmds[CMDRelativeMotion] = &YARPPeakSerialDeviceDriver::relativeMotion;
+  m_cmds[CMDRelativeMotionMultiple] = &YARPPeakSerialDeviceDriver::relativeMotionMultiple;
+
   _nj = 0;
 
   _tmpDouble = NULL;
@@ -72,50 +75,50 @@ YARPPeakSerialDeviceDriver::YARPPeakSerialDeviceDriver(void)
 
 YARPPeakSerialDeviceDriver::~YARPPeakSerialDeviceDriver ()
 {
-	if (_tmpDouble != NULL)
-		delete [] _tmpDouble;
+  if (_tmpDouble != NULL)
+    delete [] _tmpDouble;
 }
 
 int YARPPeakSerialDeviceDriver::open (void *res)
 {
-	_mutex.Wait();
+  _mutex.Wait();
 
-	PeakOpenParameters *par = (PeakOpenParameters *)(res);
-	_nj = par->_njoints;
-	int ret = _canPort.open(par);
+  PeakOpenParameters *par = (PeakOpenParameters *)(res);
+  _nj = par->_njoints;
+  int ret = _canPort.open(par);
 
-	ACE_ASSERT (_nj==__nj);	// LATER: remove this and __nj
+  ACE_ASSERT (_nj==__nj);	// LATER: remove this and __nj
 	
-	if (_tmpDouble != NULL)
-		delete [] _tmpDouble;
-	_tmpDouble = new double[_nj];
+  if (_tmpDouble != NULL)
+    delete [] _tmpDouble;
+  _tmpDouble = new double[_nj];
 	
-	_mutex.Post();
+  _mutex.Post();
 
-	return ret;
+  return ret;
 }
 
 int YARPPeakSerialDeviceDriver::close (void)
 {
-	_mutex.Wait(); 
-
-	int ret = _canPort.close();
+  _mutex.Wait(); 
+  
+  int ret = _canPort.close();
 	
-	if (_tmpDouble != NULL)
-		delete [] _tmpDouble;
+  if (_tmpDouble != NULL)
+    delete [] _tmpDouble;
 
-	_tmpDouble = NULL;
+  _tmpDouble = NULL;
 
-	_mutex.Post();
-	return ret;
+  _mutex.Post();
+  return ret;
 }
 
 int YARPPeakSerialDeviceDriver::getPosition(void *cmd)
 {
-	int ret;
+  int ret;
 	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
 	const int axis = tmp->axis;
-	int value;
+	unsigned int value;
 
 	ACE_ASSERT (axis >= 0 && axis <= (MAX_ADC));
 
@@ -192,150 +195,182 @@ int YARPPeakSerialDeviceDriver::setPosition(void *cmd)
 
 int YARPPeakSerialDeviceDriver::relativeMotion(void *cmd)
 {
-	int ret;
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	double value = *((double *) tmp->parameters);
+  int ret;
+  SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+  const int axis = tmp->axis;
+  double value = *((double *) tmp->parameters);
 
-	ret = _writeWord(CAN_RELATIVE_MOTION, axis, (int)(value));
-	return ret;
+  ret = _writeWord(CAN_RELATIVE_MOTION, axis, (int)(value));
+  return ret;
+}
+
+int YARPPeakSerialDeviceDriver::relativeMotionMultiple(void *cmd)
+{
+  int ret;
+  
+  double *tmp = (double *) cmd;
+
+  ret =  _writeS16Vector(CAN_RELATIVE_MOTION_0TO2, tmp, 3);
+ 
+  if (ret!=YARP_OK)
+    return ret;
+  
+  ret = _writeS16Vector(CAN_RELATIVE_MOTION_3TO5, tmp+3, 3);
+
+  return ret;
+}
+
+int YARPPeakSerialDeviceDriver::setPositions(void *cmd)
+{
+  int ret;
+  
+  double *tmp = (double *) cmd;
+
+  ret =  _writeU16Vector(CAN_SET_POSITIONS_0TO2, tmp, 3);
+ 
+  if (ret!=YARP_OK)
+    return ret;
+  
+  ret = _writeU16Vector(CAN_SET_POSITIONS_3TO5, tmp+3, 3);
+
+  return ret;
 }
 
 int YARPPeakSerialDeviceDriver::getPWM(void *cmd)
 {
-	int ret;
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
+  int ret;
+  SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+  const int axis = tmp->axis;
 
-	ACE_ASSERT (axis >= 0 && axis <= __nj);
+  ACE_ASSERT (axis >= 0 && axis <= __nj);
 
-	ret = _readPWMGroup(CAN_READ_PWMS_0TO2, _tmpDouble, 3);
-	if (ret == YARP_FAIL)
-		return YARP_FAIL;
+  ret = _readPWMGroup(CAN_READ_PWMS_0TO2, _tmpDouble, 3);
+  if (ret == YARP_FAIL)
+    return YARP_FAIL;
 
-	ret = _readPWMGroup(CAN_READ_PWMS_3TO5, _tmpDouble+3, 3);
-	// if ret != YARP_OK _tmpDouble[..] = 0, so no need to check ret
-	*((double *)tmp->parameters) = _tmpDouble[axis];
-	return ret;
+  ret = _readPWMGroup(CAN_READ_PWMS_3TO5, _tmpDouble+3, 3);
+  // if ret != YARP_OK _tmpDouble[..] = 0, so no need to check ret
+  *((double *)tmp->parameters) = _tmpDouble[axis];
+  return ret;
 }
 
 int YARPPeakSerialDeviceDriver::getPWMs(void *cmd)
 {	
-	int ret;
-	double * tmp = (double *) cmd;
+  int ret;
+  double * tmp = (double *) cmd;
 
-	ret = _readPWMGroup(CAN_READ_PWMS_0TO2, tmp, 3);
-	if (ret == YARP_FAIL)
-		return YARP_FAIL;
+  ret = _readPWMGroup(CAN_READ_PWMS_0TO2, tmp, 3);
+  if (ret == YARP_FAIL)
+    return YARP_FAIL;
 
-	ret = _readPWMGroup(CAN_READ_PWMS_3TO5, tmp+3, 3);
+  ret = _readPWMGroup(CAN_READ_PWMS_3TO5, tmp+3, 3);
 
-	// if ret != YARP_OK tmp[..] = 0, so no need to check ret
-	return ret;
+  // if ret != YARP_OK tmp[..] = 0, so no need to check ret
+  return ret;
 }
 
 
 int YARPPeakSerialDeviceDriver::getTorque(void *cmd)
 {
-	int ret;
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
+  int ret;
+  SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+  const int axis = tmp->axis;
 
-	ACE_ASSERT (axis >= 0 && axis <= __nj);
+  ACE_ASSERT (axis >= 0 && axis <= __nj);
 
-	ret = _readS16Vector(CAN_READ_TORQUES_0TO3, _tmpDouble, 4);
-	if (ret == YARP_FAIL)
-		return YARP_FAIL;
+  ret = _readS16Vector(CAN_READ_TORQUES_0TO3, _tmpDouble, 4);
+  if (ret == YARP_FAIL)
+    return YARP_FAIL;
 
-	ret = _readS16Vector(CAN_READ_TORQUES_4TO5, _tmpDouble+4, 2);
+  ret = _readS16Vector(CAN_READ_TORQUES_4TO5, _tmpDouble+4, 2);
 	
-	*((double *)tmp->parameters) = _tmpDouble[axis];
+  *((double *)tmp->parameters) = _tmpDouble[axis];
 	
-	return YARP_OK;
+  return YARP_OK;
 }
 
 
 int YARPPeakSerialDeviceDriver::getTorques(void *cmd)
 {
-	int ret;
-	ACE_ASSERT (cmd!=NULL);
-	double *tmp = (double *) cmd;
+  int ret;
+  ACE_ASSERT (cmd!=NULL);
+  double *tmp = (double *) cmd;
 
-	ret = _readS16Vector(CAN_READ_TORQUES_0TO3, tmp, 4);
-	if (ret == YARP_FAIL)
-		return YARP_FAIL;
+  ret = _readS16Vector(CAN_READ_TORQUES_0TO3, tmp, 4);
+  if (ret == YARP_FAIL)
+    return YARP_FAIL;
 
-	ret = _readS16Vector(CAN_READ_TORQUES_4TO5, tmp+4, 2);
+  ret = _readS16Vector(CAN_READ_TORQUES_4TO5, tmp+4, 2);
 
-	return YARP_OK;
+  return YARP_OK;
 }
 
 int YARPPeakSerialDeviceDriver::readAnalog(void *cmd)
 {
-	int ret;
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
-	int value;
+  int ret;
+  SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+  const int axis = tmp->axis;
+  unsigned int value;
 
-	ACE_ASSERT (axis >= 0 && axis <= (MAX_ADC));
+  ACE_ASSERT (axis >= 0 && axis <= (MAX_ADC));
 
-	ret = _readUWord(CAN_READ_ANALOG, axis, value);
-	// if ret != YARP_OK value == 0, so no need to check ret
-	*((double *)tmp->parameters) = (double) (value);
-	return ret;
+  ret = _readUWord(CAN_READ_ANALOG, axis, value);
+  // if ret != YARP_OK value == 0, so no need to check ret
+  *((double *)tmp->parameters) = (double) (value);
+  return ret;
 }
 
 int YARPPeakSerialDeviceDriver::getSpeed(void *cmd)
 {
-	int ret;
-	SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
-	const int axis = tmp->axis;
+  int ret;
+  SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+  const int axis = tmp->axis;
 
-	ret = _readS16Vector(CAN_READ_SPEEDS_0TO3, _tmpDouble, 4);
-	if (ret == YARP_FAIL)
-		return YARP_FAIL;
+  ret = _readS16Vector(CAN_READ_SPEEDS_0TO3, _tmpDouble, 4);
+  if (ret == YARP_FAIL)
+    return YARP_FAIL;
 
-	ret = _readS16Vector(CAN_READ_SPEEDS_4TO5, _tmpDouble+4, 2);
+  ret = _readS16Vector(CAN_READ_SPEEDS_4TO5, _tmpDouble+4, 2);
 
-	*((double *)tmp->parameters) = (double) _tmpDouble[axis];
-	return ret;
+  *((double *)tmp->parameters) = (double) _tmpDouble[axis];
+  return ret;
 }
 
 int YARPPeakSerialDeviceDriver::getSpeeds(void *cmd)
 {
-	int ret;
-	ACE_ASSERT (cmd!=NULL);
-	double *tmp = (double *) cmd;
-	ret = _readS16Vector(CAN_READ_SPEEDS_0TO3, tmp, 4);
-	if (ret == YARP_FAIL)
-		return YARP_FAIL;
+  int ret;
+  ACE_ASSERT (cmd!=NULL);
+  double *tmp = (double *) cmd;
+  ret = _readS16Vector(CAN_READ_SPEEDS_0TO3, tmp, 4);
+  if (ret == YARP_FAIL)
+    return YARP_FAIL;
 
-	ret = _readS16Vector(CAN_READ_SPEEDS_4TO5, tmp+4, 2);
-	return YARP_OK;
+  ret = _readS16Vector(CAN_READ_SPEEDS_4TO5, tmp+4, 2);
+  return YARP_OK;
 }
 
 int YARPPeakSerialDeviceDriver::getAccelerations(void *cmd)
 {
-	int ret;
-	ACE_ASSERT (cmd!=NULL);
-	double *tmp = (double *) cmd;
+  int ret;
+  ACE_ASSERT (cmd!=NULL);
+  double *tmp = (double *) cmd;
 
-	ret = _readS16Vector(CAN_READ_ACCS_0TO3, tmp, 4);
-	if (ret == YARP_FAIL)
-		return YARP_FAIL;
+  ret = _readS16Vector(CAN_READ_ACCS_0TO3, tmp, 4);
+  if (ret == YARP_FAIL)
+    return YARP_FAIL;
 
-	ret = _readS16Vector(CAN_READ_ACCS_4TO5, tmp+4, 2);
+  ret = _readS16Vector(CAN_READ_ACCS_4TO5, tmp+4, 2);
 
-	return YARP_OK;
+  return YARP_OK;
 }
 
 int YARPPeakSerialDeviceDriver::servoHere(void *cmd)
 {
-	int ret;
+  int ret;
 
-	ret = _writeWord(CAN_STOP);
+  ret = _writeWord(CAN_STOP);
 
-	return ret;
+  return ret;
 }
 
 int YARPPeakSerialDeviceDriver::_readPWMGroup(char msg, double *v, int n)
@@ -370,9 +405,9 @@ int YARPPeakSerialDeviceDriver::_readPWMGroup(char msg, double *v, int n)
       for (int i = 0; i < n; i++)
 	{	
 	  if (signs&mask) 
-	    v[i] = _message[jj]+_message[jj+1]*256;
+	    v[i] = (unsigned int) _message[jj]+ ( (unsigned int) _message[jj+1]<<8);
 	  else
-	    v[i] = -(_message[jj]+_message[jj+1]*256);
+	    v[i] = -( (unsigned int) _message[jj]+ ( (unsigned int) _message[jj+1]<<8));
 			
 	  jj+=2;
 	}
@@ -419,6 +454,7 @@ int YARPPeakSerialDeviceDriver::_readS16Vector(char msg, double *v, int n)
 int YARPPeakSerialDeviceDriver::_readU16Vector(char msg, double *v, int n)
 {
   int ret;
+  ACE_ASSERT(n<=4);
 
   _message[0] = msg;
 
@@ -444,7 +480,7 @@ int YARPPeakSerialDeviceDriver::_readU16Vector(char msg, double *v, int n)
       int jj = 0;
       for (int i = 0; i <n; i++)
 	{
-	  v[i] = (_message[jj]+_message[jj+1]*256);
+	  v[i] = ((unsigned int) _message[jj]+( (unsigned int) _message[jj+1]<<8));
 	  jj+=2;
 	}
       return YARP_OK;
@@ -480,7 +516,7 @@ int YARPPeakSerialDeviceDriver::_readSWord(char msg, char joint, int &value)
     }
 }
 
-int YARPPeakSerialDeviceDriver::_readUWord(char msg, char joint, int &value)
+int YARPPeakSerialDeviceDriver::_readUWord(char msg, char joint, unsigned int &value)
 {
   int ret;
 
@@ -491,7 +527,7 @@ int YARPPeakSerialDeviceDriver::_readUWord(char msg, char joint, int &value)
 
   if (ret != YARP_OK)
     {
-      value = -1;
+      value = 0;
       return ret;
     }
 
@@ -504,7 +540,7 @@ int YARPPeakSerialDeviceDriver::_readUWord(char msg, char joint, int &value)
     }
   else
     {
-      value = (_message[0]+_message[1]*256);
+      value = ((unsigned int) _message[0]+ ( (unsigned int) _message[1]<<8) );
       return YARP_OK;
     }
 }
@@ -534,6 +570,78 @@ int YARPPeakSerialDeviceDriver::_writeWord(char msg, char joint, int value)
 
   ret = _canPort.write(_message);
   // given the protocol for each write we have a read back
+  ret = _canPort.read();
+
+  return ret;
+}
+
+int YARPPeakSerialDeviceDriver::_writeVector(char msg, const int *values, int n)
+{
+  int ret;
+  int k;
+  unsigned char *tmp;
+
+  ACE_ASSERT(n<=3);
+
+  tmp = (unsigned char *) (values);
+
+  _message[0] = msg;
+  
+  for(k=0; k<(2*n); k++)
+    _message[k+1]=tmp[k];
+
+  ret = _canPort.write(_message);
+  // given the protocol for each write we have a read back
+  ret = _canPort.read();
+
+  return ret;
+}
+
+int YARPPeakSerialDeviceDriver::_writeU16Vector(char msg, const double *values, int n)
+{
+  int ret;
+  unsigned int tmp;
+
+  ACE_ASSERT(n<=3);
+
+  _message[0] = msg;
+  
+  int k=1;
+  for(int i=0; i<n; i++)
+    {
+      tmp = (unsigned int) values[i];
+      _message[k++] = tmp;
+      _message[k++]= tmp>>8;
+    }
+
+  ret = _canPort.write(_message);
+  // given the protocol for each write we have a read back
+  ret = _canPort.read();
+
+  return ret;
+}
+
+int YARPPeakSerialDeviceDriver::_writeS16Vector(char msg, const double *values, int n)
+{
+  int ret;
+  int k;
+  int tmp;
+
+  ACE_ASSERT(n<=3);
+
+  _message[0] = msg;
+  
+  k=1;
+  for(int i=0; i<n; i++)
+    {
+      tmp = (int) values[i];
+      _message[k++] = tmp;
+      _message[k++]= tmp>>8;
+    }
+
+  ret = _canPort.write(_message);
+  // given the protocol for each write we have a read back
+
   ret = _canPort.read();
 
   return ret;

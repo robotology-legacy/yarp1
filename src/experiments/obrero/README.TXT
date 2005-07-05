@@ -254,7 +254,9 @@ connect to the armDaemon (connectStepper)
 
 int 7 int 1 : move up (stop automatically after ceratin delta)
 int 7 int 2 : move down (stop automatically after certain delta)
-int 7 int 3 : stop arm at any time
+int 7 int 3 : move back
+int 7 int 4 : move forward
+int 7 int 5 : stop arm at any time
 
 *************************************************************************
 *** MODULE "armTapping"

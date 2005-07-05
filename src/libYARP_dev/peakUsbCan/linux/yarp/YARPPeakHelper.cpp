@@ -25,7 +25,7 @@ PeakHelper::~PeakHelper()
   close();
 }
 
-int PeakHelper::write(const char *data)
+int PeakHelper::write(const unsigned char *data)
 {
   int err;
   TPCANMsg *msg = (TPCANMsg *) _outBuf;
@@ -43,7 +43,7 @@ int PeakHelper::write(const char *data)
   return YARP_OK;
 }
 
-int PeakHelper::read(char *data)
+int PeakHelper::read(unsigned char *data)
 {
   int n;
   int err;
@@ -51,7 +51,8 @@ int PeakHelper::read(char *data)
  
   // DEBUG
   err = CAN_Read(_handle, msg);
-  //  printf("Read from can %x %d\n", msg->ID, msg->LEN);
+  //printf("Read from can %x %d\n", msg->ID, msg->LEN);
+  //  fprintf(stderr, "%.2x%.2x", msg->DATA[0], msg->DATA[1]); 
     
   if (err!=CAN_ERR_OK)
     return YARP_FAIL;

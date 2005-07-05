@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakOnObreroArmAdapter.h,v 1.1 2005-06-29 15:46:15 natta Exp $
+/// $Id: YARPPeakOnObreroArmAdapter.h,v 1.2 2005-07-05 19:58:00 natta Exp $
 ///
 ///
 
@@ -94,16 +94,7 @@ namespace _ObreroArm
  * - Since the axis map is only used internally this should be of no concern for
  * the user.
  *
- * NOTE: programmatically angles are always in radians here. Conversely in 
- * configuration files the angles and conversion factors are expressed in 
- * degrees. Please make sure you convert to radians before commanding 
- * postion, speed, etc.
- *
- * NOTE: to disable a joint control at the driver level replace the address
- * of the card with itself+128. This will tell the driver to behave normally but
- * to drop the request to that card altogether.
- *
- */
+ **/
 
 #include <yarp/YARPTime.h>
 

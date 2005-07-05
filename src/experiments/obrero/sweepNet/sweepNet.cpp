@@ -240,89 +240,89 @@ private:
 
 int main()
 {
-	ACE_OS::printf("\nHello from YARP!\n\n");
+  ACE_OS::printf("\nHello from YARP!\n\n");
 
-	//set_yarp_debug(100,100);
+  //set_yarp_debug(100,100);
 
-	_inPort.Register("/sweepNet/i:bot");
+  _inPort.Register("/sweepNet/i:bot");
 
-	// read positions from file
-	char path[255];
-	sprintf(path,"%s/%s", GetYarpRoot(), ConfigFilePath);
+  // read positions from file
+  char path[255];
+  sprintf(path,"%s/%s", GetYarpRoot(), ConfigFilePath);
 
-	ArmDaemon arm;
-	ArmController controller(&arm,3000);
-	controller.load(path, "sweep.cfg");
+  ArmDaemon arm;
+  ArmController controller(&arm,3000);
+  controller.load(path, "sweep.cfg");
 	
-	arm.Register("/sweepNet/o:bot");
-	ACE_OS::printf("Please connect me to the arm daemon and hit a key");
-	char c;
-	cin >> c;
+  arm.Register("/sweepNet/o:bot");
+  // ACE_OS::printf("Please connect me to the arm daemon and hit a key");
+  //  char c;
+  //  cin >> c;
 	
-	arm.activatePID();
-	YARPTime::DelayInSeconds(2.0);
+  //arm.activatePID();
+  YARPTime::DelayInSeconds(2.0);
 
-	printf("Listening...\n");
+  printf("Listening...\n");
 
-	bool exit=false;
-	while(!exit)
-	{
-		_inPort.Read();
+  bool exit=false;
+  while(!exit)
+    {
+      _inPort.Read();
 
-		YARPBottle & tmp = _inPort.Content();
+      YARPBottle & tmp = _inPort.Content();
 		
-		int iTmp;
-		if(tmp.readInt(&iTmp))
+      int iTmp;
+      if(tmp.readInt(&iTmp))
+	{
+	  if (iTmp==3)
+	    {	
+	      if (tmp.readInt(&iTmp))
 		{
-			if (iTmp==3)
-			{	
-				if (tmp.readInt(&iTmp))
-				{
-				  printf("Message ID %d\n", iTmp);
+		  printf("Message ID %d\n", iTmp);
 #ifndef NO_ARM
-					if (iTmp==2)
-					{
-						// stop arm
-						controller.stopArm();
-					}
-					else if (iTmp==1)
-					{
-						// start arm
-						controller.ready();
-						controller.start();	// wait
-					}
-					else if (iTmp==3)
-					{
-						controller.stopArm();
-						controller.ready();
+		  if (iTmp==2)
+		    {
+		      // stop arm
+		      controller.stopArm();
+		    }
+		  else if (iTmp==1)
+		    {
+		      // start arm
+		      controller.ready();
+		      controller.start();	// wait
+		    }
+		  else if (iTmp==3)
+		    {
+		      controller.stopArm();
+		      controller.ready();
 						
-					}
-					else if (iTmp==4)
-					{
-						controller.park();
-					}
+		    }
+		  else if (iTmp==4)
+		    {
+		      controller.park();
+		    }
 #endif
-				}
-				else
-				{
-					printf("Sorry message not known\n");
-				}
-			}
-			else
-			{
-				exit = true;
-			}
 		}
-		else
+	      else
 		{
-			exit = true;
+		  printf("Sorry message not known\n");
 		}
+	    }
+	  else
+	    {
+	      exit = true;
+	    }
 	}
+      else
+	{
+	  exit = true;
+	}
+    }
 	
-	controller.terminate(0);	// no timeout
-	controller.park();
+  controller.terminate(0);	// no timeout
+  controller.park();
 	
-	ACE_OS::printf("\ndone!\n");
+  ACE_OS::printf("\ndone!\n");
 	
-	return 0;
+  return 0;
 }
