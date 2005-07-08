@@ -25,13 +25,13 @@ PeakHelper::~PeakHelper()
   close();
 }
 
-int PeakHelper::write(const unsigned char *data)
+int PeakHelper::write(const unsigned char *data, int len)
 {
   int err;
   TPCANMsg *msg = (TPCANMsg *) _outBuf;
 
-  msg->LEN=8;
-  memcpy(msg->DATA, data, 8);
+  msg->LEN=len;
+  memcpy(msg->DATA, data, msg->LEN);
 
   //  printf("Writing to can %x %d\n", msg->ID, msg->LEN);
   
@@ -57,7 +57,7 @@ int PeakHelper::read(unsigned char *data)
   if (err!=CAN_ERR_OK)
     return YARP_FAIL;
 
-  memcpy(data, msg->DATA, 8);
+  memcpy(data, msg->DATA, msg->LEN);
   
   return YARP_OK;
 }
@@ -108,4 +108,3 @@ int PeakHelper::open(PeakOpenParameters *p)
 
   return YARP_OK;
 }
-

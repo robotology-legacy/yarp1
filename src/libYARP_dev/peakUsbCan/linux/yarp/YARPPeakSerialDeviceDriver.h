@@ -27,12 +27,13 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.h,v 1.2 2005-07-05 19:58:00 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.h,v 1.3 2005-07-08 22:21:33 natta Exp $
 ///
 ///
 /// Implements device driver for the Peak usb to can board. The driver
 /// supposes a serial connection between the board and the dsp; the dsp
 /// is used as slave. 
+/// June 05 -- nat
 
 #ifndef __YARPPeakSerialDeviceDriverh__
 #define __YARPPeakSerialDeviceDriverh__
@@ -45,134 +46,134 @@
 
 
 /**
- * The sci device driver.
+ * The Peak USB/CAN device driver.
 */
 class YARPPeakSerialDeviceDriver : 
 	public YARPDeviceDriver<YARPNullSemaphore, YARPPeakSerialDeviceDriver >
 {
-private:
-	YARPPeakSerialDeviceDriver (const YARPPeakSerialDeviceDriver &);
-	void operator=(const YARPPeakSerialDeviceDriver &);
+ private:
+  YARPPeakSerialDeviceDriver (const YARPPeakSerialDeviceDriver &);
+  void operator=(const YARPPeakSerialDeviceDriver &);
 
-public:
-	/**
-	 * Constructor.
-	 */
-	YARPPeakSerialDeviceDriver ();
+ public:
+  /**
+   * Constructor.
+   */
+  YARPPeakSerialDeviceDriver ();
 
-	/**
-	 * Destructor.
-	 */
-	virtual ~YARPPeakSerialDeviceDriver ();
+  /**
+   * Destructor.
+   */
+  virtual ~YARPPeakSerialDeviceDriver ();
 
-	/**
-	 * Opens the device driver.
-	 * @param d is the pointer to the parameter structure which is expected to be
-	 * of type SciCanOpenParameters.
-	 * @return YARP_OK on success.
-	 */ 
-	virtual int open(void *d);
+  /**
+   * Opens the device driver.
+   * @param d is the pointer to the parameter structure which is expected to be
+   * of type SciCanOpenParameters.
+   * @return YARP_OK on success.
+   */ 
+  virtual int open(void *d);
 
-	/**
-	 * Closes the device driver.
-	 * @return YARP_OK on success.
-	 */
-	virtual int close(void);
+  /**
+   * Closes the device driver.
+   * @return YARP_OK on success.
+   */
+  virtual int close(void);
 
-public: //later private:
+ public: //later private:
 	
-	int getPosition(void *cmd);
-	int setPosition(void *cmd);
-	int setPositions(void *cmd);
-	int setPositionMode(void *cmd);
-	int setForceMode(void *cmd);
+  int getPosition(void *cmd);
+  int setPosition(void *cmd);
+  int setPositions(void *cmd);
+  int setPositionMode(void *cmd);
+  int setForceMode(void *cmd);
 	
-	int getPositions(void *cmd);
-	int getSpeeds(void *cmd);
-	int getAccelerations(void *cmd);
-	int getSpeed(void *cmd);
-	int getPWM(void *cmd);
-	int getPWMs(void *cmd);
-	int getTorques(void *cmd);
-	int getTorque(void *cmd);
-	int readAnalog(void *cmd);
-	int servoHere(void *cmd);
+  int getPositions(void *cmd);
+  int getSpeeds(void *cmd);
+  int getAccelerations(void *cmd);
+  int getSpeed(void *cmd);
+  int getPWM(void *cmd);
+  int getPWMs(void *cmd);
+  int getTorques(void *cmd);
+  int getTorque(void *cmd);
+  int readAnalog(void *cmd);
+  int servoHere(void *cmd);
 
-	int getPIDError(void *cmd);
-	int relativeMotion(void *cmd);
-	int relativeMotionMultiple(void *cmd);
-	/*
-	int getRefPosition (void *cmd);
-	int getRefPositions(void *cmd);
-	int setPosition(void *cmd);
+  int getPIDError(void *cmd);
+  int relativeMotion(void *cmd);
+  int relativeMotionMultiple(void *cmd);
+  /*
+    int getRefPosition (void *cmd);
+    int getRefPositions(void *cmd);
+    int setPosition(void *cmd);
 
-	int getError(void *cmd);
-	int setSpeed(void *cmd);
-	int setSpeeds(void *cmd);
-	int getRefSpeeds(void *cmd);
-	int setAcceleration(void *cmd);
-	int setAccelerations(void *cmd);
-	int getRefAccelerations(void *cmd);
-	int setOffset(void *cmd);
-	int setOffsets(void *cmd);
-	int setPid(void *cmd);
-	int getPid(void *cmd);
-	int setIntegratorLimit(void *cmd);
-	int setIntegratorLimits(void *cmd);
-	int definePosition(void *cmd);
-	int definePositions(void *cmd);
-	int enableAmp(void *cmd);
-	int disableAmp(void *cmd);
-	int controllerIdle(void *cmd);
-	int controllerRun(void *cmd);
-	int velocityMove(void *cmd);
-	int setCommand(void *cmd);
-	int setCommands(void *cmd);
+    int getError(void *cmd);
+    int setSpeed(void *cmd);
+    int setSpeeds(void *cmd);
+    int getRefSpeeds(void *cmd);
+    int setAcceleration(void *cmd);
+    int setAccelerations(void *cmd);
+    int getRefAccelerations(void *cmd);
+    int setOffset(void *cmd);
+    int setOffsets(void *cmd);
+    int setPid(void *cmd);
+    int getPid(void *cmd);
+    int setIntegratorLimit(void *cmd);
+    int setIntegratorLimits(void *cmd);
+    int definePosition(void *cmd);
+    int definePositions(void *cmd);
+    int enableAmp(void *cmd);
+    int disableAmp(void *cmd);
+    int controllerIdle(void *cmd);
+    int controllerRun(void *cmd);
+    int velocityMove(void *cmd);
+    int setCommand(void *cmd);
+    int setCommands(void *cmd);
 
-	int readBootMemory(void *cmd);
-	int writeBootMemory(void *cmd);
-	int setSwPositiveLimit(void *cmd);
-	int setSwNegativeLimit(void *cmd);
-	int getSwPositiveLimit(void *cmd);
-	int getSwNegativeLimit(void *cmd);
-	int setTorqueLimit (void *cmd);
-	int setTorqueLimits (void *cmd);
-	int getTorqueLimit (void *cmd);
-	int getTorqueLimits (void *cmd);
-	int getErrorStatus (void *cmd);
-	int checkMotionDone (void *cmd);
+    int readBootMemory(void *cmd);
+    int writeBootMemory(void *cmd);
+    int setSwPositiveLimit(void *cmd);
+    int setSwNegativeLimit(void *cmd);
+    int getSwPositiveLimit(void *cmd);
+    int getSwNegativeLimit(void *cmd);
+    int setTorqueLimit (void *cmd);
+    int setTorqueLimits (void *cmd);
+    int getTorqueLimit (void *cmd);
+    int getTorqueLimits (void *cmd);
+    int getErrorStatus (void *cmd);
+    int checkMotionDone (void *cmd);
 
-	int setDebugMessageFilter (void *cmd);
-	int setDebugPrintFunction (void *cmd);
-*/
-	/**
-	* Helpers to write/read from/to the serial port
-	*/
+    int setDebugMessageFilter (void *cmd);
+    int setDebugPrintFunction (void *cmd);
+  */
+  /**
+   * Helpers to write/read from/to the serial port
+   */
 	
-	// LATER: inline
-	int _readUWord(char msg, char joint, unsigned int &value);
-	int _readSWord(char msg, char joint, int &value);
+  // LATER: inline
+  int _readUWord(char msg, char joint, unsigned int &value);
+  int _readSWord(char msg, char joint, int &value);
 
-	int _readU16Vector(char msg, double *v, int n);
-	int _readS16Vector(char msg, double *v, int n);
+  int _readU16Vector(char msg, double *v, int n);
+  int _readS16Vector(char msg, double *v, int n);
 
-	int _writeWord(char msg, char joint, int value);
-	int _writeWord(char msg, char joint);
-	int _writeWord(char msg);
-	int _readPWMGroup(char msg, double *v, int n);
+  int _writeWord(char msg, char joint, int value);
+  int _writeWord(char msg, char joint);
+  int _writeWord(char msg);
+  int _readPWMGroup(char msg, double *v, int n);
 
-	int _writeVector(char msg, const int *values, int n);
-	int _writeU16Vector(char msg, const double *values, int n);
-	int _writeS16Vector(char msg, const double *values, int n);
+  int _writeVector(char msg, const int *values, int n);
+  int _writeU16Vector(char msg, const double *values, int n);
+  int _writeS16Vector(char msg, const double *values, int n);
  
-	void readDebugger();
+  void readDebugger();
 	
-protected:
-	YARPSemaphore _mutex;
-	PeakHelper _canPort;
-	unsigned char _message[8];
-	double *_tmpDouble;
-	int _nj;
+ protected:
+  YARPSemaphore _mutex;
+  PeakHelper _canPort;
+  unsigned char _message[8];
+  double *_tmpDouble;
+  int _nj;
 };
 
 #endif

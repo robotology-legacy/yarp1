@@ -1,5 +1,7 @@
 // YARPPeakHelper.h: interface for the PeakHelper class.
-//
+// 
+// June 2005
+// --nat
 //////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -16,7 +18,6 @@ struct PEAK_CAN_MESSAGE
   char _data[8];
 };
 
-
 //these are taken from libpcan.h
 #define PEAK_CAN_BAUD_1M     0x0014  //   1 MBit/s
 #define PEAK_CAN_BAUD_500K   0x001C  // 500 kBit/s
@@ -32,8 +33,8 @@ struct PEAK_CAN_MESSAGE
 #define PEAK_CAN_INIT_TYPE_ST                0x00    //Standart Frame
 
 /**
- * \file YARPSciDeviceDriver.h 
- * class for interfacing with the value can device driver.
+ * \file YARPPeakHelper.h 
+ * Helper class for the Peak USB/CAN board.
  */
 
 const char __defaultPortName[] = "/dev/pcan32";
@@ -62,21 +63,21 @@ struct PeakOpenParameters
 
 class PeakHelper  
 {
-public:
-	PeakHelper();
-	virtual ~PeakHelper();
+ public:
+  PeakHelper();
+  virtual ~PeakHelper();
 
-	int write(const unsigned char *data);
-	int read(unsigned char *data);
-	int read();
+  int write(const unsigned char *data, int n=8);
+  int read(unsigned char *data);
+  int read();
 
-	int close();
-	int open(PeakOpenParameters *p);
+  int close();
+  int open(PeakOpenParameters *p);
 
-private:
-	void *_inBuf;
-	void *_outBuf;
-	void *_handle;
+ private:
+  void *_inBuf;
+  void *_outBuf;
+  void *_handle;
 };
 
 #endif // h

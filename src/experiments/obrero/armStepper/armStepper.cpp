@@ -144,6 +144,14 @@ public:
     
     _setPositions(_forth);
   }
+
+  void lift()
+  {
+    if (_inhibited)
+      return;
+    
+    _setPositions(_lift);
+  }
 	
   void stopArm()
   {
@@ -156,18 +164,6 @@ public:
   }
 
 private:
-#if 0
-  void _setPositions(YVector &v)
-  {
-    for(int i = 1; i<=__nj; i++)
-      printf("%lf\t", v(i));
-    printf("\n");
-
-    for(int k=0;k<4;k++)
-      arm->setPosition(k, v(k+1));
-  }
-#endif
-
   void _setPositions(YVector &v)
   {
     arm->setPositions(v.Length(), v.data());
@@ -183,11 +179,13 @@ private:
     _up.Resize(__nj);
     _back.Resize(__nj);
     _forth.Resize(__nj);
+    _lift.Resize(__nj);
 	
     cfg.get("[COMMANDS]", "Up=", _up.data(), __nj);
     cfg.get("[COMMANDS]", "Down=", _down.data(), __nj);
     cfg.get("[COMMANDS]", "Back=", _back.data(), __nj);
     cfg.get("[COMMANDS]", "Forth=", _forth.data(), __nj);
+    cfg.get("[COMMANDS]", "Lift=", _lift.data(), __nj);
   }
 
   ArmDaemon *arm;
@@ -196,6 +194,7 @@ private:
   YVector _down;
   YVector _back;
   YVector _forth;
+  YVector _lift;
 
   bool readyF;
   bool _inhibited;
@@ -239,13 +238,15 @@ int main()
 		  if (iTmp==5)
 		    controller.stopArm();
 		  else if (iTmp==1)
-		    controller.up();
+		    controller.lift();
 		  else if (iTmp==2)
 		    controller.down();
-		  else if (iTmp=3)
+		  else if (iTmp==3)
 		    controller.back();
-		  else if (iTmp=4)
+		  else if (iTmp==4)
 		    controller.forth();
+		  else if (iTmp==6)
+		    controller.up();
 		}
 	      else
 		{
