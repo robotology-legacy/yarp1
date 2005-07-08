@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPIntegralImage.h,v 1.2 2005-06-16 10:13:53 babybot Exp $
+/// $Id: YARPIntegralImage.h,v 1.3 2005-07-08 13:24:47 orfra Exp $
 ///
 /// August 2003 -- by nat
 
@@ -85,6 +85,7 @@ public:
 	inline float get(int c, int r)
 	{ return _integralImg(c,r)/_max; }
 
+	inline double getMean(int maxX, int minX, int maxY, int minY);
 	inline double getMeanLp(int maxT, int minT, int maxR, int minR);
 	
 	inline double getSaliency(int maxX, int minX, int maxY, int minY);
@@ -215,6 +216,30 @@ inline double YARPIntegralImage::getSaliencyLp(int maxT, int minT, int maxR, int
 		return 0;		// case not supported
 
 	return (tmp4 + tmp3 + tmp1 + tmp2);
+}
+
+inline double YARPIntegralImage::getMean(int maxX, int minX, int maxY, int minY)
+{
+	double tmp1; 
+	double tmp2; 
+	double tmp3; 
+	double tmp4; 
+
+	if (minX < 0)
+		minX = 0;
+	if (minY < 0)
+		minY = 0;
+	if (maxX > _nCols-1)
+		maxX = _nCols-1;
+	if (maxY > _nRows-1)
+		maxY = _nRows-1;
+
+	tmp1 = get(minX, minY);
+	tmp2 = get(maxX, minY);
+	tmp3 = get(minX, maxY);
+	tmp4 = get(maxX, maxY);
+
+	return (tmp4 + tmp1 - (tmp2+tmp3))/((maxX-minX+1)*(maxY-minY+1));
 }
 
 inline double YARPIntegralImage::getSaliency(int maxX, int minX, int maxY, int minY)
