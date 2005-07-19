@@ -30,32 +30,36 @@ int main()
 	_inPortTorque.Register("/armDumper/torques/i:vect");
 	_inPortPosition.Register("/armDumper/positions/i:vect");
 
-	FILE *fp=fopen(filename, "w");
-	if (fp==NULL)
-	  {
-	    printf("ERROR opening file\n");
-	    exit(-1);
-	  }
+	//	FILE *fp=fopen(filename, "w");
+	//	if (fp==NULL)
+	//{
+	//  printf("ERROR opening file\n");
+	//  exit(-1);
+	//}
 
 	int counter = 0;
 	while(true)
 	  {
 	    _inPortTorque.Read();
 	    _inPortPosition.Read();
+
+	    fprintf(stderr, "%lf\t %lf\n", 
+		    _inPortPosition.Content()(5), 
+		    _inPortPosition.Content()(6));
 	    
-	    for(int k=1; k<=4;k++)
-		fprintf(fp, "%lf\t", _inPortPosition.Content()(k));
+	    //	    for(int k=1; k<=4;k++)
+	    //		fprintf(fp, "%lf\t", _inPortPosition.Content()(k));
 
-	    for(int k=1; k<=4;k++)
-		fprintf(fp, "%lf\t", _inPortTorque.Content()(k));
+	    //	    for(int k=1; k<=4;k++)
+	    //		fprintf(fp, "%lf\t", _inPortTorque.Content()(k));
 
-	    fprintf(fp,"\n");
+	    //	    fprintf(fp,"\n");
 	    counter++;
 	    if (counter%500==0)
 	      {
-		fprintf(stderr, "dumping...\n");
-		fclose(fp);
-		fp=fopen(filename, "a");
+		//		fprintf(stderr, "dumping...\n");
+		//		fclose(fp);
+		//		fp=fopen(filename, "a");
 	      }
 	  }
 }

@@ -88,8 +88,6 @@ int SPICommBoard::ReadBuffer(unsigned char address, unsigned char* pointer, char
     {
       writeaddress(address+0);
       readdata(&(pointer[i]));
-      //printf("data[%d]=%2x\n",i,buffread[i]);
-			
     }
 
 }

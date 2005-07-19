@@ -33,7 +33,7 @@ public:
   HeadChannel	ObreroHead;
 
   EdHeadHelper() :
-    ObreroHead(ARM_ADDR,&ObreroSPICommBoard)
+    ObreroHead(HEAD_ADDR,&ObreroSPICommBoard)
   {
     ObreroSPICommBoard.openport("/dev/parport0");
   }

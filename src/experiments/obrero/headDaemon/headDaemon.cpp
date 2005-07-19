@@ -13,7 +13,7 @@
 
 YARPInputPortOf<YARPBottle> _inputPort;
 
-const int __samplerRate = 10;
+const int __samplerRate = 50;
 const int MESSAGE_LABEL = 6;
 
 //#define __HEAD_SAMPLER_VERBOSE__
@@ -195,14 +195,14 @@ void HeadSampler::Register(const char *p)
 
 void HeadSampler::doInit()
 {
-  dumpFile = fopen("dump.txt", "wt");
+  //  dumpFile = fopen("dump.txt", "wt");
 }
 
 void HeadSampler::doLoop()
 {
   int ret1,ret2,ret3;
   ret1 = head->getPositions(positions.data());
-		
+  
   positionsPort.Content()=positions;
 
   #ifdef __HEAD_SAMPLER_VERBOSE__

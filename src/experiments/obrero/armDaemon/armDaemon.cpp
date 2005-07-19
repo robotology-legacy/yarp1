@@ -174,8 +174,8 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
 }
 
 ///////////////// ArmSampler class
-ArmSampler::ArmSampler(YARPArm *p, int rate): YARPRateThread("ArmSamplerThread", rate)//,
-					      //positionsPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST),
+ArmSampler::ArmSampler(YARPArm *p, int rate): YARPRateThread("ArmSamplerThread", rate)//
+					      //					      positionsPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 					      //torquesPort(YARPOutputPort::DEFAULT_OUTPUTS, YARP_MCAST)
 {
   arm=p;
