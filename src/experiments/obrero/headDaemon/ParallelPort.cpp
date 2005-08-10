@@ -36,7 +36,7 @@ ParallelPort::~ParallelPort()
 
 }
 
-int ParallelPort::openport(char *portname)
+int ParallelPort::openport(char const *const portname)
 {
 
   int mode,r;
@@ -46,7 +46,6 @@ int ParallelPort::openport(char *portname)
   int i;
 
   fd = open(portname,O_RDWR);
-  printf("%d\n",fd);
   if(fd== -1)
     { 
       return(-1);

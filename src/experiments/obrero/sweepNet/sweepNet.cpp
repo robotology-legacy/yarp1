@@ -227,7 +227,6 @@ private:
 
   ArmDaemon *arm;
   
-
   YVector homePosition;
   YVector startPosition;
   myList posList;
@@ -264,6 +263,8 @@ int main()
 
   printf("Listening...\n");
 
+  bool inhibit = false;
+
   bool exit=false;
   while(!exit)
     {
@@ -280,27 +281,34 @@ int main()
 		{
 		  printf("Message ID %d\n", iTmp);
 #ifndef NO_ARM
-		  if (iTmp==2)
+		  if ( (iTmp==2)&&(!inhibit))
 		    {
 		      // stop arm
 		      controller.stopArm();
 		    }
-		  else if (iTmp==1)
+		  else if ( (iTmp==1)&&(!inhibit))
 		    {
 		      // start arm
 		      controller.ready();
 		      controller.start();	// wait
 		    }
-		  else if (iTmp==3)
+		  else if ( (iTmp==3)&&(!inhibit) )
 		    {
 		      controller.stopArm();
 		      controller.ready();
-						
 		    }
 		  else if (iTmp==4)
 		    {
 		      controller.park();
 		    }
+		  else if (iTmp==5)
+		    {
+		      if (inhibit)
+			inhibit=false;
+		      else
+			inhibit=true;
+		    }
+		      
 #endif
 		}
 	      else

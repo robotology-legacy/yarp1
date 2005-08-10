@@ -9,9 +9,8 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-HeadChannel::HeadChannel(unsigned char add, SPICommBoard * pointer)
+HeadChannel::HeadChannel(unsigned char add, const char *const parPortAddr)
 {
-
   address=add;
   SizeBufferRX=8;
   SizeBufferTX=4;
@@ -19,7 +18,12 @@ HeadChannel::HeadChannel(unsigned char add, SPICommBoard * pointer)
   BufferRX=new unsigned char[SizeBufferRX];
   BufferTX=new unsigned char[SizeBufferTX];
 
-  spi_pointer=pointer;
+  parPort.openport(parPortAddr);
+  
+  update_buffer();
+
+  ref[0]=BufferRX[2];//x
+  ref[1]=BufferRX[0];//y
 }
 
 HeadChannel::~HeadChannel()
@@ -41,18 +45,27 @@ int HeadChannel::send_setpoint_pot(unsigned char motornumber, int setpoint)
   BufferTX[2]=(unsigned char)setpoint; 
   BufferTX[3]=0x00;
 
-  spi_pointer->WriteBuffer(address,BufferTX,SizeBufferTX);
+  parPort.WriteBuffer(address,BufferTX,SizeBufferTX);
 
+  fprintf(stderr, "Setting new reference on %d %d\n", 
+	  motornumber, setpoint);
+  ref[motornumber]=setpoint;
   return 0;
 }
 
 int HeadChannel::update_buffer()
 {
-  spi_pointer->ReadBuffer(address, BufferRX, SizeBufferRX);
+  parPort.ReadBuffer(address, BufferRX, SizeBufferRX);
   // debug
   //  for(int i = 0; i<8; i++)
   //printf("%2x", BufferRX[i]);
   //  printf("\n");
 
   return 0;
+}
+
+void HeadChannel::getRefPos(int &x, int &y)
+{
+  x=ref[1];
+  y=ref[0];
 }

@@ -26,20 +26,18 @@ const int Y_LO = 0x5A;
 
 const int HEAD_ADDR = 0x00;
 const int ARM_ADDR = 0x10;
+const char *const PAR_PORT = "/dev/parport0";
 
 class EdHeadHelper {
 public:
-  SPICommBoard	ObreroSPICommBoard;
-  HeadChannel	ObreroHead;
+  HeadChannel	headChannel;
 
   EdHeadHelper() :
-    ObreroHead(HEAD_ADDR,&ObreroSPICommBoard)
+    headChannel(HEAD_ADDR,PAR_PORT)
   {
-    ObreroSPICommBoard.openport("/dev/parport0");
   }
 
   ~EdHeadHelper() {
-    ObreroSPICommBoard.closeport();
   }
 
   void transformToMotor(int& x, int& y) {
@@ -76,8 +74,8 @@ public:
     printf("Go to ext %d %d\n", nx, ny);
     transformToMotor(nx,ny);
     printf("Go to %x %x\n", nx, ny);
-    ObreroHead.send_setpoint_pot(0x01,nx);
-    ObreroHead.send_setpoint_pot(0x00,ny);
+    headChannel.send_setpoint_pot(0x01,nx);
+    headChannel.send_setpoint_pot(0x00,ny);
   }
 
   void setSingleJoint(int j, int v)
@@ -99,18 +97,18 @@ public:
 	ny=&v;
       }
      
-    printf("%d go to ext %d\n", j, v);
+    //    printf("%d go to ext %d\n", j, v);
     transformToMotor(*nx, *ny);
-    printf("%d go to %d\n", j, v);
-    ObreroHead.send_setpoint_pot(address, v);
+    //    printf("%d go to %d\n", j, v);
+    headChannel.send_setpoint_pot(address, v);
   }
 
   void getSingleJoint(int j, int *v)
   {
     int x,y;
-    ObreroHead.update_buffer();
-    x = ObreroHead.BufferRX[2];
-    y = ObreroHead.BufferRX[0];
+    headChannel.update_buffer();
+    x = headChannel.BufferRX[2];
+    y = headChannel.BufferRX[0];
     transformFromMotor(x,y);
     
     if (j==0)
@@ -121,7 +119,7 @@ public:
     
 
   void get(int& x, int& y) {
-    ObreroHead.update_buffer();
+    headChannel.update_buffer();
    
     // printf("%d %d %d %d   ",
     //   ObreroHead.BufferRX[0],
@@ -129,11 +127,17 @@ public:
     //   ObreroHead.BufferRX[2],
     //   ObreroHead.BufferRX[3]);
    
-    x = ObreroHead.BufferRX[2];
-    y = ObreroHead.BufferRX[0];
+    x = headChannel.BufferRX[2];
+    y = headChannel.BufferRX[0];
     transformFromMotor(x,y);
   }
 
+  void getRefPositions(int &x, int &y)
+  {
+    headChannel.getRefPos(x,y);
+    transformFromMotor(x,y);
+  }
+  
 };
 
 ObreroHead::ObreroHead() {
@@ -187,9 +191,13 @@ int ObreroHead::setPositionRelative(int j, double delta)
 {
   check();
   
-  int at;
-  getSingleJoint(j,&at);
-  setSingleJoint(j,(at+(int) delta));
+  int at[2];
+  
+  ((EdHeadHelper*)system)->getRefPositions(at[0],at[1]);
+  setSingleJoint(j,(at[j]+(int) delta));
+
+  //  fprintf(stderr, "Single Joint Relative %d %d\n", 
+  //  at[j], (int) delta);
 
   return YARP_OK;
 }
@@ -197,9 +205,23 @@ int ObreroHead::setPositionRelative(int j, double delta)
 int ObreroHead::setPositionsRelative(const double *delta)
 {
   int atX, atY;
-  get(atX, atY);
 
+  ((EdHeadHelper*)system)->getRefPositions(atX,atY);
   set(atX+(int) delta[0], atY+(int) delta[1]);
 
+  //  fprintf(stderr, "Relative %d %d %d ^d\n", atX, atY,
+  //  (int) delta[0],
+  //  (int) delta[1]);
+
   return YARP_OK;
+}
+
+int ObreroHead::getRefPositions(double *v)
+{
+  int x;
+  int y;
+
+  ((EdHeadHelper*)system)->getRefPositions(x,y);
+  v[0]=x;
+  v[1]=y;
 }

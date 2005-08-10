@@ -55,6 +55,8 @@ public:
       return YARP_OK;
     }
 
+  int getRefPositions(double *v);
+
 private:
   void init();
   void set(int x, int y);

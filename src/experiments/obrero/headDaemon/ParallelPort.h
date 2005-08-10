@@ -22,7 +22,7 @@ public:
 	char portn[255];
 
 	
-	int openport(char * portname);
+	int openport(const char *const portname);
 	ParallelPort();
 	virtual ~ParallelPort();
 

@@ -15,7 +15,7 @@ public:
 	int WriteBuffer(unsigned char address, unsigned char * pointer, char size);
 	int ReadStatus(unsigned char address, unsigned char *data);
 	SPICommBoard();
-	virtual ~SPICommBoard();
+	~SPICommBoard();
 
 };
 

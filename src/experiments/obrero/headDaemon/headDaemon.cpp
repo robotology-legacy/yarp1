@@ -16,7 +16,8 @@ YARPInputPortOf<YARPBottle> _inputPort;
 const int __samplerRate = 50;
 const int MESSAGE_LABEL = 6;
 
-//#define __HEAD_SAMPLER_VERBOSE__
+#define __HEAD_SAMPLER_VERBOSE__
+//#define __HEAD_DUMP_TO_DISK__
 
 using namespace std;
 
@@ -36,6 +37,7 @@ private:
   int _nj;
   ObreroHead *head;
   YVector positions;
+  YVector references;
 
   YARPOutputPortOf<YVector> positionsPort;
 
@@ -180,6 +182,8 @@ HeadSampler::HeadSampler(ObreroHead *p, int rate): YARPRateThread("HeadSamplerTh
   _nj = head->nj();
   positions.Resize(_nj);
   positions = 0.0;
+  references.Resize(_nj);
+  references = 0.0;
   dumpFile = NULL;
 }
 
@@ -195,24 +199,27 @@ void HeadSampler::Register(const char *p)
 
 void HeadSampler::doInit()
 {
-  //  dumpFile = fopen("dump.txt", "wt");
+#ifdef __HEAD_DUMP_TO_DISK__
+  dumpFile = fopen("dump.txt", "wt");
+#endif
 }
 
 void HeadSampler::doLoop()
 {
   int ret1,ret2,ret3;
   ret1 = head->getPositions(positions.data());
+  head->getRefPositions(references.data());
   
   positionsPort.Content()=positions;
 
   #ifdef __HEAD_SAMPLER_VERBOSE__
   static int count=0;
   count++;
-  if (count%10==0)
+  if (count%50==0)
     {
       count = 0;
-      int x = positions[0];
-      int y = positions[1];
+      int x = (int) (positions[0]+0.5);
+      int y = (int) (positions[1]+0.5);
       printf("current pos: %d %d\n", x, y);
     }
   #endif
@@ -221,6 +228,10 @@ void HeadSampler::doLoop()
     {
       for(int k=0;k<_nj;k++)
 	fprintf(dumpFile, "%lf\t", positions[k]);
+
+      for(int k=0;k<_nj;k++)
+	fprintf(dumpFile, "%lf\t", references[k]);
+
       fprintf(dumpFile, "\n");
     }
 

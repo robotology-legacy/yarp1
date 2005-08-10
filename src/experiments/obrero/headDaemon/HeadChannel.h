@@ -13,23 +13,26 @@
 class HeadChannel  
 {
 public:
-	int update_buffer();
+  int update_buffer();
 	
-	SPICommBoard * spi_pointer;
+  int send_setpoint_pot(unsigned char motornumber, int setpoint);
+  void getRefPos(int &x, int &y);
 
-	int send_setpoint_pot(unsigned char motornumber, int setpoint);
+  char SizeBufferTX;
+  char SizeBufferRX;
 
-	char SizeBufferTX;
-	char SizeBufferRX;
+  unsigned char address;
 
-	unsigned char address;
-
-	unsigned char * BufferTX;
-	unsigned char * BufferRX;
+  unsigned char * BufferTX;
+  unsigned char * BufferRX;
 	
 	
-	HeadChannel(unsigned char add, SPICommBoard * pointer);
-	virtual ~HeadChannel();
+  HeadChannel(unsigned char add, const char *const parPortAddr);
+  ~HeadChannel();
+
+ private:
+  int ref[2];
+  SPICommBoard parPort;
 
 };
 
