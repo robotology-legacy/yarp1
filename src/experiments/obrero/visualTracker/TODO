@@ -1,0 +1,6 @@
+This is a list of open issues and improvements for dvgrab.
+
+Feel free to implement any of these; I will help out where I can.
+
+Some form of positioning, such that dvgrab waits for a given timecode
+or date/time stamp before grabbing. Medium.
