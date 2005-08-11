@@ -1,5 +1,5 @@
 (
-sleep 3
+sleep 5
 yarp-connect -f /headDaemon/positions/o:vect /visualTracker/head/i:vect
 sleep 1
 yarp-connect -f /visualTracker/head/o:bot /headDaemon/i:bot

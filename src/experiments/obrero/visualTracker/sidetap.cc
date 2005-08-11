@@ -42,6 +42,7 @@
 static int at_x = 0, at_y = 0;
 
 static YARPSemaphore set_mutex(1);
+static int img_w = -1, img_h = -1;
 static int set_pending = 0, set_x = 0, set_y = 0, set_w = 0, set_h = 0;
 
 void set_location(int x, int y, int w, int h);
@@ -64,16 +65,32 @@ public:
       int msg;
       YARPBottle& bot = Content();
       bool ret = bot.readInt(&msg);
-      if (ret&&msg==200) {
-	int x, y, w, h;
-	ret = bot.readInt(&x);
-	if (ret) { bot.readInt(&y);    }
-	if (ret) { bot.readInt(&w); }
-	if (ret) { bot.readInt(&h); }
-	if (ret) {
-	  printf("valid request to go to %d,%d (in %dx%d image)\n",
-		 x, y, w, h);
-	  set_location(x,y,w,h);
+      if (ret) {
+	if (msg==200) {
+	  int x, y, w, h;
+	  ret = bot.readInt(&x);
+	  if (ret) { bot.readInt(&y);    }
+	  if (ret) { bot.readInt(&w); }
+	  if (ret) { bot.readInt(&h); }
+	  if (ret) {
+	    printf("valid request to go to %d,%d (in %dx%d image)\n",
+		   x, y, w, h);
+	    set_location(x,y,w,h);
+	  }
+	} else if (msg==9) {
+	  double xx = 0, yy = 0;
+	  bot.readFloat(&xx);
+	  bot.readFloat(&yy);
+	  if (img_w!=-1) {
+	    int x, y, w, h;
+	    w = img_w;
+	    h = img_h;
+	    x = (int)(xx*w);
+	    y = (int)(yy*h);
+	    printf("valid request to go to %d,%d (in %dx%d image)\n",
+		   x, y, w, h);
+	    set_location(x,y,w,h);
+	  }
 	}
       }
     }
@@ -116,6 +133,10 @@ void MySideTap::Apply(SideTapImage& image, SideTapSound& sound) {
   static ImgTrackTool track;
   static MotionGroup motion;
   if (image.IsValid()) {
+    if (img_w==-1) {
+      img_w = image.GetWidth();
+      img_h = image.GetHeight();
+    }
     static int ct = 0;
     //printf("MySideTap::Apply() in sidetap.cc received an image! %dx%d pixels\n", image.GetWidth(), image.GetHeight());
     //for (int i=0; i<image.GetWidth(); i++)
