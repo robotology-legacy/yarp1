@@ -6,6 +6,6 @@ yarp-connect -f /hand/track/o:bot /tracker/i:pos
 yarp-connect -f /armMap/head/o:bot /hand/track/i:bot
 ) &
 
- ./dvgrab-shell
+ ./dvgrab-shell --buffers 1
 # ./dvgrab-shell --duration 300
 )

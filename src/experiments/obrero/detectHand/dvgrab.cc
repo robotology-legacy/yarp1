@@ -27,6 +27,9 @@
 * Change log:
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.1  2005/08/11 16:15:21  eshuy
+* initial checkin of detectHand
+*
 * Revision 1.21  2004/01/14 13:46:29  ddennedy
 * bugfix --every
 *
@@ -734,12 +737,16 @@ void DVgrab::captureThreadRun()
 			{
 				m_frame->GetRecordingDate( recDate );
 				m_dropped_frames += dropped;
+#if 0
 				sendEvent( "\a\"%s\": buffer underrun near: timecode %2.2d:%2.2d:%2.2d.%2.2d date %4.4d.%2.2d.%2.2d %2.2d:%2.2d:%2.2d",
 				           m_writer ? m_writer->GetFileName().c_str() : "stdout",
 				           timeCode.hour, timeCode.min, timeCode.sec, timeCode.frame,
 				           recDate.tm_year + 1900, recDate.tm_mon + 1, recDate.tm_mday,
 				           recDate.tm_hour, recDate.tm_min, recDate.tm_sec );
 				sendEvent( "This error means that the frames could not be written fast enough." );
+#else
+				printf("dropped a frame\n");
+#endif
 			}
 			if ( m_frame->IsComplete() == false )
 			{
