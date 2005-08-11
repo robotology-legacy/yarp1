@@ -1,0 +1,26 @@
+Hooks for sidetap: Paul Fitzpatrick <paulfitz@ai.mit.edu>
+
+Author list and contributors for dvgrab follows:
+
+Arne Schirmacher <dvgrab@schirmacher.de>
+
+Contributors:
+
+Andy (http://www.videox.net/)
+Stephane Gourichon
+Daniel Kobras <kobras@debian.org>
+Alastair Mayer <alastair@ajwm.net>
+Mike Piper
+Glen Nakamura
+Dan Dennedy <dan@dennedy.org>
+	- addition of Kino FileHandler for consistent application of options across
+	  formats.
+	- added dv1394 support
+	- added quicktime support
+	- added JPEG support
+	- AVI improvements
+	- added AV/C support
+	- added raw DV stdin/stdout support
+	- added SMIL-based durations
+	- added interactive mode based upon terminal IO by 
+	  Charles Yates <charles.yates@pandora.be>

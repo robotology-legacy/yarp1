@@ -1,0 +1,3 @@
+yarp-connect -f /hand/track/o:bot /tracker/i:pos
+yarp-connect -f /headDaemon/positions/o:vect /hand/track/head/i:vect
+yarp-connect -f /armMap/head/o:bot /hand/track/i:bot

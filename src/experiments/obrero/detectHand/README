@@ -1,0 +1,44 @@
+scripts:
+  go_live
+  go_test
+  send_msg
+
+
+
+dvgrab-shell is based on dvgrab.  
+
+dvgrab-shell can be used just just dvgrab, except that it is easier to
+add image processing.  This is not really intended for movie processing,
+but for real-time machine vision using a camcorder.
+
+sidetap.h and sidetap.cc are the files to modify to make dvgrab-shell 
+perform the operation you want.  A function called Apply() is called 
+with successive images (and sound frames) from the camcorder.
+
+The README for dvgrab is below.
+
+dvgrab version 1.5, January 18, 2004
+(c) 2000-2003 Arne Schirmacher <dvgrab@schirmacher.de>
+(c) 2002-2003 Dan Dennedy <dan@dennedy.org>
+
+dvgrab website: http://kino.schirmacher.de/
+dvgrab cvs: http://sourceforge.net/projects/kino/
+
+To use the program, turn on the camera, press play, and run the program:
+
+dvgrab --frames 200 myfilm-
+
+If you have properly configured your kernel and your ieee1394 device
+drivers, you should end up with about 30 MByte of DV image data nicely
+packed in a file myfilm-001.avi (digits and extension automatically
+appended), which can be displayed with the Microsoft Media Player or a
+similar program (remember to install the required DV codecs, software
+should be included with your hardware).
+
+Read the man page for more documentation or 'dvgrab --help'.
+Please submit bug reports, fixes, or suggestions to
+http://bugzilla.schirmacher.de/ or access the discussion forum 
+at http://kino.schirmacher.de/.
+Be sure to read the NEWS file for very helpful release notes.
+
+Arne Schirmacher and Dan Dennedy
