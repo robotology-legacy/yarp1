@@ -61,7 +61,7 @@ int main()
     {
       int msg;
       _inputPort.Read();
-      ACE_OS::printf("got a new bottle\n");
+      //ACE_OS::printf("got a new bottle\n");
 	  
       YARPBottle &bot = _inputPort.Content();
       bot.display();
@@ -113,10 +113,10 @@ void _handleMsg(int msg, YARPBottle &bot, ObreroHead &head)
 
       head.setPositions(tmpVector);
 
-      ACE_OS::printf("setting position: ");
-      for(int k = 0; k<nj; k++)
-	ACE_OS::printf("%lf\t",tmpVector[k]);
-      ACE_OS::printf("\n");
+      //      ACE_OS::printf("setting position: ");
+      //      for(int k = 0; k<nj; k++)
+      //	ACE_OS::printf("%lf\t",tmpVector[k]);
+      //      ACE_OS::printf("\n");
       break;
     case 2:
       ret = bot.readInt(&j);
@@ -129,7 +129,7 @@ void _handleMsg(int msg, YARPBottle &bot, ObreroHead &head)
 	  val = (double)(ival);
 	}
       head.setPositionRelative(j, val);
-      ACE_OS::printf("Move joint %d of %lf (relative motion)\n", j, val);
+      //      ACE_OS::printf("Move joint %d of %lf (relative motion)\n", j, val);
       break;
     case 3:
       ret = bot.readInt(&j);
@@ -143,7 +143,7 @@ void _handleMsg(int msg, YARPBottle &bot, ObreroHead &head)
 	    break;
         }
       head.setPosition(j, val);
-      ACE_OS::printf("Move joint %d of %lf (relative motion)\n", j, val);
+      //      ACE_OS::printf("Move joint %d of %lf (relative motion)\n", j, val);
       break;
     case 4:
       ACE_OS::printf("Stop motion ");
@@ -164,10 +164,10 @@ void _handleMsg(int msg, YARPBottle &bot, ObreroHead &head)
 
       head.setPositionsRelative(tmpVector);
 
-      ACE_OS::printf("setting relative position: ");
-      for(int k = 0; k<nj; k++)
-	ACE_OS::printf("%lf\t",tmpVector[k]);
-      ACE_OS::printf("\n");
+      //      ACE_OS::printf("setting relative position: ");
+      //      for(int k = 0; k<nj; k++)
+      //	ACE_OS::printf("%lf\t",tmpVector[k]);
+      //      ACE_OS::printf("\n");
       break;
     default:
       ACE_OS::printf("Message not recognized, nothing done\n");

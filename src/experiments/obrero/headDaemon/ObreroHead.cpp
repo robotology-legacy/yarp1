@@ -71,9 +71,9 @@ public:
   void set(int x, int y) {
     int nx = x;
     int ny = y;
-    printf("Go to ext %d %d\n", nx, ny);
+    //    printf("Go to ext %d %d\n", nx, ny);
     transformToMotor(nx,ny);
-    printf("Go to %x %x\n", nx, ny);
+    //    printf("Go to %x %x\n", nx, ny);
     headChannel.send_setpoint_pot(0x01,nx);
     headChannel.send_setpoint_pot(0x00,ny);
   }

@@ -47,8 +47,8 @@ int HeadChannel::send_setpoint_pot(unsigned char motornumber, int setpoint)
 
   parPort.WriteBuffer(address,BufferTX,SizeBufferTX);
 
-  fprintf(stderr, "Setting new reference on %d %d\n", 
-	  motornumber, setpoint);
+  //  fprintf(stderr, "Setting new reference on %d %d\n", 
+  //  motornumber, setpoint);
   ref[motornumber]=setpoint;
   return 0;
 }
