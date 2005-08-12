@@ -62,7 +62,7 @@ int main()
 	    _inPortPosition.Read();
 
 	    for(int k=1; k<=4;k++)
-	      fprintf(fp, "%lf\t", _inPortPosition.Content()(k));
+	      fprintf(fp, "%.2lf\t", _inPortPosition.Content()(k));
 
 	    for(int k=1; k<=4;k++)
 	      fprintf(fp, "%lf\t", _inPortTorque.Content()(k));

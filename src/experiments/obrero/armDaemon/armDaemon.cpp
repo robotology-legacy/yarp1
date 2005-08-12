@@ -224,12 +224,18 @@ void ArmSampler::doLoop()
 #endif
   torquesPort.Content()=torques;
   positionsPort.Content()=positions;
-  
-#if 0
-  //  fprintf(stderr, ".");
- for(int k = 0; k<4; k++)
-    printf("%lf\t", positions(k+1));
-  printf("\n");
+
+#if 1
+  static int counter = 0;
+  counter++;
+  if (counter>50)
+    {
+      counter = 0;
+      //  fprintf(stderr, ".");
+      for(int k = 0; k<4; k++)
+	printf("%.2lf\t", positions(k+1));
+      printf("\n");
+    }
 #endif
   //  if (dumpFile!=NULL)
   //    {

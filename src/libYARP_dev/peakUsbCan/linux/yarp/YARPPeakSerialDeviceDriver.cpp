@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.3 2005-07-08 22:21:33 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.4 2005-08-12 21:52:29 natta Exp $
 ///
 ///
 /// June 05 -- by nat
@@ -153,10 +153,12 @@ int YARPPeakSerialDeviceDriver::getPositions(void *cmd)
   ACE_ASSERT (cmd!=NULL);
   double *tmp = (double *) cmd;
   ret = _readU16Vector(CAN_READ_POSITIONS_0TO3, tmp, 4);
+  //  fprintf(stderr, "%.2lf %.2lf %.2lf %.2lf", tmp[0], tmp[1], tmp[2], tmp[3]);
   if (ret == YARP_FAIL)
     return YARP_FAIL;
 
   ret = _readU16Vector(CAN_READ_POSITIONS_4TO5, tmp+4, 2);
+  //  fprintf(stderr, " %.2lf %.2lf\n", tmp[4], tmp[5]);
   return ret;
 }
 
@@ -491,7 +493,7 @@ int YARPPeakSerialDeviceDriver::_readSWord(char msg, char joint, int &value)
 {
   int ret;
 
-  _message[0]= msg;
+  _message[0] = msg;
   _message[1] = joint;
 
   ret = _canPort.write(_message,2);
@@ -614,7 +616,7 @@ int YARPPeakSerialDeviceDriver::_writeU16Vector(char msg, const double *values, 
       _message[k++]= tmp>>8;
     }
 
-  ret = _canPort.write(_message, (1+2*n);
+  ret = _canPort.write(_message, (1+2*n));
   // given the protocol for each write we have a read back
   ret = _canPort.read();
 
