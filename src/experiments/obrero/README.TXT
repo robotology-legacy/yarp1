@@ -211,11 +211,12 @@ outpur ports:
 /armDaemon/position/o:vect
 /armDaemon/torque/o:vect
 
-5 0 :put the arm in position mode
+5 0 :arm in position mode
 5 1 vector of 6 ints :move the arm
 5 2 int j int dq :move joint j of dq (relative motion)
 5 3 int j int q :move joint j to q (abs motion)
 5 4 :stop motion
+5 6 :arm in force mode
 
 
 *************************************************************************

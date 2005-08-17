@@ -34,6 +34,16 @@ HeadChannel::~HeadChannel()
 
 int HeadChannel::send_setpoint_pot(unsigned char motornumber, int setpoint)
 {
+  // new code for debug purpose
+  //  parPort.ReadBuffer(address, BufferRX, SizeBufferRX);
+  //  fprintf(stderr, "%.4d\t%.4d", BufferRX[2], BufferRX[0]);
+
+  
+  // debug
+  //  for(int i = 0; i<8; i++)
+  //printf("%2x", BufferRX[i]);
+  //  printf("\n");
+
   //range of pots 0xffc0 0x0000
   // 10 higher bits
 
@@ -47,7 +57,8 @@ int HeadChannel::send_setpoint_pot(unsigned char motornumber, int setpoint)
 
   parPort.WriteBuffer(address,BufferTX,SizeBufferTX);
 
-  //  fprintf(stderr, "Setting new reference on %d %d\n", 
+  //  fprintf(stderr, "%.4d\t%.4d", setpoint);
+
   //  motornumber, setpoint);
   ref[motornumber]=setpoint;
   return 0;

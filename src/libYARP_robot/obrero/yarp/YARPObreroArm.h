@@ -61,7 +61,7 @@
 ///
 
 ///
-///  $Id: YARPObreroArm.h,v 1.4 2005-07-05 19:58:00 natta Exp $
+///  $Id: YARPObreroArm.h,v 1.5 2005-08-17 00:35:43 natta Exp $
 ///
 ///
 
@@ -90,18 +90,22 @@ class YARPObreroArm: public YARPGenericControlBoard<YARPSciOnObreroArmAdapter, Y
 class YARPObreroArm: public YARPGenericControlBoard<YARPPeakOnObreroArmAdapter, YARPObreroArmParameters>
 {
  public:
-#if 0
-  int getPosition(int k, double *p)
+  int positionMode(bool reset = true, LowLevelPID *pids = NULL)
     {
-      int ret;
-      SingleAxisParameters cmd;
-      cmd.axis = k;
-      cmd.parameters=p;
-
-      ret = _adapter.IOCtl(CMDGetPosition, &cmd);
+      _lock();
+      int ret = _adapter.activatePID(reset, pids);
+      _unlock();
       return ret;
     }
-#endif 
+
+  int forceMode()
+    { 
+      _lock();
+      int ret= _adapter.forceMode();
+      _unlock();
+      return ret;
+    }
+
 };
 
 #endif

@@ -61,8 +61,6 @@ int SPICommBoard::WriteBuffer(unsigned char address, unsigned char *pointer, cha
 					
 	  ticks=0;
 	  return(1);
-
-					
 	}
       else
 	{

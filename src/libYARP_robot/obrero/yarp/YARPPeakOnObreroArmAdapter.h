@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakOnObreroArmAdapter.h,v 1.2 2005-07-05 19:58:00 natta Exp $
+/// $Id: YARPPeakOnObreroArmAdapter.h,v 1.3 2005-08-17 00:35:43 natta Exp $
 ///
 ///
 
@@ -454,11 +454,19 @@ class YARPPeakOnObreroArmAdapter : public YARPPeakSerialDeviceDriver,
     }
 
   /**
+   * Not implemented on Obrero
+   */
+  int idleMode()
+    { 
+      return YARP_OK; 
+    }
+
+  /**
    * In the Obrero arm this disables the position controller and enables the zero
    * force mode. As a result the arm can be passively controlled.
    * @return YARP_OK always.
    */
-  int idleMode()
+  int forceMode()
     { 
       int actual_axis;
       for(int i = 0; i < _parameters->_nj; i++)
@@ -471,6 +479,7 @@ class YARPPeakOnObreroArmAdapter : public YARPPeakSerialDeviceDriver,
 	}	
       return YARP_OK; 
     }
+
 
   /**
    * Sets the PID values specified in a second set of parameters 

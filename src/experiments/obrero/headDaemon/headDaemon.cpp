@@ -17,7 +17,7 @@ const int __samplerRate = 50;
 const int MESSAGE_LABEL = 6;
 
 #define __HEAD_SAMPLER_VERBOSE__
-//#define __HEAD_DUMP_TO_DISK__
+// #define __HEAD_DUMP_TO_DISK__
 
 using namespace std;
 
@@ -50,13 +50,13 @@ int main()
   head.initialize();
   HeadSampler sampler(&head, __samplerRate);
 
-  ACE_OS::printf("\nHello from YARP!\n\n");
+  fprintf(stderr, "\nHello from YARP!\n\n");
 
   _inputPort.Register("/headDaemon/i:bot");
   sampler.Register("/headDaemon/positions/o:vect");
 	
   sampler.start();
-  ACE_OS::printf("Entering loop\n");
+  fprintf(stderr, "Entering loop\n");
   while(1)
     {
       int msg;
@@ -64,7 +64,7 @@ int main()
       //ACE_OS::printf("got a new bottle\n");
 	  
       YARPBottle &bot = _inputPort.Content();
-      bot.display();
+      //      bot.display();
 	  
       bool ret = bot.readInt(&msg);
       if (ret && msg==MESSAGE_LABEL)
@@ -113,10 +113,10 @@ void _handleMsg(int msg, YARPBottle &bot, ObreroHead &head)
 
       head.setPositions(tmpVector);
 
-      //      ACE_OS::printf("setting position: ");
-      //      for(int k = 0; k<nj; k++)
-      //	ACE_OS::printf("%lf\t",tmpVector[k]);
-      //      ACE_OS::printf("\n");
+      //      fprintf(stderr, "Setting position: ");
+      //    for(int k = 0; k<nj; k++)
+      //      fprintf(stderr, "%lf\t",tmpVector[k]);
+      //      fprintf(stderr, "\n");
       break;
     case 2:
       ret = bot.readInt(&j);
@@ -206,10 +206,10 @@ void HeadSampler::doInit()
 
 void HeadSampler::doLoop()
 {
-  int ret1,ret2,ret3;
+  int ret1,ret2;
   ret1 = head->getPositions(positions.data());
-  head->getRefPositions(references.data());
-  
+  ret2 = head->getRefPositions(references.data());
+
   positionsPort.Content()=positions;
 
   #ifdef __HEAD_SAMPLER_VERBOSE__
@@ -220,7 +220,7 @@ void HeadSampler::doLoop()
       count = 0;
       int x = (int) (positions[0]+0.5);
       int y = (int) (positions[1]+0.5);
-      printf("current pos: %d %d\n", x, y);
+      fprintf(stderr, "current pos: %d %d\n", x, y);
     }
   #endif
 

@@ -158,30 +158,30 @@ void ObreroHead::check() {
   assert(system!=NULL);
 }
 
-void ObreroHead::init() {
+void ObreroHead::_init() {
   check();
 }
 
-void ObreroHead::set(int x, int y) {
-  //printf("EDHEAD set %d %d\n", x, y);
+void ObreroHead::_set(int x, int y) 
+{
   check();
   ((EdHeadHelper*)system)->set(x,y);
 }
 
-
-void ObreroHead::get(int& x, int& y) {
+void ObreroHead::_get(int& x, int& y) 
+{
   check();
   ((EdHeadHelper*)system)->get(x,y);
   //  printf("EDHEAD get %d %d\n", x, y);
 }
 
-void ObreroHead::setSingleJoint(int j, int v) 
+void ObreroHead::_setSingleJoint(int j, int v) 
 {
   check();
   ((EdHeadHelper*)system)->setSingleJoint(j,v);
 }
 
-void ObreroHead::getSingleJoint(int j, int *v)
+void ObreroHead::_getSingleJoint(int j, int *v)
 {
   check();
   ((EdHeadHelper*)system)->getSingleJoint(j,v);
@@ -189,16 +189,18 @@ void ObreroHead::getSingleJoint(int j, int *v)
 
 int ObreroHead::setPositionRelative(int j, double delta)
 {
+  _mutex.Wait();
   check();
   
   int at[2];
   
   ((EdHeadHelper*)system)->getRefPositions(at[0],at[1]);
-  setSingleJoint(j,(at[j]+(int) delta));
+  _setSingleJoint(j,(at[j]+(int) delta));
 
   //  fprintf(stderr, "Single Joint Relative %d %d\n", 
   //  at[j], (int) delta);
 
+  _mutex.Post();
   return YARP_OK;
 }
 
@@ -206,13 +208,15 @@ int ObreroHead::setPositionsRelative(const double *delta)
 {
   int atX, atY;
 
+  _mutex.Wait();
   ((EdHeadHelper*)system)->getRefPositions(atX,atY);
-  set(atX+(int) delta[0], atY+(int) delta[1]);
+  _set(atX+(int) delta[0], atY+(int) delta[1]);
 
   //  fprintf(stderr, "Relative %d %d %d ^d\n", atX, atY,
   //  (int) delta[0],
   //  (int) delta[1]);
 
+  _mutex.Post();
   return YARP_OK;
 }
 
@@ -220,8 +224,12 @@ int ObreroHead::getRefPositions(double *v)
 {
   int x;
   int y;
-
+  
+  _mutex.Wait();
   ((EdHeadHelper*)system)->getRefPositions(x,y);
   v[0]=x;
   v[1]=y;
+  _mutex.Post();
+
+  return YARP_OK;
 }

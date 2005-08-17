@@ -488,13 +488,13 @@ s,@INSTALL_DATA@,${INSTALL} -m 644,;t t
 s,@CYGPATH_W@,echo,;t t
 s,@PACKAGE@,dvgrab,;t t
 s,@VERSION@,1.5,;t t
-s,@ACLOCAL@,${SHELL} /afs/csail.mit.edu/u/p/paulfitz/obrero/visualTracker/missing --run aclocal-1.8,;t t
-s,@AUTOCONF@,${SHELL} /afs/csail.mit.edu/u/p/paulfitz/obrero/visualTracker/missing --run autoconf,;t t
-s,@AUTOMAKE@,${SHELL} /afs/csail.mit.edu/u/p/paulfitz/obrero/visualTracker/missing --run automake-1.8,;t t
-s,@AUTOHEADER@,${SHELL} /afs/csail.mit.edu/u/p/paulfitz/obrero/visualTracker/missing --run autoheader,;t t
-s,@MAKEINFO@,${SHELL} /afs/csail.mit.edu/u/p/paulfitz/obrero/visualTracker/missing --run makeinfo,;t t
-s,@AMTAR@,${SHELL} /afs/csail.mit.edu/u/p/paulfitz/obrero/visualTracker/missing --run tar,;t t
-s,@install_sh@,/afs/csail.mit.edu/u/p/paulfitz/obrero/visualTracker/install-sh,;t t
+s,@ACLOCAL@,${SHELL} /afs/csail.mit.edu/u/l/lorenzo/experiments/visualTracker/missing --run aclocal-1.8,;t t
+s,@AUTOCONF@,${SHELL} /afs/csail.mit.edu/u/l/lorenzo/experiments/visualTracker/missing --run autoconf,;t t
+s,@AUTOMAKE@,${SHELL} /afs/csail.mit.edu/u/l/lorenzo/experiments/visualTracker/missing --run automake-1.8,;t t
+s,@AUTOHEADER@,${SHELL} /afs/csail.mit.edu/u/l/lorenzo/experiments/visualTracker/missing --run autoheader,;t t
+s,@MAKEINFO@,${SHELL} /afs/csail.mit.edu/u/l/lorenzo/experiments/visualTracker/missing --run makeinfo,;t t
+s,@AMTAR@,${SHELL} /afs/csail.mit.edu/u/l/lorenzo/experiments/visualTracker/missing --run tar,;t t
+s,@install_sh@,/afs/csail.mit.edu/u/l/lorenzo/experiments/visualTracker/install-sh,;t t
 s,@STRIP@,,;t t
 s,@ac_ct_STRIP@,,;t t
 s,@INSTALL_STRIP_PROGRAM@,${SHELL} $(install_sh) -c -s,;t t

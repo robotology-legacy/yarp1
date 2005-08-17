@@ -3,6 +3,7 @@
 #define __OBREROHEADHH__
 
 #include <yarp/YARPErrorCodes.h>
+#include <yarp/YARPSemaphore.h>
 
 class ObreroHead {
 private:
@@ -17,13 +18,17 @@ public:
 
   int setPositions(const double *delta)
     {
-      set((int)delta[0], (int)delta[1]);
+      _mutex.Wait();
+      _set((int)delta[0], (int)delta[1]);
+      _mutex.Post();
       return YARP_OK;
     }
 
   int setPosition(int j, double v)
     {
-      setSingleJoint(j, (int)v);
+      _mutex.Wait();
+      _setSingleJoint(j, (int)v);
+      _mutex.Post();
       return YARP_OK;
     }
 
@@ -31,9 +36,11 @@ public:
   int setPositionsRelative(const double *delta);
   int getPosition(int j, double *v)
     {
+      _mutex.Wait();
       int iTmp;
-      getSingleJoint(j, &iTmp);
+      _getSingleJoint(j, &iTmp);
       *v=(double) (iTmp);
+      _mutex.Post();
       return YARP_OK;
     }
 
@@ -42,27 +49,33 @@ public:
       int tmpx;
       int tmpy;
       
-      get(tmpx, tmpy);
+      _mutex.Wait();
+      _get(tmpx, tmpy);
       p[0]=(double) tmpx;
       p[1]=(double) tmpy;
-      
+
+      _mutex.Post();
       return YARP_OK;
     }
 
   int initialize()
     { 
-      init(); 
+      _mutex.Wait();
+      _init(); 
+      _mutex.Post();
       return YARP_OK;
     }
 
   int getRefPositions(double *v);
 
 private:
-  void init();
-  void set(int x, int y);
-  void setSingleJoint(int j, int v);
-  void getSingleJoint(int j, int *v);
-  void get(int& x, int& y);
+  void _init();
+  void _set(int x, int y);
+  void _setSingleJoint(int j, int v);
+  void _getSingleJoint(int j, int *v);
+  void _get(int& x, int& y);
+
+  YARPSemaphore _mutex;
 
   int _nj;
 };

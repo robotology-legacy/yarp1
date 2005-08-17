@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.4 2005-08-12 21:52:29 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.5 2005-08-17 00:35:43 natta Exp $
 ///
 ///
 /// June 05 -- by nat
@@ -67,6 +67,8 @@ YARPPeakSerialDeviceDriver::YARPPeakSerialDeviceDriver(void)
   m_cmds[CMDGetPIDError] = &YARPPeakSerialDeviceDriver::getPIDError;
   m_cmds[CMDRelativeMotion] = &YARPPeakSerialDeviceDriver::relativeMotion;
   m_cmds[CMDRelativeMotionMultiple] = &YARPPeakSerialDeviceDriver::relativeMotionMultiple;
+
+  m_cmds[CMDSetForceControlMode]=&YARPPeakSerialDeviceDriver::setForceMode;
 
   _nj = 0;
 

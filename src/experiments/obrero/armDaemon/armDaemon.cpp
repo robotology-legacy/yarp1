@@ -104,7 +104,7 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
   switch (msg)
     {
     case 0:
-      arm.activatePID();
+      arm.positionMode();
       break;
     case 1:
       ret = bot.readDoubleVector(tmpVector, nj);
@@ -167,6 +167,9 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
 	}
       arm.setPositionsRelative(tmpVector);
       break;
+    case 6:
+	arm.forceMode();
+	break;
     default:
       ACE_OS::printf("Message not recognized, nothing done\n");
     }
