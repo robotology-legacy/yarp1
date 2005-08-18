@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.5 2005-08-17 00:35:43 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.6 2005-08-18 21:42:33 natta Exp $
 ///
 ///
 /// June 05 -- by nat
@@ -69,6 +69,8 @@ YARPPeakSerialDeviceDriver::YARPPeakSerialDeviceDriver(void)
   m_cmds[CMDRelativeMotionMultiple] = &YARPPeakSerialDeviceDriver::relativeMotionMultiple;
 
   m_cmds[CMDSetForceControlMode]=&YARPPeakSerialDeviceDriver::setForceMode;
+  m_cmds[CMDSetOffset] = &YARPPeakSerialDeviceDriver::setOffset;
+  m_cmds[CMDSetOffsets] = &YARPPeakSerialDeviceDriver::setOffsets;
 
   _nj = 0;
 
@@ -197,6 +199,17 @@ int YARPPeakSerialDeviceDriver::setPosition(void *cmd)
   return ret;
 }
 
+int YARPPeakSerialDeviceDriver::setOffset(void *cmd)
+{
+  int ret;
+  SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+  const int axis = tmp->axis;
+  double value = *((double *) tmp->parameters);
+
+  ret = _writeWord(CAN_SET_OFFSET, axis, (int)(value));
+  return ret;
+}
+
 int YARPPeakSerialDeviceDriver::relativeMotion(void *cmd)
 {
   int ret;
@@ -236,6 +249,22 @@ int YARPPeakSerialDeviceDriver::setPositions(void *cmd)
     return ret;
   
   ret = _writeU16Vector(CAN_SET_POSITIONS_3TO5, tmp+3, 3);
+
+  return ret;
+}
+
+int YARPPeakSerialDeviceDriver::setOffsets(void *cmd)
+{
+  int ret;
+  
+  double *tmp = (double *) cmd;
+
+  ret =  _writeS16Vector(CAN_SET_OFFSETS_0TO2, tmp, 3);
+ 
+  if (ret!=YARP_OK)
+    return ret;
+  
+  ret = _writeS16Vector(CAN_SET_OFFSETS_3TO5, tmp+3, 3);
 
   return ret;
 }

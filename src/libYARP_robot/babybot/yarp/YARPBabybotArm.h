@@ -35,7 +35,7 @@
 ///
 
 ///
-///  $Id: YARPBabybotArm.h,v 1.12 2005-06-21 15:02:26 gmetta Exp $
+///  $Id: YARPBabybotArm.h,v 1.13 2005-08-18 21:42:33 natta Exp $
 ///
 ///
 
@@ -251,7 +251,7 @@ public:
 	 * as a direct torque control. This method is typically used
 	 * for gravity or dynamic compensation.
 	 * @param g is the offset value.
-	 * @return YARP_OK on success.
+	 * @return YARP_OK always.
 	 */
 	int setGs(const double *g);
 

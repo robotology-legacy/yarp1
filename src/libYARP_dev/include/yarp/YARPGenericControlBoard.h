@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.24 2005-07-05 19:57:58 natta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.25 2005-08-18 21:42:33 natta Exp $
 ///
 ///
 
@@ -718,6 +718,48 @@ public:
 		return ret;
 	}
 
+	/** 
+	 * Changes the offset of the @a i joint. This method can
+	 * be used for direct force control.
+	 * @param i is the axis to change.
+	 * @param off is the offset value.
+	 * @return YARP_OK on success.
+	 */
+	int setOffset(int i, double off)
+	  {
+	    int ret;
+	    _lock();
+	    SingleAxisParameters cmd;
+	    cmd.axis = _parameters._axis_map[i];
+	    cmd.parameters = &off;
+	    ret=_adapter.IOCtl(CMDSetOffset, &cmd);
+	    _unlock();
+	    return ret;
+	  }
+
+	/** 
+	 * Changes the offset of the all joints. This method can
+	 * be used for direct force control.
+	 * @param off is the offset value.
+	 * @return YARP_OK always.
+	 */
+	int setOffsets(const double *off)
+	  {
+	    _lock();
+	    
+	    int i, j;
+	    for(i = 0; i<_parameters._nj; i++)
+	      {
+		j = _parameters._axis_map[i];
+		_temp_double[j] = off[i];
+	      }
+			
+	    _adapter.IOCtl(CMDSetOffsets, _temp_double);
+	    _unlock();
+	    return YARP_OK;
+	  }
+
+
 	/**
 	 * Checks whether the last command has been completed.
 	 * Useful if certain positions have to be achieved precisely to wait
@@ -1050,7 +1092,5 @@ public:
 	ADAPTER _adapter;
 	PARAMETERS _parameters;
 };
-
-
 
 #endif // h

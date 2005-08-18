@@ -116,13 +116,7 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
 	    tmpVector[j]=(double)tmpIntVector[j];
 	}
 
-      // LATER: we want to use the setPositions functions
-      // however we dont want to move the wrist yet.
       arm.setPositions(tmpVector);
-      //arm.setPosition(0, tmpVector[0]);
-      //      arm.setPosition(1, tmpVector[1]);
-      //    arm.setPosition(2, tmpVector[2]);
-      //      arm.setPosition(3, tmpVector[3]);
       ACE_OS::printf("setting position: ");
       for(int k = 0; k<6; k++)
 	ACE_OS::printf("%lf\t",tmpVector[k]);
@@ -168,8 +162,32 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
       arm.setPositionsRelative(tmpVector);
       break;
     case 6:
-	arm.forceMode();
-	break;
+      arm.forceMode();
+      break;
+    case 7:
+      bot.readInt(&j);
+      ret = bot.readFloat(&val);
+      if (!ret)
+	{
+	  ret = bot.readInt(&ival);
+	  val = (double)(ival);
+	}
+      
+      arm.setOffset(j,val);
+      break;
+    case 8:
+      printf("Received a set offset on all joints\n");
+      ret = bot.readDoubleVector(tmpVector, nj);
+      if (!ret)
+	{
+	  //try reading int vector
+	  ret = bot.readIntVector(tmpIntVector, nj);
+	  for(j=0;j<nj;j++)
+	    tmpVector[j]=(double)tmpIntVector[j];
+	}
+
+      arm.setOffsets(tmpVector);
+      break;
     default:
       ACE_OS::printf("Message not recognized, nothing done\n");
     }

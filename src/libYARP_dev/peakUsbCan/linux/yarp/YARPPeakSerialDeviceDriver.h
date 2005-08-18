@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.h,v 1.3 2005-07-08 22:21:33 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.h,v 1.4 2005-08-18 21:42:33 natta Exp $
 ///
 ///
 /// Implements device driver for the Peak usb to can board. The driver
@@ -102,6 +102,10 @@ class YARPPeakSerialDeviceDriver :
   int getPIDError(void *cmd);
   int relativeMotion(void *cmd);
   int relativeMotionMultiple(void *cmd);
+
+  int setOffset(void *cmd);
+  int setOffsets(void *cmd);
+
   /*
     int getRefPosition (void *cmd);
     int getRefPositions(void *cmd);
@@ -114,8 +118,6 @@ class YARPPeakSerialDeviceDriver :
     int setAcceleration(void *cmd);
     int setAccelerations(void *cmd);
     int getRefAccelerations(void *cmd);
-    int setOffset(void *cmd);
-    int setOffsets(void *cmd);
     int setPid(void *cmd);
     int getPid(void *cmd);
     int setIntegratorLimit(void *cmd);

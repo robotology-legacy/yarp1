@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotArm.cpp,v 1.6 2005-06-21 15:02:25 gmetta Exp $
+/// $Id: YARPBabybotArm.cpp,v 1.7 2005-08-18 21:42:33 natta Exp $
 ///
 ///
 
@@ -211,29 +211,12 @@ int YARPBabybotArm::getVelocities(double *vel)
 
 int YARPBabybotArm::setG(int i, double g)
 {
-	_lock();
-	SingleAxisParameters cmd;
-	cmd.axis = _parameters._axis_map[i];
-	cmd.parameters = &g;
-	_adapter.IOCtl(CMDSetOffset, &cmd);
-	_unlock();
-	return YARP_OK;
+  return YARPGeneicControlBoard::setOffset(i,g);
 }
 
 int YARPBabybotArm::setGs(const double *g)
 {
-	_lock();
-	
-	int i, j;
-	for(i = 0; i<_parameters._nj; i++)
-	{
-		j = _parameters._axis_map[i];
-		_temp_double[i] = g[j];
-	}
-			
-	_adapter.IOCtl(CMDSetOffsets, _temp_double);
-	_unlock();
-	return YARP_OK;
+  return  YARPGenericControlBoard::setOffsets(g);
 }
 
 int YARPBabybotArm::setStiffness(int j, double stiff)
