@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPGenericControlBoard.h,v 1.25 2005-08-18 21:42:33 natta Exp $
+/// $Id: YARPGenericControlBoard.h,v 1.26 2005-08-21 00:28:31 gmetta Exp $
 ///
 ///
 
@@ -60,12 +60,12 @@
  *        ^                         | |
  *        |                         | |
  *   MyParams <......+ + ... > MyAdapter
- *                 . .        
- *                 . .            
- *       YARPGenericControlBoard <----+
- *                                    |
- *                                    |
- *                            MyControlComponent
+ *                   . .        
+ *                   . .            
+ *         YARPGenericControlBoard <----+
+ *                                      |
+ *                                      |
+ *                              MyControlComponent
  *
  */
 
