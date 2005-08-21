@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPBabybotArm.cpp,v 1.7 2005-08-18 21:42:33 natta Exp $
+/// $Id: YARPBabybotArm.cpp,v 1.8 2005-08-21 00:30:47 gmetta Exp $
 ///
 ///
 
@@ -211,12 +211,12 @@ int YARPBabybotArm::getVelocities(double *vel)
 
 int YARPBabybotArm::setG(int i, double g)
 {
-  return YARPGeneicControlBoard::setOffset(i,g);
+	return MyGenericControlBoard::setOffset(i,g);
 }
 
 int YARPBabybotArm::setGs(const double *g)
 {
-  return  YARPGenericControlBoard::setOffsets(g);
+	return MyGenericControlBoard::setOffsets(g);
 }
 
 int YARPBabybotArm::setStiffness(int j, double stiff)
