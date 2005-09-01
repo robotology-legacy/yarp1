@@ -17,6 +17,8 @@ YARPInputPortOf<YARPBottle> _inputPort;
 const int __samplerRate = 30;
 const int MESSAGE_LABEL = 5;
 
+//
+
 using namespace std;
 
 void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm);
@@ -42,15 +44,55 @@ private:
   IterativeStats _stats;
 };
 
+const double T=100;
+
+class ArmGravity: public YARPInputPortOf<YVector>
+{
+public:
+  ArmGravity(YARPArm *parm): YARPInputPortOf<YVector>()
+  {
+    counter=0.0;
+    gravity.Resize(6);
+    gravity=0.0;
+    arm=parm;
+  }
+
+  void OnRead()
+  {
+    Read();
+    
+    const YVector &g=Content();
+
+    if (counter<1e10)
+      counter++;
+    
+    double k=1/(1+T/counter);
+
+    gravity=g*k;
+
+    arm->setOffsets(gravity.data());
+    
+  }
+       
+
+private:
+  double  counter;
+  YVector gravity;
+  YARPArm *arm;
+  
+};
+
 int main()
 {
   YARPArm arm;
   ArmSampler sampler(&arm, __samplerRate);
+  ArmGravity gravity(&arm);
 
   ACE_OS::printf("\nHello from YARP!\n\n");
 
   _inputPort.Register("/armDaemon/i:bot");
   sampler.Register("/armDaemon/torques/o:vect", "/armDaemon/positions/o:vect");
+  gravity.Register("/armDaemon/gravity/i:vect");
 	
   char path[255];
   sprintf(path,"%s/%s", GetYarpRoot(), ConfigFilePath);
@@ -172,11 +214,10 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
 	  ret = bot.readInt(&ival);
 	  val = (double)(ival);
 	}
-      
-      arm.setOffset(j,val);
+      if (ret)
+	arm.setOffset(j,val);
       break;
     case 8:
-      printf("Received a set offset on all joints\n");
       ret = bot.readDoubleVector(tmpVector, nj);
       if (!ret)
 	{
@@ -185,8 +226,8 @@ void _handleMsg(int msg, YARPBottle &bot, YARPArm &arm)
 	  for(j=0;j<nj;j++)
 	    tmpVector[j]=(double)tmpIntVector[j];
 	}
-
-      arm.setOffsets(tmpVector);
+      if (ret)
+	arm.setOffsets(tmpVector);
       break;
     default:
       ACE_OS::printf("Message not recognized, nothing done\n");
