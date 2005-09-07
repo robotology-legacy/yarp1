@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.h,v 1.2 2004-07-30 14:55:46 babybot Exp $
+/// $Id: YARPMatrix.h,v 1.3 2005-09-07 01:08:34 natta Exp $
 ///
 ///
 
@@ -134,64 +134,63 @@ public:
     double& operator[](int i) { return m_data[i]; }
     const double& operator[](int i) const { return m_data[i]; }
 
-	double& operator()(int i) { return m_data[--i]; }
-	const double& operator()(int i) const { return m_data[--i]; }
+    double& operator()(int i) { return m_data[--i]; }
+    const double& operator()(int i) const { return m_data[--i]; }
 
     // Assignment
     YVector& operator=(const YVector &vec);
     YVector& operator=(double value);
 
-	// We define operator < so that this class can be used in STL containers.
-	bool operator==(const YVector& refvector) const;
-	bool operator!=(const YVector& refvector) const;
-	bool operator==(double dbl) const;
-	bool operator!=(double dbl) const;
-	bool operator<(const YVector& refvector) const;
+    // We define operator < so that this class can be used in STL containers.
+    bool operator==(const YVector& refvector) const;
+    bool operator!=(const YVector& refvector) const;
+    bool operator==(double dbl) const;
+    bool operator!=(double dbl) const;
+    bool operator<(const YVector& refvector) const;
 	
-	YVector operator+(const YVector &b) const;
+    YVector operator+(const YVector &b) const;
 
-	YVector operator-(void) const;
-	YVector operator-(const YVector &b) const;
+    YVector operator-(void) const;
+    YVector operator-(const YVector &b) const;
 
-	YVector operator*(double dbl) const;
-	double operator*(const YVector &b) const;   // dot product
+    YVector operator*(double dbl) const;
+    double operator*(const YVector &b) const;   // dot product
 
-	// norm 2.
-	double norm2(void) const;
-	double norm2square(void) const;
+    // norm 2.
+    double norm2(void) const;
+    double norm2square(void) const;
 
-	// assume vector is row and multiply.
-	//YVector operator*(const YMatrix &A) const;
+    // assume vector is row and multiply.
+    //YVector operator*(const YMatrix &A) const;
 
-	YVector operator/(double dbl) const;
+    YVector operator/(double dbl) const;
 
-	YVector& operator+=(const YVector &b);
-	YVector& operator-=(const YVector &b);
+    YVector& operator+=(const YVector &b);
+    YVector& operator-=(const YVector &b);
 
-	YVector& operator+=(double dbl);
-	YVector& operator-=(double dbl);
-	YVector operator+(double dbl) const;
-	YVector operator-(double dbl) const;
+    YVector& operator+=(double dbl);
+    YVector& operator-=(double dbl);
+    YVector operator+(double dbl) const;
+    YVector operator-(double dbl) const;
 
-	YVector& operator*=(double dbl);
-	YVector& operator/=(double dbl);
+    YVector& operator*=(double dbl);
+    YVector& operator/=(double dbl);
 
-	YVector& cos(void);
-	YVector& sin(void);
+    YVector& cos(void);
+    YVector& sin(void);
 
     // Self-describing input/output format
     //enum FieldType { eftName, eftLength, eftData, eftEnd};
     //const char *ReadWriteField(CVisSDStream& s, int field_id);
 
-	// Flag used with the std::ostream file I/O methods.
-	// This may not be supported in future releases.
+    // Flag used with the std::ostream file I/O methods.
+    // This may not be supported in future releases.
     static bool s_fVerboseOutput; // print out dimensions on output
 
-	inline double * data(void) { return m_data; }
+    inline double * data(void) { return m_data; }
+    inline const double * data(void) const {return m_data; }
 
-	inline const double * data(void) const {return m_data; }
-
-private:
+ private:
     int m_length;       // number of elements
     double *m_data;     // pointer to data
     //CVisMemBlockOf<double> m_memblockStorage;  // reference counted storage
@@ -206,81 +205,82 @@ private:
 ////////////////////////////////////////////////////////////////////////////
 class YMatrix
 {
-public:
-    // Constructors (default destructor and copy constructor)
-    YMatrix(void);
-    YMatrix(int rows, int cols, const double *storage = 0);
-    YMatrix(const YMatrix &mat);
-	virtual ~YMatrix ();
+ public:
+  // Constructors (default destructor and copy constructor)
+  YMatrix(void);
+  YMatrix(int rows, int cols, const double *storage = 0);
+  YMatrix(const YMatrix &mat);
+  virtual ~YMatrix ();
 
-    // Matrix shape
-    int NRows(void) const { return m_nRows; }
-    int NCols(void) const { return m_nCols; }
-    void Resize(int rows, int cols, const double *storage = 0);
+  // Matrix shape
+  int NRows(void) const { return m_nRows; }
+  int NCols(void) const { return m_nCols; }
+  void Resize(int rows, int cols, const double *storage = 0);
 
-    // Element access
-    double *operator[](int i) { return m_data[i]; }
-    const double *operator[](int i) const { return m_data[i]; }
+  // Element access
+  double *operator[](int i) { return m_data[i]; }
+  const double *operator[](int i) const { return m_data[i]; }
 
-	double& operator()(int i,int j) { return m_data[--i][--j]; }
-	const double& operator()(int i,int j) const { return m_data[--i][--j]; }
+  double& operator()(int i,int j) { return m_data[--i][--j]; }
+  const double& operator()(int i,int j) const { return m_data[--i][--j]; }
 
-    // Assignment
-    YMatrix& operator=(const YMatrix &mat);
-    YMatrix& operator=(double value);
+  // Assignment
+  YMatrix& operator=(const YMatrix &mat);
+  YMatrix& operator=(double value);
 
-	// We define operator < so that this class can be used in STL containers.
-	bool operator==(const YMatrix& refmatrix) const;
-	bool operator!=(const YMatrix& refmatrix) const;
-	bool operator==(double dbl) const;
-	bool operator!=(double dbl) const;
-	bool operator<(const YMatrix& refmatrix) const;
+  // We define operator < so that this class can be used in STL containers.
+  bool operator==(const YMatrix& refmatrix) const;
+  bool operator!=(const YMatrix& refmatrix) const;
+  bool operator==(double dbl) const;
+  bool operator!=(double dbl) const;
+  bool operator<(const YMatrix& refmatrix) const;
 
-	YMatrix operator+(double dbl) const;
-	YMatrix operator-(double dbl) const;
-	YMatrix operator+(const YMatrix& A) const;
+  YMatrix operator+(double dbl) const;
+  YMatrix operator-(double dbl) const;
+  YMatrix operator+(const YMatrix& A) const;
 
-	YMatrix operator-(void) const;
-	YMatrix operator-(const YMatrix& A) const;
+  YMatrix operator-(void) const;
+  YMatrix operator-(const YMatrix& A) const;
 
-	YMatrix operator*(double dbl) const;
-	YMatrix operator*(const YMatrix& refmatrix) const;
-	YVector operator*(const YVector& refvector) const;
+  YMatrix operator*(double dbl) const;
+  YMatrix operator*(const YMatrix& refmatrix) const;
+  YVector operator*(const YVector& refvector) const;
 
-	YMatrix operator/(double dbl) const;
-
-	YMatrix& operator+=(const YMatrix& A);
-	YMatrix& operator-=(const YMatrix& A);
-	YMatrix& operator+=(double dbl);
-	YMatrix& operator-=(double dbl);
-	YMatrix& operator*=(double dbl);
-	YMatrix& operator*=(const YMatrix& A);
-	YMatrix& operator/=(double dbl);
-	
-	bool IsSymmetric(void) const;
-
-	YMatrix Inverted(void) const;
-	YMatrix& Invert(void);
-
-	YMatrix Transposed(void) const;
-	YMatrix& Transpose(void);
-
-    // Self-describing input/output format
-    //enum FieldType { eftName, eftDims, eftData, eftEnd};
-    //const char *ReadWriteField(CVisSDStream& s, int field_id);
+  YMatrix operator/(double dbl) const;
     
-	// Flag used with the std::ostream file I/O methods.
-	// This may not be supported in future releases.
-    static bool s_fVerboseOutput; // print out dimensions on output
+  YMatrix& operator+=(const YMatrix& A);
+  YMatrix& operator-=(const YMatrix& A);
+  YMatrix& operator+=(double dbl);
+  YMatrix& operator-=(double dbl);
+  YMatrix& operator*=(double dbl);
+  YMatrix& operator*=(const YMatrix& A);
+  YMatrix& operator/=(double dbl);
+	
+  bool IsSymmetric(void) const;
 
-	inline double ** data(void) { return m_data; }
+  YMatrix Inverted(void) const;
+  YMatrix& Invert(void);
 
-private:
-    int m_nRows;        // number of rows in matrix
-    int m_nCols;        // number of columns in matrix
-    double **m_data;    // Iliffe vector (array of pointers to data)
-    //CVisMemBlockOf<double> m_memblockStorage;  // reference counted storage
-    //CVisMemBlockOf<double *> m_memblockIliffe;   // Iliffe vector r. c. storage
+  YMatrix Transposed(void) const;
+  YMatrix& Transpose(void);
+
+  // Self-describing input/output format
+  //enum FieldType { eftName, eftDims, eftData, eftEnd};
+  //const char *ReadWriteField(CVisSDStream& s, int field_id);
+    
+  // Flag used with the std::ostream file I/O methods.
+  // This may not be supported in future releases.
+  static bool s_fVerboseOutput; // print out dimensions on output
+
+  inline double ** data(void) { return m_data; }
+  inline const double ** data(void) const { return (const double **) m_data; };
+
+ private:
+  int m_nRows;        // number of rows in matrix
+  int m_nCols;        // number of columns in matrix
+  double **m_data;    // Iliffe vector (array of pointers to data)
+  //CVisMemBlockOf<double> m_memblockStorage;  // reference counted storage
+  //CVisMemBlockOf<double *> m_memblockIliffe;   // Iliffe vector r. c. storage
 };
 
 
@@ -362,12 +362,12 @@ void SvdSolve(const YMatrix& u,
  
 VisMatrixExport void VISAPI VisDMatrixSVD(YMatrix& a, YVector& w, YMatrix& v);
 VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& a, 
-										  YMatrix& u, 
-										  YVector& w, 
-										  YMatrix& v);
+					  YMatrix& u, 
+					  YVector& w, 
+					  YMatrix& v);
 VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& a,
-										  const YVector& b,
-										  YVector& x);
+					  const YVector& b,
+					  YVector& x);
 //
 // LU decomposition.
 //
@@ -376,8 +376,8 @@ void LuSolve(YMatrix& a, YVector& indx, YVector& b);
 
 VisMatrixExport void VISAPI VisDMatrixLU(YMatrix& a, YVector& indx, double& d);
 VisMatrixExport void VISAPI VisDMatrixLU(const YMatrix& a,
-										 const YVector& b,
-										 YVector& x);
+					 const YVector& b,
+					 YVector& x);
 
 // LATER:  Variations that don't find the eigenvector.
 VisMatrixExport void VISAPI VisMinEigenValue(YMatrix& A, YVector& x);
@@ -413,7 +413,6 @@ ostream& VISAPI operator<<(ostream& os, const YMatrix& mat);
 // Self-describing stream I/O
 //inline CVisSDStream& operator<<(CVisSDStream& s, YVector& o);
 //inline CVisSDStream& operator<<(CVisSDStream& s, YMatrix& o);
-
 
 #include "YARPMatrix.inl"
 #include "YARPVectorPortContent.h"

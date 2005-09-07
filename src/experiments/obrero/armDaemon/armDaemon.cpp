@@ -31,15 +31,17 @@ public:
   void  doInit();
   void doRelease();
   void  doLoop();
-  void Register(const char *tName, const char *pName);
+  void Register(const char *tName, const char *pName, const char *eName);
 
 private:
   int _nj;
   YARPArm *arm;
   YVector positions;
   YVector torques;
+  YVector error;
   YARPOutputPortOf<YVector> positionsPort;
   YARPOutputPortOf<YVector> torquesPort;
+  YARPOutputPortOf<YVector> errorPort;
   FILE *dumpFile;
   IterativeStats _stats;
 };
@@ -91,7 +93,7 @@ int main()
   ACE_OS::printf("\nHello from YARP!\n\n");
 
   _inputPort.Register("/armDaemon/i:bot");
-  sampler.Register("/armDaemon/torques/o:vect", "/armDaemon/positions/o:vect");
+  sampler.Register("/armDaemon/torques/o:vect", "/armDaemon/positions/o:vect", "/armDaemon/error/o:vect");
   gravity.Register("/armDaemon/gravity/i:vect");
 	
   char path[255];
@@ -244,7 +246,9 @@ ArmSampler::ArmSampler(YARPArm *p, int rate): YARPRateThread("ArmSamplerThread",
   _nj = arm->nj();
   positions.Resize(_nj);
   torques.Resize(_nj);
+  error.Resize(_nj);
   positions = 0.0;
+  error=0.0;
   torques = 0.0;
   dumpFile = NULL;
 }
@@ -254,10 +258,11 @@ ArmSampler::~ArmSampler()
 
 }
 
-void ArmSampler::Register(const char *t, const char *p)
+void ArmSampler::Register(const char *t, const char *p, const char *e)
 {
   torquesPort.Register(t);
   positionsPort.Register(p);
+  errorPort.Register(e);
 }
 
 void ArmSampler::doInit()
@@ -275,6 +280,12 @@ void ArmSampler::doLoop()
   ret2 = arm->getTorques(torques.data());
   ACE_ASSERT(ret2==YARP_OK);
   double t2=YARPTime::GetTimeAsSeconds();
+  error=0.0;
+  for (int m=0; m<=4; m++)
+    {
+      ret2 = arm->getPIDError(m, error(m+1));
+      ACE_ASSERT(ret2==YARP_OK);
+    }
   
   _stats+=(t2-t1);
 #if 0
@@ -286,6 +297,7 @@ void ArmSampler::doLoop()
 #endif
   torquesPort.Content()=torques;
   positionsPort.Content()=positions;
+  errorPort.Content()=error;
 
 #if 1
   static int counter = 0;
@@ -313,6 +325,7 @@ void ArmSampler::doLoop()
 
   torquesPort.Write();
   positionsPort.Write();
+  errorPort.Write();
 }
 
 void ArmSampler::doRelease()
