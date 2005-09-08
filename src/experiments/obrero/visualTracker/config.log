@@ -691,7 +691,6 @@ on conspire1
 
 config.status:738: creating Makefile
 config.status:804: creating config.h
-config.status:982: config.h is unchanged
 config.status:1162: executing depfiles commands
 
 ## ---------------- ##

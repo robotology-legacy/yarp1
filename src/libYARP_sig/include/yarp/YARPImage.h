@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.6 2004-09-02 22:05:46 gmetta Exp $
+/// $Id: YARPImage.h,v 1.7 2005-09-08 17:17:16 natta Exp $
 ///
 ///
 
@@ -580,6 +580,15 @@ public:
 	inline T& Pixel(int x, int y) { return *((T*)(Data[y] + x*sizeof(T))); }
 
 	/**
+	 * Access a pixel within the image. Returns reference to a const object.
+	 * (0,0) is top-left of image.
+	 * @param x the horizontal coordinate of the pixel, from 0 to GetWidth()-1
+	 * @param y the vertical coordinate of the pixel, from 0 to GetHeight()-1
+	 * @return a constant reference to the requested pixel
+	 */
+	inline const T& Pixel(int x, int y) const {return *((const T*)(Data[y] + x*sizeof(T))); }
+
+	/**
 	 * Access a pixel within the image.
 	 * Identical to Pixel() method.
 	 * @param x the horizontal coordinate of the pixel
@@ -587,6 +596,15 @@ public:
 	 * @return reference to the requested pixel
 	 */
 	T& operator()(int x, int y)	{ return Pixel(x,y); }
+
+	/**
+	 * Access a pixel within the image.
+	 * Identical to Pixel(), const version
+	 * @param x the horizontal coordinate of the pixel
+	 * @param y the vertical coordinate of the pixel
+	 * @return a constant reference to the requested pixel
+	 */
+	const T& operator()(int x, int y) const {return Pixel(x,y);};
 
 	/**
 	 * Access a pixel within the image, throwing an assertion if out-of-bounds.
