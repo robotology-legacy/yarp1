@@ -50,11 +50,34 @@ void abs_req_motor(int x, int y);
 void update_motor();
 void set_home_bias();
 
+bool inhibited=false;
+
 class MySideTap : public SideTap {
 public:
   virtual bool ShouldSupplyImage() { return true; }
   virtual bool ShouldSave() { return false; }
   virtual void Apply(SideTapImage& image, SideTapSound& sound);
+};
+
+class Messages : public YARPInputPortOf<YARPBottle> {
+public:
+  virtual void OnRead() 
+  {
+    Read();
+    int msg;
+    YARPBottle &bot = Content();
+    bool ret = bot.readInt(&msg);
+    if (msg==200)
+      {
+	if (bot.readInt(&msg))
+	  {
+	    if (msg==1)
+	      inhibited=true;
+	    else
+	      inhibited=false;
+	  }
+      }
+  }
 };
 
 class TrackerPort : public YARPInputPortOf<YARPBottle> {
@@ -98,6 +121,7 @@ public:
 };
 
 TrackerPort inTracker;
+Messages messageHandler;
 
 double home_bias_time = -10000;
 
@@ -106,6 +130,8 @@ int IsHoming(double now) {
 }
 
 void set_location(int x, int y, int w, int h) {
+  if(inhibited)
+    return;
   set_mutex.Wait();
   set_pending = 1;
   set_x = x;
@@ -246,6 +272,7 @@ void MySideTap::Apply(SideTapImage& image, SideTapSound& sound) {
       first = 0;
       req_motor(0,0);
       inTracker.Register("/tracker/i:pos");
+      messageHandler.Register("/tracker/inhibition/i:bot");
       YARPTime::DelayInSeconds(1);
     }
     if (now-last_update>0.1) {

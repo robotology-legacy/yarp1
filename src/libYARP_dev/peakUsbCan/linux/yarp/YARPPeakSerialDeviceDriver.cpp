@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.6 2005-08-18 21:42:33 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.7 2005-09-15 22:19:53 natta Exp $
 ///
 ///
 /// June 05 -- by nat
@@ -71,6 +71,9 @@ YARPPeakSerialDeviceDriver::YARPPeakSerialDeviceDriver(void)
   m_cmds[CMDSetForceControlMode]=&YARPPeakSerialDeviceDriver::setForceMode;
   m_cmds[CMDSetOffset] = &YARPPeakSerialDeviceDriver::setOffset;
   m_cmds[CMDSetOffsets] = &YARPPeakSerialDeviceDriver::setOffsets;
+
+  m_cmds[CMDSetPID] = &YARPPeakSerialDeviceDriver::setPid;
+  m_cmds[CMDGetPID] = &YARPPeakSerialDeviceDriver::getPid;
 
   _nj = 0;
 
@@ -151,16 +154,55 @@ int YARPPeakSerialDeviceDriver::getPIDError(void *cmd)
   return ret;
 }
 
+int YARPPeakSerialDeviceDriver::getPid(void *cmd)
+{
+  int ret;
+  SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+  const int axis = tmp->axis;
+  LowLevelPID *pid = (LowLevelPID *) tmp->parameters;
+  int value;
+
+  ret = _readSWord(CAN_GET_PID, axis, value);
+
+  pid->KP = (double) value;
+  pid->KI = 0;
+  pid->KD = 0;
+  pid->AC_FF = 0;
+  pid->VEL_FF = 0;
+  pid->I_LIMIT = 0;
+  pid->OFFSET = 0;
+  pid->T_LIMIT = 0;
+  pid->SHIFT = 0;
+  pid->FRICT_FF = 0;
+
+  return ret;
+}
+
+int YARPPeakSerialDeviceDriver::setPid(void *cmd)
+{
+  int ret;
+  SingleAxisParameters *tmp = (SingleAxisParameters *) cmd;
+  const int axis = tmp->axis;
+  LowLevelPID *pid = (LowLevelPID *) tmp->parameters;
+  int value = ( ((int) pid->KP & 0x00007FFF)); //prevent overflow, make always > 0
+
+  ret = _writeWord(CAN_SET_PID, axis, value);
+
+  return ret;
+}
+
 int YARPPeakSerialDeviceDriver::getPositions(void *cmd)
 {
   int ret;
   ACE_ASSERT (cmd!=NULL);
   double *tmp = (double *) cmd;
+  fprintf(stderr, "A");
   ret = _readU16Vector(CAN_READ_POSITIONS_0TO3, tmp, 4);
+  fprintf(stderr, "B");
   //  fprintf(stderr, "%.2lf %.2lf %.2lf %.2lf", tmp[0], tmp[1], tmp[2], tmp[3]);
   if (ret == YARP_FAIL)
     return YARP_FAIL;
-
+  fprintf(stderr, "C");
   ret = _readU16Vector(CAN_READ_POSITIONS_4TO5, tmp+4, 2);
   //  fprintf(stderr, " %.2lf %.2lf\n", tmp[4], tmp[5]);
   return ret;

@@ -13,6 +13,8 @@
 
 #include "ace/config-linux-common.h"
 
+#define ACE_DEFAULT_FILE_PERMS 0666
+
 #define ACE_HAS_SVR4_DYNAMIC_LINKING
 #define ACE_HAS_AUTOMATIC_INIT_FINI
 #define ACE_HAS_DLSYM_SEGFAULT_ON_INVALID_HANDLE

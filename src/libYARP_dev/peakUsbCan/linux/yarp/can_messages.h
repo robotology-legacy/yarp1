@@ -38,5 +38,7 @@
 #define CAN_SET_OFFSETS_3TO5 126
 
 #define CAN_SET_OFFSET 127
+#define CAN_SET_PID 128
+#define CAN_GET_PID 129
 
 #endif

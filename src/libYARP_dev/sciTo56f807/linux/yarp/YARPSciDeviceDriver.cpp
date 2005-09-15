@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPSciDeviceDriver.cpp,v 1.11 2005-04-20 20:45:48 natta Exp $
+/// $Id: YARPSciDeviceDriver.cpp,v 1.12 2005-09-15 22:19:53 natta Exp $
 ///
 ///
 
@@ -150,9 +150,10 @@ int YARPSciDeviceDriver::getPositions(void *cmd)
 	int ret;
 	ACE_ASSERT (cmd!=NULL);
 	double *tmp = (double *) cmd;
+
 	ret = _readU16Vector(SCI_READ_POSITIONS_0TO3, tmp, 4);
 	if (ret == YARP_FAIL)
-		return YARP_FAIL;
+	  return YARP_FAIL;
 
 	ret = _readU16Vector(SCI_READ_POSITIONS_4TO5, tmp+4, 2);
 	return ret;
