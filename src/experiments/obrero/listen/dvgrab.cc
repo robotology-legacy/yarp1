@@ -27,6 +27,9 @@
 * Change log:
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.2  2005/03/20 03:45:05  eshuy
+* *** empty log message ***
+*
 * Revision 1.1  2005/03/15 20:23:40  eshuy
 * initial checking
 *
@@ -637,6 +640,16 @@ void *DVgrab::captureThread( void *arg )
 	return NULL;
 }
 
+static char output_name_buf[1000] = "";
+
+char *GetOutputName() {
+  return output_name_buf;
+}
+
+void SetOutputName(const char *str) {
+  strncpy(output_name_buf,str,sizeof(output_name_buf));
+}
+
 void DVgrab::captureThreadRun()
 {
 	static TimeCode prevTimeCode;
@@ -665,6 +678,9 @@ void DVgrab::captureThreadRun()
 		// Do with it what needs to be done
 		if ( m_frame != NULL )
 		{
+		  const char *output_name = m_writer ? m_writer->GetFileName().c_str() : "";
+		  SetOutputName(output_name);
+
 			m_frame->GetTimeCode( timeCode );
 			
 			// VIDEOBOX PATCH BEGINS MOD000
@@ -692,7 +708,7 @@ void DVgrab::captureThreadRun()
 			  static int ctr = 0;
 			  ctr++;
 			  if (ctr%90==0)
-			    printf("FRAME NUMBER %ld\n", ctr);
+			    printf("[%s] FRAME NUMBER %ld\n", output_name, ctr);
 
 			  static JSAMPLE *image_buffer = 
 			    new JSAMPLE[2048*2048*3];

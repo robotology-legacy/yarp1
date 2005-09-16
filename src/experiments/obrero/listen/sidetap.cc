@@ -127,6 +127,28 @@ void AddSound(SideTapSound& sound) {
     fprintf(draw,"%ld %g\n",ct,q_total);
     fflush(draw);
   }
+
+  char name[1000];
+  strncpy(name,GetOutputName(),sizeof(name));
+  
+  int id = 0;
+  if (name[0]!='\0') {
+    int first = -1;
+    int len = strlen(name);
+    for (int i=0; i<len; i++) {
+      char ch = name[i];
+      if (ch>='0'&&ch<='9') {
+	if (first==-1) first = i;
+      } else {
+	name[i] = '\0';
+      }
+    }
+    if (first!=-1) {
+      id = atoi(name+first);
+      //printf("id is %d\n", id);
+    }
+  }
+  output.setID(id);
   output.add(q_total);
   ct++;
   if (ct>=250) {

@@ -130,4 +130,6 @@ public:
 // main factory for your custom SideTap object
 extern SideTap *CreateSideTap();
 
+extern char *GetOutputName();
+
 #endif

@@ -1,3 +1,6 @@
 
-yarp-connect -f /collisionCreator/o:bot /arm/i:bot
+#yarp-connect -f /collisionCreator/o:bot /arm/i:bot
+
+yarp-connect -f /collisionCreator/o:bot /sweepNet/i:bot
+
 
