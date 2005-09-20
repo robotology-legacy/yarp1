@@ -30,6 +30,9 @@
 // constants and definitions to access the drivers 
 //
 // $Log: not supported by cvs2svn $
+// Revision 1.9  2005/04/07 20:51:02  klaus
+// corrected typographic error
+//
 // Revision 1.8  2004/08/15 09:45:26  klaus
 // added PCAN_GET_EXT_STATUS
 //
@@ -132,7 +135,7 @@
 // structures to communicate via ioctls
 typedef struct
 {
-  WORD wBTR0BTR1;        // merged BTR0 and BTR1 register of the SJA100
+  WORD wBTR0BTR1;        // merged BTR0 and BTR1 register of the SJA1000
   BYTE ucCANMsgType;     // 11 or 29 bits - put MSGTYPE_... in here
   BYTE ucListenOnly;     // listen only mode when != 0
 } TPCANInit;             // for PCAN_INIT
