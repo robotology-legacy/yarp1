@@ -61,26 +61,28 @@
 ///
 
 ///
-/// $Id: CollectorCommands.h,v 1.2 2005-05-30 14:16:59 beltran Exp $
+/// $Id: CollectorCommands.h,v 1.3 2005-09-21 18:14:24 beltran Exp $
 ///
 ///
 
 #ifndef __CollectorCommandsh__
 #define __CollectorCommandsh__
 
+#include<yarp/begin_pack_for_net.h>
 enum CollectorCmd
 {
-	CCMDGetData = 1,
+	CCMDGetData        = 1,
 	CCMDStartStreaming = 2,
-	CCMDStopStreaming = 3,
-	CCMDGetLed = 4,
-	CCMDGetSwitch = 5,
-	CCMDResetGlove = 6,
-	CCMDSetLed = 7,
-	CCMDConnect = 8,
-	CCMDDisconnect = 9,
-	CCMDQuit = 10
+	CCMDStopStreaming  = 3,
+	CCMDGetLed         = 4,
+	CCMDGetSwitch      = 5,
+	CCMDResetGlove     = 6,
+	CCMDSetLed         = 7,
+	CCMDConnect        = 8,
+	CCMDDisconnect     = 9,
+	CCMDQuit           = 10
 };
+#include<yarp/end_pack_for_net.h>
 
 typedef enum CollectorCmd MCommands;
 
