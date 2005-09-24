@@ -18,7 +18,7 @@
 
 YARPInputPortOf<YARPBottle> _inputPort;
 
-const int __samplerRate = 60;
+const int __samplerRate = 5;
 const int MESSAGE_LABEL = 5;
 
 using namespace std;
