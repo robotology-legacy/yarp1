@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.h,v 1.3 2005-09-07 01:08:34 natta Exp $
+/// $Id: YARPMatrix.h,v 1.4 2005-10-07 14:55:13 natta Exp $
 ///
 ///
 
@@ -350,10 +350,21 @@ VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& A, YVector& s,
 		YMatrix& U, YMatrix& V, int compute_left = 1,
 		int compute_right = 1);
 
-//
-// SVD decomposition.
-//
-void SVD(YMatrix& a, YVector& w, YMatrix& v);
+/**
+ * SVD decomposition.
+ * SVD(A, W, V)
+ * Returns the singular value decomposition of A (in Matlab this is what is 
+ * called the "economy size" SVD). 
+ * SVD(A)=A*S*V'
+ * where A=[mxn]; S=[nxn]; V=[nxn]
+ * and S=diag(w)
+ * The algorithm assumes m>=n and requires a,w,v be correctly allocated.
+ * @param a YMatrix which contains the matrix to be decomposed (mxn). On exit it will
+ * be filled with the values of A (mxn)
+ * @param w a YVector which will contain the singular values (1xn)
+ * @param v YMatrix which will contains V (nxn)
+ */
+voipd SVD(YMatrix& a, YVector& w, YMatrix& v);
 void SvdSolve(const YMatrix& u,
 			  const YVector& w, 
               const YMatrix& v,

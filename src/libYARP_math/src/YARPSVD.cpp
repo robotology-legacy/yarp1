@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPSVD.cpp,v 1.3 2005-10-07 14:23:51 natta Exp $
+/// $Id: YARPSVD.cpp,v 1.4 2005-10-07 14:55:13 natta Exp $
 ///
 ///
 
@@ -65,9 +65,13 @@ static float maxarg1,maxarg2;
 
 #define SIGN(a,b) ((b) >= 0.0 ? fabs(a) : -fabs(a))
 
-//
-// SVD di a --> U->a, V->v, D->w. 
-//
+// SVD(A, W, V)
+// Returns the "economy size" SVD (check matlab help for svd):
+// SVD(A)=A*S*V'
+// where A=[mxn]; S=[nxn]; V=[nxn]
+// and S=diag(w)
+// The algo works only if m>=n (this does not seem a limitation since you can
+// transpose back and forth)
 void SVD (YMatrix& a, YVector& w, YMatrix& v)
 {
     int m = a.NRows ();
