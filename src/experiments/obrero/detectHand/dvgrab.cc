@@ -27,6 +27,9 @@
 * Change log:
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.2  2005/08/11 19:33:19  eshuy
+* fixing interface with armmap
+*
 * Revision 1.1  2005/08/11 16:15:21  eshuy
 * initial checkin of detectHand
 *
@@ -152,7 +155,7 @@ DVgrab::DVgrab( int argc, char *argv[] ) :
 		m_dv1394( NULL ), m_jpeg_quality( 75 ),
 		m_jpeg_deinterlace( false ), m_jpeg_width( -1 ), m_jpeg_height( -1 ),
 		m_jpeg_overwrite( false ), m_captureActive( false ), m_avc( NULL ), m_reader( NULL ),
-		m_dropped_frames( 0 ), m_interactive( false ), m_buffers( 100 ), m_total_frames( 0 ),
+		m_dropped_frames( 0 ), m_interactive( false ), m_buffers( 1 ), m_total_frames( 0 ),
 		m_duration( "" ), m_timeDuration( NULL ), m_stdin( false ), m_noavc( false ),
 		m_guid( 0 )
 {

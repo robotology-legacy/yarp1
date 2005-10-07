@@ -9,6 +9,8 @@
 #include <ace/OS.h>
 #include <fcntl.h> //O_RDWR
 
+const int TIMEOUT=200000; //200ms
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -16,7 +18,7 @@
 PeakHelper::PeakHelper()
 {
   _handle = NULL;
-  _inBuf = new TPCANMsg;
+  _inBuf = new TPCANRdMsg;
   _outBuf = new TPCANMsg;
 }
 
@@ -37,7 +39,7 @@ int PeakHelper::write(const unsigned char *data, int len)
   
   err = CAN_Write(_handle, msg);
   
-  if (err=CAN_ERR_OK)
+  if (err!=CAN_ERR_OK)
     return YARP_FAIL;
   
   return YARP_OK;
@@ -47,17 +49,19 @@ int PeakHelper::read(unsigned char *data)
 {
   int n;
   int err;
-  TPCANMsg *msg = (TPCANMsg *) _inBuf;
+  TPCANRdMsg *msg = (TPCANRdMsg *) _inBuf;
  
-  // DEBUG
-  err = CAN_Read(_handle, msg);
-  //  fprintf(stderr, "Read from can %x %d\n", msg->ID, msg->LEN);
-  //  fprintf(stderr, "%.2x%.2x", msg->DATA[0], msg->DATA[1]); 
+  err = LINUX_CAN_Read_Timeout(_handle, msg, TIMEOUT);
+  if (err!=CAN_ERR_OK)
+    fprintf(stderr, "Read(char *) returned %d\n", err);
+
+  //  fprintf(stderr, "Read from can %x %d\n", msg->Msg.ID, msg->Msg.LEN);
+  //fprintf(stderr, "%.2x%.2x", msg->DATA[0], msg->DATA[1]); 
     
   if (err!=CAN_ERR_OK)
     return YARP_FAIL;
 
-  memcpy(data, msg->DATA, msg->LEN);
+  memcpy(data, msg->Msg.DATA, msg->Msg.LEN);
 
   return YARP_OK;
 }
@@ -67,10 +71,13 @@ int PeakHelper::read()
 {
   int n;
   int err;
-  TPCANMsg *msg = (TPCANMsg *) _inBuf;
+  TPCANRdMsg *msg = (TPCANRdMsg *) _inBuf;
  
-  // DEBUG
-  err = CAN_Read(_handle, msg);
+  //  err = CAN_Read(_handle, msg);
+  err = LINUX_CAN_Read_Timeout(_handle, msg, TIMEOUT);
+  if (err!=CAN_ERR_OK)
+    fprintf(stderr, "Read(): returned %d, maybe a timeout?\n",err);
+
   //  printf("Read from can %x %d\n", msg->ID, msg->LEN);
   
   if (err!=CAN_ERR_OK)
@@ -101,6 +108,7 @@ int PeakHelper::open(PeakOpenParameters *p)
     return YARP_FAIL;
 
   err = CAN_Status(_handle);
+  fprintf(stderr, "Status: %d\n", err);
   err = CAN_Init(_handle, p->_wBTR0BTR1, p->_frameType);
 
   if (err!=CAN_ERR_OK)

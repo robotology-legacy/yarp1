@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPSVD.cpp,v 1.2 2004-08-02 12:50:23 eshuy Exp $
+/// $Id: YARPSVD.cpp,v 1.3 2005-10-07 14:23:51 natta Exp $
 ///
 ///
 
@@ -73,11 +73,11 @@ void SVD (YMatrix& a, YVector& w, YMatrix& v)
     int m = a.NRows ();
     int n = a.NCols (); 
 
-	int flag, i, its, j, jj, k, l, nm;
-	double c, f, h, s, x, y, z;
-	double anorm=0.0, g=0.0, scale=0.0;
+    int flag, i, its, j, jj, k, l, nm;
+    double c, f, h, s, x, y, z;
+    double anorm=0.0, g=0.0, scale=0.0;
         
-	YVector rv1 (n);
+    YVector rv1 (n);
     rv1 = 0;
     
     assert(m >= n);

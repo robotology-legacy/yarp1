@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.7 2005-09-15 22:19:53 natta Exp $
+/// $Id: YARPPeakSerialDeviceDriver.cpp,v 1.8 2005-10-07 14:23:51 natta Exp $
 ///
 ///
 /// June 05 -- by nat
@@ -196,13 +196,13 @@ int YARPPeakSerialDeviceDriver::getPositions(void *cmd)
   int ret;
   ACE_ASSERT (cmd!=NULL);
   double *tmp = (double *) cmd;
-  fprintf(stderr, "A");
+  ///=  fprintf(stderr, "A");
   ret = _readU16Vector(CAN_READ_POSITIONS_0TO3, tmp, 4);
-  fprintf(stderr, "B");
+  //  fprintf(stderr, "B");
   //  fprintf(stderr, "%.2lf %.2lf %.2lf %.2lf", tmp[0], tmp[1], tmp[2], tmp[3]);
   if (ret == YARP_FAIL)
     return YARP_FAIL;
-  fprintf(stderr, "C");
+  //  fprintf(stderr, "C");
   ret = _readU16Vector(CAN_READ_POSITIONS_4TO5, tmp+4, 2);
   //  fprintf(stderr, " %.2lf %.2lf\n", tmp[4], tmp[5]);
   return ret;
