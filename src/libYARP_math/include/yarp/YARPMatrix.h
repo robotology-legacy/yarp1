@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.h,v 1.4 2005-10-07 14:55:13 natta Exp $
+/// $Id: YARPMatrix.h,v 1.5 2005-10-12 10:16:59 emmebi75 Exp $
 ///
 ///
 
@@ -364,7 +364,7 @@ VisMatrixExport void VISAPI VisDMatrixSVD(const YMatrix& A, YVector& s,
  * @param w a YVector which will contain the singular values (1xn)
  * @param v YMatrix which will contains V (nxn)
  */
-voipd SVD(YMatrix& a, YVector& w, YMatrix& v);
+void SVD(YMatrix& a, YVector& w, YMatrix& v);
 void SvdSolve(const YMatrix& u,
 			  const YVector& w, 
               const YMatrix& v,
