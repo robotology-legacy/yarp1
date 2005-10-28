@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: global.cpp,v 1.2 2004-09-07 15:28:52 babybot Exp $
+/// $Id: global.cpp,v 1.3 2005-10-28 16:11:08 natta Exp $
 ///
 ///
 
@@ -85,7 +85,7 @@
 #include <yarp/YARPImage.h>
 //#include <yarp/YARPImagePortContent.h>
 
-#include "global.h"
+#include "../include/yarp_private/global.h"
 
 ///
 ///
@@ -267,9 +267,9 @@ int dispatcher (const char *operation, void *params)
 		case MX_YARP_##x: \
 		{ \
 				if (par._direction) \
-					myport._port = (void *) new YARPInputPortOf<##y> (stringToBuffering(par._extra_content, par._direction), stringToProtocol(par._protocol)); \
+					myport._port = (void *) new YARPInputPortOf<y> (stringToBuffering(par._extra_content, par._direction), stringToProtocol(par._protocol)); \
 				else \
-					myport._port = (void *) new YARPOutputPortOf<##y> (stringToBuffering(par._extra_content, par._direction), stringToProtocol(par._protocol)); \
+					myport._port = (void *) new YARPOutputPortOf<y> (stringToBuffering(par._extra_content, par._direction), stringToProtocol(par._protocol)); \
 				myport._type = MX_YARP_##x; \
 				myport._direction = par._direction; \
 				myport._name = NULL; \
@@ -283,7 +283,7 @@ int dispatcher (const char *operation, void *params)
 		{ \
 			if (myport._direction) \
 			{ \
-				YARPInputPortOf<##y> *port = (YARPInputPortOf<##y> *)myport._port; \
+				YARPInputPortOf<y> *port = (YARPInputPortOf<y> *)myport._port; \
 				return_value = port->Register (par._portname, par._network); \
 				if (return_value >= 0) \
 				{ \
@@ -315,14 +315,14 @@ int dispatcher (const char *operation, void *params)
 		{ \
 			if (myport._direction) \
 			{ \
-				YARPInputPortOf<##y> *port = (YARPInputPortOf<##y> *)myport._port; \
+				YARPInputPortOf<y> *port = (YARPInputPortOf<y> *)myport._port; \
 				return_value = port->Unregister (); \
 				if (myport._name != NULL) delete[] myport._name; \
 				myport._name = NULL; \
 			} \
 			else \
 			{ \
-				YARPOutputPortOf<##y> *port = (YARPOutputPortOf<##y> *)myport._port; \
+				YARPOutputPortOf<y> *port = (YARPOutputPortOf<y> *)myport._port; \
 				return_value = port->Unregister (); \
 				if (myport._name != NULL) delete[] myport._name; \
 				myport._name = NULL; \
@@ -337,7 +337,7 @@ int dispatcher (const char *operation, void *params)
 		{ \
 			if (myport._direction) \
 			{ \
-				YARPInputPortOf<##y> *port = (YARPInputPortOf<##y> *)myport._port; \
+				YARPInputPortOf<y> *port = (YARPInputPortOf<y> *)myport._port; \
 				delete port; \
 				myport._port = NULL; \
 				myport._type = MX_YARP_INVALID; \
@@ -346,7 +346,7 @@ int dispatcher (const char *operation, void *params)
 			} \
 			else \
 			{ \
-				YARPOutputPortOf<##y> *port = (YARPOutputPortOf<##y> *)myport._port; \
+				YARPOutputPortOf<y> *port = (YARPOutputPortOf<y> *)myport._port; \
 				delete port; \
 				myport._port = NULL; \
 				myport._type = MX_YARP_INVALID; \
@@ -592,7 +592,7 @@ int list_port (void *params)
 #define PORT_READ(x, y) \
 		case MX_YARP_##x: \
 		{ \
-			YARPInputPortOf<##y> *port = (YARPInputPortOf<##y> *)myport._port; \
+			YARPInputPortOf<y> *port = (YARPInputPortOf<y> *)myport._port; \
 			if (port->Read((par._extra_params)?true:false)) \
 			{ \
 				par._extra_content = (char *)&(port->Content()); \
@@ -614,12 +614,12 @@ int list_port (void *params)
 #define PORT_WRITE(x, y) \
 		case MX_YARP_##x: \
 		{ \
-			YARPOutputPortOf<##y> *port = (YARPOutputPortOf<##y> *)myport._port; \
+			YARPOutputPortOf<y> *port = (YARPOutputPortOf<y> *)myport._port; \
 			if (par._sizex != 1 || par._sizey != 1) \
 				return_value = -1; \
 			else \
 			{ \
-				port->Content() = ##y((*(double *)par._extra_content) + .5); \
+				port->Content() = y((*(double *)par._extra_content) + .5); \
 				port->Write((par._extra_params)?true:false); \
 				return_value = 0; \
 			} \
