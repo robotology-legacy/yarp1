@@ -478,9 +478,9 @@ static void RawToRGBIm(YARPImageOf<YarpPixelRGB> &image_out, char * buf, int buf
 	  YarpPixelRGB & pix = image_out.Pixel(w, h);
 	  int t;
 	  t = ((h*buf_w)+w)*3;
-	  pix.r = buf[t];
+	  pix.b = buf[t];
 	  pix.g = buf[t+1];
-	  pix.b = buf[t+2];
+	  pix.r = buf[t+2];
 	}
     }
 }

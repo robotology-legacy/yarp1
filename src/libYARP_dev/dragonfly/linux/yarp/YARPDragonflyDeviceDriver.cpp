@@ -37,7 +37,7 @@
 ///
 
 ///
-/// $Id: YARPDragonflyDeviceDriver.cpp,v 1.1 2005-10-28 12:54:18 eshuy Exp $
+/// $Id: YARPDragonflyDeviceDriver.cpp,v 1.2 2005-10-31 12:03:37 eshuy Exp $
 ///
 ///
 
@@ -62,7 +62,7 @@ double GetTimeAs_mSeconds(void)
 class DragonflyResources
 {
 public:
-	DragonflyResources (void) : _newFrameMutex(0)/* CONV_MUTEX*/,  _convImgMutex(1) 
+	DragonflyResources (void) : _newFrameMutex(0),  _convImgMutex(1) 
 	{
 		// Variables initialization
 		sizeX = 0;
@@ -70,7 +70,6 @@ public:
 		maxCams = 0;
 		bufIndex = 0;
 		_canPost = false;
-		//imageConverted.pData = NULL;
 		_acqStarted = false;
 		_validContext = false;
 		_pSubsampled_data = NULL;
@@ -80,7 +79,8 @@ public:
 
 	~DragonflyResources () 
 	{ 
-		_uninitialize (); // To be sure - must protected against double calling
+		_uninitialize ();
+		// To be sure - must protected against double calling
 	}
 	
 	// Hardware-dependant variables
@@ -97,20 +97,15 @@ public:
 	unsigned char *_pSubsampled_data;
 	
 
-  //FlyCaptureContext context;
-  //FlyCaptureImage imageBuffer[_num_buffers];
-  //FlyCaptureImage imageConverted;
-  FWCameras cam;
-  YARPImageOf<YarpPixelRGB> img;
+        FWCameras cam;
+        YARPImageOf<YarpPixelRGB> img;
 
 	YARPSemaphore mutexArray[_num_buffers];
 	YARPSemaphore _newFrameMutex;
-	/* CONV_MUTEX*/
 	YARPSemaphore _convImgMutex;
 	
 	inline int _initialize (const DragonflyOpenParameters& params);
 	inline int _uninitialize (void);
-	inline void _cleanBuffers (void);
 
 	inline bool _setBrightness (int value, bool bDefault=false);
 	inline bool _setExposure (int value, bool bDefault=false);
@@ -119,10 +114,6 @@ public:
 	inline bool _setGain (int value, bool bDefault=false);
 
 	inline void _subSampling(void);
-
-protected:
-	inline void _prepareBuffers (void);
-	inline void _destroyBuffers (void);
 
 };
 
@@ -135,7 +126,7 @@ inline int DragonflyResources::_initialize (const DragonflyOpenParameters& param
   cam.Capture(img);
   sizeX = img.GetWidth();
   sizeY = img.GetHeight();
-	
+  
   return YARP_OK;
 }
 
@@ -146,17 +137,7 @@ inline int DragonflyResources::_uninitialize (void)
 
 ///
 ///
-inline void DragonflyResources::_prepareBuffers(void)
-{
-}
 
-inline void DragonflyResources::_cleanBuffers(void)
-{
-}
-
-inline void DragonflyResources::_destroyBuffers(void)
-{
-}
 
 inline bool DragonflyResources::_setBrightness (int value, bool bAuto)
 {
@@ -227,7 +208,6 @@ int YARPDragonflyDeviceDriver::open (void *res)
 	DragonflyResources& d = RES(system_resources);
 	int ret = d._initialize (*(DragonflyOpenParameters *)res);
 	YARPScheduler::setHighResScheduling ();
-	//Begin ();
 
 	return ret;
 }
@@ -235,8 +215,6 @@ int YARPDragonflyDeviceDriver::open (void *res)
 int YARPDragonflyDeviceDriver::close (void)
 {
 	DragonflyResources& d = RES(system_resources);
-
-	//End ();	/// stops the thread first (joins too).
 
 	int ret = d._uninitialize ();
 
@@ -248,18 +226,18 @@ int YARPDragonflyDeviceDriver::close (void)
 /// acquisition thread for real!
 void YARPDragonflyDeviceDriver::Body (void)
 {
-  //actually we don't need this
+  // actually we don't need this for this kind of camera
 }
 
 int YARPDragonflyDeviceDriver::acquireBuffer (void *buffer)
 {
-	DragonflyResources& d = RES(system_resources);
-		 
-	(*(char **)buffer) = d.img.GetRawBuffer();
-	d.sizeX = d.img.GetWidth();
-	d.sizeY = d.img.GetHeight();
-
-	return YARP_OK;
+  DragonflyResources& d = RES(system_resources);
+  
+  (*(char **)buffer) = d.img.GetRawBuffer();
+  d.sizeX = d.img.GetWidth();
+  d.sizeY = d.img.GetHeight();
+  
+  return YARP_OK;
 }
 
 int YARPDragonflyDeviceDriver::releaseBuffer (void *cmd)
