@@ -53,6 +53,7 @@
 #include <sys/param.h>
 #include <math.h>
 #include <string.h>
+#include <assert.h>
 #include "main.h"
 #include "tube.h"
 #include "input.h"
@@ -69,6 +70,14 @@
 /*  1 MEANS COMPILE SO THAT INTERPOLATION NOT DONE FOR
     SOME CONTROL RATE PARAMETERS  */
 #define MATCH_DSP                 0
+
+
+double safe_div(double top, double bot) {
+  if (bot>0.0001 || bot<-0.0001) {
+    return top/bot;
+  }
+  return 0;
+}
 
 
 /*  GLOBAL FUNCTIONS (LOCAL TO THIS FILE)  ***********************************/
@@ -175,6 +184,12 @@ double radiationFilter(TRMTubeModel *tubeModel, double input)
 {
     static double radiationX = 0.0, radiationY = 0.0;
 
+    if (isnan(input)) { printf("problem %d\n", __LINE__); exit(1); }
+    if (isnan(tubeModel->a20)) { printf("problem %d\n", __LINE__); exit(1); }
+    if (isnan(tubeModel->a21)) { printf("problem %d\n", __LINE__); exit(1); }
+    if (isnan(radiationX)) { printf("problem %d\n", __LINE__); exit(1); }
+    if (isnan(radiationY)) { printf("problem %d\n", __LINE__); exit(1); }
+
     double output = (tubeModel->a20 * input) + (tubeModel->a21 * radiationX) - (tubeModel->b21 * radiationY);
     radiationX = input;
     radiationY = output;
@@ -262,6 +277,18 @@ double nasalRadiationFilter(TRMTubeModel *tubeModel, double input)
     static double nasalRadiationX = 0.0, nasalRadiationY = 0.0;
 
     double output = (tubeModel->na20 * input) + (tubeModel->na21 * nasalRadiationX) - (tubeModel->nb21 * nasalRadiationY);
+
+    if (isnan(output)||isinf(output)) {
+      printf("Problem line %d\n", __LINE__);
+      printf("%g %g %g %g %g %g\n", 
+	     tubeModel->na20,
+	     tubeModel->na21,
+	     tubeModel->nb21,
+	     nasalRadiationX,
+	     nasalRadiationY,
+	     input);
+      exit(1);
+    }
     nasalRadiationX = input;
     nasalRadiationY = output;
     return output;
@@ -321,6 +348,10 @@ void synthesize(TRMTubeModel *tubeModel, TRMData *data)
             setFricationTaps(tubeModel);
             calculateBandpassCoefficients(tubeModel, tubeModel->sampleRate);
 
+	    if (isnan(f0+ax+ah1)) {
+	      printf("Signal is NAN %d\n", __LINE__);
+	      exit(1);
+	    }
 
             /*  DO SYNTHESIS HERE  */
             /*  CREATE LOW-PASS FILTERED NOISE  */
@@ -353,8 +384,19 @@ void synthesize(TRMTubeModel *tubeModel, TRMData *data)
             } else
                 signal = lp_noise;
 
+	    if (isnan(signal)) {
+	      printf("Signal is NAN %d\n", __LINE__);
+	      exit(1);
+	    }
+
             /*  PUT SIGNAL THROUGH VOCAL TRACT  */
             signal = vocalTract(tubeModel, ((pulse + (ah1 * signal)) * VT_SCALE), bandpassFilter(tubeModel, signal));
+
+	    if (isnan(signal)) {
+	      printf("Signal is NAN %d\n", __LINE__);
+	      printf("Pulse %g / ah1 %g / prev signal %g\n", pulse, ah1, -1.0);
+	      exit(1);
+	    }
 
 
             /*  PUT PULSE THROUGH THROAT  */
@@ -362,20 +404,37 @@ void synthesize(TRMTubeModel *tubeModel, TRMData *data)
             if (verbose)
                 printf("\nDone throat\n");
 
-	    if (!isRemote()) {
+	    if (isnan(signal)) {
+	      printf("Signal is NAN %d\n", __LINE__);
+	      exit(1);
+	    }
+
+	    //if (!isRemote()) {
 	      /*  OUTPUT SAMPLE HERE  */
 	      dataFill(tubeModel->ringBuffer, signal);
 	      if (verbose)
                 printf("\nDone datafil\n");
+
+	    if (isnan(signal)) {
+	      printf("Signal is NAN %d\n", __LINE__);
+	      exit(1);
+	    }
+
 	      
 	      /*  DO SAMPLE RATE INTERPOLATION OF CONTROL PARAMETERS  */
 	      sampleRateInterpolation(tubeModel);
 	      if (verbose)
                 printf("\nDone sample rate interp\n");
-	    }	      
+	      //}	      
 
-	    printf("%g\n", (double)signal);
+	    if (isnan(signal)) {
+	      printf("Signal is NAN %d\n", __LINE__);
+	      exit(1);
+	    }
 
+
+	    //printf("%g\n", (double)signal);
+	    remoteOutput(signal);
         }
 
 	//printf("Tick...\n");
@@ -534,13 +593,13 @@ void initializeNasalCavity(TRMTubeModel *tubeModel, struct _TRMInputParameters *
     for (i = TRM_N2, j = NC2; i < TRM_N6; i++, j++) {
         radA2 = inputParameters->noseRadius[i] * inputParameters->noseRadius[i];
         radB2 = inputParameters->noseRadius[i+1] * inputParameters->noseRadius[i+1];
-        tubeModel->nasal_coeff[j] = (radA2 - radB2) / (radA2 + radB2);
+        tubeModel->nasal_coeff[j] = safe_div(radA2 - radB2, radA2 + radB2);
     }
 
     /*  CALCULATE THE FIXED COEFFICIENT FOR THE NOSE APERTURE  */
     radA2 = inputParameters->noseRadius[TRM_N6] * inputParameters->noseRadius[TRM_N6];
     radB2 = inputParameters->apScale * inputParameters->apScale;
-    tubeModel->nasal_coeff[NC6] = (radA2 - radB2) / (radA2 + radB2);
+    tubeModel->nasal_coeff[NC6] = safe_div(radA2 - radB2, radA2 + radB2);
 }
 
 
@@ -602,19 +661,23 @@ void calculateTubeCoefficients(TRMTubeModel *tubeModel, struct _TRMInputParamete
     for (i = 0; i < (TOTAL_REGIONS-1); i++) {
         radA2 = tubeModel->current.parameters.radius[i] * tubeModel->current.parameters.radius[i];
         radB2 = tubeModel->current.parameters.radius[i+1] * tubeModel->current.parameters.radius[i+1];
-        tubeModel->oropharynx_coeff[i] = (radA2 - radB2) / (radA2 + radB2);
+	tubeModel->oropharynx_coeff[i] = safe_div(radA2 - radB2,radA2 + radB2);
+	if (isnan(tubeModel->oropharynx_coeff[i])) {
+	  printf("problem line %d %g %g\n", __LINE__, radA2, radB2);
+	  exit(1);
+	}
     }
 
     /*  CALCULATE THE COEFFICIENT FOR THE MOUTH APERTURE  */
     radA2 = tubeModel->current.parameters.radius[TRM_R8] * tubeModel->current.parameters.radius[TRM_R8];
     radB2 = inputParameters->apScale * inputParameters->apScale;
-    tubeModel->oropharynx_coeff[C8] = (radA2 - radB2) / (radA2 + radB2);
+    tubeModel->oropharynx_coeff[C8] = safe_div(radA2 - radB2, radA2 + radB2);
 
     /*  CALCULATE ALPHA COEFFICIENTS FOR 3-WAY JUNCTION  */
     /*  NOTE:  SINCE JUNCTION IS IN MIDDLE OF REGION 4, r0_2 = r1_2  */
     r0_2 = r1_2 = tubeModel->current.parameters.radius[TRM_R4] * tubeModel->current.parameters.radius[TRM_R4];
     r2_2 = tubeModel->current.parameters.velum * tubeModel->current.parameters.velum;
-    sum = 2.0 / (r0_2 + r1_2 + r2_2);
+    sum = safe_div(2.0, r0_2 + r1_2 + r2_2);
     tubeModel->alpha[LEFT] = sum * r0_2;
     tubeModel->alpha[RIGHT] = sum * r1_2;
     tubeModel->alpha[UPPER] = sum * r2_2;
@@ -622,7 +685,7 @@ void calculateTubeCoefficients(TRMTubeModel *tubeModel, struct _TRMInputParamete
     /*  AND 1ST NASAL PASSAGE COEFFICIENT  */
     radA2 = tubeModel->current.parameters.velum * tubeModel->current.parameters.velum;
     radB2 = inputParameters->noseRadius[TRM_N2] * inputParameters->noseRadius[TRM_N2];
-    tubeModel->nasal_coeff[NC1] = (radA2 - radB2) / (radA2 + radB2);
+    tubeModel->nasal_coeff[NC1] = safe_div(radA2 - radB2, radA2 + radB2);
 }
 
 
@@ -704,7 +767,7 @@ void calculateBandpassCoefficients(TRMTubeModel *tubeModel, int sampleRate)
     tanValue = tan((PI * tubeModel->current.parameters.fricBW) / sampleRate);
     cosValue = cos((2.0 * PI * tubeModel->current.parameters.fricCF) / sampleRate);
 
-    tubeModel->bpBeta = (1.0 - tanValue) / (2.0 * (1.0 + tanValue));
+    tubeModel->bpBeta = safe_div(1.0 - tanValue, 2.0 * (1.0 + tanValue));
     tubeModel->bpGamma = (0.5 + tubeModel->bpBeta) * cosValue;
     tubeModel->bpAlpha = (0.5 - tubeModel->bpBeta) / 2.0;
 }
@@ -801,6 +864,15 @@ double vocalTract(TRMTubeModel *tubeModel, double input, double frication)
         tubeModel->oropharynx[i+1][TOP][current_ptr] =
             ((tubeModel->oropharynx[i][TOP][prev_ptr] + delta) * dampingFactor) +
                 (tubeModel->fricationTap[k] * frication);
+	if (isnan(tubeModel->oropharynx[i+1][TOP][current_ptr])) {
+	  printf("%d %g\n", __LINE__, (double)tubeModel->oropharynx_coeff[j]);
+	  printf("%d %g\n", __LINE__, (double)tubeModel->oropharynx[i+1][BOTTOM][prev_ptr]);
+	  printf("%d %g\n", __LINE__, (double)delta);
+	  printf("%d %g\n", __LINE__, (double)frication);
+	  printf("%d %g\n", __LINE__, (double)tubeModel->fricationTap[k]);
+	  printf("%d %g\n", __LINE__, (double)tubeModel->oropharynx[i][TOP][prev_ptr]);
+	  exit(1);
+	}
         tubeModel->oropharynx[i][BOTTOM][current_ptr] = (tubeModel->oropharynx[i+1][BOTTOM][prev_ptr] + delta) * dampingFactor;
     }
 
@@ -810,6 +882,14 @@ double vocalTract(TRMTubeModel *tubeModel, double input, double frication)
 
     /*  OUTPUT FROM MOUTH GOES THROUGH A HIGHPASS FILTER  */
     output = radiationFilter(tubeModel, (1.0 + tubeModel->oropharynx_coeff[C8]) * tubeModel->oropharynx[S10][TOP][prev_ptr]);
+
+	    if (isnan(output)) {
+	      printf("Signal is NAN %d\n", __LINE__);
+	      printf("Check %g\n", tubeModel->oropharynx_coeff[C8]);
+	      printf("Check %g\n", tubeModel->oropharynx[S10][TOP][prev_ptr]);
+	      printf("ID %d\n", prev_ptr);
+	      exit(1);
+	    }
 
 
     /*  UPDATE NASAL CAVITY  */
@@ -822,8 +902,18 @@ double vocalTract(TRMTubeModel *tubeModel, double input, double frication)
     /*  REFLECTED SIGNAL AT NOSE GOES THROUGH A LOWPASS FILTER  */
     tubeModel->nasal[TRM_N6][BOTTOM][current_ptr] = dampingFactor * nasalReflectionFilter(tubeModel, tubeModel->nasal_coeff[NC6] * tubeModel->nasal[TRM_N6][TOP][prev_ptr]);
 
+	    if (isnan(output)) {
+	      printf("Signal is NAN %d\n", __LINE__);
+	      exit(1);
+	    }
+
     /*  OUTPUT FROM NOSE GOES THROUGH A HIGHPASS FILTER  */
     output += nasalRadiationFilter(tubeModel, (1.0 + tubeModel->nasal_coeff[NC6]) * tubeModel->nasal[TRM_N6][TOP][prev_ptr]);
+
+	    if (isnan(output)) {
+	      printf("Signal is NAN %d\n", __LINE__);
+	      exit(1);
+	    }
 
     /*  RETURN SUMMED OUTPUT FROM MOUTH AND NOSE  */
     return output;

@@ -77,6 +77,7 @@ typedef struct _INPUT {
 extern int remote;
 extern INPUT *remoteInput(INPUT *input);
 extern int isRemote();
+extern void remoteOutput(double signal);
 
 
 typedef struct _TRMInputParameters {

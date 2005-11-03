@@ -1,7 +1,85 @@
 
 #include <stdio.h>
-
 #include "structs.h"
+
+#define LOOP_INPUT
+
+
+
+////////////////////////////////////////////////////////////////
+// AUDIO STUFF
+////////////////////////////////////////////////////////////////
+
+
+#include <stdio.h>	// for printf(), perror() 
+#include <fcntl.h>	// for open() 
+#include <stdlib.h>	// for exit() 
+#include <unistd.h>	// for write(), close() 
+#include <math.h>	// for sin()
+#include <sys/ioctl.h>	// for ioctl()
+#include <sys/soundcard.h>
+
+#define SAMPLE_RATE	22000
+//#define SAMPLE_RATE	48000
+#define NUM_SAMPLES	SAMPLE_RATE
+#define TWO_PI		(3.14159 * 2.0)
+
+static int dev = -1;
+
+void audio_init() {
+  // open the audio device and set its playback parameters
+  int	bits = 8, chns = 1, rate = SAMPLE_RATE;
+  dev = open( "/dev/dsp", O_WRONLY );
+  if ( dev < 0 ) { perror( "/dev/dsp" ); exit(1); }
+  if (( ioctl( dev, SNDCTL_DSP_SETFMT, &bits ) < 0 )
+      ||( ioctl( dev, SNDCTL_DSP_CHANNELS, &chns ) < 0 )
+      ||( ioctl( dev, SNDCTL_DSP_SPEED, &rate ) < 0 ))
+    { perror( "audio format not supported\n" ); exit(1); }
+}
+
+
+unsigned char	pulse_code[ NUM_SAMPLES ];
+int pulse_at = 0;
+
+void audio_emit(int n) {
+  static int first = 1;
+  if (first) {
+    audio_init();
+    first = 0;
+  }
+
+  if (pulse_at<100) {
+    pulse_code[pulse_at] = (unsigned char)n;
+    pulse_at++;
+  } else {
+    // now playback the sound
+    unsigned char	*pcm = pulse_code;
+    int morebytes = pulse_at;
+    while ( morebytes > 0 )
+      {
+	int	nbytes = write( dev, pcm, morebytes );
+	morebytes -= nbytes;
+	pcm += nbytes;
+      }
+    pulse_at = 0;
+  }
+    //close( dev );		// close the audio playback device
+}
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////
+// INTERFACE STUFF
+////////////////////////////////////////////////////////////////
+
+
 
 static TRMData fake_data;
 static TRMParameters fake_parameters;
@@ -11,6 +89,8 @@ int isRemote() {
 }
 
 INPUT *remoteInput(INPUT *input) {
+  //return input;
+
   static int first = 1;
   static INPUT inputs[2];
   int i;
@@ -25,13 +105,48 @@ INPUT *remoteInput(INPUT *input) {
     if (input!=NULL) {
       fake_parameters = input->parameters;
     }
-    fake_data.inputHead = &inputs[0];
+    fake_data.inputHead = input;
     fake_data.inputTail = NULL; // invariant is broken for now since not needed
     first = 0;
+#ifdef LOOP_INPUT
+    // leave input unchanged
+#else
     input = &inputs[0];
+#endif
   }
   // must set up input
+
+#ifdef LOOP_INPUT
+  if (input==NULL) {
+    input = fake_data.inputHead;
+  }
+#else
   input->parameters = fake_parameters;
+#endif
 
   return input;
+}
+
+void remoteOutput(double signal) {
+  static long int at = 0;
+  at++;
+  long int v = 128+signal*100000.0;
+  if (v>255) v = 255;
+  if (v<0) v = 0;
+
+  audio_emit((int)v);
+  static long int top = -1, bot = 256;
+  static double sig_top = -1e32, sig_bot = 1e32;
+  if (v>top) top = v;
+  if (v<bot) bot = v;
+  if (signal>sig_top) sig_top = signal;
+  if (signal<sig_bot) sig_bot = signal;
+  if (at%100000==0) {
+    printf("%g\n", signal);
+    printf("At %ld    (input %g to %g) (output %ld to %ld)\n", at, sig_bot, sig_top, bot, top);
+    top = -1;
+    bot = 256;
+    sig_top = -1e32;
+    sig_bot = 1e32;
+  }
 }

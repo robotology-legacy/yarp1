@@ -1,4 +1,9 @@
 
+example of how to run:
+
+  make && artsdsp -s -m ./obj/tube -r emergency.txt junk
+
+
 gnuspeech website: http://savannah.gnu.org/projects/gnuspeech
 
 debian packages: gnustep, gobjc, gnustep-dev
