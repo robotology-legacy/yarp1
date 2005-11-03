@@ -1,7 +1,8 @@
 
 example of how to run:
 
-  make && artsdsp -s -m ./obj/tube -r emergency.txt junk
+  ./obj/tube emergency.txt emergency.wav
+  make && artsdsp -s -m ./obj/tube -r emergency.txt ignore.wav
 
 
 gnuspeech website: http://savannah.gnu.org/projects/gnuspeech
