@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPImage.h,v 1.7 2005-09-08 17:17:16 natta Exp $
+/// $Id: YARPImage.h,v 1.8 2005-11-03 22:50:33 gmetta Exp $
 ///
 ///
 
@@ -243,6 +243,9 @@ public:
 	 */
 	YARPGenericImage(const YARPGenericImage& i);
 
+	/**
+	 * Destructor.
+	 */
 	virtual ~YARPGenericImage();
 
 	/**
