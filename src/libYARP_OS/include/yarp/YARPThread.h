@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-///	$Id: YARPThread.h,v 1.7 2005-06-01 13:56:07 gmetta Exp $
+///	$Id: YARPThread.h,v 1.8 2005-11-04 16:31:38 gmetta Exp $
 ///
 ///
 /*
@@ -89,6 +89,7 @@ class YARPBareThread
 {
 protected:
 	YARPBareThread(const YARPBareThread& yt);
+	void operator=(const YARPBareThread& yt);
 
 protected:
 	/**
@@ -264,6 +265,7 @@ class YARPThread : public YARPBareThread
 {
 private:
 	YARPThread(const YARPThread& yt) : YARPBareThread(yt) {}
+	void operator=(const YARPThread& yt);
 
 public:
 	/**
