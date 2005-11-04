@@ -8,7 +8,7 @@
 ///
 
 ///
-/// $Id: test01.cpp,v 1.1 2005-11-04 16:31:38 gmetta Exp $
+/// $Id: test01.cpp,v 1.2 2005-11-04 16:41:47 eshuy Exp $
 ///
 
 #include <yarp/YARPConfig.h>
@@ -164,7 +164,8 @@ int main(int argc, char *argv[])
 		#define sz 100
 
 
-		for (int i=0; i<sz; i++)
+		int i;
+		for (i=0; i<sz; i++)
 		{
 			MyThread2 *t = new MyThread2();
 			v.push_back(t);
