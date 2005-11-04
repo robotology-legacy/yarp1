@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.7 2004-07-30 13:28:08 eshuy Exp $
+/// $Id: YARPNameServer.cpp,v 1.8 2005-11-04 15:47:15 eshuy Exp $
 ///
 ///
 
@@ -341,6 +341,14 @@ void YARPNameServer::handle_release_qnx(const YARPString &name)
 
 void YARPNameServer::_handle_reply(const YARPString &text)
 {
+  if (using_text) {
+    new_stream_.send_n(text.c_str(), strlen(text.c_str())+1, 0);
+    char msg[] = "*** end of response\n";
+    new_stream_.send_n(msg, strlen(msg)+1, 0);
+    return;
+  }
+
+
 	YARPNameServiceCmd rplCmd;
 	
 	int length = text.length()+1;
@@ -377,6 +385,13 @@ void YARPNameServer::_handle_reply(const YARPString &text)
 
 void YARPNameServer::_handle_reply(const YARPString &ip, int type, int port)
 {
+  if (using_text) {
+    char buf[1000];
+    sprintf(buf,"registration ip %s port %d type %d\n", ip.c_str(), port, type);
+    _handle_reply(YARPString(buf));
+    return;
+  }
+
 	YARPNameServiceCmd rplCmd;
 	YARPNameTCP rpl;
 
@@ -408,6 +423,25 @@ void YARPNameServer::_handle_reply(const YARPString &ip, int type, int port)
 
 void YARPNameServer::_handle_reply(const YARPString &ip, int type, const PORT_LIST &ports)
 {
+  if (using_text) {
+    YARPString text;
+    char buf[1000];
+    int j = 0;
+    PORT_LIST &tmp = const_cast<PORT_LIST &> (ports);
+    PORT_IT i (tmp);
+    for(; !i.done(); i++)
+      {
+	int port = (*i).port;
+	sprintf(buf,"registration ip %s port %d type %d\n", ip.c_str(), port, type);
+	text += buf;
+	j++;
+      }
+
+    _handle_reply(text);
+    return;
+  }
+
+
 	YARPNameServiceCmd rplCmd;
 	YARPNameUDP rpl;
 
@@ -493,11 +527,50 @@ int YARPNameServer::handle_connection()
 	if (res != sizeof(YARPNameServiceCmd))
 	{
 		NAME_SERVER_DEBUG(("Warning, error while receiving command: I expected %d bytes but received %d\n", sizeof(YARPNameServiceCmd), res));
-		NAME_SERVER_DEBUG(("Ingoring command\n"));
+		NAME_SERVER_DEBUG(("Ignoring command\n"));
 		return 0;
 	}
 		
 	tmpCmd = *(YARPNameServiceCmd *) (data_buf_);
+
+	using_text = 0;
+	if (tmpCmd.length>1000) {
+	  char name[20];
+	  memcpy(name,data_buf_,12);
+	  name[12] = '\0';
+	  if (strcmp(name,"YARP_SERVER ")==0) {
+	    char buf[2000];
+	    int at = 0;
+	    int done = 0;
+	    while (!done) {
+	      res = new_stream_.recv(buf+at, sizeof(buf)-at, 0);
+	      if (res>=0) {
+		for (int i=at; i<at+res; i++) {
+		  if (buf[i]=='\r'||buf[i]=='\n') {
+		    buf[i] = '\0';
+		    done = 1;
+		  }
+		}
+	      } else {
+		buf[0] = '\0';
+		done = 1;
+	      }
+	    }
+	    using_text = 1;
+	    handle_text_command(buf);
+	    tmpCmd.cmd = 0;
+	    tmpCmd.length = 0;
+	    tmpCmd.type = 0;
+	    if (new_stream_.close() == -1)
+	      ACE_ERROR ((LM_ERROR, "%p\n", "close"));
+	    return 0;
+	  } else {
+	    NAME_SERVER_DEBUG(("Ignoring strange command\n"));
+	    if (new_stream_.close() == -1)
+	      ACE_ERROR ((LM_ERROR, "%p\n", "close"));
+	    return -1;
+	  }
+	}
 
 	////// remote dump ?
 	if (tmpCmd.cmd == YARPNSDumpRqs)
@@ -591,3 +664,74 @@ int YARPNameServer::handle_connection()
 		ACE_ERROR ((LM_ERROR, "%p\n", "close"));
 	return 0;
 }
+
+
+
+#define MAX_ARG_CT (8)
+#define MAX_ARG_LEN (256)
+
+int YARPNameServer::handle_text_command(const char *command) {
+
+  char *argv[MAX_ARG_CT];
+  char buf[MAX_ARG_CT][MAX_ARG_LEN];
+
+  int at = 0;
+  int sub_at = 0;
+  for (int i=0; i<strlen(command)+1; i++) {
+    if (at<MAX_ARG_CT) {
+      char ch = command[i];
+      if (ch>=32||ch=='\0') {
+	if (ch==' ') {
+	  ch = '\0';
+	}
+	if (sub_at<MAX_ARG_LEN) {
+	  buf[at][sub_at] = ch;
+	  sub_at++;
+	}
+      }
+      if (ch == '\0') {
+	if (sub_at>1) {
+	  at++;
+	}
+	sub_at = 0;
+      } 
+    }
+  }
+  for (int i=0; i<MAX_ARG_CT; i++) {
+    argv[i] = buf[i];
+    buf[i][MAX_ARG_LEN-1] = '\0';
+  }
+
+  return handle_text_command(at,argv);
+}
+
+int YARPNameServer::handle_text_command(int argc, char *argv[]) {
+  /*
+  printf("Handling text command");
+  for (int i=0; i<argc; i++) {
+    printf(" [%s]", argv[i]);
+  }
+  printf("\n");
+  */
+  if (argc>0) {
+    switch (toupper(argv[0][0])) {
+    case 'R':
+      if (argc>=3) {
+	handle_registration(argv[1], argv[2], 
+			    YARP_TCP);
+      }
+      break;
+    case 'Q':
+      if (argc>=2) {
+	handle_query(argv[1]);
+      }
+      break;
+    case 'D':
+      handle_dump_request();
+      break;
+    }
+  }
+  return 0;
+}
+
+

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 1.7 2005-05-10 20:37:17 natta Exp $
+/// $Id: YARPNameServer.h,v 1.8 2005-11-04 15:47:15 eshuy Exp $
 ///
 ///
 
@@ -121,6 +121,8 @@ public:
 
 	int accept_connection();
 	int handle_connection();
+        int handle_text_command(const char *command);
+        int handle_text_command(int argc, char *argv[]);
 
 	// dump current status
 	void dump_resources();
@@ -194,6 +196,7 @@ private:
 	ACE_INET_Addr		client_addr_;
 	ACE_SOCK_Acceptor	peer_acceptor_;
 	ACE_SOCK_Stream		new_stream_;
+        int using_text;
 	YARPSemaphore _waitForEnd;
 
 	char *data_buf_;
