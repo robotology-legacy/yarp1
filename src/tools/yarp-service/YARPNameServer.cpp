@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.8 2005-11-04 15:47:15 eshuy Exp $
+/// $Id: YARPNameServer.cpp,v 1.9 2005-11-04 15:56:39 eshuy Exp $
 ///
 ///
 
@@ -538,7 +538,7 @@ int YARPNameServer::handle_connection()
 	  char name[20];
 	  memcpy(name,data_buf_,12);
 	  name[12] = '\0';
-	  if (strcmp(name,"YARP_SERVER ")==0) {
+	  if (strcmp(name,"NAME_SERVER ")==0) {
 	    char buf[2000];
 	    int at = 0;
 	    int done = 0;
