@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 1.9 2005-11-04 15:56:39 eshuy Exp $
+/// $Id: YARPNameServer.cpp,v 1.10 2005-11-06 22:42:10 gmetta Exp $
 ///
 ///
 
@@ -677,7 +677,8 @@ int YARPNameServer::handle_text_command(const char *command) {
 
   int at = 0;
   int sub_at = 0;
-  for (int i=0; i<strlen(command)+1; i++) {
+  int i;
+  for (i=0; i<strlen(command)+1; i++) {
     if (at<MAX_ARG_CT) {
       char ch = command[i];
       if (ch>=32||ch=='\0') {
@@ -697,7 +698,7 @@ int YARPNameServer::handle_text_command(const char *command) {
       } 
     }
   }
-  for (int i=0; i<MAX_ARG_CT; i++) {
+  for (i=0; i<MAX_ARG_CT; i++) {
     argv[i] = buf[i];
     buf[i][MAX_ARG_LEN-1] = '\0';
   }
