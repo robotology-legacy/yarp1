@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPAll.cpp,v 1.7 2005-03-30 23:17:44 eshuy Exp $
+/// $Id: YARPAll.cpp,v 2.0 2005-11-06 22:21:26 gmetta Exp $
 ///
 ///
 #include <yarp/YARPConfig.h>

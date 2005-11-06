@@ -3,7 +3,7 @@
 #	--file <config_file>
 #		where <config_file> is the filename of the context config file.
 #
-# $Id: configure.pl,v 1.14 2004-10-15 22:11:30 gmetta Exp $
+# $Id: configure.pl,v 2.0 2005-11-06 22:21:26 gmetta Exp $
 # The libYARP_OS configure script.
 #
 

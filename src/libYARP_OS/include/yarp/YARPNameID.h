@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameID.h,v 1.12 2005-05-30 08:51:17 gmetta Exp $
+/// $Id: YARPNameID.h,v 2.0 2005-11-06 22:21:26 gmetta Exp $
 ///
 ///
 /*

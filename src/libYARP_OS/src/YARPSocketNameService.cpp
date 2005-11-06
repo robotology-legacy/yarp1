@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketNameService.cpp,v 1.15 2005-03-30 23:17:44 eshuy Exp $
+/// $Id: YARPSocketNameService.cpp,v 2.0 2005-11-06 22:21:26 gmetta Exp $
 ///
 ///
 

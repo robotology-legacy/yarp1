@@ -8,7 +8,7 @@
 ///
 
 ///
-/// $Id: test04bis.cpp,v 1.1 2005-11-04 16:31:38 gmetta Exp $
+/// $Id: test04bis.cpp,v 2.0 2005-11-06 22:21:27 gmetta Exp $
 ///
 ///
 

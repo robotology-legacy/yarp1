@@ -8,7 +8,7 @@
 ///
 
 ///
-/// $Id: test08.cpp,v 1.1 2005-11-04 16:31:38 gmetta Exp $
+/// $Id: test08.cpp,v 2.0 2005-11-06 22:21:27 gmetta Exp $
 ///
 ///
 #include <yarp/YARPConfig.h>

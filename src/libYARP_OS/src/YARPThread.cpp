@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPThread.cpp,v 1.9 2005-06-01 13:56:07 gmetta Exp $
+/// $Id: YARPThread.cpp,v 2.0 2005-11-06 22:21:26 gmetta Exp $
 ///
 ///
 

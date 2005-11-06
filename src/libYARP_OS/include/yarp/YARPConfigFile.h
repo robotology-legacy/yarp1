@@ -34,7 +34,7 @@
 ///
 ///	     "Licensed under the Academic Free License Version 1.0"
 ///
-/// $Id: YARPConfigFile.h,v 1.2 2004-08-10 17:08:23 gmetta Exp $
+/// $Id: YARPConfigFile.h,v 2.0 2005-11-06 22:21:26 gmetta Exp $
 ///  
 /// very simple class to handle config files... by nat May 2003
 //

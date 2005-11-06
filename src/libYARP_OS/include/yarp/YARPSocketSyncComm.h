@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPSocketSyncComm.h,v 1.4 2004-07-11 22:23:41 gmetta Exp $
+/// $Id: YARPSocketSyncComm.h,v 2.0 2005-11-06 22:21:26 gmetta Exp $
 ///
 ///
 /*

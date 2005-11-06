@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPList.h,v 1.5 2004-07-09 16:42:32 gmetta Exp $
+/// $Id: YARPList.h,v 2.0 2005-11-06 22:21:26 gmetta Exp $
 ///
 ///
 

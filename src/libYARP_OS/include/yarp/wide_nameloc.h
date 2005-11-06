@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: wide_nameloc.h,v 1.2 2004-08-21 17:53:46 gmetta Exp $
+/// $Id: wide_nameloc.h,v 2.0 2005-11-06 22:21:26 gmetta Exp $
 ///
 ///
 
