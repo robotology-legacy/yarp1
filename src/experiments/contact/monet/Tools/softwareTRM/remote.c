@@ -120,6 +120,34 @@ INPUT *remoteInput(INPUT *input) {
   if (input==NULL) {
     input = fake_data.inputHead;
   }
+  //input->parameters.glotPitch *= 0.9;
+  //input->parameters.glotVol *= 0.9;
+  //input->parameters.radius[6] *= 0.7;
+  TRMParameters *param = &(input->parameters);
+  
+  //param->glotPitch = 5;
+  //param->glotVol = 100;
+  //param->aspVol *= 1.1;
+  //param->fricVol = 0;
+  param->aspVol = 0;
+  param->fricVol = 0;
+  param->fricPos = 0;
+  param->fricCF = 0;
+  param->fricBW = 0;
+  int ii;
+  static double r = 0;
+  r+=0.01;
+  param->glotPitch = sin(r*1.7)+1;
+  param->glotVol = 50*(sin(r)+1);
+  for (ii=0; ii<TOTAL_REGIONS; ii++) {
+    if (ii>=7) {
+      param->radius[ii] = sin(r)+1;
+    } else {
+      param->radius[ii] = 1;
+    }
+  }
+  param->velum = 0;
+  
 #else
   input->parameters = fake_parameters;
 #endif

@@ -1,4 +1,8 @@
 
+Make sure to source the following before compiling:
+
+. /usr/lib/GNUstep/System/Makefiles/GNUstep.sh
+
 example of how to run:
 
   ./obj/tube emergency.txt emergency.wav
@@ -8,10 +12,6 @@ example of how to run:
 gnuspeech website: http://savannah.gnu.org/projects/gnuspeech
 
 debian packages: gnustep, gobjc, gnustep-dev
-
-Make sure to source the following before compiling:
-
-. /usr/lib/GNUstep/System/Makefiles/GNUstep.sh
 
 compile and install extensions in:
   current/Applications/Monet/Extensions/
