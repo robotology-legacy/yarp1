@@ -151,6 +151,9 @@ INPUT *remoteInput(INPUT *input) {
     }
   }
   param->velum = 0;
+
+  //TRMParameters fake;
+  setParams(param);
   
 #else
   input->parameters = fake_parameters;

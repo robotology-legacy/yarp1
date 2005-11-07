@@ -1,0 +1,4 @@
+./control.tcl | artsdsp -s -m ./obj/tube -r  emergency.txt  ignore.wav
+
+# kidlike: 50/44/59/20/35/0/35/50 [0-7 rad, 100-(x*100)]
+

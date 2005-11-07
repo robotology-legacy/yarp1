@@ -5,7 +5,12 @@
 extern "C" {
 #endif
 
+#include "structs.h"
+
   void yarpy();
+
+  void setParams(TRMParameters *params);
+
 
 #ifdef __cplusplus
 };
