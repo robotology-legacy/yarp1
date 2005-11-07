@@ -63,8 +63,6 @@
 #include "ring_buffer.h"
 #include "wavetable.h"
 
-
-
 /*  LOCAL DEFINES  ***********************************************************/
 
 /*  1 MEANS COMPILE SO THAT INTERPOLATION NOT DONE FOR

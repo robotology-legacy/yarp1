@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include "structs.h"
 
+
+#include "yarpy.h"
+
 #define LOOP_INPUT
 
 
@@ -98,6 +101,7 @@ INPUT *remoteInput(INPUT *input) {
     return input;
   }
   if (first) {
+    yarpy();
     printf("Remote input procedure initializing\n");
     for (i=0; i<2; i++) {
       inputs[i].previous = inputs[i].next = &inputs[(i+1)%2];
