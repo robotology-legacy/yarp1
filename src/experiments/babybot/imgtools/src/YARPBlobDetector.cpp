@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBlobDetector.cpp,v 1.1 2004-07-29 13:35:38 babybot Exp $
+/// $Id: YARPBlobDetector.cpp,v 1.2 2005-11-08 19:03:22 natta Exp $
 ///
 ///
 
@@ -108,13 +108,13 @@ void YARPBlobDetector::filter(YARPImageOf<YarpPixelMono> &in)
 
 	int f;
 	float tmp;
-	float *segmented;
+	unsigned char *segmented;
 	
 	int r;
 	int c;
 	for(r = 0; r < _nRows; r++)
 	{
-		segmented = (float *) _segmented.GetArray()[r];
+		segmented = (unsigned char *) _segmented.GetArray()[r];
 		for(c = 0; c < _nCols; c++)
 		{
 			// for each filer
