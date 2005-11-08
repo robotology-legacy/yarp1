@@ -78,9 +78,10 @@ public:
     static int upped = 0;
     ct++;
     double r = ct*0.01;
-    params[0][0] = 50*(sin(r)+1); // volume
+    params[0][0] = 25*(sin(r)+1)+25; // volume
     params[0][1] = sin(r)+1.3+(sin(ct2*100)+1)*1; //pitch
-    if (sin(r)<-0.9) {
+    if (sin(r)<-0.7) {
+      params[0][0] = 0;
       if (!upped) {
 	ct2++;
 	upped = 1;
@@ -89,6 +90,9 @@ public:
       upped = 0;
     }
     /*
+    if (cos(r)>0.4) {
+      params[0][0] = 0;
+    }
     for (int i=6; i<TOTAL_REGIONS; i++) {
       params[3][i] = max(sin(r),0.0);
     }
