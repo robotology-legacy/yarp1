@@ -1,4 +1,6 @@
 
+package yarp.os;
+
 public class Address {
     public Address(String name, int port) {
 	this.name = name;

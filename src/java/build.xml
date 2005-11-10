@@ -28,7 +28,7 @@
     <!-- Put everything in ${build} into the yarp.jar file -->
     <jar jarfile="${dist}/lib/yarp.jar" basedir="${build}">
            <manifest>
-                <attribute name="Main-Class" value="Test"/>
+                <attribute name="Main-Class" value="yarp.os.Test"/>
             </manifest>
     </jar>
   </target>
