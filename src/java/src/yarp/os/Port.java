@@ -5,14 +5,19 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class Port {
+public class Port extends Thread {
     private Address address;
     private ServerSocket serverSocket = null;
     private ArrayList connections = new ArrayList();
     private ArrayList portlets = new ArrayList();
+    private ProtocolHandler handler = null;
 
     public Port(Address address) {
 	this.address = address;
+    }
+
+    public synchronized void setHandler(ProtocolHandler handler) {
+	this.handler = handler;
     }
 
     public synchronized void addPortlet(Portlet portlet) {
@@ -27,11 +32,13 @@ public class Port {
 	connections.add(connection);
     }
 
-    public synchronized Reader getReader() {
-	return null;
+    public synchronized void handleData(Protocol protocol) {
+	if (handler!=null) {
+	    handler.read(protocol);
+	}
     }
 
-    public void run() throws IOException {
+    public void run() {
 	try {
             serverSocket = new ServerSocket(address.getPort());
         } catch (IOException e) {

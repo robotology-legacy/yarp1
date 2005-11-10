@@ -58,6 +58,7 @@ public class Portlet extends Thread {
 			break;
 		    case 'd':
 			System.out.println("Someone sent me data!");
+			owner.handleData(protocol);
 			break;
 		    }
 		}
