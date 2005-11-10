@@ -9,7 +9,7 @@
 #include <ace/OS.h>
 #include <fcntl.h> //O_RDWR
 
-const int TIMEOUT=200000; //200ms
+const int TIMEOUT=100000; //100ms
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -35,7 +35,7 @@ int PeakHelper::write(const unsigned char *data, int len)
   msg->LEN=len;
   memcpy(msg->DATA, data, msg->LEN);
 
-  //  printf("Writing to can %x %d\n", msg->ID, msg->LEN);
+  //printf("Writing to can %x %d\n", msg->ID, msg->LEN);
   
   err = CAN_Write(_handle, msg);
   
@@ -53,7 +53,7 @@ int PeakHelper::read(unsigned char *data)
  
   err = LINUX_CAN_Read_Timeout(_handle, msg, TIMEOUT);
   if (err!=CAN_ERR_OK)
-    fprintf(stderr, "Read(char *) returned %d\n", err);
+      fprintf(stderr, "Read(char *) returned %d\n", err);
 
   //  fprintf(stderr, "Read from can %x %d\n", msg->Msg.ID, msg->Msg.LEN);
   //fprintf(stderr, "%.2x%.2x", msg->DATA[0], msg->DATA[1]); 

@@ -36,7 +36,7 @@
 ///
 
 ///
-/// $Id: YARPMatrix.cpp,v 1.3 2004-12-03 11:30:10 gmetta Exp $
+/// $Id: YARPMatrix.cpp,v 1.4 2005-11-10 20:11:13 natta Exp $
 ///
 ///
 
@@ -123,19 +123,24 @@ static void VisGaussJordanSolveDMatrix(YMatrix& A);
 ////////////////////////////////////////////////////////////////////////////
 void YVector::Resize(int length, const double *storage)
 {
-    m_length = length;
-	if (m_data != NULL)
-		delete[] m_data;
+  if(m_length!=length || m_data==NULL)
+    {
+      m_length = length;
 
-	m_data = new double[m_length];
-	if (storage != 0)
-	{
-		memcpy (m_data, storage, sizeof(double) * m_length);
-	}
-	else
-	{
-		memset (m_data, 0, sizeof(double) * m_length);
-	}
+      if (m_data != NULL)
+	delete[] m_data;
+
+      m_data = new double[m_length];
+    }
+
+  if (storage != 0)
+    {
+      memcpy (m_data, storage, sizeof(double) * m_length);
+    }
+  else
+    {
+      memset (m_data, 0, sizeof(double) * m_length);
+    }
 }
 
 YVector::YVector(int length, const double *storage) :  m_length(0), m_data(0)
