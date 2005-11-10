@@ -1,5 +1,5 @@
 //
-// $Id: YARPConfigTemplate.h,v 1.4 2004-07-09 10:48:53 babybot Exp $
+// $Id: YARPConfigTemplate.h,v 2.0 2005-11-10 17:50:21 gmetta Exp $
 // YARP config file (template).
 //
 //

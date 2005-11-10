@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.tool.template,v 1.7 2005-02-24 22:12:08 natta Exp $
+# $Id: Makefile.tool.template,v 2.0 2005-11-10 17:50:21 gmetta Exp $
 #
 
 EXECDIR = ../bin/$(SYSDIR)

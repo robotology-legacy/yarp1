@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.src.template,v 1.6 2004-12-07 15:44:53 babybot Exp $
+# $Id: Makefile.src.template,v 2.0 2005-11-10 17:50:21 gmetta Exp $
 #
 
 TARGETS = $(patsubst %.cpp, $(GENDIR)/%.o, $(wildcard *.cpp)) $(patsubst %.c, $(GENDIR)/%.o, $(wildcard *.c))

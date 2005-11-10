@@ -27,7 +27,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPConfigRobotTemplate.h,v 1.2 2004-06-01 13:02:45 babybot Exp $
+/// $Id: YARPConfigRobotTemplate.h,v 2.0 2005-11-10 17:50:21 gmetta Exp $
 ///
 ///
 

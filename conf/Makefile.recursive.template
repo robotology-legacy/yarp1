@@ -1,6 +1,6 @@
 #
 # Recursive compilation Makefile.
-# $Id: Makefile.recursive.template,v 1.6 2004-10-08 22:11:04 gmetta Exp $
+# $Id: Makefile.recursive.template,v 2.0 2005-11-10 17:50:21 gmetta Exp $
 #
 
 INSTALLROOT = /usr/local

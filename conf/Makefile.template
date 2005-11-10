@@ -1,6 +1,6 @@
 #
 # Template to be included by all YARP makefiles.
-# $Id: Makefile.template,v 1.27 2004-12-17 15:13:56 micheletavella Exp $
+# $Id: Makefile.template,v 2.0 2005-11-10 17:50:21 gmetta Exp $
 #
 
 QNX_VER = 6.1.0 6.2.0 6.2.1
