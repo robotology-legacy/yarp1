@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 1.6 2004-07-30 13:28:07 eshuy Exp $
+/// $Id: LocalNameServer.cpp,v 2.0 2005-11-10 17:38:46 gmetta Exp $
 ///
 
 #include "LocalNameServer.h"

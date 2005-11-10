@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 1.10 2005-05-10 20:37:18 natta Exp $
+/// $Id: YARPNameService.cpp,v 2.0 2005-11-10 17:38:46 gmetta Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
