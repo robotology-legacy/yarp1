@@ -11,7 +11,7 @@ dvgrab_shell_SOURCES   = error.cc error.h avi.cc avi.h riff.h riff.cc ieee1394io
 			frame.cc frame.h main.cc filehandler.cc filehandler.h affine.h \
 			raw1394util.c raw1394util.h dvgrab.cc dvgrab.h io.c io.h \
 			stringutils.h stringutils.cc smiltime.h smiltime.cc sidetap.h sidetap.cc \
-  PotHand.cc Observe.cc Grapher.cc IntegralImageTool.cc YARPImageLabel.cc YARPBinaryAnalysis.cc \
+  PotHand.cc Observe.cc Grapher.cpp IntegralImageTool.cc YARPImageLabel.cc YARPBinaryAnalysis.cc \
   EdHeadRemote.h EdHeadRemote.cc
 
 riffdump_SOURCES = error.cc error.h riffdump.cc avi.h riff.h avi.cc riff.cc frame.h frame.cc

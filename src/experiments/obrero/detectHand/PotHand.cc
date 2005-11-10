@@ -275,7 +275,7 @@ void PotHand::ApplyFreq(YARPImageOf<YarpPixelRGB>& src,
   static IntegralImageTool ii;
   ii.GetMean(diff,diff,25/scale);
   IMGFOR(diff,x,y) {
-    mask(x,y) = (diff(x,y)>=0.35);
+    mask(x,y) = (diff(x,y)>=0.32); //0.35
     //mask(x,y) = (diff(x,y)>=19);
   }
   static YARPImageLabel labeller;
@@ -286,17 +286,56 @@ void PotHand::ApplyFreq(YARPImageOf<YarpPixelRGB>& src,
   int ty = 0;
   int tval = 1000000;
   int tset = 0;
-  IMGFOR(diff,x,y) {
-    if (label(x,y)==choice) {
-      int val = tx+ty;
-      if (val<tval) { ty = y;  tx = x;  tval = val;  tset = 1; }
-      dest(x,y).r = 255;
-      //dest(x,y).g = 0;
+
+  #define NAT_DETECTION
+  IMGFOR(diff,x,y) 
+    {
+      if (label(x,y)==choice) 
+	{
+#ifndef NAT_DETECTION
+	  int val = tx+ty;
+	  if (val<tval) { ty = y;  tx = x;  tval = val;  tset = 1; }
+#endif
+#ifdef NAT_DETECTION
+	  int val=y;//ty+tx;
+	  if (val<tval) { ty = y;  tx = x;  tval = val;  tset = 1; }
+#endif
+
+	  dest(x,y).r = 255;
+	  //dest(x,y).r=0;
+	  //      dest(x,y).g=0;
+	  //      dest(x,y).b=0;
+	  //dest(x,y).g = 0;
+	}
     }
-  }
+
+  dest(tx,ty).r=255;
+  dest(tx,ty).g=255;
+  dest(tx,ty).b=255;
+
   if (tset) {
+    #ifdef NAT_DETECTION
+    double acc=0;
+    int n=0;
+    for (int c=0; c<diff.GetHeight();c++)
+      {
+	if (label(c,ty)==choice)
+	  {
+	    acc+=c;
+	    n++;
+	  }
+      }
+    if (n!=0)
+      acc/=n;
+    #endif
+
     rset = 1;
+    #ifdef NAT_DETECTION
+    rox=(int)acc;
+    #else
     rox = tx;
+    #endif
+
     roy = ty;
     row = 25;
     roh = 25;

@@ -239,7 +239,7 @@ void MySideTap::Apply(SideTapImage& image, SideTapSound& sound) {
     }
 #endif
 #ifdef SDL_OUT
-    static Grapher grapher;
+    static Grapher grapher(720/2,480/2,"hand-detector");
     grapher.Apply(dest);
 #endif
   }
