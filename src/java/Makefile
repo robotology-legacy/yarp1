@@ -1,0 +1,3 @@
+
+default:
+	ant compile
