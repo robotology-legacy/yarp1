@@ -4,9 +4,10 @@ package yarp.os;
 import java.io.*;
 
 class Test {
-    public static void main(String[] args) 
+    public static void oldTest() 
 	throws IOException, InterruptedException {
-	NameClient nc = new NameClient(new Address("localhost",10000));
+	NameClient nc = NameClient.getNameClient();
+
 	Address add = nc.query("/read");
 
 	if (add==null) {
@@ -25,14 +26,18 @@ class Test {
 	p.run();
 	*/
 
+    }
+
+
+    public static void main(String[] args) {
 	InputPort ip = new InputPort();
-	ip.create(new IntegerContent());
+	ip.create(new BottleContent());
 	ip.register("/foo");
 	while (ip.read()) {
 	    System.out.println("I read something!");
-	    Integer i = (Integer) ip.get();
-	    if (i!=null) {
-		System.out.println(i);
+	    Bottle bot = (Bottle) ip.content();
+	    if (bot!=null) {
+		System.out.println(bot.asList());
 	    }
 	}
     }

@@ -171,18 +171,24 @@ public class Protocol {
     }
 
 
-    public byte[] expectBlock(int len) throws IOException {
-	if (!ok) { ok = false; return null; }
+    public boolean expectBlock(byte[] b, int len) throws IOException {
+	if (len==0) { return ok; }
+	if (!ok) { return false; }
 	if (len<0) { len = messageLen; }
 	if (messageLen>=len && len>0) {
-	    byte b[] = new byte[len];
 	    readFull(b);
 	    //System.out.println("Got bytes " + b.length);
 	    messageLen -= len;
-	    return b;
+	    return true;
 	}
 	ok = false;
-	return null;
+	return ok;
+    }
+
+    public byte[] expectBlock(int len) throws IOException {
+	byte b[] = new byte[len];
+	boolean result = expectBlock(b,len);
+	return result?b:null;
     }
 
     public boolean respondToBlock() throws IOException {
@@ -197,6 +203,14 @@ public class Protocol {
 
     public boolean isOk() {
 	return ok;
+    }
+
+
+    public int expectInt() throws IOException {
+	byte b[] = new byte[4];
+	readFull(b);
+	messageLen -= 4;
+	return netInt(b);    
     }
 }
 
