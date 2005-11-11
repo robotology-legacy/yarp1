@@ -31,7 +31,14 @@ public class BottleContent implements Content, ContentCreator {
 	    System.err.println("Problem reading bottle");
 	}
     }
-    public void write(Protocol proto) {
+    public void write(Protocol proto) {	
+	byte[] data = bot.get();
+	String name = "void";
+	int len = data.length;
+	proto.addContent(NetType.netInt(name.length()+1));
+	proto.addContent(NetType.netString(name));
+	proto.addContent(NetType.netInt(len));
+	proto.addContent(bot.get());
     }
     public void release() {
     }

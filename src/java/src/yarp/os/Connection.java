@@ -8,68 +8,31 @@ import java.util.*;
 
 public class Connection {
     private Address address;
+    private Protocol proto;
     private Socket socket = null;
 
-    public Connection(Address address) {
+    public Connection(Address address) throws IOException {
 	this.address = address;
-    }
 
-
-    public boolean initiate() throws IOException {
-	if (socket==null) {
-	    try {
-		socket = new Socket("localhost",10001);
-	    } catch (UnknownHostException e) {
-		System.err.println("Don't know about host " + address.getName());
-		System.exit(1);
-	    } catch (IOException e) {
-		System.err.println("Couldn't get I/O for the connection to " + address.getName());
-		System.exit(1);
-	    }
-	
-	    if (socket==null) {
-		return false;
-	    }
-	    
-	    InputStream in = null;
-	    OutputStream out = null;
-	    in = socket.getInputStream();
-	    out = socket.getOutputStream();
-	    
-	    {
-		byte b[] = { 'Y', 'A', 0x64, 0x1e, 0, 0, 'R', 'P' };
-		out.write(b);
-		out.flush();
-	    }
-	    
-	    {
-		byte b[] = {4, 0, 0, 0};
-		out.write(b);
-		out.flush();
-	    }
-	    
-	    {
-		byte b[] = {'/', 'b', 'a', 'r', 0};
-		out.write(b);
-		out.flush();
-	    }
-	    
-	    {
-		byte b[] = new byte[8];
-		in.read(b);
-		//System.out.println(b[0]=='Y');
-		int port = b[2]+256*b[3];
-		//System.out.println("Port number is " + port);
-	    }
-	    
-	    try {
-		Thread.sleep(1000);
-	    } catch (Exception e) {
-		System.out.println("sleep failed");
-		return false;
-	    }
+	try {
+	    socket = new Socket(address.getName(),address.getPort());
+	} catch (UnknownHostException e) {
+	    System.err.println("Don't know about host " + address.getName());
+	    System.exit(1);
+	} catch (IOException e) {
+	    System.err.println("Couldn't get I/O for the connection to " + address.getName());
+	    System.exit(1);
 	}
-	return true;
+	
+	if (socket==null) {
+	    System.exit(1);
+	}
+	
+	proto = new Protocol(new SocketShiftStream(socket));
+
+	proto.setSender("null");
+	proto.sendHeader();
+	proto.expectReplyToHeader();
     }
 
 
@@ -106,9 +69,8 @@ public class Connection {
 	send(msg,false);
     }
 
+    // specialized for Bottle
     public void send(String msg, boolean eof) throws IOException {
-
-	initiate();
 
 	InputStream in = null;
         OutputStream out = null;
@@ -141,6 +103,21 @@ public class Connection {
 	out.write(b1);
 	out.write(b2);
 	out.flush();
+    }
+
+    public void send(Content content) throws IOException {
+	// need to produce index
+	// index contains data command
+	// followed by real content
+
+	proto.beginContent();
+	proto.addContent(new byte[] { 0,0,0,0,  '~', 'd', 0, 1}); // data hdr
+	content.write(proto);
+	//content.addContent(proto.netInt(4));
+	//content.addContent(proto.netString("nul"));
+	proto.endContent();
+	proto.sendIndex();
+	proto.sendContent();
     }
 }
 

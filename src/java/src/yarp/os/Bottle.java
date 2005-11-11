@@ -23,6 +23,22 @@ class Bottle {
 	return Collections.unmodifiableList(items);
     }
 
+    public byte[] get() {
+	byte[] b = {};
+	for ( Iterator it = items.iterator(); it.hasNext(); ) {
+	    Object o = it.next();
+	    if (o instanceof Integer) {
+		b = append(b,NetType.netInt(1));
+		b = append(b,NetType.netInt(((Integer)o).intValue()));
+	    } else if (o instanceof String) {
+		b = append(b,NetType.netInt(5));
+		b = append(b,NetType.netInt(((String)o).length()+1));
+		b = append(b,NetType.netString((String)o));
+	    }
+	}
+	return b;
+    }
+
     public void set(byte[] data) {
 	clear();
 	int index = 0;
@@ -50,5 +66,16 @@ class Bottle {
 	    }
 	}
     }
+
+    private byte[] append(byte[] b1, byte[] b2) {
+	byte[] b3 = new byte[b1.length+b2.length];
+
+	System.arraycopy (b1, 0, b3, 0, b1.length);
+	System.arraycopy (b2, 0, b3, b1.length,
+			  b2.length); 
+	return b3;
+    }
+
+
 }
 

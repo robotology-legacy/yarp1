@@ -22,11 +22,17 @@ public class Protocol {
     private ArrayList outputLen = new ArrayList();
     private int messageLen = 0;
     private boolean ok = true;
+    private String senderName = "null";
+    private ArrayList content = new ArrayList();
 
     public Protocol(ShiftStream shift) throws IOException {
 	this.shift = shift;
 	this.in = shift.getInputStream();
 	this.out = shift.getOutputStream();
+    }
+
+    public void setSender(String name) {
+	senderName = name;
     }
 
     private int readFull(byte[] b) throws IOException {
@@ -45,13 +51,39 @@ public class Protocol {
 	return (result<0)?result:fullLen;
     }
 
-    private int netInt(byte[] b) {
+    public int netInt(byte[] b) {
 	int x = 0;
 	for (int i=b.length-1; i>=0; i--) {
 	    x *= 256;
 	    x += (int)b[i]; // warning, may have sign trouble
 	}
 	return x;
+    }
+
+    public byte[] netInt(int x) {
+	byte b[] = new byte[4];
+	for (int i=0; i<4; i++) {
+	    int bi = x%256;
+	    b[i] = (byte)bi;
+	    x /= 256;
+	}
+	return b;
+    }
+
+    public byte[] netString(String s) {
+	byte b[] = new byte[s.length()+1];
+	for (int i=0; i<s.length(); i++) {
+	    b[i] = (byte)s.charAt(i);
+	}
+	b[s.length()] = '\0';
+	return b;
+    }
+
+    private boolean sendProtocolSpecifier() throws IOException {
+	byte b[] = { 'Y', 'A', 0x64, 0x1e, 0, 0, 'R', 'P' };
+	out.write(b);
+	out.flush();
+	return true;
     }
 
     // part of header
@@ -68,6 +100,13 @@ public class Protocol {
 	gotHeader = true;
 	// should do something with it!
 
+	return true;
+    }
+
+    private boolean sendSenderSpecifier() throws IOException {
+	out.write(netInt(senderName.length()+1));
+	out.write(netString(senderName));
+	out.flush();
 	return true;
     }
 
@@ -92,6 +131,12 @@ public class Protocol {
 	return true;
     }
 
+    public boolean sendHeader() throws IOException {
+	sendProtocolSpecifier();
+	sendSenderSpecifier();
+	return true;
+    }
+
     public boolean expectHeader() throws IOException {
 	ok = true;
 	inputLen = new ArrayList();
@@ -103,12 +148,52 @@ public class Protocol {
 	return true;
     }
 
+    public boolean expectReplyToHeader() throws IOException {
+	byte b[] = new byte[8];
+	in.read(b);
+	//System.out.println(b[0]=='Y');
+	int port = b[2]+256*b[3];
+	//System.out.println("Port number is " + port);
+	if (b[0]!='Y') {
+	    throw new IOException();
+	}
+	// For TCP, a delay seems to be needed - why?
+	try {
+	    Thread.sleep(2000);
+	} catch (Exception e) {
+	    System.out.println("sleep failed");
+	}
+	return true;
+    }
+
     public boolean respondToHeader() throws IOException {
 	if (!ok) { return false; }
 	// fake response for now
 	byte b[] = { 'Y', 'A', 0, 0, 0, 0, 'R', 'P' };
 	out.write(b);
 	out.flush();
+	return true;
+    }
+
+    public boolean sendIndex() throws IOException {
+	int len = content.size();
+	out.write(new byte[] { 'Y', 'A', 10, 0, 0, 0, 'R', 'P' });
+	out.write(new byte[] {(byte)len, 1,
+			      -128,-128,-128,-128,  
+			      -128,-128,-128,-128});
+	byte b0[] = {};
+	for (int i=0; i<len; i++) {
+	    out.write(netInt(((byte[])content.get(i)).length));
+	}
+	out.write(netInt(0)); // reply length
+	return true;
+    }
+
+    public boolean sendContent() throws IOException {
+	int len = content.size();
+	for (int i=0; i<len; i++) {
+	    out.write(((byte[])content.get(i)));
+	}
 	return true;
     }
 
@@ -211,6 +296,17 @@ public class Protocol {
 	readFull(b);
 	messageLen -= 4;
 	return netInt(b);    
+    }
+
+    public void addContent(byte[] data) {
+	content.add(data);
+    }
+
+    public void beginContent() {
+	content.clear();
+    }
+
+    public void endContent() {
     }
 }
 
