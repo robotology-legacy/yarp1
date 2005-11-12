@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPBottleContent.h,v 2.0 2005-11-06 22:21:26 gmetta Exp $
+/// $Id: YARPBottleContent.h,v 2.1 2005-11-12 18:48:58 eshuy Exp $
 ///
 ///
 
@@ -156,6 +156,7 @@ public:
 };
 
 
+template<>
 class YARPInputPortOf<YARPBottle> : public YARPBasicInputPort<YARPBottleContent>
 {
 public:
@@ -165,6 +166,7 @@ public:
 	virtual ~YARPInputPortOf<YARPBottle> () {  YARPPort::End(); }
 };
 
+template<>
 class YARPOutputPortOf<YARPBottle> : public YARPBasicOutputPort<YARPBottleContent>
 {
 public:

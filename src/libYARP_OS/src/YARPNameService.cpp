@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: YARPNameService.cpp,v 2.0 2005-11-06 22:21:26 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 2.1 2005-11-12 18:48:58 eshuy Exp $
 ///
 ///
 

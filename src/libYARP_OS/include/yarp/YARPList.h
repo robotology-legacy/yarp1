@@ -56,7 +56,7 @@
 ///
 
 ///
-/// $Id: YARPList.h,v 2.0 2005-11-06 22:21:26 gmetta Exp $
+/// $Id: YARPList.h,v 2.1 2005-11-12 18:48:58 eshuy Exp $
 ///
 ///
 
@@ -166,7 +166,7 @@ public:
 	/**
 	 * Destructor.
 	 */
-	~YARPList() { reset(); }
+	~YARPList() { ACE_DLList<T>::reset(); }
 
 	/**
 	 * Adds a new item to the tail of the list.
@@ -183,12 +183,12 @@ public:
 	/**
 	 * Removes the last element of the list. 
 	 */
-	void pop_back (void) { T* el = delete_tail(); delete el; }
+	void pop_back (void) { T* el = ACE_DLList<T>::delete_tail(); delete el; }
 
 	/**
 	 * Removes the first element of the list.
 	 */
-	void pop_front (void) { T* el = delete_head(); delete el; }
+	void pop_front (void) { T* el = ACE_DLList<T>::delete_head(); delete el; }
 
 	/**
 	 * Erases the element pointed by the iterator.
@@ -201,12 +201,12 @@ public:
 	 * Checks whether the list is empty.
 	 * @return true if it's empty.
 	 */
-	bool empty() { return (size() == 0); }
+	bool empty() { return (ACE_DLList<T>::size() == 0); }
 
 	/**
 	 * Clears the list and frees memory.
 	 */
-	void clear() { reset(); }
+	void clear() { ACE_DLList<T>::reset(); }
 };
 
 template <class T> class YARPVector;
