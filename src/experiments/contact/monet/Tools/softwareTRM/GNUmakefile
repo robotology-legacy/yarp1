@@ -44,14 +44,14 @@ wavetable.c \
 remote.c
 
 tube_CC_FILES = \
-yarpy.cc
+yarpy.cc fft.cc
 
 # kind of a kludge.
 ADDITIONAL_INCLUDE_DIRS += -I$(GNUSTEP_LOCAL_ROOT)/Library/Headers/MonetExtensions/
 
 ADDITIONAL_GUI_LIBS += -lMonetExtensions
 
-tube_TOOL_LIBS += -lgnustep-gui -lYARP_OS -lACE
+tube_TOOL_LIBS += -lgnustep-gui -lYARP_OS -lACE -lfftw3
 
 -include GNUmakefile.preamble
 

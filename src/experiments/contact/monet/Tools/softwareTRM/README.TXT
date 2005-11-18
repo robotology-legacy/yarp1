@@ -12,6 +12,7 @@ example of how to run:
 gnuspeech website: http://savannah.gnu.org/projects/gnuspeech
 
 debian packages: gnustep, gobjc, gnustep-dev
+also: fftw3-dev
 
 compile and install extensions in:
   current/Applications/Monet/Extensions/
