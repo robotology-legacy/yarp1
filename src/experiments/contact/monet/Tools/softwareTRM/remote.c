@@ -51,13 +51,14 @@ void audio_emit(int n) {
     first = 0;
   }
 
-  if (pulse_at<100) {
+  if (pulse_at<512) {
     pulse_code[pulse_at] = (unsigned char)n;
     pulse_at++;
   } else {
     // now playback the sound
     unsigned char	*pcm = pulse_code;
     int morebytes = pulse_at;
+    listen(pcm,morebytes);
     while ( morebytes > 0 )
       {
 	int	nbytes = write( dev, pcm, morebytes );

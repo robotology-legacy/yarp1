@@ -11,6 +11,7 @@ extern "C" {
 
   void setParams(TRMParameters *params);
 
+  double getParam(int x, int y);
 
 #ifdef __cplusplus
 };

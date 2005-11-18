@@ -10,6 +10,7 @@
 #include <iostream>
 using namespace std;
 
+#include <math.h>
 
 #define MAX_CHANNEL 20
 #define MAX_PARAM 20
@@ -18,6 +19,7 @@ class VoiceCmd : public YARPThread {
 private:
   
   double params[MAX_CHANNEL][MAX_PARAM];
+  double prev_params[MAX_CHANNEL][MAX_PARAM];
   YARPSemaphore mutex;
 
 public:  
@@ -25,6 +27,7 @@ public:
     for (int i=0; i<MAX_CHANNEL; i++) {
       for (int j=0; j<MAX_PARAM; j++) {
 	params[i][j] = 0;
+	prev_params[i][j] = 0;
       }
     }
     for (int j=0; j<MAX_PARAM; j++) {
@@ -53,6 +56,17 @@ public:
     }
   }
 
+
+  double iparams(int x, int y) {
+    float factor = 0.01;
+    prev_params[x][y] += (params[x][y]-prev_params[x][y])*factor;
+    return prev_params[x][y];
+  }
+
+  double getParam(int x, int y) {
+    return prev_params[x][y];
+  }
+
   void setParams(TRMParameters *ext_params) {
     assert(ext_params!=NULL);
     
@@ -78,6 +92,7 @@ public:
     static int upped = 0;
     ct++;
     double r = ct*0.01;
+    r = 0.5;
     params[0][0] = 25*(sin(r)+1)+25; // volume
     params[0][1] = sin(r)+1.3+(sin(ct2*100)+1)*1; //pitch
     if (sin(r)<-0.7) {
@@ -89,6 +104,7 @@ public:
     } else {
       upped = 0;
     }
+    params[0][0] = 75;
     /*
     if (cos(r)>0.4) {
       params[0][0] = 0;
@@ -98,22 +114,26 @@ public:
     }
     */
     mutex.Wait();
-    ext_params->glotVol = params[0][0];
-    ext_params->glotPitch = params[0][1];
-    ext_params->aspVol = params[1][0];
-    ext_params->fricVol = params[2][0];
-    ext_params->fricPos = params[2][1];
-    ext_params->fricCF = params[2][2];
-    ext_params->fricBW = params[2][3];
+    ext_params->glotVol = iparams(0,0);
+    ext_params->glotPitch = iparams(0,1);
+    ext_params->aspVol = iparams(1,0);
+    ext_params->fricVol = iparams(2,0);
+    ext_params->fricPos = iparams(2,1);
+    ext_params->fricCF = iparams(2,2);
+    ext_params->fricBW = iparams(2,3);
     for (int i=0; i<TOTAL_REGIONS; i++) {
-      ext_params->radius[i] = params[3][i];
+      ext_params->radius[i] = iparams(3,i);
     }
-    ext_params->velum = params[4][0];
+    ext_params->velum = iparams(4,0);
     mutex.Post();
 
   }
 } voice_cmd;
 
+
+double getParam(int x, int y) {
+  return voice_cmd.getParam(x,y);
+}
 
 void setParams(TRMParameters *params) {
   voice_cmd.setParams(params);

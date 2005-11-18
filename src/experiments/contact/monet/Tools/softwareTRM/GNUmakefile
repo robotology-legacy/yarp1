@@ -44,7 +44,7 @@ wavetable.c \
 remote.c
 
 tube_CC_FILES = \
-yarpy.cc fft.cc
+yarpy.cc fft.cc listen.cc
 
 # kind of a kludge.
 ADDITIONAL_INCLUDE_DIRS += -I$(GNUSTEP_LOCAL_ROOT)/Library/Headers/MonetExtensions/
