@@ -1,0 +1,306 @@
+(************** Content-type: application/mathematica **************
+                     CreatedBy='Mathematica 5.0'
+
+                    Mathematica-Compatible Notebook
+
+This notebook can be used with any Mathematica-compatible
+application, such as Mathematica, MathReader or Publicon. The data
+for the notebook starts with the line containing stars above.
+
+To get the notebook into a Mathematica-compatible application, do
+one of the following:
+
+* Save the data starting with the line of stars above into a file
+  with a name ending in .nb, then open the file inside the
+  application;
+
+* Copy the data starting with the line of stars above to the
+  clipboard, then use the Paste menu command inside the application.
+
+Data for notebooks contains only printable 7-bit ASCII and can be
+sent directly in email or through ftp in text mode.  Newlines can be
+CR, LF or CRLF (Unix, Macintosh or MS-DOS style).
+
+NOTE: If you modify the data for this notebook not in a Mathematica-
+compatible application, you must delete the line below containing
+the word CacheID, otherwise Mathematica-compatible applications may
+try to use invalid cache data.
+
+For more information on notebooks and Mathematica-compatible 
+applications, contact Wolfram Research:
+  web: http://www.wolfram.com
+  email: info@wolfram.com
+  phone: +1-217-398-0700 (U.S.)
+
+Notebook reader applications are available free of charge from 
+Wolfram Research.
+*******************************************************************)
+
+(*CacheID: 232*)
+
+
+(*NotebookFileLineBreakTest
+NotebookFileLineBreakTest*)
+(*NotebookOptionsPosition[      6975,        226]*)
+(*NotebookOutlinePosition[      7625,        248]*)
+(*  CellTagsIndexPosition[      7581,        244]*)
+(*WindowFrame->Normal*)
+
+
+
+Notebook[{
+Cell[TextData[StyleBox["This is to test the controller of the neck",
+  FontSize->14,
+  FontWeight->"Bold",
+  FontColor->RGBColor[1, 0, 0]]], "Text"],
+
+Cell[BoxData[
+    \(Clear[l, \[Theta], \[CurlyPhi]]\)], "Input"],
+
+Cell[BoxData[
+    \(phi = 5  Degree; \ theta = 10  Degree; \ l = 84.4; k = 50;\)], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(OneStepSpringModel[totalJ, \ J2, \ l, \ theta, \ 
+      phi, \ {\[Tau]1, \[Tau]2, \[Tau]3}, k]\)], "Input"],
+
+Cell[BoxData[
+    \({0.08262703312801718`, 3.141592653589793`}\)], "Output"]
+}, Open  ]],
+
+Cell[BoxData[
+    \(\(\(PseudoInvertJacobian[jacobian_, \ tauzero_, \ desired_] := 
+        Inverse[\((Transpose[jacobian] . jacobian + 
+                IdentityMatrix[3])\)] . \((Transpose[jacobian] . desired + 
+              tauzero)\);\)\(\ \)\)\)], "Input"],
+
+Cell[BoxData[
+    \(PseudoInvertJacobian2[jacobian_, \ tauzero_, \ desired_]\  := \ 
+      Module[{}, 
+        Inverse[\((Transpose[jacobian] . jacobian + 
+                IdentityMatrix[3])\)] . \((Transpose[jacobian] . desired + 
+              tauzero)\)]\)], "Input"],
+
+Cell[BoxData[
+    \(ComputeControl[jacobian_, targetphi_, len_, theta_, curphi_, k_] := \ 
+      Module[{pid, \ gain\  = \ 60, \ newtau}, \ 
+        pid = N[gain*\((targetphi - curphi)\) + k*curphi]; \ 
+        newtau\  = \ 
+          PseudoInvertJacobian[
+            jacobian /. {\[CurlyPhi] \[Rule] curphi, \[Theta] \[Rule] theta, 
+                l \[Rule] len}, \ {\(-20\), \(-20\), \(-20\)}, \ {0, \ 
+              pid}]; \ newtau]\)], "Input"],
+
+Cell[BoxData[
+    \(DoControl[steps_, \ curphi_, \ curtheta_, desiredphi_, \ 
+        desiredtheta_] := 
+      Module[{ctau, \ equilibrium, \ theta, \ phi}, \ theta = curtheta; \ 
+        phi = curphi; 
+        Do[ctau\  = \ 
+            ComputeControl[totalJ, \ desiredphi, \ l, \ desiredtheta, \ phi, 
+              k]; Print[ctau]; 
+          equilibrium\  = \ 
+            IterativeSpringModel[15, \ totalJ, \ J2, \ l, \ desiredtheta, \ 
+              phi, \ ctau, k]; \ phi = equilibrium[\([1]\)]*Degree; \ 
+          Print[equilibrium], \ {i, \ steps}]; \ 
+        Return[equilibrium]]\)], "Input"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+    \(\(\(equilibrium\  = 
+      DoControl[15, \ 5  Degree, \ 0  Degree, \ 15  Degree, 
+        0  Degree]\)\(\[IndentingNewLine]\)
+    \)\)], "Input"],
+
+Cell[BoxData[
+    \({\(-23.063793349456162`\), \(-18.426248411756866`\), \
+\(-18.426248411756863`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({10.155439316762806`, 5.153898599442017`*^-14}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.216578376758072`\), \(-18.301641727682632`\), \
+\(-18.301641727682632`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({12.370676500590124`, 0.`}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.280929784922172`\), \(-18.247188245302503`\), \
+\(-18.2471882453025`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({13.322383423162549`, 4.670330680441083`*^-14}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.308318249575375`\), \(-18.223637913667623`\), \
+\(-18.223637913667623`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({13.731189102276089`, 0.`}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.320033919798174`\), \(-18.21349404762854`\), \
+\(-18.21349404762854`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({13.906776665937695`, 0.`}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.325056799246088`\), \(-18.209132066056647`\), \
+\(-18.209132066056647`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({13.982190921364486`, 0.`}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.327212410340394`\), \(-18.20725768390609`\), \
+\(-18.207257683906093`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({14.014580518093144`, \(-4.549809840585554`*^-14\)}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.328137907717036`\), \(-18.206452486978176`\), \
+\(-18.206452486978172`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({14.028491389144405`, 2.342472491487681`*^-14}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.32853533770402`\), \(-18.206106634973427`\), \
+\(-18.206106634973427`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({14.034465890713582`, 0.`}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.32870601697077`\), \(-18.20595809116117`\), \
+\(-18.205958091161165`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({14.037031842068558`, 4.545856848410253`*^-14}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.328779318969048`\), \(-18.20589429294053`\), \
+\(-18.20589429294053`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({14.038133875814076`, 0.`}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.3288108006032`\), \(-18.2058668924612`\), \
+\(-18.2058668924612`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({14.038607180990693`, 0.`}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.32882432137468`\), \(-18.205855124374455`\), \
+\(-18.20585512437446`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({14.038810457674337`, \(-4.545543574698148`*^-14\)}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.328830128308226`\), \(-18.20585007017068`\), \
+\(-18.205850070170683`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({14.03889776161705`, \(-2.3416484544603973`*^-14\)}\)], "Print"],
+
+Cell[BoxData[
+    \({\(-23.32883262228698`\), \(-18.205847899473287`\), \
+\(-18.205847899473287`\)}\)], "Print"],
+
+Cell[BoxData[
+    \({14.03893525720259`, 0.`}\)], "Print"],
+
+Cell[BoxData[
+    \({14.03893525720259`, 0.`}\)], "Output"]
+}, Open  ]]
+},
+FrontEndVersion->"5.0 for Microsoft Windows",
+ScreenRectangle->{{0, 1024}, {0, 727}},
+WindowSize->{787, 679},
+WindowMargins->{{Automatic, -1070}, {-175, Automatic}}
+]
+
+(*******************************************************************
+Cached data follows.  If you edit this Notebook file directly, not
+using Mathematica, you must remove the line containing CacheID at
+the top of  the file.  The cache data will then be recreated when
+you save this file from within Mathematica.
+*******************************************************************)
+
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+
+(*NotebookFileOutline
+Notebook[{
+Cell[1754, 51, 148, 3, 35, "Text"],
+Cell[1905, 56, 64, 1, 30, "Input"],
+Cell[1972, 59, 91, 1, 30, "Input"],
+
+Cell[CellGroupData[{
+Cell[2088, 64, 127, 2, 30, "Input"],
+Cell[2218, 68, 76, 1, 29, "Output"]
+}, Open  ]],
+Cell[2309, 72, 261, 4, 70, "Input"],
+Cell[2573, 78, 270, 5, 70, "Input"],
+Cell[2846, 85, 450, 8, 90, "Input"],
+Cell[3299, 95, 604, 12, 110, "Input"],
+
+Cell[CellGroupData[{
+Cell[3928, 111, 165, 4, 50, "Input"],
+Cell[4096, 117, 113, 2, 25, "Print"],
+Cell[4212, 121, 79, 1, 25, "Print"],
+Cell[4294, 124, 113, 2, 25, "Print"],
+Cell[4410, 128, 59, 1, 25, "Print"],
+Cell[4472, 131, 111, 2, 25, "Print"],
+Cell[4586, 135, 79, 1, 25, "Print"],
+Cell[4668, 138, 113, 2, 25, "Print"],
+Cell[4784, 142, 59, 1, 25, "Print"],
+Cell[4846, 145, 111, 2, 25, "Print"],
+Cell[4960, 149, 59, 1, 25, "Print"],
+Cell[5022, 152, 113, 2, 25, "Print"],
+Cell[5138, 156, 59, 1, 25, "Print"],
+Cell[5200, 159, 112, 2, 25, "Print"],
+Cell[5315, 163, 84, 1, 25, "Print"],
+Cell[5402, 166, 113, 2, 25, "Print"],
+Cell[5518, 170, 79, 1, 25, "Print"],
+Cell[5600, 173, 112, 2, 25, "Print"],
+Cell[5715, 177, 59, 1, 25, "Print"],
+Cell[5777, 180, 111, 2, 25, "Print"],
+Cell[5891, 184, 79, 1, 25, "Print"],
+Cell[5973, 187, 111, 2, 25, "Print"],
+Cell[6087, 191, 59, 1, 25, "Print"],
+Cell[6149, 194, 107, 2, 25, "Print"],
+Cell[6259, 198, 59, 1, 25, "Print"],
+Cell[6321, 201, 111, 2, 25, "Print"],
+Cell[6435, 205, 84, 1, 25, "Print"],
+Cell[6522, 208, 112, 2, 25, "Print"],
+Cell[6637, 212, 84, 1, 25, "Print"],
+Cell[6724, 215, 112, 2, 25, "Print"],
+Cell[6839, 219, 58, 1, 25, "Print"],
+Cell[6900, 222, 59, 1, 29, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+
+
+(*******************************************************************
+End of Mathematica Notebook file.
+*******************************************************************)
+
