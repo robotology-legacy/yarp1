@@ -37,7 +37,7 @@
 ///
 
 ///
-/// $Id: YARPDragonflyDeviceDriver.cpp,v 1.2 2005-10-31 12:03:37 eshuy Exp $
+/// $Id: YARPDragonflyDeviceDriver.cpp,v 1.3 2005-11-23 22:32:18 babybot Exp $
 ///
 ///
 
@@ -49,7 +49,7 @@
 //=============================================================================
 //#include "../dd_orig/include/pgrflycapture.h"
 
-#include "FirewireCameras.h"
+#include "YARPFirewireCameras.h"
 
 ///
 double GetTimeAs_mSeconds(void)
