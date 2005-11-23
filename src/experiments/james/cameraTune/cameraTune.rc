@@ -1,0 +1,411 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 235, 55
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About cameraTune"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,11,17,20,20
+    LTEXT           "cameraTune Version 1.0",IDC_STATIC,40,10,119,8,
+                    SS_NOPREFIX
+    LTEXT           "Copyright (C) 2005",IDC_STATIC,40,25,119,8
+    DEFPUSHBUTTON   "OK",IDOK,178,7,50,14,WS_GROUP
+END
+
+IDD_CAMERATUNE_DIALOG DIALOGEX 0, 0, 334, 106
+STYLE DS_MODALFRAME | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "YARP Camera Tuning Tool"
+FONT 8, "MS Sans Serif"
+BEGIN
+    PUSHBUTTON      "Show VideoCamera",IDC_SHOW_CAMERA,251,7,76,14
+    PUSHBUTTON      "Show Edges Filter",IDC_SHOW_EDGES,251,29,76,14
+    PUSHBUTTON      "Connect Hardware",IDC_START_CAMERA,7,26,76,20
+    PUSHBUTTON      "Interactive Calibration",IDC_CALIBRATE,95,14,76,20
+    PUSHBUTTON      "Program Options",IDC_OPTIONS,182,14,58,20
+    CONTROL         "Progress1",IDC_PROGRESS1,"msctls_progress32",PBS_SMOOTH | 
+                    WS_BORDER,7,82,320,12
+    LTEXT           "Static",IDC_PROG_DESC,7,69,231,12,SS_CENTERIMAGE
+    PUSHBUTTON      "Batch Calibration",IDC_BATCH_CALIB,96,41,76,20
+    PUSHBUTTON      "Camera Options",IDC_CAM_OPTIONS,182,41,58,20
+    PUSHBUTTON      "Show Head Joints",IDC_SHOW_HEAD,251,52,76,14
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "cameraTune MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "cameraTune\0"
+            VALUE "LegalCopyright", "Copyright (C) 2005\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "cameraTune.EXE\0"
+            VALUE "ProductName", "cameraTune Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+
+    IDD_CAMERATUNE_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 327
+        VERTGUIDE, 95
+        VERTGUIDE, 183
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 94
+        HORZGUIDE, 14
+        HORZGUIDE, 61
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_ABOUTBOX            "&About cameraTune..."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Italian (Italy) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ITA)
+#ifdef _WIN32
+LANGUAGE LANG_ITALIAN, SUBLANG_ITALIAN
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CAMERA DIALOG DISCARDABLE  0, 0, 320, 240
+STYLE WS_POPUP | WS_CAPTION | WS_THICKFRAME
+CAPTION "LIVE: Video Camera"
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_EDGES DIALOG DISCARDABLE  340, 0, 320, 240
+STYLE WS_POPUP | WS_CAPTION | WS_THICKFRAME
+CAPTION "LIVE: Edges Filter"
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_MESSAGE DIALOG DISCARDABLE  0, 0, 252, 110
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Calibration Completed"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,146,89,50,14
+    EDITTEXT        IDC_OUTPUT,7,7,238,77,ES_MULTILINE | ES_AUTOVSCROLL | 
+                    ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
+    PUSHBUTTON      "Save To File",IDC_SAVE,54,89,61,14
+END
+
+IDD_OPTIONS DIALOG DISCARDABLE  0, 0, 341, 196
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Program Options"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,91,163,65,23
+    PUSHBUTTON      "Cancel",IDCANCEL,187,163,65,23
+    CONTROL         "Auto Save to file:",IDC_AUTOSAVE,"Button",
+                    BS_AUTOCHECKBOX | BS_VCENTER | WS_TABSTOP,10,21,69,14
+    EDITTEXT        IDC_FILE_NAME,81,23,227,12,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_SET_FILE_NAME,312,23,17,11
+    LTEXT           "Board Number",IDC_STATIC,27,58,49,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_BOARD_N,83,58,25,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Image Width",IDC_STATIC,33,81,43,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_SIZE_X,83,81,25,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Image Height",IDC_STATIC,32,105,43,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_SIZE_Y,83,105,25,14,ES_AUTOHSCROLL | ES_NUMBER
+    GROUPBOX        "Saving",IDC_STATIC,7,11,327,30
+    GROUPBOX        "Camera",IDC_STATIC,16,48,100,77
+    LTEXT           "RHO Size",IDC_STATIC,144,62,36,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_RHO,187,62,25,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "THETA Size",IDC_STATIC,137,84,43,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_THETA,187,84,25,14,ES_AUTOHSCROLL | ES_NUMBER
+    GROUPBOX        "Hough Quantization",IDC_STATIC,126,48,94,57
+    LTEXT           "Video Refresh",IDC_STATIC,238,62,47,14,SS_CENTERIMAGE
+    EDITTEXT        IDC_REFRESH,294,62,25,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Buffer Size",IDC_STATIC,249,84,39,14,SS_CENTERIMAGE
+    EDITTEXT        N_IMAGES,294,84,25,14,ES_AUTOHSCROLL | ES_NUMBER
+    GROUPBOX        "Program Preferences",IDC_STATIC,230,48,97,57
+    PUSHBUTTON      "Load",IDC_LOAD,83,137,50,14
+    PUSHBUTTON      "Save",IDC_SAVE,146,137,50,14
+    PUSHBUTTON      "Default",IDC_DEFAULT,209,137,50,14
+END
+
+IDD_HEAD DIALOG DISCARDABLE  0, 0, 162, 107
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "LIVE: Head Joints"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_J0_POS,59,22,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_J1_POS,59,41,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_J2_POS,59,60,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_J3_POS,59,79,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_J0_VEL,110,22,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_J1_VEL,110,41,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_J2_VEL,110,59,40,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_J3_VEL,110,78,40,14,ES_AUTOHSCROLL
+    RTEXT           "Left Eye Pan",IDC_STATIC,10,22,43,14,SS_CENTERIMAGE
+    RTEXT           "Left Eye Tilt",IDC_STATIC,10,41,43,14,SS_CENTERIMAGE
+    RTEXT           "Right Eye Pan",IDC_STATIC,6,60,47,14,SS_CENTERIMAGE
+    RTEXT           "Right Eye Tilt",IDC_STATIC,10,79,43,14,SS_CENTERIMAGE
+    CTEXT           "Position",IDC_STATIC,59,8,40,11,SS_CENTERIMAGE
+    CTEXT           "Velocity",IDC_STATIC,110,8,40,11,SS_CENTERIMAGE
+END
+
+IDD_CAMERA_OPT DIALOG DISCARDABLE  0, 0, 222, 201
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Camera Options"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,22,174,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,86,175,50,14
+    LTEXT           "Brightness",IDC_STATIC,15,18,36,11,SS_CENTERIMAGE
+    LTEXT           "Exposure",IDC_STATIC,15,35,36,11,SS_CENTERIMAGE
+    LTEXT           "Shutter",IDC_STATIC,15,52,36,11,SS_CENTERIMAGE
+    LTEXT           "Gain",IDC_STATIC,15,69,36,11,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_SLIDER1,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,54,18,120,11
+    EDITTEXT        IDC_EDIT1,174,18,29,12,ES_AUTOHSCROLL
+    CONTROL         "Slider1",IDC_SLIDER2,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,54,35,120,11
+    EDITTEXT        IDC_EDIT2,174,34,29,12,ES_AUTOHSCROLL
+    CONTROL         "Slider1",IDC_SLIDER3,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,54,52,120,11
+    EDITTEXT        IDC_EDIT3,174,51,29,12,ES_AUTOHSCROLL
+    CONTROL         "Slider1",IDC_SLIDER4,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,54,69,120,11
+    EDITTEXT        IDC_EDIT4,174,68,29,12,ES_AUTOHSCROLL
+    LTEXT           "Red",IDC_STATIC,15,105,36,11,SS_CENTERIMAGE
+    LTEXT           "Blue",IDC_STATIC,15,122,36,11,SS_CENTERIMAGE
+    CONTROL         "Slider1",IDC_SLIDER5,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,54,105,120,11
+    EDITTEXT        IDC_EDIT5,174,105,29,12,ES_AUTOHSCROLL
+    CONTROL         "Slider1",IDC_SLIDER6,"msctls_trackbar32",TBS_BOTH | 
+                    TBS_NOTICKS | WS_TABSTOP,54,122,120,11
+    EDITTEXT        IDC_EDIT6,174,121,29,12,ES_AUTOHSCROLL
+    GROUPBOX        "General Options",IDC_STATIC,7,6,205,80
+    GROUPBOX        "White Balance",IDC_STATIC,7,93,205,46
+    DEFPUSHBUTTON   "Save",ID_SAVE,86,151,50,14
+    PUSHBUTTON      "Default",ID_DEFAULT,149,151,50,14
+    PUSHBUTTON      "Load",ID_LOAD,23,151,50,14
+    PUSHBUTTON      "Apply",ID_APPLY,150,175,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_CAMERA, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 233
+    END
+
+    IDD_EDGES, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 313
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 233
+    END
+
+    IDD_MESSAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 245
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+    END
+
+    IDD_OPTIONS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 334
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 189
+    END
+
+    IDD_CAMERA_OPT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 215
+        VERTGUIDE, 15
+        VERTGUIDE, 54
+        VERTGUIDE, 174
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 194
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif //_WIN32\r\n"
+    "#include ""res\\cameraTune.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""         // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\cameraTune.ico"
+IDI_CAMERA              ICON    DISCARDABLE     "res\\ECam.ico"
+IDI_OPTIONS             ICON    DISCARDABLE     "res\\Panel1a.ico"
+#endif    // Italian (Italy) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif //_WIN32
+#include "res\cameraTune.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"         // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
