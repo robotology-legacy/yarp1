@@ -72,6 +72,12 @@ int main(int argc, char *argv[]) {
 
   _thread.Stop();
 
+  cout << "sdl stopped..." << endl;
+
+  _thread.End(1);
+
+  cout << "display thread stopped..." << endl;
+
   return 0;
 }
 
