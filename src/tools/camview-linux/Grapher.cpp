@@ -127,13 +127,6 @@ public:
 	exit(1);
       }
     
-    // Safety first. If the program exits in an unexpected
-    // way the atexit() call should ensure that SDL will be
-    // shut down properly and the screen returned to a
-    // reasonable state.
-    
-    //atexit(SDL_Quit);
-    
     // Initialize the display. Here I'm asking for a 640x480
     // window with any pixel format and any pixel depth. If
     // you uncomment SDL_FULLSCREEN you should get a 640x480
@@ -165,20 +158,8 @@ public:
       if((screen = SDL_SetVideoMode(screenWidth,screenHeight,24,SDL_SWSURFACE | SDL_ANYFORMAT))==NULL)
         {
           fprintf(stderr,"\n\t Could NOT set video mode %s\n\n",SDL_GetError());
-          //use_sdl = false;
         }
 
-  /*
-
-    screen = SDL_SetVideoMode(screenWidth, 
-			      screenHeight, 
-			      0, 
-			      SDL_ANYFORMAT |
-			      //SDL_FULLSCREEN |
-			      SDL_SWSURFACE
-			      );
-  */
-    
     if (NULL == screen)
       {
 	printf("Can't set video mode\n");
@@ -217,29 +198,12 @@ public:
     if (screen==NULL) {
       init();
     }
-    /*
-    if (screen!=NULL) {
-      IMGFOR(src,x,y) {
-	YarpPixelRGB& pix = src(x,y);
-	setpixel(screen, x, y, pix.r, pix.g, pix.b);
-      }
-      SDL_Flip(screen);
-    }
-    */
 
-    /* Draw bands of color on the raw surface */
     if ( SDL_MUSTLOCK(screen) ) {
         if ( SDL_LockSurface(screen) < 0 )
 	  exit(1);
     }
-    /*
-    for (int i=0; i<screen->h; ++i ) {
-        memset(buffer,(i*255)/screen->h,
-               screen->w*screen->format->BytesPerPixel);
-               buffer += screen->pitch;
-    }
-    buffer=(Uint8 *)screen->pixels;
-    */
+
     for (int y=0; y<src.GetHeight(); y++) {
       YarpPixelRGB *pix0 = &src(0,y);
       Uint8 *buffer=(Uint8 *)screen->pixels + y*screen->pitch;

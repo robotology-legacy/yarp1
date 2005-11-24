@@ -4,16 +4,16 @@
 #include <yarp/YARPThread.h>
 #include <yarp/YARPTime.h>
 
-#include "Grapher.h"
-
 #include <iostream>
 using namespace std;
 
-Grapher graph;
-
+#include "Grapher.h"
 
 class MainThread : public YARPThread {
 public:
+
+  Grapher graph;
+
   bool stop;
 
   YARPString name;
@@ -44,8 +44,10 @@ public:
   void Stop() {
     stop = true;
     YARPTime::DelayInSeconds(1);
+    graph.End();
   }
 };
+
 
 
 int main(int argc, char *argv[]) {
@@ -69,8 +71,6 @@ int main(int argc, char *argv[]) {
   cout << "ending..." << endl;
 
   _thread.Stop();
-
-  graph.End();
 
   return 0;
 }
