@@ -40,6 +40,7 @@ void listen(unsigned char *sample, int len) {
 
   int out_len = len/2;
   float *out = mag;
+  float *out2 = NULL;
 
   for (int i=0; i<out_len; i++) {
     sum += out[i];
@@ -48,10 +49,16 @@ void listen(unsigned char *sample, int len) {
     out[i] /= sum;
   }
 
-  fft2.apply(mag,input,phase);
-  out_len = len/4;
-  out = input;
+  for (int i=1; i<len/2; i++) {
+    fout << mag[i] << " ";
+  }
 
+  fft2.apply(mag,input,phase);
+  out_len = len/16;
+  out = input;
+  out2 = phase;
+
+#if 0
   sum = 0;
   for (int i=0; i<out_len; i++) {
     sum += out[i];
@@ -63,9 +70,15 @@ void listen(unsigned char *sample, int len) {
   fft3.apply(input,mag,phase);
   out_len = len/8;
   out = mag;
+#endif
 
   for (int i=0; i<out_len; i++) {
     fout << out[i] << " ";
+  }
+  if (out2!=NULL) {
+    for (int i=0; i<out_len; i++) {
+      fout << out2[i] << " ";
+    }
   }
   fout << endl;
   fout.flush();
