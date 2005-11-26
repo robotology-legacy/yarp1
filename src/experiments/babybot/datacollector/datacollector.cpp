@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: datacollector.cpp,v 1.3 2004-08-02 09:16:15 babybot Exp $
+/// $Id: datacollector.cpp,v 1.4 2005-11-26 00:39:23 gmetta Exp $
 /// 
 
 #include <yarp/YARPConfig.h>
@@ -136,9 +136,11 @@ public:
 class Port1: public YARPInputPortOf<YVector>, public MyPort
 {
 	public:
-	Port1(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL):YARPInputPortOf<YVector>(n_service_type, n_protocol_type)
+	Port1(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL)
+		: YARPInputPortOf<YVector>(n_service_type, n_protocol_type)
 	{}
-	~Port1(){}
+
+	~Port1() {}
 
 	virtual void OnRead(void)
 	{
@@ -156,9 +158,11 @@ class Port1: public YARPInputPortOf<YVector>, public MyPort
 class Port2: public YARPInputPortOf<YARPControlBoardNetworkData>, public MyPort
 {
 	public:
-	Port2(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL):YARPInputPortOf<YARPControlBoardNetworkData>(n_service_type, n_protocol_type)
+	Port2(int n_service_type = DEFAULT_BUFFERS, int n_protocol_type = YARP_DEFAULT_PROTOCOL)
+		: YARPInputPortOf<YARPControlBoardNetworkData>(n_service_type, n_protocol_type)
 	{}
-	~Port2(){}
+
+	~Port2() {}
 
 	virtual void OnRead(void)
 	{

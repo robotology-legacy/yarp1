@@ -4,7 +4,7 @@ function y = on(machine, command)
 %	
 % used in conjunction with YARP ports and windows scripting.
 % it executes on <machine> locally or remotely the given <command> by
-% invoking the WSHRemote DCOM componet. WSHRemote must be installed,
+% invoking the WSHRemote DCOM component. WSHRemote must be installed,
 % activated and enabled.
 %
 %	Examples:
