@@ -11,7 +11,7 @@ example of how to run:
 
 gnuspeech website: http://savannah.gnu.org/projects/gnuspeech
 
-debian packages: gnustep, gobjc, gnustep-dev
+debian packages: gnustep, gobjc, gnustep-devel
 also: fftw3-dev
 
 compile and install extensions in:
