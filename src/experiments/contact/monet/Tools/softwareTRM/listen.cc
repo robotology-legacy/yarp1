@@ -32,7 +32,7 @@ void listen(unsigned char *sample, int len) {
     input[i] = sample[i];
     mag[i] = 0;
     phase[i] = 0;
-    sum += fabs(sample[i]);
+    sum += fabs((float)sample[i]);
     p = sample[i];
   }
   sum/=len;
