@@ -44,10 +44,14 @@ void audio_init() {
 unsigned char	pulse_code[ NUM_SAMPLES ];
 int pulse_at = 0;
 
+//#define TO_HARDWARE
+
 void audio_emit(int n) {
   static int first = 1;
   if (first) {
+#ifdef TO_HARDWARE
     audio_init();
+#endif
     first = 0;
   }
 
@@ -59,12 +63,14 @@ void audio_emit(int n) {
     unsigned char	*pcm = pulse_code;
     int morebytes = pulse_at;
     listen(pcm,morebytes);
+#ifdef TO_HARDWARE
     while ( morebytes > 0 )
       {
 	int	nbytes = write( dev, pcm, morebytes );
 	morebytes -= nbytes;
 	pcm += nbytes;
       }
+#endif
     pulse_at = 0;
   }
     //close( dev );		// close the audio playback device
