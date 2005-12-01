@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: main.cpp,v 1.1 2005-02-18 10:15:36 babybot Exp $
+/// $Id: main.cpp,v 1.2 2005-12-01 13:57:48 beltran Exp $
 ///
 ///
 
@@ -131,9 +131,9 @@ typedef struct CollectorOptions PgmOptions;
 struct CollectorHardware
 {
 	YARPGrabber			grabber;
-	YARPMagneticTracker	tracker;
-	YARPDataGlove		glove;
-	YARPPresSens		press;
+	YARPMagneticTracker tracker;   //redefined form YARPGenericTracker
+	YARPDataGlove       glove;     //redefined from YARPGenericDataGlove
+	YARPPresSens        press;     //redefined from YARPGenericPresSens
 };
 
 typedef CollectorHardware PgmHardware;
