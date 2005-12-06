@@ -9,17 +9,17 @@ Make sure to source the following before compiling anything:
 . /usr/lib/GNUstep/System/Makefiles/GNUstep.sh
 
 compile and install extensions in:
-  current/Applications/Monet/Extensions/
+  Applications/Monet/Extensions/
 using:
   make
   make install
 
 compile in:
-  current/Tools/softwareTRM
+  Tools/softwareTRM
 using:
   make
 
 tube executable is:
-  current/Tools/softwareTRM/obj/tube
+  Tools/softwareTRM/obj/tube
 
-see current/Tools/softwareTRM/README.TXT for information on how to run
+see Tools/softwareTRM/README.TXT for information on how to run
