@@ -44,7 +44,7 @@ void audio_init() {
 unsigned char	pulse_code[ NUM_SAMPLES ];
 int pulse_at = 0;
 
-//#define TO_HARDWARE
+#define TO_HARDWARE
 
 void audio_emit(int n) {
   static int first = 1;

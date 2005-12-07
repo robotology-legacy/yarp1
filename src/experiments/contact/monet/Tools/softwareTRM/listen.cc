@@ -14,9 +14,27 @@ using namespace std;
 
 #define MAX_LEN 10000
 
+
+#define UNINTERPRETED
+
 void listen(unsigned char *sample, int len) {
   static ofstream fout("/tmp/snd.txt");
   static ofstream fout2("/tmp/mot.txt");
+
+
+#ifdef UNINTERPRETED
+  // don't run a local FFT; leave all that to external processing
+
+  for (int i=0; i<len; i++) {
+    fout << ((int)(sample[i])) << " ";
+  }
+  fout << endl;
+  fout.flush();
+
+
+#else
+
+
   static int base_len = len;
   static FFT fft(len);
   static FFT fft2(len/2);
@@ -82,11 +100,23 @@ void listen(unsigned char *sample, int len) {
   }
   fout << endl;
   fout.flush();
+#endif
+
+  fout2 << getTime() << " ";
+  fout2 << getParam(0,0) << " ";
+  fout2 << getParam(0,1) << " ";
+  fout2 << getParam(1,0) << " ";
+  fout2 << getParam(2,0) << " ";
+  fout2 << getParam(2,1) << " ";
+  fout2 << getParam(2,2) << " ";
+  fout2 << getParam(2,3) << " ";
   for (int i=0; i<TOTAL_REGIONS; i++) {
     fout2 << getParam(3,i) << " ";
   }
+  fout2 << getParam(4,0);
   fout2 << endl;
   fout2.flush();
   //printf("sum %g\n", sum);
+
 }
 

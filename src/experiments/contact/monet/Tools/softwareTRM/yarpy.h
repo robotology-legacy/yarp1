@@ -13,6 +13,8 @@ extern "C" {
 
   double getParam(int x, int y);
 
+  double getTime();
+
 #ifdef __cplusplus
 };
 #endif

@@ -45,9 +45,6 @@ public:
 	double v = 0;
 	cin >> n1 >> n2 >> v;
 	if (n1<MAX_PARAM&&n2<MAX_CHANNEL) {
-	  if (n1==3) {
-	    v /= 100;
-	  }
 	  mutex.Wait();
 	  params[n1][n2] = v;
 	  mutex.Post();
@@ -58,7 +55,7 @@ public:
 
 
   double iparams(int x, int y) {
-    float factor = 0.01;
+    float factor = 0.05;
     prev_params[x][y] += (params[x][y]-prev_params[x][y])*factor;
     return prev_params[x][y];
   }
@@ -93,6 +90,7 @@ public:
     ct++;
     double r = ct*0.01;
     r = 0.5;
+    /*
     params[0][0] = 25*(sin(r)+1)+25; // volume
     params[0][1] = sin(r)+1.3+(sin(ct2*100)+1)*1; //pitch
     if (sin(r)<-0.7) {
@@ -105,6 +103,7 @@ public:
       upped = 0;
     }
     params[0][0] = 75;
+    */
     /*
     if (cos(r)>0.4) {
       params[0][0] = 0;
@@ -115,20 +114,34 @@ public:
     */
     mutex.Wait();
     ext_params->glotVol = iparams(0,0);
-    ext_params->glotPitch = iparams(0,1);
+    ext_params->glotPitch = iparams(0,1)/25;
     ext_params->aspVol = iparams(1,0);
-    ext_params->fricVol = iparams(2,0);
-    ext_params->fricPos = iparams(2,1);
-    ext_params->fricCF = iparams(2,2);
-    ext_params->fricBW = iparams(2,3);
+    ext_params->fricVol = iparams(2,0)/10;
+    ext_params->fricPos = iparams(2,1)/10;
+    ext_params->fricCF = iparams(2,2)*100;
+    ext_params->fricBW = 500+iparams(2,3)*100;
     for (int i=0; i<TOTAL_REGIONS; i++) {
-      ext_params->radius[i] = iparams(3,i);
+      ext_params->radius[i] = (100-iparams(3,i))/50;
     }
-    ext_params->velum = iparams(4,0);
+    ext_params->velum = iparams(4,0)/100;
     mutex.Post();
 
   }
-} voice_cmd;
+} the_voice;
+
+
+VoiceCmd& getVoice() {
+  /*
+  static VoiceCmd *voice = NULL;
+  if (voice==NULL) {
+    voice = new VoiceCmd;
+  }
+  return *voice;
+  */
+  return the_voice;
+}
+
+#define voice_cmd (getVoice())
 
 
 double getParam(int x, int y) {
@@ -143,4 +156,11 @@ void setParams(TRMParameters *params) {
 void yarpy() {
   printf("Time is %g\n", YARPTime::GetTimeAsSeconds());
   voice_cmd.Begin();
+}
+
+
+double getTime() { 
+  double now = YARPTime::GetTimeAsSeconds();
+  static double first = now;
+  return now-first;
 }
