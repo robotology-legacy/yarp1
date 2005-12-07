@@ -112,5 +112,9 @@ SOURCE="..\yarp-service\YARPNameServer.h"
 
 SOURCE="..\yarp-service\YARPNameService.cpp"
 # End Source File
+# Begin Source File
+
+SOURCE=.\YARPSafeList.h
+# End Source File
 # End Target
 # End Project

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: LocalNameServer.h,v 2.0 2005-11-10 17:38:46 gmetta Exp $
+/// $Id: LocalNameServer.h,v 2.1 2005-12-07 14:34:09 natta Exp $
 ///
 ///
 
@@ -64,6 +64,7 @@
 // -- Modified for YARP April 2003 -- by nat 
 // -- Moved from YARPNameService.h April 2003 -- by nat
 // -- Qnx name support April 2003 -- by nat
+// -- Dec 2005: changed list implementation to correct memory leaks -- by nat
 //////////////////////////////////////////////////////////////////////
 #if !defined __LOCALNAMESERVER__
 #define __LOCALNAMESERVER__
@@ -75,7 +76,7 @@
 #include <yarp/YARPConfig.h>
 #include <yarp/wide_nameloc.h>
 #include <yarp/YARPString.h>
-#include <yarp/YARPList.h>
+#include "YARPSafeList.h"
 
 // #include <list>
 
@@ -110,7 +111,7 @@ int getDistance(const YARPString &current, const YARPString &start);
 class PortEntry
 {
 public:
-	PortEntry()
+    PortEntry()
 	{
 		port = __portNotFound;
 		flag = false;
@@ -120,6 +121,15 @@ public:
 		port = p;
 		flag = false;
 	}
+
+    PortEntry(const PortEntry &p)
+    {
+        port=p.port;
+        flag=p.flag;
+    }
+
+    ~PortEntry()
+    {}
 
 	bool operator== (const PortEntry &item)
 	{
@@ -146,7 +156,7 @@ public:
 	int flag;
 };
 
-typedef YARPList<PortEntry> PORT_LIST;
+typedef YARPSafeList<PortEntry> PORT_LIST;
 typedef PORT_LIST::const_iterator CONST_PORT_IT;
 typedef PORT_LIST::iterator PORT_IT;
 
@@ -154,6 +164,12 @@ template <class T, class T_LIST, class T_IT>
 class pool
 {
 public:
+    pool<T, T_LIST, T_IT> (){};
+    pool<T, T_LIST, T_IT> (const pool &p)
+    {
+        min=p.min;
+        max=p.max;
+    }
 	bool findFree(T_LIST &l, T &item)
 	{
 		T tmp = _min;
@@ -192,11 +208,22 @@ public:
 class IpEntry
 {
 public:
-	IpEntry()
+    IpEntry()
 	{
 		_portPool._min = PortEntry(__startPortPool);
 		_portPool._max = PortEntry(__endPortPool);
 	}
+
+    ~IpEntry()
+    {}
+
+    IpEntry(const IpEntry &l)
+    {
+        ip=l.ip;
+        ports=l.ports;
+        _portPool=l._portPool;
+    }
+
 
 	IpEntry(const char *i, int startPort, int endPort)
 	{
@@ -250,14 +277,14 @@ public:
 	}
 };
 
-typedef YARPList<IpEntry> IP_LIST;
+typedef YARPSafeList<IpEntry> IP_LIST;
 typedef IP_LIST::iterator IP_IT;
 
 class resources : public IP_LIST
 {
 public:
 	resources()
-	{
+    {
 		// _ipPool._min = IpEntry(__startIpPool, __startDynPortPool, __endDynPortPool);
 		// _ipPool._max = IpEntry(__endIpPool, __startDynPortPool, __endDynPortPool);
 		_ipPool._min = IpEntry(__startIpPool, __startIpPool);
@@ -286,6 +313,17 @@ public:
 		ref_count = _max_ref;
 		max_ref = _max_ref;
 	}
+    ~service()
+    {
+        ports.clear();
+    }
+
+    void free()
+    {
+        ports.clear();
+        name.clear();
+        ip.clear();
+    }
 
 	YARPString name;
 	// YARPString type;
@@ -342,7 +380,7 @@ public:
 	}
 };
 
-typedef YARPList<service> SVC_LIST;
+typedef YARPSafeList<service> SVC_LIST;
 typedef SVC_LIST::iterator SVC_IT;
 
 class services: public SVC_LIST
@@ -393,7 +431,7 @@ public:
 	int take_ref(const YARPString &name, YARPString &ip, int *type, PORT_LIST &ports);
 };
 
-typedef YARPList<YARPNameQnx> QNXSVC_LIST;
+typedef YARPSafeList<YARPNameQnx> QNXSVC_LIST;
 typedef QNXSVC_LIST::iterator QNXSVC_IT;
 typedef QNXSVC_LIST::const_iterator  CONST_QNXSVC_IT;
 
@@ -408,7 +446,7 @@ public:
 		if (find_service(name, it) != -1)
 		{
 			NAME_SERVER_DEBUG(("QNX name %s no longer used, releasing\n", name.c_str()));
-			erase(it);
+            erase(it);
 			return 1;		// resource destroyed
 		}
 		else

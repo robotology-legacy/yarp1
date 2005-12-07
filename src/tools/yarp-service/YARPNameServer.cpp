@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.cpp,v 2.0 2005-11-10 17:38:46 gmetta Exp $
+/// $Id: YARPNameServer.cpp,v 2.1 2005-12-07 14:34:09 natta Exp $
 ///
 ///
 
@@ -241,7 +241,7 @@ void YARPNameServer::handle_registration(const YARPString &service_name, const Y
 	PORT_LIST ports;
 	IpEntry tmpEntry;
 	tmpEntry.ip = ip;
-	printf("about to handle %s\n", ip.c_str());
+//	printf("about to handle %s\n", ip.c_str());
 	ns.registerName(service_name, tmpEntry, type, ports, np);
 	
 	PORT_IT i(ports);
@@ -288,7 +288,7 @@ void YARPNameServer::handle_nic_query(const YARPString &ip, const YARPString &ne
 
 void YARPNameServer::handle_registration_dbg(const YARPString &service_name, const YARPString &ip, int type, int n)
 {
-	PORT_LIST ports;
+    PORT_LIST ports;
 
 	NAME_SERVER_DEBUG(("DBG MODE: registering %s as %s(%s)\n", service_name.c_str(), ip.c_str(), servicetypeConverter(type)));
 

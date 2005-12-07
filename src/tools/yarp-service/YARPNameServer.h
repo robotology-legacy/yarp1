@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameServer.h,v 2.0 2005-11-10 17:38:46 gmetta Exp $
+/// $Id: YARPNameServer.h,v 2.1 2005-12-07 14:34:09 natta Exp $
 ///
 ///
 
@@ -63,6 +63,7 @@
 // -- January 2003 -- by nat 
 // -- Modified for YARP April 2003 -- by nat
 // -- July 2003: network description for multiple NIC added -- by nat
+// -- Dec 2005: changed list implementation to correct memory leaks -- by nat
 //////////////////////////////////////////////////////////////////////
 
 #if !defined __YARPNAMESERVER__

@@ -52,7 +52,7 @@
 /////////////////////////////////////////////////////////////////////////
 
 ///
-/// $Id: YARPNameService.cpp,v 2.0 2005-11-10 17:38:46 gmetta Exp $
+/// $Id: YARPNameService.cpp,v 2.1 2005-12-07 14:34:09 natta Exp $
 ///
 ///
 // YARPNameService.cpp : Defines the entry point for the console application.
@@ -335,7 +335,7 @@ void interactive(YARPNameServer &dns)
 	  YARPString str1, str2;
 	  cin >> str1;
 	  cin >> str2;
-	  dns.handle_registration_dbg(str1,str2, YARP_TCP);
+      dns.handle_registration_dbg(str1,str2, YARP_TCP);
 	}
       else if (ret == 2){
 	YARPString str1;

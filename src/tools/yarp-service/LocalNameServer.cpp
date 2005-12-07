@@ -61,11 +61,11 @@
 ///
 
 ///
-/// $Id: LocalNameServer.cpp,v 2.0 2005-11-10 17:38:46 gmetta Exp $
+/// $Id: LocalNameServer.cpp,v 2.1 2005-12-07 14:34:09 natta Exp $
 ///
 
-#include "LocalNameServer.h"
 
+#include "LocalNameServer.h"
 #include <fstream>
 
 #include <ace/OS.h>
@@ -169,7 +169,7 @@ void IpEntry::release_port(int port)
 	PORT_IT it(ports);
 	if (find_port(port, it) != -1)
 	{
-		ports.erase(it);		
+        ports.erase(it);
 	}
 	else		
 		NAME_SERVER_DEBUG(("Sorry, cannot find %s: %d\n", ip.c_str() ,port));
@@ -196,9 +196,12 @@ void resources::release(const YARPString &ip, int port)
 	if (find_ip(ip, it) != -1)
 	{
 		(*it).release_port(port);
-		NAME_SERVER_DEBUG(("%s:%d no longer used, releasing\n", ip.c_str(), port));
+		
+        NAME_SERVER_DEBUG(("--> %s:%d no longer used, releasing\n", ip.c_str(), port));
 		if ((*it).ports.empty())
+        {
 			erase(it);
+        }
 	}
 	else
 		NAME_SERVER_DEBUG(("%s not found\n", ip.c_str()));
@@ -334,7 +337,7 @@ int services::check_out(const YARPString &name, YARPString &ip, PORT_LIST &ports
 		if ((*it).release_ref())
 		{
 			erase(it);
-			return 1;	// resource no longer used
+            return 1;	// resource no longer used
 		}
 		return 0;		// resource found, but still used
 	}
@@ -647,10 +650,9 @@ void LocalNameServer::_checkAndRemoveQnx(const YARPString &name)
 
 int LocalNameServer::_registerName(const YARPString &name, const IpEntry &entry, int type, PORT_LIST &ports, int nPorts)
 {
-  //printf("/// _registerName\n");
-	YARPString tmp_ip;
+ 	YARPString tmp_ip;
 	PORT_LIST tmp_ports;
-	
+    
 	tmp_ip = entry.ip;
 	int dtype;
 	int ref = names.take_ref(name, tmp_ip, &dtype, tmp_ports);
@@ -691,7 +693,7 @@ int LocalNameServer::_registerName(const YARPString &name, const IpEntry &entry,
 		return 0;
 	}
 
-	return 0;
+    return 0;
 }
 
 // service must not exist
