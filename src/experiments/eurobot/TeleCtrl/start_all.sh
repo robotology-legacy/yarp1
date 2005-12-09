@@ -2,19 +2,17 @@
 
 # safety measure: try and disconnect everything before anything else
 # head
-yarp-connect /repeater/o !/headcontrol/behavior/i
-yarp-connect /headcontrol/behavior/o !/repeater/i
+yarp-connect /repeater/o !/headcontrol/behavior/i >/dev/null 2>&1
+yarp-connect /headcontrol/behavior/o !/repeater/i >/dev/null 2>&1
 # arm
-yarp-connect /armcontrol/behavior/o !/repeater/i
-yarp-connect /repeater/o !/armcontrol/behavior/i
+yarp-connect /armcontrol/behavior/o !/repeater/i >/dev/null 2>&1
+yarp-connect /repeater/o !/armcontrol/behavior/i >/dev/null 2>&1
 # eyes
-yarp-connect /left/o:img !/lview/i:img
-yarp-connect /right/o:img !/rview/i:img
+yarp-connect /left/o:img !/lview/i:img >/dev/null 2>&1
+yarp-connect /right/o:img !/rview/i:img >/dev/null 2>&1
 
-pushd $HOME/DEVELOPMENT/yarp/scripts/eurobot
+pushd $HOME/DEVELOPMENT/yarp/scripts/eurobot >/dev/null 2>&1
 
-  # start repeater
-  xterm -e repeater --name /repeater --protocol tcp &
   # start head control (headcontrol)
   xterm -e su -c headcontrol &
   # start arm control (armcontrol on danae)
@@ -22,6 +20,8 @@ pushd $HOME/DEVELOPMENT/yarp/scripts/eurobot
   # start eyes control (two instances of grabber, on different boards)
   xterm -e su -c "on -f morpheus grabber --b 0 --name /left -o -12 --protocol tcp" &
   xterm -e su -c "on -f morpheus grabber --b 1 --name /right -o 12 --protocol tcp" &
+  # start repeater
+  xterm -e repeater --name /repeater --protocol tcp &
 
   # wait for user to press a key
   echo Press any key after you have entered all passwords and calibrated the head...
@@ -37,4 +37,4 @@ pushd $HOME/DEVELOPMENT/yarp/scripts/eurobot
   yarp-connect /left/o:img /lview/i:img
   yarp-connect /right/o:img /rview/i:img
 
-popd
+popd >/dev/null 2>&1

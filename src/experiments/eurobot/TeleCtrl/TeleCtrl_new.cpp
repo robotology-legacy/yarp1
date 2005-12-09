@@ -61,7 +61,7 @@
 ///
 
 ///
-/// $Id: TeleCtrl_new.cpp,v 1.1 2005-12-02 13:56:56 beltran Exp $
+/// $Id: TeleCtrl_new.cpp,v 1.2 2005-12-09 13:41:32 beltran Exp $
 ///
 
 // ----------------------------------------------------------------------
@@ -110,8 +110,6 @@
 // Numerical Recipes --- this is for the downhill simplex method
 // used in evaluating inverse kinematics
 #include "nr.h"
-// set in-place rotation tolerance to half a cm (the FOB works in inches...)
-#define INPLACE_TOLERANCE 0.3937/2.0
 
 // -----------------------------------
 // globals
@@ -150,6 +148,10 @@ MNumData _data;
 double refX=0, refY=0, refZ=0, refAz=0, refEl=0, refRo=0;
 // convert degrees to radiants
 const double myDegToRad = 2*M_PI/360.0;
+// convert inches to cm's
+const double myInchToCM = 2.45;
+// set in-place rotation tolerance to half a cm (the FOB works in inches...)
+#define INPLACE_TOLERANCE (0.5/myInchToCM)
 
 // evaluation of inverse kinematics
 // desired configuration - as a global, so far
@@ -237,9 +239,7 @@ void streamingThread::Body (void)
   while ( !IsTerminated() ) {
 
     // we assume the MASTER fires at 50Hz, so it's no point looping more often!
-    //    YARPTime::DelayInSeconds(0.02);
-    // set it at half a second for debugging purposes now. to be restored later on
-    YARPTime::DelayInSeconds(0.5);
+    YARPTime::DelayInSeconds(0.05);
 
     // gather glove, tracker and pressens data
     if ( _options.useDataGlove || _options.useTracker || _options.usePresSens ) {
@@ -263,8 +263,8 @@ void streamingThread::Body (void)
 
       // output to screen what we are actually sending
       cout.precision(5);
-      // then set the desired_X
-      desired_X[0] = frX; desired_X[1] = frY; desired_X[2] = frZ;
+      // then set the desired_X (in CMs)
+      desired_X[0] = frX*myInchToCM; desired_X[1] = frY*myInchToCM; desired_X[2] = frZ*myInchToCM;
       // evaluate inverse kinematics according to tracker position
       inverse_kinematics(desired_X, required_Q, starting_Q);
       // now: if the end-effector position has not changed thanks to this shift in required_Q,
@@ -277,14 +277,16 @@ void streamingThread::Body (void)
       // otherwise, go on searching.
       starting_Q = required_Q;
       current_X = actual_X;
+      // all Qs are in DEGREES
       cout.precision(3);
       cout << "Arm:\t"
            << "X\t" << desired_X[0]  << "\t" << desired_X[1] << "\t"  << desired_X[2] << "\t"
            << "Q\t" << required_Q[0] << "\t" << required_Q[1] << "\t" << required_Q[2] << "   \r";
       cout.flush();
 
-      // send IK commands to the arm - not so far
-      //      SendArmPositions(required_Q[0]*myDegToRad, required_Q[1]*myDegToRad, required_Q[2]*myDegToRad, 0, 0, 0 );
+      // send IK commands to the arm.
+      // WARNING: the PUMA arm has all the axes swapped around, therefore the minus signs
+      SendArmPositions(-required_Q[0]*myDegToRad, -required_Q[1]*myDegToRad, -required_Q[2]*myDegToRad, 0, 0, 0 );
 
       // send glove commands to the gripper - not so far
       //       dThumbMiddle  = 1.52 - (double)abs(_data.glove.thumb[0]-iThumbMiddleClosed) * (double)dThumbMiddleFactor;
@@ -375,7 +377,7 @@ namespace NR {
       }
       
       if (nfunk >= NMAX) {
-        nrerror("NMAX exceeded");
+        //        nrerror("NMAX exceeded");
         return;
       }
       
@@ -448,58 +450,67 @@ namespace NR {
 } // end of namespace NR
 
 // so you give me the forward kinematics in this function. it takes as input
-// the vector Q of joint coordinates and writes into X the Cartesian-space
+// the vector Q of joint coordinates IN DEGREES and writes into X the Cartesian-space
 // position of the end-effector
 void forward_kinematics(YVector& Q, YVector& X)
 {
   // forward kinematics for the PUMA 200 robotic arm
 
-  // length of the joints
-  const unsigned short L1 = 10, L2 = 5, L3 = 3;
+  // length & displacement of the joints
+  const unsigned short L1 = 35, L2 = 20, L3 = 27;
+  const unsigned short H1 = 8, H2 = 8;
 
-  // allocate configuration matrices
+  // allocate configuration matrices and vectors
   YMatrix e_csi_1(4,4), e_csi_2(4,4), e_csi_3(4,4), g_st_0(4,4), T(4,4);
-  YVector zero(4);
-  zero[0] = 0; zero[1] = 0; zero[2] = 0; zero[3] = 1;
+  YVector zero(4), translation(4), tmpX(4);
 
   // turn degrees into radiants
-  Q[0] = Q[0] * myDegToRad;
-  Q[1] = Q[1] * myDegToRad;
-  Q[2] = Q[2] * myDegToRad;
+  Q[0] *= myDegToRad;
+  Q[1] *= myDegToRad;
+  Q[2] *= myDegToRad;
 
   // evaluate configurations:
-  // first joint (rotation about X axis)
-  e_csi_1[0][0] =  cos(Q[0]); e_csi_1[0][1] = 0;          e_csi_1[0][2] = -sin(Q[0]); e_csi_1[0][3] = 0;
-  e_csi_1[1][0] =          0; e_csi_1[1][1] = 1;          e_csi_1[1][2] =          0; e_csi_1[1][3] = 0;
-  e_csi_1[2][0] =  sin(Q[0]); e_csi_1[2][1] = 0;          e_csi_1[2][2] =  cos(Q[0]); e_csi_1[2][3] = 0;
-  e_csi_1[3][0] =          0; e_csi_1[3][1] = 0;          e_csi_1[3][2] =          0; e_csi_1[3][3] = 1;
-  // second joint (rotation about Z axis)
-  e_csi_2[0][0] =  cos(Q[1]); e_csi_2[0][1] = -sin(Q[1]); e_csi_2[0][2] =          0; e_csi_2[0][3] = L1*sin(Q[1]);
-  e_csi_2[1][0] =  sin(Q[1]); e_csi_2[1][1] =  cos(Q[1]); e_csi_2[1][2] =          0; e_csi_2[1][3] = L1*(1-cos(Q[1]));
-  e_csi_2[2][0] =          0; e_csi_2[2][1] =          0; e_csi_2[2][2] =          1; e_csi_2[2][3] = 0;
-  e_csi_2[3][0] =          0; e_csi_2[3][1] =          0; e_csi_2[3][2] =          0; e_csi_2[3][3] = 1;
-  // third joint (again, rotation about Z axis)
-  e_csi_3[0][0] =  cos(Q[2]); e_csi_3[0][1] = -sin(Q[2]); e_csi_3[0][2] =          0; e_csi_3[0][3] = (L1+L2)*sin(Q[2]);
-  e_csi_3[1][0] =  sin(Q[2]); e_csi_3[1][1] =  cos(Q[2]); e_csi_3[1][2] =          0; e_csi_3[1][3] = (L1+L2)*(1-cos(Q[2]));
-  e_csi_3[2][0] =          0; e_csi_3[2][1] =          0; e_csi_3[2][2] =          1; e_csi_3[2][3] = 0;
-  e_csi_3[3][0] =          0; e_csi_3[3][1] =          0; e_csi_3[3][2] =          0; e_csi_3[3][3] = 1;
-  // starting configuration
-  g_st_0[0][0] = 1; g_st_0[0][1] = 0; g_st_0[0][2] = 0; g_st_0[0][3] = 0;
-  g_st_0[1][0] = 0; g_st_0[1][1] = 1; g_st_0[1][2] = 0; g_st_0[1][3] = L1+L2+L3;
-  g_st_0[2][0] = 0; g_st_0[2][1] = 0; g_st_0[2][2] = 1; g_st_0[2][3] = 0;
-  g_st_0[3][0] = 0; g_st_0[3][1] = 0; g_st_0[3][2] = 0; g_st_0[3][3] = 1;
-  // final configuration is obtained by chain-multiplying
-  T = e_csi_1.Transposed() * (e_csi_2 * (e_csi_3 * g_st_0));
+  // first joint (rotate Q[0] radiants about Y axis)
+  e_csi_1[0][0] =  cos(Q[0]); e_csi_1[0][1] = 0;          e_csi_1[0][2] =  sin(Q[0]); e_csi_1[0][3] =  0;
+  e_csi_1[1][0] =          0; e_csi_1[1][1] = 1;          e_csi_1[1][2] =          0; e_csi_1[1][3] =  0;
+  e_csi_1[2][0] = -sin(Q[0]); e_csi_1[2][1] = 0;          e_csi_1[2][2] =  cos(Q[0]); e_csi_1[2][3] =  0;
+  e_csi_1[3][0] =          0; e_csi_1[3][1] = 0;          e_csi_1[3][2] =          0; e_csi_1[3][3] =  1;
+  // second joint (rot Q[1] about Z, displaced L1 on Y, H1 on Z)
+  e_csi_2[0][0] =  cos(Q[1]); e_csi_2[0][1] = -sin(Q[1]); e_csi_2[0][2] =          0; e_csi_2[0][3] =  0;
+  e_csi_2[1][0] =  sin(Q[1]); e_csi_2[1][1] =  cos(Q[1]); e_csi_2[1][2] =          0; e_csi_2[1][3] =  L1;
+  e_csi_2[2][0] =          0; e_csi_2[2][1] =          0; e_csi_2[2][2] =          1; e_csi_2[2][3] =  H1;
+  e_csi_2[3][0] =          0; e_csi_2[3][1] =          0; e_csi_2[3][2] =          0; e_csi_2[3][3] =  1;
+  // third joint (rot Q[2] about Z, displaced L2 on X, H2 on Z)
+  e_csi_3[0][0] =  cos(Q[2]); e_csi_3[0][1] = -sin(Q[2]); e_csi_3[0][2] =          0; e_csi_3[0][3] =  L2;
+  e_csi_3[1][0] =  sin(Q[2]); e_csi_3[1][1] =  cos(Q[2]); e_csi_3[1][2] =          0; e_csi_3[1][3] =  0;
+  e_csi_3[2][0] =          0; e_csi_3[2][1] =          0; e_csi_3[2][2] =          1; e_csi_3[2][3] =  H2;
+  e_csi_3[3][0] =          0; e_csi_3[3][1] =          0; e_csi_3[3][2] =          0; e_csi_3[3][3] =  1;
+  // end effector (displaced -L3 on Y)
+  g_st_0[0][0]  =          1; g_st_0[0][1]  =          0; g_st_0[0][2]  =          0; g_st_0[0][3]  =  0;
+  g_st_0[1][0]  =          0; g_st_0[1][1]  =          1; g_st_0[1][2]  =          0; g_st_0[1][3]  = -L3;
+  g_st_0[2][0]  =          0; g_st_0[2][1]  =          0; g_st_0[2][2]  =          1; g_st_0[2][3]  =  0;
+  g_st_0[3][0]  =          0; g_st_0[3][1]  =          0; g_st_0[3][2]  =          0; g_st_0[3][3]  =  1;
+  // final configuration: chain-multiply all !!
+  T = e_csi_1 * (e_csi_2 * (e_csi_3 * g_st_0));
 
-  // give me end-effetor's position (that is, (0,0,0) in the e.e.'s frame)
-  YVector tmpX = T * zero;
-  // project on first three cordinates (we are not interested in the last 1)
+  // give me the end-effector's position translated back to its frame
+  zero[0] = 0; zero[1] = 0; zero[2] = 0; zero[3] = 1;
+  translation[0] = L2; translation[1] = L1-L3; translation[2] = H1+H2; translation[3] = 1;
+  tmpX = (T * zero) - translation;
+
+  // project on first three cordinates (we are not interested in the last "1")
   X[0] = tmpX[0]; X[1] = tmpX[1]; X[2] = tmpX[2];
+
+  // revert the Q to degrees
+  Q[0] /= myDegToRad;
+  Q[1] /= myDegToRad;
+  Q[2] /= myDegToRad;
 
 }
 
 // given the forward_kinematics function, this evaluates the
-// norm of the error w.r.t. a given desired position
+// norm of the error w.r.t. a given desired position (expressed
+// IN DEGREES)
 DP evaluate_error(Vec_I_DP& Q_NR)
 {
 
@@ -515,8 +526,9 @@ DP evaluate_error(Vec_I_DP& Q_NR)
 
 }
 
-// here we are. you get me the desired Cartesian position of the e.e., X,
-// and a starting point, init, and I am going to get you the appropriate Qs
+// here we are. you get me the desired Cartesian position 
+// of the e.e., X, and a starting point, init, and I am going
+// to get you the appropriate Qs (IN DEGREES)
 void inverse_kinematics(YVector& X, YVector& Q, YVector& init)
 {
 
@@ -526,7 +538,6 @@ void inverse_kinematics(YVector& X, YVector& Q, YVector& init)
   // four points for the simplex, three are the arguments,
   // tolerance is 1e-6, starting simplex is much bigger
   const int MP = 4,NP = 3;
-  //  const DP FTOL = 1.0e-6;
   const DP FTOL = 1.0e-6;
   const DP simplex_dim = 1;
 
@@ -670,93 +681,25 @@ void unregisterPorts()
 
 }
 
-int SendHandPositions(double dof1, double dof2, double dof3, double dof4)
-{
-
-  // the command, as a sprintf() format string
-  char* graspitcommand = "moveDOFs 1 4 %1.2f %1.2f %1.2f %1.2f 1 1 1 1 \n";
-
-  // socket communication with the GraspIt server
-  ACE_SOCK_Stream client_stream_;
-  ACE_INET_Addr remote_addr_(4765, "130.251.4.119");
-  ACE_SOCK_Connector connector_;
-  char receive_buf[500], message_buf[255];
-  
-  ACE_OS::sprintf( message_buf, graspitcommand, dof1, dof2, dof3, dof4 );
-
-  if (connector_.connect (client_stream_, remote_addr_) == -1) {
-    ACE_ERROR_RETURN ((LM_ERROR,"(%P|%t) %p\n","connection failed"),-1);
-  } else {
-    ACE_DEBUG ((LM_DEBUG,"(%P|%t) connected to %s\n", remote_addr_.get_host_name ()));
-  }
-  
-  for (int i=0; i < NO_ITERATIONS; i++) {
-    if (client_stream_.send_n (message_buf, ACE_OS::strlen(message_buf)+1, 0) == -1) {
-      ACE_ERROR_RETURN ((LM_ERROR,"(%P|%t) %p\n","send_n"),0);
-      break;
-    }
-  }
-  
-  // Read response from the client
-  int byte_count=0;
-  if( (byte_count=client_stream_.recv (receive_buf, 500, 0))==-1 ) {
-    ACE_ERROR ((LM_ERROR, "%p\n", "Error in recv"));
-  } else {
-    receive_buf[byte_count]=0;
-    //    ACE_OS::printf("Server received %s \n", receive_buf);
-  }
-  
-  // Close new endpoint
-  // Stopping connection with graspIt simulation
-  if (client_stream_.close () == -1) {
-    ACE_ERROR_RETURN ((LM_ERROR,"(%P|%t) %p\n","close"),-1);
-  }
-  
-  return 0;
-  
-}
-
 int SendArmPositions(double dof1, double dof2, double dof3, double dof4, double dof5, double dof6)
 {
 
-  // the command, as a sprintf() format string
-  char* graspitcommand = "moveDOFs 0 6 %1.2f %1.2f %1.2f %1.2f %1.2f %1.2f 1 1 1 1 1 1 \n";
+  YVector armCmd(6);
+  YARPBabyBottle tmpBottle;
+  tmpBottle.setID(YBVMotorLabel);
 
-  // socket communication with the GraspIt server
-  ACE_SOCK_Stream client_stream_;
-  ACE_INET_Addr remote_addr_(4765, "130.251.4.119");
-  ACE_SOCK_Connector connector_;
-  char receive_buf[500], message_buf[255];
-  
-  ACE_OS::sprintf( message_buf, graspitcommand, dof1, dof2, dof3, dof4, dof5, dof6 );
-  
-  if (connector_.connect (client_stream_, remote_addr_) == -1) {
-    ACE_ERROR_RETURN ((LM_ERROR,"(%P|%t) %p\n","connection failed"),-1);
-  } else {
-    ACE_DEBUG ((LM_DEBUG,"(%P|%t) connected to %s\n", remote_addr_.get_host_name ()));
-  }
-  
-  for (int i=0; i < NO_ITERATIONS; i++) {
-    if (client_stream_.send_n (message_buf, ACE_OS::strlen(message_buf)+1, 0) == -1) {
-      ACE_ERROR_RETURN ((LM_ERROR,"(%P|%t) %p\n","send_n"),0);
-      break;
-    }
-  }
-  
-  // Read response from the client
-  int byte_count=0;
-  if( (byte_count=client_stream_.recv (receive_buf, 500, 0))==-1 ) {
-    ACE_ERROR ((LM_ERROR, "%p\n", "Error in recv"));
-  } else {
-    receive_buf[byte_count]=0;
-    //    ACE_OS::printf("Server received %s \n", receive_buf);
-  }
-  
-  // Close new endpoint
-  // Stopping connection with graspIt simulation
-  if (client_stream_.close () == -1) {
-    ACE_ERROR_RETURN ((LM_ERROR,"(%P|%t) %p\n","close"),-1);
-  }
+  // send a command to the arm
+  armCmd(1) = dof1;
+  armCmd(2) = dof2;
+  armCmd(3) = dof3;
+  armCmd(4) = 0.0;
+  armCmd(5) = 0.0;
+  armCmd(6) = 0.0;
+  tmpBottle.reset();
+  tmpBottle.writeVocab(YBVocab(YBVArmNewCmd));
+  tmpBottle.writeYVector(armCmd);
+  _slave_outport.Content() = tmpBottle;
+  _slave_outport.Write();
   
   return 0;
   
@@ -860,8 +803,7 @@ int main()
        << refAz/myDegToRad << ", " << refEl/myDegToRad << ", " << refRo/myDegToRad << endl;
   cout.flush();
 
-
-goto skip1;
+goto skip_gripper_calibration;
 
   // ----------------------------
   // gather gripper calibration: open hand, snapshot, close hand, snapshot
@@ -923,7 +865,7 @@ goto skip1;
   cout << "Gripper calibration done." << endl;
   cout.flush();
 
-skip1:
+ skip_gripper_calibration:
 
   // ----------------------------------
   // activate the streaming!!
