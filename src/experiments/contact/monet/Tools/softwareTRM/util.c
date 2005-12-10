@@ -52,12 +52,16 @@ double speedOfSound(double temperature)
 
 double amplitude(double decibelLevel)
 {
+  //PFHIT: this function causes problems at low amplitudes
+  //return decibelLevel/100;
+
     /*  CONVERT 0-60 RANGE TO -60-0 RANGE  */
     decibelLevel -= VOL_MAX;
 
     /*  IF -60 OR LESS, RETURN AMPLITUDE OF 0  */
-    if (decibelLevel <= (-VOL_MAX))
+    if (decibelLevel <= (-VOL_MAX)) {
         return 0.0;
+    }
 
     /*  IF 0 OR GREATER, RETURN AMPLITUDE OF 1  */
     if (decibelLevel >= 0.0)

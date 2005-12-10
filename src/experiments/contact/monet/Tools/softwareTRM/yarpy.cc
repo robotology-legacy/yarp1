@@ -15,6 +15,47 @@ using namespace std;
 #define MAX_CHANNEL 20
 #define MAX_PARAM 20
 
+
+
+
+#include <time.h>
+#include <sys/time.h>
+
+double getTOD() {
+  timeval tv;
+  gettimeofday(&tv,NULL);
+
+  double s = tv.tv_usec/(1000*1000.0) + tv.tv_sec;
+  return s;
+}
+
+
+double smoothTime() {
+  double now = getTOD();
+  static double first = now;
+  double t = now-first;
+  static int ct = 0;
+  if (ct>0) {
+    static double dt = t;
+    static double pt = 0;
+    double factor = 0.01;
+    dt = dt*(1-factor)+(t/ct)*factor;
+    ct++;
+    pt = pt+dt;
+    return pt;
+  }
+  ct++;
+  return 0;
+}
+
+double getTime() { 
+  //double now = YARPTime::GetTimeAsSeconds();
+  double now = smoothTime();
+  static double first = now;
+  return now-first;
+}
+
+
 class VoiceCmd : public YARPThread {
 private:
   
@@ -37,7 +78,7 @@ public:
 
   virtual void Body() {
     while (1) {
-      printf("Waiting for input\n");
+      fprintf(stderr,"Waiting for input\n");
       char buf[1000];
       cin >> buf;
       if (buf[0] == 'g') {
@@ -47,6 +88,7 @@ public:
 	if (n1<MAX_PARAM&&n2<MAX_CHANNEL) {
 	  mutex.Wait();
 	  params[n1][n2] = v;
+	  printf("Got %d %d %g\n", n1, n2, v);
 	  mutex.Post();
 	}
       }
@@ -56,7 +98,18 @@ public:
 
   double iparams(int x, int y) {
     float factor = 0.05;
-    prev_params[x][y] += (params[x][y]-prev_params[x][y])*factor;
+    float prev = prev_params[x][y];
+    float diff = params[x][y]-prev;
+    if (fabs(diff)<0.2) {
+      factor = 0.4;
+    }
+    prev_params[x][y] += diff*factor;
+    /*
+    if (fabs(diff)<0.001) {
+      prev_params[x][y] = params[x][y];
+    }
+    */
+
     return prev_params[x][y];
   }
 
@@ -78,7 +131,7 @@ public:
       3 0-7 double radius[TOTAL_REGIONS];
       4 0 double velum;
     */
-    double now = YARPTime::GetTimeAsSeconds();
+    double now = getTime();
     static double first_now = now;
     double mark = now - first_now;
     static double last_mark = mark;
@@ -112,18 +165,43 @@ public:
       params[3][i] = max(sin(r),0.0);
     }
     */
+    float b = iparams(5,0)/25.0; // breathe
+    float breath_width = iparams(6,0)/4;
+
     mutex.Wait();
-    ext_params->glotVol = iparams(0,0);
+    ext_params->glotVol = iparams(0,0)/100;
     ext_params->glotPitch = iparams(0,1)/25;
-    ext_params->aspVol = iparams(1,0);
-    ext_params->fricVol = iparams(2,0)/10;
-    ext_params->fricPos = iparams(2,1)/10;
+    ext_params->aspVol = iparams(1,0)*3;
+    ext_params->fricVol = iparams(2,0)*3;
+    ext_params->fricPos = iparams(2,1);
     ext_params->fricCF = iparams(2,2)*100;
     ext_params->fricBW = 500+iparams(2,3)*100;
     for (int i=0; i<TOTAL_REGIONS; i++) {
-      ext_params->radius[i] = (100-iparams(3,i))/50;
+      ext_params->radius[i] = iparams(3,i); // (100-iparams(3,i))/50;
     }
-    ext_params->velum = iparams(4,0)/100;
+    ext_params->velum = iparams(4,0);
+    if (b>0.1) {
+      double t = now-first_now;
+      double phase = (1+sin(b*t))/2.0;
+      //double seq = sin(b*t-3.14159/2);
+      double phase2 = phase;
+      if (phase2>1) phase2 = 1;
+      double vol = (phase-0.5)*2;
+      if (vol<0) vol = 0;
+      //if (seq<0) vol = 1;
+      if (breath_width>0.1) {
+	vol = pow(vol,breath_width);
+      }
+      params[5][1] = ext_params->glotVol * vol;
+      params[5][2] = ext_params->glotPitch * phase2;
+      params[5][3] = ext_params->aspVol * vol;
+      params[5][4] = ext_params->fricVol * vol;
+      ext_params->glotVol = iparams(5,1);
+      ext_params->glotPitch = iparams(5,2);
+      ext_params->aspVol = iparams(5,3);
+      ext_params->fricVol = iparams(5,4);
+      //printf("%g %g\n", t, ext_params->glotVol);
+    }
     mutex.Post();
 
   }
@@ -154,13 +232,15 @@ void setParams(TRMParameters *params) {
 
 
 void yarpy() {
-  printf("Time is %g\n", YARPTime::GetTimeAsSeconds());
+  fprintf(stderr,"Time is %g\n", getTime());
+  /*
+  for (int i=0; i<10000; i++) {
+    printf("Time is %g\n", getTime());
+    YARPTime::DelayInSeconds(0.001);
+  }
+  exit(1);
+  */
   voice_cmd.Begin();
 }
 
 
-double getTime() { 
-  double now = YARPTime::GetTimeAsSeconds();
-  static double first = now;
-  return now-first;
-}

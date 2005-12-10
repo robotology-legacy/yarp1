@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include <math.h>
 #include "structs.h"
 
 
@@ -7,6 +8,7 @@
 
 #define LOOP_INPUT
 
+#define EXTERNAL_CONTROL
 
 
 ////////////////////////////////////////////////////////////////
@@ -28,6 +30,11 @@
 #define TWO_PI		(3.14159 * 2.0)
 
 static int dev = -1;
+static int mute = 0;
+
+void setMute(int m) {
+  mute = m;
+}
 
 void audio_init() {
   // open the audio device and set its playback parameters
@@ -135,7 +142,8 @@ INPUT *remoteInput(INPUT *input) {
   //input->parameters.glotVol *= 0.9;
   //input->parameters.radius[6] *= 0.7;
   TRMParameters *param = &(input->parameters);
-  
+
+  /*
   //param->glotPitch = 5;
   //param->glotVol = 100;
   //param->aspVol *= 1.1;
@@ -158,9 +166,18 @@ INPUT *remoteInput(INPUT *input) {
     }
   }
   param->velum = 0;
+  */
 
-  //TRMParameters fake;
+#ifdef EXTERNAL_CONTROL
   setParams(param);
+  param->glotVol *= 100;
+  // there's an annoying buzz when everything is turned down
+  if (param->glotVol<=1 && param->aspVol<=0.01 && param->fricVol<=0.01) {
+    setMute(1);
+  } else {
+    setMute(0);
+  }
+#endif
   
 #else
   input->parameters = fake_parameters;
@@ -172,6 +189,9 @@ INPUT *remoteInput(INPUT *input) {
 void remoteOutput(double signal) {
   static long int at = 0;
   at++;
+  if (mute) {
+    signal = 0;
+  }
   long int v = 128+signal*100000.0;
   if (v>255) v = 255;
   if (v<0) v = 0;
@@ -184,8 +204,8 @@ void remoteOutput(double signal) {
   if (signal>sig_top) sig_top = signal;
   if (signal<sig_bot) sig_bot = signal;
   if (at%100000==0) {
-    printf("%g\n", signal);
-    printf("At %ld    (input %g to %g) (output %ld to %ld)\n", at, sig_bot, sig_top, bot, top);
+    fprintf(stderr,"%g\n", signal);
+    fprintf(stderr,"At %ld    (input %g to %g) (output %ld to %ld)\n", at, sig_bot, sig_top, bot, top);
     top = -1;
     bot = 256;
     sig_top = -1e32;

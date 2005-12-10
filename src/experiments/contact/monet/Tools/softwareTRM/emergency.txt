@@ -1,5 +1,5 @@
 2         ; output file format (0 = AU, 1 = AIFF, 2 = WAVE)
-44100.0   ; output sample rate (22050.0, 44100.0)
+48000.0   ; output sample rate (22050.0, 44100.0)
 250.0     ; input control rate (1 - 1000 Hz)
 60.0	  ; master volume (0 - 60 dB)
 2         ; number of sound output channels (1 or 2)
@@ -8,10 +8,10 @@
 40.0      ; glottal pulse rise time (5 - 50 % of GP period)
 16.0      ; glottal pulse fall time minimum (5 - 50 % of GP period)
 32.0      ; glottal pulse fall time maximum (5 - 50 % of GP period)
-0.00      ; glottal source breathiness (0 - 10 % of GS amplitude)
+1.00      ; glottal source breathiness (0 - 10 % of GS amplitude)
 17.5      ; nominal tube length (10 - 20 cm)
-32        ; tube temperature (25 - 40 degrees celsius)
-1.50      ; junction loss factor (0 - 5 % of unity gain)
+25        ; tube temperature (25 - 40 degrees celsius)
+0.50      ; junction loss factor (0 - 5 % of unity gain)
 3.05      ; aperture scaling radius (3.05 - 12 cm)
 5000.0	  ; mouth aperture coefficient (100 - nyqyist Hz)
 5000.0	  ; nose aperture coefficient (100 - nyquist Hz)
@@ -23,7 +23,7 @@
 1500.0    ; throat lowpass frequency cutoff (50 - nyquist Hz)
 6.0       ; throat volume (0 - 48 dB)
 1	  ; pulse modulation of noise (0 = off, 1 = on)
-48.0      ; noise crossmix offset (30 - 60 db)
+54.0      ; noise crossmix offset (30 - 60 db)
 -17.243 0.000 0.000 0.000 5.500 2500.000 500.000 0.800 0.890 0.990 0.810 0.760 1.050 1.230 0.010 0.100
 -17.260 0.395 0.000 0.000 5.500 2500.000 500.000 0.800 0.892 0.994 0.814 0.763 1.051 1.224 0.010 0.100
 -17.265 0.789 0.000 0.000 5.500 2500.000 500.000 0.800 0.895 0.997 0.818 0.766 1.052 1.218 0.010 0.100
